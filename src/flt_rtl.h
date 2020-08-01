@@ -29,7 +29,7 @@
 /*                                                                  */
 /********************************************************************/
 
-#ifdef FLOAT_ZERO_DIV_ERROR
+#if FLOAT_ZERO_DIV_ERROR
 extern const rtlValueUnion f_const[];
 #define NOT_A_NUMBER      f_const[0].floatValue
 #define POSITIVE_INFINITY f_const[1].floatValue
@@ -67,4 +67,7 @@ floatType fltPow (floatType base, floatType exponent);
 #endif
 floatType fltRand (floatType lower_limit, floatType upper_limit);
 striType fltSci (floatType number, intType precision);
+#if !SQRT_FUNCTION_OKAY
+floatType fltSqrt (floatType number);
+#endif
 striType fltStr (floatType number);

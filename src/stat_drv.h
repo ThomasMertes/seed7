@@ -38,6 +38,52 @@
 /* _wstat64(), _wstati64() ). The macros are defined in the case    */
 /* when they are missing in "sys/stat.h".                           */
 
+
+#ifdef DEFINE_ST_MODE_MACROS
+
+#undef S_ISDIR
+#undef S_ISCHR
+#undef S_ISBLK
+#undef S_ISREG
+#undef S_ISFIFO
+#undef S_ISLNK
+#undef S_ISSOCK
+
+#undef S_IFDIR
+#undef S_IFCHR
+#undef S_IFBLK
+#undef S_IFREG
+#undef S_IFIFO
+#undef S_IFLNK
+#undef S_IFSOCK
+#undef S_IFMT
+
+#define S_IFDIR  0040000  /* Directory */
+#define S_IFCHR  0020000  /* Character device */
+#define S_IFBLK  0060000  /* Block device */
+#define S_IFREG  0100000  /* Regular file */
+#define S_IFIFO  0010000  /* FIFO */
+#define S_IFLNK  0120000  /* Symbolic link */
+#define S_IFSOCK 0140000  /* Socket */
+#define S_IFMT   (S_IFDIR | S_IFCHR | S_IFBLK | S_IFREG | S_IFIFO | S_IFLNK | S_IFSOCK)
+
+#undef S_IREAD
+#undef S_IWRITE
+#undef S_IEXEC
+
+#undef S_IRUSR
+#undef S_IWUSR
+#undef S_IXUSR
+#undef S_IRGRP
+#undef S_IWGRP
+#undef S_IXGRP
+#undef S_IROTH
+#undef S_IWOTH
+#undef S_IXOTH
+
+#endif
+
+
 #ifndef S_ISLNK
 #ifdef S_IFLNK
 #define S_ISLNK(mode) (((mode) & S_IFMT) == S_IFLNK)
@@ -95,7 +141,7 @@
 #endif
 
 #ifndef S_IWUSR
-#ifdef S_IREAD
+#ifdef S_IWRITE
 #define S_IWUSR S_IWRITE
 #else
 #define S_IWUSR 0000200
@@ -103,7 +149,7 @@
 #endif
 
 #ifndef S_IXUSR
-#ifdef S_IREAD
+#ifdef S_IEXEC
 #define S_IXUSR S_IEXEC
 #else
 #define S_IXUSR 0000100
@@ -147,7 +193,26 @@
 #endif
 
 
+#ifdef DEFINE_STRUCT_STATI64_EXT
+struct stati64Ext {
+    dev_t          st_dev;
+    ino_t          st_ino;
+    unsigned short st_mode;
+    short          st_nlink;
+    short          st_uid;
+    short          st_gid;
+    dev_t          st_rdev;
+    os_off_t       st_size;
+    time_t         st_atime;
+    time_t         st_mtime;
+    time_t         st_ctime;
+  };
+#endif
+
+
 #ifdef DEFINE_WSTATI64_EXT
 int wstati64Ext (const wchar_t *path, os_stat_struct *statBuf);
-int fstati64 (int fd, os_stat_struct *statBuf);
+#endif
+#ifdef DEFINE_FSTATI64_EXT
+int fstati64Ext (int fd, os_fstat_struct *statBuf);
 #endif

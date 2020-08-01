@@ -424,7 +424,7 @@ int wclosedir (WDIR *directory)
 
 
 
-#ifdef MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
+#if MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
 volumeListType *openVolumeList (void)
 
   {

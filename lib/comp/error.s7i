@@ -24,12 +24,12 @@
 (********************************************************************)
 
 
-const func string: voidRaiseError (in string: exceptionName) is func
+const func string: raiseError (in string: exceptionName) is func
 
   result
     var string: expr is "";
   begin
-    expr &:= "raise_error(";
+    expr &:= "raiseError(";
     expr &:= exceptionName;
     expr &:= ");";
   end func;

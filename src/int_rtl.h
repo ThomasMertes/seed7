@@ -75,6 +75,6 @@ striType intRadixPow2 (intType number, int shift, int mask, boolType upperCase);
 intType intRand (intType low, intType high);
 intType intSqrt (intType number);
 striType intStr (intType number);
-#ifdef ALLOW_STRITYPE_SLICES
+#if ALLOW_STRITYPE_SLICES
 striType intStrToBuffer (intType number, striType buffer);
 #endif

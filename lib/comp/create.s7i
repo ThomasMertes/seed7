@@ -137,7 +137,7 @@ const proc: process_sct_alloc (in type: object_type, in string: variableName,
     c_expr.expr &:= variableName;
     c_expr.expr &:= " == NULL)) {\n";
     c_expr.expr &:= diagnosticLine;
-    c_expr.expr &:= "raise_error(MEMORY_ERROR);\n";
+    c_expr.expr &:= "raiseError(MEMORY_ERROR);\n";
     c_expr.expr &:= diagnosticLine;
     c_expr.expr &:= "}\n";
     if structFreelist then

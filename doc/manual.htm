@@ -359,6 +359,7 @@ pre.indent {
 <li><a class="link" href="#errors_ILLEGAL_ACTION"><b><i>ILLEGAL_ACTION</i></b></a></li></ol></li>
 <li><a class="link" href="#errors_Handlers"><b>Handlers</b></a></li>
 <li><a class="link" href="#errors_Stack_trace"><b>Stack trace</b></a></li>
+<li><a class="link" href="#errors_Signals"><b>Signals</b></a></li>
 <li><a class="link" href="#errors_Other_errors_and_warnings"><b>Other errors and warnings</b></a></li></ol></li>
 </ol></div>
 
@@ -11464,7 +11465,7 @@ number <span class="op">+</span> <a class="type" href="#types_integer">integer</
 <a name="errors_RANGE_ERROR"><h4>15.2.4 RANGE_ERROR</h4></a>
 <p>
   A <tt><span class="exception">RANGE_ERROR</span></tt> occurs when an index is used to access an array or string
-  element byond the elements that actually exist. Many functions define
+  element beyond the elements that actually exist. Many functions define
   a range of valid arguments and raise <tt><span class="exception">RANGE_ERROR</span></tt> when this range is
   violated.
 </p><dl><dt>
@@ -11639,7 +11640,59 @@ Program received signal SIGFPE, Arithmetic exception.
   allows the debugger to show a backtrace for uncaught Seed7 exceptions.
 </p>
 
-<a name="errors_Other_errors_and_warnings"><h3>15.5 Other errors and warnings</h3></a>
+<a name="errors_Signals"><h3>15.5 Signals</h3></a>
+<p>
+  A signal is an asynchronous notification of an event. The event
+  can come from outside such as a request to terminate the program.
+  The event can also come from the program itself such as a memory
+  access violation (segfault). Several signals are handled by the
+  Seed7 run-time library. The interpreter respectively compiler
+  option <tt>-ts</tt> can be used to influence the behavior, when a signal
+  is sent to a Seed7 program (see below). The following signals are
+  handled by Seed7:
+</p><dl><dd><table border="1" cellspacing="0" cellpadding="5">
+  <tr><th>Signal  </th><th> Special handler      </th><th> Behavior without -ts   </th><th> Behavior with -ts</th></tr>
+  
+  <tr><td>SIGABRT </td><td> raise <tt><a class="exception" href="#errors_OVERFLOW_ERROR">OVERFLOW_ERROR</a></tt> </td><td> Terminate with message </td><td> Dialog to decide</td></tr>
+  <tr><td>SIGILL  </td><td> raise <tt><a class="exception" href="#errors_OVERFLOW_ERROR">OVERFLOW_ERROR</a></tt> </td><td> Terminate with message </td><td> Dialog to decide</td></tr>
+  <tr><td>SIGINT  </td><td> -                    </td><td> Terminate with message </td><td> Dialog to decide</td></tr>
+  <tr><td>SIGFPE  </td><td> raise <tt><a class="exception" href="#errors_NUMERIC_ERROR">NUMERIC_ERROR</a></tt>  </td><td> Terminate with message </td><td> Dialog to decide</td></tr>
+  <tr><td>SIGTERM </td><td> -                    </td><td> Terminate with message </td><td> Terminate with message</td></tr>
+  <tr><td>SIGSEGV </td><td> -                    </td><td> Terminate program      </td><td> Terminate with message</td></tr>
+  <tr><td>SIGPIPE </td><td> -                    </td><td> Ignore                 </td><td> Ignore</td></tr>
+  <tr><td>SIGWINCH</td><td> Resize console       </td><td> -                      </td><td> -</td></tr>
+  <tr><td>SIGALRM </td><td> Wait for some time   </td><td> -                      </td><td> -</td></tr>
+</table></dd></dl><p>
+  Depending on the actual C compiler and operating system the
+  signals SIGABRT or SIGILL might be used to raise <tt><a class="exception" href="#errors_OVERFLOW_ERROR">OVERFLOW_ERROR</a></tt>
+  and the signal SIGFPE might be used to raise <tt><a class="exception" href="#errors_NUMERIC_ERROR">NUMERIC_ERROR</a></tt>.
+</p><p>
+  When the interpreter respectively compiler option <tt>-ts</tt> has been
+  used some signals (see table above) trigger a dialog at the
+  console. E.g.:
+</p><pre class="indent">
+*** SIGNAL SIGINT RAISED
+
+*** The following commands are possible:
+  RETURN  Continue
+  *       Terminate
+  /       Trigger SIGFPE
+  !n      Raise exception with number (e.g.: !1 raises MEMORY_ERROR)
+</pre><p>
+  The user can enter a command and activate it with RETURN.
+  If the program was waiting for an input at the console the
+  input can be entered again:
+</p><pre class="indent">
+re-enter input>
+</pre><p>
+  Triggering SIGFPE is useful when the program runs in a debugger.
+  In this case SIGFPE will activate the debugger prompt. Raising
+  an exception (e.g.: MEMORY_ERROR) can be used to get a stack
+  trace (this works only in the interpreter). A compiled program
+  must be executed with a debugger to get a stack trace.
+</p>
+
+<a name="errors_Other_errors_and_warnings"><h3>15.6 Other errors and warnings</h3></a>
 <p><dl><dt>
   No more memory. Program terminated.</dt><dd>
     This error message is displayed after the compile time error 1

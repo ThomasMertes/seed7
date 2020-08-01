@@ -117,6 +117,8 @@ typedef union {
     rtlListType      listValue;      /* LISTOBJECT, EXPROBJECT */
     winType          winValue;       /* WINOBJECT */
     processType      processValue;   /* PROCESSOBJECT */
+    databaseType     databaseValue;  /* DATABASEOBJECT */
+    sqlStmtType      sqlStmtValue;   /* SQLSTMTOBJECT */
     rtlPtrType       ptrValue;
 /*    enumType         enumValue;      */
 /*    pollType         pollValue;      */

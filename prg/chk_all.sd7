@@ -70,8 +70,7 @@ const string: chkint_output is "\n\
   \Power works correct for selected values.\n\
   \The integer abs function works correct.\n\
   \Integer rand is correct for selected values.\n\
-  \Integer sqrt is correct for values between 0 and 1000.\n\
-  \Integer sqrt is correct for 11000 random values.\n\
+  \The integer square root works correct.\n\
   \The integer log2 function works correct.\n\
   \The integer log10 function works correct.\n\
   \The integer << and <<:= works correct.\n\

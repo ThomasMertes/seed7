@@ -37,11 +37,11 @@
 #include "stdlib.h"
 #include "stdio.h"
 #include "windows.h"
-#include "conio.h"
 #include "io.h"
 #include "fcntl.h"
 #include "sys/types.h"
 #include "sys/stat.h"
+#include "signal.h"
 #if UNISTD_H_PRESENT
 #include "unistd.h"
 #endif
@@ -54,13 +54,124 @@
 #include "rtl_err.h"
 
 
-#ifndef INTPTR_T_DEFINED
+#if !INTPTR_T_DEFINED
 #if POINTER_SIZE == 32
 typedef int32Type  intptr_t;
 #elif POINTER_SIZE == 64
 typedef int64Type  intptr_t;
 #endif
 #endif
+
+#if HAS_SIGACTION || HAS_SIGNAL
+static volatile int waitForHandler;
+#endif
+
+
+
+#if HAS_SIGACTION || HAS_SIGNAL
+static void handleIntSignal (int sig_num)
+
+  {
+#if SIGNAL_RESETS_HANDLER
+    signal(SIGINT, handleIntSignal);
+#endif
+    waitForHandler = 0;
+  }
+
+
+int readCharChkCtrlC (fileType inFile, boolType *sigintReceived)
+
+  {
+#if HAS_SIGACTION
+    struct sigaction sigAct;
+    struct sigaction oldSigAct;
+#elif HAS_SIGNAL
+    void (*oldSigHandler) (int);
+#endif
+    int ch = ' ';
+
+  /* readCharChkCtrlC */
+    logFunction(printf("readCharChkCtrlC(%d, %d)\n",
+                       safe_fileno(inFile), *sigintReceived););
+#if HAS_SIGACTION
+    sigAct.sa_handler = handleIntSignal;
+    sigemptyset(&sigAct.sa_mask);
+    sigAct.sa_flags = SA_RESTART;
+    if (unlikely(sigaction(SIGINT, &sigAct, &oldSigAct) != 0)) {
+#elif HAS_SIGNAL
+    oldSigHandler = signal(SIGINT, handleIntSignal);
+    if (unlikely(oldSigHandler == SIG_ERR)) {
+#endif
+      logError(printf("readCharChkCtrlC(%d, *): "
+                      "signal(SIGINT, handleIntSignal) failed:\n"
+                      "errno=%d\nerror: %s\n",
+                      safe_fileno(inFile), errno, strerror(errno)););
+      raise_error(FILE_ERROR);
+    } else {
+      waitForHandler = 1;
+      ch = getc(inFile);
+      *sigintReceived = feof(inFile);
+      if (*sigintReceived) {
+        clearerr(inFile);
+        fflush(inFile);
+        /* The interrupt thread runs in parallel. */
+        /* Wait until handleIntSignal() has finished. */
+        while (waitForHandler) ;
+      } /* if */
+#if HAS_SIGACTION
+      if (unlikely(sigaction(SIGINT, &oldSigAct, NULL) != 0)) {
+#elif HAS_SIGNAL
+      if (unlikely(signal(SIGINT, oldSigHandler) == SIG_ERR)) {
+#endif
+        logError(printf("readCharChkCtrlC(%d, *): "
+                        "signal(SIGINT, oldSigHandler) failed:\n"
+                        "errno=%d\nerror: %s\n",
+                        safe_fileno(inFile), errno, strerror(errno)););
+        raise_error(FILE_ERROR);
+      } /* if */
+    } /* if */
+    logFunction(printf("readCharChkCtrlC(%d, %d) --> %d\n",
+                       safe_fileno(inFile), *sigintReceived, ch););
+    return ch;
+  } /* readCharChkCtrlC */
+#endif
+
+
+
+static boolType stdinReady (void)
+
+  {
+    HANDLE hKeyboard;
+    DWORD numEvents;
+    INPUT_RECORD *events;
+    DWORD count;
+    DWORD idx;
+    boolType result = FALSE;
+
+  /* stdinReady */
+    logFunction(printf("stdinReady\n"););
+    hKeyboard = GetStdHandle(STD_INPUT_HANDLE);
+    if (hKeyboard != INVALID_HANDLE_VALUE &&
+        GetNumberOfConsoleInputEvents(hKeyboard, &numEvents) != 0) {
+      /* printf("numEvents: %lu\n", (unsigned long) numEvents); */
+      events = malloc(sizeof(INPUT_RECORD) * numEvents);
+      if (events != NULL) {
+        if (PeekConsoleInputW(hKeyboard, events, numEvents, &count) != 0) {
+          for (idx = 0; idx < count; idx++) {
+            /* printf("EventType: %d\n", events[idx].EventType); */
+            if (events[idx].EventType == KEY_EVENT &&
+                events[idx].Event.KeyEvent.bKeyDown &&
+                events[idx].Event.KeyEvent.wVirtualKeyCode == VK_RETURN) {
+              result = TRUE;
+            } /* if */
+          } /* for */
+        } /* if */
+        free(events);
+      } /* if */
+    } /* if */
+    logFunction(printf("stdinReady --> %d\n", result););
+    return result;
+  } /* stdinReady */
 
 
 
@@ -98,8 +209,8 @@ boolType filInputReady (fileType aFile)
         if (!read_buffer_empty(aFile)) {
           result = TRUE;
         } else if (file_no == 0) {
-          /* printf("kbhit()=%d\n", kbhit()); */
-          result = kbhit() != 0;
+          result = stdinReady();
+          /* printf("stdinReady()=%d\n", result); */
         } else {
           fileHandle = (HANDLE) _get_osfhandle(file_no);
           if (unlikely(fileHandle == (HANDLE) -1)) {

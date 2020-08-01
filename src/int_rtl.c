@@ -1024,7 +1024,8 @@ genericType ptrCreateGeneric (const genericType from_value)
  *  words: Wrong results without overflow checking are only
  *  acceptable when overflow checking would raise OVERFLOW_ERROR.
  *  @return n over k
- *  @exception OVERFLOW_ERROR When an integer overflow occurs.
+ *  @exception OVERFLOW_ERROR When the result would be less than
+ *             integer.first or greater than integer.last.
  */
 intType intBinom (intType n_number, intType k_number)
 
@@ -2343,7 +2344,7 @@ striType intStr (intType number)
 
 
 
-#ifdef ALLOW_STRITYPE_SLICES
+#if ALLOW_STRITYPE_SLICES
 striType intStrToBuffer (intType number, striType buffer)
 
   {

@@ -37,6 +37,7 @@
 #include "stdio.h"
 #include "string.h"
 #include "sys/stat.h"
+#include "sys/types.h"
 #include "windows.h"
 #include "io.h"
 #ifdef OS_STRI_WCHAR
@@ -46,6 +47,7 @@
 #include "errno.h"
 
 #include "common.h"
+#include "os_decls.h"
 #include "striutl.h"
 #include "fil_rtl.h"
 #include "tim_drv.h"
@@ -160,7 +162,7 @@ static unsigned int fileAttr2UnixMode (DWORD attr, const wchar_t *path)
 
   /* fileAttr2UnixMode */
     logFunction(printf("fileAttr2UnixMode(" FMT_X32 ", \"%ls\")\n",
-                       attr, path););
+                       attr, path != NULL ? path : "**NULL**"););
     mode = S_IRUSR | S_IRGRP | S_IROTH;
     if ((attr & FILE_ATTRIBUTE_READONLY) == 0) {
       mode |= S_IWUSR | S_IWGRP | S_IWOTH;
@@ -188,6 +190,7 @@ static unsigned int fileAttr2UnixMode (DWORD attr, const wchar_t *path)
 
 
 
+#ifdef DEFINE_WSTATI64_EXT
 /**
  *  Stat() function for a wide character path and a 64 bit file size.
  *  The windows stat() functions (_wstati64, ...) have a lot of issues:
@@ -260,20 +263,31 @@ int wstati64Ext (const wchar_t *path, os_stat_struct *statBuf)
     logFunctionResult(printf("%d\n", result););
     return result;
   } /* wstati64Ext */
+#endif
 
 
 
-int fstati64 (int fd, os_stat_struct *statBuf)
+#ifdef DEFINE_FSTATI64_EXT
+int fstati64Ext (int fd, os_fstat_struct *statBuf)
 
   {
-    BY_HANDLE_FILE_INFORMATION info;
+    HANDLE fileHandle;
+    BY_HANDLE_FILE_INFORMATION fileInfo;
+#ifdef os_fstat_orig
+#ifdef os_fstat_struct_orig
+    os_fstat_struct_orig tmp;
+#else
     struct stat tmp;
+#endif
+#endif
     int result;
 
-  /* fstati64 */
-    logFunction(printf("fstati64(%d, *)", fd);
+  /* fstati64Ext */
+    logFunction(printf("fstati64Ext(%d, *)", fd);
                 fflush(stdout););
-    result = fstat(fd, &tmp);
+    fileHandle = (HANDLE) _get_osfhandle(fd);
+#ifdef os_fstat_orig
+    result = os_fstat_orig(fd, &tmp);
     if (result == 0) {
       tmp.st_mode &= ~(S_IWGRP | S_IWOTH);
       statBuf->st_dev   =             tmp.st_dev;
@@ -287,19 +301,42 @@ int fstati64 (int fd, os_stat_struct *statBuf)
       statBuf->st_atime =             tmp.st_atime;
       statBuf->st_mtime =             tmp.st_mtime;
       statBuf->st_ctime =             tmp.st_ctime;
-      if (!GetFileInformationByHandle((HANDLE) _get_osfhandle(fd), &info)) {
-        logError(printf("fstati64(%d, *): "
-                        "GetFileInformationByHandle(\"" FMT_U_MEM "\", *) failed.\n",
-                        fd, (memSizeType) _get_osfhandle(fd)););
-        errno = EACCES;
-        result = -1;
-      } else {
-        if (!(info.dwFileAttributes & FILE_ATTRIBUTE_READONLY)) {
+      if (likely(GetFileInformationByHandle(fileHandle, &fileInfo) != 0)) {
+        if (!(fileInfo.dwFileAttributes & FILE_ATTRIBUTE_READONLY)) {
           statBuf->st_mode |= S_IWUSR;
         } /* if */
-        statBuf->st_size = ((int64Type) info.nFileSizeHigh << 32) | info.nFileSizeLow;
+        statBuf->st_size = ((int64Type) fileInfo.nFileSizeHigh << 32) |
+                                        fileInfo.nFileSizeLow;
+      } else {
+        logError(printf("fstati64Ext(%d, *): "
+                        "GetFileInformationByHandle(\"" FMT_U_MEM "\", *) failed.\n"
+                        "GetLastError=" FMT_U32 "\n",
+                        fd, (memSizeType) fileHandle, (uint32Type) GetLastError()););
+        errno = EACCES;
+        result = -1;
       } /* if */
+    } else
+#endif
+    if (likely(GetFileInformationByHandle(fileHandle, &fileInfo) != 0)) {
+      memset(statBuf, 0, sizeof(os_fstat_struct));
+      statBuf->st_dev   =             0; /* Not assigned */
+      statBuf->st_mode = fileAttr2UnixMode(fileInfo.dwFileAttributes, NULL);
+      statBuf->st_nlink =             fileInfo.nNumberOfLinks;
+      statBuf->st_rdev  =             0; /* Not assigned */
+      statBuf->st_size = ((int64Type) fileInfo.nFileSizeHigh << 32) |
+                                      fileInfo.nFileSizeLow;
+      statBuf->st_atime = fileTime2UnixTime(&fileInfo.ftLastAccessTime);
+      statBuf->st_mtime = fileTime2UnixTime(&fileInfo.ftLastWriteTime);
+      statBuf->st_ctime = fileTime2UnixTime(&fileInfo.ftCreationTime);
+    } else {
+      logError(printf("fstati64Ext(%d, *): "
+                      "GetFileInformationByHandle(\"" FMT_U_MEM "\", *) failed:\n"
+                      "GetLastError=" FMT_U32 "\n",
+                      fd, (memSizeType) fileHandle, (uint32Type) GetLastError()););
+      errno = ENOENT;
+      result = -1;
     } /* if */
     logFunctionResult(printf("%d\n", result););
     return result;
-  } /* fstati64 */
+  } /* fstati64Ext */
+#endif

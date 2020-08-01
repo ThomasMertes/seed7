@@ -69,15 +69,6 @@
 #include "sys/stat.h"
 #include "errno.h"
 
-#include "config.h"
-
-/**
- *  From config.h the following defines are used (for details see: read_me.txt):
- *
- *  MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
- *      Map absolute paths to operating system paths with drive letter.
- */
-
 #include "chkccomp.h"
 
 /**
@@ -175,20 +166,18 @@ static void prepareCompileCommand (void)
 #else
     strcpy(c_compiler, C_COMPILER);
 #endif
-#ifdef MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
-    mapAbsolutePathToDriveLetters = 1;
-#else
     {
       char *searchPath;
+
       searchPath = getenv("PATH");
       if (searchPath != NULL &&
           isalpha(searchPath[0]) && searchPath[1] == ':') {
         mapAbsolutePathToDriveLetters = 1;
       } /* if */
     }
-#endif
     if (mapAbsolutePathToDriveLetters) {
-      if (c_compiler[0] == '/') {
+      if (c_compiler[0] == '/' && isalpha(c_compiler[1]) &&
+          c_compiler[2] == '/') {
         c_compiler[0] = c_compiler[1];
         c_compiler[1] = ':';
       } /* if */
@@ -605,11 +594,11 @@ static void checkSignal (FILE *versionFile)
                          "volatile int res=4;\n"
                          "void handleSig(int sig){res=1;}\n"
                          "int main(int argc, char *argv[]){\n"
-                         "struct sigaction sig_act;\n"
-                         "sig_act.sa_handler = handleSig;\n"
-                         "sigemptyset(&sig_act.sa_mask);\n"
-                         "sig_act.sa_flags = SA_RESTART;\n"
-                         "if (sigaction(SIGINT, &sig_act, NULL) == -1){\n"
+                         "struct sigaction sigAct;\n"
+                         "sigAct.sa_handler = handleSig;\n"
+                         "sigemptyset(&sigAct.sa_mask);\n"
+                         "sigAct.sa_flags = SA_RESTART;\n"
+                         "if (sigaction(SIGINT, &sigAct, NULL) == -1){\n"
                          "puts(\"3\");"
                          "}else if (raise(SIGINT) != 0){puts(\"5\");\n"
                          "}else{printf(\"%d\\n\",res);}\n"
@@ -669,6 +658,8 @@ static void writeMacroDefs (FILE *versionFile)
       strcat(macroDefs, "#define likely(x)   __builtin_expect((x),1)\\n");
       strcat(macroDefs, "#define unlikely(x) __builtin_expect((x),0)\\n");
     } else {
+      fputs("#define likely(x) (x)\n", versionFile);
+      fputs("#define unlikely(x) (x)\n", versionFile);
       strcat(macroDefs, "#define likely(x) (x)\\n");
       strcat(macroDefs, "#define unlikely(x) (x)\\n");
     } /* if */
@@ -680,6 +671,7 @@ static void writeMacroDefs (FILE *versionFile)
       fputs("#define NORETURN __attribute__ ((noreturn))\n", versionFile);
       strcat(macroDefs, "#define NORETURN __attribute__ ((noreturn))\\n");
     } else {
+      fputs("#define NORETURN\n", versionFile);
       strcat(macroDefs, "#define NORETURN\\n");
     } /* if */
     fprintf(versionFile, "#define MACRO_DEFS \"%s\"\n", macroDefs);
@@ -763,7 +755,7 @@ static void checkPopen (FILE *versionFile)
       if (assertCompAndLnk(buffer)) {
         fprintf(versionFile, "#define FTELL_SUCCEEDS_FOR_PIPE %d\n", doTest() == 1);
       } /* if */
-      if (compileAndLinkOk("#include <stdio.h>\n"
+      if (assertCompAndLnk("#include <stdio.h>\n"
                            "int main(int argc, char *argv[])\n"
                            "{printf(\"x\\n\"); return 0;}\n")) {
         sprintf(fileName, "ctest%d%s", testNumber, EXECUTABLE_FILE_EXTENSION);
@@ -782,6 +774,9 @@ static void checkPopen (FILE *versionFile)
             fprintf(versionFile, "#define STDOUT_IS_IN_TEXT_MODE %d\n", doTest() == 1);
           } /* if */
           doRemove("ctest_a" EXECUTABLE_FILE_EXTENSION);
+        } else {
+          fprintf(logFile, "\n *** Unable to rename %s to ctest_a%s\n",
+                  fileName, EXECUTABLE_FILE_EXTENSION);
         } /* if */
       } /* if */
     } /* if */
@@ -1056,10 +1051,9 @@ static void numericSizes (FILE *versionFile)
       fprintf(versionFile, "#define UINT128TYPE %s\n", uint128TypeStri);
       fprintf(versionFile, "#define UINT128TYPE_STRI \"%s\"\n", uint128TypeStri);
     } /* if */
-    if (compileAndLinkOk("#include <stdint.h>\nint main(int argc, char *argv[])"
-                         "{intptr_t intptr = &argc;return 0;}\n")) {
-      fputs("#define INTPTR_T_DEFINED\n", versionFile);
-    } /* if */
+    fprintf(versionFile, "#define INTPTR_T_DEFINED %d\n",
+            compileAndLinkOk("#include <stdint.h>\nint main(int argc, char *argv[])"
+                             "{intptr_t intptr = &argc;return 0;}\n"));
     fprintf(logFile, " determined\n");
   } /* numericSizes */
 
@@ -1217,7 +1211,7 @@ static const char *determine_os_isnan_definition (const char *computeValues,
 
 
 static void defineTransferUnions (char * buffer)
-  
+
   { /* defineTransferUnions */
     strcat(buffer,
            "union {\n"
@@ -1291,13 +1285,23 @@ static void numericProperties (FILE *versionFile)
                     int64TypeStri);
     if (compileAndLinkOk(buffer)) {
       switch (doTest()) {
-        case 2:  fputs("#define OVERFLOW_SIGNAL \"SIGILL\"\n", versionFile);  break;
-        case 3:  fputs("#define OVERFLOW_SIGNAL \"SIGABRT\"\n", versionFile); break;
-        default: fputs("#define OVERFLOW_SIGNAL \"\"\n", versionFile);        break;
+        case 2:
+          fputs("#define OVERFLOW_SIGNAL SIGILL\n", versionFile);
+          fputs("#define OVERFLOW_SIGNAL_STR \"SIGILL\"\n", versionFile);
+          break;
+        case 3:
+          fputs("#define OVERFLOW_SIGNAL SIGABRT\n", versionFile);
+          fputs("#define OVERFLOW_SIGNAL_STR \"SIGABRT\"\n", versionFile);
+          break;
+        default:
+          fputs("#define OVERFLOW_SIGNAL 0\n", versionFile);
+          fputs("#define OVERFLOW_SIGNAL_STR \"\"\n", versionFile);
+          break;
       } /* switch */
     } else {
       fputs("#define INT_MULT64_COMPILE_ERROR\n", versionFile);
-      fputs("#define OVERFLOW_SIGNAL \"\"\n", versionFile);
+      fputs("#define OVERFLOW_SIGNAL 0\n", versionFile);
+      fputs("#define OVERFLOW_SIGNAL_STR \"\"\n", versionFile);
     } /* if */
 #ifdef TURN_OFF_FP_EXCEPTIONS
     _control87(MCW_EM, MCW_EM);
@@ -1376,24 +1380,23 @@ static void numericProperties (FILE *versionFile)
                    "dblTransfer.f = -1.0/0.0;\n"
                    "okay &= dblTransfer.i == 0xfff0000000000000;\n"
                    "printf(\"%d\\n\", okay);return 0;}\n");
-    if (!compileAndLinkOk("#include<stdio.h>\n"
-                          "int main(int argc,char *argv[]){"
-                          "printf(\"%f\", 1.0/0.0);return 0;}\n") ||
-        !compileAndLinkOk("#include<stdlib.h>\n#include<stdio.h>\n"
-                          "#include<float.h>\n#include<signal.h>\n"
-                          "void handleSig(int sig){puts(\"2\");exit(0);}\n"
-                          "int main(int argc,char *argv[]){\n"
+    fprintf(versionFile, "#define FLOAT_ZERO_DIV_ERROR %d\n",
+            !compileAndLinkOk("#include<stdio.h>\n"
+                              "int main(int argc,char *argv[]){"
+                              "printf(\"%f\", 1.0/0.0);return 0;}\n") ||
+            !compileAndLinkOk("#include<stdlib.h>\n#include<stdio.h>\n"
+                              "#include<float.h>\n#include<signal.h>\n"
+                              "void handleSig(int sig){puts(\"2\");exit(0);}\n"
+                              "int main(int argc,char *argv[]){\n"
 #ifdef TURN_OFF_FP_EXCEPTIONS
-                          "_control87(MCW_EM, MCW_EM);\n"
+                              "_control87(MCW_EM, MCW_EM);\n"
 #endif
-                          "signal(SIGFPE,handleSig);\nsignal(SIGILL,handleSig);\n"
-                          "signal(SIGINT,handleSig);\n"
-                          "printf(\"%d\\n\",1.0/0.0==0.0);return 0;}\n") ||
-        doTest() == 2 ||
-        !compileAndLinkOk(buffer) ||
-        doTest() != 1) {
-      fputs("#define FLOAT_ZERO_DIV_ERROR\n", versionFile);
-    } /* if */
+                              "signal(SIGFPE,handleSig);\nsignal(SIGILL,handleSig);\n"
+                              "signal(SIGINT,handleSig);\n"
+                              "printf(\"%d\\n\",1.0/0.0==0.0);return 0;}\n") ||
+            doTest() == 2 ||
+            !compileAndLinkOk(buffer) ||
+            doTest() != 1);
     if (assertCompAndLnk("#include<stdio.h>\n#include<float.h>\n"
                          "int main(int argc,char *argv[]){\n"
                          "printf(\"%d\\n\",\n"
@@ -1621,9 +1624,8 @@ static void numericProperties (FILE *versionFile)
             "printf(\"%%d\\n\", frexp_okay);\n"
             "return 0;}\n",
             os_isnan_definition, computeValues);
-    if (compileAndLinkWithOptionsOk(buffer, "", SYSTEM_LIBS)) {
-      fprintf(versionFile, "#define FREXP_INFINITY_NAN_OKAY %d\n", doTest());
-    } /* if */
+    fprintf(versionFile, "#define FREXP_INFINITY_NAN_OKAY %d\n",
+            compileAndLinkWithOptionsOk(buffer, "", SYSTEM_LIBS) ? doTest() : 0);
     sprintf(buffer,
             "#include<stdio.h>\n#include<string.h>\n"
             "#include<float.h>\n#include<math.h>\n"
@@ -1723,6 +1725,11 @@ static void numericProperties (FILE *versionFile)
             "printf(\"#define POW_UNDERFLOW_WITH_SIGN %%d\\n\",\n"
             "    doubleCompare(pow(-2.0, -2147483649.0), doubleNegativeZero) == 0 &&\n"
             "    doubleCompare(pow(-doubleTwo, -2147483649.0), doubleNegativeZero) == 0);\n"
+            "printf(\"#define SQRT_FUNCTION_OKAY %%d\\n\",\n"
+            "    os_isnan(sqrt(-2.0)) &&\n"
+            "    os_isnan(sqrt(-1.5)) &&\n"
+            "    os_isnan(sqrt(-1.0)) &&\n"
+            "    os_isnan(sqrt(-0.5)));\n"
             "{ char buffer[1024]; sprintf(buffer, \"%%1.1f\", floatNegativeZero);\n"
             "printf(\"#define PRINTS_NEGATIVE_ZERO %%d\\n\", buffer[0] == '-'); }\n"
             "return 0;}\n", os_isnan_definition, computeValues);
@@ -1843,7 +1850,7 @@ static void numericProperties (FILE *versionFile)
                          "return 0;}\n")) {
       fprintf(versionFile, "#define ATOF_ACCEPTS_HEX_NUMBERS %d\n", doTest());
     } /* if */
-     if (assertCompAndLnk("#include<stdio.h>\n#include<stdlib.h>\n#include <float.h>\n"
+    if (assertCompAndLnk("#include<stdio.h>\n#include<stdlib.h>\n#include <float.h>\n"
                          "int main(int argc,char *argv[]){\n"
                          "double num = DBL_MIN; char buffer[1024];\n"
                          "sprintf(buffer, \"%1.20e\", num / 2.0);\n"
@@ -1851,7 +1858,7 @@ static void numericProperties (FILE *versionFile)
                          "return 0;}\n")) {
       fprintf(versionFile, "#define STRTOD_ACCEPTS_DENORMAL_NUMBERS %d\n", doTest());
     } /* if */
-   if (assertCompAndLnk("#include<stdio.h>\n#include<stdlib.h>\n#include <float.h>\n"
+    if (assertCompAndLnk("#include<stdio.h>\n#include<stdlib.h>\n#include <float.h>\n"
                          "int main(int argc,char *argv[]){\n"
                          "double num = DBL_MIN; char buffer[1024];\n"
                          "sprintf(buffer, \"%1.20e\", num / 2.0);\n"
@@ -1934,10 +1941,10 @@ static void checkForLimitedStringLiteralLength (FILE *versionFile)
     /* printf("%s\n", buffer); */
     /* Some C compilers limit the maximum string literal length. */
     /* There are limits of 2,048 bytes and 16,384 (16K) bytes.   */
-    if (!compileAndLinkOk(buffer)) {
-      /* A string literal of size repeatCount * lineLength is not accepted. */
-      fputs("#define LIMITED_CSTRI_LITERAL_LEN\n", versionFile);
-    } /* if */
+    /* When LIMITED_CSTRI_LITERAL_LEN is 1 a string literal of   */
+    /* size repeatCount * lineLength is not accepted.            */
+    fprintf(versionFile, "#define LIMITED_CSTRI_LITERAL_LEN %d\n",
+            !compileAndLinkOk(buffer));
     free(buffer);
   } /* checkForLimitedStringLiteralLength */
 
@@ -2614,7 +2621,7 @@ static void determineMySqlDefines (FILE *versionFile,
     const char *libName = NULL;
     char dbHome[BUFFER_SIZE];
     char includeOption[BUFFER_SIZE];
-    const char *mySqlInclude;
+    const char *mySqlInclude = NULL;
     char buffer[BUFFER_SIZE];
     char linkerOptions[BUFFER_SIZE];
     int dbHomeExists = 0;
@@ -2624,10 +2631,8 @@ static void determineMySqlDefines (FILE *versionFile,
   /* determineMySqlDefines */
 #ifdef MYSQL_INCLUDE_OPTIONS
     strcpy(includeOption, MYSQL_INCLUDE_OPTIONS);
-    mySqlInclude = "mysql.h";
 #else
     includeOption[0] = '\0';
-    mySqlInclude = "mysql/mysql.h";
 #endif
     programFilesX86 = getenv("ProgramFiles(x86)");
     /* fprintf(logFile, "programFilesX86: %s\n", programFilesX86); */
@@ -2664,11 +2669,31 @@ static void determineMySqlDefines (FILE *versionFile,
       } /* if */
     } /* if */
     if (mySqlInclude == NULL) {
-      sprintf(buffer, "#include <%s>\n"
-                      "int main(int argc,char *argv[]){"
-                      "MYSQL *connection; return 0;}\n", mySqlInclude);
-      if (compileAndLinkWithOptionsOk(buffer, includeOption, "")) {
+      if (compileAndLinkWithOptionsOk("#include <mysql.h>\n"
+                                      "int main(int argc,char *argv[]){"
+                                      "MYSQL *connection; return 0;}\n",
+                                      "", "")) {
+        mySqlInclude = "mysql.h";
         fprintf(logFile, "\rMySql/MariaDb: %s found in system include directory.\n", mySqlInclude);
+      } else if (compileAndLinkWithOptionsOk("#include <mysql/mysql.h>\n"
+                                             "int main(int argc,char *argv[]){"
+                                             "MYSQL *connection; return 0;}\n",
+                                             "", "")) {
+        mySqlInclude = "mysql/mysql.h";
+        fprintf(logFile, "\rMySql/MariaDb: %s found in system include directory.\n", mySqlInclude);
+      } else if (compileAndLinkWithOptionsOk("#include <mysql.h>\n"
+                                             "int main(int argc,char *argv[]){"
+                                             "MYSQL *connection; return 0;}\n",
+                                             includeOption, "")) {
+        mySqlInclude = "mysql.h";
+        fprintf(logFile, "\rMySql/MariaDb: %s found with option %s.\n", mySqlInclude, includeOption);
+        appendOption(include_options, includeOption);
+      } else if (compileAndLinkWithOptionsOk("#include <mysql/mysql.h>\n"
+                                             "int main(int argc,char *argv[]){"
+                                             "MYSQL *connection; return 0;}\n",
+                                             includeOption, "")) {
+        mySqlInclude = "mysql/mysql.h";
+        fprintf(logFile, "\rMySql/MariaDb: %s found with option %s.\n", mySqlInclude, includeOption);
         appendOption(include_options, includeOption);
       } else if (compileAndLinkWithOptionsOk("#include \"db_my.h\"\n"
                                              "int main(int argc,char *argv[]){"
@@ -3270,29 +3295,49 @@ static void determineOdbcDefines (FILE *versionFile,
 #else
     includeOption[0] = '\0';
 #endif
-    if (compileAndLinkWithOptionsOk("#include <windows.h>\n#include <sql.h>\n"
-                                    "int main(int argc,char *argv[]){return 0;}\n",
+    if (compileAndLinkWithOptionsOk("#include <windows.h>\n"
+                                    "#include <sql.h>\n"
+                                    "#include <sqlext.h>\n"
+                                    "int main(int argc,char *argv[]){\n"
+                                    "SQLHDBC conn; SQLHSTMT stmt;\n"
+                                    "SQLSMALLINT h = SQL_HANDLE_STMT;\n"
+                                    "return 0;}\n",
                                     includeOption, "")) {
       fputs("#define WINDOWS_ODBC\n", versionFile);
       fputs("#define ODBC_INCLUDE_SQLEXT\n", versionFile);
       windowsOdbc = 1;
       odbcInclude = "sql.h";
-      fprintf(logFile, "\rOdbc: %s found in system include directory.\n", odbcInclude);
+      fprintf(logFile, "\rOdbc: %s found in system include directory.\n",
+              odbcInclude);
     } else if (compileAndLinkWithOptionsOk("#include <sql.h>\n"
-                                           "int main(int argc,char *argv[]){return 0;}\n",
+                                           "#include <sqlext.h>\n"
+                                           "int main(int argc,char *argv[]){\n"
+                                           "SQLHDBC conn; SQLHSTMT stmt;\n"
+                                           "SQLSMALLINT h = SQL_HANDLE_STMT;\n"
+                                           "return 0;}\n",
                                            includeOption, "")) {
       fputs("#define ODBC_INCLUDE_SQLEXT\n", versionFile);
       odbcInclude = "sql.h";
-      fprintf(logFile, "\rOdbc: %s found in system include directory.\n", odbcInclude);
-    } else if (compileAndLinkWithOptionsOk("#include \"tst_vers.h\"\n#include \"db_odbc.h\"\n"
-                                           "int main(int argc,char *argv[]){return 0;}\n",
+      fprintf(logFile, "\rOdbc: %s found in system include directory.\n",
+              odbcInclude);
+    } else if (compileAndLinkWithOptionsOk("#include \"tst_vers.h\"\n"
+                                           "#include \"db_odbc.h\"\n"
+                                           "int main(int argc,char *argv[]){\n"
+                                           "SQLHDBC conn; SQLHSTMT stmt;\n"
+                                           "SQLSMALLINT h = SQL_HANDLE_STMT;\n"
+                                           "return 0;}\n",
                                            includeOption, "") ||
                compileAndLinkWithOptionsOk("#define STDCALL\n"
-                                           "#include \"tst_vers.h\"\n#include \"db_odbc.h\"\n"
-                                           "int main(int argc,char *argv[]){return 0;}\n",
+                                           "#include \"tst_vers.h\"\n"
+                                           "#include \"db_odbc.h\"\n"
+                                           "int main(int argc,char *argv[]){\n"
+                                           "SQLHDBC conn; SQLHSTMT stmt;\n"
+                                           "SQLSMALLINT h = SQL_HANDLE_STMT;\n"
+                                           "return 0;}\n",
                                            includeOption, "")) {
       odbcInclude = "db_odbc.h";
-      fprintf(logFile, "\rOdbc: %s found in Seed7 include directory.\n", odbcInclude);
+      fprintf(logFile, "\rOdbc: %s found in Seed7 include directory.\n",
+              odbcInclude);
       includeOption[0] = '\0';
     } /* if */
     if (odbcInclude != NULL) {
@@ -3550,7 +3595,16 @@ static void writeReadBufferEmptyMacro (FILE *versionFile)
         define_read_buffer_empty = NULL;
       } /* if */
     } else {
+#if defined FILE_STRUCT_READ_PTR_OFFSET && defined FILE_STRUCT_READ_END_OFFSET
+      sprintf(macro_buffer,
+              "#define read_buffer_empty(fp) "
+              "(*((int **)&((char *)(fp))[%d]) >= *((int **)&((char *)(fp))[%d]))",
+              FILE_STRUCT_READ_PTR_OFFSET, FILE_STRUCT_READ_END_OFFSET);
+      define_read_buffer_empty = macro_buffer;
+      printf("%s\n", define_read_buffer_empty);
+#else
       define_read_buffer_empty = NULL;
+#endif
     } /* if */
     if (define_read_buffer_empty != NULL) {
       strcpy(buffer, "#include<stdio.h>\n");
@@ -3563,12 +3617,16 @@ static void writeReadBufferEmptyMacro (FILE *versionFile)
                      "read_buffer_empty(fp)?0:1);fclose(fp);}\n"
                      "return 0;}\n");
       if (!compileAndLinkOk(buffer) || doTest() != 1) {
+        fprintf(logFile, "\n *** %s does not work.\n",
+                define_read_buffer_empty);
         define_read_buffer_empty = NULL;
       } /* if */
+    } else {
+      fprintf(logFile, "\n *** Could not define macro read_buffer_empty.\n");
     } /* if */
     if (define_read_buffer_empty != NULL) {
       fprintf(versionFile, "%s\n", define_read_buffer_empty);
-      fprintf(logFile, "\rMacro define_read_buffer_empty defined.\n");
+      fprintf(logFile, "\rMacro read_buffer_empty defined.\n");
     } /* if */
   } /* writeReadBufferEmptyMacro */
 
@@ -3764,10 +3822,6 @@ int main (int argc, char **argv)
     } else {
       fputs("#define HOME_DIR_ENV_VAR {'H', 'O', 'M', 'E', 0}\n", versionFile);
     } /* if */
-    if (compileAndLinkOk("#include <stdio.h>\n#include <errno.h>\nint main(int argc,char *argv[])"
-                         "{int saved_errno=EXDEV; printf(\"%d\\n\",saved_errno); return 0;}\n")) {
-      fputs("#define EXDEV_IS_DEFINED\n", versionFile);
-    } /* if */
 #if defined OS_STRI_WCHAR && defined USE_WINSOCK
     /* Under Windows a rename between different    */
     /* devices fails with EACCES instead of EXDEV. */
@@ -3823,6 +3877,10 @@ int main (int argc, char **argv)
                          "return 0;}\n")) {
       fprintf(versionFile, "#define TRIGRAPH_SEQUENCES_ARE_REPLACED %d\n", doTest() == 1);
     } /* if */
+    fprintf(versionFile, "#define DIGRAPH_SEQUENCES_ARE_REPLACED %d\n",
+        compileAndLinkOk("%:include <stdio.h>\n"
+                         "int main (int argc, char *argv<::>)\n"
+                         "<%printf(\"1\\n\");return 0;%>\n"));
     checkForLimitedStringLiteralLength(versionFile);
     determineStackDirection(versionFile);
 #ifndef STACK_SIZE

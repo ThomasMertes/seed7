@@ -75,7 +75,7 @@ int pause (void);
 
 
 #if defined AWAIT_WITH_SIGACTION || defined AWAIT_WITH_SIGNAL
-long_jump_position wait_finished;
+longjmpPosition waitFinished;
 #endif
 
 
@@ -273,7 +273,7 @@ static void alarm_signal_handler (int sig_num)
 
   { /* alarm_signal_handler */
     logFunction(printf("alarm_signal_handler\n"););
-    do_longjmp(wait_finished, 1);
+    do_longjmp(waitFinished, 1);
     logFunction(printf("alarm_signal_handler -->\n"););
   } /* alarm_signal_handler */
 
@@ -292,7 +292,7 @@ void timAwait (intType year, intType month, intType day, intType hour,
     time_t await_second;
     struct timeval time_val;
     struct itimerval timer_value;
-    struct sigaction action;
+    struct sigaction sigAct;
 
   /* timAwait */
     logFunction(printf("timAwait(" F_D(04) "-" F_D(02) "-" F_D(02) " "
@@ -324,11 +324,11 @@ void timAwait (intType year, intType month, intType day, intType hour,
         } /* if */
         timer_value.it_interval.tv_sec = 0;
         timer_value.it_interval.tv_usec = 0;
-        action.sa_handler = &alarm_signal_handler;
-        sigemptyset(&action.sa_mask);
-        action.sa_flags = 0;
-        if (sigaction(SIGALRM, &action, NULL) == 0) {
-          if (do_setjmp(wait_finished) == 0) {
+        sigAct.sa_handler = &alarm_signal_handler;
+        sigemptyset(&sigAct.sa_mask);
+        sigAct.sa_flags = 0;
+        if (sigaction(SIGALRM, &sigAct, NULL) == 0) {
+          if (do_setjmp(waitFinished) == 0) {
             if (setitimer(ITIMER_REAL, &timer_value, NULL) == 0) {
               pause();
             } /* if */
@@ -349,7 +349,7 @@ static void alarm_signal_handler (int sig_num)
 
   { /* alarm_signal_handler */
     logFunction(printf("alarm_signal_handler\n"););
-    do_longjmp(wait_finished, 1);
+    do_longjmp(waitFinished, 1);
     logFunction(printf("alarm_signal_handler -->\n"););
   } /* alarm_signal_handler */
 
@@ -400,7 +400,7 @@ void timAwait (intType year, intType month, intType day, intType hour,
         timer_value.it_interval.tv_sec = 0;
         timer_value.it_interval.tv_usec = 0;
         if (signal(SIGALRM, alarm_signal_handler) != SIG_ERR) {
-          if (do_setjmp(wait_finished) == 0) {
+          if (do_setjmp(waitFinished) == 0) {
             if (setitimer(ITIMER_REAL, &timer_value, NULL) == 0) {
               pause();
             } /* if */

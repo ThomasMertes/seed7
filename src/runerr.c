@@ -1,7 +1,8 @@
 /********************************************************************/
 /*                                                                  */
 /*  s7   Seed7 interpreter                                          */
-/*  Copyright (C) 1990 - 2000  Thomas Mertes                        */
+/*  Copyright (C) 1990 - 2000, 2010 - 2011, 2014 - 2017             */
+/*                Thomas Mertes                                     */
 /*                                                                  */
 /*  This program is free software; you can redistribute it and/or   */
 /*  modify it under the terms of the GNU General Public License as  */
@@ -54,7 +55,7 @@
 #include "runerr.h"
 
 
-static long_jump_position sigsegv_occurred;
+static longjmpPosition sigsegvOccurred;
 
 
 
@@ -74,17 +75,10 @@ static void continue_question (objectType *exception)
            "  !n      Raise exception with number (e.g.: !1 raises MEMORY_ERROR)\n");
     ch = fgetc(stdin);
     if (ch == (int) '*') {
-      shut_drivers();
+      shutDrivers();
       exit(1);
     } else if (ch == (int) '/') {
-      /* signal(SIGFPE, SIG_DFL); */
-      position = 0;
-#ifdef DO_SIGFPE_WITH_DIV_BY_ZERO
-      printf("%d", 1 / position); /* trigger SIGFPE on purpose */
-#else
-      raise(SIGFPE);
-#endif
-      printf("\n*** Raising SIGFPE failed.\n");
+      triggerSigfpe();
     } /* if */
     position = 0;
     while (ch >= (int) ' ' && ch <= (int) '~' && position < 9) {
@@ -150,7 +144,7 @@ static void write_call_stack_element (const_listType stack_elem)
 
   /* write_call_stack_element */
     logFunction(printf("write_call_stack_element(" FMT_U_MEM ")\n",
-                       stack_elem););
+                       (memSizeType) stack_elem););
     if (stack_elem->obj != NULL) {
       if (stack_elem->next != NULL) {
         if (CATEGORY_OF_OBJ(stack_elem->obj) == CALLOBJECT ||
@@ -180,7 +174,7 @@ static void write_call_stack_element (const_listType stack_elem)
       prot_nl();
     } /* if */
     logFunction(printf("write_call_stack_element(" FMT_U_MEM ") -->\n",
-                       stack_elem););
+                       (memSizeType) stack_elem););
   } /* write_call_stack_element */
 
 
@@ -192,7 +186,7 @@ static void sigsegv_handler (int sig_num)
 #if SIGNAL_RESETS_HANDLER
     signal(SIGSEGV, sigsegv_handler);
 #endif
-    do_longjmp(sigsegv_occurred, 1);
+    do_longjmp(sigsegvOccurred, 1);
   } /* sigsegv_handler */
 #endif
 
@@ -202,47 +196,59 @@ void write_call_stack (const_listType stack_elem)
 
   {
 #if HAS_SIGACTION
-    struct sigaction action;
-    struct sigaction old_action;
-#endif
-#if HAS_SIGACTION || HAS_SIGNAL
-    void (*old_sigsegv_handler) (int sig_num);
+    struct sigaction sigAct;
+    struct sigaction oldSigAct;
+#elif HAS_SIGNAL
+    void (*oldSigHandler) (int sig_num);
 #endif
 
   /* write_call_stack */
     logFunction(printf("write_call_stack(" FMT_U_MEM ")\n",
-                       stack_elem););
+                       (memSizeType) stack_elem););
     if (stack_elem != NULL) {
       write_call_stack(stack_elem->next);
 #if HAS_SIGACTION
-      action.sa_handler = &sigsegv_handler;
-      sigemptyset(&action.sa_mask);
-      action.sa_flags = 0;
-      if (sigaction(SIGSEGV, &action, &old_action) == 0) {
-        old_sigsegv_handler = old_action.sa_handler;
+      sigAct.sa_handler = &sigsegv_handler;
+      sigemptyset(&sigAct.sa_mask);
+      sigAct.sa_flags = 0;
+      if (sigaction(SIGSEGV, &sigAct, &oldSigAct) == 0) {
 #elif HAS_SIGNAL
-      if ((old_sigsegv_handler = signal(SIGSEGV, sigsegv_handler)) != SIG_ERR) {
+      if ((oldSigHandler = signal(SIGSEGV, sigsegv_handler)) != SIG_ERR) {
 #endif
-        if (do_setjmp(sigsegv_occurred) == 0) {
+        if (do_setjmp(sigsegvOccurred) == 0) {
           write_call_stack_element(stack_elem);
         } else {
           prot_cstri("unaccessable stack data");
           prot_nl();
         } /* if */
 #if HAS_SIGACTION
-        action.sa_handler = old_sigsegv_handler;
-        sigemptyset(&action.sa_mask);
-        action.sa_flags = 0;
-        sigaction(SIGSEGV, &action, NULL);
+        sigaction(SIGSEGV, &oldSigAct, NULL);
       } /* if */
 #elif HAS_SIGNAL
-        signal(SIGSEGV, old_sigsegv_handler);
+        signal(SIGSEGV, oldSigHandler);
       } /* if */
 #endif
     } /* if */
     logFunction(printf("write_call_stack(" FMT_U_MEM ") -->\n",
-                       stack_elem););
+                       (memSizeType) stack_elem););
   } /* write_call_stack */
+
+
+
+void uncaught_exception (void)
+
+  { /* uncaught_exception */
+    prot_nl();
+    prot_cstri("*** Uncaught EXCEPTION ");
+    printobject(fail_value);
+    prot_cstri(" raised with");
+    prot_nl();
+    prot_list(fail_expression);
+    prot_nl();
+    prot_nl();
+    prot_cstri("Stack:\n");
+    write_call_stack(fail_stack);
+  } /* uncaught_exception */
 
 
 
@@ -338,7 +344,7 @@ void show_signal (void)
 
   { /* show_signal */
     interrupt_flag = FALSE;
-    printf("\n*** Program stopped with signal %s\n", signal_name(signal_number));
+    printf("\n*** Program suspended with signal %s\n", signalName(signal_number));
     continue_question(NULL);
   } /* show_signal */
 

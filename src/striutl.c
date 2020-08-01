@@ -73,8 +73,8 @@ const const_cstriType cstri_escape_sequence[] = {
 static const char null_string_marker[]      = "\\ *NULL_STRING* ";
 static const char null_byte_string_marker[] = "\\ *NULL_BYTE_STRING* ";
 
-#ifdef MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
-#ifdef EMULATE_ROOT_CWD
+#if MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
+#if EMULATE_ROOT_CWD
 const_os_striType current_emulated_cwd = NULL;
 #endif
 const os_charType emulated_root[] = {'/', '\0'};
@@ -510,7 +510,7 @@ boolType memcpy_from_strelem (register const ustriType dest,
 
 
 
-#ifdef STACK_LIKE_ALLOC_FOR_OS_STRI
+#if STACK_LIKE_ALLOC_FOR_OS_STRI
 boolType heapAllocOsStri (os_striType *var, memSizeType len)
 
   {
@@ -568,7 +568,7 @@ void heapFreeOsStri (const_os_striType var)
 
 
 
-#if OS_PATH_HAS_DRIVE_LETTERS || defined EMULATE_ROOT_CWD
+#if OS_PATH_HAS_DRIVE_LETTERS || EMULATE_ROOT_CWD
 static const strElemType *stri_charpos (const_striType stri, strElemType ch)
 
   {
@@ -2045,7 +2045,7 @@ striType stri_to_standard_path (const striType stri)
         } /* for */
       }
 #endif
-#ifdef MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
+#if MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
       if (result->size >= 2 && result->mem[1] == ':' &&
           ((result->mem[0] >= 'a' && result->mem[0] <= 'z') ||
            (result->mem[0] >= 'A' && result->mem[0] <= 'Z'))) {
@@ -2107,7 +2107,7 @@ striType cp_from_os_path (const_os_striType os_path, errInfoType *err_info)
 
 
 
-#ifdef EMULATE_ROOT_CWD
+#if EMULATE_ROOT_CWD
 void setEmulatedCwdToRoot (void)
 
   { /* setEmulatedCwdToRoot */
@@ -2371,8 +2371,8 @@ os_striType cp_to_os_path (const_striType std_path, int *path_info,
   /* cp_to_os_path */
     logFunction(printf("cp_to_os_path(\"%s\", %d)\n",
                        striAsUnquotedCStri(std_path), *err_info););
-#ifdef MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
-#ifdef FORBID_DRIVE_LETTERS
+#if MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
+#if FORBID_DRIVE_LETTERS
     if (unlikely(std_path->size >= 2 && (std_path->mem[std_path->size - 1] == '/' ||
                  (std_path->mem[1] == ':' &&
                  ((std_path->mem[0] >= 'a' && std_path->mem[0] <= 'z') ||
@@ -2402,17 +2402,17 @@ os_striType cp_to_os_path (const_striType std_path, int *path_info,
         result[0] = '\0';
       } /* if */
     } else {
-#ifdef MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
+#if MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
       if (std_path->size >= 1 && std_path->mem[0] == '/') {
         /* Absolute path: Try to map the path to a drive letter */
-#ifdef EMULATE_ROOT_CWD
+#if EMULATE_ROOT_CWD
         result = append_path(emulated_root, &std_path->mem[1], std_path->size - 1,
                              path_info, err_info);
 #else
         result = map_to_drive_letter(&std_path->mem[1], std_path->size - 1, err_info);
 #endif
       } else {
-#ifdef EMULATE_ROOT_CWD
+#if EMULATE_ROOT_CWD
         result = append_path(current_emulated_cwd, std_path->mem, std_path->size,
                              path_info, err_info);
 #else
@@ -2629,7 +2629,7 @@ os_striType cp_to_command (const const_striType commandPath,
                        striAsUnquotedCStri(commandPath));
                 printf("\"%s\", *)\n",
                        striAsUnquotedCStri(parameters)););
-#ifdef EMULATE_ROOT_CWD
+#if EMULATE_ROOT_CWD
     if (stri_charpos(commandPath, '/') != NULL) {
       os_commandPath = cp_to_os_path(commandPath, &path_info, err_info);
     } else if (unlikely(stri_charpos(commandPath, '\\') != NULL)) {

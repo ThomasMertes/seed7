@@ -29,6 +29,9 @@
 /*                                                                  */
 /********************************************************************/
 
+#define LOG_FUNCTIONS 0
+#define VERBOSE_EXCEPTIONS 0
+
 #include "version.h"
 
 #include "stdlib.h"
@@ -106,39 +109,59 @@ static charType map_from_437[] = {
 /* 250 */  183, 8730, 8319,  178, 9632,  160};
 
 
-static int map_key[] = {
-/*   0 */ K_UNDEF,  K_UNDEF,   K_UNDEF,  K_NULCHAR,  K_UNDEF, K_UNDEF, K_UNDEF, K_UNDEF,
-/*   8 */ K_UNDEF,  K_UNDEF,   K_UNDEF,  K_UNDEF,    K_UNDEF, K_UNDEF, K_UNDEF, K_BACKTAB,
-/*  16 */ K_ALT_Q,  K_ALT_W,   K_ALT_E,  K_ALT_R,    K_ALT_T, K_ALT_Y, K_ALT_U, K_ALT_I,
-/*  24 */ K_ALT_O,  K_ALT_P,   K_UNDEF,  K_UNDEF,    K_UNDEF, K_UNDEF, K_ALT_A, K_ALT_S,
-/*  32 */ K_ALT_D,  K_ALT_F,   K_ALT_G,  K_ALT_H,    K_ALT_J, K_ALT_K, K_ALT_L, K_UNDEF,
-/*  40 */ K_UNDEF,  K_UNDEF,   K_UNDEF,  K_UNDEF,    K_ALT_Z, K_ALT_X, K_ALT_C, K_ALT_V,
-/*  48 */ K_ALT_B,  K_ALT_N,   K_ALT_M,  K_UNDEF,    K_UNDEF, K_UNDEF, K_UNDEF, K_UNDEF,
-/*  56 */ K_UNDEF,  K_UNDEF,   K_UNDEF,  K_F1,       K_F2, K_F3, K_F4, K_F5,
-/*  64 */ K_F6,     K_F7,      K_F8,     K_F9,       K_F10, K_UNDEF, K_UNDEF, K_HOME,
-/*  72 */ K_UP,     K_PGUP,    K_UNDEF,  K_LEFT,     K_UNDEF, K_RIGHT, K_UNDEF, K_END,
-/*  80 */ K_DOWN,   K_PGDN,    K_INS,    K_DEL,      K_SFT_F1, K_SFT_F2, K_SFT_F3, K_SFT_F4,
-/*  88 */ K_SFT_F5, K_SFT_F6,  K_SFT_F7, K_SFT_F8,   K_SFT_F9, K_SFT_F10, K_CTL_F1, K_CTL_F2,
-/*  96 */ K_CTL_F3, K_CTL_F4,  K_CTL_F5, K_CTL_F6,   K_CTL_F7, K_CTL_F8, K_CTL_F9, K_CTL_F10,
-/* 104 */ K_ALT_F1, K_ALT_F2,  K_ALT_F3, K_ALT_F4,   K_ALT_F5, K_ALT_F6, K_ALT_F7, K_ALT_F8,
-/* 112 */ K_ALT_F9, K_ALT_F10, K_UNDEF,  K_CTL_LEFT, K_CTL_RIGHT, K_CTL_END, K_CTL_PGDN, K_CTL_HOME,
-/* 120 */ K_ALT_1,  K_ALT_2,   K_ALT_3,  K_ALT_4,    K_ALT_5, K_ALT_6, K_ALT_7, K_ALT_8,
-/* 128 */ K_ALT_9,  K_ALT_0,   K_UNDEF,  K_UNDEF,    K_CTL_PGUP, K_UNDEF, K_CTL_PGUP, K_UNDEF,
-/* 136 */ K_UNDEF,  K_UNDEF,   K_UNDEF,  K_UNDEF,    K_UNDEF, K_CTL_UP, K_UNDEF, K_UNDEF,
-/* 144 */ K_UNDEF,  K_CTL_DOWN, K_CTL_INS, K_CTL_DEL, K_UNDEF, K_UNDEF, K_UNDEF, K_UNDEF,
-/* 152 */ K_UNDEF,  K_UNDEF,   K_UNDEF,  K_UNDEF,    K_UNDEF, K_UNDEF, K_UNDEF, K_UNDEF,
-/* 160 */ K_UNDEF,  K_UNDEF,   K_UNDEF,  K_UNDEF,    K_UNDEF, K_CTL_INS, K_CTL_DEL, K_UNDEF,
-/* 168 */ K_UNDEF,  K_UNDEF,   K_UNDEF,  K_UNDEF,    K_UNDEF, K_UNDEF, K_UNDEF, K_UNDEF,
-/* 176 */ K_UNDEF,  K_UNDEF,   K_UNDEF,  K_UNDEF,    K_UNDEF, K_UNDEF, K_UNDEF, K_UNDEF,
-/* 184 */ K_UNDEF,  K_UNDEF,   K_UNDEF,  K_UNDEF,    K_UNDEF, K_UNDEF, K_UNDEF, K_UNDEF,
-/* 192 */ K_UNDEF,  K_UNDEF,   K_UNDEF,  K_UNDEF,    K_UNDEF, K_UNDEF, K_UNDEF, K_UNDEF,
-/* 200 */ K_UNDEF,  K_UNDEF,   K_UNDEF,  K_UNDEF,    K_UNDEF, K_UNDEF, K_UNDEF, K_UNDEF,
-/* 208 */ K_UNDEF,  K_UNDEF,   K_UNDEF,  K_UNDEF,    K_UNDEF, K_UNDEF, K_UNDEF, K_UNDEF,
-/* 216 */ K_UNDEF,  K_UNDEF,   K_UNDEF,  K_UNDEF,    K_UNDEF, K_UNDEF, K_UNDEF, K_UNDEF,
-/* 224 */ K_UNDEF,  K_UNDEF,   K_UNDEF,  K_UNDEF,    K_UNDEF, K_UNDEF, K_UNDEF, K_UNDEF,
-/* 232 */ K_UNDEF,  K_UNDEF,   K_UNDEF,  K_UNDEF,    K_UNDEF, K_UNDEF, K_UNDEF, K_UNDEF,
-/* 240 */ K_UNDEF,  K_UNDEF,   K_UNDEF,  K_UNDEF,    K_UNDEF, K_UNDEF, K_UNDEF, K_UNDEF,
-/* 248 */ K_UNDEF,  K_UNDEF,   K_UNDEF,  K_UNDEF,    K_UNDEF, K_UNDEF, K_UNDEF, K_UNDEF};
+static charType map_key[] = {
+/*   0 */ K_UNDEF,     K_UNDEF,     K_UNDEF,     K_NULCHAR,   K_UNDEF,
+/*   5 */ K_UNDEF,     K_UNDEF,     K_UNDEF,     K_UNDEF,     K_UNDEF,
+/*  10 */ K_UNDEF,     K_UNDEF,     K_UNDEF,     K_UNDEF,     K_UNDEF,
+/*  15 */ K_BACKTAB,   K_ALT_Q,     K_ALT_W,     K_ALT_E,     K_ALT_R,
+/*  20 */ K_ALT_T,     K_ALT_Y,     K_ALT_U,     K_ALT_I,     K_ALT_O,
+/*  25 */ K_ALT_P,     K_UNDEF,     K_UNDEF,     K_UNDEF,     K_UNDEF,
+/*  30 */ K_ALT_A,     K_ALT_S,     K_ALT_D,     K_ALT_F,     K_ALT_G,
+/*  35 */ K_ALT_H,     K_ALT_J,     K_ALT_K,     K_ALT_L,     K_UNDEF,
+/*  40 */ K_UNDEF,     K_UNDEF,     K_UNDEF,     K_UNDEF,     K_ALT_Z,
+/*  45 */ K_ALT_X,     K_ALT_C,     K_ALT_V,     K_ALT_B,     K_ALT_N,
+/*  50 */ K_ALT_M,     K_UNDEF,     K_UNDEF,     K_UNDEF,     K_UNDEF,
+/*  55 */ K_UNDEF,     K_UNDEF,     K_UNDEF,     K_UNDEF,     K_F1,
+/*  60 */ K_F2,        K_F3,        K_F4,        K_F5,        K_F6,
+/*  65 */ K_F7,        K_F8,        K_F9,        K_F10,       K_UNDEF,
+/*  70 */ K_UNDEF,     K_HOME,      K_UP,        K_PGUP,      K_UNDEF,
+/*  75 */ K_LEFT,      K_UNDEF,     K_RIGHT,     K_UNDEF,     K_END,
+/*  80 */ K_DOWN,      K_PGDN,      K_INS,       K_DEL,       K_SFT_F1,
+/*  85 */ K_SFT_F2,    K_SFT_F3,    K_SFT_F4,    K_SFT_F5,    K_SFT_F6,
+/*  90 */ K_SFT_F7,    K_SFT_F8,    K_SFT_F9,    K_SFT_F10,   K_CTL_F1,
+/*  95 */ K_CTL_F2,    K_CTL_F3,    K_CTL_F4,    K_CTL_F5,    K_CTL_F6,
+/* 100 */ K_CTL_F7,    K_CTL_F8,    K_CTL_F9,    K_CTL_F10,   K_ALT_F1,
+/* 105 */ K_ALT_F2,    K_ALT_F3,    K_ALT_F4,    K_ALT_F5,    K_ALT_F6,
+/* 110 */ K_ALT_F7,    K_ALT_F8,    K_ALT_F9,    K_ALT_F10,   K_UNDEF,
+/* 115 */ K_CTL_LEFT,  K_CTL_RIGHT, K_CTL_END,   K_CTL_PGDN,  K_CTL_HOME,
+/* 120 */ K_ALT_1,     K_ALT_2,     K_ALT_3,     K_ALT_4,     K_ALT_5,
+/* 125 */ K_ALT_6,     K_ALT_7,     K_ALT_8,     K_ALT_9,     K_ALT_0,
+/* 130 */ K_UNDEF,     K_UNDEF,     K_CTL_PGUP,  K_F11,       K_F12,
+/* 135 */ K_SFT_F11,   K_SFT_F12,   K_CTL_F11,   K_CTL_F12,   K_ALT_F11,
+/* 140 */ K_ALT_F12,   K_CTL_UP,    K_UNDEF,     K_UNDEF,     K_UNDEF,
+/* 145 */ K_CTL_DOWN,  K_CTL_INS,   K_CTL_DEL,   K_UNDEF,     K_UNDEF,
+/* 150 */ K_UNDEF,     K_UNDEF,     K_UNDEF,     K_UNDEF,     K_UNDEF,
+/* 155 */ K_UNDEF,     K_UNDEF,     K_UNDEF,     K_UNDEF,     K_UNDEF,
+/* 160 */ K_UNDEF,     K_UNDEF,     K_UNDEF,     K_UNDEF,     K_UNDEF,
+/* 165 */ K_CTL_INS,   K_CTL_DEL,   K_UNDEF,     K_UNDEF,     K_UNDEF,
+/* 170 */ K_UNDEF,     K_UNDEF,     K_UNDEF,     K_UNDEF,     K_UNDEF,
+/* 175 */ K_UNDEF,     K_UNDEF,     K_UNDEF,     K_UNDEF,     K_UNDEF,
+/* 180 */ K_UNDEF,     K_UNDEF,     K_UNDEF,     K_UNDEF,     K_UNDEF,
+/* 185 */ K_UNDEF,     K_UNDEF,     K_UNDEF,     K_UNDEF,     K_UNDEF,
+/* 190 */ K_UNDEF,     K_UNDEF,     K_UNDEF,     K_UNDEF,     K_UNDEF,
+/* 195 */ K_UNDEF,     K_UNDEF,     K_UNDEF,     K_UNDEF,     K_UNDEF,
+/* 200 */ K_UNDEF,     K_UNDEF,     K_UNDEF,     K_UNDEF,     K_UNDEF,
+/* 205 */ K_UNDEF,     K_UNDEF,     K_UNDEF,     K_UNDEF,     K_UNDEF,
+/* 210 */ K_UNDEF,     K_UNDEF,     K_UNDEF,     K_UNDEF,     K_UNDEF,
+/* 215 */ K_UNDEF,     K_UNDEF,     K_UNDEF,     K_UNDEF,     K_UNDEF,
+/* 220 */ K_UNDEF,     K_UNDEF,     K_UNDEF,     K_UNDEF,     K_UNDEF,
+/* 225 */ K_UNDEF,     K_UNDEF,     K_UNDEF,     K_UNDEF,     K_UNDEF,
+/* 230 */ K_UNDEF,     K_UNDEF,     K_UNDEF,     K_UNDEF,     K_UNDEF,
+/* 235 */ K_UNDEF,     K_UNDEF,     K_UNDEF,     K_UNDEF,     K_UNDEF,
+/* 240 */ K_UNDEF,     K_UNDEF,     K_UNDEF,     K_UNDEF,     K_UNDEF,
+/* 245 */ K_UNDEF,     K_UNDEF,     K_UNDEF,     K_UNDEF,     K_UNDEF,
+/* 250 */ K_UNDEF,     K_UNDEF,     K_UNDEF,     K_UNDEF,     K_UNDEF,
+/* 255 */ K_UNDEF};
 
 
 
@@ -164,6 +187,7 @@ charType kbdGetc (void)
     charType key;
 
   /* kbdGetc */
+    logFunction(printf("kbdGetc\n"););
     r.h.ah = (unsigned char) 0;
     int86(0x16, &r, &r);
     key = (charType) r.h.al;
@@ -175,6 +199,7 @@ charType kbdGetc (void)
     if (key == 13) {
       key = 10;
     } /* if */
+    logFunction(printf("kbdGetc --> %d\n", key););
     return key;
   } /* kbdGetc */
 
@@ -245,7 +270,7 @@ intType textwidth (striType stri,
 
 
 void textcolumns (striType stri, intType striwidth,
-    intType * cols, intType *rest)
+    intType *cols, intType *rest)
 
   { /* textcolumns */
     *cols = striwidth;
@@ -299,11 +324,12 @@ void conCursor (boolType on)
 
 
 
+/**
+ *  Moves the system curser to the given place of the console.
+ *  When no system cursor exists this procedure can be replaced by
+ *  a dummy procedure.
+ */
 void conSetCursor (intType line, intType column)
-
-  /* Moves the system curser to the given place of the console.     */
-  /* When no system cursor exists this procedure can be replaced by */
-  /* a dummy procedure.                                             */
 
   {
     union REGS r;
@@ -318,14 +344,15 @@ void conSetCursor (intType line, intType column)
 
 
 
+/**
+ *  This function writes the string stri to the console at the
+ *  position (lin, col). The position (lin, col) must be a legal
+ *  position of the console. The string stri is not allowed to go
+ *  beyond the right border of the console. All console output
+ *  must be done with this function.
+ */
 void conText (intType lin, intType col, ustriType stri,
 memSizeType length)
-
-  /* This function writes the string stri to the console at the     */
-  /* position (lin, col). The position (lin, col) must be a legal   */
-  /* position of the console. The string stri is not allowed to go  */
-  /* beyond the right border of the console. All console output     */
-  /* must be done with this function.                               */
 
   {
     intType pos;
@@ -345,11 +372,11 @@ memSizeType length)
 
 
 
+/**
+ *  Clears the area described by startlin, stoplin, startcol and stopcol.
+ */
 void conClear (intType startlin, intType startcol,
     intType stoplin, intType stopcol)
-
-  /* Clears the area described by startlin, stoplin, startcol and   */
-  /* stopcol.                                                       */
 
   {
     union REGS r;
@@ -367,13 +394,15 @@ void conClear (intType startlin, intType startcol,
 
 
 
+/**
+ *  Scrolls the area inside startlin, startcol, stoplin and
+ *  stopcol upward by count lines. The upper count lines of the
+ *  area are overwritten. At the lower end of the area blank lines
+ *  are inserted. Nothing is changed outside the area.
+ *  The calling function assures that count is greater or equal 1.
+ */
 void conUpScroll (intType startlin, intType startcol,
     intType stoplin, intType stopcol, intType count)
-
-  /* Scrolls the area inside startlin, startcol, stoplin and        */
-  /* stopcol upward by count lines. The upper count lines of the    */
-  /* area are overwritten. At the lower end of the area blank lines */
-  /* are inserted. Nothing is changed outside the area.             */
 
   {
     union REGS r;
@@ -391,13 +420,15 @@ void conUpScroll (intType startlin, intType startcol,
 
 
 
+/**
+ *  Scrolls the area inside startlin, startcol, stoplin and
+ *  stopcol downward by count lines. The lower count lines of the
+ *  area are overwritten. At the upper end of the area blank lines
+ *  are inserted. Nothing is changed outside the area.
+ *  The calling function assures that count is greater or equal 1.
+ */
 void conDownScroll (intType startlin, intType startcol,
     intType stoplin, intType stopcol, intType count)
-
-  /* Scrolls the area inside startlin, startcol, stoplin and        */
-  /* stopcol downward by count lines. The lower count lines of the  */
-  /* area are overwritten. At the upper end of the area blank lines */
-  /* are inserted. Nothing is changed outside the area.             */
 
   {
     union REGS r;
@@ -415,13 +446,15 @@ void conDownScroll (intType startlin, intType startcol,
 
 
 
+/**
+ *  Scrolls the area inside startlin, startcol, stoplin and
+ *  stopcol leftward by count columns. The left count columns of the
+ *  area are overwritten. At the right end of the area blank columns
+ *  are inserted. Nothing is changed outside the area.
+ *  The calling function assures that count is greater or equal 1.
+ */
 void conLeftScroll (intType startlin, intType startcol,
     intType stoplin, intType stopcol, intType count)
-
-  /* Scrolls the area inside startlin, startcol, stoplin and        */
-  /* stopcol leftward by count lines. The left count lines of the   */
-  /* area are overwritten. At the right end of the area blank lines */
-  /* are inserted. Nothing is changed outside the area.             */
 
   {
     int line;
@@ -446,13 +479,15 @@ void conLeftScroll (intType startlin, intType startcol,
 
 
 
+/**
+ *  Scrolls the area inside startlin, startcol, stoplin and
+ *  stopcol rightward by count columns. The right count columns of the
+ *  area are overwritten. At the left end of the area blank columns
+ *  are inserted. Nothing is changed outside the area.
+ *  The calling function assures that count is greater or equal 1.
+ */
 void conRightScroll (intType startlin, intType startcol,
     intType stoplin, intType stopcol, intType count)
-
-  /* Scrolls the area inside startlin, startcol, stoplin and        */
-  /* stopcol rightward by count lines. The right count lines of the */
-  /* area are overwritten. At the left end of the area blank lines  */
-  /* are inserted. Nothing is changed outside the area.             */
 
   {
     int line;
@@ -480,6 +515,7 @@ void conRightScroll (intType startlin, intType startcol,
 void conShut (void)
 
   { /* conShut */
+    logFunction(printf("conShut\n"););
     if (console_initialized) {
       standardcolour();
       conCursor(TRUE);
@@ -487,18 +523,21 @@ void conShut (void)
       conSetCursor(1, 24);
       console_initialized = FALSE;
     } /* if */
+    logFunction(printf("conShut -->\n"););
   } /* conShut */
 
 
 
+/**
+ *  Initializes and clears the console.
+ */
 int conOpen (void)
-
-  /* Initializes and clears the console.                            */
 
   {
     union REGS r;
 
   /* conOpen */
+    logFunction(printf("conOpen\n"););
     normalcolour();
     conClear(1, 1, 25, 80);
 
@@ -520,5 +559,6 @@ int conOpen (void)
     conCursor(FALSE);
     console_initialized = TRUE;
     atexit(conShut);
+    logFunction(printf("conOpen -->\n"););
     return 1;
   } /* conOpen */

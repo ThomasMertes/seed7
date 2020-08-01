@@ -1,7 +1,8 @@
 /********************************************************************/
 /*                                                                  */
 /*  s7   Seed7 interpreter                                          */
-/*  Copyright (C) 1990 - 2000  Thomas Mertes                        */
+/*  Copyright (C) 1990 - 2000, 2010 - 2011, 2014 - 2017             */
+/*                Thomas Mertes                                     */
 /*                                                                  */
 /*  This program is free software; you can redistribute it and/or   */
 /*  modify it under the terms of the GNU General Public License as  */
@@ -40,6 +41,7 @@ void run_error (objectCategory required, objectType argument);
 void empty_value (objectType argument);
 void var_required (objectType argument);
 void write_call_stack (const_listType stack_elem);
+void uncaught_exception (void);
 objectType raise_with_arguments (objectType exception, listType list);
 objectType raise_exception (objectType exception);
 void show_signal (void);

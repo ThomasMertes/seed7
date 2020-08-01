@@ -331,7 +331,7 @@ typedef uint64Type         bitSetType;
 #endif
 
 
-#ifdef FLOATTYPE_DOUBLE
+#if FLOATTYPE_DOUBLE
 typedef double             floatType;
 #define FLOATTYPE_SIZE DOUBLE_SIZE
 #if INT_RANGE_IN_DOUBLE_MAX <= INTTYPE_MAX
@@ -473,22 +473,11 @@ typedef int errInfoType;
 #if HAS_SIGSETJMP
 #define do_setjmp(env)        sigsetjmp(env, 1)
 #define do_longjmp(env, val)  siglongjmp(env, val);
-#define long_jump_position sigjmp_buf
+#define longjmpPosition sigjmp_buf
 #else
 #define do_setjmp(env)        setjmp(env)
 #define do_longjmp(env, val)  longjmp(env, val);
-#define long_jump_position jmp_buf
-#endif
-
-
-#ifndef likely
-#define likely(x) (x)
-#endif
-#ifndef unlikely
-#define unlikely(x) (x)
-#endif
-#ifndef NORETURN
-#define NORETURN
+#define longjmpPosition jmp_buf
 #endif
 
 
@@ -536,10 +525,10 @@ typedef struct setStruct {
 
 typedef struct striStruct {
     memSizeType size;
-#ifdef WITH_STRI_CAPACITY
+#if WITH_STRI_CAPACITY
     memSizeType capacity;
 #endif
-#ifdef ALLOW_STRITYPE_SLICES
+#if ALLOW_STRITYPE_SLICES
     strElemType *mem;
     strElemType  mem1[1];
 #else
@@ -549,7 +538,7 @@ typedef struct striStruct {
 
 typedef struct bstriStruct {
     memSizeType size;
-#ifdef ALLOW_BSTRITYPE_SLICES
+#if ALLOW_BSTRITYPE_SLICES
     ucharType *mem;
     ucharType  mem1[1];
 #else
@@ -664,10 +653,10 @@ typedef mpz_srcptr  const_bigIntType;
 
 #if VERBOSE_EXCEPTIONS_EVERYWHERE || (defined VERBOSE_EXCEPTIONS && VERBOSE_EXCEPTIONS)
 #define logError(logStatements) printf(" *** "); logStatements
-#define logErrorIsActive(logSupportStatements) logSupportStatements
+#define logErrorIfTrue(cond, logStatements) if (unlikely(cond)) { logError(logStatements) }
 #else
 #define logError(logStatements)
-#define logErrorIsActive(logSupportStatements)
+#define logErrorIfTrue(cond, logStatements)
 #endif
 
 #define ANY_LOG_ACTIVE (LOG_FUNCTIONS || LOG_FUNCTIONS_EVERYWHERE || \

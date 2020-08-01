@@ -382,12 +382,12 @@ const func tbsCertificateType: getTbsCertificate (in string: stri, inout integer
     var tbsCertificateType: tbsCertificate is tbsCertificateType.value;
   local
     var asn1DataElement: dataElem is asn1DataElement.value;
-    var integer: byond is 0;
+    var integer: beyond is 0;
   begin
     dataElem := getAsn1DataElement(stri, pos);
     # writeln("getTbsCertificate: tagCategory=" <& ord(dataElem.tagCategory));
     if dataElem.tagCategory = tagSequence then
-      byond := pos + dataElem.length;
+      beyond := pos + dataElem.length;
       dataElem := getAsn1DataElement(stri, pos);
       if dataElem.tagClass = contextSpecificTagClass and dataElem.constructed then
         dataElem := getAsn1DataElement(stri, pos);
@@ -408,8 +408,8 @@ const func tbsCertificateType: getTbsCertificate (in string: stri, inout integer
       tbsCertificate.subject := getName(stri, pos);
       tbsCertificate.subjectPublicKeyInfo := getPublicKeyInfo(stri, pos);
       # writeln("pos=" <& pos);
-      # writeln("byond=" <& byond);
-      if pos < byond then
+      # writeln("beyond=" <& beyond);
+      if pos < beyond then
         dataElem := getAsn1DataElement(stri, pos);
         if dataElem.constructed and ord(dataElem.tagCategory) = 3 then
           # EXPLICIT TAG 3

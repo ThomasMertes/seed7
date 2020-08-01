@@ -1323,17 +1323,19 @@ int conOpen (void)
 #ifdef SIGWINCH
 #if HAS_SIGACTION
         {
-          struct sigaction sig_act;
+          struct sigaction sigAct;
 
-          sig_act.sa_handler = handle_winch_signal;
-          sigemptyset(&sig_act.sa_mask);
-          sig_act.sa_flags = SA_RESTART;
-          if (sigaction(SIGWINCH, &sig_act, NULL) == -1) {
+          sigAct.sa_handler = handle_winch_signal;
+          sigemptyset(&sigAct.sa_mask);
+          sigAct.sa_flags = SA_RESTART;
+          if (unlikely(sigaction(SIGWINCH, &sigAct, NULL) != 0)) {
             raise_error(FILE_ERROR);
           } /* if */
         }
 #elif HAS_SIGNAL
-        signal(SIGWINCH, handle_winch_signal);
+        if (unlikely(signal(SIGWINCH, handle_winch_signal) == SIG_ERR)) {
+          raise_error(FILE_ERROR);
+        } /* if */
 #endif
 #endif
         result = 1;

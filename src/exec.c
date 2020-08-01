@@ -53,6 +53,7 @@
 
 #undef EXTERN
 #define EXTERN
+#define DO_INIT
 #include "exec.h"
 
 
@@ -62,6 +63,16 @@ extern memSizeType max_stack_size;
 #endif
 
 extern boolType interpreter_exception;
+
+
+
+void suspendInterpreter (int signalNum)
+
+  { /* suspendInterpreter */
+    logFunction(printf("suspendInterpreter(%d)\n", signalNum););
+    interrupt_flag = TRUE;
+    signal_number = signalNum;
+  } /* suspendInterpreter */
 
 
 

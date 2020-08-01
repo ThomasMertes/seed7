@@ -250,6 +250,7 @@ vecfont10.s7i Standard vector font with capHeight 10.
 vecfont18.s7i Standard vector font with capHeight 18.
 vector3d.s7i 3D vector support library
 vectorfont.s7i Defines the vector font type.
+wildcard.s7i Wild card match and find matching files.
 window.s7i   Filter file for text windows with random access
 wrinum.s7i   Functions to write numbers
 x509cert.s7i Support for X.509 public key certificates.

@@ -29,6 +29,9 @@
 /*                                                                  */
 /********************************************************************/
 
+#define LOG_FUNCTIONS 0
+#define VERBOSE_EXCEPTIONS 0
+
 #include "version.h"
 
 #include "stdlib.h"
@@ -305,6 +308,7 @@ static void kbd_init (void)
     int file_no;
 
   /* kbd_init */
+    logFunction(printf("kbd_init\n"););
     file_no = fileno(stdin);
     tcgetattr(file_no, &term_descr);
     lflag_bak = term_descr.c_lflag;
@@ -317,6 +321,7 @@ static void kbd_init (void)
     tcsetattr(file_no, TCSANOW, &term_descr);
     keybd_initialized = TRUE;
     atexit(kbdShut);
+    logFunction(printf("kbd_init -->\n"););
   } /* kbd_init */
 
 
@@ -361,6 +366,7 @@ charType kbdGetc (void)
     charType result;
 
   /* kbdGetc */
+    logFunction(printf("kbdGetc\n"););
     if (!keybd_initialized) {
       kbd_init();
     } /* if */
@@ -373,6 +379,7 @@ charType kbdGetc (void)
     if (result == erase_ch) {
       result = '\b';
     } /* if */
+    logFunction(printf("kbdGetc --> %d\n", result););
     return result;
   } /* kbdGetc */
 
@@ -487,11 +494,12 @@ void conCursor (boolType on)
 
 
 
+/**
+ *  Moves the system curser to the given place of the console.
+ *  When no system cursor exists this procedure can be replaced by
+ *  a dummy procedure.
+ */
 void conSetCursor (intType line, intType column)
-
-  /* Moves the system curser to the given place of the console.     */
-  /* When no system cursor exists this procedure can be replaced by */
-  /* a dummy procedure.                                             */
 
   { /* conSetCursor */
     putctl(tgoto(CM, column - 1, line - 1)); /* cursor motion */
@@ -500,14 +508,15 @@ void conSetCursor (intType line, intType column)
 
 
 
+/**
+ *  This function writes the string stri to the console at the
+ *  position (lin, col). The position (lin, col) must be a legal
+ *  position of the console. The string stri is not allowed to go
+ *  beyond the right border of the console. All console output
+ *  must be done with this function.
+ */
 void conText (intType lin, intType col, ustriType stri,
 memSizeType length)
-
-  /* This function writes the string stri to the console at the     */
-  /* position (lin, col). The position (lin, col) must be a legal   */
-  /* position of the console. The string stri is not allowed to go  */
-  /* beyond the right border of the console. All console output     */
-  /* must be done with this function.                               */
 
   {
     int start_pos;
@@ -548,11 +557,11 @@ memSizeType length)
 
 
 
+/**
+ *  Clears the area described by startlin, stoplin, startcol and stopcol.
+ */
 void conClear (intType startlin, intType startcol,
     intType stoplin, intType stopcol)
-
-  /* Clears the area described by startlin, stoplin, startcol and   */
-  /* stopcol.                                                       */
 
   {
     int lin;
@@ -595,13 +604,15 @@ void conClear (intType startlin, intType startcol,
 
 
 
+/**
+ *  Scrolls the area inside startlin, startcol, stoplin and
+ *  stopcol upward by count lines. The upper count lines of the
+ *  area are overwritten. At the lower end of the area blank lines
+ *  are inserted. Nothing is changed outside the area.
+ *  The calling function assures that count is greater or equal 1.
+ */
 void conUpScroll (intType startlin, intType startcol,
     intType stoplin, intType stopcol, intType count)
-
-  /* Scrolls the area inside startlin, startcol, stoplin and        */
-  /* stopcol upward by count lines. The upper count lines of the    */
-  /* area are overwritten. At the lower end of the area blank lines */
-  /* are inserted. Nothing is changed outside the area.             */
 
   {
     int number;
@@ -668,13 +679,15 @@ void conUpScroll (intType startlin, intType startcol,
 
 
 
+/**
+ *  Scrolls the area inside startlin, startcol, stoplin and
+ *  stopcol downward by count lines. The lower count lines of the
+ *  area are overwritten. At the upper end of the area blank lines
+ *  are inserted. Nothing is changed outside the area.
+ *  The calling function assures that count is greater or equal 1.
+ */
 void conDownScroll (intType startlin, intType startcol,
     intType stoplin, intType stopcol, intType count)
-
-  /* Scrolls the area inside startlin, startcol, stoplin and        */
-  /* stopcol downward by count lines. The lower count lines of the  */
-  /* area are overwritten. At the upper end of the area blank lines */
-  /* are inserted. Nothing is changed outside the area.             */
 
   {
     int number;
@@ -742,13 +755,15 @@ void conDownScroll (intType startlin, intType startcol,
 
 
 
+/**
+ *  Scrolls the area inside startlin, startcol, stoplin and
+ *  stopcol leftward by count columns. The left count columns of the
+ *  area are overwritten. At the right end of the area blank columns
+ *  are inserted. Nothing is changed outside the area.
+ *  The calling function assures that count is greater or equal 1.
+ */
 void conLeftScroll (intType startlin, intType startcol,
     intType stoplin, intType stopcol, intType count)
-
-  /* Scrolls the area inside startlin, startcol, stoplin and        */
-  /* stopcol leftward by count lines. The left count lines of the   */
-  /* area are overwritten. At the right end of the area blank lines */
-  /* are inserted. Nothing is changed outside the area.             */
 
   {
     int number;
@@ -847,13 +862,15 @@ void conLeftScroll (intType startlin, intType startcol,
 
 
 
+/**
+ *  Scrolls the area inside startlin, startcol, stoplin and
+ *  stopcol rightward by count columns. The right count columns of the
+ *  area are overwritten. At the left end of the area blank columns
+ *  are inserted. Nothing is changed outside the area.
+ *  The calling function assures that count is greater or equal 1.
+ */
 void conRightScroll (intType startlin, intType startcol,
     intType stoplin, intType stopcol, intType count)
-
-  /* Scrolls the area inside startlin, startcol, stoplin and        */
-  /* stopcol rightward by count lines. The right count lines of the */
-  /* area are overwritten. At the left end of the area blank lines  */
-  /* are inserted. Nothing is changed outside the area.             */
 
   {
     int number;
@@ -959,6 +976,7 @@ void conRightScroll (intType startlin, intType startcol,
 void conShut (void)
 
   { /* conShut */
+    logFunction(printf("conShut\n"););
     if (console_initialized) {
       putctl(tgoto(CM, 0, LI - 1)); /* cursor motion */
       putctl(SC); /* show cursor */
@@ -967,19 +985,22 @@ void conShut (void)
       putctl(TE); /* end cursor addressing mode */
       console_initialized = FALSE;
     } /* if */
+    logFunction(printf("conShut -->\n"););
   } /* conShut */
 
 
 
+/**
+ *  Initializes and clears the console.
+ */
 int conOpen (void)
-
-  /* Initializes and clears the console.                            */
 
   {
     int line;
     int result = 0;
 
   /* conOpen */
+    logFunction(printf("conOpen\n"););
     getcaps();
     if (LI < 0) {
       LI = 24;
@@ -1007,5 +1028,6 @@ int conOpen (void)
       atexit(conShut);
       result = 1;
     } /* if */
+    logFunction(printf("conOpen -->\n"););
     return result;
   } /* conOpen */

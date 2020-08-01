@@ -44,7 +44,7 @@
 
 
 
-#ifdef WITH_LIST_FREELIST
+#if WITH_LIST_FREELIST
 void free_list (listType list)
 
   {

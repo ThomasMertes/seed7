@@ -808,7 +808,7 @@ void pcsWaitFor (const processType process)
       } else {
         logError(printf("pcsWaitFor: waitpid(" FMT_U_MEM ", *, 0) failed:\n"
                         "errno=%d\nerror: %s\n",
-                        to_pid(process), errno, strerror(errno)););
+                        (memSizeType) to_pid(process), errno, strerror(errno)););
         raise_error(FILE_ERROR);
       } /* if */
     } /* if */

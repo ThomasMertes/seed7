@@ -1260,7 +1260,7 @@ const proc: process (INT_DECR, in reference: function,
         statement.expr &:= "==";
         statement.expr &:= integerLiteral(integer.first);
         statement.expr &:= ")) ";
-        statement.expr &:= voidRaiseError("OVERFLOW_ERROR");
+        statement.expr &:= raiseError("OVERFLOW_ERROR");
         statement.expr &:= " else --(";
         statement.expr &:= c_param1.expr;
         statement.expr &:= ");\n";
@@ -1279,7 +1279,7 @@ const proc: process (INT_DECR, in reference: function,
         statement.expr &:= "==";
         statement.expr &:= integerLiteral(integer.first);
         statement.expr &:= ")) ";
-        statement.expr &:= voidRaiseError("OVERFLOW_ERROR");
+        statement.expr &:= raiseError("OVERFLOW_ERROR");
         statement.expr &:= " else --(*";
         statement.expr &:= variable_name;
         statement.expr &:= ");\n";
@@ -1536,7 +1536,7 @@ const proc: process (INT_INCR, in reference: function,
         statement.expr &:= "==";
         statement.expr &:= integerLiteral(integer.last);
         statement.expr &:= ")) ";
-        statement.expr &:= voidRaiseError("OVERFLOW_ERROR");
+        statement.expr &:= raiseError("OVERFLOW_ERROR");
         statement.expr &:= " else ++(";
         statement.expr &:= c_param1.expr;
         statement.expr &:= ");\n";
@@ -1555,7 +1555,7 @@ const proc: process (INT_INCR, in reference: function,
         statement.expr &:= "==";
         statement.expr &:= integerLiteral(integer.last);
         statement.expr &:= ")) ";
-        statement.expr &:= voidRaiseError("OVERFLOW_ERROR");
+        statement.expr &:= raiseError("OVERFLOW_ERROR");
         statement.expr &:= " else ++(*";
         statement.expr &:= variable_name;
         statement.expr &:= ");\n";
@@ -1768,7 +1768,7 @@ const proc: process_const_int_lshift_assign (in reference: variable, in integer:
       incr(countOptimizations);
       setDiagnosticLine(c_expr);
       warning(DOES_RAISE, "OVERFLOW_ERROR", c_expr);
-      c_expr.expr &:= voidRaiseError("OVERFLOW_ERROR");
+      c_expr.expr &:= raiseError("OVERFLOW_ERROR");
       c_expr.expr &:= "\n";
     elsif lshift = 0 then
       incr(countOptimizations);
@@ -3578,7 +3578,7 @@ const proc: process_const_int_rshift_assign (in reference: variable, in integer:
       incr(countOptimizations);
       setDiagnosticLine(c_expr);
       warning(DOES_RAISE, "OVERFLOW_ERROR", c_expr);
-      c_expr.expr &:= voidRaiseError("OVERFLOW_ERROR");
+      c_expr.expr &:= raiseError("OVERFLOW_ERROR");
       c_expr.expr &:= "\n";
     elsif rshift = 0 then
       incr(countOptimizations);

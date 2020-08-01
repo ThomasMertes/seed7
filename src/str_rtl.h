@@ -69,7 +69,7 @@ striType strEmpty (void);
 boolType strGe (const const_striType stri1, const const_striType stri2);
 boolType strGt (const const_striType stri1, const const_striType stri2);
 intType strHashCode (const const_striType stri);
-#ifdef ALLOW_STRITYPE_SLICES
+#if ALLOW_STRITYPE_SLICES
 void strHeadSlice (const const_striType stri, const intType stop, striType slice);
 #endif
 striType strHead (const const_striType stri, const intType stop);
@@ -89,7 +89,7 @@ striType strLtrim (const const_striType stri);
 striType strMult (const const_striType stri, const intType factor);
 intType strPos (const const_striType main_stri, const const_striType searched);
 void strPush (striType *const destination, const charType extension);
-#ifdef ALLOW_STRITYPE_SLICES
+#if ALLOW_STRITYPE_SLICES
 void strRangeSlice (const const_striType stri, intType start, intType stop, striType slice);
 #endif
 striType strRange (const const_striType stri, intType start, intType stop);
@@ -105,11 +105,11 @@ intType strRPos (const const_striType main_stri, const const_striType searched);
 striType strRtrim (const const_striType stri);
 /* rtlArrayType strSplit (const const_striType main_stri,
     const const_striType delimiter); */
-#ifdef ALLOW_STRITYPE_SLICES
+#if ALLOW_STRITYPE_SLICES
 void strSubstrSlice (const const_striType stri, intType start, intType len, striType slice);
 #endif
 striType strSubstr (const const_striType stri, intType start, intType len);
-#ifdef ALLOW_STRITYPE_SLICES
+#if ALLOW_STRITYPE_SLICES
 void strTailSlice (const const_striType stri, intType start, striType slice);
 #endif
 striType strTail (const const_striType stri, intType start);

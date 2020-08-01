@@ -441,14 +441,14 @@ const proc: process_prc_for (in reference: variable, in reference: startExpr,
         if for_to then
           if end_value = integer.last then
             warning(DOES_RAISE, "RANGE_ERROR", c_expr);
-            statement.expr &:= voidRaiseError("RANGE_ERROR");
+            statement.expr &:= raiseError("RANGE_ERROR");
             statement.expr &:= "\n";
             raises_exception := TRUE;
           end if;
         else
           if end_value = integer.first then
             warning(DOES_RAISE, "RANGE_ERROR", c_expr);
-            statement.expr &:= voidRaiseError("RANGE_ERROR");
+            statement.expr &:= raiseError("RANGE_ERROR");
             statement.expr &:= "\n";
             raises_exception := TRUE;
           end if;
@@ -464,7 +464,7 @@ const proc: process_prc_for (in reference: variable, in reference: startExpr,
           statement.expr &:= integerLiteral(integer.first);
         end if;
         statement.expr &:= "))";
-        statement.expr &:= voidRaiseError("RANGE_ERROR");
+        statement.expr &:= raiseError("RANGE_ERROR");
         statement.expr &:= "\n";
       end if;
     end if;

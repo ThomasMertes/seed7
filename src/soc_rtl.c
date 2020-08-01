@@ -164,7 +164,6 @@ static const_cstriType socAddressCStri (const const_bstriType address)
                   (unsigned int) (inet6_address->sin6_addr.s6_addr[(pos << 1) + 1]);
             } /* for */
             port = ntohs(inet6_address->sin6_port);     /* short, network byte order */
-            result = intStr(port);
 
             sprintf(buffer, "[%x:%x:%x:%x:%x:%x:%x:%x]:%d",
                 digitGroup[0], digitGroup[1], digitGroup[2], digitGroup[3],

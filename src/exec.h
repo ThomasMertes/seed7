@@ -25,6 +25,15 @@
 /*                                                                  */
 /********************************************************************/
 
+#ifdef DO_INIT
+volatile boolType interrupt_flag = FALSE;
+#else
+EXTERN volatile boolType interrupt_flag;
+#endif
+EXTERN volatile int signal_number;
+
+
+void suspendInterpreter (int signalNum);
 objectType exec_object (register objectType object);
 objectType exec_call (objectType object);
 objectType evaluate (objectType object);

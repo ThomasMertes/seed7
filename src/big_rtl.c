@@ -709,6 +709,23 @@ static inline bigDigitType uBigDivideByDigit (const bigIntType big1,
 
 
 
+/**
+ *  Convert a numeric string, with a specified radix, to a 'bigInteger'.
+ *  The numeric string must contain the representation of an integer
+ *  in the specified radix. It consists of an optional + or - sign,
+ *  followed by a sequence of digits in the specified radix. Digit values
+ *  from 10 upward can be encoded with upper or lower case letters.
+ *  E.g.: 10 can be encoded with A or a, 11 with B or b, etc. Other
+ *  characters as well as leading or trailing whitespace characters
+ *  are not allowed. The radix of the conversion is a power of two and
+ *  it is specified indirectly with the parameter shift.
+ *  @param stri Numeric string with integer in the specified radix.
+ *  @param shift Logarithm (log2) of the specified radix.
+ *  @return the 'bigInteger' result of the conversion.
+ *  @exception RANGE_ERROR When the string does not contain an integer
+ *             literal with the specified base.
+ *  @exception MEMORY_ERROR  Not enough memory to represent the result.
+ */
 static bigIntType bigParseBasedPow2 (const const_striType stri, unsigned int shift)
 
   {
@@ -741,7 +758,7 @@ static bigIntType bigParseBasedPow2 (const const_striType stri, unsigned int shi
         negative = FALSE;
       } /* if */
     } /* if */
-    /* printf("mostSignificantDigitPos: %lu\n", mostSignificantDigitPos); */
+    /* printf("mostSignificantDigitPos: " FMT_U_MEM "\n", mostSignificantDigitPos); */
     if (unlikely(mostSignificantDigitPos >= stri->size)) {
       logError(printf("bigParseBasedPow2(\"%s\", %u): "
                       "Digit missing.\n",
@@ -756,7 +773,7 @@ static bigIntType bigParseBasedPow2 (const const_striType stri, unsigned int shi
       base = (unsigned int) 1 << shift;
       /* Compute the number of bits necessary: */
       bits_necessary = (stri->size - mostSignificantDigitPos) * (memSizeType) shift;
-      /* printf("bits_necessary: %lu\n", bits_necessary); */
+      /* printf("bits_necessary: " FMT_U_MEM "\n", bits_necessary); */
       /* Compute the number of bigDigits: */
       result_size = (bits_necessary - 1) / BIGDIGIT_SIZE + 1;
       if ((bits_necessary & BIGDIGIT_SIZE_MASK) == 0) {
@@ -770,7 +787,7 @@ static bigIntType bigParseBasedPow2 (const const_striType stri, unsigned int shi
           } /* if */
         } /* if */
       } /* if */
-      /* printf("result_size: %lu\n", result_size); */
+      /* printf("result_size: " FMT_U_MEM "\n", result_size); */
       if (unlikely(!ALLOC_BIG(result, result_size))) {
         raise_error(MEMORY_ERROR);
       } else {
@@ -792,7 +809,7 @@ static bigIntType bigParseBasedPow2 (const const_striType stri, unsigned int shi
           } /* if */
           bigDigitShift += shift;
           if (bigDigitShift >= BIGDIGIT_SIZE) {
-            /* printf("result->bigdigits[%lu] = " F_X_DIG(08) "\n",
+            /* printf("result->bigdigits[" FMT_U_MEM "] = " F_X_DIG(08) "\n",
                bigDigitPos, (bigDigitType) (bigDigit & BIGDIGIT_MASK)); */
             result->bigdigits[bigDigitPos] = (bigDigitType) (bigDigit & BIGDIGIT_MASK);
             bigDigitPos++;
@@ -810,7 +827,7 @@ static bigIntType bigParseBasedPow2 (const const_striType stri, unsigned int shi
         } else {
           result->size = result_size;
           while (bigDigitPos < result_size) {
-            /* printf("result->bigdigits[%lu] = " F_X_DIG(08) "\n",
+            /* printf("result->bigdigits[" FMT_U_MEM "] = " F_X_DIG(08) "\n",
                bigDigitPos, (bigDigitType) (bigDigit & BIGDIGIT_MASK)); */
             result->bigdigits[bigDigitPos] = (bigDigitType) (bigDigit & BIGDIGIT_MASK);
             bigDigitPos++;
@@ -838,9 +855,11 @@ static bigIntType bigParseBasedPow2 (const const_striType stri, unsigned int shi
  *  E.g.: 10 can be encoded with A or a, 11 with B or b, etc. Other
  *  characters as well as leading or trailing whitespace characters
  *  are not allowed.
+ *  @param stri Numeric string with integer in the specified radix.
+ *  @param base Radix of the integer in the 'stri' parameter.
  *  @return the 'bigInteger' result of the conversion.
  *  @exception RANGE_ERROR When base < 2 or base > 36 holds or
- *             the string is empty or it does not contain an integer
+ *             the string does not contain an integer
  *             literal with the specified base.
  *  @exception MEMORY_ERROR  Not enough memory to represent the result.
  */
@@ -875,7 +894,7 @@ static bigIntType bigParseBased2To36 (const const_striType stri, unsigned int ba
         negative = FALSE;
       } /* if */
     } /* if */
-    /* printf("position: %lu\n", position); */
+    /* printf("position: " FMT_U_MEM "\n", position); */
     if (unlikely(position >= stri->size)) {
       logError(printf("bigParseBased2To36(\"%s\", %u): "
                       "Digit missing.\n",
@@ -949,6 +968,7 @@ static bigIntType bigParseBased2To36 (const const_striType stri, unsigned int ba
  *  The base is a power of two and it is specified indirectly with
  *  shift and mask. Digit values from 10 upward are encoded with
  *  letters.
+ *  @param big1 BigInteger number to be converted.
  *  @param shift Logarithm (log2) of the base (=number of bits in mask).
  *  @param mask Mask to get the bits of a digit (equivalent to base-1).
  *  @param upperCase Decides about the letter case.
@@ -1020,7 +1040,7 @@ static striType bigRadixPow2 (const const_bigIntType big1, unsigned int shift,
             } /* if */
           } /* if */
         } /* if */
-        /* printf("result_size: %lu\n", result_size); */
+        /* printf("result_size: " FMT_U_MEM "\n", result_size); */
         if (unlikely(!ALLOC_STRI_SIZE_OK(result, result_size))) {
           if (unsigned_big != big1) {
             FREE_BIG(unsigned_big, unsigned_big->size);
@@ -1036,7 +1056,7 @@ static striType bigRadixPow2 (const const_bigIntType big1, unsigned int shift,
           do {
             while (digit_shift <= BIGDIGIT_SIZE - shift && pos > (memSizeType) negative) {
               pos--;
-              /* printf("A result->mem[%lu] = %c\n", pos,
+              /* printf("A result->mem[" FMT_U_MEM "] = %c\n", pos,
                   digits[(unsigned_digit >> digit_shift) & mask]); */
               result->mem[pos] = (strElemType) (digits[(unsigned_digit >> digit_shift) & mask]);
               digit_shift += shift;
@@ -1052,7 +1072,8 @@ static striType bigRadixPow2 (const const_bigIntType big1, unsigned int shift,
                     unsigned_big->bigdigits[digit_index] << (BIGDIGIT_SIZE - digit_shift);
                 if (pos > (memSizeType) negative) {
                   pos--;
-                  /* printf("B result->mem[%lu] = %c\n", pos, digits[unsigned_digit & mask]); */
+                  /* printf("B result->mem[" FMT_U_MEM "] = %c\n", pos,
+                      digits[unsigned_digit & mask]); */
                   result->mem[pos] = (strElemType) (digits[unsigned_digit & mask]);
                   unsigned_digit = unsigned_big->bigdigits[digit_index];
                   digit_shift += shift - BIGDIGIT_SIZE;
@@ -1060,14 +1081,14 @@ static striType bigRadixPow2 (const const_bigIntType big1, unsigned int shift,
               } /* if */
             } else if (digit_shift != BIGDIGIT_SIZE && pos > (memSizeType) negative) {
               pos--;
-              /* printf("C result->mem[%lu] = %c\n", pos,
+              /* printf("C result->mem[" FMT_U_MEM "] = %c\n", pos,
                   digits[(unsigned_digit >> digit_shift) & mask]); */
               result->mem[pos] = (strElemType) (digits[(unsigned_digit >> digit_shift) & mask]);
             } /* if */
           } while (digit_index < unsigned_size && pos > (memSizeType) negative);
           if (negative) {
             pos--;
-            /* printf("result->mem[%lu] = -\n", pos); */
+            /* printf("result->mem[" FMT_U_MEM "] = -\n", pos); */
             result->mem[pos] = (strElemType) '-';
           } /* if */
           result->size = result_size;
@@ -1088,6 +1109,7 @@ static striType bigRadixPow2 (const const_bigIntType big1, unsigned int shift,
  *  The conversion uses the numeral system with the given base.
  *  Digit values from 10 upward are encoded with letters.
  *  For negative numbers a minus sign is prepended.
+ *  @param big1 BigInteger number to be converted.
  *  @param base Base of numeral system (base >= 2 and base <= 36 holds).
  *  @param upperCase Decides about the letter case.
  *  @return the string result of the conversion.
@@ -1129,7 +1151,7 @@ static striType bigRadix2To36 (const const_bigIntType big1, unsigned int base,
       /* The size of the result is computed by computing the     */
       /* number of radix digits plus one character for the sign. */
       result_size = (big1->size * BIGDIGIT_SIZE - 1) / estimate_shift + (unsigned int) negative + 1;
-      /* printf("result_size: %lu\n", result_size); */
+      /* printf("result_size: " FMT_U_MEM "\n", result_size); */
       if (unlikely(!ALLOC_STRI_SIZE_OK(result, result_size))) {
         raise_error(MEMORY_ERROR);
         result = NULL;
@@ -1154,7 +1176,7 @@ static striType bigRadix2To36 (const const_bigIntType big1, unsigned int base,
           pos = result_size - 1;
           do {
             digit = uBigDivideByDigit(unsigned_big, divisor_digit);
-            /* printf("unsigned_big->size=%lu, digit=" FMT_U_DIG "\n",
+            /* printf("unsigned_big->size=" FMT_U_MEM ", digit=" FMT_U_DIG "\n",
                unsigned_big->size, digit); */
             if (unsigned_big->bigdigits[unsigned_big->size - 1] == 0) {
               unsigned_big->size--;
@@ -2899,6 +2921,7 @@ static int uBigIsNot0 (const const_bigIntType big)
 /**
  *  Compute the absolute value of a 'bigInteger' number.
  *  @return the absolute value.
+ *  @exception MEMORY_ERROR Not enough memory to create the result.
  */
 bigIntType bigAbs (const const_bigIntType big1)
 
@@ -2953,6 +2976,7 @@ bigIntType bigAbs (const const_bigIntType big1)
  *  The function sorts the two values by size. This way there is a
  *  loop up to the shorter size and a second loop up to the longer size.
  *  @return the sum of the two numbers.
+ *  @exception MEMORY_ERROR Not enough memory to create the result.
  */
 bigIntType bigAdd (const_bigIntType summand1, const_bigIntType summand2)
 
@@ -3120,6 +3144,7 @@ void bigAddAssign (bigIntType *const big_variable, const const_bigIntType delta)
  *  is freed and *big_variable is set to NULL.
  *  @param delta The delta to be added to *big_variable.
  *         Delta must be in the range of signedBigDigitType.
+ *  @exception MEMORY_ERROR When the resizing of *big_variable fails.
  */
 void bigAddAssignSignedDigit (bigIntType *const big_variable, const intType delta)
 
@@ -3498,6 +3523,7 @@ genericType bigCreateGeneric (const genericType source)
  *  In case the enlarging fails the old content of *big_variable
  *  is restored and the exception MEMORY_ERROR is raised.
  *  This ensures that bigDecr works as a transaction.
+ *  @exception MEMORY_ERROR When the resizing of *big_variable fails.
  */
 void bigDecr (bigIntType *const big_variable)
 
@@ -3744,6 +3770,7 @@ boolType bigEqSignedDigit (const const_bigIntType big1, intType number)
  *         is used. In this case the result is negative when the most
  *         significant byte (the first byte) has an ordinal > BYTE_MAX (=127).
  *  @return a bigInteger created from the big-endian bytes.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
  */
 bigIntType bigFromByteBufferBe (const memSizeType size,
     const const_ustriType buffer, const boolType isSigned)
@@ -3837,6 +3864,7 @@ bigIntType bigFromByteBufferBe (const memSizeType size,
  *         is used. In this case the result is negative when the most
  *         significant byte (the last byte) has an ordinal > BYTE_MAX (=127).
  *  @return a bigInteger created from the little-endian bytes.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
  */
 bigIntType bigFromByteBufferLe (const memSizeType size,
     const const_ustriType buffer, const boolType isSigned)
@@ -4212,6 +4240,7 @@ intType bigHashCode (const const_bigIntType big1)
  *  In case the enlarging fails the old content of *big_variable
  *  is restored and the exception MEMORY_ERROR is raised.
  *  This ensures that bigIncr works as a transaction.
+ *  @exception MEMORY_ERROR When the resizing of *big_variable fails.
  */
 void bigIncr (bigIntType *const big_variable)
 
@@ -4492,7 +4521,7 @@ bigIntType bigLog10 (const const_bigIntType big1)
         while (unsigned_big->size > 1 ||
                unsigned_big->bigdigits[0] >= POWER_OF_10_IN_BIGDIGIT) {
           (void) uBigDivideByPowerOf10(unsigned_big);
-          /* printf("unsigned_big->size=%lu, digit=" FMT_U_DIG "\n",
+          /* printf("unsigned_big->size=" FMT_U_MEM ", digit=" FMT_U_DIG "\n",
              unsigned_big->size, digit); */
           if (unsigned_big->bigdigits[unsigned_big->size - 1] == 0) {
             unsigned_big->size--;
@@ -5062,12 +5091,13 @@ void bigLShiftAssign (bigIntType *const big_variable, intType lshift)
 
 
 /**
- * Shift one left by 'lshift' bits.
- * When 'lshift' is positive or zero this corresponts to
- * the computation of a power of two:
- *  bigLShiftOne(lshift)  corresponds to  2_ ** lshift
- * When 'lshift' is negative the result is zero.
- * @return one shifted left by 'lshift'.
+ *  Shift one left by 'lshift' bits.
+ *  When 'lshift' is positive or zero this corresponts to
+ *  the computation of a power of two:
+ *   bigLShiftOne(lshift)  corresponds to  2_ ** lshift
+ *  When 'lshift' is negative the result is zero.
+ *  @return one shifted left by 'lshift'.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
  */
 bigIntType bigLShiftOne (const intType lshift)
 
@@ -5405,21 +5435,9 @@ bigIntType bigMult (const_bigIntType factor1, const_bigIntType factor2)
         return NULL;
       } /* if */
     } /* if */
-    /* printf("bigMult(%lu, %lu)\n", factor1->size, factor2->size); */
-#if 0
-    if (unlikely(!ALLOC_BIG(product, factor1->size + factor2->size))) {
-      raise_error(MEMORY_ERROR);
-    } else {
-      uBigMult(factor1, factor2, product);
-      product->size = factor1->size + factor2->size;
-      if (negative) {
-        negate_positive_big(product);
-      } /* if */
-      product = normalize(product);
-    } /* if */
-#else
+    /* printf("bigMult(" FMT_U_MEM ", " FMT_U_MEM ")\n",
+        factor1->size, factor2->size); */
     product = uBigMultK(factor1, factor2, negative);
-#endif
     if (factor1_help != NULL) {
       FREE_BIG(factor1_help, factor1_help->size);
     } /* if */
@@ -5441,13 +5459,6 @@ bigIntType bigMult (const_bigIntType factor1, const_bigIntType factor2)
 void bigMultAssign (bigIntType *const big_variable, const_bigIntType factor)
 
   {
-    const_bigIntType big1;
-    boolType negative = FALSE;
-    const_bigIntType big1_help = NULL;
-    const_bigIntType factor_help = NULL;
-    memSizeType pos1;
-    memSizeType pos2;
-    doubleBigDigitType carry = 0;
     bigIntType product;
 
   /* bigMultAssign */
@@ -5456,65 +5467,9 @@ void bigMultAssign (bigIntType *const big_variable, const_bigIntType factor)
     if (factor->size == 1) {
       bigMultAssign1(big_variable, factor->bigdigits[0]);
     } else {
-      big1 = *big_variable;
-      if (IS_NEGATIVE(big1->bigdigits[big1->size - 1])) {
-        negative = TRUE;
-        big1_help = alloc_positive_copy_of_negative_big(big1);
-        big1 = big1_help;
-        if (unlikely(big1_help == NULL)) {
-          raise_error(MEMORY_ERROR);
-          return;
-        } /* if */
-      } /* if */
-      if (IS_NEGATIVE(factor->bigdigits[factor->size - 1])) {
-        negative = !negative;
-        factor_help = alloc_positive_copy_of_negative_big(factor);
-        factor = factor_help;
-        if (unlikely(factor_help == NULL)) {
-          if (big1_help != NULL) {
-            FREE_BIG(big1_help, big1_help->size);
-          } /* if */
-          raise_error(MEMORY_ERROR);
-          return;
-        } /* if */
-      } /* if */
-      if (unlikely(!ALLOC_BIG(product, big1->size + factor->size))) {
-        raise_error(MEMORY_ERROR);
-      } else {
-        pos2 = 0;
-        do {
-          carry += (doubleBigDigitType) big1->bigdigits[0] * factor->bigdigits[pos2];
-          product->bigdigits[pos2] = (bigDigitType) (carry & BIGDIGIT_MASK);
-          carry >>= BIGDIGIT_SIZE;
-          pos2++;
-        } while (pos2 < factor->size);
-        product->bigdigits[factor->size] = (bigDigitType) (carry & BIGDIGIT_MASK);
-        for (pos1 = 1; pos1 < big1->size; pos1++) {
-          carry = 0;
-          pos2 = 0;
-          do {
-            carry += (doubleBigDigitType) product->bigdigits[pos1 + pos2] +
-                (doubleBigDigitType) big1->bigdigits[pos1] * factor->bigdigits[pos2];
-            product->bigdigits[pos1 + pos2] = (bigDigitType) (carry & BIGDIGIT_MASK);
-            carry >>= BIGDIGIT_SIZE;
-            pos2++;
-          } while (pos2 < factor->size);
-          product->bigdigits[pos1 + factor->size] = (bigDigitType) (carry & BIGDIGIT_MASK);
-        } /* for */
-        product->size = big1->size + factor->size;
-        if (negative) {
-          negate_positive_big(product);
-        } /* if */
-        product = normalize(product);
-        FREE_BIG(*big_variable, (*big_variable)->size);
-        *big_variable = product;
-      } /* if */
-      if (big1_help != NULL) {
-        FREE_BIG(big1_help, big1_help->size);
-      } /* if */
-      if (factor_help != NULL) {
-        FREE_BIG(factor_help, factor_help->size);
-      } /* if */
+      product = bigMult(*big_variable, factor);
+      FREE_BIG(*big_variable, (*big_variable)->size);
+      *big_variable = product;
     } /* if */
     logFunction(printf("bigMultAssign --> %s\n", bigHexCStri(*big_variable)););
   } /* bigMultAssign */
@@ -5565,6 +5520,7 @@ bigIntType bigMultSignedDigit (const_bigIntType factor1, intType factor2)
 /**
  *  Minus sign, negate a 'bigInteger' number.
  *  @return the negated value of the number.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
  */
 bigIntType bigNegate (const const_bigIntType big1)
 
@@ -5623,6 +5579,7 @@ bigIntType bigNegate (const const_bigIntType big1)
  *  Minus sign, negate a 'bigInteger' number.
  *  Big1 is assumed to be a temporary value which is reused.
  *  @return the negated value of the number.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
  */
 bigIntType bigNegateTemp (bigIntType big1)
 
@@ -5822,10 +5779,11 @@ bigIntType bigParse (const const_striType stri)
  *  E.g.: 10 can be encoded with A or a, 11 with B or b, etc. Other
  *  characters as well as leading or trailing whitespace characters
  *  are not allowed.
+ *  @param stri Numeric string with integer in the specified radix.
  *  @param base Radix of the integer in the 'stri' parameter.
  *  @return the 'bigInteger' result of the conversion.
  *  @exception RANGE_ERROR When base < 2 or base > 36 holds or
- *             the string is empty or it does not contain an integer
+ *             the string does not contain an integer
  *             literal with the specified base.
  *  @exception MEMORY_ERROR  Not enough memory to represent the result.
  */
@@ -5866,6 +5824,7 @@ bigIntType bigParseBased (const const_striType stri, intType base)
  *  Predecessor of a 'bigInteger' number.
  *  pred(A) is equivalent to A-1 .
  *  @return big1 - 1 .
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
  */
 bigIntType bigPred (const const_bigIntType big1)
 
@@ -6003,6 +5962,7 @@ bigIntType bigPredTemp (bigIntType big1)
  *  The conversion uses the numeral system with the given base.
  *  Digit values from 10 upward are encoded with letters.
  *  For negative numbers a minus sign is prepended.
+ *  @param big1 BigInteger number to be converted.
  *  @param upperCase Decides about the letter case.
  *  @return the string result of the conversion.
  *  @exception RANGE_ERROR When base < 2 or base > 36 holds.
@@ -6049,6 +6009,7 @@ striType bigRadix (const const_bigIntType big1, intType base,
  *  @return a random number such that low <= rand(low, high) and
  *          rand(low, high) <= high holds.
  *  @exception RANGE_ERROR The range is empty (low > high holds).
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
  */
 bigIntType bigRand (const const_bigIntType low,
     const const_bigIntType high)
@@ -6454,6 +6415,7 @@ void bigRShiftAssign (bigIntType *const big_variable, intType rshift)
 /**
  *  Compute the subtraction of two 'bigInteger' numbers.
  *  @return the difference of the two numbers.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
  */
 bigIntType bigSbtr (const const_bigIntType minuend, const const_bigIntType subtrahend)
 
@@ -6660,6 +6622,7 @@ bigIntType bigSbtrTemp (bigIntType minuend, const_bigIntType subtrahend)
  *  This function is used by the compiler to optimize
  *  multiplication and exponentiation operations.
  *  @return the square of big1.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
  */
 bigIntType bigSquare (const_bigIntType big1)
 
@@ -6740,7 +6703,7 @@ striType bigStr (const const_bigIntType big1)
           pos = result_size - 1;
           do {
             digit = uBigDivideByPowerOf10(unsigned_big);
-            /* printf("unsigned_big->size=%lu, digit=" FMT_U_DIG "\n",
+            /* printf("unsigned_big->size=" FMT_U_MEM ", digit=" FMT_U_DIG "\n",
                unsigned_big->size, digit); */
             if (unsigned_big->bigdigits[unsigned_big->size - 1] == 0) {
               unsigned_big->size--;
@@ -6797,6 +6760,7 @@ striType bigStr (const const_bigIntType big1)
  *  Successor of a 'bigInteger' number.
  *  succ(A) is equivalent to A+1 .
  *  @return big1 + 1 .
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
  */
 bigIntType bigSucc (const const_bigIntType big1)
 

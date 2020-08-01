@@ -601,7 +601,7 @@ striType ut8Gets (fileType inFile, intType length)
       } /* if */
       if (result == NULL) {
         bytes_there = remainingBytesInFile(inFile);
-        /* printf("bytes_there=%lu\n", bytes_there); */
+        /* printf("bytes_there=" FMT_U_MEM "\n", bytes_there); */
         if (bytes_there != 0) {
           /* Now we know that bytes_there bytes are available in inFile */
           if (chars_requested <= bytes_there) {
@@ -609,7 +609,7 @@ striType ut8Gets (fileType inFile, intType length)
           } else {
             allocated_size = bytes_there;
           } /* if */
-          /* printf("allocated_size=%lu\n", allocated_size); */
+          /* printf("allocated_size=" FMT_U_MEM "\n", allocated_size); */
           if (unlikely(!ALLOC_STRI_CHECK_SIZE(result, allocated_size))) {
             /* printf("MAX_STRI_LEN=%lu, SIZ_STRI(MAX_STRI_LEN)=%lu\n",
                 MAX_STRI_LEN, SIZ_STRI(MAX_STRI_LEN)); */

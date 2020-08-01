@@ -48,10 +48,11 @@ AOBJ = act_comp.obj prg_comp.obj analyze.obj syntax.obj token.obj parser.obj nam
        expr.obj atom.obj object.obj scanner.obj literal.obj numlit.obj findid.obj \
        error.obj infile.obj libpath.obj  symbol.obj info.obj stat.obj fatal.obj match.obj
 GOBJ = syvarutl.obj traceutl.obj actutl.obj executl.obj blockutl.obj \
-       entutl.obj identutl.obj chclsutl.obj sigutl.obj arrutl.obj
+       entutl.obj identutl.obj chclsutl.obj arrutl.obj
 ROBJ = arr_rtl.obj bln_rtl.obj bst_rtl.obj chr_rtl.obj cmd_rtl.obj con_rtl.obj dir_rtl.obj drw_rtl.obj fil_rtl.obj \
        flt_rtl.obj hsh_rtl.obj int_rtl.obj itf_rtl.obj pcs_rtl.obj set_rtl.obj soc_rtl.obj sql_rtl.obj str_rtl.obj \
-       tim_rtl.obj ut8_rtl.obj heaputl.obj numutl.obj striutl.obj sql_lite.obj sql_my.obj sql_oci.obj sql_odbc.obj sql_post.obj
+       tim_rtl.obj ut8_rtl.obj heaputl.obj numutl.obj sigutl.obj striutl.obj \
+       sql_lite.obj sql_my.obj sql_oci.obj sql_odbc.obj sql_post.obj
 DOBJ = $(BIGINT_LIB).obj cmd_win.obj dir_win.obj dll_win.obj fil_win.obj pcs_win.obj pol_sel.obj stat_win.obj tim_win.obj
 OBJ = $(MOBJ)
 SEED7_LIB_OBJ = $(ROBJ) $(DOBJ)
@@ -71,10 +72,11 @@ ASRC = act_comp.c prg_comp.c analyze.c syntax.c token.c parser.c name.c type.c \
        expr.c atom.c object.c scanner.c literal.c numlit.c findid.c \
        error.c infile.c libpath.c symbol.c info.c stat.c fatal.c match.c
 GSRC = syvarutl.c traceutl.c actutl.c executl.c blockutl.c \
-       entutl.c identutl.c chclsutl.c sigutl.c arrutl.c
+       entutl.c identutl.c chclsutl.c arrutl.c
 RSRC = arr_rtl.c bln_rtl.c bst_rtl.c chr_rtl.c cmd_rtl.c con_rtl.c dir_rtl.c drw_rtl.c fil_rtl.c \
        flt_rtl.c hsh_rtl.c int_rtl.c itf_rtl.c pcs_rtl.c set_rtl.c soc_rtl.c sql_rtl.c str_rtl.c \
-       tim_rtl.c ut8_rtl.c heaputl.c numutl.c striutl.c sql_lite.c sql_my.c sql_oci.c sql_odbc.c sql_post.c
+       tim_rtl.c ut8_rtl.c heaputl.c numutl.c sigutl.c striutl.c \
+       sql_lite.c sql_my.c sql_oci.c sql_odbc.c sql_post.c
 DSRC = $(BIGINT_LIB).c cmd_win.c dir_win.c dll_win.c fil_win.c pcs_win.c pol_sel.c stat_win.c tim_win.c
 SRC = $(MSRC)
 SEED7_LIB_SRC = $(RSRC) $(DSRC)
@@ -168,7 +170,6 @@ version.h: chkccomp.h
 	echo #define NULL_DEVICE "NUL:" >> version.h
 	echo #define INT_DIV_BY_ZERO_POPUP >> version.h
 	echo #define DO_SIGFPE_WITH_DIV_BY_ZERO >> version.h
-	echo #define CTRL_C_SENDS_EOF >> version.h
 	echo #define FILENO_WORKS_FOR_NULL 0 >> version.h
 	echo #define WITH_SQL >> version.h
 	echo #define CONSOLE_WCHAR >> version.h
@@ -253,6 +254,58 @@ make7: ..\bin\make7.exe
 	..\bin\s7c.exe -l ..\lib -b ..\bin -O2 ..\prg\make7
 	copy ..\prg\make7.exe ..\bin /Y
 	del ..\prg\make7.exe
+
+calc7: ..\bin\calc7.exe
+
+..\bin\calc7.exe: ..\prg\calc7.sd7 ..\bin\s7c.exe
+	..\bin\s7c.exe -l ..\lib -b ..\bin -O2 ..\prg\calc7
+	copy ..\prg\calc7.exe ..\bin /Y
+	del ..\prg\calc7.exe
+
+find7: ..\bin\find7.exe
+
+..\bin\find7.exe: ..\prg\find7.sd7 ..\bin\s7c.exe
+	..\bin\s7c.exe -l ..\lib -b ..\bin -O2 ..\prg\find7
+	copy ..\prg\find7.exe ..\bin /Y
+	del ..\prg\find7.exe
+
+tar7: ..\bin\tar7.exe
+
+..\bin\tar7.exe: ..\prg\tar7.sd7 ..\bin\s7c.exe
+	..\bin\s7c.exe -l ..\lib -b ..\bin -O2 ..\prg\tar7
+	copy ..\prg\tar7.exe ..\bin /Y
+	del ..\prg\tar7.exe
+
+ftp7: ..\bin\ftp7.exe
+
+..\bin\ftp7.exe: ..\prg\ftp7.sd7 ..\bin\s7c.exe
+	..\bin\s7c.exe -l ..\lib -b ..\bin -O2 ..\prg\ftp7
+	copy ..\prg\ftp7.exe ..\bin /Y
+	del ..\prg\ftp7.exe
+
+ftpserv: ..\bin\ftpserv.exe
+
+..\bin\ftpserv.exe: ..\prg\ftpserv.sd7 ..\bin\s7c.exe
+	..\bin\s7c.exe -l ..\lib -b ..\bin -O2 ..\prg\ftpserv
+	copy ..\prg\ftpserv.exe ..\bin /Y
+	del ..\prg\ftpserv.exe
+
+comanche: ..\bin\comanche.exe
+
+..\bin\comanche.exe: ..\prg\comanche.sd7 ..\bin\s7c.exe
+	..\bin\s7c.exe -l ..\lib -b ..\bin -O2 ..\prg\comanche
+	copy ..\prg\comanche.exe ..\bin /Y
+	del ..\prg\comanche.exe
+
+sydir7: ..\bin\sydir7.exe
+
+..\bin\sydir7.exe: ..\prg\sydir7.sd7 ..\bin\s7c.exe
+	..\bin\s7c.exe -l ..\lib -b ..\bin -O2 ..\prg\sydir7
+	copy ..\prg\sydir7.exe ..\bin /Y
+	del ..\prg\sydir7.exe
+
+utils: ..\bin\make7.exe ..\bin\calc7.exe ..\bin\find7.exe ..\bin\tar7.exe ..\bin\ftp7.exe \
+       ..\bin\ftpserv.exe ..\bin\comanche.exe ..\bin\sydir7.exe
 
 wc: $(SRC)
 	echo SRC:

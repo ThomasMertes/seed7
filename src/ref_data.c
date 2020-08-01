@@ -700,7 +700,7 @@ void refSetCategory (objectType aReference, intType aCategory)
   { /* refSetCategory */
     logFunction(printf("refSetCategory(");
                 trace1(aReference);
-                printf(", " FMT_D ")\n"););
+                printf(", " FMT_D ")\n", aCategory););
     if (unlikely(aReference == NULL)) {
       logError(printf("refSetCategory(NULL, " FMT_D "): Object is NULL.\n",
                       aCategory););

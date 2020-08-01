@@ -637,7 +637,7 @@ static void setupResultColumn (preparedStmtType preparedStmt,
           } /* if */
           /* printf("%s:\n", nameOfBufferType(resultData->buffer_type));
           printf("octetLength: %ld\n", octetLength);
-          printf("column_size: %lu\n", column_size);
+          printf("column_size: " FMT_U_MEM "\n", column_size);
           printf("precision: " FMT_D64 "\n", precision);
           printf("scale: " FMT_D64 "\n", scale); */
           break;
@@ -674,7 +674,7 @@ static void setupResultColumn (preparedStmtType preparedStmt,
           /* printf("SQL_DECIMAL:\n");
           printf("octetLength: %ld\n", octetLength);
           printf("DataLength: %ld\n", dataLength);
-          printf("column_size: %lu\n", column_size);
+          printf("column_size: " FMT_U_MEM "\n", column_size);
           printf("precision: " FMT_D64 "\n", precision);
           printf("scale: " FMT_D64 "\n", scale); */
           break;
@@ -2446,7 +2446,8 @@ static bigIntType sqlColumnBigInt (sqlStmtType sqlStatement, intType column)
     preparedStmt = (preparedStmtType) sqlStatement;
     if (unlikely(!preparedStmt->fetchOkay || column < 1 ||
                  (uintType) column > preparedStmt->result_array_size)) {
-      logError(printf("sqlColumnBigInt: Fetch okay: %d, column: " FMT_D ", max column: %lu.\n",
+      logError(printf("sqlColumnBigInt: Fetch okay: %d, column: " FMT_D
+                      ", max column: " FMT_U_MEM ".\n",
                       preparedStmt->fetchOkay, column,
                       preparedStmt->result_array_size););
       raise_error(RANGE_ERROR);
@@ -2521,7 +2522,8 @@ static void sqlColumnBigRat (sqlStmtType sqlStatement, intType column,
     preparedStmt = (preparedStmtType) sqlStatement;
     if (unlikely(!preparedStmt->fetchOkay || column < 1 ||
                  (uintType) column > preparedStmt->result_array_size)) {
-      logError(printf("sqlColumnBigRat: Fetch okay: %d, column: " FMT_D ", max column: %lu.\n",
+      logError(printf("sqlColumnBigRat: Fetch okay: %d, column: " FMT_D
+                      ", max column: " FMT_U_MEM ".\n",
                       preparedStmt->fetchOkay, column,
                       preparedStmt->result_array_size););
       raise_error(RANGE_ERROR);
@@ -2612,7 +2614,8 @@ static boolType sqlColumnBool (sqlStmtType sqlStatement, intType column)
     preparedStmt = (preparedStmtType) sqlStatement;
     if (unlikely(!preparedStmt->fetchOkay || column < 1 ||
                  (uintType) column > preparedStmt->result_array_size)) {
-      logError(printf("sqlColumnBool: Fetch okay: %d, column: " FMT_D ", max column: %lu.\n",
+      logError(printf("sqlColumnBool: Fetch okay: %d, column: " FMT_D
+                      ", max column: " FMT_U_MEM ".\n",
                       preparedStmt->fetchOkay, column,
                       preparedStmt->result_array_size););
       raise_error(RANGE_ERROR);
@@ -2699,7 +2702,8 @@ static bstriType sqlColumnBStri (sqlStmtType sqlStatement, intType column)
     preparedStmt = (preparedStmtType) sqlStatement;
     if (unlikely(!preparedStmt->fetchOkay || column < 1 ||
                  (uintType) column > preparedStmt->result_array_size)) {
-      logError(printf("sqlColumnBStri: Fetch okay: %d, column: " FMT_D ", max column: %lu.\n",
+      logError(printf("sqlColumnBStri: Fetch okay: %d, column: " FMT_D
+                      ", max column: " FMT_U_MEM ".\n",
                       preparedStmt->fetchOkay, column,
                       preparedStmt->result_array_size););
       raise_error(RANGE_ERROR);
@@ -2766,7 +2770,8 @@ static void sqlColumnDuration (sqlStmtType sqlStatement, intType column,
     preparedStmt = (preparedStmtType) sqlStatement;
     if (unlikely(!preparedStmt->fetchOkay || column < 1 ||
                  (uintType) column > preparedStmt->result_array_size)) {
-      logError(printf("sqlColumnDuration: Fetch okay: %d, column: " FMT_D ", max column: %lu.\n",
+      logError(printf("sqlColumnDuration: Fetch okay: %d, column: " FMT_D
+                      ", max column: " FMT_U_MEM ".\n",
                       preparedStmt->fetchOkay, column,
                       preparedStmt->result_array_size););
       raise_error(RANGE_ERROR);
@@ -2907,7 +2912,8 @@ static floatType sqlColumnFloat (sqlStmtType sqlStatement, intType column)
     preparedStmt = (preparedStmtType) sqlStatement;
     if (unlikely(!preparedStmt->fetchOkay || column < 1 ||
                  (uintType) column > preparedStmt->result_array_size)) {
-      logError(printf("sqlColumnFloat: Fetch okay: %d, column: " FMT_D ", max column: %lu.\n",
+      logError(printf("sqlColumnFloat: Fetch okay: %d, column: " FMT_D
+                      ", max column: " FMT_U_MEM ".\n",
                       preparedStmt->fetchOkay, column,
                       preparedStmt->result_array_size););
       raise_error(RANGE_ERROR);
@@ -2973,7 +2979,8 @@ static intType sqlColumnInt (sqlStmtType sqlStatement, intType column)
     preparedStmt = (preparedStmtType) sqlStatement;
     if (unlikely(!preparedStmt->fetchOkay || column < 1 ||
                  (uintType) column > preparedStmt->result_array_size)) {
-      logError(printf("sqlColumnInt: Fetch okay: %d, column: " FMT_D ", max column: %lu.\n",
+      logError(printf("sqlColumnInt: Fetch okay: %d, column: " FMT_D
+                      ", max column: " FMT_U_MEM ".\n",
                       preparedStmt->fetchOkay, column,
                       preparedStmt->result_array_size););
       raise_error(RANGE_ERROR);
@@ -3045,7 +3052,8 @@ static striType sqlColumnStri (sqlStmtType sqlStatement, intType column)
     preparedStmt = (preparedStmtType) sqlStatement;
     if (unlikely(!preparedStmt->fetchOkay || column < 1 ||
                  (uintType) column > preparedStmt->result_array_size)) {
-      logError(printf("sqlColumnStri: Fetch okay: %d, column: " FMT_D ", max column: %lu.\n",
+      logError(printf("sqlColumnStri: Fetch okay: %d, column: " FMT_D
+                      ", max column: " FMT_U_MEM ".\n",
                       preparedStmt->fetchOkay, column,
                       preparedStmt->result_array_size););
       raise_error(RANGE_ERROR);
@@ -3142,7 +3150,8 @@ static void sqlColumnTime (sqlStmtType sqlStatement, intType column,
     preparedStmt = (preparedStmtType) sqlStatement;
     if (unlikely(!preparedStmt->fetchOkay || column < 1 ||
                  (uintType) column > preparedStmt->result_array_size)) {
-      logError(printf("sqlColumnTime: Fetch okay: %d, column: " FMT_D ", max column: %lu.\n",
+      logError(printf("sqlColumnTime: Fetch okay: %d, column: " FMT_D
+                      ", max column: " FMT_U_MEM ".\n",
                       preparedStmt->fetchOkay, column,
                       preparedStmt->result_array_size););
       raise_error(RANGE_ERROR);
@@ -3333,7 +3342,8 @@ static boolType sqlIsNull (sqlStmtType sqlStatement, intType column)
     preparedStmt = (preparedStmtType) sqlStatement;
     if (unlikely(!preparedStmt->fetchOkay || column < 1 ||
                  (uintType) column > preparedStmt->result_array_size)) {
-      logError(printf("sqlIsNull: Fetch okay: %d, column: " FMT_D ", max column: %lu.\n",
+      logError(printf("sqlIsNull: Fetch okay: %d, column: " FMT_D
+                      ", max column: " FMT_U_MEM ".\n",
                       preparedStmt->fetchOkay, column,
                       preparedStmt->result_array_size););
       raise_error(RANGE_ERROR);
@@ -3453,7 +3463,8 @@ static striType sqlStmtColumnName (sqlStmtType sqlStatement, intType column)
     preparedStmt = (preparedStmtType) sqlStatement;
     if (unlikely(column < 1 ||
                  (uintType) column > preparedStmt->result_array_size)) {
-      logError(printf("sqlStmtColumnName: column: " FMT_D ", max column: %lu.\n",
+      logError(printf("sqlStmtColumnName: column: " FMT_D
+                      ", max column: " FMT_U_MEM ".\n",
                       column, preparedStmt->result_array_size););
       err_info = RANGE_ERROR;
       name = NULL;

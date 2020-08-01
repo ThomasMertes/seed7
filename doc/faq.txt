@@ -240,12 +240,12 @@ How many lines of code are in the Seed7 project?
 ================================================
 
 The Seed7 package contains more than 100000 lines of C and more
-than 200000 lines of Seed7. For version 2017-03-05 the number of lines is:
+than 200000 lines of Seed7. For version 2017-03-28 the number of lines is:
 
-  131622  C source files (*.c)
-   10305  C header files (*.h)
-  137364  Seed7 source files (*.sd7)
-  138068  Seed7 library/include files (*.s7i)
+  132409  C source files (*.c)
+   10373  C header files (*.h)
+  137551  Seed7 source files (*.sd7)
+  138218  Seed7 library/include files (*.s7i)
 
 C code (*.c and *.h files) can be divided into the following areas:
 
@@ -558,6 +558,7 @@ The following options are recognized by s7:
   -p   Specify a protocol file, for trace output (e.g.: -p prot.txt).
   -q   Compile quiet. Line and file information and compilation
        statistics are suppressed.
+  -s   Deactivate signal handlers.
   -tx  Set runtime trace level to x. Where x is a string consisting
        of the following characters:
          a Trace primitive actions
@@ -609,7 +610,7 @@ Possible options are
        The level n is a digit between 0 and 3:
          0 Do no optimizations with constants.
          1 Use literals and named constants to simplify expressions (default).
-         2 Evaluate constant expressions to simplify expressions.
+         2 Evaluate constant parameter expressions to simplify expressions.
          3 Like -oc2 and additionally evaluate all constant expressions.
   -sx  Supress checks specified with x. E.g.: -sr or -sro
        The checks x are specified with letters from the following list:

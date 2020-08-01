@@ -569,7 +569,8 @@ progType analyzeFile (const const_striType sourceFileArgument, uintType options,
       add_extension = TRUE;
     } /* if */
     if (strChPos(sourceFileArgument, (charType) '\\') != 0) {
-      logError(printf("analyzeFile(\"%s\", ...): Backslash in filename.\n"););
+      logError(printf("analyzeFile(\"%s\", ...): Backslash in filename.\n",
+                      striAsUnquotedCStri(sourceFileArgument)););
       *err_info = RANGE_ERROR;
     } else if (!ALLOC_STRI_CHECK_SIZE(sourceFilePath, nameLen)) {
       *err_info = MEMORY_ERROR;

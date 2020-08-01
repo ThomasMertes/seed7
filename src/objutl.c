@@ -46,6 +46,7 @@
 #include "entutl.h"
 #include "name.h"
 #include "runerr.h"
+#include "exec.h"
 #include "prg_comp.h"
 #include "typ_data.h"
 #include "big_drv.h"

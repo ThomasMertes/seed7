@@ -25,14 +25,13 @@
 /*                                                                  */
 /********************************************************************/
 
-#ifdef DO_INIT
-volatile boolType interrupt_flag = FALSE;
-#else
-EXTERN volatile boolType interrupt_flag;
-#endif
-EXTERN volatile int signal_number;
+typedef void (*suspendInterprType) (int signalNum);
 
 
-void shut_drivers (void);
-const_cstriType signal_name (int sig_num);
-void setup_signal_handlers (boolType catch_signals, boolType do_trace_signals);
+void shutDrivers (void);
+const_cstriType signalName (int signalNum);
+void triggerSigfpe (void);
+void setupSignalHandlers (boolType handleSignals,
+    boolType traceSignals, boolType overflowSigError,
+    boolType fpeNumericError, suspendInterprType suspendInterpr);
+boolType callSignalHandler (int signalNum);

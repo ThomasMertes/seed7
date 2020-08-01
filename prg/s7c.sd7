@@ -2461,7 +2461,9 @@ const proc: process_main_declaration (in reference: current_object,
     main_prolog &:= "setupRand();\n";
     main_prolog &:= "setupFloat();\n";
     main_prolog &:= "init_values();\n";
-    main_prolog &:= "activate_signal_handlers();\n";
+    main_prolog &:= "setupSignalHandlers(1, " <& ord(trace_signal) <&  ", " <&
+                                         ord(ccConf.OVERFLOW_SIGNAL <> "") <&
+                                         ", 1, NULL);\n";
     main_prolog &:= "init_globals();\n";
     main_prolog &:= "{\n";
 
@@ -2853,6 +2855,18 @@ const proc: action_address (in reference: function, inout expr_type: c_expr) is 
       c_expr.expr &:= "&setCreateGeneric";
     elsif action_name = "SET_DESTR" then
       c_expr.expr &:= "&setDestrGeneric";
+    elsif action_name = "SQL_CPY_DB" then
+      c_expr.expr &:= "&sqlCpyDbGeneric";
+    elsif action_name = "SQL_CREATE_DB" then
+      c_expr.expr &:= "&sqlCreateDbGeneric";
+    elsif action_name = "SQL_DESTR_DB" then
+      c_expr.expr &:= "&sqlDestrDbGeneric";
+    elsif action_name = "SQL_CPY_STMT" then
+      c_expr.expr &:= "&sqlCpyStmtGeneric";
+    elsif action_name = "SQL_CREATE_STMT" then
+      c_expr.expr &:= "&sqlCreateStmtGeneric";
+    elsif action_name = "SQL_DESTR_STMT" then
+      c_expr.expr &:= "&sqlDestrStmtGeneric";
     elsif action_name = "STR_CMP" then
       c_expr.expr &:= "&strCmpGeneric";
     elsif action_name = "STR_CPY" then
@@ -3549,7 +3563,7 @@ const proc: process_dynamic_call (in reference: current_object,
       end if;
     else
       c_expr.expr &:= "/* NOT FOUND */\n";
-      c_expr.expr &:= "raise_error(ACTION_ERROR);\n";
+      c_expr.expr &:= "raiseError(ACTION_ERROR);\n";
     end if;
   end func;
 
@@ -3593,7 +3607,7 @@ const proc: process_dynamic_param_implements (in reference: current_object,
     end for;
     c_expr.expr &:= "{\n";
     c_expr.expr &:= diagnosticLine(current_object);
-    c_expr.expr &:= "raise_error(ACTION_ERROR);\n";
+    c_expr.expr &:= "raiseError(ACTION_ERROR);\n";
     (*
     c_expr.expr &:= diagnosticLine(current_object);
     c_expr.expr &:= "printf(\"type_num=%d\\n\", ";
@@ -3659,7 +3673,7 @@ const proc: process_dynamic_param_enumeration (in reference: current_object,
     c_expr.expr &:= diagnosticLine(current_object);
     c_expr.expr &:= "default: {\n";
     c_expr.expr &:= diagnosticLine(current_object);
-    c_expr.expr &:= "raise_error(ACTION_ERROR);\n";
+    c_expr.expr &:= "raiseError(ACTION_ERROR);\n";
     (*
     c_expr.expr &:= "printf(\"literal_num=%d\\n\", ";
     if isPointerParam(formal_param) then
@@ -4085,7 +4099,7 @@ const proc: process_arr_times_declaration (in reference: current_object,
         c_expr.expr &:= diagnosticLine;
         c_expr.expr &:= "if (n < 0) {\n";
         c_expr.expr &:= diagnosticLine;
-        c_expr.expr &:= "raise_error(RANGE_ERROR);\n";
+        c_expr.expr &:= "raiseError(RANGE_ERROR);\n";
         c_expr.expr &:= diagnosticLine;
         c_expr.expr &:= "} else {\n";
       else
@@ -4501,6 +4515,12 @@ const proc: process_action_declaration (in reference: current_object,
         count_declarations(c_expr);
       elsif action_name = "SOC_CPY" or action_name = "SOC_CREATE" then
         defineParam1TypeCategory(current_object, SOCKETOBJECT);
+        count_declarations(c_expr);
+      elsif action_name = "SQL_CPY_DB" or action_name = "SQL_CREATE_DB" then
+        defineParam1TypeCategory(current_object, DATABASEOBJECT);
+        count_declarations(c_expr);
+      elsif action_name = "SQL_CPY_STMT" or action_name = "SQL_CREATE_STMT" then
+        defineParam1TypeCategory(current_object, SQLSTMTOBJECT);
         count_declarations(c_expr);
 (*
       else
@@ -5182,7 +5202,7 @@ const proc: write_file_head is func
     writeln(c_prog, "{\\");
     writeln(c_prog, "  hashElemListType new_head = (hashElemListType)(malloc(sizeof(struct hashElemListStruct)));\\");
     writeln(c_prog, "  if (new_head == NULL) {\\");
-    writeln(c_prog, "    raise_error(MEMORY_ERROR);\\");
+    writeln(c_prog, "    raiseError(MEMORY_ERROR);\\");
     writeln(c_prog, "  } else {\\");
     writeln(c_prog, "    new_head->next = stack;\\");
     writeln(c_prog, "    new_head->obj = elem;\\");
@@ -5279,200 +5299,32 @@ const proc: write_prototypes is func
     declareExtern("intType     ptrCmpGeneric (const genericType, const genericType);");
     declareExtern("void        ptrCpyGeneric (genericType *const, const genericType);");
     declareExtern("genericType ptrCreateGeneric (const genericType);");
+    writeln(c_prog, "typedef void (*suspendInterprType) (int signalNum);");
+    declareExtern("void        setupSignalHandlers (boolType, boolType, boolType, boolType, suspendInterprType);");
     declareExtern("void        rtlRaiseError (int, const char *, int) NORETURN;");
-    writeln(c_prog, "#define raise_error(num) rtlRaiseError(num, __FILE__, __LINE__)\n");
-    writeln(c_prog, "#define intRaiseError(num) (rtlRaiseError(num, __FILE__, __LINE__), 0)\n");
-    writeln(c_prog, "#define bigRaiseError(num) (bigIntType)(rtlRaiseError(num, __FILE__, __LINE__), NULL)\n");
-    writeln(c_prog, "#define strRaiseError(num) (striType)(rtlRaiseError(num, __FILE__, __LINE__), NULL)\n");
+    writeln(c_prog, "#define raiseError(num) rtlRaiseError(num, __FILE__, __LINE__)");
+    writeln(c_prog, "#define intRaiseError(num) (rtlRaiseError(num, __FILE__, __LINE__), 0)");
+    writeln(c_prog, "#define bigRaiseError(num) (bigIntType)(rtlRaiseError(num, __FILE__, __LINE__), NULL)");
+    writeln(c_prog, "#define strRaiseError(num) (striType)(rtlRaiseError(num, __FILE__, __LINE__), NULL)");
 (*
     declareExtern("intType     enuValue (objRefType a)                         {printf(\"enuValue\\n\");}");
     declareExtern("intType     enuValue (objRefType);");
 *)
+    if trace_signal then
+      writeln(c_prog, "#define filGetc(inFile) filGetcChkCtrlC(inFile)");
+      writeln(c_prog, "#define filGets(inFile, length) filGetsChkCtrlC(inFile, length)");
+      writeln(c_prog, "#define filHasNext(inFile) filHasNextChkCtrlC(inFile)");
+      writeln(c_prog, "#define filLineRead(inFile, terminationChar) filLineReadChkCtrlC(inFile, terminationChar)");
+      writeln(c_prog, "#define filWordRead(inFile, terminationChar) filWordReadChkCtrlC(inFile, terminationChar)");
+    else
+      writeln(c_prog, "#define filGetc(inFile) fgetc(inFile)");
+    end if;
   end func;
 
 
-const proc: write_signal_handlers is func
+const proc: write_resize_catch_stack is func
 
-  local
-    const array string: normalSignals is [] (
-        "SIGABRT", "SIGILL", "SIGINT");
-    var string: signalName is "";
   begin
-    writeln(c_prog);
-    writeln(c_prog);
-    writeln(c_prog, "static void activate_signal_handlers (void);");
-    writeln(c_prog);
-    writeln(c_prog);
-    writeln(c_prog, "static char *signal_name (int sig_num)");
-    writeln(c_prog);
-    writeln(c_prog, "  {");
-    writeln(c_prog, "    static char buffer[20];");
-    writeln(c_prog, "    char *sig_name;");
-    writeln(c_prog);
-    writeln(c_prog, "    if (sig_num == SIGABRT) {");
-    writeln(c_prog, "      sig_name = \"ABORT\";");
-    writeln(c_prog, "    } else if (sig_num == SIGFPE) {");
-    writeln(c_prog, "      sig_name = \"FPE\";");
-    writeln(c_prog, "    } else if (sig_num == SIGILL) {");
-    writeln(c_prog, "      sig_name = \"ILL\";");
-    writeln(c_prog, "    } else if (sig_num == SIGINT) {");
-    writeln(c_prog, "      sig_name = \"INTR\";");
-    writeln(c_prog, "    } else if (sig_num == SIGSEGV) {");
-    writeln(c_prog, "      sig_name = \"SEGV\";");
-    writeln(c_prog, "    } else if (sig_num == SIGTERM) {");
-    writeln(c_prog, "      sig_name = \"TERM\";");
-    writeln(c_prog, "#ifdef SIGALRM");
-    writeln(c_prog, "    } else if (sig_num == SIGALRM) {");
-    writeln(c_prog, "      sig_name = \"ALARM\";");
-    writeln(c_prog, "#endif");
-    writeln(c_prog, "#ifdef SIGPIPE");
-    writeln(c_prog, "    } else if (sig_num == SIGPIPE) {");
-    writeln(c_prog, "      sig_name = \"SIGPIPE\";");
-    writeln(c_prog, "#endif");
-    writeln(c_prog, "    } else {");
-    writeln(c_prog, "      sprintf(buffer, \"%d\", sig_num);");
-    writeln(c_prog, "      sig_name = buffer;");
-    writeln(c_prog, "    } /* if */");
-    writeln(c_prog, "    return sig_name;");
-    writeln(c_prog, "  }");
-    writeln(c_prog);
-    writeln(c_prog);
-    if trace_signal then
-      writeln(c_prog, "static void handle_signals (int sig_num)");
-      writeln(c_prog);
-      writeln(c_prog, "  {");
-      writeln(c_prog, "    int ch;");
-      writeln(c_prog);
-      writeln(c_prog, "#ifdef SIGALRM");
-      if ccConf.HAS_SIGACTION then
-        writeln(c_prog, "    struct sigaction sig_act;");
-        writeln(c_prog, "    sigemptyset(&sig_act.sa_mask);");
-        writeln(c_prog, "    sig_act.sa_flags = SA_RESTART;");
-        writeln(c_prog, "    sig_act.sa_handler = SIG_IGN;");
-        writeln(c_prog, "    sigaction(SIGALRM, &sig_act, NULL);");
-      else
-        writeln(c_prog, "    signal(SIGALRM, SIG_IGN);");
-      end if;
-      writeln(c_prog, "#endif");
-      writeln(c_prog, "    printf(\"\\n*** SIGNAL %s RAISED\\n\", signal_name(sig_num));");
-      writeln(c_prog, "    printf(\"\\n*** (Type RETURN to continue or '*' to terminate)\\n\");");
-      writeln(c_prog, "    ch = fgetc(stdin);");
-      writeln(c_prog, "    if (ch == '*') {");
-      writeln(c_prog, "      exit(1);");
-      writeln(c_prog, "    } /* if */");
-      if ccConf.SIGNAL_RESETS_HANDLER then
-        writeln(c_prog, "    activate_signal_handlers();");
-      end if;
-      writeln(c_prog, "  }");
-      writeln(c_prog);
-      writeln(c_prog);
-    end if;
-    writeln(c_prog, "static void handle_term_signal (int sig_num)");
-    writeln(c_prog);
-    writeln(c_prog, "  {");
-    writeln(c_prog, "    printf(\"\\n*** SIGNAL %s RAISED\\n\", signal_name(sig_num));");
-    writeln(c_prog, "    printf(\"\\n*** Program terminated\\n\");");
-    writeln(c_prog, "    exit(1);");
-    writeln(c_prog, "  }");
-    writeln(c_prog);
-    writeln(c_prog);
-    if trace_signal then
-      writeln(c_prog, "static void handle_segv_signal (int sig_num)");
-      writeln(c_prog);
-      writeln(c_prog, "  {");
-      writeln(c_prog, "    printf(\"\\n*** SIGNAL SEGV RAISED\\n\");");
-      writeln(c_prog, "    printf(\"\\n*** Program terminated\\n\");");
-      if ccConf.HAS_SIGACTION then
-        writeln(c_prog, "    {");
-        writeln(c_prog, "      struct sigaction sig_act;");
-        writeln(c_prog, "      sigemptyset(&sig_act.sa_mask);");
-        writeln(c_prog, "      sig_act.sa_flags = SA_RESTART;");
-        writeln(c_prog, "      sig_act.sa_handler = SIG_DFL;");
-        writeln(c_prog, "      sigaction(SIGABRT, &sig_act, NULL);");
-        writeln(c_prog, "    }");
-      else
-        writeln(c_prog, "    signal(SIGABRT, SIG_DFL);");
-      end if;
-      writeln(c_prog, "    abort();");
-      writeln(c_prog, "  }");
-      writeln(c_prog);
-      writeln(c_prog);
-    end if;
-    writeln(c_prog, "static void handle_numeric_error (int sig_num)");
-    writeln(c_prog);
-    writeln(c_prog, "  {");
-    if ccConf.SIGNAL_RESETS_HANDLER then
-      writeln(c_prog, "    signal(SIGFPE, handle_numeric_error);");
-    end if;
-    writeln(c_prog, "    raise_error(NUMERIC_ERROR);");
-    writeln(c_prog, "  }");
-    writeln(c_prog);
-    writeln(c_prog);
-    if ccConf.OVERFLOW_SIGNAL <> "" then
-      writeln(c_prog, "static void handle_overflow_error (int sig_num)");
-      writeln(c_prog);
-      writeln(c_prog, "  {");
-      if ccConf.SIGNAL_RESETS_HANDLER then
-        writeln(c_prog, "    signal(" <& ccConf.OVERFLOW_SIGNAL <& ", handle_overflow_error);");
-      end if;
-      writeln(c_prog, "    raise_error(OVERFLOW_ERROR);");
-      writeln(c_prog, "  }");
-      writeln(c_prog);
-      writeln(c_prog);
-    end if;
-    writeln(c_prog, "static void activate_signal_handlers (void)");
-    writeln(c_prog);
-    writeln(c_prog, "  {");
-    if ccConf.HAS_SIGACTION then
-      writeln(c_prog, "    struct sigaction sig_act;");
-      writeln(c_prog, "    sigemptyset(&sig_act.sa_mask);");
-      writeln(c_prog, "    sig_act.sa_flags = SA_RESTART;");
-      writeln(c_prog, "    sig_act.sa_handler = handle_numeric_error;");
-      writeln(c_prog, "    sigaction(SIGFPE, &sig_act, NULL);");
-      writeln(c_prog, "    sig_act.sa_handler = handle_term_signal;");
-      writeln(c_prog, "    sigaction(SIGTERM, &sig_act, NULL);");
-      if trace_signal then
-        writeln(c_prog, "    sig_act.sa_handler = handle_segv_signal;");
-      else
-        writeln(c_prog, "    sig_act.sa_handler = SIG_DFL;");
-      end if;
-      writeln(c_prog, "    sigaction(SIGSEGV, &sig_act, NULL);");
-      for signalName range normalSignals do
-        if signalName = ccConf.OVERFLOW_SIGNAL then
-          writeln(c_prog, "    sig_act.sa_handler = handle_overflow_error;");
-        elsif trace_signal then
-          writeln(c_prog, "    sig_act.sa_handler = handle_signals;");
-        else
-          writeln(c_prog, "    sig_act.sa_handler = handle_term_signal;");
-        end if;
-        writeln(c_prog, "    sigaction(" <& signalName <& ", &sig_act, NULL);");
-      end for;
-      writeln(c_prog, "#ifdef SIGPIPE");
-      writeln(c_prog, "    sig_act.sa_handler = SIG_IGN;");
-      writeln(c_prog, "    sigaction(SIGPIPE, &sig_act, NULL);");
-      writeln(c_prog, "#endif");
-    else
-      writeln(c_prog, "    signal(SIGFPE, handle_numeric_error);");
-      writeln(c_prog, "    signal(SIGTERM, handle_term_signal);");
-      if trace_signal then
-        writeln(c_prog, "    signal(SIGSEGV, handle_segv_signal);");
-      else
-        writeln(c_prog, "    signal(SIGSEGV, SIG_DFL);");
-      end if;
-      for signalName range normalSignals do
-        if signalName = ccConf.OVERFLOW_SIGNAL then
-          writeln(c_prog, "    signal(" <& signalName <& ", handle_overflow_error);");
-        elsif trace_signal then
-          writeln(c_prog, "    signal(" <& signalName <& ", handle_signals);");
-        else
-          writeln(c_prog, "    signal(" <& signalName <& ", handle_term_signal);");
-        end if;
-      end for;
-      writeln(c_prog, "#ifdef SIGPIPE");
-      writeln(c_prog, "    signal(SIGPIPE, SIG_IGN);");
-      writeln(c_prog, "#endif");
-    end if;
-    writeln(c_prog, "  }");
     writeln(c_prog);
     writeln(c_prog);
     writeln(c_prog, "static void resize_catch_stack (void)");
@@ -5484,18 +5336,11 @@ const proc: write_signal_handlers is func
     writeln(c_prog, "    resized_stack = (catch_type *)(realloc(catch_stack, max_catch_stack));");
     writeln(c_prog, "    if (resized_stack == NULL) {");
     writeln(c_prog, "      catch_stack_pos--;");
-    writeln(c_prog, "      raise_error(MEMORY_ERROR);");
+    writeln(c_prog, "      raiseError(MEMORY_ERROR);");
     writeln(c_prog, "    } else {");
     writeln(c_prog, "      catch_stack = resized_stack;");
     writeln(c_prog, "    }");
     writeln(c_prog, "  }");
-    writeln(c_prog);
-    writeln(c_prog);
-    writeln(c_prog, "static intType int_raise_error (int fail_value, const char *file_name, int line_number)");
-    writeln(c_prog, "{");
-    writeln(c_prog, "  rtlRaiseError(fail_value, file_name, line_number);");
-    writeln(c_prog, "  return 0;");
-    writeln(c_prog, "}");
     writeln(c_prog);
     writeln(c_prog);
   end func;
@@ -7098,7 +6943,7 @@ const proc: pass_2 (in string: source, in program: prog,
             init_systypes(prog);
             write_file_head;
             write_prototypes;
-            write_signal_handlers;
+            write_resize_catch_stack;
             globalObjects := globalObjects(prog);
             if compileLibrary then
               writeln("Compile library");
@@ -7462,7 +7307,7 @@ const proc: writeHelp is func
     writeln("       The level n is a digit between 0 and 3:");
     writeln("         0 Do no optimizations with constants.");
     writeln("         1 Use literals and named constants to simplify expressions (default).");
-    writeln("         2 Evaluate constant expressions to simplify expressions.");
+    writeln("         2 Evaluate constant parameter expressions to simplify expressions.");
     writeln("         3 Like -oc2 and additionally evaluate all constant expressions.");
     writeln("  -sx  Supress checks specified with x. E.g.: -sr or -sro");
     writeln("       The checks x are specified with letters from the following list:");

@@ -87,11 +87,17 @@ const proc: sql_prototypes (inout file: c_prog) is func
     declareExtern(c_prog, "void        sqlColumnTime (sqlStmtType, intType, intType *, intType *, intType *, intType *, intType *, intType *, intType *, intType *, boolType * );");
     declareExtern(c_prog, "void        sqlCommit (databaseType);");
     declareExtern(c_prog, "void        sqlCpyDb (databaseType *const, const databaseType);");
+    declareExtern(c_prog, "void        sqlCpyDbGeneric (genericType *const, const genericType);");
     declareExtern(c_prog, "void        sqlCpyStmt (sqlStmtType *const, const sqlStmtType);");
+    declareExtern(c_prog, "void        sqlCpyStmtGeneric (genericType *const, const genericType);");
     declareExtern(c_prog, "databaseType sqlCreateDb (const databaseType);");
+    declareExtern(c_prog, "genericType sqlCreateDbGeneric (const genericType);");
     declareExtern(c_prog, "sqlStmtType sqlCreateStmt (const sqlStmtType);");
+    declareExtern(c_prog, "genericType sqlCreateStmtGeneric (const genericType);");
     declareExtern(c_prog, "void        sqlDestrDb (const databaseType);");
+    declareExtern(c_prog, "void        sqlDestrDbGeneric (const genericType);");
     declareExtern(c_prog, "void        sqlDestrStmt (const sqlStmtType);");
+    declareExtern(c_prog, "void        sqlDestrStmtGeneric (const genericType);");
     declareExtern(c_prog, "void        sqlExecute (sqlStmtType);");
     declareExtern(c_prog, "boolType    sqlFetch (sqlStmtType);");
     declareExtern(c_prog, "boolType    sqlIsNull (sqlStmtType, intType);");

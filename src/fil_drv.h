@@ -30,6 +30,7 @@
 /********************************************************************/
 
 
+int readCharChkCtrlC (fileType inFile, boolType *sigintReceived);
 boolType filInputReady (fileType aFile);
 void filPipe (fileType *inFile, fileType *outFile);
 void setupFiles (void);

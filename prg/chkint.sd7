@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  chkint.sd7    Checks integer literals and operations            *)
-(*  Copyright (C) 1991 - 1994, 2004, 2005, 2014 - 2016              *)
+(*  Copyright (C) 1991 - 1994, 2004, 2005, 2007 - 2016              *)
 (*                Thomas Mertes                                     *)
 (*                                                                  *)
 (*  This program is free software; you can redistribute it and/or   *)
@@ -12865,10 +12865,11 @@ const proc: check_rand is func
 
 const proc: check_sqrt is func
   local
-    var boolean: okay is TRUE;
     var integer: number is 0;
     var integer: sqrt_num is 0;
     var integer: count is 0;
+    var boolean: okay is TRUE;
+    var boolean: ok is TRUE;
   begin
     for number range 0 to 1000 do
       sqrt_num := sqrt(number);
@@ -12879,13 +12880,12 @@ const proc: check_sqrt is func
         write(") = ");
         write(sqrt_num);
         writeln(" is NOT OKAY");
-        okay := FALSE;
+        ok := FALSE;
       end if;
     end for;
-    if okay then
-      writeln("Integer sqrt is correct for values between 0 and 1000.");
-    end if;
-    okay := TRUE;
+    okay := okay and ok;
+
+    ok := TRUE;
     for count range 1 to 10000 do
       number := rand(0, 2147395599);
       sqrt_num := sqrt(number);
@@ -12896,7 +12896,7 @@ const proc: check_sqrt is func
         write(") = ");
         write(sqrt_num);
         writeln(" is NOT OKAY");
-        okay := FALSE;
+        ok := FALSE;
       end if;
     end for;
     for count range 1 to 1000 do
@@ -12908,11 +12908,254 @@ const proc: check_sqrt is func
         write(") = ");
         write(sqrt_num);
         writeln(" is NOT OKAY");
-        okay := FALSE;
+        ok := FALSE;
       end if;
     end for;
+    okay := okay and ok;
+
+    if  sqrt(                  0) <>          0 or
+        sqrt(                  1) <>          1 or
+        sqrt(                  2) <>          1 or
+        sqrt(                  3) <>          1 or
+        sqrt(                  4) <>          2 or
+        sqrt(                  5) <>          2 or
+        sqrt(                  8) <>          2 or
+        sqrt(                  9) <>          3 or
+        sqrt(                 15) <>          3 or
+        sqrt(                 16) <>          4 or
+        sqrt(                 24) <>          4 or
+        sqrt(                 25) <>          5 or
+        sqrt(                 35) <>          5 or
+        sqrt(                 36) <>          6 or
+        sqrt(                 48) <>          6 or
+        sqrt(                 49) <>          7 or
+        sqrt(                 63) <>          7 or
+        sqrt(                 64) <>          8 or
+        sqrt(                 80) <>          8 or
+        sqrt(                 81) <>          9 or
+        sqrt(                128) <>         11 or
+        sqrt(                129) <>         11 or
+        sqrt(                255) <>         15 or
+        sqrt(                256) <>         16 or
+        sqrt(                257) <>         16 or
+        sqrt(               1000) <>         31 or
+        sqrt(              10000) <>        100 or
+        sqrt(              32767) <>        181 or
+        sqrt(              32768) <>        181 or
+        sqrt(              32769) <>        181 or
+        sqrt(              65535) <>        255 or
+        sqrt(              65536) <>        256 or
+        sqrt(              65537) <>        256 or
+        sqrt(             100000) <>        316 or
+        sqrt(            1000000) <>       1000 or
+        sqrt(           10000000) <>       3162 or
+        sqrt(          100000000) <>      10000 or
+        sqrt(         1000000000) <>      31622 or
+        sqrt(         2147483647) <>      46340 or
+        sqrt(         2147483648) <>      46340 or
+        sqrt(         2147483649) <>      46340 or
+        sqrt(         4294967295) <>      65535 or
+        sqrt(         4294967296) <>      65536 or
+        sqrt(         4294967297) <>      65536 or
+        sqrt(        10000000000) <>     100000 or
+        sqrt(       100000000000) <>     316227 or
+        sqrt(      1000000000000) <>    1000000 or
+        sqrt(     10000000000000) <>    3162277 or
+        sqrt(    100000000000000) <>   10000000 or
+        sqrt(   1000000000000000) <>   31622776 or
+        sqrt(  10000000000000000) <>  100000000 or
+        sqrt( 100000000000000000) <>  316227766 or
+        sqrt(1000000000000000000) <> 1000000000 or
+        sqrt(9223372030926249000) <> 3037000498 or
+        sqrt(9223372030926249001) <> 3037000499 or
+        sqrt(9223372036854775807) <> 3037000499 then
+      writeln("The integer square root does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if  sqrt(intExpr(                  0)) <>          0 or
+        sqrt(intExpr(                  1)) <>          1 or
+        sqrt(intExpr(                  2)) <>          1 or
+        sqrt(intExpr(                  3)) <>          1 or
+        sqrt(intExpr(                  4)) <>          2 or
+        sqrt(intExpr(                  5)) <>          2 or
+        sqrt(intExpr(                  8)) <>          2 or
+        sqrt(intExpr(                  9)) <>          3 or
+        sqrt(intExpr(                 15)) <>          3 or
+        sqrt(intExpr(                 16)) <>          4 or
+        sqrt(intExpr(                 24)) <>          4 or
+        sqrt(intExpr(                 25)) <>          5 or
+        sqrt(intExpr(                 35)) <>          5 or
+        sqrt(intExpr(                 36)) <>          6 or
+        sqrt(intExpr(                 48)) <>          6 or
+        sqrt(intExpr(                 49)) <>          7 or
+        sqrt(intExpr(                 63)) <>          7 or
+        sqrt(intExpr(                 64)) <>          8 or
+        sqrt(intExpr(                 80)) <>          8 or
+        sqrt(intExpr(                 81)) <>          9 or
+        sqrt(intExpr(                128)) <>         11 or
+        sqrt(intExpr(                129)) <>         11 or
+        sqrt(intExpr(                255)) <>         15 or
+        sqrt(intExpr(                256)) <>         16 or
+        sqrt(intExpr(                257)) <>         16 or
+        sqrt(intExpr(               1000)) <>         31 or
+        sqrt(intExpr(              10000)) <>        100 or
+        sqrt(intExpr(              32767)) <>        181 or
+        sqrt(intExpr(              32768)) <>        181 or
+        sqrt(intExpr(              32769)) <>        181 or
+        sqrt(intExpr(              65535)) <>        255 or
+        sqrt(intExpr(              65536)) <>        256 or
+        sqrt(intExpr(              65537)) <>        256 or
+        sqrt(intExpr(             100000)) <>        316 or
+        sqrt(intExpr(            1000000)) <>       1000 or
+        sqrt(intExpr(           10000000)) <>       3162 or
+        sqrt(intExpr(          100000000)) <>      10000 or
+        sqrt(intExpr(         1000000000)) <>      31622 or
+        sqrt(intExpr(         2147483647)) <>      46340 or
+        sqrt(intExpr(         2147483648)) <>      46340 or
+        sqrt(intExpr(         2147483649)) <>      46340 or
+        sqrt(intExpr(         4294967295)) <>      65535 or
+        sqrt(intExpr(         4294967296)) <>      65536 or
+        sqrt(intExpr(         4294967297)) <>      65536 or
+        sqrt(intExpr(        10000000000)) <>     100000 or
+        sqrt(intExpr(       100000000000)) <>     316227 or
+        sqrt(intExpr(      1000000000000)) <>    1000000 or
+        sqrt(intExpr(     10000000000000)) <>    3162277 or
+        sqrt(intExpr(    100000000000000)) <>   10000000 or
+        sqrt(intExpr(   1000000000000000)) <>   31622776 or
+        sqrt(intExpr(  10000000000000000)) <>  100000000 or
+        sqrt(intExpr( 100000000000000000)) <>  316227766 or
+        sqrt(intExpr(1000000000000000000)) <> 1000000000 or
+        sqrt(intExpr(9223372030926249000)) <> 3037000498 or
+        sqrt(intExpr(9223372030926249001)) <> 3037000499 or
+        sqrt(intExpr(9223372036854775807)) <> 3037000499 then
+      writeln("The integer square root of expressions does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if  not raisesNumericError(sqrt(                  -1)) or
+        not raisesNumericError(sqrt(                  -2)) or
+        not raisesNumericError(sqrt(                  -3)) or
+        not raisesNumericError(sqrt(                  -4)) or
+        not raisesNumericError(sqrt(                  -5)) or
+        not raisesNumericError(sqrt(                  -8)) or
+        not raisesNumericError(sqrt(                  -9)) or
+        not raisesNumericError(sqrt(                 -15)) or
+        not raisesNumericError(sqrt(                 -16)) or
+        not raisesNumericError(sqrt(                 -24)) or
+        not raisesNumericError(sqrt(                 -25)) or
+        not raisesNumericError(sqrt(                 -35)) or
+        not raisesNumericError(sqrt(                 -36)) or
+        not raisesNumericError(sqrt(                 -48)) or
+        not raisesNumericError(sqrt(                 -49)) or
+        not raisesNumericError(sqrt(                 -63)) or
+        not raisesNumericError(sqrt(                 -64)) or
+        not raisesNumericError(sqrt(                 -80)) or
+        not raisesNumericError(sqrt(                 -81)) or
+        not raisesNumericError(sqrt(                -128)) or
+        not raisesNumericError(sqrt(                -129)) or
+        not raisesNumericError(sqrt(                -255)) or
+        not raisesNumericError(sqrt(                -256)) or
+        not raisesNumericError(sqrt(                -257)) or
+        not raisesNumericError(sqrt(               -1000)) or
+        not raisesNumericError(sqrt(              -10000)) or
+        not raisesNumericError(sqrt(              -32767)) or
+        not raisesNumericError(sqrt(              -32768)) or
+        not raisesNumericError(sqrt(              -32769)) or
+        not raisesNumericError(sqrt(              -65535)) or
+        not raisesNumericError(sqrt(              -65536)) or
+        not raisesNumericError(sqrt(              -65537)) or
+        not raisesNumericError(sqrt(             -100000)) or
+        not raisesNumericError(sqrt(            -1000000)) or
+        not raisesNumericError(sqrt(           -10000000)) or
+        not raisesNumericError(sqrt(          -100000000)) or
+        not raisesNumericError(sqrt(         -1000000000)) or
+        not raisesNumericError(sqrt(         -2147483647)) or
+        not raisesNumericError(sqrt(         -2147483648)) or
+        not raisesNumericError(sqrt(         -2147483649)) or
+        not raisesNumericError(sqrt(         -4294967295)) or
+        not raisesNumericError(sqrt(         -4294967296)) or
+        not raisesNumericError(sqrt(         -4294967297)) or
+        not raisesNumericError(sqrt(        -10000000000)) or
+        not raisesNumericError(sqrt(       -100000000000)) or
+        not raisesNumericError(sqrt(      -1000000000000)) or
+        not raisesNumericError(sqrt(     -10000000000000)) or
+        not raisesNumericError(sqrt(    -100000000000000)) or
+        not raisesNumericError(sqrt(   -1000000000000000)) or
+        not raisesNumericError(sqrt(  -10000000000000000)) or
+        not raisesNumericError(sqrt( -100000000000000000)) or
+        not raisesNumericError(sqrt(-1000000000000000000)) or
+        not raisesNumericError(sqrt(-9223372030926249000)) or
+        not raisesNumericError(sqrt(-9223372030926249001)) or
+        not raisesNumericError(sqrt(       integer.first)) then
+      writeln(" ***** The integer square root of a negative number does not raise NUMERIC_ERROR.");
+      okay := FALSE;
+    end if;
+
+    if  not raisesNumericError(sqrt(intExpr(                  -1))) or
+        not raisesNumericError(sqrt(intExpr(                  -2))) or
+        not raisesNumericError(sqrt(intExpr(                  -3))) or
+        not raisesNumericError(sqrt(intExpr(                  -4))) or
+        not raisesNumericError(sqrt(intExpr(                  -5))) or
+        not raisesNumericError(sqrt(intExpr(                  -8))) or
+        not raisesNumericError(sqrt(intExpr(                  -9))) or
+        not raisesNumericError(sqrt(intExpr(                 -15))) or
+        not raisesNumericError(sqrt(intExpr(                 -16))) or
+        not raisesNumericError(sqrt(intExpr(                 -24))) or
+        not raisesNumericError(sqrt(intExpr(                 -25))) or
+        not raisesNumericError(sqrt(intExpr(                 -35))) or
+        not raisesNumericError(sqrt(intExpr(                 -36))) or
+        not raisesNumericError(sqrt(intExpr(                 -48))) or
+        not raisesNumericError(sqrt(intExpr(                 -49))) or
+        not raisesNumericError(sqrt(intExpr(                 -63))) or
+        not raisesNumericError(sqrt(intExpr(                 -64))) or
+        not raisesNumericError(sqrt(intExpr(                 -80))) or
+        not raisesNumericError(sqrt(intExpr(                 -81))) or
+        not raisesNumericError(sqrt(intExpr(                -128))) or
+        not raisesNumericError(sqrt(intExpr(                -129))) or
+        not raisesNumericError(sqrt(intExpr(                -255))) or
+        not raisesNumericError(sqrt(intExpr(                -256))) or
+        not raisesNumericError(sqrt(intExpr(                -257))) or
+        not raisesNumericError(sqrt(intExpr(               -1000))) or
+        not raisesNumericError(sqrt(intExpr(              -10000))) or
+        not raisesNumericError(sqrt(intExpr(              -32767))) or
+        not raisesNumericError(sqrt(intExpr(              -32768))) or
+        not raisesNumericError(sqrt(intExpr(              -32769))) or
+        not raisesNumericError(sqrt(intExpr(              -65535))) or
+        not raisesNumericError(sqrt(intExpr(              -65536))) or
+        not raisesNumericError(sqrt(intExpr(              -65537))) or
+        not raisesNumericError(sqrt(intExpr(             -100000))) or
+        not raisesNumericError(sqrt(intExpr(            -1000000))) or
+        not raisesNumericError(sqrt(intExpr(           -10000000))) or
+        not raisesNumericError(sqrt(intExpr(          -100000000))) or
+        not raisesNumericError(sqrt(intExpr(         -1000000000))) or
+        not raisesNumericError(sqrt(intExpr(         -2147483647))) or
+        not raisesNumericError(sqrt(intExpr(         -2147483648))) or
+        not raisesNumericError(sqrt(intExpr(         -2147483649))) or
+        not raisesNumericError(sqrt(intExpr(         -4294967295))) or
+        not raisesNumericError(sqrt(intExpr(         -4294967296))) or
+        not raisesNumericError(sqrt(intExpr(         -4294967297))) or
+        not raisesNumericError(sqrt(intExpr(        -10000000000))) or
+        not raisesNumericError(sqrt(intExpr(       -100000000000))) or
+        not raisesNumericError(sqrt(intExpr(      -1000000000000))) or
+        not raisesNumericError(sqrt(intExpr(     -10000000000000))) or
+        not raisesNumericError(sqrt(intExpr(    -100000000000000))) or
+        not raisesNumericError(sqrt(intExpr(   -1000000000000000))) or
+        not raisesNumericError(sqrt(intExpr(  -10000000000000000))) or
+        not raisesNumericError(sqrt(intExpr( -100000000000000000))) or
+        not raisesNumericError(sqrt(intExpr(-1000000000000000000))) or
+        not raisesNumericError(sqrt(intExpr(-9223372030926249000))) or
+        not raisesNumericError(sqrt(intExpr(-9223372030926249001))) or
+        not raisesNumericError(sqrt(intExpr(       integer.first))) then
+      writeln(" ***** The integer square root of a negative expression does not raise NUMERIC_ERROR.");
+      okay := FALSE;
+    end if;
+
     if okay then
-      writeln("Integer sqrt is correct for 11000 random values.");
+      writeln("The integer square root works correct.");
+    else
+      writeln(" ***** The integer square root does not work correct.");
+      writeln;
     end if;
   end func;
 

@@ -94,7 +94,7 @@ void setupStack (void)
 
 
 
-#ifdef WITH_STRI_CAPACITY
+#if WITH_STRI_CAPACITY
 /**
  *  Enlarge the capacity of a string.
  *  This function is called from the macro GROW_STRI, when the
@@ -105,7 +105,7 @@ void setupStack (void)
  *  @param stri String for which the capacity is enlarged.
  *  @param len Length of the string that will be assigned.
  *  @return the enlarged string, or NULL if the allocation failed.
- */ 
+ */
 striType growStri (striType stri, memSizeType len)
 
   {
@@ -135,7 +135,7 @@ striType growStri (striType stri, memSizeType len)
         result = REALLOC_HEAP(stri, striType, SIZ_STRI(newCapacity));
       } /* if */
       if (result != NULL) {
-#ifdef ALLOW_STRITYPE_SLICES
+#if ALLOW_STRITYPE_SLICES
         result->mem = result->mem1;
 #endif
         result->capacity = newCapacity;
@@ -169,7 +169,7 @@ striType shrinkStri (striType stri, memSizeType len)
          stri, len, stri->size, stri->capacity, newCapacity, SIZ_STRI(newCapacity), sizeof(striRecord));
     fflush(stdout); */
     result = REALLOC_HEAP(stri, striType, SIZ_STRI(newCapacity));
-#ifdef ALLOW_STRITYPE_SLICES
+#if ALLOW_STRITYPE_SLICES
     result->mem = result->mem1;
 #endif
     result->capacity = newCapacity;
@@ -185,12 +185,12 @@ void freeStriFreelist (void)
   {
     freeListElemType elem;
     striType stri;
-#ifdef WITH_STRI_CAPACITY
+#if WITH_STRI_CAPACITY
     memSizeType capacity;
 #endif
 
   /* freeStriFreelist */
-#ifdef WITH_STRI_CAPACITY
+#if WITH_STRI_CAPACITY
     for (capacity = 0; capacity < STRI_FREELIST_ARRAY_SIZE; capacity++) {
       elem = sflist[capacity];
       while (elem != NULL) {
@@ -219,7 +219,7 @@ void freelistStatistic (void)
 
   {
     freeListElemType elem;
-#ifdef WITH_STRI_CAPACITY
+#if WITH_STRI_CAPACITY
     memSizeType capacity;
     unsigned int sflist_size[STRI_FREELIST_ARRAY_SIZE];
 #else
@@ -227,7 +227,7 @@ void freelistStatistic (void)
 #endif
 
   /* freelistStatistic */
-#ifdef WITH_STRI_CAPACITY
+#if WITH_STRI_CAPACITY
     for (capacity = 0; capacity < STRI_FREELIST_ARRAY_SIZE; capacity++) {
       sflist_size[capacity] = sflist_allowed[capacity];
       elem = sflist[capacity];
@@ -402,7 +402,7 @@ void rtlHeapStatistic (void)
     bytes_total = bytes_used;
 #if DO_HEAPSIZE_COMPUTATION
     if (bytes_total != hs) {
-      printf("*** \nbytes_total=%lu hs=%lu diff=%ld\n",
+      printf("*** \nbytes_total=" FMT_U_MEM " hs=" FMT_U_MEM " diff=" FMT_D_MEM "\n",
           bytes_total, hs, bytes_total - hs);
     } /* if */
 #endif

@@ -127,11 +127,10 @@ charType gkbGetc (void)
   {
     BOOL bRet;
     MSG msg;
-    charType result;
+    charType result = K_NONE;
 
   /* gkbGetc */
     logFunction(printf("gkbGetc\n"););
-    result = K_NONE;
     /* printf("before GetMessage\n"); */
     bRet = GetMessage(&msg, NULL, 0, 0);
     /* printf("after GetMessage\n"); */

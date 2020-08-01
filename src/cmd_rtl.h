@@ -49,7 +49,7 @@ striType followLink (striType path);
 #if defined USE_EXTENDED_LENGTH_PATH && USE_EXTENDED_LENGTH_PATH
 void adjustCwdForShell (errInfoType *err_info);
 #endif
-#ifdef EMULATE_ROOT_CWD
+#if EMULATE_ROOT_CWD
 void initEmulatedCwd (errInfoType *err_info);
 #endif
 bigIntType cmdBigFileSize (const const_striType file_name);

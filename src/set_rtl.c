@@ -1208,8 +1208,8 @@ intType setNext (const const_setType set1, const intType number)
       bitset_index++;
       /* printf("min_position=%ld\n", set1->min_position);
          printf("max_position=%ld\n", set1->max_position);
-         printf("index=%lu\n", bitset_index);
-         printf("size=%lu\n", bitset_size - bitset_index); */
+         printf("index=" FMT_U_MEM "\n", bitset_index);
+         printf("size=" FMT_U_MEM "\n", bitset_size - bitset_index); */
       bitset_ptr = bitsetNonZero(&set1->bitset[bitset_index], bitset_size - bitset_index);
       if (bitset_ptr != NULL) {
         bitset_index = (memSizeType) (bitset_ptr - set1->bitset);

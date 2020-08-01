@@ -66,9 +66,9 @@
 #define FLT_SCI_ADDITIONAL_CHARS STRLEN("-1.e+")
 #define FLT_SCI_LEN (FLT_SCI_ADDITIONAL_CHARS + MAX_PRINTED_EXPONENT_DIGITS)
 
-#ifdef FLOAT_ZERO_DIV_ERROR
+#if FLOAT_ZERO_DIV_ERROR
 const rtlValueUnion f_const[] =
-#ifdef FLOATTYPE_DOUBLE
+#if FLOATTYPE_DOUBLE
     {{0xfff8000000000000}, {0x7ff0000000000000}, {0xfff0000000000000}};
 #else
     {{0xffc00000}, {0x7f800000}, {0xff800000}};
@@ -77,7 +77,7 @@ const rtlValueUnion f_const[] =
 
 #if USE_NEGATIVE_ZERO_BITPATTERN
 static const rtlValueUnion neg_zero_const =
-#ifdef FLOATTYPE_DOUBLE
+#if FLOATTYPE_DOUBLE
     {0x8000000000000000};
 #else
     {0x80000000};
@@ -1145,6 +1145,27 @@ striType fltSci (floatType number, intType precision)
 
 
 
+#if !SQRT_FUNCTION_OKAY
+floatType fltSqrt (floatType number)
+
+  {
+    floatType squareRoot;
+
+  /* fltSqrt */
+    logFunction(printf("fltSqrt(" FMT_E ")\n", number););
+    if (number < 0.0) {
+      squareRoot = NOT_A_NUMBER;
+    } else {
+      squareRoot = sqrt(number);
+    } /* if */
+    logFunction(printf("fltSqrt(" FMT_E ") --> " FMT_E "\n",
+                number, squareRoot););
+    return squareRoot;
+  } /* fltSqrt */
+#endif
+
+
+
 /**
  *  Convert a float number to a string.
  *  The number is converted to a string with decimal representation.
@@ -1183,7 +1204,7 @@ striType fltStr (floatType number)
       len = STRLEN("-Infinity");
     } else {
       buffer_ptr = buffer;
-#ifdef FLOATTYPE_DOUBLE
+#if FLOATTYPE_DOUBLE
       len = doubleToCharBuffer(number, DOUBLE_STR_LARGE_NUMBER,
                                FMT_E_DBL, buffer);
 #else

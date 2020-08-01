@@ -29,7 +29,7 @@
 /*                                                                  */
 /********************************************************************/
 
-#ifdef ALLOW_STRITYPE_SLICES
+#if ALLOW_STRITYPE_SLICES
 #define chrStrMacro(ch,str) (str.size=1,str.mem=str.mem1,str.mem1[0]=(strElemType)(ch),&str)
 #else
 #define chrStrMacro(ch,str) (str.size=1,str.mem[0]=(strElemType)(ch),&str)
@@ -37,7 +37,7 @@
 
 
 striType chrCLit (charType character);
-#ifdef ALLOW_STRITYPE_SLICES
+#if ALLOW_STRITYPE_SLICES
 striType chrCLitToBuffer (charType character, striType buffer);
 #endif
 intType chrCmp (charType char1, charType char2);

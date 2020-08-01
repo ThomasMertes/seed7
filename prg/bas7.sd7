@@ -69,7 +69,7 @@ $ include "seed7_05.s7i";
   include "math.s7i";
   include "bin32.s7i";
   include "bin64.s7i";
-  include "cli_cmds.s7i";
+  include "wildcard.s7i";
 
 const integer: MAX_LINENUM is 2147483647;
 const integer: TEXT_LINES is 25;

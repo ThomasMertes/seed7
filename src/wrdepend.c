@@ -65,7 +65,7 @@ static void prepareCompileCommand (void)
 
   /* prepareCompileCommand */
     strcpy(c_compiler, C_COMPILER);
-#ifdef MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
+#if MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
     if (c_compiler[0] == '/') {
       c_compiler[0] = c_compiler[1];
       c_compiler[1] = ':';

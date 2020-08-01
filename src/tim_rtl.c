@@ -253,7 +253,7 @@ time_t timToTimestamp (intType year, intType month, intType day, intType hour,
         result -= (time_t) time_zone * 60;
       } /* if */
     } /* if */
-    logFunction(printf("timToTimestamp --> %lu\n", result););
+    logFunction(printf("timToTimestamp --> " FMT_T "\n", result););
     return result;
   } /* timToTimestamp */
 

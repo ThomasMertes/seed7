@@ -81,7 +81,7 @@ typedef const_cstriType  const_os_striType;
 #endif
 
 
-#ifdef STACK_LIKE_ALLOC_FOR_OS_STRI
+#if STACK_LIKE_ALLOC_FOR_OS_STRI
 typedef struct stackAllocStruct *stackAllocType;
 
 typedef struct stackAllocStruct {
@@ -124,8 +124,8 @@ EXTERN stackAllocType   stack_alloc;
 #endif
 
 
-#ifdef MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
-#ifdef EMULATE_ROOT_CWD
+#if MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
+#if EMULATE_ROOT_CWD
 /* Assume that drive letters are used only with a backslash as path delimiter. */
 #define OS_PATH_DELIMITER '\\'
 extern const_os_striType current_emulated_cwd;
@@ -156,7 +156,7 @@ void memset_to_strelem (register strElemType *const dest,
 boolType memcpy_from_strelem (register const ustriType dest,
                               register const strElemType *const src,
                               memSizeType len);
-#ifdef STACK_LIKE_ALLOC_FOR_OS_STRI
+#if STACK_LIKE_ALLOC_FOR_OS_STRI
 boolType heapAllocOsStri (os_striType *var, memSizeType len);
 void heapFreeOsStri (const_os_striType var);
 #endif
@@ -196,7 +196,7 @@ os_striType stri_to_os_stri (const_striType stri, errInfoType *err_info);
 striType os_stri_to_stri (const_os_striType os_stri, errInfoType *err_info);
 striType stri_to_standard_path (const striType stri);
 striType cp_from_os_path (const_os_striType os_path, errInfoType *err_info);
-#ifdef EMULATE_ROOT_CWD
+#if EMULATE_ROOT_CWD
 void setEmulatedCwdToRoot (void);
 void setEmulatedCwd (os_striType os_path, errInfoType *err_info);
 #endif

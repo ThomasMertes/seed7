@@ -394,7 +394,7 @@ striType chrCLit (charType character)
 
 
 
-#ifdef ALLOW_STRITYPE_SLICES
+#if ALLOW_STRITYPE_SLICES
 striType chrCLitToBuffer (charType character, striType buffer)
 
   { /* chrCLitToBuffer */

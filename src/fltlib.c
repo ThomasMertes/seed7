@@ -228,8 +228,9 @@ objectType flt_bits2Single (listType arguments)
     isit_int(arg_1(arguments));
     bits = take_int(arg_1(arguments));
     if (unlikely((uintType) bits > UINT32TYPE_MAX)) {
-      logError(printf("flt_singleBits2Float(" FMT_D
-                      "): Argument does not fit in 32 bits.\n"););
+      logError(printf("flt_bits2Single(" FMT_D
+                      "): Argument does not fit in 32 bits.\n",
+                      bits););
       return raise_exception(SYS_RNG_EXCEPTION);
     } else {
       conv.bits = (uint32Type) bits;
@@ -1242,10 +1243,17 @@ objectType flt_sinh (listType arguments)
  */
 objectType flt_sqrt (listType arguments)
 
-  { /* flt_sqrt */
+  {
+    floatType squareRoot;
+
+  /* flt_sqrt */
     isit_float(arg_1(arguments));
-    return bld_float_temp(
-        sqrt(take_float(arg_1(arguments))));
+#if SQRT_FUNCTION_OKAY
+    squareRoot = sqrt(take_float(arg_1(arguments)));
+#else
+    squareRoot = fltSqrt(take_float(arg_1(arguments)));
+#endif
+    return bld_float_temp(squareRoot);
   } /* flt_sqrt */
 
 

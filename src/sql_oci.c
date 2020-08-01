@@ -120,6 +120,7 @@ static sqlFuncType sqlFunc = NULL;
 #define MIN_BIND_VAR_NUM 0
 #define MAX_BIND_VAR_NUM 17575
 #define SIZEOF_SQLT_NUM 22
+#define SIZEOF_SQLT_TIMESTAMP_TZ 13
 #define MANTISSA_LEN 40
 #define LONG_DATA_BUFFER_SIZE_INCREMENT 4096
 #define ERROR_MESSAGE_BUFFER_SIZE 1024
@@ -1060,7 +1061,7 @@ static void printSqltNumber (memSizeType dataLen, const uint8Type *ociNumberData
     errInfoType err_info = OKAY_NO_ERROR;
 
   /* printSqltNumber */
-#ifdef ALLOW_STRITYPE_SLICES
+#if ALLOW_STRITYPE_SLICES
     striBuffer.striBuf.mem = striBuffer.striBuf.mem1;
 #endif
     scale = sqltNumberToDecimalFraction(dataLen, ociNumberData,
@@ -1263,7 +1264,7 @@ static sb4 longCallback (dvoid *octxp, OCIDefine *define_handle, ub4 iter,
     resultData = (resultDataType) octxp;
 #if 0
     printf("iter: %u\n", iter);
-    printf("longCallback: Field: %s, ind: %d, len %u, buf_len: %lu\n",
+    printf("longCallback: Field: %s, ind: %d, len %u, buf_len: " FMT_U_MEM "\n",
            nameOfBufferType(resultData->buffer_type),
            resultData->indicator,
            resultData->length,
@@ -1273,14 +1274,14 @@ static sb4 longCallback (dvoid *octxp, OCIDefine *define_handle, ub4 iter,
     } else if (*bufpp == NULL) {
       printf("IN bufp: *NULL*\n");
     } else {
-      printf("IN bufp: %lu\n", (unsigned long) *bufpp);
+      printf("IN bufp: " FMT_U_MEM "\n", (memSizeType) *bufpp);
     } /* if */
     if (alenp == NULL) {
       printf("IN alen: NULL\n");
     } else if (*alenp == NULL) {
       printf("IN alen: *NULL*\n");
     } else {
-      printf("IN alen: %lu\n", (unsigned long) **alenp);
+      printf("IN alen: " FMT_U_MEM "\n", (memSizeType) **alenp);
     } /* if */
     if (piecep == NULL) {
       printf("IN piecep: NULL\n");
@@ -1300,10 +1301,10 @@ static sb4 longCallback (dvoid *octxp, OCIDefine *define_handle, ub4 iter,
     } else {
       printf("IN ind: %lu\n", *(unsigned long *) *indp);
     } /* if */
-    printf("buffer: %lu\n", (long unsigned) resultData->buffer);
+    printf("buffer: " FMT_U_MEM "\n", (memSizeType) resultData->buffer);
     fwrite(resultData->buffer, 1, resultData->long_data_buf_usage, stdout);
     printf("\n");
-    printf("long_data_buf_usage: %lu\n", resultData->long_data_buf_usage);
+    printf("long_data_buf_usage: " FMT_U_MEM "\n", resultData->long_data_buf_usage);
 #endif
     switch (*piecep) {
       case OCI_ONE_PIECE:
@@ -1344,20 +1345,20 @@ static sb4 longCallback (dvoid *octxp, OCIDefine *define_handle, ub4 iter,
     *rcodep = &resultData->return_code;
 #if 0
     printf("long_data_piece_size: %u\n", resultData->long_data_piece_size);
-    printf("buffer_length: %lu\n", resultData->buffer_length);
+    printf("buffer_length: " FMT_U_MEM "\n", resultData->buffer_length);
     if (bufpp == NULL) {
       printf("OUT bufp: NULL\n");
     } else if (*bufpp == NULL) {
       printf("OUT bufp: *NULL*\n");
     } else {
-      printf("OUT bufp: %lu\n", (unsigned long) *bufpp);
+      printf("OUT bufp: " FMT_U_MEM "\n", (memSizeType) *bufpp);
     } /* if */
     if (alenp == NULL) {
       printf("OUT alen: NULL\n");
     } else if (*alenp == NULL) {
       printf("OUT alen: *NULL*\n");
     } else {
-      printf("OUT alen: %lu\n", (unsigned long) **alenp);
+      printf("OUT alen: " FMT_U_MEM "\n", (memSizeType) **alenp);
     } /* if */
     if (piecep == NULL) {
       printf("OUT piecep: NULL\n");
@@ -1525,7 +1526,7 @@ static void setupResultColumn (preparedStmtType preparedStmt,
       } /* if */
       if (*err_info == OKAY_NO_ERROR) {
         resultData->buffer_length = (memSizeType) column_size;
-        /* printf("Define column %u: %s, len %lu\n", column_num,
+        /* printf("Define column %u: %s, len " FMT_U_MEM "\n", column_num,
                nameOfBufferType(resultData->buffer_type),
                resultData->buffer_length); */
         if (OCIDefineByPos(preparedStmt->ppStmt,
@@ -1671,7 +1672,7 @@ static void showBindVars (preparedStmtType preparedStmt)
   /* showBindVars */
     printf("Bind variables:\n");
     for (pos = 0; pos < preparedStmt->param_array_size; pos++) {
-      printf("%lu: type: %s, buf_len: %lu, ",
+      printf(FMT_U_MEM ": type: %s, buf_len: " FMT_U_MEM ", ",
              pos + 1,
              nameOfBufferType(preparedStmt->param_array[pos].buffer_type),
              preparedStmt->param_array[pos].buffer_length);
@@ -1713,7 +1714,7 @@ static void showResultVars (preparedStmtType preparedStmt)
   /* showResultVars */
     printf("Result variables:\n");
     for (pos = 0; pos < preparedStmt->result_array_size; pos++) {
-      printf("%lu: type: %s, ind: %d, len: %u, buf_len: %lu, ",
+      printf(FMT_U_MEM ": type: %s, ind: %d, len: %u, buf_len: " FMT_U_MEM ", ",
              pos + 1,
              nameOfBufferType(preparedStmt->result_array[pos].buffer_type),
              preparedStmt->result_array[pos].indicator,
@@ -1742,7 +1743,7 @@ static intType getInt (const void *buffer, memSizeType length)
   /* getInt */
     logFunction(printf("getInt(buffer, " FMT_U_MEM ")\n",
                        (memSizeType) length););
-#ifdef ALLOW_STRITYPE_SLICES
+#if ALLOW_STRITYPE_SLICES
     striBuffer.striBuf.mem = striBuffer.striBuf.mem1;
 #endif
     sqltNumberToDecimalInt(length,
@@ -1771,7 +1772,7 @@ static bigIntType getBigInt (const void *buffer, memSizeType length)
     bigIntType bigIntValue;
 
   /* getBigInt */
-#ifdef ALLOW_STRITYPE_SLICES
+#if ALLOW_STRITYPE_SLICES
     striBuffer.striBuf.mem = striBuffer.striBuf.mem1;
 #endif
     sqltNumberToDecimalInt(length,
@@ -1804,7 +1805,7 @@ static bigIntType getBigRational (const void *buffer, memSizeType length,
     logFunction(printf("getBigRational(");
                 dumpSqltNumber(length, (const uint8Type *) buffer);
                 printf(")\n"););
-#ifdef ALLOW_STRITYPE_SLICES
+#if ALLOW_STRITYPE_SLICES
     striBuffer.striBuf.mem = striBuffer.striBuf.mem1;
 #endif
     scale = sqltNumberToDecimalFraction(length,
@@ -1967,7 +1968,7 @@ static bstriType getBlob (preparedStmtType preparedStmt,
       *err_info = MEMORY_ERROR;
       bstri = NULL;
     } else {
-      /* printf("lobLength: %lu\n", (memSizeType) lobLength); */
+      /* printf("lobLength: " FMT_U64 "\n", (uint64Type) lobLength); */
       byte_amount = lobLength;
       if (OCILobRead2(preparedStmt->oci_service_context,
                       preparedStmt->oci_error,
@@ -2018,7 +2019,7 @@ static striType getBlobAsStri (preparedStmtType preparedStmt,
       *err_info = MEMORY_ERROR;
       stri = NULL;
     } else {
-      /* printf("lobLength: %lu\n", (memSizeType) lobLength); */
+      /* printf("lobLength: " FMT_U64 "\n", (uint64Type) lobLength); */
       byte_amount = lobLength;
       if (OCILobRead2(preparedStmt->oci_service_context,
                       preparedStmt->oci_error,
@@ -2074,7 +2075,7 @@ static striType getClob (preparedStmtType preparedStmt,
     } else {
       /* printf("connection charset_id: %u\n", preparedStmt->charSetId);
          printf("SQLCS_IMPLICIT: %u\n", SQLCS_IMPLICIT);
-         printf("lobLength: %lu\n", lobLength); */
+         printf("lobLength: " FMT_U64 "\n", (uint64Type) lobLength); */
       buffer_size = (memSizeType) lobLength * MAX_UTF8_EXPANSION_FACTOR;
       if (unlikely((buffer = (char *) malloc(buffer_size)) == NULL)) {
         *err_info = MEMORY_ERROR;
@@ -2099,8 +2100,8 @@ static striType getClob (preparedStmtType preparedStmt,
           *err_info = MEMORY_ERROR;
           stri = NULL;
         } else {
-          /* printf("buffer_size: %lu\n", buffer_size);
-             printf("byte_amount: %lu\n", byte_amount); */
+          /* printf("buffer_size: " FMT_U_MEM "\n", buffer_size);
+             printf("byte_amount: " FMT_U64 "\n", (uint64Type) byte_amount); */
           if (lobLength > 1048576) {
             /* Reduce memory pressure. */
             resized_buffer = (char *) realloc(buffer, (memSizeType) byte_amount);
@@ -2109,7 +2110,7 @@ static striType getClob (preparedStmtType preparedStmt,
             } /* if */
           } /* if */
           stri = cstri8_buf_to_stri(buffer, (memSizeType) byte_amount, err_info);
-          /* printf("stri->size: %lu\n", stri->size); */
+          /* printf("stri->size: " FMT_U_MEM "\n", stri->size); */
         } /* if */
         free(buffer);
       } /* if */
@@ -2323,6 +2324,7 @@ static void sqlBindBigInt (sqlStmtType sqlStatement, intType pos,
           } /* if */
         } else if (preparedStmt->param_array[pos - 1].buffer_type != SQLT_NUM ||
                    preparedStmt->param_array[pos - 1].buffer_length != SIZEOF_SQLT_NUM) {
+          logError(printf("sqlBindBigInt: Buffer type or length not okay.\n"););
           err_info = RANGE_ERROR;
         } /* if */
         if (unlikely(err_info != OKAY_NO_ERROR)) {
@@ -2385,6 +2387,7 @@ static void sqlBindBigRat (sqlStmtType sqlStatement, intType pos,
           } /* if */
         } else if (preparedStmt->param_array[pos - 1].buffer_type != SQLT_NUM ||
                    preparedStmt->param_array[pos - 1].buffer_length != SIZEOF_SQLT_NUM) {
+          logError(printf("sqlBindBigRat: Buffer type or length not okay.\n"););
           err_info = RANGE_ERROR;
         } /* if */
         if (unlikely(err_info != OKAY_NO_ERROR)) {
@@ -2444,6 +2447,7 @@ static void sqlBindBool (sqlStmtType sqlStatement, intType pos, boolType value)
           } /* if */
         } else if (preparedStmt->param_array[pos - 1].buffer_type != SQLT_AFC ||
                    preparedStmt->param_array[pos - 1].buffer_length != 1) {
+          logError(printf("sqlBindBool: Buffer type or length not okay.\n"););
           err_info = RANGE_ERROR;
         } /* if */
         if (unlikely(err_info != OKAY_NO_ERROR)) {
@@ -2518,6 +2522,7 @@ static void sqlBindBStri (sqlStmtType sqlStatement, intType pos, bstriType bstri
           } /* if */
         } else if (preparedStmt->param_array[pos - 1].buffer_type   != SQLT_BLOB ||
                    preparedStmt->param_array[pos - 1].buffer_length != 0) {
+          logError(printf("sqlBindBStri: Buffer type or length not okay.\n"););
           err_info = RANGE_ERROR;
         } /* if */
         if (unlikely(err_info != OKAY_NO_ERROR)) {
@@ -2607,6 +2612,7 @@ static void sqlBindDuration (sqlStmtType sqlStatement, intType pos,
         } else if (year == 0 && month == 0) {
           buffer_type = SQLT_INTERVAL_DS;
         } else {
+          logError(printf("sqlBindDuration: Neither SQLT_INTERVAL_YM nor SQLT_INTERVAL_DS.\n"););
           err_info = RANGE_ERROR;
         } /* if */
         if (likely(err_info == OKAY_NO_ERROR)) {
@@ -2748,6 +2754,7 @@ static void sqlBindFloat (sqlStmtType sqlStatement, intType pos, floatType value
           } /* if */
         } else if (preparedStmt->param_array[pos - 1].buffer_type != buffer_type ||
                    preparedStmt->param_array[pos - 1].buffer_length != buffer_length) {
+          logError(printf("sqlBindFloat: Buffer type or length not okay.\n"););
           err_info = RANGE_ERROR;
         } /* if */
         if (unlikely(err_info != OKAY_NO_ERROR)) {
@@ -2828,6 +2835,7 @@ static void sqlBindInt (sqlStmtType sqlStatement, intType pos, intType value)
           } /* if */
         } else if (preparedStmt->param_array[pos - 1].buffer_type != SQLT_INT ||
                    preparedStmt->param_array[pos - 1].buffer_length != sizeof(intType)) {
+          logError(printf("sqlBindInt: Buffer type or length not okay.\n"););
           err_info = RANGE_ERROR;
         } /* if */
         if (unlikely(err_info != OKAY_NO_ERROR)) {
@@ -2921,6 +2929,7 @@ static void sqlBindStri (sqlStmtType sqlStatement, intType pos, striType stri)
             preparedStmt->param_array[pos - 1].buffer_type = SQLT_CHR;
           } /* if */
         } else if (preparedStmt->param_array[pos - 1].buffer_type != SQLT_CHR) {
+          logError(printf("sqlBindStri: Buffer type not okay.\n"););
           err_info = RANGE_ERROR;
         } else {
           free(preparedStmt->param_array[pos - 1].buffer);
@@ -3000,10 +3009,11 @@ static void sqlBindTime (sqlStmtType sqlStatement, intType pos,
             preparedStmt->param_array[pos - 1].buffer =
                 &preparedStmt->param_array[pos - 1].descriptor;
             preparedStmt->param_array[pos - 1].buffer_type   = SQLT_TIMESTAMP_TZ;
-            preparedStmt->param_array[pos - 1].buffer_length = 13;  /* size of SQLT_TIMESTAMP_TZ */
+            preparedStmt->param_array[pos - 1].buffer_length = SIZEOF_SQLT_TIMESTAMP_TZ;
           } /* if */
         } else if (preparedStmt->param_array[pos - 1].buffer_type   != SQLT_TIMESTAMP_TZ ||
-                   preparedStmt->param_array[pos - 1].buffer_length != 13) {
+                   preparedStmt->param_array[pos - 1].buffer_length != SIZEOF_SQLT_TIMESTAMP_TZ) {
+          logError(printf("sqlBindTime: Buffer type or length not okay.\n"););
           err_info = RANGE_ERROR;
         } /* if */
         if (year <= 0) {
@@ -3097,7 +3107,8 @@ static bigIntType sqlColumnBigInt (sqlStmtType sqlStatement, intType column)
     preparedStmt = (preparedStmtType) sqlStatement;
     if (unlikely(!preparedStmt->fetchOkay || column < 1 ||
                  (uintType) column > preparedStmt->result_array_size)) {
-      logError(printf("sqlColumnBigInt: Fetch okay: %d, column: " FMT_D ", max column: %lu.\n",
+      logError(printf("sqlColumnBigInt: Fetch okay: %d, column: " FMT_D
+                      ", max column: " FMT_U_MEM ".\n",
                       preparedStmt->fetchOkay, column,
                       preparedStmt->result_array_size););
       raise_error(RANGE_ERROR);
@@ -3147,7 +3158,8 @@ static void sqlColumnBigRat (sqlStmtType sqlStatement, intType column,
     preparedStmt = (preparedStmtType) sqlStatement;
     if (unlikely(!preparedStmt->fetchOkay || column < 1 ||
                  (uintType) column > preparedStmt->result_array_size)) {
-      logError(printf("sqlColumnBigRat: Fetch okay: %d, column: " FMT_D ", max column: %lu.\n",
+      logError(printf("sqlColumnBigRat: Fetch okay: %d, column: " FMT_D
+                      ", max column: " FMT_U_MEM ".\n",
                       preparedStmt->fetchOkay, column,
                       preparedStmt->result_array_size););
       raise_error(RANGE_ERROR);
@@ -3197,7 +3209,8 @@ static boolType sqlColumnBool (sqlStmtType sqlStatement, intType column)
     preparedStmt = (preparedStmtType) sqlStatement;
     if (unlikely(!preparedStmt->fetchOkay || column < 1 ||
                  (uintType) column > preparedStmt->result_array_size)) {
-      logError(printf("sqlColumnBool: Fetch okay: %d, column: " FMT_D ", max column: %lu.\n",
+      logError(printf("sqlColumnBool: Fetch okay: %d, column: " FMT_D
+                      ", max column: " FMT_U_MEM ".\n",
                       preparedStmt->fetchOkay, column,
                       preparedStmt->result_array_size););
       raise_error(RANGE_ERROR);
@@ -3239,6 +3252,8 @@ static boolType sqlColumnBool (sqlStmtType sqlStatement, intType column)
             break;
         } /* switch */
         if (unlikely((uintType) columnValue >= 2)) {
+          logError(printf("sqlColumnBool: Boolean value " FMT_D " not in allowed range.\n",
+                          columnValue););
           raise_error(RANGE_ERROR);
         } /* if */
       } /* if */
@@ -3263,7 +3278,8 @@ static bstriType sqlColumnBStri (sqlStmtType sqlStatement, intType column)
     preparedStmt = (preparedStmtType) sqlStatement;
     if (unlikely(!preparedStmt->fetchOkay || column < 1 ||
                  (uintType) column > preparedStmt->result_array_size)) {
-      logError(printf("sqlColumnBStri: Fetch okay: %d, column: " FMT_D ", max column: %lu.\n",
+      logError(printf("sqlColumnBStri: Fetch okay: %d, column: " FMT_D
+                      ", max column: " FMT_U_MEM ".\n",
                       preparedStmt->fetchOkay, column,
                       preparedStmt->result_array_size););
       raise_error(RANGE_ERROR);
@@ -3345,7 +3361,8 @@ static void sqlColumnDuration (sqlStmtType sqlStatement, intType column,
     preparedStmt = (preparedStmtType) sqlStatement;
     if (unlikely(!preparedStmt->fetchOkay || column < 1 ||
                  (uintType) column > preparedStmt->result_array_size)) {
-      logError(printf("sqlColumnDuration: Fetch okay: %d, column: " FMT_D ", max column: %lu.\n",
+      logError(printf("sqlColumnDuration: Fetch okay: %d, column: " FMT_D
+                      ", max column: " FMT_U_MEM ".\n",
                       preparedStmt->fetchOkay, column,
                       preparedStmt->result_array_size););
       raise_error(RANGE_ERROR);
@@ -3447,7 +3464,8 @@ static floatType sqlColumnFloat (sqlStmtType sqlStatement, intType column)
     preparedStmt = (preparedStmtType) sqlStatement;
     if (unlikely(!preparedStmt->fetchOkay || column < 1 ||
                  (uintType) column > preparedStmt->result_array_size)) {
-      logError(printf("sqlColumnFloat: Fetch okay: %d, column: " FMT_D ", max column: %lu.\n",
+      logError(printf("sqlColumnFloat: Fetch okay: %d, column: " FMT_D
+                      ", max column: " FMT_U_MEM ".\n",
                       preparedStmt->fetchOkay, column,
                       preparedStmt->result_array_size););
       raise_error(RANGE_ERROR);
@@ -3508,7 +3526,8 @@ static intType sqlColumnInt (sqlStmtType sqlStatement, intType column)
     preparedStmt = (preparedStmtType) sqlStatement;
     if (unlikely(!preparedStmt->fetchOkay || column < 1 ||
                  (uintType) column > preparedStmt->result_array_size)) {
-      logError(printf("sqlColumnInt: Fetch okay: %d, column: " FMT_D ", max column: %lu.\n",
+      logError(printf("sqlColumnInt: Fetch okay: %d, column: " FMT_D
+                      ", max column: " FMT_U_MEM ".\n",
                       preparedStmt->fetchOkay, column,
                       preparedStmt->result_array_size););
       raise_error(RANGE_ERROR);
@@ -3562,7 +3581,8 @@ static striType sqlColumnStri (sqlStmtType sqlStatement, intType column)
     preparedStmt = (preparedStmtType) sqlStatement;
     if (unlikely(!preparedStmt->fetchOkay || column < 1 ||
                  (uintType) column > preparedStmt->result_array_size)) {
-      logError(printf("sqlColumnStri: Fetch okay: %d, column: " FMT_D ", max column: %lu.\n",
+      logError(printf("sqlColumnStri: Fetch okay: %d, column: " FMT_D
+                      ", max column: " FMT_U_MEM ".\n",
                       preparedStmt->fetchOkay, column,
                       preparedStmt->result_array_size););
       raise_error(RANGE_ERROR);
@@ -3586,7 +3606,7 @@ static striType sqlColumnStri (sqlStmtType sqlStatement, intType column)
           case SQLT_LVC: /* LONG VARCHAR */
             stri8 = (cstriType) preparedStmt->result_array[column - 1].buffer;
             length = preparedStmt->result_array[column - 1].length;
-            /* printf("length: %lu\n", length); */
+            /* printf("length: " FMT_U_MEM "\n", length); */
             /* printf("buffer: \"");
                fwrite(stri8, 1, length, stdout);
                printf("\"\n"); */
@@ -3721,7 +3741,8 @@ static void sqlColumnTime (sqlStmtType sqlStatement, intType column,
     preparedStmt = (preparedStmtType) sqlStatement;
     if (unlikely(!preparedStmt->fetchOkay || column < 1 ||
                  (uintType) column > preparedStmt->result_array_size)) {
-      logError(printf("sqlColumnTime: Fetch okay: %d, column: " FMT_D ", max column: %lu.\n",
+      logError(printf("sqlColumnTime: Fetch okay: %d, column: " FMT_D
+                      ", max column: " FMT_U_MEM ".\n",
                       preparedStmt->fetchOkay, column,
                       preparedStmt->result_array_size););
       raise_error(RANGE_ERROR);
@@ -3923,7 +3944,8 @@ static boolType sqlIsNull (sqlStmtType sqlStatement, intType column)
     preparedStmt = (preparedStmtType) sqlStatement;
     if (unlikely(!preparedStmt->fetchOkay || column < 1 ||
                  (uintType) column > preparedStmt->result_array_size)) {
-      logError(printf("sqlIsNull: Fetch okay: %d, column: " FMT_D ", max column: %lu.\n",
+      logError(printf("sqlIsNull: Fetch okay: %d, column: " FMT_D
+                      ", max column: " FMT_U_MEM ".\n",
                       preparedStmt->fetchOkay, column,
                       preparedStmt->result_array_size););
       raise_error(RANGE_ERROR);
@@ -4021,6 +4043,9 @@ static intType sqlStmtColumnCount (sqlStmtType sqlStatement)
                        (memSizeType) sqlStatement););
     preparedStmt = (preparedStmtType) sqlStatement;
     if (unlikely(preparedStmt->result_array_size > INTTYPE_MAX)) {
+      logError(printf("sqlStmtColumnCount: "
+                      "result_array_size (=" FMT_U_MEM ") > INTTYPE_MAX\n",
+                      preparedStmt->result_array_size););
       raise_error(RANGE_ERROR);
       columnCount = 0;
     } else {
@@ -4047,7 +4072,8 @@ static striType sqlStmtColumnName (sqlStmtType sqlStatement, intType column)
     preparedStmt = (preparedStmtType) sqlStatement;
     if (unlikely(column < 1 ||
                  (uintType) column > preparedStmt->result_array_size)) {
-      logError(printf("sqlStmtColumnName: column: " FMT_D ", max column: %lu.\n",
+      logError(printf("sqlStmtColumnName: column: " FMT_D
+                      ", max column: " FMT_U_MEM ".\n",
                       column, preparedStmt->result_array_size););
       raise_error(RANGE_ERROR);
       name = NULL;

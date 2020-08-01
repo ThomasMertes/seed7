@@ -1,7 +1,8 @@
 /********************************************************************/
 /*                                                                  */
 /*  s7   Seed7 interpreter                                          */
-/*  Copyright (C) 1990 - 2000  Thomas Mertes                        */
+/*  Copyright (C) 1990 - 2000, 2011 - 2013, 2015 - 2017             */
+/*                Thomas Mertes                                     */
 /*                                                                  */
 /*  This program is free software; you can redistribute it and/or   */
 /*  modify it under the terms of the GNU General Public License as  */
@@ -361,6 +362,10 @@ static void old_do_create (objectType destination, objectType source,
     crea_expr[1].obj = SYS_CREA_OBJECT;
     crea_expr[2].obj = source;
     if (exec1(crea_expr) != SYS_EMPTY_OBJECT) {
+      if (trace.exceptions) {
+        uncaught_exception();
+        prot_nl();
+      } /* if */
       set_fail_flag(FALSE);
       *err_info = CREATE_ERROR;
     } /* if */
@@ -370,11 +375,7 @@ static void old_do_create (objectType destination, objectType source,
     /* The function match_expression, called from exec1, may */
     /* allocate CALLOBJECT objects which can be freed now.   */
     free_expression(crea_expr[0].obj);
-    logFunction(printf("old_do_create -> ");
-                trace1(crea_expr[0].obj);
-                printf("\nas ");
-                trace1(crea_expr[2].obj);
-                printf("\n"););
+    logFunction(printf("old_do_create --> err_info=%d\n", *err_info););
   } /* old_do_create */
 
 
@@ -435,6 +436,10 @@ void do_create (objectType destination, objectType source,
         /* printf("do_create: after exec_call\n");
            fflush(stdout); */
         if (call_result != SYS_EMPTY_OBJECT) {
+          if (trace.exceptions) {
+            uncaught_exception();
+            prot_nl();
+          } /* if */
           set_fail_flag(FALSE);
           *err_info = CREATE_ERROR;
         } /* if */
@@ -444,7 +449,7 @@ void do_create (objectType destination, objectType source,
     } else {
       old_do_create(destination, source, err_info);
     } /* if */
-    logFunction(printf("do_create -->\n"););
+    logFunction(printf("do_create --> err_info=%d\n", *err_info););
   } /* do_create */
 
 
@@ -515,6 +520,10 @@ void do_destroy (objectType old_obj, errInfoType *err_info)
       /* printf("do_destroy: after exec_call\n");
          fflush(stdout); */
       if (call_result != SYS_EMPTY_OBJECT) {
+        if (trace.exceptions) {
+          uncaught_exception();
+          prot_nl();
+        } /* if */
         set_fail_flag(FALSE);
         *err_info = DESTROY_ERROR;
       } /* if */
@@ -532,7 +541,7 @@ void old_do_copy (objectType destination, objectType source,
     listRecord copy_expr[3];
 
   /* old_do_copy */
-    logFunction(printf("do_copy\n"););
+    logFunction(printf("old_do_copy\n"););
 /*
 printobject(destination);
 printf(" := ");
@@ -556,10 +565,14 @@ printf("\n");
     copy_expr[1].obj = SYS_ASSIGN_OBJECT;
     copy_expr[2].obj = source;
     if (exec1(copy_expr) != SYS_EMPTY_OBJECT) {
+      if (trace.exceptions) {
+        uncaught_exception();
+        prot_nl();
+      } /* if */
       set_fail_flag(FALSE);
       *err_info = CREATE_ERROR;
     } /* if */
-    logFunction(printf("do_copy\n"););
+    logFunction(printf("old_do_copy --> err_info=%d\n", *err_info););
   } /* old_do_copy */
 
 
@@ -612,6 +625,10 @@ static void do_copy (objectType destination, objectType source,
         /* printf("copy_local_object: after exec_call\n");
            fflush(stdout); */
         if (call_result != SYS_EMPTY_OBJECT) {
+          if (trace.exceptions) {
+            uncaught_exception();
+            prot_nl();
+          } /* if */
           set_fail_flag(FALSE);
           *err_info = COPY_ERROR;
         } /* if */
@@ -621,7 +638,7 @@ static void do_copy (objectType destination, objectType source,
     } else {
       old_do_copy(destination, source, err_info);
     } /* if */
-    logFunction(printf("do_copy\n"););
+    logFunction(printf("do_copy --> err_info=%d\n", *err_info););
   } /* do_copy */
 
 

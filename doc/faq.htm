@@ -610,12 +610,12 @@ Seed7 can be used in various application areas:
 </h3></a><hr />
 <p>
 The Seed7 package contains more than 100000 lines of C and more
-than 200000 lines of Seed7. For version 2017-03-05 the number of lines is:
+than 200000 lines of Seed7. For version 2017-03-28 the number of lines is:
 </p><dl><dd><table border="0" cellspacing="0">
-  <tr><td align="right">131622</td> <td width="20"></td> <td>C source files (*.c)</td></tr>
-  <tr><td align="right"> 10305</td> <td width="20"></td> <td>C header files (*.h)</td></tr>
-  <tr><td align="right">137364</td> <td width="20"></td> <td>Seed7 source files (*.sd7)</td></tr>
-  <tr><td align="right">138068</td> <td width="20"></td> <td>Seed7 library/include files (*.s7i)</td></tr>
+  <tr><td align="right">132409</td> <td width="20"></td> <td>C source files (*.c)</td></tr>
+  <tr><td align="right"> 10373</td> <td width="20"></td> <td>C header files (*.h)</td></tr>
+  <tr><td align="right">137551</td> <td width="20"></td> <td>Seed7 source files (*.sd7)</td></tr>
+  <tr><td align="right">138218</td> <td width="20"></td> <td>Seed7 library/include files (*.s7i)</td></tr>
 </table></dd></dl><p>
 C code (*.c and *.h files) can be divided into the following areas:
 </p><dl><dd><table border="0" cellspacing="0">
@@ -928,6 +928,7 @@ The following options are recognized by s7:
   <li><b>-p</b>   Specify a protocol file, for trace output (e.g.: <b>-p</b><tt> <span class="lib">prot.txt</span></tt>).</li>
   <li><b>-q</b>   Compile quiet. Line and file information and compilation
        statistics are suppressed.</li>
+  <li><b>-s</b>   Deactivate signal handlers.</li>
   <li><b>-t</b><span class="keywd">x</span>  Set runtime trace level to <span class="keywd">x</span>. Where <span class="keywd">x</span> is a string consisting
        of the following characters:<ul>
          <li><b>a</b> Trace primitive actions</li>
@@ -979,7 +980,7 @@ Possible options are
        The level <span class="keywd">n</span> is a digit between 0 and 3:<ul>
          <li><b>0</b> Do no optimizations with constants.</li>
          <li><b>1</b> Use literals and named constants to simplify expressions (default).</li>
-         <li><b>2</b> Evaluate constant expressions to simplify expressions.</li>
+         <li><b>2</b> Evaluate constant parameter expressions to simplify expressions.</li>
          <li><b>3</b> Like <b>-oc2</b> and additionally evaluate all constant expressions.</li></ul></li>
   <li><b>-s</b><span class="keywd">x</span>  Supress checks specified with <span class="keywd">x</span>. E.g.: <b>-sr</b> or <b>-sro</b>
        The checks <span class="keywd">x</span> are specified with letters from the following list:<ul>

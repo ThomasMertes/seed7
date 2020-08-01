@@ -106,7 +106,7 @@ EXTERN freeListRootType flist;
 #endif
 #endif
 
-#ifdef WITH_LIST_FREELIST
+#if WITH_LIST_FREELIST
 #define ALLOC_L_ELEM(L) (flist.list_elems != NULL ? POP_L_E(L) : HEAP_L_E(L, listRecord))
 #define FREE_L_ELEM(L)  (F_LOG2(L) (L)->next = flist.list_elems, flist.list_elems = (L))
 #else
@@ -117,7 +117,7 @@ EXTERN freeListRootType flist;
 #endif
 #endif
 
-#ifdef WITH_NODE_FREELIST
+#if WITH_NODE_FREELIST
 #define ALLOC_NODE(N)   (flist.nodes != NULL ? POP_NODE(N) : HEAP_NODE(N, nodeRecord))
 #define FREE_NODE(N)    (F_LOG2(N) (N)->next1 = flist.nodes, flist.nodes = (N))
 #else
@@ -128,7 +128,7 @@ EXTERN freeListRootType flist;
 #endif
 #endif
 
-#ifdef WITH_FILE_FREELIST
+#if WITH_FILE_FREELIST
 #define ALLOC_FILE(F)   (flist.infiles != NULL ? POP_FILE(F) : HEAP_FILE(F, inFileRecord))
 #define FREE_FILE(F)    (F_LOG2(F) (F)->next = flist.infiles, flist.infiles = (F))
 #else

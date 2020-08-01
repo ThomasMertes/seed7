@@ -240,7 +240,7 @@ const proc: process_itf_destr_declaration (in type: object_type,
     end if;
     c_expr.expr &:= "{\n";
     c_expr.expr &:= diagnosticLine;
-    c_expr.expr &:= "raise_error(ACTION_ERROR);\n";
+    c_expr.expr &:= "raiseError(ACTION_ERROR);\n";
     c_expr.expr &:= diagnosticLine;
     c_expr.expr &:= "}\n";
     c_expr.expr &:= diagnosticLine;

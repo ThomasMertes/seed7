@@ -65,10 +65,14 @@ const proc: fil_prototypes (inout file: c_prog) is func
     declareExtern(c_prog, "void        filBigSeek (fileType, const const_bigIntType);");
     declareExtern(c_prog, "bigIntType  filBigTell (fileType);");
     declareExtern(c_prog, "void        filClose (fileType);");
+    declareExtern(c_prog, "charType    filGetcChkCtrlC (fileType);");
     declareExtern(c_prog, "striType    filGets (fileType, intType);");
+    declareExtern(c_prog, "striType    filGetsChkCtrlC (fileType, intType);");
     declareExtern(c_prog, "boolType    filHasNext (fileType);");
+    declareExtern(c_prog, "boolType    filHasNextChkCtrlC (fileType);");
     declareExtern(c_prog, "boolType    filInputReady (fileType);");
     declareExtern(c_prog, "striType    filLineRead (fileType, charType *);");
+    declareExtern(c_prog, "striType    filLineReadChkCtrlC (fileType, charType *);");
     declareExtern(c_prog, "striType    filLit (fileType);");
     declareExtern(c_prog, "intType     filLng (fileType);");
     declareExtern(c_prog, "fileType    filOpen (const const_striType, const const_striType);");
@@ -81,6 +85,7 @@ const proc: fil_prototypes (inout file: c_prog) is func
     declareExtern(c_prog, "void        filSetbuf (fileType, intType, intType);");
     declareExtern(c_prog, "intType     filTell (fileType);");
     declareExtern(c_prog, "striType    filWordRead (fileType, charType *);");
+    declareExtern(c_prog, "striType    filWordReadChkCtrlC (fileType, charType *);");
     declareExtern(c_prog, "void        filWrite (fileType, const const_striType);");
     declareExtern(c_prog, "fileType    filValue (const const_objRefType);");
   end func;
@@ -199,7 +204,7 @@ const proc: process (FIL_GETC, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    c_expr.expr &:= "fgetc(";
+    c_expr.expr &:= "filGetc(";
     process_expr(params[1], c_expr);
     c_expr.expr &:= ")";
   end func;

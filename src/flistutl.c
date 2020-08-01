@@ -181,7 +181,7 @@ static unsigned long stri_flist_count (unsigned long *stri_chars)
 
   /* stri_flist_count */
 #if WITH_STRI_FREELIST
-#ifdef WITH_STRI_CAPACITY
+#if WITH_STRI_CAPACITY
     {
       unsigned int index;
 
@@ -775,7 +775,7 @@ void *heap_chunk (size_t size)
       chunk.size -= size;
       chunk.number_of_chunks++;
     } /* if */
-    logFunction(printf("heap_chunk --> " FMT_U_MEM "\n", result););
+    logFunction(printf("heap_chunk --> " FMT_U_MEM "\n", (memSizeType) result););
     return result;
   } /* heap_chunk */
 #endif

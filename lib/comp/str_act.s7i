@@ -672,7 +672,7 @@ const proc: process_const_str_elemcpy (in reference: function, in reference: par
     incr(countOptimizations);
     if index < 1 then
       c_expr.expr &:= "/* 'string @:= [n] char' with n < 1 */\n";
-      c_expr.expr &:= voidRaiseError("RANGE_ERROR");
+      c_expr.expr &:= raiseError("RANGE_ERROR");
       c_expr.expr &:= "\n";
     else
       process_expr(param1, c_param1);
@@ -692,7 +692,7 @@ const proc: process_const_str_elemcpy (in reference: function, in reference: par
         c_expr.expr &:= str(pred(index));
         c_expr.expr &:= ")) {\n";
         c_expr.expr &:= "  ";
-        c_expr.expr &:= voidRaiseError("RANGE_ERROR");
+        c_expr.expr &:= raiseError("RANGE_ERROR");
         c_expr.expr &:= "\n";
         c_expr.expr &:= "} else {\n";
         setDiagnosticLine(c_expr);
@@ -733,7 +733,7 @@ const proc: process_const_str_elemcpy (in reference: function, in reference: par
     incr(countOptimizations);
     if index < 1 then
       c_expr.expr &:= "/* 'string @:= [n] char' with n < 1 */\n";
-      c_expr.expr &:= voidRaiseError("RANGE_ERROR");
+      c_expr.expr &:= raiseError("RANGE_ERROR");
       c_expr.expr &:= "\n";
     else
       process_expr(param1, c_param1);
@@ -757,7 +757,7 @@ const proc: process_const_str_elemcpy (in reference: function, in reference: par
         c_expr.expr &:= str(pred(index));
         c_expr.expr &:= ")) {\n";
         c_expr.expr &:= "  ";
-        c_expr.expr &:= voidRaiseError("RANGE_ERROR");
+        c_expr.expr &:= raiseError("RANGE_ERROR");
         c_expr.expr &:= "\n";
         c_expr.expr &:= "} else {\n";
         setDiagnosticLine(c_expr);
@@ -830,7 +830,7 @@ const proc: process_const_str_elemcpy (in reference: function, in reference: par
         end if;
         c_expr.expr &:= "pos>=str1->size)) {\n";
         c_expr.expr &:= "  ";
-        c_expr.expr &:= voidRaiseError("RANGE_ERROR");
+        c_expr.expr &:= raiseError("RANGE_ERROR");
         c_expr.expr &:= "\n";
         c_expr.expr &:= "} else {\n";
         setDiagnosticLine(c_expr);
@@ -908,7 +908,7 @@ const proc: process (STR_ELEMCPY, in reference: function,
         end if;
         c_expr.expr &:= "pos>=str1->size)) {\n";
         c_expr.expr &:= "  ";
-        c_expr.expr &:= voidRaiseError("RANGE_ERROR");
+        c_expr.expr &:= raiseError("RANGE_ERROR");
         c_expr.expr &:= "\n";
         c_expr.expr &:= "} else {\n";
         setDiagnosticLine(c_expr);
@@ -2072,7 +2072,7 @@ const proc: process_const_str_poscpy (in reference: function, in reference: para
     incr(countOptimizations);
     if index < 1 then
       c_expr.expr &:= "/* 'string @:= [n] string' with n < 1 */\n";
-      c_expr.expr &:= voidRaiseError("RANGE_ERROR");
+      c_expr.expr &:= raiseError("RANGE_ERROR");
       c_expr.expr &:= "\n";
     else
       process_expr(param1, c_param1);
@@ -2097,7 +2097,7 @@ const proc: process_const_str_poscpy (in reference: function, in reference: para
         c_expr.expr &:= str(pred(index));
         c_expr.expr &:= "+str2->size>str1->size)) {\n";
         c_expr.expr &:= "  ";
-        c_expr.expr &:= voidRaiseError("RANGE_ERROR");
+        c_expr.expr &:= raiseError("RANGE_ERROR");
         c_expr.expr &:= "\n";
         c_expr.expr &:= "} else {\n";
         setDiagnosticLine(c_expr);
@@ -2176,7 +2176,7 @@ const proc: process (STR_POSCPY, in reference: function,
         end if;
         c_expr.expr &:= "str1->size<str2->size || pos+str2->size>str1->size)) {\n";
         c_expr.expr &:= "  ";
-        c_expr.expr &:= voidRaiseError("RANGE_ERROR");
+        c_expr.expr &:= raiseError("RANGE_ERROR");
         c_expr.expr &:= "\n";
         c_expr.expr &:= "} else {\n";
         setDiagnosticLine(c_expr);

@@ -150,8 +150,9 @@ void interpret (const progType currentProg, const const_rtlArrayType argv,
         progBackup = prog;
         prog = currentProg;
         prog->option_flags = options;
-        setup_signal_handlers((options & HANDLE_SIGNALS) != 0,
-                              (options & TRACE_SIGNALS) != 0);
+        setupSignalHandlers((options & HANDLE_SIGNALS) != 0,
+                            (options & TRACE_SIGNALS) != 0,
+                            FALSE, FALSE, suspendInterpreter);
         set_trace(prog->option_flags);
         set_protfile_name(protFileName);
         prog->arg_v = copy_args(argv, argvStart);
@@ -186,7 +187,7 @@ void interpret (const progType currentProg, const const_rtlArrayType argv,
 #endif
           free_args(prog->arg_v);
 #ifdef OUT_OF_ORDER
-          shut_drivers();
+          shutDrivers();
           if (fail_flag) {
             printf("\n*** Uncaught EXCEPTION ");
             printobject(fail_value);

@@ -213,7 +213,8 @@ CONTENTS
   15.2.6  ILLEGAL_ACTION
   15.3    Handlers
   15.4    Stack trace
-  15.5    Other errors and warnings
+  15.5    Signals
+  15.6    Other errors and warnings
 
 
 
@@ -11318,7 +11319,7 @@ CONTENTS
 15.2.4 RANGE_ERROR
 
   A RANGE_ERROR occurs when an index is used to access an array or string
-  element byond the elements that actually exist. Many functions define
+  element beyond the elements that actually exist. Many functions define
   a range of valid arguments and raise RANGE_ERROR when this range is
   violated.
 
@@ -11493,7 +11494,59 @@ CONTENTS
   allows the debugger to show a backtrace for uncaught Seed7 exceptions.
 
 
-15.5 Other errors and warnings
+15.5 Signals
+
+  A signal is an asynchronous notification of an event. The event
+  can come from outside such as a request to terminate the program.
+  The event can also come from the program itself such as a memory
+  access violation (segfault). Several signals are handled by the
+  Seed7 run-time library. The interpreter respectively compiler
+  option -ts can be used to influence the behavior, when a signal
+  is sent to a Seed7 program (see below). The following signals are
+  handled by Seed7:
+
+  Signal  | Special handler      | Behavior without -ts   | Behavior with -ts
+  --------+------------------------+------------------------+-----------------------
+  SIGABRT | raise OVERFLOW_ERROR | Terminate with message | Dialog to decide
+  SIGILL  | raise OVERFLOW_ERROR | Terminate with message | Dialog to decide
+  SIGINT  | -                    | Terminate with message | Dialog to decide
+  SIGFPE  | raise NUMERIC_ERROR  | Terminate with message | Dialog to decide
+  SIGTERM | -                    | Terminate with message | Terminate with message
+  SIGSEGV | -                    | Terminate program      | Terminate with message
+  SIGPIPE | -                    | Ignore                 | Ignore
+  SIGWINCH| Resize console       | -                      | -
+  SIGALRM | Wait for some time   | -                      | -
+
+  Depending on the actual C compiler and operating system the
+  signals SIGABRT or SIGILL might be used to raise OVERFLOW_ERROR
+  and the signal SIGFPE might be used to raise NUMERIC_ERROR.
+
+  When the interpreter respectively compiler option -ts has been
+  used some signals (see table above) trigger a dialog at the
+  console. E.g.:
+
+    *** SIGNAL SIGINT RAISED
+
+    *** The following commands are possible:
+      RETURN  Continue
+      *       Terminate
+      /       Trigger SIGFPE
+      !n      Raise exception with number (e.g.: !1 raises MEMORY_ERROR)
+
+  The user can enter a command and activate it with RETURN.
+  If the program was waiting for an input at the console the
+  input can be entered again:
+
+    re-enter input>
+
+  Triggering SIGFPE is useful when the program runs in a debugger.
+  In this case SIGFPE will activate the debugger prompt. Raising
+  an exception (e.g.: MEMORY_ERROR) can be used to get a stack
+  trace (this works only in the interpreter). A compiled program
+  must be executed with a debugger to get a stack trace.
+
+
+15.6 Other errors and warnings
 
   No more memory. Program terminated.
     This error message is displayed after the compile time error 1

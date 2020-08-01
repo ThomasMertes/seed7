@@ -67,7 +67,7 @@ void no_memory (const_cstriType source_file, int source_line)
         (unsigned) (chunk.beyond - chunk.freemem));
     printf("%6lu lost bytes in chunks\n", (unsigned long) chunk.lost_bytes);
 #endif
-    shut_drivers();
+    shutDrivers();
 #ifdef TRACE_HEAPUTIL
     printf("END no_memory\n");
 #endif

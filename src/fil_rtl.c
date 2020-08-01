@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  fil_rtl.c     Primitive actions for the C library file type.    */
-/*  Copyright (C) 1989 - 2015  Thomas Mertes                        */
+/*  Copyright (C) 1989 - 2017  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */
@@ -56,6 +56,7 @@
 #include "cmd_rtl.h"
 #include "stat_drv.h"
 #include "big_drv.h"
+#include "fil_drv.h"
 #include "rtl_err.h"
 
 #undef EXTERN
@@ -79,12 +80,6 @@ extern C __int64 __cdecl _ftelli64(FILE *);
 
 #ifdef DEFINE_WPOPEN
 DEFINE_WPOPEN
-#endif
-
-#ifndef CTRL_C_SENDS_EOF
-#if HAS_SIGACTION || HAS_SIGNAL
-static long_jump_position intr_jump_pos;
-#endif
 #endif
 
 #define MAX_MODE_LEN               5
@@ -324,11 +319,10 @@ static os_off_t offsetTell (fileType aFile)
 #endif
 #ifdef os_ftell
     current_file_position = os_ftell(aFile);
-    logError(if (unlikely(current_file_position == -1)) {
-               printf("offsetTell: os_ftell(%d) failed:\n"
-                      "errno=%d\nerror: %s\n",
-                      safe_fileno(aFile), errno, strerror(errno));
-             } /* if */);
+    logErrorIfTrue(current_file_position == -1,
+                   printf("offsetTell: os_ftell(fd of file = %d) failed:\n"
+                          "errno=%d\nerror: %s\n",
+                          safe_fileno(aFile), errno, strerror(errno)););
 #elif defined os_fgetpos
     {
       fpos_t file_pos;
@@ -410,6 +404,12 @@ int offsetSeek (fileType aFile, const os_off_t anOffset, const int origin)
 #endif
 #ifdef os_fseek
     result = os_fseek(aFile, anOffset, origin);
+    logErrorIfTrue(result != 0,
+                   printf("offsetSeek: os_fseek(fd of file = %d, "
+                          FMT_D_OFF ", %d) failed:\n"
+                          "errno=%d\nerror: %s\n",
+                          safe_fileno(aFile), anOffset, origin,
+                          errno, strerror(errno)););
 #elif defined os_fsetpos && defined os_fgetpos
     {
       fpos_t file_pos;
@@ -666,163 +666,60 @@ static striType read_and_alloc_stri (fileType inFile, memSizeType chars_missing,
 
 
 
-#ifndef CTRL_C_SENDS_EOF
-#if HAS_SIGACTION || HAS_SIGNAL
-static void handle_int_signal (int sig_num)
-
-  {
-#if SIGNAL_RESETS_HANDLER
-    signal(SIGINT, handle_int_signal);
-#endif
-    do_longjmp(intr_jump_pos, 1);
-  }
-
-
-static int readChar (fileType inFile, boolType *sigintReceived)
-
-  {
-#if HAS_SIGACTION
-    struct sigaction sig_act;
-    struct sigaction old_sig_act;
-#elif HAS_SIGNAL
-    void *old_handler;
-#endif
-    int ch = ' ';
-
-  /* readChar */
-    logFunction(printf("readChar(%d, %d)\n",
-                       safe_fileno(inFile), *sigintReceived););
-#if HAS_SIGACTION
-    sig_act.sa_handler = handle_int_signal;
-    sigemptyset(&sig_act.sa_mask);
-    sig_act.sa_flags = SA_RESTART;
-    if (unlikely(sigaction(SIGINT, &sig_act, &old_sig_act) != 0)) {
-#elif HAS_SIGNAL
-    old_handler = signal(SIGINT, handle_int_signal);
-    if (unlikely(old_handler == (void *) SIG_ERR)) {
-#endif
-      logError(printf("readChar(%d, *): "
-                      "signal(SIGINT, handle_int_signal) failed:\n"
-                      "errno=%d\nerror: %s\n",
-                      safe_fileno(inFile), errno, strerror(errno)););
-      raise_error(FILE_ERROR);
-    } else {
-      if (do_setjmp(intr_jump_pos) == 0) {
-        ch = getc(inFile);
-      } else {
-        *sigintReceived = TRUE;
-      } /* if */
-#if HAS_SIGACTION
-      if (unlikely(sigaction(SIGINT, &old_sig_act, NULL) != 0)) {
-#elif HAS_SIGNAL
-      if (unlikely(signal(SIGINT, old_handler) == SIG_ERR)) {
-#endif
-        logError(printf("readChar(%d, *): "
-                        "signal(SIGINT, old_handler) failed:\n"
-                        "errno=%d\nerror: %s\n",
-                        safe_fileno(inFile), errno, strerror(errno)););
-        raise_error(FILE_ERROR);
-      } /* if */
-    } /* if */
-    logFunction(printf("readChar(%d, %d) --> %d\n",
-                       safe_fileno(inFile), *sigintReceived, ch););
-    return ch;
-  } /* readChar */
-
-#else
-
-
-
-static int readChar (fileType inFile, boolType *sigintReceived)
+#if !HAS_SIGACTION && !HAS_SIGNAL
+int readCharChkCtrlC (fileType inFile, boolType *sigintReceived)
 
   {
     int ch;
 
-  /* readChar */
-    logFunction(printf("readChar(%d, %d)\n",
+  /* readCharChkCtrlC */
+    logFunction(printf("readCharChkCtrlC(%d, %d)\n",
                        safe_fileno(inFile), *sigintReceived););
     ch = getc(inFile);
-    logFunction(printf("readChar(%d, %d) --> %d\n",
+    logFunction(printf("readCharChkCtrlC(%d, %d) --> %d\n",
                        safe_fileno(inFile), *sigintReceived, ch););
     return ch;
-  } /* readChar */
-#endif
-#endif
-
-
-
-#ifdef CTRL_C_SENDS_EOF
-static charType doGetcFromTerminal (fileType inFile)
-
-  {
-    charType ch;
-
-  /* doGetcFromTerminal */
-    ch = (charType) getc(inFile);
-    if (feof(inFile)) {
-      clearerr(inFile);
-      fflush(inFile);
-      ch = (charType) 3;
-    } /* if */
-    return ch;
-  } /* doGetcFromTerminal */
-
-#else
-
-
-
-static charType doGetcFromTerminal (fileType inFile)
-
-  {
-    boolType sigintReceived = FALSE;
-    charType ch;
-
-  /* doGetcFromTerminal */
-    ch = (charType) readChar(inFile, &sigintReceived);
-    if (unlikely(sigintReceived)) {
-      raise(SIGINT);
-      ch = (charType) 3;
-    } /* if */
-    return ch;
-  } /* doGetcFromTerminal */
+  } /* readCharChkCtrlC */
 #endif
 
 
 
-#ifdef CTRL_C_SENDS_EOF
-static striType doGetsFromTerminal (fileType inFile, intType length)
+static int readCharFromTerminal (fileType inFile, boolType *sigintReceived)
 
   {
+    boolType resume;
     int ch;
-    striType result;
 
-  /* doGetsFromTerminal */
-    if (unlikely(length < 0)) {
-      logError(printf("doGetsFromTerminal(%d, " FMT_D "): Negative length.\n",
-                      safe_fileno(inFile), length););
-      raise_error(RANGE_ERROR);
-      result = NULL;
-    } else {
-      ch = getc(inFile);
-      if (feof(inFile)) {
-        clearerr(inFile);
-        fflush(inFile);
-        if (unlikely(!ALLOC_STRI_SIZE_OK(result, 0))) {
-          raise_error(MEMORY_ERROR);
-        } else {
-          result->size = 0;
+  /* readCharFromTerminal */
+    do {
+      resume = FALSE;
+      ch = readCharChkCtrlC(inFile, sigintReceived);
+      if (unlikely(*sigintReceived)) {
+        resume = callSignalHandler(SIGINT);
+        if (resume) {
+          printf("re-enter input> ");
+          fflush(stdout);
         } /* if */
-      } else {
-        if (ch != EOF) {
-          ungetc(ch, inFile);
-        } /* if */
-        result = filGets(inFile, length);
       } /* if */
-    } /* if */
-    return result;
-  } /* doGetsFromTerminal */
+    } while (resume);
+    return ch;
+  } /* readCharFromTerminal */
 
-#else
+
+
+static charType doGetcFromTerminal (fileType inFile)
+
+  {
+    boolType sigintReceived = FALSE;
+    charType ch;
+
+  /* doGetcFromTerminal */
+    ch = (charType) readCharFromTerminal(inFile, &sigintReceived);
+    if (unlikely(sigintReceived)) {
+      ch = (charType) 3;
+    } /* if */
+    return ch;
+  } /* doGetcFromTerminal */
 
 
 
@@ -840,9 +737,8 @@ static striType doGetsFromTerminal (fileType inFile, intType length)
       raise_error(RANGE_ERROR);
       result = NULL;
     } else {
-      ch = readChar(inFile, &sigintReceived);
+      ch = readCharFromTerminal(inFile, &sigintReceived);
       if (unlikely(sigintReceived)) {
-        raise(SIGINT);
         if (unlikely(!ALLOC_STRI_SIZE_OK(result, 0))) {
           raise_error(MEMORY_ERROR);
         } else {
@@ -857,102 +753,6 @@ static striType doGetsFromTerminal (fileType inFile, intType length)
     } /* if */
     return result;
   } /* doGetsFromTerminal */
-#endif
-
-
-
-static striType doLineRead (fileType inFile, register int ch, charType *terminationChar)
-
-  {
-    register memSizeType position;
-    strElemType *memory;
-    memSizeType memlength;
-    memSizeType newmemlength;
-    striType resized_result;
-    striType result;
-
-  /* doLineRead */
-    logFunction(printf("doLineRead(%d, '\\%d;', '\\" FMT_U32 ";')\n",
-                       safe_fileno(inFile), ch, *terminationChar););
-    memlength = READ_STRI_INIT_SIZE;
-    if (unlikely(!ALLOC_STRI_SIZE_OK(result, memlength))) {
-      raise_error(MEMORY_ERROR);
-    } else {
-      memory = result->mem;
-      position = 0;
-      while (ch != '\n' && ch != EOF) {
-        if (position >= memlength) {
-          newmemlength = memlength + READ_STRI_SIZE_DELTA;
-          REALLOC_STRI_CHECK_SIZE(resized_result, result, memlength, newmemlength);
-          if (unlikely(resized_result == NULL)) {
-            FREE_STRI(result, memlength);
-            raise_error(MEMORY_ERROR);
-            return NULL;
-          } /* if */
-          result = resized_result;
-          COUNT3_STRI(memlength, newmemlength);
-          memory = result->mem;
-          memlength = newmemlength;
-        } /* if */
-        memory[position++] = (strElemType) ch;
-        ch = getc(inFile);
-      } /* while */
-      if (ch == '\n' && position != 0 && memory[position - 1] == '\r') {
-        position--;
-      } /* if */
-      if (unlikely(ch == EOF && position == 0 && ferror(inFile))) {
-        FREE_STRI(result, memlength);
-        logError(printf("doLineRead(%d, '\\%d;', '\\" FMT_U32 ";'): "
-                        "getc(%d) failed.\n",
-                        safe_fileno(inFile), ch, *terminationChar,
-                        safe_fileno(inFile)););
-        raise_error(FILE_ERROR);
-        result = NULL;
-      } else {
-        REALLOC_STRI_SIZE_SMALLER(resized_result, result, memlength, position);
-        if (unlikely(resized_result == NULL)) {
-          FREE_STRI(result, memlength);
-          raise_error(MEMORY_ERROR);
-          result = NULL;
-        } else {
-          result = resized_result;
-          COUNT3_STRI(memlength, position);
-          result->size = position;
-          *terminationChar = (charType) ch;
-        } /* if */
-      } /* if */
-    } /* if */
-    return result;
-  } /* doLineRead */
-
-
-
-#ifdef CTRL_C_SENDS_EOF
-static striType doLineReadFromTerminal (fileType inFile, charType *terminationChar)
-
-  {
-    int ch;
-    striType result;
-
-  /* doLineReadFromTerminal */
-    logFunction(printf("doLineReadFromTerminal(%d, '\\" FMT_U32 ";')\n",
-                       safe_fileno(inFile), *terminationChar););
-    ch = getc(inFile);
-    if (feof(inFile)) {
-      clearerr(inFile);
-      fflush(inFile);
-      if (unlikely(!ALLOC_STRI_SIZE_OK(result, 0))) {
-        raise_error(MEMORY_ERROR);
-      } else {
-        result->size = 0;
-      } /* if */
-    } else {
-      result = doLineRead(inFile, ch, terminationChar);
-    } /* if */
-    return result;
-  } /* doLineReadFromTerminal */
-
-#else
 
 
 
@@ -966,119 +766,21 @@ static striType doLineReadFromTerminal (fileType inFile, charType *terminationCh
   /* doLineReadFromTerminal */
     logFunction(printf("doLineReadFromTerminal(%d, '\\" FMT_U32 ";')\n",
                        safe_fileno(inFile), *terminationChar););
-    ch = readChar(inFile, &sigintReceived);
+    ch = readCharFromTerminal(inFile, &sigintReceived);
     if (unlikely(sigintReceived)) {
-      raise(SIGINT);
       if (unlikely(!ALLOC_STRI_SIZE_OK(result, 0))) {
         raise_error(MEMORY_ERROR);
       } else {
         result->size = 0;
       } /* if */
     } else {
-      result = doLineRead(inFile, ch, terminationChar);
+      if (ch != EOF) {
+        ungetc(ch, inFile);
+      } /* if */
+      result = filLineRead(inFile, terminationChar);
     } /* if */
     return result;
   } /* doLineReadFromTerminal */
-#endif
-
-
-
-static striType doWordRead (fileType inFile, register int ch, charType *terminationChar)
-
-  {
-    register memSizeType position;
-    strElemType *memory;
-    memSizeType memlength;
-    memSizeType newmemlength;
-    striType resized_result;
-    striType result;
-
-  /* doWordRead */
-    logFunction(printf("doWordRead(%d, '\\%d;', '\\" FMT_U32 ";')\n",
-                       safe_fileno(inFile), ch, *terminationChar););
-    memlength = READ_STRI_INIT_SIZE;
-    if (unlikely(!ALLOC_STRI_SIZE_OK(result, memlength))) {
-      raise_error(MEMORY_ERROR);
-    } else {
-      memory = result->mem;
-      position = 0;
-      while (ch == ' ' || ch == '\t') {
-        ch = getc(inFile);
-      } /* while */
-      while (ch != ' ' && ch != '\t' &&
-          ch != '\n' && ch != EOF) {
-        if (position >= memlength) {
-          newmemlength = memlength + READ_STRI_SIZE_DELTA;
-          REALLOC_STRI_CHECK_SIZE(resized_result, result, memlength, newmemlength);
-          if (unlikely(resized_result == NULL)) {
-            FREE_STRI(result, memlength);
-            raise_error(MEMORY_ERROR);
-            return NULL;
-          } /* if */
-          result = resized_result;
-          COUNT3_STRI(memlength, newmemlength);
-          memory = result->mem;
-          memlength = newmemlength;
-        } /* if */
-        memory[position++] = (strElemType) ch;
-        ch = getc(inFile);
-      } /* while */
-      if (ch == '\n' && position != 0 && memory[position - 1] == '\r') {
-        position--;
-      } /* if */
-      if (unlikely(ch == EOF && position == 0 && ferror(inFile))) {
-        FREE_STRI(result, memlength);
-        logError(printf("doWordRead(%d, '\\%d;', '\\" FMT_U32 ";'): "
-                        "getc(%d) failed.\n",
-                        safe_fileno(inFile), ch, *terminationChar,
-                        safe_fileno(inFile)););
-        raise_error(FILE_ERROR);
-        result = NULL;
-      } else {
-        REALLOC_STRI_SIZE_SMALLER(resized_result, result, memlength, position);
-        if (unlikely(resized_result == NULL)) {
-          FREE_STRI(result, memlength);
-          raise_error(MEMORY_ERROR);
-          result = NULL;
-        } else {
-          result = resized_result;
-          COUNT3_STRI(memlength, position);
-          result->size = position;
-          *terminationChar = (charType) ch;
-        } /* if */
-      } /* if */
-    } /* if */
-    return result;
-  } /* doWordRead */
-
-
-
-#ifdef CTRL_C_SENDS_EOF
-static striType doWordReadFromTerminal (fileType inFile, charType *terminationChar)
-
-  {
-    int ch;
-    striType result;
-
-  /* doWordReadFromTerminal */
-    logFunction(printf("doWordReadFromTerminal(%d, '\\" FMT_U32 ";')\n",
-                       safe_fileno(inFile), *terminationChar););
-    ch = getc(inFile);
-    if (feof(inFile)) {
-      clearerr(inFile);
-      fflush(inFile);
-      if (unlikely(!ALLOC_STRI_SIZE_OK(result, 0))) {
-        raise_error(MEMORY_ERROR);
-      } else {
-        result->size = 0;
-      } /* if */
-    } else {
-      result = doWordRead(inFile, ch, terminationChar);
-    } /* if */
-    return result;
-  } /* doWordReadFromTerminal */
-
-#else
 
 
 
@@ -1092,20 +794,21 @@ static striType doWordReadFromTerminal (fileType inFile, charType *terminationCh
   /* doWordReadFromTerminal */
     logFunction(printf("doWordReadFromTerminal(%d, '\\" FMT_U32 ";')\n",
                        safe_fileno(inFile), *terminationChar););
-    ch = readChar(inFile, &sigintReceived);
+    ch = readCharFromTerminal(inFile, &sigintReceived);
     if (unlikely(sigintReceived)) {
-      raise(SIGINT);
       if (unlikely(!ALLOC_STRI_SIZE_OK(result, 0))) {
         raise_error(MEMORY_ERROR);
       } else {
         result->size = 0;
       } /* if */
     } else {
-      result = doWordRead(inFile, ch, terminationChar);
+      if (ch != EOF) {
+        ungetc(ch, inFile);
+      } /* if */
+      result = filWordRead(inFile, terminationChar);
     } /* if */
     return result;
   } /* doWordReadFromTerminal */
-#endif
 
 
 
@@ -1362,7 +1065,7 @@ striType filGets (fileType inFile, intType length)
       } /* if */
       if (result == NULL) {
         bytes_there = remainingBytesInFile(inFile);
-        /* printf("bytes_there=%lu\n", bytes_there); */
+        /* printf("bytes_there=" FMT_U_MEM "\n", bytes_there); */
         if (bytes_there != 0) {
           /* Now we know that bytes_there bytes are available in inFile */
           if (chars_requested <= bytes_there) {
@@ -1370,7 +1073,7 @@ striType filGets (fileType inFile, intType length)
           } else {
             allocated_size = bytes_there;
           } /* if */
-          /* printf("allocated_size=%lu\n", allocated_size); */
+          /* printf("allocated_size=" FMT_U_MEM "\n", allocated_size); */
           if (unlikely(!ALLOC_STRI_CHECK_SIZE(result, allocated_size))) {
             /* printf("MAX_STRI_LEN=%lu, SIZ_STRI(MAX_STRI_LEN)=%lu\n",
                 MAX_STRI_LEN, SIZ_STRI(MAX_STRI_LEN)); */
@@ -1386,7 +1089,7 @@ striType filGets (fileType inFile, intType length)
         /* printf("read_size=%ld\n", allocated_size); */
         num_of_chars_read = (memSizeType) fread(result->mem, 1,
             (size_t) allocated_size, inFile);
-        /* printf("num_of_chars_read=%lu\n", num_of_chars_read); */
+        /* printf("num_of_chars_read=" FMT_U_MEM "\n", num_of_chars_read); */
         if (num_of_chars_read == 0 && ferror(inFile)) {
           logError(printf("filGets: fread(*, 1, " FMT_U_MEM ", %d) failed.\n",
                           allocated_size, safe_fileno(inFile)););
@@ -1458,6 +1161,7 @@ boolType filHasNext (fileType inFile)
     boolType result;
 
   /* filHasNext */
+    logFunction(printf("filHasNext(%d)\n", safe_fileno(inFile)););
     if (feof(inFile)) {
       result = FALSE;
     } else {
@@ -1477,6 +1181,8 @@ boolType filHasNext (fileType inFile)
         result = FALSE;
       } /* if */
     } /* if */
+    logFunction(printf("filHasNext(%d) --> %d\n",
+                       safe_fileno(inFile), result););
     return result;
   } /* filHasNext */
 
@@ -1490,6 +1196,8 @@ boolType filHasNextChkCtrlC (fileType inFile)
     boolType result;
 
   /* filHasNextChkCtrlC */
+    logFunction(printf("filHasNextChkCtrlC(%d)\n",
+                       safe_fileno(inFile)););
     if (feof(inFile)) {
       result = FALSE;
     } else {
@@ -1515,6 +1223,8 @@ boolType filHasNextChkCtrlC (fileType inFile)
         result = FALSE;
       } /* if */
     } /* if */
+    logFunction(printf("filHasNextChkCtrlC(%d) --> %d\n",
+                       safe_fileno(inFile), result););
     return result;
   } /* filHasNextChkCtrlC */
 
@@ -1533,12 +1243,67 @@ boolType filHasNextChkCtrlC (fileType inFile)
 striType filLineRead (fileType inFile, charType *terminationChar)
 
   {
+    register int ch;
+    register memSizeType position;
+    strElemType *memory;
+    memSizeType memlength;
+    memSizeType newmemlength;
+    striType resized_result;
     striType result;
 
   /* filLineRead */
     logFunction(printf("filLineRead(%d, '\\" FMT_U32 ";')\n",
                        safe_fileno(inFile), *terminationChar););
-    result = doLineRead(inFile, getc(inFile), terminationChar);
+    memlength = READ_STRI_INIT_SIZE;
+    if (unlikely(!ALLOC_STRI_SIZE_OK(result, memlength))) {
+      raise_error(MEMORY_ERROR);
+    } else {
+      memory = result->mem;
+      position = 0;
+      while ((ch = getc(inFile)) != '\n' && ch != EOF) {
+        if (position >= memlength) {
+          newmemlength = memlength + READ_STRI_SIZE_DELTA;
+          REALLOC_STRI_CHECK_SIZE(resized_result, result, memlength, newmemlength);
+          if (unlikely(resized_result == NULL)) {
+            FREE_STRI(result, memlength);
+            raise_error(MEMORY_ERROR);
+            return NULL;
+          } /* if */
+          result = resized_result;
+          COUNT3_STRI(memlength, newmemlength);
+          memory = result->mem;
+          memlength = newmemlength;
+        } /* if */
+        memory[position++] = (strElemType) ch;
+      } /* while */
+      if (ch == '\n' && position != 0 && memory[position - 1] == '\r') {
+        position--;
+      } /* if */
+      if (unlikely(ch == EOF && position == 0 && ferror(inFile))) {
+        FREE_STRI(result, memlength);
+        logError(printf("filLineRead(%d, '\\" FMT_U32 ";'): "
+                        "getc(%d) failed.\n",
+                        safe_fileno(inFile), *terminationChar,
+                        safe_fileno(inFile)););
+        raise_error(FILE_ERROR);
+        result = NULL;
+      } else {
+        REALLOC_STRI_SIZE_SMALLER(resized_result, result, memlength, position);
+        if (unlikely(resized_result == NULL)) {
+          FREE_STRI(result, memlength);
+          raise_error(MEMORY_ERROR);
+          result = NULL;
+        } else {
+          result = resized_result;
+          COUNT3_STRI(memlength, position);
+          result->size = position;
+          *terminationChar = (charType) ch;
+        } /* if */
+      } /* if */
+    } /* if */
+    logFunction(printf("filLineRead(%d, '\\" FMT_U32 ";') --> \"%s\"",
+                       safe_fileno(inFile), *terminationChar,
+                       striAsUnquotedCStri(result)););
     return result;
   } /* filLineRead */
 
@@ -1557,8 +1322,11 @@ striType filLineReadChkCtrlC (fileType inFile, charType *terminationChar)
     if (file_no != -1 && isatty(file_no)) {
       result = doLineReadFromTerminal(inFile, terminationChar);
     } else {
-      result = doLineRead(inFile, getc(inFile), terminationChar);
+      result = filLineRead(inFile, terminationChar);
     } /* if */
+    logFunction(printf("filLineReadChkCtrlC(%d, '\\" FMT_U32 ";') --> \"%s\"",
+                       safe_fileno(inFile), *terminationChar,
+                       striAsUnquotedCStri(result)););
     return result;
   } /* filLineReadChkCtrlC */
 
@@ -1694,7 +1462,7 @@ fileType filOpen (const const_striType path, const const_striType mode)
       os_path = cp_to_os_path(path, &path_info, &err_info);
       /* printf("os_path \"%ls\" %d %d\n", os_path, path_info, err_info); */
       if (unlikely(os_path == NULL)) {
-#ifdef MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
+#if MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
         if (unlikely(path_info == PATH_IS_NORMAL))
 #endif
         {
@@ -1705,6 +1473,8 @@ fileType filOpen (const const_striType path, const const_striType mode)
         }
         result = NULL;
       } else {
+        logMessage(printf("os_fopen(\"" FMT_S_OS "\", \"" FMT_S_OS "\")\n",
+                          os_path, os_mode););
         result = os_fopen(os_path, os_mode);
         if (unlikely(result == NULL)) {
           logError(printf("filOpen: "
@@ -1870,7 +1640,7 @@ fileType filPopen (const const_striType command,
 #if defined USE_EXTENDED_LENGTH_PATH && USE_EXTENDED_LENGTH_PATH
         adjustCwdForShell(&err_info);
 #endif
-        logMessage(printf("popen(\"" FMT_S_OS "\", \"" FMT_S_OS "\")\n",
+        logMessage(printf("os_popen(\"" FMT_S_OS "\", \"" FMT_S_OS "\")\n",
                           os_command, os_mode););
         result = os_popen(os_command, os_mode);
       } /* if */
@@ -2017,12 +1787,72 @@ intType filTell (fileType aFile)
 striType filWordRead (fileType inFile, charType *terminationChar)
 
   {
+    register int ch;
+    register memSizeType position;
+    strElemType *memory;
+    memSizeType memlength;
+    memSizeType newmemlength;
+    striType resized_result;
     striType result;
 
   /* filWordRead */
     logFunction(printf("filWordRead(%d, '\\" FMT_U32 ";')\n",
                        safe_fileno(inFile), *terminationChar););
-    result = doWordRead(inFile, getc(inFile), terminationChar);
+    memlength = READ_STRI_INIT_SIZE;
+    if (unlikely(!ALLOC_STRI_SIZE_OK(result, memlength))) {
+      raise_error(MEMORY_ERROR);
+    } else {
+      memory = result->mem;
+      position = 0;
+      do {
+        ch = getc(inFile);
+      } while (ch == ' ' || ch == '\t');
+      while (ch != ' ' && ch != '\t' &&
+          ch != '\n' && ch != EOF) {
+        if (position >= memlength) {
+          newmemlength = memlength + READ_STRI_SIZE_DELTA;
+          REALLOC_STRI_CHECK_SIZE(resized_result, result, memlength, newmemlength);
+          if (unlikely(resized_result == NULL)) {
+            FREE_STRI(result, memlength);
+            raise_error(MEMORY_ERROR);
+            return NULL;
+          } /* if */
+          result = resized_result;
+          COUNT3_STRI(memlength, newmemlength);
+          memory = result->mem;
+          memlength = newmemlength;
+        } /* if */
+        memory[position++] = (strElemType) ch;
+        ch = getc(inFile);
+      } /* while */
+      if (ch == '\n' && position != 0 && memory[position - 1] == '\r') {
+        position--;
+      } /* if */
+      if (unlikely(ch == EOF && position == 0 && ferror(inFile))) {
+        FREE_STRI(result, memlength);
+        logError(printf("filWordRead(%d, '\\" FMT_U32 ";'): "
+                        "getc(%d) failed.\n",
+                        safe_fileno(inFile), *terminationChar,
+                        safe_fileno(inFile)););
+        raise_error(FILE_ERROR);
+        result = NULL;
+      } else {
+        REALLOC_STRI_SIZE_SMALLER(resized_result, result, memlength, position);
+        if (unlikely(resized_result == NULL)) {
+          FREE_STRI(result, memlength);
+          raise_error(MEMORY_ERROR);
+          result = NULL;
+        } else {
+          result = resized_result;
+          COUNT3_STRI(memlength, position);
+          result->size = position;
+          *terminationChar = (charType) ch;
+        } /* if */
+      } /* if */
+    } /* if */
+    logFunction(printf("filWordRead(%d, '\\" FMT_U32 ";') --> \"%s\"",
+                       safe_fileno(inFile), *terminationChar,
+                       striAsUnquotedCStri(result)););
     return result;
   } /* filWordRead */
 
@@ -2041,8 +1871,11 @@ striType filWordReadChkCtrlC (fileType inFile, charType *terminationChar)
     if (file_no != -1 && isatty(file_no)) {
       result = doWordReadFromTerminal(inFile, terminationChar);
     } else {
-      result = doWordRead(inFile, getc(inFile), terminationChar);
+      result = filWordRead(inFile, terminationChar);
     } /* if */
+    logFunction(printf("filWordReadChkCtrlC(%d, '\\" FMT_U32 ";') --> \"%s\"",
+                       safe_fileno(inFile), *terminationChar,
+                       striAsUnquotedCStri(result)););
     return result;
   } /* filWordReadChkCtrlC */
 

@@ -827,7 +827,7 @@ striType concatPath (const const_striType absolutePath,
 
 
 
-#ifdef ALLOW_STRITYPE_SLICES
+#if ALLOW_STRITYPE_SLICES
 /**
  *  Append the string 'extension' to 'destination'.
  *  @exception MEMORY_ERROR Not enough memory for the concatenated
@@ -855,7 +855,7 @@ void strAppend (striType *const destination, const_striType extension)
       raise_error(MEMORY_ERROR);
     } else {
       new_size = stri_dest->size + extension_size;
-#ifdef WITH_STRI_CAPACITY
+#if WITH_STRI_CAPACITY
       if (new_size > stri_dest->capacity) {
         if (SLICE_OVERLAPPING(extension, stri_dest)) {
           extension_origin = stri_dest->mem;
@@ -967,7 +967,7 @@ void strAppendN (striType *const destination,
       } /* if */
     } while (pos != 0);
     new_size = MAX_STRI_LEN - size_limit;
-#ifdef WITH_STRI_CAPACITY
+#if WITH_STRI_CAPACITY
     if (new_size > stri_dest->capacity) {
       if (new_size <= MAX_STRI_LEN_IN_FREELIST) {
         if (unlikely(!ALLOC_STRI_SIZE_OK(new_stri, new_size))) {
@@ -1122,7 +1122,7 @@ void strAppend (striType *const destination, const_striType extension)
       raise_error(MEMORY_ERROR);
     } else {
       new_size = stri_dest->size + extension->size;
-#ifdef WITH_STRI_CAPACITY
+#if WITH_STRI_CAPACITY
       if (new_size > stri_dest->capacity) {
         new_stri = growStri(stri_dest, new_size);
         if (unlikely(new_stri == NULL)) {
@@ -1210,7 +1210,7 @@ void strAppendN (striType *const destination,
       } /* if */
     } while (pos != 0);
     new_size = MAX_STRI_LEN - size_limit;
-#ifdef WITH_STRI_CAPACITY
+#if WITH_STRI_CAPACITY
     if (new_size > stri_dest->capacity) {
       new_stri = growStri(stri_dest, new_size);
       if (unlikely(new_stri == NULL)) {
@@ -1301,7 +1301,7 @@ void strAppendTemp (striType *const destination, const striType extension)
       raise_error(MEMORY_ERROR);
     } else {
       new_size = stri_dest->size + extension->size;
-#ifdef WITH_STRI_CAPACITY
+#if WITH_STRI_CAPACITY
       if (new_size <= stri_dest->capacity) {
         COUNT3_STRI(stri_dest->size, new_size);
         memcpy(&stri_dest->mem[stri_dest->size], extension->mem,
@@ -1846,7 +1846,7 @@ striType strConcatTemp (striType stri1, const const_striType stri2)
       stri1 = NULL;
     } else {
       result_size = stri1->size + stri2->size;
-#ifdef WITH_STRI_CAPACITY
+#if WITH_STRI_CAPACITY
       if (result_size > stri1->capacity) {
         resized_stri1 = growStri(stri1, result_size);
         if (unlikely(resized_stri1 == NULL)) {
@@ -1904,7 +1904,7 @@ void strCopy (striType *const dest, const const_striType source)
       memmove(stri_dest->mem, source->mem,
           new_size * sizeof(strElemType));
     } else {
-#ifdef WITH_STRI_CAPACITY
+#if WITH_STRI_CAPACITY
       if (stri_dest->capacity >= new_size && !SHRINK_REASON(stri_dest, new_size)) {
         COUNT3_STRI(stri_dest->size, new_size);
         stri_dest->size = new_size;
@@ -2115,7 +2115,7 @@ intType strHashCode (const const_striType stri)
 
 
 
-#ifdef ALLOW_STRITYPE_SLICES
+#if ALLOW_STRITYPE_SLICES
 /**
  *  Get a substring ending at a stop position.
  *  The first character in a string has the position 1.
@@ -2221,7 +2221,7 @@ striType strHeadTemp (const striType stri, const intType stop)
     } else {
       headSize = 0;
     } /* if */
-#ifdef WITH_STRI_CAPACITY
+#if WITH_STRI_CAPACITY
     if (!SHRINK_REASON(stri, headSize)) {
       COUNT3_STRI(striSize, headSize);
       head = stri;
@@ -3017,7 +3017,7 @@ void strPush (striType *const destination, const charType extension)
                 fflush(stdout););
     stri_dest = *destination;
     new_size = stri_dest->size + 1;
-#ifdef WITH_STRI_CAPACITY
+#if WITH_STRI_CAPACITY
     if (new_size > stri_dest->capacity) {
       stri_dest = growStri(stri_dest, new_size);
       if (unlikely(stri_dest == NULL)) {
@@ -3046,7 +3046,7 @@ void strPush (striType *const destination, const charType extension)
 
 
 
-#ifdef ALLOW_STRITYPE_SLICES
+#if ALLOW_STRITYPE_SLICES
 /**
  *  Get a substring from a start position to a stop position.
  *  The first character in a string has the position 1.
@@ -3771,7 +3771,7 @@ rtlArrayType strSplit (const const_striType mainStri,
 
 
 
-#ifdef ALLOW_STRITYPE_SLICES
+#if ALLOW_STRITYPE_SLICES
 /**
  *  Get a substring from a start position with a given length.
  *  The first character in a string has the position 1.
@@ -3863,7 +3863,7 @@ striType strSubstr (const const_striType stri, intType start, intType length)
 
 
 
-#ifdef ALLOW_STRITYPE_SLICES
+#if ALLOW_STRITYPE_SLICES
 /**
  *  Get a substring beginning at a start position.
  *  The first character in a 'string' has the position 1.

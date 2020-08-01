@@ -63,7 +63,7 @@ typedef struct {
     struct wdirent dirEntry;
   } WDIR;
 
-#ifdef MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
+#if MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
 typedef struct {
     /* A volumeListType always has a magic value of UINT32TYPE_MAX. */
     uint32Type magicValue;
@@ -81,6 +81,6 @@ int closedir (DIR *curr_dir);
 WDIR *wopendir (const wchar_t *name);
 struct wdirent *wreaddir (WDIR *curr_dir);
 int wclosedir (WDIR *curr_dir);
-#ifdef MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
+#if MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
 volumeListType *openVolumeList (void);
 #endif

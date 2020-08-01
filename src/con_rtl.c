@@ -89,13 +89,13 @@ void conVScroll (intType startlin, intType startcol,
 
 
 #ifdef CONSOLE_USES_CON_TEXT
+/**
+ *  This function writes the string stri to the console at the
+ *  current position. The current position must be a legal
+ *  position of the console. The string stri is not allowed to go
+ *  beyond the right border of the console.
+ */
 void conWrite (const_striType stri)
-
-  /* This function writes the string stri to the console at the     */
-  /* current position. The current position must be a legal         */
-  /* position of the console. The string stri is not allowed to go  */
-  /* beyond the right border of the console. All console output     */
-  /* must be done with this function.                               */
 
   {
     memSizeType size;

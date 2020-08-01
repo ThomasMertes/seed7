@@ -47,6 +47,7 @@ const func string: processFile (in string: fileName) is func
         processedFile &:= getWhiteSpace(inFile);
         currSymbol := getSymbolOrComment(inFile);
       end while;
+      close(inFile);
     end if;
   end func;
 

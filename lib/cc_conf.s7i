@@ -89,6 +89,12 @@ const type: ccConfigType is new struct
     var boolean: POW_FUNCTION_OKAY          is FALSE;
 
     (**
+     *  TRUE, when sqrt() works okay for a negative argument.
+     *  If it is FALSE fltSqrt() should be used instead of sqrt().
+     *)
+    var boolean: SQRT_FUNCTION_OKAY         is FALSE;
+
+    (**
      *  TRUE, when frexp(Infinity, &exponent), frexp(-Infinity, &exponent)
      *  and frexp(NaN, &exponent) return the first argument and set the
      *  exponent to 0.
@@ -567,6 +573,7 @@ const func ccConfigType: getBuiltInConfig is func
     conf.LITTLE_ENDIAN_INTTYPE      := boolean parse configValue("LITTLE_ENDIAN_INTTYPE");
     conf.NAN_COMPARISON_OKAY        := boolean parse configValue("NAN_COMPARISON_OKAY");
     conf.POW_FUNCTION_OKAY          := boolean parse configValue("POW_FUNCTION_OKAY");
+    conf.SQRT_FUNCTION_OKAY         := boolean parse configValue("SQRT_FUNCTION_OKAY");
     conf.FREXP_INFINITY_NAN_OKAY    := boolean parse configValue("FREXP_INFINITY_NAN_OKAY");
     conf.HAS_SIGSETJMP              := boolean parse configValue("HAS_SIGSETJMP");
     conf.HAS_SIGACTION              := boolean parse configValue("HAS_SIGACTION");

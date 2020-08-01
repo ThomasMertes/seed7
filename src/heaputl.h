@@ -325,8 +325,8 @@ EXTERN memSizeType hs;
 #define UNALLOC_WSTRI(var,len)     FREE_HEAP(var, SIZ_WSTRI(len))
 
 
-#ifdef WITH_STRI_CAPACITY
-#ifdef ALLOW_STRITYPE_SLICES
+#if WITH_STRI_CAPACITY
+#if ALLOW_STRITYPE_SLICES
 #define HEAP_ALLOC_STRI(var,len)       (ALLOC_HEAP(var,striType,SIZ_STRI(len))?((var)->mem=(var)->mem1,(var)->capacity=(len),CNT(CNT1_STRI(len,SIZ_STRI(len))) TRUE):FALSE)
 #define HEAP_REALLOC_STRI(v1,v2,l1,l2) if((v1=REALLOC_HEAP(v2,striType,SIZ_STRI(l2)))!=NULL){(v1)->mem=(v1)->mem1,(v1)->capacity=l2;}
 #else
@@ -334,7 +334,7 @@ EXTERN memSizeType hs;
 #define HEAP_REALLOC_STRI(v1,v2,l1,l2) if((v1=REALLOC_HEAP(v2,striType,SIZ_STRI(l2)))!=NULL)(v1)->capacity=l2;
 #endif
 #else
-#ifdef ALLOW_STRITYPE_SLICES
+#if ALLOW_STRITYPE_SLICES
 #define HEAP_ALLOC_STRI(var,len)       (ALLOC_HEAP(var,striType,SIZ_STRI(len))?((var)->mem=(var)->mem1,CNT(CNT1_STRI(len,SIZ_STRI(len))) TRUE):FALSE)
 #define HEAP_REALLOC_STRI(v1,v2,l1,l2) if((v1=REALLOC_HEAP(v2,striType,SIZ_STRI(l2)))!=NULL)(v1)->mem=(v1)->mem1;
 #else
@@ -347,7 +347,7 @@ EXTERN memSizeType hs;
 
 
 #if WITH_STRI_FREELIST
-#ifdef WITH_STRI_CAPACITY
+#if WITH_STRI_CAPACITY
 
 #define MAX_STRI_LEN_IN_FREELIST 19
 #define STRI_FREELIST_ARRAY_SIZE MAX_STRI_LEN_IN_FREELIST + 1
@@ -431,7 +431,7 @@ EXTERN unsigned int sflist_allowed;
 
 #endif
 
-#ifdef WITH_STRI_CAPACITY
+#if WITH_STRI_CAPACITY
 #define GROW_STRI(v1,v2,l1,l2)            ((l2)>(v2)->capacity?(v1=growStri(v2,l2)):(v1=(v2)))
 #define SHRINK_STRI(v1,v2,l1,l2)          ((l2)<(v2)->capacity>>2?(v1=shrinkStri(v2,l2)):(v1=(v2)))
 #define MIN_GROW_SHRINK_CAPACITY          8
@@ -446,10 +446,10 @@ EXTERN unsigned int sflist_allowed;
 /* The following macro is used when the new size is smaller or equal to the current one. */
 #define REALLOC_STRI_SIZE_SMALLER(v1,v2,l1,l2) HEAP_REALLOC_STRI(v1,v2,l1,l2)
 
-#ifdef ALLOW_STRITYPE_SLICES
+#if ALLOW_STRITYPE_SLICES
 #define GET_DESTINATION_ORIGIN(dest)           (dest)->mem1
 #define SLICE_OVERLAPPING2(var,origin,beyond)  ((var)->mem>=(origin)&&(var)->mem<(beyond))
-#ifdef WITH_STRI_CAPACITY
+#if WITH_STRI_CAPACITY
 #define GET_DESTINATION_BEYOND(dest)           &(dest)->mem1[(dest)->capacity]
 #define SLICE_OVERLAPPING(var,dest)            ((var)->mem>=(dest)->mem1&&(var)->mem<&(dest)->mem1[(dest)->capacity])
 #define SET_SLICE_CAPACITY(var,cap)            (var)->capacity = (cap)
@@ -461,7 +461,7 @@ EXTERN unsigned int sflist_allowed;
 #endif
 
 
-#ifdef ALLOW_BSTRITYPE_SLICES
+#if ALLOW_BSTRITYPE_SLICES
 #define ALLOC_BSTRI_SIZE_OK(var,len)       (ALLOC_HEAP(var, bstriType, SIZ_BSTRI(len))?(var->mem = var->mem1, CNT(CNT1_BSTRI(len, SIZ_BSTRI(len))) TRUE):FALSE)
 #define REALLOC_BSTRI_SIZE_OK(v1,v2,l1,l2) ((v1=REALLOC_HEAP(v2, bstriType, SIZ_BSTRI(l2)))?((v1)->mem=(v1)->mem1,0):0)
 #else
@@ -537,7 +537,7 @@ EXTERN unsigned int sflist_allowed;
 
 
 void setupStack (void);
-#ifdef WITH_STRI_CAPACITY
+#if WITH_STRI_CAPACITY
 striType growStri (striType stri, memSizeType len);
 striType shrinkStri (striType stri, memSizeType len);
 #endif

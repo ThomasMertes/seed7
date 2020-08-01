@@ -197,7 +197,8 @@ actType findAction (const const_striType actionName)
         actionFound = searchAction(actName);
       } /* if */
     } /* if */
-    logFunction(printf("findAction --> " FMT_U_MEM "\n", actionFound););
+    logFunction(printf("findAction --> " FMT_U_MEM "\n",
+                       (memSizeType) actionFound););
     return actionFound;
   } /* findAction */
 

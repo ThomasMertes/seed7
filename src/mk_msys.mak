@@ -48,10 +48,11 @@ AOBJ = act_comp.o prg_comp.o analyze.o syntax.o token.o parser.o name.o type.o \
        expr.o atom.o object.o scanner.o literal.o numlit.o findid.o \
        error.o infile.o libpath.o symbol.o info.o stat.o fatal.o match.o
 GOBJ = syvarutl.o traceutl.o actutl.o executl.o blockutl.o \
-       entutl.o identutl.o chclsutl.o sigutl.o arrutl.o
+       entutl.o identutl.o chclsutl.o arrutl.o
 ROBJ = arr_rtl.o bln_rtl.o bst_rtl.o chr_rtl.o cmd_rtl.o con_rtl.o dir_rtl.o drw_rtl.o fil_rtl.o \
        flt_rtl.o hsh_rtl.o int_rtl.o itf_rtl.o pcs_rtl.o set_rtl.o soc_rtl.o sql_rtl.o str_rtl.o \
-       tim_rtl.o ut8_rtl.o heaputl.o numutl.o striutl.o sql_lite.o sql_my.o sql_oci.o sql_odbc.o sql_post.o
+       tim_rtl.o ut8_rtl.o heaputl.o numutl.o sigutl.o striutl.o \
+       sql_lite.o sql_my.o sql_oci.o sql_odbc.o sql_post.o
 DOBJ = $(BIGINT_LIB).o cmd_win.o dir_win.o dll_win.o fil_win.o pcs_win.o pol_sel.o stat_win.o tim_win.o
 OBJ = $(MOBJ)
 SEED7_LIB_OBJ = $(ROBJ) $(DOBJ)
@@ -71,10 +72,11 @@ ASRC = act_comp.c prg_comp.c analyze.c syntax.c token.c parser.c name.c type.c \
        expr.c atom.c object.c scanner.c literal.c numlit.c findid.c \
        error.c infile.c libpath.c symbol.c info.c stat.c fatal.c match.c
 GSRC = syvarutl.c traceutl.c actutl.c executl.c blockutl.c \
-       entutl.c identutl.c chclsutl.c sigutl.c arrutl.c
+       entutl.c identutl.c chclsutl.c arrutl.c
 RSRC = arr_rtl.c bln_rtl.c bst_rtl.c chr_rtl.c cmd_rtl.c con_rtl.c dir_rtl.c drw_rtl.c fil_rtl.c \
        flt_rtl.c hsh_rtl.c int_rtl.c itf_rtl.c pcs_rtl.c set_rtl.c soc_rtl.c sql_rtl.c str_rtl.c \
-       tim_rtl.c ut8_rtl.c heaputl.c numutl.c striutl.c sql_lite.c sql_my.c sql_oci.c sql_odbc.c sql_post.c
+       tim_rtl.c ut8_rtl.c heaputl.c numutl.c sigutl.c striutl.c \
+       sql_lite.c sql_my.c sql_oci.c sql_odbc.c sql_post.c
 DSRC = $(BIGINT_LIB).c cmd_win.c dir_win.c dll_win.c fil_win.c pcs_win.c pol_sel.c stat_win.c tim_win.c
 SRC = $(MSRC)
 SEED7_LIB_SRC = $(RSRC) $(DSRC)
@@ -156,7 +158,6 @@ version.h: chkccomp.h
 	echo "#define PATH_DELIMITER 92 /* backslash (ASCII) */" > version.h
 	echo "#define SEARCH_PATH_DELIMITER ';'" >> version.h
 	echo "#define NULL_DEVICE \"NUL:\"" >> version.h
-	echo "#define CTRL_C_SENDS_EOF" >> version.h
 	echo "#define WITH_SQL" >> version.h
 	echo "#define CONSOLE_WCHAR" >> version.h
 	echo "#define OS_STRI_WCHAR" >> version.h
@@ -235,41 +236,75 @@ level.h:
 ../bin/$(COMPILER_LIB): $(COMPILER_LIB_OBJ)
 	ar r ../bin/$(COMPILER_LIB) $(COMPILER_LIB_OBJ)
 
-make7: ../bin/make7.exe
-
-../bin/make7.exe: ../prg/make7.sd7 ../bin/s7c.exe
-	../bin/s7c.exe -l ../lib -b ../bin -O2 ../prg/make7
-	mv ../prg/make7.exe ../bin
-
-calc7: ../bin/calc7.exe
+../bin/bas7.exe: ../prg/bas7.sd7 ../bin/s7c.exe
+	../bin/s7c.exe -l ../lib -b ../bin -O2 ../prg/bas7
+	mv ../prg/bas7.exe ../bin
 
 ../bin/calc7.exe: ../prg/calc7.sd7 ../bin/s7c.exe
 	../bin/s7c.exe -l ../lib -b ../bin -O2 ../prg/calc7
 	mv ../prg/calc7.exe ../bin
 
-find7: ../bin/find7.exe
+../bin/cat.exe: ../prg/cat.sd7 ../bin/s7c.exe
+	../bin/s7c.exe -l ../lib -b ../bin -O2 ../prg/cat
+	mv ../prg/cat.exe ../bin
+
+../bin/comanche.exe: ../prg/comanche.sd7 ../bin/s7c.exe
+	../bin/s7c.exe -l ../lib -b ../bin -O2 ../prg/comanche
+	mv ../prg/comanche.exe ../bin
 
 ../bin/find7.exe: ../prg/find7.sd7 ../bin/s7c.exe
 	../bin/s7c.exe -l ../lib -b ../bin -O2 ../prg/find7
 	mv ../prg/find7.exe ../bin
 
-tar7: ../bin/tar7.exe
+../bin/ftp7.exe: ../prg/ftp7.sd7 ../bin/s7c.exe
+	../bin/s7c.exe -l ../lib -b ../bin -O2 ../prg/ftp7
+	mv ../prg/ftp7.exe ../bin
+
+../bin/ftpserv.exe: ../prg/ftpserv.sd7 ../bin/s7c.exe
+	../bin/s7c.exe -l ../lib -b ../bin -O2 ../prg/ftpserv
+	mv ../prg/ftpserv.exe ../bin
+
+../bin/make7.exe: ../prg/make7.sd7 ../bin/s7c.exe
+	../bin/s7c.exe -l ../lib -b ../bin -O2 ../prg/make7
+	mv ../prg/make7.exe ../bin
+
+../bin/sql7.exe: ../prg/sql7.sd7 ../bin/s7c.exe
+	../bin/s7c.exe -l ../lib -b ../bin -O2 ../prg/sql7
+	mv ../prg/sql7.exe ../bin
+
+../bin/sydir7.exe: ../prg/sydir7.sd7 ../bin/s7c.exe
+	../bin/s7c.exe -l ../lib -b ../bin -O2 ../prg/sydir7
+	mv ../prg/sydir7.exe ../bin
 
 ../bin/tar7.exe: ../prg/tar7.sd7 ../bin/s7c.exe
 	../bin/s7c.exe -l ../lib -b ../bin -O2 ../prg/tar7
 	mv ../prg/tar7.exe ../bin
 
+../bin/toutf8.exe: ../prg/toutf8.sd7 ../bin/s7c.exe
+	../bin/s7c.exe -l ../lib -b ../bin -O2 ../prg/toutf8
+	mv ../prg/toutf8.exe ../bin
+
+../bin/which.exe: ../prg/which.sd7 ../bin/s7c.exe
+	../bin/s7c.exe -l ../lib -b ../bin -O2 ../prg/which
+	mv ../prg/which.exe ../bin
+
+bas7: ../bin/bas7.exe
+calc7: ../bin/calc7.exe
+cat: ../bin/cat.exe
+comanche: ../bin/comanche.exe
+find7: ../bin/find7.exe
 ftp7: ../bin/ftp7.exe
-
-../bin/ftp7.exe: ../prg/ftp7.sd7 ../bin/s7c.exe
-	../bin/s7c.exe -l ../lib -b ../bin -O2 ../prg/ftp7
-	mv ../prg/ftp7.exe ../bin
-
 ftpserv: ../bin/ftpserv.exe
+make7: ../bin/make7.exe
+sql7: ../bin/sql7.exe
+sydir7: ../bin/sydir7.exe
+tar7: ../bin/tar7.exe
+toutf8: ../bin/toutf8.exe
+which: ../bin/which.exe
 
-../bin/ftpserv.exe: ../prg/ftpserv.sd7 ../bin/s7c.exe
-	../bin/s7c.exe -l ../lib -b ../bin -O2 ../prg/ftpserv
-	mv ../prg/ftpserv.exe ../bin
+utils: ../bin/bas7.exe ../bin/calc7.exe ../bin/cat.exe ../bin/comanche.exe ../bin/find7.exe \
+       ../bin/ftp7.exe ../bin/ftpserv.exe ../bin/make7.exe ../bin/sql7.exe ../bin/sydir7.exe \
+       ../bin/tar7.exe ../bin/toutf8.exe ../bin/which.exe
 
 wc: $(SRC)
 	echo SRC:

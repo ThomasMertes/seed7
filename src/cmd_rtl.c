@@ -702,12 +702,14 @@ static void move_any_file (const const_os_striType from_name,
     } else {
       if (os_rename(from_name, to_name) != 0) {
         switch (errno) {
+#ifdef EXDEV
           case EXDEV:
             /* printf("move_any_file: "
                 "os_rename(\"" FMT_S_OS "\", \"" FMT_S_OS "\") triggers EXDEV\n",
                 from_name, to_name); */
             move_with_copy(from_name, to_name, err_info);
             break;
+#endif
 #ifdef USE_EACCES_INSTEAD_OF_EXDEV
           case EACCES:
             /* printf("move_any_file: "
@@ -969,7 +971,7 @@ static rtlArrayType getSearchPath (errInfoType *err_info)
               while (pathStri->size > 1 &&
                      pathStri->mem[pathStri->size - 1] == (charType) '/') {
                 pathStri->size--;
-#ifdef WITH_STRI_CAPACITY
+#if WITH_STRI_CAPACITY
                 COUNT3_STRI(pathStri->size + 1, pathStri->size);
 #endif
               } /* while */
@@ -1170,7 +1172,7 @@ void adjustCwdForShell (errInfoType *err_info)
 #endif
 
 
-#ifdef EMULATE_ROOT_CWD
+#if EMULATE_ROOT_CWD
 void initEmulatedCwd (errInfoType *err_info)
 
   {
@@ -1219,7 +1221,7 @@ bigIntType cmdBigFileSize (const const_striType filePath)
                 fflush(stdout););
     os_path = cp_to_os_path(filePath, &path_info, &err_info);
     if (unlikely(os_path == NULL)) {
-#ifdef MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
+#if MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
       if (likely(path_info == PATH_IS_EMULATED_ROOT)) {
         size_of_file = bigIConv(0);
       } else
@@ -1293,7 +1295,7 @@ void cmdChdir (const const_striType dirPath)
     logFunction(printf("cmdChdir(\"%s\")\n", striAsUnquotedCStri(dirPath)););
     os_path = cp_to_os_path(dirPath, &path_info, &err_info);
     if (unlikely(os_path == NULL)) {
-#ifdef MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
+#if MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
       if (likely(path_info == PATH_IS_EMULATED_ROOT)) {
         setEmulatedCwdToRoot();
       } else {
@@ -1527,14 +1529,10 @@ striType cmdConfigValue (const const_striType name)
         sprintf(buffer, "%s%s", MACRO_DEFS, OS_ISNAN_DEFINITION);
         opt = buffer;
       } else if (strcmp(opt_name, "OVERFLOW_SIGNAL") == 0) {
-        opt = OVERFLOW_SIGNAL;
+        opt = OVERFLOW_SIGNAL_STR;
       } else if (strcmp(opt_name, "FLOATTYPE_DOUBLE") == 0) {
-#ifdef FLOATTYPE_DOUBLE
-        opt = "TRUE";
-#else
-        opt = "FALSE";
-#endif
-      } else if (strcmp(opt_name, "HAS_SIGSETJMP") == 0) {
+        opt = FLOATTYPE_DOUBLE ? "TRUE" : "FALSE";
+     } else if (strcmp(opt_name, "HAS_SIGSETJMP") == 0) {
         opt = HAS_SIGSETJMP ? "TRUE" : "FALSE";
       } else if (strcmp(opt_name, "HAS_SIGACTION") == 0) {
         opt = HAS_SIGACTION ? "TRUE" : "FALSE";
@@ -1565,23 +1563,11 @@ striType cmdConfigValue (const const_striType name)
       } else if (strcmp(opt_name, "NAN_COMPARISON_OKAY") == 0) {
         opt = NAN_COMPARISON_OKAY ? "TRUE" : "FALSE";
       } else if (strcmp(opt_name, "WITH_STRI_CAPACITY") == 0) {
-#ifdef WITH_STRI_CAPACITY
-        opt = "TRUE";
-#else
-        opt = "FALSE";
-#endif
+        opt = WITH_STRI_CAPACITY ? "TRUE" : "FALSE";
       } else if (strcmp(opt_name, "ALLOW_STRITYPE_SLICES") == 0) {
-#ifdef ALLOW_STRITYPE_SLICES
-        opt = "TRUE";
-#else
-        opt = "FALSE";
-#endif
+        opt = ALLOW_STRITYPE_SLICES ? "TRUE" : "FALSE";
       } else if (strcmp(opt_name, "ALLOW_BSTRITYPE_SLICES") == 0) {
-#ifdef ALLOW_BSTRITYPE_SLICES
-        opt = "TRUE";
-#else
-        opt = "FALSE";
-#endif
+        opt = ALLOW_BSTRITYPE_SLICES ? "TRUE" : "FALSE";
       } else if (strcmp(opt_name, "RSHIFT_DOES_SIGN_EXTEND") == 0) {
         opt = RSHIFT_DOES_SIGN_EXTEND ? "TRUE" : "FALSE";
       } else if (strcmp(opt_name, "TWOS_COMPLEMENT_INTTYPE") == 0) {
@@ -1590,20 +1576,14 @@ striType cmdConfigValue (const const_striType name)
         opt = LITTLE_ENDIAN_INTTYPE ? "TRUE" : "FALSE";
       } else if (strcmp(opt_name, "POW_FUNCTION_OKAY") == 0) {
         opt = POW_FUNCTION_OKAY ? "TRUE" : "FALSE";
+      } else if (strcmp(opt_name, "SQRT_FUNCTION_OKAY") == 0) {
+        opt = SQRT_FUNCTION_OKAY ? "TRUE" : "FALSE";
       } else if (strcmp(opt_name, "FREXP_INFINITY_NAN_OKAY") == 0) {
         opt = FREXP_INFINITY_NAN_OKAY ? "TRUE" : "FALSE";
       } else if (strcmp(opt_name, "FLOAT_ZERO_DIV_ERROR") == 0) {
-#ifdef FLOAT_ZERO_DIV_ERROR
-        opt = "TRUE";
-#else
-        opt = "FALSE";
-#endif
+        opt = FLOAT_ZERO_DIV_ERROR ? "TRUE" : "FALSE";
       } else if (strcmp(opt_name, "LIMITED_CSTRI_LITERAL_LEN") == 0) {
-#ifdef LIMITED_CSTRI_LITERAL_LEN
-        opt = "TRUE";
-#else
-        opt = "FALSE";
-#endif
+        opt = LIMITED_CSTRI_LITERAL_LEN ? "TRUE" : "FALSE";
       } else if (strcmp(opt_name, "CC_SOURCE_UTF8") == 0) {
 #ifdef CC_SOURCE_UTF8
         opt = "TRUE";
@@ -1799,7 +1779,7 @@ setType cmdFileMode (const const_striType filePath)
     logFunction(printf("cmdFileMode(\"%s\")\n", striAsUnquotedCStri(filePath)););
     os_path = cp_to_os_path(filePath, &path_info, &err_info);
     if (unlikely(os_path == NULL)) {
-#ifdef MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
+#if MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
       if (likely(path_info == PATH_IS_EMULATED_ROOT)) {
         result = setIConv(0444);
       } else
@@ -1827,7 +1807,7 @@ setType cmdFileMode (const const_striType filePath)
         result = setIConv(0777 & stat_buf.st_mode);
 #else
         /* Force the bits to the standard sequence */
-        result = setIConv(        {
+        result = setIConv(
             (stat_buf.st_mode & S_IRUSR ? 0400 : 0) |
             (stat_buf.st_mode & S_IWUSR ? 0200 : 0) |
             (stat_buf.st_mode & S_IXUSR ? 0100 : 0) |
@@ -1874,7 +1854,7 @@ intType cmdFileSize (const const_striType filePath)
                 fflush(stdout););
     os_path = cp_to_os_path(filePath, &path_info, &err_info);
     if (unlikely(os_path == NULL)) {
-#ifdef MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
+#if MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
       if (unlikely(path_info != PATH_IS_EMULATED_ROOT))
 #endif
       {
@@ -1962,7 +1942,7 @@ intType cmdFileType (const const_striType filePath)
                 fflush(stdout););
     os_path = cp_to_os_path(filePath, &path_info, &err_info);
     if (unlikely(os_path == NULL)) {
-#ifdef MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
+#if MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
       if (path_info == PATH_IS_EMULATED_ROOT) {
         type_of_file = FILE_DIR;
       } else if (path_info == PATH_NOT_MAPPED) {
@@ -2064,7 +2044,7 @@ intType cmdFileTypeSL (const const_striType filePath)
                 fflush(stdout););
     os_path = cp_to_os_path(filePath, &path_info, &err_info);
     if (unlikely(os_path == NULL)) {
-#ifdef MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
+#if MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
       if (path_info == PATH_IS_EMULATED_ROOT) {
         type_of_file = FILE_DIR;
       } else if (path_info == PATH_NOT_MAPPED) {
@@ -2145,7 +2125,7 @@ striType cmdGetcwd (void)
     dotStri = chrStrMacro('.', stri1_buffer);
     os_cwd = cp_to_os_path(dotStri, &path_info, &err_info);
     if (unlikely(os_cwd == NULL)) {
-#ifdef EMULATE_ROOT_CWD
+#if EMULATE_ROOT_CWD
       if (likely(path_info == PATH_IS_EMULATED_ROOT)) {
         cwd = cp_from_os_path(current_emulated_cwd, &err_info);
         if (unlikely(cwd == NULL)) {
@@ -2200,7 +2180,7 @@ striType cmdGetcwd (void)
 
   /* cmdGetcwd */
     logFunction(printf("cmdGetcwd\n"););
-#ifdef EMULATE_ROOT_CWD
+#if EMULATE_ROOT_CWD
     if (IS_EMULATED_ROOT(current_emulated_cwd)) {
       cwd = cp_from_os_path(current_emulated_cwd, &err_info);
       if (unlikely(cwd == NULL)) {
@@ -2320,7 +2300,7 @@ void cmdGetATime (const const_striType filePath,
     logFunction(printf("cmdGetATime(\"%s\")\n", striAsUnquotedCStri(filePath)););
     os_path = cp_to_os_path(filePath, &path_info, &err_info);
     if (unlikely(os_path == NULL)) {
-#ifdef MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
+#if MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
       if (likely(path_info == PATH_IS_EMULATED_ROOT)) {
         timFromTimestamp(0,
             year, month, day, hour,
@@ -2385,7 +2365,7 @@ void cmdGetCTime (const const_striType filePath,
     logFunction(printf("cmdGetCTime(\"%s\")\n", striAsUnquotedCStri(filePath)););
     os_path = cp_to_os_path(filePath, &path_info, &err_info);
     if (unlikely(os_path == NULL)) {
-#ifdef MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
+#if MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
       if (likely(path_info == PATH_IS_EMULATED_ROOT)) {
         timFromTimestamp(0,
             year, month, day, hour,
@@ -2450,7 +2430,7 @@ void cmdGetMTime (const const_striType filePath,
     logFunction(printf("cmdGetMTime(\"%s\")\n", striAsUnquotedCStri(filePath)););
     os_path = cp_to_os_path(filePath, &path_info, &err_info);
     if (unlikely(os_path == NULL)) {
-#ifdef MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
+#if MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
       if (likely(path_info == PATH_IS_EMULATED_ROOT)) {
         timFromTimestamp(0,
             year, month, day, hour,
@@ -3576,8 +3556,8 @@ striType cmdToOsPath (const const_striType standardPath)
 
   /* cmdToOsPath */
     logFunction(printf("cmdToOsPath(\"%s\")\n", striAsUnquotedCStri(standardPath)););
-#ifdef MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
-#ifdef FORBID_DRIVE_LETTERS
+#if MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
+#if FORBID_DRIVE_LETTERS
     if (unlikely(standardPath->size >= 2 &&
                  (standardPath->mem[standardPath->size - 1] == '/' ||
                   (standardPath->mem[1] == ':' &&
@@ -3596,7 +3576,7 @@ striType cmdToOsPath (const const_striType standardPath)
 #endif
       err_info = RANGE_ERROR;
     } else {
-#ifdef MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
+#if MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
       if (standardPath->size >= 1 && standardPath->mem[0] == '/') {
         /* Absolute path: Try to map the path to a drive letter */
         if (unlikely(standardPath->size == 1)) {
@@ -3633,17 +3613,16 @@ striType cmdToOsPath (const const_striType standardPath)
           /* "/C"  cannot be mapped to a drive letter */
           err_info = RANGE_ERROR;
         } /* if */
-      } else {
+      } else
 #endif
+      {
         if (unlikely(!ALLOC_STRI_SIZE_OK(result, standardPath->size))) {
           err_info = MEMORY_ERROR;
         } else {
           result->size = standardPath->size;
           memcpy(result->mem, standardPath->mem, standardPath->size * sizeof(strElemType));
         } /* if */
-#ifdef MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
-      } /* if */
-#endif
+      }
     } /* if */
     if (unlikely(err_info != OKAY_NO_ERROR)) {
       raise_error(err_info);

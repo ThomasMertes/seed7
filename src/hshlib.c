@@ -938,7 +938,7 @@ objectType hsh_idx (listType arguments)
     if (unlikely(result_hashelem == NULL)) {
       logError(printf("hsh_idx(" FMT_X_MEM ", " FMT_U_MEM ", " FMT_U "): "
                       "Hashmap does not have an element with the key.\n",
-                      (memSizeType) aHashMap, aKey, hashcode););
+                      (memSizeType) aHashMap, (memSizeType) aKey, hashcode););
       result = raise_with_arguments(SYS_RNG_EXCEPTION, arguments);
     } else {
       if (TEMP2_OBJECT(arg_1(arguments))) {

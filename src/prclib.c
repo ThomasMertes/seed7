@@ -604,7 +604,7 @@ objectType prc_exit (listType arguments)
                       status, INT_MIN, INT_MAX););
       raise_error(RANGE_ERROR);
     } else {
-      shut_drivers();
+      shutDrivers();
       exit((int) status);
     } /* if */
     return SYS_EMPTY_OBJECT;

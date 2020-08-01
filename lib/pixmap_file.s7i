@@ -99,6 +99,16 @@ const func text: openPixmapFontFile (in PRIMITIVE_WINDOW: win,
 
 
 (**
+ *  Forces that all buffered data is sent to its destination.
+ *  Flushing a ''null_file'' has no effect.
+ *)
+const proc: flush (inout pixmapFontFile: aFile) is func
+  begin
+    DRAW_FLUSH;
+  end func;
+
+
+(**
  *  Set the current font of ''aText'' to ''aFont''.
  *)
 const proc: setFont (inout text: aText, in font: aFont) is DYNAMIC;

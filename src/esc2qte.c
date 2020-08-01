@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  esc2qte.c     Find escaped spaces and quote instead.            */
-/*  Copyright (C) 2014  Thomas Mertes                               */
+/*  Copyright (C) 2014, 2017  Thomas Mertes                         */
 /*                                                                  */
 /*  This program is free software; you can redistribute it and/or   */
 /*  modify it under the terms of the GNU General Public License as  */
@@ -42,19 +42,24 @@ int main (int argc, char *argv)
     while (fgets(line, BUFFER_SIZE, stdin) != NULL) {
       pos = 0;
       while (line[pos] != '\0') {
-        for (; line[pos] == ' ' || line[pos] == '\t' ; pos++) {
+        for (; line[pos] == ' ' || line[pos] == '\t' ||
+             line[pos] == '\r' || line[pos] == '\n'; pos++) {
           fputc(line[pos], stdout);
         } /* for */
         escapeFound = 0;
-        for (searchPos = pos; line[searchPos] != ' ' && line[searchPos] != '\t' &&
-              line[searchPos] != '\0'; searchPos++) {
+        for (searchPos = pos;
+             line[searchPos] != ' ' && line[searchPos] != '\t' &&
+             line[searchPos] != '\r' && line[searchPos] != '\n' &&
+             line[searchPos] != '\0'; searchPos++) {
           if (line[searchPos] == '\\' && line[searchPos + 1] == ' ') {
             escapeFound = 1;
           } /* if */
         } /* for */
         if (escapeFound) {
           fputc('"', stdout);
-          for (; line[pos] != ' ' && line[pos] != '\t' && line[pos] != '\0'; pos++) {
+          for (; line[pos] != ' ' && line[pos] != '\t' &&
+               line[pos] != '\r' && line[pos] != '\n' &&
+               line[pos] != '\0'; pos++) {
             if (line[pos] == '\\' && line[pos + 1] == ' ') {
               pos++;
             } /* if */
@@ -62,7 +67,9 @@ int main (int argc, char *argv)
           } /* for */
           fputc('"', stdout);
         } else {
-          for (; line[pos] != ' ' && line[pos] != '\t' && line[pos] != '\0'; pos++) {
+          for (; line[pos] != ' ' && line[pos] != '\t' &&
+               line[pos] != '\r' && line[pos] != '\n' &&
+               line[pos] != '\0'; pos++) {
             fputc(line[pos], stdout);
           } /* for */
         } /* if */

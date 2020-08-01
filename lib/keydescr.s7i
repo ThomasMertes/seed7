@@ -26,6 +26,9 @@
 (********************************************************************)
 
 
+include "keybd.s7i";
+
+
 const type: keyDescriptionType is hash [char] string;
 
 

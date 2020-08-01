@@ -39,7 +39,6 @@
 #include "string.h"
 #include "windows.h"
 #include "wchar.h"
-#include "conio.h"
 
 #include "common.h"
 #include "heaputl.h"
@@ -50,141 +49,66 @@
 #include "kbd_drv.h"
 
 
-#ifdef C_PLUS_PLUS
-
-extern "C" wint_t _getwch (void);
-
-#else
-
-extern wint_t _getwch (void);
-
-#endif
-
-
 #define SCRHEIGHT 25
 #define SCRWIDTH 80
 #define WRITE_STRI_BLOCK_SIZE 256
 
 static boolType keybd_initialized = FALSE;
-static DWORD saved_console_input_mode;
+static DWORD savedKeybdMode;
+static HANDLE hKeyboard = INVALID_HANDLE_VALUE;
 
 static char currentattribute;
 static boolType console_initialized = FALSE;
 static boolType cursor_on = FALSE;
 
-
-#ifdef OS_GETCH_READS_BYTES
-static charType map_char[] = {
-/*   0 */ 0000, 0001, 0002, 0003, 0004, 0005, 0006, 0007, 0010, 0011,
-/*  10 */ 0012, 0013, 0014, 0015, 0016, 0017, 0020, 0021, 0022, 0023,
-/*  20 */ 0024, 0025, 0026, 0027, 0030, 0031, 0032, 0033, 0034, 0035,
-/*  30 */ 0036, 0037, ' ',  '!',  '\"', '#',  '$',  '%',  '&',  '\'',
-/*  40 */ '(',  ')',  '*',  '+',  ',',  '-',  '.',  '/',  '0',  '1',
-/*  50 */ '2',  '3',  '4',  '5',  '6',  '7',  '8',  '9',  ':',  ';',
-/*  60 */ '<',  '=',  '>',  '?',  '@',  'A',  'B',  'C',  'D',  'E',
-/*  70 */ 'F',  'G',  'H',  'I',  'J',  'K',  'L',  'M',  'N',  'O',
-/*  80 */ 'P',  'Q',  'R',  'S',  'T',  'U',  'V',  'W',  'X',  'Y',
-/*  90 */ 'Z',  '[',  '\\', ']',  '^',  '_',  '`',  'a',  'b',  'c',
-/* 100 */ 'd',  'e',  'f',  'g',  'h',  'i',  'j',  'k',  'l',  'm',
-/* 110 */ 'n',  'o',  'p',  'q',  'r',  's',  't',  'u',  'v',  'w',
-/* 120 */ 'x',  'y',  'z',  '{',  '|',  '}',  '~',  0177, 0307, 0374,
-/* 130 */ 0351, 0342, 0344, 0340, 0345, 0347, 0352, 0353, 0350, 0357,
-/* 140 */ 0356, 0354, 0304, 0305, 0311, 0346, 0306, 0364, 0366, 0362,
-/* 150 */ 0373, 0371, 0377, 0326, 0334, 0370, 0243, 0330, 0327, '?',
-/* 160 */ 0341, 0355, 0363, 0372, 0361, 0321, 0252, 0272, 0277, 0256,
-/* 170 */ 0254, 0275, 0274, 0241, 0253, 0273, '?',  '?',  '?',  '?',
-/* 180 */ '?',  0301, 0302, 0300, 0251, '?',  '?',  '?',  '?',  0242,
-/* 190 */ 0245, '?',  '?',  '?',  '?',  '?',  '?',  '?',  0343, 0303,
-/* 200 */ '?',  '?',  '?',  '?',  '?',  '?',  '?',  0244, 0360, 0320,
-/* 210 */ 0312, 0313, 0310, 0271, 0315, 0316, 0317, '?',  '?',  '?',
-/* 220 */ '?',  0246, 0314, '?',  0363, 0337, 0324, 0322, 0365, 0325,
-/* 230 */ 0265, 0376, 0336, 0332, 0333, 0331, 0375, 0335, 0257, 0264,
-/* 240 */ 0255, 0261, '?',  0276, 0266, 0247, 0367, 0270, 0260, 0250,
-/* 250 */ 0267, 0271, 0263, 0262, '?',  0240};
-#endif
+static const charType map_1252_to_unicode[] = {
+/* 128 */ 0x20AC,    '?', 0x201A, 0x0192, 0x201E, 0x2026, 0x2020, 0x2021,
+/* 136 */ 0x02C6, 0x2030, 0x0160, 0x2039, 0x0152,    '?', 0x017D,    '?',
+/* 144 */    '?', 0x2018, 0x2019, 0x201C, 0x201D, 0x2022, 0x2013, 0x2014,
+/* 152 */ 0x02DC, 0x2122, 0x0161, 0x203A, 0x0153,    '?', 0x017E, 0x0178};
 
 
-static charType map_key[] = {
-/*   0 */ K_UNDEF,     K_UNDEF,     K_UNDEF,     K_NULCHAR,   K_UNDEF,
-/*   5 */ K_UNDEF,     K_UNDEF,     K_UNDEF,     K_UNDEF,     K_UNDEF,
-/*  10 */ K_UNDEF,     K_UNDEF,     K_UNDEF,     K_UNDEF,     K_UNDEF,
-/*  15 */ K_BACKTAB,   K_ALT_Q,     K_ALT_W,     K_ALT_E,     K_ALT_R,
-/*  20 */ K_ALT_T,     K_ALT_Y,     K_ALT_U,     K_ALT_I,     K_ALT_O,
-/*  25 */ K_ALT_P,     K_UNDEF,     K_UNDEF,     K_UNDEF,     K_UNDEF,
-/*  30 */ K_ALT_A,     K_ALT_S,     K_ALT_D,     K_ALT_F,     K_ALT_G,
-/*  35 */ K_ALT_H,     K_ALT_J,     K_ALT_K,     K_ALT_L,     K_UNDEF,
-/*  40 */ K_UNDEF,     K_UNDEF,     K_UNDEF,     K_UNDEF,     K_ALT_Z,
-/*  45 */ K_ALT_X,     K_ALT_C,     K_ALT_V,     K_ALT_B,     K_ALT_N,
-/*  50 */ K_ALT_M,     K_UNDEF,     K_UNDEF,     K_UNDEF,     K_UNDEF,
-/*  55 */ K_UNDEF,     K_UNDEF,     K_UNDEF,     K_UNDEF,     K_F1,
-/*  60 */ K_F2,        K_F3,        K_F4,        K_F5,        K_F6,
-/*  65 */ K_F7,        K_F8,        K_F9,        K_F10,       K_UNDEF,
-/*  70 */ K_UNDEF,     K_HOME,      K_UP,        K_PGUP,      K_UNDEF,
-/*  75 */ K_LEFT,      K_UNDEF,     K_RIGHT,     K_UNDEF,     K_END,
-/*  80 */ K_DOWN,      K_PGDN,      K_INS,       K_DEL,       K_SFT_F1,
-/*  85 */ K_SFT_F2,    K_SFT_F3,    K_SFT_F4,    K_SFT_F5,    K_SFT_F6,
-/*  90 */ K_SFT_F7,    K_SFT_F8,    K_SFT_F9,    K_SFT_F10,   K_CTL_F1,
-/*  95 */ K_CTL_F2,    K_CTL_F3,    K_CTL_F4,    K_CTL_F5,    K_CTL_F6,
-/* 100 */ K_CTL_F7,    K_CTL_F8,    K_CTL_F9,    K_CTL_F10,   K_ALT_F1,
-/* 105 */ K_ALT_F2,    K_ALT_F3,    K_ALT_F4,    K_ALT_F5,    K_ALT_F6,
-/* 110 */ K_ALT_F7,    K_ALT_F8,    K_ALT_F9,    K_ALT_F10,   K_UNDEF,
-/* 115 */ K_CTL_LEFT,  K_CTL_RIGHT, K_CTL_END,   K_CTL_PGDN,  K_CTL_HOME,
-/* 120 */ K_ALT_1,     K_ALT_2,     K_ALT_3,     K_ALT_4,     K_ALT_5,
-/* 125 */ K_ALT_6,     K_ALT_7,     K_ALT_8,     K_ALT_9,     K_ALT_0,
-/* 130 */ K_UNDEF,     K_UNDEF,     K_CTL_PGUP,  K_F11,       K_F12,
-/* 135 */ K_SFT_F11,   K_SFT_F12,   K_CTL_F11,   K_CTL_F12,   K_ALT_F11,
-/* 140 */ K_ALT_F12,   K_CTL_UP,    K_UNDEF,     K_UNDEF,     K_UNDEF,
-/* 145 */ K_CTL_DOWN,  K_CTL_INS,   K_CTL_DEL,   K_UNDEF,     K_UNDEF,
-/* 150 */ K_UNDEF,     K_UNDEF,     K_UNDEF,     K_UNDEF,     K_UNDEF,
-/* 155 */ K_UNDEF,     K_UNDEF,     K_UNDEF,     K_UNDEF,     K_UNDEF,
-/* 160 */ K_UNDEF,     K_UNDEF,     K_UNDEF,     K_UNDEF,     K_UNDEF,
-/* 165 */ K_CTL_INS,   K_CTL_DEL,   K_UNDEF,     K_UNDEF,     K_UNDEF,
-/* 170 */ K_UNDEF,     K_UNDEF,     K_UNDEF,     K_UNDEF,     K_UNDEF,
-/* 175 */ K_UNDEF,     K_UNDEF,     K_UNDEF,     K_UNDEF,     K_UNDEF,
-/* 180 */ K_UNDEF,     K_UNDEF,     K_UNDEF,     K_UNDEF,     K_UNDEF,
-/* 185 */ K_UNDEF,     K_UNDEF,     K_UNDEF,     K_UNDEF,     K_UNDEF,
-/* 190 */ K_UNDEF,     K_UNDEF,     K_UNDEF,     K_UNDEF,     K_UNDEF,
-/* 195 */ K_UNDEF,     K_UNDEF,     K_UNDEF,     K_UNDEF,     K_UNDEF,
-/* 200 */ K_UNDEF,     K_UNDEF,     K_UNDEF,     K_UNDEF,     K_UNDEF,
-/* 205 */ K_UNDEF,     K_UNDEF,     K_UNDEF,     K_UNDEF,     K_UNDEF,
-/* 210 */ K_UNDEF,     K_UNDEF,     K_UNDEF,     K_UNDEF,     K_UNDEF,
-/* 215 */ K_UNDEF,     K_UNDEF,     K_UNDEF,     K_UNDEF,     K_UNDEF,
-/* 220 */ K_UNDEF,     K_UNDEF,     K_UNDEF,     K_UNDEF,     K_UNDEF,
-/* 225 */ K_UNDEF,     K_UNDEF,     K_UNDEF,     K_UNDEF,     K_UNDEF,
-/* 230 */ K_UNDEF,     K_UNDEF,     K_UNDEF,     K_UNDEF,     K_UNDEF,
-/* 235 */ K_UNDEF,     K_UNDEF,     K_UNDEF,     K_UNDEF,     K_UNDEF,
-/* 240 */ K_UNDEF,     K_UNDEF,     K_UNDEF,     K_UNDEF,     K_UNDEF,
-/* 245 */ K_UNDEF,     K_UNDEF,     K_UNDEF,     K_UNDEF,     K_UNDEF,
-/* 250 */ K_UNDEF,     K_UNDEF,     K_UNDEF,     K_UNDEF,     K_UNDEF,
-/* 255 */ K_UNDEF};
+
+void kbdShut (void)
+
+  { /* kbdShut */
+    if (keybd_initialized) {
+      if (hKeyboard != INVALID_HANDLE_VALUE) {
+        SetConsoleMode(hKeyboard, savedKeybdMode);
+      } /* if */
+    } /* if */
+  } /* kbdShut */
 
 
 
 static void kbd_init (void)
 
-  {
-    HANDLE hConsole;
-
-  /* kbd_init */
+  { /* kbd_init */
     logFunction(printf("kbd_init\n"););
-    hConsole = GetStdHandle(STD_INPUT_HANDLE);
-    if (hConsole != INVALID_HANDLE_VALUE) {
-      if (!GetConsoleMode(hConsole, &saved_console_input_mode)) {
-        logError(printf("kbd_init: GetConsoleMode(hConsole, *) failed:\n"
+    hKeyboard = GetStdHandle(STD_INPUT_HANDLE);
+    if (hKeyboard != INVALID_HANDLE_VALUE) {
+      if (!GetConsoleMode(hKeyboard, &savedKeybdMode)) {
+        logError(printf("kbd_init: GetConsoleMode(hKeyboard, *) failed:\n"
                         "Error=%d\n", GetLastError());
                  fflush(stdout););
       } else {
 #ifdef OUT_OF_ORDER
-        if (saved_console_input_mode & ENABLE_ECHO_INPUT) { printf("ECHO_INPUT\n"); }
-        /* if (saved_console_input_mode & ENABLE_INSERT_MODE) { printf("INSERT_MODE\n"); } */
-        if (saved_console_input_mode & ENABLE_LINE_INPUT) { printf("LINE_INPUT\n"); }
-        if (saved_console_input_mode & ENABLE_MOUSE_INPUT) { printf("MOUSE_INPUT\n"); }
-        if (saved_console_input_mode & ENABLE_PROCESSED_INPUT) { printf("PROCESSED_INPUT\n"); }
-        /* if (saved_console_input_mode & ENABLE_QUICK_EDIT_MODE) { printf("QUICK_EDIT_MODE\n"); } */
-        if (saved_console_input_mode & ENABLE_WINDOW_INPUT) { printf("WINDOW_INPUT\n"); }
+        if (savedKeybdMode & ENABLE_ECHO_INPUT) { printf("ECHO_INPUT\n"); }
+        if (savedKeybdMode & ENABLE_EXTENDED_FLAGS) { printf("EXTENDED_FLAGS\n"); }
+        if (savedKeybdMode & ENABLE_INSERT_MODE) { printf("INSERT_MODE\n"); }
+        if (savedKeybdMode & ENABLE_LINE_INPUT) { printf("LINE_INPUT\n"); }
+        if (savedKeybdMode & ENABLE_MOUSE_INPUT) { printf("MOUSE_INPUT\n"); }
+        if (savedKeybdMode & ENABLE_PROCESSED_INPUT) { printf("PROCESSED_INPUT\n"); }
+        if (savedKeybdMode & ENABLE_QUICK_EDIT_MODE) { printf("QUICK_EDIT_MODE\n"); }
+        if (savedKeybdMode & ENABLE_WINDOW_INPUT) { printf("WINDOW_INPUT\n"); }
+        /* if (savedKeybdMode & ENABLE_VIRTUAL_TERMINAL_INPUT) { printf("VIRTUAL_TERMINAL_INPUT\n"); } */
 #endif
-        SetConsoleMode(hConsole, saved_console_input_mode & (DWORD) ~ENABLE_PROCESSED_INPUT);
+        /* ENABLE_LINE_INPUT enables CTRL-S processing. */
+        /* ENABLE_PROCESSED_INPUT enables CTRL-C processing. */
+        SetConsoleMode(hKeyboard, savedKeybdMode &
+                       (DWORD) ~(ENABLE_LINE_INPUT | ENABLE_PROCESSED_INPUT));
         keybd_initialized = TRUE;
+        atexit(kbdShut);
       } /* if */
     } /* if */
     logFunction(printf("kbd_init -->\n"););
@@ -192,29 +116,57 @@ static void kbd_init (void)
 
 
 
-void kbdShut (void)
-
-  {
-    HANDLE hConsole;
-
-  /* kbdShut */
-    if (keybd_initialized) {
-      hConsole = GetStdHandle(STD_INPUT_HANDLE);
-      if (hConsole != INVALID_HANDLE_VALUE) {
-        SetConsoleMode(hConsole, saved_console_input_mode);
-      } /* if */
-    } /* if */
-  } /* kbdShut */
-
-
-
 boolType kbdKeyPressed (void)
 
-  { /* kbdKeyPressed */
+  {
+    INPUT_RECORD event;
+    DWORD count = 0;
+    boolType ignoreEvent;
+    boolType result;
+
+  /* kbdKeyPressed */
+    logFunction(printf("kbdKeyPressed\n"););
     if (!keybd_initialized) {
       kbd_init();
     } /* if */
-    return kbhit();
+    do {
+      ignoreEvent = FALSE;
+      result = PeekConsoleInputW(hKeyboard, &event, 1, &count) != 0 &&
+               count != 0;
+      if (result) {
+        if (event.EventType == KEY_EVENT) {
+          if (event.Event.KeyEvent.bKeyDown) {
+            switch (event.Event.KeyEvent.wVirtualKeyCode){
+              case VK_SHIFT:
+              case VK_CONTROL:
+              case VK_MENU:
+              case VK_CAPITAL:
+              case VK_NUMLOCK:
+              case VK_SCROLL:
+                ignoreEvent = TRUE;
+                break;
+            } /* switch */
+          } else {
+            ignoreEvent = TRUE;
+          } /* if */
+        } else if (event.EventType == FOCUS_EVENT ||
+                   event.EventType == MENU_EVENT) {
+          /* Ignore focus and menu events.        */
+          /* They are used internally by windows. */
+          ignoreEvent = TRUE;
+        } else {
+          printf("kbdKeyPressed: EventType = %d\n", event.EventType);
+        } /* if */
+        if (ignoreEvent) {
+          /* Skip the event to be ignored. */
+          ignoreEvent = ReadConsoleInputW(hKeyboard, &event, 1, &count) != 0;
+          /* When reading the event, that already has been */
+          /* peeked, fails the loop is terminated. */
+        } /* if */
+      } /* if */
+    } while (ignoreEvent);
+    logFunction(printf("kbdKeyPressed --> %d\n", result););
+    return result;
   } /* kbdKeyPressed */
 
 
@@ -222,31 +174,245 @@ boolType kbdKeyPressed (void)
 charType kbdGetc (void)
 
   {
-    intType key;
-    charType result;
+    INPUT_RECORD event;
+    DWORD count;
+    charType result = K_NONE;
 
   /* kbdGetc */
     logFunction(printf("kbdGetc\n"););
     if (!keybd_initialized) {
       kbd_init();
     } /* if */
-    key = os_getch();
-    if (key == 0 || key == 224) {
-      /* printf("key [%ld, ", key); */
-      key = os_getch();
-      result = map_key[key];
-      /* printf("%ld] -> %lu ", key, result); */
-    } else {
-#ifdef OS_GETCH_READS_BYTES
-      result = map_char[(uintType) key & 0xFF];
-#else
-      result = (charType) key;
-#endif
-    } /* if */
-    if (result == 13) {
-      result = 10;
-    } /* if */
-    logFunction(printf("kbdGetc --> %d\n", result););
+    while (result == K_NONE &&
+        ReadConsoleInputW(hKeyboard, &event, 1, &count) != 0) {
+      if (event.EventType == KEY_EVENT) {
+        if (event.Event.KeyEvent.bKeyDown) {
+          if (event.Event.KeyEvent.dwControlKeyState & SHIFT_PRESSED) {
+            switch (event.Event.KeyEvent.wVirtualKeyCode){
+              case VK_LBUTTON:  result = K_MOUSE1;     break;
+              case VK_MBUTTON:  result = K_MOUSE2;     break;
+              case VK_RBUTTON:  result = K_MOUSE3;     break;
+              case VK_RETURN:   result = K_NL;         break;
+              case VK_F1:       result = K_SFT_F1;     break;
+              case VK_F2:       result = K_SFT_F2;     break;
+              case VK_F3:       result = K_SFT_F3;     break;
+              case VK_F4:       result = K_SFT_F4;     break;
+              case VK_F5:       result = K_SFT_F5;     break;
+              case VK_F6:       result = K_SFT_F6;     break;
+              case VK_F7:       result = K_SFT_F7;     break;
+              case VK_F8:       result = K_SFT_F8;     break;
+              case VK_F9:       result = K_SFT_F9;     break;
+              case VK_F10:      result = K_SFT_F10;    break;
+              case VK_F11:      result = K_SFT_F11;    break;
+              case VK_F12:      result = K_SFT_F12;    break;
+              case VK_LEFT:     result = K_LEFT;       break;
+              case VK_RIGHT:    result = K_RIGHT;      break;
+              case VK_UP:       result = K_UP;         break;
+              case VK_DOWN:     result = K_DOWN;       break;
+              case VK_HOME:     result = K_HOME;       break;
+              case VK_END:      result = K_END;        break;
+              case VK_PRIOR:    result = K_PGUP;       break;
+              case VK_NEXT:     result = K_PGDN;       break;
+              case VK_INSERT:   result = K_INS;        break;
+              case VK_DELETE:   result = K_DEL;        break;
+              case VK_CLEAR:    result = K_PAD_CENTER; break;
+              case VK_APPS:     result = K_UNDEF;      break;
+              case VK_TAB:      result = K_BACKTAB;    break;
+              case VK_SHIFT:
+              case VK_CONTROL:
+              case VK_MENU:
+              case VK_CAPITAL:
+              case VK_NUMLOCK:
+              case VK_SCROLL:   result = K_NONE;       break;
+              default:          result = K_UNDEF;      break;
+            } /* switch */
+          } else if (event.Event.KeyEvent.dwControlKeyState &
+                     (LEFT_ALT_PRESSED | RIGHT_ALT_PRESSED)) {
+            switch (event.Event.KeyEvent.wVirtualKeyCode){
+              case VK_LBUTTON:  result = K_MOUSE1;     break;
+              case VK_MBUTTON:  result = K_MOUSE2;     break;
+              case VK_RBUTTON:  result = K_MOUSE3;     break;
+              case VK_RETURN:   result = K_NL;         break;
+              case VK_F1:       result = K_ALT_F1;     break;
+              case VK_F2:       result = K_ALT_F2;     break;
+              case VK_F3:       result = K_ALT_F3;     break;
+              case VK_F4:       result = K_ALT_F4;     break;
+              case VK_F5:       result = K_ALT_F5;     break;
+              case VK_F6:       result = K_ALT_F6;     break;
+              case VK_F7:       result = K_ALT_F7;     break;
+              case VK_F8:       result = K_ALT_F8;     break;
+              case VK_F9:       result = K_ALT_F9;     break;
+              case VK_F10:      result = K_ALT_F10;    break;
+              case VK_F11:      result = K_ALT_F11;    break;
+              case VK_F12:      result = K_ALT_F12;    break;
+              case VK_LEFT:     result = K_LEFT;       break;
+              case VK_RIGHT:    result = K_RIGHT;      break;
+              case VK_UP:       result = K_UP;         break;
+              case VK_DOWN:     result = K_DOWN;       break;
+              case VK_HOME:     result = K_HOME;       break;
+              case VK_END:      result = K_END;        break;
+              case VK_PRIOR:    result = K_PGUP;       break;
+              case VK_NEXT:     result = K_PGDN;       break;
+              case VK_INSERT:   result = K_INS;        break;
+              case VK_DELETE:   result = K_DEL;        break;
+              case VK_CLEAR:    result = K_PAD_CENTER; break;
+              case VK_APPS:     result = K_UNDEF;      break;
+              case VK_SHIFT:
+              case VK_CONTROL:
+              case VK_MENU:
+              case VK_CAPITAL:
+              case VK_NUMLOCK:
+              case VK_SCROLL:   result = K_NONE;       break;
+              default:          result = K_UNDEF;      break;
+            } /* switch */
+          } else if (event.Event.KeyEvent.dwControlKeyState &
+                     (LEFT_CTRL_PRESSED | RIGHT_CTRL_PRESSED)) {
+            switch (event.Event.KeyEvent.wVirtualKeyCode){
+              case VK_LBUTTON:  result = K_MOUSE1;     break;
+              case VK_MBUTTON:  result = K_MOUSE2;     break;
+              case VK_RBUTTON:  result = K_MOUSE3;     break;
+              case VK_RETURN:   result = K_NL;         break;
+              case VK_F1:       result = K_CTL_F1;     break;
+              case VK_F2:       result = K_CTL_F2;     break;
+              case VK_F3:       result = K_CTL_F3;     break;
+              case VK_F4:       result = K_CTL_F4;     break;
+              case VK_F5:       result = K_CTL_F5;     break;
+              case VK_F6:       result = K_CTL_F6;     break;
+              case VK_F7:       result = K_CTL_F7;     break;
+              case VK_F8:       result = K_CTL_F8;     break;
+              case VK_F9:       result = K_CTL_F9;     break;
+              case VK_F10:      result = K_CTL_F10;    break;
+              case VK_F11:      result = K_CTL_F11;    break;
+              case VK_F12:      result = K_CTL_F12;    break;
+              case VK_LEFT:     result = K_CTL_LEFT;   break;
+              case VK_RIGHT:    result = K_CTL_RIGHT;  break;
+              case VK_UP:       result = K_CTL_UP;     break;
+              case VK_DOWN:     result = K_CTL_DOWN;   break;
+              case VK_HOME:     result = K_CTL_HOME;   break;
+              case VK_END:      result = K_CTL_END;    break;
+              case VK_PRIOR:    result = K_CTL_PGUP;   break;
+              case VK_NEXT:     result = K_CTL_PGDN;   break;
+              case VK_INSERT:   result = K_CTL_INS;    break;
+              case VK_DELETE:   result = K_CTL_DEL;    break;
+              case VK_CLEAR:    result = K_PAD_CENTER; break;
+              case VK_APPS:     result = K_UNDEF;      break;
+              case VK_SHIFT:
+              case VK_CONTROL:
+              case VK_MENU:
+              case VK_CAPITAL:
+              case VK_NUMLOCK:
+              case VK_SCROLL:   result = K_NONE;       break;
+              default:          result = K_UNDEF;      break;
+            } /* switch */
+          } else {
+            switch (event.Event.KeyEvent.wVirtualKeyCode){
+              case VK_LBUTTON:  result = K_MOUSE1;     break;
+              case VK_MBUTTON:  result = K_MOUSE2;     break;
+              case VK_RBUTTON:  result = K_MOUSE3;     break;
+              case VK_RETURN:   result = K_NL;         break;
+              case VK_F1:       result = K_F1;         break;
+              case VK_F2:       result = K_F2;         break;
+              case VK_F3:       result = K_F3;         break;
+              case VK_F4:       result = K_F4;         break;
+              case VK_F5:       result = K_F5;         break;
+              case VK_F6:       result = K_F6;         break;
+              case VK_F7:       result = K_F7;         break;
+              case VK_F8:       result = K_F8;         break;
+              case VK_F9:       result = K_F9;         break;
+              case VK_F10:      result = K_F10;        break;
+              case VK_F11:      result = K_F11;        break;
+              case VK_F12:      result = K_F12;        break;
+              case VK_LEFT:     result = K_LEFT;       break;
+              case VK_RIGHT:    result = K_RIGHT;      break;
+              case VK_UP:       result = K_UP;         break;
+              case VK_DOWN:     result = K_DOWN;       break;
+              case VK_HOME:     result = K_HOME;       break;
+              case VK_END:      result = K_END;        break;
+              case VK_PRIOR:    result = K_PGUP;       break;
+              case VK_NEXT:     result = K_PGDN;       break;
+              case VK_INSERT:   result = K_INS;        break;
+              case VK_DELETE:   result = K_DEL;        break;
+              case VK_CLEAR:    result = K_PAD_CENTER; break;
+              case VK_APPS:     result = K_UNDEF;      break;
+              case VK_SHIFT:
+              case VK_CONTROL:
+              case VK_MENU:
+              case VK_CAPITAL:
+              case VK_NUMLOCK:
+              case VK_SCROLL:   result = K_NONE;       break;
+              default:          result = K_UNDEF;      break;
+            } /* switch */
+          } /* if */
+          if (result == K_UNDEF) {
+            if (event.Event.KeyEvent.uChar.UnicodeChar != 0) {
+              if (event.Event.KeyEvent.dwControlKeyState &
+                  (LEFT_ALT_PRESSED | RIGHT_ALT_PRESSED)) {
+                switch (event.Event.KeyEvent.uChar.UnicodeChar) {
+                  case 'A': case 'a': result = K_ALT_A; break;
+                  case 'B': case 'b': result = K_ALT_B; break;
+                  case 'C': case 'c': result = K_ALT_C; break;
+                  case 'D': case 'd': result = K_ALT_D; break;
+                  case 'E': case 'e': result = K_ALT_E; break;
+                  case 'F': case 'f': result = K_ALT_F; break;
+                  case 'G': case 'g': result = K_ALT_G; break;
+                  case 'H': case 'h': result = K_ALT_H; break;
+                  case 'I': case 'i': result = K_ALT_I; break;
+                  case 'J': case 'j': result = K_ALT_J; break;
+                  case 'K': case 'k': result = K_ALT_K; break;
+                  case 'L': case 'l': result = K_ALT_L; break;
+                  case 'M': case 'm': result = K_ALT_M; break;
+                  case 'N': case 'n': result = K_ALT_N; break;
+                  case 'O': case 'o': result = K_ALT_O; break;
+                  case 'P': case 'p': result = K_ALT_P; break;
+                  case 'Q': case 'q': result = K_ALT_Q; break;
+                  case 'R': case 'r': result = K_ALT_R; break;
+                  case 'S': case 's': result = K_ALT_S; break;
+                  case 'T': case 't': result = K_ALT_T; break;
+                  case 'U': case 'u': result = K_ALT_U; break;
+                  case 'V': case 'v': result = K_ALT_V; break;
+                  case 'W': case 'w': result = K_ALT_W; break;
+                  case 'X': case 'x': result = K_ALT_X; break;
+                  case 'Y': case 'y': result = K_ALT_Y; break;
+                  case 'Z': case 'z': result = K_ALT_Z; break;
+                  case '0':           result = K_ALT_0; break;
+                  case '1':           result = K_ALT_1; break;
+                  case '2':           result = K_ALT_2; break;
+                  case '3':           result = K_ALT_3; break;
+                  case '4':           result = K_ALT_4; break;
+                  case '5':           result = K_ALT_5; break;
+                  case '6':           result = K_ALT_6; break;
+                  case '7':           result = K_ALT_7; break;
+                  case '8':           result = K_ALT_8; break;
+                  case '9':           result = K_ALT_9; break;
+                } /* switch */
+              } /* if */
+              if (result == K_UNDEF) {
+                result = event.Event.KeyEvent.uChar.UnicodeChar;
+                if (result >= 128 && result <= 159) {
+                  result = map_1252_to_unicode[result - 128];
+                } /* if */
+              } /* if */
+            } else {
+              /*
+              printf("VK: %lu\n",
+                     (unsigned long) event.Event.KeyEvent.wVirtualKeyCode);
+              printf("Char: %lu\n",
+                     (unsigned long) event.Event.KeyEvent.uChar.UnicodeChar);
+              printf("CKey: %lx\n",
+                     (unsigned long) event.Event.KeyEvent.dwControlKeyState);
+              */
+            } /* if */
+          } /* if */
+        } /* if */
+      } else if (event.EventType == FOCUS_EVENT ||
+                 event.EventType == MENU_EVENT) {
+        /* Ignore focus and menu events.        */
+        /* They are used internally by windows. */
+      } else {
+        printf("kbdGetc: EventType = %d\n", event.EventType);
+      } /* if */
+    } /* while */
+    logFunction(printf("gkbGetc --> %d\n", result););
     return result;
   } /* kbdGetc */
 
@@ -317,7 +483,7 @@ intType textwidth (striType stri,
 
 
 void textcolumns (striType stri, intType striwidth,
-    intType * cols, intType *rest)
+    intType *cols, intType *rest)
 
   { /* textcolumns */
     *cols = striwidth;
@@ -523,13 +689,15 @@ void conClear (intType startlin, intType startcol,
         stopcol = INT16TYPE_MAX;
       } /* if */
       hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
-      position.X = (int16Type) (startcol - 1);
-      position.Y = (int16Type) (startlin - 1);
-      while (position.Y < (int16Type) stoplin) {
-        FillConsoleOutputCharacter(hConsole, (TCHAR) ' ',
-            (unsigned int) (stopcol - startcol + 1), position, &numchars);
-        position.Y++;
-      } /* while */
+      if (hConsole != INVALID_HANDLE_VALUE) {
+        position.X = (int16Type) (startcol - 1);
+        position.Y = (int16Type) (startlin - 1);
+        while (position.Y < (int16Type) stoplin) {
+          FillConsoleOutputCharacter(hConsole, (TCHAR) ' ',
+              (unsigned int) (stopcol - startcol + 1), position, &numchars);
+          position.Y++;
+        } /* while */
+      } /* if */
     } /* if */
   } /* conClear */
 

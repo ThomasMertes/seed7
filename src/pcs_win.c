@@ -200,7 +200,7 @@ static os_striType prepareCommandLine (const const_os_striType os_command_stri,
                 sourceChar++;
                 countBackslash++;
               } /* while */
-              /* fprintf(stderr, "countBackslash=%lu\n", countBackslash);
+              /* fprintf(stderr, "countBackslash=" FMT_U_MEM "\n", countBackslash);
                  fprintf(stderr, "sourceChar=%c\n", *sourceChar); */
               if (*sourceChar == '"' || *sourceChar == '\0') {
                 countBackslash *= 2;

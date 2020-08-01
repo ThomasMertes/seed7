@@ -193,7 +193,10 @@ objectType int_add_assign (listType arguments)
 
 /**
  *  Binomial coefficient
+ *   n ! k  returns  !n div (!k * !(n - k))
  *  @return n over k
+ *  @exception OVERFLOW_ERROR When the result would be less than
+ *             integer.first or greater than integer.last.
  */
 objectType int_binom (listType arguments)
 

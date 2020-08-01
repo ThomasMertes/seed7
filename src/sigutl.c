@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  s7   Seed7 interpreter                                          */
-/*  Copyright (C) 1990 - 2000  Thomas Mertes                        */
+/*  Copyright (C) 1990 - 2000, 2014, 2016, 2017  Thomas Mertes      */
 /*                                                                  */
 /*  This program is free software; you can redistribute it and/or   */
 /*  modify it under the terms of the GNU General Public License as  */
@@ -33,212 +33,404 @@
 #include "stdio.h"
 #include "stdlib.h"
 #include "signal.h"
+#include "sys/types.h"
 
 #include "common.h"
-#include "kbd_drv.h"
-#include "con_drv.h"
+#include "fil_drv.h"
+#include "rtl_err.h"
 
 #undef EXTERN
 #define EXTERN
 #include "sigutl.h"
 
 
-#if HAS_SIGACTION || HAS_SIGNAL
-volatile boolType trace_signals = FALSE;
+typedef void (*signalHandlerType) (int signalNum);
 
-static void activate_signal_handlers (void);
+#if HAS_SIGACTION || HAS_SIGNAL
+static const int normalSignals[] = {SIGABRT, SIGILL, SIGINT, SIGFPE};
+volatile static suspendInterprType suspendInterpreter;
 #endif
 
 
 
-void shut_drivers (void)
+void shutDrivers (void)
 
-  { /* shut_drivers */
-    logFunction(printf("shut_drivers\n"););
-    kbdShut();
-    conShut();
+  { /* shutDrivers */
+    logFunction(printf("shutDrivers\n"););
+    /* The actual shut functionality is now via atexit(). */
     fflush(NULL);
-    logFunction(printf("shut_drivers -->\n"););
-  } /* shut_drivers */
+    logFunction(printf("shutDrivers -->\n"););
+  } /* shutDrivers */
 
 
 
-const_cstriType signal_name (int sig_num)
+const_cstriType signalName (int signalNum)
 
   {
     static char buffer[20];
-    const_cstriType sig_name;
+    const_cstriType sigName;
 
-  /* signal_name */
-    logFunction(printf("signal_name(%d)\n", sig_num););
-    if (sig_num == SIGABRT) {
-      sig_name = "ABORT";
-    } else if (sig_num == SIGFPE) {
-      sig_name = "FPE";
-    } else if (sig_num == SIGILL) {
-      sig_name = "ILL";
-    } else if (sig_num == SIGINT) {
-      sig_name = "INTR";
-    } else if (sig_num == SIGSEGV) {
-      sig_name = "SEGV";
-    } else if (sig_num == SIGTERM) {
-      sig_name = "TERM";
+  /* signalName */
+    logFunction(printf("signalName(%d)\n", signalNum););
+    switch (signalNum) {
+      case SIGABRT: sigName = "SIGABRT"; break;
+      case SIGFPE:  sigName = "SIGFPE";  break;
+      case SIGILL:  sigName = "SIGILL";  break;
+      case SIGINT:  sigName = "SIGINT";  break;
+      case SIGSEGV: sigName = "SIGSEGV"; break;
+      case SIGTERM: sigName = "SIGTERM"; break;
 #ifdef SIGALRM
-    } else if (sig_num == SIGALRM) {
-      sig_name = "ALARM";
+      case SIGALRM: sigName = "SIGALRM"; break;
 #endif
 #ifdef SIGPIPE
-    } else if (sig_num == SIGPIPE) {
-      sig_name = "SIGPIPE";
+      case SIGPIPE: sigName = "SIGPIPE"; break;
 #endif
-    } else {
-      sprintf(buffer, "%d", sig_num);
-      sig_name = buffer;
-    } /* if */
-    logFunction(printf("signal_name(%d) --> \"%s\"\n",
-                       sig_num, sig_name););
-    return sig_name;
-  } /* signal_name */
+      default:
+        sprintf(buffer, "%d", signalNum);
+        sigName = buffer;
+        break;
+    } /* switch */
+    logFunction(printf("signalName(%d) --> \"%s\"\n",
+                       signalNum, sigName););
+    return sigName;
+  } /* signalName */
 
 
 
-#if HAS_SIGACTION || HAS_SIGNAL
-static void handle_signals (int sig_num)
+void triggerSigfpe (void)
 
   {
-#ifdef DIALOG_IN_SIGNAL_HANDLER
-    int ch;
-#endif
+    int number;
 
-  /* handle_signals */
-#ifdef SIGALRM
-    signal(SIGALRM, SIG_IGN);
-#endif
-#ifdef DIALOG_IN_SIGNAL_HANDLER
-    printf("\n*** SIGNAL %s RAISED\n\n"
-           "*** (Type RETURN to continue, '*' to terminate or 'c' to stop)\n",
-           signal_name(sig_num));
-    ch = fgetc(stdin);
-    if (ch == '*') {
-      shut_drivers();
-      exit(1);
-#ifdef CTRL_C_SENDS_EOF
-    } else if (ch == 'c' || ch == EOF) {
+  /* triggerSigfpe */
+    signal(SIGFPE, SIG_DFL);
+    number = 0;
+#ifdef DO_SIGFPE_WITH_DIV_BY_ZERO
+    printf("%d", 1 / number); /* trigger SIGFPE on purpose */
 #else
-    } else if (ch == 'c') {
+    raise(SIGFPE);
 #endif
-      interrupt_flag = TRUE;
-      signal_number = sig_num;
+    printf("\n*** Continue after SIGFPE.\n");
+  } /* triggerSigfpe */
+
+
+
+static boolType signalDecision (int signalNum, boolType inHandler)
+
+  {
+    int ch;
+    boolType sigintReceived;
+    int position;
+    char buffer[10];
+    long unsigned int exceptionNum;
+    boolType resume = FALSE;
+
+  /* signalDecision */
+    logFunction(printf("signalDecision(%d, %d)\n",
+                       signalNum, inHandler););
+    printf("\n*** SIGNAL %s RAISED\n"
+           "\n*** The following commands are possible:\n"
+           "  RETURN  Continue\n"
+           "  *       Terminate\n"
+           "  /       Trigger SIGFPE\n"
+           "  !n      Raise exception with number (e.g.: !1 raises MEMORY_ERROR)\n",
+           signalName(signalNum));
+    if (suspendInterpreter != NULL) {
+      printf("  c       Suspend the program\n");
+    } /* if */
+    if (inHandler) {
+      do {
+        ch = fgetc(stdin);
+      } while (ch == ' ');
+    } else {
+      do {
+        ch = readCharChkCtrlC(stdin, &sigintReceived);
+      } while (sigintReceived || ch == ' ');
+    } /* if */
+    if (ch == '*') {
+      shutDrivers();
+      exit(1);
+    } else if (ch == '/') {
+      triggerSigfpe();
+    } else if (suspendInterpreter != NULL && ch == 'c') {
+      suspendInterpreter(signalNum);
+    } else if (ch == '!') {
+      position = 0;
+      while ((ch = fgetc(stdin)) >= (int) ' ' && ch <= (int) '~' && position < 4) {
+        buffer[position] = (char) ch;
+        position++;
+      } /* while */
+      buffer[position] = '\0';
+      if (position > 0 && buffer[0] >= '0' && buffer[0] <= '9') {
+        exceptionNum = strtoul(buffer, NULL, 10);
+        raise_error((int) exceptionNum);
+      } /* if */
+    } else {
+      resume = TRUE;
     } /* if */
     while (ch != EOF && ch != '\n') {
       ch = fgetc(stdin);
     } /* while */
+    return resume;
+  } /* signalDecision */
+
+
+
+#if HAS_SIGACTION || HAS_SIGNAL
+static void handleTracedSignals (int signalNum)
+
+  { /* handleTracedSignals */
+#if defined SIGALRM && !HAS_SIGACTION
+    signal(SIGALRM, SIG_IGN);
+#endif
+#ifdef DIALOG_IN_SIGNAL_HANDLER
+    (void) signalDecision(signalNum, TRUE);
 #else
-    interrupt_flag = TRUE;
-    signal_number = sig_num;
+    if (suspendInterpreter != NULL) {
+      suspendInterpreter(signalNum);
+    } /* if */
 #endif
 #if SIGNAL_RESETS_HANDLER
-    activate_signal_handlers();
+    signal(signalNum, handleTracedSignals);
 #endif
-  } /* handle_signals */
+  } /* handleTracedSignals */
 
 
 
-static void handle_term_signal (int sig_num)
+static void handleNumericError (int signalNum)
 
-  { /* handle_term_signal */
-    shut_drivers();
-    printf("\n*** SIGNAL %s RAISED\n", signal_name(sig_num));
+  { /* handleNumericError */
+#if SIGNAL_RESETS_HANDLER
+    signal(signalNum, handleNumericError);
+#endif
+    raise_error(NUMERIC_ERROR);
+  } /* handleNumericError */
+
+
+
+#if OVERFLOW_SIGNAL
+static void handleOverflowError (int signalNum)
+
+  {
+#if SIGNAL_RESETS_HANDLER
+    signal(signalNum, handleOverflowError);
+#endif
+    raise_error(OVERFLOW_ERROR);
+  }
+#endif
+
+
+
+static void handleTermSignal (int signalNum)
+
+  { /* handleTermSignal */
+    printf("\n*** SIGNAL %s RAISED\n", signalName(signalNum));
     printf("\n*** Program terminated.\n");
+    shutDrivers();
     exit(1);
-  } /* handle_term_signal */
+  } /* handleTermSignal */
 
 
 
-static void handle_segv_signal (int sig_num)
+static void handleSegvSignal (int signalNum)
 
-  { /* handle_segv_signal */
-    shut_drivers();
+  { /* handleSegvSignal */
+    shutDrivers();
     printf("\n*** SIGNAL SEGV RAISED\n"
            "\n*** Program terminated.\n");
-    signal(SIGABRT, SIG_DFL);
-    abort();
-  } /* handle_segv_signal */
-
-
-
-static void activate_signal_handlers (void)
-
-  { /* activate_signal_handlers */
 #if HAS_SIGACTION
     {
-      struct sigaction sig_act;
-      boolType okay;
-
-      if (trace_signals) {
-        sig_act.sa_handler = handle_signals;
-      } else {
-        sig_act.sa_handler = handle_term_signal;
-      } /* if */
-      sigemptyset(&sig_act.sa_mask);
-      sig_act.sa_flags = SA_RESTART;
-      okay = sigaction(SIGABRT,  &sig_act, NULL) == 0 &&
-             sigaction(SIGFPE,   &sig_act, NULL) == 0 &&
-             sigaction(SIGILL,   &sig_act, NULL) == 0 &&
-             sigaction(SIGINT,   &sig_act, NULL) == 0;
-      sig_act.sa_handler = handle_term_signal;
-      okay = okay &&
-             sigaction(SIGTERM,  &sig_act, NULL) == 0;
-      if (trace_signals) {
-        sig_act.sa_handler = handle_segv_signal;
-      } else {
-        sig_act.sa_handler = SIG_DFL;
-      } /* if */
-      okay = okay &&
-             sigaction(SIGSEGV,  &sig_act, NULL) == 0;
-      if (!okay) {
-        printf("\n*** Activating signal handlers failed.\n");
-      } /* if */
+      struct sigaction sigAct;
+      sigemptyset(&sigAct.sa_mask);
+      sigAct.sa_flags = SA_RESTART;
+      sigAct.sa_handler = SIG_DFL;
+      sigaction(SIGABRT, &sigAct, NULL);
     }
 #elif HAS_SIGNAL
-    if (trace_signals) {
-      signal(SIGABRT, handle_signals);
-      signal(SIGFPE,  handle_signals);
-      signal(SIGILL,  handle_signals);
-      signal(SIGINT,  handle_signals);
-    } else {
-      signal(SIGABRT, handle_term_signal);
-      signal(SIGFPE,  handle_term_signal);
-      signal(SIGILL,  handle_term_signal);
-      signal(SIGINT,  handle_term_signal);
+    signal(SIGABRT, SIG_DFL);
+#endif
+    abort();
+  } /* handleSegvSignal */
+
+
+
+#if HAS_SIGACTION
+void setupSignalHandlers (boolType handleSignals,
+    boolType traceSignals, boolType overflowSigError,
+    boolType fpeNumericError, suspendInterprType suspendInterpr)
+
+  {
+    int pos;
+    int signalNum;
+    struct sigaction sigAct;
+    boolType okay = TRUE;
+
+  /* setupSignalHandlers */
+    logFunction(printf("setupSignalHandlers(%d, %d, %d, %d, " FMT_U_MEM ")\n",
+                       handleSignals, traceSignals, overflowSigError,
+                       fpeNumericError, (memSizeType) suspendInterpr););
+    suspendInterpreter = suspendInterpr;
+    if (handleSignals) {
+      sigemptyset(&sigAct.sa_mask);
+#ifdef SIGALRM
+      sigaddset(&sigAct.sa_mask, SIGALRM);
+#endif
+      sigAct.sa_flags = SA_RESTART;
+      for (pos = 0; pos < sizeof(normalSignals) / sizeof(int); pos++) {
+        signalNum = normalSignals[pos];
+#if OVERFLOW_SIGNAL
+        if (signalNum == OVERFLOW_SIGNAL && overflowSigError) {
+          sigAct.sa_handler = handleOverflowError;
+        } else
+#endif
+        if (signalNum == SIGFPE && fpeNumericError) {
+          sigAct.sa_handler = handleNumericError;
+        } else if (traceSignals) {
+          sigAct.sa_handler = handleTracedSignals;
+        } else {
+          sigAct.sa_handler = handleTermSignal;
+        } /* if */
+        okay = okay && sigaction(signalNum, &sigAct, NULL) == 0;
+      } /* for */
+      sigAct.sa_handler = handleTermSignal;
+      okay = okay && sigaction(SIGTERM,  &sigAct, NULL) == 0;
+      if (traceSignals) {
+        sigAct.sa_handler = handleSegvSignal;
+      } else {
+        sigAct.sa_handler = SIG_DFL;
+      } /* if */
+      okay = okay && sigaction(SIGSEGV, &sigAct, NULL) == 0;
+#ifdef SIGPIPE
+      sigAct.sa_handler = SIG_IGN;
+      okay = okay && sigaction(SIGPIPE, &sigAct, NULL) == 0;
+#endif
     } /* if */
-    signal(SIGTERM, handle_term_signal);
-    if (trace_signals) {
-      signal(SIGSEGV, handle_segv_signal);
+    if (!okay) {
+      printf("\n*** Activating signal handlers failed.\n");
+    } /* if */
+    logFunction(printf("setupSignalHandlers -->\n"););
+  } /* setupSignalHandlers */
+
+#elif HAS_SIGNAL
+
+
+
+void setupSignalHandlers (boolType handleSignals,
+    boolType traceSignals, boolType overflowSigError,
+    boolType fpeNumericError, suspendInterprType suspendInterpr)
+
+  {
+    int pos;
+    int signalNum;
+    signalHandlerType sigHandler;
+    boolType okay = TRUE;
+
+  /* setupSignalHandlers */
+    logFunction(printf("setupSignalHandlers(%d, %d, %d, %d, " FMT_U_MEM ")\n",
+                       handleSignals, traceSignals, overflowSigError,
+                       fpeNumericError, (memSizeType) suspendInterpr););
+    suspendInterpreter = suspendInterpr;
+    if (handleSignals) {
+      for (pos = 0; pos < sizeof(normalSignals) / sizeof(int); pos++) {
+        signalNum = normalSignals[pos];
+#if OVERFLOW_SIGNAL
+        if (signalNum == OVERFLOW_SIGNAL && overflowSigError) {
+          sigHandler = handleOverflowError;
+        } else
+#endif
+        if (signalNum == SIGFPE && fpeNumericError) {
+          sigHandler = handleNumericError;
+        } else if (traceSignals) {
+          sigHandler = handleTracedSignals;
+        } else {
+          sigHandler = handleTermSignal;
+        } /* if */
+        okay = okay && signal(signalNum, sigHandler) != SIG_ERR;
+      } /* for */
+      okay = okay && signal(SIGTERM, handleTermSignal) != SIG_ERR;
+      if (traceSignals) {
+        sigHandler = handleSegvSignal;
+      } else {
+        sigHandler = SIG_DFL;
+      } /* if */
+      okay = okay && signal(SIGSEGV, sigHandler) != SIG_ERR;
+#ifdef SIGPIPE
+      signal(SIGPIPE, SIG_IGN);
+#endif
+    } /* if */
+    if (!okay) {
+      printf("\n*** Activating signal handlers failed.\n");
+    } /* if */
+    logFunction(printf("setupSignalHandlers -->\n"););
+  } /* setupSignalHandlers */
+
+#else
+
+
+
+void setupSignalHandlers (boolType handleSignals,
+    boolType traceSignals, boolType overflowSigError,
+    boolType fpeNumericError, suspendInterprType suspendInterpr)
+
+  { /* setupSignalHandlers */
+    logFunction(printf("setupSignalHandlers(%d, %d, %d, %d, " FMT_U_MEM ")\n",
+                       handleSignals, traceSignals, overflowSigError,
+                       fpeNumericError, (memSizeType) suspendInterpr););
+    logFunction(printf("setupSignalHandlers -->\n"););
+  } /* setupSignalHandlers */
+#endif
+#endif
+
+
+
+static signalHandlerType getCurrentSignalHandler (int signalNum)
+
+  {
+#if HAS_SIGACTION
+    struct sigaction oldAction;
+#endif
+    signalHandlerType currentHandler;
+
+  /* getCurrentSignalHandler */
+    logFunction(printf("getCurrentSignalHandler(%d)\n", signalNum););
+#if HAS_SIGACTION
+    if (likely(sigaction(signalNum, NULL, &oldAction) == 0)) {
+      currentHandler = oldAction.sa_handler;
+#elif HAS_SIGNAL
+    currentHandler = signal(signalNum, SIG_IGN);
+    if (likely(currentHandler != SIG_ERR) &&
+               signal(signalNum, currentHandler) != SIG_ERR) {
+#endif
+#if HAS_SIGACTION || HAS_SIGNAL
     } else {
-      signal(SIGSEGV, SIG_DFL);
+      logError(printf("callSignalHandler(%d) failed.\n", signalNum););
+      currentHandler = SIG_ERR;
     } /* if */
 #else
-#error "Neither sigaction() nor signal() are available."
+    currentHandler = SIG_ERR;
 #endif
-#ifdef SIGPIPE
-    signal(SIGPIPE, SIG_IGN);
-#endif
-  } /* activate_signal_handlers */
-#endif
+    logFunction(printf("getCurrentSignalHandler(%d) --> " FMT_U_MEM "\n",
+                       signalNum, (memSizeType) currentHandler););
+    return currentHandler;
+  } /* getCurrentSignalHandler */
 
 
 
-void setup_signal_handlers (boolType do_handle_signals, boolType do_trace_signals)
+boolType callSignalHandler (int signalNum)
 
-  { /* setup_signal_handlers */
-    logFunction(printf("setup_signal_handlers(%d, %d)\n",
-                       do_handle_signals, do_trace_signals););
-#if HAS_SIGACTION || HAS_SIGNAL
-    trace_signals = do_trace_signals;
-    if (do_handle_signals) {
-      activate_signal_handlers();
+  {
+    signalHandlerType currentHandler;
+    boolType resume = FALSE;
+
+  /* callSignalHandler */
+    logFunction(printf("callSignalHandler(%d)\n", signalNum););
+    currentHandler = getCurrentSignalHandler(signalNum);
+    if (currentHandler == handleTracedSignals) {
+      resume = signalDecision(signalNum, FALSE);
+    } else if (currentHandler == SIG_DFL) {
+      raise(signalNum);
+    } else if (currentHandler != SIG_IGN && currentHandler != SIG_ERR) {
+      currentHandler(signalNum);
     } /* if */
-#endif
-    logFunction(printf("setup_signal_handlers -->\n"););
-  } /* setup_signal_handlers */
+    return resume;
+  } /* callSignalHandler */

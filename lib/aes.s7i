@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  aes.s7i       AES (Advanced Encryption Standard) cipher support.*)
-(*  Copyright (C) 2015  Thomas Mertes                               *)
+(*  Copyright (C) 2015, 2017  Thomas Mertes                         *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)
 (*                                                                  *)
@@ -55,6 +55,7 @@ const func integer: blockSize (AES) is 16;
 
 
 const array array bin32: Te is [] (
+  # Te[1]:
   [0] (bin32(16#c66363a5), bin32(16#f87c7c84), bin32(16#ee777799), bin32(16#f67b7b8d),
        bin32(16#fff2f20d), bin32(16#d66b6bbd), bin32(16#de6f6fb1), bin32(16#91c5c554),
        bin32(16#60303050), bin32(16#02010103), bin32(16#ce6767a9), bin32(16#562b2b7d),
@@ -119,6 +120,7 @@ const array array bin32: Te is [] (
        bin32(16#65bfbfda), bin32(16#d7e6e631), bin32(16#844242c6), bin32(16#d06868b8),
        bin32(16#824141c3), bin32(16#299999b0), bin32(16#5a2d2d77), bin32(16#1e0f0f11),
        bin32(16#7bb0b0cb), bin32(16#a85454fc), bin32(16#6dbbbbd6), bin32(16#2c16163a)),
+  # Te[2]:
   [0] (bin32(16#a5c66363), bin32(16#84f87c7c), bin32(16#99ee7777), bin32(16#8df67b7b),
        bin32(16#0dfff2f2), bin32(16#bdd66b6b), bin32(16#b1de6f6f), bin32(16#5491c5c5),
        bin32(16#50603030), bin32(16#03020101), bin32(16#a9ce6767), bin32(16#7d562b2b),
@@ -183,6 +185,7 @@ const array array bin32: Te is [] (
        bin32(16#da65bfbf), bin32(16#31d7e6e6), bin32(16#c6844242), bin32(16#b8d06868),
        bin32(16#c3824141), bin32(16#b0299999), bin32(16#775a2d2d), bin32(16#111e0f0f),
        bin32(16#cb7bb0b0), bin32(16#fca85454), bin32(16#d66dbbbb), bin32(16#3a2c1616)),
+  # Te[3]:
   [0] (bin32(16#63a5c663), bin32(16#7c84f87c), bin32(16#7799ee77), bin32(16#7b8df67b),
        bin32(16#f20dfff2), bin32(16#6bbdd66b), bin32(16#6fb1de6f), bin32(16#c55491c5),
        bin32(16#30506030), bin32(16#01030201), bin32(16#67a9ce67), bin32(16#2b7d562b),
@@ -247,6 +250,7 @@ const array array bin32: Te is [] (
        bin32(16#bfda65bf), bin32(16#e631d7e6), bin32(16#42c68442), bin32(16#68b8d068),
        bin32(16#41c38241), bin32(16#99b02999), bin32(16#2d775a2d), bin32(16#0f111e0f),
        bin32(16#b0cb7bb0), bin32(16#54fca854), bin32(16#bbd66dbb), bin32(16#163a2c16)),
+  # Te[4]:
   [0] (bin32(16#6363a5c6), bin32(16#7c7c84f8), bin32(16#777799ee), bin32(16#7b7b8df6),
        bin32(16#f2f20dff), bin32(16#6b6bbdd6), bin32(16#6f6fb1de), bin32(16#c5c55491),
        bin32(16#30305060), bin32(16#01010302), bin32(16#6767a9ce), bin32(16#2b2b7d56),
@@ -311,6 +315,7 @@ const array array bin32: Te is [] (
        bin32(16#bfbfda65), bin32(16#e6e631d7), bin32(16#4242c684), bin32(16#6868b8d0),
        bin32(16#4141c382), bin32(16#9999b029), bin32(16#2d2d775a), bin32(16#0f0f111e),
        bin32(16#b0b0cb7b), bin32(16#5454fca8), bin32(16#bbbbd66d), bin32(16#16163a2c)),
+  # Te[5]:
   [0] (bin32(16#63636363), bin32(16#7c7c7c7c), bin32(16#77777777), bin32(16#7b7b7b7b),
        bin32(16#f2f2f2f2), bin32(16#6b6b6b6b), bin32(16#6f6f6f6f), bin32(16#c5c5c5c5),
        bin32(16#30303030), bin32(16#01010101), bin32(16#67676767), bin32(16#2b2b2b2b),
@@ -378,6 +383,7 @@ const array array bin32: Te is [] (
 
 
 const array array bin32: Td is [] (
+  # Td[1]:
   [0] (bin32(16#51f4a750), bin32(16#7e416553), bin32(16#1a17a4c3), bin32(16#3a275e96),
        bin32(16#3bab6bcb), bin32(16#1f9d45f1), bin32(16#acfa58ab), bin32(16#4be30393),
        bin32(16#2030fa55), bin32(16#ad766df6), bin32(16#88cc7691), bin32(16#f5024c25),
@@ -442,6 +448,7 @@ const array array bin32: Td is [] (
        bin32(16#161dc372), bin32(16#bce2250c), bin32(16#283c498b), bin32(16#ff0d9541),
        bin32(16#39a80171), bin32(16#080cb3de), bin32(16#d8b4e49c), bin32(16#6456c190),
        bin32(16#7bcb8461), bin32(16#d532b670), bin32(16#486c5c74), bin32(16#d0b85742)),
+  # Td[2]:
   [0] (bin32(16#5051f4a7), bin32(16#537e4165), bin32(16#c31a17a4), bin32(16#963a275e),
        bin32(16#cb3bab6b), bin32(16#f11f9d45), bin32(16#abacfa58), bin32(16#934be303),
        bin32(16#552030fa), bin32(16#f6ad766d), bin32(16#9188cc76), bin32(16#25f5024c),
@@ -506,6 +513,7 @@ const array array bin32: Td is [] (
        bin32(16#72161dc3), bin32(16#0cbce225), bin32(16#8b283c49), bin32(16#41ff0d95),
        bin32(16#7139a801), bin32(16#de080cb3), bin32(16#9cd8b4e4), bin32(16#906456c1),
        bin32(16#617bcb84), bin32(16#70d532b6), bin32(16#74486c5c), bin32(16#42d0b857)),
+  # Td[3]:
   [0] (bin32(16#a75051f4), bin32(16#65537e41), bin32(16#a4c31a17), bin32(16#5e963a27),
        bin32(16#6bcb3bab), bin32(16#45f11f9d), bin32(16#58abacfa), bin32(16#03934be3),
        bin32(16#fa552030), bin32(16#6df6ad76), bin32(16#769188cc), bin32(16#4c25f502),
@@ -570,6 +578,7 @@ const array array bin32: Td is [] (
        bin32(16#c372161d), bin32(16#250cbce2), bin32(16#498b283c), bin32(16#9541ff0d),
        bin32(16#017139a8), bin32(16#b3de080c), bin32(16#e49cd8b4), bin32(16#c1906456),
        bin32(16#84617bcb), bin32(16#b670d532), bin32(16#5c74486c), bin32(16#5742d0b8)),
+  # Td[4]:
   [0] (bin32(16#f4a75051), bin32(16#4165537e), bin32(16#17a4c31a), bin32(16#275e963a),
        bin32(16#ab6bcb3b), bin32(16#9d45f11f), bin32(16#fa58abac), bin32(16#e303934b),
        bin32(16#30fa5520), bin32(16#766df6ad), bin32(16#cc769188), bin32(16#024c25f5),
@@ -634,6 +643,7 @@ const array array bin32: Td is [] (
        bin32(16#1dc37216), bin32(16#e2250cbc), bin32(16#3c498b28), bin32(16#0d9541ff),
        bin32(16#a8017139), bin32(16#0cb3de08), bin32(16#b4e49cd8), bin32(16#56c19064),
        bin32(16#cb84617b), bin32(16#32b670d5), bin32(16#6c5c7448), bin32(16#b85742d0)),
+  # Td[5]:
   [0] (bin32(16#52525252), bin32(16#09090909), bin32(16#6a6a6a6a), bin32(16#d5d5d5d5),
        bin32(16#30303030), bin32(16#36363636), bin32(16#a5a5a5a5), bin32(16#38383838),
        bin32(16#bfbfbfbf), bin32(16#40404040), bin32(16#a3a3a3a3), bin32(16#9e9e9e9e),
@@ -702,6 +712,7 @@ const array array bin32: Td is [] (
 
 const array bin32: rcon is [] (
     # For 128-bit blocks, Rijndael never uses more than 10 rcon values.
+    # For 192- and 256-bit blocks the maximum index to rcon is 8 and 7.
     bin32(16#01000000), bin32(16#02000000), bin32(16#04000000), bin32(16#08000000),
     bin32(16#10000000), bin32(16#20000000), bin32(16#40000000), bin32(16#80000000),
     bin32(16#1B000000), bin32(16#36000000));
@@ -713,7 +724,6 @@ const proc: expandAesKey128 (inout array bin32: subKey) is func
     var integer: keyIdx is 1;
     var integer: temp is 0;
   begin
-    subKey &:= 40 times bin32.value;
     for rconIdx range 1 to 10 do
       temp := ord(subKey[keyIdx + 3]);
       subKey[keyIdx + 4] := subKey[keyIdx + 0] ><
@@ -730,15 +740,87 @@ const proc: expandAesKey128 (inout array bin32: subKey) is func
   end func;
 
 
+const proc: expandAesKey192 (inout array bin32: subKey) is func
+  local
+    var integer: rconIdx is 0;
+    var integer: keyIdx is 1;
+    var integer: temp is 0;
+  begin
+    for rconIdx range 1 to 8 do
+      temp := ord(subKey[keyIdx + 5]);
+      subKey[keyIdx + 6] := subKey[keyIdx + 0] ><
+          (Te[5][(temp >> 16) mod 256] & bin32(16#ff000000)) ><
+          (Te[5][(temp >>  8) mod 256] & bin32(16#00ff0000)) ><
+          (Te[5][ temp        mod 256] & bin32(16#0000ff00)) ><
+          (Te[5][(temp >> 24) mod 256] & bin32(16#000000ff)) ><
+          rcon[rconIdx];
+      subKey[keyIdx + 7] := subKey[keyIdx + 1] >< subKey[keyIdx + 6];
+      subKey[keyIdx + 8] := subKey[keyIdx + 2] >< subKey[keyIdx + 7];
+      subKey[keyIdx + 9] := subKey[keyIdx + 3] >< subKey[keyIdx + 8];
+      if rconIdx <> 8 then
+        subKey[keyIdx + 10] := subKey[keyIdx + 4] >< subKey[keyIdx +  9];
+        subKey[keyIdx + 11] := subKey[keyIdx + 5] >< subKey[keyIdx + 10];
+        keyIdx +:= 6;
+      end if;
+    end for;
+  end func;
+
+
+const proc: expandAesKey256 (inout array bin32: subKey) is func
+  local
+    var integer: rconIdx is 0;
+    var integer: keyIdx is 1;
+    var integer: temp is 0;
+  begin
+    for rconIdx range 1 to 7 do
+      temp := ord(subKey[keyIdx + 7]);
+      subKey[keyIdx + 8] := subKey[keyIdx + 0] ><
+          (Te[5][(temp >> 16) mod 256] & bin32(16#ff000000)) ><
+          (Te[5][(temp >>  8) mod 256] & bin32(16#00ff0000)) ><
+          (Te[5][ temp        mod 256] & bin32(16#0000ff00)) ><
+          (Te[5][(temp >> 24) mod 256] & bin32(16#000000ff)) ><
+          rcon[rconIdx];
+      subKey[keyIdx +  9] := subKey[keyIdx + 1] >< subKey[keyIdx +  8];
+      subKey[keyIdx + 10] := subKey[keyIdx + 2] >< subKey[keyIdx +  9];
+      subKey[keyIdx + 11] := subKey[keyIdx + 3] >< subKey[keyIdx + 10];
+      if rconIdx <> 7 then
+        temp := ord(subKey[keyIdx + 11]);
+        subKey[keyIdx + 12] := subKey[keyIdx + 4] ><
+            (Te[5][(temp >> 24) mod 256] & bin32(16#ff000000)) ><
+            (Te[5][(temp >> 16) mod 256] & bin32(16#00ff0000)) ><
+            (Te[5][(temp >>  8) mod 256] & bin32(16#0000ff00)) ><
+            (Te[5][ temp        mod 256] & bin32(16#000000ff));
+        subKey[keyIdx + 13] := subKey[keyIdx + 5] >< subKey[keyIdx + 12];
+        subKey[keyIdx + 14] := subKey[keyIdx + 6] >< subKey[keyIdx + 13];
+        subKey[keyIdx + 15] := subKey[keyIdx + 7] >< subKey[keyIdx + 14];
+        keyIdx +:= 8;
+      end if;
+    end for;
+  end func;
+
+
 const func array bin32: setAesKey (in string: aesKey) is func
   result
-    var array bin32: encryptKey is 4 times bin32.value;
+    var array bin32: encryptKey is 0 times bin32.value;
+  local
+    var integer: encryptKeyLength is 0;
+    var integer: keyIdx is 0;
   begin
-    encryptKey[1] := bin32(bytes2Int(aesKey[ 1 len 4], UNSIGNED, BE));
-    encryptKey[2] := bin32(bytes2Int(aesKey[ 5 len 4], UNSIGNED, BE));
-    encryptKey[3] := bin32(bytes2Int(aesKey[ 9 len 4], UNSIGNED, BE));
-    encryptKey[4] := bin32(bytes2Int(aesKey[13 len 4], UNSIGNED, BE));
-    expandAesKey128(encryptKey);
+    case length(aesKey) of
+      when {16}: encryptKeyLength := 44;
+      when {24}: encryptKeyLength := 52;
+      when {32}: encryptKeyLength := 60;
+      otherwise: raise RANGE_ERROR;
+    end case;
+    encryptKey := encryptKeyLength times bin32.value;
+    for keyIdx range 1 to length(aesKey) div 4 do
+      encryptKey[keyIdx] := bin32(bytes2Int(aesKey[4 * keyIdx - 3 len 4], UNSIGNED, BE));
+    end for;
+    case length(aesKey) of
+      when {16}: expandAesKey128(encryptKey);
+      when {24}: expandAesKey192(encryptKey);
+      when {32}: expandAesKey256(encryptKey);
+    end case;
   end func;
 
 
@@ -793,7 +875,7 @@ const func aesState: setAesKey (in string: aesKey, in string: initializationVect
   result
     var aesState: state is aesState.value;
   begin
-    state.rounds := 10;
+    state.rounds := length(aesKey) div 4 + 6;
     state.encryptionSubKey := setAesKey(aesKey);
     state.decryptionSubKey := genAesDecryptKey(state.encryptionSubKey, state.rounds);
     state.cipherBlock := initializationVector;

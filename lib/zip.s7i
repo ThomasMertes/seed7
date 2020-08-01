@@ -156,8 +156,8 @@ const proc: writeExtraField (in string: field) is func
       pos +:= 4 + length;
     end while;
   end func;
-      
-  
+
+
 const proc: write (in local_file_header: header) is func
   begin
     writeln("signature: "                 rpad 50 <& literal(header.signature) lpad 10);
@@ -811,7 +811,7 @@ const func string: getFile (inout zipArchive: zip, in string: filePath) is func
           fileData := inflate(zip.zipFile);
           localHeader.crc_32            := bin32(getUInt32Le(zip.zipFile));
           if localHeader.crc_32 = DATA_DESCRIPTOR_SIGNATURE_VALUE then
-            # Optional signature value for the data descriptor record. 
+            # Optional signature value for the data descriptor record.
             localHeader.crc_32          := bin32(getUInt32Le(zip.zipFile));
           end if;
           localHeader.compressed_size   := getUInt32Le(zip.zipFile);

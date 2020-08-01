@@ -105,6 +105,7 @@ static void writeHelp (void)
     printf("  -p   Specify a protocol file, for trace output (e.g.: -p prot.txt).\n");
     printf("  -q   Compile quiet. Line and file information and compilation\n");
     printf("       statistics are suppressed.\n");
+    printf("  -s   Deactivate signal handlers.\n");
     printf("  -tx  Set runtime trace level to x. Where x is a string consisting of:\n");
     printf("         a Trace primitive actions\n");
     printf("         c Do action check\n");
@@ -390,8 +391,9 @@ int main (int argc, char **argv)
       printf("\n*** No more memory. Program terminated.\n");
     } else {
       processOptions(arg_v, &option);
-      setup_signal_handlers((option.parserOptions & HANDLE_SIGNALS) != 0,
-                            (option.parserOptions & TRACE_SIGNALS) != 0);
+      setupSignalHandlers((option.parserOptions & HANDLE_SIGNALS) != 0,
+                          (option.parserOptions & TRACE_SIGNALS) != 0,
+                          FALSE, FALSE, suspendInterpreter);
       if (fail_flag) {
         printf("\n*** Processing the options failed. Program terminated.\n");
       } else {
@@ -432,18 +434,9 @@ int main (int argc, char **argv)
             } /* if */
           } /* if */
         } /* if */
-        shut_drivers();
+        shutDrivers();
         if (fail_flag) {
-          prot_nl();
-          prot_cstri("*** Uncaught EXCEPTION ");
-          printobject(fail_value);
-          prot_cstri(" raised with");
-          prot_nl();
-          prot_list(fail_expression);
-          prot_nl();
-          prot_nl();
-          prot_cstri("Stack:\n");
-          write_call_stack(fail_stack);
+          uncaught_exception();
         } /* if */
       } /* if */
     } /* if */

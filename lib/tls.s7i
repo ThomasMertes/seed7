@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  tls.s7i       Support for Transport Layer Security (TLS/SSL).   *)
-(*  Copyright (C) 2013 - 2015  Thomas Mertes                        *)
+(*  Copyright (C) 2013 - 2017  Thomas Mertes                        *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)
 (*                                                                  *)
@@ -37,63 +37,27 @@ include "tdes.s7i";
 include "aes.s7i";
 
 
-const type: cipherSuite is new enum
-    TLS_NULL_WITH_NULL_NULL,               # 16#0000
-    TLS_RSA_WITH_NULL_MD5,                 # 16#0001
-    TLS_RSA_WITH_NULL_SHA,                 # 16#0002
-    TLS_RSA_EXPORT_WITH_RC4_40_MD5,        # 16#0003
-    TLS_RSA_WITH_RC4_128_MD5,              # 16#0004
-    TLS_RSA_WITH_RC4_128_SHA,              # 16#0005
-    TLS_RSA_EXPORT_WITH_RC2_CBC_40_MD5,    # 16#0006
-    TLS_RSA_WITH_IDEA_CBC_SHA,             # 16#0007
-    TLS_RSA_EXPORT_WITH_DES40_CBC_SHA,     # 16#0008
-    TLS_RSA_WITH_DES_CBC_SHA,              # 16#0009
-    TLS_RSA_WITH_3DES_EDE_CBC_SHA,         # 16#000a: Mandatory TLS 1.1 Cipher
-    TLS_DH_DSS_EXPORT_WITH_DES40_CBC_SHA,  # 16#000b
-    TLS_DH_DSS_WITH_DES_CBC_SHA,           # 16#000c
-    TLS_DH_DSS_WITH_3DES_EDE_CBC_SHA,      # 16#000d
-    TLS_DH_RSA_EXPORT_WITH_DES40_CBC_SHA,  # 16#000e
-    TLS_DH_RSA_WITH_DES_CBC_SHA,           # 16#000f
-    TLS_DH_RSA_WITH_3DES_EDE_CBC_SHA,      # 16#0010
-    TLS_DHE_DSS_EXPORT_WITH_DES40_CBC_SHA, # 16#0011
-    TLS_DHE_DSS_WITH_DES_CBC_SHA,          # 16#0012
-    TLS_DHE_DSS_WITH_3DES_EDE_CBC_SHA,     # 16#0013: Mandatory TLS 1.0 Cipher
-    TLS_DHE_RSA_EXPORT_WITH_DES40_CBC_SHA, # 16#0014
-    TLS_DHE_RSA_WITH_DES_CBC_SHA,          # 16#0015
-    TLS_DHE_RSA_WITH_3DES_EDE_CBC_SHA,     # 16#0016
-    TLS_DH_anon_EXPORT_WITH_RC4_40_MD5,    # 16#0017
-    TLS_DH_anon_WITH_RC4_128_MD5,          # 16#0018
-    TLS_DH_anon_EXPORT_WITH_DES40_CBC_SHA, # 16#0019
-    TLS_DH_anon_WITH_DES_CBC_SHA,          # 16#001a
-    TLS_DH_anon_WITH_3DES_EDE_CBC_SHA,     # 16#001b
-    TLS_RESERVED_1c,                       # 16#001c
-    TLS_RESERVED_1d,                       # 16#001d
-    TLS_KRB5_WITH_DES_CBC_SHA,             # 16#001e
-    TLS_KRB5_WITH_3DES_EDE_CBC_SHA,        # 16#001f
-    TLS_KRB5_WITH_RC4_128_SHA,             # 16#0020
-    TLS_KRB5_WITH_IDEA_CBC_SHA,            # 16#0021
-    TLS_KRB5_WITH_DES_CBC_MD5,             # 16#0022
-    TLS_KRB5_WITH_3DES_EDE_CBC_MD5,        # 16#0023
-    TLS_KRB5_WITH_RC4_128_MD5,             # 16#0024
-    TLS_KRB5_WITH_IDEA_CBC_MD5,            # 16#0025
-    TLS_KRB5_EXPORT_WITH_DES_CBC_40_SHA,   # 16#0026
-    TLS_KRB5_EXPORT_WITH_RC2_CBC_40_SHA,   # 16#0027
-    TLS_KRB5_EXPORT_WITH_RC4_40_SHA,       # 16#0028
-    TLS_KRB5_EXPORT_WITH_DES_CBC_40_MD5,   # 16#0029
-    TLS_KRB5_EXPORT_WITH_RC2_CBC_40_MD5,   # 16#002a
-    TLS_KRB5_EXPORT_WITH_RC4_40_MD5,       # 16#002b
-    TLS_UNASSIGNED_2c,                     # 16#002c
-    TLS_UNASSIGNED_2d,                     # 16#002d
-    TLS_UNASSIGNED_2e,                     # 16#002e
-    TLS_RSA_WITH_AES_128_CBC_SHA           # 16#002f: Mandatory TLS 1.2 Cipher
-  end enum;
+const type: cipherSuite is integer;
+
+const cipherSuite: TLS_NULL_WITH_NULL_NULL         is 16#0000;
+const cipherSuite: TLS_RSA_WITH_RC4_128_MD5        is 16#0004;
+const cipherSuite: TLS_RSA_WITH_RC4_128_SHA        is 16#0005;
+const cipherSuite: TLS_RSA_WITH_DES_CBC_SHA        is 16#0009;
+const cipherSuite: TLS_RSA_WITH_3DES_EDE_CBC_SHA   is 16#000a; # Mandatory TLS 1.1 Cipher
+const cipherSuite: TLS_RSA_WITH_AES_128_CBC_SHA    is 16#002f; # Mandatory TLS 1.2 Cipher
+const cipherSuite: TLS_RSA_WITH_AES_256_CBC_SHA    is 16#0035;
+const cipherSuite: TLS_RSA_WITH_AES_128_CBC_SHA256 is 16#003c;
+const cipherSuite: TLS_RSA_WITH_AES_256_CBC_SHA256 is 16#003d;
 
 const array cipherSuite: supportedCiphers is [] (
-    TLS_RSA_WITH_AES_128_CBC_SHA,
     TLS_RSA_WITH_3DES_EDE_CBC_SHA,
     TLS_RSA_WITH_RC4_128_SHA,
     TLS_RSA_WITH_RC4_128_MD5,
-    TLS_RSA_WITH_DES_CBC_SHA
+    TLS_RSA_WITH_DES_CBC_SHA,
+    TLS_RSA_WITH_AES_128_CBC_SHA,
+    TLS_RSA_WITH_AES_256_CBC_SHA,
+    TLS_RSA_WITH_AES_128_CBC_SHA256,
+    TLS_RSA_WITH_AES_256_CBC_SHA256
   );
 
 const string: SSL_3_0 is "\3;\0;";
@@ -663,6 +627,18 @@ const proc: storeCipherSuite (inout securityParameters: parameters) is func
       parameters.bulk_cipher_algorithm := AES;
       parameters.key_material_length := 16;
       parameters.mac_algorithm := SHA1;
+    elsif parameters.cipher_suite = TLS_RSA_WITH_AES_256_CBC_SHA then
+      parameters.bulk_cipher_algorithm := AES;
+      parameters.key_material_length := 32;
+      parameters.mac_algorithm := SHA1;
+    elsif parameters.cipher_suite = TLS_RSA_WITH_AES_128_CBC_SHA256 then
+      parameters.bulk_cipher_algorithm := AES;
+      parameters.key_material_length := 16;
+      parameters.mac_algorithm := SHA256;
+    elsif parameters.cipher_suite = TLS_RSA_WITH_AES_256_CBC_SHA256 then
+      parameters.bulk_cipher_algorithm := AES;
+      parameters.key_material_length := 32;
+      parameters.mac_algorithm := SHA256;
     else
       writeln("Unsupported cipher_suite: " <& ord(parameters.cipher_suite) radix 16 lpad0 4);
       # raise RANGE_ERROR;
@@ -1298,6 +1274,7 @@ const func string: tlsEncryptRecord (inout securityParameters: parameters, in st
                                  plain[1 len 1] & plain[4 ..]));
     else
       # writeln("mac algorithm: " <& ord(parameters.mac_algorithm));
+      # writeln("mac secret: " <& hex(parameters.writeMacSecret));
       # writeln("hmac in: " <& hex(int64AsEightBytesBe(parameters.writeSequenceNumber) & plain));
       mac := hmac(parameters.mac_algorithm, parameters.writeMacSecret,
                   int64AsEightBytesBe(parameters.writeSequenceNumber) & plain);
@@ -1601,9 +1578,9 @@ const func file: openTlsSocket (inout file: sock) is func
         # showMsg(clientHello);
         write(sock, clientHello);
         getTlsMsgRecord(sock, new_file.parseState);
+        # showMsg(new_file.parseState.message);
         if new_file.parseState.contentType = HANDSHAKE and
             new_file.parseState.message[new_file.parseState.pos] = SERVER_HELLO then
-          # showMsg(new_file.parseState.message);
           processServerHello(new_file.parameters, new_file.parseState);
           if new_file.parseState.alert <> CLOSE_NOTIFY then
             sendAlertAndClose(new_file, new_file.parseState.alert);

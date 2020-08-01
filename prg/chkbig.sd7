@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  chkbig.sd7    Checks bigInteger literals and operations         *)
-(*  Copyright (C) 2006 - 2014  Thomas Mertes                        *)
+(*  Copyright (C) 2006 - 2017  Thomas Mertes                        *)
 (*                                                                  *)
 (*  This program is free software; you can redistribute it and/or   *)
 (*  modify it under the terms of the GNU General Public License as  *)
@@ -11996,6 +11996,27 @@ const proc: chkMultAssign is func
       okay := FALSE;
     end if;
 
+    ok := TRUE;
+    big1 := bigintExpr(16#0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef_);
+    big1 *:= bigintExpr(16#0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef_);
+    ok := ok and big1 = 16#14b66dc33f6acdca878d6495a927ab94fa645b6812e4895f6d3b523a7ca16729e012490ce65e44f452e93fdf501b22bec5c036b1b9d8008938972d842394de53ab6e24568d51bc1e1e451b28f70e99e8911c11fb60cb77b303f308cdca88557d76c9ffa034453347e9a0f6729e0211125c77ed4507beeedccf4ee417717bcca718b8ff635c630edca5e20890f2a63112330b11be88e95347c0341aec1f2c757d4d5d2419b56f97b2da862d474bb2b9e867af3674e1f5dc1df4d83fa27838fe53820148d00e7c20890f2a51fda4bf42be9c535b2b3b0264f4297c6458d1458729b6a56d866788a95f43ce76b3fdcbcb94d0f77fe1940eedca5e20890f2a521_;
+    big1 := bigintExpr(16#0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef_);
+    big1 *:= bigintExpr(16#fedcba9876543210fedcba9876543210fedcba9876543210fedcba9876543210fedcba9876543210fedcba9876543210fedcba9876543210fedcba9876543210fedcba9876543210fedcba9876543210fedcba9876543210fedcba9876543210fedcba9876543210fedcba9876543210fedcba9876543210fedcba9876543210_);
+    ok := ok and big1 = 16#121fa00ad77d742247acc9140513b7447d39f21d32a9fa66b2c71b2660403d88e854442f8dd680ab1de16d38bb6cc3cd536e9641e90306ef88fbbf4b16994a11be88e854442f8d33f416115d71c5d05629a33a669f5c13785f30636fccf2569a94bd8c78fa8899bcca4ab582281edcdeffd7de8b55b5200135650794834b632346b2f08801e6be011125c77ed4507adedb989e75a6ba37bca60b756c7923f49a707e4c634b8db1783af1235a1df76e560563fa50f0612b33cfd6d147c2cae8119a49a83e9534a4ef64bc7f35679e61cd2f2f562c3a081eaaf9a22d230c71db88c4150419dedb98668e87db10b145554458fab20783af1222236d88fe5618cf0_;
+    big1 := bigintExpr(16#fedcba9876543210fedcba9876543210fedcba9876543210fedcba9876543210fedcba9876543210fedcba9876543210fedcba9876543210fedcba9876543210fedcba9876543210fedcba9876543210fedcba9876543210fedcba9876543210fedcba9876543210fedcba9876543210fedcba9876543210fedcba9876543210_);
+    big1 *:= bigintExpr(16#0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef_);
+    ok := ok and big1 = 16#121fa00ad77d742247acc9140513b7447d39f21d32a9fa66b2c71b2660403d88e854442f8dd680ab1de16d38bb6cc3cd536e9641e90306ef88fbbf4b16994a11be88e854442f8d33f416115d71c5d05629a33a669f5c13785f30636fccf2569a94bd8c78fa8899bcca4ab582281edcdeffd7de8b55b5200135650794834b632346b2f08801e6be011125c77ed4507adedb989e75a6ba37bca60b756c7923f49a707e4c634b8db1783af1235a1df76e560563fa50f0612b33cfd6d147c2cae8119a49a83e9534a4ef64bc7f35679e61cd2f2f562c3a081eaaf9a22d230c71db88c4150419dedb98668e87db10b145554458fab20783af1222236d88fe5618cf0_;
+    big1 := bigintExpr(16#fedcba9876543210fedcba9876543210fedcba9876543210fedcba9876543210fedcba9876543210fedcba9876543210fedcba9876543210fedcba9876543210fedcba9876543210fedcba9876543210fedcba9876543210fedcba9876543210fedcba9876543210fedcba9876543210fedcba9876543210fedcba9876543210_);
+    big1 *:= bigintExpr(16#fedcba9876543210fedcba9876543210fedcba9876543210fedcba9876543210fedcba9876543210fedcba9876543210fedcba9876543210fedcba9876543210fedcba9876543210fedcba9876543210fedcba9876543210fedcba9876543210fedcba9876543210fedcba9876543210fedcba9876543210fedcba9876543210_);
+    ok := ok and big1 = 16#fdbac097c8dc5aceda61ee073602f69cb7091b76a329926a93b048e610502e38705776557d76ca064cfea3c4ea9d65d429a5d13457c401a2064cfea3c4ea9d6fe2f42c133211393dbf9b59829f37d50b9c4286f20c5e70d978e9b46179850ca75590e1d0e6aba87532380f4053d244430edf3cafc0f8e010eb866a1f2e1f7bdcccb8165f098d620ef010e8ef9c66c6411369bb802f402a7336c28e10c2198ea55a1b60a154f2f2d77d743331e7cc5709a0cd05c27aa5bb3bc425d8530d7f1f6de77eaae3a05883a00ad77d743331e7d22e305004c60b4c045189229558e4b03674e1f525ebbe1468983ac7b67e97789abb939a471170dcccdeec6cd7a44a4100_;
+    big1 := bigintExpr(16#ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff_);
+    big1 *:= bigintExpr(16#ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff_);
+    ok := ok and big1 = 16#fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffe0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001_;
+    if not ok then
+      writeln("Karatsuba multiplication assignment does not work correct.");
+      okay := FALSE;
+    end if;
+
     if okay then
       writeln("Multiplication assignment of bigInteger works correct.");
     else
@@ -17814,7 +17835,7 @@ const proc: chkLog10 is func
         not raisesNumericError(log10(bigintExpr(                 -128_))) or
         not raisesNumericError(log10(bigintExpr(                 -127_))) or
         not raisesNumericError(log10(bigintExpr(                   -1_))) then
-      writeln(" ***** The bigInteger log10 of negative number does not raise NUMERIC_ERROR.");
+      writeln(" ***** The bigInteger log10 of a negative number does not raise NUMERIC_ERROR.");
       okay := FALSE;
     end if;
 
@@ -19009,6 +19030,70 @@ const proc: chkSqrt is func
         sqrt(18446744073709551616_) <> 4294967296_ or
         sqrt(18446744073709551617_) <> 4294967296_ then
       writeln("The bigInteger square root does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if  not raisesNumericError(sqrt(                   -1_)) or
+        not raisesNumericError(sqrt(                   -2_)) or
+        not raisesNumericError(sqrt(                   -3_)) or
+        not raisesNumericError(sqrt(                   -4_)) or
+        not raisesNumericError(sqrt(                   -5_)) or
+        not raisesNumericError(sqrt(                   -8_)) or
+        not raisesNumericError(sqrt(                   -9_)) or
+        not raisesNumericError(sqrt(                  -15_)) or
+        not raisesNumericError(sqrt(                  -16_)) or
+        not raisesNumericError(sqrt(                  -24_)) or
+        not raisesNumericError(sqrt(                  -25_)) or
+        not raisesNumericError(sqrt(                  -35_)) or
+        not raisesNumericError(sqrt(                  -36_)) or
+        not raisesNumericError(sqrt(                  -48_)) or
+        not raisesNumericError(sqrt(                  -49_)) or
+        not raisesNumericError(sqrt(                  -63_)) or
+        not raisesNumericError(sqrt(                  -64_)) or
+        not raisesNumericError(sqrt(                  -80_)) or
+        not raisesNumericError(sqrt(                  -81_)) or
+        not raisesNumericError(sqrt(                 -128_)) or
+        not raisesNumericError(sqrt(                 -129_)) or
+        not raisesNumericError(sqrt(                 -255_)) or
+        not raisesNumericError(sqrt(                 -256_)) or
+        not raisesNumericError(sqrt(                 -257_)) or
+        not raisesNumericError(sqrt(                -1000_)) or
+        not raisesNumericError(sqrt(               -10000_)) or
+        not raisesNumericError(sqrt(               -32767_)) or
+        not raisesNumericError(sqrt(               -32768_)) or
+        not raisesNumericError(sqrt(               -32769_)) or
+        not raisesNumericError(sqrt(               -65535_)) or
+        not raisesNumericError(sqrt(               -65536_)) or
+        not raisesNumericError(sqrt(               -65537_)) or
+        not raisesNumericError(sqrt(              -100000_)) or
+        not raisesNumericError(sqrt(             -1000000_)) or
+        not raisesNumericError(sqrt(            -10000000_)) or
+        not raisesNumericError(sqrt(           -100000000_)) or
+        not raisesNumericError(sqrt(          -1000000000_)) or
+        not raisesNumericError(sqrt(          -2147483647_)) or
+        not raisesNumericError(sqrt(          -2147483648_)) or
+        not raisesNumericError(sqrt(          -2147483649_)) or
+        not raisesNumericError(sqrt(          -4294967295_)) or
+        not raisesNumericError(sqrt(          -4294967296_)) or
+        not raisesNumericError(sqrt(          -4294967297_)) or
+        not raisesNumericError(sqrt(         -10000000000_)) or
+        not raisesNumericError(sqrt(        -100000000000_)) or
+        not raisesNumericError(sqrt(       -1000000000000_)) or
+        not raisesNumericError(sqrt(      -10000000000000_)) or
+        not raisesNumericError(sqrt(     -100000000000000_)) or
+        not raisesNumericError(sqrt(    -1000000000000000_)) or
+        not raisesNumericError(sqrt(   -10000000000000000_)) or
+        not raisesNumericError(sqrt(  -100000000000000000_)) or
+        not raisesNumericError(sqrt( -1000000000000000000_)) or
+        not raisesNumericError(sqrt( -9223372030926249000_)) or
+        not raisesNumericError(sqrt( -9223372030926249001_)) or
+        not raisesNumericError(sqrt( -9223372036854775808_)) or
+        not raisesNumericError(sqrt( -9223372036854775809_)) or
+        not raisesNumericError(sqrt(-10000000000000000000_)) or
+        not raisesNumericError(sqrt(-18446744073709551615_)) or
+        not raisesNumericError(sqrt(-18446744073709551616_)) or
+        not raisesNumericError(sqrt(-18446744073709551617_)) then
+      writeln(" ***** The bigInteger square root of a negative number does not raise NUMERIC_ERROR.");
       okay := FALSE;
     end if;
 

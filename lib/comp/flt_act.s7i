@@ -117,6 +117,9 @@ const proc: flt_prototypes (inout file: c_prog) is func
     end if;
     declareExtern(c_prog, "floatType   fltRand (floatType, floatType);");
     declareExtern(c_prog, "striType    fltSci (floatType, intType);");
+    if not ccConf.SQRT_FUNCTION_OKAY then
+      declareExtern(c_prog, "floatType   fltSqrt (floatType);");
+    end if;
     declareExtern(c_prog, "striType    fltStr (floatType);");
     declareExtern(c_prog, "floatType   fltValue (const const_objRefType);");
   end func;
@@ -1696,7 +1699,12 @@ const proc: process_const_flt_pow (in reference: base, in float: exponent,
 (*
     elsif exponent = -0.5 then
       incr(countOptimizations);
-      c_expr.expr &:= "1.0/sqrt(";
+      c_expr.expr &:= "1.0/";
+      if ccConf.SQRT_FUNCTION_OKAY then
+        c_expr.expr &:= "sqrt(";
+      else
+        c_expr.expr &:= "fltSqrt(";
+      end if;
       process_expr(base, c_expr);
       c_expr.expr &:= ")";
 *)
@@ -1708,7 +1716,11 @@ const proc: process_const_flt_pow (in reference: base, in float: exponent,
       c_expr.expr &:= ")";
     elsif exponent = 0.5 then
       incr(countOptimizations);
-      c_expr.expr &:= "sqrt(";
+      if ccConf.SQRT_FUNCTION_OKAY then
+        c_expr.expr &:= "sqrt(";
+      else
+        c_expr.expr &:= "fltSqrt(";
+      end if;
       process_expr(base, c_expr);
       c_expr.expr &:= ")";
     else
@@ -2016,7 +2028,11 @@ const proc: process (FLT_SQRT, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    c_expr.expr &:= "sqrt(";
+    if ccConf.SQRT_FUNCTION_OKAY then
+      c_expr.expr &:= "sqrt(";
+    else
+      c_expr.expr &:= "fltSqrt(";
+    end if;
     process_expr(params[1], c_expr);
     c_expr.expr &:= ")";
   end func;

@@ -216,7 +216,7 @@ const proc: process_const_bin_lshift_assign (in reference: variable, in integer:
       incr(countOptimizations);
       setDiagnosticLine(c_expr);
       warning(DOES_RAISE, "OVERFLOW_ERROR", c_expr);
-      c_expr.expr &:= voidRaiseError("OVERFLOW_ERROR");
+      c_expr.expr &:= raiseError("OVERFLOW_ERROR");
       c_expr.expr &:= "\n";
     else
       variable_name := getParameterAsReference("intType", "tmp_", variable, statement);
@@ -442,7 +442,7 @@ const proc: process_const_bin_rshift_assign (in reference: variable, in integer:
       incr(countOptimizations);
       setDiagnosticLine(c_expr);
       warning(DOES_RAISE, "OVERFLOW_ERROR", c_expr);
-      c_expr.expr &:= voidRaiseError("OVERFLOW_ERROR");
+      c_expr.expr &:= raiseError("OVERFLOW_ERROR");
       c_expr.expr &:= "\n";
     else
       variable_name := getParameterAsReference("intType", "tmp_", variable, statement);

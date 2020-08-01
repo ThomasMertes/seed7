@@ -286,7 +286,7 @@ rtlArrayType getArgv (const int argc, const wstriType *const argv,
                 printf(", %s", arg_0 != NULL ? "*" : "NULL");
                 printf(", %s", programName != NULL ? "*" : "NULL");
                 printf(", %s)\n", exePath != NULL ? "*" : "NULL"););
-#ifdef EMULATE_ROOT_CWD
+#if EMULATE_ROOT_CWD
     initEmulatedCwd(&err_info);
     if (unlikely(err_info != OKAY_NO_ERROR)) {
       logError(printf("getArgv(%d, ...): initEmulatedCwd(*) failed:\n"
@@ -294,8 +294,9 @@ rtlArrayType getArgv (const int argc, const wstriType *const argv,
                       argc, err_info););
       raise_error(err_info);
       arg_v = NULL;
-    } else {
+    } else
 #endif
+    {
       arg_0_temp = cp_from_os_path(argv[0], &err_info);
       if (unlikely(arg_0_temp == NULL)) {
         logError(printf("getArgv(%d, ...): "
@@ -327,9 +328,7 @@ rtlArrayType getArgv (const int argc, const wstriType *const argv,
       } else {
         arg_v = copyArgv(argc - 1, &argv[1]);
       } /* if */
-#ifdef EMULATE_ROOT_CWD
-    } /* if */
-#endif
+    }
     logFunction(printf("getArgv(%d, ", argc);
                 printArgv(argc, argv);
                 printf(", \"%s\"",
@@ -361,7 +360,7 @@ rtlArrayType getArgv (const int argc, const cstriType *const argv,
                 printf(", %s", arg_0 != NULL ? "*" : "NULL");
                 printf(", %s", programName != NULL ? "*" : "NULL");
                 printf(", %s)\n", exePath != NULL ? "*" : "NULL"););
-#ifdef EMULATE_ROOT_CWD
+#if EMULATE_ROOT_CWD
     initEmulatedCwd(&err_info);
     if (unlikely(err_info != OKAY_NO_ERROR)) {
       logError(printf("getArgv(%d, ...): initEmulatedCwd(*) failed:\n"
@@ -369,8 +368,9 @@ rtlArrayType getArgv (const int argc, const cstriType *const argv,
                       argc, err_info););
       raise_error(err_info);
       arg_v = NULL;
-    } else {
+    } else
 #endif
+    {
       w_argv = getUtf16Argv(&w_argc);
       if (unlikely(w_argv == NULL)) {
         raise_error(MEMORY_ERROR);
@@ -409,9 +409,7 @@ rtlArrayType getArgv (const int argc, const cstriType *const argv,
         } /* if */
         freeUtf16Argv(w_argv);
       } /* if */
-#ifdef EMULATE_ROOT_CWD
-    } /* if */
-#endif
+    }
     logFunction(printf("getArgv(%d, ", argc);
                 printArgv(argc, argv);
                 printf(", \"%s\"",
@@ -441,7 +439,7 @@ rtlArrayType getArgv (const int argc, const cstriType *const argv,
                 printf(", %s", arg_0 != NULL ? "*" : "NULL");
                 printf(", %s", programName != NULL ? "*" : "NULL");
                 printf(", %s)\n", exePath != NULL ? "*" : "NULL"););
-#ifdef EMULATE_ROOT_CWD
+#if EMULATE_ROOT_CWD
     initEmulatedCwd(&err_info);
     if (unlikely(err_info != OKAY_NO_ERROR)) {
       logError(printf("getArgv(%d, ...): initEmulatedCwd(*) failed:\n"
@@ -449,8 +447,9 @@ rtlArrayType getArgv (const int argc, const cstriType *const argv,
                       argc, err_info););
       raise_error(err_info);
       arg_v = NULL;
-    } else {
+    } else
 #endif
+    {
       arg_0_temp = cp_from_os_path(argv[0], &err_info);
       if (unlikely(arg_0_temp == NULL)) {
         logError(printf("getArgv(%d, ...): "
@@ -482,9 +481,7 @@ rtlArrayType getArgv (const int argc, const cstriType *const argv,
       } else {
         arg_v = copyArgv(argc - 1, &argv[1]);
       } /* if */
-#ifdef EMULATE_ROOT_CWD
-    } /* if */
-#endif
+    }
     logFunction(printf("getArgv(%d, ", argc);
                 printArgv(argc, argv);
                 printf(", \"%s\"",

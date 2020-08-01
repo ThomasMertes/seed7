@@ -192,7 +192,7 @@ const func string: objectIdentifier (in string: encodedOid) is func
 (**
  *  Read the header of an ASN.1/BER data element, from ''stri''.
  *  It is assumed that the data element header starts at position ''pos''.
- *  The function advances ''pos'' byond the header to the actual data.
+ *  The function advances ''pos'' beyond the header to the actual data.
  *  The actual data can be read afterwards, with the function ''getData''.
  *  @return the header of an ASN.1/BER data element.
  *)
@@ -239,7 +239,7 @@ const func asn1DataElement: getAsn1DataElement (in string: stri, inout integer: 
 (**
  *  Read the data of a given ASN.1/BER ''dataElement'', from ''stri''.
  *  It is assumed that the actual data starts at position ''pos''.
- *  The function advances ''pos'' byond the ''dataElement'' data.
+ *  The function advances ''pos'' beyond the ''dataElement'' data.
  *  @return the data of the ASN.1/BER ''dataElement''.
  *)
 const func string: getData (in string: stri, inout integer: pos,
@@ -255,7 +255,7 @@ const func string: getData (in string: stri, inout integer: pos,
 (**
  *  Skip the data of a given ASN.1/BER ''dataElement'', from ''stri''.
  *  It is assumed that the actual data starts at position ''pos''.
- *  The function advances ''pos'' byond the ''dataElement'' data.
+ *  The function advances ''pos'' beyond the ''dataElement'' data.
  *)
 const proc: skipData (inout integer: pos, in asn1DataElement: dataElement) is func
   begin

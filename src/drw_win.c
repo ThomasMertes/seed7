@@ -186,9 +186,9 @@ LRESULT CALLBACK WndProc (HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
               paintStruct.rcPaint.left, paintStruct.rcPaint.top, SRCCOPY);
           EndPaint(paint_window->hWnd, &paintStruct);
         } else {
-          printf("paint_window=%lu, backup_hdc=%lu\n",
-              (long unsigned int) paint_window,
-              (long unsigned int) paint_window->backup_hdc);
+          printf("paint_window=" FMT_U_MEM ", backup_hdc=" FMT_U_MEM "\n",
+              (memSizeType) paint_window,
+              (memSizeType) paint_window->backup_hdc);
         } /* if */
         result = 0;
         break;
@@ -245,9 +245,9 @@ LRESULT CALLBACK WndProc (HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                 /* GetBkColor(paint_window->hWnd)); */
           } /* if */
         } else {
-          printf("paint_window=%lu, backup_hdc=%lu\n",
-              (long unsigned int) paint_window,
-              (long unsigned int) paint_window->backup_hdc);
+          printf("paint_window=" FMT_U_MEM ", backup_hdc=" FMT_U_MEM "\n",
+              (memSizeType) paint_window,
+              (memSizeType) paint_window->backup_hdc);
         } /* if */
         result = 1;
         break;

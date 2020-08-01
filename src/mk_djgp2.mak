@@ -46,10 +46,10 @@ AOBJ = act_comp.o prg_comp.o analyze.o syntax.o token.o parser.o name.o type.o \
        expr.o atom.o object.o scanner.o literal.o numlit.o findid.o \
        error.o infile.o libpath.o symbol.o info.o stat.o fatal.o match.o
 GOBJ = syvarutl.o traceutl.o actutl.o executl.o blockutl.o \
-       entutl.o identutl.o chclsutl.o sigutl.o arrutl.o
+       entutl.o identutl.o chclsutl.o arrutl.o
 ROBJ = arr_rtl.o bln_rtl.o bst_rtl.o chr_rtl.o cmd_rtl.o con_rtl.o dir_rtl.o drw_rtl.o fil_rtl.o \
        flt_rtl.o hsh_rtl.o int_rtl.o itf_rtl.o set_rtl.o soc_dos.o str_rtl.o tim_rtl.o ut8_rtl.o \
-       heaputl.o striutl.o
+       heaputl.o sigutl.o striutl.o
 DOBJ = $(BIGINT_LIB).o cmd_unx.o fil_dos.o pol_dos.o tim_dos.o
 OBJ = $(MOBJ)
 SEED7_LIB_OBJ = $(ROBJ) $(DOBJ)
@@ -69,10 +69,10 @@ ASRC = act_comp.c prg_comp.c analyze.c syntax.c token.c parser.c name.c type.c \
        expr.c atom.c object.c scanner.c literal.c numlit.c findid.c \
        error.c infile.c libpath.c symbol.c info.c stat.c fatal.c match.c
 GSRC = syvarutl.c traceutl.c actutl.c executl.c blockutl.c \
-       entutl.c identutl.c chclsutl.c sigutl.c arrutl.c
+       entutl.c identutl.c chclsutl.c arrutl.c
 RSRC = arr_rtl.c bln_rtl.c bst_rtl.c chr_rtl.c cmd_rtl.c con_rtl.c dir_rtl.c drw_rtl.c fil_rtl.c \
        flt_rtl.c hsh_rtl.c int_rtl.c itf_rtl.c set_rtl.c soc_dos.c str_rtl.c tim_rtl.c ut8_rtl.c \
-       heaputl.c striutl.c
+       heaputl.c sigutl.c striutl.c
 DSRC = $(BIGINT_LIB).c cmd_unx.c fil_dos.c pol_dos.c tim_dos.c
 SRC = $(MSRC)
 SEED7_LIB_SRC = $(RSRC) $(DSRC)
@@ -133,7 +133,6 @@ version.h: chkccomp.h
 	echo #define PATH_DELIMITER 92 /* backslash (ASCII) */ > version.h
 	echo #define USE_DIRENT >> version.h
 	echo #define SEARCH_PATH_DELIMITER ';' >> version.h
-	echo #define CTRL_C_SENDS_EOF >> version.h
 	echo #define AWAIT_WITH_SELECT >> version.h
 	echo #define IMPLEMENT_PTY_WITH_PIPE2 >> version.h
 	echo #define OS_STRI_USES_CODE_PAGE >> version.h

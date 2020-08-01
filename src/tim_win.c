@@ -298,11 +298,10 @@ int alternate_utime (const wchar_t *os_path, os_utimbuf_struct *utime_buf)
                        os_path, utime_buf->actime, utime_buf->modtime););
 #if USE_UTIME_ORIG && defined os_utime_orig
     result = os_utime_orig(os_path, utime_buf);
-    logError(if (result != 0) {
-               printf("alternate_utime: os_utime_orig(\"%ls\", ...) failed:\n"
-                      "errno=%d\nerror: %s\n",
-                      os_path, errno, strerror(errno));
-             });
+    logErrorIfTrue(result != 0,
+                   printf("alternate_utime: os_utime_orig(\"%ls\", ...) failed:\n"
+                          "errno=%d\nerror: %s\n",
+                          os_path, errno, strerror(errno)););
 #ifdef UTIME_ORIG_BUGGY_FOR_FAT_FILES
     /* A FAT filesystem has a mtime resolution of 2 seconds. */
     /* The error causes an even mtime to be set 2 seconds too big. */
@@ -317,7 +316,7 @@ int alternate_utime (const wchar_t *os_path, os_utimbuf_struct *utime_buf)
       } /* if */
     } /* if */
 #endif
-    if (result != 0 && 
+    if (result != 0 &&
         ((errno == EACCES &&
           os_stat(os_path, &stat_buf) == 0 && S_ISDIR(stat_buf.st_mode)) ||
         (errno == ENOENT &&
