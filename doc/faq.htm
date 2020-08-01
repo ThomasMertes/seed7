@@ -375,12 +375,12 @@ Seed7 can be used in various application areas:
 </h3></a><hr><!-- ================================================ -->
 <p>
 The Seed7 package contains more than 100000 lines of C and more
-than 150000 lines of Seed7. For version 2011-08-16 the number of lines is:
+than 150000 lines of Seed7. For version 2011-09-18 the number of lines is:
 </p><dl><dd><table border="0" cellspacing="0">
-  <tr><td align="right"> 96041</td> <td width="20"></td> <td>C source files (*.c)</td></tr>
-  <tr><td align="right">  9811</td> <td width="20"></td> <td>C header files (*.h)</td></tr>
-  <tr><td align="right">101937</td> <td width="20"></td> <td>Seed7 source files (*.sd7)</td></tr>
-  <tr><td align="right"> 63587</td> <td width="20"></td> <td>Seed7 library/include files (*.s7i)</td></tr>
+  <tr><td align="right"> 96339</td> <td width="20"></td> <td>C source files (*.c)</td></tr>
+  <tr><td align="right">  9839</td> <td width="20"></td> <td>C header files (*.h)</td></tr>
+  <tr><td align="right">105983</td> <td width="20"></td> <td>Seed7 source files (*.sd7)</td></tr>
+  <tr><td align="right"> 63683</td> <td width="20"></td> <td>Seed7 library/include files (*.s7i)</td></tr>
 </table></dd></dl><p>
 C code (*.c and *.h files) can be divided into the following areas:
 </p><dl><dd><table border="0" cellspacing="0">
@@ -1576,19 +1576,24 @@ following directories are in the list of library directories:
 <li><!--  1.  -->The directory of the interpreted program. E.g.: When the
     program <tt><font color=maroon>"/home/abc/test/pairs.sd7"</font></tt> is interpreted the directory
     <tt><font color=maroon>"/home/abc/test"</font></tt> is in the list of library directories.</li>
-<li><!--  2.  -->The directory containing the predefined Seed7 include libraries.
+<li><!--  2.  -->This point is only in effect when the interpreter
+    was not compiled from source (The C preprocessor macro
+    PATHS_RELATIVE_TO_EXECUTABLE is defined): Interpreter and
+    compiler from the binary release use <tt><font color=maroon>"../lib"</font></tt> relative
+    to the directory of the <tt>'hi'</tt> interpreter executable.
+    E.g.: When the interpreter is in the directory
+    <tt><font color=maroon>"/home/abc/seed7/bin"</font></tt> the directory <tt><font color=maroon>"/home/abc/seed7/lib"</font></tt>
+    is in the list of library directories.</li>
+<li><!--  3.  -->The directory containing the predefined Seed7 include libraries.
     This directory is hard-coded in the interpreter (an absolute
     path like <tt><font color=maroon>"/<i>directory_where_Seed7_was_installed</i>/seed7/lib"</font></tt>).
     The hard-coded library directory is determined when the
-    interpreter is compiled. So it only exists when the interpreter
-    was compiled from source. Interpreter and compiler from the
-    binary release use <tt><font color=maroon>"../lib"</font></tt> relative to
-    the directory of the <tt>'hi'</tt> interpreter executable.
-    The compiled compiler of the binary release uses <tt><font color=maroon>"../lib"</font></tt>
-    relative to its own executable.</li>
-<li><!--  3.  -->The directory specified with the <tt>SEED7_LIBRARY</tt> environment
+    interpreter is compiled. When the interpreter was not compiled
+    from source (binary release) the path <tt><font color=maroon>"../lib"</font></tt>
+    relative to the current working directory is used.</li>
+<li><!--  4.  -->The directory specified with the <tt>SEED7_LIBRARY</tt> environment
     variable.</li>
-<li><!--  4.  -->Directories specified in the source file with the <tt>library</tt>
+<li><!--  5.  -->Directories specified in the source file with the <tt>library</tt>
     pragma. E.g.: The line: <tt>$ library <font color=maroon>"/home/abc/seed7/lib"</font></tt>
     adds the directory <tt><font color=maroon>"/home/abc/seed7/lib"</font></tt> to the list of library
     directories.</li>
@@ -1616,19 +1621,21 @@ E.g.: The file <tt><font color=maroon>"version.h"</font></tt> contains the line:
   #define SEED7_LIBRARY <font color=maroon>"/home/abc/seed7/lib"</font>
 </pre><p>
 The preprocessor macro SEED7_LIBRARY is used by the function
-init_lib_path() which is defined in <tt><font color=maroon>"seed7/src/infile.c"</font></tt>.
-The statements handling the predefined include library directory
-start after the line
+<tt>init_lib_path()</tt>, which is defined in <tt><font color=maroon>"seed7/src/infile.c"</font></tt>.
+</p><p>
+When the interpreter of a binary release is compiled, a slightly
+modified makefile is used. The command <tt>'make depend'</tt> writes
+the following preprocessor macro definitions to the file
+<tt><font color=maroon>"version.h"</font></tt>:
 </p><pre>
-  #ifdef SEED7_LIBRARY
+  #define PATHS_RELATIVE_TO_EXECUTABLE
+  #define SEED7_LIBRARY "../lib"
 </pre><p>
-The C string from SEED7_LIBRARY is converted to a Seed7 string with
-<tt>cstri_to_stri()</tt>. The function <tt>stri_to_path()</tt> converts the string to
-the standard path representation of Seed7. Finally the path is
-appended to the library search list (lib_path) with:
-</p><pre>
-  append_to_lib_path(path, err_info)
-</pre><p>
+The preprocessor macro PATHS_RELATIVE_TO_EXECUTABLE is used
+by the function <tt>init_lib_path()</tt>, to add a path relative
+to the interpreter or compiler executable, to the library
+search list (lib_path).
+</p><p>
 Interpreter and compiler use the same strategy to determine
 the directory with predefined include libraries.
 </p></p>

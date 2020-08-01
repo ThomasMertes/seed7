@@ -203,24 +203,11 @@ objecttype flt_cmp (arguments)
 listtype arguments;
 #endif
 
-  {
-    floattype number1;
-    floattype number2;
-    inttype result;
-
-  /* flt_cmp */
+  { /* flt_cmp */
     isit_float(arg_1(arguments));
     isit_float(arg_2(arguments));
-    number1 = take_float(arg_1(arguments));
-    number2 = take_float(arg_2(arguments));
-    if (number1 < number2) {
-      result = -1;
-    } else if (number1 > number2) {
-      result = 1;
-    } else {
-      result = 0;
-    } /* if */
-    return bld_int_temp(result);
+    return bld_int_temp(
+	fltCmp(take_float(arg_1(arguments)), take_float(arg_2(arguments))));
   } /* flt_cmp */
 
 
@@ -372,8 +359,13 @@ listtype arguments;
   { /* flt_eq */
     isit_float(arg_1(arguments));
     isit_float(arg_3(arguments));
+#ifdef NAN_COMPARISON_WRONG
+    if (fltEq(take_float(arg_1(arguments)),
+              take_float(arg_3(arguments)))) {
+#else
     if (take_float(arg_1(arguments)) ==
         take_float(arg_3(arguments))) {
+#endif
       return SYS_TRUE_OBJECT;
     } else {
       return SYS_FALSE_OBJECT;
@@ -428,8 +420,13 @@ listtype arguments;
   { /* flt_ge */
     isit_float(arg_1(arguments));
     isit_float(arg_3(arguments));
+#ifdef NAN_COMPARISON_WRONG
+    if (fltGe(take_float(arg_1(arguments)),
+              take_float(arg_3(arguments)))) {
+#else
     if (take_float(arg_1(arguments)) >=
         take_float(arg_3(arguments))) {
+#endif
       return SYS_TRUE_OBJECT;
     } else {
       return SYS_FALSE_OBJECT;
@@ -473,8 +470,13 @@ listtype arguments;
   { /* flt_gt */
     isit_float(arg_1(arguments));
     isit_float(arg_3(arguments));
+#ifdef NAN_COMPARISON_WRONG
+    if (fltGt(take_float(arg_1(arguments)),
+              take_float(arg_3(arguments)))) {
+#else
     if (take_float(arg_1(arguments)) >
         take_float(arg_3(arguments))) {
+#endif
       return SYS_TRUE_OBJECT;
     } else {
       return SYS_FALSE_OBJECT;
@@ -589,6 +591,26 @@ listtype arguments;
 
 #ifdef ANSI_C
 
+objecttype flt_isnegativezero (listtype arguments)
+#else
+
+objecttype flt_isnegativezero (arguments)
+listtype arguments;
+#endif
+
+  { /* flt_isnegativezero */
+    isit_float(arg_1(arguments));
+    if (fltIsNegativeZero(take_float(arg_1(arguments)))) {
+      return SYS_TRUE_OBJECT;
+    } else {
+      return SYS_FALSE_OBJECT;
+    } /* if */
+  } /* flt_isnegativezero */
+
+
+
+#ifdef ANSI_C
+
 objecttype flt_le (listtype arguments)
 #else
 
@@ -599,8 +621,13 @@ listtype arguments;
   { /* flt_le */
     isit_float(arg_1(arguments));
     isit_float(arg_3(arguments));
+#ifdef NAN_COMPARISON_WRONG
+    if (fltLe(take_float(arg_1(arguments)),
+              take_float(arg_3(arguments)))) {
+#else
     if (take_float(arg_1(arguments)) <=
         take_float(arg_3(arguments))) {
+#endif
       return SYS_TRUE_OBJECT;
     } else {
       return SYS_FALSE_OBJECT;
@@ -655,8 +682,13 @@ listtype arguments;
   { /* flt_lt */
     isit_float(arg_1(arguments));
     isit_float(arg_3(arguments));
+#ifdef NAN_COMPARISON_WRONG
+    if (fltLt(take_float(arg_1(arguments)),
+              take_float(arg_3(arguments)))) {
+#else
     if (take_float(arg_1(arguments)) <
         take_float(arg_3(arguments))) {
+#endif
       return SYS_TRUE_OBJECT;
     } else {
       return SYS_FALSE_OBJECT;
@@ -736,8 +768,13 @@ listtype arguments;
   { /* flt_ne */
     isit_float(arg_1(arguments));
     isit_float(arg_3(arguments));
+#ifdef NAN_COMPARISON_WRONG
+    if (!fltEq(take_float(arg_1(arguments)),
+               take_float(arg_3(arguments)))) {
+#else
     if (take_float(arg_1(arguments)) !=
         take_float(arg_3(arguments))) {
+#endif
       return SYS_TRUE_OBJECT;
     } else {
       return SYS_FALSE_OBJECT;
@@ -791,8 +828,13 @@ listtype arguments;
   { /* flt_pow */
     isit_float(arg_1(arguments));
     isit_float(arg_3(arguments));
+#ifdef POWER_OF_ZERO_WRONG
+    return bld_float_temp(
+        fltPow(take_float(arg_1(arguments)), take_float(arg_3(arguments))));
+#else
     return bld_float_temp(
         pow(take_float(arg_1(arguments)), take_float(arg_3(arguments))));
+#endif
   } /* flt_pow */
 
 

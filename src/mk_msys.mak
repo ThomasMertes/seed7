@@ -165,7 +165,7 @@ version.h:
 	echo "#define LIST_DIRECTORY_CONTENTS \"dir\"" >> chkccomp.h
 	echo "#define long_long_EXISTS" >> chkccomp.h
 	echo "#define long_long_SUFFIX_LL" >> chkccomp.h
-	$(CC) chkccomp.c -o chkccomp
+	$(CC) chkccomp.c -lm -o chkccomp
 	./chkccomp.exe >> version.h
 	rm chkccomp.h
 	rm chkccomp.exe

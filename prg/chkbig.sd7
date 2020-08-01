@@ -4586,6 +4586,7 @@ const proc: chkShrink is func
 
 const proc: chkMultiplication is func
   local
+    var bigInteger: number is 0_;
     var boolean: okay is TRUE;
   begin
     if       -65538_ *      -65538_ <>  4295229444_ or
@@ -5038,6 +5039,12 @@ const proc: chkMultiplication is func
               65538_ *       65537_ <>  4295163906_ or
               65538_ *       65538_ <>  4295229444_ then
       writeln("Multiplication of bigInteger does not work correct.");
+      okay := FALSE;
+    end if;
+
+    number := 1024_;
+    if number * number <> 1048576_ then
+      writeln("Multiplication of bigInteger with itself does not work correct.");
       okay := FALSE;
     end if;
 

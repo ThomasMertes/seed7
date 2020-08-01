@@ -22,7 +22,6 @@
 (********************************************************************)
 
 
-$ info off;
 $ message "Compiling the compiler ...";
 $ include "seed7_05.s7i";
   include "stdio.s7i";
@@ -40,6 +39,8 @@ const boolean: ALLOW_STRITYPE_SLICES    is boolean parse configValue("ALLOW_STRI
 const boolean: RSHIFT_DOES_SIGN_EXTEND  is boolean parse configValue("RSHIFT_DOES_SIGN_EXTEND");
 const boolean: TWOS_COMPLEMENT_INTTYPE  is boolean parse configValue("TWOS_COMPLEMENT_INTTYPE");
 const boolean: LITTLE_ENDIAN_INTTYPE    is boolean parse configValue("LITTLE_ENDIAN_INTTYPE");
+const boolean: NAN_COMPARISON_WRONG     is boolean parse configValue("NAN_COMPARISON_WRONG");
+const boolean: POWER_OF_ZERO_WRONG      is boolean parse configValue("POWER_OF_ZERO_WRONG");
 const boolean: USE_SIGSETJMP            is boolean parse configValue("USE_SIGSETJMP");
 const boolean: SIGILL_ON_OVERFLOW       is boolean parse configValue("SIGILL_ON_OVERFLOW");
 const boolean: FLOAT_ZERO_DIV_ERROR     is boolean parse configValue("FLOAT_ZERO_DIV_ERROR");
@@ -745,24 +746,26 @@ const func string: floatLiteral (in float: aFloat) is func
   result
     var string: expr is "";
   begin
-    if isnan(aFloat) then
+    if isNaN(aFloat) then
       if FLOAT_ZERO_DIV_ERROR then
         expr := "f_const[0].floatvalue /* 0.0/0.0 */";
       else
-        expr := "0.0/0.0";
+        expr := "(0.0/0.0)";
       end if;
     elsif aFloat = Infinity then
       if FLOAT_ZERO_DIV_ERROR then
         expr := "f_const[1].floatvalue /* 1.0/0.0 */";
       else
-        expr := "1.0/0.0";
+        expr := "(1.0/0.0)";
       end if;
     elsif aFloat = -Infinity then
       if FLOAT_ZERO_DIV_ERROR then
         expr := "f_const[2].floatvalue /* -1.0/0.0 */";
       else
-        expr := "-1.0/0.0";
+        expr := "(-1.0/0.0)";
       end if;
+    elsif isNegativeZero(aFloat) then
+      expr := "negativeZero";
     else
       expr := str(aFloat);
     end if;
@@ -4739,7 +4742,7 @@ const proc: process_const_big_mdiv (in reference: param1, in bigInteger: divisor
       if c_param1.result_expr <> "" then
         incr(c_expr.temp_num);
         bigint_name := "tmp_" & str(c_expr.temp_num);
-        c_expr.temp_decls &:= "const_biginttype ";
+        c_expr.temp_decls &:= "biginttype ";
         c_expr.temp_decls &:= bigint_name;
         c_expr.temp_decls &:= ";\n";
         c_expr.result_expr := "(bigRShiftAssign((";
@@ -4881,6 +4884,12 @@ const proc: process_big_mult (in ref_list: params, inout expr_type: c_expr) is f
       process_const_big_mult(params[1], getValue(evaluatedParam, bigInteger), c_expr);
     elsif getConstant(params[1], BIGINTOBJECT, evaluatedParam) then
       process_const_big_mult(params[3], getValue(evaluatedParam, bigInteger), c_expr);
+    elsif params[1] = params[3] then
+      incr(countOptimizations);
+      prepare_bigint_result(c_expr);
+      c_expr.result_expr := "bigSquare(";
+      getAnyParamToResultExpr(params[1], c_expr);
+      c_expr.result_expr &:= ")";
     else
       prepare_bigint_result(c_expr);
       c_expr.result_expr := "bigMult(";
@@ -5103,7 +5112,7 @@ const proc: process_big_rshift (in ref_list: params, inout expr_type: c_expr) is
     if c_param1.result_expr <> "" then
       incr(c_expr.temp_num);
       bigint_name := "tmp_" & str(c_expr.temp_num);
-      c_expr.temp_decls &:= "const_biginttype ";
+      c_expr.temp_decls &:= "biginttype ";
       c_expr.temp_decls &:= bigint_name;
       c_expr.temp_decls &:= ";\n";
       c_expr.result_expr := "(bigRShiftAssign((";
@@ -6603,6 +6612,119 @@ const proc: process_cmd_to_os_path (in ref_list: params, inout expr_type: c_expr
   end func;
 
 
+const proc: process_con_clear (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "conClear(";
+    process_expr(params[2], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[3], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[4], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[5], c_expr);
+    c_expr.expr &:= ");\n";
+  end func;
+
+
+const proc: process_con_cursor (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "conCursor(";
+    process_expr(params[2], c_expr);
+    c_expr.expr &:= ");\n";
+  end func;
+
+
+const proc: process_con_flush (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "conFlush();\n";
+  end func;
+
+
+const proc: process_con_height (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "conHeight()";
+  end func;
+
+
+const proc: process_con_h_scl (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "conHScroll(";
+    process_expr(params[2], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[3], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[4], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[5], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[6], c_expr);
+    c_expr.expr &:= ");\n";
+  end func;
+
+
+const proc: process_con_open (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "conOpen();\n";
+  end func;
+
+
+const proc: process_con_setpos (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "conSetpos(";
+    process_expr(params[2], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[3], c_expr);
+    c_expr.expr &:= ");\n";
+  end func;
+
+
+const proc: process_con_v_scl (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "conVScroll(";
+    process_expr(params[2], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[3], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[4], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[5], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[6], c_expr);
+    c_expr.expr &:= ");\n";
+  end func;
+
+
+const proc: process_con_width (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "conWidth()";
+  end func;
+
+
+const proc: process_con_write (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "conWrite(";
+    getAnyParamToExpr(params[2], c_expr);
+    c_expr.expr &:= ");\n";
+  end func;
+
+
 const proc: process_drw_arc (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
@@ -6918,6 +7040,19 @@ const proc: process_drw_get (in ref_list: params, inout expr_type: c_expr) is fu
     c_expr.result_expr &:= ", ";
     getStdParamToResultExpr(params[5], c_expr);
     c_expr.result_expr &:= ")";
+  end func;
+
+
+const proc: process_drw_getpixel (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "drwGetPixel(";
+    getAnyParamToExpr(params[1], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[2], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[3], c_expr);
+    c_expr.expr &:= ")";
   end func;
 
 
@@ -8015,12 +8150,12 @@ const proc: process_const_flt_div (in reference: param1, in float: divisor,
     if divisor = 0.0 and FLOAT_ZERO_DIV_ERROR then
       if getConstant(param1, FLOATOBJECT, evaluatedParam) then
         dividend := getValue(evaluatedParam, float);
-        if dividend < 0.0 then
-          c_expr.expr &:= "f_const[2].floatvalue /* -1.0/0.0 */";
-        elsif dividend > 0.0 then
+        if dividend = 0.0 or isNaN(dividend) then
+          c_expr.expr &:= "f_const[0].floatvalue /* 0.0/0.0 */";
+        elsif (dividend < 0.0) = isNegativeZero(divisor) then
           c_expr.expr &:= "f_const[1].floatvalue /* 1.0/0.0 */";
         else
-          c_expr.expr &:= "f_const[0].floatvalue /* 0.0/0.0 */";
+          c_expr.expr &:= "f_const[2].floatvalue /* -1.0/0.0 */";
         end if;
       else
         incr(c_expr.temp_num);
@@ -8032,18 +8167,30 @@ const proc: process_const_flt_div (in reference: param1, in float: divisor,
         c_expr.expr &:= str(temp_num);
         c_expr.expr &:= "=";
         process_expr(param1, c_expr);
-        c_expr.expr &:= ",tmp_";
+        c_expr.expr &:= ",";
+        if ISNAN_WITH_UNDERLINE then
+          c_expr.expr &:= "_isnan(tmp_";
+        else
+          c_expr.expr &:= "isnan(tmp_";
+        end if;
         c_expr.expr &:= str(temp_num);
-        c_expr.expr &:= " < 0.0 ? f_const[2].floatvalue /* -1.0/0.0 */ : (tmp_";
+        c_expr.expr &:= ") || tmp_";
         c_expr.expr &:= str(temp_num);
-        c_expr.expr &:= " > 0.0 ? f_const[1].floatvalue /* 1.0/0.0 */ :\
-                                \ f_const[0].floatvalue /* 0.0/0.0 */))";
+        c_expr.expr &:= " == 0.0 ? f_const[0].floatvalue /* 0.0/0.0 */ : (tmp_";
+        c_expr.expr &:= str(temp_num);
+        if isNegativeZero(divisor) then
+          c_expr.expr &:= " < 0.0 ? f_const[1].floatvalue /* 1.0/0.0 */ \
+                                 \: f_const[2].floatvalue /* -1.0/0.0 */))";
+        else
+          c_expr.expr &:= " < 0.0 ? f_const[2].floatvalue /* -1.0/0.0 */ \
+                                 \: f_const[1].floatvalue /* 1.0/0.0 */))";
+        end if;
       end if;
     else
       c_expr.expr &:= "(";
       process_expr(param1, c_expr);
       c_expr.expr &:= ") / ";
-      c_expr.expr &:= str(divisor);
+      c_expr.expr &:= floatLiteral(divisor);
     end if;
   end func;
 
@@ -8055,6 +8202,10 @@ const proc: process_flt_div (in ref_list: params, inout expr_type: c_expr) is fu
   begin
     if getConstant(params[3], FLOATOBJECT, evaluatedParam) then
       process_const_flt_div(params[1], getValue(evaluatedParam, float), c_expr);
+    elsif FLOAT_ZERO_DIV_ERROR and isActionExpression(params[3], "FLT_MINUS") and
+        category(getActionParameter(params[3], 2)) = FLOATOBJECT and
+        not isVar(getActionParameter(params[3], 2)) then
+      process_const_flt_div(params[1], getValue(evaluate(prog, params[3]), float), c_expr);
     else
       c_expr.expr &:= "(";
       process_expr(params[1], c_expr);
@@ -8094,14 +8245,61 @@ const proc: process_flt_div_assign (in ref_list: params, inout expr_type: c_expr
   end func;
 
 
+const proc: process_const_flt_eq (in float: number, in reference: param3,
+    inout expr_type: c_expr) is func
+
+  local
+    var reference: evaluatedParam is NIL;
+    var float: number2 is 0.0;
+  begin
+    if isNaN(number) then
+      incr(countOptimizations);
+      c_expr.expr &:= "0/*NaN == anything*/";
+    elsif getConstant(param3, FLOATOBJECT, evaluatedParam) then
+      incr(countOptimizations);
+      number2 := getValue(evaluatedParam, float);
+      c_expr.expr &:= str(ord(number = number2));
+      c_expr.expr &:= "/*";
+      c_expr.expr &:= str(number);
+      c_expr.expr &:= " == ";
+      c_expr.expr &:= str(number2);
+      c_expr.expr &:= "*/";
+    elsif NAN_COMPARISON_WRONG then
+      c_expr.expr &:= "fltEq(";
+      c_expr.expr &:= floatLiteral(number);
+      c_expr.expr &:= ", ";
+      process_expr(param3, c_expr);
+      c_expr.expr &:= ")";
+    else
+      c_expr.expr &:= floatLiteral(number);
+      c_expr.expr &:= " == (";
+      process_expr(param3, c_expr);
+      c_expr.expr &:= ")";
+    end if;
+  end func;
+
 const proc: process_flt_eq (in ref_list: params, inout expr_type: c_expr) is func
 
+  local
+    var reference: evaluatedParam is NIL;
   begin
-    c_expr.expr &:= "(";
-    process_expr(params[1], c_expr);
-    c_expr.expr &:= ") == (";
-    process_expr(params[3], c_expr);
-    c_expr.expr &:= ")";
+    if getConstant(params[1], FLOATOBJECT, evaluatedParam) then
+      process_const_flt_eq(getValue(evaluatedParam, float), params[3], c_expr);
+    elsif getConstant(params[3], FLOATOBJECT, evaluatedParam) then
+      process_const_flt_eq(getValue(evaluatedParam, float), params[1], c_expr);
+    elsif NAN_COMPARISON_WRONG then
+      c_expr.expr &:= "fltEq(";
+      process_expr(params[1], c_expr);
+      c_expr.expr &:= ", ";
+      process_expr(params[3], c_expr);
+      c_expr.expr &:= ")";
+    else
+      c_expr.expr &:= "(";
+      process_expr(params[1], c_expr);
+      c_expr.expr &:= ") == (";
+      process_expr(params[3], c_expr);
+      c_expr.expr &:= ")";
+    end if;
   end func;
 
 
@@ -8123,14 +8321,94 @@ const proc: process_flt_floor (in ref_list: params, inout expr_type: c_expr) is 
   end func;
 
 
+const proc: process_const_flt_ge (in float: number, in reference: param3,
+    inout expr_type: c_expr) is func
+
+  local
+    var reference: evaluatedParam is NIL;
+    var float: number2 is 0.0;
+  begin
+    if isNaN(number) then
+      incr(countOptimizations);
+      c_expr.expr &:= "0/*NaN >= anything*/";
+    elsif getConstant(param3, FLOATOBJECT, evaluatedParam) then
+      incr(countOptimizations);
+      number2 := getValue(evaluatedParam, float);
+      c_expr.expr &:= str(ord(number >= number2));
+      c_expr.expr &:= "/*";
+      c_expr.expr &:= str(number);
+      c_expr.expr &:= " >= ";
+      c_expr.expr &:= str(number2);
+      c_expr.expr &:= "*/";
+    elsif NAN_COMPARISON_WRONG then
+      c_expr.expr &:= "fltGe(";
+      c_expr.expr &:= floatLiteral(number);
+      c_expr.expr &:= ", ";
+      process_expr(param3, c_expr);
+      c_expr.expr &:= ")";
+    else
+      c_expr.expr &:= floatLiteral(number);
+      c_expr.expr &:= " >= (";
+      process_expr(param3, c_expr);
+      c_expr.expr &:= ")";
+    end if;
+  end func;
+
+const proc: process_const_flt_ge (in reference: param1, in float: number,
+    inout expr_type: c_expr) is func
+
+  local
+    var reference: evaluatedParam is NIL;
+    var float: number1 is 0.0;
+  begin
+    if isNaN(number) then
+      incr(countOptimizations);
+      c_expr.expr &:= "0/*anything >= NaN*/";
+    elsif getConstant(param1, FLOATOBJECT, evaluatedParam) then
+      incr(countOptimizations);
+      number1 := getValue(evaluatedParam, float);
+      c_expr.expr &:= str(ord(number1 >= number));
+      c_expr.expr &:= "/*";
+      c_expr.expr &:= str(number1);
+      c_expr.expr &:= " >= ";
+      c_expr.expr &:= str(number);
+      c_expr.expr &:= "*/";
+    elsif NAN_COMPARISON_WRONG then
+      c_expr.expr &:= "fltGe(";
+      process_expr(param1, c_expr);
+      c_expr.expr &:= ", ";
+      c_expr.expr &:= floatLiteral(number);
+      c_expr.expr &:= ")";
+    else
+      c_expr.expr &:= "(";
+      process_expr(param1, c_expr);
+      c_expr.expr &:= ") >= ";
+      c_expr.expr &:= floatLiteral(number);
+    end if;
+  end func;
+
 const proc: process_flt_ge (in ref_list: params, inout expr_type: c_expr) is func
 
+  local
+    var reference: evaluatedParam is NIL;
   begin
-    c_expr.expr &:= "(";
-    process_expr(params[1], c_expr);
-    c_expr.expr &:= ") >= (";
-    process_expr(params[3], c_expr);
-    c_expr.expr &:= ")";
+    if getConstant(params[1], FLOATOBJECT, evaluatedParam) then
+      process_const_flt_ge(getValue(evaluatedParam, float), params[3], c_expr);
+    elsif getConstant(params[3], FLOATOBJECT, evaluatedParam) then
+      process_const_flt_ge(params[1], getValue(evaluatedParam, float), c_expr);
+    elsif NAN_COMPARISON_WRONG then
+      c_expr.expr &:= "fltGe(";
+      process_expr(params[1], c_expr);
+      c_expr.expr &:= ", ";
+      process_expr(params[3], c_expr);
+      c_expr.expr &:= ")";
+    else
+      c_expr.expr &:= "(";
+      process_expr(params[1], c_expr);
+      c_expr.expr &:= ") >= (";
+      process_expr(params[3], c_expr);
+      c_expr.expr &:= ")";
+    end if;
   end func;
 
 
@@ -8166,11 +8444,19 @@ const proc: process_flt_grow (in ref_list: params, inout expr_type: c_expr) is f
 const proc: process_flt_gt (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    c_expr.expr &:= "(";
-    process_expr(params[1], c_expr);
-    c_expr.expr &:= ") > (";
-    process_expr(params[3], c_expr);
-    c_expr.expr &:= ")";
+    if NAN_COMPARISON_WRONG then
+      c_expr.expr &:= "fltGt(";
+      process_expr(params[1], c_expr);
+      c_expr.expr &:= ", ";
+      process_expr(params[3], c_expr);
+      c_expr.expr &:= ")";
+    else
+      c_expr.expr &:= "(";
+      process_expr(params[1], c_expr);
+      c_expr.expr &:= ") > (";
+      process_expr(params[3], c_expr);
+      c_expr.expr &:= ")";
+    end if;
   end func;
 
 
@@ -8256,14 +8542,103 @@ const proc: process_flt_isnan (in ref_list: params, inout expr_type: c_expr) is 
   end func;
 
 
-const proc: process_flt_le (in ref_list: params, inout expr_type: c_expr) is func
+const proc: process_flt_isnegativezero (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    c_expr.expr &:= "(";
+    c_expr.expr &:= "fltIsNegativeZero(";
     process_expr(params[1], c_expr);
-    c_expr.expr &:= ") <= (";
-    process_expr(params[3], c_expr);
     c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process_const_flt_le (in float: number, in reference: param3,
+    inout expr_type: c_expr) is func
+
+  local
+    var reference: evaluatedParam is NIL;
+    var float: number2 is 0.0;
+  begin
+    if isNaN(number) then
+      incr(countOptimizations);
+      c_expr.expr &:= "0/*NaN <= anything*/";
+    elsif getConstant(param3, FLOATOBJECT, evaluatedParam) then
+      incr(countOptimizations);
+      number2 := getValue(evaluatedParam, float);
+      c_expr.expr &:= str(ord(number <= number2));
+      c_expr.expr &:= "/*";
+      c_expr.expr &:= str(number);
+      c_expr.expr &:= " <= ";
+      c_expr.expr &:= str(number2);
+      c_expr.expr &:= "*/";
+    elsif NAN_COMPARISON_WRONG then
+      c_expr.expr &:= "fltLe(";
+      c_expr.expr &:= floatLiteral(number);
+      c_expr.expr &:= ", ";
+      process_expr(param3, c_expr);
+      c_expr.expr &:= ")";
+    else
+      c_expr.expr &:= floatLiteral(number);
+      c_expr.expr &:= " <= (";
+      process_expr(param3, c_expr);
+      c_expr.expr &:= ")";
+    end if;
+  end func;
+
+const proc: process_const_flt_le (in reference: param1, in float: number,
+    inout expr_type: c_expr) is func
+
+  local
+    var reference: evaluatedParam is NIL;
+    var float: number1 is 0.0;
+  begin
+    if isNaN(number) then
+      incr(countOptimizations);
+      c_expr.expr &:= "0/*anything <= NaN*/";
+    elsif getConstant(param1, FLOATOBJECT, evaluatedParam) then
+      incr(countOptimizations);
+      number1 := getValue(evaluatedParam, float);
+      c_expr.expr &:= str(ord(number1 <= number));
+      c_expr.expr &:= "/*";
+      c_expr.expr &:= str(number1);
+      c_expr.expr &:= " <= ";
+      c_expr.expr &:= str(number);
+      c_expr.expr &:= "*/";
+    elsif NAN_COMPARISON_WRONG then
+      c_expr.expr &:= "fltLe(";
+      process_expr(param1, c_expr);
+      c_expr.expr &:= ", ";
+      c_expr.expr &:= floatLiteral(number);
+      c_expr.expr &:= ")";
+    else
+      c_expr.expr &:= "(";
+      process_expr(param1, c_expr);
+      c_expr.expr &:= ") <= ";
+      c_expr.expr &:= floatLiteral(number);
+    end if;
+  end func;
+
+const proc: process_flt_le (in ref_list: params, inout expr_type: c_expr) is func
+
+  local
+    var reference: evaluatedParam is NIL;
+  begin
+    if getConstant(params[1], FLOATOBJECT, evaluatedParam) then
+      process_const_flt_le(getValue(evaluatedParam, float), params[3], c_expr);
+    elsif getConstant(params[3], FLOATOBJECT, evaluatedParam) then
+      process_const_flt_le(params[1], getValue(evaluatedParam, float), c_expr);
+    elsif NAN_COMPARISON_WRONG then
+      c_expr.expr &:= "fltLe(";
+      process_expr(params[1], c_expr);
+      c_expr.expr &:= ", ";
+      process_expr(params[3], c_expr);
+      c_expr.expr &:= ")";
+    else
+      c_expr.expr &:= "(";
+      process_expr(params[1], c_expr);
+      c_expr.expr &:= ") <= (";
+      process_expr(params[3], c_expr);
+      c_expr.expr &:= ")";
+    end if;
   end func;
 
 
@@ -8288,20 +8663,35 @@ const proc: process_flt_log10 (in ref_list: params, inout expr_type: c_expr) is 
 const proc: process_flt_lt (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    c_expr.expr &:= "(";
-    process_expr(params[1], c_expr);
-    c_expr.expr &:= ") < (";
-    process_expr(params[3], c_expr);
-    c_expr.expr &:= ")";
+    if NAN_COMPARISON_WRONG then
+      c_expr.expr &:= "fltLt(";
+      process_expr(params[1], c_expr);
+      c_expr.expr &:= ", ";
+      process_expr(params[3], c_expr);
+      c_expr.expr &:= ")";
+    else
+      c_expr.expr &:= "(";
+      process_expr(params[1], c_expr);
+      c_expr.expr &:= ") < (";
+      process_expr(params[3], c_expr);
+      c_expr.expr &:= ")";
+    end if;
   end func;
 
 
 const proc: process_flt_minus (in ref_list: params, inout expr_type: c_expr) is func
 
+  local
+    var reference: evaluatedParam is NIL;
   begin
-    c_expr.expr &:= "-(";
-    process_expr(params[2], c_expr);
-    c_expr.expr &:= ")";
+    if getConstant(params[2], FLOATOBJECT, evaluatedParam) then
+      incr(countOptimizations);
+      c_expr.expr &:= floatLiteral(-getValue(evaluatedParam, float));
+    else
+      c_expr.expr &:= "-(";
+      process_expr(params[2], c_expr);
+      c_expr.expr &:= ")";
+    end if;
   end func;
 
 
@@ -8345,14 +8735,60 @@ const proc: process_flt_mult_assign (in ref_list: params, inout expr_type: c_exp
   end func;
 
 
+const proc: process_const_flt_ne (in float: number, in reference: param3,
+    inout expr_type: c_expr) is func
+
+  local
+    var reference: evaluatedParam is NIL;
+    var float: number2 is 0.0;
+  begin
+    if isNaN(number) then
+      c_expr.expr &:= "1/*NaN != anything*/";
+    elsif getConstant(param3, FLOATOBJECT, evaluatedParam) then
+      incr(countOptimizations);
+      number2 := getValue(evaluatedParam, float);
+      c_expr.expr &:= str(ord(number <> number2));
+      c_expr.expr &:= "/*";
+      c_expr.expr &:= str(number);
+      c_expr.expr &:= " != ";
+      c_expr.expr &:= str(number2);
+      c_expr.expr &:= "*/";
+    elsif NAN_COMPARISON_WRONG then
+      c_expr.expr &:= "!fltEq(";
+      c_expr.expr &:= floatLiteral(number);
+      c_expr.expr &:= ", ";
+      process_expr(param3, c_expr);
+      c_expr.expr &:= ")";
+    else
+      c_expr.expr &:= floatLiteral(number);
+      c_expr.expr &:= " != (";
+      process_expr(param3, c_expr);
+      c_expr.expr &:= ")";
+    end if;
+  end func;
+
 const proc: process_flt_ne (in ref_list: params, inout expr_type: c_expr) is func
 
+  local
+    var reference: evaluatedParam is NIL;
   begin
-    c_expr.expr &:= "(";
-    process_expr(params[1], c_expr);
-    c_expr.expr &:= ") != (";
-    process_expr(params[3], c_expr);
-    c_expr.expr &:= ")";
+    if getConstant(params[1], FLOATOBJECT, evaluatedParam) then
+      process_const_flt_ne(getValue(evaluatedParam, float), params[3], c_expr);
+    elsif getConstant(params[3], FLOATOBJECT, evaluatedParam) then
+      process_const_flt_ne(getValue(evaluatedParam, float), params[1], c_expr);
+    elsif NAN_COMPARISON_WRONG then
+      c_expr.expr &:= "!fltEq(";
+      process_expr(params[1], c_expr);
+      c_expr.expr &:= ", ";
+      process_expr(params[3], c_expr);
+      c_expr.expr &:= ")";
+    else
+      c_expr.expr &:= "(";
+      process_expr(params[1], c_expr);
+      c_expr.expr &:= ") != (";
+      process_expr(params[3], c_expr);
+      c_expr.expr &:= ")";
+    end if;
   end func;
 
 
@@ -8375,7 +8811,11 @@ const proc: process_flt_plus (in ref_list: params, inout expr_type: c_expr) is f
 const proc: process_flt_pow (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    c_expr.expr &:= "pow(";
+    if POWER_OF_ZERO_WRONG then
+      c_expr.expr &:= "fltPow(";
+    else
+      c_expr.expr &:= "pow(";
+    end if;
     process_expr(params[1], c_expr);
     c_expr.expr &:= ", ";
     process_expr(params[3], c_expr);
@@ -11973,119 +12413,6 @@ const proc: process_rfl_value (in reference: function, in ref_list: params,
   end func;
 
 
-const proc: process_scr_clear (in ref_list: params, inout expr_type: c_expr) is func
-
-  begin
-    setDiagnosticLine(c_expr);
-    c_expr.expr &:= "scrClear(";
-    process_expr(params[2], c_expr);
-    c_expr.expr &:= ", ";
-    process_expr(params[3], c_expr);
-    c_expr.expr &:= ", ";
-    process_expr(params[4], c_expr);
-    c_expr.expr &:= ", ";
-    process_expr(params[5], c_expr);
-    c_expr.expr &:= ");\n";
-  end func;
-
-
-const proc: process_scr_cursor (in ref_list: params, inout expr_type: c_expr) is func
-
-  begin
-    setDiagnosticLine(c_expr);
-    c_expr.expr &:= "scrCursor(";
-    process_expr(params[2], c_expr);
-    c_expr.expr &:= ");\n";
-  end func;
-
-
-const proc: process_scr_flush (in ref_list: params, inout expr_type: c_expr) is func
-
-  begin
-    setDiagnosticLine(c_expr);
-    c_expr.expr &:= "scrFlush();\n";
-  end func;
-
-
-const proc: process_scr_height (in ref_list: params, inout expr_type: c_expr) is func
-
-  begin
-    c_expr.expr &:= "scrHeight()";
-  end func;
-
-
-const proc: process_scr_h_scl (in ref_list: params, inout expr_type: c_expr) is func
-
-  begin
-    c_expr.expr &:= "scrHScroll(";
-    process_expr(params[2], c_expr);
-    c_expr.expr &:= ", ";
-    process_expr(params[3], c_expr);
-    c_expr.expr &:= ", ";
-    process_expr(params[4], c_expr);
-    c_expr.expr &:= ", ";
-    process_expr(params[5], c_expr);
-    c_expr.expr &:= ", ";
-    process_expr(params[6], c_expr);
-    c_expr.expr &:= ");\n";
-  end func;
-
-
-const proc: process_scr_open (in ref_list: params, inout expr_type: c_expr) is func
-
-  begin
-    setDiagnosticLine(c_expr);
-    c_expr.expr &:= "scrOpen();\n";
-  end func;
-
-
-const proc: process_scr_setpos (in ref_list: params, inout expr_type: c_expr) is func
-
-  begin
-    setDiagnosticLine(c_expr);
-    c_expr.expr &:= "scrSetpos(";
-    process_expr(params[2], c_expr);
-    c_expr.expr &:= ", ";
-    process_expr(params[3], c_expr);
-    c_expr.expr &:= ");\n";
-  end func;
-
-
-const proc: process_scr_v_scl (in ref_list: params, inout expr_type: c_expr) is func
-
-  begin
-    setDiagnosticLine(c_expr);
-    c_expr.expr &:= "scrVScroll(";
-    process_expr(params[2], c_expr);
-    c_expr.expr &:= ", ";
-    process_expr(params[3], c_expr);
-    c_expr.expr &:= ", ";
-    process_expr(params[4], c_expr);
-    c_expr.expr &:= ", ";
-    process_expr(params[5], c_expr);
-    c_expr.expr &:= ", ";
-    process_expr(params[6], c_expr);
-    c_expr.expr &:= ");\n";
-  end func;
-
-
-const proc: process_scr_width (in ref_list: params, inout expr_type: c_expr) is func
-
-  begin
-    c_expr.expr &:= "scrWidth()";
-  end func;
-
-
-const proc: process_scr_write (in ref_list: params, inout expr_type: c_expr) is func
-
-  begin
-    setDiagnosticLine(c_expr);
-    c_expr.expr &:= "scrWrite(";
-    getAnyParamToExpr(params[2], c_expr);
-    c_expr.expr &:= ");\n";
-  end func;
-
-
 const proc: process_sct_alloc (in ref_list: params, inout expr_type: c_expr) is func
 
   local
@@ -15312,6 +15639,30 @@ const proc: process_action (in reference: function, in ref_list: params,
       else
         process_unknown_action(action_name, c_expr);
       end if;
+    elsif action_prefix = "CON" then
+      if action_name = "CON_CLEAR" then
+        process_con_clear(params, c_expr);
+      elsif action_name = "CON_CURSOR" then
+        process_con_cursor(params, c_expr);
+      elsif action_name = "CON_FLUSH" then
+        process_con_flush(params, c_expr);
+      elsif action_name = "CON_HEIGHT" then
+        process_con_height(params, c_expr);
+      elsif action_name = "CON_H_SCL" then
+        process_con_h_scl(params, c_expr);
+      elsif action_name = "CON_OPEN" then
+        process_con_open(params, c_expr);
+      elsif action_name = "CON_SETPOS" then
+        process_con_setpos(params, c_expr);
+      elsif action_name = "CON_V_SCL" then
+        process_con_v_scl(params, c_expr);
+      elsif action_name = "CON_WIDTH" then
+        process_con_width(params, c_expr);
+      elsif action_name = "CON_WRITE" then
+        process_con_write(params, c_expr);
+      else
+        process_unknown_action(action_name, c_expr);
+      end if;
     elsif action_prefix = "DCL" then
       if action_name = "DCL_CONST" then
         write_object_declaration := FALSE;
@@ -15362,6 +15713,8 @@ const proc: process_action (in reference: function, in ref_list: params,
         process_drw_genpointlist(params, c_expr);
       elsif action_name = "DRW_GET" then
         process_drw_get(params, c_expr);
+      elsif action_name = "DRW_GETPIXEL" then
+        process_drw_getpixel(params, c_expr);
       elsif action_name = "DRW_HASHCODE" then
         process_drw_hashcode(params, c_expr);
       elsif action_name = "DRW_HEIGHT" then
@@ -15570,6 +15923,8 @@ const proc: process_action (in reference: function, in ref_list: params,
         process_flt_ipow(params, c_expr);
       elsif action_name = "FLT_ISNAN" then
         process_flt_isnan(params, c_expr);
+      elsif action_name = "FLT_ISNEGATIVEZERO" then
+        process_flt_isnegativezero(params, c_expr);
       elsif action_name = "FLT_LE" then
         process_flt_le(params, c_expr);
       elsif action_name = "FLT_LOG" then
@@ -16001,30 +16356,6 @@ const proc: process_action (in reference: function, in ref_list: params,
         process_rfl_tail(params, c_expr);
       elsif action_name = "RFL_VALUE" then
         process_rfl_value(function, params, c_expr);
-      else
-        process_unknown_action(action_name, c_expr);
-      end if;
-    elsif action_prefix = "SCR" then
-      if action_name = "SCR_CLEAR" then
-        process_scr_clear(params, c_expr);
-      elsif action_name = "SCR_CURSOR" then
-        process_scr_cursor(params, c_expr);
-      elsif action_name = "SCR_FLUSH" then
-        process_scr_flush(params, c_expr);
-      elsif action_name = "SCR_HEIGHT" then
-        process_scr_height(params, c_expr);
-      elsif action_name = "SCR_H_SCL" then
-        process_scr_h_scl(params, c_expr);
-      elsif action_name = "SCR_OPEN" then
-        process_scr_open(params, c_expr);
-      elsif action_name = "SCR_SETPOS" then
-        process_scr_setpos(params, c_expr);
-      elsif action_name = "SCR_V_SCL" then
-        process_scr_v_scl(params, c_expr);
-      elsif action_name = "SCR_WIDTH" then
-        process_scr_width(params, c_expr);
-      elsif action_name = "SCR_WRITE" then
-        process_scr_write(params, c_expr);
       else
         process_unknown_action(action_name, c_expr);
       end if;
@@ -20542,7 +20873,7 @@ const proc: write_file_head is func
     writeln(c_prog, "extern bstritype  bst[];");
     writeln(c_prog, "extern settype    set[];");
     writeln(c_prog, "extern typetype   typ[];");
-    writeln(c_prog, "const_biginttype *big;");
+    writeln(c_prog, "biginttype       *big;");
     writeln(c_prog, "arraytype        *arr;");
     writeln(c_prog, "structtype       *sct;");
     writeln(c_prog, "hashtype         *hsh;");
@@ -20554,7 +20885,8 @@ const proc: write_file_head is func
     writeln(c_prog, "    1, 1, 2, 6, 24, 120, 720, 5040, 40320,");
     writeln(c_prog, "    362880, 3628800, 39916800, 479001600");
     writeln(c_prog, "  };");
-    writeln(c_prog, "extern rtlValueunion f_const[];");
+    writeln(c_prog, "extern const rtlValueunion f_const[];");
+    writeln(c_prog, "extern const floattype negativeZero;");
     writeln(c_prog, "#define OKAY_NO_ERROR 0");
     writeln(c_prog, "#define MEMORY_ERROR  1");
     writeln(c_prog, "#define NUMERIC_ERROR 2");
@@ -20760,6 +21092,17 @@ const proc: write_prototypes is func
     declareExtern("inttype     cmdShell (const const_stritype, const const_stritype);");
     declareExtern("void        cmdSymlink (const_stritype, const_stritype);");
     declareExtern("stritype    cmdToOsPath (const const_stritype);");
+    declareExtern("void        conClear (inttype, inttype, inttype, inttype);");
+    declareExtern("void        conCursor (booltype);");
+    declareExtern("void        conFlush (void);");
+    declareExtern("int         conHeight (void);");
+    declareExtern("void        conHScroll (inttype, inttype, inttype, inttype, inttype);");
+    declareExtern("int         conOpen (void);");
+    declareExtern("void        conSetpos (inttype, inttype);");
+    declareExtern("void        conShut (void);");
+    declareExtern("void        conVScroll (inttype, inttype, inttype, inttype, inttype);");
+    declareExtern("int         conWidth (void);");
+    declareExtern("void        conWrite (const_stritype);");
     declareExtern("inttype     drwPointerXpos (const_wintype);");
     declareExtern("inttype     drwPointerYpos (const_wintype);");
     declareExtern("void        drwArc (const_wintype, inttype, inttype, inttype, floattype, floattype);");
@@ -20780,6 +21123,7 @@ const proc: write_prototypes is func
     declareExtern("void        drwFlush (void);");
     declareExtern("bstritype   drwGenPointList (const const_arraytype);");
     declareExtern("wintype     drwGet (const_wintype, inttype, inttype, inttype, inttype);");
+    declareExtern("inttype     drwGetPixel (const_wintype, inttype, inttype);");
     declareExtern("inttype     drwHeight (const_wintype);");
     declareExtern("wintype     drwImage (const_wintype, inttype *, inttype, inttype);");
     declareExtern("void        drwLine (const_wintype, inttype, inttype, inttype, inttype);");
@@ -20835,9 +21179,21 @@ const proc: write_prototypes is func
     declareExtern("inttype     fltCmpGeneric (const generictype, const generictype);");
     declareExtern("void        fltCpy (floattype *, floattype);");
     declareExtern("stritype    fltDgts (floattype, inttype);");
+    if NAN_COMPARISON_WRONG then
+      declareExtern("booltype    fltEq (floattype, floattype);");
+      declareExtern("booltype    fltGe (floattype, floattype);");
+      declareExtern("booltype    fltGt (floattype, floattype);");
+    end if;
     declareExtern("floattype   fltIPow (floattype, inttype);");
+    declareExtern("booltype    fltIsNegativeZero (floattype);");
+    if NAN_COMPARISON_WRONG then
+      declareExtern("booltype    fltLe (floattype, floattype);");
+      declareExtern("booltype    fltLt (floattype, floattype);");
+    end if;
     declareExtern("floattype   fltParse (const const_stritype);");
-    declareExtern("floattype   fltPow (floattype, floattype);");
+    if POWER_OF_ZERO_WRONG then
+      declareExtern("floattype   fltPow (floattype, floattype);");
+    end if;
     declareExtern("floattype   fltRand (floattype, floattype);");
     declareExtern("stritype    fltStr (floattype);");
     declareExtern("floattype   fltValue (objreftype);");
@@ -20948,17 +21304,6 @@ const proc: write_prototypes is func
     declareExtern("void        rflSetvalue (objreftype, listtype);");
     declareExtern("listtype    rflTail (const listtype, inttype);");
     declareExtern("listtype    rflValue (objreftype);");
-    declareExtern("void        scrClear (inttype, inttype, inttype, inttype);");
-    declareExtern("void        scrCursor (booltype);");
-    declareExtern("void        scrFlush (void);");
-    declareExtern("int         scrHeight (void);");
-    declareExtern("void        scrHScroll (inttype, inttype, inttype, inttype, inttype);");
-    declareExtern("int         scrOpen (void);");
-    declareExtern("void        scrSetpos (inttype, inttype);");
-    declareExtern("void        scrShut (void);");
-    declareExtern("void        scrVScroll (inttype, inttype, inttype, inttype, inttype);");
-    declareExtern("int         scrWidth (void);");
-    declareExtern("void        scrWrite (const_stritype);");
     declareExtern("settype     setArrlit (const_arraytype);");
     declareExtern("settype     setBaselit (const inttype);");
     declareExtern("inttype     setCard (const const_settype);");
@@ -21514,7 +21859,7 @@ const proc: assign_bigint_constants (inout expr_type: c_expr) is func
     if length(bigint_const_table) = 0 then
       c_expr.expr &:= "big = NULL;\n";
     else
-      c_expr.expr &:= "big = (const_biginttype *)(malloc(";
+      c_expr.expr &:= "big = (biginttype *)(malloc(";
       c_expr.expr &:= str(length(bigint_const_table));
       c_expr.expr &:= " * sizeof(biginttype)));\n";
       bigint_index := flip(bigint_const_table);

@@ -1061,6 +1061,18 @@ stritype name;
 #else
         opt = "FALSE";
 #endif
+      } else if (strcmp(opt_name, "NAN_COMPARISON_WRONG") == 0) {
+#ifdef NAN_COMPARISON_WRONG
+        opt = "TRUE";
+#else
+        opt = "FALSE";
+#endif
+      } else if (strcmp(opt_name, "POWER_OF_ZERO_WRONG") == 0) {
+#ifdef POWER_OF_ZERO_WRONG
+        opt = "TRUE";
+#else
+        opt = "FALSE";
+#endif
       } else if (strcmp(opt_name, "FLOAT_ZERO_DIV_ERROR") == 0) {
 #ifdef FLOAT_ZERO_DIV_ERROR
         opt = "TRUE";

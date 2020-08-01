@@ -387,6 +387,53 @@ FOR_DECLS(bigInteger);
 
 
 (**
+ *  Convert a bigInteger number to a string.
+ *  The conversion uses the numeral system with the given base.
+ *  Digit values from 10 upward are encoded with upper case letters.
+ *  E.g.: 10 is encoded with A, 11 with B, etc.
+ *  @return the string result of the conversion.
+ *  @exception RANGE_ERROR When base < 2 or base > 36 holds.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ *)
+const func string: str (in var bigInteger: number, in integer: base) is func
+  result
+    var string: stri is "";
+  local
+    const string: digits is "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    var integer: estimatedStriLength is 0;
+    var integer: pos is 0;
+    var boolean: negative is FALSE;
+    var bigInteger: bigBase is 0_;
+  begin
+    if base < 2 or base > 36 then
+      raise RANGE_ERROR;
+    else
+      if number >= 0_ then
+        estimatedStriLength := succ(pred(bitLength(number)) div log2(base));
+      else
+        negative := TRUE;
+        number := -number;
+        estimatedStriLength := pred(bitLength(number)) div log2(base) + 2;
+      end if;
+      stri := " " mult estimatedStriLength;
+      bigBase := bigInteger conv base;
+      pos := estimatedStriLength;
+      repeat
+        stri @:= [pos] digits[succ(ord(number rem bigBase))];
+        number := number div bigBase;
+        decr(pos);
+      until number = 0_;
+      if negative then
+        stri @:= [pos] '-';
+      else
+        incr(pos);
+      end if;
+      stri := stri[pos ..];
+    end if;
+  end func;
+
+
+(**
  *  Compute the integer square root of a bigInteger number.
  *  @return the integer square root.
  *  @exception NUMERIC_ERROR When number is negative.

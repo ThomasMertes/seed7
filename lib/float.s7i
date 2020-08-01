@@ -55,7 +55,7 @@ const func float: + (ref float: number)                          is action "FLT_
 
 
 (**
- *  Minus sign, negate a float number.
+ *  Minus sign, negate a float ''number''.
  *  @return the negated value of the number.
  *)
 const func float: - (ref float: number)                          is action "FLT_MINUS";
@@ -90,27 +90,27 @@ const func float: (ref float: dividend) / (ref float: divisor)   is action "FLT_
 
 
 (**
- *  Compute the exponentiation of a float base by an integer exponent.
+ *  Compute the exponentiation of a float ''base'' by an integer ''exponent''.
  *  @return the result of the exponentation.
  *)
 const func float: (ref float: base) ** (ref integer: exponent)   is action "FLT_IPOW";
 
 
 (**
- *  Compute the exponentiation of a float base by an float exponent.
+ *  Compute the exponentiation of a float ''base'' by an float ''exponent''.
  *  @return the result of the exponentation.
  *)
 const func float: (ref float: base) ** (ref float: exponent)     is action "FLT_POW";
 
 
 (**
- *  Increment a float number by a delta.
+ *  Increment a float ''number'' by a ''delta''.
  *)
 const proc: (inout float: number) +:= (ref float: delta)         is action "FLT_GROW";
 
 
 (**
- *  Decrement a float number by a delta.
+ *  Decrement a float ''number'' by a ''delta''.
  *)
 const proc: (inout float: number) -:= (ref float: delta)         is action "FLT_SHRINK";
 
@@ -122,13 +122,16 @@ const proc: (inout float: number) *:= (ref float: factor)        is action "FLT_
 
 
 (**
- *  Divide a float number by a divisor and assign the result back to number.
+ *  Divide a float ''number'' by a ''divisor'' and assign the result back to ''number''.
  *)
 const proc: (inout float: number) /:= (ref float: divisor)       is action "FLT_DIV_ASSIGN";
 
 
 (**
  *  Check if two float numbers are equal.
+ *  According to IEEE 754 a NaN is not equal to any float value.
+ *  Therefore ''NaN = any_value'' and ''any_value = NaN''
+ *  always return FALSE. Even ''NaN = NaN'' returns FALSE.
  *  @return TRUE if both numbers are equal, FALSE otherwise.
  *)
 const func boolean: (ref float: number1) = (ref float: number2)  is action "FLT_EQ";
@@ -136,38 +139,57 @@ const func boolean: (ref float: number1) = (ref float: number2)  is action "FLT_
 
 (**
  *  Check if two float numbers are not equal.
+ *  According to IEEE 754 a NaN is not equal to any float value.
+ *  Therefore ''NaN <> any_value'' and ''any_value <> NaN''
+ *  always return TRUE. Even ''NaN <> NaN'' returns TRUE.
  *  @return FALSE if both numbers are equal, TRUE otherwise.
  *)
 const func boolean: (ref float: number1) <> (ref float: number2) is action "FLT_NE";
 
 
 (**
- *  Check if number1 is less than number2.
- *  @return TRUE if number1 is less than number2,
+ *  Check if ''number1'' is less than ''number2''.
+ *  According to IEEE 754 a NaN is neither less than,
+ *  equal to, nor greater than any value, including itself.
+ *  When ''number1'' or ''number2'' is NaN, the result
+ *  is FALSE;
+ *  @return TRUE if ''number1'' is less than ''number2'',
  *          FALSE otherwise.
  *)
 const func boolean: (ref float: number1) < (ref float: number2)  is action "FLT_LT";
 
 
 (**
- *  Check if number1 is greater than number2.
- *  @return TRUE if number1 is greater than number2,
+ *  Check if ''number1'' is greater than ''number2''.
+ *  According to IEEE 754 a NaN is neither less than,
+ *  equal to, nor greater than any value, including itself.
+ *  When ''number1'' or ''number2'' is NaN, the result
+ *  is FALSE;
+ *  @return TRUE if ''number1'' is greater than ''number2'',
  *          FALSE otherwise.
  *)
 const func boolean: (ref float: number1) > (ref float: number2)  is action "FLT_GT";
 
 
 (**
- *  Check if number1 is less than or equal to number2.
- *  @return TRUE if number1 is less than or equal to number2,
+ *  Check if ''number1'' is less than or equal to ''number2''.
+ *  According to IEEE 754 a NaN is neither less than,
+ *  equal to, nor greater than any value, including itself.
+ *  When ''number1'' or ''number2'' is NaN, the result
+ *  is FALSE;
+ *  @return TRUE if ''number1'' is less than or equal to ''number2'',
  *          FALSE otherwise.
  *)
 const func boolean: (ref float: number1) <= (ref float: number2) is action "FLT_LE";
 
 
 (**
- *  Check if number1 is greater than or equal to number2.
- *  @return TRUE if number1 is greater than or equal to number2,
+ *  Check if ''number1'' is greater than or equal to ''number2''.
+ *  According to IEEE 754 a NaN is neither less than,
+ *  equal to, nor greater than any value, including itself.
+ *  When ''number1'' or ''number2'' is NaN, the result
+ *  is FALSE;
+ *  @return TRUE if ''number1'' is greater than or equal to ''number2'',
  *          FALSE otherwise.
  *)
 const func boolean: (ref float: number1) >= (ref float: number2) is action "FLT_GE";
@@ -178,7 +200,27 @@ const func float: (attr float) cast (in integer param)           is action "FLT_
 
 
 (**
+ *  Positive infinity.
+ *  Infinity is the result of 1.0 / 0.0 .
+ *)
+const float: Infinity is 1.0 / 0.0;
+
+
+(**
+ *  Not-a-Number (NaN) value.
+ *  Represents an undefined or unrepresentable value.
+ *  NaN is the result of 0.0 / 0.0 .
+ *  Checking for NaN is done with the function isNaN.
+ *)
+const float: NaN is 0.0 / 0.0;
+
+
+(**
  *  Compare two float numbers.
+ *  Because ''compare'' is used to sort float values, a total
+ *  order of all float values is needed. Therefore ''compare''
+ *  considers ''NaN'' as equal to itself and greater than
+ *  ''Infinite''.
  *  @return -1, 0 or 1 if the first argument is considered to be
  *          respectively less than, equal to, or greater than the
  *          second.
@@ -196,6 +238,12 @@ const func integer: hashCode (in float: number)                  is action "FLT_
 (**
  *  Convert a float number to a string.
  *  The number is converted to a string with decimal representation.
+ *  The sign of negative zero (-0.0) is ignored.
+ *   str(16.125)    returns "16.125"
+ *   str(-0.0)      returns "0.0"
+ *   str(Infinity)  returns "Infinity"
+ *   str(-Infinity) returns "-Infinity"
+ *   str(NaN)       returns "NaN"
  *  @return the string result of the conversion.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  *)
@@ -212,9 +260,18 @@ const func float: (attr float) parse (in string: stri)           is action "FLT_
 
 (**
  *  Convert a float number to a string.
- *  The number is converted to a string with decimal representation.
- *  The precision parameter specifies the number of digits after
- *  the decimal point.
+ *  The ''number'' is converted to a string with decimal representation.
+ *  The ''precision'' parameter specifies the number of digits after
+ *  the decimal point. When the result contains only zero digits a
+ *  possible negative sign is omitted.
+ *   0.012345 digits 4   returns "0.0123"
+ *   1.2468 digits 2     returns "1.25"
+ *   0.125 digits 2      returns "0.12"
+ *   0.375 digits 2      returns "0.38"
+ *   Infinity digits 5   returns "Infinity"
+ *   -Infinity digits 6  returns "-Infinity"
+ *   NaN digits 7        returns "NaN"
+ *   -0.004 digits 2     returns "0.00"
  *  @return the string result of the conversion.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  *)
@@ -258,7 +315,10 @@ const func integer: trunc (ref float: number)                    is action "FLT_
  *  @return TRUE if the number has a Not-a-Number (NaN) value,
  *          FALSE otherwise.
  *)
-const func boolean: isnan (ref float: number)                    is action "FLT_ISNAN";
+const func boolean: isNaN (ref float: number)                    is action "FLT_ISNAN";
+
+
+const func boolean: isNegativeZero (in float: number)            is action "FLT_ISNEGATIVEZERO";
 
 
 (**
@@ -278,27 +338,5 @@ const func string: literal (ref float: number)                   is action "FLT_
  *)
 const func float: rand (ref float: low, ref float: high)         is action "FLT_RAND";
 
-
-(**
- *  Positive infinity.
- *  Infinity is the result of 1.0 / 0.0 .
- *)
-const float: Infinity is 1.0 / 0.0;
-
-
-(**
- *  Not-a-Number (NaN) value.
- *  Represents an undefined or unrepresentable value.
- *  NaN is the result of 0.0 / 0.0 .
- *  Checking for NaN is done with the function isnan.
- *)
-const float: NaN is 0.0 / 0.0;
-
-
-const func boolean: (in float: a) = NaN is
-  return isnan(a);
-
-const func boolean: NaN = (in float: a) is
-  return isnan(a);
 
 enable_io(float);

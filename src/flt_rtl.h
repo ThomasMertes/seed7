@@ -40,8 +40,21 @@ void setupFloat (void);
 inttype fltCmp (floattype number1, floattype number2);
 void fltCpy (floattype *dest, floattype source);
 stritype fltDgts (floattype number, inttype digits_precision);
+#ifdef NAN_COMPARISON_WRONG
+booltype fltEq (floattype number1, floattype number2);
+booltype fltGe (floattype number1, floattype number2);
+booltype fltGt (floattype number1, floattype number2);
+#endif
 floattype fltIPow (floattype base, inttype exponent);
+booltype fltIsNegativeZero (floattype number);
+#ifdef NAN_COMPARISON_WRONG
+booltype fltLe (floattype number1, floattype number2);
+booltype fltLt (floattype number1, floattype number2);
+#endif
 floattype fltParse (const const_stritype stri);
+#ifdef POWER_OF_ZERO_WRONG
+floattype fltPow (floattype base, floattype exponent);
+#endif
 floattype fltRand (floattype lower_limit, floattype upper_limit);
 stritype fltStr (floattype number);
 
@@ -51,8 +64,21 @@ void setupFloat ();
 inttype fltCmp ();
 void fltCpy ();
 stritype fltDgts ();
+#ifdef NAN_COMPARISON_WRONG
+booltype fltEq ();
+booltype fltGe ();
+booltype fltGt ();
+#endif
 floattype fltIPow ();
+booltype fltIsNegativeZero ();
+#ifdef NAN_COMPARISON_WRONG
+booltype fltLe ();
+booltype fltLt ();
+#endif
 floattype fltParse ();
+#ifdef POWER_OF_ZERO_WRONG
+floattype fltPow ();
+#endif
 floattype fltRand ();
 stritype fltStr ();
 

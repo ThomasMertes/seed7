@@ -2971,12 +2971,12 @@ biginttype big2;
       return (big1->size < big2->size) != (big1_negative != 0) ? -1 : 1;
     } else {
       pos = big1->size;
-      while (pos > 0) {
+      do {
         pos--;
         if (big1->bigdigits[pos] != big2->bigdigits[pos]) {
           return big1->bigdigits[pos] < big2->bigdigits[pos] ? -1 : 1;
         } /* if */
-      } /* while */
+      } while (pos > 0);
       return 0;
     } /* if */
   } /* bigCmp */
@@ -3376,7 +3376,7 @@ int32type number;
     biginttype result;
 
   /* bigFromInt32 */
-#if BIGDIGIT_SIZE <= 32
+#if BIGDIGIT_SIZE < 32
     result_size = sizeof(int32type) / (BIGDIGIT_SIZE >> 3);
 #else
     result_size = 1;
@@ -3404,7 +3404,9 @@ int32type number;
         result->bigdigits[0] = (bigdigittype) ((uint32type) number);
       } /* if */
 #endif
+#if BIGDIGIT_SIZE < 32
       result = normalize(result);
+#endif
     } /* if */
     return result;
   } /* bigFromInt32 */

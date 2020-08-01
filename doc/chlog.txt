@@ -1,3 +1,38 @@
+20110918:
+- Support for 'drwGetPixel' was added to the compiler (thanks to
+  DJ Redick, for reporting compilation problems with wator.sd7").
+- FAQ answers, explaining how interpreter and compiler look for
+  include libraries, were improved.
+- The function 'str', which converts a bigInteger number to a string
+  representation with a given base, was added to "bigint.s7i".
+- Documentation comments in "float.s7i" and "socket.s7i" were
+  improved.
+- In "float.s7i" the function 'isnan' was renamed to 'isNaN' and the
+  function 'isNegativeZero' was added.
+- Runtime library and compiler (comp.sd7) were improved, such that
+  float operations work according to IEEE 754.
+- The test program "chkflt.sd7" was improved to check IEEE 754
+  floating point conformance.
+- The program "chk_all.sd7" was improved to call "chkflt.sd7".
+- The "bas7" example program was improved (functions 'ERL' and 'LIST'
+  added, division by zero handled correctly).
+- BigInteger multiplication in the compiler was improved to use
+  'bigSquare', when a number is multiplied with itself.
+- The compiler was improved to take into account that the actions
+  "SCR_" were renamed to "CON_".
+- The performance of 'bigCmp' and 'bigFromInt32' in "big_rtl.c", was
+  improved.
+- The program "chkccomp.c" was improved to check the IEEE 754
+  support. It checks comparisons with NaN, the creation of negative
+  Zero and the 'pow' function with a zero base.
+- To reach IEEE 754 floating point conformance the functions flt_cmp,
+  flt_eq, flt_ge, flt_gt, flt_isnegativezero, flt_le, flt_lt, flt_ne,
+  flt_pow in "fltlib.c" and the functions setupFloat, fltCmp, fltEq,
+  fltGe, fltGt, fltIsNegativeZero, fltLe, fltLt, fltPow, fltStr in
+  "flt_rtl.c" were added or improved.
+- The makefiles were improved to link "chkccomp.c" with the math
+  library (e.g.: -lm).
+
 20110904:
 - Declarations were moved from "seed7_05.s7i" to the new library
   "forloop.s7i".

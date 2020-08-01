@@ -87,6 +87,7 @@ var string: statement_label is "";
 var string: on_error_label is "";
 
 var integer: error_code is 0;
+var string: error_linenum is "";
 
 var integer: resume_next_line is 0;
 var integer: resume_next_column is 0;
@@ -199,10 +200,11 @@ var integer: background_color is 0;
 var set of string: numeric_functions is {
     "ABS",      "ASC",      "ATN",      "CDBL",     "CINT",     "CLNG",
     "COS",      "CSNG",     "CSRLIN",   "CVI",      "CVL",      "EOF",
-    "ERR",      "EXP",      "FIX",      "FREEFILE", "INP",      "INSTR",
-    "INT",      "LBOUND",   "LEN",      "LOF",      "LOG",      "PEEK",
-    "POINT",    "POS",      "RND",      "SCREEN",   "SGN",      "SIN",
-    "SQR",      "STRIG",    "TAN",      "TIMER",    "UBOUND",   "VAL"};
+    "ERL",      "ERR",      "EXP",      "FIX",      "FREEFILE", "INP",
+    "INSTR",    "INT",      "LBOUND",   "LEN",      "LOF",      "LOG",
+    "PEEK",     "POINT",    "POS",      "RND",      "SCREEN",   "SGN",
+    "SIN",      "SQR",      "STRIG",    "TAN",      "TIMER",    "UBOUND",
+    "VAL"};
 
 const set of string: not_allowed_as_label is {
     "BEEP",      "CLEAR",     "CLOSE",     "CLS",       "COLOR",     "COMMON",
@@ -239,18 +241,31 @@ const proc: delay (in float: secs) is func
   end func;
 
 
-const proc: list_prog is func
+const proc: list_prog (inout file: listFile, in integer: fromLine, in integer: toLine) is func
   local
     var integer: number is 0;
+    var boolean: doList is FALSE;
   begin
+    doList := fromLine = 0;
     for number range 1 to length(prg) do
-      if prg[number].line <> "" or prg[number].linenum <> "" or prg[number].label <> "" then
-        write(log, ("(" <& number <& ")") lpad 5 <& " ");
-        write(log, prg[number].linenum lpad 5 <& " ");
-        if prg[number].label <> "" then
-          write(log, prg[number].label <& ": ");
+      if prg[number].linenum <> "" then
+        doList := integer parse (prg[number].linenum) >= fromLine and
+                  integer parse (prg[number].linenum) <= toLine;
+      end if;
+      if doList and (prg[number].line <> "" or prg[number].linenum <> "" or
+          prg[number].label <> "") then
+        # write(listFile, ("(" <& number <& ")") lpad 5 <& " ");
+        if prg[number].linenum <> "" then
+          write(listFile, prg[number].linenum <& " ");
         end if;
-        writeln(log, prg[number].line);
+        if prg[number].label <> "" then
+          write(listFile, prg[number].label <& ": ");
+        end if;
+        writeln(listFile, prg[number].line);
+      end if;
+      if prg[number].linenum <> "" then
+        doList := integer parse (prg[number].linenum) >= fromLine and
+                  integer parse (prg[number].linenum) < toLine;
       end if;
     end for;
   end func;
@@ -917,6 +932,7 @@ const proc: do_return (inout string: symbol, inout string: line) is func
 
 const proc: goto_on_error (in string: on_error_label, in string: line) is func
   begin
+    error_linenum := prg[file_line_number].linenum;
     resume_next_line := file_line_number;
     resume_next_column :=
         length(prg[file_line_number].line) - length(line) + 1;
@@ -2552,6 +2568,14 @@ const func float: exec_primary (inout string: symbol, inout string: line) is fun
       expect(")", symbol, line);
       result := flt(varptr(variable_name));
       writeln(log, "VARPTR(" <& variable_name <& ") -> " <& result);
+    elsif symbol = "ERL" then
+      symbol := get_symbol(line);
+      if error_linenum <> "" and error_linenum[1] in digit_char then
+        result := flt(integer parse error_linenum);
+      else
+        result := 0.0;
+      end if;
+      writeln(log, "ERL -> " <& result);
     elsif symbol = "ERR" then
       symbol := get_symbol(line);
       result := flt(error_code);
@@ -2677,6 +2701,9 @@ const func float: exec_multdiv (inout string: symbol, inout string: line) is fun
         block
           if op = "/" then
             result := result / num;
+            if abs(result) = Infinity then
+              raise NUMERIC_ERROR;
+            end if;
           elsif op = "\\" then
             result := flt(round(result) div round(num));
           elsif op = "MOD" then
@@ -2684,8 +2711,19 @@ const func float: exec_multdiv (inout string: symbol, inout string: line) is fun
           end if;
         exception
           catch NUMERIC_ERROR:
-            error_marker;
-            writeln(err, "DIVISION BY ZERO (" <& result <& op <& num <& ")");
+            if on_error_label <> "" then
+              error_code := 11; # Division by zero
+              writeln(log);
+              line_marker;
+              write(log, error_code <& " DIVISION BY ZERO");
+              writeln(log, " - ON ERROR GOTO " <& on_error_label);
+              goto_on_error(on_error_label, line);
+              symbol := "";
+              line := "";
+            else
+              error_marker;
+              writeln(err, "DIVISION BY ZERO (" <& result <& op <& num <& ")");
+            end if;
             result := 0.0;
         end block;
       end if;
@@ -8319,6 +8357,38 @@ const func boolean: exec_cmd (inout string: symbol, inout string: line) is func
         end case;
       elsif symbol = "BLOAD" then
         exec_bload(symbol, line);
+      elsif symbol = "LIST" then
+        symbol := get_symbol(line);
+        if symbol <> "" and symbol[1] in digit_char then
+          index1 := integer parse symbol;
+          symbol := get_symbol(line);
+          if symbol = "-" then
+            symbol := get_symbol(line);
+            if symbol <> "" and symbol[1] in digit_char then
+              index2 := integer parse symbol;
+              symbol := get_symbol(line);
+            else
+              index2 := MAX_LINENUM;
+            end if;
+          else
+            index2 := index1;
+          end if;
+        else
+          index1 := 0;
+          if symbol = "-" then
+            symbol := get_symbol(line);
+            if symbol <> "" and symbol[1] in digit_char then
+              index2 := integer parse symbol;
+              symbol := get_symbol(line);
+            else
+              index2 := MAX_LINENUM;
+            end if;
+          else
+            index2 := MAX_LINENUM;
+          end if;
+        end if;
+        writeln(log, "LIST " <& index1 <& "-" <& index2);
+        list_prog(win, index1, index2);
       elsif symbol = ":" then
         error_marker;
         writeln(err, "UNEXPECTED \":\" - IGNORED.");
@@ -8741,7 +8811,7 @@ const proc: main is func
         if load_prog(arg_v[argumentIndex]) then
           writeln(log, "load_prog finished");
           prepare_loops;
-          # list_prog;
+          # list_prog(log, 0, MAX_LINENUM);
           scr := open(CONSOLE);
           cursor(scr, TRUE);
           win := open_window(scr, 1, 1, 35, 150);

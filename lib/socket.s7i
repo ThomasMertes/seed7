@@ -45,12 +45,24 @@ const func boolean: (ref socketAddress param) = (ref socketAddress param)   is a
 const func boolean: (ref socketAddress param) <> (ref socketAddress param)  is action "BST_NE";
 
 const func integer: addrFamily (in socketAddress param)                     is action "SOC_ADDR_FAMILY";
-const func string: numericAddress (in socketAddress param)                  is action "SOC_ADDR_NUMERIC";
+
+
+(**
+ *  Get the numeric (IP) address of the host at ''sockAddr''.
+ *  IPv4 addresses return the socketAddress in dot notation (e.g.:
+ *  "192.0.2.235") and IPv6 addresses return the socketAddress in
+ *  colon notation (e.g.: "fe80:0:0:0:202:b3ff:fe1e:8329").
+ *  @return the IP address of the specified host.
+ *)
+const func string: numericAddress (in socketAddress: sockAddr)              is action "SOC_ADDR_NUMERIC";
+
+
 const func string: service (in socketAddress param)                         is action "SOC_ADDR_SERVICE";
+
 
 (**
  *  Create an internet socket address of a port at a host.
- *  The ''hostName'' is either a host name ("e.g.: "www.example.org"),
+ *  The ''hostName'' is either a host name (e.g.: "www.example.org"),
  *  or an IPv4 address in standard dot notation (e.g.: "192.0.2.235").
  *  Operating systems supporting IPv6 may also accept an IPv6 address
  *  in colon notation.
@@ -261,7 +273,7 @@ const func file: openInetSocket (in integer: portNumber) is
 
 (**
  *  Return a connected internet socket file at a port at ''hostName''.
- *  Here ''hostName'' is either a host name ("e.g.: "www.example.org"),
+ *  Here ''hostName'' is either a host name (e.g.: "www.example.org"),
  *  or an IPv4 address in standard dot notation (e.g.: "192.0.2.235").
  *  Operating systems supporting IPv6 may also accept an IPv6 address
  *  in colon notation.

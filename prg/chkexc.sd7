@@ -1241,7 +1241,7 @@ const proc: check_float is func
 
     block
       f_num  := sqrt(-1.0);
-      if isnan(f_num) then
+      if isNaN(f_num) then
         incr(number);
       else
         writeln(" ***** sqrt(-1.0) did not deliver NaN");
@@ -1293,7 +1293,7 @@ const proc: check_float is func
 
     block
       f_num  := 0.0 / 0.0;
-      if isnan(f_num) then
+      if isNaN(f_num) then
         incr(number);
       else
         writeln(" ***** 0.0 / 0.0 did not deliver NaN");

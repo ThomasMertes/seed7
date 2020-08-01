@@ -184,6 +184,7 @@ version.h:
 	echo ^#define rmdir _rmdir >> chkccomp.h
 	echo ^#define LIST_DIRECTORY_CONTENTS "dir" >> chkccomp.h
 	echo ^#define __int64_EXISTS >> chkccomp.h
+	echo ^#define TURN_OFF_FP_EXCEPTIONS >> chkccomp.h
 	$(CC) chkccomp.c
 	chkccomp.exe >> version.h
 	del chkccomp.h

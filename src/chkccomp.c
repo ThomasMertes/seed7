@@ -29,6 +29,8 @@
 #include "string.h"
 #include "stdio.h"
 #include "time.h"
+#include "float.h"
+#include "math.h"
 
 #include "chkccomp.h"
 
@@ -87,6 +89,13 @@ int main (int argc, char **argv)
     char buffer[4096];
     long number;
     int ch;
+    float zero = 0.0;
+    float negativeZero;
+    float minusZero;
+    float nanValue1;
+    float nanValue2;
+    float plusInf;
+    float minusInf;
 
   /* main */
 #ifdef WRITE_CC_VERSION_INFO
@@ -224,6 +233,26 @@ int main (int argc, char **argv)
     number = 1;
     if (((char *) &number)[0] == 1) {
       puts("#define LITTLE_ENDIAN_INTTYPE");
+    } /* if */
+#ifdef TURN_OFF_FP_EXCEPTIONS
+    _control87(MCW_EM, MCW_EM);
+#endif
+    nanValue1 = 0.0 / zero;
+    nanValue2 = 0.0 / zero;
+    if (nanValue1 == nanValue2 ||
+        nanValue1 <  nanValue2 || nanValue1 >  nanValue2 ||
+        nanValue1 <= nanValue2 || nanValue1 <= nanValue2) {
+      puts("#define NAN_COMPARISON_WRONG");
+    } /* if */
+    plusInf = 1.0 / zero;
+    minusInf = -plusInf;
+    negativeZero = -1.0 / plusInf;
+    minusZero = -zero;
+    if (memcmp(&negativeZero, &minusZero, sizeof(float)) != 0) {
+      puts("#define USE_NEGATIVE_ZERO_BITPATTERN");
+    } /* if */
+    if (pow(zero, -2.0) != plusInf || pow(negativeZero, -1.0) != minusInf) {
+      puts("#define POWER_OF_ZERO_WRONG");
     } /* if */
     return 0;
   } /* main */

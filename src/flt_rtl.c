@@ -53,7 +53,7 @@
 #define IPOW_EXPONENTIATION_BY_SQUARING
 
 #ifdef FLOAT_ZERO_DIV_ERROR
-rtlValueunion f_const[] =
+const rtlValueunion f_const[] =
 #ifdef FLOATTYPE_DOUBLE
     {0xfff8000000000000, 0x7ff0000000000000, 0xfff0000000000000};
 #else
@@ -67,6 +67,16 @@ rtlValueunion f_const[] =
 #define POSITIVE_INFINITY ( 1.0 / 0.0)
 #define NEGATIVE_INFINITY (-1.0 / 0.0)
 #endif
+
+#ifdef USE_NEGATIVE_ZERO_BITPATTERN
+#ifdef FLOATTYPE_DOUBLE
+const rtlValueunion neg_zero_const = {0x8000000000000000};
+#else
+const rtlValueunion neg_zero_const = {0x80000000};
+#endif
+#endif
+
+floattype negativeZero;
 
 #ifndef USE_VARIABLE_FORMATS
 #define MAX_FORM 28
@@ -88,9 +98,19 @@ void setupFloat (void)
 void setupFloat ()
 #endif
 
-  { /* setupFloat */
+  {
+    floattype zero = 0.0;
+    floattype plusInf;
+
+  /* setupFloat */
 #ifdef TURN_OFF_FP_EXCEPTIONS
     _control87(MCW_EM, MCW_EM);
+#endif
+#ifdef USE_NEGATIVE_ZERO_BITPATTERN
+    negativeZero = neg_zero_const.floatvalue;
+#else
+    plusInf = 1.0 / zero;
+    negativeZero = -1.0 / plusInf;
 #endif
   } /* setupFloat */
 
@@ -125,13 +145,39 @@ floattype number2;
 #endif
 
   { /* fltCmp */
-    if (number1 < number2) {
+#ifdef NAN_COMPARISON_WRONG
+    if (isnan(number1)) {
+      if (isnan(number2)) {
+        return 0;
+      } else {
+        return 1;
+      } /* if */
+    } else if (isnan(number2)) {
+      return -1;
+    } else if (number1 < number2) {
       return -1;
     } else if (number1 > number2) {
       return 1;
     } else {
       return 0;
     } /* if */
+#else
+    if (number1 < number2) {
+      return -1;
+    } else if (number1 > number2) {
+      return 1;
+    } else if (isnan(number1)) {
+      if (isnan(number2)) {
+        return 0;
+      } else {
+        return 1;
+      } /* if */
+    } else if (isnan(number2)) {
+      return -1;
+    } else {
+      return 0;
+    } /* if */
+#endif
   } /* fltCmp */
 
 
@@ -243,6 +289,72 @@ inttype digits_precision;
 
 
 
+#ifdef NAN_COMPARISON_WRONG
+#ifdef ANSI_C
+
+booltype fltEq (floattype number1, floattype number2)
+#else
+
+booltype fltEq (number1, number2)
+floattype number1;
+floattype number2;
+#endif
+
+  { /* fltEq */
+    if (isnan(number1) || isnan(number2)) {
+      return FALSE;
+    } else {
+      return number1 == number2;
+    } /* if */
+  } /* fltEq */
+#endif
+
+
+
+#ifdef NAN_COMPARISON_WRONG
+#ifdef ANSI_C
+
+booltype fltGe (floattype number1, floattype number2)
+#else
+
+booltype fltGe (number1, number2)
+floattype number1;
+floattype number2;
+#endif
+
+  { /* fltGe */
+    if (isnan(number1) || isnan(number2)) {
+      return FALSE;
+    } else {
+      return number1 >= number2;
+    } /* if */
+  } /* fltGe */
+#endif
+
+
+
+#ifdef NAN_COMPARISON_WRONG
+#ifdef ANSI_C
+
+booltype fltGt (floattype number1, floattype number2)
+#else
+
+booltype fltGt (number1, number2)
+floattype number1;
+floattype number2;
+#endif
+
+  { /* fltGt */
+    if (isnan(number1) || isnan(number2)) {
+      return FALSE;
+    } else {
+      return number1 > number2;
+    } /* if */
+  } /* fltGt */
+#endif
+
+
+
 #ifdef ANSI_C
 
 floattype fltIPow (floattype base, inttype exponent)
@@ -324,6 +436,65 @@ inttype exponent;
 
 #ifdef ANSI_C
 
+booltype fltIsNegativeZero (floattype number)
+#else
+
+booltype fltIsNegativeZero (number)
+floattype number;
+#endif
+
+  { /* fltIsNegativeZero */
+    return memcmp(&number, &negativeZero, sizeof(floattype)) == 0;
+  } /* fltIsNegativeZero */
+
+
+
+#ifdef NAN_COMPARISON_WRONG
+#ifdef ANSI_C
+
+booltype fltLe (floattype number1, floattype number2)
+#else
+
+booltype fltLe (number1, number2)
+floattype number1;
+floattype number2;
+#endif
+
+  { /* fltLe */
+    if (isnan(number1) || isnan(number2)) {
+      return FALSE;
+    } else {
+      return number1 <= number2;
+    } /* if */
+  } /* fltLe */
+#endif
+
+
+
+#ifdef NAN_COMPARISON_WRONG
+#ifdef ANSI_C
+
+booltype fltLt (floattype number1, floattype number2)
+#else
+
+booltype fltLt (number1, number2)
+floattype number1;
+floattype number2;
+#endif
+
+  { /* fltLt */
+    if (isnan(number1) || isnan(number2)) {
+      return FALSE;
+    } else {
+      return number1 < number2;
+    } /* if */
+  } /* fltLt */
+#endif
+
+
+
+#ifdef ANSI_C
+
 floattype fltParse (const const_stritype stri)
 #else
 
@@ -392,6 +563,42 @@ stritype stri;
       return 0.0;
     } /* if */
   } /* fltParse */
+
+
+
+#ifdef POWER_OF_ZERO_WRONG
+#ifdef ANSI_C
+
+floattype fltPow (floattype base, floattype exponent)
+#else
+
+floattype fltPow (base, exponent)
+floattype base;
+floattype exponent;
+#endif
+
+  { /* fltPow */
+    if (base == 0.0 && exponent < 0.0) {
+      if (memcmp(&base, &negativeZero, sizeof(floattype)) == 0) {
+        if (floor(exponent) - exponent == 0.0) {
+          /* integer exponent */
+          if (floor(exponent / 2.0) * 2.0 - exponent < -0.5) {
+            /* odd exponent */
+            return NEGATIVE_INFINITY;
+          } else {
+            return POSITIVE_INFINITY;
+          } /* if */
+        } else {
+          return POSITIVE_INFINITY;
+        } /* if */
+      } else {
+        return POSITIVE_INFINITY;
+      } /* if */
+    } else {
+      return pow(base, exponent);
+    } /* if */
+  } /* fltPow */
+#endif
 
 
 
@@ -464,6 +671,11 @@ floattype number;
       len++;
     } /* if */
     len++;
+    if (len == 4 && memcmp(buffer, "-0.0", 4) == 0) {
+      /* -0.0 is converted to 0.0 */
+      memcpy(buffer, "0.0", 3);
+      len = 3;
+    } /* if */
     if (!ALLOC_STRI_SIZE_OK(result, len)) {
       raise_error(MEMORY_ERROR);
       return NULL;
