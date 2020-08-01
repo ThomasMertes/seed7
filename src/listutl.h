@@ -26,14 +26,14 @@
 /********************************************************************/
 
 #define append_to_list(insert_place, object, act_param_list) { \
-    listtype help_element;                                      \
-    if (ALLOC_L_ELEM(help_element)) {                           \
-      help_element->next = NULL;                                \
-      help_element->obj = object;                               \
-      *insert_place = help_element;                             \
-      insert_place = &help_element->next;                       \
-    } else if (!fail_flag) {                                    \
-      raise_with_arguments(SYS_MEM_EXCEPTION, act_param_list);  \
+    listtype help_element;                                     \
+    if (ALLOC_L_ELEM(help_element)) {                          \
+      help_element->next = NULL;                               \
+      help_element->obj = object;                              \
+      *insert_place = help_element;                            \
+      insert_place = &help_element->next;                      \
+    } else if (!fail_flag) {                                   \
+      raise_with_arguments(SYS_MEM_EXCEPTION, act_param_list); \
     } }
 
 
@@ -45,6 +45,7 @@ void copy_expression (objecttype, objecttype *, errinfotype *);
 void concat_lists (listtype *, listtype);
 void incl_list (listtype *, objecttype, errinfotype *);
 void excl_list (listtype *, objecttype);
+void replace_list_elem (listtype, objecttype, objecttype);
 void copy_list (listtype, listtype *, errinfotype *err_info);
 booltype array_to_list (arraytype, listtype *);
 
@@ -56,6 +57,7 @@ void copy_expression ();
 void concat_lists ();
 void incl_list ();
 void excl_list ();
+void replace_list_elem ();
 void copy_list ();
 booltype array_to_list ();
 

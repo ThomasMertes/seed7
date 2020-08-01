@@ -25,8 +25,8 @@
 const proc: dna (ORANGE) is func
 
   local
-    const COLOURSET: FRIENDS is {ORANGE};
-    var COLOURSET: enemy is COLOURSET.EMPTY_SET;
+    const colorSet: FRIENDS is {ORANGE};
+    var colorSet: enemy is colorSet.EMPTY_SET;
     var direction: direct is HERE;
     var directSet: killDirs is directSet.EMPTY_SET;
     var directSet: eatDirs is directSet.EMPTY_SET;
@@ -80,7 +80,7 @@ const proc: dna (ORANGE) is func
 
 
   begin (* dna (ORANGE) *)
-    enemy := ALL_COLOURS;
+    enemy := ALL_COLORS;
     excl(enemy, ORANGE);
     killPow := 0;
     eatPow := 0;

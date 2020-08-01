@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  tim_drv.h     Prototypes for time handling functions.           */
-/*  Copyright (C) 1989 - 2005  Thomas Mertes                        */
+/*  Copyright (C) 1989 - 2006  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */
@@ -31,11 +31,14 @@
 
 #ifdef ANSI_C
 
+void timNow (inttype *, inttype *, inttype *, inttype *,
+	     inttype *, inttype *, inttype *, inttype *);
 void get_time (time_t *, long *, long *);
 void await_time (time_t, long);
 
 #else
 
+void timNow ();
 void get_time ();
 void await_time ();
 

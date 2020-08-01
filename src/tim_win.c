@@ -1,6 +1,6 @@
 /********************************************************************/
 /*                                                                  */
-/*  tim_dos.c     Time access using the dos capabilitys.            */
+/*  tim_win.c     Time access using the windows capabilitys.        */
 /*  Copyright (C) 1989 - 2006  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
@@ -23,17 +23,14 @@
 /*  Boston, MA 02111-1307 USA                                       */
 /*                                                                  */
 /*  Module: Seed7 Runtime Library                                   */
-/*  File: seed7/src/tim_dos.c                                       */
-/*  Changes: 1992, 1993, 1994  Thomas Mertes                        */
-/*  Content: Time access using the dos capabilitys.                 */
+/*  File: seed7/src/tim_win.c                                       */
+/*  Changes: 2006  Thomas Mertes                                    */
+/*  Content: Time access using the windows capabilitys.             */
 /*                                                                  */
 /********************************************************************/
 
-#include "stdlib.h"
 #include "stdio.h"
-#include "time.h"
-#include "sys/types.h"
-#include "sys/timeb.h"
+#include "windows.h"
 
 #include "version.h"
 #include "common.h"
@@ -42,7 +39,7 @@
 #define EXTERN
 #include "tim_drv.h"
 
-#undef TRACE_TIM_DOS
+#undef TRACE_TIM_WIN
 
 
 
@@ -64,23 +61,29 @@ inttype *time_zone;
 #endif
 
   {
-    struct timeb tstruct;
-    struct tm *local_time;
+    FILETIME system_time;
+    FILETIME local_time;
+    SYSTEMTIME time_struct;
+    ULARGE_INTEGER local_time_64;
+    TIME_ZONE_INFORMATION this_time_zone;
 
   /* timNow */
 #ifdef TRACE_TIM_UNX
     printf("BEGIN timNow\n");
 #endif
-    ftime(&tstruct);
-    local_time = localtime(&tstruct.time);
-    *year      = local_time->tm_year + 1900;
-    *month     = local_time->tm_mon + 1;
-    *day       = local_time->tm_mday;
-    *hour      = local_time->tm_hour;
-    *min       = local_time->tm_min;
-    *sec       = local_time->tm_sec;
-    *mycro_sec = 1000 * ((long) tstruct.millitm);
-    *time_zone = (long) tstruct.timezone;
+    GetSystemTimeAsFileTime(&system_time);
+    FileTimeToLocalFileTime(&system_time, &local_time);
+    FileTimeToSystemTime(&local_time, &time_struct);
+    *year  = time_struct.wYear;
+    *month = time_struct.wMonth;
+    *day   = time_struct.wDay;
+    *hour  = time_struct.wHour;
+    *min   = time_struct.wMinute;
+    *sec   = time_struct.wSecond;
+    memcpy(&local_time_64, &local_time, sizeof(ULARGE_INTEGER));
+    *mycro_sec = (local_time_64.QuadPart / 10) % 1000000;
+    GetTimeZoneInformation(&this_time_zone);
+    *time_zone = this_time_zone.Bias;
 #ifdef TRACE_TIM_UNX
     printf("END timNow(%d, %d, %d, %d, %d, %d, %d, %d)\n",
 	*year, *month, *day, *hour, *min, *sec, *mycro_sec, *time_zone);
@@ -101,17 +104,23 @@ long *time_zone;
 #endif
 
   {
-    struct timeb tstruct;
+    FILETIME system_time;
+    ULARGE_INTEGER system_time_64;
+    TIME_ZONE_INFORMATION this_time_zone;
 
   /* get_time */
-#ifdef TRACE_TIM_DOS
+#ifdef TRACE_TIM_WIN
     printf("BEGIN get_time\n");
 #endif
-    ftime(&tstruct);
-    *calendar_time = tstruct.time;
-    *mycro_secs = 1000 * ((long) tstruct.millitm);
-    *time_zone = (long) tstruct.timezone;
-#ifdef TRACE_TIM_DOS
+    /* printf("time before %ld\n", time(NULL)); */
+    GetSystemTimeAsFileTime(&system_time);
+    /* printf("time after %ld\n", time(NULL)); */
+    memcpy(&system_time_64, &system_time, sizeof(ULARGE_INTEGER));
+    *calendar_time =  system_time_64.QuadPart / 10000000 - 3054539008LU;
+    *mycro_secs = (system_time_64.QuadPart / 10) % 1000000;
+    GetTimeZoneInformation(&this_time_zone);
+    *time_zone = this_time_zone.Bias;
+#ifdef TRACE_TIM_WIN
     printf("END get_time(%lu, %ld, %ld)\n",
         *calendar_time, *mycro_secs, *time_zone);
 #endif
@@ -130,36 +139,38 @@ long mycro_secs;
 #endif
 
   {
-    time_t time_now;
-    struct timeb tstruct;
+    FILETIME system_time;
+    ULARGE_INTEGER system_time_64;
+    time_t current_time;
+    long current_mycro_secs;
+    unsigned long wait_milliseconds;
 
   /* await_time */
-#ifdef TRACE_TIM_DOS
-    printf("BEGIN await_time\n");
+#ifdef TRACE_TIM_WIN
+    printf("BEGIN await_time(%lu, %ld)\n",
+        calendar_time, mycro_secs);
 #endif
-/*  time_now = time(NULL); */
-    ftime(&tstruct);
-    time_now = tstruct.time;
-/*  calendar_time = calendar_time + 60 * (int) tstruct.timezone; */
-/*  printf("%d %d %d %d\n",
-        tstruct.time, (int) tstruct.timezone, time_now, calendar_time); */
-/*  printf("time_now < calendar_time: %d < %d\n", time_now, calendar_time); */
-    if (time_now < calendar_time) {
-      do {
-        ftime(&tstruct);
-/*      printf("%ld ?= %ld\n", tstruct.time, calendar_time); */
-      } while (tstruct.time < calendar_time);
+    GetSystemTimeAsFileTime(&system_time);
+    memcpy(&system_time_64, &system_time, sizeof(ULARGE_INTEGER));
+    current_time =  system_time_64.QuadPart / 10000000 - 3054539008LU;
+    current_mycro_secs = (system_time_64.QuadPart / 10) % 1000000;
+    if (current_time < calendar_time ||
+        (current_time == calendar_time &&
+        current_mycro_secs < mycro_secs)) {
+      wait_milliseconds = (calendar_time - current_time) * 1000;
+      if (mycro_secs >= current_mycro_secs) {
+        wait_milliseconds += (mycro_secs - current_mycro_secs) / 1000;
+      } else {
+        wait_milliseconds -= (current_mycro_secs - mycro_secs) / 1000;
+      } /* if */
+#ifdef TRACE_TIM_WIN
+      printf("%lu %lu < %lu %lu Sleep(%lu)\n",
+	  current_time, current_mycro_secs, calendar_time, mycro_secs,
+	  wait_milliseconds);
+#endif
+      Sleep(wait_milliseconds);
     } /* if */
-    if (mycro_secs != 0) {
-      do {
-        ftime(&tstruct);
-/*      printf("%ld.%ld000 ?= %ld.%ld\n",
-            tstruct.time, (long) tstruct.millitm,
-            calendar_time, mycro_secs); */
-      } while (tstruct.time <= calendar_time &&
-          1000 * ((long) tstruct.millitm) < mycro_secs);
-    } /* if */
-#ifdef TRACE_TIM_DOS
+#ifdef TRACE_TIM_WIN
     printf("END await_time\n");
 #endif
   } /* await_time */

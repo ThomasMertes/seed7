@@ -1140,6 +1140,31 @@ inttype x1, y1, x2, y2;
 
 #ifdef ANSI_C
 
+void drwPLine (wintype actual_window,
+    inttype x1, inttype y1, inttype x2, inttype y2, inttype col)
+#else
+
+void drwPLine (actual_window, x1, y1, x2, y2, col)
+wintype actual_window;
+inttype x1, y1, x2, y2;
+inttype col;
+#endif
+
+  { /* drwPLine */
+#ifdef TRACE_X11
+    printf("pline(%lu, %ld, %ld, %ld, %ld, %lu)\n", actual_window, x1, y1, x2, y2, col);
+#endif
+    XSetForeground(mydisplay, mygc, (unsigned) col);
+    XDrawLine(mydisplay, to_window(actual_window), mygc, x1, y1, x2, y2);
+    if (to_backup(actual_window) != 0) {
+      XDrawLine(mydisplay, to_backup(actual_window), mygc, x1, y1, x2, y2);
+    } /* if */
+  } /* drwPLine */
+
+
+
+#ifdef ANSI_C
+
 wintype drwNewPixmap (wintype actual_window, inttype width, inttype height)
 #else
 
@@ -1312,72 +1337,71 @@ stritype window_name;
       dra_init();
     } /* if */
     if (mydisplay != NULL) {
-      result = (x11_wintype) malloc(sizeof(struct x11_winstruct));
-      if (result != NULL) {
-        memset(result, 0, sizeof(struct x11_winstruct));
-        result->usage_count = 1;
-        result->next = window_list;
-        window_list = result;
+      win_name = cp_to_cstri(window_name);
+      if (win_name == NULL) {
+        raise_error(MEMORY_ERROR);
+      } else {
+        result = (x11_wintype) malloc(sizeof(struct x11_winstruct));
+        if (result != NULL) {
+          memset(result, 0, sizeof(struct x11_winstruct));
+          result->usage_count = 1;
+          result->next = window_list;
+          window_list = result;
 
-        myhint.x = xPos;
-        myhint.y = yPos;
-        myhint.width = width;
-        myhint.height = height;
-        myhint.flags = PPosition | PSize;
-        mywmhint.flags = InputHint;
-        mywmhint.input = True;
+          myhint.x = xPos;
+          myhint.y = yPos;
+          myhint.width = width;
+          myhint.height = height;
+          myhint.flags = PPosition | PSize;
+          mywmhint.flags = InputHint;
+          mywmhint.input = True;
 
-        result->window = XCreateSimpleWindow(mydisplay,
-            DefaultRootWindow(mydisplay),
-            myhint.x, myhint.y, (unsigned) myhint.width, (unsigned) myhint.height,
-            5, myforeground, mybackground);
+          result->window = XCreateSimpleWindow(mydisplay,
+              DefaultRootWindow(mydisplay),
+              myhint.x, myhint.y, (unsigned) myhint.width, (unsigned) myhint.height,
+              5, myforeground, mybackground);
 
-        result->width = width;
-        result->height = height;
+          result->width = width;
+          result->height = height;
 
-        win_name = cp_to_cstri(window_name);
-        if (win_name == NULL) {
-          raise_error(MEMORY_ERROR);
-          return(NULL);
-        } else {
           XSetStandardProperties(mydisplay, result->window,
               win_name, win_name,
               None, /* argv, argc, */ NULL, 0, &myhint);
-          free_cstri(win_name, window_name);
-        } /* if */
-        XSetWMHints(mydisplay, result->window, &mywmhint);
+          XSetWMHints(mydisplay, result->window, &mywmhint);
 
-        x_screen = XScreenOfDisplay(mydisplay, myscreen);
-        /* printf("backing_store=%d (NotUseful=%d/WhenMapped=%d/Always=%d)\n",
-            x_screen->backing_store, NotUseful, WhenMapped, Always); */
-        if (x_screen->backing_store != NotUseful) {
-          valuemask = CWBackingStore;
-          attributes.backing_store = Always;
-          XChangeWindowAttributes(mydisplay, result->window, valuemask, &attributes);
+          x_screen = XScreenOfDisplay(mydisplay, myscreen);
+          /* printf("backing_store=%d (NotUseful=%d/WhenMapped=%d/Always=%d)\n",
+              x_screen->backing_store, NotUseful, WhenMapped, Always); */
+          if (x_screen->backing_store != NotUseful) {
+            valuemask = CWBackingStore;
+            attributes.backing_store = Always;
+            XChangeWindowAttributes(mydisplay, result->window, valuemask, &attributes);
 
-          /* printf("backing_store=%d %d\n", attributes.backing_store, Always); */
-          XGetWindowAttributes(mydisplay, result->window, &attribs);
-          /* printf("backing_store=%d %d\n", attribs.backing_store, Always); */
-          if (attribs.backing_store != Always) {
+            /* printf("backing_store=%d %d\n", attributes.backing_store, Always); */
+            XGetWindowAttributes(mydisplay, result->window, &attribs);
+            /* printf("backing_store=%d %d\n", attribs.backing_store, Always); */
+            if (attribs.backing_store != Always) {
+              result->backup = XCreatePixmap(mydisplay, result->window, width, height,
+                  DefaultDepth(mydisplay, myscreen));
+              /* printf("backup=%lu\n", (long unsigned) result->backup); */
+            } /* if */
+          } else {
             result->backup = XCreatePixmap(mydisplay, result->window, width, height,
                 DefaultDepth(mydisplay, myscreen));
             /* printf("backup=%lu\n", (long unsigned) result->backup); */
           } /* if */
-        } else {
-          result->backup = XCreatePixmap(mydisplay, result->window, width, height,
-              DefaultDepth(mydisplay, myscreen));
-          /* printf("backup=%lu\n", (long unsigned) result->backup); */
+
+          mygc = XCreateGC(mydisplay, result->window, 0, 0);
+          XSetBackground(mydisplay, mygc, mybackground);
+          XSetForeground(mydisplay, mygc, myforeground);
+
+          XSelectInput(mydisplay, result->window,
+              ButtonPressMask | KeyPressMask | ExposureMask);
+
+          XMapRaised(mydisplay, result->window);
+
         } /* if */
-
-        mygc = XCreateGC(mydisplay, result->window, 0, 0);
-        XSetBackground(mydisplay, mygc, mybackground);
-        XSetForeground(mydisplay, mygc, myforeground);
-
-        XSelectInput(mydisplay, result->window,
-            ButtonPressMask | KeyPressMask | ExposureMask);
-
-        XMapRaised(mydisplay, result->window);
-
+        free_cstri(win_name, window_name);
       } /* if */
     } /* if */
     /* printf("result=%lu\n", (long unsigned) result); */
@@ -1421,7 +1445,7 @@ inttype col;
 
   { /* drwPPoint */
 #ifdef TRACE_X11
-    printf("ppoint(%lu, %ld, %ld)\n", actual_window, x, y); 
+    printf("ppoint(%lu, %ld, %ld, %lu)\n", actual_window, x, y, col); 
 #endif
     XSetForeground(mydisplay, mygc, (unsigned) col);
     XDrawPoint(mydisplay, to_window(actual_window), mygc, x, y);
@@ -1538,7 +1562,7 @@ inttype col;
 
   { /* drwPRect */
 #ifdef TRACE_X11
-    printf("prect(%lu, %ld, %ld, %ld, %ld)\n", actual_window, x1, y1, length_x, length_y);
+    printf("prect(%lu, %ld, %ld, %ld, %ld, %lu)\n", actual_window, x1, y1, length_x, length_y, col);
 #endif
     XSetForeground(mydisplay, mygc, (unsigned) col);
     XFillRectangle(mydisplay, to_window(actual_window), mygc, x1, y1,

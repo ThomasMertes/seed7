@@ -28,7 +28,6 @@ $ include "seed7_05.s7i";
   include "window.s7i";
   include "keybd.s7i";
   include "float.s7i";
-  include "graph.s7i";
   include "draw.s7i";
   include "field.s7i";
   include "dna_base.s7i";
@@ -59,6 +58,11 @@ const integer:  YMAX        is      21;
 const type: xcoordinate is subtype integer; (* 0 .. XMAX *)
 const type: ycoordinate is subtype integer; (* 0 .. YMAX *)
 
+const type: hue is subtype bactColor; (* FIRSTCOL .. LASTCOL *)
+const hue: (attr hue) . first is FIRSTCOL;
+const hue: (attr hue) . last is LASTCOL;
+const hue: (attr hue) . value is FIRSTCOL;
+
 const type: bacterium is new struct
     var xcoordinate: xpos is 0;
     var ycoordinate: ypos is 0;
@@ -69,9 +73,9 @@ const type: bacterium is new struct
 const type: microbe is varptr bacterium;
 
 const type: position is new struct
-    var COLOUR:  content is CLEAR;
-    var power:   meal is 0;
-    var microbe: possessor is microbe.NIL;
+    var bactColor: content is CLEAR;
+    var power:     meal is 0;
+    var microbe:   possessor is microbe.NIL;
   end struct;
 
 var array array position: area is XMAX + 2 times YMAX + 2 times position.value;
@@ -120,13 +124,13 @@ const type: statRecord is new struct
     var integer: totalmass is 0;
   end struct;
 
-var array [COLOUR] array [boolean] statRecord: statValues is
-    COLOUR times boolean times statRecord.value;
+var array [bactColor] array [boolean] statRecord: statValues is
+    bactColor times boolean times statRecord.value;
 
-var array [COLOUR] array [killReason] integer: killarray is
-    COLOUR times killReason times 0;
+var array [bactColor] array [killReason] integer: killarray is
+    bactColor times killReason times 0;
 
-const array [COLOUR] killReason: REASON is [COLOUR] (
+const array [bactColor] killReason: REASON is [bactColor] (
     KNoReason, KNoReason, KWhite, KViolet, KIndigo, KBlue, KCyan,
     KGreen, KYellow, KAmber, KOrange, KRed, KScarlet, KTan,
     KLilac, KPink
@@ -158,16 +162,16 @@ const color: display_color (TAN) is     brown;
 const color: display_color (LILIAC) is  light_magenta;
 const color: display_color (PINK) is    pink;
 
-const func color: display_color (in COLOUR param) is DYNAMIC;
+const func color: display_color (in bactColor param) is DYNAMIC;
 
-const func char: upper_char (in COLOUR: aColour) is
+const func char: upper_char (in bactColor: aColour) is
   return [] (
     ' ', ' ', 'W', 'V', 'I', 'B', 'C',
     'G', 'Y', 'A', 'O', 'R', 'S', 'T',
     'L', 'P'
   )[succ(ord(aColour))];
 
-const func char: lower_char (in COLOUR: aColour) is
+const func char: lower_char (in bactColor: aColour) is
   return [] (
     ' ', ' ', 'w', 'v', 'i', 'b', 'c',
     'g', 'y', 'a', 'o', 'r', 's', 't',
@@ -187,10 +191,10 @@ const array [direction] integer: diffy is [direction] (
     0,  0,  0, -1,  1, -1,  1, -1,  1);
 
 
-var COLOURSET: playerSet is COLOURSET.EMPTY_SET;
+var colorSet: playerSet is colorSet.EMPTY_SET;
 
 
-const proc: resetStat (in COLOUR: species) is func
+const proc: resetStat (in bactColor: species) is func
 
   begin (* resetStat *)
 (*! statValues[species][FALSE].accno:= 0;
@@ -199,7 +203,7 @@ const proc: resetStat (in COLOUR: species) is func
   end func; (* resetStat *)
 
 
-const proc: incrKillStat (in COLOUR: content, in killReason: Killer) is func
+const proc: incrKillStat (in bactColor: content, in killReason: Killer) is func
 
   begin (* incrKillStat *)
     incr(killarray[content][Killer]);
@@ -227,7 +231,7 @@ const func boolean: continue (GAME) is func
 
 
 const proc: setclass (in xcoordinate: sx, in ycoordinate: sy,
-    in COLOUR: sclass, in boolean: small) is func
+    in bactColor: sclass, in boolean: small) is func
 
   begin (* setclass *)
     color(field, display_color(sclass));
@@ -262,7 +266,7 @@ const proc: writeParameters (in integer: initSize,
 const proc: writeInfo (in integer: line, in integer: column) is func
 
   local
-    var COLOUR: species is CLEAR;
+    var bactColor: species is CLEAR;
 
   begin (* writeInfo *)
     color(INFO, white, dark_blue);
@@ -392,9 +396,9 @@ const proc: readLimits is func
   end func; (* readLimits *)
 
 
-const func COLOUR: charCol (in char: ch) is func
+const func bactColor: charCol (in char: ch) is func
   result
-    var COLOUR: result is CLEAR;
+    var bactColor: result is CLEAR;
 
   begin (* charCol *)
     case upper(ch) of
@@ -445,11 +449,11 @@ const proc: InitAnimates is func
     var integer: line is 1;
     var integer: column is 1;
     var char: command is ' ';
-    var COLOUR: species is CLEAR;
+    var bactColor: species is CLEAR;
 
   begin (* InitAnimates *)
     color(field, statCol);
-    playerSet:= COLOURSET.EMPTY_SET;
+    playerSet:= colorSet.EMPTY_SET;
     animates:= 0 times microbe.value;
     setPos(field, 3, 4);
     command := readCommand(line, column);
@@ -614,7 +618,7 @@ const proc: initBacterium (inout bacterium: bact,
 
 
 const proc: create (in xcoordinate: cx, in ycoordinate: cy,
-    inout array microbe: animates, in COLOUR: species,
+    inout array microbe: animates, in bactColor: species,
     in lifeSpan: ownHunger, in power: strength) is func
 
   local
@@ -628,7 +632,7 @@ const proc: create (in xcoordinate: cx, in ycoordinate: cy,
   end func; (* create *)
 
 
-const proc: setBact (in xcoordinate: ix, in ycoordinate: iy, in COLOUR: species) is func
+const proc: setBact (in xcoordinate: ix, in ycoordinate: iy, in bactColor: species) is func
 
   begin (* setBact *)
     create(ix, iy, animates, species, MAXLIFESPAN, initSize);
@@ -733,9 +737,9 @@ const func power: strength (in direction: direct) is func
   end func; (* strength *)
 
 
-const func COLOUR: view (in direction: direct) is func
+const func bactColor: view (in direction: direct) is func
   result
-    var COLOUR: result is CLEAR;
+    var bactColor: result is CLEAR;
 
   begin (* view *)
     result := area[x + diffx[direct]][y + diffy[direct]].content;
@@ -838,7 +842,7 @@ const proc: split (in direction: direct, in power: quantity1, in power: quantity
     var microbe: bact_1 is microbe.NIL;
     var xcoordinate: new_x is 0;
     var ycoordinate: new_y is 0;
-    var COLOUR: species is CLEAR;
+    var bactColor: species is CLEAR;
     var lifeSpan: hungry is 0;
     var power: strength is 0;
 
@@ -942,8 +946,8 @@ const proc: statistics (in integer: genNr) is func
       statValues[species][TRUE].accno := 0;
       statValues[species][TRUE].accmass := 0;
     end for;
-    setPos(STAT, 1, 12);
     color(STAT, statCol);
+    setPos(STAT, 1, 12);
     writeln(STAT, genNr lpad 1);
     for p range animates do
       if p->mass > 0 then
@@ -957,7 +961,7 @@ const proc: statistics (in integer: genNr) is func
         if statValues[species][TRUE].deathtime = 0 then
           if statValues[species][TRUE].accno = 0 then
             statValues[species][TRUE].deathtime := genNr;
-            setPos(STAT, 2 + playanz, 9);
+            setPos(STAT, 4 + playanz, 9);
             write(STAT, "(");
             write(STAT, statValues[species][TRUE].totalno lpad 5);
             write(STAT, " ");
@@ -978,7 +982,7 @@ const proc: statistics (in integer: genNr) is func
                 statValues[species][FALSE].accno or
                 statValues[species][TRUE].accmass <>
                 statValues[species][FALSE].accmass then
-              setPos(STAT, 2 + playanz, 9);
+              setPos(STAT, 4 + playanz, 9);
               write(STAT, statValues[species][TRUE].accno lpad 6);
               write(STAT, " ");
               write(STAT, statValues[species][TRUE].accmass lpad 9);
@@ -993,7 +997,7 @@ const proc: statistics (in integer: genNr) is func
       end if;
     end for;
     if anychange then
-      setPos(STAT, 3 + playanz, 9);
+      setPos(STAT, 5 + playanz, 9);
       write(STAT, sumAccno lpad 6);
       write(STAT, " ");
       write(STAT, sumAccmass lpad 9);
@@ -1013,7 +1017,7 @@ const proc: statistics (in integer: genNr) is func
         sumFoodmass +:= area[x][y].meal;
       end for;
     end for;
-    setPos(STAT, 4 + playanz, 9);
+    setPos(STAT, 6 + playanz, 9);
     write(STAT, sumFoodno lpad 6);
     write(STAT, " ");
     write(STAT, sumFoodmass lpad 9);
@@ -1022,7 +1026,7 @@ const proc: statistics (in integer: genNr) is func
     else
       writeln(STAT, " " lpad 8);
     end if;
-    setPos(STAT, 6 + playanz, 9);
+    setPos(STAT, 8 + playanz, 9);
     write(STAT, sumAccno + sumFoodno lpad 6);
     write(STAT, " ");
     write(STAT, sumAccmass + sumFoodmass lpad 9);
@@ -1041,7 +1045,7 @@ const proc: finalStatistics is func
     var integer: cardPlayerSet is 0;
     var hue: col1 is CLEAR;
     var hue: col2 is CLEAR;
-    var COLOUR: col3 is CLEAR;
+    var bactColor: col3 is CLEAR;
     var killReason: reason is KHunger;
     var array [hue] hue: colField is hue times hue.value;
     var array [hue] float: valueField is hue times 0.0;
@@ -1080,12 +1084,12 @@ const proc: finalStatistics is func
               incr(i);
             end if;
           end for;
-          setPos(STAT, 2 + i, 42);
+          setPos(STAT, 4 + i, 42);
           writeln(STAT, ord(col1) - ord(FIRSTCOL) + 1 lpad 1);
         end if;
       end for;
 
-      setPos(FSTAT, cardPlayerSet + 10, 1);
+      setPos(FSTAT, cardPlayerSet + 11, 1);
       write(FSTAT, "Victims:");
       for col1 range FIRSTCOL to LASTCOL do
         if col1 in playerSet then
@@ -1112,19 +1116,21 @@ const proc: finalStatistics is func
 const proc: initStatistics is func
 
   local
-    var COLOUR: col1 is CLEAR;
+    var bactColor: col1 is CLEAR;
     var killReason: reason is KHunger;
     var integer: playanz is 0;
 
   begin (* initStatistics *)
     playanz:= 0;
     clear(STAT);
-    setPos(STAT, 1, 1);
     color(STAT, statCol);
+    setPos(STAT, 1, 1);
     writeln(STAT, "Generation");
-    for col1 range ALL_COLOURS do
+    setPos(STAT, 3, 1);
+    writeln(STAT, "bact    number      mass  av.size");
+    for col1 range ALL_COLORS do
       if col1 in playerSet then
-        setPos(STAT, 3 + playanz, 1);
+        setPos(STAT, 5 + playanz, 1);
         writeln(STAT, col1);
         incr(playanz);
         statValues[col1][TRUE].deathtime:= 0;
@@ -1135,18 +1141,18 @@ const proc: initStatistics is func
         end for;
       end if;
     end for;
-    setPos(STAT, 4 + playanz, 1);
+    setPos(STAT, 6 + playanz, 1);
     writeln(STAT, "Sum");
-    setPos(STAT, 5 + playanz, 1);
-    writeln(STAT, "Food");
     setPos(STAT, 7 + playanz, 1);
+    writeln(STAT, "Food");
+    setPos(STAT, 9 + playanz, 1);
     writeln(STAT, "Total");
   end func; (* initStatistics *)
 
 
 const proc: execute (ref microbe: individuum) is func
   local
-    var COLOUR: species is CLEAR;
+    var bactColor: species is CLEAR;
 
   begin
     x := individuum->xpos;
@@ -1258,7 +1264,6 @@ const proc: main is func
           if genNr mod STATTIME = 0 then
             statistics(genNr);
           end if;
-          (* readln(KEYBOARD); *)
         end while;
 
         finalStatistics;

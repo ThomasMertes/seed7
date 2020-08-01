@@ -904,6 +904,38 @@ listtype arguments;
 
 #ifdef ANSI_C
 
+objecttype drw_pline (listtype arguments)
+#else
+
+objecttype drw_pline (arguments)
+listtype arguments;
+#endif
+
+  {
+    wintype actual_window;
+    inttype x1, y1, x2, y2, col;
+
+  /* drw_pline */
+    isit_win(arg_1(arguments));
+    isit_int(arg_2(arguments));
+    isit_int(arg_3(arguments));
+    isit_int(arg_4(arguments));
+    isit_int(arg_5(arguments));
+    isit_int(arg_6(arguments));
+    actual_window = take_win(arg_1(arguments));
+    x1 = take_int(arg_2(arguments));
+    y1 = take_int(arg_3(arguments));
+    x2 = take_int(arg_4(arguments));
+    y2 = take_int(arg_5(arguments));
+    col = take_int(arg_6(arguments));
+    drwPLine(actual_window, x1, y1, x2, y2, col);
+    return(SYS_EMPTY_OBJECT);
+  } /* drw_pline */
+
+
+
+#ifdef ANSI_C
+
 objecttype drw_point (listtype arguments)
 #else
 

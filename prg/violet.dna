@@ -28,7 +28,7 @@ const type: v_ifield is array [direction] integer;
 const proc: dna (VIOLET) is func
 
   local
-    const COLOUR: SELF is VIOLET;
+    const bactColor: SELF is VIOLET;
     const power: MINSPLITSIZE is 4;
 
     var direction: bestDie is HERE;

@@ -26,7 +26,6 @@ $ include "seed7_05.s7i";
   include "time.s7i";
   include "float.s7i";
   include "keybd.s7i";
-  include "graph.s7i";
   include "draw.s7i";
 
 
@@ -185,6 +184,7 @@ const type: gameObj is new struct
     var integer: num_monsters is 0;
     var integer: score is 0;
     var integer: hiScore is 0;
+    var time: turn_time is time.value;
     var boolean: round_finished is FALSE;
     var boolean: restart is FALSE;
     var boolean: quit is FALSE;
@@ -1069,6 +1069,9 @@ const proc: pause_game is func
         monster[number].action_time +:= pause_duration;
       end if;
     end for;
+    if game.turn_time <> time.value then
+      game.turn_time +:= pause_duration;
+    end if;
   end func;
 
 
@@ -2591,7 +2594,6 @@ const proc: get_command (inout playerObj: playerObject) is func
 
 const proc: game_round is func
   local
-    var time: turn_time is time.value;
     var integer: number is 0;
     var integer: progress is 0;
     var integer: new_bonus is 0;
@@ -2601,8 +2603,8 @@ const proc: game_round is func
     DRAW_FLUSH;
     init_round(game.round_number);
     bonus := game.round_bonus;
+    game.turn_time := time(NOW);
     while not game.round_finished and not game.quit do
-      turn_time := time(NOW);
       for number range 1 to length(monster) do
         check_direction(monster[number]);
         move(monster[number]);
@@ -2631,8 +2633,9 @@ const proc: game_round is func
           game.round_finished := TRUE;
         end if;
         incr(progress);
+        game.turn_time +:= 30000 . MYCRO_SECONDS;
         DRAW_FLUSH;
-        await(turn_time + 30000 . MYCRO_SECONDS);
+        await(game.turn_time);
       end if;
     end while;
     if player.living and game.num_monsters = 0 then

@@ -28,7 +28,7 @@ const type: iField is array [direction] integer; (* array [HERE..E] of integer; 
 const proc: dna (BLUE) is func
 
   local
-    const COLOUR: SELF is BLUE;
+    const bactColor: SELF is BLUE;
     const integer: MINSPLITSIZE is 7;
 
     var direction: bestDie is HERE;

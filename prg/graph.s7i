@@ -68,6 +68,10 @@ const proc: DRAW_PPOINT (inout PRIMITIVE_WINDOW param,
 const proc: DRAW_LINE (inout PRIMITIVE_WINDOW param,
     ref integer param, ref integer param,
     ref integer param, ref integer param) is           action "DRW_LINE";
+const proc: DRAW_PLINE (inout PRIMITIVE_WINDOW param,
+    ref integer param, ref integer param,
+    ref integer param, ref integer param,
+    ref pixel param) is                                action "DRW_PLINE";
 const proc: DRAW_RECT (inout PRIMITIVE_WINDOW param,
     ref integer param, ref integer param,
     ref integer param, ref integer param) is           action "DRW_RECT";

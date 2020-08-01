@@ -63,7 +63,7 @@ const proc: dna (WHITE) is func
       result
         var boolean: result is FALSE;
       local
-        const set of COLOUR: ACTSET is {CLEAR, EDGE, WHITE};
+        const colorSet: ACTSET is {CLEAR, EDGE, WHITE};
 
       begin
         result := (view(N)  in ACTSET) and (view(S)  in ACTSET) and

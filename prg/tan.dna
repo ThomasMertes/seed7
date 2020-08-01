@@ -25,7 +25,7 @@
 const proc: dna (TAN) is func
 
   local
-    const COLOUR: SELF is TAN;
+    const bactColor: SELF is TAN;
     var power: maxFood is 0;
     var power: maxEdFoe is 0;
     var power: localFood is 0;

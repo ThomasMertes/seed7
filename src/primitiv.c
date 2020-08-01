@@ -180,6 +180,7 @@ static primactrecord prim_act_table[] = {
     { "DRW_NE",            drw_ne,            },
     { "DRW_NEW_PIXMAP",    drw_new_pixmap,    },
     { "DRW_OPEN",          drw_open,          },
+    { "DRW_PLINE",         drw_pline,         },
     { "DRW_POINT",         drw_point,         },
     { "DRW_PPOINT",        drw_ppoint,        },
     { "DRW_PRECT",         drw_prect,         },

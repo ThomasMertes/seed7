@@ -73,13 +73,13 @@ const func boolean: NOENEMY is func
   result
     var boolean: result is FALSE;
   local
-    const COLOURSET: ACTSET is {CLEAR, EDGE, GREEN};
+    const colorSet: ACTSET is {CLEAR, EDGE, GREEN};
 
   begin (* NOENEMY *)
     result := (view(N)  in ACTSET) and (view(S)  in ACTSET) and
-               (view(W)  in ACTSET) and (view(W)  in ACTSET) and
-               (view(NW) in ACTSET) and (view(SW) in ACTSET) and
-               (view(NE) in ACTSET) and (view(SE) in ACTSET);
+              (view(W)  in ACTSET) and (view(W)  in ACTSET) and
+              (view(NW) in ACTSET) and (view(SW) in ACTSET) and
+              (view(NE) in ACTSET) and (view(SE) in ACTSET);
   end func; (* NOENEMY *)
 
 

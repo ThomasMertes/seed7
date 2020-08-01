@@ -59,6 +59,8 @@ static cstritype class_name[] = {
                          /*                    not initialized      */
     "FORWARDOBJECT",     /* NO VALUE -         Object declared      */
                          /*                    forward              */
+    "FWDREFOBJECT",      /* objvalue -    Reference to Object which */
+                         /*               was declared forward      */
     "BLOCKOBJECT",       /* blockvalue - Procedure possibly with    */
                          /*              parameters, declared       */
                          /*              result or local variables  */

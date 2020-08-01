@@ -111,6 +111,7 @@ errinfotype *err_info;
 
   {
     objecttype defined_object;
+    objecttype forward_reference;
 
   /* get_object */
 #ifdef TRACE_NAME
@@ -122,8 +123,22 @@ errinfotype *err_info;
       ent->owner->params = params;
       if (CLASS_OF_OBJ(defined_object) != FORWARDOBJECT) {
         err_object(OBJTWICEDECLARED, ent->owner->obj);
+        SET_CLASS_OF_OBJ(defined_object, DECLAREDOBJECT);
+      } else {
+        SET_CLASS_OF_OBJ(defined_object, DECLAREDOBJECT);
+        if (ALLOC_OBJECT(forward_reference)) {
+          forward_reference->type_of = NULL;
+          forward_reference->entity = NULL;
+          INIT_CLASS_OF_OBJ(forward_reference, FWDREFOBJECT);
+          forward_reference->value.objvalue = defined_object;
+	  replace_list_elem(prog.stack_current->local_object_list,
+              defined_object, forward_reference);
+          prog.stack_current->object_list_insert_place = append_element_to_list(
+              prog.stack_current->object_list_insert_place, defined_object, err_info);
+        } else {
+          *err_info = MEMORY_ERROR;
+        } /* if */
       } /* if */
-      SET_CLASS_OF_OBJ(defined_object, DECLAREDOBJECT);
     } else {
       if (ALLOC_OBJECT(defined_object)) {
         defined_object->type_of = NULL;

@@ -122,31 +122,23 @@ objecttype tim_now (arguments)
 listtype arguments;
 #endif
 
-  {
-    time_t calendar_time;
-    long mycro_secs;
-    long time_zone;
-    struct tm *local_time;
-
-  /* tim_now */
-    get_time(&calendar_time, &mycro_secs, &time_zone);
-    local_time = localtime(&calendar_time);
-    arg_1(arguments)->value.intvalue =
-        (inttype) local_time->tm_year + 1900;
-    arg_2(arguments)->value.intvalue =
-        (inttype) local_time->tm_mon + 1;
-    arg_3(arguments)->value.intvalue =
-        (inttype) local_time->tm_mday;
-    arg_4(arguments)->value.intvalue =
-        (inttype) local_time->tm_hour;
-    arg_5(arguments)->value.intvalue =
-        (inttype) local_time->tm_min;
-    arg_6(arguments)->value.intvalue =
-        (inttype) local_time->tm_sec;
-    arg_7(arguments)->value.intvalue =
-        (inttype) mycro_secs;
-    arg_8(arguments)->value.intvalue =
-        (inttype) time_zone;
+  { /* tim_now */
+    isit_int(arg_1(arguments));
+    isit_int(arg_2(arguments));
+    isit_int(arg_3(arguments));
+    isit_int(arg_4(arguments));
+    isit_int(arg_5(arguments));
+    isit_int(arg_6(arguments));
+    isit_int(arg_7(arguments));
+    isit_int(arg_8(arguments));
+    timNow(&arg_1(arguments)->value.intvalue,
+	   &arg_2(arguments)->value.intvalue,
+	   &arg_3(arguments)->value.intvalue,
+	   &arg_4(arguments)->value.intvalue,
+	   &arg_5(arguments)->value.intvalue,
+	   &arg_6(arguments)->value.intvalue,
+	   &arg_7(arguments)->value.intvalue,
+	   &arg_8(arguments)->value.intvalue);
 /*  fprintf(stderr, "now      %04ld/%02ld/%02ld %02ld:%02ld:%02ld %7ld\n",
         arg_1(arguments)->value.intvalue,
         arg_2(arguments)->value.intvalue,

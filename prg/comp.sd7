@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  comp.sd7      Compiler from Seed7 to C                          *)
-(*  Copyright (C) 1990 - 1994, 2004, 2005  Thomas Mertes            *)
+(*  Copyright (C) 1990 - 1994, 2004, 2005, 2006  Thomas Mertes      *)
 (*                                                                  *)
 (*  This program is free software; you can redistribute it and/or   *)
 (*  modify it under the terms of the GNU General Public License as  *)
@@ -4730,7 +4730,7 @@ const proc: process_tim_await (in ref_list: params, inout expr_type: c_expr) is 
 const proc: process_tim_now (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    c_expr.expr &:= "tim_now(";
+    c_expr.expr &:= "timNow(";
     process_expr(params[1], c_expr);
     c_expr.expr &:= ", ";
     process_expr(params[2], c_expr);
@@ -7220,8 +7220,7 @@ const proc: write_file_head is func
     c_prog << "char *    str_to_cstri (stritype a)                     {printf(\"str_to_cstri\\n\");}\n";
     c_prog << "void      tim_await (inttype a, inttype b, inttype c, \
          \inttype d, inttype e, inttype f, inttype g)                  {printf(\"tim_await\\n\");}\n";
-    c_prog << "void      tim_now (inttype a, inttype b, inttype c, \
-         \inttype d, inttype e, inttype f, inttype g, inttype h)       {printf(\"tim_now\\n\");}\n";
+    c_prog << "void      timNow (inttype, inttype, inttype, inttype, inttype, inttype, inttype, inttype);\n";
     c_prog << "inttype   unx_lng (stritype a)                          {printf(\"unx_lng\\n\");}\n";
     c_prog << "arraytype unx_ls (stritype a)                           {printf(\"unx_ls\\n\");}\n";
     c_prog << "stritype  unx_pwd (void)                                {printf(\"unx_pwd\\n\");}\n";
@@ -7338,7 +7337,8 @@ const proc: write_file_head is func
     c_prog << "stritype  str_from_cstri (char * );\n";
     c_prog << "char *    str_to_cstri (stritype);\n";
     c_prog << "void      tim_await (inttype, inttype, inttype, inttype, inttype, inttype, inttype);\n";
-    c_prog << "void      tim_now (inttype, inttype, inttype, inttype, inttype, inttype, inttype, inttype);\n";
+    c_prog << "void      timNow (inttype a, inttype b, inttype c, \
+         \inttype d, inttype e, inttype f, inttype g, inttype h)       {printf(\"timNow\\n\");}\n";
     c_prog << "inttype   unx_lng (stritype);\n";
     c_prog << "arraytype unx_ls (stritype);\n";
     c_prog << "stritype  unx_pwd (void);\n";
@@ -7515,7 +7515,7 @@ const proc: main is func
     var boolean: okay is TRUE;
 
   begin
-    writeln("SEED7 COMPILER Version 2.0  Copyright (c) 1993-2005 Thomas Mertes");
+    writeln("SEED7 COMPILER Version 2.0  Copyright (c) 1990-2006 Thomas Mertes");
     if length(argv(PROGRAM)) >= 1 then
       source := argv(PROGRAM)[1];
       write("Source: ");

@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  tim_unx.c     Time access using the unix capabilitys.           */
-/*  Copyright (C) 1989 - 2005  Thomas Mertes                        */
+/*  Copyright (C) 1989 - 2006  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */
@@ -42,7 +42,6 @@
 #define EXTERN
 #include "tim_drv.h"
 
-
 #undef TRACE_TIM_UNX
 #define USE_SIGACTION
 
@@ -50,18 +49,15 @@
 #ifdef ANSI_C
 #ifdef C_PLUS_PLUS
 
-extern "C" unsigned int sleep (unsigned int);
 extern "C" int pause (void);
 
 #else
 
-unsigned int sleep (unsigned int);
 int pause (void);
 
 #endif
 #else
 
-unsigned int sleep ();
 int pause ();
 
 #endif
@@ -72,6 +68,50 @@ sigjmp_buf wait_finished;
 #else
 jmp_buf wait_finished;
 #endif
+
+
+
+#ifdef ANSI_C
+
+void timNow (inttype *year, inttype *month, inttype *day, inttype *hour,
+    inttype *min, inttype *sec, inttype *mycro_sec, inttype *time_zone)
+#else
+
+void timNow (year, month, day, hour, min, sec, mycro_sec, time_zone)
+inttype *year;
+inttype *month;
+inttype *day;
+inttype *hour;
+inttype *min;
+inttype *sec;
+inttype *mycro_sec;
+inttype *time_zone;
+#endif
+
+  {
+    struct timeval time_val;
+    struct timezone this_time_zone;
+    struct tm *local_time;
+
+  /* timNow */
+#ifdef TRACE_TIM_UNX
+    printf("BEGIN timNow\n");
+#endif
+    gettimeofday(&time_val, &this_time_zone);
+    local_time = localtime(&time_val.tv_sec);
+    *year      = local_time->tm_year + 1900;
+    *month     = local_time->tm_mon + 1;
+    *day       = local_time->tm_mday;
+    *hour      = local_time->tm_hour;
+    *min       = local_time->tm_min;
+    *sec       = local_time->tm_sec;
+    *mycro_sec = time_val.tv_usec;
+    *time_zone = this_time_zone.tz_minuteswest;
+#ifdef TRACE_TIM_UNX
+    printf("END timNow(%d, %d, %d, %d, %d, %d, %d, %d)\n",
+	*year, *month, *day, *hour, *min, *sec, *mycro_sec, *time_zone);
+#endif
+  } /* timNow */
 
 
 
@@ -99,7 +139,8 @@ long *time_zone;
     *mycro_secs = time_val.tv_usec;
     *time_zone = this_time_zone.tz_minuteswest;
 #ifdef TRACE_TIM_UNX
-    printf("END get_time\n");
+    printf("END get_time(%lu, %ld, %ld)\n",
+        *calendar_time, *mycro_secs, *time_zone);
 #endif
   } /* get_time */
 
@@ -154,13 +195,16 @@ long mycro_secs;
     printf("BEGIN await_time\n");
 #endif
     gettimeofday(&time_val, &this_time_zone);
-    timer_value.it_value.tv_sec = calendar_time - time_val.tv_sec;
-    if (mycro_secs >= time_val.tv_usec) {
-      timer_value.it_value.tv_usec = mycro_secs - time_val.tv_usec;
-    } else {
-      timer_value.it_value.tv_usec = 1000000 - time_val.tv_usec + mycro_secs;
-      timer_value.it_value.tv_sec--;
-    } /* if */
+    if (time_val.tv_sec < calendar_time ||
+        (time_val.tv_sec == calendar_time &&
+        time_val.tv_usec < mycro_secs)) {
+      timer_value.it_value.tv_sec = calendar_time - time_val.tv_sec;
+      if (mycro_secs >= time_val.tv_usec) {
+        timer_value.it_value.tv_usec = mycro_secs - time_val.tv_usec;
+      } else {
+        timer_value.it_value.tv_usec = 1000000 - time_val.tv_usec + mycro_secs;
+        timer_value.it_value.tv_sec--;
+      } /* if */
 #ifdef TRACE_TIM_UNX
     fprintf(stderr, "%d %ld %ld %ld %ld %ld %ld %ld %ld\n",
         this_time_zone.tz_minuteswest,
@@ -173,9 +217,6 @@ long mycro_secs;
         timer_value.it_value.tv_sec,
         timer_value.it_value.tv_usec);
 #endif
-    if (timer_value.it_value.tv_sec > 0 ||
-        (timer_value.it_value.tv_sec == 0 &&
-        timer_value.it_value.tv_usec > 0)) {
       timer_value.it_interval.tv_sec = 0;
       timer_value.it_interval.tv_usec = 0;
       action.sa_handler = &alarm_signal_handler;
@@ -189,23 +230,6 @@ long mycro_secs;
         } /* if */
       } /* if */
     } /* if */
-#ifdef OUT_OF_ORDER
-    now = time_val.tv_sec;
-    if (now < calendar_time) {
-      if (calendar_time - now > 1) {
-        sleep(calendar_time - now - 1);
-      } /* if */
-      do {
-        ;
-      } while (time(NULL) < calendar_time);
-    } /* if */
-    if (mycro_secs != 0) {
-      do {
-        gettimeofday(&time_val, &this_time_zone);
-      } while (time_val.tv_sec <= calendar_time &&
-          time_val.tv_usec < mycro_secs);
-    } /* if */
-#endif
 #ifdef TRACE_TIM_UNX
     printf("END await_time\n");
 #endif
@@ -293,23 +317,6 @@ long mycro_secs;
         } /* if */
       } /* if */
     } /* if */
-#ifdef OUT_OF_ORDER
-    now = time_val.tv_sec;
-    if (now < calendar_time) {
-      if (calendar_time - now > 1) {
-        sleep(calendar_time - now - 1);
-      } /* if */
-      do {
-        ;
-      } while (time(NULL) < calendar_time);
-    } /* if */
-    if (mycro_secs != 0) {
-      do {
-        gettimeofday(&time_val, &this_time_zone);
-      } while (time_val.tv_sec <= calendar_time &&
-          time_val.tv_usec < mycro_secs);
-    } /* if */
-#endif
 #ifdef TRACE_TIM_UNX
     printf("END await_time\n");
 #endif

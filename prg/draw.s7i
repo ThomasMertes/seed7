@@ -26,6 +26,9 @@
 (********************************************************************)
 
 
+include "graph.s7i";
+
+
 var PRIMITIVE_WINDOW: curr_win is PRIMITIVE_WINDOW.value;
 
 const color: black         is color(0, 0, 0);             (* Black   *)
@@ -108,24 +111,21 @@ const proc: line (inout PRIMITIVE_WINDOW: win,
     in integer: x1, in integer: y1,
     in integer: delta_x, in integer: delta_y, in color: col) is func
   begin
-    SET_COLOR(colorPixel(col));
-    DRAW_LINE(win, x1, y1, x1 + delta_x, y1 + delta_y);
+    DRAW_PLINE(win, x1, y1, x1 + delta_x, y1 + delta_y, colorPixel(col));
   end func;
 
 
 const proc: line (in integer: x1, in integer: y1,
     in integer: delta_x, in integer: delta_y, in color: col) is func
   begin
-    SET_COLOR(colorPixel(col));
-    DRAW_LINE(curr_win, x1, y1, x1 + delta_x, y1 + delta_y);
+    DRAW_PLINE(curr_win, x1, y1, x1 + delta_x, y1 + delta_y, colorPixel(col));
   end func;
 
 
 const proc: lineTo (in integer: x1, in integer: y1,
     in integer: x2, in integer: y2, in color: col) is func
   begin
-    SET_COLOR(colorPixel(col));
-    DRAW_LINE(curr_win, x1, y1, x2, y2);
+    DRAW_PLINE(curr_win, x1, y1, x2, y2, colorPixel(col));
   end func;
 
 
@@ -133,8 +133,26 @@ const proc: lineTo (inout PRIMITIVE_WINDOW: win,
     in integer: x1, in integer: y1,
     in integer: x2, in integer: y2, in color: col) is func
   begin
-    SET_COLOR(colorPixel(col));
-    DRAW_LINE(win, x1, y1, x2, y2);
+    DRAW_PLINE(win, x1, y1, x2, y2, colorPixel(col));
+  end func;
+
+
+const proc: lineToAngle (in integer: x, in integer: y,
+    in integer: length, in float: angle, in color: col) is func
+  begin
+    DRAW_PLINE(curr_win, x, y,
+        x + round(flt(length) * sin(angle)),
+        y + round(flt(length) * -cos(angle)), colorPixel(col));
+  end func;
+
+
+const proc: lineToAngle (inout PRIMITIVE_WINDOW: win,
+    in integer: x, in integer: y,
+    in integer: length, in float: angle, in color: col) is func
+  begin
+    DRAW_PLINE(win, x, y,
+        x + round(flt(length) * sin(angle)),
+        y + round(flt(length) * -cos(angle)), colorPixel(col));
   end func;
 
 
@@ -142,16 +160,14 @@ const proc: hline (inout PRIMITIVE_WINDOW: win,
     in integer: x1, in integer: y1,
     in integer: x2, in color: col) is func
   begin
-    SET_COLOR(colorPixel(col));
-    DRAW_LINE(win, x1, y1, x2, y1);
+    DRAW_PLINE(win, x1, y1, x2, y1, colorPixel(col));
   end func;
 
 
 const proc: hline (in integer: x1, in integer: y1,
     in integer: x2, in color: col) is func
   begin
-    SET_COLOR(colorPixel(col));
-    DRAW_LINE(curr_win, x1, y1, x2, y1);
+    DRAW_PLINE(curr_win, x1, y1, x2, y1, colorPixel(col));
   end func;
 
 
@@ -159,17 +175,16 @@ const proc: vline (inout PRIMITIVE_WINDOW: win,
     in integer: x1, in integer: y1,
     in integer: y2, in color: col) is func
   begin
-    SET_COLOR(colorPixel(col));
-    DRAW_LINE(win, x1, y1, x1, y2);
+    DRAW_PLINE(win, x1, y1, x1, y2, colorPixel(col));
   end func;
 
 
 const proc: vline (in integer: x1, in integer: y1,
     in integer: y2, in color: col) is func
   begin
-    SET_COLOR(colorPixel(col));
-    DRAW_LINE(curr_win, x1, y1, x1, y2);
+    DRAW_PLINE(curr_win, x1, y1, x1, y2, colorPixel(col));
   end func;
+
 
 const proc: rect (inout PRIMITIVE_WINDOW: win,
     in integer: x1, in integer: y1,
@@ -301,6 +316,12 @@ const proc: clear (inout PRIMITIVE_WINDOW: win) is func
   end func;
 
 
+const proc: clear (in color: col) is func
+  begin
+    DRAW_CLEAR(curr_win, colorPixel(col));
+  end func;
+
+
 const proc: clear is func
   begin
     DRAW_CLEAR(curr_win, colorPixel(black));
@@ -382,6 +403,130 @@ const func PRIMITIVE_WINDOW: imagePixmap (ref array array pixel: image) is func
     var PRIMITIVE_WINDOW: pixmap is PRIMITIVE_WINDOW.value;
   begin
     pixmap := DRAW_IMAGE(curr_win, image);
+  end func;
+
+
+const func integer: get_le_uint2 (ref file: in_file) is func
+  result
+    var integer: number is 0;
+  local
+    var string: stri is "";
+  begin
+    stri := gets(in_file, 2);
+    if length(stri) = 2 then
+      number := ord(stri[1]) +
+          ord(stri[2]) * 256;
+    end if;
+  end func;
+
+
+const func integer: get_le_uint4 (ref file: in_file) is func
+  result
+    var integer: number is 0;
+  local
+    var string: stri is "";
+  begin
+    stri := gets(in_file, 4);
+    if length(stri) = 4 then
+      number := ord(stri[1]) +
+          ord(stri[2]) * 256 +
+          ord(stri[3]) * 65536 +
+          ord(stri[4]) * 16777216;
+    end if;
+  end func;
+
+
+const func PRIMITIVE_WINDOW: read_bmp (in string: file_name) is func
+  result
+    var PRIMITIVE_WINDOW: image is PRIMITIVE_WINDOW.value;
+  local
+    var file: bmp_file is STD_NULL;
+    var string: stri is "";
+    var integer: size is 0;
+    var integer: offset is 0;
+    var integer: width is 0;
+    var integer: height is 0;
+    var integer: planes is 0;
+    var integer: bits is 0;
+    var integer: padding is 0;
+    var integer: line is 0;
+    var integer: column is 0;
+    var pixel: pix is pixel.value;
+    var char: ch is ' ';
+  begin
+    bmp_file := open(file_name, "r");
+    if bmp_file <> STD_NULL then
+      stri := gets(bmp_file, 2);
+      if stri = "BM" then
+        size := get_le_uint4(bmp_file);
+        stri := gets(bmp_file, 4);          (* reserved1, reserved2 *)
+        offset := get_le_uint4(bmp_file);
+        stri := gets(bmp_file, 4);          (* header size *)
+        width := get_le_uint4(bmp_file);
+        height := get_le_uint4(bmp_file);
+        planes := get_le_uint2(bmp_file);
+        bits := get_le_uint2(bmp_file);
+        stri := gets(bmp_file, 26);
+        padding := -(3 * width) mod 4;
+(*
+        write("size: ");    writeln(size);
+        write("offset: ");  writeln(offset);
+        write("width: ");   writeln(width);
+        write("height: ");  writeln(height);
+        write("planes: ");  writeln(planes);
+        write("bits: ");    writeln(bits);
+        write("padding: "); writeln(padding);
+
+        for width range 15 to 20 do
+          write(width lpad 3);
+          write(":");
+          write(3 * width lpad 4);
+          write((3 * width) div 4 * 4 + 4 lpad 4);
+          write(-(3 * width) mod 4 lpad 4);
+          write(-((3 * width) mod -4) lpad 4);
+          writeln;
+        end for;
+        for line range 50 to 60 do
+          write(line lpad 3);
+          write(":");
+          write(line div   4 lpad 4);
+          write(line rem   4 lpad 4);
+          write(line div  -4 lpad 4);
+          write(line rem  -4 lpad 4);
+          write(line mdiv  4 lpad 4);
+          write(line mod   4 lpad 4);
+          write(line mdiv -4 lpad 4);
+          write(line mod  -4 lpad 4);
+          writeln;
+        end for;
+        for line range -60 to -50 do
+          write(line lpad 3);
+          write(":");
+          write(line div   4 lpad 4);
+          write(line rem   4 lpad 4);
+          write(line div  -4 lpad 4);
+          write(line rem  -4 lpad 4);
+          write(line mdiv  4 lpad 4);
+          write(line mod   4 lpad 4);
+          write(line mdiv -4 lpad 4);
+          write(line mod  -4 lpad 4);
+          writeln;
+        end for;
+*)
+        image := newPixmap(width, height);
+        seek(bmp_file, offset + 1);
+
+        for line range pred(height) downto 0 do
+          for column range 0 to pred(width) do
+            stri := gets(bmp_file, 3);
+            DRAW_PPOINT(image, column, line,
+                rgbPixel(ord(stri[3]) * 256, ord(stri[2]) * 256, ord(stri[1]) * 256));
+          end for;
+          ignore(gets(bmp_file, padding));
+        end for;
+      end if;
+      close(bmp_file);
+    end if;
   end func;
 
 

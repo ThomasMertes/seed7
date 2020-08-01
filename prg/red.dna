@@ -50,8 +50,8 @@ const array [direction] array direction: gen2dirs is [direction](
 const proc: dna (RED) is func
 
   local
-    const COLOURSET: friends is {RED};
-    var COLOURSET: enemy is COLOURSET.EMPTY_SET;
+    const colorSet: friends is {RED};
+    var colorSet: enemy is colorSet.EMPTY_SET;
     var direction: direct is HERE;
     var direction: direct2 is HERE;
     var directSet: killDirs is directSet.EMPTY_SET;
@@ -119,7 +119,7 @@ const proc: dna (RED) is func
 
 
   begin (* dna (RED) *)
-    enemy := ALL_COLOURS;
+    enemy := ALL_COLORS;
     excl(enemy, RED);
     newPow := strength(HERE) - shrinkSize(strength(HERE));
     split1Pow := strength(HERE) - strength(HERE) div 2;

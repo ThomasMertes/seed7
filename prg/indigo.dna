@@ -30,7 +30,7 @@ const type: mainDir is direction; (* HERE .. LastDir *)
 const type: mainDirArr is array [mainDir] mainDir;
 
 const type: place is new struct
-     var COLOUR: occupant is CLEAR;
+     var bactColor: occupant is CLEAR;
      var power: occSize is 0;
      var power: foodMass is 0;
   end struct;
@@ -45,7 +45,7 @@ const proc: dna (INDIGO) is func
     const direction: lastDir   is E;
     const direction: firstDiag is NW;
     const direction: lastDiag  is SE;
-    const COLOUR: SELF is INDIGO;
+    const bactColor: SELF is INDIGO;
 
     (* Parameters *)
 
@@ -120,7 +120,7 @@ const proc: dna (INDIGO) is func
       end func; (* initSurr *)
 
 
-    const proc: setSurr (inout place: surr, in COLOUR: setColor, in power: setSize, in power: setFood) is func
+    const proc: setSurr (inout place: surr, in bactColor: setColor, in power: setSize, in power: setFood) is func
 
       begin (* setSurr *)
         surr.occupant := setColor;
@@ -163,7 +163,7 @@ const proc: dna (INDIGO) is func
       end func; (* possNextSize *)
 
 
-    const proc: feed (inout place: surr, in power: foe, in COLOUR: foeCol) is func
+    const proc: feed (inout place: surr, in power: foe, in bactColor: foeCol) is func
 
       (* assumes surr.occSize to be ownSize, foe to be size of previous owner *)
 

@@ -1,0 +1,484 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  pic16.s7i     Pictures in the size 16 x 16                      *)
+(*  Copyright (C) 2004, 2005, 2006  Thomas Mertes                   *)
+(*                                                                  *)
+(*  This file is part of the Seed7 Runtime Library.                 *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is free software; you can             *)
+(*  redistribute it and/or modify it under the terms of the GNU     *)
+(*  Lesser General Public License as published by the Free Software *)
+(*  Foundation; either version 2.1 of the License, or (at your      *)
+(*  option) any later version.                                      *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is distributed in the hope that it    *)
+(*  will be useful, but WITHOUT ANY WARRANTY; without even the      *)
+(*  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR *)
+(*  PURPOSE.  See the GNU Lesser General Public License for more    *)
+(*  details.                                                        *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU Lesser General       *)
+(*  Public License along with this program; if not, write to the    *)
+(*  Free Software Foundation, Inc., 59 Temple Place, Suite 330,     *)
+(*  Boston, MA 02111-1307 USA                                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+const array string: bat_pic is [](
+  "     r    r     ",
+  "     rr  rr     ",
+  "     rrrrrr     ",
+  "     rBrrBr     ",
+  "     rrrrrr     ",
+  "     rXXXXr     ",
+  "   rrrXrrXrrr   ",
+  " rrbbrbbbbrbbrr ",
+  " rbbbrbbbbrbbbr ",
+  "rbbbbrbbbbrbbbbr",
+  "rbbbbrbbbbrbbbbr",
+  "rrrbrrbbbbrrbrrr",
+  "r  r  rbbr  r  r",
+  "     r rr r     ",
+  "     r    r     ",
+  "   rr      rr   ");
+
+
+const array string: book_pic is [](
+  " RRRRRRRRRRRRRRR",
+  "RR             R",
+  "OR G    X    G R",
+  "OR    XXXXX    R",
+  "OR      X      R",
+  "OR G    X    G R",
+  "OR             R",
+  "OR XX X X X XX R",
+  "OR XX X X X XX R",
+  "OR XX X X X XX R",
+  "OR             R",
+  "ORRRRRRRRRRRRRRR",
+  "RXXXXXXXXXXXXXX ",
+  "RXXXXXXXXXXXXXX ",
+  "RXXXXXXXXXXXXXX ",
+  " RRRRRRRRRRRRRRR");
+
+
+const array string: crown_pic is [](
+  "                ",
+  "       YY       ",
+  "       YY       ",
+  "     YYYYYY     ",
+  "       YY       ",
+  " R   R YY R   R ",
+  "RRR RRRYYRRR RRR",
+  " R   R YY R   R ",
+  " Y  YYYYYYYY  Y ",
+  " YYYYYYBBYYYYYY ",
+  "RYYXYYBBBBYYXYYR",
+  " YXXXYYBBYYXXXY ",
+  "BYYXYYYYYYYYXYYB",
+  " YYYYYYYYYYYYYY ",
+  " RRRRRRRRRRRRRR ",
+  " YYYYYYYYYYYYYY ");
+
+
+const array string: crystal_ball_pic is [](
+  "     XXXXXX     ",
+  "   XXXXXXXXXX   ",
+  "  XXXBBXXXXXXX  ",
+  " XXXBXXXXXXXXXX ",
+  " XXBXXXXXXXXXXX ",
+  "XXBXXXXXXXXXXXXX",
+  "XXBXXXXXXXXXXXXX",
+  "XXXXXXXXXXXXXXXX",
+  "XXXXXXXXXXXXXXXX",
+  "XXXXXXXXXXXXXRXX",
+  "XXXXXXXXXXXXXRXX",
+  " XXXXXXXXXXXRXX ",
+  " XXXXXXXXXXRXXX ",
+  "  XXXXXXXRRXXX  ",
+  " bbbbbbbbbbbbbb ",
+  "bbbbbbbbbbbbbbbb");
+
+
+const array string: demon_pic is [](
+  "     XXXXXX     ",
+  "    XXXXXXXX    ",
+  "   XXXXXXXXXX   ",
+  "   XX  XX  XX   ",
+  "   XXXXXXXXXX   ",
+  "   XXXXXXXXXX   ",
+  "   XX  XX  XX   ",
+  "   X  X  X  X   ",
+  "   XXXXXXXXXX   ",
+  "   XXXXXXXXXX   ",
+  "   XXXXXXXXXX   ",
+  "   XXXXXXXXXX   ",
+  "   XXXXXXXXXX   ",
+  "   XXXXXXXXXX   ",
+  "   XX XXXX XX   ",
+  "   X   XX   X   ");
+
+
+const array string: diamond_pic is [](
+  "                ",
+  "                ",
+  "       XB       ",
+  "      XXBB      ",
+  "     XXccBB     ",
+  "    XXXccBBB    ",
+  "   XXXccccBBB   ",
+  "  XXXXccccBBBB  ",
+  " XXXXccccccBBBB ",
+  "XXXXXccccccBBBBB",
+  "ccccBBBBBBBBXXXX",
+  "  cccBBBBBBXXX  ",
+  "    ccBBBBXX    ",
+  "      cBBX      ",
+  "       cX       ",
+  "                ");
+
+
+const array string: flask_pic is [](
+  "       bb       ",
+  "      GGGG      ",
+  "       GG       ",
+  "       GG       ",
+  "     GGGGGG     ",
+  "    GGGGGGGG    ",
+  "    GGGGGGGG    ",
+  "    GXXXXXXG    ",
+  "    GXRXXRXG    ",
+  "    GXXXXXXG    ",
+  "    GXRRRRXG    ",
+  "    GXXRRXXG    ",
+  "    GXXXXXXG    ",
+  "    GGGGGGGG    ",
+  "    GGGGGGGG    ",
+  "    GGGGGGGG    ");
+
+
+const array string: fountain_pic is [](
+  "    BB    BB    ",
+  "  BB  BBBB  BB  ",
+  " B  B  BB  B  B ",
+  "     BBBBBB     ",
+  "B     BBBB     B",
+  "      BBBB      ",
+  "       BB       ",
+  "       BB       ",
+  "       XX       ",
+  "      XXXX      ",
+  "   xxxXxxXxxx   ",
+  " xxBBxXxxXxBBxx ",
+  "xBBBxXXXXXXxBBBx",
+  "xBBBBxxxxxxBBBBx",
+  " xxBBBBBBBBBBxx ",
+  "   xxxxxxxxxx   ");
+
+
+const array string: glasses_pic is [](
+  "                ",
+  " b            b ",
+  "b              b",
+  "b              b",
+  "b              b",
+  "b              b",
+  "b              b",
+  "b              b",
+  "b BBB      BBB b",
+  "bBcccB    BcccBb",
+  "BcccccB  BcccccB",
+  "BcccccBBBBcccccB",
+  "BcccccB  BcccccB",
+  " BcccB    BcccB ",
+  "  BBB      BBB  ",
+  "                ");
+
+
+const array string: goblet_pic is [](
+  "    RRRRRRRR    ",
+  "   RRYYYYYYRR   ",
+  "  RYYYYYYYYYYR  ",
+  "  RYYYYYYYYYYR  ",
+  "  XRRYYYYYYRRX  ",
+  "  XYRRRRRRRRYX  ",
+  "   XGYYYYYYBX   ",
+  "    XYBYYGYX    ",
+  "     XYYYYX     ",
+  "      XYYX      ",
+  "    XXBYYBXX    ",
+  "   XXRBYYBRXX   ",
+  "  XRYYBYYBYYRX  ",
+  "  XYYYYBBYYYYX  ",
+  "   XBYRYYRYBX   ",
+  "    XXXXXXXX    ");
+
+
+const array string: goldbar_pic is [](
+  "        XXXXX   ",
+  "       XXYYYXX  ",
+  "      XXYYYYXYX ",
+  "      XXYYYXYYYX",
+  "     XXYYYYXYYYX",
+  "     XXYYYXYYYYX",
+  "    XXYYYYXYYYX ",
+  "    XXYYYXYYYYX ",
+  "   XXYYYYXYYYX  ",
+  "   XXYYYXYYYYX  ",
+  "  XXYYYYXYYYX   ",
+  "  XXXXXXYYYYX   ",
+  " XXYYYYYXYYX    ",
+  " XYYYYYYYXYX    ",
+  "XYYYYYYYYYX     ",
+  "XXXXXXXXXXX     ");
+
+
+const array string: harp_pic is [](
+  "             bbb",
+  "           bbbX ",
+  "         bbbX X ",
+  "       bbbX X X ",
+  "     bbbX X X X ",
+  "   bbbX X X X X ",
+  " bbbX X X X X X ",
+  "bbX X X X X X X ",
+  "b X X X X X X X ",
+  "b X X X X X X X ",
+  "bbXbX X X X X X ",
+  "bbbbXbXbX X X X ",
+  "  bbbbbbXbXbX X ",
+  "     bbbbbbbXbXb",
+  "        bbbbbbbb",
+  "           bbbb ");
+
+
+const array string: helmet_pic is [](
+  " RBRBRBRBRBR    ",
+  "  RBRBRBRBR     ",
+  "   RBRBRBR      ",
+  "    RBRBR       ",
+  "    YYYYY       ",
+  "    YYYYY       ",
+  "  YYYYYYYYY     ",
+  " YYYYXXXYYYY    ",
+  "YYYYXXXXXYYYY   ",
+  "YYYYXXXXXYYYY   ",
+  "YYYYXXXXXYYYYYYY",
+  "RRRRRRRRRRRRRRRR",
+  "Y   YYYYY       ",
+  "Y   YYYYY       ",
+  "     XXX        ",
+  "      Y         ");
+
+
+const array string: holy_cross_pic is [](
+  "       RR       ",
+  "      YYYY      ",
+  "     BYRRYB     ",
+  "      YXXY      ",
+  "       YY       ",
+  "       YY       ",
+  "  YY  YYYY  YY  ",
+  " YRYYYYBBYYYYRY ",
+  " YRYYYYBBYYYYRY ",
+  "  YY  YYYY  YY  ",
+  "       YY       ",
+  "       YY       ",
+  "       YY       ",
+  "       YY       ",
+  "      YYYY      ",
+  "     RYYYYR     ");
+
+
+const array string: hourglass_pic is [](
+  "bbbbbbbbbbbbbbb ",
+  " b XXXXXXXXX b  ",
+  " bX         Xb  ",
+  " bX   YYY   Xb  ",
+  " b X YYYYY X b  ",
+  " b  XYYYYYX  b  ",
+  " b   XYYYX   b  ",
+  " b    XYX    b  ",
+  " b    XYX    b  ",
+  " b   X Y X   b  ",
+  " b  X  Y  X  b  ",
+  " b X   Y   X b  ",
+  " bX   YYY   Xb  ",
+  " bX  YYYYY  Xb  ",
+  " b XXXXXXXXX b  ",
+  "bbbbbbbbbbbbbbb ");
+
+
+const array string: key_pic is [](
+  "          RRR   ",
+  "         R   R  ",
+  "        R     R ",
+  "      BRB      R",
+  "BBBBBB R B     R",
+  "B B   BBB      R",
+  "        R  B  R ",
+  "         RB BR  ",
+  "          RRB   ",
+  "          B B   ",
+  "           B    ",
+  "           B    ",
+  "           B    ",
+  "           BB   ",
+  "           B    ",
+  "           BB   ");
+
+
+const array string: lamp_pic is [](
+  "    BBBBBBB     ",
+  "   BB     BB    ",
+  "   B       B    ",
+  "BBBBBBBBBBBBBBB ",
+  "BXXXXXXXXXXXXXB ",
+  "BXXXXXYYYXXXXXB ",
+  "BXXXYYYYYYYXXXB ",
+  "BXXYYYYYRYYYXXB ",
+  "BXYYYYYRRYYYYXB ",
+  "BXYYYYRRRYYYYXB ",
+  "BXYYYYRRRYYYYXB ",
+  "BXYYY  R  YYYXB ",
+  "BXXYY XXX YYXXB ",
+  "BXXXY XXX YXXXB ",
+  "BXXXX XXX XXXXB ",
+  "BBBBBBBBBBBBBBB ");
+
+
+const array string: magic_wand_pic is [](
+  "     Y    G  XX ",
+  "   YYYYY    XXXX",
+  "    YXY    XXXXX",
+  "   YYYYY  XXXXX ",
+  "     Y   X XXX  ",
+  "        X   X  B",
+  "       X   X    ",
+  "      X   X  R R",
+  "     X   X    R ",
+  "    X   X    R R",
+  "   X   X        ",
+  "  X   X         ",
+  " X   X          ",
+  "X   X           ",
+  "X  X            ",
+  " XX             ");
+
+
+const array string: necklace_pic is [](
+  "    GGYRRRYGG   ",
+  "   YGG     GGY  ",
+  "  BB         BB ",
+  "  BB         BB ",
+  "  Y           Y ",
+  " RR           RR",
+  " RR           RR",
+  "  Y           Y ",
+  "  GG         GG ",
+  "  GGYBB   BBYGG ",
+  "     BBYYYBB    ",
+  "        Y       ",
+  "      RRYRR     ",
+  "      RRRRR     ",
+  "       RRR      ",
+  "        R       ");
+
+
+const array string: scepter_pic is [](
+  "             R R",
+  "              Y ",
+  "             Y R",
+  "        YYY Y   ",
+  "       YYYYY    ",
+  "      YYYXYYY   ",
+  "      YYXXXYY   ",
+  "      YYYXYYY   ",
+  "      YYYYYY    ",
+  "     YRYYYY     ",
+  "    YYY         ",
+  "   YYY          ",
+  "  YBY           ",
+  " YYY            ",
+  "YYY             ",
+  "RY              ");
+
+
+const array string: silver_bars_pic is [](
+  "      XXXXXXX   ",
+  "     XXxxxxxXX  ",
+  "    XXxxxxxxXxX ",
+  "    XXxxxxxXxxxX",
+  "   XXxxxxxxXxxxX",
+  "   XXxxxxxXxxxxX",
+  "  XXxxxxxxXxxxX ",
+  "  XXXXXXXXxxxxXX",
+  " XXxxxxxxxXxxXxX",
+  " XxxxxxxxxxXxXxX",
+  "XxxxxxxxxxxxXxX ",
+  "XXXXXXXXXXXXXxX ",
+  " XXxxxxxxxXxxX  ",
+  " XxxxxxxxxxXxX  ",
+  "XxxxxxxxxxxxX   ",
+  "XXXXXXXXXXXXX   ");
+
+
+const array string: snake_pic is [](
+  "    gggg        ",
+  "gggggXXgg       ",
+  " X  g XgRgGgg   ",
+  "    gggggGgGgRg ",
+  "X X ggggGgRgGGG ",
+  "ggggggg     ggGg",
+  "             GgR",
+  "   ggGggG    gGg",
+  "  gG     g   RgG",
+  " Rg      g   gGg",
+  "gG   g   G   GgR",
+  "Rg   g   g   gGg",
+  "gG    gGg   RgG ",
+  " Rg        gGGg ",
+  "  gGRGgGgGRGgR  ",
+  "   gGgGRGgGg    ");
+
+
+const array string: statue_pic is [](
+  "     XXXXX      ",
+  "   XXXXXXXXX    ",
+  "  XXXXXXXXXXX   ",
+  "  XXXXXXXXXXX   ",
+  "  XXXXXXXXXXX   ",
+  "  XXXXXXXX XX   ",
+  "  XXXXXXXXXXXX  ",
+  "  XXXXXXXXXXXXX ",
+  "  XXXXXXXXXXX   ",
+  "   XXXXXXXX     ",
+  "    XXXXXXXX    ",
+  "     XXXXX      ",
+  "     XXXXX      ",
+  "   XXXXXXXXX    ",
+  "XXXXXXXXXXXXXXXX",
+  "X              X");
+
+
+const array string: sword_pic is [](
+  "            BBBB",
+  "           BBBBB",
+  "          BBBBXB",
+  "         BBBBXXB",
+  "        BBBBXXB ",
+  "   b   BBBBXXB  ",
+  "   b  BBBBXXB   ",
+  "   bbBBBBXXB    ",
+  "    bbBBXXB     ",
+  "     bbXXB      ",
+  "    bbbbB       ",
+  "   bbb bb       ",
+  "  bbb   bbb     ",
+  "bbbb            ",
+  " bb             ",
+  "  b             ");
+
+

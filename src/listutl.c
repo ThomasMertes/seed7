@@ -255,6 +255,37 @@ objecttype elementobject;
 
 #ifdef ANSI_C
 
+void replace_list_elem (listtype list, objecttype elem1,
+    objecttype elem2)
+#else
+
+void replace_list_elem (list, elem1, elem2)
+listtype list;
+objecttype elem1;
+objecttype elem2;
+#endif
+
+  { /* replace_list_elem */
+#ifdef TRACE_RUNLIST
+    printf("BEGIN replace_list_elem\n");
+#endif
+    while (list != NULL) {
+      if (list->obj == elem1) {
+        list->obj = elem2;
+        list = NULL;
+      } else {
+        list = list->next;
+      } /* if */
+    } /* while */
+#ifdef TRACE_RUNLIST
+    printf("END replace_list_elem\n");
+#endif
+  } /* replace_list_elem */
+
+
+
+#ifdef ANSI_C
+
 void copy_list (listtype list_from, listtype *list_to,
     errinfotype *err_info)
 #else

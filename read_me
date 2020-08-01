@@ -66,3 +66,22 @@ HOW TO EXECUTE A PROGRAM?
 
   A list of the program files with a short description can be
   found in the file: prg/files.
+
+
+HOW TO COMPILE UNDER WINDOWS?
+
+    You need gcc and gmake from MinGW. Use a console and
+  change the PATH variable to contain the MinGW tools. Then
+  go to the 'src' directory and type:
+
+    copy makefile.win makefile
+    del version.h
+    gmake depend
+    gmake
+
+  After the compilation the interpreter is copied to prg/hi.exe.
+
+  The windows version is work in progress, use it with care.
+
+
+Greetings Thomas Mertes

@@ -34,7 +34,7 @@ AOBJ3 = error.o infile.o symbol.o info.o stat.o fatal.o match.o
 GOBJ1 = syvarutl.o traceutl.o actutl.o listutl.o arrutl.o executl.o blockutl.o
 GOBJ2 = typeutl.o entutl.o identutl.o chclsutl.o flistutl.o sigutl.o
 ROBJ1 = bln_rtl.o chr_rtl.o fil_rtl.o flt_rtl.o int_rtl.o set_rtl.o str_rtl.o ut8_rtl.o heaputl.o striutl.o
-DOBJ1 = $(SCREEN_OBJ) tim_dos.o drw_win.o
+DOBJ1 = $(SCREEN_OBJ) tim_win.o drw_win.o
 OBJ = $(MOBJ1) $(LOBJ1) $(LOBJ2) $(LOBJ3) $(EOBJ1) $(AOBJ1) $(AOBJ2) $(AOBJ3) $(GOBJ1) $(GOBJ2)
 A_OBJ = $(ROBJ1) $(DOBJ1)
 
@@ -49,22 +49,19 @@ ASRC3 = error.c infile.c symbol.c info.c stat.c fatal.c match.c
 GSRC1 = syvarutl.c traceutl.c actutl.c listutl.c arrutl.c executl.c blockutl.c
 GSRC2 = typeutl.c entutl.c identutl.c chclsutl.c flistutl.c sigutl.c
 RSRC1 = bln_rtl.c chr_rtl.c fil_rtl.c flt_rtl.c int_rtl.c set_rtl.c str_rtl.c ut8_rtl.c heaputl.c striutl.c
-DSRC1 = $(SCREEN_SRC) tim_dos.c drw_win.c
+DSRC1 = $(SCREEN_SRC) tim_win.c drw_win.c
 SRC = $(MSRC1) $(LSRC1) $(LSRC2) $(LSRC3) $(ESRC1) $(ASRC1) $(ASRC2) $(ASRC3) $(GSRC1) $(GSRC2)
 A_SRC = $(RSRC1) $(DSRC1)
 
 hi: $(OBJ) seed7_05.a
 	$(CC) $(LFLAGS) $(OBJ) seed7_05.a $(LIBS) -o hi
-	make ../prg/hi
+	copy hi.exe ..\prg /Y
 	./hi level
 #	cp hi /usr/local/bin/hi
 
 hi.gp: $(OBJ)
 	$(CC) $(LFLAGS) $(OBJ) $(LIBS) -o /usr/local/bin/hi.gp
 	hi level
-
-../prg/hi:
-	ln -s ../src/hi ../prg
 
 scr_x11.o: scr_x11.c version.h scr_drv.h trm_drv.h
 	$(CC) $(CFLAGS) -c scr_x11.c

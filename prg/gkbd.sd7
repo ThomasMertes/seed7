@@ -1,0 +1,68 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  gkbd.sd7      Keyboard test program for graphic keyboard        *)
+(*  Copyright (C) 2004  Thomas Mertes                               *)
+(*                                                                  *)
+(*  This program is free software; you can redistribute it and/or   *)
+(*  modify it under the terms of the GNU General Public License as  *)
+(*  published by the Free Software Foundation; either version 2 of  *)
+(*  the License, or (at your option) any later version.             *)
+(*                                                                  *)
+(*  This program is distributed in the hope that it will be useful, *)
+(*  but WITHOUT ANY WARRANTY; without even the implied warranty of  *)
+(*  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the   *)
+(*  GNU General Public License for more details.                    *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU General Public       *)
+(*  License along with this program; if not, write to the Free      *)
+(*  Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,  *)
+(*  MA 02111-1307 USA                                               *)
+(*                                                                  *)
+(********************************************************************)
+
+
+$ include "seed7_05.s7i";
+  include "keybd.s7i";
+  include "float.s7i";
+  include "draw.s7i";
+  include "time.s7i";
+
+
+const integer: xSpeed is 2;
+
+
+const proc: main is func
+  local
+    var char: ch is ' ';
+    var integer: xPos is 10;
+    var integer: xIncr is xSpeed;
+  begin
+    screen(640, 480);
+    writeln("Keyboard test program. Type ! to terminate the program");
+    KEYBOARD := GRAPH_KEYBOARD;
+    DRAW_FLUSH;
+    repeat
+      ch := busy_getc(KEYBOARD);
+      if ch <> KEY_NONE then
+        write(ord(ch));
+        write(" ");
+        if ord(ch) >= 1 and ord(ch) <= length(EVENT_DESCR) then
+          writeln(EVENT_DESCR[ord(ch)]);
+        else
+          writeln;
+        end if;
+      else
+        rect(xPos, 10, 10, 10, black);
+        if xPos > 620 then
+          xIncr := -xSpeed;
+        elsif xPos < 10 then
+          xIncr := xSpeed;
+        end if;
+        xPos +:= xIncr;
+        rect(xPos, 10, 10, 10, light_blue);
+        DRAW_FLUSH;
+        await(time(NOW) + 100000 . MYCRO_SECONDS);
+      end if;
+    until ch = '!';
+  end func;

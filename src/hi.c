@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  hi   Interpreter for Seed7 programs.                            */
-/*  Copyright (C) 1990 - 2005  Thomas Mertes                        */
+/*  Copyright (C) 1990 - 2006  Thomas Mertes                        */
 /*                                                                  */
 /*  This program is free software; you can redistribute it and/or   */
 /*  modify it under the terms of the GNU General Public License as  */
@@ -71,7 +71,7 @@ char **argv;
 #ifdef TRACE_HI
     printf("BEGIN HI\n");
 #endif
-    printf("HI INTERPRETER Version 4.5.%d  Copyright (c) 1990-2005 Thomas Mertes\n", LEVEL);
+    printf("HI INTERPRETER Version 4.5.%d  Copyright (c) 1990-2006 Thomas Mertes\n", LEVEL);
     set_trace(NULL, -1, NULL);
     if (argc == 1) {
       printf("usage: hi [options] sourcefile [parameters]\n");
