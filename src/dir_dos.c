@@ -92,7 +92,7 @@ char *name;
         result = NULL;
       } /* if */
     } /* if */
-    return(result);
+    return result;
   } /* opendir */
 
 
@@ -141,7 +141,7 @@ DIR *curr_dir;
         result = NULL;
       } /* if */
     } /* if */
-    return(result);
+    return result;
   } /* readdir */
 
 
@@ -157,5 +157,5 @@ DIR *curr_dir;
 
   { /* closedir */
     free(curr_dir);
-    return(0);
+    return 0;
   } /* closedir */

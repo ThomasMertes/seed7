@@ -88,7 +88,7 @@ char *name;
         result = NULL;
       } /* if */
     } /* if */
-    return(result);
+    return result;
   } /* opendir */
 
 
@@ -121,7 +121,7 @@ DIR *curr_dir;
 /*    printf("end\n"); */
       result = NULL;
     } /* if */
-    return(result);
+    return result;
   } /* readdir */
 
 
@@ -138,7 +138,7 @@ DIR *curr_dir;
   { /* closedir */
     FindClose(curr_dir->dir_handle);
     free(curr_dir);
-    return(0);
+    return 0;
   } /* closedir */
 
 
@@ -188,7 +188,7 @@ wchar_t *name;
         result = NULL;
       } /* if */
     } /* if */
-    return(result);
+    return result;
   } /* wopendir */
 
 
@@ -221,7 +221,7 @@ WDIR *curr_dir;
 /*    printf("end\n"); */
       result = NULL;
     } /* if */
-    return(result);
+    return result;
   } /* wreaddir */
 
 
@@ -238,5 +238,5 @@ WDIR *curr_dir;
   { /* wclosedir */
     FindClose(curr_dir->dir_handle);
     free(curr_dir);
-    return(0);
+    return 0;
   } /* wclosedir */

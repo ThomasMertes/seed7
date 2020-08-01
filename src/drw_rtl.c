@@ -84,7 +84,7 @@ wintype win_from;
     if (win_from != NULL) {
       win_from->usage_count++;
     } /* if */
-    return(win_from);
+    return win_from;
   } /* drwCreate */
 
 

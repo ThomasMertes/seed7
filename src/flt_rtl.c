@@ -126,11 +126,11 @@ floattype number2;
 
   { /* fltCmp */
     if (number1 < number2) {
-      return(-1);
+      return -1;
     } else if (number1 > number2) {
-      return(1);
+      return 1;
     } else {
-      return(0);
+      return 0;
     } /* if */
   } /* fltCmp */
 
@@ -238,7 +238,7 @@ inttype digits_precision;
     if (result == NULL) {
       raise_error(MEMORY_ERROR);
     } /* if */
-    return(result);
+    return result;
   } /* fltDgts */
 
 
@@ -261,11 +261,11 @@ inttype exponent;
 #ifdef IPOW_EXPONENTIATION_BY_SQUARING
     if (base == 0.0) {
       if (exponent < 0) {
-        return(POSITIVE_INFINITY);
+        return POSITIVE_INFINITY;
       } else if (exponent == 0) {
-        return(1.0);
+        return 1.0;
       } else {
-        return(0.0);
+        return 0.0;
       } /* if */
     } else {
       if (exponent < 0) {
@@ -276,7 +276,7 @@ inttype exponent;
           /* number and its negation are negative. When the */
           /* exponent is proven to be to the most negative  */
           /* number fltIPow returns 0.0 .                   */
-          return(0.0);
+          return 0.0;
         } /* if */
         neg_exp = TRUE;
       } /* if */
@@ -294,28 +294,28 @@ inttype exponent;
         exponent >>= 1;
       } /* while */
       if (neg_exp) {
-        return(1.0 / result);
+        return 1.0 / result;
       } else {
-        return(result);
+        return result;
       } /* if */
     } /* if */
 #else
     if (base < 0.0) {
       if (exponent & 1) {
-        return(-pow(-base, (floattype) exponent));
+        return -pow(-base, (floattype) exponent);
       } else {
-        return(pow(-base, (floattype) exponent));
+        return pow(-base, (floattype) exponent);
       } /* if */
     } else if (base == 0.0) {
       if (exponent < 0) {
-        return(POSITIVE_INFINITY);
+        return POSITIVE_INFINITY;
       } else if (exponent == 0) {
-        return(1.0);
+        return 1.0;
       } else {
-        return(0.0);
+        return 0.0;
       } /* if */
     } else { /* base > 0.0 */
-      return(pow(base, (floattype) exponent));
+      return pow(base, (floattype) exponent);
     } /* if */
 #endif
   } /* fltIPow */
@@ -386,10 +386,10 @@ stritype stri;
     } /* if */
 #endif
     if (okay) {
-      return(result);
+      return result;
     } else {
       raise_error(RANGE_ERROR);
-      return(0.0);
+      return 0.0;
     } /* if */
   } /* fltParse */
 
@@ -413,7 +413,7 @@ floattype upper_limit;
     /* printf("fltRand(%f, %f)\n", lower_limit, upper_limit); */
     if (lower_limit > upper_limit) {
       raise_error(RANGE_ERROR);
-      return(0.0);
+      return 0.0;
     } else {
       factor = upper_limit - lower_limit;
       if (factor == POSITIVE_INFINITY) {
@@ -426,7 +426,7 @@ floattype upper_limit;
           result = lower_limit + factor * result;
         } while (result < lower_limit || result > upper_limit);
       } /* if */
-      return(result);
+      return result;
     } /* if */
   } /* fltRand */
 
@@ -466,10 +466,10 @@ floattype number;
     len++;
     if (!ALLOC_STRI(result, len)) {
       raise_error(MEMORY_ERROR);
-      return(NULL);
+      return NULL;
     } else {
       result->size = len;
       cstri_expand(result->mem, buffer, (size_t) len);
-      return(result);
+      return result;
     } /* if */
   } /* fltStr */

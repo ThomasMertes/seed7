@@ -849,8 +849,6 @@ const proc: set_return_position (in string: line) is func
 
 
 const proc: set_sub_entry_position is func
-  local
-    var integer: column is 0;
   begin
     gosubReturn[1].subEntryLine := succ(file_line_number);
   end func;
@@ -1206,8 +1204,6 @@ const proc: assign_input_number (in string: variable_name, in string: param1) is
 
 
 const proc: assign_input_string (in string: variable_name, in string: param1) is func
-  local
-    var float: num1 is 0.0;
   begin
     setStringVar(variable_name, param1);
     line_marker;
@@ -2856,7 +2852,6 @@ const func float: exec_cond_or (inout string: symbol, inout string: line) is fun
     var float: result is 0.0;
   local
     var string: op is "";
-    var float: num is 0.0;
     var integer: number1 is 0;
     var integer: number2 is 0;
   begin
@@ -5209,7 +5204,6 @@ const proc: read_input (inout file: inFile,
   local
     var string: variable_name is "";
     var string: param1 is "";
-    var float: num1 is 0.0;
   begin
     while symbol = "," do
       symbol := get_symbol(line);
@@ -5235,7 +5229,6 @@ const proc: exec_input (inout string: symbol, inout string: line) is func
     var string: variable_name is "";
     var string: param1 is "";
     var string: param2 is "";
-    var float: num1 is 0.0;
   begin
     if symbol = ";" then
       symbol := get_symbol(line);
@@ -5462,7 +5455,6 @@ const proc: exec_open (inout string: symbol, inout string: line) is func
     var string: mode is "";
     var string: file_name is "";
     var integer: index1 is 0;
-    var integer: index2 is 0;
     var file: aFile is STD_NULL;
   begin
     symbol := get_symbol(line);
@@ -6328,8 +6320,6 @@ const func PRIMITIVE_WINDOW: getCga4ImageFromArray (in string: name_start,
     var integer: lineStartByte is 0;
     var integer: xPos is 0;
     var integer: yPos is 0;
-    var integer: maxPixelNum is 0;
-    var integer: pixelNum is 0;
     var integer: byteIndex is 0;
     var integer: imageWord is 0;
     var integer: imageByte is 0;
@@ -6729,8 +6719,6 @@ const proc: exec_line (inout string: symbol, inout string: line) is func
 
 const proc: exec_circle (inout string: symbol, inout string: line) is func
   local
-    var integer: x1 is 0;
-    var integer: y1 is 0;
     var integer: radius is 0;
     var integer: col is 0;
     var integer: start is 0;
@@ -7217,11 +7205,9 @@ const func boolean: exec_cmd (inout string: symbol, inout string: line) is func
     var string: param3 is "";
     var float: num1 is 0.0;
     var float: num2 is 0.0;
-    var float: num3 is 0.0;
     var integer: index1 is 0;
     var integer: index2 is 0;
     var integer: index3 is 0;
-    var file: aFile is STD_NULL;
     var boolean: okay is FALSE;
     var boolean: process_next is FALSE;
   begin

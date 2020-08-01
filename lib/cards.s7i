@@ -1207,8 +1207,6 @@ const func PRIMITIVE_WINDOW: genPixmap (in array string: big_card_sign,
   local
     var integer: height is 0;
     var integer: width is 0;
-    var integer: line is 0;
-    var integer: column is 0;
     var color: col is black;
     var integer: index is 0;
   begin
@@ -1242,8 +1240,6 @@ const func PRIMITIVE_WINDOW: genPixmap (in array string: big_card_sign,
 
 
 const proc: initCardPixmaps (in integer: scale) is func
-  local
-    var integer: number is 0;
   begin
     ace_of_spades     := genPixmap(big_spades_sign,   black_A_sign,  small_spades_sign,   ACE_POS,   scale);
     ace_of_hearts     := genPixmap(big_hearts_sign,   red_A_sign,    small_hearts_sign,   ACE_POS,   scale);

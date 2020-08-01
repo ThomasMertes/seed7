@@ -96,6 +96,7 @@ bstritype *address;
     sockettype result;
 
   /* socAccept */
+    /* printf("begin socAccept(%u, *)\n", sock); */
     REALLOC_BSTRI(resized_address, *address, (*address)->size, MAX_ADDRESS_SIZE);
     if (resized_address == NULL) {
       raise_error(MEMORY_ERROR);
@@ -128,7 +129,10 @@ bstritype *address;
         } /* if */
       } /* if */
     } /* if */
-    return(result);
+    /* printf("end socAccept(%u, ", sock);
+       prot_bstri(*address);
+       printf(")\n"); */
+    return result;
   } /* socAccept */
 
 
@@ -144,6 +148,9 @@ bstritype address;
 #endif
 
   { /* socBind */
+    /* printf("socBind(%u, ", sock);
+       prot_bstri(address);
+       printf(")\n"); */
     if (bind(sock, (const struct sockaddr *) address->mem,
         (socklen_type) address->size) != 0) {
       /* printf("socBind errno=%d\n", errno); */
@@ -184,6 +191,9 @@ bstritype address;
 #endif
 
   { /* socConnect */
+    /* printf("socConnect(%u, ", sock);
+       prot_bstri(address);
+       printf(")\n"); */
     if (connect(sock, (const struct sockaddr *) address->mem,
         (socklen_type) address->size) != 0) {
       /* printf("socConnect(%d) errno=%d\n", sock, errno); */
@@ -209,9 +219,9 @@ sockettype sock;
   /* socGetc */
     bytes_received = (memsizetype) recv(sock, cast_send_recv_data(&ch), 1, 0);
     if (bytes_received != 1) {
-      return((chartype) EOF);
+      return (chartype) EOF;
     } else {
-      return((chartype) ch);
+      return (chartype) ch;
     } /* if */
   } /* socGetc */
 
@@ -234,6 +244,7 @@ inttype length;
     stritype result;
 
   /* socGets */
+    /* printf("socGets(%u, %d)\n", sock, length); */
     if (length < 0) {
       raise_error(RANGE_ERROR);
       result = NULL;
@@ -241,7 +252,7 @@ inttype length;
       bytes_requested = (memsizetype) length;
       if (!ALLOC_STRI(result, bytes_requested)) {
         raise_error(MEMORY_ERROR);
-        return(NULL);
+        return NULL;
       } /* if */
       result_size = (memsizetype) recv(sock, cast_send_recv_data(result->mem),
           (size_t) bytes_requested, 0);
@@ -269,7 +280,7 @@ inttype length;
         } /* if */
       } /* if */
     } /* if */
-    return(result);
+    return result;
   } /* socGets */
 
 
@@ -379,7 +390,10 @@ inttype port;
                       char    **h_addr_list;  /* list of addresses */
               }
 #endif
-    return(result);
+    /* printf("socInetAddr --> ");
+       prot_bstri(result);
+       printf("\n"); */
+    return result;
   } /* socInetAddr */
 
 
@@ -411,7 +425,10 @@ inttype port;
       inet_address->sin_addr.s_addr = htonl(INADDR_LOOPBACK); /* local host */
       memset(inet_address->sin_zero, '\0', sizeof(inet_address->sin_zero));
     } /* if */
-    return(result);
+    /* printf("socInetLocalAddr --> ");
+       prot_bstri(result);
+       printf("\n"); */
+    return result;
   } /* socInetLocalAddr */
 
 
@@ -443,7 +460,10 @@ inttype port;
       inet_address->sin_addr.s_addr = INADDR_ANY;        /* auto-fill with local IP */
       memset(inet_address->sin_zero, '\0', sizeof(inet_address->sin_zero));
     } /* if */
-    return(result);
+    /* printf("socInetServAddr --> ");
+       prot_bstri(result);
+       printf("\n"); */
+    return result;
   } /* socInetServAddr */
 
 
@@ -483,7 +503,7 @@ chartype *termination_char;
           if (resized_result == NULL) {
             FREE_STRI(result, memlength);
             raise_error(MEMORY_ERROR);
-            return(NULL);
+            return NULL;
           } /* if */
           result = resized_result;
           COUNT3_STRI(memlength, newmemlength);
@@ -513,7 +533,7 @@ chartype *termination_char;
         } /* if */
       } /* if */
     } /* if */
-    return(result);
+    return result;
   } /* socLineRead */
 
 
@@ -555,7 +575,7 @@ inttype flags;
   /* socRecv */
     if (length < 0) {
       raise_error(RANGE_ERROR);
-      return(0);
+      return 0;
     } else {
       bytes_requested = (memsizetype) length;
       old_stri_size = (*stri)->size;
@@ -563,7 +583,7 @@ inttype flags;
         REALLOC_STRI(resized_stri, *stri, old_stri_size, bytes_requested);
         if (resized_stri == NULL) {
           raise_error(MEMORY_ERROR);
-          return(0);
+          return 0;
         } /* if */
         *stri = resized_stri;
         COUNT3_STRI(old_stri_size, bytes_requested);
@@ -587,13 +607,13 @@ inttype flags;
         REALLOC_STRI(resized_stri, *stri, old_stri_size, new_stri_size);
         if (resized_stri == NULL) {
           raise_error(MEMORY_ERROR);
-          return(0);
+          return 0;
         } /* if */
         *stri = resized_stri;
         COUNT3_STRI(old_stri_size, new_stri_size);
       } /* if */
     } /* if */
-    return((inttype) new_stri_size);
+    return (inttype) new_stri_size;
   } /* socRecv */
 
 
@@ -622,13 +642,13 @@ bstritype *address;
   /* socRecvfrom */
     if (length < 0) {
       raise_error(RANGE_ERROR);
-      return(0);
+      return 0;
     } else {
       bytes_requested = (memsizetype) length;
       REALLOC_STRI(resized_stri, *stri, (*stri)->size, bytes_requested);
       if (resized_stri == NULL) {
         raise_error(MEMORY_ERROR);
-        return(0);
+        return 0;
       } /* if */
       *stri = resized_stri;
       COUNT3_STRI((*stri)->size, bytes_requested);
@@ -643,7 +663,7 @@ bstritype *address;
           COUNT3_STRI(bytes_requested, stri_size);
         } /* if */
         raise_error(MEMORY_ERROR);
-        return(0);
+        return 0;
       } else {
         *address = resized_address;
         COUNT3_BSTRI((*address)->size, MAX_ADDRESS_SIZE);
@@ -666,7 +686,7 @@ bstritype *address;
           if (resized_address == NULL) {
             (*address)->size = MAX_ADDRESS_SIZE;
             raise_error(MEMORY_ERROR);
-            return(0);
+            return 0;
           } else {
             *address = resized_address;
             COUNT3_BSTRI(MAX_ADDRESS_SIZE, (memsizetype) fromlen);
@@ -690,13 +710,13 @@ bstritype *address;
         REALLOC_STRI(resized_stri, *stri, bytes_requested, stri_size);
         if (resized_stri == NULL) {
           raise_error(MEMORY_ERROR);
-          return(0);
+          return 0;
         } /* if */
         *stri = resized_stri;
         COUNT3_STRI(bytes_requested, stri_size);
       } /* if */
     } /* if */
-    return((inttype) stri_size);
+    return (inttype) stri_size;
   } /* socRecvfrom */
 
 
@@ -729,7 +749,7 @@ inttype flags;
       result = send(sock, cast_send_recv_data(buf->mem), buf->size, flags);
       FREE_BSTRI(buf, buf->size);
     } /* if */
-    return(result);
+    return result;
   } /* socSend */
 
 
@@ -765,7 +785,7 @@ bstritype address;
           (const struct sockaddr *) address->mem, (socklen_type) address->size);
       FREE_BSTRI(buf, buf->size);
     } /* if */
-    return(result);
+    return result;
   } /* socSendto */
 
 
@@ -791,6 +811,7 @@ inttype protocol;
     sockettype result;
 
   /* socSocket */
+    /* printf("socSocket\n"); */
 #ifdef USE_WINSOCK
     if (!initialized) {
       wVersionRequested = MAKEWORD(2, 2);
@@ -798,20 +819,20 @@ inttype protocol;
       err = WSAStartup(wVersionRequested, &wsaData);
       if (err != 0) {
         raise_error(FILE_ERROR);
-        return(-1);
+        return -1;
       } /* if */
 
       if (LOBYTE(wsaData.wVersion) != 2 ||
           HIBYTE(wsaData.wVersion) != 2) {
         WSACleanup();
         raise_error(FILE_ERROR);
-        return(-1);
+        return -1;
       } /* if */
       initialized = TRUE;
     } /* if */
 #endif
     result = socket(domain, type, protocol);
-    return(result);
+    return result;
   } /* socSocket */
 
 
@@ -854,7 +875,7 @@ chartype *termination_char;
           if (resized_result == NULL) {
             FREE_STRI(result, memlength);
             raise_error(MEMORY_ERROR);
-            return(NULL);
+            return NULL;
           } /* if */
           result = resized_result;
           COUNT3_STRI(memlength, newmemlength);
@@ -884,7 +905,7 @@ chartype *termination_char;
         } /* if */
       } /* if */
     } /* if */
-    return(result);
+    return result;
   } /* socWordRead */
 
 

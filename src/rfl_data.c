@@ -93,7 +93,7 @@ listtype list2;
     } else {
       result = list2;
     } /* if */
-    return(result);
+    return result;
   } /* rflCat */
 
 
@@ -145,7 +145,7 @@ listtype list_from;
       raise_error(MEMORY_ERROR);
       result = NULL;
     } /* if */
-    return(result);
+    return result;
   } /* rflCreate */
 
 
@@ -182,9 +182,9 @@ listtype list_element;
       list_element = list_element->next;
     } /* while */
     if (list_element != NULL) {
-      return(TRUE);
+      return TRUE;
     } else {
-      return(FALSE);
+      return FALSE;
     } /* if */
   } /* rflElem */
 
@@ -247,7 +247,7 @@ listtype list2;
     } else {
       result = FALSE;
     } /* if */
-    return(result);
+    return result;
   } /* rflEq */
 
 
@@ -292,7 +292,7 @@ inttype stop;
     } else {
       result = NULL;
     } /* if */
-    return(result);
+    return result;
   } /* rflHead */
 
 
@@ -328,7 +328,7 @@ inttype position;
       raise_error(RANGE_ERROR);
       result = 0;
     } /* if */
-    return(result);
+    return result;
   } /* rflIdx */
 
 
@@ -373,7 +373,7 @@ listtype list;
       list = list->next;
       result++;
     } /* while */
-    return(result);
+    return result;
   } /* rflLng */
 
 
@@ -398,7 +398,7 @@ objecttype elem;
       raise_error(MEMORY_ERROR);
       result = NULL;
     } /* if */
-    return(result);
+    return result;
   } /* rflMklist */
 
 
@@ -427,7 +427,7 @@ listtype list2;
     } else {
       result = FALSE;
     } /* if */
-    return(result);
+    return result;
   } /* rflNe */
 
 
@@ -455,7 +455,7 @@ objecttype searched_object;
     if (list_element == NULL) {
       result = 0;
     } /* if */
-    return(result);
+    return result;
   } /* rflPos */
 
 
@@ -489,7 +489,7 @@ inttype from_index;
     if (list_element == NULL) {
       result = 0;
     } /* if */
-    return(result);
+    return result;
   } /* rflIpos */
 
 
@@ -541,7 +541,7 @@ inttype stop;
       raise_error(MEMORY_ERROR);
       result = NULL;
     } /* if */
-    return(result);
+    return result;
   } /* rflRange */
 
 
@@ -582,5 +582,5 @@ inttype start;
       raise_error(MEMORY_ERROR);
       result = NULL;
     } /* if */
-    return(result);
+    return result;
   } /* rflTail */

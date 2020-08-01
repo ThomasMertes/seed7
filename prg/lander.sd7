@@ -414,7 +414,6 @@ const proc: doBeep is func
 
 const proc: welcome is func
   local
-    var integer: number is 0;
     var char: ch is ' ';
   begin (* welcome *)
     color(screen, light_cyan, black);
@@ -1143,7 +1142,6 @@ const proc: setupAdvancedLander is func
 const proc: prepare_message is func
   local
     var integer: number is 0;
-    var integer: J is 0;
   begin (* prepare_message *)
     rect(10, 40, 250, 170, black);
     box(10, 40, 250, 170, white);
@@ -1502,8 +1500,6 @@ const proc: ground_contact is func
 
 const proc: crash_test is func
   (* Test for crash or landing. *)
-  local
-    var integer: number is 0;
   begin (* crash_test *)
     calculate_height;
     if rocket.height <= 0 then

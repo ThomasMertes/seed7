@@ -2260,7 +2260,10 @@ CONTENTS
       digits    Conversion to string with specified precision
                   ( Type of right operand: integer,
                     Type of result: string,
-                    3.1415 digits 2 => "3.14",
+                    0.012345 digits 4 => "0.0123",
+                    1.2468 digits 2 => "1.25",
+                    0.125 digits 2 => "0.12",
+                    0.375 digits 2 => "0.38",
                     Infinity digits A => "Infinity",
                     -Infinity digits A => "-Infinity",
                     NaN digits A => "NaN" )
@@ -3837,6 +3840,11 @@ CONTENTS
       result_type(A)  Get the result type of a 'func' or 'varfunc' type
                   ( result_type(func char) => char,
                     result_type(char) => EXCEPTION RANGE_ERROR )
+      is_derived(A)  Is this type derived from another type
+                  ( Type of result: boolean,
+                    is_derived(subtype char) => TRUE )
+      meta(A)       Get the type from which type A is derived
+                  ( meta(subtype char) => char )
       base_type(A)  Get the base type of an array, pointer or
                     set type
                   ( base_type(array char) => char,
@@ -3851,6 +3859,7 @@ CONTENTS
       hashCode(A) Hash function
                   ( Type of result: integer )
     Statements:
+      addInterface(A, B)  Adds the interface type B to the implementation type A
       const aType: name is value
                 Declare constant 'name' with 'value'
       var aType: name is value
@@ -5340,8 +5349,116 @@ ont color=blue>is "";
 8.6 Access to operating system files
 
     The interface type 'file' is also used to access
-  operating system files. This is done with the implementation
-  type 'external_file'. The type 'external_file' is defined as:
+  operating system files. Usually a file variable is declared
+
+    var file: my_out is STD_NULL;
+
+  and the result of the 'open' function is assigned to this file
+  variable
+
+    my_out := open("my_file", "w");
+
+  The first parameter of 'open' is the path of the file to
+  be opened. Seed7 always uses the slash ('/') as path
+  delimiter. The use of a backslash in a path may raise the
+  exception 'RANGE_ERROR'. The second parameter of 'open'
+  specifies the mode:
+
+    Binary mode:
+      "r"   ... Open file for reading.
+      "w"   ... Truncate to zero length or create file for writing.
+      "a"   ... Append; open or create file for writing at end-of-file.
+      "r+"  ... Open file for update (reading and writing).
+      "w+"  ... Truncate to zero length or create file for update.
+      "a+"  ... Append; open or create file for update, writing at end-of-file.
+    Text mode:
+      "rt"  ... Open file for reading.
+      "wt"  ... Truncate to zero length or create file for writing.
+      "at"  ... Append; open or create file for writing at end-of-file.
+      "rt+" ... Open file for update (reading and writing).
+      "wt+" ... Truncate to zero length or create file for update.
+      "at+" ... Append; open or create file for update, writing at end-of-file.
+
+  Note that Seed7 defines the modes "r", "w", "a", "r+", "w+"
+  and "a+" as binary modes.
+  When 'open' fails it returns 'STD_NULL'. It is
+  recommended to check the file variable:
+
+    if my_out <> STD_NULL then
+
+  After that output to 'my_out' is possible with
+
+    writeln(my_out, "hi there");
+
+  When processing of a file is finished it should be closed
+
+    close(my_out);
+
+  Writing to a file after it has been closed results in the exception 'FILE_ERROR'.
+  The following program writes "hi there" to the file
+  "my_file":
+
+    $ include "seed7_05.s7i";
+
+    const proc: main is func
+      local
+        var file: my_out is STD_NULL;
+      begin
+        my_out := open("my_file", "w");
+        if my_out <> STD_NULL then
+          writeln(my_out, "hi there");
+          close(my_out);
+        end if;
+      end func;
+
+  Note that 'open' opens BYTE files. Writing
+  a character with an ordinal >= 256 such as
+
+    writeln(my_out, "illegal char: \256\");
+
+  results in the exception 'RANGE_ERROR'. To write unicode
+  characters other file types must be used. The libraries
+  "utf8.s7i" and "utf16.s7i" provide access to UTF-8 and
+  UTF-16 files. The function 'open_utf8' can be used the same
+  way as 'open':
+
+    my_out := open_utf8("utf8_file", "w");
+
+  An UTF-8 file accepts all unicode characters. That way
+
+    writeln(my_out, "unicode char: \256\");
+
+  works without problems. UTF-8 files are byte order independent.
+  Therefore they do not need a byte order mark (BOM).
+  In case a BOM is required it can be written by the user program:
+
+    my_out := open_utf8("utf8_file", "w");
+    write("\16#FEFF\");
+
+  The following example expects a mandatory BOM at the beginning of an UTF-8 file:
+
+    my_out := open_utf8("utf8_file", "r");
+    if getc(my_file) <> '\16#FEFF\' then
+      writeln("The BOM is missing"");
+    else
+      ...
+    end if;
+
+  Accepting an optional BOM at the beginning of an UTF-8 file is done with:
+
+    my_out := open_utf8("utf8_file", "r");
+    if getc(my_file) <> '\16#FEFF\' then
+      # This is a file without BOM (the first character will be read later).
+      seek(my_file, 0);
+    end if;
+    ...
+
+  UTF-16 comes in two flavours UTF-16BE and UTF-16LE.
+  To allow both the "utf16.s7i" library defines the functions
+  'open_utf16le' and 'open_utf16be'.
+
+  External BYTE files use the implementation type 'external_file'.
+  The type 'external_file' is defined as:
 
     const type: external_file is sub null_file struct
         var PRIMITIVE_FILE: ext_file is PRIMITIVE_null_file;
@@ -5386,40 +5503,25 @@ ont color=blue>is "";
     writeln(err, "Some error occurred");
 
   In this case redirection of the file 'err' can be done very easy.
-  The second way to access external files is to use the 'open'
-  function. Usually a file variable is declared
+  Another way to access external files is to use the 'open'
+  function. The modes used by 'open' differ from those used
+  by the 'fopen' function in the C library.
+  The following table compares the file modes of Seed7 and C:
 
-    var file: my_out is STD_NULL;
+    Seed7 'open' mode   C 'fopen' mode
+    "r"                 "rb"
+    "w"                 "wb"
+    "a"                 "ab"
+    "r+"                "rb+"
+    "w+"                "wb+"
+    "a+"                "ab+"
+    "rt"                "r"
+    "wt"                "w"
+    "at"                "a"
+    "rt+"               "r+"
+    "wt+"               "w+"
+    "at+"               "a+"
 
-  and the result of the 'open' function is assigned to this file
-  variable
-
-    my_out := open("my_file", "w");
-
-  The first parameter of 'open' is the path of the file to
-  be opened. Seed7 always uses the slash ('/') as path
-  delimiter. The use of a backslash in a path may raise the
-  exception 'RANGE_ERROR'. The second parameter of 'open'
-  specifies the mode:
-
-    Binary mode:
-      "r"   ... Open file for reading.
-      "w"   ... Truncate to zero length or create file for writing.
-      "a"   ... Append; open or create file for writing at end-of-file.
-      "r+"  ... Open file for update (reading and writing).
-      "w+"  ... Truncate to zero length or create file for update.
-      "a+"  ... Append; open or create file for update, writing at end-of-file.
-    Text mode:
-      "rt"  ... Open file for reading.
-      "wt"  ... Truncate to zero length or create file for writing.
-      "at"  ... Append; open or create file for writing at end-of-file.
-      "rt+" ... Open file for update (reading and writing).
-      "wt+" ... Truncate to zero length or create file for update.
-      "at+" ... Append; open or create file for update, writing at end-of-file.
-
-  Note that Seed7 defines the modes "r", "w", "a", "r+", "w+"
-  and "a+" as binary modes. This is different from the
-  definition used by the 'fopen' function of the C library.
   The difference between binary and text mode is as follows:
 
     - Binary mode provides an implementation independend
@@ -5445,55 +5547,11 @@ ont color=blue>is "";
       text mode cannot be used to automatically create files
       with "\r\n" line endings under Unix/Linux/Bsd.
 
-  The following table compares the file modes of Seed7 and C:
-
-    Seed7 'open' mode   C 'fopen' mode
-    "r"                 "rb"
-    "w"                 "wb"
-    "a"                 "ab"
-    "r+"                "rb+"
-    "w+"                "wb+"
-    "a+"                "ab+"
-    "rt"                "r"
-    "wt"                "w"
-    "at"                "a"
-    "rt+"               "r+"
-    "wt+"               "w+"
-    "at+"               "a+"
-
-  The function 'open' returns 'STD_NULL' when it fails. So it is
-  necessary to check the file variable to be on the save side:
-
-    if my_out <> STD_NULL then
-
-  After that output to 'my_out' is possible with
-
-    writeln(my_out, "hi there");
-
-  Note that 'external_file' describes BYTE files. Writing
-  a character with an ordinal >= 256 such as
-
-    writeln(my_out, "illegal char: \256\");
-
-  results in the exception 'RANGE_ERROR'. To write unicode
-  characters other file types must be used. The libraries
-  "utf8.s7i" and "utf16.s7i" provide access to UTF-8 and
-  UTF-16 files. The library "utf8.s7i" defines the
+  The library "utf8.s7i" defines the
   implementation type 'utf8_file' as
 
     const type: utf8_file is sub external_file struct
       end struct;
-
-  and the function 'open_utf8' which can be used the same
-  way as 'open':
-
-    my_out := open_utf8("utf8_file", "w");
-
-  An UTF-8 file accepts all unicode characters. That way
-
-    writeln(my_out, "unicode char: \256\");
-
-  works without problems.
 
 
 8.7 Keyboard file
@@ -8312,6 +8370,11 @@ ont color=blue>is "";
     BST_CREATE          bst_create          bstCreate
     BST_DESTR           bst_destr           bstDestr
     BST_EMPTY           bst_empty           
+    BST_EQ              bst_eq              a->size==b->size&amp;&amp;memcmp(a,b,a->size*sizeof(unsigned char))==0
+    BST_LNG             bst_lng             a->size
+    BST_NE              bst_ne              a->size!=b->size||memcmp(a,b,a->size*sizeof(unsigned char))!=0
+    BST_PARSE           bst_parse           bstParse
+    BST_VALUE           bst_value           bstValue
 
 13.6 Actions for the type char
 
@@ -8926,7 +8989,7 @@ ont color=blue>is "";
     STR_LPAD0           str_lpad0           strLpad0, strLpad0Temp
     STR_LT              str_lt              strLt
     STR_MULT            str_mult            strMult
-    STR_NE              str_ne              a->size==b->size&amp;&amp;memcmp(a,b,a->size*sizeof(strelemtype))==0
+    STR_NE              str_ne              a->size!=b->size||memcmp(a,b,a->size*sizeof(strelemtype))!=0
     STR_POS             str_pos             strPos
     STR_PUSH            str_push            strPush
     STR_RANGE           str_range           strRange

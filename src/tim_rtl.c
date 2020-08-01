@@ -84,7 +84,7 @@ struct tm *timeptr;
              (time_t) timeptr->tm_hour) * 60 +
              (time_t) timeptr->tm_min) * 60 +
              (time_t) timeptr->tm_sec;
-    return(result);
+    return result;
   } /* mkutc */
 
 
@@ -191,7 +191,7 @@ inttype time_zone;
 #ifdef TRACE_TIM_RTL
     printf("END timToTimestamp ==> %lu\n", result);
 #endif
-    return(result);
+    return result;
   } /* timToTimestamp */
 
 
@@ -335,5 +335,5 @@ inttype time_zone;
     } else {
       result = bigFromInt32((int32type) os_timestamp);
     } /* if */
-    return(result);
+    return result;
   } /* timToBigTimestamp */

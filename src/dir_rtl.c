@@ -97,7 +97,7 @@ stritype file_name;
       result = os_opendir(name);
       os_stri_free(name);
     } /* if */
-    return(result);
+    return result;
   } /* dirOpen */
 
 
@@ -129,5 +129,5 @@ dirtype directory;
         raise_error(MEMORY_ERROR);
       } /* if */
     } /* if */
-    return(result);
+    return result;
   } /* dirRead */

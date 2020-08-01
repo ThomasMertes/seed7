@@ -2362,7 +2362,6 @@ const proc: loadField (in string: stri) is func
     var integer: number is 0;
     var integer: row is 0;
     var integer: column is 0;
-    var integer: digit is 0;
   begin
     if length(stri) = 81 then
       for number range 1 to 81 do

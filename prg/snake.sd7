@@ -579,8 +579,6 @@ const proc: main is func
 
   local
     var integer: level is 1;
-    var integer: number1 is 0;
-    var integer: number2 is 0;
   begin
     scr := open(SCREEN);
     win := open_window(scr, 2, 2, 21, 78);
@@ -592,16 +590,7 @@ const proc: main is func
     repeat
       box(win);
       clear(win);
-(*    number1 := heapsize(PROGRAM);
-      setPos(status, 1, 1);
-      write(status, number1);
-      write(status, " "; *)
       FIELD := 21 times (78 times BLANK);
-(*    number2 := heapsize(PROGRAM);
-      write(status, number2);
-      write(status, " ");
-      write(status, number2 - number1);
-      write(status, " "); *)
       init_level(level);
       SNAKE.picture := 'S';
       set_position(APPLE);

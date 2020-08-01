@@ -169,7 +169,6 @@ const proc: main is func
     const integer: num_pix is 2 * pix + 1;
     var char: ch is ' ';
     var integer: col is 0;
-    var integer: c is 0;
   begin
     screen(num_pix, num_pix);
     clear(curr_win, black);

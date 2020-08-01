@@ -1805,9 +1805,6 @@ const proc: loadGame is func
     var file: load_file is STD_NULL;
     var monsterType: monster_ident is NO_MONSTER;
     var itemType: item_ident is NO_ITEM;
-    var integer: number is 0;
-    var integer: line is 0;
-    var integer: column is 0;
   begin
     if fileExists("castle.sav") then
       if isOkay([]("Do you want to load a saved game.", "This will end the current game?")) then
@@ -1852,9 +1849,6 @@ const proc: saveGame is func
     var file: save_file is STD_NULL;
     var monsterType: monster_ident is NO_MONSTER;
     var itemType: item_ident is NO_ITEM;
-    var integer: number is 0;
-    var integer: line is 0;
-    var integer: column is 0;
   begin
     if fileExists("castle.sav") then
       if isOkay([]("Do you want to overwrite the", "game currently saved?")) then
@@ -2350,7 +2344,6 @@ const proc: showStatus is func
 
 const proc: lookItemInRoom is func
   local
-    var char: command is ' ';
     var integer: xPos is 0;
     var integer: yPos is 0;
     var integer: line is 0;

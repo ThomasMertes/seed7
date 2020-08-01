@@ -146,7 +146,7 @@ char *ch;
     printf("read_char_if_present: ch=%u, poll_result=%d, result=%s\n",
         *ch, poll_result, result ? "TRUE" : "FALSE");
 #endif
-    return(result);
+    return result;
   } /* read_char_if_present */
 
 
@@ -169,11 +169,11 @@ int ustri_len;
   /* read_utf8_key */
     if (ustri[0] <= 0x7F) {
       if (ustri_len == 1) {
-        return(ustri[0]);
+        return ustri[0];
       } else { /* ustri_len >= 2 */
         last_key = ustri[1];
         key_buffer_filled = TRUE;
-        return(K_UNDEF);
+        return K_UNDEF;
       } /* if */
     } else if ((ustri[0] & 0xE0) == 0xC0) {
       len = 2;
@@ -187,17 +187,17 @@ int ustri_len;
       len = 6;
     } else {
       if (ustri_len == 1) {
-        return(ustri[0]);
+        return ustri[0];
       } else { /* ustri_len >= 2 */
         last_key = ustri[1];
         key_buffer_filled = TRUE;
-        return(K_UNDEF);
+        return K_UNDEF;
       } /* if */
     } /* if */
     if (ustri_len == 2 && (ustri[1] & 0xC0) != 0x80) {
       last_key = ustri[1];
       key_buffer_filled = TRUE;
-      return(ustri[0]);
+      return ustri[0];
     } else {
       while (ustri_len < len) {
         if (read_char_if_present(&ustri[ustri_len])) {
@@ -207,26 +207,26 @@ int ustri_len;
         } /* if */
         if (ustri[ustri_len] == '\0') {
           if (ustri_len == 1) {
-            return(ustri[0]);
+            return ustri[0];
           } else {
-            return(K_UNDEF);
+            return K_UNDEF;
           } /* if */
         } else if ((ustri[ustri_len] & 0xC0) != 0x80) {
           last_key = ustri[ustri_len];
           key_buffer_filled = TRUE;
           if (ustri_len == 1) {
-            return(ustri[0]);
+            return ustri[0];
           } else {
-            return(K_UNDEF);
+            return K_UNDEF;
           } /* if */
         } /* if */
         ustri_len++;
       } /* while */
       if (utf8_to_stri(stri, &dest_len, ustri, len) == 0 &&
           dest_len == 1) {
-        return(stri[0]);
+        return stri[0];
       } else {
-        return(K_UNDEF);
+        return K_UNDEF;
       } /* if */
     } /* if */
   } /* read_utf8_key */
@@ -527,7 +527,7 @@ booltype kbdKeyPressed ()
         result = FALSE;
       } /* if */
     } /* if */
-    return(result);
+    return result;
   } /* kbdKeyPressed */
 
 
@@ -595,7 +595,7 @@ chartype kbdGetc ()
         } /* if */
       } /* if */
     } /* if */
-    return(result);
+    return result;
   } /* kbdGetc */
 
 
@@ -625,5 +625,5 @@ chartype kbdRawGetc ()
       result = getc(stdin);
     } /* if */
 /*  fprintf(stderr, "<%d>", result); */
-    return(result);
+    return result;
   } /* kbdRawRead */

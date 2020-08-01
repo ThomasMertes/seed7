@@ -2260,7 +2260,10 @@
       <font color=blue>digits</font>    Conversion to <font color=red>string</font> with specified precision
                   ( Type of right operand: <font color=red>integer</font>,
                     Type of result: <font color=red>string</font>,
-                    3.1415 <font color=blue>digits</font> 2 => <font color=maroon>"3.14"</font>,
+                    0.012345 <font color=blue>digits</font> 4 => <font color=maroon>"0.0123"</font>,
+                    1.2468 <font color=blue>digits</font> 2 => <font color=maroon>"1.25"</font>,
+                    0.125 <font color=blue>digits</font> 2 => <font color=maroon>"0.12"</font>,
+                    0.375 <font color=blue>digits</font> 2 => <font color=maroon>"0.38"</font>,
                     Infinity <font color=blue>digits</font> A => <font color=maroon>"Infinity"</font>,
                     -Infinity <font color=blue>digits</font> A => <font color=maroon>"-Infinity"</font>,
                     NaN <font color=blue>digits</font> A => <font color=maroon>"NaN"</font> )
@@ -3837,6 +3840,11 @@
       result_type(A)  Get the result type of a '<font color=red>func</font>' or '<font color=red>varfunc</font>' type
                   ( result_type(<font color=red>func char</font>) => <font color=red>char</font>,
                     result_type(<font color=red>char</font>) => EXCEPTION RANGE_ERROR )
+      is_derived(A)  Is this type derived from another type
+                  ( Type of result: <font color=red>boolean</font>,
+                    is_derived(<font color=red>subtype char</font>) => TRUE )
+      meta(A)       Get the type from which type A is derived
+                  ( meta(<font color=red>subtype char</font>) => <font color=red>char</font> )
       base_type(A)  Get the base type of an array, pointer or
                     set type
                   ( base_type(<font color=red>array char</font>) => <font color=red>char</font>,
@@ -3851,6 +3859,7 @@
       hashCode(A) Hash function
                   ( Type of result: <font color=red>integer</font> )
     Statements:
+      addInterface(A, B)  Adds the interface type B to the implementation type A
       <font color=blue>const</font> <font color=red>aType</font>: name <font color=blue>is</font> value
                 Declare constant 'name' with 'value'
       <font color=blue>var</font> <font color=red>aType</font>: name <font color=blue>is</font> value
@@ -5340,8 +5349,116 @@ ont color=blue>is</font> <font color=maroon>""</font>;
 <a name="Access_to_operating_system_files"><h3>8.6 Access to operating system files</h3></a>
 <p>
     The interface type <tt>'<font color=red>file</font>'</tt> is also used to access
-  operating system files. This is done with the implementation
-  type <tt>'<font color=red>external_file</font>'</tt>. The type <tt>'<font color=red>external_file</font>'</tt> is defined as:
+  operating system files. Usually a file variable is declared
+</p><pre>
+    <font color=blue>var</font> <font color=red>file</font>: my_out <font color=blue>is</font> STD_NULL;
+</pre><p>
+  and the result of the <tt>'open'</tt> function is assigned to this file
+  variable
+</p><pre>
+    my_out := open(<font color=maroon>"my_file"</font>, <font color=maroon>"w"</font>);
+</pre><p>
+  The first parameter of <tt>'open'</tt> is the path of the file to
+  be opened. Seed7 always uses the slash (<tt>'/'</tt>) as path
+  delimiter. The use of a backslash in a path may raise the
+  exception <tt>'RANGE_ERROR'</tt>. The second parameter of <tt>'open'</tt>
+  specifies the mode:
+</p><pre>
+    Binary mode:
+      <font color=maroon>"r"</font>   ... Open file for reading.
+      <font color=maroon>"w"</font>   ... Truncate to zero length or create file for writing.
+      <font color=maroon>"a"</font>   ... Append; open or create file for writing at end-of-file.
+      <font color=maroon>"r+"</font>  ... Open file for update (reading and writing).
+      <font color=maroon>"w+"</font>  ... Truncate to zero length or create file for update.
+      <font color=maroon>"a+"</font>  ... Append; open or create file for update, writing at end-of-file.
+    Text mode:
+      <font color=maroon>"rt"</font>  ... Open file for reading.
+      <font color=maroon>"wt"</font>  ... Truncate to zero length or create file for writing.
+      <font color=maroon>"at"</font>  ... Append; open or create file for writing at end-of-file.
+      <font color=maroon>"rt+"</font> ... Open file for update (reading and writing).
+      <font color=maroon>"wt+"</font> ... Truncate to zero length or create file for update.
+      <font color=maroon>"at+"</font> ... Append; open or create file for update, writing at end-of-file.
+</pre><p>
+  Note that Seed7 defines the modes <font color=maroon>"r"</font>, <font color=maroon>"w"</font>, <font color=maroon>"a"</font>, <font color=maroon>"r+"</font>, <font color=maroon>"w+"</font>
+  and <font color=maroon>"a+"</font> as binary modes.
+  When <tt>'open'</tt> fails it returns <tt>'STD_NULL'</tt>. It is
+  recommended to check the file variable:
+</p><pre>
+    <font color=blue>if</font> my_out &lt;> STD_NULL <font color=blue>then</font>
+</pre><p>
+  After that output to <tt>'my_out'</tt> is possible with
+</p><pre>
+    writeln(my_out, <font color=maroon>"hi there"</font>);
+</pre><p>
+  When processing of a file is finished it should be closed
+</p><pre>
+    close(my_out);
+</pre><p>
+  Writing to a file after it has been closed results in the exception <tt>'FILE_ERROR'</tt>.
+  The following program writes <font color=maroon>"hi there"</font> to the file
+  <font color=maroon>"my_file"</font>:
+</p><pre>
+    $ <font color=blue>include</font> <font color=maroon>"seed7_05.s7i"</font>;
+
+    <font color=blue>const</font> <font color=red>proc</font>: main <font color=blue>is func</font>
+      <font color=blue>local</font>
+        <font color=blue>var</font> <font color=red>file</font>: my_out <font color=blue>is</font> STD_NULL;
+      <font color=blue>begin</font>
+        my_out := open(<font color=maroon>"my_file"</font>, <font color=maroon>"w"</font>);
+        <font color=blue>if</font> my_out &lt;> STD_NULL <font color=blue>then</font>
+          writeln(my_out, <font color=maroon>"hi there"</font>);
+          close(my_out);
+        <font color=blue>end if</font>;
+      <font color=blue>end func</font>;
+</pre><p>
+  Note that <tt>'open'</tt> opens BYTE files. Writing
+  a character with an ordinal >= 256 such as
+</p><pre>
+    writeln(my_out, <font color=maroon>"illegal char: \256\"</font>);
+</pre><p>
+  results in the exception <tt>'RANGE_ERROR'</tt>. To write unicode
+  characters other file types must be used. The libraries
+  <font color=maroon>"utf8.s7i"</font> and <font color=maroon>"utf16.s7i"</font> provide access to UTF-8 and
+  UTF-16 files. The function <tt>'open_utf8'</tt> can be used the same
+  way as <tt>'open'</tt>:
+</p><pre>
+    my_out := open_utf8(<font color=maroon>"utf8_file"</font>, <font color=maroon>"w"</font>);
+</pre><p>
+  An UTF-8 file accepts all unicode characters. That way
+</p><pre>
+    writeln(my_out, <font color=maroon>"unicode char: \256\"</font>);
+</pre><p>
+  works without problems. UTF-8 files are byte order independent.
+  Therefore they do not need a byte order mark (BOM).
+  In case a BOM is required it can be written by the user program:
+</p><pre>
+    my_out := open_utf8(<font color=maroon>"utf8_file"</font>, <font color=maroon>"w"</font>);
+    write(<font color=maroon>"\16#FEFF\"</font>);
+</pre><p>
+  The following example expects a mandatory BOM at the beginning of an UTF-8 file:
+</p><pre>
+    my_out := open_utf8(<font color=maroon>"utf8_file"</font>, <font color=maroon>"r"</font>);
+    <font color=blue>if</font> getc(my_file) <> <font color=maroon>'\16#FEFF\'</font> <font color=blue>then</font>
+      writeln(<font color=maroon>"The BOM is missing"</font>");
+    <font color=blue>else</font>
+      ...
+    <font color=blue>end if</font>;
+</pre><p>
+  Accepting an optional BOM at the beginning of an UTF-8 file is done with:
+</p><pre>
+    my_out := open_utf8(<font color=maroon>"utf8_file"</font>, <font color=maroon>"r"</font>);
+    <font color=blue>if</font> getc(my_file) <> <font color=maroon>'\16#FEFF\'</font> <font color=blue>then</font>
+      <font color=green># This is a file without BOM (the first character will be read later).</font>
+      seek(my_file, 0);
+    <font color=blue>end if</font>;
+    ...
+</pre><p>
+  UTF-16 comes in two flavours UTF-16BE and UTF-16LE.
+  To allow both the <font color=maroon>"utf16.s7i"</font> library defines the functions
+  <tt>'open_utf16le'</tt> and <tt>'open_utf16be'</tt>.
+</p><p>
+  External BYTE files use the implementation type <tt>'<font color=red>external_file</font>'</tt>.
+  The type <tt>'<font color=red>external_file</font>'</tt> is defined as:
 </p><pre>
     <font color=blue>const</font> <font color=red>type</font>: external_file <font color=blue>is sub</font> <font color=red>null_file</font> <font color=blue>struct</font>
         <font color=blue>var</font> <font color=red>PRIMITIVE_FILE</font>: ext_file <font color=blue>is</font> PRIMITIVE_null_file;
@@ -5386,40 +5503,25 @@ ont color=blue>is</font> <font color=maroon>""</font>;
     writeln(err, <font color=maroon>"Some error occurred"</font>);
 </pre><p>
   In this case redirection of the file <tt>'err'</tt> can be done very easy.
-  The second way to access external files is to use the <tt>'open'</tt>
-  function. Usually a file variable is declared
-</p><pre>
-    <font color=blue>var</font> <font color=red>file</font>: my_out <font color=blue>is</font> STD_NULL;
-</pre><p>
-  and the result of the <tt>'open'</tt> function is assigned to this file
-  variable
-</p><pre>
-    my_out := open(<font color=maroon>"my_file"</font>, <font color=maroon>"w"</font>);
-</pre><p>
-  The first parameter of <tt>'open'</tt> is the path of the file to
-  be opened. Seed7 always uses the slash (<tt>'/'</tt>) as path
-  delimiter. The use of a backslash in a path may raise the
-  exception <tt>'RANGE_ERROR'</tt>. The second parameter of <tt>'open'</tt>
-  specifies the mode:
-</p><pre>
-    Binary mode:
-      <font color=maroon>"r"</font>   ... Open file for reading.
-      <font color=maroon>"w"</font>   ... Truncate to zero length or create file for writing.
-      <font color=maroon>"a"</font>   ... Append; open or create file for writing at end-of-file.
-      <font color=maroon>"r+"</font>  ... Open file for update (reading and writing).
-      <font color=maroon>"w+"</font>  ... Truncate to zero length or create file for update.
-      <font color=maroon>"a+"</font>  ... Append; open or create file for update, writing at end-of-file.
-    Text mode:
-      <font color=maroon>"rt"</font>  ... Open file for reading.
-      <font color=maroon>"wt"</font>  ... Truncate to zero length or create file for writing.
-      <font color=maroon>"at"</font>  ... Append; open or create file for writing at end-of-file.
-      <font color=maroon>"rt+"</font> ... Open file for update (reading and writing).
-      <font color=maroon>"wt+"</font> ... Truncate to zero length or create file for update.
-      <font color=maroon>"at+"</font> ... Append; open or create file for update, writing at end-of-file.
-</pre><p>
-  Note that Seed7 defines the modes <font color=maroon>"r"</font>, <font color=maroon>"w"</font>, <font color=maroon>"a"</font>, <font color=maroon>"r+"</font>, <font color=maroon>"w+"</font>
-  and <font color=maroon>"a+"</font> as binary modes. This is different from the
-  definition used by the <tt>'fopen'</tt> function of the C library.
+  Another way to access external files is to use the <tt>'open'</tt>
+  function. The modes used by <tt>'open'</tt> differ from those used
+  by the <tt>'fopen'</tt> function in the C library.
+  The following table compares the file modes of Seed7 and C:
+</p><table border="1">
+    <tr><td>Seed7 <tt>'open'</tt> mode</td>   <td>C <tt>'fopen'</tt> mode</td></tr>
+    <tr><td><font color=maroon>"r"</font></td>                 <td><font color=maroon>"rb"</font></td></tr>
+    <tr><td><font color=maroon>"w"</font></td>                 <td><font color=maroon>"wb"</font></td></tr>
+    <tr><td><font color=maroon>"a"</font></td>                 <td><font color=maroon>"ab"</font></td></tr>
+    <tr><td><font color=maroon>"r+"</font></td>                <td><font color=maroon>"rb+"</font></td></tr>
+    <tr><td><font color=maroon>"w+"</font></td>                <td><font color=maroon>"wb+"</font></td></tr>
+    <tr><td><font color=maroon>"a+"</font></td>                <td><font color=maroon>"ab+"</font></td></tr>
+    <tr><td><font color=maroon>"rt"</font></td>                <td><font color=maroon>"r"</font></td></tr>
+    <tr><td><font color=maroon>"wt"</font></td>                <td><font color=maroon>"w"</font></td></tr>
+    <tr><td><font color=maroon>"at"</font></td>                <td><font color=maroon>"a"</font></td></tr>
+    <tr><td><font color=maroon>"rt+"</font></td>               <td><font color=maroon>"r+"</font></td></tr>
+    <tr><td><font color=maroon>"wt+"</font></td>               <td><font color=maroon>"w+"</font></td></tr>
+    <tr><td><font color=maroon>"at+"</font></td>               <td><font color=maroon>"a+"</font></td></tr>
+</table><p>
   The difference between binary and text mode is as follows:
 </p><ul>
     <li><!-- -  -->Binary mode provides an implementation independend
@@ -5445,56 +5547,12 @@ ont color=blue>is</font> <font color=maroon>""</font>;
       text mode cannot be used to automatically create files
       with <tt><font color=maroon>"\r\n"</font></tt> line endings under Unix/Linux/Bsd.</li>
 </ul><p>
-  The following table compares the file modes of Seed7 and C:
-</p><table border="1">
-    <tr><td>Seed7 <tt>'open'</tt> mode</td>   <td>C <tt>'fopen'</tt> mode</td></tr>
-    <tr><td><font color=maroon>"r"</font></td>                 <td><font color=maroon>"rb"</font></td></tr>
-    <tr><td><font color=maroon>"w"</font></td>                 <td><font color=maroon>"wb"</font></td></tr>
-    <tr><td><font color=maroon>"a"</font></td>                 <td><font color=maroon>"ab"</font></td></tr>
-    <tr><td><font color=maroon>"r+"</font></td>                <td><font color=maroon>"rb+"</font></td></tr>
-    <tr><td><font color=maroon>"w+"</font></td>                <td><font color=maroon>"wb+"</font></td></tr>
-    <tr><td><font color=maroon>"a+"</font></td>                <td><font color=maroon>"ab+"</font></td></tr>
-    <tr><td><font color=maroon>"rt"</font></td>                <td><font color=maroon>"r"</font></td></tr>
-    <tr><td><font color=maroon>"wt"</font></td>                <td><font color=maroon>"w"</font></td></tr>
-    <tr><td><font color=maroon>"at"</font></td>                <td><font color=maroon>"a"</font></td></tr>
-    <tr><td><font color=maroon>"rt+"</font></td>               <td><font color=maroon>"r+"</font></td></tr>
-    <tr><td><font color=maroon>"wt+"</font></td>               <td><font color=maroon>"w+"</font></td></tr>
-    <tr><td><font color=maroon>"at+"</font></td>               <td><font color=maroon>"a+"</font></td></tr>
-</table><p>
-  The function <tt>'open'</tt> returns <tt>'STD_NULL'</tt> when it fails. So it is
-  necessary to check the file variable to be on the save side:
-</p><pre>
-    <font color=blue>if</font> my_out &lt;> STD_NULL <font color=blue>then</font>
-</pre><p>
-  After that output to <tt>'my_out'</tt> is possible with
-</p><pre>
-    writeln(my_out, <font color=maroon>"hi there"</font>);
-</pre><p>
-  Note that <tt>'<font color=red>external_file</font>'</tt> describes BYTE files. Writing
-  a character with an ordinal >= 256 such as
-</p><pre>
-    writeln(my_out, <font color=maroon>"illegal char: \256\"</font>);
-</pre><p>
-  results in the exception <tt>'RANGE_ERROR'</tt>. To write unicode
-  characters other file types must be used. The libraries
-  <font color=maroon>"utf8.s7i"</font> and <font color=maroon>"utf16.s7i"</font> provide access to UTF-8 and
-  UTF-16 files. The library <font color=maroon>"utf8.s7i"</font> defines the
+  The library <font color=maroon>"utf8.s7i"</font> defines the
   implementation type <tt>'<font color=red>utf8_file</font>'</tt> as
 </p><pre>
     <font color=blue>const</font> <font color=red>type</font>: utf8_file <font color=blue>is sub</font> <font color=red>external_file</font> <font color=blue>struct</font>
       <font color=blue>end struct</font>;
-</pre><p>
-  and the function <tt>'open_utf8'</tt> which can be used the same
-  way as <tt>'open'</tt>:
-</p><pre>
-    my_out := open_utf8(<font color=maroon>"utf8_file"</font>, <font color=maroon>"w"</font>);
-</pre><p>
-  An UTF-8 file accepts all unicode characters. That way
-</p><pre>
-    writeln(my_out, <font color=maroon>"unicode char: \256\"</font>);
-</pre><p>
-  works without problems.
-</p>
+</pre><p></p>
 
 <a name="Keyboard_file"><h3>8.7 Keyboard file</h3></a>
 <p>
@@ -8312,6 +8370,11 @@ ont color=blue>is</font> <font color=maroon>""</font>;
     <tr><td>BST_CREATE</td>          <td>bst_create</td>          <td>bstCreate</td></tr>
     <tr><td>BST_DESTR</td>           <td>bst_destr</td>           <td>bstDestr</td></tr>
     <tr><td>BST_EMPTY</td>           <td>bst_empty</td>           <td></td></tr>
+    <tr><td>BST_EQ</td>              <td>bst_eq</td>              <td>a->size==b->size&amp;&amp;memcmp(a,b,a->size*sizeof(unsigned char))==0</td></tr>
+    <tr><td>BST_LNG</td>             <td>bst_lng</td>             <td>a->size</td></tr>
+    <tr><td>BST_NE</td>              <td>bst_ne</td>              <td>a->size!=b->size||memcmp(a,b,a->size*sizeof(unsigned char))!=0</td></tr>
+    <tr><td>BST_PARSE</td>           <td>bst_parse</td>           <td>bstParse</td></tr>
+    <tr><td>BST_VALUE</td>           <td>bst_value</td>           <td>bstValue</td></tr>
 </table><p></p>
 <a name="char"><h3>13.6 Actions for the type char</h3></a>
 <p></p><table border="1">
@@ -8926,7 +8989,7 @@ ont color=blue>is</font> <font color=maroon>""</font>;
     <tr><td>STR_LPAD0</td>           <td>str_lpad0</td>           <td>strLpad0, strLpad0Temp</td></tr>
     <tr><td>STR_LT</td>              <td>str_lt</td>              <td>strLt</td></tr>
     <tr><td>STR_MULT</td>            <td>str_mult</td>            <td>strMult</td></tr>
-    <tr><td>STR_NE</td>              <td>str_ne</td>              <td>a->size==b->size&amp;&amp;memcmp(a,b,a->size*sizeof(strelemtype))==0</td></tr>
+    <tr><td>STR_NE</td>              <td>str_ne</td>              <td>a->size!=b->size||memcmp(a,b,a->size*sizeof(strelemtype))!=0</td></tr>
     <tr><td>STR_POS</td>             <td>str_pos</td>             <td>strPos</td></tr>
     <tr><td>STR_PUSH</td>            <td>str_push</td>            <td>strPush</td></tr>
     <tr><td>STR_RANGE</td>           <td>str_range</td>           <td>strRange</td></tr>

@@ -2401,8 +2401,6 @@ const func type: HASHSET_OF (in type: baseType) is func
       const func setType: { (in baseType: value) } is func
         result
           var setType: result is setType.EMPTY_SET;
-        local
-          var integer: number is 0;
         begin
           incl(result, value);
         end func;

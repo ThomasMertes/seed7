@@ -85,11 +85,6 @@ static void init_analyze ()
 
   { /* init_analyze */
     if (!analyze_initialized) {
-#ifdef CATCH_SIGNALS
-      if (option.catch_signals) {
-        activate_signal_handlers();
-      } /* if */
-#endif
       set_trace(NULL, -1, NULL);
       init_lib_path();
       init_chclass();
@@ -502,7 +497,7 @@ errinfotype *err_info;
 #ifdef TRACE_ANALYZE
     printf("END analyze_prog\n");
 #endif
-    return(resultProg);
+    return resultProg;
   } /* analyze_prog */
 
 
@@ -580,7 +575,7 @@ ustritype source_file_name;
 #ifdef TRACE_ANALYZE
     printf("END analyze\n");
 #endif
-    return(resultProg);
+    return resultProg;
   } /* analyze */
 
 
@@ -620,5 +615,5 @@ stritype input_string;
 #ifdef TRACE_ANALYZE
     printf("END analyze_string\n");
 #endif
-    return(resultProg);
+    return resultProg;
   } /* analyze_string */

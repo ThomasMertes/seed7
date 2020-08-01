@@ -47,6 +47,8 @@
 #include "big_drv.h"
 
 
+#define WITH_BIGINT_FREELIST
+#define FREELIST_LENGTH_LIMIT 10
 #define KARATSUBA_THRESHOLD 32
 
 
@@ -113,11 +115,61 @@ size_t sizeof_bigintrecord = sizeof(bigintrecord);
 
 #define SIZ_RTLBIG(len)     ((sizeof(bigintrecord) - sizeof(bigdigittype)) + (len) * sizeof(bigdigittype))
 
-#define ALLOC_BIG(var,len)       (ALLOC_HEAP(var, biginttype, SIZ_RTLBIG(len))?CNT1_BIG(len, SIZ_RTLBIG(len)), TRUE:FALSE)
-#define FREE_BIG(var,len)        (CNT2_BIG(len, SIZ_RTLBIG(len)) FREE_HEAP(var, SIZ_RTLBIG(len)))
-#define REALLOC_BIG(var,ln1,ln2) REALLOC_HEAP(var, biginttype, SIZ_RTLBIG(ln2))
+#ifdef WITH_BIGINT_CAPACITY
+#define HEAP_BIG(var,len)        (ALLOC_HEAP(var, biginttype, SIZ_RTLBIG(len))?((var)->capacity = len, CNT1_BIG(len, SIZ_RTLBIG(len)), TRUE):FALSE)
+#define RELEASE_BIG(var,len)     (CNT2_BIG(len, SIZ_RTLBIG(len)) FREE_HEAP(var, SIZ_RTLBIG(len)))
+#define REALLOC_BIG(v1,v2,l1,l2) ((v1=REALLOC_HEAP(v2, biginttype, SIZ_RTLBIG(l2)))!=NULL?(v1)->capacity=l2:0)
+#else
+#define HEAP_BIG(var,len)        (ALLOC_HEAP(var, biginttype, SIZ_RTLBIG(len))?CNT1_BIG(len, SIZ_RTLBIG(len)), TRUE:FALSE)
+#define RELEASE_BIG(var,len)     (CNT2_BIG(len, SIZ_RTLBIG(len)) FREE_HEAP(var, SIZ_RTLBIG(len)))
+#define REALLOC_BIG(v1,v2,l1,l2) v1=REALLOC_HEAP(v2, biginttype, SIZ_RTLBIG(l2))
+#endif
 #define COUNT3_BIG(len1,len2)    CNT3(CNT2_BIG(len1, SIZ_RTLBIG(len1)) CNT1_BIG(len2, SIZ_RTLBIG(len2)))
 
+#ifdef WITH_BIGINT_FREELIST
+#ifdef WITH_BIGINT_CAPACITY
+
+#define FREELIST_ARRAY_SIZE 32
+
+static biginttype flist[FREELIST_ARRAY_SIZE] = {
+    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL};
+static unsigned int flist_len[FREELIST_ARRAY_SIZE] = {
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+
+#define POP_OK(len)        (len) < FREELIST_ARRAY_SIZE && flist_len[len] != 0
+#define PUSH_OK(var)       (var)->capacity < FREELIST_ARRAY_SIZE && flist_len[(var)->capacity] < FREELIST_LENGTH_LIMIT
+
+#define POP_BIG(var,len)   (var = flist[len], flist[len] = (biginttype) flist[len]->size, flist_len[len]--, var != NULL)
+#define PUSH_BIG(var,len)  {(var)->size = (memsizetype) flist[len]; flist[len] = var; flist_len[len]++; }
+
+#define ALLOC_BIG(var,len) (POP_OK(len) ? POP_BIG(var, len) : HEAP_BIG(var, len))
+#define FREE_BIG(var,len)  if (PUSH_OK(var)) PUSH_BIG(var, (var)->capacity) else RELEASE_BIG(var, (var)->capacity);
+
+#else
+
+static biginttype flist = NULL;
+static unsigned int flist_len = 0;
+
+#define POP_OK(len)        (len) == 1 && flist_len != 0
+#define PUSH_OK(var)       (len) == 1 && flist_len < FREELIST_LENGTH_LIMIT
+
+#define POP_BIG(var)       (var = flist, flist = (biginttype) flist->size, flist_len--, var != NULL)
+#define PUSH_BIG(var)      {(var)->size = (memsizetype) flist; flist = var; flist_len++; }
+
+#define ALLOC_BIG(var,len) (POP_OK(len) ? POP_BIG(var) : HEAP_BIG(var, len))
+#define FREE_BIG(var,len)  if (PUSH_OK(var)) PUSH_BIG(var) else RELEASE_BIG(var, len);
+
+#endif
+#else
+
+#define ALLOC_BIG(var,len) HEAP_BIG(var, len)
+#define FREE_BIG(var,len)  RELEASE_BIG(var, len)
+
+#endif
 
 
 #ifdef ANSI_C
@@ -278,10 +330,15 @@ biginttype big1;
       pos++;
 #ifdef NORMALIZE_DOES_RESIZE
       if (big1->size != pos) {
-        big1 = REALLOC_BIG(big1, big1->size, pos);
-        if (big1 == NULL) {
+        biginttype resized_big1;
+
+        REALLOC_BIG(resized_big1, big1, big1->size, pos);
+        if (resized_big1 == NULL) {
+          FREE_BIG(big1, big1->size);
+          big1 = NULL;
           raise_error(MEMORY_ERROR);
         } else {
+          big1 = resized_big1;
           COUNT3_BIG(big1->size, pos);
           big1->size = pos;
         } /* if */
@@ -727,7 +784,7 @@ bigdigittype digit;
         result->bigdigits[result->size - 1] = 0;
         if (IS_NEGATIVE(digit)) {
           negative = !negative;
-          digit = -digit;
+          digit = (bigdigittype) -(signedbigdigittype) digit;
         } /* if */
         uBigDiv1(big1, digit, result);
         if (negative) {
@@ -1019,7 +1076,7 @@ bigdigittype digit;
           } /* if */
         } /* if */
         if (IS_NEGATIVE(digit)) {
-          digit = -digit;
+          digit = (bigdigittype) -(signedbigdigittype) digit;
         } /* if */
         remainder->bigdigits[0] = uBigRem1(big1, digit);
         if (negative) {
@@ -1115,7 +1172,7 @@ bigdigittype digit;
         result->bigdigits[result->size - 1] = 0;
         if (IS_NEGATIVE(digit)) {
           negative = !negative;
-          digit = -digit;
+          digit = (bigdigittype) -(signedbigdigittype) digit;
         } /* if */
         remainder = uBigMDiv1(big1, digit, result);
         if (negative) {
@@ -2336,7 +2393,7 @@ inttype exponent;
       } /* if */
     } else {
       if (IS_NEGATIVE(base)) {
-        base = -base;
+        base = (bigdigittype) -(signedbigdigittype) base;
         negative = exponent & 1;
       } else {
         negative = FALSE;
@@ -2402,6 +2459,7 @@ biginttype big1;
   {
     memsizetype pos;
     doublebigdigittype carry = 1;
+    biginttype resized_result;
     biginttype result;
 
   /* bigAbs */
@@ -2420,11 +2478,13 @@ biginttype big1;
         } while (pos < big1->size);
         if (IS_NEGATIVE(result->bigdigits[pos - 1])) {
           result->size++;
-          result = REALLOC_BIG(result, big1->size, result->size);
-          if (result == NULL) {
+          REALLOC_BIG(resized_result, result, big1->size, result->size);
+          if (resized_result == NULL) {
+            FREE_BIG(result, big1->size);
             raise_error(MEMORY_ERROR);
             return NULL;
           } else {
+            result = resized_result;
             COUNT3_BIG(big1->size, result->size);
             result->bigdigits[big1->size] = 0;
           } /* if */
@@ -2880,6 +2940,7 @@ biginttype *big_variable;
     memsizetype pos;
     doublebigdigittype carry = 0;
     bigdigittype negative;
+    biginttype resized_big1;
 
   /* bigDecr */
     big1 = *big_variable;
@@ -2894,10 +2955,13 @@ biginttype *big_variable;
     pos = big1->size;
     if (!IS_NEGATIVE(big1->bigdigits[pos - 1])) {
       if (negative) {
-        big1 = REALLOC_BIG(big1, pos, pos + 1);
-        if (big1 == NULL) {
+        REALLOC_BIG(resized_big1, big1, pos, pos + 1);
+        if (resized_big1 == NULL) {
+          FREE_BIG(big1, pos);
+          *big_variable = NULL;
           raise_error(MEMORY_ERROR);
         } else {
+          big1 = resized_big1;
           COUNT3_BIG(pos, pos + 1);
           big1->size++;
           big1->bigdigits[pos] = BIGDIGIT_MASK;
@@ -2905,10 +2969,13 @@ biginttype *big_variable;
         } /* if */
       } else if (big1->bigdigits[pos - 1] == 0 &&
           pos >= 2 && !IS_NEGATIVE(big1->bigdigits[pos - 2])) {
-        big1 = REALLOC_BIG(big1, pos, pos - 1);
-        if (big1 == NULL) {
+        REALLOC_BIG(resized_big1, big1, pos, pos - 1);
+        if (resized_big1 == NULL) {
+          FREE_BIG(big1, pos);
+          *big_variable = NULL;
           raise_error(MEMORY_ERROR);
         } else {
+          big1 = resized_big1;
           COUNT3_BIG(pos, pos - 1);
           big1->size--;
           *big_variable = big1;
@@ -3338,7 +3405,7 @@ biginttype big2;
       carry &= BIGDIGIT_MASK;
       if ((carry != 0 || IS_NEGATIVE(big1->bigdigits[pos - 1])) &&
           (carry != BIGDIGIT_MASK || !IS_NEGATIVE(big1->bigdigits[pos - 1]))) {
-        resized_big1 = REALLOC_BIG(big1, big1->size, big1->size + 1);
+        REALLOC_BIG(resized_big1, big1, big1->size, big1->size + 1);
         if (resized_big1 == NULL) {
           FREE_BIG(big1, big1->size);
           *big_variable = NULL;
@@ -3357,7 +3424,7 @@ biginttype big2;
         *big_variable = normalize(big1);
       } /* if */
     } else {
-      resized_big1 = REALLOC_BIG(big1, big1->size, big2->size + 1);
+      REALLOC_BIG(resized_big1, big1, big1->size, big2->size + 1);
       if (resized_big1 == NULL) {
         FREE_BIG(big1, big1->size);
         *big_variable = NULL;
@@ -3472,6 +3539,7 @@ biginttype *big_variable;
     memsizetype pos;
     doublebigdigittype carry = 1;
     bigdigittype negative;
+    biginttype resized_big1;
 
   /* bigIncr */
     big1 = *big_variable;
@@ -3486,10 +3554,13 @@ biginttype *big_variable;
     pos = big1->size;
     if (IS_NEGATIVE(big1->bigdigits[pos - 1])) {
       if (!negative) {
-        big1 = REALLOC_BIG(big1, pos, pos + 1);
-        if (big1 == NULL) {
+        REALLOC_BIG(resized_big1, big1, pos, pos + 1);
+        if (resized_big1 == NULL) {
+          FREE_BIG(big1, pos);
+          *big_variable = NULL;
           raise_error(MEMORY_ERROR);
         } else {
+          big1 = resized_big1;
           COUNT3_BIG(pos, pos + 1);
           big1->size++;
           big1->bigdigits[pos] = 0;
@@ -3497,10 +3568,13 @@ biginttype *big_variable;
         } /* if */
       } else if (big1->bigdigits[pos - 1] == BIGDIGIT_MASK &&
           pos >= 2 && IS_NEGATIVE(big1->bigdigits[pos - 2])) {
-        big1 = REALLOC_BIG(big1, pos, pos - 1);
-        if (big1 == NULL) {
+        REALLOC_BIG(resized_big1, big1, pos, pos - 1);
+        if (resized_big1 == NULL) {
+          FREE_BIG(big1, pos);
+          *big_variable = NULL;
           raise_error(MEMORY_ERROR);
         } else {
+          big1 = resized_big1;
           COUNT3_BIG(pos, pos - 1);
           big1->size--;
           *big_variable = big1;
@@ -4064,6 +4138,7 @@ biginttype big1;
   {
     memsizetype pos;
     doublebigdigittype carry = 1;
+    biginttype resized_result;
     biginttype result;
 
   /* bigMinus */
@@ -4081,22 +4156,26 @@ biginttype big1;
       } while (pos < big1->size);
       if (IS_NEGATIVE(result->bigdigits[pos - 1])) {
         if (IS_NEGATIVE(big1->bigdigits[pos - 1])) {
-          result = REALLOC_BIG(result, pos, pos + 1);
-          if (result == NULL) {
+          REALLOC_BIG(resized_result, result, pos, pos + 1);
+          if (resized_result == NULL) {
+            FREE_BIG(result, pos);
             raise_error(MEMORY_ERROR);
             return NULL;
           } else {
+            result = resized_result;
             COUNT3_BIG(pos, pos + 1);
             result->size++;
             result->bigdigits[pos] = 0;
           } /* if */
         } else if (result->bigdigits[pos - 1] == BIGDIGIT_MASK &&
             pos >= 2 && IS_NEGATIVE(result->bigdigits[pos - 2])) {
-          result = REALLOC_BIG(result, pos, pos - 1);
-          if (result == NULL) {
+          REALLOC_BIG(resized_result, result, pos, pos - 1);
+          if (resized_result == NULL) {
+            FREE_BIG(result, pos);
             raise_error(MEMORY_ERROR);
             return NULL;
           } else {
+            result = resized_result;
             COUNT3_BIG(pos, pos - 1);
             result->size--;
           } /* if */
@@ -4507,6 +4586,7 @@ biginttype big1;
   {
     memsizetype pos;
     doublebigdigittype carry = 0;
+    biginttype resized_result;
     biginttype result;
 
   /* bigPred */
@@ -4524,22 +4604,26 @@ biginttype big1;
       } while (pos < big1->size);
       if (!IS_NEGATIVE(result->bigdigits[pos - 1])) {
         if (IS_NEGATIVE(big1->bigdigits[pos - 1])) {
-          result = REALLOC_BIG(result, pos, pos + 1);
-          if (result == NULL) {
+          REALLOC_BIG(resized_result, result, pos, pos + 1);
+          if (resized_result == NULL) {
+            FREE_BIG(result, pos);
             raise_error(MEMORY_ERROR);
             return NULL;
           } else {
+            result = resized_result;
             COUNT3_BIG(pos, pos + 1);
             result->size++;
             result->bigdigits[pos] = BIGDIGIT_MASK;
           } /* if */
         } else if (result->bigdigits[pos - 1] == 0 &&
             pos >= 2 && !IS_NEGATIVE(result->bigdigits[pos - 2])) {
-          result = REALLOC_BIG(result, pos, pos - 1);
-          if (result == NULL) {
+          REALLOC_BIG(resized_result, result, pos, pos - 1);
+          if (resized_result == NULL) {
+            FREE_BIG(result, pos);
             raise_error(MEMORY_ERROR);
             return NULL;
           } else {
+            result = resized_result;
             COUNT3_BIG(pos, pos - 1);
             result->size--;
           } /* if */
@@ -4852,6 +4936,7 @@ inttype rshift;
     bigdigittype high_digit;
     const bigdigittype *source_digits;
     bigdigittype *dest_digits;
+    biginttype resized_big1;
     memsizetype pos;
 
   /* bigRShiftAssign */
@@ -4876,10 +4961,13 @@ inttype rshift;
         if (rshift != 0) {
           memmove(big1->bigdigits, &big1->bigdigits[size_reduction],
               (size_t) (big1->size - size_reduction) * sizeof(bigdigittype));
-          big1 = REALLOC_BIG(big1, big1->size, big1->size - size_reduction);
-          if (big1 == NULL) {
+          REALLOC_BIG(resized_big1, big1, big1->size, big1->size - size_reduction);
+          if (resized_big1 == NULL) {
+            FREE_BIG(big1, big1->size);
+            *big_variable = NULL;
             raise_error(MEMORY_ERROR);
           } else {
+            big1 = resized_big1;
             COUNT3_BIG(big1->size, big1->size - size_reduction);
             big1->size -= size_reduction;
             *big_variable = big1;
@@ -4907,10 +4995,13 @@ inttype rshift;
               if (pos >= 2 && IS_NEGATIVE(big1->bigdigits[pos - 2])) {
                 pos--;
               } /* if */
-              big1 = REALLOC_BIG(big1, big1->size, pos);
-              if (big1 == NULL) {
+              REALLOC_BIG(resized_big1, big1, big1->size, pos);
+              if (resized_big1 == NULL) {
+                FREE_BIG(big1, big1->size);
+                *big_variable = NULL;
                 raise_error(MEMORY_ERROR);
               } else {
+                big1 = resized_big1;
                 COUNT3_BIG(big1->size, pos);
                 big1->size = pos;
                 *big_variable = big1;
@@ -4928,10 +5019,13 @@ inttype rshift;
               if (pos >= 2 && !IS_NEGATIVE(big1->bigdigits[pos - 2])) {
                 pos--;
               } /* if */
-              big1 = REALLOC_BIG(big1, big1->size, pos);
-              if (big1 == NULL) {
+              REALLOC_BIG(resized_big1, big1, big1->size, pos);
+              if (resized_big1 == NULL) {
+                FREE_BIG(big1, big1->size);
+                *big_variable = NULL;
                 raise_error(MEMORY_ERROR);
               } else {
+                big1 = resized_big1;
                 COUNT3_BIG(big1->size, pos);
                 big1->size = pos;
                 *big_variable = big1;
@@ -4941,11 +5035,13 @@ inttype rshift;
           } /* if */
         } /* if */
         if (size_reduction != 0) {
-          big1 = REALLOC_BIG(big1, big1->size, big1->size - size_reduction);
-          if (big1 == NULL) {
+          REALLOC_BIG(resized_big1, big1, big1->size, big1->size - size_reduction);
+          if (resized_big1 == NULL) {
+            FREE_BIG(big1, big1->size);
             *big_variable = NULL;
             raise_error(MEMORY_ERROR);
           } else {
+            big1 = resized_big1;
             COUNT3_BIG(big1->size, big1->size - size_reduction);
             big1->size -= size_reduction;
             *big_variable = big1;
@@ -5117,7 +5213,7 @@ biginttype big2;
       carry &= BIGDIGIT_MASK;
       if ((carry != 0 || IS_NEGATIVE(big1->bigdigits[pos - 1])) &&
           (carry != BIGDIGIT_MASK || !IS_NEGATIVE(big1->bigdigits[pos - 1]))) {
-        resized_big1 = REALLOC_BIG(big1, big1->size, big1->size + 1);
+        REALLOC_BIG(resized_big1, big1, big1->size, big1->size + 1);
         if (resized_big1 == NULL) {
           FREE_BIG(big1, big1->size);
           *big_variable = NULL;
@@ -5136,7 +5232,7 @@ biginttype big2;
         *big_variable = normalize(big1);
       } /* if */
     } else {
-      resized_big1 = REALLOC_BIG(big1, big1->size, big2->size + 1);
+      REALLOC_BIG(resized_big1, big1, big1->size, big2->size + 1);
       if (resized_big1 == NULL) {
         FREE_BIG(big1, big1->size);
         *big_variable = NULL;
@@ -5289,6 +5385,7 @@ biginttype big1;
   {
     memsizetype pos;
     doublebigdigittype carry = 1;
+    biginttype resized_result;
     biginttype result;
 
   /* bigSucc */
@@ -5306,22 +5403,26 @@ biginttype big1;
       } while (pos < big1->size);
       if (IS_NEGATIVE(result->bigdigits[pos - 1])) {
         if (!IS_NEGATIVE(big1->bigdigits[pos - 1])) {
-          result = REALLOC_BIG(result, pos, pos + 1);
-          if (result == NULL) {
+          REALLOC_BIG(resized_result, result, pos, pos + 1);
+          if (resized_result == NULL) {
+            FREE_BIG(result, pos);
             raise_error(MEMORY_ERROR);
             return NULL;
           } else {
+            result = resized_result;
             COUNT3_BIG(pos, pos + 1);
             result->size++;
             result->bigdigits[pos] = 0;
           } /* if */
         } else if (result->bigdigits[pos - 1] == BIGDIGIT_MASK &&
             pos >= 2 && IS_NEGATIVE(result->bigdigits[pos - 2])) {
-          result = REALLOC_BIG(result, pos, pos - 1);
-          if (result == NULL) {
+          REALLOC_BIG(resized_result, result, pos, pos - 1);
+          if (resized_result == NULL) {
+            FREE_BIG(result, pos);
             raise_error(MEMORY_ERROR);
             return NULL;
           } else {
+            result = resized_result;
             COUNT3_BIG(pos, pos - 1);
             result->size--;
           } /* if */
@@ -5494,7 +5595,7 @@ biginttype bigZero ()
   {
     biginttype result;
 
-  /* bigCreate */
+  /* bigZero */
     if (!ALLOC_BIG(result, 1)) {
       raise_error(MEMORY_ERROR);
     } else {
@@ -5502,4 +5603,4 @@ biginttype bigZero ()
       result->bigdigits[0] = 0;
     } /* if */
     return result;
-  } /* bigCreate */
+  } /* bigZero */

@@ -196,6 +196,7 @@ const func string: cmdOutput (in string: command) is func
     outFile := popen(command, "r");
     if outFile <> STD_NULL then
       result := gets(outFile, 999999999);
+      close(outFile);
     end if;
   end func;
 
@@ -205,7 +206,6 @@ const proc: check (in string: progName, in string: referenceOutput) is func
     var string: interpretedOutput is "";
     var string: compilerOutput is "";
     var string: compiledOutput is "";
-    var boolean: checkWithCompiledCompiler is FALSE;
     var boolean: okay is TRUE;
   begin
     write(progName);
@@ -252,8 +252,6 @@ const proc: check (in string: progName, in string: referenceOutput) is func
 
     
 const proc: main is func
-  local
-    var boolean: checkWithCompiledCompiler is TRUE;
   begin
     if fileType("comp" & EXECUTABLE_FILE_EXTENSION) = FILE_REGULAR then
       removeFile("comp" & EXECUTABLE_FILE_EXTENSION);
@@ -263,7 +261,6 @@ const proc: main is func
     ignore(cmdOutput("./hi comp comp"));
     if not fileType("comp" & EXECUTABLE_FILE_EXTENSION) = FILE_REGULAR then
       writeln(" *** Failed to compile the compiler");
-      checkWithCompiledCompiler := FALSE;
     else
       writeln(" - okay");
     end if;

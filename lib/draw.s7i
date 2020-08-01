@@ -670,8 +670,6 @@ const func PRIMITIVE_WINDOW: read_bmp (in string: file_name) is func
     var integer: padding is 0;
     var integer: line is 0;
     var integer: column is 0;
-    var pixel: pix is pixel.value;
-    var char: ch is ' ';
   begin
     bmp_file := open(file_name, "r");
     if bmp_file <> STD_NULL then

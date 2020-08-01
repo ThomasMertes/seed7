@@ -85,7 +85,7 @@ EXTERN counttype count;
 
 #ifdef USE_BIG_RTL_LIBRARY
 extern size_t sizeof_bigdigittype;
-extern size_t sizeof_rtlBigintrecord;
+extern size_t sizeof_bigintrecord;
 #endif
 
 
@@ -231,7 +231,7 @@ EXTERN memsizetype hs;
 #define SIZ_HSH(len)     ((sizeof(hashrecord)     - sizeof(helemtype))    + (len) * sizeof(helemtype))
 #define SIZ_SET(len)     ((sizeof(setrecord)      - sizeof(bitsettype))   + (len) * sizeof(bitsettype))
 #define SIZ_SCT(len)     ((sizeof(structrecord)   - sizeof(objectrecord)) + (len) * sizeof(objectrecord))
-#define SIZ_BIG(len)     ((sizeof_rtlBigintrecord - sizeof_bigdigittype)  + (len) * sizeof_bigdigittype)
+#define SIZ_BIG(len)     ((sizeof_bigintrecord    - sizeof_bigdigittype)  + (len) * sizeof_bigdigittype)
 #define SIZ_REC(rec)     (sizeof(rec))
 #define SIZ_TAB(tp, nr)  (sizeof(tp) * (nr))
 #define SIZ_RTL_L_ELEM   (sizeof(rtlListrecord))

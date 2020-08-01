@@ -150,7 +150,6 @@ const proc: main is func
     var listener: inetListener is listener.value;
     var file: sock is socket.value;
     var string: line is "";
-    var char: ch is ' ';
   begin
     writeln("Comanche Version 1.0 - Simple webserver for static pages");
     writeln("Copyright (C) 2009 Thomas Mertes");

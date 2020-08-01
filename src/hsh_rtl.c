@@ -157,7 +157,7 @@ errinfotype *err_info;
           (unsigned long long) helem->key.value.genericvalue,
           (unsigned long long) helem->data.value.genericvalue); */
     } /* if */
-    return(helem);
+    return helem;
   } /* new_helem */
 
 
@@ -185,7 +185,7 @@ errinfotype *err_info;
       hash->size = 0;
       memset(hash->table, 0, hash->table_size * sizeof(rtlHelemtype));
     } /* if */
-    return(hash);
+    return hash;
   } /* new_hash */
 
 
@@ -225,7 +225,7 @@ errinfotype *err_info;
         dest_helem->next_greater = NULL;
       } /* if */
     } /* if */
-    return(dest_helem);
+    return dest_helem;
   } /* create_helem */
 
 
@@ -275,7 +275,7 @@ errinfotype *err_info;
         dest_helem++;
       } /* while */
     } /* if */
-    return(dest_hash);
+    return dest_hash;
   } /* create_hash */
 
 
@@ -435,7 +435,7 @@ errinfotype *err_info;
         key_array = NULL;
       } /* if */
     } /* if */
-    return(key_array);
+    return key_array;
   } /* keys_hash */
 
 
@@ -547,7 +547,7 @@ errinfotype *err_info;
         value_array = NULL;
       } /* if */
     } /* if */
-    return(value_array);
+    return value_array;
   } /* values_hash */
 
 
@@ -601,7 +601,7 @@ printf("%lX\n", (long unsigned) key);
         (long unsigned) hash1, (long unsigned) key, (long unsigned) hashcode,
         result);
 #endif
-    return(result);
+    return result;
   } /* hshContains */
 
 
@@ -673,7 +673,7 @@ destrfunctype data_destr_func;
       result = NULL;
       raise_error(MEMORY_ERROR);
     } /* if */
-    return(result);
+    return result;
   } /* hshCreate */
 
 
@@ -718,9 +718,9 @@ rtlHashtype hshEmpty ()
     result = new_hash(TABLE_BITS, &err_info);
     if (err_info != OKAY_NO_ERROR) {
       raise_error(MEMORY_ERROR);
-      return(NULL);
+      return NULL;
     } else {
-      return(result);
+      return result;
     } /* if */
   } /* hshEmpty */
 
@@ -845,7 +845,7 @@ comparetype cmp_func;
         (unsigned long) result,
         (unsigned long) (result != NULL ? *((rtlGenerictype *)result) : 0));
 #endif
-    return(result);
+    return result;
   } /* hshIdx */
 
 
@@ -902,7 +902,7 @@ comparetype cmp_func;
         (unsigned long) result,
         (unsigned long) (result != NULL ? *((rtlGenerictype *)result) : 0));
 #endif
-    return(result);
+    return result;
   } /* hshIdxAddr */
 
 
@@ -978,7 +978,7 @@ createfunctype data_create_func;
     } else {
       result = result_hashelem->data.value.genericvalue;
     } /* if */
-    return(result);
+    return result;
   } /* hshIdxWithDefault */
 
 
@@ -1085,7 +1085,7 @@ destrfunctype key_destr_func;
   /* hshKeys */
     key_array = keys_hash(hash1, key_create_func, key_destr_func,
         &err_info);
-    return(key_array);
+    return key_array;
   } /* hshKeys */
 
 
@@ -1109,5 +1109,5 @@ destrfunctype value_destr_func;
   /* hshValues */
     value_array = values_hash(hash1, value_create_func, value_destr_func,
         &err_info);
-    return(value_array);
+    return value_array;
   } /* hshValues */

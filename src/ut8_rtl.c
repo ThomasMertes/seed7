@@ -285,11 +285,11 @@ filetype aFile;
           result |= character & 0x3F;
           if (result <= 0x7F) {
             raise_error(RANGE_ERROR);
-            return(0);
+            return 0;
           } /* if */
         } else {
           raise_error(RANGE_ERROR);
-          return(0);
+          return 0;
         } /* if */
       } else if ((character & 0xF0) == 0xE0) {
         /* character range 0xE0 to 0xEF (224 to 239) */
@@ -302,15 +302,15 @@ filetype aFile;
             result |= character & 0x3F;
             if (result <= 0x7FF) {  /* (result >= 0xD800 && result <= 0xDFFF)) */
               raise_error(RANGE_ERROR);
-              return(0);
+              return 0;
             } /* if */
           } else {
             raise_error(RANGE_ERROR);
-            return(0);
+            return 0;
           } /* if */
         } else {
           raise_error(RANGE_ERROR);
-          return(0);
+          return 0;
         } /* if */
       } else if ((character & 0xF8) == 0xF0) {
         /* character range 0xF0 to 0xF7 (240 to 247) */
@@ -326,19 +326,19 @@ filetype aFile;
               result |= character & 0x3F;
               if (result <= 0xFFFF) {
                 raise_error(RANGE_ERROR);
-                return(0);
+                return 0;
               } /* if */
             } else {
               raise_error(RANGE_ERROR);
-              return(0);
+              return 0;
             } /* if */
           } else {
             raise_error(RANGE_ERROR);
-            return(0);
+            return 0;
           } /* if */
         } else {
           raise_error(RANGE_ERROR);
-          return(0);
+          return 0;
         } /* if */
       } else if ((character & 0xFC) == 0xF8) {
         /* character range 0xF8 to 0xFB (248 to 251) */
@@ -357,23 +357,23 @@ filetype aFile;
                 result |= character & 0x3F;
                 if (result <= 0x1FFFFF) {
                   raise_error(RANGE_ERROR);
-                  return(0);
+                  return 0;
                 } /* if */
               } else {
                 raise_error(RANGE_ERROR);
-                return(0);
+                return 0;
               } /* if */
             } else {
               raise_error(RANGE_ERROR);
-              return(0);
+              return 0;
             } /* if */
           } else {
             raise_error(RANGE_ERROR);
-            return(0);
+            return 0;
           } /* if */
         } else {
           raise_error(RANGE_ERROR);
-          return(0);
+          return 0;
         } /* if */
       } else if ((character & 0xFC) == 0xFC) {
         /* character range 0xFC to 0xFF (252 to 255) */
@@ -395,37 +395,37 @@ filetype aFile;
                   result |= character & 0x3F;
                   if (result <= 0x3FFFFFF) {
                     raise_error(RANGE_ERROR);
-                    return(0);
+                    return 0;
                   } /* if */
                 } else {
                   raise_error(RANGE_ERROR);
-                  return(0);
+                  return 0;
                 } /* if */
               } else {
                 raise_error(RANGE_ERROR);
-                return(0);
+                return 0;
               } /* if */
             } else {
               raise_error(RANGE_ERROR);
-              return(0);
+              return 0;
             } /* if */
           } else {
             raise_error(RANGE_ERROR);
-            return(0);
+            return 0;
           } /* if */
         } else {
           raise_error(RANGE_ERROR);
-          return(0);
+          return 0;
         } /* if */
       } else {
         /* character not in range 0xC0 to 0xFF (192 to 255) */
         raise_error(RANGE_ERROR);
-        return(0);
+        return 0;
       } /* if */
     } else {
       result = (chartype) character;
     } /* if */
-    return(result);
+    return result;
   } /* ut8Getc */
 
 
@@ -464,15 +464,15 @@ inttype length;
             chars_requested = bytes_there;
             if (!ALLOC_STRI(result, chars_requested)) {
               raise_error(MEMORY_ERROR);
-              return(NULL);
+              return NULL;
             } /* if */
           } else {
             raise_error(MEMORY_ERROR);
-            return(NULL);
+            return NULL;
           } /* if */
         } else {
           raise_error(MEMORY_ERROR);
-          return(NULL);
+          return NULL;
         } /* if */
       } /* if */
       result->size = chars_requested;
@@ -494,7 +494,7 @@ inttype length;
         } /* if */
       } /* if */
     } /* if */
-    return(result);
+    return result;
   } /* ut8Gets */
 
 
@@ -536,7 +536,7 @@ chartype *termination_char;
           if (resized_buffer == NULL) {
             FREE_BSTRI(buffer, memlength);
             raise_error(MEMORY_ERROR);
-            return(NULL);
+            return NULL;
           } /* if */
           buffer = resized_buffer;
           COUNT3_BSTRI(memlength, newmemlength);
@@ -573,7 +573,7 @@ chartype *termination_char;
         } /* if */
       } /* if */
     } /* if */
-    return(result);
+    return result;
   } /* ut8LineRead */
 
 
@@ -649,7 +649,7 @@ chartype *termination_char;
           if (resized_buffer == NULL) {
             FREE_BSTRI(buffer, memlength);
             raise_error(MEMORY_ERROR);
-            return(NULL);
+            return NULL;
           } /* if */
           buffer = resized_buffer;
           COUNT3_BSTRI(memlength, newmemlength);
@@ -687,7 +687,7 @@ chartype *termination_char;
         } /* if */
       } /* if */
     } /* if */
-    return(result);
+    return result;
   } /* ut8WordRead */
 
 

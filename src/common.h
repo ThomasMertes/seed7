@@ -353,6 +353,8 @@ typedef struct winstruct {
 typedef       struct bigintstruct  *      biginttype;
 typedef const struct bigintstruct  *const_biginttype;
 
+#define WITH_BIGINT_CAPACITY
+
 #ifdef INT64TYPE
 #define BIGDIGIT_SIZE 32
 #else
@@ -369,6 +371,9 @@ typedef const struct bigintstruct  *const_biginttype;
 
 typedef struct bigintstruct {
     memsizetype size;
+#ifdef WITH_BIGINT_CAPACITY
+    memsizetype capacity;
+#endif
     bigdigittype bigdigits[1];
   } bigintrecord;
 

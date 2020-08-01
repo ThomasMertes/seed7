@@ -101,14 +101,14 @@ bstritype bstri2;
     result_size = bstri1->size + bstri2->size;
     if (!ALLOC_BSTRI(result, result_size)) {
       raise_error(MEMORY_ERROR);
-      return(NULL);
+      return NULL;
     } else {
       result->size = result_size;
       memcpy(result->mem, bstri1->mem,
           (size_t) bstri1->size * sizeof(uchartype));
       memcpy(&result->mem[bstri1->size], bstri2->mem,
           (size_t) bstri2->size * sizeof(uchartype));
-      return(result);
+      return result;
     } /* if */
   } /* bstCat */
 
@@ -173,7 +173,7 @@ bstritype bstri_from;
       memcpy(result->mem, bstri_from->mem,
           (size_t) new_size * sizeof(uchartype));
     } /* if */
-    return(result);
+    return result;
   } /* bstCreate */
 
 
@@ -228,5 +228,5 @@ stritype stri;
         } /* if */
       } /* for */
     } /* if */
-    return(result);
+    return result;
   } /* bstParse */

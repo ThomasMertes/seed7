@@ -905,8 +905,6 @@ const func PRIMITIVE_WINDOW: create_pixmap (in array string: pattern,
 
 
 const proc: init_pictures is func
-  local
-    var integer: number is 0;
   begin
     monster_pixmap[1] := 8 times PRIMITIVE_WINDOW.value;
 (*
@@ -1211,7 +1209,6 @@ const proc: draw_level_piece (in integer: line, in integer: column) is func
   local
     var integer: col1 is 0;
     var integer: col2 is 0;
-    var integer: len1 is 0;
     var integer: len2 is 0;
   begin
     col1 := 6 + (column + 3) div 14 * 14;
@@ -1373,8 +1370,6 @@ const proc: mark_ladder (in integer: line1, in integer: line2,
 
 const proc: set_ladder (in integer: line1, in integer: line2,
     in integer: column) is func
-  local
-    var integer: number is 0;
   begin
     mark_ladder(line1, line2, column);
     draw_ladder(line1, line2, column);
@@ -1689,7 +1684,6 @@ const proc: mark_hole (in integer: line, in integer: column,
 const proc: fall_at_monsters (inout monsterObj: currObject) is func
   local
     var integer: number is 0;
-    var boolean: collision_found is FALSE;
   begin
     for number range 1 to length(monster) do
       if (currObject.line <> monster[number].line or
@@ -1923,7 +1917,6 @@ const proc: check_hole (inout monsterObj: currObject, in holeType: curr_hole_sta
 const proc: check_direction (inout monsterObj: currObject) is func
   local
     var holeType: curr_hole_status is no_hole;
-    var integer: number is 0;
   begin
     if currObject.moving then
       if currObject.line >= 1 then
@@ -2011,7 +2004,6 @@ const proc: init_round (in integer: num_round) is func
   local
     var time: start_time is time.value;
     var integer: number is 0;
-    var char: cmd is ' ';
   begin
     start_time := time(NOW);
     game.round_finished := FALSE;

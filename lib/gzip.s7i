@@ -97,8 +97,6 @@ const func integer: decodeLengthValue (in string: stri,
     inout integer: bytePos, inout integer: bitPos, in integer: code) is func
   result
     var integer: lengthValue is 0;
-  local
-    var integer: additionalBits is 0;
   begin
     if code <= 264 then
       lengthValue := code - 254;
@@ -124,8 +122,6 @@ const func integer: decodeDistanceValue (in string: stri,
     inout integer: bytePos, inout integer: bitPos, in integer: code) is func
   result
     var integer: distanceValue is 0;
-  local
-    var integer: additionalBits is 0;
   begin
     if code <= 3 then
       distanceValue := succ(code);
@@ -432,7 +428,6 @@ const proc: processCompressedBlock (in string: stri,
     inout boolean: bfinal) is func
   local
     var integer: btype is 0;
-    var integer: currValue is 0;
   begin
     bfinal := odd(getBitsLe(stri, bytePos, bitPos, 1));
     btype := getBitsLe(stri, bytePos, bitPos, 2);

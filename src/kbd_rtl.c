@@ -64,18 +64,18 @@ inttype length;
   /* gkbGets */
     if (length < 0) {
       raise_error(RANGE_ERROR);
-      return(NULL);
+      return NULL;
     } else {
       bytes_requested = (memsizetype) length;
       if (!ALLOC_STRI(result, bytes_requested)) {
         raise_error(MEMORY_ERROR);
-        return(NULL);
+        return NULL;
       } else {
         for (position = 0; position < bytes_requested; position++) {
           result->mem[position] = (strelemtype) gkbGetc();
         } /* for */
         result->size = bytes_requested;
-        return(result);
+        return result;
       } /* if */
     } /* if */
   } /* gkbGets */
@@ -114,7 +114,7 @@ chartype *termination_char;
           if (resized_result == NULL) {
             FREE_STRI(result, memlength);
             raise_error(MEMORY_ERROR);
-            return(NULL);
+            return NULL;
           } /* if */
           result = resized_result;
           COUNT3_STRI(memlength, newmemlength);
@@ -138,7 +138,7 @@ chartype *termination_char;
         *termination_char = (chartype) ch;
       } /* if */
     } /* if */
-    return(result);
+    return result;
   } /* gkbLineRead */
 
 
@@ -179,7 +179,7 @@ chartype *termination_char;
           if (resized_result == NULL) {
             FREE_STRI(result, memlength);
             raise_error(MEMORY_ERROR);
-            return(NULL);
+            return NULL;
           } /* if */
           result = resized_result;
           COUNT3_STRI(memlength, newmemlength);
@@ -204,7 +204,7 @@ chartype *termination_char;
         *termination_char = (chartype) ch;
       } /* if */
     } /* if */
-    return(result);
+    return result;
   } /* gkbWordRead */
 
 
@@ -226,18 +226,18 @@ inttype length;
   /* kbdGets */
     if (length < 0) {
       raise_error(RANGE_ERROR);
-      return(NULL);
+      return NULL;
     } else {
       bytes_requested = (memsizetype) length;
       if (!ALLOC_STRI(result, bytes_requested)) {
         raise_error(MEMORY_ERROR);
-        return(NULL);
+        return NULL;
       } else {
         for (position = 0; position < bytes_requested; position++) {
           result->mem[position] = (strelemtype) kbdGetc();
         } /* for */
         result->size = bytes_requested;
-        return(result);
+        return result;
       } /* if */
     } /* if */
   } /* kbdGets */
@@ -276,7 +276,7 @@ chartype *termination_char;
           if (resized_result == NULL) {
             FREE_STRI(result, memlength);
             raise_error(MEMORY_ERROR);
-            return(NULL);
+            return NULL;
           } /* if */
           result = resized_result;
           COUNT3_STRI(memlength, newmemlength);
@@ -300,7 +300,7 @@ chartype *termination_char;
         *termination_char = (chartype) ch;
       } /* if */
     } /* if */
-    return(result);
+    return result;
   } /* kbdLineRead */
 
 
@@ -341,7 +341,7 @@ chartype *termination_char;
           if (resized_result == NULL) {
             FREE_STRI(result, memlength);
             raise_error(MEMORY_ERROR);
-            return(NULL);
+            return NULL;
           } /* if */
           result = resized_result;
           COUNT3_STRI(memlength, newmemlength);
@@ -358,7 +358,7 @@ chartype *termination_char;
       if (resized_result == NULL) {
         FREE_STRI(result, memlength);
         raise_error(MEMORY_ERROR);
-        return(NULL);
+        return NULL;
       } else {
         result = resized_result;
         COUNT3_STRI(memlength, position);
@@ -366,5 +366,5 @@ chartype *termination_char;
         *termination_char = (chartype) ch;
       } /* if */
     } /* if */
-    return(result);
+    return result;
   } /* kbdWordRead */

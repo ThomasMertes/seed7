@@ -77,7 +77,7 @@ char *strg2;
 #ifdef TRACE_ACTUTIL
     printf("END act_strcmp\n");
 #endif
-    return(strcmp(strg1, ((primacttype) strg2)->name));
+    return strcmp(strg1, ((primacttype) strg2)->name);
   } /* act_strcmp */
 #endif
 
@@ -180,7 +180,7 @@ acttype *action_found;
 #ifdef TRACE_ACTUTIL
     printf("END search_action\n");
 #endif
-    return(result);
+    return result;
   } /* search_action */
 
 
@@ -217,7 +217,7 @@ acttype *action_found;
 #ifdef TRACE_ACTUTIL
     printf("END find_action\n");
 #endif
-    return(result);
+    return result;
   } /* find_action */
 
 
@@ -284,7 +284,7 @@ register acttype action_searched;
 #ifdef TRACE_ACTUTIL
     printf("END get_primact\n");
 #endif
-    return(result);
+    return result;
   } /* get_primact */
 
 
@@ -314,7 +314,7 @@ register acttype action_searched;
 #ifdef TRACE_ACTUTIL
     printf("END act_string\n");
 #endif
-    return(act_table.primitive[actual_action - &act_table.primitive[0].action].name);
+    return act_table.primitive[actual_action - &act_table.primitive[0].action].name;
   } /* act_string */
 
 
@@ -343,7 +343,7 @@ acttype action_searched;
 #ifdef TRACE_ACTUTIL
     printf("END act_string\n");
 #endif
-    return(act_table.primitive[action_number].name);
+    return act_table.primitive[action_number].name;
   } /* act_string */
 #endif
 
@@ -374,7 +374,7 @@ acttype action_searched;
 #ifdef TRACE_ACTUTIL
     printf("END act_okay\n");
 #endif
-    return(actual_action != &act_table.primitive[0].action);
+    return actual_action != &act_table.primitive[0].action;
   } /* act_okay */
 #endif
 
@@ -405,6 +405,6 @@ acttype action_searched;
 #ifdef TRACE_ACTUTIL
     printf("END act_okay\n");
 #endif
-    return(action_number != 0);
+    return action_number != 0;
   } /* act_okay */
 #endif

@@ -162,7 +162,7 @@ listtype arguments;
 #endif
 
   { /* ref_addr */
-    return(bld_reference_temp(arg_2(arguments)));
+    return bld_reference_temp(arg_2(arguments));
   } /* ref_addr */
 
 
@@ -188,9 +188,9 @@ listtype arguments;
       created_object->descriptor.property = obj1->descriptor.property;
       INIT_CATEGORY_OF_OBJ(created_object, obj1->objcategory);
       created_object->value.objvalue = NULL;
-      return(bld_reference_temp(created_object));
+      return bld_reference_temp(created_object);
     } else {
-      return(raise_exception(SYS_MEM_EXCEPTION));
+      return raise_exception(SYS_MEM_EXCEPTION);
     } /* if */
   } /* ref_alloc */
 
@@ -207,8 +207,8 @@ listtype arguments;
 
   { /* ref_arrmaxidx */
     isit_reference(arg_1(arguments));
-    return(bld_int_temp(refArrmaxidx(
-        take_reference(arg_1(arguments)))));
+    return bld_int_temp(refArrmaxidx(
+        take_reference(arg_1(arguments))));
   } /* ref_arrmaxidx */
 
 
@@ -224,8 +224,8 @@ listtype arguments;
 
   { /* ref_arrminidx */
     isit_reference(arg_1(arguments));
-    return(bld_int_temp(refArrminidx(
-        take_reference(arg_1(arguments)))));
+    return bld_int_temp(refArrminidx(
+        take_reference(arg_1(arguments))));
   } /* ref_arrminidx */
 
 
@@ -241,8 +241,8 @@ listtype arguments;
 
   { /* ref_arrtolist */
     isit_reference(arg_1(arguments));
-    return(bld_reflist_temp(refArrtolist(
-        take_reference(arg_1(arguments)))));
+    return bld_reflist_temp(refArrtolist(
+        take_reference(arg_1(arguments))));
   } /* ref_arrtolist */
 
 
@@ -258,8 +258,8 @@ listtype arguments;
 
   { /* ref_body */
     isit_reference(arg_1(arguments));
-    return(bld_reference_temp(refBody(
-        take_reference(arg_1(arguments)))));
+    return bld_reference_temp(refBody(
+        take_reference(arg_1(arguments))));
   } /* ref_body */
 
 
@@ -278,7 +278,7 @@ listtype arguments;
 
   /* ref_build */
     result = bld_reference_temp(arg_1(arguments));
-    return(result);
+    return result;
   } /* ref_build */
 
 
@@ -294,8 +294,8 @@ listtype arguments;
 
   { /* ref_category */
     isit_reference(arg_1(arguments));
-    return(bld_int_temp(refCategory(
-        take_reference(arg_1(arguments)))));
+    return bld_int_temp(refCategory(
+        take_reference(arg_1(arguments))));
   } /* ref_category */
 
 
@@ -311,8 +311,8 @@ listtype arguments;
 
   { /* ref_cat_parse */
     isit_stri(arg_3(arguments));
-    return(bld_int_temp(refCatParse(
-        take_stri(arg_3(arguments)))));
+    return bld_int_temp(refCatParse(
+        take_stri(arg_3(arguments))));
   } /* ref_cat_parse */
 
 
@@ -328,8 +328,8 @@ listtype arguments;
 
   { /* ref_cat_str */
     isit_int(arg_1(arguments));
-    return(bld_stri_temp(refCatStr(
-        take_int(arg_1(arguments)))));
+    return bld_stri_temp(refCatStr(
+        take_int(arg_1(arguments))));
   } /* ref_cat_str */
 
 
@@ -360,7 +360,7 @@ listtype arguments;
     } else {
       result = 0;
     } /* if */
-    return(bld_int_temp(result));
+    return bld_int_temp(result);
   } /* ref_cmp */
 
 
@@ -382,7 +382,7 @@ listtype arguments;
     obj_arg1 = arg_1(arguments);
     isit_reference(obj_arg1);
     result = NULL;
-    return(bld_reflist_temp(result));
+    return bld_reflist_temp(result);
   } /* ref_content */
 
 
@@ -398,7 +398,7 @@ listtype arguments;
 
   { /* ref_conv */
     isit_reference(arg_3(arguments));
-    return(bld_reference_temp(take_reference(arg_3(arguments))));
+    return bld_reference_temp(take_reference(arg_3(arguments)));
   } /* ref_conv */
 
 
@@ -421,7 +421,7 @@ listtype arguments;
     is_variable(ref_variable);
     isit_reference(arg_3(arguments));
     ref_variable->value.objvalue = take_reference(arg_3(arguments));
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* ref_cpy */
 
 
@@ -445,7 +445,7 @@ listtype arguments;
     isit_reference(refe_from);
     SET_CATEGORY_OF_OBJ(refe_to, REFOBJECT);
     refe_to->value.objvalue = take_reference(refe_from);
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* ref_create */
 
 
@@ -461,7 +461,7 @@ listtype arguments;
 
   { /* ref_deref */
     isit_reference(arg_1(arguments));
-    return(take_reference(arg_1(arguments)));
+    return take_reference(arg_1(arguments));
   } /* ref_deref */
 
 
@@ -480,9 +480,9 @@ listtype arguments;
     isit_reference(arg_3(arguments));
     if (take_reference(arg_1(arguments)) ==
         take_reference(arg_3(arguments))) {
-      return(SYS_TRUE_OBJECT);
+      return SYS_TRUE_OBJECT;
     } else {
-      return(SYS_FALSE_OBJECT);
+      return SYS_FALSE_OBJECT;
     } /* if */
   } /* ref_eq */
 
@@ -521,9 +521,9 @@ listtype arguments;
     name = (const_cstritype) file_name(file_number);
     result = cstri_to_stri(name);
     if (result == NULL) {
-      return(raise_exception(SYS_MEM_EXCEPTION));
+      return raise_exception(SYS_MEM_EXCEPTION);
     } else {
-      return(bld_stri_temp(result));
+      return bld_stri_temp(result);
     } /* if */
   } /* ref_file */
 
@@ -561,7 +561,7 @@ listtype arguments;
 #else
     result = NULL;
 #endif
-    return(bld_reference_temp(result));
+    return bld_reference_temp(result);
   } /* ref_find */
 
 
@@ -577,8 +577,8 @@ listtype arguments;
 
   { /* ref_hashcode */
     isit_reference(arg_1(arguments));
-    return(bld_int_temp((inttype)
-        (((unsigned int) take_reference(arg_1(arguments))) >> 6)));
+    return bld_int_temp((inttype)
+        (((unsigned int) take_reference(arg_1(arguments))) >> 6));
   } /* ref_hashcode */
 
 
@@ -594,8 +594,8 @@ listtype arguments;
 
   { /* ref_hshdatatolist */
     isit_reference(arg_1(arguments));
-    return(bld_reflist_temp(refHshDataToList(
-        take_reference(arg_1(arguments)))));
+    return bld_reflist_temp(refHshDataToList(
+        take_reference(arg_1(arguments))));
   } /* ref_hshdatatolist */
 
 
@@ -611,8 +611,8 @@ listtype arguments;
 
   { /* ref_hshkeytolist */
     isit_reference(arg_1(arguments));
-    return(bld_reflist_temp(refHshKeyToList(
-        take_reference(arg_1(arguments)))));
+    return bld_reflist_temp(refHshKeyToList(
+        take_reference(arg_1(arguments))));
   } /* ref_hshkeytolist */
 
 
@@ -637,9 +637,9 @@ listtype arguments;
     printf(":\n"); */
     if (HAS_ENTITY(symb_object) &&
         GET_ENTITY(symb_object)->syobject != NULL) {
-      return(SYS_TRUE_OBJECT);
+      return SYS_TRUE_OBJECT;
     } else {
-      return(SYS_FALSE_OBJECT);
+      return SYS_FALSE_OBJECT;
     } /* if */
   } /* ref_issymb */
 
@@ -657,9 +657,9 @@ listtype arguments;
   { /* ref_isvar */
     isit_reference(arg_1(arguments));
     if (refIsVar(take_reference(arg_1(arguments)))) {
-      return(SYS_TRUE_OBJECT);
+      return SYS_TRUE_OBJECT;
     } else {
-      return(SYS_FALSE_OBJECT);
+      return SYS_FALSE_OBJECT;
     } /* if */
   } /* ref_isvar */
 
@@ -676,8 +676,8 @@ listtype arguments;
 
   { /* ref_itftosct */
     isit_reference(arg_1(arguments));
-    return(bld_reference_temp(refItftosct(
-        take_reference(arg_1(arguments)))));
+    return bld_reference_temp(refItftosct(
+        take_reference(arg_1(arguments))));
   } /* ref_itftosct */
 
 
@@ -693,8 +693,8 @@ listtype arguments;
 
   { /* ref_line */
     isit_reference(arg_1(arguments));
-    return(bld_int_temp(refLine(
-        take_reference(arg_1(arguments)))));
+    return bld_int_temp(refLine(
+        take_reference(arg_1(arguments))));
   } /* ref_line */
 
 
@@ -710,8 +710,8 @@ listtype arguments;
 
   { /* ref_local_consts */
     isit_reference(arg_1(arguments));
-    return(bld_reflist_temp(refLocalConsts(
-        take_reference(arg_1(arguments)))));
+    return bld_reflist_temp(refLocalConsts(
+        take_reference(arg_1(arguments))));
   } /* ref_local_consts */
 
 
@@ -727,8 +727,8 @@ listtype arguments;
 
   { /* ref_local_vars */
     isit_reference(arg_1(arguments));
-    return(bld_reflist_temp(refLocalVars(
-        take_reference(arg_1(arguments)))));
+    return bld_reflist_temp(refLocalVars(
+        take_reference(arg_1(arguments))));
   } /* ref_local_vars */
 
 
@@ -759,7 +759,7 @@ trace2(refe_to);
 */
 /* FIX !!!!! @@@@@ ##### $$$$$ %%%%% ^^^^^ &&&&& */
     refe_to->value.objvalue = refe_from;
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* ref_mkref */
 
 
@@ -780,12 +780,12 @@ listtype arguments;
     isit_reference(arg_1(arguments));
     obj = take_reference(arg_1(arguments));
     if (obj == NULL) {
-      return(bld_reference_temp(NULL));
+      return bld_reference_temp(NULL);
     } else {
       if (HAS_ENTITY(obj)) {
-        return(bld_reference_temp(GET_ENTITY(obj)->owner->obj));
+        return bld_reference_temp(GET_ENTITY(obj)->owner->obj);
       } else {
-        return(bld_reference_temp(NULL));
+        return bld_reference_temp(NULL);
       } /* if */
     } /* if */
   } /* ref_name */
@@ -806,9 +806,9 @@ listtype arguments;
     isit_reference(arg_3(arguments));
     if (take_reference(arg_1(arguments)) !=
         take_reference(arg_3(arguments))) {
-      return(SYS_TRUE_OBJECT);
+      return SYS_TRUE_OBJECT;
     } else {
-      return(SYS_FALSE_OBJECT);
+      return SYS_FALSE_OBJECT;
     } /* if */
   } /* ref_ne */
 
@@ -824,7 +824,7 @@ listtype arguments;
 #endif
 
   { /* ref_nil */
-    return(bld_reference_temp(NULL));
+    return bld_reference_temp(NULL);
   } /* ref_nil */
 
 
@@ -840,8 +840,8 @@ listtype arguments;
 
   { /* ref_num */
     isit_reference(arg_1(arguments));
-    return(bld_int_temp(refNum(
-        take_reference(arg_1(arguments)))));
+    return bld_int_temp(refNum(
+        take_reference(arg_1(arguments))));
   } /* ref_num */
 
 
@@ -880,9 +880,9 @@ listtype arguments;
     } /* if */
     if (err_info != OKAY_NO_ERROR) {
       emptylist(result);
-      return(raise_exception(SYS_MEM_EXCEPTION));
+      return raise_exception(SYS_MEM_EXCEPTION);
     } /* if */
-    return(bld_reflist_temp(result));
+    return bld_reflist_temp(result);
   } /* ref_params */
 
 
@@ -897,7 +897,7 @@ listtype arguments;
 #endif
 
   { /* ref_prog */
-    return(bld_reference_temp(NULL));
+    return bld_reference_temp(NULL);
   } /* ref_prog */
 
 
@@ -923,7 +923,7 @@ listtype arguments;
     } else {
       result = NULL;
     } /* if */
-    return(bld_reference_temp(result));
+    return bld_reference_temp(result);
   } /* ref_resini */
 
 
@@ -949,7 +949,7 @@ listtype arguments;
     } else {
       result = NULL;
     } /* if */
-    return(bld_reference_temp(result));
+    return bld_reference_temp(result);
   } /* ref_result */
 
 
@@ -995,7 +995,7 @@ listtype arguments;
         } /* if */
       } /* if */
     } /* if */
-    return(result);
+    return result;
   } /* ref_scan */
 
 
@@ -1011,8 +1011,8 @@ listtype arguments;
 
   { /* ref_scttolist */
     isit_reference(arg_1(arguments));
-    return(bld_reflist_temp(refScttolist(
-        take_reference(arg_1(arguments)))));
+    return bld_reflist_temp(refScttolist(
+        take_reference(arg_1(arguments))));
   } /* ref_scttolist */
 
 
@@ -1086,9 +1086,9 @@ printf("\n");
                 FREE_STRUCT(stru1, stru1->size);
                 arg_1(arguments)->value.structvalue = NULL;
               } /* if */
-              return(result);
+              return result;
             } else {
-              return(struct_pointer);
+              return struct_pointer;
             } /* if */
           } /* if */
           position--;
@@ -1096,7 +1096,7 @@ printf("\n");
         } /* while */
       } /* if */
     } /* if */
-    return(raise_exception(SYS_RNG_EXCEPTION));
+    return raise_exception(SYS_RNG_EXCEPTION);
   } /* ref_select */
 
 
@@ -1115,7 +1115,7 @@ listtype arguments;
     isit_int(arg_2(arguments));
     refSetCategory(take_reference(arg_1(arguments)),
                    take_int(      arg_2(arguments)));
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* ref_setcategory */
 
 
@@ -1144,9 +1144,9 @@ listtype arguments;
           get_param_list(take_reflist(arg_2(arguments)), &err_info);
     } /* if */
     if (err_info != OKAY_NO_ERROR) {
-      return(raise_exception(SYS_MEM_EXCEPTION));
+      return raise_exception(SYS_MEM_EXCEPTION);
     } /* if */
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* ref_setparams */
 
 
@@ -1165,7 +1165,7 @@ listtype arguments;
     isit_type(arg_2(arguments));
     refSetType(take_reference(arg_1(arguments)),
                take_type(     arg_2(arguments)));
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* ref_settype */
 
 
@@ -1187,7 +1187,7 @@ listtype arguments;
     } else {
       refSetVar(take_reference(arg_1(arguments)), FALSE);
     } /* if */
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* ref_setvar */
 
 
@@ -1203,8 +1203,8 @@ listtype arguments;
 
   { /* ref_str */
     isit_reference(arg_1(arguments));
-    return(bld_stri_temp(refStr(
-        take_reference(arg_1(arguments)))));
+    return bld_stri_temp(refStr(
+        take_reference(arg_1(arguments))));
   } /* ref_str */
 
 
@@ -1238,7 +1238,7 @@ listtype arguments;
     /* printf("ref symb %lu ", (long unsigned) GET_ENTITY(symb_object));
     trace1(symb_object);
     printf(":\n"); */
-    return(bld_param_temp(symb_object));
+    return bld_param_temp(symb_object);
   } /* ref_symb */
 
 
@@ -1254,7 +1254,7 @@ listtype arguments;
 
   { /* ref_trace */
     trace1(arg_1(arguments));
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* ref_trace */
 
 
@@ -1268,10 +1268,19 @@ objecttype ref_type (arguments)
 listtype arguments;
 #endif
 
-  { /* ref_type */
+  {
+    objecttype obj_arg;
+
+  /* ref_type */
     isit_reference(arg_1(arguments));
-    return(bld_type_temp(refType(
-        take_reference(arg_1(arguments)))));
+    obj_arg = take_reference(arg_1(arguments));
+    if (obj_arg == NULL) {
+      return raise_exception(SYS_RNG_EXCEPTION);
+    } else if (obj_arg->type_of == NULL) {
+      return raise_exception(SYS_RNG_EXCEPTION);
+    } else {
+      return bld_type_temp(obj_arg->type_of);
+    } /* if */
   } /* ref_type */
 
 
@@ -1287,6 +1296,6 @@ listtype arguments;
 
   { /* ref_value */
     isit_reference(arg_1(arguments));
-    return(bld_reference_temp(refValue(
-        take_reference(arg_1(arguments)))));
+    return bld_reference_temp(refValue(
+        take_reference(arg_1(arguments))));
   } /* ref_value */

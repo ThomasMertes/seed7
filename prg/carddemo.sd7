@@ -64,7 +64,6 @@ const func PRIMITIVE_WINDOW: take_card is func
   result
     var PRIMITIVE_WINDOW: result is PRIMITIVE_WINDOW.value;
   local
-    var char: ch is ' ';
     var integer: line is 0;
     var integer: column is 0;
   begin

@@ -73,6 +73,11 @@ char **argv;
     if (option.version_info) {
       printf("HI INTERPRETER Version 4.5.%d  Copyright (c) 1990-2010 Thomas Mertes\n", LEVEL);
     } /* if */
+#ifdef CATCH_SIGNALS
+    if (option.catch_signals) {
+      activate_signal_handlers();
+    } /* if */
+#endif
     if (argc == 1) {
       printf("usage: hi [options] sourcefile [parameters]\n");
     } else {

@@ -1,3 +1,48 @@
+20100418:
+- Many thanks to "Mensanator" for his help to debug some 64-bit / Mac OS X
+  problems.
+- The chapters explaining operating system files, primitive actions and the
+  types 'float' and 'type' in the manual were improved.
+- A free list memory management for small 'biginttype' (bigInteger) values
+  was introduced in "big_rtl.c". This improves the performance of some
+  programs by up to 40 percent.
+- The macro definition of REALLOC_BIG in "big_rtl.c" was changed to cooperate
+  with the free list memory management.
+- The file common.h was improved to add a capacity to the struct bigintstruct.
+- The graph.s7i library was improved.
+- The chk_all.sd7 example program was improved to close the pipe files.
+- The compiler (comp.sd7) was improved to handle empty structs correctly.
+- The compiler was improved to produce better code when local functions use
+  variables from surrounding functions.
+- Some changes in the compiler were done to make sure that always the same
+  C program is generated.
+- The compiler was changed to create a typedef before a type is used.
+- The compiler was improved to create data structure definitions which are
+  helpful for a debugger.
+- The compiler was improved to produce better code for the copy actions arr_cpy,
+  big_cpy, bst_cpy, drw_cpy, prg_cpy, rfl_cpy, sct_cpy, set_cpy and str_cpy.
+- The compiler was improved to produce better code for the actions prc_for_to,
+  prc_for_downto, hsh_for, hsh_for_data_key, hsh_for_key.
+- Casts were added to compiler generated function calls of bstCreate,
+  bstDestr, bstCpy, arrBaselit, arrBaselit2, arrExtend, arrGen, drwFPolyLine,
+  drwPolyLine, prgExec, rflHead, setSConv, prgDestr and to various other
+  places.
+- The compiler was improved to create prototypes for the functions bigGcd,
+  bigOdd, bigPredTemp, bigSuccTemp, cmdChdir, cmdConfigValue, cmdMkdir,
+  drwBackground, drwGenPointList, drwNewPixmap, drwPolyLine, drwFPolyLine,
+  drwSetTransparentColor, prgDestr prgExec, refType, rflHead, setIConv,
+  setSConv, strGetenv, strToUtf8, strUtf8ToStri and setupFloat.
+- The function ref_type in "reflib.c" was improved to reliably raise an
+  exception when the type is NULL.
+- Unused variables were removed in the files cards.s7i, draw.s7i, gzip.s7i,
+  seed7_05.s7i, addup.sd7, bas7.sd7, carddemo.sd7, carddemo.sd7, chk_all.sd7,
+  comanche.sd7, comp.sd7, lander.sd7, mahjong.sd7, mandelbr.sd7, panic.sd7,
+  sl.sd7, snake.sd7, sokoban.sd7, sudoku7.sd7 and tar7.sd7 .
+- Return statements were changed to omit parentheses in the files actutl.c,
+  analyze.c, bst_rtl.c, dir_dos.c, dir_rtl.c, dir_win.c, drw_rtl.c, fil_rtl.c,
+  flt_rtl.c, hsh_rtl.c, kbd_inf.c, kbd_poll.c, kbd_rtl.c, reflib.c, rfl_data.c,
+  soc_rtl.c, tim_rtl.c and ut8_rtl.c .
+
 20100404:
 - Many thanks to "Mensanator" for his help to investigate 64-bit and Mac OS X
   problems.

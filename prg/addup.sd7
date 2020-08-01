@@ -77,7 +77,6 @@ const proc: human_move (in integer: max_step, inout integer: sum) is func
 
 const proc: comp_move (in integer: max_step, inout integer: sum, in integer: goal) is func
   local
-    var boolean: okay is FALSE;
     var string: answer is " ";
     var integer: comp_step is 0;
   begin
@@ -142,7 +141,6 @@ const proc: main is func
   local
     var string: answer is " ";
     var integer: goal is 0;
-    var integer: sum is 0;
     var integer: max_step is 0;
   begin
     (* OUT := open_reverse(OUT, 79); *)

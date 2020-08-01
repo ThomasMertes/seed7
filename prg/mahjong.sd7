@@ -1685,10 +1685,6 @@ const func integer: getFreePlaceColumn (in integer: level, in integer: line) is 
  *  Find a free position to place a tile in the inverse game.
  *)
 const proc: getFreePlace (inout positionType: pos) is func
-  local
-    var integer: firstPos is 0;
-    var integer: lastPos is 0;
-    var integer: emptyPos is 0;
   begin
     repeat
       pos.level := rand(1, length(field));

@@ -225,7 +225,7 @@ filetype aFile;
       } /* if */
     } /* if */
 #endif
-    return(result);
+    return result;
   } /* getFileLengthUsingSeek */
 
 
@@ -288,7 +288,7 @@ filetype aFile;
       } /* if */
     } /* if */
 #endif
-    return(result);
+    return result;
   } /* getBigFileLengthUsingSeek */
 
 
@@ -319,7 +319,7 @@ filetype aFile;
     } else {
       result = getBigFileLengthUsingSeek(aFile);
     } /* if */
-    return(result);
+    return result;
   } /* filBigLng */
 
 
@@ -384,21 +384,21 @@ filetype aFile;
     current_file_position = myLseek(fileno(aFile), (offsettype) 0, SEEK_CUR);
     if (current_file_position == (offsettype) -1) {
       raise_error(FILE_ERROR);
-      return(NULL);
+      return NULL;
     } else if (sizeof(offsettype) == 8) {
-      return(bigFromUInt64((uint64type) current_file_position + 1));
+      return bigFromUInt64((uint64type) current_file_position + 1);
     } else {
-      return(bigFromUInt32((uint32type) current_file_position + 1));
+      return bigFromUInt32((uint32type) current_file_position + 1);
     } /* if */
 #else
     current_file_position = myFtell(aFile);
     if (current_file_position == -1) {
       raise_error(FILE_ERROR);
-      return(NULL);
+      return NULL;
     } else if (sizeof(offsettype) == 8) {
-      return(bigFromUInt64((uint64type) current_file_position + 1));
+      return bigFromUInt64((uint64type) current_file_position + 1);
     } else {
-      return(bigFromUInt32((uint32type) current_file_position + 1));
+      return bigFromUInt32((uint32type) current_file_position + 1);
     } /* if */
 #endif
   } /* filBigTell */
@@ -464,12 +464,12 @@ inttype length;
             allocated_size = bytes_there;
             if (!ALLOC_STRI(result, allocated_size)) {
               raise_error(MEMORY_ERROR);
-              return(NULL);
+              return NULL;
             } /* if */
           } else if (bytes_requested <= 0x1FFFFFFF) {
             /* The request for memory already failed */
             raise_error(MEMORY_ERROR);
-            return(NULL);
+            return NULL;
           } /* if */
         } /* if */
       } /* if */
@@ -485,7 +485,7 @@ inttype length;
         allocated_size = READ_BLOCK_SIZE;
         if (!ALLOC_STRI(result, allocated_size)) {
           raise_error(MEMORY_ERROR);
-          return(NULL);
+          return NULL;
         } else {
           read_size_requested = READ_BLOCK_SIZE;
           if (read_size_requested > bytes_requested) {
@@ -499,7 +499,7 @@ inttype length;
             if (resized_result == NULL) {
               FREE_STRI(result, result_size);
               raise_error(MEMORY_ERROR);
-              return(NULL);
+              return NULL;
             } else {
               result = resized_result;
               COUNT3_STRI(result_size, allocated_size);
@@ -532,14 +532,14 @@ inttype length;
         if (resized_result == NULL) {
           FREE_STRI(result, allocated_size);
           raise_error(MEMORY_ERROR);
-          return(NULL);
+          return NULL;
         } else {
           result = resized_result;
           COUNT3_STRI(allocated_size, result_size);
         } /* if */
       } /* if */
     } /* if */
-    return(result);
+    return result;
   } /* filGets */
 
 
@@ -574,7 +574,7 @@ filetype aFile;
         result = FALSE;
       } /* if */
     } /* if */
-    return(result);
+    return result;
   } /* filHasNext */
 
 
@@ -612,7 +612,7 @@ chartype *termination_char;
           if (resized_result == NULL) {
             FREE_STRI(result, memlength);
             raise_error(MEMORY_ERROR);
-            return(NULL);
+            return NULL;
           } /* if */
           result = resized_result;
           COUNT3_STRI(memlength, newmemlength);
@@ -636,7 +636,7 @@ chartype *termination_char;
         *termination_char = (chartype) ch;
       } /* if */
     } /* if */
-    return(result);
+    return result;
   } /* filLineRead */
 
 
@@ -670,7 +670,7 @@ filetype aFile;
     if (result == NULL) {
       raise_error(MEMORY_ERROR);
     } /* if */
-    return(result);
+    return result;
   } /* filLit */
 
 
@@ -702,7 +702,7 @@ filetype aFile;
     } else {
       result = getFileLengthUsingSeek(aFile);
     } /* if */
-    return(result);
+    return result;
   } /* filLng */
 
 
@@ -744,7 +744,7 @@ stritype file_mode;
       } /* if */
     } /* if */
     /* printf("END filOpen(%lX, %lX) => %lX\n", file_name, file_mode, result); */
-    return(result);
+    return result;
   } /* filOpen */
 
 
@@ -788,7 +788,7 @@ stritype file_mode;
       } /* if */
       free_cstri(cmd, command);
     } /* if */
-    return(result);
+    return result;
   } /* filPopen */
 
 
@@ -876,12 +876,12 @@ filetype aFile;
     file_position = ftell(aFile);
     if (file_position == -1) {
       raise_error(FILE_ERROR);
-      return(0);
+      return 0;
     } else if (file_position + 1 <= 0) {
       raise_error(RANGE_ERROR);
-      return(0);
+      return 0;
     } else {
-      return(file_position + 1);
+      return file_position + 1;
     } /* if */
   } /* filTell */
 
@@ -924,7 +924,7 @@ chartype *termination_char;
           if (resized_result == NULL) {
             FREE_STRI(result, memlength);
             raise_error(MEMORY_ERROR);
-            return(NULL);
+            return NULL;
           } /* if */
           result = resized_result;
           COUNT3_STRI(memlength, newmemlength);
@@ -949,7 +949,7 @@ chartype *termination_char;
         *termination_char = (chartype) ch;
       } /* if */
     } /* if */
-    return(result);
+    return result;
   } /* filWordRead */
 
 

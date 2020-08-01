@@ -188,22 +188,15 @@ const proc: FILL_POLYLINE (inout PRIMITIVE_WINDOW param,
     ref pixel param) is                                              action "DRW_FPOLYLINE";
 
 
-const type: GRAPH is subtype object;
-
-const proc: destroy (ref GRAPH param) is                      noop;
-const proc: (ref GRAPH param) ::= (ref GRAPH param) is        action "ENU_CREATE";
-const proc: (ref GRAPH param) := (ref GRAPH param) is         action "ENU_CPY";
-(* const func GRAPH: (ref GRAPH param) conn (ref GRAPH param) is   DYNAMIC; *)
-(* const func GRAPH: (ref GRAPH param) over (ref GRAPH param) is   DYNAMIC; *)
+const type: GRAPH is sub object interface;
 
 
-const type: NULL_GRAPH is new GRAPH struct
+const type: NULL_GRAPH is new struct
   end struct;
 
-const NULL_GRAPH: EMPTY_NODE is NULL_GRAPH.value;
+type_implements_interface(NULL_GRAPH, GRAPH);
 
-const proc: (ref GRAPH param) ::= (ref NULL_GRAPH param) is          action "ENU_CREATE";
-const proc: (ref GRAPH param) := (ref NULL_GRAPH param) is           action "ENU_CPY";
+const NULL_GRAPH: EMPTY_NODE is NULL_GRAPH.value;
 
 
 (* The type window and its functions are not in use *)
@@ -215,10 +208,10 @@ const type: window is new struct
 
 const window: NULL_WINDOW is window.value;
 
-const proc: (ref window param) draw (ref GRAPH param) is          DYNAMIC;
-const proc: SHOW (ref GRAPH param) is                         DYNAMIC;
+const proc: (inout window param) draw (ref GRAPH param) is      DYNAMIC;
+const proc: SHOW (ref GRAPH param) is                           DYNAMIC;
 
-const proc: (ref window param) draw (ref NULL_GRAPH param) is   noop;
+const proc: (inout window param) draw (ref NULL_GRAPH param) is noop;
 
 
 var integer: CURR_X_POS is 0;
@@ -403,16 +396,16 @@ const type: CONN_GRAPH is sub NULL_GRAPH struct
   end struct;
 
 
-const func CONN_GRAPH: (ref GRAPH: LEFT) conn (ref GRAPH: RIGHT) is func
+const func CONN_GRAPH: (ref GRAPH: left) conn (ref GRAPH: right) is func
     result
       var CONN_GRAPH: result is CONN_GRAPH.value;
     begin
       result := CONN_GRAPH.value;
-      result.first := LEFT;
-      result.second := RIGHT;
+      result.first := left;
+      result.second := right;
     end func;
 
-const proc: (ref window: curr_window) draw (ref CONN_GRAPH: conn) is func
+const proc: (inout window: curr_window) draw (ref CONN_GRAPH: conn) is func
     begin
       curr_window draw conn.first;
       CURR_X_POS := END_X_POS;
@@ -446,7 +439,7 @@ const func OVER_GRAPH: (ref GRAPH: left) over (ref GRAPH: right) is func
       result.second := right;
     end func;
 
-const proc: (ref window: curr_window) draw (ref OVER_GRAPH: over) is func
+const proc: (inout window: curr_window) draw (ref OVER_GRAPH: over) is func
     local
       var integer: CURR_X_BACKUP is 0;
       var integer: CURR_Y_BACKUP is 0;
@@ -483,7 +476,7 @@ const func COLOR_GRAPH: (in pixel: col) color (ref GRAPH: pic) is func
       result.picture := pic;
     end func;
 
-const proc: (ref window: curr_window) draw (ref COLOR_GRAPH: col_graph) is func
+const proc: (inout window: curr_window) draw (ref COLOR_GRAPH: col_graph) is func
     begin
       SET_COLOR(col_graph.color);
       curr_window draw col_graph.picture;
@@ -575,13 +568,13 @@ const func GRAPH: (ref GRAPH: CURR_GRAPH) mult (in integer: factor) is func
   end func;
 
 
-const proc: (ref window: curr_window) << (ref GRAPH: DRAWING) is func
+const proc: (inout window: curr_window) << (ref GRAPH: DRAWING) is func
   begin
     curr_window.CONTENT := curr_window.CONTENT conn DRAWING;
   end func;
 
 
-const proc: FLUSH (ref window: curr_window) is func
+const proc: FLUSH (inout window: curr_window) is func
   begin
 (*  PRINT("FLUSH WINDOW"); *)
     DRAW(CLEAR);
