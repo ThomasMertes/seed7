@@ -623,12 +623,12 @@ Seed7 can be used in various application areas:
 </h3></a><hr />
 <p>
 The Seed7 package contains more than 100000 lines of C and more
-than 300000 lines of Seed7. For version 2019-12-15 the number of lines is:
+than 300000 lines of Seed7. For version 2019-12-29 the number of lines is:
 </p><dl><dd><table border="0" cellspacing="0">
-  <tr><td align="right">152766</td> <td width="20"></td> <td>C source files (*.c)</td></tr>
-  <tr><td align="right"> 12171</td> <td width="20"></td> <td>C header files (*.h)</td></tr>
-  <tr><td align="right">165580</td> <td width="20"></td> <td>Seed7 source files (*.sd7)</td></tr>
-  <tr><td align="right">146933</td> <td width="20"></td> <td>Seed7 library/include files (*.s7i)</td></tr>
+  <tr><td align="right">152752</td> <td width="20"></td> <td>C source files (*.c)</td></tr>
+  <tr><td align="right"> 12178</td> <td width="20"></td> <td>C header files (*.h)</td></tr>
+  <tr><td align="right">165581</td> <td width="20"></td> <td>Seed7 source files (*.sd7)</td></tr>
+  <tr><td align="right">146949</td> <td width="20"></td> <td>Seed7 library/include files (*.s7i)</td></tr>
 </table></dd></dl><p>
 C code (*.c and *.h files) can be divided into the following areas:
 </p><dl><dd><table border="0" cellspacing="0">
@@ -1581,10 +1581,10 @@ a client may access a database. Seed7 accomplishes database independence
 by using database drivers as abstraction layers between the application
 and the database. There are database drivers for MySQL, MariaDB, SQLLite,
 PostgreSQL, Oracle, ODBC, Firebird and Interbase databases. You might have
-heared of a database interface named ODBC. Compared to the ODBC interface
-the database independend API of Seed7 is much simpler. The drivers of ODBC
+heard of a database interface named ODBC. Compared to the ODBC interface
+the database independent API of Seed7 is much simpler. The drivers of ODBC
 come also in varying quality so some features might not be present or they
-might work wrong. How the database independend API of Seed7 works can be
+might work wrong. How the database independent API of Seed7 works can be
 seen in the following example:
 </p><pre class="indent">
 <span class="keywd">const</span> <span class="type">proc</span>: dbDemo <span class="keywd">is</span> <span class="keywd">func</span>
@@ -1719,7 +1719,7 @@ For call-by-value parameters (<tt><span class="keywd">val</span></tt> and <tt><s
 is copied, when the function is called. For call-by-refererence parameters
 (<tt><span class="keywd">ref</span></tt> and <tt><span class="keywd">inout</span></tt>) the function uses a reference to the actual parameter value.
 Since a call-by-reference parameter is not copied it can provide better
-performance for structured types like strings, arrays, structs and hashs.
+performance for structured types like strings, arrays, structs and hashes.
 </p></div>
 
 <div><br /><a name="faq_in_parameter"><h3>What is an 'in' parameter?
@@ -2486,7 +2486,7 @@ currently supported databases:
   
 </table></dd></dl><p>
 If no static library is provided in the makefile (by writing it to
-<tt><span class="stri">"chkccomp.h"</span></tt>) a default value if used by <tt><span class="stri">"chkccomp.c"</span></tt>. This default
+<tt><span class="stri">"chkccomp.h"</span></tt>) a default value is used by <tt><span class="stri">"chkccomp.c"</span></tt>. This default
 value differs between Linux, macOS and Windows:
 </p><dl><dd><table border="1" cellspacing="0" cellpadding="5">
   
@@ -2503,7 +2503,7 @@ value differs between Linux, macOS and Windows:
   
 </table></dd></dl><p>
 If no dynamic library is provided in the makefile (by writing it to
-<tt><span class="stri">"chkccomp.h"</span></tt>) a default value if used by <tt><span class="stri">"chkccomp.c"</span></tt>. This default
+<tt><span class="stri">"chkccomp.h"</span></tt>) a default value is used by <tt><span class="stri">"chkccomp.c"</span></tt>. This default
 value differs between Linux, macOS and Windows:
 </p><dl><dd><table border="1" cellspacing="0" cellpadding="5">
   

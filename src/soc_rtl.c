@@ -364,7 +364,7 @@ static void dump_addrinfo (struct addrinfo *addrinfo_list)
 
 
 /**
- *  Read a string, if we do not know how many bytes are avaliable.
+ *  Read a string, if we do not know how many bytes are available.
  *  This function reads data into a list of buffers. This is done
  *  until enough characters are read or EOF has been reached.
  *  Afterwards the string is allocated, the data is copied from the
@@ -871,7 +871,7 @@ striType socGets (socketType inSocket, intType length, charType *const eofIndica
         } /* if */
       } else {
         if (chars_requested > GETS_DEFAULT_SIZE) {
-          /* Read a string, if we do not know how many bytes are avaliable. */
+          /* Read a string, if we do not know how many bytes are available. */
           result = receive_and_alloc_stri(inSocket, chars_requested, &err_info);
           if (unlikely(err_info != OKAY_NO_ERROR)) {
             raise_error(err_info);

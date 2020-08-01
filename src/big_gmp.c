@@ -924,7 +924,7 @@ void bigIncr (bigIntType *const big_variable)
 
 /**
  *  Compute the exponentiation of a 'bigInteger' base with an integer exponent.
- *  @return the result of the exponentation.
+ *  @return the result of the exponentiation.
  *  @exception NUMERIC_ERROR If the exponent is negative.
  */
 bigIntType bigIPow (const const_bigIntType base, intType exponent)
@@ -955,7 +955,7 @@ bigIntType bigIPow (const const_bigIntType base, intType exponent)
 /**
  *  Compute the exponentiation of a bigdigit base with an integer exponent.
  *  @param base Base that must be in the range of a long int.
- *  @return the result of the exponentation.
+ *  @return the result of the exponentiation.
  *  @exception NUMERIC_ERROR If the exponent is negative.
  */
 bigIntType bigIPowSignedDigit (intType base, intType exponent)

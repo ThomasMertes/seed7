@@ -63,7 +63,7 @@ int main (int argc, char **argv)
     printf("   *                                                                    *\n");
     printf("   *  To use your package manager your probably need superuser rights.  *\n");
     printf("   *  Hopefully you succeed in installing these packages. Afterwards    *\n");
-    printf("   *  you need to start the build from scatch (with your make command   *\n");
+    printf("   *  you need to start the build from scratch (with your make command  *\n");
     printf("   *  and your makefile):                                               *\n");
     printf("   *                                                                    *\n");
     printf("   *    make clean                                                      *\n");

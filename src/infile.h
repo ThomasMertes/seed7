@@ -33,7 +33,7 @@
 /*                                                                  */
 /********************************************************************/
 
-#ifdef USE_ALTERNATE_NEXT_CHARACTER
+#if USE_ALTERNATE_NEXT_CHARACTER
 #define next_character()  (in_file.nextch >= in_file.beyond ? fill_buf() : (int) *in_file.nextch++)
 #define FILE_TELL()       (ftell(in_file.fil) + (long) (in_file.nextch - in_file.beyond))
 #define FILE_SEEK(POS)    (fseek(in_file.fil, (POS), SEEK_SET), in_file.nextch = in_file.beyond)
@@ -65,13 +65,13 @@ inFileRecord in_file = {
     NULL,       /* fil */
     NULL,       /* name_ustri */
     NULL,       /* name */
-#ifdef USE_ALTERNATE_NEXT_CHARACTER
+#if USE_ALTERNATE_NEXT_CHARACTER
     NULL,       /* start */
     NULL,       /* nextch */
     NULL,       /* beyond */
     0,          /* buffer_size */
 #else
-#ifdef USE_INFILE_BUFFER
+#if USE_INFILE_BUFFER
     NULL,       /* buffer */
 #endif
 #endif

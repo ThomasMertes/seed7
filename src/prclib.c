@@ -247,6 +247,8 @@ objectType prc_block (listType arguments)
           fail_value = NULL;
           free_list(fail_stack);
           fail_stack = NULL;
+          free_list(fail_expression);
+          fail_expression = NULL;
           evaluate(catch_statement);
           searching = FALSE;
         } else {
@@ -278,6 +280,8 @@ objectType prc_block_catch_all (listType arguments)
       fail_value = NULL;
       free_list(fail_stack);
       fail_stack = NULL;
+      free_list(fail_expression);
+      fail_expression = NULL;
       evaluate(default_statement);
     } /* if */
     return SYS_EMPTY_OBJECT;
@@ -311,6 +315,8 @@ objectType prc_block_otherwise (listType arguments)
           fail_value = NULL;
           free_list(fail_stack);
           fail_stack = NULL;
+          free_list(fail_expression);
+          fail_expression = NULL;
           evaluate(catch_statement);
           searching = FALSE;
         } else {
@@ -327,6 +333,8 @@ objectType prc_block_otherwise (listType arguments)
         fail_value = NULL;
         free_list(fail_stack);
         fail_stack = NULL;
+        free_list(fail_expression);
+        fail_expression = NULL;
         evaluate(otherwise_statement);
       } /* if */
     } /* if */
@@ -849,11 +857,7 @@ objectType prc_for_to_step (listType arguments)
 objectType prc_heapstat (listType arguments)
 
   { /* prc_heapstat */
-#if DO_HEAP_STATISTIC
-    heap_statistic();
-#else
-    printf("heap statistic not supported - compile the s7 interpreter with DO_HEAP_STATISTIC\n");
-#endif
+    heapStatistic();
     return SYS_EMPTY_OBJECT;
   } /* prc_heapstat */
 
@@ -862,7 +866,7 @@ objectType prc_heapstat (listType arguments)
 objectType prc_hsize (listType arguments)
 
   { /* prc_hsize */
-    /* heap_statistic(); */
+    /* heapStatistic(); */
     return bld_int_temp((intType) heapsize());
   } /* prc_hsize */
 

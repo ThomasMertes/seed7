@@ -411,13 +411,13 @@ typedef struct inFileStruct {
     FILE *fil;
     const_ustriType name_ustri;
     striType name;
-#ifdef USE_ALTERNATE_NEXT_CHARACTER
+#if USE_ALTERNATE_NEXT_CHARACTER
     ustriType start;
     const_ustriType nextch;
     const_ustriType beyond;
     memSizeType buffer_size;
 #else
-#ifdef USE_INFILE_BUFFER
+#if USE_INFILE_BUFFER
     ustriType buffer;
 #endif
 #endif

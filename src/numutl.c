@@ -364,7 +364,7 @@ intType getDecimalInt (const const_ustriType decimal, memSizeType length)
       okay = TRUE;
       while (position < length &&
           decimal[position] >= '0' &&
-          decimal[position] <= '9') {
+          decimal[position] <= '9' && okay) {
         digitval = ((uintType) decimal[position]) - ((uintType) '0');
         if (unlikely(uintValue > MAX_DIV_10)) {
           okay = FALSE;
@@ -477,8 +477,9 @@ bigIntType getDecimalBigRational (const const_ustriType decimal, memSizeType len
       /* prot_stri(stri);
          printf("\n"); */
       if (unlikely(!okay)) {
-        *denominator = NULL;
         logError(printf("getDecimalBigRational: Decimal literal illegal.\n"););
+        FREE_STRI(stri, length);
+        *denominator = NULL;
         raise_error(RANGE_ERROR);
         numerator = NULL;
       } else {
@@ -490,6 +491,7 @@ bigIntType getDecimalBigRational (const const_ustriType decimal, memSizeType len
         } /* if */
         /* printf("scale: " FMT_U_MEM "\n", scale); */
         numerator = bigParse(stri);
+        FREE_STRI(stri, length);
         if (numerator != NULL) {
           if (unlikely(scale > INTTYPE_MAX)) {
             *denominator = NULL;
@@ -525,7 +527,7 @@ floatType getDecimalFloat (const const_ustriType decimal, memSizeType length)
     logFunction(printf("getDecimalFloat(\"%.*s%s\", " FMT_U_MEM ")\n",
                        DECIMAL_WITH_LIMIT(decimal, limit), length););
     if (length > MAX_DECIMAL_BUFFER_LENGTH) {
-      charBuffer = (char *) malloc(length + 1);
+      charBuffer = (char *) malloc(length + NULL_TERMINATION_LEN);
       if (unlikely(charBuffer == NULL)) {
         raise_error(MEMORY_ERROR);
         floatValue = 0.0;

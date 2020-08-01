@@ -620,7 +620,7 @@ typedef struct pollStruct {
 
 typedef struct winStruct {
     uintType usage_count;
-    /* The rest of the structure is only accessable for the driver */
+    /* The rest of the structure is only accessible for the driver */
   } winRecord;
 
 typedef struct processStruct {
@@ -628,17 +628,17 @@ typedef struct processStruct {
     fileType stdIn;
     fileType stdOut;
     fileType stdErr;
-    /* The rest of the structure is only accessable for the driver */
+    /* The rest of the structure is only accessible for the driver */
   } processRecord;
 
 typedef struct databaseStruct {
     uintType usage_count;
-    /* The rest of the structure is only accessable for the driver */
+    /* The rest of the structure is only accessible for the driver */
   } databaseRecord;
 
 typedef struct sqlStmtStruct {
     uintType usage_count;
-    /* The rest of the structure is only accessable for the driver */
+    /* The rest of the structure is only accessible for the driver */
   } sqlStmtRecord;
 
 typedef struct freeListElemStruct {

@@ -406,7 +406,7 @@ objectType flt_decompose (listType arguments)
  *  The number is rounded to the specified number of digits ('precision').
  *  Halfway cases are rounded away from zero. Except for a 'precision' of
  *  zero the representation has a decimal point and at least one digit
- *  before and after the decimal point. Negative numbers are preceeded by
+ *  before and after the decimal point. Negative numbers are preceded by
  *  a minus sign (e.g.: "-1.25"). If all digits in the result are 0 a
  *  possible negative sign is omitted.
  *  @param precision/arg_3 Number of digits after the decimal point.
@@ -701,7 +701,7 @@ objectType flt_iconv3 (listType arguments)
  *     0.0  ** B  returns Infinity         for B < 0
  *   (-0.0) ** B  returns -Infinity        for B < 0 and odd(B)
  *     A    ** B  returns 1.0 / A ** (-B)  for B < 0
- *  @return the result of the exponentation.
+ *  @return the result of the exponentiation.
  */
 objectType flt_ipow (listType arguments)
 
@@ -1043,7 +1043,7 @@ objectType flt_plus (listType arguments)
  *     1.0  ** B    returns 1.0
  *     1.0  ** NaN  returns 1.0
  *     A    ** NaN  returns NaN        for A <> 1.0
- *  @return the result of the exponentation.
+ *  @return the result of the exponentiation.
  */
 objectType flt_pow (listType arguments)
 

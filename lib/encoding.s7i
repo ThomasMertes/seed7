@@ -537,7 +537,7 @@ const func string: toAscii85 (in string: byteStri) is func
 (**
  *  Decode a Ascii85 encoded string.
  *  Every block of five radix 85 characters is decoded to four bytes.
- *  Radix 85 charaters are between '!' (encodes 0) and 'u' (encodes 84).
+ *  Radix 85 characters are between '!' (encodes 0) and 'u' (encodes 84).
  *  The character 'z' is used to encode a block of four zero bytes.
  *  White space in the Ascii85 encoded string is ignored.
  *  The last block is padded to 5 bytes with the Ascii85 character "u",

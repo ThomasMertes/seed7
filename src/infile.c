@@ -66,7 +66,7 @@ static fileNumType file_counter = 0;
 
 
 
-#ifdef USE_ALTERNATE_NEXT_CHARACTER
+#if USE_ALTERNATE_NEXT_CHARACTER
 int fill_buf (void)
 
   {
@@ -110,7 +110,7 @@ static inline boolType speedup (void)
   /* speedup */
     logFunction(printf("speedup\n"););
     okay = TRUE;
-#ifdef USE_ALTERNATE_NEXT_CHARACTER
+#if USE_ALTERNATE_NEXT_CHARACTER
 #if HAS_MMAP
     file_no = fileno(in_file.fil);
     if (file_no != -1 && os_fstat(file_no, &file_stat) == 0) {
@@ -163,7 +163,7 @@ static inline boolType speedup (void)
     } /* if */
 #endif
 #else
-#ifdef USE_INFILE_BUFFER
+#if USE_INFILE_BUFFER
     if (GET_INFILE_BUFFER) {
       if (ALLOC_UBYTES(in_file.buffer, SIZE_IN_BUFFER)) {
         setvbuf(in_file.fil, in_file.buffer, _IOFBF,
@@ -293,7 +293,7 @@ void close_infile (void)
     } /* if */
     total_lines = total_lines + ((unsigned long) in_file.line);
 #endif
-#ifdef USE_ALTERNATE_NEXT_CHARACTER
+#if USE_ALTERNATE_NEXT_CHARACTER
     if (in_file.start != NULL) {
       if (in_file.buffer_size == 0) {
 #if HAS_MMAP
@@ -310,8 +310,8 @@ void close_infile (void)
       fclose(in_file.fil);
       in_file.fil = NULL;
     } /* if */
-#ifndef USE_ALTERNATE_NEXT_CHARACTER
-#ifdef USE_INFILE_BUFFER
+#if !USE_ALTERNATE_NEXT_CHARACTER
+#if USE_INFILE_BUFFER
     if (in_file.BUFFER != NULL) {
       FREE_BYTES(in_file.buffer, SIZE_IN_BUFFER);
     } /* if */
@@ -347,7 +347,7 @@ void open_string (bstriType input_string, boolType write_library_names,
                        bstriAsUnquotedCStri(input_string),
                        write_library_names, write_line_numbers,
                        *err_info););
-#ifdef USE_ALTERNATE_NEXT_CHARACTER
+#if USE_ALTERNATE_NEXT_CHARACTER
     if (*err_info == OKAY_NO_ERROR) {
       if (!ALLOC_FILE(new_file)) {
         *err_info = MEMORY_ERROR;

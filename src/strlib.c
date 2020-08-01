@@ -309,7 +309,7 @@ objectType str_append (listType arguments)
             /* after realloc() enlarged 'str_to'.            */
             str_from = new_str;
           } /* if */
-          COUNT3_STRI(str_to_size, new_size);
+          COUNT_GROW_STRI(str_to_size, new_size);
           memcpy(&new_str->mem[str_to_size], str_from->mem,
                  str_from->size * sizeof(strElemType));
           new_str->size = new_size;
@@ -340,6 +340,10 @@ objectType str_cat (listType arguments)
     isit_stri(arg_3(arguments));
     stri1 = take_stri(arg_1(arguments));
     stri2 = take_stri(arg_3(arguments));
+    logFunction(printf("str_cat(\"%s\", ",
+                       striAsUnquotedCStri(stri1));
+                printf("\"%s\")\n",
+                       striAsUnquotedCStri(stri2)););
     stri1_size = stri1->size;
     if (unlikely(stri1_size > MAX_STRI_LEN - stri2->size)) {
       /* number of bytes does not fit into memSizeType */
@@ -351,7 +355,7 @@ objectType str_cat (listType arguments)
         if (unlikely(result == NULL)) {
           return raise_exception(SYS_MEM_EXCEPTION);
         } else {
-          COUNT3_STRI(stri1_size, result_size);
+          COUNT_GROW_STRI(stri1_size, result_size);
           result->size = result_size;
           memcpy(&result->mem[stri1_size], stri2->mem,
                  stri2->size * sizeof(strElemType));
@@ -873,7 +877,7 @@ objectType str_head (listType arguments)
         if (unlikely(result == NULL)) {
           return raise_exception(SYS_MEM_EXCEPTION);
         } /* if */
-        COUNT3_STRI(striSize, result_size);
+        COUNT_SHRINK_STRI(striSize, result_size);
         result->size = result_size;
         arg_1(arguments)->value.striValue = NULL;
       } else {
@@ -1023,7 +1027,7 @@ objectType str_lng (listType arguments)
  *  The conversion uses the default Unicode case mapping,
  *  where each character is considered in isolation.
  *  Characters without case mapping are left unchanged.
- *  The mapping is independend from the locale. Individual
+ *  The mapping is independent from the locale. Individual
  *  character case mappings cannot be reversed, because some
  *  characters have multiple characters that map to them.
  *  @return the string converted to lower case.
@@ -1356,7 +1360,7 @@ objectType str_push (listType arguments)
     if (unlikely(str_to == NULL)) {
       return raise_exception(SYS_MEM_EXCEPTION);
     } else {
-      COUNT3_STRI(str_to->size, new_size);
+      COUNT_GROW_STRI(str_to->size, new_size);
       str_to->mem[str_to->size] = char_from;
       str_to->size = new_size;
       str_variable->value.striValue = str_to;
@@ -1597,7 +1601,7 @@ objectType str_rtrim (listType arguments)
       if (unlikely(result == NULL)) {
         return raise_exception(SYS_MEM_EXCEPTION);
       } /* if */
-      COUNT3_STRI(striSize, result_size);
+      COUNT_SHRINK_STRI(striSize, result_size);
       result->size = result_size;
       arg_1(arguments)->value.striValue = NULL;
     } else {
@@ -1824,7 +1828,7 @@ objectType str_trim (listType arguments)
  *  The conversion uses the default Unicode case mapping,
  *  where each character is considered in isolation.
  *  Characters without case mapping are left unchanged.
- *  The mapping is independend from the locale. Individual
+ *  The mapping is independent from the locale. Individual
  *  character case mappings cannot be reversed, because some
  *  characters have multiple characters that map to them.
  *  @return the string converted to upper case.

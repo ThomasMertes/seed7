@@ -354,7 +354,7 @@ objectType chr_le (listType arguments)
  *  The conversion uses the default Unicode case mapping,
  *  where each character is considered in isolation.
  *  Characters without case mapping are left unchanged.
- *  The mapping is independend from the locale. Individual
+ *  The mapping is independent from the locale. Individual
  *  character case mappings cannot be reversed, because some
  *  characters have multiple characters that map to them.
  *  @return the character converted to lower case.
@@ -477,7 +477,7 @@ objectType chr_succ (listType arguments)
  *  The conversion uses the default Unicode case mapping,
  *  where each character is considered in isolation.
  *  Characters without case mapping are left unchanged.
- *  The mapping is independend from the locale. Individual
+ *  The mapping is independent from the locale. Individual
  *  character case mappings cannot be reversed, because some
  *  characters have multiple characters that map to them.
  *  @return the character converted to upper case.

@@ -228,7 +228,7 @@ actType getActIllegal (void)
  *  identical it may decide to reuse the code. In this case two
  *  or more actType function pointers refer to the same function.
  *  To have predictable results double actType values are removed
- *  from actEntryMap. The actType function pointer that referes to
+ *  from actEntryMap. The actType function pointer that refers to
  *  the action with the alphabetically lower action name is kept.
  *  Since the action names in actTable are sorted alphabetically
  *  this is the entry that is nearer to the beginning of actTable.

@@ -103,7 +103,7 @@ const proc: info1 is func
     writeln(win, "increases  and  decreases  according  to fixed rules which affect the birth and");
     writeln(win, "death of individual bacterium. A rectangular grid  (2-dimensional matrix)  will");
     writeln(win, "be  shown  on  the  screen. Each cell in the grid can contain a bacterium or be");
-    writeln(win, "empty. Each cell has 8 neighbors. The existance of cells from one generation to");
+    writeln(win, "empty. Each cell has 8 neighbors. The existence of cells from one generation to");
     writeln(win, "the next is determined by the following rules:");
     writeln(win);
     writeln(win, "  1.  A bacteria with 2 or 3 neighbors survives from one generation to");

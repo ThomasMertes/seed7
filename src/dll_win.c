@@ -66,7 +66,7 @@ void *dllOpen (const char *dllName)
         for (pos = 0; pos < nameLength; pos++) {
           if (dllName[pos] == '/') {
             dllPath[pos] = '\\';
-	      } else {
+          } else {
             dllPath[pos] = dllName[pos];
           } /* if */
         } /* for */

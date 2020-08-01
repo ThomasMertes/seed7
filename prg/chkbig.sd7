@@ -2228,7 +2228,7 @@ const proc: chkRadix is func
         (-18446744069414584320_ radix  8) <> "-1777777777740000000000" or
         (-18446744069414584320_ radix 16) <> "-ffffffff00000000" or
         (-18446744069414584320_ radix 32) <> "-fvvvvvs000000" then
-      writeln(" ***** The radix operator for bigInteger does not work corrct for negative values.");
+      writeln(" ***** The radix operator for bigInteger does not work correct for negative values.");
       okay := FALSE;
     end if;
 

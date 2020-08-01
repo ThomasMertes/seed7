@@ -274,7 +274,7 @@ void prgDestr (progType old_prog)
         progBackup = prog;
         prog = old_prog;
         /* printf("heapsize: %ld\n", heapsize()); */
-        /* heap_statistic(); */
+        /* heapStatistic(); */
         close_stack(old_prog);
         close_declaration_root(old_prog);
         close_entity(old_prog);
@@ -294,7 +294,7 @@ void prgDestr (progType old_prog)
         FREE_RECORD(old_prog->stack_global, stackRecord, count.stack);
         FREE_RECORD(old_prog, progRecord, count.prog);
         /* printf("heapsize: %ld\n", heapsize()); */
-        /* heap_statistic(); */
+        /* heapStatistic(); */
       } /* if */
     } /* if */
     logFunction(printf("prgDestr\n"););

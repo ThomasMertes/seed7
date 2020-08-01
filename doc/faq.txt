@@ -244,12 +244,12 @@ How many lines of code are in the Seed7 project?
 ================================================
 
 The Seed7 package contains more than 100000 lines of C and more
-than 300000 lines of Seed7. For version 2019-12-15 the number of lines is:
+than 300000 lines of Seed7. For version 2019-12-29 the number of lines is:
 
-  152766  C source files (*.c)
-   12171  C header files (*.h)
-  165580  Seed7 source files (*.sd7)
-  146933  Seed7 library/include files (*.s7i)
+  152752  C source files (*.c)
+   12178  C header files (*.h)
+  165581  Seed7 source files (*.sd7)
+  146949  Seed7 library/include files (*.s7i)
 
 C code (*.c and *.h files) can be divided into the following areas:
 
@@ -1202,10 +1202,10 @@ a client may access a database. Seed7 accomplishes database independence
 by using database drivers as abstraction layers between the application
 and the database. There are database drivers for MySQL, MariaDB, SQLLite,
 PostgreSQL, Oracle, ODBC, Firebird and Interbase databases. You might have
-heared of a database interface named ODBC. Compared to the ODBC interface
-the database independend API of Seed7 is much simpler. The drivers of ODBC
+heard of a database interface named ODBC. Compared to the ODBC interface
+the database independent API of Seed7 is much simpler. The drivers of ODBC
 come also in varying quality so some features might not be present or they
-might work wrong. How the database independend API of Seed7 works can be
+might work wrong. How the database independent API of Seed7 works can be
 seen in the following example:
 
   const proc: dbDemo is func
@@ -1340,7 +1340,7 @@ For call-by-value parameters ('val' and 'in var') the actual parameter value
 is copied, when the function is called. For call-by-refererence parameters
 ('ref' and 'inout') the function uses a reference to the actual parameter value.
 Since a call-by-reference parameter is not copied it can provide better
-performance for structured types like strings, arrays, structs and hashs.
+performance for structured types like strings, arrays, structs and hashes.
 
 
 What is an 'in' parameter?
@@ -2107,7 +2107,7 @@ currently supported databases:
   +------------+------------+-----------+------------+------------------+-------------------+
 
 If no static library is provided in the makefile (by writing it to
-"chkccomp.h") a default value if used by "chkccomp.c". This default
+"chkccomp.h") a default value is used by "chkccomp.c". This default
 value differs between Linux, macOS and Windows:
 
   +------------------+---------------------+---------------------+--------------------------------------+
@@ -2124,7 +2124,7 @@ value differs between Linux, macOS and Windows:
   +------------------+---------------------+---------------------+--------------------------------------+
 
 If no dynamic library is provided in the makefile (by writing it to
-"chkccomp.h") a default value if used by "chkccomp.c". This default
+"chkccomp.h") a default value is used by "chkccomp.c". This default
 value differs between Linux, macOS and Windows:
 
   +-------------------+------------------------+----------------------+--------------------------------+

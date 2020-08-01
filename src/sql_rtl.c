@@ -490,7 +490,11 @@ bigIntType sqlColumnBigInt (sqlStmtType sqlStatement, intType column)
 void sqlColumnBigRat (sqlStmtType sqlStatement, intType column,
     bigIntType *numerator, bigIntType *denominator)
 
-  { /* sqlColumnBigRat */
+  {
+    bigIntType oldNumerator;
+    bigIntType oldDenominator;
+
+  /* sqlColumnBigRat */
     logFunction(printf("sqlColumnBigRat(" FMT_U_MEM ", " FMT_D ", *, *)\n",
                        (memSizeType) sqlStatement, column););
     if (unlikely(sqlStatement == NULL ||
@@ -501,8 +505,16 @@ void sqlColumnBigRat (sqlStmtType sqlStatement, intType column,
                       (memSizeType) sqlStatement, column););
       raise_error(RANGE_ERROR);
     } else {
+      oldNumerator = *numerator;
+      oldDenominator = *denominator;
       ((preparedStmtType) sqlStatement)->sqlFunc->sqlColumnBigRat(sqlStatement, column,
           numerator, denominator);
+      if (oldNumerator != *numerator) {
+        bigDestr(oldNumerator);
+      } /* if */
+      if (oldDenominator != *denominator) {
+        bigDestr(oldDenominator);
+      } /* if */
     } /* if */
     logFunction(printf("sqlColumnBigRat(" FMT_U_MEM ", " FMT_D ", %s, %s) -->\n",
                        (memSizeType) sqlStatement, column,

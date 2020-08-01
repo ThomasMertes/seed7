@@ -392,7 +392,7 @@ const func integer: rpos (in string: mainStri, in char: searched,
  *  The function processes ''mainStri'' from left to right and replaces
  *  ''target'' by ''replacement''. After a ''target'' has been replaced
  *  the search for the next ''target'' starts after the ''replacement''.
- *  If a replacement creates new occurances of ''target'' they are left
+ *  If a replacement creates new occurrences of ''target'' they are left
  *  intact.
  *   replace("old gold", "old", "one")        returns "one gone"
  *   replace("it   is very  low", "  ", " ")  returns "it  is very low"
@@ -407,9 +407,9 @@ const func string: replace (in string: mainStri, in string: target,
 (**
  *  Replace all occurrences of ''target'' in ''mainStri'' by ''replacement''.
  *  The function processes ''mainStri'' from left to right and replaces
- *  ''target'' by ''replacement''. If a replacement creates new occurances
+ *  ''target'' by ''replacement''. If a replacement creates new occurrences
  *  of ''target'' they are replaced also.  This can be used to replace
- *  multiple occurances of a character by one occurance
+ *  multiple occurrences of a character by one occurrence
  *   replaceN("//path///file", "//", "/")      returns "/path/file"
  *   replaceN("it   is very  low", "  ", " ")  returns "it is very low"
  *   replaceN("balll", "all", "al")            returns "bal"
@@ -497,7 +497,7 @@ const func string: replace2 (in string: mainStri, in string: search1,
  *  The conversion uses the default Unicode case mapping,
  *  where each character is considered in isolation.
  *  Characters without case mapping are left unchanged.
- *  The mapping is independend from the locale. Individual
+ *  The mapping is independent from the locale. Individual
  *  character case mappings cannot be reversed, because some
  *  characters have multiple characters that map to them.
  *  @return the string converted to upper case.
@@ -510,7 +510,7 @@ const func string: upper (in string: stri)                     is action "STR_UP
  *  The conversion uses the default Unicode case mapping,
  *  where each character is considered in isolation.
  *  Characters without case mapping are left unchanged.
- *  The mapping is independend from the locale. Individual
+ *  The mapping is independent from the locale. Individual
  *  character case mappings cannot be reversed, because some
  *  characters have multiple characters that map to them.
  *  @return the string converted to lower case.
@@ -568,7 +568,7 @@ const func string: rtrim (in string: stri)                     is action "STR_RT
  *  Trim a string such that it can be converted to ''aType''.
  *  Removes leading and trailing spaces from ''stri''.
  *  This function is overloaded for types where removing leading
- *  or trailing whitespace whould change the value.
+ *  or trailing whitespace would change the value.
  *   integer(trimValue(integer, " 1 "))        returns 1
  *   integer parse trimValue(integer, " 1 ")   returns 1
  *  @return the trimmed string.

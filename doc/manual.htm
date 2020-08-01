@@ -6678,8 +6678,8 @@ setColumn(aText, 72);
   The current line and column of a <tt><a class="type" href="#types_text">text</a></tt> file can be retrieved
   with <tt><span class="func">line</span></tt> and <tt><span class="func">column</span></tt>:
 </p><pre class="indent">
-writeln(<span class="stri">"The curent line is: "</span> &lt;& line(aText));
-writeln(<span class="stri">"The curent column is: "</span> &lt;& column(aText));
+writeln(<span class="stri">"The current line is: "</span> &lt;& line(aText));
+writeln(<span class="stri">"The current column is: "</span> &lt;& column(aText));
 </pre><p>
   The current height and width of a <tt><a class="type" href="#types_text">text</a></tt> file can be retrieved
   with <tt><span class="func">height</span></tt> and <tt><span class="func">width</span></tt>:
@@ -7245,7 +7245,7 @@ currSymbol := getSymbol(inFile);
 
 <a name="syntax_The_Seed7_Structured_Syntax_Description"><h3>9.2 The Seed7 Structured Syntax Description</h3></a>
 <p>
-    The Seed7 Structured Syntax Description is abreviated with S7SSD.
+    The Seed7 Structured Syntax Description is abbreviated with S7SSD.
   The S7SSD can describe most but not all of the syntax of a
   programming language. The syntax of identifiers, literals and
   comments is not described with S7SSD. S7SSD views a program as
@@ -8975,7 +8975,7 @@ my_dir := homeDir;
 <span class="keywd">const</span> <a class="type" href="#types_func">func</a> <a class="type" href="#types_string">string</a>: readlink (<span class="keywd">in</span> <a class="type" href="#types_string">string</a>: filePath) <span class="keywd">is</span> ...
 </pre>
   <div><dl><dt><p>Returns:</p></dt><dd><p>
-    The symbolic link refered by <tt>'filePath'</tt>.
+    The symbolic link referred by <tt>'filePath'</tt>.
 </p></dd></dl></div>
   <div><dl><dt><p>Possible exceptions:</p></dt><dd><dl>
     <dt><a class="exception" href="#errors_MEMORY_ERROR">MEMORY_ERROR</a></dt>
@@ -9338,6 +9338,10 @@ currDb := <span class="func">openDatabase</span>(<span class="var">DB_OCI</span>
 currDb := <span class="func">openDatabase</span>(<span class="var">DB_OCI</span>, <span class="stri">"www.example.org"</span>, 2345, <span class="stri">"aServiceName"</span>, <span class="stri">"testUser"</span>, <span class="stri">"testPassword"</span>);
 
 currDb := <span class="func">openDatabase</span>(<span class="var">DB_OCI</span>, <span class="stri">"192.0.2.235"</span>, 0, <span class="stri">"aSid"</span>, <span class="stri">"testUser"</span>, <span class="stri">"testPassword"</span>);
+
+currDb := <span class="func">openDatabase</span>(<span class="var">DB_DB2</span>, <span class="stri">"www.example.org"</span>, 0, <span class="stri">"testDb"</span>, <span class="stri">"testUser"</span>, <span class="stri">"testPassword"</span>);
+
+currDb := <span class="func">openDatabase</span>(<span class="var">DB_SQL_SERVER</span>, <span class="stri">"192.168.1.13"</span>, 0, <span class="stri">"testDb"</span>, <span class="stri">"testUser"</span>, <span class="stri">"testPassword"</span>);
 </pre><p>
   The <tt>host</tt> can be specified by name (e.g.: <tt><span class="stri">"www.example.org"</span></tt>),
   by an IPv4 address (e.g.: <tt><span class="stri">"192.0.2.235"</span></tt>) or by an IPv6
@@ -9350,6 +9354,21 @@ currDb := <span class="func">openDatabase</span>(<span class="var">DB_OCI</span>
   parameter <tt>port</tt> must be 0.
 </p><pre class="indent">
 currDb := <span class="func">openDatabase</span>(<span class="var">DB_OCI</span>, <span class="stri">""</span>, 0, <span class="stri">"tnsnamesOraEntryName"</span>, <span class="stri">"testUser"</span>, <span class="stri">"testPassword"</span>);
+</pre><p>
+  When using the <tt><span class="var">DB_DB2</span></tt> driver you can either supply a <tt>database alias</tt>
+  from <tt><span class="stri">db2cli.ini</span></tt> or a <tt>database name</tt> as <tt>dbName</tt>. If
+  <tt><span class="stri">db2cli.ini</span></tt> is used the parameter <tt>host</tt> must be <tt><span class="stri">""</span></tt> and the
+  parameter <tt>port</tt> must be 0.
+</p><pre class="indent">
+currDb := <span class="func">openDatabase</span>(<span class="var">DB_DB2</span>, <span class="stri">""</span>, 0, <span class="stri">"databaseAlias"</span>, <span class="stri">"testUser"</span>, <span class="stri">"testPassword"</span>);
+</pre><p>
+  When using the <tt><span class="var">DB_SQL_SERVER</span></tt> driver you can either supply a <tt>database name</tt>
+  from the local machine or a database that can be accessed via
+  TCP/IP. To access a database at the local machine the parameter
+  <tt>host</tt> must be <tt><span class="stri">""</span></tt> and the parameter <tt>port</tt> must be 0.
+  If TCP/IP is used it must be enabled in the database.
+</p><pre class="indent">
+currDb := <span class="func">openDatabase</span>(<span class="var">DB_SQL_SERVER</span>, <span class="stri">""</span>, 0, <span class="stri">"localDb"</span>, <span class="stri">"testUser"</span>, <span class="stri">"testPassword"</span>);
 </pre><p>
   A SQLite database can be opened with:
 </p><pre class="indent">
@@ -9386,7 +9405,8 @@ currDb := <span class="func">openDatabase</span>(<span class="var">DB_ODBC</span
   ODBC uses also data source names (DSNs) to specify possible
   database connections. It is possible to open an ODBC database
   by specifying the data source name (DSN) in the parameter
-  <tt>dbName</tt>:
+  <tt>dbName</tt>. In this case the prameters <tt>odbcDriver</tt> and <tt>server</tt>
+  must be <tt><span class="stri">""</span></tt>.
 </p><pre class="indent">
 currDb := <span class="func">openDatabase</span>(<span class="var">DB_ODBC</span>, <span class="stri">""</span>, <span class="stri">""</span>, <span class="stri">"dsnName"</span>, <span class="stri">"testUser"</span>, <span class="stri">"testPassword"</span>);
 
@@ -9442,8 +9462,8 @@ currDb := <span class="func">openDatabase</span>(<span class="var">DB_OCI</span>
   of these forms:
 </p><ul>
     <li>odbcDriver:dbServer/dbName</li>
+    <li>odbcDriver:dbServer</li>
     <li>dbServer/dbName</li>
-    <li>dbServer</li>
     <li>odbcDataSourceName</li>
 </ul><p>
   Use a value like <tt><span class="stri">"sqlserver"</span></tt> for <tt>odbcDriver</tt>.
@@ -9495,7 +9515,7 @@ currDb := <span class="func">openDatabase</span>(<span class="var">DB_SQLITE</sp
         get one apostrophe character in the string.</li></ul></li>
     <li>Comments in a SQL statement start with <tt>/*</tt> and end with <tt>*/</tt>.</li>
     <li>Line comments in a SQL statement start with <tt>--</tt> and end
-      with a newline characer (<tt>'\n'</tt>).</li>
+      with a newline character (<tt>'\n'</tt>).</li>
     <li>Table and field names can be enclosed in double quotes (e.g. <tt>"aTable"</tt>).<ul>
       <li>This way a table or field name may contain spaces or other
         characters, that are normally not allowed.</li>
@@ -12092,7 +12112,7 @@ SYSTEM_LIBS = -lm <b>superlib.a</b>
 <p>
   The conversion functions mentioned above are implemented with
   basic conversion functions. In some situations it might make sense
-  to use the basic conversion functions direcly. This functions are
+  to use the basic conversion functions directly. This functions are
   optimized for performance. Some functions use loop unrolling
   inspired by Duff's device. The basic conversion functions below
   are defined in the header file <tt><span class="lib">"striutl.h"</span></tt>.
@@ -12265,7 +12285,7 @@ SYSTEM_LIBS = -lm <b>superlib.a</b>
   several methods to provide error handling. Before an actual exception
   is raised an error state can be handled in different ways:
 </p><ul>
-    <li>The integer type <tt><a class="type" href="#ffi_errInfoType">errInfoType</a></tt> is used to descripe an
+    <li>The integer type <tt><a class="type" href="#ffi_errInfoType">errInfoType</a></tt> is used to describe an
       error state. Usually a variable or parameter named <tt><span class="var">err_info</span></tt> is
       used to store the error state. The value <tt><span class="exception">OKAY_NO_ERROR</span></tt> is used
       to describe that no error occurred. Values like <tt><span class="exception">MEMORY_ERROR</span></tt>,
@@ -12610,12 +12630,12 @@ number <span class="op">+</span> <a class="type" href="#types_integer">integer</
 <a name="errors_DATABASE_ERROR"><h4>16.2.6 DATABASE_ERROR</h4></a>
 <p>
   The exception <tt><span class="exception">DATABASE_ERROR</span></tt> may be raised by database
-  functions. If a <tt><span class="exception">DATABASE_ERROR</span></tt> is catched it is possible
+  functions. If a <tt><span class="exception">DATABASE_ERROR</span></tt> is caught it is possible
   to get some information about the cause of the error with:
 </p><pre class="indent">
 <span class="keywd">const</span> <a class="type" href="#types_func">func</a> <a class="type" href="#types_string">string</a>: <b><span class="func">errMessage</span></b> (<span class="exception">DATABASE_ERROR</span>)
 </pre><p>
-  There are messages comming from the database and from the Seed7
+  There are messages coming from the database and from the Seed7
   database driver. The database driver may have a message like:
 </p><pre class="indent">
 Searching for dynamic libraries failed: libclntsh.so
@@ -12654,7 +12674,7 @@ Searching for dynamic libraries failed: libclntsh.so
   <span class="keywd">catch</span> <a class="exception" href="#errors_NUMERIC_ERROR">NUMERIC_ERROR</a>: writeln(<span class="stri">"NUMERIC_ERROR"</span>);
 <span class="keywd">end block</span>;
 </pre><p>
-  An <tt><span class="keywd">otherwise</span></tt> handler catches EXCEPTIONs, that are not catched
+  An <tt><span class="keywd">otherwise</span></tt> handler catches EXCEPTIONs, that are not caught
   by the other handlers:
 </p><pre class="indent">
 <span class="keywd">block</span>

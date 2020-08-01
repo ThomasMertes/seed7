@@ -230,8 +230,8 @@ static databaseType doOpenDb2 (connectDataType connectData, errInfoType *err_inf
         } else {
           returnCode = SQL_ERROR;
         } /* if */
-        if ((returnCode != SQL_SUCCESS &&
-             returnCode != SQL_SUCCESS_WITH_INFO)) {
+        if (returnCode != SQL_SUCCESS &&
+            returnCode != SQL_SUCCESS_WITH_INFO) {
           returnCode = SQLDriverConnectW(sql_connection,
                                          NULL, /* GetDesktopWindow(), */
                                          (SQLWCHAR *) connectData->connectionString,
@@ -241,8 +241,8 @@ static databaseType doOpenDb2 (connectDataType connectData, errInfoType *err_inf
                                          &outConnectionStringLength,
                                          SQL_DRIVER_NOPROMPT);
         } /* if */
-        if ((returnCode != SQL_SUCCESS &&
-             returnCode != SQL_SUCCESS_WITH_INFO)) {
+        if (returnCode != SQL_SUCCESS &&
+            returnCode != SQL_SUCCESS_WITH_INFO) {
           if (connectData->hostnameLength != 0 || connectData->port != 0) {
             setDbErrorMsg("sqlOpenDb2", "SQLDriverConnect",
                           SQL_HANDLE_DBC, sql_connection);

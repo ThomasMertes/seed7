@@ -412,7 +412,9 @@ static inline void res_restore (const_locObjType block_result,
   /* res_restore */
     logFunction(printf("res_restore\n"););
     if (block_result->object != NULL) {
-      if (!fail_flag) {
+      if (fail_flag) {
+        dump_any_temp(block_result->object->value.objValue);
+      } else {
         *result = block_result->object->value.objValue;
         /* CLEAR_VAR_FLAG(*result); */
         SET_TEMP_FLAG(*result);
@@ -501,23 +503,6 @@ static objectType exec_lambda (const_blockType block,
           result = exec_call(block->body);
           if (fail_flag) {
             errInfoType ignored_err_info;
-
-#ifdef OUT_OF_ORDER
-            if (!HAS_POSINFO(object)) {
-              if (HAS_ENTITY(object)) {
-                printf("HAS_ENTITY\n");
-                if (GET_ENTITY(object)->ident != NULL) {
-                  prot_cstri8(id_string(GET_ENTITY(object)->ident));
-                } else if (GET_ENTITY(object)->name_list != NULL) {
-                  prot_list(GET_ENTITY(object)->name_list);
-                } /* if */
-                printf("\n");
-              } /* if */
-              printf("!HAS_POSINFO\n");
-              trace1(object);
-              prot_nl();
-            } /* if */
-#endif
 
             /* ignored_err_info is not checked since an exception was already raised */
             incl_list(&fail_stack, object, &ignored_err_info);
@@ -616,7 +601,7 @@ static objectType exec_action (const_objectType act_object,
         show_signal();
       } /* if */
       if (fail_flag) {
-        free_list(evaluated_act_params);
+        dump_arg_list(evaluated_act_params, temp_bits);
         result = fail_value;
         logFunction(printf("exec_action fail_flag=%d -->\n", fail_flag););
         return result;
@@ -632,7 +617,7 @@ static objectType exec_action (const_objectType act_object,
 #endif
 #ifdef WITH_PROTOCOL
     if (trace.actions) {
-      /* heap_statistic(); */
+      /* heapStatistic(); */
       if (trace.heapsize) {
         prot_heapsize();
         prot_cstri(" ");

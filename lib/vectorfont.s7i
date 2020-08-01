@@ -108,7 +108,7 @@ const func integer: numOfCharsInWidth (in vectorFont: vecFont,
  *  Create a pixmap from ''charVectors''.
  *  The ''charVectorType'' describes an array of filled polygons.
  *  Together the filled polygons define a pixmap. The ''background''
- *  is used as backgound of the pixmap and the ''foreground'' is used
+ *  is used as background of the pixmap and the ''foreground'' is used
  *  as color for the filled polygons. The ''scale'' parameter is
  *  used to scale the pixmap, but does not scale the polygons.
  *  @return the created pixmap.

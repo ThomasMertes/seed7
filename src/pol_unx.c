@@ -614,7 +614,7 @@ pollType polEmpty (void)
  *
  *  @param pollData Poll data from which the checkedEvents are
  *         retrieved.
- *  @param aSocket Socket for which the checkedEvents are retrived.
+ *  @param aSocket Socket for which the checkedEvents are retrieved.
  *  @return POLLNOTHING, POLLIN, POLLOUT or POLLINOUT, depending on
  *          the events added and removed for 'aSocket' with
  *          'addCheck' and 'removeCheck'.

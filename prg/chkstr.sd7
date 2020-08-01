@@ -98,7 +98,7 @@ const proc: check_string_literal is func
         ord("\X"[1]) <> 24 or
         ord("\Y"[1]) <> 25 or
         ord("\Z"[1]) <> 26 then
-      writeln("Escape sequences for contol characters do not work correct.");
+      writeln("Escape sequences for control characters do not work correct.");
       okay := FALSE;
     end if;
     if "\1;\2;\3;\4;\5;\6;\7;\8;\9;\10;\11;\12;\13;\

@@ -336,7 +336,7 @@ const proc: listProg (inout file: listFile, in integer: fromLine, in integer: to
  *    - A float number: A sequence of digits which contains one
  *              decimal point. An optional exponent may follow. If
  *              an exponent is present the decimal point may be
- *              ommited. The exponent is introduced with 'E' or 'e'
+ *              omitted. The exponent is introduced with 'E' or 'e'
  *              followed by an optional sign ('+' or '-') and a
  *              sequence of digits. If the float number does start
  *              with '.' a '0' is added in front of the returned
@@ -3401,8 +3401,8 @@ const func boolean: find_next (inout string: symbol, inout string: line,
  *  If a FOR is found a recursive call searches for a possible
  *  inner NEXT which would belong to the inner FOR. Such an inner NEXT
  *  is skipped if it does not match a "FOR varName" statement.
- *  @param symbol contains the current symbol or "" if the current
- *         symbol should be readed. After the call it contains the
+ *  @param symbol contains the current symbol or "" if the next
+ *         symbol should be read. After the call it contains the
  *         symbol behind the NEXT and the optional list of variable
  *         names. If no NEXT was found, the parameter contains ""
  *         after the call.

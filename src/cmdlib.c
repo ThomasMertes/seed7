@@ -618,7 +618,7 @@ objectType cmd_move (listType arguments)
 
 /**
  *  Reads the destination of a symbolic link.
- *  @return The destination refered by the symbolic link.
+ *  @return The destination referred by the symbolic link.
  *  @exception MEMORY_ERROR Not enough memory to convert 'filePath'
  *             to the system path type or not enough memory to
  *             represent the result string.

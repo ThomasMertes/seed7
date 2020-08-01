@@ -79,8 +79,8 @@ const func string: str (ENGLISH, in integer: number) is func
         "fifteen",   "sixteen",   "seventeen", "eighteen",  "nineteen");
 
     const array string: STR_20_TO_90 is [](
-        "twenty",    "thirty",    "fourty",    "fifty",
-        "sixty",     "seventy",   "eighty",    "ninty");
+        "twenty",    "thirty",    "forty",     "fifty",
+        "sixty",     "seventy",   "eighty",    "ninety");
 
     const func string: str_99 (in integer: number) is func
       result

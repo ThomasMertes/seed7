@@ -768,7 +768,7 @@ objectType drw_image (listType arguments)
     height = arraySize(arr_image);
     if (height == 0) {
       logError(printf("drw_image(arr1 (height=" FMT_U_MEM "): "
-                      "Hight zero.", height););
+                      "Height zero.", height););
       return raise_exception(SYS_RNG_EXCEPTION);
     } else {
       curr_line = &arr_image->arr[0];

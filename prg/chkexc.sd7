@@ -759,7 +759,7 @@ const proc: check_integer is func
       end block;
     exception
       catch NUMERIC_ERROR:
-        writeln(" ***** NUMERIC_ERROR catched at wrong level");
+        writeln(" ***** NUMERIC_ERROR caught at wrong level");
     end block;
 
     block
@@ -769,7 +769,7 @@ const proc: check_integer is func
         okay := FALSE;
       exception
         catch RANGE_ERROR:
-          writeln(" ***** NUMERIC_ERROR catched at wrong level");
+          writeln(" ***** NUMERIC_ERROR caught at wrong level");
       end block;
     exception
       catch NUMERIC_ERROR:
@@ -1228,7 +1228,7 @@ const proc: check_bigInteger is func
       end block;
     exception
       catch NUMERIC_ERROR:
-        writeln(" ***** NUMERIC_ERROR catched at wrong level");
+        writeln(" ***** NUMERIC_ERROR caught at wrong level");
     end block;
 
     block
@@ -1238,7 +1238,7 @@ const proc: check_bigInteger is func
         okay := FALSE;
       exception
         catch RANGE_ERROR:
-          writeln(" ***** NUMERIC_ERROR catched at wrong level");
+          writeln(" ***** NUMERIC_ERROR caught at wrong level");
       end block;
     exception
       catch NUMERIC_ERROR:

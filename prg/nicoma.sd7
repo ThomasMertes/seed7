@@ -76,10 +76,10 @@ const func integer: read_remainder (in integer: divisor) is func
         writeln(" *** Please enter a number.");
         remainder := divisor;
       elsif remainder < 0 then
-        writeln(" *** The remainer of a number devided by " <& divisor <&
+        writeln(" *** The remainder of a number divided by " <& divisor <&
                 " cannot be negative.");
       elsif remainder >= divisor then
-        writeln(" *** The remainer of a number devided by " <& divisor <&
+        writeln(" *** The remainder of a number divided by " <& divisor <&
                 " is always less than " <& divisor <& ".");
       end if;
     until remainder >= 0 and remainder < divisor;

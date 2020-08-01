@@ -43,13 +43,13 @@ const type: signedness is new enum
 
 
 (**
- *  Enumeration of endianess values.
- *  Endianess defines how the bytes of a data are ordered within memory.
+ *  Enumeration of endianness values.
+ *  Endianness defines how the bytes of a data are ordered within memory.
  *  Defines: LE (little-endian) and BE (big-endian).
  *  A little-endian representation starts with the least significant byte.
  *  A big-endian representation starts with the most significant byte.
  *)
-const type: endianess is new enum
+const type: endianness is new enum
     LE, BE
   end enum;
 
@@ -297,14 +297,14 @@ const func string: bytes (in integer: number, SIGNED, LE) is action "INT_BYTES_L
  *         the result is encoded with the twos-complement representation.
  *         In this case a negative ''number'' is converted to a result
  *         where the most significant byte has an ordinal >= 128.
- *  @param endian Determines the [[#endianess|endianess]] of the result.
+ *  @param endian Determines the [[#endianness|endianness]] of the result.
  *         Possible values are LE for little-endian and BE for big-endian.
  *  @return a [[string]] with the shortest binary representation of ''number''.
  *  @exception RANGE_ERROR If ''number'' is negative and ''signed'' is UNSIGNED.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  *)
 const func string: bytes (in integer: number,
-    in signedness: signed, in endianess: endian) is DYNAMIC;
+    in signedness: signed, in endianness: endian) is DYNAMIC;
 
 
 const func string: bytes (in bigInteger: number, UNSIGNED, BE) is
@@ -337,14 +337,14 @@ const func string: bytes (in bigInteger: number, SIGNED, LE) is
  *         the result is encoded with the twos-complement representation.
  *         In this case a negative ''number'' is converted to a result
  *         where the most significant byte has an ordinal >= 128.
- *  @param endian Determines the [[#endianess|endianess]] of the result.
+ *  @param endian Determines the [[#endianness|endianness]] of the result.
  *         Possible values are LE for little-endian and BE for big-endian.
  *  @return a [[string]] with the shortest binary representation of ''number''.
  *  @exception RANGE_ERROR If ''number'' is negative and ''signed'' is UNSIGNED.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  *)
 const func string: bytes (in bigInteger: number,
-    in signedness: signed, in endianess: endian) is DYNAMIC;
+    in signedness: signed, in endianness: endian) is DYNAMIC;
 
 
 const func string: bytes (in bigInteger: number, UNSIGNED, BE, in integer: length) is func
@@ -426,7 +426,7 @@ const func string: bytes (in bigInteger: number, SIGNED, LE, in integer: length)
  *         the result is encoded with the twos-complement representation.
  *         In this case a negative ''number'' is converted to a result
  *         where the most significant byte has an ordinal >= 128.
- *  @param endian Determines the [[#endianess|endianess]] of the result.
+ *  @param endian Determines the [[#endianness|endianness]] of the result.
  *         Possible values are LE for little-endian and BE for big-endian.
  *  @param length Length of the result string.
  *  @return a [[string]] of bytes with ''length'' representing ''number''.
@@ -435,7 +435,7 @@ const func string: bytes (in bigInteger: number, SIGNED, LE, in integer: length)
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  *)
 const func string: bytes (in bigInteger: number,
-    in signedness: signed, in endianess: endian, in integer: length) is DYNAMIC;
+    in signedness: signed, in endianness: endian, in integer: length) is DYNAMIC;
 
 
 const func integer: bytes2Int (in string: byteStri, UNSIGNED, BE) is action "INT_BYTES_BE_2_UINT";
@@ -459,14 +459,14 @@ const func integer: bytes2Int (in string: byteStri, SIGNED, LE) is action "INT_B
  *         ''bstri'' is interpreted as signed value in the twos-complement
  *         representation. In this case the result is negative if
  *         the most significant byte has an ordinal >= 128.
- *  @param endian Determines the [[#endianess|endianess]] of ''byteStri''.
+ *  @param endian Determines the [[#endianness|endianness]] of ''byteStri''.
  *         Possible values are LE for little-endian and BE for big-endian.
  *  @return an integer created from ''byteStri''.
  *  @exception RANGE_ERROR If characters beyond '\255;' are present or
  *             if the result value cannot be represented with an integer.
  *)
 const func integer: bytes2Int (in string: byteStri,
-    in signedness: signed, in endianess: endian) is DYNAMIC;
+    in signedness: signed, in endianness: endian) is DYNAMIC;
 
 
 const func bigInteger: bytes2BigInt (in string: byteStri, UNSIGNED, BE) is
@@ -497,14 +497,14 @@ const func bigInteger: bytes2BigInt (in string: byteStri, SIGNED, LE) is
  *         ''bstri'' is interpreted as signed value in the twos-complement
  *         representation. In this case the result is negative if
  *         the most significant byte has an ordinal >= 128.
- *  @param endian Determines the [[#endianess|endianess]] of ''byteStri''.
+ *  @param endian Determines the [[#endianness|endianness]] of ''byteStri''.
  *         Possible values are LE for little-endian and BE for big-endian.
  *  @return a bigInteger created from ''byteStri''.
  *  @exception RANGE_ERROR If characters beyond '\255;' are present.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  *)
 const func bigInteger: bytes2BigInt (in string: byteStri,
-    in signedness: signed, in endianess: endian) is DYNAMIC;
+    in signedness: signed, in endianness: endian) is DYNAMIC;
 
 
 (**

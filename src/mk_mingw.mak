@@ -109,11 +109,11 @@ s7c: ..\bin\s7c.exe ..\prg\s7c.exe
 
 OBJCOPY_PARAMS = \
        -L SQLAllocHandle -L SQLBindCol -L SQLBindParameter -L SQLBrowseConnectW -L SQLColAttributeW \
-       -L SQLConnectW -L SQLDataSources -L SQLDescribeCol -L SQLDescribeParam -L SQLDisconnect \
+       -L SQLConnectW -L SQLDataSources -L SQLDescribeColW -L SQLDescribeParam -L SQLDisconnect \
        -L SQLDriverConnectW -L SQLDriversW -L SQLExecute -L SQLFetch -L SQLFreeHandle \
-       -L SQLFreeStmt -L SQLGetData -L SQLGetDiagRec -L SQLGetFunctions -L SQLGetInfo \
-       -L SQLGetStmtAttr -L SQLGetTypeInfo -L SQLNumParams -L SQLNumResultCols -L SQLPrepareW \
-       -L SQLSetDescField -L SQLSetEnvAttr
+       -L SQLFreeStmt -L SQLGetData -L SQLGetDiagRecW -L SQLGetInfoW -L SQLGetStmtAttrW \
+       -L SQLGetTypeInfoW -L SQLNumParams -L SQLNumResultCols -L SQLPrepareW -L SQLSetDescFieldW \
+       -L SQLSetEnvAttr
 
 sql_db2.o: sql_db2.c
 	$(CC) -c $(CPPFLAGS) $(DB2_INCLUDE_OPTION) $(CFLAGS) $(DB2_LIBS) -r $< -o $@

@@ -368,33 +368,36 @@ static boolType driverConnect (connectDataType connectData, SQLHDBC sql_connecti
 
   /* driverConnect */
     logFunction(printf("driverConnect\n"););
-    regularNameOfSearchedDriver = getRegularName(connectData->driverW,
-        connectData->driverW_length);
-    if (regularNameOfSearchedDriver != NULL) {
-      /* printf("Searching for driver: ");
-         printWstri(regularNameOfSearchedDriver);
-         printf("\n"); */
-      direction = SQL_FETCH_FIRST;
-      while (!okay &&
-             SQLDriversW(sql_environment, direction,
-                         driver, sizeof(driver) / sizeof(SQLWCHAR), &driverLength,
-                         attr, sizeof(attr) / sizeof(SQLWCHAR), &attrLength) == SQL_SUCCESS) {
-        direction = SQL_FETCH_NEXT;
-        /* printWstri(driver);
-        printf("\n"); */
-        regularDriverName = getRegularName(driver, (memSizeType) driverLength);
-        if (regularDriverName != NULL) {
-          if (wstriSearch(regularDriverName, regularNameOfSearchedDriver) != NULL) {
-            /* printf("driver that matches requested one: ");
-               printWstri(driver);
-               printf("\n"); */
-            okay = connectToDriver(connectData, sql_connection, driver,
-                                   (memSizeType) driverLength);
+    if (connectData->driverW_length != 0) {
+      regularNameOfSearchedDriver = getRegularName(connectData->driverW,
+          connectData->driverW_length);
+      if (regularNameOfSearchedDriver != NULL) {
+        /* printf("Searching for driver: ");
+           printWstri(regularNameOfSearchedDriver);
+           printf("\n"); */
+        direction = SQL_FETCH_FIRST;
+        while (!okay &&
+               SQLDriversW(sql_environment, direction, driver,
+                           sizeof(driver) / sizeof(SQLWCHAR), &driverLength,
+                           attr, sizeof(attr) / sizeof(SQLWCHAR),
+                           &attrLength) == SQL_SUCCESS) {
+          direction = SQL_FETCH_NEXT;
+          /* printWstri(driver);
+          printf("\n"); */
+          regularDriverName = getRegularName(driver, (memSizeType) driverLength);
+          if (regularDriverName != NULL) {
+            if (wstriSearch(regularDriverName, regularNameOfSearchedDriver) != NULL) {
+              /* printf("driver that matches requested one: ");
+                 printWstri(driver);
+                 printf("\n"); */
+              okay = connectToDriver(connectData, sql_connection, driver,
+                                     (memSizeType) driverLength);
+            } /* if */
+            UNALLOC_WSTRI(regularDriverName, driverLength);
           } /* if */
-          UNALLOC_WSTRI(regularDriverName, driverLength);
-        } /* if */
-      } /* while */
-      UNALLOC_WSTRI(regularNameOfSearchedDriver, connectData->driverW_length);
+        } /* while */
+        UNALLOC_WSTRI(regularNameOfSearchedDriver, connectData->driverW_length);
+      } /* if */
     } /* if */
     logFunction(printf("driverConnect --> %d\n", okay););
     return okay;
@@ -522,10 +525,15 @@ databaseType sqlOpenOdbc (const const_striType driver,
                 if (unlikely(err_info != OKAY_NO_ERROR)) {
                   database = NULL;
                 } else {
-                  returnCode = SQLConnectW(sql_connection,
-                      (SQLWCHAR *) connectData.dbNameW, (SQLSMALLINT) connectData.dbNameW_length,
-                      (SQLWCHAR *) connectData.userW, (SQLSMALLINT) connectData.userW_length,
-                      (SQLWCHAR *) connectData.passwordW, (SQLSMALLINT) connectData.passwordW_length);
+                  if (connectData.driverW_length == 0 && connectData.serverW_length == 0) {
+                    returnCode = SQLConnectW(sql_connection,
+                        (SQLWCHAR *) connectData.dbNameW, (SQLSMALLINT) connectData.dbNameW_length,
+                        (SQLWCHAR *) connectData.userW, (SQLSMALLINT) connectData.userW_length,
+                        (SQLWCHAR *) connectData.passwordW, (SQLSMALLINT) connectData.passwordW_length);
+                    logMessage(printf("SQLConnectW returns " FMT_D16 "\n", returnCode););
+                  } else {
+                    returnCode = SQL_ERROR;
+                  } /* if */
                   if ((returnCode != SQL_SUCCESS &&
                        returnCode != SQL_SUCCESS_WITH_INFO) &&
                       !driverConnect(&connectData, sql_connection, sql_environment)) {

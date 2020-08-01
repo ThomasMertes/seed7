@@ -175,7 +175,7 @@ static void show_term_descr (struct termios *curr_term_descr)
  *  Struct termios has data at and after &c_cc[NCCS].
  *  Therefore memcmp sees differences, even if the
  *  official fields of struct termios are equal.
- *  @return TRUE if the thow termios structs are equal,
+ *  @return TRUE if the termios structs are equal,
  *          FALSE otherwise.
  */
 static boolType term_descr_equal (struct termios *term_descr1, struct termios *term_descr2)
@@ -500,7 +500,7 @@ static void key_table_init (void)
     key_table[128] = "\0339";   /* K_ALT_9 */
     key_table[129] = "\177";    /* K_DEL */
     /* Some function key definitions start with a printable         */
-    /* character. This makes absolutly no sense and confuses the    */
+    /* character. This makes absolutely no sense and confuses the   */
     /* function key recognition. Therefore such definitions are     */
     /* thrown out here.                                             */
     for (number = 0; number < SIZE_KEY_TABLE; number++) {
@@ -534,8 +534,8 @@ static void key_table_init (void)
         key_table[number] = NULL;
       } /* if */
     } /* for */
-    /* Sometimes there are double entrys in the function key        */
-    /* definitions. This makes absolutly no sense and confuses the  */
+    /* Sometimes there are double entries in the function key       */
+    /* definitions. This makes absolutely no sense and confuses the */
     /* function key recognition. Therefore such definitions are     */
     /* thrown out here.                                             */
     for (number = 0; number < SIZE_KEY_TABLE; number++) {

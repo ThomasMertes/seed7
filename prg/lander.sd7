@@ -805,7 +805,7 @@ const proc: init_display is func
     write(panel, "HEIGHT=");
     setPos(panel, 1, 9);
     write(panel, rocket.height lpad 3);
-    rect(12 + 0, GAUGE_Y_POS,  6, 13, dark_red);    (* Heigh Gauge *)
+    rect(12 + 0, GAUGE_Y_POS,  6, 13, dark_red);    (* Height Gauge *)
     rect(12 + 6, GAUGE_Y_POS, 35, 13, dark_green);
     height_gauge := rocket.height div 5;
     line(12 + height_gauge, GAUGE_Y_POS, 0, 12, light_cyan);

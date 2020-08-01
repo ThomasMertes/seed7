@@ -138,7 +138,7 @@ const func float: (in float: dividend) mod (in float: divisor) is action "FLT_MO
  *     0.0  ** B  returns Infinity         for B < 0
  *   (-0.0) ** B  returns -Infinity        for B < 0 and odd(B)
  *     A    ** B  returns 1.0 / A ** (-B)  for B < 0
- *  @return the result of the exponentation.
+ *  @return the result of the exponentiation.
  *)
 const func float: (in float: base) ** (in integer: exponent)   is action "FLT_IPOW";
 
@@ -156,7 +156,7 @@ const func float: (in float: base) ** (in integer: exponent)   is action "FLT_IP
  *     1.0  ** B    returns 1.0
  *     1.0  ** NaN  returns 1.0
  *     A    ** NaN  returns NaN        for A <> 1.0
- *  @return the result of the exponentation.
+ *  @return the result of the exponentiation.
  *)
 const func float: (in float: base) ** (in float: exponent)     is action "FLT_POW";
 
@@ -364,7 +364,7 @@ const func float: (attr float) parse (in string: stri) is
  *  The number is rounded to the specified number of digits (''precision'').
  *  Halfway cases are rounded away from zero. Except for a ''precision'' of
  *  zero the representation has a decimal point and at least one digit
- *  before and after the decimal point. Negative numbers are preceeded by
+ *  before and after the decimal point. Negative numbers are preceded by
  *  a minus sign (e.g.: "-1.25"). If all digits in the result are 0 a
  *  possible negative sign is omitted.
  *   0.012345 digits 4   returns "0.0123"

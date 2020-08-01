@@ -261,7 +261,7 @@ const func boolean: confirmSave (inout stateType: state) is func
         writeln("  Rereaded:         " <& pred(state.rereadPosition));
       end if;
       if state.inFileSize = -1_ then
-        writeln("  ***** Input file not existing or not accessable");
+        writeln("  ***** Input file not existing or not accessible");
       else
         # writeln("outFileSize=" <& outFileSize <& " inFileSize=" <& state.inFileSize);
         write("  State:            ");
@@ -561,7 +561,7 @@ const proc: shrinkBadAreas (inout stateType: state, in bigInteger: oldAreaPositi
         state.badAreas @:= [okayAreaPosition + okayAreaSize] badAreaSize;
         state.sumOfBadBytes +:= badAreaSize;
         writeln(log, "Bad area at " <& oldAreaPosition <&
-                     " shrinked to new position " <& okayAreaPosition + okayAreaSize <&
+                     " shrunk to new position " <& okayAreaPosition + okayAreaSize <&
                      " with new size " <& badAreaSize);
       else
         writeln(log, "Bad area at " <& oldAreaPosition <&
@@ -581,7 +581,7 @@ const proc: shrinkBadAreas (inout stateType: state, in bigInteger: oldAreaPositi
         state.sumOfBadBytes -:= oldAreaPosition + badAreaSize - okayAreaPosition;
         writeln(log, "Bad area at " <& oldAreaPosition <&
                      " with size " <& badAreaSize <&
-                     " shrinked to size " <& state.badAreas[oldAreaPosition]);
+                     " shrunk to size " <& state.badAreas[oldAreaPosition]);
       end if;
     end if;
   end func;

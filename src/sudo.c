@@ -72,7 +72,7 @@ int main (int argc, char *argv[])
         /* printf("returnValue: %d\n", returnValue); */
         if (returnValue <= 32) {
           /* The function ShellExecuteA() failed. */
-          /* Try to execute the program without administrator priviledges. */
+          /* Try to execute the program without administrator privileges. */
           returnValue = (int) ShellExecuteA(NULL, NULL, argv[1], parameters, NULL, SW_HIDE);
           /* printf("returnValue: %d\n", returnValue); */
           if (returnValue <= 32) {

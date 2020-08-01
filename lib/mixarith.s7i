@@ -1,7 +1,7 @@
 
 (********************************************************************)
 (*                                                                  *)
-(*  mixarith.s7i  Support to mix arithmethic between numeric types. *)
+(*  mixarith.s7i  Support to mix arithmetic between numeric types.  *)
 (*  Copyright (C) 2019  Thomas Mertes                               *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)

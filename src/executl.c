@@ -1168,18 +1168,18 @@ void destroy_local_init_value (const_locObjType local, errInfoType *err_info)
         call_list[1].obj = local->init_value;
         call_list[2].obj = SYS_DESTR_OBJECT;
 
-        /* printf("destroy_local_object: local->destroy_call_obj ");
+        /* printf("destroy_local_init_value: local->destroy_call_obj ");
         trace1(local->destroy_call_obj);
         printf("\n");
-        printf("destroy_local_object: local->object ");
+        printf("destroy_local_init_value: local->object ");
         trace1(local->object);
         printf("\n");
-        printf("destroy_local_object: before exec_call ");
+        printf("destroy_local_init_value: before exec_call ");
         trace1(&call_object);
         printf("\n");
         fflush(stdout); */
         call_result = exec_call(&call_object);
-        /* printf("destroy_local_object: after exec_call\n");
+        /* printf("destroy_local_init_value: after exec_call\n");
            fflush(stdout); */
         if (call_result != SYS_EMPTY_OBJECT) {
           set_fail_flag(FALSE);

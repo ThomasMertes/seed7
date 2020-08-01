@@ -31,7 +31,7 @@
 /*  one array access is necessary and this brings speed. No joke:   */
 /*  The character class is used in the scanner which consumes       */
 /*  approx 40 to 50 % of analyze time. The arrays are accessed via  */
-/*  macros defined in chclsutl.h. This makros use the EOF value     */
+/*  macros defined in chclsutl.h. This macros use the EOF value     */
 /*  because it can be (0) or (-1) (see K&R 1).                      */
 /*  Don't fear the runtime penalty: The compiler can do the         */
 /*  calculation with EOF at compile time.                           */

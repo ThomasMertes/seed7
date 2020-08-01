@@ -506,7 +506,7 @@ static void freeDatabase (databaseType database)
   /* freeDatabase */
     sqlClose(database);
     db = (dbType) database;
-    FREE_RECORD(db, dbRecord, count.database);
+    FREE_RECORD2(db, dbRecord, count.database, count.database_bytes);
   } /* freeDatabase */
 
 
@@ -595,7 +595,7 @@ static void freeResultData (preparedStmtType preparedStmt, resultDataType result
     if (resultData->column_handle != NULL) {
       OCIDescriptorFree(resultData->column_handle, OCI_DTYPE_PARAM);
     } /* if */
-    /* It seems that the define_handle is implicitely freed with the statement handle. */
+    /* It seems that the define_handle is implicitly freed with the statement handle. */
     if (resultData->buffer != NULL && resultData->buffer != &resultData->descriptor) {
       free(resultData->buffer);
     } /* if */
@@ -632,7 +632,8 @@ static void freePreparedStmt (sqlStmtType sqlStatement)
       FREE_TABLE(preparedStmt->result_array, resultDataRecord, preparedStmt->result_array_size);
     } /* if */
     OCIHandleFree(preparedStmt->ppStmt, OCI_HTYPE_STMT);
-    FREE_RECORD(preparedStmt, preparedStmtRecord, count.prepared_stmt);
+    FREE_RECORD2(preparedStmt, preparedStmtRecord,
+                 count.prepared_stmt, count.prepared_stmt_bytes);
     logFunction(printf("freePreparedStmt -->\n"););
   } /* freePreparedStmt */
 
@@ -4217,7 +4218,8 @@ static sqlStmtType sqlPrepare (databaseType database, striType sqlStatementStri)
                           queryLength););
           err_info = RANGE_ERROR;
           preparedStmt = NULL;
-        } else if (!ALLOC_RECORD(preparedStmt, preparedStmtRecord, count.prepared_stmt)) {
+        } else if (!ALLOC_RECORD2(preparedStmt, preparedStmtRecord,
+                                  count.prepared_stmt, count.prepared_stmt_bytes)) {
           err_info = MEMORY_ERROR;
         } else {
           /* printf("sqlPrepare: query: %s\n", query); */
@@ -4230,7 +4232,8 @@ static sqlStmtType sqlPrepare (databaseType database, striType sqlStatementStri)
             setDbErrorMsg("sqlPrepare", "OCIStmtPrepare", db->oci_error);
             logError(printf("sqlPrepare: OCIStmtPrepare:\n%s\n",
                             dbError.message););
-            FREE_RECORD(preparedStmt, preparedStmtRecord, count.prepared_stmt);
+            FREE_RECORD2(preparedStmt, preparedStmtRecord,
+                         count.prepared_stmt, count.prepared_stmt_bytes);
             err_info = DATABASE_ERROR;
             preparedStmt = NULL;
           } else {
@@ -4718,7 +4721,8 @@ databaseType sqlOpenOci (const const_striType host, intType port,
                 sqlClose((databaseType) &db);
                 database = NULL;
               } else if (unlikely(!setupFuncTable() ||
-                                  !ALLOC_RECORD(database, dbRecord, count.database))) {
+                                  !ALLOC_RECORD2(database, dbRecord,
+                                                 count.database, count.database_bytes))) {
                 err_info = MEMORY_ERROR;
                 sqlClose((databaseType) &db);
                 database = NULL;

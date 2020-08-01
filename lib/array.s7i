@@ -41,7 +41,7 @@ const func ARRAY_IDX_RANGE: [ (in integer: minIdx) .. (in integer: maxIdx) ] is 
 
 
 (**
- *  Abstract data type, describing resizeable arrays with [[integer]] index.
+ *  Abstract data type, describing resizable arrays with [[integer]] index.
  *  Arrays with non-integer index are described in [[idxarray]].
  *)
 const func type: array (in type: baseType) is func

@@ -699,7 +699,7 @@ WHAT TO DO WITH ERRORS TRIGGERED BY SEED7 PROGRAMS?
   happened, when starting a program that was dynamically linked
   to ncurses. Obviously the dependency of the ncurses package
   was set wrong. I fixed this by downloading libtinfo.so.5 and
-  copiing it to the directory /lib64.
+  copying it to the directory /lib64.
 
 
 HOW TO VERIFY THAT THE INTERPRETER WORKS CORRECT?
@@ -1210,7 +1210,7 @@ MACROS WRITTEN TO VERSION.H BY THE MAKEFILE
                             compiling and linking a program.
                             Normally this is identical to the
                             EXECUTABLE_FILE_EXTENSION, but in case
-                            of Emscripten this is independend from
+                            of Emscripten this is independent from
                             the EXECUTABLE_FILE_EXTENSION.
 
   INTERPRETER_FOR_LINKED_PROGRAM: Defines an interpreter that is
@@ -1268,7 +1268,7 @@ MACROS WRITTEN TO VERSION.H BY THE MAKEFILE
   CC_ERROR_FILDES: File descriptor to which the C compiler writes
                    errors. The MSVC stand-alone C compiler (CL)
                    writes the error messages to standard output
-                   (file descriptor 1). The C compliers of
+                   (file descriptor 1). The C compilers of
                    Linux/Unix/BSD and the compilers from MinGW and
                    Cygwin write the error messages to the error
                    output (file descriptor 2).

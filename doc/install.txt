@@ -199,17 +199,17 @@
 ==============================
 
   Under (Unix like) operating systems a Seed7 script can find
-  the s7 interpreter with the "shebang". You nedd to add the
+  the s7 interpreter with the "shebang". You need to add the
   path to the s7 interpreter as first line of the script. E.g.:
   
     #! /home/tm/seed7/bin/s7
 
   The first line informs the operating system to use the given
-  command when the scipt is executed. Additionally the Seed7
+  command when the script is executed. Additionally the Seed7
   script needs execute permission. The execute permission can
   be added with:
 
-    chmod chmod +x mySeed7Scipt
+    chmod chmod +x mySeed7Script
 
   Afterwards the Seed7 script can be started with:
 

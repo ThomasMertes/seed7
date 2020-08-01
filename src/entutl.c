@@ -124,7 +124,7 @@ static nodeType new_node (objectType obj)
  *  found a new node is generated and entered into node_tree.
  *  In this case the new node is returned.
  *  @return the node found or the new generated node or
- *          NULL, if a memory error occoured.
+ *          NULL, if a memory error occurred.
  */
 static nodeType get_node (nodeType *node_tree,
     register objectType object_searched)
@@ -412,7 +412,7 @@ static listType copy_params (listType name_list)
  *  found a new entity is generated and entered into declaration_base.
  *  In this case the new entity is returned.
  *  @return the entity found or the new generated entity or
- *          NULL, if a memory error occoured.
+ *          NULL, if a memory error occurred.
  */
 entityType get_entity (nodeType declaration_base, listType name_list)
 

@@ -300,7 +300,7 @@ objectType raise_with_arguments (objectType exception, listType list)
       continue_question(&exception);
     } /* if */
 #endif
-#ifndef USE_CHUNK_ALLOCS
+#if !USE_CHUNK_ALLOCS
     if (exception == SYS_MEM_EXCEPTION) {
       reuse_free_lists();
     } /* if */

@@ -35,7 +35,7 @@ include "bstring.s7i";
 
 
 (**
- *  Enumeration type to descibe database drivers.
+ *  Enumeration type to describe database drivers.
  *  * NO_DB No database
  *  * DB_MYSQL MySql/MariaDb
  *  * DB_SQLITE SQLLite
@@ -260,8 +260,8 @@ const func database: openDatabase (DB_ODBC, in string: odbcDriver,
  *
  *  If ''driver'' is DB_ODBC the ''dbPath'' can be in one of the forms:
  *  * odbcDriver:dbServer/dbName
+ *  * odbcDriver:dbServer
  *  * dbServer/dbName
- *  * dbServer
  *  * odbcDataSourceName
  *  The ''odbcDriver'' can have a value like ''sqlserver''.
  *
@@ -308,11 +308,13 @@ const func database: openDatabase (in dbCategory: driver, in string: dbPath,
           dbServer := dbServer[.. pred(slashPos)];
         end if;
       else
-        odbcDriver := "sqlserver";
         slashPos := pos(dbPath, '/');
         if slashPos <> 0 then
+          odbcDriver := "sqlserver";
           dbServer := dbPath[.. pred(slashPos)];
           dbName := dbPath[succ(slashPos) ..];
+        else
+          dbName := dbPath;
         end if;
       end if;
       db := openDatabase(DB_ODBC, odbcDriver, dbServer, dbName, user, password);
@@ -450,7 +452,7 @@ const proc: bind (inout sqlStatement: statement, in integer: pos, in bigInteger:
 const proc: bind (inout sqlStatement: statement, in integer: pos, in bigRational: bigRatData) is func
   begin
     BIND_BIG_RAT(statement, pos,
-    bigRatData.numerator, bigRatData.denominator);
+                 bigRatData.numerator, bigRatData.denominator);
   end func;
 
 

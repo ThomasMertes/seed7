@@ -295,7 +295,7 @@ static void freeDatabase (databaseType database)
                        (memSizeType) database););
     sqlClose(database);
     db = (dbType) database;
-    FREE_RECORD(db, dbRecord, count.database);
+    FREE_RECORD2(db, dbRecord, count.database, count.database_bytes);
     logFunction(printf("freeDatabase -->\n"););
   } /* freeDatabase */
 
@@ -317,7 +317,8 @@ static void freePreparedStmt (sqlStmtType sqlStatement)
       FREE_TABLE(preparedStmt->param_array, bindDataRecord, preparedStmt->param_array_size);
     } /* if */
     sqlite3_finalize(preparedStmt->ppStmt);
-    FREE_RECORD(preparedStmt, preparedStmtRecord, count.prepared_stmt);
+    FREE_RECORD2(preparedStmt, preparedStmtRecord,
+                 count.prepared_stmt, count.prepared_stmt_bytes);
     logFunction(printf("freePreparedStmt -->\n"););
   } /* freePreparedStmt */
 
@@ -2107,8 +2108,8 @@ static sqlStmtType sqlPrepare (databaseType database, striType sqlStatementStri)
                           queryLength););
           err_info = RANGE_ERROR;
           preparedStmt = NULL;
-        } else if (unlikely(!ALLOC_RECORD(preparedStmt, preparedStmtRecord,
-                                          count.prepared_stmt))) {
+        } else if (unlikely(!ALLOC_RECORD2(preparedStmt, preparedStmtRecord,
+                                           count.prepared_stmt, count.prepared_stmt_bytes))) {
           err_info = MEMORY_ERROR;
         } else {
           memset(preparedStmt, 0, sizeof(preparedStmtRecord));
@@ -2121,7 +2122,8 @@ static sqlStmtType sqlPrepare (databaseType database, striType sqlStatementStri)
             setDbErrorMsg("sqlPrepare", "sqlite3_prepare", db->connection);
             logError(printf("sqlPrepare: sqlite3_prepare error %d: %s\n",
                             prepare_result, sqlite3_errmsg(db->connection)););
-            FREE_RECORD(preparedStmt, preparedStmtRecord, count.prepared_stmt);
+            FREE_RECORD2(preparedStmt, preparedStmtRecord,
+                         count.prepared_stmt, count.prepared_stmt_bytes);
             err_info = DATABASE_ERROR;
             preparedStmt = NULL;
           } else {
@@ -2364,7 +2366,8 @@ databaseType sqlOpenLite (const const_striType host, intType port,
           err_info = DATABASE_ERROR;
           database = NULL;
         } else if (unlikely(!setupFuncTable() ||
-                            !ALLOC_RECORD(database, dbRecord, count.database))) {
+                            !ALLOC_RECORD2(database, dbRecord,
+                                           count.database, count.database_bytes))) {
           err_info = MEMORY_ERROR;
           sqlite3_close(connection);
           database = NULL;

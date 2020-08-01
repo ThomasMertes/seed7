@@ -139,7 +139,7 @@ objectType set_card (listType arguments)
  *  not present or absent in both sets. The set in which this element
  *  is not present is the smaller one. Note that the set comparison
  *  is not related to the concepts of subset or superset. With the
- *  comparison function setCmp it is posible to sort an array of
+ *  comparison function setCmp it is possible to sort an array of
  *  sets or to use sets as key in a hash table. The functions
  *  setIsSubset and setIsProperSubset are used to check if a set is
  *  a (proper) subset or superset of another set.

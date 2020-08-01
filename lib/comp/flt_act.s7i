@@ -1337,7 +1337,7 @@ const proc: process_const_flt_lshift (in reference: number, in integer: lshift,
       powerOfTwo := 2.0 ** lshift;
       if powerOfTwo > 1.0 and powerOfTwo < Infinity then
         # The range (0.0 to 1.0] would also work,
-        # but extended precison computations makes tests fail.
+        # but extended precision computations makes tests fail.
         c_expr.expr &:= "(";
         process_expr(number, c_expr);
         c_expr.expr &:= ") * ";
@@ -2008,7 +2008,7 @@ const proc: process_const_flt_rshift (in reference: number, in integer: rshift,
       end if;
       if powerOfTwo > 1.0 and powerOfTwo < Infinity then
         # The range (0.0 to 1.0] would also work,
-        # but extended precison computations makes tests fail.
+        # but extended precision computations makes tests fail.
         c_expr.expr &:= "(";
         process_expr(number, c_expr);
         c_expr.expr &:= ") * ";

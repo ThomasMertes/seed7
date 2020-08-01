@@ -27,7 +27,7 @@
 
 
 (**
- *  Abstract data type, describing resizeable arrays with ''indexType'' index.
+ *  Abstract data type, describing resizable arrays with ''indexType'' index.
  *)
 const func type: array [ (in type: indexType) ] (in type: baseType) is func
   result

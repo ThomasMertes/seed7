@@ -97,10 +97,6 @@ typedef struct {
 
 typedef const x11_winRecord *const_x11_winType;
 
-#if DO_HEAP_STATISTIC
-size_t sizeof_winRecord = sizeof(x11_winRecord);
-#endif
-
 #define to_window(win)    (((const_x11_winType) win)->window)
 #define to_backup(win)    (((const_x11_winType) win)->backup)
 #define to_clip_mask(win) (((const_x11_winType) win)->clip_mask)
@@ -886,7 +882,7 @@ winType drwEmpty (void)
 
   /* drwEmpty */
     logFunction(printf("drwEmpty()\n"););
-    if (unlikely(!ALLOC_RECORD(result, x11_winRecord, count.win))) {
+    if (unlikely(!ALLOC_RECORD2(result, x11_winRecord, count.win, count.win_bytes))) {
       raise_error(MEMORY_ERROR);
     } else {
       memset(result, 0, sizeof(x11_winRecord));
@@ -925,7 +921,7 @@ void drwFree (winType old_window)
       } /* if */
       remove_window(to_window(old_window));
     } /* if */
-    FREE_RECORD(old_window, x11_winRecord, count.win);
+    FREE_RECORD2(old_window, x11_winRecord, count.win, count.win_bytes);
   } /* drwFree */
 
 
@@ -944,7 +940,7 @@ winType drwGet (const_winType actual_window, intType left, intType upper,
                  width < 1 || height < 1)) {
       raise_error(RANGE_ERROR);
       result = NULL;
-    } else if (unlikely(!ALLOC_RECORD(result, x11_winRecord, count.win))) {
+    } else if (unlikely(!ALLOC_RECORD2(result, x11_winRecord, count.win, count.win_bytes))) {
       raise_error(MEMORY_ERROR);
     } else {
       memset(result, 0, sizeof(x11_winRecord));
@@ -1100,7 +1096,7 @@ winType drwImage (int32Type *image_data, memSizeType width, memSizeType height)
         if (image == NULL) {
           result = NULL;
         } else {
-          if (ALLOC_RECORD(result, x11_winRecord, count.win)) {
+          if (ALLOC_RECORD2(result, x11_winRecord, count.win, count.win_bytes)) {
             memset(result, 0, sizeof(x11_winRecord));
             result->usage_count = 1;
             result->window = XCreatePixmap(mydisplay,
@@ -1179,7 +1175,7 @@ winType drwNewPixmap (intType width, intType height)
         raise_error(FILE_ERROR);
         result = NULL;
       } else {
-        if (unlikely(!ALLOC_RECORD(result, x11_winRecord, count.win))) {
+        if (unlikely(!ALLOC_RECORD2(result, x11_winRecord, count.win, count.win_bytes))) {
           raise_error(MEMORY_ERROR);
         } else {
           memset(result, 0, sizeof(x11_winRecord));
@@ -1213,7 +1209,7 @@ winType drwNewBitmap (const_winType actual_window, intType width, intType height
     if (unlikely(width < 1 || height < 1)) {
       raise_error(RANGE_ERROR);
       result = NULL;
-    } else if (unlikely(!ALLOC_RECORD(result, x11_winRecord, count.win))) {
+    } else if (unlikely(!ALLOC_RECORD2(result, x11_winRecord, count.win, count.win_bytes))) {
       raise_error(MEMORY_ERROR);
     } else {
       memset(result, 0, sizeof(x11_winRecord));
@@ -1268,7 +1264,7 @@ winType drwOpen (intType xPos, intType yPos,
                           striAsUnquotedCStri(window_name), err_info););
           raise_error(err_info);
         } else {
-          if (ALLOC_RECORD(result, x11_winRecord, count.win)) {
+          if (ALLOC_RECORD2(result, x11_winRecord, count.win, count.win_bytes)) {
             memset(result, 0, sizeof(x11_winRecord));
             result->usage_count = 1;
 
@@ -1358,7 +1354,7 @@ winType drwOpenSubWindow (const_winType parent_window, intType xPos, intType yPo
         logError(printf("drwOpenSubWindow: drawInit() failed to open a display.\n"););
         raise_error(FILE_ERROR);
       } else {
-        if (ALLOC_RECORD(result, x11_winRecord, count.win)) {
+        if (ALLOC_RECORD2(result, x11_winRecord, count.win, count.win_bytes)) {
           memset(result, 0, sizeof(x11_winRecord));
           result->usage_count = 1;
 
@@ -1889,7 +1885,7 @@ intType drwRgbColor (intType redLight, intType greenLight, intType blueLight)
     col.green = greenLight;
     col.blue = blueLight;
     if (XAllocColor(mydisplay, cmap, &col) == 0) {
-      /* handle failture */
+      /* handle failure */
       printf("XAllocColor(%ld, %ld, %ld) not okay\n",
           redLight, greenLight, blueLight);
     } /* if */
@@ -1898,7 +1894,7 @@ intType drwRgbColor (intType redLight, intType greenLight, intType blueLight)
     col.green = GREEN_VAL;
     col.blue = BLUE_VAL;
     if (XAllocColor(mydisplay, cmap, &col) == 0) {
-      /* handle failture */
+      /* handle failure */
       printf("XAllocColor(%ld, %ld, %ld) not okay\n",
           RED_VAL, GREEN_VAL, BLUE_VAL);
     } /* if */

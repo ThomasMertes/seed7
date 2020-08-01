@@ -82,7 +82,7 @@ void show_statistic (void)
     printf("%6d comments\n", comment_count);
 #endif
 #if DO_HEAP_STATISTIC
-    heap_statistic();
+    heapStatistic();
 #else
 #if DO_HEAPSIZE_COMPUTATION
     printf("%6lu bytes\n", (unsigned long) heapsize());

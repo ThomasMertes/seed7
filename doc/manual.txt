@@ -6532,8 +6532,8 @@ CONTENTS
   The current line and column of a 'text' file can be retrieved
   with 'line' and 'column':
 
-    writeln("The curent line is: " <& line(aText));
-    writeln("The curent column is: " <& column(aText));
+    writeln("The current line is: " <& line(aText));
+    writeln("The current column is: " <& column(aText));
 
   The current height and width of a 'text' file can be retrieved
   with 'height' and 'width':
@@ -7099,7 +7099,7 @@ CONTENTS
 
 9.2 The Seed7 Structured Syntax Description
 
-    The Seed7 Structured Syntax Description is abreviated with S7SSD.
+    The Seed7 Structured Syntax Description is abbreviated with S7SSD.
   The S7SSD can describe most but not all of the syntax of a
   programming language. The syntax of identifiers, literals and
   comments is not described with S7SSD. S7SSD views a program as
@@ -8829,7 +8829,7 @@ CONTENTS
     const func string: readlink (in string: filePath) is ...
 
   Returns:
-    The symbolic link refered by 'filePath'.
+    The symbolic link referred by 'filePath'.
 
   Possible exceptions:
     MEMORY_ERROR
@@ -9193,6 +9193,10 @@ CONTENTS
 
     currDb := openDatabase(DB_OCI, "192.0.2.235", 0, "aSid", "testUser", "testPassword");
 
+    currDb := openDatabase(DB_DB2, "www.example.org", 0, "testDb", "testUser", "testPassword");
+
+    currDb := openDatabase(DB_SQL_SERVER, "192.168.1.13", 0, "testDb", "testUser", "testPassword");
+
   The 'host' can be specified by name (e.g.: "www.example.org"),
   by an IPv4 address (e.g.: "192.0.2.235") or by an IPv6
   address in colon notation (e.g.: "1234:feed::dead:beef").
@@ -9204,6 +9208,21 @@ CONTENTS
   parameter 'port' must be 0.
 
     currDb := openDatabase(DB_OCI, "", 0, "tnsnamesOraEntryName", "testUser", "testPassword");
+
+  When using the 'DB_DB2' driver you can either supply a database alias
+  from db2cli.ini or a database name as 'dbName'. If
+  db2cli.ini is used the parameter 'host' must be "" and the
+  parameter 'port' must be 0.
+
+    currDb := openDatabase(DB_DB2, "", 0, "databaseAlias", "testUser", "testPassword");
+
+  When using the 'DB_SQL_SERVER' driver you can either supply a database name
+  from the local machine or a database that can be accessed via
+  TCP/IP. To access a database at the local machine the parameter
+  'host' must be "" and the parameter 'port' must be 0.
+  If TCP/IP is used it must be enabled in the database.
+
+    currDb := openDatabase(DB_SQL_SERVER, "", 0, "localDb", "testUser", "testPassword");
 
   A SQLite database can be opened with:
 
@@ -9240,7 +9259,8 @@ CONTENTS
   ODBC uses also data source names (DSNs) to specify possible
   database connections. It is possible to open an ODBC database
   by specifying the data source name (DSN) in the parameter
-  'dbName':
+  'dbName'. In this case the prameters 'odbcDriver' and 'server'
+  must be "".
 
     currDb := openDatabase(DB_ODBC, "", "", "dsnName", "testUser", "testPassword");
 
@@ -9296,8 +9316,8 @@ CONTENTS
   of these forms:
 
     - odbcDriver:dbServer/dbName
+    - odbcDriver:dbServer
     - dbServer/dbName
-    - dbServer
     - odbcDataSourceName
 
   Use a value like "sqlserver" for 'odbcDriver'.
@@ -9349,7 +9369,7 @@ CONTENTS
         get one apostrophe character in the string.
     - Comments in a SQL statement start with /* and end with */.
     - Line comments in a SQL statement start with -- and end
-      with a newline characer ('\n').
+      with a newline character ('\n').
     - Table and field names can be enclosed in double quotes (e.g. "aTable").
       - This way a table or field name may contain spaces or other
         characters, that are normally not allowed.
@@ -11946,7 +11966,7 @@ CONTENTS
 
   The conversion functions mentioned above are implemented with
   basic conversion functions. In some situations it might make sense
-  to use the basic conversion functions direcly. This functions are
+  to use the basic conversion functions directly. This functions are
   optimized for performance. Some functions use loop unrolling
   inspired by Duff's device. The basic conversion functions below
   are defined in the header file "striutl.h".
@@ -12119,7 +12139,7 @@ CONTENTS
   several methods to provide error handling. Before an actual exception
   is raised an error state can be handled in different ways:
 
-    - The integer type 'errInfoType' is used to descripe an
+    - The integer type 'errInfoType' is used to describe an
       error state. Usually a variable or parameter named 'err_info' is
       used to store the error state. The value 'OKAY_NO_ERROR' is used
       to describe that no error occurred. Values like 'MEMORY_ERROR',
@@ -12464,12 +12484,12 @@ CONTENTS
 16.2.6 DATABASE_ERROR
 
   The exception DATABASE_ERROR may be raised by database
-  functions. If a DATABASE_ERROR is catched it is possible
+  functions. If a DATABASE_ERROR is caught it is possible
   to get some information about the cause of the error with:
 
     const func string: errMessage (DATABASE_ERROR)
 
-  There are messages comming from the database and from the Seed7
+  There are messages coming from the database and from the Seed7
   database driver. The database driver may have a message like:
 
     Searching for dynamic libraries failed: libclntsh.so
@@ -12508,7 +12528,7 @@ CONTENTS
       catch NUMERIC_ERROR: writeln("NUMERIC_ERROR");
     end block;
 
-  An 'otherwise' handler catches EXCEPTIONs, that are not catched
+  An 'otherwise' handler catches EXCEPTIONs, that are not caught
   by the other handlers:
 
     block

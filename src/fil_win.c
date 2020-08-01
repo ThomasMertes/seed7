@@ -374,7 +374,7 @@ os_off_t ftelli64Ext (FILE *aFile)
       filePosition = -1;
     } else {
       /* Use fgetpos() and fsetpos() to ensure, that the internal buffer */
-      /* of aFile is synchonized with the underlying file descriptor file. */
+      /* of aFile is synchronized with the underlying file descriptor file. */
       /* This way _telli64() returns the same value as _ftelli64() would do. */
       if (fgetpos(aFile, &pos) == 0 && fsetpos(aFile, &pos) == 0) {
         filePosition = _telli64(file_no);

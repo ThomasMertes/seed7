@@ -413,7 +413,7 @@ const func string: encodeHtmlEntities (in string: stri) is func
 (**
  *  Encode a string, such that it can be used as HTML content.
  *  HTML content is the text between HTML start tag and end tag.
- *  In HTML content only the characers '&' and '<' must be encoded.
+ *  In HTML content only the characters '&' and '<' must be encoded.
  *  @return a string were & and < are encoded as HTML entities.
  *)
 const func string: encodeHtmlContent (in string: stri) is func

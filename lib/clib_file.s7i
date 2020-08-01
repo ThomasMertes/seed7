@@ -28,7 +28,7 @@
 
 (**
  *  File type realized with FILE * files from the C runtime library.
- *  The type ''clib_file'' is not accessable via the [[file]] interface.
+ *  The type ''clib_file'' is not accessible via the [[file]] interface.
  *  The type [[external_file]], which implements the [[file]] interface
  *  is based on a ''clib_file''. Access to operating system files should
  *  always be done via the [[file]] interface and files of the type

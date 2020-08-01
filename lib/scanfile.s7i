@@ -1074,7 +1074,7 @@ const proc: skipXmlComment (inout file: inFile) is func
  *  starts with everything else and ends just before a < or with
  *  [[char#EOF|EOF]]. When the function is called it is assumed that
  *  inFile.bufferChar contains the introducing < of a XML/HTML tag or
- *  the first charater of the content text. When the function is left
+ *  the first character of the content text. When the function is left
  *  the character after the XML/HTML tag or the content text is in
  *  inFile.bufferChar.
  *  @return the XML/HTML tag or XML/HTML content text, and
@@ -1162,7 +1162,7 @@ const func string: getXmlCharacterReference (inout file: inFile) is func
  *  character and ends just before a < or with [[char#EOF|EOF]].
  *  When the function is called inFile.bufferChar contains either
  *  a whitespace character, the introducing < of a XML/HTML tag or
- *  the first charater of the content text. When the function is left
+ *  the first character of the content text. When the function is left
  *  the character after the XML/HTML tag head or the content text is
  *  in inFile.bufferChar. If a tag head starts with <-- it is
  *  interpreted as XML comment. A XML comment is ignored and

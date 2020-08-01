@@ -299,7 +299,7 @@ const func float: arg (in complex: number) is
 
 (**
  *  Compute the exponentiation of a complex base with an [[integer]] exponent.
- *  @return the result of the exponentation.
+ *  @return the result of the exponentiation.
  *)
 const func complex: (in complex: base) ** (in integer: exponent) is func
   result

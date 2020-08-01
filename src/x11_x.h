@@ -602,7 +602,7 @@ extern Window XCreateSimpleWindow (Display *display,
                                    unsigned int border_width,
                                    unsigned long border,
                                    unsigned long background);
-extern Colormap XDefaultColormap (Display *display, 
+extern Colormap XDefaultColormap (Display *display,
                                   int screen_number);
 extern int XDefaultDepth (Display *display,
                           int screen_number);

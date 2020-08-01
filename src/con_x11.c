@@ -1370,8 +1370,8 @@ void conClear (intType startlin, intType startcol,
 
 static void screenlineclear (int xpos, int ypos, intType len)
 
-  /* In der Position xpos, ypos des Bildschirmes wird ein Bereich    */
-  /* der Laenge len und der Hoehe einer Zeile geloescht.             */
+  /* Clear a screen area at position xpos, ypos with the given      */
+  /* length len and the height of a line.                           */
 
   {
     XPoint clear_area[5];
@@ -1421,8 +1421,8 @@ static void screenlineclear (int xpos, int ypos, intType len)
 
 void conSetCursor (intType line, intType column)
 
-  /* Moves the system curser to the given place of the console.     */
-  /* If no system cursor exists this procedure can be replaced by */
+  /* Moves the system cursor to the given place of the console.     */
+  /* If no system cursor exists this procedure can be replaced by   */
   /* a dummy procedure.                                             */
 
   {

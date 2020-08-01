@@ -470,10 +470,10 @@ const proc: evaluation (in integer: percent_population, in integer: acres_per_pe
         writeln("You have absolutely no plan for the future.");
         acres_factor := 10;
       elsif acres_per_person < 5 then
-        writeln("You sold out the country compleatly.");
+        writeln("You sold out the country completely.");
         acres_factor := 9;
       elsif acres_per_person < 7 then
-        writeln("You layed a very bad base for the future.");
+        writeln("You laid a very bad base for the future.");
         acres_factor := 7;
       elsif acres_per_person < 9 then
         writeln("The country has only little chances for the future.");

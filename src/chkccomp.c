@@ -46,7 +46,7 @@
  *  LINKED_PROGRAM_EXTENSION:
  *      The extension of the file produced by compiling and linking a program.
  *      Normally this is identical to the EXECUTABLE_FILE_EXTENSION, but in case
- *      of Emscripten this is independend from the EXECUTABLE_FILE_EXTENSION.
+ *      of Emscripten this is independent from the EXECUTABLE_FILE_EXTENSION.
  *  INTERPRETER_FOR_LINKED_PROGRAM:
  *      Defines an interpreter that is used if compiler and linker create
  *      a file that must be interpreted.
@@ -4903,7 +4903,7 @@ static void determineConsoleDefines (FILE *versionFile, char *include_options)
 #ifdef CONSOLE_DLL
     const char *dllNameList[] = { CONSOLE_DLL };
 #elif LIBRARY_TYPE == UNIX_LIBRARIES
-    const char *dllNameList[] = {"libtinfo.so"};
+    const char *dllNameList[] = {"libtinfo.so", "libtinfo.so.5"};
 #elif LIBRARY_TYPE == MACOS_LIBRARIES
     const char *dllNameList[] = {"libtinfo.dylib"};
 #elif LIBRARY_TYPE == WINDOWS_LIBRARIES
@@ -5955,6 +5955,8 @@ static void determineFireDefines (FILE *versionFile,
     char *include_options, char *additional_system_libs)
 
   {
+    const char *dbHomeSys[] = {"Firebird/Firebird_3_0",
+                               "Firebird/Firebird_2_0"};
 #ifdef FIRE_LIBS
     const char *libNameList[] = { FIRE_LIBS };
 #elif LIBRARY_TYPE == UNIX_LIBRARIES || LIBRARY_TYPE == MACOS_LIBRARIES
@@ -5971,14 +5973,20 @@ static void determineFireDefines (FILE *versionFile,
 #elif LIBRARY_TYPE == WINDOWS_LIBRARIES
     const char *dllNameList[] = {"fbclient.dll", "gds32.dll"};
 #endif
+    const char *inclDirList[] = {"/include"};
+    const char *dllDirList[] = {""};
     int dirIndex;
     int nameIndex;
     int searchForLib = 1;
     char dirPath[BUFFER_SIZE];
     char filePath[BUFFER_SIZE];
+    const char *programFilesX86 = NULL;
+    const char *programFiles = NULL;
+    char dbHome[BUFFER_SIZE];
     char includeOption[BUFFER_SIZE];
     const char *fireInclude = NULL;
     char testProgram[BUFFER_SIZE];
+    int dbHomeExists = 0;
 
   /* determineFireDefines */
 #ifdef FIRE_INCLUDE_OPTIONS
@@ -5986,59 +5994,95 @@ static void determineFireDefines (FILE *versionFile,
 #else
     includeOption[0] = '\0';
 #endif
-    if (compileAndLinkWithOptionsOk("#include <ibase.h>\n"
-                                    "int main(int argc,char *argv[]){\n"
-                                    "isc_db_handle conn;\n"
-                                    "isc_stmt_handle stmt;\n"
-                                    "ISC_STATUS status_vector[20];\n"
-                                    "char name = isc_dpb_user_name;\n"
-                                    "char passwd = isc_dpb_password;\n"
-                                    "return 0;}\n",
-                                    includeOption, "")) {
-      fireInclude = "ibase.h";
-      fprintf(logFile, "\rFirebird: %s found in system include directory.\n",
-              fireInclude);
-    } else if (compileAndLinkWithOptionsOk("#include <firebird/ibase.h>\n"
-                                           "int main(int argc,char *argv[]){\n"
-                                           "isc_db_handle conn;\n"
-                                           "isc_stmt_handle stmt;\n"
-                                           "ISC_STATUS status_vector[20];\n"
-                                           "char name = isc_dpb_user_name;\n"
-                                           "char passwd = isc_dpb_password;\n"
-                                           "return 0;}\n",
-                                           includeOption, "")) {
-      fireInclude = "firebird/ibase.h";
-      fprintf(logFile, "\rFirebird: %s found in system include directory.\n",
-              fireInclude);
-    } else if (compileAndLinkWithOptionsOk("#include \"tst_vers.h\"\n"
-                                           "#include \"db_fire.h\"\n"
-                                           "int main(int argc,char *argv[]){\n"
-                                           "isc_db_handle conn;\n"
-                                           "isc_stmt_handle stmt;\n"
-                                           "ISC_STATUS status_vector[20];\n"
-                                           "char name = isc_dpb_user_name;\n"
-                                           "char passwd = isc_dpb_password;\n"
-                                           "return 0;}\n",
-                                           "", "") ||
-               compileAndLinkWithOptionsOk("#define STDCALL\n"
-                                           "#include \"tst_vers.h\"\n"
-                                           "#include \"db_fire.h\"\n"
-                                           "int main(int argc,char *argv[]){\n"
-                                           "isc_db_handle conn;\n"
-                                           "isc_stmt_handle stmt;\n"
-                                           "ISC_STATUS status_vector[20];\n"
-                                           "char name = isc_dpb_user_name;\n"
-                                           "char passwd = isc_dpb_password;\n"
-                                           "return 0;}\n",
-                                           "", "")) {
-      fireInclude = "db_fire.h";
-      fprintf(logFile, "\rFirebird: %s found in Seed7 include directory.\n",
-              fireInclude);
-      includeOption[0] = '\0';
+    programFilesX86 = getenv("ProgramFiles(x86)");
+    /* fprintf(logFile, "programFilesX86: %s\n", programFilesX86); */
+    programFiles = getenv("ProgramFiles");
+    /* fprintf(logFile, "programFiles: %s\n", programFiles); */
+    if (programFiles != NULL) {
+      if (sizeof(char *) == 4 && programFilesX86 != NULL) {
+        programFiles = programFilesX86;
+      } /* if */
+      for (dirIndex = 0; !dbHomeExists && dirIndex < sizeof(dbHomeSys) / sizeof(char *); dirIndex++) {
+        sprintf(dbHome, "%s/%s", programFiles, dbHomeSys[dirIndex]);
+        /* fprintf(logFile, "dbHome: <%s>\n", dbHome); */
+        if (fileIsDir(dbHome)) {
+          dbHomeExists = 1;
+        } /* if */
+      } /* for */
+    } /* if */
+    if (dbHomeExists) {
+      /* fprintf(logFile, "dbHome=%s\n", dbHome); */
+      sprintf(testProgram, "#include \"ibase.h\"\n"
+                           "int main(int argc,char *argv[]){"
+                           "isc_db_handle conn;\n"
+                           "isc_stmt_handle stmt;\n"
+                           "ISC_STATUS status_vector[20];\n"
+                           "char name = isc_dpb_user_name;\n"
+                           "char passwd = isc_dpb_password;\n"
+                           "return 0;}\n");
+      fireInclude = findIncludeFile("Firebird", testProgram, dbHome,
+                                    inclDirList, sizeof(inclDirList) / sizeof(char *),
+                                    "ibase.h", includeOption);
+      if (fireInclude != NULL) {
+        appendOption(include_options, includeOption);
+      } /* if */
+    } /* if */
+    if (fireInclude == NULL) {
+      if (compileAndLinkWithOptionsOk("#include <ibase.h>\n"
+                                      "int main(int argc,char *argv[]){\n"
+                                      "isc_db_handle conn;\n"
+                                      "isc_stmt_handle stmt;\n"
+                                      "ISC_STATUS status_vector[20];\n"
+                                      "char name = isc_dpb_user_name;\n"
+                                      "char passwd = isc_dpb_password;\n"
+                                      "return 0;}\n",
+                                      includeOption, "")) {
+        fireInclude = "ibase.h";
+        fprintf(logFile, "\rFirebird: %s found in system include directory.\n",
+                fireInclude);
+        appendOption(include_options, includeOption);
+      } else if (compileAndLinkWithOptionsOk("#include <firebird/ibase.h>\n"
+                                             "int main(int argc,char *argv[]){\n"
+                                             "isc_db_handle conn;\n"
+                                             "isc_stmt_handle stmt;\n"
+                                             "ISC_STATUS status_vector[20];\n"
+                                             "char name = isc_dpb_user_name;\n"
+                                             "char passwd = isc_dpb_password;\n"
+                                             "return 0;}\n",
+                                             includeOption, "")) {
+        fireInclude = "firebird/ibase.h";
+        fprintf(logFile, "\rFirebird: %s found in system include directory.\n",
+                fireInclude);
+        appendOption(include_options, includeOption);
+      } else if (compileAndLinkWithOptionsOk("#include \"tst_vers.h\"\n"
+                                             "#include \"db_fire.h\"\n"
+                                             "int main(int argc,char *argv[]){\n"
+                                             "isc_db_handle conn;\n"
+                                             "isc_stmt_handle stmt;\n"
+                                             "ISC_STATUS status_vector[20];\n"
+                                             "char name = isc_dpb_user_name;\n"
+                                             "char passwd = isc_dpb_password;\n"
+                                             "return 0;}\n",
+                                             "", "") ||
+                 compileAndLinkWithOptionsOk("#define STDCALL\n"
+                                             "#include \"tst_vers.h\"\n"
+                                             "#include \"db_fire.h\"\n"
+                                             "int main(int argc,char *argv[]){\n"
+                                             "isc_db_handle conn;\n"
+                                             "isc_stmt_handle stmt;\n"
+                                             "ISC_STATUS status_vector[20];\n"
+                                             "char name = isc_dpb_user_name;\n"
+                                             "char passwd = isc_dpb_password;\n"
+                                             "return 0;}\n",
+                                             "", "")) {
+        fireInclude = "db_fire.h";
+        fprintf(logFile, "\rFirebird: %s found in Seed7 include directory.\n",
+                fireInclude);
+        includeOption[0] = '\0';
+      } /* if */
     } /* if */
     if (fireInclude != NULL) {
       fprintf(versionFile, "#define FIRE_INCLUDE \"%s\"\n", fireInclude);
-      appendOption(include_options, includeOption);
     } /* if */
 #ifndef FIRE_USE_DLL
     /* Handle static libraries: */
@@ -6063,6 +6107,11 @@ static void determineFireDefines (FILE *versionFile,
     if (searchForLib) {
       /* Handle dynamic libraries: */
       fprintf(versionFile, "#define FIRE_DLL");
+      if (dbHomeExists) {
+        listDynamicLibs("Firebird", dbHome,
+                        dllDirList, sizeof(dllDirList) / sizeof(char *),
+                        dllNameList, sizeof(dllNameList) / sizeof(char *), versionFile);
+      } /* if */
       for (nameIndex = 0; nameIndex < sizeof(dllNameList) / sizeof(char *); nameIndex++) {
         fprintf(logFile, "\rFirebird: DLL / Shared library: %s\n", dllNameList[nameIndex]);
         fprintf(versionFile, " \"%s\",", dllNameList[nameIndex]);
@@ -6122,9 +6171,9 @@ static void determineDb2Defines (FILE *versionFile,
                          "SQLHDBC conn; SQLHSTMT stmt;\n"
                          "SQLSMALLINT h = SQL_HANDLE_STMT;\n"
                          "return 0;}\n");
-    dbHome = getenv("DB2_CLI_DRIVER_INSTALL_PATH");
+    dbHome = getenv("DB2_HOME");
     if (dbHome != NULL && fileIsDir(dbHome)) {
-      fprintf(logFile, "\rDB2: DB2_CLI_DRIVER_INSTALL_PATH=%s\n", dbHome);
+      fprintf(logFile, "\rDB2: DB2_HOME=%s\n", dbHome);
       dbHomeExists = 1;
       db2Include = findIncludeFile("DB2", testProgram, dbHome,
                                    inclDirList, sizeof(inclDirList) / sizeof(char *),
@@ -6244,6 +6293,7 @@ static void determineSqlServerDefines (FILE *versionFile,
 #elif LIBRARY_TYPE == MACOS_LIBRARIES
     const char *dllNameList[] = {"libtdsodbc.dylib"};
 #elif LIBRARY_TYPE == WINDOWS_LIBRARIES
+    /* sqlncli11.dll is omitted, because it truncates fields. */
     const char *dllNameList[] = {"sqlsrv32.dll"};
 #endif
     int nameIndex;
@@ -6335,7 +6385,8 @@ static void determineSqlServerDefines (FILE *versionFile,
                          windowsSqlServer ? "#include \"windows.h\"\n" : "", sqlServerInclude,
                          includeSqlext ? "#include \"sqlext.h\"\n" : "");
     /* fprintf(logFile, "%s\n", testProgram);
-       fprintf(logFile, "odbcInclude: \"%s\"\n", odbcInclude); */
+       fprintf(logFile, "sqlServerInclude: \"%s\"\n", sqlServerInclude); */
+    sql_server_libs[0] = '\0';
     if (findLinkerOption("SQL Server", testProgram, includeOption, SQL_SERVER_LIBRARY_PATH,
                          libNameList, sizeof(libNameList) / sizeof(char *),
                          sql_server_libs)) {
@@ -6708,8 +6759,8 @@ int main (int argc, char **argv)
       driveLetters = doTest() == 1;
       fprintf(versionFile, "#define OS_PATH_HAS_DRIVE_LETTERS %d\n", driveLetters);
       if (driveLetters) {
-        /* The check for HOME and USERPROFILE is done with a program,        */
-        /* because some compilers (e.g.: emcc) provide their own evironment. */
+        /* The check for HOME and USERPROFILE is done with a program,         */
+        /* because some compilers (e.g.: emcc) provide their own environment. */
         if (assertCompAndLnk("#include <stdio.h>\n#include <stdlib.h>\n"
                              "int main(int argc, char *argv[])\n"
                              "{printf(\"%d\\n\", getenv(\"USERPROFILE\") != NULL);\n"

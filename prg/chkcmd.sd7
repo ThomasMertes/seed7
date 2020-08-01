@@ -662,7 +662,7 @@ const proc: check_environment is func
       end if;
     end for;
     if not found then
-      writeln(" ***** New environment variable does not exist in the environment after beeing set.");
+      writeln(" ***** New environment variable does not exist in the environment after being set.");
       okay := FALSE;
     end if;
 

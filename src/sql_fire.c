@@ -403,7 +403,7 @@ static void freeDatabase (databaseType database)
                        (memSizeType) database););
     sqlClose(database);
     db = (dbType) database;
-    FREE_RECORD(db, dbRecord, count.database);
+    FREE_RECORD2(db, dbRecord, count.database, count.database_bytes);
     logFunction(printf("freeDatabase -->\n"););
   } /* freeDatabase */
 
@@ -459,7 +459,8 @@ static void freePreparedStmt (sqlStmtType sqlStatement)
       FREE_TABLE(preparedStmt->param_array, bindDataRecord,
                  (memSizeType) preparedStmt->in_sqlda->sqld);
     } /* if */
-    FREE_RECORD(preparedStmt, preparedStmtRecord, count.prepared_stmt);
+    FREE_RECORD2(preparedStmt, preparedStmtRecord,
+                 count.prepared_stmt, count.prepared_stmt_bytes);
     logFunction(printf("freePreparedStmt -->\n"););
   } /* freePreparedStmt */
 
@@ -2399,8 +2400,6 @@ static void sqlColumnBigRat (sqlStmtType sqlStatement, intType column,
                         "sqlind has the value %d.\n",
                         column, *sqlind););
         raise_error(DATABASE_ERROR);
-        *numerator = NULL;
-        *denominator = NULL;
       } else {
         /* printf("columnType: %s\n", nameOfSqlType(sqlvar->sqltype & ~1)); */
         switch (sqlvar->sqltype & ~1) {
@@ -3364,8 +3363,8 @@ static sqlStmtType sqlPrepare (databaseType database, striType sqlStatementStri)
           err_info = RANGE_ERROR;
           preparedStmt = NULL;
         } else if (unlikely((out_sqlda = (XSQLDA *) malloc(XSQLDA_LENGTH(1))) == NULL ||
-                            !ALLOC_RECORD(preparedStmt, preparedStmtRecord,
-                                          count.prepared_stmt))) {
+                            !ALLOC_RECORD2(preparedStmt, preparedStmtRecord,
+                                           count.prepared_stmt, count.prepared_stmt_bytes))) {
           if (out_sqlda != NULL) {
             free(out_sqlda);
           } /* if */
@@ -3737,7 +3736,8 @@ databaseType sqlOpenFire (const const_striType host, intType port,
                     isc_detach_database(status_vector, &db_handle);
                     database = NULL;
                   } else if (unlikely(!setupFuncTable() ||
-                                      !ALLOC_RECORD(database, dbRecord, count.database))) {
+                                      !ALLOC_RECORD2(database, dbRecord,
+                                                     count.database, count.database_bytes))) {
                     err_info = MEMORY_ERROR;
                     isc_rollback_transaction(status_vector, &trans_handle);
                     isc_detach_database(status_vector, &db_handle);

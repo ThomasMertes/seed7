@@ -557,7 +557,7 @@ charType ut8Getc (fileType inFile)
  *  In order to work reasonable good for the common case (reading
  *  just some characters) memory for 'length' characters is requested
  *  with malloc(). After the data is read the result string is
- *  shrinked to the actual size (with realloc()). If 'length' is
+ *  shrunk to the actual size (with realloc()). If 'length' is
  *  larger than GETS_DEFAULT_SIZE or the memory cannot be requested
  *  a different strategy is used. In this case the function tries to
  *  find out the number of available characters (this is possible
@@ -632,7 +632,7 @@ striType ut8Gets (fileType inFile, intType length)
         result->size = allocated_size;
         num_of_chars_read = read_utf8_string(inFile, result, &err_info);
       } else {
-        /* We do not know how many bytes are avaliable therefore
+        /* We do not know how many bytes are available therefore
            result is resized with GETS_STRI_SIZE_DELTA until we
            have read enough or we reach EOF */
         result = read_and_alloc_utf8_stri(inFile, chars_requested, &num_of_chars_read,

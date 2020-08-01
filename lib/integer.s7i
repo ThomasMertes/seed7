@@ -165,7 +165,7 @@ const func integer: (in integer: dividend) mod (in integer: divisor)   is action
  *   1 ** B  returns 1           for B >= 0
  *   A ** B  returns -(-A) ** B  for A <= 0 and B >= 0 and odd(B)
  *   A ** B  returns (-A) ** B   for A <= 0 and B >= 0 and not odd(B)
- *  @return the result of the exponentation.
+ *  @return the result of the exponentiation.
  *  @exception NUMERIC_ERROR If the exponent is negative.
  *  @exception OVERFLOW_ERROR If an integer overflow occurs.
  *)

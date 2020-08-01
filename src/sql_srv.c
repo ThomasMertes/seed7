@@ -67,7 +67,7 @@
 #define CLI_DLL SQL_SERVER_DLL
 #endif
 
-#ifdef FREETDS_SQL_SERVER_CONNECTION
+#if FREETDS_SQL_SERVER_CONNECTION
 #define WIDE_CHARS_SUPPORTED 1
 #define TINY_INT_IS_UNSIGNED 1
 #endif
@@ -319,9 +319,9 @@ static SQLRETURN connectToLocalServer (connectDataType connectData,
   /* connectToLocalServer */
     logFunction(printf("connectToLocalServer\n"););
     inConnectionString[0] = '\0';
-    /* printf("inConnectionString: ");
-       printWstri(inConnectionString);
-       printf("\n"); */
+    logMessage(printf("inConnectionString: ");
+               printWstri(inConnectionString);
+               printf("\n"););
     outConnectionString[0] = '\0';
     returnCode = SQLBrowseConnectW(sql_connection,
                                    (SQLWCHAR *) inConnectionString,
@@ -329,10 +329,10 @@ static SQLRETURN connectToLocalServer (connectDataType connectData,
                                    outConnectionString,
                                    sizeof(outConnectionString) / sizeof(SQLWCHAR),
                                    &outConnectionStringLength);
-    /* printf("returnCode: %d\n", returnCode);
-       printf("outConnectionString: ");
-       printWstri(outConnectionString);
-       printf("\n"); */
+    logMessage(printf("returnCode: %d\n", returnCode);
+               printf("outConnectionString: ");
+               printWstri(outConnectionString);
+               printf("\n"););
     if (returnCode == SQL_SUCCESS || returnCode == SQL_SUCCESS_WITH_INFO ||
         returnCode == SQL_NEED_DATA) {
       SQLDisconnect(sql_connection);
@@ -400,8 +400,8 @@ static databaseType doOpenSqlServer (connectDataType connectData, errInfoType *e
         } else {
           returnCode = SQL_ERROR;
         } /* if */
-        if ((returnCode != SQL_SUCCESS &&
-             returnCode != SQL_SUCCESS_WITH_INFO)) {
+        if (returnCode != SQL_SUCCESS &&
+            returnCode != SQL_SUCCESS_WITH_INFO) {
           logMessage(printf("inConnectionString: ");
                      printWstri(connectData->connectionString);
                      printf("\n"););
@@ -419,14 +419,12 @@ static databaseType doOpenSqlServer (connectDataType connectData, errInfoType *e
                      printWstri(outConnectionString);
                      printf("\n"););
         } /* if */
-        if ((returnCode != SQL_SUCCESS &&
-             returnCode != SQL_SUCCESS_WITH_INFO)) {
-          if (connectData->serverLength != 0 || connectData->port != 0) {
-            setDbErrorMsg("sqlOpenSqlServer", "SQLDriverConnect",
-                          SQL_HANDLE_DBC, sql_connection);
-            logError(printf("sqlOpenSqlServer: SQLDriverConnect:\n%s\n",
-                            dbError.message););
-          } /* if */
+        if (returnCode != SQL_SUCCESS &&
+            returnCode != SQL_SUCCESS_WITH_INFO) {
+          setDbErrorMsg("sqlOpenSqlServer", "SQLDriverConnect",
+                        SQL_HANDLE_DBC, sql_connection);
+          logError(printf("sqlOpenSqlServer: SQLDriverConnect:\n%s\n",
+                          dbError.message););
           *err_info = DATABASE_ERROR;
           SQLFreeHandle(SQL_HANDLE_DBC, sql_connection);
           SQLFreeHandle(SQL_HANDLE_ENV, sql_environment);

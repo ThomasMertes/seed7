@@ -466,7 +466,7 @@ floatType fltDecompose (const floatType number, intType *const exponent)
  *  The number is rounded to the specified number of digits ('precision').
  *  Halfway cases are rounded away from zero. Except for a 'precision' of
  *  zero the representation has a decimal point and at least one digit
- *  before and after the decimal point. Negative numbers are preceeded by
+ *  before and after the decimal point. Negative numbers are preceded by
  *  a minus sign (e.g.: "-1.25"). If all digits in the result are 0 a
  *  possible negative sign is omitted.
  *  @param precision Number of digits after the decimal point.
@@ -536,7 +536,7 @@ striType fltDgts (floatType number, intType precision)
         /* for the float precision of printf(). Instead the actual */
         /* precision varies with each call of printf(). Up to a    */
         /* precision of PRINTF_FMT_F_MAXIMUM_FLOAT_PRECISION       */
-        /* prinf() will always work ok.                            */
+        /* printf() will always work ok.                           */
         if (precision > PRINTF_FMT_F_MAXIMUM_FLOAT_PRECISION) {
           pos = (memSizeType) (strchr(buffer, '.') - buffer);
           if ((memSizeType) precision >= len - pos) {
@@ -745,7 +745,7 @@ boolType fltGt (floatType number1, floatType number2)
  *     0.0  ** B  returns Infinity         for B < 0
  *   (-0.0) ** B  returns -Infinity        for B < 0 and odd(B)
  *     A    ** B  returns 1.0 / A ** (-B)  for B < 0
- *  @return the result of the exponentation.
+ *  @return the result of the exponentiation.
  */
 floatType fltIPow (floatType base, intType exponent)
 
@@ -1289,7 +1289,7 @@ floatType fltParse (const const_striType stri)
  *     1.0  ** B    returns 1.0
  *     1.0  ** NaN  returns 1.0
  *     A    ** NaN  returns NaN        for A <> 1.0
- *  @return the result of the exponentation.
+ *  @return the result of the exponentiation.
  */
 floatType fltPow (floatType base, floatType exponent)
 
@@ -1564,7 +1564,7 @@ striType fltSci (floatType number, intType precision)
         /* for the float precision of printf(). Instead the actual */
         /* precision varies with each call of printf(). Up to a    */
         /* precision of PRINTF_FMT_E_MAXIMUM_FLOAT_PRECISION       */
-        /* prinf() will always work ok.                            */
+        /* printf() will always work ok.                           */
         if (precision > PRINTF_FMT_E_MAXIMUM_FLOAT_PRECISION) {
           pos = (memSizeType) (strchr(buffer, 'e') - buffer);
           if ((memSizeType) precision > pos - STRLEN("1.") -

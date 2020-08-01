@@ -277,7 +277,7 @@ const func string: literal (in time: aTime) is
  *  Convert a string in the ISO 8601 date format to a time.
  *  The accepted ISO 8601 date formats are YYYY-MM, YYYY-MM-DD,
  *  YYYY-MM-DDTHH, YYYY-MM-DDTHH:MM, YYYY-MM-DDTHH:MM:SS
- *  Additionally a space is also allowed to seperate the date and the
+ *  Additionally a space is also allowed to separate the date and the
  *  time representations: YYYY-MM-DD HH, YYYY-MM-DD HH:MM,
  *  YYYY-MM-DD HH:MM:SS
  *  @return the time result of the conversion.
@@ -352,7 +352,7 @@ const func time: time (in var string: stri) is func
  *  Convert a string in the ISO 8601 date format to a time.
  *  The accepted ISO 8601 date formats are YYYY-MM, YYYY-MM-DD,
  *  YYYY-MM-DDTHH, YYYY-MM-DDTHH:MM, YYYY-MM-DDTHH:MM:SS
- *  Additionally a space is also allowed to seperate the date and the
+ *  Additionally a space is also allowed to separate the date and the
  *  time representations: YYYY-MM-DD HH, YYYY-MM-DD HH:MM,
  *  YYYY-MM-DD HH:MM:SS
  *  @return the time result of the conversion.

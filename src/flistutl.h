@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  s7   Seed7 interpreter                                          */
-/*  Copyright (C) 1990 - 2000  Thomas Mertes                        */
+/*  Copyright (C) 1989 - 2000  Thomas Mertes                        */
 /*                                                                  */
 /*  This program is free software; you can redistribute it and/or   */
 /*  modify it under the terms of the GNU General Public License as  */
@@ -47,9 +47,9 @@ EXTERN freeListRootType flist;
 #define F_LOG2(X)
 #endif
 
-#ifdef USE_CHUNK_ALLOCS
+#if USE_CHUNK_ALLOCS
 #define ALIGN(size)              (((((size) - 1) >> MALLOC_ALIGNMENT) + 1) << MALLOC_ALIGNMENT)
-#ifdef USE_ALTERNATE_CHUNK_ALLOCS
+#if USE_ALTERNATE_CHUNK_ALLOCS
 #define OLD_CHUNK(var,tp,byt)    (var = (tp) chunk.freemem, chunk.freemem += (byt), TRUE)
 #define NEW_CHUNK(var,tp,byt)    ((var = (tp) heap_chunk(byt)) != NULL)
 #define ALLOC_CHUNK(var,tp,byt)  ((byt) > chunk.beyond - chunk.freemem ? NEW_CHUNK(var, tp, byt) : OLD_CHUNK(var, tp, byt))
@@ -64,7 +64,7 @@ EXTERN freeListRootType flist;
 #endif
 
 
-#ifdef USE_CHUNK_ALLOCS
+#if USE_CHUNK_ALLOCS
 #define ALLOC_ID_NAME(var,len)     ALLOC_CHUNK(var, ustriType, ALIGN(SIZ_USTRI(len)))
 #define FREE_ID_NAME(var,len)      (CNT(CNT2_USTRI(len, SIZ_USTRI(len), count.idt, count.idt_bytes)) FREE_CHUNK(var, ALIGN(SIZ_USTRI(len))))
 #else
@@ -73,7 +73,7 @@ EXTERN freeListRootType flist;
 #endif
 #define COUNT_ID_NAME(len)         CNT1_USTRI((len), SIZ_USTRI(len), count.idt, count.idt_bytes)
 
-#ifdef USE_CHUNK_ALLOCS
+#if USE_CHUNK_ALLOCS
 #define ALLOC_FLISTELEM(var,rec)   ALLOC_CHUNK(var, rec *, ALIGN(SIZ_REC(rec)))
 #else
 #define ALLOC_FLISTELEM(var,rec)   ALLOC_HEAP(var, rec *, SIZ_REC(rec))
@@ -101,7 +101,7 @@ EXTERN freeListRootType flist;
 #else
 #define ALLOC_OBJECT(O) HEAP_OBJ(O, objectRecord)
 #define FREE_OBJECT(O)  FREE_RECORD(O, objectRecord, count.object)
-#ifdef USE_CHUNK_ALLOCS
+#if USE_CHUNK_ALLOCS
 #error Configuration error: USE_CHUNK_ALLOCS needs WITH_OBJECT_FREELIST
 #endif
 #endif
@@ -112,7 +112,7 @@ EXTERN freeListRootType flist;
 #else
 #define ALLOC_L_ELEM(L) HEAP_L_E(L, listRecord)
 #define FREE_L_ELEM(L)  FREE_RECORD(L, listRecord, count.list_elem)
-#ifdef USE_CHUNK_ALLOCS
+#if USE_CHUNK_ALLOCS
 #error Configuration error: USE_CHUNK_ALLOCS needs WITH_LIST_FREELIST
 #endif
 #endif
@@ -123,7 +123,7 @@ EXTERN freeListRootType flist;
 #else
 #define ALLOC_NODE(N)   HEAP_NODE(N, nodeRecord)
 #define FREE_NODE(N)    FREE_RECORD(N, nodeRecord, count.node)
-#ifdef USE_CHUNK_ALLOCS
+#if USE_CHUNK_ALLOCS
 #error Configuration error: USE_CHUNK_ALLOCS needs WITH_NODE_FREELIST
 #endif
 #endif
@@ -134,23 +134,23 @@ EXTERN freeListRootType flist;
 #else
 #define ALLOC_FILE(F)   HEAP_FILE(F, inFileRecord)
 #define FREE_FILE(F)    FREE_RECORD(F, inFileRecord, count.infil)
-#ifdef USE_CHUNK_ALLOCS
+#if USE_CHUNK_ALLOCS
 #error Configuration error: USE_CHUNK_ALLOCS needs WITH_FILE_FREELIST
 #endif
 #endif
 
 
 #if DO_HEAP_STATISTIC
-void heap_statistic (void);
+void heapStatistic (void);
 #endif
 memSizeType heapsize (void);
-#ifdef USE_CHUNK_ALLOCS
+#if USE_CHUNK_ALLOCS
 #ifdef USE_FLIST_ALLOC
 void *flist_alloc (size_t);
 #endif
 #else
 void reuse_free_lists (void);
 #endif
-#ifdef USE_CHUNK_ALLOCS
+#if USE_CHUNK_ALLOCS
 void *heap_chunk (size_t);
 #endif

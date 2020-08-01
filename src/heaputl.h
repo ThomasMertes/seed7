@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  heaputl.h     Procedures for heap allocation and maintenance.   */
-/*  Copyright (C) 1989 - 2011  Thomas Mertes                        */
+/*  Copyright (C) 1989 - 2019  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */
@@ -68,10 +68,14 @@ typedef struct {
     unsigned long prog;
     unsigned long polldata;
     unsigned long prepared_stmt;
+    memSizeType prepared_stmt_bytes;
     unsigned long fetch_data;
+    memSizeType fetch_data_bytes;
     unsigned long sql_func;
     unsigned long win;
+    memSizeType win_bytes;
     unsigned long database;
+    memSizeType database_bytes;
     unsigned long process;
     unsigned long fnam;
     memSizeType fnam_bytes;
@@ -85,7 +89,7 @@ countType count = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
                    0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
                    0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
                    0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                   0, 0, 0, 0, 0, 0};
+                   0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 #else
 EXTERN countType count;
 #endif
@@ -95,7 +99,6 @@ extern const size_t sizeof_bigDigitType;
 extern const size_t sizeof_bigIntRecord;
 #endif
 extern size_t sizeof_pollRecord;
-extern size_t sizeof_winRecord;
 extern size_t sizeof_processRecord;
 
 #endif
@@ -110,7 +113,7 @@ extern size_t sizeof_processRecord;
 /* that if such an operating system has another function to     */
 /* request more bytes it can be substituted here.               */
 
-#ifdef USE_MAXIMUM_MALLOC_CHECK
+#if USE_MAXIMUM_MALLOC_CHECK
 #define MALLOC(size) ((size) <= 65500 ? malloc((size_t) (size)) : NULL)
 #define REALLOC(ptr, size) ((size) <= 65500 ? realloc(ptr, (size_t) (size)) : NULL)
 #else
@@ -125,7 +128,7 @@ EXTERN int successful_mallocs;
 #endif
 
 
-#ifdef USE_CHUNK_ALLOCS
+#if USE_CHUNK_ALLOCS
 typedef struct {
     char *freemem;
     char *start;
@@ -177,6 +180,8 @@ EXTERN memSizeType hs;
 #define BIG_SUB(len)           count.big--,   count.big_elems -= (memSizeType) (len)
 #define REC_ADD(cnt)           cnt++
 #define REC_SUB(cnt)           cnt--
+#define REC2_ADD(size,cnt,byt) cnt++, byt += (memSizeType) (size)
+#define REC2_SUB(size,cnt,byt) cnt--, byt -= (memSizeType) (size)
 #define BYT_ADD(size)          count.byte += (memSizeType) (size)
 #define BYT_SUB(size)          count.byte -= (memSizeType) (size)
 #define RTL_L_ELEM_ADD
@@ -204,6 +209,8 @@ EXTERN memSizeType hs;
 #define BIG_SUB(len)
 #define REC_ADD(cnt)
 #define REC_SUB(cnt)
+#define REC2_ADD(size,cnt,byt)
+#define REC2_SUB(size,cnt,byt)
 #define BYT_ADD(size)
 #define BYT_SUB(size)
 #define RTL_L_ELEM_ADD
@@ -264,10 +271,8 @@ EXTERN memSizeType hs;
 #if DO_HEAPSIZE_COMPUTATION
 #if DO_HEAP_STATISTIC
 #define CALC_HS(cnt_hs, cnt)   (cnt_hs, cnt)
-#define CNT4_STRI(var,len)     HS_ADD(((len)-(var)->size) * sizeof(strElemType)); count.stri_elems += (memSizeType) ((len)-(var)->size);
 #else
 #define CALC_HS(cnt_hs, cnt)   (cnt_hs)
-#define CNT4_STRI(var,len)     HS_ADD(((len)-(var)->size) * sizeof(strElemType));
 #endif
 #define CNT(cnt)               cnt,
 #define CNT3(cnt2, cnt1)       (cnt2, cnt1)
@@ -275,7 +280,6 @@ EXTERN memSizeType hs;
 #define CALC_HS(cnt_hs, cnt)
 #define CNT(cnt)
 #define CNT3(cnt2, cnt1)
-#define CNT4_STRI(var,len)
 #endif
 
 #define CNT1_USTRI(L,S,C,B)    CALC_HS(HS_ADD(S),    USTRI_ADD(L,C,B) H_LOG1(S))
@@ -296,6 +300,8 @@ EXTERN memSizeType hs;
 #define CNT2_BIG(len,size)     CALC_HS(HS_SUB(size), BIG_SUB(len)     H_LOG2(size))
 #define CNT1_REC(size,cnt)     CALC_HS(HS_ADD(size), REC_ADD(cnt)     H_LOG1(size))
 #define CNT2_REC(size,cnt)     CALC_HS(HS_SUB(size), REC_SUB(cnt)     H_LOG2(size))
+#define CNT1_REC2(size,cnt,byt) CALC_HS(HS_ADD(size), REC2_ADD(size,cnt,byt)  H_LOG1(size))
+#define CNT2_REC2(size,cnt,byt) CALC_HS(HS_SUB(size), REC2_SUB(size,cnt,byt)  H_LOG2(size))
 #define CNT1_BYT(size)         CALC_HS(HS_ADD(size), BYT_ADD(size)    H_LOG1(size))
 #define CNT2_BYT(size)         CALC_HS(HS_SUB(size), BYT_SUB(size)    H_LOG2(size))
 #define CNT1_RTL_L_ELEM(size)  CALC_HS(HS_ADD(size), RTL_L_ELEM_ADD   H_LOG1(size))
@@ -331,11 +337,11 @@ EXTERN memSizeType hs;
 
 #if WITH_STRI_CAPACITY
 #if ALLOW_STRITYPE_SLICES
-#define HEAP_ALLOC_STRI(var,len)       (ALLOC_HEAP(var,striType,SIZ_STRI(len))?((var)->mem=(var)->mem1,(var)->capacity=(len),CNT(CNT1_STRI(len,SIZ_STRI(len))) TRUE):FALSE)
-#define HEAP_REALLOC_STRI(v1,v2,l1,l2) if((v1=REALLOC_HEAP(v2,striType,SIZ_STRI(l2)))!=NULL){(v1)->mem=(v1)->mem1,(v1)->capacity=l2;}
+#define HEAP_ALLOC_STRI(var,cap)       (ALLOC_HEAP(var,striType,SIZ_STRI(cap))?((var)->mem=(var)->mem1,(var)->capacity=(cap),CNT(CNT1_STRI(cap,SIZ_STRI(cap))) TRUE):FALSE)
+#define HEAP_REALLOC_STRI(v1,v2,c1,c2) if((v1=REALLOC_HEAP(v2,striType,SIZ_STRI(c2)))!=NULL){(v1)->mem=(v1)->mem1,(v1)->capacity=(c2);}
 #else
-#define HEAP_ALLOC_STRI(var,len)       (ALLOC_HEAP(var,striType,SIZ_STRI(len))?((var)->capacity=(len),CNT(CNT1_STRI(len,SIZ_STRI(len))) TRUE):FALSE)
-#define HEAP_REALLOC_STRI(v1,v2,l1,l2) if((v1=REALLOC_HEAP(v2,striType,SIZ_STRI(l2)))!=NULL)(v1)->capacity=l2;
+#define HEAP_ALLOC_STRI(var,cap)       (ALLOC_HEAP(var,striType,SIZ_STRI(cap))?((var)->capacity=(cap),CNT(CNT1_STRI(cap,SIZ_STRI(cap))) TRUE):FALSE)
+#define HEAP_REALLOC_STRI(v1,v2,c1,c2) if((v1=REALLOC_HEAP(v2,striType,SIZ_STRI(c2)))!=NULL)(v1)->capacity=(c2);
 #endif
 #else
 #if ALLOW_STRITYPE_SLICES
@@ -346,8 +352,11 @@ EXTERN memSizeType hs;
 #define HEAP_REALLOC_STRI(v1,v2,l1,l2) v1=REALLOC_HEAP(v2,striType,SIZ_STRI(l2));
 #endif
 #endif
-#define HEAP_FREE_STRI(var,len)        (CNT(CNT2_STRI(len,SIZ_STRI(len))) FREE_HEAP(var,SIZ_STRI(len)))
-#define COUNT3_STRI(len1,len2)         CNT3(CNT2_STRI(len1, SIZ_STRI(len1)), CNT1_STRI(len2, SIZ_STRI(len2)))
+#define HEAP_FREE_STRI(var,len)        (CNT(CNT2_STRI((var)->capacity,SIZ_STRI((var)->capacity))) FREE_HEAP(var,SIZ_STRI((var)->capacity)))
+#define COUNT3_STRI(cap1,cap2)         CNT3(CNT2_STRI(cap1, SIZ_STRI(cap1)), CNT1_STRI(cap2, SIZ_STRI(cap2)))
+#define COUNT_GROW_STRI(len1,len2)
+#define COUNT_GROW2_STRI(len1,len2)
+#define COUNT_SHRINK_STRI(len1,len2)
 
 
 #if WITH_STRI_FREELIST
@@ -382,7 +391,7 @@ EXTERN boolType sflist_was_full[STRI_FREELIST_ARRAY_SIZE];
 #define PUSH_STRI_OK(var)   (var)->capacity < STRI_FREELIST_ARRAY_SIZE && sflist_allowed[(var)->capacity] > 0
 
 #define POP_STRI(var,len)   (var = (striType) sflist[len], sflist[len] = sflist[len]->next, sflist_allowed[len]++, TRUE)
-#define PUSH_STRI(var,len)  { CNT4_STRI(var,len) ((freeListElemType) var)->next = sflist[len]; sflist[len] = (freeListElemType) var; sflist_allowed[len]--; }
+#define PUSH_STRI(var,len)  { ((freeListElemType) var)->next = sflist[len]; sflist[len] = (freeListElemType) var; sflist_allowed[len]--; }
 
 #if WITH_ADJUSTED_STRI_FREELIST
 #define ADJUST_ALLOWED_LEN(len)  (sflist_was_full[len] ? (sflist_was_full[len]=0, sflist_allowed[len] < 65536 ? sflist_allowed[len]<<=1 : 0) : 0)
@@ -529,6 +538,10 @@ EXTERN unsigned int sflist_allowed;
 #define FREE_RECORD(var,rec,cnt)   (CNT(CNT2_REC(SIZ_REC(rec), cnt)) FREE_HEAP(var, SIZ_REC(rec)))
 
 
+#define ALLOC_RECORD2(var,rec,cnt,byt) (ALLOC_HEAP(var, rec*, SIZ_REC(rec))?CNT(CNT1_REC2(SIZ_REC(rec), cnt, byt)) TRUE:FALSE)
+#define FREE_RECORD2(var,rec,cnt,byt)  (CNT(CNT2_REC2(SIZ_REC(rec), cnt, byt)) FREE_HEAP(var, SIZ_REC(rec)))
+
+
 #define ALLOC_BYTES(var,byt)       (ALLOC_HEAP(var, char *, byt)?CNT(CNT1_BYT(byt)) TRUE:FALSE)
 #define ALLOC_UBYTES(var,byt)      (ALLOC_HEAP(var, unsigned char *, byt)?CNT(CNT1_BYT(byt)) TRUE:FALSE)
 #define FREE_BYTES(var,byt)        (CNT(CNT2_BYT(byt)) FREE_HEAP(var, byt))
@@ -552,6 +565,6 @@ striType shrinkStri (striType stri, memSizeType len);
 #if DO_HEAP_CHECK
 void check_heap (long, const char *, unsigned int);
 #endif
-#if DO_HEAP_STATISTIC
-void rtlHeapStatistic (void);
+#if !DO_HEAP_STATISTIC
+void heapStatistic (void);
 #endif

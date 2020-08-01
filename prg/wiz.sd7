@@ -29,7 +29,7 @@ const integer: SIZE_LABY is 8;
 const integer: NUM_LEVELS is 8;
 const integer: THINGS_PER_LEVEL is 1;
 const integer: VENDORS_PER_LEVEL is 1;
-const integer: OCCURANCES_PER_LEVEL is 1;
+const integer: OCCURRENCES_PER_LEVEL is 1;
 const integer: TRANSFERS_PER_LEVEL is 1;
 
 
@@ -246,7 +246,7 @@ const transtype: SINKHOLE is 2;
 const transtype: WARP is 3;
 
 const type: occurtype is new enum
-    NOOCCURANCE, LEECH, LETHARGY, FORGET,
+    NOOCCURRENCE, LEECH, LETHARGY, FORGET,
     STEALARMOR, STEALWEAPON, STEALLAMP, STEALFLARES,
     STEALTREASURE, FINDGOLD, FINDFLARES
   end enum;
@@ -262,7 +262,7 @@ const array string: adjective_list is []("large", "strange", "ugly", "enormous",
 const type: roomtype is new struct
     var directset: connections is EMPTY_SET;
     var transtype: transfer is NOTRANSFER;
-    var occurtype: occurance is NOOCCURANCE;
+    var occurtype: occurrence is NOOCCURRENCE;
     var animatetype: roomer is NOBODY;
     var contenttype: contents is EMPTYROOM;
     var boolean: visited is FALSE;
@@ -362,7 +362,7 @@ const proc: startText is func
     writeln(" draining  away, he created a great orb of power the *ORB OF ZOT*. To hide it");
     writeln(" from the cretins of the  surface  beyond,  he  hired  a  group  of  esurient");
     writeln(" monsters to guard the *ORB OF ZOT*. From that time onward, many a bold youth");
-    writeln(" has ventured into the castle, loosing his life  in  cruel  and  unimaginable");
+    writeln(" has ventured into the castle, losing his  life  in  cruel  and  unimaginable");
     writeln(" ways.");
     writeln;
     writeln("All right, bold one.");
@@ -1244,7 +1244,7 @@ const proc: findEmptyRoom (inout integer: x1, inout integer: y1, in integer: z1)
     until LABYRINTH[x1][y1][z1].transfer = NOTRANSFER and
         LABYRINTH[x1][y1][z1].roomer = NOBODY and
         LABYRINTH[x1][y1][z1].contents = EMPTYROOM and
-        LABYRINTH[x1][y1][z1].occurance = NOOCCURANCE and
+        LABYRINTH[x1][y1][z1].occurrence = NOOCCURRENCE and
         not availTreasure(&LABYRINTH[x1][y1][z1]);
   end func; (* findEmptyRoom *)
 
@@ -1313,7 +1313,7 @@ const proc: initVars is func
           a_room->roomer := NOBODY;
           a_room->connections := way_nsew;
           a_room->transfer := NOTRANSFER;
-          a_room->occurance := NOOCCURANCE;
+          a_room->occurrence := NOOCCURRENCE;
           a_room->xPos := x1;
           a_room->yPos := y1;
           a_room->zPos := z1;
@@ -1414,19 +1414,19 @@ const proc: initVars is func
     ORBOFZOT->yPos := y1;
     ORBOFZOT->zPos := z1;
     for z1 range 1 to NUM_LEVELS do
-      for count range 1 to OCCURANCES_PER_LEVEL do
-        LABYRINTH[rand(1, SIZE_LABY)][rand(1, SIZE_LABY)][z1].occurance := FINDGOLD;
-        LABYRINTH[rand(1, SIZE_LABY)][rand(1, SIZE_LABY)][z1].occurance := FINDFLARES;
+      for count range 1 to OCCURRENCES_PER_LEVEL do
+        LABYRINTH[rand(1, SIZE_LABY)][rand(1, SIZE_LABY)][z1].occurrence := FINDGOLD;
+        LABYRINTH[rand(1, SIZE_LABY)][rand(1, SIZE_LABY)][z1].occurrence := FINDFLARES;
       end for;
     end for;
-    LABYRINTH[rand(1, SIZE_LABY)][rand(1, SIZE_LABY)][rand(1, NUM_LEVELS)].occurance := LEECH;
-    LABYRINTH[rand(1, SIZE_LABY)][rand(1, SIZE_LABY)][rand(1, NUM_LEVELS)].occurance := LETHARGY;
-    LABYRINTH[rand(1, SIZE_LABY)][rand(1, SIZE_LABY)][rand(1, NUM_LEVELS)].occurance := FORGET;
-    LABYRINTH[rand(1, SIZE_LABY)][rand(1, SIZE_LABY)][rand(1, NUM_LEVELS)].occurance := STEALARMOR;
-    LABYRINTH[rand(1, SIZE_LABY)][rand(1, SIZE_LABY)][rand(1, NUM_LEVELS)].occurance := STEALWEAPON;
-    LABYRINTH[rand(1, SIZE_LABY)][rand(1, SIZE_LABY)][rand(1, NUM_LEVELS)].occurance := STEALLAMP;
-    LABYRINTH[rand(1, SIZE_LABY)][rand(1, SIZE_LABY)][rand(1, NUM_LEVELS)].occurance := STEALFLARES;
-    LABYRINTH[rand(1, SIZE_LABY)][rand(1, SIZE_LABY)][rand(1, NUM_LEVELS)].occurance := STEALTREASURE;
+    LABYRINTH[rand(1, SIZE_LABY)][rand(1, SIZE_LABY)][rand(1, NUM_LEVELS)].occurrence := LEECH;
+    LABYRINTH[rand(1, SIZE_LABY)][rand(1, SIZE_LABY)][rand(1, NUM_LEVELS)].occurrence := LETHARGY;
+    LABYRINTH[rand(1, SIZE_LABY)][rand(1, SIZE_LABY)][rand(1, NUM_LEVELS)].occurrence := FORGET;
+    LABYRINTH[rand(1, SIZE_LABY)][rand(1, SIZE_LABY)][rand(1, NUM_LEVELS)].occurrence := STEALARMOR;
+    LABYRINTH[rand(1, SIZE_LABY)][rand(1, SIZE_LABY)][rand(1, NUM_LEVELS)].occurrence := STEALWEAPON;
+    LABYRINTH[rand(1, SIZE_LABY)][rand(1, SIZE_LABY)][rand(1, NUM_LEVELS)].occurrence := STEALLAMP;
+    LABYRINTH[rand(1, SIZE_LABY)][rand(1, SIZE_LABY)][rand(1, NUM_LEVELS)].occurrence := STEALFLARES;
+    LABYRINTH[rand(1, SIZE_LABY)][rand(1, SIZE_LABY)][rand(1, NUM_LEVELS)].occurrence := STEALTREASURE;
     for z1 range 1 to NUM_LEVELS do
       for count range 1 to TRANSFERS_PER_LEVEL do
         findEmptyRoom(x1, y1, z1);
@@ -3094,9 +3094,9 @@ const proc: incident is func
     var objecttype: obj is NOOBJECT;
   begin (* incident *)
     if PEARL->place <> PLAYER then
-      if currentRoom->occurance = LEECH then
+      if currentRoom->occurrence = LEECH then
         writeln("You pocket has a leetch. Now you will lose goldPieces.");
-        currentRoom->occurance := NOOCCURANCE;
+        currentRoom->occurrence := NOOCCURRENCE;
         haveLeech := TRUE;
       end if;
       if haveLeech then
@@ -3107,9 +3107,9 @@ const proc: incident is func
       end if;
     end if;
     if RUBY->place <> PLAYER then
-      if currentRoom->occurance = LETHARGY then
+      if currentRoom->occurrence = LETHARGY then
         writeln("You feel that you are lethargic now.");
-        currentRoom->occurance := NOOCCURANCE;
+        currentRoom->occurrence := NOOCCURRENCE;
         lethargic := TRUE;
       end if;
       if lethargic then
@@ -3117,47 +3117,47 @@ const proc: incident is func
       end if;
     end if;
     if GREENGEM->place <> PLAYER then
-      if currentRoom->occurance = FORGET then
+      if currentRoom->occurrence = FORGET then
         writeln("You see a lot of strange signs on the ground, possibly runes.");
         writeln("You try to read them, but you found no sense.");
         writeln("You feel that the runes force you to forget the map of the castle.");
-        currentRoom->occurance := NOOCCURANCE;
+        currentRoom->occurrence := NOOCCURRENCE;
         forgetting := TRUE;
       end if;
       if forgetting then
         LABYRINTH[rand(1, SIZE_LABY)][rand(1, SIZE_LABY)][rand(1, NUM_LEVELS)].visited := FALSE;
       end if;
     end if;
-    if (armor <> NOARMOR) and (currentRoom->occurance = STEALARMOR) then
+    if (armor <> NOARMOR) and (currentRoom->occurrence = STEALARMOR) then
       writeln("You are knocked down from behind and somebody steals your " <&
               armor <& " armor.");
-      currentRoom->occurance := NOOCCURANCE;
+      currentRoom->occurrence := NOOCCURRENCE;
       armor := NOARMOR;
     end if;
-    if (weapon <> NOWEAPON) and (currentRoom->occurance = STEALWEAPON) then
+    if (weapon <> NOWEAPON) and (currentRoom->occurrence = STEALWEAPON) then
       writeln("You realize that somebody has stolen your " <& weapon <& ".");
-      currentRoom->occurance := NOOCCURANCE;
+      currentRoom->occurrence := NOOCCURRENCE;
       weapon := NOWEAPON;
     end if;
-    if (LAMP->place = PLAYER) and (currentRoom->occurance = STEALLAMP) then
+    if (LAMP->place = PLAYER) and (currentRoom->occurrence = STEALLAMP) then
       writeln("You realize that somebody has stolen your lamp.");
-      currentRoom->occurance := NOOCCURANCE;
+      currentRoom->occurrence := NOOCCURRENCE;
       LAMP->place := NOWHERE;
     end if;
-    if (flares <> 0) and (currentRoom->occurance = STEALFLARES) then
+    if (flares <> 0) and (currentRoom->occurrence = STEALFLARES) then
       writeln("You realize that somebody has stolen all your flares.");
-      currentRoom->occurance := NOOCCURANCE;
+      currentRoom->occurrence := NOOCCURRENCE;
       flares := 0;
     end if;
-    if currentRoom->occurance = STEALTREASURE then
+    if currentRoom->occurrence = STEALTREASURE then
       if count(TREASURES) <> 0 then
         obj := one_of_owned(TREASURES);
         writeln("You realize that somebody has stolen the " <& obj->name <& ".");
-        currentRoom->occurance := NOOCCURANCE;
+        currentRoom->occurrence := NOOCCURRENCE;
         obj->place := NOWHERE;
       end if;
     end if;
-    if currentRoom->occurance = FINDGOLD then
+    if currentRoom->occurrence = FINDGOLD then
       if currentRoom->roomer = NOBODY then
         write("Here you find ");
         findGoldPieces(10);
@@ -3167,9 +3167,9 @@ const proc: incident is func
         writeln(" GP'S. But the " <& currentRoom->roomer <&
                 " is faster and takes them.");
       end if;
-      currentRoom->occurance := NOOCCURANCE;
+      currentRoom->occurrence := NOOCCURRENCE;
     end if;
-    if currentRoom->occurance = FINDFLARES then
+    if currentRoom->occurrence = FINDFLARES then
       if currentRoom->roomer = NOBODY then
         write("Here you find ");
         findFlares(4);
@@ -3179,7 +3179,7 @@ const proc: incident is func
         writeln(" flares. But the " <& currentRoom->roomer <&
                 " is faster and takes them.");
       end if;
-      currentRoom->occurance := NOOCCURANCE;
+      currentRoom->occurrence := NOOCCURRENCE;
     end if;
   end func; (* incident *)
 

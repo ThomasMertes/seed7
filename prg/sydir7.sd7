@@ -1,7 +1,7 @@
 
 (********************************************************************)
 (*                                                                  *)
-(*  sydir7.sd7    Utility to syncronize directory trees             *)
+(*  sydir7.sd7    Utility to synchronize directory trees            *)
 (*  Copyright (C) 2009 - 2019  Thomas Mertes                        *)
 (*                                                                  *)
 (*  This program is free software; you can redistribute it and/or   *)
@@ -252,7 +252,7 @@ const proc: main is func
     var syncFlags: flags is syncFlags.value;
   begin
     if length(argv(PROGRAM)) < 2 then
-      writeln("Sydir7 Version 1.0 - Utility to syncronize directory trees");
+      writeln("Sydir7 Version 1.0 - Utility to synchronize directory trees");
       writeln("Copyright (C) 2009 - 2019 Thomas Mertes");
       writeln("This is free software; see the source for copying conditions.  There is NO");
       writeln("warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.");

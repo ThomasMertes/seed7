@@ -229,7 +229,7 @@ const proc: (inout bigRational: number) /:= (in bigRational: divisor) is func
 
 (**
  *  Compute the exponentiation of a ''bigRational'' base with an integer exponent.
- *  @return the result of the exponentation.
+ *  @return the result of the exponentiation.
  *)
 const func bigRational: (in bigRational: base) ** (in integer: exponent) is func
   result
@@ -501,7 +501,7 @@ const type: BIG_REMAINDER_HASH_TYPE is hash [bigInteger] integer;
  *  The number is converted to a [[string]] with a decimal representation
  *  (e.g.: "1.25"). The representation has a decimal point and at
  *  least one digit before and after the decimal point. Negative
- *  numbers are preceeded by a minus sign (e.g.: "-1.25"). The
+ *  numbers are preceded by a minus sign (e.g.: "-1.25"). The
  *  decimal number can have repeating decimals, which are enclosed
  *  in parentheses ("e.g.: "0.(3)"). The repeating decimals will
  *  not start before the decimal point.
@@ -561,7 +561,7 @@ const func string: literal (in bigRational: number) is
  *  The number is rounded to the specified number of digits (''precision'').
  *  Halfway cases are rounded away from zero. Except for a ''precision'' of
  *  zero the representation has a decimal point and at least one digit
- *  before and after the decimal point. Negative numbers are preceeded by
+ *  before and after the decimal point. Negative numbers are preceded by
  *  a minus sign (e.g.: "-1.25"). If all digits in the result are 0 a
  *  possible negative sign is omitted.
  *   1_/64_ digits 7     returns "0.0156250"

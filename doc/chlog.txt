@@ -1,3 +1,64 @@
+20191229:
+- Spelling corrections have been done in several files. Many thanks go
+  to Jens Schleusener, for sending a source code misspelling report
+  from Fossies.
+- The memory management has been improved:
+  - In exec.c the functions res_restore() and exec_action() have been
+    improved to free unneeded memory, in case an exception has been
+    raised.
+  - In prclib.c the functions prc_block(), prc_block_catch_all() and
+    prc_block_otherwise() have been improved to free the
+    fail_expression, in case an exception has been caught.
+  - In numutl.c the function getDecimalBigRational() has been improved
+    to free the temporary string.
+  - In sql_rtl.c the function sqlColumnBigRat() has been improved to
+    free the old values of numerator and denominator.
+- In sql_base.s7i the function openDatabase() with DB_ODBC and dbPath
+  has been improved to use a DSN (data source name), if colon and slash
+  are missing. E.g.: openDatabase(DB_ODBC, "anyDsn", "test", "test")
+- The compiler has been improved to support the action PRC_HEAPSTAT.
+- In flistutl.c the functions heapStatistic() and check_heap() have
+  been improved to consider processes, sql functions, databases,
+  prepared statements and fetched data. The function heap_statistic()
+  has been renamed to heapStatistic().
+- In sql_cli.c the functions sqlColumnBigInt(), sqlColumnBigRat(),
+  sqlColumnBStri(), sqlColumnFloat() and sqlColumnStri() have been
+  improved to check, if the length returned by the database is greater
+  than the buffer_length. In this case a DATABASE_ERROR is raised.
+- In sql_cli.c the function setDecimalBigRat() has been improved to
+  convert integers to a string without decimal point.
+- The function SQLGetFunctions() has been removed from db_odbc.h,
+  sql_cli.c and the makefiles (variable OBJCOPY_PARAMS).
+- In sql_cli.c the element SQLDescribeParam_supported has been removed.
+  Instead the function pointer of SQLDescribeParam is checked and the
+  result of SQLDescribeParam() is compared with SQL_SUCCESS.
+- In sql_odbc.c the function driverConnect() has been improved to
+  search only for a driver, if the driver name is not empty.
+- In sql_odbc.c the function sqlOpenOdbc() has been improved to use
+  the dbName as DSN (data source name) only, if no driver and no server
+  are given.
+- In sql_post.c the function setupDll() has been improved to call
+  dllOpen() instead of a recursive call of setupDll().
+- The new macro ALLOC_RECORD2() has been added to heaputl.h. The macro
+  is used in drw_win.c, drw_x11.c, sql_cli.c, sql_fire.c, sql_lite.c,
+  sql_my.c, sql_oci.c and sql_post.c.
+- The new macros COUNT_GROW_STRI() and COUNT_SHRINK_STRI() have been
+  added to heaputl.h. This macros are currently empty. They are planned
+  for a heap statistic concerning unused chars in strings with
+  capacity.
+- In chkccomp.c several improvements have been done. In
+  determineFireDefines() a search for the Firebird home directory has
+  been added. In determineDb2Defines() the environment variable
+  DB2_HOME is used now, to determine the Db2 home directory. In
+  determineConsoleDefines() and determineSqlServerDefines() the list
+  of DLLs has been improved.
+- The heap statistic for strings has been improved to use the string
+  capacity instead of the string size.
+- The file config.h has been changed to define the macros
+  USE_ALTERNATE_NEXT_CHARACTER, USE_INFILE_BUFFER, USE_CHUNK_ALLOCS,
+  USE_ALTERNATE_CHUNK_ALLOCS and USE_MAXIMUM_MALLOC_CHECK always. Now
+  these macros can have a value of 0 or 1.
+
 20191215:
 - The database libraries sql_srv.c and sql_cli.c have been improved to
   allow the connection to a SQL Server database from Linux. The library
@@ -140,8 +201,8 @@
 - In sql_odbc.c the function sqlStmtColumnName() has been improved to
   work with one call of SQLColAttributeW(), if the length of the column
   name is below a limit. Additionally a parameter of NULL as
-  destination for the name has be replaced by a valid adress. The usage
-  of NULL triggered an error with DB2.
+  destination for the name has be replaced by a valid address. The
+  usage of NULL triggered an error with DB2.
 - The configuration value LINKED_PROGRAM_EXTENSION has been added to
   cc_conf.s7i. The linker produces a file with the extension defined by
   LINKED_PROGRAM_EXTENSION. Usually LINKED_PROGRAM_EXTENSION is
@@ -382,7 +443,7 @@
   FMOD_FUNCTION_OKAY, LDEXP_FUNCTION_OKAY and FREXP_FUNCTION_OKAY.
 - Definitions of the macros FLOAT_COMPARISON_OKAY, SQRT_FUNCTION_OKAY,
   EXP_FUNCTION_OKAY, LDEXP_FUNCTION_OKAY, FREXP_FUNCTION_OKAY and
-  FMOD_FUNCTION_OKAY have been added to commpn.h
+  FMOD_FUNCTION_OKAY have been added to common.h
 - Documentation comments have been improved in intlib.c, int_rtl.c,
   match.c, str_rtl.c, keybd.s7i and vectorfont.s7i.
 - In comp/int_act.s7i the variable quotient_name has been renamed to
@@ -546,7 +607,7 @@
     the name of a column is encoded with UTF-8.
 - The database driver sql_my.c has been improved:
   - The function processStatementStri() has been improved. In strings
-    delimited with single quotes (') backslashes (\) are optionaly
+    delimited with single quotes (') backslashes (\) are optionally
     replaced with double backslashes (\\). Strings delimited with
     double quotes (") are converted into strings, that are delimited
     with a backtick (`).
@@ -877,7 +938,7 @@
     getNumericAsInt(), getNumericAsBigInt(), getNumericAsBigRat()
     and getNumericAsFloat() have been added.
   - The function sqlColumnStri() has been improved to read BLOB data.
-  - The memory management has been improved to recogize out of memory
+  - The memory management has been improved to recognize out of memory
     situations reliable.
   - The handling of exceptions has been improved.
 - The function literal() has been added to bigint.s7i, bigrat.s7i,
@@ -1110,7 +1171,7 @@
 - The program setwpath.c has been improved to set the search path of
   the current user, when setting the path for all users fails.
 - The program sudo.c has been improved to execute the command without
-  priviledges, when executing the command as administrator fails.
+  privileges, when executing the command as administrator fails.
 - The functions gets (in tls.s7i), doGetsFromTerminal (in fil_rtl.c),
   ut8Gets (in ut8_rtl.c) and socGets (in soc_rtl.c) have been improved
   to return an empty string immediately, when the requested length is
@@ -1396,7 +1457,7 @@
 - The program chkccomp.c has been improved to determine the presence
   of the functions flockfile(), funlockfile() and getc_unlocked().
 - The function match_object3 has been added to match.c. This function
-  assures that BLOCKOBJECT and ACTOBJECT objects are always preceeded
+  assures that BLOCKOBJECT and ACTOBJECT objects are always preceded
   by a MATCHOBJECT.
 - The action RFL_SETVALUE has been ranamed to RFL_SET_VALUE.
 - Several C run-time library functions (in *lib.c files) have been
@@ -1841,7 +1902,7 @@
   float precision.
 - The program chkccomp.c has been changed such that several test
   programs link with SYSTEM_LIBS, when wide variants of system file
-  funtions are tested.
+  functions are tested.
 - The test programs of chkccomp.c, which determine BOOLTYPE,
   FLOAT_ZERO_DIV_ERROR, PRINTF_FMT_E_MAXIMUM_FLOAT_PRECISION and
   PRINTF_FMT_F_MAXIMUM_FLOAT_PRECISION have been improved.
@@ -1931,7 +1992,7 @@
   to handle EXPOSE events correctly, when backing store has the value
   WhenMapped.
 - In runerr.c the functions continue_question, run_error, empty_value
-  and var_required have been changed to allow the repacement of the
+  and var_required have been changed to allow the replacement of the
   current exception with a new one.
 - The function str_for has been added to strlib.c.
 
@@ -2287,8 +2348,8 @@
   literal 8.
 - in chkccomp.c several string literals have been changed to wide
   string literals (e.g. L"abc" instead of "abc").
-- In several files integer literals have been replaced by contants or
-  #define macros.
+- In several files integer literals have been replaced by constants
+  or #define macros.
 - The function __mulodi4 has been added to int_rtl.c. This function
   is used by clang under Windows, but unfortunately is not part of
   the runtime library. This situation is recognized by chkccomp.c and
@@ -3294,7 +3355,7 @@
 - A cast has been added to sudo.c.
 
 20141207:
-- The paragraph in src/read_me.txt, that desribes the compilation
+- The paragraph in src/read_me.txt, that describes the compilation
   under Mac OS X, has been improved.
 - The function bigIPow1 in big_rtl.c has been changed to call
   bigLog2BaseIPow instead of bigLShiftOne when the base is a power of
@@ -3448,7 +3509,7 @@
 - The library ftp.s7i and the program ftp7.sd7 have been improved to
   accept connection strings of the form user:password@hostName .
 - Interpreter and compiler have been improved to support databases.
-- The compiler now adds parentheses arround comma expressions when
+- The compiler now adds parentheses around comma expressions when
   they are used as index. This changes have been done in the files
   arr_act.s7i, bst_act.s7i and str_act.s7i.
 - Database drivers consisting of the files dll_drv.h, dll_unx.c,
@@ -3760,7 +3821,7 @@
 - The macros with format strings in common.h have been renamed.
   Now the macros have shorter names (starting with FMT_ and F_).
   The macros define formats for various integer sizes. This formats
-  are independend from the actual C compiler and C runtime library.
+  are independent from the actual C compiler and C runtime library.
 - The function bigLog10 in big_rtl.c has been improved to work
   correctly when BIGDIGIT_SIZE is small.
 - The program chkccomp.c has been improved to define
@@ -3963,7 +4024,7 @@
   sequence.
 - The conversion functions 'bytes' and 'bytes2Int' in bytedata.s7c
   have been improved to support all combinations of signedness and
-  endianess.
+  endianness.
 - The functions bStriBe and bStriLe have been removed from
   bstring.s7i. The function 'bytes' in bytedata.s7c can be used as
   replacement.
@@ -4036,7 +4097,7 @@
   and they work downward towards an index of zero. This allows C
   compilers to do more optimizations (verified with gcc and
   valgrind).
-- The enumeration types signedness and endianess have been added to
+- The enumeration types signedness and endianness have been added to
   bytedata.s7c.
 - The conversion functions bytes, bytes2Int and bytes2BigInt have
   been added to bytedata.s7c. The new function allow conversions
@@ -6705,7 +6766,7 @@
 - A new example program (fractree.sd7), which draws a fractal tree, was added.
 - The chapters explaining the types 'time' and 'duration' in the manual were
   improved.
-- The '-' function, which computes the differance of two 'time' values (with a
+- The '-' function, which computes the difference of two 'time' values (with a
   'duration' result) in "time.s7i", was improved.
 - The functions 'daysInYear', 'getYears', 'getMonths', 'getDays', 'getHours',
   'getMinutes', 'getSeconds' and 'getMycroSeconds' were added to the "time.s7i"
@@ -7582,7 +7643,7 @@
   functions bigIConv and bigOrd were removed.
 - In the file big_drv.h the macros bigIConv and bigOrd were added.
 - In the file big_rtl.c the functions bigFromUInt32 and bigFromUInt64 were fixed.
-- The feature test makro WIDE_CHAR_STRINGS was renamed to UTF32_STRINGS in various files.
+- The feature test macro WIDE_CHAR_STRINGS was renamed to UTF32_STRINGS in various files.
 - The primitive action CMD_LNG was renamed to CMD_FILESIZE.
 - Several makefiles were improved to create defines for os_chdir, os_mkdir, os_fstat,
   os_stat and os_stat_struct in the file version.h .
@@ -7830,7 +7891,7 @@
   was improved.
 - Parameter names were added to the function prototypes of the header files bln_rtl.h,
   chr_rtl.h, cmd_rtl.h, flt_rtl.h and ut8_rtl.h.
-- The compiletime flag RSHIFT_DOES_SIGN_EXTEND is now taken into account for the
+- The compile time flag RSHIFT_DOES_SIGN_EXTEND is now taken into account for the
   right shift in the macro 'bitset_pos' defined in the file set_rtl.h.
 
 20080608:
@@ -7869,7 +7930,7 @@
   'in'(ref_list), 'not in'(ref_list), make_list, pos(ref_list), '&:='(ref_list),
   '@:='(ref_list) and the bufferChar variable in the manual were added or improved.
 - The functions float cast, float varCast, boolean varConv, char varConv
-  TRACE_REF, pos(ref_list), [minIdx .. maxIdx], minIdx, maxIdx (+ useage of them),
+  TRACE_REF, pos(ref_list), [minIdx .. maxIdx], minIdx, maxIdx (+ usage of them),
   minIntIdx, maxIntIdx, card(hashSet), xalloc, ord(enum), getwd(null_file) and
   getln(null_file) in the seed7_05.s7i library were added or improved.
 - The compiler (comp.sd7) support for the primitive actions arr_maxidx, arr_minidx,
@@ -8192,7 +8253,7 @@
 - A bug in the 'str' function for 'complex' was fixed (found by Leejun).
 - The interpreter was improved to support startsWith, endsWith, array_min_position, heapstat
   and @:= (for ref_lists).
-- The compiler suport for drw_cpy, ref_trace, arr_head, arr_tail, arr_idx, varfunc, wintype,
+- The compiler support for drw_cpy, ref_trace, arr_head, arr_tail, arr_idx, varfunc, wintype,
   array literals and dynamic functions (for enumerations) was improved.
 - The compiler now writes a message when an uncaught exception was raised.
 - The compiler was changed such that destr functions accept also NULL.
@@ -8521,7 +8582,7 @@
 20051112:
 - Now the Seed7 manual (in the package) uses color.
 - Implement seek for UTF-8 files
-- Fix and improve the gets funktion for UTF-8 files
+- Fix and improve the gets function for UTF-8 files
 - The Seed7 project page contains also screenshots, a manual
   and an FAQ file. See http://sourceforge.net/projects/seed7
 - Rename 'NL' system variable to 'writeln' and change the

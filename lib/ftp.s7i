@@ -277,7 +277,7 @@ const proc: close (inout ftpConnection: ftp) is func
     ftpCommand(ftp, "QUIT");
     ftpResponse(ftp);
     # while TRUE do
-    #   writeln(getln(ftp.contol));
+    #   writeln(getln(ftp.control));
     # end while;
     close(ftp.control);
   end func;

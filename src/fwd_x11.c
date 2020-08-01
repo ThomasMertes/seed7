@@ -102,8 +102,8 @@ typedef Window (*tp_XCreateSimpleWindow) (Display *display, Window parent, int x
                                           unsigned int border_width,
                                           unsigned long border,
                                           unsigned long background);
-typedef Colormap (*tp_XDefaultColormap) (Display *display, 
-	                                     int screen_number);
+typedef Colormap (*tp_XDefaultColormap) (Display *display,
+                                         int screen_number);
 typedef int (*tp_XDefaultDepth) (Display *display,
                                  int screen_number);
 typedef Window (*tp_XDefaultRootWindow) (Display *display);
@@ -406,7 +406,7 @@ unsigned long XBlackPixel (Display *display, int screen_number)
 
   {
     unsigned long blackPixel;
-	
+
   /* XBlackPixel */
     logFunction(printf("XBlackPixel(" FMT_U_MEM ", %d)\n",
                        (memSizeType) display, screen_number););
@@ -560,7 +560,7 @@ Window XCreateSimpleWindow (Display *display, Window parent, int x, int y,
 Colormap XDefaultColormap (Display *display, int screen_number)
 
   {
-	Colormap defaultColormap;
+    Colormap defaultColormap;
 
   /* XDefaultColormap */
     logFunction(printf("XDefaultColormap(" FMT_U_MEM ", %d)\n",
@@ -576,7 +576,7 @@ Colormap XDefaultColormap (Display *display, int screen_number)
 int XDefaultDepth (Display *display, int screen_number)
 
   {
-	int defaultDepth;
+    int defaultDepth;
 
   /* XDefaultDepth */
     logFunction(printf("XDefaultDepth(" FMT_U_MEM ", %d)\n",
@@ -1447,7 +1447,7 @@ unsigned long XWhitePixel (Display *display, int screen_number)
 
   {
     unsigned long whitePixel;
-	
+
   /* XWhitePixel */
     logFunction(printf("XWhitePixel(" FMT_U_MEM ", %d)\n",
                        (memSizeType) display, screen_number););

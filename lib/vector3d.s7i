@@ -232,7 +232,7 @@ const func vector3d: reflect (in vector3d: vect, in vector3d: normal) is
 
 (**
  *  Unit vector of a given 3D vector.
- *  @retrun the unit vector of the given 3D vector.
+ *  @return the unit vector of the given 3D vector.
  *)
 const func vector3d: unitVector (in vector3d: v) is func
   result

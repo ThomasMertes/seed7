@@ -143,7 +143,7 @@ static inline const strElemType *rsearch_strelem2 (const strElemType *mem,
  *  The conversion uses the default Unicode case mapping,
  *  where each character is considered in isolation.
  *  Characters without case mapping are left unchanged.
- *  The mapping is independend from the locale. Individual
+ *  The mapping is independent from the locale. Individual
  *  character case mappings cannot be reversed, because some
  *  characters have multiple characters that map to them.
  *  @param source Character array to be copied and converted.
@@ -416,7 +416,7 @@ static const strElemType toUpperTable2[] = {
  *  The conversion uses the default Unicode case mapping,
  *  where each character is considered in isolation.
  *  Characters without case mapping are left unchanged.
- *  The mapping is independend from the locale. Individual
+ *  The mapping is independent from the locale. Individual
  *  character case mappings cannot be reversed, because some
  *  characters have multiple characters that map to them.
  *  @param source Character array to be copied and converted.
@@ -880,7 +880,7 @@ void strAppend (striType *const destination, const_striType extension)
           *destination = stri_dest;
         } /* if */
       } /* if */
-      COUNT3_STRI(stri_dest->size, new_size);
+      COUNT_GROW_STRI(stri_dest->size, new_size);
       memcpy(&stri_dest->mem[stri_dest->size], extension_mem,
              extension_size * sizeof(strElemType));
       stri_dest->size = new_size;
@@ -906,7 +906,7 @@ void strAppend (striType *const destination, const_striType extension)
           /* extension->mem is dangerous since 'extension'      */
           /* could have been released.                          */
         } /* if */
-        COUNT3_STRI(new_stri->size, new_size);
+        COUNT_GROW_STRI(new_stri->size, new_size);
         memcpy(&new_stri->mem[new_stri->size], extension_mem,
                extension_size * sizeof(strElemType));
         new_stri->size = new_size;
@@ -989,7 +989,7 @@ void strAppendN (striType *const destination,
         if (unlikely(new_stri == NULL)) {
           raise_error(MEMORY_ERROR);
         } else {
-          COUNT3_STRI(new_stri->size, new_size);
+          COUNT_GROW_STRI(new_stri->size, new_size);
           *destination = new_stri;
           dest = &new_stri->mem[new_stri->size];
           for (pos = 0; pos < arraySize; pos++) {
@@ -1031,7 +1031,7 @@ void strAppendN (striType *const destination,
         } /* if */
       } /* if */
     } else {
-      COUNT3_STRI(stri_dest->size, new_size);
+      COUNT_GROW2_STRI(stri_dest->size, new_size);
       dest = &stri_dest->mem[stri_dest->size];
       for (pos = 0; pos < arraySize; pos++) {
         elem_size = extensionArray[pos]->size;
@@ -1048,7 +1048,7 @@ void strAppendN (striType *const destination,
     if (unlikely(new_stri == NULL)) {
       raise_error(MEMORY_ERROR);
     } else {
-      COUNT3_STRI(new_stri->size, new_size);
+      COUNT_GROW_STRI(new_stri->size, new_size);
       *destination = new_stri;
       dest = &new_stri->mem[new_stri->size];
       for (pos = 0; pos < arraySize; pos++) {
@@ -1136,7 +1136,7 @@ void strAppend (striType *const destination, const_striType extension)
           *destination = stri_dest;
         } /* if */
       } /* if */
-      COUNT3_STRI(stri_dest->size, new_size);
+      COUNT_GROW_STRI(stri_dest->size, new_size);
       memcpy(&stri_dest->mem[stri_dest->size], extension->mem,
              extension->size * sizeof(strElemType));
       stri_dest->size = new_size;
@@ -1151,7 +1151,7 @@ void strAppend (striType *const destination, const_striType extension)
           /* after realloc() enlarged 'stri_dest'.             */
           extension = new_stri;
         } /* if */
-        COUNT3_STRI(new_stri->size, new_size);
+        COUNT_GROW_STRI(new_stri->size, new_size);
         memcpy(&new_stri->mem[new_stri->size], extension->mem,
                extension->size * sizeof(strElemType));
         new_stri->size = new_size;
@@ -1213,7 +1213,7 @@ void strAppendN (striType *const destination,
       if (unlikely(new_stri == NULL)) {
         raise_error(MEMORY_ERROR);
       } else {
-        COUNT3_STRI(new_stri->size, new_size);
+        COUNT_GROW_STRI(new_stri->size, new_size);
         *destination = new_stri;
         dest = &new_stri->mem[new_stri->size];
         for (pos = 0; pos < arraySize; pos++) {
@@ -1233,7 +1233,7 @@ void strAppendN (striType *const destination,
         new_stri->size = new_size;
       } /* if */
     } else {
-      COUNT3_STRI(stri_dest->size, new_size);
+      COUNT_GROW2_STRI(stri_dest->size, new_size);
       dest = &stri_dest->mem[stri_dest->size];
       for (pos = 0; pos < arraySize; pos++) {
         elem_size = extensionArray[pos]->size;
@@ -1248,7 +1248,7 @@ void strAppendN (striType *const destination,
     if (unlikely(new_stri == NULL)) {
       raise_error(MEMORY_ERROR);
     } else {
-      COUNT3_STRI(new_stri->size, new_size);
+      COUNT_GROW_STRI(new_stri->size, new_size);
       *destination = new_stri;
       dest = &new_stri->mem[new_stri->size];
       for (pos = 0; pos < arraySize; pos++) {
@@ -1300,14 +1300,14 @@ void strAppendTemp (striType *const destination, const striType extension)
       new_size = stri_dest->size + extension->size;
 #if WITH_STRI_CAPACITY
       if (new_size <= stri_dest->capacity) {
-        COUNT3_STRI(stri_dest->size, new_size);
+        COUNT_GROW2_STRI(stri_dest->size, new_size);
         memcpy(&stri_dest->mem[stri_dest->size], extension->mem,
                extension->size * sizeof(strElemType));
         stri_dest->size = new_size;
         FREE_STRI(extension, extension->size);
       } else if (new_size <= extension->capacity) {
         if (stri_dest->size != 0) {
-          COUNT3_STRI(extension->size, new_size);
+          COUNT_GROW2_STRI(extension->size, new_size);
           memmove(&extension->mem[stri_dest->size], extension->mem,
                   extension->size * sizeof(strElemType));
           memcpy(extension->mem, stri_dest->mem,
@@ -1323,7 +1323,7 @@ void strAppendTemp (striType *const destination, const striType extension)
           raise_error(MEMORY_ERROR);
         } else {
           *destination = stri_dest;
-          COUNT3_STRI(stri_dest->size, new_size);
+          COUNT_GROW_STRI(stri_dest->size, new_size);
           memcpy(&stri_dest->mem[stri_dest->size], extension->mem,
                  extension->size * sizeof(strElemType));
           stri_dest->size = new_size;
@@ -1337,7 +1337,7 @@ void strAppendTemp (striType *const destination, const striType extension)
         raise_error(MEMORY_ERROR);
       } else {
         *destination = stri_dest;
-        COUNT3_STRI(stri_dest->size, new_size);
+        COUNT_GROW_STRI(stri_dest->size, new_size);
         memcpy(&stri_dest->mem[stri_dest->size], extension->mem,
                extension->size * sizeof(strElemType));
         stri_dest->size = new_size;
@@ -1889,7 +1889,7 @@ striType strConcat (const const_striType stri1, const const_striType stri2)
 
 /**
  *  Concatenate an arbitrary number of strings.
- *  StrConcatN is used by the compiler to optimize the concatination of
+ *  StrConcatN is used by the compiler to optimize the concatenation of
  *  three or more strings.
  *  @param arraySize Number of strings in striArray (>= 3).
  *  @return the result of the concatenation.
@@ -1978,7 +1978,7 @@ striType strConcatTemp (striType stri1, const const_striType stri2)
           stri1 = resized_stri1;
         } /* if */
       } /* if */
-      COUNT3_STRI(stri1->size, result_size);
+      COUNT_GROW_STRI(stri1->size, result_size);
       memcpy(&stri1->mem[stri1->size], stri2->mem,
              stri2->size * sizeof(strElemType));
       stri1->size = result_size;
@@ -1992,7 +1992,7 @@ striType strConcatTemp (striType stri1, const const_striType stri2)
         stri1 = NULL;
       } else {
         stri1 = resized_stri1;
-        COUNT3_STRI(stri1->size, result_size);
+        COUNT_GROW_STRI(stri1->size, result_size);
         memcpy(&stri1->mem[stri1->size], stri2->mem,
                stri2->size * sizeof(strElemType));
         stri1->size = result_size;
@@ -2029,7 +2029,7 @@ void strCopy (striType *const dest, const const_striType source)
     } else {
 #if WITH_STRI_CAPACITY
       if (stri_dest->capacity >= new_size && !SHRINK_REASON(stri_dest, new_size)) {
-        COUNT3_STRI(stri_dest->size, new_size);
+        COUNT_GROW2_STRI(stri_dest->size, new_size);
         stri_dest->size = new_size;
         /* It is possible that stri_dest and source overlap. */
         memmove(stri_dest->mem, source->mem,
@@ -2046,7 +2046,7 @@ void strCopy (striType *const dest, const const_striType source)
           raise_error(MEMORY_ERROR);
           return;
         } else {
-          COUNT3_STRI(stri_dest->size, new_size);
+          COUNT_SHRINK_STRI(stri_dest->size, new_size);
           stri_dest->size = new_size;
           *dest = stri_dest;
         } /* if */
@@ -2242,7 +2242,7 @@ intType strHashCode (const const_striType stri)
 /**
  *  Get a substring ending at a stop position.
  *  The first character in a string has the position 1.
- *  This function is used by the compiler to avoid copiing string data.
+ *  This function is used by the compiler to avoid copying string data.
  *  The 'slice' is initialized to refer to the head of 'stri'
  */
 void strHeadSlice (const const_striType stri, const intType stop, striType slice)
@@ -2346,7 +2346,7 @@ striType strHeadTemp (const striType stri, const intType stop)
     } /* if */
 #if WITH_STRI_CAPACITY
     if (!SHRINK_REASON(stri, headSize)) {
-      COUNT3_STRI(striSize, headSize);
+      COUNT_GROW2_STRI(striSize, headSize);
       head = stri;
       head->size = headSize;
     } else {
@@ -2365,7 +2365,7 @@ striType strHeadTemp (const striType stri, const intType stop)
         /* FREE_STRI(stri, stri->size); */
         raise_error(MEMORY_ERROR);
       } else {
-        COUNT3_STRI(striSize, headSize);
+        COUNT_SHRINK_STRI(striSize, headSize);
         head->size = headSize;
       } /* if */
     } /* if */
@@ -2377,7 +2377,7 @@ striType strHeadTemp (const striType stri, const intType stop)
       /* FREE_STRI(stri, stri->size); */
       raise_error(MEMORY_ERROR);
     } else {
-      COUNT3_STRI(striSize, headSize);
+      COUNT_SHRINK_STRI(striSize, headSize);
       head->size = headSize;
     } /* if */
 #endif
@@ -2645,7 +2645,7 @@ striType strLit (const const_striType stri)
  *  The conversion uses the default Unicode case mapping,
  *  where each character is considered in isolation.
  *  Characters without case mapping are left unchanged.
- *  The mapping is independend from the locale. Individual
+ *  The mapping is independent from the locale. Individual
  *  character case mappings cannot be reversed, because some
  *  characters have multiple characters that map to them.
  *  @return the string converted to lower case.
@@ -3155,7 +3155,7 @@ void strPush (striType *const destination, const charType extension)
         *destination = stri_dest;
       } /* if */
     } /* if */
-    COUNT3_STRI(stri_dest->size, new_size);
+    COUNT_GROW_STRI(stri_dest->size, new_size);
     stri_dest->mem[stri_dest->size] = extension;
     stri_dest->size = new_size;
 #else
@@ -3163,7 +3163,7 @@ void strPush (striType *const destination, const charType extension)
     if (unlikely(stri_dest == NULL)) {
       raise_error(MEMORY_ERROR);
     } else {
-      COUNT3_STRI(stri_dest->size, new_size);
+      COUNT_GROW_STRI(stri_dest->size, new_size);
       stri_dest->mem[stri_dest->size] = extension;
       stri_dest->size = new_size;
       *destination = stri_dest;
@@ -3178,7 +3178,7 @@ void strPush (striType *const destination, const charType extension)
 /**
  *  Get a substring from a start position to a stop position.
  *  The first character in a string has the position 1.
- *  This function is used by the compiler to avoid copiing string data.
+ *  This function is used by the compiler to avoid copying string data.
  *  The 'slice' is initialized to refer to the range of 'stri'
  */
 void strRangeSlice (const const_striType stri, intType start, intType stop, striType slice)
@@ -3915,7 +3915,7 @@ rtlArrayType strSplit (const const_striType mainStri,
 /**
  *  Get a substring from a start position with a given length.
  *  The first character in a string has the position 1.
- *  This function is used by the compiler to avoid copiing string data.
+ *  This function is used by the compiler to avoid copying string data.
  *  The 'slice' is initialized to refer to the substring of 'stri'
  */
 void strSubstrSlice (const const_striType stri, intType start, intType length, striType slice)
@@ -4007,7 +4007,7 @@ striType strSubstr (const const_striType stri, intType start, intType length)
 /**
  *  Get a substring beginning at a start position.
  *  The first character in a 'string' has the position 1.
- *  This function is used by the compiler to avoid copiing string data.
+ *  This function is used by the compiler to avoid copying string data.
  *  The 'slice' is initialized to refer to the tail of 'stri'
  */
 void strTailSlice (const const_striType stri, intType start, striType slice)
@@ -4201,7 +4201,7 @@ striType strTrim (const const_striType stri)
  *  The conversion uses the default Unicode case mapping,
  *  where each character is considered in isolation.
  *  Characters without case mapping are left unchanged.
- *  The mapping is independend from the locale. Individual
+ *  The mapping is independent from the locale. Individual
  *  character case mappings cannot be reversed, because some
  *  characters have multiple characters that map to them.
  *  @return the string converted to upper case.

@@ -146,7 +146,7 @@ const func bigInteger: (in bigInteger: dividend) mod (in bigInteger: divisor)   
  *   1 ** B  returns 1_          for B >= 0
  *   A ** B  returns -(-A) ** B  for A <= 0_ and B >= 0 and odd(B)
  *   A ** B  returns (-A) ** B   for A <= 0_ and B >= 0 and not odd(B)
- *  @return the result of the exponentation.
+ *  @return the result of the exponentiation.
  *  @exception NUMERIC_ERROR If the exponent is negative.
  *)
 const func bigInteger: (in bigInteger: base) ** (in integer: exponent)   is action "BIG_IPOW";

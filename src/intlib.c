@@ -1150,7 +1150,7 @@ objectType int_plus (listType arguments)
 
 /**
  *  Compute the exponentiation of a integer base with an integer exponent.
- *  @return the result of the exponentation.
+ *  @return the result of the exponentiation.
  *  @exception NUMERIC_ERROR If the exponent is negative.
  *  @exception OVERFLOW_ERROR If an integer overflow occurs.
  */

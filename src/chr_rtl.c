@@ -317,7 +317,7 @@ static inline boolType is_nonspacing (charType ch)
  * Do a binary search of the character index
  * and assume double width is true for each odd block
  * since first block has single or neutral width
- * and the block perperties are alternating
+ * and the block properties are alternating
  */
 static inline boolType is_doublewidth (charType ch)
 
@@ -521,7 +521,7 @@ boolType chrIsLetter (charType ch)
  *  The conversion uses the default Unicode case mapping,
  *  where each character is considered in isolation.
  *  Characters without case mapping are left unchanged.
- *  The mapping is independend from the locale. Individual
+ *  The mapping is independent from the locale. Individual
  *  character case mappings cannot be reversed, because some
  *  characters have multiple characters that map to them.
  *  @return the character converted to lower case.
@@ -562,7 +562,7 @@ striType chrStr (charType ch)
  *  The conversion uses the default Unicode case mapping,
  *  where each character is considered in isolation.
  *  Characters without case mapping are left unchanged.
- *  The mapping is independend from the locale. Individual
+ *  The mapping is independent from the locale. Individual
  *  character case mappings cannot be reversed, because some
  *  characters have multiple characters that map to them.
  *  @return the character converted to upper case.

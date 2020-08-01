@@ -295,7 +295,7 @@ const func bin32: rotRight (in bin32: x, in integer: shiftCount) is
  *  @return 32 bits in MBF single-precision float representation.
  *  @exception RANGE_ERROR If number is not representable in MBF.
  *             NaN, Infinity and -Infinity are not representable
- *             in MBF. Numbers with an absolut value larger than
+ *             in MBF. Numbers with an absolute value larger than
  *             1.7014117331926443e+38 are also not representable
  *             in MBF.
  *)

@@ -220,7 +220,7 @@ const ellipticCurve: secp521r1 is ellipticCurve(
 
 (**
  *  Get the size of an elliptic curve in bytes.
- *  This is tha number of bytes necessary to represent the x or y
+ *  This is the number of bytes necessary to represent the x or y
  *  coordinate of an ecPoint.
  *)
 const func integer: getSizeInBytes (in ellipticCurve: curve) is

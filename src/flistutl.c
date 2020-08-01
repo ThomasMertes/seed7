@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  s7   Seed7 interpreter                                          */
-/*  Copyright (C) 1990 - 2000  Thomas Mertes                        */
+/*  Copyright (C) 1989 - 2019  Thomas Mertes                        */
 /*                                                                  */
 /*  This program is free software; you can redistribute it and/or   */
 /*  modify it under the terms of the GNU General Public License as  */
@@ -20,7 +20,7 @@
 /*                                                                  */
 /*  Module: General                                                 */
 /*  File: seed7/src/flistutl.c                                      */
-/*  Changes: 1993, 1994  Thomas Mertes                              */
+/*  Changes: 1993, 1994, 2010, 2013, 2015, 2019  Thomas Mertes      */
 /*  Content: Procedures for free memory list maintenance.           */
 /*                                                                  */
 /*  This file contains the heapsize procedure which calculates      */
@@ -57,6 +57,7 @@
 #include "common.h"
 #include "data.h"
 #include "data_rtl.h"
+#include "sql_drv.h"
 #include "heaputl.h"
 
 #undef EXTERN
@@ -65,7 +66,7 @@
 #include "flistutl.h"
 
 
-#ifdef USE_CHUNK_ALLOCS
+#if USE_CHUNK_ALLOCS
 static const unsigned int chunk_size[] = { 32768, 16384, 8192, 4096,
     2048, 1024, 512, 256, 128, 64, 0 };
 #endif
@@ -233,7 +234,7 @@ static unsigned long stri_flist_count (unsigned long *stri_chars)
 
 
 #if DO_HEAP_STATISTIC
-void heap_statistic (void)
+void heapStatistic (void)
 
   {
     unsigned long num_flist_objects;
@@ -247,8 +248,8 @@ void heap_statistic (void)
     memSizeType bytes_free;
     memSizeType bytes_total;
 
-  /* heap_statistic */
-    logFunction(printf("heap_statistic\n"););
+  /* heapStatistic */
+    logFunction(printf("heapStatistic\n"););
     num_flist_objects    = object_flist_count();
     num_flist_list_elems = list_elem_flist_count();
     num_flist_nodes      = node_flist_count();
@@ -256,101 +257,101 @@ void heap_statistic (void)
     num_flist_stris      = stri_flist_count(&num_flist_stri_elems);
     bytes_used = 0;
     if (count.stri > num_flist_stris) {
-      printf("%9lu bytes in %8lu string records of      %4u bytes\n",
+      printf(F_U_MEM(9) " bytes in %8lu string records of      %4u bytes\n",
           (count.stri - num_flist_stris) * SIZ_STRI(0),
           count.stri - num_flist_stris,
           (unsigned int) SIZ_STRI(0));
       bytes_used += (count.stri - num_flist_stris) * SIZ_STRI(0);
-      printf("%9lu bytes in %8lu string chars of        %4u bytes\n",
+      printf(F_U_MEM(9) " bytes in " F_U_MEM(8) " string chars of        %4u bytes\n",
           (count.stri_elems - num_flist_stri_elems) * sizeof(strElemType),
           count.stri_elems - num_flist_stri_elems,
           (unsigned int) sizeof(strElemType));
       bytes_used += (count.stri_elems - num_flist_stri_elems) * sizeof(strElemType);
     } /* if */
     if (count.bstri != 0) {
-      printf("%9lu bytes in %8lu bstring records of     %4u bytes\n",
+      printf(F_U_MEM(9) " bytes in %8lu bstring records of     %4u bytes\n",
           count.bstri * SIZ_BSTRI(0),
           count.bstri,
           (unsigned int) SIZ_BSTRI(0));
       bytes_used += count.bstri * SIZ_BSTRI(0);
-      printf("%9lu bytes in %8lu bstrings of average    %4lu bytes\n",
+      printf(F_U_MEM(9) " bytes in %8lu bstrings of average    %4lu bytes\n",
           count.bstri_elems * sizeof(ucharType),
           count.bstri,
-          count.bstri_elems * sizeof(ucharType) / count.bstri);
+          (unsigned long) ((count.bstri_elems * sizeof(ucharType)) / count.bstri));
       bytes_used += count.bstri_elems * sizeof(ucharType);
     } /* if */
     if (count.array != 0) {
-      printf("%9lu bytes in %8lu arrays of              %4u bytes\n",
+      printf(F_U_MEM(9) " bytes in %8lu arrays of              %4u bytes\n",
           count.array * SIZ_ARR(0),
           count.array,
           (unsigned int) SIZ_ARR(0));
       bytes_used += count.array * SIZ_ARR(0);
     } /* if */
     if (count.arr_elems != 0) {
-      printf("%9lu bytes in %8lu array elements of      %4u bytes\n",
+      printf(F_U_MEM(9) " bytes in " F_U_MEM(8) " array elements of      %4u bytes\n",
           count.arr_elems * SIZ_REC(objectRecord),
           count.arr_elems,
           (unsigned int) SIZ_REC(objectRecord));
       bytes_used += count.arr_elems * SIZ_REC(objectRecord);
     } /* if */
     if (count.rtl_arr_elems != 0) {
-      printf("%9lu bytes in %8lu rtl array elems of     %4u bytes\n",
+      printf(F_U_MEM(9) " bytes in " F_U_MEM(8) " rtl array elems of     %4u bytes\n",
           count.rtl_arr_elems * SIZ_REC(rtlObjectType),
           count.rtl_arr_elems,
           (unsigned int) SIZ_REC(rtlObjectType));
       bytes_used += count.rtl_arr_elems * SIZ_REC(rtlObjectType);
     } /* if */
     if (count.hash != 0) {
-      printf("%9lu bytes in %8lu hashtables of          %4u bytes\n",
+      printf(F_U_MEM(9) " bytes in %8lu hashtables of          %4u bytes\n",
           count.hash * SIZ_HSH(0),
           count.hash,
           (unsigned int) SIZ_HSH(0));
       bytes_used += count.hash * SIZ_HSH(0);
     } /* if */
     if (count.hsh_elems != 0) {
-      printf("%9lu bytes in %8lu hashtable elems of     %4u bytes\n",
+      printf(F_U_MEM(9) " bytes in " F_U_MEM(8) " hashtable elems of     %4u bytes\n",
           count.hsh_elems * SIZ_REC(hashElemType),
           count.hsh_elems,
           (unsigned int) SIZ_REC(hashElemType));
       bytes_used += count.hsh_elems * SIZ_REC(hashElemType);
     } /* if */
     if (count.helem != 0) {
-      printf("%9lu bytes in %8lu helems of              %4u bytes\n",
+      printf(F_U_MEM(9) " bytes in %8lu helems of              %4u bytes\n",
           count.helem * SIZ_REC(hashElemRecord),
           count.helem,
           (unsigned int) SIZ_REC(hashElemRecord));
       bytes_used += count.helem * SIZ_REC(hashElemRecord);
     } /* if */
     if (count.rtl_helem != 0) {
-      printf("%9lu bytes in %8lu rtl helems of          %4u bytes\n",
+      printf(F_U_MEM(9) " bytes in %8lu rtl helems of          %4u bytes\n",
           count.rtl_helem * SIZ_REC(rtlHashElemRecord),
           count.rtl_helem,
           (unsigned int) SIZ_REC(rtlHashElemRecord));
       bytes_used += count.rtl_helem * SIZ_REC(rtlHashElemRecord);
     } /* if */
     if (count.set != 0) {
-      printf("%9lu bytes in %8lu sets of                %4u bytes\n",
+      printf(F_U_MEM(9) " bytes in %8lu sets of                %4u bytes\n",
           count.set * SIZ_SET(0),
           count.set,
           (unsigned int) SIZ_SET(0));
       bytes_used += count.set * SIZ_SET(0);
     } /* if */
     if (count.set_elems != 0) {
-      printf("%9lu bytes in %8lu set elements of        %4u bytes\n",
+      printf(F_U_MEM(9) " bytes in " F_U_MEM(8) " set elements of        %4u bytes\n",
           count.set_elems * SIZ_REC(bitSetType),
           count.set_elems,
           (unsigned int) SIZ_REC(bitSetType));
       bytes_used += count.set_elems * SIZ_REC(bitSetType);
     } /* if */
     if (count.stru != 0) {
-      printf("%9lu bytes in %8lu structs of             %4u bytes\n",
+      printf(F_U_MEM(9) " bytes in %8lu structs of             %4u bytes\n",
           count.stru * SIZ_SCT(0),
           count.stru,
           (unsigned int) SIZ_SCT(0));
       bytes_used += count.stru * SIZ_SCT(0);
     } /* if */
     if (count.sct_elems != 0) {
-      printf("%9lu bytes in %8lu struct elements of     %4u bytes\n",
+      printf(F_U_MEM(9) " bytes in " F_U_MEM(8) " struct elements of     %4u bytes\n",
           count.sct_elems * SIZ_REC(objectRecord),
           count.sct_elems,
           (unsigned int) SIZ_REC(objectRecord));
@@ -358,14 +359,14 @@ void heap_statistic (void)
     } /* if */
 #if BIGINT_LIB == BIG_RTL_LIBRARY
     if (count.big != 0) {
-      printf("%9lu bytes in %8lu bigIntegers of         %4u bytes\n",
+      printf(F_U_MEM(9) " bytes in %8lu bigIntegers of         %4u bytes\n",
           count.big * SIZ_BIG(0),
           count.big,
           (unsigned int) SIZ_BIG(0));
       bytes_used += count.big * SIZ_BIG(0);
     } /* if */
     if (count.big_elems != 0) {
-      printf("%9lu bytes in %8lu bigdigits of           %4u bytes\n",
+      printf(F_U_MEM(9) " bytes in " F_U_MEM(8) " bigdigits of           %4u bytes\n",
           count.big_elems * sizeof_bigDigitType,
           count.big_elems,
           (unsigned int) sizeof_bigDigitType);
@@ -373,126 +374,161 @@ void heap_statistic (void)
     } /* if */
 #endif
     if (count.ident != 0) {
-      printf("%9lu bytes in %8lu ident records of       %4u bytes\n",
+      printf(F_U_MEM(9) " bytes in %8lu ident records of       %4u bytes\n",
           count.ident * SIZ_REC(identRecord),
           count.ident,
           (unsigned int) SIZ_REC(identRecord));
       bytes_used += count.ident * SIZ_REC(identRecord);
     } /* if */
     if (count.idt != 0) {
-      printf("%9lu bytes in %8lu idents of average      %4lu bytes\n",
+      printf(F_U_MEM(9) " bytes in %8lu idents of average      %4lu bytes\n",
           count.idt_bytes + count.idt,
           count.idt,
-          (count.idt_bytes + count.idt) / count.idt);
+          (unsigned long) ((count.idt_bytes + count.idt) / count.idt));
       bytes_used += count.idt_bytes + count.idt;
     } /* if */
     if (count.entity != 0) {
-      printf("%9lu bytes in %8lu entitys of             %4u bytes\n",
+      printf(F_U_MEM(9) " bytes in %8lu entities of            %4u bytes\n",
           count.entity * SIZ_REC(entityRecord),
           count.entity,
           (unsigned int) SIZ_REC(entityRecord));
       bytes_used += count.entity * SIZ_REC(entityRecord);
     } /* if */
     if (count.property != 0) {
-      printf("%9lu bytes in %8lu propertys of           %4u bytes\n",
+      printf(F_U_MEM(9) " bytes in %8lu properties of          %4u bytes\n",
           count.property * SIZ_REC(propertyRecord),
           count.property,
           (unsigned int) SIZ_REC(propertyRecord));
       bytes_used += count.property * SIZ_REC(propertyRecord);
     } /* if */
     if (count.object > num_flist_objects) {
-      printf("%9lu bytes in %8lu objects of             %4u bytes\n",
+      printf(F_U_MEM(9) " bytes in %8lu objects of             %4u bytes\n",
           (count.object - num_flist_objects) * SIZ_REC(objectRecord),
           count.object - num_flist_objects,
           (unsigned int) SIZ_REC(objectRecord));
       bytes_used += (count.object - num_flist_objects) * SIZ_REC(objectRecord);
     } /* if */
     if (count.node > num_flist_nodes) {
-      printf("%9lu bytes in %8lu nodes of               %4u bytes\n",
+      printf(F_U_MEM(9) " bytes in %8lu nodes of               %4u bytes\n",
           (count.node - num_flist_nodes) * SIZ_REC(nodeRecord),
           count.node - num_flist_nodes,
           (unsigned int) SIZ_REC(nodeRecord));
       bytes_used += (count.node - num_flist_nodes) * SIZ_REC(nodeRecord);
     } /* if */
     if (count.token != 0) {
-      printf("%9lu bytes in %8lu tokens of              %4u bytes\n",
+      printf(F_U_MEM(9) " bytes in %8lu tokens of              %4u bytes\n",
           count.token * SIZ_REC(tokenRecord),
           count.token,
           (unsigned int) SIZ_REC(tokenRecord));
       bytes_used += count.token * SIZ_REC(tokenRecord);
     } /* if */
     if (count.owner != 0) {
-      printf("%9lu bytes in %8lu owners of              %4u bytes\n",
+      printf(F_U_MEM(9) " bytes in %8lu owners of              %4u bytes\n",
           count.owner * SIZ_REC(ownerRecord),
           count.owner,
           (unsigned int) SIZ_REC(ownerRecord));
       bytes_used += count.owner * SIZ_REC(ownerRecord);
     } /* if */
     if (count.stack != 0) {
-      printf("%9lu bytes in %8lu stacks of              %4u bytes\n",
+      printf(F_U_MEM(9) " bytes in %8lu stacks of              %4u bytes\n",
           count.stack * SIZ_REC(stackRecord),
           count.stack,
           (unsigned int) SIZ_REC(stackRecord));
       bytes_used += count.stack * SIZ_REC(stackRecord);
     } /* if */
     if (count.typelist_elems != 0) {
-      printf("%9lu bytes in %8lu typelist elems of      %4u bytes\n",
+      printf(F_U_MEM(9) " bytes in %8lu typelist elems of      %4u bytes\n",
           count.typelist_elems * SIZ_REC(typeListRecord),
           count.typelist_elems,
           (unsigned int) SIZ_REC(typeListRecord));
       bytes_used += count.typelist_elems * SIZ_REC(typeListRecord);
     } /* if */
     if (count.type != 0) {
-      printf("%9lu bytes in %8lu types of               %4u bytes\n",
+      printf(F_U_MEM(9) " bytes in %8lu types of               %4u bytes\n",
           count.type * SIZ_REC(typeRecord),
           count.type,
           (unsigned int) SIZ_REC(typeRecord));
       bytes_used += count.type * SIZ_REC(typeRecord);
     } /* if */
     if (count.list_elem > num_flist_list_elems) {
-      printf("%9lu bytes in %8lu list_elems of          %4u bytes\n",
+      printf(F_U_MEM(9) " bytes in %8lu list_elems of          %4u bytes\n",
           (count.list_elem - num_flist_list_elems) * SIZ_REC(listRecord),
           count.list_elem - num_flist_list_elems,
           (unsigned int) SIZ_REC(listRecord));
       bytes_used += (count.list_elem - num_flist_list_elems) * SIZ_REC(listRecord);
     } /* if */
     if (count.block != 0) {
-      printf("%9lu bytes in %8lu blocks of              %4u bytes\n",
+      printf(F_U_MEM(9) " bytes in %8lu blocks of              %4u bytes\n",
           count.block * SIZ_REC(blockRecord),
           count.block,
           (unsigned int) SIZ_REC(blockRecord));
       bytes_used += count.block * SIZ_REC(blockRecord);
     } /* if */
     if (count.loclist != 0) {
-      printf("%9lu bytes in %8lu loclists of            %4u bytes\n",
+      printf(F_U_MEM(9) " bytes in %8lu loclists of            %4u bytes\n",
           count.loclist * SIZ_REC(locListRecord),
           count.loclist,
           (unsigned int) SIZ_REC(locListRecord));
       bytes_used += count.loclist * SIZ_REC(locListRecord);
     } /* if */
     if (count.infil > num_flist_infiles) {
-      printf("%9lu bytes in %8lu files of               %4u bytes\n",
+      printf(F_U_MEM(9) " bytes in %8lu files of               %4u bytes\n",
           (count.infil - num_flist_infiles) * SIZ_REC(inFileRecord),
           count.infil - num_flist_infiles,
           (unsigned int) SIZ_REC(inFileRecord));
       bytes_used += (count.infil - num_flist_infiles) * SIZ_REC(inFileRecord);
     } /* if */
     if (count.polldata != 0) {
-      printf("%9lu bytes in %8lu pollData elements of   %4u bytes\n",
+      printf(F_U_MEM(9) " bytes in %8lu pollData elements of   %4u bytes\n",
           count.polldata * sizeof_pollRecord,
           count.polldata,
           (unsigned int) sizeof_pollRecord);
       bytes_used += count.polldata * sizeof_pollRecord;
     } /* if */
     if (count.win != 0) {
-      printf("%9lu bytes in %8lu windows of             %4u bytes\n",
-          count.win * sizeof_winRecord,
+      printf(F_U_MEM(9) " bytes in %8lu windows of             %4u bytes\n",
+          count.win_bytes,
           count.win,
-          (unsigned int) sizeof_winRecord);
-      bytes_used += count.win * sizeof_winRecord;
+          (unsigned int) (count.win_bytes / count.win));
+      bytes_used += count.win_bytes;
+    } /* if */
+    if (count.process != 0) {
+      printf(F_U_MEM(9) " bytes in %8lu processes of           %4u bytes\n",
+          count.process * sizeof_processRecord,
+          count.process,
+          (unsigned int) sizeof_processRecord);
+      bytes_used += count.process * sizeof_processRecord;
+    } /* if */
+    if (count.sql_func != 0) {
+      printf(F_U_MEM(9) " bytes in %8lu sqlFunc records of     %4u bytes\n",
+          count.sql_func * SIZ_REC(sqlFuncRecord),
+          count.sql_func,
+          (unsigned int) SIZ_REC(sqlFuncRecord));
+      bytes_used += count.sql_func * SIZ_REC(sqlFuncRecord);
+    } /* if */
+    if (count.database != 0) {
+      printf(F_U_MEM(9) " bytes in %8lu database records of    %4u bytes\n",
+          count.database_bytes,
+          count.database,
+          (unsigned int) (count.database_bytes / count.database));
+      bytes_used += count.database_bytes;
+    } /* if */
+    if (count.prepared_stmt != 0) {
+      printf(F_U_MEM(9) " bytes in %8lu prepared statements of %4u bytes\n",
+          count.prepared_stmt_bytes,
+          count.prepared_stmt,
+          (unsigned int) (count.prepared_stmt_bytes / count.prepared_stmt));
+      bytes_used += count.prepared_stmt_bytes;
+    } /* if */
+    if (count.fetch_data != 0) {
+      printf(F_U_MEM(9) " bytes in %8lu fetchData records of   %4u bytes\n",
+          count.fetch_data_bytes,
+          count.fetch_data,
+          (unsigned int) (count.fetch_data_bytes / count.fetch_data));
+      bytes_used += count.fetch_data_bytes;
     } /* if */
     if (count.prog != 0) {
-      printf("%9lu bytes in %8lu progs of               %4u bytes\n",
+      printf(F_U_MEM(9) " bytes in %8lu progs of               %4u bytes\n",
           count.prog * SIZ_REC(progRecord),
           count.prog,
           (unsigned int) SIZ_REC(progRecord));
@@ -503,81 +539,83 @@ void heap_statistic (void)
         count.symb_bytes + count.symb +
         count.byte;
     if (bytes_in_buffers != 0) {
-      printf("%9lu bytes in buffers\n", bytes_in_buffers);
+      printf(F_U_MEM(9) " bytes in buffers\n", bytes_in_buffers);
       bytes_used += bytes_in_buffers;
     } /* if */
     if (bytes_used != 0) {
-      printf("%9lu bytes in use\n", bytes_used);
+      printf(F_U_MEM(9) " bytes in use\n", bytes_used);
     } /* if */
     if (bytes_used != heapsize()) {
-      printf("*** \nbytes_used=%lu heapsize=%lu diff=%ld\n",
+      printf("*** \nbytes_used=" FMT_U_MEM " heapsize=" FMT_U_MEM " diff=" FMT_U_MEM "\n",
           bytes_used, heapsize(), bytes_used - heapsize());
     } /* if */
     bytes_free = 0;
     if (num_flist_objects != 0) {
-      printf("%9lu bytes in %8lu free objects of        %4u bytes\n",
+      printf(F_U_MEM(9) " bytes in %8lu free objects of        %4u bytes\n",
           num_flist_objects * SIZ_REC(objectRecord),
           num_flist_objects,
           (unsigned int) SIZ_REC(objectRecord));
       bytes_free += num_flist_objects * SIZ_REC(objectRecord);
     } /* if */
     if (num_flist_list_elems != 0) {
-      printf("%9lu bytes in %8lu free list_elems of     %4u bytes\n",
+      printf(F_U_MEM(9) " bytes in %8lu free list_elems of     %4u bytes\n",
           num_flist_list_elems * SIZ_REC(listRecord),
           num_flist_list_elems,
           (unsigned int) SIZ_REC(listRecord));
       bytes_free += num_flist_list_elems * SIZ_REC(listRecord);
     } /* if */
     if (num_flist_nodes != 0) {
-      printf("%9lu bytes in %8lu free nodes of          %4u bytes\n",
+      printf(F_U_MEM(9) " bytes in %8lu free nodes of          %4u bytes\n",
           num_flist_nodes * SIZ_REC(nodeRecord),
           num_flist_nodes,
           (unsigned int) SIZ_REC(nodeRecord));
       bytes_free += num_flist_nodes * SIZ_REC(nodeRecord);
     } /* if */
     if (num_flist_infiles != 0) {
-      printf("%9lu bytes in %8lu free infiles of        %4u bytes\n",
+      printf(F_U_MEM(9) " bytes in %8lu free infiles of        %4u bytes\n",
           num_flist_infiles * SIZ_REC(inFileRecord),
           num_flist_infiles,
           (unsigned int) SIZ_REC(inFileRecord));
       bytes_free += num_flist_infiles * SIZ_REC(inFileRecord);
     } /* if */
     if (num_flist_stris != 0) {
-      printf("%9lu bytes in %8lu free string records of %4u bytes\n",
+      printf(F_U_MEM(9) " bytes in %8lu free string records of %4u bytes\n",
           num_flist_stris * SIZ_STRI(0),
           num_flist_stris,
           (unsigned int) SIZ_STRI(0));
       bytes_free += num_flist_stris * SIZ_STRI(0);
-      printf("%9lu bytes in %8lu free string chars of   %4u bytes\n",
+      printf(F_U_MEM(9) " bytes in %8lu free string chars of   %4u bytes\n",
           num_flist_stri_elems * sizeof(strElemType),
           num_flist_stri_elems,
           (unsigned int) sizeof(strElemType));
       bytes_free += num_flist_stri_elems * sizeof(strElemType);
     } /* if */
     bytes_total = bytes_used + bytes_free;
-    printf("%9lu bytes total (with %lu bytes in free lists)\n",
+    printf(F_U_MEM(9) " bytes total (with " FMT_U_MEM " bytes in free lists)\n",
         bytes_total,
         bytes_free);
 #if DO_HEAPSIZE_COMPUTATION
     if (bytes_total != hs) {
-      printf("*** \nbytes_total=%lu hs=%lu diff=%ld\n",
+      printf("*** \nbytes_total=" FMT_U_MEM " hs=" FMT_U_MEM " diff=" FMT_U_MEM "\n",
           bytes_total, hs, bytes_total - hs);
     } /* if */
 #endif
-#ifdef USE_CHUNK_ALLOCS
-    printf("%9lu bytes in %8u chunks\n",
-        chunk.total_size, chunk.number_of_chunks);
-    printf("%9u unused bytes in last chunk\n",
-        (unsigned) (chunk.beyond - chunk.freemem));
-    printf("%9lu lost bytes in chunks\n", chunk.lost_bytes);
-    printf("%9lu bytes total requested\n", bytes_total +
-        (memSizeType) (chunk.beyond - chunk.freemem) + chunk.lost_bytes);
+#if USE_CHUNK_ALLOCS
+    if (chunk.number_of_chunks != 0) {
+      printf(F_U_MEM(9) " bytes in %8u chunks\n",
+          chunk.total_size, chunk.number_of_chunks);
+      printf(F_U_MEM(9) " unused bytes in last chunk\n",
+          (memSizeType) (chunk.beyond - chunk.freemem));
+      printf(F_U_MEM(9) " lost bytes in chunks\n", chunk.lost_bytes);
+      printf(F_U_MEM(9) " bytes total requested\n", bytes_total +
+          (memSizeType) (chunk.beyond - chunk.freemem) + chunk.lost_bytes);
+    } /* if */
 #endif
 #if DO_HEAP_CHECK
     /* check_heap(0, __FILE__, __LINE__); */
 #endif
-    logFunction(printf("heap_statistic -->\n"););
-  } /* heap_statistic */
+    logFunction(printf("heapStatistic -->\n"););
+  } /* heapStatistic */
 #endif
 
 
@@ -622,7 +660,12 @@ static memSizeType compute_hs (void)
     bytes_total += count.loclist * SIZ_REC(locListRecord);
     bytes_total += count.infil * SIZ_REC(inFileRecord);
     bytes_total += count.polldata * sizeof_pollRecord;
-    bytes_total += count.win * sizeof_winRecord;
+    bytes_total += count.win_bytes;
+    bytes_total += count.process * sizeof_processRecord;
+    bytes_total += count.sql_func * SIZ_REC(sqlFuncRecord);
+    bytes_total += count.database_bytes;
+    bytes_total += count.prepared_stmt_bytes;
+    bytes_total += count.fetch_data_bytes;
     bytes_total += count.prog * SIZ_REC(progRecord);
     bytes_total += count.fnam_bytes + count.fnam +
         count.symb_bytes + count.symb +
@@ -644,7 +687,6 @@ memSizeType heapsize (void)
     memSizeType result;
 
   /* heapsize */
-    /* rtlHeapStatistic(); */
 #if DO_HEAPSIZE_COMPUTATION
     flist_bytes = object_flist_count() * sizeof(objectRecord);
     flist_bytes += list_elem_flist_count() * sizeof(listRecord);
@@ -662,7 +704,7 @@ memSizeType heapsize (void)
 
 
 
-#ifdef USE_CHUNK_ALLOCS
+#if USE_CHUNK_ALLOCS
 #ifdef USE_FLIST_ALLOC
 void *flist_alloc (size_t size)
 
@@ -696,7 +738,7 @@ void *flist_alloc (size_t size)
 
 
 
-#ifndef USE_CHUNK_ALLOCS
+#if !USE_CHUNK_ALLOCS
 void reuse_free_lists (void)
 
   {
@@ -726,7 +768,7 @@ void reuse_free_lists (void)
 
 
 
-#ifdef USE_CHUNK_ALLOCS
+#if USE_CHUNK_ALLOCS
 void *heap_chunk (size_t size)
 
   {
@@ -826,15 +868,20 @@ void check_heap (long sizediff, const char *file_name, unsigned int line_num)
         ((memSizeType) count.loclist)        * SIZ_REC(locListRecord) +
         ((memSizeType) count.infil)          * SIZ_REC(inFileRecord) +
         ((memSizeType) count.polldata)       * sizeof_pollRecord +
-        ((memSizeType) count.win)            * sizeof_winRecord +
+        ((memSizeType) count.win_bytes) +
+        ((memSizeType) count.process)        * sizeof_processRecord +
+        ((memSizeType) count.sql_func)       * SIZ_REC(sqlFuncRecord) +
+        ((memSizeType) count.database_bytes) +
+        ((memSizeType) count.prepared_stmt_bytes) +
+        ((memSizeType) count.fetch_data_bytes) +
         ((memSizeType) count.prog)           * SIZ_REC(progRecord) +
         count.fnam_bytes + ((memSizeType) count.fnam) +
         count.symb_bytes + ((memSizeType) count.symb) +
         count.byte;
     if (bytes_used != hs) {
-      printf("*** %s(%u)\n%lu %lu %ld %ld \n",
+      printf("*** %s(%u)\n" FMT_U_MEM " " FMT_U_MEM " " FMT_U_MEM " %ld \n",
           file_name, line_num, bytes_used, hs, bytes_used - hs, sizediff);
-/*    heap_statistic();
+/*    heapStatistic();
       fflush(stdout);
       printf("should not happen\n");
       exit(1); */

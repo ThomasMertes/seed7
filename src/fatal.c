@@ -61,7 +61,7 @@ void no_memory (const_cstriType source_file, int source_line)
     printf("%6lu bytes used\n", (unsigned long) heapsize());
     printf("%6lu bytes in free lists\n", (unsigned long) (hs - heapsize()));
 #endif
-#ifdef USE_CHUNK_ALLOCS
+#if USE_CHUNK_ALLOCS
     printf("%6lu bytes in chunks\n", (unsigned long) chunk.total_size);
     printf("%6u unused bytes in last chunk\n",
         (unsigned) (chunk.beyond - chunk.freemem));

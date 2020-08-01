@@ -167,7 +167,7 @@ char *key_f63;
 typedef struct term {
     int dummy;
   } TERMINAL;
-  
+
 /* c_cc characters */
 #define VINTR  0
 #define VQUIT  1
@@ -182,16 +182,16 @@ typedef struct term {
 #define VSUSP 10
 
 /* c_lflag bits */
-#define ICANON	0000002
-#define ECHO	0000010
-#define ECHOE	0000020
-#define ECHOK	0000040
-#define ECHONL	0000100
+#define ICANON  0000002
+#define ECHO    0000010
+#define ECHOE   0000020
+#define ECHOK   0000040
+#define ECHONL  0000100
 
 /* tcsetattr() actions */
-#define	TCSANOW    0
-#define	TCSADRAIN  1
-#define	TCSAFLUSH  2
+#define TCSANOW    0
+#define TCSADRAIN  1
+#define TCSAFLUSH  2
 
 typedef unsigned char cc_t;
 typedef unsigned int  speed_t;

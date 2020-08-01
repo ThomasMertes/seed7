@@ -4271,7 +4271,7 @@ const proc: testCharField (in database: testDb, in dbCategory: databaseKind) is 
       insert(testDb, state, "'abcdefghij'", expect &:= "abcdefghij");
       insert(testDb, state, "'ÄäÖöÜüß'",    expect &:= "ÄäÖöÜüß");
       insert(testDb, state, "'€µ¹²³¼½«»¬'", expect &:= "€µ¹²³¼½«»¬");
-      # Chars that are defined with differend ordinal in code page 1252:
+      # Chars that are defined with different ordinal in code page 1252:
       insert(testDb, state, "'€‚ƒ„…†‡ˆ‰'",  expect &:= "€‚ƒ„…†‡ˆ‰");
       insert(testDb, state, "'Š‹ŒŽ‘’“”•'",  expect &:= "Š‹ŒŽ‘’“”•");
       insert(testDb, state, "'–—˜™š›œžŸ'",  expect &:= "–—˜™š›œžŸ");
@@ -4315,7 +4315,7 @@ const proc: testCharField (in database: testDb, in dbCategory: databaseKind) is 
       insert(state, "abcdefghij", expect &:= "abcdefghij");
       insert(state, "ÄäÖöÜüß",    expect &:= "ÄäÖöÜüß");
       insert(state, "€µ¹²³¼½«»¬", expect &:= "€µ¹²³¼½«»¬");
-      # Chars that are defined with differend ordinal in code page 1252:
+      # Chars that are defined with different ordinal in code page 1252:
       insert(state, "€‚ƒ„…†‡ˆ‰",  expect &:= "€‚ƒ„…†‡ˆ‰");
       insert(state, "Š‹ŒŽ‘’“”•",  expect &:= "Š‹ŒŽ‘’“”•");
       insert(state, "–—˜™š›œžŸ",  expect &:= "–—˜™š›œžŸ");
@@ -4440,7 +4440,7 @@ const proc: testCharField2 (in database: testDb, in dbCategory: databaseKind) is
       insert(testDb, state, "\"abcdefghij\"", expect &:= "abcdefghij");
       insert(testDb, state, "\"ÄäÖöÜüß\"",    expect &:= "ÄäÖöÜüß");
       insert(testDb, state, "\"€µ¹²³¼½«»¬\"", expect &:= "€µ¹²³¼½«»¬");
-      # Chars that are defined with differend ordinal in code page 1252:
+      # Chars that are defined with different ordinal in code page 1252:
       insert(testDb, state, "\"€‚ƒ„…†‡ˆ‰\"",  expect &:= "€‚ƒ„…†‡ˆ‰");
       insert(testDb, state, "\"Š‹ŒŽ‘’“”•\"",  expect &:= "Š‹ŒŽ‘’“”•");
       insert(testDb, state, "\"–—˜™š›œžŸ\"",  expect &:= "–—˜™š›œžŸ");
@@ -4553,7 +4553,7 @@ const proc: testVarcharField (in database: testDb, in dbCategory: databaseKind) 
       insert(testDb, state, "'abcdefghij'", expect &:= "abcdefghij");
       insert(testDb, state, "'ÄäÖöÜüß'",    expect &:= "ÄäÖöÜüß");
       insert(testDb, state, "'€µ¹²³¼½«»¬'", expect &:= "€µ¹²³¼½«»¬");
-      # Chars that are defined with differend ordinal in code page 1252:
+      # Chars that are defined with different ordinal in code page 1252:
       insert(testDb, state, "'€‚ƒ„…†‡ˆ‰'",  expect &:= "€‚ƒ„…†‡ˆ‰");
       insert(testDb, state, "'Š‹ŒŽ‘’“”•'",  expect &:= "Š‹ŒŽ‘’“”•");
       insert(testDb, state, "'–—˜™š›œžŸ'",  expect &:= "–—˜™š›œžŸ");
@@ -4591,7 +4591,7 @@ const proc: testVarcharField (in database: testDb, in dbCategory: databaseKind) 
       insert(state, "abcdefghij", expect &:= "abcdefghij");
       insert(state, "ÄäÖöÜüß",    expect &:= "ÄäÖöÜüß");
       insert(state, "€µ¹²³¼½«»¬", expect &:= "€µ¹²³¼½«»¬");
-      # Chars that are defined with differend ordinal in code page 1252:
+      # Chars that are defined with different ordinal in code page 1252:
       insert(state, "€‚ƒ„…†‡ˆ‰",  expect &:= "€‚ƒ„…†‡ˆ‰");
       insert(state, "Š‹ŒŽ‘’“”•",  expect &:= "Š‹ŒŽ‘’“”•");
       insert(state, "–—˜™š›œžŸ",  expect &:= "–—˜™š›œžŸ");
@@ -4850,7 +4850,7 @@ const proc: testClobField (in database: testDb, in dbCategory: databaseKind) is 
       insert(state, "abcdefghij", expect &:= "abcdefghij");
       insert(state, "ÄäÖöÜüß",    expect &:= "ÄäÖöÜüß");
       insert(state, "€µ¹²³¼½«»¬", expect &:= "€µ¹²³¼½«»¬");
-      # Chars that are defined with differend ordinal in code page 1252:
+      # Chars that are defined with different ordinal in code page 1252:
       insert(state, "€‚ƒ„…†‡ˆ‰",  expect &:= "€‚ƒ„…†‡ˆ‰");
       insert(state, "Š‹ŒŽ‘’“”•",  expect &:= "Š‹ŒŽ‘’“”•");
       insert(state, "–—˜™š›œžŸ",  expect &:= "–—˜™š›œžŸ");
@@ -5600,7 +5600,8 @@ const proc: testDatabase (in connectData: dbConnectData) is func
 const proc: main is func
   local
     const array connectData: dbConnectDataList is [] (
-        connectData(DB_ODBC,       "test1",            "", "", DB_ODBC),
+        connectData(DB_ODBC,       "test",             "", "", DB_ODBC),
+        connectData(DB_SQL_SERVER, "test",             "test", "test", DB_SQL_SERVER),
         connectData(DB_FIRE,       "test",             "test", "test", DB_FIRE),
         # connectData(DB_MYSQL,      "penguin/test",     "test", "test", DB_MYSQL),
         # connectData(DB_ODBC,       "penguin_mysql",    "test", "test", DB_MYSQL),

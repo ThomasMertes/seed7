@@ -44,11 +44,6 @@
 #include "drw_drv.h"
 
 
-#if DO_HEAP_STATISTIC
-size_t sizeof_winRecord = sizeof(winRecord);
-#endif
-
-
 
 charType gkbGetc (void)
 

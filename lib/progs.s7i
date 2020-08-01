@@ -222,13 +222,13 @@ const func reference: syobject (in program: aProgram, in string: name)   is acti
 
 
 (**
- *  Determine object from program ''aProgram'' which matches ''expession''.
+ *  Determine object from program ''aProgram'' which matches ''expression''.
  *  @return object from program.
  *)
-const func reference: match (in program: aProgram, in ref_list: expession) is action "PRG_MATCH";
+const func reference: match (in program: aProgram, in ref_list: expression) is action "PRG_MATCH";
 
 
-const func reference: matchExpr (in program: aProgram, in ref_list: expession)  is action "PRG_MATCH_EXPR";
+const func reference: matchExpr (in program: aProgram, in ref_list: expression)  is action "PRG_MATCH_EXPR";
 # const func program: get (PROGRAM)                                      is action "PRG_PROG";
 
 

@@ -572,7 +572,7 @@ bigIntType getBigFileLengthUsingSeek (fileType aFile)
 
 
 /**
- *  Read a string, if we do not know how many bytes are avaliable.
+ *  Read a string, if we do not know how many bytes are available.
  *  This function reads data into a list of buffers. This is done
  *  until enough characters are read or EOF has been reached.
  *  Afterwards the string is allocated, the data is copied from the
@@ -1034,7 +1034,7 @@ charType filGetcChkCtrlC (fileType inFile)
  *  In order to work reasonable good for the common case (reading
  *  just some characters), memory for 'length' characters is requested
  *  with malloc(). After the data is read the result string is
- *  shrinked to the actual size (with realloc()). If 'length' is
+ *  shrunk to the actual size (with realloc()). If 'length' is
  *  larger than GETS_DEFAULT_SIZE or the memory cannot be requested
  *  a different strategy is used. In this case the function tries to
  *  find out the number of available characters (this is possible
@@ -1133,7 +1133,7 @@ striType filGets (fileType inFile, intType length)
           } /* if */
         } /* if */
       } else {
-        /* Read a string, if we do not know how many bytes are avaliable. */
+        /* Read a string, if we do not know how many bytes are available. */
         result = read_and_alloc_stri(inFile, chars_requested, &err_info);
       } /* if */
       if (unlikely(err_info != OKAY_NO_ERROR)) {

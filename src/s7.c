@@ -424,7 +424,7 @@ int main (int argc, char **argv)
                           option.execOptions, option.protFileName);
               } /* if */
               /* prgDestr(currentProg); */
-              /* heap_statistic(); */
+              /* heapStatistic(); */
             } /* if */
           } /* if */
         } /* if */
@@ -435,7 +435,7 @@ int main (int argc, char **argv)
       } /* if */
     } /* if */
     /* getchar(); */
-    /* heap_statistic(); */
+    /* heapStatistic(); */
 #if CHECK_STACK
     printf("max_stack_size: " FMT_U_MEM "\n", getMaxStackSize());
 #endif

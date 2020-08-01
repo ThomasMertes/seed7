@@ -955,7 +955,7 @@ const proc: setMTime (inout tarArchive: tar, in string: filePath,
 
 (**
  *  Reads the destination of a symbolic link in a TAR archive.
- *  @return The destination refered by the symbolic link.
+ *  @return The destination referred by the symbolic link.
  *  @exception RANGE_ERROR ''filePath'' does not use the standard path
  *             representation.
  *  @exception FILE_ERROR ''filePath'' is not present in the TAR archive,

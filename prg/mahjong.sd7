@@ -647,7 +647,7 @@ const proc: drawNearSide (inout PRIMITIVE_WINDOW: win, in integer: xPos, in inte
 
 (**
  *  Draws a tile at the position (level, line, column).
- *  The 'field' is not checked for the existance of a tile at
+ *  The 'field' is not checked for the existence of a tile at
  *  (level, line, column). The complete tile is drawn inclusive
  *  borders. Although the tile is drawn with isometric graphic the
  *  visibility is not checked.

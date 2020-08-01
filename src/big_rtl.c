@@ -4917,7 +4917,7 @@ void bigIncr (bigIntType *const big_variable)
  *  the exponent is set the current square is multiplied
  *  with the result variable. This reduces the number of square
  *  operations to ld(exponent).
- *  @return the result of the exponentation.
+ *  @return the result of the exponentiation.
  *  @exception NUMERIC_ERROR If the exponent is negative.
  */
 bigIntType bigIPow (const const_bigIntType base, intType exponent)
@@ -5016,7 +5016,7 @@ bigIntType bigIPow (const const_bigIntType base, intType exponent)
 /**
  *  Compute the exponentiation of a bigdigit base with an integer exponent.
  *  @param base Base that must be in the range of signedBigDigitType.
- *  @return the result of the exponentation.
+ *  @return the result of the exponentiation.
  *  @exception NUMERIC_ERROR If the exponent is negative.
  */
 bigIntType bigIPowSignedDigit (intType base, intType exponent)

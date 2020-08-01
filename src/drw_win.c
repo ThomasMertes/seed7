@@ -78,10 +78,6 @@ typedef struct {
     intType clear_col;
   } win_winRecord, *win_winType;
 
-#if DO_HEAP_STATISTIC
-size_t sizeof_winRecord = sizeof(win_winRecord);
-#endif
-
 #define to_hwnd(win)                 (((win_winType) win)->hWnd)
 #define to_hdc(win)                  (((win_winType) win)->hdc)
 #define to_backup_hdc(win)           (((win_winType) win)->backup_hdc)
@@ -680,7 +676,7 @@ winType drwEmpty (void)
     if (init_called == 0) {
       dra_init();
     } /* if */
-    if (unlikely(!ALLOC_RECORD(result, win_winRecord, count.win))) {
+    if (unlikely(!ALLOC_RECORD2(result, win_winRecord, count.win, count.win_bytes))) {
       raise_error(MEMORY_ERROR);
     } else {
       memset(result, 0, sizeof(win_winRecord));
@@ -728,7 +724,7 @@ void drwFree (winType old_window)
       DestroyWindow(to_hwnd(old_window));
       remove_window(to_hwnd(old_window));
     } /* if */
-    FREE_RECORD(old_window, win_winRecord, count.win);
+    FREE_RECORD2(old_window, win_winRecord, count.win, count.win_bytes);
   } /* drwFree */
 
 
@@ -747,7 +743,7 @@ winType drwGet (const_winType actual_window, intType left, intType upper,
                  width < 1 || height < 1)) {
       raise_error(RANGE_ERROR);
       result = NULL;
-    } else if (unlikely(!ALLOC_RECORD(result, win_winRecord, count.win))) {
+    } else if (unlikely(!ALLOC_RECORD2(result, win_winRecord, count.win, count.win_bytes))) {
       raise_error(MEMORY_ERROR);
     } else {
       memset(result, 0, sizeof(win_winRecord));
@@ -942,7 +938,7 @@ winType drwNewPixmap (intType width, intType height)
       if (init_called == 0) {
         dra_init();
       } /* if */
-      if (unlikely(!ALLOC_RECORD(result, win_winRecord, count.win))) {
+      if (unlikely(!ALLOC_RECORD2(result, win_winRecord, count.win, count.win_bytes))) {
         raise_error(MEMORY_ERROR);
       } else {
         memset(result, 0, sizeof(win_winRecord));
@@ -1049,7 +1045,7 @@ winType drwOpen (intType xPos, intType yPos,
               FreeConsole();
             } /* if */
           } /* if */
-          if (ALLOC_RECORD(result, win_winRecord, count.win)) {
+          if (ALLOC_RECORD2(result, win_winRecord, count.win, count.win_bytes)) {
             memset(result, 0, sizeof(win_winRecord));
             result->usage_count = 1;
 #ifdef OUT_OF_ORDER
@@ -1127,7 +1123,7 @@ winType drwOpenSubWindow (const_winType parent_window, intType xPos, intType yPo
         dra_init();
       } /* if */
       if (init_called != 0) {
-        if (ALLOC_RECORD(result, win_winRecord, count.win)) {
+        if (ALLOC_RECORD2(result, win_winRecord, count.win, count.win_bytes)) {
           memset(result, 0, sizeof(win_winRecord));
           result->usage_count = 1;
 #ifdef OUT_OF_ORDER
