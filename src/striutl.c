@@ -820,6 +820,15 @@ os_stritype os_stri;
 
 
 
+/**
+ *  Copy a Seed7 string to an UTF-8 encoded C string.
+ *  The memory for the C string is allocated. To get good performance
+ *  the allocated memory area is oversized. The macro free_cstri()
+ *  must be used to free the allocated memory. No special action is
+ *  done, when the original string contains a null character.
+ *  @return an UTF-8 encoded null terminated C string or
+ *          NULL, when the memory allocation failed.
+ */
 #ifdef ANSI_C
 
 cstritype cp_to_cstri (const_stritype stri)

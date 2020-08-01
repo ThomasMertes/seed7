@@ -384,12 +384,12 @@ Seed7 can be used in various application areas:
 </h3></a><hr><!-- ================================================ -->
 <p>
 The Seed7 package contains more than 100000 lines of C and more
-than 150000 lines of Seed7. For version 2012-04-15 the number of lines is:
+than 150000 lines of Seed7. For version 2012-05-06 the number of lines is:
 </p><dl><dd><table border="0" cellspacing="0">
-  <tr><td align="right">101026</td> <td width="20"></td> <td>C source files (*.c)</td></tr>
-  <tr><td align="right"> 10079</td> <td width="20"></td> <td>C header files (*.h)</td></tr>
-  <tr><td align="right">110030</td> <td width="20"></td> <td>Seed7 source files (*.sd7)</td></tr>
-  <tr><td align="right"> 76460</td> <td width="20"></td> <td>Seed7 library/include files (*.s7i)</td></tr>
+  <tr><td align="right">101211</td> <td width="20"></td> <td>C source files (*.c)</td></tr>
+  <tr><td align="right"> 10093</td> <td width="20"></td> <td>C header files (*.h)</td></tr>
+  <tr><td align="right">111245</td> <td width="20"></td> <td>Seed7 source files (*.sd7)</td></tr>
+  <tr><td align="right"> 76485</td> <td width="20"></td> <td>Seed7 library/include files (*.s7i)</td></tr>
 </table></dd></dl><p>
 C code (*.c and *.h files) can be divided into the following areas:
 </p><dl><dd><table border="0" cellspacing="0">
@@ -546,8 +546,17 @@ already be installed.
 </p><p>
 Errors such as
 </p><pre>
-  echo char *getcwd(char *buf, size_t size); >> seed7lib.c
-  /usr/bin/sh: -c: line 0: syntax error near unexpected token `('
+  gcc chkccomp.c -lm -o chkccomp
+  chkccomp.c:28:21: fatal error: version.h: No such file or directory
+  compilation terminated.
+  mingw32-make: *** [version.h] Error 1
+</pre><p>
+or
+</p><pre>
+  del version.h
+  process_begin: CreateProcess(NULL, del version.h, ...) failed.
+  make (e=2): The system cannot find the file specified.
+  mingw32-make: *** [clean] Error 2
 </pre><p>
 indicate that your makefile contains commands for the cmd.exe
 (or command.com) windows console, but your 'make' program uses
@@ -1510,11 +1519,16 @@ special syntax or other magic.
 </p><p>
 Generally all Seed7 functions can be executed at compile time
 or at runtime. The time of the function execution depends on
-the place of the call. A Seed7 program consists of a sequence
-of declarations, which are executed one by one at compile time.
-Since declarations are just a form of statement it can be
-concluded that other statements can as well be used at the top
-level.
+the place of the call. Declarations are just a form of statement
+and statements are a form of expression. A Seed7 program
+consists of a sequence of declarations (expressions), which are
+executed one by one at compile time. This expresions can
+also invoke user defined functions.
+</p><p>
+A function body can contain declaration statements. When such
+a function is executed at compile time, it defines things that
+are part of the program. It is an error to execute such a
+function at runtime.
 </p><p>
 Seed7 uses the word template to describe a function which is
 executed at compile time and declares some things while

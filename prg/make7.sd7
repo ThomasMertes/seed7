@@ -321,7 +321,7 @@ const proc: readRule (inout file: makefile, in string: name) is func
   begin
     rule.name := name;
     makefile.bufferChar := getc(makefile);
-    skipSpace(makefile);
+    skipSpaceOrTab(makefile);
     dependencies := getLineWithMacrosApplied(makefile);
     # write(name <& ":");
     while dependencies <> "" do
@@ -348,7 +348,15 @@ const proc: readRule (inout file: makefile, in string: name) is func
       nameOfFirstRule := name;
     end if;
     if pos(name, '%') <> 0 then
-      patternRules @:= [name] rule;
+      if name not in patternRules then
+        patternRules @:= [name] rule;
+      end if;
+    elsif name in rules then
+      if rule.commands = 0 times "" then
+        rules[name].dependencies &:= rule.dependencies;
+      else
+        writeln(" *** Rule " <& name <& " redefined");
+      end if;
     else
       rules @:= [name] rule;
     end if;
@@ -713,22 +721,25 @@ const proc: processRule (in string: targetName) is forward;
 const proc: doMake (inout string: command, in boolean: doLog) is func
   local
     var string: parameter is "";
+    var array string: parameters is 0 times "";
   begin
     skipWhiteSpace(command);
-    if command <> "" then
-      repeat
-        parameter := getCommandParameter(command);
-        parameter := applyMacros(parameter, FALSE);
-        if startsWith(parameter, "-") then
-          parameter := "";
-        end if;
-        skipWhiteSpace(command);
-      until parameter <> "";
-      if doLog then
-        writeln("make " <& parameter);
-      end if;
-      processRule(parameter);
+    if doLog then
+      write("make");
     end if;
+    while command <> "" do
+      parameter := getCommandParameter(command);
+      parameter := applyMacros(parameter, FALSE);
+      parameters &:= parameter;
+      if doLog then
+        write(" " <& parameter);
+      end if;
+      skipWhiteSpace(command);
+    end while;
+    if doLog then
+      writeln;
+    end if;
+    callOwnProgram(parameters);
   end func;
 
 

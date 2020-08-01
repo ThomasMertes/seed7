@@ -1015,9 +1015,19 @@ stritype name;
       } else if (strcmp(opt_name, "EXECUTABLE_FILE_EXTENSION") == 0) {
         opt = EXECUTABLE_FILE_EXTENSION;
       } else if (strcmp(opt_name, "C_COMPILER") == 0) {
+#ifdef PATHS_RELATIVE_TO_EXECUTABLE
+        result = relativeToProgramPath(programPath, "bin/callgcc");
+        opt = NULL;
+#else
         opt = C_COMPILER;
+#endif
       } else if (strcmp(opt_name, "CPLUSPLUS_COMPILER") == 0) {
+#ifdef PATHS_RELATIVE_TO_EXECUTABLE
+        result = relativeToProgramPath(programPath, "bin/callgcc");
+        opt = NULL;
+#else
         opt = CPLUSPLUS_COMPILER;
+#endif
       } else if (strcmp(opt_name, "C_COMPILER_VERSION") == 0) {
         opt = C_COMPILER_VERSION;
       } else if (strcmp(opt_name, "GET_CC_VERSION_INFO") == 0) {

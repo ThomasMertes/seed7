@@ -1622,7 +1622,7 @@ const proc: displayInventoryList is func
     var itemType: item_ident is NO_ITEM;
   begin
     line := succ(getInventoryStartLine);
-    if card(player.inventory) = 0 then
+    if player.inventory = itemSet.EMPTY_SET then
       color(white, black);
       setPos(screen, 2 * line, LEGEND_COLUMN);
       write(screen, "Nothing");

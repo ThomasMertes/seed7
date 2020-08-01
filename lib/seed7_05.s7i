@@ -1679,8 +1679,11 @@ const func integer: card (in bitset param)                      is action "SET_C
 const func integer: rand (in bitset param)                      is action "SET_RAND";
 const func integer: min (in bitset param)                       is action "SET_MIN";
 const func integer: max (in bitset param)                       is action "SET_MAX";
+const func integer: next (in bitset param, in integer param)    is action "SET_NEXT";
 const func bitset: { (in integer param) }                       is action "SET_BASELIT";
 const func bitset: { (in tuple integer param) }                 is action "SET_ARRLIT";
+const func bitset: { (in integer: lowerValue) ..
+                     (in integer: upperValue) }                 is action "SET_RANGELIT";
 const func integer: (attr integer) conv (in bitset param)       is action "SET_SCONV";
 const func bitset: (attr bitset) conv (in integer param)        is action "SET_ICONV";
 
@@ -1690,40 +1693,24 @@ const bitset: EMPTY_SET                                         is _GENERATE_EMP
 const bitset: (attr bitset) . EMPTY_SET                         is EMPTY_SET;
 const bitset: (attr bitset) . value                             is EMPTY_SET;
 
-(*
-const func bitset: { (in tuple integer: value) } is func
-  result
-    var bitset: result is EMPTY_SET;
-  local
-    var integer: number is 0;
-  begin
-    for number range 1 to length([] value) do
-      incl(result, ([] value)[number]);
-    end for;
-  end func;
-*)
-
-const func bitset: { (in integer: lower_value) .. (in integer: upper_value) } is func
-  result
-    var bitset: result is EMPTY_SET;
-  local
-    var integer: value is 0;
-  begin
-    for value range lower_value to upper_value do
-      incl(result, value);
-    end for;
-  end func;
-
 const proc: for (inout integer: variable) range (in bitset: aSet) do
               (in proc: statements)
             end for is func
+  local
+    var integer: upperBound is 0;
+    var boolean: leave is FALSE;
   begin
-    if card(aSet) > 0 then
-      for variable range min(aSet) to max(aSet) do
-        if variable in aSet then
-          statements;
+    if aSet <> EMPTY_SET then
+      variable := min(aSet);
+      upperBound := max(aSet);
+      repeat
+        statements;
+        if variable = upperBound then
+          leave := TRUE;
+        else
+          variable := next(aSet, variable);
         end if;
-      end for;
+      until leave;
     end if;
   end func;
 
@@ -1829,6 +1816,9 @@ const func type: BITSET_OF (in type: baseType) is func
       const func baseType: max (in setType: aSet) is
         return baseType conv max(bitset conv aSet);
 
+      const func baseType: next (in setType: aSet, in baseType: oldValue) is
+        return baseType conv next(bitset conv aSet, ord(oldValue));
+
       const func setType: { (in baseType: value) } is
         return setType conv ( { ord(value) } );
 
@@ -1846,27 +1836,27 @@ const func type: BITSET_OF (in type: baseType) is func
           end for;
         end func;
 
-      const func setType: { (in baseType: lower_value) .. (in baseType: upper_value) } is func
-        result
-          var setType: result is setType.EMPTY_SET;
-        local
-          var baseType: value is baseType.value;
-        begin
-          for value range lower_value to upper_value do
-            incl(result, value);
-          end for;
-        end func;
+      const func setType: { (in baseType: lowerValue) .. (in baseType: upperValue) } is
+        return setType conv ( { ord(lowerValue) .. ord(upperValue) } );
 
       const proc: for (inout baseType: variable) range (in setType: aSet) do
                     (in proc: statements)
                   end for is func
+        local
+          var baseType: upperBound is baseType.value;
+          var boolean: leave is FALSE;
         begin
-          if card(aSet) > 0 then
-            for variable range min(aSet) to max(aSet) do
-              if variable in aSet then
-                statements;
+          if aSet <> setType.EMPTY_SET then
+            variable := min(aSet);
+            upperBound := max(aSet);
+            repeat
+              statements;
+              if variable = upperBound then
+                leave := TRUE;
+              else
+                variable := next(aSet, variable);
               end if;
-            end for;
+            until leave;
           end if;
         end func;
 
@@ -2603,6 +2593,7 @@ BLOCK_DECLS(void);
 const func array string: argv (PROGRAM)               is action "PRC_ARGS";
 const func string: name (PROGRAM)                     is action "PRG_NAME";
 const func string: path (PROGRAM)                     is action "PRG_PATH";
+const func string: interpreterPath                    is action "PRG_INTERPRETER";
 const func string: getenv (in string param)           is action "CMD_GETENV";
 const proc: setenv (in string param, in string param) is action "CMD_SETENV";
 

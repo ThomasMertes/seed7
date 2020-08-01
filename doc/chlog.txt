@@ -1,3 +1,56 @@
+20120506:
+- A typo in the manual, concerning the 'integer' operator 'rpad',
+  was fixed (thanks to Robert A Duff for pointing it out).
+- The compiler (comp.sd7) was improved to generate optimized code
+  for the integer 'mod' operator (thanks to Andrew Haley,
+  Stefan Ram, Scott Fluhrer and Gene for their help).
+- The compiler was improved to generate optimized code for the
+  integer operators 'mdiv' and 'mod', when the divisor is a negated
+  power of two.
+- The FAQ answers, which explain possible compilation errors and the
+  templates of Seed7, were improved.
+- The chapter explaining primitive actions in the manual was
+  improved.
+- The compiler was improved to use inline code for set membership
+  (operator: in) and set exclusion. The inlining is done instead of
+  calling 'setElem' respectively 'setExcl'.
+- The compiler was improved to use 'setIsEmpty' (which is defined in
+  "set_rtl.c"), when a set is compared with the empty set (action
+  "SET_EQ" and "SET_NE").
+- Interpreter, compiler and runtime library were improved to support
+  the actions "PRG_INTERPRETER" (returns the path of the hi
+  interpreter), "SET_NEXT" (used in for-loops over sets) and
+  "SET_RANGELIT" (used to create sets like {1 .. 5} ).
+- In "chkset.sd7" the tests for set union and set membership were
+  improved.
+- The checks of relation operators in "chkset.s7i" were split into
+  several functions.
+- The example program "printpi2.sd7" was improved.
+- The function 'bigEqSignedDigit' was added to "big_rtl.c" and
+  "big_gmp.c". This function is used in the compiler to optimize
+  bigInteger comparisons (= and <>) with small signed numbers.
+- The functions 'reduce' and / in "bigrat.s7i" were improved.
+- The performance of the function setCard in "set_rtl.c" was
+  improved.
+- The functions 'setSymdiff' and 'setUnion' were improved to raise
+  MEMORY_ERROR, when the computation of the data size would
+  overflow.
+- The performance of the function 'prot_set' in "traceutl.c" was
+  improved.
+- The example program "make7.sd7" was improved. Now it processes
+  make commands in makefiles correctly and accepts tabs before the
+  dependencies of a rule. Additionally make7 now allows repeated
+  target names when there no commands.
+- Checks for 'mod' and 'mdiv' were added to "chkint.sd7".
+- A documentation comment was added to the function 'cp_to_cstri'
+  in the file "striutl.c".
+- The macros 'likely' and 'unlikely' were added to if-statements
+  checking for exception conditions in the file "set_rtl.c".
+- A description of possible compilation errors was added to the file
+  "src/read_me.txt".
+- In "shell.s7i" the function 'shell' was overloaded and the
+  function 'callOwnProgram' was added.
+
 20120415:
 - Documentation comments were added to "shell.s7i".
 - A description of several C preprocessor macros used in "version.h"

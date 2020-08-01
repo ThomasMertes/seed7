@@ -57,8 +57,10 @@ const proc: reduce (inout bigRational: number) is func
     var bigInteger: gcd is 0_;
   begin
     gcd := gcd(number.numerator, number.denominator);
-    number.numerator := number.numerator div gcd;
-    number.denominator := number.denominator div gcd;
+    if gcd <> 1_ then
+      number.numerator := number.numerator div gcd;
+      number.denominator := number.denominator div gcd;
+    end if;
   end func;
 
 
@@ -163,11 +165,16 @@ const func bigRational: (in bigRational: factor1) * (in bigRational: factor2) is
 const func bigRational: (in bigRational: dividend) / (in bigRational: divisor) is func
   result
     var bigRational: quotient is bigRational.value;
+  local
+    var bigInteger: gcd1 is 0_;
+    var bigInteger: gcd2 is 0_;
   begin
-    quotient.numerator := dividend.numerator * divisor.denominator;
-    quotient.denominator := dividend.denominator * divisor.numerator;
+    gcd1 := gcd(dividend.numerator, divisor.numerator);
+    gcd2 := gcd(divisor.denominator, dividend.denominator);
+    quotient.numerator := (dividend.numerator div gcd1) * (divisor.denominator div gcd2);
+    quotient.denominator := (dividend.denominator div gcd2) * (divisor.numerator div gcd1);
     normalize(quotient);
-    reduce(quotient);
+    # reduce(quotient);
   end func;
 
 

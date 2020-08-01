@@ -60,6 +60,9 @@
 #define TABLE_INCREMENT 127
 
 
+extern stritype programPath; /* defined in hi.c or in the executable of a program */
+
+
 
 #ifdef ANSI_C
 
@@ -331,6 +334,21 @@ listtype arguments;
 #endif
     return bld_reference_temp(result);
   } /* prg_find */
+
+
+
+#ifdef ANSI_C
+
+objecttype prg_interpreter (listtype arguments)
+#else
+
+objecttype prg_interpreter (arguments)
+listtype arguments;
+#endif
+
+  { /* prg_interpreter */
+    return bld_stri_temp(strCreate(programPath));
+  } /* prg_interpreter */
 
 
 

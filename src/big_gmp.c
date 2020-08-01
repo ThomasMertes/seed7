@@ -551,6 +551,22 @@ biginttype big2;
 
 #ifdef ANSI_C
 
+booltype bigEqSignedDigit (const const_biginttype big1, inttype number)
+#else
+
+booltype bigEqSignedDigit (big1, number)
+biginttype big1;
+inttype number;
+#endif
+
+  { /* bigEqSignedDigit */
+    return mpz_cmp_si(big1, number) == 0;
+  } /* bigEqSignedDigit */
+
+
+
+#ifdef ANSI_C
+
 biginttype bigFromInt32 (int32type number)
 #else
 

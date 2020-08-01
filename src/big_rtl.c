@@ -226,7 +226,7 @@ biginttype big1;
     cstritype result;
 
   /* bigHexCStri */
-    if (big1 != NULL && big1->size > 0) {
+    if (likely(big1 != NULL && big1->size > 0)) {
       if (unlikely(big1->size > (MAX_CSTRI_LEN - 3) / 2 / (BIGDIGIT_SIZE >> 3) ||
           !ALLOC_CSTRI(result, big1->size * (BIGDIGIT_SIZE >> 3) * 2 + 3))) {
         raise_error(MEMORY_ERROR);
@@ -408,7 +408,7 @@ biginttype big1;
       carry >>= BIGDIGIT_SIZE;
       pos++;
     } while (pos < big1->size);
-    if (IS_NEGATIVE(dest->bigdigits[pos - 1])) {
+    if (unlikely(IS_NEGATIVE(dest->bigdigits[pos - 1]))) {
       dest->bigdigits[pos] = 0;
       pos++;
     } /* if */
@@ -689,7 +689,7 @@ biginttype big1;
 
   /* uBigIncr */
     pos = 0;
-    if (big1->bigdigits[pos] == BIGDIGIT_MASK) {
+    if (unlikely(big1->bigdigits[pos] == BIGDIGIT_MASK)) {
       if (big1->size == 1) {
         big1->bigdigits[pos] = 0;
         pos++;
@@ -727,7 +727,7 @@ biginttype big1;
 
   /* uBigDecr */
     pos = 0;
-    if (big1->bigdigits[pos] == 0) {
+    if (unlikely(big1->bigdigits[pos] == 0)) {
       do {
         big1->bigdigits[pos] = BIGDIGIT_MASK;
         pos++;
@@ -868,16 +868,19 @@ biginttype divisor;
       return NULL;
     } else {
       result->size = 1;
-      if (dividend->size + 1 == divisor->size &&
-          dividend->bigdigits[dividend->size - 1] == BIGDIGIT_SIGN &&
-          divisor->bigdigits[divisor->size - 1] == 0 &&
-          divisor->bigdigits[divisor->size - 2] == BIGDIGIT_SIGN) {
+      if (unlikely(dividend->size + 1 == divisor->size &&
+                   dividend->bigdigits[dividend->size - 1] == BIGDIGIT_SIGN &&
+                   divisor->bigdigits[divisor->size - 1] == 0 &&
+                   divisor->bigdigits[divisor->size - 2] == BIGDIGIT_SIGN)) {
         result->bigdigits[0] = BIGDIGIT_MASK;
-        for (pos = 0; pos < dividend->size - 1; pos++) {
-          if (dividend->bigdigits[pos] != 0 || divisor->bigdigits[pos] != 0) {
+        pos = dividend->size - 1;
+        while (pos > 0) {
+          pos--;
+          if (likely(dividend->bigdigits[pos] != 0 || divisor->bigdigits[pos] != 0)) {
             result->bigdigits[0] = 0;
+            pos = 0;
           } /* if */
-        } /* for */
+        } /* while */
       } else {
         result->bigdigits[0] = 0;
       } /* if */
@@ -1013,7 +1016,7 @@ biginttype result;
     for (pos1 = dividend->size - 1; pos1 >= divisor->size; pos1--) {
       twodigits = (((doublebigdigittype) dividend->bigdigits[pos1]) << BIGDIGIT_SIZE) |
           dividend->bigdigits[pos1 - 1];
-      if (dividend->bigdigits[pos1] == divisor->bigdigits[divisor->size - 1]) {
+      if (unlikely(dividend->bigdigits[pos1] == divisor->bigdigits[divisor->size - 1])) {
         quotientdigit = BIGDIGIT_MASK;
       } else {
         quotientdigit = (bigdigittype) (twodigits / divisor->bigdigits[divisor->size - 1]);
@@ -1268,16 +1271,19 @@ biginttype divisor;
       return NULL;
     } else {
       result->size = 1;
-      if (dividend->size + 1 == divisor->size &&
-          dividend->bigdigits[dividend->size - 1] == BIGDIGIT_SIGN &&
-          divisor->bigdigits[divisor->size - 1] == 0 &&
-          divisor->bigdigits[divisor->size - 2] == BIGDIGIT_SIGN) {
+      if (unlikely(dividend->size + 1 == divisor->size &&
+                   dividend->bigdigits[dividend->size - 1] == BIGDIGIT_SIGN &&
+                   divisor->bigdigits[divisor->size - 1] == 0 &&
+                   divisor->bigdigits[divisor->size - 2] == BIGDIGIT_SIGN)) {
         result->bigdigits[0] = BIGDIGIT_MASK;
-        for (pos = 0; pos < dividend->size - 1; pos++) {
-          if (dividend->bigdigits[pos] != 0 || divisor->bigdigits[pos] != 0) {
+        pos = dividend->size - 1;
+        while (pos > 0) {
+          pos--;
+          if (likely(dividend->bigdigits[pos] != 0 || divisor->bigdigits[pos] != 0)) {
             result->bigdigits[0] = 0;
+            pos = 0;
           } /* if */
-        } /* for */
+        } /* while */
       } else {
         result->bigdigits[0] = 0;
       } /* if */
@@ -1534,7 +1540,7 @@ biginttype divisor;
     for (pos1 = dividend->size - 1; pos1 >= divisor->size; pos1--) {
       twodigits = (((doublebigdigittype) dividend->bigdigits[pos1]) << BIGDIGIT_SIZE) |
           dividend->bigdigits[pos1 - 1];
-      if (dividend->bigdigits[pos1] == divisor->bigdigits[divisor->size - 1]) {
+      if (unlikely(dividend->bigdigits[pos1] == divisor->bigdigits[divisor->size - 1])) {
         quotientdigit = BIGDIGIT_MASK;
       } else {
         quotientdigit = (bigdigittype) (twodigits / divisor->bigdigits[divisor->size - 1]);
@@ -3364,6 +3370,22 @@ biginttype big2;
 
 #ifdef ANSI_C
 
+booltype bigEqSignedDigit (const const_biginttype big1, inttype number)
+#else
+
+booltype bigEqSignedDigit (big1, number)
+biginttype big1;
+inttype number;
+#endif
+
+  { /* bigEqSignedDigit */
+    return big1->size == 1 && big1->bigdigits[0] == (bigdigittype) number;
+  } /* bigEqSignedDigit */
+
+
+
+#ifdef ANSI_C
+
 biginttype bigFromInt32 (int32type number)
 #else
 
@@ -3539,7 +3561,6 @@ biginttype big2;
     biginttype big1_help;
     biginttype big2_help;
     inttype lowestSetBitA;
-    inttype lowestSetBitB;
     inttype shift;
     biginttype help_big;
     biginttype result;
@@ -3575,11 +3596,9 @@ biginttype big2;
         return result;
       } else {
         lowestSetBitA = bigLowestSetBit(big1_help);
-        lowestSetBitB = bigLowestSetBit(big2_help);
-        if (lowestSetBitA < lowestSetBitB) {
+        shift = bigLowestSetBit(big2_help);
+        if (lowestSetBitA < shift) {
           shift = lowestSetBitA;
-        } else {
-          shift = lowestSetBitB;
         } /* if */
         bigRShiftAssign(&big1_help, lowestSetBitA);
         do {

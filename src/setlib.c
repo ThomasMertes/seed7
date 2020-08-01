@@ -798,6 +798,24 @@ listtype arguments;
 
 #ifdef ANSI_C
 
+objecttype set_next (listtype arguments)
+#else
+
+objecttype set_next (arguments)
+listtype arguments;
+#endif
+
+  { /* set_next */
+    isit_set(arg_1(arguments));
+    isit_int(arg_2(arguments));
+    return bld_int_temp(
+	setNext(take_set(arg_1(arguments)), take_int(arg_2(arguments))));
+  } /* set_next */
+
+
+
+#ifdef ANSI_C
+
 objecttype set_not_elem (listtype arguments)
 #else
 
@@ -847,6 +865,24 @@ listtype arguments;
     return bld_int_temp(
         setRand(take_set(arg_1(arguments))));
   } /* set_rand */
+
+
+
+#ifdef ANSI_C
+
+objecttype set_rangelit (listtype arguments)
+#else
+
+objecttype set_rangelit (arguments)
+listtype arguments;
+#endif
+
+  { /* set_rangelit */
+    isit_int(arg_2(arguments));
+    isit_int(arg_4(arguments));
+    return bld_set_temp(
+        setRangelit(take_int(arg_2(arguments)), take_int(arg_4(arguments))));
+  } /* set_rangelit */
 
 
 

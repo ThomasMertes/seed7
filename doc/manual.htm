@@ -152,29 +152,30 @@
 <li><!--   13.5     --><a href="#bstring"><b>Actions for byte strings</b></a></li>
 <li><!--   13.6     --><a href="#char"><b>Actions for the type char</b></a></li>
 <li><!--   13.7     --><a href="#commands"><b>Actions for various directory, file and other commands</b></a></li>
-<li><!--   13.8     --><a href="#declarations"><b>Actions for declarations</b></a></li>
-<li><!--   13.9     --><a href="#graphic_output"><b>Actions to do graphic output</b></a></li>
-<li><!--   13.10    --><a href="#enumeration"><b>Actions for enumeration types</b></a></li>
-<li><!--   13.11    --><a href="#PRIMITIVE_FILE"><b>Actions for the type PRIMITIVE_FILE</b></a></li>
-<li><!--   13.12    --><a href="#float"><b>Actions for the type float</b></a></li>
-<li><!--   13.13    --><a href="#graphic_keyboard"><b>Actions to support the graphic keyboard</b></a></li>
-<li><!--   13.14    --><a href="#hash"><b>Actions for hash types</b></a></li>
-<li><!--   13.15    --><a href="#integer"><b>Actions for the type integer</b></a></li>
-<li><!--   13.16    --><a href="#interface"><b>Actions for interface types</b></a></li>
-<li><!--   13.17    --><a href="#console_keyboard"><b>Actions to support the text (console) screen keyboard</b></a></li>
-<li><!--   13.18    --><a href="#list"><b>Actions for the list type</b></a></li>
-<li><!--   13.19    --><a href="#proc"><b>Actions for proc operations and statements</b></a></li>
-<li><!--   13.20    --><a href="#program"><b>Actions for the type program</b></a></li>
-<li><!--   13.21    --><a href="#reference"><b>Actions for the type reference</b></a></li>
-<li><!--   13.22    --><a href="#ref_list"><b>Actions for the type ref_list</b></a></li>
-<li><!--   13.23    --><a href="#console_output"><b>Actions for text (console) screen output</b></a></li>
-<li><!--   13.24    --><a href="#struct"><b>Actions for struct types</b></a></li>
-<li><!--   13.25    --><a href="#set"><b>Actions for set types</b></a></li>
-<li><!--   13.26    --><a href="#PRIMITIVE_SOCKET"><b>Actions for the type PRIMITIVE_SOCKET</b></a></li>
-<li><!--   13.27    --><a href="#string"><b>Actions for the type string</b></a></li>
-<li><!--   13.28    --><a href="#time"><b>Actions for the type time</b></a></li>
-<li><!--   13.29    --><a href="#type"><b>Actions for the type type</b></a></li>
-<li><!--   13.30    --><a href="#utf8_file"><b>Actions for the type utf8_file</b></a></li></ol></li>
+<li><!--   13.8     --><a href="#console_output"><b>Actions for text (console) screen output</b></a></li>
+<li><!--   13.9     --><a href="#declarations"><b>Actions for declarations</b></a></li>
+<li><!--   13.10    --><a href="#graphic_output"><b>Actions to do graphic output</b></a></li>
+<li><!--   13.11    --><a href="#enumeration"><b>Actions for enumeration types</b></a></li>
+<li><!--   13.12    --><a href="#PRIMITIVE_FILE"><b>Actions for the type PRIMITIVE_FILE</b></a></li>
+<li><!--   13.13    --><a href="#float"><b>Actions for the type float</b></a></li>
+<li><!--   13.14    --><a href="#graphic_keyboard"><b>Actions to support the graphic keyboard</b></a></li>
+<li><!--   13.15    --><a href="#hash"><b>Actions for hash types</b></a></li>
+<li><!--   13.16    --><a href="#integer"><b>Actions for the type integer</b></a></li>
+<li><!--   13.17    --><a href="#interface"><b>Actions for interface types</b></a></li>
+<li><!--   13.18    --><a href="#console_keyboard"><b>Actions to support the text (console) screen keyboard</b></a></li>
+<li><!--   13.19    --><a href="#list"><b>Actions for the list type</b></a></li>
+<li><!--   13.20    --><a href="#pollData"><b>Actions for the type pollData</b></a></li>
+<li><!--   13.21    --><a href="#proc"><b>Actions for proc operations and statements</b></a></li>
+<li><!--   13.22    --><a href="#program"><b>Actions for the type program</b></a></li>
+<li><!--   13.23    --><a href="#reference"><b>Actions for the type reference</b></a></li>
+<li><!--   13.24    --><a href="#ref_list"><b>Actions for the type ref_list</b></a></li>
+<li><!--   13.25    --><a href="#struct"><b>Actions for struct types</b></a></li>
+<li><!--   13.26    --><a href="#set"><b>Actions for set types</b></a></li>
+<li><!--   13.27    --><a href="#PRIMITIVE_SOCKET"><b>Actions for the type PRIMITIVE_SOCKET</b></a></li>
+<li><!--   13.28    --><a href="#string"><b>Actions for the type string</b></a></li>
+<li><!--   13.29    --><a href="#time"><b>Actions for the type time</b></a></li>
+<li><!--   13.30    --><a href="#type"><b>Actions for the type type</b></a></li>
+<li><!--   13.31    --><a href="#utf8_file"><b>Actions for the type utf8_file</b></a></li></ol></li>
 <li><!--   14.    --><a href="#ERRORS"><big><b>ERRORS</b></big></a><ol>
 <li><!--   14.1     --><a href="#Compile_time_errors"><b>Compile time errors</b></a></li>
 <li><!--   14.2     --><a href="#Exceptions"><b>Exceptions</b></a></li>
@@ -1715,7 +1716,7 @@
                     -12 <font color=blue>lpad0</font>  4 => <font color=maroon>"-012"</font>,
                     -12 <font color=blue>lpad0</font>  3 => <font color=maroon>"-12"</font>,
                     -12 <font color=blue>lpad0</font>  2 => <font color=maroon>"-12"</font> )
-      <font color=blue>lpad</font>      Left padding with spaces
+      <font color=blue>rpad</font>      Right padding with spaces
                   ( 123 <font color=blue>rpad</font>  8 => <font color=maroon>"123     "</font>,
                     123 <font color=blue>rpad</font>  4 => <font color=maroon>"123 "</font>,
                     123 <font color=blue>rpad</font>  3 => <font color=maroon>"123"</font>,
@@ -8327,9 +8328,9 @@ ont color=blue>is</font> <font color=maroon>""</font>;
   Every *lib.c file has a corresponding *lib.h file which
   contains the prototypes for the action functions.
 </p><p>
-  The primitive action which describes the addition of two
-  integers is <tt>'INT_ADD'</tt>. The Seed7 interface to the action
-  <tt>'INT_ADD'</tt> is defined in the file <tt>'seed7_05.s7i'</tt> with:
+  The primitive action, which describes the addition of two
+  integers, is <tt>'INT_ADD'</tt>. The Seed7 interface to the action
+  <tt>'INT_ADD'</tt> is defined in the file <tt>'integer.s7i'</tt> with:
 </p><pre>
     <font color=blue>const</font> <font color=red>func integer</font>: (<font color=blue>in</font> <font color=red>integer</font> <font color=blue>param</font>) + (<font color=blue>in</font> <font color=red>integer</font> <font color=blue>param</font>) <font color=blue>is action</font> <font color=maroon>"INT_ADD"</font>;
 </pre><p>
@@ -8410,101 +8411,120 @@ ont color=blue>is</font> <font color=maroon>""</font>;
         c_expr.expr &:= <font color=maroon>")"</font>;
       <font color=blue>end func</font>;
 </pre><p>
-  This function is called from the function <tt>'process_action'</tt> with the
-  line:
+  This function is called from the function <tt>'process_action'</tt> with:
 </p><pre>
     <font color=blue>elsif</font> action_name = <font color=maroon>"INT_ADD"</font> <font color=blue>then</font>
       process_int_add(params, c_expr);
 </pre><p>
   Some primitive actions are more complicated and inline code would
   not be the best solution for it. In this case an additional helper
-  function is used. The action <tt>'INT_STR'</tt> is such an action. The
-  definition of the function <tt>'int_str()'</tt> in the file <tt>'intlib.c'</tt> is:
+  function is used. The action <tt>'INT_LOG2'</tt> is such an action. The
+  definition of the function <tt>'int_log2()'</tt> in the file <tt>'intlib.c'</tt> is:
 </p><pre>
     #ifdef ANSI_C
 
-    objecttype int_str (listtype arguments)
+    objecttype int_log2 (listtype arguments)
     #else
 
-    objecttype int_str (arguments)
+    objecttype int_log2 (arguments)
     listtype arguments;
     #endif
 
-      { /* int_str */
+      { /* int_log2 */
         isit_int(arg_1(arguments));
-        return(bld_stri_temp(intStr(
-            take_int(arg_1(arguments)))));
-      } /* int_str */
+        return bld_int_temp(
+            intLog2(take_int(arg_1(arguments))));
+      } /* int_log2 */
 </pre><p>
-  The main work for the primitive action <tt>'INT_STR'</tt> is done in
-  the helper function <tt>'intStr()'</tt>. The helper function <tt>'intStr()'</tt>
+  The main work for the primitive action <tt>'INT_LOG2'</tt> is done in
+  the helper function <tt>'intLog2()'</tt>. The helper function <tt>'intLog2()'</tt>
   can be found in the file <tt>'int_rtl.c'</tt>:
 </p><pre>
+    /**
+     *  Compute the truncated base 2 logarithm of an integer number.
+     *  @return the truncated base 2 logarithm.
+     *  @exception NUMERIC_ERROR The number is negative.
+     */
     #ifdef ANSI_C
 
-    stritype intStr (inttype number)
+    inttype intLog2 (inttype number)
     #else
 
-    stritype intStr (number)
+    inttype intLog2 (number)
     inttype number;
     #endif
 
-    {
-      register uinttype unsigned_number;
-      booltype negative;
-      strelemtype *buffer;
-      memsizetype length;
-      stritype result;
+      {
+        int result;
 
-    /* intStr */
-      negative = (number < 0);
-      if (negative) {
-        /* The unsigned value is negated to avoid a signed integer */
-        /* overflow when the smallest signed integer is negated.   */
-        unsigned_number = -(uinttype) number;
-      } else {
-        unsigned_number = (uinttype) number;
-      } /* if */
-      length = DECIMAL_DIGITS(unsigned_number);
-      if (negative) {
-        length++;
-      } /* if */
-      if (unlikely(!ALLOC_STRI_SIZE_OK(result, length))) {
-        raise_error(MEMORY_ERROR);
-      } else {
-        result->size = length;
-        buffer = &result->mem[length];
-        do {
-          *(--buffer) = (strelemtype) (unsigned_number % 10 + '0');
-        } while ((unsigned_number /= 10) != 0);
-        if (negative) {
-          result->mem[0] = (strelemtype) '-';
+      /* intLog2 */
+        if (unlikely(number < 0)) {
+          raise_error(NUMERIC_ERROR);
+          result = 0;
+        } else {
+          result = uintMostSignificantBit((uinttype) number);
         } /* if */
-      } /* if */
-      return result;
-    } /* intStr */
+        return result;
+      } /* intLog2 */
 </pre><p>
   The file <tt>'int_rtl.h'</tt> contains a prototype definition for the
-  <tt>'intStr()'</tt> helper function:
+  <tt>'intLog2()'</tt> helper function:
 </p><pre>
-    stritype intStr (inttype number);
+    inttype intLog2 (inttype number);
 </pre><p>
   and also a definition for the K&R C language:
 </p><pre>
-    stritype intStr ();
+    inttype intLog2 ();
 </pre><p>
   The helper functions are also used in the code generated by
   the Seed7 compiler:
 </p><pre>
-    <font color=blue>const</font> <font color=red>proc</font>: process_int_str (<font color=blue>in</font> <font color=red>ref_list</font>: params, <font color=blue>inout</font> <font color=red>expr_type</font>: c_expr) <font color=blue>is func</font>
+    <font color=blue>const</font> <font color=red>proc</font>: process_int_log2 (<font color=blue>in</font> <font color=red>ref_list</font>: params, <font color=blue>inout</font> <font color=red>expr_type</font>: c_expr) <font color=blue>is func</font>
 
       <font color=blue>begin</font>
-        prepare_stri_result(c_expr);
-        c_expr.result_expr &:= <font color=maroon>"intStr("</font>;
-        getStdParamToResultExpr(params[1], c_expr);
-        c_expr.result_expr &:= <font color=maroon>")"</font>;
+        c_expr.expr &:= <font color=maroon>"intLog2("</font>;
+        process_expr(params[1], c_expr);
+        c_expr.expr &:= <font color=maroon>")"</font>;
       <font color=blue>end func</font>;
 </pre><p>
+  The compiler writes a prototype of <tt>'intLog2()'</tt> in the
+  function <tt>'write_prototypes'</tt>:
+</p><pre>
+    declareExtern(<font color=maroon>"inttype     intLog2 (inttype);"</font>);
+</pre><p>
+  Several Seed7 types correspond to simple C types, which are
+  defined in <tt>'common.h'</tt>:
+</p><table border="1" cellspacing="0" cellpadding="5">
+    <tr><th>Seed7 type</th>       <th>C type</th>     <th>Comment</th></tr>
+    <tr><td><font color=red>boolean</font></td>          <td>booltype</td>   <td>int</td></tr>
+    <tr><td><font color=red>integer</font></td>          <td>inttype</td>    <td>32- or 64-bit signed int</td></tr>
+    <tr><td><font color=red>float</font></td>            <td>floattype</td>  <td>float (or double)</td></tr>
+    <tr><td><font color=red>char</font></td>             <td>chartype</td>   <td>32-bit unsigned int</td></tr>
+    <tr><td><font color=red>PRIMITIVE_FILE</font></td>   <td>filetype</td>   <td>FILE *</td></tr>
+    <tr><td><font color=red>PRIMITIVE_SOCKET</font></td> <td>sockettype</td> <td>int or unsigned int</td></tr>
+</table><p>
+  Other Seed7 types correspond to C pointers, which point to a struct,
+  which is defined in <tt>'common.h'</tt>:
+</p><table border="1" cellspacing="0" cellpadding="5">
+    <tr><th>Seed7 type</th>       <th>C type</th>    <th>C struct</th>           <th>Comment</th></tr>
+    <tr><td><font color=red>string</font></td>           <td>stritype</td>  <td>struct stristruct</td>  <td>UTF-32 encoded, can contain null chars</td></tr>
+    <tr><td><font color=red>set</font></td>              <td>settype</td>   <td>struct setstruct</td>   <td>&nbsp;</td></tr>
+    <tr><td><font color=red>pollData</font></td>         <td>polltype</td>  <td>struct pollstruct</td>  <td>Functions cast it to implementation dependent struct</td></tr>
+    <tr><td><font color=red>bstring</font></td>          <td>bstritype</td> <td>struct bstristruct</td> <td>Byte sequence, can contain null bytes</td></tr>
+    <tr><td><font color=red>PRIMITIVE_WINDOW</font></td> <td>wintype</td>   <td>struct winstruct</td>   <td>Functions cast it to implementation dependent struct</td></tr>
+</table><p>
+  Seed7 strings are UTF-32 encoded and C strings are zero
+  terminated byte sequences. To convert between the different
+  representations, <tt>'striutl.h'</tt> defines conversion functions
+  like <tt>'cp_to_cstri'</tt>, <tt>'stri_to_bstri'</tt>, <tt>'stri_to_bstri8'</tt>,
+  <tt>'cstri_to_stri'</tt>, <tt>'cstri8_to_stri'</tt> and <tt>'cstri8_or_cstri_to_stri'</tt>.
+  Operating systems disagree in their Unicode encoding (UTF-8
+  or UTF-16). To cope with this, <tt>'striutl.h'</tt> defines the
+  type <tt>'os_stritype'</tt> and the functions <tt>'stri_to_os_stri'</tt>
+  and <tt>'os_stri_to_stri'</tt>. The different concepts to
+  represent a file path (path delimiter and drive letter) are
+  handled with <tt>'cp_to_os_path'</tt> and <tt>'cp_from_os_path'</tt>.
+</p><p>
   All the *lib.c files containing primitive actions and various
   other files with their functions are grouped together in the
   <tt>'s7_comp.a'</tt> library (Licensed under GPL). Furthermore the C
@@ -8548,6 +8568,7 @@ ont color=blue>is</font> <font color=maroon>""</font>;
     <tr><td>ARR_LNG</td>             <td>arr_lng</td>             <td>a->max_position-a->min_position + 1</td></tr>
     <tr><td>ARR_MAXIDX</td>          <td>arr_maxidx</td>          <td>a->max_position</td></tr>
     <tr><td>ARR_MINIDX</td>          <td>arr_minidx</td>          <td>a->min_position</td></tr>
+    <tr><td>ARR_PUSH</td>            <td>arr_push</td>            <td>arrPush</td></tr>
     <tr><td>ARR_RANGE</td>           <td>arr_range</td>           <td>arrRange</td></tr>
     <tr><td>ARR_REMOVE</td>          <td>arr_remove</td>          <td>arrRemove</td></tr>
     <tr><td>ARR_SORT</td>            <td>arr_sort</td>            <td>arrSort</td></tr>
@@ -8641,6 +8662,7 @@ ont color=blue>is</font> <font color=maroon>""</font>;
 <p></p><table border="1" cellspacing="0" cellpadding="5">
     <tr><th>Action name</th>         <th>chrlib.c function</th>   <th>chr_rtl.c function</th></tr>
     <tr><td>CHR_CHR</td>             <td>chr_chr</td>             <td>(chartype)</td></tr>
+    <tr><td>CHR_CLIT</td>            <td>chr_clit</td>            <td>chrCLit</td></tr>
     <tr><td>CHR_CMP</td>             <td>chr_cmp</td>             <td>chrCmp</td></tr>
     <tr><td>CHR_CONV</td>            <td>chr_conv</td>            <td>(noop)</td></tr>
     <tr><td>CHR_CPY</td>             <td>chr_cpy</td>             <td>chrCpy</td></tr>
@@ -8676,29 +8698,50 @@ ont color=blue>is</font> <font color=maroon>""</font>;
     <tr><td>CMD_FILETYPE</td>        <td>cmd_filetype</td>        <td>cmdFileType</td></tr>
     <tr><td>CMD_FILETYPE_SL</td>     <td>cmd_filetype_sl</td>     <td>cmdFileTypeSL</td></tr>
     <tr><td>CMD_GETCWD</td>          <td>cmd_getcwd</td>          <td>cmdGetcwd</td></tr>
+    <tr><td>CMD_GETENV</td>          <td>cmd_getenv</td>          <td>cmdGetenv</td></tr>
     <tr><td>CMD_GET_ATIME</td>       <td>cmd_get_atime</td>       <td>cmdGetATime</td></tr>
     <tr><td>CMD_GET_CTIME</td>       <td>cmd_get_ctime</td>       <td>cmdGetCTime</td></tr>
     <tr><td>CMD_GET_MTIME</td>       <td>cmd_get_mtime</td>       <td>cmdGetMTime</td></tr>
     <tr><td>CMD_LS</td>              <td>cmd_ls</td>              <td>cmdLs</td></tr>
     <tr><td>CMD_MKDIR</td>           <td>cmd_mkdir</td>           <td>cmdMkdir</td></tr>
     <tr><td>CMD_MOVE</td>            <td>cmd_move</td>            <td>cmdMove</td></tr>
+    <tr><td>CMD_PIPE2</td>           <td>cmd_pipe2</td>           <td>cmdPipe2</td></tr>
+    <tr><td>CMD_PTY</td>             <td>cmd_pty</td>             <td>cmdPty</td></tr>
     <tr><td>CMD_READLINK</td>        <td>cmd_readlink</td>        <td>cmdReadlink</td></tr>
     <tr><td>CMD_REMOVE</td>          <td>cmd_remove</td>          <td>cmdRemove</td></tr>
     <tr><td>CMD_REMOVE_ANY_FILE</td> <td>cmd_remove_any_file</td> <td>cmdRemoveAnyFile</td></tr>
+    <tr><td>CMD_SETENV</td>          <td>cmd_setenv</td>          <td>cmdSetenv</td></tr>
     <tr><td>CMD_SET_ATIME</td>       <td>cmd_set_atime</td>       <td>cmdSetATime</td></tr>
     <tr><td>CMD_SET_FILEMODE</td>    <td>cmd_set_filemode</td>    <td>cmdSetFileMode</td></tr>
     <tr><td>CMD_SET_MTIME</td>       <td>cmd_set_mtime</td>       <td>cmdSetMTime</td></tr>
     <tr><td>CMD_SHELL</td>           <td>cmd_shell</td>           <td>cmdShell</td></tr>
+    <tr><td>CMD_SHELL_ESCAPE</td>    <td>cmd_shell_escape</td>    <td>cmdShellEscape</td></tr>
+    <tr><td>CMD_START_PROCESS</td>   <td>cmd_start_process</td>   <td>cmdStartProcess</td></tr>
     <tr><td>CMD_SYMLINK</td>         <td>cmd_symlink</td>         <td>cmdSymlink</td></tr>
     <tr><td>CMD_TO_OS_PATH</td>      <td>cmd_to_os_path</td>      <td>cmdToOsPath</td></tr>
 </table><p></p>
-<a name="declarations"><h3>13.8 Actions for declarations</h3></a>
+<a name="console_output"><h3>13.8 Actions for text (console) screen output</h3></a>
+<p></p><table border="1" cellspacing="0" cellpadding="5">
+    <tr><th>Action name</th>         <th>scrlib.c function</th>   <th>con_inf.c/con_rtl.c/con_win.c function</th></tr>
+    <tr><td>CON_CLEAR</td>           <td>con_clear</td>           <td>conClear</td></tr>
+    <tr><td>CON_CURSOR</td>          <td>con_cursor</td>          <td>conCursor</td></tr>
+    <tr><td>CON_FLUSH</td>           <td>con_flush</td>           <td>conFlush</td></tr>
+    <tr><td>CON_HEIGHT</td>          <td>con_height</td>          <td>conHeight</td></tr>
+    <tr><td>CON_H_SCL</td>           <td>con_h_scl</td>           <td>conHScroll</td></tr>
+    <tr><td>CON_OPEN</td>            <td>con_open</td>            <td>conOpen</td></tr>
+    <tr><td>CON_SETPOS</td>          <td>con_setpos</td>          <td>conSetpos</td></tr>
+    <tr><td>CON_V_SCL</td>           <td>con_v_scl</td>           <td>conVScroll</td></tr>
+    <tr><td>CON_WIDTH</td>           <td>con_width</td>           <td>conWidth</td></tr>
+    <tr><td>CON_WRITE</td>           <td>con_write</td>           <td>conWrite</td></tr>
+</table><p></p>
+<a name="declarations"><h3>13.9 Actions for declarations</h3></a>
 <p></p><table border="1" cellspacing="0" cellpadding="5">
     <tr><th>Action name</th>         <th>dcllib.c function</th></tr>
     <tr><td>DCL_ATTR</td>            <td>dcl_attr</td></tr>
     <tr><td>DCL_CONST</td>           <td>dcl_const</td></tr>
     <tr><td>DCL_ELEMENTS</td>        <td>dcl_elements</td></tr>
     <tr><td>DCL_FWD</td>             <td>dcl_fwd</td></tr>
+    <tr><td>DCL_FWDVAR</td>          <td>dcl_fwdvar</td></tr>
     <tr><td>DCL_GETFUNC</td>         <td>dcl_getfunc</td></tr>
     <tr><td>DCL_GETOBJ</td>          <td>dcl_getobj</td></tr>
     <tr><td>DCL_GLOBAL</td>          <td>dcl_global</td></tr>
@@ -8706,6 +8749,7 @@ ont color=blue>is</font> <font color=maroon>""</font>;
     <tr><td>DCL_IN2VAR</td>          <td>dcl_in2var</td></tr>
     <tr><td>DCL_INOUT1</td>          <td>dcl_inout1</td></tr>
     <tr><td>DCL_INOUT2</td>          <td>dcl_inout2</td></tr>
+    <tr><td>DCL_PARAM_ATTR</td>      <td>dcl_param_attr</td></tr>
     <tr><td>DCL_REF1</td>            <td>dcl_ref1</td></tr>
     <tr><td>DCL_REF2</td>            <td>dcl_ref2</td></tr>
     <tr><td>DCL_SYMB</td>            <td>dcl_symb</td></tr>
@@ -8713,7 +8757,7 @@ ont color=blue>is</font> <font color=maroon>""</font>;
     <tr><td>DCL_VAL2</td>            <td>dcl_val2</td></tr>
     <tr><td>DCL_VAR</td>             <td>dcl_var</td></tr>
 </table><p></p>
-<a name="graphic_output"><h3>13.9 Actions to do graphic output</h3></a>
+<a name="graphic_output"><h3>13.10 Actions to do graphic output</h3></a>
 <p></p><table border="1" cellspacing="0" cellpadding="5">
     <tr><th>Action name</th>         <th>drwlib.c function</th>   <th>drw_rtl.c/drw_x11.c/drw_win.c function</th></tr>
     <tr><td>DRW_ARC</td>             <td>drw_arc</td>             <td>drwArc</td></tr>
@@ -8721,6 +8765,7 @@ ont color=blue>is</font> <font color=maroon>""</font>;
     <tr><td>DRW_BACKGROUND</td>      <td>drw_background</td>      <td>drwBackground</td></tr>
     <tr><td>DRW_CIRCLE</td>          <td>drw_circle</td>          <td>drwCircle</td></tr>
     <tr><td>DRW_CLEAR</td>           <td>drw_clear</td>           <td>drwClear</td></tr>
+    <tr><td>DRW_CMP</td>             <td>drw_cmp</td>             <td>uintCmpGeneric((generictype)(a))</td></tr>
     <tr><td>DRW_COLOR</td>           <td>drw_color</td>           <td>drwColor</td></tr>
     <tr><td>DRW_COPYAREA</td>        <td>drw_copyarea</td>        <td>drwCopyArea</td></tr>
     <tr><td>DRW_CPY</td>             <td>drw_cpy</td>             <td>drwCpy</td></tr>
@@ -8736,6 +8781,7 @@ ont color=blue>is</font> <font color=maroon>""</font>;
     <tr><td>DRW_FPOLYLINE</td>       <td>drw_fpolyLine</td>       <td>drwFPolyLine</td></tr>
     <tr><td>DRW_GENPOINTLIST</td>    <td>drw_genPointList</td>    <td>drwGenPointList</td></tr>
     <tr><td>DRW_GET</td>             <td>drw_get</td>             <td>drwGet</td></tr>
+    <tr><td>DRW_GETPIXEL</td>        <td>drw_getPixel</td>        <td>drwGetPixel</td></tr>
     <tr><td>DRW_HASHCODE</td>        <td>drw_hashcode</td>        <td>(inttype)(((memsizetype)a)&gt;&gt;6)</td></tr>
     <tr><td>DRW_HEIGHT</td>          <td>drw_height</td>          <td>drwHeight</td></tr>
     <tr><td>DRW_IMAGE</td>           <td>drw_image</td>           <td>drwImage</td></tr>
@@ -8750,6 +8796,7 @@ ont color=blue>is</font> <font color=maroon>""</font>;
     <tr><td>DRW_PFARCPIESLICE</td>   <td>drw_pfarcpieslice</td>   <td>drwFArcPieSlice</td></tr>
     <tr><td>DRW_PFCIRCLE</td>        <td>drw_pfcircle</td>        <td>drwPFCircle</td></tr>
     <tr><td>DRW_PFELLIPSE</td>       <td>drw_pfellipse</td>       <td>drwPFEllipse</td></tr>
+    <tr><td>DRW_PIXELTORGB</td>      <td>drw_pixelToRgb</td>      <td>drwPixelToRgb</td></tr>
     <tr><td>DRW_PLINE</td>           <td>drw_pline</td>           <td>drwPLine</td></tr>
     <tr><td>DRW_POINT</td>           <td>drw_point</td>           <td>drwPoint</td></tr>
     <tr><td>DRW_POINTER_XPOS</td>    <td>drw_pointer_xpos</td>    <td>drwPointerXpos</td></tr>
@@ -8760,14 +8807,17 @@ ont color=blue>is</font> <font color=maroon>""</font>;
     <tr><td>DRW_PUT</td>             <td>drw_put</td>             <td>drwPut</td></tr>
     <tr><td>DRW_RECT</td>            <td>drw_rect</td>            <td>drwRect</td></tr>
     <tr><td>DRW_RGBCOL</td>          <td>drw_rgbcol</td>          <td>drwRgbColor</td></tr>
+    <tr><td>DRW_SETCONTENT</td>      <td>drw_setContent</td>      <td>drwSetContent</td></tr>
     <tr><td>DRW_SETPOS</td>          <td>drw_setPos</td>          <td>drwSetPos</td></tr>
     <tr><td>DRW_SETTRANSPARENTCOLOR</td> <td>drw_setTransparentColor</td> <td>drwSetTransparentColor</td></tr>
     <tr><td>DRW_TEXT</td>            <td>drw_text</td>            <td>drwText</td></tr>
+    <tr><td>DRW_TOBOTTOM</td>        <td>drw_toBottom</td>        <td>drwToBottom</td></tr>
+    <tr><td>DRW_TOTOP</td>           <td>drw_toTop</td>           <td>drwToTop</td></tr>
     <tr><td>DRW_WIDTH</td>           <td>drw_width</td>           <td>drwWidth</td></tr>
     <tr><td>DRW_XPOS</td>            <td>drw_xpos</td>            <td>drwXPos</td></tr>
     <tr><td>DRW_YPOS</td>            <td>drw_ypos</td>            <td>drwYPos</td></tr>
 </table><p></p>
-<a name="enumeration"><h3>13.10 Actions for enumeration types</h3></a>
+<a name="enumeration"><h3>13.11 Actions for enumeration types</h3></a>
 <p></p><table border="1" cellspacing="0" cellpadding="5">
     <tr><th>Action name</th>         <th>enulib.c function</th>   <th>&nbsp;</th></tr>
     <tr><td>ENU_CONV</td>            <td>enu_conv</td>            <td>(noop)</td></tr>
@@ -8780,7 +8830,7 @@ ont color=blue>is</font> <font color=maroon>""</font>;
     <tr><td>ENU_ORD2</td>            <td>enu_ord2</td>            <td>(noop)</td></tr>
     <tr><td>ENU_VALUE</td>           <td>enu_value</td>           <td>enuValue</td></tr>
 </table><p></p>
-<a name="PRIMITIVE_FILE"><h3>13.11 Actions for the type PRIMITIVE_FILE</h3></a>
+<a name="PRIMITIVE_FILE"><h3>13.12 Actions for the type PRIMITIVE_FILE</h3></a>
 <p></p><table border="1" cellspacing="0" cellpadding="5">
     <tr><th>Action name</th>         <th>fillib.c function</th>   <th>fil_rtl.c function</th></tr>
     <tr><td>FIL_BIG_LNG</td>         <td>fil_big_lng</td>         <td>filBigLng</td></tr>
@@ -8798,6 +8848,7 @@ ont color=blue>is</font> <font color=maroon>""</font>;
     <tr><td>FIL_GETS</td>            <td>fil_gets</td>            <td>filGets</td></tr>
     <tr><td>FIL_HAS_NEXT</td>        <td>fil_has_next</td>        <td>filHasNext</td></tr>
     <tr><td>FIL_IN</td>              <td>fil_in</td>              <td>stdin</td></tr>
+    <tr><td>FIL_INPUT_READY</td>     <td>fil_input_ready</td>     <td>filInputReady</td></tr>
     <tr><td>FIL_LINE_READ</td>       <td>fil_line_read</td>       <td>filLineRead</td></tr>
     <tr><td>FIL_LIT</td>             <td>fil_lit</td>             <td>filLit</td></tr>
     <tr><td>FIL_LNG</td>             <td>fil_lng</td>             <td>filLng</td></tr>
@@ -8808,12 +8859,13 @@ ont color=blue>is</font> <font color=maroon>""</font>;
     <tr><td>FIL_POPEN</td>           <td>fil_popen</td>           <td>filPopen</td></tr>
     <tr><td>FIL_PRINT</td>           <td>fil_print</td>           <td>filPrint</td></tr>
     <tr><td>FIL_SEEK</td>            <td>fil_seek</td>            <td>filSeek</td></tr>
+    <tr><td>FIL_SETBUF</td>          <td>fil_setbuf</td>          <td>filSetbuf</td></tr>
     <tr><td>FIL_TELL</td>            <td>fil_tell</td>            <td>filTell</td></tr>
     <tr><td>FIL_VALUE</td>           <td>fil_value</td>           <td>filValue</td></tr>
     <tr><td>FIL_WORD_READ</td>       <td>fil_word_read</td>       <td>filWordRead</td></tr>
     <tr><td>FIL_WRITE</td>           <td>fil_write</td>           <td>filWrite</td></tr>
 </table><p></p>
-<a name="float"><h3>13.12 Actions for the type float</h3></a>
+<a name="float"><h3>13.13 Actions for the type float</h3></a>
 <p></p><table border="1" cellspacing="0" cellpadding="5">
     <tr><th>Action name</th>         <th>fltlib.c function</th>   <th>flt_rtl.c function</th></tr>
     <tr><td>FLT_A2TAN</td>           <td>flt_a2tan</td>           <td>atan2</td></tr>
@@ -8844,6 +8896,7 @@ ont color=blue>is</font> <font color=maroon>""</font>;
     <tr><td>FLT_IFLT</td>            <td>flt_iflt</td>            <td>(float)</td></tr>
     <tr><td>FLT_IPOW</td>            <td>flt_ipow</td>            <td>fltIPow</td></tr>
     <tr><td>FLT_ISNAN</td>           <td>flt_isnan</td>           <td>isnan</td></tr>
+    <tr><td>FLT_ISNEGATIVEZERO</td>  <td>flt_isnegativezero</td>  <td>fltIsNegativeZero</td></tr>
     <tr><td>FLT_LE</td>              <td>flt_le</td>              <td>&lt;=</td></tr>
     <tr><td>FLT_LOG</td>             <td>flt_log</td>             <td>log</td></tr>
     <tr><td>FLT_LOG10</td>           <td>flt_log10</td>           <td>log10</td></tr>
@@ -8858,6 +8911,7 @@ ont color=blue>is</font> <font color=maroon>""</font>;
     <tr><td>FLT_RAND</td>            <td>flt_rand</td>            <td>fltRand</td></tr>
     <tr><td>FLT_ROUND</td>           <td>flt_round</td>           <td>a&lt;0.0?-((inttype)(0.5-a)):(inttype)(0.5+a)</td></tr>
     <tr><td>FLT_SBTR</td>            <td>flt_sbtr</td>            <td>-</td></tr>
+    <tr><td>FLT_SCI</td>             <td>flt_sci</td>             <td>fltSci</td></tr>
     <tr><td>FLT_SHRINK</td>          <td>flt_shrink</td>          <td>-=</td></tr>
     <tr><td>FLT_SIN</td>             <td>flt_sin</td>             <td>sin</td></tr>
     <tr><td>FLT_SINH</td>            <td>flt_sinh</td>            <td>sinh</td></tr>
@@ -8868,10 +8922,13 @@ ont color=blue>is</font> <font color=maroon>""</font>;
     <tr><td>FLT_TRUNC</td>           <td>flt_trunc</td>           <td>(inttype)</td></tr>
     <tr><td>FLT_VALUE</td>           <td>flt_value</td>           <td>fltValue</td></tr>
 </table><p></p>
-<a name="graphic_keyboard"><h3>13.13 Actions to support the graphic keyboard</h3></a>
+<a name="graphic_keyboard"><h3>13.14 Actions to support the graphic keyboard</h3></a>
 <p></p><table border="1" cellspacing="0" cellpadding="5">
     <tr><th>Action name</th>         <th>drwlib.c function</th>   <th>kbd_rtl.c/drw_x11.c/drw_win.c function</th></tr>
     <tr><td>GKB_BUSY_GETC</td>       <td>gkb_busy_getc</td>       <td>gkbKeyPressed() ? gkbGetc() : 512</td></tr>
+    <tr><td>GKB_BUTTON_PRESSED</td>  <td>gkb_button_pressed</td>  <td>gkbButtonPressed</td></tr>
+    <tr><td>GKB_BUTTON_XPOS</td>     <td>gkb_button_xpos</td>     <td>gkbButtonXpos</td></tr>
+    <tr><td>GKB_BUTTON_YPOS</td>     <td>gkb_button_ypos</td>     <td>gkbButtonYpos</td></tr>
     <tr><td>GKB_GETC</td>            <td>gkb_getc</td>            <td>gkbGetc</td></tr>
     <tr><td>GKB_GETS</td>            <td>gkb_gets</td>            <td>gkbGets</td></tr>
     <tr><td>GKB_KEYPRESSED</td>      <td>gkb_keypressed</td>      <td>gkbKeyPressed</td></tr>
@@ -8879,10 +8936,8 @@ ont color=blue>is</font> <font color=maroon>""</font>;
     <tr><td>GKB_RAW_GETC</td>        <td>gkb_raw_getc</td>        <td>gkbRawGetc</td></tr>
     <tr><td>GKB_WINDOW</td>          <td>gkb_window</td>          <td>gkbWindow</td></tr>
     <tr><td>GKB_WORD_READ</td>       <td>gkb_word_read</td>       <td>gkbWordRead</td></tr>
-    <tr><td>GKB_XPOS</td>            <td>gkb_xpos</td>            <td>gkbXpos</td></tr>
-    <tr><td>GKB_YPOS</td>            <td>gkb_ypos</td>            <td>gkbYpos</td></tr>
 </table><p></p>
-<a name="hash"><h3>13.14 Actions for hash types</h3></a>
+<a name="hash"><h3>13.15 Actions for hash types</h3></a>
 <p></p><table border="1" cellspacing="0" cellpadding="5">
     <tr><th>Action name</th>         <th>hshlib.c function</th>   <th>hsh_rtl.c function</th></tr>
     <tr><td>HSH_CONTAINS</td>        <td>hsh_contains</td>        <td>hshContains</td></tr>
@@ -8902,7 +8957,7 @@ ont color=blue>is</font> <font color=maroon>""</font>;
     <tr><td>HSH_REFIDX</td>          <td>hsh_refidx</td>          <td>&nbsp;</td></tr>
     <tr><td>HSH_VALUES</td>          <td>hsh_values</td>          <td>hshValues</td></tr>
 </table><p></p>
-<a name="integer"><h3>13.15 Actions for the type integer</h3></a>
+<a name="integer"><h3>13.16 Actions for the type integer</h3></a>
 <p></p><table border="1" cellspacing="0" cellpadding="5">
     <tr><th>Action name</th>         <th>intlib.c function</th>   <th>int_rtl.c function</th></tr>
     <tr><td>INT_ABS</td>             <td>int_abs</td>             <td>labs</td></tr>
@@ -8953,7 +9008,7 @@ ont color=blue>is</font> <font color=maroon>""</font>;
     <tr><td>INT_SUCC</td>            <td>int_succ</td>            <td>+1</td></tr>
     <tr><td>INT_VALUE</td>           <td>int_value</td>           <td>intValue</td></tr>
 </table><p></p>
-<a name="interface"><h3>13.16 Actions for interface types</h3></a>
+<a name="interface"><h3>13.17 Actions for interface types</h3></a>
 <p></p><table border="1" cellspacing="0" cellpadding="5">
     <tr><th>Action name</th>         <th>itflib.c function</th>   <th>&nbsp;</th></tr>
     <tr><td>ITF_CMP</td>             <td>itf_cmp</td>             <td>uintCmpGeneric</td></tr>
@@ -8965,9 +9020,10 @@ ont color=blue>is</font> <font color=maroon>""</font>;
     <tr><td>ITF_EQ</td>              <td>itf_eq</td>              <td>==</td></tr>
     <tr><td>ITF_HASHCODE</td>        <td>itf_hashcode</td>        <td>(inttype)(((memsizetype)a)&gt;&gt;6)</td></tr>
     <tr><td>ITF_NE</td>              <td>itf_ne</td>              <td>!=</td></tr>
-    <tr><td>ITF_SELECT</td>          <td>itf_select</td>          <td>&nbsp;</td></tr>
+    <tr><td>ITF_TO_HEAP</td>         <td>itf_to_heap</td>         <td>&nbsp;</td></tr>
+    <tr><td>ITF_TO_INTERFACE</td>    <td>itf_to_interface</td>    <td>&nbsp;</td></tr>
 </table><p></p>
-<a name="console_keyboard"><h3>13.17 Actions to support the text (console) screen keyboard</h3></a>
+<a name="console_keyboard"><h3>13.18 Actions to support the text (console) screen keyboard</h3></a>
 <p></p><table border="1" cellspacing="0" cellpadding="5">
     <tr><th>Action name</th>         <th>kbdlib.c function</th>   <th>kbd_rtl.c/kbd_inf.c function</th></tr>
     <tr><td>KBD_BUSY_GETC</td>       <td>kbd_busy_getc</td>       <td>kbdKeyPressed() ? kbdGetc() : 512</td></tr>
@@ -8978,7 +9034,7 @@ ont color=blue>is</font> <font color=maroon>""</font>;
     <tr><td>KBD_RAW_GETC</td>        <td>kbd_raw_getc</td>        <td>kbdRawGetc</td></tr>
     <tr><td>KBD_WORD_READ</td>       <td>kbd_word_read</td>       <td>kbdWordRead</td></tr>
 </table><p></p>
-<a name="list"><h3>13.18 Actions for the list type</h3></a>
+<a name="list"><h3>13.19 Actions for the list type</h3></a>
 <p></p><table border="1" cellspacing="0" cellpadding="5">
     <tr><th>Action name</th>         <th>lstlib.c function</th></tr>
     <tr><td>LST_CAT</td>             <td>lst_cat</td></tr>
@@ -8995,7 +9051,26 @@ ont color=blue>is</font> <font color=maroon>""</font>;
     <tr><td>LST_RANGE</td>           <td>lst_range</td></tr>
     <tr><td>LST_TAIL</td>            <td>lst_tail</td></tr>
 </table><p></p>
-<a name="proc"><h3>13.19 Actions for proc operations and statements</h3></a>
+<a name="pollData"><h3>13.20 Actions for the type pollData</h3></a>
+<p></p><table border="1" cellspacing="0" cellpadding="5">
+    <tr><th>Action name</th>         <th>pollib.c function</th>   <th>pol_unx.c/pol_sel.c function</td></tr>
+    <tr><td>POL_ADD_CHECK</td>       <td>pol_addCheck</td>        <td>polAddCheck</td></tr>
+    <tr><td>POL_CLEAR</td>           <td>pol_clear</td>           <td>polClear</td></tr>
+    <tr><td>POL_CPY</td>             <td>pol_cpy</td>             <td>polCpy</td></tr>
+    <tr><td>POL_CREATE</td>          <td>pol_create</td>          <td>polCreate</td></tr>
+    <tr><td>POL_DESTR</td>           <td>pol_destr</td>           <td>polDestr</td></tr>
+    <tr><td>POL_EMPTY</td>           <td>pol_empty</td>           <td>polEmpty</td></tr>
+    <tr><td>POL_GET_CHECK</td>       <td>pol_getCheck</td>        <td>polGetCheck</td></tr>
+    <tr><td>POL_GET_FINDING</td>     <td>pol_getFinding</td>      <td>polGetFinding</td></tr>
+    <tr><td>POL_HAS_NEXT</td>        <td>pol_hasNext</td>         <td>polHasNext</td></tr>
+    <tr><td>POL_ITER_CHECKS</td>     <td>pol_iterChecks</td>      <td>polIterChecks</td></tr>
+    <tr><td>POL_ITER_FINDINGS</td>   <td>pol_iterFindings</td>    <td>polIterFindings</td></tr>
+    <tr><td>POL_NEXT_FILE</td>       <td>pol_nextFile</td>        <td>polNextFile</td></tr>
+    <tr><td>POL_POLL</td>            <td>pol_poll</td>            <td>polPoll</td></tr>
+    <tr><td>POL_REMOVE_CHECK</td>    <td>pol_removeCheck</td>     <td>polRemoveCheck</td></tr>
+    <tr><td>POL_VALUE</td>           <td>pol_value</td>           <td>polValue</td></tr>
+</table><p></p>
+<a name="proc"><h3>13.21 Actions for proc operations and statements</h3></a>
 <p></p><table border="1" cellspacing="0" cellpadding="5">
     <tr><th>Action name</th>         <th>prclib.c function</th>   <th>&nbsp;</td></tr>
     <tr><td>PRC_ARGS</td>            <td>prc_args</td>            <td>&nbsp;</td></tr>
@@ -9030,7 +9105,7 @@ ont color=blue>is</font> <font color=maroon>""</font>;
     <tr><td>PRC_VARFUNC2</td>        <td>prc_varfunc2</td>        <td>&nbsp;</td></tr>
     <tr><td>PRC_WHILE</td>           <td>prc_while</td>           <td>while</td></tr>
 </table><p></p>
-<a name="program"><h3>13.20 Actions for the type program</h3></a>
+<a name="program"><h3>13.22 Actions for the type program</h3></a>
 <p></p><table border="1" cellspacing="0" cellpadding="5">
     <tr><th>Action name</th>         <th>prglib.c function</th>   <th>prg_comp.c function</th></tr>
     <tr><td>PRG_CPY</td>             <td>prg_cpy</td>             <td>prgCpy</td></tr>
@@ -9044,16 +9119,19 @@ ont color=blue>is</font> <font color=maroon>""</font>;
     <tr><td>PRG_EXEC</td>            <td>prg_exec</td>            <td>prgExec</td></tr>
     <tr><td>PRG_FIL_PARSE</td>       <td>prg_fil_parse</td>       <td>prgFilParse</td></tr>
     <tr><td>PRG_FIND</td>            <td>prg_find</td>            <td>&nbsp;</td></tr>
+    <tr><td>PRG_INTERPRETER</td>     <td>prg_interpreter</td>     <td>interpreterPath</td></tr>
     <tr><td>PRG_MATCH</td>           <td>prg_match</td>           <td>prgMatch</td></tr>
+    <tr><td>PRG_MATCH_EXPR</td>      <td>prg_match_expr</td>      <td>prgMatchExpr</td></tr>
     <tr><td>PRG_NAME</td>            <td>prg_name</td>            <td>arg_0</td></tr>
     <tr><td>PRG_NE</td>              <td>prg_ne</td>              <td>!=</td></tr>
+    <tr><td>PRG_PATH</td>            <td>prg_path</td>            <td>programPath</td></tr>
     <tr><td>PRG_PROG</td>            <td>prg_prog</td>            <td>&nbsp;</td></tr>
     <tr><td>PRG_STR_PARSE</td>       <td>prg_str_parse</td>       <td>prgStrParse</td></tr>
     <tr><td>PRG_SYOBJECT</td>        <td>prg_syobject</td>        <td>prgSyobject</td></tr>
     <tr><td>PRG_SYSVAR</td>          <td>prg_sysvar</td>          <td>prgSysvar</td></tr>
     <tr><td>PRG_VALUE</td>           <td>prg_value</td>           <td>prgValue</td></tr>
 </table><p></p>
-<a name="reference"><h3>13.21 Actions for the type reference</h3></a>
+<a name="reference"><h3>13.23 Actions for the type reference</h3></a>
 <p></p><table border="1" cellspacing="0" cellpadding="5">
     <tr><th>Action name</th>         <th>reflib.c function</th>   <th>ref_data.c function</th></tr>
     <tr><td>REF_ADDR</td>            <td>ref_addr</td>            <td>&</td></tr>
@@ -9063,6 +9141,7 @@ ont color=blue>is</font> <font color=maroon>""</font>;
     <tr><td>REF_ARRTOLIST</td>       <td>ref_arrtolist</td>       <td>refArrtolist</td></tr>
     <tr><td>REF_BODY</td>            <td>ref_body</td>            <td>refBody</td></tr>
     <tr><td>REF_BUILD</td>           <td>ref_build</td>           <td>&nbsp;</td></tr>
+    <tr><td>REF_CAST</td>            <td>ref_cast</td>            <td>&nbsp;</td></tr>
     <tr><td>REF_CATEGORY</td>        <td>ref_category</td>        <td>refCategory</td></tr>
     <tr><td>REF_CAT_PARSE</td>       <td>ref_cat_parse</td>       <td>refCatParse</td></tr>
     <tr><td>REF_CAT_STR</td>         <td>ref_cat_str</td>         <td>refCatStr</td></tr>
@@ -9076,6 +9155,8 @@ ont color=blue>is</font> <font color=maroon>""</font>;
     <tr><td>REF_FILE</td>            <td>ref_file</td>            <td>refFile</td></tr>
     <tr><td>REF_FIND</td>            <td>ref_find</td>            <td>&nbsp;</td></tr>
     <tr><td>REF_HASHCODE</td>        <td>ref_hashcode</td>        <td>(inttype)(((memsizetype)a)&gt;&gt;6)</td></tr>
+    <tr><td>REF_HSHDATATOLIST</td>   <td>ref_hshdatatolist</td>   <td>refHshDataToList</td></tr>
+    <tr><td>REF_HSHKEYTOLIST</td>    <td>ref_hshkeytolist</td>    <td>refHshKeyToList</td></tr>
     <tr><td>REF_ISSYMB</td>          <td>ref_issymb</td>          <td>&nbsp;</td></tr>
     <tr><td>REF_ISVAR</td>           <td>ref_isvar</td>           <td>refIsvar</td></tr>
     <tr><td>REF_ITFTOSCT</td>        <td>ref_itftosct</td>        <td>refItftosct</td></tr>
@@ -9103,7 +9184,7 @@ ont color=blue>is</font> <font color=maroon>""</font>;
     <tr><td>REF_TYPE</td>            <td>ref_type</td>            <td>refType</td></tr>
     <tr><td>REF_VALUE</td>           <td>ref_value</td>           <td>refValue</td></tr>
 </table><p></p>
-<a name="ref_list"><h3>13.22 Actions for the type ref_list</h3></a>
+<a name="ref_list"><h3>13.24 Actions for the type ref_list</h3></a>
 <p></p><table border="1" cellspacing="0" cellpadding="5">
     <tr><th>Action name</th>         <th>rfllib.c function</th>   <th>rfl_data.c function</th></tr>
     <tr><td>RFL_APPEND</td>          <td>rfl_append</td>          <td>rflAppend</td></tr>
@@ -9118,6 +9199,7 @@ ont color=blue>is</font> <font color=maroon>""</font>;
     <tr><td>RFL_EXCL</td>            <td>rfl_excl</td>            <td>&nbsp;</td></tr>
     <tr><td>RFL_EXPR</td>            <td>rfl_expr</td>            <td>&nbsp;</td></tr>
     <tr><td>RFL_FOR</td>             <td>rfl_for</td>             <td>for</td></tr>
+    <tr><td>RFL_FOR_UNTIL</td>       <td>rfl_for_until</td>       <td>for</td></tr>
     <tr><td>RFL_HEAD</td>            <td>rfl_head</td>            <td>rflHead</td></tr>
     <tr><td>RFL_IDX</td>             <td>rfl_idx</td>             <td>rflIdx</td></tr>
     <tr><td>RFL_INCL</td>            <td>rfl_incl</td>            <td>rflIncl</td></tr>
@@ -9133,21 +9215,7 @@ ont color=blue>is</font> <font color=maroon>""</font>;
     <tr><td>RFL_TRACE</td>           <td>rfl_trace</td>           <td>&nbsp;</td></tr>
     <tr><td>RFL_VALUE</td>           <td>rfl_value</td>           <td>rflValue</td></tr>
 </table><p></p>
-<a name="console_output"><h3>13.23 Actions for text (console) screen output</h3></a>
-<p></p><table border="1" cellspacing="0" cellpadding="5">
-    <tr><th>Action name</th>         <th>scrlib.c function</th>   <th>scr_inf.c/scr_rtl.c/scr_win.c function</th></tr>
-    <tr><td>SCR_CLEAR</td>           <td>scr_clear</td>           <td>scrClear</td></tr>
-    <tr><td>SCR_CURSOR</td>          <td>scr_cursor</td>          <td>scrCursor</td></tr>
-    <tr><td>SCR_FLUSH</td>           <td>scr_flush</td>           <td>scrFlush</td></tr>
-    <tr><td>SCR_HEIGHT</td>          <td>scr_height</td>          <td>scrHeight</td></tr>
-    <tr><td>SCR_H_SCL</td>           <td>scr_h_scl</td>           <td>scrHScroll</td></tr>
-    <tr><td>SCR_OPEN</td>            <td>scr_open</td>            <td>scrOpen</td></tr>
-    <tr><td>SCR_SETPOS</td>          <td>scr_setpos</td>          <td>scrSetpos</td></tr>
-    <tr><td>SCR_V_SCL</td>           <td>scr_v_scl</td>           <td>scrVScroll</td></tr>
-    <tr><td>SCR_WIDTH</td>           <td>scr_width</td>           <td>scrWidth</td></tr>
-    <tr><td>SCR_WRITE</td>           <td>scr_write</td>           <td>scrWrite</td></tr>
-</table><p></p>
-<a name="struct"><h3>13.24 Actions for struct types</h3></a>
+<a name="struct"><h3>13.25 Actions for struct types</h3></a>
 <p></p><table border="1" cellspacing="0" cellpadding="5">
     <tr><th>Action name</th>         <th>sctlib.c function</th>   <th>&nbsp;</th></tr>
     <tr><td>SCT_ALLOC</td>           <td>sct_alloc</td>           <td>&nbsp;</td></tr>
@@ -9163,7 +9231,7 @@ ont color=blue>is</font> <font color=maroon>""</font>;
     <tr><td>SCT_REFIDX</td>          <td>sct_refidx</td>          <td>&nbsp;</td></tr>
     <tr><td>SCT_SELECT</td>          <td>sct_select</td>          <td>a->stru[b]</td></tr>
 </table><p></p>
-<a name="set"><h3>13.25 Actions for set types</h3></a>
+<a name="set"><h3>13.26 Actions for set types</h3></a>
 <p></p><table border="1" cellspacing="0" cellpadding="5">
     <tr><th>Action name</th>         <th>setlib.c function</th>   <th>set_rtl.c function</th></tr>
     <tr><td>SET_ARRLIT</td>          <td>set_arrlit</td>          <td>setArrlit</td></tr>
@@ -9192,16 +9260,19 @@ ont color=blue>is</font> <font color=maroon>""</font>;
     <tr><td>SET_NE</td>              <td>set_ne</td>              <td>setNe</td></tr>
     <tr><td>SET_NOT_ELEM</td>        <td>set_not_elem</td>        <td>setNotElem</td></tr>
     <tr><td>SET_RAND</td>            <td>set_rand</td>            <td>setRand</td></tr>
+    <tr><td>SET_RANGELIT</td>        <td>set_rangelit</td>        <td>setRangelit</td></tr>
     <tr><td>SET_SCONV</td>           <td>set_sconv</td>           <td>setSConv</td></tr>
     <tr><td>SET_SYMDIFF</td>         <td>set_symdiff</td>         <td>setSymdiff</td></tr>
     <tr><td>SET_UNION</td>           <td>set_union</td>           <td>setUnion</td></tr>
     <tr><td>SET_VALUE</td>           <td>set_value</td>           <td>setValue</td></tr>
 </table><p></p>
-<a name="PRIMITIVE_SOCKET"><h3>13.26 Actions for the type PRIMITIVE_SOCKET</h3></a>
+<a name="PRIMITIVE_SOCKET"><h3>13.27 Actions for the type PRIMITIVE_SOCKET</h3></a>
 <p></p><table border="1" cellspacing="0" cellpadding="5">
     <tr><th>Action name</th>         <th>strlib.c function</th>   <th>str_rtl.c function</th></tr>
     <tr><td>SOC_ACCEPT</td>          <td>soc_accept</td>          <td>socAccept</td></tr>
     <tr><td>SOC_ADDR_FAMILY</td>     <td>soc_addr_family</td>     <td>socAddrFamily</td></tr>
+    <tr><td>SOC_ADDR_NUMERIC</td>    <td>soc_addr_numeric</td>    <td>socAddrNumeric</td></tr>
+    <tr><td>SOC_ADDR_SERVICE</td>    <td>soc_addr_service</td>    <td>socAddrService</td></tr>
     <tr><td>SOC_BIND</td>            <td>soc_bind</td>            <td>socBind</td></tr>
     <tr><td>SOC_CLOSE</td>           <td>soc_close</td>           <td>socClose</td></tr>
     <tr><td>SOC_CONNECT</td>         <td>soc_connect</td>         <td>socConnect</td></tr>
@@ -9211,9 +9282,13 @@ ont color=blue>is</font> <font color=maroon>""</font>;
     <tr><td>SOC_EQ</td>              <td>soc_eq</td>              <td>==</td></tr>
     <tr><td>SOC_GETC</td>            <td>soc_getc</td>            <td>socGetc</td></tr>
     <tr><td>SOC_GETS</td>            <td>soc_gets</td>            <td>socGets</td></tr>
+    <tr><td>SOC_GET_ADDR</td>        <td>soc_get_addr</td>        <td>socGetAddr</td></tr>
+    <tr><td>SOC_GET_HOSTNAME</td>    <td>soc_get_hostname</td>    <td>socGetHostname</td></tr>
+    <tr><td>SOC_HAS_NEXT</td>        <td>soc_has_next</td>        <td>socHasNext</td></tr>
     <tr><td>SOC_INET_ADDR</td>       <td>soc_inet_addr</td>       <td>socInetAddr</td></tr>
     <tr><td>SOC_INET_LOCAL_ADDR</td> <td>soc_inet_local_addr</td> <td>socInetLocalAddr</td></tr>
     <tr><td>SOC_INET_SERV_ADDR</td>  <td>soc_inet_serv_addr</td>  <td>socInetServAddr</td></tr>
+    <tr><td>SOC_INPUT_READY</td>     <td>soc_input_ready</td>     <td>socInputReady</td></tr>
     <tr><td>SOC_LINE_READ</td>       <td>soc_line_read</td>       <td>socLineRead</td></tr>
     <tr><td>SOC_LISTEN</td>          <td>soc_listen</td>          <td>socListen</td></tr>
     <tr><td>SOC_NE</td>              <td>soc_ne</td>              <td>!=</td></tr>
@@ -9225,7 +9300,7 @@ ont color=blue>is</font> <font color=maroon>""</font>;
     <tr><td>SOC_WORD_READ</td>       <td>soc_word_read</td>       <td>socWordRead</td></tr>
     <tr><td>SOC_WRITE</td>           <td>soc_write</td>           <td>socWrite</td></tr>
 </table><p></p>
-<a name="string"><h3>13.27 Actions for the type string</h3></a>
+<a name="string"><h3>13.28 Actions for the type string</h3></a>
 <p></p><table border="1" cellspacing="0" cellpadding="5">
     <tr><th>Action name</th>         <th>strlib.c function</th>   <th>str_rtl.c function</th></tr>
     <tr><td>STR_APPEND</td>          <td>str_append</td>          <td>strAppend</td></tr>
@@ -9241,7 +9316,6 @@ ont color=blue>is</font> <font color=maroon>""</font>;
     <tr><td>STR_ELEMCPY</td>         <td>str_elemcpy</td>         <td>a-&gt;mem[b-1]=c</td></tr>
     <tr><td>STR_EQ</td>              <td>str_eq</td>              <td>a->size==b->size &amp;&amp; memcmp(a,b,a->size*sizeof(strelemtype))==0</td></tr>
     <tr><td>STR_GE</td>              <td>str_ge</td>              <td>strGe</td></tr>
-    <tr><td>STR_GETENV</td>          <td>str_getenv</td>          <td>strGetenv</td></tr>
     <tr><td>STR_GT</td>              <td>str_gt</td>              <td>strGt</td></tr>
     <tr><td>STR_HASHCODE</td>        <td>str_hashcode</td>        <td>strHashCode</td></tr>
     <tr><td>STR_HEAD</td>            <td>str_head</td>            <td>strHead</td></tr>
@@ -9257,11 +9331,13 @@ ont color=blue>is</font> <font color=maroon>""</font>;
     <tr><td>STR_MULT</td>            <td>str_mult</td>            <td>strMult</td></tr>
     <tr><td>STR_NE</td>              <td>str_ne</td>              <td>a->size!=b->size || memcmp(a,b,a->size*sizeof(strelemtype))!=0</td></tr>
     <tr><td>STR_POS</td>             <td>str_pos</td>             <td>strPos</td></tr>
+    <tr><td>STR_POSCPY</td>          <td>str_poscpy</td>          <td>memcpy</td></tr>
     <tr><td>STR_PUSH</td>            <td>str_push</td>            <td>strPush</td></tr>
     <tr><td>STR_RANGE</td>           <td>str_range</td>           <td>strRange</td></tr>
     <tr><td>STR_RCHIPOS</td>         <td>str_rchipos</td>         <td>strRChIpos</td></tr>
     <tr><td>STR_RCHPOS</td>          <td>str_rchpos</td>          <td>strRChPos</td></tr>
     <tr><td>STR_REPL</td>            <td>str_repl</td>            <td>strRepl</td></tr>
+    <tr><td>STR_RIPOS</td>           <td>str_ripos</td>           <td>strRIPos</td></tr>
     <tr><td>STR_RPAD</td>            <td>str_rpad</td>            <td>strRpad</td></tr>
     <tr><td>STR_RPOS</td>            <td>str_rpos</td>            <td>strRpos</td></tr>
     <tr><td>STR_SPLIT</td>           <td>str_split</td>           <td>strSplit</td></tr>
@@ -9274,7 +9350,7 @@ ont color=blue>is</font> <font color=maroon>""</font>;
     <tr><td>STR_UTF8TOSTRI</td>      <td>str_utf8tostri</td>      <td>strUtf8ToStri</td></tr>
     <tr><td>STR_VALUE</td>           <td>str_value</td>           <td>strValue</td></tr>
 </table><p></p>
-<a name="time"><h3>13.28 Actions for the type time</h3></a>
+<a name="time"><h3>13.29 Actions for the type time</h3></a>
 <p></p><table border="1" cellspacing="0" cellpadding="5">
     <tr><th>Action name</th>         <th>timlib.c function</th>   <th>tim_unx.c/tim_win.c function</th></tr>
     <tr><td>TIM_AWAIT</td>           <td>tim_await</td>           <td>timAwait</td></tr>
@@ -9282,7 +9358,7 @@ ont color=blue>is</font> <font color=maroon>""</font>;
     <tr><td>TIM_NOW</td>             <td>tim_now</td>             <td>timNow</td></tr>
     <tr><td>TIM_SET_LOCAL_TZ</td>    <td>tim_set_local_tz</td>    <td>timSetLocalTZ</td></tr>
 </table><p></p>
-<a name="type"><h3>13.29 Actions for the type type</h3></a>
+<a name="type"><h3>13.30 Actions for the type type</h3></a>
 <p></p><table border="1" cellspacing="0" cellpadding="5">
     <tr><th>Action name</th>         <th>typlib.c function</th>   <th>typ_data.c function</th></tr>
     <tr><td>TYP_ADDINTERFACE</td>    <td>typ_addinterface</td>    <td>&nbsp;</td></tr>
@@ -9310,7 +9386,7 @@ ont color=blue>is</font> <font color=maroon>""</font>;
     <tr><td>TYP_VARCONV</td>         <td>typ_varconv</td>         <td>&nbsp;</td></tr>
     <tr><td>TYP_VARFUNC</td>         <td>typ_varfunc</td>         <td>typVarfunc</td></tr>
 </table><p></p>
-<a name="utf8_file"><h3>13.30 Actions for the type utf8_file</h3></a>
+<a name="utf8_file"><h3>13.31 Actions for the type utf8_file</h3></a>
 <p></p><table border="1" cellspacing="0" cellpadding="5">
     <tr><th>Action name</th>         <th>ut8lib.c function</th>   <th>ut8_rtl.c function</th></tr>
     <tr><td>UT8_GETC</td>            <td>ut8_getc</td>            <td>ut8Getc</td></tr>

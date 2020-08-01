@@ -196,12 +196,12 @@ How many lines of code are in the Seed7 project?
 ================================================
 
 The Seed7 package contains more than 100000 lines of C and more
-than 150000 lines of Seed7. For version 2012-04-15 the number of lines is:
+than 150000 lines of Seed7. For version 2012-05-06 the number of lines is:
 
-  101026  C source files (*.c)
-   10079  C header files (*.h)
-  110030  Seed7 source files (*.sd7)
-   76460  Seed7 library/include files (*.s7i)
+  101211  C source files (*.c)
+   10093  C header files (*.h)
+  111245  Seed7 source files (*.sd7)
+   76485  Seed7 library/include files (*.s7i)
 
 C code (*.c and *.h files) can be divided into the following areas:
 
@@ -358,8 +358,17 @@ already be installed.
 
 Errors such as
 
-  echo char *getcwd(char *buf, size_t size); >> seed7lib.c
-  /usr/bin/sh: -c: line 0: syntax error near unexpected token `('
+  gcc chkccomp.c -lm -o chkccomp
+  chkccomp.c:28:21: fatal error: version.h: No such file or directory
+  compilation terminated.
+  mingw32-make: *** [version.h] Error 1
+
+or
+
+  del version.h
+  process_begin: CreateProcess(NULL, del version.h, ...) failed.
+  make (e=2): The system cannot find the file specified.
+  mingw32-make: *** [clean] Error 2
 
 indicate that your makefile contains commands for the cmd.exe
 (or command.com) windows console, but your 'make' program uses
@@ -1322,11 +1331,16 @@ special syntax or other magic.
 
 Generally all Seed7 functions can be executed at compile time
 or at runtime. The time of the function execution depends on
-the place of the call. A Seed7 program consists of a sequence
-of declarations, which are executed one by one at compile time.
-Since declarations are just a form of statement it can be
-concluded that other statements can as well be used at the top
-level.
+the place of the call. Declarations are just a form of statement
+and statements are a form of expression. A Seed7 program
+consists of a sequence of declarations (expressions), which are
+executed one by one at compile time. This expresions can
+also invoke user defined functions.
+
+A function body can contain declaration statements. When such
+a function is executed at compile time, it defines things that
+are part of the program. It is an error to execute such a
+function at runtime.
 
 Seed7 uses the word template to describe a function which is
 executed at compile time and declares some things while

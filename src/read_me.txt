@@ -284,11 +284,20 @@ WHAT TO DO WHEN ERRORS HAPPEN DURING THE COMPILATION?
   package with headers. If you use X11 in some way (you don't
   do everything from the text console) the non-developer package
   of X11 will already be installed.
-  
+
  --- Errors such as
 
-    echo char *getcwd(char *buf, size_t size); >> seed7lib.c
-    /usr/bin/sh: -c: line 0: syntax error near unexpected token `('
+    gcc chkccomp.c -lm -o chkccomp
+    chkccomp.c:28:21: fatal error: version.h: No such file or directory
+    compilation terminated.
+    mingw32-make: *** [version.h] Error 1
+
+  or
+
+    del version.h
+    process_begin: CreateProcess(NULL, del version.h, ...) failed.
+    make (e=2): The system cannot find the file specified.
+    mingw32-make: *** [clean] Error 2
 
   indicate that your makefile contains commands for the cmd.exe
   (or command.com) Windows console, but your 'make' program uses
@@ -312,9 +321,9 @@ WHAT TO DO WHEN ERRORS HAPPEN DURING THE COMPILATION?
    This indicates that an old 'depend' file (probably a relict of
    an earlier 'make' command with a different makefile) does not
    fit to the current makefile. To get rid of this error remove
-   the files 'depend', 'a_depend', 'b_depend' and 'c_depend'.
-   After that the compilation process must be started from
-   scratch with 'make clean', 'make depend' and 'make'.
+   the files 'depend' and 'a_depend'. After that the compilation
+   process must be started from scratch with 'make clean',
+   'make depend' and 'make'.
 
  --- When using bcc32 an error like
 
@@ -332,14 +341,14 @@ WHAT TO DO WHEN ERRORS HAPPEN DURING THE COMPILATION?
   avoided, since it does not consider updates of bcc32).
 
  --- When using cl (msvc) an error like
- 
+
     NMAKE : fatal error U1077: 'cl' : return code '0xc0000135'
 	
   indicates that you forgot to execute vcvars32 before executing
   'make depend' or 'make'. A message box, which complains that
   mspbd100.dll was not found, indicates also that vcvars32 was
   not executed.
-  
+
  --- A linker error like
 
     ld: library not found for -lX11

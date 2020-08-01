@@ -59,6 +59,7 @@ void bigDecr (biginttype *const big_variable);
 void bigDestr (const const_biginttype old_bigint);
 biginttype bigDiv (const const_biginttype dividend, const const_biginttype divisor);
 booltype bigEq (const const_biginttype big1, const const_biginttype big2);
+booltype bigEqSignedDigit (const const_biginttype big1, inttype number);
 biginttype bigFromInt32 (int32type number);
 #ifdef INT64TYPE
   biginttype bigFromInt64 (int64type number);
@@ -121,6 +122,7 @@ void bigDecr ();
 void bigDestr ();
 biginttype bigDiv ();
 booltype bigEq ();
+booltype bigEqSignedDigit ();
 biginttype bigFromInt32 ();
 #ifdef INT64TYPE
   biginttype bigFromInt64 ();

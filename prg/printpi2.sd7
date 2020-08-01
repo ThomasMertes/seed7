@@ -38,12 +38,12 @@ const func bigRational: compute_pi_bailey_borwein_plouffe is func
     var bigRational: sum is 0_ / 1_;
   local
     var integer: n is 0;
-    var bigInteger: k is 0_;
+    var bigInteger: k8 is 0_;
   begin
     for n range 0 to 825 do
-      k := bigInteger conv n;
+      k8 := bigInteger conv (8 * n);
       sum +:= 1_ / 16_ ** n *
-          (4_ / (8_ * k + 1_) - 2_ / (8_ * k + 4_) - 1_ / (8_ * k + 5_) - 1_ / (8_ * k + 6_));
+          (4_ / (k8 + 1_) - 2_ / (k8 + 4_) - 1_ / (k8 + 5_) - 1_ / (k8 + 6_));
     end for;
   end func;
 

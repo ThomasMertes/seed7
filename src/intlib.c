@@ -567,24 +567,24 @@ listtype arguments;
 #endif
 
   {
-    inttype numerator;
-    inttype denominator;
+    inttype dividend;
+    inttype divisor;
     inttype result;
 
   /* int_mdiv */
     isit_int(arg_1(arguments));
     isit_int(arg_3(arguments));
-    numerator = take_int(arg_1(arguments));
-    denominator = take_int(arg_3(arguments));
-    if (denominator == 0) {
+    dividend = take_int(arg_1(arguments));
+    divisor = take_int(arg_3(arguments));
+    if (divisor == 0) {
       return raise_exception(SYS_NUM_EXCEPTION);
     } else {
-      if (numerator > 0 && denominator < 0) {
-        result = (numerator - 1) / denominator - 1;
-      } else if (numerator < 0 && denominator > 0) {
-        result = (numerator + 1) / denominator - 1;
+      if (dividend > 0 && divisor < 0) {
+        result = (dividend - 1) / divisor - 1;
+      } else if (dividend < 0 && divisor > 0) {
+        result = (dividend + 1) / divisor - 1;
       } else {
-        result = numerator / denominator;
+        result = dividend / divisor;
       } /* if */
       return bld_int_temp(result);
     } /* if */
@@ -619,22 +619,21 @@ listtype arguments;
 #endif
 
   {
-    inttype numerator;
-    inttype denominator;
+    inttype dividend;
+    inttype divisor;
     inttype result;
 
   /* int_mod */
     isit_int(arg_1(arguments));
     isit_int(arg_3(arguments));
-    numerator = take_int(arg_1(arguments));
-    denominator = take_int(arg_3(arguments));
-    if (denominator == 0) {
+    dividend = take_int(arg_1(arguments));
+    divisor = take_int(arg_3(arguments));
+    if (divisor == 0) {
       return raise_exception(SYS_NUM_EXCEPTION);
     } else {
-      result = numerator % denominator;
-      if (((numerator > 0 && denominator < 0) ||
-          (numerator < 0 && denominator > 0)) && result != 0) {
-        result = result + denominator;
+      result = dividend % divisor;
+      if ((dividend < 0) ^ (divisor < 0) && result != 0) {
+        result = result + divisor;
       } /* if */
       return bld_int_temp(result);
     } /* if */
