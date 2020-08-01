@@ -132,6 +132,14 @@ const proc: (inout bigRational: rat1) -:= (in bigRational: rat2) is func
   end func;
 
 
+const proc: (inout bigRational: rat1) *:= (in bigRational: rat2) is func
+  begin
+    rat1.numerator *:= rat2.numerator;
+    rat1.denominator *:= rat2.denominator;
+    normalize(rat1);
+  end func;
+
+
 const func bigRational: (in bigInteger: int1) / (in bigInteger: int2) is func
   result
     var bigRational: rat_val is bigRational.value;

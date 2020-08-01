@@ -206,3 +206,12 @@
 - The compiler was improved to produce better code for the primitive actions
   arr_sort, arr_times, cls_eq, cls_ne, flt_isnan, flt_log10, int_fact,
   rfl_append, rfl_cpy, rfl_for, rfl_mklist, rfl_ne, rfl_tail and str_str.
+
+20070319:
+- The interpreter was changed to execute programs only when they have no errors.
+- The option -x to execute programs, even when they have errors, was added to the interpreter.
+- The *:= operator for the types integer, float, bigInteger and bigRational was added.
+- The chkbig.sd7 program was improved to check the *:= operator for big integers.
+- The compiler was improved to support the *:= operator and the arr_cat action.
+- Several improvements for compile time error messages were done.
+- The err.sd7 example program, which checks compile time error messages, was improved.

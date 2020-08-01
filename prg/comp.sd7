@@ -2041,6 +2041,17 @@ const proc: process_big_lt (in ref_list: params, inout expr_type: c_expr) is fun
   end func;
 
 
+const proc: process_big_mcpy (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "bigMCpy(&(";
+    process_arg(params[1], c_expr);
+    c_expr.expr &:= "), ";
+    process_arg(params[3], c_expr);
+    c_expr.expr &:= ");\n";
+  end func;
+
+
 const proc: process_big_mdiv (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
@@ -3970,6 +3981,35 @@ const proc: process_flt_lt (in ref_list: params, inout expr_type: c_expr) is fun
   end func;
 
 
+const proc: process_flt_mcpy (in ref_list: params, inout expr_type: c_expr) is func
+
+  local
+    var expr_type: c_param1 is expr_type.value;
+    var expr_type: c_param3 is expr_type.value;
+  begin
+    process_expr(params[1], c_param1);
+    c_param3.temp_num := c_param1.temp_num;
+    process_expr(params[3], c_param3);
+    if c_param3.temp_num <> 0 then
+      c_expr.expr &:= "{\n";
+      c_expr.expr &:= c_param1.temp_decls;
+      c_expr.expr &:= c_param3.temp_decls;
+      c_expr.expr &:= c_param1.temp_assigns;
+      c_expr.expr &:= c_param3.temp_assigns;
+      c_expr.expr &:= c_param1.expr;
+    end if;
+    c_expr.expr &:= c_param1.expr;
+    c_expr.expr &:= "*=(";
+    c_expr.expr &:= c_param3.expr;
+    c_expr.expr &:= ");\n";
+    if c_param3.temp_num <> 0 then
+      c_expr.expr &:= c_param1.temp_frees;
+      c_expr.expr &:= c_param3.temp_frees;
+      c_expr.expr &:= "}\n";
+    end if;
+  end func;
+
+
 const proc: process_flt_minus (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
@@ -4667,6 +4707,34 @@ const proc: process_int_lt (in ref_list: params, inout expr_type: c_expr) is fun
     c_expr.expr &:= ") < (";
     process_expr(params[3], c_expr);
     c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process_int_mcpy (in ref_list: params, inout expr_type: c_expr) is func
+
+  local
+    var expr_type: c_param1 is expr_type.value;
+    var expr_type: c_param3 is expr_type.value;
+  begin
+    process_expr(params[1], c_param1);
+    c_param3.temp_num := c_param1.temp_num;
+    process_expr(params[3], c_param3);
+    if c_param3.temp_num <> 0 then
+      c_expr.expr &:= "{\n";
+      c_expr.expr &:= c_param1.temp_decls;
+      c_expr.expr &:= c_param3.temp_decls;
+      c_expr.expr &:= c_param1.temp_assigns;
+      c_expr.expr &:= c_param3.temp_assigns;
+    end if;
+    c_expr.expr &:= c_param1.expr;
+    c_expr.expr &:= "*=(";
+    c_expr.expr &:= c_param3.expr;
+    c_expr.expr &:= ");\n";
+    if c_param3.temp_num <> 0 then
+      c_expr.expr &:= c_param1.temp_frees;
+      c_expr.expr &:= c_param3.temp_frees;
+      c_expr.expr &:= "}\n";
+    end if;
   end func;
 
 
@@ -5509,7 +5577,7 @@ const proc: process_rfl_value (in ref_list: params, inout expr_type: c_expr) is 
     c_expr.temp_decls &:= "listtype tmp_";
     c_expr.temp_decls &:= str(c_expr.temp_num);
     c_expr.temp_decls &:= ";\n";
-    c_expr.temp_frees &:= "list_free(tmp_";
+    c_expr.temp_frees &:= "rflDestr(tmp_";
     c_expr.temp_frees &:= str(c_expr.temp_num);
     c_expr.temp_frees &:= ");\n";
     c_expr.expr &:= "(tmp_";
@@ -6887,6 +6955,8 @@ const proc: process_action (in reference: procedure, in ref_list: params,
         process_big_le(params, c_expr);
       elsif action_name = "BIG_LT" then
         process_big_lt(params, c_expr);
+      elsif action_name = "BIG_MCPY" then
+        process_big_mcpy(params, c_expr);
       elsif action_name = "BIG_MDIV" then
         process_big_mdiv(params, c_expr);
       elsif action_name = "BIG_MINUS" then
@@ -7229,6 +7299,8 @@ const proc: process_action (in reference: procedure, in ref_list: params,
         process_flt_log10(params, c_expr);
       elsif action_name = "FLT_LT" then
         process_flt_lt(params, c_expr);
+      elsif action_name = "FLT_MCPY" then
+        process_flt_mcpy(params, c_expr);
       elsif action_name = "FLT_MINUS" then
         process_flt_minus(params, c_expr);
       elsif action_name = "FLT_MULT" then
@@ -7347,6 +7419,8 @@ const proc: process_action (in reference: procedure, in ref_list: params,
         process_int_le(params, c_expr);
       elsif action_name = "INT_LT" then
         process_int_lt(params, c_expr);
+      elsif action_name = "INT_MCPY" then
+        process_int_mcpy(params, c_expr);
       elsif action_name = "INT_MDIV" then
         process_int_mdiv(params, c_expr);
       elsif action_name = "INT_MINUS" then
@@ -10356,7 +10430,7 @@ const proc: write_file_head is func
     c_prog << "arraytype  arrArrlit2 (inttype, arraytype);\n";
     c_prog << "arraytype  arrBaselit (long);\n";
     c_prog << "arraytype  arrBaselit2 (inttype, long);\n";
-    c_prog << "arraytype  arrCat (arraytype a, arraytype b)             {printf(\"arrCat\\n\");}\n";
+    c_prog << "arraytype  arrCat (arraytype, arraytype);\n";
     c_prog << "void       arrDestr (arraytype a)                        {printf(\"arrDestr\\n\");}\n";
     c_prog << "arraytype  arrExtend (arraytype, inttype);\n";
     c_prog << "arraytype  arrGen (inttype, inttype);\n";
@@ -10441,6 +10515,7 @@ const proc: write_file_head is func
     c_prog << "void       filSeek (filetype, inttype);\n";
     c_prog << "stritype   filWordRead (filetype, chartype *);\n";
     c_prog << "void       filWrite (filetype, stritype);\n";
+    c_prog << "floattype  flt_value (void *a)                           {printf(\"flt_value\\n\");}\n";
     c_prog << "inttype    fltCmp (floattype, floattype);\n";
     c_prog << "void       fltCpy (floattype *, floattype);\n";
     c_prog << "floattype  fltCreate (floattype);\n";
@@ -10592,7 +10667,6 @@ const proc: write_file_head is func
     c_prog << "void       raise_error (int a)                           {longjmp(catch_position, a); }\n";
 (*
     c_prog << "stritype   act_str (void * );\n";
-    c_prog << "arraytype  arrCat (arraytype, arraytype);\n";
     c_prog << "void       arrDestr (arraytype);\n";
     c_prog << "arraytype  arrHead (arraytype, inttype);\n";
     c_prog << "arraytype  arrRange (arraytype a, inttype b, inttype c)  {printf(\"arrRange\\n\");}\n";
@@ -11177,6 +11251,13 @@ const proc: pass_1 (in string: source, inout program: prog,
       writeln("Compiling the program ...");
       prog := analyze(source);
       if prog = program.EMPTY then
+        okay := FALSE;
+      elsif error_count(prog) <> 0 then
+        write(error_count(prog) <& " error");
+        if error_count(prog) > 1 then
+          write("s");
+        end if;
+        writeln(" found");
         okay := FALSE;
       end if;
     else

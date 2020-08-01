@@ -240,7 +240,6 @@ objecttype element;
 
 
 
-#ifdef OUT_OF_ORDER
 #ifdef ANSI_C
 
 rtlArraytype arrCat (rtlArraytype arr1, rtlArraytype arr2)
@@ -255,7 +254,7 @@ rtlArraytype arr2;
     memsizetype arr1_size;
     memsizetype arr2_size;
     memsizetype result_size;
-    arraytype result;
+    rtlArraytype result;
 
   /* arrCat */
     arr1_size = arr1->max_position - arr1->min_position + 1;
@@ -274,7 +273,6 @@ rtlArraytype arr2;
     } /* if */
     return(result);
   } /* arrCat */
-#endif
 
 
 

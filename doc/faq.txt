@@ -19,7 +19,7 @@ programming languages:
    with type parameters or a type result (For example: array, hash, struct
    and set use a Pascal inspired syntax and semantic. In Seed7 they are
    not hard coded in the compiler but are templates described in Seed7).
- - Seed7 is a syntactically and semantically extendable
+ - Seed7 is a syntactically and semantically extensible
    language: Almost all of the Seed7 language (statements, operators,
    declaration constructs, and more) is defined in Seed7 in an include
    file (seed7_05.s7i).
@@ -587,7 +587,7 @@ Theoretically yes. In practice there would be several problems. For example:
  - Some conepts like goto's, return's, brake's are not supported.
  - Some things like comments and $ pragmas are hardcoded.
 
-But basically booting various languages was one of the goals of the extendable
+But basically booting various languages was one of the goals of the extensible
 programming language Seed7 and the hi Interpreter.
 
 In practice it turned out to be a better approach to steal concepts from other

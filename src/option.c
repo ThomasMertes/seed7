@@ -125,6 +125,9 @@ int start;
               option.compilation_info = TRUE;
               option.linecount_info = TRUE;
               break;
+            case 'x':
+              option.execute_always = TRUE;
+              break;
             default:
               printf("*** Unknown option %s\n", opt);
               break;

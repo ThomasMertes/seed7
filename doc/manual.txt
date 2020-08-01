@@ -324,7 +324,7 @@ CONTENTS
   A good example for classes and instances are the Files which are
   described in chapter 7.
 
-  And Seed7 is also an extendable programming language.
+  And Seed7 is also an extensible programming language.
   In this case you are interested in how to declare new
   statements, how to define new operators, assigning a priority
   and an associativity to operators and other things like these.
@@ -4915,39 +4915,43 @@ CONTENTS
   18: "'" expected found "%s"
   19: Character literal exceeds source line
   20: Use \" instead of "" to represent " in a string
-  21: Illegal string escape "\%s"
-  22: Numerical escape sequences should end with "\" not "%s");
-  23: String continuations should end with "\" not "%s");
-  24: String literal exceeds source line
-  25: Name expected found "%s"
-  26: Cardinal literal expected found "%s"
-  27: String literal expected found "%s"
-  28: Identifier expected found "%s"
-  29: Expression expected found "%s"
-  30: Expression expected after "begin"
-  31: Declaration expected found "%s"
-  32: Initialisation of "%s" failed
-  33: "%s" declared twice
-  34: "%s" not declared
-  35: Associativity expected found "%s"
-  36: Statement priority "%s" too big
-  37: Syntax with two parameters before operator is illegal
-  38: Empty syntax declaration
-  39: "%s" redeclared with infix priority %d not %d
-  40: "%s" redeclared with prefix priority %d not %d
-  41: Priority %d required for parameter after "%s" not %d
-  42: Priority <= %d expected found "%s" with priority %d
-  43: "%s" must have priority %d not %d for dot expression
-  44: "%s" expected found "%s"
-  44: ":" expected found "%s"
-  44: ";" expected found "%s"
-  44: ")" expected found "%s"
-  44: "}" expected found "%s"
-  44: "is" expected found "%s"
-  44: "end" expected found "%s"
-  44: "proc" expected found "%s"
-  44: "module" expected found "%s"
-       Undefined error
+  21: Use / instead of \\ as path delimiter
+  22: Illegal string escape "\%s"
+  23: Numerical escape sequences should end with "\" not "%s");
+  24: String continuations should end with "\" not "%s");
+  25: String literal exceeds source line
+  26: Name expected found "%s"
+  27: Integer literal expected found "%s"
+  28: String literal expected found "%s"
+  29: Identifier expected found "%s"
+  30: Expression expected found "%s"
+  31: Expression expected after "begin"
+  32: Declaration expected found "%s"
+  33: Initialisation of "%s" failed
+  34: "%s" declared twice
+  35: "%s" not declared
+  36: Associativity expected found "%s"
+  37: Statement priority "%s" too big
+  38: Syntax with two parameters before operator is illegal
+  39: Empty syntax declaration
+  40: "%s" redeclared with infix priority %d not %d
+  41: "%s" redeclared with prefix priority %d not %d
+  42: Priority %d required for parameter after "%s" not %d
+  43: Priority <= %d expected found "%s" with priority %d
+  44: Priority <= %d expected found "%s" with priority %d
+  45: "%s" must have priority %d not %d for dot expression
+  46: "%s" expected found "%s"
+  47: "%s" expected found "%s"
+  48: Undefined type for literal "%s"
+  49: "newtype", "subtype", "func", "enumlit" or "action" expected found "%s"
+  50: "func" or "type" expected found "%s"
+  51: Match for %s failed
+  52: Variable expected in %s found %s
+  53: Type expected found %s
+  54: Procedure expected found %s expression
+  55: Parameter specifier expected found "%s"
+  56: Evaluate type expression %s failed
+      Undefined error
 
 
 13.2 Exceptions
@@ -4964,8 +4968,6 @@ CONTENTS
           !, **, div, rem, mdiv, mod, ld
       May be raised from the following 'bigInteger' operations:
           **, div, rem, mdiv, mod
-      May be raised from the following 'float' operations:
-          /, **, acos, asin, ln, sqrt
     RANGE_ERROR:
       May be raised from the following 'integer' operation:
           parse, rand

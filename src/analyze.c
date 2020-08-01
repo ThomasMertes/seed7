@@ -161,6 +161,14 @@ static INLINE void include_file ()
       } /* if */
     } else {
       err_warning(STRI_EXPECTED);
+      if (current_ident != prog.id_for.semicolon) {
+        scan_symbol();
+      } /* if */
+      if (current_ident != prog.id_for.semicolon) {
+        err_ident(EXPECTED_SYMBOL, prog.id_for.semicolon);
+      } else {
+        scan_symbol();
+      } /* if */
     } /* if */
 #ifdef TRACE_ANALYZE
     printf("END include_file\n");
@@ -377,6 +385,7 @@ errinfotype *err_info;
       init_stack(&prog, err_info);
       init_symbol(err_info);
       reset_statistic();
+      prog.error_count = 0;
       if (*err_info == OKAY_NO_ERROR) {
         set_trace(option.comp_trace_level, -1, option.prot_file_name);
         decl_any(prog.declaration_root);
@@ -416,6 +425,7 @@ errinfotype *err_info;
         } /* if */
         clean_idents();
         resultProg->source_file_name = source_file_name;
+        resultProg->error_count      = prog.error_count;
         memcpy(&resultProg->ident,    &prog.ident, sizeof(idroottype));
         memcpy(&resultProg->id_for,   &prog.id_for, sizeof(findidtype));
         memcpy(&resultProg->sys_var,  &prog.sys_var, sizeof(systype));
@@ -428,6 +438,11 @@ errinfotype *err_info;
         close_symbol();
         if (option.compilation_info || option.linecount_info) {
           show_statistic();
+          if (resultProg->error_count >= 1) {
+            printf("%6d error%s found\n",
+                resultProg->error_count,
+                resultProg->error_count > 1 ? "s" : "");
+          } /* if */
         } /* if */
         /* trace_list(resultProg->stack_current->local_object_list); */
       } /* if */

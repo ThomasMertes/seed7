@@ -94,9 +94,6 @@ void show_statistic ()
     printf("%6lu bytes\n", heapsize());
 #endif
 #endif
-    if (error_count >= 1) {
-      printf("%6d error%s found\n", error_count, error_count > 1 ? "s" : "");
-    } /* if */
   } /* show_statistic */
 
 
@@ -118,6 +115,5 @@ void reset_statistic ()
     list_count = 0;
     comment_count = 0;
 #endif
-    error_count = 0;
     start_time = clock();
   } /* reset_statistic */

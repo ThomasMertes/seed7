@@ -476,6 +476,29 @@ listtype arguments;
 
 #ifdef ANSI_C
 
+objecttype int_mcpy (listtype arguments)
+#else
+
+objecttype int_mcpy (arguments)
+listtype arguments;
+#endif
+
+  {
+    objecttype int_variable;
+
+  /* int_mcpy */
+    int_variable = arg_1(arguments);
+    isit_int(int_variable);
+    is_variable(int_variable);
+    isit_int(arg_3(arguments));
+    int_variable->value.intvalue *= take_int(arg_3(arguments));
+    return(SYS_EMPTY_OBJECT);
+  } /* int_mcpy */
+
+
+
+#ifdef ANSI_C
+
 objecttype int_mdiv (listtype arguments)
 #else
 

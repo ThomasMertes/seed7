@@ -45,6 +45,7 @@ const func reference: evaluate (ref program param, ref reference param) is actio
 const proc: execute (ref program param) is                                 action "PRG_EXEC";
 
 const func reference: sys_var (ref program param, in string param) is      action "PRG_SYSVAR";
+const func integer: error_count (ref program param) is                     action "PRG_ERROR_COUNT";
 const func ref_list: declared_objects (ref program param) is               action "PRG_DECL_OBJECTS";
 const func boolean: is_var (ref reference param) is                        action "REF_ISVAR";
 const func string: obj_class (ref reference param) is                      action "REF_OBJCLASS";

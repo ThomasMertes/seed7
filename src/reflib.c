@@ -60,6 +60,7 @@
 
 
 
+#ifdef OUT_OF_ORDER
 #ifdef ANSI_C
 
 static void qsort_list (listtype *begin_sorted, listtype *end_sorted)
@@ -145,6 +146,7 @@ listtype *any_list;
       list_end->next = NULL;
     } /* if */
   } /* sort_list */
+#endif
 
 
 

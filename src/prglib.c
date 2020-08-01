@@ -261,6 +261,22 @@ listtype arguments;
 
 #ifdef ANSI_C
 
+objecttype prg_error_count (listtype arguments)
+#else
+
+objecttype prg_error_count (arguments)
+listtype arguments;
+#endif
+
+  { /* prg_error_count */
+    isit_prog(arg_1(arguments));
+    return(bld_int_temp(take_prog(arg_1(arguments))->error_count));
+  } /* prg_error_count */
+
+
+
+#ifdef ANSI_C
+
 objecttype prg_eval (listtype arguments)
 #else
 

@@ -28,8 +28,10 @@ const func integer: fib (in integer: number) is func
   result
     var integer: result is 1;
   begin
-    if number <> 1 and number <> 2 then
+    if number > 2 then
       result := fib(pred(number)) + fib(number - 2);
+    elsif number = 0 then
+      result := 0;
     end if;
   end func;
 
@@ -37,7 +39,7 @@ const proc: main is func
   local
     var integer: number is 0;
   begin
-    for number range 1 to 20 do
+    for number range 0 to 20 do
       write("fib(");
       write(number);
       write(") = ");

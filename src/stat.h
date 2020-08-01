@@ -33,7 +33,6 @@ EXTERN unsigned int literal_count;
 EXTERN unsigned int list_count;
 EXTERN unsigned int comment_count;
 #endif
-EXTERN unsigned int error_count;
 
 
 #ifdef ANSI_C

@@ -221,7 +221,7 @@ errortype err;
 
   { /* place_of_error */
 /*  print_error_line(); */
-    error_count++;
+    prog.error_count++;
     if (in_file.name != NULL) {
       printf("*** %s(%1u):%d: ", in_file.name, in_file.line, ((int) err) + 1);
     } else {
@@ -258,6 +258,8 @@ static void write_symbol ()
       printf(" \"%c\"\n", symbol.name[0]);
     } else if (symbol.syclass == INTLITERAL) {
       printf(" \"%ld\"\n", symbol.intvalue);
+    } else if (symbol.syclass == BIGINTLITERAL) {
+      printf(" \"%s_\"\n", symbol.name);
     } else if (symbol.syclass == CHARLITERAL) {
       if (symbol.charvalue >= ' ' && symbol.charvalue <= '~') {
         printf(" \"'%c'\"\n", (char) symbol.charvalue);
@@ -265,6 +267,7 @@ static void write_symbol ()
         printf(" \"'\\%lu\\'\"\n", symbol.charvalue);
       } /* if */
     } else if (symbol.syclass == STRILITERAL) {
+      printf(" ");
       prot_stri(symbol.strivalue);
       printf("\n");
 #ifdef WITH_FLOAT
@@ -542,12 +545,6 @@ errortype err;
       case DOT_EXPR_REQUESTED:
         printf("Dot expression requested as syntax description\n");
         break;
-      case DECL_EXPECTED:
-        printf("Declaration expected found"); write_symbol();
-        break;
-      case EXPR_CLASS_EXPECTED:
-        printf("Expression expected after \"begin\"\n");
-        break;
       case TYPE_EXPECTED:
         printf("Type expected found"); write_symbol();
         break;
@@ -671,7 +668,7 @@ objecttype obj_found;
 
   { /* err_object */
     /* place_of_error(err); */
-    error_count++;
+    prog.error_count++;
     if (HAS_POSINFO(obj_found)){
       printf("*** %s(%1u):%d: ", file_name(GET_FILE_NUM(obj_found)),
           GET_LINE_NUM(obj_found), ((int) err) + 1);
@@ -710,22 +707,24 @@ objecttype obj_found;
         printf("Exception \"%s\" raised\n", obj_found->descriptor.entity->ident->name);
         break;
       case IDENT_EXPECTED:
-        printf("Identifier expected found \"");
+        printf("Identifier expected found ");
         switch (CLASS_OF_OBJ(obj_found)) {
           case INTOBJECT:
-            printf("%ld", obj_found->value.intvalue);
+            printf("\"%ld\"", obj_found->value.intvalue);
             break;
           case CHAROBJECT:
-            fputc((char) obj_found->value.charvalue, stdout);
+            if (obj_found->value.charvalue >= ' ' && obj_found->value.charvalue <= '~') {
+              printf("\"'%c'\"\n", (char) obj_found->value.charvalue);
+            } else {
+              printf("\"'\\%lu\\'\"\n", obj_found->value.charvalue);
+            } /* if */
             break;
           case STRIOBJECT:
-            fwrite(obj_found->value.strivalue->mem,
-                (SIZE_TYPE) obj_found->value.strivalue->size,
-                1, stdout);
+            prot_stri(obj_found->value.strivalue);
             break;
 #ifdef WITH_FLOAT
           case FLOATOBJECT:
-            printf("%f", obj_found->value.floatvalue);
+            printf("\"%f\"\n", obj_found->value.floatvalue);
             break;
 #endif
           default:
@@ -734,7 +733,7 @@ objecttype obj_found;
             trace1(obj_found);
             break;
         } /* switch */
-        printf("\"\n");
+        printf("\n");
         break;
       case NO_MATCH:
         printf("Match for ");
@@ -811,7 +810,7 @@ objecttype obj_found;
 
   { /* err_expr_obj */
     /* place_of_error(err); */
-    error_count++;
+    prog.error_count++;
     if (HAS_POSINFO(expr_object)){
       printf("*** %s(%1u):%d: ", file_name(GET_FILE_NUM(expr_object)),
           GET_LINE_NUM(expr_object), ((int) err) + 1);
@@ -854,7 +853,7 @@ objecttype obj_found;
 
   { /* err_match */
     /* place_of_error(err); */
-    error_count++;
+    prog.error_count++;
     if (HAS_POSINFO(obj_found)){
       printf("*** %s(%1u):%d: ", file_name(GET_FILE_NUM(obj_found)),
           GET_LINE_NUM(obj_found), ((int) err) + 1);
@@ -1071,7 +1070,7 @@ linenumtype line;
 #endif
 
   { /* err_at_line */
-    error_count++;
+    prog.error_count++;
     printf("*** %s(%1u):%d: ", in_file.name, line, ((int) err) + 1);
     switch (err) {
       case COMMENTOPEN:
@@ -1101,7 +1100,7 @@ ustritype stri;
 #endif
 
   { /* err_undeclared */
-    error_count++;
+    prog.error_count++;
     printf("*** %s(%1u):%d: ", file_name(file_num),
         line, ((int) err) + 1);
     switch (err) {
@@ -1129,7 +1128,7 @@ stritype stri;
 #endif
 
   { /* err_message */
-    error_count++;
+    prog.error_count++;
     printf("*** ");
     switch (err) {
       case NO_SOURCEFILE:

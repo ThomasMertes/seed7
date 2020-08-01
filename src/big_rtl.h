@@ -52,6 +52,7 @@ biginttype bigIPow (biginttype, inttype);
 #ifdef HAS_LONGTYPE_64
   longtype bigLOrd (biginttype);
 #endif
+void bigMCpy (biginttype *, biginttype);
 biginttype bigMDiv (biginttype, biginttype);
 biginttype bigMinus (biginttype);
 biginttype bigMod (biginttype, biginttype);
@@ -94,6 +95,7 @@ biginttype bigIPow ();
 #ifdef HAS_LONGTYPE_64
   longtype bigLOrd ();
 #endif
+void bigMCpy ();
 biginttype bigMDiv ();
 biginttype bigMinus ();
 biginttype bigMod ();

@@ -181,7 +181,9 @@ errinfotype *err_info;
       } /* if */
     } else {
       err_warning(DOLLAR_VALUE_WRONG);
-      trace1(declared_object);
+      if (current_ident != prog.id_for.semicolon) {
+        scan_symbol();
+      } /* if */
     } /* if */
 #ifdef TRACE_PARSER
     printf("END init_dollar ");
@@ -235,13 +237,15 @@ errinfotype *err_info;
           printf("\n"); */
         } /* if */
 #endif
-        if (CLASS_OF_OBJ(typeof_object) == TYPEOBJECT) {
-          declared_object->type_of = take_type(typeof_object);
-          /* printf("X declared_object->type_of: <%lx> ", declared_object->type_of);
-          trace1(declared_object->type_of);
-          printf("\n"); */
-        } else {
-          err_object(TYPE_EXPECTED, typeof_object);
+        if (typeof_object != NULL) {
+          if (CLASS_OF_OBJ(typeof_object) == TYPEOBJECT) {
+            declared_object->type_of = take_type(typeof_object);
+            /* printf("X declared_object->type_of: <%lx> ", declared_object->type_of);
+            trace1(declared_object->type_of);
+            printf("\n"); */
+          } else {
+            err_object(TYPE_EXPECTED, typeof_object);
+          } /* if */
         } /* if */
 #ifdef OUT_OF_ORDER
         if (is_dollar_type) {
@@ -252,35 +256,38 @@ errinfotype *err_info;
 #endif
       } else {
         init_expression = pars_infix_expression(SCOL_PRIORITY, TRUE);
-        if (CLASS_OF_OBJ(typeof_object) == TYPEOBJECT) {
-          declared_object->type_of = take_type(typeof_object);
-          do_create(declared_object, init_expression, err_info);
-          if (*err_info != OKAY_NO_ERROR) {
-            err_object(DECL_FAILED, declared_object);
-          } /* if */
-          if (TEMP_OBJECT(init_expression)) {
-/*          printf("destroy ");
-            printobject(init_expression->type_of);
-            printf(": ");
-            printobject(init_expression);
-            printf(" ");
-            fflush(stdout); */
-            do_destroy(init_expression, err_info);
-            if (*err_info == OKAY_NO_ERROR) {
-              FREE_OBJECT(init_expression);
-/*          } else {
-              printf("destroy failed\n"); */
+        if (typeof_object != NULL) {
+          if (CLASS_OF_OBJ(typeof_object) == TYPEOBJECT) {
+            declared_object->type_of = take_type(typeof_object);
+            do_create(declared_object, init_expression, err_info);
+            if (*err_info == CREATE_ERROR) {
+              err_object(DECL_FAILED, declared_object);
+              *err_info = OKAY_NO_ERROR;
             } /* if */
-/*          printf("after destroy\n");
+            if (TEMP_OBJECT(init_expression)) {
+/*            printf("destroy ");
+              printobject(init_expression->type_of);
+              printf(": ");
+              printobject(init_expression);
+              printf(" ");
+              fflush(stdout); */
+              do_destroy(init_expression, err_info);
+              if (*err_info == OKAY_NO_ERROR) {
+                FREE_OBJECT(init_expression);
+/*            } else {
+                printf("destroy failed\n"); */
+              } /* if */
+/*            printf("after destroy\n");
+            } else {
+              printf("not obsolete ");
+              printobject(init_expression->type_of);
+              printf(": ");
+              printobject(init_expression);
+              printf("\n"); */
+            } /* if */
           } else {
-            printf("not obsolete ");
-            printobject(init_expression->type_of);
-            printf(": ");
-            printobject(init_expression);
-            printf("\n"); */
+            err_object(TYPE_EXPECTED, typeof_object);
           } /* if */
-        } else {
-          err_object(TYPE_EXPECTED, typeof_object);
         } /* if */
       } /* if */
     } else {

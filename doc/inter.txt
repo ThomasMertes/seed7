@@ -29,14 +29,25 @@ THE HI INTERPRETER
 
     -a   Analyze only and suppress the execution phase.
 
-    -i   Show the identifier table after the analyzing phase.
+    -dx  Set compiletime trace level to x. Where x is a string consisting
+         of the following characters:
 
-    -q   Compile quiet. Line and file information and compilation
-         statistics are suppressed.
+           a Trace primitive actions
+           c Do action check
+           d Trace dynamic calls
+           e Trace exceptions and handlers
+           h Trace heapsize (in combination with 'a')
+
+    -d   Equivalent to -da
+
+    -i   Show the identifier table after the analyzing phase.
 
     -m   Use less memory during the analyzing phase.
          If there is a "No more memory" error you can try this
          option.
+
+    -q   Compile quiet. Line and file information and compilation
+         statistics are suppressed.
 
     -tx  Set runtime trace level to x. Where x is a string consisting
          of the following characters:
@@ -49,16 +60,9 @@ THE HI INTERPRETER
 
     -t   Equivalent to -ta
 
-    -dx  Set compiletime trace level to x. Where x is a string consisting
-         of the following characters:
+    -v   Compile verbose. Write line numbers while analyzing.
 
-           a Trace primitive actions
-           c Do action check
-           d Trace dynamic calls
-           e Trace exceptions and handlers
-           h Trace heapsize (in combination with 'a')
-
-    -d   Equivalent to -da
+    -x   Execute even when the program contains errors.
 
   The parameters can be accessed via the argv(PROGRAM) procedure.
   argv(PROGRAM) delivers an array of strings. length(argv(PROGRAM))

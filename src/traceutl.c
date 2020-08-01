@@ -381,9 +381,9 @@ settype setValue;
   /* prot_set */
     if (setValue != NULL) {
       prot_cstri("set[");
-      prot_int((inttype) setValue->min_position);
+      prot_int(setValue->min_position);
       prot_cstri("/");
-      prot_int((inttype) setValue->max_position);
+      prot_int(setValue->max_position);
       prot_cstri("]{");
       first_elem = TRUE;
       for (position = setValue->min_position; position <= setValue->max_position; position++) {
@@ -592,9 +592,9 @@ objecttype anyobject;
       case ARRAYOBJECT:
         if (anyobject->value.arrayvalue != NULL) {
           prot_cstri("array[");
-          prot_int((inttype) anyobject->value.arrayvalue->min_position);
+          prot_int(anyobject->value.arrayvalue->min_position);
           prot_cstri("..");
-          prot_int((inttype) anyobject->value.arrayvalue->max_position);
+          prot_int(anyobject->value.arrayvalue->max_position);
           prot_cstri("]");
         } else {
           prot_cstri(" *NULL_ARRAY* ");
@@ -769,7 +769,7 @@ objecttype anyobject;
           if (HAS_DESCRIPTOR_ENTITY(anyobject)) {
             prot_cstri(id_string(anyobject->descriptor.entity->ident));
           } else {
-            prot_int(CLASS_OF_OBJ(anyobject));
+            printclass(CLASS_OF_OBJ(anyobject));
             prot_cstri(" *NULL_ENTITY_OBJECT*");
           } /* if */
           break;
@@ -1348,7 +1348,7 @@ objecttype traceobject;
       if (HAS_POSINFO(traceobject)) {
         prot_cstri(file_name(GET_FILE_NUM(traceobject)));
         prot_cstri("(");
-        prot_int(GET_LINE_NUM(traceobject));
+        prot_int((inttype) GET_LINE_NUM(traceobject));
         prot_cstri(")");
       } else {
         if (HAS_DESCRIPTOR_ENTITY(traceobject)) {

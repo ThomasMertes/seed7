@@ -99,6 +99,10 @@ errinfotype *err_info
           *is_dollar_type = 1;
         } else {
           err_warning(DOLLAR_TYPE_WRONG);
+          typeof_object = NULL;
+          if (current_ident != prog.id_for.colon) {
+            scan_symbol();
+          } /* if */
         } /* if */
       } else {
         typeof_object = pars_infix_expression(WEAKEST_PRIORITY, TRUE);

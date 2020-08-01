@@ -526,7 +526,7 @@ booltype look_for_interfaces;
 #ifdef ANSI_C
 
 static objecttype match_subexpr_type (objecttype expr_object,
-    nodetype start_node, typetype object_type, int is_variable_obj,
+    nodetype start_node, typetype object_type, booltype is_variable_obj,
     listtype rest_of_expression, booltype check_access_right,
     booltype look_for_interfaces)
 #else
@@ -537,7 +537,7 @@ static objecttype match_subexpr_type (expr_object, start_node,
 objecttype expr_object;
 nodetype start_node;
 typetype object_type;
-int is_variable_obj;
+booltype is_variable_obj;
 listtype rest_of_expression;
 booltype check_access_right;
 booltype look_for_interfaces;
@@ -805,7 +805,7 @@ booltype look_for_interfaces;
             fflush(stdout);
           } /* if */
           matched_object = match_subexpr_type(expr_object, start_node,
-              object_type, VAR_OBJECT(current_element),
+              object_type, (booltype) VAR_OBJECT(current_element),
               rest_of_expression, check_access_right, look_for_interfaces);
 #ifdef OUT_OF_ORDER
           if (matched_object != NULL) {
@@ -825,7 +825,7 @@ booltype look_for_interfaces;
                 } /* if */
                 if (object_type != NULL) {
                   matched_object = match_subexpr_type(expr_object, start_node,
-                      object_type, VAR_OBJECT(match_expr->obj),
+                      object_type, (booltype) VAR_OBJECT(match_expr->obj),
                       rest_of_expression, check_access_right, look_for_interfaces);
                 } /* if */
               } else {

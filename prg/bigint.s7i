@@ -39,6 +39,7 @@ const func bigInteger: - (ref bigInteger param) is                         actio
 const proc: (inout bigInteger param) := (ref bigInteger param) is          action "BIG_CPY";
 const proc: (inout bigInteger param) +:= (ref bigInteger param) is         action "BIG_GROW";
 const proc: (inout bigInteger param) -:= (ref bigInteger param) is         action "BIG_SHRINK";
+const proc: (inout bigInteger param) *:= (ref bigInteger param) is         action "BIG_MCPY";
 const func bigInteger: (ref bigInteger param) + (ref bigInteger param) is  action "BIG_ADD";
 const func bigInteger: (ref bigInteger param) - (ref bigInteger param) is  action "BIG_SBTR";
 const func bigInteger: (ref bigInteger param) * (ref bigInteger param) is  action "BIG_MULT";

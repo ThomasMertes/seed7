@@ -285,12 +285,12 @@ listtype list;
       INIT_CLASS_OF_TEMP(exception, SYMBOLOBJECT);
       exception->value.intvalue = 0;
     } /* if */
-    fail_flag = TRUE;
     incl_list(&fail_stack, curr_exec_object, &err_info);
-    if (fail_value == NULL) {
+    if (!fail_flag || fail_value == NULL) {
       fail_value = exception;
       copy_list(list, &fail_expression, &err_info);
     } /* if */
+    fail_flag = TRUE;
     return(NULL);
   } /* raise_with_arguments */
 

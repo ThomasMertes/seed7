@@ -579,86 +579,80 @@ filetype fil1;
 
 #ifdef ANSI_C
 
-filetype filOpen (stritype str1, stritype str2)
+filetype filOpen (stritype file_name, stritype file_mode)
 #else
 
-filetype filOpen (str1, str2)
-stritype str1;
-stritype str2;
+filetype filOpen (file_name, file_mode)
+stritype file_name;
+stritype file_mode;
 #endif
 
   {
-    cstritype file_name;
-    cstritype file_mode;
+    cstritype name;
     char mode[4];
     filetype result;
 
   /* filOpen */
-    file_name = cp_to_cstri(str1);
-    if (file_name == NULL) {
+    name = cp_to_cstri(file_name);
+    if (name == NULL) {
       raise_error(MEMORY_ERROR);
       result = NULL;
     } else {
-      file_mode = cp_to_cstri(str2);
-      if (file_mode == NULL) {
-        raise_error(MEMORY_ERROR);
-        result = NULL;
-      } else {
-        mode[0] = '\0';
-        if (file_mode[0] == 'r' ||
-            file_mode[0] == 'w' ||
-            file_mode[0] == 'a') {
-          if (file_mode[1] == '\0') {
+      mode[0] = '\0';
+      if (file_mode->size >= 1 &&
+          (file_mode->mem[0] == 'r' ||
+           file_mode->mem[0] == 'w' ||
+           file_mode->mem[0] == 'a')) {
+        if (file_mode->size == 1) {
+          /* Binary mode
+             r ... Open file for reading. 
+             w ... Truncate to zero length or create file for writing. 
+             a ... Append; open or create file for writing at end-of-file. 
+          */
+          mode[0] = file_mode->mem[0];
+          mode[1] = 'b';
+          mode[2] = '\0';
+        } else if (file_mode->size == 2) {
+          if (file_mode->mem[1] == '+') {
             /* Binary mode
-               r ... Open file for reading. 
-               w ... Truncate to zero length or create file for writing. 
-               a ... Append; open or create file for writing at end-of-file. 
+               r+ ... Open file for update (reading and writing). 
+               w+ ... Truncate to zero length or create file for update. 
+               a+ ... Append; open or create file for update, writing at end-of-file. 
             */
-            mode[0] = file_mode[0];
+            mode[0] = file_mode->mem[0];
             mode[1] = 'b';
+            mode[2] = '+';
+            mode[3] = '\0';
+          } else if (file_mode->mem[1] == 't') {
+            /* Text mode
+               rt ... Open file for reading. 
+               wt ... Truncate to zero length or create file for writing. 
+               at ... Append; open or create file for writing at end-of-file. 
+            */
+            mode[0] = file_mode->mem[0];
+            mode[1] = '\0';
+          } /* if */
+        } else if (file_mode->size == 3) {
+          if (file_mode->mem[1] == 't' &&
+              file_mode->mem[2] == '+') {
+            /* Text mode
+               rt+ ... Open file for update (reading and writing). 
+               wt+ ... Truncate to zero length or create file for update. 
+               at+ ... Append; open or create file for update, writing at end-of-file. 
+            */
+            mode[0] = file_mode->mem[0];
+            mode[1] = '+';
             mode[2] = '\0';
-          } else if (file_mode[1] == '+') {
-            if (file_mode[2] == '\0') {
-              /* Binary mode
-                 r+ ... Open file for update (reading and writing). 
-                 w+ ... Truncate to zero length or create file for update. 
-                 a+ ... Append; open or create file for update, writing at end-of-file. 
-              */
-              mode[0] = file_mode[0];
-              mode[1] = 'b';
-              mode[2] = '+';
-              mode[3] = '\0';
-            } /* if */
-          } else if (file_mode[1] == 't') {
-            if (file_mode[2] == '\0') {
-              /* Text mode
-                 rt ... Open file for reading. 
-                 wt ... Truncate to zero length or create file for writing. 
-                 at ... Append; open or create file for writing at end-of-file. 
-              */
-              mode[0] = file_mode[0];
-              mode[1] = '\0';
-            } else if (file_mode[2] == '+') {
-              /* Text mode
-                 rt+ ... Open file for update (reading and writing). 
-                 wt+ ... Truncate to zero length or create file for update. 
-                 at+ ... Append; open or create file for update, writing at end-of-file. 
-              */
-              mode[0] = file_mode[0];
-              mode[1] = '+';
-              mode[2] = '\0';
-            } /* if */
           } /* if */
         } /* if */
-        if (mode[0] == '\0') {
-          raise_error(RANGE_ERROR);
-          result = NULL;
-        } else {
-          result = fopen(file_name, mode);
-        } /* if */
-        free_cstri(file_mode, str2);
       } /* if */
-      free_cstri(file_name, str1);
+      if (mode[0] == '\0') {
+        raise_error(RANGE_ERROR);
+        result = NULL;
+      } else {
+        result = fopen(name, mode);
+      } /* if */
+      free_cstri(name, file_name);
     } /* if */
     return(result);
   } /* filOpen */

@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  err.sd7       Test for almost all possible compile time errors  *)
-(*  Copyright (C) 1994, 2004  Thomas Mertes                         *)
+(*  Copyright (C) 1994, 2004, 2007  Thomas Mertes                   *)
 (*                                                                  *)
 (*  This program is free software; you can redistribute it and/or   *)
 (*  modify it under the terms of the GNU General Public License as  *)
@@ -23,59 +23,66 @@
 
 
 $ include "seed7_05.s7i";
-include "qwertyuiop";           (* Include file not found      *)
-
-(* Illegal char: *)  (* *)    (* Illegal character           *)
-
-$ illegal;                      (* Illegal pragma              *)
-const ACTION: a is action "z";  (* Illegal action              *)
-$ system "qwert" is qwert;      (* Illegal system declaration  *)
-ignore(9876543210987654);       (* Integer too big             *)
-ignore(1E-1);                   (* Negative exponent           *)
-ignore(2E);                     (* Digit expected              *)
-ignore(1E999999);               (* Integer too big             *)
-ignore(37#0);                   (* Base not between 2 and 36   *)
-ignore(2#);                     (* Extended digit expected     *)
-ignore(8#1239123);              (* Illegal digit               *)
-ignore(36#ZZZZZZZZZZZZ);        (* Based integer too big       *)
-ignore('abcdefg');              (* "'" expected                *)
-ignore(                         (* Character literal exceeds   *) '
-); ignore("a""b");              (* Use \" instead of ""        *)
-ignore("\!");                   (* Illegal string escape       *)
-ignore("\8y"); ignore(          (* Numerical escape wrong      *) "\
-continued string");             (* String continuation wrong   *)
-ignore("not terminated          (* String literal exceeds      *)
-); $ 12345;                     (* Name expected               *)
-$ syntax expr: l2 is -> x;      (* Integer literal expected    *)
-include 1                       (* String literal expected     *)
-const integer: ";asdf" is 1;    (* Identifier expected         *)
-const proc : k is proc begin x  (* Expression expected         *) end proc;
-$ syntax: [.().] is -> 1; $ syntax: i.() is -> 1; const: h is [i];
-x                               (* Declaration expected        *)
-const j2: j3 is ASD(1);         (* Initialisation failed       *)
-const integer: h2 is 1;         (* Declared twice              *)
+include "qwert";(* Include file "qwert" not found     *)
+(* char: *)    (* Illegal character in text "\8\"    *)
+$ illegal;      (* Illegal pragma "illegal"           *)
+$ const ACTION: (* Illegal action "z"                 *)  a is $ action "z";
+$ system "qwer" (* Illegal system declaration "qwer"  *)  is qwer;
+ignore(          (* Integer "9876543210987654" too big           *) 9876543210987654);
+ignore(1E-1);    (* Negative exponent in integer literal         *)
+ignore(2E);      (* Digit expected found ")"                     *)
+ignore(1E99999); (* Integer "1E99999" too big                    *)
+ignore(37#0);    (* Integer base "37" not between 2 and 36       *)
+ignore(2#);      (* Extended digit expected found ")"            *)
+ignore(8#12912); (* Illegal digit "9" in based integer "8#12912" *)
+ignore(          (* Based integer "36#ZZZZZZZZZZZZZ" too big     *) 36#ZZZZZZZZZZZZZ);
+ignore('abcde'); (* "'" expected found "b"                       *)
+ignore(          (* Character literal exceeds source line        *) '
+);
+ignore("a""b");  (* Use \" instead of "" to represent " in a string  *)
+include "\\a";   (* Use / instead of \ as path delimiter         *)
+ignore("\!");    (* Illegal string escape "\!"                   *)
+ignore("\8y");   (* Numerical escape sequences should end with "\" not "y"  *) ignore("\
+continued");     (* String continuations should end with "\" not "c"  *)
+ignore(" ...     (* String literal exceeds source line  *)
+);
+$ 12345;         (* Name expected found "12345"         *)
+$ syntax expr:   (* Integer literal expected found "x"  *)  l2 is -> x;
+$ include 1;     (* String literal expected found "1"   *)
+const integer:   (* Identifier expected found "asdf"    *)  "asdf" is 1;
+();              (* Expression expected found ")"       *)
+const proc: (ref char param) ::= (ref integer param) is func
+  begin
+    raise NUMERIC_ERROR;
+  end func;
+const char:      (* Declaration of "j3" failed          *)  j3 is 1;
+                 (* Exception "RANGE_ERROR" raised      *)  raise RANGE_ERROR; 
+const integer:   (* "j3" declared twice                 *)  j3 is 1;
                                 (* Not declared                *)
-$ syntax expr: .h is x 1;       (* Associativity expected      *)
-$ syntax expr: .j is -> 999999; (* Statement priority too big  *)
-$ syntax expr: .().().x is -> 1;(* Syntax with two parameters  *)
-$ syntax expr: .() is -> 1;     (* Empty syntax declaration    *)
-$ syntax expr: .().a2 is -> 5; $ syntax expr: .().a2 is -> 7;
-$ syntax expr: .b2 is -> 5; $ syntax expr: .b2 is -> 7;
-$ syntax expr: .c2.() is -> 5; $ syntax expr: .c2.() is <- 5;
-$ syntax expr: .c3.().c4 is -> 5; $ syntax expr: .c3.() is -> 5;
-$ syntax expr: .keyword1.()                    is -> 5;
-$ syntax expr: .keyword1.().keyword2           is -> 5;
-$ syntax expr: .().inx.()                           is <-> 12;
-$ syntax expr: .for.().inx.().to.().do.().end.for   is  -> 25;
-$ syntax expr: .d2.() is -> 100; const expr: d3 is d2 1;
-$ syntax expr: .e2 is -> 20; const expr: e3 is e2.e4;
+$ syntax expr:   (* Associativity expected found "x"                      *)  .h is x 1;
+$ syntax expr:   (* Statement priority "999999" too big                   *)  .j is -> 999999;
+$ syntax expr:   (* Syntax with two parameters before operator is illegal *)  .().().x is -> 1;
+$ syntax expr:   (* Dot expression requested as syntax description        *)  .() is -> 1;
+$ syntax expr: .().a2 is -> 5;
+$ syntax expr:   (* "a2" redeclared with infix priority 7 not 5           *)  .().a2 is -> 7;
+$ syntax expr: .().inx.() is <-> 12;
+$ syntax expr:   (* "inx" redeclared with infix priority 127 not 12       *)  .for.().inx.().end is -> 25;
+$ syntax expr: .b2 is -> 5;
+$ syntax expr:   (* "b2" redeclared with prefix priority 7 not 5          *)  .b2 is -> 7;
+$ syntax expr: .c2.() is -> 5;
+$ syntax expr:   (* Priority 4 required for parameter after "c2" not 5    *)  .c2.() is <- 5;
+$ syntax expr: .c3.().c4 is -> 5;
+$ syntax expr:   (* Priority 127 required for parameter after "c3" not 4  *)  .c3.() is -> 5;
+$ syntax expr: .k1.() is -> 5;
+$ syntax expr:   (* Priority 4 required for parameter after "k1" not 127  *)  .k1.().k2 is -> 5;
+$ syntax expr: .d2.() is -> 50;
+                 (* Priority <= 49 expected found "d2" with priority 50   *)  d2 1 + 1;
+$ syntax expr: .e2 is -> 20;
+                 (* "e2" must have priority 0 not 20 for dot expression   *)  e2.noop;
+const proc:      (* "then" expected found "ten"             *)  if true ten writeln end if  is noop;
+                 (* Undefined type for literal "1_"         *)  $ system "empty" is 1_;
+$ const char: d  (* "newtype", "subtype", "func", "enumlit" or "action" expected found "tomato" *) is $ tomato;
+$ const $ apple: (* "func" or "type" expected found "apple" *)  e is 1;
+$ const jkl:     (* Type expected found jkl                 *)  b is 5;
 $ syntax expr: .i2.i3 is -> 3; const expr: i4 is i2 i5;
-const l m is 1;
-const: n is 1 const
-: p(q is 1;
-const: r is { a ;
-const: s ;
-const: t is proc begin c.c proc;
-const: u is proc begin c.c end;
-const: v is module end;
-(*
+                (* Unclosed comment
