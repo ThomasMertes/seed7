@@ -235,11 +235,11 @@ memSizeType doubleToCharBuffer (const double doubleValue,
         len--;
       } /* while */
       pos = len + 2; /* skip the exponent sign */
-      decimalExponent = buffer[pos] - (long) '0';
+      decimalExponent = (int) buffer[pos] - '0';
       pos++;
       while (buffer[pos] >= '0') {
         decimalExponent *= 10;
-        decimalExponent += buffer[pos] - (long) '0';
+        decimalExponent += (int) buffer[pos] - '0';
         pos++;
       } /* while */
       if (buffer[len + 1] == '-') {
@@ -790,13 +790,18 @@ floatType fltParse (const const_striType stri)
 #if USE_STRTOD
     if (likely(stri->size <= MAX_CSTRI_BUFFER_LEN)) {
       cstri = NULL;
-      conv_to_cstri(buffer, stri, &err_info);
-      buffer_ptr = buffer;
+      buffer_ptr = conv_to_cstri(buffer, stri);
+      if (unlikely(buffer_ptr == NULL)) {
+        logError(printf("fltParse(\"%s\"): conv_to_cstri() failed.\n",
+                        striAsUnquotedCStri(stri)););
+        err_info = RANGE_ERROR;
+        result = 0.0;
+      } /* if */
     } else {
       cstri = stri_to_cstri(stri, &err_info);
       buffer_ptr = cstri;
     } /* if */
-    if (likely(err_info == OKAY_NO_ERROR)) {
+    if (likely(buffer_ptr != NULL)) {
       if (isspace(buffer_ptr[0])) {
         logError(printf("fltParse(\"%s\"): String starts with whitespace.\n",
                         striAsUnquotedCStri(stri)););

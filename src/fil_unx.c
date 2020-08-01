@@ -39,7 +39,7 @@
 #include "string.h"
 #include "signal.h"
 #include "setjmp.h"
-#ifdef read_buffer_empty
+#if defined read_buffer_empty && HAS_POLL
 #include "poll.h"
 #else
 #include "fcntl.h"
@@ -130,7 +130,7 @@ int readCharChkCtrlC (fileType inFile, boolType *sigintReceived)
 
 
 
-#ifdef read_buffer_empty
+#if defined read_buffer_empty && HAS_POLL
 boolType filInputReady (fileType aFile)
 
   {

@@ -31,7 +31,7 @@
 
 #include "config.h"
 
-#ifdef USE_BIG_GMP_LIBRARY
+#if BIGINT_LIB == BIG_GMP_LIBRARY
 #include "gmp.h"
 #endif
 
@@ -321,15 +321,33 @@ typedef uint128Type               doubleUintType;
 #endif
 #endif
 
+/**
+ *  Some C compilers do not support switch statements with 64-bit values.
+ *  For such compilers the macro castIntTypeForSwitch() is used to cast
+ *  the switch value to an int. Note that castIntTypeForSwitch() may
+ *  trigger the exception RANGE_ERROR.
+ */
+#if SWITCH_WORKS_FOR_INT64TYPE
+#define castIntTypeForSwitch(num) num
+#else
+#define castIntTypeForSwitch(num) castToInt(num)
+#endif
+
 
 #if   BITSETTYPE_SIZE == 32
 typedef uint32Type         bitSetType;
 #define bitsetMostSignificantBit  uint32MostSignificantBit
 #define bitsetLeastSignificantBit uint32LeastSignificantBit
+#define FMT_U_SET  FMT_D32
+#define FMT_D_SET  FMT_U32
+#define FMT_X_SET  FMT_X32
 #elif BITSETTYPE_SIZE == 64
 typedef uint64Type         bitSetType;
 #define bitsetMostSignificantBit  uint64MostSignificantBit
 #define bitsetLeastSignificantBit uint64LeastSignificantBit
+#define FMT_U_SET  FMT_D64
+#define FMT_D_SET  FMT_U64
+#define FMT_X_SET  FMT_X64
 #endif
 
 
@@ -438,11 +456,28 @@ typedef const wcharType   *const_wstriType;
 typedef int                socketType;
 typedef unsigned int       usocketType;
 
-#ifdef USE_WINSOCK
-typedef unsigned int       os_socketType;
-#else
+/* Possible values for SOCKET_LIB: */
+#define NO_SOCKETS      -1
+#define UNIX_SOCKETS     1
+#define WINSOCK_SOCKETS  2
+
+#if SOCKET_LIB == UNIX_SOCKETS
 typedef int                os_socketType;
+#elif SOCKET_LIB == WINSOCK_SOCKETS
+typedef unsigned int       os_socketType;
 #endif
+
+/* Possible values for DIR_LIB: */
+#define NO_DIRECTORY     -1
+#define DIRENT_DIRECTORY  1
+#define DIRECT_DIRECTORY  2
+#define DIRDOS_DIRECTORY  3
+#define DIRWIN_DIRECTORY  4
+
+/* Possible values for BIGINT_LIB: */
+#define NO_BIG_LIBRARY  -1
+#define BIG_RTL_LIBRARY  1
+#define BIG_GMP_LIBRARY  2
 
 typedef const char            *const_cstriType;
 typedef const unsigned char   *const_ustriType;
@@ -595,7 +630,7 @@ typedef struct bufferStruct {
   } *bufferList;
 
 
-#ifdef USE_BIG_RTL_LIBRARY
+#if BIGINT_LIB == BIG_RTL_LIBRARY
 
 /***************************************/
 /*                                     */
@@ -631,8 +666,7 @@ typedef bigIntRecord       *bigIntType;
 typedef const bigIntRecord *const_bigIntType;
 
 
-#else
-#ifdef USE_BIG_GMP_LIBRARY
+#elif BIGINT_LIB == BIG_GMP_LIBRARY
 
 /***************************************/
 /*                                     */
@@ -644,7 +678,6 @@ typedef mpz_ptr     bigIntType;
 typedef mpz_srcptr  const_bigIntType;
 
 
-#endif
 #endif
 
 /* Logging */

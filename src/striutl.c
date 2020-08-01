@@ -102,13 +102,6 @@ const os_charType emulated_root[] = {'/', '\0'};
  */
 #define MAXIMUM_BYTE_ESCAPE_WIDTH STRLEN("\\255;")
 
-/**
- *  UTF-16 encodes characters > 0xffff with surrogate pairs.
- *  When converting to UTF-16 it might be necessary to store
- *  every character with surrogate pairs (= two UTF-16 chars).
- */
-#define SURROGATE_PAIR_FACTOR  2
-
 #ifdef OS_STRI_WCHAR
 
 #define MAX_OS_STRI_SIZE    (((MAX_MEMSIZETYPE / sizeof(os_charType)) - NULL_TERMINATION_LEN) / SURROGATE_PAIR_FACTOR)
@@ -301,39 +294,40 @@ void memcpy_to_strelem (register strElemType *const dest,
     if (len != 0) {
       pos = (len + 31) & ~(memSizeType) 31;
       switch (len & 31) {
-        case  0: do { dest[pos -  1] = src[pos -  1];
-        case 31:      dest[pos -  2] = src[pos -  2];
-        case 30:      dest[pos -  3] = src[pos -  3];
-        case 29:      dest[pos -  4] = src[pos -  4];
-        case 28:      dest[pos -  5] = src[pos -  5];
-        case 27:      dest[pos -  6] = src[pos -  6];
-        case 26:      dest[pos -  7] = src[pos -  7];
-        case 25:      dest[pos -  8] = src[pos -  8];
-        case 24:      dest[pos -  9] = src[pos -  9];
-        case 23:      dest[pos - 10] = src[pos - 10];
-        case 22:      dest[pos - 11] = src[pos - 11];
-        case 21:      dest[pos - 12] = src[pos - 12];
-        case 20:      dest[pos - 13] = src[pos - 13];
-        case 19:      dest[pos - 14] = src[pos - 14];
-        case 18:      dest[pos - 15] = src[pos - 15];
-        case 17:      dest[pos - 16] = src[pos - 16];
-        case 16:      dest[pos - 17] = src[pos - 17];
-        case 15:      dest[pos - 18] = src[pos - 18];
-        case 14:      dest[pos - 19] = src[pos - 19];
-        case 13:      dest[pos - 20] = src[pos - 20];
-        case 12:      dest[pos - 21] = src[pos - 21];
-        case 11:      dest[pos - 22] = src[pos - 22];
-        case 10:      dest[pos - 23] = src[pos - 23];
-        case  9:      dest[pos - 24] = src[pos - 24];
-        case  8:      dest[pos - 25] = src[pos - 25];
-        case  7:      dest[pos - 26] = src[pos - 26];
-        case  6:      dest[pos - 27] = src[pos - 27];
-        case  5:      dest[pos - 28] = src[pos - 28];
-        case  4:      dest[pos - 29] = src[pos - 29];
-        case  3:      dest[pos - 30] = src[pos - 30];
-        case  2:      dest[pos - 31] = src[pos - 31];
-        case  1:      dest[pos - 32] = src[pos - 32];
-                } while ((pos -= 32) > 0);
+        do {
+          case  0: dest[pos -  1] = src[pos -  1];
+          case 31: dest[pos -  2] = src[pos -  2];
+          case 30: dest[pos -  3] = src[pos -  3];
+          case 29: dest[pos -  4] = src[pos -  4];
+          case 28: dest[pos -  5] = src[pos -  5];
+          case 27: dest[pos -  6] = src[pos -  6];
+          case 26: dest[pos -  7] = src[pos -  7];
+          case 25: dest[pos -  8] = src[pos -  8];
+          case 24: dest[pos -  9] = src[pos -  9];
+          case 23: dest[pos - 10] = src[pos - 10];
+          case 22: dest[pos - 11] = src[pos - 11];
+          case 21: dest[pos - 12] = src[pos - 12];
+          case 20: dest[pos - 13] = src[pos - 13];
+          case 19: dest[pos - 14] = src[pos - 14];
+          case 18: dest[pos - 15] = src[pos - 15];
+          case 17: dest[pos - 16] = src[pos - 16];
+          case 16: dest[pos - 17] = src[pos - 17];
+          case 15: dest[pos - 18] = src[pos - 18];
+          case 14: dest[pos - 19] = src[pos - 19];
+          case 13: dest[pos - 20] = src[pos - 20];
+          case 12: dest[pos - 21] = src[pos - 21];
+          case 11: dest[pos - 22] = src[pos - 22];
+          case 10: dest[pos - 23] = src[pos - 23];
+          case  9: dest[pos - 24] = src[pos - 24];
+          case  8: dest[pos - 25] = src[pos - 25];
+          case  7: dest[pos - 26] = src[pos - 26];
+          case  6: dest[pos - 27] = src[pos - 27];
+          case  5: dest[pos - 28] = src[pos - 28];
+          case  4: dest[pos - 29] = src[pos - 29];
+          case  3: dest[pos - 30] = src[pos - 30];
+          case  2: dest[pos - 31] = src[pos - 31];
+          case  1: dest[pos - 32] = src[pos - 32];
+        } while ((pos -= 32) != 0);
       } /* switch */
     } /* if */
   } /* memcpy_to_strelem */
@@ -359,39 +353,40 @@ void memset_to_strelem (register strElemType *const dest,
     if (len != 0) {
       pos = (len + 31) & ~(memSizeType) 31;
       switch (len & 31) {
-        case  0: do { dest[pos -  1] = ch;
-        case 31:      dest[pos -  2] = ch;
-        case 30:      dest[pos -  3] = ch;
-        case 29:      dest[pos -  4] = ch;
-        case 28:      dest[pos -  5] = ch;
-        case 27:      dest[pos -  6] = ch;
-        case 26:      dest[pos -  7] = ch;
-        case 25:      dest[pos -  8] = ch;
-        case 24:      dest[pos -  9] = ch;
-        case 23:      dest[pos - 10] = ch;
-        case 22:      dest[pos - 11] = ch;
-        case 21:      dest[pos - 12] = ch;
-        case 20:      dest[pos - 13] = ch;
-        case 19:      dest[pos - 14] = ch;
-        case 18:      dest[pos - 15] = ch;
-        case 17:      dest[pos - 16] = ch;
-        case 16:      dest[pos - 17] = ch;
-        case 15:      dest[pos - 18] = ch;
-        case 14:      dest[pos - 19] = ch;
-        case 13:      dest[pos - 20] = ch;
-        case 12:      dest[pos - 21] = ch;
-        case 11:      dest[pos - 22] = ch;
-        case 10:      dest[pos - 23] = ch;
-        case  9:      dest[pos - 24] = ch;
-        case  8:      dest[pos - 25] = ch;
-        case  7:      dest[pos - 26] = ch;
-        case  6:      dest[pos - 27] = ch;
-        case  5:      dest[pos - 28] = ch;
-        case  4:      dest[pos - 29] = ch;
-        case  3:      dest[pos - 30] = ch;
-        case  2:      dest[pos - 31] = ch;
-        case  1:      dest[pos - 32] = ch;
-                } while ((pos -= 32) > 0);
+        do {
+          case  0: dest[pos -  1] = ch;
+          case 31: dest[pos -  2] = ch;
+          case 30: dest[pos -  3] = ch;
+          case 29: dest[pos -  4] = ch;
+          case 28: dest[pos -  5] = ch;
+          case 27: dest[pos -  6] = ch;
+          case 26: dest[pos -  7] = ch;
+          case 25: dest[pos -  8] = ch;
+          case 24: dest[pos -  9] = ch;
+          case 23: dest[pos - 10] = ch;
+          case 22: dest[pos - 11] = ch;
+          case 21: dest[pos - 12] = ch;
+          case 20: dest[pos - 13] = ch;
+          case 19: dest[pos - 14] = ch;
+          case 18: dest[pos - 15] = ch;
+          case 17: dest[pos - 16] = ch;
+          case 16: dest[pos - 17] = ch;
+          case 15: dest[pos - 18] = ch;
+          case 14: dest[pos - 19] = ch;
+          case 13: dest[pos - 20] = ch;
+          case 12: dest[pos - 21] = ch;
+          case 11: dest[pos - 22] = ch;
+          case 10: dest[pos - 23] = ch;
+          case  9: dest[pos - 24] = ch;
+          case  8: dest[pos - 25] = ch;
+          case  7: dest[pos - 26] = ch;
+          case  6: dest[pos - 27] = ch;
+          case  5: dest[pos - 28] = ch;
+          case  4: dest[pos - 29] = ch;
+          case  3: dest[pos - 30] = ch;
+          case  2: dest[pos - 31] = ch;
+          case  1: dest[pos - 32] = ch;
+        } while ((pos -= 32) != 0);
       } /* switch */
     } /* if */
   } /* memset_to_strelem */
@@ -416,39 +411,40 @@ boolType memcpy_from_strelem (register const ustriType dest,
     if (len != 0) {
       pos = (len + 31) & ~(memSizeType) 31;
       switch (len & 31) {
-        case  0: do { check |= src[pos -  1]; dest[pos -  1] = (ucharType) src[pos -  1];
-        case 31:      check |= src[pos -  2]; dest[pos -  2] = (ucharType) src[pos -  2];
-        case 30:      check |= src[pos -  3]; dest[pos -  3] = (ucharType) src[pos -  3];
-        case 29:      check |= src[pos -  4]; dest[pos -  4] = (ucharType) src[pos -  4];
-        case 28:      check |= src[pos -  5]; dest[pos -  5] = (ucharType) src[pos -  5];
-        case 27:      check |= src[pos -  6]; dest[pos -  6] = (ucharType) src[pos -  6];
-        case 26:      check |= src[pos -  7]; dest[pos -  7] = (ucharType) src[pos -  7];
-        case 25:      check |= src[pos -  8]; dest[pos -  8] = (ucharType) src[pos -  8];
-        case 24:      check |= src[pos -  9]; dest[pos -  9] = (ucharType) src[pos -  9];
-        case 23:      check |= src[pos - 10]; dest[pos - 10] = (ucharType) src[pos - 10];
-        case 22:      check |= src[pos - 11]; dest[pos - 11] = (ucharType) src[pos - 11];
-        case 21:      check |= src[pos - 12]; dest[pos - 12] = (ucharType) src[pos - 12];
-        case 20:      check |= src[pos - 13]; dest[pos - 13] = (ucharType) src[pos - 13];
-        case 19:      check |= src[pos - 14]; dest[pos - 14] = (ucharType) src[pos - 14];
-        case 18:      check |= src[pos - 15]; dest[pos - 15] = (ucharType) src[pos - 15];
-        case 17:      check |= src[pos - 16]; dest[pos - 16] = (ucharType) src[pos - 16];
-        case 16:      check |= src[pos - 17]; dest[pos - 17] = (ucharType) src[pos - 17];
-        case 15:      check |= src[pos - 18]; dest[pos - 18] = (ucharType) src[pos - 18];
-        case 14:      check |= src[pos - 19]; dest[pos - 19] = (ucharType) src[pos - 19];
-        case 13:      check |= src[pos - 20]; dest[pos - 20] = (ucharType) src[pos - 20];
-        case 12:      check |= src[pos - 21]; dest[pos - 21] = (ucharType) src[pos - 21];
-        case 11:      check |= src[pos - 22]; dest[pos - 22] = (ucharType) src[pos - 22];
-        case 10:      check |= src[pos - 23]; dest[pos - 23] = (ucharType) src[pos - 23];
-        case  9:      check |= src[pos - 24]; dest[pos - 24] = (ucharType) src[pos - 24];
-        case  8:      check |= src[pos - 25]; dest[pos - 25] = (ucharType) src[pos - 25];
-        case  7:      check |= src[pos - 26]; dest[pos - 26] = (ucharType) src[pos - 26];
-        case  6:      check |= src[pos - 27]; dest[pos - 27] = (ucharType) src[pos - 27];
-        case  5:      check |= src[pos - 28]; dest[pos - 28] = (ucharType) src[pos - 28];
-        case  4:      check |= src[pos - 29]; dest[pos - 29] = (ucharType) src[pos - 29];
-        case  3:      check |= src[pos - 30]; dest[pos - 30] = (ucharType) src[pos - 30];
-        case  2:      check |= src[pos - 31]; dest[pos - 31] = (ucharType) src[pos - 31];
-        case  1:      check |= src[pos - 32]; dest[pos - 32] = (ucharType) src[pos - 32];
-                } while ((pos -= 32) > 0);
+        do {
+          case  0: check |= src[pos -  1]; dest[pos -  1] = (ucharType) src[pos -  1];
+          case 31: check |= src[pos -  2]; dest[pos -  2] = (ucharType) src[pos -  2];
+          case 30: check |= src[pos -  3]; dest[pos -  3] = (ucharType) src[pos -  3];
+          case 29: check |= src[pos -  4]; dest[pos -  4] = (ucharType) src[pos -  4];
+          case 28: check |= src[pos -  5]; dest[pos -  5] = (ucharType) src[pos -  5];
+          case 27: check |= src[pos -  6]; dest[pos -  6] = (ucharType) src[pos -  6];
+          case 26: check |= src[pos -  7]; dest[pos -  7] = (ucharType) src[pos -  7];
+          case 25: check |= src[pos -  8]; dest[pos -  8] = (ucharType) src[pos -  8];
+          case 24: check |= src[pos -  9]; dest[pos -  9] = (ucharType) src[pos -  9];
+          case 23: check |= src[pos - 10]; dest[pos - 10] = (ucharType) src[pos - 10];
+          case 22: check |= src[pos - 11]; dest[pos - 11] = (ucharType) src[pos - 11];
+          case 21: check |= src[pos - 12]; dest[pos - 12] = (ucharType) src[pos - 12];
+          case 20: check |= src[pos - 13]; dest[pos - 13] = (ucharType) src[pos - 13];
+          case 19: check |= src[pos - 14]; dest[pos - 14] = (ucharType) src[pos - 14];
+          case 18: check |= src[pos - 15]; dest[pos - 15] = (ucharType) src[pos - 15];
+          case 17: check |= src[pos - 16]; dest[pos - 16] = (ucharType) src[pos - 16];
+          case 16: check |= src[pos - 17]; dest[pos - 17] = (ucharType) src[pos - 17];
+          case 15: check |= src[pos - 18]; dest[pos - 18] = (ucharType) src[pos - 18];
+          case 14: check |= src[pos - 19]; dest[pos - 19] = (ucharType) src[pos - 19];
+          case 13: check |= src[pos - 20]; dest[pos - 20] = (ucharType) src[pos - 20];
+          case 12: check |= src[pos - 21]; dest[pos - 21] = (ucharType) src[pos - 21];
+          case 11: check |= src[pos - 22]; dest[pos - 22] = (ucharType) src[pos - 22];
+          case 10: check |= src[pos - 23]; dest[pos - 23] = (ucharType) src[pos - 23];
+          case  9: check |= src[pos - 24]; dest[pos - 24] = (ucharType) src[pos - 24];
+          case  8: check |= src[pos - 25]; dest[pos - 25] = (ucharType) src[pos - 25];
+          case  7: check |= src[pos - 26]; dest[pos - 26] = (ucharType) src[pos - 26];
+          case  6: check |= src[pos - 27]; dest[pos - 27] = (ucharType) src[pos - 27];
+          case  5: check |= src[pos - 28]; dest[pos - 28] = (ucharType) src[pos - 28];
+          case  4: check |= src[pos - 29]; dest[pos - 29] = (ucharType) src[pos - 29];
+          case  3: check |= src[pos - 30]; dest[pos - 30] = (ucharType) src[pos - 30];
+          case  2: check |= src[pos - 31]; dest[pos - 31] = (ucharType) src[pos - 31];
+          case  1: check |= src[pos - 32]; dest[pos - 32] = (ucharType) src[pos - 32];
+        } while ((pos -= 32) != 0);
       } /* switch */
     } /* if */
     return check >= 256;
@@ -473,39 +469,40 @@ const strElemType *memchr_strelem (register const strElemType *mem,
     if (len != 0) {
       blockCount = (len + 31) >> 5;
       switch (len & 31) {
-        case  0: do { if (unlikely(*mem == ch)) return mem; mem++;
-        case 31:      if (unlikely(*mem == ch)) return mem; mem++;
-        case 30:      if (unlikely(*mem == ch)) return mem; mem++;
-        case 29:      if (unlikely(*mem == ch)) return mem; mem++;
-        case 28:      if (unlikely(*mem == ch)) return mem; mem++;
-        case 27:      if (unlikely(*mem == ch)) return mem; mem++;
-        case 26:      if (unlikely(*mem == ch)) return mem; mem++;
-        case 25:      if (unlikely(*mem == ch)) return mem; mem++;
-        case 24:      if (unlikely(*mem == ch)) return mem; mem++;
-        case 23:      if (unlikely(*mem == ch)) return mem; mem++;
-        case 22:      if (unlikely(*mem == ch)) return mem; mem++;
-        case 21:      if (unlikely(*mem == ch)) return mem; mem++;
-        case 20:      if (unlikely(*mem == ch)) return mem; mem++;
-        case 19:      if (unlikely(*mem == ch)) return mem; mem++;
-        case 18:      if (unlikely(*mem == ch)) return mem; mem++;
-        case 17:      if (unlikely(*mem == ch)) return mem; mem++;
-        case 16:      if (unlikely(*mem == ch)) return mem; mem++;
-        case 15:      if (unlikely(*mem == ch)) return mem; mem++;
-        case 14:      if (unlikely(*mem == ch)) return mem; mem++;
-        case 13:      if (unlikely(*mem == ch)) return mem; mem++;
-        case 12:      if (unlikely(*mem == ch)) return mem; mem++;
-        case 11:      if (unlikely(*mem == ch)) return mem; mem++;
-        case 10:      if (unlikely(*mem == ch)) return mem; mem++;
-        case  9:      if (unlikely(*mem == ch)) return mem; mem++;
-        case  8:      if (unlikely(*mem == ch)) return mem; mem++;
-        case  7:      if (unlikely(*mem == ch)) return mem; mem++;
-        case  6:      if (unlikely(*mem == ch)) return mem; mem++;
-        case  5:      if (unlikely(*mem == ch)) return mem; mem++;
-        case  4:      if (unlikely(*mem == ch)) return mem; mem++;
-        case  3:      if (unlikely(*mem == ch)) return mem; mem++;
-        case  2:      if (unlikely(*mem == ch)) return mem; mem++;
-        case  1:      if (unlikely(*mem == ch)) return mem; mem++;
-                } while (--blockCount > 0);
+        do {
+          case  0: if (unlikely(*mem == ch)) return mem; mem++;
+          case 31: if (unlikely(*mem == ch)) return mem; mem++;
+          case 30: if (unlikely(*mem == ch)) return mem; mem++;
+          case 29: if (unlikely(*mem == ch)) return mem; mem++;
+          case 28: if (unlikely(*mem == ch)) return mem; mem++;
+          case 27: if (unlikely(*mem == ch)) return mem; mem++;
+          case 26: if (unlikely(*mem == ch)) return mem; mem++;
+          case 25: if (unlikely(*mem == ch)) return mem; mem++;
+          case 24: if (unlikely(*mem == ch)) return mem; mem++;
+          case 23: if (unlikely(*mem == ch)) return mem; mem++;
+          case 22: if (unlikely(*mem == ch)) return mem; mem++;
+          case 21: if (unlikely(*mem == ch)) return mem; mem++;
+          case 20: if (unlikely(*mem == ch)) return mem; mem++;
+          case 19: if (unlikely(*mem == ch)) return mem; mem++;
+          case 18: if (unlikely(*mem == ch)) return mem; mem++;
+          case 17: if (unlikely(*mem == ch)) return mem; mem++;
+          case 16: if (unlikely(*mem == ch)) return mem; mem++;
+          case 15: if (unlikely(*mem == ch)) return mem; mem++;
+          case 14: if (unlikely(*mem == ch)) return mem; mem++;
+          case 13: if (unlikely(*mem == ch)) return mem; mem++;
+          case 12: if (unlikely(*mem == ch)) return mem; mem++;
+          case 11: if (unlikely(*mem == ch)) return mem; mem++;
+          case 10: if (unlikely(*mem == ch)) return mem; mem++;
+          case  9: if (unlikely(*mem == ch)) return mem; mem++;
+          case  8: if (unlikely(*mem == ch)) return mem; mem++;
+          case  7: if (unlikely(*mem == ch)) return mem; mem++;
+          case  6: if (unlikely(*mem == ch)) return mem; mem++;
+          case  5: if (unlikely(*mem == ch)) return mem; mem++;
+          case  4: if (unlikely(*mem == ch)) return mem; mem++;
+          case  3: if (unlikely(*mem == ch)) return mem; mem++;
+          case  2: if (unlikely(*mem == ch)) return mem; mem++;
+          case  1: if (unlikely(*mem == ch)) return mem; mem++;
+        } while (--blockCount > 0);
       } /* switch */
     } /* if */
     return NULL;
@@ -526,9 +523,10 @@ void memcpy_to_strelem (register strElemType *const dest,
     register const const_ustriType src, memSizeType len)
 
   { /* memcpy_to_strelem */
-    for (; len > 0; len--) {
-      dest[len - 1] = src[len - 1];
-    } /* for */
+    while (len != 0) {
+      len--;
+      dest[len] = src[len];
+    } /* while */
   } /* memcpy_to_strelem */
 
 
@@ -540,9 +538,10 @@ void memset_to_strelem (register strElemType *const dest,
     register const strElemType ch, memSizeType len)
 
   { /* memset_to_strelem */
-    for (; len > 0; len--) { \
-      dest[len - 1] = (strElemType) ch; \
-    } /* for */
+    while (len != 0) { \
+      len--;
+      dest[len] = (strElemType) ch; \
+    } /* while */
   } /* memset_to_strelem */
 
 
@@ -559,10 +558,11 @@ boolType memcpy_from_strelem (register const ustriType dest,
     register strElemType check = 0;
 
   /* memcpy_from_strelem */
-    for (; len > 0; len--) {
-      check |= src[len - 1]
-      dest[len - 1] = src[len - 1];
-    } /* for */
+    while (len != 0) {
+      len--;
+      check |= src[len]
+      dest[len] = src[len];
+    } /* while */
     return check >= 256;
   } /* memcpy_from_strelem */
 
@@ -939,13 +939,12 @@ static inline void stri_to_os_utf8 (register ustriType out_stri,
  *  @param cstri Caller provided buffer to which an ISO-8859-1
  *         encoded null terminated C string is written.
  *  @param stri Seed7 UTF-32 string to be converted.
- *  @param err_info Unchanged when the function succeeds or
- *                  RANGE_ERROR when stri contains a null character
- *                        or a character that is higher than the
- *                        highest allowed ISO-8859-1 character (255).
+ *  @result cstri, when the function succeeds or
+ *          NULL, when stri contains a null character
+ *          or a character that is higher than the
+ *          highest allowed ISO-8859-1 character (255).
  */
-void conv_to_cstri (cstriType cstri, const const_striType stri,
-    errInfoType *err_info)
+cstriType conv_to_cstri (cstriType cstri, const const_striType stri)
 
   {
     const strElemType *str;
@@ -953,18 +952,19 @@ void conv_to_cstri (cstriType cstri, const const_striType stri,
 
   /* conv_to_cstri */
     str = stri->mem;
-    for (pos = stri->size; pos > 0; pos--) {
-      if (unlikely(str[pos - 1] == 0 || str[pos - 1] >= 256)) {
+    for (pos = stri->size; pos != 0; ) {
+      pos--;
+      if (unlikely(str[pos] == 0 || str[pos] >= 256)) {
         logError(printf("conv_to_cstri: "
                         "Null character or non-ISO-8859-1 character "
                         "in string ('\\" FMT_U32 ";').\n",
-                        str[pos - 1]););
-        *err_info = RANGE_ERROR;
-        return;
+                        str[pos]););
+        return NULL;
       } /* if */
-      cstri[pos - 1] = (char) (ucharType) str[pos - 1];
+      cstri[pos] = (char) (ucharType) str[pos];
     } /* for */
     cstri[stri->size] = '\0';
+    return cstri;
   } /* conv_to_cstri */
 
 
@@ -1249,16 +1249,17 @@ static inline void conv_to_os_stri (const os_striType os_stri,
     const strElemType *const strelem, memSizeType len, errInfoType *err_info)
 
   { /* conv_to_os_stri */
-    for (; len > 0; len--) {
-      if (unlikely(strelem[len - 1] == '\0' || strelem[len - 1] >= 256)) {
+    while (len != 0) {
+      len--;
+      if (unlikely(strelem[len] == '\0' || strelem[len] >= 256)) {
         logError(printf("conv_to_os_stri: "
                         "Null character or non-ISO-8859-1 character "
                         "in string ('\\" FMT_U32 ";').\n",
-                        str[pos - 1]););
+                        str[len]););
         *err_info = RANGE_ERROR;
       } /* if */
-      os_stri[len - 1] = (os_charType) strelem[len - 1];
-    } /* for */
+      os_stri[len] = (os_charType) strelem[len];
+    } /* while */
     *os_stri = '\0';
   } /* conv_to_os_stri */
 
@@ -1543,17 +1544,18 @@ cstriType stri_to_cstri (const const_striType stri, errInfoType *err_info)
       *err_info = MEMORY_ERROR;
     } else {
       str = stri->mem;
-      for (pos = stri->size; pos > 0; pos--) {
-        if (unlikely(str[pos - 1] == 0 || str[pos - 1] >= 256)) {
+      for (pos = stri->size; pos != 0; ) {
+        pos--;
+        if (unlikely(str[pos] == 0 || str[pos] >= 256)) {
           UNALLOC_CSTRI(cstri, stri->size);
           logError(printf("stri_to_cstri: "
                           "Null character or non-ISO-8859-1 character "
                           "in string ('\\" FMT_U32 ";').\n",
-                          str[pos - 1]););
+                          str[pos]););
           *err_info = RANGE_ERROR;
           return NULL;
         } /* if */
-        cstri[pos - 1] = (char) (ucharType) str[pos - 1];
+        cstri[pos] = (char) (ucharType) str[pos];
       } /* for */
       cstri[stri->size] = '\0';
     } /* if */
@@ -1707,21 +1709,32 @@ bstriType stri_to_bstri8 (const_striType stri)
 
 
 #ifdef CONSOLE_WCHAR
-bstriType stri_to_bstriw (const_striType stri)
+/**
+ *  Create an UTF-16 encoded bstring from a Seed7 UTF-32 string.
+ *  The memory for the bstring is allocated. No zero byte is added
+ *  to the end of the bstring. No special action is done, when
+ *  the original string contains a null character.
+ *  @param stri Seed7 UTF-32 string to be converted.
+ *  @return an UTF-8 encoded bstring or
+ *          NULL, when the memory allocation failed.
+ */
+bstriType stri_to_bstriw (const_striType stri, errInfoType *err_info)
 
   {
-    errInfoType err_info = OKAY_NO_ERROR;
     memSizeType wstri_size;
     bstriType resized_bstri;
     bstriType bstri;
 
   /* stri_to_bstriw */
     if (stri->size > ((MAX_BSTRI_LEN / sizeof(os_charType)) / SURROGATE_PAIR_FACTOR)) {
+      *err_info = MEMORY_ERROR;
       bstri = NULL;
-    } else if (ALLOC_BSTRI_SIZE_OK(bstri,
-        stri->size * SURROGATE_PAIR_FACTOR * sizeof(os_charType))) {
-      wstri_size = stri_to_utf16((wstriType) bstri->mem, stri->mem, stri->size, &err_info);
-      if (unlikely(err_info != OKAY_NO_ERROR)) {
+    } else if (unlikely(!ALLOC_BSTRI_SIZE_OK(bstri,
+        stri->size * SURROGATE_PAIR_FACTOR * sizeof(os_charType)))) {
+      *err_info = MEMORY_ERROR;
+    } else {
+      wstri_size = stri_to_utf16((wstriType) bstri->mem, stri->mem, stri->size, err_info);
+      if (unlikely(*err_info != OKAY_NO_ERROR)) {
         FREE_BSTRI(bstri, stri->size * SURROGATE_PAIR_FACTOR * sizeof(os_charType));
         bstri = NULL;
       } else {

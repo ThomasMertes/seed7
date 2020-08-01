@@ -40,6 +40,7 @@ objectType hsh_idx2         (listType arguments);
 objectType hsh_incl         (listType arguments);
 objectType hsh_keys         (listType arguments);
 objectType hsh_lng          (listType arguments);
+objectType hsh_rand_key     (listType arguments);
 objectType hsh_refidx       (listType arguments);
 objectType hsh_update       (listType arguments);
 objectType hsh_values       (listType arguments);

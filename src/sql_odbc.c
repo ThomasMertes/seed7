@@ -40,11 +40,11 @@
 #include "string.h"
 #include "time.h"
 #include "limits.h"
-#ifdef WINDOWS_ODBC
+#if WINDOWS_ODBC
 #include "windows.h"
 #endif
 #include ODBC_INCLUDE
-#ifdef ODBC_INCLUDE_SQLEXT
+#if ODBC_INCLUDE_SQLEXT_H
 #include "sqlext.h"
 #endif
 

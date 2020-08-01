@@ -615,6 +615,11 @@ boolType setEq (const const_setType set1, const const_setType set2)
     const bitSetType *bitset2;
 
   /* setEq */
+    logFunction(printf("setEq(");
+                prot_set(set1);
+                printf(", ");
+                prot_set(set2);
+                printf(")\n"););
     if (set1->min_position == set2->min_position &&
         set1->max_position == set2->max_position) {
       return memcmp(set1->bitset, set2->bitset,
@@ -854,9 +859,9 @@ void setIncl (setType *const set_to, const intType number)
 setType setIntersect (const const_setType set1, const const_setType set2)
 
   {
-    intType position;
     intType min_position;
     intType max_position;
+    intType position;
     setType intersection;
 
   /* setIntersect */
@@ -875,6 +880,16 @@ setType setIntersect (const const_setType set1, const const_setType set2)
     } else {
       max_position = set2->max_position;
     } /* if */
+    while (min_position <= max_position &&
+           (set1->bitset[min_position - set1->min_position] &
+            set2->bitset[min_position - set2->min_position]) == 0) {
+      min_position++;
+    } /* while */
+    while (min_position <= max_position &&
+           (set1->bitset[max_position - set1->min_position] &
+            set2->bitset[max_position - set2->min_position]) == 0) {
+      max_position--;
+    } /* while */
     if (min_position > max_position) {
       if (unlikely(!ALLOC_SET(intersection, 1))) {
         raise_error(MEMORY_ERROR);
@@ -901,6 +916,102 @@ setType setIntersect (const const_setType set1, const const_setType set2)
                 printf("\n"););
     return intersection;
   } /* setIntersect */
+
+
+
+/**
+ *  Assign the intersection of delta and *dest to *dest.
+ *  @exception MEMORY_ERROR Not enough memory to create dest.
+ */
+void setIntersectAssign (setType *const dest, const const_setType delta)
+
+  {
+    setType set1;
+    intType min_position;
+    intType max_position;
+    intType position;
+    setType new_set1;
+
+  /* setIntersectAssign */
+    logFunction(printf("setIntersectAssign(\n");
+                prot_set(*dest);
+                printf(",\n");
+                prot_set(delta);
+                printf(")\n"););
+    set1 = *dest;
+    if (set1->min_position > delta->min_position) {
+      min_position = set1->min_position;
+    } else {
+      min_position = delta->min_position;
+    } /* if */
+    if (set1->max_position < delta->max_position) {
+      max_position = set1->max_position;
+    } else {
+      max_position = delta->max_position;
+    } /* if */
+    while (min_position <= max_position &&
+           (set1->bitset[min_position - set1->min_position] &
+            delta->bitset[min_position - delta->min_position]) == 0) {
+      min_position++;
+    } /* while */
+    while (min_position <= max_position &&
+           (set1->bitset[max_position - set1->min_position] &
+            delta->bitset[max_position - delta->min_position]) == 0) {
+      max_position--;
+    } /* while */
+    if (min_position > max_position) {
+      new_set1 = REALLOC_SET(set1, bitsetSize(set1), 1);
+      if (unlikely(new_set1 == NULL)) {
+        /* Strange case when a 'realloc', which shrinks memory, fails. */
+        /* The destination set stays unchanged. */
+        raise_error(MEMORY_ERROR);
+      } else {
+        new_set1->min_position = 0;
+        new_set1->max_position = 0;
+        new_set1->bitset[0] = (bitSetType) 0;
+        *dest = new_set1;
+      } /* if */
+    } else if (min_position == set1->min_position) {
+      if (max_position != set1->max_position) {
+        new_set1 = REALLOC_SET(set1, bitsetSize(set1), bitsetSize2(min_position, max_position));
+        if (unlikely(new_set1 == NULL)) {
+          /* Strange case when a 'realloc', which shrinks memory, fails. */
+          /* The destination set stays unchanged. */
+          raise_error(MEMORY_ERROR);
+          return;
+        } else {
+          set1 = new_set1;
+          set1->max_position = max_position;
+          *dest = set1;
+        } /* if */
+      } /* if */
+      for (position = min_position; position <= max_position; position++) {
+        set1->bitset[position - min_position] &=
+            delta->bitset[position - delta->min_position];
+      } /* for */
+    } else {
+      for (position = min_position; position <= max_position; position++) {
+        set1->bitset[position - min_position] =
+            set1->bitset[position - set1->min_position] &
+            delta->bitset[position - delta->min_position];
+      } /* for */
+      new_set1 = REALLOC_SET(set1, bitsetSize(set1), bitsetSize2(min_position, max_position));
+      if (unlikely(new_set1 == NULL)) {
+        /* Strange case when a 'realloc', which shrinks memory, fails. */
+        /* Deliver the result in the original set (that is too big).   */
+        set1->min_position = min_position;
+        set1->max_position = max_position;
+        raise_error(MEMORY_ERROR);
+      } else {
+        new_set1->min_position = min_position;
+        new_set1->max_position = max_position;
+        *dest = new_set1;
+      } /* if */
+    } /* if */
+    logFunction(printf("setIntersectAssign --> ");
+                prot_set(*dest);
+                printf("\n"););
+  } /* setIntersectAssign */
 
 
 
@@ -1227,9 +1338,9 @@ intType setNext (const const_setType set1, const intType number)
 
 
 /**
- *  Compute pseudo-random number which is element of 'aSet'.
+ *  Compute pseudo-random element from 'aSet'.
  *  The random values are uniform distributed.
- *  @return a random number such that rand(aSet) in aSet holds.
+ *  @return a random number such that setRand(aSet) in aSet holds.
  *  @exception RANGE_ERROR When 'aSet' is empty.
  */
 intType setRand (const const_setType aSet)
@@ -1573,6 +1684,11 @@ void setUnionAssign (setType *const dest, const const_setType delta)
     setType new_dest;
 
   /* setUnionAssign */
+    logFunction(printf("setUnionAssign(\n");
+                prot_set(*dest);
+                printf(",\n");
+                prot_set(delta);
+                printf(")\n"););
     set1 = *dest;
     if (set1->min_position < delta->min_position) {
       min_position = set1->min_position;
@@ -1641,4 +1757,7 @@ void setUnionAssign (setType *const dest, const const_setType delta)
         FREE_SET(set1, bitsetSize(set1));
       } /* if */
     } /* if */
+    logFunction(printf("setUnionAssign --> ");
+                prot_set(*dest);
+                printf("\n"););
  } /* setUnionAssign */

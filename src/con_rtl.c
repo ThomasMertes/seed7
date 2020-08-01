@@ -108,14 +108,22 @@ void conWrite (const_striType stri)
 
       size = stri_to_utf8(stri_buffer, stri->mem, stri->size);
 #elif defined CONSOLE_WCHAR
-      wchar_t stri_buffer[2 * WRITE_STRI_BLOCK_SIZE];
+      wchar_t stri_buffer[WRITE_STRI_BLOCK_SIZE * SURROGATE_PAIR_FACTOR];
 
       size = stri_to_utf16(stri_buffer, stri->mem, stri->size, &err_info);
+      if (unlikely(err_info != OKAY_NO_ERROR)) {
+        raise_error(err_info);
+        return;
+      } /* if */
 #else
-      ucharType stri_buffer[WRITE_STRI_BLOCK_SIZE + 1];
+      ucharType stri_buffer[WRITE_STRI_BLOCK_SIZE + NULL_TERMINATION_LEN];
 
-      conv_to_cstri(stri_buffer, stri->mem, stri->size, &err_info);
-      size = stri->size;
+      if (unlikely(conv_to_cstri(stri_buffer, stri) == NULL)) {
+        raise_error(RANGE_ERROR);
+        return;
+      } else {
+        size = stri->size;
+      } /* if */
 #endif
       conText(cursor_line, cursor_column, stri_buffer, size);
     } else {
@@ -124,11 +132,17 @@ void conWrite (const_striType stri)
 #ifdef CONSOLE_UTF8
       bstri = stri_to_bstri8(stri);
 #elif defined CONSOLE_WCHAR
-      bstri = stri_to_bstriw(stri);
+      bstri = stri_to_bstriw(stri, &err_info);
 #else
       bstri = stri_to_bstri(stri, &err_info);
 #endif
-      if (bstri != NULL) {
+      if (unlikely(bstri == NULL)) {
+#ifdef CONSOLE_UTF8
+        raise_error(MEMORY_ERROR);
+#else
+        raise_error(err_info);
+#endif
+      } else {
 #if defined CONSOLE_WCHAR
         size = bstri->size / sizeof(os_charType);
 #else

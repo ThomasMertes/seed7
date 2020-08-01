@@ -88,10 +88,10 @@ void timAwait (intType year, intType month, intType day, intType hour,
     unsigned long wait_milliseconds;
 
   /* timAwait */
-    logFunction(printf("timAwait(" F_D(04) "-" F_D(02) "-" F_D(02),
-                       year, month, day);
-                printf(" " F_D(02) ":" F_D(02) ":" F_D(02) "." F_D(06) " " FMT_D ")\n",
-                       hour, min, sec, micro_sec, time_zone););
+    logFunction(printf("timAwait(" F_D(04) "-" F_D(02) "-" F_D(02) " "
+                                   F_D(02) ":" F_D(02) ":" F_D(02) "."
+                                   F_D(06) ", " FMT_D ")\n",
+                       year, month, day, hour, min, sec, micro_sec, time_zone););
     await_time_struct.wYear         = (WORD) year;
     await_time_struct.wMonth        = (WORD) month;
     await_time_struct.wDay          = (WORD) day;
@@ -204,10 +204,11 @@ void timNow (intType *year, intType *month, intType *day, intType *hour,
       *time_zone = (unchecked_mkutc(local_time) - utc_seconds) / 60;
       *is_dst    = local_time->tm_isdst > 0;
     } /* if */
-    logFunction(printf("timNow(" F_D(04) "-" F_D(02) "-" F_D(02),
-                       *year, *month, *day);
-                printf(" " F_D(02) ":" F_D(02) ":" F_D(02) "." F_D(06) " " FMT_D " %d)\n",
-                       *hour, *min, *sec, *micro_sec, *time_zone, *is_dst););
+    logFunction(printf("timNow(" F_D(04) "-" F_D(02) "-" F_D(02) " "
+                                 F_D(02) ":" F_D(02) ":" F_D(02) "."
+                                 F_D(06) ", " FMT_D ", %d) -->\n",
+                       *year, *month, *day, *hour, *min, *sec,
+                       *micro_sec, *time_zone, *is_dst););
   } /* timNow */
 
 

@@ -721,7 +721,7 @@ const func cardImage: findCard (in cardDeck: deck, in cardSuit: suit,
       end if;
     end for;
   end func;
-  
+
 
 const proc: createSolution (inout stateType: state) is func
   local

@@ -37,7 +37,7 @@
 #include "stdlib.h"
 #include "stdio.h"
 #include "string.h"
-#ifdef USE_WINSOCK
+#if SOCKET_LIB == WINSOCK_SOCKETS
 #include "winsock2.h"
 /* #define os_poll WSAPoll  - available with Vista */
 #else

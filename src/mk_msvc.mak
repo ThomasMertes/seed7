@@ -28,11 +28,6 @@ ALL_S7_LIBS = ..\bin\$(COMPILER_LIB) ..\bin\$(COMP_DATA_LIB) ..\bin\$(DRAW_LIB) 
 CC = ..\bin\call_cl
 GET_CC_VERSION_INFO = $(CC) 2>
 
-BIGINT_LIB_DEFINE = USE_BIG_RTL_LIBRARY
-BIGINT_LIB = big_rtl
-# BIGINT_LIB_DEFINE = USE_BIG_GMP_LIBRARY
-# BIGINT_LIB = big_gmp
-
 !if exist(macros)
 !include macros
 !endif
@@ -46,14 +41,14 @@ LOBJ = actlib.obj arrlib.obj biglib.obj binlib.obj blnlib.obj bstlib.obj chrlib.
 EOBJ = exec.obj doany.obj objutl.obj
 AOBJ = act_comp.obj prg_comp.obj analyze.obj syntax.obj token.obj parser.obj name.obj type.obj \
        expr.obj atom.obj object.obj scanner.obj literal.obj numlit.obj findid.obj \
-       error.obj infile.obj libpath.obj  symbol.obj info.obj stat.obj fatal.obj match.obj
+       error.obj infile.obj libpath.obj symbol.obj info.obj stat.obj fatal.obj match.obj
 GOBJ = syvarutl.obj traceutl.obj actutl.obj executl.obj blockutl.obj \
        entutl.obj identutl.obj chclsutl.obj arrutl.obj
 ROBJ = arr_rtl.obj bln_rtl.obj bst_rtl.obj chr_rtl.obj cmd_rtl.obj con_rtl.obj dir_rtl.obj drw_rtl.obj fil_rtl.obj \
        flt_rtl.obj hsh_rtl.obj int_rtl.obj itf_rtl.obj pcs_rtl.obj set_rtl.obj soc_rtl.obj sql_rtl.obj str_rtl.obj \
        tim_rtl.obj ut8_rtl.obj heaputl.obj numutl.obj sigutl.obj striutl.obj \
        sql_base.obj sql_lite.obj sql_my.obj sql_oci.obj sql_odbc.obj sql_post.obj
-DOBJ = $(BIGINT_LIB).obj cmd_win.obj dir_win.obj dll_win.obj fil_win.obj pcs_win.obj pol_sel.obj stat_win.obj tim_win.obj
+DOBJ = big_rtl.obj big_gmp.obj cmd_win.obj dir_win.obj dll_win.obj fil_win.obj pcs_win.obj pol_sel.obj stat_win.obj tim_win.obj
 OBJ = $(MOBJ)
 SEED7_LIB_OBJ = $(ROBJ) $(DOBJ)
 DRAW_LIB_OBJ = gkb_rtl.obj drw_win.obj gkb_win.obj
@@ -77,7 +72,7 @@ RSRC = arr_rtl.c bln_rtl.c bst_rtl.c chr_rtl.c cmd_rtl.c con_rtl.c dir_rtl.c drw
        flt_rtl.c hsh_rtl.c int_rtl.c itf_rtl.c pcs_rtl.c set_rtl.c soc_rtl.c sql_rtl.c str_rtl.c \
        tim_rtl.c ut8_rtl.c heaputl.c numutl.c sigutl.c striutl.c \
        sql_base.c sql_lite.c sql_my.c sql_oci.c sql_odbc.c sql_post.c
-DSRC = $(BIGINT_LIB).c cmd_win.c dir_win.c dll_win.c fil_win.c pcs_win.c pol_sel.c stat_win.c tim_win.c
+DSRC = big_rtl.c big_gmp.c cmd_win.c dir_win.c dll_win.c fil_win.c pcs_win.c pol_sel.c stat_win.c tim_win.c
 SRC = $(MSRC)
 SEED7_LIB_SRC = $(RSRC) $(DSRC)
 DRAW_LIB_SRC = gkb_rtl.c drw_win.c gkb_win.c
@@ -97,7 +92,7 @@ s7c: ..\bin\s7c.exe ..\prg\s7c.exe
 	@echo.
 
 ..\bin\s7.exe: $(OBJ) $(ALL_S7_LIBS)
-	$(CC) -Z7 $(LDFLAGS) -o ..\bin\s7.exe $(OBJ) $(ALL_S7_LIBS) $(SYSTEM_DRAW_LIBS) $(SYSTEM_CONSOLE_LIBS) $(SYSTEM_LIBS) $(SYSTEM_DB_LIBS)
+	$(CC) -Z7 $(LDFLAGS) -o ..\bin\s7.exe $(OBJ) $(ALL_S7_LIBS) $(SYSTEM_DRAW_LIBS) $(SYSTEM_CONSOLE_LIBS) $(SYSTEM_LIBS) $(ADDITIONAL_SYSTEM_LIBS)
 
 ..\prg\s7.exe: ..\bin\s7.exe
 	copy ..\bin\s7.exe ..\prg /Y
@@ -165,9 +160,8 @@ version.h: chkccomp.h
 	echo #define PATH_DELIMITER '\\' > version.h
 	echo #define USE_WMAIN >> version.h
 	echo #define SEARCH_PATH_DELIMITER ';' >> version.h
-	echo #define NULL_DEVICE "NUL:" >> version.h
 	echo #define INT_DIV_BY_ZERO_POPUP >> version.h
-	echo #define DO_SIGFPE_WITH_DIV_BY_ZERO >> version.h
+	echo #define DO_SIGFPE_WITH_DIV_BY_ZERO 1 >> version.h
 	echo #define FILENO_WORKS_FOR_NULL 0 >> version.h
 	echo #define WITH_SQL >> version.h
 	echo #define CONSOLE_WCHAR >> version.h
@@ -185,8 +179,6 @@ version.h: chkccomp.h
 	echo #define os_putenv _wputenv >> version.h
 	echo #define os_getch _getwch >> version.h
 	echo #define QUOTE_WHOLE_SHELL_COMMAND >> version.h
-	echo #define USE_WINSOCK >> version.h
-	echo #define $(BIGINT_LIB_DEFINE) >> version.h
 	echo #define OBJECT_FILE_EXTENSION ".obj" >> version.h
 	echo #define LIBRARY_FILE_EXTENSION ".lib" >> version.h
 	echo #define EXECUTABLE_FILE_EXTENSION ".exe" >> version.h
@@ -356,7 +348,7 @@ wc: $(SRC)
 	wc $(COMPILER_LIB_SRC)
 
 lint: $(SRC)
-	lint -p $(SRC) $(SYSTEM_DRAW_LIBS) $(SYSTEM_CONSOLE_LIBS) $(SYSTEM_LIBS) $(SYSTEM_DB_LIBS)
+	lint -p $(SRC) $(SYSTEM_DRAW_LIBS) $(SYSTEM_CONSOLE_LIBS) $(SYSTEM_LIBS) $(ADDITIONAL_SYSTEM_LIBS)
 
 lint2: $(SRC)
-	lint -Zn2048 $(SRC) $(SYSTEM_DRAW_LIBS) $(SYSTEM_CONSOLE_LIBS) $(SYSTEM_LIBS) $(SYSTEM_DB_LIBS)
+	lint -Zn2048 $(SRC) $(SYSTEM_DRAW_LIBS) $(SYSTEM_CONSOLE_LIBS) $(SYSTEM_LIBS) $(ADDITIONAL_SYSTEM_LIBS)

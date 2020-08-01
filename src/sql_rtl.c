@@ -1234,7 +1234,7 @@ databaseType sqlOpen (intType driver, const const_striType dbName,
                        driver, striAsUnquotedCStri(dbName));
                 printf("\"%s\", ", striAsUnquotedCStri(user));
                 printf("\"%s\")\n", striAsUnquotedCStri(password)););
-    switch (driver) {
+    switch (castIntTypeForSwitch(driver)) {
 #ifdef MYSQL_INCLUDE
       case 1:
         database = sqlOpenMy(dbName, user, password);

@@ -356,7 +356,7 @@ void heap_statistic (void)
           (unsigned int) SIZ_REC(objectRecord));
       bytes_used += count.sct_elems * SIZ_REC(objectRecord);
     } /* if */
-#ifdef USE_BIG_RTL_LIBRARY
+#if BIGINT_LIB == BIG_RTL_LIBRARY
     if (count.big != 0) {
       printf("%9lu bytes in %8lu bigIntegers of         %4u bytes\n",
           count.big * SIZ_BIG(0),

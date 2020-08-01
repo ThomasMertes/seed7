@@ -492,7 +492,7 @@ void timNow (intType *year, intType *month, intType *day, intType *hour,
     } /* if */
     logFunction(printf("timNow(" F_D(04) "-" F_D(02) "-" F_D(02) " "
                                  F_D(02) ":" F_D(02) ":" F_D(02) "."
-                                 F_D(06) ", " FMT_D ", %d)\n",
+                                 F_D(06) ", " FMT_D ", %d) -->\n",
                        *year, *month, *day, *hour, *min, *sec,
                        *micro_sec, *time_zone, *is_dst););
   } /* timNow */

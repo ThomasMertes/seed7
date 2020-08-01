@@ -569,44 +569,49 @@ HOW TO USE THE GMP LIBRARY?
   You need the GMP library (one of gmp.lib/gmp.dll/gmp.a/gmp.so)
   and the gmp.h include file.
 
-  Every makefile contains a line which defines the 'SYSTEM_LIBS'
-  to be used when the 's7' interpreter is linked. E.g.:
+  When Seed7 is compiled with
 
-    SYSTEM_LIBS = -lm -ldl
-
-  The next line starts with # (which means it is commented out)
-  and additionally contains the command to add the gmp library:
-
-    # SYSTEM_LIBS = -lm -ldl -lgmp
-
-  The old 'SYSTEM_LIBS' line needs to be commented out and the
-  line which links also 'gmp' needs to be activated:
-
-    # SYSTEM_LIBS = -lm -ldl
-    SYSTEM_LIBS = -lm -ldl -lgmp
-
-  There are also four lines which define which files contain
-  the interface functions for bigInteger:
-
-    BIGINT_LIB_DEFINE = USE_BIG_RTL_LIBRARY
-    BIGINT_LIB = big_rtl
-    # BIGINT_LIB_DEFINE = USE_BIG_GMP_LIBRARY
-    # BIGINT_LIB = big_gmp
-
-  This four lines must be changed to
-
-    # BIGINT_LIB_DEFINE = USE_BIG_RTL_LIBRARY
-    # BIGINT_LIB = big_rtl
-    BIGINT_LIB_DEFINE = USE_BIG_GMP_LIBRARY
-    BIGINT_LIB = big_gmp
-
-  After the changes in the makefile it is necessary to start the
-  compilation process from scratch with (use the corresponding
-  make command (gmake, nmake, ...) for your make tool):
-
-    make clean
     make depend
-    make
+
+  the program chkccomp.c checks if it is possible to compile and
+  link a small test program with the GMP library. When the small
+  test program works correct the definitions to use 'big_gmp.c'
+  are written to version.h:
+
+    #define BIG_GMP_LIBRARY 2
+    #define BIGINT_LIB BIG_GMP_LIBRARY
+
+  Additionally the option to link the GMP library is added to
+  ADDITIONAL_SYSTEM_LIBS. ADDITIONAL_SYSTEM_LIBS can be found
+  in version.h:
+
+    #define ADDITIONAL_SYSTEM_LIBS "  ...  -lgmp"
+
+  The file macros will also contain a definition of
+  ADDITIONAL_SYSTEM_LIBS:
+
+    ADDITIONAL_SYSTEM_LIBS =  ...  -lgmp
+
+  When everything works as expected the GMP library will be
+  used automatically.
+
+  When chkccomp.c does not succceed with the small GMP test
+  program the file version.h will contain definitions to use
+  'big_rtl.c' as bigInteger library:
+
+    #define BIG_RTL_LIBRARY 1
+    #define BIGINT_LIB BIG_RTL_LIBRARY
+
+  In this case either the include file gmp.h is missing or
+  the GMP library cannot be linked. By default chkccomp.c
+  uses "-lgmp" as option to link the GMP library. If a
+  different option should be used it can be added to the
+  makefile used to compile Seed7. The section to create
+  chkccomp.h: can be extended with a line like
+
+    echo "#define BIGINT_LIBS \" option to link GMP \"" >> chkccomp.h
+
+  to write a definition of BIGINT_LIBS to the file chkccomp.h.
 
 
 SOURCE FILES
@@ -881,10 +886,6 @@ MACROS WRITTEN TO VERSION.H BY THE MAKEFILE
                          character. Linux/Unix/BSD use ':' and
                          Windows uses ';'.
 
-  NULL_DEVICE: Name of the NULL device.
-               Under Linux/Unix/BSD this is "/dev/null".
-               Under Windows this is "NUL:".
-
   USE_MMAP: Defined when the mmap() function should be used,
             when a Seed7 source file is parsed or when a file
             is copied.
@@ -898,6 +899,11 @@ MACROS WRITTEN TO VERSION.H BY THE MAKEFILE
                     ppoll() to implement waiting for a time.
                     Only one #define of AWAIT_WITH_xxx is
                     allowed.
+
+  AWAIT_WITH_SELECT: The function timAwait() uses the function
+                     select() to implement waiting for a time.
+                     Only one #define of AWAIT_WITH_xxx is
+                     allowed.
 
   AWAIT_WITH_SIGACTION: The function timAwait() uses the
                         functions sigaction(), setitimer(),
@@ -955,9 +961,6 @@ MACROS WRITTEN TO VERSION.H BY THE MAKEFILE
                           types like 'DIR', 'dirent' and
                           'struct stat' must be used.
 
-  USE_GETADDRINFO: Defined when the function getaddrinfo()
-                   should be used.
-
   ESCAPE_SHELL_COMMANDS: Depending on the shell/os the C
                          functions system() and popen() need
                          to get processed shell commands.
@@ -980,20 +983,20 @@ MACROS WRITTEN TO VERSION.H BY THE MAKEFILE
                              final command string starts with
                              two double quotes).
 
-  USE_WINSOCK: Use the winsocket functions instead of the
-               normal Unix socket functions.
+  NO_BIG_LIBRARY: Defined as -1. The meaning is: No library to
+                  to implement the bigInteger functions.
 
-  USE_BIG_RTL_LIBRARY: Defined when the big_rtl library is used
-                       to implement the bigInteger functions.
-                       Not defined (undef) when the big_gmp
-                       library is used to implement the
-                       bigInteger functions.
+  BIG_RTL_LIBRARY: Defined as 1. The meaning is: The big_rtl
+                   library is used to implement the bigInteger
+                   functions.
 
-  USE_BIG_GMP_LIBRARY: Defined when the big_gmp library is used
-                       to implement the bigInteger functions.
-                       Not defined (undef) when the big_rtl
-                       library is used to implement the
-                       bigInteger functions.
+  BIG_GMP_LIBRARY: Defined as 2. The meaning is: The big_gmp
+                   library is used to implement the bigInteger
+                   functions.
+
+  BIGINT_LIB: Defines the bigInteger library used. The value is
+              one of NO_BIG_LIBRARY, BIG_RTL_LIBRARY and
+              BIG_GMP_LIBRARY.
 
   OBJECT_FILE_EXTENSION: The extension used by the C compiler for
                          object files (Several object files and
@@ -1095,18 +1098,34 @@ MACROS WRITTEN TO VERSION.H BY THE MAKEFILE
   LINKER_FLAGS: Contains options for the stand-alone linker to link
                 a compiled Seed7 program.
 
-  SYSTEM_LIBS: Contains system libraries for the stand-alone linker
-               to link a compiled Seed7 program.
+  SYSTEM_LIBS: Options to link system libraries to a compiled
+               program. This is intended for options to link
+               libraries required by the Seed7 runtime library.
+               E.g. libraries for math or socket.
 
-  SYSTEM_CONSOLE_LIBS: Contains system console libraries for the
-                       stand-alone linker to link a compiled Seed7
-                       program, when it needs to write to the
-                       console.
+  SYSTEM_CONSOLE_LIBS: Options to link system console libraries to
+                       a compiled program. This is intended for
+                       options to link libraries required by the
+                       Seed7 console runtime library
+                       (e.g.: "-lncurses").
 
-  SYSTEM_DRAW_LIBS: Contains system drawing / graphic libraries for
-                    the stand-alone linker to link a compiled Seed7
-                    program, when it needs to draw.
+  SYSTEM_DRAW_LIBS: Options to link system graphic libraries to a
+                    compiled program. This is intended for options
+                    to link libraries required by the Seed7 graphic
+                    runtime library (e.g.: "-lX11").
 
+  ADDITIONAL_SYSTEM_LIBS: Options to link additional libraries to
+                          a compiled program. This is intended for
+                          options to link libraries required by the
+                          Seed7 database runtime libraries
+                          (e.g.: "-lmysqlclient") or the
+                          multiprecision library (e.g.: "-lgmp").
+
+  DEFINE_COMMAND_LINE_TO_ARGV_W Defined when the function
+                                CommandLineToArgvW() is missing or
+                                buggy. In this case the definition
+                                of CommandLineToArgvW() in cmd_win.c
+                                is be used instead.
 
 MACROS WRITTEN TO VERSION.H BY CHKCCOMP.C
 
@@ -1122,8 +1141,16 @@ MACROS WRITTEN TO VERSION.H BY CHKCCOMP.C
 
   HAS_SIGACTION: TRUE, when the function sigaction() is present.
 
-  SIGNAL_RESETS_HANDLER: TRUE, when a signal resets the hander
-                         that was set by signal().
+  SIGNAL_RESETS_HANDLER: TRUE, when a signal resets the signal
+                         handling to SIG_DFL. When it is FALSE the
+                         signal handler stays unchanged, when a
+                         signal is raised. When a signal handler is
+                         set with signal() an incoming signal might
+                         trigger a reset of the signal handling.
+                         This depends on the C run-time. When a
+                         signal handler is set with sigaction()
+                         an incoming signal always leaves the
+                         signal handling unchanged.
 
   restrict: Defined when the C compiler does not support the
             restrict keyword.
@@ -1146,28 +1173,47 @@ MACROS WRITTEN TO VERSION.H BY CHKCCOMP.C
   MACRO_DEFS: String with macro definitions for likely, unlikely
               and NORETURN.
 
-  USE_DIRENT: The header file containing the definitions for
-              opendir(), readdir() and closedir() has the name
-              <dirent.h>. Only one #define of USE_DIRxxx is
-              allowed.
+  NO_SOCKETS Defined as -1. The meaning is: There is no socket
+             library.
 
-  USE_DIRECT: The header file containing the definitions for
-              opendir(), readdir() and closedir() has the name
-              <direct.h>. Only one #define of USE_DIRxxx is
-              allowed.
+  UNIX_SOCKETS Defined as 1. The meaning is: The operating system
+               uses Unix sockets.
 
-  USE_DIRWIN: The opendir(), readdir() and closedir() functions
-              from dir_win.c are used. This functions are based
-              on FindFirstFileA() and FindNextFileA(). Only one
-              #define of USE_DIRxxx is allowed. Additionally the
-              file dir_win.c contains also definitions of the
-              wopendir(), wreaddir() and wclosedir() based
-              on FindFirstFileW() and FindNextFileW().
+  WINSOCK_SOCKETS Defined as 2. The meaning is: The operating system
+               uses Windows sockets.
 
-  USE_DIRDOS: The opendir(), readdir() and closedir() functions
-              from dir_dos.c are used. This functions are based
-              on _dos_findfirst() and _dos_findnext(). Only one
-              #define of USE_DIRxxx is allowed.
+  SOCKET_LIB: Defines the socket library used. The value is one of
+              NO_SOCKETS, UNIX_SOCKETS and WINSOCK_SOCKETS.
+
+  NO_DIRECTORY: Defined as -1. The meaning is: No header file with
+                definitions for opendir(), readdir() and closedir()
+                is present.
+
+  DIRENT_DIRECTORY: Defined as 1. The meaning is: The prototypes
+                    of opendir(), readdir() and closedir() are in
+                    the header file <dirent.h>.
+
+  DIRECT_DIRECTORY: Defined as 2. The meaning is: The prototypes
+                    of opendir(), readdir() and closedir() are in
+                    the header file <direct.h>.
+
+  DIRDOS_DIRECTORY: Defined as 3. The meaning is: The opendir(),
+                    readdir() and closedir() functions from
+                    dir_dos.c are used. This functions are based
+                    on _dos_findfirst() and _dos_findnext().
+
+  DIRWIN_DIRECTORY: Defined as 4. The meaning is: The wopendir(),
+                    wreaddir() and wclosedir() functions from
+                    dir_win.c are used. This functions are based
+                    on FindFirstFileW() and FindNextFileW().
+                    Additionally the file dir_win.c contains also
+                    definitions of opendir(), readdir() and
+                    closedir(). This functions are based on
+                    FindFirstFileA() and FindNextFileA().
+
+  DIR_LIB: Defines the directory library used. The value is one
+           of NO_DIRECTORY, DIRENT_DIRECTORY, DIRECT_DIRECTORY,
+           DIRDOS_DIRECTORY and DIRWIN_DIRECTORY.
 
   os_DIR: Type to be used instead of 'DIR' under the target
           operating system. If not defined 'DIR' is used.
@@ -1281,6 +1327,9 @@ MACROS WRITTEN TO VERSION.H BY CHKCCOMP.C
   HAS_FCNTL_SETFD_CLOEXEC: TRUE, when fcntl() supports
                            F_SETFD,FD_CLOEXEC.
 
+  HAS_GETADDRINFO: TRUE, when the function getaddrinfo() is
+                   available.
+
   HAS_PIPE2: TRUE, when the function pipe2() is available.
 
   HAS_SNPRINTF: TRUE, when the function snprintf() is available.
@@ -1341,6 +1390,10 @@ MACROS WRITTEN TO VERSION.H BY CHKCCOMP.C
   OS_OFF_T_SIZE: Size of os_off_t in bits.
 
   TIME_T_SIZE: Size of time_t in bits.
+
+  NULL_DEVICE: Name of the NULL device.
+               Under Linux/Unix/BSD this is "/dev/null".
+               Under Windows this is "NUL:".
 
   OS_PATH_HAS_DRIVE_LETTERS: TRUE, when the absolute paths of
                              the operating system use drive
@@ -1449,21 +1502,20 @@ MACROS WRITTEN TO VERSION.H BY CHKCCOMP.C
   NO_EMPTY_STRUCTS: Defined when the C compiler considers an empty
                     struct as syntax error.
 
-  HAS_SIGACTION: Defined when the function sigaction() is
-                 available.
-
-  HAS_GETRLIMIT: Defined when the functions getrlimit() and
+  HAS_GETRLIMIT: TRUE, when the functions getrlimit() and
                  setrlimit() are available.
 
-  HAS_SIGSETJMP: Defined when the functions sigsetjmp() and
-                 siglongjmp() are available. When HAS_SIGSETJMP is
-                 not defined the functions setjmp() and longjmp()
-                 are used instead.
+  HAS_SIGSETJMP: TRUE, when the functions sigsetjmp() and
+                 siglongjmp() are available. When it is FALSE the
+                 functions setjmp() and longjmp() must be used
+                 instead.
 
-  HAS_SYMLINKS: Defined when the operating system supports
+  HAS_SYMBOLIC_LINKS: TRUE, when the operating system supports
                 symlinks.
 
-  HAS_FIFO_FILES: Defined when the operating system supports fifo
+  HAS_READLINK: TRUE, when the function readlink() is available.
+
+  HAS_FIFO_FILES: TRUE, when the operating system supports fifo
                   (first in first out) files.
 
   HAS_POLL: Defined when the function poll() is available.
@@ -1473,31 +1525,27 @@ MACROS WRITTEN TO VERSION.H BY CHKCCOMP.C
                          chkccomp.c defines CHECK_INT_DIV_BY_ZERO,
                          to avoid the popup.
 
-  INT_DIV_BY_ZERO_SIGNALS: Defined when an integer division by
-                           zero triggers the signal SIGFPE. When
-                           it is defined chkccomp.c defines also
-                           DO_SIGFPE_WITH_DIV_BY_ZERO.
+  DO_SIGFPE_WITH_DIV_BY_ZERO: TRUE, when SIGFPE should be raised
+                              with an integer division by zero.
+                              When it is FALSE raise(SIGFPE) can
+                              be called instead. Under Windows it
+                              is necessary to trigger SIGFPE this
+                              way to assure that the debugger can
+                              catch it. When the compiler (s7c)
+                              is called with the option -e the
+                              function triggerSigfpe() is used to
+                              raise SIGFPE, when an uncaught
+                              EXCEPTION occurs.
 
-  DO_SIGFPE_WITH_DIV_BY_ZERO: Defined when SIGFPE should be raised
-                              with a division by zero instead of
-                              just calling raise(SIGFPE). Under
-                              Windows it is necessary to trigger
-                              SIGFPE this way to assure that the
-                              debugger can catch it. The Seed7 to
-                              C compiler produces code to raise
-                              SIGFPE when an uncaught EXCEPTION
-                              occurs (when the compiler was called
-                              with the option -e).
+  CHECK_INT_DIV_BY_ZERO: TRUE, when integer divisions must be
+                         checked for a division by zero. This
+                         applies to the division operations div,
+                         rem, mdiv and mod. The generated C code
+                         should, when a division by zero occurs,
+                         raise the exception NUMERIC_ERROR instead
+                         of doing the illegal divide operation.
 
-  CHECK_INT_DIV_BY_ZERO: Instruct the Seed7 to C compiler to
-                         generate C code, which checks all integer
-                         divisions (div, rem, mdiv and mod) for
-                         division by zero. The generated C code
-                         should, when executed, raise the
-                         exception NUMERIC_ERROR instead of doing
-                         the illegal divide operation.
-
-  CHECK_INT_REM_BY_ZERO: Defined when integer remainder must be
+  CHECK_INT_REM_BY_ZERO: TRUE, when integer remainder must be
                          checked for a division by zero. This
                          applies to the division operations rem
                          and mod. The generated C code should,
@@ -1505,7 +1553,7 @@ MACROS WRITTEN TO VERSION.H BY CHKCCOMP.C
                          the exception NUMERIC_ERROR instead of
                          doing the illegal divide operation.
 
-  CHECK_INT_REM_ZERO_BY_ZERO: Defined when the integer expression
+  CHECK_INT_REM_ZERO_BY_ZERO: TRUE, when the integer expression
                               0%0 might not trigger SIGFPE. This
                               can happen with a constant or a
                               variable dividend. This applies to

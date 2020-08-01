@@ -34,6 +34,7 @@
 
 #include "version.h"
 
+#if BIGINT_LIB == BIG_RTL_LIBRARY
 #include "stdlib.h"
 #include "stdio.h"
 #include "string.h"
@@ -6400,7 +6401,8 @@ bigIntType bigParseBased (const const_striType stri, intType base)
   /* bigParseBased */
     logFunction(printf("bigParseBased(\"%s\", " FMT_D ")\n",
                        striAsUnquotedCStri(stri), base););
-    switch (base) {  /* Cases sorted by probability. */
+    switch (castIntTypeForSwitch(base)) {
+      /* Cases sorted by probability. */
       case 16: result = bigParseBasedPow2(stri, 4); break;
       case  8: result = bigParseBasedPow2(stri, 3); break;
       case 10: result = bigParse(stri);             break;
@@ -6581,7 +6583,8 @@ striType bigRadix (const const_bigIntType big1, intType base,
   /* bigRadix */
     logFunction(printf("bigRadix(%s, " FMT_D ", %d)\n",
                        bigHexCStri(big1), base, upperCase););
-    switch (base) {  /* Cases sorted by probability. */
+    switch (castIntTypeForSwitch(base)) {
+      /* Cases sorted by probability. */
       case 16: result = bigRadixPow2(big1, 4,  0xf, upperCase); break;
       case  8: result = bigRadixPow2(big1, 3,  0x7, upperCase); break;
       case 10: result = bigStr(big1);                           break;
@@ -7888,3 +7891,5 @@ bigIntType bigZero (void)
     } /* if */
     return result;
   } /* bigZero */
+
+#endif

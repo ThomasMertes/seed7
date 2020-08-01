@@ -97,7 +97,7 @@ const proc: loadFile (inout browserConnection: browser, in string: dirPath,
     end if;
     fileList := selection(min(10, length(dirContent)), dirContent);
     selectionPage := webForm("IDE7 Load",
-	    dialogColumn(
+          dialogColumn(
           header(1, "Select file to be loaded") &
           fileList &
           vspace(20) &
@@ -122,7 +122,7 @@ const proc: saveFileAs (inout browserConnection: browser, in string: dirPath) is
     var webPage: fileNameSelectionPage is webPage.value;
   begin
     fileNameSelectionPage := webForm("IDE7 Save as",
-	    dialogColumn(
+          dialogColumn(
           header(1, "Enter name of file to be saved") &
           fileName &
           vspace(20) &

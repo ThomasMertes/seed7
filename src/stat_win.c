@@ -162,7 +162,7 @@ static unsigned int fileAttr2UnixMode (DWORD attr, const wchar_t *path)
 
   /* fileAttr2UnixMode */
     logFunction(printf("fileAttr2UnixMode(" FMT_X32 ", \"%ls\")\n",
-                       attr, path != NULL ? path : "**NULL**"););
+                       attr, path != NULL ? path : L"**NULL**"););
     mode = S_IRUSR | S_IRGRP | S_IROTH;
     if ((attr & FILE_ATTRIBUTE_READONLY) == 0) {
       mode |= S_IWUSR | S_IWGRP | S_IWOTH;

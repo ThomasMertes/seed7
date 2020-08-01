@@ -84,12 +84,11 @@ DIR *opendir (const char *dirName)
     } else {
       if (nameLen > sizeof(fileNameBuffer) - 3) {
         fileNamePattern = (char *) malloc((nameLen + 3) * sizeof(char));
-        if (unlikely(fileNamePattern == NULL)) {
-          directory = NULL;
-          errno = ENOMEM;
-        } /* if */
       } /* if */
-      if (likely(fileNamePattern != NULL)) {
+      if (unlikely(fileNamePattern == NULL)) {
+        directory = NULL;
+        errno = ENOMEM;
+      } else {
         directory = (DIR *) malloc(sizeof(DIR));
         if (unlikely(directory == NULL)) {
           errno = ENOMEM;
@@ -267,12 +266,11 @@ WDIR *wopendir (const wchar_t *dirName)
     } else {
       if (nameLen > sizeof(fileNameBuffer) / sizeof(wchar_t) - 3) {
         fileNamePattern = (wchar_t *) malloc((nameLen + 3) * sizeof(wchar_t));
-        if (unlikely(fileNamePattern == NULL)) {
-          directory = NULL;
-          errno = ENOMEM;
-        } /* if */
       } /* if */
-      if (likely(fileNamePattern != NULL)) {
+      if (unlikely(fileNamePattern == NULL)) {
+        directory = NULL;
+        errno = ENOMEM;
+      } else {
         directory = (WDIR *) malloc(sizeof(WDIR));
         if (unlikely(directory == NULL)) {
           errno = ENOMEM;

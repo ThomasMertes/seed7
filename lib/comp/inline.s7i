@@ -125,6 +125,7 @@ const proc: push_inline_func_param (in reference: formal_param,
   begin
     if category(formal_param) <> SYMBOLOBJECT then
       param_type := getType(formal_param);
+      c_expr.expr &:= diagnosticLine(formal_param);
       if isFunc(param_type) then
         c_expr.expr &:= "/* push proc param o_";
         create_name2(formal_param, c_expr.expr);
@@ -213,11 +214,13 @@ const proc: pop_inline_func_param (in reference: formal_param,
     if paramCategory <> SYMBOLOBJECT then
       param_type := getType(formal_param);
       if isFunc(param_type) then
+        expr &:= diagnosticLine(formal_param);
         expr &:= "/* pop proc param o_";
         create_name2(formal_param, expr);
         expr &:= " */\n";
       elsif not isVar(formal_param) and formal_param in inlineParam and
           inlineParam[formal_param][1].paramValue <> NIL then
+        expr &:= diagnosticLine(formal_param);
         expr &:= "/* pop const param o_";
         create_name2(formal_param, expr);
         expr &:= " */\n";
@@ -243,6 +246,7 @@ const proc: process_inline_func (in reference: function,
     in ref_list: actual_params, inout expr_type: c_expr) is func
 
   local
+    var string: diagnosticLine is "";
     var type: function_type is void;
     var type: result_type is void;
     var ref_list: formal_params is ref_list.EMPTY;
@@ -250,6 +254,7 @@ const proc: process_inline_func (in reference: function,
     var expr_type: inline_decls is expr_type.value;
     var reference: result_object is NIL;
   begin
+    diagnosticLine := diagnosticLine(function);
     function_type := getType(function);
     result_type := resultType(function_type);
     formal_params := formalParams(function);
@@ -269,7 +274,9 @@ const proc: process_inline_func (in reference: function,
     c_expr.temp_to_null &:= inline_decls.temp_to_null;
     prepareAnyParamTemporarys(body(function), inline_body, c_expr);
     if inline_body.result_expr <> "" then
-      c_expr.result_expr &:= "\n/* ";
+      c_expr.result_expr &:= "\n";
+      c_expr.result_expr &:= diagnosticLine;
+      c_expr.result_expr &:= "/* ";
       if isVarfunc(function_type) then
         c_expr.result_expr &:= "var";
       end if;
@@ -290,6 +297,7 @@ const proc: process_inline_func (in reference: function,
       # c_expr.result_decl &:= inline_body.result_decl;
       # c_expr.result_free &:= inline_body.result_free;
       # c_expr.result_to_null &:= inline_body.result_to_null;
+      c_expr.result_expr &:= diagnosticLine;
       if isVarfunc(function_type) then
         c_expr.result_expr &:= "&(";
         c_expr.result_expr &:= inline_body.expr;
@@ -299,6 +307,7 @@ const proc: process_inline_func (in reference: function,
       end if;
       c_expr.result_expr &:= "\n";
       pop_inline_func_params(formal_params, c_expr.result_expr);
+      c_expr.result_expr &:= diagnosticLine;
       c_expr.result_expr &:= ")) /* ";
       if isVarfunc(function_type) then
         c_expr.result_expr &:= "var";
@@ -307,7 +316,9 @@ const proc: process_inline_func (in reference: function,
       create_name2(function, c_expr.result_expr);
       c_expr.result_expr &:= " */\n";
     else
-      c_expr.expr &:= "\n/* ";
+      c_expr.expr &:= "\n";
+      c_expr.expr &:= diagnosticLine;
+      c_expr.expr &:= "/* ";
       if isVarfunc(function_type) then
         c_expr.expr &:= "var";
       end if;
@@ -325,6 +336,7 @@ const proc: process_inline_func (in reference: function,
       c_expr.expr &:= ")(\n";
       c_expr.expr &:= inline_decls.temp_assigns;
       c_expr.expr &:= inline_decls.expr;
+      c_expr.expr &:= diagnosticLine;
       if isVarfunc(function_type) then
         c_expr.expr &:= "&(";
         c_expr.expr &:= inline_body.expr;
@@ -334,6 +346,7 @@ const proc: process_inline_func (in reference: function,
       end if;
       c_expr.expr &:= "\n";
       pop_inline_func_params(formal_params, c_expr.expr);
+      c_expr.expr &:= diagnosticLine;
       c_expr.expr &:= ")) /* ";
       if isVarfunc(function_type) then
         c_expr.expr &:= "var";
@@ -359,17 +372,20 @@ const proc: push_inline_proc_param (in reference: formal_param,
     if category(formal_param) <> SYMBOLOBJECT then
       param_type := getType(formal_param);
       if isFunc(param_type) then
+        c_expr.temp_decls &:= diagnosticLine(formal_param);
         c_expr.temp_decls &:= "/* push proc param o_";
         create_name2(formal_param, c_expr.temp_decls);
         c_expr.temp_decls &:= " */\n";
         paramData.paramValue := actual_param;
       elsif not isVar(formal_param) and getConstant(actual_param, evaluatedParam) then
+        c_expr.temp_decls &:= diagnosticLine(formal_param);
         c_expr.temp_decls &:= "/* push const param o_";
         create_name2(formal_param, c_expr.temp_decls);
         c_expr.temp_decls &:= " */\n";
         setVar(evaluatedParam, FALSE);
         paramData.paramValue := evaluatedParam;
       elsif isCopyParam(formal_param) then
+        c_expr.expr &:= diagnosticLine(formal_param);
         c_expr.expr &:= "/* push param o_";
         create_name2(formal_param, c_expr.expr);
         c_expr.expr &:= " */ ";
@@ -397,6 +413,7 @@ const proc: push_inline_proc_param (in reference: formal_param,
         process_destr_call(getType(formal_param),
             "o_" & param_name, c_expr.temp_frees);
       else
+        c_expr.expr &:= diagnosticLine(formal_param);
         c_expr.expr &:= "/* push o_";
         create_name2(formal_param, c_expr.expr);
         c_expr.expr &:= " */\n";
@@ -453,11 +470,13 @@ const proc: pop_inline_proc_param (in reference: formal_param,
     if paramCategory <> SYMBOLOBJECT then
       param_type := getType(formal_param);
       if isFunc(param_type) then
+        c_expr.expr &:= diagnosticLine(formal_param);
         c_expr.expr &:= "/* pop proc param o_";
         create_name2(formal_param, c_expr.expr);
         c_expr.expr &:= " */\n";
       elsif not isVar(formal_param) and formal_param in inlineParam and
           inlineParam[formal_param][1].paramValue <> NIL then
+        c_expr.expr &:= diagnosticLine(formal_param);
         c_expr.expr &:= "/* pop const param o_";
         create_name2(formal_param, c_expr.expr);
         c_expr.expr &:= " */\n";
@@ -483,13 +502,17 @@ const proc: process_inline_proc (in reference: function,
     in ref_list: actual_params, inout expr_type: c_expr) is func
 
   local
+    var string: diagnosticLine is "";
     var ref_list: formal_params is ref_list.EMPTY;
     var expr_type: inline_decls is expr_type.value;
   begin
+    diagnosticLine := diagnosticLine(function);
     formal_params := formalParams(function);
+    c_expr.expr &:= diagnosticLine;
     c_expr.expr &:= "/* inline proc o_";
     create_name2(function, c_expr.expr);
     c_expr.expr &:= " */ {\n";
+    c_expr.expr &:= diagnosticLine;
     c_expr.expr &:= "/* inline params */\n";
     inline_decls.temp_num := c_expr.temp_num;
     push_inline_proc_params(formal_params, actual_params, inline_decls);
@@ -498,11 +521,14 @@ const proc: process_inline_proc (in reference: function,
     c_expr.temp_num := inline_decls.temp_num;
     appendWithDiagnostic(inline_decls.temp_decls, c_expr);
     appendWithDiagnostic(inline_decls.temp_assigns, c_expr);
+    c_expr.expr &:= diagnosticLine;
     c_expr.expr &:= "/* inline body */\n";
     process_expr(body(function), c_expr);
     appendWithDiagnostic(inline_decls.temp_frees, c_expr);
     pop_inline_proc_params(formal_params, c_expr);
-    c_expr.expr &:= "\n} /* inline proc o_";
+    c_expr.expr &:= "\n";
+    c_expr.expr &:= diagnosticLine;
+    c_expr.expr &:= "} /* inline proc o_";
     create_name2(function, c_expr.expr);
     c_expr.expr &:= " */\n";
   end func;
@@ -518,8 +544,8 @@ const proc: process_inline (in reference: function,
       process_inline_proc(function, actual_params, c_expr);
     end if;
   end func;
-  
-  
+
+
 const proc: process_inline_param (in reference: formal_param,
     inout expr_type: c_expr) is func
   local

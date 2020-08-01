@@ -142,6 +142,18 @@
 #define safe_fileno(stream) ((stream) == NULL ? -1 : fileno(stream))
 #endif
 
+#ifndef CC_OPT_OPTIMIZE_1
+#define CC_OPT_OPTIMIZE_1 "-O1"
+#endif
+
+#ifndef CC_OPT_OPTIMIZE_2
+#define CC_OPT_OPTIMIZE_2 "-O2"
+#endif
+
+#ifndef CC_OPT_OPTIMIZE_3
+#define CC_OPT_OPTIMIZE_3 "-O3"
+#endif
+
 #ifndef REDIRECT_FILDES_1
 #define REDIRECT_FILDES_1 ">"
 #endif

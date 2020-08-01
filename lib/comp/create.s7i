@@ -64,24 +64,33 @@ const proc: process_arr_create_declaration (in type: object_type,
     c_expr.expr &:= type_name(object_type);
     c_expr.expr &:= " a;\n";
     c_expr.expr &:= diagnosticLine;
-    c_expr.expr &:= "memSizeType i;\n";
-    c_expr.expr &:= diagnosticLine;
     c_expr.expr &:= "memSizeType size = (uintType)(b->max_position - b->min_position + 1);\n";
     c_expr.expr &:= diagnosticLine;
     c_expr.expr &:= "a=(";
     c_expr.expr &:= type_name(object_type);
     c_expr.expr &:= ")(arrMalloc(b->min_position, b->max_position));\n";
     c_expr.expr &:= diagnosticLine;
-    c_expr.expr &:= "for (i = 0; i < size; i++) {\n";
-    c_expr.expr &:= diagnosticLine;
-    c_expr.expr &:= "a->arr[i]";
-    c_expr.expr &:= select_value;
-    c_expr.expr &:= "=";
-    process_create_call(array_element[object_type],
-        "b->arr[i]" & select_value, c_expr.expr);
-    c_expr.expr &:= ";\n";
-    c_expr.expr &:= diagnosticLine;
-    c_expr.expr &:= "}\n";
+    if array_element[object_type] in typeCategory and
+        typeCategory[array_element[object_type]] in simpleValueType then
+      c_expr.expr &:= "if (size != 0) {\n";
+      c_expr.expr &:= diagnosticLine;
+      c_expr.expr &:= "memcpy(a->arr, b->arr, size * sizeof(genericType));\n";
+      c_expr.expr &:= diagnosticLine;
+      c_expr.expr &:= "}\n";
+    else
+      c_expr.expr &:= "while (size != 0) {\n";
+      c_expr.expr &:= diagnosticLine;
+      c_expr.expr &:= "size--;\n";
+      c_expr.expr &:= diagnosticLine;
+      c_expr.expr &:= "a->arr[size]";
+      c_expr.expr &:= select_value;
+      c_expr.expr &:= "=";
+      process_create_call(array_element[object_type],
+          "b->arr[size]" & select_value, c_expr.expr);
+      c_expr.expr &:= ";\n";
+      c_expr.expr &:= diagnosticLine;
+      c_expr.expr &:= "}\n";
+    end if;
     c_expr.expr &:= diagnosticLine;
     c_expr.expr &:= "return a;\n";
     c_expr.expr &:= diagnosticLine;
@@ -316,10 +325,7 @@ const proc: process_create_call (in type: object_type,
   begin
     if object_type in typeCategory then
       case typeCategory[object_type] of
-        when {BOOLOBJECT, ENUMOBJECT, INTOBJECT, FLOATOBJECT, CHAROBJECT,
-              FILEOBJECT, SOCKETOBJECT, REFOBJECT, TYPEOBJECT,
-              ACTOBJECT, BLOCKOBJECT}:
-                                expr &:= param_b;
+        when simpleValueType:   expr &:= param_b;
         when {BIGINTOBJECT}:    expr &:= "bigCreate(" & param_b & ")";
         when {STRIOBJECT}:      expr &:= "strCreate(" & param_b & ")";
         when {BSTRIOBJECT}:     expr &:= "bstCreate(" & param_b & ")";

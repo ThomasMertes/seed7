@@ -39,7 +39,7 @@ EXTERN freeListRootType flist;
 #endif
 
 
-#ifdef DO_HEAP_LOG
+#if DO_HEAP_LOG
 #define F_LOG1(X)     printf("\nlalloc(%u) -> %ld\n", sizeof(*X), (long) X),
 #define F_LOG2(X)     printf("\nlfree(%u) <- %ld\n", sizeof(*X), (long) X),
 #else

@@ -47,6 +47,13 @@ extern const const_cstriType cstri_escape_sequence[];
 #define free_cstri8(cstri,stri) UNALLOC_CSTRI(cstri, max_utf8_size((stri)->size));
 #define free_wstri(wstri,stri) free(wstri);
 
+/**
+ *  UTF-16 encodes characters > 0xffff with surrogate pairs.
+ *  When converting to UTF-16 it might be necessary to store
+ *  every character with surrogate pairs (= two UTF-16 chars).
+ */
+#define SURROGATE_PAIR_FACTOR  2
+
 
 #ifdef OS_STRI_WCHAR
 typedef wchar_t          os_charType;
@@ -174,8 +181,7 @@ memSizeType utf8_to_stri (strElemType *const dest_stri, memSizeType *const dest_
 memSizeType utf8_bytes_missing (const const_ustriType ustri, const size_t len);
 memSizeType stri_to_utf8 (const ustriType out_stri,
                           const strElemType *strelem, memSizeType len);
-void conv_to_cstri (cstriType cstri, const const_striType stri,
-                    errInfoType *err_info);
+cstriType conv_to_cstri (cstriType cstri, const const_striType stri);
 void conv_to_cstri8 (cstriType cstri, const const_striType stri,
                      errInfoType *err_info);
 memSizeType stri_to_utf16 (const wstriType out_wstri,
@@ -188,7 +194,7 @@ cstriType stri_to_cstri8_buf (const const_striType stri, memSizeType *length,
 bstriType stri_to_bstri (const const_striType stri, errInfoType *err_info);
 bstriType stri_to_bstri8 (const_striType stri);
 #ifdef CONSOLE_WCHAR
-bstriType stri_to_bstriw (const_striType stri);
+bstriType stri_to_bstriw (const_striType stri, errInfoType *err_info);
 #endif
 wstriType stri_to_wstri_buf (const const_striType stri, memSizeType *length,
                              errInfoType *err_info);

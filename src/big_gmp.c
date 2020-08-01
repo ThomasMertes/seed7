@@ -34,6 +34,7 @@
 
 #include "version.h"
 
+#if BIGINT_LIB == BIG_GMP_LIBRARY
 #include "stdlib.h"
 #include "stdio.h"
 #include "string.h"
@@ -535,6 +536,8 @@ bigIntType bigDivRem (const const_bigIntType dividend, const const_bigIntType di
     } else {
       ALLOC_BIG(quotient);
       mpz_init(quotient);
+      ALLOC_BIG(*remainderAddr);
+      mpz_init(*remainderAddr);
       mpz_tdiv_qr(quotient, *remainderAddr, dividend, divisor);
     } /* if */
     logFunction(printf("bigDivRem --> %s", bigHexCStri(quotient));
@@ -2161,3 +2164,5 @@ bigIntType bigZero (void)
     mpz_init_set_ui(result, 0);
     return result;
   } /* bigZero */
+
+#endif

@@ -37,6 +37,7 @@ const ACTION: HSH_IDX2          is action "HSH_IDX2";
 const ACTION: HSH_INCL          is action "HSH_INCL";
 const ACTION: HSH_KEYS          is action "HSH_KEYS";
 const ACTION: HSH_LNG           is action "HSH_LNG";
+const ACTION: HSH_RAND_KEY      is action "HSH_RAND_KEY";
 const ACTION: HSH_UPDATE        is action "HSH_UPDATE";
 const ACTION: HSH_VALUES        is action "HSH_VALUES";
 
@@ -55,6 +56,7 @@ const proc: hsh_prototypes (inout file: c_prog) is func
     declareExtern(c_prog, "rtlObjectType *hshIdxAddr2 (const const_hashType, const genericType, intType, compareType);");
     declareExtern(c_prog, "void        hshIncl (const hashType, const genericType, const genericType, intType, compareType, const createFuncType, const createFuncType, const copyFuncType);");
     declareExtern(c_prog, "arrayType   hshKeys (const const_hashType, const createFuncType, const destrFuncType);");
+    declareExtern(c_prog, "const_hashElemType hshRand (const const_hashType);");
     declareExtern(c_prog, "genericType hshUpdate (const hashType, const genericType, const genericType, intType, compareType, const createFuncType, const createFuncType);");
     declareExtern(c_prog, "arrayType   hshValues (const const_hashType, const createFuncType, const destrFuncType);");
   end func;
@@ -568,6 +570,21 @@ const proc: process (HSH_LNG, in reference: function,
     c_expr.expr &:= "(intType)((";
     process_expr(params[1], c_expr);
     c_expr.expr &:= ")->size)";
+  end func;
+
+
+const proc: process (HSH_RAND_KEY, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  local
+    var type: proc_type is void;
+    var type: result_type is void;
+  begin
+    proc_type := getType(function);
+    result_type := resultType(proc_type);
+    c_expr.expr &:= "hshRand(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ")->key.value." & raw_type_value(result_type);
   end func;
 
 

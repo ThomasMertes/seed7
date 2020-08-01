@@ -629,7 +629,12 @@ const func bigInteger: ! (in bigInteger: number) is func
 
 (**
  *  Compute the binomial coefficient
- *   n ! k  is equivalent to  !n div (!k * !(n - k))
+ *   n ! k  returns  0                            for k < 0,
+ *   n ! 0_ returns  1_,
+ *   n ! 1_ returns  n,
+ *   n ! k  returns  0                            for n >= 0 and k > n,
+ *   n ! k  returns  !n div (!k * !(n - k))       for k >= 0 and k <= n,
+ *   n ! k  returns  (-1) ** k * (n + k - 1 ! k)  for n < 0 and k >= 0
  *  @return n over k
  *)
 const func bigInteger: (in bigInteger: n) ! (in var bigInteger: k) is func

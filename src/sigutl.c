@@ -103,9 +103,21 @@ void triggerSigfpe (void)
     int number;
 
   /* triggerSigfpe */
+#if HAS_SIGACTION
+    {
+      struct sigaction sig_act;
+      sigemptyset(&sig_act.sa_mask);
+      sig_act.sa_flags = SA_RESTART;
+      sig_act.sa_handler = SIG_DFL;
+      sigaction(SIGFPE, &sig_act, NULL);
+    }
+#elif HAS_SIGNAL
     signal(SIGFPE, SIG_DFL);
+#endif
     number = 0;
-#ifdef DO_SIGFPE_WITH_DIV_BY_ZERO
+#if DO_SIGFPE_WITH_DIV_BY_ZERO
+    /* Under Windows it is necessary to trigger SIGFPE    */
+    /* this way to assure that the debugger can catch it. */
     printf("%d", 1 / number); /* trigger SIGFPE on purpose */
 #else
     raise(SIGFPE);

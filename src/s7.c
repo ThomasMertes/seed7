@@ -67,7 +67,7 @@ typedef struct {
 typedef HINSTANCE__ *HINSTANCE;
 #endif
 
-#ifdef CHECK_STACK
+#if CHECK_STACK
 char *stack_base;
 memSizeType max_stack_size = 0;
 #endif
@@ -375,7 +375,7 @@ int main (int argc, char **argv)
 
   /* main */
     logFunction(printf("main\n"););
-#ifdef CHECK_STACK
+#if CHECK_STACK
     stack_base = (char *) &arg_v;
 #endif
     setupStack();
@@ -442,7 +442,7 @@ int main (int argc, char **argv)
     } /* if */
     /* getchar(); */
     /* heap_statistic(); */
-#ifdef CHECK_STACK
+#if CHECK_STACK
     printf("max_stack_size: %lu (0x%lx)\n", max_stack_size, max_stack_size);
 #endif
     logFunction(printf("main --> 0\n"););

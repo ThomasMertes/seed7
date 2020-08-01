@@ -233,7 +233,12 @@ const proc: (inout integer: number) >>:= (in integer: rshift)       is action "I
 
 (**
  *  Binomial coefficient
- *   n ! k  returns  !n div (!k * !(n - k))
+ *   n ! k  returns  0                            for k < 0,
+ *   n ! 0  returns  1,
+ *   n ! 1  returns  n,
+ *   n ! k  returns  0                            for n >= 0 and k > n,
+ *   n ! k  returns  !n div (!k * !(n - k))       for k >= 0 and k <= n,
+ *   n ! k  returns  (-1) ** k * (n + k - 1 ! k)  for n < 0 and k >= 0
  *  @return n over k
  *  @exception OVERFLOW_ERROR When the result would be less than
  *             integer.first or greater than integer.last.

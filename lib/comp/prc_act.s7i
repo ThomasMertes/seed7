@@ -51,7 +51,7 @@ const ACTION: PRC_WHILE            is action "PRC_WHILE";
 const proc: prc_prototypes (inout file: c_prog) is func
 
   begin
-    declareExtern(c_prog, "genericType hshIdxWithDefault (const const_hashType, const genericType, const genericType, intType, compareType);");
+    declareExtern(c_prog, "genericType hshIdxDefault0 (const const_hashType, const genericType, intType, compareType);");
   end func;
 
 
@@ -181,6 +181,9 @@ const proc: process (PRC_IF, in reference: function,
       setDiagnosticLine(c_expr);
       c_expr.expr &:= "if (";
       c_expr.expr &:= c_condition.expr;
+      if endsWith(c_expr.expr, "\n") then
+        setDiagnosticLine(c_expr);
+      end if;
       c_expr.expr &:= ") {\n";
       process_statements(c_statement, c_expr);
       c_expr.expr &:= "}\n";
@@ -246,6 +249,9 @@ const proc: process (PRC_IF_ELSIF, in reference: function,
       setDiagnosticLine(c_expr);
       c_expr.expr &:= "if (";
       c_expr.expr &:= c_condition.expr;
+      if endsWith(c_expr.expr, "\n") then
+        setDiagnosticLine(c_expr);
+      end if;
       c_expr.expr &:= ") {\n";
       process_statements(c_then_part, c_expr);
       c_expr.expr &:= "} ";
@@ -307,6 +313,9 @@ const proc: process (PRC_IF_NOOP, in reference: function,
       setDiagnosticLine(c_expr);
       c_expr.expr &:= "if (";
       c_expr.expr &:= c_condition.expr;
+      if endsWith(c_expr.expr, "\n") then
+        setDiagnosticLine(c_expr);
+      end if;
       c_expr.expr &:= ") { /* noop */ } ";
       c_expr.expr &:= c_else_part.expr;
       if c_else_part.temp_num <> 0 then
@@ -693,11 +702,9 @@ const proc: process_when (in integer: numOfCaseStmt, in integer: numOfWhenPart,
 
   local
     var ref_list: params is ref_list.EMPTY;
-    var reference: function is NIL;
   begin
     params := getValue(when_expr, ref_list);
-    function := params[1];
-    params := params[2 ..];
+    params := params[2 ..];  # Skip function reference
     process_case_labels(numOfCaseStmt, numOfWhenPart, params[2], c_expr);
     process_call_by_name_expr(params[4], c_expr);
     setDiagnosticLine(c_expr);
@@ -722,7 +729,7 @@ const proc: process (PRC_CASE_HASHSET, in reference: function,
     switchType := getType(params[2]);
     switchValue := getParameterAsVariable(params[2], statement);
     statement.expr &:= diagnosticLine(c_expr);
-    statement.expr &:= "switch (hshIdxWithDefault(caseLabels[";
+    statement.expr &:= "switch (hshIdxDefault0(caseLabels[";
     statement.expr &:= str(numOfCaseStmt);
     statement.expr &:= "], ";
     if isNormalVariable(params[2]) then
@@ -730,7 +737,7 @@ const proc: process (PRC_CASE_HASHSET, in reference: function,
     else
       getGenericValueOfVariableObject(switchValue, statement);
     end if;
-    statement.expr &:= ", 0, ";
+    statement.expr &:= ", ";
     process_hashcode(switchValue, statement);
     statement.expr &:= ", ";
     object_address(compareObj(params[2]), statement);
@@ -756,7 +763,7 @@ const proc: process (PRC_CASE_HASHSET_DEF, in reference: function,
     switchType := getType(params[2]);
     switchValue := getParameterAsVariable(params[2], statement);
     statement.expr &:= diagnosticLine(c_expr);
-    statement.expr &:= "switch (hshIdxWithDefault(caseLabels[";
+    statement.expr &:= "switch (hshIdxDefault0(caseLabels[";
     statement.expr &:= str(numOfCaseStmt);
     statement.expr &:= "], ";
     if isNormalVariable(params[2]) then
@@ -764,7 +771,7 @@ const proc: process (PRC_CASE_HASHSET_DEF, in reference: function,
     else
       getGenericValueOfVariableObject(switchValue, statement);
     end if;
-    statement.expr &:= ", 0, ";
+    statement.expr &:= ", ";
     process_hashcode(switchValue, statement);
     statement.expr &:= ", ";
     object_address(compareObj(params[2]), statement);

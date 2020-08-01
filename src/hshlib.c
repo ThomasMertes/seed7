@@ -46,6 +46,7 @@
 #include "exec.h"
 #include "runerr.h"
 #include "rtl_err.h"
+#include "int_rtl.h"
 
 #undef EXTERN
 #define EXTERN
@@ -65,7 +66,10 @@ static memSizeType free_helem (hashElemType old_helem, objectType key_destr_func
     memSizeType freed = 1;
 
   /* free_helem */
-    param2_call(key_destr_func, &old_helem->key, SYS_DESTR_OBJECT);
+    if (CATEGORY_OF_OBJ(&old_helem->key) != FORWARDOBJECT) {
+      /* FORWARDOBJECT is used as magic category in hsh_rand_key */
+      param2_call(key_destr_func, &old_helem->key, SYS_DESTR_OBJECT);
+    } /* if */
     if (CATEGORY_OF_OBJ(&old_helem->data) != FORWARDOBJECT) {
       /* FORWARDOBJECT is used as magic category in hsh_idx */
       param2_call(data_destr_func, &old_helem->data, SYS_DESTR_OBJECT);
@@ -377,6 +381,50 @@ static inline arrayType values_hash (const const_hashType curr_hash,
     } /* if */
     return value_array;
   } /* values_hash */
+
+
+
+static memSizeType get_helem_elem (hashElemType *hash_elem,
+    memSizeType arr_pos, hashElemType curr_helem)
+
+  { /* get_helem_elem */
+    do {
+      arr_pos--;
+      if (arr_pos == 0) {
+        *hash_elem = curr_helem;
+      } else {
+        if (curr_helem->next_less != NULL) {
+          arr_pos = get_helem_elem(hash_elem, arr_pos, curr_helem->next_less);
+        } /* if */
+        curr_helem = curr_helem->next_greater;
+      } /* if */
+    } while (curr_helem != NULL && arr_pos != 0);
+    return arr_pos;
+  } /* get_helem_elem */
+
+
+
+static inline hashElemType get_hash_elem (const const_hashType curr_hash,
+    memSizeType arr_pos)
+
+  {
+    memSizeType number;
+    const hashElemType *table;
+    hashElemType hash_elem = NULL;
+
+  /* get_hash_elem */
+    if (arr_pos >= 1 && arr_pos <= curr_hash->size) {
+      number = curr_hash->table_size;
+      table = curr_hash->table;
+      do {
+        do {
+          number--;
+        } while (table[number] == NULL);
+        arr_pos = get_helem_elem(&hash_elem, arr_pos, table[number]);
+      } while (arr_pos != 0);
+    } /* if */
+    return hash_elem;
+  } /* get_hash_elem */
 
 
 
@@ -1286,6 +1334,64 @@ objectType hsh_lng (listType arguments)
     return bld_int_temp(
         (intType) take_hash(arg_1(arguments))->size);
   } /* hsh_lng */
+
+
+
+/**
+ *  Compute pseudo-random key from 'aHashMap'.
+ *  The random values are uniform distributed.
+ *  @return a random key such that hsh_rand_key(aHashMap) in aHashMap holds.
+ *  @exception RANGE_ERROR When 'aHashMap' is empty.
+ */
+objectType hsh_rand_key (listType arguments)
+
+  {
+    const_hashType aHashMap;
+    memSizeType num_elements;
+    memSizeType elem_index;
+    hashElemType hash_elem;
+    objectType result;
+
+  /* hsh_rand_key */
+    isit_hash(arg_1(arguments));
+    aHashMap = take_hash(arg_1(arguments));
+    logFunction(printf("hsh_rand_key(" FMT_U_MEM ")\n",
+                       (memSizeType) aHashMap););
+    num_elements = aHashMap->size;
+    /* printf("num_elements " FMT_U_MEM "\n", num_elements); */
+    if (unlikely(num_elements == 0)) {
+      logError(printf("hsh_rand_key(): Hash map is empty.\n"););
+      raise_error(RANGE_ERROR);
+      result = NULL;
+    } else {
+      elem_index = (memSizeType) (uintType)
+          intRand((intType) 1, (intType) num_elements);
+      /* printf("elem_index " FMT_U_MEM "\n", elem_index); */
+      hash_elem = get_hash_elem(aHashMap, elem_index);
+      /* printf(FMT_U_MEM "\n", (memSizeType) hash_elem); */
+      if (TEMP_OBJECT(arg_1(arguments))) {
+        /* The hash will be destroyed after indexing. */
+        /* Therefore it is necessary here to remove it */
+        /* from the hashtable to avoid a crash !!!!! */
+        if (unlikely(!ALLOC_OBJECT(result))) {
+          result = raise_exception(SYS_MEM_EXCEPTION);
+        } else {
+          memcpy(result, &hash_elem->key, sizeof(objectRecord));
+          SET_TEMP_FLAG(result);
+          /* Overwrite the key element in the hash with a FORWARDOBJECT value. */
+          /* The function free_helem uses FORWARDOBJECT as magic value */
+          /* and does not call a destructor for it. */
+          SET_CATEGORY_OF_OBJ(&hash_elem->key, FORWARDOBJECT);
+          hash_elem->key.value.intValue = 1234567890;
+        } /* if */
+      } else {
+        result = &hash_elem->key;
+      } /* if */
+    } /* if */
+    logFunction(printf("hsh_rand_key --> " FMT_U_MEM "\n",
+                       (memSizeType) result););
+    return result;
+  } /* hsh_rand_key */
 
 
 

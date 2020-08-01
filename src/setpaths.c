@@ -35,10 +35,9 @@
 #ifdef OS_STRI_WCHAR
 #include "wchar.h"
 #endif
-#ifdef USE_DIRENT
+#if DIR_LIB == DIRENT_DIRECTORY
 #include "dirent.h"
-#endif
-#if defined USE_DIRECT || defined USE_DIRDOS || defined USE_DIRWIN
+#elif DIR_LIB == DIRECT_DIRECTORY || DIR_LIB == DIRDOS_DIRECTORY || DIR_LIB == DIRWIN_DIRECTORY
 #include "direct.h"
 #endif
 #ifdef OS_STRI_USES_CODE_PAGE

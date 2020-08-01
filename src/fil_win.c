@@ -42,6 +42,9 @@
 #include "sys/types.h"
 #include "sys/stat.h"
 #include "signal.h"
+#if STDINT_H_PRESENT
+#include "stdint.h"
+#endif
 #if UNISTD_H_PRESENT
 #include "unistd.h"
 #endif
@@ -342,7 +345,7 @@ int snprintf (char *buffer, size_t bufsize, const char *fmt, ...)
         result = (int) bufsize;
       } else if ((unsigned int) result == bufsize - 1) {
         buffer[bufsize - 1] = '\0';
-      } /* if */      
+      } /* if */
       va_end(ap);
     } /* if */
     return result;

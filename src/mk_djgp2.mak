@@ -30,11 +30,6 @@ ALL_S7_LIBS = ..\bin\$(COMPILER_LIB) ..\bin\$(COMP_DATA_LIB) ..\bin\$(DRAW_LIB) 
 CC = gcc
 GET_CC_VERSION_INFO = $(CC) --version >
 
-BIGINT_LIB_DEFINE = USE_BIG_RTL_LIBRARY
-BIGINT_LIB = big_rtl
-# BIGINT_LIB_DEFINE = USE_BIG_GMP_LIBRARY
-# BIGINT_LIB = big_gmp
-
 MOBJ = s7.o
 POBJ = runerr.o option.o primitiv.o
 LOBJ = actlib.o arrlib.o biglib.o binlib.o blnlib.o bstlib.o chrlib.o cmdlib.o conlib.o dcllib.o \
@@ -50,7 +45,7 @@ GOBJ = syvarutl.o traceutl.o actutl.o executl.o blockutl.o \
 ROBJ = arr_rtl.o bln_rtl.o bst_rtl.o chr_rtl.o cmd_rtl.o con_rtl.o dir_rtl.o drw_rtl.o fil_rtl.o \
        flt_rtl.o hsh_rtl.o int_rtl.o itf_rtl.o set_rtl.o soc_dos.o str_rtl.o tim_rtl.o ut8_rtl.o \
        heaputl.o sigutl.o striutl.o
-DOBJ = $(BIGINT_LIB).o cmd_unx.o fil_dos.o pol_dos.o tim_dos.o
+DOBJ = big_rtl.o big_gmp.o cmd_unx.o fil_dos.o pol_dos.o tim_dos.o
 OBJ = $(MOBJ)
 SEED7_LIB_OBJ = $(ROBJ) $(DOBJ)
 DRAW_LIB_OBJ = gkb_rtl.o drw_dos.o
@@ -73,7 +68,7 @@ GSRC = syvarutl.c traceutl.c actutl.c executl.c blockutl.c \
 RSRC = arr_rtl.c bln_rtl.c bst_rtl.c chr_rtl.c cmd_rtl.c con_rtl.c dir_rtl.c drw_rtl.c fil_rtl.c \
        flt_rtl.c hsh_rtl.c int_rtl.c itf_rtl.c set_rtl.c soc_dos.c str_rtl.c tim_rtl.c ut8_rtl.c \
        heaputl.c sigutl.c striutl.c
-DSRC = $(BIGINT_LIB).c cmd_unx.c fil_dos.c pol_dos.c tim_dos.c
+DSRC = big_rtl.c big_gmp.c cmd_unx.c fil_dos.c pol_dos.c tim_dos.c
 SRC = $(MSRC)
 SEED7_LIB_SRC = $(RSRC) $(DSRC)
 DRAW_LIB_SRC = gkb_rtl.c drw_dos.c
@@ -143,7 +138,6 @@ version.h: chkccomp.h
 	echo #define os_off_t off_t >> version.h
 	echo #define os_environ environ >> version.h
 	echo #define os_putenv putenv >> version.h
-	echo #define $(BIGINT_LIB_DEFINE) >> version.h
 	echo #define OBJECT_FILE_EXTENSION ".o" >> version.h
 	echo #define LIBRARY_FILE_EXTENSION ".a" >> version.h
 	echo #define EXECUTABLE_FILE_EXTENSION ".exe" >> version.h

@@ -811,7 +811,7 @@ static rtlArrayType read_dir (const const_striType dir_name, errInfoType *err_in
                        striAsUnquotedCStri(dir_name)););
     if (unlikely((directory = dirOpen(dir_name)) == NULL)) {
       logError(printf("read_dir: dirOpen(\"%s\") failed.\n",
-                      striAsUnquotedCStri(dirPath)););
+                      striAsUnquotedCStri(dir_name)););
       dir_array = NULL;
       *err_info = FILE_ERROR;
     } else {
@@ -1410,7 +1410,7 @@ void cmdCloneFile (const const_striType sourcePath, const const_striType destPat
 
 /**
  *  Get a built-in C compiler/runtime configuration value.
- *  The makefile used to compile Seed7 and the program chkccomp.c
+ *  The makefile (used to compile Seed7) and the program chkccomp.c
  *  write the configuration values to version.h. The configuration
  *  values are hard-coded in the Seed7 runtime library.
  *  @param name Name of the configuration value to be retrieved.
@@ -1425,191 +1425,185 @@ striType cmdConfigValue (const const_striType name)
     char opt_name[MAX_CSTRI_BUFFER_LEN + NULL_TERMINATION_LEN];
     const_cstriType opt;
     char buffer[CONFIG_VALUE_BUFFER_SIZE];
-    errInfoType err_info = OKAY_NO_ERROR;
     striType configValue = NULL;
 
   /* cmdConfigValue */
     if (unlikely(name->size > MAX_CSTRI_BUFFER_LEN)) {
       opt = "";
-    } else {
-      conv_to_cstri(opt_name, name, &err_info);
-      if (unlikely(err_info != OKAY_NO_ERROR)) {
-        opt = "";
-      } else if (strcmp(opt_name, "OBJECT_FILE_EXTENSION") == 0) {
-        opt = OBJECT_FILE_EXTENSION;
-      } else if (strcmp(opt_name, "LIBRARY_FILE_EXTENSION") == 0) {
-        opt = LIBRARY_FILE_EXTENSION;
-      } else if (strcmp(opt_name, "EXECUTABLE_FILE_EXTENSION") == 0) {
-        opt = EXECUTABLE_FILE_EXTENSION;
-      } else if (strcmp(opt_name, "C_COMPILER") == 0) {
-        opt = C_COMPILER;
-      } else if (strcmp(opt_name, "CPLUSPLUS_COMPILER") == 0) {
-        opt = CPLUSPLUS_COMPILER;
-      } else if (strcmp(opt_name, "CALL_C_COMPILER_FROM_SHELL") == 0) {
-        opt = CALL_C_COMPILER_FROM_SHELL ? "TRUE" : "FALSE";
-      } else if (strcmp(opt_name, "C_COMPILER_VERSION") == 0) {
-        opt = C_COMPILER_VERSION;
-      } else if (strcmp(opt_name, "GET_CC_VERSION_INFO") == 0) {
-        opt = GET_CC_VERSION_INFO;
-      } else if (strcmp(opt_name, "CC_OPT_DEBUG_INFO") == 0) {
-        opt = CC_OPT_DEBUG_INFO;
-      } else if (strcmp(opt_name, "CC_OPT_NO_WARNINGS") == 0) {
-        opt = CC_OPT_NO_WARNINGS;
-      } else if (strcmp(opt_name, "CC_FLAGS") == 0) {
-        opt = CC_FLAGS;
-      } else if (strcmp(opt_name, "CC_ERROR_FILDES") == 0) {
-        sprintf(buffer, "%d", CC_ERROR_FILDES);
-        opt = buffer;
-      } else if (strcmp(opt_name, "LINKER_OPT_DEBUG_INFO") == 0) {
-        opt = LINKER_OPT_DEBUG_INFO;
-      } else if (strcmp(opt_name, "LINKER_OPT_NO_DEBUG_INFO") == 0) {
-        opt = LINKER_OPT_NO_DEBUG_INFO;
-      } else if (strcmp(opt_name, "LINKER_OPT_OUTPUT_FILE") == 0) {
-        opt = LINKER_OPT_OUTPUT_FILE;
-      } else if (strcmp(opt_name, "LINKER_FLAGS") == 0) {
-        opt = LINKER_FLAGS;
-      } else if (strcmp(opt_name, "SYSTEM_LIBS") == 0) {
-        opt = SYSTEM_LIBS;
-      } else if (strcmp(opt_name, "SYSTEM_CONSOLE_LIBS") == 0) {
-        opt = SYSTEM_CONSOLE_LIBS;
-      } else if (strcmp(opt_name, "SYSTEM_DRAW_LIBS") == 0) {
-        opt = SYSTEM_DRAW_LIBS;
-      } else if (strcmp(opt_name, "SYSTEM_DB_LIBS") == 0) {
-        opt = SYSTEM_DB_LIBS;
-      } else if (strcmp(opt_name, "SEED7_LIB") == 0) {
-        opt = SEED7_LIB;
-      } else if (strcmp(opt_name, "CONSOLE_LIB") == 0) {
-        opt = CONSOLE_LIB;
-      } else if (strcmp(opt_name, "DRAW_LIB") == 0) {
-        opt = DRAW_LIB;
-      } else if (strcmp(opt_name, "COMP_DATA_LIB") == 0) {
-        opt = COMP_DATA_LIB;
-      } else if (strcmp(opt_name, "COMPILER_LIB") == 0) {
-        opt = COMPILER_LIB;
-      } else if (strcmp(opt_name, "S7_LIB_DIR") == 0) {
-        opt = S7_LIB_DIR;
-      } else if (strcmp(opt_name, "REDIRECT_FILDES_1") == 0) {
-        opt = REDIRECT_FILDES_1;
-      } else if (strcmp(opt_name, "REDIRECT_FILDES_2") == 0) {
-        opt = REDIRECT_FILDES_2;
-      } else if (strcmp(opt_name, "NULL_DEVICE") == 0) {
-        opt = NULL_DEVICE;
-      } else if (strcmp(opt_name, "BOOLTYPE") == 0) {
-        opt = BOOLTYPE_STRI;
-      } else if (strcmp(opt_name, "INT32TYPE") == 0) {
-        opt = INT32TYPE_STRI;
-      } else if (strcmp(opt_name, "UINT32TYPE") == 0) {
-        opt = UINT32TYPE_STRI;
-      } else if (strcmp(opt_name, "INT64TYPE") == 0) {
-        opt = INT64TYPE_STRI;
-      } else if (strcmp(opt_name, "UINT64TYPE") == 0) {
-        opt = UINT64TYPE_STRI;
-      } else if (strcmp(opt_name, "INT128TYPE") == 0) {
-        opt = INT128TYPE_STRI;
-      } else if (strcmp(opt_name, "UINT128TYPE") == 0) {
-        opt = UINT128TYPE_STRI;
-      } else if (strcmp(opt_name, "INT32TYPE_LITERAL_SUFFIX") == 0) {
-        opt = INT32TYPE_LITERAL_SUFFIX;
-      } else if (strcmp(opt_name, "INT64TYPE_LITERAL_SUFFIX") == 0) {
-        opt = INT64TYPE_LITERAL_SUFFIX;
-      } else if (strcmp(opt_name, "INTTYPE_SIZE") == 0) {
-        sprintf(buffer, "%d", INTTYPE_SIZE);
-        opt = buffer;
-      } else if (strcmp(opt_name, "FLOATTYPE_SIZE") == 0) {
-        sprintf(buffer, "%d", FLOATTYPE_SIZE);
-        opt = buffer;
-      } else if (strcmp(opt_name, "POINTER_SIZE") == 0) {
-        sprintf(buffer, "%d", POINTER_SIZE);
-        opt = buffer;
-      } else if (strcmp(opt_name, "INT_SIZE") == 0) {
-        sprintf(buffer, "%d", INT_SIZE);
-        opt = buffer;
-      } else if (strcmp(opt_name, "LONG_SIZE") == 0) {
-        sprintf(buffer, "%d", LONG_SIZE);
-        opt = buffer;
-      } else if (strcmp(opt_name, "INT_RANGE_IN_FLOATTYPE_MAX") == 0) {
-        sprintf(buffer, FMT_D, INT_RANGE_IN_FLOATTYPE_MAX);
-        opt = buffer;
-      } else if (strcmp(opt_name, "MACRO_DEFS") == 0) {
-        sprintf(buffer, "%s%s", MACRO_DEFS, OS_ISNAN_DEFINITION);
-        opt = buffer;
-      } else if (strcmp(opt_name, "OVERFLOW_SIGNAL") == 0) {
-        opt = OVERFLOW_SIGNAL_STR;
-      } else if (strcmp(opt_name, "FLOATTYPE_DOUBLE") == 0) {
-        opt = FLOATTYPE_DOUBLE ? "TRUE" : "FALSE";
-     } else if (strcmp(opt_name, "HAS_SIGSETJMP") == 0) {
-        opt = HAS_SIGSETJMP ? "TRUE" : "FALSE";
-      } else if (strcmp(opt_name, "HAS_SIGACTION") == 0) {
-        opt = HAS_SIGACTION ? "TRUE" : "FALSE";
-      } else if (strcmp(opt_name, "SIGNAL_RESETS_HANDLER") == 0) {
-        opt = SIGNAL_RESETS_HANDLER ? "TRUE" : "FALSE";
-      } else if (strcmp(opt_name, "DO_SIGFPE_WITH_DIV_BY_ZERO") == 0) {
-#ifdef DO_SIGFPE_WITH_DIV_BY_ZERO
-        opt = "TRUE";
-#else
-        opt = "FALSE";
-#endif
-      } else if (strcmp(opt_name, "CHECK_INT_DIV_BY_ZERO") == 0) {
-        opt = CHECK_INT_DIV_BY_ZERO ? "TRUE" : "FALSE";
-      } else if (strcmp(opt_name, "CHECK_INT_REM_BY_ZERO") == 0) {
-        opt = CHECK_INT_REM_BY_ZERO ? "TRUE" : "FALSE";
-      } else if (strcmp(opt_name, "CHECK_INT_REM_ZERO_BY_ZERO") == 0) {
-        opt = CHECK_INT_REM_ZERO_BY_ZERO ? "TRUE" : "FALSE";
-      } else if (strcmp(opt_name, "HAS_EXP2") == 0) {
-        opt = HAS_EXP2 ? "TRUE" : "FALSE";
-      } else if (strcmp(opt_name, "HAS_EXP10") == 0) {
-        opt = HAS_EXP10 ? "TRUE" : "FALSE";
-      } else if (strcmp(opt_name, "HAS_LOG2") == 0) {
-        opt = HAS_LOG2 ? "TRUE" : "FALSE";
-      } else if (strcmp(opt_name, "HAS_CBRT") == 0) {
-        opt = HAS_CBRT ? "TRUE" : "FALSE";
-      } else if (strcmp(opt_name, "CHECK_FLOAT_DIV_BY_ZERO") == 0) {
-        opt = CHECK_FLOAT_DIV_BY_ZERO ? "TRUE" : "FALSE";
-      } else if (strcmp(opt_name, "NAN_COMPARISON_OKAY") == 0) {
-        opt = NAN_COMPARISON_OKAY ? "TRUE" : "FALSE";
-      } else if (strcmp(opt_name, "WITH_STRI_CAPACITY") == 0) {
-        opt = WITH_STRI_CAPACITY ? "TRUE" : "FALSE";
-      } else if (strcmp(opt_name, "ALLOW_STRITYPE_SLICES") == 0) {
-        opt = ALLOW_STRITYPE_SLICES ? "TRUE" : "FALSE";
-      } else if (strcmp(opt_name, "ALLOW_BSTRITYPE_SLICES") == 0) {
-        opt = ALLOW_BSTRITYPE_SLICES ? "TRUE" : "FALSE";
-      } else if (strcmp(opt_name, "RSHIFT_DOES_SIGN_EXTEND") == 0) {
-        opt = RSHIFT_DOES_SIGN_EXTEND ? "TRUE" : "FALSE";
-      } else if (strcmp(opt_name, "TWOS_COMPLEMENT_INTTYPE") == 0) {
-        opt = TWOS_COMPLEMENT_INTTYPE ? "TRUE" : "FALSE";
-      } else if (strcmp(opt_name, "LITTLE_ENDIAN_INTTYPE") == 0) {
-        opt = LITTLE_ENDIAN_INTTYPE ? "TRUE" : "FALSE";
-      } else if (strcmp(opt_name, "POW_FUNCTION_OKAY") == 0) {
-        opt = POW_FUNCTION_OKAY ? "TRUE" : "FALSE";
-      } else if (strcmp(opt_name, "SQRT_FUNCTION_OKAY") == 0) {
-        opt = SQRT_FUNCTION_OKAY ? "TRUE" : "FALSE";
-      } else if (strcmp(opt_name, "FREXP_INFINITY_NAN_OKAY") == 0) {
-        opt = FREXP_INFINITY_NAN_OKAY ? "TRUE" : "FALSE";
-      } else if (strcmp(opt_name, "FLOAT_ZERO_DIV_ERROR") == 0) {
-        opt = FLOAT_ZERO_DIV_ERROR ? "TRUE" : "FALSE";
-      } else if (strcmp(opt_name, "LIMITED_CSTRI_LITERAL_LEN") == 0) {
-        opt = LIMITED_CSTRI_LITERAL_LEN ? "TRUE" : "FALSE";
-      } else if (strcmp(opt_name, "CC_SOURCE_UTF8") == 0) {
+    } else if (unlikely(conv_to_cstri(opt_name, name) == NULL)) {
+      opt = "";
+    } else if (strcmp(opt_name, "OBJECT_FILE_EXTENSION") == 0) {
+      opt = OBJECT_FILE_EXTENSION;
+    } else if (strcmp(opt_name, "LIBRARY_FILE_EXTENSION") == 0) {
+      opt = LIBRARY_FILE_EXTENSION;
+    } else if (strcmp(opt_name, "EXECUTABLE_FILE_EXTENSION") == 0) {
+      opt = EXECUTABLE_FILE_EXTENSION;
+    } else if (strcmp(opt_name, "C_COMPILER") == 0) {
+      opt = C_COMPILER;
+    } else if (strcmp(opt_name, "CPLUSPLUS_COMPILER") == 0) {
+      opt = CPLUSPLUS_COMPILER;
+    } else if (strcmp(opt_name, "CALL_C_COMPILER_FROM_SHELL") == 0) {
+      opt = CALL_C_COMPILER_FROM_SHELL ? "TRUE" : "FALSE";
+    } else if (strcmp(opt_name, "C_COMPILER_VERSION") == 0) {
+      opt = C_COMPILER_VERSION;
+    } else if (strcmp(opt_name, "GET_CC_VERSION_INFO") == 0) {
+      opt = GET_CC_VERSION_INFO;
+    } else if (strcmp(opt_name, "CC_OPT_DEBUG_INFO") == 0) {
+      opt = CC_OPT_DEBUG_INFO;
+    } else if (strcmp(opt_name, "CC_OPT_NO_WARNINGS") == 0) {
+      opt = CC_OPT_NO_WARNINGS;
+    } else if (strcmp(opt_name, "CC_OPT_OPTIMIZE_1") == 0) {
+      opt = CC_OPT_OPTIMIZE_1;
+    } else if (strcmp(opt_name, "CC_OPT_OPTIMIZE_2") == 0) {
+      opt = CC_OPT_OPTIMIZE_2;
+    } else if (strcmp(opt_name, "CC_OPT_OPTIMIZE_3") == 0) {
+      opt = CC_OPT_OPTIMIZE_3;
+    } else if (strcmp(opt_name, "CC_FLAGS") == 0) {
+      opt = CC_FLAGS;
+    } else if (strcmp(opt_name, "CC_ERROR_FILDES") == 0) {
+      sprintf(buffer, "%d", CC_ERROR_FILDES);
+      opt = buffer;
+    } else if (strcmp(opt_name, "LINKER_OPT_DEBUG_INFO") == 0) {
+      opt = LINKER_OPT_DEBUG_INFO;
+    } else if (strcmp(opt_name, "LINKER_OPT_NO_DEBUG_INFO") == 0) {
+      opt = LINKER_OPT_NO_DEBUG_INFO;
+    } else if (strcmp(opt_name, "LINKER_OPT_OUTPUT_FILE") == 0) {
+      opt = LINKER_OPT_OUTPUT_FILE;
+    } else if (strcmp(opt_name, "LINKER_FLAGS") == 0) {
+      opt = LINKER_FLAGS;
+    } else if (strcmp(opt_name, "SYSTEM_LIBS") == 0) {
+      opt = SYSTEM_LIBS;
+    } else if (strcmp(opt_name, "SYSTEM_CONSOLE_LIBS") == 0) {
+      opt = SYSTEM_CONSOLE_LIBS;
+    } else if (strcmp(opt_name, "SYSTEM_DRAW_LIBS") == 0) {
+      opt = SYSTEM_DRAW_LIBS;
+    } else if (strcmp(opt_name, "ADDITIONAL_SYSTEM_LIBS") == 0) {
+      opt = ADDITIONAL_SYSTEM_LIBS;
+    } else if (strcmp(opt_name, "SEED7_LIB") == 0) {
+      opt = SEED7_LIB;
+    } else if (strcmp(opt_name, "CONSOLE_LIB") == 0) {
+      opt = CONSOLE_LIB;
+    } else if (strcmp(opt_name, "DRAW_LIB") == 0) {
+      opt = DRAW_LIB;
+    } else if (strcmp(opt_name, "COMP_DATA_LIB") == 0) {
+      opt = COMP_DATA_LIB;
+    } else if (strcmp(opt_name, "COMPILER_LIB") == 0) {
+      opt = COMPILER_LIB;
+    } else if (strcmp(opt_name, "S7_LIB_DIR") == 0) {
+      opt = S7_LIB_DIR;
+    } else if (strcmp(opt_name, "REDIRECT_FILDES_1") == 0) {
+      opt = REDIRECT_FILDES_1;
+    } else if (strcmp(opt_name, "REDIRECT_FILDES_2") == 0) {
+      opt = REDIRECT_FILDES_2;
+    } else if (strcmp(opt_name, "NULL_DEVICE") == 0) {
+      opt = NULL_DEVICE;
+    } else if (strcmp(opt_name, "BOOLTYPE") == 0) {
+      opt = BOOLTYPE_STRI;
+    } else if (strcmp(opt_name, "INT32TYPE") == 0) {
+      opt = INT32TYPE_STRI;
+    } else if (strcmp(opt_name, "UINT32TYPE") == 0) {
+      opt = UINT32TYPE_STRI;
+    } else if (strcmp(opt_name, "INT64TYPE") == 0) {
+      opt = INT64TYPE_STRI;
+    } else if (strcmp(opt_name, "UINT64TYPE") == 0) {
+      opt = UINT64TYPE_STRI;
+    } else if (strcmp(opt_name, "INT128TYPE") == 0) {
+      opt = INT128TYPE_STRI;
+    } else if (strcmp(opt_name, "UINT128TYPE") == 0) {
+      opt = UINT128TYPE_STRI;
+    } else if (strcmp(opt_name, "INT32TYPE_LITERAL_SUFFIX") == 0) {
+      opt = INT32TYPE_LITERAL_SUFFIX;
+    } else if (strcmp(opt_name, "INT64TYPE_LITERAL_SUFFIX") == 0) {
+      opt = INT64TYPE_LITERAL_SUFFIX;
+    } else if (strcmp(opt_name, "INTTYPE_SIZE") == 0) {
+      sprintf(buffer, "%d", INTTYPE_SIZE);
+      opt = buffer;
+    } else if (strcmp(opt_name, "FLOATTYPE_SIZE") == 0) {
+      sprintf(buffer, "%d", FLOATTYPE_SIZE);
+      opt = buffer;
+    } else if (strcmp(opt_name, "POINTER_SIZE") == 0) {
+      sprintf(buffer, "%d", POINTER_SIZE);
+      opt = buffer;
+    } else if (strcmp(opt_name, "INT_SIZE") == 0) {
+      sprintf(buffer, "%d", INT_SIZE);
+      opt = buffer;
+    } else if (strcmp(opt_name, "LONG_SIZE") == 0) {
+      sprintf(buffer, "%d", LONG_SIZE);
+      opt = buffer;
+    } else if (strcmp(opt_name, "INT_RANGE_IN_FLOATTYPE_MAX") == 0) {
+      sprintf(buffer, FMT_D, INT_RANGE_IN_FLOATTYPE_MAX);
+      opt = buffer;
+    } else if (strcmp(opt_name, "MACRO_DEFS") == 0) {
+      sprintf(buffer, "%s%s", MACRO_DEFS, OS_ISNAN_DEFINITION);
+      opt = buffer;
+    } else if (strcmp(opt_name, "OVERFLOW_SIGNAL") == 0) {
+      opt = OVERFLOW_SIGNAL_STR;
+    } else if (strcmp(opt_name, "FLOATTYPE_DOUBLE") == 0) {
+      opt = FLOATTYPE_DOUBLE ? "TRUE" : "FALSE";
+    } else if (strcmp(opt_name, "HAS_SIGSETJMP") == 0) {
+      opt = HAS_SIGSETJMP ? "TRUE" : "FALSE";
+    } else if (strcmp(opt_name, "CHECK_INT_DIV_BY_ZERO") == 0) {
+      opt = CHECK_INT_DIV_BY_ZERO ? "TRUE" : "FALSE";
+    } else if (strcmp(opt_name, "CHECK_INT_REM_BY_ZERO") == 0) {
+      opt = CHECK_INT_REM_BY_ZERO ? "TRUE" : "FALSE";
+    } else if (strcmp(opt_name, "CHECK_INT_REM_ZERO_BY_ZERO") == 0) {
+      opt = CHECK_INT_REM_ZERO_BY_ZERO ? "TRUE" : "FALSE";
+    } else if (strcmp(opt_name, "HAS_EXP2") == 0) {
+      opt = HAS_EXP2 ? "TRUE" : "FALSE";
+    } else if (strcmp(opt_name, "HAS_EXP10") == 0) {
+      opt = HAS_EXP10 ? "TRUE" : "FALSE";
+    } else if (strcmp(opt_name, "HAS_LOG2") == 0) {
+      opt = HAS_LOG2 ? "TRUE" : "FALSE";
+    } else if (strcmp(opt_name, "HAS_CBRT") == 0) {
+      opt = HAS_CBRT ? "TRUE" : "FALSE";
+    } else if (strcmp(opt_name, "CHECK_FLOAT_DIV_BY_ZERO") == 0) {
+      opt = CHECK_FLOAT_DIV_BY_ZERO ? "TRUE" : "FALSE";
+    } else if (strcmp(opt_name, "NAN_COMPARISON_OKAY") == 0) {
+      opt = NAN_COMPARISON_OKAY ? "TRUE" : "FALSE";
+    } else if (strcmp(opt_name, "WITH_STRI_CAPACITY") == 0) {
+      opt = WITH_STRI_CAPACITY ? "TRUE" : "FALSE";
+    } else if (strcmp(opt_name, "ALLOW_STRITYPE_SLICES") == 0) {
+      opt = ALLOW_STRITYPE_SLICES ? "TRUE" : "FALSE";
+    } else if (strcmp(opt_name, "ALLOW_BSTRITYPE_SLICES") == 0) {
+      opt = ALLOW_BSTRITYPE_SLICES ? "TRUE" : "FALSE";
+    } else if (strcmp(opt_name, "RSHIFT_DOES_SIGN_EXTEND") == 0) {
+      opt = RSHIFT_DOES_SIGN_EXTEND ? "TRUE" : "FALSE";
+    } else if (strcmp(opt_name, "TWOS_COMPLEMENT_INTTYPE") == 0) {
+      opt = TWOS_COMPLEMENT_INTTYPE ? "TRUE" : "FALSE";
+    } else if (strcmp(opt_name, "LITTLE_ENDIAN_INTTYPE") == 0) {
+      opt = LITTLE_ENDIAN_INTTYPE ? "TRUE" : "FALSE";
+    } else if (strcmp(opt_name, "POW_FUNCTION_OKAY") == 0) {
+      opt = POW_FUNCTION_OKAY ? "TRUE" : "FALSE";
+    } else if (strcmp(opt_name, "SQRT_FUNCTION_OKAY") == 0) {
+      opt = SQRT_FUNCTION_OKAY ? "TRUE" : "FALSE";
+    } else if (strcmp(opt_name, "FREXP_INFINITY_NAN_OKAY") == 0) {
+      opt = FREXP_INFINITY_NAN_OKAY ? "TRUE" : "FALSE";
+    } else if (strcmp(opt_name, "FLOAT_ZERO_DIV_ERROR") == 0) {
+      opt = FLOAT_ZERO_DIV_ERROR ? "TRUE" : "FALSE";
+    } else if (strcmp(opt_name, "LIMITED_CSTRI_LITERAL_LEN") == 0) {
+      opt = LIMITED_CSTRI_LITERAL_LEN ? "TRUE" : "FALSE";
+    } else if (strcmp(opt_name, "SWITCH_WORKS_FOR_INT64TYPE") == 0) {
+      opt = SWITCH_WORKS_FOR_INT64TYPE ? "TRUE" : "FALSE";
+    } else if (strcmp(opt_name, "CC_SOURCE_UTF8") == 0) {
 #ifdef CC_SOURCE_UTF8
-        opt = "TRUE";
+      opt = "TRUE";
 #else
-        opt = "FALSE";
+      opt = "FALSE";
 #endif
-      } else if (strcmp(opt_name, "USE_WMAIN") == 0) {
+    } else if (strcmp(opt_name, "USE_WMAIN") == 0) {
 #ifdef USE_WMAIN
-        opt = "TRUE";
+      opt = "TRUE";
 #else
-        opt = "FALSE";
+      opt = "FALSE";
 #endif
-      } else if (strcmp(opt_name, "USE_WINMAIN") == 0) {
+    } else if (strcmp(opt_name, "USE_WINMAIN") == 0) {
 #ifdef USE_WINMAIN
-        opt = "TRUE";
+      opt = "TRUE";
 #else
-        opt = "FALSE";
+      opt = "FALSE";
 #endif
-      } else {
-        opt = "";
-      } /* if */
+    } else {
+      opt = "";
     } /* if */
     if (configValue == NULL) {
       configValue = cstri8_or_cstri_to_stri(opt);
@@ -2964,7 +2958,7 @@ void cmdRemoveTree (const const_striType filePath)
             err_info = FILE_ERROR;
           } else {
             if (S_ISDIR(file_stat.st_mode)) {
-              remove_any_file(temp_name, &err_info);
+              remove_dir(temp_name, &err_info);
             } else {
               if (os_remove(temp_name) != 0) {
                 logError(printf("cmdRemoveTree: os_remove(\"" FMT_S_OS "\") failed:\n"
@@ -2987,7 +2981,7 @@ void cmdRemoveTree (const const_striType filePath)
         } /* if */
 #else
         if (S_ISDIR(file_stat.st_mode)) {
-          remove_any_file(os_filePath, &err_info);
+          remove_dir(os_filePath, &err_info);
         } else {
           if (os_remove(os_filePath) != 0) {
             logError(printf("cmdRemoveTree: os_remove(\"" FMT_S_OS "\") failed:\n"

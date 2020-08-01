@@ -32,14 +32,14 @@
 #define SOC_OPT_NONE      0
 #define SOC_OPT_REUSEADDR 1
 
-#ifdef USE_WINSOCK
-#define ERROR_INFORMATION "wsa_error_code", WSAGetLastError(), wsaErrorMessage()
-#else
+#if SOCKET_LIB == UNIX_SOCKETS
 #define ERROR_INFORMATION "errno", errno, strerror(errno)
+#elif SOCKET_LIB == WINSOCK_SOCKETS
+#define ERROR_INFORMATION "wsa_error_code", WSAGetLastError(), wsaErrorMessage()
 #endif
 
 
-#ifdef USE_WINSOCK
+#if SOCKET_LIB == WINSOCK_SOCKETS
 const_cstriType wsaErrorMessage (void);
 #endif
 socketType socAccept (socketType sock, bstriType *address);

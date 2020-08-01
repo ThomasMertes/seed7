@@ -29,29 +29,26 @@
 /*                                                                  */
 /********************************************************************/
 
-/* Note that only one of USE_DIRENT, USE_DIRECT, USE_DIRDOS or      */
-/* USE_DIRWIN is active.                                            */
+/* Note that DIR_LIB has as value one of DIRENT_DIRECTORY,          */
+/* DIRECT_DIRECTORY, DIRDOS_DIRECTORY or DIRWIN_DIRECTORY.          */
 
-#ifdef USE_DIRENT
+#if DIR_LIB == DIRENT_DIRECTORY
 #include "sys/types.h"
 #include "sys/stat.h"
 #include "dirent.h"
-#endif
 
-#ifdef USE_DIRECT
+#elif DIR_LIB == DIRECT_DIRECTORY
 #include "sys/types.h"
 #include "sys/stat.h"
 #include "direct.h"
-#endif
 
-#ifdef USE_DIRDOS
+#elif DIR_LIB == DIRDOS_DIRECTORY
 #include "sys/types.h"
 #include "sys/stat.h"
 #include "direct.h"
 #include "dir_dos.h"
-#endif
 
-#ifdef USE_DIRWIN
+#elif DIR_LIB == DIRWIN_DIRECTORY
 #include "sys/types.h"
 #include "sys/stat.h"
 #include "direct.h"

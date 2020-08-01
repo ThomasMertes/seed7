@@ -1816,6 +1816,16 @@ CASE_DECLS(<a class="type" href="#types_boolean">boolean</a>);
       <span class="func">pred</span>(A)   Predecessor
                   ( pred(<span class="var">FALSE</span>) <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a> )
                     pred(<span class="var">TRUE</span>) <b>&rArr;</b> <span class="var">FALSE</span> )
+      <span class="func">boolean</span>(A) Convert an <a class="type" href="#types_integer">integer</a> to a boolean value
+                  ( Type of argument A: <a class="type" href="#types_integer">integer</a>,
+                    boolean(0) <b>&rArr;</b> <span class="var">FALSE</span>,
+                    boolean(1) <b>&rArr;</b> <span class="var">TRUE</span> )
+      <span class="func">boolean</span>(A) Conversion of <a class="type" href="#types_string">string</a> to <a class="type" href="#types_boolean">boolean</a>
+                  ( Type of argument A: <a class="type" href="#types_string">string</a>,
+                    boolean(<span class="stri">"FALSE"</span>) <b>&rArr;</b> <span class="var">FALSE</span>,
+                    boolean(<span class="stri">"TRUE"</span>) <b>&rArr;</b> <span class="var">TRUE</span>,
+                    boolean(<span class="stri">"TRUE "</span>) <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a>,
+                    boolean(<span class="stri">"ASDF"</span>) <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a> )
       <span class="func">str</span>(A)    Conversion to <a class="type" href="#types_string">string</a>
                   ( Type of result: <a class="type" href="#types_string">string</a>,
                     str(<span class="var">FALSE</span>) <b>&rArr;</b> <span class="stri">"FALSE"</span>,
@@ -1964,7 +1974,12 @@ CASE_DECLS(<a class="type" href="#types_boolean">boolean</a>);
                     A >> B <b>&rArr;</b> -1 for A &lt; 0 and B > ord(log2(-A)),
                     0 >> B <b>&rArr;</b> 0 )
       <span class="op">!</span>         Binomial coefficient
-                  ( n ! k <b>&rArr;</b> !n <span class="op">div</span> (!k * !(n - k)) )
+                  ( n ! k <b>&rArr;</b> 0 for k &lt; 0,
+                    n ! 0 <b>&rArr;</b> 1,
+                    n ! 1 <b>&rArr;</b> n,
+                    n ! k <b>&rArr;</b> 0 for n >= 0 and k > n,
+                    n ! k <b>&rArr;</b> !n <span class="op">div</span> (!k * !(n - k)) for k >= 0 and k &lt;= n,
+                    n ! k <b>&rArr;</b> (-1) ** k * (n + k - 1 ! k) for n < 0 and k >= 0 )
       A <span class="op">radix</span> B  Convert the <a class="type" href="#types_integer">integer</a> A to a <a class="type" href="#types_string">string</a>. The conversion
                  uses the numeral system with the base B.
                   ( Type of result: <a class="type" href="#types_string">string</a>,
@@ -2041,14 +2056,22 @@ CASE_DECLS(<a class="type" href="#types_boolean">boolean</a>);
       <span class="func">literal</span>(A) Conversion to a literal
                   ( Type of result: <a class="type" href="#types_string">string</a>,
                     literal(A) <b>&rArr;</b> str(A) )
+      <span class="func">integer</span>(A) Conversion of string to integer
+                  ( Type of argument A: <a class="type" href="#types_string">string</a>,
+                    integer(<span class="stri">"123"</span>) <b>&rArr;</b> 123,
+                    integer(<span class="stri">"-123"</span>) <b>&rArr;</b> -123,
+                    integer(<span class="stri">"+5"</span>) <b>&rArr;</b> 5,
+                    integer(<span class="stri">" 1"</span>) <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a>,
+                    integer(<span class="stri">"10 "</span>) <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a>,
+                    integer(<span class="stri">"ASDF"</span>) <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a> )
       <span class="func">integer</span>(A, B) Convert numeric string, with specified radix, to an integer
                   ( Type of argument A: <a class="type" href="#types_string">string</a>,
-                    integer("beef", 16) <b>&rArr;</b> 48879,
-                    integer("-177", 8) <b>&rArr;</b> -127,
-                    integer("10101010", 2) <b>&rArr;</b> 170,
-                    integer("Cafe", 16) <b>&rArr;</b> 51966,
-                    integer("0", 1) <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a>,
-                    integer("qwertyuiop", 37) <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a> )
+                    integer(<span class="stri">"beef"</span>, 16) <b>&rArr;</b> 48879,
+                    integer(<span class="stri">"-177"</span>, 8) <b>&rArr;</b> -127,
+                    integer(<span class="stri">"10101010"</span>, 2) <b>&rArr;</b> 170,
+                    integer(<span class="stri">"Cafe"</span>, 16) <b>&rArr;</b> 51966,
+                    integer(<span class="stri">"0"</span>, 1) <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a>,
+                    integer(<span class="stri">"qwertyuiop"</span>, 37) <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a> )
       <span class="func">sqrt</span>(A)   Integer square root
                   ( sqrt(A) is okay for A >= 0
                     sqrt(A) <b>&rArr;</b> trunc(sqrt(flt(A))),
@@ -2179,6 +2202,37 @@ CASE_DECLS(<a class="type" href="#types_boolean">boolean</a>);
     
 </table></dd></dl><p>
 
+  <a name="types_binomial_cofficient_table"></a>Tables for the behavior of <tt><span class="op">!</span></tt> (Binomial coefficient):
+</p><dl><dd><table class="tt" border="1" cellspacing="0" cellpadding="3">
+    
+    <tr><th rowspan="2" colspan="2"> n ! k  </th><th colspan="11">                           k                             </th></tr>
+    
+    <tr><th> -5 </th><th> -4 </th><th> -3 </th><th> -2 </th><th> -1 </th><th>  0 </th><th>  1 </th><th>  2 </th><th>   3 </th><th>  4 </th><th>    5 </th></tr>
+    
+    <tr><td rowspan="11"><b> n </b></td><td align="center"><b> -5 </b></td><td align="center">  0 </td><td align="center">  0 </td><td align="center">  0 </td><td align="center">  0 </td><td align="center">  0 </td><td align="center">  1 </td><td align="center"> -5 </td><td align="center"> 15 </td><td align="center"> -35 </td><td align="center"> 70 </td><td align="center"> -126 </td></tr>
+    
+    <tr><td align="center"><b> -4 </b></td><td align="center">  0 </td><td align="center">  0 </td><td align="center">  0 </td><td align="center">  0 </td><td align="center">  0 </td><td align="center">  1 </td><td align="center"> -4 </td><td align="center"> 10 </td><td align="center"> -20 </td><td align="center"> 35 </td><td align="center">  -56 </td></tr>
+    
+    <tr><td align="center"><b> -3 </b></td><td align="center">  0 </td><td align="center">  0 </td><td align="center">  0 </td><td align="center">  0 </td><td align="center">  0 </td><td align="center">  1 </td><td align="center"> -3 </td><td align="center">  6 </td><td align="center"> -10 </td><td align="center"> 15 </td><td align="center">  -21 </td></tr>
+    
+    <tr><td align="center"><b> -2 </b></td><td align="center">  0 </td><td align="center">  0 </td><td align="center">  0 </td><td align="center">  0 </td><td align="center">  0 </td><td align="center">  1 </td><td align="center"> -2 </td><td align="center">  3 </td><td align="center">  -4 </td><td align="center">  5 </td><td align="center">   -6 </td></tr>
+    
+    <tr><td align="center"><b> -1 </b></td><td align="center">  0 </td><td align="center">  0 </td><td align="center">  0 </td><td align="center">  0 </td><td align="center">  0 </td><td align="center">  1 </td><td align="center"> -1 </td><td align="center"> -1 </td><td align="center">  -1 </td><td align="center"> -1 </td><td align="center">   -1 </td></tr>
+    
+    <tr><td align="center"><b>  0 </b></td><td align="center">  0 </td><td align="center">  0 </td><td align="center">  0 </td><td align="center">  0 </td><td align="center">  0 </td><td align="center">  1 </td><td align="center">  0 </td><td align="center">  0 </td><td align="center">   0 </td><td align="center">  0 </td><td align="center">    0 </td></tr>
+    
+    <tr><td align="center"><b>  1 </b></td><td align="center">  0 </td><td align="center">  0 </td><td align="center">  0 </td><td align="center">  0 </td><td align="center">  0 </td><td align="center">  1 </td><td align="center">  1 </td><td align="center">  0 </td><td align="center">   0 </td><td align="center">  0 </td><td align="center">    0 </td></tr>
+    
+    <tr><td align="center"><b>  2 </b></td><td align="center">  0 </td><td align="center">  0 </td><td align="center">  0 </td><td align="center">  0 </td><td align="center">  0 </td><td align="center">  1 </td><td align="center">  2 </td><td align="center">  1 </td><td align="center">   0 </td><td align="center">  0 </td><td align="center">    0 </td></tr>
+    
+    <tr><td align="center"><b>  3 </b></td><td align="center">  0 </td><td align="center">  0 </td><td align="center">  0 </td><td align="center">  0 </td><td align="center">  0 </td><td align="center">  1 </td><td align="center">  3 </td><td align="center">  3 </td><td align="center">   1 </td><td align="center">  0 </td><td align="center">    0 </td></tr>
+    
+    <tr><td align="center"><b>  4 </b></td><td align="center">  0 </td><td align="center">  0 </td><td align="center">  0 </td><td align="center">  0 </td><td align="center">  0 </td><td align="center">  1 </td><td align="center">  4 </td><td align="center">  6 </td><td align="center">   4 </td><td align="center">  1 </td><td align="center">    0 </td></tr>
+    
+    <tr><td align="center"><b>  5 </b></td><td align="center">  0 </td><td align="center">  0 </td><td align="center">  0 </td><td align="center">  0 </td><td align="center">  0 </td><td align="center">  1 </td><td align="center">  5 </td><td align="center"> 10 </td><td align="center">  10 </td><td align="center">  5 </td><td align="center">    1 </td></tr>
+    
+</table></dd></dl><p>
+
   For the <tt><span class="func">sqrt</span></tt> function holds (when A >= 0):</p><pre class="box">
     sqrt(A) * sqrt(A) &lt;= A <span class="op">and</span>
     (sqrt(A) + 1) * (sqrt(A) + 1) > A
@@ -2231,8 +2285,8 @@ CASE_DECLS(<a class="type" href="#types_boolean">boolean</a>);
                     A ** B is okay for B >= 0,
                     A ** 0 <b>&rArr;</b> 1_ for every A, even for A = 0_,
                     1_ ** B <b>&rArr;</b> 1_ for B >= 0,
-                    A ** B <b>&rArr;</b> -(-A) ** B for A &lt;= 0 and B >= 0 and odd(B),
-                    A ** B <b>&rArr;</b> (-A) ** B for A &lt;= 0 and B >= 0 and not odd(B),
+                    A ** B <b>&rArr;</b> -(-A) ** B for A &lt;= 0_ and B >= 0 and odd(B),
+                    A ** B <b>&rArr;</b> (-A) ** B for A &lt;= 0_ and B >= 0 and not odd(B),
                     A ** -1 <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_NUMERIC_ERROR">NUMERIC_ERROR</a> )
       A <span class="op">&lt;&lt;</span> B    Shift left
                   ( Type of argument B: <a class="type" href="#types_integer">integer</a>,
@@ -2250,6 +2304,13 @@ CASE_DECLS(<a class="type" href="#types_boolean">boolean</a>);
                     A >> B <b>&rArr;</b> 0_ for A >= 0_ and B > ord(log2(A)),
                     A >> B <b>&rArr;</b> -1_ for A &lt; 0_ and B > ord(log2(-A)),
                     0_ >> B <b>&rArr;</b> 0_ for every B )
+      <span class="op">!</span>   Binomial coefficient
+                  ( n ! k <b>&rArr;</b> 0_ for k &lt; 0_,
+                    n ! 0_ <b>&rArr;</b> 1_,
+                    n ! 1_ <b>&rArr;</b> n,
+                    n ! k <b>&rArr;</b> 0_ for n >= 0_ and k > n,
+                    n ! k <b>&rArr;</b> !n <span class="op">div</span> (!k * !(n - k)) for k >= 0_ and k &lt;= n,
+                    n ! k <b>&rArr;</b> (-1) ** k * (n + k - 1 ! k) for n < 0_ and k >= 0_ )
       A <span class="op">radix</span> B  Convert the <a class="type" href="#types_bigInteger">bigInteger</a> A to a <a class="type" href="#types_string">string</a>. The conversion
                  uses the numeral system with the base B.
                   ( Type of result: <a class="type" href="#types_string">string</a>,
@@ -2300,15 +2361,23 @@ CASE_DECLS(<a class="type" href="#types_boolean">boolean</a>);
       <span class="func">str</span>(A)    Conversion to <a class="type" href="#types_string">string</a>
                   ( Type of result: <a class="type" href="#types_string">string</a>,
                     str(9876543210_) <b>&rArr;</b> <span class="stri">"9876543210"</span> )
+      <span class="func">bigInteger</span>(A) Convert a numeric string to a bigInteger
+                  ( Type of argument A: <a class="type" href="#types_string">string</a>,
+                    bigInteger(<span class="stri">"123"</span>) <b>&rArr;</b> 123_,
+                    bigInteger(<span class="stri">"-123"</span>) <b>&rArr;</b> -123_,
+                    bigInteger(<span class="stri">"+5"</span>) <b>&rArr;</b> 5_,
+                    bigInteger(<span class="stri">" 1"</span>) <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a>,
+                    bigInteger(<span class="stri">"10 "</span>) <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a>,
+                    bigInteger(<span class="stri">"ASDF"</span>) <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a> )
       <span class="func">bigInteger</span>(A, B) Convert numeric string, with specified radix, to a bigInteger
                   ( Type of argument A: <a class="type" href="#types_string">string</a>,
                     Type of argument B: <a class="type" href="#types_integer">integer</a>,
-                    bigInteger("deadbeef", 16) <b>&rArr;</b> 3735928559_,
-                    bigInteger("-77777777777", 8) <b>&rArr;</b> -8589934591_,
-                    bigInteger("10101010", 2) <b>&rArr;</b> 170_,
-                    bigInteger("Cafe", 16) <b>&rArr;</b> 51966_,
-                    bigInteger("0", 1) <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a>,
-                    bigInteger("qwertyuiop", 37) <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a> )
+                    bigInteger(<span class="stri">"deadbeef"</span>, 16) <b>&rArr;</b> 3735928559_,
+                    bigInteger(<span class="stri">"-77777777777"</span>, 8) <b>&rArr;</b> -8589934591_,
+                    bigInteger(<span class="stri">"10101010"</span>, 2) <b>&rArr;</b> 170_,
+                    bigInteger(<span class="stri">"Cafe"</span>, 16) <b>&rArr;</b> 51966_,
+                    bigInteger(<span class="stri">"0"</span>, 1) <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a>,
+                    bigInteger(<span class="stri">"qwertyuiop"</span>, 37) <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a> )
       <span class="func">sqrt</span>(A)   Integer square root
                   ( sqrt(A) is okay for A >= 0_
                     sqrt(A) <b>&rArr;</b> trunc(sqrt(flt(A))),
@@ -2446,6 +2515,37 @@ CASE_DECLS(<a class="type" href="#types_boolean">boolean</a>);
     <tr><td align="center"> -3_ </td><td align="center"> -3_ </td><td align="center">    1_   </td><td align="center">    0_   </td><td align="center">     1_   </td><td align="center">    0_   </td></tr>
     <tr><td align="center"> -4_ </td><td align="center"> -3_ </td><td align="center">    1_   </td><td align="center">   -1_   </td><td align="center">     1_   </td><td align="center">   -1_   </td></tr>
     <tr><td align="center"> -5_ </td><td align="center"> -3_ </td><td align="center">    1_   </td><td align="center">   -2_   </td><td align="center">     1_   </td><td align="center">   -2_   </td></tr>
+    
+</table></dd></dl><p>
+
+  <a name="types_binomial_cofficient_table"></a>Tables for the behavior of <tt><span class="op">!</span></tt> (Binomial coefficient):
+</p><dl><dd><table class="tt" border="1" cellspacing="0" cellpadding="3">
+    
+    <tr><th rowspan="2" colspan="2"> n ! k   </th><th colspan="11">                                k                                   </th></tr>
+    
+    <tr><th> -5_ </th><th> -4_ </th><th> -3_ </th><th> -2_ </th><th> -1_ </th><th>  0_ </th><th>  1_ </th><th>  2_ </th><th>   3_ </th><th>  4_ </th><th>    5_ </th></tr>
+    
+    <tr><td rowspan="11"><b> n </b></td><td align="center"><b> -5_ </b></td><td align="center">  0_ </td><td align="center">  0_ </td><td align="center">  0_ </td><td align="center">  0_ </td><td align="center">  0_ </td><td align="center">  1_ </td><td align="center"> -5_ </td><td align="center"> 15_ </td><td align="center"> -35_ </td><td align="center"> 70_ </td><td align="center"> -126_ </td></tr>
+    
+    <tr><td align="center"><b> -4_ </b></td><td align="center">  0_ </td><td align="center">  0_ </td><td align="center">  0_ </td><td align="center">  0_ </td><td align="center">  0_ </td><td align="center">  1_ </td><td align="center"> -4_ </td><td align="center"> 10_ </td><td align="center"> -20_ </td><td align="center"> 35_ </td><td align="center">  -56_ </td></tr>
+    
+    <tr><td align="center"><b> -3_ </b></td><td align="center">  0_ </td><td align="center">  0_ </td><td align="center">  0_ </td><td align="center">  0_ </td><td align="center">  0_ </td><td align="center">  1_ </td><td align="center"> -3_ </td><td align="center">  6_ </td><td align="center"> -10_ </td><td align="center"> 15_ </td><td align="center">  -21_ </td></tr>
+    
+    <tr><td align="center"><b> -2_ </b></td><td align="center">  0_ </td><td align="center">  0_ </td><td align="center">  0_ </td><td align="center">  0_ </td><td align="center">  0_ </td><td align="center">  1_ </td><td align="center"> -2_ </td><td align="center">  3_ </td><td align="center">  -4_ </td><td align="center">  5_ </td><td align="center">   -6_ </td></tr>
+    
+    <tr><td align="center"><b> -1_ </b></td><td align="center">  0_ </td><td align="center">  0_ </td><td align="center">  0_ </td><td align="center">  0_ </td><td align="center">  0_ </td><td align="center">  1_ </td><td align="center"> -1_ </td><td align="center"> -1_ </td><td align="center">  -1_ </td><td align="center"> -1_ </td><td align="center">   -1_ </td></tr>
+    
+    <tr><td align="center"><b>  0_ </b></td><td align="center">  0_ </td><td align="center">  0_ </td><td align="center">  0_ </td><td align="center">  0_ </td><td align="center">  0_ </td><td align="center">  1_ </td><td align="center">  0_ </td><td align="center">  0_ </td><td align="center">   0_ </td><td align="center">  0_ </td><td align="center">    0_ </td></tr>
+    
+    <tr><td align="center"><b>  1_ </b></td><td align="center">  0_ </td><td align="center">  0_ </td><td align="center">  0_ </td><td align="center">  0_ </td><td align="center">  0_ </td><td align="center">  1_ </td><td align="center">  1_ </td><td align="center">  0_ </td><td align="center">   0_ </td><td align="center">  0_ </td><td align="center">    0_ </td></tr>
+    
+    <tr><td align="center"><b>  2_ </b></td><td align="center">  0_ </td><td align="center">  0_ </td><td align="center">  0_ </td><td align="center">  0_ </td><td align="center">  0_ </td><td align="center">  1_ </td><td align="center">  2_ </td><td align="center">  1_ </td><td align="center">   0_ </td><td align="center">  0_ </td><td align="center">    0_ </td></tr>
+    
+    <tr><td align="center"><b>  3_ </b></td><td align="center">  0_ </td><td align="center">  0_ </td><td align="center">  0_ </td><td align="center">  0_ </td><td align="center">  0_ </td><td align="center">  1_ </td><td align="center">  3_ </td><td align="center">  3_ </td><td align="center">   1_ </td><td align="center">  0_ </td><td align="center">    0_ </td></tr>
+    
+    <tr><td align="center"><b>  4_ </b></td><td align="center">  0_ </td><td align="center">  0_ </td><td align="center">  0_ </td><td align="center">  0_ </td><td align="center">  0_ </td><td align="center">  1_ </td><td align="center">  4_ </td><td align="center">  6_ </td><td align="center">   4_ </td><td align="center">  1_ </td><td align="center">    0_ </td></tr>
+    
+    <tr><td align="center"><b>  5_ </b></td><td align="center">  0_ </td><td align="center">  0_ </td><td align="center">  0_ </td><td align="center">  0_ </td><td align="center">  0_ </td><td align="center">  1_ </td><td align="center">  5_ </td><td align="center"> 10_ </td><td align="center">  10_ </td><td align="center">  5_ </td><td align="center">    1_ </td></tr>
     
 </table></dd></dl><p>
 
@@ -11565,9 +11665,9 @@ number <span class="op">+</span> <a class="type" href="#types_integer">integer</
 {integer: &lt;SYMBOLOBJECT> *NULL_ENTITY_OBJECT* div fuel_max }
 
 Stack:
-in (val integer: dividend) div (val integer: divisor) at integer.s7i(95)
-in init_display at lander.sd7(840)
-in setup at lander.sd7(909)
+in (val integer: dividend) div (val integer: divisor) at integer.s7i(116)
+in init_display at lander.sd7(839)
+in setup at lander.sd7(908)
 in main at lander.sd7(1541)
 </pre><p>
   The stack trace shows that a <tt><a class="exception" href="#errors_NUMERIC_ERROR">NUMERIC_ERROR</a></tt> was raised by the <tt><span class="keywd">div</span></tt> operation.
@@ -11579,7 +11679,7 @@ in main at lander.sd7(1541)
 </p><p>
   A compiled program creates a much shorter crash message:
 </p><pre class="indent">
-*** Uncaught EXCEPTION NUMERIC_ERROR raised at tmp_lander.c(764)
+*** Uncaught EXCEPTION NUMERIC_ERROR raised at sigutl.c(218)
 </pre><p>
   To get more information there are two possibilities:
 </p><ul>
@@ -11606,12 +11706,12 @@ gdb ./lander
 Starting program: /home/tm/seed7_5/prg/lander
 
 Program received signal SIGFPE, Arithmetic exception.
-0x08068518 in o_2541_init_display () at lander.sd7:840
-840         fuel_gauge := 40 * rocket.fuel div fuel_max;
+0x000000000041b942 in o_3912_init_display () at lander.sd7:839
+839         fuel_gauge := 40 * rocket.fuel div fuel_max;
 (gdb) bt
-#0  0x08068518 in o_2541_init_display () at lander.sd7:840
-#1  0x08068c21 in o_2546_setup () at lander.sd7:909
-#2  0x0806c304 in main (argc=1, argv=0xbffff324) at lander.sd7:1541
+#0  0x000000000041b942 in o_3912_init_display () at lander.sd7:839
+#1  0x000000000041c2e5 in o_3917_setup () at lander.sd7:908
+#2  0x0000000000421fe1 in main (argc=1, argv=0x7fffffffdf28) at lander.sd7:1541
 </pre><p>
   Sometimes it is helpful to debug the generated C program instead of
   the Seed7 source. The option <tt><b>-g-debug_c</b></tt> creates debug

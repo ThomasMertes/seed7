@@ -89,7 +89,6 @@ int findSysvar (const_striType stri)
 
   {
     char sysvar_name[MAX_CSTRI_BUFFER_LEN + NULL_TERMINATION_LEN];
-    errInfoType err_info = OKAY_NO_ERROR;
     int result;
 
   /* findSysvar */
@@ -98,8 +97,7 @@ int findSysvar (const_striType stri)
     if (stri->size > MAX_CSTRI_BUFFER_LEN) {
       result = -1;
     } else {
-      conv_to_cstri(sysvar_name, stri, &err_info);
-      if (unlikely(err_info != OKAY_NO_ERROR)) {
+      if (unlikely(conv_to_cstri(sysvar_name, stri) == NULL)) {
         result = -1;
       } else {
         result = NUMBER_OF_SYSVARS - 1;

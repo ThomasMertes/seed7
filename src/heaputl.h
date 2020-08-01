@@ -89,7 +89,7 @@ countType count = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 EXTERN countType count;
 #endif
 
-#ifdef USE_BIG_RTL_LIBRARY
+#if BIGINT_LIB == BIG_RTL_LIBRARY
 extern const size_t sizeof_bigDigitType;
 extern const size_t sizeof_bigIntRecord;
 #endif
@@ -223,7 +223,7 @@ EXTERN memSizeType hs;
 #endif
 
 
-#ifdef DO_HEAP_LOG
+#if DO_HEAP_LOG
 #define H_LOG1(len)     , printf("\nmalloc(%ld)\n", (long) (len)) H_CHECK1(len)
 #define H_LOG2(len)     , printf("\nmfree(%ld)\n", (long) (len))  H_CHECK2(len)
 #else

@@ -179,7 +179,6 @@ actType findAction (const const_striType actionName)
 
   {
     char actName[MAX_CSTRI_BUFFER_LEN + NULL_TERMINATION_LEN];
-    errInfoType err_info = OKAY_NO_ERROR;
     actType actionFound;
 
  /* findAction */
@@ -188,8 +187,7 @@ actType findAction (const const_striType actionName)
     if (unlikely(actionName->size > MAX_CSTRI_BUFFER_LEN)) {
       actionFound = NULL;
     } else {
-      conv_to_cstri(actName, actionName, &err_info);
-      if (unlikely(err_info != OKAY_NO_ERROR)) {
+      if (unlikely(conv_to_cstri(actName, actionName) == NULL)) {
         actionFound = NULL;
       } else {
         actionFound = searchAction(actName);

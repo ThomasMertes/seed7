@@ -55,6 +55,7 @@ intType setHashCode (const const_setType set1);
 setType setIConv (intType number);
 void setIncl (setType *const set_to, const intType number);
 setType setIntersect (const const_setType set1, const const_setType set2);
+void setIntersectAssign (setType *const dest, const const_setType delta);
 boolType setIsEmpty (const const_setType set1);
 boolType setIsProperSubset (const const_setType set1, const const_setType set2);
 boolType setIsSubset (const const_setType set1, const const_setType set2);

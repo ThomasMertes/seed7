@@ -35,6 +35,15 @@
 #include "windows.h"
 
 
+#ifdef RENAME_DIRECTORY_FUNCTIONS
+#define dirent my_dirent
+#define DIR MY_DIR
+#define opendir my_opendir
+#define readdir my_readdir
+#define closedir my_closedir
+#endif
+
+
 struct dirent {
     char *d_name;
   };

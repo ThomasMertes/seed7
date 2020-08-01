@@ -911,11 +911,10 @@ winType find_window (Window sys_window)
       window = NULL;
     } else {
       window = (winType) (memSizeType)
-          hshIdxWithDefault(window_hash,
-                            (genericType) (memSizeType) sys_window,
-                            (genericType) (memSizeType) NULL,
-                            (intType) ((memSizeType) sys_window) >> 6,
-                            (compareType) &genericCmp);
+          hshIdxDefault0(window_hash,
+                         (genericType) (memSizeType) sys_window,
+                         (intType) ((memSizeType) sys_window) >> 6,
+                         (compareType) &genericCmp);
     } /* if */
     logFunction(printf("find_window(" FMT_X_MEM ") --> " FMT_X_MEM "\n",
                        (memSizeType) sys_window, (memSizeType) window););

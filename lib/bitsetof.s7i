@@ -87,6 +87,12 @@ const func type: bitset (in type: baseType) is func
       const proc: (inout setType: dest) |:= (in setType: set2)           is action "SET_UNION_ASSIGN";
 
       (**
+       *  Assign the intersection of set2 and dest to dest.
+       *  @exception MEMORY_ERROR Not enough memory for the result.
+       *)
+      const proc: (inout setType: dest) &:= (in setType: set2)           is action "SET_INTERSECT_ASSIGN";
+
+      (**
        *  Check if two sets are equal.
        *  @return TRUE if the two sets are equal,
        *          FALSE otherwise.
@@ -225,9 +231,9 @@ const func type: bitset (in type: baseType) is func
       const func integer: card (in setType: aSet)                        is action "SET_CARD";
 
       (**
-       *  Compute pseudo-random number which is element of ''aSet''.
+       *  Compute pseudo-random element from ''aSet''.
        *  The random values are uniform distributed.
-       *  @return a random number such that rand(aSet) in aSet holds.
+       *  @return a random element such that rand(aSet) in aSet holds.
        *  @exception RANGE_ERROR When ''aSet'' is empty.
        *)
       const func baseType: rand (in setType: aSet) is

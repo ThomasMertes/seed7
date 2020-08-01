@@ -58,17 +58,26 @@
 
 
 
-static inline int strelem_memcmp (const strElemType *mem1,
-    const strElemType *mem2, size_t number)
+#if HAS_WMEMCMP && WCHAR_T_SIZE == 32
+#define memcmp_strelem(mem1, mem2, len) \
+    wmemcmp((const wchar_t *) mem1, (const wchar_t *) mem2, (size_t) len)
+#else
 
-  { /* strelem_memcmp */
-    for (; number > 0; mem1++, mem2++, number--) {
+
+
+static inline int memcmp_strelem (register const strElemType *mem1,
+    register const strElemType *mem2, memSizeType len)
+
+  { /* memcmp_strelem */
+    for (; len > 0; mem1++, mem2++, len--) {
       if (*mem1 != *mem2) {
         return *mem1 < *mem2 ? -1 : 1;
       } /* if */
     } /* for */
     return 0;
-  } /* strelem_memcmp */
+  } /* memcmp_strelem */
+
+#endif
 
 
 
@@ -439,12 +448,12 @@ objectType str_cmp (listType arguments)
     stri1 = take_stri(arg_1(arguments));
     stri2 = take_stri(arg_2(arguments));
     if (stri1->size < stri2->size) {
-      signumValue = strelem_memcmp(stri1->mem, stri2->mem, stri1->size);
+      signumValue = memcmp_strelem(stri1->mem, stri2->mem, stri1->size);
       if (signumValue == 0) {
         signumValue = -1;
       } /* if */
     } else {
-      signumValue = strelem_memcmp(stri1->mem, stri2->mem, stri2->size);
+      signumValue = memcmp_strelem(stri1->mem, stri2->mem, stri2->size);
       if (signumValue == 0 && stri1->size > stri2->size) {
         signumValue = 1;
       } /* if */
@@ -673,13 +682,13 @@ objectType str_ge (listType arguments)
     stri1 = take_stri(arg_1(arguments));
     stri2 = take_stri(arg_3(arguments));
     if (stri1->size >= stri2->size) {
-      if (strelem_memcmp(stri1->mem, stri2->mem, stri2->size) >= 0) {
+      if (memcmp_strelem(stri1->mem, stri2->mem, stri2->size) >= 0) {
         result = SYS_TRUE_OBJECT;
       } else {
         result = SYS_FALSE_OBJECT;
       } /* if */
     } else {
-      if (strelem_memcmp(stri1->mem, stri2->mem, stri1->size) > 0) {
+      if (memcmp_strelem(stri1->mem, stri2->mem, stri1->size) > 0) {
         result = SYS_TRUE_OBJECT;
       } else {
         result = SYS_FALSE_OBJECT;
@@ -708,13 +717,13 @@ objectType str_gt (listType arguments)
     stri1 = take_stri(arg_1(arguments));
     stri2 = take_stri(arg_3(arguments));
     if (stri1->size > stri2->size) {
-      if (strelem_memcmp(stri1->mem, stri2->mem, stri2->size) >= 0) {
+      if (memcmp_strelem(stri1->mem, stri2->mem, stri2->size) >= 0) {
         result = SYS_TRUE_OBJECT;
       } else {
         result = SYS_FALSE_OBJECT;
       } /* if */
     } else {
-      if (strelem_memcmp(stri1->mem, stri2->mem, stri1->size) > 0) {
+      if (memcmp_strelem(stri1->mem, stri2->mem, stri1->size) > 0) {
         result = SYS_TRUE_OBJECT;
       } else {
         result = SYS_FALSE_OBJECT;
@@ -865,13 +874,13 @@ objectType str_le (listType arguments)
     stri1 = take_stri(arg_1(arguments));
     stri2 = take_stri(arg_3(arguments));
     if (stri1->size <= stri2->size) {
-      if (strelem_memcmp(stri1->mem, stri2->mem, stri1->size) <= 0) {
+      if (memcmp_strelem(stri1->mem, stri2->mem, stri1->size) <= 0) {
         result = SYS_TRUE_OBJECT;
       } else {
         result = SYS_FALSE_OBJECT;
       } /* if */
     } else {
-      if (strelem_memcmp(stri1->mem, stri2->mem, stri2->size) < 0) {
+      if (memcmp_strelem(stri1->mem, stri2->mem, stri2->size) < 0) {
         result = SYS_TRUE_OBJECT;
       } else {
         result = SYS_FALSE_OBJECT;
@@ -1065,13 +1074,13 @@ objectType str_lt (listType arguments)
     stri1 = take_stri(arg_1(arguments));
     stri2 = take_stri(arg_3(arguments));
     if (stri1->size < stri2->size) {
-      if (strelem_memcmp(stri1->mem, stri2->mem, stri1->size) <= 0) {
+      if (memcmp_strelem(stri1->mem, stri2->mem, stri1->size) <= 0) {
         result = SYS_TRUE_OBJECT;
       } else {
         result = SYS_FALSE_OBJECT;
       } /* if */
     } else {
-      if (strelem_memcmp(stri1->mem, stri2->mem, stri2->size) < 0) {
+      if (memcmp_strelem(stri1->mem, stri2->mem, stri2->size) < 0) {
         result = SYS_TRUE_OBJECT;
       } else {
         result = SYS_FALSE_OBJECT;

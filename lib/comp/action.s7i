@@ -920,6 +920,8 @@ const proc: process_action (in reference: function, in ref_list: params,
         process(HSH_KEYS, function, params, c_expr);
       elsif action_name = "HSH_LNG" then
         process(HSH_LNG, function, params, c_expr);
+      elsif action_name = "HSH_RAND_KEY" then
+        process(HSH_RAND_KEY, function, params, c_expr);
       elsif action_name = "HSH_UPDATE" then
         process(HSH_UPDATE, function, params, c_expr);
       elsif action_name = "HSH_VALUES" then
@@ -1417,6 +1419,8 @@ const proc: process_action (in reference: function, in ref_list: params,
         process(SET_INCL, function, params, c_expr);
       elsif action_name = "SET_INTERSECT" then
         process(SET_INTERSECT, function, params, c_expr);
+      elsif action_name = "SET_INTERSECT_ASSIGN" then
+        process(SET_INTERSECT_ASSIGN, function, params, c_expr);
       elsif action_name = "SET_LE" then
         process(SET_LE, function, params, c_expr);
       elsif action_name = "SET_LT" then

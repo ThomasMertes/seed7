@@ -40,39 +40,39 @@ const type: ccConfigType is new struct
      *  The capacity of a string can be larger than its size.
      *  Strings with capacity can be enlarged without calling realloc().
      *)
-    var boolean: WITH_STRI_CAPACITY         is FALSE;
+    var boolean: WITH_STRI_CAPACITY          is FALSE;
 
     (**
      *  TRUE, when the actual characters of a string can be stored elsewhere.
      *  This allows string slices without the need to copy characters.
      *)
-    var boolean: ALLOW_STRITYPE_SLICES      is FALSE;
+    var boolean: ALLOW_STRITYPE_SLICES       is FALSE;
 
     (**
      *  TRUE, when the actual characters of a bstring can be stored elsewhere.
      *  This allows bstring slices without the need to copy characters.
      *)
-    var boolean: ALLOW_BSTRITYPE_SLICES     is FALSE;
+    var boolean: ALLOW_BSTRITYPE_SLICES      is FALSE;
 
     (**
      *  TRUE, when right shifts preserve the sign of negative signed integers.
      *  The C standard specifies that the right shift of signed integers is
      *  implementation defined, when the shifted values are negative.
      *)
-    var boolean: RSHIFT_DOES_SIGN_EXTEND    is FALSE;
+    var boolean: RSHIFT_DOES_SIGN_EXTEND     is FALSE;
 
     (**
      *  TRUE, when signed integers are represented as twos complement numbers.
      *  This allows some simplified range checks in compiled programs.
      *)
-    var boolean: TWOS_COMPLEMENT_INTTYPE    is FALSE;
+    var boolean: TWOS_COMPLEMENT_INTTYPE     is FALSE;
 
     (**
      *  TRUE, when the byte ordering of integers is little endian.
      *  With little endian byte ordering it is possible to get the elements
      *  of a union by casting the union to the desired element type.
      *)
-    var boolean: LITTLE_ENDIAN_INTTYPE      is FALSE;
+    var boolean: LITTLE_ENDIAN_INTTYPE       is FALSE;
 
     (**
      *  TRUE, when comparisons between NaN and any other value return FALSE.
@@ -80,19 +80,19 @@ const type: ccConfigType is new struct
      *  If NAN_COMPARISON_OKAY is FALSE fltEq(), fltLt(), fltGt(), fltLe()
      *  and fltGe() should be used to do comparisons of float values.
      *)
-    var boolean: NAN_COMPARISON_OKAY        is FALSE;
+    var boolean: NAN_COMPARISON_OKAY         is FALSE;
 
     (**
      *  TRUE, when pow() works okay for a base of zero, one or NaN.
      *  If it is FALSE fltPow() should be used instead of pow().
      *)
-    var boolean: POW_FUNCTION_OKAY          is FALSE;
+    var boolean: POW_FUNCTION_OKAY           is FALSE;
 
     (**
      *  TRUE, when sqrt() works okay for a negative argument.
      *  If it is FALSE fltSqrt() should be used instead of sqrt().
      *)
-    var boolean: SQRT_FUNCTION_OKAY         is FALSE;
+    var boolean: SQRT_FUNCTION_OKAY          is FALSE;
 
     (**
      *  TRUE, when frexp(Infinity, &exponent), frexp(-Infinity, &exponent)
@@ -100,32 +100,14 @@ const type: ccConfigType is new struct
      *  exponent to 0.
      *  If it is FALSE checks for this special cases must be done.
      *)
-    var boolean: FREXP_INFINITY_NAN_OKAY    is FALSE;
+    var boolean: FREXP_INFINITY_NAN_OKAY     is FALSE;
 
     (**
      *  TRUE, when the functions sigsetjmp() and siglongjmp() are available.
      *  When it is FALSE the functions setjmp() and longjmp() must
      *  be used instead.
      *)
-    var boolean: HAS_SIGSETJMP              is FALSE;
-
-    (**
-     *  TRUE, when the C function sigaction() is present.
-     *  When it is FALSE the function signal() must be used instead.
-     *)
-    var boolean: HAS_SIGACTION              is FALSE;
-
-    (**
-     *  TRUE, when a signal resets the signal handling to SIG_DFL.
-     *  When it is FALSE the signal handler stays unchanged, when a
-     *  signal is raised. When a signal handler is set with signal() an
-     *  incoming signal might trigger a reset of the signal handling.
-     *  This depends on the C run-time. SIGNAL_RESETS_HANDLER is TRUE,
-     *  when the C run-time resets the signal handling. When a signal
-     *  handler is set with sigaction() an incoming signal always leaves
-     *  the signal handling unchanged (SIGNAL_RESETS_HANDLER is FALSE).
-     *)
-    var boolean: SIGNAL_RESETS_HANDLER      is FALSE;
+    var boolean: HAS_SIGSETJMP               is FALSE;
 
     (**
      *  TRUE, when floating point divisions by zero cause compilation errors.
@@ -134,17 +116,7 @@ const type: ccConfigType is new struct
      *  C code should avoid this situation and generate code to
      *  raise the exception NUMERIC_ERROR instead.
      *)
-    var boolean: FLOAT_ZERO_DIV_ERROR       is FALSE;
-
-    (**
-     *  TRUE, when SIGFPE should be raised with an integer division by zero.
-     *  An integer division by zero should be done instead of just calling
-     *  raise(SIGFPE). Under Windows it is necessary to trigger SIGFPE
-     *  this way to assure that the debugger can catch it. The Seed7 to
-     *  C compiler produces code to raise SIGFPE when an uncaught EXCEPTION
-     *  occurs (when the compiler was called with the option -e).
-     *)
-    var boolean: DO_SIGFPE_WITH_DIV_BY_ZERO is FALSE;
+    var boolean: FLOAT_ZERO_DIV_ERROR        is FALSE;
 
     (**
      *  TRUE, when integer divisions must be checked for a division by zero.
@@ -153,7 +125,7 @@ const type: ccConfigType is new struct
      *  raise the exception NUMERIC_ERROR instead of doing the
      *  illegal divide operation.
      *)
-    var boolean: CHECK_INT_DIV_BY_ZERO      is FALSE;
+    var boolean: CHECK_INT_DIV_BY_ZERO       is FALSE;
 
     (**
      *  TRUE, when integer remainder must be checked for a division by zero.
@@ -162,7 +134,7 @@ const type: ccConfigType is new struct
      *  raise the exception NUMERIC_ERROR instead of doing the
      *  illegal divide operation.
      *)
-    var boolean: CHECK_INT_REM_BY_ZERO      is FALSE;
+    var boolean: CHECK_INT_REM_BY_ZERO       is FALSE;
 
     (**
      *  TRUE, when the integer expression 0%0 might not trigger SIGFPE.
@@ -172,27 +144,27 @@ const type: ccConfigType is new struct
      *  raise the exception NUMERIC_ERROR instead of doing the
      *  illegal divide operation.
      *)
-    var boolean: CHECK_INT_REM_ZERO_BY_ZERO is FALSE;
+    var boolean: CHECK_INT_REM_ZERO_BY_ZERO  is FALSE;
 
     (**
      *  TRUE, when the C function exp2() is present.
      *)
-    var boolean: HAS_EXP2                   is FALSE;
+    var boolean: HAS_EXP2                    is FALSE;
 
     (**
      *  TRUE, when the C function exp10() is present.
      *)
-    var boolean: HAS_EXP10                  is FALSE;
+    var boolean: HAS_EXP10                   is FALSE;
 
     (**
      *  TRUE, when the C function log2() is present.
      *)
-    var boolean: HAS_LOG2                   is FALSE;
+    var boolean: HAS_LOG2                    is FALSE;
 
     (**
      *  TRUE, when the C function cbrt() is present.
      *)
-    var boolean: HAS_CBRT                   is FALSE;
+    var boolean: HAS_CBRT                    is FALSE;
 
     (**
      *  TRUE, when floating point divisions by zero don't conform to IEEE 754.
@@ -203,7 +175,7 @@ const type: ccConfigType is new struct
      *  return Infinity, -Infinity or NaN instead of doing the divide
      *  operation.
      *)
-    var boolean: CHECK_FLOAT_DIV_BY_ZERO    is FALSE;
+    var boolean: CHECK_FLOAT_DIV_BY_ZERO     is FALSE;
 
     (**
      *  TRUE, when the C compiler limits the length of string literals.
@@ -212,14 +184,21 @@ const type: ccConfigType is new struct
      *  The actual limit is not interesting, but the fact that a
      *  limit exists or does not exist.
      *)
-    var boolean: LIMITED_CSTRI_LITERAL_LEN  is FALSE;
+    var boolean: LIMITED_CSTRI_LITERAL_LEN   is FALSE;
+
+    (**
+     *  TRUE, when switch statements work with 64-bit values.
+     *  When it is FALSE a switch statement with a 64-bit value
+     *  triggers a compile error.
+     *)
+    var boolean: SWITCH_WORKS_FOR_INT64TYPE  is FALSE;
 
     (**
      *  TRUE, when #line directives can use UTF-8 encoded file names.
      *  The file names from #line directives are used by the debugger to
      *  allow source code debugging.
      *)
-    var boolean: CC_SOURCE_UTF8             is FALSE;
+    var boolean: CC_SOURCE_UTF8              is FALSE;
 
     (**
      *  TRUE, when the main function is named wmain.
@@ -228,62 +207,62 @@ const type: ccConfigType is new struct
      *  Windows uses the functions getUtf16Argv() and freeUtf16Argv() (both
      *  defined in "cmd_win.c").
      *)
-    var boolean: USE_WMAIN                  is FALSE;
+    var boolean: USE_WMAIN                   is FALSE;
 
     (**
      *  TRUE, when the main function is named WinMain.
      *)
-    var boolean: USE_WINMAIN                is FALSE;
+    var boolean: USE_WINMAIN                 is FALSE;
 
     (**
      *  TRUE, when the type ''floatType'' is ''double''.
      *  When it is FALSE ''floatType'' is ''float''.
      *)
-    var boolean: FLOATTYPE_DOUBLE           is FALSE;
+    var boolean: FLOATTYPE_DOUBLE            is FALSE;
 
     (**
      *  Size of the type ''intType'' in bits (either 32 or 64).
      *  A typedef can define ''intType'' as ''int32Type'' respectively
      *  ''int64Type''.
      *)
-    var integer: INTTYPE_SIZE               is 0;
+    var integer: INTTYPE_SIZE                is 0;
 
     (**
      *  Size of the type ''floatType'' in bits.
      *)
-    var integer: FLOATTYPE_SIZE             is 0;
+    var integer: FLOATTYPE_SIZE              is 0;
 
     (**
      *  Size of a pointer in bits.
      *)
-    var integer: POINTER_SIZE               is 0;
+    var integer: POINTER_SIZE                is 0;
 
     (**
      *  The maximum of INTTYPE_SIZE, FLOATTYPE_SIZE and POINTER_SIZE.
      *  This is also the size in bits of the types ''rtlValueUnion'',
      *  ''rtlObjectType'' and ''genericType'' (defined in data_rtl.h).
      *)
-    var integer: GENERIC_SIZE               is 0;
+    var integer: GENERIC_SIZE                is 0;
 
     (**
      *  Size of the type ''int'' in bits.
      *)
-    var integer: INT_SIZE                   is 0;
+    var integer: INT_SIZE                    is 0;
 
     (**
      *  Minimum value of the type ''int''.
      *)
-    var integer: INT_MIN                    is 0;
+    var integer: INT_MIN                     is 0;
 
     (**
      *  Maximum value of the type ''int''.
      *)
-    var integer: INT_MAX                    is 0;
+    var integer: INT_MAX                     is 0;
 
     (**
      *  Size of the type ''long'' in bits.
      *)
-    var integer: LONG_SIZE                  is 0;
+    var integer: LONG_SIZE                   is 0;
 
     (**
      *  Maximum from the continuous range of integers that map to floats.
@@ -291,42 +270,42 @@ const type: ccConfigType is new struct
      *  INT_RANGE_IN_FLOATTYPE_MAX can be converted to ''floatType''
      *  and back to ''intType'' without loss.
      *)
-    var integer: INT_RANGE_IN_FLOATTYPE_MAX is 0;
+    var integer: INT_RANGE_IN_FLOATTYPE_MAX  is 0;
 
     (**
      *  Name of a type for the boolean values 0 and 1.
      *  The runtime library and the compiler use a typedef to define
      *  the type ''boolType'' with BOOLTYPE.
      *)
-    var string: BOOLTYPE                    is "";
+    var string: BOOLTYPE                     is "";
 
     (**
      *  Name of a signed integer type that is 32 bits wide.
      *  The runtime library and the compiler use a typedef to define
      *  the type ''int32Type'' with INT32TYPE.
      *)
-    var string: INT32TYPE                   is "";
+    var string: INT32TYPE                    is "";
 
     (**
      *  Name of an unsigned integer type that is 32 bits wide.
      *  The runtime library and the compiler use a typedef to define
      *  the type ''uint32Type'' with UINT32TYPE.
      *)
-    var string: UINT32TYPE                  is "";
+    var string: UINT32TYPE                   is "";
 
     (**
      *  Name of a signed integer type that is 64 bits wide.
      *  The runtime library and the compiler use a typedef to define
      *  the type ''int64Type'' with INT64TYPE.
      *)
-    var string: INT64TYPE                   is "";
+    var string: INT64TYPE                    is "";
 
     (**
      *  Name of an unsigned integer type that is 64 bits wide.
      *  The runtime library and the compiler use a typedef to define
      *  the type ''uint64Type'' with UINT64TYPE.
      *)
-    var string: UINT64TYPE                  is "";
+    var string: UINT64TYPE                   is "";
 
     (**
      *  Name of a signed integer type that is 128 bits wide.
@@ -334,7 +313,7 @@ const type: ccConfigType is new struct
      *  the type ''int128Type'' with INT128TYPE. Empty string when
      *  there is no 128-bit signed integer type.
      *)
-    var string: INT128TYPE                  is "";
+    var string: INT128TYPE                   is "";
 
     (**
      *  Name of an unsigned integer type that is 128 bits wide.
@@ -342,29 +321,29 @@ const type: ccConfigType is new struct
      *  the type ''uint128Type'' with UINT128TYPE. Empty string when
      *  there is no 128-bit unsigned integer type.
      *)
-    var string: UINT128TYPE                 is "";
+    var string: UINT128TYPE                  is "";
 
     (**
      *  The suffix used by the literals of the 32 bits wide integer type.
      *)
-    var string: INT32TYPE_LITERAL_SUFFIX    is "";
+    var string: INT32TYPE_LITERAL_SUFFIX     is "";
 
     (**
      *  The suffix used by the literals of the 64 bits wide integer type.
      *)
-    var string: INT64TYPE_LITERAL_SUFFIX    is "";
+    var string: INT64TYPE_LITERAL_SUFFIX     is "";
 
     (**
      *  Definition of several macros (likely, unlikely, noreturn).
      *)
-    var string: MACRO_DEFS                  is "";
+    var string: MACRO_DEFS                   is "";
 
     (**
      *  Name of the signal that is raised when an integer overflow
      *  occurs. Empty string when integer overflow does not raise
      *  a signal.
      *)
-    var string: OVERFLOW_SIGNAL             is "";
+    var string: OVERFLOW_SIGNAL              is "";
 
     (**
      *  The extension used by the C compiler for object files.
@@ -373,7 +352,7 @@ const type: ccConfigType is new struct
      *  Under Windows this is ".o" for MinGW and Cygwin,
      *  but ".obj" for other compilers.
      *)
-    var string: OBJECT_FILE_EXTENSION       is "";
+    var string: OBJECT_FILE_EXTENSION        is "";
 
     (**
      *  The extension used by the linker for static libraries.
@@ -381,7 +360,7 @@ const type: ccConfigType is new struct
      *  Linux/Unix/BSD this is usually ".a". Under Windows this is
      *  ".a" for MinGW and Cygwin, but ".lib" for other linkers.
      *)
-    var string: LIBRARY_FILE_EXTENSION      is "";
+    var string: LIBRARY_FILE_EXTENSION       is "";
 
     (**
      *  The extension used by the operating system for executables.
@@ -389,35 +368,57 @@ const type: ccConfigType is new struct
      *  Linux/Unix/BSD it is "" for them. Under Windows
      *  the value ".exe" is used.
      *)
-    var string: EXECUTABLE_FILE_EXTENSION   is "";
+    var string: EXECUTABLE_FILE_EXTENSION    is "";
 
     (**
      *  Command to call the stand-alone C compiler and linker.
      *  Most IDEs provide also a stand-alone compiler/linker.
      *)
-    var string: C_COMPILER                  is "";
+    var string: C_COMPILER                   is "";
 
-    var string: CPLUSPLUS_COMPILER          is "";
-    var boolean: CALL_C_COMPILER_FROM_SHELL is FALSE;
-    var string: C_COMPILER_VERSION          is "";
-    var string: GET_CC_VERSION_INFO         is "";
+    var string: CPLUSPLUS_COMPILER           is "";
+
+    (**
+     *  TRUE, when C compiler and linker must be called via the shell.
+     *  When it is FALSE C compiler and linker processes are started
+     *  direct.
+     *)
+    var boolean: CALL_C_COMPILER_FROM_SHELL  is FALSE;
+
+    var string: C_COMPILER_VERSION           is "";
+    var string: GET_CC_VERSION_INFO          is "";
 
     (**
      *  C compiler option to add source level debugging information.
      *  With this option source level debugging information is
      *  added to the object file.
      *)
-    var array string: CC_OPT_DEBUG_INFO     is 0 times "";
+    var array string: CC_OPT_DEBUG_INFO      is 0 times "";
 
     (**
      *  C compiler option to suppress all warnings.
      *)
-    var string: CC_OPT_NO_WARNINGS          is "";
+    var string: CC_OPT_NO_WARNINGS           is "";
+
+    (**
+     *  C compiler option to optimize with a level of -O1.
+     *)
+    var array string: CC_OPT_OPTIMIZE_1      is 0 times "";
+
+    (**
+     *  C compiler option to optimize with a level of -O2.
+     *)
+    var array string: CC_OPT_OPTIMIZE_2      is 0 times "";
+
+    (**
+     *  C compiler option to optimize with a level of -O3.
+     *)
+    var array string: CC_OPT_OPTIMIZE_3      is 0 times "";
 
     (**
      *  C compiler flags to be used when C programs are compiled.
      *)
-    var array string: CC_FLAGS              is 0 times "";
+    var array string: CC_FLAGS               is 0 times "";
 
     (**
      *  File descriptor to which the C compiler writes errors.
@@ -427,7 +428,7 @@ const type: ccConfigType is new struct
      *  MinGW and Cygwin write the error messages to the error
      *  output (file descriptor 2).
      *)
-    var integer: CC_ERROR_FILDES            is 0;
+    var integer: CC_ERROR_FILDES             is 0;
 
     (**
      *  Linker option to add source level debugging information.
@@ -436,13 +437,13 @@ const type: ccConfigType is new struct
      *  Many compiler/linker combinations don't need this option
      *  to do source level debugging (use "").
      *)
-    var string: LINKER_OPT_DEBUG_INFO       is "";
+    var string: LINKER_OPT_DEBUG_INFO        is "";
 
     (**
      *  Linker option to be used without source level debugging.
      *  This option can strip debug information (e.g.: "-Wl,--strip-debug").
      *)
-    var string: LINKER_OPT_NO_DEBUG_INFO    is "";
+    var string: LINKER_OPT_NO_DEBUG_INFO     is "";
 
     (**
      *  Linker option to provide the output filename (e.g.: "-o ").
@@ -451,68 +452,68 @@ const type: ccConfigType is new struct
      *  replaces the OBJECT_FILE_EXTENSION of the file with the
      *  EXECUTABLE_FILE_EXTENSION.
      *)
-    var string: LINKER_OPT_OUTPUT_FILE      is "";
+    var string: LINKER_OPT_OUTPUT_FILE       is "";
 
     (**
      *  Standard linker options to link a compiled program.
      *  This is intended for options that specify the stack size or
      *  similar things (e.g.: "-Wl,--gc-sections,--stack,4194304").
      *)
-    var array string: LINKER_FLAGS          is 0 times "";
+    var array string: LINKER_FLAGS           is 0 times "";
 
     (**
      *  Options to link system libraries to a compiled program.
      *  This is intended for options to link libraries required by the
-     *  Seed7 runtime library. E.g. libraries for math, socket or
-     *  multiple precision (gmp).
+     *  Seed7 runtime library. E.g. libraries for math or socket.
      *)
-    var array string: SYSTEM_LIBS           is 0 times "";
+    var array string: SYSTEM_LIBS            is 0 times "";
 
     (**
      *  Options to link system console libraries to a compiled program.
      *  This is intended for options to link libraries required by the
      *  Seed7 console runtime library (e.g.: "-lncurses").
      *)
-    var array string: SYSTEM_CONSOLE_LIBS   is 0 times "";
+    var array string: SYSTEM_CONSOLE_LIBS    is 0 times "";
 
     (**
      *  Options to link system graphic libraries to a compiled program.
      *  This is intended for options to link libraries required by the
      *  Seed7 graphic runtime library (e.g.: "-lX11").
      *)
-    var array string: SYSTEM_DRAW_LIBS      is 0 times "";
+    var array string: SYSTEM_DRAW_LIBS       is 0 times "";
 
     (**
-     *  Options to link database libraries to a compiled program.
+     *  Options to link additional libraries to a compiled program.
      *  This is intended for options to link libraries required by the
-     *  Seed7 database runtime libraries (e.g.: "-lmysqlclient").
+     *  Seed7 database runtime libraries (e.g.: "-lmysqlclient") or
+     *  the multiprecision library (e.g.: "-lgmp").
      *)
-    var array string: SYSTEM_DB_LIBS        is 0 times "";
+    var array string: ADDITIONAL_SYSTEM_LIBS is 0 times "";
 
     (**
      *  Name of the Seed7 runtime library (e.g.: "seed7_05.a").
      *)
-    var string: SEED7_LIB                   is "";
+    var string: SEED7_LIB                    is "";
 
     (**
      *  Name of the Seed7 text console runtime library (e.g.: "s7_con.a").
      *)
-    var string: CONSOLE_LIB                 is "";
+    var string: CONSOLE_LIB                  is "";
 
     (**
      *  Name of the Seed7 graphic runtime library (e.g.: "s7_draw.a").
      *)
-    var string: DRAW_LIB                    is "";
+    var string: DRAW_LIB                     is "";
 
     (**
      *  Name of the Seed7 compiler data runtime library (e.g.: "s7_data.a").
      *)
-    var string: COMP_DATA_LIB               is "";
+    var string: COMP_DATA_LIB                is "";
 
     (**
      *  Name of the Seed7 compiler runtime library (e.g.: "s7_comp.a").
      *)
-    var string: COMPILER_LIB                is "";
+    var string: COMPILER_LIB                 is "";
 
     (**
      *  Directory containing the Seed7 runtime libraries.
@@ -520,7 +521,7 @@ const type: ccConfigType is new struct
      *  as path separator and instead of a drive letter like "C:" the
      *  path "/c" is used).
      *)
-    var string: S7_LIB_DIR                  is "";
+    var string: S7_LIB_DIR                   is "";
 
     (**
      *  Shell parameter to redirect to the file descriptor 1.
@@ -528,7 +529,7 @@ const type: ccConfigType is new struct
      *  The file to which the standard output should be
      *  redirected must be appended. E.g.: >myFile.
      *)
-    var string: REDIRECT_FILDES_1           is "";
+    var string: REDIRECT_FILDES_1            is "";
 
     (**
      *  Shell parameter to redirect to the file descriptor 2.
@@ -536,23 +537,23 @@ const type: ccConfigType is new struct
      *  The file to which the error output should be
      *  redirected must be appended. E.g.: 2>myFile.
      *)
-    var string: REDIRECT_FILDES_2           is "";
+    var string: REDIRECT_FILDES_2            is "";
 
     (**
      *  Name of the NULL device.
      *  Under Linux/Unix/BSD this is "/dev/null".
      *  Under Windows this is "NUL:".
      *)
-    var string: NULL_DEVICE                 is "";
+    var string: NULL_DEVICE                  is "";
 
     (**
      *  The suffix used by the literals of the type ''intType''.
      *)
-    var string: INTTYPE_LITERAL_SUFFIX      is "";
+    var string: INTTYPE_LITERAL_SUFFIX       is "";
   end struct;
 
 
-const func string: configValue (in string: name)             is action "CMD_CONFIG_VALUE";
+const func string: configValue (in string: name)    is action "CMD_CONFIG_VALUE";
 
 
 (**
@@ -576,10 +577,7 @@ const func ccConfigType: getBuiltInConfig is func
     conf.SQRT_FUNCTION_OKAY         := boolean parse configValue("SQRT_FUNCTION_OKAY");
     conf.FREXP_INFINITY_NAN_OKAY    := boolean parse configValue("FREXP_INFINITY_NAN_OKAY");
     conf.HAS_SIGSETJMP              := boolean parse configValue("HAS_SIGSETJMP");
-    conf.HAS_SIGACTION              := boolean parse configValue("HAS_SIGACTION");
-    conf.SIGNAL_RESETS_HANDLER      := boolean parse configValue("SIGNAL_RESETS_HANDLER");
     conf.FLOAT_ZERO_DIV_ERROR       := boolean parse configValue("FLOAT_ZERO_DIV_ERROR");
-    conf.DO_SIGFPE_WITH_DIV_BY_ZERO := boolean parse configValue("DO_SIGFPE_WITH_DIV_BY_ZERO");
     conf.CHECK_INT_DIV_BY_ZERO      := boolean parse configValue("CHECK_INT_DIV_BY_ZERO");
     conf.CHECK_INT_REM_BY_ZERO      := boolean parse configValue("CHECK_INT_REM_BY_ZERO");
     conf.CHECK_INT_REM_ZERO_BY_ZERO := boolean parse configValue("CHECK_INT_REM_ZERO_BY_ZERO");
@@ -589,6 +587,7 @@ const func ccConfigType: getBuiltInConfig is func
     conf.HAS_CBRT                   := boolean parse configValue("HAS_CBRT");
     conf.CHECK_FLOAT_DIV_BY_ZERO    := boolean parse configValue("CHECK_FLOAT_DIV_BY_ZERO");
     conf.LIMITED_CSTRI_LITERAL_LEN  := boolean parse configValue("LIMITED_CSTRI_LITERAL_LEN");
+    conf.SWITCH_WORKS_FOR_INT64TYPE := boolean parse configValue("SWITCH_WORKS_FOR_INT64TYPE");
     conf.CC_SOURCE_UTF8             := boolean parse configValue("CC_SOURCE_UTF8");
     conf.USE_WMAIN                  := boolean parse configValue("USE_WMAIN");
     conf.USE_WINMAIN                := boolean parse configValue("USE_WINMAIN");
@@ -621,6 +620,9 @@ const func ccConfigType: getBuiltInConfig is func
     conf.GET_CC_VERSION_INFO        := configValue("GET_CC_VERSION_INFO");
     conf.CC_OPT_DEBUG_INFO          := noEmptyStrings(split(configValue("CC_OPT_DEBUG_INFO"), ' '));
     conf.CC_OPT_NO_WARNINGS         := configValue("CC_OPT_NO_WARNINGS");
+    conf.CC_OPT_OPTIMIZE_1          := noEmptyStrings(split(configValue("CC_OPT_OPTIMIZE_1"), ' '));
+    conf.CC_OPT_OPTIMIZE_2          := noEmptyStrings(split(configValue("CC_OPT_OPTIMIZE_2"), ' '));
+    conf.CC_OPT_OPTIMIZE_3          := noEmptyStrings(split(configValue("CC_OPT_OPTIMIZE_3"), ' '));
     conf.CC_FLAGS                   := noEmptyStrings(split(configValue("CC_FLAGS"), ' '));
     conf.CC_ERROR_FILDES            := integer parse configValue("CC_ERROR_FILDES");
     conf.LINKER_OPT_DEBUG_INFO      := configValue("LINKER_OPT_DEBUG_INFO");
@@ -630,7 +632,7 @@ const func ccConfigType: getBuiltInConfig is func
     conf.SYSTEM_LIBS                := noEmptyStrings(split(configValue("SYSTEM_LIBS"), ' '));
     conf.SYSTEM_CONSOLE_LIBS        := noEmptyStrings(split(configValue("SYSTEM_CONSOLE_LIBS"), ' '));
     conf.SYSTEM_DRAW_LIBS           := noEmptyStrings(split(configValue("SYSTEM_DRAW_LIBS"), ' '));
-    conf.SYSTEM_DB_LIBS             := noEmptyStrings(split(configValue("SYSTEM_DB_LIBS"), '\n'));
+    conf.ADDITIONAL_SYSTEM_LIBS     := noEmptyStrings(split(configValue("ADDITIONAL_SYSTEM_LIBS"), '\n'));
     conf.SEED7_LIB                  := configValue("SEED7_LIB");
     conf.CONSOLE_LIB                := configValue("CONSOLE_LIB");
     conf.DRAW_LIB                   := configValue("DRAW_LIB");

@@ -1,3 +1,87 @@
+20180513:
+- In the manual descriptions of the binomial coefficient and of several
+  conversion functions have been improved.
+- The bas7.sd7 (basic interpreter) example program has been improved to
+  use case statements with strings.
+- The operator &:= has been added to the libraries bitsetof.s7i and
+  bitset.s7i.
+- The function rand() has been added to the library hashsetof.s7i. This
+  function returns a random element from a hash set.
+- The compiler (s7c) has been improved to generate code that uses
+  memcpy or memmove to copy and create arrays of simple value types
+  (e.g. array integer). The destruction of arrays of simple value types
+  has also been simplified.
+- The compiler has been improved to optimize the action SET_RAND.
+- The compiler optimizations for the actions SET_DIFF, SET_UNION and
+  SET_UNION_ASSIGN has been improved.
+- In the compiler (in comp/const.s7i) the actions BLN_ICONV1,
+  BLN_ICONV3, CHR_ICONV3 and SET_RAND have been added to the list of
+  special actions. The compiler implements functions, which just call
+  one of the special actions as inline functions.
+- Interpreter and compiler have been improved to support the actions
+  HSH_RAND_KEY and SET_INTERSECT_ASSIGN.
+- Tests for the functions card() and rand() for the type set of string
+  have been added to chkset.sd7.
+- Tests for intersection assignments ( &:= ) have been added to
+  chkset.sd7.
+- In s7c.sd7 the code to call C compiler and linker has been
+  refactored.
+- The compiler has been improved (in comp/prc_act.s7i) to use the
+  function hshIdxDefault0() instead of hshIdxWithDefault() for case
+  statements with hashsets.
+- The code generation of the compiler has been improved to trigger the
+  signal SIGFPE with a call of triggerSigfpe().
+- The compiler has been improved to insert diagnostic line information
+  (e.g.: #line 64 "logfile.s7i") into code for the actions ARR_CPY,
+  BLN_AND, BLN_OR, ITF_CPY, PRC_IF, PRC_IF_ELSIF, PRC_IF_NOOP
+- The compiler has been improved to insert diagnostic line information
+  for inlined functions.
+- The configuration values in cc_conf.s7i have been improved.
+  SWITCH_WORKS_FOR_INT64TYPE, CC_OPT_OPTIMIZE_1, CC_OPT_OPTIMIZE_2 and
+  CC_OPT_OPTIMIZE_3 have been added. SYSTEM_DB_LIBS has been renamed
+  to ADDITIONAL_SYSTEM_LIBS. HAS_SIGACTION, SIGNAL_RESETS_HANDLER and
+  DO_SIGFPE_WITH_DIV_BY_ZERO have been removed.
+- The program chkccomp.c has been improved. Now it determines the name
+  of the NULL device (/dev/null or NUL:), the system socket library
+  (unix sockets or winsocket), the method to read directories, the
+  bigInteger implementation used (big_rtl.c or big_gmp.c) and the
+  support for switch statements with 64-bit values.
+- Documentation comments have been added or improved in bigint.s7i,
+  integer.s7i, bitsetof.s7i, bitset.s7i, hashsetof.s7i, cc_conf.s7i,
+  fil_rtl.c, dir_drv.h, cmd_rtl.c, set_rtl.c, str_rtl.c and striutl.c.
+- In set_rtl.c the function setIntersect() has been improved to create
+  a smaller intersection result, if possible.
+- In set_rtl.c the function setIntersectAssign has been added.
+- In setlib.c the function set_intersect_assign has been added.
+- In hsh_rtl.c the functions get_helem_elem, get_hash_elem, hshRand
+  and hshIdxDefault0 have been added.
+- In hshlib.c the functions get_helem_elem, get_hash_elem and
+  hsh_rand_key have been added.
+- In gkb_x11.c and gkb_win.c the function find_window() has been
+  improved to use hshIdxDefault0() instead of hshIdxWithDefault().
+- In big_gmp.c the function bigDivRem has been improved to initialize
+  the remainder.
+- In str_rtl.c and strlib.c the function strelem_memcmp has been
+  renamed to memcmp_strelem.
+- In str_rtl.c the function strCmpGeneric has been changed to avoid
+  calls of memcmp_strelem(), when the string sizes differ. This
+  differs from the behaviour of strCompare, but the difference is not
+  important, because strCmpGeneric() is only used for string
+  comparisons of hash keys (in compiled programs).
+- In striutl.c the function conv_to_cstri has been rewritten to return
+  the C string, when the function succeeds, and to work without the
+  parameter err_info.
+- In striutl.c the function stri_to_bstriw has been rewritten to use
+  an err_info parameter.
+- In striutl.c the functions with loop unrolling inspired by Duff's
+  device have been rewritten.
+- In striutl.c the loops in conv_to_cstri, stri_to_cstri and
+  conv_to_os_stri have been optimized.
+- The macro castIntTypeForSwitch has been introduced to support C
+  compilers, that do not support switch statements with 64-bit values.
+- Definitions of NULL_DEVICE, USE_GETADDRINFO, USE_WINSOCK and
+  BIGINT_LIB_DEFINE have been removed from the makefiles.
+
 20180401:
 - The new library logfile.s7i has been added. It defines the interface
   logFile. A logFile works like a normal file unless the log file

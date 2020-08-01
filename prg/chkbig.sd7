@@ -2589,8 +2589,8 @@ const proc: chkConv is func
         bigInteger(2147483646) <> 2147483646_ or
         bigInteger(2147483647) <> 2147483647_ or
         bigInteger(1234567890123456) <> 1234567890123456_ or
-		bigInteger(9223372036854775806) <> 9223372036854775806_ or
-		bigInteger(9223372036854775807) <> 9223372036854775807_ then
+        bigInteger(9223372036854775806) <> 9223372036854775806_ or
+        bigInteger(9223372036854775807) <> 9223372036854775807_ then
       writeln("Conversion of a positive integer to bigInteger does not work correct.");
       okay := FALSE;
     end if;
@@ -2676,8 +2676,8 @@ const proc: chkConv is func
         bigInteger(-2147483647) <> -2147483647_ or
         bigInteger(-2147483648) <> -2147483648_ or
         bigInteger(-1234567890123456) <> -1234567890123456_ or
-		bigInteger(-9223372036854775807) <> -9223372036854775807_ or
-		bigInteger(pred(-9223372036854775807)) <> -9223372036854775808_ then
+        bigInteger(-9223372036854775807) <> -9223372036854775807_ or
+        bigInteger(pred(-9223372036854775807)) <> -9223372036854775808_ then
       writeln("Conversion of a negative integer to bigInteger does not work correct.");
       okay := FALSE;
     end if;

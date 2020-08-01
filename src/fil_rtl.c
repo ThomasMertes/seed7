@@ -112,7 +112,7 @@ DEFINE_WPOPEN
  *  Other Seed7 modes correspond to the C mode "".
  *  The Seed7 modes with t are text modes and the modes
  *  without t are binary modes.
- *  If there is a mode character to set the O_CLOEXEC flag (OS_FOPEN_MODE_CLOSE_ON_EXEC),
+ *  If there is a mode character to set the O_CLOEXEC flag (FOPEN_SUPPORTS_CLOEXEC_MODE),
  *  it is appended to os_mode.
  */
 static void get_mode (os_charType os_mode[MAX_MODE_LEN], const const_striType file_mode)

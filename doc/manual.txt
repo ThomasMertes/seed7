@@ -1670,6 +1670,16 @@ CONTENTS
       pred(A)   Predecessor
                   ( pred(FALSE) => EXCEPTION RANGE_ERROR )
                     pred(TRUE) => FALSE )
+      boolean(A) Convert an integer to a boolean value
+                  ( Type of argument A: integer,
+                    boolean(0) => FALSE,
+                    boolean(1) => TRUE )
+      boolean(A) Conversion of string to boolean
+                  ( Type of argument A: string,
+                    boolean("FALSE") => FALSE,
+                    boolean("TRUE") => TRUE,
+                    boolean("TRUE ") => EXCEPTION RANGE_ERROR,
+                    boolean("ASDF") => EXCEPTION RANGE_ERROR )
       str(A)    Conversion to string
                   ( Type of result: string,
                     str(FALSE) => "FALSE",
@@ -1818,7 +1828,12 @@ CONTENTS
                     A >> B => -1 for A < 0 and B > ord(log2(-A)),
                     0 >> B => 0 )
       !         Binomial coefficient
-                  ( n ! k => !n div (!k * !(n - k)) )
+                  ( n ! k => 0 for k < 0,
+                    n ! 0 => 1,
+                    n ! 1 => n,
+                    n ! k => 0 for n >= 0 and k > n,
+                    n ! k => !n div (!k * !(n - k)) for k >= 0 and k <= n,
+                    n ! k => (-1) ** k * (n + k - 1 ! k) for n < 0 and k >= 0 )
       A radix B  Convert the integer A to a string. The conversion
                  uses the numeral system with the base B.
                   ( Type of result: string,
@@ -1895,6 +1910,14 @@ CONTENTS
       literal(A) Conversion to a literal
                   ( Type of result: string,
                     literal(A) => str(A) )
+      integer(A) Conversion of string to integer
+                  ( Type of argument A: string,
+                    integer("123") => 123,
+                    integer("-123") => -123,
+                    integer("+5") => 5,
+                    integer(" 1") => EXCEPTION RANGE_ERROR,
+                    integer("10 ") => EXCEPTION RANGE_ERROR,
+                    integer("ASDF") => EXCEPTION RANGE_ERROR )
       integer(A, B) Convert numeric string, with specified radix, to an integer
                   ( Type of argument A: string,
                     integer("beef", 16) => 48879,
@@ -2033,6 +2056,37 @@ CONTENTS
     +-----+-----+---------+---------+----------+---------+
 
 
+  Tables for the behavior of '!' (Binomial coefficient):
+
+    +--------+---------------------------------------------------------+
+    | n ! k  |                           k                             |
+    |        +----+----+----+----+----+----+----+----+-----+----+------+
+    |        | -5 | -4 | -3 | -2 | -1 |  0 |  1 |  2 |   3 |  4 |    5 |
+    +---+----+----+----+----+----+----+----+----+----+-----+----+------+
+    | n | -5 |  0 |  0 |  0 |  0 |  0 |  1 | -5 | 15 | -35 | 70 | -126 |
+    |   +----+----+----+----+----+----+----+----+----+-----+----+------+
+    |   | -4 |  0 |  0 |  0 |  0 |  0 |  1 | -4 | 10 | -20 | 35 |  -56 |
+    |   +----+----+----+----+----+----+----+----+----+-----+----+------+
+    |   | -3 |  0 |  0 |  0 |  0 |  0 |  1 | -3 |  6 | -10 | 15 |  -21 |
+    |   +----+----+----+----+----+----+----+----+----+-----+----+------+
+    |   | -2 |  0 |  0 |  0 |  0 |  0 |  1 | -2 |  3 |  -4 |  5 |   -6 |
+    |   +----+----+----+----+----+----+----+----+----+-----+----+------+
+    |   | -1 |  0 |  0 |  0 |  0 |  0 |  1 | -1 | -1 |  -1 | -1 |   -1 |
+    |   +----+----+----+----+----+----+----+----+----+-----+----+------+
+    |   |  0 |  0 |  0 |  0 |  0 |  0 |  1 |  0 |  0 |   0 |  0 |    0 |
+    |   +----+----+----+----+----+----+----+----+----+-----+----+------+
+    |   |  1 |  0 |  0 |  0 |  0 |  0 |  1 |  1 |  0 |   0 |  0 |    0 |
+    |   +----+----+----+----+----+----+----+----+----+-----+----+------+
+    |   |  2 |  0 |  0 |  0 |  0 |  0 |  1 |  2 |  1 |   0 |  0 |    0 |
+    |   +----+----+----+----+----+----+----+----+----+-----+----+------+
+    |   |  3 |  0 |  0 |  0 |  0 |  0 |  1 |  3 |  3 |   1 |  0 |    0 |
+    |   +----+----+----+----+----+----+----+----+----+-----+----+------+
+    |   |  4 |  0 |  0 |  0 |  0 |  0 |  1 |  4 |  6 |   4 |  1 |    0 |
+    |   +----+----+----+----+----+----+----+----+----+-----+----+------+
+    |   |  5 |  0 |  0 |  0 |  0 |  0 |  1 |  5 | 10 |  10 |  5 |    1 |
+    +---+----+----+----+----+----+----+----+----+----+-----+----+------+
+
+
   For the 'sqrt' function holds (when A >= 0):
     sqrt(A) * sqrt(A) <= A and
     (sqrt(A) + 1) * (sqrt(A) + 1) > A
@@ -2085,8 +2139,8 @@ CONTENTS
                     A ** B is okay for B >= 0,
                     A ** 0 => 1_ for every A, even for A = 0_,
                     1_ ** B => 1_ for B >= 0,
-                    A ** B => -(-A) ** B for A <= 0 and B >= 0 and odd(B),
-                    A ** B => (-A) ** B for A <= 0 and B >= 0 and not odd(B),
+                    A ** B => -(-A) ** B for A <= 0_ and B >= 0 and odd(B),
+                    A ** B => (-A) ** B for A <= 0_ and B >= 0 and not odd(B),
                     A ** -1 => EXCEPTION NUMERIC_ERROR )
       A << B    Shift left
                   ( Type of argument B: integer,
@@ -2104,6 +2158,13 @@ CONTENTS
                     A >> B => 0_ for A >= 0_ and B > ord(log2(A)),
                     A >> B => -1_ for A < 0_ and B > ord(log2(-A)),
                     0_ >> B => 0_ for every B )
+      !   Binomial coefficient
+                  ( n ! k => 0_ for k < 0_,
+                    n ! 0_ => 1_,
+                    n ! 1_ => n,
+                    n ! k => 0_ for n >= 0_ and k > n,
+                    n ! k => !n div (!k * !(n - k)) for k >= 0_ and k <= n,
+                    n ! k => (-1) ** k * (n + k - 1 ! k) for n < 0_ and k >= 0_ )
       A radix B  Convert the bigInteger A to a string. The conversion
                  uses the numeral system with the base B.
                   ( Type of result: string,
@@ -2154,6 +2215,14 @@ CONTENTS
       str(A)    Conversion to string
                   ( Type of result: string,
                     str(9876543210_) => "9876543210" )
+      bigInteger(A) Convert a numeric string to a bigInteger
+                  ( Type of argument A: string,
+                    bigInteger("123") => 123_,
+                    bigInteger("-123") => -123_,
+                    bigInteger("+5") => 5_,
+                    bigInteger(" 1") => EXCEPTION RANGE_ERROR,
+                    bigInteger("10 ") => EXCEPTION RANGE_ERROR,
+                    bigInteger("ASDF") => EXCEPTION RANGE_ERROR )
       bigInteger(A, B) Convert numeric string, with specified radix, to a bigInteger
                   ( Type of argument A: string,
                     Type of argument B: integer,
@@ -2301,6 +2370,37 @@ CONTENTS
     | -4_ | -3_ |    1_   |   -1_   |     1_   |   -1_   |
     | -5_ | -3_ |    1_   |   -2_   |     1_   |   -2_   |
     +-----+-----+---------+---------+----------+---------+
+
+
+  Tables for the behavior of '!' (Binomial coefficient):
+
+    +---------+--------------------------------------------------------------------+
+    | n ! k   |                                k                                   |
+    |         +-----+-----+-----+-----+-----+-----+-----+-----+------+-----+-------+
+    |         | -5_ | -4_ | -3_ | -2_ | -1_ |  0_ |  1_ |  2_ |   3_ |  4_ |    5_ |
+    +---+-----+-----+-----+-----+-----+-----+-----+-----+-----+------+-----+-------+
+    | n | -5_ |  0_ |  0_ |  0_ |  0_ |  0_ |  1_ | -5_ | 15_ | -35_ | 70_ | -126_ |
+    |   +-----+-----+-----+-----+-----+-----+-----+-----+-----+------+-----+-------+
+    |   | -4_ |  0_ |  0_ |  0_ |  0_ |  0_ |  1_ | -4_ | 10_ | -20_ | 35_ |  -56_ |
+    |   +-----+-----+-----+-----+-----+-----+-----+-----+-----+------+-----+-------+
+    |   | -3_ |  0_ |  0_ |  0_ |  0_ |  0_ |  1_ | -3_ |  6_ | -10_ | 15_ |  -21_ |
+    |   +-----+-----+-----+-----+-----+-----+-----+-----+-----+------+-----+-------+
+    |   | -2_ |  0_ |  0_ |  0_ |  0_ |  0_ |  1_ | -2_ |  3_ |  -4_ |  5_ |   -6_ |
+    |   +-----+-----+-----+-----+-----+-----+-----+-----+-----+------+-----+-------+
+    |   | -1_ |  0_ |  0_ |  0_ |  0_ |  0_ |  1_ | -1_ | -1_ |  -1_ | -1_ |   -1_ |
+    |   +-----+-----+-----+-----+-----+-----+-----+-----+-----+------+-----+-------+
+    |   |  0_ |  0_ |  0_ |  0_ |  0_ |  0_ |  1_ |  0_ |  0_ |   0_ |  0_ |    0_ |
+    |   +-----+-----+-----+-----+-----+-----+-----+-----+-----+------+-----+-------+
+    |   |  1_ |  0_ |  0_ |  0_ |  0_ |  0_ |  1_ |  1_ |  0_ |   0_ |  0_ |    0_ |
+    |   +-----+-----+-----+-----+-----+-----+-----+-----+-----+------+-----+-------+
+    |   |  2_ |  0_ |  0_ |  0_ |  0_ |  0_ |  1_ |  2_ |  1_ |   0_ |  0_ |    0_ |
+    |   +-----+-----+-----+-----+-----+-----+-----+-----+-----+------+-----+-------+
+    |   |  3_ |  0_ |  0_ |  0_ |  0_ |  0_ |  1_ |  3_ |  3_ |   1_ |  0_ |    0_ |
+    |   +-----+-----+-----+-----+-----+-----+-----+-----+-----+------+-----+-------+
+    |   |  4_ |  0_ |  0_ |  0_ |  0_ |  0_ |  1_ |  4_ |  6_ |   4_ |  1_ |    0_ |
+    |   +-----+-----+-----+-----+-----+-----+-----+-----+-----+------+-----+-------+
+    |   |  5_ |  0_ |  0_ |  0_ |  0_ |  0_ |  1_ |  5_ | 10_ |  10_ |  5_ |    1_ |
+    |---+-----+-----+-----+-----+-----+-----+-----+-----+-----+------+-----+-------+
 
 
   For the 'sqrt' function holds (when A >= 0_):
@@ -11419,9 +11519,9 @@ CONTENTS
     {integer: <SYMBOLOBJECT> *NULL_ENTITY_OBJECT* div fuel_max }
 
     Stack:
-    in (val integer: dividend) div (val integer: divisor) at integer.s7i(95)
-    in init_display at lander.sd7(840)
-    in setup at lander.sd7(909)
+    in (val integer: dividend) div (val integer: divisor) at integer.s7i(116)
+    in init_display at lander.sd7(839)
+    in setup at lander.sd7(908)
     in main at lander.sd7(1541)
 
   The stack trace shows that a NUMERIC_ERROR was raised by the 'div' operation.
@@ -11433,7 +11533,7 @@ CONTENTS
 
   A compiled program creates a much shorter crash message:
 
-    *** Uncaught EXCEPTION NUMERIC_ERROR raised at tmp_lander.c(764)
+    *** Uncaught EXCEPTION NUMERIC_ERROR raised at sigutl.c(218)
 
   To get more information there are two possibilities:
 
@@ -11460,12 +11560,12 @@ CONTENTS
     Starting program: /home/tm/seed7_5/prg/lander
 
     Program received signal SIGFPE, Arithmetic exception.
-    0x08068518 in o_2541_init_display () at lander.sd7:840
-    840         fuel_gauge := 40 * rocket.fuel div fuel_max;
+    0x000000000041b942 in o_3912_init_display () at lander.sd7:839
+    839         fuel_gauge := 40 * rocket.fuel div fuel_max;
     (gdb) bt
-    #0  0x08068518 in o_2541_init_display () at lander.sd7:840
-    #1  0x08068c21 in o_2546_setup () at lander.sd7:909
-    #2  0x0806c304 in main (argc=1, argv=0xbffff324) at lander.sd7:1541
+    #0  0x000000000041b942 in o_3912_init_display () at lander.sd7:839
+    #1  0x000000000041c2e5 in o_3917_setup () at lander.sd7:908
+    #2  0x0000000000421fe1 in main (argc=1, argv=0x7fffffffdf28) at lander.sd7:1541
 
   Sometimes it is helpful to debug the generated C program instead of
   the Seed7 source. The option -g-debug_c creates debug

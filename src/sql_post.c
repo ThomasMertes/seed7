@@ -40,10 +40,10 @@
 #include "string.h"
 #include "time.h"
 #include "limits.h"
-#ifdef USE_WINSOCK
-#include "winsock2.h"
-#else
+#if SOCKET_LIB == UNIX_SOCKETS
 #include "netinet/in.h"
+#elif SOCKET_LIB == WINSOCK_SOCKETS
+#include "winsock2.h"
 #endif
 #ifdef POSTGRESQL_POSTGRES_H
 #include POSTGRESQL_POSTGRES_H

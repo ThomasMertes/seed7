@@ -67,6 +67,9 @@ const proc: process (BLN_AND, in reference: function,
     end if;
     c_expr.expr &:= "(";
     process_call_by_name_expr(params[3], c_expr);
+    if endsWith(c_expr.expr, "\n") then
+      setDiagnosticLine(c_expr);
+    end if;
     c_expr.expr &:= ")";
   end func;
 
@@ -206,6 +209,9 @@ const proc: process (BLN_OR, in reference: function,
     end if;
     c_expr.expr &:= "(";
     process_call_by_name_expr(params[3], c_expr);
+    if endsWith(c_expr.expr, "\n") then
+      setDiagnosticLine(c_expr);
+    end if;
     c_expr.expr &:= ")";
   end func;
 

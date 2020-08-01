@@ -517,7 +517,7 @@ bigIntType getDecimalBigRational (const const_ustriType decimal, memSizeType len
 floatType getDecimalFloat (const const_ustriType decimal, memSizeType length)
 
   {
-    char localCharBuffer[MAX_DECIMAL_BUFFER_LENGTH + 1];
+    char localCharBuffer[MAX_DECIMAL_BUFFER_LENGTH + NULL_TERMINATION_LEN];
     char *charBuffer;
     double doubleValue;
 

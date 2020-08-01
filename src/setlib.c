@@ -635,6 +635,26 @@ objectType set_intersect (listType arguments)
 
 
 /**
+ *  Assign the intersection of delta/arg_3 and dest/arg_1 to dest/arg_1.
+ *  @exception MEMORY_ERROR Not enough memory to create dest/arg_1.
+ */
+objectType set_intersect_assign (listType arguments)
+
+  {
+    objectType set_variable;
+
+  /* set_intersect_assign */
+    set_variable = arg_1(arguments);
+    isit_set(set_variable);
+    is_variable(set_variable);
+    isit_set(arg_3(arguments));
+    setIntersectAssign(&set_variable->value.setValue, take_set(arg_3(arguments)));
+    return SYS_EMPTY_OBJECT;
+  } /* set_intersect_assign */
+
+
+
+/**
  *  Determine if 'set1' is a subset of 'set2'.
  *  'set1' is a subset of 'set2' when no element X exists for which
  *   X in set1 and X not in set2

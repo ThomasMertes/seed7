@@ -57,7 +57,7 @@
 #include "exec.h"
 
 
-#ifdef CHECK_STACK
+#if CHECK_STACK
 extern char *stack_base;
 extern memSizeType max_stack_size;
 #endif
@@ -608,8 +608,8 @@ static objectType exec_action (const_objectType act_object,
   /* exec_action */
     logFunction(printf("exec_action(%s)\n",
                        getActEntry(act_object->value.actValue)->name););
-#ifdef CHECK_STACK
-#ifdef STACK_GROWS_UPWARD
+#if CHECK_STACK
+#if STACK_GROWS_UPWARD
     if ((char *) &evaluated_act_params - stack_base > max_stack_size) {
       max_stack_size = (char *) &evaluated_act_params - stack_base;
     } /* if */
@@ -645,7 +645,7 @@ static objectType exec_action (const_objectType act_object,
         return result;
       } /* if */
     } /* if */
-#ifdef WITH_ACTION_CHECK
+#if WITH_ACTION_CHECK
     if (trace.check_actions) {
       if (unlikely(act_object->value.actValue == actTable.table[0].action)) {
         result = raise_with_arguments(SYS_ACT_ILLEGAL_EXCEPTION,

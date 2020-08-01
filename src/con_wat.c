@@ -393,15 +393,14 @@ void conSetCursor (intType line, intType column)
 void conWrite (const const_striType stri)
 
   {
-    char buffer[MAX_CSTRI_BUFFER_LEN + 1];
+    char buffer[MAX_CSTRI_BUFFER_LEN + NULL_TERMINATION_LEN];
     cstriType cstri;
     errInfoType err_info = OKAY_NO_ERROR;
 
   /* conWrite */
     if (stri->size <= MAX_CSTRI_BUFFER_LEN) {
-      conv_to_cstri(buffer, stri, &err_info);
-      if (unlikely(err_info != OKAY_NO_ERROR)) {
-        raise_error(err_info);
+      if (unlikely(conv_to_cstri(buffer, stri) == NULL)) {
+        raise_error(RANGE_ERROR);
       } else {
         cputs(buffer);
       } /* if */

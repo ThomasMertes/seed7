@@ -37,7 +37,7 @@
 #include "stdlib.h"
 #include "stdio.h"
 #include "string.h"
-#ifdef USE_WINSOCK
+#if SOCKET_LIB == WINSOCK_SOCKETS
 #define FD_SETSIZE 65536
 #include "winsock2.h"
 #else
@@ -57,7 +57,16 @@
 #include "pol_drv.h"
 
 
-#ifdef USE_WINSOCK
+#if SOCKET_LIB == UNIX_SOCKETS
+
+#define DYNAMIC_FD_SET 0
+#define SELECT_WITH_NFDS 1
+#define VERIFY_FD_SETSIZE 0
+#define VERIFY_MAXIMUM_FD_NUMBER 1
+#define SIZEOF_FD_SET(size) sizeof(fd_set)
+#define USED_FD_SET_SIZE(fdset) sizeof(fd_set)
+
+#elif SOCKET_LIB == WINSOCK_SOCKETS
 
 #define DYNAMIC_FD_SET 1
 #define SELECT_WITH_NFDS 0
@@ -66,15 +75,6 @@
 #define SIZEOF_FD_SET(size) \
     (sizeof(fd_set) - FD_SETSIZE * sizeof(SOCKET) + (size) * sizeof(SOCKET))
 #define USED_FD_SET_SIZE(fdset) SIZEOF_FD_SET((fdset)->fd_count)
-
-#else
-
-#define DYNAMIC_FD_SET 0
-#define SELECT_WITH_NFDS 1
-#define VERIFY_FD_SETSIZE 0
-#define VERIFY_MAXIMUM_FD_NUMBER 1
-#define SIZEOF_FD_SET(size) sizeof(fd_set)
-#define USED_FD_SET_SIZE(fdset) sizeof(fd_set)
 
 #endif
 
@@ -695,7 +695,7 @@ void polAddCheck (const pollType pollData, const socketType aSocket,
     intType eventsToCheck, const genericType fileObj)
 
   { /* polAddCheck */
-    switch (eventsToCheck) {
+    switch (castIntTypeForSwitch(eventsToCheck)) {
       case POLL_IN:
         addCheck(&var_conv(pollData)->readTest, aSocket, fileObj);
         break;
@@ -1233,7 +1233,7 @@ boolType polHasNext (const pollType pollData)
 void polIterChecks (const pollType pollData, intType pollMode)
 
   { /* polIterChecks */
-    switch (pollMode) {
+    switch (castIntTypeForSwitch(pollMode)) {
       case POLL_NOTHING:
         var_conv(pollData)->iteratorMode = ITER_EMPTY;
         break;
@@ -1273,7 +1273,7 @@ void polIterChecks (const pollType pollData, intType pollMode)
 void polIterFindings (const pollType pollData, intType pollMode)
 
   { /* polIterFindings */
-    switch (pollMode) {
+    switch (castIntTypeForSwitch(pollMode)) {
       case POLL_NOTHING:
         var_conv(pollData)->iteratorMode = ITER_EMPTY;
         break;
@@ -1393,7 +1393,7 @@ void polPoll (const pollType pollData)
     intType eventsToCheck)
 
   { /* polRemoveCheck */
-    switch (eventsToCheck) {
+    switch (castIntTypeForSwitch(eventsToCheck)) {
       case POLL_IN:
         removeCheck(&var_conv(pollData)->readTest, aSocket);
         break;

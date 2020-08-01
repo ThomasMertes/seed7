@@ -601,7 +601,7 @@ void conSetCursor (intType line, intType column)
 static void doWriteConsole (HANDLE hConsole, const const_striType stri)
 
   {
-    wcharType wstri_buffer[2 * WRITE_STRI_BLOCK_SIZE];
+    wcharType wstri_buffer[WRITE_STRI_BLOCK_SIZE * SURROGATE_PAIR_FACTOR];
     wstriType wstri;
     wstriType wstri_part;
     memSizeType wstri_size;
@@ -613,18 +613,21 @@ static void doWriteConsole (HANDLE hConsole, const const_striType stri)
     if (stri->size <= WRITE_STRI_BLOCK_SIZE) {
       wstri_size = stri_to_utf16(wstri_buffer, stri->mem, stri->size, &err_info);
       if (unlikely(err_info != OKAY_NO_ERROR)) {
-        raise_error(RANGE_ERROR);
+        raise_error(err_info);
       } else {
         WriteConsoleW(hConsole, wstri_buffer, (DWORD) wstri_size, &numchars, NULL);
       } /* if */
     } else {
-      if (unlikely(stri->size > (MAX_WSTRI_LEN + 1) / 2 ||
-                   !ALLOC_WSTRI(wstri, stri->size * 2 - 1))) {
+      /* ALLOC_WSTRI adds space for a NULL termination, which is not needed here. */
+      if (unlikely(stri->size >
+                   (MAX_WSTRI_LEN + NULL_TERMINATION_LEN) / SURROGATE_PAIR_FACTOR ||
+                   !ALLOC_WSTRI(wstri, stri->size * SURROGATE_PAIR_FACTOR -
+                   NULL_TERMINATION_LEN))) {
         raise_error(MEMORY_ERROR);
       } else {
         wstri_size = stri_to_utf16(wstri, stri->mem, stri->size, &err_info);
         if (unlikely(err_info != OKAY_NO_ERROR)) {
-          raise_error(RANGE_ERROR);
+          raise_error(err_info);
         } else {
           wstri_part = wstri;
           /* Writing may fail for lengths above 26000 to 32000 */
@@ -635,7 +638,7 @@ static void doWriteConsole (HANDLE hConsole, const const_striType stri)
           } /* while */
           WriteConsoleW(hConsole, wstri_part, (DWORD) wstri_size, &numchars, NULL);
         } /* if */
-        UNALLOC_WSTRI(wstri, stri->size * 2 - 1);
+        UNALLOC_WSTRI(wstri, stri->size * SURROGATE_PAIR_FACTOR - NULL_TERMINATION_LEN);
       } /* if */
     } /* if */
   } /* doWriteConsole */

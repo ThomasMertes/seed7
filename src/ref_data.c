@@ -274,15 +274,13 @@ intType refCatParse (striType catName)
 
   {
     char name[MAX_CSTRI_BUFFER_LEN + NULL_TERMINATION_LEN];
-    errInfoType err_info = OKAY_NO_ERROR;
     intType category;
 
   /* refCatParse */
     if (unlikely(catName->size > MAX_CSTRI_BUFFER_LEN)) {
       category = -1;
     } else {
-      conv_to_cstri(name, catName, &err_info);
-      if (unlikely(err_info != OKAY_NO_ERROR)) {
+      if (unlikely(conv_to_cstri(name, catName) == NULL)) {
         category = -1;
       } else {
         category = category_value(name);
@@ -522,10 +520,9 @@ listType refLocalConsts (const const_objectType funcRef)
     listType local_elem;
     listType *list_insert_place;
     errInfoType err_info = OKAY_NO_ERROR;
-    listType localConsts;
+    listType localConsts = NULL;
 
   /* refLocalConsts */
-    localConsts = NULL;
     if (unlikely(funcRef == NULL ||
                  CATEGORY_OF_OBJ(funcRef) != BLOCKOBJECT)) {
       logError(printf("refLocalConsts(");
@@ -564,10 +561,9 @@ listType refLocalVars (const const_objectType funcRef)
     locListType local_elem;
     listType *list_insert_place;
     errInfoType err_info = OKAY_NO_ERROR;
-    listType localVars;
+    listType localVars = NULL;
 
   /* refLocalVars */
-    localVars = NULL;
     if (unlikely(funcRef == NULL ||
                  CATEGORY_OF_OBJ(funcRef) != BLOCKOBJECT)) {
       logError(printf("refLocalVars(");
@@ -641,19 +637,21 @@ intType refNum (const const_objectType aReference)
 listType refParams (const const_objectType funcRef)
 
   {
-    listType result;
+    listType params;
 
   /* refParams */
-    result = NULL;
     if (unlikely(funcRef == NULL)) {
       logError(printf("refParams(NULL): Object is NULL.\n"););
       raise_error(RANGE_ERROR);
+      params = NULL;
     } else {
-      if (HAS_PROPERTY(funcRef)) {
-        result = funcRef->descriptor.property->params;
+      if (likely(HAS_PROPERTY(funcRef))) {
+        params = funcRef->descriptor.property->params;
+      } else {
+        params = NULL;
       } /* if */
     } /* if */
-    return result;
+    return params;
   } /* refParams */
 
 

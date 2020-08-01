@@ -30,6 +30,11 @@ var boolean_type_hash: destr_declared is boolean_type_hash.EMPTY_HASH;
 var boolean_type_hash: destr_prototype_declared is boolean_type_hash.EMPTY_HASH;
 var string_type_hash: parametersOfHshDestr is string_type_hash.EMPTY_HASH;
 
+const set of category: simpleValueType is {
+    BOOLOBJECT, ENUMOBJECT, INTOBJECT, FLOATOBJECT, CHAROBJECT,
+    FILEOBJECT, SOCKETOBJECT, REFOBJECT, TYPEOBJECT,
+    ACTOBJECT, BLOCKOBJECT};
+
 
 const proc: process_destr_declaration (in type: object_type,
     inout expr_type: c_expr) is forward;
@@ -80,20 +85,21 @@ const proc: process_arr_destr_declaration (in type: object_type,
     c_expr.expr &:= diagnosticLine;
     c_expr.expr &:= "{\n";
     c_expr.expr &:= diagnosticLine;
-    c_expr.expr &:= "memSizeType i;\n";
-    c_expr.expr &:= diagnosticLine;
-    c_expr.expr &:= "memSizeType size;\n";
-    c_expr.expr &:= diagnosticLine;
     c_expr.expr &:= "if (b != NULL) {\n";
-    c_expr.expr &:= diagnosticLine;
-    c_expr.expr &:= "size = (uintType)(b->max_position - b->min_position + 1);\n";
-    c_expr.expr &:= diagnosticLine;
-    c_expr.expr &:= "for (i = 0; i < size; i++) {\n";
-    c_expr.expr &:= diagnosticLine;
-    process_destr_call(array_element[object_type],
-        "b->arr[i]" & select_value, c_expr.expr);
-    c_expr.expr &:= diagnosticLine;
-    c_expr.expr &:= "}\n";
+    if array_element[object_type] not in typeCategory or
+        typeCategory[array_element[object_type]] not in simpleValueType then
+      c_expr.expr &:= diagnosticLine;
+      c_expr.expr &:= "memSizeType size = (uintType)(b->max_position - b->min_position + 1);\n";
+      c_expr.expr &:= diagnosticLine;
+      c_expr.expr &:= "while (size != 0) {\n";
+      c_expr.expr &:= diagnosticLine;
+      c_expr.expr &:= "size--;\n";
+      c_expr.expr &:= diagnosticLine;
+      process_destr_call(array_element[object_type],
+          "b->arr[size]" & select_value, c_expr.expr);
+      c_expr.expr &:= diagnosticLine;
+      c_expr.expr &:= "}\n";
+    end if;
     c_expr.expr &:= diagnosticLine;
     c_expr.expr &:= "arrFree((arrayType)(b));\n";
     c_expr.expr &:= diagnosticLine;
@@ -386,10 +392,7 @@ const proc: process_destr_call (in type: object_type,
   begin
     if object_type in typeCategory then
       case typeCategory[object_type] of
-        when {BOOLOBJECT, ENUMOBJECT, INTOBJECT, FLOATOBJECT, CHAROBJECT,
-              FILEOBJECT, SOCKETOBJECT, REFOBJECT, TYPEOBJECT,
-              ACTOBJECT, BLOCKOBJECT}:
-                                noop;
+        when simpleValueType:   noop;
         when {BIGINTOBJECT}:    expr &:= "bigDestr(" & param_b & ");\n";
         when {STRIOBJECT}:      expr &:= "strDestr(" & param_b & ");\n";
         when {BSTRIOBJECT}:     expr &:= "bstDestr(" & param_b & ");\n";

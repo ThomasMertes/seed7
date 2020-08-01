@@ -31,11 +31,6 @@ GET_CC_VERSION_INFO = $(CC) --version >
 
 TERMINFO_OR_TERMCAP = USE_TERMINFO
 
-BIGINT_LIB_DEFINE = USE_BIG_RTL_LIBRARY
-BIGINT_LIB = big_rtl
-# BIGINT_LIB_DEFINE = USE_BIG_GMP_LIBRARY
-# BIGINT_LIB = big_gmp
-
 MOBJ = s7.o
 POBJ = runerr.o option.o primitiv.o
 LOBJ = actlib.o arrlib.o biglib.o binlib.o blnlib.o bstlib.o chrlib.o cmdlib.o conlib.o dcllib.o \
@@ -52,7 +47,7 @@ ROBJ = arr_rtl.o bln_rtl.o bst_rtl.o chr_rtl.o cmd_rtl.o con_rtl.o dir_rtl.o drw
        flt_rtl.o hsh_rtl.o int_rtl.o itf_rtl.o pcs_rtl.o set_rtl.o soc_rtl.o sql_rtl.o str_rtl.o \
        tim_rtl.o ut8_rtl.o heaputl.o numutl.o sigutl.o striutl.o \
        sql_base.o sql_lite.o sql_my.o sql_oci.o sql_odbc.o sql_post.o
-DOBJ = $(BIGINT_LIB).o cmd_unx.o dll_unx.o fil_unx.o pcs_unx.o pol_unx.o tim_unx.o
+DOBJ = big_rtl.o big_gmp.o cmd_unx.o dll_unx.o fil_unx.o pcs_unx.o pol_unx.o tim_unx.o
 OBJ = $(MOBJ)
 SEED7_LIB_OBJ = $(ROBJ) $(DOBJ)
 DRAW_LIB_OBJ = gkb_rtl.o drw_dos.o gkb_x11.o
@@ -76,7 +71,7 @@ RSRC = arr_rtl.c bln_rtl.c bst_rtl.c chr_rtl.c cmd_rtl.c con_rtl.c dir_rtl.c drw
        flt_rtl.c hsh_rtl.c int_rtl.c itf_rtl.c pcs_rtl.c set_rtl.c soc_rtl.c sql_rtl.c str_rtl.c \
        tim_rtl.c ut8_rtl.c heaputl.c numutl.c sigutl.c striutl.c \
        sql_base.c sql_lite.c sql_my.c sql_oci.c sql_odbc.c sql_post.c
-DSRC = $(BIGINT_LIB).c cmd_unx.c dll_unx.c fil_unx.c pcs_unx.c pol_unx.c tim_unx.c
+DSRC = big_rtl.c big_gmp.c cmd_unx.c dll_unx.c fil_unx.c pcs_unx.c pol_unx.c tim_unx.c
 SRC = $(MSRC)
 SEED7_LIB_SRC = $(RSRC) $(DSRC)
 DRAW_LIB_SRC = gkb_rtl.c drw_dos.c gkb_x11.c
@@ -96,7 +91,7 @@ s7c: ..\bin\s7c.js ..\prg\s7c.js
 	@echo.
 
 ..\bin\s7.js: $(OBJ) $(ALL_S7_LIBS)
-	$(CC) $(LDFLAGS) $(OBJ) $(ALL_S7_LIBS) $(SYSTEM_DRAW_LIBS) $(SYSTEM_CONSOLE_LIBS) $(SYSTEM_LIBS) $(SYSTEM_DB_LIBS) -o ..\bin\s7.js
+	$(CC) $(LDFLAGS) $(OBJ) $(ALL_S7_LIBS) $(SYSTEM_DRAW_LIBS) $(SYSTEM_CONSOLE_LIBS) $(SYSTEM_LIBS) $(ADDITIONAL_SYSTEM_LIBS) -o ..\bin\s7.js
 
 ..\prg\s7.js: ..\bin\s7.js
 	copy ..\bin\s7.js ..\prg /Y
@@ -169,7 +164,6 @@ version.h: chkccomp.h
 	echo #define PATH_DELIMITER '\\' > version.h
 	echo #define USE_DIRENT >> version.h
 	echo #define SEARCH_PATH_DELIMITER ';' >> version.h
-	echo #define NULL_DEVICE "NUL:" >> version.h
 	echo #define AWAIT_WITH_SELECT >> version.h
 	echo #define IMPLEMENT_PTY_WITH_PIPE2 >> version.h
 	echo #define WITH_SQL >> version.h
@@ -183,7 +177,6 @@ version.h: chkccomp.h
 	echo #define os_off_t off_t >> version.h
 	echo #define os_environ environ >> version.h
 	echo #define QUOTE_WHOLE_SHELL_COMMAND >> version.h
-	echo #define $(BIGINT_LIB_DEFINE) >> version.h
 	echo #define OBJECT_FILE_EXTENSION ".o" >> version.h
 	echo #define LIBRARY_FILE_EXTENSION ".a" >> version.h
 	echo #define EXECUTABLE_FILE_EXTENSION ".js" >> version.h
@@ -297,10 +290,10 @@ wc: $(SRC)
 	wc $(COMPILER_LIB_SRC)
 
 lint: $(SRC)
-	lint -p $(SRC) $(SYSTEM_DRAW_LIBS) $(SYSTEM_CONSOLE_LIBS) $(SYSTEM_LIBS) $(SYSTEM_DB_LIBS)
+	lint -p $(SRC) $(SYSTEM_DRAW_LIBS) $(SYSTEM_CONSOLE_LIBS) $(SYSTEM_LIBS) $(ADDITIONAL_SYSTEM_LIBS)
 
 lint2: $(SRC)
-	lint -Zn2048 $(SRC) $(SYSTEM_DRAW_LIBS) $(SYSTEM_CONSOLE_LIBS) $(SYSTEM_LIBS) $(SYSTEM_DB_LIBS)
+	lint -Zn2048 $(SRC) $(SYSTEM_DRAW_LIBS) $(SYSTEM_CONSOLE_LIBS) $(SYSTEM_LIBS) $(ADDITIONAL_SYSTEM_LIBS)
 
 ifeq (depend,$(wildcard depend))
 include depend

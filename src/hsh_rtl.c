@@ -52,6 +52,7 @@
 #include "heaputl.h"
 #include "striutl.h"
 #include "rtl_err.h"
+#include "int_rtl.h"
 
 #undef EXTERN
 #define EXTERN
@@ -383,6 +384,50 @@ static inline rtlArrayType values_hash (const const_rtlHashType curr_hash,
     } /* if */
     return value_array;
   } /* values_hash */
+
+
+
+static memSizeType get_helem_elem (const_rtlHashElemType *hash_elem,
+    memSizeType arr_pos, const_rtlHashElemType curr_helem)
+
+  { /* get_helem_elem */
+    do {
+      arr_pos--;
+      if (arr_pos == 0) {
+        *hash_elem = curr_helem;
+      } else {
+        if (curr_helem->next_less != NULL) {
+          arr_pos = get_helem_elem(hash_elem, arr_pos, curr_helem->next_less);
+        } /* if */
+        curr_helem = curr_helem->next_greater;
+      } /* if */
+    } while (curr_helem != NULL && arr_pos != 0);
+    return arr_pos;
+  } /* get_helem_elem */
+
+
+
+static inline const_rtlHashElemType get_hash_elem (const const_rtlHashType curr_hash,
+    memSizeType arr_pos)
+
+  {
+    memSizeType number;
+    const rtlHashElemType *table;
+    const_rtlHashElemType hash_elem = NULL;
+
+  /* get_hash_elem */
+    if (arr_pos >= 1 && arr_pos <= curr_hash->size) {
+      number = curr_hash->table_size;
+      table = curr_hash->table;
+      do {
+        do {
+          number--;
+        } while (table[number] == NULL);
+        arr_pos = get_helem_elem(&hash_elem, arr_pos, table[number]);
+      } while (arr_pos != 0);
+    } /* if */
+    return hash_elem;
+  } /* get_hash_elem */
 
 
 
@@ -886,6 +931,40 @@ genericType hshIdxWithDefault (const const_rtlHashType aHashMap, const genericTy
 
 
 
+genericType hshIdxDefault0 (const const_rtlHashType aHashMap, const genericType aKey,
+    intType hashcode, compareType cmp_func)
+
+  {
+    rtlHashElemType hashelem;
+    intType cmp;
+    genericType result;
+
+  /* hshIdxDefault0 */
+    logFunction(printf("hshIdxDefault0(" FMT_X_MEM ", " FMT_U_GEN ", " FMT_U ")\n",
+                       (memSizeType) aHashMap, aKey, hashcode););
+    hashelem = aHashMap->table[(unsigned int) hashcode & aHashMap->mask];
+    while (hashelem != NULL) {
+      cmp = cmp_func(hashelem->key.value.genericValue, aKey);
+      if (cmp < 0) {
+        hashelem = hashelem->next_less;
+      } else if (unlikely(cmp == 0)) {
+        result = hashelem->data.value.genericValue;
+        logFunction(printf("hshIdxDefault0(" FMT_X_MEM ", " FMT_U_GEN ", "
+                           FMT_U ") --> " FMT_U_GEN "\n",
+                           (memSizeType) aHashMap, aKey, hashcode, result););
+        return result;
+      } else {
+        hashelem = hashelem->next_greater;
+      } /* if */
+    } /* while */
+    logFunction(printf("hshIdxDefault0(" FMT_X_MEM ", " FMT_U_GEN ", "
+                       FMT_U ") --> 0\n",
+                       (memSizeType) aHashMap, aKey, hashcode););
+    return 0;
+  } /* hshIdxDefault0 */
+
+
+
 /**
  *  Add 'anElem' with the key 'aKey' to the hash map 'aHashMap'.
  *  When an element with the key 'aKey' already exists,
@@ -970,6 +1049,41 @@ rtlArrayType hshKeys (const const_rtlHashType aHashMap,
     key_array = keys_hash(aHashMap, key_create_func);
     return key_array;
   } /* hshKeys */
+
+
+
+/**
+ *  Compute pseudo-random hash table element from 'aHashMap'.
+ *  The hash table element contains key and value.
+ *  The random values are uniform distributed.
+ *  @return a random hash table element such that hshRand(aHashMap) in aHashMap holds.
+ *  @exception RANGE_ERROR When 'aHashMap' is empty.
+ */
+const_rtlHashElemType hshRand (const const_rtlHashType aHashMap)
+
+  {
+    memSizeType num_elements;
+    memSizeType elem_index;
+    const_rtlHashElemType result;
+
+  /* hshRand */
+    logFunction(printf("hshRand(" FMT_U_MEM ")\n",
+                       (memSizeType) aHashMap););
+    num_elements = aHashMap->size;
+    if (unlikely(num_elements == 0)) {
+      logError(printf("hshRand(): Hash map is empty.\n"););
+      raise_error(RANGE_ERROR);
+      return NULL;
+    } else {
+      elem_index = (memSizeType) (uintType)
+          intRand((intType) 1, (intType) num_elements);
+      /* printf("elem_index " FMT_U_MEM "\n", elem_index); */
+      result = get_hash_elem(aHashMap, elem_index);
+    } /* if */
+    logFunction(printf("hshRand --> " FMT_U_MEM "\n",
+                       (memSizeType) result););
+    return result;
+  } /* hshRand */
 
 
 

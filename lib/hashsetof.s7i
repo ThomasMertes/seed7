@@ -93,6 +93,14 @@ const func type: hashset (in type: baseType) is func
        *)
       const func integer: card (in setType: aSet)                              is action "HSH_LNG";
 
+      (**
+       *  Compute pseudo-random element from ''aSet''.
+       *  The random values are uniform distributed.
+       *  @return a random element such that rand(aSet) in aSet holds.
+       *  @exception RANGE_ERROR When ''aSet'' is empty.
+       *)
+      const func baseType: rand (in setType: aSet)                             is action "HSH_RAND_KEY";
+
       const func setType: (attr setType) . _GENERATE_EMPTY_SET                 is action "HSH_EMPTY";
       const setType: (attr setType) . EMPTY_SET                                is setType._GENERATE_EMPTY_SET;
       const setType: (attr setType) . value                                    is setType._GENERATE_EMPTY_SET;
@@ -258,7 +266,7 @@ const func type: hashset (in type: baseType) is func
 
       (**
        *  Assign the union of set2 and dest to dest.
-       *  @exception MEMORY_ERROR Not enough memory for the result.
+       *  @exception MEMORY_ERROR Not enough memory to create dest.
        *)
       const proc: (inout setType: dest) |:= (in setType: set2) is func
         local
@@ -271,7 +279,7 @@ const func type: hashset (in type: baseType) is func
 
       (**
        *  Assign the intersection of set2 and dest to dest.
-       *  @exception MEMORY_ERROR Not enough memory for the result.
+       *  @exception MEMORY_ERROR Not enough memory to create dest.
        *)
       const proc: (inout setType: dest) &:= (in setType: set2) is func
         local

@@ -38,13 +38,9 @@
 #include "stdio.h"
 #include "string.h"
 #include "limits.h"
-#ifdef USE_WINSOCK
-#define FD_SETSIZE 16384
-#include "winsock2.h"
-#ifdef USE_GETADDRINFO
-#include "ws2tcpip.h"
-#endif
-#else
+
+#if SOCKET_LIB == UNIX_SOCKETS
+
 #include "sys/types.h"
 #include "sys/socket.h"
 #include "netdb.h"
@@ -53,7 +49,17 @@
 #if HAS_POLL
 #include "poll.h"
 #endif
+
+#elif SOCKET_LIB == WINSOCK_SOCKETS
+
+#define FD_SETSIZE 16384
+#include "winsock2.h"
+#if HAS_GETADDRINFO
+#include "ws2tcpip.h"
 #endif
+
+#endif
+
 #include "errno.h"
 
 #if UNISTD_H_PRESENT
@@ -73,21 +79,25 @@
 #include "soc_rtl.h"
 
 
-#ifdef USE_WINSOCK
+#if SOCKET_LIB == UNIX_SOCKETS
+
+typedef socklen_t sockLenType;
+#define check_initialization(err_result)
+#define cast_send_recv_data(data_ptr) ((void *) (data_ptr))
+#define cast_buffer_len(len)          len
+#define INVALID_SOCKET (-1)
+
+#elif SOCKET_LIB == WINSOCK_SOCKETS
 
 typedef int sockLenType;
+static boolType initialized = FALSE;
+#define check_initialization(err_result) \
+    if (unlikely(!initialized)) {if (init_winsock()) {return err_result;}}
 #define cast_send_recv_data(data_ptr) ((char *) (data_ptr))
 #define cast_buffer_len(len)          ((int) (len))
 #ifndef SHUT_RDWR
 #define SHUT_RDWR SD_BOTH
 #endif
-
-#else
-
-typedef socklen_t sockLenType;
-#define cast_send_recv_data(data_ptr) ((void *) (data_ptr))
-#define cast_buffer_len(len)          len
-#define INVALID_SOCKET (-1)
 
 #endif
 
@@ -101,14 +111,6 @@ typedef socklen_t sockLenType;
 
 #define MAX_SOCK_ADDRESS_LEN \
     STRLEN("[01:23:45:67:89:ab:cd:ef]:65535") + NULL_TERMINATION_LEN
-
-#ifdef USE_WINSOCK
-static boolType initialized = FALSE;
-#define check_initialization(err_result) \
-    if (unlikely(!initialized)) {if (init_winsock()) {return err_result;}}
-#else
-#define check_initialization(err_result)
-#endif
 
 
 
@@ -147,7 +149,7 @@ static const_cstriType socAddressCStri (const const_bstriType address)
             result = buffer;
           } /* if */
           break;
-#if defined USE_GETADDRINFO || defined INET6_SERVER_ADDRESS
+#if HAS_GETADDRINFO || defined INET6_SERVER_ADDRESS
         case AF_INET6:
           if (unlikely(address->size != sizeof(struct sockaddr_in6))) {
             result = " ** Size of address wrong for AF_INET6 ** ";
@@ -183,7 +185,7 @@ static const_cstriType socAddressCStri (const const_bstriType address)
 
 
 
-#ifdef USE_WINSOCK
+#if SOCKET_LIB == WINSOCK_SOCKETS
 static int init_winsock (void)
 
   {
@@ -238,7 +240,7 @@ const_cstriType wsaErrorMessage (void)
 
 
 
-#ifdef USE_GETADDRINFO
+#if HAS_GETADDRINFO
 static struct addrinfo *select_addrinfo (struct addrinfo *addrinfo_list,
     int addr_family1, int addr_family2)
 
@@ -602,7 +604,7 @@ striType socAddrNumeric (const const_bstriType address)
             result = cstri_to_stri(buffer);
           } /* if */
           break;
-#if defined USE_GETADDRINFO || defined INET6_SERVER_ADDRESS
+#if HAS_GETADDRINFO || defined INET6_SERVER_ADDRESS
         case AF_INET6:
           if (unlikely(address->size != sizeof(struct sockaddr_in6))) {
             logError(printf("socAddrNumeric(\"%s\"): Size of address wrong for AF_INET6.\n",
@@ -672,7 +674,7 @@ striType socAddrService (const const_bstriType address)
             result = intStr(port);
           } /* if */
           break;
-#if defined USE_GETADDRINFO || defined INET6_SERVER_ADDRESS
+#if HAS_GETADDRINFO || defined INET6_SERVER_ADDRESS
         case AF_INET6:
           if (unlikely(address->size != sizeof(struct sockaddr_in6))) {
             logError(printf("socAddrService(\"%s\"): Size of address wrong for AF_INET6.\n",
@@ -737,10 +739,10 @@ void socClose (socketType aSocket)
   /* socClose */
     logFunction(printf("socClose(%d)\n", aSocket););
     shutdown((os_socketType) aSocket, SHUT_RDWR);
-#ifdef USE_WINSOCK
-    close_result = closesocket((os_socketType) aSocket);
-#else
+#if SOCKET_LIB == UNIX_SOCKETS
     close_result = close((os_socketType) aSocket);
+#elif SOCKET_LIB == WINSOCK_SOCKETS
+    close_result = closesocket((os_socketType) aSocket);
 #endif
     if (unlikely(close_result != 0)) {
       logError(printf("socClose: close(%d) failed:\n"
@@ -1075,7 +1077,7 @@ bstriType socInetAddr (const const_striType hostName, intType port)
 
   {
     cstriType name;
-#ifdef USE_GETADDRINFO
+#if HAS_GETADDRINFO
     char servicename[10];
     struct addrinfo *addrinfo_list;
     struct addrinfo *result_addrinfo;
@@ -1107,7 +1109,7 @@ bstriType socInetAddr (const const_striType hostName, intType port)
         raise_error(err_info);
         result = NULL;
       } else {
-#ifdef USE_GETADDRINFO
+#if HAS_GETADDRINFO
         sprintf(servicename, "%u", (unsigned int) port);
         memset(&hints, 0, sizeof(struct addrinfo));
         hints.ai_family = AF_UNSPEC;
@@ -1248,7 +1250,7 @@ bstriType socInetAddr (const const_striType hostName, intType port)
 bstriType socInetLocalAddr (intType port)
 
   {
-#ifdef USE_GETADDRINFO
+#if HAS_GETADDRINFO
     char servicename[10];
     struct addrinfo *addrinfo_list;
     struct addrinfo *result_addrinfo;
@@ -1269,7 +1271,7 @@ bstriType socInetLocalAddr (intType port)
       raise_error(RANGE_ERROR);
       result = NULL;
     } else {
-#ifdef USE_GETADDRINFO
+#if HAS_GETADDRINFO
       sprintf(servicename, "%u", (unsigned int) port);
       memset(&hints, 0, sizeof(struct addrinfo));
       hints.ai_family = AF_UNSPEC;
@@ -1327,7 +1329,7 @@ bstriType socInetLocalAddr (intType port)
 bstriType socInetServAddr (intType port)
 
   {
-#ifdef USE_GETADDRINFO
+#if HAS_GETADDRINFO
     char servicename[10];
     struct addrinfo *addrinfo_list;
     struct addrinfo *result_addrinfo;
@@ -1352,7 +1354,7 @@ bstriType socInetServAddr (intType port)
       raise_error(RANGE_ERROR);
       result = NULL;
     } else {
-#ifdef USE_GETADDRINFO
+#if HAS_GETADDRINFO
       sprintf(servicename, "%u", (unsigned int) port);
       memset(&hints, 0, sizeof(struct addrinfo));
       hints.ai_family = AF_UNSPEC;
@@ -1959,7 +1961,7 @@ void socSetOptBool (socketType sock, intType optname, boolType optval)
   { /* socSetOptBool */
     logFunction(printf("socSetOptBool(%d, " FMT_D ", %s)\n",
                        sock, optname, optval ? "TRUE" : "FALSE"););
-    switch (optname) {
+    switch (castIntTypeForSwitch(optname)) {
       case SOC_OPT_NONE:
         break;
       case SOC_OPT_REUSEADDR: {
@@ -2006,7 +2008,7 @@ socketType socSocket (intType domain, intType type, intType protocol)
       /* printf("socSocket(%d, %d, %d)\n", domain, type, protocol); */
       check_initialization((socketType) -1);
       result = (os_socketType) socket((int) domain, (int) type, (int) protocol);
-#if defined USE_WINSOCK && !TWOS_COMPLEMENT_INTTYPE
+#if SOCKET_LIB == WINSOCK_SOCKETS && !TWOS_COMPLEMENT_INTTYPE
       /* In this case INVALID_SOCKET != (socketType) -1 holds and    */
       /* (socketType) -1 must be returned instead of INVALID_SOCKET. */
       /* Probably a computer, which needs this, does not exist.      */

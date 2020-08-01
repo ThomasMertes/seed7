@@ -1143,6 +1143,7 @@ const proc: process_const_func_call (in reference: function,
     elsif result_type = voidtype then
       call_params(formal_params, actual_params, c_params);
       if c_params.temp_decls <> "" or c_params.temp_assigns <> "" then
+        setDiagnosticLine(c_expr);
         c_expr.expr &:= "{\n";
         appendWithDiagnostic(c_params.temp_decls, c_expr);
         appendWithDiagnostic(c_params.temp_assigns, c_expr);
@@ -1160,6 +1161,7 @@ const proc: process_const_func_call (in reference: function,
       c_expr.expr &:= ";\n";
       if c_params.temp_decls <> "" or c_params.temp_assigns <> "" then
         appendWithDiagnostic(c_params.temp_frees, c_expr);
+        setDiagnosticLine(c_expr);
         c_expr.expr &:= "}\n";
       end if;
     else
@@ -2510,6 +2512,10 @@ const proc: action_address (in reference: function, inout expr_type: c_expr) is 
     elsif action_name = "SQL_DESTR_STMT" then
       c_expr.expr &:= "&sqlDestrStmtGeneric";
     elsif action_name = "STR_CMP" then
+      # The functions  strCompare() and strCmpGeneric() do not have
+      # the same behaviour. This difference is not important,
+      # because strCmpGeneric() is only used for string comparisons
+      # of hash keys.
       c_expr.expr &:= "&strCmpGeneric";
     elsif action_name = "STR_CPY" then
       c_expr.expr &:= "&strCpyGeneric";
@@ -4947,6 +4953,7 @@ const proc: write_prototypes is func
     declareExtern("genericType ptrCreateGeneric (const genericType);");
     writeln(c_prog, "typedef void (*suspendInterprType) (int signalNum);");
     declareExtern("void        setupSignalHandlers (boolType, boolType, boolType, boolType, suspendInterprType);");
+    declareExtern("void        triggerSigfpe (void);");
     declareExtern("void        rtlRaiseError (int, const char *, int) NORETURN;");
     writeln(c_prog, "#define raiseError(num) rtlRaiseError(num, __FILE__, __LINE__)");
     writeln(c_prog, "#define intRaiseError(num) (rtlRaiseError(num, __FILE__, __LINE__), 0)");
@@ -6392,24 +6399,7 @@ const proc: declare_rtlRaiseError (inout expr_type: c_expr) is func
       c_expr.expr &:= "      printf(\"%d\", fail_value);\n";
       c_expr.expr &:= "    }\n";
       c_expr.expr &:= "    printf(\" raised at %s(%d)\\n\", file_name, line_number);\n";
-      if ccConf.HAS_SIGACTION then
-        c_expr.expr &:= "    {\n";
-        c_expr.expr &:= "      struct sigaction sig_act;\n";
-        c_expr.expr &:= "      sigemptyset(&sig_act.sa_mask);\n";
-        c_expr.expr &:= "      sig_act.sa_flags = SA_RESTART;\n";
-        c_expr.expr &:= "      sig_act.sa_handler = SIG_DFL;\n";
-        c_expr.expr &:= "      sigaction(SIGFPE, &sig_act, NULL);\n";
-        c_expr.expr &:= "    }\n";
-      else
-        c_expr.expr &:= "    signal(SIGFPE, SIG_DFL);\n";
-      end if;
-      if ccConf.DO_SIGFPE_WITH_DIV_BY_ZERO then
-        # Under Windows it is necessary to trigger SIGFPE this way
-        # to assure that the debugger can catch it.
-        c_expr.expr &:= "    flt2int.intValue = fail_value / (error_line - line_number); /* trigger SIGFPE on purpose */\n";
-      else
-        c_expr.expr &:= "    raise(SIGFPE);\n";
-      end if;
+      c_expr.expr &:= "    triggerSigfpe();\n";
       c_expr.expr &:= "  }\n";
     end if;
     if ccConf.HAS_SIGSETJMP then
@@ -6721,51 +6711,70 @@ const proc: pass_2 (in string: source, in program: prog,
   end func;
 
 
+const proc: logProgram (in string: command, in array string: parameters,
+    in string: errorFile) is func
+
+  begin
+    write(toShellPath(command) <& " " <& shellParameters(parameters));
+    case ccConf.CC_ERROR_FILDES of
+      when {1}:
+        write(" " <& ccConf.REDIRECT_FILDES_1 <& toShellPath(errorFile));
+        write(" " <& ccConf.REDIRECT_FILDES_2 <& ccConf.NULL_DEVICE);
+      when {2}:
+        write(" " <& ccConf.REDIRECT_FILDES_2 <& toShellPath(errorFile));
+        write(" " <& ccConf.REDIRECT_FILDES_1 <& ccConf.NULL_DEVICE);
+    end case;
+    writeln;
+    flush(OUT);
+  end func;
+
+
 const proc: execProgramScript (in string: command, in array string: parameters,
-    in integer: errorFileDescriptor, in string: errorFile) is func
+    in string: errorFile) is func
 
   local
     var array string: redirection is 0 times "";
   begin
-    if errorFileDescriptor = 1 then
-      redirection &:= ccConf.REDIRECT_FILDES_1 & toShellPath(errorFile);
-      redirection &:= ccConf.REDIRECT_FILDES_2 & ccConf.NULL_DEVICE;
-    elsif errorFileDescriptor = 2 then
-      redirection &:= ccConf.REDIRECT_FILDES_2 & toShellPath(errorFile);
-      redirection &:= ccConf.REDIRECT_FILDES_1 & ccConf.NULL_DEVICE;
-    end if;
+    logProgram(command, parameters, errorFile);
+    case ccConf.CC_ERROR_FILDES of
+      when {1}:
+        redirection &:= ccConf.REDIRECT_FILDES_1 & toShellPath(errorFile);
+        redirection &:= ccConf.REDIRECT_FILDES_2 & ccConf.NULL_DEVICE;
+      when {2}:
+        redirection &:= ccConf.REDIRECT_FILDES_2 & toShellPath(errorFile);
+        redirection &:= ccConf.REDIRECT_FILDES_1 & ccConf.NULL_DEVICE;
+    end case;
     cmd_sh(command, shellParameters(parameters) <& " " <& join(redirection, " "));
   end func;
 
 
 const proc: execProgram (in string: command, in array string: parameters,
-    in integer: errorFileDescriptor, in string: errorFile) is func
+    in string: errorFile) is func
 
   local
     var file: childStdout is STD_NULL;
     var file: childStderr is STD_NULL;
     var process: aProcess is process.value;
   begin
-    if errorFileDescriptor = 1 then
-      childStdout := open(errorFile, "w");
-      if childStdout = STD_NULL then
-        writeln("*** Could not open " <& errorFile);
-      end if;
-      childStderr := STD_NULL;
-    elsif errorFileDescriptor = 2 then
-      childStdout := STD_NULL;
-      childStderr := open(errorFile, "w");
-      if childStderr = STD_NULL then
-        writeln("*** Could not open " <& errorFile);
-      end if;
-    end if;
+    logProgram(command, parameters, errorFile);
+    case ccConf.CC_ERROR_FILDES of
+      when {1}:
+        childStdout := open(errorFile, "w");
+        if childStdout = STD_NULL then
+          writeln("*** Could not open " <& errorFile);
+        end if;
+      when {2}:
+        childStderr := open(errorFile, "w");
+        if childStderr = STD_NULL then
+          writeln("*** Could not open " <& errorFile);
+        end if;
+    end case;
     aProcess := startProcess(commandPath(command), parameters, STD_IN, childStdout, childStderr);
     waitFor(aProcess);
-    if errorFileDescriptor = 1 then
-      close(childStdout);
-    elsif errorFileDescriptor = 2 then
-      close(childStderr);
-    end if;
+    case ccConf.CC_ERROR_FILDES of
+      when {1}: close(childStdout);
+      when {2}: close(childStderr);
+    end case;
   end func;
 
 
@@ -6842,7 +6851,16 @@ const proc: pass_3 (in string: sourcePath, in string: sourceExtension, in progra
       end if;
       compileParams &:= ccConf.CC_OPT_NO_WARNINGS;
       if "-O" in compiler_option then
-        compileParams &:= "-O" & compiler_option["-O"];
+        case compiler_option["-O"] of
+          when {"", "1"}:
+            compileParams &:= ccConf.CC_OPT_OPTIMIZE_1;
+          when {"2"}:
+            compileParams &:= ccConf.CC_OPT_OPTIMIZE_2;
+          when {"3"}:
+            compileParams &:= ccConf.CC_OPT_OPTIMIZE_3;
+          otherwise:
+            writeln("*** Ignore unsupported option: -O" <& compiler_option["-O"]);
+        end case;
       end if;
       if "-g" in compiler_option then
         compileParams &:= ccConf.CC_OPT_DEBUG_INFO;
@@ -6855,20 +6873,10 @@ const proc: pass_3 (in string: sourcePath, in string: sourceExtension, in progra
       end if;
       compileParams &:= "-c";
       compileParams &:= toOsPath(cSourceFile);
-      write(toShellPath(compile_cmd) <& " " <& shellParameters(compileParams));
-      if ccConf.CC_ERROR_FILDES = 1 then
-        write(" " <& ccConf.REDIRECT_FILDES_1 <& toShellPath(cErrorFile));
-        write(" " <& ccConf.REDIRECT_FILDES_2 <& ccConf.NULL_DEVICE);
-      elsif ccConf.CC_ERROR_FILDES = 2 then
-        write(" " <& ccConf.REDIRECT_FILDES_2 <& toShellPath(cErrorFile));
-        write(" " <& ccConf.REDIRECT_FILDES_1 <& ccConf.NULL_DEVICE);
-      end if;
-      writeln;
-      flush(OUT);
       if ccConf.CALL_C_COMPILER_FROM_SHELL then
-        execProgramScript(compile_cmd, compileParams, ccConf.CC_ERROR_FILDES, cErrorFile);
+        execProgramScript(compile_cmd, compileParams, cErrorFile);
       else
-        execProgram(compile_cmd, compileParams, ccConf.CC_ERROR_FILDES, cErrorFile);
+        execProgram(compile_cmd, compileParams, cErrorFile);
       end if;
       if fileType(cErrorFile) = FILE_REGULAR and
           fileSize(cErrorFile) = 0 then
@@ -6971,22 +6979,12 @@ const proc: pass_3 (in string: sourcePath, in string: sourceExtension, in progra
             if drawLibraryUsed then
               linkParams &:= ccConf.SYSTEM_DRAW_LIBS;
             end if;
-            linkParams &:= ccConf.SYSTEM_DB_LIBS;
             linkParams &:= ccConf.SYSTEM_LIBS;
-            write(toShellPath(link_cmd) <& " " <& shellParameters(linkParams));
-            if ccConf.CC_ERROR_FILDES = 1 then
-              write(" " <& ccConf.REDIRECT_FILDES_1 <& toShellPath(linkErrFile));
-              write(" " <& ccConf.REDIRECT_FILDES_2 <& ccConf.NULL_DEVICE);
-            elsif ccConf.CC_ERROR_FILDES = 2 then
-              write(" " <& ccConf.REDIRECT_FILDES_2 <& toShellPath(linkErrFile));
-              write(" " <& ccConf.REDIRECT_FILDES_1 <& ccConf.NULL_DEVICE);
-            end if;
-            writeln;
-            flush(OUT);
+            linkParams &:= ccConf.ADDITIONAL_SYSTEM_LIBS;
             if ccConf.CALL_C_COMPILER_FROM_SHELL then
-              execProgramScript(link_cmd, linkParams, ccConf.CC_ERROR_FILDES, linkErrFile);
+              execProgramScript(link_cmd, linkParams, linkErrFile);
             else
-              execProgram(link_cmd, linkParams, ccConf.CC_ERROR_FILDES, linkErrFile);
+              execProgram(link_cmd, linkParams, linkErrFile);
             end if;
             if ccConf.LINKER_OPT_OUTPUT_FILE = "" and
                 fileType(tempExeFile) = FILE_REGULAR then
