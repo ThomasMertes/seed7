@@ -27,7 +27,7 @@
 
 
 (**
- *  Filter file which reads the input linewise.
+ *  [[file|File]] implementation type which reads ''baseFile'' linewise.
  *)
 const type: line_file is sub null_file struct
     var file: baseFile is STD_NULL;
@@ -36,7 +36,7 @@ const type: line_file is sub null_file struct
 
 
 (**
- *  Open a line_file.
+ *  Open a line_file to filter ''aFile'' linewise.
  *  @return the file opened.
  *)
 const func line_file: open_line (ref file: aFile) is func
@@ -48,7 +48,7 @@ const func line_file: open_line (ref file: aFile) is func
 
 
 (**
- *  Write a string to a line_file.
+ *  Write a string to a ''line_file''.
  *)
 const proc: write (inout line_file: line_fil, in string: stri) is func
   begin
@@ -73,10 +73,11 @@ const proc: flush (inout line_file: line_fil) is func
 
 
 (**
- *  Read a line from a line_file.
- *  The function accepts lines ending with "\n" or EOF.
+ *  Read a line from a ''line_file''.
+ *  The function accepts lines ending with "\n" or [[char#EOF|EOF]].
  *  The line ending characters are not copied into the string. When
- *  the function is left the line_file.bufferChar contains '\n' or EOF.
+ *  the function is left the line_file.bufferChar contains '\n' or
+ *  [[char#EOF|EOF]].
  *  @return the line read.
  *)
 const func string: getln (inout line_file: line_fil) is func
@@ -113,7 +114,7 @@ const func string: getln (inout line_file: line_fil) is func
 
 (**
  *  Read a character from a line_file.
- *  @return the character read, or EOF at the end of the file.
+ *  @return the character read, or [[char#EOF|EOF]] at the end of the file.
  *)
 const func char: getc (inout line_file: line_fil) is func
   result

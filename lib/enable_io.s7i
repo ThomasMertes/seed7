@@ -26,122 +26,20 @@
 (********************************************************************)
 
 
-include "file.s7i";
-
-
-var file: IN is forward;
-var file: OUT is forward;
+include "enable_input.s7i";
+include "enable_output.s7i";
 
 
 (**
- *  Template function to define input functions for ''aType''.
- *  It defines the functions ''read'' and ''readln''. The functions
- *  read a whitespace terminated word respectively a line as
- *  [[string]]. Afterwards the ''parse'' operator is used to
- *  convert the ''string'' to an ''aType'' value. The functions
- *  ''read'' and ''readln'' are defined with [[file]] argument
- *  and without ''file'' argument. The functions without ''file''
- *  argument use the standard input file [[stdio#IN|IN]].
- *)
-const proc: enable_input (in type: aType) is func
-  begin
-    const proc: read (inout file: aFile, inout aType: aValue) is func
-      local
-        var string: stri is "";
-      begin
-        stri := getwd(aFile);
-        aFile.io_empty := stri = "";
-        block
-          aValue := aType parse stri;
-          aFile.io_ok := TRUE;
-        exception
-          catch RANGE_ERROR:
-            aFile.io_ok := FALSE;
-        end block;
-      end func;
-
-    const proc: readln (inout file: aFile, inout aType: aValue) is func
-      local
-        var string: stri is "";
-      begin
-        stri := getln(aFile);
-        aFile.io_empty := stri = "";
-        block
-          aValue := aType parse stri;
-          aFile.io_ok := TRUE;
-        exception
-          catch RANGE_ERROR:
-            aFile.io_ok := FALSE;
-        end block;
-      end func;
-
-    const proc: read (inout aType: aValue) is func
-      begin
-        read(IN, aValue);
-      end func;
-
-    const proc: readln (inout aType: aValue) is func
-      begin
-        readln(IN, aValue);
-      end func;
-
-  end func;
-
-
-(**
- *  Template function to define output functions for ''aType''.
- *  It defines the functions ''write'' and ''writeln'' and the operators
- *  ''lpad'', ''rpad'' and ''<&''. The functions and operators use the
- *  ''str'' function to convert the ''aType'' value to a [[string]].
- *  Afterwards they call the corresponding function respectively
- *  operator for ''string'' values. The functions ''write'' and
- *  ''writeln'' are defined with [[file]] argument and without ''file''
- *  argument. The functions without ''file'' argument write to the
- *  standard output file [[stdio#OUT|OUT]].
- *)
-const proc: enable_output (in type: aType) is func
-  begin
-    const proc: write (inout file: aFile, in aType: aValue) is func
-      begin
-        write(aFile, str(aValue));
-      end func;
-
-    const proc: writeln (inout file: aFile, in aType: aValue) is func
-      begin
-        write(aFile, str(aValue));
-        writeln(aFile);
-      end func;
-
-    const proc: write (in aType: aValue) is func
-      begin
-        write(OUT, aValue);
-      end func;
-
-    const proc: writeln (in aType: aValue) is func
-      begin
-        write(OUT, aValue);
-        writeln(OUT);
-      end func;
-
-    const func string: (in aType: aValue) lpad (in integer: leng) is
-      return str(aValue) lpad leng;
-
-    const func string: (in aType: aValue) rpad (in integer: leng) is
-      return str(aValue) rpad leng;
-
-    const func string: (in string: stri) <& (in aType: aValue) is
-      return stri & str(aValue);
-
-    const func string: (in aType: aValue) <& (in string: stri) is
-      return str(aValue) & stri;
-
-  end func;
-
-
-(**
- *  Template function to define I/O functions for 'aType'.
- *  To do this it calls the templates [[#enable_input(in_type)|enable_input]]
- *  and [[#enable_output(in_type)|enable_output]].
+ *  Template function to define I/O functions for ''aType''.
+ *  It defines the functions [[enable_input#read(inout_aType)|read]],
+ *  [[enable_input#readln(inout_aType)|readln]],
+ *  [[enable_output#write(in_aType)|write]]
+ *  and [[enable_output#writeln(in_aType)|writeln]] and the
+ *  operators [[enable_output#(in_aType)lpad(in_integer)|lpad]],
+ *  [[enable_output#(in_aType)rpad(in_integer)|rpad]]
+ *  and [[enable_output#(in_string)<&(in_aType)|<&]]. To do this it
+ *  calls the templates [[enable_input]] and [[enable_output]].
  *)
 const proc: enable_io (in type: aType) is func
   begin

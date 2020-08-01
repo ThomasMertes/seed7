@@ -142,7 +142,7 @@ const func integer: hashCode (in boolean: aBoolean)                      is acti
 
 
 (**
- *  Convert to integer.
+ *  Convert to [[integer]].
  *  @return 0 when boolValue is FALSE and
  *          1 when boolValue is TRUE.
  *)

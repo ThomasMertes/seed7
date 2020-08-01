@@ -111,7 +111,8 @@ const func socket: malloc (in socket: sock) is func
 
 (**
  *  Return a connected socket file for the given [[sockbase|socket address]].
- *  @return the socket file opened, or STD_NULL if it could not be opened.
+ *  @return the socket file opened, or [[null_file#STD_NULL|STD_NULL]]
+ *          if it could not be opened.
  *)
 const func file: openSocket (in socketAddress: address) is func
   result
@@ -140,7 +141,8 @@ const func file: openSocket (in socketAddress: address) is func
 
 (**
  *  Return a connected internet socket file at a port at localhost.
- *  @return the socket file opened, or STD_NULL if it could not be opened.
+ *  @return the socket file opened, or [[null_file#STD_NULL|STD_NULL]]
+ *          if it could not be opened.
  *  @exception FILE_ERROR A system function returns an error.
  *  @exception RANGE_ERROR The port is not in the range 0 to 65535.
  *  @exception MEMORY_ERROR An out of memory situation occurred.
@@ -155,7 +157,8 @@ const func file: openInetSocket (in integer: portNumber) is
  *  or an IPv4 address in standard dot notation (e.g.: "192.0.2.235").
  *  Operating systems supporting IPv6 may also accept an IPv6 address
  *  in colon notation.
- *  @return the socket file opened, or STD_NULL if it could not be opened.
+ *  @return the socket file opened, or [[null_file#STD_NULL|STD_NULL]]
+ *          if it could not be opened.
  *  @exception FILE_ERROR A system function returns an error.
  *  @exception RANGE_ERROR The port is not in the range 0 to 65535.
  *  @exception MEMORY_ERROR An out of memory situation occurred.
@@ -248,7 +251,7 @@ const func string: gets (inout socket: aSocket, in integer: maxLength) is
  *  The word ending characters are not copied into the [[string]].
  *  That means that the "\r" of a "\r\n" sequence is silently removed.
  *  When the function is left the aSocket.bufferChar contains ' ',
- *  '\t', '\n' or EOF.
+ *  '\t', '\n' or [[char#EOF|EOF]].
  *  @return the word read.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  *)
@@ -261,7 +264,7 @@ const func string: getwd (inout socket: aSocket) is
  *  The function accepts lines ending with "\n", "\r\n" or [[char#EOF|EOF]].
  *  The line ending characters are not copied into the [[string]]. That
  *  means that the "\r" of a "\r\n" sequence is silently removed. When
- *  the function is left the aSocket.bufferChar contains '\n' or EOF.
+ *  the function is left the aSocket.bufferChar contains '\n' or [[char#EOF|EOF]].
  *  @return the line read.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  *)
@@ -286,7 +289,7 @@ const func boolean: eof (in socket: aSocket) is
  *  This function allows a socket to be handled like an iterator.
  *  Since ''hasNext'' peeks the next character from the socket
  *  it may block.
- *  @return FALSE if ''getc'' would return EOF, TRUE otherwise.
+ *  @return FALSE if ''getc'' would return [[char#EOF|EOF]], TRUE otherwise.
  *)
 const func boolean: hasNext (in socket: aSocket) is
   return hasNext(aSocket.sock);

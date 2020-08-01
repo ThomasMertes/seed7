@@ -33,18 +33,20 @@ include "external_file.s7i";
  *  [[file|File]] implementation type for UTF-8 files.
  *  This type supports UTF-8 encoded sequential files of the
  *  operating system. UTF-8 files are seekable, therefore they
- *  support the functions functions ''length'', ''seek'' and ''tell''.
+ *  support the functions [[external_file#length(in_external_file)|length]],
+ *  [[#seek(in_utf8_file,in_integer)|seek]] and
+ *  [[external_file#tell(in_external_file)|tell]].
  *)
 const type: utf8_file is sub external_file struct
   end struct;
 
 
-const func char: utf8_getc (ref PRIMITIVE_FILE param) is                          action "UT8_GETC";
-const func string: utf8_gets (ref PRIMITIVE_FILE param, ref integer param) is     action "UT8_GETS";
-const func string: utf8_word_read (ref PRIMITIVE_FILE param, inout char param) is action "UT8_WORD_READ";
-const func string: utf8_line_read (ref PRIMITIVE_FILE param, inout char param) is action "UT8_LINE_READ";
-const proc: utf8_write (ref PRIMITIVE_FILE param, in string param) is             action "UT8_WRITE";
-const proc: utf8_seek (ref PRIMITIVE_FILE param, in integer param) is             action "UT8_SEEK";
+const func char: utf8_getc (ref clib_file param)                          is action "UT8_GETC";
+const func string: utf8_gets (ref clib_file param, ref integer param)     is action "UT8_GETS";
+const func string: utf8_word_read (ref clib_file param, inout char param) is action "UT8_WORD_READ";
+const func string: utf8_line_read (ref clib_file param, inout char param) is action "UT8_LINE_READ";
+const proc: utf8_write (ref clib_file param, in string param)             is action "UT8_WRITE";
+const proc: utf8_seek (ref clib_file param, in integer param)             is action "UT8_SEEK";
 
 
 const func utf8_file: malloc (in utf8_file: anUtf8File) is func
@@ -57,7 +59,8 @@ const func utf8_file: malloc (in utf8_file: anUtf8File) is func
 
 (**
  *  Opens an Unicode file which uses the UTF-8 encoding.
- *  @return the file opened, or STD_NULL if it could not be opened.
+ *  @return the file opened, or [[null_file#STD_NULL|STD_NULL]]
+ *          if it could not be opened.
  *  @exception RANGE_ERROR Illegal 'mode' or 'fileName' is not in
  *             standard path representation.
  *)
@@ -65,11 +68,11 @@ const func file: open_utf8 (in string: fileName, in string: mode) is func
   result
     var file: newFile is STD_NULL;
   local
-    var PRIMITIVE_FILE: open_file is PRIMITIVE_NULL_FILE;
+    var clib_file: open_file is CLIB_NULL_FILE;
     var utf8_file: new_file is utf8_file.value;
   begin
-    open_file := PRIMITIVE_FILE_OPEN(fileName, mode);
-    if open_file <> PRIMITIVE_NULL_FILE then
+    open_file := openClibFile(fileName, mode);
+    if open_file <> CLIB_NULL_FILE then
       new_file.ext_file := open_file;
       new_file.name := fileName;
       newFile := malloc(new_file);
@@ -81,9 +84,9 @@ const func file: open_utf8 (in string: fileName, in string: mode) is func
  *  Write a string to an UTF-8 file.
  *  @exception FILE_ERROR A system function returns an error.
  *)
-const proc: write (in utf8_file: aFile, in string: stri) is func
+const proc: write (in utf8_file: outFile, in string: stri) is func
   begin
-    utf8_write(aFile.ext_file, stri);
+    utf8_write(outFile.ext_file, stri);
   end func;
 
 
@@ -91,25 +94,25 @@ const proc: write (in utf8_file: aFile, in string: stri) is func
  *  Write the newline character to an UTF-8 file.
  *  @exception FILE_ERROR A system function returns an error.
  *)
-const proc: writeln (in utf8_file: aFile) is func
+const proc: writeln (in utf8_file: outFile) is func
   begin
-    utf8_write(aFile.ext_file, "\n");
+    utf8_write(outFile.ext_file, "\n");
   end func;
 
 
-const proc: backSpace (in utf8_file: aFile) is func
+const proc: backSpace (in utf8_file: outFile) is func
   begin
-    utf8_write(aFile.ext_file, "\b \b");
+    utf8_write(outFile.ext_file, "\b \b");
   end func;
 
 
 (**
  *  Read a character from an UTF-8 file.
- *  @return the character read, or EOF at the end of the file.
+ *  @return the character read, or [[char#EOF|EOF]] at the end of the file.
  *  @exception RANGE_ERROR The file contains an illegal encoding.
  *)
-const func char: getc (in utf8_file: aFile) is
-  return utf8_getc(aFile.ext_file);
+const func char: getc (in utf8_file: inFile) is
+  return utf8_getc(inFile.ext_file);
 
 
 (**
@@ -118,41 +121,41 @@ const func char: getc (in utf8_file: aFile) is
  *  @exception RANGE_ERROR The length is negative or the file
  *             contains an illegal encoding.
  *)
-const func string: gets (in utf8_file: aFile, in integer: maxLength) is
-  return utf8_gets(aFile.ext_file, maxLength);
+const func string: gets (in utf8_file: inFile, in integer: maxLength) is
+  return utf8_gets(inFile.ext_file, maxLength);
 
 
 (**
  *  Read a word from an UTF-8 file.
  *  Before reading the word it skips spaces and tabs. The function
- *  accepts words ending with " ", "\t", "\n", "\r\n" or EOF.
+ *  accepts words ending with " ", "\t", "\n", "\r\n" or [[char#EOF|EOF]].
  *  The word ending characters are not copied into the string.
  *  That means that the "\r" of a "\r\n" sequence is silently removed.
  *  When the function is left inFile.bufferChar contains ' ',
- *  '\t', '\n' or EOF.
+ *  '\t', '\n' or [[char#EOF|EOF]].
  *  @return the word read.
  *  @exception RANGE_ERROR The file contains an illegal encoding.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  *  @exception FILE_ERROR A system function returns an error.
  *)
-const func string: getwd (inout utf8_file: aFile) is
-  return utf8_word_read(aFile.ext_file, aFile.bufferChar);
+const func string: getwd (inout utf8_file: inFile) is
+  return utf8_word_read(inFile.ext_file, inFile.bufferChar);
 
 
 (**
  *  Read a line from an UTF-8 file.
- *  The function accepts lines ending with "\n", "\r\n" or EOF.
+ *  The function accepts lines ending with "\n", "\r\n" or [[char#EOF|EOF]].
  *  The line ending characters are not copied into the string.
  *  That means that the "\r" of a "\r\n" sequence is silently removed.
  *  When the function is left inFile.bufferChar contains '\n' or
- *  EOF.
+ *  [[char#EOF|EOF]].
  *  @return the line read.
  *  @exception RANGE_ERROR The file contains an illegal encoding.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  *  @exception FILE_ERROR A system function returns an error.
  *)
-const func string: getln (inout utf8_file: aFile) is
-  return utf8_line_read(aFile.ext_file, aFile.bufferChar);
+const func string: getln (inout utf8_file: inFile) is
+  return utf8_line_read(inFile.ext_file, inFile.bufferChar);
 
 
 (**
@@ -174,7 +177,7 @@ const proc: seek (in utf8_file: aFile, in integer: pos) is func
 (* System STD_UTF8_IN, STD_UTF8_OUT and STD_UTF8_ERR files *)
 
 
-const func utf8_file: INIT_STD_UTF8_FILE (ref PRIMITIVE_FILE: primitive_file,
+const func utf8_file: INIT_STD_UTF8_FILE (ref clib_file: primitive_file,
     in string: fileName) is func
   result
     var utf8_file: aFile is utf8_file.value;
@@ -195,7 +198,7 @@ const func utf8_file: INIT_STD_UTF8_FILE (ref PRIMITIVE_FILE: primitive_file,
  *   read(aVariable);
  *  reads from ''STD_UTF8_IN''.
  *)
-var utf8_file: STD_UTF8_IN is  INIT_STD_UTF8_FILE(PRIMITIVE_INPUT,  "STD_UTF8_IN");
+var utf8_file: STD_UTF8_IN is  INIT_STD_UTF8_FILE(CLIB_INPUT,  "STD_UTF8_IN");
 
 
 (**
@@ -209,10 +212,12 @@ var utf8_file: STD_UTF8_IN is  INIT_STD_UTF8_FILE(PRIMITIVE_INPUT,  "STD_UTF8_IN
  *   write(something);
  *  writes to ''STD_UTF8_OUT''.
  *)
-var utf8_file: STD_UTF8_OUT is INIT_STD_UTF8_FILE(PRIMITIVE_OUTPUT, "STD_UTF8_OUT");
+var utf8_file: STD_UTF8_OUT is INIT_STD_UTF8_FILE(CLIB_OUTPUT, "STD_UTF8_OUT");
 
 
 (**
  *  UTF-8 version of the standard error file of the operating system.
+ *  Writing to ''STD_UTF8_ERR'' can be done with e.g.:
+ *   write(STD_UTF8_ERR, something);
  *)
-var utf8_file: STD_UTF8_ERR is INIT_STD_UTF8_FILE(PRIMITIVE_ERROR,  "STD_UTF8_ERR");
+var utf8_file: STD_UTF8_ERR is INIT_STD_UTF8_FILE(CLIB_ERROR,  "STD_UTF8_ERR");

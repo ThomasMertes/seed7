@@ -1,0 +1,67 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  clib_file.s7i  Type for FILE * files from the C runtime library *)
+(*  Copyright (C) 1989 - 2012  Thomas Mertes                        *)
+(*                                                                  *)
+(*  This file is part of the Seed7 Runtime Library.                 *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is free software; you can             *)
+(*  redistribute it and/or modify it under the terms of the GNU     *)
+(*  Lesser General Public License as published by the Free Software *)
+(*  Foundation; either version 2.1 of the License, or (at your      *)
+(*  option) any later version.                                      *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is distributed in the hope that it    *)
+(*  will be useful, but WITHOUT ANY WARRANTY; without even the      *)
+(*  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR *)
+(*  PURPOSE.  See the GNU Lesser General Public License for more    *)
+(*  details.                                                        *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU Lesser General       *)
+(*  Public License along with this program; if not, write to the    *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+const type: clib_file is newtype;
+
+IN_PARAM_IS_VALUE(clib_file);
+
+const proc: (ref clib_file param) ::= (ref clib_file param)           is action "FIL_CREATE";
+const proc: destroy (ref clib_file param)                             is noop;
+const proc: (inout clib_file param) := (ref clib_file param)          is action "FIL_CPY";
+
+const func boolean: (ref clib_file param) = (ref clib_file param)     is action "FIL_EQ";
+const func boolean: (ref clib_file param) <> (ref clib_file param)    is action "FIL_NE";
+
+const func clib_file: _GENERATE_EMPTY_CLIB_FILE                       is action "FIL_EMPTY";
+const clib_file: (attr clib_file) . value                             is _GENERATE_EMPTY_CLIB_FILE;
+const clib_file: CLIB_NULL_FILE                                       is clib_file.value;
+
+const func clib_file: CLIB_INPUT  is action "FIL_IN";
+const func clib_file: CLIB_OUTPUT is action "FIL_OUT";
+const func clib_file: CLIB_ERROR  is action "FIL_ERR";
+
+const integer: IO_FULL_BUFFERING is 0;
+const integer: IO_LINE_BUFFERING is 1;
+const integer: IO_NO_BUFFERING   is 2;
+
+const func clib_file: openClibFile (in string param, in string param) is action "FIL_OPEN";
+const proc: setbuf (ref clib_file param, ref integer param, ref integer param) is action "FIL_SETBUF";
+const proc: close (ref clib_file param)                               is action "FIL_CLOSE";
+const func boolean: eof (ref clib_file param)                         is action "FIL_EOF";
+const func boolean: hasNext (ref clib_file param)                     is action "FIL_HAS_NEXT";
+const func boolean: inputReady (ref clib_file param)                  is action "FIL_INPUT_READY";
+const proc: flush (ref clib_file param)                               is action "FIL_FLUSH";
+const func char: getc (ref clib_file param)                           is action "FIL_GETC";
+const func string: gets (ref clib_file param, ref integer param)      is action "FIL_GETS";
+const func string: word_read (ref clib_file param, inout char param)  is action "FIL_WORD_READ";
+const func string: line_read (ref clib_file param, inout char param)  is action "FIL_LINE_READ";
+const proc: write (ref clib_file param, in string param)              is action "FIL_WRITE";
+const func integer: length (ref clib_file param)                      is action "FIL_LNG";
+const proc: seek (ref clib_file param, ref integer param)             is action "FIL_SEEK";
+const func integer: tell (ref clib_file param)                        is action "FIL_TELL";
+const func string: literal (ref clib_file param)                      is action "FIL_LIT";

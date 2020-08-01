@@ -64,9 +64,10 @@ const func inetListener: malloc (in inetListener: aListener) is func
  *     # Read and process the request from sock.
  *     close(sock);
  *   end while;
- *  The example above manages requests from different clients
- *  sequentially. The function ''waitForRequest'' can be used to
- *  process interleaved requests from several clients.
+ *  The example above manages requests from
+ *  different clients sequentially. The function
+ *  [[#waitForRequest(inout_listener,inout_file,inout_file)|waitForRequest]]
+ *  can be used to process interleaved requests from several clients.
  *  @return the bound internet listener.
  *  @exception FILE_ERROR A system function returns an error.
  *  @exception RANGE_ERROR The port is not in the range 0 to 65535.
@@ -128,7 +129,7 @@ const proc: signOff (inout inetListener: aListener, in socket: sock) is func
 
 
 (**
- *  Listen for socket connections and limit the incoming queue.
+ *  Listen for [[socket]] connections and limit the incoming queue.
  *  The ''backlog'' argument defines the maximum length to which
  *  the queue of pending connections for ''aListener'' may grow.
  *  @exception FILE_ERROR A system function returns an error.
@@ -207,15 +208,15 @@ const func boolean: requestPresent (in listener: aListener, in duration: timeout
 
 
 (**
- *  Create a new accepted connection socket for 'aListener'.
+ *  Create a new accepted connection [[socket]] for ''aListener''.
  *  The function waits until at least one connection request is
  *  in the listeners queue of pending connections. Then it extracts
  *  the first connection request from the listeners queue. This
- *  request is accepted and a connection socket is created for it.
+ *  request is accepted and a connection [[socket]] is created for it.
  *  A listener manages accepted sockets (its existing connections).
- *  When an accepted socket is closed it is signed off from the
+ *  When an accepted [[socket]] is closed it is signed off from the
  *  listener.
- *  @return the accepted connection socket.
+ *  @return the accepted connection [[socket]].
  *  @exception FILE_ERROR A system function returns an error.
  *  @exception MEMORY_ERROR An out of memory situation occurred.
  *)
@@ -308,10 +309,11 @@ const func file: getNewConnection (in inetListener: aListener) is
  *   end while;
  *  @param existingConnection A random existing connection, were
  *         a read will not block, is assigned. When no existing
- *         connection has available input, STD_NULL is assigned.
+ *         connection has available input, [[null_file#STD_NULL|STD_NULL]]
+ *         is assigned.
  *  @param newConnection A new accepted connection is assigned.
- *         When no incoming connection is present, STD_NULL is
- *         assigned.
+ *         When no incoming connection is present,
+ *         [[null_file#STD_NULL|STD_NULL]] is assigned.
  *)
 const proc: waitForRequest (inout listener: aListener,
     inout file: existingConnection, inout file: newConnection) is func

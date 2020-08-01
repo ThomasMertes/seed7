@@ -189,7 +189,7 @@ const func bitset: getValue (ref reference param, attr bitset)          is actio
 const func pollData: getValue (ref reference param, attr pollData)      is action "POL_VALUE";
 const func program: getValue (ref reference param, attr program)        is action "PRG_VALUE";
 const func ACTION: getValue (ref reference param, attr ACTION)          is action "ACT_VALUE";
-const func PRIMITIVE_FILE: getValue (ref reference param, attr PRIMITIVE_FILE) is action "FIL_VALUE";
+const func clib_file: getValue (ref reference param, attr clib_file)    is action "FIL_VALUE";
 const func ref_list: getValue (ref reference param, attr ref_list)      is action "RFL_VALUE";
 const func bigInteger: getValue (ref reference param, attr bigInteger)  is action "BIG_VALUE";
 const func float: getValue (ref reference param, attr float)            is action "FLT_VALUE";
@@ -202,7 +202,7 @@ const func string: string (ref reference param)                         is actio
 const func bitset: bitset (ref reference param)                         is action "SET_VALUE";
 const func program: program (ref reference param)                       is action "PRG_VALUE";
 const func ACTION: ACTION (ref reference param)                         is action "ACT_VALUE";
-const func PRIMITIVE_FILE: PRIMITIVE_FILE (ref reference param)         is action "FIL_VALUE";
+const func clib_file: clib_file (ref reference param)                   is action "FIL_VALUE";
 const func ref_list: ref_list (ref reference param)                     is action "RFL_VALUE";
 const func bigInteger: bigInteger (ref reference param)                 is action "BIG_VALUE";
 const func float: float (ref reference param)                           is action "FLT_VALUE";

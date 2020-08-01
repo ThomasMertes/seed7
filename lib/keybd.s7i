@@ -150,8 +150,8 @@ const func string: getk (in console_keybd_file: keybd) is func
  *  accepts words ending with " ", "\t", "\n", "\r\n" or [[char#EOF|EOF]].
  *  The word ending characters are not copied into the string.
  *  That means that the "\r" of a "\r\n" sequence is silently removed.
- *  When the function is left inFile.bufferChar contains ' ',
- *  '\t', '\n' or EOF.
+ *  When the function is left keybd.bufferChar contains ' ',
+ *  '\t', '\n' or [[char#EOF|EOF]].
  *  @return the word read.
  *)
 const func string: getwd (inout console_keybd_file: keybd) is func
@@ -167,8 +167,8 @@ const func string: getwd (inout console_keybd_file: keybd) is func
  *  The function accepts lines ending with "\n", "\r\n" or [[char#EOF|EOF]].
  *  The line ending characters are not copied into the string.
  *  That means that the "\r" of a "\r\n" sequence is silently removed.
- *  When the function is left inFile.bufferChar contains '\n' or
- *  EOF.
+ *  When the function is left keybd.bufferChar contains '\n' or
+ *  [[char#EOF|EOF]].
  *  @return the line read.
  *)
 const func string: getln (inout console_keybd_file: keybd) is func
@@ -272,8 +272,8 @@ const func string: getk (in graph_keybd_file: keybd) is func
  *  accepts words ending with " ", "\t", "\n", "\r\n" or [[char#EOF|EOF]].
  *  The word ending characters are not copied into the string.
  *  That means that the "\r" of a "\r\n" sequence is silently removed.
- *  When the function is left inFile.bufferChar contains ' ',
- *  '\t', '\n' or EOF.
+ *  When the function is left keybd.bufferChar contains ' ',
+ *  '\t', '\n' or [[char#EOF|EOF]].
  *  @return the word read.
  *)
 const func string: getwd (inout graph_keybd_file: keybd) is func
@@ -289,8 +289,8 @@ const func string: getwd (inout graph_keybd_file: keybd) is func
  *  The function accepts lines ending with "\n", "\r\n" or [[char#EOF|EOF]].
  *  The line ending characters are not copied into the string.
  *  That means that the "\r" of a "\r\n" sequence is silently removed.
- *  When the function is left inFile.bufferChar contains '\n' or
- *  EOF.
+ *  When the function is left keybd.bufferChar contains '\n' or
+ *  [[char#EOF|EOF]].
  *  @return the line read.
  *)
 const func string: getln (inout graph_keybd_file: keybd) is func

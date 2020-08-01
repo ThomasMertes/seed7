@@ -26,63 +26,20 @@
 (********************************************************************)
 
 
+include "clib_file.s7i";
 include "null_file.s7i";
-
-
-(* PRIMITIVE_FILE *)
-
-const type: PRIMITIVE_FILE is newtype;
-
-IN_PARAM_IS_VALUE(PRIMITIVE_FILE);
-
-const proc: (ref PRIMITIVE_FILE param) ::= (ref PRIMITIVE_FILE param)        is action "FIL_CREATE";
-const proc: destroy (ref PRIMITIVE_FILE param)                               is noop;
-const proc: (inout PRIMITIVE_FILE param) := (ref PRIMITIVE_FILE param)       is action "FIL_CPY";
-
-const func boolean: (ref PRIMITIVE_FILE param) = (ref PRIMITIVE_FILE param)  is action "FIL_EQ";
-const func boolean: (ref PRIMITIVE_FILE param) <> (ref PRIMITIVE_FILE param) is action "FIL_NE";
-
-const func PRIMITIVE_FILE: _GENERATE_EMPTY_PRIMITIVE_FILE                    is action "FIL_EMPTY";
-const PRIMITIVE_FILE: (attr PRIMITIVE_FILE) . value                          is _GENERATE_EMPTY_PRIMITIVE_FILE;
-const PRIMITIVE_FILE: PRIMITIVE_NULL_FILE                                    is PRIMITIVE_FILE.value;
-
-const func PRIMITIVE_FILE: PRIMITIVE_INPUT  is action "FIL_IN";
-const func PRIMITIVE_FILE: PRIMITIVE_OUTPUT is action "FIL_OUT";
-const func PRIMITIVE_FILE: PRIMITIVE_ERROR  is action "FIL_ERR";
-
-const integer: IO_FULL_BUFFERING is 0;
-const integer: IO_LINE_BUFFERING is 1;
-const integer: IO_NO_BUFFERING   is 2;
-
-const func PRIMITIVE_FILE: PRIMITIVE_FILE_OPEN (in string param, in string param)   is action "FIL_OPEN";
-const proc: setbuf (ref PRIMITIVE_FILE param, ref integer param, ref integer param) is action "FIL_SETBUF";
-const proc: close (ref PRIMITIVE_FILE param)                              is action "FIL_CLOSE";
-const func boolean: eof (ref PRIMITIVE_FILE param)                        is action "FIL_EOF";
-const func boolean: hasNext (ref PRIMITIVE_FILE param)                    is action "FIL_HAS_NEXT";
-const func boolean: inputReady (ref PRIMITIVE_FILE param)                 is action "FIL_INPUT_READY";
-const proc: flush (ref PRIMITIVE_FILE param)                              is action "FIL_FLUSH";
-const func char: getc (ref PRIMITIVE_FILE param)                          is action "FIL_GETC";
-const func string: gets (ref PRIMITIVE_FILE param, ref integer param)     is action "FIL_GETS";
-const func string: word_read (ref PRIMITIVE_FILE param, inout char param) is action "FIL_WORD_READ";
-const func string: line_read (ref PRIMITIVE_FILE param, inout char param) is action "FIL_LINE_READ";
-const proc: write (ref PRIMITIVE_FILE param, in string param)             is action "FIL_WRITE";
-const func integer: length (ref PRIMITIVE_FILE param)                     is action "FIL_LNG";
-const proc: seek (ref PRIMITIVE_FILE param, ref integer param)            is action "FIL_SEEK";
-const func integer: tell (ref PRIMITIVE_FILE param)                       is action "FIL_TELL";
-const func string: literal (ref PRIMITIVE_FILE param)                     is action "FIL_LIT";
-
-
-(* Set of operations for external_file *)
 
 
 (**
  *  [[file|File]] implementation type describing OS files.
  *  This type provides access to sequential operating system files.
  *  External files are seekable, therefore they support the
- *  functions functions ''length'', ''seek'' and ''tell''.
+ *  functions [[#length(in_external_file)|length]],
+ *  [[#seek(in_external_file,in_integer)|seek]] and
+ *  [[#tell(in_external_file)|tell]].
  *)
 const type: external_file is sub null_file struct
-    var PRIMITIVE_FILE: ext_file is PRIMITIVE_NULL_FILE;
+    var clib_file: ext_file is CLIB_NULL_FILE;
     var string: name is "";
   end struct;
 
@@ -100,7 +57,8 @@ const func external_file: malloc (in external_file: anExternalFile) is func
 
 (**
  *  Open an external_file.
- *  @return the file opened, or STD_NULL if it could not be opened.
+ *  @return the file opened, or [[null_file#STD_NULL|STD_NULL]]
+ *          if it could not be opened.
  *  @exception MEMORY_ERROR Not enough memory to convert the path
  *             to the system path type.
  *  @exception RANGE_ERROR The ''mode'' is not one of the allowed
@@ -112,11 +70,11 @@ const func file: open (in string: fileName, in string: mode) is func
   result
     var file: newFile is STD_NULL;
   local
-    var PRIMITIVE_FILE: open_file is PRIMITIVE_NULL_FILE;
+    var clib_file: open_file is CLIB_NULL_FILE;
     var external_file: new_file is external_file.value;
   begin
-    open_file := PRIMITIVE_FILE_OPEN(fileName, mode);
-    if open_file <> PRIMITIVE_NULL_FILE then
+    open_file := openClibFile(fileName, mode);
+    if open_file <> CLIB_NULL_FILE then
       new_file.ext_file := open_file;
       new_file.name := fileName;
       newFile := malloc(new_file);
@@ -135,12 +93,12 @@ const proc: close (in external_file: aFile) is func
 
 
 (**
- *  Forces that all buffered data of ''aFile'' is sent to its destination.
+ *  Forces that all buffered data of ''outFile'' is sent to its destination.
  *  This causes data to be sent to the file system of the OS.
  *)
-const proc: flush (in external_file: aFile) is func
+const proc: flush (in external_file: outFile) is func
   begin
-    flush(aFile.ext_file);
+    flush(outFile.ext_file);
   end func;
 
 
@@ -150,9 +108,9 @@ const proc: flush (in external_file: aFile) is func
  *  @exception RANGE_ERROR The string contains a character that does
  *             not fit into a byte.
  *)
-const proc: write (in external_file: aFile, in string: stri) is func
+const proc: write (in external_file: outFile, in string: stri) is func
   begin
-    write(aFile.ext_file, stri);
+    write(outFile.ext_file, stri);
   end func;
 
 
@@ -161,35 +119,35 @@ const proc: write (in external_file: aFile, in string: stri) is func
  *  The function writes "n" to the file.
  *  @exception FILE_ERROR A system function returns an error.
  *)
-const proc: writeln (in external_file: aFile) is func
+const proc: writeln (in external_file: outFile) is func
   begin
-    write(aFile.ext_file, "\n");
+    write(outFile.ext_file, "\n");
   end func;
 
 
-const proc: backSpace (in external_file: aFile) is func
+const proc: backSpace (in external_file: outFile) is func
   begin
-    write(aFile.ext_file, "\b \b");
+    write(outFile.ext_file, "\b \b");
   end func;
 
 
 (**
  *  Read a character from an external_file.
- *  @return the character read, or EOF at the end of the file.
+ *  @return the character read, or [[char#EOF|EOF]] at the end of the file.
  *)
-const func char: getc (in external_file: aFile) is
-  return getc(aFile.ext_file);
+const func char: getc (in external_file: inFile) is
+  return getc(inFile.ext_file);
 
 
 (**
- *  Read a string with a maximum length from an external_file.
+ *  Read a [[string]] with a maximum length from an external_file.
  *  @return the string read.
  *  @exception RANGE_ERROR The length is negative.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  *  @exception FILE_ERROR A system function returns an error.
  *)
-const func string: gets (in external_file: aFile, in integer: maxLength) is
-  return gets(aFile.ext_file, maxLength);
+const func string: gets (in external_file: inFile, in integer: maxLength) is
+  return gets(inFile.ext_file, maxLength);
 
 
 (**
@@ -199,13 +157,13 @@ const func string: gets (in external_file: aFile, in integer: maxLength) is
  *  The word ending characters are not copied into the string.
  *  That means that the "\r" of a "\r\n" sequence is silently removed.
  *  When the function is left inFile.bufferChar contains ' ',
- *  '\t', '\n' or EOF.
+ *  '\t', '\n' or [[char#EOF|EOF]].
  *  @return the word read.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  *  @exception FILE_ERROR A system function returns an error.
  *)
-const func string: getwd (inout external_file: aFile) is
-  return word_read(aFile.ext_file, aFile.bufferChar);
+const func string: getwd (inout external_file: inFile) is
+  return word_read(inFile.ext_file, inFile.bufferChar);
 
 
 (**
@@ -214,13 +172,13 @@ const func string: getwd (inout external_file: aFile) is
  *  The line ending characters are not copied into the string.
  *  That means that the "\r" of a "\r\n" sequence is silently removed.
  *  When the function is left inFile.bufferChar contains '\n' or
- *  EOF.
+ *  [[char#EOF|EOF]].
  *  @return the line read.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  *  @exception FILE_ERROR A system function returns an error.
  *)
-const func string: getln (inout external_file: aFile) is
-  return line_read(aFile.ext_file, aFile.bufferChar);
+const func string: getln (inout external_file: inFile) is
+  return line_read(inFile.ext_file, inFile.bufferChar);
 
 
 (**
@@ -229,21 +187,21 @@ const func string: getln (inout external_file: aFile) is
  *  from the file failed.
  *  @return TRUE if the end-of-file indicator is set, FALSE otherwise.
  *)
-const func boolean: eof (in external_file: aFile) is
-  return eof(aFile.ext_file);
+const func boolean: eof (in external_file: inFile) is
+  return eof(inFile.ext_file);
 
 
 (**
  *  Determine if at least one character can be read successfully.
  *  This function allows a file to be handled like an iterator.
- *  @return FALSE if ''getc'' would return EOF, TRUE otherwise.
+ *  @return FALSE if ''getc'' would return [[char#EOF|EOF]], TRUE otherwise.
  *)
-const func boolean: hasNext (in external_file: aFile) is
-  return hasNext(aFile.ext_file);
+const func boolean: hasNext (in external_file: inFile) is
+  return hasNext(inFile.ext_file);
 
 
-const func boolean: inputReady (in external_file: aFile) is
-  return inputReady(aFile.ext_file);
+const func boolean: inputReady (in external_file: inFile) is
+  return inputReady(inFile.ext_file);
 
 
 (**

@@ -83,7 +83,7 @@ const func integer: (in integer: factor1) * (in integer: factor2)      is action
 (**
  *  Computes an integer division of two numbers.
  *  This integer division is truncated towards zero.
- *  For the operations 'div' and 'rem' holds for all A:
+ *  For the operations ''div'' and ''rem'' holds for all A:
  *   (A div B) * B + A rem B = A           when B <> 0
  *   -A div B = -(A div B)                 when B <> 0
  *   -A rem B = -(A rem B)                 when B <> 0
@@ -111,7 +111,7 @@ const func integer: (in integer: dividend) rem (in integer: divisor)   is action
 (**
  *  Computes an integer modulo division of two numbers.
  *  This integer division is truncated towards negative infinity.
- *  For the operations 'mdiv' and 'mod' holds for all A:
+ *  For the operations ''mdiv'' and ''mod'' holds for all A:
  *   (A mdiv B) * B + A mod B = A          when B <> 0
  *   -A mdiv B = A mdiv -B                 when B <> 0
  *   -A mod -B = -(A mod B)                when B <> 0
@@ -192,7 +192,11 @@ const proc: (inout integer: number) <<:= (in integer: lshift)       is action "I
 const proc: (inout integer: number) >>:= (in integer: rshift)       is action "INT_RSHIFT_ASSIGN";
 
 
-const func integer: (in integer param) ! (in integer param)         is action "INT_BINOM";
+(**
+ *  Binomial coefficient
+ *  @return n over k
+ *)
+const func integer: (in integer: n) ! (in integer: k)               is action "INT_BINOM";
 
 
 (**
@@ -391,13 +395,18 @@ const func integer: bitLength (in integer: number)               is action "INT_
  *  For A <> 0 this is equal to the number of lowest-order zero bits.
  *  @return the number of lowest-order zero bits or -1 for lowestSetBit(0).
  *)
-const func integer: lowestSetBit (in integer: number)              is action "INT_LOWEST_SET_BIT";
+const func integer: lowestSetBit (in integer: number)            is action "INT_LOWEST_SET_BIT";
 
 
 (**
- *  Convert a [[string]] to an integer number.
- *  @return the integer result of the conversion.
- *  @exception RANGE_ERROR When the string is empty or
- *             contains not only digits.
+ *  Convert a [[string]] to an ''integer'' number.
+ *  The [[string]] must contain an integer literal consisting of an
+ *  optional + or - sign, followed by a sequence of digits. Other
+ *  characters as well as leading or trailing whitespace charaters are
+ *  not allowed. The sequence of digits is taken to be decimal.
+ *  @return the ''integer'' result of the conversion.
+ *  @exception RANGE_ERROR When the string is empty or does not contain
+ *             an integer literal or when the integer literal is too big
+ *             or too small to be represented as ''integer'' value.
  *)
 const func integer: (attr integer) parse (in string: stri)       is action "INT_PARSE";

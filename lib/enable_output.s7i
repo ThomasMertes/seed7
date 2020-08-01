@@ -1,0 +1,115 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  enable_output.s7i  Templates to enable file output for a type   *)
+(*  Copyright (C) 1989 - 2012  Thomas Mertes                        *)
+(*                                                                  *)
+(*  This file is part of the Seed7 Runtime Library.                 *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is free software; you can             *)
+(*  redistribute it and/or modify it under the terms of the GNU     *)
+(*  Lesser General Public License as published by the Free Software *)
+(*  Foundation; either version 2.1 of the License, or (at your      *)
+(*  option) any later version.                                      *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is distributed in the hope that it    *)
+(*  will be useful, but WITHOUT ANY WARRANTY; without even the      *)
+(*  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR *)
+(*  PURPOSE.  See the GNU Lesser General Public License for more    *)
+(*  details.                                                        *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU Lesser General       *)
+(*  Public License along with this program; if not, write to the    *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+include "file.s7i";
+
+
+var file: OUT is forward;
+
+
+(**
+ *  Template function to define output functions for ''aType''.
+ *  It defines the functions [[#write(in_aType)|write]]
+ *  and [[#writeln(in_aType)|writeln]] and the operators
+ *  [[#(in_aType)lpad(in_integer)|lpad]], [[#(in_aType)rpad(in_integer)|rpad]]
+ *  and [[#(in_string)<&(in_aType)|<&]]. The functions and operators use
+ *  the ''str'' function to convert the ''aType'' value to a [[string]].
+ *  Afterwards they call the corresponding function respectively operator
+ *  for [[string]] values. The functions [[#write(inout_file,in_aType)|write]]
+ *  and [[#writeln(inout_file,in_aType)|writeln]] are defined with [[file]]
+ *  argument and without [[file]] argument. The functions without [[file]]
+ *  argument write to the standard output file [[stdio#OUT|OUT]].
+ *)
+const proc: enable_output (in type: aType) is func
+  begin
+
+    (**
+     *  Write ''aValue'' to the [[file]] ''aFile''.
+     *)
+    const proc: write (inout file: aFile, in aType: aValue) is func
+      begin
+        write(aFile, str(aValue));
+      end func;
+
+    (**
+     *  Write ''aValue'' followed by end-of-line to the [[file]] ''aFile''.
+     *)
+    const proc: writeln (inout file: aFile, in aType: aValue) is func
+      begin
+        write(aFile, str(aValue));
+        writeln(aFile);
+      end func;
+
+    (**
+     *  Write ''aValue'' to the standard output file [[stdio#OUT|OUT]].
+     *)
+    const proc: write (in aType: aValue) is func
+      begin
+        write(OUT, aValue);
+      end func;
+
+    (**
+     *  Write ''aValue'' followed by end-of-line to the standard output file [[stdio#OUT|OUT]].
+     *)
+    const proc: writeln (in aType: aValue) is func
+      begin
+        write(OUT, aValue);
+        writeln(OUT);
+      end func;
+
+    (**
+     *  Convert ''aValue'' to [[string]] and pad it with spaces at the left side.
+     *  The [[string]] is padded up to a given length.
+     *  @return ''aValue'' converted to string and left padded with spaces.
+     *)
+    const func string: (in aType: aValue) lpad (in integer: leng) is
+      return str(aValue) lpad leng;
+
+    (**
+     *  Convert ''aValue'' to [[string]] and pad it with spaces at the right side.
+     *  The [[string]] is padded up to a given length.
+     *  @return ''aValue'' converted to string and right padded with spaces.
+     *)
+    const func string: (in aType: aValue) rpad (in integer: leng) is
+      return str(aValue) rpad leng;
+
+    (**
+     *  Convert ''aValue'' to [[string]] and append it to ''stri''.
+     *  @return the result of the concatination.
+     *)
+    const func string: (in string: stri) <& (in aType: aValue) is
+      return stri & str(aValue);
+
+    (**
+     *  Convert ''aValue'' to [[string]] and append ''stri'' to it.
+     *  @return the result of the concatination.
+     *)
+    const func string: (in aType: aValue) <& (in string: stri) is
+      return str(aValue) & stri;
+
+  end func;

@@ -74,7 +74,7 @@ const func string: (in string: stri1) <& (in string: stri2)      is action "STR_
  *  Get a character, identified by an index, from a string.
  *  The first character has the index 1.
  *  @return the character specified with the index.
- *  @exception RANGE_EXCEPTION When the index is less than 1 or
+ *  @exception RANGE_ERROR When the index is less than 1 or
  *             greater than the length of the string.
  *)
 const func char: (in string: stri) [ (in integer: index) ]       is action "STR_IDX";

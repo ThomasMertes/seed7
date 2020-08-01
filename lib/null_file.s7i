@@ -32,8 +32,8 @@ include "file.s7i";
 (**
  *  Base implementation type for the [[file]] interface.
  *  A ''null_file'' discards all data written to it. Reads from a
- *  ''null_file'' always yield EOF immediately. A ''null_file'' is
- *  not seekable. The functions [[#length(in_null_file)|length]],
+ *  ''null_file'' always yield [[char#EOF|EOF]] immediately. A ''null_file''
+ *  is not seekable. The functions [[#length(in_null_file)|length]],
  *  [[#seek(in_null_file,in_integer)|seek]] and [[#tell(in_null_file)|tell]]
  *  raise FILE_ERROR. The functions [[#getc(inout_null_file)|getc]],
  *  [[#getwd(inout_null_file)|getwd]] and [[#getln(inout_null_file)|getln]]
@@ -42,7 +42,8 @@ include "file.s7i";
  *  [[#write(in_null_file,in_string)|write]], [[#gets(in_null_file,in_integer)|gets]],
  *  [[#eof(in_null_file)|eof]] and [[#hasNext(in_null_file)|hasNext]].
  *  A derived type, which represents a seekable file, needs to
- *  override the functions ''length'', ''seek'' and ''tell''.
+ *  override the functions [[#length(in_null_file)|length]],
+ *  [[#seek(in_null_file,in_integer)|seek]] and [[#tell(in_null_file)|tell]].
  *)
 const type: null_file is new struct
     var char: bufferChar is '\n';
@@ -69,34 +70,34 @@ const file: (attr file) . value is STD_NULL;
 
 
 (**
- *  Write a string to a null_file.
- *  Derived types of null_file need to override this function.
+ *  Write a string to a ''null_file''.
+ *  Derived types of ''null_file'' need to override this function.
  *)
-const proc: write (in null_file: aFile, in string: stri) is noop;
+const proc: write (in null_file: outFile, in string: stri) is noop;
 
 
 (**
- *  Read a string with a maximum length from a null_file.
- *  Derived types of null_file need to override this function.
+ *  Read a string with a maximum length from a ''null_file''.
+ *  Derived types of ''null_file'' need to override this function.
  *  @return the empty string ("").
  *)
-const string: gets (in null_file: aFile, in integer: maxLength) is "";
+const string: gets (in null_file: inFile, in integer: maxLength) is "";
 
 
 (**
- *  Read a character from a null_file.
+ *  Read a character from a ''null_file''.
  *  This function is based on the gets function. Therefore it is
- *  useful for derived types of null_file. For the null_file itself
- *  it always returns [[char#EOF|EOF]].
- *  @return the character read, or EOF at the end of the file.
+ *  useable for derived types of ''null_file''. For the ''null_file''
+ *  itself it always returns [[char#EOF|EOF]].
+ *  @return the character read, or [[char#EOF|EOF]] at the end of the file.
  *)
-const func char: getc (inout null_file: aFile) is func
+const func char: getc (inout null_file: inFile) is func
   result
     var char: charRead is ' ';
   local
     var string: buffer is "";
   begin
-    buffer := gets(aFile, 1);
+    buffer := gets(inFile, 1);
     if buffer = "" then
       charRead := EOF;
     else
@@ -106,97 +107,100 @@ const func char: getc (inout null_file: aFile) is func
 
 
 (**
- *  Read a word from a null_file.
+ *  Read a word from a ''null_file''.
  *  Before reading the word it skips spaces and tabs. The function
  *  accepts words ending with " ", "\t", "\n" or [[char#EOF|EOF]]. The
  *  word ending characters are not copied into the string. When the
- *  function is left inFile.bufferChar contains ' ', '\t', '\n' or EOF.
- *  This function is based on the gets function. Therefore it is
- *  useful for derived types of null_file. For the null_file itself
- *  it always returns "" and assigns EOF to inFile.bufferChar.
+ *  function is left inFile.bufferChar contains ' ', '\t', '\n' or
+ *  [[char#EOF|EOF]]. This function is based on the gets function.
+ *  Therefore it is useable for derived types of ''null_file''.
+ *  For the ''null_file'' itself it always returns "" and assigns
+ *  [[char#EOF|EOF]] to inFile.bufferChar.
  *  @return the word read.
  *)
-const func string: getwd (inout null_file: aFile) is func
+const func string: getwd (inout null_file: inFile) is func
   result
     var string: stri is "";
   local
     var string: buffer is "";
   begin
     repeat
-      buffer := gets(aFile, 1);
+      buffer := gets(inFile, 1);
     until buffer <> " " and buffer <> "\t";
     while buffer <> " " and buffer <> "\t" and
         buffer <> "\n" and buffer <> "" do
       stri &:= buffer;
-      buffer := gets(aFile, 1);
+      buffer := gets(inFile, 1);
     end while;
     if buffer = "" then
-      aFile.bufferChar := EOF;
+      inFile.bufferChar := EOF;
     else
-      aFile.bufferChar := buffer[1];
+      inFile.bufferChar := buffer[1];
     end if;
   end func;
 
 
 (**
- *  Read a line from a null_file.
+ *  Read a line from a ''null_file''.
  *  The function accepts lines ending with "\n" or [[char#EOF|EOF]].
  *  The line ending characters are not copied into the string. When
- *  the function is left inFile.bufferChar contains '\n' or EOF.
- *  This function is based on the gets function. Therefore it is
- *  useful for derived types of null_file. For the null_file itself
- *  it always returns "" and assigns EOF to inFile.bufferChar.
+ *  the function is left inFile.bufferChar contains '\n' or
+ *  [[char#EOF|EOF]]. This function is based on the gets function.
+ *  Therefore it is useable for derived types of ''null_file''.
+ *  For the ''null_file'' itself it always returns "" and assigns
+ *  [[char#EOF|EOF]] to inFile.bufferChar.
  *  @return the line read.
  *)
-const func string: getln (inout null_file: aFile) is func
+const func string: getln (inout null_file: inFile) is func
   result
     var string: stri is "";
   local
     var string: buffer is "";
   begin
-    buffer := gets(aFile, 1);
+    buffer := gets(inFile, 1);
     while buffer <> "\n" and buffer <> "" do
       stri &:= buffer;
-      buffer := gets(aFile, 1);
+      buffer := gets(inFile, 1);
     end while;
     if buffer = "" then
-      aFile.bufferChar := EOF;
+      inFile.bufferChar := EOF;
     else
-      aFile.bufferChar := buffer[1];
+      inFile.bufferChar := buffer[1];
     end if;
   end func;
 
 
-const proc: writeln (inout null_file: aFile) is func
+const proc: writeln (inout null_file: outFile) is func
   begin
-    write(aFile, "\n");
+    write(outFile, "\n");
   end func;
 
 
 (**
  *  Determine the end-of-file indicator.
- *  Derived types of null_file need to override this function.
- *  @return TRUE, since a null_file is always at end-of-file.
+ *  Derived types of ''null_file'' need to override this function.
+ *  @return TRUE, since a ''null_file'' is always at end-of-file.
  *)
-const boolean: eof (in null_file: aFile) is TRUE;
+const boolean: eof (in null_file: inFile) is TRUE;
 
 
 (**
  *  Determine if at least one character can be read successfully.
- *  Derived types of null_file need to override this function.
- *  @return FALSE, since the next ''getc'' will always return EOF.
+ *  Derived types of ''null_file'' need to override this function.
+ *  @return FALSE, since the next ''getc'' will always return
+ *          [[char#EOF|EOF]].
  *)
-const boolean: hasNext (in null_file: aFile) is FALSE;
+const boolean: hasNext (in null_file: inFile) is FALSE;
 
 
-const func boolean: eoln (in null_file: aFile) is
-  return aFile.bufferChar = '\n';
+const func boolean: eoln (in null_file: inFile) is
+  return inFile.bufferChar = '\n';
 
 
 (**
  *  Obtain the length of a file.
  *  A ''null_file'' is not seekable, therefore FILE_ERROR is raised.
- *  Derived types of null_file need to override this function.
+ *  Derived types of ''null_file'' need to override this function.
  *  @return nothing, because FILE_ERROR is always raised.
  *  @exception FILE_ERROR Is always raised, because a ''null_file'' is
  *             not seekable.
@@ -238,18 +242,18 @@ const func integer: tell (in null_file: aFile) is func
   end func;
 
 
-const proc: backSpace (in null_file: aFile) is noop;
+const proc: backSpace (in null_file: outFile) is noop;
 
 
 (**
- *  Close a null_file.
- *  Closing a null_file has no effect.
+ *  Close a ''null_file''.
+ *  Closing a ''null_file'' has no effect.
  *)
 const proc: close (in null_file: aFile) is noop;
 
 
 (**
  *  Forces that all buffered data is sent to its destination.
- *  Flushing a null_file has no effect.
+ *  Flushing a ''null_file'' has no effect.
  *)
 const proc: flush (in null_file: aFile) is noop;

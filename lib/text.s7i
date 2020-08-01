@@ -33,8 +33,8 @@ include "color.s7i";
 (**
  *  Interface type for line/column oriented [[file|files]].
  *  The text interface is implemented with [[console|console_file]],
- *  [[graph_file]], [[window|window_file]], [[pixmap_file|pixmapFontFile]]
- *  and many other types.
+ *  [[graph_file]], [[window|window_file]], [[pixmap_file|pixmapFontFile]],
+ *  [[stritext]] and many other types.
  *)
 const type: text is subtype file;
 

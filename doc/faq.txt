@@ -146,9 +146,9 @@ implemented like Pascal. Notable differences are:
   syntax             | hard-coded in the compiler  | defined in a library
   statements         | hard-coded in the compiler  | defined in a library
   operators          | hard-coded in the compiler  | defined in a library
-  array              | hard-coded in the compiler  | defined as abstract data type
+  array              | hard-coded in the compiler  | defined as abstract data type 'array'
   record / struct    | hard-coded in the compiler  | defined as abstract data type
-  hash table         | not in the standard library | defined as abstract data type
+  hash table         | not in the standard library | defined as abstract data type 'hash'
   compiler target    | machine code or P-code      | C, compiled to machine code afterwards
   template           | none                        | function with type parameters
   abstract data type | none                        | function with type result
@@ -195,12 +195,12 @@ How many lines of code are in the Seed7 project?
 ================================================
 
 The Seed7 package contains more than 100000 lines of C and more
-than 150000 lines of Seed7. For version 2012-06-03 the number of lines is:
+than 150000 lines of Seed7. For version 2012-06-17 the number of lines is:
 
   101283  C source files (*.c)
    10093  C header files (*.h)
-  111601  Seed7 source files (*.sd7)
-   77500  Seed7 library/include files (*.s7i)
+  111629  Seed7 source files (*.sd7)
+   77913  Seed7 library/include files (*.s7i)
 
 C code (*.c and *.h files) can be divided into the following areas:
 
@@ -490,36 +490,36 @@ program is compiled and linked afterwards. The Seed7 compiler can be called with
 
 Possible options are
 
-  -O  and -O2 Tell the C compiler to optimize.
-  -g  Tell the C compiler to generate an executable with debug information.
+  -O and -O2  Tell the C compiler to optimize.
+  -g   Tell the C compiler to generate an executable with debug information.
        This way the debugger will refer to Seed7 source files and line numbers.
        To generate debug information which refers to the temporary C program
        the option -g-debug_c can be used.
-  -ocn  Optimize constants with level n. E.g.: -oc3. Where n is a digit
+  -ocn Optimize constants with level n. E.g.: -oc3 Where n is a digit
        between 0 and 3:
          0 Do no optimizations with constants.
          1 Use literals and named constants to simplify expressions (default).
          2 Evaluate constant expressions to simplify expressions.
          3 Like -oc2 and additionally evaluate all constant expressions
-  -te Generate code to trace exceptions. This option works in the same way
+  -te  Generate code to trace exceptions. This option works in the same way
        as the interpreter option -te: Every exception will write a
        message to stdout and the user will be ask to continue (with enter) or
        to terminate (with * ).
-  -r  Suppress the generation of range checks for strings and arrays.
-  -e  Generate code which sends a signal, when an uncaught exception occurs.
+  -r   Suppress the generation of range checks for strings and arrays.
+  -e   Generate code which sends a signal, when an uncaught exception occurs.
        This option allows debuggers to handle uncaught Seed7 exceptions.
 
 
 What are the reserved words of Seed7?
 =====================================
 
-In Seed7 there are no reserved words. Instead there are keywords which are used
-at various places. Some keywords introduce statements or other constructs (such
-as declarations). E.g.: The keywords 'if', 'while', 'repeat', 'for', and some
-others introduce statements. Other keywords like 'do', 'range', 'result', etc.
-are used in the middle of statements (or other constructs). Finally there are
-also keywords like 'div', 'rem', 'lpad', 'times', etc. which are used as
-operator symbols.
+In Seed7 there are no reserved words. Instead there are keywords which are
+used at various places. Some keywords introduce statements or other constructs
+(such as declarations). E.g.: The keywords 'if', 'while', 'repeat', 'for',
+and some others introduce statements. Other keywords like 'do', 'then', 'range',
+'result', etc. are used in the middle of statements (or other constructs).
+Finally there are also keywords like 'div', 'rem', 'lpad', 'times', etc. which
+are used as operator symbols.
 
 Seed7 uses syntax declarations to specify the syntax of statements. A keyword
 is a name which is used somewhere in a syntax declaration. Syntax declarations
@@ -978,11 +978,17 @@ data representation open. The difference between the two is:
    when it is used.
 
 Usually an abstract data type uses parameters to resolve to a concrete type.
-Examples of abstract data types are arrays, structs and hashes. An abstract array
-type needs element type and index type as parameters. E.g.:
+Examples of abstract data types are arrays, structs and hashes. An abstract 'array'
+type needs the element type as parameter. E.g.:
 
-  array [integer] string
+  array string
 
+This 'array' has 'string' elements and uses 'integer' indices.
+An abstrace 'array', were the index type is also specified as parameters is:
+
+  array [char] string
+
+This 'array' has 'string' elements and uses 'char' indices.
 Arrays are present in many programming languages, but they are usually hard-coded
 into the compiler / interpreter. Seed7 does not follow this direction. Instead it
 introduces abstract data types as common concept behind arrays, structs, hashes

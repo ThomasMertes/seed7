@@ -22949,7 +22949,7 @@ const func boolean: identical_values (in reference: object1, in reference: objec
     elsif objectCategory = REFOBJECT then
       result := getValue(object1, reference) = getValue(object2, reference);
     elsif objectCategory = FILEOBJECT then
-      result := getValue(object1, PRIMITIVE_FILE) = getValue(object2, PRIMITIVE_FILE);
+      result := getValue(object1, clib_file) = getValue(object2, clib_file);
     elsif objectCategory = CONSTENUMOBJECT or objectCategory = VARENUMOBJECT then
       result := getValue(object1, reference) = getValue(object2, reference);
     elsif objectCategory = ARRAYOBJECT then
@@ -23151,7 +23151,7 @@ const proc: init_const_value (in reference: current_object, inout expr_type: c_e
       end if;
     elsif objectCategory = FILEOBJECT then
       c_expr.expr &:= ".value.filevalue=";
-      c_expr.expr &:= literal(getValue(current_object, PRIMITIVE_FILE));
+      c_expr.expr &:= literal(getValue(current_object, clib_file));
     elsif objectCategory = SOCKETOBJECT then
       c_expr.expr &:= ".value.intvalue=";
       c_expr.expr &:= "-1";
@@ -24408,18 +24408,24 @@ const proc: writeHelp is func
     writeln("usage: comp [options] source");
     writeln;
     writeln("Options:");
-    writeln("  -O  and -O2 tell the C compiler to optimize.");
-    writeln("  -g  tells the C compiler to generate an executable with debug information.");
-    writeln("      This way the debugger will refer to Seed7 source files and line numbers.");
-    writeln("      To generate debug information which refers to the temporary C program");
-    writeln("      the option -g-debug_c can be used.");
-    writeln("  -te generates code to trace exceptions. This option works in the same way");
-    writeln("      as the interpreter option -te: Every exception will write a");
-    writeln("      message to stdout and the user will be ask to continue (with enter) or");
-    writeln("      to terminate (with * ).");
-    writeln("  -r  suppresses the generation of range checks for strings and arrays.");
-    writeln("  -e  generates code which sends a signal, when an uncaught exception occurs.");
-    writeln("      This option allows debuggers to handle uncaught Seed7 exceptions.");
+    writeln("  -O and -O2  Tell the C compiler to optimize.");
+    writeln("  -g   Tell the C compiler to generate an executable with debug information.");
+    writeln("       This way the debugger will refer to Seed7 source files and line numbers.");
+    writeln("       To generate debug information which refers to the temporary C program");
+    writeln("       the option -g-debug_c can be used.");
+    writeln("  -ocn Optimize constants with level n. E.g.: -oc3 Where n is a digit");
+    writeln("       between 0 and 3:");
+    writeln("         0 Do no optimizations with constants.");
+    writeln("         1 Use literals and named constants to simplify expressions (default).");
+    writeln("         2 Evaluate constant expressions to simplify expressions.");
+    writeln("         3 Like -oc2 and additionally evaluate all constant expressions");
+    writeln("  -te  Generate code to trace exceptions. This option works in the same way");
+    writeln("       as the interpreter option -te: Every exception will write a");
+    writeln("       message to stdout and the user will be ask to continue (with enter) or");
+    writeln("       to terminate (with * ).");
+    writeln("  -r   Suppress the generation of range checks for strings and arrays.");
+    writeln("  -e   Generate code which sends a signal, when an uncaught exception occurs.");
+    writeln("       This option allows debuggers to handle uncaught Seed7 exceptions.");
     writeln;
   end func;
 
@@ -24456,7 +24462,7 @@ const proc: main is func
             writeln("*** Ignore unsupported option: " <& curr_arg);
           end if;
         elsif source = "" then
-          source := curr_arg;
+          source := convDosPath(curr_arg);
         else
           writeln("*** Ignore superfluous parameter: " <& curr_arg);
         end if;
@@ -24467,8 +24473,7 @@ const proc: main is func
       elsif source = "" then
         writeln("*** Sourcefile missing");
       else
-        write("Source: ");
-        writeln(source);
+        writeln("Source: " <& source);
         if lower(source[length(source) - 3 ..]) = ".sd7" then
           source := source[.. length(source) - 4];
         end if;

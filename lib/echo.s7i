@@ -27,7 +27,7 @@
 
 
 (**
- *  Filter file which generates an echo of the input.
+ *  [[file|File]] implementation type which generates an echo of the input.
  *)
 const type: echo_file is sub null_file struct
     var file: in_file is STD_NULL;
@@ -52,12 +52,12 @@ const func echo_file: open_echo (ref file: in_fil, ref file: out_fil) is func
 
 (**
  *  Read a character from an echo_file.
- *  The request is forwarded to 'in_file'. The character read from
- *  'in_file' is written (echoed) to 'out_file'. Ctrl-C and ctrl-T
+ *  The request is forwarded to ''in_file''. The character read from
+ *  ''in_file'' is written (echoed) to ''out_file''. Ctrl-C and ctrl-T
  *  are handled special, as they can be used to terminate the
  *  program. The user is asked for confirmation before the program
  *  is terminated.
- *  @return the character read, or EOF at the end of the file.
+ *  @return the character read, or [[char#EOF|EOF]] at the end of the file.
  *)
 const func char: getc (inout echo_file: echo_fil) is func
   result

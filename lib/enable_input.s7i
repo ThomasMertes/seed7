@@ -1,0 +1,125 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  enable_input.s7i  Templates to enable file output for a type    *)
+(*  Copyright (C) 1989 - 2012  Thomas Mertes                        *)
+(*                                                                  *)
+(*  This file is part of the Seed7 Runtime Library.                 *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is free software; you can             *)
+(*  redistribute it and/or modify it under the terms of the GNU     *)
+(*  Lesser General Public License as published by the Free Software *)
+(*  Foundation; either version 2.1 of the License, or (at your      *)
+(*  option) any later version.                                      *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is distributed in the hope that it    *)
+(*  will be useful, but WITHOUT ANY WARRANTY; without even the      *)
+(*  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR *)
+(*  PURPOSE.  See the GNU Lesser General Public License for more    *)
+(*  details.                                                        *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU Lesser General       *)
+(*  Public License along with this program; if not, write to the    *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+include "file.s7i";
+
+
+var file: IN is forward;
+
+
+(**
+ *  Template function to define input functions for ''aType''.
+ *  It defines the functions [[#read(inout_aType)|read]] and
+ *  [[#readln(inout_aType)|readln]]. The functions read a
+ *  whitespace terminated word respectively a line as
+ *  [[string]]. Afterwards the ''parse'' operator is used to
+ *  convert the ''string'' to an ''aType'' value. The functions
+ *  [[#read(inout_file,inout_aType)|read]] and
+ *  [[#readln(inout_file,inout_aType)|readln]] are defined with
+ *  [[file]] argument and without [[file]] argument. The
+ *  functions without [[file]] argument use the standard
+ *  input file [[stdio#IN|IN]].
+ *)
+const proc: enable_input (in type: aType) is func
+  begin
+
+    (**
+     *  Read ''aValue'' from a word read from ''inFile''.
+     *  Before reading the word it skips spaces and tabs. The function
+     *  accepts words ending with " ", "\t", end-of-line or [[char#EOF|EOF]].
+     *  The conversion to the type ''aType'' is done with the ''parse''
+     *  operator. When the function is left inFile.bufferChar contains the
+     *  word ending character (' ', '\t', '\n' or [[char#EOF|EOF]]) and
+     *  inFile.io_ok is TRUE when the read was successful.
+     *)
+    const proc: read (inout file: inFile, inout aType: aValue) is func
+      local
+        var string: stri is "";
+      begin
+        stri := getwd(inFile);
+        inFile.io_empty := stri = "";
+        block
+          aValue := aType parse stri;
+          inFile.io_ok := TRUE;
+        exception
+          catch RANGE_ERROR:
+            inFile.io_ok := FALSE;
+        end block;
+      end func;
+
+    (**
+     *  Read ''aValue'' from a line read from ''inFile''.
+     *  The function reads a string up to end-of-line or [[char#EOF|EOF]].
+     *  The conversion to the type ''aType'' is done with the ''parse''
+     *  operator. When the function is left inFile.bufferChar contains the
+     *  line ending character ('\n' or [[char#EOF|EOF]]). and inFile.io_ok
+     *  is TRUE when the read was successful.
+     *)
+    const proc: readln (inout file: inFile, inout aType: aValue) is func
+      local
+        var string: stri is "";
+      begin
+        stri := getln(inFile);
+        inFile.io_empty := stri = "";
+        block
+          aValue := aType parse stri;
+          inFile.io_ok := TRUE;
+        exception
+          catch RANGE_ERROR:
+            inFile.io_ok := FALSE;
+        end block;
+      end func;
+
+    (**
+     *  Read ''aValue'' from a word read from the standard input file [[stdio#IN|IN]].
+     *  Before reading the word it skips spaces and tabs. The function
+     *  accepts words ending with " ", "\t", end-of-line or [[char#EOF|EOF]].
+     *  The conversion to the type ''aType'' is done with the ''parse''
+     *  operator. When the function is left [[stdio#IN|IN]].bufferChar contains the
+     *  word ending character (' ', '\t', '\n' or [[char#EOF|EOF]]) and
+     *  [[stdio#IN|IN]].io_ok is TRUE when the read was successful.
+     *)
+    const proc: read (inout aType: aValue) is func
+      begin
+        read(IN, aValue);
+      end func;
+
+    (**
+     *  Read ''aValue'' from a line read from the standard input file [[stdio#IN|IN]].
+     *  The function reads a string up to end-of-line or [[char#EOF|EOF]].
+     *  The conversion to the type ''aType'' is done with the ''parse''
+     *  operator. When the function is left [[stdio#IN|IN]].bufferChar contains the
+     *  line ending character ('\n' or [[char#EOF|EOF]]). and [[stdio#IN|IN]].io_ok
+     *  is TRUE when the read was successful.
+     *)
+    const proc: readln (inout aType: aValue) is func
+      begin
+        readln(IN, aValue);
+      end func;
+
+  end func;

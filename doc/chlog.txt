@@ -1,3 +1,27 @@
+20120617:
+- FAQ and manual were improved to contain more links. The additional
+  links improve also the Seed7 homepage.
+- The FAQ answer, which explains abstract data types, was improved.
+- The type 'PRIMITIVE_FILE' was renamed to 'clib_file'.
+- Documentation comments were improved in the libraries array.s7i,
+  bigrat.s7i, bitset.s7i, boolean.s7i, integer.s7i, charsets.s7i,
+  bigint.s7i, complex.s7i, dir.s7i, echo.s7i, char.s7i, keybd.s7i,
+  line.s7i, listener.s7i, null_file.s7i, scanfile.s7i, shell.s7i,
+  socket.s7i, stdio.s7i, strifile.s7i, string.s7i, stritext.s7i,
+  bigfile.s7i, text.s7i, utf16.s7i, utf8.s7i and wrinum.s7i.
+- The new libraries "enable_input.s7i" and "enable_output.s7i" were
+  added. The contents of this libraries were extracted from the
+  "enable_io.s7i" library.
+- The new library "clib_file.s7i" was added. The contents of this
+  library was extracted from the "external_file.s7i" library.
+- The compiler (comp.sd7) was improved to accept a Windows path.
+- The example program "make7.sd7" was improved to support the
+  commands 'ifneq', '-include' and '+='.
+- The program "toutf8.sd7" and the library "charsets.s7i" were
+  improved to support the code pages 277, 280 and 297.
+- The control characters of the code pages 037, 273, 285, 500 and
+  1047 in "charsets.s7i" were improved.
+
 20120603:
 - An alternate version of the function 'filInputReady' was added to
   the file "fil_unx.c" (thanks to Rainer Weikusat and Geoff Clare

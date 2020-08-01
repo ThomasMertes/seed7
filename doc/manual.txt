@@ -167,7 +167,7 @@ CONTENTS
   13.9    Actions for declarations
   13.10   Actions to do graphic output
   13.11   Actions for enumeration types
-  13.12   Actions for the type PRIMITIVE_FILE
+  13.12   Actions for the type clib_file
   13.13   Actions for the type float
   13.14   Actions to support the graphic keyboard
   13.15   Actions for hash types
@@ -810,7 +810,7 @@ CONTENTS
     FOR_DECLS(boolean);
 
   The body of the 'FOR_DECLS' function contains a declaration of
-  the for-statement for the type aType. Calling 'FOR_DECLS' with
+  the for-statement for the type 'aType'. Calling 'FOR_DECLS' with
   'char' and 'boolean' as parameter creates corresponding declarations
   of for-statements. The example above is a simplified part of
   the library "forloop.s7i".
@@ -1096,27 +1096,27 @@ CONTENTS
 
     $ syntax expr: .(). := .() is                     <-> 20;
 
-    const proc: (inout type param) := (ref type param) is           action "TYP_CPY";
-    const proc: (inout proc param) := (ref proc param) is           action "PRC_CPY";
+    const proc: (inout type param) := (ref type param)             is action "TYP_CPY";
+    const proc: (inout proc param) := (ref proc param)             is action "PRC_CPY";
     const proc: (inout func aType param) := (ref func aType param) is action "PRC_CPY";
     const proc: (inout varfunc aType param) := (ref varfunc aType param) is action "PRC_CPY";
-    const proc: (inout ACTION param) := (in ACTION param) is        action "ACT_CPY";
-    const proc: (inout boolean param) := (in boolean param) is      action "BLN_CPY";
-    const proc: (inout integer param) := (in integer param) is      action "INT_CPY";
-    const proc: (inout char param) := (ref char param) is           action "CHR_CPY";
-    const proc: (inout string param) := (ref string param) is       action "STR_CPY";
-    const proc: (inout reference param) := (ref reference param) is action "REF_CPY";
-    const proc: (inout ref_list param) := (in ref_list param) is    action "RFL_CPY";
-    const proc: (inout ptrType param) := (in ptrType param) is      action "REF_CPY";
-    const proc: (inout varptrType param) := (in varptrType param) is action "REF_CPY";
-    const proc: (inout arrayType param) := (in arrayType param) is  action "ARR_CPY";
-    const proc: (inout bitset param) := (in bitset param) is        action "SET_CPY";
-    const proc: (inout structType param) := (in structType param) is action "SCT_CPY";
-    const proc: (inout enumType param) := (in enumType param) is    action "ENU_CPY";
-    const proc: (inout PRIMITIVE_FILE param) := (ref PRIMITIVE_FILE param) is action "FIL_CPY";
-    const proc: (inout file param) := (ref file param) is           action "CLS_CPY";
-    const proc: (inout file param) := (ref null_file param) is      action "CLS_CPY2";
-    const proc: (inout file param) := (ref external_file param) is  action "CLS_CPY2";
+    const proc: (inout ACTION param) := (in ACTION param)          is action "ACT_CPY";
+    const proc: (inout boolean param) := (in boolean param)        is action "BLN_CPY";
+    const proc: (inout integer param) := (in integer param)        is action "INT_CPY";
+    const proc: (inout char param) := (ref char param)             is action "CHR_CPY";
+    const proc: (inout string param) := (ref string param)         is action "STR_CPY";
+    const proc: (inout reference param) := (ref reference param)   is action "REF_CPY";
+    const proc: (inout ref_list param) := (in ref_list param)      is action "RFL_CPY";
+    const proc: (inout ptrType param) := (in ptrType param)        is action "REF_CPY";
+    const proc: (inout varptrType param) := (in varptrType param)  is action "REF_CPY";
+    const proc: (inout arrayType param) := (in arrayType param)    is action "ARR_CPY";
+    const proc: (inout bitset param) := (in bitset param)          is action "SET_CPY";
+    const proc: (inout structType param) := (in structType param)  is action "SCT_CPY";
+    const proc: (inout enumType param) := (in enumType param)      is action "ENU_CPY";
+    const proc: (inout clib_file param) := (ref clib_file param)   is action "FIL_CPY";
+    const proc: (inout file param) := (ref file param)             is action "CLS_CPY";
+    const proc: (inout file param) := (ref null_file param)        is action "CLS_CPY2";
+    const proc: (inout file param) := (ref external_file param)    is action "CLS_CPY2";
 
 
 4.2 while-statement
@@ -1151,7 +1151,7 @@ CONTENTS
     $ syntax expr: .while.().do.().end.while is       -> 25;
 
     const proc: while (ref func boolean param) do (ref proc param) end while is action "PRC_WHILE";
-    const proc: while (ref boolean param)  do (ref proc param) end while is     action "PRC_WHILE";
+    const proc: while (ref boolean param)  do (ref proc param) end while     is action "PRC_WHILE";
 
   Alternate declaration:
 
@@ -1198,7 +1198,7 @@ CONTENTS
     $ syntax expr: .repeat.().until.() is             -> 25;
 
     const proc: repeat (ref proc param) until (ref func boolean param) is action "PRC_REPEAT";
-    const proc: repeat (ref proc param) until (ref boolean param) is      action "PRC_REPEAT";
+    const proc: repeat (ref proc param) until (ref boolean param)      is action "PRC_REPEAT";
 
   Alternate declaration:
 
@@ -1335,7 +1335,7 @@ CONTENTS
       local
         var integer: number is 0;
       begin
-        for number range 1 to length(arr_obj) do
+        for number range minIdx(arr_obj) to maxIdx(arr_obj) do
           variable := arr_obj[number];
           statements;
         end for;
@@ -1562,7 +1562,7 @@ CONTENTS
                     boolean parse "TRUE " => EXCEPTION RANGE_ERROR,
                     boolean parse "ASDF" => EXCEPTION RANGE_ERROR )
     Relations:
-      =, <>, >, >=, <, <=
+      =, <>, <, <=, >, >=
                   ( A relation B =>
                     ord(A) relation ord(B) )
     Functions:
@@ -1938,8 +1938,8 @@ CONTENTS
                   ( Type of argument A: string,
                     bigInteger parse "123" => 123_,
                     bigInteger parse "-123" => -123_,
+                    bigInteger parse "+5" => 5_,
                     bigInteger parse " 1" => EXCEPTION RANGE_ERROR,
-                    bigInteger parse "+5" => EXCEPTION RANGE_ERROR,
                     bigInteger parse "10 " => EXCEPTION RANGE_ERROR,
                     bigInteger parse "ASDF" => EXCEPTION RANGE_ERROR )
     Relations:
@@ -1961,6 +1961,7 @@ CONTENTS
                   ( sqrt(A) is okay for A >= 0_
                     sqrt(A) => trunc(sqrt(flt(A))),
                     sqrt(-1_) => EXCEPTION NUMERIC_ERROR )
+      modInverse(A, B) Compute the modular multiplicative inverse of A modulo B
       log2(A)   Truncated base 2 logarithm
                   ( log2(A) returns the position of the
                     highest bit set. It is defined for A >= 0
@@ -2151,6 +2152,8 @@ CONTENTS
                   ( A -:= B => A := A - B )
       A *:= B   Multiplying copy
                   ( A *:= B => A := A * B )
+      A /:= B   Dividing copy
+                  ( A /:= B => A := A / B )
 
   All calculations with 'rational' numbers are done exact.
   (Without any rounding)
@@ -2232,6 +2235,8 @@ CONTENTS
                   ( A -:= B => A := A - B )
       A *:= B   Multiplying copy
                   ( A *:= B => A := A * B )
+      A /:= B   Dividing copy
+                  ( A /:= B => A := A / B )
 
   All calculations with 'bigRational' numbers are done exact.
   (Without any rounding)
@@ -2251,7 +2256,7 @@ CONTENTS
   1.0E-12
   0.1234
 
-  The functions 'str' and the operators 'digits' and 'parse'
+  The function 'str' and the operators 'digits' and 'parse'
   create and accept float literals with sign. Basic 'float'
   functions are defined in the library "float.s7i".
   Trigonometric- and other mathematical functions are defined
@@ -2332,7 +2337,7 @@ CONTENTS
                     str(Infinity) => "Infinity",
                     str(-Infinity) => "-Infinity",
                     str(NaN) => "NaN" )
-      isnan(A)  Check if A is Not-a-Number
+      isNaN(A)  Check if A is Not-a-Number
       sin(A)    Sine
       cos(A)    Cosine
       tan(A)    Tangent
@@ -2443,6 +2448,10 @@ CONTENTS
       str(A)    Conversion to string
                   ( Type of result: string,
                     str(complex(1.125)) => "1.125+0.0i" )
+      compare(A, B) Compare function
+                  ( Type of result: integer )
+      hashCode(A) Hash function
+                  ( Type of result: integer )
     Statements:
       A +:= B   Increment A by B
                   ( A +:= B => A := A + B )
@@ -2577,8 +2586,8 @@ CONTENTS
       &         String concatenation
                   ( "All " & "OK" => "All OK" )
       <&        String concatenation with weak priority
-                Overloaded for various types with 'enable_io'
-                  ( write("i=" <& i digits 2 len 6 <& " $"); )
+                Overloaded for various types with 'enable_output' or 'enable_io'
+                  ( write("i=" <& i digits 2 lpad 6 <& " $"); )
       mult      String multiplication
                   ( Type of right operand: integer,
                     "LA" mult 3 => "LALALA",
@@ -2694,6 +2703,13 @@ CONTENTS
                     rpos("ABCABC",'B', 4)=>2,
                     rpos("XYZYX",'Z', 2)=>0,
                     rpos("12345",'3', 5)=>3 )
+      rpos(A,B,C) Last position of char B in string A
+                 The search starts at position C of string A
+                  ( Type of argument C: integer,
+                    Type of result: integer,
+                    rpos("ABCABC","BC", 4)=>2,
+                    rpos("XYZYX","ZY", 2)=>0,
+                    rpos("12345","34", 5)=>3 )
       replace(A,B,C) Replace all occurrences of string B in
                 string A by string C
                   ( replace("old gold", "old", "one")=>
@@ -2741,6 +2757,9 @@ CONTENTS
     Statements:
       A &:= B   Append B to A
                   ( A &:= B => A := A & B )
+      A &:= B   Append B to A
+                  ( Type of argument B: char,
+                    A &:= B => A := A & str(B) )
       A @:= [B] C  Assign C to element B of string A
                   ( Type of argument B: integer,
                     Type of argument C: char,
@@ -2906,9 +2925,10 @@ CONTENTS
 5.12 set
 
     The type 'set of baseType' describes a set of elements of a
-  'baseType'. (including the empty set). The type 'set of integer'
-  is an alternate name for 'bitset', which is defined in the library
-  "bitset.s7i".
+  'baseType'. (including the empty set). The 'set of baseType'
+  functions are defined in the library "set.s7i". The type
+  'set of integer' is an alternate name for 'bitset', which is
+  defined in the library "bitset.s7i".
 
     Constants:
       setType.EMPTY_SET  Empty set
@@ -2940,7 +2960,7 @@ CONTENTS
                     A <= B => B >= A )
       <         Proper subset
                   ( Type of result: boolean,
-                    A < B => A <= B and not A = B,
+                    A < B => A <= B and A <> B,
                     setType.EMPTY_SET < A => TRUE for A <> EMPTY_SET,
                     A < setType.EMPTY_SET => FALSE,
                     A < B => B > A )
@@ -2957,7 +2977,7 @@ CONTENTS
                     A >= B => B <= A )
       >         Proper superset
                   ( Type of result: boolean,
-                    A > B => A >= B and not A = B,
+                    A > B => A >= B and A <> B,
                     A > setType.EMPTY_SET => TRUE for A <> EMPTY_SET,
                     setType.EMPTY_SET > A => FALSE,
                     A > B => B < A )
@@ -3177,10 +3197,10 @@ CONTENTS
                   ( Type of result: bitset,
                     getValue(NIL, bitset) => EXCEPTION RANGE_ERROR,
                     getValue(A, bitset) => EXCEPTION RANGE_ERROR for category(A) <> SETOBJECT )
-      getValue(A, PRIMITIVE_FILE) Dereference as PRIMITIVE_FILE
-                  ( Type of result: PRIMITIVE_FILE,
-                    getValue(NIL, PRIMITIVE_FILE) => EXCEPTION RANGE_ERROR,
-                    getValue(A, PRIMITIVE_FILE) => EXCEPTION RANGE_ERROR for category(A) <> FILEOBJECT )
+      getValue(A, clib_file) Dereference as clib_file
+                  ( Type of result: clib_file,
+                    getValue(NIL, clib_file) => EXCEPTION RANGE_ERROR,
+                    getValue(A, clib_file) => EXCEPTION RANGE_ERROR for category(A) <> FILEOBJECT )
       getValue(A, program) Dereference as program
                   ( Type of result: program,
                     getValue(NIL, program) => EXCEPTION RANGE_ERROR,
@@ -3478,10 +3498,18 @@ CONTENTS
                   ( Type of argument Y: integer,
                     Type of argument M: integer,
                     Type of result: integer )
+      daysInMonth(A)  Calculate the number of days in a month
+                  ( Type of result: integer )
       dayOfWeek(A)  Day of the week with Monday as 1
                   ( Type of result: integer )
       dayOfYear(A)  Day of the year with 1 January as 1
                   ( Type of result: integer )
+      weekOfYear(Y, D)  Compute the week number of a year (0 to 53).
+                    According to ISO 8601: Week number 1 of
+                    every year contains the 4. of january.
+                  ( Type of argument Y: integer,
+                    Type of argument D: integer,
+                    Type of result: integer )
       weekOfYear(A)  Compute the week number of a year (0 to 53).
                     According to ISO 8601: Week number 1 of
                     every year contains the 4. of january.
@@ -3621,11 +3649,23 @@ CONTENTS
                     Type of result: file,
                     Returns STD_NULL if open was not
                     possible )
+      open_utf8(A, B) Open external UTF-16 file
+                  ( Type of argument A: string,
+                    Type of argument B: string,
+                    Type of result: file,
+                    Returns STD_NULL if open was not
+                    possible )
       popen(A, B) Open a pipe to a process
                   ( Type of argument A: string,
                     Type of argument B: string,
                     Type of result: file,
                     Returns STD_NULL if popen was not
+                    possible )
+      popen8(A, B) Open a UTF-8 pipe to a process
+                  ( Type of argument A: string,
+                    Type of argument B: string,
+                    Type of result: file,
+                    Returns STD_NULL if popen8 was not
                     possible )
       openInetSocket(port) Open local Internet client socket
                   ( Type of argument port: integer,
@@ -3718,6 +3758,11 @@ CONTENTS
       close(A)  Close text A
       flush(A)  Flush text A
       clear(A)  Clear the window
+      clear(A, UP, LO, LE, RI)  Clear an area of the window
+                  ( Type of argument UP: integer
+                    Type of argument LO: integer
+                    Type of argument LE: integer
+                    Type of argument RI: integer )
       v_scroll(A) Scroll the window vertical
       h_scroll(A) Scroll the window horizontal
       color(A, B) Set foreground color of the text A
@@ -4401,7 +4446,7 @@ CONTENTS
   printer output. The implementation does totally different
   things for these files. Unix has used the "everything is a
   file" philosophy for ages (even network communication uses
-  the file' interface (see sockets)).
+  the 'file' interface (see 'sockets')).
 
   For short: An interface defines which methods are supported
   while the implementation describes how this is done.
@@ -4591,7 +4636,7 @@ CONTENTS
   inherit from an existing 'struct' type. E.g.:
 
     const type: external_file is sub null_file struct
-        var PRIMITIVE_FILE: ext_file is PRIMITIVE_NULL_FILE;
+        var clib_file: ext_file is PRIMITIVE_NULL_FILE;
         var string: name is "";
       end struct;
 
@@ -4608,8 +4653,7 @@ CONTENTS
   types inherit from a basic implementation type such as
   'null_file'. That way it is possible to define functions
   which are inherited by all derived implementation types.
-  In the standard library the function 'getln' is such a
-  function:
+  In the standard library 'getln' is such a function:
 
     const func string: getln (inout null_file: aFile) is func
       result
@@ -4676,7 +4720,7 @@ CONTENTS
   that are associated with a class instead of an instantiated
   object. Such methods are called class methods or static
   methods. Seed7 supports class methods via attribute ('attr')
-  parameters which allow that a function is attached to a type:
+  parameters which allow that a function is attached to a 'type':
 
     const func circle: create (attr circle, in integer: radius) is
       return circle(radius);
@@ -5081,7 +5125,7 @@ CONTENTS
        678 98765  4321
 
   As we see the 'lpad' operator can be used to produce right
-  justified output. There is also a 'rpad' operator to produce
+  justified output. There is also 'rpad' operator to produce
   left justified output. The basic definitions of the 'lpad'
   and 'rpad' operators work on strings and are as follows:
 
@@ -5599,25 +5643,25 @@ CONTENTS
   The type 'external_file' is defined as:
 
     const type: external_file is sub null_file struct
-        var PRIMITIVE_FILE: ext_file is PRIMITIVE_null_file;
+        var clib_file: ext_file is PRIMITIVE_null_file;
         var string: name is "";
       end struct;
 
   This means that every data item of the type 'external_file'
   has the elements from 'null_file' and additionally the
-  elements 'ext_file' and 'name'. The type 'PRIMITIVE_FILE'
+  elements 'ext_file' and 'name'. The type 'clib_file'
   points directly to an operating system file. Objects
-  of type 'PRIMITIVE_FILE' can only have operating system
+  of type 'clib_file' can only have operating system
   files as values while objects of type 'file' can also have
   other files as values. To allow the implementation of the
   type 'external_file' several operations for the type
-  'PRIMITIVE_FILE' are defined. But outside 'external_file' the
-  type 'PRIMITIVE_FILE' and its operations should not be used.
+  'clib_file' are defined. But outside 'external_file' the
+  type 'clib_file' and its operations should not be used.
 
   There are three predefined external files 'STD_IN', 'STD_OUT'
   and 'STD_ERR' which have the following declarations:
 
-    const func external_file: INIT_STD_FILE (ref PRIMITIVE_FILE: primitive_file,
+    const func external_file: INIT_STD_FILE (ref clib_file: primitive_file,
         in string: file_name) is func
       result
         var external_file: result is external_file.value;
@@ -5641,8 +5685,8 @@ CONTENTS
     writeln(err, "Some error occurred");
 
   In this case redirection of the file 'err' can be done very easy.
-  Another way to access external files is to use the 'open'
-  function. The modes used by 'open' differ from those used
+  Another way to access external files is to use the function
+  'open'. The modes used by 'open' differ from those used
   by the 'fopen' function in the C library.
   The following table compares the file modes of Seed7 and C:
 
@@ -6485,16 +6529,16 @@ CONTENTS
 9.2 The syntax of a statement
 
     To explain the Seed7 Structured Syntax Description we design a
-  new statement, the 'loop' statement. The 'loop' statement should
-  be similar to 'while' and 'repeat' loops but instead of having
+  new statement, the loop-statement. The loop-statement should
+  be similar to while- and repeat-loops but instead of having
   the conditional exit at the beginning or at the end, it should
   have a conditional exit in the middle of the loop. This middle
-  conditional exit should be part of the 'loop' statement. Note that
-  the 'break' statement, which exists in some programming languages,
+  conditional exit should be part of the loop-statement. Note that
+  the break-statement, which exists in some programming languages,
   is a statement on its own and is not part of the loop which it
   leaves. Therefore the middle conditional exit should not be
-  confused with a 'break' statement. An example of the new 'loop'
-  statement is:
+  confused with a break-statement. An example of the new loop-statement
+  is:
 
     loop
       ch := getc(inFile);
@@ -6505,7 +6549,7 @@ CONTENTS
   The 'loop' example above reads characters from a file and
   concatenates them to a string until the character '\n' is read.
   The '\n' ends the loop. Hence it is not added to the string.
-  An equivalent solution without the usage of the 'loop' statement
+  An equivalent solution without the usage of the loop-statement
   would be:
 
     repeat
@@ -6515,7 +6559,7 @@ CONTENTS
       end if;
     until ch = '\n';
 
-  The S7SSD of the 'loop' statement is:
+  The S7SSD of the loop-statement is:
 
     $ syntax expr: .loop.().until.().do.().end.loop   is -> 25;
 
@@ -6530,9 +6574,9 @@ CONTENTS
 
      loop () until () do () end loop
 
-  This are the keywords used in a 'loop' statement. The symbol ()
+  This are the keywords used in a loop-statement. The symbol ()
   acts as placeholder for an expression.
-  With EBNF the 'loop' statement can be described as:
+  With EBNF the loop-statement can be described as:
 
     loop_statement ::=
       'loop'
@@ -6551,7 +6595,7 @@ CONTENTS
   expression can by substituted for a S7SSD nonterminal symbol ().
   With EBNF it is possible to describe constraints such as the type
   of an expression. S7SSD relies on semantic checks to verify
-  such constraints. Given the S7SSD of the 'loop' statement an
+  such constraints. Given the S7SSD of the loop-statement an
   expression like
 
     loop
@@ -6570,13 +6614,13 @@ CONTENTS
 
   at the places of the () symbols. This is exactly what the syntax
   definition specifies, but it would be not be considered correct
-  given the description of the 'loop' statement at the beginning of
+  given the description of the loop-statement at the beginning of
   the chapter. To determine which types of expressions are allowed
   at the places of the () symbol, a semantic definition of the
-  'loop' statement is necessary. A semantic definition is just a
+  loop-statement is necessary. A semantic definition is just a
   function definition which uses the keywords and parameters from
   the syntax definition. The definition of the 'loop' function
-  (semantic definition of the 'loop' statement) is:
+  (semantic definition of the loop-statement) is:
 
     const proc: loop
                   (in proc: statements1)
@@ -6598,7 +6642,7 @@ CONTENTS
 
   This definition determines the types of the expressions accepted
   between the keywords. Besides that the semantic definition of the
-  'loop' statement is just a normal function definition. Note that
+  loop-statement is just a normal function definition. Note that
   the sequence of keywords and parameters in the header of this
   function definition is determined by the corresponding syntax
   definition.
@@ -6615,7 +6659,7 @@ CONTENTS
   function is called. Inside the body of the 'loop' function the
   call-by-name parameters are executed at some places.
 
-  The 'loop' function uses a 'repeat' and an 'if' statement to
+  The 'loop' function uses a repeat- and an if-statement to
   implement the desired behavior. When necessary the call-by-name
   parameters are executed several times.
 
@@ -6898,7 +6942,7 @@ CONTENTS
       -> (left-associative), <- (right-associative),
       <-> (not associative) and -><- (both associativities).
       When there are no left or right operands, as it is the case
-      for the 'loop' statement, the associativity is irrelevant.
+      for the loop-statement, the associativity is irrelevant.
 
     - Finally the priority of the syntax construct is defined with
       a integer literal like '6'. The priority '6' is used for the
@@ -6908,26 +6952,26 @@ CONTENTS
 9.5 Syntax of predefined statements
 
     Predefined statements can also be defined with S7SSD.
-  E.g.: The 'while' statement. A use of the 'while' statement is:
+  E.g.: The while-statement. A use of the while-statement is:
 
     while element_index > 0 and okay do
       processElement;
       write(".");
     end while;
 
-  To describe the syntax of the 'while' statement we write:
+  To describe the syntax of the while-statement we write:
 
     $ syntax expr: .while.().do.().end.while is -> 25;
 
-  This means that the 'while' statement is an expression with the
+  This means that the while-statement is an expression with the
   symbols 'while', 'do', 'end' and 'while'. With '->' the
-  associativity of the 'while' statement is specified as left
+  associativity of the while-statement is specified as left
   associative. The associativity has no meaning for the
-  'while' statement since there is no parameter before the first
+  while-statement since there is no parameter before the first
   symbol or after the last symbol. The priority of the whole
-  'while' statement is 25.
+  while-statement is 25.
 
-  The semantic definition of the 'while' statement is as follows:
+  The semantic definition of the while-statement is as follows:
 
     const proc: while (ref func boolean: condition) do
         (ref proc: statement) end while is func
@@ -6941,11 +6985,11 @@ CONTENTS
       end func;
 
   The syntax definition is used for the declaration and for the call.
-  This declaration defines precisely how the 'while' statement
-  works. It is based on the 'if' statement and uses recursion
+  This declaration defines precisely how the while-statement
+  works. It is based on the if-statement and uses recursion
   to emulate the repetition of the loop body.
   Another example for a syntax description is the
-  'repeat' statement
+  repeat-statement
 
     repeat
       processElement;
@@ -6956,18 +7000,18 @@ CONTENTS
 
     $ syntax expr: .repeat.().until.() is -> 25;
 
-  This means that the 'repeat' statement is an expression with
+  This means that the repeat-statement is an expression with
   the symbols 'repeat' and 'until' and a parameter between
   'repeat' and 'until' and after 'until'. With 25 the priority
-  of the whole 'repeat' statement is determined. With '->' the
-  associativity of the 'repeat' statement is specified as left
+  of the whole repeat-statement is determined. With '->' the
+  associativity of the repeat-statement is specified as left
   associative. This allows priorities from 0 to 24 for the
   parameter after 'until'. Since statements have priority 25
   it is not possible to write a statement direct behind 'until'.
 
-  A simple 'if' statement, without
+  A simple if-statement, without
   'elsif' part, is the next example.
-  A usage of this 'if' statement might be:
+  A usage of this if-statement might be:
 
     if okay then
       writeln("okay");
@@ -6980,7 +7024,7 @@ CONTENTS
     $ syntax expr: .if.().then.().end.if is            -> 25;
     $ syntax expr: .if.().then.().else.().end.if is    -> 25;
 
-  Note that this description allows 'if' statements with and
+  Note that this description allows if-statements with and
   without 'else' parts. As semantic description we use
 
     const proc: if (in boolean: condition) then
@@ -7004,8 +7048,8 @@ CONTENTS
         end case;
       end func;
 
-  The two forms of the 'if' statement are based on the
-  'case' statement. A more complex 'if' statement with 'elsif'
+  The two forms of the if-statement are based on the
+  case-statement. A more complex if-statement with 'elsif'
   parts can be:
 
     if number < 0 then
@@ -7031,7 +7075,7 @@ CONTENTS
     - Use semantic definitions to make sure that this syntax
       construct can only be used at the place desired.
 
-  The EBNF of the 'if' statement with 'elsif' parts is:
+  The EBNF of the if-statement with 'elsif' parts is:
 
     if_statement ::=
       'if' expression 'then'
@@ -7042,7 +7086,7 @@ CONTENTS
         statement ]
       'end' 'if' .
 
-  The S7SSD of this 'if' statement is:
+  The S7SSD of this if-statement is:
 
     $ syntax expr : .if.().then.().end.if           is -> 25;
     $ syntax expr : .if.().then.().().end.if        is -> 25;
@@ -7057,7 +7101,7 @@ CONTENTS
   They complicate the parameter lists and they are also not so easy
   to implement. On the other hand, the BNF like rules of S7SSD
   lead to semantic constructs which are easy to parse and easy to
-  compile. The broken down S7SSD rules of the 'if' statement
+  compile. The broken down S7SSD rules of the if-statement
   corresponds to the following EBNF description:
 
     if_statement ::=
@@ -7096,8 +7140,8 @@ CONTENTS
   declarations. E.g.: The syntax of the '+' operator is defined
   once and the semantic of the '+' operator is defined for the types
   'integer', 'bigInteger', 'float', 'complex', ... This possibility
-  is not needed for the 'if' statement. For each of the five
-  S7SSD syntax rules of the 'if' statement just one
+  is not needed for the if-statement. For each of the five
+  S7SSD syntax rules of the if-statement just one
   corresponding semantic declaration is done:
 
     # Semantic for the syntax: .if.().then.().end.if
@@ -7147,18 +7191,18 @@ CONTENTS
                         (ref void: voidValue)        is ELSIF_EMPTY;
 
   Since no other functions of type 'ELSIF_PROC' are defined only
-  legal 'if' statements can be written.
+  legal if-statements can be written.
 
 
 9.7 Comparison of EBNF and S7SSD
 
-  In the S7SSD of the 'loop' statement
+  In the S7SSD of the loop-statement
 
     $ syntax expr: .loop.().until.().do.().end.loop is -> 25;
 
   are no nonterminal expressions '()' before the first keyword or
   after the last keyword. Therefore the associativity does not play
-  any role. The nonterminal expressions '()' of the 'loop' statement
+  any role. The nonterminal expressions '()' of the loop-statement
   are all surrounded by keywords and therefore they can have any
   priority. As priority of the 'loop' 25 is chosen just because
   most other statements have also priority 25. The assignments
@@ -7168,7 +7212,7 @@ CONTENTS
   priority 50. Operators with a priority of 0 get their parameters
   before operators with priority 1 and so on.
 
-  The corresponding EBNF description of the 'loop' statement would
+  The corresponding EBNF description of the loop-statement would
   be:
 
     expression_25 ::=
@@ -8371,7 +8415,7 @@ CONTENTS
     _TAIL     Tail of 'string', 'array' or 'ref_list'
     _TELL     Return the actual file position
     _UPPER    Convert to upper case
-    _VALUE    Dereference a reference
+    _VALUE    Dereference a 'reference'
     _WRITE    Write 'string' to file
 
   Primitive actions are defined for many types. The functions
@@ -8389,14 +8433,14 @@ CONTENTS
     DCL_  dcllib.c  Declaration operations
     DRW_  drwlib.c  Drawing operations
     ENU_  enulib.c  Enumeration operations
-    FIL_  fillib.c  'PRIMITIVE_FILE' operations
+    FIL_  fillib.c  'clib_file' operations
     FLT_  fltlib.c  'float' operations
     HSH_  hshlib.c  'hash' operations
     INT_  intlib.c  'integer' operations
     ITF_  itflib.c  Operations for interface types
     KBD_  kbdlib.c  Keyboard operations
     LST_  lstlib.c  List operations
-    PRC_  prclib.c  proc operations and statements
+    PRC_  prclib.c  'proc' operations and statements
     PRG_  prglib.c  Program operations
     REF_  reflib.c  'reference' operations
     RFL_  rfllib.c  'ref_list' operations
@@ -8589,7 +8633,7 @@ CONTENTS
     integer          inttype    32- or 64-bit signed int
     float            floattype  float (or double)
     char             chartype   32-bit unsigned int
-    PRIMITIVE_FILE   filetype   FILE *
+    clib_file   filetype   FILE *
     PRIMITIVE_SOCKET sockettype int or unsigned int
 
   Other Seed7 types correspond to C pointers, which point to a struct.
@@ -8945,7 +8989,7 @@ CONTENTS
     ENU_ORD2            enu_ord2            (noop)
     ENU_VALUE           enu_value           enuValue
 
-13.12 Actions for the type PRIMITIVE_FILE
+13.12 Actions for the type clib_file
 
     Action name         fillib.c function   fil_rtl.c function
     FIL_BIG_LNG         fil_big_lng         filBigLng
@@ -9594,28 +9638,28 @@ CONTENTS
       Additionally the interpreter kernel may raise this exception also.
     NUMERIC_ERROR:
       May be raised from the following 'integer' operations:
-          !, **, div, rem, mdiv, mod, ld.
+          !, **, div, rem, mdiv, mod, sqrt, log2.
       May be raised from the following 'bigInteger' operations:
-          **, div, rem, mdiv, mod.
+          !, **, div, rem, mdiv, mod, sqrt, log2.
     RANGE_ERROR:
-      May be raised from the following 'integer' operation:
+      May be raised from the following 'integer' operations:
+          parse, str, rand.
+      May be raised from the following 'bigInteger' operations:
+          parse, str, rand, ord, bitLength.
+      May be raised from the following 'float' operations:
           parse, rand.
-      May be raised from the following 'bigInteger' operation:
-          parse, rand.
-      May be raised from the following 'float' operation:
-          parse, rand.
-      May be raised from the following 'char' operation:
-          str.
-      May be raised from the following 'string' operation:
-          @:=, mult, pos.
-      May be raised from the following 'bitset' operation:
-          min, max, rand.
-      May be raised from the following 'array' operation:
-          [ ].
-      May be raised from the following 'hash' operation:
-          [ ].
-      May be raised from the following 'file' operation:
-          open, gets, write, seek.
+      May be raised from the following 'char' operations:
+          chr, rand.
+      May be raised from the following 'string' operations:
+          [, @:=, mult, pos, rpos.
+      May be raised from the following 'bitset' operations:
+          conv, parse, min, max, rand.
+      May be raised from the following 'array' operations:
+          [, times, remove, rand.
+      May be raised from the following 'hash' operations:
+          [.
+      May be raised from the following 'file' operations:
+          open, write, gets, length, seek, tell.
     FILE_ERROR:
       May be raised by the following functions:
           fileSize, bigFileSize, fileType, fileTypeSL, fileMode, setFileMode,

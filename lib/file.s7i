@@ -39,7 +39,7 @@ const type: file is sub object interface;
 (**
  *  Write a string to a file.
  *)
-const proc: write (inout file: aFile, in string: stri)       is DYNAMIC;
+const proc: write (inout file: outFile, in string: stri)     is DYNAMIC;
 
 
 (**
@@ -48,7 +48,7 @@ const proc: write (inout file: aFile, in string: stri)       is DYNAMIC;
  *  done. It can be done by writing "\n", but other solutions are also
  *  possible.
  *)
-const proc: writeln (inout file: aFile)                      is DYNAMIC;
+const proc: writeln (inout file: outFile)                    is DYNAMIC;
 
 
 const proc: backSpace (inout file param)                     is DYNAMIC;
@@ -61,25 +61,25 @@ const proc: close (inout file: aFile)                        is DYNAMIC;
 
 
 (**
- *  Forces that all buffered data of ''aFile'' is sent to its destination.
+ *  Forces that all buffered data of ''outFile'' is sent to its destination.
  *  Depending on the implementation type this causes data to be sent
  *  to the file system, screen, network or other destination.
  *)
-const proc: flush (inout file: aFile)                        is DYNAMIC;
+const proc: flush (inout file: outFile)                      is DYNAMIC;
 
 
 (**
  *  Read a character from a file.
- *  @return the character read, or EOF at the end of the file.
+ *  @return the character read, or [[char#EOF|EOF]] at the end of the file.
  *)
-const func char: getc (inout file: aFile)                    is DYNAMIC;
+const func char: getc (inout file: inFile)                   is DYNAMIC;
 
 
 (**
- *  Read a string with a maximum length from a file.
+ *  Read a [[string]] with a maximum length from a file.
  *  @return the string read.
  *)
-const func string: gets (inout file: aFile, in integer: maxLength) is DYNAMIC;
+const func string: gets (inout file: inFile, in integer: maxLength) is DYNAMIC;
 
 
 (**
@@ -88,10 +88,10 @@ const func string: gets (inout file: aFile, in integer: maxLength) is DYNAMIC;
  *  accepts words ending with " ", "\t", end-of-line or [[char#EOF|EOF]].
  *  The word ending characters are not copied into the string.
  *  When the function is left inFile.bufferChar contains the
- *  word ending character (' ', '\t', '\n' or EOF).
+ *  word ending character (' ', '\t', '\n' or [[char#EOF|EOF]]).
  *  @return the word read.
  *)
-const func string: getwd (inout file: aFile)                 is DYNAMIC;
+const func string: getwd (inout file: inFile)                is DYNAMIC;
 
 
 (**
@@ -99,10 +99,10 @@ const func string: getwd (inout file: aFile)                 is DYNAMIC;
  *  The function reads a string up to end-of-line or [[char#EOF|EOF]].
  *  The line ending characters are not copied into the string.
  *  When the function is left inFile.bufferChar contains the
- *  line ending character ('\n' or EOF).
+ *  line ending character ('\n' or [[char#EOF|EOF]]).
  *  @return the line read.
  *)
-const func string: getln (inout file: aFile)                 is DYNAMIC;
+const func string: getln (inout file: inFile)                is DYNAMIC;
 
 
 const func string: getk (in file param)                      is DYNAMIC;
@@ -115,18 +115,19 @@ const func boolean: eoln (in file param)                     is DYNAMIC;
  *  from the file failed.
  *  @return TRUE if the end-of-file indicator is set, FALSE otherwise.
  *)
-const func boolean: eof (in file: aFile)                     is DYNAMIC;
+const func boolean: eof (in file: inFile)                    is DYNAMIC;
 
 
 (**
  *  Determine if at least one character can be read successfully.
  *  This function allows a file to be handled like an iterator.
- *  @return FALSE if ''getc'' would return EOF, TRUE otherwise.
+ *  @return FALSE if ''getc'' would return [[char#EOF|EOF]],
+ *          TRUE otherwise.
  *)
-const func boolean: hasNext (in file: aFile)                 is DYNAMIC;
+const func boolean: hasNext (in file: inFile)                is DYNAMIC;
 
 
-const func boolean: inputReady (in file: aFile)              is DYNAMIC;
+const func boolean: inputReady (in file: inFile)             is DYNAMIC;
 
 
 (**
@@ -201,28 +202,28 @@ const func boolean: io_filled (in file: aFile) is
  *  Discard a line from a file.
  *  The function discards characters up to end-of-line or [[char#EOF|EOF]].
  *  When the function is left inFile.bufferChar contains the
- *  line ending character ('\n' or EOF).
+ *  line ending character ('\n' or [[char#EOF|EOF]]).
  *)
-const proc: readln (inout file: aFile) is func
+const proc: readln (inout file: inFile) is func
   local
     var string: stri is "";
   begin
-    stri := getln(aFile);
-    aFile.io_empty := stri = "";
-    aFile.io_ok := TRUE;
+    stri := getln(inFile);
+    inFile.io_empty := stri = "";
+    inFile.io_ok := TRUE;
   end func;
 
 
 (**
  *  Write a string followed by end-of-line to a file.
- *  The file implementation type of ''aFile'' decides how writing
+ *  The file implementation type of ''outFile'' decides how writing
  *  end-of-line is done. It can be done by writing '\n', but other
  *  solutions are also possible.
  *)
-const proc: writeln (inout file: aFile, in string: stri) is func
+const proc: writeln (inout file: outFile, in string: stri) is func
   begin
-    write(aFile, stri);
-    writeln(aFile);
+    write(outFile, stri);
+    writeln(outFile);
   end func;
 
 
@@ -232,13 +233,13 @@ const proc: writeln (inout file: aFile, in string: stri) is func
  *  accepts words ending with " ", "\t", end-of-line or [[char#EOF|EOF]].
  *  The word ending characters are not copied into the string.
  *  When the function is left inFile.bufferChar contains the
- *  word ending character (' ', '\t', '\n' or EOF).
+ *  word ending character (' ', '\t', '\n' or [[char#EOF|EOF]]).
  *)
-const proc: read (inout file: aFile, inout string: stri) is func
+const proc: read (inout file: inFile, inout string: stri) is func
   begin
-    stri := getwd(aFile);
-    aFile.io_empty := stri = "";
-    aFile.io_ok := TRUE;
+    stri := getwd(inFile);
+    inFile.io_empty := stri = "";
+    inFile.io_ok := TRUE;
   end func;
 
 
@@ -247,13 +248,13 @@ const proc: read (inout file: aFile, inout string: stri) is func
  *  The function reads a string up to end-of-line or [[char#EOF|EOF]].
  *  The line ending characters are not copied into the string.
  *  When the function is left inFile.bufferChar contains the
- *  line ending character ('\n' or EOF).
+ *  line ending character ('\n' or [[char#EOF|EOF]]).
  *)
-const proc: readln (inout file: aFile, inout string: stri) is func
+const proc: readln (inout file: inFile, inout string: stri) is func
   begin
-    stri := getln(aFile);
-    aFile.io_empty := stri = "";
-    aFile.io_ok := TRUE;
+    stri := getln(inFile);
+    inFile.io_empty := stri = "";
+    inFile.io_ok := TRUE;
   end func;
 
 

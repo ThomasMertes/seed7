@@ -387,7 +387,7 @@ const func rational: rat (in integer: number) is func
 (**
  *  Return the conversion of an integer to a rational.
  *)
-const func rational: (attr rational) conv (ref integer: number) is func
+const func rational: (attr rational) conv (in integer: number) is func
   result
     var rational: result is rational.value;
   begin
@@ -469,7 +469,7 @@ enable_io(rational);
 (**
  *  Return a rational number truncated towards negative infinity.
  *)
-const func integer: floor (ref rational: number) is func
+const func integer: floor (in rational: number) is func
   result
     var integer: int_val is 0;
   begin
@@ -480,7 +480,7 @@ const func integer: floor (ref rational: number) is func
 (**
  *  Return a rational number rounded up towards positive infinity.
  *)
-const func integer: ceil (ref rational: number) is func
+const func integer: ceil (in rational: number) is func
   result
     var integer: int_val is 0;
   begin
@@ -491,7 +491,7 @@ const func integer: ceil (ref rational: number) is func
 (**
  *  Return a rational number truncated towards zero.
  *)
-const func integer: trunc (ref rational: number) is func
+const func integer: trunc (in rational: number) is func
   result
     var integer: int_val is 0;
   begin
@@ -502,7 +502,7 @@ const func integer: trunc (ref rational: number) is func
 (**
  *  Return a rational number rounded towards zero.
  *)
-const func integer: round (ref rational: number) is func
+const func integer: round (in rational: number) is func
   result
     var integer: int_val is 0;
   begin

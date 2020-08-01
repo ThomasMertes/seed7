@@ -342,6 +342,8 @@ const func string: getMacro (inout file: makefile) is func
           if length(matches) <> 0 then
             result := join(matches, ' ');
           end if;
+        elsif name = "strip" then
+          result := trim(getMacroName(makefile));
         end if;
       end if;
     else
@@ -398,7 +400,7 @@ const func string: getExpression (inout file: makefile) is func
   end func;
 
 
-const proc: execIfeq (inout file: makefile) is func
+const proc: execIfeq (inout file: makefile, in boolean: equal) is func
   local
     var string: value1 is "";
     var string: value2 is "";
@@ -415,7 +417,7 @@ const proc: execIfeq (inout file: makefile) is func
         value2 := getExpression(makefile);
         # writeln("value2=" <& literal(value2));
         skipSpaceOrTab(makefile);
-        if value1 <> value2 then
+        if (value1 = value2) <> equal then
           repeat
             # writeln("skip " <& getLine(makefile));
             skipLine(makefile);
@@ -508,13 +510,16 @@ const proc: readMakefile (in string: fileName) is func
           name := getTargetName(makefile);
           # writeln(name);
           if name = "ifeq" then
-            execIfeq(makefile);
+            execIfeq(makefile, TRUE);
+          elsif name = "ifneq" then
+            execIfeq(makefile, FALSE);
           elsif name = "endif" then
             skipLine(makefile);
             makefile.bufferChar := getc(makefile);
-          elsif name = "include" then
+          elsif name = "include" or name = "-include" then
             skipSpace(makefile);
             name := getTargetName(makefile);
+	    # writeln("include " <& name);
             skipLine(makefile);
             makefile.bufferChar := getc(makefile);
             if fileType(name) = FILE_REGULAR then
@@ -540,6 +545,20 @@ const proc: readMakefile (in string: fileName) is func
               macros @:= [name] data;
               # writeln(name <& " = " <& data);
               makefile.bufferChar := getc(makefile);
+            elsif makefile.bufferChar = '+' then
+              makefile.bufferChar := getc(makefile);
+              if makefile.bufferChar = '=' then
+                makefile.bufferChar := getc(makefile);
+                skipSpace(makefile);
+                data := getLineWithMacrosApplied(makefile);
+                if name in macros then
+                  macros @:= [name] macros[name] & data;
+                else
+                  macros @:= [name] data;
+                end if;
+                # writeln(name <& " = " <& data);
+                makefile.bufferChar := getc(makefile);
+              end if;
             elsif makefile.bufferChar = ':' then
               makefile.bufferChar := getc(makefile);
               if makefile.bufferChar = '=' then
@@ -569,7 +588,7 @@ const proc: readMakefile (in string: fileName) is func
               end if;
             end if;
           end if;
-        else
+        elsif makefile.bufferChar <> EOF then
           writeln(" *** Illegal character " <& literal(makefile.bufferChar) <& ", ignored");
           makefile.bufferChar := getc(makefile);
         end if;

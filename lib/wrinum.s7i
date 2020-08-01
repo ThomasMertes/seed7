@@ -27,7 +27,7 @@
 
 
 (**
- *  Convert an integer to a roman numeral.
+ *  Convert an [[integer]] to a roman numeral.
  *  @return a string containing the roman numeral.
  *)
 const func string: str (ROMAN, in integer: number) is func
@@ -65,7 +65,7 @@ const func string: str (ROMAN, in integer: number) is func
 
 
 (**
- *  Convert an integer to its written english equivalent.
+ *  Convert an [[integer]] to its written english equivalent.
  *  @return a string containing the number in english.
  *)
 const func string: str (ENGLISH, in integer: number) is func
@@ -154,7 +154,7 @@ const func string: str (ENGLISH, in integer: number) is func
 
 
 (**
- *  Convert an integer to its written german equivalent.
+ *  Convert an [[integer]] to its written german equivalent.
  *  @return a string containing the number in german.
  *)
 const func string: str (GERMAN, in integer: number) is func

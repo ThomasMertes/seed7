@@ -147,7 +147,7 @@ const func integer: compare (in bitset: set1, in bitset: set2)  is action "SET_C
 
 
 (**
- *  Compute the hash value of a bitset.
+ *  Compute the hash value of a ''bitset''.
  *  @return the hash value.
  *)
 const func integer: hashCode (in bitset: aSet)                  is action "SET_HASHCODE";
@@ -229,7 +229,28 @@ const func bitset: { (in integer param) }                       is action "SET_B
 const func bitset: { (in tuple integer param) }                 is action "SET_ARRLIT";
 const func bitset: { (in integer: lowerValue) ..
                      (in integer: upperValue) }                 is action "SET_RANGELIT";
-const func integer: (attr integer) conv (in bitset param)       is action "SET_SCONV";
+
+
+(**
+ *  Convert a ''bitset'' to [[integer]].
+ *  E.g.:
+ *   integer conv {2, 3, 5, 7, 11}
+ *  returns 2220
+ *  @return an [[integer]] which corresponds to the given ''bitset''.
+ *  @exception RANGE_ERROR When ''aSet'' contains negative values or
+ *             when it does not fit into an [[integer]].
+ *)
+const func integer: (attr integer) conv (in bitset: aSet)       is action "SET_SCONV";
+
+
+(**
+ *  Convert an [[integer]] number to a ''bitset''.
+ *  E.g.:
+ *   bitset conv 2220
+ *  returns {2, 3, 5, 7, 11}
+ *  @return a character which corresponds to the given integer.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ *)
 const func bitset: (attr bitset) conv (in integer param)        is action "SET_ICONV";
 
 
@@ -314,7 +335,7 @@ const proc: for (inout integer: forVar) range (in bitset: aSet) until (ref boole
 
 
 (**
- *  Convert a bitset to a [[string]].
+ *  Convert a ''bitset'' to a [[string]].
  *  @return the string result of the conversion.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  *)
@@ -335,10 +356,10 @@ const func string: str (in bitset: aSet) is func
 
 
 (**
- *  Convert a [[string]] to a bitset.
+ *  Convert a [[string]] to a ''bitset''.
  *  @return the integer result of the conversion.
  *  @exception RANGE_ERROR When the string is empty or
- *             cannot be converted to a [[string]].
+ *             cannot be converted to a ''bitset''.
  *)
 const func bitset: (attr bitset) parse (in var string: stri) is func
   result

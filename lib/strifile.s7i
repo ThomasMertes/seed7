@@ -27,7 +27,7 @@
 
 
 (**
- *  Implementation type for files stored in a string.
+ *  [[file|File]] implementation type for files stored in a [[string]].
  *)
 const type: strifile is sub null_file struct
     var string: content is "";
@@ -46,7 +46,7 @@ const func strifile: malloc (in strifile: aStrifile) is func
 
 
 (**
- *  Open a 'strifile' with the given string content.
+ *  Open a ''strifile'' with the given string content.
  *  @return the file opened.
  *)
 const func file: openStrifile (in string: content) is func
@@ -61,52 +61,43 @@ const func file: openStrifile (in string: content) is func
 
 
 (**
- *  Close a 'strifile'.
+ *  Write the [[string]] ''stri'' to ''outStrifile''.
  *)
-const proc: close (in strifile: aStrifile) is noop;
-
-
-const proc: flush (in strifile: aStrifile) is noop;
-
-
-(**
- *  Write the string 'stri' to 'aStrifile'.
- *)
-const proc: write (inout strifile: aStrifile, in string: stri) is func
+const proc: write (inout strifile: outStrifile, in string: stri) is func
   begin
-    if aStrifile.position = succ(length(aStrifile.content)) then
-      aStrifile.content &:= stri;
-    elsif aStrifile.position <= length(aStrifile.content) then
-      aStrifile.content := aStrifile.content[.. pred(aStrifile.position)] &
-          stri & aStrifile.content[aStrifile.position + length(stri) ..];
-    elsif aStrifile.position > length(aStrifile.content) then
-      aStrifile.content &:=
-        " " mult pred(aStrifile.position - length(aStrifile.content)) &
+    if outStrifile.position = succ(length(outStrifile.content)) then
+      outStrifile.content &:= stri;
+    elsif outStrifile.position <= length(outStrifile.content) then
+      outStrifile.content := outStrifile.content[.. pred(outStrifile.position)] &
+          stri & outStrifile.content[outStrifile.position + length(stri) ..];
+    elsif outStrifile.position > length(outStrifile.content) then
+      outStrifile.content &:=
+        " " mult pred(outStrifile.position - length(outStrifile.content)) &
         stri;
     end if;
-    aStrifile.position +:= length(stri);
+    outStrifile.position +:= length(stri);
   end func;
 
 
-const proc: backSpace (inout strifile: aStrifile) is func
+const proc: backSpace (inout strifile: outStrifile) is func
   begin
-    if aStrifile.position > 1 then
-      decr(aStrifile.position);
+    if outStrifile.position > 1 then
+      decr(outStrifile.position);
     end if;
   end func;
 
 
 (**
- *  Read a character from 'aStrifile'.
- *  @return the character read.
+ *  Read a character from ''inStrifile''.
+ *  @return the character read, or [[char#EOF|EOF]] at the end of the file.
  *)
-const func char: getc (inout strifile: aStrifile) is func
+const func char: getc (inout strifile: inStrifile) is func
   result
     var char: charRead is ' ';
   begin
-    if aStrifile.position <= length(aStrifile.content) then
-      charRead := aStrifile.content[aStrifile.position];
-      incr(aStrifile.position);
+    if inStrifile.position <= length(inStrifile.content) then
+      charRead := inStrifile.content[inStrifile.position];
+      incr(inStrifile.position);
     else
       charRead := EOF;
     end if;
@@ -114,33 +105,33 @@ const func char: getc (inout strifile: aStrifile) is func
 
 
 (**
- *  Read a string with maximum length from a 'aStrifile'.
+ *  Read a [[string]] with maximum length from a ''inStrifile''.
  *  @return the string read.
  *)
-const func string: gets (inout strifile: aStrifile, in var integer: maxLength) is func
+const func string: gets (inout strifile: inStrifile, in var integer: maxLength) is func
   result
     var string: striRead is "";
   begin
-    if pred(aStrifile.position + maxLength) <= length(aStrifile.content) then
-      striRead := aStrifile.content[aStrifile.position len maxLength];
-      aStrifile.position +:= maxLength;
+    if pred(inStrifile.position + maxLength) <= length(inStrifile.content) then
+      striRead := inStrifile.content[inStrifile.position len maxLength];
+      inStrifile.position +:= maxLength;
     else
-      striRead := aStrifile.content[aStrifile.position ..];
-      aStrifile.position := succ(length(aStrifile.content));
+      striRead := inStrifile.content[inStrifile.position ..];
+      inStrifile.position := succ(length(inStrifile.content));
     end if;
   end func;
 
 
 (**
- *  Read a word from 'aStrifile'.
+ *  Read a word from ''inStrifile''.
  *  Before reading the word it skips spaces and tabs. The function
- *  accepts words ending with " ", "\t", "\n", or EOF.
+ *  accepts words ending with " ", "\t", "\n", or [[char#EOF|EOF]].
  *  The word ending characters are not copied into the string.
- *  When the function is left inFile.bufferChar contains ' ',
- *  '\t', '\n' or EOF.
+ *  When the function is left inStrifile.bufferChar contains ' ',
+ *  '\t', '\n' or [[char#EOF|EOF]].
  *  @return the word read.
  *)
-const func string: getwd (inout strifile: aStrifile) is func
+const func string: getwd (inout strifile: inStrifile) is func
   result
     var string: stri is "";
   local
@@ -149,55 +140,56 @@ const func string: getwd (inout strifile: aStrifile) is func
     var integer: wordStartPos is 0;
     var integer: wordEndPos is 0;
   begin
-    wordStartPos := aStrifile.position;
-    while wordStartPos <= length(aStrifile.content) and
-        aStrifile.content[wordStartPos] in space_or_tab do
+    wordStartPos := inStrifile.position;
+    while wordStartPos <= length(inStrifile.content) and
+        inStrifile.content[wordStartPos] in space_or_tab do
       incr(wordStartPos);
     end while;
-    if wordStartPos > length(aStrifile.content) then
-      aStrifile.position := wordStartPos;
-      aStrifile.bufferChar := EOF;
+    if wordStartPos > length(inStrifile.content) then
+      inStrifile.position := wordStartPos;
+      inStrifile.bufferChar := EOF;
     else
       wordEndPos := succ(wordStartPos);
-      while wordEndPos <= length(aStrifile.content) and
-          aStrifile.content[wordEndPos] not in space_tab_or_nl do
+      while wordEndPos <= length(inStrifile.content) and
+          inStrifile.content[wordEndPos] not in space_tab_or_nl do
         incr(wordEndPos);
       end while;
-      if wordEndPos <= length(aStrifile.content) then
-        stri := aStrifile.content[wordStartPos .. pred(wordEndPos)];
-        aStrifile.position := succ(wordEndPos);
-        aStrifile.bufferChar := aStrifile.content[wordEndPos];
+      if wordEndPos <= length(inStrifile.content) then
+        stri := inStrifile.content[wordStartPos .. pred(wordEndPos)];
+        inStrifile.position := succ(wordEndPos);
+        inStrifile.bufferChar := inStrifile.content[wordEndPos];
       else
-        stri := aStrifile.content[wordStartPos ..];
-        aStrifile.position := succ(length(aStrifile.content));
-        aStrifile.bufferChar := EOF;
+        stri := inStrifile.content[wordStartPos ..];
+        inStrifile.position := succ(length(inStrifile.content));
+        inStrifile.bufferChar := EOF;
       end if;
     end if;
   end func;
 
 
 (**
- *  Read a line from 'aStrifile'.
+ *  Read a line from ''inStrifile''.
  *  A strifile works as if all lines end with '\n'.
  *  The line ending character is not copied into the string. When
- *  the function is left inFile.bufferChar contains '\n' or EOF.
+ *  the function is left inStrifile.bufferChar contains '\n' or
+ *  [[char#EOF|EOF]].
  *  @return the line read.
  *)
-const func string: getln (inout strifile: aStrifile) is func
+const func string: getln (inout strifile: inStrifile) is func
   result
     var string: stri is "";
   local
     var integer: newlinePos is 0;
   begin
-    newlinePos := pos(aStrifile.content, '\n', aStrifile.position);
+    newlinePos := pos(inStrifile.content, '\n', inStrifile.position);
     if newlinePos <> 0 then
-      stri := aStrifile.content[aStrifile.position .. pred(newlinePos)];
-      aStrifile.position := succ(newlinePos);
-      aStrifile.bufferChar := '\n';
+      stri := inStrifile.content[inStrifile.position .. pred(newlinePos)];
+      inStrifile.position := succ(newlinePos);
+      inStrifile.bufferChar := '\n';
     else
-      stri := aStrifile.content[aStrifile.position ..];
-      aStrifile.position := succ(length(aStrifile.content));
-      aStrifile.bufferChar := EOF;
+      stri := inStrifile.content[inStrifile.position ..];
+      inStrifile.position := succ(length(inStrifile.content));
+      inStrifile.bufferChar := EOF;
     end if;
   end func;
 
@@ -208,21 +200,22 @@ const func string: getln (inout strifile: aStrifile) is func
  *  from the file failed.
  *  @return TRUE if the end-of-file indicator is set, FALSE otherwise.
  *)
-const func boolean: eof (in strifile: aStrifile) is
-  return aStrifile.position > length(aStrifile.content);
+const func boolean: eof (in strifile: inStrifile) is
+  return inStrifile.position > length(inStrifile.content);
 
 
 (**
  *  Determine if at least one character can be read successfully.
  *  This function allows a file to be handled like an iterator.
- *  @return FALSE if 'getc' would return EOF, TRUE otherwise.
+ *  @return FALSE if ''getc'' would return [[char#EOF|EOF]],
+ *          TRUE otherwise.
  *)
-const func boolean: hasNext (in strifile: aStrifile) is
-  return aStrifile.position <= length(aStrifile.content);
+const func boolean: hasNext (in strifile: inStrifile) is
+  return inStrifile.position <= length(inStrifile.content);
 
 
 (**
- *  Obtain the length of a file.
+ *  Obtain the length of a ''aStrifile''.
  *  The file length is measured in characters.
  *  @return the length of a file.
  *)
@@ -242,7 +235,7 @@ const proc: seek (inout strifile: aStrifile, in integer: pos) is func
 
 
 (**
- *  Obtain the current file position.
+ *  Obtain the current file position of ''aStrifile''.
  *  The file position is measured in characters from the start of the file.
  *  The first character in the file has the position 1.
  *  @return the current file position.

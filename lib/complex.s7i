@@ -380,9 +380,14 @@ const func complex: (attr complex) parse (in string: stri) is func
 
 
 (**
- *  Return the conversion of a complex number to a [[string]].
+ *  Convert a complex to a [[string]] in decimal fixed point notation.
  *  The precision parameter specifies the number of digits after
- *  the decimal point.
+ *  the decimal point of the real and imaginary part.
+ *  The number is converted to a string with real and imaginary
+ *  part (e.g.: "1.5-2.8i"). Real and imaginary part are separated
+ *  with a + or - sign.
+ *   complex(3.1415) digits 2   returns "3.14+0.00i"
+ *  @return the string result of the conversion.
  *)
 const func string: (in complex: number) digits (in integer: precision) is func
   result

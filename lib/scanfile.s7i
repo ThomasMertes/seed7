@@ -119,7 +119,7 @@ const func string: getComment (inout file: inFile) is func
  *  and ends with the end of the line. When the function is called
  *  it is assumed that the introducing character (e.g. '#') is in
  *  inFile.bufferChar. When the function is left the line end
- *  character ('\n' or EOF) is in inFile.bufferChar.
+ *  character ('\n' or [[char#EOF|EOF]]) is in inFile.bufferChar.
  *)
 const proc: skipLineComment (inout file: inFile) is func
   local
@@ -138,10 +138,11 @@ const proc: skipLineComment (inout file: inFile) is func
  *  and ends with the end of the line. When the function is called
  *  it is assumed that the introducing character (e.g. '#') is in
  *  inFile.bufferChar. When the function is left the line end
- *  character ('\n' or EOF) is in inFile.bufferChar. A sequence of
- *  "\r\n" is interpreted as equal to '\n'.
+ *  character ('\n' or [[char#EOF|EOF]]) is in inFile.bufferChar.
+ *  A sequence of "\r\n" is interpreted as equal to '\n'.
  *  @return the content of the comment, including the start marker
- *          (e.g. '#') but without line end character ('\n', or EOF).
+ *          (e.g. '#') but without line end character ('\n', or
+ *          [[char#EOF|EOF]]).
  *)
 const func string: getLineComment (inout file: inFile) is func
   result
@@ -298,7 +299,7 @@ const func string: getNumber (inout file: inFile) is func
  *  Reads a sequence of non digits from a [[file]].
  *  When the function is called it is assumed that inFile.bufferChar
  *  contains the first character to be handled. When the function is
- *  left inFile.bufferChar contains a digit or EOF.
+ *  left inFile.bufferChar contains a digit or [[char#EOF|EOF]].
  *  @return the non digit sequence or "" when a digit was found.
  *)
 const func string: getNonDigits (inout file: inFile) is func
@@ -609,9 +610,9 @@ const func string: getWord (inout file: inFile) is func
  *  Skips a line from a [[file]].
  *  When the function is called it is assumed that inFile.bufferChar
  *  contains the first character to be handled. When the function is
- *  left the line end character ('\n' or EOF) is in inFile.bufferChar.
- *  When inFile.bufferChar already contains a line end character
- *  ('\n' or EOF) nothing is done.
+ *  left the line end character ('\n' or [[char#EOF|EOF]]) is in
+ *  inFile.bufferChar. When inFile.bufferChar already contains a
+ *  line end character ('\n' or [[char#EOF|EOF]]) nothing is done.
  *)
 const proc: skipLine (inout file: inFile) is func
   local
@@ -629,12 +630,12 @@ const proc: skipLine (inout file: inFile) is func
  *  Reads a line from a [[file]].
  *  When the function is called it is assumed that inFile.bufferChar
  *  contains the first character to be handled. When the function is
- *  left the line end character ('\n' or EOF) is in inFile.bufferChar.
- *  A sequence of "\r\n" is interpreted as equal to '\n'.
+ *  left the line end character ('\n' or [[char#EOF|EOF]]) is in
+ *  inFile.bufferChar. A sequence of "\r\n" is interpreted as equal to '\n'.
  *  When inFile.bufferChar already contains a line end character
- *  ('\n' or EOF) nothing is done and the function returns "" .
+ *  ('\n' or [[char#EOF|EOF]]) nothing is done and the function returns "" .
  *  @return the line read or "" when inFile.bufferChar contains
- *          '\n' or EOF.
+ *          '\n' or [[char#EOF|EOF]].
  *)
 const func string: getLine (inout file: inFile) is func
   result
@@ -668,7 +669,7 @@ const func string: getLine (inout file: inFile) is func
  *  inFile.bufferChar contains a whitespace character or the first
  *  character of a symbol or comment. When the function is left the
  *  character after the symbol or comment is in inFile.bufferChar.
- *  @return the symbol, comment or "" when EOF was reached.
+ *  @return the symbol, comment or "" when [[char#EOF|EOF]] was reached.
  *)
 const func string: getSymbolOrComment (inout file: inFile) is func
   result
@@ -729,7 +730,7 @@ const func string: getSymbolOrComment (inout file: inFile) is func
  *  a whitespace character or the first character of a symbol or
  *  comment. When the function is left the character after the symbol
  *  is in inFile.bufferChar.
- *  @return the symbol or "" when EOF was reached.
+ *  @return the symbol or "" when [[char#EOF|EOF]] was reached.
  *)
 const func string: getSymbol (inout file: inFile) is func
   result
@@ -793,7 +794,7 @@ const func string: getSymbol (inout file: inFile) is func
  *  whitespace character or the first character of a symbol or
  *  comment. When the function is left the character after the symbol
  *  is in inFile.bufferChar.
- *  @return the symbol or "" when EOF was reached.
+ *  @return the symbol or "" when [[char#EOF|EOF]] was reached.
  *)
 const func string: getSymbolWithHtmlEntities (inout file: inFile) is func
   result
@@ -871,7 +872,8 @@ const func string: getSymbolWithHtmlEntities (inout file: inFile) is func
  *  character of a symbol or a comment. When the function is left the
  *  character after the HTML tag, symbol or comment is in
  *  inFile.bufferChar.
- *  @return the HTML tag, symbol, comment or "" when EOF was reached.
+ *  @return the HTML tag, symbol, comment or "" when [[char#EOF|EOF]]
+ *          was reached.
  *)
 const func string: getHtmlTagSymbolOrComment (inout file: inFile) is func
   result
@@ -981,14 +983,14 @@ const proc: skipXmlComment (inout file: inFile) is func
 (**
  *  Reads a XML/HTML tag or the XML/HTML content text from a [[file]].
  *  A XML/HTML tag starts with < and ends with > . The content text
- *  starts with everything else and ends just before a < or with EOF.
- *  When the function is called it is assumed that inFile.bufferChar
- *  contains the introducing < of a XML/HTML tag or the first
- *  charater of the content text. When the function is left the
- *  character after the XML/HTML tag or the content text is in
+ *  starts with everything else and ends just before a < or with
+ *  [[char#EOF|EOF]]. When the function is called it is assumed that
+ *  inFile.bufferChar contains the introducing < of a XML/HTML tag or
+ *  the first charater of the content text. When the function is left
+ *  the character after the XML/HTML tag or the content text is in
  *  inFile.bufferChar.
- *  @return the XML/HTML tag, XML/HTML content text or "" when EOF
- *          was reached.
+ *  @return the XML/HTML tag, XML/HTML content text or "" when
+ *          [[char#EOF|EOF]] was reached.
  *)
 const func string: getXmlTagOrContent (inout file: inFile) is func
   result
@@ -1014,7 +1016,8 @@ const func string: getXmlTagOrContent (inout file: inFile) is func
 
 (**
  *  Reads a predefined XML entity from a [[file]].
- *  @return the predefined XML entity or "" when EOF was reached.
+ *  @return the predefined XML entity or "" when [[char#EOF|EOF]]
+ *          was reached.
  *)
 const func string: getXmlCharacterReference (inout file: inFile) is func
   result
@@ -1067,17 +1070,17 @@ const func string: getXmlCharacterReference (inout file: inFile) is func
  *  Before reading a tag head or content it skips whitespace
  *  characters and XML comments. A XML/HTML tag head starts
  *  with < and ends before a > or a / or a whitespace character
- *  or EOF. The content text starts with a non whitespace character
- *  and ends just before a < or with EOF. When the function is called
- *  inFile.bufferChar contains either a whitespace character, the
- *  introducing < of a XML/HTML tag or the first charater of the
- *  content text. When the function is left the character after the
- *  XML/HTML tag head or the content text is in inFile.bufferChar.
- *  When a tag head starts with <-- it is interpreted as XML comment.
- *  A XML comment is ignored and getXmlTagHeadOrContent is called
- *  recursive.
+ *  or [[char#EOF|EOF]]. The content text starts with a non whitespace
+ *  character and ends just before a < or with [[char#EOF|EOF]].
+ *  When the function is called inFile.bufferChar contains either
+ *  a whitespace character, the introducing < of a XML/HTML tag or
+ *  the first charater of the content text. When the function is left
+ *  the character after the XML/HTML tag head or the content text is
+ *  in inFile.bufferChar. When a tag head starts with <-- it is
+ *  interpreted as XML comment. A XML comment is ignored and
+ *  getXmlTagHeadOrContent is called recursive.
  *  @return the XML/HTML tag head, XML/HTML content text or "" when
- *          EOF was reached.
+ *          [[char#EOF|EOF]] was reached.
  *)
 const func string: getXmlTagHeadOrContent (inout file: inFile) is func
   result
@@ -1136,8 +1139,8 @@ const func string: getXmlTagHeadOrContent (inout file: inFile) is func
  *  is assumed that inFile.bufferChar contains a whitespace character or
  *  the first character of a symbol. When the function is left
  *  inFile.bufferChar contains the character after the XML/HTML symbol
- *  or EOF.
- *  @return the symbol or "" when EOF was reached.
+ *  or [[char#EOF|EOF]].
+ *  @return the symbol or "" when [[char#EOF|EOF]] was reached.
  *)
 const func string: getSymbolInXmlTag (inout file: inFile) is func
   result
@@ -1267,8 +1270,8 @@ const proc: getNextXmlAttribute (inout file: inFile,
  *  is called it is assumed that inFile.bufferChar contains a
  *  whitespace character or the first character of a value. When the
  *  function is left inFile.bufferChar contains the character after
- *  the XML/HTML symbol or EOF.
- *  @return the symbol or "" when EOF was reached.
+ *  the XML/HTML symbol or [[char#EOF|EOF]].
+ *  @return the symbol or "" when [[char#EOF|EOF]] was reached.
  *)
 const func string: getHtmlAttributeValue (inout file: inFile) is func
   result
@@ -1350,7 +1353,7 @@ const proc: getNextHtmlAttribute (inout file: inFile,
  *  symbol (sequence of special characters) or a parenthesis.
  *  Note that string, char and float literals are not recognized as
  *  simple symbol.
- *  @return the simple symbol or "" when EOF was reached.
+ *  @return the simple symbol or "" when [[char#EOF|EOF]] was reached.
  *)
 const func string: getSimpleSymbol (inout file: inFile) is func
   result

@@ -30,11 +30,11 @@ include "bigint.s7i";
 include "external_file.s7i";
 
 
-(* PRIMITIVE_FILE *)
+(* clib_file *)
 
-const func bigInteger: bigLength (ref PRIMITIVE_FILE param)       is action "FIL_BIG_LNG";
-const proc: seek (ref PRIMITIVE_FILE param, ref bigInteger param) is action "FIL_BIG_SEEK";
-const func bigInteger: bigTell (ref PRIMITIVE_FILE param)         is action "FIL_BIG_TELL";
+const func bigInteger: bigLength (ref clib_file param)       is action "FIL_BIG_LNG";
+const proc: seek (ref clib_file param, ref bigInteger param) is action "FIL_BIG_SEEK";
+const func bigInteger: bigTell (ref clib_file param)         is action "FIL_BIG_TELL";
 
 
 (* file *)
@@ -49,10 +49,10 @@ const func bigInteger: bigTell (ref file param)         is DYNAMIC;
 
 (**
  *  Obtain the length of a file.
- *  A 'null_file' is not seekable, therefore FILE_ERROR is raised.
- *  Derived types of null_file need to override this function.
+ *  A [[null_file]] is not seekable, therefore FILE_ERROR is raised.
+ *  Derived types of [[null_file]] need to override this function.
  *  @return nothing, because FILE_ERROR is always raised.
- *  @exception FILE_ERROR Is always raised, because a 'null_file' is
+ *  @exception FILE_ERROR Is always raised, because a [[null_file]] is
  *             not seekable.
  *)
 const func bigInteger: bigLength (ref null_file: aFile) is func
@@ -65,9 +65,9 @@ const func bigInteger: bigLength (ref null_file: aFile) is func
 
 (**
  *  Set the current file position.
- *  A 'null_file' is not seekable, therefore FILE_ERROR is raised.
+ *  A [[null_file]] is not seekable, therefore FILE_ERROR is raised.
  *  When a derived type is seekable it needs to override this function.
- *  @exception FILE_ERROR Is always raised, because a 'null_file' is
+ *  @exception FILE_ERROR Is always raised, because a [[null_file]] is
  *             not seekable.
  *)
 const proc: seek (ref null_file: aFile, ref bigInteger: pos) is func
@@ -78,10 +78,10 @@ const proc: seek (ref null_file: aFile, ref bigInteger: pos) is func
 
 (**
  *  Obtain the current file position.
- *  A 'null_file' is not seekable, therefore FILE_ERROR is raised.
+ *  A [[null_file]] is not seekable, therefore FILE_ERROR is raised.
  *  When a derived type is seekable it needs to override this function.
  *  @return nothing, because FILE_ERROR is always raised.
- *  @exception FILE_ERROR Is always raised, because a 'null_file' is
+ *  @exception FILE_ERROR Is always raised, because a [[null_file]] is
  *             not seekable.
  *)
 const func bigInteger: bigTell (ref null_file: aFile) is func

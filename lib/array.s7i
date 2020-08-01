@@ -123,7 +123,8 @@ const func type: array (in type: baseType) is func
       (**
        *  Remove the element with ''index'' from ''arr'' and return the removed element.
        *  @return the removed element.
-       *  @exception RANGE_ERROR When ''arr'' is an empty array.
+       *  @exception RANGE_ERROR When ''index'' is less than [[#minIdx(in_arrayType)|minIdx]](arr) or
+       *                         larger than [[#minIdx(in_arrayType)|maxIdx]](arr)
        *)
       const func baseType: remove (inout arrayType: arr, in integer: index)   is action "ARR_REMOVE";
 

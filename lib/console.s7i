@@ -45,7 +45,7 @@ type_implements_interface(console_file, text);
 
 const console_file: STD_CONSOLE is console_file.value;
 
-const proc: CON_OPEN is                               action "CON_OPEN";
+const proc: CON_OPEN                                             is action "CON_OPEN";
 
 
 (**
@@ -66,21 +66,21 @@ const func console_file: open (CONSOLE) is func
  *  Forces that all buffered data of ''aFile'' is sent to its destination.
  *  This causes data to be sent to the text console/window of the OS.
  *)
-const proc: flush (ref console_file: aFile)                       is action "CON_FLUSH";
+const proc: flush (ref console_file: aFile)                      is action "CON_FLUSH";
 
 
 (**
  *  Get the height of 'aConsoleFile'.
  *  @return the height of 'aConsoleFile'.
  *)
-const func integer: height (ref console_file: aConsoleFile)        is action "CON_HEIGHT";
+const func integer: height (ref console_file: aConsoleFile)      is action "CON_HEIGHT";
 
 
 (**
  *  Get the width of 'aConsoleFile'.
  *  @return the width of 'aConsoleFile'.
  *)
-const func integer: width (ref console_file: aConsoleFile)         is action "CON_WIDTH";
+const func integer: width (ref console_file: aConsoleFile)       is action "CON_WIDTH";
 
 
 (**
@@ -90,7 +90,7 @@ const proc: setPos (ref console_file: aConsoleFile,
     ref integer: line, ref integer: column)                      is action "CON_SETPOS";
 
 
-const proc: cursor (ref console_file param, ref boolean param)    is action "CON_CURSOR";
+const proc: cursor (ref console_file param, ref boolean param)   is action "CON_CURSOR";
 const proc: clearArea (in console_file: aConsoleFile, in integer: upper,
     in integer: left, in integer: lower, in integer: right)      is action "CON_CLEAR";
 

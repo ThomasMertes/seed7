@@ -29,8 +29,16 @@
 include "null_file.s7i";
 
 
+(**
+ *  [[file|File]] implementation type for UTF-16 files.
+ *  This type supports UTF-16 encoded sequential files of the
+ *  operating system. UTF-16 files are seekable, therefore they
+ *  support the functions [[#length(in_utf16_file)|length]],
+ *  [[#seek(in_utf16_file,in_integer)|seek]] and
+ *  [[#tell(in_utf16_file)|tell]].
+ *)
 const type: utf16_file is sub null_file struct
-    var PRIMITIVE_FILE: ext_file is PRIMITIVE_NULL_FILE;
+    var clib_file: ext_file is CLIB_NULL_FILE;
     var string: name is "";
   end struct;
 
@@ -46,12 +54,12 @@ const proc: close (in utf16_file: aFile) is func
 
 
 (**
- *  Forces that all buffered data of ''aFile'' is sent to its destination.
+ *  Forces that all buffered data of ''outFile'' is sent to its destination.
  *  This causes data to be sent to the operating systems file system.
  *)
-const proc: flush (in utf16_file: aFile) is func
+const proc: flush (in utf16_file: outFile) is func
   begin
-    flush(aFile.ext_file);
+    flush(outFile.ext_file);
   end func;
 
 
@@ -61,17 +69,17 @@ const proc: flush (in utf16_file: aFile) is func
  *  from the file failed.
  *  @return TRUE if the end-of-file indicator is set, FALSE otherwise.
  *)
-const func boolean: eof (in utf16_file: aFile) is
-  return eof(aFile.ext_file);
+const func boolean: eof (in utf16_file: inFile) is
+  return eof(inFile.ext_file);
 
 
 (**
  *  Determine if at least one character can be read successfully.
  *  This function allows a file to be handled like an iterator.
- *  @return FALSE if 'getc' would return EOF, TRUE otherwise.
+ *  @return FALSE if 'getc' would return [[char#EOF|EOF]], TRUE otherwise.
  *)
-const func boolean: hasNext (in utf16_file: aFile) is
-  return hasNext(aFile.ext_file);
+const func boolean: hasNext (in utf16_file: inFile) is
+  return hasNext(inFile.ext_file);
 
 
 (**
@@ -131,7 +139,8 @@ const func utf16le_file: malloc (in utf16le_file: anUtf16File) is func
  *  with a any other mode the application program is in charge to
  *  handle optional BOM markers. This way 'open_utf16le' can be used
  *  to open existing files without BOM.
- *  @return the file opened, or STD_NULL if it could not be opened.
+ *  @return the file opened, or [[null_file#STD_NULL|STD_NULL]]
+ *          if it could not be opened.
  *  @exception RANGE_ERROR Illegal 'mode' or 'fileName' not in
  *             standard path representation.
  *)
@@ -139,11 +148,11 @@ const func file: open_utf16le (in string: fileName, in string: mode) is func
   result
     var file: newFile is STD_NULL;
   local
-    var PRIMITIVE_FILE: open_file is PRIMITIVE_NULL_FILE;
+    var clib_file: open_file is CLIB_NULL_FILE;
     var utf16le_file: new_le_file is utf16le_file.value;
   begin
-    open_file := PRIMITIVE_FILE_OPEN(fileName, mode);
-    if open_file <> PRIMITIVE_NULL_FILE then
+    open_file := openClibFile(fileName, mode);
+    if open_file <> CLIB_NULL_FILE then
       if mode[1 len 1] = "w" then
         write(open_file, "\16#FF\\16#FE\");
       end if;
@@ -159,7 +168,7 @@ const func file: open_utf16le (in string: fileName, in string: mode) is func
  *  @exception RANGE_ERROR A character is not representable with UTF-16.
  *  @exception FILE_ERROR The system function returns an error.
  *)
-const proc: write (in utf16le_file: aFile, in string: stri) is func
+const proc: write (in utf16le_file: outFile, in string: stri) is func
   local
     var char: ch is ' ';
     var integer: number is 0;
@@ -168,16 +177,16 @@ const proc: write (in utf16le_file: aFile, in string: stri) is func
   begin
     for ch range stri do
       if ch <= '\16#FFFF\' then
-        write(aFile.ext_file, str(chr(ord(ch) mod 256)));
-        write(aFile.ext_file, str(chr(ord(ch) mdiv 256)));
+        write(outFile.ext_file, str(chr(ord(ch) mod 256)));
+        write(outFile.ext_file, str(chr(ord(ch) mdiv 256)));
       elsif ch <= '\16#10FFFF\' then
         number := ord(ch) - 16#10000;
         ch1 := chr(16#D800 + (number >> 10));
-        write(aFile.ext_file, str(chr(ord(ch1) mod 256)));
-        write(aFile.ext_file, str(chr(ord(ch1) mdiv 256)));
+        write(outFile.ext_file, str(chr(ord(ch1) mod 256)));
+        write(outFile.ext_file, str(chr(ord(ch1) mdiv 256)));
         ch2 := chr(16#DC00 + (number mod 16#400));
-        write(aFile.ext_file, str(chr(ord(ch2) mod 256)));
-        write(aFile.ext_file, str(chr(ord(ch2) mdiv 256)));
+        write(outFile.ext_file, str(chr(ord(ch2) mod 256)));
+        write(outFile.ext_file, str(chr(ord(ch2) mdiv 256)));
       else
         raise RANGE_ERROR;
       end if;
@@ -190,7 +199,7 @@ const proc: write (in utf16le_file: aFile, in string: stri) is func
  *  @return the string read.
  *  @exception RANGE_ERROR The file contains an illegal surrogate pair.
  *)
-const func string: gets (in utf16le_file: aFile, in integer: maxLength) is func
+const func string: gets (in utf16le_file: inFile, in integer: maxLength) is func
   result
     var string: striRead is "";
   local
@@ -204,7 +213,7 @@ const func string: gets (in utf16le_file: aFile, in integer: maxLength) is func
   begin
     charsMissing := maxLength;
     repeat
-      stri := gets(aFile.ext_file, 2 * charsMissing);
+      stri := gets(inFile.ext_file, 2 * charsMissing);
       if odd(length(stri)) then
         raise RANGE_ERROR;
       elsif length(stri) <> 2 * charsMissing then
@@ -215,7 +224,7 @@ const func string: gets (in utf16le_file: aFile, in integer: maxLength) is func
         if ch1 >= '\16#D800\' and ch1 <= '\16#DBFF\' then
           # ch1 introduces a surrogate pair
           if index = length(stri) div 2 then
-            surrogate_part := gets(aFile.ext_file, 2);
+            surrogate_part := gets(inFile.ext_file, 2);
             if length(surrogate_part) = 2 then
               ch2 := chr(ord(surrogate_part[2]) * 256 + ord(surrogate_part[1]));
             else
@@ -260,7 +269,8 @@ const func utf16be_file: malloc (in utf16be_file: anUtf16File) is func
  *  with a any other mode the application program is in charge to
  *  handle optional BOM markers. This way 'open_utf16be' can be used
  *  to open existing files without BOM.
- *  @return the file opened, or STD_NULL if it could not be opened.
+ *  @return the file opened, or [[null_file#STD_NULL|STD_NULL]]
+ *          if it could not be opened.
  *  @exception RANGE_ERROR Illegal 'mode' or 'fileName' not in
  *             standard path representation.
  *)
@@ -268,11 +278,11 @@ const func file: open_utf16be (in string: fileName, in string: mode) is func
   result
     var file: newFile is STD_NULL;
   local
-    var PRIMITIVE_FILE: open_file is PRIMITIVE_NULL_FILE;
+    var clib_file: open_file is CLIB_NULL_FILE;
     var utf16be_file: new_be_file is utf16be_file.value;
   begin
-    open_file := PRIMITIVE_FILE_OPEN(fileName, mode);
-    if open_file <> PRIMITIVE_NULL_FILE then
+    open_file := openClibFile(fileName, mode);
+    if open_file <> CLIB_NULL_FILE then
       if mode[1 len 1] = "w" then
         write(open_file, "\16#FE\\16#FF\");
       end if;
@@ -288,7 +298,7 @@ const func file: open_utf16be (in string: fileName, in string: mode) is func
  *  @exception RANGE_ERROR When a character is not representable with UTF-16.
  *  @exception FILE_ERROR The system function returns an error.
  *)
-const proc: write (in utf16be_file: aFile, in string: stri) is func
+const proc: write (in utf16be_file: outFile, in string: stri) is func
   local
     var char: ch is ' ';
     var integer: number is 0;
@@ -297,16 +307,16 @@ const proc: write (in utf16be_file: aFile, in string: stri) is func
   begin
     for ch range stri do
       if ch <= '\16#FFFF\' then
-        write(aFile.ext_file, str(chr(ord(ch) mdiv 256)));
-        write(aFile.ext_file, str(chr(ord(ch) mod 256)));
+        write(outFile.ext_file, str(chr(ord(ch) mdiv 256)));
+        write(outFile.ext_file, str(chr(ord(ch) mod 256)));
       elsif ch <= '\16#10FFFF\' then
         number := ord(ch) - 16#10000;
         ch1 := chr(16#D800 + (number >> 10));
-        write(aFile.ext_file, str(chr(ord(ch1) mdiv 256)));
-        write(aFile.ext_file, str(chr(ord(ch1) mod 256)));
+        write(outFile.ext_file, str(chr(ord(ch1) mdiv 256)));
+        write(outFile.ext_file, str(chr(ord(ch1) mod 256)));
         ch2 := chr(16#DC00 + (number mod 16#400));
-        write(aFile.ext_file, str(chr(ord(ch2) mdiv 256)));
-        write(aFile.ext_file, str(chr(ord(ch2) mod 256)));
+        write(outFile.ext_file, str(chr(ord(ch2) mdiv 256)));
+        write(outFile.ext_file, str(chr(ord(ch2) mod 256)));
       else
         raise RANGE_ERROR;
       end if;
@@ -319,7 +329,7 @@ const proc: write (in utf16be_file: aFile, in string: stri) is func
  *  @return the string read.
  *  @exception RANGE_ERROR The file contains an illegal surrogate pair.
  *)
-const func string: gets (in utf16be_file: aFile, in integer: maxLength) is func
+const func string: gets (in utf16be_file: inFile, in integer: maxLength) is func
   result
     var string: striRead is "";
   local
@@ -333,7 +343,7 @@ const func string: gets (in utf16be_file: aFile, in integer: maxLength) is func
   begin
     charsMissing := maxLength;
     repeat
-      stri := gets(aFile.ext_file, 2 * charsMissing);
+      stri := gets(inFile.ext_file, 2 * charsMissing);
       if odd(length(stri)) then
         raise RANGE_ERROR;
       elsif length(stri) <> 2 * charsMissing then
@@ -344,7 +354,7 @@ const func string: gets (in utf16be_file: aFile, in integer: maxLength) is func
         if ch1 >= '\16#D800\' and ch1 <= '\16#DBFF\' then
           # ch1 introduces a surrogate pair
           if index = length(stri) div 2 then
-            surrogate_part := gets(aFile.ext_file, 2);
+            surrogate_part := gets(inFile.ext_file, 2);
             if length(surrogate_part) = 2 then
               ch2 := chr(ord(surrogate_part[1]) * 256 + ord(surrogate_part[2]));
             else
@@ -374,8 +384,9 @@ const func string: gets (in utf16be_file: aFile, in integer: maxLength) is func
  *  Opens an Unicode file which uses the UTF-16LE or UTF-16BE encoding.
  *  The function 'open_utf16' checks for a BOM and depending on that
  *  opens an UTF-16LE or UTF-16BE file. When the file contains no BOM
- *  the function returns STD_NULL.
- *  @return the file opened, or STD_NULL if it could not be opened.
+ *  the function returns [[null_file#STD_NULL|STD_NULL]].
+ *  @return the file opened, or [[null_file#STD_NULL|STD_NULL]]
+ *          if it could not be opened.
  *  @exception RANGE_ERROR Illegal 'mode' or 'fileName' not in
  *             standard path representation.
  *)
@@ -383,13 +394,13 @@ const func file: open_utf16 (in string: fileName, in string: mode) is func
   result
     var file: newFile is STD_NULL;
   local
-    var PRIMITIVE_FILE: open_file is PRIMITIVE_NULL_FILE;
+    var clib_file: open_file is CLIB_NULL_FILE;
     var utf16le_file: new_le_file is utf16le_file.value;
     var utf16be_file: new_be_file is utf16be_file.value;
     var string: bom is "";
   begin
-    open_file := PRIMITIVE_FILE_OPEN(fileName, mode);
-    if open_file <> PRIMITIVE_NULL_FILE then
+    open_file := openClibFile(fileName, mode);
+    if open_file <> CLIB_NULL_FILE then
       bom := gets(open_file, 2);
       if bom = "\16#FF\\16#FE\" then
         new_le_file.ext_file := open_file;

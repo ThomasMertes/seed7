@@ -30,12 +30,12 @@ include "bigint.s7i";
 
 
 (**
- *  Rational numbers represented with 'bigInteger' numerator and denominator.
- *  The values of the type 'bigRational' are finite and periodical
+ *  Rational numbers represented with [[bigint|bigInteger]] numerator and denominator.
+ *  The values of the type ''bigRational'' are finite and periodical
  *  decimal numbers. BigRational literals do not exist. Although
- *  'bigRational' operations cannot overflow, it can happen that
- *  there is not enough memory to represent a 'bigRational' value.
- *  In this case the exception 'MEMORY_ERROR' is raised.
+ *  ''bigRational'' operations cannot overflow, it can happen that
+ *  there is not enough memory to represent a ''bigRational'' value.
+ *  In this case the exception MEMORY_ERROR is raised.
  *)
 const type: bigRational is new object struct
     var bigInteger: numerator is 0_;
@@ -65,8 +65,8 @@ const proc: reduce (inout bigRational: number) is func
 
 
 (**
- *  Create a bigRational number from its numerator and denominator.
- *  @return the created bigRational value.
+ *  Create a ''bigRational'' number from its numerator and denominator.
+ *  @return the created ''bigRational'' value.
  *)
 const func bigRational: (in bigInteger: numerator) / (in bigInteger: denominator) is func
   result
@@ -80,7 +80,7 @@ const func bigRational: (in bigInteger: numerator) / (in bigInteger: denominator
 
 
 (**
- *  Plus sign for bigRational numbers.
+ *  Plus sign for ''bigRational'' numbers.
  *  @return its operand unchanged.
  *)
 const func bigRational: + (in bigRational: number) is func
@@ -93,7 +93,7 @@ const func bigRational: + (in bigRational: number) is func
 
 
 (**
- *  Minus sign, negate a bigRational number.
+ *  Minus sign, negate a ''bigRational'' number.
  *  @return the negated value of the number.
  *)
 const func bigRational: - (in bigRational: number) is func
@@ -106,7 +106,7 @@ const func bigRational: - (in bigRational: number) is func
 
 
 (**
- *  Add two bigRational numbers.
+ *  Add two ''bigRational'' numbers.
  *  @return the sum of the two numbers.
  *)
 const func bigRational: (in bigRational: summand1) + (in bigRational: summand2) is func
@@ -123,7 +123,7 @@ const func bigRational: (in bigRational: summand1) + (in bigRational: summand2) 
 
 
 (**
- *  Compute the subtraction of two bigRational numbers.
+ *  Compute the subtraction of two ''bigRational'' numbers.
  *  @return the difference of the two numbers.
  *)
 const func bigRational: (in bigRational: minuend) - (in bigRational: subtrahend) is func
@@ -140,7 +140,7 @@ const func bigRational: (in bigRational: minuend) - (in bigRational: subtrahend)
 
 
 (**
- *  Multiply two bigRational numbers.
+ *  Multiply two ''bigRational'' numbers.
  *  @return the product of the two numbers.
  *)
 const func bigRational: (in bigRational: factor1) * (in bigRational: factor2) is func
@@ -158,7 +158,7 @@ const func bigRational: (in bigRational: factor1) * (in bigRational: factor2) is
 
 
 (**
- *  Compute the division of two bigRational numbers.
+ *  Compute the division of two ''bigRational'' numbers.
  *  @return the quotient of the division.
  *  @exception NUMERIC_ERROR When a division by zero occurs.
  *)
@@ -179,7 +179,7 @@ const func bigRational: (in bigRational: dividend) / (in bigRational: divisor) i
 
 
 (**
- *  Increment a bigRational number by a delta.
+ *  Increment a ''bigRational'' number by a delta.
  *)
 const proc: (inout bigRational: number) +:= (in bigRational: delta) is func
   local
@@ -193,7 +193,7 @@ const proc: (inout bigRational: number) +:= (in bigRational: delta) is func
 
 
 (**
- *  Decrement a bigRational number by a delta.
+ *  Decrement a ''bigRational'' number by a delta.
  *)
 const proc: (inout bigRational: number) -:= (in bigRational: delta) is func
   local
@@ -207,7 +207,7 @@ const proc: (inout bigRational: number) -:= (in bigRational: delta) is func
 
 
 (**
- *  Multiply a bigRational number by a factor and assign the result back to number.
+ *  Multiply a ''bigRational'' number by a factor and assign the result back to number.
  *)
 const proc: (inout bigRational: number) *:= (in bigRational: factor) is func
   begin
@@ -218,7 +218,7 @@ const proc: (inout bigRational: number) *:= (in bigRational: factor) is func
 
 
 (**
- *  Divide a bigRational number by a divisor and assign the result back to number.
+ *  Divide a ''bigRational'' number by a divisor and assign the result back to number.
  *)
 const proc: (inout bigRational: number) /:= (in bigRational: divisor) is func
   begin
@@ -230,7 +230,7 @@ const proc: (inout bigRational: number) /:= (in bigRational: divisor) is func
 
 
 (**
- *  Compute the exponentiation of a bigRational base by an integer exponent.
+ *  Compute the exponentiation of a ''bigRational'' base by an integer exponent.
  *  @return the result of the exponentation.
  *)
 const func bigRational: (in bigRational: base) ** (in integer: exponent) is func
@@ -249,7 +249,7 @@ const func bigRational: (in bigRational: base) ** (in integer: exponent) is func
 
 
 (**
- *  Check if two bigRational numbers are equal.
+ *  Check if two ''bigRational'' numbers are equal.
  *  @return TRUE if both numbers are equal,
  *          FALSE otherwise.
  *)
@@ -259,7 +259,7 @@ const func boolean: (in bigRational: number1) = (in bigRational: number2) is
 
 
 (**
- *  Check if two bigRational numbers are not equal.
+ *  Check if two ''bigRational'' numbers are not equal.
  *  @return FALSE if both numbers are equal,
  *          TRUE otherwise.
  *)
@@ -309,7 +309,7 @@ const func boolean: (in bigRational: number1) >= (in bigRational: number2) is
 
 
 (**
- *  Compare two bigRational numbers.
+ *  Compare two ''bigRational'' numbers.
  *  @return -1, 0 or 1 if the first argument is considered to be
  *          respectively less than, equal to, or greater than the
  *          second.
@@ -329,7 +329,7 @@ const func integer: compare (in bigRational: number1, in bigRational: number2) i
 
 
 (**
- *  Compute the hash value of a bigRational number.
+ *  Compute the hash value of a ''bigRational'' number.
  *  @return the hash value.
  *)
 const func integer: hashCode (in bigRational: number) is
@@ -337,7 +337,7 @@ const func integer: hashCode (in bigRational: number) is
 
 
 (**
- *  Return the conversion of a bigInteger to a bigRational.
+ *  Return the conversion of a [[bigint|bigInteger]] to a ''bigRational''.
  *)
 const func bigRational: rat (in bigInteger: number) is func
   result
@@ -349,7 +349,7 @@ const func bigRational: rat (in bigInteger: number) is func
 
 
 (**
- *  Return the conversion of an integer to a bigRational.
+ *  Return the conversion of an integer to a ''bigRational''.
  *)
 const func bigRational: (attr bigRational) conv (in integer: number) is func
   result
@@ -361,7 +361,7 @@ const func bigRational: (attr bigRational) conv (in integer: number) is func
 
 
 (**
- *  Return the conversion of a bigInteger to a bigRational.
+ *  Return the conversion of a bigInteger to a ''bigRational''.
  *)
 const func bigRational: (attr bigRational) conv (in bigInteger: number) is func
   result
@@ -373,7 +373,7 @@ const func bigRational: (attr bigRational) conv (in bigInteger: number) is func
 
 
 (**
- *  Compute the absolute value of a bigRational number.
+ *  Compute the absolute value of a ''bigRational'' number.
  *  @return the absolute value.
  *)
 const func bigRational: abs (in bigRational: number) is func
@@ -386,7 +386,7 @@ const func bigRational: abs (in bigRational: number) is func
 
 
 (**
- *  Convert a bigRational number to a string.
+ *  Convert a ''bigRational'' number to a string.
  *  The number is converted to a string with a fraction (e.g.: "3/5"),
  *  were numerator and denominator are separated with a slash (/).
  *  @return the string result of the conversion.
@@ -400,7 +400,7 @@ const func string: str (in bigRational: number) is func
 
 
 (**
- *  Convert a bigRational number to a string.
+ *  Convert a ''bigRational'' number to a string.
  *  The number is converted to a string with decimal representation.
  *  The precision parameter specifies the number of digits after
  *  the decimal point.
@@ -420,11 +420,11 @@ const func string: (in bigRational: number) digits (in integer: precision) is fu
 
 
 (**
- *  Convert a string to a bigRational number.
+ *  Convert a string to a ''bigRational'' number.
  *  The string must contain a fraction (e.g.: "3/5"), were numerator
  *  and denominator are separated with a slash (/).
- *  @return the bigRational result of the conversion.
- *  @exception RANGE_ERROR When stri contains not a valid bigRational value.
+ *  @return the ''bigRational'' result of the conversion.
+ *  @exception RANGE_ERROR When stri contains not a valid ''bigRational'' value.
  *)
 const func bigRational: (attr bigRational) parse (in var string: stri) is func
   result
@@ -443,9 +443,9 @@ enable_io(bigRational);
 
 
 (**
- *  Return a bigRational number truncated towards negative infinity.
+ *  Return a ''bigRational'' number truncated towards negative infinity.
  *)
-const func bigInteger: floor (ref bigRational: number) is func
+const func bigInteger: floor (in bigRational: number) is func
   result
     var bigInteger: int_val is 0_;
   begin
@@ -454,9 +454,9 @@ const func bigInteger: floor (ref bigRational: number) is func
 
 
 (**
- *  Return a bigRational number rounded up towards positive infinity.
+ *  Return a ''bigRational'' number rounded up towards positive infinity.
  *)
-const func bigInteger: ceil (ref bigRational: number) is func
+const func bigInteger: ceil (in bigRational: number) is func
   result
     var bigInteger: int_val is 0_;
   begin
@@ -465,9 +465,9 @@ const func bigInteger: ceil (ref bigRational: number) is func
 
 
 (**
- *  Return a bigRational number truncated towards zero.
+ *  Return a ''bigRational'' number truncated towards zero.
  *)
-const func bigInteger: trunc (ref bigRational: number) is func
+const func bigInteger: trunc (in bigRational: number) is func
   result
     var bigInteger: int_val is 0_;
   begin
@@ -476,9 +476,9 @@ const func bigInteger: trunc (ref bigRational: number) is func
 
 
 (**
- *  Return a bigRational number rounded towards zero.
+ *  Return a ''bigRational'' number rounded towards zero.
  *)
-const func bigInteger: round (ref bigRational: number) is func
+const func bigInteger: round (in bigRational: number) is func
   result
     var bigInteger: int_val is 0;
   begin

@@ -103,6 +103,7 @@ cgi.s7i      Support for the Common Gateway Interface
 char.s7i     Char support library
 charsets.s7i Code pages for various character sets
 chartype.s7i Character type definitions
+clib_file.s7i Type for FILE * files from the C runtime library
 color.s7i    Functions for color processing
 complex.s7i  Complex support library
 console.s7i  Text implementation type for text console/window.
@@ -113,7 +114,9 @@ dir.s7i      Implementation type to read directories as files
 draw.s7i     Portable graphic library
 duration.s7i Time and date duration support library
 echo.s7i     Filter file which generates an echo of the input
+enable_input.s7i Templates to enable file output for a type
 enable_io.s7i Templates to enable file I/O for a given type
+enable_output.s7i Templates to enable file output for a type
 encoding.s7i Encoding and decoding functions
 external_file.s7i File implementation type describing OS files
 field.s7i    Filter file which reads the input fieldwise

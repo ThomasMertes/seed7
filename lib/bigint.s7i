@@ -31,11 +31,11 @@ include "enable_io.s7i";
 
 (**
  *  Signed integer numbers of unlimited size.
- *  The literals of the type 'bigInteger' are sequences of digits
+ *  The literals of the type ''bigInteger'' are sequences of digits
  *  followed by an underscore character (for example 1_ ). Although
- *  'bigInteger' operations cannot overflow, it can happen that
- *  there is not enough memory to represent a 'bigInteger' value.
- *  In this case the exception 'MEMORY_ERROR' is raised.
+ *  ''bigInteger'' operations cannot overflow, it can happen that
+ *  there is not enough memory to represent a ''bigInteger'' value.
+ *  In this case the exception MEMORY_ERROR is raised.
  *)
 const type: bigInteger is          subtype object;
 
@@ -51,44 +51,44 @@ const proc: (inout bigInteger param) := (in bigInteger param)            is acti
 
 
 (**
- *  Plus sign for bigInteger numbers.
+ *  Plus sign for ''bigInteger'' numbers.
  *  @return its operand unchanged.
  *)
 const func bigInteger: + (in bigInteger: number)                         is action "BIG_PLUS";
 
 
 (**
- *  Minus sign, negate a bigInteger number.
+ *  Minus sign, negate a ''bigInteger'' number.
  *  @return the negated value of the number.
  *)
 const func bigInteger: - (in bigInteger: number)                         is action "BIG_MINUS";
 
 
 (**
- *  Add two bigInteger numbers.
+ *  Add two ''bigInteger'' numbers.
  *  @return the sum of the two numbers.
  *)
 const func bigInteger: (in bigInteger: summand1) + (in bigInteger: summand2)  is action "BIG_ADD";
 
 
 (**
- *  Compute the subtraction of two bigInteger numbers.
+ *  Compute the subtraction of two ''bigInteger'' numbers.
  *  @return the difference of the two numbers.
  *)
 const func bigInteger: (in bigInteger: minuend) - (in bigInteger: subtrahend) is action "BIG_SBTR";
 
 
 (**
- *  Multiply two bigInteger numbers.
+ *  Multiply two ''bigInteger'' numbers.
  *  @return the product of the two numbers.
  *)
 const func bigInteger: (in bigInteger: factor1) * (in bigInteger: factor2)    is action "BIG_MULT";
 
 
 (**
- *  Computes an integer division of two bigInteger numbers.
+ *  Computes an integer division of two ''bigInteger'' numbers.
  *  This integer division is truncated towards zero.
- *  For the operations 'div' and 'rem' holds for all A:
+ *  For the operations ''div'' and ''rem'' holds for all A:
  *   (A div B) * B + A rem B = A           when B <> 0_
  *   -A div B = -(A div B)                 when B <> 0_
  *   -A rem B = -(A rem B)                 when B <> 0_
@@ -101,7 +101,7 @@ const func bigInteger: (in bigInteger: dividend) div (in bigInteger: divisor)   
 
 
 (**
- *  Computes the remainder of an integer division of two bigInteger numbers.
+ *  Computes the remainder of an integer division of two ''bigInteger'' numbers.
  *  This is the reminder of integer division div.
  *  The result has the same sign as the dividend.
  *   A rem B
@@ -114,9 +114,9 @@ const func bigInteger: (in bigInteger: dividend) rem (in bigInteger: divisor)   
 
 
 (**
- *  Computes an integer modulo division of two bigInteger numbers.
+ *  Computes an integer modulo division of two ''bigInteger'' numbers.
  *  This integer division is truncated towards negative infinity.
- *  For the operations 'mdiv' and 'mod' holds for all A:
+ *  For the operations ''mdiv'' and ''mod'' holds for all A:
  *   (A mdiv B) * B + A mod B = A          when B <> 0_
  *   -A mdiv B = A mdiv -B                 when B <> 0_
  *   -A mod -B = -(A mod B)                when B <> 0_
@@ -129,7 +129,7 @@ const func bigInteger: (in bigInteger: dividend) mdiv (in bigInteger: divisor)  
 
 
 (**
- *  Computes the modulo of an integer division of two bigInteger numbers.
+ *  Computes the modulo of an integer division of two ''bigInteger'' numbers.
  *  The modulo is the remainder of integer division mdiv.
  *  The result has the same sign as the divisor.
  *   A mod B
@@ -142,7 +142,7 @@ const func bigInteger: (in bigInteger: dividend) mod (in bigInteger: divisor)   
 
 
 (**
- *  Compute the exponentiation of a bigInteger base by an integer exponent.
+ *  Compute the exponentiation of a ''bigInteger'' base by an [[integer]] exponent.
  *  @return the result of the exponentation.
  *  @exception NUMERIC_ERROR When the exponent is negative.
  *)
@@ -153,7 +153,7 @@ const func bigInteger: (in bigInteger: base) ** (in integer: exponent)   is acti
 
 
 (**
- *  Shift a bigInteger number left by lshift bits.
+ *  Shift a ''bigInteger'' number left by lshift bits.
  *  When lshift is negative a right shift is done instead.
  *  A << B is equivalent to A * 2_ ** B when B >= 0 holds.
  *  A << B is equivalent to A mdiv 2_ ** -B when B < 0 holds.
@@ -163,7 +163,7 @@ const func bigInteger: (in bigInteger: number) << (in integer: lshift)   is acti
 
 
 (**
- *  Shift a bigInteger number right by rshift bits.
+ *  Shift a ''bigInteger'' number right by rshift bits.
  *  When rshift is negative a left shift is done instead.
  *  A >> B is equivalent to A mdiv 2_ ** B when B >= 0 holds.
  *  A >> B is equivalent to A * 2_ ** -B when B < 0 holds.
@@ -173,19 +173,19 @@ const func bigInteger: (in bigInteger: number) >> (in integer: rshift)   is acti
 
 
 (**
- *  Increment a bigInteger number by a delta.
+ *  Increment a ''bigInteger'' number by a delta.
  *)
 const proc: (inout bigInteger: number) +:= (in bigInteger: delta)        is action "BIG_GROW";
 
 
 (**
- *  Decrement a bigInteger number by a delta.
+ *  Decrement a ''bigInteger'' number by a delta.
  *)
 const proc: (inout bigInteger: number) -:= (in bigInteger: delta)        is action "BIG_SHRINK";
 
 
 (**
- *  Multiply a bigInteger number by a factor and assign the result back to number.
+ *  Multiply a ''bigInteger'' number by a factor and assign the result back to number.
  *)
 const proc: (inout bigInteger: number) *:= (in bigInteger: factor)       is action "BIG_MULT_ASSIGN";
 
@@ -203,7 +203,7 @@ const proc: (inout bigInteger: number) >>:= (in integer: rshift)         is acti
 
 
 (**
- *  Check if two bigInteger numbers are equal.
+ *  Check if two ''bigInteger'' numbers are equal.
  *  @return TRUE if both numbers are equal,
  *          FALSE otherwise.
  *)
@@ -211,7 +211,7 @@ const func boolean: (in bigInteger: number1) = (in bigInteger: number2)  is acti
 
 
 (**
- *  Check if two bigInteger numbers are not equal.
+ *  Check if two ''bigInteger'' numbers are not equal.
  *  @return FALSE if both numbers are equal,
  *          TRUE otherwise.
  *)
@@ -251,7 +251,7 @@ const func boolean: (in bigInteger: number1) >= (in bigInteger: number2) is acti
 
 
 (**
- *  Compare two bigInteger numbers.
+ *  Compare two ''bigInteger'' numbers.
  *  @return -1, 0 or 1 if the first argument is considered to be
  *          respectively less than, equal to, or greater than the
  *          second.
@@ -260,35 +260,35 @@ const func integer: compare (in bigInteger: number1, in bigInteger:number2) is a
 
 
 (**
- *  Compute the hash value of a bigInteger number.
+ *  Compute the hash value of a ''bigInteger'' number.
  *  @return the hash value.
  *)
 const func integer: hashCode (in bigInteger: number)                     is action "BIG_HASHCODE";
 
 
 (**
- *  Successor of a bigInteger number.
+ *  Successor of a ''bigInteger'' number.
  *  succ(A) is equivalent to A+1 .
  *)
 const func bigInteger: succ (in bigInteger: number)                      is action "BIG_SUCC";
 
 
 (**
- *  Predecessor of a bigInteger number.
+ *  Predecessor of a ''bigInteger'' number.
  *  pred(A) is equivalent to A-1 .
  *)
 const func bigInteger: pred (in bigInteger: number)                      is action "BIG_PRED";
 
 
 (**
- *  Compute the absolute value of a bigInteger number.
+ *  Compute the absolute value of a ''bigInteger'' number.
  *  @return the absolute value.
  *)
 const func bigInteger: abs (in bigInteger: number)                       is action "BIG_ABS";
 
 
 (**
- *  Compute the truncated base 2 logarithm of a bigInteger number.
+ *  Compute the truncated base 2 logarithm of a ''bigInteger'' number.
  *  @return the truncated base 2 logarithm.
  *  @exception NUMERIC_ERROR The number is negative.
  *)
@@ -296,7 +296,7 @@ const func bigInteger: log2 (in bigInteger: number)                      is acti
 
 
 (**
- *  Determine if a bigInteger number is odd.
+ *  Determine if a ''bigInteger'' number is odd.
  *  @return TRUE if the number is odd,
  *          FALSE otherwise.
  *)
@@ -304,31 +304,30 @@ const func boolean: odd (in bigInteger: number)                          is acti
 
 
 (**
- *  Convert a bigInteger number to integer.
- *  @return the integer result of the conversion.
- *  @exception RANGE_ERROR The result does not fit into an integer.
+ *  Convert a ''bigInteger'' number to [[integer]].
+ *  @return the [[integer]] result of the conversion.
+ *  @exception RANGE_ERROR The result does not fit into an [[integer]].
  *)
 const func integer: ord (in bigInteger: number)                          is action "BIG_ORD";
 
 
 (**
- *  Determine the greatest common divisor of two bigInteger numbers.
+ *  Determine the greatest common divisor of two ''bigInteger'' numbers.
  *  @return the greatest common divisor of the two numbers.
  *)
 const func bigInteger: gcd (in bigInteger: number1, in bigInteger: number2)  is action "BIG_GCD";
 
 
 (**
- *  Convert an integer number to bigInteger.
+ *  Convert an [[integer]] number to ''bigInteger''.
  *  @return the bigInteger result of the conversion.
- *  @exception RANGE_ERROR The result does not fit into an integer.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  *)
 const func bigInteger: (attr bigInteger) conv (in integer: number)       is action "BIG_ICONV";
 
 
 (**
- *  Convert a bigInteger number to a [[string]].
+ *  Convert a ''bigInteger'' number to a [[string]].
  *  The number is converted to a string with decimal representation.
  *  @return the string result of the conversion.
  *)
@@ -336,10 +335,15 @@ const func string: str (in bigInteger: number)                           is acti
 
 
 (**
- *  Convert a [[string]] to a bigInteger number.
- *  @return the bigInteger result of the conversion.
- *  @exception RANGE_ERROR When the string is empty or
- *             contains not only digits.
+ *  Convert a [[string]] to a ''bigInteger'' number.
+ *  The [[string]] must contain an integer literal consisting of an
+ *  optional + or - sign, followed by a sequence of digits. Other
+ *  characters as well as leading or trailing whitespace charaters are
+ *  not allowed. The sequence of digits is taken to be decimal.
+ *  @return the ''bigInteger'' result of the conversion.
+ *  @exception RANGE_ERROR When the string is empty or does not contain
+ *             an integer literal.
+ *  @exception MEMORY_ERROR  Not enough memory to represent the result.
  *)
 const func bigInteger: (attr bigInteger) parse (in string: stri)         is action "BIG_PARSE";
 
@@ -379,7 +383,7 @@ const bigInteger: (attr bigInteger) . value                              is bigI
 
 
 (**
- *  Increment a bigInteger number.
+ *  Increment a ''bigInteger'' number.
  *  This is equivalent to:
  *   number := succ(number);
  *)
@@ -387,7 +391,7 @@ const proc: incr (inout bigInteger param)                                is acti
 
 
 (**
- *  Decrement a bigInteger number.
+ *  Decrement a ''bigInteger'' number.
  *  This is equivalent to:
  *   number := pred(number);
  *)
@@ -401,7 +405,7 @@ FOR_DECLS(bigInteger);
 
 
 (**
- *  Compute the factorial of a bigInteger number.
+ *  Compute the factorial of a ''bigInteger'' number.
  *  @return the factorial of the number.
  *  @exception NUMERIC_ERROR The number is negative.
  *)
@@ -422,7 +426,7 @@ const func bigInteger: ! (in bigInteger: number) is func
 
 
 (**
- *  Convert a bigInteger number to a [[string]].
+ *  Convert a ''bigInteger'' number to a [[string]].
  *  The conversion uses the numeral system with the given base.
  *  Digit values from 10 upward are encoded with upper case letters.
  *  E.g.: 10 is encoded with A, 11 with B, etc.
@@ -469,7 +473,7 @@ const func string: str (in var bigInteger: number, in integer: base) is func
 
 
 (**
- *  Compute the integer square root of a bigInteger number.
+ *  Compute the integer square root of a ''bigInteger'' number.
  *  @return the integer square root.
  *  @exception NUMERIC_ERROR When number is negative.
  *)
@@ -493,7 +497,8 @@ const func bigInteger: sqrt (in var bigInteger: number) is func
 
 (**
  *  Compute the modular multiplicative inverse of a modulo b.
- *  @return the modular multiplicative inverse.
+ *  @return the modular multiplicative inverse when a and b are
+ *          coprime (gcd(a, b) = 1).
  *  @exception RANGE_ERROR If a and b are not coprime (gcd(a, b) <> 1).
  *)
 const func bigInteger: modInverse (in var bigInteger: a,
