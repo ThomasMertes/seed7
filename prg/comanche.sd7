@@ -76,7 +76,11 @@ const proc: sendHttpResponse (inout file: sock, in string: content,
     response &:= "Connection: keep-alive\r\n";
     response &:= "\r\n";
     response &:= content;
-    write(sock, response);
+    block
+      write(sock, response);
+	exception
+      catch FILE_ERROR: close(sock);
+    end block;
   end func;
 
 
@@ -277,10 +281,10 @@ const proc: main is func
       elsif args[index] = "-tls" then
         useTls := TRUE;
       elsif not htdocsAssigned then
-        htdocs := args[index];
+        htdocs := convDosPath(args[index]);
         htdocsAssigned := TRUE;
       elsif not cgiBinAssigned then
-        cgi_bin := args[index];
+        cgi_bin := convDosPath(args[index]);
         cgiBinAssigned := TRUE;
       else
         writeln(" ***** Unrecognized parameter " <& args[index] <& ".");

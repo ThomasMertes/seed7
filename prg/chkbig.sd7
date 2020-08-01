@@ -1217,7 +1217,7 @@ const proc: chkStringConv is func
         not raisesRangeError(bigInteger parse "123 ") or
         not raisesRangeError(bigInteger parse "123@") or
         not raisesRangeError(bigInteger parse "123@456") then
-      writeln(" ***** Conversion of illegal numeric literal does not raise RANGE_ERROR."); 
+      writeln(" ***** Conversion of illegal numeric literal does not raise RANGE_ERROR.");
       okay := FALSE;
     end if;
 

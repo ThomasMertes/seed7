@@ -252,7 +252,7 @@ rtlArrayType getArgv (const int argc, const wstriType *const argv,
                         "cp_from_os_path(\"%ls\", *) failed:\n"
                         "err_info=%d\n",
                         argc, argv[0], err_info););
-      } else { 
+      } else {
         if (exePath != NULL) {
           *exePath = getExecutablePath(arg_0_temp);
           if (*exePath == NULL) {
@@ -689,7 +689,7 @@ rtlArrayType arrHead (const const_rtlArrayType arr1, intType stop)
         memcpy(result->arr, arr1->arr,
             (size_t) (result_size * sizeof(rtlObjectType)));
       } /* if */
-    } else if (arr1->min_position == MIN_MEM_INDEX) {
+    } else if (unlikely(arr1->min_position == MIN_MEM_INDEX)) {
       logError(printf("arrHead(arr1 (size=" FMT_U_MEM "), " FMT_D "): "
                       "Cannot create empty array with minimal index.\n",
                       length, stop););
@@ -752,7 +752,7 @@ rtlArrayType arrHeadTemp (rtlArrayType *arr_temp, intType stop)
           } /* if */
         } /* if */
       } /* if */
-    } else if (arr1->min_position == MIN_MEM_INDEX) {
+    } else if (unlikely(arr1->min_position == MIN_MEM_INDEX)) {
       logError(printf("arrHeadTemp(arr1 (size=" FMT_U_MEM "), " FMT_D "): "
                       "Cannot create empty array with minimal index.\n",
                       length, stop););
@@ -912,7 +912,7 @@ rtlArrayType arrRange (const const_rtlArrayType arr1, intType start, intType sto
         memcpy(result->arr, &arr1->arr[start_idx],
             (size_t) (result_size * sizeof(rtlObjectType)));
       } /* if */
-    } else if (arr1->min_position == MIN_MEM_INDEX) {
+    } else if (unlikely(arr1->min_position == MIN_MEM_INDEX)) {
       logError(printf("arrRange(arr1 (size=" FMT_U_MEM "), " FMT_D ", " FMT_D "): "
                       "Cannot create empty array with minimal index.\n",
                       length, start, stop););
@@ -990,7 +990,7 @@ rtlArrayType arrRangeTemp (rtlArrayType *arr_temp, intType start, intType stop)
           } /* if */
         } /* if */
       } /* if */
-    } else if (arr1->min_position == MIN_MEM_INDEX) {
+    } else if (unlikely(arr1->min_position == MIN_MEM_INDEX)) {
       logError(printf("arrRangeTemp(arr1 (size=" FMT_U_MEM "), " FMT_D ", " FMT_D "): "
                       "Cannot create empty array with minimal index.\n",
                       length, start, stop););
@@ -1128,7 +1128,7 @@ rtlArrayType arrSubarr (const const_rtlArrayType arr1, intType start, intType le
         memcpy(result->arr, &arr1->arr[start_idx],
             (size_t) (result_size * sizeof(rtlObjectType)));
       } /* if */
-    } else if (arr1->min_position == MIN_MEM_INDEX) {
+    } else if (unlikely(arr1->min_position == MIN_MEM_INDEX)) {
       logError(printf("arrSubarr(arr1 (size=" FMT_U_MEM "), " FMT_D ", " FMT_D "): "
                       "Cannot create empty array with minimal index.\n",
                       length, start, len););
@@ -1208,7 +1208,7 @@ rtlArrayType arrSubarrTemp (rtlArrayType *arr_temp, intType start, intType len)
           } /* if */
         } /* if */
       } /* if */
-    } else if (arr1->min_position == MIN_MEM_INDEX) {
+    } else if (unlikely(arr1->min_position == MIN_MEM_INDEX)) {
       logError(printf("arrSubarrTemp(arr1 (size=" FMT_U_MEM "), " FMT_D ", " FMT_D "): "
                       "Cannot create empty array with minimal index.\n",
                       length, start, len););
@@ -1256,7 +1256,7 @@ rtlArrayType arrTail (const const_rtlArrayType arr1, intType start)
         memcpy(result->arr, &arr1->arr[start_idx],
             (size_t) (result_size * sizeof(rtlObjectType)));
       } /* if */
-    } else if (arr1->min_position == MIN_MEM_INDEX) {
+    } else if (unlikely(arr1->min_position == MIN_MEM_INDEX)) {
       logError(printf("arrTail(arr1 (size=" FMT_U_MEM "), " FMT_D "): "
                       "Cannot create empty array with minimal index.\n",
                       length, start););
@@ -1321,7 +1321,7 @@ rtlArrayType arrTailTemp (rtlArrayType *arr_temp, intType start)
           } /* if */
         } /* if */
       } /* if */
-    } else if (arr1->min_position == MIN_MEM_INDEX) {
+    } else if (unlikely(arr1->min_position == MIN_MEM_INDEX)) {
       logError(printf("arrTailTemp(arr1 (size=" FMT_U_MEM "), " FMT_D "): "
                       "Cannot create empty array with minimal index.\n",
                       length, start););

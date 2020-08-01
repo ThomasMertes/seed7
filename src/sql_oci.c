@@ -955,7 +955,7 @@ static int sqltNumberFromDecimalInt (uint8Type *ociNumberData,
             if (negative && length < 20) {
               mantissa[length++] = -1;
             } /* if */
-#ifdef RSHIFT_DOES_SIGN_EXTEND
+#if RSHIFT_DOES_SIGN_EXTEND
             decimalExponent >>= 1;
 #else
             if (decimalExponent < 0) {
@@ -1901,7 +1901,7 @@ static striType getRowid (preparedStmtType preparedStmt,
       stri = NULL;
     } else {
       stri->size = length;
-      memcpy_to_strelem(stri->mem, (ucharType *) stri->mem, (memSizeType) length);
+      memcpy_to_strelem(stri->mem, (ustriType) stri->mem, (memSizeType) length);
     } /* if */
     return stri;
   } /* getRowid */
@@ -1929,7 +1929,7 @@ static striType getRef (preparedStmtType preparedStmt, OCIRef *ref,
       stri = NULL;
     } else {
       stri->size = length;
-      memcpy_to_strelem(stri->mem, (ucharType *) stri->mem, (memSizeType) length);
+      memcpy_to_strelem(stri->mem, (ustriType) stri->mem, (memSizeType) length);
     } /* if */
     return stri;
   } /* getRef */
@@ -2028,7 +2028,7 @@ static striType getBlobAsStri (preparedStmtType preparedStmt,
         FREE_STRI(stri, (memSizeType) lobLength);
         stri = NULL;
       } else {
-        memcpy_to_strelem(stri->mem, (ucharType *) stri->mem, (memSizeType) lobLength);
+        memcpy_to_strelem(stri->mem, (ustriType) stri->mem, (memSizeType) lobLength);
         stri->size = (memSizeType) lobLength;
       } /* if */
     } /* if */

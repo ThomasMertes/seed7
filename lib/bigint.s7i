@@ -42,8 +42,8 @@ const type: bigInteger          is subtype object;
 $ system "bigInteger" is bigInteger;
 
 
-const proc: destroy (ref bigInteger param)                               is action "BIG_DESTR";
-const proc: (ref bigInteger param) ::= (ref bigInteger param)            is action "BIG_CREATE";
+const proc: destroy (ref bigInteger: aValue)                             is action "BIG_DESTR";
+const proc: (ref bigInteger: dest) ::= (ref bigInteger: source)          is action "BIG_CREATE";
 IN_PARAM_IS_REFERENCE(bigInteger);
 
 

@@ -25,6 +25,9 @@
 /*                                                                  */
 /********************************************************************/
 
+#define LOG_FUNCTIONS 0
+#define VERBOSE_EXCEPTIONS 0
+
 #include "version.h"
 
 #include "stdio.h"
@@ -38,8 +41,6 @@
 #undef EXTERN
 #define EXTERN
 #include "syvarutl.h"
-
-#undef TRACE_SYSVAR
 
 
 #define MAX_CSTRI_BUFFER_LEN 25
@@ -89,9 +90,8 @@ int find_sysvar (const_striType stri)
     int result;
 
   /* find_sysvar */
-#ifdef TRACE_SYSVAR
-    printf("BEGIN find_sysvar\n");
-#endif
+    logFunction(printf("find_sysvar(\"%s\")\n",
+                       striAsUnquotedCStri(stri)););
     if (stri->size > MAX_CSTRI_BUFFER_LEN) {
       result = -1;
     } else {
@@ -107,9 +107,7 @@ int find_sysvar (const_striType stri)
         /* printf("find_sysvar: %s -> %d\n", sysvar_name, result); */
       } /* if */
     } /* if */
-#ifdef TRACE_SYSVAR
-    printf("END find_sysvar -> %d\n", result);
-#endif
+    logFunction(printf("find_sysvar --> %d\n", result););
     return result;
   } /* find_sysvar */
 
@@ -121,13 +119,9 @@ void init_sysvar (void)
     int number;
 
   /* init_sysvar */
-#ifdef TRACE_SYSVAR
-    printf("BEGIN init_sysvar\n");
-#endif
+    logFunction(printf("init_sysvar\n"););
     for (number = 0; number < NUMBER_OF_SYSVARS; number++) {
       prog.sys_var[number] = NULL;
     } /* for */
-#ifdef TRACE_SYSVAR
-    printf("END init_sysvar\n");
-#endif
+    logFunction(printf("init_sysvar -->\n"););
   } /* init_sysvar */

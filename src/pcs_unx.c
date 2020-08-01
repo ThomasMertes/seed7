@@ -69,7 +69,7 @@ typedef struct {
 
 typedef const unx_processRecord *const_unx_processType;
 
-#ifdef DO_HEAP_STATISTIC
+#if DO_HEAP_STATISTIC
 size_t sizeof_processRecord = sizeof(unx_processRecord);
 #endif
 

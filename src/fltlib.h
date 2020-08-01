@@ -57,6 +57,7 @@ objectType flt_isnegativezero (listType arguments);
 objectType flt_le             (listType arguments);
 objectType flt_log            (listType arguments);
 objectType flt_log10          (listType arguments);
+objectType flt_log2           (listType arguments);
 objectType flt_lt             (listType arguments);
 objectType flt_mult           (listType arguments);
 objectType flt_mult_assign    (listType arguments);

@@ -27,6 +27,9 @@
 /*                                                                  */
 /********************************************************************/
 
+#define LOG_FUNCTIONS 0
+#define VERBOSE_EXCEPTIONS 0
+
 #include "version.h"
 
 #include "stdlib.h"
@@ -63,9 +66,7 @@ static void scan_comment (void)
     lineNumType start_line;
 
   /* scan_comment */
-#ifdef TRACE_SCANNER
-    printf("BEGIN scan_comment\n");
-#endif
+    logFunction(printf("scan_comment\n"););
     start_line = in_file.line;
     character = next_character();
     do {
@@ -99,9 +100,7 @@ static void scan_comment (void)
 #ifdef WITH_STATISTIC
     comment_count++;
 #endif
-#ifdef TRACE_SCANNER
-    printf("END scan_comment\n");
-#endif
+    logFunction(printf("scan_comment -->\n"););
   } /* scan_comment */
 
 
@@ -112,17 +111,13 @@ static inline void scan_line_comment (void)
     register int character;
 
   /* scan_line_comment */
-#ifdef TRACE_SCANNER
-    printf("BEGIN scan_line_comment\n");
-#endif
+    logFunction(printf("scan_line_comment\n"););
     SKIP_TO_NL(character);
     in_file.character = character;
 #ifdef WITH_STATISTIC
     comment_count++;
 #endif
-#ifdef TRACE_SCANNER
-    printf("END scan_line_comment\n");
-#endif
+    logFunction(printf("scan_line_comment -->\n"););
   } /* scan_line_comment */
 
 
@@ -138,9 +133,7 @@ void scan_byte_order_mark (void)
     charType unicode_char;
 
   /* scan_byte_order_mark */
-#ifdef TRACE_SCANNER
-    printf("BEGIN scan_byte_order_mark\n");
-#endif
+    logFunction(printf("scan_byte_order_mark\n"););
     if (in_file.character >= 0xC0 && in_file.character <= 0xFD) {
       /* character range 192 to 253 (leading bits 11......) */
       unicode_char = utf8_char(in_file.character);
@@ -166,9 +159,7 @@ void scan_byte_order_mark (void)
         } /* while */
       } /* if */
     } /* if */
-#ifdef TRACE_SCANNER
-    printf("END scan_byte_order_mark\n");
-#endif
+    logFunction(printf("scan_byte_order_mark -->\n"););
   } /* scan_byte_order_mark */
 
 
@@ -179,9 +170,7 @@ static void scan_illegal (void)
     charType unicode_char;
 
   /* scan_illegal */
-#ifdef TRACE_SCANNER
-    printf("BEGIN scan_illegal\n");
-#endif
+    logFunction(printf("scan_illegal\n"););
     if (in_file.character >= 0xC0 && in_file.character <= 0xFF) {
       /* character range 192 to 255 (leading bits 11......) */
       unicode_char = utf8_char(in_file.character);
@@ -196,9 +185,7 @@ static void scan_illegal (void)
       } while (char_class(in_file.character) == ILLEGALCHAR &&
                (!symbol.unicodeNames || in_file.character < 0xC0));
     } /* if */
-#ifdef TRACE_SCANNER
-    printf("END scan_illegal\n");
-#endif
+    logFunction(printf("scan_illegal -->\n"););
   } /* scan_illegal */
 
 
@@ -206,9 +193,7 @@ static void scan_illegal (void)
 static inline void scan_eof (void)
 
   { /* scan_eof */
-#ifdef TRACE_SCANNER
-    printf("BEGIN scan_eof\n");
-#endif
+    logFunction(printf("scan_eof\n"););
     if (symbol.sycategory == STOPSYMBOL) {
       err_warning(EOF_ENCOUNTERED);
     } else {
@@ -223,9 +208,7 @@ static inline void scan_eof (void)
         scan_symbol();
       } /* if */
     } /* if */
-#ifdef TRACE_SCANNER
-    printf("END scan_eof\n");
-#endif
+    logFunction(printf("scan_eof -->\n"););
   } /* scan_eof */
 
 
@@ -237,6 +220,7 @@ void scan_symbol_utf8 (int character, register sySizeType position)
     boolType reading_symbol = TRUE;
 
   /* scan_symbol_utf8 */
+    logFunction(printf("scan_symbol_utf8\n"););
     unicode_char = utf8_char(character);
     if (chrIsLetter(unicode_char)) {
       check_symb_length_delta(position, symbol.utf8_length);
@@ -285,9 +269,10 @@ void scan_symbol_utf8 (int character, register sySizeType position)
         in_file.character = next_character();
       } /* while */
     } /* if */
+    logFunction(printf("scan_symbol_utf8 -->\n"););
   } /* scan_symbol_utf8 */
 
- 
+
 
 void scan_symbol (void)
 
@@ -296,9 +281,7 @@ void scan_symbol (void)
     register sySizeType position;
 
   /* scan_symbol */
-#ifdef TRACE_SCANNER
-    printf("BEGIN scan_symbol\n");
-#endif
+    logFunction(printf("scan_symbol\n"););
     character = in_file.character;                              /*  0.51%  0.22% */
     if (character == ' ' || character == '\t') {                /*  0.88%  0.73% */
       SKIP_SPACE(character);                                    /*  1.73%  1.93% */
@@ -439,7 +422,5 @@ void scan_symbol (void)
         } /* if */
         break;
     } /* switch */
-#ifdef TRACE_SCANNER
-    printf("END scan_symbol\n");
-#endif
+    logFunction(printf("scan_symbol -->\n"););
   } /* scan_symbol */

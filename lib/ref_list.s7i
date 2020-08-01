@@ -34,8 +34,8 @@ const type: ref_list is subtype object;
 
 IN_PARAM_IS_REFERENCE(ref_list);
 
-const proc: (ref ref_list param) ::= (in ref_list param)                 is action "RFL_CREATE";
-const proc: destroy (ref ref_list param)                                 is action "RFL_DESTR";
+const proc: (ref ref_list: dest) ::= (in ref_list: source)               is action "RFL_CREATE";
+const proc: destroy (ref ref_list: aValue)                               is action "RFL_DESTR";
 const proc: (inout ref_list: dest) := (in ref_list: source)              is action "RFL_CPY";
 
 
@@ -180,8 +180,8 @@ const func integer: pos (in ref_list: main, in reference: searched,
                          in integer: start)                              is action "RFL_IPOS";
 
 
-const proc: incl (in ref_list param, in reference param)                 is action "RFL_INCL";
-const proc: excl (in ref_list param, in reference param)                 is action "RFL_EXCL";
+const proc: incl (in ref_list: aRefList, in reference: element)          is action "RFL_INCL";
+const proc: excl (in ref_list: aRefList, in reference: element)          is action "RFL_EXCL";
 
 
 (**
@@ -191,7 +191,7 @@ const proc: excl (in ref_list param, in reference param)                 is acti
 const func integer: length (in ref_list: aRefList)                       is action "RFL_LNG";
 
 
-const proc: TRACE_LIST (in ref_list param)                               is action "RFL_TRACE";
+const proc: TRACE_LIST (in ref_list: aRefList)                           is action "RFL_TRACE";
 
 
 (**

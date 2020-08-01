@@ -284,7 +284,7 @@ SQLRETURN STDCALL SQLDrivers (SQLHENV      henv,
 SQLRETURN STDCALL SQLExecute (SQLHSTMT StatementHandle);
 SQLRETURN STDCALL SQLFetch (SQLHSTMT StatementHandle);
 SQLRETURN STDCALL SQLFreeHandle (SQLSMALLINT HandleType, SQLHANDLE Handle);
-SQLRETURN STDCALL SQLFreeStmt (SQLHSTMT StatementHandle, SQLUSMALLINT Option); 
+SQLRETURN STDCALL SQLFreeStmt (SQLHSTMT StatementHandle, SQLUSMALLINT Option);
 SQLRETURN STDCALL SQLGetDiagRec (SQLSMALLINT HandleType, SQLHANDLE Handle,
                                  SQLSMALLINT RecNumber, SQLCHAR *Sqlstate,
                                  SQLINTEGER *NativeError, SQLCHAR *MessageText,

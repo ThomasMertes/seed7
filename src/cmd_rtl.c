@@ -1118,7 +1118,7 @@ bigIntType cmdBigFileSize (const const_striType filePath)
     os_path = cp_to_os_path(filePath, &path_info, &err_info);
     if (unlikely(err_info != OKAY_NO_ERROR)) {
 #ifdef MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
-      if (path_info == PATH_IS_EMULATED_ROOT) {
+      if (likely(path_info == PATH_IS_EMULATED_ROOT)) {
         size_of_file = bigIConv(0);
       } else
 #endif
@@ -1190,7 +1190,7 @@ void cmdChdir (const const_striType dirPath)
     os_path = cp_to_os_path(dirPath, &path_info, &err_info);
     if (unlikely(err_info != OKAY_NO_ERROR)) {
 #ifdef MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
-      if (path_info == PATH_IS_EMULATED_ROOT) {
+      if (likely(path_info == PATH_IS_EMULATED_ROOT)) {
         setEmulatedCwd(emulated_root, &err_info);
       } else {
         logError(printf("cmdChdir: cp_to_os_path(\"%s\", *, *) failed:\n"
@@ -1439,6 +1439,10 @@ striType cmdConfigValue (const const_striType name)
         opt = HAS_EXP2 ? "TRUE" : "FALSE";
       } else if (strcmp(opt_name, "HAS_EXP10") == 0) {
         opt = HAS_EXP10 ? "TRUE" : "FALSE";
+      } else if (strcmp(opt_name, "HAS_LOG2") == 0) {
+        opt = HAS_LOG2 ? "TRUE" : "FALSE";
+      } else if (strcmp(opt_name, "HAS_CBRT") == 0) {
+        opt = HAS_CBRT ? "TRUE" : "FALSE";
       } else if (strcmp(opt_name, "CHECK_FLOAT_DIV_BY_ZERO") == 0) {
         opt = CHECK_FLOAT_DIV_BY_ZERO ? "TRUE" : "FALSE";
       } else if (strcmp(opt_name, "NAN_COMPARISON_OKAY") == 0) {
@@ -1462,25 +1466,14 @@ striType cmdConfigValue (const const_striType name)
         opt = "FALSE";
 #endif
       } else if (strcmp(opt_name, "RSHIFT_DOES_SIGN_EXTEND") == 0) {
-#ifdef RSHIFT_DOES_SIGN_EXTEND
-        opt = "TRUE";
-#else
-        opt = "FALSE";
-#endif
+        opt = RSHIFT_DOES_SIGN_EXTEND ? "TRUE" : "FALSE";
       } else if (strcmp(opt_name, "TWOS_COMPLEMENT_INTTYPE") == 0) {
-#ifdef TWOS_COMPLEMENT_INTTYPE
-        opt = "TRUE";
-#else
-        opt = "FALSE";
-#endif
+        opt = TWOS_COMPLEMENT_INTTYPE ? "TRUE" : "FALSE";
       } else if (strcmp(opt_name, "LITTLE_ENDIAN_INTTYPE") == 0) {
-#ifdef LITTLE_ENDIAN_INTTYPE
-        opt = "TRUE";
-#else
-        opt = "FALSE";
-#endif
+        opt = LITTLE_ENDIAN_INTTYPE ? "TRUE" : "FALSE";
       } else if (strcmp(opt_name, "POW_FUNCTION_OKAY") == 0) {
-        opt = POWER_OF_ZERO_OKAY && POWER_OF_ONE_OKAY && POWER_OF_NAN_OKAY ? "TRUE" : "FALSE";
+        opt = POW_OF_NAN_OKAY && POW_OF_ZERO_OKAY && POW_OF_ONE_OKAY &&
+              POW_EXP_NAN_OKAY && POW_EXP_MINUS_INFINITY_OKAY ? "TRUE" : "FALSE";
       } else if (strcmp(opt_name, "FLOAT_ZERO_DIV_ERROR") == 0) {
 #ifdef FLOAT_ZERO_DIV_ERROR
         opt = "TRUE";
@@ -1616,7 +1609,9 @@ rtlArrayType cmdEnvironment (void)
       (void) os_getenv(empty_os_stri);
     } /* if */
 #endif
-    if (ALLOC_RTL_ARRAY(environment_array, INITAL_ARRAY_SIZE)) {
+    if (unlikely(!ALLOC_RTL_ARRAY(environment_array, INITAL_ARRAY_SIZE))) {
+      raise_error(MEMORY_ERROR);
+    } else {
       environment_array->min_position = 1;
       environment_array->max_position = INITAL_ARRAY_SIZE;
       used_max_position = 0;
@@ -1640,12 +1635,10 @@ rtlArrayType cmdEnvironment (void)
         } /* for */
       } /* if */
       environment_array = complete_stri_array(environment_array, used_max_position, &err_info);
-      if (err_info != OKAY_NO_ERROR) {
+      if (unlikely(err_info != OKAY_NO_ERROR)) {
         raise_error(err_info);
         environment_array = NULL;
       } /* if */
-    } else {
-      raise_error(MEMORY_ERROR);
     } /* if */
 #if USE_GET_ENVIRONMENT
     freeEnvironment(os_environ);
@@ -1680,7 +1673,7 @@ setType cmdFileMode (const const_striType filePath)
     os_path = cp_to_os_path(filePath, &path_info, &err_info);
     if (unlikely(err_info != OKAY_NO_ERROR)) {
 #ifdef MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
-      if (path_info == PATH_IS_EMULATED_ROOT) {
+      if (likely(path_info == PATH_IS_EMULATED_ROOT)) {
         result = setIConv(0444);
       } else
 #endif
@@ -1754,7 +1747,7 @@ intType cmdFileSize (const const_striType filePath)
     os_path = cp_to_os_path(filePath, &path_info, &err_info);
     if (unlikely(err_info != OKAY_NO_ERROR)) {
 #ifdef MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
-      if (path_info != PATH_IS_EMULATED_ROOT)
+      if (unlikely(path_info != PATH_IS_EMULATED_ROOT))
 #endif
       {
         logError(printf("cmdFileSize: cp_to_os_path(\"%s\", *, *) failed:\n"
@@ -2118,7 +2111,7 @@ void cmdGetATime (const const_striType filePath,
     os_path = cp_to_os_path(filePath, &path_info, &err_info);
     if (unlikely(err_info != OKAY_NO_ERROR)) {
 #ifdef MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
-      if (path_info == PATH_IS_EMULATED_ROOT) {
+      if (likely(path_info == PATH_IS_EMULATED_ROOT)) {
         timFromTimestamp(0,
             year, month, day, hour,
             min, sec, micro_sec, time_zone, is_dst);
@@ -2180,7 +2173,7 @@ void cmdGetCTime (const const_striType filePath,
     os_path = cp_to_os_path(filePath, &path_info, &err_info);
     if (unlikely(err_info != OKAY_NO_ERROR)) {
 #ifdef MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
-      if (path_info == PATH_IS_EMULATED_ROOT) {
+      if (likely(path_info == PATH_IS_EMULATED_ROOT)) {
         timFromTimestamp(0,
             year, month, day, hour,
             min, sec, micro_sec, time_zone, is_dst);
@@ -2242,7 +2235,7 @@ void cmdGetMTime (const const_striType filePath,
     os_path = cp_to_os_path(filePath, &path_info, &err_info);
     if (unlikely(err_info != OKAY_NO_ERROR)) {
 #ifdef MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
-      if (path_info == PATH_IS_EMULATED_ROOT) {
+      if (likely(path_info == PATH_IS_EMULATED_ROOT)) {
         timFromTimestamp(0,
             year, month, day, hour,
             min, sec, micro_sec, time_zone, is_dst);
@@ -3118,7 +3111,7 @@ striType cmdShellEscape (const const_striType stri)
         result = NULL;
       } else {
         REALLOC_STRI_SIZE_SMALLER(resized_result, result, 4 * stri->size + 2, outPos);
-        if (resized_result == NULL) {
+        if (unlikely(resized_result == NULL)) {
           FREE_STRI(result, 4 * stri->size + 2);
           raise_error(MEMORY_ERROR);
           result = NULL;
@@ -3244,7 +3237,7 @@ striType cmdShellEscape (const const_striType stri)
           } /* if */
         } /* for */
         REALLOC_STRI_SIZE_SMALLER(resized_result, result, 4 * stri->size + 2, outPos);
-        if (resized_result == NULL) {
+        if (unlikely(resized_result == NULL)) {
           FREE_STRI(result, 4 * stri->size + 2);
           raise_error(MEMORY_ERROR);
           result = NULL;

@@ -47,19 +47,19 @@ const func type: hash [ (in type: keyType) ] (in type: baseType) is func
       const type: key_type (attr hashType)                                     is keyType;
       const type: base_type (attr hashType)                                    is baseType;
 
-      const reference: (attr hashType) . keyCreate   is getfunc((ref keyType param) ::= (in keyType param));
-      const reference: (attr hashType) . keyDestroy  is getfunc(destroy(ref keyType param));
-      const reference: (attr hashType) . keyCopy     is getfunc((inout keyType param) := (in keyType param));
-      const reference: (attr hashType) . keyCompare  is getfunc(compare(in keyType param, in keyType param));
-      const reference: (attr hashType) . dataCreate  is getfunc((ref baseType param) ::= (in baseType param));
-      const reference: (attr hashType) . dataDestroy is getfunc(destroy(ref baseType param));
-      const reference: (attr hashType) . dataCopy    is getfunc((inout baseType param) := (in baseType param));
+      const reference: (attr hashType) . keyCreate   is getfunc((ref keyType: dest) ::= (in keyType: source));
+      const reference: (attr hashType) . keyDestroy  is getfunc(destroy(ref keyType: aValue));
+      const reference: (attr hashType) . keyCopy     is getfunc((inout keyType: dest) := (in keyType: source));
+      const reference: (attr hashType) . keyCompare  is getfunc(compare(in keyType: key1, in keyType: key2));
+      const reference: (attr hashType) . dataCreate  is getfunc((ref baseType: dest) ::= (in baseType: source));
+      const reference: (attr hashType) . dataDestroy is getfunc(destroy(ref baseType: aValue));
+      const reference: (attr hashType) . dataCopy    is getfunc((inout baseType: dest) := (in baseType:source));
 
-      const proc: CREATE (ref hashType param, in hashType param,
-                          in reference param, in reference param,
-                          in reference param, in reference param)              is action "HSH_CREATE";
-      const proc: DESTROY (ref hashType param, in reference param,
-                           in reference param)                                 is action "HSH_DESTR";
+      const proc: CREATE (ref hashType: dest, in hashType: source,
+                          in reference: keyCreate, in reference: keyDestroy,
+                          in reference: dataCreate, in reference: dataDestroy) is action "HSH_CREATE";
+      const proc: DESTROY (ref hashType: aValue, in reference: keyDestroy,
+                           in reference: dataDestroy)                          is action "HSH_DESTR";
       const proc: COPY (inout hashType: dest, in hashType: source,
                         in reference: keyCreate, in reference: keyDestroy,
                         in reference: dataCreate, in reference: dataDestroy)   is action "HSH_CPY";
@@ -110,8 +110,9 @@ const func type: hash [ (in type: keyType) ] (in type: baseType) is func
                                    in reference: keyCompare,
                                    in reference: dataCreate)                   is action "HSH_IDX2";
 
-      const func ptr baseType: REFINDEX (in hashType param, in keyType param,
-                                         in integer param, in reference param) is action "HSH_REFIDX";
+      const func ptr baseType: REFINDEX (in hashType: aHashMap, in keyType: aKey,
+                                         in integer: hashCode,
+                                         in reference: keyCompare)             is action "HSH_REFIDX";
       const proc: INCL (inout hashType: aHashMap, in keyType: aKey,
                         in baseType: anElem, in integer: hashCode,
                         in reference: keyCompare, in reference: keyCreate,
@@ -272,8 +273,8 @@ const func type: hash [ (in type: keyType) ] (in type: baseType) is func
       const func array baseType: values (in hashType: aHashMap) is
         return VALUES(aHashMap, hashType.dataCreate, hashType.dataDestroy);
 
-      if getfunc(hashCode(in baseType param)) <> NIL and
-          getfunc(compare(in baseType param, in baseType param)) <> NIL then
+      if getfunc(hashCode(in baseType: anElem)) <> NIL and
+          getfunc(compare(in baseType: elem1, in baseType: elem2)) <> NIL then
 
         (**
          *  Create a hash map from ''aHashMap'' where key and value are exchanged.

@@ -278,7 +278,7 @@ static const signed char nonspacing_table_ind[128] = {
   -1, -1, -1, -1, -1, 13, -1, 14  /* 0xf000-0xffff */
 };
 
-/** 
+/**
  *  Sorted array of character indices marking transitions
  *  between East Asian single- or neutral width and double-width
  */

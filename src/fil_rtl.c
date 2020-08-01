@@ -549,19 +549,49 @@ bigIntType getBigFileLengthUsingSeek (fileType aFile)
 
 
 
+#ifdef OUT_OF_ORDER
+/**
+ *  Read a string, when the number of avaliable/requested bytes is known.
+ *  The memory for the target string (stri) has been allocated by
+ *  the calling function. This function tries to reduce the number
+ *  of calls of read() and memcpy_to_strelem() by reusing the
+ *  string memory as temporary buffer.
+ */
 static memSizeType read_string (fileType inFile, striType stri, errInfoType *err_info)
 
   {
     ucharType buffer[BUFFER_SIZE];
+    ustriType buf_ptr;
+    memSizeType buf_size;
     memSizeType bytes_in_buffer = 1;
     memSizeType stri_pos;
 
   /* read_string */
-    /* printf("stri->size=" FMT_U_MEM "\n", stri->size); */
+    logFunction(printf("read_string(%d, stri (size=" FMT_U_MEM "), *)\n",
+                       safe_fileno(inFile), stri->size););
     stri_pos = 0;
+    buf_size = (stri->size / 5) * 4;
+    while (buf_size >= BUFFER_SIZE && bytes_in_buffer > 0 &&
+        *err_info == OKAY_NO_ERROR) {
+      buf_ptr = (ustriType) &stri->mem[stri_pos + buf_size];
+      bytes_in_buffer = (memSizeType) fread(buf_ptr, 1, buf_size, inFile);
+      logMessage(printf("A fread(*, 1, " FMT_U_MEM ", %d) --> " FMT_U_MEM "\n",
+                        buf_size, safe_fileno(inFile), bytes_in_buffer););
+      if (unlikely(bytes_in_buffer == 0 && stri_pos == 0 && ferror(inFile))) {
+        logError(printf("read_string: fread(*, 1, " FMT_U_MEM ", %d) failed.\n",
+                        buf_size, safe_fileno(inFile)););
+        *err_info = FILE_ERROR;
+      } else {
+        memcpy_to_strelem(&stri->mem[stri_pos], buf_ptr, bytes_in_buffer);
+        stri_pos += bytes_in_buffer;
+        buf_size = ((stri->size - stri_pos) / 5) * 4;
+      } /* if */
+    } /* while */
     while (stri->size - stri_pos >= BUFFER_SIZE && bytes_in_buffer > 0 &&
         *err_info == OKAY_NO_ERROR) {
       bytes_in_buffer = (memSizeType) fread(buffer, 1, BUFFER_SIZE, inFile);
+      logMessage(printf("B fread(*, 1, " FMT_U_MEM ", %d) --> " FMT_U_MEM "\n",
+                        (memSizeType) BUFFER_SIZE, safe_fileno(inFile), bytes_in_buffer););
       if (unlikely(bytes_in_buffer == 0 && stri_pos == 0 && ferror(inFile))) {
         logError(printf("read_string: fread(*, 1, " FMT_U_MEM ", %d) failed.\n",
                         (memSizeType) BUFFER_SIZE, safe_fileno(inFile)););
@@ -574,6 +604,8 @@ static memSizeType read_string (fileType inFile, striType stri, errInfoType *err
     if (stri->size > stri_pos && bytes_in_buffer > 0 &&
         *err_info == OKAY_NO_ERROR) {
       bytes_in_buffer = (memSizeType) fread(buffer, 1, stri->size - stri_pos, inFile);
+      logMessage(printf("C fread(*, 1, " FMT_U_MEM ", %d) --> " FMT_U_MEM "\n",
+                        stri->size - stri_pos, safe_fileno(inFile), bytes_in_buffer););
       if (unlikely(bytes_in_buffer == 0 && stri_pos == 0 && ferror(inFile))) {
         logError(printf("read_string: fread(*, 1, " FMT_U_MEM ", %d) failed.\n",
                         stri->size - stri_pos, safe_fileno(inFile)););
@@ -583,9 +615,12 @@ static memSizeType read_string (fileType inFile, striType stri, errInfoType *err
         stri_pos += bytes_in_buffer;
       } /* if */
     } /* if */
-    /* printf("stri_pos=" FMT_U_MEM "\n", stri_pos); */
+    logFunction(printf("read_string(%d, \"%s\", %d) --> " FMT_U_MEM "\n",
+                       safe_fileno(inFile), striAsUnquotedCStri(stri),
+                       *err_info, stri_pos););
     return stri_pos;
   } /* read_string */
+#endif
 
 
 
@@ -828,7 +863,7 @@ static striType doGetsFromTerminal (fileType inFile, intType length)
       if (feof(inFile)) {
         clearerr(inFile);
         fflush(inFile);
-        if (!ALLOC_STRI_SIZE_OK(result, 0)) {
+        if (unlikely(!ALLOC_STRI_SIZE_OK(result, 0))) {
           raise_error(MEMORY_ERROR);
         } else {
           result->size = 0;
@@ -864,7 +899,7 @@ static striType doGetsFromTerminal (fileType inFile, intType length)
       ch = readChar(inFile, &sigintReceived);
       if (unlikely(sigintReceived)) {
         raise(SIGINT);
-        if (!ALLOC_STRI_SIZE_OK(result, 0)) {
+        if (unlikely(!ALLOC_STRI_SIZE_OK(result, 0))) {
           raise_error(MEMORY_ERROR);
         } else {
           result->size = 0;
@@ -962,7 +997,7 @@ static striType doLineReadFromTerminal (fileType inFile, charType *terminationCh
     if (feof(inFile)) {
       clearerr(inFile);
       fflush(inFile);
-      if (!ALLOC_STRI_SIZE_OK(result, 0)) {
+      if (unlikely(!ALLOC_STRI_SIZE_OK(result, 0))) {
         raise_error(MEMORY_ERROR);
       } else {
         result->size = 0;
@@ -990,7 +1025,7 @@ static striType doLineReadFromTerminal (fileType inFile, charType *terminationCh
     ch = readChar(inFile, &sigintReceived);
     if (unlikely(sigintReceived)) {
       raise(SIGINT);
-      if (!ALLOC_STRI_SIZE_OK(result, 0)) {
+      if (unlikely(!ALLOC_STRI_SIZE_OK(result, 0))) {
         raise_error(MEMORY_ERROR);
       } else {
         result->size = 0;
@@ -1088,7 +1123,7 @@ static striType doWordReadFromTerminal (fileType inFile, charType *terminationCh
     if (feof(inFile)) {
       clearerr(inFile);
       fflush(inFile);
-      if (!ALLOC_STRI_SIZE_OK(result, 0)) {
+      if (unlikely(!ALLOC_STRI_SIZE_OK(result, 0))) {
         raise_error(MEMORY_ERROR);
       } else {
         result->size = 0;
@@ -1116,7 +1151,7 @@ static striType doWordReadFromTerminal (fileType inFile, charType *terminationCh
     ch = readChar(inFile, &sigintReceived);
     if (unlikely(sigintReceived)) {
       raise(SIGINT);
-      if (!ALLOC_STRI_SIZE_OK(result, 0)) {
+      if (unlikely(!ALLOC_STRI_SIZE_OK(result, 0))) {
         raise_error(MEMORY_ERROR);
       } else {
         result->size = 0;
@@ -1274,7 +1309,11 @@ intType filFileType (fileType aFile)
 
   /* filFileType */
     file_no = fileno(aFile);
-    if (file_no != -1 && os_fstat(file_no, &stat_buf) == 0) {
+    if (unlikely(file_no == -1 ||
+                 os_fstat(file_no, &stat_buf) != 0)) {
+      result = 0;
+      raise_error(FILE_ERROR);
+    } else {
       if (S_ISREG(stat_buf.st_mode)) {
         result = 2;
       } else if (S_ISDIR(stat_buf.st_mode)) {
@@ -1292,9 +1331,6 @@ intType filFileType (fileType aFile)
       } else {
         result = 1;
       } /* if */
-    } else {
-      result = 0;
-      raise_error(FILE_ERROR);
     } /* if */
     return result;
   } /* filFileType */
@@ -1395,21 +1431,16 @@ striType filGets (fileType inFile, intType length)
         /* We have allocated a buffer for the requested number of chars
            or for the number of bytes which are available in the file */
         result->size = allocated_size;
-        if (allocated_size <= BUFFER_SIZE) {
-          /* printf("read_size=%ld\n", allocated_size); */
-          num_of_chars_read = (memSizeType) fread(result->mem, 1,
-              (size_t) allocated_size, inFile);
-          /* printf("num_of_chars_read=%lu\n", num_of_chars_read); */
-          if (num_of_chars_read == 0 && ferror(inFile)) {
-            logError(printf("filGets: "
-                            "fread(*, 1, " FMT_U_MEM ", %d) failed.\n",
-                            allocated_size, safe_fileno(inFile)););
-            err_info = FILE_ERROR;
-          } else {
-            memcpy_to_strelem(result->mem, (ucharType *) result->mem, num_of_chars_read);
-          } /* if */
+        /* printf("read_size=%ld\n", allocated_size); */
+        num_of_chars_read = (memSizeType) fread(result->mem, 1,
+            (size_t) allocated_size, inFile);
+        /* printf("num_of_chars_read=%lu\n", num_of_chars_read); */
+        if (num_of_chars_read == 0 && ferror(inFile)) {
+          logError(printf("filGets: fread(*, 1, " FMT_U_MEM ", %d) failed.\n",
+                          allocated_size, safe_fileno(inFile)););
+          err_info = FILE_ERROR;
         } else {
-          num_of_chars_read = read_string(inFile, result, &err_info);
+          memcpy_to_strelem(result->mem, (ustriType) result->mem, num_of_chars_read);
         } /* if */
       } else {
         /* Read a string, when we do not know how many bytes are avaliable. */
@@ -1710,7 +1741,7 @@ fileType filOpen (const const_striType path, const const_striType mode)
       os_path = cp_to_os_path(path, &path_info, &err_info);
       if (unlikely(err_info != OKAY_NO_ERROR)) {
 #ifdef MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
-        if (path_info == PATH_IS_NORMAL)
+        if (unlikely(path_info == PATH_IS_NORMAL))
 #endif
         {
           logError(printf("filOpen: cp_to_os_path(\"%s\", *, *) failed:\n"

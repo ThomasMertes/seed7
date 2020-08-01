@@ -26,7 +26,7 @@
 (********************************************************************)
 
 
-const proc: (ref string param) ::= (in string param)             is action "STR_CREATE";
+const proc: (ref string: dest) ::= (in string: source)           is action "STR_CREATE";
 
 const string: (attr string) . value is "";
 
@@ -374,7 +374,7 @@ const func integer: rpos (in string: mainStri, in char: searched,
                           in integer: fromIndex)                    is action "STR_RCHIPOS";
 
 
-(* const proc: count (in string param, in string param)        is action "STR_CNT"; *)
+(* const proc: count (in string: mainStri, in string: searched)       is action "STR_CNT"; *)
 
 
 (**

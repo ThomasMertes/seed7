@@ -36,9 +36,10 @@ include "cc_conf.s7i";
 const type: process is newtype;
 
 
-const proc: (ref process param) ::= (in process param)       is action "PCS_CREATE";
 IN_PARAM_IS_REFERENCE(process);
-const proc: destroy (ref process param)                      is action "PCS_DESTR";
+
+const proc: (ref process: dest) ::= (in process: source)     is action "PCS_CREATE";
+const proc: destroy (ref process: aValue)                    is action "PCS_DESTR";
 const proc: (inout process: dest) := (in process: source)    is action "PCS_CPY";
 const func process: _GENERATE_EMPTY_PROCESS                  is action "PCS_EMPTY";
 const process: (attr process) . value                        is _GENERATE_EMPTY_PROCESS;

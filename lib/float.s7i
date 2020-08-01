@@ -37,8 +37,8 @@ const type: float is          subtype object;
 
 $ system "float" is float;
 
-const proc: destroy (ref float param)                          is action "GEN_DESTR";
-const proc: (ref float param) ::= (ref float param)            is action "FLT_CREATE";
+const proc: destroy (ref float: aValue)                        is action "GEN_DESTR";
+const proc: (ref float: dest) ::= (ref float: source)          is action "FLT_CREATE";
 IN_PARAM_IS_VALUE(float);
 
 const float: (attr float) . value is 0.0;
@@ -405,6 +405,8 @@ const func float: abs (in float: number)                       is action "FLT_AB
  *   round(-0.48)  returns  0
  *   round(-0.5)   returns -1
  *  @return the rounded value.
+ *  @exception RANGE_ERROR When the number is NaN, -Infinity, Infinity,
+ *             or does not fit into an integer.
  *)
 const func integer: round (in float: number)                   is action "FLT_ROUND";
 
@@ -414,6 +416,8 @@ const func integer: round (in float: number)                   is action "FLT_RO
  *  The fractional part of a number is discarded.
  *  @return the nearest [[integer]] not larger in absolute value
  *          than the argument.
+ *  @exception RANGE_ERROR When the number is NaN, -Infinity, Infinity,
+ *             or does not fit into an integer.
  *)
 const func integer: trunc (in float: number)                   is action "FLT_TRUNC";
 

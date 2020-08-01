@@ -59,8 +59,8 @@ const func type: array (in type: baseType) is func
       const type: array (attr baseType)                                       is arrayType;
       const type: base_type (attr arrayType)                                  is baseType;
 
-      const proc: (ref arrayType param) ::= (in arrayType param)              is action "ARR_CREATE";
-      const proc: destroy (ref arrayType param)                               is action "ARR_DESTR";
+      const proc: (ref arrayType: dest) ::= (in arrayType: source)            is action "ARR_CREATE";
+      const proc: destroy (ref arrayType: aValue)                             is action "ARR_DESTR";
       const proc: (inout arrayType: dest) := (in arrayType: source)           is action "ARR_CPY";
 
       (**

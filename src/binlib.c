@@ -153,7 +153,7 @@ objectType bin_lshift (listType arguments)
     isit_binary(arg_1(arguments));
     isit_int(arg_3(arguments));
     lshift = take_int(arg_3(arguments));
-#ifdef CHECK_INT_OVERFLOW
+#if CHECK_INT_OVERFLOW
     if (unlikely(lshift < 0 || lshift >= INTTYPE_SIZE)) {
       return raise_exception(SYS_OVF_EXCEPTION);
     } /* if */
@@ -176,7 +176,7 @@ objectType bin_lshift_assign (listType arguments)
     is_variable(binary_variable);
     isit_int(arg_3(arguments));
     lshift = take_int(arg_3(arguments));
-#ifdef CHECK_INT_OVERFLOW
+#if CHECK_INT_OVERFLOW
     if (unlikely(lshift < 0 || lshift >= INTTYPE_SIZE)) {
       return raise_exception(SYS_OVF_EXCEPTION);
     } /* if */
@@ -271,7 +271,7 @@ objectType bin_rshift (listType arguments)
     isit_binary(arg_1(arguments));
     isit_int(arg_3(arguments));
     rshift = take_int(arg_3(arguments));
-#ifdef CHECK_INT_OVERFLOW
+#if CHECK_INT_OVERFLOW
     if (unlikely(rshift < 0 || rshift >= INTTYPE_SIZE)) {
       return raise_exception(SYS_OVF_EXCEPTION);
     } /* if */
@@ -294,7 +294,7 @@ objectType bin_rshift_assign (listType arguments)
     is_variable(binary_variable);
     isit_int(arg_3(arguments));
     rshift = take_int(arg_3(arguments));
-#ifdef CHECK_INT_OVERFLOW
+#if CHECK_INT_OVERFLOW
     if (unlikely(rshift < 0 || rshift >= INTTYPE_SIZE)) {
       return raise_exception(SYS_OVF_EXCEPTION);
     } /* if */

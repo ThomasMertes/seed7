@@ -34,8 +34,8 @@
  *)
 const type: bin32 is subtype object;
 
-const proc: destroy (ref bin32 param)                          is action "GEN_DESTR";
-const proc: (ref bin32 param) ::= (ref bin32 param)            is action "INT_CREATE";
+const proc: destroy (ref bin32: aValue)                        is action "GEN_DESTR";
+const proc: (ref bin32: dest) ::= (ref bin32: source)          is action "INT_CREATE";
 IN_PARAM_IS_VALUE(bin32);
 
 const proc: (inout bin32: dest) := (in bin32: source)          is action "INT_CPY";

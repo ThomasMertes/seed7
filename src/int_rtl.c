@@ -976,7 +976,7 @@ intType intBinom (intType n_number, intType k_number)
             gcd = uintGcd(unsigned_result, reducedDenominator);
             unsigned_result = unsigned_result / gcd;
             reducedDenominator = reducedDenominator / gcd;
-            if (unsigned_result > UINTTYPE_MAX / reducedNumerator) {
+            if (unlikely(unsigned_result > UINTTYPE_MAX / reducedNumerator)) {
               /* Unavoidable overflow */
               logError(printf("intBinom(" FMT_D ", " FMT_D "): "
                        "Unavoidable overflow.\n", n_number, k_number););
@@ -993,7 +993,7 @@ intType intBinom (intType n_number, intType k_number)
         } /* for */
       } /* if */
       if (negative) {
-        if (unsigned_result > -(uintType) INTTYPE_MIN) {
+        if (unlikely(unsigned_result > -(uintType) INTTYPE_MIN)) {
           logError(printf("intBinom(" FMT_D ", " FMT_D "): "
                    "Negative result too small.\n", n_number, k_number););
           raise_error(OVERFLOW_ERROR);
@@ -1002,7 +1002,7 @@ intType intBinom (intType n_number, intType k_number)
           result = (intType) -unsigned_result;
         } /* if */
       } else {
-        if (unsigned_result > INTTYPE_MAX) {
+        if (unlikely(unsigned_result > INTTYPE_MAX)) {
           logError(printf("intBinom(" FMT_D ", " FMT_D "): "
                    "Positive result too big.\n", n_number, k_number););
           raise_error(OVERFLOW_ERROR);
@@ -1115,11 +1115,11 @@ striType intBytesBe (intType number, boolType isSigned)
         pos--;
         buffer[pos] = 0;
       } /* if */
-    } else if (isSigned) {
+    } else if (likely(isSigned)) {
       do {
         pos--;
         buffer[pos] = (strElemType) (number & 0xff);
-#ifdef RSHIFT_DOES_SIGN_EXTEND
+#if RSHIFT_DOES_SIGN_EXTEND
         number >>= 8;
 #else
         number = ~(~number >> 8);
@@ -1305,10 +1305,10 @@ striType intBytesLe (intType number, boolType isSigned)
         buffer[pos] = 0;
         pos++;
       } /* if */
-    } else if (isSigned) {
+    } else if (likely(isSigned)) {
       do {
         buffer[pos] = (ucharType) (number & 0xff);
-#ifdef RSHIFT_DOES_SIGN_EXTEND
+#if RSHIFT_DOES_SIGN_EXTEND
         number >>= 8;
 #else
         number = ~(~number >> 8);

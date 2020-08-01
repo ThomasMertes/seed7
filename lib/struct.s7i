@@ -27,15 +27,17 @@
 
 
 const type: STRUCT is newtype;
+
 IN_PARAM_IS_REFERENCE(STRUCT);
-const proc: (ref STRUCT param) ::= (in STRUCT param)                is action "SCT_CREATE";
-const proc: destroy (ref STRUCT param)                              is action "SCT_DESTR";
+
+const proc: (ref STRUCT: dest) ::= (in STRUCT: source)              is action "SCT_CREATE";
+const proc: destroy (ref STRUCT: aValue)                            is action "SCT_DESTR";
 const proc: (inout STRUCT: dest) := (in STRUCT: source)             is action "SCT_CPY";
-const func integer: length (in STRUCT param)                        is action "SCT_LNG";
-const func STRUCT: (in STRUCT param) & (in STRUCT param)            is action "SCT_CAT";
-const proc: incl (inout STRUCT param, in reference param)           is action "SCT_INCL";
+const func integer: length (in STRUCT: aStruct)                     is action "SCT_LNG";
+const func STRUCT: (in STRUCT: struct1) & (in STRUCT: struct2)      is action "SCT_CAT";
+const proc: incl (inout STRUCT: aStruct, in reference: anElem)      is action "SCT_INCL";
 const func STRUCT: empty (attr STRUCT)                              is action "SCT_EMPTY";
-const func ref_list: declare_elements (ref proc param)              is action "DCL_ELEMENTS";
+const func ref_list: declare_elements (ref proc: elem_decl)         is action "DCL_ELEMENTS";
 
 
 const func type: new struct (ref proc: elem_decl) end struct is func

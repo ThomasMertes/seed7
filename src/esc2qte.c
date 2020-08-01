@@ -58,12 +58,12 @@ int main (int argc, char *argv)
             if (line[pos] == '\\' && line[pos + 1] == ' ') {
               pos++;
             } /* if */
-            fputc(line[pos], stdout);        
+            fputc(line[pos], stdout);
           } /* for */
           fputc('"', stdout);
         } else {
           for (; line[pos] != ' ' && line[pos] != '\t' && line[pos] != '\0'; pos++) {
-            fputc(line[pos], stdout);        
+            fputc(line[pos], stdout);
           } /* for */
         } /* if */
       } /* while */

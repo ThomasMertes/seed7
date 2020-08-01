@@ -44,8 +44,8 @@ const type: program is subtype object;
 
 IN_PARAM_IS_REFERENCE(program);
 
-const proc: (ref program param) ::= (ref program param)                  is action "PRG_CREATE";
-const proc: destroy (ref program param)                                  is action "PRG_DESTR";
+const proc: (ref program: dest) ::= (ref program: source)                is action "PRG_CREATE";
+const proc: destroy (ref program: aValue)                                is action "PRG_DESTR";
 const proc: (inout program: dest) := (ref program: source)               is action "PRG_CPY";
 
 const func program: _GENERATE_EMPTY_PROG                                 is action "PRG_EMPTY";

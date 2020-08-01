@@ -33,7 +33,7 @@
 #define bitset_shift byte_sft(sizeof(bitSetType))
 #define bitset_mask  ((1 << bitset_shift) - 1)
 
-#ifdef RSHIFT_DOES_SIGN_EXTEND
+#if RSHIFT_DOES_SIGN_EXTEND
 #define bitset_pos(number) ((number)>>bitset_shift)
 #else
 #define bitset_pos(number) ((number)<0?~(~(number)>>bitset_shift):(number)>>bitset_shift)

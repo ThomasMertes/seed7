@@ -33,9 +33,9 @@
 #define SOC_OPT_REUSEADDR 1
 
 #ifdef USE_WINSOCK
-#define ERROR_INFORMATION WSAGetLastError(), wsaErrorMessage()
+#define ERROR_INFORMATION "wsa_error_code", WSAGetLastError(), wsaErrorMessage()
 #else
-#define ERROR_INFORMATION errno, strerror(errno)
+#define ERROR_INFORMATION "errno", errno, strerror(errno)
 #endif
 
 

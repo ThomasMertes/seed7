@@ -37,8 +37,8 @@ include "bigint.s7i";
  *)
 const type: bin64 is subtype object;
 
-const proc: destroy (ref bin64 param)                          is action "GEN_DESTR";
-const proc: (ref bin64 param) ::= (ref bin64 param)            is action "INT_CREATE";
+const proc: destroy (ref bin64: aValue)                        is action "GEN_DESTR";
+const proc: (ref bin64: dest) ::= (ref bin64: source)          is action "INT_CREATE";
 IN_PARAM_IS_VALUE(bin64);
 
 const proc: (inout bin64: dest) := (in bin64: source)          is action "INT_CPY";

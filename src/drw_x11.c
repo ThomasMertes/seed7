@@ -89,7 +89,7 @@ typedef struct {
 
 typedef const x11_winRecord *const_x11_winType;
 
-#ifdef DO_HEAP_STATISTIC
+#if DO_HEAP_STATISTIC
 size_t sizeof_winRecord = sizeof(x11_winRecord);
 #endif
 

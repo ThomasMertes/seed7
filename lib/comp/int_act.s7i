@@ -1911,7 +1911,6 @@ const proc: process (INT_MULT, in reference: function,
       else
         factor1_name := getParameterAsVariable("intType", "tmp_", params[1], c_expr);
         factor2_name := getParameterAsVariable("intType", "tmp_", params[3], c_expr);
-        
 (*
         c_expr.expr &:= factor1_name;
         c_expr.expr &:= "<0?(";

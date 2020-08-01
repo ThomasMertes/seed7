@@ -29,6 +29,9 @@
 /*                                                                  */
 /********************************************************************/
 
+#define LOG_FUNCTIONS 0
+#define VERBOSE_EXCEPTIONS 0
+
 #include "version.h"
 
 #include "stdio.h"
@@ -37,6 +40,7 @@
 
 #include "common.h"
 #include "data_rtl.h"
+#include "striutl.h"
 #include "flt_rtl.h"
 #include "big_drv.h"
 #include "rtl_err.h"
@@ -63,9 +67,14 @@ void sqlBindBigInt (sqlStmtType sqlStatement, intType pos,
     const const_bigIntType value)
 
   { /* sqlBindBigInt */
-    if (sqlStatement == NULL ||
-        ((preparedStmtType) sqlStatement)->sqlFunc == NULL ||
-        ((preparedStmtType) sqlStatement)->sqlFunc->sqlBindBigInt == NULL) {
+    logFunction(printf("sqlBindBigInt(" FMT_U_MEM ", " FMT_D ", *)\n",
+                       (memSizeType) sqlStatement, pos););
+    if (unlikely(sqlStatement == NULL ||
+                 ((preparedStmtType) sqlStatement)->sqlFunc == NULL ||
+                 ((preparedStmtType) sqlStatement)->sqlFunc->sqlBindBigInt == NULL)) {
+      logError(printf("sqlBindBigInt(" FMT_U_MEM ", " FMT_D ", *): "
+                      "SQL statement not okay.\n",
+                      (memSizeType) sqlStatement, pos););
       raise_error(RANGE_ERROR);
     } else {
       ((preparedStmtType) sqlStatement)->sqlFunc->sqlBindBigInt(sqlStatement, pos, value);
@@ -78,9 +87,14 @@ void sqlBindBigRat (sqlStmtType sqlStatement, intType pos,
     const const_bigIntType numerator, const const_bigIntType denominator)
 
   { /* sqlBindBigRat */
-    if (sqlStatement == NULL ||
-        ((preparedStmtType) sqlStatement)->sqlFunc == NULL ||
-        ((preparedStmtType) sqlStatement)->sqlFunc->sqlBindBigRat == NULL) {
+    logFunction(printf("sqlBindBigRat(" FMT_U_MEM ", " FMT_D ", *)\n",
+                       (memSizeType) sqlStatement, pos););
+    if (unlikely(sqlStatement == NULL ||
+                 ((preparedStmtType) sqlStatement)->sqlFunc == NULL ||
+                 ((preparedStmtType) sqlStatement)->sqlFunc->sqlBindBigRat == NULL)) {
+      logError(printf("sqlBindBigRat(" FMT_U_MEM ", " FMT_D ", *): "
+                      "SQL statement not okay.\n",
+                      (memSizeType) sqlStatement, pos););
       raise_error(RANGE_ERROR);
 #if !defined ENCODE_INFINITY && !defined ENCODE_NAN
     } else if (bigEqSignedDigit(denominator, 0)) {
@@ -106,9 +120,14 @@ void sqlBindBigRat (sqlStmtType sqlStatement, intType pos,
 void sqlBindBool (sqlStmtType sqlStatement, intType pos, boolType value)
 
   { /* sqlBindBool */
-    if (sqlStatement == NULL ||
-        ((preparedStmtType) sqlStatement)->sqlFunc == NULL ||
-        ((preparedStmtType) sqlStatement)->sqlFunc->sqlBindBool == NULL) {
+    logFunction(printf("sqlBindBool(" FMT_U_MEM ", " FMT_D ", %s)\n",
+                       (memSizeType) sqlStatement, pos, value ? "TRUE" : "FALSE"););
+    if (unlikely(sqlStatement == NULL ||
+                 ((preparedStmtType) sqlStatement)->sqlFunc == NULL ||
+                 ((preparedStmtType) sqlStatement)->sqlFunc->sqlBindBool == NULL)) {
+      logError(printf("sqlBindBool(" FMT_U_MEM ", " FMT_D ", %s): "
+                      "SQL statement not okay.\n",
+                      (memSizeType) sqlStatement, pos, value ? "TRUE" : "FALSE"););
       raise_error(RANGE_ERROR);
     } else {
       ((preparedStmtType) sqlStatement)->sqlFunc->sqlBindBool(sqlStatement, pos, value);
@@ -120,9 +139,14 @@ void sqlBindBool (sqlStmtType sqlStatement, intType pos, boolType value)
 void sqlBindBStri (sqlStmtType sqlStatement, intType pos, bstriType bstri)
 
   { /* sqlBindBStri */
-    if (sqlStatement == NULL ||
-        ((preparedStmtType) sqlStatement)->sqlFunc == NULL ||
-        ((preparedStmtType) sqlStatement)->sqlFunc->sqlBindBStri == NULL) {
+    logFunction(printf("sqlBindBStri(" FMT_U_MEM ", " FMT_D ", \"%s\")\n",
+                       (memSizeType) sqlStatement, pos, bstriAsUnquotedCStri(bstri)););
+    if (unlikely(sqlStatement == NULL ||
+                 ((preparedStmtType) sqlStatement)->sqlFunc == NULL ||
+                 ((preparedStmtType) sqlStatement)->sqlFunc->sqlBindBStri == NULL)) {
+      logError(printf("sqlBindBStri(" FMT_U_MEM ", " FMT_D ", \"%s\"): "
+                      "SQL statement not okay.\n",
+                      (memSizeType) sqlStatement, pos, bstriAsUnquotedCStri(bstri)););
       raise_error(RANGE_ERROR);
     } else {
       ((preparedStmtType) sqlStatement)->sqlFunc->sqlBindBStri(sqlStatement, pos, bstri);
@@ -136,9 +160,22 @@ void sqlBindDuration (sqlStmtType sqlStatement, intType pos,
     intType minute, intType second, intType micro_second)
 
   { /* sqlBindDuration */
-    if (sqlStatement == NULL ||
-        ((preparedStmtType) sqlStatement)->sqlFunc == NULL ||
-        ((preparedStmtType) sqlStatement)->sqlFunc->sqlBindDuration == NULL) {
+    logFunction(printf("sqlBindDuration(" FMT_U_MEM ", " FMT_D ", "
+                       F_D(04) "-" F_D(02) "-" F_D(02) " "
+                       F_D(02) ":" F_D(02) ":" F_D(02) "." F_D(06) ")\n",
+                       (memSizeType) sqlStatement, pos,
+                       year, month, day,
+                       hour, minute, second, micro_second););
+    if (unlikely(sqlStatement == NULL ||
+                 ((preparedStmtType) sqlStatement)->sqlFunc == NULL ||
+                 ((preparedStmtType) sqlStatement)->sqlFunc->sqlBindDuration == NULL)) {
+      logError(printf("sqlBindDuration(" FMT_U_MEM ", " FMT_D ", "
+                      F_D(04) "-" F_D(02) "-" F_D(02) " "
+                      F_D(02) ":" F_D(02) ":" F_D(02) "." F_D(06) "): "
+                      "SQL statement not okay.\n",
+                      (memSizeType) sqlStatement, pos,
+                      year, month, day,
+                      hour, minute, second, micro_second););
       raise_error(RANGE_ERROR);
     } else {
       ((preparedStmtType) sqlStatement)->sqlFunc->sqlBindDuration(sqlStatement, pos,
@@ -151,9 +188,14 @@ void sqlBindDuration (sqlStmtType sqlStatement, intType pos,
 void sqlBindFloat (sqlStmtType sqlStatement, intType pos, floatType value)
 
   { /* sqlBindFloat */
-    if (sqlStatement == NULL ||
-        ((preparedStmtType) sqlStatement)->sqlFunc == NULL ||
-        ((preparedStmtType) sqlStatement)->sqlFunc->sqlBindFloat == NULL) {
+    logFunction(printf("sqlBindFloat(" FMT_U_MEM ", " FMT_D ", " FMT_E ")\n",
+                       (memSizeType) sqlStatement, pos, value););
+    if (unlikely(sqlStatement == NULL ||
+                 ((preparedStmtType) sqlStatement)->sqlFunc == NULL ||
+                 ((preparedStmtType) sqlStatement)->sqlFunc->sqlBindFloat == NULL)) {
+      logError(printf("sqlBindFloat(" FMT_U_MEM ", " FMT_D ", " FMT_E "): "
+                      "SQL statement not okay.\n",
+                      (memSizeType) sqlStatement, pos, value););
       raise_error(RANGE_ERROR);
 #ifndef ENCODE_INFINITY
     } else if (value == POSITIVE_INFINITY || value == NEGATIVE_INFINITY) {
@@ -173,9 +215,14 @@ void sqlBindFloat (sqlStmtType sqlStatement, intType pos, floatType value)
 void sqlBindInt (sqlStmtType sqlStatement, intType pos, intType value)
 
   { /* sqlBindInt */
-    if (sqlStatement == NULL ||
-        ((preparedStmtType) sqlStatement)->sqlFunc == NULL ||
-        ((preparedStmtType) sqlStatement)->sqlFunc->sqlBindInt == NULL) {
+    logFunction(printf("sqlBindInt(" FMT_U_MEM ", " FMT_D ", " FMT_D ")\n",
+                       (memSizeType) sqlStatement, pos, value););
+    if (unlikely(sqlStatement == NULL ||
+                 ((preparedStmtType) sqlStatement)->sqlFunc == NULL ||
+                 ((preparedStmtType) sqlStatement)->sqlFunc->sqlBindInt == NULL)) {
+      logError(printf("sqlBindInt(" FMT_U_MEM ", " FMT_D ", " FMT_D "): "
+                      "SQL statement not okay.\n",
+                      (memSizeType) sqlStatement, pos, value););
       raise_error(RANGE_ERROR);
     } else {
       ((preparedStmtType) sqlStatement)->sqlFunc->sqlBindInt(sqlStatement, pos, value);
@@ -187,9 +234,14 @@ void sqlBindInt (sqlStmtType sqlStatement, intType pos, intType value)
 void sqlBindNull (sqlStmtType sqlStatement, intType pos)
 
   { /* sqlBindNull */
-    if (sqlStatement == NULL ||
-        ((preparedStmtType) sqlStatement)->sqlFunc == NULL ||
-        ((preparedStmtType) sqlStatement)->sqlFunc->sqlBindNull == NULL) {
+    logFunction(printf("sqlBindNull(" FMT_U_MEM ", " FMT_D ")\n",
+                       (memSizeType) sqlStatement, pos););
+    if (unlikely(sqlStatement == NULL ||
+                 ((preparedStmtType) sqlStatement)->sqlFunc == NULL ||
+                 ((preparedStmtType) sqlStatement)->sqlFunc->sqlBindNull == NULL)) {
+      logError(printf("sqlBindNull(" FMT_U_MEM ", " FMT_D "): "
+                      "SQL statement not okay.\n",
+                      (memSizeType) sqlStatement, pos););
       raise_error(RANGE_ERROR);
     } else {
       ((preparedStmtType) sqlStatement)->sqlFunc->sqlBindNull(sqlStatement, pos);
@@ -201,9 +253,14 @@ void sqlBindNull (sqlStmtType sqlStatement, intType pos)
 void sqlBindStri (sqlStmtType sqlStatement, intType pos, striType stri)
 
   { /* sqlBindStri */
-    if (sqlStatement == NULL ||
-        ((preparedStmtType) sqlStatement)->sqlFunc == NULL ||
-        ((preparedStmtType) sqlStatement)->sqlFunc->sqlBindStri == NULL) {
+    logFunction(printf("sqlBindStri(" FMT_U_MEM ", " FMT_D ", \"%s\")\n",
+                       (memSizeType) sqlStatement, pos, striAsUnquotedCStri(stri)););
+    if (unlikely(sqlStatement == NULL ||
+                 ((preparedStmtType) sqlStatement)->sqlFunc == NULL ||
+                 ((preparedStmtType) sqlStatement)->sqlFunc->sqlBindStri == NULL)) {
+      logError(printf("sqlBindStri(" FMT_U_MEM ", " FMT_D ", \"%s\"): "
+                      "SQL statement not okay.\n",
+                      (memSizeType) sqlStatement, pos, striAsUnquotedCStri(stri)););
       raise_error(RANGE_ERROR);
     } else {
       ((preparedStmtType) sqlStatement)->sqlFunc->sqlBindStri(sqlStatement, pos, stri);
@@ -217,9 +274,22 @@ void sqlBindTime (sqlStmtType sqlStatement, intType pos,
     intType minute, intType second, intType micro_second)
 
   { /* sqlBindTime */
-    if (sqlStatement == NULL ||
-        ((preparedStmtType) sqlStatement)->sqlFunc == NULL ||
-        ((preparedStmtType) sqlStatement)->sqlFunc->sqlBindTime == NULL) {
+    logFunction(printf("sqlBindTime(" FMT_U_MEM ", " FMT_D ", "
+                       F_D(04) "-" F_D(02) "-" F_D(02) " "
+                       F_D(02) ":" F_D(02) ":" F_D(02) "." F_D(06) ")\n",
+                       (memSizeType) sqlStatement, pos,
+                       year, month, day,
+                       hour, minute, second, micro_second););
+    if (unlikely(sqlStatement == NULL ||
+                 ((preparedStmtType) sqlStatement)->sqlFunc == NULL ||
+                 ((preparedStmtType) sqlStatement)->sqlFunc->sqlBindTime == NULL)) {
+      logError(printf("sqlBindTime(" FMT_U_MEM ", " FMT_D ", "
+                      F_D(04) "-" F_D(02) "-" F_D(02) " "
+                      F_D(02) ":" F_D(02) ":" F_D(02) "." F_D(06) "): "
+                      "SQL statement not okay.\n",
+                      (memSizeType) sqlStatement, pos,
+                      year, month, day,
+                      hour, minute, second, micro_second););
       raise_error(RANGE_ERROR);
     } else {
       ((preparedStmtType) sqlStatement)->sqlFunc->sqlBindTime(sqlStatement, pos,
@@ -232,9 +302,13 @@ void sqlBindTime (sqlStmtType sqlStatement, intType pos,
 void sqlClose (databaseType database)
 
   { /* sqlClose */
-    if (database == NULL ||
-        ((dbType) database)->sqlFunc == NULL ||
-        ((dbType) database)->sqlFunc->sqlClose == NULL) {
+    logFunction(printf("sqlClose(" FMT_U_MEM ")\n",
+                       (memSizeType) database););
+    if (unlikely(database == NULL ||
+                 ((dbType) database)->sqlFunc == NULL ||
+                 ((dbType) database)->sqlFunc->sqlClose == NULL)) {
+      logError(printf("sqlClose(" FMT_U_MEM "): Database not okay.\n",
+                      (memSizeType) database););
       raise_error(RANGE_ERROR);
     } else {
       ((dbType) database)->sqlFunc->sqlClose(database);
@@ -246,9 +320,14 @@ void sqlClose (databaseType database)
 bigIntType sqlColumnBigInt (sqlStmtType sqlStatement, intType column)
 
   { /* sqlColumnBigInt */
-    if (sqlStatement == NULL ||
-        ((preparedStmtType) sqlStatement)->sqlFunc == NULL ||
-        ((preparedStmtType) sqlStatement)->sqlFunc->sqlColumnBigInt == NULL) {
+    logFunction(printf("sqlColumnBigInt(" FMT_U_MEM ", " FMT_D ")\n",
+                       (memSizeType) sqlStatement, column););
+    if (unlikely(sqlStatement == NULL ||
+                 ((preparedStmtType) sqlStatement)->sqlFunc == NULL ||
+                 ((preparedStmtType) sqlStatement)->sqlFunc->sqlColumnBigInt == NULL)) {
+      logError(printf("sqlColumnBigInt(" FMT_U_MEM ", " FMT_D "): "
+                      "SQL statement not okay.\n",
+                      (memSizeType) sqlStatement, column););
       raise_error(RANGE_ERROR);
       return NULL;
     } else {
@@ -262,9 +341,14 @@ void sqlColumnBigRat (sqlStmtType sqlStatement, intType column,
     bigIntType *numerator, bigIntType *denominator)
 
   { /* sqlColumnBigRat */
-    if (sqlStatement == NULL ||
-        ((preparedStmtType) sqlStatement)->sqlFunc == NULL ||
-        ((preparedStmtType) sqlStatement)->sqlFunc->sqlColumnBigRat == NULL) {
+    logFunction(printf("sqlColumnBigRat(" FMT_U_MEM ", " FMT_D ", *, *)\n",
+                       (memSizeType) sqlStatement, column););
+    if (unlikely(sqlStatement == NULL ||
+                 ((preparedStmtType) sqlStatement)->sqlFunc == NULL ||
+                 ((preparedStmtType) sqlStatement)->sqlFunc->sqlColumnBigRat == NULL)) {
+      logError(printf("sqlColumnBigRat(" FMT_U_MEM ", " FMT_D ", *, *): "
+                      "SQL statement not okay.\n",
+                      (memSizeType) sqlStatement, column););
       raise_error(RANGE_ERROR);
     } else {
       ((preparedStmtType) sqlStatement)->sqlFunc->sqlColumnBigRat(sqlStatement, column,
@@ -276,30 +360,50 @@ void sqlColumnBigRat (sqlStmtType sqlStatement, intType column,
 
 boolType sqlColumnBool (sqlStmtType sqlStatement, intType column)
 
-  { /* sqlColumnBool */
-    if (sqlStatement == NULL ||
-        ((preparedStmtType) sqlStatement)->sqlFunc == NULL ||
-        ((preparedStmtType) sqlStatement)->sqlFunc->sqlColumnBool == NULL) {
+  {
+    boolType columnValue;
+
+  /* sqlColumnBool */
+    logFunction(printf("sqlColumnBool(" FMT_U_MEM ", " FMT_D ")\n",
+                       (memSizeType) sqlStatement, column););
+    if (unlikely(sqlStatement == NULL ||
+                 ((preparedStmtType) sqlStatement)->sqlFunc == NULL ||
+                 ((preparedStmtType) sqlStatement)->sqlFunc->sqlColumnBool == NULL)) {
+      logError(printf("sqlColumnBool(" FMT_U_MEM ", " FMT_D "): "
+                      "SQL statement not okay.\n",
+                      (memSizeType) sqlStatement, column););
       raise_error(RANGE_ERROR);
-      return FALSE;
+      columnValue = FALSE;
     } else {
-      return ((preparedStmtType) sqlStatement)->sqlFunc->sqlColumnBool(sqlStatement, column);
+      columnValue = ((preparedStmtType) sqlStatement)->sqlFunc->sqlColumnBool(sqlStatement, column);
     } /* if */
+    logFunction(printf("sqlColumnBool --> %s\n", columnValue ? "TRUE" : "FALSE"););
+    return columnValue;
   } /* sqlColumnBool */
 
 
 
 bstriType sqlColumnBStri (sqlStmtType sqlStatement, intType column)
 
-  { /* sqlColumnBStri */
-    if (sqlStatement == NULL ||
-        ((preparedStmtType) sqlStatement)->sqlFunc == NULL ||
-        ((preparedStmtType) sqlStatement)->sqlFunc->sqlColumnBStri == NULL) {
+  {
+    bstriType columnValue;
+
+  /* sqlColumnBStri */
+    logFunction(printf("sqlColumnBStri(" FMT_U_MEM ", " FMT_D ")\n",
+                       (memSizeType) sqlStatement, column););
+    if (unlikely(sqlStatement == NULL ||
+                 ((preparedStmtType) sqlStatement)->sqlFunc == NULL ||
+                 ((preparedStmtType) sqlStatement)->sqlFunc->sqlColumnBStri == NULL)) {
+      logError(printf("sqlColumnBStri(" FMT_U_MEM ", " FMT_D "): "
+                      "SQL statement not okay.\n",
+                      (memSizeType) sqlStatement, column););
       raise_error(RANGE_ERROR);
-      return NULL;
+      columnValue = NULL;
     } else {
-      return ((preparedStmtType) sqlStatement)->sqlFunc->sqlColumnBStri(sqlStatement, column);
+      columnValue = ((preparedStmtType) sqlStatement)->sqlFunc->sqlColumnBStri(sqlStatement, column);
     } /* if */
+    logFunction(printf("sqlColumnBStri --> \"%s\"\n", bstriAsUnquotedCStri(columnValue)););
+    return columnValue;
   } /* sqlColumnBStri */
 
 
@@ -309,59 +413,101 @@ void sqlColumnDuration (sqlStmtType sqlStatement, intType column,
     intType *minute, intType *second, intType *micro_second)
 
   { /* sqlColumnDuration */
-    if (sqlStatement == NULL ||
-        ((preparedStmtType) sqlStatement)->sqlFunc == NULL ||
-        ((preparedStmtType) sqlStatement)->sqlFunc->sqlColumnDuration == NULL) {
+    logFunction(printf("sqlColumnDuration(" FMT_U_MEM ", " FMT_D ", *)\n",
+                       (memSizeType) sqlStatement, column););
+    if (unlikely(sqlStatement == NULL ||
+                 ((preparedStmtType) sqlStatement)->sqlFunc == NULL ||
+                 ((preparedStmtType) sqlStatement)->sqlFunc->sqlColumnDuration == NULL)) {
+      logError(printf("sqlColumnDuration(" FMT_U_MEM ", " FMT_D ", *): "
+                      "SQL statement not okay.\n",
+                      (memSizeType) sqlStatement, column););
       raise_error(RANGE_ERROR);
     } else {
       ((preparedStmtType) sqlStatement)->sqlFunc->sqlColumnDuration(sqlStatement, column,
           year, month, day, hour, minute, second, micro_second);
     } /* if */
+    logFunction(printf("sqlColumnDuration(" FMT_U_MEM ", " FMT_D ", "
+                                            F_D(04) "-" F_D(02) "-" F_D(02) " "
+                                            F_D(02) ":" F_D(02) ":" F_D(02) "."
+                                            F_D(06) ") -->\n",
+                       (memSizeType) sqlStatement, column,
+                       *year, *month, *day, *hour, *minute, *second,
+                       *micro_second););
   } /* sqlColumnDuration */
 
 
 
 floatType sqlColumnFloat (sqlStmtType sqlStatement, intType column)
 
-  { /* sqlColumnFloat */
-    if (sqlStatement == NULL ||
-        ((preparedStmtType) sqlStatement)->sqlFunc == NULL ||
-        ((preparedStmtType) sqlStatement)->sqlFunc->sqlColumnFloat == NULL) {
+  {
+    floatType columnValue;
+
+  /* sqlColumnFloat */
+    logFunction(printf("sqlColumnFloat(" FMT_U_MEM ", " FMT_D ")\n",
+                       (memSizeType) sqlStatement, column););
+    if (unlikely(sqlStatement == NULL ||
+                 ((preparedStmtType) sqlStatement)->sqlFunc == NULL ||
+                 ((preparedStmtType) sqlStatement)->sqlFunc->sqlColumnFloat == NULL)) {
+      logError(printf("sqlColumnFloat(" FMT_U_MEM ", " FMT_D "): "
+                      "SQL statement not okay.\n",
+                      (memSizeType) sqlStatement, column););
       raise_error(RANGE_ERROR);
-      return 0.0;
+      columnValue = 0.0;
     } else {
-      return ((preparedStmtType) sqlStatement)->sqlFunc->sqlColumnFloat(sqlStatement, column);
+      columnValue = ((preparedStmtType) sqlStatement)->sqlFunc->sqlColumnFloat(sqlStatement, column);
     } /* if */
+    logFunction(printf("sqlColumnFloat --> " FMT_E "\n", columnValue););
+    return columnValue;
   } /* sqlColumnFloat */
 
 
 
 intType sqlColumnInt (sqlStmtType sqlStatement, intType column)
 
-  { /* sqlColumnInt */
-    if (sqlStatement == NULL ||
-        ((preparedStmtType) sqlStatement)->sqlFunc == NULL ||
-        ((preparedStmtType) sqlStatement)->sqlFunc->sqlColumnInt == NULL) {
+  {
+    intType columnValue;
+
+  /* sqlColumnInt */
+    logFunction(printf("sqlColumnInt(" FMT_U_MEM ", " FMT_D ")\n",
+                       (memSizeType) sqlStatement, column););
+    if (unlikely(sqlStatement == NULL ||
+                 ((preparedStmtType) sqlStatement)->sqlFunc == NULL ||
+                 ((preparedStmtType) sqlStatement)->sqlFunc->sqlColumnInt == NULL)) {
+      logError(printf("sqlColumnInt(" FMT_U_MEM ", " FMT_D "): "
+                      "SQL statement not okay.\n",
+                      (memSizeType) sqlStatement, column););
       raise_error(RANGE_ERROR);
-      return 0;
+      columnValue = 0;
     } else {
-      return ((preparedStmtType) sqlStatement)->sqlFunc->sqlColumnInt(sqlStatement, column);
+      columnValue = ((preparedStmtType) sqlStatement)->sqlFunc->sqlColumnInt(sqlStatement, column);
     } /* if */
+    logFunction(printf("sqlColumnInt --> " FMT_D "\n", columnValue););
+    return columnValue;
   } /* sqlColumnInt */
 
 
 
 striType sqlColumnStri (sqlStmtType sqlStatement, intType column)
 
-  { /* sqlColumnStri */
-    if (sqlStatement == NULL ||
-        ((preparedStmtType) sqlStatement)->sqlFunc == NULL ||
-        ((preparedStmtType) sqlStatement)->sqlFunc->sqlColumnStri == NULL) {
+  {
+    striType columnValue;
+
+  /* sqlColumnStri */
+    logFunction(printf("sqlColumnStri(" FMT_U_MEM ", " FMT_D ")\n",
+                       (memSizeType) sqlStatement, column););
+    if (unlikely(sqlStatement == NULL ||
+                 ((preparedStmtType) sqlStatement)->sqlFunc == NULL ||
+                 ((preparedStmtType) sqlStatement)->sqlFunc->sqlColumnStri == NULL)) {
+      logError(printf("sqlColumnStri(" FMT_U_MEM ", " FMT_D "): "
+                      "SQL statement not okay.\n",
+                      (memSizeType) sqlStatement, column););
       raise_error(RANGE_ERROR);
-      return NULL;
+      columnValue = NULL;
     } else {
-      return ((preparedStmtType) sqlStatement)->sqlFunc->sqlColumnStri(sqlStatement, column);
+      columnValue = ((preparedStmtType) sqlStatement)->sqlFunc->sqlColumnStri(sqlStatement, column);
     } /* if */
+    logFunction(printf("sqlColumnStri --> \"%s\"\n", striAsUnquotedCStri(columnValue)););
+    return columnValue;
   } /* sqlColumnStri */
 
 
@@ -372,15 +518,27 @@ void sqlColumnTime (sqlStmtType sqlStatement, intType column,
     intType *time_zone, boolType *is_dst)
 
   { /* sqlColumnTime */
-    if (sqlStatement == NULL ||
-        ((preparedStmtType) sqlStatement)->sqlFunc == NULL ||
-        ((preparedStmtType) sqlStatement)->sqlFunc->sqlColumnTime == NULL) {
+    logFunction(printf("sqlColumnTime(" FMT_U_MEM ", " FMT_D ", *)\n",
+                       (memSizeType) sqlStatement, column););
+    if (unlikely(sqlStatement == NULL ||
+                 ((preparedStmtType) sqlStatement)->sqlFunc == NULL ||
+                 ((preparedStmtType) sqlStatement)->sqlFunc->sqlColumnTime == NULL)) {
+      logError(printf("sqlColumnTime(" FMT_U_MEM ", " FMT_D ", *): "
+                      "SQL statement not okay.\n",
+                      (memSizeType) sqlStatement, column););
       raise_error(RANGE_ERROR);
     } else {
       ((preparedStmtType) sqlStatement)->sqlFunc->sqlColumnTime(sqlStatement, column,
           year, month, day, hour, minute, second,
           micro_second, time_zone, is_dst);
     } /* if */
+    logFunction(printf("sqlColumnTime(" FMT_U_MEM ", " FMT_D ", "
+                                        F_D(04) "-" F_D(02) "-" F_D(02) " "
+                                        F_D(02) ":" F_D(02) ":" F_D(02) "."
+                                        F_D(06) ", " FMT_D ", %d) -->\n",
+                       (memSizeType) sqlStatement, column,
+                       *year, *month, *day, *hour, *minute, *second,
+                       *micro_second, *time_zone, *is_dst););
   } /* sqlColumnTime */
 
 
@@ -388,9 +546,13 @@ void sqlColumnTime (sqlStmtType sqlStatement, intType column,
 void sqlCommit (databaseType database)
 
   { /* sqlCommit */
-    if (database == NULL ||
-        ((dbType) database)->sqlFunc == NULL ||
-        ((dbType) database)->sqlFunc->sqlCommit == NULL) {
+    logFunction(printf("sqlCommit(" FMT_U_MEM ")\n",
+                       (memSizeType) database););
+    if (unlikely(database == NULL ||
+                 ((dbType) database)->sqlFunc == NULL ||
+                 ((dbType) database)->sqlFunc->sqlCommit == NULL)) {
+      logError(printf("sqlCommit(" FMT_U_MEM "): Database not okay.\n",
+                      (memSizeType) database););
       raise_error(RANGE_ERROR);
     } else {
       ((dbType) database)->sqlFunc->sqlCommit(database);
@@ -520,8 +682,8 @@ void sqlExecute (sqlStmtType sqlStatement)
   { /* sqlExecute */
     if (sqlStatement == NULL) {
       /* Do nothing */
-    } else if (((preparedStmtType) sqlStatement)->sqlFunc == NULL ||
-               ((preparedStmtType) sqlStatement)->sqlFunc->sqlExecute == NULL) {
+    } else if (unlikely(((preparedStmtType) sqlStatement)->sqlFunc == NULL ||
+                        ((preparedStmtType) sqlStatement)->sqlFunc->sqlExecute == NULL)) {
       raise_error(RANGE_ERROR);
     } else {
       ((preparedStmtType) sqlStatement)->sqlFunc->sqlExecute(sqlStatement);
@@ -535,8 +697,8 @@ boolType sqlFetch (sqlStmtType sqlStatement)
   { /* sqlFetch */
     if (sqlStatement == NULL) {
       return FALSE;
-    } else if (((preparedStmtType) sqlStatement)->sqlFunc == NULL ||
-               ((preparedStmtType) sqlStatement)->sqlFunc->sqlFetch == NULL) {
+    } else if (unlikely(((preparedStmtType) sqlStatement)->sqlFunc == NULL ||
+                        ((preparedStmtType) sqlStatement)->sqlFunc->sqlFetch == NULL)) {
       raise_error(RANGE_ERROR);
       return FALSE;
     } else {
@@ -549,9 +711,9 @@ boolType sqlFetch (sqlStmtType sqlStatement)
 boolType sqlIsNull (sqlStmtType sqlStatement, intType column)
 
   { /* sqlIsNull */
-    if (sqlStatement == NULL ||
-        ((preparedStmtType) sqlStatement)->sqlFunc == NULL ||
-        ((preparedStmtType) sqlStatement)->sqlFunc->sqlIsNull == NULL) {
+    if (unlikely(sqlStatement == NULL ||
+                 ((preparedStmtType) sqlStatement)->sqlFunc == NULL ||
+                 ((preparedStmtType) sqlStatement)->sqlFunc->sqlIsNull == NULL)) {
       raise_error(RANGE_ERROR);
       return FALSE;
     } else {
@@ -609,9 +771,9 @@ databaseType sqlOpen (intType driver, const const_striType dbName,
 sqlStmtType sqlPrepare (databaseType database, striType sqlStatementStri)
 
   { /* sqlPrepare */
-    if (database == NULL ||
-        ((dbType) database)->sqlFunc == NULL ||
-        ((dbType) database)->sqlFunc->sqlPrepare == NULL) {
+    if (unlikely(database == NULL ||
+                 ((dbType) database)->sqlFunc == NULL ||
+                 ((dbType) database)->sqlFunc->sqlPrepare == NULL)) {
       raise_error(RANGE_ERROR);
       return NULL;
     } else {
@@ -624,9 +786,9 @@ sqlStmtType sqlPrepare (databaseType database, striType sqlStatementStri)
 intType sqlStmtColumnCount (sqlStmtType sqlStatement)
 
   { /* sqlStmtColumnCount */
-    if (sqlStatement == NULL ||
-        ((preparedStmtType) sqlStatement)->sqlFunc == NULL ||
-        ((preparedStmtType) sqlStatement)->sqlFunc->sqlStmtColumnCount == NULL) {
+    if (unlikely(sqlStatement == NULL ||
+                 ((preparedStmtType) sqlStatement)->sqlFunc == NULL ||
+                 ((preparedStmtType) sqlStatement)->sqlFunc->sqlStmtColumnCount == NULL)) {
       raise_error(RANGE_ERROR);
       return 0;
     } else {
@@ -639,9 +801,9 @@ intType sqlStmtColumnCount (sqlStmtType sqlStatement)
 striType sqlStmtColumnName (sqlStmtType sqlStatement, intType column)
 
   { /* sqlStmtColumnName */
-    if (sqlStatement == NULL ||
-        ((preparedStmtType) sqlStatement)->sqlFunc == NULL ||
-        ((preparedStmtType) sqlStatement)->sqlFunc->sqlStmtColumnName == NULL) {
+    if (unlikely(sqlStatement == NULL ||
+                 ((preparedStmtType) sqlStatement)->sqlFunc == NULL ||
+                 ((preparedStmtType) sqlStatement)->sqlFunc->sqlStmtColumnName == NULL)) {
       raise_error(RANGE_ERROR);
       return NULL;
     } else {

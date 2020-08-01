@@ -197,10 +197,10 @@ const proc: show_free_area (in integer: line, in integer: column) is func
 *)
 
 
-const proc: show_free_NW (in integer param, in integer param) is forward;
-const proc: show_free_NE (in integer param, in integer param) is forward;
-const proc: show_free_SW (in integer param, in integer param) is forward;
-const proc: show_free_SE (in integer param, in integer param) is forward;
+const proc: show_free_NW (in integer: line, in integer: column) is forward;
+const proc: show_free_NE (in integer: line, in integer: column) is forward;
+const proc: show_free_SW (in integer: line, in integer: column) is forward;
+const proc: show_free_SE (in integer: line, in integer: column) is forward;
 
 
 const proc: show_free_N (in integer: line, in integer: column) is func

@@ -46,8 +46,8 @@ const func type: bitset (in type: baseType) is func
       IN_PARAM_IS_REFERENCE(setType);
       const type: bitset (attr baseType)                                 is setType;
       const type: base_type (attr setType)                               is baseType;
-      const proc: (ref setType param) ::= (in setType param)             is action "SET_CREATE";
-      const proc: destroy (ref setType param)                            is action "SET_DESTR";
+      const proc: (ref setType: dest) ::= (in setType: source)           is action "SET_CREATE";
+      const proc: destroy (ref setType: aValue)                          is action "SET_DESTR";
       const proc: (inout setType: dest) := (in setType: source)          is action "SET_CPY";
 
       const boolean: isBitset (attr setType)                             is TRUE;
@@ -154,9 +154,9 @@ const func type: bitset (in type: baseType) is func
        *)
       const func integer: hashCode (in setType: aSet)                    is action "SET_HASHCODE";
 
-      const func bitset: (attr bitset) conv (in setType param)           is action "SET_CONV";
-      const varfunc bitset: (attr bitset) varConv (inout setType param)  is action "TYP_VARCONV";
-      const func setType: (attr setType) conv (in bitset param)          is action "SET_CONV";
+      const func bitset: (attr bitset) conv (in setType: aSet)           is action "SET_CONV";
+      const varfunc bitset: (attr bitset) varConv (inout setType: aSet)  is action "TYP_VARCONV";
+      const func setType: (attr setType) conv (in bitset: aSet)          is action "SET_CONV";
       const setType: (attr setType) . EMPTY_SET                          is setType conv EMPTY_SET;
       const setType: (attr setType) . value                              is setType conv EMPTY_SET;
 
@@ -313,7 +313,7 @@ const func type: bitset (in type: baseType) is func
           end for;
         end func;
 
-      if getobj(str(ref baseType param)) <> NIL then
+      if getobj(str(ref baseType: setElement)) <> NIL then
         (**
          *  Convert a set to a [[string]].
          *  @return the string result of the conversion.

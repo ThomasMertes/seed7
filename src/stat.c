@@ -81,10 +81,10 @@ void show_statistic (void)
     printf("%6d lists\n", list_count);
     printf("%6d comments\n", comment_count);
 #endif
-#ifdef DO_HEAP_STATISTIC
+#if DO_HEAP_STATISTIC
     heap_statistic();
 #else
-#ifdef DO_HEAPSIZE_COMPUTATION
+#if DO_HEAPSIZE_COMPUTATION
     printf("%6lu bytes\n", (unsigned long) heapsize());
 #endif
 #endif

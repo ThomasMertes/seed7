@@ -74,6 +74,21 @@ const func boolean: raisesRangeError (ref func float: expression) is func
   end func;
 
 
+const func boolean: raisesRangeError (ref func integer: expression) is func
+  result
+    var boolean: raisesRangeError is FALSE;
+  local
+    var integer: exprResult is 0;
+  begin
+    block
+      exprResult := expression;
+    exception
+      catch RANGE_ERROR:
+        raisesRangeError := TRUE;
+    end block;
+  end func;
+
+
 const proc: check_comparison is func
   local
     var boolean: okay is TRUE;
@@ -2300,6 +2315,14 @@ const proc: check_parse is func
         str( -4503599627370496.0)  <>  "-4503599627370496.0" or
         str( -9007199254740992.0)  <>  "-9007199254740992.0" or
         str(-10000000000000000.0)  <> "-10000000000000000.0" or
+        str( -4503599627370495.5)  <>  "-4503599627370495.5" or
+        str( -4000000000000000.5)  <>  "-4000000000000000.5" or
+        str( -3000000000000000.5)  <>  "-3000000000000000.5" or
+        str( -2251799813685248.5)  <>  "-2251799813685248.5" or
+        str(  2251799813685248.5)  <>   "2251799813685248.5" or
+        str(  3000000000000000.5)  <>   "3000000000000000.5" or
+        str(  4000000000000000.5)  <>   "4000000000000000.5" or
+        str(  4503599627370495.5)  <>   "4503599627370495.5" or
         str( 0.999999999999999)      <>  "0.999999999999999" or
         str( 0.1)                    <>  "0.1" or
         str( 0.0999999999999999)     <>  "0.0999999999999999" or
@@ -2837,28 +2860,479 @@ const proc: check_trunc is func
   local
     var boolean: okay is TRUE;
   begin
-    if  trunc(-1000000000.0) <> -1000000000 or
-        trunc( -100000000.0) <>  -100000000 or
-        trunc(  -10000000.0) <>   -10000000 or
-        trunc(   -1000000.0) <>    -1000000 or
-        trunc(    -100000.0) <>     -100000 or
-        trunc(     -10000.0) <>      -10000 or
-        trunc(      -1000.0) <>       -1000 or
-        trunc(       -100.0) <>        -100 or
-        trunc(        -10.0) <>         -10 or
-        trunc(         -1.0) <>          -1 or
-        trunc(          0.0) <>           0 or
-        trunc(          1.0) <>           1 or
-        trunc(         10.0) <>          10 or
-        trunc(        100.0) <>         100 or
-        trunc(       1000.0) <>        1000 or
-        trunc(      10000.0) <>       10000 or
-        trunc(     100000.0) <>      100000 or
-        trunc(    1000000.0) <>     1000000 or
-        trunc(   10000000.0) <>    10000000 or
-        trunc(  100000000.0) <>   100000000 or
-        trunc( 1000000000.0) <>  1000000000 then
+    if  not raisesRangeError(trunc(           -Infinity  )) or
+        not raisesRangeError(trunc(          -FLOAT_MAX  )) or
+        not raisesRangeError(trunc(             -1.0e37  )) or
+        not raisesRangeError(trunc(-9223372036854777000.0)) or
+        trunc(-9223372036854775808.0) <>        integer.first or
+        trunc(-4611686018427387904.0) <> -4611686018427387904 or
+        trunc(-2305843009213693952.0) <> -2305843009213693952 or
+        trunc(-1152921504606846976.0) <> -1152921504606846976 or
+        trunc( -576460752303423488.0) <>  -576460752303423488 or
+        trunc(   -9007199254740992.0) <>    -9007199254740992 or
+        trunc(   -9007199254740991.0) <>    -9007199254740991 or
+        trunc(   -9007199254740990.0) <>    -9007199254740990 or
+        trunc(     -10000000000000.9) <>      -10000000000000 or
+        trunc(     -10000000000000.0) <>      -10000000000000 or
+        trunc(      -1000000000000.99) <>      -1000000000000 or
+        trunc(      -1000000000000.0) <>       -1000000000000 or
+        trunc(       -100000000000.999) <>      -100000000000 or
+        trunc(       -100000000000.0) <>        -100000000000 or
+        trunc(        -10000000000.9999) <>      -10000000000 or
+        trunc(        -10000000000.0) <>         -10000000000 or
+        trunc(         -1000000000.99999) <>      -1000000000 or
+        trunc(         -1000000000.0) <>          -1000000000 or
+        trunc(          -100000000.999999) <>      -100000000 or
+        trunc(          -100000000.0) <>           -100000000 or
+        trunc(           -10000000.9999999) <>      -10000000 or
+        trunc(           -10000000.0) <>            -10000000 or
+        trunc(            -1000000.99999999) <>      -1000000 or
+        trunc(            -1000000.0) <>             -1000000 or
+        trunc(             -100000.999999999) <>      -100000 or
+        trunc(             -100000.0) <>              -100000 or
+        trunc(              -10000.9999999999) <>      -10000 or
+        trunc(              -10000.0) <>               -10000 or
+        trunc(               -1000.99999999999) <>      -1000 or
+        trunc(               -1000.0) <>                -1000 or
+        trunc(                -100.999999999999) <>      -100 or
+        trunc(                -100.0) <>                 -100 or
+        trunc(                 -10.9999999999999) <>      -10 or
+        trunc(                 -10.0) <>                  -10 or
+        trunc(                  -1.99999999999999) <>      -1 or
+        trunc(                  -1.0) <>                   -1 or
+        trunc(                  -0.999999999999999) <>      0 or
+        trunc(                   0.0) <>                    0 or
+        trunc(                   0.999999999999999) <>      0 or
+        trunc(                   1.0) <>                    1 or
+        trunc(                   1.99999999999999) <>       1 or
+        trunc(                  10.0) <>                   10 or
+        trunc(                  10.9999999999999) <>       10 or
+        trunc(                 100.0) <>                  100 or
+        trunc(                 100.999999999999) <>       100 or
+        trunc(                1000.0) <>                 1000 or
+        trunc(                1000.99999999999) <>       1000 or
+        trunc(               10000.0) <>                10000 or
+        trunc(               10000.9999999999) <>       10000 or
+        trunc(              100000.0) <>               100000 or
+        trunc(              100000.999999999) <>       100000 or
+        trunc(             1000000.0) <>              1000000 or
+        trunc(             1000000.99999999) <>       1000000 or
+        trunc(            10000000.0) <>             10000000 or
+        trunc(            10000000.9999999) <>       10000000 or
+        trunc(           100000000.0) <>            100000000 or
+        trunc(           100000000.999999) <>       100000000 or
+        trunc(          1000000000.0) <>           1000000000 or
+        trunc(          1000000000.99999) <>       1000000000 or
+        trunc(         10000000000.0) <>          10000000000 or
+        trunc(         10000000000.9999) <>       10000000000 or
+        trunc(        100000000000.0) <>         100000000000 or
+        trunc(        100000000000.999) <>       100000000000 or
+        trunc(       1000000000000.0) <>        1000000000000 or
+        trunc(       1000000000000.99) <>       1000000000000 or
+        trunc(      10000000000000.0) <>       10000000000000 or
+        trunc(      10000000000000.9) <>       10000000000000 or
+        trunc(    9007199254740990.0) <>     9007199254740990 or
+        trunc(    9007199254740991.0) <>     9007199254740991 or
+        trunc(    9007199254740992.0) <>     9007199254740992 or
+        trunc(  576460752303423488.0) <>   576460752303423488 or
+        trunc( 1152921504606846976.0) <>  1152921504606846976 or
+        trunc( 2305843009213693952.0) <>  2305843009213693952 or
+        trunc( 4611686018427387904.0) <>  4611686018427387904 or
+        not raisesRangeError(trunc( 9223372036854777000.0)) or
+        not raisesRangeError(trunc(              1.0e37  )) or
+        not raisesRangeError(trunc(           FLOAT_MAX  )) or
+        not raisesRangeError(trunc(            Infinity  )) or
+        not raisesRangeError(trunc(                 NaN  )) or
+        not raisesRangeError(trunc(floatExpr(           -Infinity  ))) or
+        not raisesRangeError(trunc(floatExpr(          -FLOAT_MAX  ))) or
+        not raisesRangeError(trunc(floatExpr(             -1.0e37  ))) or
+        not raisesRangeError(trunc(floatExpr(-9223372036854777000.0))) or
+        trunc(floatExpr(-9223372036854775808.0)) <>        integer.first or
+        trunc(floatExpr(-4611686018427387904.0)) <> -4611686018427387904 or
+        trunc(floatExpr(-2305843009213693952.0)) <> -2305843009213693952 or
+        trunc(floatExpr(-1152921504606846976.0)) <> -1152921504606846976 or
+        trunc(floatExpr( -576460752303423488.0)) <>  -576460752303423488 or
+        trunc(floatExpr(   -9007199254740992.0)) <>    -9007199254740992 or
+        trunc(floatExpr(   -9007199254740991.0)) <>    -9007199254740991 or
+        trunc(floatExpr(   -9007199254740990.0)) <>    -9007199254740990 or
+        trunc(floatExpr(     -10000000000000.9)) <>      -10000000000000 or
+        trunc(floatExpr(     -10000000000000.0)) <>      -10000000000000 or
+        trunc(floatExpr(      -1000000000000.99)) <>      -1000000000000 or
+        trunc(floatExpr(      -1000000000000.0)) <>       -1000000000000 or
+        trunc(floatExpr(       -100000000000.999)) <>      -100000000000 or
+        trunc(floatExpr(       -100000000000.0)) <>        -100000000000 or
+        trunc(floatExpr(        -10000000000.9999)) <>      -10000000000 or
+        trunc(floatExpr(        -10000000000.0)) <>         -10000000000 or
+        trunc(floatExpr(         -1000000000.99999)) <>      -1000000000 or
+        trunc(floatExpr(         -1000000000.0)) <>          -1000000000 or
+        trunc(floatExpr(          -100000000.999999)) <>      -100000000 or
+        trunc(floatExpr(          -100000000.0)) <>           -100000000 or
+        trunc(floatExpr(           -10000000.9999999)) <>      -10000000 or
+        trunc(floatExpr(           -10000000.0)) <>            -10000000 or
+        trunc(floatExpr(            -1000000.99999999)) <>      -1000000 or
+        trunc(floatExpr(            -1000000.0)) <>             -1000000 or
+        trunc(floatExpr(             -100000.999999999)) <>      -100000 or
+        trunc(floatExpr(             -100000.0)) <>              -100000 or
+        trunc(floatExpr(              -10000.9999999999)) <>      -10000 or
+        trunc(floatExpr(              -10000.0)) <>               -10000 or
+        trunc(floatExpr(               -1000.99999999999)) <>      -1000 or
+        trunc(floatExpr(               -1000.0)) <>                -1000 or
+        trunc(floatExpr(                -100.999999999999)) <>      -100 or
+        trunc(floatExpr(                -100.0)) <>                 -100 or
+        trunc(floatExpr(                 -10.9999999999999)) <>      -10 or
+        trunc(floatExpr(                 -10.0)) <>                  -10 or
+        trunc(floatExpr(                  -1.99999999999999)) <>      -1 or
+        trunc(floatExpr(                  -1.0)) <>                   -1 or
+        trunc(floatExpr(                  -0.999999999999999)) <>      0 or
+        trunc(floatExpr(                   0.0)) <>                    0 or
+        trunc(floatExpr(                   0.999999999999999)) <>      0 or
+        trunc(floatExpr(                   1.0)) <>                    1 or
+        trunc(floatExpr(                   1.99999999999999)) <>       1 or
+        trunc(floatExpr(                  10.0)) <>                   10 or
+        trunc(floatExpr(                  10.9999999999999)) <>       10 or
+        trunc(floatExpr(                 100.0)) <>                  100 or
+        trunc(floatExpr(                 100.999999999999)) <>       100 or
+        trunc(floatExpr(                1000.0)) <>                 1000 or
+        trunc(floatExpr(                1000.99999999999)) <>       1000 or
+        trunc(floatExpr(               10000.0)) <>                10000 or
+        trunc(floatExpr(               10000.9999999999)) <>       10000 or
+        trunc(floatExpr(              100000.0)) <>               100000 or
+        trunc(floatExpr(              100000.999999999)) <>       100000 or
+        trunc(floatExpr(             1000000.0)) <>              1000000 or
+        trunc(floatExpr(             1000000.99999999)) <>       1000000 or
+        trunc(floatExpr(            10000000.0)) <>             10000000 or
+        trunc(floatExpr(            10000000.9999999)) <>       10000000 or
+        trunc(floatExpr(           100000000.0)) <>            100000000 or
+        trunc(floatExpr(           100000000.999999)) <>       100000000 or
+        trunc(floatExpr(          1000000000.0)) <>           1000000000 or
+        trunc(floatExpr(          1000000000.99999)) <>       1000000000 or
+        trunc(floatExpr(         10000000000.0)) <>          10000000000 or
+        trunc(floatExpr(         10000000000.9999)) <>       10000000000 or
+        trunc(floatExpr(        100000000000.0)) <>         100000000000 or
+        trunc(floatExpr(        100000000000.999)) <>       100000000000 or
+        trunc(floatExpr(       1000000000000.0)) <>        1000000000000 or
+        trunc(floatExpr(       1000000000000.99)) <>       1000000000000 or
+        trunc(floatExpr(      10000000000000.0)) <>       10000000000000 or
+        trunc(floatExpr(      10000000000000.9)) <>       10000000000000 or
+        trunc(floatExpr(    9007199254740990.0)) <>     9007199254740990 or
+        trunc(floatExpr(    9007199254740991.0)) <>     9007199254740991 or
+        trunc(floatExpr(    9007199254740992.0)) <>     9007199254740992 or
+        trunc(floatExpr(  576460752303423488.0)) <>   576460752303423488 or
+        trunc(floatExpr( 1152921504606846976.0)) <>  1152921504606846976 or
+        trunc(floatExpr( 2305843009213693952.0)) <>  2305843009213693952 or
+        trunc(floatExpr( 4611686018427387904.0)) <>  4611686018427387904 or
+        not raisesRangeError(trunc(floatExpr( 9223372036854777000.0))) or
+        not raisesRangeError(trunc(floatExpr(              1.0e37  ))) or
+        not raisesRangeError(trunc(floatExpr(           FLOAT_MAX  ))) or
+        not raisesRangeError(trunc(floatExpr(            Infinity  ))) or
+        not raisesRangeError(trunc(floatExpr(                 NaN  ))) then
       writeln(" ***** Truncation of float does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if  not raisesRangeError(round(           -Infinity  )) or
+        not raisesRangeError(round(          -FLOAT_MAX  )) or
+        not raisesRangeError(round(             -1.0e37  )) or
+        not raisesRangeError(round(-9223372036854777000.0)) or
+        round(-9223372036854775808.0) <>        integer.first or
+        round(-4611686018427387904.0) <> -4611686018427387904 or
+        round(-2305843009213693952.0) <> -2305843009213693952 or
+        round(-1152921504606846976.0) <> -1152921504606846976 or
+        round( -576460752303423488.0) <>  -576460752303423488 or
+        round(   -9007199254740990.0) <>    -9007199254740990 or
+        round(      -1000000000000.5) <>       -1000000000001 or
+        round(      -1000000000000.49) <>      -1000000000000 or
+        round(      -1000000000000.0) <>       -1000000000000 or
+        round(       -999999999999.5) <>       -1000000000000 or
+        round(       -999999999999.49) <>       -999999999999 or
+        round(       -100000000000.5) <>        -100000000001 or
+        round(       -100000000000.499) <>      -100000000000 or
+        round(       -100000000000.0) <>        -100000000000 or
+        round(        -99999999999.5) <>        -100000000000 or
+        round(        -99999999999.499) <>       -99999999999 or
+        round(        -10000000000.5) <>         -10000000001 or
+        round(        -10000000000.4999) <>      -10000000000 or
+        round(        -10000000000.0) <>         -10000000000 or
+        round(         -9999999999.5) <>         -10000000000 or
+        round(         -9999999999.4999) <>       -9999999999 or
+        round(         -1000000000.5) <>          -1000000001 or
+        round(         -1000000000.49999) <>      -1000000000 or
+        round(         -1000000000.0) <>          -1000000000 or
+        round(          -999999999.5) <>          -1000000000 or
+        round(          -999999999.49999) <>       -999999999 or
+        round(          -100000000.5) <>           -100000001 or
+        round(          -100000000.499999) <>      -100000000 or
+        round(          -100000000.0) <>           -100000000 or
+        round(           -99999999.5) <>           -100000000 or
+        round(           -99999999.499999) <>       -99999999 or
+        round(           -10000000.5) <>            -10000001 or
+        round(           -10000000.4999999) <>      -10000000 or
+        round(           -10000000.0) <>            -10000000 or
+        round(            -9999999.5) <>            -10000000 or
+        round(            -9999999.4999999) <>       -9999999 or
+        round(            -1000000.5) <>             -1000001 or
+        round(            -1000000.49999999) <>      -1000000 or
+        round(            -1000000.0) <>             -1000000 or
+        round(             -999999.5) <>             -1000000 or
+        round(             -999999.49999999) <>       -999999 or
+        round(              100000.5) <>               100001 or
+        round(              100000.499999999) <>       100000 or
+        round(              100000.0) <>               100000 or
+        round(               99999.5) <>               100000 or
+        round(               99999.499999999) <>        99999 or
+        round(               10000.5) <>                10001 or
+        round(               10000.4999999999) <>       10000 or
+        round(               10000.0) <>                10000 or
+        round(                9999.5) <>                10000 or
+        round(                9999.4999999999) <>        9999 or
+        round(                1000.5) <>                 1001 or
+        round(                1000.49999999999) <>       1000 or
+        round(                1000.0) <>                 1000 or
+        round(                 999.5) <>                 1000 or
+        round(                 999.49999999999) <>        999 or
+        round(                 100.5) <>                  101 or
+        round(                 100.499999999999) <>       100 or
+        round(                 100.0) <>                  100 or
+        round(                  99.5) <>                  100 or
+        round(                  99.499999999999) <>        99 or
+        round(                 -10.5) <>                  -11 or
+        round(                 -10.4999999999999) <>      -10 or
+        round(                 -10.0) <>                  -10 or
+        round(                  -9.5) <>                  -10 or
+        round(                  -9.4999999999999) <>       -9 or
+        round(                  -1.5) <>                   -2 or
+        round(                  -1.49999999999999) <>      -1 or
+        round(                  -1.0) <>                   -1 or
+        round(                  -0.5) <>                   -1 or
+        round(                  -0.499999999999999) <>      0 or
+        round(                   0.0) <>                    0 or
+        round(                   0.499999999999999) <>      0 or
+        round(                   0.5) <>                    1 or
+        round(                   1.0) <>                    1 or
+        round(                   1.49999999999999) <>       1 or
+        round(                   1.5) <>                    2 or
+        round(                   9.4999999999999) <>        9 or
+        round(                   9.5) <>                   10 or
+        round(                  10.0) <>                   10 or
+        round(                  10.4999999999999) <>       10 or
+        round(                  10.5) <>                   11 or
+        round(                  99.499999999999) <>        99 or
+        round(                  99.5) <>                  100 or
+        round(                 100.0) <>                  100 or
+        round(                 100.499999999999) <>       100 or
+        round(                 100.5) <>                  101 or
+        round(                 999.49999999999) <>        999 or
+        round(                 999.5) <>                 1000 or
+        round(                1000.0) <>                 1000 or
+        round(                1000.49999999999) <>       1000 or
+        round(                1000.5) <>                 1001 or
+        round(                9999.4999999999) <>        9999 or
+        round(                9999.5) <>                10000 or
+        round(               10000.0) <>                10000 or
+        round(               10000.4999999999) <>       10000 or
+        round(               10000.5) <>                10001 or
+        round(               99999.499999999) <>        99999 or
+        round(               99999.5) <>               100000 or
+        round(              100000.0) <>               100000 or
+        round(              100000.499999999) <>       100000 or
+        round(              100000.5) <>               100001 or
+        round(              999999.49999999) <>        999999 or
+        round(              999999.5) <>              1000000 or
+        round(             1000000.0) <>              1000000 or
+        round(             1000000.49999999) <>       1000000 or
+        round(             1000000.5) <>              1000001 or
+        round(             9999999.4999999) <>        9999999 or
+        round(             9999999.5) <>             10000000 or
+        round(            10000000.0) <>             10000000 or
+        round(            10000000.4999999) <>       10000000 or
+        round(            10000000.5) <>             10000001 or
+        round(            99999999.499999) <>        99999999 or
+        round(            99999999.5) <>            100000000 or
+        round(           100000000.0) <>            100000000 or
+        round(           100000000.499999) <>       100000000 or
+        round(           100000000.5) <>            100000001 or
+        round(           999999999.49999) <>        999999999 or
+        round(           999999999.5) <>           1000000000 or
+        round(          1000000000.0) <>           1000000000 or
+        round(          1000000000.49999) <>       1000000000 or
+        round(          1000000000.5) <>           1000000001 or
+        round(          9999999999.4999) <>        9999999999 or
+        round(          9999999999.5) <>          10000000000 or
+        round(         10000000000.0) <>          10000000000 or
+        round(         10000000000.4999) <>       10000000000 or
+        round(         10000000000.5) <>          10000000001 or
+        round(         99999999999.499) <>        99999999999 or
+        round(         99999999999.5) <>         100000000000 or
+        round(        100000000000.0) <>         100000000000 or
+        round(        100000000000.499) <>       100000000000 or
+        round(        100000000000.5) <>         100000000001 or
+        round(        999999999999.49) <>        999999999999 or
+        round(        999999999999.5) <>        1000000000000 or
+        round(       1000000000000.0) <>        1000000000000 or
+        round(       1000000000000.49) <>       1000000000000 or
+        round(       1000000000000.5) <>        1000000000001 or
+        round(    9007199254740990.0) <>     9007199254740990 or
+        round(  576460752303423488.0) <>   576460752303423488 or
+        round( 1152921504606846976.0) <>  1152921504606846976 or
+        round( 2305843009213693952.0) <>  2305843009213693952 or
+        round( 4611686018427387904.0) <>  4611686018427387904 or
+        not raisesRangeError(round( 9223372036854777000.0)) or
+        not raisesRangeError(round(              1.0e37  )) or
+        not raisesRangeError(round(           FLOAT_MAX  )) or
+        not raisesRangeError(round(            Infinity  )) or
+        not raisesRangeError(round(                 NaN  )) or
+        not raisesRangeError(round(floatExpr(           -Infinity  ))) or
+        not raisesRangeError(round(floatExpr(          -FLOAT_MAX  ))) or
+        not raisesRangeError(round(floatExpr(             -1.0e37  ))) or
+        not raisesRangeError(round(floatExpr(-9223372036854777000.0))) or
+        round(floatExpr(-9223372036854775808.0)) <>        integer.first or
+        round(floatExpr(-4611686018427387904.0)) <> -4611686018427387904 or
+        round(floatExpr(-2305843009213693952.0)) <> -2305843009213693952 or
+        round(floatExpr(-1152921504606846976.0)) <> -1152921504606846976 or
+        round(floatExpr( -576460752303423488.0)) <>  -576460752303423488 or
+        round(floatExpr(   -9007199254740990.0)) <>    -9007199254740990 or
+        round(floatExpr(      -1000000000000.5)) <>       -1000000000001 or
+        round(floatExpr(      -1000000000000.49)) <>      -1000000000000 or
+        round(floatExpr(      -1000000000000.0)) <>       -1000000000000 or
+        round(floatExpr(       -999999999999.5)) <>       -1000000000000 or
+        round(floatExpr(       -999999999999.49)) <>       -999999999999 or
+        round(floatExpr(       -100000000000.5)) <>        -100000000001 or
+        round(floatExpr(       -100000000000.499)) <>      -100000000000 or
+        round(floatExpr(       -100000000000.0)) <>        -100000000000 or
+        round(floatExpr(        -99999999999.5)) <>        -100000000000 or
+        round(floatExpr(        -99999999999.499)) <>       -99999999999 or
+        round(floatExpr(        -10000000000.5)) <>         -10000000001 or
+        round(floatExpr(        -10000000000.4999)) <>      -10000000000 or
+        round(floatExpr(        -10000000000.0)) <>         -10000000000 or
+        round(floatExpr(         -9999999999.5)) <>         -10000000000 or
+        round(floatExpr(         -9999999999.4999)) <>       -9999999999 or
+        round(floatExpr(         -1000000000.5)) <>          -1000000001 or
+        round(floatExpr(         -1000000000.49999)) <>      -1000000000 or
+        round(floatExpr(         -1000000000.0)) <>          -1000000000 or
+        round(floatExpr(          -999999999.5)) <>          -1000000000 or
+        round(floatExpr(          -999999999.49999)) <>       -999999999 or
+        round(floatExpr(          -100000000.5)) <>           -100000001 or
+        round(floatExpr(          -100000000.499999)) <>      -100000000 or
+        round(floatExpr(          -100000000.0)) <>           -100000000 or
+        round(floatExpr(           -99999999.5)) <>           -100000000 or
+        round(floatExpr(           -99999999.499999)) <>       -99999999 or
+        round(floatExpr(           -10000000.5)) <>            -10000001 or
+        round(floatExpr(           -10000000.4999999)) <>      -10000000 or
+        round(floatExpr(           -10000000.0)) <>            -10000000 or
+        round(floatExpr(            -9999999.5)) <>            -10000000 or
+        round(floatExpr(            -9999999.4999999)) <>       -9999999 or
+        round(floatExpr(            -1000000.5)) <>             -1000001 or
+        round(floatExpr(            -1000000.49999999)) <>      -1000000 or
+        round(floatExpr(            -1000000.0)) <>             -1000000 or
+        round(floatExpr(             -999999.5)) <>             -1000000 or
+        round(floatExpr(             -999999.49999999)) <>       -999999 or
+        round(floatExpr(              100000.5)) <>               100001 or
+        round(floatExpr(              100000.499999999)) <>       100000 or
+        round(floatExpr(              100000.0)) <>               100000 or
+        round(floatExpr(               99999.5)) <>               100000 or
+        round(floatExpr(               99999.499999999)) <>        99999 or
+        round(floatExpr(               10000.5)) <>                10001 or
+        round(floatExpr(               10000.4999999999)) <>       10000 or
+        round(floatExpr(               10000.0)) <>                10000 or
+        round(floatExpr(                9999.5)) <>                10000 or
+        round(floatExpr(                9999.4999999999)) <>        9999 or
+        round(floatExpr(                1000.5)) <>                 1001 or
+        round(floatExpr(                1000.49999999999)) <>       1000 or
+        round(floatExpr(                1000.0)) <>                 1000 or
+        round(floatExpr(                 999.5)) <>                 1000 or
+        round(floatExpr(                 999.49999999999)) <>        999 or
+        round(floatExpr(                 100.5)) <>                  101 or
+        round(floatExpr(                 100.499999999999)) <>       100 or
+        round(floatExpr(                 100.0)) <>                  100 or
+        round(floatExpr(                  99.5)) <>                  100 or
+        round(floatExpr(                  99.499999999999)) <>        99 or
+        round(floatExpr(                 -10.5)) <>                  -11 or
+        round(floatExpr(                 -10.4999999999999)) <>      -10 or
+        round(floatExpr(                 -10.0)) <>                  -10 or
+        round(floatExpr(                  -9.5)) <>                  -10 or
+        round(floatExpr(                  -9.4999999999999)) <>       -9 or
+        round(floatExpr(                  -1.5)) <>                   -2 or
+        round(floatExpr(                  -1.49999999999999)) <>      -1 or
+        round(floatExpr(                  -1.0)) <>                   -1 or
+        round(floatExpr(                  -0.5)) <>                   -1 or
+        round(floatExpr(                  -0.499999999999999)) <>      0 or
+        round(floatExpr(                   0.0)) <>                    0 or
+        round(floatExpr(                   0.499999999999999)) <>      0 or
+        round(floatExpr(                   0.5)) <>                    1 or
+        round(floatExpr(                   1.0)) <>                    1 or
+        round(floatExpr(                   1.49999999999999)) <>       1 or
+        round(floatExpr(                   1.5)) <>                    2 or
+        round(floatExpr(                   9.4999999999999)) <>        9 or
+        round(floatExpr(                   9.5)) <>                   10 or
+        round(floatExpr(                  10.0)) <>                   10 or
+        round(floatExpr(                  10.4999999999999)) <>       10 or
+        round(floatExpr(                  10.5)) <>                   11 or
+        round(floatExpr(                  99.499999999999)) <>        99 or
+        round(floatExpr(                  99.5)) <>                  100 or
+        round(floatExpr(                 100.0)) <>                  100 or
+        round(floatExpr(                 100.499999999999)) <>       100 or
+        round(floatExpr(                 100.5)) <>                  101 or
+        round(floatExpr(                 999.49999999999)) <>        999 or
+        round(floatExpr(                 999.5)) <>                 1000 or
+        round(floatExpr(                1000.0)) <>                 1000 or
+        round(floatExpr(                1000.49999999999)) <>       1000 or
+        round(floatExpr(                1000.5)) <>                 1001 or
+        round(floatExpr(                9999.4999999999)) <>        9999 or
+        round(floatExpr(                9999.5)) <>                10000 or
+        round(floatExpr(               10000.0)) <>                10000 or
+        round(floatExpr(               10000.4999999999)) <>       10000 or
+        round(floatExpr(               10000.5)) <>                10001 or
+        round(floatExpr(               99999.499999999)) <>        99999 or
+        round(floatExpr(               99999.5)) <>               100000 or
+        round(floatExpr(              100000.0)) <>               100000 or
+        round(floatExpr(              100000.499999999)) <>       100000 or
+        round(floatExpr(              100000.5)) <>               100001 or
+        round(floatExpr(              999999.49999999)) <>        999999 or
+        round(floatExpr(              999999.5)) <>              1000000 or
+        round(floatExpr(             1000000.0)) <>              1000000 or
+        round(floatExpr(             1000000.49999999)) <>       1000000 or
+        round(floatExpr(             1000000.5)) <>              1000001 or
+        round(floatExpr(             9999999.4999999)) <>        9999999 or
+        round(floatExpr(             9999999.5)) <>             10000000 or
+        round(floatExpr(            10000000.0)) <>             10000000 or
+        round(floatExpr(            10000000.4999999)) <>       10000000 or
+        round(floatExpr(            10000000.5)) <>             10000001 or
+        round(floatExpr(            99999999.499999)) <>        99999999 or
+        round(floatExpr(            99999999.5)) <>            100000000 or
+        round(floatExpr(           100000000.0)) <>            100000000 or
+        round(floatExpr(           100000000.499999)) <>       100000000 or
+        round(floatExpr(           100000000.5)) <>            100000001 or
+        round(floatExpr(           999999999.49999)) <>        999999999 or
+        round(floatExpr(           999999999.5)) <>           1000000000 or
+        round(floatExpr(          1000000000.0)) <>           1000000000 or
+        round(floatExpr(          1000000000.49999)) <>       1000000000 or
+        round(floatExpr(          1000000000.5)) <>           1000000001 or
+        round(floatExpr(          9999999999.4999)) <>        9999999999 or
+        round(floatExpr(          9999999999.5)) <>          10000000000 or
+        round(floatExpr(         10000000000.0)) <>          10000000000 or
+        round(floatExpr(         10000000000.4999)) <>       10000000000 or
+        round(floatExpr(         10000000000.5)) <>          10000000001 or
+        round(floatExpr(         99999999999.499)) <>        99999999999 or
+        round(floatExpr(         99999999999.5)) <>         100000000000 or
+        round(floatExpr(        100000000000.0)) <>         100000000000 or
+        round(floatExpr(        100000000000.499)) <>       100000000000 or
+        round(floatExpr(        100000000000.5)) <>         100000000001 or
+        round(floatExpr(        999999999999.49)) <>        999999999999 or
+        round(floatExpr(        999999999999.5)) <>        1000000000000 or
+        round(floatExpr(       1000000000000.0)) <>        1000000000000 or
+        round(floatExpr(       1000000000000.49)) <>       1000000000000 or
+        round(floatExpr(       1000000000000.5)) <>        1000000000001 or
+        round(floatExpr(    9007199254740990.0)) <>     9007199254740990 or
+        round(floatExpr(  576460752303423488.0)) <>   576460752303423488 or
+        round(floatExpr( 1152921504606846976.0)) <>  1152921504606846976 or
+        round(floatExpr( 2305843009213693952.0)) <>  2305843009213693952 or
+        round(floatExpr( 4611686018427387904.0)) <>  4611686018427387904 or
+        not raisesRangeError(round(floatExpr( 9223372036854777000.0))) or
+        not raisesRangeError(round(floatExpr(              1.0e37  ))) or
+        not raisesRangeError(round(floatExpr(           FLOAT_MAX  ))) or
+        not raisesRangeError(round(floatExpr(            Infinity  ))) or
+        not raisesRangeError(round(floatExpr(                 NaN  ))) then
+      writeln(" ***** Rounding of float does not work correct.");
       okay := FALSE;
     end if;
 
@@ -3006,7 +3480,8 @@ const proc: check_power is func
       okay := FALSE;
     end if;
 
-    if  (-0.0) ** (-9007199254740994.0) <>  Infinity or # Not exactly represented
+    if  (-0.0) **           (-Infinity) <>  Infinity or
+        (-0.0) ** (-9007199254740994.0) <>  Infinity or # Not exactly represented
         (-0.0) ** (-9007199254740993.0) <>  Infinity or # Not exactly represented
         (-0.0) ** (-9007199254740992.0) <>  Infinity or
         (-0.0) ** (-9007199254740991.0) <> -Infinity or
@@ -3046,6 +3521,7 @@ const proc: check_power is func
         (-0.0) **                (-3.0) <> -Infinity or
         (-0.0) **                (-2.0) <>  Infinity or
         (-0.0) **                (-1.0) <> -Infinity or
+        floatExpr(-0.0) **           (-Infinity) <>  Infinity or
         floatExpr(-0.0) ** (-9007199254740994.0) <>  Infinity or # Not exactly represented
         floatExpr(-0.0) ** (-9007199254740993.0) <>  Infinity or # Not exactly represented
         floatExpr(-0.0) ** (-9007199254740992.0) <>  Infinity or
@@ -3086,6 +3562,7 @@ const proc: check_power is func
         floatExpr(-0.0) **                (-3.0) <> -Infinity or
         floatExpr(-0.0) **                (-2.0) <>  Infinity or
         floatExpr(-0.0) **                (-1.0) <> -Infinity or
+        (-0.0) ** floatExpr(          -Infinity) <>  Infinity or
         (-0.0) ** floatExpr(-9007199254740994.0) <>  Infinity or # Not exactly represented
         (-0.0) ** floatExpr(-9007199254740993.0) <>  Infinity or # Not exactly represented
         (-0.0) ** floatExpr(-9007199254740992.0) <>  Infinity or
@@ -3126,6 +3603,7 @@ const proc: check_power is func
         (-0.0) ** floatExpr(               -3.0) <> -Infinity or
         (-0.0) ** floatExpr(               -2.0) <>  Infinity or
         (-0.0) ** floatExpr(               -1.0) <> -Infinity or
+        floatExpr(-0.0) ** floatExpr(          -Infinity) <>  Infinity or
         floatExpr(-0.0) ** floatExpr(-9007199254740994.0) <>  Infinity or # Not exactly represented
         floatExpr(-0.0) ** floatExpr(-9007199254740993.0) <>  Infinity or # Not exactly represented
         floatExpr(-0.0) ** floatExpr(-9007199254740992.0) <>  Infinity or
@@ -3211,6 +3689,7 @@ const proc: check_power is func
         not isPositiveZero((-0.0) ** 9007199254740992.0) or
         not isPositiveZero((-0.0) ** 9007199254740993.0) or # Not exactly represented
         not isPositiveZero((-0.0) ** 9007199254740994.0) or # Not exactly represented
+        not isPositiveZero((-0.0) **           Infinity) or
                            floatExpr(-0.0) **                0.0 <> 1.0 or
         not isNegativeZero(floatExpr(-0.0) **                1.0) or
         not isPositiveZero(floatExpr(-0.0) **                2.0) or
@@ -3252,6 +3731,7 @@ const proc: check_power is func
         not isPositiveZero(floatExpr(-0.0) ** 9007199254740992.0) or
         not isPositiveZero(floatExpr(-0.0) ** 9007199254740993.0) or # Not exactly represented
         not isPositiveZero(floatExpr(-0.0) ** 9007199254740994.0) or # Not exactly represented
+        not isPositiveZero(floatExpr(-0.0) **           Infinity) or
                            (-0.0) ** floatExpr(               0.0) <> 1.0 or
         not isNegativeZero((-0.0) ** floatExpr(               1.0)) or
         not isPositiveZero((-0.0) ** floatExpr(               2.0)) or
@@ -3293,6 +3773,7 @@ const proc: check_power is func
         not isPositiveZero((-0.0) ** floatExpr(9007199254740992.0)) or
         not isPositiveZero((-0.0) ** floatExpr(9007199254740993.0)) or # Not exactly represented
         not isPositiveZero((-0.0) ** floatExpr(9007199254740994.0)) or # Not exactly represented
+        not isPositiveZero((-0.0) ** floatExpr(          Infinity)) or
                            floatExpr(-0.0) ** floatExpr(               0.0) <> 1.0 or
         not isNegativeZero(floatExpr(-0.0) ** floatExpr(               1.0)) or
         not isPositiveZero(floatExpr(-0.0) ** floatExpr(               2.0)) or
@@ -3332,13 +3813,15 @@ const proc: check_power is func
         not isNegativeZero(floatExpr(-0.0) ** floatExpr(      4294967297.0)) or
         not isNegativeZero(floatExpr(-0.0) ** floatExpr(9007199254740991.0)) or
         not isPositiveZero(floatExpr(-0.0) ** floatExpr(9007199254740992.0)) or
-        not isPositiveZero(floatExpr(-0.0) ** floatExpr(9007199254740993.0)) or   # Not exactly represented
-        not isPositiveZero(floatExpr(-0.0) ** floatExpr(9007199254740994.0)) then # Not exactly represented
+        not isPositiveZero(floatExpr(-0.0) ** floatExpr(9007199254740993.0)) or # Not exactly represented
+        not isPositiveZero(floatExpr(-0.0) ** floatExpr(9007199254740994.0)) or # Not exactly represented
+        not isPositiveZero(floatExpr(-0.0) ** floatExpr(          Infinity)) then
       writeln(" ***** (-0.0) ** B with positive B does not return 0.0 respectively -0.0.");
       okay := FALSE;
     end if;
 
-    if  0.0 ** (-9007199254740994.0) <> Infinity or # Not exactly represented
+    if  0.0 **           (-Infinity) <> Infinity or
+        0.0 ** (-9007199254740994.0) <> Infinity or # Not exactly represented
         0.0 ** (-9007199254740993.0) <> Infinity or # Not exactly represented
         0.0 ** (-9007199254740992.0) <> Infinity or
         0.0 ** (-9007199254740991.0) <> Infinity or
@@ -3378,6 +3861,7 @@ const proc: check_power is func
         0.0 **                (-3.0) <> Infinity or
         0.0 **                (-2.0) <> Infinity or
         0.0 **                (-1.0) <> Infinity or
+        floatExpr(0.0) **           (-Infinity) <> Infinity or
         floatExpr(0.0) ** (-9007199254740994.0) <> Infinity or # Not exactly represented
         floatExpr(0.0) ** (-9007199254740993.0) <> Infinity or # Not exactly represented
         floatExpr(0.0) ** (-9007199254740992.0) <> Infinity or
@@ -3418,6 +3902,7 @@ const proc: check_power is func
         floatExpr(0.0) **                (-3.0) <> Infinity or
         floatExpr(0.0) **                (-2.0) <> Infinity or
         floatExpr(0.0) **                (-1.0) <> Infinity or
+        0.0 ** floatExpr(          -Infinity) <> Infinity or
         0.0 ** floatExpr(-9007199254740994.0) <> Infinity or # Not exactly represented
         0.0 ** floatExpr(-9007199254740993.0) <> Infinity or # Not exactly represented
         0.0 ** floatExpr(-9007199254740992.0) <> Infinity or
@@ -3458,6 +3943,7 @@ const proc: check_power is func
         0.0 ** floatExpr(               -3.0) <> Infinity or
         0.0 ** floatExpr(               -2.0) <> Infinity or
         0.0 ** floatExpr(               -1.0) <> Infinity or
+        floatExpr(0.0) ** floatExpr(          -Infinity) <> Infinity or
         floatExpr(0.0) ** floatExpr(-9007199254740994.0) <> Infinity or # Not exactly represented
         floatExpr(0.0) ** floatExpr(-9007199254740993.0) <> Infinity or # Not exactly represented
         floatExpr(0.0) ** floatExpr(-9007199254740992.0) <> Infinity or
@@ -3543,6 +4029,7 @@ const proc: check_power is func
         not isPositiveZero(0.0 ** 9007199254740992.0) or
         not isPositiveZero(0.0 ** 9007199254740993.0) or # Not exactly represented
         not isPositiveZero(0.0 ** 9007199254740994.0) or # Not exactly represented
+        not isPositiveZero(0.0 **           Infinity) or
                            floatExpr(0.0) **                0.0 <> 1.0 or
         not isPositiveZero(floatExpr(0.0) **                1.0) or
         not isPositiveZero(floatExpr(0.0) **                2.0) or
@@ -3584,6 +4071,7 @@ const proc: check_power is func
         not isPositiveZero(floatExpr(0.0) ** 9007199254740992.0) or
         not isPositiveZero(floatExpr(0.0) ** 9007199254740993.0) or # Not exactly represented
         not isPositiveZero(floatExpr(0.0) ** 9007199254740994.0) or # Not exactly represented
+        not isPositiveZero(floatExpr(0.0) **           Infinity) or
                            0.0 ** floatExpr(               0.0) <> 1.0 or
         not isPositiveZero(0.0 ** floatExpr(               1.0)) or
         not isPositiveZero(0.0 ** floatExpr(               2.0)) or
@@ -3625,6 +4113,7 @@ const proc: check_power is func
         not isPositiveZero(0.0 ** floatExpr(9007199254740992.0)) or
         not isPositiveZero(0.0 ** floatExpr(9007199254740993.0)) or # Not exactly represented
         not isPositiveZero(0.0 ** floatExpr(9007199254740994.0)) or # Not exactly represented
+        not isPositiveZero(0.0 ** floatExpr(          Infinity)) or
                            floatExpr(0.0) ** floatExpr(               0.0) <> 1.0 or
         not isPositiveZero(floatExpr(0.0) ** floatExpr(               1.0)) or
         not isPositiveZero(floatExpr(0.0) ** floatExpr(               2.0)) or
@@ -3664,8 +4153,9 @@ const proc: check_power is func
         not isPositiveZero(floatExpr(0.0) ** floatExpr(      4294967297.0)) or
         not isPositiveZero(floatExpr(0.0) ** floatExpr(9007199254740991.0)) or
         not isPositiveZero(floatExpr(0.0) ** floatExpr(9007199254740992.0)) or
-        not isPositiveZero(floatExpr(0.0) ** floatExpr(9007199254740993.0)) or   # Not exactly represented
-        not isPositiveZero(floatExpr(0.0) ** floatExpr(9007199254740994.0)) then # Not exactly represented
+        not isPositiveZero(floatExpr(0.0) ** floatExpr(9007199254740993.0)) or # Not exactly represented
+        not isPositiveZero(floatExpr(0.0) ** floatExpr(9007199254740994.0)) or # Not exactly represented
+        not isPositiveZero(floatExpr(0.0) ** floatExpr(          Infinity)) then
       writeln(" ***** 0.0 ** B with positive B does not return 0.0.");
       okay := FALSE;
     end if;
@@ -3746,7 +4236,44 @@ const proc: check_power is func
       okay := FALSE;
     end if;
 
-    if  1.0 ** (-9007199254740994.0) <> 1.0 or
+    if    0.0    ** 0.5 <>  0.0  or
+          0.0625 ** 0.5 <>  0.25 or
+          0.25   ** 0.5 <>  0.5  or
+          1.0    ** 0.5 <>  1.0  or
+          4.0    ** 0.5 <>  2.0  or
+          9.0    ** 0.5 <>  3.0  or
+         16.0    ** 0.5 <>  4.0  or
+        100.0    ** 0.5 <> 10.0  or
+        floatExpr(  0.0   ) ** 0.5 <>  0.0  or
+        floatExpr(  0.0625) ** 0.5 <>  0.25 or
+        floatExpr(  0.25  ) ** 0.5 <>  0.5  or
+        floatExpr(  1.0   ) ** 0.5 <>  1.0  or
+        floatExpr(  4.0   ) ** 0.5 <>  2.0  or
+        floatExpr(  9.0   ) ** 0.5 <>  3.0  or
+        floatExpr( 16.0   ) ** 0.5 <>  4.0  or
+        floatExpr(100.0   ) ** 0.5 <> 10.0  or
+          0.0    ** floatExpr(0.5) <>  0.0  or
+          0.0625 ** floatExpr(0.5) <>  0.25 or
+          0.25   ** floatExpr(0.5) <>  0.5  or
+          1.0    ** floatExpr(0.5) <>  1.0  or
+          4.0    ** floatExpr(0.5) <>  2.0  or
+          9.0    ** floatExpr(0.5) <>  3.0  or
+         16.0    ** floatExpr(0.5) <>  4.0  or
+        100.0    ** floatExpr(0.5) <> 10.0  or
+        floatExpr(  0.0   ) ** floatExpr(0.5) <>  0.0  or
+        floatExpr(  0.0625) ** floatExpr(0.5) <>  0.25 or
+        floatExpr(  0.25  ) ** floatExpr(0.5) <>  0.5  or
+        floatExpr(  1.0   ) ** floatExpr(0.5) <>  1.0  or
+        floatExpr(  4.0   ) ** floatExpr(0.5) <>  2.0  or
+        floatExpr(  9.0   ) ** floatExpr(0.5) <>  3.0  or
+        floatExpr( 16.0   ) ** floatExpr(0.5) <>  4.0  or
+        floatExpr(100.0   ) ** floatExpr(0.5) <> 10.0  then
+      writeln(" ***** A ** 0.5 does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if  1.0 **           (-Infinity) <> 1.0 or
+        1.0 ** (-9007199254740994.0) <> 1.0 or
         1.0 ** (-9007199254740993.0) <> 1.0 or
         1.0 ** (-9007199254740992.0) <> 1.0 or
         1.0 ** (-9007199254740991.0) <> 1.0 or
@@ -3763,6 +4290,8 @@ const proc: check_power is func
         1.0 **   9007199254740992.0  <> 1.0 or
         1.0 **   9007199254740993.0  <> 1.0 or
         1.0 **   9007199254740994.0  <> 1.0 or
+        1.0 **             Infinity  <> 1.0 or
+        floatExpr(1.0) **           (-Infinity) <> 1.0 or
         floatExpr(1.0) ** (-9007199254740994.0) <> 1.0 or
         floatExpr(1.0) ** (-9007199254740993.0) <> 1.0 or
         floatExpr(1.0) ** (-9007199254740992.0) <> 1.0 or
@@ -3780,6 +4309,8 @@ const proc: check_power is func
         floatExpr(1.0) **   9007199254740992.0  <> 1.0 or
         floatExpr(1.0) **   9007199254740993.0  <> 1.0 or
         floatExpr(1.0) **   9007199254740994.0  <> 1.0 or
+        floatExpr(1.0) **             Infinity  <> 1.0 or
+        1.0 ** floatExpr(          -Infinity) <> 1.0 or
         1.0 ** floatExpr(-9007199254740994.0) <> 1.0 or
         1.0 ** floatExpr(-9007199254740993.0) <> 1.0 or
         1.0 ** floatExpr(-9007199254740992.0) <> 1.0 or
@@ -3797,6 +4328,8 @@ const proc: check_power is func
         1.0 ** floatExpr( 9007199254740992.0) <> 1.0 or
         1.0 ** floatExpr( 9007199254740993.0) <> 1.0 or
         1.0 ** floatExpr( 9007199254740994.0) <> 1.0 or
+        1.0 ** floatExpr(           Infinity) <> 1.0 or
+        floatExpr(1.0) ** floatExpr(          -Infinity) <> 1.0 or
         floatExpr(1.0) ** floatExpr(-9007199254740994.0) <> 1.0 or
         floatExpr(1.0) ** floatExpr(-9007199254740993.0) <> 1.0 or
         floatExpr(1.0) ** floatExpr(-9007199254740992.0) <> 1.0 or
@@ -3813,12 +4346,14 @@ const proc: check_power is func
         floatExpr(1.0) ** floatExpr( 9007199254740991.0) <> 1.0 or
         floatExpr(1.0) ** floatExpr( 9007199254740992.0) <> 1.0 or
         floatExpr(1.0) ** floatExpr( 9007199254740993.0) <> 1.0 or
-        floatExpr(1.0) ** floatExpr( 9007199254740994.0) <> 1.0 then
+        floatExpr(1.0) ** floatExpr( 9007199254740994.0) <> 1.0 or
+        floatExpr(1.0) ** floatExpr(           Infinity) <> 1.0 then
       writeln(" ***** 1.0 ** B does not return 1.0.");
       okay := FALSE;
     end if;
 
-    if  2.0 ** (-9007199254740994.0) <> 0.0 or
+    if  2.0 **           (-Infinity) <> 0.0 or
+        2.0 ** (-9007199254740994.0) <> 0.0 or
         2.0 ** (-9007199254740993.0) <> 0.0 or
         2.0 ** (-9007199254740992.0) <> 0.0 or
         2.0 ** (-9007199254740991.0) <> 0.0 or
@@ -3851,6 +4386,8 @@ const proc: check_power is func
         2.0 ** 9007199254740992.0 <> Infinity or
         2.0 ** 9007199254740993.0 <> Infinity or
         2.0 ** 9007199254740994.0 <> Infinity or
+        2.0 **           Infinity <> Infinity or
+        floatExpr(2.0) **           (-Infinity) <> 0.0 or
         floatExpr(2.0) ** (-9007199254740994.0) <> 0.0 or
         floatExpr(2.0) ** (-9007199254740993.0) <> 0.0 or
         floatExpr(2.0) ** (-9007199254740992.0) <> 0.0 or
@@ -3884,6 +4421,8 @@ const proc: check_power is func
         floatExpr(2.0) ** 9007199254740992.0 <> Infinity or
         floatExpr(2.0) ** 9007199254740993.0 <> Infinity or
         floatExpr(2.0) ** 9007199254740994.0 <> Infinity or
+        floatExpr(2.0) **           Infinity <> Infinity or
+        2.0 ** floatExpr(          -Infinity) <> 0.0 or
         2.0 ** floatExpr(-9007199254740994.0) <> 0.0 or
         2.0 ** floatExpr(-9007199254740993.0) <> 0.0 or
         2.0 ** floatExpr(-9007199254740992.0) <> 0.0 or
@@ -3917,6 +4456,8 @@ const proc: check_power is func
         2.0 ** floatExpr( 9007199254740992.0) <> Infinity or
         2.0 ** floatExpr( 9007199254740993.0) <> Infinity or
         2.0 ** floatExpr( 9007199254740994.0) <> Infinity or
+        2.0 ** floatExpr(           Infinity) <> Infinity or
+        floatExpr(2.0) ** floatExpr(          -Infinity) <> 0.0 or
         floatExpr(2.0) ** floatExpr(-9007199254740994.0) <> 0.0 or
         floatExpr(2.0) ** floatExpr(-9007199254740993.0) <> 0.0 or
         floatExpr(2.0) ** floatExpr(-9007199254740992.0) <> 0.0 or
@@ -3949,12 +4490,46 @@ const proc: check_power is func
         floatExpr(2.0) ** floatExpr(9007199254740991.0) <> Infinity or
         floatExpr(2.0) ** floatExpr(9007199254740992.0) <> Infinity or
         floatExpr(2.0) ** floatExpr(9007199254740993.0) <> Infinity or
-        floatExpr(2.0) ** floatExpr(9007199254740994.0) <> Infinity then
+        floatExpr(2.0) ** floatExpr(9007199254740994.0) <> Infinity or
+        floatExpr(2.0) ** floatExpr(          Infinity) <> Infinity then
       writeln(" ***** 2.0 ** B does not work correct.");
       okay := FALSE;
     end if;
 
-    if  not isNaN(NaN ** (-9007199254740994.0)) or # Not exactly represented
+    if            E  **          (-Infinity) <>      0.0 or
+                  E  **                 0.0  <>      1.0 or
+                  E  **            Infinity  <> Infinity or
+        floatExpr(E) **          (-Infinity) <>      0.0 or
+        floatExpr(E) **                 0.0  <>      1.0 or
+        floatExpr(E) **            Infinity  <> Infinity or
+                  E  ** floatExpr(-Infinity) <>      0.0 or
+                  E  ** floatExpr(      0.0) <>      1.0 or
+                  E  ** floatExpr( Infinity) <> Infinity or
+        floatExpr(E) ** floatExpr(-Infinity) <>      0.0 or
+        floatExpr(E) ** floatExpr(      0.0) <>      1.0 or
+        floatExpr(E) ** floatExpr( Infinity) <> Infinity then
+      writeln(" ***** E ** B does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if            10.0  **          (-Infinity) <>      0.0 or
+                  10.0  **                 0.0  <>      1.0 or
+                  10.0  **            Infinity  <> Infinity or
+        floatExpr(10.0) **          (-Infinity) <>      0.0 or
+        floatExpr(10.0) **                 0.0  <>      1.0 or
+        floatExpr(10.0) **            Infinity  <> Infinity or
+                  10.0  ** floatExpr(-Infinity) <>      0.0 or
+                  10.0  ** floatExpr(      0.0) <>      1.0 or
+                  10.0  ** floatExpr( Infinity) <> Infinity or
+        floatExpr(10.0) ** floatExpr(-Infinity) <>      0.0 or
+        floatExpr(10.0) ** floatExpr(      0.0) <>      1.0 or
+        floatExpr(10.0) ** floatExpr( Infinity) <> Infinity then
+      writeln(" ***** 10.0 ** B does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if  not isNaN(NaN ** (          -Infinity)) or
+        not isNaN(NaN ** (-9007199254740994.0)) or # Not exactly represented
         not isNaN(NaN ** (-9007199254740993.0)) or # Not exactly represented
         not isNaN(NaN ** (-9007199254740992.0)) or
         not isNaN(NaN ** (-9007199254740991.0)) or
@@ -3986,6 +4561,8 @@ const proc: check_power is func
         not isNaN(NaN **   9007199254740992.0 ) or
         not isNaN(NaN **   9007199254740993.0 ) or # Not exactly represented
         not isNaN(NaN **   9007199254740994.0 ) or # Not exactly represented
+        not isNaN(NaN **             Infinity ) or
+        not isNaN(floatExpr(NaN) ** (          -Infinity)) or
         not isNaN(floatExpr(NaN) ** (-9007199254740994.0)) or # Not exactly represented
         not isNaN(floatExpr(NaN) ** (-9007199254740993.0)) or # Not exactly represented
         not isNaN(floatExpr(NaN) ** (-9007199254740992.0)) or
@@ -4018,6 +4595,8 @@ const proc: check_power is func
         not isNaN(floatExpr(NaN) **   9007199254740992.0 ) or
         not isNaN(floatExpr(NaN) **   9007199254740993.0 ) or # Not exactly represented
         not isNaN(floatExpr(NaN) **   9007199254740994.0 ) or # Not exactly represented
+        not isNaN(floatExpr(NaN) **             Infinity ) or
+        not isNaN(NaN ** floatExpr(          -Infinity)) or
         not isNaN(NaN ** floatExpr(-9007199254740994.0)) or # Not exactly represented
         not isNaN(NaN ** floatExpr(-9007199254740993.0)) or # Not exactly represented
         not isNaN(NaN ** floatExpr(-9007199254740992.0)) or
@@ -4050,6 +4629,8 @@ const proc: check_power is func
         not isNaN(NaN ** floatExpr( 9007199254740992.0)) or
         not isNaN(NaN ** floatExpr( 9007199254740993.0)) or # Not exactly represented
         not isNaN(NaN ** floatExpr( 9007199254740994.0)) or # Not exactly represented
+        not isNaN(NaN ** floatExpr(           Infinity)) or
+        not isNaN(floatExpr(NaN) ** floatExpr(          -Infinity)) or
         not isNaN(floatExpr(NaN) ** floatExpr(-9007199254740994.0)) or # Not exactly represented
         not isNaN(floatExpr(NaN) ** floatExpr(-9007199254740993.0)) or # Not exactly represented
         not isNaN(floatExpr(NaN) ** floatExpr(-9007199254740992.0)) or
@@ -4080,9 +4661,26 @@ const proc: check_power is func
         not isNaN(floatExpr(NaN) ** floatExpr(       4294967297.0)) or
         not isNaN(floatExpr(NaN) ** floatExpr( 9007199254740991.0)) or
         not isNaN(floatExpr(NaN) ** floatExpr( 9007199254740992.0)) or
-        not isNaN(floatExpr(NaN) ** floatExpr( 9007199254740993.0)) or   # Not exactly represented
-        not isNaN(floatExpr(NaN) ** floatExpr( 9007199254740994.0)) then # Not exactly represented
+        not isNaN(floatExpr(NaN) ** floatExpr( 9007199254740993.0)) or # Not exactly represented
+        not isNaN(floatExpr(NaN) ** floatExpr( 9007199254740994.0)) or # Not exactly represented
+        not isNaN(floatExpr(NaN) ** floatExpr(           Infinity)) then
       writeln(" ***** NaN ** B for B <> 0.0 does not return NaN.");
+      okay := FALSE;
+    end if;
+
+    if  not isNaN( 2.0 ** NaN) or
+        not isNaN(10.0 ** NaN) or
+        not isNaN(   E ** NaN) or
+        not isNaN(floatExpr( 2.0) ** NaN) or
+        not isNaN(floatExpr(10.0) ** NaN) or
+        not isNaN(floatExpr(   E) ** NaN) or
+        not isNaN( 2.0 ** floatExpr(NaN)) or
+        not isNaN(10.0 ** floatExpr(NaN)) or
+        not isNaN(   E ** floatExpr(NaN)) or
+        not isNaN(floatExpr( 2.0) ** floatExpr(NaN)) or
+        not isNaN(floatExpr(10.0) ** floatExpr(NaN)) or
+        not isNaN(floatExpr(   E) ** floatExpr(NaN)) then
+      writeln(" ***** A ** NaN for A <> 1.0 does not return NaN.");
       okay := FALSE;
     end if;
 
@@ -5898,6 +6496,12 @@ const proc: check_inf is func
         log(  floatExpr(     -0.0)) <> -Infinity or
         log(  floatExpr(minusZero)) <> -Infinity or
         log(  floatExpr(      0.0)) <> -Infinity or
+        log2(                -0.0)  <> -Infinity or
+        log2(           minusZero)  <> -Infinity or
+        log2(                 0.0)  <> -Infinity or
+        log2( floatExpr(     -0.0)) <> -Infinity or
+        log2( floatExpr(minusZero)) <> -Infinity or
+        log2( floatExpr(      0.0)) <> -Infinity or
         log10(               -0.0)  <> -Infinity or
         log10(          minusZero)  <> -Infinity or
         log10(                0.0)  <> -Infinity or
@@ -6727,6 +7331,7 @@ const proc: check_nan is func
         not isNaN(acos(2.0))   or
         not isNaN(sqrt(-1.0))  or
         not isNaN(log(-1.0))   or
+        not isNaN(log2(-1.0))  or
         not isNaN(log10(-1.0)) then
       writeln(" ***** NaN is not returned as error value for math functions.");
       okay := FALSE;

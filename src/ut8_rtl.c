@@ -111,7 +111,7 @@ static inline void bytes_to_strelements (ustriType buffer, memSizeType bytes_in_
  *  Read UTF-8 characters from 'inFile' into the allocated string.
  *  Read until the string 'stri' is filled or 'inFile' reaches EOF.
  *  @param inFile File from which UTF-8 encoded characters are read.
- *  @param stri A allocated string for the requested number of chars.
+ *  @param stri An allocated string for the requested number of chars.
  *  @param err_info Unchanged when the function succeeds or
  *                  RANGE_ERROR when inFile contains illegal encodings.
  *                  FILE_ERROR when a system function returns an error.
@@ -288,7 +288,9 @@ charType ut8Getc (fileType inFile)
       /* character range 0x80 to 0xFF (128 to 255) */
       if (unlikely(character <= 0xBF)) {
         /* character range 0xC0 to 0xBF (128 to 191) */
-        /* Unexpected UTF-8 continuation byte.       */
+        logError(printf("ut8Getc(%d): "
+                        "Unexpected UTF-8 continuation byte ('\\16#%02x;').\n",
+                        safe_fileno(inFile), character););
         raise_error(RANGE_ERROR);
         return 0;
       } else if (character <= 0xDF) {
@@ -299,7 +301,10 @@ charType ut8Getc (fileType inFile)
           /* character range 128 to 191 (leading bits 10......) */
           result |= character & 0x3F;
           if (result <= 0x7F) {
-            /* Overlong encodings are illegal */
+            logError(printf("ut8Getc(%d): "
+                            "Overlong encodings are illegal "
+                            "('\\16#" FMT_X32 ";').\n",
+                            safe_fileno(inFile), result););
             raise_error(RANGE_ERROR);
             return 0;
           } else {
@@ -307,6 +312,10 @@ charType ut8Getc (fileType inFile)
             /* 0x80 to 0x07FF (128 to 2047)       */
           } /* if */
         } else {
+          logError(printf("ut8Getc(%d): "
+                          "UTF-8 continuation byte expected "
+                          "(found '\\16#%02x;').\n",
+                          safe_fileno(inFile), character););
           raise_error(RANGE_ERROR);
           return 0;
         } /* if */
@@ -321,7 +330,10 @@ charType ut8Getc (fileType inFile)
           if (character >= 0x80 && character <= 0xBF) {
             result |= character & 0x3F;
             if (result <= 0x7FF) {  /* (result >= 0xD800 && result <= 0xDFFF)) */
-              /* Overlong encodings are illegal */
+              logError(printf("ut8Getc(%d): "
+                              "Overlong encodings are illegal "
+                              "('\\16#" FMT_X32 ";').\n",
+                              safe_fileno(inFile), result););
               raise_error(RANGE_ERROR);
               return 0;
             } else {
@@ -329,10 +341,18 @@ charType ut8Getc (fileType inFile)
               /* 0x800 to 0xFFFF (2048 to 65535)    */
             } /* if */
           } else {
+            logError(printf("ut8Getc(%d): "
+                            "UTF-8 continuation byte expected "
+                            "(found '\\16#%02x;').\n",
+                            safe_fileno(inFile), character););
             raise_error(RANGE_ERROR);
             return 0;
           } /* if */
         } else {
+          logError(printf("ut8Getc(%d): "
+                          "UTF-8 continuation byte expected "
+                          "(found '\\16#%02x;').\n",
+                          safe_fileno(inFile), character););
           raise_error(RANGE_ERROR);
           return 0;
         } /* if */
@@ -350,7 +370,10 @@ charType ut8Getc (fileType inFile)
             if (character >= 0x80 && character <= 0xBF) {
               result |= character & 0x3F;
               if (result <= 0xFFFF) {
-                /* Overlong encodings are illegal */
+                logError(printf("ut8Getc(%d): "
+                                "Overlong encodings are illegal "
+                                "('\\16#" FMT_X32 ";').\n",
+                                safe_fileno(inFile), result););
                 raise_error(RANGE_ERROR);
                 return 0;
               } else {
@@ -360,14 +383,26 @@ charType ut8Getc (fileType inFile)
                 /* 0x110000 to 0x1FFFFF (1114112 to 2097151) */
               } /* if */
             } else {
+              logError(printf("ut8Getc(%d): "
+                              "UTF-8 continuation byte expected "
+                              "(found '\\16#%02x;').\n",
+                              safe_fileno(inFile), character););
               raise_error(RANGE_ERROR);
               return 0;
             } /* if */
           } else {
+            logError(printf("ut8Getc(%d): "
+                            "UTF-8 continuation byte expected "
+                            "(found '\\16#%02x;').\n",
+                            safe_fileno(inFile), character););
             raise_error(RANGE_ERROR);
             return 0;
           } /* if */
         } else {
+          logError(printf("ut8Getc(%d): "
+                          "UTF-8 continuation byte expected "
+                          "(found '\\16#%02x;').\n",
+                          safe_fileno(inFile), character););
           raise_error(RANGE_ERROR);
           return 0;
         } /* if */
@@ -388,7 +423,10 @@ charType ut8Getc (fileType inFile)
               if (character >= 0x80 && character <= 0xBF) {
                 result |= character & 0x3F;
                 if (result <= 0x1FFFFF) {
-                  /* Overlong encodings are illegal */
+                  logError(printf("ut8Getc(%d): "
+                                  "Overlong encodings are illegal "
+                                  "('\\16#" FMT_X32 ";').\n",
+                                  safe_fileno(inFile), result););
                   raise_error(RANGE_ERROR);
                   return 0;
                 } else {
@@ -396,18 +434,34 @@ charType ut8Getc (fileType inFile)
                   /* 0x200000 to 0x3FFFFFF (2097152 to 67108863) */
                 } /* if */
               } else {
+                logError(printf("ut8Getc(%d): "
+                                "UTF-8 continuation byte expected "
+                                "(found '\\16#%02x;').\n",
+                                safe_fileno(inFile), character););
                 raise_error(RANGE_ERROR);
                 return 0;
               } /* if */
             } else {
+              logError(printf("ut8Getc(%d): "
+                              "UTF-8 continuation byte expected "
+                              "(found '\\16#%02x;').\n",
+                              safe_fileno(inFile), character););
               raise_error(RANGE_ERROR);
               return 0;
             } /* if */
           } else {
+            logError(printf("ut8Getc(%d): "
+                            "UTF-8 continuation byte expected "
+                            "(found '\\16#%02x;').\n",
+                            safe_fileno(inFile), character););
             raise_error(RANGE_ERROR);
             return 0;
           } /* if */
         } else {
+          logError(printf("ut8Getc(%d): "
+                          "UTF-8 continuation byte expected "
+                          "(found '\\16#%02x;').\n",
+                          safe_fileno(inFile), character););
           raise_error(RANGE_ERROR);
           return 0;
         } /* if */
@@ -431,7 +485,10 @@ charType ut8Getc (fileType inFile)
                 if (character >= 0x80 && character <= 0xBF) {
                   result |= character & 0x3F;
                   if (result <= 0x3FFFFFF) {
-                    /* Overlong encodings are illegal */
+                    logError(printf("ut8Getc(%d): "
+                                    "Overlong encodings are illegal "
+                                    "('\\16#" FMT_X32 ";').\n",
+                                    safe_fileno(inFile), result););
                     raise_error(RANGE_ERROR);
                     return 0;
                   } else {
@@ -439,22 +496,42 @@ charType ut8Getc (fileType inFile)
                     /* 0x4000000 to 0xFFFFFFFF (67108864 to 4294967295) */
                   } /* if */
                 } else {
+                  logError(printf("ut8Getc(%d): "
+                                  "UTF-8 continuation byte expected "
+                                  "(found '\\16#%02x;').\n",
+                                  safe_fileno(inFile), character););
                   raise_error(RANGE_ERROR);
                   return 0;
                 } /* if */
               } else {
+                logError(printf("ut8Getc(%d): "
+                                "UTF-8 continuation byte expected "
+                                "(found '\\16#%02x;').\n",
+                                safe_fileno(inFile), character););
                 raise_error(RANGE_ERROR);
                 return 0;
               } /* if */
             } else {
+              logError(printf("ut8Getc(%d): "
+                              "UTF-8 continuation byte expected "
+                              "(found '\\16#%02x;').\n",
+                              safe_fileno(inFile), character););
               raise_error(RANGE_ERROR);
               return 0;
             } /* if */
           } else {
+            logError(printf("ut8Getc(%d): "
+                            "UTF-8 continuation byte expected "
+                            "(found '\\16#%02x;').\n",
+                            safe_fileno(inFile), character););
             raise_error(RANGE_ERROR);
             return 0;
           } /* if */
         } else {
+          logError(printf("ut8Getc(%d): "
+                          "UTF-8 continuation byte expected "
+                          "(found '\\16#%02x;').\n",
+                          safe_fileno(inFile), character););
           raise_error(RANGE_ERROR);
           return 0;
         } /* if */
@@ -496,7 +573,9 @@ striType ut8Gets (fileType inFile, intType length)
 
   /* ut8Gets */
     logFunction(printf("ut8Gets(%d, " FMT_D ")\n", safe_fileno(inFile), length););
-    if (length < 0) {
+    if (unlikely(length < 0)) {
+      logError(printf("ut8Gets(%d, " FMT_D "): Negative length.\n",
+                      safe_fileno(inFile), length););
       raise_error(RANGE_ERROR);
       result = NULL;
     } else {

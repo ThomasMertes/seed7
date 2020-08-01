@@ -70,15 +70,15 @@ objectType refAlloc (const const_objectType obj_arg)
     /* printf("refAlloc(");
     trace1(obj_arg);
     printf(")\n"); */
-    if (ALLOC_OBJECT(created_object)) {
+    if (unlikely(!ALLOC_OBJECT(created_object))) {
+      raise_error(MEMORY_ERROR);
+    } else {
       created_object->type_of = obj_arg->type_of;
       memcpy(&created_object->descriptor, &obj_arg->descriptor,
           sizeof(descriptorUnion));
       /* Copies the POSINFO flag (and all other flags): */
       INIT_CATEGORY_OF_OBJ(created_object, obj_arg->objcategory);
       created_object->value.objValue = NULL;
-    } else {
-      raise_error(MEMORY_ERROR);
     } /* if */
     return created_object;
   } /* refAlloc */
@@ -92,7 +92,9 @@ objectType refAllocStri (boolType var_flag, typeType any_type,
     objectType created_object;
 
   /* refAllocStri */
-    if (ALLOC_OBJECT(created_object)) {
+    if (unlikely(!ALLOC_OBJECT(created_object))) {
+      raise_error(MEMORY_ERROR);
+    } else {
       created_object->type_of = any_type;
       created_object->descriptor.property = NULL;
       INIT_CATEGORY_OF_OBJ(created_object, STRIOBJECT);
@@ -100,8 +102,6 @@ objectType refAllocStri (boolType var_flag, typeType any_type,
         SET_VAR_FLAG(created_object);
       } /* if */
       created_object->value.striValue = strCreate(stri_from);
-    } else {
-      raise_error(MEMORY_ERROR);
     } /* if */
     return created_object;
   } /* refAllocStri */
@@ -111,7 +111,8 @@ objectType refAllocStri (boolType var_flag, typeType any_type,
 intType refArrMaxIdx (const const_objectType obj_arg)
 
   { /* refArrMaxIdx */
-    if (obj_arg == NULL || CATEGORY_OF_OBJ(obj_arg) != ARRAYOBJECT) {
+    if (unlikely(obj_arg == NULL ||
+                 CATEGORY_OF_OBJ(obj_arg) != ARRAYOBJECT)) {
       raise_error(RANGE_ERROR);
       return 0;
     } else {
@@ -124,7 +125,8 @@ intType refArrMaxIdx (const const_objectType obj_arg)
 intType refArrMinIdx (const const_objectType obj_arg)
 
   { /* refArrMinIdx */
-    if (obj_arg == NULL || CATEGORY_OF_OBJ(obj_arg) != ARRAYOBJECT) {
+    if (unlikely(obj_arg == NULL ||
+                 CATEGORY_OF_OBJ(obj_arg) != ARRAYOBJECT)) {
       raise_error(RANGE_ERROR);
       return 0;
     } else {
@@ -141,12 +143,13 @@ listType refArrToList (const const_objectType obj_arg)
     listType result;
 
   /* refArrToList */
-    if (obj_arg == NULL || CATEGORY_OF_OBJ(obj_arg) != ARRAYOBJECT) {
+    if (unlikely(obj_arg == NULL ||
+                 CATEGORY_OF_OBJ(obj_arg) != ARRAYOBJECT)) {
       raise_error(RANGE_ERROR);
       result = NULL;
     } else {
       result = array_to_list(take_array(obj_arg), &err_info);
-      if (err_info != OKAY_NO_ERROR) {
+      if (unlikely(err_info != OKAY_NO_ERROR)) {
         raise_error(MEMORY_ERROR);
         result = NULL;
       } /* if */
@@ -162,7 +165,8 @@ objectType refBody (const const_objectType obj_arg)
     objectType result;
 
   /* refBody */
-    if (obj_arg == NULL || CATEGORY_OF_OBJ(obj_arg) != BLOCKOBJECT) {
+    if (unlikely(obj_arg == NULL ||
+                 CATEGORY_OF_OBJ(obj_arg) != BLOCKOBJECT)) {
       raise_error(RANGE_ERROR);
       result = NULL;
     } else {
@@ -199,13 +203,13 @@ intType refCatParse (striType category_name)
 
   /* refCatParse */
     name = stri_to_cstri(category_name, &err_info);
-    if (name == NULL) {
+    if (unlikely(name == NULL)) {
       raise_error(err_info);
       result = -1;
     } else {
       result = category_value(name);
       free_cstri(name, category_name);
-      if (result == -1) {
+      if (unlikely(result == -1)) {
         raise_error(RANGE_ERROR);
       } /* if */
     } /* if */
@@ -221,7 +225,7 @@ striType refCatStr (intType aCategory)
 
   /* refCatStr */
     result = cstri_to_stri(category_cstri((objectCategory) aCategory));
-    if (result == NULL) {
+    if (unlikely(result == NULL)) {
       raise_error(MEMORY_ERROR);
     } /* if */
     return result;
@@ -253,7 +257,7 @@ striType refFile (const const_objectType obj_arg)
         file_number = 0;
       } /* if */
       result = get_file_name(file_number);
-      if (result == NULL) {
+      if (unlikely(result == NULL)) {
         raise_error(MEMORY_ERROR);
       } /* if */
     } /* if */
@@ -269,12 +273,13 @@ listType refHshDataToList (const const_objectType obj_arg)
     listType result;
 
   /* refHshDataToList */
-    if (obj_arg == NULL || CATEGORY_OF_OBJ(obj_arg) != HASHOBJECT) {
+    if (unlikely(obj_arg == NULL ||
+                 CATEGORY_OF_OBJ(obj_arg) != HASHOBJECT)) {
       raise_error(RANGE_ERROR);
       result = NULL;
     } else {
       result = hash_data_to_list(take_hash(obj_arg), &err_info);
-      if (err_info != OKAY_NO_ERROR) {
+      if (unlikely(err_info != OKAY_NO_ERROR)) {
         raise_error(MEMORY_ERROR);
         result = NULL;
       } /* if */
@@ -291,12 +296,13 @@ listType refHshKeysToList (const const_objectType obj_arg)
     listType result;
 
   /* refHshKeysToList */
-    if (obj_arg == NULL || CATEGORY_OF_OBJ(obj_arg) != HASHOBJECT) {
+    if (unlikely(obj_arg == NULL ||
+                 CATEGORY_OF_OBJ(obj_arg) != HASHOBJECT)) {
       raise_error(RANGE_ERROR);
       result = NULL;
     } else {
       result = hash_keys_to_list(take_hash(obj_arg), &err_info);
-      if (err_info != OKAY_NO_ERROR) {
+      if (unlikely(err_info != OKAY_NO_ERROR)) {
         raise_error(MEMORY_ERROR);
         result = NULL;
       } /* if */
@@ -310,7 +316,7 @@ boolType refIsVar (const const_objectType obj_arg)
 
   { /* refIsVar */
     /* printf("refIsvar(%lu)\n", obj_arg); */
-    if (obj_arg == NULL) {
+    if (unlikely(obj_arg == NULL)) {
       raise_error(RANGE_ERROR);
       return FALSE;
     } else {
@@ -326,8 +332,9 @@ objectType refItfToSct (const const_objectType obj_arg)
     objectType result;
 
   /* refItfToSct */
-    if (obj_arg == NULL || CATEGORY_OF_OBJ(obj_arg) != INTERFACEOBJECT ||
-        take_reference(obj_arg) == NULL) {
+    if (unlikely(obj_arg == NULL ||
+                 CATEGORY_OF_OBJ(obj_arg) != INTERFACEOBJECT ||
+                 take_reference(obj_arg) == NULL)) {
       raise_error(RANGE_ERROR);
       result = NULL;
     } else {
@@ -344,7 +351,7 @@ intType refLine (const const_objectType obj_arg)
     intType result;
 
   /* refLine */
-    if (obj_arg == NULL) {
+    if (unlikely(obj_arg == NULL)) {
       raise_error(RANGE_ERROR);
       result = 0;
     } else if (HAS_POSINFO(obj_arg)) {
@@ -376,7 +383,8 @@ listType refLocalConsts (const const_objectType obj_arg)
 
   /* refLocalConsts */
     result = NULL;
-    if (obj_arg == NULL || CATEGORY_OF_OBJ(obj_arg) != BLOCKOBJECT) {
+    if (unlikely(obj_arg == NULL ||
+                 CATEGORY_OF_OBJ(obj_arg) != BLOCKOBJECT)) {
       raise_error(RANGE_ERROR);
     } else {
       list_insert_place = &result;
@@ -386,7 +394,7 @@ listType refLocalConsts (const const_objectType obj_arg)
             local_elem->obj, &err_info);
         local_elem = local_elem->next;
       } /* while */
-      if (err_info != OKAY_NO_ERROR) {
+      if (unlikely(err_info != OKAY_NO_ERROR)) {
         free_list(result);
         result = NULL;
         raise_error(MEMORY_ERROR);
@@ -407,7 +415,8 @@ listType refLocalVars (const const_objectType obj_arg)
 
   /* refLocalVars */
     result = NULL;
-    if (obj_arg == NULL || CATEGORY_OF_OBJ(obj_arg) != BLOCKOBJECT) {
+    if (unlikely(obj_arg == NULL ||
+                 CATEGORY_OF_OBJ(obj_arg) != BLOCKOBJECT)) {
       raise_error(RANGE_ERROR);
     } else {
       list_insert_place = &result;
@@ -417,7 +426,7 @@ listType refLocalVars (const const_objectType obj_arg)
             local_elem->local.object, &err_info);
         local_elem = local_elem->next;
       } /* while */
-      if (err_info != OKAY_NO_ERROR) {
+      if (unlikely(err_info != OKAY_NO_ERROR)) {
         free_list(result);
         result = NULL;
         raise_error(MEMORY_ERROR);
@@ -469,7 +478,7 @@ listType refParams (const const_objectType obj_arg)
 
   /* refParams */
     result = NULL;
-    if (obj_arg == NULL) {
+    if (unlikely(obj_arg == NULL)) {
       raise_error(RANGE_ERROR);
     } else {
       if (HAS_PROPERTY(obj_arg)) {
@@ -487,7 +496,8 @@ objectType refResini (const const_objectType obj_arg)
     objectType result;
 
   /* refResini */
-    if (obj_arg == NULL || CATEGORY_OF_OBJ(obj_arg) != BLOCKOBJECT) {
+    if (unlikely(obj_arg == NULL ||
+                 CATEGORY_OF_OBJ(obj_arg) != BLOCKOBJECT)) {
       raise_error(RANGE_ERROR);
       result = NULL;
     } else {
@@ -504,7 +514,8 @@ objectType refResult (const const_objectType obj_arg)
     objectType result;
 
   /* refResult */
-    if (obj_arg == NULL || CATEGORY_OF_OBJ(obj_arg) != BLOCKOBJECT) {
+    if (unlikely(obj_arg == NULL ||
+                 CATEGORY_OF_OBJ(obj_arg) != BLOCKOBJECT)) {
       raise_error(RANGE_ERROR);
       result = NULL;
     } else {
@@ -522,12 +533,13 @@ listType refSctToList (const const_objectType obj_arg)
     listType result;
 
   /* refSctToList */
-    if (obj_arg == NULL || CATEGORY_OF_OBJ(obj_arg) != STRUCTOBJECT) {
+    if (unlikely(obj_arg == NULL ||
+                 CATEGORY_OF_OBJ(obj_arg) != STRUCTOBJECT)) {
       raise_error(RANGE_ERROR);
       result = NULL;
     } else {
       result = struct_to_list(take_struct(obj_arg), &err_info);
-      if (err_info != OKAY_NO_ERROR) {
+      if (unlikely(err_info != OKAY_NO_ERROR)) {
         raise_error(MEMORY_ERROR);
         result = NULL;
       } /* if */
@@ -540,7 +552,7 @@ listType refSctToList (const const_objectType obj_arg)
 void refSetCategory (objectType obj_arg, intType aCategory)
 
   { /* refSetCategory */
-    if (obj_arg == NULL) {
+    if (unlikely(obj_arg == NULL)) {
       raise_error(RANGE_ERROR);
     } else {
       SET_CATEGORY_OF_OBJ(obj_arg, aCategory);
@@ -555,7 +567,7 @@ void refSetParams (objectType obj_arg, const_listType params)
     errInfoType err_info = OKAY_NO_ERROR;
 
   /* refSetParams */
-    if (obj_arg == NULL) {
+    if (unlikely(obj_arg == NULL)) {
       raise_error(RANGE_ERROR);
     } else {
       if (HAS_PROPERTY(obj_arg)) {
@@ -566,7 +578,7 @@ void refSetParams (objectType obj_arg, const_listType params)
         obj_arg->value.blockValue->params =
             get_param_list(params, &err_info);
       } /* if */
-      if (err_info != OKAY_NO_ERROR) {
+      if (unlikely(err_info != OKAY_NO_ERROR)) {
         raise_error(MEMORY_ERROR);
       } /* if */
     } /* if */
@@ -577,7 +589,7 @@ void refSetParams (objectType obj_arg, const_listType params)
 void refSetType (objectType obj_arg, typeType any_type)
 
   { /* refSetType */
-    if (obj_arg == NULL) {
+    if (unlikely(obj_arg == NULL)) {
       raise_error(RANGE_ERROR);
     } else {
       obj_arg->type_of = any_type;
@@ -589,7 +601,7 @@ void refSetType (objectType obj_arg, typeType any_type)
 void refSetVar (objectType obj_arg, boolType var_flag)
 
   { /* refSetVar */
-    if (obj_arg == NULL) {
+    if (unlikely(obj_arg == NULL)) {
       raise_error(RANGE_ERROR);
     } else if (var_flag) {
       SET_VAR_FLAG(obj_arg);
@@ -618,7 +630,7 @@ striType refStr (const const_objectType obj_arg)
     } else if (HAS_POSINFO(obj_arg)) {
       stri = (const_cstriType) get_file_name_ustri(GET_FILE_NUM(obj_arg));
       buffer_len = (memSizeType) strlen(stri) + 32;
-      if (!ALLOC_CSTRI(buffer, buffer_len)) {
+      if (unlikely(!ALLOC_CSTRI(buffer, buffer_len))) {
         raise_error(MEMORY_ERROR);
         return NULL;
       } else {
@@ -653,7 +665,7 @@ striType refStr (const const_objectType obj_arg)
     if (buffer != NULL) {
       UNALLOC_CSTRI(buffer, buffer_len);
     } /* if */
-    if (result == NULL) {
+    if (unlikely(result == NULL)) {
       raise_error(MEMORY_ERROR);
     } /* if */
     return result;
@@ -667,7 +679,8 @@ typeType refType (const const_objectType obj_arg)
     typeType result;
 
   /* refType */
-    if (obj_arg == NULL || obj_arg->type_of == NULL) {
+    if (unlikely(obj_arg == NULL ||
+                 obj_arg->type_of == NULL)) {
       raise_error(RANGE_ERROR);
       result = NULL;
     } else {
@@ -681,7 +694,8 @@ typeType refType (const const_objectType obj_arg)
 actType actValue (const const_objectType obj_arg)
 
   { /* actValue */
-    if (obj_arg == NULL || CATEGORY_OF_OBJ(obj_arg) != ACTOBJECT) {
+    if (unlikely(obj_arg == NULL ||
+                 CATEGORY_OF_OBJ(obj_arg) != ACTOBJECT)) {
       raise_error(RANGE_ERROR);
       return NULL;
     } else {
@@ -694,7 +708,8 @@ actType actValue (const const_objectType obj_arg)
 bigIntType bigValue (const const_objectType obj_arg)
 
   { /* bigValue */
-    if (obj_arg == NULL || CATEGORY_OF_OBJ(obj_arg) != BIGINTOBJECT) {
+    if (unlikely(obj_arg == NULL ||
+                 CATEGORY_OF_OBJ(obj_arg) != BIGINTOBJECT)) {
       raise_error(RANGE_ERROR);
       return NULL;
     } else {
@@ -734,13 +749,13 @@ bstriType bstValue (const const_objectType obj_arg)
     bstriType result;
 
   /* bstValue */
-    if (obj_arg == NULL || CATEGORY_OF_OBJ(obj_arg) != BSTRIOBJECT ||
-        take_bstri(obj_arg) == NULL) {
+    if (unlikely(obj_arg == NULL ||
+                 CATEGORY_OF_OBJ(obj_arg) != BSTRIOBJECT ||
+                 (bstri = take_bstri(obj_arg)) == NULL)) {
       raise_error(RANGE_ERROR);
       result = NULL;
     } else {
-      bstri = take_bstri(obj_arg);
-      if (!ALLOC_BSTRI_SIZE_OK(result, bstri->size)) {
+      if (unlikely(!ALLOC_BSTRI_SIZE_OK(result, bstri->size))) {
         raise_error(MEMORY_ERROR);
       } else {
         result->size = bstri->size;
@@ -756,7 +771,8 @@ bstriType bstValue (const const_objectType obj_arg)
 charType chrValue (const const_objectType obj_arg)
 
   { /* chrValue */
-    if (obj_arg == NULL || CATEGORY_OF_OBJ(obj_arg) != CHAROBJECT) {
+    if (unlikely(obj_arg == NULL ||
+                 CATEGORY_OF_OBJ(obj_arg) != CHAROBJECT)) {
       raise_error(RANGE_ERROR);
       return '\0';
     } else {
@@ -772,7 +788,8 @@ winType drwValue (const const_objectType obj_arg)
     winType win_value;
 
   /* drwValue */
-    if (obj_arg == NULL || CATEGORY_OF_OBJ(obj_arg) != WINOBJECT) {
+    if (unlikely(obj_arg == NULL ||
+                 CATEGORY_OF_OBJ(obj_arg) != WINOBJECT)) {
       raise_error(RANGE_ERROR);
       return NULL;
     } else {
@@ -789,7 +806,8 @@ winType drwValue (const const_objectType obj_arg)
 fileType filValue (const const_objectType obj_arg)
 
   { /* filValue */
-    if (obj_arg == NULL || CATEGORY_OF_OBJ(obj_arg) != FILEOBJECT) {
+    if (unlikely(obj_arg == NULL ||
+                 CATEGORY_OF_OBJ(obj_arg) != FILEOBJECT)) {
       raise_error(RANGE_ERROR);
       return NULL;
     } else {
@@ -802,7 +820,8 @@ fileType filValue (const const_objectType obj_arg)
 floatType fltValue (const const_objectType obj_arg)
 
   { /* fltValue */
-    if (obj_arg == NULL || CATEGORY_OF_OBJ(obj_arg) != FLOATOBJECT) {
+    if (unlikely(obj_arg == NULL ||
+                 CATEGORY_OF_OBJ(obj_arg) != FLOATOBJECT)) {
       raise_error(RANGE_ERROR);
       return 0.0;
     } else {
@@ -815,7 +834,8 @@ floatType fltValue (const const_objectType obj_arg)
 intType intValue (const const_objectType obj_arg)
 
   { /* intValue */
-    if (obj_arg == NULL || CATEGORY_OF_OBJ(obj_arg) != INTOBJECT) {
+    if (unlikely(obj_arg == NULL ||
+                 CATEGORY_OF_OBJ(obj_arg) != INTOBJECT)) {
       raise_error(RANGE_ERROR);
       return 0;
     } else {
@@ -831,7 +851,8 @@ processType pcsValue (const const_objectType obj_arg)
     processType process_value;
 
   /* pcsValue */
-    if (obj_arg == NULL || CATEGORY_OF_OBJ(obj_arg) != PROCESSOBJECT) {
+    if (unlikely(obj_arg == NULL ||
+                 CATEGORY_OF_OBJ(obj_arg) != PROCESSOBJECT)) {
       raise_error(RANGE_ERROR);
       return NULL;
     } else {
@@ -848,7 +869,8 @@ processType pcsValue (const const_objectType obj_arg)
 pollType polValue (const const_objectType obj_arg)
 
   { /* polValue */
-    if (obj_arg == NULL || CATEGORY_OF_OBJ(obj_arg) != POLLOBJECT) {
+    if (unlikely(obj_arg == NULL ||
+                 CATEGORY_OF_OBJ(obj_arg) != POLLOBJECT)) {
       raise_error(RANGE_ERROR);
       return NULL;
     } else {
@@ -861,7 +883,8 @@ pollType polValue (const const_objectType obj_arg)
 progType prgValue (const const_objectType obj_arg)
 
   { /* prgValue */
-    if (obj_arg == NULL || CATEGORY_OF_OBJ(obj_arg) != PROGOBJECT) {
+    if (unlikely(obj_arg == NULL ||
+                 CATEGORY_OF_OBJ(obj_arg) != PROGOBJECT)) {
       raise_error(RANGE_ERROR);
       return NULL;
     } else {
@@ -874,15 +897,15 @@ progType prgValue (const const_objectType obj_arg)
 objectType refValue (const const_objectType obj_arg)
 
   { /* refValue */
-    if (obj_arg != NULL &&
-        (CATEGORY_OF_OBJ(obj_arg) == FWDREFOBJECT ||
-         CATEGORY_OF_OBJ(obj_arg) == REFOBJECT ||
-         CATEGORY_OF_OBJ(obj_arg) == REFPARAMOBJECT ||
-         CATEGORY_OF_OBJ(obj_arg) == RESULTOBJECT ||
-         CATEGORY_OF_OBJ(obj_arg) == LOCALVOBJECT ||
-         CATEGORY_OF_OBJ(obj_arg) == ENUMLITERALOBJECT ||
-         CATEGORY_OF_OBJ(obj_arg) == CONSTENUMOBJECT ||
-         CATEGORY_OF_OBJ(obj_arg) == VARENUMOBJECT)) {
+    if (likely(obj_arg != NULL &&
+               (CATEGORY_OF_OBJ(obj_arg) == FWDREFOBJECT ||
+                CATEGORY_OF_OBJ(obj_arg) == REFOBJECT ||
+                CATEGORY_OF_OBJ(obj_arg) == REFPARAMOBJECT ||
+                CATEGORY_OF_OBJ(obj_arg) == RESULTOBJECT ||
+                CATEGORY_OF_OBJ(obj_arg) == LOCALVOBJECT ||
+                CATEGORY_OF_OBJ(obj_arg) == ENUMLITERALOBJECT ||
+                CATEGORY_OF_OBJ(obj_arg) == CONSTENUMOBJECT ||
+                CATEGORY_OF_OBJ(obj_arg) == VARENUMOBJECT))) {
       return take_reference(obj_arg);
     } else {
       raise_error(RANGE_ERROR);
@@ -899,12 +922,12 @@ listType rflValue (const const_objectType obj_arg)
     listType result;
 
   /* rflValue */
-    if (obj_arg != NULL &&
-        (CATEGORY_OF_OBJ(obj_arg) == MATCHOBJECT ||
-         CATEGORY_OF_OBJ(obj_arg) == CALLOBJECT ||
-         CATEGORY_OF_OBJ(obj_arg) == REFLISTOBJECT)) {
+    if (likely(obj_arg != NULL &&
+               (CATEGORY_OF_OBJ(obj_arg) == MATCHOBJECT ||
+                CATEGORY_OF_OBJ(obj_arg) == CALLOBJECT ||
+                CATEGORY_OF_OBJ(obj_arg) == REFLISTOBJECT))) {
       result = copy_list(take_reflist(obj_arg), &err_info);
-      if (err_info != OKAY_NO_ERROR) {
+      if (unlikely(err_info != OKAY_NO_ERROR)) {
         raise_error(MEMORY_ERROR);
         result = NULL;
       } /* if */
@@ -924,11 +947,11 @@ void rflSetValue (objectType list_to, listType list_from)
     errInfoType err_info = OKAY_NO_ERROR;
 
   /* rflSetValue */
-    if (CATEGORY_OF_OBJ(list_to) == MATCHOBJECT ||
-        CATEGORY_OF_OBJ(list_to) == CALLOBJECT ||
-        CATEGORY_OF_OBJ(list_to) == REFLISTOBJECT) {
+    if (likely(CATEGORY_OF_OBJ(list_to) == MATCHOBJECT ||
+               CATEGORY_OF_OBJ(list_to) == CALLOBJECT ||
+               CATEGORY_OF_OBJ(list_to) == REFLISTOBJECT)) {
       help_list = copy_list(list_from, &err_info);
-      if (err_info != OKAY_NO_ERROR) {
+      if (unlikely(err_info != OKAY_NO_ERROR)) {
         raise_error(MEMORY_ERROR);
       } else {
         free_list(take_reflist(list_to));
@@ -949,14 +972,14 @@ setType setValue (const const_objectType obj_arg)
     setType result;
 
   /* setValue */
-    if (obj_arg == NULL || CATEGORY_OF_OBJ(obj_arg) != SETOBJECT ||
-        take_set(obj_arg) == NULL) {
+    if (unlikely(obj_arg == NULL ||
+                 CATEGORY_OF_OBJ(obj_arg) != SETOBJECT ||
+                 (set1 = take_set(obj_arg)) == NULL)) {
       raise_error(RANGE_ERROR);
       result = NULL;
     } else {
-      set1 = take_set(obj_arg);
       set_size = bitsetSize(set1);
-      if (!ALLOC_SET(result, set_size)) {
+      if (unlikely(!ALLOC_SET(result, set_size))) {
         raise_error(MEMORY_ERROR);
       } else {
         result->min_position = set1->min_position;
@@ -976,13 +999,13 @@ striType strValue (const const_objectType obj_arg)
     striType result;
 
   /* strValue */
-    if (obj_arg == NULL || CATEGORY_OF_OBJ(obj_arg) != STRIOBJECT ||
-        take_stri(obj_arg) == NULL) {
+    if (unlikely(obj_arg == NULL ||
+                 CATEGORY_OF_OBJ(obj_arg) != STRIOBJECT ||
+                 (stri = take_stri(obj_arg)) == NULL)) {
       raise_error(RANGE_ERROR);
       result = NULL;
     } else {
-      stri = take_stri(obj_arg);
-      if (!ALLOC_STRI_SIZE_OK(result, stri->size)) {
+      if (unlikely(!ALLOC_STRI_SIZE_OK(result, stri->size))) {
         raise_error(MEMORY_ERROR);
       } else {
         result->size = stri->size;
@@ -998,7 +1021,8 @@ striType strValue (const const_objectType obj_arg)
 typeType typValue (const const_objectType obj_arg)
 
   { /* typValue */
-    if (obj_arg == NULL || CATEGORY_OF_OBJ(obj_arg) != TYPEOBJECT) {
+    if (unlikely(obj_arg == NULL ||
+                 CATEGORY_OF_OBJ(obj_arg) != TYPEOBJECT)) {
       raise_error(RANGE_ERROR);
       return NULL;
     } else {

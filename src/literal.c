@@ -25,6 +25,9 @@
 /*                                                                  */
 /********************************************************************/
 
+#define LOG_FUNCTIONS 0
+#define VERBOSE_EXCEPTIONS 0
+
 #include "version.h"
 
 #include "stdio.h"
@@ -33,6 +36,7 @@
 #include "data.h"
 #include "chclsutl.h"
 #include "identutl.h"
+#include "striutl.h"
 #include "error.h"
 #include "info.h"
 #include "infile.h"
@@ -398,9 +402,7 @@ static char lit_escapechar (void)
     char ch;
 
   /* lit_escapechar */
-#ifdef TRACE_LITERAL
-  printf("BEGIN lit_escapechar\n");
-#endif
+    logFunction(printf("lit_escapechar\n"););
     if (in_file.character >= '\"' && in_file.character <= 'v') {
       ch = esc_tab[in_file.character - '\"'];
       if (ch != ' ') {
@@ -412,9 +414,7 @@ static char lit_escapechar (void)
       err_cchar(STRINGESCAPE, in_file.character);
       ch = ' ';
     } /* if */
-#ifdef TRACE_LITERAL
-  printf("END lit_escapechar\n");
-#endif
+    logFunction(printf("lit_escapechar --> %d\n", ch););
     return ch;
   } /* lit_escapechar */
 #endif
@@ -429,9 +429,7 @@ static char lit_escapechar (void)
     boolType read_next_character;
 
   /* lit_escapechar */
-#ifdef TRACE_LITERAL
-  printf("BEGIN lit_escapechar\n");
-#endif
+    logFunction(printf("lit_escapechar\n"););
     read_next_character = TRUE;
     switch (in_file.character) {
       case 'a':  ch = '\007'; break; /* ALERT */
@@ -479,9 +477,7 @@ static char lit_escapechar (void)
     if (read_next_character) {
       in_file.character = next_character();
     } /* if */
-#ifdef TRACE_LITERAL
-  printf("END lit_escapechar\n");
-#endif
+    logFunction(printf("lit_escapechar --> %d\n", ch););
     return ch;
   } /* lit_escapechar */
 #endif
@@ -494,9 +490,7 @@ void lit_char (void)
     unsigned int position;
 
   /* lit_char */
-#ifdef TRACE_LITERAL
-  printf("BEGIN lit_char\n");
-#endif
+    logFunction(printf("lit_char\n"););
     in_file.character = next_character();
     if (in_file.character == '\n' || in_file.character == '\r' ||
         in_file.character == EOF) {
@@ -554,9 +548,8 @@ void lit_char (void)
 #ifdef WITH_STATISTIC
     literal_count++;
 #endif
-#ifdef TRACE_LITERAL
-  printf("END lit_char\n");
-#endif
+    logFunction(printf("lit_char --> '\\" FMT_U32 ";'\n",
+                       in_file.character););
   } /* lit_char */
 
 
@@ -569,9 +562,7 @@ void lit_string (void)
     boolType reading_string;
 
   /* lit_string */
-#ifdef TRACE_LITERAL
-  printf("BEGIN lit_string\n");
-#endif
+    logFunction(printf("lit_string\n"););
     reading_string = TRUE;                                      /*  0.01% */
     position = 0;                                               /*  0.01% */
     character = next_character();                               /*  0.18% */
@@ -640,9 +631,8 @@ void lit_string (void)
 #ifdef WITH_STATISTIC
     literal_count++;
 #endif
-#ifdef TRACE_LITERAL
-  printf("END lit_string\n");
-#endif
+    logFunction(printf("lit_string --> \"%s\"\n",
+                       striAsUnquotedCStri(symbol.striValue)););
   } /* lit_string */                                            /*  0.04% */
 
 

@@ -86,7 +86,7 @@ typedef INT32TYPE          int32Type;
 typedef UINT32TYPE         uint32Type;
 
 #define INT32TYPE_MAX            INT32_SUFFIX(2147483647)
-#ifdef TWOS_COMPLEMENT_INTTYPE
+#if TWOS_COMPLEMENT_INTTYPE
 #define INT32TYPE_MIN            (-INT32TYPE_MAX - INT32_SUFFIX(1))
 #else
 #define INT32TYPE_MIN            INT32_SUFFIX(-2147483647)
@@ -107,7 +107,7 @@ typedef UINT64TYPE         uint64Type;
 
 #ifdef INT64TYPE_NO_SUFFIX_BUT_CAST
 #define INT64TYPE_MAX   ((int64Type)  9223372036854775807)
-#ifdef TWOS_COMPLEMENT_INTTYPE
+#if TWOS_COMPLEMENT_INTTYPE
 #define INT64TYPE_MIN   ((int64Type) (-INT64TYPE_MAX - 1))
 #else
 #define INT64TYPE_MIN   ((int64Type) -9223372036854775807)
@@ -115,7 +115,7 @@ typedef UINT64TYPE         uint64Type;
 #define UINT64TYPE_MAX  ((uint64Type)  0xffffffffffffffff)
 #else
 #define INT64TYPE_MAX            INT64_SUFFIX(9223372036854775807)
-#ifdef TWOS_COMPLEMENT_INTTYPE
+#if TWOS_COMPLEMENT_INTTYPE
 #define INT64TYPE_MIN            (-INT64TYPE_MAX - INT64_SUFFIX(1))
 #else
 #define INT64TYPE_MIN            INT64_SUFFIX(-9223372036854775807)
@@ -593,6 +593,8 @@ typedef mpz_srcptr  const_bigIntType;
 #define logFunction(logStatements)
 #endif
 
+#define logMessage(logStatements)
+
 #if VERBOSE_EXCEPTIONS_EVERYWHERE || (defined VERBOSE_EXCEPTIONS && VERBOSE_EXCEPTIONS)
 #define logError(logStatements) printf(" *** "); logStatements
 #else
@@ -602,4 +604,5 @@ typedef mpz_srcptr  const_bigIntType;
 /* Allow to activate selected logging functions by adding X. */
 
 #define logFunctionX(logStatements) logStatements
+#define logMessageX(logStatements) logStatements
 #define logErrorX(logStatements) printf(" *** "); logStatements

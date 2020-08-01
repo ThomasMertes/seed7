@@ -543,7 +543,7 @@ static unsigned int setBigInt (const void *buffer, const const_bigIntType bigInt
         srcIndex++;
         destIndex++;
       } /* if */
-      if (stri->size - srcIndex > MAX_DECIMAL_PRECISION) {
+      if (unlikely(stri->size - srcIndex > MAX_DECIMAL_PRECISION)) {
         *err_info = RANGE_ERROR;
       } else {
         for (; srcIndex < stri->size; srcIndex++) {
@@ -581,7 +581,7 @@ static unsigned int setBigRat (const void *buffer, const const_bigIntType numera
        printf(", ");
        prot_stri(bigStr(denominator));
        printf(")\n"); */
-    if (bigEqSignedDigit(denominator, 0)) {
+    if (unlikely(bigEqSignedDigit(denominator, 0))) {
       /* Decimal values do not support Infinity and NaN. */
       logError(printf("setBigRat: Decimal values do not support Infinity and NaN.\n"););
       raise_error(RANGE_ERROR);
@@ -622,7 +622,7 @@ static unsigned int setBigRat (const void *buffer, const const_bigIntType numera
             /* Add space for sign, zero and decimal point. */
             decimalSize = (stri->mem[0] == '-') + scale + 2;
           } /* if */
-          if (decimalSize > MAX_DECIMAL_LENGTH) {
+          if (unlikely(decimalSize > MAX_DECIMAL_LENGTH)) {
             *err_info = RANGE_ERROR;
           } else {
             decimal = (unsigned char *) buffer;

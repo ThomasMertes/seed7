@@ -30,14 +30,14 @@
  *  Mathematical constant &pi;.
  *  ''PI'' is the ratio of any circle's circumference to its diameter.
  *)
-const float: PI is 3.1415926535897932384626433832795028841972;
+const float: PI is 3.1415926535897932384626433832795028841971693993751058209749445923;
 
 
 (**
  *  Euler's number.
  *  ''E'' is defined as exp(1.0)
  *)
-const float: E  is 2.7182818284590452353602874713526624977572;
+const float: E  is 2.7182818284590452353602874713526624977572470936999595749669676277;
 
 
 (**
@@ -139,6 +139,13 @@ const func float: log (in float: x)                            is action "FLT_LO
  *  @return the base 10 logarithm of x.
  *)
 const func float: log10 (in float: x)                          is action "FLT_LOG10";
+
+
+(**
+ *  Returns the base 2 logarithm of x.
+ *  @return the base 2 logarithm of x.
+ *)
+const func float: log2 (in float: x)                           is action "FLT_LOG2";
 
 
 (**

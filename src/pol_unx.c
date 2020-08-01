@@ -80,7 +80,7 @@ typedef struct {
 
 typedef const poll_based_pollRecord *const_poll_based_pollType;
 
-#ifdef DO_HEAP_STATISTIC
+#if DO_HEAP_STATISTIC
 size_t sizeof_pollRecord = sizeof(poll_based_pollRecord);
 #endif
 
@@ -750,7 +750,7 @@ void polPoll (const pollType pollData)
     } while (unlikely(poll_result == -1 && errno == EINTR));
     if (unlikely(poll_result < 0)) {
       logError(printf("polPoll: poll(*, " FMT_U_MEM ", -1) failed:\n"
-                      "errno=%d\nerror: %s\n",
+                      "%s=%d\nerror: %s\n",
                       conv(pollData)->size, ERROR_INFORMATION););
       raise_error(FILE_ERROR);
     } else {

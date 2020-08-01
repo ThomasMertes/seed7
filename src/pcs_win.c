@@ -66,7 +66,7 @@ typedef struct {
 
 typedef const win_processRecord *const_win_processType;
 
-#ifdef DO_HEAP_STATISTIC
+#if DO_HEAP_STATISTIC
 size_t sizeof_processRecord = sizeof(win_processRecord);
 #endif
 

@@ -786,7 +786,7 @@ floatType fltParse (const const_striType stri)
 
 
 
-#if !(POWER_OF_ZERO_OKAY && POWER_OF_ONE_OKAY && POWER_OF_NAN_OKAY)
+#if !(POW_OF_NAN_OKAY && POW_OF_ZERO_OKAY && POW_OF_ONE_OKAY && POW_EXP_NAN_OKAY && POW_EXP_MINUS_INFINITY_OKAY)
 /**
  *  Compute the exponentiation of a float 'base' with a float 'exponent'.
  *  This function corrects errors of the C function pow().
@@ -810,7 +810,7 @@ floatType fltPow (floatType base, floatType exponent)
 
   /* fltPow */
     logFunction(printf("fltPow(" FMT_E ", " FMT_E ")\n", base, exponent););
-#if !POWER_OF_NAN_OKAY
+#if !POW_OF_NAN_OKAY
     /* This is checked first on purpose. NaN should not be equal  */
     /* to any value. E.g.: NaN == x should always return FALSE.   */
     /* Beyond that NaN should not be equal to itself also. Some   */
@@ -824,7 +824,7 @@ floatType fltPow (floatType base, floatType exponent)
       } /* if */
     } else
 #endif
-#if !POWER_OF_ZERO_OKAY
+#if !POW_OF_ZERO_OKAY
     if (unlikely(base == 0.0)) {
       if (exponent < 0.0) {
         if (unlikely(fltIsNegativeZero(base) &&
@@ -848,9 +848,30 @@ floatType fltPow (floatType base, floatType exponent)
       } /* if */
     } else
 #endif
-#if !POWER_OF_ONE_OKAY
+#if !POW_OF_ONE_OKAY
     if (unlikely(base == 1.0)) {
       power = 1.0;
+    } else
+#endif
+#if !POW_EXP_NAN_OKAY
+    /* This is checked before checking for negative infinity on purpose. */
+    if (unlikely(os_isnan(exponent))) {
+      if (unlikely(base == 1.0)) {
+        power = 1.0;
+      } else {
+        power = exponent;
+      } /* if */
+    } else
+#endif
+#if !POW_EXP_MINUS_INFINITY_OKAY
+    if (unlikely(exponent == NEGATIVE_INFINITY)) {
+      if (base < -1.0 || base > 1.0) {
+        power = 0.0;
+      } else if (base == 1.0) {
+        power = 1.0;
+      } else {
+        power = POSITIVE_INFINITY;
+      } /* if */
     } else
 #endif
     {

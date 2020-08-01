@@ -1,4 +1,47 @@
-20150614
+20150705:
+- The chapters describing statements and object orientation in the
+  manual have been improved.
+- The library tls.s7i has been improved to use explicit
+  initialisation vectors (IVs) for block ciphers, when the TLS
+  version is 1.1 or higher.
+- The library tls.s7i has been improved to avoid raising exceptions,
+  when the handshake fails.
+- The list of supported ciphers in tls.s7i has been changed.
+- The functions round and trunc in float.s7i have been improved to
+  raise RANGE_ERROR, when the float value cannot be represented as
+  integer.
+- The function log2 has been added to the library math.s7i.
+- Checks for the functions str, round, trunc and log2 and for the
+  power operator (**) have been added to chkflt.sd7.
+- The comanche webserver has been improved to continue without
+  exception, when the client closes the socket.
+- The comanche webserver now accepts parameters with drive letters.
+- The program chkccomp.c has been improved to write definitions of
+  HAS_LOG2, HAS_CBRT, HAS_EXP, HAS_EXP2, HAS_EXP10,
+  POW_OF_NAN_OKAY, POW_OF_ZERO_OKAY, POW_OF_ONE_OKAY,
+  POW_EXP_NAN_OKAY and POW_EXP_MINUS_INFINITY_OKAY.
+- The configuration values HAS_LOG2 and HAS_CBRT have been added to
+  cc_conf.s7i.
+- In config.h the configuration macros DO_HEAPSIZE_COMPUTATION,
+  DO_HEAP_STATISTIC, DO_HEAP_CHECK and CHECK_INT_OVERFLOW have been
+  changed to have a value of 0 or 1.
+- Documentation comments have been improved in cc_conf.s7i,
+  float.s7i, fltlib.c, str_rtl.c and ut8_rtl.c.
+- Calls of logFunction and logError have been added to actutl.c,
+  fltlib.c, literal.c, sql_rtl.c, striutl.c and ut8_rtl.c.
+- The macros 'likely' and 'unlikely' have been added to functions in
+  arr_rtl.c, int_rtl.c, ref_data.c, rfl_data.c, set_rtl.c, sql_my.c,
+  sql_rtl.c and strlib.c.
+- The definition of ERROR_INFORMATION in soc_rtl.h has been changed
+  to contain the name of the error variable. Usages of this macro in
+  pol_sel.c, pol_unx.c and soc_rtl.c have been adjusted.
+- The performance of filGets for large files has been improved by
+  2% (measured with gcc and Valgrind).
+- In various Seed7 libraries (*.s7i) parameter declarations without
+  parameter name (which use the keyword 'param') have been changed
+  to parameter declarations with parameter name. 
+
+20150614:
 - The exponentiation operator for float values has been improved to
   work correct, when the base is negative zero, one or NaN (not a
   number).

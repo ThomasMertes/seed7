@@ -1946,8 +1946,8 @@ striType strHeadTemp (const striType stri, const intType stop)
 
 
 /**
- *  Search string 'searched' in 'mainStri' at or before 'fromIndex'.
- *  The search starts at 'fromIndex' and proceeds to the left.
+ *  Search string 'searched' in 'mainStri' at or after 'fromIndex'.
+ *  The search starts at 'fromIndex' and proceeds to the right.
  *  The first character in a string has the position 1.
  *  This function uses a modified Boyer–Moore string search algorithm.
  *  @return the position of 'searched' or 0 when 'mainStri'
@@ -2013,8 +2013,8 @@ static intType strIPos2 (const const_striType mainStri, const const_striType sea
 
 
 /**
- *  Search string 'searched' in 'mainStri' at or before 'fromIndex'.
- *  The search starts at 'fromIndex' and proceeds to the left.
+ *  Search string 'searched' in 'mainStri' at or after 'fromIndex'.
+ *  The search starts at 'fromIndex' and proceeds to the right.
  *  The first character in a string has the position 1.
  *  This function calls strIPos2 when 'mainStri' is long.
  *  @return the position of 'searched' or 0 when 'mainStri'
@@ -2478,7 +2478,7 @@ striType strMult (const const_striType stri, const intType factor)
 
   {
     memSizeType len;
-    memSizeType count;
+    memSizeType numOfRepeats;
     memSizeType powerOfTwo;
     strElemType ch;
     memSizeType result_size;
@@ -2504,26 +2504,26 @@ striType strMult (const const_striType stri, const intType factor)
         raise_error(MEMORY_ERROR);
         result = NULL;
       } else {
-        count = (memSizeType) factor;
-        result_size = count * len;
+        numOfRepeats = (memSizeType) factor;
+        result_size = numOfRepeats * len;
         if (unlikely(!ALLOC_STRI_SIZE_OK(result, result_size))) {
           raise_error(MEMORY_ERROR);
         } else {
           result->size = result_size;
           if (len == 1) {
             ch = stri->mem[0];
-            memset_to_strelem(result->mem, ch, count);
-          } else if (count != 0) {
+            memset_to_strelem(result->mem, ch, numOfRepeats);
+          } else if (numOfRepeats != 0) {
             /* Use binary method for string multiplication: */
             memcpy(result->mem, stri->mem, len * sizeof(strElemType));
             powerOfTwo = 1;
-            while (powerOfTwo << 1 < count) {
+            while (powerOfTwo << 1 < numOfRepeats) {
               memcpy(&result->mem[powerOfTwo * len], result->mem,
                      powerOfTwo * len * sizeof(strElemType));
               powerOfTwo <<= 1;
             } /* while */
             memcpy(&result->mem[powerOfTwo * len], result->mem,
-                   (count - powerOfTwo) * len * sizeof(strElemType));
+                   (numOfRepeats - powerOfTwo) * len * sizeof(strElemType));
           } /* if */
         } /* if */
       } /* if */

@@ -29,6 +29,9 @@
 /*                                                                  */
 /********************************************************************/
 
+#define LOG_FUNCTIONS 0
+#define VERBOSE_EXCEPTIONS 0
+
 #include "version.h"
 
 #include "stdlib.h"
@@ -233,6 +236,9 @@ cstriType bstriAsUnquotedCStri (const const_bstriType bstri)
 #ifdef USE_DUFFS_UNROLLING
 /**
  *  Copy len bytes to Seed7 characters in a string.
+ *  This function works correct when 'src' and 'dest' point
+ *  to the same address. In other words it works correct for:
+ *    memcpy_to_strelem(mem, (ustriType) mem, num);
  *  This function uses loop unrolling inspired by Duff's device.
  */
 void memcpy_to_strelem (register strElemType *const dest,
@@ -404,6 +410,9 @@ boolType memcpy_from_strelem (register const ustriType dest,
 
 /**
  *  Copy len bytes to Seed7 characters in a string.
+ *  This function works correct when 'src' and 'dest' point
+ *  to the same address. In other words it works correct for:
+ *    memcpy_to_strelem(mem, (ustriType) mem, num);
  */
 void memcpy_to_strelem (register strElemType *const dest,
     register const const_ustriType src, memSizeType len)
@@ -460,7 +469,8 @@ boolType heapAllocOsStri (os_striType *var, memSizeType len)
     boolType success;
 
   /* heapAllocOsStri */
-    /* printf("heapAllocOsStri(%lx, %lu)\n", (long unsigned) var, len); */
+    logFunction(printf("heapAllocOsStri(%lx, %lu)\n",
+                       (long unsigned) var, len););
     if (len < STACK_ALLOC_SIZE) {
       size = STACK_ALLOC_SIZE;
     } else {
@@ -486,8 +496,8 @@ boolType heapAllocOsStri (os_striType *var, memSizeType len)
       POP_OS_STRI(*var, SIZ_OS_STRI(len));
       success = TRUE;
     } /* if */
-    /* printf("heapAllocOsStri(%lx, %lu) --> %s\n",
-        (long unsigned) *var, len, success ? "TRUE" : "FALSE"); */
+    logFunction(printf("heapAllocOsStri(%lx, %lu) --> %s\n",
+                       (long unsigned) *var, len, success ? "TRUE" : "FALSE"););
     return success;
   } /* heapAllocOsStri */
 
@@ -499,7 +509,7 @@ void heapFreeOsStri (const_os_striType var)
     stackAllocType old_stack_alloc;
 
   /* heapFreeOsStri */
-    /* printf("heapFreeOsStri(%lx)\n", (long unsigned) var); */
+    logFunction(printf("heapFreeOsStri(%lx)\n", (long unsigned) var););
     old_stack_alloc = stack_alloc;
     stack_alloc = old_stack_alloc->previous;
     free(old_stack_alloc);
@@ -771,6 +781,7 @@ static inline void stri_to_os_utf8 (register ustriType out_stri,
       ch = *strelem;
       if (ch <= 0x7F) {
         if (unlikely(ch == '\0')) {
+          logError(printf("stri_to_os_utf8: Null character ('\\0;') in string.\n"););
           *err_info = RANGE_ERROR;
           return;
         } else {
@@ -792,6 +803,9 @@ static inline void stri_to_os_utf8 (register ustriType out_stri,
         out_stri[3] = (ucharType) (0x80 |( ch        & 0x3F));
         out_stri += 4;
       } else {
+        logError(printf("stri_to_os_utf8: "
+                        "Non-Unicode character ('\\" FMT_U32 ";') in string.\n",
+                        ch););
         *err_info = RANGE_ERROR;
         return;
       } /* if */
@@ -832,6 +846,10 @@ void conv_to_cstri (cstriType cstri, const const_striType stri,
     str = stri->mem;
     for (pos = stri->size; pos > 0; pos--) {
       if (unlikely(str[pos - 1] == 0 || str[pos - 1] >= 256)) {
+        logError(printf("conv_to_cstri: "
+                        "Null character or non-ISO-8859-1 character "
+                        "in string ('\\" FMT_U32 ";').\n",
+                        str[pos - 1]););
         *err_info = RANGE_ERROR;
         return;
       } /* if */
@@ -891,6 +909,9 @@ memSizeType stri_to_utf16 (const wstriType out_wstri,
         wstri++;
         *wstri = (wcharType) (0xDC00 | (ch & 0x3FF));
       } else {
+        logError(printf("stri_to_utf16: Non-Unicode character "
+                        "in string ('\\" FMT_U32 ";').\n",
+                        ch););
         *err_info = RANGE_ERROR;
         len = 1;
       } /* if */
@@ -913,6 +934,7 @@ static inline void conv_to_os_stri (register os_striType os_stri,
       ch = *strelem;
       if (likely(ch <= 0xFFFF)) {
         if (unlikely(ch == '\0')) {
+          logError(printf("conv_to_os_stri: Null character ('\\0;') in string.\n"););
           *err_info = RANGE_ERROR;
           len = 1;
         } else {
@@ -924,6 +946,9 @@ static inline void conv_to_os_stri (register os_striType os_stri,
         os_stri++;
         *os_stri = (os_charType) (0xDC00 | (ch & 0x3FF));
       } else {
+        logError(printf("conv_to_os_stri: "
+                        "Non-Unicode character ('\\" FMT_U32 ";') in string.\n",
+                        ch););
         *err_info = RANGE_ERROR;
         len = 1;
       } /* if */
@@ -1018,6 +1043,7 @@ static inline void conv_to_os_stri (os_striType os_stri,
       for (; len > 0; os_stri++, strelem++, len--) {
         if (*strelem <= 127) {
           if (unlikely(*strelem == '\0')) {
+            logError(printf("conv_to_os_stri: Null character ('\\0;') in string.\n"););
             *err_info = RANGE_ERROR;
             len = 1;
           } else {
@@ -1050,7 +1076,7 @@ static inline void conv_to_os_stri (os_striType os_stri,
             } /* switch */
           } /* if */
           *os_stri = (os_charType) ch;
-          if (ch == '?') {
+          if (unlikely(ch == '?')) {
             *err_info = RANGE_ERROR;
             /* The conversion continues. The caller  */
             /* can decide to use the question marks. */
@@ -1061,6 +1087,7 @@ static inline void conv_to_os_stri (os_striType os_stri,
       for (; len > 0; os_stri++, strelem++, len--) {
         if (*strelem <= 127) {
           if (unlikely(*strelem == '\0')) {
+            logError(printf("conv_to_os_stri: Null character ('\\0;') in string.\n"););
             *err_info = RANGE_ERROR;
             len = 1;
           } else {
@@ -1080,7 +1107,7 @@ static inline void conv_to_os_stri (os_striType os_stri,
             } /* switch */
           } /* if */
           *os_stri = (os_charType) ch;
-          if (ch == '?') {
+          if (unlikely(ch == '?')) {
             *err_info = RANGE_ERROR;
             /* The conversion continues. The caller  */
             /* can decide to use the question marks. */
@@ -1115,6 +1142,10 @@ static inline void conv_to_os_stri (const os_striType os_stri,
   { /* conv_to_os_stri */
     for (; len > 0; len--) {
       if (unlikely(strelem[len - 1] == '\0' || strelem[len - 1] >= 256)) {
+        logError(printf("conv_to_os_stri: "
+                        "Null character or non-ISO-8859-1 character "
+                        "in string ('\\" FMT_U32 ";').\n",
+                        str[pos - 1]););
         *err_info = RANGE_ERROR;
       } /* if */
       os_stri[len - 1] = (os_charType) strelem[len - 1];
@@ -1403,6 +1434,10 @@ cstriType stri_to_cstri (const const_striType stri, errInfoType *err_info)
       for (pos = stri->size; pos > 0; pos--) {
         if (unlikely(str[pos - 1] == 0 || str[pos - 1] >= 256)) {
           UNALLOC_CSTRI(cstri, stri->size);
+          logError(printf("stri_to_cstri: "
+                          "Null character or non-ISO-8859-1 character "
+                          "in string ('\\" FMT_U32 ";').\n",
+                          str[pos - 1]););
           *err_info = RANGE_ERROR;
           return NULL;
         } /* if */
@@ -1841,14 +1876,14 @@ striType wstri_buf_to_stri (const_wstriType wstri, memSizeType length,
     striType stri;
 
   /* wstri_buf_to_stri */
-    if (!ALLOC_STRI_CHECK_SIZE(stri, length)) {
+    if (unlikely(!ALLOC_STRI_CHECK_SIZE(stri, length))) {
       *err_info = MEMORY_ERROR;
     } else {
       stri_size = wstri_expand(stri->mem, wstri, length);
       stri->size = stri_size;
       if (stri_size != length) {
         REALLOC_STRI_SIZE_SMALLER(resized_stri, stri, length, stri_size);
-        if (resized_stri == NULL) {
+        if (unlikely(resized_stri == NULL)) {
           FREE_STRI(stri, length);
           *err_info = MEMORY_ERROR;
           stri = NULL;
@@ -1927,7 +1962,7 @@ striType os_stri_to_stri (const_os_striType os_stri, errInfoType *err_info)
     striType stri;
 
   /* os_stri_to_stri */
-    /* printf("os_stri_to_stri(" FMT_S_OS ", *)\n", os_stri); */
+    logFunction(printf("os_stri_to_stri(\"" FMT_S_OS "\", *)\n", os_stri););
     stri = conv_from_os_stri(os_stri, os_stri_strlen(os_stri));
     if (unlikely(stri == NULL)) {
       *err_info = MEMORY_ERROR;
@@ -2021,7 +2056,7 @@ void setEmulatedCwd (const os_striType os_path, errInfoType *err_info)
     memSizeType position;
 
   /* setEmulatedCwd */
-    /* printf("setEmulatedCwd(\"%ls\")\n", os_path); */
+    logFunction(printf("setEmulatedCwd(\"" FMT_S_OS "\")\n", os_path););
     if (IS_EMULATED_ROOT(os_path)) {
       new_cwd = emulated_root;
     } else {
@@ -2053,7 +2088,8 @@ void setEmulatedCwd (const os_striType os_path, errInfoType *err_info)
       } /* if */
       current_emulated_cwd = new_cwd;
     } /* if */
-    /* printf("current_emulated_cwd=\"%ls\"\n", current_emulated_cwd); */
+    logFunction(printf("current_emulated_cwd=\"" FMT_S_OS "\"\n",
+                        current_emulated_cwd););
   } /* setEmulatedCwd */
 
 
@@ -2070,7 +2106,8 @@ static os_striType append_path (const const_os_striType absolutePath,
     os_striType result;
 
   /* append_path */
-    /* printf("append_path(\"" FMT_S_OS "\")\n", absolutePath); */
+    logFunction(printf("append_path(\"" FMT_S_OS "\")\n",
+                       absolutePath););
     /* absolutePath[0] is always '/'. */
     if (absolutePath[1] == '\0') {
       abs_path_length = 0;
@@ -2115,14 +2152,14 @@ static os_striType append_path (const const_os_striType absolutePath,
             *abs_path_end = '/';
           } /* if */
         } /* while */
-        if (abs_path_end == result) {
+        if (unlikely(abs_path_end == result)) {
           *err_info = RANGE_ERROR;
           *path_info = PATH_IS_EMULATED_ROOT;
           os_stri_free(result);
           result = NULL;
         } else {
           *abs_path_end = '\0';
-          if (result[1] >= 'a' && result[1] <= 'z') {
+          if (likely(result[1] >= 'a' && result[1] <= 'z')) {
             if (result[2] == '\0') {
               /* "/c"   is mapped to "c:\"  */
               result[0] = result[1];
@@ -2151,8 +2188,8 @@ static os_striType append_path (const const_os_striType absolutePath,
         } /* if */
       } /* if */
     } /* if */
-    /* printf("append_path(\"" FMT_S_OS "\") --> \"" FMT_S_OS "\"\n",
-        absolutePath, result); */
+    logFunction(printf("append_path(\"" FMT_S_OS "\") --> \"" FMT_S_OS "\"\n",
+                       absolutePath, result););
     return result;
   } /* append_path */
 
@@ -2172,7 +2209,7 @@ static os_striType map_to_drive_letter (const strElemType *const pathChars,
       *err_info = RANGE_ERROR;
       *path_info = PATH_IS_EMULATED_ROOT;
       result = NULL;
-    } else if (pathChars[0] >= 'a' && pathChars[0] <= 'z') {
+    } else if (likely(pathChars[0] >= 'a' && pathChars[0] <= 'z')) {
       if (pathSize == 1) {
         /* "/c"   is mapped to "c:\"  */
         if (unlikely(!os_stri_alloc(result, 3))) {
@@ -2246,9 +2283,7 @@ os_striType cp_to_os_path (const_striType std_path, int *path_info,
     os_striType result;
 
   /* cp_to_os_path */
-#ifdef TRACE_STRIUTL
-    printf("BEGIN cp_to_os_path(%lx, %d)\n", std_path, *err_info);
-#endif
+    logFunction(printf("cp_to_os_path(%lx, %d)\n", std_path, *err_info););
 #ifdef MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
 #ifdef FORBID_DRIVE_LETTERS
     if (unlikely(std_path->size >= 2 && (std_path->mem[std_path->size - 1] == '/' ||
@@ -2313,9 +2348,8 @@ os_striType cp_to_os_path (const_striType std_path, int *path_info,
       } /* if */
 #endif
     } /* if */
-#ifdef TRACE_STRIUTL
-    printf("END cp_to_os_path(%lx, %d) ==> %lx\n", std_path, *err_info, result);
-#endif
+    logFunction(printf("cp_to_os_path(%lx, %d) --> \"" FMT_S_OS "\"\n",
+                       std_path, *err_info, result););
     return result;
   } /* cp_to_os_path */
 
@@ -2353,9 +2387,8 @@ os_striType cp_to_os_path (const_striType std_path, int *path_info,
     os_striType result;
 
   /* cp_to_os_path */
-#ifdef TRACE_STRIUTL
-    printf("BEGIN cp_to_os_path(%lx, %d)\n", std_path, *err_info);
-#endif
+    logFunction(printf("cp_to_os_path(\"%s\", *)\n",
+                       striAsUnquotedCStri(std_path)););
     if (unlikely(std_path->size >= 2 && std_path->mem[std_path->size - 1] == '/')) {
       *err_info = RANGE_ERROR;
       result = NULL;
@@ -2370,9 +2403,9 @@ os_striType cp_to_os_path (const_striType std_path, int *path_info,
         result = NULL;
       } /* if */
     } /* if */
-#ifdef TRACE_STRIUTL
-    printf("END cp_to_os_path(%lx, %d) ==> %lx\n", std_path, *err_info, result);
-#endif
+    logFunction(printf("cp_to_os_path --> \"" FMT_S_OS "\" "
+                       "(path_info=%d, err_info=%d)\n",
+                       result, *path_info, *err_info););
     return result;
   } /* cp_to_os_path */
 
@@ -2391,7 +2424,7 @@ os_striType temp_name_in_dir (const const_os_striType path)
     os_striType temp_name;
 
   /* temp_name_in_dir */
-    /* printf("temp_name_in_dir(\"" FMT_S_OS "\")\n", path); */
+    logFunction(printf("temp_name_in_dir(\"" FMT_S_OS "\")\n", path););
     path_length = os_stri_strlen(path);
     pos = path_length;
     while (pos > 0 && path[pos - 1] != '/' && path[pos - 1] != '\\') {
@@ -2408,8 +2441,8 @@ os_striType temp_name_in_dir (const const_os_striType path)
         temp_name[pos] = (os_charType) "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"[digit];
       } /* for */
       temp_name[pos] = '\0';
-      /* printf("temp_name_in_dir ==> \"" FMT_S_OS "\"\n", temp_name); */
     } /* if */
+    logFunction(printf("temp_name_in_dir --> \"" FMT_S_OS "\"\n", temp_name););
     return temp_name;
   } /* temp_name_in_dir */
 
@@ -2449,8 +2482,8 @@ static void escape_command (const const_os_striType inBuffer, os_striType outBuf
           outBuffer[outPos] = inBuffer[inPos];
           break;
         case ':':
-          if (inPos == 1 &&
-              inBuffer[0] >= 'a' && inBuffer[0] <= 'z') {
+          if (likely(inPos == 1 &&
+                     inBuffer[0] >= 'a' && inBuffer[0] <= 'z')) {
             outBuffer[outPos] = inBuffer[inPos];
           } else {
             *err_info = RANGE_ERROR;
@@ -2495,13 +2528,10 @@ os_striType cp_to_command (const const_striType commandPath,
     os_striType result;
 
   /* cp_to_command */
-#ifdef TRACE_STRIUTL
-    printf("cp_to_command(");
-    prot_stri(commandPath);
-    printf(", ");
-    prot_stri(parameters);
-    printf(", *)\n");
-#endif
+    logFunction(printf("cp_to_command(\"%s\", ",
+                       striAsUnquotedCStri(commandPath));
+                printf("\"%s\", *)\n", 
+                       striAsUnquotedCStri(parameters)););
 #ifdef EMULATE_ROOT_CWD
     if (stri_charpos(commandPath, '/') != NULL) {
       os_commandPath = cp_to_os_path(commandPath, &path_info, err_info);
@@ -2533,7 +2563,7 @@ os_striType cp_to_command (const const_striType commandPath,
             *err_info = MEMORY_ERROR;
           } else {
             escape_command(os_commandPath, result, err_info);
-            if (*err_info != OKAY_NO_ERROR) {
+            if (unlikely(*err_info != OKAY_NO_ERROR)) {
               FREE_OS_STRI(result);
               result = NULL;
             } else {
@@ -2565,9 +2595,7 @@ os_striType cp_to_command (const const_striType commandPath,
       } /* if */
       os_stri_free(os_commandPath);
     } /* if */
-#ifdef TRACE_STRIUTL
-    printf("cp_to_command -> " FMT_S_OS "\n", result);
-#endif
+    logFunction(printf("cp_to_command -> " FMT_S_OS "\n", result););
     return result;
   } /* cp_to_command */
 

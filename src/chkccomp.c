@@ -416,9 +416,12 @@ int doTest (void)
     sprintf(command, ".%cctest%s>ctest.out", PATH_DELIMITER, EXECUTABLE_FILE_EXTENSION);
 #endif
     returncode = system(command);
-    if (returncode != -1 && (outFile = fopen("ctest.out", "r")) != NULL) {
-      fscanf(outFile, "%d", &result);
-      fclose(outFile);
+    if (returncode != -1) {
+      outFile = fopen("ctest.out", "r");
+      if (outFile != NULL) {
+        fscanf(outFile, "%d", &result);
+        fclose(outFile);
+      } /* if */
     } /* if */
     return result;
   } /* doTest */
@@ -447,6 +450,7 @@ void testOutputToVersionFile (FILE *versionFile)
 
   {
     char command[1024];
+    int returncode;
     FILE *outFile;
     int ch;
 
@@ -457,11 +461,15 @@ void testOutputToVersionFile (FILE *versionFile)
 #else
     sprintf(command, ".%cctest%s>ctest.out", PATH_DELIMITER, EXECUTABLE_FILE_EXTENSION);
 #endif
-    if (system(command) != -1 && (outFile = fopen("ctest.out", "r")) != NULL) {
-      while ((ch = getc(outFile)) != EOF) {
-        putc(ch, versionFile);
-      } /* while */
-      fclose(outFile);
+    returncode = system(command);
+    if (returncode != -1) {
+      outFile = fopen("ctest.out", "r");
+      if (outFile != NULL) {
+        while ((ch = getc(outFile)) != EOF) {
+          putc(ch, versionFile);
+        } /* while */
+        fclose(outFile);
+      } /* if */
     } /* if */
   } /* testOutputToVersionFile */
 
@@ -1099,31 +1107,32 @@ void numericProperties (FILE *versionFile)
 
   {
     int testResult;
-    char buffer[4096];
+    char buffer[8192];
     char computeValues[4096];
     const char *os_isnan_definition = NULL;
 
   /* numericProperties */
     fprintf(logFile, "Numeric properties:");
     fflush(stdout);
-    if (expectTestResult("#include <stdio.h>\nint main(int argc,char *argv[])"
-                         "{long num=-1;printf(\"%d\\n\",num>>1==(long)-1);return 0;}\n", 1)) {
-      fputs("#define RSHIFT_DOES_SIGN_EXTEND\n", versionFile);
+    if (assertCompAndLnk("#include <stdio.h>\nint main(int argc,char *argv[])"
+                         "{long num=-1;printf(\"%d\\n\",num>>1==(long)-1);return 0;}\n")) {
+      fprintf(versionFile, "#define RSHIFT_DOES_SIGN_EXTEND %d\n", doTest());
     } /* if */
-    if (compileAndLinkOk("#include <stdio.h>\nint main(int argc,char *argv[])"
-                         "{long num=-1;printf(\"%d\\n\",~num==(long)0);return 0;}\n") &&
-                         doTest() == 1) {
-      fputs("#define TWOS_COMPLEMENT_INTTYPE\n", versionFile);
-    } else if (compileAndLinkOk("#include <stdio.h>\nint main(int argc,char *argv[])"
-                                "{long num=-1;printf(\"%d\\n\",~num==(long)1);return 0;}\n") &&
-                                doTest() == 1) {
-      fputs("#define ONES_COMPLEMENT_INTTYPE\n", versionFile);
+    if (assertCompAndLnk("#include <stdio.h>\nint main(int argc,char *argv[])"
+                         "{long num=-1;printf(\"%d\\n\",~num==(long)0);return 0;}\n")) {
+      fprintf(versionFile, "#define TWOS_COMPLEMENT_INTTYPE %d\n", doTest());
     } /* if */
-    if (expectTestResult("#include <stdio.h>\nint main(int argc,char *argv[])"
-                         "{long num=1;printf(\"%d\\n\",((char*)&num)[0]==1);return 0;}\n", 1)) {
-      fputs("#define LITTLE_ENDIAN_INTTYPE\n", versionFile);
-    } else {
-      fputs("#define BIG_ENDIAN_INTTYPE\n", versionFile);
+    if (assertCompAndLnk("#include <stdio.h>\nint main(int argc,char *argv[])"
+                         "{long num=-1;printf(\"%d\\n\",~num==(long)1);return 0;}\n")) {
+      fprintf(versionFile, "#define ONES_COMPLEMENT_INTTYPE %d\n", doTest());
+    } /* if */
+    if (assertCompAndLnk("#include <stdio.h>\nint main(int argc,char *argv[])"
+                         "{long num=1;printf(\"%d\\n\",((char*)&num)[0]==1);return 0;}\n")) {
+      fprintf(versionFile, "#define LITTLE_ENDIAN_INTTYPE %d\n", doTest());
+    } /* if */
+    if (assertCompAndLnk("#include <stdio.h>\nint main(int argc,char *argv[])"
+                         "{long num=1;printf(\"%d\\n\",((char*)&num)[sizeof(long) - 1]==1);return 0;}\n")) {
+      fprintf(versionFile, "#define BIG_ENDIAN_INTTYPE %d\n", doTest());
     } /* if */
     checkIntDivisions(versionFile);
 #ifdef TURN_OFF_FP_EXCEPTIONS
@@ -1199,7 +1208,7 @@ void numericProperties (FILE *versionFile)
                           "printf(\"%d\\n\",1.0/0.0==0.0);return 0;}\n") || doTest() == 2) {
       fputs("#define FLOAT_ZERO_DIV_ERROR\n", versionFile);
     } /* if */
-	if (assertCompAndLnk("#include<stdio.h>\n#include<float.h>\n"
+    if (assertCompAndLnk("#include<stdio.h>\n#include<float.h>\n"
                          "int main(int argc,char *argv[]){\n"
                          "printf(\"%d\\n\",\n"
                          "       1.0 == (double) 1 &&\n"
@@ -1215,15 +1224,24 @@ void numericProperties (FILE *versionFile)
                          "return 0;}\n")) {
       fprintf(versionFile, "#define CAST_INT_TO_FLOAT_OKAY %d\n", doTest());
     } /* if */
-    fprintf(versionFile, "#define HAS_EXP2 %d\n", 
+    fprintf(versionFile, "#define HAS_LOG2 %d\n",
         compileAndLinkWithOptionsOk("#include<stdio.h>\n#include<float.h>\n#include<math.h>\n"
                                     "int main(int argc,char *argv[]){\n"
-                                    "printf(\"%d\\n\", exp2(0.0) == 1.0); return 0;}\n",
+                                    "double number = 2.0;\n"
+                                    "printf(\"%d\\n\", log2(number) == 1.0); return 0;}\n",
                                     "", SYSTEM_LIBS) && doTest() == 1);
-    fprintf(versionFile, "#define HAS_EXP10 %d\n", 
+    fprintf(versionFile, "#define HAS_CBRT %d\n",
         compileAndLinkWithOptionsOk("#include<stdio.h>\n#include<float.h>\n#include<math.h>\n"
                                     "int main(int argc,char *argv[]){\n"
-                                    "printf(\"%d\\n\", exp10(0.0) == 1.0); return 0;}\n",
+                                    "double zero = 0.0;\n"
+                                    "printf(\"%d\\n\",\n"
+                                    "       cbrt( zero) == 0.0 &&\n"
+                                    "       cbrt(  0.0) == 0.0 &&\n"
+                                    "       cbrt(  1.0) == 1.0 &&\n"
+                                    "       cbrt(  8.0) == 2.0 &&\n"
+                                    "       cbrt( 27.0) == 3.0 &&\n"
+                                    "       cbrt( 64.0) == 4.0 &&\n"
+                                    "       cbrt(125.0) == 5.0); return 0;}\n",
                                     "", SYSTEM_LIBS) && doTest() == 1);
     strcpy(computeValues,
            "float floatZero = 0.0;\n"
@@ -1274,7 +1292,7 @@ void numericProperties (FILE *versionFile)
              "  double f;\n"
              "} dblTransfer;\n");
 #ifdef TURN_OFF_FP_EXCEPTIONS
-      strcat(computeValues, 
+      strcat(computeValues,
              "_control87(MCW_EM, MCW_EM);\n");
 #endif
       strcat(computeValues,
@@ -1340,10 +1358,85 @@ void numericProperties (FILE *versionFile)
     sprintf(buffer,
             "#include<stdio.h>\n#include<float.h>\n#include<math.h>\n"
             "%s\n"
+            "int main(int argc,char *argv[]){\n"
+            "%s\n"
+            "printf(\"%%d\\n\",\n"
+            "       exp(0.0) == 1.0 &&\n"
+            "       exp(floatZero) == 1.0 &&\n"
+            "       exp(floatNegativeZero) == 1.0 &&\n"
+            "       exp(floatMinusInf) == 0.0 &&\n"
+            "       exp(doubleMinusInf) == 0.0 &&\n"
+            "       exp(floatPlusInf) == floatPlusInf &&\n"
+            "       exp(doublePlusInf) == doublePlusInf &&\n"
+            "       os_isnan(exp(floatNanValue1)) &&\n"
+            "       os_isnan(exp(doubleNanValue1)));\n"
+            "return 0;}\n",
+            os_isnan_definition, computeValues);
+    fprintf(versionFile, "#define HAS_EXP %d\n",
+        compileAndLinkWithOptionsOk(buffer, "", SYSTEM_LIBS) && doTest() == 1);
+    sprintf(buffer,
+            "#include<stdio.h>\n#include<float.h>\n#include<math.h>\n"
+            "%s\n"
+            "int main(int argc,char *argv[]){\n"
+            "%s\n"
+            "printf(\"%%d\\n\",\n"
+            "       exp2(-5.0) == 0.03125 &&\n"
+            "       exp2(-4.0) == 0.0625 &&\n"
+            "       exp2(-3.0) == 0.125 &&\n"
+            "       exp2(-2.0) == 0.25 &&\n"
+            "       exp2(-1.0) == 0.5 &&\n"
+            "       exp2( 0.0) == 1.0 &&\n"
+            "       exp2( 1.0) == 2.0 &&\n"
+            "       exp2( 2.0) == 4.0 &&\n"
+            "       exp2( 3.0) == 8.0 &&\n"
+            "       exp2( 4.0) == 16.0 &&\n"
+            "       exp2( 5.0) == 32.0 &&\n"
+            "       exp2(10.0) == 1024.0 &&\n"
+            "       exp2(20.0) == 1048576.0 &&\n"
+            "       exp2(30.0) == 1073741824.0 &&\n"
+            "       exp2(40.0) == 1099511627776.0 &&\n"
+            "       exp2(50.0) == 1125899906842624.0 &&\n"
+            "       exp2(60.0) == 1152921504606846976.0 &&\n"
+            "       exp2(62.0) == 4611686018427387904.0 &&\n"
+            "       exp2(floatZero) == 1.0 &&\n"
+            "       exp2(floatNegativeZero) == 1.0 &&\n"
+            "       exp2(floatMinusInf) == 0.0 &&\n"
+            "       exp2(doubleMinusInf) == 0.0 &&\n"
+            "       exp2(floatPlusInf) == floatPlusInf &&\n"
+            "       exp2(doublePlusInf) == doublePlusInf &&\n"
+            "       os_isnan(exp2(floatNanValue1)) &&\n"
+            "       os_isnan(exp2(doubleNanValue1)));\n"
+            "return 0;}\n",
+            os_isnan_definition, computeValues);
+    fprintf(versionFile, "#define HAS_EXP2 %d\n",
+        compileAndLinkWithOptionsOk(buffer, "", SYSTEM_LIBS) && doTest() == 1);
+    sprintf(buffer,
+            "#include<stdio.h>\n#include<float.h>\n#include<math.h>\n"
+            "%s\n"
+            "int main(int argc,char *argv[]){\n"
+            "%s\n"
+            "printf(\"%%d\\n\",\n"
+            "       exp10(0.0) == 1.0 &&\n"
+            "       exp10(floatZero) == 1.0 &&\n"
+            "       exp10(floatNegativeZero) == 1.0 &&\n"
+            "       exp10(floatMinusInf) == 0.0 &&\n"
+            "       exp10(doubleMinusInf) == 0.0 &&\n"
+            "       exp10(floatPlusInf) == floatPlusInf &&\n"
+            "       exp10(doublePlusInf) == doublePlusInf &&\n"
+            "       os_isnan(exp10(floatNanValue1)) &&\n"
+            "       os_isnan(exp10(doubleNanValue1)));\n"
+            "return 0;}\n",
+            os_isnan_definition, computeValues);
+    fprintf(versionFile, "#define HAS_EXP10 %d\n",
+        compileAndLinkWithOptionsOk(buffer, "", SYSTEM_LIBS) && doTest() == 1);
+    sprintf(buffer,
+            "#include<stdio.h>\n#include<float.h>\n#include<math.h>\n"
+            "%s\n"
             "int doubleCompare (double num1, double num2){\n"
             "return memcmp(&num1, &num2, sizeof(double));}\n"
             "int main(int argc,char *argv[]){\n"
             "float floatOne = 1.0;\n"
+            "float floatTwo = 2.0;\n"
             "double doubleOne = 1.0;\n"
             "double doubleTwo = 2.0;\n"
             "%s"
@@ -1389,7 +1482,14 @@ void numericProperties (FILE *versionFile)
             "    os_isnan(1.0 / doubleNanValue1) &&\n"
             "    os_isnan(doubleOne / doubleNanValue1) &&\n"
             "    os_isnan(doubleNanValue1 / doubleNanValue2));\n"
-            "printf(\"#define POWER_OF_ZERO_OKAY %%d\\n\",\n"
+            "printf(\"#define POW_OF_NAN_OKAY %%d\\n\",\n"
+            "    pow(floatNanValue1, 0.0) == 1.0 &&\n"
+            "    pow(floatNanValue1, floatZero) == 1.0 &&\n"
+            "    os_isnan(pow(floatNanValue1, 1.0)) &&\n"
+            "    pow(doubleNanValue1, 0.0) == 1.0 &&\n"
+            "    pow(doubleNanValue1, doubleZero) == 1.0 &&\n"
+            "    os_isnan(pow(doubleNanValue1, 1.0)));\n"
+            "printf(\"#define POW_OF_ZERO_OKAY %%d\\n\",\n"
             "    pow(floatZero, -1.0) == floatPlusInf &&\n"
             "    pow(floatZero, -2.0) == floatPlusInf &&\n"
             "    pow(floatNegativeZero, -1.0) == floatMinusInf &&\n"
@@ -1398,19 +1498,23 @@ void numericProperties (FILE *versionFile)
             "    pow(doubleZero, -2.0) == doublePlusInf &&\n"
             "    pow(doubleNegativeZero, -1.0) == doubleMinusInf &&\n"
             "    pow(doubleNegativeZero, -2.0) == doublePlusInf);\n"
-            "printf(\"#define POWER_OF_ONE_OKAY %%d\\n\",\n"
+            "printf(\"#define POW_OF_ONE_OKAY %%d\\n\",\n"
             "    pow(1.0, floatNanValue1) == 1.0 &&\n"
             "    pow(1.0, doubleNanValue1) == 1.0 &&\n"
             "    pow(floatOne, floatNanValue1) == 1.0 &&\n"
             "    pow(doubleOne, doubleNanValue1) == 1.0);\n"
-            "printf(\"#define POWER_OF_NAN_OKAY %%d\\n\",\n"
-            "    pow(floatNanValue1, 0.0) == 1.0 &&\n"
-            "    pow(floatNanValue1, floatZero) == 1.0 &&\n"
-            "    os_isnan(pow(floatNanValue1, 1.0)) &&\n"
-            "    pow(doubleNanValue1, 0.0) == 1.0 &&\n"
-            "    pow(doubleNanValue1, doubleZero) == 1.0 &&\n"
-            "    os_isnan(pow(doubleNanValue1, 1.0)));\n"
-            "printf(\"#define POWER_UNDERFLOW_WITH_SIGN %%d\\n\",\n"
+            "printf(\"#define POW_EXP_NAN_OKAY %%d\\n\",\n"
+            "    os_isnan(pow(2.0, doubleNanValue1)) &&\n"
+            "    os_isnan(pow(doubleTwo, doubleNanValue1)) &&\n"
+            "    os_isnan(pow(10.0, doubleNanValue1)));\n"
+            "printf(\"#define POW_EXP_MINUS_INFINITY_OKAY %%d\\n\",\n"
+            "    pow(2.0, floatMinusInf) == 0.0 &&\n"
+            "    pow(floatTwo, floatMinusInf) == 0.0 &&\n"
+            "    pow(0.9, floatMinusInf) == floatPlusInf &&\n"
+            "    pow(2.0, doubleMinusInf) == 0.0 &&\n"
+            "    pow(doubleTwo, doubleMinusInf) == 0.0 &&\n"
+            "    pow(0.9, doubleMinusInf) == doublePlusInf);\n"
+            "printf(\"#define POW_UNDERFLOW_WITH_SIGN %%d\\n\",\n"
             "    doubleCompare(pow(-2.0, -2147483649.0), doubleNegativeZero) == 0 &&\n"
             "    doubleCompare(pow(-doubleTwo, -2147483649.0), doubleNegativeZero) == 0);\n"
             "{ char buffer[1024]; sprintf(buffer, \"%%1.1f\", floatNegativeZero);\n"
@@ -3126,10 +3230,9 @@ int main (int argc, char **argv)
                          "int ret_code;\n"
                          "ret_code=mkfifo(\"qwertzuiop\", 0);\n"
                          "return 0;}\n"));
-    if (compileAndLinkOk("#include<poll.h>\nint main(int argc,char *argv[])"
-                         "{struct pollfd pollFd[1];poll(pollFd, 1, 0);return 0;}\n")) {
-      fputs("#define HAS_POLL\n", versionFile);
-    } /* if */
+    fprintf(versionFile, "#define HAS_POLL %d\n",
+        compileAndLinkOk("#include<poll.h>\nint main(int argc,char *argv[])"
+                         "{struct pollfd pollFd[1];poll(pollFd, 1, 0);return 0;}\n"));
     detemineIncludesAndLibs(versionFile);
     writeReadBufferEmptyMacro(versionFile);
     cleanUpCompilation();

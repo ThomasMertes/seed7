@@ -89,11 +89,11 @@ const type: cipherSuite is new enum
   end enum;
 
 const array cipherSuite: supportedCiphers is [] (
+    TLS_RSA_WITH_AES_128_CBC_SHA,
+    TLS_RSA_WITH_3DES_EDE_CBC_SHA,
     TLS_RSA_WITH_RC4_128_SHA,
     TLS_RSA_WITH_RC4_128_MD5,
-    TLS_RSA_WITH_3DES_EDE_CBC_SHA,
-    TLS_RSA_WITH_DES_CBC_SHA,
-    TLS_RSA_WITH_AES_128_CBC_SHA
+    TLS_RSA_WITH_DES_CBC_SHA
   );
 
 const string: SSL_3_0 is "\3;\0;";
@@ -151,6 +151,7 @@ const char: UNEXPECTED_MESSAGE  is '\10;';
 const char: BAD_RECORD_MAC      is '\20;';
 const char: DECRYPTION_FAILED   is '\21;';
 const char: HANDSHAKE_FAILURE   is '\40;';
+const char: PROCOCOL_VERSION    is '\70;';
 const char: NO_RENEGOTIATION    is '\100;';
 
 const type: tlsParseState is new struct
@@ -805,7 +806,9 @@ const proc: processClientHello (inout securityParameters: parameters, inout tlsP
     beyond := state.pos + length;
     if state.message[state.pos len 2] >= SSL_3_0 and
         state.message[state.pos len 2] <= TLS_1_2 then
-      parameters.tls_version := state.message[state.pos len 2];
+      if state.message[state.pos len 2] < parameters.tls_version then
+        parameters.tls_version := state.message[state.pos len 2];
+      end if;
       state.pos +:= 2;
       parameters.client_random := state.message[state.pos len 32];
       state.pos +:= 32;
@@ -829,7 +832,7 @@ const proc: processClientHello (inout securityParameters: parameters, inout tlsP
         parameters.cipher_suite := supportedCiphers[minIndex];
         storeCipherSuite(parameters);
       else
-        raise RANGE_ERROR;
+        state.alert := HANDSHAKE_FAILURE;
       end if;
       numCompressionMethods := ord(state.message[state.pos]);
       state.pos +:= 1 + numCompressionMethods;
@@ -838,7 +841,7 @@ const proc: processClientHello (inout securityParameters: parameters, inout tlsP
         state.pos +:= 2 + extensionBytes;
       end if;
     else
-      raise RANGE_ERROR;
+      state.alert := PROCOCOL_VERSION;
     end if;
     parameters.handshake_messages &:= state.message[startPos .. pred(state.pos)];
   end func;
@@ -879,7 +882,7 @@ const proc: processServerHello (inout securityParameters: parameters, inout tlsP
         state.pos +:= 2 + extensionBytes;
       end if;
     else
-      raise RANGE_ERROR;
+      state.alert := PROCOCOL_VERSION;
     end if;
     parameters.handshake_messages &:= state.message[startPos .. pred(state.pos)];
   end func;
@@ -1283,6 +1286,7 @@ const func string: tlsEncryptRecord (inout securityParameters: parameters, in st
     var string: encrypted is "";
   local
     var string: content is "";
+    var string: iv is "";
     var string: mac is "";
     var integer: padding_length is 0;
     var string: padding is "";
@@ -1307,6 +1311,9 @@ const func string: tlsEncryptRecord (inout securityParameters: parameters, in st
     end if;
     content := plain[6 ..];
     if parameters.block_size <> 0 then
+      if parameters.tls_version >= TLS_1_1 then
+        iv := int2Octets(rand(0_, 2_ ** (parameters.block_size * 8) - 1_), parameters.block_size);
+      end if;
       padding_length := parameters.block_size - 1 -
                         (length(content) + length(mac)) mod parameters.block_size;
       # writeln("padding_length: " <& padding_length);
@@ -1315,13 +1322,14 @@ const func string: tlsEncryptRecord (inout securityParameters: parameters, in st
     # writeln("bulk_cipher_algorithm: " <& ord(parameters.bulk_cipher_algorithm));
     # writeln("data: " <& hex(content));
     # writeln("mac: " <& hex(mac));
-    encoded := encode(parameters.writeCipherState, content & mac & padding);
+    # writeln("before encode: " <& hex(iv & content & mac & padding));
+    encoded := encode(parameters.writeCipherState, iv & content & mac & padding);
     # writeln("encoded: " <& literal(encoded));
     # writeln("length(encoded): " <& length(encoded));
     encrypted &:= encoded;
     length := length(encrypted);
     encrypted @:= [4] int16AsTwoBytesBe(length - 5);
-    # writeln("encrypted message: " <& literal(encrypted));
+    # writeln("encrypted message: " <& hex(encrypted));
     # writeln("length: " <& length(encrypted));
     incr(parameters.writeSequenceNumber);
   end func;
@@ -1331,6 +1339,7 @@ const func boolean: tlsDecryptRecord (inout securityParameters: parameters, inou
   result
     var boolean: decryptOkay is TRUE;
   local
+    var string: version is "";
     var string: decoded is "";
     var integer: padding_length is 0;
     var string: content is "";
@@ -1339,7 +1348,8 @@ const func boolean: tlsDecryptRecord (inout securityParameters: parameters, inou
     var string: plain is "";
   begin
     # writeln("tlsDecryptRecord");
-    # writeln("Version: " <& ord(state.message[2]) <& "." <& ord(state.message[3]));
+    version := state.message[2 len 2];
+    # writeln("Version: " <& ord(version[1]) <& "." <& ord(version[2]));
     # writeln("message: " <& literal(state.message));
     decoded := decode(parameters.readCipherState, state.message[state.pos len state.length]);
     if parameters.block_size <> 0 then
@@ -1347,6 +1357,10 @@ const func boolean: tlsDecryptRecord (inout securityParameters: parameters, inou
       if decoded[length(decoded) - padding_length ..] =
           str(chr(padding_length)) mult succ(padding_length) then
         decoded := decoded[.. length(decoded) - succ(padding_length)];
+        if version >= TLS_1_1 then
+          # writeln("iv: " <& hex(decoded[.. parameters.block_size]));
+          decoded := decoded[succ(parameters.block_size) ..]; #Remove iv
+        end if;
       else
         decryptOkay := FALSE;
         state.alert := DECRYPTION_FAILED;
@@ -1360,7 +1374,7 @@ const func boolean: tlsDecryptRecord (inout securityParameters: parameters, inou
       plain &:= content;
       # writeln("plain: " <& hex(plain));
       # writeln("mac: " <& hex(mac));
-      if state.message[2 len 2] = SSL_3_0 then
+      if version = SSL_3_0 then
         verify := msgDigest(parameters.mac_algorithm, parameters.readMacSecret & SHA_PAD2 &
                             msgDigest(parameters.mac_algorithm, parameters.readMacSecret & SHA_PAD1 &
                                       int64AsEightBytesBe(parameters.readSequenceNumber) &
@@ -1430,6 +1444,7 @@ const func file: negotiateSecurityParameters (inout tlsFile: new_file) is func
       getTlsMsgRecord(new_file.sock, new_file.parseState);
       # showMsg(new_file.parseState.message);
       if new_file.parseState.contentType = HANDSHAKE then
+        # showHandshakeMsg(new_file.parseState.message, new_file.parseState.pos);
         if new_file.parseState.message[new_file.parseState.pos] = CERTIFICATE then
           processCertificate(new_file.parameters, new_file.parseState);
         elsif new_file.parseState.message[new_file.parseState.pos] = CERTIFICATE_REQUEST then
@@ -1519,7 +1534,9 @@ const func file: openTlsSocket (inout file: sock, in clientSession: session) is 
           new_file.parseState.message[new_file.parseState.pos] = SERVER_HELLO then
         # showMsg(new_file.parseState.message);
         processServerHello(new_file.parameters, new_file.parseState);
-        if new_file.parameters.session_id <> sessionId or
+        if new_file.parseState.alert <> CLOSE_NOTIFY then
+          sendAlertAndClose(new_file, new_file.parseState.alert);
+        elsif new_file.parameters.session_id <> sessionId or
             new_file.parameters.bulk_cipher_algorithm <> session.bulk_cipher_algorithm then
           tlsSock := negotiateSecurityParameters(new_file);
         else
@@ -1595,7 +1612,11 @@ const func file: openTlsSocket (inout file: sock) is func
             new_file.parseState.message[new_file.parseState.pos] = SERVER_HELLO then
           # showMsg(new_file.parseState.message);
           processServerHello(new_file.parameters, new_file.parseState);
-          tlsSock := negotiateSecurityParameters(new_file);
+          if new_file.parseState.alert <> CLOSE_NOTIFY then
+            sendAlertAndClose(new_file, new_file.parseState.alert);
+          else
+            tlsSock := negotiateSecurityParameters(new_file);
+          end if;
         else
           sendAlertAndClose(new_file, UNEXPECTED_MESSAGE);
         end if;
@@ -1659,19 +1680,24 @@ const func file: openServerTls (inout file: sock, in array string: certList,
         # writeln(literal(new_file.parseState.message));
         # showMsg(new_file.parseState.message);
         processClientHello(new_file.parameters, new_file.parseState);
-        serverHello := genServerHello(new_file.parameters);
-        # showMsg(serverHello);
-        write(sock, serverHello);
-        certificate := genCertificate(new_file.parameters, certList);
-        # showMsg(certificate);
-        block
-          write(sock, certificate);
-        exception
-          catch FILE_ERROR:
-            # getTlsMsgRecord(sock, new_file.parseState);
-            # showMsg(new_file.parseState.message);
-            okay := FALSE;
-        end block;
+        if new_file.parseState.alert <> CLOSE_NOTIFY then
+          sendAlertAndClose(new_file, new_file.parseState.alert);
+          okay := FALSE;
+        else
+          serverHello := genServerHello(new_file.parameters);
+          # showMsg(serverHello);
+          write(sock, serverHello);
+          certificate := genCertificate(new_file.parameters, certList);
+          # showMsg(certificate);
+          block
+            write(sock, certificate);
+          exception
+            catch FILE_ERROR:
+              # getTlsMsgRecord(sock, new_file.parseState);
+              # showMsg(new_file.parseState.message);
+              okay := FALSE;
+          end block;
+        end if;
         if okay then
           serverHelloDone := genServerHelloDone(new_file.parameters);
           # showMsg(serverHelloDone);

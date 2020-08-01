@@ -129,6 +129,6 @@ const proc: setLine (inout text: aText, in integer: line) is DYNAMIC;
 const proc: setColumn (inout text: aText, in integer: column) is DYNAMIC;
 
 
-const proc: cursor (ref text param, ref boolean param) is DYNAMIC;
-const proc: box (ref text param) is DYNAMIC;
-const proc: clear_box (ref text param) is DYNAMIC;
+const proc: cursor (ref text: aText, ref boolean: on) is DYNAMIC;
+const proc: box (ref text: aText) is DYNAMIC;
+const proc: clear_box (ref text: aText) is DYNAMIC;

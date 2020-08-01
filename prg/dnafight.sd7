@@ -122,7 +122,7 @@ const string: str (KTan) is       str(TAN);
 const string: str (KLilac) is     str(LILIAC);
 const string: str (KPink) is      str(PINK);
 
-const func string: str (in killReason param) is DYNAMIC;
+const func string: str (in killReason: aReason) is DYNAMIC;
 
 enable_output(killReason);
 
@@ -170,7 +170,7 @@ const color: display_color (TAN) is     brown;
 const color: display_color (LILIAC) is  light_magenta;
 const color: display_color (PINK) is    pink;
 
-const func color: display_color (in bactColor param) is DYNAMIC;
+const func color: display_color (in bactColor: aColor) is DYNAMIC;
 
 const func char: upper_char (in bactColor: aColor) is
   return [] (

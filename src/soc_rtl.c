@@ -50,7 +50,7 @@
 #include "netdb.h"
 #include "netinet/in.h"
 #include "sys/select.h"
-#ifdef HAS_POLL
+#if HAS_POLL
 #include "poll.h"
 #endif
 #endif
@@ -120,7 +120,7 @@ static int init_winsock (void)
     err = WSAStartup(wVersionRequested, &wsaData);
     if (err != 0) {
       logError(printf("init_winsock: WSAStartup() failed:\n"
-                      "errno=%d\nerror: %s\n",
+                      "%s=%d\nerror: %s\n",
                       ERROR_INFORMATION););
       raise_error(FILE_ERROR);
       result = -1;
@@ -148,7 +148,7 @@ cstriType wsaErrorMessage (void)
     static char buffer[1024];
 
   /* wsaErrorMessage */
-    if (FormatMessageA(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, 
+    if (FormatMessageA(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
                        NULL, WSAGetLastError(),
                        MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
                        buffer, 1024, NULL) == 0) {
@@ -417,7 +417,7 @@ socketType socAccept (socketType listenerSocket, bstriType *address)
       result = (os_socketType) accept((os_socketType) listenerSocket,
                                       (struct sockaddr *) (*address)->mem, &addrlen);
       if (unlikely(result == INVALID_SOCKET || addrlen < 0 || addrlen > MAX_ADDRESS_SIZE)) {
-        /* printf("socAccept(%d) errno=%d %s\n", listenerSocket, ERROR_INFORMATION); */
+        /* printf("socAccept(%d) %s=%d %s\n", listenerSocket, ERROR_INFORMATION); */
         REALLOC_BSTRI_SIZE_OK(resized_address, *address, MAX_ADDRESS_SIZE, old_address_size);
         if (resized_address == NULL) {
           (*address)->size = MAX_ADDRESS_SIZE;
@@ -426,7 +426,7 @@ socketType socAccept (socketType listenerSocket, bstriType *address)
           COUNT3_BSTRI(MAX_ADDRESS_SIZE, old_address_size);
         } /* if */
         logError(printf("socAccept: accept(%d, \"%s\") failed:\n"
-                        "errno=%d\nerror: %s\n",
+                        "%s=%d\nerror: %s\n",
                         listenerSocket, bstriAsUnquotedCStri(*address),
                         ERROR_INFORMATION););
         raise_error(FILE_ERROR);
@@ -625,13 +625,13 @@ striType socAddrService (const const_bstriType address)
 void socBind (socketType listenerSocket, const_bstriType address)
 
   { /* socBind */
-    logFunction(printf("socBind(%d, \"%s\")\n", 
+    logFunction(printf("socBind(%d, \"%s\")\n",
                        listenerSocket, bstriAsUnquotedCStri(address)););
     if (unlikely(bind((os_socketType) listenerSocket,
                       (const struct sockaddr *) address->mem,
                       (sockLenType) address->size) != 0)) {
       logError(printf("socBind: bind(%d, \"%s\") failed:\n"
-                      "errno=%d\nerror: %s\n",
+                      "%s=%d\nerror: %s\n",
                       listenerSocket, bstriAsUnquotedCStri(address),
                       ERROR_INFORMATION););
       raise_error(FILE_ERROR);
@@ -658,7 +658,7 @@ void socClose (socketType aSocket)
 #endif
     if (unlikely(close_result != 0)) {
       logError(printf("socClose: close(%d) failed:\n"
-                      "errno=%d\nerror: %s\n",
+                      "%s=%d\nerror: %s\n",
                       aSocket, ERROR_INFORMATION););
       raise_error(FILE_ERROR);
     } /* if */
@@ -679,7 +679,7 @@ void socConnect (socketType aSocket, const_bstriType address)
                          (const struct sockaddr *) address->mem,
                          (sockLenType) address->size) != 0)) {
       logError(printf("socConnect: connect(%d, \"%s\") failed:\n"
-                      "errno=%d\nerror: %s\n",
+                      "%s=%d\nerror: %s\n",
                       aSocket, bstriAsUnquotedCStri(address),
                       ERROR_INFORMATION););
       raise_error(FILE_ERROR);
@@ -785,7 +785,7 @@ striType socGets (socketType inSocket, intType length, charType *const eofIndica
             if (result_size == (memSizeType) (-1)) {
               result_size = 0;
             } /* if */
-            memcpy_to_strelem(result->mem, (ucharType *) result->mem, result_size);
+            memcpy_to_strelem(result->mem, (ustriType) result->mem, result_size);
             result->size = result_size;
             if (result_size < chars_requested) {
               if (result_size == 0) {
@@ -864,7 +864,7 @@ bstriType socGetLocalAddr (socketType sock)
       if (unlikely(getsockname_result != 0 || addrlen < 0 || addrlen > MAX_ADDRESS_SIZE)) {
         FREE_BSTRI(address, MAX_ADDRESS_SIZE);
         logError(printf("socGetLocalAddr: getsockname(%d, ...) failed:\n"
-                        "errno=%d\nerror: %s\n",
+                        "%s=%d\nerror: %s\n",
                         sock, ERROR_INFORMATION););
         raise_error(FILE_ERROR);
         address = NULL;
@@ -913,7 +913,7 @@ bstriType socGetPeerAddr (socketType sock)
       if (unlikely(getpeername_result != 0 || addrlen < 0 || addrlen > MAX_ADDRESS_SIZE)) {
         FREE_BSTRI(address, MAX_ADDRESS_SIZE);
         logError(printf("socGetPeerAddr: getpeername(%d, ...) failed:\n"
-                        "errno=%d\nerror: %s\n",
+                        "%s=%d\nerror: %s\n",
                         sock, ERROR_INFORMATION););
         raise_error(FILE_ERROR);
         address = NULL;
@@ -1034,7 +1034,7 @@ bstriType socInetAddr (const const_striType hostName, intType port)
             logError(printf("socInetAddr(\"%s\", " FMT_D "): "
                             "getaddrinfo(\"%s\", \"%s\", *, *) failed with %d:\n"
                             "strerror: %s\n"
-                            "errno=%d\nerror: %s\n",
+                            "%s=%d\nerror: %s\n",
                             striAsUnquotedCStri(hostName), port,
                             name, servicename, getaddrinfo_result,
                             gai_strerror(getaddrinfo_result),
@@ -1185,7 +1185,7 @@ bstriType socInetLocalAddr (intType port)
         logError(printf("socInetLocalAddr" FMT_D "): "
                         "getaddrinfo(NULL, %s, *, *) failed with %d:\n"
                         "strerror: %s\n"
-                        "errno=%d\nerror: %s\n",
+                        "%s=%d\nerror: %s\n",
                         port, servicename, getaddrinfo_result,
                         gai_strerror(getaddrinfo_result),
                         ERROR_INFORMATION););
@@ -1269,7 +1269,7 @@ bstriType socInetServAddr (intType port)
         logError(printf("socInetServAddr" FMT_D "): "
                         "getaddrinfo(NULL, %s, *, *) failed with %d:\n"
                         "strerror: %s\n"
-                        "errno=%d\nerror: %s\n",
+                        "%s=%d\nerror: %s\n",
                         port, servicename, getaddrinfo_result,
                         gai_strerror(getaddrinfo_result),
                         ERROR_INFORMATION););
@@ -1321,7 +1321,7 @@ bstriType socInetServAddr (intType port)
 
 
 
-#ifdef HAS_POLL
+#if HAS_POLL
 boolType socInputReady (socketType sock, intType seconds, intType micro_seconds)
 
   {
@@ -1350,7 +1350,7 @@ boolType socInputReady (socketType sock, intType seconds, intType micro_seconds)
       if (unlikely(poll_result < 0)) {
         logError(printf("socInputReady(%d, " FMT_D ", " FMT_D "): "
                         "os_poll([%d, POLLIN], 1, %d) failed:\n"
-                        "errno=%d\nerror: %s\n",
+                        "%s=%d\nerror: %s\n",
                         sock, seconds, micro_seconds,
                         sock, timeout,
                         ERROR_INFORMATION););
@@ -1411,7 +1411,7 @@ boolType socInputReady (socketType sock, intType seconds, intType micro_seconds)
       if (unlikely(select_result < 0)) {
         logError(printf("socInputReady(%d, " FMT_D ", " FMT_D "): "
                         "select(%d, [%d], NULL, NULL, [" FMT_D ", " FMT_D "]) failed:\n"
-                        "errno=%d\nerror: %s\n",
+                        "%s=%d\nerror: %s\n",
                         sock, seconds, micro_seconds,
                         nfds, sock, seconds, micro_seconds,
                         ERROR_INFORMATION););
@@ -1677,7 +1677,7 @@ void socListen (socketType listenerSocket, intType backlog)
     } else if (unlikely(listen((os_socketType) listenerSocket,
                                (int) backlog) != 0)) {
       logError(printf("socListen: listen(%d, " FMT_D ") failed:\n"
-                      "errno=%d\nerror: %s\n",
+                      "%s=%d\nerror: %s\n",
                       listenerSocket, backlog, ERROR_INFORMATION););
       raise_error(FILE_ERROR);
     } /* if */
@@ -1720,7 +1720,7 @@ intType socRecv (socketType sock, striType *stri, intType length, intType flags)
       new_stri_size = (memSizeType) recv((os_socketType) sock,
                                          cast_send_recv_data((*stri)->mem),
                                          cast_buffer_len(bytes_requested), (int) flags);
-      memcpy_to_strelem((*stri)->mem, (ucharType *) (*stri)->mem, new_stri_size);
+      memcpy_to_strelem((*stri)->mem, (ustriType) (*stri)->mem, new_stri_size);
       (*stri)->size = new_stri_size;
       if (new_stri_size < old_stri_size) {
         REALLOC_STRI_SIZE_OK(resized_stri, *stri, old_stri_size, new_stri_size);
@@ -1798,7 +1798,7 @@ intType socRecvfrom (socketType sock, striType *stri, intType length, intType fl
             COUNT3_BSTRI(MAX_ADDRESS_SIZE, old_address_size);
           } /* if */
           logError(printf("socRecvfrom: recvfrom(%d, ...) failed:\n"
-                          "errno=%d\nerror: %s\n",
+                          "%s=%d\nerror: %s\n",
                           sock, ERROR_INFORMATION););
           raise_error(FILE_ERROR);
         } else {
@@ -1814,7 +1814,7 @@ intType socRecvfrom (socketType sock, striType *stri, intType length, intType fl
           } /* if */
         } /* if */
       } /* if */
-      memcpy_to_strelem((*stri)->mem, (ucharType *) (*stri)->mem, stri_size);
+      memcpy_to_strelem((*stri)->mem, (ustriType) (*stri)->mem, stri_size);
       (*stri)->size = stri_size;
       if (stri_size < bytes_requested) {
         REALLOC_STRI_SIZE_OK(resized_stri, *stri, bytes_requested, stri_size);
@@ -1928,7 +1928,7 @@ void socSetOptBool (socketType sock, intType optname, boolType optval)
                          (const char *) &so_reuseaddr, sizeof(so_reuseaddr)) != 0) {
             logError(printf("socSetOptBool(%d, " FMT_D ", %s): "
                             "setsockopt(%d, ...) failed:\n"
-                            "errno=%d\nerror: %s\n",
+                            "%s=%d\nerror: %s\n",
                             sock, optname, optval ? "TRUE" : "FALSE",
                             sock, ERROR_INFORMATION););
             raise_error(FILE_ERROR);
@@ -1964,7 +1964,7 @@ socketType socSocket (intType domain, intType type, intType protocol)
       /* printf("socSocket(%d, %d, %d)\n", domain, type, protocol); */
       check_initialization((socketType) -1);
       result = (os_socketType) socket((int) domain, (int) type, (int) protocol);
-#if defined USE_WINSOCK && !defined TWOS_COMPLEMENT_INTTYPE
+#if defined USE_WINSOCK && !TWOS_COMPLEMENT_INTTYPE
       /* In this case INVALID_SOCKET != (socketType) -1 holds and    */
       /* (socketType) -1 must be returned instead of INVALID_SOCKET. */
       /* Probably a computer, which needs this, does not exist.      */
@@ -2115,8 +2115,10 @@ void socWrite (socketType outSocket, const const_striType stri)
                                       cast_buffer_len(bytes_to_send), 0);
       if (bytes_sent == (memSizeType) -1) {
         logError(printf("socWrite: send(%d, data, " FMT_U_MEM ") failed:\n"
-                        "errno=%d\nerror: %s\n",
-                        outSocket, bytes_to_send, ERROR_INFORMATION););
+                        "%s=%d\nerror: %s\n"
+                        "bytes sent successfully: " FMT_U_MEM "\n",
+                        outSocket, bytes_to_send, ERROR_INFORMATION,
+                        totally_sent););
         err_info = FILE_ERROR;
       } else {
         totally_sent += bytes_sent;

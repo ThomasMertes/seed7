@@ -102,7 +102,7 @@ const proc: setPos (in console_file: aConsoleFile,
     in integer: line, in integer: column)                        is action "CON_SETPOS";
 
 
-const proc: cursor (in console_file: aConsoleFile, in boolean param)     is action "CON_CURSOR";
+const proc: cursor (in console_file: aConsoleFile, in boolean: on)  is action "CON_CURSOR";
 const proc: clearArea (in console_file: aConsoleFile, in integer: upper,
     in integer: left, in integer: lower, in integer: right)      is action "CON_CLEAR";
 

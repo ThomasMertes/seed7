@@ -186,7 +186,7 @@ void freeStriFreelist (void)
 
 
 
-#ifdef DO_HEAP_STATISTIC
+#if DO_HEAP_STATISTIC
 void rtlHeapStatistic (void)
 
   {
@@ -337,7 +337,7 @@ void rtlHeapStatistic (void)
       printf("%9lu bytes in use\n", bytes_used);
     } /* if */
     bytes_total = bytes_used;
-#ifdef DO_HEAPSIZE_COMPUTATION
+#if DO_HEAPSIZE_COMPUTATION
     if (bytes_total != hs) {
       printf("*** \nbytes_total=%lu hs=%lu diff=%ld\n",
           bytes_total, hs, bytes_total - hs);

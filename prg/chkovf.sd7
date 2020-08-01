@@ -5931,7 +5931,6 @@ const proc: check_binom is func
       writeln("Overflow checking of binomial coefficient works correct.");
     else
       writeln(" ***** Overflow checking of binomial coefficient does not work correct.");
-      writeln;
     end if;
   end func;
 
@@ -5952,7 +5951,6 @@ const proc: check_abs is func
       writeln("Overflow checking of abs works correct.");
     else
       writeln(" ***** Overflow checking of abs does not work correct.");
-      writeln;
     end if;
   end func;
 

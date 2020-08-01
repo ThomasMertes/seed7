@@ -29,7 +29,7 @@
 $ system "integer" is integer;
 IN_PARAM_IS_VALUE(integer);
 
-const proc: (ref integer param) ::= (ref integer param)             is action "INT_CREATE";
+const proc: (ref integer: dest) ::= (ref integer: source)           is action "INT_CREATE";
 
 const proc: (inout integer: dest) := (in integer: source)           is action "INT_CPY";
 

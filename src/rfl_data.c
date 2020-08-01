@@ -134,7 +134,7 @@ void rflCpy (listType *const list_to, const const_listType list_from)
   /* rflCpy */
     if (list_from != *list_to) {
       help_list = copy_list(list_from, &err_info);
-      if (err_info != OKAY_NO_ERROR) {
+      if (unlikely(err_info != OKAY_NO_ERROR)) {
         raise_error(MEMORY_ERROR);
       } else {
         free_list(*list_to);
@@ -162,7 +162,7 @@ listType rflCreate (const const_listType list_from)
 
   /* rflCreate */
     result = copy_list(list_from, &err_info);
-    if (err_info != OKAY_NO_ERROR) {
+    if (unlikely(err_info != OKAY_NO_ERROR)) {
       raise_error(MEMORY_ERROR);
       result = NULL;
     } /* if */
@@ -233,19 +233,19 @@ boolType rflElem (const const_objectType searched_object, const_listType list_el
 void rflElemcpy (listType list, intType position, objectType elem)
 
   { /* rflElemcpy */
-    if (position >= 1) {
+    if (unlikely(position <= 0)) {
+      raise_error(RANGE_ERROR);
+    } else {
       position--;
       while (position != 0 && list != NULL) {
         position--;
         list = list->next;
       } /* while */
-      if (list != NULL) {
-        list->obj = elem;
-      } else {
+      if (unlikely(list == NULL)) {
         raise_error(RANGE_ERROR);
+      } else {
+        list->obj = elem;
       } /* if */
-    } else {
-      raise_error(RANGE_ERROR);
     } /* if */
   } /* rflElemcpy */
 
@@ -297,7 +297,7 @@ listType rflHead (const listType list, intType stop)
       } else {
         result = copy_list(list, &err_info);
       } /* if */
-      if (err_info != OKAY_NO_ERROR) {
+      if (unlikely(err_info != OKAY_NO_ERROR)) {
         raise_error(MEMORY_ERROR);
         result = NULL;
       } /* if */
@@ -315,21 +315,21 @@ objectType rflIdx (const_listType list, intType position)
     objectType result;
 
   /* rflIdx */
-    if (position >= 1) {
+    if (unlikely(position <= 0)) {
+      raise_error(RANGE_ERROR);
+      result = 0;
+    } else {
       position--;
       while (position != 0 && list != NULL) {
         position--;
         list = list->next;
       } /* while */
-      if (list != NULL) {
-        result = list->obj;
-      } else {
+      if (unlikely(list == NULL)) {
         raise_error(RANGE_ERROR);
         result = 0;
+      } else {
+        result = list->obj;
       } /* if */
-    } else {
-      raise_error(RANGE_ERROR);
-      result = 0;
     } /* if */
     return result;
   } /* rflIdx */
@@ -343,7 +343,7 @@ void rflIncl (listType *list, objectType elem)
 
   /* rflIncl */
     incl_list(list, elem, &err_info);
-    if (err_info != OKAY_NO_ERROR) {
+    if (unlikely(err_info != OKAY_NO_ERROR)) {
       raise_error(MEMORY_ERROR);
     } /* if */
   } /* rflIncl */
@@ -372,12 +372,12 @@ listType rflMklist (objectType elem)
     listType result;
 
   /* rflMklist */
-    if (ALLOC_L_ELEM(result)) {
-      result->next = NULL;
-      result->obj = elem;
-    } else {
+    if (unlikely(!ALLOC_L_ELEM(result))) {
       raise_error(MEMORY_ERROR);
       result = NULL;
+    } else {
+      result->next = NULL;
+      result->obj = elem;
     } /* if */
     return result;
   } /* rflMklist */
@@ -463,7 +463,7 @@ listType rflRange (const listType list, intType start, intType stop)
     } else {
       result = NULL;
     } /* if */
-    if (err_info != OKAY_NO_ERROR) {
+    if (unlikely(err_info != OKAY_NO_ERROR)) {
       raise_error(MEMORY_ERROR);
       result = NULL;
     } /* if */
@@ -488,7 +488,7 @@ listType rflTail (const_listType list, intType start)
       } /* while */
     } /* if */
     result = copy_list(list, &err_info);
-    if (err_info != OKAY_NO_ERROR) {
+    if (unlikely(err_info != OKAY_NO_ERROR)) {
       raise_error(MEMORY_ERROR);
     } /* if */
     return result;

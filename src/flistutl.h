@@ -140,7 +140,7 @@ EXTERN freeListRootType flist;
 #endif
 
 
-#ifdef DO_HEAP_STATISTIC
+#if DO_HEAP_STATISTIC
 void heap_statistic (void);
 #endif
 memSizeType heapsize (void);

@@ -52,11 +52,11 @@ const type: pollData is newtype;
 
 IN_PARAM_IS_REFERENCE(pollData);
 
-const proc: destroy (ref pollData param)                                   is action "POL_DESTR";
-const proc: (ref pollData param) ::= (ref pollData param)                  is action "POL_CREATE";
+const proc: destroy (ref pollData: aValue)                                 is action "POL_DESTR";
+const proc: (ref pollData: dest) ::= (ref pollData: source)                is action "POL_CREATE";
 const proc: (inout pollData: dest) := (ref pollData: source)               is action "POL_CPY";
 
-const func pollData: _GENERATE_EMPTY_POLL_DATA (in file param)             is action "POL_EMPTY";
+const func pollData: _GENERATE_EMPTY_POLL_DATA (in file: aFile)            is action "POL_EMPTY";
 const pollData: (attr pollData) . value                                    is _GENERATE_EMPTY_POLL_DATA(STD_NULL);
 
 

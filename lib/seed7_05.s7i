@@ -83,7 +83,7 @@ const proc: (ref proc param) ::= (ref proc param)            is action "PRC_CREA
 const proc: (inout proc: dest) := (ref proc: source)         is action "PRC_CPY";
 const proc: destroy (ref proc param)                         is action "GEN_DESTR";
 const proc: noop                                             is action "PRC_NOOP";
-const proc: (ref void param) ; (ref void param)              is noop;
+const proc: (ref void: statement1) ; (ref void: statement2)  is noop;
 
 const proc: PRINT (ref string: stri)                         is action "FIL_PRINT";
 
@@ -100,6 +100,7 @@ const proc: IN_PARAM_IS_REFERENCE (ref type: aType) is func
   end func;
 
 IN_PARAM_IS_REFERENCE(type);
+IN_PARAM_IS_VALUE(void);
 IN_PARAM_IS_REFERENCE(proc);
 IN_PARAM_IS_REFERENCE(object);
 IN_PARAM_IS_REFERENCE(string);
@@ -354,11 +355,11 @@ const proc: addInterface (in type: aType, in type: interfaceType) is action "TYP
 (* IF *)
 
 const type: ELSIF_RESULT is newtype;
-const proc: (ref ELSIF_RESULT param) ::= enumlit       is action "ENU_GENLIT";
+const proc: (ref ELSIF_RESULT: dest) ::= enumlit       is action "ENU_GENLIT";
 const ELSIF_RESULT: ELSIF_EMPTY is enumlit;
 const type: ELSIF_PROC                                 is func ELSIF_RESULT;
 # IN_PARAM_IS_REFERENCE(ELSIF_PROC);
-const proc: (ref ELSIF_PROC param) ::= (ref ELSIF_RESULT param) is action "ENU_CREATE";
+const proc: (ref ELSIF_PROC: dest) ::= (ref ELSIF_RESULT: source) is action "ENU_CREATE";
 
 const proc:       if (in boolean: condition) then
                     (in proc: statements)
@@ -377,7 +378,7 @@ const ELSIF_PROC: elsif (in boolean: condition) then
                   (in ELSIF_PROC: elsifPart)           is action "PRC_IF_ELSIF";
 
 const ELSIF_PROC: else
-                    (in void param)                    is ELSIF_EMPTY;
+                    (in void: elsePart)                is ELSIF_EMPTY;
 
 (*
 const proc: if TRUE  then (in void param) end if is                           noop;
@@ -874,7 +875,7 @@ const proc: body (ref type: STRU) is (ref expr: DECLS) end body is func
 
 const proc: type_implements_interface (in type: aType, in type: interfaceType) is func
   begin
-    const proc: (ref interfaceType param) ::= (ref aType param)             is action "ITF_CREATE";
+    const proc: (ref interfaceType: dest) ::= (ref aType: source)           is action "ITF_CREATE";
     const proc: (inout interfaceType: dest) := (ref aType: source)          is action "ITF_CPY2";
     const func interfaceType: (attr interfaceType) conv (ref aType: aValue) is action "ITF_CONV2";
     const func interfaceType: toInterface (ref aType: aValue)               is action "ITF_TO_INTERFACE";
@@ -903,8 +904,8 @@ const proc: CASE_DECLS (in type: aType) is func
     WHEN_PROC := (func WHEN_RESULT);
     SELECTOR_TYPE := set of aType;
     const proc: case (ref aType: decisionValue) of end case                     is noop;
-    if getobj(ord(ref aType param)) <> NIL and
-        getobj(ord(ref aType param, mayRaiseRangeError)) = NIL then
+    if getobj(ord(ref aType: decisionValue)) <> NIL and
+        getobj(ord(ref aType: decisionValue, mayRaiseRangeError)) = NIL then
       const proc: case (ref aType: decisionValue) of
                     (ref WHEN_PROC: whenPart)
                   end case                                                      is action "PRC_CASE";
@@ -913,9 +914,9 @@ const proc: CASE_DECLS (in type: aType) is func
                     otherwise : (ref proc: statements)
                   end case                                                      is action "PRC_CASE_DEF";
     end if;
-    const proc: (ref WHEN_RESULT param) ::= enumlit                             is action "ENU_GENLIT";
+    const proc: (ref WHEN_RESULT: dest) ::= enumlit                             is action "ENU_GENLIT";
     const WHEN_RESULT: WHEN_EMPTY (attr aType) is enumlit;
-    const proc: (ref WHEN_PROC param) ::= (ref WHEN_RESULT param)               is action "ENU_CREATE";
+    const proc: (ref WHEN_PROC: dest) ::= (ref WHEN_RESULT: source)             is action "ENU_CREATE";
     const WHEN_PROC: when (ref SELECTOR_TYPE: whenSet) : (ref proc: statement)  is WHEN_EMPTY(aType);
     const WHEN_PROC: when (ref SELECTOR_TYPE: whenSet) : (ref proc: statement)
                        (ref WHEN_PROC: whenPart)                                is WHEN_EMPTY(aType);
@@ -942,12 +943,12 @@ const func type: new enum (ref expr: elem_expr) end enum is func
     enumType := subtype ENUMERATION;
     IN_PARAM_IS_VALUE(enumType);
     elem_list := expr_to_list(elem_expr);
-    const proc: (ref enumType param) ::= (in enumType param)         is action "ENU_CREATE";
-    const proc: (ref enumType param) ::= enumlit                     is action "ENU_GENLIT";
-    const proc: destroy (ref enumType param)                         is action "GEN_DESTR";
+    const proc: (ref enumType: dest) ::= (in enumType: source)       is action "ENU_CREATE";
+    const proc: (ref enumType: dest) ::= enumlit                     is action "ENU_GENLIT";
+    const proc: destroy (ref enumType: aValue)                       is action "GEN_DESTR";
     const proc: (inout enumType: dest) := (in enumType: source)      is action "ENU_CPY";
-    const func boolean: (in enumType param) = (in enumType param)    is action "ENU_EQ";
-    const func boolean: (in enumType param) <> (in enumType param)   is action "ENU_NE";
+    const func boolean: (in enumType: enum1) = (in enumType: enum2)  is action "ENU_EQ";
+    const func boolean: (in enumType: enum1) <> (in enumType: enum2) is action "ENU_NE";
     const func enumType: getValue(in reference param, attr enumType) is action "ENU_VALUE";
     const func enumType: ICONV2(in integer param, in ref_list param,
                                 attr enumType)                       is action "ENU_ICONV2";
@@ -1040,7 +1041,7 @@ const proc: BLOCK_DECLS (in type: unusedType) is func
     const proc: block (ref proc: statements) exception
                   otherwise : (ref proc: otherwiseStatements)
                 end block                                                          is action "PRC_BLOCK_CATCH_ALL";
-    const proc: (ref CATCH_PROC param) ::= (ref CATCH_RESULT param)                is action "ENU_CREATE";
+    const proc: (ref CATCH_PROC: dest) ::= (ref CATCH_RESULT: source)              is action "ENU_CREATE";
     const CATCH_PROC: catch (ref EXCEPTION: anException) : (ref proc: statements)  is CATCH_RESULT.value;
     const CATCH_PROC: catch (ref EXCEPTION: anException) : (ref proc: statements)
                        (ref CATCH_PROC: catchPart)                                 is CATCH_RESULT.value;

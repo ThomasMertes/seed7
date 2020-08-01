@@ -655,7 +655,7 @@ objectType prc_for_to_step (listType arguments)
 objectType prc_heapstat (listType arguments)
 
   { /* prc_heapstat */
-#ifdef DO_HEAP_STATISTIC
+#if DO_HEAP_STATISTIC
     heap_statistic();
 #else
     printf("heap statistic not supported - compile the s7 interpreter with DO_HEAP_STATISTIC\n");

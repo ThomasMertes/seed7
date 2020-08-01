@@ -30,7 +30,7 @@
 /********************************************************************/
 
 
-#ifdef DO_HEAP_STATISTIC
+#if DO_HEAP_STATISTIC
 typedef struct {
     unsigned long stri;
     memSizeType stri_elems;
@@ -143,7 +143,7 @@ EXTERN chunkType chunk;
 #endif
 
 
-#ifdef DO_HEAPSIZE_COMPUTATION
+#if DO_HEAPSIZE_COMPUTATION
 #ifdef DO_INIT
 memSizeType hs = 0;
 #else
@@ -157,7 +157,7 @@ EXTERN memSizeType hs;
 #endif
 
 
-#ifdef DO_HEAP_STATISTIC
+#if DO_HEAP_STATISTIC
 #define USTRI_ADD(len,cnt,byt) cnt++, byt += (memSizeType) (len)
 #define USTRI_SUB(len,cnt,byt) cnt--, byt -= (memSizeType) (len)
 #define STRI_ADD(len)          count.stri++,  count.stri_elems += (memSizeType) (len)
@@ -214,7 +214,7 @@ EXTERN memSizeType hs;
 #endif
 
 
-#ifdef DO_HEAP_CHECK
+#if DO_HEAP_CHECK
 #define H_CHECK1(len)   , check_heap(  (long) (len), __FILE__, __LINE__)
 #define H_CHECK2(len)   , check_heap(- (long) (len), __FILE__, __LINE__)
 #else
@@ -257,8 +257,8 @@ EXTERN memSizeType hs;
 #define MAX_SET_LEN     ((MAX_MEMSIZETYPE - sizeof(setRecord)      + sizeof(bitSetType))    / sizeof(bitSetType))
 #define MAX_RTL_ARR_LEN ((MAX_MEMSIZETYPE - sizeof(rtlArrayRecord) + sizeof(rtlObjectType)) / sizeof(rtlObjectType))
 
-#ifdef DO_HEAPSIZE_COMPUTATION
-#ifdef DO_HEAP_STATISTIC
+#if DO_HEAPSIZE_COMPUTATION
+#if DO_HEAP_STATISTIC
 #define CALC_HS(cnt_hs, cnt)   (cnt_hs, cnt)
 #define CNT4_STRI(var,len)     HS_ADD(((len)-(var)->size) * sizeof(strElemType)); count.stri_elems += (memSizeType) ((len)-(var)->size);
 #else
@@ -501,9 +501,9 @@ void setupStack (void);
 striType growStri (striType stri, memSizeType len);
 striType shrinkStri (striType stri, memSizeType len);
 #endif
-#ifdef DO_HEAP_CHECK
+#if DO_HEAP_CHECK
 void check_heap (long, const char *, unsigned int);
 #endif
-#ifdef DO_HEAP_STATISTIC
+#if DO_HEAP_STATISTIC
 void rtlHeapStatistic (void);
 #endif

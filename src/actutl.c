@@ -30,6 +30,9 @@
 /*                                                                  */
 /********************************************************************/
 
+#define LOG_FUNCTIONS 0
+#define VERBOSE_EXCEPTIONS 0
+
 #include "version.h"
 
 #include "stdlib.h"
@@ -47,7 +50,7 @@
 #include "actutl.h"
 
 
-#undef USE_BSEARCH
+#define USE_BSEARCH 0
 #define MAX_CSTRI_BUFFER_LEN 40
 
 
@@ -60,22 +63,22 @@ static actPtrTableType act_ptr_table = {0, NULL};
 
 
 
-#ifdef USE_BSEARCH
+#if USE_BSEARCH
 #ifdef USE_CDECL
 static int _cdecl act_strcmp (char *strg1, char *strg2)
 #else
 static int act_strcmp (void const *strg1, void const *strg2)
 #endif
 
-  { /* act_strcmp */
-#ifdef TRACE_ACTUTIL
-    printf("BEGIN act_strcmp\n");
-#endif
-    /* printf("strcmp(\"%s\", \"%s\")\n", strg1, ((primActType) strg2)->name); */
-#ifdef TRACE_ACTUTIL
-    printf("END act_strcmp\n");
-#endif
-    return strcmp(strg1, ((primActType) strg2)->name);
+  {
+    int signumValue;
+
+  /* act_strcmp */
+    logFunction(printf("act_strcmp(\"%s\", \"%s\")\n",
+                       strg1, ((primActType) strg2)->name););
+    signumValue = strcmp(strg1, ((primActType) strg2)->name);
+    logFunction(printf("act_strcmp --> %d\n", signumValue););
+    return signumValue;
   } /* act_strcmp */
 #endif
 
@@ -87,22 +90,24 @@ static int _cdecl action_ptr_compare (char *act_ptr1, char *act_ptr2)
 static int action_ptr_compare (const void *act_ptr1, const void *act_ptr2)
 #endif
 
-  { /* action_ptr_compare */
-#ifdef TRACE_ACTUTIL
-    printf("BEGIN action_ptr_compare\n");
-#endif
+  {
+    int signumValue;
+
+  /* action_ptr_compare */
+    logFunction(printf("action_ptr_compare(" FMT_U_MEM ", " FMT_U_MEM ")\n",
+                       (memSizeType) (*(const primActType *) act_ptr1)->action,
+                       (memSizeType) (*(const primActType *) act_ptr2)->action););
     if ((memSizeType) (*(const primActType *) act_ptr1)->action <
         (memSizeType) (*(const primActType *) act_ptr2)->action) {
-      return -1;
+      signumValue = -1;
     } else if ((*(const primActType *) act_ptr1)->action ==
                (*(const primActType *) act_ptr2)->action) {
-      return 0;
+      signumValue = 0;
     } else {
-      return 1;
+      signumValue = 1;
     } /* if */
-#ifdef TRACE_ACTUTIL
-    printf("END action_ptr_compare\n");
-#endif
+    logFunction(printf("action_ptr_compare --> %d\n", signumValue););
+    return signumValue;
   } /* action_ptr_compare */
 
 
@@ -110,7 +115,7 @@ static int action_ptr_compare (const void *act_ptr1, const void *act_ptr2)
 static boolType search_action (cstriType stri, actType *action_found)
 
   {
-#ifdef USE_BSEARCH
+#if USE_BSEARCH
     primActType found;
 #else
     unsigned int lower;
@@ -122,10 +127,8 @@ static boolType search_action (cstriType stri, actType *action_found)
     boolType result;
 
   /* search_action */
-#ifdef TRACE_ACTUTIL
-    printf("BEGIN search_action\n");
-#endif
-#ifdef USE_BSEARCH
+    logFunction(printf("search_action(\"%s\", *)\n", stri););
+#if USE_BSEARCH
     if ((found = (primActType) bsearch(stri, &act_table.primitive[1],
         act_table.size - 1, sizeof(primActRecord), act_strcmp)) != NULL) {
       action_number = (unsigned int) (found - &act_table.primitive[0]);
@@ -158,9 +161,7 @@ static boolType search_action (cstriType stri, actType *action_found)
       *action_found = NULL;
     } /* if */
     result = (boolType) (action_number != 0);
-#ifdef TRACE_ACTUTIL
-    printf("END search_action\n");
-#endif
+    logFunction(printf("search_action --> %d\n", result););
     return result;
   } /* search_action */
 
@@ -174,9 +175,8 @@ boolType find_action (const const_striType action_name, actType *action_found)
     boolType result;
 
  /* find_action */
-#ifdef TRACE_ACTUTIL
-    printf("BEGIN find_action\n");
-#endif
+    logFunction(printf("find_action(\"%s\", *)\n",
+                       striAsUnquotedCStri(action_name)););
     if (action_name->size > MAX_CSTRI_BUFFER_LEN) {
       result = FALSE;
     } else {
@@ -194,9 +194,7 @@ boolType find_action (const const_striType action_name, actType *action_found)
         *action_found = NULL;
       } /* if */
     } /* if */
-#ifdef TRACE_ACTUTIL
-    printf("END find_action\n");
-#endif
+    logFunction(printf("find_action --> %d\n", result););
     return result;
   } /* find_action */
 
@@ -221,9 +219,7 @@ static void gen_act_ptr_table (void)
     unsigned int number;
 
   /* gen_act_ptr_table */
-#ifdef TRACE_ACTUTIL
-    printf("BEGIN gen_act_ptr_table\n");
-#endif
+    logFunction(printf("gen_act_ptr_table\n"););
     act_ptr_table.size = act_table.size;
     if (ALLOC_TABLE(act_ptr_table.primitive_ptr, primActType, act_ptr_table.size)) {
       for (number = 0; number < act_ptr_table.size; number++) {
@@ -252,9 +248,7 @@ static void gen_act_ptr_table (void)
         } /* if */
       } /* for */
     } /* if */
-#ifdef TRACE_ACTUTIL
-    printf("END gen_act_ptr_table\n");
-#endif
+    logFunction(printf("gen_act_ptr_table -->\n"););
   } /* gen_act_ptr_table */
 
 
@@ -272,9 +266,8 @@ primActType get_primact (actType action_searched)
     primActType result;
 
   /* get_primact */
-#ifdef TRACE_ACTUTIL
-    printf("BEGIN get_primact\n");
-#endif
+    logFunction(printf("get_primact(" FMT_U_MEM ")\n",
+                       (memSizeType) action_searched););
     if (unlikely(act_ptr_table.primitive_ptr == NULL)) {
       gen_act_ptr_table();
       if (unlikely(act_ptr_table.primitive_ptr == NULL)) {
@@ -283,7 +276,7 @@ primActType get_primact (actType action_searched)
     } /* if */
 
     result = &act_table.primitive[0];
-    if (action_searched != act_table.primitive[0].action) {
+    if (likely(action_searched != act_table.primitive[0].action)) {
       lower = -1;
       upper = (int) act_ptr_table.size;
       while (lower + 1 < upper) {
@@ -302,8 +295,6 @@ primActType get_primact (actType action_searched)
         } /* if */
       } /* while */
     } /* if */
-#ifdef TRACE_ACTUTIL
-    printf("END get_primact --> %s\n", result->name);
-#endif
+    logFunction(printf("get_primact --> %s\n", result->name););
     return result;
   } /* get_primact */

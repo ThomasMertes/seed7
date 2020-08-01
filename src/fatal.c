@@ -56,7 +56,7 @@ void no_memory (const_cstriType source_file, int source_line)
 #endif
     printf("\n*** %s(%1d): No more memory. Program terminated.\n",
         source_file, source_line);
-#ifdef DO_HEAPSIZE_COMPUTATION
+#if DO_HEAPSIZE_COMPUTATION
     printf("%6lu bytes in heap\n", (unsigned long) hs);
     printf("%6lu bytes used\n", (unsigned long) heapsize());
     printf("%6lu bytes in free lists\n", (unsigned long) (hs - heapsize()));

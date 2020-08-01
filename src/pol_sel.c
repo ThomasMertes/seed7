@@ -121,7 +121,7 @@ typedef struct {
 
 typedef const select_based_pollRecord *const_select_based_pollType;
 
-#ifdef DO_HEAP_STATISTIC
+#if DO_HEAP_STATISTIC
 size_t sizeof_pollRecord = sizeof(select_based_pollRecord);
 #endif
 
@@ -525,7 +525,7 @@ static void doPoll (const pollType pollData, struct timeval *timeout)
     } while (unlikely(select_result == -1 && errno == EINTR));
     if (unlikely(select_result < 0)) {
       logError(printf("doPoll: select(%d, *, *, NULL, " FMT_U_MEM ") failed:\n"
-                      "errno=%d\nerror: %s\n",
+                      "%s=%d\nerror: %s\n",
                       nfds, timeout, ERROR_INFORMATION););
       raise_error(FILE_ERROR);
     } else {

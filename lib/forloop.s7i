@@ -93,7 +93,7 @@ const proc: for (inout integer: variable) range (in integer: upperLimit) downto 
  *)
 const proc: FOR_STEP_DECLS (in type: aType) is func
   begin
-    if getobj((inout aType param) +:= (in integer param)) <> NIL then
+    if getobj((inout aType: variable) +:= (in integer: delta)) <> NIL then
 
       const proc: for (inout aType: variable) range (in aType: lowerLimit) to (in aType: upperLimit)
           step (in integer: incr_step) do
@@ -107,7 +107,7 @@ const proc: FOR_STEP_DECLS (in type: aType) is func
         end func;
 
     end if;
-    if getobj((inout aType param) -:= (in integer param)) <> NIL then
+    if getobj((inout aType: variable) -:= (in integer: delta)) <> NIL then
 
       const proc: for (inout aType: variable) range (in aType: upperLimit) downto (in aType: lowerLimit)
           step (in integer: decr_step) do

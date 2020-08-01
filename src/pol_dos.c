@@ -43,7 +43,7 @@
 #include "pol_drv.h"
 
 
-#ifdef DO_HEAP_STATISTIC
+#if DO_HEAP_STATISTIC
 size_t sizeof_pollRecord = sizeof(pollRecord);
 #endif
 

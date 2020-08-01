@@ -34,8 +34,8 @@ const type: bitset is subtype object;
 
 IN_PARAM_IS_REFERENCE(bitset);
 
-const proc: (ref bitset param) ::= (in bitset param)            is action "SET_CREATE";
-const proc: destroy (ref bitset param)                          is action "SET_DESTR";
+const proc: (ref bitset: dest) ::= (in bitset: source)          is action "SET_CREATE";
+const proc: destroy (ref bitset: aValue)                        is action "SET_DESTR";
 const proc: (inout bitset: dest) := (in bitset: source)         is action "SET_CPY";
 
 

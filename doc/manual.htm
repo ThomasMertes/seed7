@@ -1230,10 +1230,10 @@ $ <span class="keywd">system</span> <span class="stri">"main"</span> <span class
 </p><p>
   Declaration:
 </p><pre class="indent">
-$ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>: .(). ; .() <span class="keywd">is</span>            &lt;- 50;
-$ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>: .(). ; <span class="keywd">is</span>                &lt;- 50 [1];
+$ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>: .(). ; .()   <span class="keywd">is</span> &lt;- 50;
+$ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>: .(). ;       <span class="keywd">is</span> &lt;- 50 [1];
 
-<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: (<span class="keywd">ref</span> <a class="type" href="#types_void">void</a> <span class="keywd">param</span>) ; (<span class="keywd">ref</span> <a class="type" href="#types_void">void</a> <span class="keywd">param</span>) <span class="keywd">is</span> noop;
+<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: (<span class="keywd">ref</span> <a class="type" href="#types_void">void</a>: statement1) ; (<span class="keywd">ref</span> <a class="type" href="#types_void">void</a>: statement2) <span class="keywd">is</span> noop;
 </pre><p></p>
 
 <a name="stats_Assignment"><h3>4.1 Assignment</h3></a>
@@ -1260,7 +1260,7 @@ minimum := maximum <span class="op">div</span> 2;
 </p><p>
   Declaration:
 </p><pre class="indent">
-$ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>: .(). := .() <span class="keywd">is</span>                     &lt;-> 20;
+$ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>: .(). := .()   <span class="keywd">is</span> &lt;-> 20;
 
 <span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: (<span class="keywd">inout</span> <a class="type" href="#types_type">type</a>: dest) := (<span class="keywd">ref</span> <a class="type" href="#types_type">type</a>: source)             <span class="keywd">is</span> action <span class="stri">"TYP_CPY"</span>;
 <span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: (<span class="keywd">inout</span> <a class="type" href="#types_proc">proc</a>: dest) := (<span class="keywd">ref</span> <a class="type" href="#types_proc">proc</a>: source)             <span class="keywd">is</span> action <span class="stri">"PRC_CPY"</span>;
@@ -1313,7 +1313,7 @@ $ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>:
 </p><p>
   Declaration:
 </p><pre class="indent">
-$ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>: .while.().do.().end.while <span class="keywd">is</span>       -> 25;
+$ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>: .while.().do.().end.while   <span class="keywd">is</span> -> 25;
 
 <span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: while (<span class="keywd">ref</span> <a class="type" href="#types_func">func</a> <a class="type" href="#types_boolean">boolean</a>: condition) do (<span class="keywd">in</span> <a class="type" href="#types_proc">proc</a>: statement) end while <span class="keywd">is action</span> <span class="stri">"PRC_WHILE"</span>;
 <span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: while (<span class="keywd">in</span> <a class="type" href="#types_boolean">boolean</a>: condition)  do (<span class="keywd">in</span> <a class="type" href="#types_proc">proc</a>: statement) end while      <span class="keywd">is action</span> <span class="stri">"PRC_WHILE"</span>;
@@ -1360,7 +1360,7 @@ $ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>:
 </p><p>
   Declaration:
 </p><pre class="indent">
-$ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>: .repeat.().until.() <span class="keywd">is</span>             -> 25;
+$ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>: .repeat.().until.()   <span class="keywd">is</span> -> 25;
 
 <span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: repeat (<span class="keywd">in</span> <a class="type" href="#types_proc">proc</a>: statement) until (<span class="keywd">ref</span> <a class="type" href="#types_func">func</a> <a class="type" href="#types_boolean">boolean</a>: condition) <span class="keywd">is action</span> <span class="stri">"PRC_REPEAT"</span>;
 <span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: repeat (<span class="keywd">in</span> <a class="type" href="#types_proc">proc</a>: statement) until (<span class="keywd">in</span> <a class="type" href="#types_boolean">boolean</a>: condition)       <span class="keywd">is action</span> <span class="stri">"PRC_REPEAT"</span>;
@@ -1419,8 +1419,8 @@ $ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>:
 
   Declaration:
 </p><pre class="indent">
-$ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>: .for.().range.().to.().do.().end.for <span class="keywd">is</span>     -> 25;
-$ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>: .for.().range.().downto.().do.().end.for <span class="keywd">is</span> -> 25;
+$ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>: .for.().range.().to.().do.().end.for       <span class="keywd">is</span> -> 25;
+$ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>: .for.().range.().downto.().do.().end.for   <span class="keywd">is</span> -> 25;
 
 <span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: FOR_DECLS (<span class="keywd">in</span> <a class="type" href="#types_type">type</a>: aType) <span class="keywd">is func</span>
   <span class="keywd">begin</span>
@@ -1501,12 +1501,12 @@ FOR_DECLS(<a class="type" href="#types_boolean">boolean</a>);
 
   Declaration:
 </p><pre class="indent">
-$ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>: .for.().range.().to.().step.().do.().end.for <span class="keywd">is</span>     -> 25;
-$ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>: .for.().range.().downto.().step.().do.().end.for <span class="keywd">is</span> -> 25;
+$ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>: .for.().range.().to.().step.().do.().end.for       <span class="keywd">is</span> -> 25;
+$ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>: .for.().range.().downto.().step.().do.().end.for   <span class="keywd">is</span> -> 25;
 
 <span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: FOR_STEP_DECLS (<span class="keywd">in</span> <a class="type" href="#types_type">type</a>: aType) <span class="keywd">is func</span>
   <span class="keywd">begin</span>
-    <span class="keywd">if</span> getobj((<span class="keywd">inout</span> <span class="type">aType</span> param) +:= (<span class="keywd">in</span> <a class="type" href="#types_integer">integer</a> param)) <> NIL <span class="keywd">then</span>
+    <span class="keywd">if</span> getobj((<span class="keywd">inout</span> <span class="type">aType</span>: variable) +:= (<span class="keywd">in</span> <a class="type" href="#types_integer">integer</a>: delta)) <> NIL <span class="keywd">then</span>
 
       <span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: for (<span class="keywd">inout</span> <span class="type">aType</span>: variable) range (<span class="keywd">in</span> <span class="type">aType</span>: lowerLimit) to (<span class="keywd">in</span> <span class="type">aType</span>: upperLimit)
           step (<span class="keywd">in</span> <a class="type" href="#types_integer">integer</a>: incr_step) do
@@ -1520,7 +1520,7 @@ $ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>:
         <span class="keywd">end func</span>;
 
     <span class="keywd">end if</span>;
-    <span class="keywd">if</span> getobj((<span class="keywd">inout</span> <span class="type">aType</span> param) -:= (<span class="keywd">in</span> <a class="type" href="#types_integer">integer</a> param)) <> NIL <span class="keywd">then</span>
+    <span class="keywd">if</span> getobj((<span class="keywd">inout</span> <span class="type">aType</span>: variable) -:= (<span class="keywd">in</span> <a class="type" href="#types_integer">integer</a>: delta)) <> NIL <span class="keywd">then</span>
 
       <span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: for (<span class="keywd">inout</span> <span class="type">aType</span>: variable) range (<span class="keywd">in</span> <span class="type">aType</span>: upperLimit) downto (<span class="keywd">in</span> <span class="type">aType</span>: lowerLimit)
           step (<span class="keywd">in</span> <a class="type" href="#types_integer">integer</a>: decr_step) do
@@ -1569,7 +1569,7 @@ FOR_STEP_DECLS(<a class="type" href="#types_integer">integer</a>);
 
   Declaration:
 </p><pre class="indent">
-$ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>: .for.().range.().do.().end.for <span class="keywd">is</span>          -> 25;
+$ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>: .for.().range.().do.().end.for   <span class="keywd">is</span> -> 25;
 
 <span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: for (<span class="keywd">inout</span> <a class="type" href="#types_reference">reference</a>: variable) range (<span class="keywd">in</span> <a class="type" href="#types_ref_list">ref_list</a>: aRefList) do
               (<span class="keywd">in</span> <a class="type" href="#types_proc">proc</a>: statement)
@@ -1640,47 +1640,37 @@ $ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>:
 </p><p>
   Declaration:
 </p><pre class="indent">
-$ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>: .if.().then.().end.if <span class="keywd">is</span>           -> 25;
-$ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>: .if.().then.().().end.if <span class="keywd">is</span>        -> 25;
+$ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>: .if.().then.().end.if      <span class="keywd">is</span> -> 25;
+$ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>: .if.().then.().().end.if   <span class="keywd">is</span> -> 25;
 
-$ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>: .elsif.().then.() <span class="keywd">is</span>               &lt;- 60;
-$ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>: .elsif.().then.().() <span class="keywd">is</span>            &lt;- 60;
-$ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>: .else.() <span class="keywd">is</span>                        &lt;- 60;
+$ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>: .elsif.().then.()          <span class="keywd">is</span> &lt;- 60;
+$ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>: .elsif.().then.().()       <span class="keywd">is</span> &lt;- 60;
+$ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>: .else.()                   <span class="keywd">is</span> &lt;- 60;
 
 <span class="keywd">const</span> <a class="type" href="#types_type">type</a>: ELSIF_RESULT <span class="keywd">is</span> newtype;
-<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: (ref ELSIF_RESULT <span class="keywd">param</span>) ::= enumlit <span class="keywd">is  action</span> <span class="stri">"ENU_GENLIT"</span>;
+<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: (<span class="keywd">ref</span> <span class="type">ELSIF_RESULT</span>: dest) ::= enumlit       <span class="keywd">is action</span> <span class="stri">"ENU_GENLIT"</span>;
 <span class="keywd">const</span> <span class="type">ELSIF_RESULT</span>: ELSIF_EMPTY <span class="keywd">is</span> enumlit;
-<span class="keywd">const</span> <a class="type" href="#types_type">type</a>: ELSIF_PROC <span class="keywd">is</span>                        (func ELSIF_RESULT);
-<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: (ref ELSIF_PROC <span class="keywd">param</span>) ::= (ref ELSIF_RESULT <span class="keywd">param</span>) <span class="keywd">is action</span> <span class="stri">"ENU_CREATE"</span>;
+<span class="keywd">const</span> <a class="type" href="#types_type">type</a>: ELSIF_PROC                                 <span class="keywd">is</span> func <span class="type">ELSIF_RESULT</span>;
+<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: (<span class="keywd">ref</span> <span class="type">ELSIF_PROC</span>: dest) ::= (<span class="keywd">ref</span> <span class="type">ELSIF_RESULT</span>: source) <span class="keywd">is action</span> <span class="stri">"ENU_CREATE"</span>;
 
-<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>:       if (<span class="keywd">in</span> <a class="type" href="#types_boolean">boolean</a> <span class="keywd">param</span>) then
-                    (<span class="keywd">in</span> <a class="type" href="#types_proc">proc</a> <span class="keywd">param</span>)
-                  end if <span class="keywd">is                        action</span> <span class="stri">"PRC_IF"</span>;
+<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>:       if (<span class="keywd">in</span> <a class="type" href="#types_boolean">boolean</a>: condition) then
+                    (<span class="keywd">in</span> <a class="type" href="#types_proc">proc</a>: statements)
+                  end if                               <span class="keywd">is action</span> <span class="stri">"PRC_IF"</span>;
 
-<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>:       if (<span class="keywd">in</span> <a class="type" href="#types_boolean">boolean</a> <span class="keywd">param</span>) then
-                    (<span class="keywd">in</span> <a class="type" href="#types_proc">proc</a> <span class="keywd">param</span>)
-                  (<span class="keywd">in</span> <span class="type">ELSIF_PROC</span> <span class="keywd">param</span>)
-                  end if <span class="keywd">is                        action</span> <span class="stri">"PRC_IF_ELSIF"</span>;
+<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>:       if (<span class="keywd">in</span> <a class="type" href="#types_boolean">boolean</a>: condition) then
+                    (<span class="keywd">in</span> <a class="type" href="#types_proc">proc</a>: statements)
+                  (<span class="keywd">in</span> <span class="type">ELSIF_PROC</span>: elsifPart)
+                  end if                               <span class="keywd">is action</span> <span class="stri">"PRC_IF_ELSIF"</span>;
 
-<span class="keywd">const</span> <span class="type">ELSIF_PROC</span>: elsif (<span class="keywd">in</span> <a class="type" href="#types_boolean">boolean</a> <span class="keywd">param</span>) then
-                    (<span class="keywd">in</span> <a class="type" href="#types_proc">proc</a> <span class="keywd">param</span>) <span class="keywd">is             action</span> <span class="stri">"PRC_IF"</span>;
+<span class="keywd">const</span> <span class="type">ELSIF_PROC</span>: elsif (<span class="keywd">in</span> <a class="type" href="#types_boolean">boolean</a>: condition) then
+                    (<span class="keywd">in</span> <a class="type" href="#types_proc">proc</a>: statements)              <span class="keywd">is action</span> <span class="stri">"PRC_IF"</span>;
 
-<span class="keywd">const</span> <span class="type">ELSIF_PROC</span>: elsif (<span class="keywd">in</span> <a class="type" href="#types_boolean">boolean</a> <span class="keywd">param</span>) then
-                    (<span class="keywd">in</span> <a class="type" href="#types_proc">proc</a> <span class="keywd">param</span>)
-                  (<span class="keywd">in</span> <span class="type">ELSIF_PROC</span> <span class="keywd">param</span>) <span class="keywd">is         action</span> <span class="stri">"PRC_IF_ELSIF"</span>;
+<span class="keywd">const</span> <span class="type">ELSIF_PROC</span>: elsif (<span class="keywd">in</span> <a class="type" href="#types_boolean">boolean</a>: condition) then
+                    (<span class="keywd">in</span> <a class="type" href="#types_proc">proc</a>: statements)
+                  (<span class="keywd">in</span> <span class="type">ELSIF_PROC</span>: elsifPart)           <span class="keywd">is action</span> <span class="stri">"PRC_IF_ELSIF"</span>;
 
 <span class="keywd">const</span> <span class="type">ELSIF_PROC</span>: else
-                    (<span class="keywd">in</span> <a class="type" href="#types_void">void</a> <span class="keywd">param</span>) <span class="keywd">is</span>             ELSIF_EMPTY;
-
-
-<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: if TRUE  then (<span class="keywd">in</span> <a class="type" href="#types_void">void</a> <span class="keywd">param</span>) end if <span class="keywd">is</span>                           noop;
-<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: if TRUE  then (<span class="keywd">in</span> <a class="type" href="#types_void">void</a> <span class="keywd">param</span>) (<span class="keywd">in</span> <span class="type">ELSIF_PROC</span> <span class="keywd">param</span>) end if <span class="keywd">is</span>     noop;
-<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: if FALSE then (<span class="keywd">in</span> <a class="type" href="#types_proc">proc</a> <span class="keywd">param</span>) end if <span class="keywd">is</span>                           noop;
-<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: if FALSE then (<span class="keywd">in</span> <a class="type" href="#types_proc">proc</a> <span class="keywd">param</span>) (<span class="keywd">in</span> <span class="type">ELSIF_RESULT</span> <span class="keywd">param</span>) end if <span class="keywd">is</span>   noop;
-<span class="keywd">const</span> <span class="type">ELSIF_PROC</span>: elsif TRUE  then (<span class="keywd">in</span> <a class="type" href="#types_void">void</a> <span class="keywd">param</span>) <span class="keywd">is</span>                         ELSIF_EMPTY;
-<span class="keywd">const</span> <span class="type">ELSIF_PROC</span>: elsif TRUE then (<span class="keywd">in</span> <a class="type" href="#types_void">void</a> <span class="keywd">param</span>) (<span class="keywd">in</span> <span class="type">ELSIF_PROC</span> <span class="keywd">param</span>)   <span class="keywd">is</span>  ELSIF_EMPTY;
-<span class="keywd">const</span> <span class="type">ELSIF_PROC</span>: elsif FALSE then (<span class="keywd">in</span> <a class="type" href="#types_proc">proc</a> <span class="keywd">param</span>) <span class="keywd">is</span>                         ELSIF_EMPTY;
-<span class="keywd">const</span> <span class="type">ELSIF_PROC</span>: elsif FALSE then (<span class="keywd">in</span> <a class="type" href="#types_proc">proc</a> <span class="keywd">param</span>) (<span class="keywd">in</span> <span class="type">ELSIF_RESULT</span> <span class="keywd">param</span>) <span class="keywd">is</span> ELSIF_EMPTY;
+                    (<span class="keywd">in</span> <a class="type" href="#types_void">void</a>: elsePart)                <span class="keywd">is</span> ELSIF_EMPTY;
 </pre><p></p>
 
 <a name="stats_case-statement"><h3>4.8 case-statement</h3></a>
@@ -1734,12 +1724,12 @@ $ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>:
 
   Declaration:
 </p><pre class="indent">
-$ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>: .case.().of.().end.case <span class="keywd">is</span>                      -> 25;
-$ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>: .case.().of.().otherwise. : .().end.case <span class="keywd">is</span>     -> 25;
-$ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>: .case.().of.end.case <span class="keywd">is</span>                         -> 25;
+$ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>: .case.().of.().end.case                    <span class="keywd">is</span> -> 25;
+$ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>: .case.().of.().otherwise. : .().end.case   <span class="keywd">is</span> -> 25;
+$ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>: .case.().of.end.case                       <span class="keywd">is</span> -> 25;
 
-$ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>: .when.(). : .().() <span class="keywd">is</span>              &lt;- 60;
-$ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>: .when.(). : .() <span class="keywd">is</span>                 &lt;- 60;
+$ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>: .when.(). : .().()   <span class="keywd">is</span> &lt;- 60;
+$ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>: .when.(). : .()      <span class="keywd">is</span> &lt;- 60;
 
 <span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: CASE_DECLS (<span class="keywd">in</span> <a class="type" href="#types_type">type</a>: aType) <span class="keywd">is func</span>
   <span class="keywd">local</span>
@@ -1750,24 +1740,25 @@ $ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>:
     <span class="type">WHEN_RESULT</span> := newtype;
     <span class="type">WHEN_PROC</span> := (<a class="type" href="#types_func">func</a> <span class="type">WHEN_RESULT</span>);
     <span class="type">SELECTOR_TYPE</span> := <a class="type" href="#types_set">set</a> <a class="type" href="#types_set">of</a> <span class="type">aType</span>;
-    <span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: case (<span class="keywd">ref</span> <span class="type">aType</span> <span class="keywd">param</span>) of end case                       <span class="keywd">is</span> noop;
-    <span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: case (<span class="keywd">ref</span> <span class="type">aType</span> <span class="keywd">param</span>) of
-                  (<span class="keywd">ref</span> <span class="type">WHEN_PROC</span> <span class="keywd">param</span>)
-                end case                                                 <span class="keywd">is action</span> <span class="stri">"PRC_CASE"</span>;
-    <span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: case (<span class="keywd">ref</span> <span class="type">aType</span> <span class="keywd">param</span>) of
-                  (<span class="keywd">ref</span> <span class="type">WHEN_PROC</span> <span class="keywd">param</span>)
-                  otherwise : (<span class="keywd">ref</span> <a class="type" href="#types_proc">proc</a> <span class="keywd">param</span>)
-                end case                                                 <span class="keywd">is action</span> <span class="stri">"PRC_CASE_DEF"</span>;
-    <span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: (<span class="keywd">ref</span> <span class="type">WHEN_RESULT</span> <span class="keywd">param</span>) ::= enumlit                      <span class="keywd">is action</span> <span class="stri">"ENU_GENLIT"</span>;
+    <span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: case (<span class="keywd">ref</span> <span class="type">aType</span>: decisionValue) of end case                     <span class="keywd">is</span> noop;
+    <span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: case (<span class="keywd">ref</span> <span class="type">aType</span>: decisionValue) of
+                  (<span class="keywd">ref</span> <span class="type">WHEN_PROC</span>: whenPart)
+                end case                                                        <span class="keywd">is action</span> <span class="stri">"PRC_CASE"</span>;
+    <span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: case (<span class="keywd">ref</span> <span class="type">aType</span>: decisionValue) of
+                  (<span class="keywd">ref</span> <span class="type">WHEN_PROC</span>: whenPart)
+                  otherwise : (<span class="keywd">ref</span> <a class="type" href="#types_proc">proc</a>: statements)
+                end case                                                        <span class="keywd">is action</span> <span class="stri">"PRC_CASE_DEF"</span>;
+    <span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: (<span class="keywd">ref</span> <span class="type">WHEN_RESULT</span>: dest) ::= enumlit                             <span class="keywd">is action</span> <span class="stri">"ENU_GENLIT"</span>;
     <span class="keywd">const</span> <span class="type">WHEN_RESULT</span>: WHEN_EMPTY (<span class="keywd">attr</span> <span class="type">aType</span>) is enumlit;
-    <span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: (<span class="keywd">ref</span> <span class="type">WHEN_PROC</span> <span class="keywd">param</span>) ::= (<span class="keywd">ref</span> <span class="type">WHEN_RESULT</span> <span class="keywd">param</span>)        <span class="keywd">is action</span> <span class="stri">"ENU_CREATE"</span>;
-    <span class="keywd">const</span> <span class="type">WHEN_PROC</span>: when (<span class="keywd">ref</span> <span class="type">SELECTOR_TYPE</span> <span class="keywd">param</span>) : (<span class="keywd">ref</span> <a class="type" href="#types_proc">proc</a> <span class="keywd">param</span>)   <span class="keywd">is</span> WHEN_EMPTY(<span class="type">aType</span>);
-    <span class="keywd">const</span> <span class="type">WHEN_PROC</span>: when (<span class="keywd">ref</span> <span class="type">SELECTOR_TYPE</span> <span class="keywd">param</span>) : (<span class="keywd">ref</span> <a class="type" href="#types_proc">proc</a> <span class="keywd">param</span>)
-                       (<span class="keywd">ref</span> <span class="type">WHEN_PROC</span> <span class="keywd">param</span>)                             <span class="keywd">is</span> WHEN_EMPTY(<span class="type">aType</span>);
+    <span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: (<span class="keywd">ref</span> <span class="type">WHEN_PROC</span>: dest) ::= (<span class="keywd">ref</span> <span class="type">WHEN_RESULT</span>: source)             <span class="keywd">is action</span> <span class="stri">"ENU_CREATE"</span>;
+    <span class="keywd">const</span> <span class="type">WHEN_PROC</span>: when (<span class="keywd">ref</span> <span class="type">SELECTOR_TYPE</span>: whenSet) : (<span class="keywd">ref</span> <a class="type" href="#types_proc">proc</a>: statement)  <span class="keywd">is</span> WHEN_EMPTY(<span class="type">aType</span>);
+    <span class="keywd">const</span> <span class="type">WHEN_PROC</span>: when (<span class="keywd">ref</span> <span class="type">SELECTOR_TYPE</span>: whenSet) : (<span class="keywd">ref</span> <a class="type" href="#types_proc">proc</a>: statement)
+                       (<span class="keywd">ref</span> <span class="type">WHEN_PROC</span>: whenPart)                                <span class="keywd">is</span> WHEN_EMPTY(<span class="type">aType</span>);
   <span class="keywd">end func</span>;
 
 CASE_DECLS(<a class="type" href="#types_integer">integer</a>);
 CASE_DECLS(<a class="type" href="#types_char">char</a>);
+CASE_DECLS(<a class="type" href="#types_boolean">boolean</a>);
 </pre><p></p>
 
 <a name="types_file_start"></a><p></p>
@@ -5029,7 +5020,7 @@ writeln(name(<a class="type" href="#types_char">char</a>));
   with objects of an interface type. An interface function
   for a <tt><span class="type">shape</span></tt> could be:
 </p><pre class="indent">
-<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: draw (<span class="keywd">in</span> <span class="type">shape</span> <span class="keywd">param</span>, <span class="keywd">inout</span> <span class="type">window</span> <span class="keywd">param</span>) <span class="keywd">is DYNAMIC</span>;
+<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: draw (<span class="keywd">in</span> <span class="type">shape</span>: aShape, <span class="keywd">inout</span> <span class="type">window</span>: aWindow) <span class="keywd">is DYNAMIC</span>;
 </pre><p>
   Now we know that it is possible to <tt>'draw'</tt> a <tt><span class="type">shape</span></tt> to a
   <tt><span class="type">window</span></tt>. How this drawing is done is described in the
@@ -5145,7 +5136,7 @@ type_implements_interface(<span class="type">line</span>, <span class="type">sha
   function is <tt>'draw(aShape, currWindow)'</tt>. The
   interface function declared with
 </p><pre class="indent">
-<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: draw (<span class="keywd">in</span> <span class="type">shape</span> <span class="keywd">param</span>, <span class="keywd">inout</span> <span class="type">window</span> <span class="keywd">param</span>) <span class="keywd">is DYNAMIC</span>;
+<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: draw (<span class="keywd">in</span> <span class="type">shape</span>: aShape, <span class="keywd">inout</span> <span class="type">window</span>: aWindow) <span class="keywd">is DYNAMIC</span>;
 </pre><p>
   decides which implementation function has to be called.
   The dynamic dispatch works as follows:
@@ -5210,7 +5201,7 @@ type_implements_interface(<span class="type">line</span>, <span class="type">sha
   <tt><span class="func">getln</span></tt> function above the function call <tt>'<span class="func">gets</span>(aFile, 1)'</tt>
   uses the (DYNAMIC) interface function:
 </p><pre class="indent">
-<span class="keywd">const</span> <a class="type" href="#types_func">func</a> <a class="type" href="#types_string">string</a>: gets (<span class="keywd">inout</span> <a class="type" href="#types_file">file</a> <span class="keywd">param</span>, <span class="keywd">in</span> <a class="type" href="#types_integer">integer</a> <span class="keywd">param</span>) <span class="keywd">is DYNAMIC</span>;
+<span class="keywd">const</span> <a class="type" href="#types_func">func</a> <a class="type" href="#types_string">string</a>: gets (<span class="keywd">inout</span> <a class="type" href="#types_file">file</a>: inFile, <span class="keywd">in</span> <a class="type" href="#types_integer">integer</a>: maxLength) <span class="keywd">is DYNAMIC</span>;
 </pre><p>
   In other OO languages the distinction between interface type
   and basic implementation type is not done. Such languages
@@ -5316,7 +5307,7 @@ circle(10)
 </p><pre class="indent">
 <span class="keywd">const</span> <a class="type" href="#types_type">type</a>: Number <span class="keywd">is</span> <span class="keywd">sub</span> <span class="type">object</span> <span class="keywd">interface</span>;
 
-<span class="keywd">const</span> <a class="type" href="#types_func">func</a> <span class="type">Number</span>: (<span class="keywd">in</span> <span class="type">Number</span> <span class="keywd">param</span>) + (<span class="keywd">in</span> <span class="type">Number</span> <span class="keywd">param</span>) <span class="keywd">is DYNAMIC</span>;
+<span class="keywd">const</span> <a class="type" href="#types_func">func</a> <span class="type">Number</span>: (<span class="keywd">in</span> <span class="type">Number</span>: a) + (<span class="keywd">in</span> <span class="type">Number</span>: b) <span class="keywd">is DYNAMIC</span>;
 </pre><p>
   The interface type <tt><span class="type">Number</span></tt> can represent an <tt>'<span class="type">Integer</span>'</tt> or a <tt>'<span class="type">Float</span>'</tt>:
 </p><pre class="indent">
@@ -5424,12 +5415,12 @@ type_implements_interface(<span class="type">treeElement</span>, <span class="ty
   and <tt>'item'</tt> for objects of type <tt><span class="type">element</span></tt> the following declarations
   are necessary:
 </p><pre class="indent">
-<span class="keywd">const</span> <a class="type" href="#types_func">func</a>    <span class="type">element</span>: (<span class="keywd">ref</span>   <span class="type">element</span> <span class="keywd">param</span>).left  <span class="keywd">is DYNAMIC</span>;
-<span class="keywd">const</span> <a class="type" href="#types_varfunc">varfunc</a> <span class="type">element</span>: (<span class="keywd">inout</span> <span class="type">element</span> <span class="keywd">param</span>).left  <span class="keywd">is DYNAMIC</span>;
-<span class="keywd">const</span> <a class="type" href="#types_func">func</a>    <span class="type">element</span>: (<span class="keywd">ref</span>   <span class="type">element</span> <span class="keywd">param</span>).right <span class="keywd">is DYNAMIC</span>;
-<span class="keywd">const</span> <a class="type" href="#types_varfunc">varfunc</a> <span class="type">element</span>: (<span class="keywd">inout</span> <span class="type">element</span> <span class="keywd">param</span>).right <span class="keywd">is DYNAMIC</span>;
-<span class="keywd">const</span> <a class="type" href="#types_func">func</a>    <a class="type" href="#types_integer">integer</a>: (<span class="keywd">ref</span>   <span class="type">element</span> <span class="keywd">param</span>).item  <span class="keywd">is DYNAMIC</span>;
-<span class="keywd">const</span> <a class="type" href="#types_varfunc">varfunc</a> <a class="type" href="#types_integer">integer</a>: (<span class="keywd">inout</span> <span class="type">element</span> <span class="keywd">param</span>).item  <span class="keywd">is DYNAMIC</span>;
+<span class="keywd">const</span> <a class="type" href="#types_func">func</a>    <span class="type">element</span>: (<span class="keywd">ref</span>   <span class="type">element</span>: anElem).left  <span class="keywd">is DYNAMIC</span>;
+<span class="keywd">const</span> <a class="type" href="#types_varfunc">varfunc</a> <span class="type">element</span>: (<span class="keywd">inout</span> <span class="type">element</span>: anElem).left  <span class="keywd">is DYNAMIC</span>;
+<span class="keywd">const</span> <a class="type" href="#types_func">func</a>    <span class="type">element</span>: (<span class="keywd">ref</span>   <span class="type">element</span>: anElem).right <span class="keywd">is DYNAMIC</span>;
+<span class="keywd">const</span> <a class="type" href="#types_varfunc">varfunc</a> <span class="type">element</span>: (<span class="keywd">inout</span> <span class="type">element</span>: anElem).right <span class="keywd">is DYNAMIC</span>;
+<span class="keywd">const</span> <a class="type" href="#types_func">func</a>    <a class="type" href="#types_integer">integer</a>: (<span class="keywd">ref</span>   <span class="type">element</span>: anElem).item  <span class="keywd">is DYNAMIC</span>;
+<span class="keywd">const</span> <a class="type" href="#types_varfunc">varfunc</a> <a class="type" href="#types_integer">integer</a>: (<span class="keywd">inout</span> <span class="type">element</span>: anElem).item  <span class="keywd">is DYNAMIC</span>;
 </pre><p>
   When all this was declared the following code is possible:
 </p><pre class="indent">
@@ -10698,7 +10689,7 @@ SYSTEM_LIBS = -lm <b>superlib.a</b>
         <dd><tt>stri</tt> - Seed7 UTF-32 string to be converted.</dd>
         <dd><tt>err_info</tt> - Unchanged when the function succeeds or
                    <a class="exception" href="#errors_MEMORY_ERROR">MEMORY_ERROR</a> when the memory allocation failed or
-                   <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a> when stri contains a null character 
+                   <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a> when stri contains a null character
                           or a character that is higher than the
                           highest allowed Unicode character (U+10FFFF).</dd>
 </dl></dd>
@@ -11401,7 +11392,7 @@ SYSTEM_LIBS = -lm <b>superlib.a</b>
   situations. All overflow situations, where <tt><span class="exception">OVERFLOW_ERROR</span></tt> is raised
   correspond to C situations, which have undefined behaviour. The
   overflow concept of Seed7 has been designed to allow, that simple
-  C code is generated, when the overflow checks are switched off. 
+  C code is generated, when the overflow checks are switched off.
 </p>
 
 <a name="errors_RANGE_ERROR"><h4>15.2.4 RANGE_ERROR</h4></a>

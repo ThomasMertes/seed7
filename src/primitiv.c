@@ -445,6 +445,7 @@ static primActRecord prim_act_table[] = {
     { "FLT_LE",                  flt_le,                  },
     { "FLT_LOG",                 flt_log,                 },
     { "FLT_LOG10",               flt_log10,               },
+    { "FLT_LOG2",                flt_log2,                },
     { "FLT_LT",                  flt_lt,                  },
     { "FLT_MULT",                flt_mult,                },
     { "FLT_MULT_ASSIGN",         flt_mult_assign,         },

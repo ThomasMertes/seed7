@@ -25,6 +25,9 @@
 /*                                                                  */
 /********************************************************************/
 
+#define LOG_FUNCTIONS 0
+#define VERBOSE_EXCEPTIONS 0
+
 #include "version.h"
 
 #include "stdlib.h"
@@ -47,6 +50,9 @@
 #undef EXTERN
 #define EXTERN
 #include "fltlib.h"
+
+/* Natural logarithm of 2: */
+#define LN2 0.693147180559945309417232121458176568075500134360255254120680009493393
 
 
 
@@ -657,6 +663,24 @@ objectType flt_log10 (listType arguments)
 
 
 /**
+ *  Returns the base 2 logarithm of x.
+ *  @return the base 2 logarithm of x.
+ */
+objectType flt_log2 (listType arguments)
+
+  { /* flt_log2 */
+    isit_float(arg_1(arguments));
+    return bld_float_temp(
+#if HAS_LOG2
+        log2(take_float(arg_1(arguments))));
+#else
+        log(take_float(arg_1(arguments))) / LN2);
+#endif
+  } /* flt_log2 */
+
+
+
+/**
  *  Check if 'number1' is less than 'number2'.
  *  According to IEEE 754 a NaN is neither less than,
  *  equal to, nor greater than any value, including itself.
@@ -812,7 +836,7 @@ objectType flt_pow (listType arguments)
   /* flt_pow */
     isit_float(arg_1(arguments));
     isit_float(arg_3(arguments));
-#if POWER_OF_ZERO_OKAY && POWER_OF_ONE_OKAY && POWER_OF_NAN_OKAY
+#if POW_OF_NAN_OKAY && POW_OF_ZERO_OKAY && POW_OF_ONE_OKAY && POW_EXP_NAN_OKAY && POW_EXP_MINUS_INFINITY_OKAY
     power = pow(take_float(arg_1(arguments)), take_float(arg_3(arguments)));
 #else
     power = fltPow(take_float(arg_1(arguments)), take_float(arg_3(arguments)));
@@ -843,6 +867,8 @@ objectType flt_rand (listType arguments)
  *  Round towards the nearest integer.
  *  Halfway cases are rounded away from zero.
  *  @return the rounded value.
+ *  @exception RANGE_ERROR When the number is NaN, -Infinity, Infinity,
+ *             or does not fit into an integer.
  */
 objectType flt_round (listType arguments)
 
@@ -853,12 +879,21 @@ objectType flt_round (listType arguments)
   /* flt_round */
     isit_float(arg_1(arguments));
     number = take_float(arg_1(arguments));
-    if (number < (floatType) 0.0) {
-      rounded = -((intType) (0.5 - number));
+    if (unlikely(os_isnan(number) ||
+                 number < (floatType) INTTYPE_MIN - 0.5 ||
+                 number > (floatType) INTTYPE_MAX + 0.5)) {
+      logError(printf("flt_round(" FMT_E "): "
+                      "Number does not fit into an integer.\n",
+                      number););
+      return raise_exception(SYS_RNG_EXCEPTION);
     } else {
-      rounded = (intType) (0.5 + number);
+      if (number < (floatType) 0.0) {
+        rounded = (intType) (number - 0.5);
+      } else {
+        rounded = (intType) (number + 0.5);
+      } /* if */
+      return bld_int_temp(rounded);
     } /* if */
-    return bld_int_temp(rounded);
   } /* flt_round */
 
 
@@ -1019,12 +1054,27 @@ objectType flt_tanh (listType arguments)
  *  The fractional part of a number is discarded.
  *  @return the nearest integer not larger in absolute value
  *          than the argument.
+ *  @exception RANGE_ERROR When the number is NaN, -Infinity, Infinity,
+ *             or does not fit into an integer.
  */
 objectType flt_trunc (listType arguments)
 
-  { /* flt_trunc */
+  {
+    floatType number;
+
+  /* flt_trunc */
     isit_float(arg_1(arguments));
-    return bld_int_temp((intType) take_float(arg_1(arguments)));
+    number = take_float(arg_1(arguments));
+    if (unlikely(os_isnan(number) ||
+                 number < (floatType) INTTYPE_MIN ||
+                 number > (floatType) INTTYPE_MAX)) {
+      logError(printf("flt_trunc(" FMT_E "): "
+                      "Number does not fit into an integer.\n",
+                      number););
+      return raise_exception(SYS_RNG_EXCEPTION);
+    } else {
+      return bld_int_temp((intType) number);
+    } /* if */
   } /* flt_trunc */
 
 
@@ -1037,7 +1087,7 @@ objectType flt_value (listType arguments)
   /* flt_value */
     isit_reference(arg_1(arguments));
     obj_arg = take_reference(arg_1(arguments));
-    if (obj_arg == NULL || CATEGORY_OF_OBJ(obj_arg) != FLOATOBJECT) {
+    if (unlikely(obj_arg == NULL || CATEGORY_OF_OBJ(obj_arg) != FLOATOBJECT)) {
       return raise_exception(SYS_RNG_EXCEPTION);
     } else {
       return bld_float_temp(take_float(obj_arg));

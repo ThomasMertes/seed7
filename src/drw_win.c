@@ -78,7 +78,7 @@ typedef struct {
     intType clear_col;
   } win_winRecord, *win_winType;
 
-#ifdef DO_HEAP_STATISTIC
+#if DO_HEAP_STATISTIC
 size_t sizeof_winRecord = sizeof(win_winRecord);
 #endif
 

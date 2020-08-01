@@ -60,7 +60,7 @@ boolType fltLe (floatType number1, floatType number2);
 boolType fltLt (floatType number1, floatType number2);
 #endif
 floatType fltParse (const const_striType stri);
-#if !(POWER_OF_ZERO_OKAY && POWER_OF_ONE_OKAY && POWER_OF_NAN_OKAY)
+#if !(POW_OF_NAN_OKAY && POW_OF_ZERO_OKAY && POW_OF_ONE_OKAY && POW_EXP_NAN_OKAY && POW_EXP_MINUS_INFINITY_OKAY)
 floatType fltPow (floatType base, floatType exponent);
 #endif
 floatType fltRand (floatType lower_limit, floatType upper_limit);

@@ -98,7 +98,7 @@ boolType check_obj_flist (objectType object)
 
 
 
-#if defined DO_HEAPSIZE_COMPUTATION || defined DO_HEAP_STATISTIC
+#if DO_HEAPSIZE_COMPUTATION || DO_HEAP_STATISTIC
 static unsigned long object_flist_count (void)
 
   {
@@ -229,7 +229,7 @@ static unsigned long stri_flist_count (unsigned long *stri_chars)
 
 
 
-#ifdef DO_HEAP_STATISTIC
+#if DO_HEAP_STATISTIC
 void heap_statistic (void)
 
   {
@@ -557,7 +557,7 @@ void heap_statistic (void)
     printf("%9lu bytes total (with %lu bytes in free lists)\n",
         bytes_total,
         bytes_free);
-#ifdef DO_HEAPSIZE_COMPUTATION
+#if DO_HEAPSIZE_COMPUTATION
     if (bytes_total != hs) {
       printf("*** \nbytes_total=%lu hs=%lu diff=%ld\n",
           bytes_total, hs, bytes_total - hs);
@@ -572,7 +572,7 @@ void heap_statistic (void)
     printf("%9lu bytes total requested\n", bytes_total +
         (memSizeType) (chunk.beyond - chunk.freemem) + chunk.lost_bytes);
 #endif
-#ifdef DO_HEAP_CHECK
+#if DO_HEAP_CHECK
     /* check_heap(0, __FILE__, __LINE__); */
 #endif
 #ifdef TRACE_HEAPUTIL
@@ -642,7 +642,7 @@ static memSizeType compute_hs (void)
 memSizeType heapsize (void)
 
   {
-#ifdef DO_HEAPSIZE_COMPUTATION
+#if DO_HEAPSIZE_COMPUTATION
     memSizeType flist_bytes;
     unsigned long num_flist_stri_elems;
 #endif
@@ -650,7 +650,7 @@ memSizeType heapsize (void)
 
   /* heapsize */
     /* rtlHeapStatistic(); */
-#ifdef DO_HEAPSIZE_COMPUTATION
+#if DO_HEAPSIZE_COMPUTATION
     flist_bytes = object_flist_count() * sizeof(objectRecord);
     flist_bytes += list_elem_flist_count() * sizeof(listRecord);
     flist_bytes += node_flist_count() * sizeof(nodeRecord);
@@ -791,7 +791,7 @@ void *heap_chunk (size_t size)
 
 
 
-#ifdef DO_HEAP_CHECK
+#if DO_HEAP_CHECK
 void check_heap (long sizediff, const char *file_name, unsigned int line_num)
 
   {

@@ -211,7 +211,7 @@ static const unsigned int digit_value[] = {
   };
 
 
-#ifdef DO_HEAP_STATISTIC
+#if DO_HEAP_STATISTIC
 size_t sizeof_bigDigitType = sizeof(bigDigitType);
 size_t sizeof_bigIntRecord = sizeof(bigIntRecord);
 #endif

@@ -47,13 +47,13 @@ const func type: hashset (in type: baseType) is func
       const type: hashset (attr baseType)     is setType;
       const type: base_type (attr setType)    is baseType;
 
-      const reference: (attr setType) . keyCreate   is getfunc((ref baseType param) ::= (in baseType param));
-      const reference: (attr setType) . keyDestroy  is getfunc(destroy(ref baseType param));
-      const reference: (attr setType) . keyCopy     is getfunc((inout baseType param) := (in baseType param));
-      const reference: (attr setType) . keyCompare  is getfunc(compare(in baseType param, in baseType param));
-      const reference: (attr setType) . dataCreate  is getfunc((ref boolean param) ::= (in boolean param));
-      const reference: (attr setType) . dataDestroy is getfunc(destroy(ref boolean param));
-      const reference: (attr setType) . dataCopy    is getfunc((inout boolean param) := (in boolean param));
+      const reference: (attr setType) . keyCreate   is getfunc((ref baseType: dest) ::= (in baseType: source));
+      const reference: (attr setType) . keyDestroy  is getfunc(destroy(ref baseType: aValue));
+      const reference: (attr setType) . keyCopy     is getfunc((inout baseType: dest) := (in baseType: source));
+      const reference: (attr setType) . keyCompare  is getfunc(compare(in baseType: key1, in baseType: key2));
+      const reference: (attr setType) . dataCreate  is getfunc((ref boolean: dest) ::= (in boolean: source));
+      const reference: (attr setType) . dataDestroy is getfunc(destroy(ref boolean: aValue));
+      const reference: (attr setType) . dataCopy    is getfunc((inout boolean: dest) := (in boolean:source));
 
       const proc: CREATE (ref setType: dest, in setType: source,
                           in reference: keyCreate, in reference: keyDestroy,
@@ -380,7 +380,7 @@ const func type: hashset (in type: baseType) is func
           end for;
         end func;
 
-      if getobj(str(ref baseType param)) <> NIL then
+      if getobj(str(ref baseType: setElement)) <> NIL then
         (**
          *  Convert a set to a [[string]].
          *  @return the string result of the conversion.

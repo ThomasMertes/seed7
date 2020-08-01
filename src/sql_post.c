@@ -296,7 +296,7 @@ static boolType findDll (void)
 #undef htonll
 #undef ntohll
 
-#ifdef BIG_ENDIAN_INTTYPE
+#if BIG_ENDIAN_INTTYPE
 
 #define htonll(n) (n)
 #define ntohll(n) (n)

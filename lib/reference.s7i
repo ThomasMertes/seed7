@@ -34,8 +34,8 @@ const type: reference is subtype object;
 
 IN_PARAM_IS_VALUE(reference);
 
-const proc: (ref reference param) ::= (in reference param)             is action "REF_CREATE";
-const proc: destroy (ref reference param)                              is action "GEN_DESTR";
+const proc: (ref reference: dest) ::= (in reference: source)           is action "REF_CREATE";
+const proc: destroy (ref reference: aValue)                            is action "GEN_DESTR";
 const proc: (inout reference: dest) := (in reference: source)          is action "REF_CPY";
 (* Deactivated since it allows 'reference' := anything which is aggainst type checking *)
 (* const proc: (inout reference param) := (in object param)            is action "REF_MKREF"; *)

@@ -242,7 +242,7 @@ intType setCard (const const_setType aSet)
       bitset = aSet->bitset[bitset_index - 1];
       card += bitsetPopulation(bitset);
     } /* for */
-    if (card > INTTYPE_MAX) {
+    if (unlikely(card > INTTYPE_MAX)) {
       logError(printf("setCard(): Result does not fit into an integer.\n"););
       raise_error(RANGE_ERROR);
       cardinality = 0;
@@ -276,7 +276,7 @@ intType setCard (const const_setType aSet)
         byteCount != 0; byteCount--, byte++) {
       card += (uintType) card_byte[(int) *byte];
     } /* for */
-    if (card > INTTYPE_MAX) {
+    if (unlikely(card > INTTYPE_MAX)) {
       logError(printf("setCard(): Result does not fit into an integer.\n"););
       raise_error(RANGE_ERROR);
       cardinality = 0;

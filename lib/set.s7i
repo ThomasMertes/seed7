@@ -41,8 +41,8 @@ const func type: set of (in type: baseType) is func
   begin
     setType := get_type(getfunc(set of (attr baseType)));
     if setType = void then
-      if getobj(ord(ref baseType param)) <> NIL and
-          getobj(ord(ref baseType param, mayRaiseRangeError)) = NIL then
+      if getobj(ord(ref baseType: setElement)) <> NIL and
+          getobj(ord(ref baseType: setElement, mayRaiseRangeError)) = NIL then
         setType := bitset(baseType);
       else
         setType := hashset(baseType);

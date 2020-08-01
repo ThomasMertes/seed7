@@ -1084,10 +1084,10 @@ CONTENTS
 
   Declaration:
 
-    $ syntax expr: .(). ; .() is            <- 50;
-    $ syntax expr: .(). ; is                <- 50 [1];
+    $ syntax expr: .(). ; .()   is <- 50;
+    $ syntax expr: .(). ;       is <- 50 [1];
 
-    const proc: (ref void param) ; (ref void param) is noop;
+    const proc: (ref void: statement1) ; (ref void: statement2) is noop;
 
 
 4.1 Assignment
@@ -1114,7 +1114,7 @@ CONTENTS
 
   Declaration:
 
-    $ syntax expr: .(). := .() is                     <-> 20;
+    $ syntax expr: .(). := .()   is <-> 20;
 
     const proc: (inout type: dest) := (ref type: source)             is action "TYP_CPY";
     const proc: (inout proc: dest) := (ref proc: source)             is action "PRC_CPY";
@@ -1167,7 +1167,7 @@ CONTENTS
 
   Declaration:
 
-    $ syntax expr: .while.().do.().end.while is       -> 25;
+    $ syntax expr: .while.().do.().end.while   is -> 25;
 
     const proc: while (ref func boolean: condition) do (in proc: statement) end while is action "PRC_WHILE";
     const proc: while (in boolean: condition)  do (in proc: statement) end while      is action "PRC_WHILE";
@@ -1214,7 +1214,7 @@ CONTENTS
 
   Declaration:
 
-    $ syntax expr: .repeat.().until.() is             -> 25;
+    $ syntax expr: .repeat.().until.()   is -> 25;
 
     const proc: repeat (in proc: statement) until (ref func boolean: condition) is action "PRC_REPEAT";
     const proc: repeat (in proc: statement) until (in boolean: condition)       is action "PRC_REPEAT";
@@ -1273,8 +1273,8 @@ CONTENTS
 
   Declaration:
 
-    $ syntax expr: .for.().range.().to.().do.().end.for is     -> 25;
-    $ syntax expr: .for.().range.().downto.().do.().end.for is -> 25;
+    $ syntax expr: .for.().range.().to.().do.().end.for       is -> 25;
+    $ syntax expr: .for.().range.().downto.().do.().end.for   is -> 25;
 
     const proc: FOR_DECLS (in type: aType) is func
       begin
@@ -1355,12 +1355,12 @@ CONTENTS
 
   Declaration:
 
-    $ syntax expr: .for.().range.().to.().step.().do.().end.for is     -> 25;
-    $ syntax expr: .for.().range.().downto.().step.().do.().end.for is -> 25;
+    $ syntax expr: .for.().range.().to.().step.().do.().end.for       is -> 25;
+    $ syntax expr: .for.().range.().downto.().step.().do.().end.for   is -> 25;
 
     const proc: FOR_STEP_DECLS (in type: aType) is func
       begin
-        if getobj((inout aType param) +:= (in integer param)) <> NIL then
+        if getobj((inout aType: variable) +:= (in integer: delta)) <> NIL then
 
           const proc: for (inout aType: variable) range (in aType: lowerLimit) to (in aType: upperLimit)
               step (in integer: incr_step) do
@@ -1374,7 +1374,7 @@ CONTENTS
             end func;
 
         end if;
-        if getobj((inout aType param) -:= (in integer param)) <> NIL then
+        if getobj((inout aType: variable) -:= (in integer: delta)) <> NIL then
 
           const proc: for (inout aType: variable) range (in aType: upperLimit) downto (in aType: lowerLimit)
               step (in integer: decr_step) do
@@ -1423,7 +1423,7 @@ CONTENTS
 
   Declaration:
 
-    $ syntax expr: .for.().range.().do.().end.for is          -> 25;
+    $ syntax expr: .for.().range.().do.().end.for   is -> 25;
 
     const proc: for (inout reference: variable) range (in ref_list: aRefList) do
                   (in proc: statement)
@@ -1494,47 +1494,37 @@ CONTENTS
 
   Declaration:
 
-    $ syntax expr: .if.().then.().end.if is           -> 25;
-    $ syntax expr: .if.().then.().().end.if is        -> 25;
+    $ syntax expr: .if.().then.().end.if      is -> 25;
+    $ syntax expr: .if.().then.().().end.if   is -> 25;
 
-    $ syntax expr: .elsif.().then.() is               <- 60;
-    $ syntax expr: .elsif.().then.().() is            <- 60;
-    $ syntax expr: .else.() is                        <- 60;
+    $ syntax expr: .elsif.().then.()          is <- 60;
+    $ syntax expr: .elsif.().then.().()       is <- 60;
+    $ syntax expr: .else.()                   is <- 60;
 
     const type: ELSIF_RESULT is newtype;
-    const proc: (ref ELSIF_RESULT param) ::= enumlit is  action "ENU_GENLIT";
+    const proc: (ref ELSIF_RESULT: dest) ::= enumlit       is action "ENU_GENLIT";
     const ELSIF_RESULT: ELSIF_EMPTY is enumlit;
-    const type: ELSIF_PROC is                        (func ELSIF_RESULT);
-    const proc: (ref ELSIF_PROC param) ::= (ref ELSIF_RESULT param) is action "ENU_CREATE";
+    const type: ELSIF_PROC                                 is func ELSIF_RESULT;
+    const proc: (ref ELSIF_PROC: dest) ::= (ref ELSIF_RESULT: source) is action "ENU_CREATE";
 
-    const proc:       if (in boolean param) then
-                        (in proc param)
-                      end if is                        action "PRC_IF";
+    const proc:       if (in boolean: condition) then
+                        (in proc: statements)
+                      end if                               is action "PRC_IF";
 
-    const proc:       if (in boolean param) then
-                        (in proc param)
-                      (in ELSIF_PROC param)
-                      end if is                        action "PRC_IF_ELSIF";
+    const proc:       if (in boolean: condition) then
+                        (in proc: statements)
+                      (in ELSIF_PROC: elsifPart)
+                      end if                               is action "PRC_IF_ELSIF";
 
-    const ELSIF_PROC: elsif (in boolean param) then
-                        (in proc param) is             action "PRC_IF";
+    const ELSIF_PROC: elsif (in boolean: condition) then
+                        (in proc: statements)              is action "PRC_IF";
 
-    const ELSIF_PROC: elsif (in boolean param) then
-                        (in proc param)
-                      (in ELSIF_PROC param) is         action "PRC_IF_ELSIF";
+    const ELSIF_PROC: elsif (in boolean: condition) then
+                        (in proc: statements)
+                      (in ELSIF_PROC: elsifPart)           is action "PRC_IF_ELSIF";
 
     const ELSIF_PROC: else
-                        (in void param) is             ELSIF_EMPTY;
-
-
-    const proc: if TRUE  then (in void param) end if is                           noop;
-    const proc: if TRUE  then (in void param) (in ELSIF_PROC param) end if is     noop;
-    const proc: if FALSE then (in proc param) end if is                           noop;
-    const proc: if FALSE then (in proc param) (in ELSIF_RESULT param) end if is   noop;
-    const ELSIF_PROC: elsif TRUE  then (in void param) is                         ELSIF_EMPTY;
-    const ELSIF_PROC: elsif TRUE then (in void param) (in ELSIF_PROC param)   is  ELSIF_EMPTY;
-    const ELSIF_PROC: elsif FALSE then (in proc param) is                         ELSIF_EMPTY;
-    const ELSIF_PROC: elsif FALSE then (in proc param) (in ELSIF_RESULT param) is ELSIF_EMPTY;
+                        (in void: elsePart)                is ELSIF_EMPTY;
 
 
 4.8 case-statement
@@ -1588,12 +1578,12 @@ CONTENTS
 
   Declaration:
 
-    $ syntax expr: .case.().of.().end.case is                      -> 25;
-    $ syntax expr: .case.().of.().otherwise. : .().end.case is     -> 25;
-    $ syntax expr: .case.().of.end.case is                         -> 25;
+    $ syntax expr: .case.().of.().end.case                    is -> 25;
+    $ syntax expr: .case.().of.().otherwise. : .().end.case   is -> 25;
+    $ syntax expr: .case.().of.end.case                       is -> 25;
 
-    $ syntax expr: .when.(). : .().() is              <- 60;
-    $ syntax expr: .when.(). : .() is                 <- 60;
+    $ syntax expr: .when.(). : .().()   is <- 60;
+    $ syntax expr: .when.(). : .()      is <- 60;
 
     const proc: CASE_DECLS (in type: aType) is func
       local
@@ -1604,24 +1594,25 @@ CONTENTS
         WHEN_RESULT := newtype;
         WHEN_PROC := (func WHEN_RESULT);
         SELECTOR_TYPE := set of aType;
-        const proc: case (ref aType param) of end case                       is noop;
-        const proc: case (ref aType param) of
-                      (ref WHEN_PROC param)
-                    end case                                                 is action "PRC_CASE";
-        const proc: case (ref aType param) of
-                      (ref WHEN_PROC param)
-                      otherwise : (ref proc param)
-                    end case                                                 is action "PRC_CASE_DEF";
-        const proc: (ref WHEN_RESULT param) ::= enumlit                      is action "ENU_GENLIT";
+        const proc: case (ref aType: decisionValue) of end case                     is noop;
+        const proc: case (ref aType: decisionValue) of
+                      (ref WHEN_PROC: whenPart)
+                    end case                                                        is action "PRC_CASE";
+        const proc: case (ref aType: decisionValue) of
+                      (ref WHEN_PROC: whenPart)
+                      otherwise : (ref proc: statements)
+                    end case                                                        is action "PRC_CASE_DEF";
+        const proc: (ref WHEN_RESULT: dest) ::= enumlit                             is action "ENU_GENLIT";
         const WHEN_RESULT: WHEN_EMPTY (attr aType) is enumlit;
-        const proc: (ref WHEN_PROC param) ::= (ref WHEN_RESULT param)        is action "ENU_CREATE";
-        const WHEN_PROC: when (ref SELECTOR_TYPE param) : (ref proc param)   is WHEN_EMPTY(aType);
-        const WHEN_PROC: when (ref SELECTOR_TYPE param) : (ref proc param)
-                           (ref WHEN_PROC param)                             is WHEN_EMPTY(aType);
+        const proc: (ref WHEN_PROC: dest) ::= (ref WHEN_RESULT: source)             is action "ENU_CREATE";
+        const WHEN_PROC: when (ref SELECTOR_TYPE: whenSet) : (ref proc: statement)  is WHEN_EMPTY(aType);
+        const WHEN_PROC: when (ref SELECTOR_TYPE: whenSet) : (ref proc: statement)
+                           (ref WHEN_PROC: whenPart)                                is WHEN_EMPTY(aType);
       end func;
 
     CASE_DECLS(integer);
     CASE_DECLS(char);
+    CASE_DECLS(boolean);
 
 
 
@@ -4883,7 +4874,7 @@ CONTENTS
   with objects of an interface type. An interface function
   for a 'shape' could be:
 
-    const proc: draw (in shape param, inout window param) is DYNAMIC;
+    const proc: draw (in shape: aShape, inout window: aWindow) is DYNAMIC;
 
   Now we know that it is possible to 'draw' a 'shape' to a
   'window'. How this drawing is done is described in the
@@ -4999,7 +4990,7 @@ CONTENTS
   function is 'draw(aShape, currWindow)'. The
   interface function declared with
 
-    const proc: draw (in shape param, inout window param) is DYNAMIC;
+    const proc: draw (in shape: aShape, inout window: aWindow) is DYNAMIC;
 
   decides which implementation function has to be called.
   The dynamic dispatch works as follows:
@@ -5064,7 +5055,7 @@ CONTENTS
   'getln' function above the function call 'gets(aFile, 1)'
   uses the (DYNAMIC) interface function:
 
-    const func string: gets (inout file param, in integer param) is DYNAMIC;
+    const func string: gets (inout file: inFile, in integer: maxLength) is DYNAMIC;
 
   In other OO languages the distinction between interface type
   and basic implementation type is not done. Such languages
@@ -5170,7 +5161,7 @@ CONTENTS
 
     const type: Number is sub object interface;
 
-    const func Number: (in Number param) + (in Number param) is DYNAMIC;
+    const func Number: (in Number: a) + (in Number: b) is DYNAMIC;
 
   The interface type 'Number' can represent an 'Integer' or a 'Float':
 
@@ -5278,12 +5269,12 @@ CONTENTS
   and 'item' for objects of type 'element' the following declarations
   are necessary:
 
-    const func    element: (ref   element param).left  is DYNAMIC;
-    const varfunc element: (inout element param).left  is DYNAMIC;
-    const func    element: (ref   element param).right is DYNAMIC;
-    const varfunc element: (inout element param).right is DYNAMIC;
-    const func    integer: (ref   element param).item  is DYNAMIC;
-    const varfunc integer: (inout element param).item  is DYNAMIC;
+    const func    element: (ref   element: anElem).left  is DYNAMIC;
+    const varfunc element: (inout element: anElem).left  is DYNAMIC;
+    const func    element: (ref   element: anElem).right is DYNAMIC;
+    const varfunc element: (inout element: anElem).right is DYNAMIC;
+    const func    integer: (ref   element: anElem).item  is DYNAMIC;
+    const varfunc integer: (inout element: anElem).item  is DYNAMIC;
 
   When all this was declared the following code is possible:
 
