@@ -1,170 +1,127 @@
-20060314:
-- Improvements for arrays and structs in the compiler
-- Function strLit to support the compiler
-- Improvements in bas example program.
-- Subrange and for-loop for bitset
-- Allow line comments in string literals
-- Empty line count removed
+20070807:
+- The handling of local functions in the compiler (comp.sd7) was improved.
+- The function 'option' (to get compile time defines) was renamed to 'configValue'.
+- The compiler was improved to support the 'configValue' function.
+- The 'ord' function for enumerations was changed to work without DYNAMIC.
+- The changelog was reversed (sorted now from newest to oldest), and old entrys were added.
+- The address of the FSF was changed in various files.
 
-20060404:
-- Function to close a graph_file
-- Write graphic text under windows
-- Parse operator and reading for bitsets
-- Allow hashtables for sets
-- Date format according to ISO 8601
-- New time functions dayOfWeek, julianDayNumber and
-  julianDayNumToTime
+20070723:
+- The compiler (comp.sd7) was improved to allow local functions.
+- The compiler now supports arrays with indices of any type (not just integer indices).
+- A new example program (mandelbr.sd7), to display fractals, was added.
+- The -O2 option was added to the compiler (advantageous when compiling mandelbr.sd7).
+- The compiler now generates static functions to allow more optimizations.
+- A *:= operator and the sqrAbs function were added for the type 'complex'.
+- The reflection was changed to use the 'getValue' function instead of the 'value' operator.
+- The compiler was improved to support the conversion of integers to an enumeration type.
+- The compiler now compiles the programs panic.sd7 and castle.sd7.
 
-20060420:
-- The driver function tim_await (using seconds since 1970)
-  was replaced by timAwait (using the Gregorian calendar).
-- The driver function timNow was changed to deliver a
-  timezone which includes the daylight saving time.
-- Various pictures where added in pic16.s7i and pic32.s7i .
-- The parse function for bitsets was fixed to work for
-  empty sets.
-- A new example program toutf8 to convert files to utf-8
-  was added.
-- The windows driver function drwPRect was fixed.
+20070710:
+- The compiler (comp.sd7) support for different C compilers was improved.
+- A support for socket send and recv was added to the compiler.
+- A description of openInetSocket was added to the documentation.
+- A pos function and the 'not in' operator was added for the type ref_list.
+- The var_conv operator was renamed to varConv.
+- Some setters (setCategory, setValue, setParams) were added to the reflection.
+- The classtype of the interpreter was renamed to categorytype since it has
+  nothing to do with classes.
 
-20060506:
-- The reporting of semantic errors was improved (now the
-  line number and the line itself is shown).
-- A checkmark picture was added to pic16.s7i and pic32.s7i .
-- A tiny inaccuracy in the heap statistic was fixed.
-- The source and include file management of the interpreter
-  was simplified.
+20070624:
+- As suggested by several users a socket library (socket.s7i) was added.
+- Two example programs tst_srv.sd7 and tst_cli.sd7 to test socket functionality were added.
+- The popen function was added (suggested by Leonardo Cecchi).
+- The compiler was improved to support hash tables with floats, various for loops over
+  hash tables and the new socket library.
+- The compiler now compiles the programs bas.sd7 and wordcnt.sd7.
+- The wator.sd7 example program was improved.
+- The heap management and the heap statistic was improved.
+- Several function prototypes were changed to use 'const' types.
 
-20060520:
-- The performance of the interpreter was raised by circa 8% with
-  an improved free list management.
-- The graphic and keyborad drivers for windows have been improved.
-- A new primitive action (set_arrlit) was defined to create sets from
-  integer arrays.
-- The bas (basic interpreter) example program was improved to support do loops.
-- A sudoku example program (sudoku7) was added.
+20070607:
+- An explanation of multiple dispatch was added to the FAQ.
+- A bug in the 'str' function for 'complex' was fixed (found by Leejun).
+- The interpreter was improved to support startsWith, endsWith, array_min_position, heapstat
+  and @:= (for ref_lists).
+- The compiler suport for drw_cpy, ref_trace, arr_head, arr_tail, arr_idx, varfunc, wintype,
+  array literals and dynamic functions (for enumerations) was improved.
+- The compiler now writes a message when an uncaught exception was raised.
+- The compiler was changed such that destr functions accept also NULL.
+- The compiler now compiles the programs snake.sd7 and toutf8.sd7.
+- The concentration game was renamed to pairs.sd7
+- The functions drwCpy, drwCreate and drwDestr where moved to drw_rtl.c.
+- The heap management and the heap statistic was improved.
 
-20060606:
-- The bas (basic interpreter) example program was improved to
-  support exit statements.
-- A tiny bug in the panic example program was fixed.
-- The hi interpreter was improved to write a stack trace when
-  an exception is not catched.
+20070524:
+- The file version.h was removed to force the creation of it with the "make depend" command.
+- The read_me was changed such that a "rm version.h" is not necessary to compile.
+- Several constant types were defined in data_rtl.h.
+- The files str_rtl.c, str_rtl.h, set_rtl.c and set_rtl.h were changed to use constant types.
+- A bug with compare functions for array sorts and hash tables was fixed.
+- The makefile mk_linux.mak was added as copy of 'makefile'.
+- The makefile mk_msvc.mak was added to allow experimental compilation with nmake and cl.
 
-20060622:
-- A new example program (castle) was added.
-  Castle was inspired by the castle adventure from 1984.
-- The graphic driver for windows has been improved for
-  circle, arc, chord, pieslice, fellipse.
+20070507:
+- As suggested by several users the include files were moved to the 'lib' directory.
+- The search for include files was improved to work with an internal search path array.
+- The 'hi' interpreter now contains a hardcoded include directory path defined in version.h.
+- The makefiles mk_mingw.mak, mk_msys.mak and mk_nmake.mak were added for compilation under MinGW.
+- The bigInteger multiplication was changed to use Karatsuba multiplication for bigger integers.
+- Several constant types were defined in common.h.
 
-20060707:
-- A little improvement of the castle example program was done.
-- The drwText function of the windows graphic driver
-  was changed to support unicode characters.
-- A new example program (planets) was added.
+20070419:
+- The compiler support for result variables, which are initialized with expressions, was improved.
+- The bas (basic interpreter) example program was improved.
+- The bigrat.s7i, rational.s7i librarys were improved.
+- Some multiplication testcases were added to the chkbig.sd7 example program.
+- The compiler was changed to mark its temporary *.c files with a temp_marker.
+- Several performance improvements for uBigMultSub, uBigAddTo, uBigDiv, uBigMult,
+  uBigMultIntoHelp, bigGrow, bigMult and bigShrink were done.
 
-20060724:
-- A new example program (bifurcation) was added.
-- A trim function to remove leading and trailing spaces from strings was added.
-- The windows graphic driver was improved to support windows 98.
-- A changelog (chlog) was added.
+20070404:
+- The support and documentation for the functions split, join, log2, bitLength and
+  the operator *:= were improved.
+- The compiler support for the functions raise, log2 and split was improved.
+- The bas (basic interpreter) example program was improved to support print using statements.
+- The support of the for-step loop in the seed7_05.s7i include file was improved.
+- Some improvements for the bigRational and bigInteger library were done.
+- A bug in uBigAddTo which could cause an error in bigDiv, bigRem, bigMDiv, bigMod was fixed.
+- The chkbig.sd7 program was improved to check the log2 function for bigInteger.
+- The chkstr.sd7 program was improved to have more checks for the split function.
 
-20060808:
-- A description of the 'func', 'varfunc' and 'proc' types was added to the manual.
-- The 'parse' operator for the type 'time' was improved.
-- The operators '<=', '>' and '<' were added for the type 'duration'.
-- The windows graphic driver was improved to use the SetPixel function.
-- The filOpen function was changed to open files in binary mode.
+20070319:
+- The interpreter was changed to execute programs only when they have no errors.
+- The option -x to execute programs, even when they have errors, was added to the interpreter.
+- The *:= operator for the types integer, float, bigInteger and bigRational was added.
+- The chkbig.sd7 program was improved to check the *:= operator for big integers.
+- The compiler was improved to support the *:= operator and the arr_cat action.
+- Several improvements for compile time error messages were done.
+- The err.sd7 example program, which checks compile time error messages, was improved.
 
-20060826:
-- A description of the 'attr' parameter was added to the manual.
-- The first steps towards bigInteger support were done.
-- The graphic and keyboard drivers for windows have been improved.
-- A check for the maximum of fish and sharks was added to the wator example program.
+20070305:
+- The support for float was changed to use IEEE 754 NaN and Infinity instead of exceptions.
+- The exception checking program chkexc.sd7 was improved and the chkflt.sd7 program was added.
+- All exponentiation operators were improved to evaluate 0 ** 0 to 1.
+- The associativity of the ** operator was changed to work right to left.
+- A declaration for an = and <> operator was added for interface types.
+- Basic support for exceptions in compiled programs was added.
+- Parts of the manual describing float operations and exponentiation were improved.
+- The performance of the flt_ipow action was improved.
+- The compiler was improved to produce better code for the primitive actions
+  arr_sort, arr_times, cls_eq, cls_ne, flt_isnan, flt_log10, int_fact,
+  rfl_append, rfl_cpy, rfl_for, rfl_mklist, rfl_ne, rfl_tail and str_str.
 
-20060910:
-- A new include file (bigint.s7i) and a new example program (chkbig.sd7) were added.
-- Changes in the compiler to support some bigInteger functionality were done.
-- Support for the str_elemcpy action was added to the compiler.
-
-20060926:
-- The bigInteger library was improved to support addition, subtraction,
-  multiplication, negation, absolute value, string conversions and more.
-- A lot of testcases have been added to the chkbig.sd7 program.
-- The compiler was improved to support more bigInteger functionality.
-- The makefile was changed to work on BSD (suggested by Dave Bodenstab).
-
-20061008:
-- The bigInteger library was improved to support division and remainder.
-- Testcases for division and remainder were added to the chkbig.sd7 program.
-- The compiler was improved to support bigInteger division and remainder.
-
-20061023:
-- The bigInteger library was improved to support modulo, power and
-  several comparisons (<, >, <=, >=).
-- Testcases for incr, decr, modulo, power and compare were added to
-  the chkbig.sd7 program.
-- The compiler was improved to support the new bigInteger functionality.
-
-20061106:
-- The hi interpreter was improved to support bigInteger literals.
-- Changes have been done to allow a configurable bigdigit size
-  (Bigdigits are the building elements of a bigInteger).
-- The mdiv function was added to the bigInteger library and the
-  chkbig.sd7 program.
-- The chkbig.sd7 program was changed to use bigInteger literals.
-- Several bigInteger functions have been improved.
-- A bigrat.s7i include file to support bigRational numbers has been added.
-- The compiler support for bigInteger, setBaselit and strTrim has
-  been improved.
-
-20061120:
-- The rand function and the +:= and -:= operators were added to
-  the bigInteger library.
-- The checks for bigInteger addition and subtraction in chkbig.sd7
-  were improved and checks for the +:= and -:= operators
-  were added.
-- The compiler support for bigInteger was improved.
-- The documentation (manual and faq) was improved.
-
-20061204:
-- The functions bigLength, seek, bigTell were added to support files with 64 bit offsets.
-- The file functions getwd, getln, read and readln were changed to remove '\r' before '\n'.
-- Parameters of type bigInteger were changed to use call by reference.
-- The functions ord and conv for the bigInteger type were added.
-- The putf function (to copy a string to a file) was changed and a writef function was added.
-- Functions to split and join strings and a check for that functions were added.
-- Comparisons = and <> for arrays were added.
-- An implementation for 'set of string' based on the 'hash' type was added.
-- Keyboard functionality was moved into the new file kbd_rtl.c.
-- A new makefile makefile.msy for MinGW MSYS compilation was added.
-
-20061219:
-- Support for local constant declarations was added to the compiler.
-- The compiler was improved to support the actions big_abs, big_clit, big_hashcode,
-  big_value, cmd_ls, flt_grow, flt_shrink, gkb_gets, kbd_gets, set_arrlit and str_chsplit.
-- The heap statistic was improved to work for bigInteger objects.
-- The array compare functions = and <> have been improved.
-- The support for arrays in the compiler was improved.
-- The trace level 'h' was added to trace the heapsize.
-- The exception handling was corrected to work with hash objects.
-- A bug in the in_file handling of the analyzer was fixed.
-- The 'hi' interpreter was improved to support the actions rfl_trace and str_split.
-
-20070104:
-- The hashtype was changend to maintain the size of the hash instead of computing it.
-- The &:= statement for the type ref_list was added.
-- The compiler was improved to support 'in var' parameters.
-- A new include file (complex.s7i) to support complex numbers was added.
-- The support for the bigIConv, bigOrd, cmdMkdir, drwPArc, drwPCircle, drwPFEllipse,
-  filBigLng, filBigSeek and filBigTell functions was added to the compiler.
-
-20070118:
-- The compiler was improved to support interfaces (DYNAMIC functions).
-  With this improvement several example programs can be compiled now.
-- The support for the actions gkb_busy_getc, gkb_xpos, gkb_ypos, kbd_busy_getc,
-  drw_pfellipse and arr_arrlit2 was added to the compiler.
-- The X11 keyboard driver was improved.
+20070219:
+- The support for hash tables, sets and console output in compiled programs was improved.
+- Support for multiple dispatch of interface (DYNAMIC) functions was added to the compiler.
+- The handling of parameters in the dispatch functions generated by the compiler was improved.
+- Variable global arrays and structs in compiled programs are now initialized
+  with a copy of the initialisation value.
+- The compiler was improved to produce better code for the primitive actions
+  arr_idx, chr_ge, chr_gt, chr_le, chr_lt, fil_seek, set_cpy, str_cpy,
+  prc_option, prg_match, ref_itftosct, typ_isderived and typ_meta.
+- A compare and a hashCode function was added for the type 'color'.
+- A check for curr_hash != NULL was removed at various places since isit_hash takes care of it.
 
 20070204:
 - An abstract data type to create interface types was added.
@@ -182,119 +139,251 @@
 - Several accessright changes for file functions in seed7_05.s7i and other libraries
   allow the compiler to produce working code for more file functions.
 
-20070219:
-- The support for hash tables, sets and console output in compiled programs was improved.
-- Support for multiple dispatch of interface (DYNAMIC) functions was added to the compiler.
-- The handling of parameters in the dispatch functions generated by the compiler was improved.
-- Variable global arrays and structs in compiled programs are now initialized
-  with a copy of the initialisation value.
-- The compiler was improved to produce better code for the primitive actions
-  arr_idx, chr_ge, chr_gt, chr_le, chr_lt, fil_seek, set_cpy, str_cpy,
-  prc_option, prg_match, ref_itftosct, typ_isderived and typ_meta.
-- A compare and a hashCode function was added for the type 'color'.
-- A check for curr_hash != NULL was removed at various places since isit_hash takes care of it.
+20070118:
+- The compiler was improved to support interfaces (DYNAMIC functions).
+  With this improvement several example programs can be compiled now.
+- The support for the actions gkb_busy_getc, gkb_xpos, gkb_ypos, kbd_busy_getc,
+  drw_pfellipse and arr_arrlit2 was added to the compiler.
+- The X11 keyboard driver was improved.
 
-20070305:
-- The support for float was changed to use IEEE 754 NaN and Infinity instead of exceptions.
-- The exception checking program chkexc.sd7 was improved and the chkflt.sd7 program was added.
-- All exponentiation operators were improved to evaluate 0 ** 0 to 1.
-- The associativity of the ** operator was changed to work right to left.
-- A declaration for an = and <> operator was added for interface types.
-- Basic support for exceptions in compiled programs was added.
-- Parts of the manual describing float operations and exponentiation were improved.
-- The performance of the flt_ipow action was improved.
-- The compiler was improved to produce better code for the primitive actions
-  arr_sort, arr_times, cls_eq, cls_ne, flt_isnan, flt_log10, int_fact,
-  rfl_append, rfl_cpy, rfl_for, rfl_mklist, rfl_ne, rfl_tail and str_str.
+20070104:
+- The hashtype was changend to maintain the size of the hash instead of computing it.
+- The &:= statement for the type ref_list was added.
+- The compiler was improved to support 'in var' parameters.
+- A new include file (complex.s7i) to support complex numbers was added.
+- The support for the bigIConv, bigOrd, cmdMkdir, drwPArc, drwPCircle, drwPFEllipse,
+  filBigLng, filBigSeek and filBigTell functions was added to the compiler.
 
-20070319:
-- The interpreter was changed to execute programs only when they have no errors.
-- The option -x to execute programs, even when they have errors, was added to the interpreter.
-- The *:= operator for the types integer, float, bigInteger and bigRational was added.
-- The chkbig.sd7 program was improved to check the *:= operator for big integers.
-- The compiler was improved to support the *:= operator and the arr_cat action.
-- Several improvements for compile time error messages were done.
-- The err.sd7 example program, which checks compile time error messages, was improved.
+20061219:
+- Support for local constant declarations was added to the compiler.
+- The compiler was improved to support the actions big_abs, big_clit, big_hashcode,
+  big_value, cmd_ls, flt_grow, flt_shrink, gkb_gets, kbd_gets, set_arrlit and str_chsplit.
+- The heap statistic was improved to work for bigInteger objects.
+- The array compare functions = and <> have been improved.
+- The support for arrays in the compiler was improved.
+- The trace level 'h' was added to trace the heapsize.
+- The exception handling was corrected to work with hash objects.
+- A bug in the in_file handling of the analyzer was fixed.
+- The 'hi' interpreter was improved to support the actions rfl_trace and str_split.
 
-20070404:
-- The support and documentation for the functions split, join, log2, bitLength and
-  the operator *:= were improved.
-- The compiler support for the functions raise, log2 and split was improved.
-- The bas (basic interpreter) example program was improved to support print using statements.
-- The support of the for-step loop in the seed7_05.s7i include file was improved.
-- Some improvements for the bigRational and bigInteger library were done.
-- A bug in uBigAddTo which could cause an error in bigDiv, bigRem, bigMDiv, bigMod was fixed.
-- The chkbig.sd7 program was improved to check the log2 function for bigInteger.
-- The chkstr.sd7 program was improved to have more checks for the split function.
+20061204:
+- The functions bigLength, seek, bigTell were added to support files with 64 bit offsets.
+- The file functions getwd, getln, read and readln were changed to remove '\r' before '\n'.
+- Parameters of type bigInteger were changed to use call by reference.
+- The functions ord and conv for the bigInteger type were added.
+- The putf function (to copy a string to a file) was changed and a writef function was added.
+- Functions to split and join strings and a check for that functions were added.
+- Comparisons = and <> for arrays were added.
+- An implementation for 'set of string' based on the 'hash' type was added.
+- Keyboard functionality was moved into the new file kbd_rtl.c.
+- A new makefile makefile.msy for MinGW MSYS compilation was added.
 
-20070419:
-- The compiler support for result variables, which are initialized with expressions, was improved.
-- The bas (basic interpreter) example program was improved.
-- The bigrat.s7i, rational.s7i librarys were improved.
-- Some multiplication testcases were added to the chkbig.sd7 example program.
-- The compiler was changed to mark its temporary *.c files with a temp_marker.
-- Several performance improvements for uBigMultSub, uBigAddTo, uBigDiv, uBigMult,
-  uBigMultIntoHelp, bigGrow, bigMult and bigShrink were done.
+20061120:
+- The rand function and the +:= and -:= operators were added to
+  the bigInteger library.
+- The checks for bigInteger addition and subtraction in chkbig.sd7
+  were improved and checks for the +:= and -:= operators
+  were added.
+- The compiler support for bigInteger was improved.
+- The documentation (manual and faq) was improved.
 
-20070507:
-- As suggested by several users the include files were moved to the 'lib' directory.
-- The search for include files was improved to work with an internal search path array.
-- The 'hi' interpreter now contains a hardcoded include directory path defined in version.h.
-- The makefiles mk_mingw.mak, mk_msys.mak and mk_nmake.mak were added for compilation under MinGW.
-- The bigInteger multiplication was changed to use Karatsuba multiplication for bigger integers.
-- Several constant types were defined in common.h.
+20061106:
+- The hi interpreter was improved to support bigInteger literals.
+- Changes have been done to allow a configurable bigdigit size
+  (Bigdigits are the building elements of a bigInteger).
+- The mdiv function was added to the bigInteger library and the
+  chkbig.sd7 program.
+- The chkbig.sd7 program was changed to use bigInteger literals.
+- Several bigInteger functions have been improved.
+- A bigrat.s7i include file to support bigRational numbers has been added.
+- The compiler support for bigInteger, setBaselit and strTrim has
+  been improved.
 
-20070524:
-- The file version.h was removed to force the creation of it with the "make depend" command.
-- The read_me was changed such that a "rm version.h" is not necessary to compile.
-- Several constant types were defined in data_rtl.h.
-- The files str_rtl.c, str_rtl.h, set_rtl.c and set_rtl.h were changed to use constant types.
-- A bug with compare functions for array sorts and hash tables was fixed.
-- The makefile mk_linux.mak was added as copy of 'makefile'.
-- The makefile mk_msvc.mak was added to allow experimental compilation with nmake and cl.
+20061023:
+- The bigInteger library was improved to support modulo, power and
+  several comparisons (<, >, <=, >=).
+- Testcases for incr, decr, modulo, power and compare were added to
+  the chkbig.sd7 program.
+- The compiler was improved to support the new bigInteger functionality.
 
-20070607:
-- An explanation of multiple dispatch was added to the FAQ.
-- A bug in the 'str' function for 'complex' was fixed (found by Leejun).
-- The interpreter was improved to support startsWith, endsWith, array_min_position, heapstat
-  and @:= (for ref_lists).
-- The compiler suport for drw_cpy, ref_trace, arr_head, arr_tail, arr_idx, varfunc, wintype,
-  array literals and dynamic functions (for enumerations) was improved.
-- The compiler now writes a message when an uncaught exception was raised.
-- The compiler was changed such that destr functions accept also NULL.
-- The compiler now compiles the programs snake.sd7 and toutf8.sd7.
-- The concentration game was renamed to pairs.sd7
-- The functions drwCpy, drwCreate and drwDestr where moved to drw_rtl.c.
-- The heap management and the heap statistic was improved.
+20061008:
+- The bigInteger library was improved to support division and remainder.
+- Testcases for division and remainder were added to the chkbig.sd7 program.
+- The compiler was improved to support bigInteger division and remainder.
 
-20070624:
-- As suggested by several users a socket library (socket.s7i) was added.
-- Two example programs tst_srv.sd7 and tst_cli.sd7 to test socket functionality were added.
-- The popen function was added (suggested by leonardoce).
-- The compiler was improved to support hash tables with floats, various for loops over
-  hash tables and the new socket library.
-- The compiler now compiles the programs bas.sd7 and wordcnt.sd7.
-- The wator.sd7 example program was improved.
-- The heap management and the heap statistic was improved.
-- Several function prototypes were changed to use 'const' types.
+20060926:
+- The bigInteger library was improved to support addition, subtraction,
+  multiplication, negation, absolute value, string conversions and more.
+- A lot of testcases have been added to the chkbig.sd7 program.
+- The compiler was improved to support more bigInteger functionality.
+- The makefile was changed to work on BSD (suggested by Dave Bodenstab).
 
-20070710:
-- The compiler (comp.sd7) support for different C compilers was improved.
-- A support for socket send and recv was added to the compiler.
-- A description of openInetSocket was added to the documentation.
-- A pos function and the 'not in' operator was added for the type ref_list.
-- The var_conv operator was renamed to varConv.
-- Some setters (setCategory, setValue, setParams) were added to the reflection.
-- The classtype of the interpreter was renamed to categorytype since it has
-  nothing to do with classes.
+20060910:
+- A new include file (bigint.s7i) and a new example program (chkbig.sd7) were added.
+- Changes in the compiler to support some bigInteger functionality were done.
+- Support for the str_elemcpy action was added to the compiler.
 
-20070723:
-- The compiler (comp.sd7) was improved to allow local functions.
-- The compiler now supports arrays with indices of any type (not just integer indices).
-- A new example program (mandelbr.sd7), to display fractals, was added.
-- The -O2 option was added to the compiler (advantageous when compiling mandelbr.sd7).
-- The compiler now generates static functions to allow more optimizations.
-- A *:= operator and the sqrAbs function were added for the type 'complex'.
-- The reflection was changed to use the 'getValue' function instead of the 'value' operator.
-- The compiler was improved to support the conversion of integers to an enumeration type.
-- The compiler now compiles the programs panic.sd7 and castle.sd7.
+20060826:
+- A description of the 'attr' parameter was added to the manual.
+- The first steps towards bigInteger support were done.
+- The graphic and keyboard drivers for windows have been improved.
+- A check for the maximum of fish and sharks was added to the wator example program.
+
+20060808:
+- A description of the 'func', 'varfunc' and 'proc' types was added to the manual.
+- The 'parse' operator for the type 'time' was improved.
+- The operators '<=', '>' and '<' were added for the type 'duration'.
+- The windows graphic driver was improved to use the SetPixel function.
+- The filOpen function was changed to open files in binary mode.
+
+20060724:
+- A new example program (bifurcation) was added.
+- A trim function to remove leading and trailing spaces from strings was added.
+- The windows graphic driver was improved to support windows 98.
+- A changelog (chlog) was added.
+
+20060707:
+- A little improvement of the castle example program was done.
+- The drwText function of the windows graphic driver
+  was changed to support unicode characters.
+- A new example program (planets) was added.
+
+20060622:
+- A new example program (castle) was added.
+  Castle was inspired by the castle adventure from 1984.
+- The graphic driver for windows has been improved for
+  circle, arc, chord, pieslice, fellipse.
+
+20060606:
+- The bas (basic interpreter) example program was improved to
+  support exit statements.
+- A tiny bug in the panic example program was fixed.
+- The hi interpreter was improved to write a stack trace when
+  an exception is not catched.
+
+20060520:
+- The performance of the interpreter was raised by circa 8% with
+  an improved free list management.
+- The graphic and keyborad drivers for windows have been improved.
+- A new primitive action (set_arrlit) was defined to create sets from
+  integer arrays.
+- The bas (basic interpreter) example program was improved to support do loops.
+- A sudoku example program (sudoku7) was added.
+
+20060506:
+- The reporting of semantic errors was improved (now the
+  line number and the line itself is shown).
+- A checkmark picture was added to pic16.s7i and pic32.s7i .
+- A tiny inaccuracy in the heap statistic was fixed.
+- The source and include file management of the interpreter
+  was simplified.
+
+20060420:
+- The driver function tim_await (using seconds since 1970)
+  was replaced by timAwait (using the Gregorian calendar).
+- The driver function timNow was changed to deliver a
+  timezone which includes the daylight saving time.
+- Various pictures where added in pic16.s7i and pic32.s7i .
+- The parse function for bitsets was fixed to work for
+  empty sets.
+- A new example program toutf8 to convert files to utf-8
+  was added.
+- The windows driver function drwPRect was fixed.
+
+20060404:
+- Function to close a graph_file
+- Write graphic text under windows
+- Parse operator and reading for bitsets
+- Allow hashtables for sets
+- Date format according to ISO 8601
+- New time functions dayOfWeek, julianDayNumber and
+  julianDayNumToTime
+
+20060314:
+- Improvements for arrays and structs in the compiler
+- Function strLit to support the compiler
+- Improvements in bas example program.
+- Subrange and for-loop for bitset
+- Allow line comments in string literals
+- Empty line count removed
+
+20060223:
+- Some compiler improvements for sets and structs. 
+- New graphic function: copyArea 
+- Hashes for sets and types 
+- New time functions: dayOfYear, toGMT, -:= 
+- Utf-8 characters in string and char literals 
+- New standard files: STD_UTF8_IN, STD_UTF8_OUT, STD_UTF8_ERR 
+- Function file_type to get the type of a file 
+
+20060205:
+- The compiler (comp.sd7) can handle strings now. 
+- New example program wator.sd7 (Simulation with fish and sharks). 
+- Improved example program dnafight.sd7 . 
+- New rand function to select a random element from a set. 
+
+20060126:
+- Improvements in the compiler (comp.sd7) 
+- Changed wrinum.s7i to write roman, english and german numbers. 
+- Moved some pictures to pic16.s7i and pic32.s7i. 
+- Renamed NO_ERROR to OKAY_NO_ERROR (NO_ERROR is used in windows). 
+- Defined compare and hashCode for the type 'reference'. 
+- In drw_win.c: Map characters 128 to 159 to unicode chars. 
+- In scr_win.c: Map console characters to unicode chars. 
+- Add #include "string.h" in files that use memcmp. 
+- Add functions to support compilation: 
+  filLit, drwCpy, strHead, strRange, strTail and others. 
+- In kbd_inf.c: Add support for UTF-8 keys for KEYBOARD. 
+
+20060118:
+- Some improvements of the windows support  
+- Console mode programs work  
+- Windows time driver works  
+- GDI Keyboard driver works  
+- Graphic programs work to some degree  
+  The windows port uses Mingw and the makefile "makefile.win".  
+- Changes in the time driver interface tim_drv.h to support compilation.  
+- Test program gkbd.sd7 for tests of the keyboard with x11/gdi - windows.  
+
+20060111:
+- The beginning of windows support 
+  (Textmode programs work, Graphic programs work to some degree) 
+  The windows port uses Mingw and the makefile "makefile.win". 
+- The definition of 
+  $ system "main" main; 
+  has been moved to the seed7_05.s7i library. 
+  Therefore it is not necessary to specify 'system "main"' in every program. 
+
+20051203:
+- Function to get the unsorted keys of a hash 
+  (for sorted keys use the sort array function: sort(keys(aHash)) ) 
+- Function to get the unsorted values of a hash 
+  (for sorted values use the sort array function: sort(values(aHash)) ) 
+- flip function for hashes to flip keys and values 
+  (the result has the type: hash [baseType] array keyType ) 
+- for loop to loop over the unsorted values of a hash 
+- for loop to loop over the unsorted keys of a hash 
+- for loop to loop over the unsorted values and keys of a hash 
+
+20051124:
+- Function to get the keys of a hash 
+- Sort function for arrays
+
+20051112:
+- Now the Seed7 manual (in the package) uses color. 
+- Implement seek for UTF-8 files 
+- Fix and improve the gets funktion for UTF-8 files 
+- The Seed7 project page contains also screenshots, a manual 
+  and an FAQ file. See http://sourceforge.net/projects/seed7 
+- Rename 'NL' system variable to 'writeln' and change the 
+  corresponding logic 
+
+20051104:
+- Now Seed7 supports reading and writing UTF-8 files
+- The Seed7 project page contains also screenshots, a manual
+  and an FAQ file. See http://sourceforge.net/projects/seed7
+- A new pos function to search a string from a given position has
+  been added.
+
+20051025:
+- Initial release.

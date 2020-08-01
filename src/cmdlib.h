@@ -14,9 +14,9 @@
 /*  GNU General Public License for more details.                    */
 /*                                                                  */
 /*  You should have received a copy of the GNU General Public       */
-/*  License along with this program; if not, write to the Free      */
-/*  Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,  */
-/*  MA 02111-1307 USA                                               */
+/*  License along with this program; if not, write to the           */
+/*  Free Software Foundation, Inc., 51 Franklin Street,             */
+/*  Fifth Floor, Boston, MA  02110-1301, USA.                       */
 /*                                                                  */
 /*  Module: Library                                                 */
 /*  File: seed7/src/cmdlib.h                                        */
@@ -28,6 +28,7 @@
 #ifdef ANSI_C
 
 objecttype cmd_chdir (listtype);
+objecttype cmd_config_value (listtype);
 objecttype cmd_copy (listtype);
 objecttype cmd_getcwd (listtype);
 objecttype cmd_filetype (listtype);
@@ -42,6 +43,7 @@ objecttype cmd_symlink (listtype);
 #else
 
 objecttype cmd_chdir ();
+objecttype cmd_config_value ();
 objecttype cmd_copy ();
 objecttype cmd_filetype ();
 objecttype cmd_getcwd ();

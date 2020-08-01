@@ -14,9 +14,9 @@
 /*  GNU General Public License for more details.                    */
 /*                                                                  */
 /*  You should have received a copy of the GNU General Public       */
-/*  License along with this program; if not, write to the Free      */
-/*  Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,  */
-/*  MA 02111-1307 USA                                               */
+/*  License along with this program; if not, write to the           */
+/*  Free Software Foundation, Inc., 51 Franklin Street,             */
+/*  Fifth Floor, Boston, MA  02110-1301, USA.                       */
 /*                                                                  */
 /*  Module: Main                                                    */
 /*  File: seed7/src/primitiv.c                                      */
@@ -188,6 +188,7 @@ static primactrecord prim_act_table[] = {
     { "CLS_SELECT",          cls_select,          },
 
     { "CMD_CHDIR",           cmd_chdir,           },
+    { "CMD_CONFIG_VALUE",    cmd_config_value,    },
     { "CMD_COPY",            cmd_copy,            },
     { "CMD_FILETYPE",        cmd_filetype,        },
     { "CMD_GETCWD",          cmd_getcwd,          },
@@ -267,6 +268,7 @@ static primactrecord prim_act_table[] = {
     { "ENU_GENLIT",          enu_genlit,          },
     { "ENU_ICONV2",          enu_iconv2,          },
     { "ENU_NE",              enu_ne,              },
+    { "ENU_ORD2",            enu_ord2,            },
     { "ENU_SIZE",            enu_size,            },
     { "ENU_VALUE",           enu_value,           },
 
@@ -459,7 +461,6 @@ static primactrecord prim_act_table[] = {
     { "PRC_INCLUDE",         prc_include,         },
     { "PRC_LOCAL",           prc_local,           },
     { "PRC_NOOP",            prc_noop,            },
-    { "PRC_OPTION",          prc_option,          },
     { "PRC_PRINT",           prc_print,           },
     { "PRC_RAISE",           prc_raise,           },
     { "PRC_REPEAT",          prc_repeat,          },

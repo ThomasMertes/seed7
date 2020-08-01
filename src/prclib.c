@@ -14,9 +14,9 @@
 /*  GNU General Public License for more details.                    */
 /*                                                                  */
 /*  You should have received a copy of the GNU General Public       */
-/*  License along with this program; if not, write to the Free      */
-/*  Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,  */
-/*  MA 02111-1307 USA                                               */
+/*  License along with this program; if not, write to the           */
+/*  Free Software Foundation, Inc., 51 Franklin Street,             */
+/*  Fifth Floor, Boston, MA  02110-1301, USA.                       */
 /*                                                                  */
 /*  Module: Library                                                 */
 /*  File: seed7/src/prclib.c                                        */
@@ -827,52 +827,6 @@ listtype arguments;
   { /* prc_noop */
     return(SYS_EMPTY_OBJECT);
   } /* prc_noop */
-
-
-
-#ifdef ANSI_C
-
-objecttype prc_option (listtype arguments)
-#else
-
-objecttype prc_option (arguments)
-listtype arguments;
-#endif
-
-  {
-    stritype stri;
-    uchartype opt_name[250];
-    cstritype opt;
-    stritype result;
-
-  /* prc_option */
-    isit_stri(arg_1(arguments));
-    stri = take_stri(arg_1(arguments));
-    if (compr_size(stri) + 1 > 250) {
-      opt = "";
-    } else {
-      stri_export(opt_name, stri);
-      if (strcmp(opt_name, "OBJECT_FILE_EXTENSION") == 0) {
-        opt = OBJECT_FILE_EXTENSION;
-      } else if (strcmp(opt_name, "EXECUTABLE_FILE_EXTENSION") == 0) {
-        opt = EXECUTABLE_FILE_EXTENSION;
-      } else if (strcmp(opt_name, "C_COMPILER") == 0) {
-        opt = C_COMPILER;
-      } else if (strcmp(opt_name, "REDIRECT_C_ERRORS") == 0) {
-        opt = REDIRECT_C_ERRORS;
-      } else if (strcmp(opt_name, "LIBS") == 0) {
-        opt = LINKER_LIBS;
-      } else {
-        opt = "";
-      } /* if */
-    } /* if */
-    result = cstri_to_stri(opt);
-    if (result == NULL) {
-      return(raise_exception(SYS_MEM_EXCEPTION));
-    } else {
-      return(bld_stri_temp(result));
-    } /* if */
-  } /* prc_option */
 
 
 

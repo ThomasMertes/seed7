@@ -14,9 +14,9 @@
 /*  GNU General Public License for more details.                    */
 /*                                                                  */
 /*  You should have received a copy of the GNU General Public       */
-/*  License along with this program; if not, write to the Free      */
-/*  Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,  */
-/*  MA 02111-1307 USA                                               */
+/*  License along with this program; if not, write to the           */
+/*  Free Software Foundation, Inc., 51 Franklin Street,             */
+/*  Fifth Floor, Boston, MA  02110-1301, USA.                       */
 /*                                                                  */
 /*  Module: Library                                                 */
 /*  File: seed7/src/enulib.c                                        */
@@ -205,6 +205,41 @@ listtype arguments;
     } /* if */
     return(result);
   } /* enu_ne */
+
+
+
+#ifdef ANSI_C
+
+objecttype enu_ord2 (listtype arguments)
+#else
+
+objecttype enu_ord2 (arguments)
+listtype arguments;
+#endif
+
+  {
+    objecttype enum_value;
+    inttype number;
+    listtype list_element;
+    objecttype result;
+
+  /* enu_ord2 */
+    isit_enum(arg_1(arguments));
+    isit_reflist(arg_2(arguments));
+    enum_value = take_enum(arg_1(arguments));
+    list_element = take_reflist(arg_2(arguments));
+    number = 0;
+    while (list_element != NULL && list_element->obj != enum_value) {
+      number++;
+      list_element = list_element->next;
+    } /* while */
+    if (list_element != NULL) {
+      result = bld_int_temp(number);
+    } else {
+      result = raise_exception(SYS_RNG_EXCEPTION);
+    } /* if */
+    return(result);
+  } /* enu_ord2 */
 
 
 

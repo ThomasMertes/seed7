@@ -14,9 +14,9 @@
 /*  GNU General Public License for more details.                    */
 /*                                                                  */
 /*  You should have received a copy of the GNU General Public       */
-/*  License along with this program; if not, write to the Free      */
-/*  Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,  */
-/*  MA 02111-1307 USA                                               */
+/*  License along with this program; if not, write to the           */
+/*  Free Software Foundation, Inc., 51 Franklin Street,             */
+/*  Fifth Floor, Boston, MA  02110-1301, USA.                       */
 /*                                                                  */
 /*  Module: Library                                                 */
 /*  File: seed7/src/prclib.h                                        */
@@ -48,7 +48,6 @@ objecttype prc_if_elsif (listtype);
 objecttype prc_include (listtype);
 objecttype prc_local (listtype);
 objecttype prc_noop (listtype);
-objecttype prc_option (listtype);
 objecttype prc_print (listtype);
 objecttype prc_raise (listtype);
 objecttype prc_repeat (listtype);
@@ -85,7 +84,6 @@ objecttype prc_if_elsif ();
 objecttype prc_include ();
 objecttype prc_local ();
 objecttype prc_noop ();
-objecttype prc_option ();
 objecttype prc_print ();
 objecttype prc_raise ();
 objecttype prc_repeat ();

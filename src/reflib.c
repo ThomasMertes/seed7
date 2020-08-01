@@ -14,9 +14,9 @@
 /*  GNU General Public License for more details.                    */
 /*                                                                  */
 /*  You should have received a copy of the GNU General Public       */
-/*  License along with this program; if not, write to the Free      */
-/*  Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,  */
-/*  MA 02111-1307 USA                                               */
+/*  License along with this program; if not, write to the           */
+/*  Free Software Foundation, Inc., 51 Franklin Street,             */
+/*  Fifth Floor, Boston, MA  02110-1301, USA.                       */
 /*                                                                  */
 /*  Module: Library                                                 */
 /*  File: seed7/src/reflib.c                                        */
@@ -1155,17 +1155,17 @@ listtype arguments;
     isit_stri(arg_2(arguments));
     obj = take_reference(arg_1(arguments));
     stri = take_stri(arg_2(arguments));
-	name = cp_to_cstri(stri);
+    name = cp_to_cstri(stri);
     if (name == NULL) {
       raise_exception(SYS_MEM_EXCEPTION);
     } else {
       category = category_value(name);
+      free_cstri(name, stri);
       if (category == (objectcategory) -1) {
         raise_exception(SYS_RNG_EXCEPTION);
       } else {
         SET_CATEGORY_OF_OBJ(obj, category);
       } /* if */
-      free_cstri(name, str1);
     } /* if */
     return(SYS_EMPTY_OBJECT);
   } /* ref_setcategory */

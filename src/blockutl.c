@@ -14,9 +14,9 @@
 /*  GNU General Public License for more details.                    */
 /*                                                                  */
 /*  You should have received a copy of the GNU General Public       */
-/*  License along with this program; if not, write to the Free      */
-/*  Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,  */
-/*  MA 02111-1307 USA                                               */
+/*  License along with this program; if not, write to the           */
+/*  Free Software Foundation, Inc., 51 Franklin Street,             */
+/*  Fifth Floor, Boston, MA  02110-1301, USA.                       */
 /*                                                                  */
 /*  Module: General                                                 */
 /*  File: seed7/src/blockutl.c                                      */
@@ -315,8 +315,16 @@ errinfotype *err_info;
     param_element = param_object_list;
     while (param_element != NULL) {
       if (CATEGORY_OF_OBJ(param_element->obj) == VALUEPARAMOBJECT) {
-        create_call_obj = get_create_call_obj(param_element->obj, err_info);
-        destroy_call_obj = get_destroy_call_obj(param_element->obj, err_info);
+        if (param_element->obj->type_of->create_call_obj != NULL) {
+          create_call_obj = param_element->obj->type_of->create_call_obj;
+        } else {
+          create_call_obj = get_create_call_obj(param_element->obj, err_info);
+        } /* if */
+        if (param_element->obj->type_of->destroy_call_obj != NULL) {
+          destroy_call_obj = param_element->obj->type_of->destroy_call_obj;
+        } else {
+          destroy_call_obj = get_destroy_call_obj(param_element->obj, err_info);
+        } /* if */
       } else {
         create_call_obj = NULL;
         destroy_call_obj = NULL;

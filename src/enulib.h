@@ -14,9 +14,9 @@
 /*  GNU General Public License for more details.                    */
 /*                                                                  */
 /*  You should have received a copy of the GNU General Public       */
-/*  License along with this program; if not, write to the Free      */
-/*  Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,  */
-/*  MA 02111-1307 USA                                               */
+/*  License along with this program; if not, write to the           */
+/*  Free Software Foundation, Inc., 51 Franklin Street,             */
+/*  Fifth Floor, Boston, MA  02110-1301, USA.                       */
 /*                                                                  */
 /*  Module: Library                                                 */
 /*  File: seed7/src/enulib.h                                        */
@@ -33,6 +33,7 @@ objecttype enu_eq (listtype);
 objecttype enu_genlit (listtype);
 objecttype enu_iconv2 (listtype);
 objecttype enu_ne (listtype);
+objecttype enu_ord2 (listtype);
 objecttype enu_size (listtype);
 objecttype enu_value (listtype);
 
@@ -44,6 +45,7 @@ objecttype enu_eq ();
 objecttype enu_genlit ();
 objecttype enu_iconv2 ();
 objecttype enu_ne ();
+objecttype enu_ord2 ();
 objecttype enu_size ();
 objecttype enu_value ();
 
