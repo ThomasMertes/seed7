@@ -261,6 +261,22 @@ const proc: pipe2 (in string: command, in array string: parameters,
     end if;
   end func;
 
-  
-  const proc: startProcess (in string: command,
+
+const proc: startProcess (in string: command,
                             in array string: parameters) is action "CMD_START_PROCESS";
+
+
+const proc: startProcess (in var string: cmdAndParams) is func
+  local
+    var string: command is "";
+    var string: parameter is "";
+    var array string: parameters is 0 times "";
+  begin
+    command := getCommandLineWord(cmdAndParams);
+    parameter := getCommandLineWord(cmdAndParams);
+	while parameter <> "" do
+      parameters &:= parameter;
+      parameter := getCommandLineWord(cmdAndParams);
+    end while;
+    startProcess(command, parameters);
+  end func;

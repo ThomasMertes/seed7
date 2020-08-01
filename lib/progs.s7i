@@ -29,6 +29,7 @@
 include "bigint.s7i";
 include "float.s7i";
 include "external_file.s7i";
+include "socket.s7i";
 
 
 const type: program is subtype object;
@@ -99,6 +100,7 @@ const category: INTERFACEOBJECT   is category parse "INTERFACEOBJECT";
 const category: SETOBJECT         is category parse "SETOBJECT";
 const category: FILEOBJECT        is category parse "FILEOBJECT";
 const category: SOCKETOBJECT      is category parse "SOCKETOBJECT";
+const category: POLLOBJECT        is category parse "POLLOBJECT";
 const category: LISTOBJECT        is category parse "LISTOBJECT";
 const category: FLOATOBJECT       is category parse "FLOATOBJECT";
 const category: WINOBJECT         is category parse "WINOBJECT";
@@ -184,6 +186,7 @@ const func char: getValue (ref reference param, attr char)              is actio
 const func string: getValue (ref reference param, attr string)          is action "STR_VALUE";
 const func bstring: getValue (ref reference param, attr bstring)        is action "BST_VALUE";
 const func bitset: getValue (ref reference param, attr bitset)          is action "SET_VALUE";
+const func pollData: getValue (ref reference param, attr pollData)      is action "POL_VALUE";
 const func program: getValue (ref reference param, attr program)        is action "PRG_VALUE";
 const func ACTION: getValue (ref reference param, attr ACTION)          is action "ACT_VALUE";
 const func PRIMITIVE_FILE: getValue (ref reference param, attr PRIMITIVE_FILE) is action "FIL_VALUE";

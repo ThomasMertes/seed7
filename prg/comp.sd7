@@ -401,6 +401,7 @@ const func string: raw_type_name (in type: object_type) is func
         when {BSTRIOBJECT}:     result := "bstritype";
         when {FILEOBJECT}:      result := "filetype";
         when {SOCKETOBJECT}:    result := "sockettype";
+        when {POLLOBJECT}:      result := "polltype";
         when {SETOBJECT}:       result := "settype";
         when {WINOBJECT}:       result := "wintype";
         when {PROGOBJECT}:      result := "progtype";
@@ -563,6 +564,7 @@ const func string: raw_type_value (in type: object_type) is func
         when {BSTRIOBJECT}:     result := "bstrivalue";
         when {FILEOBJECT}:      result := "filevalue";
         when {SOCKETOBJECT}:    result := "socketvalue";
+        when {POLLOBJECT}:      result := "pollvalue";
         when {SETOBJECT}:       result := "setvalue";
         when {WINOBJECT}:       result := "winvalue";
         when {PROGOBJECT}:      result := "progvalue";
@@ -1058,6 +1060,7 @@ const proc: process_create_call (in type: object_type,
         when {STRIOBJECT}:      expr &:= "strCreate(" & param_b & ")";
         when {BSTRIOBJECT}:     expr &:= "bstCreate(" & param_b & ")";
         when {SETOBJECT}:       expr &:= "setCreate(" & param_b & ")";
+        when {POLLOBJECT}:      expr &:= "polCreate(" & param_b & ")";
         when {REFLISTOBJECT}:   expr &:= "rflCreate(" & param_b & ")";
         when {WINOBJECT}:       expr &:= "drwCreate(" & param_b & ")";
         when {PROGOBJECT}:      expr &:= "prgCreate(" & param_b & ")";
@@ -1291,6 +1294,7 @@ const proc: process_destr_call (in type: object_type,
         when {STRIOBJECT}:      expr &:= "strDestr(" & param_b & ");\n";
         when {BSTRIOBJECT}:     expr &:= "bstDestr(" & param_b & ");\n";
         when {SETOBJECT}:       expr &:= "setDestr(" & param_b & ");\n";
+        when {POLLOBJECT}:      expr &:= "polDestr(" & param_b & ");\n";
         when {REFLISTOBJECT}:   expr &:= "rflDestr(" & param_b & ");\n";
         when {WINOBJECT}:       expr &:= "drwDestr(" & param_b & ");\n";
         when {PROGOBJECT}:      expr &:= "prgDestr(" & param_b & ");\n";
@@ -1557,6 +1561,7 @@ const proc: process_cpy_call (in type: object_type,
         when {STRIOBJECT}:      expr &:= "strCopy(&(" & param_a & "), " & param_b & ")";
         when {BSTRIOBJECT}:     expr &:= "bstCpy(&(" & param_a & "), " & param_b & ")";
         when {SETOBJECT}:       expr &:= "setCpy(&(" & param_a & "), " & param_b & ")";
+        when {POLLOBJECT}:      expr &:= "polCpy(" & param_a & ", " & param_b & ")";
         when {REFLISTOBJECT}:   expr &:= "rflCpy(&(" & param_a & "), " & param_b & ")";
         when {WINOBJECT}:       expr &:= "drwCpy(&(" & param_a & "), " & param_b & ")";
         when {PROGOBJECT}:      expr &:= "prgCpy(&(" & param_a & "), " & param_b & ")";
@@ -11460,6 +11465,216 @@ const proc: process_kbd_word_read (in ref_list: params, inout expr_type: c_expr)
   end func;
 
 
+const proc: process_pol_addReadCheck (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "polAddReadCheck(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[2], c_expr);
+    c_expr.expr &:= ", (generictype)(";
+    process_expr(params[3], c_expr);
+    c_expr.expr &:= "));\n";
+  end func;
+
+
+const proc: process_pol_addWriteCheck (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "polAddWriteCheck(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[2], c_expr);
+    c_expr.expr &:= ", (generictype)(";
+    process_expr(params[3], c_expr);
+    c_expr.expr &:= "));\n";
+  end func;
+
+
+const proc: process_pol_clear (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "polClear(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ");\n";
+  end func;
+
+
+const proc: process_pol_cpy (in ref_list: params, inout expr_type: c_expr) is func
+
+  local
+    var expr_type: c_param1 is expr_type.value;
+    var expr_type: c_param3 is expr_type.value;
+  begin
+    process_expr(params[1], c_param1);
+    c_param3.temp_num := c_param1.temp_num;
+    process_expr(params[3], c_param3);
+    if has_temp_values(c_param3) then
+      c_expr.expr &:= "{\n";
+      AppendWithDiagnostic(c_param1.temp_decls, c_expr);
+      AppendWithDiagnostic(c_param3.temp_decls, c_expr);
+      AppendWithDiagnostic(c_param1.temp_assigns, c_expr);
+      AppendWithDiagnostic(c_param3.temp_assigns, c_expr);
+    end if;
+    if c_param3.result_expr <> "" then
+      c_expr.expr &:= "{\n";
+      setDiagnosticLine(c_expr);
+      if isNormalVariable(params[1]) then
+        c_expr.expr &:= "polltype old_poll=";
+        c_expr.expr &:= c_param1.expr;
+        c_expr.expr &:= ";\n";
+        setDiagnosticLine(c_expr);
+        c_expr.expr &:= c_param1.expr;
+        c_expr.expr &:= "=";
+      else
+        c_expr.expr &:= "polltype *poll_ptr=&(";
+        c_expr.expr &:= c_param1.expr;
+        c_expr.expr &:= ");\n";
+        setDiagnosticLine(c_expr);
+        c_expr.expr &:= "polltype old_poll=*poll_ptr;\n";
+        setDiagnosticLine(c_expr);
+        c_expr.expr &:= "*poll_ptr=";
+      end if;
+      c_expr.expr &:= c_param3.result_expr;
+      c_expr.expr &:= ";\n";
+      setDiagnosticLine(c_expr);
+      c_expr.expr &:= "polDestr(old_poll);\n";
+      c_expr.expr &:= "}\n";
+    else
+      setDiagnosticLine(c_expr);
+      c_expr.expr &:= "polCpy(";
+      c_expr.expr &:= c_param1.expr;
+      c_expr.expr &:= ", ";
+      c_expr.expr &:= c_param3.expr;
+      c_expr.expr &:= ");\n";
+    end if;
+    if has_temp_values(c_param3) then
+      AppendWithDiagnostic(c_param1.temp_frees, c_expr);
+      AppendWithDiagnostic(c_param3.temp_frees, c_expr);
+      c_expr.expr &:= "}\n";
+    end if;
+  end func;
+
+
+const proc: process_pol_files (in reference: function, in ref_list: params,
+    inout expr_type: c_expr) is func
+
+  begin
+    prepare_array_result(result_type(getType(function)), c_expr);
+    c_expr.result_expr := "polFiles(";
+    getAnyParamToResultExpr(params[1], c_expr);
+    c_expr.result_expr &:= ")";
+  end func;
+
+
+const proc: process_pol_hasNextReadFile (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "polHasNextReadFile(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process_pol_hasNextWriteFile (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "polHasNextWriteFile(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process_pol_nextReadFile (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "polNextReadFile(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ", (generictype)(";
+    process_expr(params[2], c_expr);
+    c_expr.expr &:= "))";
+  end func;
+
+
+const proc: process_pol_nextWriteFile (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "polNextWriteFile(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ", (generictype)(";
+    process_expr(params[2], c_expr);
+    c_expr.expr &:= "))";
+  end func;
+
+
+const proc: process_pol_poll (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "polPoll(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ");\n";
+  end func;
+
+
+const proc: process_pol_readyForRead (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "polReadyForRead(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[2], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process_pol_readyForWrite (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "polReadyForWrite(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[2], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process_pol_removeReadCheck (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "polRemoveReadCheck(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[2], c_expr);
+    c_expr.expr &:= ");\n";
+  end func;
+
+
+const proc: process_pol_removeWriteCheck (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "polRemoveWriteCheck(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[2], c_expr);
+    c_expr.expr &:= ");\n";
+  end func;
+
+
+const proc: process_pol_value (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "polValue(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
 const proc: process_prg_cpy (in ref_list: params, inout expr_type: c_expr) is func
 
   local
@@ -12158,6 +12373,8 @@ const proc: process_ref_trace (in ref_list: params, inout expr_type: c_expr) is 
           c_expr.expr &:= "printf(\"<FILEOBJECT>\")";
         when {SOCKETOBJECT}:
           c_expr.expr &:= "printf(\"<SOCKETOBJECT>\")";
+        when {POLLOBJECT}:
+          c_expr.expr &:= "printf(\"<POLLOBJECT>\")";
         when {TYPEOBJECT}:
           c_expr.expr &:= "printf(\"<TYPEOBJECT> %X\", ";
           c_expr.expr &:= param1.expr;
@@ -16489,6 +16706,40 @@ const proc: process_action (in reference: function, in ref_list: params,
       else
         process_unknown_action(action_name, c_expr);
       end if;
+    elsif action_prefix = "POL" then
+      if action_name = "POL_ADD_READ_CHECK" then
+        process_pol_addReadCheck(params, c_expr);
+      elsif action_name = "POL_ADD_WRITE_CHECK" then
+        process_pol_addWriteCheck(params, c_expr);
+      elsif action_name = "POL_CLEAR" then
+        process_pol_clear(params, c_expr);
+      elsif action_name = "POL_CPY" then
+        process_pol_cpy(params, c_expr);
+      elsif action_name = "POL_FILES" then
+        process_pol_files(function, params, c_expr);
+      elsif action_name = "POL_HAS_NEXT_READ_FILE" then
+        process_pol_hasNextReadFile(params, c_expr);
+      elsif action_name = "POL_HAS_NEXT_WRITE_FILE" then
+        process_pol_hasNextWriteFile(params, c_expr);
+      elsif action_name = "POL_NEXT_READ_FILE" then
+        process_pol_nextReadFile(params, c_expr);
+      elsif action_name = "POL_NEXT_WRITE_FILE" then
+        process_pol_nextWriteFile(params, c_expr);
+      elsif action_name = "POL_POLL" then
+        process_pol_poll(params, c_expr);
+      elsif action_name = "POL_READY_FOR_READ" then
+        process_pol_readyForRead(params, c_expr);
+      elsif action_name = "POL_READY_FOR_WRITE" then
+        process_pol_readyForWrite(params, c_expr);
+      elsif action_name = "POL_REMOVE_READ_CHECK" then
+        process_pol_removeReadCheck(params, c_expr);
+      elsif action_name = "POL_REMOVE_WRITE_CHECK" then
+        process_pol_removeWriteCheck(params, c_expr);
+      elsif action_name = "POL_VALUE" then
+        process_pol_value(params, c_expr);
+      else
+        process_unknown_action(action_name, c_expr);
+      end if;
     elsif action_prefix = "PRG" then
       if action_name = "PRG_CPY" then
         process_prg_cpy(params, c_expr);
@@ -17175,6 +17426,8 @@ const proc: process_local_declaration (in reference: current_object, in var refe
       c_declaration.temp_decls &:= "=NULL";
     elsif valueCategory = SOCKETOBJECT then
       c_declaration.temp_decls &:= "=-1";
+    elsif valueCategory = POLLOBJECT then
+      c_declaration.temp_decls &:= "=NULL";
     elsif valueCategory = ARRAYOBJECT then
       if object_value not in const_table then
         const_table @:= [object_value] length(const_table);
@@ -18554,6 +18807,9 @@ const proc: process_expr (in var reference: current_expression, inout expr_type:
     elsif exprCategory = SOCKETOBJECT then
       c_expr.expr &:= "o_";
       create_name(current_expression, c_expr.expr);
+    elsif exprCategory = POLLOBJECT then
+      c_expr.expr &:= "o_";
+      create_name(current_expression, c_expr.expr);
     elsif exprCategory = WINOBJECT then
       if isVar(current_expression) then
         c_expr.expr &:= "o_";
@@ -19459,6 +19715,17 @@ const proc: process_socket_declaration (in reference: current_object,
     c_expr.expr &:= "sockettype o_";
     create_name(current_object, c_expr.expr);
     c_expr.expr &:= "=-1;\n\n";
+    count_declarations;
+  end func;
+
+
+const proc: process_poll_declaration (in reference: current_object,
+    inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "polltype o_";
+    create_name(current_object, c_expr.expr);
+    c_expr.expr &:= ";\n\n";
     count_declarations;
   end func;
 
@@ -20774,6 +21041,9 @@ const proc: process_action_declaration (in reference: current_object,
       elsif action_name = "SOC_CPY" or action_name = "SOC_CREATE" then
         defineParam1TypeCategory(current_object, SOCKETOBJECT);
         count_declarations;
+      elsif action_name = "POL_CPY" or action_name = "POL_CREATE" then
+        defineParam1TypeCategory(current_object, POLLOBJECT);
+        count_declarations;
       elsif action_name = "HSH_CPY" then
         process_hsh_cpy_declaration(current_object);
         count_declarations;
@@ -20857,6 +21127,8 @@ const proc: process_object_declaration (in reference: current_object,
       process_file_declaration(current_object, c_expr);
     elsif objectCategory = SOCKETOBJECT then
       process_socket_declaration(current_object, c_expr);
+    elsif objectCategory = POLLOBJECT then
+      process_poll_declaration(current_object, c_expr);
     elsif objectCategory = ARRAYOBJECT then
       process_array_declaration(current_object, c_expr);
     elsif objectCategory = HASHOBJECT then
@@ -21202,6 +21474,10 @@ const proc: write_file_head is func
     writeln(c_prog, "  int dummy;");
     writeln(c_prog, "} *biginttype;");
     writeln(c_prog, "typedef const struct bigintstruct *const_biginttype;");
+    writeln(c_prog, "typedef struct pollstruct {");
+    writeln(c_prog, "  int dummy;");
+    writeln(c_prog, "} *polltype;");
+    writeln(c_prog, "typedef const struct pollstruct *const_polltype;");
     writeln(c_prog, "typedef struct winstruct {");
     writeln(c_prog, "  uinttype usage_count;");
     writeln(c_prog, "} *wintype;");
@@ -21239,6 +21515,7 @@ const proc: write_file_head is func
     writeln(c_prog, "  bstritype     bstrivalue;");
     writeln(c_prog, "  filetype      filevalue;");
     writeln(c_prog, "  sockettype    socketvalue;");
+    writeln(c_prog, "  polltype      pollvalue;");
     writeln(c_prog, "  settype       setvalue;");
     writeln(c_prog, "  wintype       winvalue;");
     writeln(c_prog, "  progtype      progvalue;");
@@ -21688,6 +21965,24 @@ const proc: write_prototypes is func
     declareExtern("stritype    kbdLineRead (chartype *);");
     declareExtern("chartype    kbdRawGetc (void);");
     declareExtern("stritype    kbdWordRead (chartype *);");
+    declareExtern("void        polAddReadCheck (polltype, const sockettype, const generictype);");
+    declareExtern("void        polAddWriteCheck (polltype, const sockettype, const generictype);");
+    declareExtern("void        polClear (polltype);");
+    declareExtern("void        polCpy (polltype, const const_polltype);");
+    declareExtern("polltype    polCreate (const const_polltype);");
+    declareExtern("void        polDestr (const const_polltype);");
+    declareExtern("polltype    polEmpty (void);");
+    declareExtern("arraytype   polFiles (const const_polltype);");
+    declareExtern("booltype    polHasNextReadFile (polltype);");
+    declareExtern("booltype    polHasNextWriteFile (polltype);");
+    declareExtern("generictype polNextReadFile (polltype, const generictype);");
+    declareExtern("generictype polNextWriteFile (polltype, const generictype);");
+    declareExtern("void        polPoll (polltype);");
+    declareExtern("booltype    polReadyForRead (polltype, const sockettype);");
+    declareExtern("booltype    polReadyForWrite (polltype, const sockettype);");
+    declareExtern("void        polRemoveReadCheck (polltype, const sockettype);");
+    declareExtern("void        polRemoveWriteCheck (polltype, const sockettype);");
+    declareExtern("polltype    polValue (objreftype);");
     declareExtern("inttype     heapsize (void);");
     declareExtern("void        prcNoop (void)                                {}");
     declareExtern("void        prgCpy (progtype *const, const progtype);");
@@ -22192,6 +22487,14 @@ const proc: process_func_literal (in reference: current_object,
   end func;
 
 
+const proc: process_pollData_literal (in var pollData: aPollData,
+    inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "polEmpty()";
+  end func;
+
+
 const proc: init_const_value (in reference: current_object, inout expr_type: c_expr) is func
 
   local
@@ -22234,6 +22537,9 @@ const proc: init_const_value (in reference: current_object, inout expr_type: c_e
     elsif objectCategory = SOCKETOBJECT then
       c_expr.expr &:= ".value.intvalue=";
       c_expr.expr &:= "-1";
+    elsif objectCategory = POLLOBJECT then
+      c_expr.expr &:= ".value.pollvalue=";
+      process_pollData_literal(getValue(current_object, pollData), c_expr);
     elsif objectCategory = WINOBJECT then
       c_expr.expr &:= ".value.winvalue=";
       c_expr.expr &:= "NULL";

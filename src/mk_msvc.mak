@@ -36,8 +36,8 @@ BIGINT_LIB = big_rtl
 MOBJ1 = hi.obj
 POBJ1 = runerr.obj option.obj primitiv.obj
 LOBJ1 = actlib.obj arrlib.obj biglib.obj blnlib.obj bstlib.obj chrlib.obj cmdlib.obj conlib.obj dcllib.obj drwlib.obj
-LOBJ2 = enulib.obj fillib.obj fltlib.obj hshlib.obj intlib.obj itflib.obj kbdlib.obj lstlib.obj prclib.obj prglib.obj
-LOBJ3 = reflib.obj rfllib.obj sctlib.obj setlib.obj soclib.obj strlib.obj timlib.obj typlib.obj ut8lib.obj
+LOBJ2 = enulib.obj fillib.obj fltlib.obj hshlib.obj intlib.obj itflib.obj kbdlib.obj lstlib.obj pollib.obj prclib.obj
+LOBJ3 = prglib.obj reflib.obj rfllib.obj sctlib.obj setlib.obj soclib.obj strlib.obj timlib.obj typlib.obj ut8lib.obj
 EOBJ1 = exec.obj doany.obj objutl.obj
 AOBJ1 = act_comp.obj prg_comp.obj analyze.obj syntax.obj token.obj parser.obj name.obj type.obj
 AOBJ2 = expr.obj atom.obj object.obj scanner.obj literal.obj numlit.obj findid.obj
@@ -47,7 +47,7 @@ GOBJ2 = entutl.obj identutl.obj chclsutl.obj sigutl.obj
 ROBJ1 = arr_rtl.obj bln_rtl.obj bst_rtl.obj chr_rtl.obj cmd_rtl.obj con_rtl.obj dir_rtl.obj drw_rtl.obj fil_rtl.obj
 ROBJ2 = flt_rtl.obj hsh_rtl.obj int_rtl.obj set_rtl.obj soc_rtl.obj str_rtl.obj tim_rtl.obj ut8_rtl.obj
 ROBJ3 = heaputl.obj striutl.obj
-DOBJ1 = $(BIGINT_LIB).obj cmd_win.obj dir_win.obj fil_win.obj tim_win.obj
+DOBJ1 = $(BIGINT_LIB).obj cmd_win.obj dir_win.obj fil_win.obj pol_sel.obj tim_win.obj
 OBJ = $(MOBJ1)
 SEED7_LIB_OBJ = $(ROBJ1) $(ROBJ2) $(ROBJ3) $(DOBJ1)
 DRAW_LIB_OBJ = gkb_rtl.obj drw_win.obj
@@ -58,8 +58,8 @@ COMPILER_LIB_OBJ = $(POBJ1) $(LOBJ1) $(LOBJ2) $(LOBJ3) $(EOBJ1) $(AOBJ1) $(AOBJ2
 MSRC1 = hi.c
 PSRC1 = runerr.c option.c primitiv.c
 LSRC1 = actlib.c arrlib.c biglib.c blnlib.c bstlib.c chrlib.c cmdlib.c conlib.c dcllib.c drwlib.c
-LSRC2 = enulib.c fillib.c fltlib.c hshlib.c intlib.c itflib.c kbdlib.c lstlib.c prclib.c prglib.c
-LSRC3 = reflib.c rfllib.c sctlib.c setlib.c soclib.c strlib.c timlib.c typlib.c ut8lib.c
+LSRC2 = enulib.c fillib.c fltlib.c hshlib.c intlib.c itflib.c kbdlib.c lstlib.c pollib.c prclib.c
+LSRC3 = prglib.c reflib.c rfllib.c sctlib.c setlib.c soclib.c strlib.c timlib.c typlib.c ut8lib.c
 ESRC1 = exec.c doany.c objutl.c
 ASRC1 = act_comp.c prg_comp.c analyze.c syntax.c token.c parser.c name.c type.c
 ASRC2 = expr.c atom.c object.c scanner.c literal.c numlit.c findid.c
@@ -69,7 +69,7 @@ GSRC2 = entutl.c identutl.c chclsutl.c sigutl.c
 RSRC1 = arr_rtl.c bln_rtl.c bst_rtl.c chr_rtl.c cmd_rtl.c con_rtl.c dir_rtl.c drw_rtl.c fil_rtl.c
 RSRC2 = flt_rtl.c hsh_rtl.c int_rtl.c set_rtl.c soc_rtl.c str_rtl.c tim_rtl.c ut8_rtl.c
 RSRC3 = heaputl.c striutl.c
-DSRC1 = $(BIGINT_LIB).c cmd_win.c dir_win.c fil_win.c tim_win.c
+DSRC1 = $(BIGINT_LIB).c cmd_win.c dir_win.c fil_win.c pol_sel.c tim_win.c
 SRC = $(MSRC1)
 SEED7_LIB_SRC = $(RSRC1) $(RSRC2) $(RSRC3) $(DSRC1)
 DRAW_LIB_SRC = gkb_rtl.c drw_win.c
@@ -81,7 +81,7 @@ hi: ..\bin\hi.exe ..\prg\hi.exe
 	..\bin\hi level
 
 ..\bin\hi.exe: $(OBJ) $(ALL_S7_LIBS)
-	$(CC) $(LDFLAGS) -o ..\bin\hi $(OBJ) $(ALL_S7_LIBS) $(SYSTEM_DRAW_LIBS) $(SYSTEM_CONSOLE_LIBS) $(SYSTEM_LIBS)
+	$(CC) -Z7 $(LDFLAGS) -o ..\bin\hi.exe $(OBJ) $(ALL_S7_LIBS) $(SYSTEM_DRAW_LIBS) $(SYSTEM_CONSOLE_LIBS) $(SYSTEM_LIBS)
 
 ..\prg\hi.exe: ..\bin\hi.exe
 	copy ..\bin\hi.exe ..\prg /Y
@@ -151,7 +151,6 @@ version.h:
 	echo #define rmdir _rmdir >> chkccomp.h
 	echo #define LIST_DIRECTORY_CONTENTS "dir" >> chkccomp.h
 	echo #define __int64_EXISTS >> chkccomp.h
-	echo #define isnan _isnan
 	$(CC) chkccomp.c
 	.\chkccomp.exe >> version.h
 	del chkccomp.h

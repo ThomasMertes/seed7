@@ -551,7 +551,8 @@ rtlArraytype parameters;
     startupInfo.cb = sizeof(startupInfo);
     startupInfo.dwFlags = STARTF_USESHOWWINDOW;
     startupInfo.wShowWindow = 0;
-    /* printf("before CreateProcessW\n"); */
+    /* printf("err_info=%d\n", err_info); */
+    /* printf("before CreateProcessW(%ls, %ls, ...)\n", os_command_stri, command_line); */
     if (err_info == OKAY_NO_ERROR &&
         CreateProcessW(os_command_stri,
                        command_line /* lpCommandLine */,
@@ -563,6 +564,8 @@ rtlArraytype parameters;
                        NULL /* lpCurrentDirectory */,
                        &startupInfo,
                        &processInformation) == 0) {
+      /* printf("GetLastError=%d\n", GetLastError());
+         printf("ERROR_FILE_NOT_FOUND=%d\n", ERROR_FILE_NOT_FOUND); */
       err_info = FILE_ERROR;
     } /* if */
     /* printf("after CreateProcessW\n"); */

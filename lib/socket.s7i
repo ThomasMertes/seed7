@@ -152,6 +152,41 @@ const func boolean: inputReady (in PRIMITIVE_SOCKET param,
                                 in integer param, in integer param)         is action "SOC_INPUT_READY";
 
 
+const type: pollData is newtype;
+IN_PARAM_IS_REFERENCE(pollData);
+
+const proc: destroy (ref pollData param)                                    is action "POL_DESTR";
+const proc: (ref pollData param) ::= (ref pollData param)                   is action "POL_CREATE";
+const proc: (inout pollData param) := (ref pollData param)                  is action "POL_CPY";
+
+const func pollData: _GENERATE_EMPTY_POLL_DATA (in file param)              is action "POL_EMPTY";
+const pollData: (attr pollData) . value                                     is _GENERATE_EMPTY_POLL_DATA(STD_NULL);
+
+const proc: clear (inout pollData param)                                    is action "POL_CLEAR";
+const proc: addReadCheck (inout pollData param, in PRIMITIVE_SOCKET param,
+                          in file param)                                    is action "POL_ADD_READ_CHECK";
+const proc: addWriteCheck (inout pollData param, in PRIMITIVE_SOCKET param,
+                          in file param)                                    is action "POL_ADD_WRITE_CHECK";
+const proc: removeReadCheck (inout pollData param,
+                             in PRIMITIVE_SOCKET param)                     is action "POL_REMOVE_READ_CHECK";
+const proc: removeWriteCheck (inout pollData param,
+                              in PRIMITIVE_SOCKET param)                    is action "POL_REMOVE_WRITE_CHECK";
+const proc: poll (inout pollData param)                                     is action "POL_POLL";
+const func boolean: readyForRead (inout pollData param,
+                                  in PRIMITIVE_SOCKET param)                is action "POL_READY_FOR_READ";
+const func boolean: readyForWrite (inout pollData param,
+                                   in PRIMITIVE_SOCKET param)               is action "POL_READY_FOR_WRITE";
+const func array file: files (in pollData param)                            is action "POL_FILES";
+const func boolean: hasNextReadFile (inout pollData param)                  is action "POL_HAS_NEXT_READ_FILE";
+const func boolean: hasNextWriteFile (inout pollData param)                 is action "POL_HAS_NEXT_WRITE_FILE";
+const func file: nextReadFile (inout pollData param, in file param)         is action "POL_NEXT_READ_FILE";
+const func file: nextWriteFile (inout pollData param, in file param)        is action "POL_NEXT_WRITE_FILE";
+const func file: nextReadFile (inout pollData: aPollData) is
+    return nextReadFile(aPollData, STD_NULL);
+const func file: nextWriteFile (inout pollData: aPollData) is
+    return nextWriteFile(aPollData, STD_NULL);
+
+
 const integer: SOCK_STREAM is 1;
 const integer: SOCK_DGRAM is 2;
 
@@ -421,8 +456,9 @@ const type: inetListener is sub baseListener struct
     var PRIMITIVE_SOCKET: sock is PRIMITIVE_NULL_SOCKET;
     var socketAddress: addr is socketAddress.value;
     var string: service is "";
-    var array PRIMITIVE_SOCKET: socks is 0 times PRIMITIVE_NULL_SOCKET;
-    var array file: files is 0 times STD_NULL;
+    var pollData: checkedSocks is pollData.value;
+    (*! var array PRIMITIVE_SOCKET: socks is 0 times PRIMITIVE_NULL_SOCKET;
+    var array file: files is 0 times STD_NULL; *)
     var file: existingConnection is STD_NULL;
     var file: newConnection is STD_NULL;
   end struct;
@@ -474,8 +510,9 @@ const func listener: openInetListener (in integer: portNumber) is func
       new_listener.service := service(address);
       bind(open_socket, new_listener.addr);
       new_listener.sock := open_socket;
-      new_listener.socks := [] (open_socket);
-      new_listener.files := [] (STD_NULL);
+      addReadCheck(new_listener.checkedSocks, open_socket, STD_NULL);
+      (*! new_listener.socks := [] (open_socket);
+      new_listener.files := [] (STD_NULL); *)
       result := malloc(new_listener);
     end if;
   end func;
@@ -489,14 +526,24 @@ const func listener: openInetListener (in integer: portNumber) is func
  *)
 const proc: close (inout inetListener: aListener) is func
   local
+    var array file: managedFiles is 0 times STD_NULL;
     var integer: index is 0;
+    var file: aFile is STD_NULL;
   begin
     close(aListener.sock);
-    for index range 2 to length(aListener.files) do
+    (*! managedFiles := files(aListener.checkedSocks);
+    for key index range managedFiles do
+      aFile := managedFiles[index];
+      if aFile <> STD_NULL then
+        release(aFile);
+      end if;
+    end for; *)
+    clear(aListener.checkedSocks);
+    (*! for index range 2 to length(aListener.files) do
       release(aListener.files[index]);
-    end for;
-    aListener.socks := 0 times PRIMITIVE_NULL_SOCKET;
-    aListener.files := 0 times STD_NULL;
+    end for; *)
+    (*! aListener.socks := 0 times PRIMITIVE_NULL_SOCKET;
+    aListener.files := 0 times STD_NULL; *)
   end func;
 
 
@@ -505,7 +552,8 @@ const proc: signOff (inout inetListener: aListener, in PRIMITIVE_SOCKET: sock) i
     var integer: index is 0;
     var integer: index_found is 0;
   begin
-    for index range 2 to length(aListener.socks) do
+    removeReadCheck(aListener.checkedSocks, sock);
+    (*! for index range 2 to length(aListener.socks) do
       if aListener.socks[index] = sock then
         index_found := index;
       end if;
@@ -513,7 +561,7 @@ const proc: signOff (inout inetListener: aListener, in PRIMITIVE_SOCKET: sock) i
     aListener.socks := aListener.socks[.. pred(index_found)] &
                        aListener.socks[succ(index_found) ..];
     aListener.files := aListener.files[.. pred(index_found)] &
-                       aListener.files[succ(index_found) ..];
+                       aListener.files[succ(index_found) ..]; *)
   end func;
 
 
@@ -622,8 +670,9 @@ const func file: accept (inout inetListener: aListener) is func
       new_socket.service := aListener.service;
       new_socket.acceptedFrom := aListener;
       result := malloc(new_socket);
-      aListener.socks &:= accepted_socket;
-      aListener.files &:= result;
+      addReadCheck(aListener.checkedSocks, accepted_socket, result);
+      (* aListener.socks &:= accepted_socket;
+      aListener.files &:= result; *)
     end if;
   end func;
 
@@ -643,24 +692,31 @@ const func file: accept (in array listener: listeners) is func
 
 const proc: waitForRequest (inout inetListener: aListener) is func
   local
-    var bitset: selectResult is EMPTY_SET;
+    (*! var bitset: selectResult is EMPTY_SET; *)
     var integer: index is 0;
   begin
-    selectResult := selectInput(aListener.socks);
-    if 1 in selectResult then
+    poll(aListener.checkedSocks);
+    if readyForRead(aListener.checkedSocks, aListener.sock) then
+    (*! selectResult := selectInput(aListener.socks);
+    if 1 in selectResult then *)
       aListener.newConnection := accept(aListener);
       # writeln("accepted");
     else
       aListener.newConnection := STD_NULL;
     end if;
-    excl(selectResult, 1);
+    aListener.existingConnection := nextReadFile(aListener.checkedSocks);
+    if aListener.existingConnection = STD_NULL then
+      # When the listener is ready nextReadFile returns STD_NULL.
+      aListener.existingConnection := nextReadFile(aListener.checkedSocks);
+    end if;
+    (*! excl(selectResult, 1);
     if selectResult <> EMPTY_SET then
       index := rand(selectResult);
       # writeln("select " <& index);
       aListener.existingConnection := aListener.files[index];
     else
       aListener.existingConnection := STD_NULL;
-    end if;
+    end if; *)
   end func;
 
 

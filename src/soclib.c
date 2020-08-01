@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  hi   Interpreter for Seed7 programs.                            */
-/*  Copyright (C) 1990 - 2007  Thomas Mertes                        */
+/*  Copyright (C) 1990 - 2011  Thomas Mertes                        */
 /*                                                                  */
 /*  This program is free software; you can redistribute it and/or   */
 /*  modify it under the terms of the GNU General Public License as  */
@@ -20,7 +20,7 @@
 /*                                                                  */
 /*  Module: Library                                                 */
 /*  File: seed7/src/soclib.c                                        */
-/*  Changes: 2007  Thomas Mertes                                    */
+/*  Changes: 2007, 2011  Thomas Mertes                              */
 /*  Content: All primitive actions for sockets.                     */
 /*                                                                  */
 /********************************************************************/

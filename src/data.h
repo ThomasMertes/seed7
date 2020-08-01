@@ -59,6 +59,7 @@ typedef enum {
     SETOBJECT,           /* setvalue -    set                       */
     FILEOBJECT,          /* filevalue -   file                      */
     SOCKETOBJECT,        /* socketvalue - socket                    */
+    POLLOBJECT,          /* pollvalue -   poll list                 */
     LISTOBJECT,          /* listvalue -   list                      */
     FLOATOBJECT,         /* floatvalue -  float                     */
     WINOBJECT,           /* winvalue -    Window                    */
@@ -205,6 +206,7 @@ typedef union {
     structtype structvalue;  /* STRUCTOBJECT */
     filetype   filevalue;    /* FILEOBJECT */
     sockettype socketvalue;  /* SOCKETOBJECT */
+    polltype   pollvalue;    /* POLLOBJECT */
     listtype   listvalue;    /* LISTOBJECT, EXPROBJECT */
     wintype    winvalue;     /* WINOBJECT */
     objecttype objvalue;     /* ENUMLITERALOBJECT, CONSTENUMOBJECT */

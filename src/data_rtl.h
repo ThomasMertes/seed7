@@ -136,3 +136,18 @@ typedef inttype (*comparetype) (rtlGenerictype, rtlGenerictype);
 typedef rtlGenerictype (*createfunctype) (rtlGenerictype);
 typedef void (*destrfunctype) (rtlGenerictype);
 typedef void (*copyfunctype) (rtlGenerictype *, rtlGenerictype);
+
+
+#ifdef ANSI_C
+
+rtlGenerictype intCreateGeneric (rtlGenerictype source);
+void intDestrGeneric (rtlGenerictype old_value);
+inttype uintCmpGeneric (const rtlGenerictype value1, const rtlGenerictype value2);
+
+#else
+
+rtlGenerictype intCreateGeneric ();
+void intDestrGeneric ();
+inttype uintCmpGeneric ();
+
+#endif

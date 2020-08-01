@@ -664,6 +664,46 @@ const func duration: (in duration: aDuration) * (in integer: number) is func
 
 
 (**
+ *  Increment a duration by a delta.
+ *)
+const proc: (inout duration: aDuration) +:= (in duration: delta) is func
+  begin
+    aDuration.year_365     +:= delta.year_365;
+    aDuration.year_366     +:= delta.year_366;
+    aDuration.month_28     +:= delta.month_28;
+    aDuration.month_29     +:= delta.month_29;
+    aDuration.month_30     +:= delta.month_30;
+    aDuration.month_31     +:= delta.month_31;
+    aDuration.day          +:= delta.day;
+    aDuration.hour         +:= delta.hour;
+    aDuration.minute       +:= delta.minute;
+    aDuration.second       +:= delta.second;
+    aDuration.micro_second +:= delta.micro_second;
+    NORMALIZE(aDuration);
+  end func;
+
+
+(**
+ *  Decrement a duration by a delta.
+ *)
+const proc: (inout duration: aDuration) -:= (in duration: delta) is func
+  begin
+    aDuration.year_365     -:= delta.year_365;
+    aDuration.year_366     -:= delta.year_366;
+    aDuration.month_28     -:= delta.month_28;
+    aDuration.month_29     -:= delta.month_29;
+    aDuration.month_30     -:= delta.month_30;
+    aDuration.month_31     -:= delta.month_31;
+    aDuration.day          -:= delta.day;
+    aDuration.hour         -:= delta.hour;
+    aDuration.minute       -:= delta.minute;
+    aDuration.second       -:= delta.second;
+    aDuration.micro_second -:= delta.micro_second;
+    NORMALIZE(aDuration);
+  end func;
+
+
+(**
  *  Increment a time by a duration.
  *)
 const proc: (inout time: tim) +:= (in duration: aDuration) is func

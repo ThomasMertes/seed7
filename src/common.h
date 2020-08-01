@@ -282,11 +282,13 @@ typedef int errinfotype;
 typedef struct setstruct     *settype;
 typedef struct stristruct    *stritype;
 typedef struct bstristruct   *bstritype;
+typedef struct pollstruct    *polltype;
 typedef struct winstruct     *wintype;
 
 typedef const struct setstruct     *const_settype;
 typedef const struct stristruct    *const_stritype;
 typedef const struct bstristruct   *const_bstritype;
+typedef const struct pollstruct    *const_polltype;
 typedef const struct winstruct     *const_wintype;
 
 typedef struct setstruct {
@@ -317,6 +319,12 @@ typedef struct bstristruct {
     uchartype mem[1];
 #endif
   } bstrirecord;
+
+typedef struct pollstruct {
+#ifdef NO_EMPTY_STRUCTS
+    int dummy;
+#endif
+  } pollrecord;
 
 typedef struct winstruct {
     uinttype usage_count;

@@ -53,6 +53,7 @@
 #define take_bigint(arg)    (arg)->value.bigintvalue
 #define take_list(arg)      (arg)->value.listvalue
 #define take_param(arg)     (arg)->value.objvalue
+#define take_poll(arg)      (arg)->value.pollvalue
 #define take_prog(arg)      (arg)->value.progvalue
 #define take_reference(arg) (arg)->value.objvalue
 #define take_reflist(arg)   (arg)->value.listvalue
@@ -86,6 +87,7 @@
 #define isit_int(arg)       if (CATEGORY_OF_OBJ(arg) != INTOBJECT)       run_exception(INTOBJECT, arg)
 /*      isit_list(arg)      */
 #define isit_param(arg)     if (CATEGORY_OF_OBJ(arg) != FORMPARAMOBJECT) run_exception(FORMPARAMOBJECT, arg)
+#define isit_poll(arg)      if (CATEGORY_OF_OBJ(arg) != POLLOBJECT)      run_exception(POLLOBJECT, arg)
 #define isit_proc(arg)      if (CATEGORY_OF_OBJ(arg) != BLOCKOBJECT && \
                                 CATEGORY_OF_OBJ(arg) != MATCHOBJECT && \
                                 CATEGORY_OF_OBJ(arg) != ACTOBJECT)       run_exception(BLOCKOBJECT, arg)
@@ -180,6 +182,7 @@ objecttype bld_hash_temp (hashtype temp_hash);
 objecttype bld_int_temp (inttype temp_int);
 objecttype bld_list_temp (listtype temp_list);
 objecttype bld_param_temp (objecttype temp_param);
+objecttype bld_poll_temp (polltype temp_poll);
 objecttype bld_prog_temp (progtype temp_prog);
 objecttype bld_reference_temp (objecttype temp_reference);
 objecttype bld_reflist_temp (listtype temp_reflist);
@@ -234,6 +237,7 @@ objecttype bld_hash_temp ();
 objecttype bld_int_temp ();
 objecttype bld_list_temp ();
 objecttype bld_param_temp ();
+objecttype bld_poll_temp ();
 objecttype bld_prog_temp ();
 objecttype bld_reference_temp ();
 objecttype bld_reflist_temp ();

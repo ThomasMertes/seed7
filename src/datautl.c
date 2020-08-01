@@ -73,6 +73,7 @@ static const_cstritype category_name[] = {
     "SETOBJECT",         /* setvalue -    set                       */
     "FILEOBJECT",        /* filevalue -   file                      */
     "SOCKETOBJECT",      /* socketvalue - socket                    */
+    "POLLOBJECT",        /* pollvalue -   poll list                 */
     "LISTOBJECT",        /* listvalue -   list                      */
     "FLOATOBJECT",       /* floatvalue -  float                     */
     "WINOBJECT",         /* winvalue -    Window                    */

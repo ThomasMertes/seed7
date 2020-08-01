@@ -917,16 +917,16 @@ comparetype cmp_func;
 
 #ifdef ANSI_C
 
-rtlGenerictype hshIdxWithDefault (const rtlHashtype hash1, const rtlGenerictype key,
-    const rtlGenerictype data, inttype hashcode, comparetype cmp_func,
+rtlGenerictype hshIdxEnterDefault (const rtlHashtype hash1, const rtlGenerictype key,
+    const rtlGenerictype defaultData, inttype hashcode, comparetype cmp_func,
     const createfunctype key_create_func, const createfunctype data_create_func)
 #else
 
-rtlGenerictype hshIdxWithDefault (hash1, key, data, hashcode, cmp_func,
+rtlGenerictype hshIdxEnterDefault (hash1, key, defaultData, hashcode, cmp_func,
     key_create_func, data_create_func)
 rtlHashtype hash1;
 rtlGenerictype key;
-rtlGenerictype data;
+rtlGenerictype defaultData;
 inttype hashcode;
 comparetype cmp_func;
 createfunctype key_create_func;
@@ -940,12 +940,12 @@ createfunctype data_create_func;
     errinfotype err_info = OKAY_NO_ERROR;
     rtlGenerictype result;
 
-  /* hshIdxWithDefault */
-    /* printf("hshIdxWithDefault(%lX, %llX, %lld, %llX, %lX, %lx, %lX)\n",
-       hash1, key, data, hashcode, cmp_func, key_create_func, data_create_func); */
+  /* hshIdxEnterDefault */
+    /* printf("hshIdxEnterDefault(%lX, %llX, %lld, %llX, %lX, %lx, %lX)\n",
+       hash1, key, defaultData, hashcode, cmp_func, key_create_func, data_create_func); */
     hashelem = hash1->table[(unsigned int) hashcode & hash1->mask];
     if (hashelem == NULL) {
-      result_hashelem = new_helem(key, data,
+      result_hashelem = new_helem(key, defaultData,
           key_create_func, data_create_func, &err_info);
       hash1->table[(unsigned int) hashcode & hash1->mask] = result_hashelem;
       hash1->size++;
@@ -955,7 +955,7 @@ createfunctype data_create_func;
         cmp = cmp_func(hashelem->key.value.genericvalue, key);
         if (cmp < 0) {
           if (hashelem->next_less == NULL) {
-            result_hashelem = new_helem(key, data,
+            result_hashelem = new_helem(key, defaultData,
                 key_create_func, data_create_func, &err_info);
             hashelem->next_less = result_hashelem;
             hash1->size++;
@@ -968,7 +968,7 @@ createfunctype data_create_func;
           hashelem = NULL;
         } else {
           if (hashelem->next_greater == NULL) {
-            result_hashelem = new_helem(key, data,
+            result_hashelem = new_helem(key, defaultData,
                 key_create_func, data_create_func, &err_info);
             hashelem->next_greater = result_hashelem;
             hash1->size++;
@@ -985,6 +985,49 @@ createfunctype data_create_func;
       result = 0;
     } else {
       result = result_hashelem->data.value.genericvalue;
+    } /* if */
+    return result;
+  } /* hshIdxEnterDefault */
+
+
+
+#ifdef ANSI_C
+
+rtlGenerictype hshIdxWithDefault (const const_rtlHashtype hash1, const rtlGenerictype key,
+    const rtlGenerictype defaultData, inttype hashcode, comparetype cmp_func)
+#else
+
+rtlGenerictype hshIdxWithDefault (hash1, key, hashcode, cmp_func)
+rtlHashtype hash1;
+rtlGenerictype key;
+inttype hashcode;
+comparetype cmp_func;
+#endif
+
+  {
+    rtlHelemtype hashelem;
+    rtlHelemtype result_hashelem;
+    inttype cmp;
+    rtlGenerictype result;
+
+  /* hshIdxWithDefault */
+    result_hashelem = NULL;
+    hashelem = hash1->table[(unsigned int) hashcode & hash1->mask];
+    while (hashelem != NULL) {
+      cmp = cmp_func(hashelem->key.value.genericvalue, key);
+      if (cmp < 0) {
+        hashelem = hashelem->next_less;
+      } else if (cmp == 0) {
+        result_hashelem = hashelem;
+        hashelem = NULL;
+      } else {
+        hashelem = hashelem->next_greater;
+      } /* if */
+    } /* while */
+    if (result_hashelem != NULL) {
+      result = result_hashelem->data.value.genericvalue;
+    } else {
+      result = defaultData;
     } /* if */
     return result;
   } /* hshIdxWithDefault */

@@ -45,7 +45,7 @@ var ftpConnectionHash: ftpSessions is ftpConnectionHash.value;
 
 const proc: ftpResponse (inout file: control, in string: response) is func
   begin
-    writeln("<- " <& response);
+    # writeln("<- " <& response);
     writeln(control, response);
   end func;
 
@@ -293,7 +293,7 @@ const proc: processFtpRequest (inout ftpServerConnection: ftp) is func
     var string: request is "";
   begin
     request := getln(ftp.control);
-    writeln("-> " <& request);
+    # writeln("-> " <& request);
     if eof(ftp.control) then
       closeFtpSession(ftp);
     else

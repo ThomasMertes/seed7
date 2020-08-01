@@ -1,6 +1,6 @@
 /********************************************************************/
 /*                                                                  */
-/*  os_decls.h    Define macros for OS calls and structs.           */
+/*  pol_drv.h     Prototypes of functions to support poll.          */
 /*  Copyright (C) 1989 - 2011  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
@@ -23,104 +23,52 @@
 /*  Fifth Floor, Boston, MA  02110-1301, USA.                       */
 /*                                                                  */
 /*  Module: Seed7 Runtime Library                                   */
-/*  File: seed7/src/os_decls.h                                      */
+/*  File: seed7/src/pol_drv.h                                       */
 /*  Changes: 2011  Thomas Mertes                                    */
-/*  Content: Define macros for OS calls and structs.                */
+/*  Content: Prototypes of functions to support poll.               */
 /*                                                                  */
 /********************************************************************/
 
-#ifndef os_chdir
-#define os_chdir chdir
-#endif
-#ifndef os_getcwd
-#define os_getcwd getcwd
-#endif
-#ifndef os_mkdir
-#define os_mkdir mkdir
-#endif
-#ifndef os_rmdir
-#define os_rmdir rmdir
-#endif
-#ifndef os_opendir
-#define os_opendir opendir
-#endif
-#ifndef os_readdir
-#define os_readdir readdir
-#endif
-#ifndef os_closedir
-#define os_closedir closedir
-#endif
-#ifndef os_DIR
-#define os_DIR DIR
-#endif
-#ifndef os_dirent_struct
-#define os_dirent_struct struct dirent
-#endif
-#ifndef os_fstat
-#define os_fstat fstat
-#endif
-#ifndef os_lstat
-#define os_lstat lstat
-#endif
-#ifndef os_stat
-#define os_stat stat
-#endif
-#ifndef os_stat_struct
-#define os_stat_struct struct stat
-#endif
-#ifndef os_fstat_struct
-#define os_fstat_struct os_stat_struct
-#endif
-#ifndef os_chown
-#define os_chown chown
-#endif
-#ifndef os_chmod
-#define os_chmod chmod
-#endif
-#ifndef os_utime
-#define os_utime utime
-#endif
-#ifndef os_utimbuf_struct
-#define os_utimbuf_struct struct utimbuf
-#endif
-#ifndef os_remove
-#define os_remove remove
-#endif
-#ifndef os_rename
-#define os_rename rename
-#endif
-#ifndef os_system
-#define os_system system
-#endif
-#ifndef os_pclose
-#define os_pclose pclose
-#endif
-#ifndef os_popen
-#define os_popen popen
-#endif
-#ifndef os_fopen
-#define os_fopen fopen
-#endif
-#ifndef os_poll
-#define os_poll poll
-#endif
-#ifndef os_getenv
-#define os_getenv getenv
-#endif
-#ifndef os_setenv
-#define os_setenv setenv
-#endif
+#ifdef ANSI_C
 
-#ifdef OS_STRI_WCHAR
-#define os_mode_rb L"rb"
-#define os_mode_wb L"wb"
-#else
-#define os_mode_rb "rb"
-#define os_mode_wb "wb"
-#endif
+void polAddReadCheck (polltype pollData, const sockettype aSocket,
+                      const rtlGenerictype fileObj);
+void polAddWriteCheck (polltype pollData, const sockettype aSocket,
+                       const rtlGenerictype fileObj);
+void polClear (polltype pollData);
+void polCpy (polltype poll_to, const const_polltype pollDataFrom);
+polltype polCreate (const const_polltype pollDataFrom);
+void polDestr (const const_polltype oldPollData);
+polltype polEmpty (void);
+rtlArraytype polFiles (const const_polltype pollData);
+booltype polHasNextReadFile (polltype pollData);
+booltype polHasNextWriteFile (polltype pollData);
+rtlGenerictype polNextReadFile (polltype pollData, const rtlGenerictype nullFile);
+rtlGenerictype polNextWriteFile (polltype pollData, const rtlGenerictype nullFile);
+void polPoll (polltype pollData);
+booltype polReadyForRead (polltype pollData, const sockettype aSocket);
+booltype polReadyForWrite (polltype pollData, const sockettype aSocket);
+void polRemoveReadCheck (polltype pollData, const sockettype aSocket);
+void polRemoveWriteCheck (polltype pollData, const sockettype aSocket);
 
-#ifdef DEFINE_WGETENV
-#define os_getenv_string_free(env_var) os_stri_free(env_var)
 #else
-#define os_getenv_string_free(env_var)
+
+void polAddReadCheck ();
+void polAddWriteCheck ();
+void polClear ();
+void polCpy ();
+polltype polCreate ();
+void polDestr ();
+polltype polEmpty ();
+rtlArraytype polFiles ():
+booltype polHasNextReadFile ();
+booltype polHasNextWriteFile ();
+rtlObjecttype polNextReadFile ();
+rtlObjecttype polNextWriteFile ();
+void polPoll ();
+booltype polReadyForRead ();
+booltype polReadyForWrite ();
+void polRemoveReadCheck ();
+void polRemoveWriteCheck ();
+
 #endif

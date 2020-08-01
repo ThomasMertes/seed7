@@ -69,11 +69,26 @@
  *      Either "ls" or "dir".
  *      E.g.: #define LIST_DIRECTORY_CONTENTS "ls"
  *            #define LIST_DIRECTORY_CONTENTS "dir"
+ *  TURN_OFF_FP_EXCEPTIONS
+ *      Use the function _control87() to turn off floating point exceptions.
+ *  DEFINE_MATHERR_FUNCTION
+ *      Define the function _matherr() which handles floating point errors.
  *
  *  The macros described above are only used in the program chkccomp.
  *  This macros are not used in the Seed7 Interpreter (hi) or in the
  *  Seed7 Runtime Library.
  */
+
+
+
+#ifdef DEFINE_MATHERR_FUNCTION
+int _matherr (struct _exception *a)
+
+  { /* _matherr */
+    a->retval = a->retval;
+    return 1;
+  } /* _matherr */
+#endif
 
 
 

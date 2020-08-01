@@ -47,6 +47,7 @@
 #include "hsh_rtl.h"
 #include "int_rtl.h"
 #include "big_drv.h"
+#include "pol_drv.h"
 #include "rtl_err.h"
 
 #undef EXTERN
@@ -255,28 +256,6 @@ inttype aCategory;
 
 #ifdef ANSI_C
 
-static inttype refCmpGeneric (const rtlGenerictype ref1, const rtlGenerictype ref2)
-#else
-
-static inttype refCmpGeneric (ref1, ref2)
-rtlGenerictype ref1;
-rtlGenerictype ref2;
-#endif
-
-  { /* refCmpGeneric */
-    if (ref1 < ref2) {
-      return -1;
-    } else if (ref1 > ref2) {
-      return 1;
-    } else {
-      return 0;
-    } /* if */
-  } /* refCmpGeneric */
-
-
-
-#ifdef ANSI_C
-
 void refCpy (objecttype *dest, objecttype source)
 #else
 
@@ -288,21 +267,6 @@ objecttype source;
   { /* refCpy */
     *dest = source;
   } /* refCpy */
-
-
-
-#ifdef ANSI_C
-
-rtlGenerictype genericCreate (rtlGenerictype source)
-#else
-
-rtlGenerictype genericCreate (source)
-rtlGenerictype source;
-#endif
-
-  { /* genericCreate */
-    return source;
-  } /* genericCreate */
 
 
 
@@ -579,10 +543,10 @@ objecttype obj_arg;
         raise_error(MEMORY_ERROR);
         result = 0;
       } else {
-        result = (inttype) hshIdxWithDefault(obj_table, (rtlGenerictype) (memsizetype) obj_arg,
+        result = (inttype) hshIdxEnterDefault(obj_table, (rtlGenerictype) (memsizetype) obj_arg,
             (rtlGenerictype) next_free_number,
-            (inttype) (((memsizetype) obj_arg) >> 6), (comparetype) &refCmpGeneric,
-            (createfunctype) &genericCreate, (createfunctype) &genericCreate);
+            (inttype) (((memsizetype) obj_arg) >> 6), (comparetype) &uintCmpGeneric,
+            (createfunctype) &intCreateGeneric, (createfunctype) &intCreateGeneric);
         if (result == next_free_number) {
           next_free_number++;
         } /* if */
@@ -1043,6 +1007,26 @@ objecttype obj_arg;
       return take_int(obj_arg);
     } /* if */
   } /* intValue */
+
+
+
+#ifdef ANSI_C
+
+polltype polValue (objecttype obj_arg)
+#else
+
+polltype polValue (obj_arg)
+objecttype obj_arg;
+#endif
+
+  { /* polValue */
+    if (obj_arg == NULL || CATEGORY_OF_OBJ(obj_arg) != POLLOBJECT) {
+      raise_error(RANGE_ERROR);
+      return NULL;
+    } else {
+      return polCreate(take_poll(obj_arg));
+    } /* if */
+  } /* polValue */
 
 
 

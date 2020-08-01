@@ -35,6 +35,7 @@
 #include "stdio.h"
 #include "string.h"
 #ifdef USE_WINSOCK
+#define FD_SETSIZE 16384
 #include "winsock2.h"
 #ifdef USE_GETADDRINFO
 #include "ws2tcpip.h"
@@ -85,7 +86,7 @@ typedef socklen_t socklen_type;
 
 #endif
 
-#define MAX_ADDRESS_SIZE 1024
+#define MAX_ADDRESS_SIZE        1024
 #define READ_STRI_INIT_SIZE      256
 #define READ_STRI_SIZE_DELTA    2048
 
@@ -95,6 +96,8 @@ static booltype initialized = FALSE;
 #else
 #define check_initialization(err_result)
 #endif
+
+#define BUFFER_SIZE 4096
 
 
 
@@ -291,6 +294,7 @@ bstritype *address;
       addrlen = MAX_ADDRESS_SIZE;
       result = accept(sock, (struct sockaddr *) (*address)->mem, &addrlen);
       if (unlikely(result == INVALID_SOCKET || addrlen < 0 || addrlen > MAX_ADDRESS_SIZE)) {
+        /* printf("socAccept(%d) errno=%d %s\n", sock, errno, strerror(errno)); */
         REALLOC_BSTRI_SIZE_OK(resized_address, *address, MAX_ADDRESS_SIZE, old_address_size);
         if (resized_address == NULL) {
           (*address)->size = MAX_ADDRESS_SIZE;
@@ -298,7 +302,6 @@ bstritype *address;
           *address = resized_address;
           COUNT3_BSTRI(MAX_ADDRESS_SIZE, old_address_size);
         } /* if */
-        /* printf("socAccept errno=%d\n", errno); */
         raise_error(FILE_ERROR);
       } else {
         REALLOC_BSTRI_SIZE_OK(resized_address, *address, MAX_ADDRESS_SIZE, (memsizetype) addrlen);
@@ -535,7 +538,16 @@ bstritype address;
        printf(")\n"); */
     if (unlikely(connect(sock, (const struct sockaddr *) address->mem,
         (socklen_type) address->size) != 0)) {
-      /* printf("socConnect(%d) errno=%d %s\n", sock, errno, strerror(errno)); */
+      /* printf("socConnect(%d) errno=%d %s\n", sock, errno, strerror(errno));
+      printf("WSAGetLastError=%d\n", WSAGetLastError());
+      printf("WSANOTINITIALISED=%ld, WSAENETDOWN=%ld, WSAEADDRINUSE=%ld, WSAEINTR=%ld, WSAEALREADY=%ld\n",
+             WSANOTINITIALISED, WSAENETDOWN, WSAEADDRINUSE, WSAEINTR, WSAEALREADY);
+      printf("WSAEINPROGRESS=%ld, WSAEADDRNOTAVAIL=%ld, WSAEAFNOSUPPORT=%ld, WSAECONNREFUSED=%ld\n",
+             WSAEINPROGRESS, WSAEADDRNOTAVAIL, WSAEAFNOSUPPORT, WSAECONNREFUSED);
+      printf("WSAEFAULT=%ld, WSAEINVAL=%ld, WSAEISCONN=%ld, WSAENETUNREACH=%ld, WSAEHOSTUNREACH=%ld\n",
+             WSAEFAULT, WSAEINVAL, WSAEISCONN, WSAENETUNREACH, WSAEHOSTUNREACH);
+      printf("WSAENOBUFS=%ld, WSAENOTSOCK=%ld, WSAETIMEDOUT=%ld, WSAEWOULDBLOCK=%ld, WSAEACCES=%ld\n",
+             WSAENOBUFS, WSAENOTSOCK, WSAETIMEDOUT, WSAEWOULDBLOCK, WSAEACCES); */
       raise_error(FILE_ERROR);
     } /* if */
   } /* socConnect */
@@ -607,9 +619,9 @@ chartype *eof_indicator;
           result_size = 0;
         } /* if */
         if (result_size > 0) {
-          uchartype *from = &((uchartype *) result->mem)[result_size - 1];
-          strelemtype *to = &result->mem[result_size - 1];
-          memsizetype number = result_size;
+          register uchartype *from = &((uchartype *) result->mem)[result_size - 1];
+          register strelemtype *to = &result->mem[result_size - 1];
+          register memsizetype number = result_size;
 
           for (; number > 0; from--, to--, number--) {
             *to = *from;
@@ -1699,36 +1711,41 @@ stritype stri;
 #endif
 
   {
-    bstritype buf;
     memsizetype bytes_sent;
 
   /* socWrite */
-    buf = stri_to_bstri(stri);
-    if (unlikely(buf == NULL)) {
-      raise_error(MEMORY_ERROR);
-    } else if (unlikely(buf->size != stri->size)) {
-      FREE_BSTRI(buf, buf->size);
-      raise_error(RANGE_ERROR);
+    if (stri->size <= BUFFER_SIZE) {
+      register strelemtype *str = stri->mem;
+      register uchartype *ustri;
+      register uint16type buf_len = (uint16type) stri->size;
+      uchartype buffer[BUFFER_SIZE];
+
+      for (ustri = buffer; buf_len > 0; buf_len--) {
+        if (unlikely(*str >= 256)) {
+          raise_error(RANGE_ERROR);
+          return;
+        } /* if */
+        *ustri++ = (uchartype) *str++;
+      } /* for */
+      bytes_sent = (memsizetype) send(sock, cast_send_recv_data(buffer),
+                                      cast_buffer_len(stri->size), 0);
     } else {
+      bstritype buf;
+
+      buf = stri_to_bstri(stri);
+      if (unlikely(buf == NULL)) {
+        raise_error(MEMORY_ERROR);
+        return;
+      } else if (unlikely(buf->size != stri->size)) {
+        FREE_BSTRI(buf, buf->size);
+        raise_error(RANGE_ERROR);
+        return;
+      } /* if */
       bytes_sent = (memsizetype) send(sock, cast_send_recv_data(buf->mem),
                                       cast_buffer_len(buf->size), 0);
-      if (unlikely(bytes_sent != buf->size)) {
-        /*
-        printf("WSAGetLastError=%d\n", WSAGetLastError());
-        printf("WSAECONNABORTED=%d\n", WSAECONNABORTED);
-        printf("socWrite errno=%d\n", errno);
-        printf("bytes_sent=%ld\n", bytes_sent);
-        printf("buf->mem=%x\n", buf->mem);
-        printf("buf->size=%lu\n", buf->size);
-        printf("stri->size=%lu\n", stri->size);
-        prot_stri(stri);
-        printf("\n");
-        printf("buf->mem[0]=%u\n", buf->mem[0]);
-        */
-        FREE_BSTRI(buf, buf->size);
-        raise_error(FILE_ERROR);
-      } else {
-        FREE_BSTRI(buf, buf->size);
-      } /* if */
+      FREE_BSTRI(buf, buf->size);
+    } /* if */
+    if (unlikely(bytes_sent != stri->size)) {
+      raise_error(FILE_ERROR);
     } /* if */
   } /* socWrite */

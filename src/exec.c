@@ -879,6 +879,7 @@ objecttype object;
       case SETOBJECT:
       case FILEOBJECT:
       case SOCKETOBJECT:
+      case POLLOBJECT:
       case LISTOBJECT:
 #ifdef WITH_FLOAT
       case FLOATOBJECT:

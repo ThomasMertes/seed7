@@ -851,6 +851,9 @@ listtype arguments;
     } else {
       result = raise_exception(SYS_RNG_EXCEPTION);
     } /* if */
+    /* printf("arr_idx => %08lx ", result);
+       trace1(result);
+       printf("\n"); */
     return result;
   } /* arr_idx */
 

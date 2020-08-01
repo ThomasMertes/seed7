@@ -1,3 +1,35 @@
+20111218:
+- The type 'pollData' and the functions 'clear', 'addReadCheck',
+  'addWriteCheck', 'removeReadCheck', 'removeWriteCheck', 'poll',
+  'readyForRead', 'readyForWrite', 'files', 'hasNextReadFile',
+  'hasNextWriteFile', 'nextReadFile' and 'nextWriteFile' were added
+  to the "socket.s7i" library.
+- The makefile "mk_djgpp.mak" was improved to use 'djecho' (thanks
+  to "Rugxulo" for his help).
+- The library "duration.s7i" was improved to support the operators
+  +:= and -:= for the type 'duration'.
+- The function 'startProcess' in the library "shell.s7i" was
+  overloaded to work with a single string parameter.
+- The function 'socWrite' in "soc_rtl.c" was improved.
+- Interpreter, compiler and runtime library were improved to support
+  'pollData' (polltype) and the actions "POL_ADD_READ_CHECK",
+  "POL_ADD_WRITE_CHECK", "POL_CLEAR", "POL_CPY", "POL_FILES",
+  "POL_HAS_NEXT_READ_FILE", "POL_HAS_NEXT_WRITE_FILE",
+  "POL_NEXT_READ_FILE", "POL_NEXT_WRITE_FILE", "POL_POLL",
+  "POL_READY_FOR_READ", "POL_READY_FOR_WRITE",
+  "POL_REMOVE_READ_CHECK", "POL_REMOVE_WRITE_CHECK" and "POL_VALUE".
+- The files "pollib.c", "pollib.h", "pol_sel.c", "pol_unx.c" and
+  "pol_drv.h" were added to support the type 'pollData'.
+- The "ftpserv.sd7" example program was improved to work silently.
+- In "hsh_rtl.c" the function 'hshIdxWithDefault' was renamed to 
+  'hshIdxEnterDefault' and a new function 'hshIdxWithDefault' was
+  introduced.
+- In "ref_data.c" the functions 'refCmpGeneric' and 'genericCreate'
+  were replaced with 'uintCmpGeneric' and 'intCreateGeneric'
+  respectively.
+- The program "chkccomp.c" was improved to define _matherr(), which
+  handles floating point errors, when necessary.
+
 20111204:
 - The makefile "mk_djgpp.mak" was improved to work for DJGPP under
   DOS (thanks to "Rugxulo" for his help to improve "mk_djgpp.mak").

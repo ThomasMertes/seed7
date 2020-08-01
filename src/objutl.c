@@ -466,6 +466,32 @@ objecttype temp_param;
 
 #ifdef ANSI_C
 
+objecttype bld_poll_temp (polltype temp_poll)
+#else
+
+objecttype bld_poll_temp (temp_poll)
+polltype temp_poll;
+#endif
+
+  {
+    register objecttype result;
+
+  /* bld_poll_temp */
+    if (ALLOC_OBJECT(result)) {
+      result->type_of = NULL;
+      result->descriptor.property = NULL;
+      INIT_CATEGORY_OF_TEMP(result, POLLOBJECT);
+      result->value.pollvalue = temp_poll;
+      return result;
+    } else {
+      return raise_exception(SYS_MEM_EXCEPTION);
+    } /* if */
+  } /* bld_poll_temp */
+
+
+
+#ifdef ANSI_C
+
 objecttype bld_prog_temp (progtype temp_prog)
 #else
 
@@ -803,6 +829,10 @@ objecttype object;
           CLEAR_TEMP_FLAG(object);
           do_destroy(object, &err_info);
         } /* if */
+        FREE_OBJECT(object);
+        break;
+      case POLLOBJECT:
+        polDestr(object->value.pollvalue);
         FREE_OBJECT(object);
         break;
       case REFLISTOBJECT:
