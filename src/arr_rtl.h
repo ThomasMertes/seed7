@@ -41,6 +41,7 @@ rtlArraytype arrExtend (rtlArraytype, rtlObjecttype);
 rtlArraytype arrGen (rtlObjecttype, rtlObjecttype);
 rtlArraytype arrHead (rtlArraytype, inttype);
 rtlArraytype arrRange (rtlArraytype, inttype, inttype);
+rtlGenerictype arrRemove (rtlArraytype *, inttype);
 rtlArraytype arrSort (rtlArraytype, inttype (rtlGenerictype, rtlGenerictype));
 rtlArraytype arrTail (rtlArraytype, inttype);
 
@@ -56,6 +57,7 @@ rtlArraytype arrExtend ();
 rtlArraytype arrGen ();
 rtlArraytype arrHead ();
 rtlArraytype arrRange ();
+rtlGenerictype arrRemove ();
 rtlArraytype arrSort ();
 rtlArraytype arrTail ();
 

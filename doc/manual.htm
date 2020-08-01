@@ -1681,7 +1681,156 @@
 </pre><p></p>
 
 
-<a name="rational"><b>5.3 rational</b></a>
+<a name="bigInteger"><b>5.3 bigInteger</b></a>
+<p>
+    The type <tt>'<font color=red>bigInteger</font>'</tt> consists of all integer numbers. The
+  literals of the type <tt>'<font color=red>bigInteger</font>'</tt> are sequences of digits
+  followed by an underscore character (for example 1_ ).
+</p><pre>
+    Prefix operators:
+      +         Identity
+      -         Change sign
+    Infix operators:
+      +         Addition
+      -         Subtraction
+      *         Multiplication
+      <font color=blue>div</font>       Integer division truncated towards zero
+                  ( A <font color=blue>div</font> B => trunc(A / B),
+                    A <font color=blue>div</font> 0 => EXCEPTION NUMERIC_ERROR )
+      <font color=blue>rem</font>       Reminder of integer division <font color=blue>div</font>
+                  ( A <font color=blue>rem</font> B => A - (A <font color=blue>div</font> B) * B,
+                    A <font color=blue>rem</font> 0 => EXCEPTION NUMERIC_ERROR )
+      <font color=blue>mdiv</font>      Integer division truncated towards negative infinity
+                  ( A <font color=blue>mdiv</font> B => floor(A / B),
+                    A <font color=blue>mdiv</font> 0 => EXCEPTION NUMERIC_ERROR )
+      <font color=blue>mod</font>       Reminder of integer division <font color=blue>mdiv</font>
+                  ( A <font color=blue>mod</font> B => A - (A <font color=blue>mdiv</font> B) * B,
+                    A <font color=blue>mod</font> 0 => EXCEPTION NUMERIC_ERROR )
+      A ** B    Power
+                  ( Type of argument B: <font color=red>integer</font>,
+                    A ** B is okay for B > 0,
+                    A ** 0 => 1,
+                    A ** -1 => EXCEPTION NUMERIC_ERROR )
+      <font color=red>bigInteger</font> <font color=blue>conv</font> A   Conversion to <font color=red>bigInteger</font>
+                  ( Type of argument A: <font color=red>integer</font>,
+                    <font color=red>bigInteger</font> <font color=blue>conv</font> A => A )
+      <font color=red>bigInteger</font> <font color=blue>parse</font> A   Conversion of <font color=red>string</font> to <font color=red>integer</font>
+                  ( Type of argument A: <font color=red>string</font>,
+                    <font color=red>bigInteger</font> <font color=blue>parse</font> <font color=maroon>"123"</font> => 123_,
+                    <font color=red>bigInteger</font> <font color=blue>parse</font> <font color=maroon>"-123"</font> => -123_,
+                    <font color=red>bigInteger</font> <font color=blue>parse</font> <font color=maroon>" 1"</font> => EXCEPTION RANGE_ERROR,
+                    <font color=red>bigInteger</font> <font color=blue>parse</font> <font color=maroon>"+5"</font> => EXCEPTION RANGE_ERROR,
+                    <font color=red>bigInteger</font> <font color=blue>parse</font> <font color=maroon>"10 "</font> => EXCEPTION RANGE_ERROR,
+                    <font color=red>bigInteger</font> <font color=blue>parse</font> <font color=maroon>"ASDF"</font> => EXCEPTION RANGE_ERROR )
+    Relations:
+      =, &lt;>, &lt;, &lt;=, >, >=
+    Functions:
+      ord(A)    Ordinal number
+                  ( Type of result: <font color=red>integer</font> )
+                    ord(99999999999999999999_) => EXCEPTION RANGE_ERROR )
+      succ(A)   Successor
+                  ( succ(A) => A+1_ )
+      pred(A)   Predecessor
+                  ( pred(A) => A-1_ )
+      abs(A)    Absolute value
+      odd(A)    Odd value
+                  ( Type of result: <font color=red>boolean</font> )
+      str(A)    Conversion to <font color=red>string</font>
+                  ( Type of result: <font color=red>string</font> )
+      sqrt(A)   Integer square root
+                  ( sqrt(A) is okay for A >= 0_
+                    sqrt(A) => trunc(sqrt(flt(A))),
+                    sqrt(-1_) => EXCEPTION NUMERIC_ERROR )
+      log2(A)   Truncated base 2 logarithm
+                  ( log2(A) returns the position of the
+                    highest bit set. It is defined for A >= 0
+                    log2(0) => -1,
+                    log2(1) => 0,
+                    log2(-1) => EXCEPTION NUMERIC_ERROR )
+      rand(A, B) Random number in the range [A, B]
+                  ( rand(A, B) returns a random number such that
+                    A &lt;= rand(A, B) <font color=blue>and</font> rand(A, B) &lt;= B holds.
+                    rand(A, A) => A,
+                    rand(1_, 0_) => EXCEPTION RANGE_ERROR )
+      compare(A, B) Compare function
+                  ( Type of result: <font color=red>integer</font>,
+                    compare(1_, 2_) => -1,
+                    compare(5_, 5_) => 0,
+                    compare(8_, 7_) => 1 )
+      hashCode(A) Hash function
+                  ( Type of result: <font color=red>integer</font> )
+    Statements:
+      A +:= B   Increment A by B
+                  ( A +:= B => A := A + B )
+      A -:= B   Decrement A by B
+                  ( A -:= B => A := A - B )
+      A *:= B   Multiplying copy
+                  ( A *:= B => A := A * B )
+      incr(A)   Increment with 1
+                  ( incr(A) => A +:= 1_ )
+      decr(A)   Decrement with 1
+                  ( decr(A) => A -:= 1_ )
+</pre><p>
+  For the operations <tt>'<font color=blue>div</font>'</tt> and <tt>'<font color=blue>rem</font>'</tt> holds for all A:</p><pre>
+    (A <font color=blue>div</font> B) * B + A <font color=blue>rem</font> B = A         when B &lt;> 0_
+    -A <font color=blue>div</font> B = -(A <font color=blue>div</font> B)               when B &lt;> 0_
+</pre><p>
+  For the operations <tt>'<font color=blue>mdiv</font>'</tt> and <tt>'<font color=blue>mod</font>'</tt> holds for all A:</p><pre>
+    (A <font color=blue>mdiv</font> B) * B + A <font color=blue>mod</font> B = A        when B &lt;> 0_
+    (A <font color=blue>mod</font> B) >= 0_ <font color=blue>and</font> (A <font color=blue>mod</font> B) &lt; B    when B > 0
+    (A <font color=blue>mod</font> B) &lt;= 0_ <font color=blue>and</font> (A <font color=blue>mod</font> B) > B    when B &lt; 0
+</pre><p>
+  For the operation <tt>'<font color=blue>mdiv</font>'</tt> holds:</p><pre>
+    A <font color=blue>mdiv</font> B = A <font color=blue>div</font> B - 1_   When A and B have different
+                             signs and A <font color=blue>rem</font> B &lt;> 0_ holds.
+    A <font color=blue>mdiv</font> B = A <font color=blue>div</font> B       When A and B have the same
+                             sign or A <font color=blue>rem</font> B = 0_ holds.
+</pre><p>
+  For the operation <tt>'<font color=blue>mod</font>'</tt> holds:</p><pre>
+    A <font color=blue>mod</font> B = A <font color=blue>rem</font> B + B    When A and B have different
+                             signs and A <font color=blue>rem</font> B &lt;> 0_ holds.
+    A <font color=blue>mod</font> B = A <font color=blue>rem</font> B        When A and B have the same
+                             sign or A <font color=blue>rem</font> B = 0_ holds.
+</pre><p>
+
+  Tables for the behaviour of <tt>'<font color=blue>div</font>'</tt>, <tt>'<font color=blue>rem</font>'</tt>, <tt>'<font color=blue>mdiv</font>'</tt> and <tt>'<font color=blue>mod</font>'</tt>:
+</p><pre>
+     A    B   A <font color=blue>div</font> B   A <font color=blue>rem</font> B   A <font color=blue>mdiv</font> B  A <font color=blue>mod</font> B
+
+     5_   3_     1_        2_        1_        2_
+     4_   3_     1_        1_        1_        1_
+     3_   3_     1_        0_        1_        0_
+     2_   3_     0_        2_        0_        2_
+     1_   3_     0_        1_        0_        1_
+     0_   3_     0_        0_        0_        0_
+    -1_   3_     0_       -1_       -1_        2_
+    -2_   3_     0_       -2_       -1_        1_
+    -3_   3_    -1_        0_       -1_        0_
+    -4_   3_    -1_       -1_       -2_        2_
+    -5_   3_    -1_       -2_       -2_        1_
+
+     A    B   A <font color=blue>div</font> B   A <font color=blue>rem</font> B   A <font color=blue>mdiv</font> B  A <font color=blue>mod</font> B
+
+     5_  -3_    -1_        2_       -2_       -1_
+     4_  -3_    -1_        1_       -2_       -2_
+     3_  -3_    -1_        0_       -1_        0_
+     2_  -3_     0_        2_       -1_       -1_
+     1_  -3_     0_        1_       -1_       -2_
+     0_  -3_     0_        0_        0_        0_
+    -1_  -3_     0_       -1_        0_       -1_
+    -2_  -3_     0_       -2_        0_       -2_
+    -3_  -3_     1_        0_        1_        0_
+    -4_  -3_     1_       -1_        1_       -1_
+    -5_  -3_     1_       -2_        1_       -2_
+</pre><p>
+
+  For the 'sqrt' function holds (when A >= 0_):</p><pre>
+    sqrt(A) * sqrt(A) &lt;= A <font color=blue>and</font>
+    (sqrt(A) + 1_) * (sqrt(A) + 1_) > A
+</pre><p></p>
+
+
+<a name="rational"><b>5.4 rational</b></a>
 <p>
     The type <tt>'<font color=red>rational</font>'</tt> consists of rational numbers. The
   literals of the type <tt>'<font color=red>rational</font>'</tt> are finite and periodical
@@ -1745,7 +1894,7 @@
   (Without any rounding)
 </p>
 
-<a name="float"><b>5.4 float</b></a>
+<a name="float"><b>5.5 float</b></a>
 <p>
     The type <tt>'<font color=red>float</font>'</tt> consists of floating point numbers.
 </p><pre>
@@ -1866,7 +2015,7 @@
                   ( A *:= B => A := A * B )
 </pre><p></p>
 
-<a name="char"><b>5.5 char</b></a>
+<a name="char"><b>5.6 char</b></a>
 <p>
     A character literal is a character enclosed in single
   quotes. For example:
@@ -1935,7 +2084,7 @@
                   ( decr(A) => A := pred(A) )
 </pre><p></p>
 
-<a name="string"><b>5.6 string</b></a>
+<a name="string"><b>5.7 string</b></a>
 <p>
     The type <tt>'<font color=red>string</font>'</tt> describes sequences of ASCII-characters
   (including the empty string). A string literal is a
@@ -1979,8 +2128,10 @@
       [ A ]     Access one character
                   ( Type of argument A: <font color=red>integer</font>,
                     Type of result: <font color=red>char</font>,
-                    A[1]=>First character,
-                    A[length(A)]=>Last character )
+                    A[1] => First character,
+                    A[length(A)] => Last character,
+                    A[0] => EXCEPTION RANGE_ERROR,
+                    A[succ(length(A))] => EXCEPTION RANGE_ERROR )
       [ A .. B ] Access a substring from position A to B
                   ( Type of arguments A and B: <font color=red>integer</font> )
       [ A <font color=blue>len</font> B ] Access a substring from position A with length B
@@ -2066,7 +2217,7 @@
                       A := A[..pred(B)] & str(C) & A[succ(B)..] )
 </pre><p></p>
 
-<a name="array"><b>5.7 array</b></a>
+<a name="array"><b>5.8 array</b></a>
 <p>
     The type <tt>'<font color=red>array baseType</font>'</tt> describes sequences of identical
   elements of a <tt>'<font color=red>baseType</font>'</tt>. (including the empty sequence).
@@ -2086,8 +2237,8 @@
       [ A ]     Access one array element
                   ( Type of argument A: <font color=red>integer</font>,
                     Type of result: <font color=red>baseType</font>,
-                    A[1]=>First element,
-                    A[length(A)]=>Last element,
+                    A[1] => First element,
+                    A[length(A)] => Last element,
                     A[0] => EXCEPTION RANGE_ERROR,
                     A[succ(length(A))] => EXCEPTION RANGE_ERROR )
       [ A .. B ] Access a sub array
@@ -2102,7 +2253,12 @@
       length(A) Length of array
                   ( Type of result: <font color=red>integer</font>,
                     length(0 <font color=blue>times</font> TRUE) => 0 )
-      sort(A)   Sort array using the compare(<font color=red>array baseType</font>) function
+      remove(A,B) Remove element with index B from array A and
+                  return the removed element
+                  ( Type of argument B: <font color=red>integer</font>,
+                    Type of result: <font color=red>baseType</font>,
+                    remove(0 <font color=blue>times</font> TRUE, 1) => EXCEPTION RANGE_ERROR )
+      sort(A)   Sort array using the compare(<font color=red>baseType</font>, <font color=red>baseType</font>) function
     Statements:
       A &:= B   Append B to A
                   ( A &:= B => A := A & B )
@@ -2113,7 +2269,7 @@
                     Type of argument C: <font color=red>proc</font> )
 </pre><p></p>
 
-<a name="hash"><b>5.8 hash</b></a>
+<a name="hash"><b>5.9 hash</b></a>
 <p>
     The type <tt>'<font color=red>hash [keyType] baseType</font>'</tt> describes hash tables with
   elements of <tt>'<font color=red>baseType</font>'</tt> which can be accessed using an index of
@@ -2171,7 +2327,7 @@
                     Type of argument D: <font color=red>proc</font> )
 </pre><p></p>
 
-<a name="set"><b>5.9 set</b></a>
+<a name="set"><b>5.10 set</b></a>
 <p>
     The type <tt>'<font color=red>set of baseType</font>'</tt> describes a set of elements of a
   <tt>'<font color=red>baseType</font>'</tt>. (including the empty set).
@@ -2225,7 +2381,7 @@
                     Type of argument C: <font color=red>proc</font> )
 </pre><p></p>
 
-<a name="struct"><b>5.10 struct</b></a>
+<a name="struct"><b>5.11 struct</b></a>
 <p>
     The type <tt>'<font color=red>struct</font>'</tt> describes all structured types.
 </p><pre>
@@ -2268,49 +2424,26 @@
                   ( Type of argument B: <font color=red>reference</font> )
 </pre><p></p>
 
-<a name="reference"><b>5.11 reference</b></a>
+<a name="reference"><b>5.12 reference</b></a>
 <p>
     The type <tt>'<font color=red>reference</font>'</tt> describes a reference to any
   object.
 </p><pre>
     Constants:
       NIL       Reference to no element.
-    Infix operators:
-      <font color=red>reference</font> <font color=blue>value</font> A  Dereference as <font color=red>reference</font>
-                  ( Type of result: <font color=red>reference</font> )
-      <font color=red>ref_list</font> <font color=blue>value</font> A   Dereference as <font color=red>ref_list</font>
-                  ( Type of result: <font color=red>ref_list</font> )
-      <font color=red>integer</font> <font color=blue>value</font> A    Dereference as <font color=red>integer</font>
-                  ( Type of result: <font color=red>integer</font> )
-      <font color=red>float</font> <font color=blue>value</font> A      Dereference as <font color=red>float</font>
-                  ( Type of result: <font color=red>float</font> )
-      <font color=red>char</font> <font color=blue>value</font> A       Dereference as <font color=red>char</font>
-                  ( Type of result: <font color=red>char</font> )
-      <font color=red>string</font> <font color=blue>value</font> A     Dereference as <font color=red>string</font>
-                  ( Type of result: <font color=red>string</font> )
-      <font color=red>bitset</font> <font color=blue>value</font> A     Dereference as <font color=red>bitset</font>
-                  ( Type of result: <font color=red>bitset</font> )
-      <font color=red>program</font> <font color=blue>value</font> A    Dereference as <font color=red>program</font>
-                  ( Type of result: <font color=red>program</font> )
-      <font color=red>ACTION</font> <font color=blue>value</font> A     Dereference as <font color=red>ACTION</font>
-                  ( Type of result: <font color=red>ACTION</font> )
-      <font color=red>type</font> <font color=blue>value</font> A       Dereference as <font color=red>type</font>
-                  ( Type of result: <font color=red>type</font> )
-      <font color=red>reference</font> <font color=blue>parse</font> A  Conversion of <font color=red>string</font> to <font color=red>reference</font>
-                  ( Type of argument A: <font color=red>string</font> )
     Relations:
       =, &lt;>
     Functions:
+      category(A)        Get the category of the referenced object
+                  ( Type of result: <font color=red>string</font> )
       str(A)             Conversion to <font color=red>string</font>
                   ( Type of result: <font color=red>string</font> )
-      getType(A)         Delivers the type of an object
+      getType(A)         Get the type of the referenced object
                   ( Type of result: <font color=red>type</font> )
       obj_number(A)      Delivers an unique number for each object
                   ( Type of result: <font color=red>integer</font> )
       is_var(A)          Reference to a variable object
                   ( Type of result: <font color=red>boolean</font> )
-      obj_class(A)       Gets the class of an object
-                  ( Type of result: <font color=red>string</font> )
       params(A)          Gets the formal params of a function
                   ( Type of result: <font color=red>ref_list</font> )
       locals(A)          Gets the local variables of a function
@@ -2319,13 +2452,44 @@
       func_result(A)     Gets the result object of a function
       func_res_init(A)   Gets the init value of the result
                          object of a function
+      getValue(A, <font color=red>reference</font>)       Dereference as <font color=red>reference</font>
+                  ( Type of result: <font color=red>reference</font> )
+      getValue(A, <font color=red>ref_list</font>)        Dereference as <font color=red>ref_list</font>
+                  ( Type of result: <font color=red>ref_list</font> )
+      getValue(A, <font color=red>integer</font>)         Dereference as <font color=red>integer</font>
+                  ( Type of result: <font color=red>integer</font> )
+      getValue(A, <font color=red>bigInteger</font>)      Dereference as <font color=red>bigInteger</font>
+                  ( Type of result: <font color=red>bigInteger</font> )
+      getValue(A, <font color=red>float</font>)           Dereference as <font color=red>float</font>
+                  ( Type of result: <font color=red>float</font> )
+      getValue(A, <font color=red>char</font>)            Dereference as <font color=red>char</font>
+                  ( Type of result: <font color=red>char</font> )
+      getValue(A, <font color=red>string</font>)          Dereference as <font color=red>string</font>
+                  ( Type of result: <font color=red>string</font> )
+      getValue(A, <font color=red>bitset</font>)          Dereference as <font color=red>bitset</font>
+                  ( Type of result: <font color=red>bitset</font> )
+      getValue(A, <font color=red>PRIMITIVE_FILE</font>)  Dereference as <font color=red>PRIMITIVE_FILE</font>
+                  ( Type of result: <font color=red>PRIMITIVE_FILE</font> )
+      getValue(A, <font color=red>program</font>)         Dereference as <font color=red>program</font>
+                  ( Type of result: <font color=red>program</font> )
+      getValue(A, <font color=red>ACTION</font>)          Dereference as <font color=red>ACTION</font>
+                  ( Type of result: <font color=red>ACTION</font> )
+      getValue(A, <font color=red>type</font>)            Dereference as <font color=red>type</font>
+                  ( Type of result: <font color=red>type</font> )
       compare(A, B) Compare function
                   ( Type of result: <font color=red>integer</font> )
       hashCode(A) Hash function
                   ( Type of result: <font color=red>integer</font> )
+    Statements:
+      setCategory(A, B)  Set the category of the referenced object A to B
+                  ( Type of argument B: <font color=red>string</font> )
+      setType(A, B)   Set the type of the referenced object A to B
+                  ( Type of argument B: <font color=red>type</font> )
+      setValue(A, B)  Set the value of the referenced object A to B
+                  ( Type of argument B: <font color=red>ref_list</font> )
 </pre><p></p>
 
-<a name="ref_list"><b>5.12 ref_list</b></a>
+<a name="ref_list"><b>5.13 ref_list</b></a>
 <p>
     The type <tt>'<font color=red>ref_list</font>'</tt> describes a list of <tt>'<font color=red>reference</font>'</tt> objects.
 </p><pre>
@@ -2365,7 +2529,7 @@
                     Type of argument C: <font color=red>proc</font> )
 </pre><p></p>
 
-<a name="ptr"><b>5.13 ptr</b></a>
+<a name="ptr"><b>5.14 ptr</b></a>
 <p>
     The type <tt>'<font color=red>ptr baseType</font>'</tt> describes a pointer to an object
   of a <tt>'<font color=red>baseType</font>'</tt>. With
@@ -2392,7 +2556,7 @@
                   ( Type of argument <font color=red>ptrType</font>: <font color=red>type</font> )
 </pre><p></p>
 
-<a name="ENUMERATION"><b>5.14 ENUMERATION</b></a>
+<a name="ENUMERATION"><b>5.15 ENUMERATION</b></a>
 <p>
     With
 </p><pre>
@@ -2432,7 +2596,7 @@
                   ( decr(A) => A:=pred(A) )
 </pre><p></p>
 
-<a name="color"><b>5.15 color</b></a>
+<a name="color"><b>5.16 color</b></a>
 <p>
     The type <tt>'<font color=red>color</font>'</tt> describes colors.
 </p><pre>
@@ -2467,7 +2631,7 @@
                     Type of argument B: <font color=red>integer</font> )
 </pre><p></p>
 
-<a name="time"><b>5.16 time</b></a>
+<a name="time"><b>5.17 time</b></a>
 <p>
     The type <tt>'<font color=red>time</font>'</tt> describes times and dates.
 </p><pre>
@@ -2498,9 +2662,24 @@
       truncToDay(A) Trunc a time to a day
       truncToMonth(A) Trunc a time to a month
       truncToYear(A) Trunc a time to a year
+      isLeapYear(A) Determine if a given year is a leap year
+                  ( Type of argument A: <font color=red>integer</font> )
+                  ( Type of result: <font color=red>boolean</font> )
+      daysInMonth(Y, M) Calculate the number of days in a month
+                  ( Type of argument Y: <font color=red>integer</font>,
+                    Type of argument M: <font color=red>integer</font>,
+                    Type of result: <font color=red>integer</font> )
       dayOfWeek(A)  Day of the week with Monday as 1
                   ( Type of result: <font color=red>integer</font> )
       dayOfYear(A)  Day of the year with 1 January as 1
+                  ( Type of result: <font color=red>integer</font> )
+      weekOfYear(A) Compute the week number of a year (0 to 53).
+                    According to ISO 8601: Week number 1 of
+                    every year contains the 4. of january.
+                  ( Type of result: <font color=red>integer</font> )
+      weekDateYear(A) Compute the year of the ISO 8601 week date
+                  ( Type of result: <font color=red>integer</font> )
+      weekDateWeek(A) Compute the week of the ISO 8601 week date
                   ( Type of result: <font color=red>integer</font> )
       toGMT(A)  Conversion to Greenwich Mean Time
       julianDayNumber(A)  Number of days that have elapsed since
@@ -2522,7 +2701,7 @@
       await(A)  Wait until the given time
 </pre><p></p>
 
-<a name="duration"><b>5.17 duration</b></a>
+<a name="duration"><b>5.18 duration</b></a>
 <p>
     The type <tt>'<font color=red>duration</font>'</tt> describes time and date durations.
 </p><pre>
@@ -2567,7 +2746,7 @@
       wait(A)   Wait for given duration
 </pre><p></p>
 
-<a name="file"><b>5.18 file</b></a>
+<a name="file"><b>5.19 file</b></a>
 <p>
     The type <tt>'<font color=red>file</font>'</tt> describes sequential files.
 </p><pre>
@@ -2659,7 +2838,7 @@
                     seek(A, -1) => EXCEPTION RANGE_ERROR )
 </pre><p></p>
 
-<a name="text"><b>5.19 text</b></a>
+<a name="text"><b>5.20 text</b></a>
 <p>
     The type <tt>'<font color=red>text</font>'</tt> describes two dimensional files.
 </p><pre>
@@ -2716,7 +2895,7 @@
       cursor_off(A) Make the cursor invisible
 </pre><p></p>
 
-<a name="func"><b>5.20 func</b></a>
+<a name="func"><b>5.21 func</b></a>
 <p>
     The type <tt>'<font color=red>func baseType</font>'</tt> describes functions which return
   a <tt>'<font color=red>baseType</font>'</tt>. For example: <tt>'<font color=red>func integer</font>'</tt> describes an <tt>'<font color=red>integer</font>'</tt>
@@ -2805,7 +2984,7 @@
   parameter is <tt>'TRUE'</tt>.
 </p>
 
-<a name="varfunc"><b>5.21 varfunc</b></a>
+<a name="varfunc"><b>5.22 varfunc</b></a>
 <p>
     The type <tt>'<font color=red>varfunc baseType</font>'</tt> describes functions which return
   a <tt>'<font color=red>baseType</font>'</tt> variable. For example: A function which returns an
@@ -2838,7 +3017,7 @@
   and <font color=red>struct</font>s can be used in the usual way. 
 </p>
 
-<a name="void"><b>5.22 void</b></a>
+<a name="void"><b>5.23 void</b></a>
 <p>
     The type <tt>'<font color=red>void</font>'</tt> describes the empty type.
 </p><pre>
@@ -2846,7 +3025,7 @@
       empty     This is the only value of the type <tt>'<font color=red>void</font>'</tt>.
 </pre><p></p>
 
-<a name="proc"><b>5.23 proc</b></a>
+<a name="proc"><b>5.24 proc</b></a>
 <p>
     The type <tt>'<font color=red>proc</font>'</tt> describes procedures. The type <tt>'<font color=red>proc</font>'</tt>
   is defined as <tt>'<font color=red>func void</font>'</tt>.
@@ -2883,7 +3062,7 @@
                     Type of result: <font color=red>proc</font> )
 </pre><p></p>
 
-<a name="type"><b>5.24 type</b></a>
+<a name="type"><b>5.25 type</b></a>
 <p>
     The type <tt>'<font color=red>type</font>'</tt> describes all types.
 </p><pre>
@@ -2940,7 +3119,7 @@
                 Declare variable 'name' with 'value'
 </pre><p></p>
 
-<a name="object"><b>5.25 object</b></a>
+<a name="object"><b>5.26 object</b></a>
 <p>
     The type <tt>'<font color=red>object</font>'</tt> is used as meta type for various types.
   This allows to define common operations for all this types.
@@ -2953,7 +3132,7 @@
       TRACE_OBJ(A)  Write internal information
 </pre><p></p>
 
-<a name="expr"><b>5.26 expr</b></a>
+<a name="expr"><b>5.27 expr</b></a>
 <p>
     The type <tt>'<font color=red>expr</font>'</tt> is used to describe unmatched expressions.
   This are expressions where the recognizing of the functions
@@ -5011,32 +5190,32 @@
 </p><dl><dt>
     MEMORY_ERROR:</dt><dd>
       May be raised by various operations of the following types:
-          <font color=red>array</font>, <font color=red>struct</font>, <font color=red>hash</font>, <font color=red>file</font>, <font color=red>func</font>, <font color=red>proc</font>, <font color=red>reference</font>, <font color=red>string</font>
+          <font color=red>array</font>, <font color=red>struct</font>, <font color=red>hash</font>, <font color=red>file</font>, <font color=red>func</font>, <font color=red>proc</font>, <font color=red>reference</font>, <font color=red>string</font>.
       Additionally the interpreter kernel may raise this exception also.</dd><dt>
     NUMERIC_ERROR:</dt><dd>
       May be raised from the following <tt>'<font color=red>integer</font>'</tt> operations:
-          !, **, <font color=blue>div</font>, <font color=blue>rem</font>, <font color=blue>mdiv</font>, <font color=blue>mod</font>, ld
+          !, **, <font color=blue>div</font>, <font color=blue>rem</font>, <font color=blue>mdiv</font>, <font color=blue>mod</font>, ld.
       May be raised from the following <tt>'<font color=red>bigInteger</font>'</tt> operations:
-          **, <font color=blue>div</font>, <font color=blue>rem</font>, <font color=blue>mdiv</font>, <font color=blue>mod</font></dd><dt>
+          **, <font color=blue>div</font>, <font color=blue>rem</font>, <font color=blue>mdiv</font>, <font color=blue>mod</font>.</dd><dt>
     RANGE_ERROR:</dt><dd>
       May be raised from the following <tt>'<font color=red>integer</font>'</tt> operation:
-          <font color=blue>parse</font>, rand
+          <font color=blue>parse</font>, rand.
       May be raised from the following <tt>'<font color=red>bigInteger</font>'</tt> operation:
-          <font color=blue>parse</font>, rand
+          <font color=blue>parse</font>, rand.
       May be raised from the following <tt>'<font color=red>float</font>'</tt> operation:
-          <font color=blue>parse</font>, rand
+          <font color=blue>parse</font>, rand.
       May be raised from the following <tt>'<font color=red>char</font>'</tt> operation:
-          str
+          str.
       May be raised from the following <tt>'<font color=red>string</font>'</tt> operation:
-          @:=, <font color=blue>mult</font>, pos
+          @:=, <font color=blue>mult</font>, pos.
       May be raised from the following <tt>'<font color=red>bitset</font>'</tt> operation:
-          min, max, rand
+          min, max, rand.
       May be raised from the following <tt>'<font color=red>array</font>'</tt> operation:
-          [ ]
+          [ ].
       May be raised from the following <tt>'<font color=red>hash</font>'</tt> operation:
-          [ ]
+          [ ].
       May be raised from the following <tt>'<font color=red>file</font>'</tt> operation:
-          open, gets, write, seek</dd><dt>
+          open, gets, write, seek.</dd><dt>
     IO_ERROR:</dt><dd>
       May be raised with the following statement:
           cp</dd><dt>

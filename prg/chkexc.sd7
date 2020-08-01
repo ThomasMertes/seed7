@@ -504,10 +504,209 @@ const proc: check_string is func
   end func;
 
 
+const proc: check_array is func
+  local
+    var boolean: okay is TRUE;
+    var integer: number is 0;
+    var integer: i_num is 0;
+    var array integer: arr is 0 times 1;
+    var char: ch is ' ';
+  begin
+    block
+      i_num := (4 times 1)[-1];
+      writeln(" ***** (4 times 1)[-1] did not raise RANGE_ERROR");
+      okay := FALSE;
+    exception
+      catch RANGE_ERROR:
+        incr(number);
+    end block;
+
+    block
+      i_num := (4 times 1)[0];
+      writeln(" ***** (4 times 1)[0] did not raise RANGE_ERROR");
+      okay := FALSE;
+    exception
+      catch RANGE_ERROR:
+        incr(number);
+    end block;
+
+    block
+      i_num := (4 times 1)[1];
+      incr(number);
+    exception
+      catch RANGE_ERROR:
+        writeln(" ***** (4 times 1)[1] did raise RANGE_ERROR");
+        okay := FALSE;
+    end block;
+
+    block
+      i_num := (4 times 1)[4];
+      incr(number);
+    exception
+      catch RANGE_ERROR:
+        writeln(" ***** (4 times 1)[4] did raise RANGE_ERROR");
+        okay := FALSE;
+    end block;
+
+    block
+      i_num := (4 times 1)[5];
+      writeln(" ***** (4 times 1)[5] did not raise RANGE_ERROR");
+      okay := FALSE;
+    exception
+      catch RANGE_ERROR:
+        incr(number);
+    end block;
+
+    block
+      i_num := (4 times 1)[6];
+      writeln(" ***** (4 times 1)[6] did not raise RANGE_ERROR");
+      okay := FALSE;
+    exception
+      catch RANGE_ERROR:
+        incr(number);
+    end block;
+
+    block
+      arr := 4 times 1;
+      arr[-1] := 2;
+      writeln(" ***** arr[-1] := 2; did not raise RANGE_ERROR");
+      okay := FALSE;
+    exception
+      catch RANGE_ERROR:
+        incr(number);
+    end block;
+
+    block
+      arr := 4 times 1;
+      arr[0] := 2;
+      writeln(" ***** arr[0] := 2; did not raise RANGE_ERROR");
+      okay := FALSE;
+    exception
+      catch RANGE_ERROR:
+        incr(number);
+    end block;
+
+    block
+      arr := 4 times 1;
+      arr[1] := 2;
+      incr(number);
+    exception
+      catch RANGE_ERROR:
+        writeln(" ***** arr[1] := 2; did raise RANGE_ERROR");
+        okay := FALSE;
+    end block;
+
+    block
+      arr := 4 times 1;
+      arr[4] := 2;
+      incr(number);
+    exception
+      catch RANGE_ERROR:
+        writeln(" ***** arr[4] := 2; did raise RANGE_ERROR");
+        okay := FALSE;
+    end block;
+
+    block
+      arr := 4 times 1;
+      arr[5] := 2;
+      writeln(" ***** arr[5] := 2; did not raise RANGE_ERROR");
+      okay := FALSE;
+    exception
+      catch RANGE_ERROR:
+        incr(number);
+    end block;
+
+    block
+      arr := 4 times 1;
+      arr[6] := 2;
+      writeln(" ***** arr[6] := 2; did not raise RANGE_ERROR");
+      okay := FALSE;
+    exception
+      catch RANGE_ERROR:
+        incr(number);
+    end block;
+
+    block
+      arr := 4 times 1;
+      i_num := remove(arr, -1);
+      writeln(" ***** remove(arr, -1); did not raise RANGE_ERROR");
+      okay := FALSE;
+    exception
+      catch RANGE_ERROR:
+        incr(number);
+    end block;
+
+    block
+      arr := 4 times 1;
+      i_num := remove(arr, 0);
+      writeln(" ***** remove(arr, 0); did not raise RANGE_ERROR");
+      okay := FALSE;
+    exception
+      catch RANGE_ERROR:
+        incr(number);
+    end block;
+
+    block
+      arr := 4 times 1;
+      i_num := remove(arr, 1);
+      incr(number);
+    exception
+      catch RANGE_ERROR:
+        writeln(" ***** remove(arr, 1); did raise RANGE_ERROR");
+        okay := FALSE;
+    end block;
+
+    block
+      arr := 4 times 1;
+      i_num := remove(arr, 4);
+      incr(number);
+    exception
+      catch RANGE_ERROR:
+        writeln(" ***** remove(arr, 4); did raise RANGE_ERROR");
+        okay := FALSE;
+    end block;
+
+    block
+      arr := 4 times 1;
+      i_num := remove(arr, 5);
+      writeln(" ***** remove(arr, 5); did not raise RANGE_ERROR");
+      okay := FALSE;
+    exception
+      catch RANGE_ERROR:
+        incr(number);
+    end block;
+
+    block
+      arr := 4 times 1;
+      i_num := remove(arr, 6);
+      writeln(" ***** remove(arr, 6); did not raise RANGE_ERROR");
+      okay := FALSE;
+    exception
+      catch RANGE_ERROR:
+        incr(number);
+    end block;
+
+    block
+      arr := -1 times 1;
+      writeln(" ***** -1 times 1 did not raise RANGE_ERROR");
+      okay := FALSE;
+    exception
+      catch RANGE_ERROR:
+        incr(number);
+    end block;
+
+    if okay and number = 19 then
+      writeln("Array exceptions work correct.");
+    else
+      writeln(" ***** Array exceptions do not work correct");
+      writeln;
+    end if;
+  end func;
+
+
 const proc: main is func
   local
     var string: stri is "";
-    var array boolean: arr is 0 times TRUE;
     var boolean: bool is FALSE;
     var integer: number is 0;
     var reference: obj is NIL;
@@ -517,20 +716,7 @@ const proc: main is func
     check_integer;
     check_float;
     check_string;
-
-    block
-      arr := -1 times TRUE;
-      writeln(" ***** -1 times TRUE did not raise RANGE_ERROR");
-    exception
-      catch RANGE_ERROR: writeln("-1 times TRUE raises RANGE_ERROR");
-    end block;
-
-    block
-      number := (1 times 2)[0];
-      writeln(" ***** (1 times 2)[0] did not raise RANGE_ERROR");
-    exception
-      catch RANGE_ERROR: writeln("(1 times 2)[0] raises RANGE_ERROR");
-    end block;
+    check_array;
 
     block
       obj := ref_list.EMPTY[0];

@@ -1,3 +1,13 @@
+20071010:
+- The compiler (comp.sd7) was improved to support the 'remove(array, index)' function.
+- The functions isLeapYear, daysInMonth, weekOfYear, weekDateYear and weekDateWeek
+  were added to the time.s7i library
+- The exception checking program chkexc.sd7 was improved to check for exceptions
+  raised with arrays.
+- Documentation for the bigInteger type was added to the manual.
+- Some strings in pic32.s7i and pairs.sd7 were enlarged to avoid a RANGE_ERROR exception
+  when accessing them.
+
 20070925:
 - The compiler support for fil_tell, hsh_contains, hsh_excl and str_idx was improved.
 - The string indexing (str_idx) was changed to raise RANGE_ERROR for indices outside of

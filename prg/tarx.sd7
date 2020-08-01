@@ -280,7 +280,7 @@ const func time: mtime_to_time (in var integer: mtime) is func
   begin
     result.year := 1970;
     while mtime >= leap_year_seconds do
-      if leap_year(result.year) then
+      if isLeapYear(result.year) then
         mtime -:= leap_year_seconds;
       else
         mtime -:= normal_year_seconds;
@@ -288,12 +288,12 @@ const func time: mtime_to_time (in var integer: mtime) is func
       incr(result.year);
     end while;
     if mtime >= normal_year_seconds and
-        not leap_year(result.year) then
+        not isLeapYear(result.year) then
       mtime -:= normal_year_seconds;
       incr(result.year);
     end if;
     result.month := 1;
-    if leap_year(result.year) then
+    if isLeapYear(result.year) then
       while mtime >= leap_year_months[result.month] * day_seconds do
         mtime -:= leap_year_months[result.month] * day_seconds;
         incr(result.month);
@@ -329,13 +329,13 @@ const func integer: time_to_mtime (in time: aTime) is func
     var integer: number is 0;
   begin
     for number range 1970 to pred(aTime.year) do
-      if leap_year(number) then
+      if isLeapYear(number) then
         result +:= leap_year_seconds;
       else
         result +:= normal_year_seconds;
       end if;
     end for;
-    if leap_year(aTime.year) then
+    if isLeapYear(aTime.year) then
       for number range 1 to pred(aTime.month) do
         result +:= leap_year_months[number] * day_seconds;
       end for;

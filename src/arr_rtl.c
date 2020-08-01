@@ -457,6 +457,47 @@ inttype stop;
 
 #ifdef ANSI_C
 
+rtlGenerictype arrRemove (rtlArraytype *arr_to, inttype position)
+#else
+
+rtlGenerictype arrRemove (arr_to, position)
+rtlArraytype *arr_to;
+inttype position;
+#endif
+
+  {
+    rtlArraytype arr1;
+    rtlObjecttype *array_pointer;
+    memsizetype arr1_size;
+    rtlGenerictype result;
+
+  /* arrRemove */
+    arr1 = *arr_to;
+    if (position >= arr1->min_position && position <= arr1->max_position) {
+      array_pointer = arr1->arr;
+      result = array_pointer[position - arr1->min_position].value.genericvalue;
+      memcpy(&array_pointer[position - arr1->min_position],
+          &array_pointer[position - arr1->min_position + 1],
+          (arr1->max_position - position) * sizeof(rtlObjecttype));
+      arr1->max_position--;
+      arr1_size = arr1->max_position - arr1->min_position + 1;
+      if (!RESIZE_RTL_ARRAY(arr1, arr1_size + 1, arr1_size)) {
+        raise_error(MEMORY_ERROR);
+        result = NULL;
+      } /* if */
+      COUNT3_RTL_ARRAY(arr1_size + 1, arr1_size);
+      *arr_to = arr1;
+    } else {
+      raise_error(RANGE_ERROR);
+      result = NULL;
+    } /* if */
+    return(result);
+  } /* arrRemove */
+
+
+
+#ifdef ANSI_C
+
 rtlArraytype arrSort (rtlArraytype arr1, inttype cmp_func (rtlGenerictype, rtlGenerictype))
 #else
 

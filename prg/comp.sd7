@@ -1560,7 +1560,11 @@ const proc: process_act_cpy (in ref_list: params, inout expr_type: c_expr) is fu
     end if;
     c_expr.expr &:= c_param1.expr;
     c_expr.expr &:= "=(";
-    c_expr.expr &:= c_param3.expr;
+    if c_param3.result_expr <> "" then
+      c_expr.expr &:= c_param3.result_expr;
+    else
+      c_expr.expr &:= c_param3.expr;
+    end if;
     c_expr.expr &:= ");\n";
     if c_param3.temp_num <> 0 then
       c_expr.expr &:= c_param1.temp_frees;
@@ -1888,6 +1892,40 @@ const proc: process_arr_range (in ref_list: params, inout expr_type: c_expr) is 
     c_expr.result_expr &:= ", ";
     get_std_arg(params[5], c_expr);
     c_expr.result_expr &:= ")";
+  end func;
+
+
+const proc: process_arr_remove (in reference: procedure, in ref_list: params,
+    inout expr_type: c_expr) is func
+
+  local
+    var type: proc_type is void;
+    var type: result_type is void;
+    var integer: temp_num is 0;
+  begin
+    proc_type := getType(procedure);
+    result_type := result_type(proc_type);
+    prepare_typed_result(result_type, c_expr);
+    if result_type = floattype then
+      incr(c_expr.temp_num);
+      temp_num := c_expr.temp_num;
+      c_expr.temp_decls &:= "float2int tmp_";
+      c_expr.temp_decls &:= str(temp_num);
+      c_expr.temp_decls &:= ";\n";
+      c_expr.result_expr &:= "(tmp_";
+      c_expr.result_expr &:= str(temp_num);
+      c_expr.result_expr &:= ".intvalue=(";
+    end if;
+    c_expr.result_expr := "arrRemove(&(";
+    get_std_arg(params[1], c_expr);
+    c_expr.result_expr &:= "), ";
+    get_std_arg(params[2], c_expr);
+    c_expr.result_expr &:= ")";
+    if result_type = floattype then
+      c_expr.result_expr &:= "),tmp_";
+      c_expr.result_expr &:= str(temp_num);
+      c_expr.result_expr &:= ".floatvalue)";
+    end if;
   end func;
 
 
@@ -2364,7 +2402,11 @@ const proc: process_bln_cpy (in ref_list: params, inout expr_type: c_expr) is fu
     end if;
     c_expr.expr &:= c_param1.expr;
     c_expr.expr &:= "=(";
-    c_expr.expr &:= c_param3.expr;
+    if c_param3.result_expr <> "" then
+      c_expr.expr &:= c_param3.result_expr;
+    else
+      c_expr.expr &:= c_param3.expr;
+    end if;
     c_expr.expr &:= ");\n";
     if c_param3.temp_num <> 0 then
       c_expr.expr &:= c_param1.temp_frees;
@@ -2547,7 +2589,11 @@ const proc: process_chr_cpy (in ref_list: params, inout expr_type: c_expr) is fu
     end if;
     c_expr.expr &:= c_param1.expr;
     c_expr.expr &:= "=(";
-    c_expr.expr &:= c_param3.expr;
+    if c_param3.result_expr <> "" then
+      c_expr.expr &:= c_param3.result_expr;
+    else
+      c_expr.expr &:= c_param3.expr;
+    end if;
     c_expr.expr &:= ");\n";
     if c_param3.temp_num <> 0 then
       c_expr.expr &:= c_param1.temp_frees;
@@ -3569,18 +3615,14 @@ const proc: process_enu_cpy (in ref_list: params, inout expr_type: c_expr) is fu
       c_expr.expr &:= c_param1.temp_assigns;
       c_expr.expr &:= c_param3.temp_assigns;
     end if;
+    c_expr.expr &:= c_param1.expr;
+    c_expr.expr &:= "=(";
     if c_param3.result_expr <> "" then
-      # In the moment needed for GRAPH objects:
-      c_expr.expr &:= c_param1.expr;
-      c_expr.expr &:= "=(";
       c_expr.expr &:= c_param3.result_expr;
-      c_expr.expr &:= ");\n";
     else
-      c_expr.expr &:= c_param1.expr;
-      c_expr.expr &:= "=(";
       c_expr.expr &:= c_param3.expr;
-      c_expr.expr &:= ");\n";
     end if;
+    c_expr.expr &:= ");\n";
     if c_param3.temp_num <> 0 then
       c_expr.expr &:= c_param1.temp_frees;
       c_expr.expr &:= c_param3.temp_frees;
@@ -3696,7 +3738,11 @@ const proc: process_fil_cpy (in ref_list: params, inout expr_type: c_expr) is fu
     end if;
     c_expr.expr &:= c_param1.expr;
     c_expr.expr &:= "=(";
-    c_expr.expr &:= c_param3.expr;
+    if c_param3.result_expr <> "" then
+      c_expr.expr &:= c_param3.result_expr;
+    else
+      c_expr.expr &:= c_param3.expr;
+    end if;
     c_expr.expr &:= ");\n";
     if c_param3.temp_num <> 0 then
       c_expr.expr &:= c_param1.temp_frees;
@@ -3972,10 +4018,13 @@ const proc: process_flt_cpy (in ref_list: params, inout expr_type: c_expr) is fu
       c_expr.expr &:= c_param1.temp_assigns;
       c_expr.expr &:= c_param3.temp_assigns;
     end if;
-
     c_expr.expr &:= c_param1.expr;
     c_expr.expr &:= "=(";
-    c_expr.expr &:= c_param3.expr;
+    if c_param3.result_expr <> "" then
+      c_expr.expr &:= c_param3.result_expr;
+    else
+      c_expr.expr &:= c_param3.expr;
+    end if;
     c_expr.expr &:= ");\n";
 (*
     c_expr.expr &:= "*((float * ) &(" & c_param1.expr;
@@ -4894,7 +4943,11 @@ const proc: process_int_cpy (in ref_list: params, inout expr_type: c_expr) is fu
     end if;
     c_expr.expr &:= c_param1.expr;
     c_expr.expr &:= "=(";
-    c_expr.expr &:= c_param3.expr;
+    if c_param3.result_expr <> "" then
+      c_expr.expr &:= c_param3.result_expr;
+    else
+      c_expr.expr &:= c_param3.expr;
+    end if;
     c_expr.expr &:= ");\n";
     if c_param3.temp_num <> 0 then
       c_expr.expr &:= c_param1.temp_frees;
@@ -5616,7 +5669,11 @@ const proc: process_ref_cpy (in ref_list: params, inout expr_type: c_expr) is fu
     end if;
     c_expr.expr &:= c_param1.expr;
     c_expr.expr &:= "=(";
-    c_expr.expr &:= c_param3.expr;
+    if c_param3.result_expr <> "" then
+      c_expr.expr &:= c_param3.result_expr;
+    else
+      c_expr.expr &:= c_param3.expr;
+    end if;
     c_expr.expr &:= ");\n";
     if c_param3.temp_num <> 0 then
       c_expr.expr &:= c_param1.temp_frees;
@@ -6786,7 +6843,11 @@ const proc: process_soc_cpy (in ref_list: params, inout expr_type: c_expr) is fu
     end if;
     c_expr.expr &:= c_param1.expr;
     c_expr.expr &:= "=(";
-    c_expr.expr &:= c_param3.expr;
+    if c_param3.result_expr <> "" then
+      c_expr.expr &:= c_param3.result_expr;
+    else
+      c_expr.expr &:= c_param3.expr;
+    end if;
     c_expr.expr &:= ");\n";
     if c_param3.temp_num <> 0 then
       c_expr.expr &:= c_param1.temp_frees;
@@ -7571,7 +7632,11 @@ const proc: process_typ_cpy (in ref_list: params, inout expr_type: c_expr) is fu
     end if;
     c_expr.expr &:= c_param1.expr;
     c_expr.expr &:= "=(";
-    c_expr.expr &:= c_param3.expr;
+    if c_param3.result_expr <> "" then
+      c_expr.expr &:= c_param3.result_expr;
+    else
+      c_expr.expr &:= c_param3.expr;
+    end if;
     c_expr.expr &:= ");\n";
     if c_param3.temp_num <> 0 then
       c_expr.expr &:= c_param1.temp_frees;
@@ -7833,6 +7898,8 @@ const proc: process_action (in reference: procedure, in ref_list: params,
         process_arr_lng(params, c_expr);
       elsif action_name = "ARR_RANGE" then
         process_arr_range(params, c_expr);
+      elsif action_name = "ARR_REMOVE" then
+        process_arr_remove(procedure, params, c_expr);
       elsif action_name = "ARR_SORT" then
         process_arr_sort(params, c_expr);
       elsif action_name = "ARR_TIMES" then
@@ -11914,6 +11981,7 @@ const proc: write_file_head is func
     c_prog << "arraytype   arrGen (inttype, inttype);\n";
     c_prog << "arraytype   arrHead (arraytype, inttype);\n";
     c_prog << "arraytype   arrRange (arraytype, inttype, inttype);\n";
+    c_prog << "generictype arrRemove (arraytype, inttype);\n";
     c_prog << "arraytype   arrSort (arraytype, void * );\n";
     c_prog << "arraytype   arrTail (arraytype, inttype);\n";
     c_prog << "biginttype  bigAbs (biginttype);\n";
@@ -12154,6 +12222,7 @@ const proc: write_file_head is func
     c_prog << "stritype    act_str (void * );\n";
     c_prog << "arraytype   arrHead (arraytype a, inttype b)              {printf(\"arrHead\\n\");}\n";
     c_prog << "arraytype   arrRange (arraytype a, inttype b, inttype c)  {printf(\"arrRange\\n\");}\n";
+    c_prog << "generictype arrRemove (arraytype a, inttype b)            {printf(\"arrRemove\\n\");\n";
     c_prog << "arraytype   arrSort (arraytype a, void *b)                {printf(\"arrSort\\n\");}\n";
     c_prog << "arraytype   arrTail (arraytype a, inttype b)              {printf(\"arrTail\\n\");}\n";
     c_prog << "inttype     enuValue (void * );\n";

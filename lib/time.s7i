@@ -48,20 +48,21 @@ const proc: AWAIT_TIME (ref integer param, ref integer param, ref integer param,
     ref integer param) is action "TIM_AWAIT";
 
 
-const func boolean: leap_year (in integer: year) is
+const func boolean: isLeapYear (in integer: year) is
   return (year rem 4 = 0 and year rem 100 <> 0) or year rem 400 = 0;
 
 
-const func integer: length (in integer: year, in integer: month) is func
+const func integer: daysInMonth (in integer: year, in integer: month) is func
   result
     var integer: leng is 0;
+  local
+    const set of integer: monthsOfLength31 is {1, 3, 5, 7, 8, 10, 12};
   begin
-    if month = 1 or month = 3 or month = 5 or month = 7 or
-        month = 8 or month = 10 or month = 12 then
+    if month in monthsOfLength31 then
       leng := 31;
     else
       if month = 2 then
-        if leap_year(year) then
+        if isLeapYear(year) then
           leng := 29;
         else
           leng := 28;
@@ -140,7 +141,7 @@ const func time: (attr time) parse (in var string: stri) is func
     result.timezone := 0;
     result.is_daylight_saving_time := FALSE;
     if result.month < 1 or result.month > 12 or
-        result.day < 1 or result.day > length(result.year, result.month) or
+        result.day < 1 or result.day > daysInMonth(result.year, result.month) or
         result.hour < 0 or result.hour > 23 or
         result.minute < 0 or result.minute > 59 or
         result.second < 0 or result.second > 59 then
@@ -382,10 +383,58 @@ const func integer: dayOfYear (in time: tim) is func
   result
     var integer: result is 0;
   begin
-    if leap_year(tim.year) then
+    if isLeapYear(tim.year) then
       result := [](0, 31, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335)[tim.month] + tim.day;
     else
       result := [](0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334)[tim.month] + tim.day;
+    end if;
+  end func;
+
+
+const func integer: weekOfYear (in var integer: year, in integer: dayOfYear) is func
+  result
+    var integer: result is 0;
+  local
+    var integer: weekDayOfJan4 is 0;
+  begin
+    year := pred(year);
+    weekDayOfJan4 := succ(pred(year + year mdiv 4 - year mdiv 100 + year mdiv 400 + 32) mod 7);
+    result := (dayOfYear + weekDayOfJan4 - 5) mdiv 7 + 1;
+  end func;
+
+
+const func integer: weekOfYear (in time: tim) is
+  return weekOfYear(tim.year, dayOfYear(tim));
+
+
+const func integer: weekDateYear (in time: tim) is func
+  result
+    var integer: weekDateYear is 0;
+  local
+    var integer: weekNum is 0;
+  begin
+    weekNum := weekOfYear(tim.year, dayOfYear(tim));
+    if weekNum <= 0 then
+      weekDateYear := pred(tim.year);
+    elsif weekNum >= 53 and tim.day >= 29 and
+        weekOfYear(succ(tim.year), 31 - tim.day) = 1 then
+      weekDateYear := succ(tim.year);
+    else
+      weekDateYear := tim.year;
+    end if;
+  end func;
+
+
+const func integer: weekDateWeek (in time: tim) is func
+  result
+    var integer: weekNum is 0;
+  begin
+    weekNum := weekOfYear(tim.year, dayOfYear(tim));
+    if weekNum <= 0 then
+      weekNum := weekOfYear(pred(tim.year), 366);
+    elsif weekNum >= 53 and tim.day >= 29 and
+        weekOfYear(succ(tim.year), 31 - tim.day) = 1 then
+      weekNum := 1;
     end if;
   end func;
 
@@ -405,7 +454,7 @@ const proc: NORMALIZE (inout time: tim) is func
     tim.hour := tim.hour mod 24;
     tim.year := tim.year + pred(tim.month) mdiv 12;
     tim.month := succ(pred(tim.month) mod 12);
-    month_length := length(tim.year, tim.month);
+    month_length := daysInMonth(tim.year, tim.month);
     while tim.day > month_length do
       tim.day := tim.day - month_length;
       if tim.month < 12 then
@@ -414,7 +463,7 @@ const proc: NORMALIZE (inout time: tim) is func
         tim.month := 1;
         incr(tim.year);
       end if;
-      month_length := length(tim.year, tim.month);
+      month_length := daysInMonth(tim.year, tim.month);
     end while;
     while tim.day < 1 do
       if tim.month > 1 then
@@ -423,7 +472,7 @@ const proc: NORMALIZE (inout time: tim) is func
         tim.month := 12;
         decr(tim.year);
       end if;
-      tim.day := tim.day + length(tim.year, tim.month);
+      tim.day := tim.day + daysInMonth(tim.year, tim.month);
     end while;
     (* STD_ERR << "NORM OUT "; STD_ERR << tim; STD_ERR << tim.mycro_second lpad 8; STD_ERR << NL; *)
   end func;
@@ -570,7 +619,7 @@ const func duration: (attr duration) parse (in var string: stri) is func
     end if;
     result.mycro_second := 0;
     if result.month_30 < 1 or result.month_30 > 12 or
-        result.day < 1 or result.day > length(result.year_365, result.month_30) or
+        result.day < 1 or result.day > daysInMonth(result.year_365, result.month_30) or
         result.hour < 0 or result.hour > 23 or
         result.minute < 0 or result.minute > 59 or
         result.second < 0 or result.second > 59 then

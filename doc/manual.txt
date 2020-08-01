@@ -1681,7 +1681,156 @@ CONTENTS
 
 
 
-5.3 rational
+5.3 bigInteger
+
+    The type 'bigInteger' consists of all integer numbers. The
+  literals of the type 'bigInteger' are sequences of digits
+  followed by an underscore character (for example 1_ ).
+
+    Prefix operators:
+      +         Identity
+      -         Change sign
+    Infix operators:
+      +         Addition
+      -         Subtraction
+      *         Multiplication
+      div       Integer division truncated towards zero
+                  ( A div B => trunc(A / B),
+                    A div 0 => EXCEPTION NUMERIC_ERROR )
+      rem       Reminder of integer division div
+                  ( A rem B => A - (A div B) * B,
+                    A rem 0 => EXCEPTION NUMERIC_ERROR )
+      mdiv      Integer division truncated towards negative infinity
+                  ( A mdiv B => floor(A / B),
+                    A mdiv 0 => EXCEPTION NUMERIC_ERROR )
+      mod       Reminder of integer division mdiv
+                  ( A mod B => A - (A mdiv B) * B,
+                    A mod 0 => EXCEPTION NUMERIC_ERROR )
+      A ** B    Power
+                  ( Type of argument B: integer,
+                    A ** B is okay for B > 0,
+                    A ** 0 => 1,
+                    A ** -1 => EXCEPTION NUMERIC_ERROR )
+      bigInteger conv A   Conversion to bigInteger
+                  ( Type of argument A: integer,
+                    bigInteger conv A => A )
+      bigInteger parse A   Conversion of string to integer
+                  ( Type of argument A: string,
+                    bigInteger parse "123" => 123_,
+                    bigInteger parse "-123" => -123_,
+                    bigInteger parse " 1" => EXCEPTION RANGE_ERROR,
+                    bigInteger parse "+5" => EXCEPTION RANGE_ERROR,
+                    bigInteger parse "10 " => EXCEPTION RANGE_ERROR,
+                    bigInteger parse "ASDF" => EXCEPTION RANGE_ERROR )
+    Relations:
+      =, <>, <, <=, >, >=
+    Functions:
+      ord(A)    Ordinal number
+                  ( Type of result: integer )
+                    ord(99999999999999999999_) => EXCEPTION RANGE_ERROR )
+      succ(A)   Successor
+                  ( succ(A) => A+1_ )
+      pred(A)   Predecessor
+                  ( pred(A) => A-1_ )
+      abs(A)    Absolute value
+      odd(A)    Odd value
+                  ( Type of result: boolean )
+      str(A)    Conversion to string
+                  ( Type of result: string )
+      sqrt(A)   Integer square root
+                  ( sqrt(A) is okay for A >= 0_
+                    sqrt(A) => trunc(sqrt(flt(A))),
+                    sqrt(-1_) => EXCEPTION NUMERIC_ERROR )
+      log2(A)   Truncated base 2 logarithm
+                  ( log2(A) returns the position of the
+                    highest bit set. It is defined for A >= 0
+                    log2(0) => -1,
+                    log2(1) => 0,
+                    log2(-1) => EXCEPTION NUMERIC_ERROR )
+      rand(A, B) Random number in the range [A, B]
+                  ( rand(A, B) returns a random number such that
+                    A <= rand(A, B) and rand(A, B) <= B holds.
+                    rand(A, A) => A,
+                    rand(1_, 0_) => EXCEPTION RANGE_ERROR )
+      compare(A, B) Compare function
+                  ( Type of result: integer,
+                    compare(1_, 2_) => -1,
+                    compare(5_, 5_) => 0,
+                    compare(8_, 7_) => 1 )
+      hashCode(A) Hash function
+                  ( Type of result: integer )
+    Statements:
+      A +:= B   Increment A by B
+                  ( A +:= B => A := A + B )
+      A -:= B   Decrement A by B
+                  ( A -:= B => A := A - B )
+      A *:= B   Multiplying copy
+                  ( A *:= B => A := A * B )
+      incr(A)   Increment with 1
+                  ( incr(A) => A +:= 1_ )
+      decr(A)   Decrement with 1
+                  ( decr(A) => A -:= 1_ )
+
+  For the operations 'div' and 'rem' holds for all A:
+    (A div B) * B + A rem B = A         when B <> 0_
+    -A div B = -(A div B)               when B <> 0_
+
+  For the operations 'mdiv' and 'mod' holds for all A:
+    (A mdiv B) * B + A mod B = A        when B <> 0_
+    (A mod B) >= 0_ and (A mod B) < B    when B > 0
+    (A mod B) <= 0_ and (A mod B) > B    when B < 0
+
+  For the operation 'mdiv' holds:
+    A mdiv B = A div B - 1_   When A and B have different
+                             signs and A rem B <> 0_ holds.
+    A mdiv B = A div B       When A and B have the same
+                             sign or A rem B = 0_ holds.
+
+  For the operation 'mod' holds:
+    A mod B = A rem B + B    When A and B have different
+                             signs and A rem B <> 0_ holds.
+    A mod B = A rem B        When A and B have the same
+                             sign or A rem B = 0_ holds.
+
+
+  Tables for the behaviour of 'div', 'rem', 'mdiv' and 'mod':
+
+     A    B   A div B   A rem B   A mdiv B  A mod B
+
+     5_   3_     1_        2_        1_        2_
+     4_   3_     1_        1_        1_        1_
+     3_   3_     1_        0_        1_        0_
+     2_   3_     0_        2_        0_        2_
+     1_   3_     0_        1_        0_        1_
+     0_   3_     0_        0_        0_        0_
+    -1_   3_     0_       -1_       -1_        2_
+    -2_   3_     0_       -2_       -1_        1_
+    -3_   3_    -1_        0_       -1_        0_
+    -4_   3_    -1_       -1_       -2_        2_
+    -5_   3_    -1_       -2_       -2_        1_
+
+     A    B   A div B   A rem B   A mdiv B  A mod B
+
+     5_  -3_    -1_        2_       -2_       -1_
+     4_  -3_    -1_        1_       -2_       -2_
+     3_  -3_    -1_        0_       -1_        0_
+     2_  -3_     0_        2_       -1_       -1_
+     1_  -3_     0_        1_       -1_       -2_
+     0_  -3_     0_        0_        0_        0_
+    -1_  -3_     0_       -1_        0_       -1_
+    -2_  -3_     0_       -2_        0_       -2_
+    -3_  -3_     1_        0_        1_        0_
+    -4_  -3_     1_       -1_        1_       -1_
+    -5_  -3_     1_       -2_        1_       -2_
+
+
+  For the 'sqrt' function holds (when A >= 0_):
+    sqrt(A) * sqrt(A) <= A and
+    (sqrt(A) + 1_) * (sqrt(A) + 1_) > A
+
+
+
+5.4 rational
 
     The type 'rational' consists of rational numbers. The
   literals of the type 'rational' are finite and periodical
@@ -1745,7 +1894,7 @@ CONTENTS
   (Without any rounding)
 
 
-5.4 float
+5.5 float
 
     The type 'float' consists of floating point numbers.
 
@@ -1866,7 +2015,7 @@ CONTENTS
                   ( A *:= B => A := A * B )
 
 
-5.5 char
+5.6 char
 
     A character literal is a character enclosed in single
   quotes. For example:
@@ -1935,7 +2084,7 @@ CONTENTS
                   ( decr(A) => A := pred(A) )
 
 
-5.6 string
+5.7 string
 
     The type 'string' describes sequences of ASCII-characters
   (including the empty string). A string literal is a
@@ -1979,8 +2128,10 @@ CONTENTS
       [ A ]     Access one character
                   ( Type of argument A: integer,
                     Type of result: char,
-                    A[1]=>First character,
-                    A[length(A)]=>Last character )
+                    A[1] => First character,
+                    A[length(A)] => Last character,
+                    A[0] => EXCEPTION RANGE_ERROR,
+                    A[succ(length(A))] => EXCEPTION RANGE_ERROR )
       [ A .. B ] Access a substring from position A to B
                   ( Type of arguments A and B: integer )
       [ A len B ] Access a substring from position A with length B
@@ -2066,7 +2217,7 @@ CONTENTS
                       A := A[..pred(B)] & str(C) & A[succ(B)..] )
 
 
-5.7 array
+5.8 array
 
     The type 'array baseType' describes sequences of identical
   elements of a 'baseType'. (including the empty sequence).
@@ -2086,8 +2237,8 @@ CONTENTS
       [ A ]     Access one array element
                   ( Type of argument A: integer,
                     Type of result: baseType,
-                    A[1]=>First element,
-                    A[length(A)]=>Last element,
+                    A[1] => First element,
+                    A[length(A)] => Last element,
                     A[0] => EXCEPTION RANGE_ERROR,
                     A[succ(length(A))] => EXCEPTION RANGE_ERROR )
       [ A .. B ] Access a sub array
@@ -2102,7 +2253,12 @@ CONTENTS
       length(A) Length of array
                   ( Type of result: integer,
                     length(0 times TRUE) => 0 )
-      sort(A)   Sort array using the compare(array baseType) function
+      remove(A,B) Remove element with index B from array A and
+                  return the removed element
+                  ( Type of argument B: integer,
+                    Type of result: baseType,
+                    remove(0 times TRUE, 1) => EXCEPTION RANGE_ERROR )
+      sort(A)   Sort array using the compare(baseType, baseType) function
     Statements:
       A &:= B   Append B to A
                   ( A &:= B => A := A & B )
@@ -2113,7 +2269,7 @@ CONTENTS
                     Type of argument C: proc )
 
 
-5.8 hash
+5.9 hash
 
     The type 'hash [keyType] baseType' describes hash tables with
   elements of 'baseType' which can be accessed using an index of
@@ -2171,7 +2327,7 @@ CONTENTS
                     Type of argument D: proc )
 
 
-5.9 set
+5.10 set
 
     The type 'set of baseType' describes a set of elements of a
   'baseType'. (including the empty set).
@@ -2225,7 +2381,7 @@ CONTENTS
                     Type of argument C: proc )
 
 
-5.10 struct
+5.11 struct
 
     The type 'struct' describes all structured types.
 
@@ -2268,49 +2424,26 @@ CONTENTS
                   ( Type of argument B: reference )
 
 
-5.11 reference
+5.12 reference
 
     The type 'reference' describes a reference to any
   object.
 
     Constants:
       NIL       Reference to no element.
-    Infix operators:
-      reference value A  Dereference as reference
-                  ( Type of result: reference )
-      ref_list value A   Dereference as ref_list
-                  ( Type of result: ref_list )
-      integer value A    Dereference as integer
-                  ( Type of result: integer )
-      float value A      Dereference as float
-                  ( Type of result: float )
-      char value A       Dereference as char
-                  ( Type of result: char )
-      string value A     Dereference as string
-                  ( Type of result: string )
-      bitset value A     Dereference as bitset
-                  ( Type of result: bitset )
-      program value A    Dereference as program
-                  ( Type of result: program )
-      ACTION value A     Dereference as ACTION
-                  ( Type of result: ACTION )
-      type value A       Dereference as type
-                  ( Type of result: type )
-      reference parse A  Conversion of string to reference
-                  ( Type of argument A: string )
     Relations:
       =, <>
     Functions:
+      category(A)        Get the category of the referenced object
+                  ( Type of result: string )
       str(A)             Conversion to string
                   ( Type of result: string )
-      getType(A)         Delivers the type of an object
+      getType(A)         Get the type of the referenced object
                   ( Type of result: type )
       obj_number(A)      Delivers an unique number for each object
                   ( Type of result: integer )
       is_var(A)          Reference to a variable object
                   ( Type of result: boolean )
-      obj_class(A)       Gets the class of an object
-                  ( Type of result: string )
       params(A)          Gets the formal params of a function
                   ( Type of result: ref_list )
       locals(A)          Gets the local variables of a function
@@ -2319,13 +2452,44 @@ CONTENTS
       func_result(A)     Gets the result object of a function
       func_res_init(A)   Gets the init value of the result
                          object of a function
+      getValue(A, reference)       Dereference as reference
+                  ( Type of result: reference )
+      getValue(A, ref_list)        Dereference as ref_list
+                  ( Type of result: ref_list )
+      getValue(A, integer)         Dereference as integer
+                  ( Type of result: integer )
+      getValue(A, bigInteger)      Dereference as bigInteger
+                  ( Type of result: bigInteger )
+      getValue(A, float)           Dereference as float
+                  ( Type of result: float )
+      getValue(A, char)            Dereference as char
+                  ( Type of result: char )
+      getValue(A, string)          Dereference as string
+                  ( Type of result: string )
+      getValue(A, bitset)          Dereference as bitset
+                  ( Type of result: bitset )
+      getValue(A, PRIMITIVE_FILE)  Dereference as PRIMITIVE_FILE
+                  ( Type of result: PRIMITIVE_FILE )
+      getValue(A, program)         Dereference as program
+                  ( Type of result: program )
+      getValue(A, ACTION)          Dereference as ACTION
+                  ( Type of result: ACTION )
+      getValue(A, type)            Dereference as type
+                  ( Type of result: type )
       compare(A, B) Compare function
                   ( Type of result: integer )
       hashCode(A) Hash function
                   ( Type of result: integer )
+    Statements:
+      setCategory(A, B)  Set the category of the referenced object A to B
+                  ( Type of argument B: string )
+      setType(A, B)   Set the type of the referenced object A to B
+                  ( Type of argument B: type )
+      setValue(A, B)  Set the value of the referenced object A to B
+                  ( Type of argument B: ref_list )
 
 
-5.12 ref_list
+5.13 ref_list
 
     The type 'ref_list' describes a list of 'reference' objects.
 
@@ -2365,7 +2529,7 @@ CONTENTS
                     Type of argument C: proc )
 
 
-5.13 ptr
+5.14 ptr
 
     The type 'ptr baseType' describes a pointer to an object
   of a 'baseType'. With
@@ -2392,7 +2556,7 @@ CONTENTS
                   ( Type of argument ptrType: type )
 
 
-5.14 ENUMERATION
+5.15 ENUMERATION
 
     With
 
@@ -2432,7 +2596,7 @@ CONTENTS
                   ( decr(A) => A:=pred(A) )
 
 
-5.15 color
+5.16 color
 
     The type 'color' describes colors.
 
@@ -2467,7 +2631,7 @@ CONTENTS
                     Type of argument B: integer )
 
 
-5.16 time
+5.17 time
 
     The type 'time' describes times and dates.
 
@@ -2498,9 +2662,24 @@ CONTENTS
       truncToDay(A) Trunc a time to a day
       truncToMonth(A) Trunc a time to a month
       truncToYear(A) Trunc a time to a year
+      isLeapYear(A) Determine if a given year is a leap year
+                  ( Type of argument A: integer )
+                  ( Type of result: boolean )
+      daysInMonth(Y, M) Calculate the number of days in a month
+                  ( Type of argument Y: integer,
+                    Type of argument M: integer,
+                    Type of result: integer )
       dayOfWeek(A)  Day of the week with Monday as 1
                   ( Type of result: integer )
       dayOfYear(A)  Day of the year with 1 January as 1
+                  ( Type of result: integer )
+      weekOfYear(A) Compute the week number of a year (0 to 53).
+                    According to ISO 8601: Week number 1 of
+                    every year contains the 4. of january.
+                  ( Type of result: integer )
+      weekDateYear(A) Compute the year of the ISO 8601 week date
+                  ( Type of result: integer )
+      weekDateWeek(A) Compute the week of the ISO 8601 week date
                   ( Type of result: integer )
       toGMT(A)  Conversion to Greenwich Mean Time
       julianDayNumber(A)  Number of days that have elapsed since
@@ -2522,7 +2701,7 @@ CONTENTS
       await(A)  Wait until the given time
 
 
-5.17 duration
+5.18 duration
 
     The type 'duration' describes time and date durations.
 
@@ -2567,7 +2746,7 @@ CONTENTS
       wait(A)   Wait for given duration
 
 
-5.18 file
+5.19 file
 
     The type 'file' describes sequential files.
 
@@ -2659,7 +2838,7 @@ CONTENTS
                     seek(A, -1) => EXCEPTION RANGE_ERROR )
 
 
-5.19 text
+5.20 text
 
     The type 'text' describes two dimensional files.
 
@@ -2716,7 +2895,7 @@ CONTENTS
       cursor_off(A) Make the cursor invisible
 
 
-5.20 func
+5.21 func
 
     The type 'func baseType' describes functions which return
   a 'baseType'. For example: 'func integer' describes an 'integer'
@@ -2805,7 +2984,7 @@ CONTENTS
   parameter is 'TRUE'.
 
 
-5.21 varfunc
+5.22 varfunc
 
     The type 'varfunc baseType' describes functions which return
   a 'baseType' variable. For example: A function which returns an
@@ -2838,7 +3017,7 @@ CONTENTS
   and structs can be used in the usual way. 
 
 
-5.22 void
+5.23 void
 
     The type 'void' describes the empty type.
 
@@ -2846,7 +3025,7 @@ CONTENTS
       empty     This is the only value of the type 'void'.
 
 
-5.23 proc
+5.24 proc
 
     The type 'proc' describes procedures. The type 'proc'
   is defined as 'func void'.
@@ -2883,7 +3062,7 @@ CONTENTS
                     Type of result: proc )
 
 
-5.24 type
+5.25 type
 
     The type 'type' describes all types.
 
@@ -2940,7 +3119,7 @@ CONTENTS
                 Declare variable 'name' with 'value'
 
 
-5.25 object
+5.26 object
 
     The type 'object' is used as meta type for various types.
   This allows to define common operations for all this types.
@@ -2953,7 +3132,7 @@ CONTENTS
       TRACE_OBJ(A)  Write internal information
 
 
-5.26 expr
+5.27 expr
 
     The type 'expr' is used to describe unmatched expressions.
   This are expressions where the recognizing of the functions
@@ -5011,32 +5190,32 @@ CONTENTS
 
     MEMORY_ERROR:
       May be raised by various operations of the following types:
-          array, struct, hash, file, func, proc, reference, string
+          array, struct, hash, file, func, proc, reference, string.
       Additionally the interpreter kernel may raise this exception also.
     NUMERIC_ERROR:
       May be raised from the following 'integer' operations:
-          !, **, div, rem, mdiv, mod, ld
+          !, **, div, rem, mdiv, mod, ld.
       May be raised from the following 'bigInteger' operations:
-          **, div, rem, mdiv, mod
+          **, div, rem, mdiv, mod.
     RANGE_ERROR:
       May be raised from the following 'integer' operation:
-          parse, rand
+          parse, rand.
       May be raised from the following 'bigInteger' operation:
-          parse, rand
+          parse, rand.
       May be raised from the following 'float' operation:
-          parse, rand
+          parse, rand.
       May be raised from the following 'char' operation:
-          str
+          str.
       May be raised from the following 'string' operation:
-          @:=, mult, pos
+          @:=, mult, pos.
       May be raised from the following 'bitset' operation:
-          min, max, rand
+          min, max, rand.
       May be raised from the following 'array' operation:
-          [ ]
+          [ ].
       May be raised from the following 'hash' operation:
-          [ ]
+          [ ].
       May be raised from the following 'file' operation:
-          open, gets, write, seek
+          open, gets, write, seek.
     IO_ERROR:
       May be raised with the following statement:
           cp
