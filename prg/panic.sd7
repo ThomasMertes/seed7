@@ -1050,7 +1050,7 @@ const proc: init_pictures is func
   end func;
 
 
-const proc: pause_game (in var boolean: blankWindow) is func
+const proc: pause_game (in boolean: blankWindow) is func
   local
     var boolean: exitPause is FALSE;
     var time: pause_time is time.value;

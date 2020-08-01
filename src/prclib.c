@@ -645,6 +645,8 @@ listtype arguments;
   { /* prc_heapstat */
 #ifdef DO_HEAP_STATISTIC
     heap_statistic();
+#else
+    printf("heap statistic not supported - compile the hi interpreter with DO_HEAP_STATISTIC\n");
 #endif
     return(SYS_EMPTY_OBJECT);
   } /* prc_heapstat */

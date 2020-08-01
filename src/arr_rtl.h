@@ -31,19 +31,19 @@
 
 #ifdef ANSI_C
 
-void arrAppend (rtlArraytype *, rtlArraytype);
-rtlArraytype arrArrlit (rtlArraytype);
-rtlArraytype arrArrlit2 (inttype, rtlArraytype);
-rtlArraytype arrBaselit (rtlObjecttype);
-rtlArraytype arrBaselit2 (inttype, rtlObjecttype);
-rtlArraytype arrCat (rtlArraytype, rtlArraytype);
-rtlArraytype arrExtend (rtlArraytype, rtlObjecttype);
-rtlArraytype arrGen (rtlObjecttype, rtlObjecttype);
-rtlArraytype arrHead (rtlArraytype, inttype);
-rtlArraytype arrRange (rtlArraytype, inttype, inttype);
-rtlGenerictype arrRemove (rtlArraytype *, inttype);
-rtlArraytype arrSort (rtlArraytype, inttype (rtlGenerictype, rtlGenerictype));
-rtlArraytype arrTail (rtlArraytype, inttype);
+void arrAppend (rtlArraytype *arr_variable, rtlArraytype arr_from);
+rtlArraytype arrArrlit (rtlArraytype arr1);
+rtlArraytype arrArrlit2 (inttype start_position, rtlArraytype arr1);
+rtlArraytype arrBaselit (rtlObjecttype element);
+rtlArraytype arrBaselit2 (inttype start_position, rtlObjecttype element);
+rtlArraytype arrCat (rtlArraytype arr1, rtlArraytype arr2);
+rtlArraytype arrExtend (rtlArraytype arr1, rtlObjecttype element);
+rtlArraytype arrGen (rtlObjecttype element1, rtlObjecttype element2);
+rtlArraytype arrHead (rtlArraytype arr1, inttype stop);
+rtlArraytype arrRange (rtlArraytype arr1, inttype start, inttype stop);
+rtlGenerictype arrRemove (rtlArraytype *arr_to, inttype position);
+rtlArraytype arrSort (rtlArraytype arr1, inttype cmp_func (rtlGenerictype, rtlGenerictype));
+rtlArraytype arrTail (rtlArraytype arr1, inttype start);
 
 #else
 

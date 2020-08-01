@@ -24,10 +24,11 @@
 
 $ include "seed7_05.s7i";
   include "float.s7i";
+  include "draw.s7i";
   include "keybd.s7i";
+  include "dialog.s7i";
   include "echo.s7i";
   include "line.s7i";
-  include "draw.s7i";
   include "window.s7i";
   include "time.s7i";
 
@@ -467,7 +468,7 @@ const proc: welcome is func
     setPos(screen, 32, 9);
     write(screen, " Press any key to start the game. ");
     ch := getc(KEYBOARD);
-    if ch in {KEY_ESC, 'q', 'Q'} then
+    if ch in {KEY_ESC, 'Q', 'q'} then
       quit_program := TRUE;
     end if;
   end func; (* welcome *)
@@ -506,22 +507,38 @@ const proc: play_soundstep is func
   end func; (* play_soundstep *)
 
 
-const proc: pause_game is func
+const proc: pause_game (in boolean: blankWindow) is func
   local
+    var boolean: exitPause is FALSE;
     var char: cmd is ' ';
   begin (* pause_game *)
-    setPos(screen, 34, 60);
-    write(screen, "=== GAME PAUSED ===");
-    repeat
+    nosound;
+    if blankWindow then
+      bossMode(quit_program);
+    end if;
+    if not quit_program then
+      color(screen, light_cyan, black);
+      setPos(screen, 34, 60);
+      write(screen, "=== GAME PAUSED ===");
+    end if;
+    while not (exitPause or quit_program) do
       cmd := getc(KEYBOARD);
       if cmd in {'Q', 'q'} then
-        nosound;
         flying := FALSE;
         quit_program := TRUE;
+      elsif cmd = KEY_ESC then
+        bossMode(quit_program);
+      else
+        exitPause := TRUE;
       end if;
-    until cmd in {'\e', 'P', 'p'} or quit_program;
-    setPos(screen, 34, 60);
-    write(screen, "                   ");
+    end while;
+    if quit_program then
+      flying := FALSE;
+    end if;
+    if not quit_program then
+      setPos(screen, 34, 60);
+      write(screen, "                   ");
+    end if;
   end func; (* pause_game *)
 
 
@@ -555,16 +572,18 @@ const proc: check_keyboard is func
           else
             rocket.tilt := MAX_TILT;
           end if;
-        when {'s', 'S'}:
+        when {'S', 's'}:
           sound_on := not sound_on;
           if sound_on then
             turn_sound_on;
           else
             nosound;
           end if;
-        when {'\e', 'p', 'P'}:
-          pause_game;
-        when {'q', 'Q'}:
+        when {'P', 'p'}:
+          pause_game(FALSE);
+        when {KEY_ESC}:
+          pause_game(TRUE);
+        when {'Q', 'q'}:
           nosound;
           flying := FALSE;
           quit_program := TRUE;
@@ -1243,7 +1262,17 @@ const proc: anounceAdvancedLander is func
     setPos(screen, 24, 7);
     color(screen, light_gray);
     write(screen, "PRESS ANY KEY TO CONTINUE.");
-    ch := getc(KEYBOARD);
+    repeat
+      ch := getc(KEYBOARD);
+      case ch of
+        when {'P', 'p'}:
+          pause_game(FALSE);
+        when {KEY_ESC}:
+          pause_game(TRUE);
+        when {'Q', 'q'}:
+          quit_program := TRUE;
+      end case;
+    until ch not in {'P', 'p', KEY_ESC} or quit_program;
   end func; (* anounceAdvancedLander *)
 
 
@@ -1264,14 +1293,18 @@ const proc: end_of_flight is func
       end if;
       setPos(screen, 15, 4);
       writeln(screen, "PRESS Q TO QUIT OR ENTER TO CONTINUE");
-      ch := upper(getc(KEYBOARD));
+      ch := getc(KEYBOARD);
       case ch of
-        when {'Q'}:
+        when {'P', 'p'}:
+          pause_game(FALSE);
+        when {KEY_ESC}:
+          pause_game(TRUE);
+        when {'Q', 'q'}:
           quit_program := TRUE;
-        when {'S'}:
+        when {'S', 's'}:
           sound_on := not sound_on;
       end case;
-    until ch in {'Q', KEY_NL};
+    until ch = KEY_NL or quit_program;
     if not quit_program and score >= ADLAND and not advancedLander then
       anounceAdvancedLander;
     end if;

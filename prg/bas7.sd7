@@ -119,8 +119,8 @@ var string_hash: string_var is string_hash.EMPTY_HASH;
 const type: image_hash is hash [string] PRIMITIVE_WINDOW;
 var image_hash: image_var is image_hash.EMPTY_HASH;
 
-const type: file_array is array file;
-var file_array: file_value is 256 times STD_NULL;
+const type: file_hash is hash [integer] file;
+var file_hash: file_value is file_hash.EMPTY_HASH;
 
 const type: reclen_array is array integer;
 var reclen_array: reclen_value is 256 times 0;
@@ -536,7 +536,7 @@ const func string: get_symbol (inout string: line) is func
           symbol := "";
           line := line[succ(index) .. ];
         otherwise:
-          symbol := str(line[index]);
+          symbol := line[index len 1];
           line := line[succ(index) .. ];
       end case;
     end if;
@@ -585,6 +585,33 @@ const func string: getStringVar (in string: varName) is func
 const proc: setStringVar (in string: varName, in string: stri) is func
   begin
     string_var @:= [varName] stri;
+  end func;
+
+
+const func file: getFileValue (in integer: file_number) is func
+  result
+    var file: result is STD_NULL;
+  begin
+    if file_number in file_value then
+      result := file_value[file_number];
+    end if;
+  end func;
+
+
+const proc: setFileValue (in integer: file_number, in file: aFile) is func
+  begin
+    file_value @:= [file_number] aFile;
+  end func;
+
+
+const proc: closeAllFiles is func
+  local
+    var file: aFile is STD_NULL;
+  begin
+    for aFile range file_value do
+      close(aFile);
+    end for;
+    file_value := file_hash.EMPTY_HASH;
   end func;
 
 
@@ -1548,6 +1575,7 @@ const func string: exec_str_primary (
     var float: num2 is 0.0;
     var integer: index1 is 0;
     var integer: index2 is 0;
+    var file: aFile is STD_NULL;
     var char: current_key is ' ';
     var string: func_name is "";
   begin
@@ -1718,10 +1746,11 @@ const func string: exec_str_primary (
           end if;
           index2 := round(exec_expr(symbol, line));
           expect(")", symbol, line);
-          if file_value[index2] <> STD_NULL then
+          aFile := getFileValue(index2);
+          if aFile <> STD_NULL then
             write(log, "INPUT$(" <& index1 <& ", #" <& index2 <& ") ");
             flush(log);
-            result := gets(file_value[index2], index1);
+            result := gets(aFile, index1);
             writeln(log, "-> " <& literal(result));
             flush(log);
           else
@@ -2132,21 +2161,31 @@ const func float: exec_primary (inout string: symbol, inout string: line) is fun
       expect("(", symbol, line);
       index1 := round(exec_expr(symbol, line));
       expect(")", symbol, line);
-      if hasNext(file_value[index1]) then
-        result := 0.0;
+      if getFileValue(index1) <> STD_NULL then
+        if hasNext(getFileValue(index1)) then
+          result := 0.0;
+        else
+          result := -1.0;
+        end if;
+        writeln(log, "EOF(" <& index1 <& ") -> " <& result);
+        flush(log);
       else
-        result := -1.0;
+        error_marker;
+        writeln(err, "FILE #" <& index1 <& " NOT OPEN IN EOF.");
       end if;
-      writeln(log, "EOF(" <& index1 <& ") -> " <& result);
-      flush(log);
     elsif symbol = "LOF" then
       symbol := get_symbol(line);
       expect("(", symbol, line);
       index1 := round(exec_expr(symbol, line));
       expect(")", symbol, line);
-      result := flt(length(file_value[index1]));
-      writeln(log, "LOF(" <& index1 <& ") -> " <& result);
-      flush(log);
+      if getFileValue(index1) <> STD_NULL then
+        result := flt(length(getFileValue(index1)));
+        writeln(log, "LOF(" <& index1 <& ") -> " <& result);
+        flush(log);
+      else
+        error_marker;
+        writeln(err, "FILE #" <& index1 <& " NOT OPEN IN LOF.");
+      end if;
     elsif symbol = "POS" then
       symbol := get_symbol(line);
       expect("(", symbol, line);
@@ -2348,7 +2387,7 @@ const func float: exec_primary (inout string: symbol, inout string: line) is fun
     elsif symbol = "FREEFILE" then
       symbol := get_symbol(line);
       index1 := 1;
-      while index1 <= 255 and file_value[index1] <> STD_NULL do
+      while getFileValue(index1) <> STD_NULL do
         incr(index1);
       end while;
       result := flt(index1);
@@ -4311,22 +4350,33 @@ const proc: exec_print (inout file: outFile,
 
 const proc: exec_print_to_file (inout string: symbol, inout string: line) is func
   local
-    var integer: index1 is 0;
+    var integer: file_number is 0;
+    var file: aFile is STD_NULL;
   begin
     symbol := get_symbol(line);
-    index1 := round(exec_expr(symbol, line));
+    file_number := round(exec_expr(symbol, line));
+    aFile := getFileValue(file_number);
     expect(",", symbol, line);
-    if file_value[index1] <> STD_NULL then
+    if aFile <> STD_NULL then
       line_marker;
-      write(log, "PRINT #" <& index1 <& ", ");
+      write(log, "PRINT #" <& file_number <& ", ");
       if symbol = "USING" then
-        exec_print_using(file_value[index1], symbol, line);
+        exec_print_using(aFile, symbol, line);
       else
-        exec_print(file_value[index1], symbol, line);
+        exec_print(aFile, symbol, line);
       end if;
+    elsif on_error_label <> "" then
+      error_code := 52; # Bad file number
+      line_marker;
+      write(log, "BAD FILE NUMBER #" <& file_number);
+      writeln(log, " - ON ERROR GOTO " <& on_error_label);
+      flush(log);
+      goto_on_error(on_error_label, line);
+      symbol := "";
+      line := "";
     else
       error_marker;
-      writeln(err, "FILE #" <& index1 <& " NOT OPEN IN PRINT.");
+      writeln(err, "BAD FILE NUMBER #" <& file_number <& " IN PRINT.");
       while not endOfStatement(symbol) do
         symbol := get_symbol(line);
       end while;
@@ -4336,38 +4386,49 @@ const proc: exec_print_to_file (inout string: symbol, inout string: line) is fun
 
 const proc: exec_write_to_file (inout string: symbol, inout string: line) is func
   local
+    var integer: file_number is 0;
+    var file: aFile is STD_NULL;
     var string: variable_name is "";
     var string: param1 is "";
     var float: num1 is 0.0;
-    var integer: index1 is 0;
   begin
     symbol := get_symbol(line);
-    index1 := round(exec_expr(symbol, line));
-    if file_value[index1] <> STD_NULL then
+    file_number := round(exec_expr(symbol, line));
+    aFile := getFileValue(file_number);
+    if aFile <> STD_NULL then
       while symbol = "," do
         symbol := get_symbol(line);
         if isStringExpr(symbol) then
           param1 := exec_str_expr(symbol, line, variable_name);
-          write(file_value[index1], literal(param1));
+          write(aFile, literal(param1));
           line_marker;
-          writeln(log, "WRITE #" <& index1 <& ", " <& literal(param1));
+          writeln(log, "WRITE #" <& file_number <& ", " <& literal(param1));
           flush(log);
         else
           num1 := exec_expr(symbol, line);
-          write(file_value[index1], num1);
+          write(aFile, num1);
           line_marker;
-          writeln(log, "WRITE #" <& index1 <& ", " <& num1);
+          writeln(log, "WRITE #" <& file_number <& ", " <& num1);
           flush(log);
         end if;
         if symbol = "," then
-          write(file_value[index1], ", ");
+          write(aFile, ", ");
         end if;
       end while;
-      writeln(file_value[index1]);
-      flush(file_value[index1]);
+      writeln(aFile);
+      flush(aFile);
+    elsif on_error_label <> "" then
+      error_code := 52; # Bad file number
+      line_marker;
+      write(log, "BAD FILE NUMBER #" <& file_number);
+      writeln(log, " - ON ERROR GOTO " <& on_error_label);
+      flush(log);
+      goto_on_error(on_error_label, line);
+      symbol := "";
+      line := "";
     else
       error_marker;
-      writeln(err, "FILE #" <& index1 <& " NOT OPEN IN WRITE.");
+      writeln(err, "BAD FILE NUMBER #" <& file_number <& " IN WRITE.");
       while not endOfStatement(symbol) do
         symbol := get_symbol(line);
       end while;
@@ -4487,34 +4548,36 @@ const proc: exec_read (inout string: symbol, inout string: line) is func
 
 const proc: exec_input_from_file (inout string: symbol, inout string: line) is func
   local
+    var integer: file_number is 0;
+    var file: aFile is STD_NULL;
     var string: variable_name is "";
     var string: param1 is "";
     var float: num1 is 0.0;
-    var integer: index1 is 0;
   begin
     symbol := get_symbol(line);
-    index1 := round(exec_expr(symbol, line));
-    if file_value[index1] <> STD_NULL then
-      file_value[index1].bufferChar := getc(file_value[index1]);
+    file_number := round(exec_expr(symbol, line));
+    aFile := getFileValue(file_number);
+    if getFileValue(file_number) <> STD_NULL then
+      aFile.bufferChar := getc(aFile);
       while symbol = "," do
         symbol := get_symbol(line);
-        skip_space_cr_lf(file_value[index1]);
+        skip_space_cr_lf(aFile);
         if isStringVar(symbol) then
           variable_name := get_name(symbol, line);
-          param1 := read_input_string(file_value[index1]);
+          param1 := read_input_string(aFile);
           setStringVar(variable_name, param1);
           line_marker;
-          write(log, "INPUT #" <& index1 <& ", " <& variable_name);
+          write(log, "INPUT #" <& file_number <& ", " <& variable_name);
           writeln(log, " " <& literal(param1));
           flush(log);
         else
           variable_name := get_name(symbol, line);
-          param1 := read_input_number(file_value[index1]);
+          param1 := read_input_number(aFile);
           block
             num1 := float parse param1;
             setNumericVar(variable_name, num1);
             line_marker;
-            write(log, "INPUT #" <& index1 <& ", " <& variable_name);
+            write(log, "INPUT #" <& file_number <& ", " <& variable_name);
             writeln(log, " " <& num1);
             flush(log);
           exception
@@ -4524,13 +4587,22 @@ const proc: exec_input_from_file (inout string: symbol, inout string: line) is f
               writeln(err, " FOUND " <& literal(param1) <& ".");
           end block;
         end if;
-        if file_value[index1].bufferChar = ',' then
-          file_value[index1].bufferChar := getc(file_value[index1]);
+        if aFile.bufferChar = ',' then
+          aFile.bufferChar := getc(aFile);
         end if;
       end while;
+    elsif on_error_label <> "" then
+      error_code := 52; # Bad file number
+      line_marker;
+      write(log, "BAD FILE NUMBER #" <& file_number);
+      writeln(log, " - ON ERROR GOTO " <& on_error_label);
+      flush(log);
+      goto_on_error(on_error_label, line);
+      symbol := "";
+      line := "";
     else
       error_marker;
-      writeln(err, "FILE #" <& index1 <& " NOT OPEN IN INPUT.");
+      writeln(err, "BAD FILE NUMBER #" <& file_number <& " IN INPUT.");
       while not endOfStatement(symbol) do
         symbol := get_symbol(line);
       end while;
@@ -4629,20 +4701,22 @@ const proc: exec_input (inout string: symbol, inout string: line) is func
 
 const proc: exec_line_input_from_file (inout string: symbol, inout string: line) is func
   local
+    var integer: file_number is 0;
+    var file: aFile is STD_NULL;
     var string: variable_name is "";
     var string: param1 is "";
-    var integer: index1 is 0;
   begin
     symbol := get_symbol(line);
-    index1 := round(exec_expr(symbol, line));
-    if file_value[index1] <> STD_NULL then
+    file_number := round(exec_expr(symbol, line));
+    aFile := getFileValue(file_number);
+    if aFile <> STD_NULL then
       expect(",", symbol, line);
       if isStringVar(symbol) then
         variable_name := get_name(symbol, line);
-        param1 := getln(file_value[index1]);
+        param1 := getln(aFile);
         setStringVar(variable_name, param1);
         line_marker;
-        write(log, "LINE INPUT #" <& index1 <& ", " <& variable_name);
+        write(log, "LINE INPUT #" <& file_number <& ", " <& variable_name);
         writeln(log, " " <& literal(param1));
         flush(log);
       else
@@ -4650,9 +4724,18 @@ const proc: exec_line_input_from_file (inout string: symbol, inout string: line)
         write(err, "STRING VARIABLE EXPECTED IN LINE INPUT FOUND ");
         writeln(err, literal(symbol) <& ".");
       end if;
+    elsif on_error_label <> "" then
+      error_code := 52; # Bad file number
+      line_marker;
+      write(log, "BAD FILE NUMBER #" <& file_number);
+      writeln(log, " - ON ERROR GOTO " <& on_error_label);
+      flush(log);
+      goto_on_error(on_error_label, line);
+      symbol := "";
+      line := "";
     else
       error_marker;
-      writeln(err, "FILE #" <& index1 <& " NOT OPEN IN LINE INPUT.");
+      writeln(err, "BAD FILE NUMBER #" <& file_number <& " IN LINE INPUT.");
       while not endOfStatement(symbol) do
         symbol := get_symbol(line);
       end while;
@@ -4789,6 +4872,7 @@ const proc: exec_open (inout string: symbol, inout string: line) is func
     var string: file_name is "";
     var integer: index1 is 0;
     var integer: index2 is 0;
+    var file: aFile is STD_NULL;
   begin
     symbol := get_symbol(line);
     param1 := exec_str_expr(symbol, line, unused_name);
@@ -4856,15 +4940,18 @@ const proc: exec_open (inout string: symbol, inout string: line) is func
         reclen_value[index1] := 0;
       end if;
       file_name := param1;
-      file_value[index1] := basicOpen(file_name, mode);
-      if file_value[index1] = STD_NULL and param_access = "" and
+      aFile := basicOpen(file_name, mode);
+      if aFile = STD_NULL and param_access = "" and
           (param_for = "" or param_for = "RANDOM" or param_for = "BINARY") then
         mode := "w";
-        file_value[index1] := basicOpen(file_name, mode);
-        if file_value[index1] = STD_NULL then
+        aFile := basicOpen(file_name, mode);
+        if aFile = STD_NULL then
           mode := "r";
-          file_value[index1] := basicOpen(file_name, mode);
+          aFile := basicOpen(file_name, mode);
         end if;
+      end if;
+      if aFile <> STD_NULL then
+        setFileValue(index1, aFile);
       end if;
       line_marker;
       write(log, "OPEN " <& param1);
@@ -4903,7 +4990,10 @@ const proc: exec_open (inout string: symbol, inout string: line) is func
       param2 := exec_str_expr(symbol, line, unused_name);
       file_name := param2;
       line_marker;
-      file_value[index1] := basicOpen(file_name, mode);
+      aFile := basicOpen(file_name, mode);
+      if aFile <> STD_NULL then
+        setFileValue(index1, aFile);
+      end if;
       if symbol = "," then
         symbol := get_symbol(line);
         index2 := round(exec_expr(symbol, line));
@@ -4914,11 +5004,11 @@ const proc: exec_open (inout string: symbol, inout string: line) is func
       writeln(log, " - open(" <& literal(file_name) <& ", " <& literal(mode) <& ")");
       flush(log);
     end if;
-    if file_value[index1] = STD_NULL then
+    if aFile = STD_NULL then
       if on_error_label <> "" then
         error_code := 53; # File not found
         line_marker;
-        write(log, "COULD NOT OPEN " <& literal(file_name));
+        write(log, "FILE NOT FOUND " <& literal(file_name));
         writeln(log, " - ON ERROR GOTO " <& on_error_label);
         flush(log);
         goto_on_error(on_error_label, line);
@@ -4926,8 +5016,60 @@ const proc: exec_open (inout string: symbol, inout string: line) is func
         line := "";
       else
         error_marker;
-        writeln(err, "COULD NOT OPEN " <& literal(file_name));
+        writeln(err, "FILE NOT FOUND " <& literal(file_name));
       end if;
+    end if;
+  end func;
+
+
+const proc: exec_close (inout string: symbol, inout string: line) is func
+  local
+    var integer: file_number is 0;
+    var file: aFile is STD_NULL;
+    var boolean: okay is FALSE;
+  begin
+    if symbol = "CLOSE#" then
+      symbol := "#";
+    else
+      symbol := get_symbol(line);
+    end if;
+    if endOfStatement(symbol) then
+      closeAllFiles;
+      line_marker;
+      writeln(log, "CLOSE");
+      flush(log);
+    else
+      repeat
+        if symbol = "#" then
+          symbol := get_symbol(line);
+        end if;
+        file_number := round(exec_expr(symbol, line));
+        aFile := getFileValue(file_number);
+        if aFile <> STD_NULL then
+          close(aFile);
+          setFileValue(file_number, STD_NULL);
+          line_marker;
+          writeln(log, "CLOSE #" <& file_number);
+          flush(log);
+        elsif on_error_label <> "" then
+          error_code := 52; # Bad file number
+          line_marker;
+          write(log, "BAD FILE NUMBER #" <& file_number);
+          writeln(log, " - ON ERROR GOTO " <& on_error_label);
+          flush(log);
+          goto_on_error(on_error_label, line);
+          symbol := "";
+          line := "";
+        else
+          error_marker;
+          writeln(err, "BAD FILE NUMBER #" <& file_number <& " IN CLOSE.");
+        end if;
+        if symbol = "," then
+          symbol := get_symbol(line);
+        else
+          okay := TRUE;
+        end if;
+      until okay;
     end if;
   end func;
 
@@ -4935,6 +5077,7 @@ const proc: exec_open (inout string: symbol, inout string: line) is func
 const proc: exec_file_put (inout string: symbol, inout string: line) is func
   local
     var integer: file_number is 0;
+    var file: aFile is STD_NULL;
     var integer: position is 0;
     var boolean: with_position is FALSE;
     var string: variable_name is "";
@@ -4944,7 +5087,8 @@ const proc: exec_file_put (inout string: symbol, inout string: line) is func
       symbol := get_symbol(line);
     end if;
     file_number := round(exec_expr(symbol, line));
-    if file_value[file_number] <> STD_NULL then
+    aFile := getFileValue(file_number);
+    if aFile <> STD_NULL then
       if symbol = "," then
         symbol := get_symbol(line);
         if symbol <> "," and not endOfStatement(symbol) then
@@ -4960,7 +5104,7 @@ const proc: exec_file_put (inout string: symbol, inout string: line) is func
       end if;
       if with_position then
         if reclen_value[file_number] <> 0 then
-          seek(file_value[file_number], position * reclen_value[file_number]);
+          seek(aFile, position * reclen_value[file_number]);
         else
           error_marker;
           write(err, "FILE #" <& file_number <& " HAS NO RECORD LENGTH SPECIFIED.");
@@ -4968,10 +5112,10 @@ const proc: exec_file_put (inout string: symbol, inout string: line) is func
       end if;
       if variable_name = "" then
         for field range field_value[file_number] do
-          write(file_value[file_number], getStringVar(field));
+          write(aFile, getStringVar(field));
         end for;
       else
-        write(file_value[file_number], getStringVar(variable_name));
+        write(aFile, getStringVar(variable_name));
       end if;
       line_marker;
       write(log, "PUT #" <& file_number <& ", ");
@@ -4991,9 +5135,18 @@ const proc: exec_file_put (inout string: symbol, inout string: line) is func
       while not endOfStatement(symbol) do
         symbol := get_symbol(line);
       end while
+    elsif on_error_label <> "" then
+      error_code := 52; # Bad file number
+      line_marker;
+      write(log, "BAD FILE NUMBER #" <& file_number);
+      writeln(log, " - ON ERROR GOTO " <& on_error_label);
+      flush(log);
+      goto_on_error(on_error_label, line);
+      symbol := "";
+      line := "";
     else
       error_marker;
-      writeln(err, "FILE #" <& file_number <& " NOT OPEN IN PUT.");
+      writeln(err, "BAD FILE NUMBER #" <& file_number <& " IN PUT.");
       while not endOfStatement(symbol) do
         symbol := get_symbol(line);
       end while;
@@ -5004,6 +5157,7 @@ const proc: exec_file_put (inout string: symbol, inout string: line) is func
 const proc: exec_file_get (inout string: symbol, inout string: line) is func
   local
     var integer: file_number is 0;
+    var file: aFile is STD_NULL;
     var integer: position is 0;
     var boolean: with_position is FALSE;
     var string: variable_name is "";
@@ -5013,7 +5167,8 @@ const proc: exec_file_get (inout string: symbol, inout string: line) is func
       symbol := get_symbol(line);
     end if;
     file_number := round(exec_expr(symbol, line));
-    if file_value[file_number] <> STD_NULL then
+    aFile := getFileValue(file_number);
+    if aFile <> STD_NULL then
       if symbol = "," then
         symbol := get_symbol(line);
         if symbol <> "," and not endOfStatement(symbol) then
@@ -5029,7 +5184,7 @@ const proc: exec_file_get (inout string: symbol, inout string: line) is func
       end if;
       if with_position then
         if reclen_value[file_number] <> 0 then
-          seek(file_value[file_number], position * reclen_value[file_number]);
+          seek(aFile, position * reclen_value[file_number]);
         else
           error_marker;
           writeln(err, "FILE #" <& file_number <& " HAS NO RECORD LENGTH SPECIFIED.");
@@ -5037,10 +5192,10 @@ const proc: exec_file_get (inout string: symbol, inout string: line) is func
       end if;
       if variable_name = "" then
         for field range field_value[file_number] do
-          setStringVar(field, gets(file_value[file_number], length(getStringVar(field))));
+          setStringVar(field, gets(aFile, length(getStringVar(field))));
         end for;
       else
-        setStringVar(variable_name, gets(file_value[file_number],
+        setStringVar(variable_name, gets(aFile,
             length(getStringVar(variable_name))));
       end if;
       line_marker;
@@ -5059,9 +5214,60 @@ const proc: exec_file_get (inout string: symbol, inout string: line) is func
       while not endOfStatement(symbol) do
         symbol := get_symbol(line);
       end while
+    elsif on_error_label <> "" then
+      error_code := 52; # Bad file number
+      line_marker;
+      write(log, "BAD FILE NUMBER #" <& file_number);
+      writeln(log, " - ON ERROR GOTO " <& on_error_label);
+      flush(log);
+      goto_on_error(on_error_label, line);
+      symbol := "";
+      line := "";
     else
       error_marker;
-      writeln(err, "FILE #" <& file_number <& " NOT OPEN IN GET.");
+      writeln(err, "BAD FILE NUMBER #" <& file_number <& " IN GET.");
+      while not endOfStatement(symbol) do
+        symbol := get_symbol(line);
+      end while;
+    end if;
+  end func;
+
+
+const proc: exec_seek (inout string: symbol, inout string: line) is func
+  local
+    var integer: file_number is 0;
+    var file: aFile is STD_NULL;
+    var integer: position is 0;
+  begin
+    if symbol = "SEEK#" then
+      symbol := get_symbol(line);
+    else
+      symbol := get_symbol(line);
+      if symbol = "#" then
+        symbol := get_symbol(line);
+      end if;
+    end if;
+    file_number := round(exec_expr(symbol, line));
+    aFile := getFileValue(file_number);
+    if aFile <> STD_NULL then
+      expect(",", symbol, line);
+      position := round(exec_expr(symbol, line));
+      seek(aFile, position);
+      line_marker;
+      writeln(log, "SEEK #" <& file_number <& ", " <& position);
+      flush(log);
+    elsif on_error_label <> "" then
+      error_code := 52; # Bad file number
+      line_marker;
+      write(log, "BAD FILE NUMBER #" <& file_number);
+      writeln(log, " - ON ERROR GOTO " <& on_error_label);
+      flush(log);
+      goto_on_error(on_error_label, line);
+      symbol := "";
+      line := "";
+    else
+      error_marker;
+      writeln(err, "BAD FILE NUMBER #" <& file_number <& " IN SEEK.");
       while not endOfStatement(symbol) do
         symbol := get_symbol(line);
       end while;
@@ -5483,11 +5689,15 @@ const func PRIMITIVE_WINDOW: getImageFromArray (in string: variable_name) is fun
     var integer: ubound is 0;
     var integer: width is 0;
     var integer: height is 0;
+    var integer: bytesPerLine is 0;
+    var integer: lineStartByte is 0;
     var integer: xPos is 0;
     var integer: yPos is 0;
-    var integer: index is 0;
-    var integer: element is 0;
-    var integer: col_num is 0;
+    var integer: colorBitNum is 0;
+    var integer: byteIndex is 0;
+    var integer: imageWord is 0;
+    var integer: imageByte is 0;
+    var integer: colorNum is 0;
   begin
     lbound := exec_lbound(variable_name, 1);
     ubound := exec_ubound(variable_name, 1);
@@ -5495,13 +5705,22 @@ const func PRIMITIVE_WINDOW: getImageFromArray (in string: variable_name) is fun
       width := round(getNumericVar(variable_name & "(" & str(lbound) & ")"));
       height := round(getNumericVar(variable_name & "(" & str(succ(lbound)) & ")"));
       image := newPixmap(width, height);
-      for xPos range 0 to pred(width) do
-        for yPos range 0 to pred(height) do
-          index := 2 + xPos * (width div 4 + 1) + yPos div 4;
-          element := round(getNumericVar(variable_name & "(" & str(lbound + index) & ")"));
-          element := element mod 16#10000;
-          col_num := (element >> (yPos rem 4 * 4)) mod 16#10;
-          point(image, xPos, yPos, color_num(col_num));
+      bytesPerLine := pred(width) mdiv 8 + 1;
+      for yPos range 0 to pred(height) do
+        lineStartByte := yPos * 4 * bytesPerLine;
+        for xPos range 0 to pred(width) do
+          colorNum := 0;
+          for colorBitNum range 0 to 3 do
+            byteIndex := lineStartByte + colorBitNum * bytesPerLine + xPos mdiv 8;
+            imageWord := round(getNumericVar(variable_name & "(" & str(lbound + 2 + byteIndex div 2) & ")"));
+            if odd(byteIndex) then
+              imageByte := (imageWord >> 8) mod 16#100;
+            else
+              imageByte := imageWord mod 16#100;
+            end if;
+            colorNum +:= ((imageByte >> (7 - xPos mod 8)) mod 2) << colorBitNum;
+          end for;
+          point(image, xPos, yPos, color_num(colorNum));
         end for;
       end for;
     end if;
@@ -5758,6 +5977,7 @@ const func boolean: exec_cmd (inout string: symbol, inout string: line) is func
     var integer: index1 is 0;
     var integer: index2 is 0;
     var integer: index3 is 0;
+    var file: aFile is STD_NULL;
     var boolean: okay is FALSE;
     var boolean: process_next is FALSE;
   begin
@@ -6477,26 +6697,7 @@ const func boolean: exec_cmd (inout string: symbol, inout string: line) is func
           end if;
         end while;
       elsif symbol = "SEEK" or symbol = "SEEK#" then
-        if symbol = "SEEK#" then
-          symbol := get_symbol(line);
-        else
-          symbol := get_symbol(line);
-          if symbol = "#" then
-            symbol := get_symbol(line);
-          end if;
-        end if;
-        index1 := round(exec_expr(symbol, line));
-        expect(",", symbol, line);
-        index2 := round(exec_expr(symbol, line));
-        if file_value[index1] <> STD_NULL then
-          seek(file_value[index1], index2);
-          line_marker;
-          writeln(log, "SEEK #" <& index1 <& ", " <& index2);
-          flush(log);
-        else
-          error_marker;
-          writeln(err, "FILE #" <& index1 <& " NOT OPEN IN SEEK.");
-        end if;
+        exec_seek(symbol, line);
       elsif symbol = "DEF" then
         symbol := get_symbol(line);
         if symbol = "SEG" then
@@ -6524,10 +6725,7 @@ const func boolean: exec_cmd (inout string: symbol, inout string: line) is func
         flush(log);
       elsif symbol = "CLEAR" then
         symbol := get_symbol(line);
-        for index1 range 1 to length(file_value) do
-          close(file_value[index1]);
-          file_value[index1] := STD_NULL;
-        end for;
+        closeAllFiles;
         numeric_var := numeric_hash.EMPTY_HASH;
         string_var := string_hash.EMPTY_HASH;
         image_var := image_hash.EMPTY_HASH;
@@ -6674,38 +6872,7 @@ const func boolean: exec_cmd (inout string: symbol, inout string: line) is func
       elsif symbol = "OPEN" then
         exec_open(symbol, line);
       elsif symbol = "CLOSE" or symbol = "CLOSE#" then
-        if symbol = "CLOSE#" then
-          symbol := "#";
-        else
-          symbol := get_symbol(line);
-        end if;
-        if endOfStatement(symbol) then
-          for index1 range 1 to length(file_value) do
-            close(file_value[index1]);
-            file_value[index1] := STD_NULL;
-          end for;
-          line_marker;
-          writeln(log, "CLOSE");
-          flush(log);
-        else
-          okay := FALSE;
-          repeat
-            if symbol = "#" then
-              symbol := get_symbol(line);
-            end if;
-            index1 := round(exec_expr(symbol, line));
-            close(file_value[index1]);
-            file_value[index1] := STD_NULL;
-            line_marker;
-            writeln(log, "CLOSE #" <& index1);
-            flush(log);
-            if symbol = "," then
-              symbol := get_symbol(line);
-            else
-              okay := TRUE;
-            end if;
-          until okay;
-        end if;
+        exec_close(symbol, line);
       elsif symbol = "PLAY" then
         symbol := get_symbol(line);
         line_marker;
@@ -6716,10 +6883,7 @@ const func boolean: exec_cmd (inout string: symbol, inout string: line) is func
         until endOfStatement(symbol);
       elsif symbol = "RESET" then
         symbol := get_symbol(line);
-        for index1 range 1 to length(file_value) do
-          close(file_value[index1]);
-          file_value[index1] := STD_NULL;
-        end for;
+        closeAllFiles;
         line_marker;
         writeln(log, "RESET");
         flush(log);
@@ -7242,6 +7406,15 @@ const func boolean: exec_cmd (inout string: symbol, inout string: line) is func
           otherwise:
             writeln(log, "**WAIT " <& index1 <& ", " <& index2 <& ", " <& index3);
         end case;
+      elsif symbol = "BLOAD" then
+        symbol := get_symbol(line);
+        param1 := exec_str_expr(symbol, line, variable_name);
+        expect(",", symbol, line);
+        line_marker;
+        write(log, "**BLOAD " <& literal(param1));
+        while not endOfStatement(symbol) do
+          symbol := get_symbol(line);
+        end while;
       elsif symbol = ":" then
         error_marker;
         writeln(err, "UNEXPECTED \":\" - IGNORED.");

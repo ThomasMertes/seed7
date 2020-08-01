@@ -260,8 +260,8 @@ static primactrecord prim_act_table[] = {
     { "DRW_PUT",             drw_put,             },
     { "DRW_RECT",            drw_rect,            },
     { "DRW_RGBCOL",          drw_rgbcol,          },
-    { "DRW_ROT",             drw_rot,             },
-    { "DRW_SCALE",           drw_scale,           },
+    /* { "DRW_ROT",             drw_rot,             }, */
+    /* { "DRW_SCALE",           drw_scale,           }, */
     { "DRW_SETTRANSPARENTCOLOR", drw_setTransparentColor, },
     { "DRW_TEXT",            drw_text,            },
     { "DRW_WIDTH",           drw_width,           },
@@ -688,7 +688,7 @@ static primactrecord prim_act_table[] = {
     { "STR_CHSPLIT",         str_chsplit,         },
     { "STR_CLIT",            str_clit,            },
     { "STR_CMP",             str_cmp,             },
-    { "STR_CNT",             act_illegal,         },
+    /* { "STR_CNT",             str_cnt,             }, */
     { "STR_CPY",             str_cpy,             },
     { "STR_CREATE",          str_create,          },
     { "STR_DESTR",           str_destr,           },

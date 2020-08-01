@@ -77,7 +77,7 @@ static inttype button_y = 0;
 static Window button_window = 0;
 
 typedef struct x11_winstruct {
-  unsigned long usage_count;
+  uinttype usage_count;
   Window window;
   Pixmap backup;
   Pixmap clip_mask;

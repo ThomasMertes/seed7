@@ -42,7 +42,12 @@
 #include "rtl_err.h"
 
 
+#ifdef HAS_INT64TYPE
 #define BIGDIGIT_SIZE 32
+#else
+#define BIGDIGIT_SIZE 16
+#endif
+
 #define KARATSUBA_THRESHOLD 32
 
 
@@ -57,8 +62,8 @@
 
 #if BIGDIGIT_SIZE == 8
 
-typedef unsigned char      bigdigittype;
-typedef unsigned short int doublebigdigittype;
+typedef uint8type          bigdigittype;
+typedef uint16type         doublebigdigittype;
 #define BIGDIGIT_MASK                    0xFF
 #define BIGDIGIT_SIGN                    0x80
 #define BIGDIGIT_SIZE_MASK                0x7
@@ -68,8 +73,8 @@ typedef unsigned short int doublebigdigittype;
 
 #elif BIGDIGIT_SIZE == 16
 
-typedef unsigned short int bigdigittype;
-typedef unsigned long int  doublebigdigittype;
+typedef uint16type         bigdigittype;
+typedef uint32type         doublebigdigittype;
 #define BIGDIGIT_MASK                  0xFFFF
 #define BIGDIGIT_SIGN                  0x8000
 #define BIGDIGIT_SIZE_MASK                0xF
@@ -79,8 +84,8 @@ typedef unsigned long int  doublebigdigittype;
 
 #elif BIGDIGIT_SIZE == 32
 
-typedef unsigned long int  bigdigittype;
-typedef unsigned long long doublebigdigittype;
+typedef uint32type         bigdigittype;
+typedef uint64type         doublebigdigittype;
 #define BIGDIGIT_MASK              0xFFFFFFFF
 #define BIGDIGIT_SIGN              0x80000000
 #define BIGDIGIT_SIZE_MASK               0x1F
@@ -2433,7 +2438,7 @@ rtlBiginttype big1;
 
   {
     memsizetype pos;
-    memsizetype byteNum;
+    int byteNum;
     char byteBuffer[22];
     bigdigittype digit;
     memsizetype byteDigitCount;
@@ -2444,22 +2449,25 @@ rtlBiginttype big1;
   /* bigCLit */
     byteDigitCount = big1->size * sizeof(bigdigittype);
     digit = big1->bigdigits[big1->size - 1];
+    byteNum = sizeof(bigdigittype) - 1;
     if (IS_NEGATIVE(digit)) {
-      byteNum = sizeof(bigdigittype);
-      while (byteNum > 1 &&
-        (digit >> (byteNum - 1) * 8 & 0xFF) == 0xFF &&
-        (digit >> (byteNum - 2) * 8 & 0xFF) >= 128) {
+      while (byteNum > 0 && (digit >> byteNum * 8 & 0xFF) == 0xFF) {
         byteDigitCount--;
         byteNum--;
       } /* while */
+      if (byteNum < 3 && (digit >> byteNum * 8 & 0xFF) <= 127) {
+        byteDigitCount++;
+        byteNum++;
+      } /* if */
     } else {
-      byteNum = sizeof(bigdigittype);
-      while (byteNum > 1 &&
-        (digit >> (byteNum - 1) * 8 & 0xFF) == 0 &&
-        (digit >> (byteNum - 2) * 8 & 0xFF) <= 127) {
+      while (byteNum > 0 && (digit >> byteNum * 8 & 0xFF) == 0) {
         byteDigitCount--;
         byteNum--;
       } /* while */
+      if (byteNum < 3 && (digit >> byteNum * 8 & 0xFF) >= 128) {
+        byteDigitCount++;
+        byteNum++;
+      } /* if */
     } /* if */
     result_size = byteDigitCount * 5 + 21;
     if (!ALLOC_STRI(result, result_size)) {
@@ -2475,20 +2483,27 @@ rtlBiginttype big1;
       while (pos > 0) {
         pos--;
         digit = big1->bigdigits[pos];
-        for (byteNum = sizeof(bigdigittype); byteNum > 0; byteNum--) {
-          if (pos * sizeof(bigdigittype) + byteNum <= byteDigitCount) {
 #if BIGDIGIT_SIZE == 8
-            sprintf(byteBuffer, "0x%02hhX,", digit >> (byteNum - 1) * 8 & 0xFF);
+        sprintf(byteBuffer, "0x%02hhX,",
+            digit &       0xFF);
 #elif BIGDIGIT_SIZE == 16
-            sprintf(byteBuffer, "0x%02X,", digit >> (byteNum - 1) * 8 & 0xFF);
+        sprintf(byteBuffer, "0x%02X,0x%02X,",
+            digit >>  8 & 0xFF, digit       & 0xFF);
 #elif BIGDIGIT_SIZE == 32
-            sprintf(byteBuffer, "0x%02lX,", digit >> (byteNum - 1) * 8 & 0xFF);
+        sprintf(byteBuffer, "0x%02lX,0x%02lX,0x%02lX,0x%02lX,",
+            digit >> 24 & 0xFF, digit >> 16 & 0xFF,
+            digit >>  8 & 0xFF, digit       & 0xFF);
 #endif
-            cstri_expand(&result->mem[charIndex], byteBuffer, 5);
-            charIndex += 5;
-          } /* if */
-        } /* for */
-      } /* for */
+        if ((pos + 1) * sizeof(bigdigittype) <= byteDigitCount) {
+          cstri_expand(&result->mem[charIndex], byteBuffer, 5 * sizeof(bigdigittype));
+          charIndex += 5 * sizeof(bigdigittype);
+        } else {
+          byteNum = byteDigitCount - pos * sizeof(bigdigittype);
+          cstri_expand(&result->mem[charIndex],
+              &byteBuffer[5 * (sizeof(bigdigittype) - byteNum)], 5 * byteNum);
+          charIndex += 5 * byteNum;
+        } /* if */
+      } /* while */
       charIndex -= 5;
       result->mem[charIndex + 4] = '}';
     } /* if */
@@ -2830,6 +2845,106 @@ rtlBiginttype big2;
       return(FALSE);
     } /* if */
   } /* bigEq */
+
+
+
+#ifdef HAS_INT64TYPE
+#ifdef ANSI_C
+
+rtlBiginttype bigFromInt64 (int64type number)
+#else
+
+rtlBiginttype bigFromInt64 (number)
+int64type number;
+#endif
+
+  {
+    memsizetype pos;
+    memsizetype result_size;
+    rtlBiginttype result;
+
+  /* bigFromInt64 */
+    result_size = sizeof(int64type) / sizeof(bigdigittype);
+    if (!ALLOC_BIG(result, result_size)) {
+      raise_error(MEMORY_ERROR);
+      return(NULL);
+    } else {
+      result->size = result_size;
+      for (pos = 0; pos < result_size; pos++) {
+        result->bigdigits[pos] = (bigdigittype) (number & BIGDIGIT_MASK);
+        number >>= 8 * sizeof(bigdigittype);
+      } /* for */
+      result = normalize(result);
+      return(result);
+    } /* if */
+  } /* bigFromInt64 */
+#endif
+
+
+
+#ifdef ANSI_C
+
+rtlBiginttype bigFromUInt32 (uint32type number)
+#else
+
+rtlBiginttype bigFromUInt32 (number)
+uint32type number;
+#endif
+
+  {
+    memsizetype pos;
+    memsizetype result_size;
+    rtlBiginttype result;
+
+  /* bigFromUInt32 */
+    result_size = sizeof(uint32type) / sizeof(bigdigittype) + 1;
+    if (!ALLOC_BIG(result, result_size)) {
+      raise_error(MEMORY_ERROR);
+      return(NULL);
+    } else {
+      result->size = result_size;
+      for (pos = 0; pos < result->size; pos++) {
+        result->bigdigits[pos] = (bigdigittype) (number & BIGDIGIT_MASK);
+        number >>= 8 * sizeof(bigdigittype);
+      } /* for */
+      result = normalize(result);
+      return(result);
+    } /* if */
+  } /* bigFromUInt32 */
+
+
+
+#ifdef HAS_INT64TYPE
+#ifdef ANSI_C
+
+rtlBiginttype bigFromUInt64 (uint64type number)
+#else
+
+rtlBiginttype bigFromUInt64 (number)
+uint64type number;
+#endif
+
+  {
+    memsizetype pos;
+    memsizetype result_size;
+    rtlBiginttype result;
+
+  /* bigFromUInt64 */
+    result_size = sizeof(uint64type) / sizeof(bigdigittype) + 1;
+    if (!ALLOC_BIG(result, result_size)) {
+      raise_error(MEMORY_ERROR);
+      return(NULL);
+    } else {
+      result->size = result_size;
+      for (pos = 0; pos < result->size; pos++) {
+        result->bigdigits[pos] = (bigdigittype) (number & BIGDIGIT_MASK);
+        number >>= 8 * sizeof(bigdigittype);
+      } /* for */
+      result = normalize(result);
+      return(result);
+    } /* if */
+  } /* bigFromUInt64 */
+#endif
 
 
 
@@ -3261,40 +3376,6 @@ inttype exponent;
 
 
 
-#ifdef HAS_LONGTYPE_64
-#ifdef ANSI_C
-
-rtlBiginttype bigLConv (longtype number)
-#else
-
-rtlBiginttype bigLConv (number)
-longtype number;
-#endif
-
-  {
-    memsizetype pos;
-    memsizetype result_size;
-    rtlBiginttype result;
-
-  /* bigLConv */
-    result_size = sizeof(longtype) / sizeof(bigdigittype);
-    if (!ALLOC_BIG(result, result_size)) {
-      raise_error(MEMORY_ERROR);
-      return(NULL);
-    } else {
-      result->size = result_size;
-      for (pos = 0; pos < result_size; pos++) {
-        result->bigdigits[pos] = (bigdigittype) (number & BIGDIGIT_MASK);
-        number >>= 8 * sizeof(bigdigittype);
-      } /* for */
-      result = normalize(result);
-      return(result);
-    } /* if */
-  } /* bigLConv */
-#endif
-
-
-
 #ifdef ANSI_C
 
 rtlBiginttype bigLog2 (const const_rtlBiginttype big1)
@@ -3339,39 +3420,6 @@ rtlBiginttype big1;
     } /* if */
     return(result);
   } /* bigLog2 */
-
-
-
-#ifdef HAS_LONGTYPE_64
-#ifdef ANSI_C
-
-longtype bigLOrd (const const_rtlBiginttype big1)
-#else
-
-longtype bigLOrd (big1)
-rtlBiginttype big1;
-#endif
-
-  {
-    memsizetype pos;
-    longtype result;
-
-  /* bigLOrd */
-    if (big1->size > sizeof(longtype) / sizeof(bigdigittype)) {
-      raise_error(RANGE_ERROR);
-      return(0);
-    } else {
-      pos = big1->size - 1;
-      result = big1->bigdigits[pos];
-      while (pos > 0) {
-        pos--;
-        result <<= 8 * sizeof(bigdigittype);
-        result |= (inttype) big1->bigdigits[pos];
-      } /* while */
-      return(result);
-    } /* if */
-  } /* bigLOrd */
-#endif
 
 
 
@@ -5032,7 +5080,7 @@ rtlBiginttype big1;
 
   {
     memsizetype pos;
-    memsizetype byteNum;
+    int byteNum;
     bigdigittype digit;
     memsizetype charIndex;
     memsizetype result_size;
@@ -5041,22 +5089,25 @@ rtlBiginttype big1;
   /* bigToBStri */
     result_size = big1->size * sizeof(bigdigittype);
     digit = big1->bigdigits[big1->size - 1];
+    byteNum = sizeof(bigdigittype) - 1;
     if (IS_NEGATIVE(digit)) {
-      byteNum = sizeof(bigdigittype);
-      while (byteNum > 1 &&
-        (digit >> (byteNum - 1) * 8 & 0xFF) == 0xFF &&
-        (digit >> (byteNum - 2) * 8 & 0xFF) >= 128) {
+      while (byteNum > 0 && (digit >> byteNum * 8 & 0xFF) == 0xFF) {
         result_size--;
         byteNum--;
       } /* while */
+      if (byteNum < 3 && (digit >> byteNum * 8 & 0xFF) <= 127) {
+        result_size++;
+        byteNum++;
+      } /* if */
     } else {
-      byteNum = sizeof(bigdigittype);
-      while (byteNum > 1 &&
-        (digit >> (byteNum - 1) * 8 & 0xFF) == 0 &&
-        (digit >> (byteNum - 2) * 8 & 0xFF) <= 127) {
+      while (byteNum > 0 && (digit >> byteNum * 8 & 0xFF) == 0) {
         result_size--;
         byteNum--;
       } /* while */
+      if (byteNum < 3 && (digit >> byteNum * 8 & 0xFF) >= 128) {
+        result_size++;
+        byteNum++;
+      } /* if */
     } /* if */
     if (!ALLOC_BSTRI(result, result_size)) {
       raise_error(MEMORY_ERROR);
@@ -5067,9 +5118,9 @@ rtlBiginttype big1;
       while (pos > 0) {
         pos--;
         digit = big1->bigdigits[pos];
-        for (byteNum = sizeof(bigdigittype); byteNum > 0; byteNum--) {
-          if (pos * sizeof(bigdigittype) + byteNum <= result_size) {
-            result->mem[charIndex] = digit >> (byteNum - 1) * 8 & 0xFF;
+        for (byteNum = sizeof(bigdigittype) - 1; byteNum >= 0; byteNum--) {
+          if (pos * sizeof(bigdigittype) + byteNum < result_size) {
+            result->mem[charIndex] = digit >> byteNum * 8 & 0xFF;
             charIndex++;
           } /* if */
         } /* for */
@@ -5082,64 +5133,62 @@ rtlBiginttype big1;
 
 #ifdef ANSI_C
 
-rtlBiginttype bigUIConv (uinttype number)
+int32type bigToInt32 (const const_rtlBiginttype big1)
 #else
 
-rtlBiginttype bigUIConv (number)
-uinttype number;
+int32type bigToInt32 (big1)
+rtlBiginttype big1;
 #endif
 
   {
     memsizetype pos;
-    memsizetype result_size;
-    rtlBiginttype result;
+    int32type result;
 
-  /* bigUIConv */
-    result_size = sizeof(uinttype) / sizeof(bigdigittype) + 1;
-    if (!ALLOC_BIG(result, result_size)) {
-      raise_error(MEMORY_ERROR);
-      return(NULL);
+  /* bigToInt32 */
+    if (big1->size > sizeof(int32type) / sizeof(bigdigittype)) {
+      raise_error(RANGE_ERROR);
+      return(0);
     } else {
-      result->size = result_size;
-      for (pos = 0; pos < result->size; pos++) {
-        result->bigdigits[pos] = (bigdigittype) (number & BIGDIGIT_MASK);
-        number >>= 8 * sizeof(bigdigittype);
-      } /* for */
-      result = normalize(result);
+      pos = big1->size - 1;
+      result = big1->bigdigits[pos];
+      while (pos > 0) {
+        pos--;
+        result <<= 8 * sizeof(bigdigittype);
+        result |= (inttype) big1->bigdigits[pos];
+      } /* while */
       return(result);
     } /* if */
-  } /* bigUIConv */
+  } /* bigToInt32 */
 
 
 
-#ifdef HAS_LONGTYPE_64
+#ifdef HAS_INT64TYPE
 #ifdef ANSI_C
 
-rtlBiginttype bigULConv (ulongtype number)
+int64type bigToInt64 (const const_rtlBiginttype big1)
 #else
 
-rtlBiginttype bigULConv (number)
-ulongtype number;
+int64type bigToInt64 (big1)
+rtlBiginttype big1;
 #endif
 
   {
     memsizetype pos;
-    memsizetype result_size;
-    rtlBiginttype result;
+    int64type result;
 
-  /* bigULConv */
-    result_size = sizeof(ulongtype) / sizeof(bigdigittype) + 1;
-    if (!ALLOC_BIG(result, result_size)) {
-      raise_error(MEMORY_ERROR);
-      return(NULL);
+  /* bigToInt64 */
+    if (big1->size > sizeof(int64type) / sizeof(bigdigittype)) {
+      raise_error(RANGE_ERROR);
+      return(0);
     } else {
-      result->size = result_size;
-      for (pos = 0; pos < result->size; pos++) {
-        result->bigdigits[pos] = (bigdigittype) (number & BIGDIGIT_MASK);
-        number >>= 8 * sizeof(bigdigittype);
-      } /* for */
-      result = normalize(result);
+      pos = big1->size - 1;
+      result = big1->bigdigits[pos];
+      while (pos > 0) {
+        pos--;
+        result <<= 8 * sizeof(bigdigittype);
+        result |= (inttype) big1->bigdigits[pos];
+      } /* while */
       return(result);
     } /* if */
-  } /* bigULConv */
+  } /* bigToInt64 */
 #endif

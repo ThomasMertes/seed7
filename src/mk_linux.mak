@@ -16,6 +16,7 @@ LFLAGS =
 # LFLAGS = -pg -lc_p
 # LIBS = /usr/Xlib/libX11.so -lncurses -lm
 LIBS = -lX11 -lncurses -lm
+# LIBS = -lX11 -lncurses -lm_p -lc_p
 # LIBS = -lX11 -lncurses -lm -lgmp
 SEED7_LIB = seed7_05.a
 COMP_DATA_LIB = s7_data.a
@@ -147,7 +148,7 @@ version.h:
 	echo "#undef  CHMOD_MISSING" >> version.h
 	echo "#define READDIR_UTF8" >> version.h
 	echo "#define SCREEN_UTF8" >> version.h
-	echo "#define HAS_LONGTYPE_64" >> version.h
+	echo "#define HAS_INT64TYPE" >> version.h
 	echo "#define _FILE_OFFSET_BITS 64" >> version.h
 	echo "#define USE_LSEEK" >> version.h
 	echo "#define ESCAPE_SPACES_IN_COMMANDS" >> version.h
@@ -173,6 +174,7 @@ version.h:
 	echo "#define OBJECT_FILE_EXTENSION \".o\"" >> version.h
 	echo "#define EXECUTABLE_FILE_EXTENSION \"\"" >> version.h
 	echo "#define C_COMPILER \"$(CC)\"" >> version.h
+	echo "#define INHIBIT_C_WARNINGS \"-w\"" >> version.h
 	echo "#define REDIRECT_C_ERRORS \"2>\"" >> version.h
 	echo "#define SYSTEM_LIBS \"$(LIBS)\"" >> version.h
 	echo "#define SEED7_LIB \"`pwd`/$(SEED7_LIB)\"" >> version.h

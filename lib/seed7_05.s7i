@@ -3023,7 +3023,7 @@ type_implements_interface(null_file, file);
 const func boolean: (ref null_file param) = (ref null_file param) is   action "ENU_EQ";
 const func boolean: (ref null_file param) <> (ref null_file param) is  action "ENU_NE";
 
-const file: STD_NULL is null_file.value;
+var null_file: STD_NULL is null_file.value;
 const file: (attr file) . value is STD_NULL;
 
 const proc: write (in null_file param, in string param) is noop;

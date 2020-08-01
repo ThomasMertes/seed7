@@ -145,7 +145,7 @@ version.h:
 	echo "#undef  MKDIR_WITH_ONE_PARAMETER" >> version.h
 	echo "#undef  CHOWN_MISSING" >> version.h
 	echo "#undef  CHMOD_MISSING" >> version.h
-	echo "#define HAS_LONGTYPE_64" >> version.h
+	echo "#define HAS_INT64TYPE" >> version.h
 	echo "#define _FILE_OFFSET_BITS 64" >> version.h
 	echo "#$(USE_BIG_RTL_LIBRARY) USE_BIG_RTL_LIBRARY" >> version.h
 	echo "#include \"stdio.h\"" > chkftell.c
@@ -182,6 +182,7 @@ version.h:
 	echo "#define OBJECT_FILE_EXTENSION \".o\"" >> version.h
 	echo "#define EXECUTABLE_FILE_EXTENSION \".exe\"" >> version.h
 	echo "#define C_COMPILER \"$(CC)\"" >> version.h
+	echo "#define INHIBIT_C_WARNINGS \"-w\"" >> version.h
 	echo "#define REDIRECT_C_ERRORS \"2>\"" >> version.h
 	echo "#define SYSTEM_LIBS \"$(LIBS)\"" >> version.h
 	echo "#define SEED7_LIB \"`pwd`/$(SEED7_LIB)\"" >> version.h

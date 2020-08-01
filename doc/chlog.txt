@@ -1,3 +1,29 @@
+20081005:
+- The chapter about primitive actions in the manual was improved.
+- The definition of STD_NULL in the seed7_05.s7i library was improved to support
+  read and write operations with STD_NULL.
+- The bas7.sd7 (basic interpreter) example program was improved to support file numbers
+  outside the range of 1 to 256 and to convert arrays to images when necessary.
+- The compiler (comp.sd7) was improved to support local interface declarations and
+  dynamic functions which refer to constant values.
+- Several improvements were done in the compiler to support generating C programs
+  acceptable for the cl compiler from msvc and for the bcc32 compiler.
+- A check for double function pointers was added to the function get_primact() in the
+  file actutl.c .
+- A boss mode was added to the lander.sd7 and sudoku7.sd7 example programs.
+- The file common.h was improved to introduce the types int64type, uint64type,
+  int32type, uint32type, int16type, uint16type, int8type and uint8type.
+- The functions bigULConv and bigLOrd were renamed to bigFromUInt64 and bigToInt64
+  respectively.
+- The function bigCLit() was improved to avoid C code that the cl C compiler from msvc
+  miscompiles to the wrong machine code.
+- The functions setupFloat and _matherr and the makefile mk_bcc32.mak were added
+  to support compilation with bcc32.
+- The feature test macro HAS_LONGTYPE_64 was renamed to HAS_INT64TYPE in various files.
+- The feature macros INHIBIT_C_WARNINGS and NO_EMPTY_STRUCTS were added or improved.
+- The makefiles mk_mingw.mak, mk_msvc.mak and mk_nmake.mak were changed to create and
+  use the file setpaths.c instead of several other files.
+
 20080921:
 - The chapters about object orientation and primitive actions in the manual,
   were improved.

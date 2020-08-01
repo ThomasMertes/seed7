@@ -29,9 +29,9 @@
 /*                                                                  */
 /********************************************************************/
 
-#ifndef HAS_LONGTYPE_64
-#define bigULConv(x) 0
-#define bigLOrd(x) 0
+#ifndef HAS_INT64TYPE
+#define bigFromUInt64(x) 0
+#define bigToInt64(x) 0
 #endif
 
 
@@ -51,19 +51,20 @@ void bigDecr (biginttype *const);
 void bigDestr (const biginttype);
 biginttype bigDiv (const const_biginttype, const const_biginttype);
 booltype bigEq (const const_biginttype, const const_biginttype);
+#ifdef HAS_INT64TYPE
+  biginttype bigFromInt64 (int64type);
+#endif
+biginttype bigFromUInt32 (uinttype);
+#ifdef HAS_INT64TYPE
+  biginttype bigFromUInt64 (uint64type);
+#endif
 biginttype bigGcd (const const_biginttype, const const_biginttype);
 void bigGrow (biginttype *const, const const_biginttype);
 inttype bigHashCode (const const_biginttype);
 biginttype bigIConv (inttype);
 void bigIncr (biginttype *const);
 biginttype bigIPow (const const_biginttype, inttype);
-#ifdef HAS_LONGTYPE_64
-  biginttype bigLConv (longtype);
-#endif
 biginttype bigLog2 (const const_biginttype);
-#ifdef HAS_LONGTYPE_64
-  longtype bigLOrd (const const_biginttype);
-#endif
 inttype bigLowestSetBit (const const_biginttype);
 biginttype bigLShift (const const_biginttype big1, const inttype lshift);
 void bigLShiftAssign (biginttype *const big_variable, inttype lshift);
@@ -86,9 +87,9 @@ biginttype bigSbtrTemp (biginttype, const_biginttype);
 void bigShrink (biginttype *const, const const_biginttype);
 stritype bigStr (const const_biginttype);
 biginttype bigSucc (const const_biginttype);
-biginttype bigUIConv (uinttype);
-#ifdef HAS_LONGTYPE_64
-  biginttype bigULConv (ulongtype);
+int32type bigToInt32 (const const_biginttype big1);
+#ifdef HAS_INT64TYPE
+  int64type bigToInt64 (const const_biginttype big1);
 #endif
 
 #else
@@ -107,19 +108,20 @@ void bigDecr ();
 void bigDestr ();
 biginttype bigDiv ();
 booltype bigEq ();
+#ifdef HAS_INT64TYPE
+  biginttype bigFromInt64 ();
+#endif
+biginttype bigFromUInt32 ();
+#ifdef HAS_INT64TYPE
+  biginttype bigFromUInt64 ();
+#endif
 biginttype bigGcd ();
 void bigGrow ();
 inttype bigHashCode ();
 biginttype bigIConv ();
 void bigIncr ();
 biginttype bigIPow ();
-#ifdef HAS_LONGTYPE_64
-  biginttype bigLConv ();
-#endif
 biginttype bigLog2 ();
-#ifdef HAS_LONGTYPE_64
-  longtype bigLOrd ();
-#endif
 inttype bigLowestSetBit ();
 biginttype bigLShift ();
 void bigLShiftAssign ();
@@ -142,9 +144,9 @@ biginttype bigSbtrTemp ();
 void bigShrink ();
 stritype bigStr ();
 biginttype bigSucc ();
-biginttype bigUIConv ();
-#ifdef HAS_LONGTYPE_64
-  biginttype bigULConv ();
+int32type bigToInt32 ();
+#ifdef HAS_INT64TYPE
+  int64type bigToInt64 ();
 #endif
 
 #endif

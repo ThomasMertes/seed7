@@ -46,6 +46,7 @@
 #include "option.h"
 #include "runerr.h"
 #include "level.h"
+#include "flt_rtl.h"
 #include "scr_drv.h"
 
 
@@ -75,6 +76,7 @@ char **argv;
     if (argc == 1) {
       printf("usage: hi [options] sourcefile [parameters]\n");
     } else {
+      setupFloat();
 /*    printf("source_file_name: \"%s\"\n", option.source_file_name);
       printf("prot_file_name: \"%s\"\n", option.prot_file_name); */
       if (option.source_file_name == NULL) {

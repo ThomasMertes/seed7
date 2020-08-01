@@ -65,41 +65,50 @@ typedef int booltype;
 #undef  INTTYPE_64BIT
 
 
-#ifdef HAS_LONGTYPE_64
-#ifdef LONGTYPE_64_IS_INT64
-typedef __int64            longtype;
-typedef unsigned __int64   ulongtype;
+#ifdef HAS_INT64TYPE
+#ifdef INT64TYPE_IS_INT64
+typedef __int64            int64type;
+typedef unsigned __int64   uint64type;
 #else
-typedef long long int      longtype;
-typedef unsigned long long ulongtype;
+typedef long long int      int64type;
+typedef unsigned long long uint64type;
 #endif
 #endif
 
+typedef long int           int32type;
+typedef unsigned long int  uint32type;
+
+typedef short int          int16type;
+typedef unsigned short int uint16type;
+
+typedef signed char        int8type;
+typedef unsigned char      uint8type;
+
 #ifdef INTTYPE_64BIT
-#ifdef HAS_LONGTYPE_64
-typedef longtype           inttype;
-typedef ulongtype          uinttype;
+#ifdef HAS_INT64TYPE
+typedef int64type          inttype;
+typedef uint64type         uinttype;
 #define INTTYPE_LITERAL_SUFFIX "LL"
 #endif
 #else
-typedef long int           inttype;
-typedef unsigned long int  uinttype;
+typedef int32type          inttype;
+typedef uint32type         uinttype;
 #define INTTYPE_LITERAL_SUFFIX "L"
 #endif
 
 typedef float              floattype;
-typedef unsigned long int  chartype;
-typedef long int           schartype;
+typedef uint32type         chartype;
+typedef int32type          schartype;
 typedef uinttype           bitsettype;
 
 #ifdef WIDE_CHAR_STRINGS
-typedef unsigned long int  strelemtype;
+typedef uint32type         strelemtype;
 #else
 typedef unsigned char      strelemtype;
 #endif
 
-typedef unsigned long int  memsizetype;
-typedef signed char        smallpriortype;
+typedef uint32type         memsizetype;
+typedef int8type           smallpriortype;
 typedef int                prior_type;
 
 typedef unsigned char      uchartype;
@@ -188,9 +197,12 @@ typedef struct bstristruct {
   } bstrirecord;
 
 typedef struct winstruct {
-    unsigned long usage_count;
+    uinttype usage_count;
     /* The rest of the structure is only accessable for the driver */
   } winrecord;
 
 typedef struct bigintstruct {
+#ifdef NO_EMPTY_STRUCTS
+    int dummy;
+#endif
   } bigintrecord;

@@ -710,6 +710,8 @@ stritype name;
         opt = EXECUTABLE_FILE_EXTENSION;
       } else if (strcmp(opt_name, "C_COMPILER") == 0) {
         opt = C_COMPILER;
+      } else if (strcmp(opt_name, "INHIBIT_C_WARNINGS") == 0) {
+        opt = INHIBIT_C_WARNINGS;
       } else if (strcmp(opt_name, "REDIRECT_C_ERRORS") == 0) {
         opt = REDIRECT_C_ERRORS;
       } else if (strcmp(opt_name, "SYSTEM_LIBS") == 0) {
@@ -742,6 +744,12 @@ stritype name;
 #endif
       } else if (strcmp(opt_name, "TWOS_COMPLEMENT_INTTYPE") == 0) {
 #ifdef TWOS_COMPLEMENT_INTTYPE
+        opt = "TRUE";
+#else
+        opt = "FALSE";
+#endif
+      } else if (strcmp(opt_name, "FLOAT_ZERO_DIV_ERROR") == 0) {
+#ifdef FLOAT_ZERO_DIV_ERROR
         opt = "TRUE";
 #else
         opt = "FALSE";

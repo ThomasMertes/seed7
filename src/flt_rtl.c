@@ -35,6 +35,9 @@
 #include "stdio.h"
 #include "string.h"
 #include "math.h"
+#ifdef TURN_OFF_FP_EXCEPTIONS
+#include "float.h"
+#endif
 
 #include "common.h"
 #include "heaputl.h"
@@ -69,6 +72,39 @@ static char *form[] = {"%1.0f", "%1.1f", "%1.2f", "%1.3f", "%1.4f",
     "%1.11f", "%1.12f", "%1.13f", "%1.14f", "%1.15f", "%1.16f",
     "%1.17f", "%1.18f", "%1.19f", "%1.20f", "%1.21f", "%1.22f",
     "%1.23f", "%1.24f", "%1.25f", "%1.26f", "%1.27f", "%1.28f"};
+#endif
+
+
+
+#ifdef ANSI_C
+
+void setupFloat (void)
+#else
+
+void setupFloat ()
+#endif
+
+  { /* setupFloat */
+#ifdef TURN_OFF_FP_EXCEPTIONS
+    _control87(MCW_EM, MCW_EM);
+#endif
+  } /* setupFloat */
+
+
+
+#ifdef DEFINE_MATHERR_FUNCTION
+#ifdef ANSI_C
+
+int _matherr(struct _exception *a)
+#else
+
+int _matherr(struct _exception *a)
+#endif
+
+  { /* _matherr */
+    a->retval = a->retval;
+    return 1;
+  } /* _matherr */
 #endif
 
 

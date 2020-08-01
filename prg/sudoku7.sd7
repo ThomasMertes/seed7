@@ -27,6 +27,7 @@ $ include "seed7_05.s7i";
   include "keybd.s7i";
   include "float.s7i";
   include "draw.s7i";
+  include "dialog.s7i";
   include "pic16.s7i";
 
 const integer: STRETCH_FACTOR    is 68;
@@ -2457,6 +2458,8 @@ const proc: processCommand is func
             column := 9;
           when {'q'}:
             quit := TRUE;
+          when {KEY_ESC}:
+            bossMode(quit);
           when {'1' .. '9'}:
             if field[row][column] <> 0 then
               clearDigit(row, column);

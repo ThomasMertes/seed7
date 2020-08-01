@@ -554,7 +554,7 @@ const proc: main is func
     IN := open_line(IN);
     introduction;
     inchar := upper(getc(KEYBOARD));
-    while inchar <> 'Q' do
+    while inchar <> 'Q' and inchar <> KEY_ESC do
       clear(black);
       initialize;
       oldFishGraph := GRAPH_BOTTOM - sumContent[FISH] div SCALE_FISH;
@@ -572,7 +572,7 @@ const proc: main is func
       writeln(info, " " mult 30);
       writeln(info, " " mult 30);
       writeln(info, " " mult 30);
-      while inchar not in {'N', 'Q'} do
+      while inchar not in {'N', 'Q', KEY_ESC} do
         moveAllFish;
         moveAllSharks;
         display;

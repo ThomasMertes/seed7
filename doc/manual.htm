@@ -2823,7 +2823,7 @@
                   ( example->element )
     Relations:
       =, &lt;>
-    Funktions:
+    Functions:
       incl(A, B) Include element in MODULE
                   ( Type of argument B: <font color=red>reference</font> )
       excl(A, B) Exclude element from MODULE
@@ -3026,7 +3026,7 @@
                   ( Type of argument A: <font color=red>integer</font> )
     Relations:
       =, &lt;>
-    Funktions:
+    Functions:
       length(A) Length of ref_list
                   ( Type of result: <font color=red>integer</font>,
                     length(<font color=red>ref_list</font>.EMPTY) => 0 )
@@ -3069,7 +3069,7 @@
       <font color=red>program</font>.EMPTY  Empty program.
     Relations:
       =, &lt;>
-    Funktions:
+    Functions:
       parseFile(A)  Parse the file with the name A
                   ( Type of argument A: <font color=red>string</font> )
       parseStri(A)  Parse the string A
@@ -3147,7 +3147,7 @@
                     <font color=red>integer</font> <font color=blue>conv</font> enum_literal1 => 0 )
     Relations:
       =, &lt;>, &lt;, &lt;=, >, >=
-    Funktions:
+    Functions:
       ord(A)    Ordinal number
                   ( Type of result: <font color=red>integer</font> )
       succ(A)   Successor
@@ -6191,24 +6191,28 @@
     Not all functions can be described by calling other
   functions of the same language. For this reason and for
   performance reasons several functions are defined using a
-  mechanism called action. For example the while statement can
-  easy be defined using recursion. But this would hurt
-  performance and use a huge amount of memory for the runtime
-  stack. In practise an implementation of the while statement
-  can use a goto instead of a subroutine call. Since we have
-  no goto-statement the primitive action PRC_WHILE can be used.
-  The declaration of the while statement follows:
+  mechanism called action. For example: It is easy to define
+  the <tt>'<font color=blue>while</font>'</tt> statement by using recursion. But this would
+  hurt performance and it would also use a huge amount of
+  memory for the runtime stack. In practise an implementation
+  of the <tt>'<font color=blue>while</font>'</tt> statement can use a conditional jump
+  instead of a subroutine call. Since Seed7 has no <tt>'<font color=blue>goto</font>'</tt>
+  statement, this is not an option. Instead the primitive
+  action PRC_WHILE can be used. The <tt>'<font color=blue>while</font>'</tt> statement is
+  defined in the basic Seed7 library <tt>'seed7_05.s7i'</tt> with:
 </p><pre>
     <font color=blue>const</font> <font color=red>proc</font>: while (<font color=blue>in</font> <font color=red>func boolean</font> <font color=blue>param</font>) do
         (<font color=blue>in</font> <font color=red>proc</font> <font color=blue>param</font>) end while <font color=blue>is action</font> <font color=maroon>"PRC_WHILE"</font>;
 </pre><p>
-  This declaration shows the types and the position of the
-  parameters of the while-statement. This gives you enough
-  information to use this statement. But it is not possible
-  to change the position or the type of the parameters because
-  they are hard coded in the interpreter.
-  If you are interested in the Seed7 definitions of the
-  primitive actions just look into the file seed7_05.s7i .
+  This declaration shows the types and the position of
+  the parameters of a <tt>'<font color=blue>while</font>'</tt> statement. Such an action
+  declaration contains enough information to use the defined
+  construct. The semantic of all primitive actions is
+  hardcoded in the interpreter and in the compiler. The
+  parameters of the hardcoded actions and the corresponding
+  definitions in Seed7 must match. If you are interested in
+  the Seed7 definitions of primitive actions just look into
+  the file <tt>'seed7_05.s7i'</tt>.
 </p><p>
     Currently there are several hundred primitive actions
   predefined in the interpreter. They all have names in upper
@@ -6216,8 +6220,8 @@
 </p><pre>
     TYPE_ACTION
 </pre><p>
-  Which means that for example all <tt>'<font color=red>integer</font>'</tt> actions start with
-  INT_ and all assignment actions end with _CPY .
+  Which means that for example all <tt>'<font color=red>integer</font>'</tt> actions start
+  with INT_ and all assignment actions end with _CPY .
   The following list shows actions which are used with more
   than one type:
 </p><pre>
@@ -6273,8 +6277,10 @@
     _VALUE    Dereference a <font color=red>reference</font>
     _WRITE    Write <font color=red>string</font> to <font color=red>file</font>
 </pre><p>
-  For the following types primitive actions are defined (which
-  are grouped together in the *lib.c files mentioned):
+  Primitive actions are defined for many types. The functions
+  which implement the primitive actions are grouped together
+  in *lib.c files. The following list contains the action
+  prefix, the file containing the functions and a description:
 </p><pre>
     ACT_  actlib.c  <font color=red>ACTION</font> operations
     ARR_  arrlib.c  <font color=red>array</font> operations
@@ -6306,18 +6312,46 @@
     TYP_  typlib.c  <font color=red>type</font> operations
     UT8_  ut8lib.c  <font color=red>utf8_file</font> operations
 </pre><p>
-  Every *lib.c file has a corresonding *lib.h file.
-  The C functions in the *lib.c files have lowercase names.
-  Therefore the <tt>'PRC_WHILE'</tt> action is implemented
-  as the C function <tt>'prc_while'</tt> in the file <tt>'prclib.c'</tt>.
-  The prototype for all C primitiv action functions is identical.
-  The  <tt>'prc_while'</tt> function has the following prototype:
+  The C functions which implement primitive actions have
+  lowercase names. E.g.: The action <tt>'PRC_WHILE'</tt> is implemented
+  with the C function <tt>'prc_while()'</tt> in the file <tt>'prclib.c'</tt>.
+  The parameter list for all C action functions is identical.
+  Every *lib.c file has a corresonding *lib.h file which
+  contains the prototypes for the action functions.
+</p><p>
+  The primitive action which describes the addition of two
+  integers is <tt>'INT_ADD'</tt>. The Seed7 interface to the action
+  <tt>'INT_ADD'</tt> is defined in the file <tt>'seed7_05.s7i'</tt> with:
 </p><pre>
-    objecttype prc_while (listtype arguments);
+    <font color=blue>const</font> <font color=red>func integer</font>: (<font color=blue>in</font> <font color=red>integer</font> <font color=blue>param</font>) + (<font color=blue>in</font> <font color=red>integer</font> <font color=blue>param</font>) <font color=blue>is action</font> <font color=maroon>"INT_ADD"</font>;
 </pre><p>
-  The file <tt>'memory.h'</tt> contains several macros and functions which
-  help to handle the arguments (parameter list) of a C primitiv
-  action function.
+  To execute an action a corresponding C function must
+  be present in the hi interpreter. The function for the
+  action <tt>'INT_ADD'</tt> is <tt>'int_add()'</tt>. The function <tt>'int_add()'</tt>
+  is defined in the file <tt>'intlib.c'</tt> with:
+</p><pre>
+    #ifdef ANSI_C
+
+    objecttype int_add (listtype arguments)
+    #else
+
+    objecttype int_add (arguments)
+    listtype arguments;
+    #endif
+
+      { /* int_add */
+        isit_int(arg_1(arguments));
+        isit_int(arg_3(arguments));
+        return(bld_int_temp(
+            take_int(arg_1(arguments)) +
+            take_int(arg_3(arguments))));
+      } /* int_add */
+</pre><p>
+  The action functions use ANSI C prototypes and K&R function headers.
+  The function <tt>'int_add()'</tt> adds the first and the third argument (the
+  second argument contains the + symbol. The file <tt>'memory.h'</tt>
+  contains several macros and functions which help to handle the
+  arguments (parameter list) of a C primitiv action function.
 <ul>
     <li><!-- -  -->The macros <tt>'arg_1'</tt>, <tt>'arg_2'</tt>,
       <tt>'arg_3'</tt>, etc. can be used to get an individual argument
@@ -6333,25 +6367,136 @@
       <tt>'bld_win_temp'</tt>, etc. can be used to create the (objecttype)
       result of a primitiv action (E.g.: <tt>'return(bld_int_temp(0))'</tt> ).</li>
 </ul><p>
-  The C primitiv action function for the <tt>'INT_ADD'</tt> action is
-  defined in the file <tt>'intlib.c'</tt> as:
+  The file <tt>'intlib.h'</tt> contains the prototype for the <tt>'int_add()'</tt>
+  function:
 </p><pre>
-    objecttype int_add (listtype arguments)
+    objecttype int_add (listtype);
+</pre><p>
+  and also a definition for the K&R C language:
+</p><pre>
+    objecttype int_add ();
+</pre><p>
+  Additionally every primitive action is registered in the file
+  <tt>'primitive.c'</tt>, The line which registrates <tt>'INT_ADD'</tt> is:
+</p><pre>
+    { "INT_ADD",             int_add,             },
+</pre><p>
+  The entries of the primitive action in the file <tt>'primitive.c'</tt> are
+  sorted alphabetically. With this definitions the hi interpreter
+  understands a primitive action.
+</p><p>
+  To allow a primitive function in a compiled Seed7 program the
+  Seed7 compiler (comp.sd7) needs to know the action also. The
+  compiler function which creates code for the <tt>'INT_ADD'</tt> action is:
+</p><pre>
+    <font color=blue>const</font> <font color=red>proc</font>: process_int_add (<font color=blue>in</font> <font color=red>ref_list</font>: params, <font color=blue>inout</font> <font color=red>expr_type</font>: c_expr) <font color=blue>is func</font>
 
-      { /* int_add */
+      <font color=blue>begin</font>
+        c_expr.expr &:= <font color=maroon>"("</font>;
+        process_expr(params[1], c_expr);
+        c_expr.expr &:= <font color=maroon>") + ("</font>;
+        process_expr(params[3], c_expr);
+        c_expr.expr &:= <font color=maroon>")"</font>;
+      <font color=blue>end func</font>;
+</pre><p>
+  This function is called from the function <tt>'process_action'</tt> with the
+  line:
+</p><pre>
+    <font color=blue>elsif</font> action_name = <font color=maroon>"INT_ADD"</font> <font color=blue>then</font>
+      process_int_add(params, c_expr);
+</pre><p>
+  Some primitive actions are more complicated and inline code would
+  not be the best solution for it. In this case an additional helper
+  function is used. The action <tt>'INT_STR'</tt> is such an action. The
+  definition of the function <tt>'int_str()'</tt> in the file <tt>'intlib.c'</tt> is:
+</p><pre>
+    #ifdef ANSI_C
+
+    objecttype int_str (listtype arguments)
+    #else
+
+    objecttype int_str (arguments)
+    listtype arguments;
+    #endif
+
+      { /* int_str */
         isit_int(arg_1(arguments));
-        isit_int(arg_3(arguments));
-        return(bld_int_temp(
-            take_int(arg_1(arguments)) +
-            take_int(arg_3(arguments))));
-      } /* int_add */
+        return(bld_stri_temp(intStr(
+            take_int(arg_1(arguments)))));
+      } /* int_str */
+</pre><p>
+  The main work for the primitive action <tt>'INT_STR'</tt> is done in
+  the helper function <tt>'intStr()'</tt>. The helper function <tt>'intStr()'</tt>
+  can be found in the file <tt>'int_rtl.c'</tt>:
+</p><pre>
+    #ifdef ANSI_C
+
+    stritype intStr (inttype number)
+    #else
+
+    stritype intStr (number)
+    inttype number;
+    #endif
+
+      {
+        uinttype unsigned_number;
+        booltype sign;
+        strelemtype buffer_1[50];
+        strelemtype *buffer;
+        memsizetype len;
+        stritype result;
+
+      /* intStr */
+        if ((sign = (number < 0))) {
+          unsigned_number = -number;
+        } else {
+          unsigned_number = number;
+        } /* if */
+        buffer = &buffer_1[50];
+        do {
+          *(--buffer) = (strelemtype) (unsigned_number % 10 + '0');
+        } while ((unsigned_number /= 10) != 0);
+        if (sign) {
+          *(--buffer) = (strelemtype) '-';
+        } /* if */
+        len = &buffer_1[50] - buffer;
+        if (!ALLOC_STRI(result, len)) {
+          raise_error(MEMORY_ERROR);
+          return(NULL);
+        } else {
+          result->size = len;
+          memcpy(result->mem, buffer, (SIZE_TYPE) (len * sizeof(strelemtype)));
+          return(result);
+        } /* if */
+      } /* intStr */
+</pre><p>
+  The file <tt>'int_rtl.h'</tt> contains a prototype definition for the
+  <tt>'intStr()'</tt> helper function:
+</p><pre>
+    stritype intStr (inttype number);
+</pre><p>
+  and also a definition for the K&R C language:
+</p><pre>
+    stritype intStr ();
+</pre><p>
+  The helper functions are also used in the code generated by
+  the Seed7 compiler:
+</p><pre>
+    <font color=blue>const</font> <font color=red>proc</font>: process_int_str (<font color=blue>in</font> <font color=red>ref_list</font>: params, <font color=blue>inout</font> <font color=red>expr_type</font>: c_expr) <font color=blue>is func</font>
+
+      <font color=blue>begin</font>
+        prepare_stri_result(c_expr);
+        c_expr.result_expr &:= <font color=maroon>"intStr("</font>;
+        getStdParamToResultExpr(params[1], c_expr);
+        c_expr.result_expr &:= <font color=maroon>")"</font>;
+      <font color=blue>end func</font>;
 </pre><p>
   All the *lib.c files containing primitive actions and various
   other files with their functions are grouped together in the
   <tt>'s7_comp.a'</tt> library (Licensed under GPL). Furthermore the C
   primitiv action functions (E.g.: int_parse) of the *lib.c
   files may use corresponding functions (E.g.: intParse) which
-  can be found in *_rtl.c files (E.g.: int_rtl.c). The *_rtl.c
+  can be found in *_rtl.c files (E.g.: <tt>'int_rtl.c'</tt>). The *_rtl.c
   files are grouped together in the <tt>'seed7_05.a'</tt> library
   (Licensed under LGPL). When a Seed7 program is compiled with
   the Seed7 compiler (comp.sd7) inline code is generated for

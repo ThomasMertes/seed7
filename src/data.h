@@ -165,7 +165,7 @@ typedef struct tokenstruct {
   } tokenrecord;
 
 typedef struct nodestruct {
-    unsigned long usage_count;
+    uinttype usage_count;
     objecttype match_obj;
     nodetype next1;
     nodetype next2;
@@ -363,7 +363,7 @@ typedef struct {
   } findidtype;
 
 typedef struct progstruct {
-    unsigned long usage_count;
+    uinttype usage_count;
     objecttype main_object;
     ustritype source_file_name;
     unsigned int error_count;

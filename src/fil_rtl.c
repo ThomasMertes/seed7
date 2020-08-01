@@ -188,9 +188,9 @@ filetype aFile;
         raise_error(FILE_ERROR);
         return(NULL);
       } else if (sizeof(offsettype) == 8) {
-        return(bigULConv(file_length));
+        return(bigFromUInt64(file_length));
       } else {
-        return(bigUIConv(file_length));
+        return(bigFromUInt32(file_length));
       } /* if */
     } /* if */
 #else
@@ -210,9 +210,9 @@ filetype aFile;
         raise_error(FILE_ERROR);
         return(NULL);
       } else if (sizeof(offsettype) == 8) {
-        return(bigULConv(file_length));
+        return(bigFromUInt64(file_length));
       } else {
-        return(bigUIConv(file_length));
+        return(bigFromUInt32(file_length));
       } /* if */
     } /* if */
 #endif
@@ -237,9 +237,9 @@ biginttype big_position;
 #ifdef myLseek
     fflush(aFile);
     if (sizeof(offsettype) == 8) {
-      file_position = bigLOrd(big_position);
+      file_position = bigToInt64(big_position);
     } else {
-      file_position = bigOrd(big_position);
+      file_position = bigToInt32(big_position);
     } /* if */
     if (file_position <= 0) {
       raise_error(RANGE_ERROR);
@@ -248,9 +248,9 @@ biginttype big_position;
     } /* if */
 #else
     if (sizeof(offsettype) == 8) {
-      file_position = bigLOrd(big_position);
+      file_position = bigToInt64(big_position);
     } else {
-      file_position = bigOrd(big_position);
+      file_position = bigToInt32(big_position);
     } /* if */
     if (file_position <= 0) {
       raise_error(RANGE_ERROR);
@@ -282,9 +282,9 @@ filetype aFile;
       raise_error(FILE_ERROR);
       return(NULL);
     } else if (sizeof(offsettype) == 8) {
-      return(bigULConv(current_file_position + 1));
+      return(bigFromUInt64(current_file_position + 1));
     } else {
-      return(bigUIConv(current_file_position + 1));
+      return(bigFromUInt32(current_file_position + 1));
     } /* if */
 #else
     current_file_position = myFtell(aFile);
@@ -292,9 +292,9 @@ filetype aFile;
       raise_error(FILE_ERROR);
       return(NULL);
     } else if (sizeof(offsettype) == 8) {
-      return(bigULConv(current_file_position + 1));
+      return(bigFromUInt64(current_file_position + 1));
     } else {
-      return(bigUIConv(current_file_position + 1));
+      return(bigFromUInt32(current_file_position + 1));
     } /* if */
 #endif
   } /* filBigTell */

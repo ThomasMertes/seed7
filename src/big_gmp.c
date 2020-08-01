@@ -474,6 +474,52 @@ gmpBiginttype big2;
 
 #ifdef ANSI_C
 
+gmpBiginttype bigFromUInt32 (uint32type number)
+#else
+
+gmpBiginttype bigFromUInt32 (number)
+uint32type number;
+#endif
+
+  {
+    gmpBiginttype result;
+
+  /* bigFromUInt32 */
+    result = malloc(sizeof(__mpz_struct));
+    mpz_init_set_ui(result, number);
+    return(result);
+  } /* bigFromUInt32 */
+
+
+
+#ifdef HAS_INT64TYPE
+#ifdef ANSI_C
+
+gmpBiginttype bigFromUInt64 (uint64type number)
+#else
+
+gmpBiginttype bigFromUInt64 (number)
+uint64type number;
+#endif
+
+  {
+    mpz_t help;
+    gmpBiginttype result;
+
+  /* bigFromUInt64 */
+    result = malloc(sizeof(__mpz_struct));
+    mpz_init_set_ui(result, number >> 32);
+    mpz_mul_2exp(result, result, 32);
+    mpz_init_set_ui(help, number);
+    mpz_ior(result, result, help);
+    return(result);
+  } /* bigFromUInt64 */
+#endif
+
+
+
+#ifdef ANSI_C
+
 gmpBiginttype bigGcd (const const_gmpBiginttype big1,
     const const_gmpBiginttype big2)
 #else
@@ -670,28 +716,6 @@ gmpBiginttype big1;
     } /* if */
     return(result);
   } /* bigLog2 */
-
-
-
-#ifdef HAS_LONGTYPE_64
-#ifdef ANSI_C
-
-longtype bigLOrd (const const_gmpBiginttype big1)
-#else
-
-longtype bigLOrd (big1)
-gmpBiginttype big1;
-#endif
-
-  { /* bigLOrd */
-    if (!mpz_fits_slong_p(big1)) {
-      raise_error(RANGE_ERROR);
-      return(0);
-    } else {
-      return(mpz_get_si(big1));
-    } /* if */
-  } /* bigLOrd */
-#endif
 
 
 
@@ -1322,44 +1346,40 @@ gmpBiginttype big1;
 
 #ifdef ANSI_C
 
-gmpBiginttype bigUIConv (inttype number)
+int32type bigToInt32 (const const_gmpBiginttype big1)
 #else
 
-gmpBiginttype bigUIConv (number)
-inttype number;
+int32type bigToInt32 (big1)
+gmpBiginttype big1;
 #endif
 
-  {
-    gmpBiginttype result;
+  { /* bigToInt32 */
+    if (!mpz_fits_slong_p(big1)) {
+      raise_error(RANGE_ERROR);
+      return(0);
+    } else {
+      return(mpz_get_si(big1));
+    } /* if */
+  } /* bigToInt32 */
 
-  /* bigUIConv */
-    result = malloc(sizeof(__mpz_struct));
-    mpz_init_set_ui(result, number);
-    return(result);
-  } /* bigUIConv */
 
 
-
-#ifdef HAS_LONGTYPE_64
+#ifdef HAS_INT64TYPE
 #ifdef ANSI_C
 
-gmpBiginttype bigULConv (ulongtype number)
+int64type bigToInt64 (const const_gmpBiginttype big1)
 #else
 
-gmpBiginttype bigULConv (number)
-ulongtype number;
+int64type bigToInt64 (big1)
+gmpBiginttype big1;
 #endif
 
-  {
-    mpz_t help;
-    gmpBiginttype result;
-
-  /* bigULConv */
-    result = malloc(sizeof(__mpz_struct));
-    mpz_init_set_ui(result, number >> 32);
-    mpz_mul_2exp(result, result, 32);
-    mpz_init_set_ui(help, number);
-    mpz_ior(result, result, help);
-    return(result);
-  } /* bigULConv */
+  { /* bigToInt64 */
+    if (!mpz_fits_slong_p(big1)) {
+      raise_error(RANGE_ERROR);
+      return(0);
+    } else {
+      return(mpz_get_si(big1));
+    } /* if */
+  } /* bigToInt64 */
 #endif

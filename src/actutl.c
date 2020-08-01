@@ -251,6 +251,13 @@ register acttype action_searched;
         } /* for */
         qsort(action_ptr_table, act_table.size, sizeof(primacttype),
             action_ptr_compare);
+        for (number = 1; number < act_table.size; number++) {
+          if (action_ptr_table[number]->action == action_ptr_table[number - 1]->action) {
+            printf("*** Actions %s and %s implemented by the same function\n",
+                action_ptr_table[number]->name,
+                action_ptr_table[number - 1]->name);
+          } /* if */
+        } /* for */
       } /* if */
     } /* if */
 

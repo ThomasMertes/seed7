@@ -61,7 +61,7 @@ static HWND button_window = 0;
 
 
 typedef struct win_winstruct {
-  unsigned long usage_count;
+  uinttype usage_count;
   HWND hWnd;
   HDC hdc;
   HBITMAP backup;

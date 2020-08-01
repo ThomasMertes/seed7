@@ -46,6 +46,7 @@ int _isnan( double x );
 
 #ifdef ANSI_C
 
+void setupFloat (void);
 inttype fltCmp (floattype number1, floattype number2);
 void fltCpy (floattype *dest, floattype source);
 generictype fltCreate (generictype source);
@@ -57,6 +58,7 @@ stritype fltStr (floattype number);
 
 #else
 
+void setupFloat ();
 inttype fltCmp ();
 void fltCpy ();
 floattype fltCreate ();

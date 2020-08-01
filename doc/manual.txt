@@ -2823,7 +2823,7 @@ CONTENTS
                   ( example->element )
     Relations:
       =, <>
-    Funktions:
+    Functions:
       incl(A, B) Include element in MODULE
                   ( Type of argument B: reference )
       excl(A, B) Exclude element from MODULE
@@ -3026,7 +3026,7 @@ CONTENTS
                   ( Type of argument A: integer )
     Relations:
       =, <>
-    Funktions:
+    Functions:
       length(A) Length of ref_list
                   ( Type of result: integer,
                     length(ref_list.EMPTY) => 0 )
@@ -3069,7 +3069,7 @@ CONTENTS
       program.EMPTY  Empty program.
     Relations:
       =, <>
-    Funktions:
+    Functions:
       parseFile(A)  Parse the file with the name A
                   ( Type of argument A: string )
       parseStri(A)  Parse the string A
@@ -3147,7 +3147,7 @@ CONTENTS
                     integer conv enum_literal1 => 0 )
     Relations:
       =, <>, <, <=, >, >=
-    Funktions:
+    Functions:
       ord(A)    Ordinal number
                   ( Type of result: integer )
       succ(A)   Successor
@@ -6191,24 +6191,28 @@ CONTENTS
     Not all functions can be described by calling other
   functions of the same language. For this reason and for
   performance reasons several functions are defined using a
-  mechanism called action. For example the while statement can
-  easy be defined using recursion. But this would hurt
-  performance and use a huge amount of memory for the runtime
-  stack. In practise an implementation of the while statement
-  can use a goto instead of a subroutine call. Since we have
-  no goto-statement the primitive action PRC_WHILE can be used.
-  The declaration of the while statement follows:
+  mechanism called action. For example: It is easy to define
+  the 'while' statement by using recursion. But this would
+  hurt performance and it would also use a huge amount of
+  memory for the runtime stack. In practise an implementation
+  of the 'while' statement can use a conditional jump
+  instead of a subroutine call. Since Seed7 has no 'goto'
+  statement, this is not an option. Instead the primitive
+  action PRC_WHILE can be used. The 'while' statement is
+  defined in the basic Seed7 library 'seed7_05.s7i' with:
 
     const proc: while (in func boolean param) do
         (in proc param) end while is action "PRC_WHILE";
 
-  This declaration shows the types and the position of the
-  parameters of the while-statement. This gives you enough
-  information to use this statement. But it is not possible
-  to change the position or the type of the parameters because
-  they are hard coded in the interpreter.
-  If you are interested in the Seed7 definitions of the
-  primitive actions just look into the file seed7_05.s7i .
+  This declaration shows the types and the position of
+  the parameters of a 'while' statement. Such an action
+  declaration contains enough information to use the defined
+  construct. The semantic of all primitive actions is
+  hardcoded in the interpreter and in the compiler. The
+  parameters of the hardcoded actions and the corresponding
+  definitions in Seed7 must match. If you are interested in
+  the Seed7 definitions of primitive actions just look into
+  the file 'seed7_05.s7i'.
 
     Currently there are several hundred primitive actions
   predefined in the interpreter. They all have names in upper
@@ -6216,8 +6220,8 @@ CONTENTS
 
     TYPE_ACTION
 
-  Which means that for example all 'integer' actions start with
-  INT_ and all assignment actions end with _CPY .
+  Which means that for example all 'integer' actions start
+  with INT_ and all assignment actions end with _CPY .
   The following list shows actions which are used with more
   than one type:
 
@@ -6273,8 +6277,10 @@ CONTENTS
     _VALUE    Dereference a reference
     _WRITE    Write string to file
 
-  For the following types primitive actions are defined (which
-  are grouped together in the *lib.c files mentioned):
+  Primitive actions are defined for many types. The functions
+  which implement the primitive actions are grouped together
+  in *lib.c files. The following list contains the action
+  prefix, the file containing the functions and a description:
 
     ACT_  actlib.c  ACTION operations
     ARR_  arrlib.c  array operations
@@ -6306,18 +6312,46 @@ CONTENTS
     TYP_  typlib.c  type operations
     UT8_  ut8lib.c  utf8_file operations
 
-  Every *lib.c file has a corresonding *lib.h file.
-  The C functions in the *lib.c files have lowercase names.
-  Therefore the 'PRC_WHILE' action is implemented
-  as the C function 'prc_while' in the file 'prclib.c'.
-  The prototype for all C primitiv action functions is identical.
-  The  'prc_while' function has the following prototype:
+  The C functions which implement primitive actions have
+  lowercase names. E.g.: The action 'PRC_WHILE' is implemented
+  with the C function 'prc_while()' in the file 'prclib.c'.
+  The parameter list for all C action functions is identical.
+  Every *lib.c file has a corresonding *lib.h file which
+  contains the prototypes for the action functions.
 
-    objecttype prc_while (listtype arguments);
+  The primitive action which describes the addition of two
+  integers is 'INT_ADD'. The Seed7 interface to the action
+  'INT_ADD' is defined in the file 'seed7_05.s7i' with:
 
-  The file 'memory.h' contains several macros and functions which
-  help to handle the arguments (parameter list) of a C primitiv
-  action function.
+    const func integer: (in integer param) + (in integer param) is action "INT_ADD";
+
+  To execute an action a corresponding C function must
+  be present in the hi interpreter. The function for the
+  action 'INT_ADD' is 'int_add()'. The function 'int_add()'
+  is defined in the file 'intlib.c' with:
+
+    #ifdef ANSI_C
+
+    objecttype int_add (listtype arguments)
+    #else
+
+    objecttype int_add (arguments)
+    listtype arguments;
+    #endif
+
+      { /* int_add */
+        isit_int(arg_1(arguments));
+        isit_int(arg_3(arguments));
+        return(bld_int_temp(
+            take_int(arg_1(arguments)) +
+            take_int(arg_3(arguments))));
+      } /* int_add */
+
+  The action functions use ANSI C prototypes and K&R function headers.
+  The function 'int_add()' adds the first and the third argument (the
+  second argument contains the + symbol. The file 'memory.h'
+  contains several macros and functions which help to handle the
+  arguments (parameter list) of a C primitiv action function.
 
     - The macros 'arg_1', 'arg_2',
       'arg_3', etc. can be used to get an individual argument
@@ -6333,25 +6367,136 @@ CONTENTS
       'bld_win_temp', etc. can be used to create the (objecttype)
       result of a primitiv action (E.g.: 'return(bld_int_temp(0))' ).
 
-  The C primitiv action function for the 'INT_ADD' action is
-  defined in the file 'intlib.c' as:
+  The file 'intlib.h' contains the prototype for the 'int_add()'
+  function:
 
-    objecttype int_add (listtype arguments)
+    objecttype int_add (listtype);
 
-      { /* int_add */
+  and also a definition for the K&R C language:
+
+    objecttype int_add ();
+
+  Additionally every primitive action is registered in the file
+  'primitive.c', The line which registrates 'INT_ADD' is:
+
+    { "INT_ADD",             int_add,             },
+
+  The entries of the primitive action in the file 'primitive.c' are
+  sorted alphabetically. With this definitions the hi interpreter
+  understands a primitive action.
+
+  To allow a primitive function in a compiled Seed7 program the
+  Seed7 compiler (comp.sd7) needs to know the action also. The
+  compiler function which creates code for the 'INT_ADD' action is:
+
+    const proc: process_int_add (in ref_list: params, inout expr_type: c_expr) is func
+
+      begin
+        c_expr.expr &:= "(";
+        process_expr(params[1], c_expr);
+        c_expr.expr &:= ") + (";
+        process_expr(params[3], c_expr);
+        c_expr.expr &:= ")";
+      end func;
+
+  This function is called from the function 'process_action' with the
+  line:
+
+    elsif action_name = "INT_ADD" then
+      process_int_add(params, c_expr);
+
+  Some primitive actions are more complicated and inline code would
+  not be the best solution for it. In this case an additional helper
+  function is used. The action 'INT_STR' is such an action. The
+  definition of the function 'int_str()' in the file 'intlib.c' is:
+
+    #ifdef ANSI_C
+
+    objecttype int_str (listtype arguments)
+    #else
+
+    objecttype int_str (arguments)
+    listtype arguments;
+    #endif
+
+      { /* int_str */
         isit_int(arg_1(arguments));
-        isit_int(arg_3(arguments));
-        return(bld_int_temp(
-            take_int(arg_1(arguments)) +
-            take_int(arg_3(arguments))));
-      } /* int_add */
+        return(bld_stri_temp(intStr(
+            take_int(arg_1(arguments)))));
+      } /* int_str */
+
+  The main work for the primitive action 'INT_STR' is done in
+  the helper function 'intStr()'. The helper function 'intStr()'
+  can be found in the file 'int_rtl.c':
+
+    #ifdef ANSI_C
+
+    stritype intStr (inttype number)
+    #else
+
+    stritype intStr (number)
+    inttype number;
+    #endif
+
+      {
+        uinttype unsigned_number;
+        booltype sign;
+        strelemtype buffer_1[50];
+        strelemtype *buffer;
+        memsizetype len;
+        stritype result;
+
+      /* intStr */
+        if ((sign = (number < 0))) {
+          unsigned_number = -number;
+        } else {
+          unsigned_number = number;
+        } /* if */
+        buffer = &buffer_1[50];
+        do {
+          *(--buffer) = (strelemtype) (unsigned_number % 10 + '0');
+        } while ((unsigned_number /= 10) != 0);
+        if (sign) {
+          *(--buffer) = (strelemtype) '-';
+        } /* if */
+        len = &buffer_1[50] - buffer;
+        if (!ALLOC_STRI(result, len)) {
+          raise_error(MEMORY_ERROR);
+          return(NULL);
+        } else {
+          result->size = len;
+          memcpy(result->mem, buffer, (SIZE_TYPE) (len * sizeof(strelemtype)));
+          return(result);
+        } /* if */
+      } /* intStr */
+
+  The file 'int_rtl.h' contains a prototype definition for the
+  'intStr()' helper function:
+
+    stritype intStr (inttype number);
+
+  and also a definition for the K&R C language:
+
+    stritype intStr ();
+
+  The helper functions are also used in the code generated by
+  the Seed7 compiler:
+
+    const proc: process_int_str (in ref_list: params, inout expr_type: c_expr) is func
+
+      begin
+        prepare_stri_result(c_expr);
+        c_expr.result_expr &:= "intStr(";
+        getStdParamToResultExpr(params[1], c_expr);
+        c_expr.result_expr &:= ")";
+      end func;
 
   All the *lib.c files containing primitive actions and various
   other files with their functions are grouped together in the
   's7_comp.a' library (Licensed under GPL). Furthermore the C
   primitiv action functions (E.g.: int_parse) of the *lib.c
   files may use corresponding functions (E.g.: intParse) which
-  can be found in *_rtl.c files (E.g.: int_rtl.c). The *_rtl.c
+  can be found in *_rtl.c files (E.g.: 'int_rtl.c'). The *_rtl.c
   files are grouped together in the 'seed7_05.a' library
   (Licensed under LGPL). When a Seed7 program is compiled with
   the Seed7 compiler (comp.sd7) inline code is generated for
