@@ -233,7 +233,7 @@ errinfotype *err_info;
           fclose(in_file.fil);
           *err_info = MEMORY_ERROR;
         } else {
-          name_ustri = (ustritype) cp_to_cstri(source_file_name);
+          name_ustri = (ustritype) cp_to_cstri8(source_file_name);
           if (name_ustri == NULL) {
             fclose(in_file.fil);
             *err_info = MEMORY_ERROR;

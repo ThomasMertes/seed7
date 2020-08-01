@@ -34,27 +34,28 @@ $ include "seed7_05.s7i";
 
 const string: temp_marker is "/* Seed7 compiler temp file */";
 
-const boolean: WITH_STRI_CAPACITY       is boolean parse configValue("WITH_STRI_CAPACITY");
-const boolean: ALLOW_STRITYPE_SLICES    is boolean parse configValue("ALLOW_STRITYPE_SLICES");
-const boolean: RSHIFT_DOES_SIGN_EXTEND  is boolean parse configValue("RSHIFT_DOES_SIGN_EXTEND");
-const boolean: TWOS_COMPLEMENT_INTTYPE  is boolean parse configValue("TWOS_COMPLEMENT_INTTYPE");
-const boolean: LITTLE_ENDIAN_INTTYPE    is boolean parse configValue("LITTLE_ENDIAN_INTTYPE");
-const boolean: NAN_COMPARISON_WRONG     is boolean parse configValue("NAN_COMPARISON_WRONG");
-const boolean: POWER_OF_ZERO_WRONG      is boolean parse configValue("POWER_OF_ZERO_WRONG");
-const boolean: USE_SIGSETJMP            is boolean parse configValue("USE_SIGSETJMP");
-const boolean: SIGILL_ON_OVERFLOW       is boolean parse configValue("SIGILL_ON_OVERFLOW");
-const boolean: FLOAT_ZERO_DIV_ERROR     is boolean parse configValue("FLOAT_ZERO_DIV_ERROR");
-const boolean: ISNAN_WITH_UNDERLINE     is boolean parse configValue("ISNAN_WITH_UNDERLINE");
-const boolean: CHECK_INT_DIV_BY_ZERO    is boolean parse configValue("CHECK_INT_DIV_BY_ZERO");
-const boolean: CC_SOURCE_UTF8           is boolean parse configValue("CC_SOURCE_UTF8");
-const boolean: USE_WMAIN                is boolean parse configValue("USE_WMAIN");
-const boolean: FLOATTYPE_DOUBLE         is boolean parse configValue("FLOATTYPE_DOUBLE");
-const integer: INTTYPE_SIZE             is integer parse configValue("INTTYPE_SIZE");
-const integer: FLOATTYPE_SIZE           is integer parse configValue("FLOATTYPE_SIZE");
-const integer: POINTER_SIZE             is integer parse configValue("POINTER_SIZE");
-const integer: GENERIC_SIZE             is max({INTTYPE_SIZE, FLOATTYPE_SIZE, POINTER_SIZE});
-const string:  INT32TYPE_LITERAL_SUFFIX is configValue("INT32TYPE_LITERAL_SUFFIX");
-const string:  INT64TYPE_LITERAL_SUFFIX is configValue("INT64TYPE_LITERAL_SUFFIX");
+const boolean: WITH_STRI_CAPACITY        is boolean parse configValue("WITH_STRI_CAPACITY");
+const boolean: ALLOW_STRITYPE_SLICES     is boolean parse configValue("ALLOW_STRITYPE_SLICES");
+const boolean: RSHIFT_DOES_SIGN_EXTEND   is boolean parse configValue("RSHIFT_DOES_SIGN_EXTEND");
+const boolean: TWOS_COMPLEMENT_INTTYPE   is boolean parse configValue("TWOS_COMPLEMENT_INTTYPE");
+const boolean: LITTLE_ENDIAN_INTTYPE     is boolean parse configValue("LITTLE_ENDIAN_INTTYPE");
+const boolean: NAN_COMPARISON_WRONG      is boolean parse configValue("NAN_COMPARISON_WRONG");
+const boolean: POWER_OF_ZERO_WRONG       is boolean parse configValue("POWER_OF_ZERO_WRONG");
+const boolean: USE_SIGSETJMP             is boolean parse configValue("USE_SIGSETJMP");
+const boolean: SIGILL_ON_OVERFLOW        is boolean parse configValue("SIGILL_ON_OVERFLOW");
+const boolean: FLOAT_ZERO_DIV_ERROR      is boolean parse configValue("FLOAT_ZERO_DIV_ERROR");
+const boolean: ISNAN_WITH_UNDERLINE      is boolean parse configValue("ISNAN_WITH_UNDERLINE");
+const boolean: CHECK_INT_DIV_BY_ZERO     is boolean parse configValue("CHECK_INT_DIV_BY_ZERO");
+const boolean: LIMITED_CSTRI_LITERAL_LEN is boolean parse configValue("LIMITED_CSTRI_LITERAL_LEN");
+const boolean: CC_SOURCE_UTF8            is boolean parse configValue("CC_SOURCE_UTF8");
+const boolean: USE_WMAIN                 is boolean parse configValue("USE_WMAIN");
+const boolean: FLOATTYPE_DOUBLE          is boolean parse configValue("FLOATTYPE_DOUBLE");
+const integer: INTTYPE_SIZE              is integer parse configValue("INTTYPE_SIZE");
+const integer: FLOATTYPE_SIZE            is integer parse configValue("FLOATTYPE_SIZE");
+const integer: POINTER_SIZE              is integer parse configValue("POINTER_SIZE");
+const integer: GENERIC_SIZE              is max({INTTYPE_SIZE, FLOATTYPE_SIZE, POINTER_SIZE});
+const string:  INT32TYPE_LITERAL_SUFFIX  is configValue("INT32TYPE_LITERAL_SUFFIX");
+const string:  INT64TYPE_LITERAL_SUFFIX  is configValue("INT64TYPE_LITERAL_SUFFIX");
 
 var string: INTTYPE_LITERAL_SUFFIX is "";
 
@@ -11404,10 +11405,14 @@ const proc: process_const_int_str_based (in reference: param1, in integer: base,
       c_expr.result_expr := "intStr(";
       getStdParamToResultExpr(param1, c_expr);
       c_expr.result_expr &:= ")";
-    elsif base = 16 then
+    elsif 2 ** log2(base) = base then
       prepare_stri_result(c_expr);
-      c_expr.result_expr := "intStrHex(";
+      c_expr.result_expr := "intStrPow2Base(";
       getStdParamToResultExpr(param1, c_expr);
+      c_expr.result_expr &:= ",";
+      c_expr.result_expr &:= str(log2(base));
+      c_expr.result_expr &:= ",";
+      c_expr.result_expr &:= str(pred(base));
       c_expr.result_expr &:= ")";
     else
       prepare_stri_result(c_expr);
@@ -22583,7 +22588,7 @@ const proc: write_prototypes is func
     declareExtern("inttype     intSqrt (inttype);");
     declareExtern("stritype    intStr (inttype);");
     declareExtern("stritype    intStrBased (inttype, inttype);");
-    declareExtern("stritype    intStrHex (inttype);");
+    declareExtern("stritype    intStrPow2Base (inttype, int, int);");
     declareExtern("inttype     intValue (objreftype);");
     declareExtern("chartype    kbdGetc (void);");
     declareExtern("stritype    kbdGets (inttype);");
@@ -23432,66 +23437,60 @@ const proc: init_string_constants (inout expr_type: c_expr) is func
   end func;
 
 
-const func string: int32AsFourInt8 (in bigInteger: number) is func
+const proc: cCharLiteral (in char: ch, inout string: c_stri) is func
+  begin
+    if ch <= '\31\' or ch >= '\127\' then
+      c_stri &:= "\\" <& str(ord(ch), 8) lpad0 3;
+    elsif ch = '"' then
+      c_stri &:= "\\\"";
+	elsif ch = '\\' then
+      c_stri &:= "\\\\";
+	else
+      c_stri &:= str(ch);
+    end if;
+  end func;
+	
+
+const func string: int32AsFourInt8Chars (in integer: number) is func
   result
-    var string: result is "";
+    var string: stri is "";
   begin
     if LITTLE_ENDIAN_INTTYPE then
-      result  := str( number        mod 256_);
-      result &:= ",";
-      result &:= str((number >>  8) mod 256_);
-      result &:= ",";
-      result &:= str((number >> 16) mod 256_);
-      result &:= ",";
-      result &:= str((number >> 24) mod 256_);
+      stri := str(chr( number        mod 256)) &
+              str(chr((number >>  8) mod 256)) &
+              str(chr((number >> 16) mod 256)) &
+              str(chr((number >> 24) mod 256));
     else
-      result &:= str((number >> 24) mod 256_);
-      result &:= ",";
-      result &:= str((number >> 16) mod 256_);
-      result &:= ",";
-      result &:= str((number >>  8) mod 256_);
-      result &:= ",";
-      result  := str( number        mod 256_);
+      stri := str(chr((number >> 24) mod 256)) &
+              str(chr((number >> 16) mod 256)) &
+              str(chr((number >>  8) mod 256)) &
+              str(chr( number        mod 256));
     end if;
   end func;
 
 
-const func string: int64AsEightInt8 (in bigInteger: number) is func
+const func string: int64AsEightInt8Chars (in integer: number) is func
   result
-    var string: result is "";
+    var string: stri is "";
   begin
     if LITTLE_ENDIAN_INTTYPE then
-      result  := str( number        mod 256_);
-      result &:= ",";
-      result &:= str((number >>  8) mod 256_);
-      result &:= ",";
-      result &:= str((number >> 16) mod 256_);
-      result &:= ",";
-      result &:= str((number >> 24) mod 256_);
-      result &:= ",";
-      result &:= str((number >> 32) mod 256_);
-      result &:= ",";
-      result &:= str((number >> 40) mod 256_);
-      result &:= ",";
-      result &:= str((number >> 48) mod 256_);
-      result &:= ",";
-      result &:= str((number >> 56) mod 256_);
+      stri := str(chr( number        mod 256)) &
+              str(chr((number >>  8) mod 256)) &
+              str(chr((number >> 16) mod 256)) &
+              str(chr((number >> 24) mod 256)) &
+              str(chr((number >> 32) mod 256)) &
+              str(chr((number >> 40) mod 256)) &
+              str(chr((number >> 48) mod 256)) &
+              str(chr((number >> 56) mod 256));
     else
-      result &:= str((number >> 56) mod 256_);
-      result &:= ",";
-      result &:= str((number >> 48) mod 256_);
-      result &:= ",";
-      result &:= str((number >> 40) mod 256_);
-      result &:= ",";
-      result &:= str((number >> 32) mod 256_);
-      result &:= ",";
-      result &:= str((number >> 24) mod 256_);
-      result &:= ",";
-      result &:= str((number >> 16) mod 256_);
-      result &:= ",";
-      result &:= str((number >>  8) mod 256_);
-      result &:= ",";
-      result  := str( number        mod 256_);
+      stri := str(chr((number >> 56) mod 256)) &
+              str(chr((number >> 48) mod 256)) &
+              str(chr((number >> 40) mod 256)) &
+              str(chr((number >> 32) mod 256)) &
+              str(chr((number >> 24) mod 256)) &
+              str(chr((number >> 16) mod 256)) &
+              str(chr((number >>  8) mod 256)) &
+              str(chr( number        mod 256));
     end if;
   end func;
 
@@ -23502,6 +23501,8 @@ const proc: init_bstri_constants (inout expr_type: c_expr) is func
     var bstri_index_hash: bstri_index is bstri_index_hash.EMPTY_HASH;
     var bstring: bstri is bstring.value;
     var integer: number is 0;
+    var string: lengthAsChars is "";
+    var integer: countChars is 0;
     var char: ch is ' ';
   begin
     bstri_index := flip(bstri_const_table);
@@ -23511,17 +23512,44 @@ const proc: init_bstri_constants (inout expr_type: c_expr) is func
       c_expr.expr &:= str(number);
       c_expr.expr &:= "] */ static unsigned char bstri_";
       c_expr.expr &:= str(number);
-      c_expr.expr &:= "[]={";
       if POINTER_SIZE = 32 then
-        c_expr.expr &:= int32AsFourInt8(bigInteger conv length(bstri));
+        lengthAsChars := int32AsFourInt8Chars(length(bstri));
       elsif POINTER_SIZE = 64 then
-        c_expr.expr &:= int64AsEightInt8(bigInteger conv length(bstri));
+        lengthAsChars := int64AsEightInt8Chars(length(bstri));
       end if;
-      for ch range bstri do
-        c_expr.expr &:= ",";
-        c_expr.expr &:= c_literal(ch);
-      end for;
-      c_expr.expr &:= "};\n";
+      if LIMITED_CSTRI_LITERAL_LEN then
+        c_expr.expr &:= "[]={";
+        for ch range lengthAsChars do
+          c_expr.expr &:= c_literal(ch);
+          c_expr.expr &:= ",";
+        end for;
+        c_expr.expr &:= "\n";
+        for ch range bstri do
+          c_expr.expr &:= c_literal(ch);
+          c_expr.expr &:= ",";
+          incr(countChars);
+          if countChars = 20 then
+            c_expr.expr &:= "\n";
+            countChars := 0;
+          end if;
+        end for;
+        c_expr.expr &:= "};\n";
+      else
+        c_expr.expr &:= "[]=\"";
+        for ch range lengthAsChars do
+          cCharLiteral(ch, c_expr.expr);
+        end for;
+        c_expr.expr &:= "\"\n\"";
+        for ch range bstri do
+          cCharLiteral(ch, c_expr.expr);
+          incr(countChars);
+          if countChars = 40 then
+            c_expr.expr &:= "\"\n\"";
+            countChars := 0;
+          end if;
+        end for;
+        c_expr.expr &:= "\";\n";
+      end if;
     end for;
     c_expr.expr &:= "bstritype bst[]={\n";
     if length(bstri_const_table) > 0 then

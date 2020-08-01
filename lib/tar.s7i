@@ -322,6 +322,47 @@ const proc: setUpHead (in string: basePath, in string: name,
   end func;
 
 
+(**
+ *  Determine the filenames in a directory, using a TAR file.
+ *  @return an array with the file names.
+ *  @exception FILE_ERROR The remote host returns an error.
+ *)
+const func array string: readDir (inout file: inFile, in var string: dirPath) is func
+  result
+    var array string: fileNames is 0 times "";
+  local
+    var header: head is header.value;
+    var set of string: fileNameSet is (set of string).value;
+    var string: fileName is "";
+    var integer: slashPos is 0;
+  begin
+    if dirPath = "." then
+      dirPath := "";
+    end if;
+    readHead(inFile, head);
+    while head.name <> "" and head.magic = TMAGIC do
+      if startsWith(head.name, dirPath) then
+        fileName := head.name[succ(length(dirPath)) ..];
+		if startsWith(fileName, "/") then
+          fileName := fileName[2 ..];
+        end if;
+        slashPos := pos(fileName, '/');
+        if slashPos <> 0 then
+          fileName := fileName[.. pred(slashPos)];
+        end if;
+        if fileName <> "" and fileName not in fileNameSet then
+          incl(fileNameSet, fileName);
+          fileNames &:= fileName;
+        end if;
+      end if;
+      if head.size <> 0 then
+        seek(inFile, tell(inFile) + succ(pred(head.size) mdiv 512) * 512);
+      end if;
+      readHead(inFile, head);
+    end while;
+  end func;
+
+
 const proc: tarTell (inout file: inFile, in array string: arg_list,
     in boolean: do_view) is func
   local

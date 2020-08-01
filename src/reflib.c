@@ -981,7 +981,7 @@ listtype arguments;
     obj_variable = arg_2(arguments);
     isit_reference(obj_variable);
     is_variable(obj_variable);
-    name = cp_to_cstri(str1);
+    name = cp_to_cstri8(str1);
     if (name == NULL) {
       result = raise_exception(SYS_MEM_EXCEPTION);
     } else {

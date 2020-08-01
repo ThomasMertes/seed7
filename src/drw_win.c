@@ -1744,7 +1744,7 @@ stritype window_name;
       dra_init();
     } /* if */
     if (init_called != 0) {
-      win_name = cp_to_cstri(window_name);
+      win_name = cp_to_cstri8(window_name);
       if (win_name == NULL) {
         raise_error(MEMORY_ERROR);
       } else {

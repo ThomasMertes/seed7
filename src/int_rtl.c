@@ -1152,11 +1152,13 @@ inttype base;
  */
 #ifdef ANSI_C
 
-stritype intStrHex (inttype number)
+stritype intStrPow2Base (inttype number, int shift, int mask)
 #else
 
-stritype intStrHex (number)
+stritype intStrPow2Base (number, shft, mask)
 inttype number;
+int shift;
+int mask
 #endif
 
   {
@@ -1167,7 +1169,7 @@ inttype number;
     memsizetype length;
     stritype result;
 
-  /* intStrHex */
+  /* intStrPow2Base */
     negative = (number < 0);
     if (negative) {
       /* The unsigned value is negated to avoid a signed integer */
@@ -1178,8 +1180,8 @@ inttype number;
     } /* if */
     buffer = &buffer_1[50];
     do {
-      *(--buffer) = (strelemtype) (digits[unsigned_number & 0xF]);
-    } while ((unsigned_number >>= 4) != 0);
+      *(--buffer) = (strelemtype) (digits[unsigned_number & mask]);
+    } while ((unsigned_number >>= shift) != 0);
     if (negative) {
       *(--buffer) = (strelemtype) '-';
     } /* if */
@@ -1192,4 +1194,4 @@ inttype number;
       memcpy(result->mem, buffer, (size_t) (length * sizeof(strelemtype)));
       return result;
     } /* if */
-  } /* intStrHex */
+  } /* intStrPow2Base */

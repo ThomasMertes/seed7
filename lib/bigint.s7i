@@ -330,6 +330,7 @@ const func bigInteger: (attr bigInteger) conv (in integer: number)       is acti
  *  Convert a ''bigInteger'' number to a [[string]].
  *  The number is converted to a string with decimal representation.
  *  @return the string result of the conversion.
+ *  @exception MEMORY_ERROR  Not enough memory to represent the result.
  *)
 const func string: str (in bigInteger: number)                           is action "BIG_STR";
 

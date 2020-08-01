@@ -1142,7 +1142,7 @@ stritype stri;
     biginttype result;
 
   /* bigParse */
-    cstri = cp_to_cstri(stri);
+    cstri = cp_to_cstri8(stri);
     if (cstri == NULL) {
       raise_error(MEMORY_ERROR);
       result = NULL;

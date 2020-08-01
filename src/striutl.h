@@ -87,14 +87,14 @@ memsizetype utf8_to_stri (strelemtype *dest_stri, memsizetype *dest_len,
 memsizetype utf8_bytes_missing (const_ustritype ustri, size_t len);
 memsizetype stri_to_utf8 (ustritype out_stri, register const strelemtype *strelem,
                           memsizetype len);
-void stri_export (ustritype out_stri, const_stritype in_stri);
+void stri_export_utf8 (ustritype out_stri, const_stritype in_stri);
 void ustri_expand (strelemtype *stri, const_ustritype ustri, size_t len);
 void stri_compress (ustritype ustri, const strelemtype *stri, size_t len);
 #ifdef OS_STRI_WCHAR
 memsizetype stri_to_wstri (wstritype out_wstri, register const strelemtype *strelem,
                            memsizetype len, errinfotype *err_info);
 #endif
-cstritype cp_to_cstri (const_stritype stri);
+cstritype cp_to_cstri8 (const_stritype stri);
 bstritype stri_to_bstri (const_stritype stri);
 bstritype stri_to_bstri8 (const_stritype stri);
 #ifdef CONSOLE_WCHAR
@@ -124,13 +124,13 @@ strelemtype *stri_charpos ();
 memsizetype utf8_to_stri ();
 memsizetype utf8_bytes_missing ();
 memsizetype stri_to_utf8 ();
-void stri_export ();
+void stri_export_utf8 ();
 void ustri_expand ();
 void stri_compress ();
 #ifdef OS_STRI_WCHAR
 memsizetype stri_to_wstri ();
 #endif
-cstritype cp_to_cstri ();
+cstritype cp_to_cstri8 ();
 bstritype stri_to_bstri ();
 bstritype stri_to_bstri8 ();
 #ifdef CONSOLE_WCHAR

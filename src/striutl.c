@@ -384,12 +384,26 @@ size_t len;
 
 
 
+/**
+ *  Copy a Seed7 UTF-32 string to an UTF-8 encoded C string buffer.
+ *  The buffer 'out_stri' must be provided by the caller. The
+ *  size of the 'out_stri' buffer can be calculated (in bytes) with
+ *  max_utf8_size(in_stri->size)+1. When a fixed size 'out_stri'
+ *  buffer is used (e.g.: char out_buffer[BUF_SIZE];) the condition
+ *    in_stri->size < BUF_SIZE / MAX_UTF8_EXPANSION_FACTOR
+ *  must hold. The C string written to 'out_buf' is zero byte
+ *  terminated. No special action is done, when the UTF-32 string
+ *  contains a null character. This function is intended to copy
+ *  to temporary string buffers, that are used as parameters. This
+ *  function is useful, when in_stri->size is somehow limited,
+ *  such that a fixed size 'out_stri' buffer can be used.
+ */
 #ifdef ANSI_C
 
-void stri_export (ustritype out_stri, const_stritype in_stri)
+void stri_export_utf8 (ustritype out_stri, const_stritype in_stri)
 #else
 
-void stri_export (out_stri, in_stri)
+void stri_export_utf8 (out_stri, in_stri)
 ustritype out_stri;
 stritype in_stri;
 #endif
@@ -397,10 +411,10 @@ stritype in_stri;
   {
     memsizetype len;
 
-  /* stri_export */
+  /* stri_export_utf8 */
     len = stri_to_utf8(out_stri, in_stri->mem, in_stri->size);
     out_stri[len] = '\0';
-  } /* stri_export */
+  } /* stri_export_utf8 */
 
 
 
@@ -821,37 +835,52 @@ os_stritype os_stri;
 
 
 /**
- *  Copy a Seed7 string to an UTF-8 encoded C string.
- *  The memory for the C string is allocated. To get good performance
- *  the allocated memory area is oversized. The macro free_cstri()
- *  must be used to free the allocated memory. No special action is
- *  done, when the original string contains a null character.
+ *  Create an UTF-8 encoded C string from a Seed7 UTF-32 string.
+ *  The memory for the zero byte terminated C string is allocated.
+ *  The C string result must be freed with the macro free_cstri(). 
+ *  This function is intended to create temporary strings, that
+ *  are used as parameters. To get good performance the allocated
+ *  memory for the C string is oversized. No special action is
+ *  done, when the UTF-32 string contains a null character.
  *  @return an UTF-8 encoded null terminated C string or
  *          NULL, when the memory allocation failed.
  */
 #ifdef ANSI_C
 
-cstritype cp_to_cstri (const_stritype stri)
+cstritype cp_to_cstri8 (const_stritype stri)
 #else
 
-cstritype cp_to_cstri (stri)
+cstritype cp_to_cstri8 (stri)
 stritype stri;
 #endif
 
   {
     cstritype cstri;
 
-  /* cp_to_cstri */
+  /* cp_to_cstri8 */
     if (stri->size > MAX_CSTRI_LEN / MAX_UTF8_EXPANSION_FACTOR) {
       cstri = NULL;
     } else if (ALLOC_CSTRI(cstri, max_utf8_size(stri->size))) {
-      stri_export((ustritype) cstri, stri);
+      stri_export_utf8((ustritype) cstri, stri);
     } /* if */
     return cstri;
-  } /* cp_to_cstri */
+  } /* cp_to_cstri8 */
 
 
 
+/**
+ *  Create an ISO-8859-1 encoded bstring from a Seed7 UTF-32 string.
+ *  The memory for the bstring is allocated. No zero byte is added
+ *  to the end of the bstring. No special action is done, when the
+ *  UTF-32 string contains a null character. When the UTF-32 string
+ *  contains a character byond ISO-8859-1 the bstring will end with
+ *  the last ISO-8859-1 character. When the first UTF-32 character
+ *  is byond ISO-8859-1 an empty bstring is returned. The conversion
+ *  was successful, when the bstring has the same size as the UTF-32
+ *  string.
+ *  @return an ISO-8859-1 encoded bstring or
+ *          NULL, when the memory allocation failed.
+ */
 #ifdef ANSI_C
 
 bstritype stri_to_bstri (const_stritype stri)
@@ -893,6 +922,14 @@ stritype stri;
 
 
 
+/**
+ *  Create an UTF-8 encoded bstring from a Seed7 UTF-32 string.
+ *  The memory for the bstring is allocated. No zero byte is added
+ *  to the end of the bstring. No special action is done, when
+ *  the original string contains a null character.
+ *  @return an UTF-8 encoded bstring or
+ *          NULL, when the memory allocation failed.
+ */
 #ifdef ANSI_C
 
 bstritype stri_to_bstri8 (const_stritype stri)
@@ -1001,6 +1038,12 @@ stritype stri;
 
 
 
+/**
+ *  Copy an ISO-8859-1 (Latin-1) encoded C string to a Seed7 string.
+ *  The memory for the UTF-32 encoded Seed7 string is allocated. 
+ *  @return an UTF-32 encoded Seed7 string or
+ *          NULL, when the memory allocation failed.
+ */
 #ifdef ANSI_C
 
 stritype cstri_to_stri (const_cstritype cstri)
@@ -1177,7 +1220,7 @@ errinfotype *err_info;
       if (unlikely(!os_stri_alloc(result, OS_STRI_SIZE(stri->size)))) {
         *err_info = MEMORY_ERROR;
       } else {
-        stri_export((ustritype) result, stri);
+        stri_export_utf8((ustritype) result, stri);
       } /* if */
     } /* if */
     return result;
@@ -1627,7 +1670,7 @@ errinfotype *err_info;
       *err_info = MEMORY_ERROR;
       result = NULL;
     } else {
-      stri_export((ustritype) result, stri);
+      stri_export_utf8((ustritype) result, stri);
     } /* if */
 #ifdef TRACE_STRIUTL
     printf("END cp_to_os_path(%lx, %d) ==> %lx\n", stri, *err_info, result);

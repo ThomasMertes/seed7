@@ -1,3 +1,27 @@
+20120806:
+- The new library image.s7i was added. The contents of this library
+  was extracted from the program "carddemo.sd7".
+- The new library make.s7i was added. The contents of this library
+  was extracted from the program "make7.sd7".
+- The function 'str' and the 'parse' operator were added to the
+  library bstring.s7i.
+- The function readDir was added to the library tar.s7i.
+- A documentation comment was improved in the library bigint.s7i.
+- The generation of bstring constants in the compiler (comp.sd7) was
+  improved.
+- The function intStrHex was renamed to intStrPow2Base in the files
+  "int_rtl.c", "int_rtl.h" and in the compiler. The new function is
+  used to convert an integer to a string, when the number base is a
+  power of two.
+- The function stri_export was renamed to stri_export_utf8 in the C
+  source files.
+- The function cp_to_cstri was renamed to cp_to_cstri8 in the C
+  source files.
+- Documentation comments were added and improved in the file
+  "striutl.c".
+- The makefile mk_msvc.mak was changed to write a definition of
+  LIMITED_CSTRI_LITERAL_LEN to "version.h".
+
 20120721:
 - Documentation comments were improved in the libraries idxarray.s7i,
   array.s7i, dir.s7i, external_file.s7i, osfiles.s7i, duration.s7i

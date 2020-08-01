@@ -346,7 +346,7 @@ stritype syobjectName;
     objecttype result;
 
   /* prgSyobject */
-    name = cp_to_cstri(syobjectName);
+    name = cp_to_cstri8(syobjectName);
     if (name == NULL) {
       raise_error(MEMORY_ERROR);
       result = NULL;

@@ -1744,7 +1744,7 @@ stritype trace_level;
 #ifdef TRACE_TRACE
     printf("BEGIN set_trace2\n");
 #endif
-    ctrace_level = cp_to_cstri(trace_level);
+    ctrace_level = cp_to_cstri8(trace_level);
     if (ctrace_level != NULL) {
       set_trace(ctrace_level, (int) trace_level->size, NULL);
       free_cstri(ctrace_level, trace_level);

@@ -43,6 +43,23 @@ const bstring: (attr bstring) . value                                   is _GENE
 
 
 (**
+ *  Convert a ''bstring'' value to a [[string]].
+ *  @return the [[string]] result of the conversion.
+ *  @exception MEMORY_ERROR  Not enough memory to represent the result.
+ *)
+const func string: str (in bstring param)                               is action "BST_STR";
+
+
+(**
+ *  Convert a [[string]] to a ''bstring'' value.
+ *  @return the ''bstring'' result of the conversion.
+ *  @exception RANGE_ERROR When characters beyond '\255\' are present.
+ *  @exception MEMORY_ERROR  Not enough memory to represent the result.
+ *)
+const func bstring: (attr bstring) parse (in string param)              is action "BST_PARSE";
+
+
+(**
  *  Get a character, identified by an index, from a ''bstring''.
  *  The first character has the index 1.
  *  @return the character specified with the index.

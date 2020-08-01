@@ -254,7 +254,7 @@ static void process_pragma ()
             NL_LIN_INFO();
           } /* if */
 #endif
-          str1 = cp_to_cstri(symbol.strivalue);
+          str1 = cp_to_cstri8(symbol.strivalue);
           if (str1 != NULL) {
             puts(str1);
             fflush(stdout);

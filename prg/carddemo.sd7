@@ -27,6 +27,7 @@ $ include "seed7_05.s7i";
   include "draw.s7i";
   include "keybd.s7i";
   include "cards.s7i";
+  include "image.s7i";
   include "time.s7i";
   include "duration.s7i";
   include "dialog.s7i";
@@ -52,60 +53,10 @@ const func string: str (in rankType: rank) is
              "eight", "nine", "ten", "jack", "queen", "king", "ace") [succ(ord(rank))];
 
 
-const type: imageType is sub object interface;
-
-const func integer: width (in imageType param) is DYNAMIC;
-const func integer: height (in imageType param) is DYNAMIC;
-const func integer: xPos (in imageType param) is DYNAMIC;
-const func integer: yPos (in imageType param) is DYNAMIC;
-const func PRIMITIVE_WINDOW: window (in imageType param) is DYNAMIC;
-const proc: setPos (inout imageType param, in integer param, in integer param) is DYNAMIC;
-const func string: str (in imageType param) is DYNAMIC;
-
-enable_output(imageType);
-
-
-const type: cardType is new struct
+const type: cardType is sub baseImage struct
     var suitType: suit is suitType.value;
     var rankType: rank is rankType.value;
-    var PRIMITIVE_WINDOW: window is PRIMITIVE_WINDOW.value;
   end struct;
-
-
-type_implements_interface(cardType, imageType);
-
-
-const imageType: (attr imageType) . value is cardType.value;
-
-
-const func integer: width (in cardType: aCard) is
-  return width(aCard.window);
-
-
-const func integer: height (in cardType: aCard) is
-  return height(aCard.window);
-
-
-const func integer: xPos (in cardType: aCard) is
-  return xPos(aCard.window);
-
-
-const func integer: yPos (in cardType: aCard) is
-  return yPos(aCard.window);
-
-
-const func PRIMITIVE_WINDOW: window (in cardType: aCard) is
-  return aCard.window;
-
-
-const proc: setPos (inout cardType: aCard, in integer: xPos, in integer: yPos) is func
-  begin
-    setPos(aCard.window, xPos, yPos);
-  end func;
-
-
-const func string: str (in cardType: aCard) is
-  return str(aCard.rank) & " of " & str(aCard.suit);
 
 
 const func cardType: malloc (ref cardType: aCard) is func
@@ -116,7 +67,7 @@ const func cardType: malloc (ref cardType: aCard) is func
   end func;
 
 
-const type: imageHashType is hash [PRIMITIVE_WINDOW] imageType;
+const type: imageHashType is hash [PRIMITIVE_WINDOW] image;
 
 
 var imageHashType: imageHash is imageHashType.value;
@@ -126,10 +77,11 @@ const proc: put (in integer: xPos, in integer: yPos, in PRIMITIVE_WINDOW: pixmap
     in suitType: suit, in rankType: rank) is func
   local
     var cardType: aCard is cardType.value;
-    var imageType: anImage is imageType.value;
+    var image: anImage is image.value;
   begin
     aCard.suit := suit;
     aCard.rank := rank;
+	aCard.name := str(rank) <& " of " <& str(suit);
     aCard.window := openSubWindow(curr_win, xPos, yPos, width(pixmap), height(pixmap));
     put(aCard.window, 0, 0, pixmap, PSET);
     anImage := malloc(aCard);
@@ -137,20 +89,20 @@ const proc: put (in integer: xPos, in integer: yPos, in PRIMITIVE_WINDOW: pixmap
   end func;
 
 
-const proc: move (inout imageType: anImage) is func
+const proc: move (inout image: anImage) is func
   local
     var integer: deltaX is 0;
     var integer: deltaY is 0;
     var integer: newXpos is 0;
     var integer: newYpos is 0;
   begin
-    deltaX := pointerXPos(curr_win) - xPos(window(anImage));
-    deltaY := pointerYPos(curr_win) - yPos(window(anImage));
+    deltaX := pointerXPos(curr_win) - xPos(anImage);
+    deltaY := pointerYPos(curr_win) - yPos(anImage);
     repeat
       newXpos := pointerXPos(curr_win) - deltaX;
       newYpos := pointerYPos(curr_win) - deltaY;
       if newXpos <> xPos(anImage) or newYpos <> yPos(anImage) then
-        setPos(window(anImage), newXpos, newYpos);
+        setPos(anImage, newXpos, newYpos);
         DRAW_FLUSH;
       end if;
       wait(30000 . MICRO_SECONDS);
@@ -161,9 +113,9 @@ const proc: move (inout imageType: anImage) is func
   end func;
 
 
-const func imageType: select_card is func
+const func image: select_card is func
   result
-    var imageType: result is imageType.value;
+    var image: result is image.value;
   local
     var integer: xPos is 0;
     var integer: yPos is 0;
@@ -174,6 +126,7 @@ const func imageType: select_card is func
     win := buttonWindow(KEYBOARD);
     if win in imageHash then
       result := imageHash[win];
+	  # writeln(str(result));
     end if;
   end func;
 
@@ -181,7 +134,7 @@ const func imageType: select_card is func
 const proc: main is func
   local
     var char: command is ' ';
-    var imageType: anImage is imageType.value;
+    var image: anImage is image.value;
   begin
     screen(980 * PICTURE_SCALE, 405 * PICTURE_SCALE);
     clear(curr_win, white);
@@ -244,12 +197,12 @@ const proc: main is func
     command := getc(KEYBOARD);
     while command in {KEY_MOUSE1, KEY_MOUSE2, KEY_MOUSE3} do
       anImage := select_card;
-      if anImage <> imageType.value then
+      if anImage <> image.value then
         if command = KEY_MOUSE2 then
-          toTop(window(anImage));
+          toTop(anImage);
           DRAW_FLUSH;
         elsif command = KEY_MOUSE3 then
-          toBottom(window(anImage));
+          toBottom(anImage);
           DRAW_FLUSH;
         end if;
         move(anImage);

@@ -517,7 +517,7 @@ stritype stri;
     okay = TRUE;
 #ifdef USE_STRTOD
     if (stri->size < 150 / MAX_UTF8_EXPANSION_FACTOR) {
-      stri_export((ustritype) buffer, stri);
+      stri_export_utf8((ustritype) buffer, stri);
 /*    result = (floattype) atof(buffer); */
       result = (floattype) strtod(buffer, &next_ch);
       if (next_ch == buffer) {

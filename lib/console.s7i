@@ -66,31 +66,31 @@ const func console_file: open (CONSOLE) is func
  *  Forces that all buffered data of ''aFile'' is sent to its destination.
  *  This causes data to be sent to the text console/window of the OS.
  *)
-const proc: flush (ref console_file: aFile)                      is action "CON_FLUSH";
+const proc: flush (in console_file: aFile)                       is action "CON_FLUSH";
 
 
 (**
  *  Get the height of 'aConsoleFile'.
  *  @return the height of 'aConsoleFile'.
  *)
-const func integer: height (ref console_file: aConsoleFile)      is action "CON_HEIGHT";
+const func integer: height (in console_file: aConsoleFile)       is action "CON_HEIGHT";
 
 
 (**
  *  Get the width of 'aConsoleFile'.
  *  @return the width of 'aConsoleFile'.
  *)
-const func integer: width (ref console_file: aConsoleFile)       is action "CON_WIDTH";
+const func integer: width (in console_file: aConsoleFile)        is action "CON_WIDTH";
 
 
 (**
  *  Set the current position of 'aConsoleFile' to 'line' and 'column'.
  *)
-const proc: setPos (ref console_file: aConsoleFile,
-    ref integer: line, ref integer: column)                      is action "CON_SETPOS";
+const proc: setPos (in console_file: aConsoleFile,
+    in integer: line, in integer: column)                        is action "CON_SETPOS";
 
 
-const proc: cursor (ref console_file param, ref boolean param)   is action "CON_CURSOR";
+const proc: cursor (in console_file param, in boolean param)     is action "CON_CURSOR";
 const proc: clearArea (in console_file: aConsoleFile, in integer: upper,
     in integer: left, in integer: lower, in integer: right)      is action "CON_CLEAR";
 
@@ -120,23 +120,23 @@ const proc: clear (in console_file: aConsoleFile) is func
 const proc: v_scroll (inout console_file param,
     in integer param, in integer param, in integer param,
     in integer param, in integer param)                          is action "CON_V_SCL";
-const proc: h_scroll (ref console_file param,
+const proc: h_scroll (in console_file param,
     in integer param, in integer param, in integer param,
     in integer param, in integer param)                          is action "CON_H_SCL";
 
 
-const proc: color (ref console_file param, ref color param) is noop;
-const proc: color (ref console_file param, ref color param, ref color param) is noop;
+const proc: color (in console_file param, in color param) is noop;
+const proc: color (in console_file param, in color param, in color param) is noop;
 
 
 (**
  *  Write a string to the current position of 'aConsoleFile'.
  *)
-const proc: write (ref console_file: aConsoleFile, in string: stri) is action "CON_WRITE";
+const proc: write (in console_file: aConsoleFile, in string: stri) is action "CON_WRITE";
 
 
 (*
-const proc: writeln (ref console_file: aConsoleFile) is func
+const proc: writeln (in console_file: aConsoleFile) is func
   begin
     if LINE(aConsoleFile) = height(aConsoleFile) then
       SCROLL_UP(aConsoleFile, 1, 1, height(aConsoleFile), width(aConsoleFile), 1);
@@ -147,7 +147,7 @@ const proc: writeln (ref console_file: aConsoleFile) is func
   end func;
 
 
-const proc: backSpace (ref console_file: aConsoleFile) is func
+const proc: backSpace (in console_file: aConsoleFile) is func
   begin
     if COLUMN(aConsoleFile) > 1 then
       setPos(aConsoleFile, LINE(aConsoleFile); pred(COLUMN(aConsoleFile)));
@@ -172,5 +172,5 @@ const proc: cursor_off (inout console_file: aConsoleFile) is func
   end func;
 
 
-const proc: box (ref console_file param) is noop;
-const proc: clear_box (ref console_file param) is noop;
+const proc: box (in console_file param) is noop;
+const proc: clear_box (in console_file param) is noop;

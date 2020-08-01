@@ -211,7 +211,7 @@ acttype *action_found;
       } /* if */
       result = FALSE;
     } else {
-      stri_export(act_name, action_name);
+      stri_export_utf8(act_name, action_name);
       result = search_action(act_name, action_found);
     } /* if */
 #ifdef TRACE_ACTUTIL

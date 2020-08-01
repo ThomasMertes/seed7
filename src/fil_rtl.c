@@ -1321,11 +1321,11 @@ stritype stri;
     cstritype str1;
 
   /* filPrint */
-    str1 = cp_to_cstri(stri);
+    str1 = cp_to_cstri8(stri);
     if (unlikely(str1 == NULL)) {
       raise_error(MEMORY_ERROR);
     } else {
-      fputs(str1, stdout);
+      puts(str1);
       fflush(stdout);
       free_cstri(str1, stri);
     } /* if */

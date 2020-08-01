@@ -110,6 +110,7 @@ version.h:
 	echo #define ISNAN_WITH_UNDERLINE >> version.h
 	echo #define CHECK_INT_DIV_BY_ZERO >> version.h
 	echo #define FLOAT_ZERO_DIV_ERROR >> version.h
+	echo #define LIMITED_CSTRI_LITERAL_LEN >> version.h
 	echo #define USE_MYUNISTD_H >> version.h
 	echo #define CONSOLE_WCHAR >> version.h
 	echo #define OS_STRI_WCHAR >> version.h

@@ -216,7 +216,7 @@ stritype category_name;
     inttype result;
 
   /* refCatParse */
-    name = cp_to_cstri(category_name);
+    name = cp_to_cstri8(category_name);
     if (name == NULL) {
       raise_error(MEMORY_ERROR);
       result = -1;

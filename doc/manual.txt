@@ -8722,7 +8722,7 @@ CONTENTS
   Seed7 strings are UTF-32 encoded and C strings are zero
   terminated byte sequences. To convert between the different
   representations, 'striutl.h' defines conversion functions
-  like 'cp_to_cstri', 'stri_to_bstri', 'stri_to_bstri8',
+  like 'cp_to_cstri8', 'stri_to_bstri', 'stri_to_bstri8',
   'cstri_to_stri', 'cstri8_to_stri' and 'cstri8_or_cstri_to_stri'.
   Operating systems disagree in their Unicode encoding (UTF-8
   or UTF-16). To cope with this, 'striutl.h' defines the

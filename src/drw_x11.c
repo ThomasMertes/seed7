@@ -1406,7 +1406,7 @@ stritype window_name;
       if (mydisplay == NULL) {
         raise_error(FILE_ERROR);
       } else {
-        win_name = cp_to_cstri(window_name);
+        win_name = cp_to_cstri8(window_name);
         if (win_name == NULL) {
           raise_error(MEMORY_ERROR);
         } else {

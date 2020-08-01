@@ -60,7 +60,7 @@ inttype intRand (inttype lower_limit, inttype upper_limit);
 inttype intSqrt (inttype number);
 stritype intStr (inttype number);
 stritype intStrBased (inttype number, inttype base);
-stritype intStrHex (inttype number);
+stritype intStrPow2Base (inttype number, int shift, int mask);
 
 #else
 
@@ -91,6 +91,6 @@ inttype intRand ();
 inttype intSqrt ();
 stritype intStr ();
 stritype intStrBased ();
-stritype intStrHex ();
+stritype intStrPow2Base ();
 
 #endif

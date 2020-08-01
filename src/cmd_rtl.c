@@ -1007,7 +1007,7 @@ stritype name;
     if (name->size >= 250 / MAX_UTF8_EXPANSION_FACTOR) {
       opt = "";
     } else {
-      stri_export((ustritype) opt_name, name);
+      stri_export_utf8((ustritype) opt_name, name);
       if (strcmp(opt_name, "OBJECT_FILE_EXTENSION") == 0) {
         opt = OBJECT_FILE_EXTENSION;
       } else if (strcmp(opt_name, "LIBRARY_FILE_EXTENSION") == 0) {
@@ -1164,6 +1164,12 @@ stritype name;
 #endif
       } else if (strcmp(opt_name, "FLOAT_ZERO_DIV_ERROR") == 0) {
 #ifdef FLOAT_ZERO_DIV_ERROR
+        opt = "TRUE";
+#else
+        opt = "FALSE";
+#endif
+      } else if (strcmp(opt_name, "LIMITED_CSTRI_LITERAL_LEN") == 0) {
+#ifdef LIMITED_CSTRI_LITERAL_LEN
         opt = "TRUE";
 #else
         opt = "FALSE";

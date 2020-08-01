@@ -91,7 +91,7 @@ stritype stri;
     if (stri->size >= 151 / MAX_UTF8_EXPANSION_FACTOR) {
       result = -1;
     } else {
-      stri_export((ustritype) sysvar_name, stri);
+      stri_export_utf8((ustritype) sysvar_name, stri);
       result = NUMBER_OF_SYSVARS - 1;
       while (result >= 0 &&
           strcmp(sysvar_name, sys_name[result]) != 0) {

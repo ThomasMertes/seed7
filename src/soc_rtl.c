@@ -805,7 +805,7 @@ inttype port;
       raise_error(RANGE_ERROR);
       result = NULL;
     } else {
-      name = cp_to_cstri(host_name);
+      name = cp_to_cstri8(host_name);
       if (unlikely(name == NULL)) {
         raise_error(MEMORY_ERROR);
         result = NULL;
