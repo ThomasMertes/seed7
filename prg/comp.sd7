@@ -7656,17 +7656,14 @@ const proc: process_itf_cpy (in ref_list: params, inout expr_type: c_expr) is fu
       c_expr.expr &:= c_param1.temp_assigns;
       c_expr.expr &:= c_param3.temp_assigns;
     end if;
+    c_expr.expr &:= c_param1.expr;
+    c_expr.expr &:= "=(";
     if c_param3.result_expr <> "" then
-      c_expr.expr &:= c_param1.expr;
-      c_expr.expr &:= "=(";
       c_expr.expr &:= c_param3.result_expr;
-      c_expr.expr &:= ");\n";
     else
-      c_expr.expr &:= c_param1.expr;
-      c_expr.expr &:= "=(";
       c_expr.expr &:= c_param3.expr;
-      c_expr.expr &:= ");\n";
     end if;
+    c_expr.expr &:= ");\n";
     if has_temp_values(c_param3) then
       c_expr.expr &:= c_param1.temp_frees;
       c_expr.expr &:= c_param3.temp_frees;
@@ -13702,6 +13699,10 @@ const proc: action_address (in reference: function, inout expr_type: c_expr) is 
     elsif action_name = "INT_CPY" then
       c_expr.expr &:= "&intCpy";
     elsif action_name = "INT_CREATE" then
+      c_expr.expr &:= "&intCreate";
+    elsif action_name = "ITF_CPY" then
+      c_expr.expr &:= "&intCpy";
+    elsif action_name = "ITF_CREATE" then
       c_expr.expr &:= "&intCreate";
     elsif action_name = "PRC_NOOP" then
       c_expr.expr &:= "&prcNoop";

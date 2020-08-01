@@ -382,7 +382,7 @@
   and an associativity to operators and other things like these.
   An overview about syntax declarations can be found in
   <a href="decls.htm#Syntax_declarations">Chapter 3.2 (Syntax declarations)</a>. A detailed description
-  of the Seed7 syntax definitons can be found in <a href="s7ssd.htm">chapter 9
+  of the Seed7 syntax definitons can be found in <a href="syntax.htm">chapter 9
   (Structured syntax definition)</a>. <a href="stats.htm">Chapter 4 (Predefined
   statements)</a> contains various examples of syntax and semantic
   declarations. The basic parts of the syntax are described in
@@ -5403,9 +5403,11 @@
       the <tt>'bufferChar'</tt> already contains the character which
       should be processed next and therefore subsequent scanner
       functions can be used.</li>
+
     <li><!-- -  -->Other I/O functions like <tt>'getc'</tt> and <tt>'gets'</tt>
       do not assign something to <tt>'bufferChar'</tt>. In this
       case something should be assigned to <tt>'bufferChar'</tt>.</li>
+
     <li><!-- -  -->Switching back from scanner functions to
       normal I/O functions is best done when the content of
       <tt>'bufferChar'</tt> is known. For example at the end
@@ -5591,54 +5593,60 @@
 <a name="STRUCTURED_SYNTAX_DEFINITION"><big><b>9. STRUCTURED SYNTAX DEFINITION</b></big></a>
 <!-- =============================== -->
 <p>
-    Many languages have predefined constructs like statements and
-  operators. This constructs have fixed syntax and semantics. A
-  natural language or some meta language is used to describe the
-  syntax and semantics of the constructs. Mostly the programmers
-  are not allowed to define new syntactic constructs. But sometimes
-  a full description of the syntax and semantics of a construct
-  written in the programming language itself is helpful. This
-  avoids the need to use ambiguous natural language descriptions
-  and it is also unnecessary to learn an additional meta language.
-  A formal description of new constructs in the language itself
-  gives also the opportunity to define new constructs. Note that a
-  compiler-compiler does not offer this opportunity and has also a
-  meta language.
+    Most programming languages have only predefined constructs like
+  statements and operators. Seed7, on the other hand, additionally
+  allows user defined constructs. This chapter introduces the Seed7
+  Structured Syntax Description (S7SSD) which is used to define the
+  syntax of new constructs. The syntax of predefined constructs is
+  also defined with S7SSD.
 </p><p>
-    There are different notations to specify the syntax of
-  programming languages. The syntax statements of Seed7 use a
-  notation called Seed7 Structured Syntax Description (abbreviated
-  with S7SSD). The Backus-Naur Form (BNF) and its variants like the
-  Extended Backus-Naur Form (EBNF) are another example of such a
-  syntax specification. Since it is easier to understand new
-  concepts when they are compared to well known concepts, the EBNF
-  will be used as base to explain the S7SSD.
+    The syntax descriptions used in manuals of conventional
+  programming languages have no relationship to the approach used by
+  the syntax analysis of the corresponding interpreters/compilers.
+  S7SSD is a simple syntax description that can be used by humans
+  and compilers/interpreters. Although compiler-compilers follow the
+  path of machine readable syntax descriptions, they use much more
+  complicated syntax and semantic descriptions and do not allow
+  users of the language to define new constructs.
+</p><p>
+    There are different existing notations to specify the syntax of
+  programming languages. Backus-Naur Form (BNF) and its variants
+  like Extended Backus-Naur Form (EBNF) are examples of such syntax
+  specifications. Since it is easier to understand new concepts when
+  they are compared to well known concepts, EBNF will be used as a
+  base to explain S7SSD.
 </p>
 
 <a name="The_Extended_Backus-Naur_Form"><b>9.1 The Extended Backus-Naur Form</b></a>
 <p>
     As the name says the Extended Backus-Naur Form is an extension
-  of the BNF. The extensions allow the definition of repetitions and
-  optional parts without the use of recursive definitons. The EBNF
-  has the following elements:
+  of BNF. The extension allows the definition of repetitions and
+  optional parts without the use of recursion. EBNF has the
+  following elements:
 </p><ul>
-    <li><!--  -  -->Nonterminal symbols consist of lower case letters and
-       underline characters.</li>
-    <li><!--  -  -->Terminal symbols are quoted strings or names in upper case
-       characters which describe unprintable characters (control
-       characters).</li>
-    <li><!--  -  -->The concatenation of nonterminal and/or terminal symbols is
-       described by writing them in sequence.</li>
-    <li><!--  -  -->With | two alternatives can be separated.</li>
-    <li><!--  -  -->Expressions of the extended Backus-Naur form can be put under
-       parenthesis.</li>
-    <li><!--  -  -->When a subexpression is optional it is enclosed in squared
-       brackets [ ... ] .</li>
-    <li><!--  -  -->When a subexpression may be omitted or repeated it is
-       enclosed in curly braces { ... } .</li>
+    <li><!-- -  -->Nonterminal symbols consist of lower case letters and
+      underline characters.</li>
+
+    <li><!-- -  -->Terminal symbols are quoted strings or names in upper case
+      characters which describe unprintable characters (control
+      characters).</li>
+
+    <li><!-- -  -->The concatenation of nonterminal and/or terminal symbols is
+      described by writing them in sequence.</li>
+
+    <li><!-- -  -->With | two alternatives can be separated.</li>
+
+    <li><!-- -  -->Expressions of the extended Backus-Naur form can be put within
+      parentheses ( ... ) .</li>
+
+    <li><!-- -  -->When a subexpression is optional it is enclosed in square
+      brackets [ ... ] .</li>
+
+    <li><!-- -  -->When a subexpression may be omitted or repeated it is
+      enclosed in curly braces { ... } .</li>
 </ul></p>
-  The syntax of the extended Backus-Naur form can be described with
-  extended Backus-Naur form.
+  The syntax of the extended Backus-Naur form can be described in
+  extended Backus-Naur form:
 </p><pre>
     syntax_description ::=
       { statement } .
@@ -5650,7 +5658,7 @@
       term { '|' term } .
 
     term ::=
-      factor factor .
+      factor { factor } .
 
     factor ::=
       identifier | string | '(' expression ')' |
@@ -5659,14 +5667,17 @@
 
 <a name="The_syntax_of_a_statement"><b>9.2 The syntax of a statement</b></a>
 <p>
-    To explain the Seed7 Structured Syntax Description we propose
-  that a new statement, the <tt>'<font color=blue>loop</font>'</tt> statement, should be defined. A
-  <tt>'<font color=blue>loop</font>'</tt> statement is similar to <tt>'<font color=blue>while</font>'</tt> and <tt>'<font color=blue>repeat</font>'</tt> loops but
-  instead of having the conditional exit at the beginning or at the
-  end it's conditional exit is in the middle of the loop. This
-  middle conditional exit is part of the <tt>'<font color=blue>loop</font>'</tt> statement. Therefore
-  it should not be confused with the <tt>'<font color=blue>exit</font>'</tt> statement that exists in
-  some programming languages. An example of the <tt>'<font color=blue>loop</font>'</tt> statement is:
+    To explain the Seed7 Structured Syntax Description we design a
+  new statement, the <tt>'<font color=blue>loop</font>'</tt> statement. The <tt>'<font color=blue>loop</font>'</tt> statement should
+  be similar to <tt>'<font color=blue>while</font>'</tt> and <tt>'<font color=blue>repeat</font>'</tt> loops but instead of having
+  the conditional exit at the beginning or at the end, it should
+  have a conditional exit in the middle of the loop. This middle
+  conditional exit should be part of the <tt>'<font color=blue>loop</font>'</tt> statement. Note that
+  the <tt>'<font color=blue>break</font>'</tt> statement, that exists in some programming languages,
+  is a statement on its own and is not part of the loop which it
+  leaves. Therefore the middle conditional exit should not be
+  confused with a <tt>'<font color=blue>break</font>'</tt> statement. An example of the new <tt>'<font color=blue>loop</font>'</tt>
+  statement is:
 <p><pre>
     <font color=blue>loop</font>
       ch := getc(inFile);
@@ -5714,15 +5725,15 @@
       'end' 'loop' .
 </pre><p>
   An EBNF description may use many nonterminal symbols such as
-  <tt>'statement'</tt> or <tt>'expression'</tt>. The S7SSD does not distinguish
-  between different nonterminal symbols. Instead the S7SSD only
+  <tt>'statement'</tt> or <tt>'expression'</tt>. S7SSD does not distinguish
+  between different nonterminal symbols. Instead S7SSD only
   knows one nonterminal symbol: <tt>()</tt>
 </p><p>
-  Therefore the S7SSD cannot distinguish between <tt>'statement'</tt>,
+  Therefore S7SSD cannot distinguish between <tt>'statement'</tt>,
   <tt>'expression'</tt> or something else. At the syntax level any kind of
   expression can by substituted for a S7SSD nonterminal symbol <tt>()</tt>.
   With EBNF it is possible to describe constraints such as the type
-  of an expression. The S7SSD relies on semantic checks to verify
+  of an expression. S7SSD relies on semantic checks to verify
   such constraints. Given the S7SSD of the <tt>'<font color=blue>loop</font>'</tt> statement an
   expression like
 </p><pre>
@@ -5983,9 +5994,9 @@
 </pre><p>
   makes no sense when the <tt>'<font color=blue>and</font>'</tt> operator has priority 12 instead of 14.
 </p><p>
-  The S7SSD treats everything as operator description. Operators
+  S7SSD treats everything as operator description. Operators
   have priority and assoziativity. The priority and associativity
-  determine in which succession the S7SSD syntax rules get applied.
+  determine in which succession S7SSD syntax rules get applied.
   To explain priority and assoziativity we use the basic arithmetic
   operations (+,-,*,/). To describe them with EBNF we can write:
 </p><pre>
@@ -6009,18 +6020,21 @@
 </pre><p>
   This describes the following things:
 </p><ul>
-    <li><!--  -  -->The operators have different priorities:<ul>
-       <li><!--  -  -->Plus and minus signs are executed first</li>
-       <li><!--  -  -->Multiplication and division are executed second.</li>
-       <li><!--  -  -->Addition and subtraction are executed last.</li></ul></li>
-    <li><!--  -  -->This priorities are exactly what we expect from an
-       arithmetic expression.</li>
-    <li><!--  -  -->Additionally we see that ++2 is allowed and interpreted as
-       +(+(2)) which means that the plus sign is a right-associative
-       operator.</li>
-    <li><!--  -  -->We can also see that a*b*c is allowed and interpreted as
-       (a*b)*c which means that the multiplication is a
-       left-associative operator.</li>
+    <li><!-- -  -->The operators have different priorities:<ul>
+      <li><!-- -  -->Plus and minus signs are executed first</li>
+      <li><!-- -  -->Multiplication and division are executed second.</li>
+      <li><!-- -  -->Addition and subtraction are executed last.</li></ul></li>
+
+    <li><!-- -  -->This priorities are exactly what we expect from an
+      arithmetic expression.</li>
+
+    <li><!-- -  -->Additionally we see that ++2 is allowed and interpreted as
+      +(+(2)) which means that the plus sign is a right-associative
+      operator.</li>
+
+    <li><!-- -  -->We can also see that a*b*c is allowed and interpreted as
+      (a*b)*c which means that the multiplication is a
+      left-associative operator.</li>
 </ul></p>
   All this things can also be described with S7SSD:
 </p><pre>
@@ -6031,39 +6045,46 @@
     $ <font color=blue>syntax</font> <font color=red>expr</font>: .(). + .()   is  -> 7;
     $ <font color=blue>syntax</font> <font color=red>expr</font>: .(). - .()   is  -> 7;
 </pre><p>
-  As we can see the S7SSD is shorter as the description with EBNF.
+  As we can see S7SSD is shorter as the description with EBNF.
   A syntax statement is expained as follows:
 </p><ul>
-    <li><!--  -  -->The $ is used to introduce all hardcoded statements.</li>
-    <li><!--  -  -->The keyword <tt>'<font color=blue>syntax</font>'</tt> introduces a structured syntax
-       description.</li>
-    <li><!--  -  -->The result of the recognized expression will have
-       the type <tt>'<font color=red>expr</font>'</tt>. The type <tt>'<font color=red>expr</font>'</tt> is used between the syntax
-       and the semantic analysis. The type <tt>'<font color=red>expr</font>'</tt> describes
-       expressions which are syntactically analyzed but not
-       semantically analyzed. After the semantic analysis (and
-       during the runtime) the type <tt>'<font color=red>expr</font>'</tt> is not used.</li>
-    <li><!--  -  -->The colon ':' is used as separator between type and syntax
-       description.</li>
-    <li><!--  -  -->A dot expression like <tt>'.(). * .()'</tt> is introduced (as can
-       probably be guessed by the name) with a dot. For the purpose
-       of the syntax description we can just remove the dots in
-       our mind: <tt>'() * ()'</tt></li>
-    <li><!--  -  -->The symbol <tt>'<font color=blue>is</font>'</tt> is used in all Seed7 declarations as
-       separator between the name and the value.</li>
-    <li><!--  -  -->The associativity is described with one of the symbols
-       <tt>-></tt> (left-associative), <tt>&lt;-</tt> (right-associative),
-       <tt>&lt;-></tt> (not associative) and <tt>->&lt;-</tt> (both associativitys).
-       When there are no left or right operands, as it is the case
-       for the <tt>'<font color=blue>loop</font>'</tt> statement, the associativity is irrelevant.</li>
-    <li><!--  -  -->Finally the priority of the syntax construct is defined with
-       a integer literal like <tt>'6'</tt>. The priority <tt>'6'</tt> is used for the
-       operators <tt>'*'</tt>, <tt>'/'</tt>, <tt>'<font color=blue>div</font>'</tt>, <tt>'<font color=blue>rem</font>'</tt>, <tt>'<font color=blue>mdiv</font>'</tt> and <tt>'<font color=blue>mod</font>'</tt>.</li>
+    <li><!-- -  -->The $ is used to introduce all hardcoded statements.</li>
+
+    <li><!-- -  -->The keyword <tt>'<font color=blue>syntax</font>'</tt> introduces a structured syntax
+      description.</li>
+
+    <li><!-- -  -->The result of the recognized expression will have
+      the type <tt>'<font color=red>expr</font>'</tt>. The type <tt>'<font color=red>expr</font>'</tt> is used between the syntax
+      and the semantic analysis. The type <tt>'<font color=red>expr</font>'</tt> describes
+      expressions which are syntactically analyzed but not
+      semantically analyzed. After the semantic analysis (and
+      during the runtime) the type <tt>'<font color=red>expr</font>'</tt> is not used.</li>
+
+    <li><!-- -  -->The colon ':' is used as separator between type and syntax
+      description.</li>
+
+    <li><!-- -  -->A dot expression like <tt>'.(). * .()'</tt> is introduced (as can
+      probably be guessed by the name) with a dot. For the purpose
+      of the syntax description we can just remove the dots in
+      our mind: <tt>'() * ()'</tt></li>
+
+    <li><!-- -  -->The symbol <tt>'<font color=blue>is</font>'</tt> is used in all Seed7 declarations as
+      separator between the name and the value.</li>
+
+    <li><!-- -  -->The associativity is described with one of the symbols
+      <tt>-></tt> (left-associative), <tt>&lt;-</tt> (right-associative),
+      <tt>&lt;-></tt> (not associative) and <tt>->&lt;-</tt> (both associativitys).
+      When there are no left or right operands, as it is the case
+      for the <tt>'<font color=blue>loop</font>'</tt> statement, the associativity is irrelevant.</li>
+
+    <li><!-- -  -->Finally the priority of the syntax construct is defined with
+      a integer literal like <tt>'6'</tt>. The priority <tt>'6'</tt> is used for the
+      operators <tt>'*'</tt>, <tt>'/'</tt>, <tt>'<font color=blue>div</font>'</tt>, <tt>'<font color=blue>rem</font>'</tt>, <tt>'<font color=blue>mdiv</font>'</tt> and <tt>'<font color=blue>mod</font>'</tt>.</li>
 </ul><p></p>
 
 <a name="Syntax_of_predefined_statements"><b>9.5 Syntax of predefined statements</b></a>
 <p>
-    Predefined statements can also be defined with the S7SSD.
+    Predefined statements can also be defined with S7SSD.
   E.g.: The <tt>'<font color=blue>while</font>'</tt> statement. A use of the <tt>'<font color=blue>while</font>'</tt> statement is:
 </p><pre>
     <font color=blue>while</font> element_index > 0 <font color=blue>and</font> okay <font color=blue>do</font>
@@ -6181,10 +6202,11 @@
   When we want to use some special syntax which should be only
   allowed at some place we do the following:
 </p><ul>
-    <li><!--  -  -->Define the special syntax with S7SSD in a way that does not
-       contradict with the rest of the syntax definitions.</li>
-    <li><!--  -  -->Use semantic definitions to make sure that this syntax
-       construct can only be used at the place desired.</li>
+    <li><!-- -  -->Define the special syntax with S7SSD in a way that does not
+      contradict with the rest of the syntax definitions.</li>
+
+    <li><!-- -  -->Use semantic definitions to make sure that this syntax
+      construct can only be used at the place desired.</li>
 </ul><p>
   The EBNF of the <tt>'<font color=blue>if</font>'</tt> statement with <tt>'<font color=blue>elsif</font>'</tt> parts is:
 </p><pre>
@@ -6210,7 +6232,7 @@
   S7SSD rules. This is necessary because S7SSD does not support the
   [ ] and { } notations. They are not supported for good reasons:
   They complicate the parameter lists and they are also not so easy
-  to implement. On the other hand, the BNF like rules of the S7SSD
+  to implement. On the other hand, the BNF like rules of S7SSD
   lead to semantic constructs which are easy to parse and easy to
   compile. The broken down S7SSD rules of the <tt>'<font color=blue>if</font>'</tt> statement
   correspond to the following EBNF description:
@@ -6239,7 +6261,7 @@
       'else'
         statement .
 </pre><p>
-  Since the S7SSD uses only one nonterminal symbol <tt>'()'</tt> it is the job
+  Since S7SSD uses only one nonterminal symbol <tt>'()'</tt> it is the job
   of the semantic level to make sure that only the right nonterminal
   symbol can be used. This is done by introducing the type
   <tt>'<font color=red>ELSIF_PROC</font>'</tt> (which corresponds to the nonterminal symbol
@@ -6357,7 +6379,7 @@
     dot_expression ::=
       [ '.' ] call_expression { '.' call_expression } .
 </pre><p>
-  There are some things which are out of the scope of the S7SSD.
+  There are some things which are out of the scope of S7SSD.
   The syntax of tokens (whitespace, comments, identifiers and
   literals) and expressions (parentheses, function calls and dot
   expressions) is hardcoded. The hardcoded constructs are described
@@ -6367,7 +6389,7 @@
   every EBNF syntax description into S7SSD. Transforming S7SSD
   descriptions to EBNF is always possible.
 </p><p>
-  The advantage of the S7SSD lies in its simplicity and that a fast
+  The advantage of S7SSD lies in its simplicity and that a fast
   automated syntax recognition algorithm can be easily implemented.
   It is exactly the combination of hardcoded syntax recognition and
   flexible syntax rules that make it successful.
@@ -6682,7 +6704,7 @@
   which are constructed according to syntax rules defined with
   syntax declarations. Here we describe only simple expressions.
   How syntax declarations work is described in <a href="decls.htm#Syntax_declarations">Chapter 3.2
-  (Syntax declarations)</a> and <a href="s7ssd.htm">chapter 9 (Structured syntax
+  (Syntax declarations)</a> and <a href="syntax.htm">chapter 9 (Structured syntax
   definition)</a>. There are only few fixed predefined syntax rules:
 </p>
 
@@ -7033,13 +7055,16 @@
     <li><!-- -  -->The macros <tt>'arg_1'</tt>, <tt>'arg_2'</tt>,
       <tt>'arg_3'</tt>, etc. can be used to get an individual argument
       (E.g.: <tt>'arg_3(arguments)'</tt> ).</li>
+
     <li><!-- -  -->The macros <tt>'isit_int'</tt>, <tt>'isit_stri'</tt>,
       <tt>'isit_file'</tt>, etc. can be used to check for the correct
       <font color=red>category</font> of an argument
       (E.g.: <tt>'isit_int(arg_1(arguments))'</tt> ).</li>
+
     <li><!-- -  -->The macros <tt>'take_char'</tt>, <tt>'take_float'</tt>,
       <tt>'take_bigint'</tt>, etc. can be used to get the corresponding
       value of an argument (E.g.: <tt>'take_int(arg_1(arguments))'</tt> ).</li>
+
     <li><!-- -  -->The functions <tt>'bld_int_temp'</tt>, <tt>'bld_array_temp'</tt>,
       <tt>'bld_win_temp'</tt>, etc. can be used to create the (objecttype)
       result of a primitiv action (E.g.: <tt>'return(bld_int_temp(0))'</tt> ).</li>

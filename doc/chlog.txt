@@ -1,3 +1,13 @@
+20081221:
+- The chapter about the Seed7 structured syntax definition in the manual was improved
+  (thanks to James Harris for the suggestions and the proofreading).
+- A new library named gethttp.s7i, which contains support to get data with the
+  HTTP protocol, was added.
+- A new library named html.s7i, which contains support functions for HTML, was added.
+- The bas7.sd7 (basic interpreter) example program was improved.
+- The compiler (comp.sd7) was improved to support the addresses of ITF_CPY and
+  ITF_CREATE. That way hash tables with interface values are supported.
+
 20081208:
 - A new chapter about the Seed7 structured syntax definition was added to the manual.
 - The chapter about declarations in the manual was improved.

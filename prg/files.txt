@@ -93,9 +93,11 @@ encoding.s7i Encoding and decoding functions
 field.s7i    Filter file which reads the input fieldwise       
 float.s7i    Floating point support library                    
 getf.s7i     Read and write whole files into and from strings  
+gethttp.s7i  Support to get data with the HTTP protocol        
 graph.s7i    Graphic library                                   
 gtkserver.s7i Gtk-server connection library                     
-gzip.s7i      uncompression function                           
+gzip.s7i     Gzip uncompression function                       
+html.s7i     Support functions for html                        
 html_ent.s7i HTML entity handling library                      
 keybd.s7i    Keyboard driver                                   
 line.s7i     Filter file which reads the input linewise        

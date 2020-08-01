@@ -1,0 +1,281 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  gethttp.s7i   Support to get data with the HTTP protocol        *)
+(*  Copyright (C) 2008  Thomas Mertes                               *)
+(*                                                                  *)
+(*  This file is part of the Seed7 Runtime Library.                 *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is free software; you can             *)
+(*  redistribute it and/or modify it under the terms of the GNU     *)
+(*  Lesser General Public License as published by the Free Software *)
+(*  Foundation; either version 2.1 of the License, or (at your      *)
+(*  option) any later version.                                      *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is distributed in the hope that it    *)
+(*  will be useful, but WITHOUT ANY WARRANTY; without even the      *)
+(*  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR *)
+(*  PURPOSE.  See the GNU Lesser General Public License for more    *)
+(*  details.                                                        *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU Lesser General       *)
+(*  Public License along with this program; if not, write to the    *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+include "scanstri.s7i";
+include "socket.s7i";
+include "gzip.s7i";
+include "charsets.s7i";
+
+
+var string: proxyServer is "";
+var integer: proxyHttpPort is 0;
+
+
+const proc: setProxy (in string: serverName, in integer: portNumber) is func
+  begin
+    proxyServer := serverName;
+    proxyHttpPort := portNumber;
+  end func;
+
+
+const proc: splitHttpLocation (in string: location, inout string: hostname,
+    inout string: path, inout string: params) is func
+  local
+    var integer: slashPos is 0;
+    var integer: questionMarkPos is 0;
+  begin
+    slashPos := pos(location, "/");
+    questionMarkPos := pos(location, "?");
+    if slashPos = 0 then
+      if questionMarkPos = 0 then
+        hostname := location;
+        path     := "";
+        params   := "";
+      else
+        hostname := location[.. pred(questionMarkPos)];
+        path     := "";
+        params   := location[succ(questionMarkPos) ..];
+      end if;
+    else
+      if questionMarkPos = 0 then
+        hostname := location[.. pred(slashPos)];
+        path     := location[succ(slashPos) ..];
+        params   := "";
+      elsif slashPos < questionMarkPos then
+        hostname := location[.. pred(slashPos)];
+        path     := location[succ(slashPos) .. pred(questionMarkPos)];
+        params   := location[succ(questionMarkPos) ..];
+      else
+        hostname := location[.. pred(questionMarkPos)];
+        path     := "";
+        params   := location[succ(questionMarkPos) ..];
+      end if;
+    end if;
+  end func;
+
+
+const func string: toHttpAscii (in string: stri) is func
+  result
+    var string: result is "";
+  local
+    var string: stri8 is "";
+    var integer: pos is 0;
+    var integer: start is 1;
+    var char: ch is ' ';
+  begin
+    stri8 := striToUtf8(stri);
+    for pos range 1 to length(stri8) do
+      ch := stri8[pos];
+      if ord(ch) >= 127 or ch < ' ' or
+          ch in {'%', '/', '?', '&', '=', '+'} then
+        result &:= stri[start .. pred(pos)];
+        result &:= "%" <& str(ord(ch), 16) lpad0 2;
+        start := succ(pos);
+      elsif ch = ' ' then
+        result &:= stri[start .. pred(pos)];
+        result &:= "+";
+        start := succ(pos);
+      end if;
+    end for;
+    result &:= stri[start ..];
+  end func;
+
+
+const func file: openHttp (in string: serverName, in integer: portNumber,
+    in string: hostname, in string: path, in string: params) is func
+  result
+    var file: sock is STD_NULL;
+  local
+    var string: address is "";
+  begin
+    # writeln(literal(serverName) <& " " <& portNumber);
+    sock := openInetSocket(serverName, portNumber);
+    if sock <> STD_NULL then
+      address := hostname;
+      if path <> "" then
+        address &:= "/" & path;
+      end if;
+      if params <> "" then
+        address &:= "?" & params;
+      end if;
+      # writeln(literal(address));
+      writeln(sock, "GET http://" <& address <& " HTTP/1.1");
+      writeln(sock, "Host: " <& hostname);
+      writeln(sock, "User-Agent: BlackHole");
+#     writeln(sock, "Accept-Encoding: gzip");
+#     writeln(sock, "Accept-Encoding: gzip,deflate");
+#     writeln(sock, "Accept-Charset: utf-8");
+      writeln(sock);
+    end if;
+  end func;
+
+
+const func file: openHttp (in string: hostname, in string: path, in string: params) is
+  return openHttp(hostname, 80, hostname, path, params);
+
+
+const func file: openHttp (in string: serverName, in integer: portNumber, in string: location) is func
+  result
+    var file: sock is STD_NULL;
+  local
+    var string: hostname is "";
+    var string: path is "";
+    var string: params is "";
+  begin
+    splitHttpLocation(location, hostname, path, params);
+    sock := openHttp(serverName, portNumber, hostname, path, params);
+  end func;
+
+
+const func file: openHttp (in string: location) is func
+  result
+    var file: sock is STD_NULL;
+  local
+    var string: hostname is "";
+    var string: path is "";
+    var string: params is "";
+  begin
+    splitHttpLocation(location, hostname, path, params);
+    sock := openHttp(hostname, path, params);
+  end func;
+
+
+const func string: getHttp (inout file: sock) is func
+  result
+    var string: result is "";
+  local
+    var string: line is "";
+    var array string: header is 0 times "";
+    var string: transferEncoding is "";
+    var string: contentType is "";
+    var string: charset is "";
+    var string: contentEncoding is "";
+    var string: contentLengthStri is "";
+    var integer: contentLength is 0;
+    var integer: chunkSize is 0;
+    var string: buffer is "";
+  begin
+    line := getln(sock);
+    while line <> "" do
+      # writeln(line);
+      if startsWith(line, "Transfer-Encoding") then
+        transferEncoding := lower(trim(line[succ(pos(line, ":")) ..]));
+      end if;
+      if startsWith(line, "Content-Type") then
+        contentType := trim(line[succ(pos(line, ":")) ..]);
+        charset := getValueOfHeaderAttribute(contentType, "charset");
+      end if;
+      if startsWith(line, "Content-Encoding") then
+        contentEncoding := lower(trim(line[succ(pos(line, ":")) ..]));
+      end if;
+      if startsWith(line, "Content-Length") then
+        contentLengthStri := lower(trim(line[succ(pos(line, ":")) ..]));
+        block
+          contentLength := integer parse contentLengthStri;
+        exception
+          catch RANGE_ERROR:
+            contentLength := -1;
+        end block;
+      end if;
+      header &:= [] (line);
+      line := getln(sock);
+    end while;
+    if transferEncoding = "chunked" then
+      line := getln(sock);
+      chunkSize := toInt(line, 16);
+      while chunkSize <> 0 do
+        repeat
+          buffer := gets(sock, chunkSize);
+          chunkSize -:= length(buffer);
+          result &:= buffer;
+        until chunkSize = 0;
+        line := getln(sock);
+        line := getln(sock);
+        chunkSize := toInt(line, 16);
+      end while;
+    elsif transferEncoding = "identity" or
+        transferEncoding = "" then
+      if contentLengthStri <> "" then
+        while contentLength <> 0 do
+          buffer := gets(sock, contentLength);
+          contentLength -:= length(buffer);
+          result &:= buffer;
+        end while;
+      else
+        buffer := gets(sock, 10000000);
+        while buffer <> "" do
+          result &:= buffer;
+          buffer := gets(sock, 10000000);
+        end while;
+      end if;
+    else
+      writeln("Unknown Transfer-Encoding: " <& literal(transferEncoding));
+      buffer := gets(sock, 10000000);
+      while buffer <> "" do
+        result &:= buffer;
+        buffer := gets(sock, 10000000);
+      end while;
+    end if;
+    # writeln(length(result));
+    if contentEncoding = "gzip" then
+      result := gunzip(result);
+    end if;
+    conv2unicodeByName(result, charset);
+  end func;
+
+
+const func string: getHttp (in string: serverName, in integer: portNumber, in string: url) is func
+  result
+    var string: result is "";
+  local
+    var file: sock is STD_NULL;
+  begin
+    sock := openHttp(serverName, portNumber, url);
+    if sock <> STD_NULL then
+      result := getHttp(sock);
+      close(sock);
+    end if;
+  end func;
+
+
+const func string: getHttp (in string: url) is func
+  result
+    var string: result is "";
+  local
+    var file: sock is STD_NULL;
+  begin
+    if proxyServer = "" then
+      sock := openHttp(url);
+    else
+      sock := openHttp(proxyServer, proxyHttpPort, url);
+    end if;
+    if sock <> STD_NULL then
+      result := getHttp(sock);
+      close(sock);
+    end if;
+  end func;
