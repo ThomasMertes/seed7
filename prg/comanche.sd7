@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  comanche.sd7  Simple webserver for static and cgi pages.        *)
-(*  Copyright (C) 2009 - 2011  Thomas Mertes                        *)
+(*  Copyright (C) 2009 - 2015  Thomas Mertes                        *)
 (*                                                                  *)
 (*  This program is free software; you can redistribute it and/or   *)
 (*  modify it under the terms of the GNU General Public License as  *)
@@ -29,18 +29,52 @@ $ include "seed7_05.s7i";
   include "listener.s7i";
   include "shell.s7i";
   include "getf.s7i";
+  include "x509cert.s7i";
+  include "tls.s7i";
 
 var string: htdocs is "../htdocs";
 var string: cgi_bin is "../prg";
 var integer: port is 1080;
+var duration: keepAliveTime is 15 . SECONDS;
+
+const type: httpServerConnection is new struct
+    var file: sock is STD_NULL;
+    var time: timeout is time.value;
+    var integer: num is 0;
+  end struct;
+
+const type: httpConnectionHash is hash [file] httpServerConnection;
+
+var httpConnectionHash: httpSessions is httpConnectionHash.value;
+var integer: sessionNum is 0;
 
 
-const proc: sendHttpResponse (inout file: sock, in string: response,
+const func string: rfc1123Date (in time: aTime) is func
+  result
+    var string: dateStri is "";
+  local
+    const array string: wkday is [] ("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun");
+    const array string: month is [] ("Jan", "Feb", "Mar", "Apr", "May", "Jun",
+                                     "Jul", "Aug", "Sep", "Oct", "Nov", "Dec");
+    var time: timeInUTC is time.value;
+  begin
+    timeInUTC := toUTC(aTime);
+    dateStri := wkday[dayOfWeek(timeInUTC)] <& ", " <&
+                timeInUTC.day lpad0 2 <& " " <&
+                month[timeInUTC.month] <& " " <&
+                timeInUTC.year <& " " <&
+                str_hh_mm_ss(timeInUTC, ":") <& " GMT";
+  end func;
+
+
+const proc: sendHttpResponse (inout file: sock, in string: content,
     in var string: contentType, in array string: header) is func
   local
     var string: line is "";
     var string: status is "";
+    var string: response is "";
   begin
+    # writeln("sendHttpResponse: len=" <& length(content) <& " " <& contentType);
     for line range header do
       if startsWith(line, "Status") then
         status := trim(line[succ(pos(line, ":")) ..]);
@@ -49,29 +83,33 @@ const proc: sendHttpResponse (inout file: sock, in string: response,
       end if;
     end for;
     if status = "" then
-      writeln(sock, "HTTP/1.1 200 OK");
+      response &:= "HTTP/1.1 200 OK\r\n";
     else
-      writeln(sock, "HTTP/1.1 " <& status);
+      response &:= "HTTP/1.1 " <& status <& "\r\n";
     end if;
-    writeln(sock, "Server: Comanche");
-    writeln(sock, "Transfer-Encoding: identity");
-    # writeln("Content-Length: " <& length(response));
-    writeln(sock, "Content-Length: " <& length(response));
+    response &:= "Server: Comanche\r\n";
+    # response &:= "Transfer-Encoding: identity\r\n";
+    response &:= "Cache-Control: max-age=259200\r\n";
     if contentType <> "" then
-      writeln(sock, "Content-Type: " <& contentType);
-    elsif startsWith(response, "\137;PNG") then
-      writeln(sock, "Content-Type: image/png");
-    elsif pos(response, "<html") = 0 then
-      writeln(sock, "Content-Type: text/html");
+      response &:= "Content-Type: " <& contentType <& "\r\n";
+    elsif startsWith(content, "\137;PNG") then
+      response &:= "Content-Type: image/png\r\n";
+    elsif pos(content, "<html") = 0 then
+      response &:= "Content-Type: text/html\r\n";
     else
-      writeln(sock, "Content-Type: text/plain");
+      response &:= "Content-Type: text/plain\r\n";
     end if;
+    # writeln("Content-Length: " <& length(content));
+    response &:= "Content-Length: " <& length(content) <& "\r\n";
     for line range header do
-      if not startsWith(line, "Content-Type") then
-        writeln(sock, line);
+      if not startsWith(line, "Content-Type") and
+          not startsWith(line, "Connection") then
+        response &:= line <& "\r\n";
       end if;
     end for;
-    writeln(sock);
+    response &:= "Connection: keep-alive\r\n";
+    response &:= "\r\n";
+    response &:= content;
     write(sock, response);
   end func;
 
@@ -159,7 +197,7 @@ const func string: callCgi (in string: filePath, in string: queryParams,
   end func;
 
 
-const proc: processHttpRequest (inout file: sock) is func
+const proc: processHttpRequest (inout httpServerConnection: http) is func
   local
     var string: line is "";
     var string: requestCommand is "";
@@ -175,8 +213,10 @@ const proc: processHttpRequest (inout file: sock) is func
     var string: contentType is "";
     var string: contentLengthStri is "";
     var integer: contentLength is 0;
+    var boolean: keepAlive is FALSE;
   begin
-    line := getln(sock);
+    http.timeout := time(NOW) + keepAliveTime;
+    line := getln(http.sock);
     # writeln(literal(line));
     while line <> "" do
       # writeln(line);
@@ -198,13 +238,15 @@ const proc: processHttpRequest (inout file: sock) is func
           catch RANGE_ERROR:
             contentLength := -1;
         end block;
+      elsif startsWith(line, "Connection") then
+        keepAlive := lower(trim(line[succ(pos(line, ":")) ..])) = "keep-alive";
       elsif startsWith(line, "Cookie") then
         cookies := trim(line[succ(pos(line, ":")) ..]);
       end if;
-      line := getln(sock);
+      line := getln(http.sock);
     end while;
     if requestCommand = "GET" then
-      # writeln("GET" <& requestPath);
+      # writeln("GET " <& requestPath);
       questionMarkPos := pos(requestPath, '?');
       if questionMarkPos <> 0 then
         queryParams := requestPath[succ(questionMarkPos) ..];
@@ -214,7 +256,7 @@ const proc: processHttpRequest (inout file: sock) is func
       if startsWith(filePath, "/cgi-bin/") then
         buffer := callCgi(filePath, queryParams, "", cookies, cgiHeader);
         if buffer <> "" then
-          sendHttpResponse(sock, buffer, "", cgiHeader);
+          sendHttpResponse(http.sock, buffer, "", cgiHeader);
         end if;
       else
         filePath := toStdPath(htdocs & "/" & filePath);
@@ -241,16 +283,16 @@ const proc: processHttpRequest (inout file: sock) is func
           if endsWith(filePath, ".htm") or endsWith(filePath, ".html") then
             contentType := "text/html";
           end if;
-          sendHttpResponse(sock, buffer, contentType, 0 times "");
+          sendHttpResponse(http.sock, buffer, contentType, 0 times "");
         end if;
       end if;
       if buffer = "" then
-        sendClientError(sock, "404 Not Found",
+        sendClientError(http.sock, "404 Not Found",
             "The requested URL " <& requestPath <&
             " was not found on this server.");
       end if;
     elsif requestCommand = "POST" then
-      # writeln("POST" <& requestPath);
+      # writeln("POST " <& requestPath);
       questionMarkPos := pos(requestPath, '?');
       if questionMarkPos <> 0 then
         queryParams := requestPath[succ(questionMarkPos) ..];
@@ -259,16 +301,16 @@ const proc: processHttpRequest (inout file: sock) is func
       # writeln(queryParams);
       if contentLengthStri <> "" then
         while contentLength <> 0 do
-          buffer := gets(sock, contentLength);
+          buffer := gets(http.sock, contentLength);
           contentLength -:= length(buffer);
           postParams &:= buffer;
         end while;
-      elsif inputReady(sock, 1 . SECONDS) then
-        buffer := gets(sock, 10000000);
+      elsif inputReady(http.sock, 1 . SECONDS) then
+        buffer := gets(http.sock, 10000000);
         while buffer <> "" do
           postParams &:= buffer;
-          if inputReady(sock, 1 . SECONDS) then
-            buffer := gets(sock, 10000000);
+          if inputReady(http.sock, 1 . SECONDS) then
+            buffer := gets(http.sock, 10000000);
           else
             buffer := "";
           end if;
@@ -281,9 +323,9 @@ const proc: processHttpRequest (inout file: sock) is func
         buffer := callCgi(filePath, queryParams, postParams, cookies, cgiHeader);
       end if;
       if buffer <> "" then
-        sendHttpResponse(sock, buffer, "", cgiHeader);
+        sendHttpResponse(http.sock, buffer, "", cgiHeader);
       else
-        sendClientError(sock, "404 Not Found",
+        sendClientError(http.sock, "404 Not Found",
             "The requested URL " <& requestPath <&
             " was not found on this server.");
       end if;
@@ -291,35 +333,123 @@ const proc: processHttpRequest (inout file: sock) is func
   end func;
 
 
+const proc: openHttpSession (inout file: sock, in boolean: useTls) is func
+  local
+    var file: tlsSock is STD_NULL;
+    var httpServerConnection: http is httpServerConnection.value;
+  begin
+    # writeln("openHttpSession: " <& ord(sock));
+    if useTls then
+      http.sock := openServerTls(sock, stdCertificate);
+      if http.sock = STD_NULL then
+        # writeln(" ***** Cannot open TLS connection.");
+        close(sock);
+        sock := STD_NULL;
+      end if;
+    else
+      http.sock := sock;
+    end if;
+    if http.sock <> STD_NULL then
+      incr(sessionNum);
+      # writeln("Open session: " <& sessionNum);
+      http.timeout := time(NOW) + keepAliveTime;
+      http.num := sessionNum;
+      httpSessions @:= [sock] http;
+    end if;
+  end func;
+
+
+const proc: closeHttpSession (inout file: sock) is func
+  begin
+    # writeln("closeHttpSession: " <& ord(sock));
+    # writeln("Close session: " <& httpSessions[sock].num);
+    close(httpSessions[sock].sock);
+    excl(httpSessions, sock);
+  end func;
+
+
+const proc: processHttpRequest (inout file: sock, in boolean: useTls) is func
+  begin
+    # writeln("processHttpRequest: " <& ord(sock));
+    if sock not in httpSessions then
+      openHttpSession(sock, useTls);
+    end if;
+    if sock in httpSessions then
+      if eof(sock) then
+        closeHttpSession(sock);
+      else
+        block
+          processHttpRequest(httpSessions[sock]);
+        exception
+          catch FILE_ERROR:
+            noop;
+        end block;
+      end if;
+    end if;
+  end func;
+
+
+const proc: cleanSessions is func
+  local
+    var file: sock is STD_NULL;
+  begin
+    # writeln(length(httpSessions) <& " sessions");
+    for sock range keys(httpSessions) do
+      if sock in httpSessions and time(NOW) > httpSessions[sock].timeout then
+        closeHttpSession(sock);
+      end if;
+    end for;
+  end func;
+
+
 const proc: main is func
   local
+    var array string: args is 0 times "";
+    var integer: index is 0;
+    var boolean: writeHelp is FALSE;
+    var boolean: useTls is FALSE;
+    var boolean: htdocsAssigned is FALSE;
+    var boolean: cgiBinAssigned is FALSE;
     var boolean: okay is TRUE;
     var listener: inetListener is listener.value;
-    var file: sock is socket.value;
+    var file: existingConnection is STD_NULL;
+    var file: newConnection is STD_NULL;
+    var file: sock is STD_NULL;
+    var file: tlsSock is STD_NULL;
   begin
     writeln("Comanche Version 1.1 - Simple webserver for static and cgi pages");
-    writeln("Copyright (C) 2009 - 2011 Thomas Mertes");
+    writeln("Copyright (C) 2009 - 2015 Thomas Mertes");
     writeln("This is free software; see the source for copying conditions.  There is NO");
     writeln("warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.");
     writeln("Comanche is written in the Seed7 programming language");
     writeln("Homepage: http://seed7.sourceforge.net");
-    if length(argv(PROGRAM)) >= 1 then
-      htdocs := argv(PROGRAM)[1];
-      if length(argv(PROGRAM)) >= 2 then
-        cgi_bin := argv(PROGRAM)[2];
-        if length(argv(PROGRAM)) >= 3 and isDigitString(argv(PROGRAM)[3]) then
-          block
-            port := integer parse (argv(PROGRAM)[3]);
-          exception
-            catch RANGE_ERROR: writeln(" ***** Port number too big. Port " <&
-                port <& " used instead.");
-          end block;
-        end if;
+    args := argv(PROGRAM);
+    for key index range argv(PROGRAM) do
+      if args[index] in {"-h", "-?"} then
+        writeHelp := TRUE;
+      elsif args[index] = "-p" and index < length(args) then
+        block
+          port := integer parse (args[succ(index)]);
+        exception
+          catch RANGE_ERROR:
+            writeln(" ***** Port not numeric. Port " <& port <& " used instead.");
+        end block;
+        incr(index);
+      elsif args[index] = "-tls" then
+        useTls := TRUE;
+      elsif not htdocsAssigned then
+        htdocs := args[index];
+        htdocsAssigned := TRUE;
+      elsif not cgiBinAssigned then
+        cgi_bin := args[index];
+        cgiBinAssigned := TRUE;
+      else
+        writeln(" ***** Unrecognized parameter " <& args[index] <& ".");
       end if;
-    end if;
-    if htdocs in {"-h", "-?"} then
+    end for;
+    if writeHelp then
       writeln;
-      writeln("usage: comanche [html-directory [cgi-directory [port]]]");
+      writeln("usage: comanche [-h | -?] [-p port] [-tls] [html-directory [cgi-directory]]");
       writeln;
       writeln("The html-directory specifies the root directory for HTML files.");
       writeln("The default html-directory is \"../htdocs\".");
@@ -352,14 +482,14 @@ const proc: main is func
         writeln("open http://localhost:" <& port <& "/ in your browser. \
                 \To stop comanche press CTRL-C.");
         while TRUE do
-          sock := accept(inetListener);
-          block
-            processHttpRequest(sock);
-          exception
-            catch FILE_ERROR:
-              noop;
-          end block;
-          close(sock);
+          waitForRequest(inetListener, existingConnection, newConnection);
+          if existingConnection <> STD_NULL then
+            processHttpRequest(existingConnection, useTls);
+          end if;
+          if newConnection <> STD_NULL then
+            openHttpSession(newConnection, useTls);
+          end if;
+          cleanSessions;
         end while;
       end if;
     end if;

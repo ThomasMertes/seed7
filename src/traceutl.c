@@ -280,9 +280,9 @@ void prot_os_stri (const const_os_striType os_stri)
             if ((os_ucharType) *stri < (os_ucharType) ' ') {
               strcpy(buffer, cstri_escape_sequence[(os_ucharType) *stri]);
             } else if ((os_ucharType) *stri == (os_ucharType) '\\') {
-              sprintf(buffer, "\\\\");
+              strcpy(buffer, "\\\\");
             } else if ((os_ucharType) *stri == (os_ucharType) '\"') {
-              sprintf(buffer, "\\\"");
+              strcpy(buffer, "\\\"");
             } else {
               sprintf(buffer, "%c", (int) *stri);
             } /* if */
@@ -338,44 +338,8 @@ void prot_string (const striType stri)
 
 void prot_stri_unquoted (const const_striType stri)
 
-  {
-    memSizeType size;
-    const strElemType *str;
-    memSizeType len;
-    char buffer[51];
-
-  /* prot_stri_unquoted */
-    if (stri != NULL) {
-      size = stri->size;
-      if (size > 128) {
-        size = 128;
-      } /* if */
-      for (str = stri->mem, len = size; len > 0; str++, len--) {
-        if (*str < 127) {
-          if (*str < ' ') {
-            strcpy(buffer, stri_escape_sequence[*str]);
-          } else if (*str == (charType) '\\') {
-            sprintf(buffer, "\\\\");
-          } else if (*str == (charType) '\"') {
-            sprintf(buffer, "\\\"");
-          } else {
-            sprintf(buffer, "%c", (int) *str);
-          } /* if */
-        } else if (*str == (charType) -1) {
-          sprintf(buffer, "\\-1;");
-        } else {
-          sprintf(buffer, "\\%lu;", (unsigned long) *str);
-        } /* if */
-        prot_cstri(buffer);
-        /* putc((int) *str, protfile); */
-      } /* for */
-      if (stri->size > 128) {
-        prot_cstri("\\ *AND_SO_ON* SIZE=");
-        prot_int((intType) stri->size);
-      } /* if */
-    } else {
-      prot_cstri(" *NULL_STRING* ");
-    } /* if */
+  { /* prot_stri_unquoted */
+    prot_cstri(striAsUnquotedCStri(stri));
   } /* prot_stri_unquoted */
 
 
@@ -396,43 +360,10 @@ void prot_stri (const const_striType stri)
 
 void prot_bstri (bstriType bstri)
 
-  {
-    memSizeType size;
-
-  /* prot_bstri */
+  { /* prot_bstri */
     if (bstri != NULL) {
-      size = bstri->size;
-      if (size > 128) {
-        size = 128;
-      } /* if */
       prot_cstri("\"");
-      {
-        ucharType *str;
-        memSizeType len;
-        char buffer[51];
-
-        for (str = bstri->mem, len = size;
-            len > 0; str++, len--) {
-          if (*str < 127) {
-            if (*str < ' ') {
-              strcpy(buffer, stri_escape_sequence[*str]);
-            } else if (*str == '\\') {
-              sprintf(buffer, "\\\\");
-            } else if (*str == '\"') {
-              sprintf(buffer, "\\\"");
-            } else {
-              sprintf(buffer, "%c", (int) *str);
-            } /* if */
-          } else {
-            sprintf(buffer, "\\%u;", *str);
-          } /* if */
-          prot_cstri(buffer);
-        } /* while */
-      }
-      if (bstri->size > 128) {
-        prot_cstri("\\ *AND_SO_ON* SIZE=");
-        prot_int((intType) bstri->size);
-      } /* if */
+      prot_cstri(bstriAsUnquotedCStri(bstri));
       prot_cstri("\"");
     } else {
       prot_cstri(" *NULL_BYTE_STRING* ");

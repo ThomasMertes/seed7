@@ -48,6 +48,7 @@
 #include "error.h"
 #include "stat.h"
 #include "findid.h"
+#include "chr_rtl.h"
 
 #undef EXTERN
 #define EXTERN

@@ -107,7 +107,7 @@ const func string: str (in bin64: number)                      is action "BIN_ST
 
 
 (**
- *  Convert an ''bin64'' value to a [[string]] using a radix.
+ *  Convert a ''bin64'' value to a [[string]] using a radix.
  *  The conversion uses the numeral system with the given ''base''.
  *  Digit values from 10 upward are encoded with lower case letters.
  *  E.g.: 10 is encoded with a, 11 with b, etc.
@@ -119,7 +119,7 @@ const func string: (in bin64: number) radix (in integer: base) is action "BIN_ra
 
 
 (**
- *  Convert an ''bin64'' value to a [[string]] using a radix.
+ *  Convert a ''bin64'' value to a [[string]] using a radix.
  *  The conversion uses the numeral system with the given ''base''.
  *  Digit values from 10 upward are encoded with upper case letters.
  *  E.g.: 10 is encoded with A, 11 with B, etc.

@@ -1413,10 +1413,12 @@ const proc: process_action (in reference: function, in ref_list: params,
         process(SOC_GETC, function, params, c_expr);
       elsif action_name = "SOC_GETS" then
         process(SOC_GETS, function, params, c_expr);
-      elsif action_name = "SOC_GET_ADDR" then
-        process(SOC_GET_ADDR, function, params, c_expr);
       elsif action_name = "SOC_GET_HOSTNAME" then
         process(SOC_GET_HOSTNAME, function, params, c_expr);
+      elsif action_name = "SOC_GET_LOCAL_ADDR" then
+        process(SOC_GET_LOCAL_ADDR, function, params, c_expr);
+      elsif action_name = "SOC_GET_PEER_ADDR" then
+        process(SOC_GET_PEER_ADDR, function, params, c_expr);
       elsif action_name = "SOC_HAS_NEXT" then
         process(SOC_HAS_NEXT, function, params, c_expr);
       elsif action_name = "SOC_INET_ADDR" then
@@ -1433,6 +1435,8 @@ const proc: process_action (in reference: function, in ref_list: params,
         process(SOC_LISTEN, function, params, c_expr);
       elsif action_name = "SOC_NE" then
         process(SOC_NE, function, params, c_expr);
+      elsif action_name = "SOC_ORD" then
+        process(SOC_ORD, function, params, c_expr);
       elsif action_name = "SOC_RECV" then
         process(SOC_RECV, function, params, c_expr);
       elsif action_name = "SOC_SEND" then

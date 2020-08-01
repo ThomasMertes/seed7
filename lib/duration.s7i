@@ -405,62 +405,6 @@ const func integer: hashCode (in duration: aDuration) is
       aDuration.micro_second;
 
 
-const func duration: (in integer: numYears) . YEARS is func
-  result
-    var duration: dur_val is duration.value;
-  begin
-    dur_val.year_365 := numYears;
-  end func;
-
-
-const func duration: (in integer: numMonths) . MONTHS is func
-  result
-    var duration: dur_val is duration.value;
-  begin
-    dur_val.month_30 := numMonths;
-  end func;
-
-
-const func duration: (in integer: numDays) . DAYS is func
-  result
-    var duration: dur_val is duration.value;
-  begin
-    dur_val.day := numDays;
-  end func;
-
-
-const func duration: (in integer: HRS) . HOURS is func
-  result
-    var duration: dur_val is duration.value;
-  begin
-    dur_val.hour := HRS;
-  end func;
-
-
-const func duration: (in integer: MINS) . MINUTES is func
-  result
-    var duration: dur_val is duration.value;
-  begin
-    dur_val.minute := MINS;
-  end func;
-
-
-const func duration: (in integer: SECS) . SECONDS is func
-  result
-    var duration: dur_val is duration.value;
-  begin
-    dur_val.second := SECS;
-  end func;
-
-
-const func duration: (in integer: MY_SECS) . MICRO_SECONDS is func
-  result
-    var duration: dur_val is duration.value;
-  begin
-    dur_val.micro_second := MY_SECS;
-  end func;
-
-
 (**
  *  Compute the years of ''aDuration''.
  *  @return the duration in years.
@@ -559,6 +503,69 @@ const proc: NORMALIZE (inout duration: aDuration) is func
     aDuration.day           := aDuration.day          mod       30;
     aDuration.year_365     +:= aDuration.month_30     mdiv      12;
     aDuration.month_30      := aDuration.month_30     mod       12;
+  end func;
+
+
+const func duration: (in integer: numYears) . YEARS is func
+  result
+    var duration: dur_val is duration.value;
+  begin
+    dur_val.year_365 := numYears;
+    NORMALIZE(dur_val);
+  end func;
+
+
+const func duration: (in integer: numMonths) . MONTHS is func
+  result
+    var duration: dur_val is duration.value;
+  begin
+    dur_val.month_30 := numMonths;
+    NORMALIZE(dur_val);
+  end func;
+
+
+const func duration: (in integer: numDays) . DAYS is func
+  result
+    var duration: dur_val is duration.value;
+  begin
+    dur_val.day := numDays;
+    NORMALIZE(dur_val);
+  end func;
+
+
+const func duration: (in integer: HRS) . HOURS is func
+  result
+    var duration: dur_val is duration.value;
+  begin
+    dur_val.hour := HRS;
+    NORMALIZE(dur_val);
+  end func;
+
+
+const func duration: (in integer: MINS) . MINUTES is func
+  result
+    var duration: dur_val is duration.value;
+  begin
+    dur_val.minute := MINS;
+    NORMALIZE(dur_val);
+  end func;
+
+
+const func duration: (in integer: SECS) . SECONDS is func
+  result
+    var duration: dur_val is duration.value;
+  begin
+    dur_val.second := SECS;
+    NORMALIZE(dur_val);
+  end func;
+
+
+const func duration: (in integer: MY_SECS) . MICRO_SECONDS is func
+  result
+    var duration: dur_val is duration.value;
+  begin
+    dur_val.micro_second := MY_SECS;
+    NORMALIZE(dur_val);
   end func;
 
 

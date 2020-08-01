@@ -144,23 +144,17 @@ const func string: toHttpAscii (in string: stri) is func
 const proc: sendGet (inout file: sock, in httpLocation: location) is func
   local
     var string: address is "";
+    var string: request is "";
   begin
     address := "/" & location.path;
     if location.params <> "" then
       address &:= "?" & location.params;
     end if;
-    # writeln("sendGet: ");
-    # writeln(literal(address));
-    # writeln("GET " <& address <& " HTTP/1.1");
-    # writeln("Host: " <& location.hostName);
-    # writeln("User-Agent: BlackHole");
-    write(sock, "GET " <& address <& " HTTP/1.1" <& "\r\n");
-    write(sock, "Host: " <& location.hostName <& "\r\n");
-    write(sock, "User-Agent: BlackHole" <& "\r\n");
-    # write(sock, "Accept-Encoding: gzip\r\n");
-    # write(sock, "Accept-Encoding: gzip,deflate\r\n");
-    # write(sock, "Accept-Charset: utf-8\r\n");
-    write(sock, "\r\n");
+    request &:= "GET " <& address <& " HTTP/1.1\r\n";
+    request &:= "Host: " <& location.hostName <& "\r\n";
+    request &:= "User-Agent: BlackHole" <& "\r\n";
+    request &:= "\r\n";
+    write(sock, request);
   end func;
 
 

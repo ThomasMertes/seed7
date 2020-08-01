@@ -244,21 +244,48 @@ objectType soc_gets (listType arguments)
 
 
 
-objectType soc_get_addr (listType arguments)
-
-  { /* soc_get_addr */
-    isit_socket(arg_1(arguments));
-    return bld_bstri_temp(
-        socGetAddr(take_socket(arg_1(arguments))));
-  } /* soc_get_addr */
-
-
-
+/**
+ *  Determine the hostname.
+ *  @return the hostname.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ */
 objectType soc_get_hostname (listType arguments)
 
   { /* soc_get_hostname */
     return bld_stri_temp(socGetHostname());
   } /* soc_get_hostname */
+
+
+
+/**
+ *  Get the local address of a socket.
+ *  @return the address to which a socket is bound.
+ *  @exception FILE_ERROR A system function returns an error.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ */
+objectType soc_get_local_addr (listType arguments)
+
+  { /* soc_get_local_addr */
+    isit_socket(arg_1(arguments));
+    return bld_bstri_temp(
+        socGetLocalAddr(take_socket(arg_1(arguments))));
+  } /* soc_get_local_addr */
+
+
+
+/**
+ *  Get the address of the peer to which a socket is connected.
+ *  @return the address of the peer connected to a socket.
+ *  @exception FILE_ERROR A system function returns an error.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ */
+objectType soc_get_peer_addr (listType arguments)
+
+  { /* soc_get_peer_addr */
+    isit_socket(arg_1(arguments));
+    return bld_bstri_temp(
+        socGetPeerAddr(take_socket(arg_1(arguments))));
+  } /* soc_get_peer_addr */
 
 
 
@@ -392,6 +419,15 @@ objectType soc_ne (listType arguments)
       return SYS_FALSE_OBJECT;
     } /* if */
   } /* soc_ne */
+
+
+
+objectType soc_ord (listType arguments)
+
+  { /* soc_ord */
+    isit_socket(arg_1(arguments));
+    return bld_int_temp((intType) take_socket(arg_1(arguments)));
+  } /* soc_ord */
 
 
 

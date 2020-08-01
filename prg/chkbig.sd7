@@ -1184,7 +1184,12 @@ const proc: chkStringConv is func
       okay := FALSE;
     end if;
 
-    if  not raisesRangeError(bigInteger("11111111111111112111111111111111111111111111111111111111111111", 2)) or
+    if  not raisesRangeError(bigInteger parse "99999999a999999999") or
+        not raisesRangeError(bigInteger parse "-9999999999a9999999") or
+        not raisesRangeError(bigInteger parse "") or
+        not raisesRangeError(bigInteger parse "+") or
+        not raisesRangeError(bigInteger parse "-") or
+        not raisesRangeError(bigInteger("11111111111111112111111111111111111111111111111111111111111111", 2)) or
         not raisesRangeError(bigInteger("2222222222222223222222222222222222222222", 3)) or
         not raisesRangeError(bigInteger("333333333333334333333333333333", 4)) or
         not raisesRangeError(bigInteger("44444444444445444444444444", 5)) or
@@ -1301,15 +1306,122 @@ const proc: chkStringConv is func
         not raisesRangeError(bigInteger("-VVVVWVVVVVVV", 32)) or
         not raisesRangeError(bigInteger("-WWWXWWWWWWWW", 33)) or
         not raisesRangeError(bigInteger("-XXYXXXXXXXXX", 34)) or
-        not raisesRangeError(bigInteger("-YZYYYYYYYYYY", 35)) then
+        not raisesRangeError(bigInteger("-YZYYYYYYYYYY", 35)) or
+        not raisesRangeError(bigInteger("",  2)) or
+        not raisesRangeError(bigInteger("",  3)) or
+        not raisesRangeError(bigInteger("",  4)) or
+        not raisesRangeError(bigInteger("",  5)) or
+        not raisesRangeError(bigInteger("",  6)) or
+        not raisesRangeError(bigInteger("",  7)) or
+        not raisesRangeError(bigInteger("",  8)) or
+        not raisesRangeError(bigInteger("",  9)) or
+        not raisesRangeError(bigInteger("", 10)) or
+        not raisesRangeError(bigInteger("", 11)) or
+        not raisesRangeError(bigInteger("", 12)) or
+        not raisesRangeError(bigInteger("", 13)) or
+        not raisesRangeError(bigInteger("", 14)) or
+        not raisesRangeError(bigInteger("", 15)) or
+        not raisesRangeError(bigInteger("", 16)) or
+        not raisesRangeError(bigInteger("", 17)) or
+        not raisesRangeError(bigInteger("", 18)) or
+        not raisesRangeError(bigInteger("", 19)) or
+        not raisesRangeError(bigInteger("", 20)) or
+        not raisesRangeError(bigInteger("", 21)) or
+        not raisesRangeError(bigInteger("", 22)) or
+        not raisesRangeError(bigInteger("", 23)) or
+        not raisesRangeError(bigInteger("", 24)) or
+        not raisesRangeError(bigInteger("", 25)) or
+        not raisesRangeError(bigInteger("", 26)) or
+        not raisesRangeError(bigInteger("", 27)) or
+        not raisesRangeError(bigInteger("", 28)) or
+        not raisesRangeError(bigInteger("", 29)) or
+        not raisesRangeError(bigInteger("", 30)) or
+        not raisesRangeError(bigInteger("", 31)) or
+        not raisesRangeError(bigInteger("", 32)) or
+        not raisesRangeError(bigInteger("", 33)) or
+        not raisesRangeError(bigInteger("", 34)) or
+        not raisesRangeError(bigInteger("", 35)) or
+        not raisesRangeError(bigInteger("", 36)) or
+        not raisesRangeError(bigInteger("+",  2)) or
+        not raisesRangeError(bigInteger("+",  3)) or
+        not raisesRangeError(bigInteger("+",  4)) or
+        not raisesRangeError(bigInteger("+",  5)) or
+        not raisesRangeError(bigInteger("+",  6)) or
+        not raisesRangeError(bigInteger("+",  7)) or
+        not raisesRangeError(bigInteger("+",  8)) or
+        not raisesRangeError(bigInteger("+",  9)) or
+        not raisesRangeError(bigInteger("+", 10)) or
+        not raisesRangeError(bigInteger("+", 11)) or
+        not raisesRangeError(bigInteger("+", 12)) or
+        not raisesRangeError(bigInteger("+", 13)) or
+        not raisesRangeError(bigInteger("+", 14)) or
+        not raisesRangeError(bigInteger("+", 15)) or
+        not raisesRangeError(bigInteger("+", 16)) or
+        not raisesRangeError(bigInteger("+", 17)) or
+        not raisesRangeError(bigInteger("+", 18)) or
+        not raisesRangeError(bigInteger("+", 19)) or
+        not raisesRangeError(bigInteger("+", 20)) or
+        not raisesRangeError(bigInteger("+", 21)) or
+        not raisesRangeError(bigInteger("+", 22)) or
+        not raisesRangeError(bigInteger("+", 23)) or
+        not raisesRangeError(bigInteger("+", 24)) or
+        not raisesRangeError(bigInteger("+", 25)) or
+        not raisesRangeError(bigInteger("+", 26)) or
+        not raisesRangeError(bigInteger("+", 27)) or
+        not raisesRangeError(bigInteger("+", 28)) or
+        not raisesRangeError(bigInteger("+", 29)) or
+        not raisesRangeError(bigInteger("+", 30)) or
+        not raisesRangeError(bigInteger("+", 31)) or
+        not raisesRangeError(bigInteger("+", 32)) or
+        not raisesRangeError(bigInteger("+", 33)) or
+        not raisesRangeError(bigInteger("+", 34)) or
+        not raisesRangeError(bigInteger("+", 35)) or
+        not raisesRangeError(bigInteger("+", 36)) or
+        not raisesRangeError(bigInteger("-",  2)) or
+        not raisesRangeError(bigInteger("-",  3)) or
+        not raisesRangeError(bigInteger("-",  4)) or
+        not raisesRangeError(bigInteger("-",  5)) or
+        not raisesRangeError(bigInteger("-",  6)) or
+        not raisesRangeError(bigInteger("-",  7)) or
+        not raisesRangeError(bigInteger("-",  8)) or
+        not raisesRangeError(bigInteger("-",  9)) or
+        not raisesRangeError(bigInteger("-", 10)) or
+        not raisesRangeError(bigInteger("-", 11)) or
+        not raisesRangeError(bigInteger("-", 12)) or
+        not raisesRangeError(bigInteger("-", 13)) or
+        not raisesRangeError(bigInteger("-", 14)) or
+        not raisesRangeError(bigInteger("-", 15)) or
+        not raisesRangeError(bigInteger("-", 16)) or
+        not raisesRangeError(bigInteger("-", 17)) or
+        not raisesRangeError(bigInteger("-", 18)) or
+        not raisesRangeError(bigInteger("-", 19)) or
+        not raisesRangeError(bigInteger("-", 20)) or
+        not raisesRangeError(bigInteger("-", 21)) or
+        not raisesRangeError(bigInteger("-", 22)) or
+        not raisesRangeError(bigInteger("-", 23)) or
+        not raisesRangeError(bigInteger("-", 24)) or
+        not raisesRangeError(bigInteger("-", 25)) or
+        not raisesRangeError(bigInteger("-", 26)) or
+        not raisesRangeError(bigInteger("-", 27)) or
+        not raisesRangeError(bigInteger("-", 28)) or
+        not raisesRangeError(bigInteger("-", 29)) or
+        not raisesRangeError(bigInteger("-", 30)) or
+        not raisesRangeError(bigInteger("-", 31)) or
+        not raisesRangeError(bigInteger("-", 32)) or
+        not raisesRangeError(bigInteger("-", 33)) or
+        not raisesRangeError(bigInteger("-", 34)) or
+        not raisesRangeError(bigInteger("-", 35)) or
+        not raisesRangeError(bigInteger("-", 36)) or
+        not raisesRangeError(bigInteger("0", 1)) or
+        not raisesRangeError(bigInteger("0", 37)) then
       writeln(" ***** Conversion of numeric string with specified radix does not raise RANGE_ERROR.");
       okay := FALSE;
     end if;
 
     if okay then
-      writeln("Decimal conversion of bigInteger works correct.");
+      writeln("String conversion of bigInteger works correct.");
     else
-      writeln(" ***** Decimal conversion of bigInteger does not work correct.");
+      writeln(" ***** String conversion of bigInteger does not work correct.");
       writeln;
     end if;
   end func;
@@ -2093,6 +2205,13 @@ const proc: chkRadix is func
     bigNum := 123456789_ ** 12345;
     if bigInteger(bigNum radix 16, 16) <> bigNum then
       writeln(" ***** The radix operator for bigInteger does not work correct for big values.");
+      okay := FALSE;
+    end if;
+
+    bigNum := 123_;
+    if  not raisesRangeError(bigNum radix 1) or
+        not raisesRangeError(bigNum radix 37) then
+      writeln(" ***** The radix operator does not raise RANGE_ERROR for an illegal base.");
       okay := FALSE;
     end if;
 

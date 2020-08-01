@@ -122,6 +122,8 @@ extern os_charType emulated_root[];
 #define PATH_NOT_MAPPED       2
 
 
+cstriType striAsUnquotedCStri (const const_striType stri);
+cstriType bstriAsUnquotedCStri (const const_bstriType bstri);
 void memcpy_to_strelem (register strElemType *const dest,
                         register const const_ustriType src, memSizeType len);
 void memset_to_strelem (register strElemType *const dest,

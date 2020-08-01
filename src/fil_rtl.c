@@ -38,12 +38,10 @@
 #include "sys/stat.h"
 #include "signal.h"
 #include "setjmp.h"
-
 #ifdef UNISTD_H_PRESENT
 #include "unistd.h"
 #endif
-
-/* #include "errno.h" */
+#include "errno.h"
 
 #include "common.h"
 #include "os_decls.h"
@@ -468,9 +466,6 @@ intType getFileLengthUsingSeek (fileType aFile)
       logError(printf(" *** getFileLengthUsingSeek: seekFileLength(" FMT_U_MEM ") failed:\n"
                       "errno=%d\nerror: %s\n",
                       (memSizeType) aFile, errno, strerror(errno)););
-      /* printf("errno=%d\n", errno);
-      printf("EBADF=%d  EINVAL=%d  ESPIPE=%d\n",
-          EBADF, EINVAL, ESPIPE); */
       raise_error(FILE_ERROR);
       result = 0;
     } else if (unlikely(file_length > INTTYPE_MAX)) {
@@ -496,9 +491,6 @@ bigIntType getBigFileLengthUsingSeek (fileType aFile)
       logError(printf(" *** getBigFileLengthUsingSeek: seekFileLength(" FMT_U_MEM ") failed:\n"
                       "errno=%d\nerror: %s\n",
                       (memSizeType) aFile, errno, strerror(errno)););
-      /* printf("errno=%d\n", errno);
-      printf("EBADF=%d  EINVAL=%d  ESPIPE=%d\n",
-          EBADF, EINVAL, ESPIPE); */
       raise_error(FILE_ERROR);
       result = NULL;
     } else {
@@ -1127,9 +1119,6 @@ void filClose (fileType aFile)
       logError(printf(" *** filClose: fclose(" FMT_U_MEM ") failed:\n"
                       "errno=%d\nerror: %s\n",
                       (memSizeType) aFile, errno, strerror(errno)););
-      /* printf("errno=%d\n", errno);
-         printf("EACCES=%d  EBUSY=%d  EEXIST=%d  ENOTEMPTY=%d  ENOENT=%d  EISDIR=%d  EROFS=%d  EBADF=%d\n",
-                EACCES, EBUSY, EEXIST, ENOTEMPTY, ENOENT, EISDIR, EROFS, EBADF); */
       raise_error(FILE_ERROR);
     } /* if */
   } /* filClose */
@@ -1271,9 +1260,7 @@ striType filGets (fileType inFile, intType length)
               (size_t) allocated_size, inFile);
           /* printf("num_of_chars_read=%lu\n", num_of_chars_read); */
           if (num_of_chars_read == 0 && ferror(inFile)) {
-            /* printf("errno=%d\n", errno);
-            printf("EACCES=%d  EBUSY=%d  EEXIST=%d  ENOTEMPTY=%d  ENOENT=%d  EISDIR=%d  EROFS=%d  EBADF=%d\n",
-                EACCES, EBUSY, EEXIST, ENOTEMPTY, ENOENT, EISDIR, EROFS, EBADF);
+            /* printf("errno=%d\nerror: %s\n", errno, strerror(errno));
             printf("inFile=%lx\n", (long int) inFile); */
             err_info = FILE_ERROR;
           } else {

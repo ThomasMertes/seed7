@@ -48,6 +48,22 @@ const func integer: addrFamily (in socketAddress: address)                  is a
 
 
 (**
+ *  Compare two socket addresses.
+ *  @return -1, 0 or 1 if the first argument is considered to be
+ *          respectively less than, equal to, or greater than the
+ *          second.
+ *)
+const func integer: compare (in socketAddress: addr1, in socketAddress: addr2) is action "BST_CMP";
+
+
+(**
+ *  Compute the hash value of a socket address.
+ *  @return the hash value.
+ *)
+const func integer: hashCode (in socketAddress: address)                    is action "BST_HASHCODE";
+
+
+(**
  *  Get the numeric (IP) address of the host at ''address''.
  *  IPv4 addresses return the socketAddress in dot notation (e.g.:
  *  "192.0.2.235") and IPv6 addresses return the socketAddress in
@@ -122,7 +138,9 @@ const PRIMITIVE_SOCKET: (attr PRIMITIVE_SOCKET) . value                     is _
 const PRIMITIVE_SOCKET: PRIMITIVE_NULL_SOCKET                               is PRIMITIVE_SOCKET.value;
 
 const proc: close (in PRIMITIVE_SOCKET: aSocket)                            is action "SOC_CLOSE";
-const func socketAddress: address (in PRIMITIVE_SOCKET: aSocket)            is action "SOC_GET_ADDR";
+const func socketAddress: localAddress (in PRIMITIVE_SOCKET: aSocket)       is action "SOC_GET_LOCAL_ADDR";
+const func socketAddress: peerAddress (in PRIMITIVE_SOCKET: aSocket)        is action "SOC_GET_PEER_ADDR";
+const func integer: ord (in PRIMITIVE_SOCKET: aSocket)                      is action "SOC_ORD";
 const func char: getc (in PRIMITIVE_SOCKET: inSocket,
                        inout char: eofIndicator)                            is action "SOC_GETC";
 const func string: gets (in PRIMITIVE_SOCKET: inSocket, in integer: maxLength,

@@ -103,6 +103,7 @@ const string: TLS_1_2 is "\3;\3;";
 
 const type: securityParameters is new struct
     var boolean:             isClient                is TRUE;
+    var string:              session_id              is "";
     var cipherSuite:         cipher_suite            is TLS_NULL_WITH_NULL_NULL;
     var cipherAlgorithm:     bulk_cipher_algorithm   is NO_CIPHER;
     var boolean:             block_cipher            is FALSE;
@@ -114,7 +115,6 @@ const type: securityParameters is new struct
     var integer:             hash_size               is 0;
     var integer:             compression_algorithm   is 0;
     var string:              tls_version             is TLS_1_0;  # TLS_1_0;
-    var string:              pre_master_secret       is ""; # length: 48
     var string:              master_secret           is ""; # length: 48
     var string:              client_random           is ""; # length: 32
     var string:              server_random           is ""; # length: 32
@@ -126,20 +126,39 @@ const type: securityParameters is new struct
     var cipherState:         writeCipherState        is cipherState.value;
     var integer:             readSequenceNumber      is 0;
     var integer:             writeSequenceNumber     is 0;
+    var boolean:             writeEncryptedRecords   is FALSE;
     var string:              handshake_messages      is "";
   end struct;
 
-const integer: NO_MESSAGE         is -1;
-const integer: CHANGE_CIPHER_SPEC is 20;
-const integer: ALERT              is 21;
-const integer: HANDSHAKE          is 22;
-const integer: APPLICATION_DATA   is 23;
+const char: NO_MESSAGE         is EOF;
+const char: CHANGE_CIPHER_SPEC is '\20;';
+const char: ALERT              is '\21;';
+const char: HANDSHAKE          is '\22;';
+const char: APPLICATION_DATA   is '\23;';
+
+const char: CLIENT_HELLO        is '\1;';
+const char: SERVER_HELLO        is '\2;';
+const char: CERTIFICATE         is '\11;';
+const char: SERVER_KEY_EXCHANGE is '\12;';
+const char: CERTIFICATE_REQUEST is '\13;';
+const char: SERVER_HELLO_DONE   is '\14;';
+const char: CERTIFICATE_VERIFY  is '\15;';
+const char: CLIENT_KEY_EXCHANGE is '\16;';
+const char: FINISHED            is '\20;';
+
+const char: CLOSE_NOTIFY        is '\0;';
+const char: UNEXPECTED_MESSAGE  is '\10;';
+const char: BAD_RECORD_MAC      is '\20;';
+const char: DECRYPTION_FAILED   is '\21;';
+const char: HANDSHAKE_FAILURE   is '\40;';
+const char: NO_RENEGOTIATION    is '\100;';
 
 const type: tlsParseState is new struct
-    var integer: contentType is 0;
+    var char: contentType is NO_MESSAGE;
     var integer: length is 0;
     var string: message is "";
     var integer: pos is 1;
+    var char: alert is CLOSE_NOTIFY;
   end struct;
 
 const type: tlsFile is sub null_file struct
@@ -148,6 +167,18 @@ const type: tlsFile is sub null_file struct
     var securityParameters: parameters is securityParameters.value;
     var string: readBuffer is "";
   end struct;
+
+const type: clientSession is new struct
+    var string:              session_id              is "";
+    var cipherAlgorithm:     bulk_cipher_algorithm   is NO_CIPHER;
+    var string:              master_secret           is "";
+    var time:                last_use                is time.value;
+  end struct;
+
+const duration: clientCacheValid is 1 . MINUTES;
+const type: clientSessionCacheType is hash [socketAddress] clientSession;
+
+var clientSessionCacheType: clientSessionCache is clientSessionCacheType.value;
 
 const string: MD5_PAD1 is "\16#36;" mult 48;
 const string: MD5_PAD2 is "\16#5c;" mult 48;
@@ -175,6 +206,7 @@ const proc: showAlert (in string: stri) is func
       when { 22}: write(" - record_overflow");
       when { 30}: write(" - decompression_failure");
       when { 40}: write(" - handshake_failure");
+      when { 41}: write(" - no_certificate");
       when { 42}: write(" - bad_certificate");
       when { 43}: write(" - unsupported_certificate");
       when { 44}: write(" - certificate_revoked");
@@ -189,33 +221,97 @@ const proc: showAlert (in string: stri) is func
       when { 70}: write(" - protocol_version");
       when { 71}: write(" - insufficient_security");
       when { 80}: write(" - internal_error");
+      when { 86}: write(" - inappropriate_fallback");
       when { 90}: write(" - user_canceled");
       when {100}: write(" - no_renegotiation");
+      when {110}: write(" - unsupported_extension");
+      when {111}: write(" - certificate_unobtainable");
+      when {112}: write(" - unrecognized_name");
+      when {113}: write(" - bad_certificate_status_response");
+      when {114}: write(" - bad_certificate_hash_value");
     end case;
     writeln;
   end func;
 
 
-const proc: showClientHello (in string: stri) is func
+const proc: showExtensions (in string: stri, inout integer: pos) is func
+  local
+    var integer: extensionBytes is 0;
+    var integer: beyond is 0;
+    var integer: index is 0;
+    var integer: extensionType is 0;
+    var integer: dataSize is 0;
+  begin
+    extensionBytes := bytes2Int(stri[pos len 2], UNSIGNED, BE);
+    writeln("Extension bytes: " <& extensionBytes);
+    pos +:= 2;
+    beyond := pos + extensionBytes;
+    index := 1;
+    while pos < beyond do
+      write("Extension-" <& index <& ": ");
+      extensionType := bytes2Int(stri[pos len 2], UNSIGNED, BE);
+      pos +:= 2;
+      case extensionType of
+        when     {0}: writeln("server_name");                            # RFC6066
+        when     {1}: writeln("max_fragment_length");                    # RFC6066
+        when     {2}: writeln("client_certificate_url");                 # RFC6066
+        when     {3}: writeln("trusted_ca_keys");                        # RFC6066
+        when     {4}: writeln("truncated_hmac");                         # RFC6066
+        when     {5}: writeln("status_request");                         # RFC6066
+        when     {6}: writeln("user_mapping");                           # RFC4681
+        when     {7}: writeln("client_authz");                           # RFC5878
+        when     {8}: writeln("server_authz");                           # RFC5878
+        when     {9}: writeln("cert_type");                              # RFC6091
+        when    {10}: writeln("elliptic_curves");                        # RFC4492
+        when    {11}: writeln("ec_point_formats");                       # RFC4492
+        when    {12}: writeln("srp");                                    # RFC5054
+        when    {13}: writeln("signature_algorithms");                   # RFC5246
+        when    {14}: writeln("use_srtp");                               # RFC5764
+        when    {15}: writeln("heartbeat");                              # RFC6520
+        when    {16}: writeln("application_layer_protocol_negotiation"); # RFC7301
+        when    {17}: writeln("status_request_v2");                      # RFC6961
+        when    {18}: writeln("signed_certificate_timestamp");           # RFC6962
+        when    {19}: writeln("client_certificate_type");                # RFC7250
+        when    {20}: writeln("server_certificate_type");                # RFC7250
+        when    {21}: writeln("padding");
+        when    {22}: writeln("encrypt_then_mac");                       # RFC7366
+        when    {23}: writeln("extended_master_secret");
+        when    {35}: writeln("SessionTicket TLS");                      # RFC4507
+        when {13172}: writeln("next_protocol_negotiation");
+        when {65281}: writeln("renegotiation_info");                     # RFC5746
+        otherwise: writeln(extensionType);
+      end case;
+      dataSize := bytes2Int(stri[pos len 2], UNSIGNED, BE);
+      pos +:= 2;
+      writeln("Data: " <& literal(stri[pos len dataSize]));
+      pos +:= dataSize;
+      incr(index);
+    end while;
+  end func;
+
+
+const proc: showClientHello (in string: stri, inout integer: pos) is func
   local
     var integer: length is 0;
+    var integer: beyond is 0;
     var integer: vectorLen is 0;
-    var integer: pos is 0;
     var integer: index is 0;
   begin
     writeln("client_hello");
-    length := bytes2Int(stri[7 len 3], UNSIGNED, BE);
+    length := bytes2Int(stri[pos len 3], UNSIGNED, BE);
+    pos +:= 3;
     writeln("Length: " <& length);
-    writeln("Bytes there: " <& length(stri) - 9);
+    beyond := pos + length;
+    writeln("Bytes there: " <& length(stri) - pos + 1);
     write("Version: ");
-    writeln(ord(stri[10]) <& "." <& ord(stri[11]));
+    writeln(ord(stri[pos]) <& "." <& ord(stri[succ(pos)]));
+    pos +:= 2;
     write("Random: ");
     writeln(hex(stri[12 len 32]));
-    pos := 44;
+    pos +:= 32;
     vectorLen := ord(stri[pos]);
     incr(pos);
-    write("SessionId: ");
-    writeln(hex(stri[45 len vectorLen]));
+    writeln("SessionId: " <& hex(stri[pos len vectorLen]));
     pos +:= vectorLen;
     vectorLen := bytes2Int(stri[pos len 2], UNSIGNED, BE) div 2;
     writeln("Number of Ciphers: " <& vectorLen);
@@ -233,37 +329,45 @@ const proc: showClientHello (in string: stri) is func
       writeln(ord(stri[pos]));
       incr(pos);
     end for;
+    if pos <= beyond - 2 then
+      showExtensions(stri, pos);
+    end if;
     writeln("Final pos: " <& pos);
     writeln("Leftover bytes: " <& literal(stri[pos ..]));
   end func;
 
 
-const proc: showServerHello (in string: stri) is func
+const proc: showServerHello (in string: stri, inout integer: pos) is func
   local
     var integer: length is 0;
-    var integer: vectorLen is 0;
-    var integer: pos is 0;
+    var integer: beyond is 0;
+    var integer: sessionIdLen is 0;
   begin
     writeln("server_hello");
-    length := bytes2Int(stri[7 len 3], UNSIGNED, BE);
+    length := bytes2Int(stri[pos len 3], UNSIGNED, BE);
+    pos +:= 3;
     writeln("Length: " <& length);
-    writeln("Bytes there: " <& length(stri) - 9);
+    beyond := pos + length;
+    writeln("Bytes there: " <& length(stri) - pos + 1);
     write("Version: ");
-    writeln(ord(stri[10]) <& "." <& ord(stri[11]));
+    writeln(ord(stri[pos]) <& "." <& ord(stri[succ(pos)]));
+    pos +:= 2;
     write("Random: ");
     writeln(hex(stri[12 len 32]));
-    pos := 44;
-    vectorLen := ord(stri[pos]);
+    pos +:= 32;
+    sessionIdLen := ord(stri[pos]);
     incr(pos);
-    write("SessionId: ");
-    writeln(hex(stri[45 len vectorLen]));
-    pos +:= vectorLen;
+    writeln("SessionId: " <& hex(stri[pos len sessionIdLen]));
+    pos +:= sessionIdLen;
     write("Cipher: ");
     writeln(bytes2Int(stri[pos len 2], UNSIGNED, BE) radix 16 lpad0 4);
     pos +:= 2;
     write("CompressionMethod: ");
     writeln(ord(stri[pos]));
     incr(pos);
+    if pos <= beyond - 2 then
+      showExtensions(stri, pos);
+    end if;
     writeln("Final pos: " <& pos);
     writeln("Leftover bytes: " <& literal(stri[pos ..]));
   end func;
@@ -286,19 +390,18 @@ const proc: showX509Cert (in x509cert: cert) is func
   end func;
 
 
-const proc: showCertificate (in string: stri) is func
+const proc: showCertificate (in string: stri, inout integer: pos) is func
   local
     var integer: length is 0;
     var integer: sequenceLen is 0;
     var integer: certLen is 0;
-    var integer: pos is 0;
     var integer: index is 1;
     var x509cert: cert is x509cert.value;
     var array x509cert: certList is 0 times x509cert.value;
   begin
     writeln("certificate: " <& literal(stri));
-    length := bytes2Int(stri[7 len 3], UNSIGNED, BE);
-    pos := 10;
+    length := bytes2Int(stri[pos len 3], UNSIGNED, BE);
+    pos +:= 3;
     writeln("Length: " <& length);
     writeln("Bytes there: " <& length(stri) - pos + 1);
     sequenceLen := bytes2Int(stri[pos len 3], UNSIGNED, BE);
@@ -329,16 +432,15 @@ const proc: showCertificate (in string: stri) is func
   end func;
 
 
-const proc: showServerKeyExchange (in string: stri) is func
+const proc: showServerKeyExchange (in string: stri, inout integer: pos) is func
   local
     var integer: length is 0;
-    var integer: pos is 0;
   begin
     writeln("server_key_exchange");
-    length := bytes2Int(stri[7 len 3], UNSIGNED, BE);
-    pos := 10;
+    length := bytes2Int(stri[pos len 3], UNSIGNED, BE);
+    pos +:= 3;
     writeln("Length: " <& length);
-    writeln("Bytes there: " <& length(stri) - 9);
+    writeln("Bytes there: " <& length(stri) - pos + 1);
     write("exchange_keys: ");
     writeln(hex(stri[pos len length]));
     pos +:= length;
@@ -347,49 +449,48 @@ const proc: showServerKeyExchange (in string: stri) is func
   end func;
 
 
-const proc: showCertificateRequest (in string: stri) is func
+const proc: showCertificateRequest (in string: stri, inout integer: pos) is func
   local
     var integer: length is 0;
     var integer: index is 0;
-    var integer: pos is 0;
   begin
     writeln("certificate_request");
-    length := bytes2Int(stri[7 len 3], UNSIGNED, BE);
+    length := bytes2Int(stri[pos len 3], UNSIGNED, BE);
+    pos +:= 3;
     writeln("length: " <& length);
-    writeln("Bytes there: " <& length(stri) - 9);
+    writeln("Bytes there: " <& length(stri) - pos + 1);
     write("Version: ");
-    writeln(ord(stri[10]) <& "." <& ord(stri[11]));
-    length := ord(stri[12]);
-    pos := 13;
+    writeln(ord(stri[pos]) <& "." <& ord(stri[succ(pos)]));
+    pos +:= 2;
+    length := ord(stri[pos]);
+    incr(pos);
     writeln("length: " <& length);
   end func;
 
 
-const proc: showServerHelloDone (in string: stri) is func
+const proc: showServerHelloDone (in string: stri, inout integer: pos) is func
   local
     var integer: length is 0;
-    var integer: pos is 0;
   begin
     writeln("server_hello_done");
-    length := bytes2Int(stri[7 len 3], UNSIGNED, BE);
-    pos := 10;
+    length := bytes2Int(stri[pos len 3], UNSIGNED, BE);
+    pos +:= 3;
     writeln("Length: " <& length);
-    writeln("Bytes there: " <& length(stri) - 9);
+    writeln("Bytes there: " <& length(stri) - pos + 1);
     writeln("Final pos: " <& pos);
     writeln("Leftover bytes: " <& literal(stri[pos ..]));
   end func;
 
 
-const proc: showClientKeyExchange (in string: stri) is func
+const proc: showClientKeyExchange (in string: stri, inout integer: pos) is func
   local
     var integer: length is 0;
-    var integer: pos is 0;
   begin
     writeln("client_key_exchange");
-    length := bytes2Int(stri[7 len 3], UNSIGNED, BE);
-    pos := 10;
+    length := bytes2Int(stri[pos len 3], UNSIGNED, BE);
+    pos +:= 3;
     writeln("Length: " <& length);
-    writeln("Bytes there: " <& length(stri) - 9);
+    writeln("Bytes there: " <& length(stri) - pos + 1);
     write("exchange_keys: ");
     writeln(hex(stri[pos len length]));
     pos +:= length;
@@ -398,20 +499,48 @@ const proc: showClientKeyExchange (in string: stri) is func
   end func;
 
 
-const proc: showFinished (in string: stri) is func
+const proc: showFinished (in string: stri, inout integer: pos) is func
   local
     var integer: length is 0;
-    var integer: pos is 0;
   begin
     writeln("finished");
-    length := bytes2Int(stri[7 len 3], UNSIGNED, BE);
-    pos := 10;
+    length := bytes2Int(stri[pos len 3], UNSIGNED, BE);
+    pos +:= 3;
     writeln("Length: " <& length);
-    writeln("Bytes there: " <& length(stri) - 9);
+    writeln("Bytes there: " <& length(stri) - pos + 1);
     writeln("verify_data: " <& hex(stri[pos len length]));
     pos +:= length;
     writeln("Final pos: " <& pos);
     writeln("Leftover bytes: " <& literal(stri[pos ..]));
+  end func;
+
+
+const proc: showHandshakeMsg (in string: stri, in var integer: pos) is func
+  local
+    var char: handshakeType is ' ';
+  begin
+    handshakeType := stri[pos];
+    incr(pos);
+    write("HandshakeType: ");
+    if handshakeType = CLIENT_HELLO then
+      showClientHello(stri, pos);
+    elsif handshakeType = SERVER_HELLO then
+      showServerHello(stri, pos);
+    elsif handshakeType = CERTIFICATE then
+      showCertificate(stri, pos);
+    elsif handshakeType = SERVER_KEY_EXCHANGE then
+      showServerKeyExchange(stri, pos);
+    elsif handshakeType = CERTIFICATE_REQUEST then
+      showCertificateRequest(stri, pos);
+    elsif handshakeType = SERVER_HELLO_DONE then
+      showServerHelloDone(stri, pos);
+    elsif handshakeType = CLIENT_KEY_EXCHANGE then
+      showClientKeyExchange(stri, pos);
+    elsif handshakeType = FINISHED then
+      showFinished(stri, pos);
+    else
+      writeln(ord(handshakeType));
+    end if;
   end func;
 
 
@@ -430,26 +559,9 @@ const proc: showHandshake (in string: stri) is func
       writeln(" ***** TLS handshake length not ok");
       writeln("handshake length field: " <& bytes2Int(stri[7 len 3], UNSIGNED, BE));
       writeln("actual length: " <& length(stri) - 9);
-    end if;
-    write("HandshakeType: ");
-    if stri[6] = '\1;' then
-      showClientHello(stri);
-    elsif stri[6] = '\2;' then
-      showServerHello(stri);
-    elsif stri[6] = '\11;' then
-      showCertificate(stri);
-    elsif stri[6] = '\12;' then
-      showServerKeyExchange(stri);
-    elsif stri[6] = '\13;' then
-      showCertificateRequest(stri);
-    elsif stri[6] = '\14;' then
-      showServerHelloDone(stri);
-    elsif stri[6] = '\16;' then
-      showClientKeyExchange(stri);
-    elsif stri[6] = '\20;' then
-      showFinished(stri);
+      writeln("HandshakeType: " <& ord(stri[6]));
     else
-      writeln(ord(stri[6]));
+      showHandshakeMsg(stri, 6);
     end if;
   end func;
 
@@ -471,13 +583,13 @@ const proc: showMsg (in string: stri) is func
     writeln("MsgLength: " <& length(stri));
     if length(stri) <> 0 then
       write("ContentType: ");
-      if stri[1] = '\20;' then
+      if stri[1] = CHANGE_CIPHER_SPEC then
         showChangeCipherSpec(stri);
-      elsif stri[1] = '\21;' then
+      elsif stri[1] = ALERT then
         showAlert(stri);
-      elsif stri[1] = '\22;' then
+      elsif stri[1] = HANDSHAKE then
         showHandshake(stri);
-      elsif stri[1] = '\23;' then
+      elsif stri[1] = APPLICATION_DATA then
         showApplicationData(stri);
       else
         writeln(ord(stri[1]));
@@ -489,29 +601,31 @@ const proc: showMsg (in string: stri) is func
 const proc: showMsgType (in string: stri) is func
   begin
     if length(stri) <> 0 then
-      if stri[1] = '\20;' then
+      if stri[1] = CHANGE_CIPHER_SPEC then
         writeln("ChangeCipherSpec");
-      elsif stri[1] = '\21;' then
+      elsif stri[1] = ALERT then
         writeln("Alert");
-      elsif stri[1] = '\22;' then
-        if stri[6] = '\1;' then
+      elsif stri[1] = HANDSHAKE then
+        if stri[6] = CLIENT_HELLO then
           writeln("ClientHello");
-        elsif stri[6] = '\2;' then
+        elsif stri[6] = SERVER_HELLO then
           writeln("ServerHello");
-        elsif stri[6] = '\11;' then
+        elsif stri[6] = CERTIFICATE then
           writeln("Certificate");
-        elsif stri[6] = '\12;' then
+        elsif stri[6] = SERVER_KEY_EXCHANGE then
           writeln("ServerKeyExchange");
-        elsif stri[6] = '\14;' then
+        elsif stri[6] = CERTIFICATE_REQUEST then
+          writeln("CertificateRequest");
+        elsif stri[6] = SERVER_HELLO_DONE then
           writeln("ServerHelloDone");
-        elsif stri[6] = '\16;' then
+        elsif stri[6] = CLIENT_KEY_EXCHANGE then
           writeln("ClientKeyExchange");
-        elsif stri[6] = '\20;' then
+        elsif stri[6] = FINISHED then
           writeln("Finished");
         else
           writeln("Handshake " <& ord(stri[6]));
         end if;
-      elsif stri[1] = '\23;' then
+      elsif stri[1] = APPLICATION_DATA then
         writeln("ApplicationData");
       else
         writeln(ord(stri[1]));
@@ -522,6 +636,7 @@ const proc: showMsgType (in string: stri) is func
 
 const proc: storeCipherSuite (inout securityParameters: parameters) is func
   begin
+    # writeln("cipher_suite: " <& ord(parameters.cipher_suite) radix 16 lpad0 4);
     if parameters.cipher_suite = TLS_NULL_WITH_NULL_NULL then
       parameters.bulk_cipher_algorithm := NO_CIPHER;
       parameters.key_material_length := 0;
@@ -555,6 +670,24 @@ const proc: storeCipherSuite (inout securityParameters: parameters) is func
   end func;
 
 
+const proc: computeMasterSecret (inout securityParameters: parameters,
+    in string: preMasterSecret) is func
+  begin
+    # writeln("preMasterSecret: " <& hex(preMasterSecret));
+    if parameters.tls_version = SSL_3_0 then
+      parameters.master_secret := keyBlockFunction(preMasterSecret,
+          parameters.client_random & parameters.server_random, 48);
+    elsif parameters.tls_version = TLS_1_2 then
+      parameters.master_secret := p_hash(SHA256, preMasterSecret,
+          "master secret" & parameters.client_random & parameters.server_random, 48);
+    else
+      parameters.master_secret := pseudoRandomFunction(preMasterSecret,
+          "master secret", parameters.client_random & parameters.server_random, 48);
+    end if;
+    # writeln("master_secret: " <& hex(parameters.master_secret));
+  end func;
+
+
 const proc: storeKeys (inout securityParameters: parameters) is func
   local
     var string: key_block is "";
@@ -566,29 +699,21 @@ const proc: storeKeys (inout securityParameters: parameters) is func
     var string: client_initialization_vector is "";
     var string: server_initialization_vector is "";
   begin
-    # writeln("pre_master_secret: " <& hex(parameters.pre_master_secret));
     # writeln("client_random: " <& hex(parameters.client_random));
     # writeln("server_random: " <& hex(parameters.server_random));
     if parameters.tls_version = SSL_3_0 then
-      parameters.master_secret := keyBlockFunction(parameters.pre_master_secret,
-          parameters.client_random & parameters.server_random, 48);
       key_block := keyBlockFunction(parameters.master_secret,
           parameters.server_random & parameters.client_random,
           2 * parameters.hash_size + 2 * parameters.key_material_length + 2 * parameters.block_size);
     elsif parameters.tls_version = TLS_1_2 then
-      parameters.master_secret := p_hash(SHA256, parameters.pre_master_secret,
-          "master secret" & parameters.client_random & parameters.server_random, 48);
       key_block := p_hash(SHA256, parameters.master_secret,
           "key expansion" & parameters.server_random & parameters.client_random,
           2 * parameters.hash_size + 2 * parameters.key_material_length + 2 * parameters.block_size);
     else
-      parameters.master_secret := pseudoRandomFunction(parameters.pre_master_secret,
-          "master secret", parameters.client_random & parameters.server_random, 48);
       key_block := pseudoRandomFunction(parameters.master_secret,
           "key expansion", parameters.server_random & parameters.client_random,
           2 * parameters.hash_size + 2 * parameters.key_material_length + 2 * parameters.block_size);
     end if;
-    # writeln("master_secret: " <& hex(parameters.master_secret));
     # writeln("key_block: " <& hex(key_block));
     # writeln("length(key_block): " <& length(key_block));
     client_write_MAC_secret := key_block[key_block_pos len parameters.hash_size];
@@ -661,8 +786,12 @@ const proc: processCertificate (inout securityParameters: parameters, inout tlsP
 const proc: processClientHello (inout securityParameters: parameters, inout tlsParseState: state) is func
   local
     var integer: startPos is 0;
+    var integer: length is 0;
+    var integer: beyond is 0;
     var integer: sessionIdLen is 0;
     var integer: numCipherSuites is 0;
+    var integer: numCompressionMethods is 0;
+    var integer: extensionBytes is 0;
     var integer: index is 0;
     var integer: cipher_suite_number is ord(TLS_NULL_WITH_NULL_NULL);
     var integer: searchIndex is 0;
@@ -670,7 +799,10 @@ const proc: processClientHello (inout securityParameters: parameters, inout tlsP
   begin
     # writeln("client_hello");
     startPos := state.pos;
-    state.pos +:= 4;
+    incr(state.pos);
+    length := bytes2Int(state.message[state.pos len 3], UNSIGNED, BE);
+    state.pos +:= 3;
+    beyond := state.pos + length;
     if state.message[state.pos len 2] >= SSL_3_0 and
         state.message[state.pos len 2] <= TLS_1_2 then
       parameters.tls_version := state.message[state.pos len 2];
@@ -678,8 +810,10 @@ const proc: processClientHello (inout securityParameters: parameters, inout tlsP
       parameters.client_random := state.message[state.pos len 32];
       state.pos +:= 32;
       sessionIdLen := ord(state.message[state.pos]);
-      state.pos +:= 1 + sessionIdLen;
-      numCipherSuites := bytes2Int(state.message[state.pos len 2], UNSIGNED, BE);
+      incr(state.pos);
+      # writeln("SessionId: " <& hex(state.message[state.pos len sessionIdLen]));
+      state.pos +:= sessionIdLen;
+      numCipherSuites := bytes2Int(state.message[state.pos len 2], UNSIGNED, BE) div 2;
       state.pos +:= 2;
       for index range 1 to numCipherSuites do
         cipher_suite_number := bytes2Int(state.message[state.pos len 2], UNSIGNED, BE);
@@ -697,6 +831,12 @@ const proc: processClientHello (inout securityParameters: parameters, inout tlsP
       else
         raise RANGE_ERROR;
       end if;
+      numCompressionMethods := ord(state.message[state.pos]);
+      state.pos +:= 1 + numCompressionMethods;
+      if state.pos <= beyond - 2 then
+        extensionBytes := bytes2Int(state.message[state.pos len 2], UNSIGNED, BE);
+        state.pos +:= 2 + extensionBytes;
+      end if;
     else
       raise RANGE_ERROR;
     end if;
@@ -707,28 +847,37 @@ const proc: processClientHello (inout securityParameters: parameters, inout tlsP
 const proc: processServerHello (inout securityParameters: parameters, inout tlsParseState: state) is func
   local
     var integer: startPos is 0;
-    var integer: vectorLen is 0;
+    var integer: length is 0;
+    var integer: beyond is 0;
+    var integer: sessionIdLen is 0;
+    var integer: extensionBytes is 0;
   begin
     # writeln("server_hello");
     startPos := state.pos;
-    state.pos +:= 4;
+    incr(state.pos);
+    length := bytes2Int(state.message[state.pos len 3], UNSIGNED, BE);
+    state.pos +:= 3;
+    beyond := state.pos + length;
     if state.message[state.pos len 2] >= SSL_3_0 and
         state.message[state.pos len 2] <= parameters.tls_version then
       parameters.tls_version := state.message[state.pos len 2];
       state.pos +:= 2;
       parameters.server_random := state.message[state.pos len 32];
       state.pos +:= 32;
-      vectorLen := ord(state.message[state.pos]);
+      sessionIdLen := ord(state.message[state.pos]);
       incr(state.pos);
-      # write("SessionId: ");
-      # writeln(literal(state.message[45 len vectorLen]));
-      state.pos +:= vectorLen;
+      parameters.session_id := state.message[state.pos len sessionIdLen];
+      state.pos +:= sessionIdLen;
       parameters.cipher_suite := cipherSuite conv bytes2Int(state.message[state.pos len 2], UNSIGNED, BE);
       # writeln("Cipher: " <& ord(parameters.cipher_suite));
       storeCipherSuite(parameters);
       state.pos +:= 2;
       parameters.compression_algorithm := ord(state.message[state.pos]);
       incr(state.pos);
+      if state.pos <= beyond - 2 then
+        extensionBytes := bytes2Int(state.message[state.pos len 2], UNSIGNED, BE);
+        state.pos +:= 2 + extensionBytes;
+      end if;
     else
       raise RANGE_ERROR;
     end if;
@@ -771,12 +920,11 @@ const proc: processClientKeyExchange (inout securityParameters: parameters, inou
     var integer: length is 0;
     var integer: encryptedSecretLength is 0;
     var string: encryptedPreMasterSecret is "";
+    var string: preMasterSecret is "";
   begin
     # writeln("client_key_exchange");
     startPos := state.pos;
     incr(state.pos);
-    # writeln("message: " <& literal(state.message));
-    # writeln("length(message): " <& length(state.message));
     length := bytes2Int(state.message[state.pos len 3], UNSIGNED, BE);
     state.pos +:= 3;
     if parameters.tls_version = SSL_3_0 then
@@ -787,12 +935,13 @@ const proc: processClientKeyExchange (inout securityParameters: parameters, inou
     end if;
     encryptedPreMasterSecret := state.message[state.pos len encryptedSecretLength];
     state.pos +:= encryptedSecretLength;
-    # writeln("encryptedPreMasterSecret: " <& literal(encryptedPreMasterSecret));
+    # writeln("encryptedPreMasterSecret: " <& hex(encryptedPreMasterSecret));
     # writeln("length(encryptedPreMasterSecret): " <& length(encryptedPreMasterSecret));
-    parameters.pre_master_secret := rsaesPkcs1V15Decrypt(parameters.privateCertificateKey,
+    preMasterSecret := rsaesPkcs1V15Decrypt(parameters.privateCertificateKey,
         encryptedPreMasterSecret);
-    # parameters.pre_master_secret := rsaesOaepDecrypt(parameters.privateCertificateKey,
+    # preMasterSecret := rsaesOaepDecrypt(parameters.privateCertificateKey,
     #     encryptedPreMasterSecret, "");
+    computeMasterSecret(parameters, preMasterSecret);
     storeKeys(parameters);
     parameters.handshake_messages &:= state.message[startPos .. pred(state.pos)];
   end func;
@@ -881,7 +1030,7 @@ const proc: getTlsMsgRecord (inout file: sock, inout tlsParseState: state) is fu
     if state.pos > length(state.message) then
       state.message := gets(sock, 5);
       if length(state.message) = 5 and ord(state.message[1]) >= 20 and ord(state.message[1]) <= 23 then
-        state.contentType := ord(state.message[1]);
+        state.contentType := state.message[1];
         state.length := bytes2Int(state.message[4 len 2], UNSIGNED, BE);
         missing := state.length;
         repeat
@@ -906,10 +1055,11 @@ const proc: getTlsMsgRecord (inout file: sock, inout tlsParseState: state) is fu
     end if;
     # writeln("getTlsMsgRecord -> " <& length(state.message) <& " " <& literal(state.message));
     # showMsgType(state.message);
+    # showMsg(state.message);
   end func;
 
 
-const func string: genClientHello (inout securityParameters: parameters) is func
+const func string: genClientHello (inout securityParameters: parameters, in string: sessionId) is func
   result
     var string: clientHello is "";
   local
@@ -919,14 +1069,15 @@ const func string: genClientHello (inout securityParameters: parameters) is func
   begin
     parameters.client_random := int32AsFourBytesBe(timestamp1970(time(NOW)));   # Random - gmt_unix_time
     parameters.client_random &:= int2Octets(rand(0_, 2_ ** (28 * 8) - 1_), 28); # Random - random_bytes
-    clientHello &:= '\22;';                   # ContentType: handshake
+    clientHello &:= HANDSHAKE;                # ContentType (index: 1)
     clientHello &:= parameters.tls_version;   # Version: 3.1
     clientHello &:= "\0;\0;";                 # Length: filled later (index: 4)
-    clientHello &:= '\1;';                    # HandshakeType: client_hello (index: 6)
+    clientHello &:= CLIENT_HELLO;             # HandshakeType (index: 6)
     clientHello &:= "\0;\0;\0;";              # Length: filled later
     clientHello &:= parameters.tls_version;   # Version: 3.1
     clientHello &:= parameters.client_random; # Random - random_bytes
-    clientHello &:= '\0;';                    # SessionId length: 0 (0 bytes)
+    clientHello &:= chr(length(sessionId));   # SessionId length
+    clientHello &:= sessionId;                # SessionId
     clientHello &:= int16AsTwoBytesBe(2 * length(supportedCiphers));  # Number of Ciphers in bytes
     for cipher range supportedCiphers do
       clientHello &:= int16AsTwoBytesBe(ord(cipher));
@@ -947,19 +1098,18 @@ const func string: genServerHello (inout securityParameters: parameters) is func
     var integer: length is 0;
     var integer: count is 0;
   begin
-    parameters.server_random := int32AsFourBytesBe(timestamp1970(time(NOW)));  # Random - gmt_unix_time
+    parameters.server_random := int32AsFourBytesBe(timestamp1970(time(NOW)));   # Random - gmt_unix_time
     parameters.server_random &:= int2Octets(rand(0_, 2_ ** (28 * 8) - 1_), 28); # Random - random_bytes
-    serverHello &:= '\22;';                   # ContentType: handshake
+    parameters.session_id := int2Octets(rand(0_, 2_ ** (32 * 8) - 1_), 32);     # SessionId
+    serverHello &:= HANDSHAKE;                # ContentType (index: 1)
     serverHello &:= parameters.tls_version;   # Version: take version from client_hello.
     serverHello &:= "\0;\0;";                 # Length: filled later (index: 4)
-    serverHello &:= '\2;';                    # HandshakeType: server_hello (index: 6)
+    serverHello &:= SERVER_HELLO;             # HandshakeType (index: 6)
     serverHello &:= "\0;\0;\0;";              # Length: filled later
     serverHello &:= parameters.tls_version;   # Version: take version from client_hello.
     serverHello &:= parameters.server_random; # Random
     serverHello &:= '\32;';                   # SessionId length: 32 (32 bytes)
-    for count range 1 to 8 do
-      serverHello &:= int32AsFourBytesBe(rand(0, 2**32-1));        # SessionId
-    end for;
+    serverHello &:= parameters.session_id;    # SessionId
     serverHello &:= int16AsTwoBytesBe(ord(parameters.cipher_suite));
     serverHello &:= '\0;';                    # CompressionMethod: 0
     length := length(serverHello);
@@ -976,10 +1126,10 @@ const func string: genCertificate (inout securityParameters: parameters, in arra
     var integer: length is 0;
     var integer: index is 0;
   begin
-    certificate &:= '\22;';                 # ContentType: handshake
+    certificate &:= HANDSHAKE;              # ContentType (index: 1)
     certificate &:= parameters.tls_version; # Version: take version from client_hello.
     certificate &:= "\0;\0;";               # Length: filled later (index: 4)
-    certificate &:= '\11;';                 # HandshakeType: certificate (index: 6)
+    certificate &:= CERTIFICATE;            # HandshakeType (index: 6)
     certificate &:= "\0;\0;\0;";            # Length: filled later
     certificate &:= "\0;\0;\0;";            # Sequence length: filled later
     for key index range certList do
@@ -1000,10 +1150,10 @@ const func string: genServerHelloDone (inout securityParameters: parameters) is 
   local
     var integer: length is 0;
   begin
-    serverHelloDone &:= '\22;';                 # ContentType: handshake
+    serverHelloDone &:= HANDSHAKE;              # ContentType (index: 1)
     serverHelloDone &:= parameters.tls_version; # Version: take version from client_hello.
     serverHelloDone &:= "\0;\0;";               # Length: filled later (index: 4)
-    serverHelloDone &:= '\14;';                 # HandshakeType: server_hello_done (index: 6)
+    serverHelloDone &:= SERVER_HELLO_DONE;      # HandshakeType (index: 6)
     serverHelloDone &:= "\0;\0;\0;";            # Length: 0
     length := length(serverHelloDone);
     serverHelloDone @:= [4] int16AsTwoBytesBe(length - 5);
@@ -1016,19 +1166,21 @@ const func string: genClientKeyExchange (inout securityParameters: parameters) i
     var string: clientKeyExchange is "";
   local
     var integer: length is 0;
+    var string: preMasterSecret is "";
     var string: encryptedPreMasterSecret is "";
   begin
     # writeln("genClientKeyExchange");
-    parameters.pre_master_secret := parameters.tls_version;                          # ProtocolVersion
-    parameters.pre_master_secret &:= int2Octets(rand(0_, 2_ ** (46 * 8) - 1_), 46);  # Random - random_bytes
+    preMasterSecret := parameters.tls_version;                          # ProtocolVersion
+    preMasterSecret &:= int2Octets(rand(0_, 2_ ** (46 * 8) - 1_), 46);  # Random - random_bytes
+    computeMasterSecret(parameters, preMasterSecret);
     storeKeys(parameters);
-    clientKeyExchange &:= '\22;';                 # ContentType: handshake
+    clientKeyExchange &:= HANDSHAKE;              # ContentType (index: 1)
     clientKeyExchange &:= parameters.tls_version; # Version: 3.1
     clientKeyExchange &:= "\0;\0;";               # Length: filled later (index: 4)
-    clientKeyExchange &:= '\16;';                 # HandshakeType: client_key_exchange (index: 6)
+    clientKeyExchange &:= CLIENT_KEY_EXCHANGE;    # HandshakeType (index: 6)
     clientKeyExchange &:= "\0;\0;\0;";            # Length: filled later
     encryptedPreMasterSecret := rsaesPkcs1V15Encrypt(parameters.publicCertificateKey,
-        parameters.pre_master_secret);
+        preMasterSecret);
     # writeln("encryptedPreMasterSecret: " <& hex(encryptedPreMasterSecret));
     # writeln("length(encryptedPreMasterSecret): " <& length(encryptedPreMasterSecret));
     if parameters.tls_version <> SSL_3_0 then
@@ -1048,7 +1200,7 @@ const func string: genChangeCipherSpec (in securityParameters: parameters) is fu
   local
     var integer: length is 0;
   begin
-    changeCipherSpec &:= '\20;';                 # ContentType: change_cipher_spec
+    changeCipherSpec &:= CHANGE_CIPHER_SPEC;     # ContentType (index: 1)
     changeCipherSpec &:= parameters.tls_version; # Version: 3.1
     changeCipherSpec &:= "\0;\0;";               # Length: filled later (index: 4)
     changeCipherSpec &:= "\1;";                  # change_cipher_spec
@@ -1065,10 +1217,10 @@ const func string: genFinished (inout securityParameters: parameters) is func
     var string: finished_label is "";
     var string: verify_data is "";
   begin
-    finished &:= '\22;';                 # ContentType: handshake
+    finished &:= HANDSHAKE;              # ContentType (index: 1)
     finished &:= parameters.tls_version; # Version: 3.1
     finished &:= "\0;\0;";               # Length: filled later (index: 4)
-    finished &:= '\20;';                 # HandshakeType: finished (index: 6)
+    finished &:= FINISHED;               # HandshakeType (index: 6)
     finished &:= "\0;\0;\0;";            # Length: filled later
     # writeln("master_secret: " <& hex(parameters.master_secret));
     # writeln("handshake_messages: " <& hex(parameters.handshake_messages));
@@ -1110,17 +1262,17 @@ const func string: genFinished (inout securityParameters: parameters) is func
   end func;
 
 
-const func string: genCloseNotify (inout securityParameters: parameters) is func
+const func string: genAlert (inout securityParameters: parameters, in char: description) is func
   result
     var string: alert is "";
   local
     var integer: length is 0;
   begin
-    alert &:= '\21;';                 # ContentType: alert
+    alert &:= ALERT;                  # ContentType (index: 1)
     alert &:= parameters.tls_version; # Version: 3.1
     alert &:= "\0;\0;";               # Length: filled later (index: 4)
     alert &:= '\1;';                  # level: 1
-    alert &:= '\0;';                  # AlertDescription: close_notify
+    alert &:= description;            # AlertDescription
     length := length(alert);
     alert @:= [4] int16AsTwoBytesBe(length - 5);
   end func;
@@ -1175,7 +1327,9 @@ const func string: tlsEncryptRecord (inout securityParameters: parameters, in st
   end func;
 
 
-const proc: tlsDecryptRecord (inout securityParameters: parameters, inout tlsParseState: state) is func
+const func boolean: tlsDecryptRecord (inout securityParameters: parameters, inout tlsParseState: state) is func
+  result
+    var boolean: decryptOkay is TRUE;
   local
     var string: decoded is "";
     var integer: padding_length is 0;
@@ -1194,48 +1348,222 @@ const proc: tlsDecryptRecord (inout securityParameters: parameters, inout tlsPar
           str(chr(padding_length)) mult succ(padding_length) then
         decoded := decoded[.. length(decoded) - succ(padding_length)];
       else
-        writeln("Padding wrong");
-        raise RANGE_ERROR;
+        decryptOkay := FALSE;
+        state.alert := DECRYPTION_FAILED;
       end if;
     end if;
-    content := decoded[.. length(decoded) - digestSize(parameters.mac_algorithm)];
-    mac := decoded[length(decoded) - digestSize(parameters.mac_algorithm) + 1 ..];
-    plain := state.message[.. 3];
-    plain &:= int16AsTwoBytesBe(length(content));
-    plain &:= content;
-    # writeln("plain: " <& hex(plain));
-    # writeln("mac: " <& hex(mac));
-    if state.message[2 len 2] = SSL_3_0 then
-      verify := msgDigest(parameters.mac_algorithm, parameters.readMacSecret & SHA_PAD2 &
-                          msgDigest(parameters.mac_algorithm, parameters.readMacSecret & SHA_PAD1 &
-                                    int64AsEightBytesBe(parameters.readSequenceNumber) &
-                                    plain[1 len 1] & plain[4 ..]));
-    else
-      verify := hmac(parameters.mac_algorithm, parameters.readMacSecret,
-                     int64AsEightBytesBe(parameters.readSequenceNumber) & plain);
+    if decryptOkay then
+      content := decoded[.. length(decoded) - digestSize(parameters.mac_algorithm)];
+      mac := decoded[length(decoded) - digestSize(parameters.mac_algorithm) + 1 ..];
+      plain := state.message[.. 3];
+      plain &:= int16AsTwoBytesBe(length(content));
+      plain &:= content;
+      # writeln("plain: " <& hex(plain));
+      # writeln("mac: " <& hex(mac));
+      if state.message[2 len 2] = SSL_3_0 then
+        verify := msgDigest(parameters.mac_algorithm, parameters.readMacSecret & SHA_PAD2 &
+                            msgDigest(parameters.mac_algorithm, parameters.readMacSecret & SHA_PAD1 &
+                                      int64AsEightBytesBe(parameters.readSequenceNumber) &
+                                      plain[1 len 1] & plain[4 ..]));
+      else
+        verify := hmac(parameters.mac_algorithm, parameters.readMacSecret,
+                       int64AsEightBytesBe(parameters.readSequenceNumber) & plain);
+      end if;
+      # writeln("verify: " <& hex(verify));
+      if mac = verify then
+        state.length := length(content);
+        state.message := plain;
+      else
+        decryptOkay := FALSE;
+        state.alert := BAD_RECORD_MAC;
+      end if;
     end if;
-    # writeln("verify: " <& hex(verify));
-    if mac = verify then
-      state.length := length(content);
-      state.message := plain;
-    else
-      writeln("Version: " <& ord(state.message[2]) <& "." <& ord(state.message[3]));
-      writeln("mac algorithm: " <& ord(parameters.mac_algorithm));
-      writeln("mac: " <& hex(mac));
-      writeln("verify: " <& hex(verify));
-      writeln("readMacSecret: " <& hex(parameters.readMacSecret));
-      writeln("readSequenceNumber: " <& parameters.readSequenceNumber);
-      writeln("plain length:          " <& length(plain));
-      writeln("plain length field:    " <& bytes2Int(plain[4 len 2], UNSIGNED, BE));
-      writeln("original length:       " <& length(state.message));
-      writeln("original length field: " <& bytes2Int(state.message[4 len 2], UNSIGNED, BE));
-      writeln("digest size: " <& digestSize(parameters.mac_algorithm));
-      writeln("encrypted message: " <& literal(state.message));
-      writeln("decrypted message: " <& literal(plain));
-      raise RANGE_ERROR;
-    end if;
-    # writeln("length: " <& length(plain));
     incr(parameters.readSequenceNumber);
+  end func;
+
+
+const proc: sendAlertAndClose (inout tlsFile: aFile, in char: alertDescription) is func
+  local
+    var string: alert is "";
+  begin
+    alert := genAlert(aFile.parameters, alertDescription);
+    # showMsg(alert);
+    if aFile.parameters.writeEncryptedRecords then
+      alert := tlsEncryptRecord(aFile.parameters, alert);
+    end if;
+    block
+      write(aFile.sock, alert);
+    exception
+      catch FILE_ERROR: noop;
+    end block;
+    close(aFile.sock);
+    aFile.sock := STD_NULL;
+    aFile.parseState.pos := succ(length(aFile.parseState.message));
+  end func;
+
+
+const proc: updateClientCache (in securityParameters: parameters, in socketAddress: address) is func
+  local
+    var clientSession: session is clientSession.value;
+  begin
+    if parameters.session_id <> "" then
+      session.session_id            := parameters.session_id;
+      session.bulk_cipher_algorithm := parameters.bulk_cipher_algorithm;
+      session.master_secret         := parameters.master_secret;
+      session.last_use              := time(NOW);
+      clientSessionCache @:= [address] session;
+    end if;
+  end func;
+
+
+const func file: negotiateSecurityParameters (inout tlsFile: new_file) is func
+  result
+    var file: tlsSock is STD_NULL;
+  local
+    var string: clientKeyExchange is "";
+    var string: changeCipherSpec is "";
+    var string: finished is "";
+    var boolean: serverHelloDone is FALSE;
+    var boolean: unexpectedMessage is FALSE;
+  begin
+    repeat
+      getTlsMsgRecord(new_file.sock, new_file.parseState);
+      # showMsg(new_file.parseState.message);
+      if new_file.parseState.contentType = HANDSHAKE then
+        if new_file.parseState.message[new_file.parseState.pos] = CERTIFICATE then
+          processCertificate(new_file.parameters, new_file.parseState);
+        elsif new_file.parseState.message[new_file.parseState.pos] = CERTIFICATE_REQUEST then
+          processCertificateRequest(new_file.parameters, new_file.parseState);
+        elsif new_file.parseState.message[new_file.parseState.pos] = SERVER_HELLO_DONE then
+          processServerHelloDone(new_file.parameters, new_file.parseState);
+          serverHelloDone := TRUE;
+        else  # Any other handshake
+          unexpectedMessage := TRUE;
+        end if;
+      else
+        unexpectedMessage := TRUE;
+      end if;
+    until serverHelloDone or unexpectedMessage;
+    if serverHelloDone then
+      clientKeyExchange := genClientKeyExchange(new_file.parameters);
+      # showMsg(clientKeyExchange);
+      write(new_file.sock, clientKeyExchange);
+      changeCipherSpec := genChangeCipherSpec(new_file.parameters);
+      # showMsg(changeCipherSpec);
+      write(new_file.sock, changeCipherSpec);
+      new_file.parameters.writeEncryptedRecords := TRUE;
+      finished := genFinished(new_file.parameters);
+      # showMsg(finished);
+      finished := tlsEncryptRecord(new_file.parameters, finished);
+      write(new_file.sock, finished);
+      repeat
+        getTlsMsgRecord(new_file.sock, new_file.parseState);
+        # writeln(literal(new_file.parseState.message));
+        # showMsg(new_file.parseState.message);
+      until new_file.parseState.contentType = CHANGE_CIPHER_SPEC or
+            new_file.parseState.contentType = ALERT or
+            new_file.parseState.contentType = NO_MESSAGE;
+      if new_file.parseState.contentType = CHANGE_CIPHER_SPEC then
+        processChangeCipherSpec(new_file.parameters, new_file.parseState);
+        getTlsMsgRecord(new_file.sock, new_file.parseState);
+        if new_file.parseState.contentType = HANDSHAKE then  # Handshake with encoded Finished message
+          if tlsDecryptRecord(new_file.parameters, new_file.parseState) then
+            # showMsg(new_file.parseState.message);
+            if new_file.parseState.message[new_file.parseState.pos] = FINISHED then
+              processFinished(new_file.parameters, new_file.parseState);
+              # writeln("Version: " <& ord(new_file.parameters.tls_version[1]) <& "." <& ord(new_file.parameters.tls_version[2]));
+              # writeln("Cipher: " <& ord(new_file.parameters.cipher_suite));
+              updateClientCache(new_file.parameters, peerAddress(new_file.sock));
+              tlsSock := toInterface(new_file);
+            else
+              sendAlertAndClose(new_file, UNEXPECTED_MESSAGE);
+            end if;
+          else
+            sendAlertAndClose(new_file, new_file.parseState.alert);
+          end if;
+        else
+          sendAlertAndClose(new_file, UNEXPECTED_MESSAGE);
+        end if;
+      else
+        sendAlertAndClose(new_file, UNEXPECTED_MESSAGE);
+      end if;
+    else
+      sendAlertAndClose(new_file, UNEXPECTED_MESSAGE);
+    end if;
+  end func;
+
+
+const func file: openTlsSocket (inout file: sock, in clientSession: session) is func
+  result
+    var file: tlsSock is STD_NULL;
+  local
+    var tlsFile: new_file is tlsFile.value;
+    var socketAddress: peerAddress is socketAddress.value;
+    var string: sessionId is "";
+    var string: clientHello is "";
+    var string: changeCipherSpec is "";
+    var string: finished is "";
+  begin
+    if sock <> STD_NULL then
+      peerAddress := peerAddress(sock);
+      new_file.sock := sock;
+      new_file.parameters.isClient := TRUE;
+      if session.last_use + clientCacheValid > time(NOW) then
+        sessionId := session.session_id;
+      end if;
+      clientHello := genClientHello(new_file.parameters, sessionId);
+      # showMsg(clientHello);
+      write(sock, clientHello);
+      getTlsMsgRecord(sock, new_file.parseState);
+      if new_file.parseState.contentType = HANDSHAKE and
+          new_file.parseState.message[new_file.parseState.pos] = SERVER_HELLO then
+        # showMsg(new_file.parseState.message);
+        processServerHello(new_file.parameters, new_file.parseState);
+        if new_file.parameters.session_id <> sessionId or
+            new_file.parameters.bulk_cipher_algorithm <> session.bulk_cipher_algorithm then
+          tlsSock := negotiateSecurityParameters(new_file);
+        else
+          getTlsMsgRecord(new_file.sock, new_file.parseState);
+          if new_file.parseState.contentType = CHANGE_CIPHER_SPEC then
+            processChangeCipherSpec(new_file.parameters, new_file.parseState);
+            new_file.parameters.master_secret := session.master_secret;
+            storeKeys(new_file.parameters);
+            getTlsMsgRecord(new_file.sock, new_file.parseState);
+            if new_file.parseState.contentType = HANDSHAKE then  # Handshake with encoded Finished message
+              if tlsDecryptRecord(new_file.parameters, new_file.parseState) then
+                # showMsg(new_file.parseState.message);
+                if new_file.parseState.message[new_file.parseState.pos] = FINISHED then
+                  processFinished(new_file.parameters, new_file.parseState);
+                  changeCipherSpec := genChangeCipherSpec(new_file.parameters);
+                  # showMsg(changeCipherSpec);
+                  write(new_file.sock, changeCipherSpec);
+                  new_file.parameters.writeEncryptedRecords := TRUE;
+                  finished := genFinished(new_file.parameters);
+                  # showMsg(finished);
+                  finished := tlsEncryptRecord(new_file.parameters, finished);
+                  write(new_file.sock, finished);
+                  updateClientCache(new_file.parameters, peerAddress);
+                  tlsSock := toInterface(new_file);
+                else
+                  sendAlertAndClose(new_file, UNEXPECTED_MESSAGE);
+                end if;
+              else
+                sendAlertAndClose(new_file, new_file.parseState.alert);
+              end if;
+            else
+              sendAlertAndClose(new_file, UNEXPECTED_MESSAGE);
+            end if;
+          else
+            sendAlertAndClose(new_file, UNEXPECTED_MESSAGE);
+          end if;
+        end if;
+      else
+        sendAlertAndClose(new_file, UNEXPECTED_MESSAGE);
+      end if;
+      if tlsSock = STD_NULL then
+        excl(clientSessionCache, peerAddress);
+      end if;
+    end if;
   end func;
 
 
@@ -1252,89 +1580,25 @@ const func file: openTlsSocket (inout file: sock) is func
   local
     var tlsFile: new_file is tlsFile.value;
     var string: clientHello is "";
-    var string: clientKeyExchange is "";
-    var string: changeCipherSpec is "";
-    var string: finished is "";
-    var boolean: serverHelloDone is FALSE;
   begin
     if sock <> STD_NULL then
-      new_file.parameters.isClient := TRUE;
-      clientHello := genClientHello(new_file.parameters);
-      # showMsg(clientHello);
-      write(sock, clientHello);
-      getTlsMsgRecord(sock, new_file.parseState);
-      if new_file.parseState.contentType = HANDSHAKE and
-          new_file.parseState.message[new_file.parseState.pos] = '\2;' then  # ServerHello
-        # showMsg(new_file.parseState.message);
-        processServerHello(new_file.parameters, new_file.parseState);
-        repeat
-          getTlsMsgRecord(sock, new_file.parseState);
-          # showMsg(new_file.parseState.message);
-          if new_file.parseState.contentType = HANDSHAKE then
-            if new_file.parseState.message[new_file.parseState.pos] = '\11;' then  # Certificate
-              processCertificate(new_file.parameters, new_file.parseState);
-            elsif new_file.parseState.message[new_file.parseState.pos] = '\13;' then  # CertificateRequest
-              processCertificateRequest(new_file.parameters, new_file.parseState);
-            elsif new_file.parseState.message[new_file.parseState.pos] = '\14;' then  # ServerHelloDone
-              processServerHelloDone(new_file.parameters, new_file.parseState);
-              serverHelloDone := TRUE;
-            else  # Any other handshake
-              writeln(" ***** Unprocessed handshake message");
-              # showMsg(new_file.parseState.message);
-              new_file.parameters.handshake_messages &:= new_file.parseState.message[6 ..];
-            end if;
-          end if;
-        until serverHelloDone or
-              new_file.parseState.contentType = ALERT or
-              new_file.parseState.contentType = NO_MESSAGE;
-        if serverHelloDone then
-          clientKeyExchange := genClientKeyExchange(new_file.parameters);
-          # showMsg(clientKeyExchange);
-          write(sock, clientKeyExchange);
-          changeCipherSpec := genChangeCipherSpec(new_file.parameters);
-          # showMsg(changeCipherSpec);
-          write(sock, changeCipherSpec);
-          finished := genFinished(new_file.parameters);
-          # showMsg(finished);
-          finished := tlsEncryptRecord(new_file.parameters, finished);
-          write(sock, finished);
-          repeat
-            getTlsMsgRecord(sock, new_file.parseState);
-            # writeln(literal(new_file.parseState.message));
-            # showMsg(new_file.parseState.message);
-          until new_file.parseState.contentType = CHANGE_CIPHER_SPEC or
-                new_file.parseState.contentType = ALERT or
-                new_file.parseState.contentType = NO_MESSAGE;
-          if new_file.parseState.contentType = CHANGE_CIPHER_SPEC then
-            processChangeCipherSpec(new_file.parameters, new_file.parseState);
-            getTlsMsgRecord(sock, new_file.parseState);
-            if new_file.parseState.contentType = HANDSHAKE then  # Handshake with encoded Finished message
-              tlsDecryptRecord(new_file.parameters, new_file.parseState);
-              # writeln(literal(new_file.parseState.message));
-              # showMsg(new_file.parseState.message);
-              processFinished(new_file.parameters, new_file.parseState);
-              # writeln("Version: " <& ord(new_file.parameters.tls_version[1]) <& "." <& ord(new_file.parameters.tls_version[2]));
-              # writeln("Cipher: " <& ord(new_file.parameters.cipher_suite));
-              new_file.sock := sock;
-              tlsSock := toInterface(new_file);
-            end if;
-          else
-            noop;
-            # showMsg(new_file.parseState.message);
-            # writeln("Version: " <& ord(new_file.parameters.tls_version[1]) <& "." <& ord(new_file.parameters.tls_version[2]));
-            # writeln("Cipher: " <& ord(new_file.parameters.cipher_suite));
-          end if;
-        else
-          noop;
-          # showMsg(new_file.parseState.message);
-          # writeln("Version: " <& ord(new_file.parameters.tls_version[1]) <& "." <& ord(new_file.parameters.tls_version[2]));
-          # writeln("Cipher: " <& ord(new_file.parameters.cipher_suite));
-        end if;
+      if peerAddress(sock) in clientSessionCache then
+        tlsSock := openTlsSocket(sock, clientSessionCache[peerAddress(sock)]);
       else
-        noop;
-        # showMsg(new_file.parseState.message);
-        # writeln("Version: " <& ord(new_file.parameters.tls_version[1]) <& "." <& ord(new_file.parameters.tls_version[2]));
-        # writeln("Cipher: " <& ord(new_file.parameters.cipher_suite));
+        new_file.sock := sock;
+        new_file.parameters.isClient := TRUE;
+        clientHello := genClientHello(new_file.parameters, "");
+        # showMsg(clientHello);
+        write(sock, clientHello);
+        getTlsMsgRecord(sock, new_file.parseState);
+        if new_file.parseState.contentType = HANDSHAKE and
+            new_file.parseState.message[new_file.parseState.pos] = SERVER_HELLO then
+          # showMsg(new_file.parseState.message);
+          processServerHello(new_file.parameters, new_file.parseState);
+          tlsSock := negotiateSecurityParameters(new_file);
+        else
+          sendAlertAndClose(new_file, UNEXPECTED_MESSAGE);
+        end if;
       end if;
     end if;
   end func;
@@ -1357,7 +1621,6 @@ const func file: openTlsSocket (in string: hostName, in integer: portNumber) is 
     var file: sock is STD_NULL;
   begin
     sock := openInetSocket(hostName, portNumber);
-    # writeln("Socket open: " <& hostName);
     tlsSock := openTlsSocket(sock);
   end func;
 
@@ -1365,6 +1628,8 @@ const func file: openTlsSocket (in string: hostName, in integer: portNumber) is 
 (**
  *  Return a connected TLS socket file based on the given ''sock''.
  *  @param sock A connected internet socket file (server side).
+ *  @param certList List of server certificates
+ *  @param privateKey Private key of the first certificate.
  *  @return an open TLS socket file, or [[null_file#STD_NULL|STD_NULL]]
  *          if it could not be opened.
  *  @exception MEMORY_ERROR An out of memory situation occurred.
@@ -1381,68 +1646,108 @@ const func file: openServerTls (inout file: sock, in array string: certList,
     var string: serverHelloDone is "";
     var string: changeCipherSpec is "";
     var string: finished is "";
+    var boolean: okay is TRUE;
   begin
-    new_file.parameters.isClient := FALSE;
-    new_file.parameters.privateCertificateKey := privateKey;
-    # Read and process the request from sock.
-    getTlsMsgRecord(sock, new_file.parseState);
-    if new_file.parseState.contentType = HANDSHAKE and
-        new_file.parseState.message[new_file.parseState.pos] = '\1;' then  # ClientHello
-      # writeln(literal(new_file.parseState.message));
-      # showMsg(new_file.parseState.message);
-      processClientHello(new_file.parameters, new_file.parseState);
-      serverHello := genServerHello(new_file.parameters);
-      # showMsg(serverHello);
-      write(sock, serverHello);
-      certificate := genCertificate(new_file.parameters, certList);
-      # showMsg(certificate);
-      write(sock, certificate);
-      serverHelloDone := genServerHelloDone(new_file.parameters);
-      # showMsg(serverHelloDone);
-      write(sock, serverHelloDone);
-      repeat
-        getTlsMsgRecord(sock, new_file.parseState);
+    if sock <> STD_NULL then
+      new_file.sock := sock;
+      new_file.parameters.isClient := FALSE;
+      new_file.parameters.privateCertificateKey := privateKey;
+      # Read and process the request from sock.
+      getTlsMsgRecord(sock, new_file.parseState);
+      if new_file.parseState.contentType = HANDSHAKE and
+          new_file.parseState.message[new_file.parseState.pos] = CLIENT_HELLO then
         # writeln(literal(new_file.parseState.message));
         # showMsg(new_file.parseState.message);
-        if new_file.parseState.contentType = HANDSHAKE and
-            new_file.parseState.message[new_file.parseState.pos] = '\16;' then  # ClientKeyExchange
-          processClientKeyExchange(new_file.parameters, new_file.parseState);
-        end if;
-      until new_file.parseState.contentType = CHANGE_CIPHER_SPEC or
-            new_file.parseState.contentType = ALERT or
-            new_file.parseState.contentType = NO_MESSAGE;
-      if new_file.parseState.contentType = CHANGE_CIPHER_SPEC then
-        processChangeCipherSpec(new_file.parameters, new_file.parseState);
-        getTlsMsgRecord(sock, new_file.parseState);
-        if new_file.parseState.contentType = HANDSHAKE then  # Handshake with encoded Finished message
-          tlsDecryptRecord(new_file.parameters, new_file.parseState);
-          # writeln(literal(new_file.parseState.message));
-          # showMsg(new_file.parseState.message);
-          processFinished(new_file.parameters, new_file.parseState);
-          changeCipherSpec := genChangeCipherSpec(new_file.parameters);
-          # showMsg(changeCipherSpec);
-          write(sock, changeCipherSpec);
-          finished := genFinished(new_file.parameters);
-          # showMsg(finished);
-          finished := tlsEncryptRecord(new_file.parameters, finished);
-          write(sock, finished);
-          new_file.sock := sock;
-          tlsSock := toInterface(new_file);
-        else
-          noop;  showMsg(new_file.parseState.message);
-          writeln("Version: " <& ord(new_file.parameters.tls_version[1]) <& "." <& ord(new_file.parameters.tls_version[2]));
-          writeln("Cipher: " <& ord(new_file.parameters.cipher_suite));
+        processClientHello(new_file.parameters, new_file.parseState);
+        serverHello := genServerHello(new_file.parameters);
+        # showMsg(serverHello);
+        write(sock, serverHello);
+        certificate := genCertificate(new_file.parameters, certList);
+        # showMsg(certificate);
+        block
+          write(sock, certificate);
+        exception
+          catch FILE_ERROR:
+            # getTlsMsgRecord(sock, new_file.parseState);
+            # showMsg(new_file.parseState.message);
+            okay := FALSE;
+        end block;
+        if okay then
+          serverHelloDone := genServerHelloDone(new_file.parameters);
+          # showMsg(serverHelloDone);
+          write(sock, serverHelloDone);
+          repeat
+            getTlsMsgRecord(sock, new_file.parseState);
+            # writeln(literal(new_file.parseState.message));
+            # showMsg(new_file.parseState.message);
+            if new_file.parseState.contentType = HANDSHAKE and
+                new_file.parseState.message[new_file.parseState.pos] = CLIENT_KEY_EXCHANGE then
+              processClientKeyExchange(new_file.parameters, new_file.parseState);
+            end if;
+          until new_file.parseState.contentType = CHANGE_CIPHER_SPEC or
+                new_file.parseState.contentType = ALERT or
+                new_file.parseState.contentType = NO_MESSAGE;
+          if new_file.parseState.contentType = CHANGE_CIPHER_SPEC then
+            processChangeCipherSpec(new_file.parameters, new_file.parseState);
+            getTlsMsgRecord(sock, new_file.parseState);
+            if new_file.parseState.contentType = HANDSHAKE then  # Handshake with encoded Finished message
+              if tlsDecryptRecord(new_file.parameters, new_file.parseState) then
+                # showMsg(new_file.parseState.message);
+                if new_file.parseState.message[new_file.parseState.pos] = FINISHED then
+                  processFinished(new_file.parameters, new_file.parseState);
+                  changeCipherSpec := genChangeCipherSpec(new_file.parameters);
+                  # showMsg(changeCipherSpec);
+                  write(sock, changeCipherSpec);
+                  new_file.parameters.writeEncryptedRecords := TRUE;
+                  finished := genFinished(new_file.parameters);
+                  # showMsg(finished);
+                  finished := tlsEncryptRecord(new_file.parameters, finished);
+                  block
+                    write(sock, finished);
+                  exception
+                    catch FILE_ERROR:
+                      # getTlsMsgRecord(sock, new_file.parseState);
+                      # tlsDecryptRecord(new_file.parameters, new_file.parseState);
+                      # showMsg(new_file.parseState.message);
+                      okay := FALSE;
+                  end block;
+                  if okay then
+                    tlsSock := toInterface(new_file);
+                  end if;
+                else
+                  sendAlertAndClose(new_file, UNEXPECTED_MESSAGE);
+                end if;
+              else
+                sendAlertAndClose(new_file, new_file.parseState.alert);
+              end if;
+            else
+              sendAlertAndClose(new_file, UNEXPECTED_MESSAGE);
+            end if;
+          else
+            sendAlertAndClose(new_file, UNEXPECTED_MESSAGE);
+          end if;
         end if;
       else
-        noop;  showMsg(new_file.parseState.message);
-        writeln("Version: " <& ord(new_file.parameters.tls_version[1]) <& "." <& ord(new_file.parameters.tls_version[2]));
-        writeln("Cipher: " <& ord(new_file.parameters.cipher_suite));
+        sendAlertAndClose(new_file, UNEXPECTED_MESSAGE);
       end if;
-    else
-      noop;  showMsg(new_file.parseState.message);
-      writeln("Version: " <& ord(new_file.parameters.tls_version[1]) <& "." <& ord(new_file.parameters.tls_version[2]));
-      writeln("Cipher: " <& ord(new_file.parameters.cipher_suite));
     end if;
+  end func;
+
+
+(**
+ *  Return a connected TLS socket file based on the given ''sock''.
+ *  @param sock A connected internet socket file (server side).
+ *  @param sock Server socket (returned by accept).
+ *  @param certificate Server certificate and corresponding private key.
+ *  @return an open TLS socket file, or [[null_file#STD_NULL|STD_NULL]]
+ *          if it could not be opened.
+ *  @exception MEMORY_ERROR An out of memory situation occurred.
+ *)
+const func file: openServerTls (inout file: sock, in certAndKey: certificate) is func
+  result
+    var file: tlsSock is STD_NULL;
+  begin
+    tlsSock := openServerTls(sock, certificate.certList, certificate.privateKey);
   end func;
 
 
@@ -1451,19 +1756,8 @@ const func file: openServerTls (inout file: sock, in array string: certList,
  *  @exception FILE_ERROR A system function returns an error.
  *)
 const proc: close (inout tlsFile: aFile) is func
-  local
-    var string: closeNotify is "";
   begin
-    closeNotify := genCloseNotify(aFile.parameters);
-    # showMsg(closeNotify);
-    closeNotify := tlsEncryptRecord(aFile.parameters, closeNotify);
-    block
-      write(aFile.sock, closeNotify);
-    exception
-      catch FILE_ERROR: noop;
-    end block;
-    close(aFile.sock);
-    aFile.sock := STD_NULL;
+    sendAlertAndClose(aFile, CLOSE_NOTIFY);
   end func;
 
 
@@ -1485,37 +1779,26 @@ const func string: getApplicationData (inout tlsFile: inFile) is func
   begin
     getTlsMsgRecord(inFile.sock, inFile.parseState);
     if inFile.parseState.contentType = APPLICATION_DATA then
-      tlsDecryptRecord(inFile.parameters, inFile.parseState);
-      # writeln("getApplicationData:");
-      # showMsg(inFile.parseState.message);
-      # writeln("length: " <& inFile.parseState.length);
-      applicationData := inFile.parseState.message[inFile.parseState.pos ..];
-      inFile.parseState.pos +:= inFile.parseState.length;
-      # writeln("length(applicationData): " <& length(applicationData));
+      if tlsDecryptRecord(inFile.parameters, inFile.parseState) then
+        # showMsg(inFile.parseState.message);
+        applicationData := inFile.parseState.message[inFile.parseState.pos ..];
+        inFile.parseState.pos +:= inFile.parseState.length;
+      else
+        sendAlertAndClose(inFile, inFile.parseState.alert);
+      end if;
     elsif inFile.parseState.contentType = ALERT then
-      tlsDecryptRecord(inFile.parameters, inFile.parseState);
-      # writeln("getApplicationData:");
-      # showMsg(inFile.parseState.message);
-      if inFile.parseState.message[inFile.parseState.pos + 1] = '\0;' then  # close_notify
-        # writeln("close notify");
-        close(inFile);
-      elsif inFile.parseState.message[inFile.parseState.pos + 1] = '\40;' then  # handshake_failure
-        # writeln("handshake failure");
+      if tlsDecryptRecord(inFile.parameters, inFile.parseState) then
+        # showMsg(inFile.parseState.message);
         close(inFile);
       else
-        showMsg(inFile.parseState.message);
+        sendAlertAndClose(inFile, inFile.parseState.alert);
       end if;
-      inFile.parseState.pos +:= inFile.parseState.length;
+    elsif inFile.parseState.contentType = CLIENT_HELLO then
+      sendAlertAndClose(inFile, NO_RENEGOTIATION);
     elsif inFile.parseState.contentType = NO_MESSAGE then
-      if eof(inFile.sock) then
-        close(inFile.sock);
-        inFile.sock := STD_NULL;
-      else
-        close(inFile);
-      end if;
+      close(inFile);
     else
-      writeln(" ***** Unexpected message type " <& inFile.parseState.contentType);
-      raise RANGE_ERROR;
+      sendAlertAndClose(inFile, UNEXPECTED_MESSAGE);
     end if;
   end func;
 
@@ -1528,19 +1811,23 @@ const func string: getApplicationData (inout tlsFile: inFile) is func
  *)
 const proc: write (inout tlsFile: outFile, in string: stri) is func
   local
+    const integer: maxStriLen is 2**14 - 1;
+    var integer: startIndex is 1;
     var string: plain is "";
     var string: message is "";
   begin
     # writeln("write(" <& literal(stri) <& ")");
-    plain &:= '\23;';                         # ContentType: application_data
-    plain &:= outFile.parameters.tls_version; # Version: 3.1
-    plain &:= "\0;\0;";                       # Length: filled later (index: 4)
-    plain &:= stri;
-    plain @:= [4] int16AsTwoBytesBe(length(plain) - 5);
-    # writeln("write:");
-    # showMsg(plain);
-    message := tlsEncryptRecord(outFile.parameters, plain);
-    write(outFile.sock, message);
+    repeat
+      plain  := str(APPLICATION_DATA);          # ContentType (index: 1)
+      plain &:= outFile.parameters.tls_version; # Version: 3.1
+      plain &:= "\0;\0;";                       # Length: filled later (index: 4)
+      plain &:= stri[startIndex len maxStriLen];
+      plain @:= [4] int16AsTwoBytesBe(length(plain) - 5);
+      # showMsg(plain);
+      message := tlsEncryptRecord(outFile.parameters, plain);
+      write(outFile.sock, message);
+      startIndex +:= maxStriLen;
+    until startIndex > length(stri);
   end func;
 
 
@@ -1584,6 +1871,7 @@ const func string: gets (inout tlsFile: inFile, in integer: maxLength) is func
         inFile.bufferChar := EOF;
       end if;
     end if;
+    # writeln("gets --> " <& literal(striRead));
   end func;
 
 
@@ -1621,4 +1909,5 @@ const func string: getln (inout tlsFile: inFile) is func
       inFile.readBuffer := "";
       inFile.bufferChar := EOF;
     end if;
+    # writeln("getln --> " <& literal(stri));
   end func;

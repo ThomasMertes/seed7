@@ -13,7 +13,7 @@
 (*  Purpose: implement percolation model for Algorithms Part I      *)
 (*           by Robert Sedgewick and Kevin Wayne                    *)
 (*                                                                  *)
-(*  Copyright (C) 2014, 2015  Arkady Kuleshov                             *)
+(*  Copyright (C) 2014, 2015  Arkady Kuleshov                       *)
 (*                                                                  *)
 (*  This program is free software; you can redistribute it and/or   *)
 (*  modify it under the terms of the GNU General Public License as  *)

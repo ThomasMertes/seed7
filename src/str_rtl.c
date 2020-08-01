@@ -1164,7 +1164,7 @@ striType strChMult (const charType ch, const intType factor)
 
   /* strChMult */
 #ifdef TRACE_STR_RTL
-    printf("strChMult(%lu, " FMT_D ")\n", ch, factor);
+    printf("strChMult('\\" FMT_U32 ";', " FMT_D ")\n", ch, factor);
 #endif
     if (unlikely(factor < 0)) {
       raise_error(RANGE_ERROR);
@@ -1436,7 +1436,7 @@ striType strConcat (const const_striType stri1, const const_striType stri2)
       } /* if */
     } /* if */
 #ifdef TRACE_STR_RTL
-    printf("strConcat -> (%08lx) ", result);
+    printf("strConcat -> ");
     prot_stri(result);
     printf("\n");
 #endif
@@ -1491,7 +1491,7 @@ striType strConcatN (const const_striType striArray[], memSizeType arraySize)
       } /* for */
     } /* if */
 #ifdef TRACE_STR_RTL
-    printf("strConcatN -> (%08lx) ", result);
+    printf("strConcatN -> ");
     prot_stri(result);
     printf("\n");
 #endif
@@ -1860,9 +1860,7 @@ void strHeadSlice (const const_striType stri, const intType stop, striType slice
 #ifdef TRACE_STR_RTL
     printf("strHeadSlice(");
     prot_stri(stri);
-    printf(", ");
-    prot_int(stop);
-    printf(")");
+    printf(", " FMT_D ")", stop);
     prot_flush();
 #endif
     striSize = stri->size;
@@ -2518,7 +2516,8 @@ striType strMult (const const_striType stri, const intType factor)
 
   /* strMult */
 #ifdef TRACE_STR_RTL
-    printf("strMult(stri->size=" FMT_U_MEM ", " FMT_D ")\n", stri->size, factor);
+    printf("strMult(stri->size=" FMT_U_MEM ", " FMT_D ")\n",
+           stri->size, factor);
 #endif
     if (unlikely(factor < 0)) {
       raise_error(RANGE_ERROR);
@@ -2747,11 +2746,7 @@ void strRangeSlice (const const_striType stri, intType start, intType stop, stri
 #ifdef TRACE_STR_RTL
     printf("strRangeSlice(");
     prot_stri(stri);
-    printf(", ");
-    prot_int(start);
-    printf(", ");
-    prot_int(stop);
-    printf(")");
+    printf(", " FMT_D ", " FMT_D ")", start, stop);
     prot_flush();
 #endif
     striSize = stri->size;
@@ -3556,11 +3551,7 @@ void strSubstrSlice (const const_striType stri, intType start, intType length, s
 #ifdef TRACE_STR_RTL
     printf("strSubstrSlice(");
     prot_stri(stri);
-    printf(", ");
-    prot_int(start);
-    printf(", ");
-    prot_int(length);
-    printf(")");
+    printf(", " FMT_D ", " FMT_D ")", start, length);
     prot_flush();
 #endif
     striSize = stri->size;
@@ -3659,9 +3650,7 @@ void strTailSlice (const const_striType stri, intType start, striType slice)
 #ifdef TRACE_STR_RTL
     printf("strTailSlice(");
     prot_stri(stri);
-    printf(", ");
-    prot_int(start);
-    printf(")");
+    printf(", " FMT_D ")", start);
     prot_flush();
 #endif
     striSize = stri->size;

@@ -214,9 +214,7 @@ striType dirRead (dirType directory)
       if (current_entry == NULL) {
         fileName = NULL;
       } else {
-        /* printf("os_readdir() -> ");
-           prot_os_stri(current_entry->d_name);
-           printf("\n"); */
+        /* printf("os_readdir() -> \"" FMT_S_OS "\"\n", current_entry->d_name); */
         fileName = os_stri_to_stri(current_entry->d_name, &err_info);
         if (unlikely(err_info != OKAY_NO_ERROR)) {
           raise_error(err_info);

@@ -35,8 +35,9 @@ const ACTION: SOC_CPY              is action "SOC_CPY";
 const ACTION: SOC_EQ               is action "SOC_EQ";
 const ACTION: SOC_GETC             is action "SOC_GETC";
 const ACTION: SOC_GETS             is action "SOC_GETS";
-const ACTION: SOC_GET_ADDR         is action "SOC_GET_ADDR";
 const ACTION: SOC_GET_HOSTNAME     is action "SOC_GET_HOSTNAME";
+const ACTION: SOC_GET_LOCAL_ADDR   is action "SOC_GET_LOCAL_ADDR";
+const ACTION: SOC_GET_PEER_ADDR    is action "SOC_GET_PEER_ADDR";
 const ACTION: SOC_HAS_NEXT         is action "SOC_HAS_NEXT";
 const ACTION: SOC_INET_ADDR        is action "SOC_INET_ADDR";
 const ACTION: SOC_INET_LOCAL_ADDR  is action "SOC_INET_LOCAL_ADDR";
@@ -45,6 +46,7 @@ const ACTION: SOC_INPUT_READY      is action "SOC_INPUT_READY";
 const ACTION: SOC_LINE_READ        is action "SOC_LINE_READ";
 const ACTION: SOC_LISTEN           is action "SOC_LISTEN";
 const ACTION: SOC_NE               is action "SOC_NE";
+const ACTION: SOC_ORD              is action "SOC_ORD";
 const ACTION: SOC_RECV             is action "SOC_RECV";
 const ACTION: SOC_SEND             is action "SOC_SEND";
 const ACTION: SOC_SET_OPT_BOOL     is action "SOC_SET_OPT_BOOL";
@@ -65,8 +67,9 @@ const proc: soc_prototypes (inout file: c_prog) is func
     declareExtern(c_prog, "void        socConnect (socketType, const_bstriType);");
     declareExtern(c_prog, "charType    socGetc (socketType, charType *);");
     declareExtern(c_prog, "striType    socGets (socketType, intType, charType *);");
-    declareExtern(c_prog, "bstriType   socGetAddr (socketType);");
     declareExtern(c_prog, "striType    socGetHostname(void);");
+    declareExtern(c_prog, "bstriType   socGetLocalAddr (socketType);");
+    declareExtern(c_prog, "bstriType   socGetPeerAddr (socketType);");
     declareExtern(c_prog, "boolType    socHasNext (socketType);");
     declareExtern(c_prog, "bstriType   socInetAddr (const const_striType, intType);");
     declareExtern(c_prog, "bstriType   socInetLocalAddr (intType);");
@@ -219,23 +222,34 @@ const proc: process (SOC_GETS, in reference: function,
   end func;
 
 
-const proc: process (SOC_GET_ADDR, in reference: function,
-    in ref_list: params, inout expr_type: c_expr) is func
-
-  begin
-    prepare_bstri_result(c_expr);
-    c_expr.result_expr := "socGetAddr(";
-    getStdParamToResultExpr(params[1], c_expr);
-    c_expr.result_expr &:= ")";
-  end func;
-
-
 const proc: process (SOC_GET_HOSTNAME, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   begin
     prepare_stri_result(c_expr);
     c_expr.result_expr := "socGetHostname()";
+  end func;
+
+
+const proc: process (SOC_GET_LOCAL_ADDR, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    prepare_bstri_result(c_expr);
+    c_expr.result_expr := "socGetLocalAddr(";
+    getStdParamToResultExpr(params[1], c_expr);
+    c_expr.result_expr &:= ")";
+  end func;
+
+
+const proc: process (SOC_GET_PEER_ADDR, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    prepare_bstri_result(c_expr);
+    c_expr.result_expr := "socGetPeerAddr(";
+    getStdParamToResultExpr(params[1], c_expr);
+    c_expr.result_expr &:= ")";
   end func;
 
 
@@ -332,6 +346,16 @@ const proc: process (SOC_NE, in reference: function,
     process_expr(params[1], c_expr);
     c_expr.expr &:= ") != (";
     process_expr(params[3], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process (SOC_ORD, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "(intType)(";
+    process_expr(params[1], c_expr);
     c_expr.expr &:= ")";
   end func;
 

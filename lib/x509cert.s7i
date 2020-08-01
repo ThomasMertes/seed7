@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  x509cert.s7i  Support for X.509 public key certificates.        *)
-(*  Copyright (C) 2013  Thomas Mertes                               *)
+(*  Copyright (C) 2013 - 2015  Thomas Mertes                        *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)
 (*                                                                  *)
@@ -30,6 +30,7 @@ include "asn1.s7i";
 include "pkcs1.s7i";
 include "msgdigest.s7i";
 include "time.s7i";
+include "duration.s7i";
 
 
 const type: algorithmIdentifierType is new struct
@@ -75,6 +76,10 @@ const type: x509cert is new struct
     var string:                  messageDigest      is "";
   end struct;
 
+const type: certAndKey is new struct
+    var array string: certList is 0 times "";
+    var rsaKey: privateKey is rsaKey.value;
+  end struct;
 
 const string: ALIASED_ENTRY_NAME_OID        is encodeObjectIdentifier([] (2, 5, 4, 1));   # "U\4;\1;"
 const string: KNOWLEDGE_INFORMATION_OID     is encodeObjectIdentifier([] (2, 5, 4, 2));   # "U\4;\2;"
@@ -331,6 +336,15 @@ const func time: getTime_yymmddhhmmssZ (in string: stri) is func
   end func;
 
 
+const func validityType: validityType (in time: notBefore, in time: notAfter) is func
+  result
+    var validityType: validity is validityType.value;
+  begin
+    validity.notBefore := notBefore;
+    validity.notAfter := notAfter;
+  end func;
+
+
 const func validityType: getValidity (in string: stri, inout integer: pos) is func
   result
     var validityType: validity is validityType.value;
@@ -522,3 +536,101 @@ const func boolean: validateSignature (in x509cert: cert, in rsaKey: publicKey) 
       end if;
     end if;
   end func;
+
+
+(**
+ *  Create a X509 certificate that can be used for self signing.
+ *  @param publicKey Public RSA key to be entered to the certificate.
+ *  @param serialNumber Serial number of certificate.
+ *  @param commonName Common name of issuer and subject.
+ *  @param country Country of issuer and subject (e.g. "AT" for Austria).
+ *  @param locality Locality of issuer and subject (e.g. "Vienna").
+ *  @param organization Organization of issuer and subject.
+ *  @param organizationUnit Organization unit of issuer and subject.
+ *)
+const func x509cert: createX509Cert (in rsaKey: publicKey,
+    in bigInteger: serialNumber, in string: commonName, in string: country,
+    in string: locality, in string: organization,
+    in string: organizationUnit, in validityType: validity) is func
+  result
+    var x509cert: cert is x509cert.value;
+  begin
+    cert.tbsCertificate.version := 0;  # v1
+    cert.tbsCertificate.serialNumber := bytes(serialNumber, UNSIGNED, BE);
+    cert.tbsCertificate.signature.algorithm := SHA1_WITH_RSA_ENCRYPTION;
+    cert.tbsCertificate.issuer @:= [COMMON_NAME_OID] commonName;
+    cert.tbsCertificate.issuer @:= [COUNTRY_NAME_OID] country;
+    cert.tbsCertificate.issuer @:= [LOCALITY_NAME_OID] locality;
+    cert.tbsCertificate.issuer @:= [ORGANIZATION_NAME_OID] organization;
+    cert.tbsCertificate.issuer @:= [ORGANIZATION_UNIT_NAME_OID] organizationUnit;
+    cert.tbsCertificate.validity := validity;
+    cert.tbsCertificate.subject @:= [COMMON_NAME_OID] commonName;
+    cert.tbsCertificate.subject @:= [COUNTRY_NAME_OID] country;
+    cert.tbsCertificate.subject @:= [LOCALITY_NAME_OID] locality;
+    cert.tbsCertificate.subject @:= [ORGANIZATION_NAME_OID] organization;
+    cert.tbsCertificate.subject @:= [ORGANIZATION_UNIT_NAME_OID] organizationUnit;
+    cert.tbsCertificate.subjectPublicKeyInfo.algorithm.algorithm := RSA_ENCRYPTION_OID;
+    cert.tbsCertificate.subjectPublicKeyInfo.publicRsaKey := publicKey;
+    cert.signatureAlgorithm.algorithm := SHA1_WITH_RSA_ENCRYPTION;
+  end func;
+
+
+const func certAndKey: certAndKey (in array string: certList, in rsaKey: privateKey) is func
+  result
+    var certAndKey: certificate is certAndKey.value;
+  begin
+    certificate.certList := certList;
+    certificate.privateKey := privateKey;
+  end func;
+
+
+(**
+ *  Create a self signed X509 certificate from a RSA key pair.
+ *  @param keyPair Public and private RSA keys.
+ *  @param serialNumber Serial number of certificate.
+ *  @param commonName Common name of issuer and subject.
+ *  @param country Country of issuer and subject (e.g. "AT" for Austria).
+ *  @param locality Locality of issuer and subject (e.g. "Vienna").
+ *  @param organization Organization of issuer and subject.
+ *  @param organizationUnit Organization unit of issuer and subject.
+ *)
+const func certAndKey: selfSignedX509Cert (in rsaKeyPair: keyPair,
+    in bigInteger: serialNumber, in string: commonName, in string: country,
+    in string: locality, in string: organization,
+    in string: organizationUnit, in validityType: validity) is func
+  result
+    var certAndKey: certificate is certAndKey.value;
+  local
+    var x509cert: cert is x509cert.value;
+  begin
+    cert := createX509Cert(keyPair.publicKey, serialNumber, commonName,
+                           country, locality, organization, organizationUnit,
+                           validity);
+    certificate.certList := [] (genX509Cert(cert, keyPair.privateKey));
+    certificate.privateKey := keyPair.privateKey;
+    # printAsn1(certificate.certList[1]);
+  end func;
+
+
+(**
+ *  Create a self signed X509 certificate.
+ *  @param commonName Common name of issuer and subject.
+ *  @param country Country of issuer and subject (e.g. "AT" for Austria).
+ *  @param locality Locality of issuer and subject (e.g. "Vienna").
+ *  @param organization Organization of issuer and subject.
+ *  @param organizationUnit Organization unit of issuer and subject.
+ *)
+const func certAndKey: selfSignedX509Cert (in string: commonName,
+    in string: country, in string: locality, in string: organization,
+    in string: organizationUnit) is
+  return selfSignedX509Cert(genRsaKeys(2048, 16#10001_),
+                            rand(0_, 2_ ** (20 * 8) - 1_), commonName,
+                            country, locality, organization, organizationUnit,
+                            validityType(time(NOW) - 1 . YEARS,
+                                         time(NOW) + 1 . YEARS));
+
+
+const certAndKey: stdCertificate is selfSignedX509Cert(
+    stdRsaKeyPair, 1_, "localhost",
+    "AT", "Vienna", "Black Hole", "Super Massive",
+    validityType(date(2014, 1, 1), date(2016, 1, 1)));

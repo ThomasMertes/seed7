@@ -1,3 +1,46 @@
+20150405:
+- A cache for client sessions has been added to tls.s7i. This allows
+  that a TLS connection can be resumed (without a new negotiation of
+  the security parameters).
+- The comanche webserver has been improved to keep connections open
+  for 15 seconds.
+- The functions compare and hashCode for the type socketAddress have
+  been added to sockbase.s7i.
+- A new variant of openServerTls, with a certAndKey parameter, has
+  been added to tls.s7i.
+- The functions validityType, createX509Cert, certAndKey and
+  selfSignedX509Cert have been added to x509cert.s7i.
+- The constant stdRsaKeyPair has been added to pkcs1.s7i.
+- The functions localAddress, peerAddress and ord have been added to
+  socket.s7i.
+- In duration.s7i the functions YEARS, MONTHS, DAYS, HOURS, MINUTES,
+  SECONDS and MICRO_SECONDS have been improved to normalize the
+  duration value.
+- The functions sendGet (gethttp.s7i) and sendHttpResponse
+  (comanche.sd7) have been change to send the request/response with
+  one write statement.
+- The library tls.s7i has been improved to accept client-hello and
+  server-hello messages with extensions.
+- The functions openTlsSocket and openServerTls (in tls.s7i) have
+  been improved to avoid exceptions, when an alert message is
+  received or a socket is closed.
+- In tls.s7i the function write has been changed to send long strings
+  with several messages.
+- Tests for the operators parse and radix and for the function
+  bigInteger have been added to chkbig.sd7.
+- The functions openHttpSession, closeHttpSession, processHttpRequest
+  and cleanSessions have been added to comanche.sd7.
+- Trace output and verbose exceptions have been added to various
+  functions in big_rtl.c, soc_rtl.c, int_rtl.c and str_rtl.c.
+- The functions striAsUnquotedCStri and bstriAsUnquotedCStri have
+  been added to striutl.c.
+- In traceutl.c the functions prot_stri_unquoted and prot_bstri have
+  been changed to use striAsUnquotedCStri and bstriAsUnquotedCStri
+  respectively.
+- Interpreter and compiler have been improved to support the actions
+  SOC_GET_LOCAL_ADDR, SOC_GET_PEER_ADDR and SOC_ORD (SOC_GET_ADDR has
+  been renamed to SOC_GET_LOCAL_ADDR).
+
 20150322:
 - The program chkchr.sd7 has been added. This program checks the
   correctness of the functions isLetter and width. Thanks go to

@@ -39,6 +39,7 @@
 #include "common.h"
 #include "data_rtl.h"
 #include "heaputl.h"
+#include "striutl.h"
 #include "tim_drv.h"
 #include "rtl_err.h"
 
@@ -772,9 +773,7 @@ striType uintRadix (uintType number, intType base, boolType upperCase)
       } /* if */
     } /* if */
 #ifdef TRACE_INT_RTL
-    printf("uintRadix --> ");
-    prot_stri(result);
-    printf("\n");
+    printf("uintRadix --> \"%s\"\n", striAsUnquotedCStri(result));
 #endif
     return result;
   } /* uintRadix */
@@ -820,9 +819,7 @@ striType uintRadixPow2 (uintType number, int shift, int mask, boolType upperCase
       memcpy(result->mem, buffer, (size_t) (length * sizeof(strElemType)));
     } /* if */
 #ifdef TRACE_INT_RTL
-    printf("uintRadixPow2 --> ");
-    prot_stri(result);
-    printf("\n");
+    printf("uintRadixPow2 --> \"%s\"\n", striAsUnquotedCStri(result));
 #endif
     return result;
   } /* uintRadixPow2 */
@@ -857,9 +854,7 @@ striType uintStr (uintType number)
       } while ((number /= 10) != 0);
     } /* if */
 #ifdef TRACE_INT_RTL
-    printf("intStr --> ");
-    prot_stri(result);
-    printf("\n");
+    printf("uintStr --> \"%s\"\n", striAsUnquotedCStri(result));
 #endif
     return result;
   } /* uintStr */
@@ -1263,9 +1258,7 @@ striType intBytesBe (intType number, boolType isSigned)
              (memSizeType) (BYTE_BUFFER_SIZE - pos) * sizeof(strElemType));
     } /* if */
 #ifdef TRACE_INT_RTL
-    printf("intBytesBe --> ");
-    prot_stri(result);
-    printf("\n");
+    printf("intBytesBe --> \"%s\"\n", striAsUnquotedCStri(result));
 #endif
     return result;
   } /* intBytesBe */
@@ -1292,9 +1285,7 @@ intType intBytesBe2Int (const const_striType byteStri)
 
   /* intBytesBe2Int */
 #ifdef TRACE_INT_RTL
-    printf("intBytesBe2Int(");
-    prot_stri(byteStri);
-    printf(")\n");
+    printf("intBytesBe2Int(\"%s\")\n", striAsUnquotedCStri(byteStri));
 #endif
     if (byteStri->size == 0 || byteStri->mem[0] <= 127) {
       if (byteStri->size >= sizeof(intType)) {
@@ -1304,6 +1295,9 @@ intType intBytesBe2Int (const const_striType byteStri)
         if (unlikely(byteStri->size - pos > sizeof(intType) ||
                      (byteStri->size - pos == sizeof(intType) &&
                       byteStri->mem[pos] >= 128))) {
+          logError(printf(" *** intBytesBe2Int(\"%s\"): "
+                          "Number too big.\n",
+                          striAsUnquotedCStri(byteStri)););
           raise_error(RANGE_ERROR);
           return 0;
         } /* if */
@@ -1317,6 +1311,9 @@ intType intBytesBe2Int (const const_striType byteStri)
         if (unlikely(byteStri->size - pos > sizeof(intType) ||
                      (byteStri->size - pos == sizeof(intType) &&
                       byteStri->mem[pos] <= 127))) {
+          logError(printf(" *** intBytesBe2Int(\"%s\"): "
+                          "Number too small.\n",
+                          striAsUnquotedCStri(byteStri)););
           raise_error(RANGE_ERROR);
           return 0;
         } /* if */
@@ -1325,6 +1322,10 @@ intType intBytesBe2Int (const const_striType byteStri)
     } /* if */
     for (; pos < byteStri->size; pos++) {
       if (unlikely(byteStri->mem[pos] >= 256)) {
+        logError(printf(" *** intBytesBe2Int(\"%s\"): "
+                        "Character '\\%d;' is beyond '\\255;'.\n",
+                        striAsUnquotedCStri(byteStri),
+                        byteStri->mem[pos]););
         raise_error(RANGE_ERROR);
         return 0;
       } /* if */
@@ -1357,9 +1358,7 @@ intType intBytesBe2UInt (const const_striType byteStri)
 
   /* intBytesBe2UInt */
 #ifdef TRACE_INT_RTL
-    printf("intBytesBe2UInt(");
-    prot_stri(byteStri);
-    printf(")\n");
+    printf("intBytesBe2UInt(\"%s\")\n", striAsUnquotedCStri(byteStri));
 #endif
     if (byteStri->size >= sizeof(intType)) {
       while (pos < byteStri->size && byteStri->mem[pos] == 0) {
@@ -1368,12 +1367,19 @@ intType intBytesBe2UInt (const const_striType byteStri)
       if (unlikely(byteStri->size - pos > sizeof(intType) ||
                    (byteStri->size - pos == sizeof(intType) &&
                     byteStri->mem[pos] >= 128))) {
+        logError(printf(" *** intBytesBe2UInt(\"%s\"): "
+                        "Number too big.\n",
+                        striAsUnquotedCStri(byteStri)););
         raise_error(RANGE_ERROR);
         return 0;
       } /* if */
     } /* if */
     for (; pos < byteStri->size; pos++) {
       if (unlikely(byteStri->mem[pos] >= 256)) {
+        logError(printf(" *** intBytesBe2UInt(\"%s\"): "
+                        "Character '\\%d;' is beyond '\\255;'.\n",
+                        striAsUnquotedCStri(byteStri),
+                        byteStri->mem[pos]););
         raise_error(RANGE_ERROR);
         return 0;
       } /* if */
@@ -1452,9 +1458,7 @@ striType intBytesLe (intType number, boolType isSigned)
              (memSizeType) pos * sizeof(strElemType));
     } /* if */
 #ifdef TRACE_INT_RTL
-    printf("intBytesLe --> ");
-    prot_stri(result);
-    printf("\n");
+    printf("intBytesLe --> \"%s\"\n", striAsUnquotedCStri(result));
 #endif
     return result;
   } /* intBytesLe */
@@ -1481,9 +1485,7 @@ intType intBytesLe2Int (const const_striType byteStri)
 
   /* intBytesLe2Int */
 #ifdef TRACE_INT_RTL
-    printf("intBytesLe2Int(");
-    prot_stri(byteStri);
-    printf(")\n");
+    printf("intBytesLe2Int(\"%s\")\n", striAsUnquotedCStri(byteStri));
 #endif
     pos = byteStri->size;
     if (byteStri->size == 0 || byteStri->mem[pos - 1] <= 127) {
@@ -1494,6 +1496,9 @@ intType intBytesLe2Int (const const_striType byteStri)
         if (unlikely(pos > sizeof(intType) ||
                      (pos == sizeof(intType) &&
                       byteStri->mem[pos - 1] >= 128))) {
+          logError(printf(" *** intBytesLe2Int(\"%s\"): "
+                          "Number too big.\n",
+                          striAsUnquotedCStri(byteStri)););
           raise_error(RANGE_ERROR);
           return 0;
         } /* if */
@@ -1507,6 +1512,9 @@ intType intBytesLe2Int (const const_striType byteStri)
         if (unlikely(pos > sizeof(intType) ||
                      (pos == sizeof(intType) &&
                       byteStri->mem[pos - 1] <= 127))) {
+          logError(printf(" *** intBytesLe2Int(\"%s\"): "
+                          "Number too small.\n",
+                          striAsUnquotedCStri(byteStri)););
           raise_error(RANGE_ERROR);
           return 0;
         } /* if */
@@ -1515,6 +1523,10 @@ intType intBytesLe2Int (const const_striType byteStri)
     } /* if */
     for (; pos > 0; pos--) {
       if (unlikely(byteStri->mem[pos - 1] >= 256)) {
+        logError(printf(" *** intBytesLe2Int(\"%s\"): "
+                        "Character '\\%d;' is beyond '\\255;'.\n",
+                        striAsUnquotedCStri(byteStri),
+                        byteStri->mem[pos]););
         raise_error(RANGE_ERROR);
         return 0;
       } /* if */
@@ -1547,9 +1559,7 @@ intType intBytesLe2UInt (const const_striType byteStri)
 
   /* intBytesLe2UInt */
 #ifdef TRACE_INT_RTL
-    printf("intBytesLe2UInt(");
-    prot_stri(byteStri);
-    printf(")\n");
+    printf("intBytesLe2UInt(\"%s\")\n", striAsUnquotedCStri(byteStri));
 #endif
     pos = byteStri->size;
     if (unlikely(byteStri->size >= sizeof(intType))) {
@@ -1559,12 +1569,19 @@ intType intBytesLe2UInt (const const_striType byteStri)
       if (unlikely(pos > sizeof(intType) ||
                    (pos == sizeof(intType) &&
                     byteStri->mem[pos - 1] >= 128))) {
+        logError(printf(" *** intBytesLe2UInt(\"%s\"): "
+                        "Number too big.\n",
+                        striAsUnquotedCStri(byteStri)););
         raise_error(RANGE_ERROR);
         return 0;
       } /* if */
     } /* if */
     for (; pos > 0; pos--) {
       if (unlikely(byteStri->mem[pos - 1] >= 256)) {
+        logError(printf(" *** intBytesLe2UInt(\"%s\"): "
+                        "Character '\\%d;' is beyond '\\255;'.\n",
+                        striAsUnquotedCStri(byteStri),
+                        byteStri->mem[pos]););
         raise_error(RANGE_ERROR);
         return 0;
       } /* if */
@@ -1778,9 +1795,7 @@ intType intParse (const const_striType stri)
 
   /* intParse */
 #ifdef TRACE_INT_RTL
-    printf("intParse(");
-    prot_stri(stri);
-    printf(")\n");
+    printf("intParse(\"%s\")\n", striAsUnquotedCStri(stri));
 #endif
     if (stri->size != 0) {
       if (stri->mem[0] == ((strElemType) '-')) {
@@ -2006,9 +2021,7 @@ striType intRadix (intType number, intType base, boolType upperCase)
       } /* if */
     } /* if */
 #ifdef TRACE_INT_RTL
-    printf("intRadix --> ");
-    prot_stri(result);
-    printf("\n");
+    printf("intRadix --> \"%s\"\n", striAsUnquotedCStri(result));
 #endif
     return result;
   } /* intRadix */
@@ -2067,9 +2080,7 @@ striType intRadixPow2 (intType number, int shift, int mask, boolType upperCase)
       memcpy(result->mem, buffer, (size_t) (length * sizeof(strElemType)));
     } /* if */
 #ifdef TRACE_INT_RTL
-    printf("intRadixPow2 --> ");
-    prot_stri(result);
-    printf("\n");
+    printf("intRadixPow2 --> \"%s\"\n", striAsUnquotedCStri(result));
 #endif
     return result;
   } /* intRadixPow2 */
@@ -2099,6 +2110,9 @@ intType intRand (intType low, intType high)
       if (low == high) {
         randomNumber = low;
       } else {
+        logError(printf(" *** intRand(" FMT_D ", " FMT_D "): "
+                        "The range is empty (low > high holds).\n",
+                        low, high););
         raise_error(RANGE_ERROR);
         randomNumber = 0;
       } /* if */
@@ -2136,20 +2150,24 @@ intType intMultOvfChk (intType factor1, intType factor2)
     intType product;
 
   /* intMultOvfChk */
+#ifdef TRACE_INT_RTL
+    printf(" *** intMultOvfChk(" FMT_D ", " FMT_D ")\n",
+           factor1, factor2);
+#endif
     if (factor1 < 0) {
       if (factor2 < 0) {
         if (unlikely(factor1 < INTTYPE_MAX / factor2)) {
           logError(printf(" *** intMultOvfChk(" FMT_D ", " FMT_D "): "
-                   "factor1 < " FMT_D "\n",
-                   factor1, factor2, INTTYPE_MAX / factor2););
+                          "factor1 < " FMT_D "\n",
+                          factor1, factor2, INTTYPE_MAX / factor2););
           raise_error(OVERFLOW_ERROR);
           return 0;
         } /* if */
       } else if (factor2 != 0) {
         if (unlikely(factor1 < INTTYPE_MIN / factor2)) {
           logError(printf(" *** intMultOvfChk(" FMT_D ", " FMT_D "): "
-                   "factor1 < " FMT_D "\n",
-                   factor1, factor2, INTTYPE_MIN / factor2););
+                          "factor1 < " FMT_D "\n",
+                          factor1, factor2, INTTYPE_MIN / factor2););
           raise_error(OVERFLOW_ERROR);
           return 0;
         } /* if */
@@ -2158,22 +2176,25 @@ intType intMultOvfChk (intType factor1, intType factor2)
       if (factor2 < 0) {
         if (unlikely(factor2 < INTTYPE_MIN / factor1)) {
           logError(printf(" *** intMultOvfChk(" FMT_D ", " FMT_D "): "
-                   "factor2 < " FMT_D "\n",
-                   factor1, factor2, INTTYPE_MIN / factor1););
+                          "factor2 < " FMT_D "\n",
+                          factor1, factor2, INTTYPE_MIN / factor1););
           raise_error(OVERFLOW_ERROR);
           return 0;
         } /* if */
       } else if (factor2 != 0) {
         if (unlikely(factor2 > INTTYPE_MAX / factor1)) {
           logError(printf(" *** intMultOvfChk(" FMT_D ", " FMT_D "): "
-                   "factor2 > " FMT_D "\n",
-                   factor1, factor2, INTTYPE_MAX / factor1););
+                          "factor2 > " FMT_D "\n",
+                          factor1, factor2, INTTYPE_MAX / factor1););
           raise_error(OVERFLOW_ERROR);
           return 0;
         } /* if */
       } /* if */
     } /* if */
     product = factor1 * factor2;
+#ifdef TRACE_INT_RTL
+    printf("intMultOvfChk --> " FMT_D "\n", product);
+#endif
     return product;
   } /* intMultOvfChk */
 
@@ -2261,9 +2282,7 @@ striType intStr (intType number)
       } /* if */
     } /* if */
 #ifdef TRACE_INT_RTL
-    printf("intStr --> ");
-    prot_stri(result);
-    printf("\n");
+    printf("intStr --> \"%s\"\n", striAsUnquotedCStri(result));
 #endif
     return result;
   } /* intStr */
@@ -2300,9 +2319,7 @@ striType intStrToBuffer (intType number, striType buffer)
     buffer->mem = bufferPtr;
     buffer->size = (memSizeType) (&buffer->mem1[INTTYPE_DECIMAL_SIZE] - bufferPtr);
 #ifdef TRACE_INT_RTL
-    printf("intStrToBuffer --> ");
-    prot_stri(buffer);
-    printf("\n");
+    printf("intStrToBuffer --> \"%s\"\n", striAsUnquotedCStri(buffer));
 #endif
     return buffer;
   } /* intStrToBuffer */

@@ -318,7 +318,7 @@ const proc: openFtpSession (inout file: control) is func
   begin
     ftp.control := control;
     ftp.currentDirectory := startDirectory;
-    ftp.ownIpAddress := numericAddress(address(control));
+    ftp.ownIpAddress := numericAddress(localAddress(control));
     ftpSessions @:= [ftp.control] ftp;
     ftpResponse(ftp.control, "220 Welcome to ftpserv");
   end func;

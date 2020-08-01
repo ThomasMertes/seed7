@@ -111,6 +111,125 @@ int code_page = DEFAULT_CODE_PAGE;
 
 
 
+cstriType striAsUnquotedCStri (const const_striType stri)
+
+  {
+    memSizeType size;
+    strElemType ch;
+    memSizeType idx;
+    memSizeType pos = 0;
+    static char buffer[2084];
+
+  /* striAsUnquotedCStri */
+    if (stri != NULL) {
+      size = stri->size;
+      if (size > 128) {
+        size = 128;
+      } /* if */
+      for (idx = 0; idx < size; idx++) {
+        ch = stri->mem[idx];
+        if (ch < 127) {
+          if (ch < ' ') {
+            buffer[pos] = '\\';
+            if (stri_escape_sequence[ch][1] <= '9') {
+              /* Numeric escape sequence with one or two digits. */
+              if (ch <= 9) {
+                buffer[pos + 1] = (char) (ch + '0');
+                buffer[pos + 2] = ';';
+                pos += 3;
+              } else {
+                buffer[pos + 1] = stri_escape_sequence[ch][1];
+                buffer[pos + 2] = stri_escape_sequence[ch][2];
+                buffer[pos + 3] = ';';
+                pos += 4;
+              } /* if */
+            } else {
+              /* Character escape sequence. */
+              buffer[pos + 1] = stri_escape_sequence[ch][1];
+              pos += 2;
+            } /* if */
+          } else if (ch == (charType) '\\') {
+            memcpy(&buffer[pos], "\\\\", 2);
+            pos += 2;
+          } else if (ch == (charType) '\"') {
+            memcpy(&buffer[pos], "\\\"", 2);
+            pos += 2;
+          } else {
+            buffer[pos] = (char) ch;
+            pos++;
+          } /* if */
+        } else if (ch == (charType) -1) {
+          memcpy(&buffer[pos], "\\-1;", 4);
+          pos += 4;
+        } else {
+          sprintf(&buffer[pos], "\\%lu;", (unsigned long) ch);
+          pos += strlen(&buffer[pos]);
+        } /* if */
+      } /* for */
+      if (stri->size > 128) {
+        sprintf(&buffer[pos], "\\ *AND_SO_ON* SIZE=" FMT_U_MEM, stri->size);
+        pos += strlen(&buffer[pos]);
+      } /* if */
+    } else {
+      strcpy(&buffer[pos], "\\ *NULL_STRING* ");
+      pos += strlen(&buffer[pos]);
+    } /* if */
+    buffer[pos] = '\0';
+    return buffer;
+  } /* striAsUnquotedCStri */
+
+
+
+cstriType bstriAsUnquotedCStri (const const_bstriType bstri)
+
+  {
+    memSizeType size;
+    ucharType ch;
+    memSizeType idx;
+    memSizeType pos = 0;
+    static char buffer[1024];
+
+  /* bstriAsUnquotedCStri */
+    if (bstri != NULL) {
+      size = bstri->size;
+      if (size > 128) {
+        size = 128;
+      } /* if */
+      for (idx = 0; idx < size; idx++) {
+        ch = bstri->mem[idx];
+        if (ch < 127) {
+          if (ch < ' ') {
+            strcpy(&buffer[pos], stri_escape_sequence[ch]);
+            pos += strlen(&buffer[pos]);
+          } else if (ch == '\\') {
+            memcpy(&buffer[pos], "\\\\", 2);
+            pos += 2;
+          } else if (ch == '\"') {
+            memcpy(&buffer[pos], "\\\"", 2);
+            pos += 2;
+          } else {
+            buffer[pos] = (char) ch;
+            pos++;
+          } /* if */
+        } else {
+          sprintf(&buffer[pos], "\\%u;", (unsigned int) ch);
+          pos += strlen(&buffer[pos]);
+        } /* if */
+      } /* for */
+      if (bstri->size > 128) {
+        sprintf(&buffer[pos], "\\ *AND_SO_ON* SIZE=" FMT_U_MEM, bstri->size);
+        pos += strlen(&buffer[pos]);
+      } /* if */
+    } else {
+      strcpy(&buffer[pos], "\\ *NULL_BYTE_STRING* ");
+      pos += strlen(&buffer[pos]);
+    } /* if */
+    buffer[pos] = '\0';
+    return buffer;
+  } /* bstriAsUnquotedCStri */
+
+
+
 #ifdef USE_DUFFS_UNROLLING
 /**
  *  Copy len bytes to Seed7 characters in a string.

@@ -69,6 +69,7 @@
 #define EXTERN
 #include "soc_rtl.h"
 
+#undef TRACE_SOC_RTL
 #undef VERBOSE_EXCEPTIONS
 
 
@@ -80,6 +81,7 @@ typedef int sockLenType;
 #ifndef SHUT_RDWR
 #define SHUT_RDWR SD_BOTH
 #endif
+#define ERROR_INFORMATION WSAGetLastError(), wsaErrorMessage()
 
 #else
 
@@ -87,6 +89,7 @@ typedef socklen_t sockLenType;
 #define cast_send_recv_data(data_ptr) ((void *) (data_ptr))
 #define cast_buffer_len(len)          len
 #define INVALID_SOCKET (-1)
+#define ERROR_INFORMATION errno, strerror(errno)
 
 #endif
 
@@ -138,6 +141,23 @@ static int init_winsock (void)
     } /* if */
     return result;
   } /* init_winsock */
+#endif
+
+
+
+#if defined USE_WINSOCK && defined VERBOSE_EXCEPTIONS
+cstriType wsaErrorMessage (void)
+
+  {
+    static char buffer[1024];
+
+  /* wsaErrorMessage */
+    FormatMessageA(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, 
+                   NULL, WSAGetLastError(),
+                   MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+                   &buffer, 1024, NULL);
+    return buffer;
+  } /* wsaErrorMessage */
 #endif
 
 
@@ -280,7 +300,10 @@ socketType socAccept (socketType listenerSocket, bstriType *address)
     os_socketType result;
 
   /* socAccept */
-    /* printf("begin socAccept(%d, *)\n", listenerSocket); */
+#ifdef TRACE_SOC_RTL
+    printf("socAccept(%d, \"%s\")\n",
+           listenerSocket, bstriAsUnquotedCStri(*address));
+#endif
     old_address_size = (*address)->size;
     REALLOC_BSTRI_SIZE_OK(resized_address, *address, old_address_size, MAX_ADDRESS_SIZE);
     if (unlikely(resized_address == NULL)) {
@@ -293,7 +316,7 @@ socketType socAccept (socketType listenerSocket, bstriType *address)
       result = (os_socketType) accept((os_socketType) listenerSocket,
                                       (struct sockaddr *) (*address)->mem, &addrlen);
       if (unlikely(result == INVALID_SOCKET || addrlen < 0 || addrlen > MAX_ADDRESS_SIZE)) {
-        /* printf("socAccept(%d) errno=%d %s\n", listenerSocket, errno, strerror(errno)); */
+        /* printf("socAccept(%d) errno=%d %s\n", listenerSocket, ERROR_INFORMATION); */
         REALLOC_BSTRI_SIZE_OK(resized_address, *address, MAX_ADDRESS_SIZE, old_address_size);
         if (resized_address == NULL) {
           (*address)->size = MAX_ADDRESS_SIZE;
@@ -301,9 +324,10 @@ socketType socAccept (socketType listenerSocket, bstriType *address)
           *address = resized_address;
           COUNT3_BSTRI(MAX_ADDRESS_SIZE, old_address_size);
         } /* if */
-        logError(printf(" *** socAccept: accept(%d, ...) failed:\n"
+        logError(printf(" *** socAccept: accept(%d, \"%s\") failed:\n"
                         "errno=%d\nerror: %s\n",
-                        listenerSocket, errno, strerror(errno)););
+                        listenerSocket, bstriAsUnquotedCStri(*address),
+                        ERROR_INFORMATION););
         raise_error(FILE_ERROR);
       } else {
         REALLOC_BSTRI_SIZE_OK(resized_address, *address, MAX_ADDRESS_SIZE, (memSizeType) addrlen);
@@ -318,9 +342,10 @@ socketType socAccept (socketType listenerSocket, bstriType *address)
         } /* if */
       } /* if */
     } /* if */
-    /* printf("end socAccept(%d, ", listenerSocket);
-       prot_bstri(*address);
-       printf(")\n"); */
+#ifdef TRACE_SOC_RTL
+    printf("socAccept(%d, \"%s\") --> %d\n",
+           listenerSocket, bstriAsUnquotedCStri(*address), result);
+#endif
     return (socketType) result;
   } /* socAccept */
 
@@ -333,6 +358,9 @@ intType socAddrFamily (const const_bstriType address)
     intType result;
 
   /* socAddrFamily */
+#ifdef TRACE_SOC_RTL
+    printf("socAddrFamily(\"%s\")\n", bstriAsUnquotedCStri(address));
+#endif
     if (unlikely(address->size < sizeof(struct sockaddr))) {
       raise_error(RANGE_ERROR);
       result = 0;
@@ -341,6 +369,10 @@ intType socAddrFamily (const const_bstriType address)
       result = addr->sa_family;
       /* printf("socAddrFamily --> %d\n", result); */
     } /* if */
+#ifdef TRACE_SOC_RTL
+    printf("socAddrFamily(\"%s\") --> " FMT_D "\n",
+           bstriAsUnquotedCStri(address), result);
+#endif
     return result;
   } /* socAddrFamily */
 
@@ -361,6 +393,9 @@ striType socAddrNumeric (const const_bstriType address)
     striType result;
 
   /* socAddrNumeric */
+#ifdef TRACE_SOC_RTL
+    printf("socAddrNumeric(\"%s\")\n", bstriAsUnquotedCStri(address));
+#endif
     if (unlikely(address->size < sizeof(struct sockaddr))) {
       raise_error(RANGE_ERROR);
       result = NULL;
@@ -411,6 +446,10 @@ striType socAddrNumeric (const const_bstriType address)
           break;
       } /* switch */
     } /* if */
+#ifdef TRACE_SOC_RTL
+    printf("socAddrNumeric(\"%s\") --> \"%s\"\n",
+           bstriAsUnquotedCStri(address), striAsUnquotedCStri(result));
+#endif
     return result;
   } /* socAddrNumeric */
 
@@ -423,6 +462,9 @@ striType socAddrService (const const_bstriType address)
     striType result;
 
   /* socAddrService */
+#ifdef TRACE_SOC_RTL
+    printf("socAddrService(\"%s\")\n", bstriAsUnquotedCStri(address));
+#endif
     if (unlikely(address->size < sizeof(struct sockaddr))) {
       raise_error(RANGE_ERROR);
       result = NULL;
@@ -461,6 +503,10 @@ striType socAddrService (const const_bstriType address)
           break;
       } /* switch */
     } /* if */
+#ifdef TRACE_SOC_RTL
+    printf("socAddrService(\"%s\") --> \"%s\"\n",
+           bstriAsUnquotedCStri(address), striAsUnquotedCStri(result));
+#endif
     return result;
   } /* socAddrService */
 
@@ -474,17 +520,17 @@ striType socAddrService (const const_bstriType address)
 void socBind (socketType listenerSocket, const_bstriType address)
 
   { /* socBind */
-    /* printf("socBind(%d, ", listenerSocket);
-       prot_bstri(address);
-       printf(")\n"); */
+#ifdef TRACE_SOC_RTL
+    printf("socBind(%d, \"%s\")\n", 
+           listenerSocket, bstriAsUnquotedCStri(address));
+#endif
     if (unlikely(bind((os_socketType) listenerSocket,
                       (const struct sockaddr *) address->mem,
                       (sockLenType) address->size) != 0)) {
-      logError(printf(" *** socBind: bind(%d, ...) failed:\n"
+      logError(printf(" *** socBind: bind(%d, \"%s\") failed:\n"
                       "errno=%d\nerror: %s\n",
-                      listenerSocket, errno, strerror(errno)););
-      /* printf("socBind errno=%d\n", errno);
-         printf("EADDRINUSE=%d\n", EADDRINUSE); */
+                      listenerSocket, bstriAsUnquotedCStri(address),
+                      ERROR_INFORMATION););
       raise_error(FILE_ERROR);
     } /* if */
   } /* socBind */
@@ -495,13 +541,25 @@ void socBind (socketType listenerSocket, const_bstriType address)
  */
 void socClose (socketType aSocket)
 
-  { /* socClose */
+  {
+    int close_result;
+
+  /* socClose */
+#ifdef TRACE_SOC_RTL
+    printf("socClose(%d)\n", aSocket);
+#endif
     shutdown((os_socketType) aSocket, SHUT_RDWR);
 #ifdef USE_WINSOCK
-    closesocket((os_socketType) aSocket);
+    close_result = closesocket((os_socketType) aSocket);
 #else
-    close((os_socketType) aSocket);
+    close_result = close((os_socketType) aSocket);
 #endif
+    if (unlikely(close_result != 0)) {
+      logError(printf(" *** socClose: close(%d) failed:\n"
+                      "errno=%d\nerror: %s\n",
+                      aSocket, ERROR_INFORMATION););
+      raise_error(FILE_ERROR);
+    } /* if */
   } /* socClose */
 
 
@@ -513,25 +571,17 @@ void socClose (socketType aSocket)
 void socConnect (socketType aSocket, const_bstriType address)
 
   { /* socConnect */
-    /* printf("socConnect(%d, ", aSocket);
-       prot_bstri(address);
-       printf(")\n"); */
+#ifdef TRACE_SOC_RTL
+    printf("socConnect(%d, \"%s\")\n",
+           aSocket, bstriAsUnquotedCStri(address));
+#endif
     if (unlikely(connect((os_socketType) aSocket,
                          (const struct sockaddr *) address->mem,
                          (sockLenType) address->size) != 0)) {
-      logError(printf(" *** socConnect: connect(%d, ...) failed:\n"
+      logError(printf(" *** socConnect: connect(%d, \"%s\") failed:\n"
                       "errno=%d\nerror: %s\n",
-                      aSocket, errno, strerror(errno)););
-      /* printf("socConnect(%d) errno=%d %s\n", aSocket, errno, strerror(errno));
-      printf("WSAGetLastError=%d\n", WSAGetLastError());
-      printf("WSANOTINITIALISED=%ld, WSAENETDOWN=%ld, WSAEADDRINUSE=%ld, WSAEINTR=%ld, WSAEALREADY=%ld\n",
-             WSANOTINITIALISED, WSAENETDOWN, WSAEADDRINUSE, WSAEINTR, WSAEALREADY);
-      printf("WSAEINPROGRESS=%ld, WSAEADDRNOTAVAIL=%ld, WSAEAFNOSUPPORT=%ld, WSAECONNREFUSED=%ld\n",
-             WSAEINPROGRESS, WSAEADDRNOTAVAIL, WSAEAFNOSUPPORT, WSAECONNREFUSED);
-      printf("WSAEFAULT=%ld, WSAEINVAL=%ld, WSAEISCONN=%ld, WSAENETUNREACH=%ld, WSAEHOSTUNREACH=%ld\n",
-             WSAEFAULT, WSAEINVAL, WSAEISCONN, WSAENETUNREACH, WSAEHOSTUNREACH);
-      printf("WSAENOBUFS=%ld, WSAENOTSOCK=%ld, WSAETIMEDOUT=%ld, WSAEWOULDBLOCK=%ld, WSAEACCES=%ld\n",
-             WSAENOBUFS, WSAENOTSOCK, WSAETIMEDOUT, WSAEWOULDBLOCK, WSAEACCES); */
+                      aSocket, bstriAsUnquotedCStri(address),
+                      ERROR_INFORMATION););
       raise_error(FILE_ERROR);
     } /* if */
   } /* socConnect */
@@ -576,7 +626,10 @@ striType socGets (socketType inSocket, intType length, charType *const eofIndica
     striType result;
 
   /* socGets */
-    /* printf("socGets(%d, %d)\n", inSocket, length); */
+#ifdef TRACE_SOC_RTL
+    printf("socGets(%d, " FMT_D ", '\\" FMT_U32 ";')\n",
+           inSocket, length, *eofIndicator);
+#endif
     if (unlikely(length < 0)) {
       raise_error(RANGE_ERROR);
       result = NULL;
@@ -637,47 +690,12 @@ striType socGets (socketType inSocket, intType length, charType *const eofIndica
         } /* if */
       } /* if */
     } /* if */
+#ifdef TRACE_SOC_RTL
+    printf("socGets(%d, " FMT_D ", '\\" FMT_U32 ";') --> \"%s\"\n",
+           inSocket, length, *eofIndicator, striAsUnquotedCStri(result));
+#endif
     return result;
   } /* socGets */
-
-
-
-bstriType socGetAddr (socketType sock)
-
-  {
-    sockLenType addrlen;
-    int getsockname_result;
-    bstriType result;
-
-  /* socGetAddr */
-    /* printf("socGetAddr(%d)\n", sock); */
-    if (unlikely(!ALLOC_BSTRI_SIZE_OK(result, MAX_ADDRESS_SIZE))) {
-      raise_error(MEMORY_ERROR);
-    } else {
-      addrlen = MAX_ADDRESS_SIZE;
-      getsockname_result = getsockname((os_socketType) sock,
-                                       (struct sockaddr *) result->mem, &addrlen);
-      if (unlikely(getsockname_result != 0 || addrlen < 0 || addrlen > MAX_ADDRESS_SIZE)) {
-        FREE_BSTRI(result, MAX_ADDRESS_SIZE);
-        logError(printf(" *** socGetAddr: getsockname(%d, ...) failed:\n"
-                        "errno=%d\nerror: %s\n",
-                        sock, errno, strerror(errno)););
-        raise_error(FILE_ERROR);
-        result = NULL;
-      } else {
-        result->size = (memSizeType) addrlen;
-        /* {
-          struct sockaddr_in *inet_address = (struct sockaddr_in *) result->mem;
-          printf("sin_addr.s_addr=%d.%d.%d.%d\n",
-              address        & 255,
-             (address >>  8) & 255,
-             (address >> 16) & 255,
-             (address >> 24) & 255);
-        } */
-      } /* if */
-    } /* if */
-    return result;
-  } /* socGetAddr */
 
 
 
@@ -702,6 +720,112 @@ striType socGetHostname (void)
     } /* if */
     return result;
   } /* socGetHostname */
+
+
+
+/**
+ *  Get the local address of the socket 'sock'.
+ *  @return the address to which the socket 'sock' is bound.
+ *  @exception FILE_ERROR A system function returns an error.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ */
+bstriType socGetLocalAddr (socketType sock)
+
+  {
+    sockLenType addrlen;
+    int getsockname_result;
+    bstriType resized_address;
+    bstriType address;
+
+  /* socGetLocalAddr */
+#ifdef TRACE_SOC_RTL
+    printf("socGetLocalAddr(%d)\n", sock);
+#endif
+    if (unlikely(!ALLOC_BSTRI_SIZE_OK(address, MAX_ADDRESS_SIZE))) {
+      raise_error(MEMORY_ERROR);
+    } else {
+      addrlen = MAX_ADDRESS_SIZE;
+      getsockname_result = getsockname((os_socketType) sock,
+                                       (struct sockaddr *) address->mem, &addrlen);
+      if (unlikely(getsockname_result != 0 || addrlen < 0 || addrlen > MAX_ADDRESS_SIZE)) {
+        FREE_BSTRI(address, MAX_ADDRESS_SIZE);
+        logError(printf(" *** socGetLocalAddr: getsockname(%d, ...) failed:\n"
+                        "errno=%d\nerror: %s\n",
+                        sock, ERROR_INFORMATION););
+        raise_error(FILE_ERROR);
+        address = NULL;
+      } else {
+        REALLOC_BSTRI_SIZE_OK(resized_address, address, MAX_ADDRESS_SIZE, (memSizeType) addrlen);
+        if (unlikely(resized_address == NULL)) {
+          FREE_BSTRI(address, MAX_ADDRESS_SIZE);
+          raise_error(MEMORY_ERROR);
+          address = NULL;
+        } else {
+          address = resized_address;
+          COUNT3_BSTRI(MAX_ADDRESS_SIZE, (memSizeType) addrlen);
+          address->size = (memSizeType) addrlen;
+        } /* if */
+      } /* if */
+    } /* if */
+#ifdef TRACE_SOC_RTL
+    printf("socGetLocalAddr(%d) --> \"%s\"\n",
+           sock, bstriAsUnquotedCStri(address));
+#endif
+    return address;
+  } /* socGetLocalAddr */
+
+
+
+/**
+ *  Get the address of the peer to which the socket 'sock' is connected.
+ *  @return the address of the peer connected to the socket 'sock'.
+ *  @exception FILE_ERROR A system function returns an error.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ */
+bstriType socGetPeerAddr (socketType sock)
+
+  {
+    sockLenType addrlen;
+    int getpeername_result;
+    bstriType resized_address;
+    bstriType address;
+
+  /* socGetPeerAddr */
+#ifdef TRACE_SOC_RTL
+    printf("socGetPeerAddr(%d)\n", sock);
+#endif
+    if (unlikely(!ALLOC_BSTRI_SIZE_OK(address, MAX_ADDRESS_SIZE))) {
+      raise_error(MEMORY_ERROR);
+    } else {
+      addrlen = MAX_ADDRESS_SIZE;
+      getpeername_result = getpeername((os_socketType) sock,
+                                       (struct sockaddr *) address->mem, &addrlen);
+      if (unlikely(getpeername_result != 0 || addrlen < 0 || addrlen > MAX_ADDRESS_SIZE)) {
+        FREE_BSTRI(address, MAX_ADDRESS_SIZE);
+        logError(printf(" *** socGetPeerAddr: getpeername(%d, ...) failed:\n"
+                        "errno=%d\nerror: %s\n",
+                        sock, ERROR_INFORMATION););
+        raise_error(FILE_ERROR);
+        address = NULL;
+      } else {
+        REALLOC_BSTRI_SIZE_OK(resized_address, address, MAX_ADDRESS_SIZE, (memSizeType) addrlen);
+        if (unlikely(resized_address == NULL)) {
+          FREE_BSTRI(address, MAX_ADDRESS_SIZE);
+          raise_error(MEMORY_ERROR);
+          address = NULL;
+        } else {
+          address = resized_address;
+          COUNT3_BSTRI(MAX_ADDRESS_SIZE, (memSizeType) addrlen);
+          address->size = (memSizeType) addrlen;
+        } /* if */
+      } /* if */
+    } /* if */
+#ifdef TRACE_SOC_RTL
+    printf("socGetPeerAddr(%d) --> \"%s\"\n",
+           sock, bstriAsUnquotedCStri(address));
+#endif
+    return address;
+  } /* socGetPeerAddr */
 
 
 
@@ -767,6 +891,10 @@ bstriType socInetAddr (const const_striType hostName, intType port)
     bstriType result;
 
   /* socInetAddr */
+#ifdef TRACE_SOC_RTL
+    printf("socInetAddr(\"%s\", " FMT_D ")\n",
+           striAsUnquotedCStri(hostName), port);
+#endif
     check_initialization(NULL);
     if (unlikely(port < 0 || port > 65535)) {
       raise_error(RANGE_ERROR);
@@ -796,7 +924,7 @@ bstriType socInetAddr (const const_striType hostName, intType port)
           } else {
             logError(printf(" *** socInetAddr: getaddrinfo(...) failed:\n"
                             "errno=%d\nerror: %s\n",
-                            errno, strerror(errno)););
+                            ERROR_INFORMATION););
             /*
             printf("EAI_AGAIN=%d  EAI_BADFLAGS=%d  EAI_FAIL=%d  EAI_FAMILY=%d  EAI_MEMORY=%d\n",
                 EAI_AGAIN, EAI_BADFLAGS, EAI_FAIL, EAI_FAMILY, EAI_MEMORY);
@@ -894,9 +1022,10 @@ bstriType socInetAddr (const const_striType hostName, intType port)
 #endif
       } /* if */
     } /* if */
-    /* printf("socInetAddr --> ");
-       prot_bstri(result);
-       printf("\n"); */
+#ifdef TRACE_SOC_RTL
+    printf("socInetAddr(\"%s\", " FMT_D ") --> \"%s\"\n",
+           striAsUnquotedCStri(hostName), port, bstriAsUnquotedCStri(result));
+#endif
     return result;
   } /* socInetAddr */
 
@@ -924,6 +1053,9 @@ bstriType socInetLocalAddr (intType port)
     bstriType result;
 
   /* socInetLocalAddr */
+#ifdef TRACE_SOC_RTL
+    printf("socInetLocalAddr(" FMT_D ")\n", port);
+#endif
     check_initialization(NULL);
     if (unlikely(port < 0 || port > 65535)) {
       raise_error(RANGE_ERROR);
@@ -938,7 +1070,7 @@ bstriType socInetLocalAddr (intType port)
       if (unlikely(getaddrinfo_result != 0)) {
         logError(printf(" *** socInetLocalAddr: getaddrinfo(NULL, %s, ...) failed:\n"
                         "errno=%d\nerror: %s\n",
-                        servicename, errno, strerror(errno)););
+                        servicename, ERROR_INFORMATION););
         raise_error(FILE_ERROR);
         result = NULL;
       } else {
@@ -966,9 +1098,10 @@ bstriType socInetLocalAddr (intType port)
       } /* if */
 #endif
     } /* if */
-    /* printf("socInetLocalAddr --> ");
-       prot_bstri(result);
-       printf("\n"); */
+#ifdef TRACE_SOC_RTL
+    printf("socInetLocalAddr(" FMT_D ") --> \"%s\"\n",
+           port, bstriAsUnquotedCStri(result));
+#endif
     return result;
   } /* socInetLocalAddr */
 
@@ -1000,6 +1133,9 @@ bstriType socInetServAddr (intType port)
     bstriType result;
 
   /* socInetServAddr */
+#ifdef TRACE_SOC_RTL
+    printf("socInetServAddr(" FMT_D ")\n", port);
+#endif
     check_initialization(NULL);
     if (unlikely(port < 0 || port > 65535)) {
       raise_error(RANGE_ERROR);
@@ -1015,7 +1151,7 @@ bstriType socInetServAddr (intType port)
       if (unlikely(getaddrinfo_result != 0)) {
         logError(printf(" *** socInetServAddr: getaddrinfo(NULL, %s, ...) failed:\n"
                         "errno=%d\nerror: %s\n",
-                        servicename, errno, strerror(errno)););
+                        servicename, ERROR_INFORMATION););
         raise_error(FILE_ERROR);
         result = NULL;
       } else {
@@ -1057,9 +1193,10 @@ bstriType socInetServAddr (intType port)
 #endif
 #endif
     } /* if */
-    /* printf("socInetServAddr --> ");
-       prot_bstri(result);
-       printf("\n"); */
+#ifdef TRACE_SOC_RTL
+    printf("socInetServAddr(" FMT_D ") --> \"%s\"\n",
+           port, bstriAsUnquotedCStri(result));
+#endif
     return result;
   } /* socInetServAddr */
 
@@ -1086,7 +1223,7 @@ boolType socInputReady (socketType sock, intType seconds, intType micro_seconds)
       if (unlikely(poll_result < 0)) {
         logError(printf(" *** socInputReady(%d): os_poll(...) failed:\n"
                         "errno=%d\nerror: %s\n",
-                        sock, errno, strerror(errno)););
+                        sock, ERROR_INFORMATION););
         raise_error(FILE_ERROR);
         result = FALSE;
       } else {
@@ -1136,7 +1273,7 @@ boolType socInputReady (socketType sock, intType seconds, intType micro_seconds)
       if (unlikely(select_result < 0)) {
         logError(printf(" *** socInputReady(%d): select(...) failed:\n"
                         "errno=%d\nerror: %s\n",
-                        sock, errno, strerror(errno)););
+                        sock, ERROR_INFORMATION););
         raise_error(FILE_ERROR);
         result = FALSE;
       } else {
@@ -1185,6 +1322,9 @@ striType socLineRead (socketType inSocket, charType *const terminationChar)
     striType result;
 
   /* socLineRead */
+#ifdef TRACE_SOC_RTL
+    printf("socLineRead(%d, '\\" FMT_U32 ";')\n", inSocket, *terminationChar);
+#endif
     bytes_received = (memSizeType) recv((os_socketType) inSocket,
                                         cast_send_recv_data(buffer),
                                         BUFFER_START_SIZE, MSG_PEEK);
@@ -1304,6 +1444,10 @@ striType socLineRead (socketType inSocket, charType *const terminationChar)
         } /* if */
       } /* if */
     } /* if */
+#ifdef TRACE_SOC_RTL
+    printf("socLineRead(%d, '\\" FMT_U32 ";') --> \"%s\"\n",
+           inSocket, *terminationChar, striAsUnquotedCStri(result));
+#endif
     return result;
   } /* socLineRead */
 
@@ -1384,24 +1528,16 @@ striType socLineRead (socketType inSocket, charType *const terminationChar)
 void socListen (socketType listenerSocket, intType backlog)
 
   { /* socListen */
+#ifdef TRACE_SOC_RTL
+    printf("socListen(%d, " FMT_D ")\n", listenerSocket, backlog);
+#endif
     if (!inIntRange(backlog)) {
       raise_error(RANGE_ERROR);
     } else if (unlikely(listen((os_socketType) listenerSocket,
                                (int) backlog) != 0)) {
       logError(printf(" *** socListen: listen(%d, " FMT_D ") failed:\n"
                       "errno=%d\nerror: %s\n",
-                      listenerSocket, backlog, errno, strerror(errno)););
-      /* printf("socListen(%d) errno=%d %s\n", listenerSocket, errno, strerror(errno));
-      printf("WSAGetLastError=%d\n", WSAGetLastError());
-      printf("WSANOTINITIALISED=%ld, WSAENETDOWN=%ld, WSAEFAULT=%ld, WSAENOTCONN=%ld\n",
-             WSANOTINITIALISED, WSAENETDOWN, WSAEFAULT, WSAENOTCONN);
-      printf("WSAEINTR=%ld, WSAEINPROGRESS=%ld, WSAENETRESET=%ld, WSAENOTSOCK=%ld\n",
-             WSAEINTR, WSAEINPROGRESS, WSAENETRESET, WSAENOTSOCK);
-      printf("WSAEOPNOTSUPP=%ld, WSAESHUTDOWN=%ld, WSAEWOULDBLOCK=%ld, WSAEMSGSIZE=%ld\n",
-             WSAEOPNOTSUPP, WSAESHUTDOWN, WSAEWOULDBLOCK, WSAEMSGSIZE);
-      printf("WSAEINVAL=%ld, WSAECONNABORTED=%ld, WSAETIMEDOUT=%ld, WSAECONNRESET=%ld\n",
-             WSAEINVAL, WSAECONNABORTED, WSAETIMEDOUT, WSAECONNRESET);
-      printf("WSAENOBUFS=%ld\n", WSAENOBUFS); */
+                      listenerSocket, backlog, ERROR_INFORMATION););
       raise_error(FILE_ERROR);
     } /* if */
   } /* socListen */
@@ -1516,8 +1652,7 @@ intType socRecvfrom (socketType sock, striType *stri, intType length, intType fl
           } /* if */
           logError(printf(" *** socRecvfrom: recvfrom(%d, ...) failed:\n"
                           "errno=%d\nerror: %s\n",
-                          sock, errno, strerror(errno)););
-          /* printf("socRecvfrom errno=%d\n", errno); */
+                          sock, ERROR_INFORMATION););
           raise_error(FILE_ERROR);
         } else {
           REALLOC_BSTRI_SIZE_OK(resized_address, *address, MAX_ADDRESS_SIZE, (memSizeType) addrlen);
@@ -1627,6 +1762,10 @@ intType socSendto (socketType sock, const const_striType stri, intType flags,
 void socSetOptBool (socketType sock, intType optname, boolType optval)
 
   { /* socSetOptBool */
+#ifdef TRACE_SOC_RTL
+    printf("socSetOptBool(%d, " FMT_D ", %s)\n",
+           sock, optname, optval ? "TRUE" : "FALSE");
+#endif
     switch (optname) {
       case SOC_OPT_NONE:
         break;
@@ -1637,7 +1776,7 @@ void socSetOptBool (socketType sock, intType optname, boolType optval)
                          (const char *) &so_reuseaddr, sizeof(so_reuseaddr)) != 0) {
             logError(printf(" *** socSetOptBool: setsockopt(%d, ...) failed:\n"
                             "errno=%d\nerror: %s\n",
-                            sock, errno, strerror(errno)););
+                            sock, ERROR_INFORMATION););
             raise_error(FILE_ERROR);
           } /* if */
         }
@@ -1656,6 +1795,10 @@ socketType socSocket (intType domain, intType type, intType protocol)
     os_socketType result;
 
   /* socSocket */
+#ifdef TRACE_SOC_RTL
+    printf("socSocket(" FMT_D ", " FMT_D ", " FMT_D ")\n",
+           domain, type, protocol);
+#endif
     if (!inIntRange(domain) || !inIntRange(type) || !inIntRange(protocol)) {
       raise_error(RANGE_ERROR);
       result = 0;
@@ -1672,6 +1815,10 @@ socketType socSocket (intType domain, intType type, intType protocol)
       } /* if */
 #endif
     } /* if */
+#ifdef TRACE_SOC_RTL
+    printf("socSocket(" FMT_D ", " FMT_D ", " FMT_D ") --> %d\n",
+           domain, type, protocol, result);
+#endif
     return (socketType) result;
   } /* socSocket */
 
@@ -1701,6 +1848,9 @@ striType socWordRead (socketType inSocket, charType *const terminationChar)
     striType result;
 
   /* socWordRead */
+#ifdef TRACE_SOC_RTL
+    printf("socWordRead(%d, '\\" FMT_U32 ";')\n", inSocket, *terminationChar);
+#endif
     memlength = READ_STRI_INIT_SIZE;
     if (unlikely(!ALLOC_STRI_SIZE_OK(result, memlength))) {
       raise_error(MEMORY_ERROR);
@@ -1750,6 +1900,10 @@ striType socWordRead (socketType inSocket, charType *const terminationChar)
         } /* if */
       } /* if */
     } /* if */
+#ifdef TRACE_SOC_RTL
+    printf("socWordRead(%d, '\\" FMT_U32 ";') --> \"%s\"\n",
+           inSocket, *terminationChar, striAsUnquotedCStri(result));
+#endif
     return result;
   } /* socWordRead */
 
@@ -1771,6 +1925,9 @@ void socWrite (socketType outSocket, const const_striType stri)
     bstriType buf;
 
   /* socWrite */
+#ifdef TRACE_SOC_RTL
+    printf("socWrite(%d, \"%s\")\n", outSocket, striAsUnquotedCStri(stri));
+#endif
     if (stri->size <= BUFFER_SIZE) {
       if (unlikely(memcpy_from_strelem(buffer, stri->mem, stri->size))) {
         raise_error(RANGE_ERROR);
@@ -1793,18 +1950,7 @@ void socWrite (socketType outSocket, const const_striType stri)
     if (unlikely(bytes_sent != stri->size)) {
       logError(printf(" *** socWrite: send(%d, data, " FMT_U_MEM ") failed:\n"
                       "errno=%d\nerror: %s\n",
-                      outSocket, stri->size, errno, strerror(errno)););
-      /* printf("socWrite(%d) errno=%d %s\n", outSocket, errno, strerror(errno)); */
-      /* printf("WSAGetLastError=%d\n", WSAGetLastError());
-      printf("WSANOTINITIALISED=%ld, WSAENETDOWN=%ld, WSAEFAULT=%ld, WSAENOTCONN=%ld\n",
-             WSANOTINITIALISED, WSAENETDOWN, WSAEFAULT, WSAENOTCONN);
-      printf("WSAEINTR=%ld, WSAEINPROGRESS=%ld, WSAENETRESET=%ld, WSAENOTSOCK=%ld\n",
-             WSAEINTR, WSAEINPROGRESS, WSAENETRESET, WSAENOTSOCK);
-      printf("WSAEOPNOTSUPP=%ld, WSAESHUTDOWN=%ld, WSAEWOULDBLOCK=%ld, WSAEMSGSIZE=%ld\n",
-             WSAEOPNOTSUPP, WSAESHUTDOWN, WSAEWOULDBLOCK, WSAEMSGSIZE);
-      printf("WSAEINVAL=%ld, WSAECONNABORTED=%ld, WSAETIMEDOUT=%ld, WSAECONNRESET=%ld\n",
-             WSAEINVAL, WSAECONNABORTED, WSAETIMEDOUT, WSAECONNRESET);
-      printf("WSAENOBUFS=%ld\n", WSAENOBUFS); */
+                      outSocket, stri->size, ERROR_INFORMATION););
       /* printf("bytes_sent=%ld, stri->size= "FMT_U_MEM "\n", (long) bytes_sent, stri->size); */
       raise_error(FILE_ERROR);
     } /* if */

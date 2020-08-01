@@ -81,18 +81,41 @@ const type: socket is sub null_file struct
 
 type_implements_interface(socket, file);
 
+const func socketAddress: localAddress (in file: aFile) is DYNAMIC;
+const func socketAddress: peerAddress (in file: aFile) is DYNAMIC;
+
+
+(**
+ *  Get the local address of the socket 'aSocket'.
+ *  @return the address to which the socket 'aSocket' is bound.
+ *  @exception FILE_ERROR A system function returns an error.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ *)
+const func socketAddress: localAddress (in socket: aSocket) is
+  return localAddress(aSocket.sock);
+
+
+(**
+ *  Get the address of the peer to which 'aSocket' is connected.
+ *  @return the address of the peer connected to the socket 'aSocket'.
+ *  @exception FILE_ERROR A system function returns an error.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ *)
+const func socketAddress: peerAddress (in socket: aSocket) is
+  return peerAddress(aSocket.sock);
+
 
 const func string: service (in file: aFile) is DYNAMIC;
 const func string: service (in socket: aSocket) is
   return aSocket.service;
 
-const func socketAddress: address (in file: aFile) is DYNAMIC;
-const func socketAddress: address (in socket: aSocket) is
-  return address(aSocket.sock);
-
 const func integer: port (in file: aFile) is DYNAMIC;
 const func integer: port (in socket: aSocket) is
   return integer parse service(aSocket.addr);
+
+const func integer: ord (in file: aFile) is DYNAMIC;
+const func integer: ord (in socket: aSocket) is
+  return ord(aSocket.sock);
 
 
 const func boolean: inputReady (in file: inFile, in duration: timeout) is DYNAMIC;
