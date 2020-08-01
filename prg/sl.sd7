@@ -159,7 +159,7 @@ const proc: nextdecimal is func
       incr(generation);
     end if;
     setPos(gen_win, 1, 1);
-    gen_win << generation lpad MAXDIGITS;
+    write(gen_win, generation lpad MAXDIGITS);
   end func; (* nextdecimal *)
 
 
@@ -176,13 +176,13 @@ const proc: writeheader is func
     clear(header);
     box(header);
     setPos(header, 2, 10);
-    header << "SCIENTIFIC LIFE  2.0";
+    write(header, "SCIENTIFIC LIFE  2.0");
     setPos(header, 5, 13);
-    header << "Copyright 1994";
+    write(header, "Copyright 1994");
     setPos(header, 7, 19);
-    header << "by";
+    write(header, "by");
     setPos(header, 9, 13);
-    header << "Thomas  Mertes";
+    write(header, "Thomas  Mertes");
     flush(header);
   end func; (* writeheader *)
 
@@ -194,26 +194,26 @@ const proc: editinfo is func
     textcolour(0);
     setbackground(7);
     setPos(cmd_win, 1, 1);
-    cmd_win << " EDIT ";
+    write(cmd_win, " EDIT ");
     textcolour(7);
     setbackground(0);
     setPos(cmd_win, 1, 7);
-    cmd_win << " I=Info, HJKL=Move, M=Mark, space=Erase, C=Clear, R=Run, Q=Quit ";
+    write(cmd_win, " I=Info, HJKL=Move, M=Mark, space=Erase, C=Clear, R=Run, Q=Quit ");
     textcolour(15);
     setPos(cmd_win, 1, 8);
-    cmd_win << "I";
+    write(cmd_win, "I");
     setPos(cmd_win, 1, 16);
-    cmd_win << "HJKL";
+    write(cmd_win, "HJKL");
     setPos(cmd_win, 1, 27);
-    cmd_win << "M";
+    write(cmd_win, "M");
     setPos(cmd_win, 1, 35);
-    cmd_win << "space";
+    write(cmd_win, "space");
     setPos(cmd_win, 1, 48);
-    cmd_win << "C";
+    write(cmd_win, "C");
     setPos(cmd_win, 1, 57);
-    cmd_win << "R";
+    write(cmd_win, "R");
     setPos(cmd_win, 1, 64);
-    cmd_win << "Q";
+    write(cmd_win, "Q");
   end func; (* editinfo *)
 
 
@@ -228,7 +228,7 @@ const proc: clearscreen is func
       setPos(field_win,
           workspace[current].bact_list[index].lin + MINLINE,
           workspace[current].bact_list[index].col + MINCOLUMN);
-      field_win << EMPTYFIELD;
+      write(field_win, EMPTYFIELD);
     end for;
   end func; (* clearscreen *)
 
@@ -242,7 +242,7 @@ const proc: writescreen is func
       setPos(field_win,
           workspace[current].bact_list[index].lin + MINLINE,
           workspace[current].bact_list[index].col + MINCOLUMN);
-      field_win << MARKEDFIELD;
+      write(field_win, MARKEDFIELD);
     end for;
   end func; (* writescreen *)
 
@@ -261,14 +261,13 @@ const proc: writemap (inout text: map_win) is func
     line_div := pred(length(workspace[current].field)) div pred(height(map_win)) ;
     column_div :=  pred(length(workspace[current].field[1])) div pred(width(map_win));
     for index range 1 to listlength[current] do
-(*    prot << "CELL(";
-      prot << index;
-      prot << ", ";
-      prot << workspace[current].bact_list[index].lin;
-      prot << ", ";
-      prot << workspace[current].bact_list[index].col;
-      prot << ");";
-      prot << NL; *)
+(*    write(prot, "CELL(");
+      write(prot, index);
+      write(prot, ", ");
+      write(prot, workspace[current].bact_list[index].lin);
+      write(prot, ", ");
+      write(prot, workspace[current].bact_list[index].col);
+      writeln(prot, ");"); *)
       line := succ((workspace[current].bact_list[index].lin - 2) div line_div);
       column := succ((workspace[current].bact_list[index].col - 2) div column_div);
       if line >= 1 and line <= length(mapfield) and
@@ -285,34 +284,34 @@ const proc: writemap (inout text: map_win) is func
             noop;
           when {1, 2, 3, 4}:
             setPos(map_win, line, column);
-            map_win << "1";
+            write(map_win, "1");
           when {5, 6, 7, 8}:
             setPos(map_win, line, column);
-            map_win << "2";
+            write(map_win, "2");
           when {9, 10, 11, 12, 13}:
             setPos(map_win, line, column);
-            map_win << "3";
+            write(map_win, "3");
           when {14, 15, 16, 17}:
             setPos(map_win, line, column);
-            map_win << "4";
+            write(map_win, "4");
           when {18, 19, 20, 21, 22}:
             setPos(map_win, line, column);
-            map_win << "5";
+            write(map_win, "5");
           when {23, 24, 25, 26}:
             setPos(map_win, line, column);
-            map_win << "6";
+            write(map_win, "6");
           when {27, 28, 29, 30}:
             setPos(map_win, line, column);
-            map_win << "7";
+            write(map_win, "7");
           when {31, 32, 33, 34, 35}:
             setPos(map_win, line, column);
-            map_win << "8";
+            write(map_win, "8");
           when {36, 37, 38, 39}:
             setPos(map_win, line, column);
-            map_win << "9";
+            write(map_win, "9");
           when {40, 41, 42, 43, 44}:
             setPos(map_win, line, column);
-            map_win << "0";
+            write(map_win, "0");
         end case;
       end for;
     end for;
@@ -332,9 +331,9 @@ const proc: redraw is func
     clear(field_win);
     editinfo();
     setPos(gen_win, 1, 1);
-    gen_win << "        ";
+    write(gen_win, "        ");
     setPos(gen_win, 1, 1);
-    gen_win << generation lpad MAXDIGITS;
+    write(gen_win, generation lpad MAXDIGITS);
     writescreen();
   end func; (* redraw *)
 
@@ -352,7 +351,7 @@ const proc: shiftfield (inout fieldtype: curr_field, inout listtype: curr_list,
       column := curr_list[index].col;
       curr_field[line][column] := FALSE;
       setPos(field_win, line + MINLINE, column + MINCOLUMN);
-      field_win << EMPTYFIELD;
+      write(field_win, EMPTYFIELD);
     end for;
     for index range 1 to listlength[current] do
       line := curr_list[index].lin;
@@ -369,7 +368,7 @@ const proc: shiftfield (inout fieldtype: curr_field, inout listtype: curr_list,
       end if;
       curr_field[line][column] := TRUE;
       setPos(field_win, line + MINLINE, column + MINCOLUMN);
-      field_win << MARKEDFIELD;
+      write(field_win, MARKEDFIELD);
     end for;
   end func; (* shiftfield *)
 
@@ -383,7 +382,7 @@ const proc: mark (in integer: win_line, in integer: win_column) is func
       workspace[current].bact_list[listlength[current]].lin := win_line - MINLINE;
       workspace[current].bact_list[listlength[current]].col := win_column - MINCOLUMN;
       setPos(field_win, win_line, win_column);
-      field_win << MARKEDFIELD;
+      write(field_win, MARKEDFIELD);
       setPos(field_win, win_line, win_column);
     end if;
   end func; (* mark *)
@@ -416,7 +415,7 @@ const proc: erase (in integer: win_line, in integer: win_column) is func
           decr(listlength[current]);
           workspace[current].field[win_line - MINLINE][win_column - MINCOLUMN] := FALSE;
           setPos(field_win, win_line, win_column);
-          field_win << EMPTYFIELD;
+          write(field_win, EMPTYFIELD);
           setPos(field_win, win_line, win_column);
         else
           redraw();
@@ -445,7 +444,7 @@ const proc: clearfield is func
     end if;
     generation := 0;
     setPos(gen_win, 1, 1);
-    gen_win << generation lpad MAXDIGITS;
+    write(gen_win, generation lpad MAXDIGITS);
   end func; (* clearfield *)
 
 
@@ -460,7 +459,7 @@ const proc: read_filename (in string: prompt, inout string: filename) is func
     textcolour(0);
     setbackground(7);
     setPos(cmd_win, 1, 1);
-    cmd_win << prompt;
+    write(cmd_win, prompt);
     textcolour(7);
     setbackground(0);
     STARTPOS := 3 + length(prompt);
@@ -475,14 +474,14 @@ const proc: read_filename (in string: prompt, inout string: filename) is func
           incr(POS);
           filename := filename & str(ch);
           setPos(cmd_win, 1, STARTPOS + POS - 1);
-          cmd_win << filename[POS];
+          write(cmd_win, filename[POS]);
         end if;
       elsif ch = '\b' then (* Backspace *)
         if POS >= 1 then
           decr(POS);
           filename := filename[ .. POS];
           setPos(cmd_win, 1, STARTPOS + POS);
-          cmd_win << " ";
+          write(cmd_win, " ");
         end if;
       end if;
       setPos(cmd_win, 1, STARTPOS + POS);
@@ -505,9 +504,9 @@ const proc: load (in string: filename) is func
       clear(field_win);
       ch := getc(loadfile);
       if ch = '+' then
-        loadfile >> generation;
-        loadfile >> line;
-        loadfile >> startcolumn;
+        read(loadfile, generation);
+        read(loadfile, line);
+        read(loadfile, startcolumn);
         line -:= pred(MINLINE);
         startcolumn -:= MINCOLUMN;
         if line < 1 then
@@ -532,7 +531,7 @@ const proc: load (in string: filename) is func
             workspace[current].bact_list[index].lin := line;
             workspace[current].bact_list[index].col := column;
             setPos(field_win, line + MINLINE, column + MINCOLUMN);
-            field_win << MARKEDFIELD;
+            write(field_win, MARKEDFIELD);
           end if;
           incr(column);
           ch := getc(loadfile);
@@ -542,7 +541,7 @@ const proc: load (in string: filename) is func
       end while;
       listlength[current] := index;
       setPos(gen_win, 1, 1);
-      gen_win << generation lpad MAXDIGITS;
+      write(gen_win, generation lpad MAXDIGITS);
       close(loadfile);
     end if;
   end func; (* load *)
@@ -583,13 +582,13 @@ const proc: save (in string: filename) is func
           stopcolumn := current_element.col;
         end if;
       end for;
-      savefile << "+ ";
-      savefile << generation;
-      savefile << " ";
-      savefile << startline + MINLINE - 1;
-      savefile << " ";
-      savefile << startcolumn + MINCOLUMN;
-      savefile << NL;
+      write(savefile, "+ ");
+      write(savefile, generation);
+      write(savefile, " ");
+      write(savefile, startline + MINLINE - 1);
+      write(savefile, " ");
+      write(savefile, startcolumn + MINCOLUMN);
+      writeln(savefile);
       for line range startline to stopline do
         end_of_current_line := stopcolumn;
         while end_of_current_line >= startcolumn and
@@ -598,12 +597,12 @@ const proc: save (in string: filename) is func
         end while;
         for column range startcolumn to end_of_current_line do
           if workspace[current].field[line][column] then
-            savefile << "#";
+            write(savefile, "#");
           else
-            savefile << " ";
+            write(savefile, " ");
           end if;
         end for;
-        savefile << NL;
+        writeln(savefile);
       end for;
       close(savefile);
     end if;
@@ -767,7 +766,7 @@ const proc: editmode (inout boolean: quit) is func
           end if;
           writescreen();
           setPos(gen_win, 1, 1);
-          gen_win << generation lpad MAXDIGITS;
+          write(gen_win, generation lpad MAXDIGITS);
           setPos(field_win, win_line, win_column);
         when {'O', 'o'}:
           writemap(map_win);
@@ -816,16 +815,16 @@ const proc: runinfo is func
     textcolour(0);
     setbackground(7);
     setPos(cmd_win, 1, 1);
-    cmd_win << " RUN ";
+    write(cmd_win, " RUN ");
     textcolour(7);
     setbackground(0);
     setPos(cmd_win, 1, 6);
-    cmd_win << " Q=Quit, any key=Edit -------------------------------------------";
+    write(cmd_win, " Q=Quit, any key=Edit -------------------------------------------");
     textcolour(15);
     setPos(cmd_win, 1, 7);
-    cmd_win << "Q";
+    write(cmd_win, "Q");
     setPos(cmd_win, 1, 15);
-    cmd_win << "any key";
+    write(cmd_win, "any key");
   end func; (* runinfo *)
 
 
@@ -847,18 +846,17 @@ const proc: init is func
 
 const proc: markcell (in integer: line, in integer: column, inout fieldtype: nextfield, inout listtype: nextlist) is func
   begin (* markcell *)
-(*  prot << "mark(";
-    prot << line;
-    prot << ", ";
-    prot << column;
-    prot << ");";
-    prot << NL; *)
+(*  write(prot, "mark(");
+    write(prot, line);
+    write(prot, ", ");
+    write(prot, column);
+    writeln(prot, ");"); *)
     incr(listindex);
     nextlist[listindex].lin := line;
     nextlist[listindex].col := column;
     nextfield[line][column] := TRUE;
     setPos(field_win, line + MINLINE, column + MINCOLUMN);
-    field_win << MARKEDFIELD;
+    write(field_win, MARKEDFIELD);
   end func; (* markcell *)
 
 
@@ -888,14 +886,13 @@ const proc: nextgeneration (in fieldtype: currfield, inout fieldtype: nextfield,
       line := currlist[index].lin;
       column := currlist[index].col;
 
-(*    prot << "DO(";
-      prot << index;
-      prot << ", ";
-      prot << line;
-      prot << ", ";
-      prot << column;
-      prot << ");";
-      prot << NL; *)
+(*    write(prot, "DO(");
+      write(prot, index);
+      write(prot, ", ");
+      write(prot, line);
+      write(prot, ", ");
+      write(prot, column);
+      writeln(prot, ");"); *)
 
       cell2 := currfield[pred(line)][succ(column)];
       cell3 := currfield[line][succ(column)];
@@ -1000,22 +997,20 @@ const proc: nextgeneration (in fieldtype: currfield, inout fieldtype: nextfield,
           ord(currfield[pred(line)][pred(column)]);
       if neighbors <> 2 and neighbors <> 3 then
         (* Cell dies *)
-(*      prot << "DIE(";
-        prot << line;
-        prot << ", ";
-        prot << column;
-        prot << ");";
-        prot << NL; *)
+(*      write(prot, "DIE(");
+        write(prot, line);
+        write(prot, ", ");
+        write(prot, column);
+        writeln(prot, ");"); *)
         setPos(field_win, line + MINLINE, column + MINCOLUMN);
-        field_win << EMPTYFIELD;
+        write(field_win, EMPTYFIELD);
       else
         (* Cell lives *)
-(*      prot << "LIVE(";
-        prot << line;
-        prot << ", ";
-        prot << column;
-        prot << ");";
-        prot << NL; *)
+(*      write(prot, "LIVE(");
+        write(prot, line);
+        write(prot, ", ");
+        write(prot, column);
+        writeln(prot, ");"); *)
         incr(listindex);
         nextlist[listindex].lin := line;
         nextlist[listindex].col := column;
@@ -1052,8 +1047,8 @@ const proc: main is func
     generation := 0;
     clear(gen_win);
     setPos(gen_win, 1, 1);
-    gen_win << generation lpad MAXDIGITS;
-    gen_win << " ";
+    write(gen_win, generation lpad MAXDIGITS);
+    write(gen_win, " ");
     editmode(quit);
     if not quit then
       runinfo();

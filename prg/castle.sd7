@@ -1231,8 +1231,8 @@ const proc: loadHighScore is func
   begin
     aFile := open("castle.scr", "r");
     if aFile <> STD_NULL then
-      aFile >> highScore.points;
-      aFile >> highScore.name;
+      read(aFile, highScore.points);
+      read(aFile, highScore.name);
       close(aFile);
     else
       highScore.name := "";
@@ -1247,10 +1247,9 @@ const proc: saveHighScore is func
   begin
     aFile := open("castle.scr", "w");
     if aFile <> STD_NULL then
-      aFile << highScore.points;
-      aFile << " ";
-      aFile << highScore.name;
-      aFile << NL;
+      write(aFile, highScore.points);
+      write(aFile, " ");
+      writeln(aFile, highScore.name);
       close(aFile);
     end if;
   end func;

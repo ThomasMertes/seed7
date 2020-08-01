@@ -385,7 +385,7 @@ floattype number;
 #endif
 
   {
-    char buffer[2001];
+    char buffer[1001];
     memsizetype len;
     stritype result;
 
@@ -397,7 +397,7 @@ floattype number;
     } else if (number == NEGATIVE_INFINITY) {
       strcpy(buffer, "-Infinity");
     } else {
-      sprintf(buffer, "%1.25f", number);
+      sprintf(buffer, "%1.50f", number);
     } /* if */
     len = strlen(buffer);
     do {

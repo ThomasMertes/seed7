@@ -223,7 +223,7 @@ const proc: show (in piece: actual_piece) is func
           setPos(field,
               pred(actual_piece.line_pos + line),
               2 * (actual_piece.column_pos + column) - 3);
-          field << "[]";
+          write(field, "[]");
         end if;
       end for;
     end for;
@@ -241,7 +241,7 @@ const proc: hide (in piece: actual_piece) is func
           setPos(field,
               pred(actual_piece.line_pos + line),
               2 * (actual_piece.column_pos + column) - 3);
-          field << "  ";
+          write(field, "  ");
         end if;
       end for;
     end for;
@@ -389,11 +389,11 @@ const proc: set_piece (inout piece: actual_piece) is func
       if score > 1000 * level then
         incr(level);
         setPos(info_sheet, 16, 11);
-        info_sheet << level;
+        write(info_sheet, level);
         decr(counter_start);
       end if;
       setPos(info_sheet, 14, 11);
-      info_sheet << score;
+      write(info_sheet, score);
       flush(info_sheet);
     else
       quit_round := TRUE;
@@ -441,25 +441,25 @@ const proc: main is func
       level := 1;
       counter_start := 6 - level;
       setPos(info_sheet, 1, 2);
-      info_sheet << "T E T R I S";
+      write(info_sheet, "T E T R I S");
       setPos(info_sheet, 3, 2);
-      info_sheet << "Copyright (C) 1993, 1994, 2004  Thomas Mertes";
+      write(info_sheet, "Copyright (C) 1993, 1994, 2004  Thomas Mertes");
       setPos(info_sheet, 5, 2);
-      info_sheet << "This program is free software under the";
+      write(info_sheet, "This program is free software under the");
       setPos(info_sheet, 6, 2);
-      info_sheet << "terms of the GNU General Public License.";
+      write(info_sheet, "terms of the GNU General Public License.");
       setPos(info_sheet, 8, 2);
-      info_sheet << "Tetris is written in the Seed7 programming language";
+      write(info_sheet, "Tetris is written in the Seed7 programming language");
       setPos(info_sheet, 9, 4);
-      info_sheet << "Homepage:    http://seed7.sourceforge.net";
+      write(info_sheet, "Homepage:    http://seed7.sourceforge.net");
       setPos(info_sheet, 14, 2);
-      info_sheet << " Score: ";
+      write(info_sheet, " Score: ");
       setPos(info_sheet, 14, 11);
-      info_sheet << score;
+      write(info_sheet, score);
       setPos(info_sheet, 16, 2);
-      info_sheet << " Level: ";
+      write(info_sheet, " Level: ");
       setPos(info_sheet, 16, 11);
-      info_sheet << level;
+      write(info_sheet, level);
       flush(info_sheet);
       occupied := FIELD_HEIGHT times
           (3 times TRUE & FIELD_WIDTH times FALSE & 3 times TRUE) &
@@ -469,7 +469,7 @@ const proc: main is func
         remove_full_lines;
       until quit_round;
       setPos(info_sheet, 20, 2);
-      info_sheet << "Another round? ";
+      write(info_sheet, "Another round? ");
       repeat
         ch := upper(getc(KEYBOARD));
       until ch = 'Y' or ch = 'N';

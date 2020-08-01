@@ -1,3 +1,27 @@
+20080406:
+- The interpreter and the compiler (comp.sd7) were improved to support the functions
+  bitLength, lowestSetBit, <<, <<:=, >> and >>:= for the types integer and bigInteger
+  (inspired by Mensanator for a program which explores the Collatz Conjecture).
+- The priority of the << and >> operators was changed from 19 to 9 in the file syntax.s7i.
+- Uses of the obsolete file output operator << where replaced with write statements in
+  bas7.sd7, comp.sd7, ms.sd7, pac.sd7, sl.sd7, snake.sd7, tarx.sd7, tetg.sd7 and tet.sd7.
+- Descriptions about the new integer/bigInteger functions <<, <<:=, >>, >>:=, bitLength and
+  lowestSetBit were added to the manual.
+- The chkint.sd7 program was improved with additional checks in chkint for 'div', 'rem',
+  'mdiv', 'mod', <<, <<:=, >> and >>:= .
+- The chkbig.sd7 program was improved with additional checks for **, compare, lowestSetBit,
+  <<, <<:=, >> and >>:= .
+- The compiler (comp.sd7) was improved to create optimized/improved versions for the bigInteger
+  functions odd, compare, <, <=, >, >=, ** and for the integer functions 'mdiv' and 'mod'.
+- A description about the type bigRational was added to the manual.
+- An explatation about type inference was added to the FAQ.
+- A new constructor for complex numbers from a float was added to the complex.s7i library.
+- A boss mode was added to the panic.sd7 and mahjong.sd7 example programs.
+- The bas7.sd7 (basic interpreter) example program was improved.
+- The makefiles were improved to set the RSHIFT_DOES_SIGN_EXTEND macro in the version.h file.
+- A bug in the primitive action flt_mcpy was fixed.
+- The primitive action flt_str was improved to support denormal float numbers better.
+
 20080319:
 - The functions getEscapeSequence, getCharLiteral, getStringLiteral, getSymbolOrComment and
   getSymbol were added to the scanstri.s7i library.

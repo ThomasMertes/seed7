@@ -160,6 +160,20 @@ version.h:
 	chkftell >> version.h
 	del chkftell.c
 	del chkftell.exe
+	echo #include "stdio.h" > chkshift.c
+	echo int main (int argc, char **argv) >> chkshift.c
+	echo { >> chkshift.c
+	echo long number; >> chkshift.c
+	echo number = -1; >> chkshift.c
+	echo if (number >> 1 == (long) -1) { >> chkshift.c
+	echo printf("\043define RSHIFT_DOES_SIGN_EXTEND\n"); >> chkshift.c
+	echo } >> chkshift.c
+	echo return 0; >> chkshift.c
+	echo } >> chkshift.c
+	$(CC) chkshift.c -o chkshift
+	chkshift >> version.h
+	del chkshift.c
+	del chkshift.exe
 	echo #define OBJECT_FILE_EXTENSION ".o" >> version.h
 	echo #define EXECUTABLE_FILE_EXTENSION ".exe" >> version.h
 	echo #define C_COMPILER "$(CC)" >> version.h

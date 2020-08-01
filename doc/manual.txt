@@ -42,30 +42,32 @@ CONTENTS
   5.    PREDEFINED TYPES
   5.1     boolean
   5.2     integer
-  5.3     rational
-  5.4     float
-  5.5     char
-  5.6     string
-  5.7     array
-  5.8     hash
-  5.9     set
-  5.10    struct
-  5.11    reference
-  5.12    ref_list
-  5.13    ptr
-  5.14    ENUMERATION
-  5.15    color
-  5.16    time
-  5.17    duration
-  5.18    file
-  5.19    text
-  5.20    func
-  5.21    varfunc
-  5.22    void
-  5.23    proc
-  5.24    type
-  5.25    object
-  5.26    expr
+  5.3     bigInteger
+  5.4     rational
+  5.5     bigRational
+  5.6     float
+  5.7     char
+  5.8     string
+  5.9     array
+  5.10    hash
+  5.11    set
+  5.12    struct
+  5.13    reference
+  5.14    ref_list
+  5.15    ptr
+  5.16    ENUMERATION
+  5.17    color
+  5.18    time
+  5.19    duration
+  5.20    file
+  5.21    text
+  5.22    func
+  5.23    varfunc
+  5.24    void
+  5.25    proc
+  5.26    type
+  5.27    object
+  5.28    expr
   6.    PARAMETERS
   6.1     'val' parameter
   6.2     'ref' parameter
@@ -1564,11 +1566,33 @@ CONTENTS
                   ( A mod B => A - (A mdiv B) * B,
                     A mod 0 => EXCEPTION NUMERIC_ERROR )
       **        Power
-                  ( A ** B is okay for B > 0,
+                  ( A ** B is okay for B >= 0,
                     A ** 0 => 1,
+                    1 ** B => 1,
                     A ** -1 => EXCEPTION NUMERIC_ERROR )
+      A << B    Shift left
+                  ( A << B is okay for B >= 0 and B <= 31,
+                    A << B => A * 2_ ** B,
+                    A << 0 => A )
+      A >> B    Arithmetic shift right
+                  ( A >> B is okay for B >= 0 and B <= 31,
+                    A >> B => A mdiv 2_ ** B  for B <= 30,
+                    A >> B => C for A >= 0 holds: C >= 0
+                    A >> B => C for A < 0 holds: C < 0
+                    A >> B => 0 for A >= 0 and B > ord(log2(A)),
+                    A >> B => -1 for A < 0 and B > ord(log2(-A)),
+                    A >> 0 => A )
       !         Binomial coefficient
                   ( A ! B => !A div (!B * !(A - B)) )
+      lpad0     Left padding with zeros
+                  ( 123 lpad0  8 => "00000123",
+                    123 lpad0  4 => "0123",
+                    123 lpad0  3 => "123",
+                    123 lpad0  2 => "123",
+                    123 lpad0 -8 => "123",
+                    -12 lpad0  4 => "-012",
+                    -12 lpad0  3 => "-12",
+                    -12 lpad0  2 => "-12" )
       integer conv A   Identity
                   ( integer conv A => A )
       integer parse A   Conversion of string to integer
@@ -1605,6 +1629,17 @@ CONTENTS
                     log2(0) => -1,
                     log2(1) => 0,
                     log2(-1) => EXCEPTION NUMERIC_ERROR )
+      bitLength(A) Number of bits in the minimal two's-complement
+                   representation, excluding the sign bit.
+                  ( bitLength(A) => succ(log2(A)) for A >= 0,
+                    bitLength(A) => succ(log2(pred(-A))) for A < 0 )
+      lowestSetBit(A) Index of the lowest-order one bit
+                      For A <> 0 this is equal to to number of
+                      lowest-order zero bits.
+                  ( A >> B << B = A for A <> 0 and B = lowestSetBit(A),
+                    lowestSetBit(0) = -1,
+                    lowestSetBit(1) = 0,
+                    lowestSetBit(2) = 1 )
       rand(A, B) Random number in the range [A, B]
                   ( rand(A, B) returns a random number such that
                     A <= rand(A, B) and rand(A, B) <= B holds.
@@ -1622,6 +1657,10 @@ CONTENTS
                   ( A -:= B => A := A - B )
       A *:= B   Multiplying copy
                   ( A *:= B => A := A * B )
+      A <<:= B  Shift left copy
+                  ( A <<:= B => A := A << B )
+      A >>:= B  Shift right copy
+                  ( A >>:= B => A := A >> B )
       incr(A)   Increment with 1
                   ( incr(A) => A +:= 1 )
       decr(A)   Decrement with 1
@@ -1637,10 +1676,12 @@ CONTENTS
     (A mod B) <= 0 and (A mod B) > B    when B < 0
 
   For the operation 'mdiv' holds:
-    A mdiv B = A div B - 1   When A and B have different
-                             signs and A rem B <> 0 holds.
-    A mdiv B = A div B       When A and B have the same
-                             sign or A rem B = 0 holds.
+    A mdiv B = A div B - 1          When A and B have different
+                                    signs and A rem B <> 0 holds.
+    A mdiv B = A div B              When A and B have the same
+                                    sign or A rem B = 0 holds.
+    A mdiv B = (A - 1) div B - 1    When A > 0 and B < 0 holds.
+    A mdiv B = (A + 1) div B - 1    When A < 0 and B > 0 holds.
 
   For the operation 'mod' holds:
     A mod B = A rem B + B    When A and B have different
@@ -1685,7 +1726,6 @@ CONTENTS
     (sqrt(A) + 1) * (sqrt(A) + 1) > A
 
 
-
 5.3 bigInteger
 
     The type 'bigInteger' consists of all integer numbers. The
@@ -1701,21 +1741,38 @@ CONTENTS
       *         Multiplication
       div       Integer division truncated towards zero
                   ( A div B => trunc(A / B),
-                    A div 0 => EXCEPTION NUMERIC_ERROR )
+                    A div 0_ => EXCEPTION NUMERIC_ERROR )
       rem       Reminder of integer division div
                   ( A rem B => A - (A div B) * B,
-                    A rem 0 => EXCEPTION NUMERIC_ERROR )
+                    A rem 0_ => EXCEPTION NUMERIC_ERROR )
       mdiv      Integer division truncated towards negative infinity
                   ( A mdiv B => floor(A / B),
-                    A mdiv 0 => EXCEPTION NUMERIC_ERROR )
+                    A mdiv 0_ => EXCEPTION NUMERIC_ERROR )
       mod       Reminder of integer division mdiv
                   ( A mod B => A - (A mdiv B) * B,
-                    A mod 0 => EXCEPTION NUMERIC_ERROR )
+                    A mod 0_ => EXCEPTION NUMERIC_ERROR )
       A ** B    Power
                   ( Type of argument B: integer,
-                    A ** B is okay for B > 0,
-                    A ** 0 => 1,
+                    A ** B is okay for B >= 0,
+                    A ** 0 => 1_,
+                    1_ ** B => 1_,
                     A ** -1 => EXCEPTION NUMERIC_ERROR )
+      A << B    Shift left
+                  ( Type of argument B: integer,
+                    A << B is okay for B >= 0,
+                    A << B => A * 2_ ** B,
+                    A << 0 => A,
+                    A << -1 => EXCEPTION NUMERIC_ERROR )
+      A >> B    Arithmetic shift right
+                  ( Type of argument B: integer,
+                    A >> B is okay for B >= 0,
+                    A >> B => A mdiv 2_ ** B,
+                    A >> B => C for A >= 0_ holds: C >= 0_
+                    A >> B => C for A < 0_ holds: C < 0_
+                    A >> B => 0_ for A >= 0_ and B > ord(log2(A)),
+                    A >> B => -1_ for A < 0_ and B > ord(log2(-A)),
+                    A >> 0 => A,
+                    A >> -1 => EXCEPTION NUMERIC_ERROR )
       bigInteger conv A   Conversion to bigInteger
                   ( Type of argument A: integer,
                     bigInteger conv A => A )
@@ -1752,6 +1809,19 @@ CONTENTS
                     log2(0) => -1,
                     log2(1) => 0,
                     log2(-1) => EXCEPTION NUMERIC_ERROR )
+      bitLength(A) Number of bits in the minimal two's-complement
+                   representation, excluding the sign bit.
+                  ( Type of result: integer,
+                    bitLength(A) => ord(succ(log2(A))) for A >= 0_,
+                    bitLength(A) => ord(succ(log2(pred(-A)))) for A < 0_ )
+      lowestSetBit(A) Index of the lowest-order one bit
+                      For A <> 0_ this is equal to to number of
+                      lowest-order zero bits.
+                  ( Type of result: integer,
+                    A >> B << B = A for A <> 0_ and B = lowestSetBit(A),
+                    lowestSetBit(0_) = -1,
+                    lowestSetBit(1_) = 0,
+                    lowestSetBit(2_) = 1 )
       rand(A, B) Random number in the range [A, B]
                   ( rand(A, B) returns a random number such that
                     A <= rand(A, B) and rand(A, B) <= B holds.
@@ -1771,6 +1841,10 @@ CONTENTS
                   ( A -:= B => A := A - B )
       A *:= B   Multiplying copy
                   ( A *:= B => A := A * B )
+      A <<:= B  Shift left copy
+                  ( A <<:= B => A := A << B )
+      A >>:= B  Shift right copy
+                  ( A >>:= B => A := A >> B )
       incr(A)   Increment with 1
                   ( incr(A) => A +:= 1_ )
       decr(A)   Decrement with 1
@@ -1782,14 +1856,16 @@ CONTENTS
 
   For the operations 'mdiv' and 'mod' holds for all A:
     (A mdiv B) * B + A mod B = A        when B <> 0_
-    (A mod B) >= 0_ and (A mod B) < B    when B > 0
-    (A mod B) <= 0_ and (A mod B) > B    when B < 0
+    (A mod B) >= 0_ and (A mod B) < B   when B > 0
+    (A mod B) <= 0_ and (A mod B) > B   when B < 0
 
   For the operation 'mdiv' holds:
-    A mdiv B = A div B - 1_   When A and B have different
-                             signs and A rem B <> 0_ holds.
-    A mdiv B = A div B       When A and B have the same
-                             sign or A rem B = 0_ holds.
+    A mdiv B = A div B - 1_         When A and B have different
+                                    signs and A rem B <> 0_ holds.
+    A mdiv B = A div B              When A and B have the same
+                                    sign or A rem B = 0_ holds.
+    A mdiv B = (A - 1_) div B - 1_  When A > 0_ and B < 0_ holds.
+    A mdiv B = (A + 1_) div B - 1_  When A < 0_ and B > 0_ holds.
 
   For the operation 'mod' holds:
     A mod B = A rem B + B    When A and B have different
@@ -1834,14 +1910,11 @@ CONTENTS
     (sqrt(A) + 1_) * (sqrt(A) + 1_) > A
 
 
-
 5.4 rational
 
     The type 'rational' consists of rational numbers. The
-  literals of the type 'rational' are finite and periodical
-  decimal numbers. (The period of a periodical number is
-  separated with an apostrophe (') from the rest of the
-  number. E.g.: 3.'3 or 123.45'678)
+  values of the type 'rational' are finite and periodical
+  decimal numbers.
 
     Prefix operators:
       +         Identity
@@ -1899,7 +1972,72 @@ CONTENTS
   (Without any rounding)
 
 
-5.5 float
+5.5 bigRational
+
+    The type 'bigRational' consists of rational numbers. The
+  values of the type 'bigRational' are finite and periodical
+  decimal numbers.
+
+    Prefix operators:
+      +         Identity
+      -         Change sign
+    Infix operators:
+      +         Addition
+      -         Subtraction
+      *         Multiplication
+      /         Division
+      /         Division of two bigInteger values
+                  ( Left argument: bigInteger,
+                    Right argument: bigInteger )
+      **        Power
+                  ( bigRational ** integer )
+      bigRational parse A   Conversion of string to bigRational
+                  ( Type of argument A: string )
+    Relations:
+      =, <>, <, <=, >, >=
+    Functions:
+      abs(A)    Absolute value
+      rat(A)    Conversion to bigRational
+                  ( Type of argument A: bigInteger,
+                    rat(1) => 1.0 )
+      floor(A)  Truncation towards negative infinity
+                  ( Type of result: bigInteger,
+                    floor( 1.8)=> 1, floor( 1.0)=> 1,
+                    floor(-1.0)=>-1, floor(-1.8)=>-2 )
+      ceil(A)   Rounding up towards positive infinity
+                  ( Type of result: bigInteger,
+                    ceil( 1.2)=> 2, ceil( 1.0)=> 1,
+                    ceil(-1.0)=>-1, ceil(-1.2)=>-1 )
+      trunc(A)  Truncation towards zero
+                  ( Type of result: bigInteger,
+                    trunc( 1.8)=> 1, trunc( 1.0)=> 1,
+                    trunc(-1.0)=>-1, trunc(-1.8)=>-1 )
+      round(A)  Round towards zero
+                  ( Type of result: bigInteger,
+                    round(0.5)=>1, round(-0.5)=>-1,
+                    round(0.4)=>0, round(-0.4)=>0 )
+      str(A)    Conversion to string
+                  ( Type of result: string )
+      compare(A, B) Compare function
+                  ( Type of result: integer,
+                    compare(1.9, 2.0) => -1,
+                    compare(5.2, 5.2) => 0,
+                    compare(8.0, 7.9) => 1 )
+      hashCode(A) Hash function
+                  ( Type of result: integer )
+    Statements:
+      A +:= B   Increment A by B
+                  ( A +:= B => A := A + B )
+      A -:= B   Decrement A by B
+                  ( A -:= B => A := A - B )
+      A *:= B   Multiplying copy
+                  ( A *:= B => A := A * B )
+
+  All calculations with 'bigRational' numbers are done exact.
+  (Without any rounding)
+
+
+5.6 float
 
     The type 'float' consists of floating point numbers.
 
@@ -2020,7 +2158,7 @@ CONTENTS
                   ( A *:= B => A := A * B )
 
 
-5.6 char
+5.7 char
 
     The type 'char' describes UNICODE characters. The 'char'
   values use the UTF-32 encoding. In the source file a
@@ -2091,7 +2229,7 @@ CONTENTS
                   ( decr(A) => A := pred(A) )
 
 
-5.7 string
+5.8 string
 
     The type 'string' describes sequences of UNICODE characters
   (including the empty string). The characters in the 'string'
@@ -2249,7 +2387,7 @@ CONTENTS
                     A @:= [succ(length(A))] 'x' => EXCEPTION RANGE_ERROR )
 
 
-5.8 array
+5.9 array
 
     The type 'array baseType' describes sequences of identical
   elements of a 'baseType'. (including the empty sequence).
@@ -2301,7 +2439,7 @@ CONTENTS
                     Type of argument C: proc )
 
 
-5.9 hash
+5.10 hash
 
     The type 'hash [keyType] baseType' describes hash tables with
   elements of 'baseType' which can be accessed using an index of
@@ -2359,7 +2497,7 @@ CONTENTS
                     Type of argument D: proc )
 
 
-5.10 set
+5.11 set
 
     The type 'set of baseType' describes a set of elements of a
   'baseType'. (including the empty set).
@@ -2413,7 +2551,7 @@ CONTENTS
                     Type of argument C: proc )
 
 
-5.11 struct
+5.12 struct
 
     The type 'struct' describes all structured types.
 
@@ -2456,7 +2594,7 @@ CONTENTS
                   ( Type of argument B: reference )
 
 
-5.12 reference
+5.13 reference
 
     The type 'reference' describes a reference to any
   object.
@@ -2521,7 +2659,7 @@ CONTENTS
                   ( Type of argument B: ref_list )
 
 
-5.13 ref_list
+5.14 ref_list
 
     The type 'ref_list' describes a list of 'reference' objects.
 
@@ -2561,7 +2699,7 @@ CONTENTS
                     Type of argument C: proc )
 
 
-5.14 ptr
+5.15 ptr
 
     The type 'ptr baseType' describes a pointer to an object
   of a 'baseType'. With
@@ -2588,7 +2726,7 @@ CONTENTS
                   ( Type of argument ptrType: type )
 
 
-5.15 ENUMERATION
+5.16 ENUMERATION
 
     With
 
@@ -2628,7 +2766,7 @@ CONTENTS
                   ( decr(A) => A:=pred(A) )
 
 
-5.16 color
+5.17 color
 
     The type 'color' describes colors.
 
@@ -2663,7 +2801,7 @@ CONTENTS
                     Type of argument B: integer )
 
 
-5.17 time
+5.18 time
 
     The type 'time' describes times and dates.
 
@@ -2733,7 +2871,7 @@ CONTENTS
       await(A)  Wait until the given time
 
 
-5.18 duration
+5.19 duration
 
     The type 'duration' describes time and date durations.
 
@@ -2778,7 +2916,7 @@ CONTENTS
       wait(A)   Wait for given duration
 
 
-5.19 file
+5.20 file
 
     The type 'file' describes sequential files.
 
@@ -2794,13 +2932,6 @@ CONTENTS
       OUT       Standard output file used for file output
                   operations when no file is specified
                   ( OUT is initialized with STD_OUT )
-    Infix statements:
-      <<        Write string to file
-                  ( Type of right operand: string,
-                    file << string )
-      >>        Read string from file
-                  ( Type of right operand: string,
-                    file >> string )
     Relations:
       =, <>
     Functions:
@@ -2861,6 +2992,11 @@ CONTENTS
       writeln(A) Write a new line to file A
       writeln(A, B) Write string B and new line to file A
                   ( Type of argument B: string )
+      read(A, B) Read a word from file A into string B
+                  ( Type of right operand: string )
+      readln(A)  Read a line from file A
+      readln(A, B) Read a line from file A into the string B
+                  ( Type of right operand: string )
       backSpace(A) Write backspace to file A
       close(A)  Close file A
       flush(A)  Flush file A
@@ -2872,17 +3008,10 @@ CONTENTS
                     seek(A, -1) => EXCEPTION RANGE_ERROR )
 
 
-5.20 text
+5.21 text
 
     The type 'text' describes two dimensional files.
 
-    Infix statements:
-      <<        Write string to text
-                  ( Type of right operand: string,
-                    text << string )
-      >>        Read string from text
-                  ( Type of right operand: string,
-                    file >> string )
     Relations:
       =, <>
     Functions:
@@ -2902,26 +3031,31 @@ CONTENTS
     Statements:
       write(A, B) Write string B to text A
                   ( Type of argument B: string )
-      writeln(A) Write a new line to file A
+      writeln(A) Write a new line to text A
       writeln(A, B) Write string B and new line to text A
                   ( Type of argument B: string )
+      read(A, B) Read a word from text A into string B
+                  ( Type of right operand: string )
+      readln(A)  Read a line from text A
+      readln(A, B) Read a line from text A into the string B
+                  ( Type of right operand: string )
       backSpace(A) Write backspace to text A
       close(A)  Close text A
       flush(A)  Flush text A
       clear(A)  Clear the window
       v_scroll(A) Scroll the window vertical
       h_scroll(A) Scroll the window horizontal
-      color(A, B) Set foreground color of the text
+      color(A, B) Set foreground color of the text A
                   ( Type of argument B: color )
-      color(A, B, C) Set foreground and background color of the text
+      color(A, B, C) Set foreground and background color of the text A
                   ( Type of argument B: color,
                     Type of argument C: color )
-      setPos(A, B, C) Set the current position of the text
+      setPos(A, B, C) Set the current position of the text A
                   ( Type of argument B: integer
                     Type of argument C: integer )
-      setLine(A, B) Set the current line of the text
+      setLine(A, B) Set the current line of the text A
                   ( Type of argument B: integer )
-      setColumn(A, B) Set the current column of the text
+      setColumn(A, B) Set the current column of the text A
                   ( Type of argument B: integer )
       box(A)    Write a box around the window
       clear_box(A) Clear the box around the window
@@ -2929,7 +3063,7 @@ CONTENTS
       cursor_off(A) Make the cursor invisible
 
 
-5.21 func
+5.22 func
 
     The type 'func baseType' describes functions which return
   a 'baseType'. For example: 'func integer' describes an 'integer'
@@ -3018,7 +3152,7 @@ CONTENTS
   parameter is 'TRUE'.
 
 
-5.22 varfunc
+5.23 varfunc
 
     The type 'varfunc baseType' describes functions which return
   a 'baseType' variable. For example: A function which returns an
@@ -3051,7 +3185,7 @@ CONTENTS
   and structs can be used in the usual way. 
 
 
-5.23 void
+5.24 void
 
     The type 'void' describes the empty type.
 
@@ -3059,7 +3193,7 @@ CONTENTS
       empty     This is the only value of the type 'void'.
 
 
-5.24 proc
+5.25 proc
 
     The type 'proc' describes procedures. The type 'proc'
   is defined as 'func void'.
@@ -3096,7 +3230,7 @@ CONTENTS
                     Type of result: proc )
 
 
-5.25 type
+5.26 type
 
     The type 'type' describes all types.
 
@@ -3153,7 +3287,7 @@ CONTENTS
                 Declare variable 'name' with 'value'
 
 
-5.26 object
+5.27 object
 
     The type 'object' is used as meta type for various types.
   This allows to define common operations for all this types.
@@ -3166,7 +3300,7 @@ CONTENTS
       TRACE_OBJ(A)  Write internal information
 
 
-5.27 expr
+5.28 expr
 
     The type 'expr' is used to describe unmatched expressions.
   This are expressions where the recognizing of the functions
@@ -3962,28 +4096,12 @@ CONTENTS
 
     readln(info_file, number);
 
-  There are also C++ like i/o statements. When using the '<<'
-  and the '>>' statements the last four examples look like:
-
-    info_file := open("info.fil", "w");
-    info_file << "This is the first line of the info file.";
-    info_file << NL;  (* New line *)
-    close(info_file);
-
-    info_file := open("info.fil", "r");
-    info_file >> stri;
-    close(info_file);
-
-    info_file << number;
-
-    info_file >> number;
-
   For doing i/o to a window on the screen we write:
 
     window1 := open_window(SCREEN, 10, 10, 5, 60);
     box(window1);
     setPos(window1, 3, 1);
-    window1 << "hello there";
+    write(window1, "hello there");
 
   This opens the window 'window1' on the SCREEN at the position
   10, 10. This window has 5 lines and 60 columns. A box (of
@@ -4268,55 +4386,21 @@ CONTENTS
         aFile.io_ok := TRUE;
       end func;
 
-    const proc: (inout file: aFile) >> (inout string: stri) is func
-      begin
-        stri := getwd(aFile);
-        aFile.io_empty := stri = "";
-        aFile.io_ok := TRUE;
-      end func;
-
-    const proc: (in file: aFile) <&lt (in string: stri) is func
-      begin
-        write(aFile , stri);
-      end func;
-
 
 8.3 Input and output with conversion
 
     Normally we need a combination of an i/o operation with
   a conversion operation. There are several functions which are
   based on the 'str' and 'parse' conversions and on the basic
-  i/o-functions. The following declarations allow the '<<' operator
-  and the 'write' function to be used for all types which define 'enable_io':
-
-    const proc: (in file: aFile) << (in aType: aValue) is func
-      begin
-        write(aFile, str(aValue));
-      end func;
+  i/o-functions. The following declarations allow the 'write' function
+  to be used for all types which define 'enable_io':
 
     const proc: write (in file: aFile, in aType: aValue) is func
       begin
         write(aFile, str(aValue));
       end func;
 
-  For types which define 'enable_io' the '>>' operator is declared as:
-
-    const proc: (inout file: aFile) >> (inout aType: aValue) is func
-      local
-        var string: stri is "";
-      begin
-        stri := getwd(aFile);
-        aFile.io_empty := stri = "";
-        block
-          aValue := aType parse stri;
-          aFile.io_ok := TRUE;
-        exception
-          catch RANGE_ERROR:
-            aFile.io_ok := FALSE;
-        end block;
-      end func;
-
-  To allow the use of 'read' and 'readln' functions the following
+  To allow the use of the 'read' and 'readln' functions the following
   declarations are made with 'enable_io':
 
     const proc: read (inout file: aFile, inout aType: aValue) is func
@@ -4464,8 +4548,7 @@ CONTENTS
   write error messages to the screen even when stdout
   is redirected elsewhere you can write:
 
-    STD_ERR << "ERROR MESSAGE";
-    STD_ERR << NL;
+    writeln(STD_ERR, "ERROR MESSAGE");
 
   To redirect the standard output to STD_ERR you can write:
 
@@ -4527,8 +4610,7 @@ CONTENTS
   In the rest of the program references to such a variable can be
   used:
 
-    ERR << "Some error occurred";
-    ERR << NL;
+    writeln(ERR, "Some error occurred");
 
   In this case redirection of the ERR file can be done very easy.
   The second way to access external_files is to use the 'open'
@@ -4548,8 +4630,7 @@ CONTENTS
 
   After that output to MY_OUT is possible with
 
-    MY_OUT << "hi there";
-    MY_OUT << NL;
+    writeln(MY_OUT, "hi there");
 
   As stated earlier STD_IN provides an interface to the keyboard
   which is line buffered and echoed on STD_OUT. This means that
@@ -4635,7 +4716,7 @@ CONTENTS
   do not open files to often this does not hurt. Now only the
   two basic i/o operations must be defined:
 
-    const proc: (inout NEW_FILE: new_fil) << (in string: stri) is func
+    const proc: write (inout NEW_FILE: new_fil, in string: stri) is func
       begin
         ...
         (* Statements that do the output *)
@@ -4692,7 +4773,7 @@ CONTENTS
 
     - Which objects should be used for several implicit
       actions for example:
-        := ::= destroy << and flush
+        := ::= 'destroy' 'write' and 'flush'
 
   The following system declarations exist
 

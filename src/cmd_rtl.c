@@ -726,6 +726,12 @@ stritype stri;
 #else
         opt = "FALSE";
 #endif
+      } else if (strcmp(opt_name, "RSHIFT_DOES_SIGN_EXTEND") == 0) {
+#ifdef RSHIFT_DOES_SIGN_EXTEND
+        opt = "TRUE";
+#else
+        opt = "FALSE";
+#endif
       } else {
         opt = "";
       } /* if */

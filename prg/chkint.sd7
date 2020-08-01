@@ -25,6 +25,10 @@
 $ include "seed7_05.s7i";
 
 
+const func integer: intExpr (in integer: number) is
+  return number;
+
+
 const proc: check_exponent_integer_literal is func
   local
     var boolean: okay is TRUE;
@@ -250,7 +254,15 @@ const proc: check_add is func
   end func;
 
 
-const proc: check_div is func
+const proc: check_division is func
+  local
+    var boolean: okay is TRUE;
+    var boolean: p_div_p is FALSE;
+    var boolean: n_div_n is FALSE;
+    var boolean: p_div_n is FALSE;
+    var boolean: n_div_p is FALSE;
+    var integer: dividend is 0;
+    var integer: divisor is 0;
   begin
     writeln("a div b is integer division and a rem b is integer remainder:");
 
@@ -268,25 +280,7 @@ const proc: check_div is func
     else
       writeln("not even when a and b are positive");
     end if;
-  end func;
 
-
-$ trace "+e";
-const proc: check_div_exception is func
-  local
-    var integer: div_result is 0;
-  begin
-    div_result := 5 div 0;
-  end func;
-
-
-const proc: check_rem is func
-  local
-    var boolean: p_div_p is FALSE;
-    var boolean: n_div_n is FALSE;
-    var boolean: p_div_n is FALSE;
-    var boolean: n_div_p is FALSE;
-  begin
     p_div_p := ( 11 div  4) *  4 + ( 11 rem  4) =  11;
     n_div_n := (-11 div -4) * -4 + (-11 rem -4) = -11;
     p_div_n := ( 11 div -4) * -4 + ( 11 rem -4) =  11;
@@ -307,16 +301,7 @@ const proc: check_rem is func
     else
       writeln("not even when a and b are positive");
     end if;
-  end func;
 
-
-const proc: check_division is func
-  local
-    var boolean: okay is TRUE;
-    var integer: dividend is 0;
-    var integer: divisor is 0;
-  begin
-    okay := TRUE;
     for dividend range -9 to 9 do
       for divisor range -4 to 4 do
         if divisor <> 0 then
@@ -332,15 +317,7 @@ const proc: check_division is func
     else
       writeln(" ***** div and rem does not work correct");
     end if;
-  end func;
 
-
-const proc: check_mdiv is func
-  local
-    var boolean: okay is TRUE;
-    var integer: dividend is 0;
-    var integer: divisor is 0;
-  begin
     okay := TRUE;
     for dividend range -9 to 9 do
       for divisor range -4 to 4 do
@@ -356,6 +333,3466 @@ const proc: check_mdiv is func
       writeln("Mdiv and mod work correct for selected values");
     else
       writeln(" ***** mdiv and mod does not work correct");
+    end if;
+  end func;
+
+
+const proc: check_div is func
+  local
+    var boolean: okay is TRUE;
+  begin
+    okay := TRUE;
+    if   10 div  5 <>  2 or
+          9 div  5 <>  1 or
+          8 div  5 <>  1 or
+          7 div  5 <>  1 or
+          6 div  5 <>  1 or
+          5 div  5 <>  1 or
+          4 div  5 <>  0 or
+          3 div  5 <>  0 or
+          2 div  5 <>  0 or
+          1 div  5 <>  0 or
+          0 div  5 <>  0 or
+         -1 div  5 <>  0 or
+         -2 div  5 <>  0 or
+         -3 div  5 <>  0 or
+         -4 div  5 <>  0 or
+         -5 div  5 <> -1 or
+         -6 div  5 <> -1 or
+         -7 div  5 <> -1 or
+         -8 div  5 <> -1 or
+         -9 div  5 <> -1 or
+        -10 div  5 <> -2 or
+         10 div  4 <>  2 or
+          9 div  4 <>  2 or
+          8 div  4 <>  2 or
+          7 div  4 <>  1 or
+          6 div  4 <>  1 or
+          5 div  4 <>  1 or
+          4 div  4 <>  1 or
+          3 div  4 <>  0 or
+          2 div  4 <>  0 or
+          1 div  4 <>  0 or
+          0 div  4 <>  0 or
+         -1 div  4 <>  0 or
+         -2 div  4 <>  0 or
+         -3 div  4 <>  0 or
+         -4 div  4 <> -1 or
+         -5 div  4 <> -1 or
+         -6 div  4 <> -1 or
+         -7 div  4 <> -1 or
+         -8 div  4 <> -2 or
+         -9 div  4 <> -2 or
+        -10 div  4 <> -2 or
+         10 div  3 <>  3 or
+          9 div  3 <>  3 or
+          8 div  3 <>  2 or
+          7 div  3 <>  2 or
+          6 div  3 <>  2 or
+          5 div  3 <>  1 or
+          4 div  3 <>  1 or
+          3 div  3 <>  1 or
+          2 div  3 <>  0 or
+          1 div  3 <>  0 or
+          0 div  3 <>  0 or
+         -1 div  3 <>  0 or
+         -2 div  3 <>  0 or
+         -3 div  3 <> -1 or
+         -4 div  3 <> -1 or
+         -5 div  3 <> -1 or
+         -6 div  3 <> -2 or
+         -7 div  3 <> -2 or
+         -8 div  3 <> -2 or
+         -9 div  3 <> -3 or
+        -10 div  3 <> -3 or
+         10 div  2 <>  5 or
+          9 div  2 <>  4 or
+          8 div  2 <>  4 or
+          7 div  2 <>  3 or
+          6 div  2 <>  3 or
+          5 div  2 <>  2 or
+          4 div  2 <>  2 or
+          3 div  2 <>  1 or
+          2 div  2 <>  1 or
+          1 div  2 <>  0 or
+          0 div  2 <>  0 or
+         -1 div  2 <>  0 or
+         -2 div  2 <> -1 or
+         -3 div  2 <> -1 or
+         -4 div  2 <> -2 or
+         -5 div  2 <> -2 or
+         -6 div  2 <> -3 or
+         -7 div  2 <> -3 or
+         -8 div  2 <> -4 or
+         -9 div  2 <> -4 or
+        -10 div  2 <> -5 or
+         10 div  1 <> 10 or
+          9 div  1 <>  9 or
+          8 div  1 <>  8 or
+          7 div  1 <>  7 or
+          6 div  1 <>  6 or
+          5 div  1 <>  5 or
+          4 div  1 <>  4 or
+          3 div  1 <>  3 or
+          2 div  1 <>  2 or
+          1 div  1 <>  1 or
+          0 div  1 <>  0 or
+         -1 div  1 <> -1 or
+         -2 div  1 <> -2 or
+         -3 div  1 <> -3 or
+         -4 div  1 <> -4 or
+         -5 div  1 <> -5 or
+         -6 div  1 <> -6 or
+         -7 div  1 <> -7 or
+         -8 div  1 <> -8 or
+         -9 div  1 <> -9 or
+        -10 div  1 <> -10 or
+         10 div -1 <> -10 or
+          9 div -1 <> -9 or
+          8 div -1 <> -8 or
+          7 div -1 <> -7 or
+          6 div -1 <> -6 or
+          5 div -1 <> -5 or
+          4 div -1 <> -4 or
+          3 div -1 <> -3 or
+          2 div -1 <> -2 or
+          1 div -1 <> -1 or
+          0 div -1 <>  0 or
+         -1 div -1 <>  1 or
+         -2 div -1 <>  2 or
+         -3 div -1 <>  3 or
+         -4 div -1 <>  4 or
+         -5 div -1 <>  5 or
+         -6 div -1 <>  6 or
+         -7 div -1 <>  7 or
+         -8 div -1 <>  8 or
+         -9 div -1 <>  9 or
+        -10 div -1 <> 10 or
+         10 div -2 <> -5 or
+          9 div -2 <> -4 or
+          8 div -2 <> -4 or
+          7 div -2 <> -3 or
+          6 div -2 <> -3 or
+          5 div -2 <> -2 or
+          4 div -2 <> -2 or
+          3 div -2 <> -1 or
+          2 div -2 <> -1 or
+          1 div -2 <>  0 or
+          0 div -2 <>  0 or
+         -1 div -2 <>  0 or
+         -2 div -2 <>  1 or
+         -3 div -2 <>  1 or
+         -4 div -2 <>  2 or
+         -5 div -2 <>  2 or
+         -6 div -2 <>  3 or
+         -7 div -2 <>  3 or
+         -8 div -2 <>  4 or
+         -9 div -2 <>  4 or
+        -10 div -2 <>  5 or
+         10 div -3 <> -3 or
+          9 div -3 <> -3 or
+          8 div -3 <> -2 or
+          7 div -3 <> -2 or
+          6 div -3 <> -2 or
+          5 div -3 <> -1 or
+          4 div -3 <> -1 or
+          3 div -3 <> -1 or
+          2 div -3 <>  0 or
+          1 div -3 <>  0 or
+          0 div -3 <>  0 or
+         -1 div -3 <>  0 or
+         -2 div -3 <>  0 or
+         -3 div -3 <>  1 or
+         -4 div -3 <>  1 or
+         -5 div -3 <>  1 or
+         -6 div -3 <>  2 or
+         -7 div -3 <>  2 or
+         -8 div -3 <>  2 or
+         -9 div -3 <>  3 or
+        -10 div -3 <>  3 or
+         10 div -4 <> -2 or
+          9 div -4 <> -2 or
+          8 div -4 <> -2 or
+          7 div -4 <> -1 or
+          6 div -4 <> -1 or
+          5 div -4 <> -1 or
+          4 div -4 <> -1 or
+          3 div -4 <>  0 or
+          2 div -4 <>  0 or
+          1 div -4 <>  0 or
+          0 div -4 <>  0 or
+         -1 div -4 <>  0 or
+         -2 div -4 <>  0 or
+         -3 div -4 <>  0 or
+         -4 div -4 <>  1 or
+         -5 div -4 <>  1 or
+         -6 div -4 <>  1 or
+         -7 div -4 <>  1 or
+         -8 div -4 <>  2 or
+         -9 div -4 <>  2 or
+        -10 div -4 <>  2 or
+         10 div -5 <> -2 or
+          9 div -5 <> -1 or
+          8 div -5 <> -1 or
+          7 div -5 <> -1 or
+          6 div -5 <> -1 or
+          5 div -5 <> -1 or
+          4 div -5 <>  0 or
+          3 div -5 <>  0 or
+          2 div -5 <>  0 or
+          1 div -5 <>  0 or
+          0 div -5 <>  0 or
+         -1 div -5 <>  0 or
+         -2 div -5 <>  0 or
+         -3 div -5 <>  0 or
+         -4 div -5 <>  0 or
+         -5 div -5 <>  1 or
+         -6 div -5 <>  1 or
+         -7 div -5 <>  1 or
+         -8 div -5 <>  1 or
+         -9 div -5 <>  1 or
+        -10 div -5 <>  2 then
+      writeln(" ***** div with two constants does not work correct");
+      okay := FALSE;
+    end if;
+    if  intExpr( 10) div  5 <>  2 or
+        intExpr(  9) div  5 <>  1 or
+        intExpr(  8) div  5 <>  1 or
+        intExpr(  7) div  5 <>  1 or
+        intExpr(  6) div  5 <>  1 or
+        intExpr(  5) div  5 <>  1 or
+        intExpr(  4) div  5 <>  0 or
+        intExpr(  3) div  5 <>  0 or
+        intExpr(  2) div  5 <>  0 or
+        intExpr(  1) div  5 <>  0 or
+        intExpr(  0) div  5 <>  0 or
+        intExpr( -1) div  5 <>  0 or
+        intExpr( -2) div  5 <>  0 or
+        intExpr( -3) div  5 <>  0 or
+        intExpr( -4) div  5 <>  0 or
+        intExpr( -5) div  5 <> -1 or
+        intExpr( -6) div  5 <> -1 or
+        intExpr( -7) div  5 <> -1 or
+        intExpr( -8) div  5 <> -1 or
+        intExpr( -9) div  5 <> -1 or
+        intExpr(-10) div  5 <> -2 or
+        intExpr( 10) div  4 <>  2 or
+        intExpr(  9) div  4 <>  2 or
+        intExpr(  8) div  4 <>  2 or
+        intExpr(  7) div  4 <>  1 or
+        intExpr(  6) div  4 <>  1 or
+        intExpr(  5) div  4 <>  1 or
+        intExpr(  4) div  4 <>  1 or
+        intExpr(  3) div  4 <>  0 or
+        intExpr(  2) div  4 <>  0 or
+        intExpr(  1) div  4 <>  0 or
+        intExpr(  0) div  4 <>  0 or
+        intExpr( -1) div  4 <>  0 or
+        intExpr( -2) div  4 <>  0 or
+        intExpr( -3) div  4 <>  0 or
+        intExpr( -4) div  4 <> -1 or
+        intExpr( -5) div  4 <> -1 or
+        intExpr( -6) div  4 <> -1 or
+        intExpr( -7) div  4 <> -1 or
+        intExpr( -8) div  4 <> -2 or
+        intExpr( -9) div  4 <> -2 or
+        intExpr(-10) div  4 <> -2 or
+        intExpr( 10) div  3 <>  3 or
+        intExpr(  9) div  3 <>  3 or
+        intExpr(  8) div  3 <>  2 or
+        intExpr(  7) div  3 <>  2 or
+        intExpr(  6) div  3 <>  2 or
+        intExpr(  5) div  3 <>  1 or
+        intExpr(  4) div  3 <>  1 or
+        intExpr(  3) div  3 <>  1 or
+        intExpr(  2) div  3 <>  0 or
+        intExpr(  1) div  3 <>  0 or
+        intExpr(  0) div  3 <>  0 or
+        intExpr( -1) div  3 <>  0 or
+        intExpr( -2) div  3 <>  0 or
+        intExpr( -3) div  3 <> -1 or
+        intExpr( -4) div  3 <> -1 or
+        intExpr( -5) div  3 <> -1 or
+        intExpr( -6) div  3 <> -2 or
+        intExpr( -7) div  3 <> -2 or
+        intExpr( -8) div  3 <> -2 or
+        intExpr( -9) div  3 <> -3 or
+        intExpr(-10) div  3 <> -3 or
+        intExpr( 10) div  2 <>  5 or
+        intExpr(  9) div  2 <>  4 or
+        intExpr(  8) div  2 <>  4 or
+        intExpr(  7) div  2 <>  3 or
+        intExpr(  6) div  2 <>  3 or
+        intExpr(  5) div  2 <>  2 or
+        intExpr(  4) div  2 <>  2 or
+        intExpr(  3) div  2 <>  1 or
+        intExpr(  2) div  2 <>  1 or
+        intExpr(  1) div  2 <>  0 or
+        intExpr(  0) div  2 <>  0 or
+        intExpr( -1) div  2 <>  0 or
+        intExpr( -2) div  2 <> -1 or
+        intExpr( -3) div  2 <> -1 or
+        intExpr( -4) div  2 <> -2 or
+        intExpr( -5) div  2 <> -2 or
+        intExpr( -6) div  2 <> -3 or
+        intExpr( -7) div  2 <> -3 or
+        intExpr( -8) div  2 <> -4 or
+        intExpr( -9) div  2 <> -4 or
+        intExpr(-10) div  2 <> -5 or
+        intExpr( 10) div  1 <> 10 or
+        intExpr(  9) div  1 <>  9 or
+        intExpr(  8) div  1 <>  8 or
+        intExpr(  7) div  1 <>  7 or
+        intExpr(  6) div  1 <>  6 or
+        intExpr(  5) div  1 <>  5 or
+        intExpr(  4) div  1 <>  4 or
+        intExpr(  3) div  1 <>  3 or
+        intExpr(  2) div  1 <>  2 or
+        intExpr(  1) div  1 <>  1 or
+        intExpr(  0) div  1 <>  0 or
+        intExpr( -1) div  1 <> -1 or
+        intExpr( -2) div  1 <> -2 or
+        intExpr( -3) div  1 <> -3 or
+        intExpr( -4) div  1 <> -4 or
+        intExpr( -5) div  1 <> -5 or
+        intExpr( -6) div  1 <> -6 or
+        intExpr( -7) div  1 <> -7 or
+        intExpr( -8) div  1 <> -8 or
+        intExpr( -9) div  1 <> -9 or
+        intExpr(-10) div  1 <> -10 or
+        intExpr( 10) div -1 <> -10 or
+        intExpr(  9) div -1 <> -9 or
+        intExpr(  8) div -1 <> -8 or
+        intExpr(  7) div -1 <> -7 or
+        intExpr(  6) div -1 <> -6 or
+        intExpr(  5) div -1 <> -5 or
+        intExpr(  4) div -1 <> -4 or
+        intExpr(  3) div -1 <> -3 or
+        intExpr(  2) div -1 <> -2 or
+        intExpr(  1) div -1 <> -1 or
+        intExpr(  0) div -1 <>  0 or
+        intExpr( -1) div -1 <>  1 or
+        intExpr( -2) div -1 <>  2 or
+        intExpr( -3) div -1 <>  3 or
+        intExpr( -4) div -1 <>  4 or
+        intExpr( -5) div -1 <>  5 or
+        intExpr( -6) div -1 <>  6 or
+        intExpr( -7) div -1 <>  7 or
+        intExpr( -8) div -1 <>  8 or
+        intExpr( -9) div -1 <>  9 or
+        intExpr(-10) div -1 <> 10 or
+        intExpr( 10) div -2 <> -5 or
+        intExpr(  9) div -2 <> -4 or
+        intExpr(  8) div -2 <> -4 or
+        intExpr(  7) div -2 <> -3 or
+        intExpr(  6) div -2 <> -3 or
+        intExpr(  5) div -2 <> -2 or
+        intExpr(  4) div -2 <> -2 or
+        intExpr(  3) div -2 <> -1 or
+        intExpr(  2) div -2 <> -1 or
+        intExpr(  1) div -2 <>  0 or
+        intExpr(  0) div -2 <>  0 or
+        intExpr( -1) div -2 <>  0 or
+        intExpr( -2) div -2 <>  1 or
+        intExpr( -3) div -2 <>  1 or
+        intExpr( -4) div -2 <>  2 or
+        intExpr( -5) div -2 <>  2 or
+        intExpr( -6) div -2 <>  3 or
+        intExpr( -7) div -2 <>  3 or
+        intExpr( -8) div -2 <>  4 or
+        intExpr( -9) div -2 <>  4 or
+        intExpr(-10) div -2 <>  5 or
+        intExpr( 10) div -3 <> -3 or
+        intExpr(  9) div -3 <> -3 or
+        intExpr(  8) div -3 <> -2 or
+        intExpr(  7) div -3 <> -2 or
+        intExpr(  6) div -3 <> -2 or
+        intExpr(  5) div -3 <> -1 or
+        intExpr(  4) div -3 <> -1 or
+        intExpr(  3) div -3 <> -1 or
+        intExpr(  2) div -3 <>  0 or
+        intExpr(  1) div -3 <>  0 or
+        intExpr(  0) div -3 <>  0 or
+        intExpr( -1) div -3 <>  0 or
+        intExpr( -2) div -3 <>  0 or
+        intExpr( -3) div -3 <>  1 or
+        intExpr( -4) div -3 <>  1 or
+        intExpr( -5) div -3 <>  1 or
+        intExpr( -6) div -3 <>  2 or
+        intExpr( -7) div -3 <>  2 or
+        intExpr( -8) div -3 <>  2 or
+        intExpr( -9) div -3 <>  3 or
+        intExpr(-10) div -3 <>  3 or
+        intExpr( 10) div -4 <> -2 or
+        intExpr(  9) div -4 <> -2 or
+        intExpr(  8) div -4 <> -2 or
+        intExpr(  7) div -4 <> -1 or
+        intExpr(  6) div -4 <> -1 or
+        intExpr(  5) div -4 <> -1 or
+        intExpr(  4) div -4 <> -1 or
+        intExpr(  3) div -4 <>  0 or
+        intExpr(  2) div -4 <>  0 or
+        intExpr(  1) div -4 <>  0 or
+        intExpr(  0) div -4 <>  0 or
+        intExpr( -1) div -4 <>  0 or
+        intExpr( -2) div -4 <>  0 or
+        intExpr( -3) div -4 <>  0 or
+        intExpr( -4) div -4 <>  1 or
+        intExpr( -5) div -4 <>  1 or
+        intExpr( -6) div -4 <>  1 or
+        intExpr( -7) div -4 <>  1 or
+        intExpr( -8) div -4 <>  2 or
+        intExpr( -9) div -4 <>  2 or
+        intExpr(-10) div -4 <>  2 or
+        intExpr( 10) div -5 <> -2 or
+        intExpr(  9) div -5 <> -1 or
+        intExpr(  8) div -5 <> -1 or
+        intExpr(  7) div -5 <> -1 or
+        intExpr(  6) div -5 <> -1 or
+        intExpr(  5) div -5 <> -1 or
+        intExpr(  4) div -5 <>  0 or
+        intExpr(  3) div -5 <>  0 or
+        intExpr(  2) div -5 <>  0 or
+        intExpr(  1) div -5 <>  0 or
+        intExpr(  0) div -5 <>  0 or
+        intExpr( -1) div -5 <>  0 or
+        intExpr( -2) div -5 <>  0 or
+        intExpr( -3) div -5 <>  0 or
+        intExpr( -4) div -5 <>  0 or
+        intExpr( -5) div -5 <>  1 or
+        intExpr( -6) div -5 <>  1 or
+        intExpr( -7) div -5 <>  1 or
+        intExpr( -8) div -5 <>  1 or
+        intExpr( -9) div -5 <>  1 or
+        intExpr(-10) div -5 <>  2 then
+      writeln(" *****) div with an expression and a constant does not work correct");
+      okay := FALSE;
+    end if;
+    if   10 div intExpr( 5) <>  2 or
+          9 div intExpr( 5) <>  1 or
+          8 div intExpr( 5) <>  1 or
+          7 div intExpr( 5) <>  1 or
+          6 div intExpr( 5) <>  1 or
+          5 div intExpr( 5) <>  1 or
+          4 div intExpr( 5) <>  0 or
+          3 div intExpr( 5) <>  0 or
+          2 div intExpr( 5) <>  0 or
+          1 div intExpr( 5) <>  0 or
+          0 div intExpr( 5) <>  0 or
+         -1 div intExpr( 5) <>  0 or
+         -2 div intExpr( 5) <>  0 or
+         -3 div intExpr( 5) <>  0 or
+         -4 div intExpr( 5) <>  0 or
+         -5 div intExpr( 5) <> -1 or
+         -6 div intExpr( 5) <> -1 or
+         -7 div intExpr( 5) <> -1 or
+         -8 div intExpr( 5) <> -1 or
+         -9 div intExpr( 5) <> -1 or
+        -10 div intExpr( 5) <> -2 or
+         10 div intExpr( 4) <>  2 or
+          9 div intExpr( 4) <>  2 or
+          8 div intExpr( 4) <>  2 or
+          7 div intExpr( 4) <>  1 or
+          6 div intExpr( 4) <>  1 or
+          5 div intExpr( 4) <>  1 or
+          4 div intExpr( 4) <>  1 or
+          3 div intExpr( 4) <>  0 or
+          2 div intExpr( 4) <>  0 or
+          1 div intExpr( 4) <>  0 or
+          0 div intExpr( 4) <>  0 or
+         -1 div intExpr( 4) <>  0 or
+         -2 div intExpr( 4) <>  0 or
+         -3 div intExpr( 4) <>  0 or
+         -4 div intExpr( 4) <> -1 or
+         -5 div intExpr( 4) <> -1 or
+         -6 div intExpr( 4) <> -1 or
+         -7 div intExpr( 4) <> -1 or
+         -8 div intExpr( 4) <> -2 or
+         -9 div intExpr( 4) <> -2 or
+        -10 div intExpr( 4) <> -2 or
+         10 div intExpr( 3) <>  3 or
+          9 div intExpr( 3) <>  3 or
+          8 div intExpr( 3) <>  2 or
+          7 div intExpr( 3) <>  2 or
+          6 div intExpr( 3) <>  2 or
+          5 div intExpr( 3) <>  1 or
+          4 div intExpr( 3) <>  1 or
+          3 div intExpr( 3) <>  1 or
+          2 div intExpr( 3) <>  0 or
+          1 div intExpr( 3) <>  0 or
+          0 div intExpr( 3) <>  0 or
+         -1 div intExpr( 3) <>  0 or
+         -2 div intExpr( 3) <>  0 or
+         -3 div intExpr( 3) <> -1 or
+         -4 div intExpr( 3) <> -1 or
+         -5 div intExpr( 3) <> -1 or
+         -6 div intExpr( 3) <> -2 or
+         -7 div intExpr( 3) <> -2 or
+         -8 div intExpr( 3) <> -2 or
+         -9 div intExpr( 3) <> -3 or
+        -10 div intExpr( 3) <> -3 or
+         10 div intExpr( 2) <>  5 or
+          9 div intExpr( 2) <>  4 or
+          8 div intExpr( 2) <>  4 or
+          7 div intExpr( 2) <>  3 or
+          6 div intExpr( 2) <>  3 or
+          5 div intExpr( 2) <>  2 or
+          4 div intExpr( 2) <>  2 or
+          3 div intExpr( 2) <>  1 or
+          2 div intExpr( 2) <>  1 or
+          1 div intExpr( 2) <>  0 or
+          0 div intExpr( 2) <>  0 or
+         -1 div intExpr( 2) <>  0 or
+         -2 div intExpr( 2) <> -1 or
+         -3 div intExpr( 2) <> -1 or
+         -4 div intExpr( 2) <> -2 or
+         -5 div intExpr( 2) <> -2 or
+         -6 div intExpr( 2) <> -3 or
+         -7 div intExpr( 2) <> -3 or
+         -8 div intExpr( 2) <> -4 or
+         -9 div intExpr( 2) <> -4 or
+        -10 div intExpr( 2) <> -5 or
+         10 div intExpr( 1) <> 10 or
+          9 div intExpr( 1) <>  9 or
+          8 div intExpr( 1) <>  8 or
+          7 div intExpr( 1) <>  7 or
+          6 div intExpr( 1) <>  6 or
+          5 div intExpr( 1) <>  5 or
+          4 div intExpr( 1) <>  4 or
+          3 div intExpr( 1) <>  3 or
+          2 div intExpr( 1) <>  2 or
+          1 div intExpr( 1) <>  1 or
+          0 div intExpr( 1) <>  0 or
+         -1 div intExpr( 1) <> -1 or
+         -2 div intExpr( 1) <> -2 or
+         -3 div intExpr( 1) <> -3 or
+         -4 div intExpr( 1) <> -4 or
+         -5 div intExpr( 1) <> -5 or
+         -6 div intExpr( 1) <> -6 or
+         -7 div intExpr( 1) <> -7 or
+         -8 div intExpr( 1) <> -8 or
+         -9 div intExpr( 1) <> -9 or
+        -10 div intExpr( 1) <> -10 or
+         10 div intExpr(-1) <> -10 or
+          9 div intExpr(-1) <> -9 or
+          8 div intExpr(-1) <> -8 or
+          7 div intExpr(-1) <> -7 or
+          6 div intExpr(-1) <> -6 or
+          5 div intExpr(-1) <> -5 or
+          4 div intExpr(-1) <> -4 or
+          3 div intExpr(-1) <> -3 or
+          2 div intExpr(-1) <> -2 or
+          1 div intExpr(-1) <> -1 or
+          0 div intExpr(-1) <>  0 or
+         -1 div intExpr(-1) <>  1 or
+         -2 div intExpr(-1) <>  2 or
+         -3 div intExpr(-1) <>  3 or
+         -4 div intExpr(-1) <>  4 or
+         -5 div intExpr(-1) <>  5 or
+         -6 div intExpr(-1) <>  6 or
+         -7 div intExpr(-1) <>  7 or
+         -8 div intExpr(-1) <>  8 or
+         -9 div intExpr(-1) <>  9 or
+        -10 div intExpr(-1) <> 10 or
+         10 div intExpr(-2) <> -5 or
+          9 div intExpr(-2) <> -4 or
+          8 div intExpr(-2) <> -4 or
+          7 div intExpr(-2) <> -3 or
+          6 div intExpr(-2) <> -3 or
+          5 div intExpr(-2) <> -2 or
+          4 div intExpr(-2) <> -2 or
+          3 div intExpr(-2) <> -1 or
+          2 div intExpr(-2) <> -1 or
+          1 div intExpr(-2) <>  0 or
+          0 div intExpr(-2) <>  0 or
+         -1 div intExpr(-2) <>  0 or
+         -2 div intExpr(-2) <>  1 or
+         -3 div intExpr(-2) <>  1 or
+         -4 div intExpr(-2) <>  2 or
+         -5 div intExpr(-2) <>  2 or
+         -6 div intExpr(-2) <>  3 or
+         -7 div intExpr(-2) <>  3 or
+         -8 div intExpr(-2) <>  4 or
+         -9 div intExpr(-2) <>  4 or
+        -10 div intExpr(-2) <>  5 or
+         10 div intExpr(-3) <> -3 or
+          9 div intExpr(-3) <> -3 or
+          8 div intExpr(-3) <> -2 or
+          7 div intExpr(-3) <> -2 or
+          6 div intExpr(-3) <> -2 or
+          5 div intExpr(-3) <> -1 or
+          4 div intExpr(-3) <> -1 or
+          3 div intExpr(-3) <> -1 or
+          2 div intExpr(-3) <>  0 or
+          1 div intExpr(-3) <>  0 or
+          0 div intExpr(-3) <>  0 or
+         -1 div intExpr(-3) <>  0 or
+         -2 div intExpr(-3) <>  0 or
+         -3 div intExpr(-3) <>  1 or
+         -4 div intExpr(-3) <>  1 or
+         -5 div intExpr(-3) <>  1 or
+         -6 div intExpr(-3) <>  2 or
+         -7 div intExpr(-3) <>  2 or
+         -8 div intExpr(-3) <>  2 or
+         -9 div intExpr(-3) <>  3 or
+        -10 div intExpr(-3) <>  3 or
+         10 div intExpr(-4) <> -2 or
+          9 div intExpr(-4) <> -2 or
+          8 div intExpr(-4) <> -2 or
+          7 div intExpr(-4) <> -1 or
+          6 div intExpr(-4) <> -1 or
+          5 div intExpr(-4) <> -1 or
+          4 div intExpr(-4) <> -1 or
+          3 div intExpr(-4) <>  0 or
+          2 div intExpr(-4) <>  0 or
+          1 div intExpr(-4) <>  0 or
+          0 div intExpr(-4) <>  0 or
+         -1 div intExpr(-4) <>  0 or
+         -2 div intExpr(-4) <>  0 or
+         -3 div intExpr(-4) <>  0 or
+         -4 div intExpr(-4) <>  1 or
+         -5 div intExpr(-4) <>  1 or
+         -6 div intExpr(-4) <>  1 or
+         -7 div intExpr(-4) <>  1 or
+         -8 div intExpr(-4) <>  2 or
+         -9 div intExpr(-4) <>  2 or
+        -10 div intExpr(-4) <>  2 or
+         10 div intExpr(-5) <> -2 or
+          9 div intExpr(-5) <> -1 or
+          8 div intExpr(-5) <> -1 or
+          7 div intExpr(-5) <> -1 or
+          6 div intExpr(-5) <> -1 or
+          5 div intExpr(-5) <> -1 or
+          4 div intExpr(-5) <>  0 or
+          3 div intExpr(-5) <>  0 or
+          2 div intExpr(-5) <>  0 or
+          1 div intExpr(-5) <>  0 or
+          0 div intExpr(-5) <>  0 or
+         -1 div intExpr(-5) <>  0 or
+         -2 div intExpr(-5) <>  0 or
+         -3 div intExpr(-5) <>  0 or
+         -4 div intExpr(-5) <>  0 or
+         -5 div intExpr(-5) <>  1 or
+         -6 div intExpr(-5) <>  1 or
+         -7 div intExpr(-5) <>  1 or
+         -8 div intExpr(-5) <>  1 or
+         -9 div intExpr(-5) <>  1 or
+        -10 div intExpr(-5) <>  2 then
+      writeln(" ***** div with a constant and an expression does not work correct");
+      okay := FALSE;
+    end if;
+    if  intExpr( 10) div intExpr( 5) <>  2 or
+        intExpr(  9) div intExpr( 5) <>  1 or
+        intExpr(  8) div intExpr( 5) <>  1 or
+        intExpr(  7) div intExpr( 5) <>  1 or
+        intExpr(  6) div intExpr( 5) <>  1 or
+        intExpr(  5) div intExpr( 5) <>  1 or
+        intExpr(  4) div intExpr( 5) <>  0 or
+        intExpr(  3) div intExpr( 5) <>  0 or
+        intExpr(  2) div intExpr( 5) <>  0 or
+        intExpr(  1) div intExpr( 5) <>  0 or
+        intExpr(  0) div intExpr( 5) <>  0 or
+        intExpr( -1) div intExpr( 5) <>  0 or
+        intExpr( -2) div intExpr( 5) <>  0 or
+        intExpr( -3) div intExpr( 5) <>  0 or
+        intExpr( -4) div intExpr( 5) <>  0 or
+        intExpr( -5) div intExpr( 5) <> -1 or
+        intExpr( -6) div intExpr( 5) <> -1 or
+        intExpr( -7) div intExpr( 5) <> -1 or
+        intExpr( -8) div intExpr( 5) <> -1 or
+        intExpr( -9) div intExpr( 5) <> -1 or
+        intExpr(-10) div intExpr( 5) <> -2 or
+        intExpr( 10) div intExpr( 4) <>  2 or
+        intExpr(  9) div intExpr( 4) <>  2 or
+        intExpr(  8) div intExpr( 4) <>  2 or
+        intExpr(  7) div intExpr( 4) <>  1 or
+        intExpr(  6) div intExpr( 4) <>  1 or
+        intExpr(  5) div intExpr( 4) <>  1 or
+        intExpr(  4) div intExpr( 4) <>  1 or
+        intExpr(  3) div intExpr( 4) <>  0 or
+        intExpr(  2) div intExpr( 4) <>  0 or
+        intExpr(  1) div intExpr( 4) <>  0 or
+        intExpr(  0) div intExpr( 4) <>  0 or
+        intExpr( -1) div intExpr( 4) <>  0 or
+        intExpr( -2) div intExpr( 4) <>  0 or
+        intExpr( -3) div intExpr( 4) <>  0 or
+        intExpr( -4) div intExpr( 4) <> -1 or
+        intExpr( -5) div intExpr( 4) <> -1 or
+        intExpr( -6) div intExpr( 4) <> -1 or
+        intExpr( -7) div intExpr( 4) <> -1 or
+        intExpr( -8) div intExpr( 4) <> -2 or
+        intExpr( -9) div intExpr( 4) <> -2 or
+        intExpr(-10) div intExpr( 4) <> -2 or
+        intExpr( 10) div intExpr( 3) <>  3 or
+        intExpr(  9) div intExpr( 3) <>  3 or
+        intExpr(  8) div intExpr( 3) <>  2 or
+        intExpr(  7) div intExpr( 3) <>  2 or
+        intExpr(  6) div intExpr( 3) <>  2 or
+        intExpr(  5) div intExpr( 3) <>  1 or
+        intExpr(  4) div intExpr( 3) <>  1 or
+        intExpr(  3) div intExpr( 3) <>  1 or
+        intExpr(  2) div intExpr( 3) <>  0 or
+        intExpr(  1) div intExpr( 3) <>  0 or
+        intExpr(  0) div intExpr( 3) <>  0 or
+        intExpr( -1) div intExpr( 3) <>  0 or
+        intExpr( -2) div intExpr( 3) <>  0 or
+        intExpr( -3) div intExpr( 3) <> -1 or
+        intExpr( -4) div intExpr( 3) <> -1 or
+        intExpr( -5) div intExpr( 3) <> -1 or
+        intExpr( -6) div intExpr( 3) <> -2 or
+        intExpr( -7) div intExpr( 3) <> -2 or
+        intExpr( -8) div intExpr( 3) <> -2 or
+        intExpr( -9) div intExpr( 3) <> -3 or
+        intExpr(-10) div intExpr( 3) <> -3 or
+        intExpr( 10) div intExpr( 2) <>  5 or
+        intExpr(  9) div intExpr( 2) <>  4 or
+        intExpr(  8) div intExpr( 2) <>  4 or
+        intExpr(  7) div intExpr( 2) <>  3 or
+        intExpr(  6) div intExpr( 2) <>  3 or
+        intExpr(  5) div intExpr( 2) <>  2 or
+        intExpr(  4) div intExpr( 2) <>  2 or
+        intExpr(  3) div intExpr( 2) <>  1 or
+        intExpr(  2) div intExpr( 2) <>  1 or
+        intExpr(  1) div intExpr( 2) <>  0 or
+        intExpr(  0) div intExpr( 2) <>  0 or
+        intExpr( -1) div intExpr( 2) <>  0 or
+        intExpr( -2) div intExpr( 2) <> -1 or
+        intExpr( -3) div intExpr( 2) <> -1 or
+        intExpr( -4) div intExpr( 2) <> -2 or
+        intExpr( -5) div intExpr( 2) <> -2 or
+        intExpr( -6) div intExpr( 2) <> -3 or
+        intExpr( -7) div intExpr( 2) <> -3 or
+        intExpr( -8) div intExpr( 2) <> -4 or
+        intExpr( -9) div intExpr( 2) <> -4 or
+        intExpr(-10) div intExpr( 2) <> -5 or
+        intExpr( 10) div intExpr( 1) <> 10 or
+        intExpr(  9) div intExpr( 1) <>  9 or
+        intExpr(  8) div intExpr( 1) <>  8 or
+        intExpr(  7) div intExpr( 1) <>  7 or
+        intExpr(  6) div intExpr( 1) <>  6 or
+        intExpr(  5) div intExpr( 1) <>  5 or
+        intExpr(  4) div intExpr( 1) <>  4 or
+        intExpr(  3) div intExpr( 1) <>  3 or
+        intExpr(  2) div intExpr( 1) <>  2 or
+        intExpr(  1) div intExpr( 1) <>  1 or
+        intExpr(  0) div intExpr( 1) <>  0 or
+        intExpr( -1) div intExpr( 1) <> -1 or
+        intExpr( -2) div intExpr( 1) <> -2 or
+        intExpr( -3) div intExpr( 1) <> -3 or
+        intExpr( -4) div intExpr( 1) <> -4 or
+        intExpr( -5) div intExpr( 1) <> -5 or
+        intExpr( -6) div intExpr( 1) <> -6 or
+        intExpr( -7) div intExpr( 1) <> -7 or
+        intExpr( -8) div intExpr( 1) <> -8 or
+        intExpr( -9) div intExpr( 1) <> -9 or
+        intExpr(-10) div intExpr( 1) <> -10 or
+        intExpr( 10) div intExpr(-1) <> -10 or
+        intExpr(  9) div intExpr(-1) <> -9 or
+        intExpr(  8) div intExpr(-1) <> -8 or
+        intExpr(  7) div intExpr(-1) <> -7 or
+        intExpr(  6) div intExpr(-1) <> -6 or
+        intExpr(  5) div intExpr(-1) <> -5 or
+        intExpr(  4) div intExpr(-1) <> -4 or
+        intExpr(  3) div intExpr(-1) <> -3 or
+        intExpr(  2) div intExpr(-1) <> -2 or
+        intExpr(  1) div intExpr(-1) <> -1 or
+        intExpr(  0) div intExpr(-1) <>  0 or
+        intExpr( -1) div intExpr(-1) <>  1 or
+        intExpr( -2) div intExpr(-1) <>  2 or
+        intExpr( -3) div intExpr(-1) <>  3 or
+        intExpr( -4) div intExpr(-1) <>  4 or
+        intExpr( -5) div intExpr(-1) <>  5 or
+        intExpr( -6) div intExpr(-1) <>  6 or
+        intExpr( -7) div intExpr(-1) <>  7 or
+        intExpr( -8) div intExpr(-1) <>  8 or
+        intExpr( -9) div intExpr(-1) <>  9 or
+        intExpr(-10) div intExpr(-1) <> 10 or
+        intExpr( 10) div intExpr(-2) <> -5 or
+        intExpr(  9) div intExpr(-2) <> -4 or
+        intExpr(  8) div intExpr(-2) <> -4 or
+        intExpr(  7) div intExpr(-2) <> -3 or
+        intExpr(  6) div intExpr(-2) <> -3 or
+        intExpr(  5) div intExpr(-2) <> -2 or
+        intExpr(  4) div intExpr(-2) <> -2 or
+        intExpr(  3) div intExpr(-2) <> -1 or
+        intExpr(  2) div intExpr(-2) <> -1 or
+        intExpr(  1) div intExpr(-2) <>  0 or
+        intExpr(  0) div intExpr(-2) <>  0 or
+        intExpr( -1) div intExpr(-2) <>  0 or
+        intExpr( -2) div intExpr(-2) <>  1 or
+        intExpr( -3) div intExpr(-2) <>  1 or
+        intExpr( -4) div intExpr(-2) <>  2 or
+        intExpr( -5) div intExpr(-2) <>  2 or
+        intExpr( -6) div intExpr(-2) <>  3 or
+        intExpr( -7) div intExpr(-2) <>  3 or
+        intExpr( -8) div intExpr(-2) <>  4 or
+        intExpr( -9) div intExpr(-2) <>  4 or
+        intExpr(-10) div intExpr(-2) <>  5 or
+        intExpr( 10) div intExpr(-3) <> -3 or
+        intExpr(  9) div intExpr(-3) <> -3 or
+        intExpr(  8) div intExpr(-3) <> -2 or
+        intExpr(  7) div intExpr(-3) <> -2 or
+        intExpr(  6) div intExpr(-3) <> -2 or
+        intExpr(  5) div intExpr(-3) <> -1 or
+        intExpr(  4) div intExpr(-3) <> -1 or
+        intExpr(  3) div intExpr(-3) <> -1 or
+        intExpr(  2) div intExpr(-3) <>  0 or
+        intExpr(  1) div intExpr(-3) <>  0 or
+        intExpr(  0) div intExpr(-3) <>  0 or
+        intExpr( -1) div intExpr(-3) <>  0 or
+        intExpr( -2) div intExpr(-3) <>  0 or
+        intExpr( -3) div intExpr(-3) <>  1 or
+        intExpr( -4) div intExpr(-3) <>  1 or
+        intExpr( -5) div intExpr(-3) <>  1 or
+        intExpr( -6) div intExpr(-3) <>  2 or
+        intExpr( -7) div intExpr(-3) <>  2 or
+        intExpr( -8) div intExpr(-3) <>  2 or
+        intExpr( -9) div intExpr(-3) <>  3 or
+        intExpr(-10) div intExpr(-3) <>  3 or
+        intExpr( 10) div intExpr(-4) <> -2 or
+        intExpr(  9) div intExpr(-4) <> -2 or
+        intExpr(  8) div intExpr(-4) <> -2 or
+        intExpr(  7) div intExpr(-4) <> -1 or
+        intExpr(  6) div intExpr(-4) <> -1 or
+        intExpr(  5) div intExpr(-4) <> -1 or
+        intExpr(  4) div intExpr(-4) <> -1 or
+        intExpr(  3) div intExpr(-4) <>  0 or
+        intExpr(  2) div intExpr(-4) <>  0 or
+        intExpr(  1) div intExpr(-4) <>  0 or
+        intExpr(  0) div intExpr(-4) <>  0 or
+        intExpr( -1) div intExpr(-4) <>  0 or
+        intExpr( -2) div intExpr(-4) <>  0 or
+        intExpr( -3) div intExpr(-4) <>  0 or
+        intExpr( -4) div intExpr(-4) <>  1 or
+        intExpr( -5) div intExpr(-4) <>  1 or
+        intExpr( -6) div intExpr(-4) <>  1 or
+        intExpr( -7) div intExpr(-4) <>  1 or
+        intExpr( -8) div intExpr(-4) <>  2 or
+        intExpr( -9) div intExpr(-4) <>  2 or
+        intExpr(-10) div intExpr(-4) <>  2 or
+        intExpr( 10) div intExpr(-5) <> -2 or
+        intExpr(  9) div intExpr(-5) <> -1 or
+        intExpr(  8) div intExpr(-5) <> -1 or
+        intExpr(  7) div intExpr(-5) <> -1 or
+        intExpr(  6) div intExpr(-5) <> -1 or
+        intExpr(  5) div intExpr(-5) <> -1 or
+        intExpr(  4) div intExpr(-5) <>  0 or
+        intExpr(  3) div intExpr(-5) <>  0 or
+        intExpr(  2) div intExpr(-5) <>  0 or
+        intExpr(  1) div intExpr(-5) <>  0 or
+        intExpr(  0) div intExpr(-5) <>  0 or
+        intExpr( -1) div intExpr(-5) <>  0 or
+        intExpr( -2) div intExpr(-5) <>  0 or
+        intExpr( -3) div intExpr(-5) <>  0 or
+        intExpr( -4) div intExpr(-5) <>  0 or
+        intExpr( -5) div intExpr(-5) <>  1 or
+        intExpr( -6) div intExpr(-5) <>  1 or
+        intExpr( -7) div intExpr(-5) <>  1 or
+        intExpr( -8) div intExpr(-5) <>  1 or
+        intExpr( -9) div intExpr(-5) <>  1 or
+        intExpr(-10) div intExpr(-5) <>  2 then
+      writeln(" ***** div with two expressions does not work correct");
+      okay := FALSE;
+    end if;
+    if okay then
+      writeln("Div works correct for selected values");
+    else
+      writeln(" ***** div does not work correct");
+    end if;
+  end func;
+
+
+const proc: check_rem is func
+  local
+    var boolean: okay is TRUE;
+  begin
+    okay := TRUE;
+    if   10 rem  5 <>  0 or
+          9 rem  5 <>  4 or
+          8 rem  5 <>  3 or
+          7 rem  5 <>  2 or
+          6 rem  5 <>  1 or
+          5 rem  5 <>  0 or
+          4 rem  5 <>  4 or
+          3 rem  5 <>  3 or
+          2 rem  5 <>  2 or
+          1 rem  5 <>  1 or
+          0 rem  5 <>  0 or
+         -1 rem  5 <> -1 or
+         -2 rem  5 <> -2 or
+         -3 rem  5 <> -3 or
+         -4 rem  5 <> -4 or
+         -5 rem  5 <>  0 or
+         -6 rem  5 <> -1 or
+         -7 rem  5 <> -2 or
+         -8 rem  5 <> -3 or
+         -9 rem  5 <> -4 or
+        -10 rem  5 <>  0 or
+         10 rem  4 <>  2 or
+          9 rem  4 <>  1 or
+          8 rem  4 <>  0 or
+          7 rem  4 <>  3 or
+          6 rem  4 <>  2 or
+          5 rem  4 <>  1 or
+          4 rem  4 <>  0 or
+          3 rem  4 <>  3 or
+          2 rem  4 <>  2 or
+          1 rem  4 <>  1 or
+          0 rem  4 <>  0 or
+         -1 rem  4 <> -1 or
+         -2 rem  4 <> -2 or
+         -3 rem  4 <> -3 or
+         -4 rem  4 <>  0 or
+         -5 rem  4 <> -1 or
+         -6 rem  4 <> -2 or
+         -7 rem  4 <> -3 or
+         -8 rem  4 <>  0 or
+         -9 rem  4 <> -1 or
+        -10 rem  4 <> -2 or
+         10 rem  3 <>  1 or
+          9 rem  3 <>  0 or
+          8 rem  3 <>  2 or
+          7 rem  3 <>  1 or
+          6 rem  3 <>  0 or
+          5 rem  3 <>  2 or
+          4 rem  3 <>  1 or
+          3 rem  3 <>  0 or
+          2 rem  3 <>  2 or
+          1 rem  3 <>  1 or
+          0 rem  3 <>  0 or
+         -1 rem  3 <> -1 or
+         -2 rem  3 <> -2 or
+         -3 rem  3 <>  0 or
+         -4 rem  3 <> -1 or
+         -5 rem  3 <> -2 or
+         -6 rem  3 <>  0 or
+         -7 rem  3 <> -1 or
+         -8 rem  3 <> -2 or
+         -9 rem  3 <>  0 or
+        -10 rem  3 <> -1 or
+         10 rem  2 <>  0 or
+          9 rem  2 <>  1 or
+          8 rem  2 <>  0 or
+          7 rem  2 <>  1 or
+          6 rem  2 <>  0 or
+          5 rem  2 <>  1 or
+          4 rem  2 <>  0 or
+          3 rem  2 <>  1 or
+          2 rem  2 <>  0 or
+          1 rem  2 <>  1 or
+          0 rem  2 <>  0 or
+         -1 rem  2 <> -1 or
+         -2 rem  2 <>  0 or
+         -3 rem  2 <> -1 or
+         -4 rem  2 <>  0 or
+         -5 rem  2 <> -1 or
+         -6 rem  2 <>  0 or
+         -7 rem  2 <> -1 or
+         -8 rem  2 <>  0 or
+         -9 rem  2 <> -1 or
+        -10 rem  2 <>  0 or
+         10 rem  1 <>  0 or
+          9 rem  1 <>  0 or
+          8 rem  1 <>  0 or
+          7 rem  1 <>  0 or
+          6 rem  1 <>  0 or
+          5 rem  1 <>  0 or
+          4 rem  1 <>  0 or
+          3 rem  1 <>  0 or
+          2 rem  1 <>  0 or
+          1 rem  1 <>  0 or
+          0 rem  1 <>  0 or
+         -1 rem  1 <>  0 or
+         -2 rem  1 <>  0 or
+         -3 rem  1 <>  0 or
+         -4 rem  1 <>  0 or
+         -5 rem  1 <>  0 or
+         -6 rem  1 <>  0 or
+         -7 rem  1 <>  0 or
+         -8 rem  1 <>  0 or
+         -9 rem  1 <>  0 or
+        -10 rem  1 <>  0 or
+         10 rem -1 <>  0 or
+          9 rem -1 <>  0 or
+          8 rem -1 <>  0 or
+          7 rem -1 <>  0 or
+          6 rem -1 <>  0 or
+          5 rem -1 <>  0 or
+          4 rem -1 <>  0 or
+          3 rem -1 <>  0 or
+          2 rem -1 <>  0 or
+          1 rem -1 <>  0 or
+          0 rem -1 <>  0 or
+         -1 rem -1 <>  0 or
+         -2 rem -1 <>  0 or
+         -3 rem -1 <>  0 or
+         -4 rem -1 <>  0 or
+         -5 rem -1 <>  0 or
+         -6 rem -1 <>  0 or
+         -7 rem -1 <>  0 or
+         -8 rem -1 <>  0 or
+         -9 rem -1 <>  0 or
+        -10 rem -1 <>  0 or
+         10 rem -2 <>  0 or
+          9 rem -2 <>  1 or
+          8 rem -2 <>  0 or
+          7 rem -2 <>  1 or
+          6 rem -2 <>  0 or
+          5 rem -2 <>  1 or
+          4 rem -2 <>  0 or
+          3 rem -2 <>  1 or
+          2 rem -2 <>  0 or
+          1 rem -2 <>  1 or
+          0 rem -2 <>  0 or
+         -1 rem -2 <> -1 or
+         -2 rem -2 <>  0 or
+         -3 rem -2 <> -1 or
+         -4 rem -2 <>  0 or
+         -5 rem -2 <> -1 or
+         -6 rem -2 <>  0 or
+         -7 rem -2 <> -1 or
+         -8 rem -2 <>  0 or
+         -9 rem -2 <> -1 or
+        -10 rem -2 <>  0 or
+         10 rem -3 <>  1 or
+          9 rem -3 <>  0 or
+          8 rem -3 <>  2 or
+          7 rem -3 <>  1 or
+          6 rem -3 <>  0 or
+          5 rem -3 <>  2 or
+          4 rem -3 <>  1 or
+          3 rem -3 <>  0 or
+          2 rem -3 <>  2 or
+          1 rem -3 <>  1 or
+          0 rem -3 <>  0 or
+         -1 rem -3 <> -1 or
+         -2 rem -3 <> -2 or
+         -3 rem -3 <>  0 or
+         -4 rem -3 <> -1 or
+         -5 rem -3 <> -2 or
+         -6 rem -3 <>  0 or
+         -7 rem -3 <> -1 or
+         -8 rem -3 <> -2 or
+         -9 rem -3 <>  0 or
+        -10 rem -3 <> -1 or
+         10 rem -4 <>  2 or
+          9 rem -4 <>  1 or
+          8 rem -4 <>  0 or
+          7 rem -4 <>  3 or
+          6 rem -4 <>  2 or
+          5 rem -4 <>  1 or
+          4 rem -4 <>  0 or
+          3 rem -4 <>  3 or
+          2 rem -4 <>  2 or
+          1 rem -4 <>  1 or
+          0 rem -4 <>  0 or
+         -1 rem -4 <> -1 or
+         -2 rem -4 <> -2 or
+         -3 rem -4 <> -3 or
+         -4 rem -4 <>  0 or
+         -5 rem -4 <> -1 or
+         -6 rem -4 <> -2 or
+         -7 rem -4 <> -3 or
+         -8 rem -4 <>  0 or
+         -9 rem -4 <> -1 or
+        -10 rem -4 <> -2 or
+         10 rem -5 <>  0 or
+          9 rem -5 <>  4 or
+          8 rem -5 <>  3 or
+          7 rem -5 <>  2 or
+          6 rem -5 <>  1 or
+          5 rem -5 <>  0 or
+          4 rem -5 <>  4 or
+          3 rem -5 <>  3 or
+          2 rem -5 <>  2 or
+          1 rem -5 <>  1 or
+          0 rem -5 <>  0 or
+         -1 rem -5 <> -1 or
+         -2 rem -5 <> -2 or
+         -3 rem -5 <> -3 or
+         -4 rem -5 <> -4 or
+         -5 rem -5 <>  0 or
+         -6 rem -5 <> -1 or
+         -7 rem -5 <> -2 or
+         -8 rem -5 <> -3 or
+         -9 rem -5 <> -4 or
+        -10 rem -5 <>  0 then
+      writeln(" ***** rem with two constants does not work correct");
+      okay := FALSE;
+    end if;
+    if  intExpr( 10) rem  5 <>  0 or
+        intExpr(  9) rem  5 <>  4 or
+        intExpr(  8) rem  5 <>  3 or
+        intExpr(  7) rem  5 <>  2 or
+        intExpr(  6) rem  5 <>  1 or
+        intExpr(  5) rem  5 <>  0 or
+        intExpr(  4) rem  5 <>  4 or
+        intExpr(  3) rem  5 <>  3 or
+        intExpr(  2) rem  5 <>  2 or
+        intExpr(  1) rem  5 <>  1 or
+        intExpr(  0) rem  5 <>  0 or
+        intExpr( -1) rem  5 <> -1 or
+        intExpr( -2) rem  5 <> -2 or
+        intExpr( -3) rem  5 <> -3 or
+        intExpr( -4) rem  5 <> -4 or
+        intExpr( -5) rem  5 <>  0 or
+        intExpr( -6) rem  5 <> -1 or
+        intExpr( -7) rem  5 <> -2 or
+        intExpr( -8) rem  5 <> -3 or
+        intExpr( -9) rem  5 <> -4 or
+        intExpr(-10) rem  5 <>  0 or
+        intExpr( 10) rem  4 <>  2 or
+        intExpr(  9) rem  4 <>  1 or
+        intExpr(  8) rem  4 <>  0 or
+        intExpr(  7) rem  4 <>  3 or
+        intExpr(  6) rem  4 <>  2 or
+        intExpr(  5) rem  4 <>  1 or
+        intExpr(  4) rem  4 <>  0 or
+        intExpr(  3) rem  4 <>  3 or
+        intExpr(  2) rem  4 <>  2 or
+        intExpr(  1) rem  4 <>  1 or
+        intExpr(  0) rem  4 <>  0 or
+        intExpr( -1) rem  4 <> -1 or
+        intExpr( -2) rem  4 <> -2 or
+        intExpr( -3) rem  4 <> -3 or
+        intExpr( -4) rem  4 <>  0 or
+        intExpr( -5) rem  4 <> -1 or
+        intExpr( -6) rem  4 <> -2 or
+        intExpr( -7) rem  4 <> -3 or
+        intExpr( -8) rem  4 <>  0 or
+        intExpr( -9) rem  4 <> -1 or
+        intExpr(-10) rem  4 <> -2 or
+        intExpr( 10) rem  3 <>  1 or
+        intExpr(  9) rem  3 <>  0 or
+        intExpr(  8) rem  3 <>  2 or
+        intExpr(  7) rem  3 <>  1 or
+        intExpr(  6) rem  3 <>  0 or
+        intExpr(  5) rem  3 <>  2 or
+        intExpr(  4) rem  3 <>  1 or
+        intExpr(  3) rem  3 <>  0 or
+        intExpr(  2) rem  3 <>  2 or
+        intExpr(  1) rem  3 <>  1 or
+        intExpr(  0) rem  3 <>  0 or
+        intExpr( -1) rem  3 <> -1 or
+        intExpr( -2) rem  3 <> -2 or
+        intExpr( -3) rem  3 <>  0 or
+        intExpr( -4) rem  3 <> -1 or
+        intExpr( -5) rem  3 <> -2 or
+        intExpr( -6) rem  3 <>  0 or
+        intExpr( -7) rem  3 <> -1 or
+        intExpr( -8) rem  3 <> -2 or
+        intExpr( -9) rem  3 <>  0 or
+        intExpr(-10) rem  3 <> -1 or
+        intExpr( 10) rem  2 <>  0 or
+        intExpr(  9) rem  2 <>  1 or
+        intExpr(  8) rem  2 <>  0 or
+        intExpr(  7) rem  2 <>  1 or
+        intExpr(  6) rem  2 <>  0 or
+        intExpr(  5) rem  2 <>  1 or
+        intExpr(  4) rem  2 <>  0 or
+        intExpr(  3) rem  2 <>  1 or
+        intExpr(  2) rem  2 <>  0 or
+        intExpr(  1) rem  2 <>  1 or
+        intExpr(  0) rem  2 <>  0 or
+        intExpr( -1) rem  2 <> -1 or
+        intExpr( -2) rem  2 <>  0 or
+        intExpr( -3) rem  2 <> -1 or
+        intExpr( -4) rem  2 <>  0 or
+        intExpr( -5) rem  2 <> -1 or
+        intExpr( -6) rem  2 <>  0 or
+        intExpr( -7) rem  2 <> -1 or
+        intExpr( -8) rem  2 <>  0 or
+        intExpr( -9) rem  2 <> -1 or
+        intExpr(-10) rem  2 <>  0 or
+        intExpr( 10) rem  1 <>  0 or
+        intExpr(  9) rem  1 <>  0 or
+        intExpr(  8) rem  1 <>  0 or
+        intExpr(  7) rem  1 <>  0 or
+        intExpr(  6) rem  1 <>  0 or
+        intExpr(  5) rem  1 <>  0 or
+        intExpr(  4) rem  1 <>  0 or
+        intExpr(  3) rem  1 <>  0 or
+        intExpr(  2) rem  1 <>  0 or
+        intExpr(  1) rem  1 <>  0 or
+        intExpr(  0) rem  1 <>  0 or
+        intExpr( -1) rem  1 <>  0 or
+        intExpr( -2) rem  1 <>  0 or
+        intExpr( -3) rem  1 <>  0 or
+        intExpr( -4) rem  1 <>  0 or
+        intExpr( -5) rem  1 <>  0 or
+        intExpr( -6) rem  1 <>  0 or
+        intExpr( -7) rem  1 <>  0 or
+        intExpr( -8) rem  1 <>  0 or
+        intExpr( -9) rem  1 <>  0 or
+        intExpr(-10) rem  1 <>  0 or
+        intExpr( 10) rem -1 <>  0 or
+        intExpr(  9) rem -1 <>  0 or
+        intExpr(  8) rem -1 <>  0 or
+        intExpr(  7) rem -1 <>  0 or
+        intExpr(  6) rem -1 <>  0 or
+        intExpr(  5) rem -1 <>  0 or
+        intExpr(  4) rem -1 <>  0 or
+        intExpr(  3) rem -1 <>  0 or
+        intExpr(  2) rem -1 <>  0 or
+        intExpr(  1) rem -1 <>  0 or
+        intExpr(  0) rem -1 <>  0 or
+        intExpr( -1) rem -1 <>  0 or
+        intExpr( -2) rem -1 <>  0 or
+        intExpr( -3) rem -1 <>  0 or
+        intExpr( -4) rem -1 <>  0 or
+        intExpr( -5) rem -1 <>  0 or
+        intExpr( -6) rem -1 <>  0 or
+        intExpr( -7) rem -1 <>  0 or
+        intExpr( -8) rem -1 <>  0 or
+        intExpr( -9) rem -1 <>  0 or
+        intExpr(-10) rem -1 <>  0 or
+        intExpr( 10) rem -2 <>  0 or
+        intExpr(  9) rem -2 <>  1 or
+        intExpr(  8) rem -2 <>  0 or
+        intExpr(  7) rem -2 <>  1 or
+        intExpr(  6) rem -2 <>  0 or
+        intExpr(  5) rem -2 <>  1 or
+        intExpr(  4) rem -2 <>  0 or
+        intExpr(  3) rem -2 <>  1 or
+        intExpr(  2) rem -2 <>  0 or
+        intExpr(  1) rem -2 <>  1 or
+        intExpr(  0) rem -2 <>  0 or
+        intExpr( -1) rem -2 <> -1 or
+        intExpr( -2) rem -2 <>  0 or
+        intExpr( -3) rem -2 <> -1 or
+        intExpr( -4) rem -2 <>  0 or
+        intExpr( -5) rem -2 <> -1 or
+        intExpr( -6) rem -2 <>  0 or
+        intExpr( -7) rem -2 <> -1 or
+        intExpr( -8) rem -2 <>  0 or
+        intExpr( -9) rem -2 <> -1 or
+        intExpr(-10) rem -2 <>  0 or
+        intExpr( 10) rem -3 <>  1 or
+        intExpr(  9) rem -3 <>  0 or
+        intExpr(  8) rem -3 <>  2 or
+        intExpr(  7) rem -3 <>  1 or
+        intExpr(  6) rem -3 <>  0 or
+        intExpr(  5) rem -3 <>  2 or
+        intExpr(  4) rem -3 <>  1 or
+        intExpr(  3) rem -3 <>  0 or
+        intExpr(  2) rem -3 <>  2 or
+        intExpr(  1) rem -3 <>  1 or
+        intExpr(  0) rem -3 <>  0 or
+        intExpr( -1) rem -3 <> -1 or
+        intExpr( -2) rem -3 <> -2 or
+        intExpr( -3) rem -3 <>  0 or
+        intExpr( -4) rem -3 <> -1 or
+        intExpr( -5) rem -3 <> -2 or
+        intExpr( -6) rem -3 <>  0 or
+        intExpr( -7) rem -3 <> -1 or
+        intExpr( -8) rem -3 <> -2 or
+        intExpr( -9) rem -3 <>  0 or
+        intExpr(-10) rem -3 <> -1 or
+        intExpr( 10) rem -4 <>  2 or
+        intExpr(  9) rem -4 <>  1 or
+        intExpr(  8) rem -4 <>  0 or
+        intExpr(  7) rem -4 <>  3 or
+        intExpr(  6) rem -4 <>  2 or
+        intExpr(  5) rem -4 <>  1 or
+        intExpr(  4) rem -4 <>  0 or
+        intExpr(  3) rem -4 <>  3 or
+        intExpr(  2) rem -4 <>  2 or
+        intExpr(  1) rem -4 <>  1 or
+        intExpr(  0) rem -4 <>  0 or
+        intExpr( -1) rem -4 <> -1 or
+        intExpr( -2) rem -4 <> -2 or
+        intExpr( -3) rem -4 <> -3 or
+        intExpr( -4) rem -4 <>  0 or
+        intExpr( -5) rem -4 <> -1 or
+        intExpr( -6) rem -4 <> -2 or
+        intExpr( -7) rem -4 <> -3 or
+        intExpr( -8) rem -4 <>  0 or
+        intExpr( -9) rem -4 <> -1 or
+        intExpr(-10) rem -4 <> -2 or
+        intExpr( 10) rem -5 <>  0 or
+        intExpr(  9) rem -5 <>  4 or
+        intExpr(  8) rem -5 <>  3 or
+        intExpr(  7) rem -5 <>  2 or
+        intExpr(  6) rem -5 <>  1 or
+        intExpr(  5) rem -5 <>  0 or
+        intExpr(  4) rem -5 <>  4 or
+        intExpr(  3) rem -5 <>  3 or
+        intExpr(  2) rem -5 <>  2 or
+        intExpr(  1) rem -5 <>  1 or
+        intExpr(  0) rem -5 <>  0 or
+        intExpr( -1) rem -5 <> -1 or
+        intExpr( -2) rem -5 <> -2 or
+        intExpr( -3) rem -5 <> -3 or
+        intExpr( -4) rem -5 <> -4 or
+        intExpr( -5) rem -5 <>  0 or
+        intExpr( -6) rem -5 <> -1 or
+        intExpr( -7) rem -5 <> -2 or
+        intExpr( -8) rem -5 <> -3 or
+        intExpr( -9) rem -5 <> -4 or
+        intExpr(-10) rem -5 <>  0 then
+      writeln(" ***** rem with an expression and a constant does not work correct");
+      okay := FALSE;
+    end if;
+    if   10 rem intExpr( 5) <>  0 or
+          9 rem intExpr( 5) <>  4 or
+          8 rem intExpr( 5) <>  3 or
+          7 rem intExpr( 5) <>  2 or
+          6 rem intExpr( 5) <>  1 or
+          5 rem intExpr( 5) <>  0 or
+          4 rem intExpr( 5) <>  4 or
+          3 rem intExpr( 5) <>  3 or
+          2 rem intExpr( 5) <>  2 or
+          1 rem intExpr( 5) <>  1 or
+          0 rem intExpr( 5) <>  0 or
+         -1 rem intExpr( 5) <> -1 or
+         -2 rem intExpr( 5) <> -2 or
+         -3 rem intExpr( 5) <> -3 or
+         -4 rem intExpr( 5) <> -4 or
+         -5 rem intExpr( 5) <>  0 or
+         -6 rem intExpr( 5) <> -1 or
+         -7 rem intExpr( 5) <> -2 or
+         -8 rem intExpr( 5) <> -3 or
+         -9 rem intExpr( 5) <> -4 or
+        -10 rem intExpr( 5) <>  0 or
+         10 rem intExpr( 4) <>  2 or
+          9 rem intExpr( 4) <>  1 or
+          8 rem intExpr( 4) <>  0 or
+          7 rem intExpr( 4) <>  3 or
+          6 rem intExpr( 4) <>  2 or
+          5 rem intExpr( 4) <>  1 or
+          4 rem intExpr( 4) <>  0 or
+          3 rem intExpr( 4) <>  3 or
+          2 rem intExpr( 4) <>  2 or
+          1 rem intExpr( 4) <>  1 or
+          0 rem intExpr( 4) <>  0 or
+         -1 rem intExpr( 4) <> -1 or
+         -2 rem intExpr( 4) <> -2 or
+         -3 rem intExpr( 4) <> -3 or
+         -4 rem intExpr( 4) <>  0 or
+         -5 rem intExpr( 4) <> -1 or
+         -6 rem intExpr( 4) <> -2 or
+         -7 rem intExpr( 4) <> -3 or
+         -8 rem intExpr( 4) <>  0 or
+         -9 rem intExpr( 4) <> -1 or
+        -10 rem intExpr( 4) <> -2 or
+         10 rem intExpr( 3) <>  1 or
+          9 rem intExpr( 3) <>  0 or
+          8 rem intExpr( 3) <>  2 or
+          7 rem intExpr( 3) <>  1 or
+          6 rem intExpr( 3) <>  0 or
+          5 rem intExpr( 3) <>  2 or
+          4 rem intExpr( 3) <>  1 or
+          3 rem intExpr( 3) <>  0 or
+          2 rem intExpr( 3) <>  2 or
+          1 rem intExpr( 3) <>  1 or
+          0 rem intExpr( 3) <>  0 or
+         -1 rem intExpr( 3) <> -1 or
+         -2 rem intExpr( 3) <> -2 or
+         -3 rem intExpr( 3) <>  0 or
+         -4 rem intExpr( 3) <> -1 or
+         -5 rem intExpr( 3) <> -2 or
+         -6 rem intExpr( 3) <>  0 or
+         -7 rem intExpr( 3) <> -1 or
+         -8 rem intExpr( 3) <> -2 or
+         -9 rem intExpr( 3) <>  0 or
+        -10 rem intExpr( 3) <> -1 or
+         10 rem intExpr( 2) <>  0 or
+          9 rem intExpr( 2) <>  1 or
+          8 rem intExpr( 2) <>  0 or
+          7 rem intExpr( 2) <>  1 or
+          6 rem intExpr( 2) <>  0 or
+          5 rem intExpr( 2) <>  1 or
+          4 rem intExpr( 2) <>  0 or
+          3 rem intExpr( 2) <>  1 or
+          2 rem intExpr( 2) <>  0 or
+          1 rem intExpr( 2) <>  1 or
+          0 rem intExpr( 2) <>  0 or
+         -1 rem intExpr( 2) <> -1 or
+         -2 rem intExpr( 2) <>  0 or
+         -3 rem intExpr( 2) <> -1 or
+         -4 rem intExpr( 2) <>  0 or
+         -5 rem intExpr( 2) <> -1 or
+         -6 rem intExpr( 2) <>  0 or
+         -7 rem intExpr( 2) <> -1 or
+         -8 rem intExpr( 2) <>  0 or
+         -9 rem intExpr( 2) <> -1 or
+        -10 rem intExpr( 2) <>  0 or
+         10 rem intExpr( 1) <>  0 or
+          9 rem intExpr( 1) <>  0 or
+          8 rem intExpr( 1) <>  0 or
+          7 rem intExpr( 1) <>  0 or
+          6 rem intExpr( 1) <>  0 or
+          5 rem intExpr( 1) <>  0 or
+          4 rem intExpr( 1) <>  0 or
+          3 rem intExpr( 1) <>  0 or
+          2 rem intExpr( 1) <>  0 or
+          1 rem intExpr( 1) <>  0 or
+          0 rem intExpr( 1) <>  0 or
+         -1 rem intExpr( 1) <>  0 or
+         -2 rem intExpr( 1) <>  0 or
+         -3 rem intExpr( 1) <>  0 or
+         -4 rem intExpr( 1) <>  0 or
+         -5 rem intExpr( 1) <>  0 or
+         -6 rem intExpr( 1) <>  0 or
+         -7 rem intExpr( 1) <>  0 or
+         -8 rem intExpr( 1) <>  0 or
+         -9 rem intExpr( 1) <>  0 or
+        -10 rem intExpr( 1) <>  0 or
+         10 rem intExpr(-1) <>  0 or
+          9 rem intExpr(-1) <>  0 or
+          8 rem intExpr(-1) <>  0 or
+          7 rem intExpr(-1) <>  0 or
+          6 rem intExpr(-1) <>  0 or
+          5 rem intExpr(-1) <>  0 or
+          4 rem intExpr(-1) <>  0 or
+          3 rem intExpr(-1) <>  0 or
+          2 rem intExpr(-1) <>  0 or
+          1 rem intExpr(-1) <>  0 or
+          0 rem intExpr(-1) <>  0 or
+         -1 rem intExpr(-1) <>  0 or
+         -2 rem intExpr(-1) <>  0 or
+         -3 rem intExpr(-1) <>  0 or
+         -4 rem intExpr(-1) <>  0 or
+         -5 rem intExpr(-1) <>  0 or
+         -6 rem intExpr(-1) <>  0 or
+         -7 rem intExpr(-1) <>  0 or
+         -8 rem intExpr(-1) <>  0 or
+         -9 rem intExpr(-1) <>  0 or
+        -10 rem intExpr(-1) <>  0 or
+         10 rem intExpr(-2) <>  0 or
+          9 rem intExpr(-2) <>  1 or
+          8 rem intExpr(-2) <>  0 or
+          7 rem intExpr(-2) <>  1 or
+          6 rem intExpr(-2) <>  0 or
+          5 rem intExpr(-2) <>  1 or
+          4 rem intExpr(-2) <>  0 or
+          3 rem intExpr(-2) <>  1 or
+          2 rem intExpr(-2) <>  0 or
+          1 rem intExpr(-2) <>  1 or
+          0 rem intExpr(-2) <>  0 or
+         -1 rem intExpr(-2) <> -1 or
+         -2 rem intExpr(-2) <>  0 or
+         -3 rem intExpr(-2) <> -1 or
+         -4 rem intExpr(-2) <>  0 or
+         -5 rem intExpr(-2) <> -1 or
+         -6 rem intExpr(-2) <>  0 or
+         -7 rem intExpr(-2) <> -1 or
+         -8 rem intExpr(-2) <>  0 or
+         -9 rem intExpr(-2) <> -1 or
+        -10 rem intExpr(-2) <>  0 or
+         10 rem intExpr(-3) <>  1 or
+          9 rem intExpr(-3) <>  0 or
+          8 rem intExpr(-3) <>  2 or
+          7 rem intExpr(-3) <>  1 or
+          6 rem intExpr(-3) <>  0 or
+          5 rem intExpr(-3) <>  2 or
+          4 rem intExpr(-3) <>  1 or
+          3 rem intExpr(-3) <>  0 or
+          2 rem intExpr(-3) <>  2 or
+          1 rem intExpr(-3) <>  1 or
+          0 rem intExpr(-3) <>  0 or
+         -1 rem intExpr(-3) <> -1 or
+         -2 rem intExpr(-3) <> -2 or
+         -3 rem intExpr(-3) <>  0 or
+         -4 rem intExpr(-3) <> -1 or
+         -5 rem intExpr(-3) <> -2 or
+         -6 rem intExpr(-3) <>  0 or
+         -7 rem intExpr(-3) <> -1 or
+         -8 rem intExpr(-3) <> -2 or
+         -9 rem intExpr(-3) <>  0 or
+        -10 rem intExpr(-3) <> -1 or
+         10 rem intExpr(-4) <>  2 or
+          9 rem intExpr(-4) <>  1 or
+          8 rem intExpr(-4) <>  0 or
+          7 rem intExpr(-4) <>  3 or
+          6 rem intExpr(-4) <>  2 or
+          5 rem intExpr(-4) <>  1 or
+          4 rem intExpr(-4) <>  0 or
+          3 rem intExpr(-4) <>  3 or
+          2 rem intExpr(-4) <>  2 or
+          1 rem intExpr(-4) <>  1 or
+          0 rem intExpr(-4) <>  0 or
+         -1 rem intExpr(-4) <> -1 or
+         -2 rem intExpr(-4) <> -2 or
+         -3 rem intExpr(-4) <> -3 or
+         -4 rem intExpr(-4) <>  0 or
+         -5 rem intExpr(-4) <> -1 or
+         -6 rem intExpr(-4) <> -2 or
+         -7 rem intExpr(-4) <> -3 or
+         -8 rem intExpr(-4) <>  0 or
+         -9 rem intExpr(-4) <> -1 or
+        -10 rem intExpr(-4) <> -2 or
+         10 rem intExpr(-5) <>  0 or
+          9 rem intExpr(-5) <>  4 or
+          8 rem intExpr(-5) <>  3 or
+          7 rem intExpr(-5) <>  2 or
+          6 rem intExpr(-5) <>  1 or
+          5 rem intExpr(-5) <>  0 or
+          4 rem intExpr(-5) <>  4 or
+          3 rem intExpr(-5) <>  3 or
+          2 rem intExpr(-5) <>  2 or
+          1 rem intExpr(-5) <>  1 or
+          0 rem intExpr(-5) <>  0 or
+         -1 rem intExpr(-5) <> -1 or
+         -2 rem intExpr(-5) <> -2 or
+         -3 rem intExpr(-5) <> -3 or
+         -4 rem intExpr(-5) <> -4 or
+         -5 rem intExpr(-5) <>  0 or
+         -6 rem intExpr(-5) <> -1 or
+         -7 rem intExpr(-5) <> -2 or
+         -8 rem intExpr(-5) <> -3 or
+         -9 rem intExpr(-5) <> -4 or
+        -10 rem intExpr(-5) <>  0 then
+      writeln(" ***** rem with a constant and an expression does not work correct");
+      okay := FALSE;
+    end if;
+    if  intExpr( 10) rem intExpr( 5) <>  0 or
+        intExpr(  9) rem intExpr( 5) <>  4 or
+        intExpr(  8) rem intExpr( 5) <>  3 or
+        intExpr(  7) rem intExpr( 5) <>  2 or
+        intExpr(  6) rem intExpr( 5) <>  1 or
+        intExpr(  5) rem intExpr( 5) <>  0 or
+        intExpr(  4) rem intExpr( 5) <>  4 or
+        intExpr(  3) rem intExpr( 5) <>  3 or
+        intExpr(  2) rem intExpr( 5) <>  2 or
+        intExpr(  1) rem intExpr( 5) <>  1 or
+        intExpr(  0) rem intExpr( 5) <>  0 or
+        intExpr( -1) rem intExpr( 5) <> -1 or
+        intExpr( -2) rem intExpr( 5) <> -2 or
+        intExpr( -3) rem intExpr( 5) <> -3 or
+        intExpr( -4) rem intExpr( 5) <> -4 or
+        intExpr( -5) rem intExpr( 5) <>  0 or
+        intExpr( -6) rem intExpr( 5) <> -1 or
+        intExpr( -7) rem intExpr( 5) <> -2 or
+        intExpr( -8) rem intExpr( 5) <> -3 or
+        intExpr( -9) rem intExpr( 5) <> -4 or
+        intExpr(-10) rem intExpr( 5) <>  0 or
+        intExpr( 10) rem intExpr( 4) <>  2 or
+        intExpr(  9) rem intExpr( 4) <>  1 or
+        intExpr(  8) rem intExpr( 4) <>  0 or
+        intExpr(  7) rem intExpr( 4) <>  3 or
+        intExpr(  6) rem intExpr( 4) <>  2 or
+        intExpr(  5) rem intExpr( 4) <>  1 or
+        intExpr(  4) rem intExpr( 4) <>  0 or
+        intExpr(  3) rem intExpr( 4) <>  3 or
+        intExpr(  2) rem intExpr( 4) <>  2 or
+        intExpr(  1) rem intExpr( 4) <>  1 or
+        intExpr(  0) rem intExpr( 4) <>  0 or
+        intExpr( -1) rem intExpr( 4) <> -1 or
+        intExpr( -2) rem intExpr( 4) <> -2 or
+        intExpr( -3) rem intExpr( 4) <> -3 or
+        intExpr( -4) rem intExpr( 4) <>  0 or
+        intExpr( -5) rem intExpr( 4) <> -1 or
+        intExpr( -6) rem intExpr( 4) <> -2 or
+        intExpr( -7) rem intExpr( 4) <> -3 or
+        intExpr( -8) rem intExpr( 4) <>  0 or
+        intExpr( -9) rem intExpr( 4) <> -1 or
+        intExpr(-10) rem intExpr( 4) <> -2 or
+        intExpr( 10) rem intExpr( 3) <>  1 or
+        intExpr(  9) rem intExpr( 3) <>  0 or
+        intExpr(  8) rem intExpr( 3) <>  2 or
+        intExpr(  7) rem intExpr( 3) <>  1 or
+        intExpr(  6) rem intExpr( 3) <>  0 or
+        intExpr(  5) rem intExpr( 3) <>  2 or
+        intExpr(  4) rem intExpr( 3) <>  1 or
+        intExpr(  3) rem intExpr( 3) <>  0 or
+        intExpr(  2) rem intExpr( 3) <>  2 or
+        intExpr(  1) rem intExpr( 3) <>  1 or
+        intExpr(  0) rem intExpr( 3) <>  0 or
+        intExpr( -1) rem intExpr( 3) <> -1 or
+        intExpr( -2) rem intExpr( 3) <> -2 or
+        intExpr( -3) rem intExpr( 3) <>  0 or
+        intExpr( -4) rem intExpr( 3) <> -1 or
+        intExpr( -5) rem intExpr( 3) <> -2 or
+        intExpr( -6) rem intExpr( 3) <>  0 or
+        intExpr( -7) rem intExpr( 3) <> -1 or
+        intExpr( -8) rem intExpr( 3) <> -2 or
+        intExpr( -9) rem intExpr( 3) <>  0 or
+        intExpr(-10) rem intExpr( 3) <> -1 or
+        intExpr( 10) rem intExpr( 2) <>  0 or
+        intExpr(  9) rem intExpr( 2) <>  1 or
+        intExpr(  8) rem intExpr( 2) <>  0 or
+        intExpr(  7) rem intExpr( 2) <>  1 or
+        intExpr(  6) rem intExpr( 2) <>  0 or
+        intExpr(  5) rem intExpr( 2) <>  1 or
+        intExpr(  4) rem intExpr( 2) <>  0 or
+        intExpr(  3) rem intExpr( 2) <>  1 or
+        intExpr(  2) rem intExpr( 2) <>  0 or
+        intExpr(  1) rem intExpr( 2) <>  1 or
+        intExpr(  0) rem intExpr( 2) <>  0 or
+        intExpr( -1) rem intExpr( 2) <> -1 or
+        intExpr( -2) rem intExpr( 2) <>  0 or
+        intExpr( -3) rem intExpr( 2) <> -1 or
+        intExpr( -4) rem intExpr( 2) <>  0 or
+        intExpr( -5) rem intExpr( 2) <> -1 or
+        intExpr( -6) rem intExpr( 2) <>  0 or
+        intExpr( -7) rem intExpr( 2) <> -1 or
+        intExpr( -8) rem intExpr( 2) <>  0 or
+        intExpr( -9) rem intExpr( 2) <> -1 or
+        intExpr(-10) rem intExpr( 2) <>  0 or
+        intExpr( 10) rem intExpr( 1) <>  0 or
+        intExpr(  9) rem intExpr( 1) <>  0 or
+        intExpr(  8) rem intExpr( 1) <>  0 or
+        intExpr(  7) rem intExpr( 1) <>  0 or
+        intExpr(  6) rem intExpr( 1) <>  0 or
+        intExpr(  5) rem intExpr( 1) <>  0 or
+        intExpr(  4) rem intExpr( 1) <>  0 or
+        intExpr(  3) rem intExpr( 1) <>  0 or
+        intExpr(  2) rem intExpr( 1) <>  0 or
+        intExpr(  1) rem intExpr( 1) <>  0 or
+        intExpr(  0) rem intExpr( 1) <>  0 or
+        intExpr( -1) rem intExpr( 1) <>  0 or
+        intExpr( -2) rem intExpr( 1) <>  0 or
+        intExpr( -3) rem intExpr( 1) <>  0 or
+        intExpr( -4) rem intExpr( 1) <>  0 or
+        intExpr( -5) rem intExpr( 1) <>  0 or
+        intExpr( -6) rem intExpr( 1) <>  0 or
+        intExpr( -7) rem intExpr( 1) <>  0 or
+        intExpr( -8) rem intExpr( 1) <>  0 or
+        intExpr( -9) rem intExpr( 1) <>  0 or
+        intExpr(-10) rem intExpr( 1) <>  0 or
+        intExpr( 10) rem intExpr(-1) <>  0 or
+        intExpr(  9) rem intExpr(-1) <>  0 or
+        intExpr(  8) rem intExpr(-1) <>  0 or
+        intExpr(  7) rem intExpr(-1) <>  0 or
+        intExpr(  6) rem intExpr(-1) <>  0 or
+        intExpr(  5) rem intExpr(-1) <>  0 or
+        intExpr(  4) rem intExpr(-1) <>  0 or
+        intExpr(  3) rem intExpr(-1) <>  0 or
+        intExpr(  2) rem intExpr(-1) <>  0 or
+        intExpr(  1) rem intExpr(-1) <>  0 or
+        intExpr(  0) rem intExpr(-1) <>  0 or
+        intExpr( -1) rem intExpr(-1) <>  0 or
+        intExpr( -2) rem intExpr(-1) <>  0 or
+        intExpr( -3) rem intExpr(-1) <>  0 or
+        intExpr( -4) rem intExpr(-1) <>  0 or
+        intExpr( -5) rem intExpr(-1) <>  0 or
+        intExpr( -6) rem intExpr(-1) <>  0 or
+        intExpr( -7) rem intExpr(-1) <>  0 or
+        intExpr( -8) rem intExpr(-1) <>  0 or
+        intExpr( -9) rem intExpr(-1) <>  0 or
+        intExpr(-10) rem intExpr(-1) <>  0 or
+        intExpr( 10) rem intExpr(-2) <>  0 or
+        intExpr(  9) rem intExpr(-2) <>  1 or
+        intExpr(  8) rem intExpr(-2) <>  0 or
+        intExpr(  7) rem intExpr(-2) <>  1 or
+        intExpr(  6) rem intExpr(-2) <>  0 or
+        intExpr(  5) rem intExpr(-2) <>  1 or
+        intExpr(  4) rem intExpr(-2) <>  0 or
+        intExpr(  3) rem intExpr(-2) <>  1 or
+        intExpr(  2) rem intExpr(-2) <>  0 or
+        intExpr(  1) rem intExpr(-2) <>  1 or
+        intExpr(  0) rem intExpr(-2) <>  0 or
+        intExpr( -1) rem intExpr(-2) <> -1 or
+        intExpr( -2) rem intExpr(-2) <>  0 or
+        intExpr( -3) rem intExpr(-2) <> -1 or
+        intExpr( -4) rem intExpr(-2) <>  0 or
+        intExpr( -5) rem intExpr(-2) <> -1 or
+        intExpr( -6) rem intExpr(-2) <>  0 or
+        intExpr( -7) rem intExpr(-2) <> -1 or
+        intExpr( -8) rem intExpr(-2) <>  0 or
+        intExpr( -9) rem intExpr(-2) <> -1 or
+        intExpr(-10) rem intExpr(-2) <>  0 or
+        intExpr( 10) rem intExpr(-3) <>  1 or
+        intExpr(  9) rem intExpr(-3) <>  0 or
+        intExpr(  8) rem intExpr(-3) <>  2 or
+        intExpr(  7) rem intExpr(-3) <>  1 or
+        intExpr(  6) rem intExpr(-3) <>  0 or
+        intExpr(  5) rem intExpr(-3) <>  2 or
+        intExpr(  4) rem intExpr(-3) <>  1 or
+        intExpr(  3) rem intExpr(-3) <>  0 or
+        intExpr(  2) rem intExpr(-3) <>  2 or
+        intExpr(  1) rem intExpr(-3) <>  1 or
+        intExpr(  0) rem intExpr(-3) <>  0 or
+        intExpr( -1) rem intExpr(-3) <> -1 or
+        intExpr( -2) rem intExpr(-3) <> -2 or
+        intExpr( -3) rem intExpr(-3) <>  0 or
+        intExpr( -4) rem intExpr(-3) <> -1 or
+        intExpr( -5) rem intExpr(-3) <> -2 or
+        intExpr( -6) rem intExpr(-3) <>  0 or
+        intExpr( -7) rem intExpr(-3) <> -1 or
+        intExpr( -8) rem intExpr(-3) <> -2 or
+        intExpr( -9) rem intExpr(-3) <>  0 or
+        intExpr(-10) rem intExpr(-3) <> -1 or
+        intExpr( 10) rem intExpr(-4) <>  2 or
+        intExpr(  9) rem intExpr(-4) <>  1 or
+        intExpr(  8) rem intExpr(-4) <>  0 or
+        intExpr(  7) rem intExpr(-4) <>  3 or
+        intExpr(  6) rem intExpr(-4) <>  2 or
+        intExpr(  5) rem intExpr(-4) <>  1 or
+        intExpr(  4) rem intExpr(-4) <>  0 or
+        intExpr(  3) rem intExpr(-4) <>  3 or
+        intExpr(  2) rem intExpr(-4) <>  2 or
+        intExpr(  1) rem intExpr(-4) <>  1 or
+        intExpr(  0) rem intExpr(-4) <>  0 or
+        intExpr( -1) rem intExpr(-4) <> -1 or
+        intExpr( -2) rem intExpr(-4) <> -2 or
+        intExpr( -3) rem intExpr(-4) <> -3 or
+        intExpr( -4) rem intExpr(-4) <>  0 or
+        intExpr( -5) rem intExpr(-4) <> -1 or
+        intExpr( -6) rem intExpr(-4) <> -2 or
+        intExpr( -7) rem intExpr(-4) <> -3 or
+        intExpr( -8) rem intExpr(-4) <>  0 or
+        intExpr( -9) rem intExpr(-4) <> -1 or
+        intExpr(-10) rem intExpr(-4) <> -2 or
+        intExpr( 10) rem intExpr(-5) <>  0 or
+        intExpr(  9) rem intExpr(-5) <>  4 or
+        intExpr(  8) rem intExpr(-5) <>  3 or
+        intExpr(  7) rem intExpr(-5) <>  2 or
+        intExpr(  6) rem intExpr(-5) <>  1 or
+        intExpr(  5) rem intExpr(-5) <>  0 or
+        intExpr(  4) rem intExpr(-5) <>  4 or
+        intExpr(  3) rem intExpr(-5) <>  3 or
+        intExpr(  2) rem intExpr(-5) <>  2 or
+        intExpr(  1) rem intExpr(-5) <>  1 or
+        intExpr(  0) rem intExpr(-5) <>  0 or
+        intExpr( -1) rem intExpr(-5) <> -1 or
+        intExpr( -2) rem intExpr(-5) <> -2 or
+        intExpr( -3) rem intExpr(-5) <> -3 or
+        intExpr( -4) rem intExpr(-5) <> -4 or
+        intExpr( -5) rem intExpr(-5) <>  0 or
+        intExpr( -6) rem intExpr(-5) <> -1 or
+        intExpr( -7) rem intExpr(-5) <> -2 or
+        intExpr( -8) rem intExpr(-5) <> -3 or
+        intExpr( -9) rem intExpr(-5) <> -4 or
+        intExpr(-10) rem intExpr(-5) <>  0 then
+      writeln(" ***** rem with two expressions does not work correct");
+      okay := FALSE;
+    end if;
+    if okay then
+      writeln("Rem works correct for selected values");
+    else
+      writeln(" ***** rem does not work correct");
+    end if;
+  end func;
+
+
+const proc: check_mdiv is func
+  local
+    var boolean: okay is TRUE;
+  begin
+    okay := TRUE;
+    if   10 mdiv  5 <>  2 or
+          9 mdiv  5 <>  1 or
+          8 mdiv  5 <>  1 or
+          7 mdiv  5 <>  1 or
+          6 mdiv  5 <>  1 or
+          5 mdiv  5 <>  1 or
+          4 mdiv  5 <>  0 or
+          3 mdiv  5 <>  0 or
+          2 mdiv  5 <>  0 or
+          1 mdiv  5 <>  0 or
+          0 mdiv  5 <>  0 or
+         -1 mdiv  5 <> -1 or
+         -2 mdiv  5 <> -1 or
+         -3 mdiv  5 <> -1 or
+         -4 mdiv  5 <> -1 or
+         -5 mdiv  5 <> -1 or
+         -6 mdiv  5 <> -2 or
+         -7 mdiv  5 <> -2 or
+         -8 mdiv  5 <> -2 or
+         -9 mdiv  5 <> -2 or
+        -10 mdiv  5 <> -2 or
+         10 mdiv  4 <>  2 or
+          9 mdiv  4 <>  2 or
+          8 mdiv  4 <>  2 or
+          7 mdiv  4 <>  1 or
+          6 mdiv  4 <>  1 or
+          5 mdiv  4 <>  1 or
+          4 mdiv  4 <>  1 or
+          3 mdiv  4 <>  0 or
+          2 mdiv  4 <>  0 or
+          1 mdiv  4 <>  0 or
+          0 mdiv  4 <>  0 or
+         -1 mdiv  4 <> -1 or
+         -2 mdiv  4 <> -1 or
+         -3 mdiv  4 <> -1 or
+         -4 mdiv  4 <> -1 or
+         -5 mdiv  4 <> -2 or
+         -6 mdiv  4 <> -2 or
+         -7 mdiv  4 <> -2 or
+         -8 mdiv  4 <> -2 or
+         -9 mdiv  4 <> -3 or
+        -10 mdiv  4 <> -3 or
+         10 mdiv  3 <>  3 or
+          9 mdiv  3 <>  3 or
+          8 mdiv  3 <>  2 or
+          7 mdiv  3 <>  2 or
+          6 mdiv  3 <>  2 or
+          5 mdiv  3 <>  1 or
+          4 mdiv  3 <>  1 or
+          3 mdiv  3 <>  1 or
+          2 mdiv  3 <>  0 or
+          1 mdiv  3 <>  0 or
+          0 mdiv  3 <>  0 or
+         -1 mdiv  3 <> -1 or
+         -2 mdiv  3 <> -1 or
+         -3 mdiv  3 <> -1 or
+         -4 mdiv  3 <> -2 or
+         -5 mdiv  3 <> -2 or
+         -6 mdiv  3 <> -2 or
+         -7 mdiv  3 <> -3 or
+         -8 mdiv  3 <> -3 or
+         -9 mdiv  3 <> -3 or
+        -10 mdiv  3 <> -4 or
+         10 mdiv  2 <>  5 or
+          9 mdiv  2 <>  4 or
+          8 mdiv  2 <>  4 or
+          7 mdiv  2 <>  3 or
+          6 mdiv  2 <>  3 or
+          5 mdiv  2 <>  2 or
+          4 mdiv  2 <>  2 or
+          3 mdiv  2 <>  1 or
+          2 mdiv  2 <>  1 or
+          1 mdiv  2 <>  0 or
+          0 mdiv  2 <>  0 or
+         -1 mdiv  2 <> -1 or
+         -2 mdiv  2 <> -1 or
+         -3 mdiv  2 <> -2 or
+         -4 mdiv  2 <> -2 or
+         -5 mdiv  2 <> -3 or
+         -6 mdiv  2 <> -3 or
+         -7 mdiv  2 <> -4 or
+         -8 mdiv  2 <> -4 or
+         -9 mdiv  2 <> -5 or
+        -10 mdiv  2 <> -5 or
+         10 mdiv  1 <> 10 or
+          9 mdiv  1 <>  9 or
+          8 mdiv  1 <>  8 or
+          7 mdiv  1 <>  7 or
+          6 mdiv  1 <>  6 or
+          5 mdiv  1 <>  5 or
+          4 mdiv  1 <>  4 or
+          3 mdiv  1 <>  3 or
+          2 mdiv  1 <>  2 or
+          1 mdiv  1 <>  1 or
+          0 mdiv  1 <>  0 or
+         -1 mdiv  1 <> -1 or
+         -2 mdiv  1 <> -2 or
+         -3 mdiv  1 <> -3 or
+         -4 mdiv  1 <> -4 or
+         -5 mdiv  1 <> -5 or
+         -6 mdiv  1 <> -6 or
+         -7 mdiv  1 <> -7 or
+         -8 mdiv  1 <> -8 or
+         -9 mdiv  1 <> -9 or
+        -10 mdiv  1 <> -10 or
+         10 mdiv -1 <> -10 or
+          9 mdiv -1 <> -9 or
+          8 mdiv -1 <> -8 or
+          7 mdiv -1 <> -7 or
+          6 mdiv -1 <> -6 or
+          5 mdiv -1 <> -5 or
+          4 mdiv -1 <> -4 or
+          3 mdiv -1 <> -3 or
+          2 mdiv -1 <> -2 or
+          1 mdiv -1 <> -1 or
+          0 mdiv -1 <>  0 or
+         -1 mdiv -1 <>  1 or
+         -2 mdiv -1 <>  2 or
+         -3 mdiv -1 <>  3 or
+         -4 mdiv -1 <>  4 or
+         -5 mdiv -1 <>  5 or
+         -6 mdiv -1 <>  6 or
+         -7 mdiv -1 <>  7 or
+         -8 mdiv -1 <>  8 or
+         -9 mdiv -1 <>  9 or
+        -10 mdiv -1 <> 10 or
+         10 mdiv -2 <> -5 or
+          9 mdiv -2 <> -5 or
+          8 mdiv -2 <> -4 or
+          7 mdiv -2 <> -4 or
+          6 mdiv -2 <> -3 or
+          5 mdiv -2 <> -3 or
+          4 mdiv -2 <> -2 or
+          3 mdiv -2 <> -2 or
+          2 mdiv -2 <> -1 or
+          1 mdiv -2 <> -1 or
+          0 mdiv -2 <>  0 or
+         -1 mdiv -2 <>  0 or
+         -2 mdiv -2 <>  1 or
+         -3 mdiv -2 <>  1 or
+         -4 mdiv -2 <>  2 or
+         -5 mdiv -2 <>  2 or
+         -6 mdiv -2 <>  3 or
+         -7 mdiv -2 <>  3 or
+         -8 mdiv -2 <>  4 or
+         -9 mdiv -2 <>  4 or
+        -10 mdiv -2 <>  5 or
+         10 mdiv -3 <> -4 or
+          9 mdiv -3 <> -3 or
+          8 mdiv -3 <> -3 or
+          7 mdiv -3 <> -3 or
+          6 mdiv -3 <> -2 or
+          5 mdiv -3 <> -2 or
+          4 mdiv -3 <> -2 or
+          3 mdiv -3 <> -1 or
+          2 mdiv -3 <> -1 or
+          1 mdiv -3 <> -1 or
+          0 mdiv -3 <>  0 or
+         -1 mdiv -3 <>  0 or
+         -2 mdiv -3 <>  0 or
+         -3 mdiv -3 <>  1 or
+         -4 mdiv -3 <>  1 or
+         -5 mdiv -3 <>  1 or
+         -6 mdiv -3 <>  2 or
+         -7 mdiv -3 <>  2 or
+         -8 mdiv -3 <>  2 or
+         -9 mdiv -3 <>  3 or
+        -10 mdiv -3 <>  3 or
+         10 mdiv -4 <> -3 or
+          9 mdiv -4 <> -3 or
+          8 mdiv -4 <> -2 or
+          7 mdiv -4 <> -2 or
+          6 mdiv -4 <> -2 or
+          5 mdiv -4 <> -2 or
+          4 mdiv -4 <> -1 or
+          3 mdiv -4 <> -1 or
+          2 mdiv -4 <> -1 or
+          1 mdiv -4 <> -1 or
+          0 mdiv -4 <>  0 or
+         -1 mdiv -4 <>  0 or
+         -2 mdiv -4 <>  0 or
+         -3 mdiv -4 <>  0 or
+         -4 mdiv -4 <>  1 or
+         -5 mdiv -4 <>  1 or
+         -6 mdiv -4 <>  1 or
+         -7 mdiv -4 <>  1 or
+         -8 mdiv -4 <>  2 or
+         -9 mdiv -4 <>  2 or
+        -10 mdiv -4 <>  2 or
+         10 mdiv -5 <> -2 or
+          9 mdiv -5 <> -2 or
+          8 mdiv -5 <> -2 or
+          7 mdiv -5 <> -2 or
+          6 mdiv -5 <> -2 or
+          5 mdiv -5 <> -1 or
+          4 mdiv -5 <> -1 or
+          3 mdiv -5 <> -1 or
+          2 mdiv -5 <> -1 or
+          1 mdiv -5 <> -1 or
+          0 mdiv -5 <>  0 or
+         -1 mdiv -5 <>  0 or
+         -2 mdiv -5 <>  0 or
+         -3 mdiv -5 <>  0 or
+         -4 mdiv -5 <>  0 or
+         -5 mdiv -5 <>  1 or
+         -6 mdiv -5 <>  1 or
+         -7 mdiv -5 <>  1 or
+         -8 mdiv -5 <>  1 or
+         -9 mdiv -5 <>  1 or
+        -10 mdiv -5 <>  2 then
+      writeln(" ***** mdiv with two constants does not work correct");
+      okay := FALSE;
+    end if;
+    if  intExpr( 10) mdiv  5 <>  2 or
+        intExpr(  9) mdiv  5 <>  1 or
+        intExpr(  8) mdiv  5 <>  1 or
+        intExpr(  7) mdiv  5 <>  1 or
+        intExpr(  6) mdiv  5 <>  1 or
+        intExpr(  5) mdiv  5 <>  1 or
+        intExpr(  4) mdiv  5 <>  0 or
+        intExpr(  3) mdiv  5 <>  0 or
+        intExpr(  2) mdiv  5 <>  0 or
+        intExpr(  1) mdiv  5 <>  0 or
+        intExpr(  0) mdiv  5 <>  0 or
+        intExpr( -1) mdiv  5 <> -1 or
+        intExpr( -2) mdiv  5 <> -1 or
+        intExpr( -3) mdiv  5 <> -1 or
+        intExpr( -4) mdiv  5 <> -1 or
+        intExpr( -5) mdiv  5 <> -1 or
+        intExpr( -6) mdiv  5 <> -2 or
+        intExpr( -7) mdiv  5 <> -2 or
+        intExpr( -8) mdiv  5 <> -2 or
+        intExpr( -9) mdiv  5 <> -2 or
+        intExpr(-10) mdiv  5 <> -2 or
+        intExpr( 10) mdiv  4 <>  2 or
+        intExpr(  9) mdiv  4 <>  2 or
+        intExpr(  8) mdiv  4 <>  2 or
+        intExpr(  7) mdiv  4 <>  1 or
+        intExpr(  6) mdiv  4 <>  1 or
+        intExpr(  5) mdiv  4 <>  1 or
+        intExpr(  4) mdiv  4 <>  1 or
+        intExpr(  3) mdiv  4 <>  0 or
+        intExpr(  2) mdiv  4 <>  0 or
+        intExpr(  1) mdiv  4 <>  0 or
+        intExpr(  0) mdiv  4 <>  0 or
+        intExpr( -1) mdiv  4 <> -1 or
+        intExpr( -2) mdiv  4 <> -1 or
+        intExpr( -3) mdiv  4 <> -1 or
+        intExpr( -4) mdiv  4 <> -1 or
+        intExpr( -5) mdiv  4 <> -2 or
+        intExpr( -6) mdiv  4 <> -2 or
+        intExpr( -7) mdiv  4 <> -2 or
+        intExpr( -8) mdiv  4 <> -2 or
+        intExpr( -9) mdiv  4 <> -3 or
+        intExpr(-10) mdiv  4 <> -3 or
+        intExpr( 10) mdiv  3 <>  3 or
+        intExpr(  9) mdiv  3 <>  3 or
+        intExpr(  8) mdiv  3 <>  2 or
+        intExpr(  7) mdiv  3 <>  2 or
+        intExpr(  6) mdiv  3 <>  2 or
+        intExpr(  5) mdiv  3 <>  1 or
+        intExpr(  4) mdiv  3 <>  1 or
+        intExpr(  3) mdiv  3 <>  1 or
+        intExpr(  2) mdiv  3 <>  0 or
+        intExpr(  1) mdiv  3 <>  0 or
+        intExpr(  0) mdiv  3 <>  0 or
+        intExpr( -1) mdiv  3 <> -1 or
+        intExpr( -2) mdiv  3 <> -1 or
+        intExpr( -3) mdiv  3 <> -1 or
+        intExpr( -4) mdiv  3 <> -2 or
+        intExpr( -5) mdiv  3 <> -2 or
+        intExpr( -6) mdiv  3 <> -2 or
+        intExpr( -7) mdiv  3 <> -3 or
+        intExpr( -8) mdiv  3 <> -3 or
+        intExpr( -9) mdiv  3 <> -3 or
+        intExpr(-10) mdiv  3 <> -4 or
+        intExpr( 10) mdiv  2 <>  5 or
+        intExpr(  9) mdiv  2 <>  4 or
+        intExpr(  8) mdiv  2 <>  4 or
+        intExpr(  7) mdiv  2 <>  3 or
+        intExpr(  6) mdiv  2 <>  3 or
+        intExpr(  5) mdiv  2 <>  2 or
+        intExpr(  4) mdiv  2 <>  2 or
+        intExpr(  3) mdiv  2 <>  1 or
+        intExpr(  2) mdiv  2 <>  1 or
+        intExpr(  1) mdiv  2 <>  0 or
+        intExpr(  0) mdiv  2 <>  0 or
+        intExpr( -1) mdiv  2 <> -1 or
+        intExpr( -2) mdiv  2 <> -1 or
+        intExpr( -3) mdiv  2 <> -2 or
+        intExpr( -4) mdiv  2 <> -2 or
+        intExpr( -5) mdiv  2 <> -3 or
+        intExpr( -6) mdiv  2 <> -3 or
+        intExpr( -7) mdiv  2 <> -4 or
+        intExpr( -8) mdiv  2 <> -4 or
+        intExpr( -9) mdiv  2 <> -5 or
+        intExpr(-10) mdiv  2 <> -5 or
+        intExpr( 10) mdiv  1 <> 10 or
+        intExpr(  9) mdiv  1 <>  9 or
+        intExpr(  8) mdiv  1 <>  8 or
+        intExpr(  7) mdiv  1 <>  7 or
+        intExpr(  6) mdiv  1 <>  6 or
+        intExpr(  5) mdiv  1 <>  5 or
+        intExpr(  4) mdiv  1 <>  4 or
+        intExpr(  3) mdiv  1 <>  3 or
+        intExpr(  2) mdiv  1 <>  2 or
+        intExpr(  1) mdiv  1 <>  1 or
+        intExpr(  0) mdiv  1 <>  0 or
+        intExpr( -1) mdiv  1 <> -1 or
+        intExpr( -2) mdiv  1 <> -2 or
+        intExpr( -3) mdiv  1 <> -3 or
+        intExpr( -4) mdiv  1 <> -4 or
+        intExpr( -5) mdiv  1 <> -5 or
+        intExpr( -6) mdiv  1 <> -6 or
+        intExpr( -7) mdiv  1 <> -7 or
+        intExpr( -8) mdiv  1 <> -8 or
+        intExpr( -9) mdiv  1 <> -9 or
+        intExpr(-10) mdiv  1 <> -10 or
+        intExpr( 10) mdiv -1 <> -10 or
+        intExpr(  9) mdiv -1 <> -9 or
+        intExpr(  8) mdiv -1 <> -8 or
+        intExpr(  7) mdiv -1 <> -7 or
+        intExpr(  6) mdiv -1 <> -6 or
+        intExpr(  5) mdiv -1 <> -5 or
+        intExpr(  4) mdiv -1 <> -4 or
+        intExpr(  3) mdiv -1 <> -3 or
+        intExpr(  2) mdiv -1 <> -2 or
+        intExpr(  1) mdiv -1 <> -1 or
+        intExpr(  0) mdiv -1 <>  0 or
+        intExpr( -1) mdiv -1 <>  1 or
+        intExpr( -2) mdiv -1 <>  2 or
+        intExpr( -3) mdiv -1 <>  3 or
+        intExpr( -4) mdiv -1 <>  4 or
+        intExpr( -5) mdiv -1 <>  5 or
+        intExpr( -6) mdiv -1 <>  6 or
+        intExpr( -7) mdiv -1 <>  7 or
+        intExpr( -8) mdiv -1 <>  8 or
+        intExpr( -9) mdiv -1 <>  9 or
+        intExpr(-10) mdiv -1 <> 10 or
+        intExpr( 10) mdiv -2 <> -5 or
+        intExpr(  9) mdiv -2 <> -5 or
+        intExpr(  8) mdiv -2 <> -4 or
+        intExpr(  7) mdiv -2 <> -4 or
+        intExpr(  6) mdiv -2 <> -3 or
+        intExpr(  5) mdiv -2 <> -3 or
+        intExpr(  4) mdiv -2 <> -2 or
+        intExpr(  3) mdiv -2 <> -2 or
+        intExpr(  2) mdiv -2 <> -1 or
+        intExpr(  1) mdiv -2 <> -1 or
+        intExpr(  0) mdiv -2 <>  0 or
+        intExpr( -1) mdiv -2 <>  0 or
+        intExpr( -2) mdiv -2 <>  1 or
+        intExpr( -3) mdiv -2 <>  1 or
+        intExpr( -4) mdiv -2 <>  2 or
+        intExpr( -5) mdiv -2 <>  2 or
+        intExpr( -6) mdiv -2 <>  3 or
+        intExpr( -7) mdiv -2 <>  3 or
+        intExpr( -8) mdiv -2 <>  4 or
+        intExpr( -9) mdiv -2 <>  4 or
+        intExpr(-10) mdiv -2 <>  5 or
+        intExpr( 10) mdiv -3 <> -4 or
+        intExpr(  9) mdiv -3 <> -3 or
+        intExpr(  8) mdiv -3 <> -3 or
+        intExpr(  7) mdiv -3 <> -3 or
+        intExpr(  6) mdiv -3 <> -2 or
+        intExpr(  5) mdiv -3 <> -2 or
+        intExpr(  4) mdiv -3 <> -2 or
+        intExpr(  3) mdiv -3 <> -1 or
+        intExpr(  2) mdiv -3 <> -1 or
+        intExpr(  1) mdiv -3 <> -1 or
+        intExpr(  0) mdiv -3 <>  0 or
+        intExpr( -1) mdiv -3 <>  0 or
+        intExpr( -2) mdiv -3 <>  0 or
+        intExpr( -3) mdiv -3 <>  1 or
+        intExpr( -4) mdiv -3 <>  1 or
+        intExpr( -5) mdiv -3 <>  1 or
+        intExpr( -6) mdiv -3 <>  2 or
+        intExpr( -7) mdiv -3 <>  2 or
+        intExpr( -8) mdiv -3 <>  2 or
+        intExpr( -9) mdiv -3 <>  3 or
+        intExpr(-10) mdiv -3 <>  3 or
+        intExpr( 10) mdiv -4 <> -3 or
+        intExpr(  9) mdiv -4 <> -3 or
+        intExpr(  8) mdiv -4 <> -2 or
+        intExpr(  7) mdiv -4 <> -2 or
+        intExpr(  6) mdiv -4 <> -2 or
+        intExpr(  5) mdiv -4 <> -2 or
+        intExpr(  4) mdiv -4 <> -1 or
+        intExpr(  3) mdiv -4 <> -1 or
+        intExpr(  2) mdiv -4 <> -1 or
+        intExpr(  1) mdiv -4 <> -1 or
+        intExpr(  0) mdiv -4 <>  0 or
+        intExpr( -1) mdiv -4 <>  0 or
+        intExpr( -2) mdiv -4 <>  0 or
+        intExpr( -3) mdiv -4 <>  0 or
+        intExpr( -4) mdiv -4 <>  1 or
+        intExpr( -5) mdiv -4 <>  1 or
+        intExpr( -6) mdiv -4 <>  1 or
+        intExpr( -7) mdiv -4 <>  1 or
+        intExpr( -8) mdiv -4 <>  2 or
+        intExpr( -9) mdiv -4 <>  2 or
+        intExpr(-10) mdiv -4 <>  2 or
+        intExpr( 10) mdiv -5 <> -2 or
+        intExpr(  9) mdiv -5 <> -2 or
+        intExpr(  8) mdiv -5 <> -2 or
+        intExpr(  7) mdiv -5 <> -2 or
+        intExpr(  6) mdiv -5 <> -2 or
+        intExpr(  5) mdiv -5 <> -1 or
+        intExpr(  4) mdiv -5 <> -1 or
+        intExpr(  3) mdiv -5 <> -1 or
+        intExpr(  2) mdiv -5 <> -1 or
+        intExpr(  1) mdiv -5 <> -1 or
+        intExpr(  0) mdiv -5 <>  0 or
+        intExpr( -1) mdiv -5 <>  0 or
+        intExpr( -2) mdiv -5 <>  0 or
+        intExpr( -3) mdiv -5 <>  0 or
+        intExpr( -4) mdiv -5 <>  0 or
+        intExpr( -5) mdiv -5 <>  1 or
+        intExpr( -6) mdiv -5 <>  1 or
+        intExpr( -7) mdiv -5 <>  1 or
+        intExpr( -8) mdiv -5 <>  1 or
+        intExpr( -9) mdiv -5 <>  1 or
+        intExpr(-10) mdiv -5 <>  2 then
+      writeln(" *****) mdiv with an expression and a constant does not work correct");
+      okay := FALSE;
+    end if;
+    if   10 mdiv intExpr( 5) <>  2 or
+          9 mdiv intExpr( 5) <>  1 or
+          8 mdiv intExpr( 5) <>  1 or
+          7 mdiv intExpr( 5) <>  1 or
+          6 mdiv intExpr( 5) <>  1 or
+          5 mdiv intExpr( 5) <>  1 or
+          4 mdiv intExpr( 5) <>  0 or
+          3 mdiv intExpr( 5) <>  0 or
+          2 mdiv intExpr( 5) <>  0 or
+          1 mdiv intExpr( 5) <>  0 or
+          0 mdiv intExpr( 5) <>  0 or
+         -1 mdiv intExpr( 5) <> -1 or
+         -2 mdiv intExpr( 5) <> -1 or
+         -3 mdiv intExpr( 5) <> -1 or
+         -4 mdiv intExpr( 5) <> -1 or
+         -5 mdiv intExpr( 5) <> -1 or
+         -6 mdiv intExpr( 5) <> -2 or
+         -7 mdiv intExpr( 5) <> -2 or
+         -8 mdiv intExpr( 5) <> -2 or
+         -9 mdiv intExpr( 5) <> -2 or
+        -10 mdiv intExpr( 5) <> -2 or
+         10 mdiv intExpr( 4) <>  2 or
+          9 mdiv intExpr( 4) <>  2 or
+          8 mdiv intExpr( 4) <>  2 or
+          7 mdiv intExpr( 4) <>  1 or
+          6 mdiv intExpr( 4) <>  1 or
+          5 mdiv intExpr( 4) <>  1 or
+          4 mdiv intExpr( 4) <>  1 or
+          3 mdiv intExpr( 4) <>  0 or
+          2 mdiv intExpr( 4) <>  0 or
+          1 mdiv intExpr( 4) <>  0 or
+          0 mdiv intExpr( 4) <>  0 or
+         -1 mdiv intExpr( 4) <> -1 or
+         -2 mdiv intExpr( 4) <> -1 or
+         -3 mdiv intExpr( 4) <> -1 or
+         -4 mdiv intExpr( 4) <> -1 or
+         -5 mdiv intExpr( 4) <> -2 or
+         -6 mdiv intExpr( 4) <> -2 or
+         -7 mdiv intExpr( 4) <> -2 or
+         -8 mdiv intExpr( 4) <> -2 or
+         -9 mdiv intExpr( 4) <> -3 or
+        -10 mdiv intExpr( 4) <> -3 or
+         10 mdiv intExpr( 3) <>  3 or
+          9 mdiv intExpr( 3) <>  3 or
+          8 mdiv intExpr( 3) <>  2 or
+          7 mdiv intExpr( 3) <>  2 or
+          6 mdiv intExpr( 3) <>  2 or
+          5 mdiv intExpr( 3) <>  1 or
+          4 mdiv intExpr( 3) <>  1 or
+          3 mdiv intExpr( 3) <>  1 or
+          2 mdiv intExpr( 3) <>  0 or
+          1 mdiv intExpr( 3) <>  0 or
+          0 mdiv intExpr( 3) <>  0 or
+         -1 mdiv intExpr( 3) <> -1 or
+         -2 mdiv intExpr( 3) <> -1 or
+         -3 mdiv intExpr( 3) <> -1 or
+         -4 mdiv intExpr( 3) <> -2 or
+         -5 mdiv intExpr( 3) <> -2 or
+         -6 mdiv intExpr( 3) <> -2 or
+         -7 mdiv intExpr( 3) <> -3 or
+         -8 mdiv intExpr( 3) <> -3 or
+         -9 mdiv intExpr( 3) <> -3 or
+        -10 mdiv intExpr( 3) <> -4 or
+         10 mdiv intExpr( 2) <>  5 or
+          9 mdiv intExpr( 2) <>  4 or
+          8 mdiv intExpr( 2) <>  4 or
+          7 mdiv intExpr( 2) <>  3 or
+          6 mdiv intExpr( 2) <>  3 or
+          5 mdiv intExpr( 2) <>  2 or
+          4 mdiv intExpr( 2) <>  2 or
+          3 mdiv intExpr( 2) <>  1 or
+          2 mdiv intExpr( 2) <>  1 or
+          1 mdiv intExpr( 2) <>  0 or
+          0 mdiv intExpr( 2) <>  0 or
+         -1 mdiv intExpr( 2) <> -1 or
+         -2 mdiv intExpr( 2) <> -1 or
+         -3 mdiv intExpr( 2) <> -2 or
+         -4 mdiv intExpr( 2) <> -2 or
+         -5 mdiv intExpr( 2) <> -3 or
+         -6 mdiv intExpr( 2) <> -3 or
+         -7 mdiv intExpr( 2) <> -4 or
+         -8 mdiv intExpr( 2) <> -4 or
+         -9 mdiv intExpr( 2) <> -5 or
+        -10 mdiv intExpr( 2) <> -5 or
+         10 mdiv intExpr( 1) <> 10 or
+          9 mdiv intExpr( 1) <>  9 or
+          8 mdiv intExpr( 1) <>  8 or
+          7 mdiv intExpr( 1) <>  7 or
+          6 mdiv intExpr( 1) <>  6 or
+          5 mdiv intExpr( 1) <>  5 or
+          4 mdiv intExpr( 1) <>  4 or
+          3 mdiv intExpr( 1) <>  3 or
+          2 mdiv intExpr( 1) <>  2 or
+          1 mdiv intExpr( 1) <>  1 or
+          0 mdiv intExpr( 1) <>  0 or
+         -1 mdiv intExpr( 1) <> -1 or
+         -2 mdiv intExpr( 1) <> -2 or
+         -3 mdiv intExpr( 1) <> -3 or
+         -4 mdiv intExpr( 1) <> -4 or
+         -5 mdiv intExpr( 1) <> -5 or
+         -6 mdiv intExpr( 1) <> -6 or
+         -7 mdiv intExpr( 1) <> -7 or
+         -8 mdiv intExpr( 1) <> -8 or
+         -9 mdiv intExpr( 1) <> -9 or
+        -10 mdiv intExpr( 1) <> -10 or
+         10 mdiv intExpr(-1) <> -10 or
+          9 mdiv intExpr(-1) <> -9 or
+          8 mdiv intExpr(-1) <> -8 or
+          7 mdiv intExpr(-1) <> -7 or
+          6 mdiv intExpr(-1) <> -6 or
+          5 mdiv intExpr(-1) <> -5 or
+          4 mdiv intExpr(-1) <> -4 or
+          3 mdiv intExpr(-1) <> -3 or
+          2 mdiv intExpr(-1) <> -2 or
+          1 mdiv intExpr(-1) <> -1 or
+          0 mdiv intExpr(-1) <>  0 or
+         -1 mdiv intExpr(-1) <>  1 or
+         -2 mdiv intExpr(-1) <>  2 or
+         -3 mdiv intExpr(-1) <>  3 or
+         -4 mdiv intExpr(-1) <>  4 or
+         -5 mdiv intExpr(-1) <>  5 or
+         -6 mdiv intExpr(-1) <>  6 or
+         -7 mdiv intExpr(-1) <>  7 or
+         -8 mdiv intExpr(-1) <>  8 or
+         -9 mdiv intExpr(-1) <>  9 or
+        -10 mdiv intExpr(-1) <> 10 or
+         10 mdiv intExpr(-2) <> -5 or
+          9 mdiv intExpr(-2) <> -5 or
+          8 mdiv intExpr(-2) <> -4 or
+          7 mdiv intExpr(-2) <> -4 or
+          6 mdiv intExpr(-2) <> -3 or
+          5 mdiv intExpr(-2) <> -3 or
+          4 mdiv intExpr(-2) <> -2 or
+          3 mdiv intExpr(-2) <> -2 or
+          2 mdiv intExpr(-2) <> -1 or
+          1 mdiv intExpr(-2) <> -1 or
+          0 mdiv intExpr(-2) <>  0 or
+         -1 mdiv intExpr(-2) <>  0 or
+         -2 mdiv intExpr(-2) <>  1 or
+         -3 mdiv intExpr(-2) <>  1 or
+         -4 mdiv intExpr(-2) <>  2 or
+         -5 mdiv intExpr(-2) <>  2 or
+         -6 mdiv intExpr(-2) <>  3 or
+         -7 mdiv intExpr(-2) <>  3 or
+         -8 mdiv intExpr(-2) <>  4 or
+         -9 mdiv intExpr(-2) <>  4 or
+        -10 mdiv intExpr(-2) <>  5 or
+         10 mdiv intExpr(-3) <> -4 or
+          9 mdiv intExpr(-3) <> -3 or
+          8 mdiv intExpr(-3) <> -3 or
+          7 mdiv intExpr(-3) <> -3 or
+          6 mdiv intExpr(-3) <> -2 or
+          5 mdiv intExpr(-3) <> -2 or
+          4 mdiv intExpr(-3) <> -2 or
+          3 mdiv intExpr(-3) <> -1 or
+          2 mdiv intExpr(-3) <> -1 or
+          1 mdiv intExpr(-3) <> -1 or
+          0 mdiv intExpr(-3) <>  0 or
+         -1 mdiv intExpr(-3) <>  0 or
+         -2 mdiv intExpr(-3) <>  0 or
+         -3 mdiv intExpr(-3) <>  1 or
+         -4 mdiv intExpr(-3) <>  1 or
+         -5 mdiv intExpr(-3) <>  1 or
+         -6 mdiv intExpr(-3) <>  2 or
+         -7 mdiv intExpr(-3) <>  2 or
+         -8 mdiv intExpr(-3) <>  2 or
+         -9 mdiv intExpr(-3) <>  3 or
+        -10 mdiv intExpr(-3) <>  3 or
+         10 mdiv intExpr(-4) <> -3 or
+          9 mdiv intExpr(-4) <> -3 or
+          8 mdiv intExpr(-4) <> -2 or
+          7 mdiv intExpr(-4) <> -2 or
+          6 mdiv intExpr(-4) <> -2 or
+          5 mdiv intExpr(-4) <> -2 or
+          4 mdiv intExpr(-4) <> -1 or
+          3 mdiv intExpr(-4) <> -1 or
+          2 mdiv intExpr(-4) <> -1 or
+          1 mdiv intExpr(-4) <> -1 or
+          0 mdiv intExpr(-4) <>  0 or
+         -1 mdiv intExpr(-4) <>  0 or
+         -2 mdiv intExpr(-4) <>  0 or
+         -3 mdiv intExpr(-4) <>  0 or
+         -4 mdiv intExpr(-4) <>  1 or
+         -5 mdiv intExpr(-4) <>  1 or
+         -6 mdiv intExpr(-4) <>  1 or
+         -7 mdiv intExpr(-4) <>  1 or
+         -8 mdiv intExpr(-4) <>  2 or
+         -9 mdiv intExpr(-4) <>  2 or
+        -10 mdiv intExpr(-4) <>  2 or
+         10 mdiv intExpr(-5) <> -2 or
+          9 mdiv intExpr(-5) <> -2 or
+          8 mdiv intExpr(-5) <> -2 or
+          7 mdiv intExpr(-5) <> -2 or
+          6 mdiv intExpr(-5) <> -2 or
+          5 mdiv intExpr(-5) <> -1 or
+          4 mdiv intExpr(-5) <> -1 or
+          3 mdiv intExpr(-5) <> -1 or
+          2 mdiv intExpr(-5) <> -1 or
+          1 mdiv intExpr(-5) <> -1 or
+          0 mdiv intExpr(-5) <>  0 or
+         -1 mdiv intExpr(-5) <>  0 or
+         -2 mdiv intExpr(-5) <>  0 or
+         -3 mdiv intExpr(-5) <>  0 or
+         -4 mdiv intExpr(-5) <>  0 or
+         -5 mdiv intExpr(-5) <>  1 or
+         -6 mdiv intExpr(-5) <>  1 or
+         -7 mdiv intExpr(-5) <>  1 or
+         -8 mdiv intExpr(-5) <>  1 or
+         -9 mdiv intExpr(-5) <>  1 or
+        -10 mdiv intExpr(-5) <>  2 then
+      writeln(" ***** mdiv with a constant and an expression does not work correct");
+      okay := FALSE;
+    end if;
+    if  intExpr( 10) mdiv intExpr( 5) <>  2 or
+        intExpr(  9) mdiv intExpr( 5) <>  1 or
+        intExpr(  8) mdiv intExpr( 5) <>  1 or
+        intExpr(  7) mdiv intExpr( 5) <>  1 or
+        intExpr(  6) mdiv intExpr( 5) <>  1 or
+        intExpr(  5) mdiv intExpr( 5) <>  1 or
+        intExpr(  4) mdiv intExpr( 5) <>  0 or
+        intExpr(  3) mdiv intExpr( 5) <>  0 or
+        intExpr(  2) mdiv intExpr( 5) <>  0 or
+        intExpr(  1) mdiv intExpr( 5) <>  0 or
+        intExpr(  0) mdiv intExpr( 5) <>  0 or
+        intExpr( -1) mdiv intExpr( 5) <> -1 or
+        intExpr( -2) mdiv intExpr( 5) <> -1 or
+        intExpr( -3) mdiv intExpr( 5) <> -1 or
+        intExpr( -4) mdiv intExpr( 5) <> -1 or
+        intExpr( -5) mdiv intExpr( 5) <> -1 or
+        intExpr( -6) mdiv intExpr( 5) <> -2 or
+        intExpr( -7) mdiv intExpr( 5) <> -2 or
+        intExpr( -8) mdiv intExpr( 5) <> -2 or
+        intExpr( -9) mdiv intExpr( 5) <> -2 or
+        intExpr(-10) mdiv intExpr( 5) <> -2 or
+        intExpr( 10) mdiv intExpr( 4) <>  2 or
+        intExpr(  9) mdiv intExpr( 4) <>  2 or
+        intExpr(  8) mdiv intExpr( 4) <>  2 or
+        intExpr(  7) mdiv intExpr( 4) <>  1 or
+        intExpr(  6) mdiv intExpr( 4) <>  1 or
+        intExpr(  5) mdiv intExpr( 4) <>  1 or
+        intExpr(  4) mdiv intExpr( 4) <>  1 or
+        intExpr(  3) mdiv intExpr( 4) <>  0 or
+        intExpr(  2) mdiv intExpr( 4) <>  0 or
+        intExpr(  1) mdiv intExpr( 4) <>  0 or
+        intExpr(  0) mdiv intExpr( 4) <>  0 or
+        intExpr( -1) mdiv intExpr( 4) <> -1 or
+        intExpr( -2) mdiv intExpr( 4) <> -1 or
+        intExpr( -3) mdiv intExpr( 4) <> -1 or
+        intExpr( -4) mdiv intExpr( 4) <> -1 or
+        intExpr( -5) mdiv intExpr( 4) <> -2 or
+        intExpr( -6) mdiv intExpr( 4) <> -2 or
+        intExpr( -7) mdiv intExpr( 4) <> -2 or
+        intExpr( -8) mdiv intExpr( 4) <> -2 or
+        intExpr( -9) mdiv intExpr( 4) <> -3 or
+        intExpr(-10) mdiv intExpr( 4) <> -3 or
+        intExpr( 10) mdiv intExpr( 3) <>  3 or
+        intExpr(  9) mdiv intExpr( 3) <>  3 or
+        intExpr(  8) mdiv intExpr( 3) <>  2 or
+        intExpr(  7) mdiv intExpr( 3) <>  2 or
+        intExpr(  6) mdiv intExpr( 3) <>  2 or
+        intExpr(  5) mdiv intExpr( 3) <>  1 or
+        intExpr(  4) mdiv intExpr( 3) <>  1 or
+        intExpr(  3) mdiv intExpr( 3) <>  1 or
+        intExpr(  2) mdiv intExpr( 3) <>  0 or
+        intExpr(  1) mdiv intExpr( 3) <>  0 or
+        intExpr(  0) mdiv intExpr( 3) <>  0 or
+        intExpr( -1) mdiv intExpr( 3) <> -1 or
+        intExpr( -2) mdiv intExpr( 3) <> -1 or
+        intExpr( -3) mdiv intExpr( 3) <> -1 or
+        intExpr( -4) mdiv intExpr( 3) <> -2 or
+        intExpr( -5) mdiv intExpr( 3) <> -2 or
+        intExpr( -6) mdiv intExpr( 3) <> -2 or
+        intExpr( -7) mdiv intExpr( 3) <> -3 or
+        intExpr( -8) mdiv intExpr( 3) <> -3 or
+        intExpr( -9) mdiv intExpr( 3) <> -3 or
+        intExpr(-10) mdiv intExpr( 3) <> -4 or
+        intExpr( 10) mdiv intExpr( 2) <>  5 or
+        intExpr(  9) mdiv intExpr( 2) <>  4 or
+        intExpr(  8) mdiv intExpr( 2) <>  4 or
+        intExpr(  7) mdiv intExpr( 2) <>  3 or
+        intExpr(  6) mdiv intExpr( 2) <>  3 or
+        intExpr(  5) mdiv intExpr( 2) <>  2 or
+        intExpr(  4) mdiv intExpr( 2) <>  2 or
+        intExpr(  3) mdiv intExpr( 2) <>  1 or
+        intExpr(  2) mdiv intExpr( 2) <>  1 or
+        intExpr(  1) mdiv intExpr( 2) <>  0 or
+        intExpr(  0) mdiv intExpr( 2) <>  0 or
+        intExpr( -1) mdiv intExpr( 2) <> -1 or
+        intExpr( -2) mdiv intExpr( 2) <> -1 or
+        intExpr( -3) mdiv intExpr( 2) <> -2 or
+        intExpr( -4) mdiv intExpr( 2) <> -2 or
+        intExpr( -5) mdiv intExpr( 2) <> -3 or
+        intExpr( -6) mdiv intExpr( 2) <> -3 or
+        intExpr( -7) mdiv intExpr( 2) <> -4 or
+        intExpr( -8) mdiv intExpr( 2) <> -4 or
+        intExpr( -9) mdiv intExpr( 2) <> -5 or
+        intExpr(-10) mdiv intExpr( 2) <> -5 or
+        intExpr( 10) mdiv intExpr( 1) <> 10 or
+        intExpr(  9) mdiv intExpr( 1) <>  9 or
+        intExpr(  8) mdiv intExpr( 1) <>  8 or
+        intExpr(  7) mdiv intExpr( 1) <>  7 or
+        intExpr(  6) mdiv intExpr( 1) <>  6 or
+        intExpr(  5) mdiv intExpr( 1) <>  5 or
+        intExpr(  4) mdiv intExpr( 1) <>  4 or
+        intExpr(  3) mdiv intExpr( 1) <>  3 or
+        intExpr(  2) mdiv intExpr( 1) <>  2 or
+        intExpr(  1) mdiv intExpr( 1) <>  1 or
+        intExpr(  0) mdiv intExpr( 1) <>  0 or
+        intExpr( -1) mdiv intExpr( 1) <> -1 or
+        intExpr( -2) mdiv intExpr( 1) <> -2 or
+        intExpr( -3) mdiv intExpr( 1) <> -3 or
+        intExpr( -4) mdiv intExpr( 1) <> -4 or
+        intExpr( -5) mdiv intExpr( 1) <> -5 or
+        intExpr( -6) mdiv intExpr( 1) <> -6 or
+        intExpr( -7) mdiv intExpr( 1) <> -7 or
+        intExpr( -8) mdiv intExpr( 1) <> -8 or
+        intExpr( -9) mdiv intExpr( 1) <> -9 or
+        intExpr(-10) mdiv intExpr( 1) <> -10 or
+        intExpr( 10) mdiv intExpr(-1) <> -10 or
+        intExpr(  9) mdiv intExpr(-1) <> -9 or
+        intExpr(  8) mdiv intExpr(-1) <> -8 or
+        intExpr(  7) mdiv intExpr(-1) <> -7 or
+        intExpr(  6) mdiv intExpr(-1) <> -6 or
+        intExpr(  5) mdiv intExpr(-1) <> -5 or
+        intExpr(  4) mdiv intExpr(-1) <> -4 or
+        intExpr(  3) mdiv intExpr(-1) <> -3 or
+        intExpr(  2) mdiv intExpr(-1) <> -2 or
+        intExpr(  1) mdiv intExpr(-1) <> -1 or
+        intExpr(  0) mdiv intExpr(-1) <>  0 or
+        intExpr( -1) mdiv intExpr(-1) <>  1 or
+        intExpr( -2) mdiv intExpr(-1) <>  2 or
+        intExpr( -3) mdiv intExpr(-1) <>  3 or
+        intExpr( -4) mdiv intExpr(-1) <>  4 or
+        intExpr( -5) mdiv intExpr(-1) <>  5 or
+        intExpr( -6) mdiv intExpr(-1) <>  6 or
+        intExpr( -7) mdiv intExpr(-1) <>  7 or
+        intExpr( -8) mdiv intExpr(-1) <>  8 or
+        intExpr( -9) mdiv intExpr(-1) <>  9 or
+        intExpr(-10) mdiv intExpr(-1) <> 10 or
+        intExpr( 10) mdiv intExpr(-2) <> -5 or
+        intExpr(  9) mdiv intExpr(-2) <> -5 or
+        intExpr(  8) mdiv intExpr(-2) <> -4 or
+        intExpr(  7) mdiv intExpr(-2) <> -4 or
+        intExpr(  6) mdiv intExpr(-2) <> -3 or
+        intExpr(  5) mdiv intExpr(-2) <> -3 or
+        intExpr(  4) mdiv intExpr(-2) <> -2 or
+        intExpr(  3) mdiv intExpr(-2) <> -2 or
+        intExpr(  2) mdiv intExpr(-2) <> -1 or
+        intExpr(  1) mdiv intExpr(-2) <> -1 or
+        intExpr(  0) mdiv intExpr(-2) <>  0 or
+        intExpr( -1) mdiv intExpr(-2) <>  0 or
+        intExpr( -2) mdiv intExpr(-2) <>  1 or
+        intExpr( -3) mdiv intExpr(-2) <>  1 or
+        intExpr( -4) mdiv intExpr(-2) <>  2 or
+        intExpr( -5) mdiv intExpr(-2) <>  2 or
+        intExpr( -6) mdiv intExpr(-2) <>  3 or
+        intExpr( -7) mdiv intExpr(-2) <>  3 or
+        intExpr( -8) mdiv intExpr(-2) <>  4 or
+        intExpr( -9) mdiv intExpr(-2) <>  4 or
+        intExpr(-10) mdiv intExpr(-2) <>  5 or
+        intExpr( 10) mdiv intExpr(-3) <> -4 or
+        intExpr(  9) mdiv intExpr(-3) <> -3 or
+        intExpr(  8) mdiv intExpr(-3) <> -3 or
+        intExpr(  7) mdiv intExpr(-3) <> -3 or
+        intExpr(  6) mdiv intExpr(-3) <> -2 or
+        intExpr(  5) mdiv intExpr(-3) <> -2 or
+        intExpr(  4) mdiv intExpr(-3) <> -2 or
+        intExpr(  3) mdiv intExpr(-3) <> -1 or
+        intExpr(  2) mdiv intExpr(-3) <> -1 or
+        intExpr(  1) mdiv intExpr(-3) <> -1 or
+        intExpr(  0) mdiv intExpr(-3) <>  0 or
+        intExpr( -1) mdiv intExpr(-3) <>  0 or
+        intExpr( -2) mdiv intExpr(-3) <>  0 or
+        intExpr( -3) mdiv intExpr(-3) <>  1 or
+        intExpr( -4) mdiv intExpr(-3) <>  1 or
+        intExpr( -5) mdiv intExpr(-3) <>  1 or
+        intExpr( -6) mdiv intExpr(-3) <>  2 or
+        intExpr( -7) mdiv intExpr(-3) <>  2 or
+        intExpr( -8) mdiv intExpr(-3) <>  2 or
+        intExpr( -9) mdiv intExpr(-3) <>  3 or
+        intExpr(-10) mdiv intExpr(-3) <>  3 or
+        intExpr( 10) mdiv intExpr(-4) <> -3 or
+        intExpr(  9) mdiv intExpr(-4) <> -3 or
+        intExpr(  8) mdiv intExpr(-4) <> -2 or
+        intExpr(  7) mdiv intExpr(-4) <> -2 or
+        intExpr(  6) mdiv intExpr(-4) <> -2 or
+        intExpr(  5) mdiv intExpr(-4) <> -2 or
+        intExpr(  4) mdiv intExpr(-4) <> -1 or
+        intExpr(  3) mdiv intExpr(-4) <> -1 or
+        intExpr(  2) mdiv intExpr(-4) <> -1 or
+        intExpr(  1) mdiv intExpr(-4) <> -1 or
+        intExpr(  0) mdiv intExpr(-4) <>  0 or
+        intExpr( -1) mdiv intExpr(-4) <>  0 or
+        intExpr( -2) mdiv intExpr(-4) <>  0 or
+        intExpr( -3) mdiv intExpr(-4) <>  0 or
+        intExpr( -4) mdiv intExpr(-4) <>  1 or
+        intExpr( -5) mdiv intExpr(-4) <>  1 or
+        intExpr( -6) mdiv intExpr(-4) <>  1 or
+        intExpr( -7) mdiv intExpr(-4) <>  1 or
+        intExpr( -8) mdiv intExpr(-4) <>  2 or
+        intExpr( -9) mdiv intExpr(-4) <>  2 or
+        intExpr(-10) mdiv intExpr(-4) <>  2 or
+        intExpr( 10) mdiv intExpr(-5) <> -2 or
+        intExpr(  9) mdiv intExpr(-5) <> -2 or
+        intExpr(  8) mdiv intExpr(-5) <> -2 or
+        intExpr(  7) mdiv intExpr(-5) <> -2 or
+        intExpr(  6) mdiv intExpr(-5) <> -2 or
+        intExpr(  5) mdiv intExpr(-5) <> -1 or
+        intExpr(  4) mdiv intExpr(-5) <> -1 or
+        intExpr(  3) mdiv intExpr(-5) <> -1 or
+        intExpr(  2) mdiv intExpr(-5) <> -1 or
+        intExpr(  1) mdiv intExpr(-5) <> -1 or
+        intExpr(  0) mdiv intExpr(-5) <>  0 or
+        intExpr( -1) mdiv intExpr(-5) <>  0 or
+        intExpr( -2) mdiv intExpr(-5) <>  0 or
+        intExpr( -3) mdiv intExpr(-5) <>  0 or
+        intExpr( -4) mdiv intExpr(-5) <>  0 or
+        intExpr( -5) mdiv intExpr(-5) <>  1 or
+        intExpr( -6) mdiv intExpr(-5) <>  1 or
+        intExpr( -7) mdiv intExpr(-5) <>  1 or
+        intExpr( -8) mdiv intExpr(-5) <>  1 or
+        intExpr( -9) mdiv intExpr(-5) <>  1 or
+        intExpr(-10) mdiv intExpr(-5) <>  2 then
+      writeln(" ***** mdiv with two expressions does not work correct");
+      okay := FALSE;
+    end if;
+    if okay then
+      writeln("Mdiv works correct for selected values");
+    else
+      writeln(" ***** mdiv does not work correct");
+    end if;
+  end func;
+
+
+const proc: check_mod is func
+  local
+    var boolean: okay is TRUE;
+  begin
+    okay := TRUE;
+    if   10 mod  5 <>  0 or
+          9 mod  5 <>  4 or
+          8 mod  5 <>  3 or
+          7 mod  5 <>  2 or
+          6 mod  5 <>  1 or
+          5 mod  5 <>  0 or
+          4 mod  5 <>  4 or
+          3 mod  5 <>  3 or
+          2 mod  5 <>  2 or
+          1 mod  5 <>  1 or
+          0 mod  5 <>  0 or
+         -1 mod  5 <>  4 or
+         -2 mod  5 <>  3 or
+         -3 mod  5 <>  2 or
+         -4 mod  5 <>  1 or
+         -5 mod  5 <>  0 or
+         -6 mod  5 <>  4 or
+         -7 mod  5 <>  3 or
+         -8 mod  5 <>  2 or
+         -9 mod  5 <>  1 or
+        -10 mod  5 <>  0 or
+         10 mod  4 <>  2 or
+          9 mod  4 <>  1 or
+          8 mod  4 <>  0 or
+          7 mod  4 <>  3 or
+          6 mod  4 <>  2 or
+          5 mod  4 <>  1 or
+          4 mod  4 <>  0 or
+          3 mod  4 <>  3 or
+          2 mod  4 <>  2 or
+          1 mod  4 <>  1 or
+          0 mod  4 <>  0 or
+         -1 mod  4 <>  3 or
+         -2 mod  4 <>  2 or
+         -3 mod  4 <>  1 or
+         -4 mod  4 <>  0 or
+         -5 mod  4 <>  3 or
+         -6 mod  4 <>  2 or
+         -7 mod  4 <>  1 or
+         -8 mod  4 <>  0 or
+         -9 mod  4 <>  3 or
+        -10 mod  4 <>  2 or
+         10 mod  3 <>  1 or
+          9 mod  3 <>  0 or
+          8 mod  3 <>  2 or
+          7 mod  3 <>  1 or
+          6 mod  3 <>  0 or
+          5 mod  3 <>  2 or
+          4 mod  3 <>  1 or
+          3 mod  3 <>  0 or
+          2 mod  3 <>  2 or
+          1 mod  3 <>  1 or
+          0 mod  3 <>  0 or
+         -1 mod  3 <>  2 or
+         -2 mod  3 <>  1 or
+         -3 mod  3 <>  0 or
+         -4 mod  3 <>  2 or
+         -5 mod  3 <>  1 or
+         -6 mod  3 <>  0 or
+         -7 mod  3 <>  2 or
+         -8 mod  3 <>  1 or
+         -9 mod  3 <>  0 or
+        -10 mod  3 <>  2 or
+         10 mod  2 <>  0 or
+          9 mod  2 <>  1 or
+          8 mod  2 <>  0 or
+          7 mod  2 <>  1 or
+          6 mod  2 <>  0 or
+          5 mod  2 <>  1 or
+          4 mod  2 <>  0 or
+          3 mod  2 <>  1 or
+          2 mod  2 <>  0 or
+          1 mod  2 <>  1 or
+          0 mod  2 <>  0 or
+         -1 mod  2 <>  1 or
+         -2 mod  2 <>  0 or
+         -3 mod  2 <>  1 or
+         -4 mod  2 <>  0 or
+         -5 mod  2 <>  1 or
+         -6 mod  2 <>  0 or
+         -7 mod  2 <>  1 or
+         -8 mod  2 <>  0 or
+         -9 mod  2 <>  1 or
+        -10 mod  2 <>  0 or
+         10 mod  1 <>  0 or
+          9 mod  1 <>  0 or
+          8 mod  1 <>  0 or
+          7 mod  1 <>  0 or
+          6 mod  1 <>  0 or
+          5 mod  1 <>  0 or
+          4 mod  1 <>  0 or
+          3 mod  1 <>  0 or
+          2 mod  1 <>  0 or
+          1 mod  1 <>  0 or
+          0 mod  1 <>  0 or
+         -1 mod  1 <>  0 or
+         -2 mod  1 <>  0 or
+         -3 mod  1 <>  0 or
+         -4 mod  1 <>  0 or
+         -5 mod  1 <>  0 or
+         -6 mod  1 <>  0 or
+         -7 mod  1 <>  0 or
+         -8 mod  1 <>  0 or
+         -9 mod  1 <>  0 or
+        -10 mod  1 <>  0 or
+         10 mod -1 <>  0 or
+          9 mod -1 <>  0 or
+          8 mod -1 <>  0 or
+          7 mod -1 <>  0 or
+          6 mod -1 <>  0 or
+          5 mod -1 <>  0 or
+          4 mod -1 <>  0 or
+          3 mod -1 <>  0 or
+          2 mod -1 <>  0 or
+          1 mod -1 <>  0 or
+          0 mod -1 <>  0 or
+         -1 mod -1 <>  0 or
+         -2 mod -1 <>  0 or
+         -3 mod -1 <>  0 or
+         -4 mod -1 <>  0 or
+         -5 mod -1 <>  0 or
+         -6 mod -1 <>  0 or
+         -7 mod -1 <>  0 or
+         -8 mod -1 <>  0 or
+         -9 mod -1 <>  0 or
+        -10 mod -1 <>  0 or
+         10 mod -2 <>  0 or
+          9 mod -2 <> -1 or
+          8 mod -2 <>  0 or
+          7 mod -2 <> -1 or
+          6 mod -2 <>  0 or
+          5 mod -2 <> -1 or
+          4 mod -2 <>  0 or
+          3 mod -2 <> -1 or
+          2 mod -2 <>  0 or
+          1 mod -2 <> -1 or
+          0 mod -2 <>  0 or
+         -1 mod -2 <> -1 or
+         -2 mod -2 <>  0 or
+         -3 mod -2 <> -1 or
+         -4 mod -2 <>  0 or
+         -5 mod -2 <> -1 or
+         -6 mod -2 <>  0 or
+         -7 mod -2 <> -1 or
+         -8 mod -2 <>  0 or
+         -9 mod -2 <> -1 or
+        -10 mod -2 <>  0 or
+         10 mod -3 <> -2 or
+          9 mod -3 <>  0 or
+          8 mod -3 <> -1 or
+          7 mod -3 <> -2 or
+          6 mod -3 <>  0 or
+          5 mod -3 <> -1 or
+          4 mod -3 <> -2 or
+          3 mod -3 <>  0 or
+          2 mod -3 <> -1 or
+          1 mod -3 <> -2 or
+          0 mod -3 <>  0 or
+         -1 mod -3 <> -1 or
+         -2 mod -3 <> -2 or
+         -3 mod -3 <>  0 or
+         -4 mod -3 <> -1 or
+         -5 mod -3 <> -2 or
+         -6 mod -3 <>  0 or
+         -7 mod -3 <> -1 or
+         -8 mod -3 <> -2 or
+         -9 mod -3 <>  0 or
+        -10 mod -3 <> -1 or
+         10 mod -4 <> -2 or
+          9 mod -4 <> -3 or
+          8 mod -4 <>  0 or
+          7 mod -4 <> -1 or
+          6 mod -4 <> -2 or
+          5 mod -4 <> -3 or
+          4 mod -4 <>  0 or
+          3 mod -4 <> -1 or
+          2 mod -4 <> -2 or
+          1 mod -4 <> -3 or
+          0 mod -4 <>  0 or
+         -1 mod -4 <> -1 or
+         -2 mod -4 <> -2 or
+         -3 mod -4 <> -3 or
+         -4 mod -4 <>  0 or
+         -5 mod -4 <> -1 or
+         -6 mod -4 <> -2 or
+         -7 mod -4 <> -3 or
+         -8 mod -4 <>  0 or
+         -9 mod -4 <> -1 or
+        -10 mod -4 <> -2 or
+         10 mod -5 <> -0 or
+          9 mod -5 <> -1 or
+          8 mod -5 <> -2 or
+          7 mod -5 <> -3 or
+          6 mod -5 <> -4 or
+          5 mod -5 <>  0 or
+          4 mod -5 <> -1 or
+          3 mod -5 <> -2 or
+          2 mod -5 <> -3 or
+          1 mod -5 <> -4 or
+          0 mod -5 <>  0 or
+         -1 mod -5 <> -1 or
+         -2 mod -5 <> -2 or
+         -3 mod -5 <> -3 or
+         -4 mod -5 <> -4 or
+         -5 mod -5 <>  0 or
+         -6 mod -5 <> -1 or
+         -7 mod -5 <> -2 or
+         -8 mod -5 <> -3 or
+         -9 mod -5 <> -4 or
+        -10 mod -5 <>  0 then
+      writeln(" ***** mod with two constants does not work correct");
+      okay := FALSE;
+    end if;
+    if  intExpr( 10) mod  5 <>  0 or
+        intExpr(  9) mod  5 <>  4 or
+        intExpr(  8) mod  5 <>  3 or
+        intExpr(  7) mod  5 <>  2 or
+        intExpr(  6) mod  5 <>  1 or
+        intExpr(  5) mod  5 <>  0 or
+        intExpr(  4) mod  5 <>  4 or
+        intExpr(  3) mod  5 <>  3 or
+        intExpr(  2) mod  5 <>  2 or
+        intExpr(  1) mod  5 <>  1 or
+        intExpr(  0) mod  5 <>  0 or
+        intExpr( -1) mod  5 <>  4 or
+        intExpr( -2) mod  5 <>  3 or
+        intExpr( -3) mod  5 <>  2 or
+        intExpr( -4) mod  5 <>  1 or
+        intExpr( -5) mod  5 <>  0 or
+        intExpr( -6) mod  5 <>  4 or
+        intExpr( -7) mod  5 <>  3 or
+        intExpr( -8) mod  5 <>  2 or
+        intExpr( -9) mod  5 <>  1 or
+        intExpr(-10) mod  5 <>  0 or
+        intExpr( 10) mod  4 <>  2 or
+        intExpr(  9) mod  4 <>  1 or
+        intExpr(  8) mod  4 <>  0 or
+        intExpr(  7) mod  4 <>  3 or
+        intExpr(  6) mod  4 <>  2 or
+        intExpr(  5) mod  4 <>  1 or
+        intExpr(  4) mod  4 <>  0 or
+        intExpr(  3) mod  4 <>  3 or
+        intExpr(  2) mod  4 <>  2 or
+        intExpr(  1) mod  4 <>  1 or
+        intExpr(  0) mod  4 <>  0 or
+        intExpr( -1) mod  4 <>  3 or
+        intExpr( -2) mod  4 <>  2 or
+        intExpr( -3) mod  4 <>  1 or
+        intExpr( -4) mod  4 <>  0 or
+        intExpr( -5) mod  4 <>  3 or
+        intExpr( -6) mod  4 <>  2 or
+        intExpr( -7) mod  4 <>  1 or
+        intExpr( -8) mod  4 <>  0 or
+        intExpr( -9) mod  4 <>  3 or
+        intExpr(-10) mod  4 <>  2 or
+        intExpr( 10) mod  3 <>  1 or
+        intExpr(  9) mod  3 <>  0 or
+        intExpr(  8) mod  3 <>  2 or
+        intExpr(  7) mod  3 <>  1 or
+        intExpr(  6) mod  3 <>  0 or
+        intExpr(  5) mod  3 <>  2 or
+        intExpr(  4) mod  3 <>  1 or
+        intExpr(  3) mod  3 <>  0 or
+        intExpr(  2) mod  3 <>  2 or
+        intExpr(  1) mod  3 <>  1 or
+        intExpr(  0) mod  3 <>  0 or
+        intExpr( -1) mod  3 <>  2 or
+        intExpr( -2) mod  3 <>  1 or
+        intExpr( -3) mod  3 <>  0 or
+        intExpr( -4) mod  3 <>  2 or
+        intExpr( -5) mod  3 <>  1 or
+        intExpr( -6) mod  3 <>  0 or
+        intExpr( -7) mod  3 <>  2 or
+        intExpr( -8) mod  3 <>  1 or
+        intExpr( -9) mod  3 <>  0 or
+        intExpr(-10) mod  3 <>  2 or
+        intExpr( 10) mod  2 <>  0 or
+        intExpr(  9) mod  2 <>  1 or
+        intExpr(  8) mod  2 <>  0 or
+        intExpr(  7) mod  2 <>  1 or
+        intExpr(  6) mod  2 <>  0 or
+        intExpr(  5) mod  2 <>  1 or
+        intExpr(  4) mod  2 <>  0 or
+        intExpr(  3) mod  2 <>  1 or
+        intExpr(  2) mod  2 <>  0 or
+        intExpr(  1) mod  2 <>  1 or
+        intExpr(  0) mod  2 <>  0 or
+        intExpr( -1) mod  2 <>  1 or
+        intExpr( -2) mod  2 <>  0 or
+        intExpr( -3) mod  2 <>  1 or
+        intExpr( -4) mod  2 <>  0 or
+        intExpr( -5) mod  2 <>  1 or
+        intExpr( -6) mod  2 <>  0 or
+        intExpr( -7) mod  2 <>  1 or
+        intExpr( -8) mod  2 <>  0 or
+        intExpr( -9) mod  2 <>  1 or
+        intExpr(-10) mod  2 <>  0 or
+        intExpr( 10) mod  1 <>  0 or
+        intExpr(  9) mod  1 <>  0 or
+        intExpr(  8) mod  1 <>  0 or
+        intExpr(  7) mod  1 <>  0 or
+        intExpr(  6) mod  1 <>  0 or
+        intExpr(  5) mod  1 <>  0 or
+        intExpr(  4) mod  1 <>  0 or
+        intExpr(  3) mod  1 <>  0 or
+        intExpr(  2) mod  1 <>  0 or
+        intExpr(  1) mod  1 <>  0 or
+        intExpr(  0) mod  1 <>  0 or
+        intExpr( -1) mod  1 <>  0 or
+        intExpr( -2) mod  1 <>  0 or
+        intExpr( -3) mod  1 <>  0 or
+        intExpr( -4) mod  1 <>  0 or
+        intExpr( -5) mod  1 <>  0 or
+        intExpr( -6) mod  1 <>  0 or
+        intExpr( -7) mod  1 <>  0 or
+        intExpr( -8) mod  1 <>  0 or
+        intExpr( -9) mod  1 <>  0 or
+        intExpr(-10) mod  1 <>  0 or
+        intExpr( 10) mod -1 <>  0 or
+        intExpr(  9) mod -1 <>  0 or
+        intExpr(  8) mod -1 <>  0 or
+        intExpr(  7) mod -1 <>  0 or
+        intExpr(  6) mod -1 <>  0 or
+        intExpr(  5) mod -1 <>  0 or
+        intExpr(  4) mod -1 <>  0 or
+        intExpr(  3) mod -1 <>  0 or
+        intExpr(  2) mod -1 <>  0 or
+        intExpr(  1) mod -1 <>  0 or
+        intExpr(  0) mod -1 <>  0 or
+        intExpr( -1) mod -1 <>  0 or
+        intExpr( -2) mod -1 <>  0 or
+        intExpr( -3) mod -1 <>  0 or
+        intExpr( -4) mod -1 <>  0 or
+        intExpr( -5) mod -1 <>  0 or
+        intExpr( -6) mod -1 <>  0 or
+        intExpr( -7) mod -1 <>  0 or
+        intExpr( -8) mod -1 <>  0 or
+        intExpr( -9) mod -1 <>  0 or
+        intExpr(-10) mod -1 <>  0 or
+        intExpr( 10) mod -2 <>  0 or
+        intExpr(  9) mod -2 <> -1 or
+        intExpr(  8) mod -2 <>  0 or
+        intExpr(  7) mod -2 <> -1 or
+        intExpr(  6) mod -2 <>  0 or
+        intExpr(  5) mod -2 <> -1 or
+        intExpr(  4) mod -2 <>  0 or
+        intExpr(  3) mod -2 <> -1 or
+        intExpr(  2) mod -2 <>  0 or
+        intExpr(  1) mod -2 <> -1 or
+        intExpr(  0) mod -2 <>  0 or
+        intExpr( -1) mod -2 <> -1 or
+        intExpr( -2) mod -2 <>  0 or
+        intExpr( -3) mod -2 <> -1 or
+        intExpr( -4) mod -2 <>  0 or
+        intExpr( -5) mod -2 <> -1 or
+        intExpr( -6) mod -2 <>  0 or
+        intExpr( -7) mod -2 <> -1 or
+        intExpr( -8) mod -2 <>  0 or
+        intExpr( -9) mod -2 <> -1 or
+        intExpr(-10) mod -2 <>  0 or
+        intExpr( 10) mod -3 <> -2 or
+        intExpr(  9) mod -3 <>  0 or
+        intExpr(  8) mod -3 <> -1 or
+        intExpr(  7) mod -3 <> -2 or
+        intExpr(  6) mod -3 <>  0 or
+        intExpr(  5) mod -3 <> -1 or
+        intExpr(  4) mod -3 <> -2 or
+        intExpr(  3) mod -3 <>  0 or
+        intExpr(  2) mod -3 <> -1 or
+        intExpr(  1) mod -3 <> -2 or
+        intExpr(  0) mod -3 <>  0 or
+        intExpr( -1) mod -3 <> -1 or
+        intExpr( -2) mod -3 <> -2 or
+        intExpr( -3) mod -3 <>  0 or
+        intExpr( -4) mod -3 <> -1 or
+        intExpr( -5) mod -3 <> -2 or
+        intExpr( -6) mod -3 <>  0 or
+        intExpr( -7) mod -3 <> -1 or
+        intExpr( -8) mod -3 <> -2 or
+        intExpr( -9) mod -3 <>  0 or
+        intExpr(-10) mod -3 <> -1 or
+        intExpr( 10) mod -4 <> -2 or
+        intExpr(  9) mod -4 <> -3 or
+        intExpr(  8) mod -4 <>  0 or
+        intExpr(  7) mod -4 <> -1 or
+        intExpr(  6) mod -4 <> -2 or
+        intExpr(  5) mod -4 <> -3 or
+        intExpr(  4) mod -4 <>  0 or
+        intExpr(  3) mod -4 <> -1 or
+        intExpr(  2) mod -4 <> -2 or
+        intExpr(  1) mod -4 <> -3 or
+        intExpr(  0) mod -4 <>  0 or
+        intExpr( -1) mod -4 <> -1 or
+        intExpr( -2) mod -4 <> -2 or
+        intExpr( -3) mod -4 <> -3 or
+        intExpr( -4) mod -4 <>  0 or
+        intExpr( -5) mod -4 <> -1 or
+        intExpr( -6) mod -4 <> -2 or
+        intExpr( -7) mod -4 <> -3 or
+        intExpr( -8) mod -4 <>  0 or
+        intExpr( -9) mod -4 <> -1 or
+        intExpr(-10) mod -4 <> -2 or
+        intExpr( 10) mod -5 <> -0 or
+        intExpr(  9) mod -5 <> -1 or
+        intExpr(  8) mod -5 <> -2 or
+        intExpr(  7) mod -5 <> -3 or
+        intExpr(  6) mod -5 <> -4 or
+        intExpr(  5) mod -5 <>  0 or
+        intExpr(  4) mod -5 <> -1 or
+        intExpr(  3) mod -5 <> -2 or
+        intExpr(  2) mod -5 <> -3 or
+        intExpr(  1) mod -5 <> -4 or
+        intExpr(  0) mod -5 <>  0 or
+        intExpr( -1) mod -5 <> -1 or
+        intExpr( -2) mod -5 <> -2 or
+        intExpr( -3) mod -5 <> -3 or
+        intExpr( -4) mod -5 <> -4 or
+        intExpr( -5) mod -5 <>  0 or
+        intExpr( -6) mod -5 <> -1 or
+        intExpr( -7) mod -5 <> -2 or
+        intExpr( -8) mod -5 <> -3 or
+        intExpr( -9) mod -5 <> -4 or
+        intExpr(-10) mod -5 <>  0 then
+      writeln(" ***** mod with an expression and a constant does not work correct");
+      okay := FALSE;
+    end if;
+    if   10 mod intExpr( 5) <>  0 or
+          9 mod intExpr( 5) <>  4 or
+          8 mod intExpr( 5) <>  3 or
+          7 mod intExpr( 5) <>  2 or
+          6 mod intExpr( 5) <>  1 or
+          5 mod intExpr( 5) <>  0 or
+          4 mod intExpr( 5) <>  4 or
+          3 mod intExpr( 5) <>  3 or
+          2 mod intExpr( 5) <>  2 or
+          1 mod intExpr( 5) <>  1 or
+          0 mod intExpr( 5) <>  0 or
+         -1 mod intExpr( 5) <>  4 or
+         -2 mod intExpr( 5) <>  3 or
+         -3 mod intExpr( 5) <>  2 or
+         -4 mod intExpr( 5) <>  1 or
+         -5 mod intExpr( 5) <>  0 or
+         -6 mod intExpr( 5) <>  4 or
+         -7 mod intExpr( 5) <>  3 or
+         -8 mod intExpr( 5) <>  2 or
+         -9 mod intExpr( 5) <>  1 or
+        -10 mod intExpr( 5) <>  0 or
+         10 mod intExpr( 4) <>  2 or
+          9 mod intExpr( 4) <>  1 or
+          8 mod intExpr( 4) <>  0 or
+          7 mod intExpr( 4) <>  3 or
+          6 mod intExpr( 4) <>  2 or
+          5 mod intExpr( 4) <>  1 or
+          4 mod intExpr( 4) <>  0 or
+          3 mod intExpr( 4) <>  3 or
+          2 mod intExpr( 4) <>  2 or
+          1 mod intExpr( 4) <>  1 or
+          0 mod intExpr( 4) <>  0 or
+         -1 mod intExpr( 4) <>  3 or
+         -2 mod intExpr( 4) <>  2 or
+         -3 mod intExpr( 4) <>  1 or
+         -4 mod intExpr( 4) <>  0 or
+         -5 mod intExpr( 4) <>  3 or
+         -6 mod intExpr( 4) <>  2 or
+         -7 mod intExpr( 4) <>  1 or
+         -8 mod intExpr( 4) <>  0 or
+         -9 mod intExpr( 4) <>  3 or
+        -10 mod intExpr( 4) <>  2 or
+         10 mod intExpr( 3) <>  1 or
+          9 mod intExpr( 3) <>  0 or
+          8 mod intExpr( 3) <>  2 or
+          7 mod intExpr( 3) <>  1 or
+          6 mod intExpr( 3) <>  0 or
+          5 mod intExpr( 3) <>  2 or
+          4 mod intExpr( 3) <>  1 or
+          3 mod intExpr( 3) <>  0 or
+          2 mod intExpr( 3) <>  2 or
+          1 mod intExpr( 3) <>  1 or
+          0 mod intExpr( 3) <>  0 or
+         -1 mod intExpr( 3) <>  2 or
+         -2 mod intExpr( 3) <>  1 or
+         -3 mod intExpr( 3) <>  0 or
+         -4 mod intExpr( 3) <>  2 or
+         -5 mod intExpr( 3) <>  1 or
+         -6 mod intExpr( 3) <>  0 or
+         -7 mod intExpr( 3) <>  2 or
+         -8 mod intExpr( 3) <>  1 or
+         -9 mod intExpr( 3) <>  0 or
+        -10 mod intExpr( 3) <>  2 or
+         10 mod intExpr( 2) <>  0 or
+          9 mod intExpr( 2) <>  1 or
+          8 mod intExpr( 2) <>  0 or
+          7 mod intExpr( 2) <>  1 or
+          6 mod intExpr( 2) <>  0 or
+          5 mod intExpr( 2) <>  1 or
+          4 mod intExpr( 2) <>  0 or
+          3 mod intExpr( 2) <>  1 or
+          2 mod intExpr( 2) <>  0 or
+          1 mod intExpr( 2) <>  1 or
+          0 mod intExpr( 2) <>  0 or
+         -1 mod intExpr( 2) <>  1 or
+         -2 mod intExpr( 2) <>  0 or
+         -3 mod intExpr( 2) <>  1 or
+         -4 mod intExpr( 2) <>  0 or
+         -5 mod intExpr( 2) <>  1 or
+         -6 mod intExpr( 2) <>  0 or
+         -7 mod intExpr( 2) <>  1 or
+         -8 mod intExpr( 2) <>  0 or
+         -9 mod intExpr( 2) <>  1 or
+        -10 mod intExpr( 2) <>  0 or
+         10 mod intExpr( 1) <>  0 or
+          9 mod intExpr( 1) <>  0 or
+          8 mod intExpr( 1) <>  0 or
+          7 mod intExpr( 1) <>  0 or
+          6 mod intExpr( 1) <>  0 or
+          5 mod intExpr( 1) <>  0 or
+          4 mod intExpr( 1) <>  0 or
+          3 mod intExpr( 1) <>  0 or
+          2 mod intExpr( 1) <>  0 or
+          1 mod intExpr( 1) <>  0 or
+          0 mod intExpr( 1) <>  0 or
+         -1 mod intExpr( 1) <>  0 or
+         -2 mod intExpr( 1) <>  0 or
+         -3 mod intExpr( 1) <>  0 or
+         -4 mod intExpr( 1) <>  0 or
+         -5 mod intExpr( 1) <>  0 or
+         -6 mod intExpr( 1) <>  0 or
+         -7 mod intExpr( 1) <>  0 or
+         -8 mod intExpr( 1) <>  0 or
+         -9 mod intExpr( 1) <>  0 or
+        -10 mod intExpr( 1) <>  0 or
+         10 mod intExpr(-1) <>  0 or
+          9 mod intExpr(-1) <>  0 or
+          8 mod intExpr(-1) <>  0 or
+          7 mod intExpr(-1) <>  0 or
+          6 mod intExpr(-1) <>  0 or
+          5 mod intExpr(-1) <>  0 or
+          4 mod intExpr(-1) <>  0 or
+          3 mod intExpr(-1) <>  0 or
+          2 mod intExpr(-1) <>  0 or
+          1 mod intExpr(-1) <>  0 or
+          0 mod intExpr(-1) <>  0 or
+         -1 mod intExpr(-1) <>  0 or
+         -2 mod intExpr(-1) <>  0 or
+         -3 mod intExpr(-1) <>  0 or
+         -4 mod intExpr(-1) <>  0 or
+         -5 mod intExpr(-1) <>  0 or
+         -6 mod intExpr(-1) <>  0 or
+         -7 mod intExpr(-1) <>  0 or
+         -8 mod intExpr(-1) <>  0 or
+         -9 mod intExpr(-1) <>  0 or
+        -10 mod intExpr(-1) <>  0 or
+         10 mod intExpr(-2) <>  0 or
+          9 mod intExpr(-2) <> -1 or
+          8 mod intExpr(-2) <>  0 or
+          7 mod intExpr(-2) <> -1 or
+          6 mod intExpr(-2) <>  0 or
+          5 mod intExpr(-2) <> -1 or
+          4 mod intExpr(-2) <>  0 or
+          3 mod intExpr(-2) <> -1 or
+          2 mod intExpr(-2) <>  0 or
+          1 mod intExpr(-2) <> -1 or
+          0 mod intExpr(-2) <>  0 or
+         -1 mod intExpr(-2) <> -1 or
+         -2 mod intExpr(-2) <>  0 or
+         -3 mod intExpr(-2) <> -1 or
+         -4 mod intExpr(-2) <>  0 or
+         -5 mod intExpr(-2) <> -1 or
+         -6 mod intExpr(-2) <>  0 or
+         -7 mod intExpr(-2) <> -1 or
+         -8 mod intExpr(-2) <>  0 or
+         -9 mod intExpr(-2) <> -1 or
+        -10 mod intExpr(-2) <>  0 or
+         10 mod intExpr(-3) <> -2 or
+          9 mod intExpr(-3) <>  0 or
+          8 mod intExpr(-3) <> -1 or
+          7 mod intExpr(-3) <> -2 or
+          6 mod intExpr(-3) <>  0 or
+          5 mod intExpr(-3) <> -1 or
+          4 mod intExpr(-3) <> -2 or
+          3 mod intExpr(-3) <>  0 or
+          2 mod intExpr(-3) <> -1 or
+          1 mod intExpr(-3) <> -2 or
+          0 mod intExpr(-3) <>  0 or
+         -1 mod intExpr(-3) <> -1 or
+         -2 mod intExpr(-3) <> -2 or
+         -3 mod intExpr(-3) <>  0 or
+         -4 mod intExpr(-3) <> -1 or
+         -5 mod intExpr(-3) <> -2 or
+         -6 mod intExpr(-3) <>  0 or
+         -7 mod intExpr(-3) <> -1 or
+         -8 mod intExpr(-3) <> -2 or
+         -9 mod intExpr(-3) <>  0 or
+        -10 mod intExpr(-3) <> -1 or
+         10 mod intExpr(-4) <> -2 or
+          9 mod intExpr(-4) <> -3 or
+          8 mod intExpr(-4) <>  0 or
+          7 mod intExpr(-4) <> -1 or
+          6 mod intExpr(-4) <> -2 or
+          5 mod intExpr(-4) <> -3 or
+          4 mod intExpr(-4) <>  0 or
+          3 mod intExpr(-4) <> -1 or
+          2 mod intExpr(-4) <> -2 or
+          1 mod intExpr(-4) <> -3 or
+          0 mod intExpr(-4) <>  0 or
+         -1 mod intExpr(-4) <> -1 or
+         -2 mod intExpr(-4) <> -2 or
+         -3 mod intExpr(-4) <> -3 or
+         -4 mod intExpr(-4) <>  0 or
+         -5 mod intExpr(-4) <> -1 or
+         -6 mod intExpr(-4) <> -2 or
+         -7 mod intExpr(-4) <> -3 or
+         -8 mod intExpr(-4) <>  0 or
+         -9 mod intExpr(-4) <> -1 or
+        -10 mod intExpr(-4) <> -2 or
+         10 mod intExpr(-5) <> -0 or
+          9 mod intExpr(-5) <> -1 or
+          8 mod intExpr(-5) <> -2 or
+          7 mod intExpr(-5) <> -3 or
+          6 mod intExpr(-5) <> -4 or
+          5 mod intExpr(-5) <>  0 or
+          4 mod intExpr(-5) <> -1 or
+          3 mod intExpr(-5) <> -2 or
+          2 mod intExpr(-5) <> -3 or
+          1 mod intExpr(-5) <> -4 or
+          0 mod intExpr(-5) <>  0 or
+         -1 mod intExpr(-5) <> -1 or
+         -2 mod intExpr(-5) <> -2 or
+         -3 mod intExpr(-5) <> -3 or
+         -4 mod intExpr(-5) <> -4 or
+         -5 mod intExpr(-5) <>  0 or
+         -6 mod intExpr(-5) <> -1 or
+         -7 mod intExpr(-5) <> -2 or
+         -8 mod intExpr(-5) <> -3 or
+         -9 mod intExpr(-5) <> -4 or
+        -10 mod intExpr(-5) <>  0 then
+      writeln(" ***** mod with a constant and an expression does not work correct");
+      okay := FALSE;
+    end if;
+    if  intExpr( 10) mod intExpr( 5) <>  0 or
+        intExpr(  9) mod intExpr( 5) <>  4 or
+        intExpr(  8) mod intExpr( 5) <>  3 or
+        intExpr(  7) mod intExpr( 5) <>  2 or
+        intExpr(  6) mod intExpr( 5) <>  1 or
+        intExpr(  5) mod intExpr( 5) <>  0 or
+        intExpr(  4) mod intExpr( 5) <>  4 or
+        intExpr(  3) mod intExpr( 5) <>  3 or
+        intExpr(  2) mod intExpr( 5) <>  2 or
+        intExpr(  1) mod intExpr( 5) <>  1 or
+        intExpr(  0) mod intExpr( 5) <>  0 or
+        intExpr( -1) mod intExpr( 5) <>  4 or
+        intExpr( -2) mod intExpr( 5) <>  3 or
+        intExpr( -3) mod intExpr( 5) <>  2 or
+        intExpr( -4) mod intExpr( 5) <>  1 or
+        intExpr( -5) mod intExpr( 5) <>  0 or
+        intExpr( -6) mod intExpr( 5) <>  4 or
+        intExpr( -7) mod intExpr( 5) <>  3 or
+        intExpr( -8) mod intExpr( 5) <>  2 or
+        intExpr( -9) mod intExpr( 5) <>  1 or
+        intExpr(-10) mod intExpr( 5) <>  0 or
+        intExpr( 10) mod intExpr( 4) <>  2 or
+        intExpr(  9) mod intExpr( 4) <>  1 or
+        intExpr(  8) mod intExpr( 4) <>  0 or
+        intExpr(  7) mod intExpr( 4) <>  3 or
+        intExpr(  6) mod intExpr( 4) <>  2 or
+        intExpr(  5) mod intExpr( 4) <>  1 or
+        intExpr(  4) mod intExpr( 4) <>  0 or
+        intExpr(  3) mod intExpr( 4) <>  3 or
+        intExpr(  2) mod intExpr( 4) <>  2 or
+        intExpr(  1) mod intExpr( 4) <>  1 or
+        intExpr(  0) mod intExpr( 4) <>  0 or
+        intExpr( -1) mod intExpr( 4) <>  3 or
+        intExpr( -2) mod intExpr( 4) <>  2 or
+        intExpr( -3) mod intExpr( 4) <>  1 or
+        intExpr( -4) mod intExpr( 4) <>  0 or
+        intExpr( -5) mod intExpr( 4) <>  3 or
+        intExpr( -6) mod intExpr( 4) <>  2 or
+        intExpr( -7) mod intExpr( 4) <>  1 or
+        intExpr( -8) mod intExpr( 4) <>  0 or
+        intExpr( -9) mod intExpr( 4) <>  3 or
+        intExpr(-10) mod intExpr( 4) <>  2 or
+        intExpr( 10) mod intExpr( 3) <>  1 or
+        intExpr(  9) mod intExpr( 3) <>  0 or
+        intExpr(  8) mod intExpr( 3) <>  2 or
+        intExpr(  7) mod intExpr( 3) <>  1 or
+        intExpr(  6) mod intExpr( 3) <>  0 or
+        intExpr(  5) mod intExpr( 3) <>  2 or
+        intExpr(  4) mod intExpr( 3) <>  1 or
+        intExpr(  3) mod intExpr( 3) <>  0 or
+        intExpr(  2) mod intExpr( 3) <>  2 or
+        intExpr(  1) mod intExpr( 3) <>  1 or
+        intExpr(  0) mod intExpr( 3) <>  0 or
+        intExpr( -1) mod intExpr( 3) <>  2 or
+        intExpr( -2) mod intExpr( 3) <>  1 or
+        intExpr( -3) mod intExpr( 3) <>  0 or
+        intExpr( -4) mod intExpr( 3) <>  2 or
+        intExpr( -5) mod intExpr( 3) <>  1 or
+        intExpr( -6) mod intExpr( 3) <>  0 or
+        intExpr( -7) mod intExpr( 3) <>  2 or
+        intExpr( -8) mod intExpr( 3) <>  1 or
+        intExpr( -9) mod intExpr( 3) <>  0 or
+        intExpr(-10) mod intExpr( 3) <>  2 or
+        intExpr( 10) mod intExpr( 2) <>  0 or
+        intExpr(  9) mod intExpr( 2) <>  1 or
+        intExpr(  8) mod intExpr( 2) <>  0 or
+        intExpr(  7) mod intExpr( 2) <>  1 or
+        intExpr(  6) mod intExpr( 2) <>  0 or
+        intExpr(  5) mod intExpr( 2) <>  1 or
+        intExpr(  4) mod intExpr( 2) <>  0 or
+        intExpr(  3) mod intExpr( 2) <>  1 or
+        intExpr(  2) mod intExpr( 2) <>  0 or
+        intExpr(  1) mod intExpr( 2) <>  1 or
+        intExpr(  0) mod intExpr( 2) <>  0 or
+        intExpr( -1) mod intExpr( 2) <>  1 or
+        intExpr( -2) mod intExpr( 2) <>  0 or
+        intExpr( -3) mod intExpr( 2) <>  1 or
+        intExpr( -4) mod intExpr( 2) <>  0 or
+        intExpr( -5) mod intExpr( 2) <>  1 or
+        intExpr( -6) mod intExpr( 2) <>  0 or
+        intExpr( -7) mod intExpr( 2) <>  1 or
+        intExpr( -8) mod intExpr( 2) <>  0 or
+        intExpr( -9) mod intExpr( 2) <>  1 or
+        intExpr(-10) mod intExpr( 2) <>  0 or
+        intExpr( 10) mod intExpr( 1) <>  0 or
+        intExpr(  9) mod intExpr( 1) <>  0 or
+        intExpr(  8) mod intExpr( 1) <>  0 or
+        intExpr(  7) mod intExpr( 1) <>  0 or
+        intExpr(  6) mod intExpr( 1) <>  0 or
+        intExpr(  5) mod intExpr( 1) <>  0 or
+        intExpr(  4) mod intExpr( 1) <>  0 or
+        intExpr(  3) mod intExpr( 1) <>  0 or
+        intExpr(  2) mod intExpr( 1) <>  0 or
+        intExpr(  1) mod intExpr( 1) <>  0 or
+        intExpr(  0) mod intExpr( 1) <>  0 or
+        intExpr( -1) mod intExpr( 1) <>  0 or
+        intExpr( -2) mod intExpr( 1) <>  0 or
+        intExpr( -3) mod intExpr( 1) <>  0 or
+        intExpr( -4) mod intExpr( 1) <>  0 or
+        intExpr( -5) mod intExpr( 1) <>  0 or
+        intExpr( -6) mod intExpr( 1) <>  0 or
+        intExpr( -7) mod intExpr( 1) <>  0 or
+        intExpr( -8) mod intExpr( 1) <>  0 or
+        intExpr( -9) mod intExpr( 1) <>  0 or
+        intExpr(-10) mod intExpr( 1) <>  0 or
+        intExpr( 10) mod intExpr(-1) <>  0 or
+        intExpr(  9) mod intExpr(-1) <>  0 or
+        intExpr(  8) mod intExpr(-1) <>  0 or
+        intExpr(  7) mod intExpr(-1) <>  0 or
+        intExpr(  6) mod intExpr(-1) <>  0 or
+        intExpr(  5) mod intExpr(-1) <>  0 or
+        intExpr(  4) mod intExpr(-1) <>  0 or
+        intExpr(  3) mod intExpr(-1) <>  0 or
+        intExpr(  2) mod intExpr(-1) <>  0 or
+        intExpr(  1) mod intExpr(-1) <>  0 or
+        intExpr(  0) mod intExpr(-1) <>  0 or
+        intExpr( -1) mod intExpr(-1) <>  0 or
+        intExpr( -2) mod intExpr(-1) <>  0 or
+        intExpr( -3) mod intExpr(-1) <>  0 or
+        intExpr( -4) mod intExpr(-1) <>  0 or
+        intExpr( -5) mod intExpr(-1) <>  0 or
+        intExpr( -6) mod intExpr(-1) <>  0 or
+        intExpr( -7) mod intExpr(-1) <>  0 or
+        intExpr( -8) mod intExpr(-1) <>  0 or
+        intExpr( -9) mod intExpr(-1) <>  0 or
+        intExpr(-10) mod intExpr(-1) <>  0 or
+        intExpr( 10) mod intExpr(-2) <>  0 or
+        intExpr(  9) mod intExpr(-2) <> -1 or
+        intExpr(  8) mod intExpr(-2) <>  0 or
+        intExpr(  7) mod intExpr(-2) <> -1 or
+        intExpr(  6) mod intExpr(-2) <>  0 or
+        intExpr(  5) mod intExpr(-2) <> -1 or
+        intExpr(  4) mod intExpr(-2) <>  0 or
+        intExpr(  3) mod intExpr(-2) <> -1 or
+        intExpr(  2) mod intExpr(-2) <>  0 or
+        intExpr(  1) mod intExpr(-2) <> -1 or
+        intExpr(  0) mod intExpr(-2) <>  0 or
+        intExpr( -1) mod intExpr(-2) <> -1 or
+        intExpr( -2) mod intExpr(-2) <>  0 or
+        intExpr( -3) mod intExpr(-2) <> -1 or
+        intExpr( -4) mod intExpr(-2) <>  0 or
+        intExpr( -5) mod intExpr(-2) <> -1 or
+        intExpr( -6) mod intExpr(-2) <>  0 or
+        intExpr( -7) mod intExpr(-2) <> -1 or
+        intExpr( -8) mod intExpr(-2) <>  0 or
+        intExpr( -9) mod intExpr(-2) <> -1 or
+        intExpr(-10) mod intExpr(-2) <>  0 or
+        intExpr( 10) mod intExpr(-3) <> -2 or
+        intExpr(  9) mod intExpr(-3) <>  0 or
+        intExpr(  8) mod intExpr(-3) <> -1 or
+        intExpr(  7) mod intExpr(-3) <> -2 or
+        intExpr(  6) mod intExpr(-3) <>  0 or
+        intExpr(  5) mod intExpr(-3) <> -1 or
+        intExpr(  4) mod intExpr(-3) <> -2 or
+        intExpr(  3) mod intExpr(-3) <>  0 or
+        intExpr(  2) mod intExpr(-3) <> -1 or
+        intExpr(  1) mod intExpr(-3) <> -2 or
+        intExpr(  0) mod intExpr(-3) <>  0 or
+        intExpr( -1) mod intExpr(-3) <> -1 or
+        intExpr( -2) mod intExpr(-3) <> -2 or
+        intExpr( -3) mod intExpr(-3) <>  0 or
+        intExpr( -4) mod intExpr(-3) <> -1 or
+        intExpr( -5) mod intExpr(-3) <> -2 or
+        intExpr( -6) mod intExpr(-3) <>  0 or
+        intExpr( -7) mod intExpr(-3) <> -1 or
+        intExpr( -8) mod intExpr(-3) <> -2 or
+        intExpr( -9) mod intExpr(-3) <>  0 or
+        intExpr(-10) mod intExpr(-3) <> -1 or
+        intExpr( 10) mod intExpr(-4) <> -2 or
+        intExpr(  9) mod intExpr(-4) <> -3 or
+        intExpr(  8) mod intExpr(-4) <>  0 or
+        intExpr(  7) mod intExpr(-4) <> -1 or
+        intExpr(  6) mod intExpr(-4) <> -2 or
+        intExpr(  5) mod intExpr(-4) <> -3 or
+        intExpr(  4) mod intExpr(-4) <>  0 or
+        intExpr(  3) mod intExpr(-4) <> -1 or
+        intExpr(  2) mod intExpr(-4) <> -2 or
+        intExpr(  1) mod intExpr(-4) <> -3 or
+        intExpr(  0) mod intExpr(-4) <>  0 or
+        intExpr( -1) mod intExpr(-4) <> -1 or
+        intExpr( -2) mod intExpr(-4) <> -2 or
+        intExpr( -3) mod intExpr(-4) <> -3 or
+        intExpr( -4) mod intExpr(-4) <>  0 or
+        intExpr( -5) mod intExpr(-4) <> -1 or
+        intExpr( -6) mod intExpr(-4) <> -2 or
+        intExpr( -7) mod intExpr(-4) <> -3 or
+        intExpr( -8) mod intExpr(-4) <>  0 or
+        intExpr( -9) mod intExpr(-4) <> -1 or
+        intExpr(-10) mod intExpr(-4) <> -2 or
+        intExpr( 10) mod intExpr(-5) <> -0 or
+        intExpr(  9) mod intExpr(-5) <> -1 or
+        intExpr(  8) mod intExpr(-5) <> -2 or
+        intExpr(  7) mod intExpr(-5) <> -3 or
+        intExpr(  6) mod intExpr(-5) <> -4 or
+        intExpr(  5) mod intExpr(-5) <>  0 or
+        intExpr(  4) mod intExpr(-5) <> -1 or
+        intExpr(  3) mod intExpr(-5) <> -2 or
+        intExpr(  2) mod intExpr(-5) <> -3 or
+        intExpr(  1) mod intExpr(-5) <> -4 or
+        intExpr(  0) mod intExpr(-5) <>  0 or
+        intExpr( -1) mod intExpr(-5) <> -1 or
+        intExpr( -2) mod intExpr(-5) <> -2 or
+        intExpr( -3) mod intExpr(-5) <> -3 or
+        intExpr( -4) mod intExpr(-5) <> -4 or
+        intExpr( -5) mod intExpr(-5) <>  0 or
+        intExpr( -6) mod intExpr(-5) <> -1 or
+        intExpr( -7) mod intExpr(-5) <> -2 or
+        intExpr( -8) mod intExpr(-5) <> -3 or
+        intExpr( -9) mod intExpr(-5) <> -4 or
+        intExpr(-10) mod intExpr(-5) <>  0 then
+      writeln(" ***** mod with two expressions does not work correct");
+      okay := FALSE;
+    end if;
+    if okay then
+      writeln("Mod works correct for selected values");
+    else
+      writeln(" ***** mod does not work correct");
     end if;
   end func;
 
@@ -602,30 +4039,189 @@ const proc: check_log2 is func
   end func;
 
 
-const proc: division is func
+const func boolean: chkLShift (in integer: number, in integer: lshift,
+    in integer: checkValue) is func
+  result
+    var boolean: wrong is FALSE;
   local
-    var integer: dividend is 0;
-    var integer: divisor is 0;
+    var integer: intVar is 0;
   begin
-    dividend := 5;
-    divisor := 3;
-    while dividend >= -5 do
-      write(dividend);
-      write(" ");
-      write(dividend div divisor);
-      write(" ");
-      write(dividend rem divisor);
-      write(" ");
-      write(dividend mod divisor);
-      write(" ");
-      write(dividend div -divisor);
-      write(" ");
-      write(dividend rem -divisor);
-      write(" ");
-      write(dividend mod -divisor);
+    wrong := number << lshift <> checkValue;
+    if not wrong then
+      intVar := number;
+      intVar <<:= lshift;
+      wrong := intVar <> checkValue;
+    end if;
+  end func;
+
+
+const func boolean: chkLShift (in integer: number, in integer: lshift) is func
+  result
+    var boolean: wrong is FALSE;
+  begin
+    wrong := chkLShift(number, lshift, number * 2 ** lshift);
+  end func;
+
+
+const proc: chkLShift (in integer: lshift, inout boolean: okay) is func
+  begin
+    if  chkLShift(           2147483647, lshift) or
+        chkLShift(           1000000000, lshift) or
+        chkLShift(            100000000, lshift) or
+        chkLShift(             10000000, lshift) or
+        chkLShift(              1000000, lshift) or
+        chkLShift(               100000, lshift) or
+        chkLShift(                65536, lshift) or
+        chkLShift(                65535, lshift) or
+        chkLShift(                32768, lshift) or
+        chkLShift(                32767, lshift) or
+        chkLShift(                10000, lshift) or
+        chkLShift(                 1000, lshift) or
+        chkLShift(                  256, lshift) or
+        chkLShift(                  255, lshift) or
+        chkLShift(                  128, lshift) or
+        chkLShift(                  127, lshift) or
+        chkLShift(                  100, lshift) or
+        chkLShift(                   10, lshift) or
+        chkLShift(                    1, lshift) or
+        chkLShift(                    0, lshift) or
+        chkLShift(                   -1, lshift) or
+        chkLShift(                  -10, lshift) or
+        chkLShift(                 -100, lshift) or
+        chkLShift(                 -128, lshift) or
+        chkLShift(                 -129, lshift) or
+        chkLShift(                 -256, lshift) or
+        chkLShift(                 -257, lshift) or
+        chkLShift(                -1000, lshift) or
+        chkLShift(               -10000, lshift) or
+        chkLShift(               -32768, lshift) or
+        chkLShift(               -32769, lshift) or
+        chkLShift(               -65536, lshift) or
+        chkLShift(               -65537, lshift) or
+        chkLShift(              -100000, lshift) or
+        chkLShift(             -1000000, lshift) or
+        chkLShift(            -10000000, lshift) or
+        chkLShift(           -100000000, lshift) or
+        chkLShift(          -1000000000, lshift) or
+        chkLShift(          -2147483647, lshift) or
+        chkLShift(    pred(-2147483647), lshift) then
+      writeln("The integer << or <<:= with " <& lshift <& " does not work correct.");
+      okay := FALSE;
+    end if;
+  end func;
+
+
+const proc: check_lShift is func
+  local
+    var boolean: okay is TRUE;
+    var integer: lshift is 0;
+  begin
+    for lshift range 0 to 31 do
+      chkLShift(lshift, okay);
+    end for;
+
+    if okay then
+      writeln("The integer << and <<:= works correct.");
+    else
+      writeln(" ***** The integer << or <<:= does not work correct.");
       writeln;
-      decr(dividend);
-    end while;
+    end if;
+  end func;
+
+
+const func boolean: chkRShift (in integer: number, in integer: rshift,
+    in integer: check) is func
+  result
+    var boolean: wrong is FALSE;
+  local
+    var integer: intVar is 0;
+  begin
+    wrong := number >> rshift <> check;
+    if not wrong then
+      intVar := number;
+      intVar >>:= rshift;
+      wrong := intVar <> check;
+    end if;
+  end func;
+
+
+const func boolean: chkRShift (in integer: number, in integer: rshift) is func
+  result
+    var boolean: wrong is FALSE;
+  begin
+    if rshift < 31 then
+      wrong := chkRShift(number, rshift, number mdiv 2 ** rshift);
+    elsif number < 0 then
+      wrong := chkRShift(number, rshift, -1);
+    else
+      wrong := chkRShift(number, rshift, 0);
+    end if;
+  end func;
+
+
+const proc: chkRShift (in integer: rshift, inout boolean: okay) is func
+  begin
+    if  chkRShift(           2147483647, rshift) or
+        chkRShift(           1000000000, rshift) or
+        chkRShift(            100000000, rshift) or
+        chkRShift(             10000000, rshift) or
+        chkRShift(              1000000, rshift) or
+        chkRShift(               100000, rshift) or
+        chkRShift(                65536, rshift) or
+        chkRShift(                65535, rshift) or
+        chkRShift(                32768, rshift) or
+        chkRShift(                32767, rshift) or
+        chkRShift(                10000, rshift) or
+        chkRShift(                 1000, rshift) or
+        chkRShift(                  256, rshift) or
+        chkRShift(                  255, rshift) or
+        chkRShift(                  128, rshift) or
+        chkRShift(                  127, rshift) or
+        chkRShift(                  100, rshift) or
+        chkRShift(                   10, rshift) or
+        chkRShift(                    1, rshift) or
+        chkRShift(                    0, rshift) or
+        chkRShift(                   -1, rshift) or
+        chkRShift(                  -10, rshift) or
+        chkRShift(                 -100, rshift) or
+        chkRShift(                 -128, rshift) or
+        chkRShift(                 -129, rshift) or
+        chkRShift(                 -256, rshift) or
+        chkRShift(                 -257, rshift) or
+        chkRShift(                -1000, rshift) or
+        chkRShift(               -10000, rshift) or
+        chkRShift(               -32768, rshift) or
+        chkRShift(               -32769, rshift) or
+        chkRShift(               -65536, rshift) or
+        chkRShift(               -65537, rshift) or
+        chkRShift(              -100000, rshift) or
+        chkRShift(             -1000000, rshift) or
+        chkRShift(            -10000000, rshift) or
+        chkRShift(           -100000000, rshift) or
+        chkRShift(          -1000000000, rshift) or
+        chkRShift(          -2147483647, rshift) or
+        chkRShift(    pred(-2147483647), rshift) then
+      writeln("The integer >> or >>:= with " <& rshift <& " does not work correct.");
+      okay := FALSE;
+    end if;
+  end func;
+
+
+const proc: check_rShift is func
+  local
+    var boolean: okay is TRUE;
+    var integer: rshift is 0;
+  begin
+    for rshift range 0 to 31 do
+      chkRShift(rshift, okay);
+    end for;
+
+    if okay then
+      writeln("The integer >> and >>:= works correct.");
+    else
+      writeln(" ***** The integer >> or >>:= does not work correct.");
+      writeln;
+    end if;
   end func;
 
 
@@ -962,17 +4558,19 @@ const proc: main is func
     chack_based_integer_literal;
     check_negation;
     check_add;
-    check_div;
-(*    check_div_exception; *)
-    check_rem;
     check_division;
+    check_div;
+    check_rem;
     check_mdiv;
+    check_mod;
     check_odd;
     check_fact;
     check_binom;
     check_power;
     check_sqrt;
     check_log2;
+    check_lShift;
+    check_rShift;
     check_str;
     check_parse;
     check_lpad0;

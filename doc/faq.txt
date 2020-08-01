@@ -64,10 +64,14 @@ On which operating systems does Seed7 run?
 ==========================================
 
 Linux is supported out of the box (because the development is done using
-Linux). For other operating systems it might be necessary to write driver
-modules for screen (=text console), graphics, time or other aspects of Seed7.
+Linux). I used Seed7 also under various UNIX variants, so this is probably
+also easy. Windows is supported with MinGW, Cygwin and the stand alone
+compiler of MSVC (I have no possibility to check out MSVC regularly).
+For other operating systems it might be necessary to write driver modules
+for screen (=text console), graphics, time or other aspects of Seed7.
 The package contains various older driver modules which are not up to date,
-but can be used as base to write such driver modules.
+but can be used as base to write such driver modules. For more detailed
+information look at the 'seed7/read_me' and 'seed7/src/read_me.txt' files.
 
 
 I got errors when compiling Seed7. What should I do?
@@ -108,11 +112,23 @@ headers. If you use X11 in some way (you don't do everything
 from the text console) the non-developer package of X11 will
 already be installed.
 
-When you got other errors I would like to know about. Please send
-a mail with detailed information (name and version) of your
-operating system, distribution, compiler, the version of Seed7
-you wanted to compile and the complete log of error messages to
-seed7-users@lists.sourceforge.net .
+Errors such as
+
+    echo char *getcwd(char *buf, size_t size); >> seed7lib.c
+    /usr/bin/sh: -c: line 0: syntax error near unexpected token `('
+
+indicate that your makefile contains commands for the cmd.exe
+(or command.com) windows console, but your 'make' program uses
+a unix shell (/usr/bin/sh) to execute them. Either use a
+makefile which uses unix shell commands (e.g. mk_msys.mak or
+mk_cygw.mak) or take care that the 'make' program uses cmd.exe
+(or command.com) to execute the commands.
+
+When you got other errors I would like to know about. Please
+send a mail with detailed information (name and version) of
+your operating system, distribution, compiler, the version of
+Seed7 you wanted to compile and the complete log of error
+messages to seed7-users@lists.sourceforge.net .
 
 
 Does the interpreter use bytecode?
@@ -222,6 +238,27 @@ find all typing errors. Additionally the program execution can be more efficient
 with static type checking since there are no type checks necessary at run-time.
 
 Interface types can be used when an object can have several types at runtime.
+
+
+Why does Seed7 not use type inference?
+======================================
+
+Seed7 has a basic principle that would break if type
+inference would be used:
+
+  For every expression (and sub expression) you know its type at
+  compile time without knowing where this expression is used.
+
+It is exactly the violation of this principle that makes type
+inference possible. As long as this principle holds you need
+to know the global and local declarations to find out the result
+type of an expression. With type inference it is necessary to
+take other expressions in the local function and even expressions
+in other functions into account. I do not say that this is not
+possible (for sure it is an interesting challenge to invent an
+algorithm to do this). But the reader of the program needs to use
+this algorithm also every time he/she reads the program. And that
+is very bad since a program is more often read than written.
 
 
 Are there automatic casts to the right type?

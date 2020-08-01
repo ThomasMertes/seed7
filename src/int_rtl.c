@@ -314,6 +314,37 @@ inttype k_number;
 
 #ifdef ANSI_C
 
+inttype intBitLength (inttype number)
+#else
+
+inttype intBitLength (number)
+inttype number;
+#endif
+
+  {
+    inttype result;
+
+  /* intBitLength */
+    if (number < 0) {
+      number = ~number;
+    } /* if */
+    result = 1;
+    if (number & 0xffff0000) {
+      number >>= 16;
+      result += 16;
+    } /* if */
+    if (number & 0xff00) {
+      number >>= 8;
+      result += 8;
+    } /* if */
+    result += most_significant[number];
+    return(result);
+  } /* intBitLength */
+
+
+
+#ifdef ANSI_C
+
 inttype intCmp (inttype number1, inttype number2)
 #else
 
@@ -400,16 +431,44 @@ inttype number;
 
 #ifdef ANSI_C
 
-stritype intLpad0 (inttype arg1, const inttype pad_size)
+inttype intLowestSetBit (inttype number)
 #else
 
-stritype intLpad0 (arg1, pad_size)
-inttype arg1;
+inttype intLowestSetBit (number)
+biginttype number;
+#endif
+
+  {
+    inttype result;
+
+  /* intLowestSetBit */
+    result = 0;
+    if ((number & 0xffff) == 0) {
+      number >>= 16;
+      result += 16;
+    } /* if */
+    if ((number & 0xff) == 0) {
+      number >>= 8;
+      result += 8;
+    } /* if */
+    result += least_significant[number & 0xff];
+    return((inttype) result);
+  } /* intLowestSetBit */
+
+
+
+#ifdef ANSI_C
+
+stritype intLpad0 (inttype number, const inttype pad_size)
+#else
+
+stritype intLpad0 (number, pad_size)
+inttype number;
 inttype pad_size;
 #endif
 
   {
-    uinttype number;
+    uinttype unsigned_number;
     booltype sign;
     strelemtype buffer_1[50];
     strelemtype *buffer;
@@ -418,15 +477,15 @@ inttype pad_size;
     stritype result;
 
   /* intLpad0 */
-    if ((sign = (arg1 < 0))) {
-      number = -arg1;
+    if ((sign = (number < 0))) {
+      unsigned_number = -number;
     } else {
-      number = arg1;
+      unsigned_number = number;
     } /* if */
     buffer = &buffer_1[50];
     do {
-      *(--buffer) = (strelemtype) (number % 10 + '0');
-    } while ((number /= 10) != 0);
+      *(--buffer) = (strelemtype) (unsigned_number % 10 + '0');
+    } while ((unsigned_number /= 10) != 0);
     length = &buffer_1[50] - buffer;
     if (pad_size > (inttype) length) {
       result_size = (memsizetype) pad_size;
@@ -614,30 +673,30 @@ inttype upper_limit;
 
 #ifdef ANSI_C
 
-inttype intSqrt (inttype num)
+inttype intSqrt (inttype number)
 #else
 
-inttype intSqrt (num)
-inttype num;
+inttype intSqrt (number)
+inttype number;
 #endif
 
   {
     register unsigned long result;
     register unsigned long res2;
-    unsigned long number;
+    uinttype unsigned_number;
 
   /* intSqrt */
-    if (num < 0) {
+    if (number < 0) {
       raise_error(NUMERIC_ERROR);
       return(0);
-    } else if (num == 0) {
+    } else if (number == 0) {
       return((inttype) 0);
     } else {
-      number = (unsigned long) num;
-      res2 = number;
+      unsigned_number = (uinttype) number;
+      res2 = unsigned_number;
       do {
         result = res2;
-        res2 = (result + number / result) >> 1;
+        res2 = (result + unsigned_number / result) >> 1;
       } while (result > res2);
       return((inttype) result);
     } /* if */
@@ -647,15 +706,15 @@ inttype num;
 
 #ifdef ANSI_C
 
-stritype intStr (inttype arg1)
+stritype intStr (inttype number)
 #else
 
-stritype intStr (arg1)
-inttype arg1;
+stritype intStr (number)
+inttype number;
 #endif
 
   {
-    uinttype number;
+    uinttype unsigned_number;
     booltype sign;
     strelemtype buffer_1[50];
     strelemtype *buffer;
@@ -663,15 +722,15 @@ inttype arg1;
     stritype result;
 
   /* intStr */
-    if ((sign = (arg1 < 0))) {
-      number = -arg1;
+    if ((sign = (number < 0))) {
+      unsigned_number = -number;
     } else {
-      number = arg1;
+      unsigned_number = number;
     } /* if */
     buffer = &buffer_1[50];
     do {
-      *(--buffer) = (strelemtype) (number % 10 + '0');
-    } while ((number /= 10) != 0);
+      *(--buffer) = (strelemtype) (unsigned_number % 10 + '0');
+    } while ((unsigned_number /= 10) != 0);
     if (sign) {
       *(--buffer) = (strelemtype) '-';
     } /* if */

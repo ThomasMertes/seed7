@@ -131,6 +131,7 @@ var array array array fieldType: field is 0 times 0 times 0 times fieldType.valu
 var array moveType: demoMoves is 0 times moveType.value;
 var array moveType: playerMoves is 0 times moveType.value;
 var integer: moveNumber is 0;
+var boolean: doQuit is FALSE;
 
 
 var layoutType: welcomeLayout is [](
@@ -479,6 +480,11 @@ const func char: getCommand is func
           when {4}: result := 'R';
           when {5}: result := 'H';
         end case;
+      end if;
+    elsif result = KEY_ESC then
+      bossMode(doQuit);
+      if doQuit then
+        result := 'Q';
       end if;
     end if;
   end func;
@@ -1786,7 +1792,7 @@ const proc: initTiles is func
  *  to the inverse rules. When the inverse game fails it is retried
  *  from scratch until it succeeds.
  *)
-const proc: dealTiles is func
+const proc: dealTiles (inout char: command) is func
   local
     var boolean: okay is TRUE;
     var integer: number is 0;
@@ -1799,6 +1805,18 @@ const proc: dealTiles is func
       demoMoves := 0 times moveType.value;
       while okay and number <= 72 do
         dealTilePair(okay);
+        if keypressed(KEYBOARD) then
+          command := upper(getc(KEYBOARD));
+        end if;
+        if command = KEY_ESC then
+          bossMode(doQuit);
+          if doQuit then
+            command := 'Q';
+            number := 72;
+          else
+            command := ' ';
+          end if;
+        end if;
         incr(number);
       end while;
     until okay;
@@ -1868,9 +1886,13 @@ const proc: main is func
     drawBoardWithFlush;
     setPos(screen, 47, 73);
     writeln(screen, "Press any key to start game");
-    dealTiles;
-    command := getCommand;
-    if command <> 'Q' then
+    dealTiles(command);
+    if command <> 'Q' and not doQuit then
+      repeat
+        command := getCommand;
+      until command <> KEY_ESC;
+    end if;
+    if command <> 'Q' and not doQuit then
       clear(curr_win, BACKGROUND);
       # rect(0, height(curr_win) - 80, width(curr_win), 80, BACKGROUND);
       drawBoard;
@@ -1888,18 +1910,22 @@ const proc: main is func
           clear(curr_win, BACKGROUND);
           drawBoard;
           DRAW_FLUSH;
-          dealTiles;
-          clear(curr_win, BACKGROUND);
-          drawBoard;
-          writeButtons;
-          moveNumber := 0;
-          playerMoves := 0 times moveType.value;
-          updateNumbers;
-          while command <> 'Q' and keypressed(KEYBOARD) do
-            command := getCommand;
-          end while;
+          dealTiles(command);
+writeln("g " <& doQuit <& " " <& command);
+          if not doQuit then
+            clear(curr_win, BACKGROUND);
+            drawBoard;
+            writeButtons;
+            moveNumber := 0;
+            playerMoves := 0 times moveType.value;
+            updateNumbers;
+            while command <> 'Q' and keypressed(KEYBOARD) do
+              command := getCommand;
+            end while;
+          end if;
+writeln("h");
         end if;
-        if command = 'Q' and not isOkay([] ("Quit mahjong?")) then
+        if command = 'Q' and not doQuit and not isOkay([] ("Quit mahjong?")) then
           command := ' ';
         end if;
       end while;

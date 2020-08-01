@@ -152,11 +152,25 @@ version.h:
 	echo "return 0;" >> chkftell.c
 	echo "}" >> chkftell.c
 	$(CC) chkftell.c -o chkftell
-	chkftell >> version.h
+	./chkftell >> version.h
 	rm chkftell.c
 	rm chkftell.exe
+	echo "#include \"stdio.h\"" > chkshift.c
+	echo "int main (int argc, char **argv)" >> chkshift.c
+	echo "{" >> chkshift.c
+	echo "long number;" >> chkshift.c
+	echo "number = -1;" >> chkshift.c
+	echo "if (number >> 1 == (long) -1) {" >> chkshift.c
+	echo "printf(\"\043define RSHIFT_DOES_SIGN_EXTEND\n\");" >> chkshift.c
+	echo "}" >> chkshift.c
+	echo "return 0;" >> chkshift.c
+	echo "}" >> chkshift.c
+	$(CC) chkshift.c -o chkshift
+	./chkshift >> version.h
+	rm chkshift.c
+	rm chkshift.exe
 	echo "#define OBJECT_FILE_EXTENSION \".o\"" >> version.h
-	echo "#define EXECUTABLE_FILE_EXTENSION \"\"" >> version.h
+	echo "#define EXECUTABLE_FILE_EXTENSION \".exe\"" >> version.h
 	echo "#define C_COMPILER \"$(CC)\"" >> version.h
 	echo "#define REDIRECT_C_ERRORS \"2>\"" >> version.h
 	echo "#define SYSTEM_LIBS \"$(LIBS)\"" >> version.h

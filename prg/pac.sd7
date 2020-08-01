@@ -136,11 +136,11 @@ const proc: show_lifes is func
   begin (* show_lifes *)
     set_color(0, 0);
     setPos(info_sheet, 3, 1);
-    info_sheet << "          ";
+    write(info_sheet, "          ");
     set_color(14, 0);
     setPos(info_sheet, 3, 1);
     for life range 1 to pred(number_of_lifes) do
-      info_sheet << PACMAN;
+      write(info_sheet, PACMAN);
     end for;
   end func; (* show_lifes *)
 
@@ -243,7 +243,7 @@ const proc: write_map_position (in integer: line, in integer: column) is func
 
   begin (* write_map_position *)
     setPos(labyrinth, line, column);
-    labyrinth << map[line][column];
+    write(labyrinth, map[line][column]);
   end func; (* write_map_position *)
 
 
@@ -316,7 +316,7 @@ const proc: EAT (DOT_PLACE) is func
     incr(score);
     set_color(15, 0);
     setPos(info_sheet, 2, 8);
-    info_sheet << score;
+    write(info_sheet, score);
   end func; (* EAT (DOT_PLACE) *)
 
 
@@ -330,7 +330,7 @@ const proc: EAT (POWER_PLACE) is func
     incr(score);
     set_color(15, 0);
     setPos(info_sheet, 2, 8);
-    info_sheet << score;
+    write(info_sheet, score);
     frequency := 300;
     while frequency <= 700 do
       sound(frequency, 0.001);
@@ -366,7 +366,7 @@ const proc: move_pacman is func
     end if;
     set_color(14, 0);
     setPos(labyrinth, PACMAN.line, PACMAN.column);
-    labyrinth << str(FREE_PLACE);
+    write(labyrinth, str(FREE_PLACE));
     PACMAN.line := PACMAN.line + PACMAN.line_move;
     PACMAN.column := PACMAN.column + PACMAN.column_move;
     if PACMAN.column = 1 then
@@ -381,7 +381,7 @@ const proc: move_pacman is func
       decr(ghosts_flee);
     end if;
     setPos(labyrinth, PACMAN.line, PACMAN.column);
-    labyrinth << PACMAN;
+    write(labyrinth, PACMAN);
     check_all_ghosts(PACMAN);
   end func; (* move_pacman *)
 
@@ -570,7 +570,7 @@ const proc: move (inout ghost_type: ghost) is func
       set_color(13, 0);
     end if;
     setPos(labyrinth, ghost->line, ghost->column);
-    labyrinth << ghost^ ;
+    write(labyrinth, ghost^);
     if ghost->line = PACMAN.line and
         ghost->column = PACMAN.column then
       someone_cought(ghost);
@@ -625,7 +625,7 @@ const proc: show_map is func
     set_color(1, 1);
     for line range 1 to 22 do
       setPos(labyrinth, line, 1);
-      labyrinth << field[line];
+      write(labyrinth, field[line]);
 (*
       for column range 1 to 39 do
         write_map_position(line, column);
@@ -695,14 +695,14 @@ const proc: main is func
       show_lifes();
       set_color(15, 0);
       setPos(info_sheet, 2, 1);
-      info_sheet << "Score:     ";
+      write(info_sheet, "Score:     ");
       set_color(14, 0);
       setPos(labyrinth, PACMAN.line, PACMAN.column);
-      labyrinth << PACMAN;
+      write(labyrinth, PACMAN);
       for ghost range GHOST_LIST do
         set_color(9, 0);
         setPos(labyrinth, ghost->line, ghost->column);
-        labyrinth << ghost^ ;
+        write(labyrinth, ghost^);
       end for;
       main_control();
       if not quit then
@@ -710,14 +710,14 @@ const proc: main is func
           high_score := score;
           set_color(15, 0);
           setPos(info_sheet, 1, 1);
-          info_sheet << "Highscore:";
+          write(info_sheet, "Highscore:");
           set_color(15, 0);
           setPos(info_sheet, 1, 12);
-          info_sheet << score;
+          write(info_sheet, score);
         end if;
         set_color(15, 0);
         setPos(labyrinth, 11, 14);
-        labyrinth << "  GAME OVER  ";
+        write(labyrinth, "  GAME OVER  ");
         command := getc(KEYBOARD);
         if command = 'Q' or command = 'q' then
           quit := TRUE;

@@ -552,7 +552,7 @@ const proc: NORMALIZE (inout time: tim) is func
   local
     var integer: month_length is 0;
   begin
-    (* STD_ERR << "NORM IN  "; STD_ERR << tim; STD_ERR << tim.mycro_second lpad 8; STD_ERR << NL; *)
+    (* writeln(STD_ERR, "NORM IN  " <& tim <& tim.mycro_second lpad 8); *)
     tim.second := tim.second + tim.mycro_second mdiv 1000000;
     tim.mycro_second := tim.mycro_second mod 1000000;
     tim.minute := tim.minute + tim.second mdiv 60;
@@ -583,7 +583,7 @@ const proc: NORMALIZE (inout time: tim) is func
       end if;
       tim.day := tim.day + daysInMonth(tim.year, tim.month);
     end while;
-    (* STD_ERR << "NORM OUT "; STD_ERR << tim; STD_ERR << tim.mycro_second lpad 8; STD_ERR << NL; *)
+    (* writeln(STD_ERR, "NORM OUT " <& tim <& tim.mycro_second lpad 8); *)
   end func;
 
 

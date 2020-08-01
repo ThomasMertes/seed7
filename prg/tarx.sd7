@@ -212,7 +212,7 @@ const proc: write (inout file: out_file, ref header: head) is func
     puts0  (out_stri, "",              12);
     putoct (chksum,   chksum(out_stri), 8);
     out_stri := out_stri[ .. 148] & chksum & out_stri[157 .. ];
-    out_file << out_stri;
+    write(out_file, out_stri);
   end func;
 
 
@@ -448,9 +448,9 @@ const proc: tar_create (inout file: out_file, in boolean: do_view,
         stri := getf(name);
         status(name, head);
         write(out_file, head);
-        out_file << stri;
+        write(out_file, stri);
         if (succ(pred(head.size) div 512) * 512) - length(stri) >= 0 then
-          out_file << " " mult (succ(pred(head.size) div 512) * 512) - length(stri);
+          write(out_file, " " mult (succ(pred(head.size) div 512) * 512) - length(stri));
         end if;
       end if;
     end for;

@@ -28,6 +28,8 @@
 
 const set of char: letter_char is {'A' .. 'Z'} | {'a' .. 'z'};
 const set of char: digit_char is {'0' .. '9'};
+const set of char: hexdigit_char is digit_char | {'A' .. 'F'} | {'a' .. 'f'};
+const set of char: octdigit_char is {'0' .. '7'};
 const set of char: alphanum_char is letter_char | digit_char;
 const set of char: special_char is
     {'!', '$', '%', '&', '*', '+', ',', '-', '.', '/',

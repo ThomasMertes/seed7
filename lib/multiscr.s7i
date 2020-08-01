@@ -55,7 +55,7 @@ const proc: INIT_MULTI is func
     box(OUT2);
     box(OUT3);
     OUT := open_tee(OUT, OUT1);
-    OUT3 << "Input? ";
+    write(OUT3, "Input? ");
     IN := open(getln(IN), "r");
     if IN = STD_NULL then
       IN := KEYBOARD;
@@ -63,5 +63,5 @@ const proc: INIT_MULTI is func
     IN := open_echo(IN, open_tee(OUT1, OUT2));
     IN := open_line(IN);
     clear(OUT3);
-    OUT3 << " MULTI SCREEN";
+    write(OUT3, " MULTI SCREEN");
   end func;

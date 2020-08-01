@@ -539,6 +539,8 @@ const proc: (inout integer param) := (in integer param) is          action "INT_
 const proc: (inout integer param) +:= (in integer param) is         action "INT_GROW";
 const proc: (inout integer param) -:= (in integer param) is         action "INT_SHRINK";
 const proc: (inout integer param) *:= (in integer param) is         action "INT_MCPY";
+const proc: (inout integer param) <<:= (in integer param) is        action "INT_LSHIFT_ASSIGN";
+const proc: (inout integer param) >>:= (in integer param) is        action "INT_RSHIFT_ASSIGN";
 const func integer: (in integer param) + (in integer param) is      action "INT_ADD";
 const func integer: (in integer param) - (in integer param) is      action "INT_SBTR";
 const func integer: (in integer param) * (in integer param) is      action "INT_MULT";
@@ -547,6 +549,8 @@ const func integer: (in integer param) rem (in integer param) is    action "INT_
 const func integer: (in integer param) mdiv (in integer param) is   action "INT_MDIV";
 const func integer: (in integer param) mod (in integer param) is    action "INT_MOD";
 const func integer: (in integer param) ** (in integer param) is     action "INT_POW";
+const func integer: (in integer param) << (in integer param) is     action "INT_LSHIFT";
+const func integer: (in integer param) >> (in integer param) is     action "INT_RSHIFT";
 const func integer: (in integer param) ! (in integer param) is      action "INT_BINOM";
 const func boolean: (in integer param) = (in integer param) is      action "INT_EQ";
 const func boolean: (in integer param) < (in integer param) is      action "INT_LT";
@@ -572,6 +576,8 @@ const proc: incr (inout integer param) is                           action "INT_
 const proc: decr (inout integer param) is                           action "INT_DECR";
 
 const func integer: rand (in integer param, in integer param) is    action "INT_RAND";
+const func integer: bitLength (in integer param) is                 action "INT_BIT_LENGTH";
+const func integer: lowestSetBit (in integer param) is              action "INT_LOWEST_SET_BIT";
 const func integer: (attr integer) parse (in string param) is       action "INT_PARSE";
 
 const func boolean: rand (in boolean: low, in boolean: high) is
@@ -2403,7 +2409,7 @@ const proc: type_implements_interface (in type: aType, in type: interfaceType) i
   end func;
 
 
-(* LIST *)
+(* LIST
 
 const type: LIST is           subtype INDEXABLE;
 IN_PARAM_IS_REFERENCE(LIST);
@@ -2428,7 +2434,6 @@ const proc: excl(ref LIST param, ref object param) is    action "LST_EXCL";
 
 (* const proc: INDEX_EXPR := (ref LIST param) is action "LST_CPY"; *)
 
-(*
 const proc: for (inout object: variable) range (ref LIST: obj_list) do
     (ref proc: statements) end for is func
   local

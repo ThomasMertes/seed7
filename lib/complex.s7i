@@ -48,6 +48,18 @@ const func complex: complex (in float: re, in float: im) is func
 
 
 (**
+ *  Return a complex number from its real part.
+ *)
+const func complex: complex (in float: re) is func
+  result
+    var complex: result is complex.value;
+  begin
+    result.re := re;
+    result.im := 0.0;
+  end func;
+
+
+(**
  *  Return a complex number from polar coordinates.
  *)
 const func complex: polar (in float: magnitude, in float: angle) is func
@@ -169,17 +181,17 @@ const proc: (inout complex: num1) *:= (in complex: num2) is func
 
 
 (**
- *  Return the square of the absolute value of a complex number.
- *)
-const func float: sqrAbs (in complex: num1) is
-  return num1.re * num1.re + num1.im * num1.im;
-
-
-(**
  *  Return the absolute value of a complex number.
  *)
 const func float: abs (in complex: num1) is
   return sqrt(num1.re * num1.re + num1.im * num1.im);
+
+
+(**
+ *  Return the square of the absolute value of a complex number.
+ *)
+const func float: sqrAbs (in complex: num1) is
+  return num1.re * num1.re + num1.im * num1.im;
 
 
 (**

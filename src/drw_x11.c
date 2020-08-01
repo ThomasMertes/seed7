@@ -1586,10 +1586,12 @@ static void dra_init ()
 #ifdef TRACE_X11
     printf("BEGIN dra_init()\n");
 #endif
+    /* When linking with a profiling standard library XOpenDisplay */
+    /* deadlocked. Be careful to avoid this situation.             */
     mydisplay = XOpenDisplay("");
-/*  printf("mydisplay = %lu\n", (long unsigned) mydisplay); */
+    /* printf("mydisplay = %lu\n", (long unsigned) mydisplay); */
     myscreen = DefaultScreen(mydisplay);
-/*  printf("myscreen = %lu\n", (long unsigned) myscreen); */
+    /* printf("myscreen = %lu\n", (long unsigned) myscreen); */
 
     default_visual = XDefaultVisual(mydisplay, myscreen);
     if (default_visual->class == PseudoColor) {

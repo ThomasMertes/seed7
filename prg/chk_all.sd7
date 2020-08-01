@@ -38,6 +38,10 @@ const string: chkint_output is "\n\
   \(a div b) * b + (a rem b) = a  holds for positive and negative a and b\n\
   \Div and rem work correct for selected values\n\
   \Mdiv and mod work correct for selected values\n\
+  \Div works correct for selected values\n\
+  \Rem works correct for selected values\n\
+  \Mdiv works correct for selected values\n\
+  \Mod works correct for selected values\n\
   \odd(i) works correct in the range -20 to 20\n\
   \!i works correct for i in the range 0 to 12\n\
   \n ! k is correct for n <= 30\n\
@@ -45,6 +49,8 @@ const string: chkint_output is "\n\
   \Integer sqrt is correct for values between 0 and 1000\n\
   \Integer sqrt is correct for 11000 random values\n\
   \log2 is correct for results between 0 and 30\n\
+  \The integer << and <<:= works correct.\n\
+  \The integer >> and >>:= works correct.\n\
   \Integer str does work correct\n\
   \Integer parse does work correct\n\
   \Integer lpad0 does work correct\n";
@@ -90,7 +96,10 @@ const string: chkbig_output is "\n\
   \Modulo of bigInteger division works correct.\n\
   \Power of bigInteger works correct.\n\
   \The bigInteger compare works correct.\n\
-  \The bigInteger log2 function works correct.\n";
+  \The bigInteger log2 function works correct.\n\
+  \The bigInteger lowestSetBit function works correct.\n\
+  \The bigInteger << and <<:= works correct.\n\
+  \The bigInteger >> and >>:= works correct.\n";
 
 
 const string: chkbool_output is "\n\

@@ -42,19 +42,21 @@
 #ifdef ANSI_C
 
 uinttype rand_32 (void);
-inttype most_significant_bit (uinttype);
-inttype least_significant_bit (uinttype);
-inttype intBinom (inttype, inttype);
-inttype intCmp (inttype, inttype);
-void intCpy (inttype *, inttype);
-inttype intCreate (inttype);
-inttype intLog2 (inttype);
-stritype intLpad0 (inttype, const inttype);
-inttype intParse (const_stritype);
-inttype intPow (inttype, inttype);
-inttype intRand (inttype, inttype);
-inttype intSqrt (inttype);
-stritype intStr (inttype);
+inttype most_significant_bit (uinttype number);
+inttype least_significant_bit (uinttype number);
+inttype intBinom (inttype n_number, inttype k_number);
+inttype intBitLength (inttype number);
+inttype intCmp (inttype number1, inttype number2);
+void intCpy (inttype *dest, inttype source);
+inttype intCreate (inttype source);
+inttype intLog2 (inttype number);
+inttype intLowestSetBit (inttype number);
+stritype intLpad0 (inttype number, const inttype pad_size);
+inttype intParse (const_stritype stri);
+inttype intPow (inttype base, inttype exponent);
+inttype intRand (inttype lower_limit, inttype upper_limit);
+inttype intSqrt (inttype number);
+stritype intStr (inttype number);
 
 #else
 
@@ -62,10 +64,12 @@ uinttype rand_32 ();
 inttype most_significant_bit ();
 inttype least_significant_bit ();
 inttype intBinom ();
+inttype intBitLength ();
 inttype intCmp ();
 void intCpy ();
 inttype intCreate ();
 inttype intLog2 ();
+inttype intLowestSetBit ();
 stritype intLpad0 ();
 inttype intParse ();
 inttype intPow ();

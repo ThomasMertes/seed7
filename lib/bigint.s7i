@@ -45,6 +45,8 @@ const proc: (inout bigInteger param) := (ref bigInteger param) is          actio
 const proc: (inout bigInteger param) +:= (ref bigInteger param) is         action "BIG_GROW";
 const proc: (inout bigInteger param) -:= (ref bigInteger param) is         action "BIG_SHRINK";
 const proc: (inout bigInteger param) *:= (ref bigInteger param) is         action "BIG_MCPY";
+const proc: (inout bigInteger param) <<:= (ref integer param) is           action "BIG_LSHIFT_ASSIGN";
+const proc: (inout bigInteger param) >>:= (ref integer param) is           action "BIG_RSHIFT_ASSIGN";
 const func bigInteger: (ref bigInteger param) + (ref bigInteger param) is  action "BIG_ADD";
 const func bigInteger: (ref bigInteger param) - (ref bigInteger param) is  action "BIG_SBTR";
 const func bigInteger: (ref bigInteger param) * (ref bigInteger param) is  action "BIG_MULT";
@@ -54,6 +56,8 @@ const func bigInteger: (in bigInteger param) mdiv (in bigInteger param) is actio
 const func bigInteger: (in bigInteger param) mod (in bigInteger param) is  action "BIG_MOD";
 const func bigInteger: (ref bigInteger param) ** (ref integer param) is    action "BIG_IPOW";
 # const func bigInteger: (ref bigInteger param) ** (ref bigInteger param) is action "BIG_POW";
+const func bigInteger: (in bigInteger param) << (ref integer param) is     action "BIG_LSHIFT";
+const func bigInteger: (in bigInteger param) >> (ref integer param) is     action "BIG_RSHIFT";
 const func boolean: (ref bigInteger param) = (ref bigInteger param) is     action "BIG_EQ";
 const func boolean: (ref bigInteger param) < (ref bigInteger param) is     action "BIG_LT";
 const func boolean: (ref bigInteger param) > (ref bigInteger param) is     action "BIG_GT";
@@ -74,6 +78,7 @@ const func string: str (ref bigInteger param) is                           actio
 const func string: c_literal (in bigInteger param) is                      action "BIG_CLIT";
 const func bigInteger: rand (in bigInteger param, in bigInteger param) is  action "BIG_RAND";
 const func integer: bitLength (in bigInteger param) is                     action "BIG_BIT_LENGTH";
+const func integer: lowestSetBit (in bigInteger param) is                  action "BIG_LOWEST_SET_BIT";
 const func bigInteger: (attr bigInteger) parse (in string param) is        action "BIG_PARSE";
 
 const bigInteger: (attr bigInteger) . value is bigInteger parse "0";

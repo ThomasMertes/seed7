@@ -61,6 +61,9 @@ biginttype bigLog2 (const const_biginttype);
 #ifdef HAS_LONGTYPE_64
   longtype bigLOrd (const const_biginttype);
 #endif
+inttype bigLowestSetBit (const const_biginttype);
+biginttype bigLShift (const const_biginttype big1, const inttype lshift);
+void bigLShiftAssign (biginttype *const big_variable, inttype lshift);
 void bigMCpy (biginttype *const, const_biginttype);
 biginttype bigMDiv (const const_biginttype, const const_biginttype);
 biginttype bigMinus (const const_biginttype);
@@ -72,6 +75,8 @@ biginttype bigParse (const const_stritype);
 biginttype bigPred (const const_biginttype);
 biginttype bigRand (const const_biginttype, const const_biginttype);
 biginttype bigRem (const const_biginttype, const const_biginttype);
+biginttype bigRShift (const const_biginttype big1, const inttype rshift);
+void bigRShiftAssign (biginttype *const big_variable, inttype rshift);
 biginttype bigSbtr (const const_biginttype, const const_biginttype);
 biginttype bigSbtrTemp (biginttype, const_biginttype);
 void bigShrink (biginttype *const, const const_biginttype);
@@ -108,6 +113,9 @@ biginttype bigLog2 ();
 #ifdef HAS_LONGTYPE_64
   longtype bigLOrd ();
 #endif
+inttype bigLowestSetBit ();
+biginttype bigLShift ();
+void bigLShiftAssign ();
 void bigMCpy ();
 biginttype bigMDiv ();
 biginttype bigMinus ();
@@ -119,6 +127,8 @@ biginttype bigParse ();
 biginttype bigPred ();
 biginttype bigRand ();
 biginttype bigRem ();
+biginttype bigRShift ();
+void bigRShiftAssign ();
 biginttype bigSbtr ();
 biginttype bigSbtrTemp ();
 void bigShrink ();

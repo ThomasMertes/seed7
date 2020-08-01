@@ -42,30 +42,32 @@
 <li><!--   5.     --><a href="#PREDEFINED_TYPES"><big><b>PREDEFINED TYPES</b></big></a></li><ol>
 <li><!--   5.1      --><a href="#boolean"><b>boolean</b></a></li>
 <li><!--   5.2      --><a href="#integer"><b>integer</b></a></li>
-<li><!--   5.3      --><a href="#rational"><b>rational</b></a></li>
-<li><!--   5.4      --><a href="#float"><b>float</b></a></li>
-<li><!--   5.5      --><a href="#char"><b>char</b></a></li>
-<li><!--   5.6      --><a href="#string"><b>string</b></a></li>
-<li><!--   5.7      --><a href="#array"><b>array</b></a></li>
-<li><!--   5.8      --><a href="#hash"><b>hash</b></a></li>
-<li><!--   5.9      --><a href="#set"><b>set</b></a></li>
-<li><!--   5.10     --><a href="#struct"><b>struct</b></a></li>
-<li><!--   5.11     --><a href="#reference"><b>reference</b></a></li>
-<li><!--   5.12     --><a href="#ref_list"><b>ref_list</b></a></li>
-<li><!--   5.13     --><a href="#ptr"><b>ptr</b></a></li>
-<li><!--   5.14     --><a href="#ENUMERATION"><b>ENUMERATION</b></a></li>
-<li><!--   5.15     --><a href="#color"><b>color</b></a></li>
-<li><!--   5.16     --><a href="#time"><b>time</b></a></li>
-<li><!--   5.17     --><a href="#duration"><b>duration</b></a></li>
-<li><!--   5.18     --><a href="#file"><b>file</b></a></li>
-<li><!--   5.19     --><a href="#text"><b>text</b></a></li>
-<li><!--   5.20     --><a href="#func"><b>func</b></a></li>
-<li><!--   5.21     --><a href="#varfunc"><b>varfunc</b></a></li>
-<li><!--   5.22     --><a href="#void"><b>void</b></a></li>
-<li><!--   5.23     --><a href="#proc"><b>proc</b></a></li>
-<li><!--   5.24     --><a href="#type"><b>type</b></a></li>
-<li><!--   5.25     --><a href="#object"><b>object</b></a></li>
-<li><!--   5.26     --><a href="#expr"><b>expr</b></a></li></ol>
+<li><!--   5.3      --><a href="#bigInteger"><b>bigInteger</b></a></li>
+<li><!--   5.4      --><a href="#rational"><b>rational</b></a></li>
+<li><!--   5.5      --><a href="#bigRational"><b>bigRational</b></a></li>
+<li><!--   5.6      --><a href="#float"><b>float</b></a></li>
+<li><!--   5.7      --><a href="#char"><b>char</b></a></li>
+<li><!--   5.8      --><a href="#string"><b>string</b></a></li>
+<li><!--   5.9      --><a href="#array"><b>array</b></a></li>
+<li><!--   5.10     --><a href="#hash"><b>hash</b></a></li>
+<li><!--   5.11     --><a href="#set"><b>set</b></a></li>
+<li><!--   5.12     --><a href="#struct"><b>struct</b></a></li>
+<li><!--   5.13     --><a href="#reference"><b>reference</b></a></li>
+<li><!--   5.14     --><a href="#ref_list"><b>ref_list</b></a></li>
+<li><!--   5.15     --><a href="#ptr"><b>ptr</b></a></li>
+<li><!--   5.16     --><a href="#ENUMERATION"><b>ENUMERATION</b></a></li>
+<li><!--   5.17     --><a href="#color"><b>color</b></a></li>
+<li><!--   5.18     --><a href="#time"><b>time</b></a></li>
+<li><!--   5.19     --><a href="#duration"><b>duration</b></a></li>
+<li><!--   5.20     --><a href="#file"><b>file</b></a></li>
+<li><!--   5.21     --><a href="#text"><b>text</b></a></li>
+<li><!--   5.22     --><a href="#func"><b>func</b></a></li>
+<li><!--   5.23     --><a href="#varfunc"><b>varfunc</b></a></li>
+<li><!--   5.24     --><a href="#void"><b>void</b></a></li>
+<li><!--   5.25     --><a href="#proc"><b>proc</b></a></li>
+<li><!--   5.26     --><a href="#type"><b>type</b></a></li>
+<li><!--   5.27     --><a href="#object"><b>object</b></a></li>
+<li><!--   5.28     --><a href="#expr"><b>expr</b></a></li></ol>
 <li><!--   6.     --><a href="#PARAMETERS"><big><b>PARAMETERS</b></big></a></li><ol>
 <li><!--   6.1      --><a href="#val_parameter"><b>'val' parameter</b></a></li>
 <li><!--   6.2      --><a href="#ref_parameter"><b>'ref' parameter</b></a></li>
@@ -1564,11 +1566,33 @@
                   ( A <font color=blue>mod</font> B => A - (A <font color=blue>mdiv</font> B) * B,
                     A <font color=blue>mod</font> 0 => EXCEPTION NUMERIC_ERROR )
       **        Power
-                  ( A ** B is okay for B > 0,
+                  ( A ** B is okay for B >= 0,
                     A ** 0 => 1,
+                    1 ** B => 1,
                     A ** -1 => EXCEPTION NUMERIC_ERROR )
+      A &lt;&lt; B    Shift left
+                  ( A &lt;&lt; B is okay for B >= 0 and B <= 31,
+                    A &lt;&lt; B => A * 2_ ** B,
+                    A &lt;&lt; 0 => A )
+      A >> B    Arithmetic shift right
+                  ( A >> B is okay for B >= 0 and B <= 31,
+                    A >> B => A <font color=blue>mdiv</font> 2_ ** B  for B <= 30,
+                    A >> B => C for A >= 0 holds: C >= 0
+                    A >> B => C for A < 0 holds: C < 0
+                    A >> B => 0 for A >= 0 and B > ord(log2(A)),
+                    A >> B => -1 for A < 0 and B > ord(log2(-A)),
+                    A >> 0 => A )
       !         Binomial coefficient
                   ( A ! B => !A <font color=blue>div</font> (!B * !(A - B)) )
+      <font color=blue>lpad0</font>     Left padding with zeros
+                  ( 123 <font color=blue>lpad0</font>  8 => <font color=maroon>"00000123"</font>,
+                    123 <font color=blue>lpad0</font>  4 => <font color=maroon>"0123"</font>,
+                    123 <font color=blue>lpad0</font>  3 => <font color=maroon>"123"</font>,
+                    123 <font color=blue>lpad0</font>  2 => <font color=maroon>"123"</font>,
+                    123 <font color=blue>lpad0</font> -8 => <font color=maroon>"123"</font>,
+                    -12 <font color=blue>lpad0</font>  4 => <font color=maroon>"-012"</font>,
+                    -12 <font color=blue>lpad0</font>  3 => <font color=maroon>"-12"</font>,
+                    -12 <font color=blue>lpad0</font>  2 => <font color=maroon>"-12"</font> )
       <font color=red>integer</font> <font color=blue>conv</font> A   Identity
                   ( <font color=red>integer</font> <font color=blue>conv</font> A => A )
       <font color=red>integer</font> <font color=blue>parse</font> A   Conversion of <font color=red>string</font> to <font color=red>integer</font>
@@ -1605,6 +1629,17 @@
                     log2(0) => -1,
                     log2(1) => 0,
                     log2(-1) => EXCEPTION NUMERIC_ERROR )
+      bitLength(A) Number of bits in the minimal two's-complement
+                   representation, excluding the sign bit.
+                  ( bitLength(A) => succ(log2(A)) for A >= 0,
+                    bitLength(A) => succ(log2(pred(-A))) for A < 0 )
+      lowestSetBit(A) Index of the lowest-order one bit
+                      For A <> 0 this is equal to to number of
+                      lowest-order zero bits.
+                  ( A >> B &lt;&lt; B = A for A <> 0 and B = lowestSetBit(A),
+                    lowestSetBit(0) = -1,
+                    lowestSetBit(1) = 0,
+                    lowestSetBit(2) = 1 )
       rand(A, B) Random number in the range [A, B]
                   ( rand(A, B) returns a random number such that
                     A &lt;= rand(A, B) <font color=blue>and</font> rand(A, B) &lt;= B holds.
@@ -1622,6 +1657,10 @@
                   ( A -:= B => A := A - B )
       A *:= B   Multiplying copy
                   ( A *:= B => A := A * B )
+      A &lt;&lt;:= B  Shift left copy
+                  ( A &lt;&lt;:= B => A := A &lt;&lt; B )
+      A >>:= B  Shift right copy
+                  ( A >>:= B => A := A >> B )
       incr(A)   Increment with 1
                   ( incr(A) => A +:= 1 )
       decr(A)   Decrement with 1
@@ -1637,10 +1676,12 @@
     (A <font color=blue>mod</font> B) &lt;= 0 <font color=blue>and</font> (A <font color=blue>mod</font> B) > B    when B &lt; 0
 </pre><p>
   For the operation <tt>'<font color=blue>mdiv</font>'</tt> holds:</p><pre>
-    A <font color=blue>mdiv</font> B = A <font color=blue>div</font> B - 1   When A and B have different
-                             signs and A <font color=blue>rem</font> B &lt;> 0 holds.
-    A <font color=blue>mdiv</font> B = A <font color=blue>div</font> B       When A and B have the same
-                             sign or A <font color=blue>rem</font> B = 0 holds.
+    A <font color=blue>mdiv</font> B = A <font color=blue>div</font> B - 1          When A and B have different
+                                    signs and A <font color=blue>rem</font> B &lt;> 0 holds.
+    A <font color=blue>mdiv</font> B = A <font color=blue>div</font> B              When A and B have the same
+                                    sign or A <font color=blue>rem</font> B = 0 holds.
+    A <font color=blue>mdiv</font> B = (A - 1) <font color=blue>div</font> B - 1    When A > 0 and B &lt; 0 holds.
+    A <font color=blue>mdiv</font> B = (A + 1) <font color=blue>div</font> B - 1    When A &lt; 0 and B > 0 holds.
 </pre><p>
   For the operation <tt>'<font color=blue>mod</font>'</tt> holds:</p><pre>
     A <font color=blue>mod</font> B = A <font color=blue>rem</font> B + B    When A and B have different
@@ -1685,7 +1726,6 @@
     (sqrt(A) + 1) * (sqrt(A) + 1) > A
 </pre><p></p>
 
-
 <a name="bigInteger"><b>5.3 bigInteger</b></a>
 <p>
     The type <tt>'<font color=red>bigInteger</font>'</tt> consists of all integer numbers. The
@@ -1701,21 +1741,38 @@
       *         Multiplication
       <font color=blue>div</font>       Integer division truncated towards zero
                   ( A <font color=blue>div</font> B => trunc(A / B),
-                    A <font color=blue>div</font> 0 => EXCEPTION NUMERIC_ERROR )
+                    A <font color=blue>div</font> 0_ => EXCEPTION NUMERIC_ERROR )
       <font color=blue>rem</font>       Reminder of integer division <font color=blue>div</font>
                   ( A <font color=blue>rem</font> B => A - (A <font color=blue>div</font> B) * B,
-                    A <font color=blue>rem</font> 0 => EXCEPTION NUMERIC_ERROR )
+                    A <font color=blue>rem</font> 0_ => EXCEPTION NUMERIC_ERROR )
       <font color=blue>mdiv</font>      Integer division truncated towards negative infinity
                   ( A <font color=blue>mdiv</font> B => floor(A / B),
-                    A <font color=blue>mdiv</font> 0 => EXCEPTION NUMERIC_ERROR )
+                    A <font color=blue>mdiv</font> 0_ => EXCEPTION NUMERIC_ERROR )
       <font color=blue>mod</font>       Reminder of integer division <font color=blue>mdiv</font>
                   ( A <font color=blue>mod</font> B => A - (A <font color=blue>mdiv</font> B) * B,
-                    A <font color=blue>mod</font> 0 => EXCEPTION NUMERIC_ERROR )
+                    A <font color=blue>mod</font> 0_ => EXCEPTION NUMERIC_ERROR )
       A ** B    Power
                   ( Type of argument B: <font color=red>integer</font>,
-                    A ** B is okay for B > 0,
-                    A ** 0 => 1,
+                    A ** B is okay for B >= 0,
+                    A ** 0 => 1_,
+                    1_ ** B => 1_,
                     A ** -1 => EXCEPTION NUMERIC_ERROR )
+      A &lt;&lt; B    Shift left
+                  ( Type of argument B: <font color=red>integer</font>,
+                    A &lt;&lt; B is okay for B >= 0,
+                    A &lt;&lt; B => A * 2_ ** B,
+                    A &lt;&lt; 0 => A,
+                    A &lt;&lt; -1 => EXCEPTION NUMERIC_ERROR )
+      A >> B    Arithmetic shift right
+                  ( Type of argument B: <font color=red>integer</font>,
+                    A >> B is okay for B >= 0,
+                    A >> B => A <font color=blue>mdiv</font> 2_ ** B,
+                    A >> B => C for A >= 0_ holds: C >= 0_
+                    A >> B => C for A < 0_ holds: C < 0_
+                    A >> B => 0_ for A >= 0_ and B > ord(log2(A)),
+                    A >> B => -1_ for A < 0_ and B > ord(log2(-A)),
+                    A >> 0 => A,
+                    A >> -1 => EXCEPTION NUMERIC_ERROR )
       <font color=red>bigInteger</font> <font color=blue>conv</font> A   Conversion to <font color=red>bigInteger</font>
                   ( Type of argument A: <font color=red>integer</font>,
                     <font color=red>bigInteger</font> <font color=blue>conv</font> A => A )
@@ -1752,6 +1809,19 @@
                     log2(0) => -1,
                     log2(1) => 0,
                     log2(-1) => EXCEPTION NUMERIC_ERROR )
+      bitLength(A) Number of bits in the minimal two's-complement
+                   representation, excluding the sign bit.
+                  ( Type of result: <font color=red>integer</font>,
+                    bitLength(A) => ord(succ(log2(A))) for A >= 0_,
+                    bitLength(A) => ord(succ(log2(pred(-A)))) for A < 0_ )
+      lowestSetBit(A) Index of the lowest-order one bit
+                      For A <> 0_ this is equal to to number of
+                      lowest-order zero bits.
+                  ( Type of result: <font color=red>integer</font>,
+                    A >> B &lt;&lt; B = A for A <> 0_ and B = lowestSetBit(A),
+                    lowestSetBit(0_) = -1,
+                    lowestSetBit(1_) = 0,
+                    lowestSetBit(2_) = 1 )
       rand(A, B) Random number in the range [A, B]
                   ( rand(A, B) returns a random number such that
                     A &lt;= rand(A, B) <font color=blue>and</font> rand(A, B) &lt;= B holds.
@@ -1771,6 +1841,10 @@
                   ( A -:= B => A := A - B )
       A *:= B   Multiplying copy
                   ( A *:= B => A := A * B )
+      A &lt;&lt;:= B  Shift left copy
+                  ( A &lt;&lt;:= B => A := A &lt;&lt; B )
+      A >>:= B  Shift right copy
+                  ( A >>:= B => A := A >> B )
       incr(A)   Increment with 1
                   ( incr(A) => A +:= 1_ )
       decr(A)   Decrement with 1
@@ -1782,14 +1856,16 @@
 </pre><p>
   For the operations <tt>'<font color=blue>mdiv</font>'</tt> and <tt>'<font color=blue>mod</font>'</tt> holds for all A:</p><pre>
     (A <font color=blue>mdiv</font> B) * B + A <font color=blue>mod</font> B = A        when B &lt;> 0_
-    (A <font color=blue>mod</font> B) >= 0_ <font color=blue>and</font> (A <font color=blue>mod</font> B) &lt; B    when B > 0
-    (A <font color=blue>mod</font> B) &lt;= 0_ <font color=blue>and</font> (A <font color=blue>mod</font> B) > B    when B &lt; 0
+    (A <font color=blue>mod</font> B) >= 0_ <font color=blue>and</font> (A <font color=blue>mod</font> B) &lt; B   when B > 0
+    (A <font color=blue>mod</font> B) &lt;= 0_ <font color=blue>and</font> (A <font color=blue>mod</font> B) > B   when B &lt; 0
 </pre><p>
   For the operation <tt>'<font color=blue>mdiv</font>'</tt> holds:</p><pre>
-    A <font color=blue>mdiv</font> B = A <font color=blue>div</font> B - 1_   When A and B have different
-                             signs and A <font color=blue>rem</font> B &lt;> 0_ holds.
-    A <font color=blue>mdiv</font> B = A <font color=blue>div</font> B       When A and B have the same
-                             sign or A <font color=blue>rem</font> B = 0_ holds.
+    A <font color=blue>mdiv</font> B = A <font color=blue>div</font> B - 1_         When A and B have different
+                                    signs and A <font color=blue>rem</font> B &lt;> 0_ holds.
+    A <font color=blue>mdiv</font> B = A <font color=blue>div</font> B              When A and B have the same
+                                    sign or A <font color=blue>rem</font> B = 0_ holds.
+    A <font color=blue>mdiv</font> B = (A - 1_) <font color=blue>div</font> B - 1_  When A > 0_ and B &lt; 0_ holds.
+    A <font color=blue>mdiv</font> B = (A + 1_) <font color=blue>div</font> B - 1_  When A &lt; 0_ and B > 0_ holds.
 </pre><p>
   For the operation <tt>'<font color=blue>mod</font>'</tt> holds:</p><pre>
     A <font color=blue>mod</font> B = A <font color=blue>rem</font> B + B    When A and B have different
@@ -1834,14 +1910,11 @@
     (sqrt(A) + 1_) * (sqrt(A) + 1_) > A
 </pre><p></p>
 
-
 <a name="rational"><b>5.4 rational</b></a>
 <p>
     The type <tt>'<font color=red>rational</font>'</tt> consists of rational numbers. The
-  literals of the type <tt>'<font color=red>rational</font>'</tt> are finite and periodical
-  decimal numbers. (The period of a periodical number is
-  separated with an apostrophe (') from the rest of the
-  number. E.g.: 3.'3 or 123.45'678)
+  values of the type <tt>'<font color=red>rational</font>'</tt> are finite and periodical
+  decimal numbers.
 </p><pre>
     Prefix operators:
       +         Identity
@@ -1897,9 +1970,74 @@
 </pre><p>
   All calculations with <tt>'<font color=red>rational</font>'</tt> numbers are done exact.
   (Without any rounding)
+</p><p></p>
+
+<a name="bigRational"><b>5.5 bigRational</b></a>
+<p>
+    The type <tt>'<font color=red>bigRational</font>'</tt> consists of rational numbers. The
+  values of the type <tt>'<font color=red>bigRational</font>'</tt> are finite and periodical
+  decimal numbers.
+</p><pre>
+    Prefix operators:
+      +         Identity
+      -         Change sign
+    Infix operators:
+      +         Addition
+      -         Subtraction
+      *         Multiplication
+      /         Division
+      /         Division of two bigInteger values
+                  ( Left argument: <font color=red>bigInteger</font>,
+                    Right argument: <font color=red>bigInteger</font> )
+      **        Power
+                  ( <font color=red>bigRational</font> ** <font color=red>integer</font> )
+      <font color=red>bigRational</font> <font color=blue>parse</font> A   Conversion of <font color=red>string</font> to <font color=red>bigRational</font>
+                  ( Type of argument A: <font color=red>string</font> )
+    Relations:
+      =, &lt;>, &lt;, &lt;=, >, >=
+    Functions:
+      abs(A)    Absolute value
+      rat(A)    Conversion to <font color=red>bigRational</font>
+                  ( Type of argument A: <font color=red>bigInteger</font>,
+                    rat(1) => 1.0 )
+      floor(A)  Truncation towards negative infinity
+                  ( Type of result: <font color=red>bigInteger</font>,
+                    floor( 1.8)=> 1, floor( 1.0)=> 1,
+                    floor(-1.0)=>-1, floor(-1.8)=>-2 )
+      ceil(A)   Rounding up towards positive infinity
+                  ( Type of result: <font color=red>bigInteger</font>,
+                    ceil( 1.2)=> 2, ceil( 1.0)=> 1,
+                    ceil(-1.0)=>-1, ceil(-1.2)=>-1 )
+      trunc(A)  Truncation towards zero
+                  ( Type of result: <font color=red>bigInteger</font>,
+                    trunc( 1.8)=> 1, trunc( 1.0)=> 1,
+                    trunc(-1.0)=>-1, trunc(-1.8)=>-1 )
+      round(A)  Round towards zero
+                  ( Type of result: <font color=red>bigInteger</font>,
+                    round(0.5)=>1, round(-0.5)=>-1,
+                    round(0.4)=>0, round(-0.4)=>0 )
+      str(A)    Conversion to <font color=red>string</font>
+                  ( Type of result: <font color=red>string</font> )
+      compare(A, B) Compare function
+                  ( Type of result: <font color=red>integer</font>,
+                    compare(1.9, 2.0) => -1,
+                    compare(5.2, 5.2) => 0,
+                    compare(8.0, 7.9) => 1 )
+      hashCode(A) Hash function
+                  ( Type of result: <font color=red>integer</font> )
+    Statements:
+      A +:= B   Increment A by B
+                  ( A +:= B => A := A + B )
+      A -:= B   Decrement A by B
+                  ( A -:= B => A := A - B )
+      A *:= B   Multiplying copy
+                  ( A *:= B => A := A * B )
+</pre><p>
+  All calculations with <tt>'<font color=red>bigRational</font>'</tt> numbers are done exact.
+  (Without any rounding)
 </p>
 
-<a name="float"><b>5.5 float</b></a>
+<a name="float"><b>5.6 float</b></a>
 <p>
     The type <tt>'<font color=red>float</font>'</tt> consists of floating point numbers.
 </p><pre>
@@ -2020,7 +2158,7 @@
                   ( A *:= B => A := A * B )
 </pre><p></p>
 
-<a name="char"><b>5.6 char</b></a>
+<a name="char"><b>5.7 char</b></a>
 <p>
     The type <tt>'<font color=red>char</font>'</tt> describes UNICODE characters. The <tt>'<font color=red>char</font>'</tt>
   values use the UTF-32 encoding. In the source file a
@@ -2091,7 +2229,7 @@
                   ( decr(A) => A := pred(A) )
 </pre><p></p>
 
-<a name="string"><b>5.7 string</b></a>
+<a name="string"><b>5.8 string</b></a>
 <p>
     The type <tt>'<font color=red>string</font>'</tt> describes sequences of UNICODE characters
   (including the empty string). The characters in the <tt>'<font color=red>string</font>'</tt>
@@ -2249,7 +2387,7 @@
                     A @:= [succ(length(A))] 'x' => EXCEPTION RANGE_ERROR )
 </pre><p></p>
 
-<a name="array"><b>5.8 array</b></a>
+<a name="array"><b>5.9 array</b></a>
 <p>
     The type <tt>'<font color=red>array baseType</font>'</tt> describes sequences of identical
   elements of a <tt>'<font color=red>baseType</font>'</tt>. (including the empty sequence).
@@ -2301,7 +2439,7 @@
                     Type of argument C: <font color=red>proc</font> )
 </pre><p></p>
 
-<a name="hash"><b>5.9 hash</b></a>
+<a name="hash"><b>5.10 hash</b></a>
 <p>
     The type <tt>'<font color=red>hash [keyType] baseType</font>'</tt> describes hash tables with
   elements of <tt>'<font color=red>baseType</font>'</tt> which can be accessed using an index of
@@ -2359,7 +2497,7 @@
                     Type of argument D: <font color=red>proc</font> )
 </pre><p></p>
 
-<a name="set"><b>5.10 set</b></a>
+<a name="set"><b>5.11 set</b></a>
 <p>
     The type <tt>'<font color=red>set of baseType</font>'</tt> describes a set of elements of a
   <tt>'<font color=red>baseType</font>'</tt>. (including the empty set).
@@ -2413,7 +2551,7 @@
                     Type of argument C: <font color=red>proc</font> )
 </pre><p></p>
 
-<a name="struct"><b>5.11 struct</b></a>
+<a name="struct"><b>5.12 struct</b></a>
 <p>
     The type <tt>'<font color=red>struct</font>'</tt> describes all structured types.
 </p><pre>
@@ -2456,7 +2594,7 @@
                   ( Type of argument B: <font color=red>reference</font> )
 </pre><p></p>
 
-<a name="reference"><b>5.12 reference</b></a>
+<a name="reference"><b>5.13 reference</b></a>
 <p>
     The type <tt>'<font color=red>reference</font>'</tt> describes a reference to any
   object.
@@ -2521,7 +2659,7 @@
                   ( Type of argument B: <font color=red>ref_list</font> )
 </pre><p></p>
 
-<a name="ref_list"><b>5.13 ref_list</b></a>
+<a name="ref_list"><b>5.14 ref_list</b></a>
 <p>
     The type <tt>'<font color=red>ref_list</font>'</tt> describes a list of <tt>'<font color=red>reference</font>'</tt> objects.
 </p><pre>
@@ -2561,7 +2699,7 @@
                     Type of argument C: <font color=red>proc</font> )
 </pre><p></p>
 
-<a name="ptr"><b>5.14 ptr</b></a>
+<a name="ptr"><b>5.15 ptr</b></a>
 <p>
     The type <tt>'<font color=red>ptr baseType</font>'</tt> describes a pointer to an object
   of a <tt>'<font color=red>baseType</font>'</tt>. With
@@ -2588,7 +2726,7 @@
                   ( Type of argument <font color=red>ptrType</font>: <font color=red>type</font> )
 </pre><p></p>
 
-<a name="ENUMERATION"><b>5.15 ENUMERATION</b></a>
+<a name="ENUMERATION"><b>5.16 ENUMERATION</b></a>
 <p>
     With
 </p><pre>
@@ -2628,7 +2766,7 @@
                   ( decr(A) => A:=pred(A) )
 </pre><p></p>
 
-<a name="color"><b>5.16 color</b></a>
+<a name="color"><b>5.17 color</b></a>
 <p>
     The type <tt>'<font color=red>color</font>'</tt> describes colors.
 </p><pre>
@@ -2663,7 +2801,7 @@
                     Type of argument B: <font color=red>integer</font> )
 </pre><p></p>
 
-<a name="time"><b>5.17 time</b></a>
+<a name="time"><b>5.18 time</b></a>
 <p>
     The type <tt>'<font color=red>time</font>'</tt> describes times and dates.
 </p><pre>
@@ -2733,7 +2871,7 @@
       await(A)  Wait until the given time
 </pre><p></p>
 
-<a name="duration"><b>5.18 duration</b></a>
+<a name="duration"><b>5.19 duration</b></a>
 <p>
     The type <tt>'<font color=red>duration</font>'</tt> describes time and date durations.
 </p><pre>
@@ -2778,7 +2916,7 @@
       wait(A)   Wait for given duration
 </pre><p></p>
 
-<a name="file"><b>5.19 file</b></a>
+<a name="file"><b>5.20 file</b></a>
 <p>
     The type <tt>'<font color=red>file</font>'</tt> describes sequential files.
 </p><pre>
@@ -2794,23 +2932,16 @@
       OUT       Standard output file used for file output
                   operations when no file is specified
                   ( OUT is initialized with STD_OUT )
-    Infix statements:
-      &lt;&lt;        Write <font color=red>string</font> to file
-                  ( Type of right operand: <font color=red>string</font>,
-                    file &lt;&lt; <font color=red>string</font> )
-      >>        Read <font color=red>string</font> from file
-                  ( Type of right operand: <font color=red>string</font>,
-                    file >> <font color=red>string</font> )
     Relations:
       =, &lt;>
     Functions:
-      open(A, B) Open external file
+      open(A, B) Open external <font color=red>file</font>
                   ( Type of argument A: <font color=red>string</font>,
                     Type of argument B: <font color=red>string</font>,
                     Type of result: <font color=red>file</font>,
                     Returns STD_NULL if open was not
                     possible )
-      open_utf8(A, B) Open external UTF-8 file
+      open_utf8(A, B) Open external UTF-8 <font color=red>file</font>
                   ( Type of argument A: <font color=red>string</font>,
                     Type of argument B: <font color=red>string</font>,
                     Type of result: <font color=red>file</font>,
@@ -2833,21 +2964,21 @@
                     Type of result: <font color=red>file</font>,
                     Returns STD_NULL if open was not
                     possible )
-      length(A) Length of file A
+      length(A) Length of <font color=red>file</font> A
                   ( Type of result: <font color=red>integer</font> )
-      tell(A)   Return the actual file position
+      tell(A)   Return the actual <font color=red>file</font> position
                   ( Type of argument: <font color=red>file</font>,
                     The first position in the file is 1 )
-      getc(A)   Get one character from file A
+      getc(A)   Get one character from <font color=red>file</font> A
                   ( Type of result: <font color=red>char</font> )
-      gets(A, B) Get <font color=red>string</font> with maximum length B from file A
+      gets(A, B) Get <font color=red>string</font> with maximum length B from <font color=red>file</font> A
                   ( Type of argument A: <font color=red>integer</font>,
                     Type of argument B: <font color=red>file</font>,
                     Type of result: <font color=red>string</font>,
                     gets(A, -1) => EXCEPTION RANGE_ERROR )
-      getwd(A)  Get one word from file A
+      getwd(A)  Get one word from <font color=red>file</font> A
                   ( Type of result: <font color=red>string</font> )
-      getln(A)  Get one line from file A
+      getln(A)  Get one line from <font color=red>file</font> A
                   ( Type of result: <font color=red>string</font> )
       eoln(A)   End of line
                   ( Type of result: <font color=red>boolean</font> )
@@ -2856,15 +2987,20 @@
       eof(A)    End of file
                   ( Type of result: <font color=red>boolean</font> )
     Statements:
-      write(A, B) Write <font color=red>string</font> B to file A
+      write(A, B) Write <font color=red>string</font> B to <font color=red>file</font> A
                   ( Type of argument B: <font color=red>string</font> )
-      writeln(A) Write a new line to file A
-      writeln(A, B) Write <font color=red>string</font> B and new line to file A
+      writeln(A) Write a new line to <font color=red>file</font> A
+      writeln(A, B) Write <font color=red>string</font> B and new line to <font color=red>file</font> A
                   ( Type of argument B: <font color=red>string</font> )
-      backSpace(A) Write backspace to file A
-      close(A)  Close file A
-      flush(A)  Flush file A
-      seek(A, B) Set actual file position of file A to B
+      read(A, B) Read a word from <font color=red>file</font> A into <font color=red>string</font> B
+                  ( Type of right operand: <font color=red>string</font> )
+      readln(A)  Read a line from <font color=red>file</font> A
+      readln(A, B) Read a line from <font color=red>file</font> A into the <font color=red>string</font> B
+                  ( Type of right operand: <font color=red>string</font> )
+      backSpace(A) Write backspace to <font color=red>file</font> A
+      close(A)  Close <font color=red>file</font> A
+      flush(A)  Flush <font color=red>file</font> A
+      seek(A, B) Set actual file position of <font color=red>file</font> A to B
                   ( Type of argument B: <font color=red>integer</font>,
                     seek(A, 1) => Set to file begin,
                     seek(A, length(A)) => Set to last position,
@@ -2872,56 +3008,54 @@
                     seek(A, -1) => EXCEPTION RANGE_ERROR )
 </pre><p></p>
 
-<a name="text"><b>5.20 text</b></a>
+<a name="text"><b>5.21 text</b></a>
 <p>
     The type <tt>'<font color=red>text</font>'</tt> describes two dimensional files.
 </p><pre>
-    Infix statements:
-      &lt;&lt;        Write <font color=red>string</font> to text
-                  ( Type of right operand: <font color=red>string</font>,
-                    text &lt;&lt; <font color=red>string</font> )
-      >>        Read <font color=red>string</font> from text
-                  ( Type of right operand: <font color=red>string</font>,
-                    file >> <font color=red>string</font> )
     Relations:
       =, &lt;>
     Functions:
-      open_window(F, A, B, C, D) Open a text
+      open_window(F, A, B, C, D) Open a <font color=red>text</font>
                   ( Type of argument A: <font color=red>integer</font>,
                     Type of argument B: <font color=red>integer</font>,
                     Type of argument C: <font color=red>integer</font>,
                     Type of argument D: <font color=red>integer</font> )
-      height(A) Height of the text
+      height(A) Height of the <font color=red>text</font>
                   ( Type of result: <font color=red>integer</font> )
-      width(A)  Width of the text
+      width(A)  Width of the <font color=red>text</font>
                   ( Type of result: <font color=red>integer</font> )
-      line(A)   Current line of the text
+      line(A)   Current line of the <font color=red>text</font>
                   ( Type of result: <font color=red>integer</font> )
-      column(A) Current column of the text
+      column(A) Current column of the <font color=red>text</font>
                   ( Type of result: <font color=red>integer</font> )
     Statements:
-      write(A, B) Write <font color=red>string</font> B to text A
+      write(A, B) Write <font color=red>string</font> B to <font color=red>text</font> A
                   ( Type of argument B: <font color=red>string</font> )
-      writeln(A) Write a new line to file A
-      writeln(A, B) Write <font color=red>string</font> B and new line to text A
+      writeln(A) Write a new line to <font color=red>text</font> A
+      writeln(A, B) Write <font color=red>string</font> B and new line to <font color=red>text</font> A
                   ( Type of argument B: <font color=red>string</font> )
-      backSpace(A) Write backspace to text A
-      close(A)  Close text A
-      flush(A)  Flush text A
+      read(A, B) Read a word from <font color=red>text</font> A into <font color=red>string</font> B
+                  ( Type of right operand: <font color=red>string</font> )
+      readln(A)  Read a line from <font color=red>text</font> A
+      readln(A, B) Read a line from <font color=red>text</font> A into the <font color=red>string</font> B
+                  ( Type of right operand: <font color=red>string</font> )
+      backSpace(A) Write backspace to <font color=red>text</font> A
+      close(A)  Close <font color=red>text</font> A
+      flush(A)  Flush <font color=red>text</font> A
       clear(A)  Clear the window
       v_scroll(A) Scroll the window vertical
       h_scroll(A) Scroll the window horizontal
-      color(A, B) Set foreground color of the text
+      color(A, B) Set foreground color of the <font color=red>text</font> A
                   ( Type of argument B: <font color=red>color</font> )
-      color(A, B, C) Set foreground and background color of the text
+      color(A, B, C) Set foreground and background color of the <font color=red>text</font> A
                   ( Type of argument B: <font color=red>color</font>,
                     Type of argument C: <font color=red>color</font> )
-      setPos(A, B, C) Set the current position of the text
+      setPos(A, B, C) Set the current position of the <font color=red>text</font> A
                   ( Type of argument B: <font color=red>integer</font>
                     Type of argument C: <font color=red>integer</font> )
-      setLine(A, B) Set the current line of the text
+      setLine(A, B) Set the current line of the <font color=red>text</font> A
                   ( Type of argument B: <font color=red>integer</font> )
-      setColumn(A, B) Set the current column of the text
+      setColumn(A, B) Set the current column of the <font color=red>text</font> A
                   ( Type of argument B: <font color=red>integer</font> )
       box(A)    Write a box around the window
       clear_box(A) Clear the box around the window
@@ -2929,7 +3063,7 @@
       cursor_off(A) Make the cursor invisible
 </pre><p></p>
 
-<a name="func"><b>5.21 func</b></a>
+<a name="func"><b>5.22 func</b></a>
 <p>
     The type <tt>'<font color=red>func baseType</font>'</tt> describes functions which return
   a <tt>'<font color=red>baseType</font>'</tt>. For example: <tt>'<font color=red>func integer</font>'</tt> describes an <tt>'<font color=red>integer</font>'</tt>
@@ -3018,7 +3152,7 @@
   parameter is <tt>'TRUE'</tt>.
 </p>
 
-<a name="varfunc"><b>5.22 varfunc</b></a>
+<a name="varfunc"><b>5.23 varfunc</b></a>
 <p>
     The type <tt>'<font color=red>varfunc baseType</font>'</tt> describes functions which return
   a <tt>'<font color=red>baseType</font>'</tt> variable. For example: A function which returns an
@@ -3051,7 +3185,7 @@
   and <font color=red>struct</font>s can be used in the usual way. 
 </p>
 
-<a name="void"><b>5.23 void</b></a>
+<a name="void"><b>5.24 void</b></a>
 <p>
     The type <tt>'<font color=red>void</font>'</tt> describes the empty type.
 </p><pre>
@@ -3059,7 +3193,7 @@
       empty     This is the only value of the type <tt>'<font color=red>void</font>'</tt>.
 </pre><p></p>
 
-<a name="proc"><b>5.24 proc</b></a>
+<a name="proc"><b>5.25 proc</b></a>
 <p>
     The type <tt>'<font color=red>proc</font>'</tt> describes procedures. The type <tt>'<font color=red>proc</font>'</tt>
   is defined as <tt>'<font color=red>func void</font>'</tt>.
@@ -3096,7 +3230,7 @@
                     Type of result: <font color=red>proc</font> )
 </pre><p></p>
 
-<a name="type"><b>5.25 type</b></a>
+<a name="type"><b>5.26 type</b></a>
 <p>
     The type <tt>'<font color=red>type</font>'</tt> describes all types.
 </p><pre>
@@ -3153,7 +3287,7 @@
                 Declare variable 'name' with 'value'
 </pre><p></p>
 
-<a name="object"><b>5.26 object</b></a>
+<a name="object"><b>5.27 object</b></a>
 <p>
     The type <tt>'<font color=red>object</font>'</tt> is used as meta type for various types.
   This allows to define common operations for all this types.
@@ -3166,7 +3300,7 @@
       TRACE_OBJ(A)  Write internal information
 </pre><p></p>
 
-<a name="expr"><b>5.27 expr</b></a>
+<a name="expr"><b>5.28 expr</b></a>
 <p>
     The type <tt>'<font color=red>expr</font>'</tt> is used to describe unmatched expressions.
   This are expressions where the recognizing of the functions
@@ -3962,28 +4096,12 @@
 </p><pre>
     readln(info_file, number);
 </pre><p>
-  There are also C++ like i/o statements. When using the <tt>'&lt;&lt;'</tt>
-  and the <tt>'>>'</tt> statements the last four examples look like:
-</p><pre>
-    info_file := open(<font color=maroon>"info.fil"</font>, <font color=maroon>"w"</font>);
-    info_file &lt;&lt; <font color=maroon>"This is the first line of the info file."</font>;
-    info_file &lt;&lt; NL;  <font color=green>(* New line *)</font>
-    close(info_file);
-
-    info_file := open(<font color=maroon>"info.fil"</font>, <font color=maroon>"r"</font>);
-    info_file >> stri;
-    close(info_file);
-
-    info_file &lt;&lt; number;
-
-    info_file >> number;
-</pre><p>
   For doing i/o to a window on the screen we write:
 </p><pre>
     window1 := open_window(SCREEN, 10, 10, 5, 60);
     box(window1);
     setPos(window1, 3, 1);
-    window1 &lt;&lt; <font color=maroon>"hello there"</font>;
+    write(window1, <font color=maroon>"hello there"</font>);
 </pre><p>
   This opens the window 'window1' on the SCREEN at the position
   10, 10. This window has 5 lines and 60 columns. A box (of
@@ -4267,18 +4385,6 @@
         aFile.io_empty := stri = <font color=maroon>""</font>;
         aFile.io_ok := TRUE;
       <font color=blue>end func</font>;
-
-    <font color=blue>const</font> <font color=red>proc</font>: (<font color=blue>inout</font> <font color=red>file</font>: aFile) >> (<font color=blue>inout</font> <font color=red>string</font>: stri) <font color=blue>is func</font>
-      <font color=blue>begin</font>
-        stri := getwd(aFile);
-        aFile.io_empty := stri = <font color=maroon>""</font>;
-        aFile.io_ok := TRUE;
-      <font color=blue>end func</font>;
-
-    <font color=blue>const</font> <font color=red>proc</font>: (<font color=blue>in</font> <font color=red>file</font>: aFile) &lt;&lt (<font color=blue>in</font> <font color=red>string</font>: stri) <font color=blue>is func</font>
-      <font color=blue>begin</font>
-        write(aFile , stri);
-      <font color=blue>end func</font>;
 </pre><p></p>
 
 <a name="Input_and_output_with_conversion"><b>8.3 Input and output with conversion</b></a>
@@ -4286,37 +4392,15 @@
     Normally we need a combination of an i/o operation with
   a conversion operation. There are several functions which are
   based on the <tt>'str'</tt> and <tt>'<font color=blue>parse</font>'</tt> conversions and on the basic
-  i/o-functions. The following declarations allow the <tt>'&lt;&lt;'</tt> operator
-  and the <tt>'write'</tt> function to be used for all types which define <tt>'enable_io'</tt>:
+  i/o-functions. The following declarations allow the <tt>'write'</tt> function
+  to be used for all types which define <tt>'enable_io'</tt>:
 </p><pre>
-    <font color=blue>const</font> <font color=red>proc</font>: (<font color=blue>in</font> <font color=red>file</font>: aFile) &lt;&lt; (<font color=blue>in</font> <font color=red>aType</font>: aValue) <font color=blue>is func</font>
-      <font color=blue>begin</font>
-        write(aFile, str(aValue));
-      <font color=blue>end func</font>;
-
     <font color=blue>const</font> <font color=red>proc</font>: write (<font color=blue>in</font> <font color=red>file</font>: aFile, <font color=blue>in</font> <font color=red>aType</font>: aValue) <font color=blue>is func</font>
       <font color=blue>begin</font>
         write(aFile, str(aValue));
       <font color=blue>end func</font>;
 </pre><p>
-  For types which define <tt>'enable_io'</tt> the <tt>'>>'</tt> operator is declared as:
-</p><pre>
-    <font color=blue>const</font> <font color=red>proc</font>: (<font color=blue>inout</font> <font color=red>file</font>: aFile) >> (<font color=blue>inout</font> <font color=red>aType</font>: aValue) <font color=blue>is func</font>
-      <font color=blue>local</font>
-        <font color=blue>var</font> <font color=red>string</font>: stri <font color=blue>is</font> <font color=maroon>""</font>;
-      <font color=blue>begin</font>
-        stri := getwd(aFile);
-        aFile.io_empty := stri = <font color=maroon>""</font>;
-        <font color=blue>block</font>
-          aValue := <font color=red>aType</font> <font color=blue>parse</font> stri;
-          aFile.io_ok := TRUE;
-        <font color=blue>exception</font>
-          <font color=blue>catch</font> RANGE_ERROR:
-            aFile.io_ok := FALSE;
-        <font color=blue>end block</font>;
-      <font color=blue>end func</font>;
-</pre><p>
-  To allow the use of <tt>'read'</tt> and <tt>'readln'</tt> functions the following
+  To allow the use of the <tt>'read'</tt> and <tt>'readln'</tt> functions the following
   declarations are made with <tt>'enable_io'</tt>:
 </p><pre>
     <font color=blue>const</font> <font color=red>proc</font>: read (<font color=blue>inout</font> <font color=red>file</font>: aFile, <font color=blue>inout</font> <font color=red>aType</font>: aValue) <font color=blue>is func</font>
@@ -4464,8 +4548,7 @@
   write error messages to the screen even when stdout
   is redirected elsewhere you can write:
 </p><pre>
-    STD_ERR &lt;&lt; <font color=maroon>"ERROR MESSAGE"</font>;
-    STD_ERR &lt;&lt; NL;
+    writeln(STD_ERR, <font color=maroon>"ERROR MESSAGE"</font>);
 </pre><p>
   To redirect the standard output to STD_ERR you can write:
 </p><pre>
@@ -4527,8 +4610,7 @@
   In the rest of the program references to such a variable can be
   used:
 </p><pre>
-    ERR &lt;&lt; <font color=maroon>"Some error occurred"</font>;
-    ERR &lt;&lt; NL;
+    writeln(ERR, <font color=maroon>"Some error occurred"</font>);
 </pre><p>
   In this case redirection of the ERR file can be done very easy.
   The second way to access external_files is to use the <tt>'open'</tt>
@@ -4548,8 +4630,7 @@
 </pre><p>
   After that output to MY_OUT is possible with
 </p><pre>
-    MY_OUT &lt;&lt; <font color=maroon>"hi there"</font>;
-    MY_OUT &lt;&lt; NL;
+    writeln(MY_OUT, <font color=maroon>"hi there"</font>);
 </pre><p>
   As stated earlier STD_IN provides an interface to the keyboard
   which is line buffered and echoed on STD_OUT. This means that
@@ -4635,7 +4716,7 @@
   do not open files to often this does not hurt. Now only the
   two basic i/o operations must be defined:
 </p><pre>
-    <font color=blue>const</font> <font color=red>proc</font>: (<font color=blue>inout</font> <font color=red>NEW_FILE</font>: new_fil) &lt;&lt; (<font color=blue>in</font> <font color=red>string</font>: stri) <font color=blue>is func</font>
+    <font color=blue>const</font> <font color=red>proc</font>: write (<font color=blue>inout</font> <font color=red>NEW_FILE</font>: new_fil, <font color=blue>in</font> <font color=red>string</font>: stri) <font color=blue>is func</font>
       <font color=blue>begin</font>
         ...
         <font color=green>(* Statements that do the output *)</font>
@@ -4692,7 +4773,7 @@
 
     <li><!-- -  -->Which objects should be used for several implicit
       actions for example:<pre>
-        := ::= destroy &lt;&lt; and flush</pre></li>
+        := ::= <tt>'destroy'</tt> <tt>'write'</tt> and <tt>'flush'</tt></pre></li>
 </ul><p>
   The following system declarations exist
 </p><pre>

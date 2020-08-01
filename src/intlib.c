@@ -115,6 +115,22 @@ listtype arguments;
 
 #ifdef ANSI_C
 
+objecttype int_bit_length (listtype arguments)
+#else
+
+objecttype int_bit_length (arguments)
+listtype arguments;
+#endif
+
+  { /* int_bit_length */
+    isit_int(arg_1(arguments));
+    return(bld_int_temp(intBitLength(take_int(arg_1(arguments)))));
+  } /* int_bit_length */
+
+
+
+#ifdef ANSI_C
+
 objecttype int_cmp (listtype arguments)
 #else
 
@@ -438,6 +454,22 @@ listtype arguments;
 
 #ifdef ANSI_C
 
+objecttype int_lowest_set_bit (listtype arguments)
+#else
+
+objecttype int_lowest_set_bit (arguments)
+listtype arguments;
+#endif
+
+  { /* int_lowest_set_bit */
+    isit_int(arg_1(arguments));
+    return(bld_int_temp(intLowestSetBit(take_int(arg_1(arguments)))));
+  } /* int_lowest_set_bit */
+
+
+
+#ifdef ANSI_C
+
 objecttype int_lpad0 (listtype arguments)
 #else
 
@@ -451,6 +483,48 @@ listtype arguments;
     return(bld_stri_temp(intLpad0(
         take_int(arg_1(arguments)), take_int(arg_3(arguments)))));
   } /* int_lpad0 */
+
+
+
+#ifdef ANSI_C
+
+objecttype int_lshift (listtype arguments)
+#else
+
+objecttype int_lshift (arguments)
+listtype arguments;
+#endif
+
+  { /* int_lshift */
+    isit_int(arg_1(arguments));
+    isit_int(arg_3(arguments));
+    return(bld_int_temp(
+        take_int(arg_1(arguments)) <<
+        take_int(arg_3(arguments))));
+  } /* int_lshift */
+
+
+
+#ifdef ANSI_C
+
+objecttype int_lshift_assign (listtype arguments)
+#else
+
+objecttype int_lshift_assign (arguments)
+listtype arguments;
+#endif
+
+  {
+    objecttype int_variable;
+
+  /* int_lshift_assign */
+    int_variable = arg_1(arguments);
+    isit_int(int_variable);
+    is_variable(int_variable);
+    isit_int(arg_3(arguments));
+    int_variable->value.intvalue <<= take_int(arg_3(arguments));
+    return(SYS_EMPTY_OBJECT);
+  } /* int_lshift_assign */
 
 
 
@@ -773,6 +847,90 @@ listtype arguments;
           take_int(arg_1(arguments)) % divisor));
     } /* if */
   } /* int_rem */
+
+
+
+#ifdef ANSI_C
+
+objecttype int_rshift (listtype arguments)
+#else
+
+objecttype int_rshift (arguments)
+listtype arguments;
+#endif
+
+  { /* int_rshift */
+    isit_int(arg_1(arguments));
+    isit_int(arg_3(arguments));
+#ifdef RSHIFT_DOES_SIGN_EXTEND
+    return(bld_int_temp(
+        take_int(arg_1(arguments)) >>
+        take_int(arg_3(arguments))));
+#else
+    if (take_int(arg_1(arguments)) < 0) {
+      return(bld_int_temp(
+          ~(~take_int(arg_1(arguments)) >>
+          take_int(arg_3(arguments)))));
+    } else {
+      return(bld_int_temp(
+          take_int(arg_1(arguments)) >>
+          take_int(arg_3(arguments))));
+    } /* if */
+#endif
+  } /* int_rshift */
+
+
+
+#ifdef ANSI_C
+
+objecttype int_rshift_assign (listtype arguments)
+#else
+
+objecttype int_rshift_assign (arguments)
+listtype arguments;
+#endif
+
+  {
+    objecttype int_variable;
+
+  /* int_rshift_assign */
+    int_variable = arg_1(arguments);
+    isit_int(int_variable);
+    is_variable(int_variable);
+    isit_int(arg_3(arguments));
+#ifdef RSHIFT_DOES_SIGN_EXTEND
+    int_variable->value.intvalue >>= take_int(arg_3(arguments));
+#else
+    if (take_int(arg_1(arguments)) < 0) {
+      int_variable->value.intvalue =
+         ~(~int_variable->value.intvalue >> take_int(arg_3(arguments)));
+    } else {
+      int_variable->value.intvalue >>= take_int(arg_3(arguments));
+    } /* if */
+#endif
+    return(SYS_EMPTY_OBJECT);
+  } /* int_rshift_assign */
+
+
+
+#ifdef OUT_OF_ORDER
+#ifdef ANSI_C
+
+objecttype int_urshift (listtype arguments)
+#else
+
+objecttype int_urshift (arguments)
+listtype arguments;
+#endif
+
+  { /* int_urshift */
+    isit_int(arg_1(arguments));
+    isit_int(arg_3(arguments));
+    return(bld_stri_temp((inttype)
+        (((uinttype) (take_int(arg_1(arguments)))) >>
+        take_int(arg_3(arguments)))));
+  } /* int_urshift */
+#endif
 
 
 

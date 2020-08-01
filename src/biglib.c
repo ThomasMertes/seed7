@@ -491,6 +491,60 @@ listtype arguments;
 
 #ifdef ANSI_C
 
+objecttype big_lowest_set_bit (listtype arguments)
+#else
+
+objecttype big_lowest_set_bit (arguments)
+listtype arguments;
+#endif
+
+  { /* big_lowest_set_bit */
+    isit_bigint(arg_1(arguments));
+    return(bld_int_temp(
+        bigLowestSetBit(take_bigint(arg_1(arguments)))));
+  } /* big_lowest_set_bit */
+
+
+
+#ifdef ANSI_C
+
+objecttype big_lshift (listtype arguments)
+#else
+
+objecttype big_lshift (arguments)
+listtype arguments;
+#endif
+
+  { /* big_lshift */
+    isit_bigint(arg_1(arguments));
+    isit_int(arg_3(arguments));
+    return(bld_bigint_temp(
+        bigLShift(take_bigint(arg_1(arguments)), take_int(arg_3(arguments)))));
+  } /* big_lshift */
+
+
+
+#ifdef ANSI_C
+
+objecttype big_lshift_assign (listtype arguments)
+#else
+
+objecttype big_lshift_assign (arguments)
+listtype arguments;
+#endif
+
+  { /* big_lshift_assign */
+    isit_bigint(arg_1(arguments));
+    isit_int(arg_3(arguments));
+    is_variable(arg_1(arguments));
+    bigLShiftAssign(&take_bigint(arg_1(arguments)), take_int(arg_3(arguments)));
+    return(SYS_EMPTY_OBJECT);
+  } /* big_lshift_assign */
+
+
+
+#ifdef ANSI_C
+
 objecttype big_lt (listtype arguments)
 #else
 
@@ -768,6 +822,43 @@ listtype arguments;
     return(bld_bigint_temp(
         bigRem(take_bigint(arg_1(arguments)), take_bigint(arg_3(arguments)))));
   } /* big_rem */
+
+
+
+#ifdef ANSI_C
+
+objecttype big_rshift (listtype arguments)
+#else
+
+objecttype big_rshift (arguments)
+listtype arguments;
+#endif
+
+  { /* big_rshift */
+    isit_bigint(arg_1(arguments));
+    isit_int(arg_3(arguments));
+    return(bld_bigint_temp(
+        bigRShift(take_bigint(arg_1(arguments)), take_int(arg_3(arguments)))));
+  } /* big_rshift */
+
+
+
+#ifdef ANSI_C
+
+objecttype big_rshift_assign (listtype arguments)
+#else
+
+objecttype big_rshift_assign (arguments)
+listtype arguments;
+#endif
+
+  { /* big_rshift_assign */
+    isit_bigint(arg_1(arguments));
+    isit_int(arg_3(arguments));
+    is_variable(arg_1(arguments));
+    bigRShiftAssign(&take_bigint(arg_1(arguments)), take_int(arg_3(arguments)));
+    return(SYS_EMPTY_OBJECT);
+  } /* big_rshift_assign */
 
 
 

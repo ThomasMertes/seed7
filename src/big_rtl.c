@@ -57,6 +57,7 @@
 
 #define BIGDIGIT_MASK                    0xFF
 #define BIGDIGIT_SIGN                    0x80
+#define BIGDIGIT_SIZE_MASK                0x7
 #define BIGDIGIT_LOG2_SIZE                  3
 #define POWER_OF_10_IN_BIGDIGIT           100
 #define DECIMAL_DIGITS_IN_BIGDIGIT          2
@@ -65,6 +66,7 @@
 
 #define BIGDIGIT_MASK                  0xFFFF
 #define BIGDIGIT_SIGN                  0x8000
+#define BIGDIGIT_SIZE_MASK                0xF
 #define BIGDIGIT_LOG2_SIZE                  4
 #define POWER_OF_10_IN_BIGDIGIT         10000
 #define DECIMAL_DIGITS_IN_BIGDIGIT          4
@@ -73,6 +75,7 @@
 
 #define BIGDIGIT_MASK              0xFFFFFFFF
 #define BIGDIGIT_SIGN              0x80000000
+#define BIGDIGIT_SIZE_MASK               0x1F
 #define BIGDIGIT_LOG2_SIZE                  5
 #define POWER_OF_10_IN_BIGDIGIT    1000000000
 #define DECIMAL_DIGITS_IN_BIGDIGIT          9
@@ -352,14 +355,14 @@ unsigned int lshift;
     memsizetype pos;
 
   /* uBigLShift */
-      low_digit = big1->bigdigits[0];
-      big1->bigdigits[0] = (bigdigittype) ((low_digit << lshift) & BIGDIGIT_MASK);
-      for (pos = 1; pos < big1->size; pos++) {
-        high_digit = big1->bigdigits[pos];
-        big1->bigdigits[pos] = (bigdigittype)
-            (((low_digit >> rshift) | (high_digit << lshift)) & BIGDIGIT_MASK);
-        low_digit = high_digit;
-      } /* for */
+    low_digit = big1->bigdigits[0];
+    big1->bigdigits[0] = (bigdigittype) ((low_digit << lshift) & BIGDIGIT_MASK);
+    for (pos = 1; pos < big1->size; pos++) {
+      high_digit = big1->bigdigits[pos];
+      big1->bigdigits[pos] = (bigdigittype)
+          (((low_digit >> rshift) | (high_digit << lshift)) & BIGDIGIT_MASK);
+      low_digit = high_digit;
+    } /* for */
   } /* uBigLShift */
 #endif
 
@@ -423,18 +426,110 @@ unsigned int rshift;
     memsizetype pos;
 
   /* uBigRShift */
-      high_digit = 0;
-      for (pos = big1->size - 1; pos != 0; pos--) {
-        low_digit = big1->bigdigits[pos];
-        big1->bigdigits[pos] = (bigdigittype)
-            (((low_digit >> rshift) | (high_digit << lshift)) & BIGDIGIT_MASK);
-        high_digit = low_digit;
-      } /* for */
-      low_digit = big1->bigdigits[0];
-      big1->bigdigits[0] = (bigdigittype)
+    high_digit = 0;
+    for (pos = big1->size - 1; pos != 0; pos--) {
+      low_digit = big1->bigdigits[pos];
+      big1->bigdigits[pos] = (bigdigittype)
           (((low_digit >> rshift) | (high_digit << lshift)) & BIGDIGIT_MASK);
+      high_digit = low_digit;
+    } /* for */
+    low_digit = big1->bigdigits[0];
+    big1->bigdigits[0] = (bigdigittype)
+        (((low_digit >> rshift) | (high_digit << lshift)) & BIGDIGIT_MASK);
   } /* uBigRShift */
 
+
+
+#ifdef ANSI_C
+
+static biginttype bigShortRShift (const biginttype big1, const unsigned int rshift)
+#else
+
+static biginttype bigShortRShift (big1, rshift)
+biginttype big1;
+unsigned int rshift;
+#endif
+
+  {
+    unsigned int lshift = 8 * sizeof(bigdigittype) - rshift;
+    bigdigittype low_digit;
+    bigdigittype high_digit;
+    memsizetype pos;
+
+  /* bigShortRShift */
+    pos = big1->size - 1;
+    if (IS_NEGATIVE(big1->bigdigits[pos])) {
+      high_digit = BIGDIGIT_MASK;
+    } else {
+      high_digit = 0;
+    } /* if */
+    for (; pos != 0; pos--) {
+      low_digit = big1->bigdigits[pos];
+      big1->bigdigits[pos] = (bigdigittype)
+          (((low_digit >> rshift) | (high_digit << lshift)) & BIGDIGIT_MASK);
+      high_digit = low_digit;
+    } /* for */
+    low_digit = big1->bigdigits[0];
+    big1->bigdigits[0] = (bigdigittype)
+        (((low_digit >> rshift) | (high_digit << lshift)) & BIGDIGIT_MASK);
+    return(normalize(big1));
+  } /* bigShortRShift */
+
+
+#ifdef ANSI_C
+
+static biginttype bigLongRShift (biginttype big1, unsigned int rshift)
+#else
+
+static biginttype bigLongRShift (big1, rshift)
+biginttype big1;
+unsigned int rshift;
+#endif
+
+  {
+    unsigned int digit_rshift;
+    unsigned int digit_lshift;
+    bigdigittype low_digit;
+    bigdigittype high_digit;
+    bigdigittype *source_digits;
+    bigdigittype *dest_digits;
+    memsizetype pos;
+
+  /* bigLongRShift */
+    digit_rshift = rshift & BIGDIGIT_SIZE_MASK;
+    digit_lshift = 8 * sizeof(bigdigittype) - digit_rshift;
+    source_digits = &big1->bigdigits[rshift >> BIGDIGIT_LOG2_SIZE];
+    dest_digits = big1->bigdigits;
+    high_digit = *source_digits++;
+    low_digit = high_digit >> digit_rshift;
+    for (pos = big1->size - (rshift >> BIGDIGIT_LOG2_SIZE) - 1; pos != 0; pos--) {
+      high_digit = *source_digits++;
+      *dest_digits++ = low_digit | ((high_digit << digit_lshift) & BIGDIGIT_MASK);
+      low_digit = high_digit >> digit_rshift;
+    } /* for */
+    if (IS_NEGATIVE(high_digit)) {
+      *dest_digits = low_digit | ((BIGDIGIT_MASK << digit_lshift) & BIGDIGIT_MASK);
+      if (*dest_digits == BIGDIGIT_MASK) {
+        big1->size -= rshift >> BIGDIGIT_LOG2_SIZE;
+        return(normalize(big1));
+      } /* if */
+    } else {
+      *dest_digits = low_digit;
+      if (low_digit == 0) {
+        big1->size -= rshift >> BIGDIGIT_LOG2_SIZE;
+        return(normalize(big1));
+      } /* if */
+    } /* if */
+    big1 = REALLOC_BIG(big1, big1->size, big1->size - (rshift >> BIGDIGIT_LOG2_SIZE));
+    if (big1 == NULL) {
+      raise_error(MEMORY_ERROR);
+      return(NULL);
+    } else {
+      COUNT3_BIG(big1->size, big1->size - (rshift >> BIGDIGIT_LOG2_SIZE));
+      big1->size -= rshift >> BIGDIGIT_LOG2_SIZE;
+      return(big1);
+    } /* if */
+  } /* bigLongRShift */
 
 
 /**
@@ -2905,6 +3000,247 @@ biginttype big1;
 
 #ifdef ANSI_C
 
+inttype bigLowestSetBit (const const_biginttype big1)
+#else
+
+inttype bigLowestSetBit (big1)
+biginttype big1;
+#endif
+
+  {
+    memsizetype big1_size;
+    memsizetype pos;
+
+  /* bigLowestSetBit */
+    big1_size = big1->size;
+    pos = 0;
+    while (pos < big1_size && big1->bigdigits[pos] == 0) {
+      pos++;
+    } /* while */
+    if (pos < big1_size) {
+      return((pos << BIGDIGIT_LOG2_SIZE) + least_significant_bit(big1->bigdigits[pos]));
+    } else {
+      return(-1);
+    } /* if */
+  } /* bigLowestSetBit */
+
+
+
+#ifdef ANSI_C
+
+biginttype bigLShift (const const_biginttype big1, const inttype lshift)
+#else
+
+biginttype bigLShift (big1, lshift)
+biginttype big1;
+inttype rshift;
+#endif
+
+  {
+    unsigned int digit_rshift;
+    unsigned int digit_lshift;
+    bigdigittype digit_mask;
+    bigdigittype low_digit;
+    bigdigittype high_digit;
+    const bigdigittype *source_digits;
+    bigdigittype *dest_digits;
+    memsizetype count;
+    memsizetype pos;
+    memsizetype result_size;
+    biginttype result;
+
+  /* bigLShift */
+    if (lshift < 0) {
+      result = NULL;
+      raise_error(NUMERIC_ERROR);
+    } else {
+      if (big1->size == 1 && big1->bigdigits[0] == 0) {
+        if (!ALLOC_BIG(result, 1)) {
+          raise_error(MEMORY_ERROR);
+        } else {
+          result->size = 1;
+          result->bigdigits[0] = 0;
+        } /* if */
+      } else if ((lshift & BIGDIGIT_SIZE_MASK) == 0) {
+        result_size = big1->size + (lshift >> BIGDIGIT_LOG2_SIZE);
+        if (!ALLOC_BIG(result, result_size)) {
+          raise_error(MEMORY_ERROR);
+        } else {
+          result->size = result_size;
+          memcpy(&result->bigdigits[lshift >> BIGDIGIT_LOG2_SIZE], big1->bigdigits,
+              (SIZE_TYPE) big1->size * sizeof(bigdigittype));
+          memset(result->bigdigits, 0,
+              (lshift >> BIGDIGIT_LOG2_SIZE) * sizeof(bigdigittype));
+        } /* if */
+      } else {
+        result_size = big1->size + (lshift >> BIGDIGIT_LOG2_SIZE) + 1;
+        digit_lshift = lshift & BIGDIGIT_SIZE_MASK;
+        digit_rshift = 8 * sizeof(bigdigittype) - digit_lshift;
+        count = 0;
+        high_digit = big1->bigdigits[big1->size - 1];
+        if (IS_NEGATIVE(high_digit)) {
+          digit_mask = (BIGDIGIT_MASK << (digit_rshift - 1)) & BIGDIGIT_MASK;
+          if ((digit_rshift == 1 && high_digit == BIGDIGIT_MASK) ||
+              (high_digit & digit_mask) == digit_mask) {
+            result_size--;
+            count = 1;
+          } else {
+            low_digit = BIGDIGIT_MASK;
+          } /* if */
+        } else {
+          if ((digit_rshift == 1 && high_digit == 0) ||
+              high_digit >> (digit_rshift - 1) == 0) {
+            result_size--;
+            count = 1;
+          } else {
+            low_digit = 0;
+          } /* if */
+        } /* if */
+        if (!ALLOC_BIG(result, result_size)) {
+          raise_error(MEMORY_ERROR);
+        } else {
+          result->size = result_size;
+          dest_digits = &result->bigdigits[result_size];
+          if (count) {
+            source_digits = &big1->bigdigits[big1->size - 1];
+            low_digit = *source_digits;
+          } else {
+            source_digits = &big1->bigdigits[big1->size];
+          } /* if */
+          high_digit = (low_digit << digit_lshift) & BIGDIGIT_MASK;
+          for (pos = big1->size - count; pos != 0; pos--) {
+            low_digit = *--source_digits;
+            *--dest_digits = high_digit | (low_digit >> digit_rshift);
+            high_digit = (low_digit << digit_lshift) & BIGDIGIT_MASK;
+          } /* for */
+          *--dest_digits = high_digit;
+          if (dest_digits > result->bigdigits) {
+            memset(result->bigdigits, 0,
+                (dest_digits - result->bigdigits) * sizeof(bigdigittype));
+          } /* if */
+        } /* if */
+      } /* if */
+    } /* if */
+    return(result);
+  } /* bigLShift */
+
+
+
+#ifdef ANSI_C
+
+void bigLShiftAssign (biginttype *const big_variable, inttype lshift)
+#else
+
+void bigLShiftAssign (big_variable, rshift)
+biginttype *const big_variable;
+inttype lshift;
+#endif
+
+  {
+    biginttype big1;
+    unsigned int digit_rshift;
+    unsigned int digit_lshift;
+    bigdigittype digit_mask;
+    bigdigittype low_digit;
+    bigdigittype high_digit;
+    const bigdigittype *source_digits;
+    bigdigittype *dest_digits;
+    memsizetype count;
+    memsizetype pos;
+    memsizetype result_size;
+    biginttype result;
+
+  /* bigLShiftAssign */
+    if (lshift < 0) {
+      raise_error(NUMERIC_ERROR);
+    } else if (lshift != 0) {
+      big1 = *big_variable;
+      if (big1->size == 1 && big1->bigdigits[0] == 0) {
+        if (!ALLOC_BIG(result, 1)) {
+          raise_error(MEMORY_ERROR);
+        } else {
+          result->size = 1;
+          result->bigdigits[0] = 0;
+          *big_variable = result;
+          FREE_BIG(big1, big1->size);
+        } /* if */
+      } else if ((lshift & BIGDIGIT_SIZE_MASK) == 0) {
+        result_size = big1->size + (lshift >> BIGDIGIT_LOG2_SIZE);
+        if (!ALLOC_BIG(result, result_size)) {
+          raise_error(MEMORY_ERROR);
+        } else {
+          result->size = result_size;
+          memcpy(&result->bigdigits[lshift >> BIGDIGIT_LOG2_SIZE], big1->bigdigits,
+              (SIZE_TYPE) big1->size * sizeof(bigdigittype));
+          memset(result->bigdigits, 0,
+              (lshift >> BIGDIGIT_LOG2_SIZE) * sizeof(bigdigittype));
+          *big_variable = result;
+          FREE_BIG(big1, big1->size);
+        } /* if */
+      } else {
+        result_size = big1->size + (lshift >> BIGDIGIT_LOG2_SIZE) + 1;
+        digit_lshift = lshift & BIGDIGIT_SIZE_MASK;
+        digit_rshift = 8 * sizeof(bigdigittype) - digit_lshift;
+        count = 0;
+        high_digit = big1->bigdigits[big1->size - 1];
+        if (IS_NEGATIVE(high_digit)) {
+          digit_mask = (BIGDIGIT_MASK << (digit_rshift - 1)) & BIGDIGIT_MASK;
+          if ((digit_rshift == 1 && high_digit == BIGDIGIT_MASK) ||
+              (high_digit & digit_mask) == digit_mask) {
+            result_size--;
+            count = 1;
+          } else {
+            low_digit = BIGDIGIT_MASK;
+          } /* if */
+        } else {
+          if ((digit_rshift == 1 && high_digit == 0) ||
+              high_digit >> (digit_rshift - 1) == 0) {
+            result_size--;
+            count = 1;
+          } else {
+            low_digit = 0;
+          } /* if */
+        } /* if */
+        if (result_size != big1->size) {
+          if (!ALLOC_BIG(result, result_size)) {
+            raise_error(MEMORY_ERROR);
+          } /* if */
+        } else {
+          result = big1;
+        } /* if */
+        if (result != NULL) {
+          result->size = result_size;
+          dest_digits = &result->bigdigits[result_size];
+          if (count) {
+            source_digits = &big1->bigdigits[big1->size - 1];
+            low_digit = *source_digits;
+          } else {
+            source_digits = &big1->bigdigits[big1->size];
+          } /* if */
+          high_digit = (low_digit << digit_lshift) & BIGDIGIT_MASK;
+          for (pos = big1->size - count; pos != 0; pos--) {
+            low_digit = *--source_digits;
+            *--dest_digits = high_digit | (low_digit >> digit_rshift);
+            high_digit = (low_digit << digit_lshift) & BIGDIGIT_MASK;
+          } /* for */
+          *--dest_digits = high_digit;
+          if (dest_digits > result->bigdigits) {
+            memset(result->bigdigits, 0,
+                (dest_digits - result->bigdigits) * sizeof(bigdigittype));
+          } /* if */
+          if (result != big1) {
+            *big_variable = result;
+            FREE_BIG(big1, big1->size);
+          } /* if */
+        } /* if */
+      } /* if */
+    } /* if */
+  } /* bigLShiftAssign */
+
+
+
+#ifdef ANSI_C
+
 void bigMCpy (biginttype *const big_variable, const_biginttype big2)
 #else
 
@@ -3648,6 +3984,222 @@ biginttype big2;
       return(result);
     } /* if */
   } /* bigRem */
+
+
+
+#ifdef ANSI_C
+
+biginttype bigRShift (const const_biginttype big1, const inttype rshift)
+#else
+
+biginttype bigRShift (big1, rshift)
+biginttype big1;
+inttype rshift;
+#endif
+
+  {
+    unsigned int digit_rshift;
+    unsigned int digit_lshift;
+    bigdigittype digit_mask;
+    bigdigittype low_digit;
+    bigdigittype high_digit;
+    const bigdigittype *source_digits;
+    bigdigittype *dest_digits;
+    memsizetype pos;
+    memsizetype result_size;
+    biginttype result;
+
+  /* bigRShift */
+    if (rshift < 0) {
+      result = NULL;
+      raise_error(NUMERIC_ERROR);
+    } else {
+      if (big1->size <= rshift >> BIGDIGIT_LOG2_SIZE) {
+        if (!ALLOC_BIG(result, 1)) {
+          raise_error(MEMORY_ERROR);
+        } else {
+          result->size = 1;
+          if (IS_NEGATIVE(big1->bigdigits[big1->size - 1])) {
+            result->bigdigits[0] = BIGDIGIT_MASK;
+          } else {
+            result->bigdigits[0] = 0;
+          } /* if */
+        } /* if */
+      } else if ((rshift & BIGDIGIT_SIZE_MASK) == 0) {
+        result_size = big1->size - (rshift >> BIGDIGIT_LOG2_SIZE);
+        if (!ALLOC_BIG(result, result_size)) {
+          raise_error(MEMORY_ERROR);
+        } else {
+          result->size = result_size;
+          memcpy(result->bigdigits, &big1->bigdigits[rshift >> BIGDIGIT_LOG2_SIZE],
+              (SIZE_TYPE) result_size * sizeof(bigdigittype));
+        } /* if */
+      } else {
+        result_size = big1->size - (rshift >> BIGDIGIT_LOG2_SIZE);
+        digit_rshift = rshift & BIGDIGIT_SIZE_MASK;
+        digit_lshift = 8 * sizeof(bigdigittype) - digit_rshift;
+        if (result_size > 1) {
+          high_digit = big1->bigdigits[big1->size - 1];
+          if (IS_NEGATIVE(high_digit)) {
+            digit_mask = (BIGDIGIT_MASK << (digit_rshift - 1)) & BIGDIGIT_MASK;
+            if ((digit_rshift == 1 && high_digit == BIGDIGIT_MASK) ||
+                (high_digit & digit_mask) == digit_mask) {
+              result_size--;
+            } /* if */
+          } else {
+            if ((digit_rshift == 1 && high_digit == 0) ||
+                high_digit >> (digit_rshift - 1) == 0) {
+              result_size--;
+            } /* if */
+          } /* if */
+        } /* if */
+        if (!ALLOC_BIG(result, result_size)) {
+          raise_error(MEMORY_ERROR);
+        } else {
+          result->size = result_size;
+          source_digits = &big1->bigdigits[rshift >> BIGDIGIT_LOG2_SIZE];
+          dest_digits = result->bigdigits;
+          high_digit = *source_digits++;
+          low_digit = high_digit >> digit_rshift;
+          for (pos = big1->size - (rshift >> BIGDIGIT_LOG2_SIZE) - 1; pos != 0; pos--) {
+            high_digit = *source_digits++;
+            *dest_digits++ = low_digit | ((high_digit << digit_lshift) & BIGDIGIT_MASK);
+            low_digit = high_digit >> digit_rshift;
+          } /* for */
+          if (IS_NEGATIVE(high_digit)) {
+            *dest_digits = low_digit | ((BIGDIGIT_MASK << digit_lshift) & BIGDIGIT_MASK);
+          } else {
+            *dest_digits = low_digit;
+          } /* if */
+        } /* if */
+      } /* if */
+    } /* if */
+    return(result);
+  } /* bigRShift */
+
+
+
+#ifdef ANSI_C
+
+void bigRShiftAssign (biginttype *const big_variable, inttype rshift)
+#else
+
+void bigRShiftAssign (big_variable, rshift)
+biginttype *const big_variable;
+inttype rshift;
+#endif
+
+  {
+    biginttype big1;
+    memsizetype size_reduction;
+    unsigned int digit_rshift;
+    unsigned int digit_lshift;
+    bigdigittype low_digit;
+    bigdigittype high_digit;
+    const bigdigittype *source_digits;
+    bigdigittype *dest_digits;
+    memsizetype pos;
+
+  /* bigRShiftAssign */
+    if (rshift < 0) {
+      raise_error(NUMERIC_ERROR);
+    } else {
+      big1 = *big_variable;
+      size_reduction = rshift >> BIGDIGIT_LOG2_SIZE;
+      if (big1->size <= size_reduction) {
+        if (!ALLOC_BIG(*big_variable, 1)) {
+          raise_error(MEMORY_ERROR);
+        } else {
+          (*big_variable)->size = 1;
+          if (IS_NEGATIVE(big1->bigdigits[big1->size - 1])) {
+            (*big_variable)->bigdigits[0] = BIGDIGIT_MASK;
+          } else {
+            (*big_variable)->bigdigits[0] = 0;
+          } /* if */
+          FREE_BIG(big1, big1->size);
+        } /* if */
+      } else if ((rshift & BIGDIGIT_SIZE_MASK) == 0) {
+        if (rshift != 0) {
+          memmove(big1->bigdigits, &big1->bigdigits[size_reduction],
+              (SIZE_TYPE) (big1->size - size_reduction) * sizeof(bigdigittype));
+          big1 = REALLOC_BIG(big1, big1->size, big1->size - size_reduction);
+          if (big1 == NULL) {
+            raise_error(MEMORY_ERROR);
+          } else {
+            COUNT3_BIG(big1->size, big1->size - size_reduction);
+            big1->size -= size_reduction;
+            *big_variable = big1;
+          } /* if */
+        } /* if */
+      } else {
+        digit_rshift = rshift & BIGDIGIT_SIZE_MASK;
+        digit_lshift = 8 * sizeof(bigdigittype) - digit_rshift;
+        source_digits = &big1->bigdigits[size_reduction];
+        dest_digits = big1->bigdigits;
+        high_digit = *source_digits++;
+        low_digit = high_digit >> digit_rshift;
+        for (pos = big1->size - size_reduction - 1; pos != 0; pos--) {
+          high_digit = *source_digits++;
+          *dest_digits++ = low_digit | ((high_digit << digit_lshift) & BIGDIGIT_MASK);
+          low_digit = high_digit >> digit_rshift;
+        } /* for */
+        if (IS_NEGATIVE(high_digit)) {
+          *dest_digits = low_digit | ((BIGDIGIT_MASK << digit_lshift) & BIGDIGIT_MASK);
+          if (*dest_digits == BIGDIGIT_MASK) {
+            if (size_reduction == 0) {
+              *big_variable = normalize(big1);
+            } else {
+              pos = big1->size - size_reduction;
+              if (pos >= 2 && IS_NEGATIVE(big1->bigdigits[pos - 2])) {
+                pos--;
+              } /* if */
+              big1 = REALLOC_BIG(big1, big1->size, pos);
+              if (big1 == NULL) {
+                raise_error(MEMORY_ERROR);
+              } else {
+                COUNT3_BIG(big1->size, pos);
+                big1->size = pos;
+                *big_variable = big1;
+              } /* if */
+              size_reduction = 0;
+            } /* if */
+          } /* if */
+        } else {
+          *dest_digits = low_digit;
+          if (low_digit == 0) {
+            if (size_reduction == 0) {
+              *big_variable = normalize(big1);
+            } else {
+              pos = big1->size - size_reduction;
+              if (pos >= 2 && !IS_NEGATIVE(big1->bigdigits[pos - 2])) {
+                pos--;
+              } /* if */
+              big1 = REALLOC_BIG(big1, big1->size, pos);
+              if (big1 == NULL) {
+                raise_error(MEMORY_ERROR);
+              } else {
+                COUNT3_BIG(big1->size, pos);
+                big1->size = pos;
+                *big_variable = big1;
+              } /* if */
+              size_reduction = 0;
+            } /* if */
+          } /* if */
+        } /* if */
+        if (size_reduction != 0) {
+          big1 = REALLOC_BIG(big1, big1->size, big1->size - size_reduction);
+          if (big1 == NULL) {
+            *big_variable = NULL;
+            raise_error(MEMORY_ERROR);
+          } else {
+            COUNT3_BIG(big1->size, big1->size - size_reduction);
+            big1->size -= size_reduction;
+            *big_variable = big1;
+          } /* if */
+        } /* if */
+      } /* if */
+    } /* if */
+  } /* bigRShiftAssign */
 
 
 

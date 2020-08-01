@@ -27,6 +27,7 @@ $ include "seed7_05.s7i";
   include "float.s7i";
   include "keybd.s7i";
   include "draw.s7i";
+  include "dialog.s7i";
 
 
 const integer: NUM_LEVELS is 6;
@@ -1049,20 +1050,28 @@ const proc: init_pictures is func
   end func;
 
 
-const proc: pause_game is func
+const proc: pause_game (in var boolean: blankWindow) is func
   local
+    var boolean: exitPause is FALSE;
     var time: pause_time is time.value;
     var duration: pause_duration is duration.value;
     var integer: number is 0;
     var char: cmd is ' ';
   begin
     pause_time := time(NOW);
-    repeat
+    if blankWindow then
+      bossMode(game.quit);
+    end if;
+    while not (exitPause or game.quit) do
       cmd := getc(KEYBOARD);
       if cmd in {'Q', 'q'} then
         game.quit := TRUE;
+      elsif cmd = KEY_ESC then
+        bossMode(game.quit);
+      else
+        exitPause := TRUE;
       end if;
-    until cmd in {'\e', 'P', 'p'} or game.quit;
+    end while;
     pause_duration := time(NOW) - pause_time;
     for number range 1 to length(monster) do
       if monster[number].action_time <> time.value then
@@ -1085,8 +1094,10 @@ const proc: game_command (in char: cmd) is func
         game.quit := TRUE;
       when {'Y', 'y'}:
         writeln(heapsize(PROGRAM));
-      when {'\e', 'P', 'p'}:
-        pause_game;
+      when {KEY_ESC}:
+        pause_game(TRUE);
+      when {'P', 'p'}:
+        pause_game(FALSE);
     end case;
   end func;
 
@@ -2668,6 +2679,8 @@ const proc: play_game is func
 
 
 const proc: main is func
+  local
+    var char: cmd is ' ';
   begin
     screen(WIN_WIDTH, WIN_HEIGHT);
     clear(curr_win, black);
@@ -2715,9 +2728,13 @@ const proc: main is func
     setPos(scr, 29, 35);
     writeln(scr, "Press any key to start game");
     DRAW_FLUSH;
-    if upper(getc(KEYBOARD)) <> 'Q' then
-      repeat
-        play_game;
-      until game.quit;
+    cmd := getc(KEYBOARD);
+    if cmd in {'Q', 'q'} then
+      game.quit := TRUE;
+    elsif cmd = KEY_ESC then
+      pause_game(TRUE);
     end if;
+    while not game.quit do
+      play_game;
+    end while;
   end func;

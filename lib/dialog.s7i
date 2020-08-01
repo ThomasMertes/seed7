@@ -32,7 +32,8 @@ const func PRIMITIVE_WINDOW: buttonWindow (ref KEYBOARD_FILE param) is DYNAMIC;
 const func PRIMITIVE_WINDOW: buttonWindow (ref GRAPH_KEYBD_FILE param) is action "GKB_WINDOW";
 
 
-const proc: writeButton (inout graph_file: messageFile, in integer: xPos, in integer: yPos, in string: buttonText) is func
+const proc: writeButton (inout graph_file: messageFile,
+    in integer: xPos, in integer: yPos, in string: buttonText) is func
   begin
     setPosXY(messageFile, xPos + 12, yPos + 14);
     write(messageFile, buttonText);
@@ -43,7 +44,8 @@ const proc: writeButton (inout graph_file: messageFile, in integer: xPos, in int
   end func;
 
 
-const proc: writeButton (inout text: messageFile, in integer: xPos, in integer: yPos, in string: buttonText) is DYNAMIC;
+const proc: writeButton (inout text: messageFile,
+    in integer: xPos, in integer: yPos, in string: buttonText) is DYNAMIC;
 
 
 (**
@@ -141,4 +143,43 @@ const func boolean: isOkay (in array string: messagText) is func
     end while;
     close(messageFile);
     close(buttonTextFile);
+  end func;
+
+
+const proc: bossMode (inout boolean: doQuit) is func
+  local
+    var PRIMITIVE_WINDOW: savedWindow is PRIMITIVE_WINDOW.value;
+    var text: txt is STD_NULL;
+    var boolean: restored is FALSE;
+    var char: cmd is ' ';
+  begin
+    savedWindow := getPixmap(curr_win);
+    clear(white);
+    txt := open(curr_win, 20, 20);
+    setPos(txt, 3, 1);
+    color(txt, black, white);
+    writeln(txt, "MODES OF OPERATION IN PROGRAMS");
+    writeln(txt);
+    writeln(txt, "Sometimes it is necessary that programs support different modes of operation.");
+    writeln(txt, "It can be necessary to switch between this modes to enhance the workflow.");
+    writeln(txt, "There are several possibilitys to implement such a switch.");
+    writeln(txt);
+    writeln(txt, "1. The use of several windows. In this case the user just switches to another");
+    writeln(txt, "   active window to get another view.");
+    writeln(txt, "2. The use of function keys. In this case function keys allow to switch the");
+    writeln(txt, "   operating mode.");
+    writeln(txt);
+    writeln(txt, "The current mode of operation must be explained as well.");
+    writeln(txt, "An explanation could be: Type P to get back to normal mode or Q to quit.");
+    writeln(txt, "That way the user has the possibility to continue or to quit the program.");
+    repeat
+      cmd := getc(KEYBOARD);
+      if cmd in {'Q', 'q'} then
+        doQuit := TRUE;
+      elsif cmd in {'P', 'p'} then
+        put(0, 0, savedWindow, PSET);
+        DRAW_FLUSH;
+        restored := TRUE;
+      end if;
+    until restored or doQuit;
   end func;

@@ -78,15 +78,15 @@ const proc: display_place (in integer: line, in integer: column, ref field_place
         str(place.marked)[1] <& str(place.visited)[1] <&
         str(place.bomb)[1] <& place.counter); *)
     if place.marked then
-      field << "X";
+      write(field, "X");
     elsif not place.visited then
-      field << ".";
+      write(field, ".");
     elsif place.bomb then
-      field << "#";
+      write(field, "#");
     elsif place.counter = 0 then
-      field << " ";
+      write(field, " ");
     else
-      field << place.counter;
+      write(field, place.counter);
     end if;
   end func;
 
@@ -331,15 +331,15 @@ const proc: show_explosion (in integer: line, in integer: column) is func
     decr(real_mine_counter);
     incr(explosion_counter);
     setPos(status, 1, 2);
-    status << marked_mine_counter;
-    status << " ";
+    write(status, marked_mine_counter);
+    write(status, " ");
   end func;
 
 
 const proc: show_wrong_mark (in integer: line, in integer: column) is func
   begin
     setPos(field, line, STRETCH_FACTOR * pred(column) + 2);
-    field << "F";
+    write(field, "F");
   end func;
 
 
@@ -409,14 +409,14 @@ const proc: show_solution is func
 const proc: read_command (in integer: line, in integer: column) is func
   begin
     setPos(field, line, STRETCH_FACTOR * pred(column) + 3);
-    field << ">";
+    write(field, ">");
     setPos(field, line, STRETCH_FACTOR * pred(column) + 1);
-    field << "<";
+    write(field, "<");
     command := getc(KEYBOARD);
     setPos(field, line, STRETCH_FACTOR * pred(column) + 3);
-    field << " ";
+    write(field, " ");
     setPos(field, line, STRETCH_FACTOR * pred(column) + 1);
-    field << " ";
+    write(field, " ");
   end func;
 
 
@@ -504,11 +504,11 @@ const proc: init_round is func
     stri := ("." lpad STRETCH_FACTOR) mult round_columns;
     for lin range 1 to round_lines do
       setPos(field, lin, 1);
-      field << stri;
+      write(field, stri);
     end for;
     setPos(status, 1, 2);
-    status << round_mines;
-    status << "  MINES LEFT";
+    write(status, round_mines);
+    write(status, "  MINES LEFT");
     line := 1;
     column := 1;
   end func;
@@ -576,8 +576,8 @@ const proc: play_round is func
             end if;
           end if;
           setPos(status, 1, 2);
-          status << marked_mine_counter;
-          status << " ";
+          write(status, marked_mine_counter);
+          write(status, " ");
         end if;
       elsif command = 'j' or command = '2' or command = KEY_DOWN then
         if line < max_line then
@@ -606,9 +606,8 @@ const proc: play_round is func
       elsif command = 's' then
         show_solution;
       else
-        protocol << "illegal ";
-        protocol << literal(command);
-        protocol << NL;
+        write(protocol, "illegal ");
+        writeln(protocol, literal(command));
       end if;
       if marked_mine_counter = 0 and real_mine_counter = 0 then
         congratulation;

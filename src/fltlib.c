@@ -630,7 +630,7 @@ listtype arguments;
     isit_float(flt_variable);
     is_variable(flt_variable);
     isit_float(arg_3(arguments));
-    flt_variable->value.floatvalue += take_float(arg_3(arguments));
+    flt_variable->value.floatvalue *= take_float(arg_3(arguments));
     return(SYS_EMPTY_OBJECT);
   } /* flt_mcpy */
 
