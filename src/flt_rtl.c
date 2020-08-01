@@ -253,7 +253,11 @@ memSizeType doubleToCharBuffer (const double doubleValue,
     logFunction(printf("doubleToCharBuffer(" FMT_E_DBL ", " FMT_E_DBL
                        ", \"%s\", *)\n",
                        doubleValue, largeNumber, format););
+#if FLOAT_ZERO_COMPARISON_OKAY
     if (doubleValue == 0.0) {
+#else
+    if (doubleValue == 0.0 || fltIsNegativeZero(doubleValue)) {
+#endif
       memcpy(buffer, "0.0", 3);
       len = 3;
     } else if (doubleValue < -largeNumber || doubleValue > largeNumber) {
@@ -952,7 +956,7 @@ floatType fltLog (floatType number)
 
   /* fltLog */
     logFunction(printf("fltLog(" FMT_E ")\n", number););
-#if !LOG_OF_NAN_OKAY
+#if !LOG_OF_NAN_OKAY || !FLOAT_NAN_COMPARISON_OKAY
     /* This is checked first on purpose. NaN should not be equal  */
     /* to any value. E.g.: NaN == x should always return FALSE.   */
     /* Beyond that NaN should not be equal to itself also. Some   */
@@ -1000,7 +1004,7 @@ floatType fltLog10 (floatType number)
 
   /* fltLog10 */
     logFunction(printf("fltLog10(" FMT_E ")\n", number););
-#if !LOG10_OF_NAN_OKAY
+#if !LOG10_OF_NAN_OKAY || !FLOAT_NAN_COMPARISON_OKAY
     /* This is checked first on purpose. NaN should not be equal  */
     /* to any value. E.g.: NaN == x should always return FALSE.   */
     /* Beyond that NaN should not be equal to itself also. Some   */
@@ -1049,7 +1053,7 @@ floatType fltLog2 (floatType number)
   /* fltLog2 */
     logFunction(printf("fltLog2(" FMT_E ")\n", number););
 #if HAS_LOG2
-#if !LOG2_OF_NAN_OKAY
+#if !LOG2_OF_NAN_OKAY || !FLOAT_NAN_COMPARISON_OKAY
     /* This is checked first on purpose. NaN should not be equal  */
     /* to any value. E.g.: NaN == x should always return FALSE.   */
     /* Beyond that NaN should not be equal to itself also. Some   */
@@ -1137,7 +1141,7 @@ boolType fltLt (floatType number1, floatType number2)
  *    Infinity mod  B         returns  NaN
  *   -Infinity mod  B         returns  NaN
  *    0.0      mod  B         returns  0.0         for B &lt;> 0.0
- *    A        mod  Infinity  returns  A           for A > 0 
+ *    A        mod  Infinity  returns  A           for A > 0
  *    A        mod  Infinity  returns  Infinity    for A < 0
  *    A        mod -Infinity  returns  A           for A < 0
  *    A        mod -Infinity  returns -Infinity    for A > 0
@@ -1154,7 +1158,7 @@ floatType fltMod (floatType dividend, floatType divisor)
 #if FLOAT_COMPARISON_OKAY
     if ((dividend < 0.0) ^ (divisor < 0.0) && modulo != 0.0) {
 #else
-	if (fltLt(dividend, 0.0) ^ fltLt(divisor, 0.0) && !fltEq(modulo, 0.0)) {
+    if (fltLt(dividend, 0.0) ^ fltLt(divisor, 0.0) && !fltEq(modulo, 0.0)) {
 #endif
       modulo += divisor;
     } /* if */
@@ -1301,7 +1305,7 @@ floatType fltPow (floatType base, floatType exponent)
 
   /* fltPow */
     logFunction(printf("fltPow(" FMT_E ", " FMT_E ")\n", base, exponent););
-#if !POW_OF_NAN_OKAY
+#if !POW_OF_NAN_OKAY || !FLOAT_NAN_COMPARISON_OKAY
     /* This is checked first on purpose. NaN should not be equal  */
     /* to any value. E.g.: NaN == x should always return FALSE.   */
     /* Beyond that NaN should not be equal to itself also. Some   */

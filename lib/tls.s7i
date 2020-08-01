@@ -30,6 +30,7 @@ include "socket.s7i";
 include "asn1.s7i";
 include "x509cert.s7i";
 include "hmac.s7i";
+include "elliptic.s7i";
 include "cipher.s7i";
 include "arc4.s7i";
 include "des.s7i";
@@ -39,18 +40,20 @@ include "aes.s7i";
 
 const type: cipherSuite is integer;
 
-const cipherSuite: TLS_NULL_WITH_NULL_NULL              is 16#0000;
-const cipherSuite: TLS_RSA_WITH_RC4_128_MD5             is 16#0004;
-const cipherSuite: TLS_RSA_WITH_RC4_128_SHA             is 16#0005;
-const cipherSuite: TLS_RSA_WITH_DES_CBC_SHA             is 16#0009;
-const cipherSuite: TLS_RSA_WITH_3DES_EDE_CBC_SHA        is 16#000a; # Mandatory TLS 1.1 Cipher
-const cipherSuite: TLS_RSA_WITH_AES_128_CBC_SHA         is 16#002f; # Mandatory TLS 1.2 Cipher
-const cipherSuite: TLS_RSA_WITH_AES_256_CBC_SHA         is 16#0035;
-const cipherSuite: TLS_RSA_WITH_AES_128_CBC_SHA256      is 16#003c;
-const cipherSuite: TLS_RSA_WITH_AES_256_CBC_SHA256      is 16#003d;
-const cipherSuite: TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA is 16#c009;
-const cipherSuite: TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA is 16#c00a;
-
+const cipherSuite: TLS_NULL_WITH_NULL_NULL               is 16#0000;
+const cipherSuite: TLS_RSA_WITH_RC4_128_MD5              is 16#0004;
+const cipherSuite: TLS_RSA_WITH_RC4_128_SHA              is 16#0005;
+const cipherSuite: TLS_RSA_WITH_DES_CBC_SHA              is 16#0009;
+const cipherSuite: TLS_RSA_WITH_3DES_EDE_CBC_SHA         is 16#000a; # Mandatory TLS 1.1 Cipher
+const cipherSuite: TLS_RSA_WITH_AES_128_CBC_SHA          is 16#002f; # Mandatory TLS 1.2 Cipher
+const cipherSuite: TLS_RSA_WITH_AES_256_CBC_SHA          is 16#0035;
+const cipherSuite: TLS_RSA_WITH_AES_128_CBC_SHA256       is 16#003c;
+const cipherSuite: TLS_RSA_WITH_AES_256_CBC_SHA256       is 16#003d;
+const cipherSuite: TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA  is 16#c009;
+const cipherSuite: TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA  is 16#c00a;
+const cipherSuite: TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA    is 16#c013;
+const cipherSuite: TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256 is 16#c02f;
+const cipherSuite: TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384 is 16#c030;
 
 const array cipherSuite: supportedCiphers is [] (
     TLS_RSA_WITH_3DES_EDE_CBC_SHA,
@@ -60,7 +63,9 @@ const array cipherSuite: supportedCiphers is [] (
     TLS_RSA_WITH_AES_128_CBC_SHA,
     TLS_RSA_WITH_AES_256_CBC_SHA,
     TLS_RSA_WITH_AES_128_CBC_SHA256,
-    TLS_RSA_WITH_AES_256_CBC_SHA256
+    TLS_RSA_WITH_AES_256_CBC_SHA256,
+    TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA,
+    TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA
   );
 
 const string: SSL_3_0 is "\3;\0;";
@@ -68,35 +73,46 @@ const string: TLS_1_0 is "\3;\1;";
 const string: TLS_1_1 is "\3;\2;";
 const string: TLS_1_2 is "\3;\3;";
 
+const type: keyExchangeAlgorithm is new enum
+    RSA, EC_DIFFIE_HELLMAN
+  end enum;
+
 const type: tlsParameters is new struct
-    var boolean:             isClient                is TRUE;
-    var string:              session_id              is "";
-    var string:              hostName                is "";
-    var cipherSuite:         cipher_suite            is TLS_NULL_WITH_NULL_NULL;
-    var cipherAlgorithm:     bulk_cipher_algorithm   is NO_CIPHER;
-    var boolean:             block_cipher            is FALSE;
-    var integer:             key_size                is 0;
-    var integer:             key_material_length     is 0;
-    var integer:             block_size              is 0;
-    var boolean:             is_exportable           is FALSE;
-    var digestAlgorithm:     mac_algorithm           is NO_DIGEST;
-    var integer:             hash_size               is 0;
-    var integer:             compression_algorithm   is 0;
-    var string:              tls_version             is TLS_1_2;  # TLS_1_0;
-    var string:              master_secret           is ""; # length: 48
-    var string:              client_random           is ""; # length: 32
-    var string:              server_random           is ""; # length: 32
-    var certAndKey:          serverCertificates      is certAndKey.value;
-    var rsaKey:              publicCertificateKey    is rsaKey.value;
-    var rsaKey:              privateCertificateKey   is rsaKey.value;
-    var string:              readMacSecret           is "";
-    var string:              writeMacSecret          is "";
-    var cipherState:         readCipherState         is cipherState.value;
-    var cipherState:         writeCipherState        is cipherState.value;
-    var integer:             readSequenceNumber      is 0;
-    var integer:             writeSequenceNumber     is 0;
-    var boolean:             writeEncryptedRecords   is FALSE;
-    var string:              handshake_messages      is "";
+    var boolean:              isClient                 is TRUE;
+    var string:               session_id               is "";
+    var string:               hostName                 is "";
+    var cipherSuite:          cipher_suite             is TLS_NULL_WITH_NULL_NULL;
+    var keyExchangeAlgorithm: key_exchange_algorithm   is RSA;
+    var cipherAlgorithm:      bulk_cipher_algorithm    is NO_CIPHER;
+    var boolean:              block_cipher             is FALSE;
+    var integer:              key_size                 is 0;
+    var integer:              key_material_length      is 0;
+    var integer:              block_size               is 0;
+    var boolean:              is_exportable            is FALSE;
+    var digestAlgorithm:      mac_algorithm            is NO_DIGEST;
+    var integer:              hash_size                is 0;
+    var integer:              compression_algorithm    is 0;
+    var string:               tls_version              is TLS_1_2;  # TLS_1_1;
+    var string:               master_secret            is ""; # length: 48
+    var string:               client_random            is ""; # length: 32
+    var string:               server_random            is ""; # length: 32
+    var certAndKey:           serverCertificates       is certAndKey.value;
+    var rsaKey:               publicRsaCertificateKey  is rsaKey.value;
+    var rsaKey:               privateRsaCertificateKey is rsaKey.value;
+    var ecPoint:              publicEccCertificateKey  is ecPoint.value;
+    var bigInteger:           privateEccCertificateKey is 0_;
+    var ellipticCurve:        curve                    is ellipticCurve.value;
+    var integer:              signatureScheme          is 0;
+    var eccKeyPair:           ownEccKeyPair            is eccKeyPair.value;
+    var ecPoint:              publicEccKeyOfSever      is ecPoint.value;
+    var string:               readMacSecret            is "";
+    var string:               writeMacSecret           is "";
+    var cipherState:          readCipherState          is cipherState.value;
+    var cipherState:          writeCipherState         is cipherState.value;
+    var integer:              readSequenceNumber       is 0;
+    var integer:              writeSequenceNumber      is 0;
+    var boolean:              writeEncryptedRecords    is FALSE;
+    var string:               handshake_messages       is "";
   end struct;
 
 const char: NO_MESSAGE         is EOF;
@@ -121,6 +137,7 @@ const char: UNEXPECTED_MESSAGE  is '\10;';
 const char: BAD_RECORD_MAC      is '\20;';
 const char: DECRYPTION_FAILED   is '\21;';
 const char: HANDSHAKE_FAILURE   is '\40;';
+const char: ILLEGAL_PARAMETER   is '\47;';
 const char: PROCOCOL_VERSION    is '\70;';
 const char: NO_RENEGOTIATION    is '\100;';
 
@@ -152,6 +169,41 @@ const integer: EXTENDED_MASTER_SECRET                 is    23;
 const integer: SESSION_TICKET_TLS                     is    35;  # RFC4507
 const integer: NEXT_PROTOCOL_NEGOTIATION              is 13172;
 const integer: RENEGOTIATION_INFO                     is 65281;  # RFC5746
+
+# Elliptic curves:
+const integer: SECP192K1 is 18;
+const integer: SECP192R1 is 19;
+const integer: SECP224K1 is 20;
+const integer: SECP224R1 is 21;
+const integer: SECP256K1 is 22;
+const integer: SECP256R1 is 23;
+const integer: SECP384R1 is 24;
+const integer: SECP521R1 is 25;
+
+const array ellipticCurve: curveByNumber is [SECP192K1] (
+    secp192k1, secp192r1, secp224k1, secp224r1, secp256k1,
+    secp256r1, secp384r1, secp521r1);
+
+const char: NAMED_CURVE is '\3;';
+
+const array digestAlgorithm: signatureHashByNumber is [1] (
+    MD5, SHA1, SHA224, SHA256, SHA384, SHA512);
+
+const integer: RSA_PKCS1_MD5_SHA1     is 16#0100;
+const integer: RSA_PKCS1_SHA1         is 16#0201;
+const integer: RSA_PKCS1_SHA224       is 16#0301;
+const integer: RSA_PKCS1_SHA256       is 16#0401;
+const integer: RSA_PKCS1_SHA384       is 16#0501;
+const integer: RSA_PKCS1_SHA512       is 16#0601;
+const integer: ECDSA_SHA1             is 16#0203;
+const integer: ECDSA_SECP256R1_SHA256 is 16#0403;
+
+const array integer: signatureSchemes is [] (
+    ECDSA_SECP256R1_SHA256, RSA_PKCS1_SHA256, RSA_PKCS1_SHA1, ECDSA_SHA1, RSA_PKCS1_MD5_SHA1);
+
+const array integer: serverSignatureSchemes is [] (
+    RSA_PKCS1_SHA512, RSA_PKCS1_SHA384, RSA_PKCS1_SHA256, RSA_PKCS1_SHA1,
+    RSA_PKCS1_MD5_SHA1);
 
 const type: tlsParseState is new struct
     var char: contentType is NO_MESSAGE;
@@ -186,476 +238,31 @@ const string: SHA_PAD1 is "\16#36;" mult 40;
 const string: SHA_PAD2 is "\16#5c;" mult 40;
 
 
-const proc: showChangeCipherSpec (in string: stri) is func
+# Showtls defines showTlsMsg(), showTlsMsgType(), showHandshakeMsg() and showX509Cert().
+# Activate it, to debug tls.s7i.
+# include "showtls.s7i";
+
+
+const func integer: getEllipticCurveNumber (in ellipticCurve: curve) is func
+  result
+    var integer: curveNumber is 0;
   begin
-    writeln("change_cipher_spec");
-    writeln("type: " <& ord(stri[6]));
-  end func;
-
-
-const proc: showAlert (in string: stri) is func
-  begin
-    writeln("alert");
-    writeln("Version: " <& ord(stri[2]) <& "." <& ord(stri[3]));
-    writeln("Length: " <& bytes2Int(stri[4 len 2], UNSIGNED, BE));
-    writeln("level: " <& ord(stri[6]));
-    write("description: " <& ord(stri[7]));
-    case ord(stri[7]) of
-      when {  0}: write(" - close_notify");
-      when { 10}: write(" - unexpected_message");
-      when { 20}: write(" - bad_record_mac");
-      when { 21}: write(" - decryption_failed");
-      when { 22}: write(" - record_overflow");
-      when { 30}: write(" - decompression_failure");
-      when { 40}: write(" - handshake_failure");
-      when { 41}: write(" - no_certificate");
-      when { 42}: write(" - bad_certificate");
-      when { 43}: write(" - unsupported_certificate");
-      when { 44}: write(" - certificate_revoked");
-      when { 45}: write(" - certificate_expired");
-      when { 46}: write(" - certificate_unknown");
-      when { 47}: write(" - illegal_parameter");
-      when { 48}: write(" - unknown_ca");
-      when { 49}: write(" - access_denied");
-      when { 50}: write(" - decode_error");
-      when { 51}: write(" - decrypt_error");
-      when { 60}: write(" - export_restriction");
-      when { 70}: write(" - protocol_version");
-      when { 71}: write(" - insufficient_security");
-      when { 80}: write(" - internal_error");
-      when { 86}: write(" - inappropriate_fallback");
-      when { 90}: write(" - user_canceled");
-      when {100}: write(" - no_renegotiation");
-      when {110}: write(" - unsupported_extension");
-      when {111}: write(" - certificate_unobtainable");
-      when {112}: write(" - unrecognized_name");
-      when {113}: write(" - bad_certificate_status_response");
-      when {114}: write(" - bad_certificate_hash_value");
-    end case;
-    writeln;
-  end func;
-
-
-const proc: showExtensions (in string: stri, inout integer: pos) is func
-  local
-    var integer: extensionBytes is 0;
-    var integer: beyond is 0;
-    var integer: index is 0;
-    var integer: extensionType is 0;
-    var integer: dataSize is 0;
-  begin
-    extensionBytes := bytes2Int(stri[pos len 2], UNSIGNED, BE);
-    writeln("Extension bytes: " <& extensionBytes);
-    pos +:= 2;
-    beyond := pos + extensionBytes;
-    index := 1;
-    while pos < beyond do
-      write("Extension-" <& index <& ": ");
-      extensionType := bytes2Int(stri[pos len 2], UNSIGNED, BE);
-      pos +:= 2;
-      case extensionType of
-        when {SERVER_NAME}:                            writeln("server_name");
-        when {MAX_FRAGMENT_LENGTH}:                    writeln("max_fragment_length");
-        when {CLIENT_CERTIFICATE_URL}:                 writeln("client_certificate_url");
-        when {TRUSTED_CA_KEYS}:                        writeln("trusted_ca_keys");
-        when {TRUNCATED_HMAC}:                         writeln("truncated_hmac");
-        when {STATUS_REQUEST}:                         writeln("status_request");
-        when {USER_MAPPING}:                           writeln("user_mapping");
-        when {CLIENT_AUTHZ}:                           writeln("client_authz");
-        when {SERVER_AUTHZ}:                           writeln("server_authz");
-        when {CERT_TYPE}:                              writeln("cert_type");
-        when {ELLIPTIC_CURVES}:                        writeln("elliptic_curves");
-        when {EC_POINT_FORMATS}:                       writeln("ec_point_formats");
-        when {SRP}:                                    writeln("srp");
-        when {SIGNATURE_ALGORITHMS}:                   writeln("signature_algorithms");
-        when {USE_SRTP}:                               writeln("use_srtp");
-        when {HEARTBEAT}:                              writeln("heartbeat");
-        when {APPLICATION_LAYER_PROTOCOL_NEGOTIATION}: writeln("application_layer_protocol_negotiation");
-        when {STATUS_REQUEST_V2}:                      writeln("status_request_v2");
-        when {SIGNED_CERTIFICATE_TIMESTAMP}:           writeln("signed_certificate_timestamp");
-        when {CLIENT_CERTIFICATE_TYPE}:                writeln("client_certificate_type");
-        when {SERVER_CERTIFICATE_TYPE}:                writeln("server_certificate_type");
-        when {PADDING}:                                writeln("padding");
-        when {ENCRYPT_THEN_MAC}:                       writeln("encrypt_then_mac");
-        when {EXTENDED_MASTER_SECRET}:                 writeln("extended_master_secret");
-        when {SESSION_TICKET_TLS}:                     writeln("SessionTicket TLS");
-        when {NEXT_PROTOCOL_NEGOTIATION}:              writeln("next_protocol_negotiation");
-        when {RENEGOTIATION_INFO}:                     writeln("renegotiation_info");
-        otherwise:                                     writeln(extensionType);
-      end case;
-      dataSize := bytes2Int(stri[pos len 2], UNSIGNED, BE);
-      pos +:= 2;
-      writeln("Data: " <& literal(stri[pos len dataSize]));
-      pos +:= dataSize;
-      incr(index);
-    end while;
-  end func;
-
-
-const proc: showClientHello (in string: stri, inout integer: pos) is func
-  local
-    var integer: length is 0;
-    var integer: beyond is 0;
-    var integer: vectorLen is 0;
-    var integer: index is 0;
-  begin
-    writeln("client_hello");
-    length := bytes2Int(stri[pos len 3], UNSIGNED, BE);
-    pos +:= 3;
-    writeln("Length: " <& length);
-    beyond := pos + length;
-    writeln("Bytes there: " <& length(stri) - pos + 1);
-    writeln("Version: " <& ord(stri[pos]) <& "." <& ord(stri[succ(pos)]));
-    pos +:= 2;
-    writeln("Random: " <& hex(stri[12 len 32]));
-    pos +:= 32;
-    vectorLen := ord(stri[pos]);
-    incr(pos);
-    writeln("SessionId: " <& hex(stri[pos len vectorLen]));
-    pos +:= vectorLen;
-    vectorLen := bytes2Int(stri[pos len 2], UNSIGNED, BE) div 2;
-    writeln("Number of Ciphers: " <& vectorLen);
-    pos +:= 2;
-    for index range 1 to vectorLen do
-      writeln("Cipher-" <& index <& ": " <&
-              bytes2Int(stri[pos len 2], UNSIGNED, BE) radix 16 lpad0 4);
-      pos +:= 2;
-    end for;
-    vectorLen := ord(stri[pos]);
-    writeln("Number of CompressionMethods: " <& vectorLen);
-    incr(pos);
-    for index range 1 to vectorLen do
-      writeln("CompressionMethod-" <& index <& ": " <& ord(stri[pos]));
-      incr(pos);
-    end for;
-    if pos <= beyond - 2 then
-      showExtensions(stri, pos);
-    end if;
-    writeln("Final pos: " <& pos);
-    writeln("Leftover bytes: " <& literal(stri[pos ..]));
-  end func;
-
-
-const proc: showServerHello (in string: stri, inout integer: pos) is func
-  local
-    var integer: length is 0;
-    var integer: beyond is 0;
-    var integer: sessionIdLen is 0;
-  begin
-    writeln("server_hello");
-    length := bytes2Int(stri[pos len 3], UNSIGNED, BE);
-    pos +:= 3;
-    writeln("Length: " <& length);
-    beyond := pos + length;
-    writeln("Bytes there: " <& length(stri) - pos + 1);
-    writeln("Version: " <& ord(stri[pos]) <& "." <& ord(stri[succ(pos)]));
-    pos +:= 2;
-    writeln("Random: " <& hex(stri[12 len 32]));
-    pos +:= 32;
-    sessionIdLen := ord(stri[pos]);
-    incr(pos);
-    writeln("SessionId: " <& hex(stri[pos len sessionIdLen]));
-    pos +:= sessionIdLen;
-    writeln("Cipher: " <&
-            bytes2Int(stri[pos len 2], UNSIGNED, BE) radix 16 lpad0 4);
-    pos +:= 2;
-    writeln("CompressionMethod: " <& ord(stri[pos]));
-    incr(pos);
-    if pos <= beyond - 2 then
-      showExtensions(stri, pos);
-    end if;
-    writeln("Final pos: " <& pos);
-    writeln("Leftover bytes: " <& literal(stri[pos ..]));
-  end func;
-
-
-const proc: showX509Cert (in x509cert: cert) is func
-  local
-    var tbsCertificateType: tbsCertificate is tbsCertificateType.value;
-    var string: aKey is "";
-    var integer: number is 0;
-    var integer: pos is 1;
-    var string: publicKey is "";
-  begin
-    tbsCertificate := cert.tbsCertificate;
-    writeln("Version: " <& tbsCertificate.version);
-    writeln("SerialNumber: " <& literal(tbsCertificate.serialNumber));
-    writeln("Signature algorithm: " <& literal(tbsCertificate.signature.algorithm));
-    writeln("Signature parameters: " <& literal(tbsCertificate.signature.parameters));
-    for aKey range keys(tbsCertificate.issuer) do
-      writeln("Issuer " <& literal(aKey) <& ": " <& tbsCertificate.issuer[aKey]);
-    end for;
-    writeln("Valid not before: " <& tbsCertificate.validity.notBefore);
-    writeln("Valid not after: " <& tbsCertificate.validity.notAfter);
-    for aKey range keys(tbsCertificate.subject) do
-      writeln("Subject " <& literal(aKey) <& ": " <& tbsCertificate.subject[aKey]);
-    end for;
-    writeln("Algorithm: " <& literal(tbsCertificate.subjectPublicKeyInfo.algorithm.algorithm));
-    write("Algorithm: ");
-    for number range decodeObjectIdentifier(tbsCertificate.subjectPublicKeyInfo.algorithm.algorithm) do
-      write(number <& " ");
-    end for;
-    writeln;
-    writeln("Algorithm parameters: " <& literal(tbsCertificate.subjectPublicKeyInfo.algorithm.parameters));
-    write("Algorithm parameters: ");
-    if tbsCertificate.subjectPublicKeyInfo.algorithm.parameters <> "" then
-      for number range decodeObjectIdentifier(tbsCertificate.subjectPublicKeyInfo.algorithm.parameters) do
-        write(number <& " ");
-      end for;
-    end if;
-    writeln;
-    writeln("Public key: " <& literal(tbsCertificate.subjectPublicKeyInfo.subjectPublicKey));
-    publicKey := tbsCertificate.subjectPublicKeyInfo.subjectPublicKey;
-    if tbsCertificate.subjectPublicKeyInfo.algorithm.algorithm = RSA_ENCRYPTION_OID then
-      while pos < length(publicKey) do
-        printAsn1(publicKey, pos);
-      end while;
-    end if;
-    writeln("rsa public key modulus:  " <& tbsCertificate.subjectPublicKeyInfo.publicRsaKey.modulus radix 16);
-    writeln("rsa public modulus len:  " <& bitLength(tbsCertificate.subjectPublicKeyInfo.publicRsaKey.modulus));
-    writeln("rsa public key exponent: " <& tbsCertificate.subjectPublicKeyInfo.publicRsaKey.exponent radix 16);
-  end func;
-
-
-const proc: showCertificate (in string: stri, inout integer: pos) is func
-  local
-    var integer: length is 0;
-    var integer: sequenceLen is 0;
-    var integer: certLen is 0;
-    var integer: index is 1;
-    var x509cert: cert is x509cert.value;
-    var array x509cert: certList is 0 times x509cert.value;
-  begin
-    writeln("certificate: " <& literal(stri));
-    length := bytes2Int(stri[pos len 3], UNSIGNED, BE);
-    pos +:= 3;
-    writeln("Length: " <& length);
-    writeln("Bytes there: " <& length(stri) - pos + 1);
-    sequenceLen := bytes2Int(stri[pos len 3], UNSIGNED, BE);
-    pos +:= 3;
-    writeln("Sequence length: " <& sequenceLen);
-    writeln("Bytes there: " <& length(stri) - pos + 1);
-    while pos <= 3 + sequenceLen do
-      certLen := bytes2Int(stri[pos len 3], UNSIGNED, BE);
-      pos +:= 3;
-      writeln("ASN.1Cert-" <& index <& " length: " <& certLen);
-      writeln("ASN.1Cert-" <& index <& ": " <& literal(stri[pos len certLen]));
-      printAsn1(stri[pos len certLen]);
-      cert := getX509Cert(stri[pos len certLen]);
-      showX509Cert(cert);
-      certList &:= cert;
-      pos +:= certLen;
-      incr(index);
-    end while;
-    writeln("Final pos: " <& pos);
-    writeln("Leftover bytes: " <& literal(stri[pos ..]));
-    for index range 1 to pred(length(certList)) do
-      writeln("validate Cert-" <& index <& " with Cert-" <& succ(index));
-      writeln(validateSignature(certList[index], certList[succ(index)].tbsCertificate.subjectPublicKeyInfo.publicRsaKey));
-    end for;
-    # writeln("validate Cert-" <& length(certList) <& " with Cert-" <& length(certList));
-    # writeln(validateSignature(certList[length(certList)], certList[length(certList)].tbsCertificate.subjectPublicKeyInfo.publicRsaKey));
-    # publicKey := certList[1].tbsCertificate.subjectPublicKeyInfo.publicRsaKey;
-  end func;
-
-
-const proc: showServerKeyExchange (in string: stri, inout integer: pos) is func
-  local
-    var integer: length is 0;
-  begin
-    writeln("server_key_exchange");
-    length := bytes2Int(stri[pos len 3], UNSIGNED, BE);
-    pos +:= 3;
-    writeln("Length: " <& length);
-    writeln("Bytes there: " <& length(stri) - pos + 1);
-    writeln("exchange_keys: " <& hex(stri[pos len length]));
-    pos +:= length;
-    writeln("Final pos: " <& pos);
-    writeln("Leftover bytes: " <& literal(stri[pos ..]));
-  end func;
-
-
-const proc: showCertificateRequest (in string: stri, inout integer: pos) is func
-  local
-    var integer: length is 0;
-    var integer: index is 0;
-  begin
-    writeln("certificate_request");
-    length := bytes2Int(stri[pos len 3], UNSIGNED, BE);
-    pos +:= 3;
-    writeln("length: " <& length);
-    writeln("Bytes there: " <& length(stri) - pos + 1);
-    writeln("Version: " <& ord(stri[pos]) <& "." <& ord(stri[succ(pos)]));
-    pos +:= 2;
-    length := ord(stri[pos]);
-    incr(pos);
-    writeln("length: " <& length);
-  end func;
-
-
-const proc: showServerHelloDone (in string: stri, inout integer: pos) is func
-  local
-    var integer: length is 0;
-  begin
-    writeln("server_hello_done");
-    length := bytes2Int(stri[pos len 3], UNSIGNED, BE);
-    pos +:= 3;
-    writeln("Length: " <& length);
-    writeln("Bytes there: " <& length(stri) - pos + 1);
-    writeln("Final pos: " <& pos);
-    writeln("Leftover bytes: " <& literal(stri[pos ..]));
-  end func;
-
-
-const proc: showClientKeyExchange (in string: stri, inout integer: pos) is func
-  local
-    var integer: length is 0;
-  begin
-    writeln("client_key_exchange");
-    length := bytes2Int(stri[pos len 3], UNSIGNED, BE);
-    pos +:= 3;
-    writeln("Length: " <& length);
-    writeln("Bytes there: " <& length(stri) - pos + 1);
-    writeln("exchange_keys: " <& hex(stri[pos len length]));
-    pos +:= length;
-    writeln("Final pos: " <& pos);
-    writeln("Leftover bytes: " <& literal(stri[pos ..]));
-  end func;
-
-
-const proc: showFinished (in string: stri, inout integer: pos) is func
-  local
-    var integer: length is 0;
-  begin
-    writeln("finished");
-    length := bytes2Int(stri[pos len 3], UNSIGNED, BE);
-    pos +:= 3;
-    writeln("Length: " <& length);
-    writeln("Bytes there: " <& length(stri) - pos + 1);
-    writeln("verify_data: " <& hex(stri[pos len length]));
-    pos +:= length;
-    writeln("Final pos: " <& pos);
-    writeln("Leftover bytes: " <& literal(stri[pos ..]));
-  end func;
-
-
-const proc: showHandshakeMsg (in string: stri, in var integer: pos) is func
-  local
-    var char: handshakeType is ' ';
-  begin
-    handshakeType := stri[pos];
-    incr(pos);
-    write("HandshakeType: ");
-    if handshakeType = CLIENT_HELLO then
-      showClientHello(stri, pos);
-    elsif handshakeType = SERVER_HELLO then
-      showServerHello(stri, pos);
-    elsif handshakeType = CERTIFICATE then
-      showCertificate(stri, pos);
-    elsif handshakeType = SERVER_KEY_EXCHANGE then
-      showServerKeyExchange(stri, pos);
-    elsif handshakeType = CERTIFICATE_REQUEST then
-      showCertificateRequest(stri, pos);
-    elsif handshakeType = SERVER_HELLO_DONE then
-      showServerHelloDone(stri, pos);
-    elsif handshakeType = CLIENT_KEY_EXCHANGE then
-      showClientKeyExchange(stri, pos);
-    elsif handshakeType = FINISHED then
-      showFinished(stri, pos);
-    else
-      writeln(ord(handshakeType));
-    end if;
-  end func;
-
-
-const proc: showHandshake (in string: stri) is func
-  begin
-    writeln("handshake");
-    writeln("Version: " <& ord(stri[2]) <& "." <& ord(stri[3]));
-    writeln("Length: " <& bytes2Int(stri[4 len 2], UNSIGNED, BE));
-    writeln("Bytes there: " <& length(stri) - 5);
-    if bytes2Int(stri[4 len 2], UNSIGNED, BE) <> length(stri) - 5 then
-      writeln(" ***** TLS record length not ok");
-    end if;
-    if bytes2Int(stri[7 len 3], UNSIGNED, BE) > length(stri) - 9 then
-      writeln(" ***** TLS handshake length not ok");
-      writeln("handshake length field: " <& literal(stri[7 len 3]));
-      writeln("handshake length from field: " <& bytes2Int(stri[7 len 3], UNSIGNED, BE));
-      writeln("actual length: " <& length(stri) - 9);
-      writeln("record length field: " <& literal(stri[4 len 2]));
-      writeln("HandshakeType: " <& ord(stri[6]));
-    else
-      showHandshakeMsg(stri, 6);
-    end if;
-  end func;
-
-
-const proc: showApplicationData (in string: stri) is func
-  begin
-    writeln("application data");
-    writeln("Version: " <& ord(stri[2]) <& "." <& ord(stri[3]));
-    writeln("Length: " <& bytes2Int(stri[4 len 2], UNSIGNED, BE));
-    writeln("Bytes there: " <& length(stri) - 5);
-    writeln("Data: " <& literal(stri[6 ..]));
-  end func;
-
-
-const proc: showTlsMsg (in string: stri) is func
-  begin
-    writeln("MsgLength: " <& length(stri));
-    if length(stri) <> 0 then
-      write("ContentType: ");
-      if stri[1] = CHANGE_CIPHER_SPEC then
-        showChangeCipherSpec(stri);
-      elsif stri[1] = ALERT then
-        showAlert(stri);
-      elsif stri[1] = HANDSHAKE then
-        showHandshake(stri);
-      elsif stri[1] = APPLICATION_DATA then
-        showApplicationData(stri);
-      else
-        writeln(ord(stri[1]));
-        writeln("Final pos: 1");
-        writeln("Leftover bytes: " <& literal(stri));
-      end if;
-    end if;
-  end func;
-
-
-const proc: showTlsMsgType (in string: stri) is func
-  begin
-    if length(stri) <> 0 then
-      if stri[1] = CHANGE_CIPHER_SPEC then
-        writeln("ChangeCipherSpec");
-      elsif stri[1] = ALERT then
-        writeln("Alert");
-      elsif stri[1] = HANDSHAKE then
-        if stri[6] = CLIENT_HELLO then
-          writeln("ClientHello");
-        elsif stri[6] = SERVER_HELLO then
-          writeln("ServerHello");
-        elsif stri[6] = SESSION_TICKET then
-          writeln("NewSessionTicket");
-        elsif stri[6] = CERTIFICATE then
-          writeln("Certificate");
-        elsif stri[6] = SERVER_KEY_EXCHANGE then
-          writeln("ServerKeyExchange");
-        elsif stri[6] = CERTIFICATE_REQUEST then
-          writeln("CertificateRequest");
-        elsif stri[6] = SERVER_HELLO_DONE then
-          writeln("ServerHelloDone");
-        elsif stri[6] = CLIENT_KEY_EXCHANGE then
-          writeln("ClientKeyExchange");
-        elsif stri[6] = FINISHED then
-          writeln("Finished");
-        else
-          writeln("Handshake " <& ord(stri[6]));
-        end if;
-      elsif stri[1] = APPLICATION_DATA then
-        writeln("ApplicationData");
-      else
-        writeln(ord(stri[1]));
-      end if;
+    if curve.name = "secp192k1" then
+      curveNumber := SECP192K1;
+    elsif curve.name = "secp192r1" then
+      curveNumber := SECP192R1;
+    elsif curve.name = "secp224k1" then
+      curveNumber := SECP224K1;
+    elsif curve.name = "secp224r1" then
+      curveNumber := SECP224R1;
+    elsif curve.name = "secp256k1" then
+      curveNumber := SECP256K1;
+    elsif curve.name = "secp256r1" then
+      curveNumber := SECP256R1;
+    elsif curve.name = "secp384r1" then
+      curveNumber := SECP384R1;
+    elsif curve.name = "secp512r1" then
+      curveNumber := SECP521R1;
     end if;
   end func;
 
@@ -699,6 +306,16 @@ const proc: storeCipherSuite (inout tlsParameters: parameters) is func
       parameters.bulk_cipher_algorithm := AES;
       parameters.key_material_length := 32;
       parameters.mac_algorithm := SHA256;
+    elsif parameters.cipher_suite = TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA then
+      parameters.key_exchange_algorithm := EC_DIFFIE_HELLMAN;
+      parameters.bulk_cipher_algorithm := AES;
+      parameters.key_material_length := 16;
+      parameters.mac_algorithm := SHA1;
+    elsif parameters.cipher_suite = TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA then
+      parameters.key_exchange_algorithm := EC_DIFFIE_HELLMAN;
+      parameters.bulk_cipher_algorithm := AES;
+      parameters.key_material_length := 16;
+      parameters.mac_algorithm := SHA1;
     else
       writeln("Unsupported cipher_suite: " <& ord(parameters.cipher_suite) radix 16 lpad0 4);
       # raise RANGE_ERROR;
@@ -787,6 +404,141 @@ const proc: storeKeys (inout tlsParameters: parameters) is func
   end func;
 
 
+const func string: getRsaSignature (in string: signatureStri) is func
+  result
+    var string: signature is "";
+  local
+    var asn1DataElement: dataElem is asn1DataElement.value;
+    var integer: pos is 1;
+    var algorithmIdentifierType: algorithmIdentifier is algorithmIdentifierType.value;
+  begin
+    dataElem := getAsn1DataElement(signatureStri, pos);
+    if dataElem.tagCategory = tagSequence then
+      algorithmIdentifier := getAlgorithmIdentifier(signatureStri, pos);
+      dataElem := getAsn1DataElement(signatureStri, pos);
+      if dataElem.tagCategory = tagOctetString then
+        signature := getData(signatureStri, pos, dataElem);
+      end if;
+    end if;
+  end func;
+
+
+const func string: genRsaSignature (in string: signature, in digestAlgorithm: digestAlg) is func
+  result
+    var string: signatureString is "";
+  local
+    var algorithmIdentifierType: algorithmIdentifier is algorithmIdentifierType.value;
+  begin
+    case digestAlg of
+      when {SHA1}:   algorithmIdentifier.algorithm := SHA1_OID;
+      when {SHA256}: algorithmIdentifier.algorithm := SHA256_OID;
+      when {SHA384}: algorithmIdentifier.algorithm := SHA384_OID;
+      when {SHA512}: algorithmIdentifier.algorithm := SHA512_OID;
+    end case;
+    signatureString := genAsn1Sequence(
+            genAlgorithmIdentifier(algorithmIdentifier) &
+            genAsn1Element(tagOctetString, signature));
+  end func;
+
+
+const func ecdsaSignature: getEcSignature (in string: signatureStri) is func
+  result
+    var ecdsaSignature: signature is ecdsaSignature.value;
+  local
+    var asn1DataElement: dataElem is asn1DataElement.value;
+    var integer: pos is 1;
+  begin
+    dataElem := getAsn1DataElement(signatureStri, pos);
+    if dataElem.tagCategory = tagSequence then
+      dataElem := getAsn1DataElement(signatureStri, pos);
+      if dataElem.tagCategory = tagInteger then
+        signature.r := bytes2BigInt(getData(signatureStri, pos, dataElem), UNSIGNED, BE);
+        dataElem := getAsn1DataElement(signatureStri, pos);
+        if dataElem.tagCategory = tagInteger then
+          signature.s := bytes2BigInt(getData(signatureStri, pos, dataElem), UNSIGNED, BE);
+        else
+          signature.r := 0_;
+        end if;
+      end if;
+    end if;
+  end func;
+
+
+const func boolean: verifySignature (in string: hashParameter, in integer: signatureScheme,
+    in string: signatureStri, in tlsParameters: parameters, inout tlsParseState: state) is func
+  result
+    var boolean: verified is FALSE;
+  local
+    var string: signatureHash is "";
+    var string: decryptedSignature is "";
+    var ecdsaSignature: signature is ecdsaSignature.value;
+  begin
+    case signatureScheme of
+      when {RSA_PKCS1_MD5_SHA1}:
+        signatureHash := md5(hashParameter) & sha1(hashParameter);
+        verified := rsassaPkcs1V15Decrypt(parameters.publicRsaCertificateKey, signatureStri) = signatureHash;
+      when {RSA_PKCS1_SHA1, RSA_PKCS1_SHA224, RSA_PKCS1_SHA256, RSA_PKCS1_SHA384, RSA_PKCS1_SHA512}:
+        signatureHash := msgDigest(signatureHashByNumber[signatureScheme mdiv 256],
+                                   hashParameter);
+        decryptedSignature := rsassaPkcs1V15Decrypt(parameters.publicRsaCertificateKey, signatureStri);
+        verified := getRsaSignature(decryptedSignature) = signatureHash;
+      when {ECDSA_SECP256R1_SHA256}:
+        signatureHash := sha256(hashParameter);
+        signature := getEcSignature(signatureStri);
+        verified := verify(secp256r1, bytes2BigInt(signatureHash, UNSIGNED, BE),
+                           signature, parameters.publicEccCertificateKey);
+      when {ECDSA_SHA1}:
+        signatureHash := sha1(hashParameter);
+        signature := getEcSignature(signatureStri);
+        verified := verify(parameters.curve, bytes2BigInt(signatureHash, UNSIGNED, BE),
+                           signature, parameters.publicEccCertificateKey);
+    end case;
+  end func;
+
+
+const func string: genSignature (in string: hashParameter, in tlsParameters: parameters) is func
+  result
+    var string: signatureStri is "";
+  local
+    var string: signatureHash is "";
+    var string: rsaSignature is "";
+    var digestAlgorithm: digestAlg is NO_DIGEST;
+    var integer: signatureHashNumber is 0;
+    var ecdsaSignature: signature is ecdsaSignature.value;
+  begin
+    case parameters.signatureScheme of
+      when {RSA_PKCS1_MD5_SHA1}:
+        signatureHash := md5(hashParameter) & sha1(hashParameter);
+        signatureStri := rsassaPkcs1V15Encrypt(parameters.privateRsaCertificateKey, signatureHash);
+      when {RSA_PKCS1_SHA1, RSA_PKCS1_SHA224, RSA_PKCS1_SHA256, RSA_PKCS1_SHA384, RSA_PKCS1_SHA512}:
+        digestAlg := signatureHashByNumber[parameters.signatureScheme mdiv 256];
+        signatureHash := msgDigest(digestAlg, hashParameter);
+        rsaSignature := genRsaSignature(signatureHash, digestAlg);
+        signatureStri := rsassaPkcs1V15Encrypt(parameters.privateRsaCertificateKey, rsaSignature);
+      when {ECDSA_SECP256R1_SHA256}:
+        signatureHash := sha256(hashParameter);
+        signature := sign(secp256r1, bytes2BigInt(signatureHash, UNSIGNED, BE),
+                          parameters.privateEccCertificateKey);
+        signatureStri := genAsn1Sequence(
+            genAsn1Element(tagInteger, bytes(signature.r, SIGNED, BE)) &
+            genAsn1Element(tagInteger, bytes(signature.s, SIGNED, BE)));
+(*
+        signatureHash := sha1(parameters.client_random & parameters.server_random &
+                              serverParams);
+        signature := sign(parameters.curve, bytes2BigInt(signatureHash, UNSIGNED, BE),
+                          parameters.privateEccCertificateKey);
+        signatureStri := genAsn1Sequence(
+            genAsn1Element(tagInteger, bytes(signature.r, SIGNED, BE)) &
+            genAsn1Element(tagInteger, bytes(signature.s, SIGNED, BE)));
+        signatureStri := bytes(length(signatureStri), UNSIGNED, BE) & signatureStri;
+*)
+    end case;
+    signatureStri := int16AsTwoBytesBe(parameters.signatureScheme) &
+                     int16AsTwoBytesBe(length(signatureStri)) &
+                     signatureStri;
+  end func;
+
+
 const proc: processCertificate (inout tlsParameters: parameters, inout tlsParseState: state) is func
   local
     var integer: startPos is 0;
@@ -808,9 +560,78 @@ const proc: processCertificate (inout tlsParameters: parameters, inout tlsParseS
     end while;
     cert := getX509Cert(parameters.serverCertificates.certList[1]);
     # showX509Cert(cert);
-    parameters.serverCertificates.privateKey := cert.tbsCertificate.subjectPublicKeyInfo.publicRsaKey;
-    parameters.publicCertificateKey := parameters.serverCertificates.privateKey;
+    parameters.publicRsaCertificateKey := cert.tbsCertificate.subjectPublicKeyInfo.publicRsaKey;
+    parameters.publicEccCertificateKey := cert.tbsCertificate.subjectPublicKeyInfo.publicEccKey;
     parameters.handshake_messages &:= state.message[startPos .. pred(state.pos)];
+  end func;
+
+
+const proc: processEllipticCurvesExtension (inout tlsParameters: parameters,
+    in string: extensionData) is func
+  local
+    var integer: pos is 1;
+    var integer: length is 0;
+    var integer: curveNumber is 0;
+  begin
+    length := bytes2Int(extensionData[pos len 2], UNSIGNED, BE);
+    pos +:= 2;
+    while pos < length(extensionData) and parameters.curve.bits = 0 do
+      curveNumber := bytes2Int(extensionData[pos len 2], UNSIGNED, BE);
+      # writeln("curveNumber: " <& curveNumber);
+      pos +:= 2;
+      if curveNumber >= minIdx(curveByNumber) and curveNumber <= maxIdx(curveByNumber) then
+        parameters.curve := curveByNumber[curveNumber];
+      end if;
+    end while;
+    # writeln("curve.name: " <& parameters.curve.name);
+  end func;
+
+
+const proc: processSignatureAlgorithmsExtension (inout tlsParameters: parameters,
+    in string: extensionData) is func
+  local
+    var integer: pos is 1;
+    var integer: length is 0;
+    var integer: signatureScheme is 0;
+    var integer: schemeFromList is 0;
+  begin
+    length := bytes2Int(extensionData[pos len 2], UNSIGNED, BE);
+    pos +:= 2;
+    while pos < length(extensionData) and parameters.signatureScheme = 0 do
+      signatureScheme := bytes2Int(extensionData[pos len 2], UNSIGNED, BE);
+      # writeln("signatureScheme: " <& signatureScheme radix 16 lpad0 4);
+      pos +:= 2;
+      for schemeFromList range serverSignatureSchemes until parameters.signatureScheme <> 0 do
+        if schemeFromList = signatureScheme then
+          parameters.signatureScheme := signatureScheme;
+        end if;
+      end for;
+    end while;
+    # writeln("signatureScheme: " <& parameters.signatureScheme radix 16 lpad0 4);
+  end func;
+
+
+const proc: processClientExtensions (inout tlsParameters: parameters, in string: extensions) is func
+  local
+    var integer: pos is 1;
+    var integer: extensionType is 0;
+    var integer: dataSize is 0;
+    var string: data is "";
+  begin
+    while pos < length(extensions) do
+      extensionType := bytes2Int(extensions[pos len 2], UNSIGNED, BE);
+      pos +:= 2;
+      dataSize := bytes2Int(extensions[pos len 2], UNSIGNED, BE);
+      pos +:= 2;
+      data := extensions[pos len dataSize];
+      pos +:= dataSize;
+      case extensionType of
+        when {ELLIPTIC_CURVES}:
+          processEllipticCurvesExtension(parameters, data);
+        when {SIGNATURE_ALGORITHMS}:
+          processSignatureAlgorithmsExtension(parameters, data);
+      end case;
+    end while;
   end func;
 
 
@@ -860,6 +681,7 @@ const proc: processClientHello (inout tlsParameters: parameters, inout tlsParseS
       end for;
       if minIndex <= length(supportedCiphers) then
         parameters.cipher_suite := supportedCiphers[minIndex];
+        # writeln("cipher_suite: " <& parameters.cipher_suite radix 16 lpad0 4);
         storeCipherSuite(parameters);
       else
         state.alert := HANDSHAKE_FAILURE;
@@ -868,7 +690,9 @@ const proc: processClientHello (inout tlsParameters: parameters, inout tlsParseS
       state.pos +:= 1 + numCompressionMethods;
       if state.pos <= beyond - 2 then
         extensionBytes := bytes2Int(state.message[state.pos len 2], UNSIGNED, BE);
-        state.pos +:= 2 + extensionBytes;
+        state.pos +:= 2;
+        processClientExtensions(parameters, state.message[state.pos len extensionBytes]);
+        state.pos +:= extensionBytes;
       end if;
     else
       state.alert := PROCOCOL_VERSION;
@@ -918,6 +742,66 @@ const proc: processServerHello (inout tlsParameters: parameters, inout tlsParseS
   end func;
 
 
+const proc: processServerKeyExchange (inout tlsParameters: parameters, inout tlsParseState: state) is func
+  local
+    var integer: startPos is 0;
+    var integer: length is 0;
+    var integer: beyond is 0;
+    var integer: paramsStartPos is 0;
+    var integer: curveNumber is 0;
+    var integer: pointLength is 0;
+    var string: pointData is "";
+    var string: serverParams is "";
+    var integer: signatureScheme is 0;
+    var integer: signatureLength is 0;
+    var string: signatureStri is "";
+    var boolean: verified is FALSE;
+  begin
+    # writeln("server_key_exchange");
+    startPos := state.pos;
+    incr(state.pos);
+    length := bytes2Int(state.message[state.pos len 3], UNSIGNED, BE);
+    state.pos +:= 3;
+    beyond := state.pos + length;
+    if parameters.key_exchange_algorithm = EC_DIFFIE_HELLMAN then
+      if state.message[state.pos] = NAMED_CURVE then
+        paramsStartPos := state.pos;
+        incr(state.pos);
+        curveNumber := bytes2Int(state.message[state.pos len 2], UNSIGNED, BE);
+        state.pos +:= 2;
+        if curveNumber < minIdx(curveByNumber) or curveNumber > maxIdx(curveByNumber) then
+          state.alert := ILLEGAL_PARAMETER;
+        else
+          parameters.curve := curveByNumber[curveNumber];
+          pointLength := ord(state.message[state.pos]);
+          incr(state.pos);
+          pointData := state.message[state.pos len pointLength];
+          parameters.publicEccKeyOfSever := ecPointDecode(parameters.curve, pointData);
+          state.pos +:= pointLength;
+          serverParams := state.message[paramsStartPos .. pred(state.pos)];
+          signatureScheme := bytes2Int(state.message[state.pos len 2], UNSIGNED, BE);
+          state.pos +:= 2;
+          if parameters.tls_version >= TLS_1_2 then
+            signatureLength := bytes2Int(state.message[state.pos len 2], UNSIGNED, BE);
+            state.pos +:= 2;
+          else
+            signatureLength := beyond - state.pos;
+          end if;
+          signatureStri := state.message[state.pos len signatureLength];
+          state.pos +:= signatureLength;
+          verified := verifySignature(parameters.client_random &
+                                      parameters.server_random &
+                                      serverParams, signatureScheme, signatureStri,
+                                      parameters, state);
+        end if;
+      else
+        state.alert := ILLEGAL_PARAMETER;
+      end if;
+    end if;
+    parameters.handshake_messages &:= state.message[startPos .. pred(state.pos)];
+  end func;
+
+
 const proc: processCertificateRequest (inout tlsParameters: parameters, inout tlsParseState: state) is func
   local
     var integer: startPos is 0;
@@ -954,27 +838,45 @@ const proc: processClientKeyExchange (inout tlsParameters: parameters, inout tls
     var integer: encryptedSecretLength is 0;
     var string: encryptedPreMasterSecret is "";
     var string: preMasterSecret is "";
+    var integer: pointLength is 0;
+    var string: pointData is "";
+    var ecPoint: publicEccKeyOfClient is ecPoint.value;
+    var ecPoint: sharedSecretEcPoint is ecPoint.value;
   begin
     # writeln("client_key_exchange");
     startPos := state.pos;
     incr(state.pos);
     length := bytes2Int(state.message[state.pos len 3], UNSIGNED, BE);
     state.pos +:= 3;
-    if parameters.tls_version = SSL_3_0 then
-      encryptedSecretLength := length;
-    else
-      encryptedSecretLength := bytes2Int(state.message[state.pos len 2], UNSIGNED, BE);
-      state.pos +:= 2;
+    if parameters.key_exchange_algorithm = RSA then
+      if parameters.tls_version = SSL_3_0 then
+        encryptedSecretLength := length;
+      else
+        encryptedSecretLength := bytes2Int(state.message[state.pos len 2], UNSIGNED, BE);
+        state.pos +:= 2;
+      end if;
+      encryptedPreMasterSecret := state.message[state.pos len encryptedSecretLength];
+      state.pos +:= encryptedSecretLength;
+      # writeln("encryptedPreMasterSecret: " <& hex(encryptedPreMasterSecret));
+      # writeln("length(encryptedPreMasterSecret): " <& length(encryptedPreMasterSecret));
+      preMasterSecret := rsaesPkcs1V15Decrypt(parameters.privateRsaCertificateKey,
+          encryptedPreMasterSecret);
+    elsif parameters.key_exchange_algorithm = EC_DIFFIE_HELLMAN then
+      pointLength := ord(state.message[state.pos]);
+      incr(state.pos);
+      pointData := state.message[state.pos len pointLength];
+      publicEccKeyOfClient := ecPointDecode(parameters.curve, pointData);
+      state.pos +:= pointLength;
+      sharedSecretEcPoint := multFast(parameters.curve, publicEccKeyOfClient,
+                                      parameters.ownEccKeyPair.privateKey);
+      # writeln("sharedSecretEcPoint.x: " <& sharedSecretEcPoint.x radix 16);
+      # writeln("length: " <& getSizeInBytes(parameters.curve));
+      preMasterSecret := int2Octets(sharedSecretEcPoint.x,
+                                    getSizeInBytes(parameters.curve));
     end if;
-    encryptedPreMasterSecret := state.message[state.pos len encryptedSecretLength];
-    state.pos +:= encryptedSecretLength;
-    # writeln("encryptedPreMasterSecret: " <& hex(encryptedPreMasterSecret));
-    # writeln("length(encryptedPreMasterSecret): " <& length(encryptedPreMasterSecret));
-    preMasterSecret := rsaesPkcs1V15Decrypt(parameters.privateCertificateKey,
-        encryptedPreMasterSecret);
-    # preMasterSecret := rsaesOaepDecrypt(parameters.privateCertificateKey,
-    #     encryptedPreMasterSecret, "");
+    # writeln("preMasterSecret: " <& hex(preMasterSecret));
     computeMasterSecret(parameters, preMasterSecret);
+    # writeln("master_secret: " <& hex(parameters.master_secret));
     storeKeys(parameters);
     parameters.handshake_messages &:= state.message[startPos .. pred(state.pos)];
   end func;
@@ -1133,14 +1035,40 @@ const proc: loadCompleteHandshakeMsg (inout file: sock, inout tlsParseState: sta
   end func;
 
 
-const func string: genExtension (in integer: extensionType, in string: extensionData) is
+const func string: genExtension (in integer: extensionType, in string: data) is
   return int16AsTwoBytesBe(extensionType) &
-      int16AsTwoBytesBe(length(extensionData)) & extensionData;
+      int16AsTwoBytesBe(length(data)) & data;
 
 
 const func string: serverNameExtension (in string: serverName) is
   return int16AsTwoBytesBe(length(serverName) + 3) &
          "\0;" & int16AsTwoBytesBe(length(serverName)) & serverName;
+
+
+const func string: genEllipticCurvesExtension (in array ellipticCurve: curves) is func
+  result
+    var string: extensionBytes is "";
+  local
+    var integer: curveNumber is 0;
+  begin
+    extensionBytes := int16AsTwoBytesBe(length(curves) * 2);
+    for key curveNumber range curves do
+      extensionBytes &:= int16AsTwoBytesBe(curveNumber);
+    end for;
+  end func;
+
+
+const func string: int16BeArrayExtension (in array integer: intArray) is func
+  result
+    var string: extensionBytes is "";
+  local
+    var integer: intValue is 0;
+  begin
+    extensionBytes := int16AsTwoBytesBe(length(intArray) * 2);
+    for intValue range intArray do
+      extensionBytes &:= int16AsTwoBytesBe(intValue);
+    end for;
+  end func;
 
 
 const func string: genClientExtensions (in tlsParameters: parameters) is func
@@ -1150,6 +1078,8 @@ const func string: genClientExtensions (in tlsParameters: parameters) is func
     if parameters.hostName <> "" then
       extensionBytes &:= genExtension(SERVER_NAME, serverNameExtension(parameters.hostName));
     end if;
+    extensionBytes &:= genExtension(ELLIPTIC_CURVES, genEllipticCurvesExtension(curveByNumber));
+    extensionBytes &:= genExtension(SIGNATURE_ALGORITHMS, int16BeArrayExtension(signatureSchemes));
     if extensionBytes <> "" then
       extensionBytes := int16AsTwoBytesBe(length(extensionBytes)) & extensionBytes;
     end if;
@@ -1244,6 +1174,43 @@ const func string: genCertificate (inout tlsParameters: parameters, in array str
   end func;
 
 
+const func string: genServerKeyExchange (inout tlsParameters: parameters) is func
+  result
+    var string: serverKeyExchange is "";
+  local
+    var integer: length is 0;
+    var string: serverParams is "";
+    var string: pointData is "";
+    var string: signatureHash is "";
+    var ecdsaSignature: signature is ecdsaSignature.value;
+    var string: signatureStri is "";
+  begin
+    # writeln("genServerKeyExchange");
+    serverKeyExchange := str(HANDSHAKE) &            # ContentType (index: 1)
+                         parameters.tls_version &    # Version: 3.1
+                         "\0;\0;" &                  # Length: filled later (index: 4)
+                         str(SERVER_KEY_EXCHANGE) &  # HandshakeType (index: 6)
+                         "\0;\0;\0;";                # Length: filled later
+    if parameters.key_exchange_algorithm = EC_DIFFIE_HELLMAN then
+      # writeln("curve.name: " <& parameters.curve.name);
+      parameters.ownEccKeyPair := genEccKeyPair(parameters.curve);
+      # writeln("curve number: " <& getEllipticCurveNumber(parameters.curve));
+      pointData := ecPointEncode(parameters.curve, parameters.ownEccKeyPair.publicKey);
+      serverParams &:= str(NAMED_CURVE) &
+                       int16AsTwoBytesBe(getEllipticCurveNumber(parameters.curve)) &
+                       str(chr(length(pointData))) & pointData;
+      signatureStri := genSignature(parameters.client_random &
+                                    parameters.server_random &
+                                    serverParams, parameters);
+      serverKeyExchange &:= serverParams & signatureStri;
+    end if;
+    length := length(serverKeyExchange);
+    serverKeyExchange @:= [4] int16AsTwoBytesBe(length - 5);
+    serverKeyExchange @:= [8] int16AsTwoBytesBe(length - 9);
+    parameters.handshake_messages &:= serverKeyExchange[6 ..];
+  end func;
+
+
 const func string: genServerHelloDone (inout tlsParameters: parameters) is func
   result
     var string: serverHelloDone is "";
@@ -1268,25 +1235,41 @@ const func string: genClientKeyExchange (inout tlsParameters: parameters) is fun
     var integer: length is 0;
     var string: preMasterSecret is "";
     var string: encryptedPreMasterSecret is "";
+    var string: pointData is "";
+    var ecPoint: sharedSecretEcPoint is ecPoint.value;
   begin
     # writeln("genClientKeyExchange");
-    preMasterSecret := parameters.tls_version;                          # ProtocolVersion
-    preMasterSecret &:= int2Octets(rand(0_, 2_ ** (46 * 8) - 1_), 46);  # Random - random_bytes
-    computeMasterSecret(parameters, preMasterSecret);
-    storeKeys(parameters);
     clientKeyExchange := str(HANDSHAKE) &            # ContentType (index: 1)
                          parameters.tls_version &    # Version: 3.1
                          "\0;\0;" &                  # Length: filled later (index: 4)
                          str(CLIENT_KEY_EXCHANGE) &  # HandshakeType (index: 6)
                          "\0;\0;\0;";                # Length: filled later
-    encryptedPreMasterSecret := rsaesPkcs1V15Encrypt(parameters.publicCertificateKey,
-        preMasterSecret);
-    # writeln("encryptedPreMasterSecret: " <& hex(encryptedPreMasterSecret));
-    # writeln("length(encryptedPreMasterSecret): " <& length(encryptedPreMasterSecret));
-    if parameters.tls_version <> SSL_3_0 then
-      clientKeyExchange &:= int16AsTwoBytesBe(length(encryptedPreMasterSecret));
+    if parameters.key_exchange_algorithm = RSA then
+      preMasterSecret := parameters.tls_version;                          # ProtocolVersion
+      preMasterSecret &:= int2Octets(rand(0_, 2_ ** (46 * 8) - 1_), 46);  # Random - random_bytes
+      encryptedPreMasterSecret := rsaesPkcs1V15Encrypt(parameters.publicRsaCertificateKey,
+          preMasterSecret);
+      # writeln("encryptedPreMasterSecret: " <& hex(encryptedPreMasterSecret));
+      # writeln("length(encryptedPreMasterSecret): " <& length(encryptedPreMasterSecret));
+      if parameters.tls_version <> SSL_3_0 then
+        clientKeyExchange &:= int16AsTwoBytesBe(length(encryptedPreMasterSecret));
+      end if;
+      clientKeyExchange &:= encryptedPreMasterSecret;
+    elsif parameters.key_exchange_algorithm = EC_DIFFIE_HELLMAN then
+      parameters.ownEccKeyPair := genEccKeyPair(parameters.curve);
+      pointData := ecPointEncode(parameters.curve, parameters.ownEccKeyPair.publicKey);
+      clientKeyExchange &:= str(chr(length(pointData))) & pointData;
+      sharedSecretEcPoint := multFast(parameters.curve, parameters.publicEccKeyOfSever,
+                                      parameters.ownEccKeyPair.privateKey);
+      # writeln("sharedSecretEcPoint.x: " <& sharedSecretEcPoint.x radix 16);
+      # writeln("length: " <& getSizeInBytes(parameters.curve));
+      preMasterSecret := int2Octets(sharedSecretEcPoint.x,
+                                    getSizeInBytes(parameters.curve));
     end if;
-    clientKeyExchange &:= encryptedPreMasterSecret;
+    # writeln("preMasterSecret: " <& hex(preMasterSecret));
+    computeMasterSecret(parameters, preMasterSecret);
+    # writeln("master_secret: " <& hex(parameters.master_secret));
+    storeKeys(parameters);
     length := length(clientKeyExchange);
     clientKeyExchange @:= [4] int16AsTwoBytesBe(length - 5);
     clientKeyExchange @:= [8] int16AsTwoBytesBe(length - 9);
@@ -1547,6 +1530,8 @@ const func file: negotiateSecurityParameters (inout tlsFile: new_file) is func
           # showHandshakeMsg(new_file.parseState.message, new_file.parseState.pos);
           if new_file.parseState.message[new_file.parseState.pos] = CERTIFICATE then
             processCertificate(new_file.parameters, new_file.parseState);
+          elsif new_file.parseState.message[new_file.parseState.pos] = SERVER_KEY_EXCHANGE then
+            processServerKeyExchange(new_file.parameters, new_file.parseState);
           elsif new_file.parseState.message[new_file.parseState.pos] = CERTIFICATE_REQUEST then
             processCertificateRequest(new_file.parameters, new_file.parseState);
           elsif new_file.parseState.message[new_file.parseState.pos] = SERVER_HELLO_DONE then
@@ -1765,14 +1750,12 @@ const func file: openTlsSocket (in string: hostName, in integer: portNumber) is 
 (**
  *  Return a connected TLS socket file based on the given ''sock''.
  *  @param sock A connected internet socket file (server side).
- *  @param certList List of server certificates
- *  @param privateKey Private key of the first certificate.
+ *  @param certificateAndKey Server certificate and corresponding private key.
  *  @return an open TLS socket file, or [[null_file#STD_NULL|STD_NULL]]
  *          if it could not be opened.
  *  @exception MEMORY_ERROR An out of memory situation occurred.
  *)
-const func file: openServerTls (inout file: sock, in array string: certList,
-    in rsaKey: privateKey) is func
+const func file: openServerTls (inout file: sock, in certAndKey: certificateAndKey) is func
   result
     var file: tlsSock is STD_NULL;
   local
@@ -1780,6 +1763,7 @@ const func file: openServerTls (inout file: sock, in array string: certList,
     var string: clientHello is "";
     var string: serverHello is "";
     var string: certificate is "";
+    var string: serverKeyExchange is "";
     var string: serverHelloDone is "";
     var string: changeCipherSpec is "";
     var string: finished is "";
@@ -1788,7 +1772,8 @@ const func file: openServerTls (inout file: sock, in array string: certList,
     if sock <> STD_NULL then
       new_file.sock := sock;
       new_file.parameters.isClient := FALSE;
-      new_file.parameters.privateCertificateKey := privateKey;
+      new_file.parameters.privateRsaCertificateKey := certificateAndKey.privateRsaKey;
+      new_file.parameters.privateEccCertificateKey := certificateAndKey.privateEccKey;
       # Read and process the request from sock.
       getTlsMsgRecord(sock, new_file.parseState);
       if new_file.parseState.contentType = HANDSHAKE and
@@ -1803,7 +1788,7 @@ const func file: openServerTls (inout file: sock, in array string: certList,
           serverHello := genServerHello(new_file.parameters);
           # showTlsMsg(serverHello);
           write(sock, serverHello);
-          certificate := genCertificate(new_file.parameters, certList);
+          certificate := genCertificate(new_file.parameters, certificateAndKey.certList);
           # showTlsMsg(certificate);
           block
             write(sock, certificate);
@@ -1813,6 +1798,11 @@ const func file: openServerTls (inout file: sock, in array string: certList,
               # showTlsMsg(new_file.parseState.message);
               okay := FALSE;
           end block;
+          if okay and new_file.parameters.key_exchange_algorithm = EC_DIFFIE_HELLMAN then
+            serverKeyExchange := genServerKeyExchange(new_file.parameters);
+            # showTlsMsg(serverKeyExchange);
+            write(sock, serverKeyExchange);
+          end if;
         end if;
         if okay then
           serverHelloDone := genServerHelloDone(new_file.parameters);
@@ -1820,7 +1810,6 @@ const func file: openServerTls (inout file: sock, in array string: certList,
           write(sock, serverHelloDone);
           repeat
             getTlsMsgRecord(sock, new_file.parseState);
-            # writeln(literal(new_file.parseState.message));
             # showTlsMsg(new_file.parseState.message);
             if new_file.parseState.contentType = HANDSHAKE and
                 new_file.parseState.message[new_file.parseState.pos] = CLIENT_KEY_EXCHANGE then
@@ -1873,23 +1862,6 @@ const func file: openServerTls (inout file: sock, in array string: certList,
         sendAlertAndClose(new_file, UNEXPECTED_MESSAGE);
       end if;
     end if;
-  end func;
-
-
-(**
- *  Return a connected TLS socket file based on the given ''sock''.
- *  @param sock A connected internet socket file (server side).
- *  @param sock Server socket (returned by accept).
- *  @param certificate Server certificate and corresponding private key.
- *  @return an open TLS socket file, or [[null_file#STD_NULL|STD_NULL]]
- *          if it could not be opened.
- *  @exception MEMORY_ERROR An out of memory situation occurred.
- *)
-const func file: openServerTls (inout file: sock, in certAndKey: certificate) is func
-  result
-    var file: tlsSock is STD_NULL;
-  begin
-    tlsSock := openServerTls(sock, certificate.certList, certificate.privateKey);
   end func;
 
 

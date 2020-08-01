@@ -82,7 +82,7 @@ const type: ccConfigType is new struct
      *  If FLOAT_COMPARISON_OKAY is FALSE fltEq(), fltLt(), fltGt(), fltLe()
      *  and fltGe() should be used to do comparisons of float values.
      *)
-    var boolean: FLOAT_COMPARISON_OKAY         is FALSE;
+    var boolean: FLOAT_COMPARISON_OKAY       is FALSE;
 
     (**
      *  TRUE, when pow() works okay for a base of zero, one and NaN.
@@ -91,8 +91,8 @@ const type: ccConfigType is new struct
     var boolean: POW_FUNCTION_OKAY           is FALSE;
 
     (**
-     *  TRUE, when fmod() works okay for a base of zero, one and NaN.
-     *  If it is FALSE fltRem() should be used instead of pow().
+     *  TRUE, when fmod() works okay for Infinity, NaN and zero.
+     *  If it is FALSE fltRem() should be used instead of fmod().
      *)
     var boolean: FMOD_FUNCTION_OKAY          is FALSE;
 
@@ -127,7 +127,7 @@ const type: ccConfigType is new struct
     var boolean: LOG2_FUNCTION_OKAY          is FALSE;
 
     (**
-     *  TRUE, when ldexp() works okay for NaNs.
+     *  TRUE, when ldexp() works okay for NaN.
      *  If it is FALSE fltLdexp() should be used instead of lsexp().
      *)
     var boolean: LDEXP_FUNCTION_OKAY         is FALSE;

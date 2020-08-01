@@ -436,6 +436,34 @@ const proc: negate (in reference: number, inout expr_type: c_expr) is func
   end func;
 
 
+const proc: process_int_str (in reference: param1, inout expr_type: c_expr) is func
+
+  local
+    var string: buffer_name is "";
+  begin
+    if ccConf.ALLOW_STRITYPE_SLICES and c_expr.demand < ASSIGN_RESULT then
+      incr(c_expr.temp_num);
+      buffer_name := "buffer_" & str(c_expr.temp_num);
+      c_expr.temp_decls &:= "union {\n";
+      c_expr.temp_decls &:= "  struct striStruct striBuf;\n";
+      c_expr.temp_decls &:= "  char charBuf[SIZ_STRI(INTTYPE_DECIMAL_SIZE)];\n";
+      c_expr.temp_decls &:= "} ";
+      c_expr.temp_decls &:= buffer_name;
+      c_expr.temp_decls &:= ";\n";
+      c_expr.expr &:= "intStrToBuffer(";
+      process_expr(param1, c_expr);
+      c_expr.expr &:= ", &";
+      c_expr.expr &:= buffer_name;
+      c_expr.expr &:= ".striBuf)";
+    else
+      prepare_stri_result(c_expr);
+      c_expr.result_expr := "intStr(";
+      getStdParamToResultExpr(param1, c_expr);
+      c_expr.result_expr &:= ")";
+    end if;
+  end func;
+
+
 const proc: const_int_add_with_overflow_check (in string: summand1_name, in integer: summand2,
     inout expr_type: c_expr) is func
 
@@ -1625,13 +1653,21 @@ const proc: process (INT_LOWEST_SET_BIT, in reference: function,
 const proc: process (INT_LPAD0, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
+  local
+    var reference: evaluatedParam is NIL;
   begin
-    prepare_stri_result(c_expr);
-    c_expr.result_expr := "intLpad0(";
-    getStdParamToResultExpr(params[1], c_expr);
-    c_expr.result_expr &:= ",";
-    getStdParamToResultExpr(params[3], c_expr);
-    c_expr.result_expr &:= ")";
+    if getConstant(params[3], INTOBJECT, evaluatedParam) and
+        getValue(evaluatedParam, integer) <= 1 then
+      incr(countOptimizations);
+      process_int_str(params[1], c_expr);
+    else
+      prepare_stri_result(c_expr);
+      c_expr.result_expr := "intLpad0(";
+      getStdParamToResultExpr(params[1], c_expr);
+      c_expr.result_expr &:= ",";
+      getStdParamToResultExpr(params[3], c_expr);
+      c_expr.result_expr &:= ")";
+    end if;
   end func;
 
 
@@ -2586,7 +2622,7 @@ const proc: process_const_int_mult_assign (in reference: variable, in integer: f
     elsif factor = -1 then
       if check_int_arithmetic_overflow and ccConf.TWOS_COMPLEMENT_INTTYPE then
         incr(countOverflowChecks);
-        variable_name := getParameterAsVariable("intType", "tmp_", variable, statement);
+        variable_name := getParameterAsReference("intType", "tmp_", variable, statement);
         statement.expr &:= "ovfChk(";
         statement.expr &:= variable_name;
         statement.expr &:= "==";
@@ -3105,34 +3141,6 @@ const proc: process (INT_PRED, in reference: function,
       c_expr.expr &:= "(";
       process_expr(params[1], c_expr);
       c_expr.expr &:= ")-1";
-    end if;
-  end func;
-
-
-const proc: process_int_str (in reference: param1, inout expr_type: c_expr) is func
-
-  local
-    var string: buffer_name is "";
-  begin
-    if ccConf.ALLOW_STRITYPE_SLICES and c_expr.demand < ASSIGN_RESULT then
-      incr(c_expr.temp_num);
-      buffer_name := "buffer_" & str(c_expr.temp_num);
-      c_expr.temp_decls &:= "union {\n";
-      c_expr.temp_decls &:= "  struct striStruct striBuf;\n";
-      c_expr.temp_decls &:= "  char charBuf[SIZ_STRI(INTTYPE_DECIMAL_SIZE)];\n";
-      c_expr.temp_decls &:= "} ";
-      c_expr.temp_decls &:= buffer_name;
-      c_expr.temp_decls &:= ";\n";
-      c_expr.expr &:= "intStrToBuffer(";
-      process_expr(param1, c_expr);
-      c_expr.expr &:= ", &";
-      c_expr.expr &:= buffer_name;
-      c_expr.expr &:= ".striBuf)";
-    else
-      prepare_stri_result(c_expr);
-      c_expr.result_expr := "intStr(";
-      getStdParamToResultExpr(param1, c_expr);
-      c_expr.result_expr &:= ")";
     end if;
   end func;
 

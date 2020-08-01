@@ -299,7 +299,7 @@ const func string: bytes (in integer: number, SIGNED, LE) is action "INT_BYTES_L
  *         where the most significant byte has an ordinal >= 128.
  *  @param endian Determines the [[#endianess|endianess]] of the result.
  *         Possible values are LE for little-endian and BE for big-endian.
- *  @return a string with the shortest binary representation of ''number''.
+ *  @return a [[string]] with the shortest binary representation of ''number''.
  *  @exception RANGE_ERROR When ''number'' is negative and ''signed'' is UNSIGNED.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  *)
@@ -339,12 +339,92 @@ const func string: bytes (in bigInteger: number, SIGNED, LE) is
  *         where the most significant byte has an ordinal >= 128.
  *  @param endian Determines the [[#endianess|endianess]] of the result.
  *         Possible values are LE for little-endian and BE for big-endian.
- *  @return a string with the shortest binary representation of ''number''.
+ *  @return a [[string]] with the shortest binary representation of ''number''.
  *  @exception RANGE_ERROR When ''number'' is negative and ''signed'' is UNSIGNED.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  *)
 const func string: bytes (in bigInteger: number,
     in signedness: signed, in endianess: endian) is DYNAMIC;
+
+
+const func string: bytes (in bigInteger: number, UNSIGNED, BE, in integer: length) is func
+  result
+    var string: stri is "";
+  begin
+    stri := bytes(number, UNSIGNED, BE);
+    if length(stri) < length then
+      stri := "\0;" mult (length - length(stri)) & stri;
+    elsif length(stri) <> length then
+      raise RANGE_ERROR;
+    end if;
+  end func;
+
+
+const func string: bytes (in bigInteger: number, UNSIGNED, LE, in integer: length) is func
+  result
+    var string: stri is "";
+  begin
+    stri := bytes(number, UNSIGNED, LE);
+    if length(stri) < length then
+      stri &:= "\0;" mult (length - length(stri));
+    elsif length(stri) <> length then
+      raise RANGE_ERROR;
+    end if;
+  end func;
+
+
+const func string: bytes (in bigInteger: number, SIGNED, BE, in integer: length) is func
+  result
+    var string: stri is "";
+  begin
+    stri := bytes(number, SIGNED, BE);
+    if length(stri) < length then
+      if number >= 0_ then
+        stri := "\0;" mult (length - length(stri)) & stri;
+      else
+        stri := "\255;" mult (length - length(stri)) & stri;
+      end if;
+    elsif length(stri) <> length then
+      raise RANGE_ERROR;
+    end if;
+  end func;
+
+
+const func string: bytes (in bigInteger: number, SIGNED, LE, in integer: length) is func
+  result
+    var string: stri is "";
+  begin
+    stri := bytes(number, SIGNED, LE);
+    if length(stri) < length then
+      if number >= 0_ then
+        stri &:= "\0;" mult (length - length(stri));
+      else
+        stri &:= "\255;" mult (length - length(stri));
+      end if;
+    elsif length(stri) <> length then
+      raise RANGE_ERROR;
+    end if;
+  end func;
+
+
+(**
+ *  Convert a [[bigint|bigInteger]] to a [[string]] of bytes with a ''length''.
+ *  @param number BigInteger number to be converted.
+ *  @param signed Determines the [[#signedness|signedness]] of the result.
+ *         Possible values are UNSIGNED and SIGNED. When ''signed'' is SIGNED
+ *         the result is encoded with the twos-complement representation.
+ *         In this case a negative ''number'' is converted to a result
+ *         where the most significant byte has an ordinal >= 128.
+ *  @param endian Determines the [[#endianess|endianess]] of the result.
+ *         Possible values are LE for little-endian and BE for big-endian.
+ *  @param length Length of the result string.
+ *  @return a [[string]] of bytes with ''length'' representing ''number''.
+ *  @exception RANGE_ERROR when the result does not fit into ''length''.
+ *  @exception RANGE_ERROR When ''number'' is negative and ''signed'' is UNSIGNED.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ *)
+const func string: bytes (in bigInteger: number,
+    in signedness: signed, in endianess: endian, in integer: length) is DYNAMIC;
 
 
 const func integer: bytes2Int (in string: byteStri, UNSIGNED, BE) is action "INT_BYTES_BE_2_UINT";

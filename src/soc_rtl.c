@@ -1129,8 +1129,8 @@ bstriType socInetAddr (const const_striType hostName, intType port)
         getaddrinfo_result = getaddrinfo(name, servicename, &hints, &addrinfo_list);
         if (unlikely(getaddrinfo_result != 0)) {
           /* printf("getaddrinfo(\"%s\") -> %d\n", name, getaddrinfo_result); */
-          free_cstri8(name, hostName);
-          if (getaddrinfo_result == EAI_NONAME) {
+          if (getaddrinfo_result == EAI_NONAME || getaddrinfo_result == EAI_AGAIN) {
+            free_cstri8(name, hostName);
             /* Return empty address */
             if (unlikely(!ALLOC_BSTRI_SIZE_OK(result, 0))) {
               raise_error(MEMORY_ERROR);
@@ -1156,6 +1156,7 @@ bstriType socInetAddr (const const_striType hostName, intType port)
                 EAI_SYSTEM, EAI_OVERFLOW); */
             /* printf("EAI_ADDRFAMILY=%d  EAI_NODATA=%d\n",
                 EAI_ADDRFAMILY, EAI_NODATA); */
+            free_cstri8(name, hostName);
             raise_error(FILE_ERROR);
             result = NULL;
           } /* if */

@@ -149,9 +149,11 @@ boolType kbdKeyPressed (void)
             ignoreEvent = TRUE;
           } /* if */
         } else if (event.EventType == FOCUS_EVENT ||
-                   event.EventType == MENU_EVENT) {
-          /* Ignore focus and menu events.        */
-          /* They are used internally by windows. */
+                   event.EventType == MENU_EVENT ||
+                   event.EventType == MOUSE_EVENT) {
+          /* Ignore focus and menu events.                  */
+          /* They are used internally by windows.           */
+          /* Ignore mouse movement and button press events. */
           ignoreEvent = TRUE;
         } else {
           printf("kbdKeyPressed: EventType = %d\n", event.EventType);
@@ -404,9 +406,11 @@ charType kbdGetc (void)
           } /* if */
         } /* if */
       } else if (event.EventType == FOCUS_EVENT ||
-                 event.EventType == MENU_EVENT) {
-        /* Ignore focus and menu events.        */
-        /* They are used internally by windows. */
+                 event.EventType == MENU_EVENT ||
+                 event.EventType == MOUSE_EVENT) {
+        /* Ignore focus and menu events.                  */
+        /* They are used internally by windows.           */
+        /* Ignore mouse movement and button press events. */
       } else {
         printf("kbdGetc: EventType = %d\n", event.EventType);
       } /* if */

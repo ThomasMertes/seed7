@@ -157,6 +157,7 @@ draw.s7i     Portable graphic library
 duration.s7i Time and date duration support library
 echo.s7i     Filter file which generates an echo of the input
 editline.s7i Filter file for linewise editing with history
+elliptic.s7i Support for elliptic curve cryptography (ECC).
 enable_io.s7i Templates to enable file I/O for a given type
 encoding.s7i Encoding and decoding functions
 environment.s7i Support for program arguments and environment.
@@ -228,6 +229,7 @@ scanstri.s7i String scanner functions
 seed7_05.s7i Standard Seed7 library
 set.s7i      Support for sets of a base type
 shell.s7i    Support for shell commands
+showtls.s7i  Show TLS messages. Use it to debug tls.s7i.
 smtp.s7i     Support for SMTP (simple mail transfer protocol)
 sockbase.s7i Support for socket address and primitive socket
 socket.s7i   File implementation type for sockets

@@ -39,17 +39,19 @@ const string: NOMAGIC is "";
 
 const integer: TAR_BLOCK_SIZE is 512;
 
-const char: REGTYPE      is '0';   # Regular file (preferred code)
-const char: AREGTYPE     is '\0;'; # Regular file (alternate code)
-const char: LNKTYPE      is '1';   # Hard link.
-const char: SYMTYPE      is '2';   # Symbolic link
-const char: CHRTYPE      is '3';   # Character special
-const char: BLKTYPE      is '4';   # Block special
-const char: DIRTYPE      is '5';   # Directory
-const char: FIFOTYPE     is '6';   # Named pipe
-const char: CONTTYPE     is '7';   # Contiguous file
-const char: LONGNAMETYPE is 'L';   # Long (untruncated) filename of the next file
-const char: LONGLINKTYPE is 'K';   # Long link destination of a previous header.
+const char: REGTYPE         is '0';   # Regular file (preferred code)
+const char: AREGTYPE        is '\0;'; # Regular file (alternate code)
+const char: LNKTYPE         is '1';   # Hard link.
+const char: SYMTYPE         is '2';   # Symbolic link
+const char: CHRTYPE         is '3';   # Character special
+const char: BLKTYPE         is '4';   # Block special
+const char: DIRTYPE         is '5';   # Directory
+const char: FIFOTYPE        is '6';   # Named pipe
+const char: CONTTYPE        is '7';   # Contiguous file
+const char: LONGNAMETYPE    is 'L';   # Long (untruncated) filename of the next file.
+const char: LONGLINKTYPE    is 'K';   # Long link destination of a previous header.
+const char: GLOBAL_HEADER   is 'g';   # Global extended header with meta data
+const char: EXTENDED_HEADER is 'x';   # Meta data for the next file in the archive.
 
 const type: tarHeader is new struct
     var string: name is "";
@@ -117,7 +119,7 @@ const func string: gets0 (in string: stri) is func
   end func;
 
 
-const func string: gets0spc (in string: stri) is func
+const func string: gets0Spc (in string: stri) is func
   result
     var string: data is "";
   local
@@ -137,7 +139,7 @@ const func string: gets0spc (in string: stri) is func
   end func;
 
 
-const func integer: getoct (in string: stri) is func
+const func integer: getOct (in string: stri) is func
   result
     var integer: number is 0;
   local
@@ -157,6 +159,25 @@ const func integer: getoct (in string: stri) is func
   end func;
 
 
+const func string: getMetaData (in string: stri, inout integer: pos) is func
+  result
+    var string: metaData is "";
+  local
+    var integer: subPos is 0;
+    var integer: length is 0;
+  begin
+    subPos := pos;
+    while subPos <= length(stri) and stri[subPos] >= '0' and stri[subPos] <= '9' do
+      incr(subPos);
+    end while;
+    if subPos > 1 and stri[subPos] = ' ' then
+      length := integer(stri[pos .. pred(subPos)]);
+      metaData := stri[succ(subPos) .. pos + length - 2];
+      pos +:= length;
+    end if;
+  end func;
+
+
 const proc: puts0 (inout string: out_stri, in string: stri, in integer: length) is func
   begin
     out_stri &:= stri[ .. length];
@@ -166,13 +187,13 @@ const proc: puts0 (inout string: out_stri, in string: stri, in integer: length) 
   end func;
 
 
-const proc: putspc (inout string: out_stri, in string: stri, in integer: length) is func
+const proc: putSpc (inout string: out_stri, in string: stri, in integer: length) is func
   begin
     out_stri &:= stri[ .. length] rpad length;
   end func;
 
 
-const proc: putoct (inout string: out_stri, in integer: number, in integer: length) is func
+const proc: putOct (inout string: out_stri, in integer: number, in integer: length) is func
   begin
     out_stri &:= number radix 8 lpad0 pred(length) <& "\0;";
   end func;
@@ -196,20 +217,20 @@ const func tarHeader: tarHeader (in string: stri) is func
     var tarHeader: header is tarHeader.value;
   begin
     header.name :=                gets0(stri[  1 len 100]);
-    header.mode := fileMode conv getoct(stri[101 len   8]);
-    header.uid :=                getoct(stri[109 len   8]);
-    header.gid :=                getoct(stri[117 len   8]);
-    header.size :=               getoct(stri[125 len  12]);
-    header.mtime :=              getoct(stri[137 len  12]);
-    header.chksum :=             getoct(stri[149 len   8]);
+    header.mode := fileMode conv getOct(stri[101 len   8]);
+    header.uid :=                getOct(stri[109 len   8]);
+    header.gid :=                getOct(stri[117 len   8]);
+    header.size :=               getOct(stri[125 len  12]);
+    header.mtime :=              getOct(stri[137 len  12]);
+    header.chksum :=             getOct(stri[149 len   8]);
     header.typeflag :=                  stri[157];  (* 1*)
     header.linkname :=            gets0(stri[158 len 100]);
-    header.magic :=            gets0spc(stri[258 len   6]);
+    header.magic :=            gets0Spc(stri[258 len   6]);
     header.version :=                   stri[264 len   2];
     header.uname :=               gets0(stri[266 len  32]);
     header.gname :=               gets0(stri[298 len  32]);
-    header.devmajor :=           getoct(stri[330 len   8]);
-    header.devminor :=           getoct(stri[338 len   8]);
+    header.devmajor :=           getOct(stri[330 len   8]);
+    header.devminor :=           getOct(stri[338 len   8]);
     header.prefix :=              gets0(stri[346 len 155]);
     # Unused                                          12
   end func;
@@ -236,15 +257,34 @@ const proc: readHead (inout file: inFile, inout tarHeader: header) is func
   local
     var string: filePath8 is "";
     var string: linkPath8 is "";
+    var string: extendedHeader is "";
+    var integer: pos is 1;
+    var string: metaData is "";
   begin
     header := readHeadBlock(inFile);
     # showHeader(STD_OUT, header);
-    while header.name = "././@LongLink" and header.magic = TMAGIC and
-        (header.typeflag = LONGNAMETYPE or header.typeflag = LONGLINKTYPE) do
+    while header.magic = TMAGIC and
+        (((header.typeflag = LONGNAMETYPE or header.typeflag = LONGLINKTYPE) and
+           header.name = "././@LongLink") or
+         header.typeflag = EXTENDED_HEADER or header.typeflag = GLOBAL_HEADER) do
       if header.typeflag = LONGNAMETYPE then
         filePath8 := gets(inFile, header.size);
-      else  # header.typeflag = LONGLINKTYPE
+      elsif header.typeflag = LONGLINKTYPE then
         linkPath8 := gets(inFile, header.size);
+      elsif header.typeflag = EXTENDED_HEADER then
+        extendedHeader := gets(inFile, header.size);
+        pos := 1;
+        while pos <= length(extendedHeader) do
+          metaData := getMetaData(extendedHeader, pos);
+          # writeln("metaData: " <& metaData);
+          if startsWith(metaData, "path=") then
+            filePath8 := metaData[6 ..];
+          elsif startsWith(metaData, "linkpath=") then
+            linkPath8 := metaData[10 ..];
+          end if;
+        end while;
+      else # header.typeflag = GLOBAL_HEADER
+        ignore(gets(inFile, header.size));
       end if;
       seek(inFile, tell(inFile) + pred(TAR_BLOCK_SIZE) - pred(header.size) mod TAR_BLOCK_SIZE);
       # seek(inFile, succ(succ((tell(inFile) - 2) mdiv TAR_BLOCK_SIZE) * TAR_BLOCK_SIZE));
@@ -293,9 +333,9 @@ const func tarHeader: readMinimumOfHeadBlock (inout file: inFile) is func
     stri := gets(inFile, TAR_BLOCK_SIZE);
     if length(stri) = TAR_BLOCK_SIZE then
       header.name :=         gets0(stri[  1 len 100]);
-      header.size :=        getoct(stri[125 len  12]);
+      header.size :=        getOct(stri[125 len  12]);
       header.typeflag :=           stri[157];  (* 1*)
-      header.magic :=     gets0spc(stri[258 len   6]);
+      header.magic :=     gets0Spc(stri[258 len   6]);
       header.prefix :=       gets0(stri[346 len 155]);
       # writeln("header.name: " <& header.name);
       # showHeader(STD_OUT, header);
@@ -309,13 +349,16 @@ const proc: readMinimumOfHead (inout file: inFile, inout tarHeader: header) is f
   begin
     header := readMinimumOfHeadBlock(inFile);
     # showHeader(STD_OUT, header);
-    while header.name = "././@LongLink" and header.magic = TMAGIC and
-        (header.typeflag = LONGNAMETYPE or header.typeflag = LONGLINKTYPE) do
+    while header.magic = TMAGIC and
+        (((header.typeflag = LONGNAMETYPE or header.typeflag = LONGLINKTYPE) and
+           header.name = "././@LongLink") or
+         header.typeflag = EXTENDED_HEADER or header.typeflag = GLOBAL_HEADER) do
       if header.typeflag = LONGNAMETYPE then
         filePath8 := gets(inFile, header.size);
         seek(inFile, tell(inFile) + pred(TAR_BLOCK_SIZE) - pred(header.size) mod TAR_BLOCK_SIZE);
         # seek(inFile, succ(succ((tell(inFile) - 2) mdiv TAR_BLOCK_SIZE) * TAR_BLOCK_SIZE));
-      else  # header.typeflag = LONGLINKTYPE
+      else  # header.typeflag = LONGLINKTYPE or
+            # header.typeflag = EXTENDED_HEADER or header.typeflag = GLOBAL_HEADER
         seek(inFile, succ(succ((tell(inFile) + header.size - 2) mdiv
                      TAR_BLOCK_SIZE) * TAR_BLOCK_SIZE));
       end if;
@@ -348,24 +391,24 @@ const func string: str (in tarHeader: header) is func
     var string: chksum is "";
   begin
     puts0  (stri, header.name,               100);
-    putoct (stri, integer conv (header.mode),  8);
-    putoct (stri, header.uid,                  8);
-    putoct (stri, header.gid,                  8);
-    putoct (stri, header.size,                12);
-    putoct (stri, header.mtime,               12);
-    putspc (stri, "",                          8);
+    putOct (stri, integer conv (header.mode),  8);
+    putOct (stri, header.uid,                  8);
+    putOct (stri, header.gid,                  8);
+    putOct (stri, header.size,                12);
+    putOct (stri, header.mtime,               12);
+    putSpc (stri, "",                          8);
     stri &:=      header.typeflag;          (* 1*)
     puts0  (stri, header.linkname,           100);
     puts0  (stri, header.magic,                6);
-    putspc (stri, header.version,              2);
+    putSpc (stri, header.version,              2);
     puts0  (stri, header.uname,               32);
     puts0  (stri, header.gname,               32);
-    putoct (stri, header.devmajor,             8);
-    putoct (stri, header.devminor,             8);
+    putOct (stri, header.devmajor,             8);
+    putOct (stri, header.devminor,             8);
     puts0  (stri, header.prefix,             155);
     puts0  (stri, "",                         12);
     # The checksum is computed with an empty chksum field:
-    putoct (chksum, tarChksum(stri), 8);
+    putOct (chksum, tarChksum(stri), 8);
     # The computed checksum is inserted:
     stri := stri[ .. 148] & chksum & stri[157 .. ];
   end func;

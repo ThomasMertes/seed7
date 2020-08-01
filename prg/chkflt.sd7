@@ -10645,6 +10645,26 @@ const proc: check_nan is func
     var boolean: divAssignOkay is TRUE;
     var boolean: okay is TRUE;
   begin
+    if  isNaN(-Infinity) or
+        isNaN(  -1.0E37) or
+        isNaN(  -1000.0) or
+        isNaN(     -0.0) or
+        isNaN(      0.0) or
+        isNaN(   1000.0) or
+        isNaN(   1.0E37) or
+        isNaN( Infinity) or
+        isNaN(floatExpr(-Infinity)) or
+        isNaN(floatExpr(  -1.0E37)) or
+        isNaN(floatExpr(  -1000.0)) or
+        isNaN(floatExpr(     -0.0)) or
+        isNaN(floatExpr(      0.0)) or
+        isNaN(floatExpr(   1000.0)) or
+        isNaN(floatExpr(   1.0E37)) or
+        isNaN(floatExpr( Infinity)) then
+      writeln(" ***** isNaN(normalValue) does not work correct.");
+      okay := FALSE;
+    end if;
+
     if  not isNaN(NaN) or
         not isNaN(floatExpr(NaN)) then
       writeln(" ***** isNaN(NaN) does not work correct.");
@@ -10878,19 +10898,22 @@ const proc: check_nan is func
     end if;
 
     if  not isNaN(log(-Infinity))    or
-        not isNaN(log(-1.0))         then
+        not isNaN(log(-1.0))         or
+        not isNaN(log(NaN))          then
       writeln(" ***** NaN is not returned as error value for log().");
       okay := FALSE;
     end if;
 
     if  not isNaN(log2(-Infinity))   or
-        not isNaN(log2(-1.0))        then
+        not isNaN(log2(-1.0))        or
+        not isNaN(log2(NaN))         then
       writeln(" ***** NaN is not returned as error value for log2().");
       okay := FALSE;
     end if;
 
     if  not isNaN(log10(-Infinity))  or
-        not isNaN(log10(-1.0))       then
+        not isNaN(log10(-1.0))       or
+        not isNaN(log10(NaN))        then
       writeln(" ***** NaN is not returned as error value for log10().");
       okay := FALSE;
     end if;

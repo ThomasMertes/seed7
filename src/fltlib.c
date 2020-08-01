@@ -439,7 +439,11 @@ objectType flt_div (listType arguments)
     dividend = take_float(arg_1(arguments));
     divisor = take_float(arg_3(arguments));
 #if CHECK_FLOAT_DIV_BY_ZERO
+#if FLOAT_NAN_COMPARISON_OKAY
     if (divisor == 0.0) {
+#else
+    if (!os_isnan(divisor) && divisor == 0.0) {
+#endif
       if (dividend == 0.0 || os_isnan(dividend)) {
         return bld_float_temp(NOT_A_NUMBER);
       } else if ((dividend < 0.0) == fltIsNegativeZero(divisor)) {
@@ -473,7 +477,11 @@ objectType flt_div_assign (listType arguments)
     isit_float(arg_3(arguments));
     divisor = take_float(arg_3(arguments));
 #if CHECK_FLOAT_DIV_BY_ZERO
+#if FLOAT_NAN_COMPARISON_OKAY
     if (divisor == 0.0) {
+#else
+    if (!os_isnan(divisor) && divisor == 0.0) {
+#endif
       dividend = take_float(flt_variable);
       if (dividend == 0.0 || os_isnan(dividend)) {
         flt_variable->value.floatValue = NOT_A_NUMBER;
@@ -840,21 +848,25 @@ objectType flt_log2 (listType arguments)
 objectType flt_lshift (listType arguments)
 
   {
-    intType exponent;
+    intType lshift;
+    floatType shifted;
 
   /* flt_lshift */
     isit_float(arg_1(arguments));
     isit_int(arg_3(arguments));
-    exponent = take_int(arg_3(arguments));
+    lshift = take_int(arg_3(arguments));
+    logFunction(printf("flt_lshift(" FMT_E ", " FMT_D ")\n",
+                       take_float(arg_1(arguments)), lshift););
 #if INT_SIZE < INTTYPE_SIZE
-    if (unlikely(exponent > INT_MAX)) {
-      exponent = INT_MAX;
-    } else if (unlikely(exponent < INT_MIN)) {
-      exponent = INT_MIN;
+    if (unlikely(lshift > INT_MAX)) {
+      lshift = INT_MAX;
+    } else if (unlikely(lshift < INT_MIN)) {
+      lshift = INT_MIN;
     } /* if */
 #endif
-    return bld_float_temp(
-        fltLdexp(take_float(arg_1(arguments)), (int) exponent));
+    shifted = fltLdexp(take_float(arg_1(arguments)), (int) lshift);
+    logFunction(printf("flt_lshift --> " FMT_E "\n", shifted););
+    return bld_float_temp(shifted);
   } /* flt_lshift */
 
 
@@ -898,7 +910,7 @@ objectType flt_lt (listType arguments)
  *    Infinity mod  B         returns  NaN
  *   -Infinity mod  B         returns  NaN
  *    0.0      mod  B         returns  0.0         for B &lt;> 0.0
- *    A        mod  Infinity  returns  A           for A > 0 
+ *    A        mod  Infinity  returns  A           for A > 0
  *    A        mod  Infinity  returns  Infinity    for A < 0
  *    A        mod -Infinity  returns  A           for A < 0
  *    A        mod -Infinity  returns -Infinity    for A > 0
@@ -1140,27 +1152,31 @@ objectType flt_round (listType arguments)
 objectType flt_rshift (listType arguments)
 
   {
-    intType exponent;
+    intType rshift;
+    floatType shifted;
 
   /* flt_rshift */
     isit_float(arg_1(arguments));
     isit_int(arg_3(arguments));
-    exponent = take_int(arg_3(arguments));
+    rshift = take_int(arg_3(arguments));
+    logFunction(printf("flt_rshift(" FMT_E ", " FMT_D ")\n",
+                       take_float(arg_1(arguments)), rshift););
 #if INT_SIZE < INTTYPE_SIZE
-    if (unlikely(exponent > INT_MAX)) {
-      exponent = INT_MAX;
+    if (unlikely(rshift > INT_MAX)) {
+      rshift = INT_MAX;
     } else
 #endif
 #if INT_SIZE <= INTTYPE_SIZE
-    if (unlikely(exponent <= INT_MIN)) {
-      /* Avoid that negating the exponent overflows in   */
+    if (unlikely(rshift <= INT_MIN)) {
+      /* Avoid that negating the rshift overflows in     */
       /* case we have twos complement integers. Changing */
-      /* the exponent does not change the result.        */
-      exponent = -INT_MAX;
+      /* the rshift does not change the result.          */
+      rshift = -INT_MAX;
     } /* if */
 #endif
-    return bld_float_temp(
-        fltLdexp(take_float(arg_1(arguments)), (int) -exponent));
+    shifted = fltLdexp(take_float(arg_1(arguments)), (int) -rshift);
+    logFunction(printf("flt_rshift --> " FMT_E "\n", shifted););
+    return bld_float_temp(shifted);
   } /* flt_rshift */
 
 

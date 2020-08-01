@@ -1601,7 +1601,7 @@ striType strChRepl (const const_striType mainStri,
  *  to the 'delimiter' or is terminated by the end of 'mainStri'.
  *  The substrings in the array are in the order in which they occur in
  *  'mainStri'. If 'delimiter' does not match any part of 'mainStri'
- *  then the resulting array has just one element, namely 'mainStri'. 
+ *  then the resulting array has just one element, namely 'mainStri'.
  *   split("", ':')       returns  []("")
  *   split("x", ':')      returns  []("x")
  *   split(":", ':')      returns  []("", "")
@@ -1611,7 +1611,7 @@ striType strChRepl (const const_striType mainStri,
  *  @return the array of strings computed by splitting 'mainStri' around
  *          matches of the given 'delimiter'.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
- */ 
+ */
 rtlArrayType strChSplit (const const_striType mainStri, const charType delimiter)
 
   {
@@ -3804,7 +3804,7 @@ striType strRtrim (const const_striType stri)
  *  to the 'delimiter' or is terminated by the end of 'mainStri'.
  *  The substrings in the array are in the order in which they occur in
  *  'mainStri'. If 'delimiter' does not match any part of 'mainStri'
- *  then the resulting array has just one element, namely 'mainStri'. 
+ *  then the resulting array has just one element, namely 'mainStri'.
  *   split("", ":")       returns  []("")
  *   split("x", ":")      returns  []("x")
  *   split(":", ":")      returns  []("", "")
@@ -3814,7 +3814,7 @@ striType strRtrim (const const_striType stri)
  *  @return the array of strings computed by splitting 'mainStri' around
  *          matches of the given 'delimiter'.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
- */ 
+ */
 rtlArrayType strSplit (const const_striType mainStri,
     const const_striType delimiter)
 

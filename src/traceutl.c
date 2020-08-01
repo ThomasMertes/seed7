@@ -544,8 +544,8 @@ static void print_real_value (const_objectType anyobject)
             prot_int((intType) structValue->usage_count);
             prot_cstri(">");
           } /* if */
-          prot_cstri(" ");
-          prot_ptr(structValue);
+          /* prot_cstri(" ");
+             prot_ptr(structValue); */
         } else {
           prot_cstri(" *NULL_STRUCT* ");
         } /* if */
@@ -1404,8 +1404,8 @@ void trace1 (const_objectType traceobject)
         case REFPARAMOBJECT:
         case RESULTOBJECT:
         case LOCALVOBJECT:
-          prot_ptr(traceobject);
-          prot_cstri(" ");
+          /* prot_ptr(traceobject);
+             prot_cstri(" "); */
           prot_ptr(traceobject->value.objValue);
           prot_nl();
           prot_cstri("  ");

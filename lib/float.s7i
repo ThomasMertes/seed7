@@ -119,7 +119,7 @@ const func float: (in float: dividend) rem (in float: divisor) is action "FLT_RE
  *    Infinity mod  B         returns  NaN
  *   -Infinity mod  B         returns  NaN
  *    0.0      mod  B         returns  0.0         for B &lt;> 0.0
- *    A        mod  Infinity  returns  A           for A > 0 
+ *    A        mod  Infinity  returns  A           for A > 0
  *    A        mod  Infinity  returns  Infinity    for A < 0
  *    A        mod -Infinity  returns  A           for A < 0
  *    A        mod -Infinity  returns -Infinity    for A > 0

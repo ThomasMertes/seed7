@@ -41,6 +41,10 @@ const type: rsaKey is new struct
 # e  The RSA public exponent, a positive integer
 # d  The RSA private exponent, a positive integer
 
+
+(**
+ *  Type to describe a pair of RSA keys (private key and public key).
+ *)
 const type: rsaKeyPair is new struct
     var rsaKey: publicKey is rsaKey.value;
     var rsaKey: privateKey is rsaKey.value;
@@ -117,7 +121,10 @@ const func bigInteger: getProbablyPrime (in integer: binDigits, in integer: coun
   end func;
 
 
-const func rsaKeyPair: genRsaKeys (in integer: keyLength, in bigInteger: exponent) is func
+(**
+ *  Generate a new RSA keyPair (private key and public key).
+ *)
+const func rsaKeyPair: genRsaKeyPair (in integer: keyLength, in bigInteger: exponent) is func
   result
     var rsaKeyPair: keyPair is rsaKeyPair.value;
   local
@@ -142,17 +149,8 @@ const func rsaKeyPair: genRsaKeys (in integer: keyLength, in bigInteger: exponen
  *  @return an octet [[string]] with the big-endian representation.
  *  @exception RANGE_ERROR when the result does not fit into ''length''.
  *)
-const func string: int2Octets (in bigInteger: number, in integer: length) is func
-  result
-    var string: stri is "";
-  begin
-    stri := bytes(number, UNSIGNED, BE);
-    if length(stri) < length then
-      stri := "\0;" mult (length - length(stri)) & stri;
-    elsif length(stri) <> length then
-      raise RANGE_ERROR;
-    end if;
-  end func;
+const func string: int2Octets (in bigInteger: number, in integer: length) is
+  return bytes(number, UNSIGNED, BE, length);
 
 
 (**
@@ -224,6 +222,7 @@ const func string: emeOaepDecoding (in string: encodedMessage, in string: label,
     dbMask := mgf1Sha1(seed, modulusLen - hLen - 1);
     db := maskedDb >< dbMask;
     lHash := db[.. hLen];
+    # writeln("lHash: " <& hex(lHash));
     # writeln("raw: " <& literal(db));
     if lHash <> sha1(label) then
       raise RANGE_ERROR;
@@ -267,6 +266,48 @@ const func string: emePkcs1V15Decoding (in string: encodedMessage, in integer: m
     var integer: pos is 0;
   begin
     if not startsWith(encodedMessage, "\0;\2;") then
+      # writeln("encodedMessage: " <& hex(encodedMessage));
+      raise RANGE_ERROR;
+    else
+      pos := pos(encodedMessage[3 ..], '\0;');
+      if pos = 0 then
+        raise RANGE_ERROR;
+      else
+        message := encodedMessage[pos + 3 ..];
+      end if;
+    end if;
+  end func;
+
+
+(**
+ *  Encodes a [[string]] with the EMSA-PKCS1-v1_5 encoding.
+ *  @return the EMSA-PKCS1-v1_5 encoded [[string]].
+ *)
+const func string: emsaPkcs1V15Encoding (in string: message, in integer: modulusLen) is func
+  result
+    var string: encodedMessage is "";
+  local
+    var string: ps is "";
+  begin
+    ps := "\255;" mult modulusLen - length(message) - 3;
+    encodedMessage := "\0;\1;" & ps & "\0;" & message;
+  end func;
+
+
+(**
+ *  Decodes an EMSA-PKCS1-v1_5 encoded [[string]].
+ *  @return the decoded string.
+ *  @exception RANGE_ERROR when ''encodedMessage'' is not in the
+ *                         EME-PKCS1-v1_5 format.
+ *)
+const func string: emsaPkcs1V15Decoding (in string: encodedMessage, in integer: modulusLen) is func
+  result
+    var string: message is "";
+  local
+    var integer: pos is 0;
+  begin
+    if not startsWith(encodedMessage, "\0;\1;") then
+      # writeln("encodedMessage: " <& hex(encodedMessage));
       raise RANGE_ERROR;
     else
       pos := pos(encodedMessage[3 ..], '\0;');
@@ -420,6 +461,59 @@ const func string: rsaesPkcs1V15Decrypt (in rsaKey: decryptionKey, in string: ci
       encodedMessage := int2Octets(rsaDecrypt(decryptionKey, octets2int(ciphertext)),
                                    decryptionKey.modulusLen);
       message := emePkcs1V15Decoding(encodedMessage, decryptionKey.modulusLen);
+    end if;
+  end func;
+
+
+(**
+ *  Encrypts a [[string]] of bytes with the RSASSA-PKCS1-V1_5 encryption.
+ *  @return the RSASSA-PKCS1-V1_5 encrypted [[string]] of bytes.
+ *  @exception RANGE_ERROR when the length of the ''message'' is too long
+ *                         to be encrypted.
+ *  @exception RANGE_ERROR When ''message'' contains characters beyond '\255;'.
+ *)
+const func string: rsassaPkcs1V15Encrypt (in rsaKey: encryptionKey, in string: message) is func
+  result
+    var string: encryptedMessage is "";
+  local
+    const integer: hLen is 20;  # Length (in bytes) of the sha1 output.
+    var string: encodedMessage is "";
+  begin
+    if length(message) > encryptionKey.modulusLen - 2 * hLen - 2 then
+      writeln("length(message): " <& length(message));
+      writeln("modulusLen: " <& encryptionKey.modulusLen);
+      raise RANGE_ERROR;
+    else
+      encodedMessage := emsaPkcs1V15Encoding(message, encryptionKey.modulusLen);
+      encryptedMessage := int2Octets(rsaEncrypt(encryptionKey, octets2int(encodedMessage)),
+                                     encryptionKey.modulusLen);
+    end if;
+  end func;
+
+
+(**
+ *  Decrypts a [[string]] of bytes with the RSASSA-PKCS1-V1_5 decryption.
+ *  @return the RSASSA-PKCS1-V1_5 decrypted [[string]] of bytes.
+ *  @exception RANGE_ERROR when the length of the ''ciphertext'' is too long
+ *                         to be decrypted.
+ *  @exception RANGE_ERROR When ''ciphertext'' contains characters beyond '\255;'.
+ *)
+const func string: rsassaPkcs1V15Decrypt (in rsaKey: decryptionKey, in string: ciphertext) is func
+  result
+    var string: message is "";
+  local
+    const integer: hLen is 20;  # Length (in bytes) of the sha1 output.
+    var string: encodedMessage is "";
+  begin
+    if length(ciphertext) <> decryptionKey.modulusLen or
+        decryptionKey.modulusLen < 2 * hLen + 2 then
+      # writeln("length(ciphertext): " <& length(ciphertext));
+      # writeln("modulusLen: " <& decryptionKey.modulusLen);
+      raise RANGE_ERROR;
+    else
+      encodedMessage := int2Octets(rsaDecrypt(decryptionKey, octets2int(ciphertext)),
+                                   decryptionKey.modulusLen);
+      message := emsaPkcs1V15Decoding(encodedMessage, decryptionKey.modulusLen);
     end if;
   end func;
 

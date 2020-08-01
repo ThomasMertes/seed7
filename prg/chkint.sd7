@@ -351,7 +351,7 @@ const proc: check_compare is func
         compare(                   2,  9223372036854775807) <> -1 or
         compare( 9223372036854775806,  9223372036854775807) <> -1 or
         compare( 9223372036854775807,  9223372036854775807) <>  0 then
-      writeln("The integer compare does not work correct.");
+      writeln("The integer compare does not work correct. (1)");
       okay := FALSE;
     end if;
 
@@ -436,7 +436,7 @@ const proc: check_compare is func
         compare(intExpr(                   2),  9223372036854775807) <> -1 or
         compare(intExpr( 9223372036854775806),  9223372036854775807) <> -1 or
         compare(intExpr( 9223372036854775807),  9223372036854775807) <>  0 then
-      writeln("The integer compare does not work correct.");
+      writeln("The integer compare does not work correct. (2)");
       okay := FALSE;
     end if;
 
@@ -521,7 +521,7 @@ const proc: check_compare is func
         compare(                   2, intExpr( 9223372036854775807)) <> -1 or
         compare( 9223372036854775806, intExpr( 9223372036854775807)) <> -1 or
         compare( 9223372036854775807, intExpr( 9223372036854775807)) <>  0 then
-      writeln("The integer compare does not work correct.");
+      writeln("The integer compare does not work correct. (3)");
       okay := FALSE;
     end if;
 
@@ -606,7 +606,7 @@ const proc: check_compare is func
         compare(intExpr(                   2), intExpr( 9223372036854775807)) <> -1 or
         compare(intExpr( 9223372036854775806), intExpr( 9223372036854775807)) <> -1 or
         compare(intExpr( 9223372036854775807), intExpr( 9223372036854775807)) <>  0 then
-      writeln("The integer compare does not work correct.");
+      writeln("The integer compare does not work correct. (4)");
       okay := FALSE;
     end if;
 
@@ -4498,7 +4498,8 @@ const proc: check_mult is func
       okay := FALSE;
     end if;
 
-    if  -4611686018427387903 *                   -2 <>  9223372036854775806 or
+    if  -9223372036854775807 *                   -1 <>  9223372036854775807 or
+        -4611686018427387903 *                   -2 <>  9223372036854775806 or
         -3074457345618258602 *                   -3 <>  9223372036854775806 or
          -838488366986797800 *                  -11 <>  9223372036854775800 or
           -10762394442070916 *                 -857 <>  9223372036854775012 or
@@ -4519,6 +4520,8 @@ const proc: check_mult is func
                          -11 *  -838488366986797800 <>  9223372036854775800 or
                           -3 * -3074457345618258602 <>  9223372036854775806 or
                           -2 * -4611686018427387903 <>  9223372036854775806 or
+                          -1 * -9223372036854775807 <>  9223372036854775807 or
+                   INT64_MIN *                    1 <>            INT64_MIN or
         -4611686018427387904 *                    2 <>            INT64_MIN or
         -3074457345618258602 *                    3 <> -9223372036854775806 or
          -838488366986797800 *                   11 <> -9223372036854775800 or
@@ -4540,6 +4543,8 @@ const proc: check_mult is func
                          -11 *   838488366986797800 <> -9223372036854775800 or
                           -3 *  3074457345618258602 <> -9223372036854775806 or
                           -2 *  4611686018427387904 <>            INT64_MIN or
+                          -1 *  9223372036854775807 <> -9223372036854775807 or
+         9223372036854775807 *                   -1 <> -9223372036854775807 or
          4611686018427387904 *                   -2 <>            INT64_MIN or
          3074457345618258602 *                   -3 <> -9223372036854775806 or
           838488366986797800 *                  -11 <> -9223372036854775800 or
@@ -4561,6 +4566,8 @@ const proc: check_mult is func
                           11 *  -838488366986797800 <> -9223372036854775800 or
                            3 * -3074457345618258602 <> -9223372036854775806 or
                            2 * -4611686018427387904 <>            INT64_MIN or
+                           1 *            INT64_MIN <>            INT64_MIN or
+         9223372036854775807 *                    1 <>  9223372036854775807 or
          4611686018427387903 *                    2 <>  9223372036854775806 or
          3074457345618258602 *                    3 <>  9223372036854775806 or
           838488366986797800 *                   11 <>  9223372036854775800 or
@@ -4582,6 +4589,12 @@ const proc: check_mult is func
                           11 *   838488366986797800 <>  9223372036854775800 or
                            3 *  3074457345618258602 <>  9223372036854775806 or
                            2 *  4611686018427387903 <>  9223372036854775806 or
+                           1 *  9223372036854775807 <>  9223372036854775807 then
+      writeln(" ***** Multiplication with big products does not work correct. (1)");
+      okay := FALSE;
+    end if;
+
+    if  intExpr(-9223372036854775807) *                   -1 <>  9223372036854775807 or
         intExpr(-4611686018427387903) *                   -2 <>  9223372036854775806 or
         intExpr(-3074457345618258602) *                   -3 <>  9223372036854775806 or
         intExpr( -838488366986797800) *                  -11 <>  9223372036854775800 or
@@ -4603,6 +4616,8 @@ const proc: check_mult is func
         intExpr(                 -11) *  -838488366986797800 <>  9223372036854775800 or
         intExpr(                  -3) * -3074457345618258602 <>  9223372036854775806 or
         intExpr(                  -2) * -4611686018427387903 <>  9223372036854775806 or
+        intExpr(                  -1) * -9223372036854775807 <>  9223372036854775807 or
+        intExpr(           INT64_MIN) *                    1 <>            INT64_MIN or
         intExpr(-4611686018427387904) *                    2 <>            INT64_MIN or
         intExpr(-3074457345618258602) *                    3 <> -9223372036854775806 or
         intExpr( -838488366986797800) *                   11 <> -9223372036854775800 or
@@ -4624,6 +4639,8 @@ const proc: check_mult is func
         intExpr(                 -11) *   838488366986797800 <> -9223372036854775800 or
         intExpr(                  -3) *  3074457345618258602 <> -9223372036854775806 or
         intExpr(                  -2) *  4611686018427387904 <>            INT64_MIN or
+        intExpr(                  -1) *  9223372036854775807 <> -9223372036854775807 or
+        intExpr( 9223372036854775807) *                   -1 <> -9223372036854775807 or
         intExpr( 4611686018427387904) *                   -2 <>            INT64_MIN or
         intExpr( 3074457345618258602) *                   -3 <> -9223372036854775806 or
         intExpr(  838488366986797800) *                  -11 <> -9223372036854775800 or
@@ -4645,6 +4662,8 @@ const proc: check_mult is func
         intExpr(                  11) *  -838488366986797800 <> -9223372036854775800 or
         intExpr(                   3) * -3074457345618258602 <> -9223372036854775806 or
         intExpr(                   2) * -4611686018427387904 <>            INT64_MIN or
+        intExpr(                   1) *            INT64_MIN <>            INT64_MIN or
+        intExpr( 9223372036854775807) *                    1 <>  9223372036854775807 or
         intExpr( 4611686018427387903) *                    2 <>  9223372036854775806 or
         intExpr( 3074457345618258602) *                    3 <>  9223372036854775806 or
         intExpr(  838488366986797800) *                   11 <>  9223372036854775800 or
@@ -4666,6 +4685,12 @@ const proc: check_mult is func
         intExpr(                  11) *   838488366986797800 <>  9223372036854775800 or
         intExpr(                   3) *  3074457345618258602 <>  9223372036854775806 or
         intExpr(                   2) *  4611686018427387903 <>  9223372036854775806 or
+        intExpr(                   1) *  9223372036854775807 <>  9223372036854775807 then
+      writeln(" ***** Multiplication with big products does not work correct. (2)");
+      okay := FALSE;
+    end if;
+
+    if  -9223372036854775807 * intExpr(                  -1) <>  9223372036854775807 or
         -4611686018427387903 * intExpr(                  -2) <>  9223372036854775806 or
         -3074457345618258602 * intExpr(                  -3) <>  9223372036854775806 or
          -838488366986797800 * intExpr(                 -11) <>  9223372036854775800 or
@@ -4687,6 +4712,8 @@ const proc: check_mult is func
                          -11 * intExpr( -838488366986797800) <>  9223372036854775800 or
                           -3 * intExpr(-3074457345618258602) <>  9223372036854775806 or
                           -2 * intExpr(-4611686018427387903) <>  9223372036854775806 or
+                          -1 * intExpr(-9223372036854775807) <>  9223372036854775807 or
+                   INT64_MIN * intExpr(                   1) <>            INT64_MIN or
         -4611686018427387904 * intExpr(                   2) <>            INT64_MIN or
         -3074457345618258602 * intExpr(                   3) <> -9223372036854775806 or
          -838488366986797800 * intExpr(                  11) <> -9223372036854775800 or
@@ -4708,6 +4735,8 @@ const proc: check_mult is func
                          -11 * intExpr(  838488366986797800) <> -9223372036854775800 or
                           -3 * intExpr( 3074457345618258602) <> -9223372036854775806 or
                           -2 * intExpr( 4611686018427387904) <>            INT64_MIN or
+                          -1 * intExpr( 9223372036854775807) <> -9223372036854775807 or
+         9223372036854775807 * intExpr(                  -1) <> -9223372036854775807 or
          4611686018427387904 * intExpr(                  -2) <>            INT64_MIN or
          3074457345618258602 * intExpr(                  -3) <> -9223372036854775806 or
           838488366986797800 * intExpr(                 -11) <> -9223372036854775800 or
@@ -4729,6 +4758,8 @@ const proc: check_mult is func
                           11 * intExpr( -838488366986797800) <> -9223372036854775800 or
                            3 * intExpr(-3074457345618258602) <> -9223372036854775806 or
                            2 * intExpr(-4611686018427387904) <>            INT64_MIN or
+                           1 * intExpr(           INT64_MIN) <>            INT64_MIN or
+         9223372036854775807 * intExpr(                   1) <>  9223372036854775807 or
          4611686018427387903 * intExpr(                   2) <>  9223372036854775806 or
          3074457345618258602 * intExpr(                   3) <>  9223372036854775806 or
           838488366986797800 * intExpr(                  11) <>  9223372036854775800 or
@@ -4750,6 +4781,12 @@ const proc: check_mult is func
                           11 * intExpr(  838488366986797800) <>  9223372036854775800 or
                            3 * intExpr( 3074457345618258602) <>  9223372036854775806 or
                            2 * intExpr( 4611686018427387903) <>  9223372036854775806 or
+                           1 * intExpr( 9223372036854775807) <>  9223372036854775807 then
+      writeln(" ***** Multiplication with big products does not work correct. (3)");
+      okay := FALSE;
+    end if;
+
+    if  intExpr(-9223372036854775807) * intExpr(                  -1) <>  9223372036854775807 or
         intExpr(-4611686018427387903) * intExpr(                  -2) <>  9223372036854775806 or
         intExpr(-3074457345618258602) * intExpr(                  -3) <>  9223372036854775806 or
         intExpr( -838488366986797800) * intExpr(                 -11) <>  9223372036854775800 or
@@ -4771,6 +4808,8 @@ const proc: check_mult is func
         intExpr(                 -11) * intExpr( -838488366986797800) <>  9223372036854775800 or
         intExpr(                  -3) * intExpr(-3074457345618258602) <>  9223372036854775806 or
         intExpr(                  -2) * intExpr(-4611686018427387903) <>  9223372036854775806 or
+        intExpr(                  -1) * intExpr(-9223372036854775807) <>  9223372036854775807 or
+        intExpr(           INT64_MIN) * intExpr(                   1) <>            INT64_MIN or
         intExpr(-4611686018427387904) * intExpr(                   2) <>            INT64_MIN or
         intExpr(-3074457345618258602) * intExpr(                   3) <> -9223372036854775806 or
         intExpr( -838488366986797800) * intExpr(                  11) <> -9223372036854775800 or
@@ -4792,6 +4831,8 @@ const proc: check_mult is func
         intExpr(                 -11) * intExpr(  838488366986797800) <> -9223372036854775800 or
         intExpr(                  -3) * intExpr( 3074457345618258602) <> -9223372036854775806 or
         intExpr(                  -2) * intExpr( 4611686018427387904) <>            INT64_MIN or
+        intExpr(                  -1) * intExpr( 9223372036854775807) <> -9223372036854775807 or
+        intExpr( 9223372036854775807) * intExpr(                  -1) <> -9223372036854775807 or
         intExpr( 4611686018427387904) * intExpr(                  -2) <>            INT64_MIN or
         intExpr( 3074457345618258602) * intExpr(                  -3) <> -9223372036854775806 or
         intExpr(  838488366986797800) * intExpr(                 -11) <> -9223372036854775800 or
@@ -4813,6 +4854,8 @@ const proc: check_mult is func
         intExpr(                  11) * intExpr( -838488366986797800) <> -9223372036854775800 or
         intExpr(                   3) * intExpr(-3074457345618258602) <> -9223372036854775806 or
         intExpr(                   2) * intExpr(-4611686018427387904) <>            INT64_MIN or
+        intExpr(                   1) * intExpr(           INT64_MIN) <>            INT64_MIN or
+        intExpr( 9223372036854775807) * intExpr(                   1) <>  9223372036854775807 or
         intExpr( 4611686018427387903) * intExpr(                   2) <>  9223372036854775806 or
         intExpr( 3074457345618258602) * intExpr(                   3) <>  9223372036854775806 or
         intExpr(  838488366986797800) * intExpr(                  11) <>  9223372036854775800 or
@@ -4833,8 +4876,9 @@ const proc: check_mult is func
         intExpr(                 857) * intExpr(   10762394442070916) <>  9223372036854775012 or
         intExpr(                  11) * intExpr(  838488366986797800) <>  9223372036854775800 or
         intExpr(                   3) * intExpr( 3074457345618258602) <>  9223372036854775806 or
-        intExpr(                   2) * intExpr( 4611686018427387903) <>  9223372036854775806 then
-      writeln(" ***** Multiplication with big products does not work correct.");
+        intExpr(                   2) * intExpr( 4611686018427387903) <>  9223372036854775806 or
+        intExpr(                   1) * intExpr( 9223372036854775807) <>  9223372036854775807 then
+      writeln(" ***** Multiplication with big products does not work correct. (4)");
       okay := FALSE;
     end if;
 
@@ -4875,6 +4919,7 @@ const proc: check_mult_assign is func
     end if;
 
     ok := TRUE;
+    num := -9223372036854775807; num *:=                   -1; ok := ok and num =  9223372036854775807;
     num := -4611686018427387903; num *:=                   -2; ok := ok and num =  9223372036854775806;
     num := -3074457345618258602; num *:=                   -3; ok := ok and num =  9223372036854775806;
     num :=  -838488366986797800; num *:=                  -11; ok := ok and num =  9223372036854775800;
@@ -4896,6 +4941,8 @@ const proc: check_mult_assign is func
     num :=                  -11; num *:=  -838488366986797800; ok := ok and num =  9223372036854775800;
     num :=                   -3; num *:= -3074457345618258602; ok := ok and num =  9223372036854775806;
     num :=                   -2; num *:= -4611686018427387903; ok := ok and num =  9223372036854775806;
+    num :=                   -1; num *:= -9223372036854775807; ok := ok and num =  9223372036854775807;
+    num :=            INT64_MIN; num *:=                    1; ok := ok and num =            INT64_MIN;
     num := -4611686018427387904; num *:=                    2; ok := ok and num =            INT64_MIN;
     num := -3074457345618258602; num *:=                    3; ok := ok and num = -9223372036854775806;
     num :=  -838488366986797800; num *:=                   11; ok := ok and num = -9223372036854775800;
@@ -4917,6 +4964,8 @@ const proc: check_mult_assign is func
     num :=                  -11; num *:=   838488366986797800; ok := ok and num = -9223372036854775800;
     num :=                   -3; num *:=  3074457345618258602; ok := ok and num = -9223372036854775806;
     num :=                   -2; num *:=  4611686018427387904; ok := ok and num =            INT64_MIN;
+    num :=                   -1; num *:=  9223372036854775807; ok := ok and num = -9223372036854775807;
+    num :=  9223372036854775807; num *:=                   -1; ok := ok and num = -9223372036854775807;
     num :=  4611686018427387904; num *:=                   -2; ok := ok and num =            INT64_MIN;
     num :=  3074457345618258602; num *:=                   -3; ok := ok and num = -9223372036854775806;
     num :=   838488366986797800; num *:=                  -11; ok := ok and num = -9223372036854775800;
@@ -4938,6 +4987,8 @@ const proc: check_mult_assign is func
     num :=                   11; num *:=  -838488366986797800; ok := ok and num = -9223372036854775800;
     num :=                    3; num *:= -3074457345618258602; ok := ok and num = -9223372036854775806;
     num :=                    2; num *:= -4611686018427387904; ok := ok and num =            INT64_MIN;
+    num :=                    1; num *:=            INT64_MIN; ok := ok and num =            INT64_MIN;
+    num :=  9223372036854775807; num *:=                    1; ok := ok and num =  9223372036854775807;
     num :=  4611686018427387903; num *:=                    2; ok := ok and num =  9223372036854775806;
     num :=  3074457345618258602; num *:=                    3; ok := ok and num =  9223372036854775806;
     num :=   838488366986797800; num *:=                   11; ok := ok and num =  9223372036854775800;
@@ -4959,6 +5010,14 @@ const proc: check_mult_assign is func
     num :=                   11; num *:=   838488366986797800; ok := ok and num =  9223372036854775800;
     num :=                    3; num *:=  3074457345618258602; ok := ok and num =  9223372036854775806;
     num :=                    2; num *:=  4611686018427387903; ok := ok and num =  9223372036854775806;
+    num :=                    1; num *:=  9223372036854775807; ok := ok and num =  9223372036854775807;
+    if not ok then
+      writeln(" ***** Multiplication assignment with big products does not work correct. (1)");
+      okay := FALSE;
+    end if;
+
+    ok := TRUE;
+    num := -9223372036854775807; num *:= intExpr(                  -1); ok := ok and num =  9223372036854775807;
     num := -4611686018427387903; num *:= intExpr(                  -2); ok := ok and num =  9223372036854775806;
     num := -3074457345618258602; num *:= intExpr(                  -3); ok := ok and num =  9223372036854775806;
     num :=  -838488366986797800; num *:= intExpr(                 -11); ok := ok and num =  9223372036854775800;
@@ -4980,6 +5039,8 @@ const proc: check_mult_assign is func
     num :=                  -11; num *:= intExpr( -838488366986797800); ok := ok and num =  9223372036854775800;
     num :=                   -3; num *:= intExpr(-3074457345618258602); ok := ok and num =  9223372036854775806;
     num :=                   -2; num *:= intExpr(-4611686018427387903); ok := ok and num =  9223372036854775806;
+    num :=                   -1; num *:= intExpr(-9223372036854775807); ok := ok and num =  9223372036854775807;
+    num :=            INT64_MIN; num *:= intExpr(                   1); ok := ok and num =            INT64_MIN;
     num := -4611686018427387904; num *:= intExpr(                   2); ok := ok and num =            INT64_MIN;
     num := -3074457345618258602; num *:= intExpr(                   3); ok := ok and num = -9223372036854775806;
     num :=  -838488366986797800; num *:= intExpr(                  11); ok := ok and num = -9223372036854775800;
@@ -5001,6 +5062,8 @@ const proc: check_mult_assign is func
     num :=                  -11; num *:= intExpr(  838488366986797800); ok := ok and num = -9223372036854775800;
     num :=                   -3; num *:= intExpr( 3074457345618258602); ok := ok and num = -9223372036854775806;
     num :=                   -2; num *:= intExpr( 4611686018427387904); ok := ok and num =            INT64_MIN;
+    num :=                   -1; num *:= intExpr( 9223372036854775807); ok := ok and num = -9223372036854775807;
+    num :=  9223372036854775807; num *:= intExpr(                  -1); ok := ok and num = -9223372036854775807;
     num :=  4611686018427387904; num *:= intExpr(                  -2); ok := ok and num =            INT64_MIN;
     num :=  3074457345618258602; num *:= intExpr(                  -3); ok := ok and num = -9223372036854775806;
     num :=   838488366986797800; num *:= intExpr(                 -11); ok := ok and num = -9223372036854775800;
@@ -5022,6 +5085,8 @@ const proc: check_mult_assign is func
     num :=                   11; num *:= intExpr( -838488366986797800); ok := ok and num = -9223372036854775800;
     num :=                    3; num *:= intExpr(-3074457345618258602); ok := ok and num = -9223372036854775806;
     num :=                    2; num *:= intExpr(-4611686018427387904); ok := ok and num =            INT64_MIN;
+    num :=                    1; num *:= intExpr(           INT64_MIN); ok := ok and num =            INT64_MIN;
+    num :=  9223372036854775807; num *:= intExpr(                   1); ok := ok and num =  9223372036854775807;
     num :=  4611686018427387903; num *:= intExpr(                   2); ok := ok and num =  9223372036854775806;
     num :=  3074457345618258602; num *:= intExpr(                   3); ok := ok and num =  9223372036854775806;
     num :=   838488366986797800; num *:= intExpr(                  11); ok := ok and num =  9223372036854775800;
@@ -5043,6 +5108,14 @@ const proc: check_mult_assign is func
     num :=                   11; num *:= intExpr(  838488366986797800); ok := ok and num =  9223372036854775800;
     num :=                    3; num *:= intExpr( 3074457345618258602); ok := ok and num =  9223372036854775806;
     num :=                    2; num *:= intExpr( 4611686018427387903); ok := ok and num =  9223372036854775806;
+    num :=                    1; num *:= intExpr( 9223372036854775807); ok := ok and num =  9223372036854775807;
+    if not ok then
+      writeln(" ***** Multiplication assignment with big products does not work correct. (2)");
+      okay := FALSE;
+    end if;
+
+    ok := TRUE;
+    arr[1] := -9223372036854775807; arr[1] *:=                   -1; ok := ok and arr[1] =  9223372036854775807;
     arr[1] := -4611686018427387903; arr[1] *:=                   -2; ok := ok and arr[1] =  9223372036854775806;
     arr[1] := -3074457345618258602; arr[1] *:=                   -3; ok := ok and arr[1] =  9223372036854775806;
     arr[1] :=  -838488366986797800; arr[1] *:=                  -11; ok := ok and arr[1] =  9223372036854775800;
@@ -5064,6 +5137,8 @@ const proc: check_mult_assign is func
     arr[1] :=                  -11; arr[1] *:=  -838488366986797800; ok := ok and arr[1] =  9223372036854775800;
     arr[1] :=                   -3; arr[1] *:= -3074457345618258602; ok := ok and arr[1] =  9223372036854775806;
     arr[1] :=                   -2; arr[1] *:= -4611686018427387903; ok := ok and arr[1] =  9223372036854775806;
+    arr[1] :=                   -1; arr[1] *:= -9223372036854775807; ok := ok and arr[1] =  9223372036854775807;
+    arr[1] :=            INT64_MIN; arr[1] *:=                    1; ok := ok and arr[1] =            INT64_MIN;
     arr[1] := -4611686018427387904; arr[1] *:=                    2; ok := ok and arr[1] =            INT64_MIN;
     arr[1] := -3074457345618258602; arr[1] *:=                    3; ok := ok and arr[1] = -9223372036854775806;
     arr[1] :=  -838488366986797800; arr[1] *:=                   11; ok := ok and arr[1] = -9223372036854775800;
@@ -5085,6 +5160,8 @@ const proc: check_mult_assign is func
     arr[1] :=                  -11; arr[1] *:=   838488366986797800; ok := ok and arr[1] = -9223372036854775800;
     arr[1] :=                   -3; arr[1] *:=  3074457345618258602; ok := ok and arr[1] = -9223372036854775806;
     arr[1] :=                   -2; arr[1] *:=  4611686018427387904; ok := ok and arr[1] =            INT64_MIN;
+    arr[1] :=                   -1; arr[1] *:=  9223372036854775807; ok := ok and arr[1] = -9223372036854775807;
+    arr[1] :=  9223372036854775807; arr[1] *:=                   -1; ok := ok and arr[1] = -9223372036854775807;
     arr[1] :=  4611686018427387904; arr[1] *:=                   -2; ok := ok and arr[1] =            INT64_MIN;
     arr[1] :=  3074457345618258602; arr[1] *:=                   -3; ok := ok and arr[1] = -9223372036854775806;
     arr[1] :=   838488366986797800; arr[1] *:=                  -11; ok := ok and arr[1] = -9223372036854775800;
@@ -5106,6 +5183,8 @@ const proc: check_mult_assign is func
     arr[1] :=                   11; arr[1] *:=  -838488366986797800; ok := ok and arr[1] = -9223372036854775800;
     arr[1] :=                    3; arr[1] *:= -3074457345618258602; ok := ok and arr[1] = -9223372036854775806;
     arr[1] :=                    2; arr[1] *:= -4611686018427387904; ok := ok and arr[1] =            INT64_MIN;
+    arr[1] :=                    1; arr[1] *:=            INT64_MIN; ok := ok and arr[1] =            INT64_MIN;
+    arr[1] :=  9223372036854775807; arr[1] *:=                    1; ok := ok and arr[1] =  9223372036854775807;
     arr[1] :=  4611686018427387903; arr[1] *:=                    2; ok := ok and arr[1] =  9223372036854775806;
     arr[1] :=  3074457345618258602; arr[1] *:=                    3; ok := ok and arr[1] =  9223372036854775806;
     arr[1] :=   838488366986797800; arr[1] *:=                   11; ok := ok and arr[1] =  9223372036854775800;
@@ -5127,6 +5206,14 @@ const proc: check_mult_assign is func
     arr[1] :=                   11; arr[1] *:=   838488366986797800; ok := ok and arr[1] =  9223372036854775800;
     arr[1] :=                    3; arr[1] *:=  3074457345618258602; ok := ok and arr[1] =  9223372036854775806;
     arr[1] :=                    2; arr[1] *:=  4611686018427387903; ok := ok and arr[1] =  9223372036854775806;
+    arr[1] :=                    1; arr[1] *:=  9223372036854775807; ok := ok and arr[1] =  9223372036854775807;
+    if not ok then
+      writeln(" ***** Multiplication assignment with big products does not work correct. (3)");
+      okay := FALSE;
+    end if;
+
+    ok := TRUE;
+    arr[1] := -9223372036854775807; arr[1] *:= intExpr(                  -1); ok := ok and arr[1] =  9223372036854775807;
     arr[1] := -4611686018427387903; arr[1] *:= intExpr(                  -2); ok := ok and arr[1] =  9223372036854775806;
     arr[1] := -3074457345618258602; arr[1] *:= intExpr(                  -3); ok := ok and arr[1] =  9223372036854775806;
     arr[1] :=  -838488366986797800; arr[1] *:= intExpr(                 -11); ok := ok and arr[1] =  9223372036854775800;
@@ -5148,6 +5235,8 @@ const proc: check_mult_assign is func
     arr[1] :=                  -11; arr[1] *:= intExpr( -838488366986797800); ok := ok and arr[1] =  9223372036854775800;
     arr[1] :=                   -3; arr[1] *:= intExpr(-3074457345618258602); ok := ok and arr[1] =  9223372036854775806;
     arr[1] :=                   -2; arr[1] *:= intExpr(-4611686018427387903); ok := ok and arr[1] =  9223372036854775806;
+    arr[1] :=                   -1; arr[1] *:= intExpr(-9223372036854775807); ok := ok and arr[1] =  9223372036854775807;
+    arr[1] :=            INT64_MIN; arr[1] *:= intExpr(                   1); ok := ok and arr[1] =            INT64_MIN;
     arr[1] := -4611686018427387904; arr[1] *:= intExpr(                   2); ok := ok and arr[1] =            INT64_MIN;
     arr[1] := -3074457345618258602; arr[1] *:= intExpr(                   3); ok := ok and arr[1] = -9223372036854775806;
     arr[1] :=  -838488366986797800; arr[1] *:= intExpr(                  11); ok := ok and arr[1] = -9223372036854775800;
@@ -5169,6 +5258,8 @@ const proc: check_mult_assign is func
     arr[1] :=                  -11; arr[1] *:= intExpr(  838488366986797800); ok := ok and arr[1] = -9223372036854775800;
     arr[1] :=                   -3; arr[1] *:= intExpr( 3074457345618258602); ok := ok and arr[1] = -9223372036854775806;
     arr[1] :=                   -2; arr[1] *:= intExpr( 4611686018427387904); ok := ok and arr[1] =            INT64_MIN;
+    arr[1] :=                   -1; arr[1] *:= intExpr( 9223372036854775807); ok := ok and arr[1] = -9223372036854775807;
+    arr[1] :=  9223372036854775807; arr[1] *:= intExpr(                  -1); ok := ok and arr[1] = -9223372036854775807;
     arr[1] :=  4611686018427387904; arr[1] *:= intExpr(                  -2); ok := ok and arr[1] =            INT64_MIN;
     arr[1] :=  3074457345618258602; arr[1] *:= intExpr(                  -3); ok := ok and arr[1] = -9223372036854775806;
     arr[1] :=   838488366986797800; arr[1] *:= intExpr(                 -11); ok := ok and arr[1] = -9223372036854775800;
@@ -5190,6 +5281,8 @@ const proc: check_mult_assign is func
     arr[1] :=                   11; arr[1] *:= intExpr( -838488366986797800); ok := ok and arr[1] = -9223372036854775800;
     arr[1] :=                    3; arr[1] *:= intExpr(-3074457345618258602); ok := ok and arr[1] = -9223372036854775806;
     arr[1] :=                    2; arr[1] *:= intExpr(-4611686018427387904); ok := ok and arr[1] =            INT64_MIN;
+    arr[1] :=                    1; arr[1] *:= intExpr(           INT64_MIN); ok := ok and arr[1] =            INT64_MIN;
+    arr[1] :=  9223372036854775807; arr[1] *:= intExpr(                   1); ok := ok and arr[1] =  9223372036854775807;
     arr[1] :=  4611686018427387903; arr[1] *:= intExpr(                   2); ok := ok and arr[1] =  9223372036854775806;
     arr[1] :=  3074457345618258602; arr[1] *:= intExpr(                   3); ok := ok and arr[1] =  9223372036854775806;
     arr[1] :=   838488366986797800; arr[1] *:= intExpr(                  11); ok := ok and arr[1] =  9223372036854775800;
@@ -5211,8 +5304,9 @@ const proc: check_mult_assign is func
     arr[1] :=                   11; arr[1] *:= intExpr(  838488366986797800); ok := ok and arr[1] =  9223372036854775800;
     arr[1] :=                    3; arr[1] *:= intExpr( 3074457345618258602); ok := ok and arr[1] =  9223372036854775806;
     arr[1] :=                    2; arr[1] *:= intExpr( 4611686018427387903); ok := ok and arr[1] =  9223372036854775806;
+    arr[1] :=                    1; arr[1] *:= intExpr( 9223372036854775807); ok := ok and arr[1] =  9223372036854775807;
     if not ok then
-      writeln(" ***** Multiplication assignment with big products does not work correct.");
+      writeln(" ***** Multiplication assignment with big products does not work correct. (4)");
       okay := FALSE;
     end if;
 
@@ -17029,9 +17123,259 @@ const proc: check_lpad0 is func
        (  9999 lpad0 6) <> "009999" or
        ( 10000 lpad0 6) <> "010000" or
        ( 10001 lpad0 6) <> "010001" then
-      writeln(" ***** Integer lpad0 is not correct computed.");
+      writeln(" ***** Integer lpad0 is not correct computed. (1)");
       okay := FALSE;
     end if;
+
+    if (intExpr(-10001) lpad0 0) <> "-10001" or
+       (intExpr(-10000) lpad0 0) <> "-10000" or
+       (intExpr( -9999) lpad0 0) <>  "-9999" or
+       (intExpr( -2000) lpad0 0) <>  "-2000" or
+       (intExpr( -1001) lpad0 0) <>  "-1001" or
+       (intExpr( -1000) lpad0 0) <>  "-1000" or
+       (intExpr(  -999) lpad0 0) <>   "-999" or
+       (intExpr(  -200) lpad0 0) <>   "-200" or
+       (intExpr(  -101) lpad0 0) <>   "-101" or
+       (intExpr(  -100) lpad0 0) <>   "-100" or
+       (intExpr(   -99) lpad0 0) <>    "-99" or
+       (intExpr(   -20) lpad0 0) <>    "-20" or
+       (intExpr(   -11) lpad0 0) <>    "-11" or
+       (intExpr(   -10) lpad0 0) <>    "-10" or
+       (intExpr(    -9) lpad0 0) <>     "-9" or
+       (intExpr(    -2) lpad0 0) <>     "-2" or
+       (intExpr(    -1) lpad0 0) <>     "-1" or
+       (intExpr(     0) lpad0 0) <>      "0" or
+       (intExpr(     1) lpad0 0) <>      "1" or
+       (intExpr(     2) lpad0 0) <>      "2" or
+       (intExpr(     9) lpad0 0) <>      "9" or
+       (intExpr(    10) lpad0 0) <>     "10" or
+       (intExpr(    11) lpad0 0) <>     "11" or
+       (intExpr(    20) lpad0 0) <>     "20" or
+       (intExpr(    99) lpad0 0) <>     "99" or
+       (intExpr(   100) lpad0 0) <>    "100" or
+       (intExpr(   101) lpad0 0) <>    "101" or
+       (intExpr(   200) lpad0 0) <>    "200" or
+       (intExpr(   999) lpad0 0) <>    "999" or
+       (intExpr(  1000) lpad0 0) <>   "1000" or
+       (intExpr(  1001) lpad0 0) <>   "1001" or
+       (intExpr(  2000) lpad0 0) <>   "2000" or
+       (intExpr(  9999) lpad0 0) <>   "9999" or
+       (intExpr( 10000) lpad0 0) <>  "10000" or
+       (intExpr( 10001) lpad0 0) <>  "10001" or
+       (intExpr(-10001) lpad0 1) <> "-10001" or
+       (intExpr(-10000) lpad0 1) <> "-10000" or
+       (intExpr( -9999) lpad0 1) <>  "-9999" or
+       (intExpr( -2000) lpad0 1) <>  "-2000" or
+       (intExpr( -1001) lpad0 1) <>  "-1001" or
+       (intExpr( -1000) lpad0 1) <>  "-1000" or
+       (intExpr(  -999) lpad0 1) <>   "-999" or
+       (intExpr(  -200) lpad0 1) <>   "-200" or
+       (intExpr(  -101) lpad0 1) <>   "-101" or
+       (intExpr(  -100) lpad0 1) <>   "-100" or
+       (intExpr(   -99) lpad0 1) <>    "-99" or
+       (intExpr(   -20) lpad0 1) <>    "-20" or
+       (intExpr(   -11) lpad0 1) <>    "-11" or
+       (intExpr(   -10) lpad0 1) <>    "-10" or
+       (intExpr(    -9) lpad0 1) <>     "-9" or
+       (intExpr(    -2) lpad0 1) <>     "-2" or
+       (intExpr(    -1) lpad0 1) <>     "-1" or
+       (intExpr(     0) lpad0 1) <>      "0" or
+       (intExpr(     1) lpad0 1) <>      "1" or
+       (intExpr(     2) lpad0 1) <>      "2" or
+       (intExpr(     9) lpad0 1) <>      "9" or
+       (intExpr(    10) lpad0 1) <>     "10" or
+       (intExpr(    11) lpad0 1) <>     "11" or
+       (intExpr(    20) lpad0 1) <>     "20" or
+       (intExpr(    99) lpad0 1) <>     "99" or
+       (intExpr(   100) lpad0 1) <>    "100" or
+       (intExpr(   101) lpad0 1) <>    "101" or
+       (intExpr(   200) lpad0 1) <>    "200" or
+       (intExpr(   999) lpad0 1) <>    "999" or
+       (intExpr(  1000) lpad0 1) <>   "1000" or
+       (intExpr(  1001) lpad0 1) <>   "1001" or
+       (intExpr(  2000) lpad0 1) <>   "2000" or
+       (intExpr(  9999) lpad0 1) <>   "9999" or
+       (intExpr( 10000) lpad0 1) <>  "10000" or
+       (intExpr( 10001) lpad0 1) <>  "10001" or
+       (intExpr(-10001) lpad0 2) <> "-10001" or
+       (intExpr(-10000) lpad0 2) <> "-10000" or
+       (intExpr( -9999) lpad0 2) <>  "-9999" or
+       (intExpr( -2000) lpad0 2) <>  "-2000" or
+       (intExpr( -1001) lpad0 2) <>  "-1001" or
+       (intExpr( -1000) lpad0 2) <>  "-1000" or
+       (intExpr(  -999) lpad0 2) <>   "-999" or
+       (intExpr(  -200) lpad0 2) <>   "-200" or
+       (intExpr(  -101) lpad0 2) <>   "-101" or
+       (intExpr(  -100) lpad0 2) <>   "-100" or
+       (intExpr(   -99) lpad0 2) <>    "-99" or
+       (intExpr(   -20) lpad0 2) <>    "-20" or
+       (intExpr(   -11) lpad0 2) <>    "-11" or
+       (intExpr(   -10) lpad0 2) <>    "-10" or
+       (intExpr(    -9) lpad0 2) <>     "-9" or
+       (intExpr(    -2) lpad0 2) <>     "-2" or
+       (intExpr(    -1) lpad0 2) <>     "-1" or
+       (intExpr(     0) lpad0 2) <>     "00" or
+       (intExpr(     1) lpad0 2) <>     "01" or
+       (intExpr(     2) lpad0 2) <>     "02" or
+       (intExpr(     9) lpad0 2) <>     "09" or
+       (intExpr(    10) lpad0 2) <>     "10" or
+       (intExpr(    11) lpad0 2) <>     "11" or
+       (intExpr(    20) lpad0 2) <>     "20" or
+       (intExpr(    99) lpad0 2) <>     "99" or
+       (intExpr(   100) lpad0 2) <>    "100" or
+       (intExpr(   101) lpad0 2) <>    "101" or
+       (intExpr(   200) lpad0 2) <>    "200" or
+       (intExpr(   999) lpad0 2) <>    "999" or
+       (intExpr(  1000) lpad0 2) <>   "1000" or
+       (intExpr(  1001) lpad0 2) <>   "1001" or
+       (intExpr(  2000) lpad0 2) <>   "2000" or
+       (intExpr(  9999) lpad0 2) <>   "9999" or
+       (intExpr( 10000) lpad0 2) <>  "10000" or
+       (intExpr( 10001) lpad0 2) <>  "10001" or
+       (intExpr(-10001) lpad0 3) <> "-10001" or
+       (intExpr(-10000) lpad0 3) <> "-10000" or
+       (intExpr( -9999) lpad0 3) <>  "-9999" or
+       (intExpr( -2000) lpad0 3) <>  "-2000" or
+       (intExpr( -1001) lpad0 3) <>  "-1001" or
+       (intExpr( -1000) lpad0 3) <>  "-1000" or
+       (intExpr(  -999) lpad0 3) <>   "-999" or
+       (intExpr(  -200) lpad0 3) <>   "-200" or
+       (intExpr(  -101) lpad0 3) <>   "-101" or
+       (intExpr(  -100) lpad0 3) <>   "-100" or
+       (intExpr(   -99) lpad0 3) <>    "-99" or
+       (intExpr(   -20) lpad0 3) <>    "-20" or
+       (intExpr(   -11) lpad0 3) <>    "-11" or
+       (intExpr(   -10) lpad0 3) <>    "-10" or
+       (intExpr(    -9) lpad0 3) <>    "-09" or
+       (intExpr(    -2) lpad0 3) <>    "-02" or
+       (intExpr(    -1) lpad0 3) <>    "-01" or
+       (intExpr(     0) lpad0 3) <>    "000" or
+       (intExpr(     1) lpad0 3) <>    "001" or
+       (intExpr(     2) lpad0 3) <>    "002" or
+       (intExpr(     9) lpad0 3) <>    "009" or
+       (intExpr(    10) lpad0 3) <>    "010" or
+       (intExpr(    11) lpad0 3) <>    "011" or
+       (intExpr(    20) lpad0 3) <>    "020" or
+       (intExpr(    99) lpad0 3) <>    "099" or
+       (intExpr(   100) lpad0 3) <>    "100" or
+       (intExpr(   101) lpad0 3) <>    "101" or
+       (intExpr(   200) lpad0 3) <>    "200" or
+       (intExpr(   999) lpad0 3) <>    "999" or
+       (intExpr(  1000) lpad0 3) <>   "1000" or
+       (intExpr(  1001) lpad0 3) <>   "1001" or
+       (intExpr(  2000) lpad0 3) <>   "2000" or
+       (intExpr(  9999) lpad0 3) <>   "9999" or
+       (intExpr( 10000) lpad0 3) <>  "10000" or
+       (intExpr( 10001) lpad0 3) <>  "10001" or
+       (intExpr(-10001) lpad0 4) <> "-10001" or
+       (intExpr(-10000) lpad0 4) <> "-10000" or
+       (intExpr( -9999) lpad0 4) <>  "-9999" or
+       (intExpr( -2000) lpad0 4) <>  "-2000" or
+       (intExpr( -1001) lpad0 4) <>  "-1001" or
+       (intExpr( -1000) lpad0 4) <>  "-1000" or
+       (intExpr(  -999) lpad0 4) <>   "-999" or
+       (intExpr(  -200) lpad0 4) <>   "-200" or
+       (intExpr(  -101) lpad0 4) <>   "-101" or
+       (intExpr(  -100) lpad0 4) <>   "-100" or
+       (intExpr(   -99) lpad0 4) <>   "-099" or
+       (intExpr(   -20) lpad0 4) <>   "-020" or
+       (intExpr(   -11) lpad0 4) <>   "-011" or
+       (intExpr(   -10) lpad0 4) <>   "-010" or
+       (intExpr(    -9) lpad0 4) <>   "-009" or
+       (intExpr(    -2) lpad0 4) <>   "-002" or
+       (intExpr(    -1) lpad0 4) <>   "-001" or
+       (intExpr(     0) lpad0 4) <>   "0000" or
+       (intExpr(     1) lpad0 4) <>   "0001" or
+       (intExpr(     2) lpad0 4) <>   "0002" or
+       (intExpr(     9) lpad0 4) <>   "0009" or
+       (intExpr(    10) lpad0 4) <>   "0010" or
+       (intExpr(    11) lpad0 4) <>   "0011" or
+       (intExpr(    20) lpad0 4) <>   "0020" or
+       (intExpr(    99) lpad0 4) <>   "0099" or
+       (intExpr(   100) lpad0 4) <>   "0100" or
+       (intExpr(   101) lpad0 4) <>   "0101" or
+       (intExpr(   200) lpad0 4) <>   "0200" or
+       (intExpr(   999) lpad0 4) <>   "0999" or
+       (intExpr(  1000) lpad0 4) <>   "1000" or
+       (intExpr(  1001) lpad0 4) <>   "1001" or
+       (intExpr(  2000) lpad0 4) <>   "2000" or
+       (intExpr(  9999) lpad0 4) <>   "9999" or
+       (intExpr( 10000) lpad0 4) <>  "10000" or
+       (intExpr( 10001) lpad0 4) <>  "10001" or
+       (intExpr(-10001) lpad0 5) <> "-10001" or
+       (intExpr(-10000) lpad0 5) <> "-10000" or
+       (intExpr( -9999) lpad0 5) <>  "-9999" or
+       (intExpr( -2000) lpad0 5) <>  "-2000" or
+       (intExpr( -1001) lpad0 5) <>  "-1001" or
+       (intExpr( -1000) lpad0 5) <>  "-1000" or
+       (intExpr(  -999) lpad0 5) <>  "-0999" or
+       (intExpr(  -200) lpad0 5) <>  "-0200" or
+       (intExpr(  -101) lpad0 5) <>  "-0101" or
+       (intExpr(  -100) lpad0 5) <>  "-0100" or
+       (intExpr(   -99) lpad0 5) <>  "-0099" or
+       (intExpr(   -20) lpad0 5) <>  "-0020" or
+       (intExpr(   -11) lpad0 5) <>  "-0011" or
+       (intExpr(   -10) lpad0 5) <>  "-0010" or
+       (intExpr(    -9) lpad0 5) <>  "-0009" or
+       (intExpr(    -2) lpad0 5) <>  "-0002" or
+       (intExpr(    -1) lpad0 5) <>  "-0001" or
+       (intExpr(     0) lpad0 5) <>  "00000" or
+       (intExpr(     1) lpad0 5) <>  "00001" or
+       (intExpr(     2) lpad0 5) <>  "00002" or
+       (intExpr(     9) lpad0 5) <>  "00009" or
+       (intExpr(    10) lpad0 5) <>  "00010" or
+       (intExpr(    11) lpad0 5) <>  "00011" or
+       (intExpr(    20) lpad0 5) <>  "00020" or
+       (intExpr(    99) lpad0 5) <>  "00099" or
+       (intExpr(   100) lpad0 5) <>  "00100" or
+       (intExpr(   101) lpad0 5) <>  "00101" or
+       (intExpr(   200) lpad0 5) <>  "00200" or
+       (intExpr(   999) lpad0 5) <>  "00999" or
+       (intExpr(  1000) lpad0 5) <>  "01000" or
+       (intExpr(  1001) lpad0 5) <>  "01001" or
+       (intExpr(  2000) lpad0 5) <>  "02000" or
+       (intExpr(  9999) lpad0 5) <>  "09999" or
+       (intExpr( 10000) lpad0 5) <>  "10000" or
+       (intExpr( 10001) lpad0 5) <>  "10001" or
+       (intExpr(-10001) lpad0 6) <> "-10001" or
+       (intExpr(-10000) lpad0 6) <> "-10000" or
+       (intExpr( -9999) lpad0 6) <> "-09999" or
+       (intExpr( -2000) lpad0 6) <> "-02000" or
+       (intExpr( -1001) lpad0 6) <> "-01001" or
+       (intExpr( -1000) lpad0 6) <> "-01000" or
+       (intExpr(  -999) lpad0 6) <> "-00999" or
+       (intExpr(  -200) lpad0 6) <> "-00200" or
+       (intExpr(  -101) lpad0 6) <> "-00101" or
+       (intExpr(  -100) lpad0 6) <> "-00100" or
+       (intExpr(   -99) lpad0 6) <> "-00099" or
+       (intExpr(   -20) lpad0 6) <> "-00020" or
+       (intExpr(   -11) lpad0 6) <> "-00011" or
+       (intExpr(   -10) lpad0 6) <> "-00010" or
+       (intExpr(    -9) lpad0 6) <> "-00009" or
+       (intExpr(    -2) lpad0 6) <> "-00002" or
+       (intExpr(    -1) lpad0 6) <> "-00001" or
+       (intExpr(     0) lpad0 6) <> "000000" or
+       (intExpr(     1) lpad0 6) <> "000001" or
+       (intExpr(     2) lpad0 6) <> "000002" or
+       (intExpr(     9) lpad0 6) <> "000009" or
+       (intExpr(    10) lpad0 6) <> "000010" or
+       (intExpr(    11) lpad0 6) <> "000011" or
+       (intExpr(    20) lpad0 6) <> "000020" or
+       (intExpr(    99) lpad0 6) <> "000099" or
+       (intExpr(   100) lpad0 6) <> "000100" or
+       (intExpr(   101) lpad0 6) <> "000101" or
+       (intExpr(   200) lpad0 6) <> "000200" or
+       (intExpr(   999) lpad0 6) <> "000999" or
+       (intExpr(  1000) lpad0 6) <> "001000" or
+       (intExpr(  1001) lpad0 6) <> "001001" or
+       (intExpr(  2000) lpad0 6) <> "002000" or
+       (intExpr(  9999) lpad0 6) <> "009999" or
+       (intExpr( 10000) lpad0 6) <> "010000" or
+       (intExpr( 10001) lpad0 6) <> "010001" then
+      writeln(" ***** Integer lpad0 is not correct computed. (2)");
+      okay := FALSE;
+    end if;
+
     if okay then
       writeln("Integer lpad0 does work correct.");
     end if;

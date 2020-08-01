@@ -1,3 +1,53 @@
+20190714:
+- The library tls.s7i has been improved to support elliptic curve
+  diffie hellman key exchange.
+- The new library elliptic.s7i has been added. This library supports
+  elliptic curve cryptography (ECC). The library defines:
+  - Several named curves,
+  - Functions to add, double and multiply curve points.
+  - Functions for fast multiplication with jacobian coordinates.
+  - Functions to encode and decode curve points.
+  - Functions to sign and verify messages with the ECDSA.
+- The functions emsaPkcs1V15Encoding, emsaPkcs1V15Decoding,
+  rsassaPkcs1V15Encrypt and rsassaPkcs1V15Decrypt have been added to
+  the library pkcs1.s7i.
+- In x509cert.s7i the function getAlgorithmIdentifier has been improved
+  to accept algorithm identifiers without algorithm parameters.
+- A version of the function createX509Cert, that creates a certificate
+  with keys for elliptic curve cryptography, has been added.
+- The new library showtls.s7i had been added. This library defines
+  functions to show TLS messages. It can be used to debug tls.s7i.
+- The library tar.s7i has been improved to accept extended headers with
+  meta data (PAX format). Now path and linkpath meta data is accepted.
+- A new version of the function bytes() has been added to bytedata.s7i.
+  This function converts a bigInteger to a string of bytes with a given
+  length.
+- Checks for the multiplication operators * and *:= with factors of
+  1 and -1 have been added to chkint.sd7.
+- Checks for the operator 'lpad0' have been added to chkint.sd7.
+- Checks for NaN have been added to chkflt.sd7.
+- In the compiler (in comp/const.s7i) the action FLT_MOD has been added
+  to the list of pure function actions.
+- The compiler has been improved to optimize the actions FLT_REM (in
+  comp/flt_act.s7i) and INT_LPAD0 (in comp/int_act.s7i).
+- A corner case of the multiplication operator *:= has been fixed in
+  the compiler (process_const_int_mult_assign() in comp/int_act.s7i).
+  The bug occurred in the overflow checking code, when an array element
+  was multiplied with *:= -1. Multiplications of normal variables and
+  parameters with *:= and multiplications with other factors except -1
+  were not affected by this bug.
+- Documentation comments have been improved in cc_conf.s7i and
+  pkcs1.s7i.
+- In con_win.c the functions kbdKeyPressed() and kbdGetc() have been
+  improved to ignore mouse movement and button press events.
+- The program chkccomp.c has been improved to have a more detailed
+  check for POW_OF_NAN_OKAY.
+- In fltlib.c checks for 0.0 have been improved in flt_div() and
+  flt_div_assign().
+- In flt_rtl.c preprocessor if statements have been improved to check
+  for !FLOAT_NAN_COMPARISON_OKAY in fltLog(), fltLog10() fltLog2() and
+  fltPow().
+
 20190610:
 - The library float.s7i has been improved to support the float
   operators 'rem' (floating-point remainder) and 'mod' (floating-point

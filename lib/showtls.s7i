@@ -1,0 +1,593 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  showtls.s7i   Show TLS messages. Use it to debug tls.s7i.       *)
+(*  Copyright (C) 2013 - 2018  Thomas Mertes                        *)
+(*                                                                  *)
+(*  This file is part of the Seed7 Runtime Library.                 *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is free software; you can             *)
+(*  redistribute it and/or modify it under the terms of the GNU     *)
+(*  Lesser General Public License as published by the Free Software *)
+(*  Foundation; either version 2.1 of the License, or (at your      *)
+(*  option) any later version.                                      *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is distributed in the hope that it    *)
+(*  will be useful, but WITHOUT ANY WARRANTY; without even the      *)
+(*  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR *)
+(*  PURPOSE.  See the GNU Lesser General Public License for more    *)
+(*  details.                                                        *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU Lesser General       *)
+(*  Public License along with this program; if not, write to the    *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+include "tls.s7i";
+
+
+const proc: showChangeCipherSpec (in string: stri) is func
+  begin
+    writeln("change_cipher_spec");
+    writeln("type: " <& ord(stri[6]));
+  end func;
+
+
+const proc: showAlert (in string: stri) is func
+  begin
+    writeln("alert");
+    writeln("Version: " <& ord(stri[2]) <& "." <& ord(stri[3]));
+    writeln("Length: " <& bytes2Int(stri[4 len 2], UNSIGNED, BE));
+    writeln("level: " <& ord(stri[6]));
+    write("description: " <& ord(stri[7]));
+    case ord(stri[7]) of
+      when {  0}: write(" - close_notify");
+      when { 10}: write(" - unexpected_message");
+      when { 20}: write(" - bad_record_mac");
+      when { 21}: write(" - decryption_failed");
+      when { 22}: write(" - record_overflow");
+      when { 30}: write(" - decompression_failure");
+      when { 40}: write(" - handshake_failure");
+      when { 41}: write(" - no_certificate");
+      when { 42}: write(" - bad_certificate");
+      when { 43}: write(" - unsupported_certificate");
+      when { 44}: write(" - certificate_revoked");
+      when { 45}: write(" - certificate_expired");
+      when { 46}: write(" - certificate_unknown");
+      when { 47}: write(" - illegal_parameter");
+      when { 48}: write(" - unknown_ca");
+      when { 49}: write(" - access_denied");
+      when { 50}: write(" - decode_error");
+      when { 51}: write(" - decrypt_error");
+      when { 60}: write(" - export_restriction");
+      when { 70}: write(" - protocol_version");
+      when { 71}: write(" - insufficient_security");
+      when { 80}: write(" - internal_error");
+      when { 86}: write(" - inappropriate_fallback");
+      when { 90}: write(" - user_canceled");
+      when {100}: write(" - no_renegotiation");
+      when {110}: write(" - unsupported_extension");
+      when {111}: write(" - certificate_unobtainable");
+      when {112}: write(" - unrecognized_name");
+      when {113}: write(" - bad_certificate_status_response");
+      when {114}: write(" - bad_certificate_hash_value");
+    end case;
+    writeln;
+  end func;
+
+
+const proc: showExtensions (in string: stri, inout integer: pos) is func
+  local
+    var integer: extensionBytes is 0;
+    var integer: beyond is 0;
+    var integer: index is 0;
+    var integer: extensionType is 0;
+    var integer: dataSize is 0;
+    var string: data is "";
+    var integer: dataPos is 0;
+    var boolean: dataWritten is FALSE;
+  begin
+    extensionBytes := bytes2Int(stri[pos len 2], UNSIGNED, BE);
+    writeln("Extension bytes: " <& extensionBytes);
+    pos +:= 2;
+    beyond := pos + extensionBytes;
+    index := 1;
+    while pos < beyond do
+      write("Extension-" <& index <& ": ");
+      extensionType := bytes2Int(stri[pos len 2], UNSIGNED, BE);
+      pos +:= 2;
+      dataSize := bytes2Int(stri[pos len 2], UNSIGNED, BE);
+      pos +:= 2;
+      data := stri[pos len dataSize];
+      pos +:= dataSize;
+      dataWritten := FALSE;
+      case extensionType of
+        when {SERVER_NAME}:                            writeln("server_name");
+        when {MAX_FRAGMENT_LENGTH}:                    writeln("max_fragment_length");
+        when {CLIENT_CERTIFICATE_URL}:                 writeln("client_certificate_url");
+        when {TRUSTED_CA_KEYS}:                        writeln("trusted_ca_keys");
+        when {TRUNCATED_HMAC}:                         writeln("truncated_hmac");
+        when {STATUS_REQUEST}:                         writeln("status_request");
+        when {USER_MAPPING}:                           writeln("user_mapping");
+        when {CLIENT_AUTHZ}:                           writeln("client_authz");
+        when {SERVER_AUTHZ}:                           writeln("server_authz");
+        when {CERT_TYPE}:                              writeln("cert_type");
+        when {ELLIPTIC_CURVES}:                        writeln("elliptic_curves");
+          dataPos := 1;
+          write(bytes2Int(data[dataPos len 2], UNSIGNED, BE) div 2 <& " curve numbers:");
+          dataPos +:= 2;
+          while dataPos < length(data) do
+            write(" " <& bytes2Int(data[dataPos len 2], UNSIGNED, BE));
+            dataPos +:= 2;
+          end while;
+          writeln;
+          dataWritten := TRUE;
+        when {EC_POINT_FORMATS}:                       writeln("ec_point_formats");
+        when {SRP}:                                    writeln("srp");
+        when {SIGNATURE_ALGORITHMS}:                   writeln("signature_algorithms");
+          dataPos := 1;
+          write(bytes2Int(data[dataPos len 2], UNSIGNED, BE) div 2 <& " signature algorithms:");
+          dataPos +:= 2;
+          while dataPos < length(data) do
+            write(" " <& bytes2Int(data[dataPos len 2], UNSIGNED, BE) radix 16 lpad0 4);
+            dataPos +:= 2;
+          end while;
+          writeln;
+          dataWritten := TRUE;
+        when {USE_SRTP}:                               writeln("use_srtp");
+        when {HEARTBEAT}:                              writeln("heartbeat");
+        when {APPLICATION_LAYER_PROTOCOL_NEGOTIATION}: writeln("application_layer_protocol_negotiation");
+        when {STATUS_REQUEST_V2}:                      writeln("status_request_v2");
+        when {SIGNED_CERTIFICATE_TIMESTAMP}:           writeln("signed_certificate_timestamp");
+        when {CLIENT_CERTIFICATE_TYPE}:                writeln("client_certificate_type");
+        when {SERVER_CERTIFICATE_TYPE}:                writeln("server_certificate_type");
+        when {PADDING}:                                writeln("padding");
+        when {ENCRYPT_THEN_MAC}:                       writeln("encrypt_then_mac");
+        when {EXTENDED_MASTER_SECRET}:                 writeln("extended_master_secret");
+        when {SESSION_TICKET_TLS}:                     writeln("SessionTicket TLS");
+        when {NEXT_PROTOCOL_NEGOTIATION}:              writeln("next_protocol_negotiation");
+        when {RENEGOTIATION_INFO}:                     writeln("renegotiation_info");
+        otherwise:                                     writeln(extensionType);
+      end case;
+      if not dataWritten then
+        writeln("Data: " <& literal(data));
+      end if;
+      incr(index);
+    end while;
+  end func;
+
+
+const proc: showClientHello (in string: stri, inout integer: pos) is func
+  local
+    var integer: length is 0;
+    var integer: beyond is 0;
+    var integer: vectorLen is 0;
+    var integer: index is 0;
+  begin
+    writeln("client_hello");
+    length := bytes2Int(stri[pos len 3], UNSIGNED, BE);
+    pos +:= 3;
+    writeln("Length: " <& length);
+    beyond := pos + length;
+    writeln("Bytes there: " <& length(stri) - pos + 1);
+    writeln("Version: " <& ord(stri[pos]) <& "." <& ord(stri[succ(pos)]));
+    pos +:= 2;
+    writeln("Random: " <& hex(stri[12 len 32]));
+    pos +:= 32;
+    vectorLen := ord(stri[pos]);
+    incr(pos);
+    writeln("SessionId: " <& hex(stri[pos len vectorLen]));
+    pos +:= vectorLen;
+    vectorLen := bytes2Int(stri[pos len 2], UNSIGNED, BE) div 2;
+    writeln("Number of Ciphers: " <& vectorLen);
+    pos +:= 2;
+    for index range 1 to vectorLen do
+      writeln("Cipher-" <& index <& ": " <&
+              bytes2Int(stri[pos len 2], UNSIGNED, BE) radix 16 lpad0 4);
+      pos +:= 2;
+    end for;
+    vectorLen := ord(stri[pos]);
+    writeln("Number of CompressionMethods: " <& vectorLen);
+    incr(pos);
+    for index range 1 to vectorLen do
+      writeln("CompressionMethod-" <& index <& ": " <& ord(stri[pos]));
+      incr(pos);
+    end for;
+    if pos <= beyond - 2 then
+      showExtensions(stri, pos);
+    end if;
+    writeln("Final pos: " <& pos);
+    writeln("Leftover bytes: " <& literal(stri[pos ..]));
+  end func;
+
+
+const proc: showServerHello (in string: stri, inout integer: pos) is func
+  local
+    var integer: length is 0;
+    var integer: beyond is 0;
+    var integer: sessionIdLen is 0;
+  begin
+    writeln("server_hello");
+    length := bytes2Int(stri[pos len 3], UNSIGNED, BE);
+    pos +:= 3;
+    writeln("Length: " <& length);
+    beyond := pos + length;
+    writeln("Bytes there: " <& length(stri) - pos + 1);
+    writeln("Version: " <& ord(stri[pos]) <& "." <& ord(stri[succ(pos)]));
+    pos +:= 2;
+    writeln("Random: " <& hex(stri[12 len 32]));
+    pos +:= 32;
+    sessionIdLen := ord(stri[pos]);
+    incr(pos);
+    writeln("SessionId: " <& hex(stri[pos len sessionIdLen]));
+    pos +:= sessionIdLen;
+    writeln("Cipher: " <&
+            bytes2Int(stri[pos len 2], UNSIGNED, BE) radix 16 lpad0 4);
+    pos +:= 2;
+    writeln("CompressionMethod: " <& ord(stri[pos]));
+    incr(pos);
+    if pos <= beyond - 2 then
+      showExtensions(stri, pos);
+    end if;
+    writeln("Final pos: " <& pos);
+    writeln("Leftover bytes: " <& literal(stri[pos ..]));
+  end func;
+
+
+(**
+ *  Shows the content of a X.509 public key certificate.
+ *  This function can be used to debug the library tls.s7i.
+ *)
+const proc: showX509Cert (in x509cert: cert) is func
+  local
+    var tbsCertificateType: tbsCertificate is tbsCertificateType.value;
+    var string: aKey is "";
+    var integer: number is 0;
+    var integer: pos is 1;
+    var string: publicKey is "";
+  begin
+    tbsCertificate := cert.tbsCertificate;
+    writeln("Version: " <& tbsCertificate.version);
+    writeln("SerialNumber: " <& literal(tbsCertificate.serialNumber));
+    writeln("Signature algorithm: " <& literal(tbsCertificate.signature.algorithm));
+    writeln("Signature parameters: " <& literal(tbsCertificate.signature.parameters));
+    for aKey range keys(tbsCertificate.issuer) do
+      writeln("Issuer " <& literal(aKey) <& ": " <& tbsCertificate.issuer[aKey]);
+    end for;
+    writeln("Valid not before: " <& tbsCertificate.validity.notBefore);
+    writeln("Valid not after: " <& tbsCertificate.validity.notAfter);
+    for aKey range keys(tbsCertificate.subject) do
+      writeln("Subject " <& literal(aKey) <& ": " <& tbsCertificate.subject[aKey]);
+    end for;
+    writeln("Algorithm: " <& literal(tbsCertificate.subjectPublicKeyInfo.algorithm.algorithm));
+    write("Algorithm: ");
+    for number range decodeObjectIdentifier(tbsCertificate.subjectPublicKeyInfo.algorithm.algorithm) do
+      write(number <& " ");
+    end for;
+    writeln;
+    writeln("Algorithm parameters: " <& literal(tbsCertificate.subjectPublicKeyInfo.algorithm.parameters));
+    write("Algorithm parameters: ");
+    if tbsCertificate.subjectPublicKeyInfo.algorithm.parameters <> "" then
+      for number range decodeObjectIdentifier(tbsCertificate.subjectPublicKeyInfo.algorithm.parameters) do
+        write(number <& " ");
+      end for;
+    end if;
+    writeln;
+    writeln("Public key: " <& literal(tbsCertificate.subjectPublicKeyInfo.subjectPublicKey));
+    publicKey := tbsCertificate.subjectPublicKeyInfo.subjectPublicKey;
+    writeln("Length of public key: " <& length(publicKey));
+    if tbsCertificate.subjectPublicKeyInfo.algorithm.algorithm = RSA_ENCRYPTION_OID then
+      while pos < length(publicKey) do
+        printAsn1(publicKey, pos);
+      end while;
+      writeln("rsa public key modulus:  " <& tbsCertificate.subjectPublicKeyInfo.publicRsaKey.modulus radix 16);
+      writeln("rsa public modulus len:  " <& bitLength(tbsCertificate.subjectPublicKeyInfo.publicRsaKey.modulus));
+      writeln("rsa public key exponent: " <& tbsCertificate.subjectPublicKeyInfo.publicRsaKey.exponent radix 16);
+    elsif tbsCertificate.subjectPublicKeyInfo.algorithm.algorithm = EC_PUBLIC_KEY then
+      writeln("Elliptic curve: " <&
+              getEllipticCurveFromOid(tbsCertificate.subjectPublicKeyInfo.algorithm.parameters).name);
+      writeln("publicEccKey.x: " <& tbsCertificate.subjectPublicKeyInfo.publicEccKey.x radix 16);
+      writeln("publicEccKey.y: " <& tbsCertificate.subjectPublicKeyInfo.publicEccKey.y radix 16);
+    end if;
+  end func;
+
+
+const proc: showCertificate (in string: stri, inout integer: pos) is func
+  local
+    var integer: length is 0;
+    var integer: sequenceLen is 0;
+    var integer: certLen is 0;
+    var integer: index is 1;
+    var x509cert: cert is x509cert.value;
+    var array x509cert: certList is 0 times x509cert.value;
+  begin
+    writeln("certificate: " <& literal(stri));
+    length := bytes2Int(stri[pos len 3], UNSIGNED, BE);
+    pos +:= 3;
+    writeln("Length: " <& length);
+    writeln("Bytes there: " <& length(stri) - pos + 1);
+    sequenceLen := bytes2Int(stri[pos len 3], UNSIGNED, BE);
+    pos +:= 3;
+    writeln("Sequence length: " <& sequenceLen);
+    writeln("Bytes there: " <& length(stri) - pos + 1);
+    while pos <= 3 + sequenceLen do
+      certLen := bytes2Int(stri[pos len 3], UNSIGNED, BE);
+      pos +:= 3;
+      writeln("ASN.1Cert-" <& index <& " length: " <& certLen);
+      writeln("ASN.1Cert-" <& index <& ": " <& literal(stri[pos len certLen]));
+      printAsn1(stri[pos len certLen]);
+      cert := getX509Cert(stri[pos len certLen]);
+      showX509Cert(cert);
+      certList &:= cert;
+      pos +:= certLen;
+      incr(index);
+    end while;
+    writeln("Final pos: " <& pos);
+    writeln("Leftover bytes: " <& literal(stri[pos ..]));
+    for index range 1 to pred(length(certList)) do
+      writeln("validate Cert-" <& index <& " with Cert-" <& succ(index));
+      writeln(validateSignature(certList[index], certList[succ(index)].tbsCertificate.subjectPublicKeyInfo.publicRsaKey));
+    end for;
+    # writeln("validate Cert-" <& length(certList) <& " with Cert-" <& length(certList));
+    # writeln(validateSignature(certList[length(certList)], certList[length(certList)].tbsCertificate.subjectPublicKeyInfo.publicRsaKey));
+    # publicKey := certList[1].tbsCertificate.subjectPublicKeyInfo.publicRsaKey;
+  end func;
+
+
+const proc: showServerKeyExchange (in string: stri, inout integer: pos) is func
+  local
+    var integer: length is 0;
+    var integer: beyond is 0;
+    var integer: curveNumber is 0;
+    var ellipticCurve: curve is ellipticCurve.value;
+    var integer: pointLength is 0;
+    var string: pointData is "";
+    var ecPoint: publicEccKey is ecPoint.value;
+    var integer: signatureHashNumber is 0;
+    var string: signatureHash is "";
+    var integer: signatureAlgorithm is 0;
+    var integer: signatureLength is 0;
+    var integer: intLength is 0;
+    var string: signatureStri is "";
+  begin
+    writeln("server_key_exchange");
+    length := bytes2Int(stri[pos len 3], UNSIGNED, BE);
+    pos +:= 3;
+    writeln("Length: " <& length);
+    beyond := pos + length;
+    writeln("Bytes there: " <& length(stri) - pos + 1);
+    # if parameters.key_exchange_algorithm = EC_DIFFIE_HELLMAN then
+      if stri[pos] = NAMED_CURVE then
+        incr(pos);
+        curveNumber := bytes2Int(stri[pos len 2], UNSIGNED, BE);
+        pos +:= 2;
+        writeln("named curve: " <& curveNumber);
+        if curveNumber >= minIdx(curveByNumber) and curveNumber <= maxIdx(curveByNumber) then
+          curve := curveByNumber[curveNumber];
+        end if;
+        pointLength := ord(stri[pos]);
+        writeln("pointLength: " <& pointLength);
+        incr(pos);
+        pointData := stri[pos len pointLength];
+        writeln("publicEccKey: " <& hex(pointData));
+        publicEccKey := ecPointDecode(curve, pointData);
+        writeln("publicEccKey.x: " <& publicEccKey.x radix 16);
+        writeln("publicEccKey.y: " <& publicEccKey.y radix 16);
+        pos +:= pointLength;
+        signatureHashNumber := ord(stri[pos]);
+        writeln("signatureHashNumber: " <& signatureHashNumber);
+        incr(pos);
+        signatureAlgorithm := ord(stri[pos]);
+        writeln("signatureAlgorithm: " <& signatureAlgorithm);
+        incr(pos);
+        signatureLength := bytes2Int(stri[pos len 2], UNSIGNED, BE);
+        writeln("signatureLength: " <& signatureLength);
+        pos +:= 2;
+        signatureStri := stri[pos len signatureLength];
+        writeln("signatureStri: " <& hex(signatureStri));
+        pos +:= signatureLength;
+      end if;
+    # end if;
+    writeln("Final pos: " <& pos);
+    writeln("Leftover bytes: " <& literal(stri[pos ..]));
+  end func;
+
+
+const proc: showCertificateRequest (in string: stri, inout integer: pos) is func
+  local
+    var integer: length is 0;
+    var integer: index is 0;
+  begin
+    writeln("certificate_request");
+    length := bytes2Int(stri[pos len 3], UNSIGNED, BE);
+    pos +:= 3;
+    writeln("length: " <& length);
+    writeln("Bytes there: " <& length(stri) - pos + 1);
+    writeln("Version: " <& ord(stri[pos]) <& "." <& ord(stri[succ(pos)]));
+    pos +:= 2;
+    length := ord(stri[pos]);
+    incr(pos);
+    writeln("length: " <& length);
+  end func;
+
+
+const proc: showServerHelloDone (in string: stri, inout integer: pos) is func
+  local
+    var integer: length is 0;
+  begin
+    writeln("server_hello_done");
+    length := bytes2Int(stri[pos len 3], UNSIGNED, BE);
+    pos +:= 3;
+    writeln("Length: " <& length);
+    writeln("Bytes there: " <& length(stri) - pos + 1);
+    writeln("Final pos: " <& pos);
+    writeln("Leftover bytes: " <& literal(stri[pos ..]));
+  end func;
+
+
+const proc: showClientKeyExchange (in string: stri, inout integer: pos) is func
+  local
+    var integer: length is 0;
+  begin
+    writeln("client_key_exchange");
+    length := bytes2Int(stri[pos len 3], UNSIGNED, BE);
+    pos +:= 3;
+    writeln("Length: " <& length);
+    writeln("Bytes there: " <& length(stri) - pos + 1);
+    writeln("exchange_keys: " <& hex(stri[pos len length]));
+    pos +:= length;
+    writeln("Final pos: " <& pos);
+    writeln("Leftover bytes: " <& literal(stri[pos ..]));
+  end func;
+
+
+const proc: showFinished (in string: stri, inout integer: pos) is func
+  local
+    var integer: length is 0;
+  begin
+    writeln("finished");
+    length := bytes2Int(stri[pos len 3], UNSIGNED, BE);
+    pos +:= 3;
+    writeln("Length: " <& length);
+    writeln("Bytes there: " <& length(stri) - pos + 1);
+    writeln("verify_data: " <& hex(stri[pos len length]));
+    pos +:= length;
+    writeln("Final pos: " <& pos);
+    writeln("Leftover bytes: " <& literal(stri[pos ..]));
+  end func;
+
+
+(**
+ *  Shows the content of a TLS handshake message.
+ *  This function can be used to debug the library tls.s7i.
+ *)
+const proc: showHandshakeMsg (in string: stri, in var integer: pos) is func
+  local
+    var char: handshakeType is ' ';
+  begin
+    handshakeType := stri[pos];
+    incr(pos);
+    write("HandshakeType: ");
+    if handshakeType = CLIENT_HELLO then
+      showClientHello(stri, pos);
+    elsif handshakeType = SERVER_HELLO then
+      showServerHello(stri, pos);
+    elsif handshakeType = CERTIFICATE then
+      showCertificate(stri, pos);
+    elsif handshakeType = SERVER_KEY_EXCHANGE then
+      showServerKeyExchange(stri, pos);
+    elsif handshakeType = CERTIFICATE_REQUEST then
+      showCertificateRequest(stri, pos);
+    elsif handshakeType = SERVER_HELLO_DONE then
+      showServerHelloDone(stri, pos);
+    elsif handshakeType = CLIENT_KEY_EXCHANGE then
+      showClientKeyExchange(stri, pos);
+    elsif handshakeType = FINISHED then
+      showFinished(stri, pos);
+    else
+      writeln(ord(handshakeType));
+    end if;
+  end func;
+
+
+const proc: showHandshake (in string: stri) is func
+  begin
+    writeln("handshake");
+    writeln("Version: " <& ord(stri[2]) <& "." <& ord(stri[3]));
+    writeln("Length: " <& bytes2Int(stri[4 len 2], UNSIGNED, BE));
+    writeln("Bytes there: " <& length(stri) - 5);
+    if bytes2Int(stri[4 len 2], UNSIGNED, BE) <> length(stri) - 5 then
+      writeln(" ***** TLS record length not ok");
+    end if;
+    if bytes2Int(stri[7 len 3], UNSIGNED, BE) > length(stri) - 9 then
+      writeln(" ***** TLS handshake length not ok");
+      writeln("handshake length field: " <& literal(stri[7 len 3]));
+      writeln("handshake length from field: " <& bytes2Int(stri[7 len 3], UNSIGNED, BE));
+      writeln("actual length: " <& length(stri) - 9);
+      writeln("record length field: " <& literal(stri[4 len 2]));
+      writeln("HandshakeType: " <& ord(stri[6]));
+    else
+      showHandshakeMsg(stri, 6);
+    end if;
+  end func;
+
+
+const proc: showApplicationData (in string: stri) is func
+  begin
+    writeln("application data");
+    writeln("Version: " <& ord(stri[2]) <& "." <& ord(stri[3]));
+    writeln("Length: " <& bytes2Int(stri[4 len 2], UNSIGNED, BE));
+    writeln("Bytes there: " <& length(stri) - 5);
+    writeln("Data: " <& literal(stri[6 ..]));
+  end func;
+
+
+(**
+ *  Shows the content of a TLS message.
+ *  This function can be used to debug the library tls.s7i.
+ *)
+const proc: showTlsMsg (in string: stri) is func
+  begin
+    writeln("MsgLength: " <& length(stri));
+    if length(stri) <> 0 then
+      write("ContentType: ");
+      if stri[1] = CHANGE_CIPHER_SPEC then
+        showChangeCipherSpec(stri);
+      elsif stri[1] = ALERT then
+        showAlert(stri);
+      elsif stri[1] = HANDSHAKE then
+        showHandshake(stri);
+      elsif stri[1] = APPLICATION_DATA then
+        showApplicationData(stri);
+      else
+        writeln(ord(stri[1]));
+        writeln("Final pos: 1");
+        writeln("Leftover bytes: " <& literal(stri));
+      end if;
+    end if;
+  end func;
+
+
+(**
+ *  Shows the message type of a TLS message.
+ *  This function can be used to debug the library tls.s7i.
+ *)
+const proc: showTlsMsgType (in string: stri) is func
+  begin
+    if length(stri) <> 0 then
+      if stri[1] = CHANGE_CIPHER_SPEC then
+        writeln("ChangeCipherSpec");
+      elsif stri[1] = ALERT then
+        writeln("Alert");
+      elsif stri[1] = HANDSHAKE then
+        if stri[6] = CLIENT_HELLO then
+          writeln("ClientHello");
+        elsif stri[6] = SERVER_HELLO then
+          writeln("ServerHello");
+        elsif stri[6] = SESSION_TICKET then
+          writeln("NewSessionTicket");
+        elsif stri[6] = CERTIFICATE then
+          writeln("Certificate");
+        elsif stri[6] = SERVER_KEY_EXCHANGE then
+          writeln("ServerKeyExchange");
+        elsif stri[6] = CERTIFICATE_REQUEST then
+          writeln("CertificateRequest");
+        elsif stri[6] = SERVER_HELLO_DONE then
+          writeln("ServerHelloDone");
+        elsif stri[6] = CLIENT_KEY_EXCHANGE then
+          writeln("ClientKeyExchange");
+        elsif stri[6] = FINISHED then
+          writeln("Finished");
+        else
+          writeln("Handshake " <& ord(stri[6]));
+        end if;
+      elsif stri[1] = APPLICATION_DATA then
+        writeln("ApplicationData");
+      else
+        writeln(ord(stri[1]));
+      end if;
+    end if;
+  end func;
