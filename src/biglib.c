@@ -377,7 +377,7 @@ objecttype big_incr (listtype arguments)
 
 
 /**
- *  Compute the exponentiation of a 'bigInteger' base by an integer exponent.
+ *  Compute the exponentiation of a 'bigInteger' base with an integer exponent.
  *  @return the result of the exponentation.
  *  @exception NUMERIC_ERROR When the exponent is negative.
  */

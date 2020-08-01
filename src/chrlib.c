@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  s7   Seed7 interpreter                                          */
-/*  Copyright (C) 1990 - 2009  Thomas Mertes                        */
+/*  Copyright (C) 1990 - 2013  Thomas Mertes                        */
 /*                                                                  */
 /*  This program is free software; you can redistribute it and/or   */
 /*  modify it under the terms of the GNU General Public License as  */
@@ -46,6 +46,13 @@
 
 
 
+/**
+ *  Convert an integer number to a character.
+ *  For values between 0 and 1114111 a Unicode character is returned.
+ *  For -1 the value EOF is returned.
+ *  @return a character which corresponds to the given integer.
+ *  @exception RANGE_ERROR When the number does not fit into a 32-bit 'char'.
+ */
 objecttype chr_chr (listtype arguments)
 
   {
@@ -77,6 +84,12 @@ objecttype chr_clit (listtype arguments)
 
 
 
+/**
+ *  Compare two characters.
+ *  @return -1, 0 or 1 if the first argument is considered to be
+ *          respectively less than, equal to, or greater than the
+ *          second.
+ */
 objecttype chr_cmp (listtype arguments)
 
   {
@@ -137,6 +150,11 @@ objecttype chr_create (listtype arguments)
 
 
 
+/**
+ *  Decrement a character.
+ *  This is equivalent to:
+ *   ch = pred(ch);
+ */
 objecttype chr_decr (listtype arguments)
 
   {
@@ -153,6 +171,11 @@ objecttype chr_decr (listtype arguments)
 
 
 
+/**
+ *  Check if two characters are equal.
+ *  @return TRUE if both characters are equal,
+ *          FALSE otherwise.
+ */
 objecttype chr_eq (listtype arguments)
 
   { /* chr_eq */
@@ -168,6 +191,11 @@ objecttype chr_eq (listtype arguments)
 
 
 
+/**
+ *  Check if ch1 is greater than or equal to ch2.
+ *  @return TRUE if ch1 is greater than or equal to ch2,
+ *          FALSE otherwise.
+ */
 objecttype chr_ge (listtype arguments)
 
   { /* chr_ge */
@@ -183,6 +211,11 @@ objecttype chr_ge (listtype arguments)
 
 
 
+/**
+ *  Check if ch1 is greater than ch2.
+ *  @return TRUE if ch1 is greater than ch2,
+ *          FALSE otherwise.
+ */
 objecttype chr_gt (listtype arguments)
 
   { /* chr_gt */
@@ -198,6 +231,10 @@ objecttype chr_gt (listtype arguments)
 
 
 
+/**
+ *  Compute the hash value of a character.
+ *  @return the hash value.
+ */
 objecttype chr_hashcode (listtype arguments)
 
   { /* chr_hashcode */
@@ -208,6 +245,12 @@ objecttype chr_hashcode (listtype arguments)
 
 
 
+/**
+ *  Convert an integer number to a character.
+ *  For values between 0 and 1114111 a Unicode character is returned.
+ *  For -1 the value EOF is returned.
+ *  @return a character which corresponds to the given integer.
+ */
 objecttype chr_iconv (listtype arguments)
 
   { /* chr_iconv */
@@ -217,6 +260,11 @@ objecttype chr_iconv (listtype arguments)
 
 
 
+/**
+ *  Increment a character.
+ *  This is equivalent to:
+ *   ch = succ(ch);
+ */
 objecttype chr_incr (listtype arguments)
 
   {
@@ -233,6 +281,11 @@ objecttype chr_incr (listtype arguments)
 
 
 
+/**
+ *  Check if ch1 is less than or equal to ch2.
+ *  @return TRUE if ch1 is less than or equal to ch2,
+ *          FALSE otherwise.
+ */
 objecttype chr_le (listtype arguments)
 
   { /* chr_le */
@@ -248,23 +301,30 @@ objecttype chr_le (listtype arguments)
 
 
 
+/**
+ *  Convert a character to lower case.
+ *  The conversion uses the default Unicode case mapping,
+ *  where each character is considered in isolation.
+ *  Characters without case mapping are left unchanged.
+ *  The mapping is independend from the locale. Individual
+ *  character case mappings cannot be reversed, because some
+ *  characters have multiple characters that map to them.
+ *  @return the character converted to lower case.
+ */
 objecttype chr_low (listtype arguments)
 
-  {
-    chartype ch;
-
-  /* chr_low */
+  { /* chr_low */
     isit_char(arg_1(arguments));
-    ch = take_char(arg_1(arguments));
-    if (ch <= (chartype) 255) {
-      return bld_char_temp((chartype) tolower((int) ch));
-    } else {
-      return bld_char_temp(ch);
-    } /* if */
+    return bld_char_temp(chrLow(take_char(arg_1(arguments))));
   } /* chr_low */
 
 
 
+/**
+ *  Check if ch1 is less than ch2.
+ *  @return TRUE if ch1 is less than than ch2,
+ *          FALSE otherwise.
+ */
 objecttype chr_lt (listtype arguments)
 
   { /* chr_lt */
@@ -280,6 +340,11 @@ objecttype chr_lt (listtype arguments)
 
 
 
+/**
+ *  Check if two characters are not equal.
+ *  @return FALSE if both characters are equal,
+ *          TRUE otherwise.
+ */
 objecttype chr_ne (listtype arguments)
 
   { /* chr_ne */
@@ -295,6 +360,12 @@ objecttype chr_ne (listtype arguments)
 
 
 
+/**
+ *  Get the ordinal number of a character.
+ *  For Unicode characters a value between 0 and 1114111 is returned.
+ *  For EOF the value -1 is returned.
+ *  @return the ordinal number of a character.
+ */
 objecttype chr_ord (listtype arguments)
 
   { /* chr_ord */
@@ -305,6 +376,10 @@ objecttype chr_ord (listtype arguments)
 
 
 
+/**
+ *  Predecessor of a character.
+ *  @return chr_chr(chr_ord(ch) - 1)
+ */
 objecttype chr_pred (listtype arguments)
 
   { /* chr_pred */
@@ -315,6 +390,10 @@ objecttype chr_pred (listtype arguments)
 
 
 
+/**
+ *  Create a string with one character.
+ *  @return a string with the character 'ch'.
+ */
 objecttype chr_str (listtype arguments)
 
   {
@@ -333,6 +412,10 @@ objecttype chr_str (listtype arguments)
 
 
 
+/**
+ *  Successor of a character.
+ *  @return chr_chr(chr_ord(ch) + 1)
+ */
 objecttype chr_succ (listtype arguments)
 
   { /* chr_succ */
@@ -343,19 +426,21 @@ objecttype chr_succ (listtype arguments)
 
 
 
+/**
+ *  Convert a character to upper case.
+ *  The conversion uses the default Unicode case mapping,
+ *  where each character is considered in isolation.
+ *  Characters without case mapping are left unchanged.
+ *  The mapping is independend from the locale. Individual
+ *  character case mappings cannot be reversed, because some
+ *  characters have multiple characters that map to them.
+ *  @return the character converted to upper case.
+ */
 objecttype chr_up (listtype arguments)
 
-  {
-    chartype ch;
-
-  /* chr_up */
+  { /* chr_up */
     isit_char(arg_1(arguments));
-    ch = take_char(arg_1(arguments));
-    if (ch <= (chartype) 255) {
-      return bld_char_temp((chartype) toupper((int) ch));
-    } else {
-      return bld_char_temp(ch);
-    } /* if */
+    return bld_char_temp(chrUp(take_char(arg_1(arguments))));
   } /* chr_up */
 
 

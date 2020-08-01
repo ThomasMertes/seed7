@@ -406,7 +406,7 @@ void arrAppend (rtlArraytype *const arr_variable, const rtlArraytype extension)
         } else {
           COUNT3_RTL_ARRAY(arr_to_size, new_size);
           *arr_variable = arr_to;
-          arr_to->max_position += (inttype) extension_size;
+          arr_to->max_position = arrayMaxPos(arr_to->min_position, new_size);
           memcpy(&arr_to->arr[arr_to_size], extension->arr,
               (size_t) (extension_size * sizeof(rtlObjecttype)));
           FREE_RTL_ARRAY(extension, extension_size);
@@ -506,7 +506,7 @@ rtlArraytype arrCat (rtlArraytype arr1, const rtlArraytype arr2)
         raise_error(MEMORY_ERROR);
       } else {
         COUNT3_RTL_ARRAY(arr1_size, result_size);
-        result->max_position += (inttype) arr2_size;
+        result->max_position = arrayMaxPos(result->min_position, result_size);
         memcpy(&result->arr[arr1_size], arr2->arr, arr2_size * sizeof(rtlObjecttype));
         FREE_RTL_ARRAY(arr2, arr2_size);
       } /* if */
@@ -605,6 +605,9 @@ rtlArraytype arrHead (const const_rtlArraytype arr1, inttype stop)
         memcpy(result->arr, arr1->arr,
             (size_t) (result_size * sizeof(rtlObjecttype)));
       } /* if */
+    } else if (arr1->min_position == MIN_MEM_INDEX) {
+      raise_error(RANGE_ERROR);
+      result = NULL;
     } else {
       if (!ALLOC_RTL_ARRAY(result, 0)) {
         raise_error(MEMORY_ERROR);
@@ -618,6 +621,13 @@ rtlArraytype arrHead (const const_rtlArraytype arr1, inttype stop)
 
 
 
+/**
+ *  Get a sub array ending at the position 'stop'.
+ *  ArrHeadTemp is used by the compiler when 'arr_temp' is temporary
+ *  value that can be reused.
+ *  @return the sub array ending at the stop position.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ */
 rtlArraytype arrHeadTemp (rtlArraytype *arr_temp, inttype stop)
 
   {
@@ -631,28 +641,33 @@ rtlArraytype arrHeadTemp (rtlArraytype *arr_temp, inttype stop)
     arr1 = *arr_temp;
     length = arraySize(arr1);
     if (stop >= arr1->min_position && length >= 1) {
-      if (stop > arr1->max_position) {
-        stop = arr1->max_position;
-      } /* if */
-      result_size = arraySize2(arr1->min_position, stop);
-      if (!ALLOC_RTL_ARRAY(new_arr1, length - result_size)) {
-        raise_error(MEMORY_ERROR);
-        result = NULL;
+      if (stop >= arr1->max_position) {
+        result = arr1;
+        *arr_temp = NULL;
       } else {
-        new_arr1->min_position = stop + 1;
-        new_arr1->max_position = arr1->max_position;
-        memcpy(new_arr1->arr, &arr1->arr[result_size],
-            (size_t) ((length - result_size) * sizeof(rtlObjecttype)));
-        result = REALLOC_RTL_ARRAY(arr1, length, result_size);
-        if (result == NULL) {
-          FREE_RTL_ARRAY(new_arr1, length - result_size);
+        result_size = arraySize2(arr1->min_position, stop);
+        if (!ALLOC_RTL_ARRAY(new_arr1, length - result_size)) {
           raise_error(MEMORY_ERROR);
+          result = NULL;
         } else {
-          COUNT3_RTL_ARRAY(length, result_size);
-          result->max_position = stop;
-          *arr_temp = new_arr1;
+          new_arr1->min_position = stop + 1;
+          new_arr1->max_position = arr1->max_position;
+          memcpy(new_arr1->arr, &arr1->arr[result_size],
+              (size_t) ((length - result_size) * sizeof(rtlObjecttype)));
+          result = REALLOC_RTL_ARRAY(arr1, length, result_size);
+          if (result == NULL) {
+            FREE_RTL_ARRAY(new_arr1, length - result_size);
+            raise_error(MEMORY_ERROR);
+          } else {
+            COUNT3_RTL_ARRAY(length, result_size);
+            result->max_position = stop;
+            *arr_temp = new_arr1;
+          } /* if */
         } /* if */
       } /* if */
+    } else if (arr1->min_position == MIN_MEM_INDEX) {
+      raise_error(RANGE_ERROR);
+      result = NULL;
     } else {
       if (!ALLOC_RTL_ARRAY(result, 0)) {
         raise_error(MEMORY_ERROR);
@@ -773,7 +788,7 @@ void arrPush (rtlArraytype *const arr_variable, const rtlGenerictype element)
 
 /**
  *  Get a sub array from the position 'start' to the position 'stop'.
- *  @return the substring from position start to stop.
+ *  @return the sub array from position 'start' to 'stop'.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  */
 rtlArraytype arrRange (const const_rtlArraytype arr1, inttype start, inttype stop)
@@ -799,11 +814,14 @@ rtlArraytype arrRange (const const_rtlArraytype arr1, inttype start, inttype sto
         raise_error(MEMORY_ERROR);
       } else {
         result->min_position = arr1->min_position;
-        result->max_position = (inttype) ((memsizetype) arr1->min_position + result_size - 1);
+        result->max_position = arrayMaxPos(arr1->min_position, result_size);
         start_idx = arrayIndex(arr1, start);
         memcpy(result->arr, &arr1->arr[start_idx],
             (size_t) (result_size * sizeof(rtlObjecttype)));
       } /* if */
+    } else if (arr1->min_position == MIN_MEM_INDEX) {
+      raise_error(RANGE_ERROR);
+      result = NULL;
     } else {
       if (!ALLOC_RTL_ARRAY(result, 0)) {
         raise_error(MEMORY_ERROR);
@@ -817,6 +835,13 @@ rtlArraytype arrRange (const const_rtlArraytype arr1, inttype start, inttype sto
 
 
 
+/**
+ *  Get a sub array from the position 'start' to the position 'stop'.
+ *  ArrRangeTemp is used by the compiler when 'arr_temp' is temporary
+ *  value that can be reused.
+ *  @return the sub array from position 'start' to 'stop'.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ */
 rtlArraytype arrRangeTemp (rtlArraytype *arr_temp, inttype start, inttype stop)
 
   {
@@ -840,30 +865,38 @@ rtlArraytype arrRangeTemp (rtlArraytype *arr_temp, inttype start, inttype stop)
         stop = arr1->max_position;
       } /* if */
       result_size = arraySize2(start, stop);
-      if (!ALLOC_RTL_ARRAY(result, result_size)) {
-        raise_error(MEMORY_ERROR);
+      if (result_size == length) {
+        result = arr1;
+        *arr_temp = NULL;
       } else {
-        result->min_position = arr1->min_position;
-        result->max_position = (inttype) ((memsizetype) arr1->min_position + result_size - 1);
-        start_idx = arrayIndex(arr1, start);
-        stop_idx = arrayIndex(arr1, stop);
-        memcpy(result->arr, &arr1->arr[start_idx],
-            (size_t) (result_size * sizeof(rtlObjecttype)));
-        memmove(&arr1->arr[start_idx], &arr1->arr[stop_idx + 1],
-            (size_t) ((length - stop_idx - 1) * sizeof(rtlObjecttype)));
-        resized_arr1 = REALLOC_RTL_ARRAY(arr1, length, length - result_size);
-        if (resized_arr1 == NULL) {
-          memcpy(&arr1->arr[length - result_size], result->arr,
-              (size_t) (result_size * sizeof(rtlObjecttype)));
-          FREE_RTL_ARRAY(result, result_size);
+        if (!ALLOC_RTL_ARRAY(result, result_size)) {
           raise_error(MEMORY_ERROR);
-          result = NULL;
         } else {
-          COUNT3_RTL_ARRAY(length, length - result_size);
-          resized_arr1->max_position -= (inttype) result_size;
-          *arr_temp = resized_arr1;
+          result->min_position = arr1->min_position;
+          result->max_position = arrayMaxPos(arr1->min_position, result_size);
+          start_idx = arrayIndex(arr1, start);
+          stop_idx = arrayIndex(arr1, stop);
+          memcpy(result->arr, &arr1->arr[start_idx],
+              (size_t) (result_size * sizeof(rtlObjecttype)));
+          memmove(&arr1->arr[start_idx], &arr1->arr[stop_idx + 1],
+              (size_t) ((length - stop_idx - 1) * sizeof(rtlObjecttype)));
+          resized_arr1 = REALLOC_RTL_ARRAY(arr1, length, length - result_size);
+          if (resized_arr1 == NULL) {
+            memcpy(&arr1->arr[length - result_size], result->arr,
+                (size_t) (result_size * sizeof(rtlObjecttype)));
+            FREE_RTL_ARRAY(result, result_size);
+            raise_error(MEMORY_ERROR);
+            result = NULL;
+          } else {
+            COUNT3_RTL_ARRAY(length, length - result_size);
+            resized_arr1->max_position = arrayMaxPos(resized_arr1->min_position, length - result_size);
+            *arr_temp = resized_arr1;
+          } /* if */
         } /* if */
       } /* if */
+    } else if (arr1->min_position == MIN_MEM_INDEX) {
+      raise_error(RANGE_ERROR);
+      result = NULL;
     } else {
       if (!ALLOC_RTL_ARRAY(result, 0)) {
         raise_error(MEMORY_ERROR);
@@ -898,7 +931,7 @@ rtlArraytype arrRealloc (rtlArraytype arr, memsizetype oldSize, memsizetype newS
 
 
 /**
- *  Remove the element with 'position' from 'arr' and return the removed element.
+ *  Remove the element with 'position' from 'arr_to' and return the removed element.
  *  @return the removed element.
  *  @exception RANGE_ERROR When 'position' is less than minIdx(arr) or
  *                         greater than maxIdx(arr)
@@ -960,7 +993,7 @@ rtlArraytype arrSort (rtlArraytype arr1, inttype cmp_func (rtlGenerictype, rtlGe
 
 /**
  *  Get a sub array from the position 'start' with maximum length 'len'.
- *  @return the substring from position start with maximum length len.
+ *  @return the sub array from position 'start' with maximum length 'len'.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  */
 rtlArraytype arrSubarr (const const_rtlArraytype arr1, inttype start, inttype len)
@@ -988,11 +1021,14 @@ rtlArraytype arrSubarr (const const_rtlArraytype arr1, inttype start, inttype le
         raise_error(MEMORY_ERROR);
       } else {
         result->min_position = arr1->min_position;
-        result->max_position = (inttype) ((memsizetype) arr1->min_position + result_size - 1);
+        result->max_position = arrayMaxPos(arr1->min_position, result_size);
         start_idx = arrayIndex(arr1, start);
         memcpy(result->arr, &arr1->arr[start_idx],
             (size_t) (result_size * sizeof(rtlObjecttype)));
       } /* if */
+    } else if (arr1->min_position == MIN_MEM_INDEX) {
+      raise_error(RANGE_ERROR);
+      result = NULL;
     } else {
       if (!ALLOC_RTL_ARRAY(result, 0)) {
         raise_error(MEMORY_ERROR);
@@ -1006,6 +1042,13 @@ rtlArraytype arrSubarr (const const_rtlArraytype arr1, inttype start, inttype le
 
 
 
+/**
+ *  Get a sub array from the position 'start' with maximum length 'len'.
+ *  ArrSubarrTemp is used by the compiler when 'arr_temp' is temporary
+ *  value that can be reused.
+ *  @return the sub array from position 'start' with maximum length 'len'.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ */
 rtlArraytype arrSubarrTemp (rtlArraytype *arr_temp, inttype start, inttype len)
 
   {
@@ -1031,30 +1074,38 @@ rtlArraytype arrSubarrTemp (rtlArraytype *arr_temp, inttype start, inttype len)
         len = arr1->max_position - start + 1;
       } /* if */
       result_size = (memsizetype) (uinttype) (len);
-      if (!ALLOC_RTL_ARRAY(result, result_size)) {
-        raise_error(MEMORY_ERROR);
+      if (result_size == length) {
+        result = arr1;
+        *arr_temp = NULL;
       } else {
-        result->min_position = arr1->min_position;
-        result->max_position = (inttype) ((memsizetype) arr1->min_position + result_size - 1);
-        start_idx = arrayIndex(arr1, start);
-        stop_idx = arrayIndex(arr1, start + len - 1);
-        memcpy(result->arr, &arr1->arr[start_idx],
-            (size_t) (result_size * sizeof(rtlObjecttype)));
-        memmove(&arr1->arr[start_idx], &arr1->arr[stop_idx + 1],
-            (size_t) ((length - stop_idx - 1) * sizeof(rtlObjecttype)));
-        resized_arr1 = REALLOC_RTL_ARRAY(arr1, length, length - result_size);
-        if (resized_arr1 == NULL) {
-          memcpy(&arr1->arr[length - result_size], result->arr,
-              (size_t) (result_size * sizeof(rtlObjecttype)));
-          FREE_RTL_ARRAY(result, result_size);
+        if (!ALLOC_RTL_ARRAY(result, result_size)) {
           raise_error(MEMORY_ERROR);
-          result = NULL;
         } else {
-          COUNT3_RTL_ARRAY(length, length - result_size);
-          resized_arr1->max_position -= (inttype) result_size;
-          *arr_temp = resized_arr1;
+          result->min_position = arr1->min_position;
+          result->max_position = arrayMaxPos(arr1->min_position, result_size);
+          start_idx = arrayIndex(arr1, start);
+          stop_idx = arrayIndex(arr1, start + len - 1);
+          memcpy(result->arr, &arr1->arr[start_idx],
+              (size_t) (result_size * sizeof(rtlObjecttype)));
+          memmove(&arr1->arr[start_idx], &arr1->arr[stop_idx + 1],
+              (size_t) ((length - stop_idx - 1) * sizeof(rtlObjecttype)));
+          resized_arr1 = REALLOC_RTL_ARRAY(arr1, length, length - result_size);
+          if (resized_arr1 == NULL) {
+            memcpy(&arr1->arr[length - result_size], result->arr,
+                (size_t) (result_size * sizeof(rtlObjecttype)));
+            FREE_RTL_ARRAY(result, result_size);
+            raise_error(MEMORY_ERROR);
+            result = NULL;
+          } else {
+            COUNT3_RTL_ARRAY(length, length - result_size);
+            resized_arr1->max_position = arrayMaxPos(resized_arr1->min_position, length - result_size);
+            *arr_temp = resized_arr1;
+          } /* if */
         } /* if */
       } /* if */
+    } else if (arr1->min_position == MIN_MEM_INDEX) {
+      raise_error(RANGE_ERROR);
+      result = NULL;
     } else {
       if (!ALLOC_RTL_ARRAY(result, 0)) {
         raise_error(MEMORY_ERROR);
@@ -1092,11 +1143,14 @@ rtlArraytype arrTail (const const_rtlArraytype arr1, inttype start)
         raise_error(MEMORY_ERROR);
       } else {
         result->min_position = arr1->min_position;
-        result->max_position = (inttype) ((memsizetype) arr1->min_position + result_size - 1);
+        result->max_position = arrayMaxPos(arr1->min_position, result_size);
         start_idx = arrayIndex(arr1, start);
         memcpy(result->arr, &arr1->arr[start_idx],
             (size_t) (result_size * sizeof(rtlObjecttype)));
       } /* if */
+    } else if (arr1->min_position == MIN_MEM_INDEX) {
+      raise_error(RANGE_ERROR);
+      result = NULL;
     } else {
       if (!ALLOC_RTL_ARRAY(result, 0)) {
         raise_error(MEMORY_ERROR);
@@ -1110,6 +1164,13 @@ rtlArraytype arrTail (const const_rtlArraytype arr1, inttype start)
 
 
 
+/**
+ *  Get a sub array beginning at the position 'start'.
+ *  ArrTailTemp is used by the compiler when 'arr_temp' is temporary
+ *  value that can be reused.
+ *  @return the sub array beginning at the start position.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ */
 rtlArraytype arrTailTemp (rtlArraytype *arr_temp, inttype start)
 
   {
@@ -1124,29 +1185,34 @@ rtlArraytype arrTailTemp (rtlArraytype *arr_temp, inttype start)
     arr1 = *arr_temp;
     length = arraySize(arr1);
     if (start <= arr1->max_position && length >= 1) {
-      if (start < arr1->min_position) {
-        start = arr1->min_position;
-      } /* if */
-      result_size = arraySize2(start, arr1->max_position);
-      if (!ALLOC_RTL_ARRAY(result, result_size)) {
-        raise_error(MEMORY_ERROR);
+      if (start <= arr1->min_position) {
+        result = arr1;
+        *arr_temp = NULL;
       } else {
-        result->min_position = arr1->min_position;
-        result->max_position = (inttype) ((memsizetype) arr1->min_position + result_size - 1);
-        start_idx = arrayIndex(arr1, start);
-        memcpy(result->arr, &arr1->arr[start_idx],
-            (size_t) (result_size * sizeof(rtlObjecttype)));
-        resized_arr1 = REALLOC_RTL_ARRAY(arr1, length, length - result_size);
-        if (resized_arr1 == NULL) {
-          FREE_RTL_ARRAY(result, result_size);
+        result_size = arraySize2(start, arr1->max_position);
+        if (!ALLOC_RTL_ARRAY(result, result_size)) {
           raise_error(MEMORY_ERROR);
-          result = NULL;
         } else {
-          COUNT3_RTL_ARRAY(length, length - result_size);
-          resized_arr1->max_position = start - 1;
-          *arr_temp = resized_arr1;
+          result->min_position = arr1->min_position;
+          result->max_position = arrayMaxPos(arr1->min_position, result_size);
+          start_idx = arrayIndex(arr1, start);
+          memcpy(result->arr, &arr1->arr[start_idx],
+              (size_t) (result_size * sizeof(rtlObjecttype)));
+          resized_arr1 = REALLOC_RTL_ARRAY(arr1, length, length - result_size);
+          if (resized_arr1 == NULL) {
+            FREE_RTL_ARRAY(result, result_size);
+            raise_error(MEMORY_ERROR);
+            result = NULL;
+          } else {
+            COUNT3_RTL_ARRAY(length, length - result_size);
+            resized_arr1->max_position = start - 1;
+            *arr_temp = resized_arr1;
+          } /* if */
         } /* if */
       } /* if */
+    } else if (arr1->min_position == MIN_MEM_INDEX) {
+      raise_error(RANGE_ERROR);
+      result = NULL;
     } else {
       if (!ALLOC_RTL_ARRAY(result, 0)) {
         raise_error(MEMORY_ERROR);

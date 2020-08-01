@@ -84,6 +84,13 @@ const integer: IO_NO_BUFFERING   is 2;
 
 (**
  *  Open a clib_file.
+ *  The following values are allowed as mode: "r", "w", "a",
+ *  "r+", "w+", "a+", "rt", "wt", "at", "rt+", "wt+" and "at+".
+ *  The modes with t are text modes and the modes without t are
+ *  binary modes. Note that this modes differ from the ones used
+ *  by the C function fopen(). When 'mode' is not one of the
+ *  allowed values the exception 'RANGE_ERROR' is raised. An
+ *  attempt to open a directory returns [[#CLIB_NULL_FILE|CLIB_NULL_FILE]].
  *  @return the file opened, or [[#CLIB_NULL_FILE|CLIB_NULL_FILE]]
  *          if it could not be opened.
  *  @exception MEMORY_ERROR Not enough memory to convert the path
@@ -141,7 +148,7 @@ const func char: getc (ref clib_file: inFile)                         is action 
 
 
 (**
- *  Read a [[string]] with a maximum length from an clib_file.
+ *  Read a [[string]] with a maximum length from a clib_file.
  *  @return the string read.
  *  @exception RANGE_ERROR The length is negative.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
@@ -193,10 +200,11 @@ const proc: write (ref clib_file: outFile, in string: stri)           is action 
 (**
  *  Obtain the length of a clib_file.
  *  The file length is measured in bytes.
- *  @return the length of a file, or 0 if it cannot be obtained.
- *  @exception RANGE_ERROR The file length is negative or does not
- *             fit into an integer value.
- *  @exception FILE_ERROR A system function returns an error.
+ *  @return the size of the given file.
+ *  @exception RANGE_ERROR The file length does not fit into
+ *             an integer value.
+ *  @exception FILE_ERROR A system function returns an error or the
+ *             file length reported by the system is negative.
  *)
 const func integer: length (ref clib_file: aFile)                     is action "FIL_LNG";
 
@@ -205,7 +213,9 @@ const func integer: length (ref clib_file: aFile)                     is action 
  *  Set the current file position.
  *  The file position is measured in bytes from the start of the file.
  *  The first byte in the file has the position 1.
- *  @exception RANGE_ERROR The file position is negative or zero.
+ *  @exception RANGE_ERROR The file position is negative or zero or
+ *             the file position is not representable in the system
+ *             file position type.
  *  @exception FILE_ERROR A system function returns an error.
  *)
 const proc: seek (ref clib_file: aFile, ref integer: position)        is action "FIL_SEEK";
@@ -216,9 +226,10 @@ const proc: seek (ref clib_file: aFile, ref integer: position)        is action 
  *  The file position is measured in bytes from the start of the file.
  *  The first byte in the file has the position 1.
  *  @return the current file position.
- *  @exception RANGE_ERROR The file position is negative or does not
- *             fit into an integer value.
- *  @exception FILE_ERROR A system function returns an error.
+ *  @exception RANGE_ERROR The file position does not fit into
+ *             an integer value.
+ *  @exception FILE_ERROR A system function returns an error or the
+ *             file position reported by the system is negative.
  *)
 const func integer: tell (ref clib_file: aFile)                       is action "FIL_TELL";
 

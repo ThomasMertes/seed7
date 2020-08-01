@@ -40,12 +40,6 @@
 #define C_PLUS_PLUS
 #endif
 
-#ifdef C_PLUS_PLUS
-#define INLINE inline
-#else
-#define INLINE
-#endif
-
 typedef int booltype;
 
 #ifdef FALSE
@@ -157,6 +151,7 @@ typedef uint32type              uinttype;
 #define INTTYPE_MAX             INT32TYPE_MAX
 #define UINTTYPE_MAX            UINT32TYPE_MAX
 #define INTTYPE_FORMAT          INT32TYPE_FORMAT
+#define INTTYPE_DECIMAL_DIGITS  10
 #define uintMostSignificantBit  uint32MostSignificantBit
 #define uintLeastSignificantBit uint32LeastSignificantBit
 #elif INTTYPE_SIZE == 64
@@ -168,6 +163,7 @@ typedef uint64type              uinttype;
 #define INTTYPE_MAX             INT64TYPE_MAX
 #define UINTTYPE_MAX            UINT64TYPE_MAX
 #define INTTYPE_FORMAT          INT64TYPE_FORMAT
+#define INTTYPE_DECIMAL_DIGITS  19
 #define uintMostSignificantBit  uint64MostSignificantBit
 #define uintLeastSignificantBit uint64LeastSignificantBit
 #endif
@@ -237,7 +233,7 @@ typedef float              floattype;
 
 typedef uint32type         chartype;
 typedef int32type          schartype;
-typedef uint32type         strelemtype;
+typedef chartype           strelemtype;
 
 #if POINTER_SIZE == 32
 typedef uint32type         memsizetype;
@@ -320,7 +316,7 @@ typedef int errinfotype;
 #define arraySize(arr) (memsizetype) ((uinttype) (arr)->max_position - (uinttype) (arr)->min_position + 1)
 #define arraySize2(min_position,max_position) (memsizetype) ((uinttype) (max_position) - (uinttype) (min_position) + 1)
 #define arrayIndex(arr,pos) (memsizetype) ((uinttype) (pos) - (uinttype) (arr)->min_position)
-#define arrayMaxPos(min_position,size) (inttype) ((uinttype) min_position + (uinttype) size - 1)
+#define arrayMaxPos(min_position,size) (inttype) ((uinttype) (min_position) + (uinttype) (size) - 1)
 
 #define bitsetSize(set) (memsizetype) ((uinttype) (set)->max_position - (uinttype) (set)->min_position + 1)
 #define bitsetSize2(min_position,max_position) (memsizetype) ((uinttype) (max_position) - (uinttype) (min_position) + 1)

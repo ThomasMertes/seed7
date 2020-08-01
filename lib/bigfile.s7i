@@ -97,10 +97,11 @@ const func bigInteger: bigTell (ref null_file: aFile) is func
 
 (**
  *  Determine the size of a file and return it as bigInteger.
+ *  The file length is measured in bytes.
  *  @return the size of the given file.
- *  @exception RANGE_ERROR The system file length cannot be converted
- *             into a bigInteger.
- *  @exception FILE_ERROR A system function returns an error.
+ *  @exception FILE_ERROR A system function returns an error or the
+ *             file length reported by the system is negative.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
  *)
 const func bigInteger: bigLength (ref external_file: aFile) is
   return bigLength(aFile.ext_file);
@@ -110,8 +111,9 @@ const func bigInteger: bigLength (ref external_file: aFile) is
  *  Set the current file position.
  *  The file position is measured in bytes from the start of the file.
  *  The first byte in the file has the position 1.
- *  @exception RANGE_ERROR The file position is negative or cannot be
- *             converted into a system file position.
+ *  @exception RANGE_ERROR The file position is negative or zero or
+ *             the file position is not representable in the system
+ *             file position type.
  *  @exception FILE_ERROR A system function returns an error.
  *)
 const proc: seek (ref external_file: aFile, in bigInteger: position) is func
@@ -125,9 +127,9 @@ const proc: seek (ref external_file: aFile, in bigInteger: position) is func
  *  The file position is measured in bytes from the start of the file.
  *  The first byte in the file has the position 1.
  *  @return the current file position.
- *  @exception RANGE_ERROR The system file position cannot be converted
- *             into a bigInteger.
- *  @exception FILE_ERROR A system function returns an error.
+ *  @exception FILE_ERROR A system function returns an error or the
+ *             file position reported by the system is negative.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
  *)
 const func bigInteger: bigTell (ref external_file: aFile) is
   return bigTell(aFile.ext_file);

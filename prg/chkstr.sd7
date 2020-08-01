@@ -1095,6 +1095,115 @@ const proc: check_string_comparisons is func
       writeln(" ***** \"\\16#04030201\\\" < \"\\16#01020304\\\" does not work correct");
       okay := FALSE;
     end if;
+    if  compare("",       "")       <>  0 or
+        compare("",       "0")      <> -1 or
+        compare("",       "00")     <> -1 or
+        compare("",       "01")     <> -1 or
+        compare("",       "02")     <> -1 or
+        compare("",       "1")      <> -1 or
+        compare("",       "10")     <> -1 or
+        compare("",       "11")     <> -1 or
+        compare("",       "12")     <> -1 or
+        compare("",       "2")      <> -1 or
+        compare("",       "20")     <> -1 or
+        compare("",       "21")     <> -1 or
+        compare("",       "22")     <> -1 or
+        compare("",       "22222")  <> -1 or
+        compare("1",      "")       <>  1 or
+        compare("1",      "0")      <>  1 or
+        compare("1",      "00")     <>  1 or
+        compare("1",      "01")     <>  1 or
+        compare("1",      "02")     <>  1 or
+        compare("1",      "0234")   <>  1 or
+        compare("1",      "1")      <>  0 or
+        compare("1",      "10")     <> -1 or
+        compare("1",      "11")     <> -1 or
+        compare("1",      "110")    <> -1 or
+        compare("1",      "111")    <> -1 or
+        compare("1",      "112")    <> -1 or
+        compare("1",      "12")     <> -1 or
+        compare("1",      "2")      <> -1 or
+        compare("1",      "20")     <> -1 or
+        compare("1",      "21")     <> -1 or
+        compare("1",      "22")     <> -1 or
+        compare("123",    "")       <>  1 or
+        compare("123",    "0")      <>  1 or
+        compare("123",    "1")      <>  1 or
+        compare("123",    "11")     <>  1 or
+        compare("123",    "12")     <>  1 or
+        compare("123",    "122")    <>  1 or
+        compare("123",    "1222")   <>  1 or
+        compare("123",    "1223")   <>  1 or
+        compare("123",    "1224")   <>  1 or
+        compare("123",    "123")    <>  0 or
+        compare("123",    "1230")   <> -1 or
+        compare("123",    "1231")   <> -1 or
+        compare("123",    "1232")   <> -1 or
+        compare("123",    "1233")   <> -1 or
+        compare("123",    "1234")   <> -1 or
+        compare("123",    "124")    <> -1 or
+        compare("123",    "13")     <> -1 or
+        compare("123",    "2")      <> -1 or
+        compare("123",    "21")     <> -1 or
+        compare("123",    "22")     <> -1 or
+        compare("123",    "222")    <> -1 or
+        compare("123",    "2222")   <> -1 or
+        compare("",       "")       <>  0 or
+        compare("0",      "")       <>  1 or
+        compare("00",     "")       <>  1 or
+        compare("01",     "")       <>  1 or
+        compare("02",     "")       <>  1 or
+        compare("1",      "")       <>  1 or
+        compare("10",     "")       <>  1 or
+        compare("11",     "")       <>  1 or
+        compare("12",     "")       <>  1 or
+        compare("2",      "")       <>  1 or
+        compare("20",     "")       <>  1 or
+        compare("21",     "")       <>  1 or
+        compare("22",     "")       <>  1 or
+        compare("22222",  "")       <>  1 or
+        compare("",       "1")      <> -1 or
+        compare("0",      "1")      <> -1 or
+        compare("00",     "1")      <> -1 or
+        compare("01",     "1")      <> -1 or
+        compare("02",     "1")      <> -1 or
+        compare("0234",   "1")      <> -1 or
+        compare("1",      "1")      <>  0 or
+        compare("10",     "1")      <>  1 or
+        compare("11",     "1")      <>  1 or
+        compare("110",    "1")      <>  1 or
+        compare("111",    "1")      <>  1 or
+        compare("112",    "1")      <>  1 or
+        compare("12",     "1")      <>  1 or
+        compare("2",      "1")      <>  1 or
+        compare("20",     "1")      <>  1 or
+        compare("21",     "1")      <>  1 or
+        compare("22",     "1")      <>  1 or
+        compare("",       "123")    <> -1 or
+        compare("0",      "123")    <> -1 or
+        compare("1",      "123")    <> -1 or
+        compare("11",     "123")    <> -1 or
+        compare("12",     "123")    <> -1 or
+        compare("122",    "123")    <> -1 or
+        compare("1222",   "123")    <> -1 or
+        compare("1223",   "123")    <> -1 or
+        compare("1224",   "123")    <> -1 or
+        compare("123",    "123")    <>  0 or
+        compare("1230",   "123")    <>  1 or
+        compare("1231",   "123")    <>  1 or
+        compare("1232",   "123")    <>  1 or
+        compare("1233",   "123")    <>  1 or
+        compare("1234",   "123")    <>  1 or
+        compare("124",    "123")    <>  1 or
+        compare("13",     "123")    <>  1 or
+        compare("2",      "123")    <>  1 or
+        compare("21",     "123")    <>  1 or
+        compare("22",     "123")    <>  1 or
+        compare("222",    "123")    <>  1 or
+        compare("2222",   "123")    <>  1 then
+      writeln(" ***** STRING > STRING does not work correct");
+      okay := FALSE;
+    end if;
     if okay then
       writeln("String comparisons work correct");
     end if;
@@ -1158,61 +1267,1065 @@ const proc: check_string_index is func
       writeln(" ***** STRING [ INDEX ] does not work correct");
       okay := FALSE;
     end if;
-    if  "1234567890" [ -5 .. -10 ] <> "" or
+    if okay then
+      writeln("String indices work correct");
+    end if;
+  end func;
+
+
+const proc: check_string_head is func
+  local
+    var boolean: okay is TRUE;
+  begin
+    okay := TRUE;
+    if  "" [ -5 .. ] <> "" or
+        "" [  0 .. ] <> "" or
+        "" [  1 .. ] <> "" or
+        "" [  2 .. ] <> "" or
+        "" [  5 .. ] <> "" or
+        "" [  9 .. ] <> "" or
+        "" [ 10 .. ] <> "" or
+        "" [ 11 .. ] <> "" or
+        "" [ 15 .. ] <> "" or
+        "1" [ -5 .. ] <> "1" or
+        "1" [  0 .. ] <> "1" or
+        "1" [  1 .. ] <> "1" or
+        "1" [  2 .. ] <> "" or
+        "1" [  5 .. ] <> "" or
+        "1" [  9 .. ] <> "" or
+        "1" [ 10 .. ] <> "" or
+        "1" [ 11 .. ] <> "" or
+        "1" [ 15 .. ] <> "" or
+        "1234567890" [ -5 .. ] <> "1234567890" or
+        "1234567890" [  0 .. ] <> "1234567890" or
+        "1234567890" [  1 .. ] <> "1234567890" or
+        "1234567890" [  5 .. ] <> "567890" or
+        "1234567890" [ 10 .. ] <> "0" or
+        "1234567890" [ 11 .. ] <> "" or
+        "1234567890" [ 15 .. ] <> "" or
+        "" [ intExpr(-5) .. ] <> "" or
+        "" [ intExpr( 0) .. ] <> "" or
+        "" [ intExpr( 1) .. ] <> "" or
+        "" [ intExpr( 2) .. ] <> "" or
+        "" [ intExpr( 5) .. ] <> "" or
+        "" [ intExpr( 9) .. ] <> "" or
+        "" [ intExpr(10) .. ] <> "" or
+        "" [ intExpr(11) .. ] <> "" or
+        "" [ intExpr(15) .. ] <> "" or
+        "1" [ intExpr(-5) .. ] <> "1" or
+        "1" [ intExpr( 0) .. ] <> "1" or
+        "1" [ intExpr( 1) .. ] <> "1" or
+        "1" [ intExpr( 2) .. ] <> "" or
+        "1" [ intExpr( 5) .. ] <> "" or
+        "1" [ intExpr( 9) .. ] <> "" or
+        "1" [ intExpr(10) .. ] <> "" or
+        "1" [ intExpr(11) .. ] <> "" or
+        "1" [ intExpr(15) .. ] <> "" or
+        "1234567890" [ intExpr(-5) .. ] <> "1234567890" or
+        "1234567890" [ intExpr( 0) .. ] <> "1234567890" or
+        "1234567890" [ intExpr( 1) .. ] <> "1234567890" or
+        "1234567890" [ intExpr( 5) .. ] <> "567890" or
+        "1234567890" [ intExpr(10) .. ] <> "0" or
+        "1234567890" [ intExpr(11) .. ] <> "" or
+        "1234567890" [ intExpr(15) .. ] <> "" or
+        striExpr("") [ -5 .. ] <> "" or
+        striExpr("") [  0 .. ] <> "" or
+        striExpr("") [  1 .. ] <> "" or
+        striExpr("") [  2 .. ] <> "" or
+        striExpr("") [  5 .. ] <> "" or
+        striExpr("") [  9 .. ] <> "" or
+        striExpr("") [ 10 .. ] <> "" or
+        striExpr("") [ 11 .. ] <> "" or
+        striExpr("") [ 15 .. ] <> "" or
+        striExpr("1") [ -5 .. ] <> "1" or
+        striExpr("1") [  0 .. ] <> "1" or
+        striExpr("1") [  1 .. ] <> "1" or
+        striExpr("1") [  2 .. ] <> "" or
+        striExpr("1") [  5 .. ] <> "" or
+        striExpr("1") [  9 .. ] <> "" or
+        striExpr("1") [ 10 .. ] <> "" or
+        striExpr("1") [ 11 .. ] <> "" or
+        striExpr("1") [ 15 .. ] <> "" or
+        striExpr("1234567890") [ -5 .. ] <> "1234567890" or
+        striExpr("1234567890") [  0 .. ] <> "1234567890" or
+        striExpr("1234567890") [  1 .. ] <> "1234567890" or
+        striExpr("1234567890") [  5 .. ] <> "567890" or
+        striExpr("1234567890") [ 10 .. ] <> "0" or
+        striExpr("1234567890") [ 11 .. ] <> "" or
+        striExpr("1234567890") [ 15 .. ] <> "" or
+        striExpr("") [ intExpr(-5) .. ] <> "" or
+        striExpr("") [ intExpr( 0) .. ] <> "" or
+        striExpr("") [ intExpr( 1) .. ] <> "" or
+        striExpr("") [ intExpr( 2) .. ] <> "" or
+        striExpr("") [ intExpr( 5) .. ] <> "" or
+        striExpr("") [ intExpr( 9) .. ] <> "" or
+        striExpr("") [ intExpr(10) .. ] <> "" or
+        striExpr("") [ intExpr(11) .. ] <> "" or
+        striExpr("") [ intExpr(15) .. ] <> "" or
+        striExpr("1") [ intExpr(-5) .. ] <> "1" or
+        striExpr("1") [ intExpr( 0) .. ] <> "1" or
+        striExpr("1") [ intExpr( 1) .. ] <> "1" or
+        striExpr("1") [ intExpr( 2) .. ] <> "" or
+        striExpr("1") [ intExpr( 5) .. ] <> "" or
+        striExpr("1") [ intExpr( 9) .. ] <> "" or
+        striExpr("1") [ intExpr(10) .. ] <> "" or
+        striExpr("1") [ intExpr(11) .. ] <> "" or
+        striExpr("1") [ intExpr(15) .. ] <> "" or
+        striExpr("1234567890") [ intExpr(-5) .. ] <> "1234567890" or
+        striExpr("1234567890") [ intExpr( 0) .. ] <> "1234567890" or
+        striExpr("1234567890") [ intExpr( 1) .. ] <> "1234567890" or
+        striExpr("1234567890") [ intExpr( 5) .. ] <> "567890" or
+        striExpr("1234567890") [ intExpr(10) .. ] <> "0" or
+        striExpr("1234567890") [ intExpr(11) .. ] <> "" or
+        striExpr("1234567890") [ intExpr(15) .. ] <> "" then
+      writeln(" ***** STRING [ START .. ] does not work correct");
+      okay := FALSE;
+    end if;
+    if okay then
+      writeln("String head works correct");
+    end if;
+  end func;
+
+
+const proc: check_string_tail is func
+  local
+    var boolean: okay is TRUE;
+  begin
+    okay := TRUE;
+    if  "" [ .. -5 ] <> "" or
+        "" [ ..  0 ] <> "" or
+        "" [ ..  1 ] <> "" or
+        "" [ ..  5 ] <> "" or
+        "" [ .. 10 ] <> "" or
+        "" [ .. 11 ] <> "" or
+        "" [ .. 15 ] <> "" or
+        "1" [ .. -5 ] <> "" or
+        "1" [ ..  0 ] <> "" or
+        "1" [ ..  1 ] <> "1" or
+        "1" [ ..  5 ] <> "1" or
+        "1" [ .. 10 ] <> "1" or
+        "1" [ .. 11 ] <> "1" or
+        "1" [ .. 15 ] <> "1" or
+        "1234567890" [ .. -5 ] <> "" or
+        "1234567890" [ ..  0 ] <> "" or
+        "1234567890" [ ..  1 ] <> "1" or
+        "1234567890" [ ..  5 ] <> "12345" or
+        "1234567890" [ .. 10 ] <> "1234567890" or
+        "1234567890" [ .. 11 ] <> "1234567890" or
+        "1234567890" [ .. 15 ] <> "1234567890" or
+        "" [ .. intExpr(-5) ] <> "" or
+        "" [ .. intExpr( 0) ] <> "" or
+        "" [ .. intExpr( 1) ] <> "" or
+        "" [ .. intExpr( 5) ] <> "" or
+        "" [ .. intExpr(10) ] <> "" or
+        "" [ .. intExpr(11) ] <> "" or
+        "" [ .. intExpr(15) ] <> "" or
+        "1" [ .. intExpr(-5) ] <> "" or
+        "1" [ .. intExpr( 0) ] <> "" or
+        "1" [ .. intExpr( 1) ] <> "1" or
+        "1" [ .. intExpr( 5) ] <> "1" or
+        "1" [ .. intExpr(10) ] <> "1" or
+        "1" [ .. intExpr(11) ] <> "1" or
+        "1" [ .. intExpr(15) ] <> "1" or
+        "1234567890" [ .. intExpr(-5) ] <> "" or
+        "1234567890" [ .. intExpr( 0) ] <> "" or
+        "1234567890" [ .. intExpr( 1) ] <> "1" or
+        "1234567890" [ .. intExpr( 5) ] <> "12345" or
+        "1234567890" [ .. intExpr(10) ] <> "1234567890" or
+        "1234567890" [ .. intExpr(11) ] <> "1234567890" or
+        "1234567890" [ .. intExpr(15) ] <> "1234567890" or
+        striExpr("") [ .. -5 ] <> "" or
+        striExpr("") [ ..  0 ] <> "" or
+        striExpr("") [ ..  1 ] <> "" or
+        striExpr("") [ ..  5 ] <> "" or
+        striExpr("") [ .. 10 ] <> "" or
+        striExpr("") [ .. 11 ] <> "" or
+        striExpr("") [ .. 15 ] <> "" or
+        striExpr("1") [ .. -5 ] <> "" or
+        striExpr("1") [ ..  0 ] <> "" or
+        striExpr("1") [ ..  1 ] <> "1" or
+        striExpr("1") [ ..  5 ] <> "1" or
+        striExpr("1") [ .. 10 ] <> "1" or
+        striExpr("1") [ .. 11 ] <> "1" or
+        striExpr("1") [ .. 15 ] <> "1" or
+        striExpr("1234567890") [ .. -5 ] <> "" or
+        striExpr("1234567890") [ ..  0 ] <> "" or
+        striExpr("1234567890") [ ..  1 ] <> "1" or
+        striExpr("1234567890") [ ..  5 ] <> "12345" or
+        striExpr("1234567890") [ .. 10 ] <> "1234567890" or
+        striExpr("1234567890") [ .. 11 ] <> "1234567890" or
+        striExpr("1234567890") [ .. 15 ] <> "1234567890" or
+        striExpr("") [ .. intExpr(-5) ] <> "" or
+        striExpr("") [ .. intExpr( 0) ] <> "" or
+        striExpr("") [ .. intExpr( 1) ] <> "" or
+        striExpr("") [ .. intExpr( 5) ] <> "" or
+        striExpr("") [ .. intExpr(10) ] <> "" or
+        striExpr("") [ .. intExpr(11) ] <> "" or
+        striExpr("") [ .. intExpr(15) ] <> "" or
+        striExpr("1") [ .. intExpr(-5) ] <> "" or
+        striExpr("1") [ .. intExpr( 0) ] <> "" or
+        striExpr("1") [ .. intExpr( 1) ] <> "1" or
+        striExpr("1") [ .. intExpr( 5) ] <> "1" or
+        striExpr("1") [ .. intExpr(10) ] <> "1" or
+        striExpr("1") [ .. intExpr(11) ] <> "1" or
+        striExpr("1") [ .. intExpr(15) ] <> "1" or
+        striExpr("1234567890") [ .. intExpr(-5) ] <> "" or
+        striExpr("1234567890") [ .. intExpr( 0) ] <> "" or
+        striExpr("1234567890") [ .. intExpr( 1) ] <> "1" or
+        striExpr("1234567890") [ .. intExpr( 5) ] <> "12345" or
+        striExpr("1234567890") [ .. intExpr(10) ] <> "1234567890" or
+        striExpr("1234567890") [ .. intExpr(11) ] <> "1234567890" or
+        striExpr("1234567890") [ .. intExpr(15) ] <> "1234567890" then
+      writeln(" ***** STRING [ .. STOP ] does not work correct");
+      okay := FALSE;
+    end if;
+    if okay then
+      writeln("String tail works correct");
+    end if;
+  end func;
+
+
+const proc: check_string_range is func
+  local
+    var boolean: okay is TRUE;
+  begin
+    okay := TRUE;
+    if  "" [ -5 .. -9 ] <> "" or
+        "" [ -5 .. -6 ] <> "" or
+        "" [ -5 .. -5 ] <> "" or
+        "" [ -5 .. -4 ] <> "" or
+        "" [ -5 ..  0 ] <> "" or
+        "" [ -5 ..  1 ] <> "" or
+        "" [ -5 .. 15 ] <> "" or
+        "" [  0 .. -9 ] <> "" or
+        "" [  0 .. -1 ] <> "" or
+        "" [  0 ..  0 ] <> "" or
+        "" [  0 ..  1 ] <> "" or
+        "" [  0 .. 15 ] <> "" or
+        "" [  1 .. -5 ] <> "" or
+        "" [  1 ..  0 ] <> "" or
+        "" [  1 ..  1 ] <> "" or
+        "" [  1 ..  2 ] <> "" or
+        "" [  1 .. 15 ] <> "" or
+        "" [  5 .. -5 ] <> "" or
+        "" [  5 ..  0 ] <> "" or
+        "" [  5 ..  1 ] <> "" or
+        "" [  5 ..  4 ] <> "" or
+        "" [  5 ..  5 ] <> "" or
+        "" [  5 ..  6 ] <> "" or
+        "" [  5 .. 15 ] <> "" or
+        "1" [ -5 .. -9 ] <> "" or
+        "1" [ -5 .. -5 ] <> "" or
+        "1" [ -5 ..  0 ] <> "" or
+        "1" [ -5 ..  1 ] <> "1" or
+        "1" [ -5 ..  2 ] <> "1" or
+        "1" [ -5 .. 15 ] <> "1" or
+        "1" [  0 .. -5 ] <> "" or
+        "1" [  0 ..  0 ] <> "" or
+        "1" [  0 ..  1 ] <> "1" or
+        "1" [  0 ..  2 ] <> "1" or
+        "1" [  0 .. 15 ] <> "1" or
+        "1" [  1 .. -5 ] <> "" or
+        "1" [  1 ..  0 ] <> "" or
+        "1" [  1 ..  1 ] <> "1" or
+        "1" [  1 ..  2 ] <> "1" or
+        "1" [  1 .. 15 ] <> "1" or
+        "1" [  5 .. -5 ] <> "" or
+        "1" [  5 ..  0 ] <> "" or
+        "1" [  5 ..  1 ] <> "" or
+        "1" [  5 ..  4 ] <> "" or
+        "1" [  5 ..  5 ] <> "" or
+        "1" [  5 ..  6 ] <> "" or
+        "1" [  5 .. 15 ] <> "" or
+        "1234567890" [ -5 .. -9 ] <> "" or
         "1234567890" [ -5 .. -5 ] <> "" or
-        "1234567890" [ -5 .. 0 ] <> "" or
-        "1234567890" [ -5 .. 1 ] <> "1" or
-        "1234567890" [ -5 .. 5 ] <> "12345" or
+        "1234567890" [ -5 ..  0 ] <> "" or
+        "1234567890" [ -5 ..  1 ] <> "1" or
+        "1234567890" [ -5 ..  5 ] <> "12345" or
+        "1234567890" [ -5 ..  9 ] <> "123456789" or
         "1234567890" [ -5 .. 10 ] <> "1234567890" or
         "1234567890" [ -5 .. 11 ] <> "1234567890" or
         "1234567890" [ -5 .. 15 ] <> "1234567890" or
-        "1234567890" [ 0 .. -5 ] <> "" or
-        "1234567890" [ 0 .. 0 ] <> "" or
-        "1234567890" [ 0 .. 1 ] <> "1" or
-        "1234567890" [ 0 .. 5 ] <> "12345" or
-        "1234567890" [ 0 .. 10 ] <> "1234567890" or
-        "1234567890" [ 0 .. 11 ] <> "1234567890" or
-        "1234567890" [ 0 .. 15 ] <> "1234567890" or
-        "1234567890" [ 1 .. -5 ] <> "" or
-        "1234567890" [ 1 .. 0 ] <> "" or
-        "1234567890" [ 1 .. 1 ] <> "1" or
-        "1234567890" [ 1 .. 5 ] <> "12345" or
-        "1234567890" [ 1 .. 10 ] <> "1234567890" or
-        "1234567890" [ 1 .. 11 ] <> "1234567890" or
-        "1234567890" [ 1 .. 15 ] <> "1234567890" or
-        "1234567890" [ 5 .. -5 ] <> "" or
-        "1234567890" [ 5 .. 0 ] <> "" or
-        "1234567890" [ 5 .. 1 ] <> "" or
-        "1234567890" [ 5 .. 4 ] <> "" or
-        "1234567890" [ 5 .. 5 ] <> "5" or
-        "1234567890" [ 5 .. 6 ] <> "56" or
-        "1234567890" [ 5 .. 8 ] <> "5678" or
-        "1234567890" [ 5 .. 10 ] <> "567890" or
-        "1234567890" [ 5 .. 11 ] <> "567890" or
-        "1234567890" [ 5 .. 15 ] <> "567890" or
+        "1234567890" [  0 .. -5 ] <> "" or
+        "1234567890" [  0 ..  0 ] <> "" or
+        "1234567890" [  0 ..  1 ] <> "1" or
+        "1234567890" [  0 ..  5 ] <> "12345" or
+        "1234567890" [  0 ..  9 ] <> "123456789" or
+        "1234567890" [  0 .. 10 ] <> "1234567890" or
+        "1234567890" [  0 .. 11 ] <> "1234567890" or
+        "1234567890" [  0 .. 15 ] <> "1234567890" or
+        "1234567890" [  1 .. -5 ] <> "" or
+        "1234567890" [  1 ..  0 ] <> "" or
+        "1234567890" [  1 ..  1 ] <> "1" or
+        "1234567890" [  1 ..  5 ] <> "12345" or
+        "1234567890" [  1 ..  9 ] <> "123456789" or
+        "1234567890" [  1 .. 10 ] <> "1234567890" or
+        "1234567890" [  1 .. 11 ] <> "1234567890" or
+        "1234567890" [  1 .. 15 ] <> "1234567890" or
+        "1234567890" [  5 .. -5 ] <> "" or
+        "1234567890" [  5 ..  0 ] <> "" or
+        "1234567890" [  5 ..  1 ] <> "" or
+        "1234567890" [  5 ..  4 ] <> "" or
+        "1234567890" [  5 ..  5 ] <> "5" or
+        "1234567890" [  5 ..  6 ] <> "56" or
+        "1234567890" [  5 ..  9 ] <> "56789" or
+        "1234567890" [  5 .. 10 ] <> "567890" or
+        "1234567890" [  5 .. 11 ] <> "567890" or
+        "1234567890" [  5 .. 15 ] <> "567890" or
         "1234567890" [ 10 .. -5 ] <> "" or
-        "1234567890" [ 10 .. 0 ] <> "" or
-        "1234567890" [ 10 .. 1 ] <> "" or
-        "1234567890" [ 10 .. 5 ] <> "" or
+        "1234567890" [ 10 ..  0 ] <> "" or
+        "1234567890" [ 10 ..  1 ] <> "" or
+        "1234567890" [ 10 ..  9 ] <> "" or
         "1234567890" [ 10 .. 10 ] <> "0" or
         "1234567890" [ 10 .. 11 ] <> "0" or
         "1234567890" [ 10 .. 15 ] <> "0" or
         "1234567890" [ 11 .. -5 ] <> "" or
-        "1234567890" [ 11 .. 0 ] <> "" or
-        "1234567890" [ 11 .. 1 ] <> "" or
-        "1234567890" [ 11 .. 5 ] <> "" or
+        "1234567890" [ 11 ..  0 ] <> "" or
+        "1234567890" [ 11 ..  1 ] <> "" or
+        "1234567890" [ 11 ..  5 ] <> "" or
         "1234567890" [ 11 .. 10 ] <> "" or
         "1234567890" [ 11 .. 11 ] <> "" or
         "1234567890" [ 11 .. 15 ] <> "" or
         "1234567890" [ 15 .. -5 ] <> "" or
-        "1234567890" [ 15 .. 0 ] <> "" or
-        "1234567890" [ 15 .. 1 ] <> "" or
-        "1234567890" [ 15 .. 5 ] <> "" or
+        "1234567890" [ 15 ..  0 ] <> "" or
+        "1234567890" [ 15 ..  1 ] <> "" or
+        "1234567890" [ 15 ..  5 ] <> "" or
         "1234567890" [ 15 .. 10 ] <> "" or
         "1234567890" [ 15 .. 11 ] <> "" or
         "1234567890" [ 15 .. 15 ] <> "" or
         "1234567890" [ 15 .. 20 ] <> "" or
-        "" [-2147483643 .. pred(-2147483647)] <> "" or
+        "" [ -5 .. intExpr(-9) ] <> "" or
+        "" [ -5 .. intExpr(-6) ] <> "" or
+        "" [ -5 .. intExpr(-5) ] <> "" or
+        "" [ -5 .. intExpr(-4) ] <> "" or
+        "" [ -5 .. intExpr( 0) ] <> "" or
+        "" [ -5 .. intExpr( 1) ] <> "" or
+        "" [ -5 .. intExpr(15) ] <> "" or
+        "" [  0 .. intExpr(-9) ] <> "" or
+        "" [  0 .. intExpr(-1) ] <> "" or
+        "" [  0 .. intExpr( 0) ] <> "" or
+        "" [  0 .. intExpr( 1) ] <> "" or
+        "" [  0 .. intExpr(15) ] <> "" or
+        "" [  1 .. intExpr(-5) ] <> "" or
+        "" [  1 .. intExpr( 0) ] <> "" or
+        "" [  1 .. intExpr( 1) ] <> "" or
+        "" [  1 .. intExpr( 2) ] <> "" or
+        "" [  1 .. intExpr(15) ] <> "" or
+        "" [  5 .. intExpr(-5) ] <> "" or
+        "" [  5 .. intExpr( 0) ] <> "" or
+        "" [  5 .. intExpr( 1) ] <> "" or
+        "" [  5 .. intExpr( 4) ] <> "" or
+        "" [  5 .. intExpr( 5) ] <> "" or
+        "" [  5 .. intExpr( 6) ] <> "" or
+        "" [  5 .. intExpr(15) ] <> "" or
+        "1" [ -5 .. intExpr(-9) ] <> "" or
+        "1" [ -5 .. intExpr(-5) ] <> "" or
+        "1" [ -5 .. intExpr( 0) ] <> "" or
+        "1" [ -5 .. intExpr( 1) ] <> "1" or
+        "1" [ -5 .. intExpr( 2) ] <> "1" or
+        "1" [ -5 .. intExpr(15) ] <> "1" or
+        "1" [  0 .. intExpr(-5) ] <> "" or
+        "1" [  0 .. intExpr( 0) ] <> "" or
+        "1" [  0 .. intExpr( 1) ] <> "1" or
+        "1" [  0 .. intExpr( 2) ] <> "1" or
+        "1" [  0 .. intExpr(15) ] <> "1" or
+        "1" [  1 .. intExpr(-5) ] <> "" or
+        "1" [  1 .. intExpr( 0) ] <> "" or
+        "1" [  1 .. intExpr( 1) ] <> "1" or
+        "1" [  1 .. intExpr( 2) ] <> "1" or
+        "1" [  1 .. intExpr(15) ] <> "1" or
+        "1" [  5 .. intExpr(-5) ] <> "" or
+        "1" [  5 .. intExpr( 0) ] <> "" or
+        "1" [  5 .. intExpr( 1) ] <> "" or
+        "1" [  5 .. intExpr( 4) ] <> "" or
+        "1" [  5 .. intExpr( 5) ] <> "" or
+        "1" [  5 .. intExpr( 6) ] <> "" or
+        "1" [  5 .. intExpr(15) ] <> "" or
+        "1234567890" [ -5 .. intExpr(-9) ] <> "" or
+        "1234567890" [ -5 .. intExpr(-5) ] <> "" or
+        "1234567890" [ -5 .. intExpr( 0) ] <> "" or
+        "1234567890" [ -5 .. intExpr( 1) ] <> "1" or
+        "1234567890" [ -5 .. intExpr( 5) ] <> "12345" or
+        "1234567890" [ -5 .. intExpr( 9) ] <> "123456789" or
+        "1234567890" [ -5 .. intExpr(10) ] <> "1234567890" or
+        "1234567890" [ -5 .. intExpr(11) ] <> "1234567890" or
+        "1234567890" [ -5 .. intExpr(15) ] <> "1234567890" or
+        "1234567890" [  0 .. intExpr(-5) ] <> "" or
+        "1234567890" [  0 .. intExpr( 0) ] <> "" or
+        "1234567890" [  0 .. intExpr( 1) ] <> "1" or
+        "1234567890" [  0 .. intExpr( 5) ] <> "12345" or
+        "1234567890" [  0 .. intExpr( 9) ] <> "123456789" or
+        "1234567890" [  0 .. intExpr(10) ] <> "1234567890" or
+        "1234567890" [  0 .. intExpr(11) ] <> "1234567890" or
+        "1234567890" [  0 .. intExpr(15) ] <> "1234567890" or
+        "1234567890" [  1 .. intExpr(-5) ] <> "" or
+        "1234567890" [  1 .. intExpr( 0) ] <> "" or
+        "1234567890" [  1 .. intExpr( 1) ] <> "1" or
+        "1234567890" [  1 .. intExpr( 5) ] <> "12345" or
+        "1234567890" [  1 .. intExpr( 9) ] <> "123456789" or
+        "1234567890" [  1 .. intExpr(10) ] <> "1234567890" or
+        "1234567890" [  1 .. intExpr(11) ] <> "1234567890" or
+        "1234567890" [  1 .. intExpr(15) ] <> "1234567890" or
+        "1234567890" [  5 .. intExpr(-5) ] <> "" or
+        "1234567890" [  5 .. intExpr( 0) ] <> "" or
+        "1234567890" [  5 .. intExpr( 1) ] <> "" or
+        "1234567890" [  5 .. intExpr( 4) ] <> "" or
+        "1234567890" [  5 .. intExpr( 5) ] <> "5" or
+        "1234567890" [  5 .. intExpr( 6) ] <> "56" or
+        "1234567890" [  5 .. intExpr( 9) ] <> "56789" or
+        "1234567890" [  5 .. intExpr(10) ] <> "567890" or
+        "1234567890" [  5 .. intExpr(11) ] <> "567890" or
+        "1234567890" [  5 .. intExpr(15) ] <> "567890" or
+        "1234567890" [ 10 .. intExpr(-5) ] <> "" or
+        "1234567890" [ 10 .. intExpr( 0) ] <> "" or
+        "1234567890" [ 10 .. intExpr( 1) ] <> "" or
+        "1234567890" [ 10 .. intExpr( 9) ] <> "" or
+        "1234567890" [ 10 .. intExpr(10) ] <> "0" or
+        "1234567890" [ 10 .. intExpr(11) ] <> "0" or
+        "1234567890" [ 10 .. intExpr(15) ] <> "0" or
+        "1234567890" [ 11 .. intExpr(-5) ] <> "" or
+        "1234567890" [ 11 .. intExpr( 0) ] <> "" or
+        "1234567890" [ 11 .. intExpr( 1) ] <> "" or
+        "1234567890" [ 11 .. intExpr( 5) ] <> "" or
+        "1234567890" [ 11 .. intExpr(10) ] <> "" or
+        "1234567890" [ 11 .. intExpr(11) ] <> "" or
+        "1234567890" [ 11 .. intExpr(15) ] <> "" or
+        "1234567890" [ 15 .. intExpr(-5) ] <> "" or
+        "1234567890" [ 15 .. intExpr( 0) ] <> "" or
+        "1234567890" [ 15 .. intExpr( 1) ] <> "" or
+        "1234567890" [ 15 .. intExpr( 5) ] <> "" or
+        "1234567890" [ 15 .. intExpr(10) ] <> "" or
+        "1234567890" [ 15 .. intExpr(11) ] <> "" or
+        "1234567890" [ 15 .. intExpr(15) ] <> "" or
+        "1234567890" [ 15 .. intExpr(20) ] <> "" or
+        "" [ intExpr(-5) .. -9 ] <> "" or
+        "" [ intExpr(-5) .. -6 ] <> "" or
+        "" [ intExpr(-5) .. -5 ] <> "" or
+        "" [ intExpr(-5) .. -4 ] <> "" or
+        "" [ intExpr(-5) ..  0 ] <> "" or
+        "" [ intExpr(-5) ..  1 ] <> "" or
+        "" [ intExpr(-5) .. 15 ] <> "" or
+        "" [ intExpr( 0) .. -9 ] <> "" or
+        "" [ intExpr( 0) .. -1 ] <> "" or
+        "" [ intExpr( 0) ..  0 ] <> "" or
+        "" [ intExpr( 0) ..  1 ] <> "" or
+        "" [ intExpr( 0) .. 15 ] <> "" or
+        "" [ intExpr( 1) .. -5 ] <> "" or
+        "" [ intExpr( 1) ..  0 ] <> "" or
+        "" [ intExpr( 1) ..  1 ] <> "" or
+        "" [ intExpr( 1) ..  2 ] <> "" or
+        "" [ intExpr( 1) .. 15 ] <> "" or
+        "" [ intExpr( 5) .. -5 ] <> "" or
+        "" [ intExpr( 5) ..  0 ] <> "" or
+        "" [ intExpr( 5) ..  1 ] <> "" or
+        "" [ intExpr( 5) ..  4 ] <> "" or
+        "" [ intExpr( 5) ..  5 ] <> "" or
+        "" [ intExpr( 5) ..  6 ] <> "" or
+        "" [ intExpr( 5) .. 15 ] <> "" or
+        "1" [ intExpr(-5) .. -9 ] <> "" or
+        "1" [ intExpr(-5) .. -5 ] <> "" or
+        "1" [ intExpr(-5) ..  0 ] <> "" or
+        "1" [ intExpr(-5) ..  1 ] <> "1" or
+        "1" [ intExpr(-5) ..  2 ] <> "1" or
+        "1" [ intExpr(-5) .. 15 ] <> "1" or
+        "1" [ intExpr( 0) .. -5 ] <> "" or
+        "1" [ intExpr( 0) ..  0 ] <> "" or
+        "1" [ intExpr( 0) ..  1 ] <> "1" or
+        "1" [ intExpr( 0) ..  2 ] <> "1" or
+        "1" [ intExpr( 0) .. 15 ] <> "1" or
+        "1" [ intExpr( 1) .. -5 ] <> "" or
+        "1" [ intExpr( 1) ..  0 ] <> "" or
+        "1" [ intExpr( 1) ..  1 ] <> "1" or
+        "1" [ intExpr( 1) ..  2 ] <> "1" or
+        "1" [ intExpr( 1) .. 15 ] <> "1" or
+        "1" [ intExpr( 5) .. -5 ] <> "" or
+        "1" [ intExpr( 5) ..  0 ] <> "" or
+        "1" [ intExpr( 5) ..  1 ] <> "" or
+        "1" [ intExpr( 5) ..  4 ] <> "" or
+        "1" [ intExpr( 5) ..  5 ] <> "" or
+        "1" [ intExpr( 5) ..  6 ] <> "" or
+        "1" [ intExpr( 5) .. 15 ] <> "" or
+        "1234567890" [ intExpr(-5) .. -9 ] <> "" or
+        "1234567890" [ intExpr(-5) .. -5 ] <> "" or
+        "1234567890" [ intExpr(-5) ..  0 ] <> "" or
+        "1234567890" [ intExpr(-5) ..  1 ] <> "1" or
+        "1234567890" [ intExpr(-5) ..  5 ] <> "12345" or
+        "1234567890" [ intExpr(-5) ..  9 ] <> "123456789" or
+        "1234567890" [ intExpr(-5) .. 10 ] <> "1234567890" or
+        "1234567890" [ intExpr(-5) .. 11 ] <> "1234567890" or
+        "1234567890" [ intExpr(-5) .. 15 ] <> "1234567890" or
+        "1234567890" [ intExpr( 0) .. -5 ] <> "" or
+        "1234567890" [ intExpr( 0) ..  0 ] <> "" or
+        "1234567890" [ intExpr( 0) ..  1 ] <> "1" or
+        "1234567890" [ intExpr( 0) ..  5 ] <> "12345" or
+        "1234567890" [ intExpr( 0) ..  9 ] <> "123456789" or
+        "1234567890" [ intExpr( 0) .. 10 ] <> "1234567890" or
+        "1234567890" [ intExpr( 0) .. 11 ] <> "1234567890" or
+        "1234567890" [ intExpr( 0) .. 15 ] <> "1234567890" or
+        "1234567890" [ intExpr( 1) .. -5 ] <> "" or
+        "1234567890" [ intExpr( 1) ..  0 ] <> "" or
+        "1234567890" [ intExpr( 1) ..  1 ] <> "1" or
+        "1234567890" [ intExpr( 1) ..  5 ] <> "12345" or
+        "1234567890" [ intExpr( 1) ..  9 ] <> "123456789" or
+        "1234567890" [ intExpr( 1) .. 10 ] <> "1234567890" or
+        "1234567890" [ intExpr( 1) .. 11 ] <> "1234567890" or
+        "1234567890" [ intExpr( 1) .. 15 ] <> "1234567890" or
+        "1234567890" [ intExpr( 5) .. -5 ] <> "" or
+        "1234567890" [ intExpr( 5) ..  0 ] <> "" or
+        "1234567890" [ intExpr( 5) ..  1 ] <> "" or
+        "1234567890" [ intExpr( 5) ..  4 ] <> "" or
+        "1234567890" [ intExpr( 5) ..  5 ] <> "5" or
+        "1234567890" [ intExpr( 5) ..  6 ] <> "56" or
+        "1234567890" [ intExpr( 5) ..  9 ] <> "56789" or
+        "1234567890" [ intExpr( 5) .. 10 ] <> "567890" or
+        "1234567890" [ intExpr( 5) .. 11 ] <> "567890" or
+        "1234567890" [ intExpr( 5) .. 15 ] <> "567890" or
+        "1234567890" [ intExpr(10) .. -5 ] <> "" or
+        "1234567890" [ intExpr(10) ..  0 ] <> "" or
+        "1234567890" [ intExpr(10) ..  1 ] <> "" or
+        "1234567890" [ intExpr(10) ..  9 ] <> "" or
+        "1234567890" [ intExpr(10) .. 10 ] <> "0" or
+        "1234567890" [ intExpr(10) .. 11 ] <> "0" or
+        "1234567890" [ intExpr(10) .. 15 ] <> "0" or
+        "1234567890" [ intExpr(11) .. -5 ] <> "" or
+        "1234567890" [ intExpr(11) ..  0 ] <> "" or
+        "1234567890" [ intExpr(11) ..  1 ] <> "" or
+        "1234567890" [ intExpr(11) ..  5 ] <> "" or
+        "1234567890" [ intExpr(11) .. 10 ] <> "" or
+        "1234567890" [ intExpr(11) .. 11 ] <> "" or
+        "1234567890" [ intExpr(11) .. 15 ] <> "" or
+        "1234567890" [ intExpr(15) .. -5 ] <> "" or
+        "1234567890" [ intExpr(15) ..  0 ] <> "" or
+        "1234567890" [ intExpr(15) ..  1 ] <> "" or
+        "1234567890" [ intExpr(15) ..  5 ] <> "" or
+        "1234567890" [ intExpr(15) .. 10 ] <> "" or
+        "1234567890" [ intExpr(15) .. 11 ] <> "" or
+        "1234567890" [ intExpr(15) .. 15 ] <> "" or
+        "1234567890" [ intExpr(15) .. 20 ] <> "" or
+        "" [ intExpr(-5) .. intExpr(-9) ] <> "" or
+        "" [ intExpr(-5) .. intExpr(-6) ] <> "" or
+        "" [ intExpr(-5) .. intExpr(-5) ] <> "" or
+        "" [ intExpr(-5) .. intExpr(-4) ] <> "" or
+        "" [ intExpr(-5) .. intExpr( 0) ] <> "" or
+        "" [ intExpr(-5) .. intExpr( 1) ] <> "" or
+        "" [ intExpr(-5) .. intExpr(15) ] <> "" or
+        "" [ intExpr( 0) .. intExpr(-9) ] <> "" or
+        "" [ intExpr( 0) .. intExpr(-1) ] <> "" or
+        "" [ intExpr( 0) .. intExpr( 0) ] <> "" or
+        "" [ intExpr( 0) .. intExpr( 1) ] <> "" or
+        "" [ intExpr( 0) .. intExpr(15) ] <> "" or
+        "" [ intExpr( 1) .. intExpr(-5) ] <> "" or
+        "" [ intExpr( 1) .. intExpr( 0) ] <> "" or
+        "" [ intExpr( 1) .. intExpr( 1) ] <> "" or
+        "" [ intExpr( 1) .. intExpr( 2) ] <> "" or
+        "" [ intExpr( 1) .. intExpr(15) ] <> "" or
+        "" [ intExpr( 5) .. intExpr(-5) ] <> "" or
+        "" [ intExpr( 5) .. intExpr( 0) ] <> "" or
+        "" [ intExpr( 5) .. intExpr( 1) ] <> "" or
+        "" [ intExpr( 5) .. intExpr( 4) ] <> "" or
+        "" [ intExpr( 5) .. intExpr( 5) ] <> "" or
+        "" [ intExpr( 5) .. intExpr( 6) ] <> "" or
+        "" [ intExpr( 5) .. intExpr(15) ] <> "" or
+        "1" [ intExpr(-5) .. intExpr(-9) ] <> "" or
+        "1" [ intExpr(-5) .. intExpr(-5) ] <> "" or
+        "1" [ intExpr(-5) .. intExpr( 0) ] <> "" or
+        "1" [ intExpr(-5) .. intExpr( 1) ] <> "1" or
+        "1" [ intExpr(-5) .. intExpr( 2) ] <> "1" or
+        "1" [ intExpr(-5) .. intExpr(15) ] <> "1" or
+        "1" [ intExpr( 0) .. intExpr(-5) ] <> "" or
+        "1" [ intExpr( 0) .. intExpr( 0) ] <> "" or
+        "1" [ intExpr( 0) .. intExpr( 1) ] <> "1" or
+        "1" [ intExpr( 0) .. intExpr( 2) ] <> "1" or
+        "1" [ intExpr( 0) .. intExpr(15) ] <> "1" or
+        "1" [ intExpr( 1) .. intExpr(-5) ] <> "" or
+        "1" [ intExpr( 1) .. intExpr( 0) ] <> "" or
+        "1" [ intExpr( 1) .. intExpr( 1) ] <> "1" or
+        "1" [ intExpr( 1) .. intExpr( 2) ] <> "1" or
+        "1" [ intExpr( 1) .. intExpr(15) ] <> "1" or
+        "1" [ intExpr( 5) .. intExpr(-5) ] <> "" or
+        "1" [ intExpr( 5) .. intExpr( 0) ] <> "" or
+        "1" [ intExpr( 5) .. intExpr( 1) ] <> "" or
+        "1" [ intExpr( 5) .. intExpr( 4) ] <> "" or
+        "1" [ intExpr( 5) .. intExpr( 5) ] <> "" or
+        "1" [ intExpr( 5) .. intExpr( 6) ] <> "" or
+        "1" [ intExpr( 5) .. intExpr(15) ] <> "" or
+        "1234567890" [ intExpr(-5) .. intExpr(-9) ] <> "" or
+        "1234567890" [ intExpr(-5) .. intExpr(-5) ] <> "" or
+        "1234567890" [ intExpr(-5) .. intExpr( 0) ] <> "" or
+        "1234567890" [ intExpr(-5) .. intExpr( 1) ] <> "1" or
+        "1234567890" [ intExpr(-5) .. intExpr( 5) ] <> "12345" or
+        "1234567890" [ intExpr(-5) .. intExpr( 9) ] <> "123456789" or
+        "1234567890" [ intExpr(-5) .. intExpr(10) ] <> "1234567890" or
+        "1234567890" [ intExpr(-5) .. intExpr(11) ] <> "1234567890" or
+        "1234567890" [ intExpr(-5) .. intExpr(15) ] <> "1234567890" or
+        "1234567890" [ intExpr( 0) .. intExpr(-5) ] <> "" or
+        "1234567890" [ intExpr( 0) .. intExpr( 0) ] <> "" or
+        "1234567890" [ intExpr( 0) .. intExpr( 1) ] <> "1" or
+        "1234567890" [ intExpr( 0) .. intExpr( 5) ] <> "12345" or
+        "1234567890" [ intExpr( 0) .. intExpr( 9) ] <> "123456789" or
+        "1234567890" [ intExpr( 0) .. intExpr(10) ] <> "1234567890" or
+        "1234567890" [ intExpr( 0) .. intExpr(11) ] <> "1234567890" or
+        "1234567890" [ intExpr( 0) .. intExpr(15) ] <> "1234567890" or
+        "1234567890" [ intExpr( 1) .. intExpr(-5) ] <> "" or
+        "1234567890" [ intExpr( 1) .. intExpr( 0) ] <> "" or
+        "1234567890" [ intExpr( 1) .. intExpr( 1) ] <> "1" or
+        "1234567890" [ intExpr( 1) .. intExpr( 5) ] <> "12345" or
+        "1234567890" [ intExpr( 1) .. intExpr( 9) ] <> "123456789" or
+        "1234567890" [ intExpr( 1) .. intExpr(10) ] <> "1234567890" or
+        "1234567890" [ intExpr( 1) .. intExpr(11) ] <> "1234567890" or
+        "1234567890" [ intExpr( 1) .. intExpr(15) ] <> "1234567890" or
+        "1234567890" [ intExpr( 5) .. intExpr(-5) ] <> "" or
+        "1234567890" [ intExpr( 5) .. intExpr( 0) ] <> "" or
+        "1234567890" [ intExpr( 5) .. intExpr( 1) ] <> "" or
+        "1234567890" [ intExpr( 5) .. intExpr( 4) ] <> "" or
+        "1234567890" [ intExpr( 5) .. intExpr( 5) ] <> "5" or
+        "1234567890" [ intExpr( 5) .. intExpr( 6) ] <> "56" or
+        "1234567890" [ intExpr( 5) .. intExpr( 9) ] <> "56789" or
+        "1234567890" [ intExpr( 5) .. intExpr(10) ] <> "567890" or
+        "1234567890" [ intExpr( 5) .. intExpr(11) ] <> "567890" or
+        "1234567890" [ intExpr( 5) .. intExpr(15) ] <> "567890" or
+        "1234567890" [ intExpr(10) .. intExpr(-5) ] <> "" or
+        "1234567890" [ intExpr(10) .. intExpr( 0) ] <> "" or
+        "1234567890" [ intExpr(10) .. intExpr( 1) ] <> "" or
+        "1234567890" [ intExpr(10) .. intExpr( 9) ] <> "" or
+        "1234567890" [ intExpr(10) .. intExpr(10) ] <> "0" or
+        "1234567890" [ intExpr(10) .. intExpr(11) ] <> "0" or
+        "1234567890" [ intExpr(10) .. intExpr(15) ] <> "0" or
+        "1234567890" [ intExpr(11) .. intExpr(-5) ] <> "" or
+        "1234567890" [ intExpr(11) .. intExpr( 0) ] <> "" or
+        "1234567890" [ intExpr(11) .. intExpr( 1) ] <> "" or
+        "1234567890" [ intExpr(11) .. intExpr( 5) ] <> "" or
+        "1234567890" [ intExpr(11) .. intExpr(10) ] <> "" or
+        "1234567890" [ intExpr(11) .. intExpr(11) ] <> "" or
+        "1234567890" [ intExpr(11) .. intExpr(15) ] <> "" or
+        "1234567890" [ intExpr(15) .. intExpr(-5) ] <> "" or
+        "1234567890" [ intExpr(15) .. intExpr( 0) ] <> "" or
+        "1234567890" [ intExpr(15) .. intExpr( 1) ] <> "" or
+        "1234567890" [ intExpr(15) .. intExpr( 5) ] <> "" or
+        "1234567890" [ intExpr(15) .. intExpr(10) ] <> "" or
+        "1234567890" [ intExpr(15) .. intExpr(11) ] <> "" or
+        "1234567890" [ intExpr(15) .. intExpr(15) ] <> "" or
+        "1234567890" [ intExpr(15) .. intExpr(20) ] <> "" or
+        striExpr("") [ -5 .. -9 ] <> "" or
+        striExpr("") [ -5 .. -6 ] <> "" or
+        striExpr("") [ -5 .. -5 ] <> "" or
+        striExpr("") [ -5 .. -4 ] <> "" or
+        striExpr("") [ -5 ..  0 ] <> "" or
+        striExpr("") [ -5 ..  1 ] <> "" or
+        striExpr("") [ -5 .. 15 ] <> "" or
+        striExpr("") [  0 .. -9 ] <> "" or
+        striExpr("") [  0 .. -1 ] <> "" or
+        striExpr("") [  0 ..  0 ] <> "" or
+        striExpr("") [  0 ..  1 ] <> "" or
+        striExpr("") [  0 .. 15 ] <> "" or
+        striExpr("") [  1 .. -5 ] <> "" or
+        striExpr("") [  1 ..  0 ] <> "" or
+        striExpr("") [  1 ..  1 ] <> "" or
+        striExpr("") [  1 ..  2 ] <> "" or
+        striExpr("") [  1 .. 15 ] <> "" or
+        striExpr("") [  5 .. -5 ] <> "" or
+        striExpr("") [  5 ..  0 ] <> "" or
+        striExpr("") [  5 ..  1 ] <> "" or
+        striExpr("") [  5 ..  4 ] <> "" or
+        striExpr("") [  5 ..  5 ] <> "" or
+        striExpr("") [  5 ..  6 ] <> "" or
+        striExpr("") [  5 .. 15 ] <> "" or
+        striExpr("1") [ -5 .. -9 ] <> "" or
+        striExpr("1") [ -5 .. -5 ] <> "" or
+        striExpr("1") [ -5 ..  0 ] <> "" or
+        striExpr("1") [ -5 ..  1 ] <> "1" or
+        striExpr("1") [ -5 ..  2 ] <> "1" or
+        striExpr("1") [ -5 .. 15 ] <> "1" or
+        striExpr("1") [  0 .. -5 ] <> "" or
+        striExpr("1") [  0 ..  0 ] <> "" or
+        striExpr("1") [  0 ..  1 ] <> "1" or
+        striExpr("1") [  0 ..  2 ] <> "1" or
+        striExpr("1") [  0 .. 15 ] <> "1" or
+        striExpr("1") [  1 .. -5 ] <> "" or
+        striExpr("1") [  1 ..  0 ] <> "" or
+        striExpr("1") [  1 ..  1 ] <> "1" or
+        striExpr("1") [  1 ..  2 ] <> "1" or
+        striExpr("1") [  1 .. 15 ] <> "1" or
+        striExpr("1") [  5 .. -5 ] <> "" or
+        striExpr("1") [  5 ..  0 ] <> "" or
+        striExpr("1") [  5 ..  1 ] <> "" or
+        striExpr("1") [  5 ..  4 ] <> "" or
+        striExpr("1") [  5 ..  5 ] <> "" or
+        striExpr("1") [  5 ..  6 ] <> "" or
+        striExpr("1") [  5 .. 15 ] <> "" or
+        striExpr("1234567890") [ -5 .. -9 ] <> "" or
+        striExpr("1234567890") [ -5 .. -5 ] <> "" or
+        striExpr("1234567890") [ -5 ..  0 ] <> "" or
+        striExpr("1234567890") [ -5 ..  1 ] <> "1" or
+        striExpr("1234567890") [ -5 ..  5 ] <> "12345" or
+        striExpr("1234567890") [ -5 ..  9 ] <> "123456789" or
+        striExpr("1234567890") [ -5 .. 10 ] <> "1234567890" or
+        striExpr("1234567890") [ -5 .. 11 ] <> "1234567890" or
+        striExpr("1234567890") [ -5 .. 15 ] <> "1234567890" or
+        striExpr("1234567890") [  0 .. -5 ] <> "" or
+        striExpr("1234567890") [  0 ..  0 ] <> "" or
+        striExpr("1234567890") [  0 ..  1 ] <> "1" or
+        striExpr("1234567890") [  0 ..  5 ] <> "12345" or
+        striExpr("1234567890") [  0 ..  9 ] <> "123456789" or
+        striExpr("1234567890") [  0 .. 10 ] <> "1234567890" or
+        striExpr("1234567890") [  0 .. 11 ] <> "1234567890" or
+        striExpr("1234567890") [  0 .. 15 ] <> "1234567890" or
+        striExpr("1234567890") [  1 .. -5 ] <> "" or
+        striExpr("1234567890") [  1 ..  0 ] <> "" or
+        striExpr("1234567890") [  1 ..  1 ] <> "1" or
+        striExpr("1234567890") [  1 ..  5 ] <> "12345" or
+        striExpr("1234567890") [  1 ..  9 ] <> "123456789" or
+        striExpr("1234567890") [  1 .. 10 ] <> "1234567890" or
+        striExpr("1234567890") [  1 .. 11 ] <> "1234567890" or
+        striExpr("1234567890") [  1 .. 15 ] <> "1234567890" or
+        striExpr("1234567890") [  5 .. -5 ] <> "" or
+        striExpr("1234567890") [  5 ..  0 ] <> "" or
+        striExpr("1234567890") [  5 ..  1 ] <> "" or
+        striExpr("1234567890") [  5 ..  4 ] <> "" or
+        striExpr("1234567890") [  5 ..  5 ] <> "5" or
+        striExpr("1234567890") [  5 ..  6 ] <> "56" or
+        striExpr("1234567890") [  5 ..  9 ] <> "56789" or
+        striExpr("1234567890") [  5 .. 10 ] <> "567890" or
+        striExpr("1234567890") [  5 .. 11 ] <> "567890" or
+        striExpr("1234567890") [  5 .. 15 ] <> "567890" or
+        striExpr("1234567890") [ 10 .. -5 ] <> "" or
+        striExpr("1234567890") [ 10 ..  0 ] <> "" or
+        striExpr("1234567890") [ 10 ..  1 ] <> "" or
+        striExpr("1234567890") [ 10 ..  9 ] <> "" or
+        striExpr("1234567890") [ 10 .. 10 ] <> "0" or
+        striExpr("1234567890") [ 10 .. 11 ] <> "0" or
+        striExpr("1234567890") [ 10 .. 15 ] <> "0" or
+        striExpr("1234567890") [ 11 .. -5 ] <> "" or
+        striExpr("1234567890") [ 11 ..  0 ] <> "" or
+        striExpr("1234567890") [ 11 ..  1 ] <> "" or
+        striExpr("1234567890") [ 11 ..  5 ] <> "" or
+        striExpr("1234567890") [ 11 .. 10 ] <> "" or
+        striExpr("1234567890") [ 11 .. 11 ] <> "" or
+        striExpr("1234567890") [ 11 .. 15 ] <> "" or
+        striExpr("1234567890") [ 15 .. -5 ] <> "" or
+        striExpr("1234567890") [ 15 ..  0 ] <> "" or
+        striExpr("1234567890") [ 15 ..  1 ] <> "" or
+        striExpr("1234567890") [ 15 ..  5 ] <> "" or
+        striExpr("1234567890") [ 15 .. 10 ] <> "" or
+        striExpr("1234567890") [ 15 .. 11 ] <> "" or
+        striExpr("1234567890") [ 15 .. 15 ] <> "" or
+        striExpr("1234567890") [ 15 .. 20 ] <> "" or
+        striExpr("") [ -5 .. intExpr(-9) ] <> "" or
+        striExpr("") [ -5 .. intExpr(-6) ] <> "" or
+        striExpr("") [ -5 .. intExpr(-5) ] <> "" or
+        striExpr("") [ -5 .. intExpr(-4) ] <> "" or
+        striExpr("") [ -5 .. intExpr( 0) ] <> "" or
+        striExpr("") [ -5 .. intExpr( 1) ] <> "" or
+        striExpr("") [ -5 .. intExpr(15) ] <> "" or
+        striExpr("") [  0 .. intExpr(-9) ] <> "" or
+        striExpr("") [  0 .. intExpr(-1) ] <> "" or
+        striExpr("") [  0 .. intExpr( 0) ] <> "" or
+        striExpr("") [  0 .. intExpr( 1) ] <> "" or
+        striExpr("") [  0 .. intExpr(15) ] <> "" or
+        striExpr("") [  1 .. intExpr(-5) ] <> "" or
+        striExpr("") [  1 .. intExpr( 0) ] <> "" or
+        striExpr("") [  1 .. intExpr( 1) ] <> "" or
+        striExpr("") [  1 .. intExpr( 2) ] <> "" or
+        striExpr("") [  1 .. intExpr(15) ] <> "" or
+        striExpr("") [  5 .. intExpr(-5) ] <> "" or
+        striExpr("") [  5 .. intExpr( 0) ] <> "" or
+        striExpr("") [  5 .. intExpr( 1) ] <> "" or
+        striExpr("") [  5 .. intExpr( 4) ] <> "" or
+        striExpr("") [  5 .. intExpr( 5) ] <> "" or
+        striExpr("") [  5 .. intExpr( 6) ] <> "" or
+        striExpr("") [  5 .. intExpr(15) ] <> "" or
+        striExpr("1") [ -5 .. intExpr(-9) ] <> "" or
+        striExpr("1") [ -5 .. intExpr(-5) ] <> "" or
+        striExpr("1") [ -5 .. intExpr( 0) ] <> "" or
+        striExpr("1") [ -5 .. intExpr( 1) ] <> "1" or
+        striExpr("1") [ -5 .. intExpr( 2) ] <> "1" or
+        striExpr("1") [ -5 .. intExpr(15) ] <> "1" or
+        striExpr("1") [  0 .. intExpr(-5) ] <> "" or
+        striExpr("1") [  0 .. intExpr( 0) ] <> "" or
+        striExpr("1") [  0 .. intExpr( 1) ] <> "1" or
+        striExpr("1") [  0 .. intExpr( 2) ] <> "1" or
+        striExpr("1") [  0 .. intExpr(15) ] <> "1" or
+        striExpr("1") [  1 .. intExpr(-5) ] <> "" or
+        striExpr("1") [  1 .. intExpr( 0) ] <> "" or
+        striExpr("1") [  1 .. intExpr( 1) ] <> "1" or
+        striExpr("1") [  1 .. intExpr( 2) ] <> "1" or
+        striExpr("1") [  1 .. intExpr(15) ] <> "1" or
+        striExpr("1") [  5 .. intExpr(-5) ] <> "" or
+        striExpr("1") [  5 .. intExpr( 0) ] <> "" or
+        striExpr("1") [  5 .. intExpr( 1) ] <> "" or
+        striExpr("1") [  5 .. intExpr( 4) ] <> "" or
+        striExpr("1") [  5 .. intExpr( 5) ] <> "" or
+        striExpr("1") [  5 .. intExpr( 6) ] <> "" or
+        striExpr("1") [  5 .. intExpr(15) ] <> "" or
+        striExpr("1234567890") [ -5 .. intExpr(-9) ] <> "" or
+        striExpr("1234567890") [ -5 .. intExpr(-5) ] <> "" or
+        striExpr("1234567890") [ -5 .. intExpr( 0) ] <> "" or
+        striExpr("1234567890") [ -5 .. intExpr( 1) ] <> "1" or
+        striExpr("1234567890") [ -5 .. intExpr( 5) ] <> "12345" or
+        striExpr("1234567890") [ -5 .. intExpr( 9) ] <> "123456789" or
+        striExpr("1234567890") [ -5 .. intExpr(10) ] <> "1234567890" or
+        striExpr("1234567890") [ -5 .. intExpr(11) ] <> "1234567890" or
+        striExpr("1234567890") [ -5 .. intExpr(15) ] <> "1234567890" or
+        striExpr("1234567890") [  0 .. intExpr(-5) ] <> "" or
+        striExpr("1234567890") [  0 .. intExpr( 0) ] <> "" or
+        striExpr("1234567890") [  0 .. intExpr( 1) ] <> "1" or
+        striExpr("1234567890") [  0 .. intExpr( 5) ] <> "12345" or
+        striExpr("1234567890") [  0 .. intExpr( 9) ] <> "123456789" or
+        striExpr("1234567890") [  0 .. intExpr(10) ] <> "1234567890" or
+        striExpr("1234567890") [  0 .. intExpr(11) ] <> "1234567890" or
+        striExpr("1234567890") [  0 .. intExpr(15) ] <> "1234567890" or
+        striExpr("1234567890") [  1 .. intExpr(-5) ] <> "" or
+        striExpr("1234567890") [  1 .. intExpr( 0) ] <> "" or
+        striExpr("1234567890") [  1 .. intExpr( 1) ] <> "1" or
+        striExpr("1234567890") [  1 .. intExpr( 5) ] <> "12345" or
+        striExpr("1234567890") [  1 .. intExpr( 9) ] <> "123456789" or
+        striExpr("1234567890") [  1 .. intExpr(10) ] <> "1234567890" or
+        striExpr("1234567890") [  1 .. intExpr(11) ] <> "1234567890" or
+        striExpr("1234567890") [  1 .. intExpr(15) ] <> "1234567890" or
+        striExpr("1234567890") [  5 .. intExpr(-5) ] <> "" or
+        striExpr("1234567890") [  5 .. intExpr( 0) ] <> "" or
+        striExpr("1234567890") [  5 .. intExpr( 1) ] <> "" or
+        striExpr("1234567890") [  5 .. intExpr( 4) ] <> "" or
+        striExpr("1234567890") [  5 .. intExpr( 5) ] <> "5" or
+        striExpr("1234567890") [  5 .. intExpr( 6) ] <> "56" or
+        striExpr("1234567890") [  5 .. intExpr( 9) ] <> "56789" or
+        striExpr("1234567890") [  5 .. intExpr(10) ] <> "567890" or
+        striExpr("1234567890") [  5 .. intExpr(11) ] <> "567890" or
+        striExpr("1234567890") [  5 .. intExpr(15) ] <> "567890" or
+        striExpr("1234567890") [ 10 .. intExpr(-5) ] <> "" or
+        striExpr("1234567890") [ 10 .. intExpr( 0) ] <> "" or
+        striExpr("1234567890") [ 10 .. intExpr( 1) ] <> "" or
+        striExpr("1234567890") [ 10 .. intExpr( 9) ] <> "" or
+        striExpr("1234567890") [ 10 .. intExpr(10) ] <> "0" or
+        striExpr("1234567890") [ 10 .. intExpr(11) ] <> "0" or
+        striExpr("1234567890") [ 10 .. intExpr(15) ] <> "0" or
+        striExpr("1234567890") [ 11 .. intExpr(-5) ] <> "" or
+        striExpr("1234567890") [ 11 .. intExpr( 0) ] <> "" or
+        striExpr("1234567890") [ 11 .. intExpr( 1) ] <> "" or
+        striExpr("1234567890") [ 11 .. intExpr( 5) ] <> "" or
+        striExpr("1234567890") [ 11 .. intExpr(10) ] <> "" or
+        striExpr("1234567890") [ 11 .. intExpr(11) ] <> "" or
+        striExpr("1234567890") [ 11 .. intExpr(15) ] <> "" or
+        striExpr("1234567890") [ 15 .. intExpr(-5) ] <> "" or
+        striExpr("1234567890") [ 15 .. intExpr( 0) ] <> "" or
+        striExpr("1234567890") [ 15 .. intExpr( 1) ] <> "" or
+        striExpr("1234567890") [ 15 .. intExpr( 5) ] <> "" or
+        striExpr("1234567890") [ 15 .. intExpr(10) ] <> "" or
+        striExpr("1234567890") [ 15 .. intExpr(11) ] <> "" or
+        striExpr("1234567890") [ 15 .. intExpr(15) ] <> "" or
+        striExpr("1234567890") [ 15 .. intExpr(20) ] <> "" or
+        striExpr("") [ intExpr(-5) .. -9 ] <> "" or
+        striExpr("") [ intExpr(-5) .. -6 ] <> "" or
+        striExpr("") [ intExpr(-5) .. -5 ] <> "" or
+        striExpr("") [ intExpr(-5) .. -4 ] <> "" or
+        striExpr("") [ intExpr(-5) ..  0 ] <> "" or
+        striExpr("") [ intExpr(-5) ..  1 ] <> "" or
+        striExpr("") [ intExpr(-5) .. 15 ] <> "" or
+        striExpr("") [ intExpr( 0) .. -9 ] <> "" or
+        striExpr("") [ intExpr( 0) .. -1 ] <> "" or
+        striExpr("") [ intExpr( 0) ..  0 ] <> "" or
+        striExpr("") [ intExpr( 0) ..  1 ] <> "" or
+        striExpr("") [ intExpr( 0) .. 15 ] <> "" or
+        striExpr("") [ intExpr( 1) .. -5 ] <> "" or
+        striExpr("") [ intExpr( 1) ..  0 ] <> "" or
+        striExpr("") [ intExpr( 1) ..  1 ] <> "" or
+        striExpr("") [ intExpr( 1) ..  2 ] <> "" or
+        striExpr("") [ intExpr( 1) .. 15 ] <> "" or
+        striExpr("") [ intExpr( 5) .. -5 ] <> "" or
+        striExpr("") [ intExpr( 5) ..  0 ] <> "" or
+        striExpr("") [ intExpr( 5) ..  1 ] <> "" or
+        striExpr("") [ intExpr( 5) ..  4 ] <> "" or
+        striExpr("") [ intExpr( 5) ..  5 ] <> "" or
+        striExpr("") [ intExpr( 5) ..  6 ] <> "" or
+        striExpr("") [ intExpr( 5) .. 15 ] <> "" or
+        striExpr("1") [ intExpr(-5) .. -9 ] <> "" or
+        striExpr("1") [ intExpr(-5) .. -5 ] <> "" or
+        striExpr("1") [ intExpr(-5) ..  0 ] <> "" or
+        striExpr("1") [ intExpr(-5) ..  1 ] <> "1" or
+        striExpr("1") [ intExpr(-5) ..  2 ] <> "1" or
+        striExpr("1") [ intExpr(-5) .. 15 ] <> "1" or
+        striExpr("1") [ intExpr( 0) .. -5 ] <> "" or
+        striExpr("1") [ intExpr( 0) ..  0 ] <> "" or
+        striExpr("1") [ intExpr( 0) ..  1 ] <> "1" or
+        striExpr("1") [ intExpr( 0) ..  2 ] <> "1" or
+        striExpr("1") [ intExpr( 0) .. 15 ] <> "1" or
+        striExpr("1") [ intExpr( 1) .. -5 ] <> "" or
+        striExpr("1") [ intExpr( 1) ..  0 ] <> "" or
+        striExpr("1") [ intExpr( 1) ..  1 ] <> "1" or
+        striExpr("1") [ intExpr( 1) ..  2 ] <> "1" or
+        striExpr("1") [ intExpr( 1) .. 15 ] <> "1" or
+        striExpr("1") [ intExpr( 5) .. -5 ] <> "" or
+        striExpr("1") [ intExpr( 5) ..  0 ] <> "" or
+        striExpr("1") [ intExpr( 5) ..  1 ] <> "" or
+        striExpr("1") [ intExpr( 5) ..  4 ] <> "" or
+        striExpr("1") [ intExpr( 5) ..  5 ] <> "" or
+        striExpr("1") [ intExpr( 5) ..  6 ] <> "" or
+        striExpr("1") [ intExpr( 5) .. 15 ] <> "" or
+        striExpr("1234567890") [ intExpr(-5) .. -9 ] <> "" or
+        striExpr("1234567890") [ intExpr(-5) .. -5 ] <> "" or
+        striExpr("1234567890") [ intExpr(-5) ..  0 ] <> "" or
+        striExpr("1234567890") [ intExpr(-5) ..  1 ] <> "1" or
+        striExpr("1234567890") [ intExpr(-5) ..  5 ] <> "12345" or
+        striExpr("1234567890") [ intExpr(-5) ..  9 ] <> "123456789" or
+        striExpr("1234567890") [ intExpr(-5) .. 10 ] <> "1234567890" or
+        striExpr("1234567890") [ intExpr(-5) .. 11 ] <> "1234567890" or
+        striExpr("1234567890") [ intExpr(-5) .. 15 ] <> "1234567890" or
+        striExpr("1234567890") [ intExpr( 0) .. -5 ] <> "" or
+        striExpr("1234567890") [ intExpr( 0) ..  0 ] <> "" or
+        striExpr("1234567890") [ intExpr( 0) ..  1 ] <> "1" or
+        striExpr("1234567890") [ intExpr( 0) ..  5 ] <> "12345" or
+        striExpr("1234567890") [ intExpr( 0) ..  9 ] <> "123456789" or
+        striExpr("1234567890") [ intExpr( 0) .. 10 ] <> "1234567890" or
+        striExpr("1234567890") [ intExpr( 0) .. 11 ] <> "1234567890" or
+        striExpr("1234567890") [ intExpr( 0) .. 15 ] <> "1234567890" or
+        striExpr("1234567890") [ intExpr( 1) .. -5 ] <> "" or
+        striExpr("1234567890") [ intExpr( 1) ..  0 ] <> "" or
+        striExpr("1234567890") [ intExpr( 1) ..  1 ] <> "1" or
+        striExpr("1234567890") [ intExpr( 1) ..  5 ] <> "12345" or
+        striExpr("1234567890") [ intExpr( 1) ..  9 ] <> "123456789" or
+        striExpr("1234567890") [ intExpr( 1) .. 10 ] <> "1234567890" or
+        striExpr("1234567890") [ intExpr( 1) .. 11 ] <> "1234567890" or
+        striExpr("1234567890") [ intExpr( 1) .. 15 ] <> "1234567890" or
+        striExpr("1234567890") [ intExpr( 5) .. -5 ] <> "" or
+        striExpr("1234567890") [ intExpr( 5) ..  0 ] <> "" or
+        striExpr("1234567890") [ intExpr( 5) ..  1 ] <> "" or
+        striExpr("1234567890") [ intExpr( 5) ..  4 ] <> "" or
+        striExpr("1234567890") [ intExpr( 5) ..  5 ] <> "5" or
+        striExpr("1234567890") [ intExpr( 5) ..  6 ] <> "56" or
+        striExpr("1234567890") [ intExpr( 5) ..  9 ] <> "56789" or
+        striExpr("1234567890") [ intExpr( 5) .. 10 ] <> "567890" or
+        striExpr("1234567890") [ intExpr( 5) .. 11 ] <> "567890" or
+        striExpr("1234567890") [ intExpr( 5) .. 15 ] <> "567890" or
+        striExpr("1234567890") [ intExpr(10) .. -5 ] <> "" or
+        striExpr("1234567890") [ intExpr(10) ..  0 ] <> "" or
+        striExpr("1234567890") [ intExpr(10) ..  1 ] <> "" or
+        striExpr("1234567890") [ intExpr(10) ..  9 ] <> "" or
+        striExpr("1234567890") [ intExpr(10) .. 10 ] <> "0" or
+        striExpr("1234567890") [ intExpr(10) .. 11 ] <> "0" or
+        striExpr("1234567890") [ intExpr(10) .. 15 ] <> "0" or
+        striExpr("1234567890") [ intExpr(11) .. -5 ] <> "" or
+        striExpr("1234567890") [ intExpr(11) ..  0 ] <> "" or
+        striExpr("1234567890") [ intExpr(11) ..  1 ] <> "" or
+        striExpr("1234567890") [ intExpr(11) ..  5 ] <> "" or
+        striExpr("1234567890") [ intExpr(11) .. 10 ] <> "" or
+        striExpr("1234567890") [ intExpr(11) .. 11 ] <> "" or
+        striExpr("1234567890") [ intExpr(11) .. 15 ] <> "" or
+        striExpr("1234567890") [ intExpr(15) .. -5 ] <> "" or
+        striExpr("1234567890") [ intExpr(15) ..  0 ] <> "" or
+        striExpr("1234567890") [ intExpr(15) ..  1 ] <> "" or
+        striExpr("1234567890") [ intExpr(15) ..  5 ] <> "" or
+        striExpr("1234567890") [ intExpr(15) .. 10 ] <> "" or
+        striExpr("1234567890") [ intExpr(15) .. 11 ] <> "" or
+        striExpr("1234567890") [ intExpr(15) .. 15 ] <> "" or
+        striExpr("1234567890") [ intExpr(15) .. 20 ] <> "" or
+        striExpr("") [ intExpr(-5) .. intExpr(-9) ] <> "" or
+        striExpr("") [ intExpr(-5) .. intExpr(-6) ] <> "" or
+        striExpr("") [ intExpr(-5) .. intExpr(-5) ] <> "" or
+        striExpr("") [ intExpr(-5) .. intExpr(-4) ] <> "" or
+        striExpr("") [ intExpr(-5) .. intExpr( 0) ] <> "" or
+        striExpr("") [ intExpr(-5) .. intExpr( 1) ] <> "" or
+        striExpr("") [ intExpr(-5) .. intExpr(15) ] <> "" or
+        striExpr("") [ intExpr( 0) .. intExpr(-9) ] <> "" or
+        striExpr("") [ intExpr( 0) .. intExpr(-1) ] <> "" or
+        striExpr("") [ intExpr( 0) .. intExpr( 0) ] <> "" or
+        striExpr("") [ intExpr( 0) .. intExpr( 1) ] <> "" or
+        striExpr("") [ intExpr( 0) .. intExpr(15) ] <> "" or
+        striExpr("") [ intExpr( 1) .. intExpr(-5) ] <> "" or
+        striExpr("") [ intExpr( 1) .. intExpr( 0) ] <> "" or
+        striExpr("") [ intExpr( 1) .. intExpr( 1) ] <> "" or
+        striExpr("") [ intExpr( 1) .. intExpr( 2) ] <> "" or
+        striExpr("") [ intExpr( 1) .. intExpr(15) ] <> "" or
+        striExpr("") [ intExpr( 5) .. intExpr(-5) ] <> "" or
+        striExpr("") [ intExpr( 5) .. intExpr( 0) ] <> "" or
+        striExpr("") [ intExpr( 5) .. intExpr( 1) ] <> "" or
+        striExpr("") [ intExpr( 5) .. intExpr( 4) ] <> "" or
+        striExpr("") [ intExpr( 5) .. intExpr( 5) ] <> "" or
+        striExpr("") [ intExpr( 5) .. intExpr( 6) ] <> "" or
+        striExpr("") [ intExpr( 5) .. intExpr(15) ] <> "" or
+        striExpr("1") [ intExpr(-5) .. intExpr(-9) ] <> "" or
+        striExpr("1") [ intExpr(-5) .. intExpr(-5) ] <> "" or
+        striExpr("1") [ intExpr(-5) .. intExpr( 0) ] <> "" or
+        striExpr("1") [ intExpr(-5) .. intExpr( 1) ] <> "1" or
+        striExpr("1") [ intExpr(-5) .. intExpr( 2) ] <> "1" or
+        striExpr("1") [ intExpr(-5) .. intExpr(15) ] <> "1" or
+        striExpr("1") [ intExpr( 0) .. intExpr(-5) ] <> "" or
+        striExpr("1") [ intExpr( 0) .. intExpr( 0) ] <> "" or
+        striExpr("1") [ intExpr( 0) .. intExpr( 1) ] <> "1" or
+        striExpr("1") [ intExpr( 0) .. intExpr( 2) ] <> "1" or
+        striExpr("1") [ intExpr( 0) .. intExpr(15) ] <> "1" or
+        striExpr("1") [ intExpr( 1) .. intExpr(-5) ] <> "" or
+        striExpr("1") [ intExpr( 1) .. intExpr( 0) ] <> "" or
+        striExpr("1") [ intExpr( 1) .. intExpr( 1) ] <> "1" or
+        striExpr("1") [ intExpr( 1) .. intExpr( 2) ] <> "1" or
+        striExpr("1") [ intExpr( 1) .. intExpr(15) ] <> "1" or
+        striExpr("1") [ intExpr( 5) .. intExpr(-5) ] <> "" or
+        striExpr("1") [ intExpr( 5) .. intExpr( 0) ] <> "" or
+        striExpr("1") [ intExpr( 5) .. intExpr( 1) ] <> "" or
+        striExpr("1") [ intExpr( 5) .. intExpr( 4) ] <> "" or
+        striExpr("1") [ intExpr( 5) .. intExpr( 5) ] <> "" or
+        striExpr("1") [ intExpr( 5) .. intExpr( 6) ] <> "" or
+        striExpr("1") [ intExpr( 5) .. intExpr(15) ] <> "" or
+        striExpr("1234567890") [ intExpr(-5) .. intExpr(-9) ] <> "" or
+        striExpr("1234567890") [ intExpr(-5) .. intExpr(-5) ] <> "" or
+        striExpr("1234567890") [ intExpr(-5) .. intExpr( 0) ] <> "" or
+        striExpr("1234567890") [ intExpr(-5) .. intExpr( 1) ] <> "1" or
+        striExpr("1234567890") [ intExpr(-5) .. intExpr( 5) ] <> "12345" or
+        striExpr("1234567890") [ intExpr(-5) .. intExpr( 9) ] <> "123456789" or
+        striExpr("1234567890") [ intExpr(-5) .. intExpr(10) ] <> "1234567890" or
+        striExpr("1234567890") [ intExpr(-5) .. intExpr(11) ] <> "1234567890" or
+        striExpr("1234567890") [ intExpr(-5) .. intExpr(15) ] <> "1234567890" or
+        striExpr("1234567890") [ intExpr( 0) .. intExpr(-5) ] <> "" or
+        striExpr("1234567890") [ intExpr( 0) .. intExpr( 0) ] <> "" or
+        striExpr("1234567890") [ intExpr( 0) .. intExpr( 1) ] <> "1" or
+        striExpr("1234567890") [ intExpr( 0) .. intExpr( 5) ] <> "12345" or
+        striExpr("1234567890") [ intExpr( 0) .. intExpr( 9) ] <> "123456789" or
+        striExpr("1234567890") [ intExpr( 0) .. intExpr(10) ] <> "1234567890" or
+        striExpr("1234567890") [ intExpr( 0) .. intExpr(11) ] <> "1234567890" or
+        striExpr("1234567890") [ intExpr( 0) .. intExpr(15) ] <> "1234567890" or
+        striExpr("1234567890") [ intExpr( 1) .. intExpr(-5) ] <> "" or
+        striExpr("1234567890") [ intExpr( 1) .. intExpr( 0) ] <> "" or
+        striExpr("1234567890") [ intExpr( 1) .. intExpr( 1) ] <> "1" or
+        striExpr("1234567890") [ intExpr( 1) .. intExpr( 5) ] <> "12345" or
+        striExpr("1234567890") [ intExpr( 1) .. intExpr( 9) ] <> "123456789" or
+        striExpr("1234567890") [ intExpr( 1) .. intExpr(10) ] <> "1234567890" or
+        striExpr("1234567890") [ intExpr( 1) .. intExpr(11) ] <> "1234567890" or
+        striExpr("1234567890") [ intExpr( 1) .. intExpr(15) ] <> "1234567890" or
+        striExpr("1234567890") [ intExpr( 5) .. intExpr(-5) ] <> "" or
+        striExpr("1234567890") [ intExpr( 5) .. intExpr( 0) ] <> "" or
+        striExpr("1234567890") [ intExpr( 5) .. intExpr( 1) ] <> "" or
+        striExpr("1234567890") [ intExpr( 5) .. intExpr( 4) ] <> "" or
+        striExpr("1234567890") [ intExpr( 5) .. intExpr( 5) ] <> "5" or
+        striExpr("1234567890") [ intExpr( 5) .. intExpr( 6) ] <> "56" or
+        striExpr("1234567890") [ intExpr( 5) .. intExpr( 9) ] <> "56789" or
+        striExpr("1234567890") [ intExpr( 5) .. intExpr(10) ] <> "567890" or
+        striExpr("1234567890") [ intExpr( 5) .. intExpr(11) ] <> "567890" or
+        striExpr("1234567890") [ intExpr( 5) .. intExpr(15) ] <> "567890" or
+        striExpr("1234567890") [ intExpr(10) .. intExpr(-5) ] <> "" or
+        striExpr("1234567890") [ intExpr(10) .. intExpr( 0) ] <> "" or
+        striExpr("1234567890") [ intExpr(10) .. intExpr( 1) ] <> "" or
+        striExpr("1234567890") [ intExpr(10) .. intExpr( 9) ] <> "" or
+        striExpr("1234567890") [ intExpr(10) .. intExpr(10) ] <> "0" or
+        striExpr("1234567890") [ intExpr(10) .. intExpr(11) ] <> "0" or
+        striExpr("1234567890") [ intExpr(10) .. intExpr(15) ] <> "0" or
+        striExpr("1234567890") [ intExpr(11) .. intExpr(-5) ] <> "" or
+        striExpr("1234567890") [ intExpr(11) .. intExpr( 0) ] <> "" or
+        striExpr("1234567890") [ intExpr(11) .. intExpr( 1) ] <> "" or
+        striExpr("1234567890") [ intExpr(11) .. intExpr( 5) ] <> "" or
+        striExpr("1234567890") [ intExpr(11) .. intExpr(10) ] <> "" or
+        striExpr("1234567890") [ intExpr(11) .. intExpr(11) ] <> "" or
+        striExpr("1234567890") [ intExpr(11) .. intExpr(15) ] <> "" or
+        striExpr("1234567890") [ intExpr(15) .. intExpr(-5) ] <> "" or
+        striExpr("1234567890") [ intExpr(15) .. intExpr( 0) ] <> "" or
+        striExpr("1234567890") [ intExpr(15) .. intExpr( 1) ] <> "" or
+        striExpr("1234567890") [ intExpr(15) .. intExpr( 5) ] <> "" or
+        striExpr("1234567890") [ intExpr(15) .. intExpr(10) ] <> "" or
+        striExpr("1234567890") [ intExpr(15) .. intExpr(11) ] <> "" or
+        striExpr("1234567890") [ intExpr(15) .. intExpr(15) ] <> "" or
+        striExpr("1234567890") [ intExpr(15) .. intExpr(20) ] <> "" then
+      writeln(" ***** STRING [ START .. STOP ] does not work correct");
+      okay := FALSE;
+    end if;
+    if  "" [-2147483643 .. pred(-2147483647)] <> "" or
         "" [-2147483644 .. pred(-2147483647)] <> "" or
         "" [-2147483645 .. pred(-2147483647)] <> "" or
         "" [-2147483646 .. pred(-2147483647)] <> "" or
@@ -1323,92 +2436,1069 @@ const proc: check_string_index is func
       writeln(" ***** STRING [ START .. STOP ] does not work correct");
       okay := FALSE;
     end if;
-    if  "1234567890" [ -5 len -10 ] <> "" or
+    if okay then
+      writeln("String range works correct");
+    end if;
+  end func;
+
+
+const proc: check_string_substr is func
+  local
+    var boolean: okay is TRUE;
+  begin
+    okay := TRUE;
+    if  "" [ -5 len -9 ] <> "" or
+        "" [ -5 len -5 ] <> "" or
+        "" [ -5 len  0 ] <> "" or
+        "" [ -5 len  1 ] <> "" or
+        "" [ -5 len  6 ] <> "" or
+        "" [ -5 len  7 ] <> "" or
+        "" [ -5 len  8 ] <> "" or
+        "" [ -5 len 20 ] <> "" or
+        "" [  0 len -5 ] <> "" or
+        "" [  0 len  0 ] <> "" or
+        "" [  0 len  1 ] <> "" or
+        "" [  0 len  2 ] <> "" or
+        "" [  0 len 15 ] <> "" or
+        "" [  1 len -5 ] <> "" or
+        "" [  1 len  0 ] <> "" or
+        "" [  1 len  1 ] <> "" or
+        "" [  1 len  2 ] <> "" or
+        "" [  1 len 15 ] <> "" or
+        "" [  2 len -5 ] <> "" or
+        "" [  2 len  0 ] <> "" or
+        "" [  2 len  1 ] <> "" or
+        "" [  2 len 15 ] <> "" or
+        "" [ 15 len -5 ] <> "" or
+        "" [ 15 len  0 ] <> "" or
+        "" [ 15 len  1 ] <> "" or
+        "" [ 15 len  2 ] <> "" or
+        "" [ 15 len 20 ] <> "" or
+        "1" [ -5 len -9 ] <> "" or
+        "1" [ -5 len -5 ] <> "" or
+        "1" [ -5 len  0 ] <> "" or
+        "1" [ -5 len  1 ] <> "" or
+        "1" [ -5 len  6 ] <> "" or
+        "1" [ -5 len  7 ] <> "1" or
+        "1" [ -5 len  8 ] <> "1" or
+        "1" [ -5 len 10 ] <> "1" or
+        "1" [  0 len -5 ] <> "" or
+        "1" [  0 len  0 ] <> "" or
+        "1" [  0 len  1 ] <> "" or
+        "1" [  0 len  2 ] <> "1" or
+        "1" [  0 len  3 ] <> "1" or
+        "1" [  0 len 15 ] <> "1" or
+        "1" [  1 len -5 ] <> "" or
+        "1" [  1 len  0 ] <> "" or
+        "1" [  1 len  1 ] <> "1" or
+        "1" [  1 len  2 ] <> "1" or
+        "1" [  1 len 15 ] <> "1" or
+        "1" [  2 len -5 ] <> "" or
+        "1" [  2 len  0 ] <> "" or
+        "1" [  2 len  1 ] <> "" or
+        "1" [  2 len  2 ] <> "" or
+        "1" [  2 len 15 ] <> "" or
+        "1" [ 15 len -5 ] <> "" or
+        "1" [ 15 len  0 ] <> "" or
+        "1" [ 15 len  1 ] <> "" or
+        "1" [ 15 len  2 ] <> "" or
+        "1" [ 15 len 20 ] <> "" or
+        "1234567890" [ -5 len -9 ] <> "" or
         "1234567890" [ -5 len -5 ] <> "" or
-        "1234567890" [ -5 len 0 ] <> "" or
-        "1234567890" [ -5 len 1 ] <> "" or
-        "1234567890" [ -5 len 5 ] <> "" or
-        "1234567890" [ -5 len 6 ] <> "" or
-        "1234567890" [ -5 len 7 ] <> "1" or
-        "1234567890" [ -5 len 8 ] <> "12" or
-        "1234567890" [ -5 len 10 ] <> "1234" or
+        "1234567890" [ -5 len  0 ] <> "" or
+        "1234567890" [ -5 len  1 ] <> "" or
+        "1234567890" [ -5 len  6 ] <> "" or
+        "1234567890" [ -5 len  7 ] <> "1" or
+        "1234567890" [ -5 len  8 ] <> "12" or
         "1234567890" [ -5 len 11 ] <> "12345" or
         "1234567890" [ -5 len 15 ] <> "123456789" or
         "1234567890" [ -5 len 16 ] <> "1234567890" or
         "1234567890" [ -5 len 17 ] <> "1234567890" or
         "1234567890" [ -5 len 20 ] <> "1234567890" or
-        "1234567890" [ 0 len -5 ] <> "" or
-        "1234567890" [ 0 len 0 ] <> "" or
-        "1234567890" [ 0 len 1 ] <> "" or
-        "1234567890" [ 0 len 2 ] <> "1" or
-        "1234567890" [ 0 len 3 ] <> "12" or
-        "1234567890" [ 0 len 5 ] <> "1234" or
-        "1234567890" [ 0 len 6 ] <> "12345" or
-        "1234567890" [ 0 len 10 ] <> "123456789" or
-        "1234567890" [ 0 len 11 ] <> "1234567890" or
-        "1234567890" [ 0 len 12 ] <> "1234567890" or
-        "1234567890" [ 0 len 15 ] <> "1234567890" or
-        "1234567890" [ 1 len -5 ] <> "" or
-        "1234567890" [ 1 len 0 ] <> "" or
-        "1234567890" [ 1 len 1 ] <> "1" or
-        "1234567890" [ 1 len 2 ] <> "12" or
-        "1234567890" [ 1 len 5 ] <> "12345" or
-        "1234567890" [ 1 len 6 ] <> "123456" or
-        "1234567890" [ 1 len 9 ] <> "123456789" or
-        "1234567890" [ 1 len 10 ] <> "1234567890" or
-        "1234567890" [ 1 len 11 ] <> "1234567890" or
-        "1234567890" [ 1 len 15 ] <> "1234567890" or
-        "1234567890" [ 2 len -5 ] <> "" or
-        "1234567890" [ 2 len 0 ] <> "" or
-        "1234567890" [ 2 len 1 ] <> "2" or
-        "1234567890" [ 2 len 2 ] <> "23" or
-        "1234567890" [ 2 len 5 ] <> "23456" or
-        "1234567890" [ 2 len 6 ] <> "234567" or
-        "1234567890" [ 2 len 8 ] <> "23456789" or
-        "1234567890" [ 2 len 9 ] <> "234567890" or
-        "1234567890" [ 2 len 10 ] <> "234567890" or
-        "1234567890" [ 2 len 15 ] <> "234567890" or
-        "1234567890" [ 5 len -5 ] <> "" or
-        "1234567890" [ 5 len 0 ] <> "" or
-        "1234567890" [ 5 len 1 ] <> "5" or
-        "1234567890" [ 5 len 2 ] <> "56" or
-        "1234567890" [ 5 len 4 ] <> "5678" or
-        "1234567890" [ 5 len 5 ] <> "56789" or
-        "1234567890" [ 5 len 6 ] <> "567890" or
-        "1234567890" [ 5 len 7 ] <> "567890" or
-        "1234567890" [ 5 len 10 ] <> "567890" or
-        "1234567890" [ 5 len 15 ] <> "567890" or
-        "1234567890" [ 9 len -5 ] <> "" or
-        "1234567890" [ 9 len 0 ] <> "" or
-        "1234567890" [ 9 len 1 ] <> "9" or
-        "1234567890" [ 9 len 2 ] <> "90" or
-        "1234567890" [ 9 len 5 ] <> "90" or
-        "1234567890" [ 9 len 10 ] <> "90" or
-        "1234567890" [ 9 len 11 ] <> "90" or
-        "1234567890" [ 9 len 15 ] <> "90" or
+        "1234567890" [  0 len -5 ] <> "" or
+        "1234567890" [  0 len -1 ] <> "" or
+        "1234567890" [  0 len  0 ] <> "" or
+        "1234567890" [  0 len  1 ] <> "" or
+        "1234567890" [  0 len  2 ] <> "1" or
+        "1234567890" [  0 len  3 ] <> "12" or
+        "1234567890" [  0 len  6 ] <> "12345" or
+        "1234567890" [  0 len 10 ] <> "123456789" or
+        "1234567890" [  0 len 11 ] <> "1234567890" or
+        "1234567890" [  0 len 12 ] <> "1234567890" or
+        "1234567890" [  0 len 15 ] <> "1234567890" or
+        "1234567890" [  1 len -5 ] <> "" or
+        "1234567890" [  1 len -1 ] <> "" or
+        "1234567890" [  1 len  0 ] <> "" or
+        "1234567890" [  1 len  1 ] <> "1" or
+        "1234567890" [  1 len  2 ] <> "12" or
+        "1234567890" [  1 len  5 ] <> "12345" or
+        "1234567890" [  1 len  9 ] <> "123456789" or
+        "1234567890" [  1 len 10 ] <> "1234567890" or
+        "1234567890" [  1 len 11 ] <> "1234567890" or
+        "1234567890" [  1 len 15 ] <> "1234567890" or
+        "1234567890" [  2 len -5 ] <> "" or
+        "1234567890" [  2 len -1 ] <> "" or
+        "1234567890" [  2 len  0 ] <> "" or
+        "1234567890" [  2 len  1 ] <> "2" or
+        "1234567890" [  2 len  2 ] <> "23" or
+        "1234567890" [  2 len  5 ] <> "23456" or
+        "1234567890" [  2 len  8 ] <> "23456789" or
+        "1234567890" [  2 len  9 ] <> "234567890" or
+        "1234567890" [  2 len 10 ] <> "234567890" or
+        "1234567890" [  2 len 15 ] <> "234567890" or
+        "1234567890" [  5 len -5 ] <> "" or
+        "1234567890" [  5 len -1 ] <> "" or
+        "1234567890" [  5 len  0 ] <> "" or
+        "1234567890" [  5 len  1 ] <> "5" or
+        "1234567890" [  5 len  2 ] <> "56" or
+        "1234567890" [  5 len  5 ] <> "56789" or
+        "1234567890" [  5 len  6 ] <> "567890" or
+        "1234567890" [  5 len  7 ] <> "567890" or
+        "1234567890" [  5 len 15 ] <> "567890" or
+        "1234567890" [  9 len -5 ] <> "" or
+        "1234567890" [  9 len -1 ] <> "" or
+        "1234567890" [  9 len  0 ] <> "" or
+        "1234567890" [  9 len  1 ] <> "9" or
+        "1234567890" [  9 len  2 ] <> "90" or
+        "1234567890" [  9 len  3 ] <> "90" or
+        "1234567890" [  9 len 15 ] <> "90" or
         "1234567890" [ 10 len -5 ] <> "" or
-        "1234567890" [ 10 len 0 ] <> "" or
-        "1234567890" [ 10 len 1 ] <> "0" or
-        "1234567890" [ 10 len 5 ] <> "0" or
-        "1234567890" [ 10 len 10 ] <> "0" or
-        "1234567890" [ 10 len 11 ] <> "0" or
+        "1234567890" [ 10 len -1 ] <> "" or
+        "1234567890" [ 10 len  0 ] <> "" or
+        "1234567890" [ 10 len  1 ] <> "0" or
+        "1234567890" [ 10 len  2 ] <> "0" or
         "1234567890" [ 10 len 15 ] <> "0" or
         "1234567890" [ 11 len -5 ] <> "" or
-        "1234567890" [ 11 len 0 ] <> "" or
-        "1234567890" [ 11 len 1 ] <> "" or
-        "1234567890" [ 11 len 5 ] <> "" or
-        "1234567890" [ 11 len 10 ] <> "" or
-        "1234567890" [ 11 len 11 ] <> "" or
+        "1234567890" [ 11 len  0 ] <> "" or
+        "1234567890" [ 11 len  1 ] <> "" or
+        "1234567890" [ 11 len  2 ] <> "" or
         "1234567890" [ 11 len 15 ] <> "" or
         "1234567890" [ 15 len -5 ] <> "" or
-        "1234567890" [ 15 len 0 ] <> "" or
-        "1234567890" [ 15 len 1 ] <> "" or
-        "1234567890" [ 15 len 5 ] <> "" or
-        "1234567890" [ 15 len 10 ] <> "" or
-        "1234567890" [ 15 len 11 ] <> "" or
-        "1234567890" [ 15 len 15 ] <> "" or
+        "1234567890" [ 15 len  0 ] <> "" or
+        "1234567890" [ 15 len  1 ] <> "" or
+        "1234567890" [ 15 len  2 ] <> "" or
         "1234567890" [ 15 len 20 ] <> "" or
-        "" [-2147483643 len 2147483647] <> "" or
+        "" [ -5 len intExpr(-9) ] <> "" or
+        "" [ -5 len intExpr(-5) ] <> "" or
+        "" [ -5 len intExpr( 0) ] <> "" or
+        "" [ -5 len intExpr( 1) ] <> "" or
+        "" [ -5 len intExpr( 6) ] <> "" or
+        "" [ -5 len intExpr( 7) ] <> "" or
+        "" [ -5 len intExpr( 8) ] <> "" or
+        "" [ -5 len intExpr(20) ] <> "" or
+        "" [  0 len intExpr(-5) ] <> "" or
+        "" [  0 len intExpr( 0) ] <> "" or
+        "" [  0 len intExpr( 1) ] <> "" or
+        "" [  0 len intExpr( 2) ] <> "" or
+        "" [  0 len intExpr(15) ] <> "" or
+        "" [  1 len intExpr(-5) ] <> "" or
+        "" [  1 len intExpr( 0) ] <> "" or
+        "" [  1 len intExpr( 1) ] <> "" or
+        "" [  1 len intExpr( 2) ] <> "" or
+        "" [  1 len intExpr(15) ] <> "" or
+        "" [  2 len intExpr(-5) ] <> "" or
+        "" [  2 len intExpr( 0) ] <> "" or
+        "" [  2 len intExpr( 1) ] <> "" or
+        "" [  2 len intExpr(15) ] <> "" or
+        "" [ 15 len intExpr(-5) ] <> "" or
+        "" [ 15 len intExpr( 0) ] <> "" or
+        "" [ 15 len intExpr( 1) ] <> "" or
+        "" [ 15 len intExpr( 2) ] <> "" or
+        "" [ 15 len intExpr(20) ] <> "" or
+        "1" [ -5 len intExpr(-9) ] <> "" or
+        "1" [ -5 len intExpr(-5) ] <> "" or
+        "1" [ -5 len intExpr( 0) ] <> "" or
+        "1" [ -5 len intExpr( 1) ] <> "" or
+        "1" [ -5 len intExpr( 6) ] <> "" or
+        "1" [ -5 len intExpr( 7) ] <> "1" or
+        "1" [ -5 len intExpr( 8) ] <> "1" or
+        "1" [ -5 len intExpr(10) ] <> "1" or
+        "1" [  0 len intExpr(-5) ] <> "" or
+        "1" [  0 len intExpr( 0) ] <> "" or
+        "1" [  0 len intExpr( 1) ] <> "" or
+        "1" [  0 len intExpr( 2) ] <> "1" or
+        "1" [  0 len intExpr( 3) ] <> "1" or
+        "1" [  0 len intExpr(15) ] <> "1" or
+        "1" [  1 len intExpr(-5) ] <> "" or
+        "1" [  1 len intExpr( 0) ] <> "" or
+        "1" [  1 len intExpr( 1) ] <> "1" or
+        "1" [  1 len intExpr( 2) ] <> "1" or
+        "1" [  1 len intExpr(15) ] <> "1" or
+        "1" [  2 len intExpr(-5) ] <> "" or
+        "1" [  2 len intExpr( 0) ] <> "" or
+        "1" [  2 len intExpr( 1) ] <> "" or
+        "1" [  2 len intExpr( 2) ] <> "" or
+        "1" [  2 len intExpr(15) ] <> "" or
+        "1" [ 15 len intExpr(-5) ] <> "" or
+        "1" [ 15 len intExpr( 0) ] <> "" or
+        "1" [ 15 len intExpr( 1) ] <> "" or
+        "1" [ 15 len intExpr( 2) ] <> "" or
+        "1" [ 15 len intExpr(20) ] <> "" or
+        "1234567890" [ -5 len intExpr(-9) ] <> "" or
+        "1234567890" [ -5 len intExpr(-5) ] <> "" or
+        "1234567890" [ -5 len intExpr( 0) ] <> "" or
+        "1234567890" [ -5 len intExpr( 1) ] <> "" or
+        "1234567890" [ -5 len intExpr( 6) ] <> "" or
+        "1234567890" [ -5 len intExpr( 7) ] <> "1" or
+        "1234567890" [ -5 len intExpr( 8) ] <> "12" or
+        "1234567890" [ -5 len intExpr(11) ] <> "12345" or
+        "1234567890" [ -5 len intExpr(15) ] <> "123456789" or
+        "1234567890" [ -5 len intExpr(16) ] <> "1234567890" or
+        "1234567890" [ -5 len intExpr(17) ] <> "1234567890" or
+        "1234567890" [ -5 len intExpr(20) ] <> "1234567890" or
+        "1234567890" [  0 len intExpr(-5) ] <> "" or
+        "1234567890" [  0 len intExpr(-1) ] <> "" or
+        "1234567890" [  0 len intExpr( 0) ] <> "" or
+        "1234567890" [  0 len intExpr( 1) ] <> "" or
+        "1234567890" [  0 len intExpr( 2) ] <> "1" or
+        "1234567890" [  0 len intExpr( 3) ] <> "12" or
+        "1234567890" [  0 len intExpr( 6) ] <> "12345" or
+        "1234567890" [  0 len intExpr(10) ] <> "123456789" or
+        "1234567890" [  0 len intExpr(11) ] <> "1234567890" or
+        "1234567890" [  0 len intExpr(12) ] <> "1234567890" or
+        "1234567890" [  0 len intExpr(15) ] <> "1234567890" or
+        "1234567890" [  1 len intExpr(-5) ] <> "" or
+        "1234567890" [  1 len intExpr(-1) ] <> "" or
+        "1234567890" [  1 len intExpr( 0) ] <> "" or
+        "1234567890" [  1 len intExpr( 1) ] <> "1" or
+        "1234567890" [  1 len intExpr( 2) ] <> "12" or
+        "1234567890" [  1 len intExpr( 5) ] <> "12345" or
+        "1234567890" [  1 len intExpr( 9) ] <> "123456789" or
+        "1234567890" [  1 len intExpr(10) ] <> "1234567890" or
+        "1234567890" [  1 len intExpr(11) ] <> "1234567890" or
+        "1234567890" [  1 len intExpr(15) ] <> "1234567890" or
+        "1234567890" [  2 len intExpr(-5) ] <> "" or
+        "1234567890" [  2 len intExpr(-1) ] <> "" or
+        "1234567890" [  2 len intExpr( 0) ] <> "" or
+        "1234567890" [  2 len intExpr( 1) ] <> "2" or
+        "1234567890" [  2 len intExpr( 2) ] <> "23" or
+        "1234567890" [  2 len intExpr( 5) ] <> "23456" or
+        "1234567890" [  2 len intExpr( 8) ] <> "23456789" or
+        "1234567890" [  2 len intExpr( 9) ] <> "234567890" or
+        "1234567890" [  2 len intExpr(10) ] <> "234567890" or
+        "1234567890" [  2 len intExpr(15) ] <> "234567890" or
+        "1234567890" [  5 len intExpr(-5) ] <> "" or
+        "1234567890" [  5 len intExpr(-1) ] <> "" or
+        "1234567890" [  5 len intExpr( 0) ] <> "" or
+        "1234567890" [  5 len intExpr( 1) ] <> "5" or
+        "1234567890" [  5 len intExpr( 2) ] <> "56" or
+        "1234567890" [  5 len intExpr( 5) ] <> "56789" or
+        "1234567890" [  5 len intExpr( 6) ] <> "567890" or
+        "1234567890" [  5 len intExpr( 7) ] <> "567890" or
+        "1234567890" [  5 len intExpr(15) ] <> "567890" or
+        "1234567890" [  9 len intExpr(-5) ] <> "" or
+        "1234567890" [  9 len intExpr(-1) ] <> "" or
+        "1234567890" [  9 len intExpr( 0) ] <> "" or
+        "1234567890" [  9 len intExpr( 1) ] <> "9" or
+        "1234567890" [  9 len intExpr( 2) ] <> "90" or
+        "1234567890" [  9 len intExpr( 3) ] <> "90" or
+        "1234567890" [  9 len intExpr(15) ] <> "90" or
+        "1234567890" [ 10 len intExpr(-5) ] <> "" or
+        "1234567890" [ 10 len intExpr(-1) ] <> "" or
+        "1234567890" [ 10 len intExpr( 0) ] <> "" or
+        "1234567890" [ 10 len intExpr( 1) ] <> "0" or
+        "1234567890" [ 10 len intExpr( 2) ] <> "0" or
+        "1234567890" [ 10 len intExpr(15) ] <> "0" or
+        "1234567890" [ 11 len intExpr(-5) ] <> "" or
+        "1234567890" [ 11 len intExpr( 0) ] <> "" or
+        "1234567890" [ 11 len intExpr( 1) ] <> "" or
+        "1234567890" [ 11 len intExpr( 2) ] <> "" or
+        "1234567890" [ 11 len intExpr(15) ] <> "" or
+        "1234567890" [ 15 len intExpr(-5) ] <> "" or
+        "1234567890" [ 15 len intExpr( 0) ] <> "" or
+        "1234567890" [ 15 len intExpr( 1) ] <> "" or
+        "1234567890" [ 15 len intExpr( 2) ] <> "" or
+        "1234567890" [ 15 len intExpr(20) ] <> "" or
+        "" [ intExpr(-5) len -9 ] <> "" or
+        "" [ intExpr(-5) len -5 ] <> "" or
+        "" [ intExpr(-5) len  0 ] <> "" or
+        "" [ intExpr(-5) len  1 ] <> "" or
+        "" [ intExpr(-5) len  6 ] <> "" or
+        "" [ intExpr(-5) len  7 ] <> "" or
+        "" [ intExpr(-5) len  8 ] <> "" or
+        "" [ intExpr(-5) len 20 ] <> "" or
+        "" [ intExpr( 0) len -5 ] <> "" or
+        "" [ intExpr( 0) len  0 ] <> "" or
+        "" [ intExpr( 0) len  1 ] <> "" or
+        "" [ intExpr( 0) len  2 ] <> "" or
+        "" [ intExpr( 0) len 15 ] <> "" or
+        "" [ intExpr( 1) len -5 ] <> "" or
+        "" [ intExpr( 1) len  0 ] <> "" or
+        "" [ intExpr( 1) len  1 ] <> "" or
+        "" [ intExpr( 1) len  2 ] <> "" or
+        "" [ intExpr( 1) len 15 ] <> "" or
+        "" [ intExpr( 2) len -5 ] <> "" or
+        "" [ intExpr( 2) len  0 ] <> "" or
+        "" [ intExpr( 2) len  1 ] <> "" or
+        "" [ intExpr( 2) len 15 ] <> "" or
+        "" [ intExpr(15) len -5 ] <> "" or
+        "" [ intExpr(15) len  0 ] <> "" or
+        "" [ intExpr(15) len  1 ] <> "" or
+        "" [ intExpr(15) len  2 ] <> "" or
+        "" [ intExpr(15) len 20 ] <> "" or
+        "1" [ intExpr(-5) len -9 ] <> "" or
+        "1" [ intExpr(-5) len -5 ] <> "" or
+        "1" [ intExpr(-5) len  0 ] <> "" or
+        "1" [ intExpr(-5) len  1 ] <> "" or
+        "1" [ intExpr(-5) len  6 ] <> "" or
+        "1" [ intExpr(-5) len  7 ] <> "1" or
+        "1" [ intExpr(-5) len  8 ] <> "1" or
+        "1" [ intExpr(-5) len 10 ] <> "1" or
+        "1" [ intExpr( 0) len -5 ] <> "" or
+        "1" [ intExpr( 0) len  0 ] <> "" or
+        "1" [ intExpr( 0) len  1 ] <> "" or
+        "1" [ intExpr( 0) len  2 ] <> "1" or
+        "1" [ intExpr( 0) len  3 ] <> "1" or
+        "1" [ intExpr( 0) len 15 ] <> "1" or
+        "1" [ intExpr( 1) len -5 ] <> "" or
+        "1" [ intExpr( 1) len  0 ] <> "" or
+        "1" [ intExpr( 1) len  1 ] <> "1" or
+        "1" [ intExpr( 1) len  2 ] <> "1" or
+        "1" [ intExpr( 1) len 15 ] <> "1" or
+        "1" [ intExpr( 2) len -5 ] <> "" or
+        "1" [ intExpr( 2) len  0 ] <> "" or
+        "1" [ intExpr( 2) len  1 ] <> "" or
+        "1" [ intExpr( 2) len  2 ] <> "" or
+        "1" [ intExpr( 2) len 15 ] <> "" or
+        "1" [ intExpr(15) len -5 ] <> "" or
+        "1" [ intExpr(15) len  0 ] <> "" or
+        "1" [ intExpr(15) len  1 ] <> "" or
+        "1" [ intExpr(15) len  2 ] <> "" or
+        "1" [ intExpr(15) len 20 ] <> "" or
+        "1234567890" [ intExpr(-5) len -9 ] <> "" or
+        "1234567890" [ intExpr(-5) len -5 ] <> "" or
+        "1234567890" [ intExpr(-5) len  0 ] <> "" or
+        "1234567890" [ intExpr(-5) len  1 ] <> "" or
+        "1234567890" [ intExpr(-5) len  6 ] <> "" or
+        "1234567890" [ intExpr(-5) len  7 ] <> "1" or
+        "1234567890" [ intExpr(-5) len  8 ] <> "12" or
+        "1234567890" [ intExpr(-5) len 11 ] <> "12345" or
+        "1234567890" [ intExpr(-5) len 15 ] <> "123456789" or
+        "1234567890" [ intExpr(-5) len 16 ] <> "1234567890" or
+        "1234567890" [ intExpr(-5) len 17 ] <> "1234567890" or
+        "1234567890" [ intExpr(-5) len 20 ] <> "1234567890" or
+        "1234567890" [ intExpr( 0) len -5 ] <> "" or
+        "1234567890" [ intExpr( 0) len -1 ] <> "" or
+        "1234567890" [ intExpr( 0) len  0 ] <> "" or
+        "1234567890" [ intExpr( 0) len  1 ] <> "" or
+        "1234567890" [ intExpr( 0) len  2 ] <> "1" or
+        "1234567890" [ intExpr( 0) len  3 ] <> "12" or
+        "1234567890" [ intExpr( 0) len  6 ] <> "12345" or
+        "1234567890" [ intExpr( 0) len 10 ] <> "123456789" or
+        "1234567890" [ intExpr( 0) len 11 ] <> "1234567890" or
+        "1234567890" [ intExpr( 0) len 12 ] <> "1234567890" or
+        "1234567890" [ intExpr( 0) len 15 ] <> "1234567890" or
+        "1234567890" [ intExpr( 1) len -5 ] <> "" or
+        "1234567890" [ intExpr( 1) len -1 ] <> "" or
+        "1234567890" [ intExpr( 1) len  0 ] <> "" or
+        "1234567890" [ intExpr( 1) len  1 ] <> "1" or
+        "1234567890" [ intExpr( 1) len  2 ] <> "12" or
+        "1234567890" [ intExpr( 1) len  5 ] <> "12345" or
+        "1234567890" [ intExpr( 1) len  9 ] <> "123456789" or
+        "1234567890" [ intExpr( 1) len 10 ] <> "1234567890" or
+        "1234567890" [ intExpr( 1) len 11 ] <> "1234567890" or
+        "1234567890" [ intExpr( 1) len 15 ] <> "1234567890" or
+        "1234567890" [ intExpr( 2) len -5 ] <> "" or
+        "1234567890" [ intExpr( 2) len -1 ] <> "" or
+        "1234567890" [ intExpr( 2) len  0 ] <> "" or
+        "1234567890" [ intExpr( 2) len  1 ] <> "2" or
+        "1234567890" [ intExpr( 2) len  2 ] <> "23" or
+        "1234567890" [ intExpr( 2) len  5 ] <> "23456" or
+        "1234567890" [ intExpr( 2) len  8 ] <> "23456789" or
+        "1234567890" [ intExpr( 2) len  9 ] <> "234567890" or
+        "1234567890" [ intExpr( 2) len 10 ] <> "234567890" or
+        "1234567890" [ intExpr( 2) len 15 ] <> "234567890" or
+        "1234567890" [ intExpr( 5) len -5 ] <> "" or
+        "1234567890" [ intExpr( 5) len -1 ] <> "" or
+        "1234567890" [ intExpr( 5) len  0 ] <> "" or
+        "1234567890" [ intExpr( 5) len  1 ] <> "5" or
+        "1234567890" [ intExpr( 5) len  2 ] <> "56" or
+        "1234567890" [ intExpr( 5) len  5 ] <> "56789" or
+        "1234567890" [ intExpr( 5) len  6 ] <> "567890" or
+        "1234567890" [ intExpr( 5) len  7 ] <> "567890" or
+        "1234567890" [ intExpr( 5) len 15 ] <> "567890" or
+        "1234567890" [ intExpr( 9) len -5 ] <> "" or
+        "1234567890" [ intExpr( 9) len -1 ] <> "" or
+        "1234567890" [ intExpr( 9) len  0 ] <> "" or
+        "1234567890" [ intExpr( 9) len  1 ] <> "9" or
+        "1234567890" [ intExpr( 9) len  2 ] <> "90" or
+        "1234567890" [ intExpr( 9) len  3 ] <> "90" or
+        "1234567890" [ intExpr( 9) len 15 ] <> "90" or
+        "1234567890" [ intExpr(10) len -5 ] <> "" or
+        "1234567890" [ intExpr(10) len -1 ] <> "" or
+        "1234567890" [ intExpr(10) len  0 ] <> "" or
+        "1234567890" [ intExpr(10) len  1 ] <> "0" or
+        "1234567890" [ intExpr(10) len  2 ] <> "0" or
+        "1234567890" [ intExpr(10) len 15 ] <> "0" or
+        "1234567890" [ intExpr(11) len -5 ] <> "" or
+        "1234567890" [ intExpr(11) len  0 ] <> "" or
+        "1234567890" [ intExpr(11) len  1 ] <> "" or
+        "1234567890" [ intExpr(11) len  2 ] <> "" or
+        "1234567890" [ intExpr(11) len 15 ] <> "" or
+        "1234567890" [ intExpr(15) len -5 ] <> "" or
+        "1234567890" [ intExpr(15) len  0 ] <> "" or
+        "1234567890" [ intExpr(15) len  1 ] <> "" or
+        "1234567890" [ intExpr(15) len  2 ] <> "" or
+        "1234567890" [ intExpr(15) len 20 ] <> "" or
+        "" [ intExpr(-5) len intExpr(-9) ] <> "" or
+        "" [ intExpr(-5) len intExpr(-5) ] <> "" or
+        "" [ intExpr(-5) len intExpr( 0) ] <> "" or
+        "" [ intExpr(-5) len intExpr( 1) ] <> "" or
+        "" [ intExpr(-5) len intExpr( 6) ] <> "" or
+        "" [ intExpr(-5) len intExpr( 7) ] <> "" or
+        "" [ intExpr(-5) len intExpr( 8) ] <> "" or
+        "" [ intExpr(-5) len intExpr(20) ] <> "" or
+        "" [ intExpr( 0) len intExpr(-5) ] <> "" or
+        "" [ intExpr( 0) len intExpr( 0) ] <> "" or
+        "" [ intExpr( 0) len intExpr( 1) ] <> "" or
+        "" [ intExpr( 0) len intExpr( 2) ] <> "" or
+        "" [ intExpr( 0) len intExpr(15) ] <> "" or
+        "" [ intExpr( 1) len intExpr(-5) ] <> "" or
+        "" [ intExpr( 1) len intExpr( 0) ] <> "" or
+        "" [ intExpr( 1) len intExpr( 1) ] <> "" or
+        "" [ intExpr( 1) len intExpr( 2) ] <> "" or
+        "" [ intExpr( 1) len intExpr(15) ] <> "" or
+        "" [ intExpr( 2) len intExpr(-5) ] <> "" or
+        "" [ intExpr( 2) len intExpr( 0) ] <> "" or
+        "" [ intExpr( 2) len intExpr( 1) ] <> "" or
+        "" [ intExpr( 2) len intExpr(15) ] <> "" or
+        "" [ intExpr(15) len intExpr(-5) ] <> "" or
+        "" [ intExpr(15) len intExpr( 0) ] <> "" or
+        "" [ intExpr(15) len intExpr( 1) ] <> "" or
+        "" [ intExpr(15) len intExpr( 2) ] <> "" or
+        "" [ intExpr(15) len intExpr(20) ] <> "" or
+        "1" [ intExpr(-5) len intExpr(-9) ] <> "" or
+        "1" [ intExpr(-5) len intExpr(-5) ] <> "" or
+        "1" [ intExpr(-5) len intExpr( 0) ] <> "" or
+        "1" [ intExpr(-5) len intExpr( 1) ] <> "" or
+        "1" [ intExpr(-5) len intExpr( 6) ] <> "" or
+        "1" [ intExpr(-5) len intExpr( 7) ] <> "1" or
+        "1" [ intExpr(-5) len intExpr( 8) ] <> "1" or
+        "1" [ intExpr(-5) len intExpr(10) ] <> "1" or
+        "1" [ intExpr( 0) len intExpr(-5) ] <> "" or
+        "1" [ intExpr( 0) len intExpr( 0) ] <> "" or
+        "1" [ intExpr( 0) len intExpr( 1) ] <> "" or
+        "1" [ intExpr( 0) len intExpr( 2) ] <> "1" or
+        "1" [ intExpr( 0) len intExpr( 3) ] <> "1" or
+        "1" [ intExpr( 0) len intExpr(15) ] <> "1" or
+        "1" [ intExpr( 1) len intExpr(-5) ] <> "" or
+        "1" [ intExpr( 1) len intExpr( 0) ] <> "" or
+        "1" [ intExpr( 1) len intExpr( 1) ] <> "1" or
+        "1" [ intExpr( 1) len intExpr( 2) ] <> "1" or
+        "1" [ intExpr( 1) len intExpr(15) ] <> "1" or
+        "1" [ intExpr( 2) len intExpr(-5) ] <> "" or
+        "1" [ intExpr( 5) len intExpr( 0) ] <> "" or
+        "1" [ intExpr( 2) len intExpr( 1) ] <> "" or
+        "1" [ intExpr( 2) len intExpr( 2) ] <> "" or
+        "1" [ intExpr( 2) len intExpr(15) ] <> "" or
+        "1" [ intExpr(15) len intExpr(-5) ] <> "" or
+        "1" [ intExpr(15) len intExpr( 0) ] <> "" or
+        "1" [ intExpr(15) len intExpr( 1) ] <> "" or
+        "1" [ intExpr(15) len intExpr( 2) ] <> "" or
+        "1" [ intExpr(15) len intExpr(20) ] <> "" or
+        "1234567890" [ intExpr(-5) len intExpr(-9) ] <> "" or
+        "1234567890" [ intExpr(-5) len intExpr(-5) ] <> "" or
+        "1234567890" [ intExpr(-5) len intExpr( 0) ] <> "" or
+        "1234567890" [ intExpr(-5) len intExpr( 1) ] <> "" or
+        "1234567890" [ intExpr(-5) len intExpr( 6) ] <> "" or
+        "1234567890" [ intExpr(-5) len intExpr( 7) ] <> "1" or
+        "1234567890" [ intExpr(-5) len intExpr( 8) ] <> "12" or
+        "1234567890" [ intExpr(-5) len intExpr(11) ] <> "12345" or
+        "1234567890" [ intExpr(-5) len intExpr(15) ] <> "123456789" or
+        "1234567890" [ intExpr(-5) len intExpr(16) ] <> "1234567890" or
+        "1234567890" [ intExpr(-5) len intExpr(17) ] <> "1234567890" or
+        "1234567890" [ intExpr(-5) len intExpr(20) ] <> "1234567890" or
+        "1234567890" [ intExpr( 0) len intExpr(-5) ] <> "" or
+        "1234567890" [ intExpr( 0) len intExpr(-1) ] <> "" or
+        "1234567890" [ intExpr( 0) len intExpr( 0) ] <> "" or
+        "1234567890" [ intExpr( 0) len intExpr( 1) ] <> "" or
+        "1234567890" [ intExpr( 0) len intExpr( 2) ] <> "1" or
+        "1234567890" [ intExpr( 0) len intExpr( 3) ] <> "12" or
+        "1234567890" [ intExpr( 0) len intExpr( 6) ] <> "12345" or
+        "1234567890" [ intExpr( 0) len intExpr(10) ] <> "123456789" or
+        "1234567890" [ intExpr( 0) len intExpr(11) ] <> "1234567890" or
+        "1234567890" [ intExpr( 0) len intExpr(12) ] <> "1234567890" or
+        "1234567890" [ intExpr( 0) len intExpr(15) ] <> "1234567890" or
+        "1234567890" [ intExpr( 1) len intExpr(-5) ] <> "" or
+        "1234567890" [ intExpr( 1) len intExpr(-1) ] <> "" or
+        "1234567890" [ intExpr( 1) len intExpr( 0) ] <> "" or
+        "1234567890" [ intExpr( 1) len intExpr( 1) ] <> "1" or
+        "1234567890" [ intExpr( 1) len intExpr( 2) ] <> "12" or
+        "1234567890" [ intExpr( 1) len intExpr( 5) ] <> "12345" or
+        "1234567890" [ intExpr( 1) len intExpr( 9) ] <> "123456789" or
+        "1234567890" [ intExpr( 1) len intExpr(10) ] <> "1234567890" or
+        "1234567890" [ intExpr( 1) len intExpr(11) ] <> "1234567890" or
+        "1234567890" [ intExpr( 1) len intExpr(15) ] <> "1234567890" or
+        "1234567890" [ intExpr( 2) len intExpr(-5) ] <> "" or
+        "1234567890" [ intExpr( 2) len intExpr(-1) ] <> "" or
+        "1234567890" [ intExpr( 2) len intExpr( 0) ] <> "" or
+        "1234567890" [ intExpr( 2) len intExpr( 1) ] <> "2" or
+        "1234567890" [ intExpr( 2) len intExpr( 2) ] <> "23" or
+        "1234567890" [ intExpr( 2) len intExpr( 5) ] <> "23456" or
+        "1234567890" [ intExpr( 2) len intExpr( 8) ] <> "23456789" or
+        "1234567890" [ intExpr( 2) len intExpr( 9) ] <> "234567890" or
+        "1234567890" [ intExpr( 2) len intExpr(10) ] <> "234567890" or
+        "1234567890" [ intExpr( 2) len intExpr(15) ] <> "234567890" or
+        "1234567890" [ intExpr( 5) len intExpr(-5) ] <> "" or
+        "1234567890" [ intExpr( 5) len intExpr(-1) ] <> "" or
+        "1234567890" [ intExpr( 5) len intExpr( 0) ] <> "" or
+        "1234567890" [ intExpr( 5) len intExpr( 1) ] <> "5" or
+        "1234567890" [ intExpr( 5) len intExpr( 2) ] <> "56" or
+        "1234567890" [ intExpr( 5) len intExpr( 5) ] <> "56789" or
+        "1234567890" [ intExpr( 5) len intExpr( 6) ] <> "567890" or
+        "1234567890" [ intExpr( 5) len intExpr( 7) ] <> "567890" or
+        "1234567890" [ intExpr( 5) len intExpr(15) ] <> "567890" or
+        "1234567890" [ intExpr( 9) len intExpr(-5) ] <> "" or
+        "1234567890" [ intExpr( 9) len intExpr(-1) ] <> "" or
+        "1234567890" [ intExpr( 9) len intExpr( 0) ] <> "" or
+        "1234567890" [ intExpr( 9) len intExpr( 1) ] <> "9" or
+        "1234567890" [ intExpr( 9) len intExpr( 2) ] <> "90" or
+        "1234567890" [ intExpr( 9) len intExpr( 3) ] <> "90" or
+        "1234567890" [ intExpr( 9) len intExpr(15) ] <> "90" or
+        "1234567890" [ intExpr(10) len intExpr(-5) ] <> "" or
+        "1234567890" [ intExpr(10) len intExpr(-1) ] <> "" or
+        "1234567890" [ intExpr(10) len intExpr( 0) ] <> "" or
+        "1234567890" [ intExpr(10) len intExpr( 1) ] <> "0" or
+        "1234567890" [ intExpr(10) len intExpr( 2) ] <> "0" or
+        "1234567890" [ intExpr(10) len intExpr(15) ] <> "0" or
+        "1234567890" [ intExpr(11) len intExpr(-5) ] <> "" or
+        "1234567890" [ intExpr(11) len intExpr( 0) ] <> "" or
+        "1234567890" [ intExpr(11) len intExpr( 1) ] <> "" or
+        "1234567890" [ intExpr(11) len intExpr( 2) ] <> "" or
+        "1234567890" [ intExpr(11) len intExpr(15) ] <> "" or
+        "1234567890" [ intExpr(15) len intExpr(-5) ] <> "" or
+        "1234567890" [ intExpr(15) len intExpr( 0) ] <> "" or
+        "1234567890" [ intExpr(15) len intExpr( 1) ] <> "" or
+        "1234567890" [ intExpr(15) len intExpr( 2) ] <> "" or
+        "1234567890" [ intExpr(15) len intExpr(20) ] <> "" or
+        striExpr("") [ -5 len -9 ] <> "" or
+        striExpr("") [ -5 len -5 ] <> "" or
+        striExpr("") [ -5 len  0 ] <> "" or
+        striExpr("") [ -5 len  1 ] <> "" or
+        striExpr("") [ -5 len  6 ] <> "" or
+        striExpr("") [ -5 len  7 ] <> "" or
+        striExpr("") [ -5 len  8 ] <> "" or
+        striExpr("") [ -5 len 20 ] <> "" or
+        striExpr("") [  0 len -5 ] <> "" or
+        striExpr("") [  0 len  0 ] <> "" or
+        striExpr("") [  0 len  1 ] <> "" or
+        striExpr("") [  0 len  2 ] <> "" or
+        striExpr("") [  0 len 15 ] <> "" or
+        striExpr("") [  1 len -5 ] <> "" or
+        striExpr("") [  1 len  0 ] <> "" or
+        striExpr("") [  1 len  1 ] <> "" or
+        striExpr("") [  1 len  2 ] <> "" or
+        striExpr("") [  1 len 15 ] <> "" or
+        striExpr("") [  2 len -5 ] <> "" or
+        striExpr("") [  2 len  0 ] <> "" or
+        striExpr("") [  2 len  1 ] <> "" or
+        striExpr("") [  2 len 15 ] <> "" or
+        striExpr("") [ 15 len -5 ] <> "" or
+        striExpr("") [ 15 len  0 ] <> "" or
+        striExpr("") [ 15 len  1 ] <> "" or
+        striExpr("") [ 15 len  2 ] <> "" or
+        striExpr("") [ 15 len 20 ] <> "" or
+        striExpr("1") [ -5 len -9 ] <> "" or
+        striExpr("1") [ -5 len -5 ] <> "" or
+        striExpr("1") [ -5 len  0 ] <> "" or
+        striExpr("1") [ -5 len  1 ] <> "" or
+        striExpr("1") [ -5 len  6 ] <> "" or
+        striExpr("1") [ -5 len  7 ] <> "1" or
+        striExpr("1") [ -5 len  8 ] <> "1" or
+        striExpr("1") [ -5 len 10 ] <> "1" or
+        striExpr("1") [  0 len -5 ] <> "" or
+        striExpr("1") [  0 len  0 ] <> "" or
+        striExpr("1") [  0 len  1 ] <> "" or
+        striExpr("1") [  0 len  2 ] <> "1" or
+        striExpr("1") [  0 len  3 ] <> "1" or
+        striExpr("1") [  0 len 15 ] <> "1" or
+        striExpr("1") [  1 len -5 ] <> "" or
+        striExpr("1") [  1 len  0 ] <> "" or
+        striExpr("1") [  1 len  1 ] <> "1" or
+        striExpr("1") [  1 len  2 ] <> "1" or
+        striExpr("1") [  1 len 15 ] <> "1" or
+        striExpr("1") [  2 len -5 ] <> "" or
+        striExpr("1") [  2 len  0 ] <> "" or
+        striExpr("1") [  2 len  1 ] <> "" or
+        striExpr("1") [  2 len  2 ] <> "" or
+        striExpr("1") [  2 len 15 ] <> "" or
+        striExpr("1") [ 15 len -5 ] <> "" or
+        striExpr("1") [ 15 len  0 ] <> "" or
+        striExpr("1") [ 15 len  1 ] <> "" or
+        striExpr("1") [ 15 len  2 ] <> "" or
+        striExpr("1") [ 15 len 20 ] <> "" or
+        striExpr("1234567890") [ -5 len -9 ] <> "" or
+        striExpr("1234567890") [ -5 len -5 ] <> "" or
+        striExpr("1234567890") [ -5 len  0 ] <> "" or
+        striExpr("1234567890") [ -5 len  1 ] <> "" or
+        striExpr("1234567890") [ -5 len  6 ] <> "" or
+        striExpr("1234567890") [ -5 len  7 ] <> "1" or
+        striExpr("1234567890") [ -5 len  8 ] <> "12" or
+        striExpr("1234567890") [ -5 len 11 ] <> "12345" or
+        striExpr("1234567890") [ -5 len 15 ] <> "123456789" or
+        striExpr("1234567890") [ -5 len 16 ] <> "1234567890" or
+        striExpr("1234567890") [ -5 len 17 ] <> "1234567890" or
+        striExpr("1234567890") [ -5 len 20 ] <> "1234567890" or
+        striExpr("1234567890") [  0 len -5 ] <> "" or
+        striExpr("1234567890") [  0 len -1 ] <> "" or
+        striExpr("1234567890") [  0 len  0 ] <> "" or
+        striExpr("1234567890") [  0 len  1 ] <> "" or
+        striExpr("1234567890") [  0 len  2 ] <> "1" or
+        striExpr("1234567890") [  0 len  3 ] <> "12" or
+        striExpr("1234567890") [  0 len  6 ] <> "12345" or
+        striExpr("1234567890") [  0 len 10 ] <> "123456789" or
+        striExpr("1234567890") [  0 len 11 ] <> "1234567890" or
+        striExpr("1234567890") [  0 len 12 ] <> "1234567890" or
+        striExpr("1234567890") [  0 len 15 ] <> "1234567890" or
+        striExpr("1234567890") [  1 len -5 ] <> "" or
+        striExpr("1234567890") [  1 len -1 ] <> "" or
+        striExpr("1234567890") [  1 len  0 ] <> "" or
+        striExpr("1234567890") [  1 len  1 ] <> "1" or
+        striExpr("1234567890") [  1 len  2 ] <> "12" or
+        striExpr("1234567890") [  1 len  5 ] <> "12345" or
+        striExpr("1234567890") [  1 len  9 ] <> "123456789" or
+        striExpr("1234567890") [  1 len 10 ] <> "1234567890" or
+        striExpr("1234567890") [  1 len 11 ] <> "1234567890" or
+        striExpr("1234567890") [  1 len 15 ] <> "1234567890" or
+        striExpr("1234567890") [  2 len -5 ] <> "" or
+        striExpr("1234567890") [  2 len -1 ] <> "" or
+        striExpr("1234567890") [  2 len  0 ] <> "" or
+        striExpr("1234567890") [  2 len  1 ] <> "2" or
+        striExpr("1234567890") [  2 len  2 ] <> "23" or
+        striExpr("1234567890") [  2 len  5 ] <> "23456" or
+        striExpr("1234567890") [  2 len  8 ] <> "23456789" or
+        striExpr("1234567890") [  2 len  9 ] <> "234567890" or
+        striExpr("1234567890") [  2 len 10 ] <> "234567890" or
+        striExpr("1234567890") [  2 len 15 ] <> "234567890" or
+        striExpr("1234567890") [  5 len -5 ] <> "" or
+        striExpr("1234567890") [  5 len -1 ] <> "" or
+        striExpr("1234567890") [  5 len  0 ] <> "" or
+        striExpr("1234567890") [  5 len  1 ] <> "5" or
+        striExpr("1234567890") [  5 len  2 ] <> "56" or
+        striExpr("1234567890") [  5 len  5 ] <> "56789" or
+        striExpr("1234567890") [  5 len  6 ] <> "567890" or
+        striExpr("1234567890") [  5 len  7 ] <> "567890" or
+        striExpr("1234567890") [  5 len 15 ] <> "567890" or
+        striExpr("1234567890") [  9 len -5 ] <> "" or
+        striExpr("1234567890") [  9 len -1 ] <> "" or
+        striExpr("1234567890") [  9 len  0 ] <> "" or
+        striExpr("1234567890") [  9 len  1 ] <> "9" or
+        striExpr("1234567890") [  9 len  2 ] <> "90" or
+        striExpr("1234567890") [  9 len  3 ] <> "90" or
+        striExpr("1234567890") [  9 len 15 ] <> "90" or
+        striExpr("1234567890") [ 10 len -5 ] <> "" or
+        striExpr("1234567890") [ 10 len -1 ] <> "" or
+        striExpr("1234567890") [ 10 len  0 ] <> "" or
+        striExpr("1234567890") [ 10 len  1 ] <> "0" or
+        striExpr("1234567890") [ 10 len  2 ] <> "0" or
+        striExpr("1234567890") [ 10 len 15 ] <> "0" or
+        striExpr("1234567890") [ 11 len -5 ] <> "" or
+        striExpr("1234567890") [ 11 len  0 ] <> "" or
+        striExpr("1234567890") [ 11 len  1 ] <> "" or
+        striExpr("1234567890") [ 11 len  2 ] <> "" or
+        striExpr("1234567890") [ 11 len 15 ] <> "" or
+        striExpr("1234567890") [ 15 len -5 ] <> "" or
+        striExpr("1234567890") [ 15 len  0 ] <> "" or
+        striExpr("1234567890") [ 15 len  1 ] <> "" or
+        striExpr("1234567890") [ 15 len  2 ] <> "" or
+        striExpr("1234567890") [ 15 len 20 ] <> "" or
+        striExpr("") [ -5 len intExpr(-9) ] <> "" or
+        striExpr("") [ -5 len intExpr(-5) ] <> "" or
+        striExpr("") [ -5 len intExpr( 0) ] <> "" or
+        striExpr("") [ -5 len intExpr( 1) ] <> "" or
+        striExpr("") [ -5 len intExpr( 6) ] <> "" or
+        striExpr("") [ -5 len intExpr( 7) ] <> "" or
+        striExpr("") [ -5 len intExpr( 8) ] <> "" or
+        striExpr("") [ -5 len intExpr(20) ] <> "" or
+        striExpr("") [  0 len intExpr(-5) ] <> "" or
+        striExpr("") [  0 len intExpr( 0) ] <> "" or
+        striExpr("") [  0 len intExpr( 1) ] <> "" or
+        striExpr("") [  0 len intExpr( 2) ] <> "" or
+        striExpr("") [  0 len intExpr(15) ] <> "" or
+        striExpr("") [  1 len intExpr(-5) ] <> "" or
+        striExpr("") [  1 len intExpr( 0) ] <> "" or
+        striExpr("") [  1 len intExpr( 1) ] <> "" or
+        striExpr("") [  1 len intExpr( 2) ] <> "" or
+        striExpr("") [  1 len intExpr(15) ] <> "" or
+        striExpr("") [  2 len intExpr(-5) ] <> "" or
+        striExpr("") [  2 len intExpr( 0) ] <> "" or
+        striExpr("") [  2 len intExpr( 1) ] <> "" or
+        striExpr("") [  2 len intExpr(15) ] <> "" or
+        striExpr("") [ 15 len intExpr(-5) ] <> "" or
+        striExpr("") [ 15 len intExpr( 0) ] <> "" or
+        striExpr("") [ 15 len intExpr( 1) ] <> "" or
+        striExpr("") [ 15 len intExpr( 2) ] <> "" or
+        striExpr("") [ 15 len intExpr(20) ] <> "" or
+        striExpr("1") [ -5 len intExpr(-9) ] <> "" or
+        striExpr("1") [ -5 len intExpr(-5) ] <> "" or
+        striExpr("1") [ -5 len intExpr( 0) ] <> "" or
+        striExpr("1") [ -5 len intExpr( 1) ] <> "" or
+        striExpr("1") [ -5 len intExpr( 6) ] <> "" or
+        striExpr("1") [ -5 len intExpr( 7) ] <> "1" or
+        striExpr("1") [ -5 len intExpr( 8) ] <> "1" or
+        striExpr("1") [ -5 len intExpr(10) ] <> "1" or
+        striExpr("1") [  0 len intExpr(-5) ] <> "" or
+        striExpr("1") [  0 len intExpr( 0) ] <> "" or
+        striExpr("1") [  0 len intExpr( 1) ] <> "" or
+        striExpr("1") [  0 len intExpr( 2) ] <> "1" or
+        striExpr("1") [  0 len intExpr( 3) ] <> "1" or
+        striExpr("1") [  0 len intExpr(15) ] <> "1" or
+        striExpr("1") [  1 len intExpr(-5) ] <> "" or
+        striExpr("1") [  1 len intExpr( 0) ] <> "" or
+        striExpr("1") [  1 len intExpr( 1) ] <> "1" or
+        striExpr("1") [  1 len intExpr( 2) ] <> "1" or
+        striExpr("1") [  1 len intExpr(15) ] <> "1" or
+        striExpr("1") [  2 len intExpr(-5) ] <> "" or
+        striExpr("1") [  2 len intExpr( 0) ] <> "" or
+        striExpr("1") [  2 len intExpr( 1) ] <> "" or
+        striExpr("1") [  2 len intExpr( 2) ] <> "" or
+        striExpr("1") [  2 len intExpr(15) ] <> "" or
+        striExpr("1") [ 15 len intExpr(-5) ] <> "" or
+        striExpr("1") [ 15 len intExpr( 0) ] <> "" or
+        striExpr("1") [ 15 len intExpr( 1) ] <> "" or
+        striExpr("1") [ 15 len intExpr( 2) ] <> "" or
+        striExpr("1") [ 15 len intExpr(20) ] <> "" or
+        striExpr("1234567890") [ -5 len intExpr(-9) ] <> "" or
+        striExpr("1234567890") [ -5 len intExpr(-5) ] <> "" or
+        striExpr("1234567890") [ -5 len intExpr( 0) ] <> "" or
+        striExpr("1234567890") [ -5 len intExpr( 1) ] <> "" or
+        striExpr("1234567890") [ -5 len intExpr( 6) ] <> "" or
+        striExpr("1234567890") [ -5 len intExpr( 7) ] <> "1" or
+        striExpr("1234567890") [ -5 len intExpr( 8) ] <> "12" or
+        striExpr("1234567890") [ -5 len intExpr(11) ] <> "12345" or
+        striExpr("1234567890") [ -5 len intExpr(15) ] <> "123456789" or
+        striExpr("1234567890") [ -5 len intExpr(16) ] <> "1234567890" or
+        striExpr("1234567890") [ -5 len intExpr(17) ] <> "1234567890" or
+        striExpr("1234567890") [ -5 len intExpr(20) ] <> "1234567890" or
+        striExpr("1234567890") [  0 len intExpr(-5) ] <> "" or
+        striExpr("1234567890") [  0 len intExpr(-1) ] <> "" or
+        striExpr("1234567890") [  0 len intExpr( 0) ] <> "" or
+        striExpr("1234567890") [  0 len intExpr( 1) ] <> "" or
+        striExpr("1234567890") [  0 len intExpr( 2) ] <> "1" or
+        striExpr("1234567890") [  0 len intExpr( 3) ] <> "12" or
+        striExpr("1234567890") [  0 len intExpr( 6) ] <> "12345" or
+        striExpr("1234567890") [  0 len intExpr(10) ] <> "123456789" or
+        striExpr("1234567890") [  0 len intExpr(11) ] <> "1234567890" or
+        striExpr("1234567890") [  0 len intExpr(12) ] <> "1234567890" or
+        striExpr("1234567890") [  0 len intExpr(15) ] <> "1234567890" or
+        striExpr("1234567890") [  1 len intExpr(-5) ] <> "" or
+        striExpr("1234567890") [  1 len intExpr(-1) ] <> "" or
+        striExpr("1234567890") [  1 len intExpr( 0) ] <> "" or
+        striExpr("1234567890") [  1 len intExpr( 1) ] <> "1" or
+        striExpr("1234567890") [  1 len intExpr( 2) ] <> "12" or
+        striExpr("1234567890") [  1 len intExpr( 5) ] <> "12345" or
+        striExpr("1234567890") [  1 len intExpr( 9) ] <> "123456789" or
+        striExpr("1234567890") [  1 len intExpr(10) ] <> "1234567890" or
+        striExpr("1234567890") [  1 len intExpr(11) ] <> "1234567890" or
+        striExpr("1234567890") [  1 len intExpr(15) ] <> "1234567890" or
+        striExpr("1234567890") [  2 len intExpr(-5) ] <> "" or
+        striExpr("1234567890") [  2 len intExpr(-1) ] <> "" or
+        striExpr("1234567890") [  2 len intExpr( 0) ] <> "" or
+        striExpr("1234567890") [  2 len intExpr( 1) ] <> "2" or
+        striExpr("1234567890") [  2 len intExpr( 2) ] <> "23" or
+        striExpr("1234567890") [  2 len intExpr( 5) ] <> "23456" or
+        striExpr("1234567890") [  2 len intExpr( 8) ] <> "23456789" or
+        striExpr("1234567890") [  2 len intExpr( 9) ] <> "234567890" or
+        striExpr("1234567890") [  2 len intExpr(10) ] <> "234567890" or
+        striExpr("1234567890") [  2 len intExpr(15) ] <> "234567890" or
+        striExpr("1234567890") [  5 len intExpr(-5) ] <> "" or
+        striExpr("1234567890") [  5 len intExpr(-1) ] <> "" or
+        striExpr("1234567890") [  5 len intExpr( 0) ] <> "" or
+        striExpr("1234567890") [  5 len intExpr( 1) ] <> "5" or
+        striExpr("1234567890") [  5 len intExpr( 2) ] <> "56" or
+        striExpr("1234567890") [  5 len intExpr( 5) ] <> "56789" or
+        striExpr("1234567890") [  5 len intExpr( 6) ] <> "567890" or
+        striExpr("1234567890") [  5 len intExpr( 7) ] <> "567890" or
+        striExpr("1234567890") [  5 len intExpr(15) ] <> "567890" or
+        striExpr("1234567890") [  9 len intExpr(-5) ] <> "" or
+        striExpr("1234567890") [  9 len intExpr(-1) ] <> "" or
+        striExpr("1234567890") [  9 len intExpr( 0) ] <> "" or
+        striExpr("1234567890") [  9 len intExpr( 1) ] <> "9" or
+        striExpr("1234567890") [  9 len intExpr( 2) ] <> "90" or
+        striExpr("1234567890") [  9 len intExpr( 3) ] <> "90" or
+        striExpr("1234567890") [  9 len intExpr(15) ] <> "90" or
+        striExpr("1234567890") [ 10 len intExpr(-5) ] <> "" or
+        striExpr("1234567890") [ 10 len intExpr(-1) ] <> "" or
+        striExpr("1234567890") [ 10 len intExpr( 0) ] <> "" or
+        striExpr("1234567890") [ 10 len intExpr( 1) ] <> "0" or
+        striExpr("1234567890") [ 10 len intExpr( 2) ] <> "0" or
+        striExpr("1234567890") [ 10 len intExpr(15) ] <> "0" or
+        striExpr("1234567890") [ 11 len intExpr(-5) ] <> "" or
+        striExpr("1234567890") [ 11 len intExpr( 0) ] <> "" or
+        striExpr("1234567890") [ 11 len intExpr( 1) ] <> "" or
+        striExpr("1234567890") [ 11 len intExpr( 2) ] <> "" or
+        striExpr("1234567890") [ 11 len intExpr(15) ] <> "" or
+        striExpr("1234567890") [ 15 len intExpr(-5) ] <> "" or
+        striExpr("1234567890") [ 15 len intExpr( 0) ] <> "" or
+        striExpr("1234567890") [ 15 len intExpr( 1) ] <> "" or
+        striExpr("1234567890") [ 15 len intExpr( 2) ] <> "" or
+        striExpr("1234567890") [ 15 len intExpr(20) ] <> "" or
+        striExpr("") [ intExpr(-5) len -9 ] <> "" or
+        striExpr("") [ intExpr(-5) len -5 ] <> "" or
+        striExpr("") [ intExpr(-5) len  0 ] <> "" or
+        striExpr("") [ intExpr(-5) len  1 ] <> "" or
+        striExpr("") [ intExpr(-5) len  6 ] <> "" or
+        striExpr("") [ intExpr(-5) len  7 ] <> "" or
+        striExpr("") [ intExpr(-5) len  8 ] <> "" or
+        striExpr("") [ intExpr(-5) len 20 ] <> "" or
+        striExpr("") [ intExpr( 0) len -5 ] <> "" or
+        striExpr("") [ intExpr( 0) len  0 ] <> "" or
+        striExpr("") [ intExpr( 0) len  1 ] <> "" or
+        striExpr("") [ intExpr( 0) len  2 ] <> "" or
+        striExpr("") [ intExpr( 0) len 15 ] <> "" or
+        striExpr("") [ intExpr( 1) len -5 ] <> "" or
+        striExpr("") [ intExpr( 1) len  0 ] <> "" or
+        striExpr("") [ intExpr( 1) len  1 ] <> "" or
+        striExpr("") [ intExpr( 1) len  2 ] <> "" or
+        striExpr("") [ intExpr( 1) len 15 ] <> "" or
+        striExpr("") [ intExpr( 2) len -5 ] <> "" or
+        striExpr("") [ intExpr( 2) len  0 ] <> "" or
+        striExpr("") [ intExpr( 2) len  1 ] <> "" or
+        striExpr("") [ intExpr( 2) len 15 ] <> "" or
+        striExpr("") [ intExpr(15) len -5 ] <> "" or
+        striExpr("") [ intExpr(15) len  0 ] <> "" or
+        striExpr("") [ intExpr(15) len  1 ] <> "" or
+        striExpr("") [ intExpr(15) len  2 ] <> "" or
+        striExpr("") [ intExpr(15) len 20 ] <> "" or
+        striExpr("1") [ intExpr(-5) len -9 ] <> "" or
+        striExpr("1") [ intExpr(-5) len -5 ] <> "" or
+        striExpr("1") [ intExpr(-5) len  0 ] <> "" or
+        striExpr("1") [ intExpr(-5) len  1 ] <> "" or
+        striExpr("1") [ intExpr(-5) len  6 ] <> "" or
+        striExpr("1") [ intExpr(-5) len  7 ] <> "1" or
+        striExpr("1") [ intExpr(-5) len  8 ] <> "1" or
+        striExpr("1") [ intExpr(-5) len 10 ] <> "1" or
+        striExpr("1") [ intExpr( 0) len -5 ] <> "" or
+        striExpr("1") [ intExpr( 0) len  0 ] <> "" or
+        striExpr("1") [ intExpr( 0) len  1 ] <> "" or
+        striExpr("1") [ intExpr( 0) len  2 ] <> "1" or
+        striExpr("1") [ intExpr( 0) len  3 ] <> "1" or
+        striExpr("1") [ intExpr( 0) len 15 ] <> "1" or
+        striExpr("1") [ intExpr( 1) len -5 ] <> "" or
+        striExpr("1") [ intExpr( 1) len  0 ] <> "" or
+        striExpr("1") [ intExpr( 1) len  1 ] <> "1" or
+        striExpr("1") [ intExpr( 1) len  2 ] <> "1" or
+        striExpr("1") [ intExpr( 1) len 15 ] <> "1" or
+        striExpr("1") [ intExpr( 2) len -5 ] <> "" or
+        striExpr("1") [ intExpr( 2) len  0 ] <> "" or
+        striExpr("1") [ intExpr( 2) len  1 ] <> "" or
+        striExpr("1") [ intExpr( 2) len  2 ] <> "" or
+        striExpr("1") [ intExpr( 2) len 15 ] <> "" or
+        striExpr("1") [ intExpr(15) len -5 ] <> "" or
+        striExpr("1") [ intExpr(15) len  0 ] <> "" or
+        striExpr("1") [ intExpr(15) len  1 ] <> "" or
+        striExpr("1") [ intExpr(15) len  2 ] <> "" or
+        striExpr("1") [ intExpr(15) len 20 ] <> "" or
+        striExpr("1234567890") [ intExpr(-5) len -9 ] <> "" or
+        striExpr("1234567890") [ intExpr(-5) len -5 ] <> "" or
+        striExpr("1234567890") [ intExpr(-5) len  0 ] <> "" or
+        striExpr("1234567890") [ intExpr(-5) len  1 ] <> "" or
+        striExpr("1234567890") [ intExpr(-5) len  6 ] <> "" or
+        striExpr("1234567890") [ intExpr(-5) len  7 ] <> "1" or
+        striExpr("1234567890") [ intExpr(-5) len  8 ] <> "12" or
+        striExpr("1234567890") [ intExpr(-5) len 11 ] <> "12345" or
+        striExpr("1234567890") [ intExpr(-5) len 15 ] <> "123456789" or
+        striExpr("1234567890") [ intExpr(-5) len 16 ] <> "1234567890" or
+        striExpr("1234567890") [ intExpr(-5) len 17 ] <> "1234567890" or
+        striExpr("1234567890") [ intExpr(-5) len 20 ] <> "1234567890" or
+        striExpr("1234567890") [ intExpr( 0) len -5 ] <> "" or
+        striExpr("1234567890") [ intExpr( 0) len -1 ] <> "" or
+        striExpr("1234567890") [ intExpr( 0) len  0 ] <> "" or
+        striExpr("1234567890") [ intExpr( 0) len  1 ] <> "" or
+        striExpr("1234567890") [ intExpr( 0) len  2 ] <> "1" or
+        striExpr("1234567890") [ intExpr( 0) len  3 ] <> "12" or
+        striExpr("1234567890") [ intExpr( 0) len  6 ] <> "12345" or
+        striExpr("1234567890") [ intExpr( 0) len 10 ] <> "123456789" or
+        striExpr("1234567890") [ intExpr( 0) len 11 ] <> "1234567890" or
+        striExpr("1234567890") [ intExpr( 0) len 12 ] <> "1234567890" or
+        striExpr("1234567890") [ intExpr( 0) len 15 ] <> "1234567890" or
+        striExpr("1234567890") [ intExpr( 1) len -5 ] <> "" or
+        striExpr("1234567890") [ intExpr( 1) len -1 ] <> "" or
+        striExpr("1234567890") [ intExpr( 1) len  0 ] <> "" or
+        striExpr("1234567890") [ intExpr( 1) len  1 ] <> "1" or
+        striExpr("1234567890") [ intExpr( 1) len  2 ] <> "12" or
+        striExpr("1234567890") [ intExpr( 1) len  5 ] <> "12345" or
+        striExpr("1234567890") [ intExpr( 1) len  9 ] <> "123456789" or
+        striExpr("1234567890") [ intExpr( 1) len 10 ] <> "1234567890" or
+        striExpr("1234567890") [ intExpr( 1) len 11 ] <> "1234567890" or
+        striExpr("1234567890") [ intExpr( 1) len 15 ] <> "1234567890" or
+        striExpr("1234567890") [ intExpr( 2) len -5 ] <> "" or
+        striExpr("1234567890") [ intExpr( 2) len -1 ] <> "" or
+        striExpr("1234567890") [ intExpr( 2) len  0 ] <> "" or
+        striExpr("1234567890") [ intExpr( 2) len  1 ] <> "2" or
+        striExpr("1234567890") [ intExpr( 2) len  2 ] <> "23" or
+        striExpr("1234567890") [ intExpr( 2) len  5 ] <> "23456" or
+        striExpr("1234567890") [ intExpr( 2) len  8 ] <> "23456789" or
+        striExpr("1234567890") [ intExpr( 2) len  9 ] <> "234567890" or
+        striExpr("1234567890") [ intExpr( 2) len 10 ] <> "234567890" or
+        striExpr("1234567890") [ intExpr( 2) len 15 ] <> "234567890" or
+        striExpr("1234567890") [ intExpr( 5) len -5 ] <> "" or
+        striExpr("1234567890") [ intExpr( 5) len -1 ] <> "" or
+        striExpr("1234567890") [ intExpr( 5) len  0 ] <> "" or
+        striExpr("1234567890") [ intExpr( 5) len  1 ] <> "5" or
+        striExpr("1234567890") [ intExpr( 5) len  2 ] <> "56" or
+        striExpr("1234567890") [ intExpr( 5) len  5 ] <> "56789" or
+        striExpr("1234567890") [ intExpr( 5) len  6 ] <> "567890" or
+        striExpr("1234567890") [ intExpr( 5) len  7 ] <> "567890" or
+        striExpr("1234567890") [ intExpr( 5) len 15 ] <> "567890" or
+        striExpr("1234567890") [ intExpr( 9) len -5 ] <> "" or
+        striExpr("1234567890") [ intExpr( 9) len -1 ] <> "" or
+        striExpr("1234567890") [ intExpr( 9) len  0 ] <> "" or
+        striExpr("1234567890") [ intExpr( 9) len  1 ] <> "9" or
+        striExpr("1234567890") [ intExpr( 9) len  2 ] <> "90" or
+        striExpr("1234567890") [ intExpr( 9) len  3 ] <> "90" or
+        striExpr("1234567890") [ intExpr( 9) len 15 ] <> "90" or
+        striExpr("1234567890") [ intExpr(10) len -5 ] <> "" or
+        striExpr("1234567890") [ intExpr(10) len -1 ] <> "" or
+        striExpr("1234567890") [ intExpr(10) len  0 ] <> "" or
+        striExpr("1234567890") [ intExpr(10) len  1 ] <> "0" or
+        striExpr("1234567890") [ intExpr(10) len  2 ] <> "0" or
+        striExpr("1234567890") [ intExpr(10) len 15 ] <> "0" or
+        striExpr("1234567890") [ intExpr(11) len -5 ] <> "" or
+        striExpr("1234567890") [ intExpr(11) len  0 ] <> "" or
+        striExpr("1234567890") [ intExpr(11) len  1 ] <> "" or
+        striExpr("1234567890") [ intExpr(11) len  2 ] <> "" or
+        striExpr("1234567890") [ intExpr(11) len 15 ] <> "" or
+        striExpr("1234567890") [ intExpr(15) len -5 ] <> "" or
+        striExpr("1234567890") [ intExpr(15) len  0 ] <> "" or
+        striExpr("1234567890") [ intExpr(15) len  1 ] <> "" or
+        striExpr("1234567890") [ intExpr(15) len  2 ] <> "" or
+        striExpr("1234567890") [ intExpr(15) len 20 ] <> "" or
+        striExpr("") [ intExpr(-5) len intExpr(-9) ] <> "" or
+        striExpr("") [ intExpr(-5) len intExpr(-5) ] <> "" or
+        striExpr("") [ intExpr(-5) len intExpr( 0) ] <> "" or
+        striExpr("") [ intExpr(-5) len intExpr( 1) ] <> "" or
+        striExpr("") [ intExpr(-5) len intExpr( 6) ] <> "" or
+        striExpr("") [ intExpr(-5) len intExpr( 7) ] <> "" or
+        striExpr("") [ intExpr(-5) len intExpr( 8) ] <> "" or
+        striExpr("") [ intExpr(-5) len intExpr(20) ] <> "" or
+        striExpr("") [ intExpr( 0) len intExpr(-5) ] <> "" or
+        striExpr("") [ intExpr( 0) len intExpr( 0) ] <> "" or
+        striExpr("") [ intExpr( 0) len intExpr( 1) ] <> "" or
+        striExpr("") [ intExpr( 0) len intExpr( 2) ] <> "" or
+        striExpr("") [ intExpr( 0) len intExpr(15) ] <> "" or
+        striExpr("") [ intExpr( 1) len intExpr(-5) ] <> "" or
+        striExpr("") [ intExpr( 1) len intExpr( 0) ] <> "" or
+        striExpr("") [ intExpr( 1) len intExpr( 1) ] <> "" or
+        striExpr("") [ intExpr( 1) len intExpr( 2) ] <> "" or
+        striExpr("") [ intExpr( 1) len intExpr(15) ] <> "" or
+        striExpr("") [ intExpr( 2) len intExpr(-5) ] <> "" or
+        striExpr("") [ intExpr( 2) len intExpr( 0) ] <> "" or
+        striExpr("") [ intExpr( 2) len intExpr( 1) ] <> "" or
+        striExpr("") [ intExpr( 2) len intExpr(15) ] <> "" or
+        striExpr("") [ intExpr(15) len intExpr(-5) ] <> "" or
+        striExpr("") [ intExpr(15) len intExpr( 0) ] <> "" or
+        striExpr("") [ intExpr(15) len intExpr( 1) ] <> "" or
+        striExpr("") [ intExpr(15) len intExpr( 2) ] <> "" or
+        striExpr("") [ intExpr(15) len intExpr(20) ] <> "" or
+        striExpr("1") [ intExpr(-5) len intExpr(-9) ] <> "" or
+        striExpr("1") [ intExpr(-5) len intExpr(-5) ] <> "" or
+        striExpr("1") [ intExpr(-5) len intExpr( 0) ] <> "" or
+        striExpr("1") [ intExpr(-5) len intExpr( 1) ] <> "" or
+        striExpr("1") [ intExpr(-5) len intExpr( 6) ] <> "" or
+        striExpr("1") [ intExpr(-5) len intExpr( 7) ] <> "1" or
+        striExpr("1") [ intExpr(-5) len intExpr( 8) ] <> "1" or
+        striExpr("1") [ intExpr(-5) len intExpr(10) ] <> "1" or
+        striExpr("1") [ intExpr( 0) len intExpr(-5) ] <> "" or
+        striExpr("1") [ intExpr( 0) len intExpr( 0) ] <> "" or
+        striExpr("1") [ intExpr( 0) len intExpr( 1) ] <> "" or
+        striExpr("1") [ intExpr( 0) len intExpr( 2) ] <> "1" or
+        striExpr("1") [ intExpr( 0) len intExpr( 3) ] <> "1" or
+        striExpr("1") [ intExpr( 0) len intExpr(15) ] <> "1" or
+        striExpr("1") [ intExpr( 1) len intExpr(-5) ] <> "" or
+        striExpr("1") [ intExpr( 1) len intExpr( 0) ] <> "" or
+        striExpr("1") [ intExpr( 1) len intExpr( 1) ] <> "1" or
+        striExpr("1") [ intExpr( 1) len intExpr( 2) ] <> "1" or
+        striExpr("1") [ intExpr( 1) len intExpr(15) ] <> "1" or
+        striExpr("1") [ intExpr( 2) len intExpr(-5) ] <> "" or
+        striExpr("1") [ intExpr( 2) len intExpr( 0) ] <> "" or
+        striExpr("1") [ intExpr( 2) len intExpr( 1) ] <> "" or
+        striExpr("1") [ intExpr( 2) len intExpr( 2) ] <> "" or
+        striExpr("1") [ intExpr( 2) len intExpr(15) ] <> "" or
+        striExpr("1") [ intExpr(15) len intExpr(-5) ] <> "" or
+        striExpr("1") [ intExpr(15) len intExpr( 0) ] <> "" or
+        striExpr("1") [ intExpr(15) len intExpr( 1) ] <> "" or
+        striExpr("1") [ intExpr(15) len intExpr( 2) ] <> "" or
+        striExpr("1") [ intExpr(15) len intExpr(20) ] <> "" or
+        striExpr("1234567890") [ intExpr(-5) len intExpr(-9) ] <> "" or
+        striExpr("1234567890") [ intExpr(-5) len intExpr(-5) ] <> "" or
+        striExpr("1234567890") [ intExpr(-5) len intExpr( 0) ] <> "" or
+        striExpr("1234567890") [ intExpr(-5) len intExpr( 1) ] <> "" or
+        striExpr("1234567890") [ intExpr(-5) len intExpr( 6) ] <> "" or
+        striExpr("1234567890") [ intExpr(-5) len intExpr( 7) ] <> "1" or
+        striExpr("1234567890") [ intExpr(-5) len intExpr( 8) ] <> "12" or
+        striExpr("1234567890") [ intExpr(-5) len intExpr(11) ] <> "12345" or
+        striExpr("1234567890") [ intExpr(-5) len intExpr(15) ] <> "123456789" or
+        striExpr("1234567890") [ intExpr(-5) len intExpr(16) ] <> "1234567890" or
+        striExpr("1234567890") [ intExpr(-5) len intExpr(17) ] <> "1234567890" or
+        striExpr("1234567890") [ intExpr(-5) len intExpr(20) ] <> "1234567890" or
+        striExpr("1234567890") [ intExpr( 0) len intExpr(-5) ] <> "" or
+        striExpr("1234567890") [ intExpr( 0) len intExpr(-1) ] <> "" or
+        striExpr("1234567890") [ intExpr( 0) len intExpr( 0) ] <> "" or
+        striExpr("1234567890") [ intExpr( 0) len intExpr( 1) ] <> "" or
+        striExpr("1234567890") [ intExpr( 0) len intExpr( 2) ] <> "1" or
+        striExpr("1234567890") [ intExpr( 0) len intExpr( 3) ] <> "12" or
+        striExpr("1234567890") [ intExpr( 0) len intExpr( 6) ] <> "12345" or
+        striExpr("1234567890") [ intExpr( 0) len intExpr(10) ] <> "123456789" or
+        striExpr("1234567890") [ intExpr( 0) len intExpr(11) ] <> "1234567890" or
+        striExpr("1234567890") [ intExpr( 0) len intExpr(12) ] <> "1234567890" or
+        striExpr("1234567890") [ intExpr( 0) len intExpr(15) ] <> "1234567890" or
+        striExpr("1234567890") [ intExpr( 1) len intExpr(-5) ] <> "" or
+        striExpr("1234567890") [ intExpr( 1) len intExpr(-1) ] <> "" or
+        striExpr("1234567890") [ intExpr( 1) len intExpr( 0) ] <> "" or
+        striExpr("1234567890") [ intExpr( 1) len intExpr( 1) ] <> "1" or
+        striExpr("1234567890") [ intExpr( 1) len intExpr( 2) ] <> "12" or
+        striExpr("1234567890") [ intExpr( 1) len intExpr( 5) ] <> "12345" or
+        striExpr("1234567890") [ intExpr( 1) len intExpr( 9) ] <> "123456789" or
+        striExpr("1234567890") [ intExpr( 1) len intExpr(10) ] <> "1234567890" or
+        striExpr("1234567890") [ intExpr( 1) len intExpr(11) ] <> "1234567890" or
+        striExpr("1234567890") [ intExpr( 1) len intExpr(15) ] <> "1234567890" or
+        striExpr("1234567890") [ intExpr( 2) len intExpr(-5) ] <> "" or
+        striExpr("1234567890") [ intExpr( 2) len intExpr(-1) ] <> "" or
+        striExpr("1234567890") [ intExpr( 2) len intExpr( 0) ] <> "" or
+        striExpr("1234567890") [ intExpr( 2) len intExpr( 1) ] <> "2" or
+        striExpr("1234567890") [ intExpr( 2) len intExpr( 2) ] <> "23" or
+        striExpr("1234567890") [ intExpr( 2) len intExpr( 5) ] <> "23456" or
+        striExpr("1234567890") [ intExpr( 2) len intExpr( 8) ] <> "23456789" or
+        striExpr("1234567890") [ intExpr( 2) len intExpr( 9) ] <> "234567890" or
+        striExpr("1234567890") [ intExpr( 2) len intExpr(10) ] <> "234567890" or
+        striExpr("1234567890") [ intExpr( 2) len intExpr(15) ] <> "234567890" or
+        striExpr("1234567890") [ intExpr( 5) len intExpr(-5) ] <> "" or
+        striExpr("1234567890") [ intExpr( 5) len intExpr(-1) ] <> "" or
+        striExpr("1234567890") [ intExpr( 5) len intExpr( 0) ] <> "" or
+        striExpr("1234567890") [ intExpr( 5) len intExpr( 1) ] <> "5" or
+        striExpr("1234567890") [ intExpr( 5) len intExpr( 2) ] <> "56" or
+        striExpr("1234567890") [ intExpr( 5) len intExpr( 5) ] <> "56789" or
+        striExpr("1234567890") [ intExpr( 5) len intExpr( 6) ] <> "567890" or
+        striExpr("1234567890") [ intExpr( 5) len intExpr( 7) ] <> "567890" or
+        striExpr("1234567890") [ intExpr( 5) len intExpr(15) ] <> "567890" or
+        striExpr("1234567890") [ intExpr( 9) len intExpr(-5) ] <> "" or
+        striExpr("1234567890") [ intExpr( 9) len intExpr(-1) ] <> "" or
+        striExpr("1234567890") [ intExpr( 9) len intExpr( 0) ] <> "" or
+        striExpr("1234567890") [ intExpr( 9) len intExpr( 1) ] <> "9" or
+        striExpr("1234567890") [ intExpr( 9) len intExpr( 2) ] <> "90" or
+        striExpr("1234567890") [ intExpr( 9) len intExpr( 3) ] <> "90" or
+        striExpr("1234567890") [ intExpr( 9) len intExpr(15) ] <> "90" or
+        striExpr("1234567890") [ intExpr(10) len intExpr(-5) ] <> "" or
+        striExpr("1234567890") [ intExpr(10) len intExpr(-1) ] <> "" or
+        striExpr("1234567890") [ intExpr(10) len intExpr( 0) ] <> "" or
+        striExpr("1234567890") [ intExpr(10) len intExpr( 1) ] <> "0" or
+        striExpr("1234567890") [ intExpr(10) len intExpr( 2) ] <> "0" or
+        striExpr("1234567890") [ intExpr(10) len intExpr(15) ] <> "0" or
+        striExpr("1234567890") [ intExpr(11) len intExpr(-5) ] <> "" or
+        striExpr("1234567890") [ intExpr(11) len intExpr( 0) ] <> "" or
+        striExpr("1234567890") [ intExpr(11) len intExpr( 1) ] <> "" or
+        striExpr("1234567890") [ intExpr(11) len intExpr( 2) ] <> "" or
+        striExpr("1234567890") [ intExpr(11) len intExpr(15) ] <> "" or
+        striExpr("1234567890") [ intExpr(15) len intExpr(-5) ] <> "" or
+        striExpr("1234567890") [ intExpr(15) len intExpr( 0) ] <> "" or
+        striExpr("1234567890") [ intExpr(15) len intExpr( 1) ] <> "" or
+        striExpr("1234567890") [ intExpr(15) len intExpr( 2) ] <> "" or
+        striExpr("1234567890") [ intExpr(15) len intExpr(20) ] <> "" then
+      writeln(" ***** STRING [ START len LENGTH ] does not work correct");
+      okay := FALSE;
+    end if;
+    if  "" [-2147483643 len 2147483647] <> "" or
         "" [-2147483644 len 2147483647] <> "" or
         "" [-2147483645 len 2147483647] <> "" or
         "" [-2147483646 len 2147483647] <> "" or
@@ -1441,28 +3531,8 @@ const proc: check_string_index is func
       writeln(" ***** STRING [ START len LENGTH ] does not work correct");
       okay := FALSE;
     end if;
-    if  "1234567890" [ -5 .. ] <> "1234567890" or
-        "1234567890" [ 0 .. ] <> "1234567890" or
-        "1234567890" [ 1 .. ] <> "1234567890" or
-        "1234567890" [ 5 .. ] <> "567890" or
-        "1234567890" [ 10 .. ] <> "0" or
-        "1234567890" [ 11 .. ] <> "" or
-        "1234567890" [ 15 .. ] <> "" then
-      writeln(" ***** STRING [ START .. ] does not work correct");
-      okay := FALSE;
-    end if;
-    if  "1234567890" [ .. -5 ] <> "" or
-        "1234567890" [ .. 0 ] <> "" or
-        "1234567890" [ .. 1 ] <> "1" or
-        "1234567890" [ .. 5 ] <> "12345" or
-        "1234567890" [ .. 10 ] <> "1234567890" or
-        "1234567890" [ .. 11 ] <> "1234567890" or
-        "1234567890" [ .. 15 ] <> "1234567890" then
-      writeln(" ***** STRING [ .. STOP ] does not work correct");
-      okay := FALSE;
-    end if;
     if okay then
-      writeln("String indices work correct");
+      writeln("String substr works correct");
     end if;
   end func;
 
@@ -3901,37 +5971,93 @@ const proc: check_string_funcs is func
       writeln(" ***** replace(STRING, STRING, STRING) does not work correct");
       okay := FALSE;
     end if;
-    if  lower(""       ) <> "" or
-        lower("a"      ) <> "a" or
-        lower("A"      ) <> "a" or
-        lower("1"      ) <> "1" or
-        lower("\1\"    ) <> "\1\" or
-        lower("\127\"  ) <> "\127\" or
-        lower("\200\"  ) <> "\200\" or
-        lower("\255\"  ) <> "\255\" or
+    if  lower("") <> "" or
+        lower("a") <> "a" or
+        lower("A") <> "a" or
+        lower("1") <> "1" or
+        lower("\0\\1\\2\\3\\4\\5\\6\\7\\8\\9\\10\\11\\12\\13\\14\\15\") <>
+              "\0\\1\\2\\3\\4\\5\\6\\7\\8\\9\\10\\11\\12\\13\\14\\15\" or
+        lower("\16\\17\\18\\19\\20\\21\\22\\23\\24\\25\\26\\27\\28\\29\\30\\31\\127\") <>
+              "\16\\17\\18\\19\\20\\21\\22\\23\\24\\25\\26\\27\\28\\29\\30\\31\\127\" or
+        lower(" !\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~") <>
+              " !\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~" or
         lower("abcdefghijklmnopqrstuvwxyz") <> "abcdefghijklmnopqrstuvwxyz" or
         lower("ABCDEFGHIJKLMNOPQRSTUVWXYZ") <> "abcdefghijklmnopqrstuvwxyz" or
         lower("0123456789") <> "0123456789" or
         lower("Aa1Bb2Cc3Dd4Ee5Ff6Gg7Hh8Ii9") <> "aa1bb2cc3dd4ee5ff6gg7hh8ii9" or
         lower("aAbBcCdDeEfFgGhHiIjJkKlLmMnNoOpPqQrRsStTuUvVwWxXyYzZ") <>
-            "aabbccddeeffgghhiijjkkllmmnnooppqqrrssttuuvvwwxxyyzz" then
+              "aabbccddeeffgghhiijjkkllmmnnooppqqrrssttuuvvwwxxyyzz" or
+        lower("\128\\129\\130\\131\\132\\133\\134\\135\\136\\137\\138\\139\\140\\141\\142\\143\") <>
+              "\128\\129\\130\\131\\132\\133\\134\\135\\136\\137\\138\\139\\140\\141\\142\\143\" or
+        lower("\144\\145\\146\\147\\148\\149\\150\\151\\152\\153\\154\\155\\156\\157\\158\\159\") <>
+              "\144\\145\\146\\147\\148\\149\\150\\151\\152\\153\\154\\155\\156\\157\\158\\159\" or
+        lower("\160\¡¢£¤¥¦§¨©ª«¬­®¯°±²³´µ¶·¸¹º»¼½¾¿") <>
+              "\160\¡¢£¤¥¦§¨©ª«¬­®¯°±²³´µ¶·¸¹º»¼½¾¿" or
+        lower("ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿ") <>
+              "àáâãäåæçèéêëìíîïðñòóôõö×øùúûüýþßàáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿ" or
+        lower("ĀāĂăĄąĆćĈĉĊċČčĎďĐđĒēĔĕĖėĘęĚěĜĝĞğĠġĢģĤĥĦħĨĩĪīĬĭĮįİiĲĳĴĵĶķĸĹĺĻļĽľĿ") <>
+              "āāăăąąććĉĉċċččďďđđēēĕĕėėęęěěĝĝğğġġģģĥĥħħĩĩīīĭĭįįiiĳĳĵĵķķĸĺĺļļľľŀ" or
+        lower("ŀŁłŃńŅņŇňŉŊŋŌōŎŏŐőŒœŔŕŖŗŘřŚśŜŝŞşŠšŢţŤťŦŧŨũŪūŬŭŮůŰűŲųŴŵŶŷŸŹźŻżŽžſ") <>
+              "ŀłłńńņņňňŉŋŋōōŏŏőőœœŕŕŗŗřřśśŝŝşşššţţťťŧŧũũūūŭŭůůűűųųŵŵŷŷÿźźżżžžſ" or
+        lower("ƀƁƂƃƄƅƆƇƈƉƊƋƌƍƎƏƐƑƒƓƔƕƖƗƘƙƚƛƜƝƞƟƠơƢƣƤƥƦƧƨƩƪƫƬƭƮƯưƱƲƳƴƵƶƷƸƹƺƻƼƽƾƿ") <>
+              "ƀɓƃƃƅƅɔƈƈɖɗƌƌƍǝəɛƒƒɠɣƕɩɨƙƙƚƛɯɲƞɵơơƣƣƥƥʀƨƨʃƪƫƭƭʈưưʊʋƴƴƶƶʒƹƹƺƻƽƽƾƿ" or
+        lower("ǀǁǂǃǄǅǆǇǈǉǊǋǌǍǎǏǐǑǒǓǔǕǖǗǘǙǚǛǜǝǞǟǠǡǢǣǤǥǦǧǨǩǪǫǬǭǮǯǰǱǲǳǴǵǶǷǸǹǺǻǼǽǾǿ") <>
+              "ǀǁǂǃǆǆǆǉǉǉǌǌǌǎǎǐǐǒǒǔǔǖǖǘǘǚǚǜǜǝǟǟǡǡǣǣǥǥǧǧǩǩǫǫǭǭǯǯǰǳǳǳǵǵƕƿǹǹǻǻǽǽǿǿ" or
+        lower("ȀȁȂȃȄȅȆȇȈȉȊȋȌȍȎȏȐȑȒȓȔȕȖȗȘșȚțȜȝȞȟȠȡȢȣȤȥȦȧȨȩȪȫȬȭȮȯȰȱȲȳȴȵȶȷȸȹȺȻȼȽȾȿ") <>
+              "ȁȁȃȃȅȅȇȇȉȉȋȋȍȍȏȏȑȑȓȓȕȕȗȗșșțțȝȝȟȟƞȡȣȣȥȥȧȧȩȩȫȫȭȭȯȯȱȱȳȳȴȵȶȷȸȹⱥȼȼƚⱦȿ" or
+        lower("ɀɁɂɃɄɅɆɇɈɉɊɋɌɍɎɏ") <>
+              "ɀɂɂƀʉʌɇɇɉɉɋɋɍɍɏɏ" or
+        lower("ͰͱͲͳʹ͵Ͷͷͺͻͼͽ;΄΅Ά·ΈΉΊΌΎΏ") <>
+              "ͱͱͳͳʹ͵ͷͷͺͻͼͽ;΄΅ά·έήίόύώ" or
+        lower("ΐΑΒΓΔΕΖΗΘΙΚΛΜΝΞΟΠΡ\16#3A2\ΣΤΥΦΧΨΩΪΫάέήίΰαβγδεζηθικλμνξοπρςστυφχψωϊϋόύώϏ") <>
+              "ΐαβγδεζηθικλμνξοπρ\16#3A2\στυφχψωϊϋάέήίΰαβγδεζηθικλμνξοπρςστυφχψωϊϋόύώϗ" or
+        lower("ϐϑϒϓϔϕϖϗϘϙϚϛϜϝϞϟϠϡϢϣϤϥϦϧϨϩϪϫϬϭϮϯϰϱϲϳϴϵ϶ϷϸϹϺϻϼϽϾϿ") <>
+              "ϐϑϒϓϔϕϖϗϙϙϛϛϝϝϟϟϡϡϣϣϥϥϧϧϩϩϫϫϭϭϯϯϰϱϲϳθϵ϶ϸϸϲϻϻϼͻͼͽ" then
       writeln(" ***** lower(STRING) does not work correct");
       okay := FALSE;
     end if;
-    if  upper(""       ) <> "" or
-        upper("a"      ) <> "A" or
-        upper("A"      ) <> "A" or
-        upper("1"      ) <> "1" or
-        upper("\1\"    ) <> "\1\" or
-        upper("\127\"  ) <> "\127\" or
-        upper("\200\"  ) <> "\200\" or
-        upper("\255\"  ) <> "\255\" or
+    if  upper("") <> "" or
+        upper("a") <> "A" or
+        upper("A") <> "A" or
+        upper("1") <> "1" or
+        upper("\0\\1\\2\\3\\4\\5\\6\\7\\8\\9\\10\\11\\12\\13\\14\\15\") <>
+              "\0\\1\\2\\3\\4\\5\\6\\7\\8\\9\\10\\11\\12\\13\\14\\15\" or
+        upper("\16\\17\\18\\19\\20\\21\\22\\23\\24\\25\\26\\27\\28\\29\\30\\31\\127\") <>
+              "\16\\17\\18\\19\\20\\21\\22\\23\\24\\25\\26\\27\\28\\29\\30\\31\\127\" or
+        upper(" !\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~") <>
+              " !\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~" or
         upper("abcdefghijklmnopqrstuvwxyz") <> "ABCDEFGHIJKLMNOPQRSTUVWXYZ" or
         upper("ABCDEFGHIJKLMNOPQRSTUVWXYZ") <> "ABCDEFGHIJKLMNOPQRSTUVWXYZ" or
         upper("0123456789") <> "0123456789" or
         upper("Aa1Bb2Cc3Dd4Ee5Ff6Gg7Hh8Ii9") <> "AA1BB2CC3DD4EE5FF6GG7HH8II9" or
         upper("aAbBcCdDeEfFgGhHiIjJkKlLmMnNoOpPqQrRsStTuUvVwWxXyYzZ") <>
-            "AABBCCDDEEFFGGHHIIJJKKLLMMNNOOPPQQRRSSTTUUVVWWXXYYZZ" then
+              "AABBCCDDEEFFGGHHIIJJKKLLMMNNOOPPQQRRSSTTUUVVWWXXYYZZ" or
+        upper("\128\\129\\130\\131\\132\\133\\134\\135\\136\\137\\138\\139\\140\\141\\142\\143\") <>
+              "\128\\129\\130\\131\\132\\133\\134\\135\\136\\137\\138\\139\\140\\141\\142\\143\" or
+        upper("\144\\145\\146\\147\\148\\149\\150\\151\\152\\153\\154\\155\\156\\157\\158\\159\") <>
+              "\144\\145\\146\\147\\148\\149\\150\\151\\152\\153\\154\\155\\156\\157\\158\\159\" or
+        upper("\160\¡¢£¤¥¦§¨©ª«¬­®¯°±²³´µ¶·¸¹º»¼½¾¿") <>
+              "\160\¡¢£¤¥¦§¨©ª«¬­®¯°±²³´Μ¶·¸¹º»¼½¾¿" or
+        upper("ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿ") <>
+              "ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖ÷ØÙÚÛÜÝÞŸ" or
+        upper("ĀāĂăĄąĆćĈĉĊċČčĎďĐđĒēĔĕĖėĘęĚěĜĝĞğĠġĢģĤĥĦħĨĩĪīĬĭĮįIıĲĳĴĵĶķĸĹĺĻļĽľĿ") <>
+              "ĀĀĂĂĄĄĆĆĈĈĊĊČČĎĎĐĐĒĒĔĔĖĖĘĘĚĚĜĜĞĞĠĠĢĢĤĤĦĦĨĨĪĪĬĬĮĮIIĲĲĴĴĶĶĸĹĹĻĻĽĽĿ" or
+        upper("ŀŁłŃńŅņŇňŉŊŋŌōŎŏŐőŒœŔŕŖŗŘřŚśŜŝŞşŠšŢţŤťŦŧŨũŪūŬŭŮůŰűŲųŴŵŶŷŸŹźŻżžSſ") <>
+              "ĿŁŁŃŃŅŅŇŇŉŊŊŌŌŎŎŐŐŒŒŔŔŖŖŘŘŚŚŜŜŞŞŠŠŢŢŤŤŦŦŨŨŪŪŬŬŮŮŰŰŲŲŴŴŶŶŸŹŹŻŻŽSS" or
+        upper("ƀƁƂƃƄƅƆƇƈƉƊƋƌƍƎƏƐƑƒƓƔƕƖƗƘƙƚƛƜƝƞƟƠơƢƣƤƥƦƧƨƩƪƫƬƭƮƯưƱƲƳƴƵƶƷƸƹƺƻƼƽƾƿ") <>
+              "ɃƁƂƂƄƄƆƇƇƉƊƋƋƍƎƏƐƑƑƓƔǶƖƗƘƘȽƛƜƝȠƟƠƠƢƢƤƤƦƧƧƩƪƫƬƬƮƯƯƱƲƳƳƵƵƷƸƸƺƻƼƼƾǷ" or
+        upper("ǀǁǂǃǄǅǆǇǈǉǊǋǌǍǎǏǐǑǒǓǔǕǖǗǘǙǚǛǜǝǞǟǠǡǢǣǤǥǦǧǨǩǪǫǬǭǮǯǰǱǲǳǴǵǶǷǸǹǺǻǼǽǾǿ") <>
+              "ǀǁǂǃǄǄǄǇǇǇǊǊǊǍǍǏǏǑǑǓǓǕǕǗǗǙǙǛǛƎǞǞǠǠǢǢǤǤǦǦǨǨǪǪǬǬǮǮǰǱǱǱǴǴǶǷǸǸǺǺǼǼǾǾ" or
+        upper("ȀȁȂȃȄȅȆȇȈȉȊȋȌȍȎȏȐȑȒȓȔȕȖȗȘșȚțȜȝȞȟȠȡȢȣȤȥȦȧȨȩȪȫȬȭȮȯȰȱȲȳȴȵȶȷȸȹȺȻȼȽȾȿ") <>
+              "ȀȀȂȂȄȄȆȆȈȈȊȊȌȌȎȎȐȐȒȒȔȔȖȖȘȘȚȚȜȜȞȞȠȡȢȢȤȤȦȦȨȨȪȪȬȬȮȮȰȰȲȲȴȵȶȷȸȹȺȻȻȽȾⱾ" or
+        upper("ɀɁɂɃɄɅɆɇɈɉɊɋɌɍɎɏ") <>
+              "ⱿɁɁɃɄɅɆɆɈɈɊɊɌɌɎɎ" or
+        upper("ͰͱͲͳʹ͵Ͷͷͺͻͼͽ;΄΅Ά·ΈΉΊΌΎΏ") <>
+              "ͰͰͲͲʹ͵ͶͶͺϽϾϿ;΄΅Ά·ΈΉΊΌΎΏ" or
+        upper("ΐΑΒΓΔΕΖΗΘΙΚΛΜΝΞΟΠΡ\16#3A2\ΣΤΥΦΧΨΩΪΫάέήίΰαβγδεζηθικλμνξοπρςστυφχψωϊϋόύώϏ") <>
+              "ΐΑΒΓΔΕΖΗΘΙΚΛΜΝΞΟΠΡ\16#3A2\ΣΤΥΦΧΨΩΪΫΆΈΉΊΰΑΒΓΔΕΖΗΘΙΚΛΜΝΞΟΠΡΣΣΤΥΦΧΨΩΪΫΌΎΏϏ" or
+        upper("ϐϑϒϓϔϕϖϗϘϙϚϛϜϝϞϟϠϡϢϣϤϥϦϧϨϩϪϫϬϭϮϯϰϱϲϳϴϵ϶ϷϸϹϺϻϼϽϾϿ") <>
+              "ΒΘϒϓϔΦΠϏϘϘϚϚϜϜϞϞϠϠϢϢϤϤϦϦϨϨϪϪϬϬϮϮΚΡϹϳϴΕ϶ϷϷϹϺϺϼϽϾϿ" then
       writeln(" ***** upper(STRING) does not work correct");
       okay := FALSE;
     end if;
@@ -6089,6 +8215,10 @@ const proc: main is func
     check_string_literal;
     check_string_comparisons;
     check_string_index;
+    check_string_head;
+    check_string_tail;
+    check_string_range;
+    check_string_substr;
     check_string_ops;
     check_string_funcs;
     check_string_split;

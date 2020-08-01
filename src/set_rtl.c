@@ -590,7 +590,7 @@ void setExcl (settype *const set_to, const inttype number)
 
 
 /**
- *  Compute the hash value of a bitset.
+ *  Compute the hash value of a set.
  *  @return the hash value.
  */
 inttype setHashCode (const const_settype set1)

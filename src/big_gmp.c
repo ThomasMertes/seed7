@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  big_gmp.c     Functions for bigInteger using the gmp library.   */
-/*  Copyright (C) 1989 - 2010  Thomas Mertes                        */
+/*  Copyright (C) 1989 - 2013  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */
@@ -24,7 +24,7 @@
 /*                                                                  */
 /*  Module: Seed7 Runtime Library                                   */
 /*  File: seed7/src/big_gmp.c                                       */
-/*  Changes: 2008, 2009, 2010  Thomas Mertes                        */
+/*  Changes: 2008, 2009, 2010, 2013  Thomas Mertes                  */
 /*  Content: Functions for bigInteger using the gmp library.        */
 /*                                                                  */
 /********************************************************************/
@@ -669,7 +669,7 @@ void bigIncr (biginttype *const big_variable)
 
 
 /**
- *  Compute the exponentiation of a 'bigInteger' base by an integer exponent.
+ *  Compute the exponentiation of a 'bigInteger' base with an integer exponent.
  *  @return the result of the exponentation.
  *  @exception NUMERIC_ERROR When the exponent is negative.
  */
@@ -1218,7 +1218,7 @@ biginttype bigSbtr (const const_biginttype minuend, const const_biginttype subtr
 
 
 /**
- *  Compute the subtraction of two ''bigInteger'' numbers.
+ *  Compute the subtraction of two 'bigInteger' numbers.
  *  Minuend is assumed to be a temporary value which is reused.
  *  @return the difference of the two numbers in 'minuend'.
  */

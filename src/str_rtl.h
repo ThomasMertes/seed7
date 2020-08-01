@@ -29,6 +29,22 @@
 /*                                                                  */
 /********************************************************************/
 
+/**
+ *  Macro to compute the hashcode of a string.
+ *  A corresponding macro is inlined by the compiler. If this macro
+ *  is changed the code in the compiler must be changed as well.
+ */
+#define hashCode(stri) (inttype) ((stri)->size == 0 ? 0 : \
+                                     ((stri)->mem[0] << 5 ^ \
+                                      (stri)->mem[(stri)->size >> 1] << 3 ^ \
+                                      (stri)->mem[(stri)->size - 1] << 1 ^ \
+                                      (stri)->size))
+
+
+void toLower (const strelemtype *const stri, memsizetype length,
+    strelemtype *const dest);
+void toUpper (const strelemtype *const stri, memsizetype length,
+    strelemtype *const dest);
 stritype concat_path (const const_stritype absolutePath,
     const const_stritype relativePath);
 void strAppend (stritype *const destination, const_stritype stri_from);
@@ -51,7 +67,7 @@ booltype strGe (const const_stritype stri1, const const_stritype stri2);
 booltype strGt (const const_stritype stri1, const const_stritype stri2);
 inttype strHashCode (const const_stritype stri);
 #ifdef ALLOW_STRITYPE_SLICES
-stritype strHeadSlice (const const_stritype stri, const inttype stop, stritype slice);
+void strHeadSlice (const const_stritype stri, const inttype stop, stritype slice);
 #else
 stritype strHead (const const_stritype stri, const inttype stop);
 #endif
@@ -72,7 +88,7 @@ stritype strMult (const const_stritype stri, const inttype factor);
 inttype strPos (const const_stritype main_stri, const const_stritype searched);
 void strPush (stritype *const destination, const chartype extension);
 #ifdef ALLOW_STRITYPE_SLICES
-stritype strRangeSlice (const const_stritype stri, inttype start, inttype stop, stritype slice);
+void strRangeSlice (const const_stritype stri, inttype start, inttype stop, stritype slice);
 #else
 stritype strRange (const const_stritype stri, inttype start, inttype stop);
 #endif
@@ -89,12 +105,12 @@ stritype strRtrim (const const_stritype stri);
 /* rtlArraytype strSplit (const const_stritype main_stri,
     const const_stritype delimiter); */
 #ifdef ALLOW_STRITYPE_SLICES
-stritype strSubstrSlice (const const_stritype stri, inttype start, inttype len, stritype slice);
+void strSubstrSlice (const const_stritype stri, inttype start, inttype len, stritype slice);
 #else
 stritype strSubstr (const const_stritype stri, inttype start, inttype len);
 #endif
 #ifdef ALLOW_STRITYPE_SLICES
-stritype strTailSlice (const const_stritype stri, inttype start, stritype slice);
+void strTailSlice (const const_stritype stri, inttype start, stritype slice);
 #else
 stritype strTail (const const_stritype stri, inttype start);
 #endif

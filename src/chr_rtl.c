@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  chr_rtl.c     Primitive actions for the integer type.           */
-/*  Copyright (C) 1989 - 2010  Thomas Mertes                        */
+/*  Copyright (C) 1989 - 2013  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */
@@ -40,6 +40,7 @@
 #include "heaputl.h"
 #include "striutl.h"
 #include "int_rtl.h"
+#include "str_rtl.h"
 #include "rtl_err.h"
 
 #undef EXTERN
@@ -96,6 +97,12 @@ stritype chrCLit (chartype character)
 
 
 
+/**
+ *  Compare two characters.
+ *  @return -1, 0 or 1 if the first argument is considered to be
+ *          respectively less than, equal to, or greater than the
+ *          second.
+ */
 INLINE inttype chrCmp (chartype char1, chartype char2)
 
   { /* chrCmp */
@@ -132,18 +139,29 @@ void chrCpy (chartype *dest, chartype source)
 
 
 
+/**
+ *  Convert a character to lower case.
+ *  The conversion uses the default Unicode case mapping,
+ *  where each character is considered in isolation.
+ *  Characters without case mapping are left unchanged.
+ *  The mapping is independend from the locale. Individual
+ *  character case mappings cannot be reversed, because some
+ *  characters have multiple characters that map to them.
+ *  @return the character converted to lower case.
+ */
 chartype chrLow (chartype ch)
 
   { /* chrLow */
-    if (ch >= (chartype) 'A' && ch <= (chartype) 'Z') {
-      return ch - (chartype) 'A' + (chartype) 'a';
-    } else {
-      return ch;
-    } /* if */
+    toLower(&ch, 1, &ch);
+    return ch;
   } /* chrLow */
 
 
 
+/**
+ *  Create a string with one character.
+ *  @return a string with the character 'ch'.
+ */
 stritype chrStr (chartype ch)
 
   {
@@ -162,12 +180,19 @@ stritype chrStr (chartype ch)
 
 
 
+/**
+ *  Convert a character to upper case.
+ *  The conversion uses the default Unicode case mapping,
+ *  where each character is considered in isolation.
+ *  Characters without case mapping are left unchanged.
+ *  The mapping is independend from the locale. Individual
+ *  character case mappings cannot be reversed, because some
+ *  characters have multiple characters that map to them.
+ *  @return the character converted to upper case.
+ */
 chartype chrUp (chartype ch)
 
   { /* chrUp */
-    if (ch >= (chartype) 'a' && ch <= (chartype) 'z') {
-      return ch - (chartype) 'a' + (chartype) 'A';
-    } else {
-      return ch;
-    } /* if */
+    toUpper(&ch, 1, &ch);
+    return ch;
   } /* chrUp */

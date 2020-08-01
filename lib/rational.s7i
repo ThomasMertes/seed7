@@ -269,7 +269,7 @@ const proc: (inout rational: number) /:= (in rational: divisor) is func
 
 
 (**
- *  Compute the exponentiation of a rational base by an integer exponent.
+ *  Compute the exponentiation of a rational base with an integer exponent.
  *  @return the result of the exponentation.
  *)
 const func rational: (in rational: base) ** (in integer: exponent) is func

@@ -148,6 +148,16 @@ extern os_stritype *os_environ;
 
 extern stritype programPath; /* defined in s7.c or in the executable of a program */
 
+#define FILE_ABSENT   0 /* A component of path does not exist */
+#define FILE_UNKNOWN  1 /* File exists but has an unknown type */
+#define FILE_REGULAR  2
+#define FILE_DIR      3
+#define FILE_CHAR     4
+#define FILE_BLOCK    5
+#define FILE_FIFO     6
+#define FILE_SYMLINK  7
+#define FILE_SOCKET   8
+
 
 
 #ifdef USE_CDECL
@@ -841,7 +851,19 @@ void initEmulatedCwd (errinfotype *err_info)
 
 
 
-biginttype cmdBigFileSize (const const_stritype file_name)
+/**
+ *  Determine the size of a file.
+ *  The file size is measured in bytes.
+ *  For directories a size of 0 is returned.
+ *  @return the size of the file.
+ *  @exception MEMORY_ERROR Not enough memory to convert 'filePath'
+ *             to the system path type.
+ *  @exception RANGE_ERROR 'filePath' does not use the standard path
+ *             representation or it cannot be converted to the system
+ *             path type.
+ *  @exception FILE_ERROR It was not possible to determine the file size.
+ */
+biginttype cmdBigFileSize (const const_stritype filePath)
 
   {
     os_stritype os_path;
@@ -853,7 +875,7 @@ biginttype cmdBigFileSize (const const_stritype file_name)
     biginttype result;
 
   /* cmdBigFileSize */
-    os_path = cp_to_os_path(file_name, &path_info, &err_info);
+    os_path = cp_to_os_path(filePath, &path_info, &err_info);
     if (unlikely(err_info != OKAY_NO_ERROR)) {
 #ifdef MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
       if (path_info == PATH_IS_EMULATED_ROOT) {
@@ -903,7 +925,16 @@ biginttype cmdBigFileSize (const const_stritype file_name)
 
 
 
-void cmdChdir (const const_stritype dir_name)
+/**
+ *  Changes the current working directory of the calling process.
+ *  @exception MEMORY_ERROR Not enough memory to convert 'dirPath' to
+ *             the system path type.
+ *  @exception RANGE_ERROR 'dirPath' does not use the standard path
+ *             representation or it cannot be converted to the system
+ *             path type.
+ *  @exception FILE_ERROR A system function returns an error.
+ */
+void cmdChdir (const const_stritype dirPath)
 
   {
     os_stritype os_path;
@@ -912,7 +943,7 @@ void cmdChdir (const const_stritype dir_name)
     int chdir_result;
 
   /* cmdChdir */
-    os_path = cp_to_os_path(dir_name, &path_info, &err_info);
+    os_path = cp_to_os_path(dirPath, &path_info, &err_info);
     if (unlikely(err_info != OKAY_NO_ERROR)) {
 #ifdef MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
       if (path_info == PATH_IS_EMULATED_ROOT) {
@@ -926,7 +957,7 @@ void cmdChdir (const const_stritype dir_name)
         os_stri_free(os_path);
         err_info = FILE_ERROR;
       } else {
-        if (dir_name->size >= 1 && dir_name->mem[0] == '/') {
+        if (dirPath->size >= 1 && dirPath->mem[0] == '/') {
           setEmulatedCwd(os_path);
         } else {
           os_stri_free(os_path);
@@ -950,29 +981,43 @@ void cmdChdir (const const_stritype dir_name)
 
 
 
-void cmdCloneFile (const const_stritype source_name, const const_stritype dest_name)
+/**
+ *  Clone a file or directory tree.
+ *  Permissions/mode, ownership and timestamps of the original are
+ *  preserved. Symlinks are not followed. Instead the symlink is
+ *  copied. Note that 'cloneFile' does not preserve hard links (they
+ *  are resolved to distinct files).
+ *  @exception MEMORY_ERROR Not enough memory to convert
+ *             'sourcePath' or 'destPath' to the system path type.
+ *  @exception RANGE_ERROR 'sourcePath' or 'destPath' does not use
+ *             the standard path representation or one of them cannot be
+ *             converted to the system path type.
+ *  @exception FILE_ERROR Source file does not exist, destination file
+ *             already exists or a system function returns an error.
+ */
+void cmdCloneFile (const const_stritype sourcePath, const const_stritype destPath)
 
   {
-    os_stritype os_source_name;
-    os_stritype os_dest_name;
+    os_stritype os_sourcePath;
+    os_stritype os_destPath;
     os_stat_struct to_stat;
     int path_info;
     errinfotype err_info = OKAY_NO_ERROR;
 
   /* cmdCloneFile */
-    os_source_name = cp_to_os_path(source_name, &path_info, &err_info);
+    os_sourcePath = cp_to_os_path(sourcePath, &path_info, &err_info);
     if (likely(err_info == OKAY_NO_ERROR)) {
-      os_dest_name = cp_to_os_path(dest_name, &path_info, &err_info);
+      os_destPath = cp_to_os_path(destPath, &path_info, &err_info);
       if (likely(err_info == OKAY_NO_ERROR)) {
-        if (os_stat(os_dest_name, &to_stat) == 0) {
+        if (os_stat(os_destPath, &to_stat) == 0) {
           /* Destination file exists already */
           err_info = FILE_ERROR;
         } else {
-          copy_any_file(os_source_name, os_dest_name, PRESERVE_ALL, &err_info);
+          copy_any_file(os_sourcePath, os_destPath, PRESERVE_ALL, &err_info);
         } /* if */
-        os_stri_free(os_dest_name);
+        os_stri_free(os_destPath);
       } /* if */
-      os_stri_free(os_source_name);
+      os_stri_free(os_sourcePath);
     } /* if */
     if (unlikely(err_info != OKAY_NO_ERROR)) {
       raise_error(err_info);
@@ -1201,29 +1246,48 @@ stritype cmdConfigValue (const const_stritype name)
 
 
 
-void cmdCopyFile (const const_stritype source_name, const const_stritype dest_name)
+/**
+ *  Copy a file or directory tree.
+ *  Permissions/mode, ownership and timestamps of the destination file
+ *  are determined independent of the corresponding source properties.
+ *  The destination file gets the permissions/mode defined by umask.
+ *  The user executing the program is the owner of the destination file.
+ *  The timestamps of the destination file are set to the current time.
+ *  Symbolic links in 'sourcePath' are always followed.
+ *  Therefore 'copyFile' will never create a symbolic link.
+ *  Note that 'copyFile' does not preserve hard links (they are
+ *  resolved to distinct files).
+ *  @exception MEMORY_ERROR Not enough memory to convert 'sourcePath'
+ *             or 'destPath' to the system path type.
+ *  @exception RANGE_ERROR 'sourcePath' or 'destPath' does not use
+ *             the standard path representation or one of them cannot be
+ *             converted to the system path type.
+ *  @exception FILE_ERROR Source file does not exist, destination file
+ *             already exists or a system function returns an error.
+ */
+void cmdCopyFile (const const_stritype sourcePath, const const_stritype destPath)
 
   {
-    os_stritype os_source_name;
-    os_stritype os_dest_name;
+    os_stritype os_sourcePath;
+    os_stritype os_destPath;
     os_stat_struct to_stat;
     int path_info;
     errinfotype err_info = OKAY_NO_ERROR;
 
   /* cmdCopyFile */
-    os_source_name = cp_to_os_path(source_name, &path_info, &err_info);
+    os_sourcePath = cp_to_os_path(sourcePath, &path_info, &err_info);
     if (likely(err_info == OKAY_NO_ERROR)) {
-      os_dest_name = cp_to_os_path(dest_name, &path_info, &err_info);
+      os_destPath = cp_to_os_path(destPath, &path_info, &err_info);
       if (likely(err_info == OKAY_NO_ERROR)) {
-        if (os_stat(os_dest_name, &to_stat) == 0) {
+        if (os_stat(os_destPath, &to_stat) == 0) {
           /* Destination file exists already */
           err_info = FILE_ERROR;
         } else {
-          copy_any_file(os_source_name, os_dest_name, PRESERVE_NOTHING, &err_info);
+          copy_any_file(os_sourcePath, os_destPath, PRESERVE_NOTHING, &err_info);
         } /* if */
-        os_stri_free(os_dest_name);
+        os_stri_free(os_destPath);
       } /* if */
-      os_stri_free(os_source_name);
+      os_stri_free(os_sourcePath);
     } /* if */
     if (unlikely(err_info != OKAY_NO_ERROR)) {
       raise_error(err_info);
@@ -1232,6 +1296,11 @@ void cmdCopyFile (const const_stritype source_name, const const_stritype dest_na
 
 
 
+/**
+ *  Returns the list of environment variable names as array of strings.
+ *  @return the list of environment variable names.
+ *  @exception MEMORY_ERROR Not enough memory to create the result.
+ */
 rtlArraytype cmdEnvironment (void)
 
   {
@@ -1285,7 +1354,17 @@ rtlArraytype cmdEnvironment (void)
 
 
 
-settype cmdFileMode (const const_stritype file_name)
+/**
+ *  Determine the file mode (permissions) of a file.
+ *  @return the file mode.
+ *  @exception MEMORY_ERROR Not enough memory to convert 'filePath'
+ *             to the system path type.
+ *  @exception RANGE_ERROR 'filePath' does not use the standard path
+ *             representation or it cannot be converted to the system
+ *             path type.
+ *  @exception FILE_ERROR A system function returns an error.
+ */
+settype cmdFileMode (const const_stritype filePath)
 
   {
     os_stritype os_path;
@@ -1298,10 +1377,10 @@ settype cmdFileMode (const const_stritype file_name)
   /* cmdFileMode */
 #ifdef TRACE_CMD_RTL
     printf("BEGIN cmdFileMode(");
-    prot_stri(file_name);
+    prot_stri(filePath);
     printf(")\n");
 #endif
-    os_path = cp_to_os_path(file_name, &path_info, &err_info);
+    os_path = cp_to_os_path(filePath, &path_info, &err_info);
     if (unlikely(err_info != OKAY_NO_ERROR)) {
 #ifdef MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
       if (path_info == PATH_IS_EMULATED_ROOT) {
@@ -1349,7 +1428,20 @@ settype cmdFileMode (const const_stritype file_name)
 
 
 
-inttype cmdFileSize (const const_stritype file_name)
+/**
+ *  Determine the size of a file.
+ *  The file size is measured in bytes.
+ *  For directories a size of 0 is returned.
+ *  @return the size of the file.
+ *  @exception MEMORY_ERROR Not enough memory to convert 'filePath'
+ *             to the system path type.
+ *  @exception RANGE_ERROR 'filePath' does not use the standard path
+ *             representation or it cannot be converted to the system
+ *             path type.
+ *  @exception RANGE_ERROR The file size is not representable as integer.
+ *  @exception FILE_ERROR It was not possible to determine the file size.
+ */
+inttype cmdFileSize (const const_stritype filePath)
 
   {
     os_stritype os_path;
@@ -1361,7 +1453,7 @@ inttype cmdFileSize (const const_stritype file_name)
     inttype result;
 
   /* cmdFileSize */
-    os_path = cp_to_os_path(file_name, &path_info, &err_info);
+    os_path = cp_to_os_path(filePath, &path_info, &err_info);
     if (unlikely(err_info != OKAY_NO_ERROR)) {
 #ifdef MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
       if (path_info != PATH_IS_EMULATED_ROOT) {
@@ -1407,7 +1499,21 @@ inttype cmdFileSize (const const_stritype file_name)
 
 
 
-inttype cmdFileType (const const_stritype file_name)
+/**
+ *  Determine the type of a file.
+ *  The function does follow symbolic links. Therefore it never
+ *  returns 'FILE_SYMLINK'. A return value of 'FILE_ABSENT' does
+ *  not imply that a file with this name can be created, since missing
+ *  directories and illegal file names cause also 'FILE_ABSENT'.
+ *  @return the type of the file.
+ *  @exception MEMORY_ERROR Not enough memory to convert 'filePath'
+ *             to the system path type.
+ *  @exception RANGE_ERROR 'filePath' does not use the standard path
+ *             representation.
+ *  @exception FILE_ERROR The system function returns an error other
+ *             than ENOENT, ENOTDIR or ENAMETOOLONG.
+ */
+inttype cmdFileType (const const_stritype filePath)
 
   {
     os_stritype os_path;
@@ -1418,46 +1524,46 @@ inttype cmdFileType (const const_stritype file_name)
     inttype result;
 
   /* cmdFileType */
-    os_path = cp_to_os_path(file_name, &path_info, &err_info);
+    os_path = cp_to_os_path(filePath, &path_info, &err_info);
     if (unlikely(err_info != OKAY_NO_ERROR)) {
 #ifdef MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
       if (path_info == PATH_IS_EMULATED_ROOT) {
-        result = 3;
+        result = FILE_DIR;
       } else if (path_info == PATH_NOT_MAPPED) {
-        result = 0;
+        result = FILE_ABSENT;
       } else {
         raise_error(err_info);
-        result = 0;
+        result = FILE_ABSENT;
       } /* if */
 #else
       raise_error(err_info);
-      result = 0;
+      result = FILE_ABSENT;
 #endif
     } else {
       stat_result = os_stat(os_path, &stat_buf);
       os_stri_free(os_path);
       if (stat_result == 0) {
         if (S_ISREG(stat_buf.st_mode)) {
-          result = 2;
+          result = FILE_REGULAR;
         } else if (S_ISDIR(stat_buf.st_mode)) {
-          result = 3;
+          result = FILE_DIR;
         } else if (S_ISCHR(stat_buf.st_mode)) {
-          result = 4;
+          result = FILE_CHAR;
         } else if (S_ISBLK(stat_buf.st_mode)) {
-          result = 5;
+          result = FILE_BLOCK;
         } else if (S_ISFIFO(stat_buf.st_mode)) {
-          result = 6;
+          result = FILE_FIFO;
         } else if (S_ISLNK(stat_buf.st_mode)) {
-          result = 7;
+          result = FILE_SYMLINK;
           raise_error(FILE_ERROR);
         } else if (S_ISSOCK(stat_buf.st_mode)) {
-          result = 8;
+          result = FILE_SOCKET;
         } else {
-          result = 1;
+          result = FILE_UNKNOWN;
         } /* if */
       } else {
-        result = 0;
-        if (unlikely(file_name->size != 0 && errno != ENOENT &&
+        result = FILE_ABSENT;
+        if (unlikely(filePath->size != 0 && errno != ENOENT &&
             errno != ENOTDIR && errno != ENAMETOOLONG)) {
           /* printf("errno=%d\n", errno);
           printf("EACCES=%d  EBUSY=%d  EEXIST=%d  ENOTEMPTY=%d  ENOENT=%d\n",
@@ -1466,7 +1572,7 @@ inttype cmdFileType (const const_stritype file_name)
               ENOTDIR, EROFS, EIO, ELOOP, ENAMETOOLONG);
           printf("EOVERFLOW=%d  EBADF=%d  EFAULT=%d  ENOMEM=%d\n",
               EOVERFLOW, EBADF, EFAULT, ENOMEM); */
-          /* printf("file_name->size=%lu\n", file_name->size); */
+          /* printf("filePath->size=%lu\n", filePath->size); */
           /* printf("strlen(os_path)=%d\n", os_stri_strlen(os_path)); */
           raise_error(FILE_ERROR);
         } /* if */
@@ -1477,7 +1583,21 @@ inttype cmdFileType (const const_stritype file_name)
 
 
 
-inttype cmdFileTypeSL (const const_stritype file_name)
+/**
+ *  Determine the type of a file.
+ *  The function does not follow symbolic links. Therefore it may
+ *  return 'FILE_SYMLINK'. A return value of 'FILE_ABSENT' does
+ *  not imply that a file with this name can be created, since missing
+ *  directories and illegal file names cause also 'FILE_ABSENT'.
+ *  @return the type of the file.
+ *  @exception MEMORY_ERROR Not enough memory to convert 'filePath'
+ *             to the system path type.
+ *  @exception RANGE_ERROR 'filePath' does not use the standard path
+ *             representation.
+ *  @exception FILE_ERROR The system function returns an error other
+ *             than ENOENT, ENOTDIR or ENAMETOOLONG.
+ */
+inttype cmdFileTypeSL (const const_stritype filePath)
 
   {
     os_stritype os_path;
@@ -1488,45 +1608,45 @@ inttype cmdFileTypeSL (const const_stritype file_name)
     inttype result;
 
   /* cmdFileTypeSL */
-    os_path = cp_to_os_path(file_name, &path_info, &err_info);
+    os_path = cp_to_os_path(filePath, &path_info, &err_info);
     if (unlikely(err_info != OKAY_NO_ERROR)) {
 #ifdef MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
       if (path_info == PATH_IS_EMULATED_ROOT) {
-        result = 3;
+        result = FILE_DIR;
       } else if (path_info == PATH_NOT_MAPPED) {
-        result = 0;
+        result = FILE_ABSENT;
       } else {
         raise_error(err_info);
-        result = 0;
+        result = FILE_ABSENT;
       } /* if */
 #else
       raise_error(err_info);
-      result = 0;
+      result = FILE_ABSENT;
 #endif
     } else {
       stat_result = os_lstat(os_path, &stat_buf);
       os_stri_free(os_path);
       if (stat_result == 0) {
         if (S_ISREG(stat_buf.st_mode)) {
-          result = 2;
+          result = FILE_REGULAR;
         } else if (S_ISDIR(stat_buf.st_mode)) {
-          result = 3;
+          result = FILE_DIR;
         } else if (S_ISCHR(stat_buf.st_mode)) {
-          result = 4;
+          result = FILE_CHAR;
         } else if (S_ISBLK(stat_buf.st_mode)) {
-          result = 5;
+          result = FILE_BLOCK;
         } else if (S_ISFIFO(stat_buf.st_mode)) {
-          result = 6;
+          result = FILE_FIFO;
         } else if (S_ISLNK(stat_buf.st_mode)) {
-          result = 7;
+          result = FILE_SYMLINK;
         } else if (S_ISSOCK(stat_buf.st_mode)) {
-          result = 8;
+          result = FILE_SOCKET;
         } else {
-          result = 1;
+          result = FILE_UNKNOWN;
         } /* if */
       } else {
-        result = 0;
-        if (unlikely(file_name->size != 0 && errno != ENOENT &&
+        result = FILE_ABSENT;
+        if (unlikely(filePath->size != 0 && errno != ENOENT &&
             errno != ENOTDIR && errno != ENAMETOOLONG)) {
           /* printf("errno=%d\n", errno);
           printf("EACCES=%d  EBUSY=%d  EEXIST=%d  ENOTEMPTY=%d  ENOENT=%d\n",
@@ -1535,7 +1655,7 @@ inttype cmdFileTypeSL (const const_stritype file_name)
               ENOTDIR, EROFS, EIO, ELOOP, ENAMETOOLONG);
           printf("EOVERFLOW=%d  EBADF=%d  EFAULT=%d  ENOMEM=%d\n",
               EOVERFLOW, EBADF, EFAULT, ENOMEM); */
-          /* printf("file_name->size=%lu\n", file_name->size); */
+          /* printf("filePath->size=%lu\n", filePath->size); */
           /* printf("strlen(os_path)=%d\n", os_stri_strlen(os_path)); */
           raise_error(FILE_ERROR);
         } /* if */
@@ -1546,6 +1666,13 @@ inttype cmdFileTypeSL (const const_stritype file_name)
 
 
 
+/**
+ *  Determine the current working directory of the calling process.
+ *  @return The absolute path of the current working directory.
+ *  @exception MEMORY_ERROR Not enough memory to represent the
+ *             result string.
+ *  @exception FILE_ERROR The system function returns an error.
+ */
 stritype cmdGetcwd (void)
 
   {
@@ -1580,6 +1707,17 @@ stritype cmdGetcwd (void)
 
 
 
+/**
+ *  Determine the value of an environment variable.
+ *  The function getenv searches the environment for an environment variable
+ *  with the given 'name'. When such an environment variable exists the
+ *  corresponding string value is returned.
+ *  @return the value of an environment variable or "",
+ *          when the requested environment variable does not exist.
+ *  @exception MEMORY_ERROR Not enough memory to convert 'name' to the
+ *             system string type or not enough memory to represent the
+ *             result string.
+ */
 stritype cmdGetenv (const const_stritype name)
 
   {
@@ -1614,7 +1752,17 @@ stritype cmdGetenv (const const_stritype name)
 
 
 
-void cmdGetATime (const const_stritype file_name,
+/**
+ *  Determine the access time of a file.
+ *  @return the access time of the file.
+ *  @exception MEMORY_ERROR Not enough memory to convert 'filePath'
+ *             to the system path type.
+ *  @exception RANGE_ERROR 'filePath' does not use the standard path
+ *             representation or it cannot be converted to the system
+ *             path type.
+ *  @exception FILE_ERROR A system function returns an error.
+ */
+void cmdGetATime (const const_stritype filePath,
     inttype *year, inttype *month, inttype *day, inttype *hour,
     inttype *min, inttype *sec, inttype *micro_sec, inttype *time_zone,
     booltype *is_dst)
@@ -1629,10 +1777,10 @@ void cmdGetATime (const const_stritype file_name,
   /* cmdGetATime */
 #ifdef TRACE_CMD_RTL
     printf("BEGIN cmdGetATime(");
-    prot_stri(file_name);
+    prot_stri(filePath);
     printf(")\n");
 #endif
-    os_path = cp_to_os_path(file_name, &path_info, &err_info);
+    os_path = cp_to_os_path(filePath, &path_info, &err_info);
     if (unlikely(err_info != OKAY_NO_ERROR)) {
 #ifdef MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
       if (path_info == PATH_IS_EMULATED_ROOT) {
@@ -1667,7 +1815,17 @@ void cmdGetATime (const const_stritype file_name,
 
 
 
-void cmdGetCTime (const const_stritype file_name,
+/**
+ *  Determine the change time of a file.
+ *  @return the change time of the file.
+ *  @exception MEMORY_ERROR Not enough memory to convert 'filePath'
+ *             to the system path type.
+ *  @exception RANGE_ERROR 'filePath' does not use the standard path
+ *             representation or it cannot be converted to the system
+ *             path type.
+ *  @exception FILE_ERROR A system function returns an error.
+ */
+void cmdGetCTime (const const_stritype filePath,
     inttype *year, inttype *month, inttype *day, inttype *hour,
     inttype *min, inttype *sec, inttype *micro_sec, inttype *time_zone,
     booltype *is_dst)
@@ -1682,10 +1840,10 @@ void cmdGetCTime (const const_stritype file_name,
   /* cmdGetCTime */
 #ifdef TRACE_CMD_RTL
     printf("BEGIN cmdGetCTime(");
-    prot_stri(file_name);
+    prot_stri(filePath);
     printf(")\n");
 #endif
-    os_path = cp_to_os_path(file_name, &path_info, &err_info);
+    os_path = cp_to_os_path(filePath, &path_info, &err_info);
     if (unlikely(err_info != OKAY_NO_ERROR)) {
 #ifdef MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
       if (path_info == PATH_IS_EMULATED_ROOT) {
@@ -1720,7 +1878,17 @@ void cmdGetCTime (const const_stritype file_name,
 
 
 
-void cmdGetMTime (const const_stritype file_name,
+/**
+ *  Determine the modification time of a file.
+ *  @return the modification time of the file.
+ *  @exception MEMORY_ERROR Not enough memory to convert 'filePath'
+ *             to the system path type.
+ *  @exception RANGE_ERROR 'filePath' does not use the standard path
+ *             representation or it cannot be converted to the system
+ *             path type.
+ *  @exception FILE_ERROR A system function returns an error.
+ */
+void cmdGetMTime (const const_stritype filePath,
     inttype *year, inttype *month, inttype *day, inttype *hour,
     inttype *min, inttype *sec, inttype *micro_sec, inttype *time_zone,
     booltype *is_dst)
@@ -1735,10 +1903,10 @@ void cmdGetMTime (const const_stritype file_name,
   /* cmdGetMTime */
 #ifdef TRACE_CMD_RTL
     printf("BEGIN cmdGetMTime(");
-    prot_stri(file_name);
+    prot_stri(filePath);
     printf(")\n");
 #endif
-    os_path = cp_to_os_path(file_name, &path_info, &err_info);
+    os_path = cp_to_os_path(filePath, &path_info, &err_info);
     if (unlikely(err_info != OKAY_NO_ERROR)) {
 #ifdef MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
       if (path_info == PATH_IS_EMULATED_ROOT) {
@@ -1773,6 +1941,11 @@ void cmdGetMTime (const const_stritype file_name,
 
 
 
+/**
+ *  Returns the search path of the system as array of strings.
+ *  @return the search path of the system.
+ *  @exception MEMORY_ERROR Not enough memory to create the result.
+ */
 rtlArraytype cmdGetSearchPath (void)
 
   {
@@ -1789,6 +1962,17 @@ rtlArraytype cmdGetSearchPath (void)
 
 
 
+/**
+ *  Determine the home directory of the user.
+ *  This function should be preferred over the use of an environment
+ *  variable such as $HOME. $HOME is not supported under all operating
+ *  systems and it is not guaranteed, that it uses the standard path
+ *  representation.
+ *  @return The absolute path of the home directory.
+ *  @exception MEMORY_ERROR Not enough memory to represent the
+ *             result string.
+ *  @exception FILE_ERROR Not able to determine the home directory.
+ */
 stritype cmdHomeDir (void)
 
   {
@@ -1821,14 +2005,28 @@ stritype cmdHomeDir (void)
 
 
 
-rtlArraytype cmdLs (const const_stritype dir_name)
+/**
+ *  Determine the filenames in a directory.
+ *  The files "." and ".." are left out from the result.
+ *  Note that the function returns only the filenames.
+ *  Additional information must be obtained with other calls.
+ *  @return a string-array containing the filenames in the directory.
+ *  @exception MEMORY_ERROR Not enough memory to convert 'dirPath'
+ *             to the system path type or not enough memory to
+ *             represent the result 'string array'.
+ *  @exception RANGE_ERROR 'dirPath' does not use the standard path
+ *             representation or it cannot be converted to the system
+ *             path type.
+ *  @exception FILE_ERROR A system function returns an error.
+ */
+rtlArraytype cmdLs (const const_stritype dirPath)
 
   {
     errinfotype err_info = OKAY_NO_ERROR;
     rtlArraytype result;
 
   /* cmdLs */
-    result = read_dir(dir_name, &err_info);
+    result = read_dir(dirPath, &err_info);
     if (unlikely(result == NULL)) {
       raise_error(err_info);
     } else {
@@ -1841,7 +2039,16 @@ rtlArraytype cmdLs (const const_stritype dir_name)
 
 
 
-void cmdMkdir (const const_stritype dir_name)
+/**
+ *  Creates a new directory.
+ *  @exception MEMORY_ERROR Not enough memory to convert 'dirPath' to
+ *             the system path type.
+ *  @exception RANGE_ERROR 'dirPath' does not use the standard path
+ *             representation or it cannot be converted to the system
+ *             path type.
+ *  @exception FILE_ERROR A system function returns an error.
+ */
+void cmdMkdir (const const_stritype dirPath)
 
   {
     os_stritype os_path;
@@ -1850,7 +2057,7 @@ void cmdMkdir (const const_stritype dir_name)
     errinfotype err_info = OKAY_NO_ERROR;
 
   /* cmdMkdir */
-    os_path = cp_to_os_path(dir_name, &path_info, &err_info);
+    os_path = cp_to_os_path(dirPath, &path_info, &err_info);
     if (unlikely(err_info != OKAY_NO_ERROR)) {
       raise_error(err_info);
     } else {
@@ -1867,23 +2074,41 @@ void cmdMkdir (const const_stritype dir_name)
 
 
 
-void cmdMove (const const_stritype source_name, const const_stritype dest_name)
+/**
+ *  Move and rename a file or directory tree.
+ *  The function uses the C 'rename()' function. When 'rename()' fails
+ *  the file (or directory tree) is cloned with 'cloneFile' (which
+ *  preserves permissions/mode, ownership and timestamps) to the new
+ *  place and with the new name. When 'cloneFile' succeeds the original
+ *  file is deleted. When 'cloneFile' fails (no space on device or
+ *  other reason) all remains of the failed clone are removed. Note
+ *  that 'cloneFile' works for symbolic links but does not preserve
+ *  hard links (they are resolved to distinct files).
+ *  @exception MEMORY_ERROR Not enough memory to convert 'sourcePath'
+ *             or 'destPath' to the system path type.
+ *  @exception RANGE_ERROR 'sourcePath' or 'destPath' does not use
+ *             the standard path representation or one of them cannot be
+ *             converted to the system path type.
+ *  @exception FILE_ERROR Source file does not exist, destination file
+ *             already exists or a system function returns an error.
+ */
+void cmdMove (const const_stritype sourcePath, const const_stritype destPath)
 
   {
-    os_stritype os_source_name;
-    os_stritype os_dest_name;
+    os_stritype os_sourcePath;
+    os_stritype os_destPath;
     int path_info;
     errinfotype err_info = OKAY_NO_ERROR;
 
   /* cmdMove */
-    os_source_name = cp_to_os_path(source_name, &path_info, &err_info);
+    os_sourcePath = cp_to_os_path(sourcePath, &path_info, &err_info);
     if (likely(err_info == OKAY_NO_ERROR)) {
-      os_dest_name = cp_to_os_path(dest_name, &path_info, &err_info);
+      os_destPath = cp_to_os_path(destPath, &path_info, &err_info);
       if (likely(err_info == OKAY_NO_ERROR)) {
-        move_any_file(os_source_name, os_dest_name, &err_info);
-        os_stri_free(os_dest_name);
+        move_any_file(os_sourcePath, os_destPath, &err_info);
+        os_stri_free(os_destPath);
       } /* if */
-      os_stri_free(os_source_name);
+      os_stri_free(os_sourcePath);
     } /* if */
     if (unlikely(err_info != OKAY_NO_ERROR)) {
       raise_error(err_info);
@@ -1892,11 +2117,23 @@ void cmdMove (const const_stritype source_name, const const_stritype dest_name)
 
 
 
-stritype cmdReadlink (const const_stritype link_name)
+/**
+ *  Reads the destination of a symbolic link.
+ *  @return The destination refered by the symbolic link.
+ *  @exception MEMORY_ERROR Not enough memory to convert 'filePath'
+ *             to the system path type or not enough memory to
+ *             represent the result string.
+ *  @exception RANGE_ERROR 'filePath' does not use the standard path
+ *             representation or it cannot be converted to the system
+ *             path type.
+ *  @exception FILE_ERROR The file described with the path does not
+ *             exist or is not a symbolic link.
+ */
+stritype cmdReadlink (const const_stritype filePath)
 
   {
 #ifdef HAS_SYMLINKS
-    os_stritype os_link_name;
+    os_stritype os_filePath;
     os_stat_struct link_stat;
     os_stritype link_destination;
     ssize_t readlink_result;
@@ -1907,9 +2144,9 @@ stritype cmdReadlink (const const_stritype link_name)
 
   /* cmdReadlink */
 #ifdef HAS_SYMLINKS
-    os_link_name = cp_to_os_path(link_name, &path_info, &err_info);
+    os_filePath = cp_to_os_path(filePath, &path_info, &err_info);
     if (likely(err_info == OKAY_NO_ERROR)) {
-      if (os_lstat(os_link_name, &link_stat) != 0 || !S_ISLNK(link_stat.st_mode)) {
+      if (os_lstat(os_filePath, &link_stat) != 0 || !S_ISLNK(link_stat.st_mode)) {
         err_info = FILE_ERROR;
       } else {
         /* printf("link size=%lu\n", link_stat.st_size); */
@@ -1919,7 +2156,7 @@ stritype cmdReadlink (const const_stritype link_name)
           if (!os_stri_alloc(link_destination, link_stat.st_size)) {
             err_info = MEMORY_ERROR;
           } else {
-            readlink_result = readlink(os_link_name, link_destination,
+            readlink_result = readlink(os_filePath, link_destination,
                                        (size_t) link_stat.st_size);
             if (readlink_result != -1) {
               link_destination[readlink_result] = '\0';
@@ -1931,7 +2168,7 @@ stritype cmdReadlink (const const_stritype link_name)
           } /* if */
         } /* if */
       } /* if */
-      os_stri_free(os_link_name);
+      os_stri_free(os_filePath);
     } /* if */
 #else
     err_info = FILE_ERROR;
@@ -1944,71 +2181,91 @@ stritype cmdReadlink (const const_stritype link_name)
 
 
 
-void cmdRemove (const const_stritype file_name)
+/**
+ *  Remove a file or empty directory.
+ *  @exception MEMORY_ERROR Not enough memory to convert 'filePath' to
+ *             the system path type.
+ *  @exception RANGE_ERROR 'filePath' does not use the standard path
+ *             representation or it cannot be converted to the system
+ *             path type.
+ *  @exception FILE_ERROR The file does not exist or a system function
+ *             returns an error.
+ */
+void cmdRemove (const const_stritype filePath)
 
   {
 #ifdef REMOVE_FAILS_FOR_EMPTY_DIRS
     os_stat_struct file_stat;
 #endif
-    os_stritype os_file_name;
+    os_stritype os_filePath;
     int path_info;
     errinfotype err_info = OKAY_NO_ERROR;
 
   /* cmdRemove */
 #ifdef TRACE_CMD_RTL
     printf("BEGIN cmdRemove(");
-    prot_stri(file_name);
+    prot_stri(filePath);
     printf(")\n");
 #endif
-    os_file_name = cp_to_os_path(file_name, &path_info, &err_info);
+    os_filePath = cp_to_os_path(filePath, &path_info, &err_info);
     if (likely(err_info == OKAY_NO_ERROR)) {
 #ifdef REMOVE_FAILS_FOR_EMPTY_DIRS
-      if (os_lstat(os_file_name, &file_stat) != 0) {
+      if (os_lstat(os_filePath, &file_stat) != 0) {
         /* File does not exist */
         err_info = FILE_ERROR;
       } else {
         if (S_ISDIR(file_stat.st_mode)) {
-          if (os_rmdir(os_file_name) != 0) {
+          if (os_rmdir(os_filePath) != 0) {
             err_info = FILE_ERROR;
           } /* if */
         } else {
-          if (os_remove(os_file_name) != 0) {
+          if (os_remove(os_filePath) != 0) {
             /* printf("errno=%d\n", errno);
             printf("EACCES=%d  EBUSY=%d  EEXIST=%d  ENOTEMPTY=%d  ENOENT=%d  ENOTDIR=%d  EROFS=%d\n",
                 EACCES, EBUSY, EEXIST, ENOTEMPTY, ENOENT, ENOTDIR, EROFS);
             printf("EFAULT=%d  EISDIR=%d  ENAMETOOLONG=%d  ENODEV=%d  EINVAL=%d\n",
                 EFAULT, EISDIR, ENAMETOOLONG, ENODEV, EINVAL); */
-            /* printf("file_name=%s\n", os_file_name); */
+            /* printf("filePath=%s\n", os_filePath); */
             err_info = FILE_ERROR;
           } /* if */
         } /* if */
       } /* if */
 #else
       /* printf("os_remove(");
-         prot_os_stri(os_file_name);
+         prot_os_stri(os_filePath);
          printf(")\n"); */
-      if (os_remove(os_file_name) != 0) {
+      if (os_remove(os_filePath) != 0) {
         err_info = FILE_ERROR;
       } /* if */
 #endif
-      os_stri_free(os_file_name);
+      os_stri_free(os_filePath);
     } /* if */
     if (unlikely(err_info != OKAY_NO_ERROR)) {
       raise_error(err_info);
     } /* if */
 #ifdef TRACE_CMD_RTL
     printf("END cmdRemove(");
-    prot_stri(file_name);
+    prot_stri(filePath);
     printf(")\n");
 #endif
   } /* cmdRemove */
 
 
 
-void cmdRemoveAnyFile (const const_stritype file_name)
+/**
+ *  Removes a file independent of its file type.
+ *  @exception MEMORY_ERROR Not enough memory to convert 'filePath' to
+ *             the system path type.
+ *  @exception RANGE_ERROR 'filePath' does not use the standard path
+ *             representation or it cannot be converted to the system
+ *             path type.
+ *  @exception FILE_ERROR The file does not exist or a system function
+ *             returns an error.
+ */
+void cmdRemoveAnyFile (const const_stritype filePath)
 
   {
-    os_stritype os_file_name;
+    os_stritype os_filePath;
     int path_info;
     errinfotype err_info = OKAY_NO_ERROR;
 
@@ -2016,10 +2273,10 @@ void cmdRemoveAnyFile (const const_stritype file_name)
 #ifdef TRACE_CMD_RTL
     printf("BEGIN cmdRemoveAnyFile\n");
 #endif
-    os_file_name = cp_to_os_path(file_name, &path_info, &err_info);
+    os_filePath = cp_to_os_path(filePath, &path_info, &err_info);
     if (likely(err_info == OKAY_NO_ERROR)) {
-      remove_any_file(os_file_name, &err_info);
-      os_stri_free(os_file_name);
+      remove_any_file(os_filePath, &err_info);
+      os_stri_free(os_filePath);
     } /* if */
     if (unlikely(err_info != OKAY_NO_ERROR)) {
       raise_error(err_info);
@@ -2032,6 +2289,17 @@ void cmdRemoveAnyFile (const const_stritype file_name)
 
 
 #ifdef os_putenv
+/**
+ *  Add or change an environment variable.
+ *  The function setenv searches the environment for an environment variable
+ *  with the given 'name'. When such an environment variable exists the
+ *  corresponding value is changed to 'value'. When no environment variable
+ *  with the given 'name' exists a new environment variable 'name' with
+ *  the value 'value' is created.
+ *  @exception MEMORY_ERROR Not enough memory to convert 'name' or 'value'
+ *             to the system string type.
+ *  @exception RANGE_ERROR A system function returns an error.
+ */
 void cmdSetenv (const const_stritype name, const const_stritype value)
 
   {
@@ -2076,6 +2344,17 @@ void cmdSetenv (const const_stritype name, const const_stritype value)
 
 
 
+/**
+ *  Add or change an environment variable.
+ *  The function setenv searches the environment for an environment variable
+ *  with the given 'name'. When such an environment variable exists the
+ *  corresponding value is changed to 'value'. When no environment variable
+ *  with the given 'name' exists a new environment variable 'name' with
+ *  the value 'value' is created.
+ *  @exception MEMORY_ERROR Not enough memory to convert 'name' or 'value'
+ *             to the system string type.
+ *  @exception RANGE_ERROR A system function returns an error.
+ */
 void cmdSetenv (const const_stritype name, const const_stritype value)
 
   {
@@ -2113,7 +2392,18 @@ void cmdSetenv (const const_stritype name, const const_stritype value)
 
 
 
-void cmdSetATime (const const_stritype file_name,
+/**
+ *  Set the access time of a file.
+ *  @exception MEMORY_ERROR Not enough memory to convert 'filePath'
+ *             to the system path type.
+ *  @exception RANGE_ERROR 'filePath' does not use the standard path
+ *             representation or it cannot be converted to the system
+ *             path type.
+ *  @exception RANGE_ERROR 'aTime' is invalid or cannot be
+ *             converted to the system file time.
+ *  @exception FILE_ERROR A system function returns an error.
+ */
+void cmdSetATime (const const_stritype filePath,
     inttype year, inttype month, inttype day, inttype hour,
     inttype min, inttype sec, inttype micro_sec, inttype time_zone)
 
@@ -2125,7 +2415,7 @@ void cmdSetATime (const const_stritype file_name,
     errinfotype err_info = OKAY_NO_ERROR;
 
   /* cmdSetATime */
-    os_path = cp_to_os_path(file_name, &path_info, &err_info);
+    os_path = cp_to_os_path(filePath, &path_info, &err_info);
     if (likely(err_info == OKAY_NO_ERROR)) {
       if (os_stat(os_path, &stat_buf) == 0) {
         utime_buf.actime = timToTimestamp(year, month, day, hour,
@@ -2152,7 +2442,16 @@ void cmdSetATime (const const_stritype file_name,
 
 
 
-void cmdSetFileMode (const const_stritype file_name, const const_settype mode)
+/**
+ *  Change the file mode (permissions) of a file.
+ *  @exception MEMORY_ERROR Not enough memory to convert 'filePath'
+ *             to the system path type.
+ *  @exception RANGE_ERROR 'filePath' does not use the standard path
+ *             representation or it cannot be converted to the system
+ *             path type.
+ *  @exception FILE_ERROR A system function returns an error.
+ */
+void cmdSetFileMode (const const_stritype filePath, const const_settype mode)
 
   {
     os_stritype os_path;
@@ -2165,10 +2464,10 @@ void cmdSetFileMode (const const_stritype file_name, const const_settype mode)
   /* cmdSetFileMode */
 #ifdef TRACE_CMD_RTL
     printf("BEGIN cmdSetFileMode(");
-    prot_stri(file_name);
+    prot_stri(filePath);
     printf(")\n");
 #endif
-    os_path = cp_to_os_path(file_name, &path_info, &err_info);
+    os_path = cp_to_os_path(filePath, &path_info, &err_info);
     if (likely(err_info == OKAY_NO_ERROR)) {
       inttype_mode = setSConv(mode);
       if (inttype_mode >= 0 && inttype_mode <= 0777) {
@@ -2206,7 +2505,18 @@ void cmdSetFileMode (const const_stritype file_name, const const_settype mode)
 
 
 
-void cmdSetMTime (const const_stritype file_name,
+/**
+ *  Set the modification time of a file.
+ *  @exception MEMORY_ERROR Not enough memory to convert 'filePath'
+ *             to the system path type.
+ *  @exception RANGE_ERROR 'filePath' does not use the standard path
+ *             representation or it cannot be converted to the system
+ *             path type.
+ *  @exception RANGE_ERROR 'aTime' is invalid or cannot be
+ *             converted to the system file time.
+ *  @exception FILE_ERROR A system function returns an error.
+ */
+void cmdSetMTime (const const_stritype filePath,
     inttype year, inttype month, inttype day, inttype hour,
     inttype min, inttype sec, inttype micro_sec, inttype time_zone)
 
@@ -2218,7 +2528,7 @@ void cmdSetMTime (const const_stritype file_name,
     errinfotype err_info = OKAY_NO_ERROR;
 
   /* cmdSetMTime */
-    os_path = cp_to_os_path(file_name, &path_info, &err_info);
+    os_path = cp_to_os_path(filePath, &path_info, &err_info);
     if (likely(err_info == OKAY_NO_ERROR)) {
       if (os_stat(os_path, &stat_buf) == 0) {
         utime_buf.actime = stat_buf.st_atime;
@@ -2245,6 +2555,25 @@ void cmdSetMTime (const const_stritype file_name,
 
 
 
+/**
+ *  Use the shell to execute a 'command' with 'parameters'.
+ *  The string 'command' specifies the command to be executed.
+ *  When 'command' contains a path it must use the standard path
+ *  representation (slashes are used as path delimiter and drive
+ *  letters like C: must be written as /c instead). 'Parameters'
+ *  specifies a space separated list of parameters. Parameters
+ *  which contain a space must be enclosed in double quotes
+ *  (E.g.: shell("aCommand", "\"par 1\" par2"); ). The commands
+ *  supported and the format of the 'parameters' are not covered
+ *  by the description of the 'shell' function. Due to the usage of
+ *  the operating system shell and external programs, it is hard to
+ *  write portable programs, which use the 'shell' function.
+ *  @param command Name of the command to be executed. A path must
+ *         use the standard path representation.
+ *  @param parameters The space separated list of parameters for
+ *         the 'command', or "" when there are no parameters.
+ *  @return the return code of the executed command or of the shell.
+ */
 inttype cmdShell (const const_stritype command, const const_stritype parameters)
 
   {
@@ -2273,6 +2602,12 @@ inttype cmdShell (const const_stritype command, const const_stritype parameters)
 
 
 
+/**
+ *  Convert a string, such that it can be used as shell parameter.
+ *  The function adds escape characters or quotations to a string.
+ *  @return a string which can be used as shell parameter.
+ *  @exception MEMORY_ERROR Not enough memory to convert 'stri'.
+ */
 stritype cmdShellEscape (const const_stritype stri)
 
   {
@@ -2391,28 +2726,40 @@ stritype cmdShellEscape (const const_stritype stri)
 
 
 
-void cmdSymlink (const const_stritype source_name, const const_stritype dest_name)
+/**
+ *  Create a symbolic link.
+ *  The symbolic link 'destPath' will refer to 'sourcePath' afterwards.
+ *  @param sourcePath String to be contained in the symbolic link.
+ *  @param destPath Name of the symbolic link to be created.
+ *  @exception MEMORY_ERROR Not enough memory to convert sourcePath or
+ *             destPath to the system path type.
+ *  @exception RANGE_ERROR 'sourcePath' or 'destPath' does not use the
+ *             standard path representation or one of them cannot be
+ *             converted to the system path type.
+ *  @exception FILE_ERROR A system function returns an error.
+ */
+void cmdSymlink (const const_stritype sourcePath, const const_stritype destPath)
 
   {
 #ifdef HAS_SYMLINKS
-    os_stritype os_source_name;
-    os_stritype os_dest_name;
+    os_stritype os_sourcePath;
+    os_stritype os_destPath;
     int path_info;
 #endif
     errinfotype err_info = OKAY_NO_ERROR;
 
   /* cmdSymlink */
 #ifdef HAS_SYMLINKS
-    os_source_name = cp_to_os_path(source_name, &path_info, &err_info);
+    os_sourcePath = cp_to_os_path(sourcePath, &path_info, &err_info);
     if (likely(err_info == OKAY_NO_ERROR)) {
-      os_dest_name = cp_to_os_path(dest_name, &path_info, &err_info);
+      os_destPath = cp_to_os_path(destPath, &path_info, &err_info);
       if (likely(err_info == OKAY_NO_ERROR)) {
-        if (symlink(os_source_name, os_dest_name) != 0) {
+        if (symlink(os_sourcePath, os_destPath) != 0) {
           err_info = FILE_ERROR;
         } /* if */
-        os_stri_free(os_dest_name);
+        os_stri_free(os_destPath);
       } /* if */
-      os_stri_free(os_source_name);
+      os_stri_free(os_sourcePath);
     } /* if */
 #else
     err_info = FILE_ERROR;
@@ -2424,6 +2771,15 @@ void cmdSymlink (const const_stritype source_name, const const_stritype dest_nam
 
 
 
+/**
+ *  Convert a standard path to the path of the operating system.
+ *  This function can prepare paths for the 'parameters' of the
+ *  'shell' and 'cmd_sh' function.
+ *  @return a string containing an operating system path.
+ *  @exception MEMORY_ERROR Not enough memory to convert 'standardPath'.
+ *  @exception RANGE_ERROR 'standardPath' is not representable as operating
+ *             system path.
+ */
 stritype cmdToOsPath (const const_stritype standardPath)
 
   {

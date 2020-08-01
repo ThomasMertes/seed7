@@ -139,9 +139,6 @@ enable_output(fileMode);
 const func array string: readDir (in string: dirPath)        is action "CMD_LS";
 
 
-const func array string: read_dir (in string: dirPath)       is action "CMD_LS";
-
-
 (**
  *  Determine the current working directory of the calling process.
  *  @return The absolute path of the current working directory.
@@ -154,26 +151,26 @@ const func string: getcwd                                    is action "CMD_GETC
 
 (**
  *  Changes the current working directory of the calling process.
- *  @exception MEMORY_ERROR Not enough memory to convert ''name'' to
+ *  @exception MEMORY_ERROR Not enough memory to convert ''dirPath'' to
  *             the system path type.
- *  @exception RANGE_ERROR ''name'' does not use the standard path
+ *  @exception RANGE_ERROR ''dirPath'' does not use the standard path
  *             representation or it cannot be converted to the system
  *             path type.
  *  @exception FILE_ERROR A system function returns an error.
  *)
-const proc: chdir (in string: name)                          is action "CMD_CHDIR";
+const proc: chdir (in string: dirPath)                          is action "CMD_CHDIR";
 
 
 (**
  *  Creates a new directory.
- *  @exception MEMORY_ERROR Not enough memory to convert ''name'' to
+ *  @exception MEMORY_ERROR Not enough memory to convert ''dirPath'' to
  *             the system path type.
- *  @exception RANGE_ERROR ''name'' does not use the standard path
+ *  @exception RANGE_ERROR ''dirPath'' does not use the standard path
  *             representation or it cannot be converted to the system
  *             path type.
  *  @exception FILE_ERROR A system function returns an error.
  *)
-const proc: mkdir (in string: name)                          is action "CMD_MKDIR";
+const proc: mkdir (in string: dirPath)                          is action "CMD_MKDIR";
 
 
 (**
@@ -398,17 +395,17 @@ const func string: readlink (in string: filePath)            is action "CMD_READ
 
 (**
  *  Create a symbolic link.
- *  The symbolic link ''dest'' will refer to ''source'' afterwards.
- *  @param source String to be contained in the symbolic link.
- *  @param dest Name of the symbolic link to be created.
- *  @exception MEMORY_ERROR Not enough memory to convert source or
- *             dest to the system path type.
- *  @exception RANGE_ERROR ''source'' or ''dest'' does not use the
+ *  The symbolic link ''destPath'' will refer to ''sourcePath'' afterwards.
+ *  @param sourcePath String to be contained in the symbolic link.
+ *  @param destPath Name of the symbolic link to be created.
+ *  @exception MEMORY_ERROR Not enough memory to convert sourcePath or
+ *             destPath to the system path type.
+ *  @exception RANGE_ERROR ''sourcePath'' or ''destPath'' does not use the
  *             standard path representation or one of them cannot be
  *             converted to the system path type.
  *  @exception FILE_ERROR A system function returns an error.
  *)
-const proc: symlink (in string: source, in string: dest)     is action "CMD_SYMLINK";
+const proc: symlink (in string: sourcePath, in string: destPath)   is action "CMD_SYMLINK";
 
 
 (**
@@ -438,13 +435,13 @@ const proc: removeAnyFile (in string: filePath)              is action "CMD_REMO
 
 
 (**
- *  Copies a file or directory tree.
+ *  Copy a file or directory tree.
  *  Permissions/mode, ownership and timestamps of the destination file
  *  are determined independent of the corresponding source properties.
  *  The destination file gets the permissions/mode defined by umask.
  *  The user executing the program is the owner of the destination file.
  *  The timestamps of the destination file are set to the current time.
- *  Symbolic links in sourcePath are always followed.
+ *  Symbolic links in ''sourcePath'' are always followed.
  *  Therefore ''copyFile'' will never create a symbolic link.
  *  Note that ''copyFile'' does not preserve hard links (they are
  *  resolved to distinct files).

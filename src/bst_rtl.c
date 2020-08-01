@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  bst_rtl.c     Primitive actions for the byte string type.       */
-/*  Copyright (C) 1989 - 2010  Thomas Mertes                        */
+/*  Copyright (C) 1989 - 2013  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */
@@ -110,6 +110,12 @@ bstritype bstCat (const const_bstritype bstri1, const const_bstritype bstri2)
 
 
 
+/**
+ *  Compare two bstrings.
+ *  @return -1, 0 or 1 if the first argument is considered to be
+ *          respectively less than, equal to, or greater than the
+ *          second.
+ */
 inttype bstCmp (const const_bstritype bstri1, const const_bstritype bstri2)
 
   {
@@ -230,6 +236,10 @@ void bstDestr (const const_bstritype old_bstring)
 
 
 
+/**
+ *  Compute the hash value of a 'bstring'.
+ *  @return the hash value.
+ */
 inttype bstHashCode (const const_bstritype bstri)
 
   {
@@ -247,6 +257,12 @@ inttype bstHashCode (const const_bstritype bstri)
 
 
 
+/**
+ *  Convert a string to a 'bstring' value.
+ *  @return the 'bstring' result of the conversion.
+ *  @exception RANGE_ERROR When characters beyond '\255\' are present.
+ *  @exception MEMORY_ERROR  Not enough memory to represent the result.
+ */
 bstritype bstParse (const const_stritype stri)
 
   {
@@ -278,6 +294,11 @@ bstritype bstParse (const const_stritype stri)
 
 
 
+/**
+ *  Convert a 'bstring' value to a string.
+ *  @return the string result of the conversion.
+ *  @exception MEMORY_ERROR  Not enough memory to represent the result.
+ */
 stritype bstStr (const const_bstritype bstri)
 
   {

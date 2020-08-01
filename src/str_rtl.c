@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  str_rtl.c     Primitive actions for the string type.            */
-/*  Copyright (C) 1989 - 2011  Thomas Mertes                        */
+/*  Copyright (C) 1989 - 2013  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */
@@ -134,6 +134,507 @@ static INLINE const strelemtype *rsearch_strelem2 (const strelemtype *mem,
     } /* while */
     return NULL;
   } /* rsearch_strelem2 */
+
+
+
+void toLower (const strelemtype *const stri, memsizetype length,
+    strelemtype *const dest)
+
+  {
+    memsizetype pos;
+    strelemtype ch;
+
+  /* toLower */
+    for (pos = 0; pos < length; pos++) {
+      ch = stri[pos];
+      switch (ch >> 8) {
+        case 0:
+          if (ch <= '\177') {
+            ch = (strelemtype) ((unsigned char)
+                "\0\1\2\3\4\5\6\7\10\11\12\13\14\15\16\17"
+                "\20\21\22\23\24\25\26\27\30\31\32\33\34\35\36\37"
+                " !\"#$%&'()*+,-./0123456789:;<=>?"
+                "@abcdefghijklmnopqrstuvwxyz[\\]^_"
+                "`abcdefghijklmnopqrstuvwxyz{|}~\177"[ch]);
+          } else if ("\0\0\0\0\0\0\0\0\376\377\377\007\0\0\0\0"
+              "\0\0\0\0\0\0\0\0\377\377\177\177\0\0\0\0"[ch >> 3 & 31] &
+              1 << (ch & 7)) {
+            ch += 32;
+          } /* if */
+          break;
+        case 1:
+          if ("UUUUUUU\252\252TUUUUU+"
+              "\326\316\333\261\325\322\256\021\260\255\252JUU\326U"[ch >> 3 & 31] &
+              1 << (ch & 7)) {
+            switch (ch) {
+              case 0x0130: ch = 0x0069; break;
+              case 0x0178: ch = 0x00ff; break;
+              case 0x0181: ch = 0x0253; break;
+              case 0x0186: ch = 0x0254; break;
+              case 0x0189: ch = 0x0256; break;
+              case 0x018a: ch = 0x0257; break;
+              case 0x018e: ch = 0x01dd; break;
+              case 0x018f: ch = 0x0259; break;
+              case 0x0190: ch = 0x025b; break;
+              case 0x0193: ch = 0x0260; break;
+              case 0x0194: ch = 0x0263; break;
+              case 0x0196: ch = 0x0269; break;
+              case 0x0197: ch = 0x0268; break;
+              case 0x019c: ch = 0x026f; break;
+              case 0x019d: ch = 0x0272; break;
+              case 0x019f: ch = 0x0275; break;
+              case 0x01a6: ch = 0x0280; break;
+              case 0x01a9: ch = 0x0283; break;
+              case 0x01ae: ch = 0x0288; break;
+              case 0x01b1: ch = 0x028a; break;
+              case 0x01b2: ch = 0x028b; break;
+              case 0x01b7: ch = 0x0292; break;
+              case 0x01c4: ch += 2;     break;
+              case 0x01c7: ch += 2;     break;
+              case 0x01ca: ch += 2;     break;
+              case 0x01f1: ch += 2;     break;
+              case 0x01f2: ch = 0x01f3; break;
+              case 0x01f6: ch = 0x0195; break;
+              case 0x01f7: ch = 0x01bf; break;
+              case 0x01f8: ch = 0x01f9; break;
+              default: ch += 1;         break;
+            } /* switch */
+          } /* if */
+          break;
+        case 2:
+          if ("UUUUUU\005lzU\0\0\0\0\0\0"
+              "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"[ch >> 3 & 31] &
+              1 << (ch & 7)) {
+            switch (ch) {
+              case 0x0220: ch -= 130;   break;
+              case 0x023a: ch = 0x2c65; break;
+              case 0x023d: ch -= 163;   break;
+              case 0x023e: ch = 0x2c66; break;
+              case 0x0243: ch -= 195;   break;
+              case 0x0244: ch += 69;    break;
+              case 0x0245: ch += 71;    break;
+              default:     ch += 1;     break;
+            } /* switch */
+          } /* if */
+          break;
+        case 3:
+          if ("\0\0\0\0\0\0\0\0\0\0\0\0\0\0E\0"
+              "@\327\376\377\373\017\0\0\0\200\0UUU\220\346"[ch >> 3 & 31] &
+              1 << (ch & 7)) {
+            switch (ch) {
+              case 0x0370: ch += 1;   break;
+              case 0x0372: ch += 1;   break;
+              case 0x0376: ch += 1;   break;
+              case 0x0386: ch += 38;  break;
+              case 0x0388: ch += 37;  break;
+              case 0x0389: ch += 37;  break;
+              case 0x038a: ch += 37;  break;
+              case 0x038c: ch += 64;  break;
+              case 0x038e: ch += 63;  break;
+              case 0x038f: ch += 63;  break;
+              case 0x03cf: ch += 8;   break;
+              case 0x03f4: ch -= 60;  break;
+              case 0x03f9: ch -= 7;   break;
+              case 0x03fd: ch -= 130; break;
+              case 0x03fe: ch -= 130; break;
+              case 0x03ff: ch -= 130; break;
+              default:
+                if (ch <= 0x03ab) {
+                  ch += 32;
+                } else {
+                  ch += 1;
+                } /* if */
+                break;
+            } /* switch */
+          } /* if */
+          break;
+        case 4:
+          if ("\377\377\377\377\377\377\0\0\0\0\0\0UUUU"
+              "\001TUUUUUU\253*UUUUUU"[ch >> 3 & 31] &
+              1 << (ch & 7)) {
+            if (ch <= 0x040f) {
+              ch += 80;
+            } else if (ch <= 0x042f) {
+              ch += 32;
+            } else if (ch == 0x04c0) {
+              ch = 0x04cf;
+            } else {
+              ch += 1;
+            } /* if */
+          } /* if */
+          break;
+        case 5:
+          if (ch <= 0x0526 && (ch & 1) == 0) {
+            ch += 1;
+          } else if (ch >= 0x0531 && ch <= 0x0556) {
+            ch += 48;
+          } /* if */
+          break;
+        case 16:
+          if ("\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"
+              "\0\0\0\0\377\377\377\377\277 \0\0\0\0\0\0"[ch >> 3 & 31] &
+              1 << (ch & 7)) {
+            ch += 0x1c60;
+          } /* if */
+          break;
+        case 30:
+          if ("UUUUUUUUUUUUUUUUUU\025@UUUUUUUUUUUU"[ch >> 3 & 31] &
+              1 << (ch & 7)) {
+            if (ch == 0x1e9e) {
+              ch = 0x00df;
+            } else {
+              ch += 1;
+            } /* if */
+          } /* if */
+          break;
+        case 31:
+          if ("\0\377\0?\0\377\0\377\0?\0\252\0\377\0\0"
+              "\0\377\0\377\0\377\0\037\0\037\0\017\0\037\0\037"[ch >> 3 & 31] &
+              1 << (ch & 7)) {
+            if (ch >= 0x1fba) {
+              ch = (strelemtype) ((unsigned char)
+                  "\160\161\263\000\000\000\000\000\000\000"
+                  "\000\000\000\000\162\163\164\165\303\000"
+                  "\000\000\000\000\000\000\000\000\000\000"
+                  "\320\321\166\167\000\000\000\000\000\000"
+                  "\000\000\000\000\000\000\340\341\172\173"
+                  "\345\000\000\000\000\000\000\000\000\000"
+                  "\000\000\170\171\174\175\363"[ch - 0x1fba] + 0x1f00);
+            } else {
+              ch -= 8;
+            } /* if */
+          } /* if */
+          break;
+        case 33:
+          if ("\0\0\0\0@\f\004\0\0\0\0\0\377\377\0\0"
+              "\b\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"[ch >> 3 & 31] &
+              1 << (ch & 7)) {
+            switch (ch) {
+                case 0x2126: ch = 0x03c9; break;
+                case 0x212a: ch = 0x006b; break;
+                case 0x212b: ch = 0x00e5; break;
+                case 0x2132: ch += 28;    break;
+                case 0x2183: ch += 1;     break;
+              default: ch += 16;          break;
+            } /* switch */
+          } /* if */
+          break;
+        case 36:
+          if (ch >= 0x24b6 && ch <= 0x24cf) {
+            ch += 26;
+          } /* if */
+          break;
+        case 44:
+          if ("\377\377\377\377\377\177\0\0\0\0\0\0\235\352%\300"
+              "UUUUUUUUUUUU\005(\004\0"[ch >> 3 & 31] &
+              1 << (ch & 7)) {
+            if (ch <= 0x2c2e) {
+              ch += 48;
+            } else {
+              switch (ch) {
+                case 0x2c62: ch = 0x026b; break;
+                case 0x2c63: ch = 0x1d7d; break;
+                case 0x2c64: ch = 0x027d; break;
+                case 0x2c6d: ch = 0x0251; break;
+                case 0x2c6e: ch = 0x0271; break;
+                case 0x2c6f: ch = 0x0250; break;
+                case 0x2c70: ch = 0x0252; break;
+                case 0x2c7e: ch = 0x023f; break;
+                case 0x2c7f: ch = 0x0240; break;
+                default: ch += 1; break;
+              } /* switch */
+            } /* if */
+          } /* if */
+          break;
+        case 166:
+          if ("\0\0\0\0\0\0\0\0UUUUU\025\0\0"
+              "UUU\0\0\0\0\0\0\0\0\0\0\0\0\0"[ch >> 3 & 31] &
+              1 << (ch & 7)) {
+            ch += 1;
+          } /* if */
+          break;
+        case 167:
+          if ("\0\0\0\0TUTUUUUUUU\0j"
+              "U(\005\0U\005\0\0\0\0\0\0\0\0\0\0"[ch >> 3 & 31] &
+              1 << (ch & 7)) {
+            if (ch == 0xa77d) {
+              ch = 0x1d79;
+            } else if (ch == 0xa78d) {
+              ch = 0x0265;
+            } else if (ch == 0xa7aa) {
+              ch = 0x0266;
+            } else {
+              ch += 1;
+            } /* if */
+          } /* if */
+          break;
+        case 255:
+          if (ch >= 0xff21 && ch <= 0xff3a) {
+            ch += 32;
+          } /* if */
+          break;
+        case 260:
+          if (ch >= 0x10400 && ch <= 0x10427) {
+            ch += 40;
+          } /* if */
+          break;
+        default:
+          break;
+      } /* switch */
+      dest[pos] = ch;
+    } /* for */
+  } /* toLower */
+
+
+
+static const strelemtype toUpperTable2[] = {
+    0x2c6f, 0x2c6d, 0x2c70, 0x0181, 0x0186,      0, 0x0189, 0x018a,      0, 0x018f,
+         0, 0x0190,      0,      0,      0,      0, 0x0193,      0,      0, 0x0194,
+         0, 0xa78d, 0xa7aa,      0, 0x0197, 0x0196,      0, 0x2c62,      0,      0,
+         0, 0x019c,      0, 0x2c6e, 0x019d,      0,      0, 0x019f,      0,      0,
+         0,      0,      0,      0,      0, 0x2c64,      0,      0, 0x01a6,      0,
+         0, 0x01a9,      0,      0,      0,      0, 0x01ae, 0x0244, 0x01b1, 0x01b2,
+    0x0245,      0,      0,      0,      0,      0, 0x01b7
+  };
+
+
+void toUpper (const strelemtype *const stri, memsizetype length,
+    strelemtype *const dest)
+
+  {
+    memsizetype pos;
+    strelemtype ch;
+
+  /* toUpper */
+    for (pos = 0; pos < length; pos++) {
+      ch = stri[pos];
+      switch (ch >> 8) {
+        case 0:
+          if (ch <= '\177') {
+            ch = (strelemtype) ((unsigned char)
+                "\0\1\2\3\4\5\6\7\10\11\12\13\14\15\16\17"
+                "\20\21\22\23\24\25\26\27\30\31\32\33\34\35\36\37"
+                " !\"#$%&'()*+,-./0123456789:;<=>?"
+                "@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_"
+                "`ABCDEFGHIJKLMNOPQRSTUVWXYZ{|}~\177"[ch]);
+          } else if ("\0\0\0\0\0\0\0\0\0\0\0\0\376\377\377\007"
+              "\0\0\0\0\0\0 \0\0\0\0\0\377\377\177\377"[ch >> 3 & 31] &
+              1 << (ch & 7)) {
+            if (ch == 0x00b5) {
+              ch = 0x039c;
+            } else if (ch == 0x00ff) {
+              ch = 0x0178;
+            } else {
+              ch -= 32;
+            } /* if */
+          } /* if */
+          break;
+        case 1:
+          if ("\252\252\252\252\252\252\252TU\251\252\252\252\252\252\324"
+              ")\021$F*!Q\242`[U\265\252\252,\252"[ch >> 3 & 31] &
+              1 << (ch & 7)) {
+            if (ch == 0x0131) {
+              ch = 0x0049;
+            } else if (ch == 0x017f) {
+              ch = 0x0053;
+            } else if (ch >= 0x0180 && ch <= 0x019e) {
+              ch = (strelemtype) ((unsigned char)
+                  "\303\0\0\002\0\004\0\0\007\0"
+                  "\0\0\013\0\0\0\0\0\021\0"
+                  "\0\166\0\0\0\030\275\0\0\0\240"[ch - 0x0180] + 0x0180);
+            } else if (ch >= 0x01bf && ch <= 0x01cc) {
+              ch = (strelemtype) ((unsigned char)
+                  "\367\0\0\0\0\0\304\304\0\307"
+                  "\307\0\312\312"[ch - 0x01bf] + 0x0100);
+            } else if (ch == 0x01dd) {
+              ch = 0x018e;
+            } else if (ch == 0x01f3) {
+              ch = 0x01f1;
+            } else {
+              ch -= 1;
+            } /* if */
+          } /* if */
+          break;
+        case 2:
+          if ("\252\252\252\252\250\252\n\220\205\252\337\ni\213& "
+              "\t\037\004\0\0\0\0\0\0\0\0\0\0\0\0\0"[ch >> 3 & 31] &
+              1 << (ch & 7)) {
+            if (ch <= 0x024f) {
+              if (ch == 0x023f) {
+                ch = 0x2c7e;
+              } else if (ch == 0x0240) {
+                ch = 0x2c7f;
+              } else {
+                ch -= 1;
+              } /* if */
+            } else {
+              ch = toUpperTable2[ch - 0x0250];
+            } /* if */
+          } /* if */
+          break;
+        case 3:
+          if ("\0\0\0\0\0\0\0\0 \0\0\0\0\0\2128"
+              "\0\0\0\0\0\360\376\377\377\177\343\252\252\252'\t"[ch >> 3 & 31] &
+              1 << (ch & 7)) {
+            if (ch <= 0x03af) {
+              if (ch == 0x0345) {
+                ch += 84;
+              } else if (ch <= 0x0377) {
+                ch -= 1;
+              } else if (ch <= 0x037d) {
+                ch += 130;
+              } else if (ch == 0x03ac) {
+                ch -= 38;
+              } else {
+                ch -= 37;
+              } /* if */
+            } else if (ch <= 0x03cb) {
+              if (ch == 0x03c2) {
+                ch -= 31;
+              } else {
+                ch -= 32;
+              } /* if */
+            } else if (ch <= 0x03d7) {
+              ch = (strelemtype) ((unsigned char)
+                  "\214\216\217\0\222\230\0\0\0\246\240\317"[ch - 0x03cc] + 0x0300);
+            } else if (ch <= 0x03ef) {
+              ch -= 1;
+            } else {
+              ch = (strelemtype) ((unsigned char)
+                  "\232\241\371\0\0\225\0\0\367\0\0\372"[ch - 0x03f0] + 0x0300);
+            } /* if */
+          } /* if */
+          break;
+        case 4:
+          if ("\0\0\0\0\0\0\377\377\377\377\377\377\252\252\252\252"
+              "\002\250\252\252\252\252\252\252T\325\252\252\252\252\252\252"[ch >> 3 & 31] &
+              1 << (ch & 7)) {
+            if (ch <= 0x044f) {
+              ch -= 32;
+            } else if (ch <= 0x045f) {
+              ch -= 80;
+            } else if (ch == 0x04cf) {
+              ch -= 15;
+            } else {
+              ch -= 1;
+            } /* if */
+          } /* if */
+          break;
+        case 5:
+          if ("\252\252\252\252\252\0\0\0\0\0\0\0\376\377\377\377"
+              "\177\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"[ch >> 3 & 31] &
+              1 << (ch & 7)) {
+            if (ch <= 0x0527) {
+              ch -= 1;
+            } else {
+              ch -= 48;
+            } /* if */
+          } /* if */
+          break;
+        case 29:
+          if (ch == 0x1d79) {
+            ch = 0xa77d;
+          } else if (ch == 0x1d7d) {
+            ch = 0x2c63;
+          } /* if */
+          break;
+        case 30:
+          if ("\252\252\252\252\252\252\252\252\252\252\252\252\252\252\252\252"
+              "\252\252*\b\252\252\252\252\252\252\252\252\252\252\252\252"[ch >> 3 & 31] &
+              1 << (ch & 7)) {
+            if (ch == 0x1e9b) {
+              ch = 0x1e60;
+            } else {
+              ch -= 1;
+            } /* if */
+          } /* if */
+          break;
+        case 31:
+          if ("\377\0?\0\377\0\377\0?\0\252\0\377\0\377?"
+              "\377\0\377\0\377\0\013@\b\0\003\0#\0\b\0"[ch >> 3 & 31] &
+              1 << (ch & 7)) {
+            if (ch >= 0x1f70 && ch <= 0x1f7d) {
+              ch = (strelemtype) ((unsigned char)
+                  "\272\273\310\311\312\313\332\333\370\371\352\353\372\373"[ch - 0x1f70] + 0x1f00);
+            } else if (ch == 0x1fb3 || ch == 0x1fc3 || ch == 0x1ff3) {
+              ch += 9;
+            } else if (ch == 0x1fe5) {
+              ch += 7;
+            } else if (ch == 0x1fbe) {
+              ch = 0x0399;
+            } else {
+              ch += 8;
+            } /* if */
+          } /* if */
+          break;
+        case 33:
+          if ("\0\0\0\0\0\0\0\0\0@\0\0\0\0\377\377"
+              "\020\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"[ch >> 3 & 31] &
+              1 << (ch & 7)) {
+            if (ch == 0x214e) {
+              ch -= 28;
+            } else if (ch == 0x2184) {
+              ch -= 1;
+            } else {
+              ch -= 16;
+            } /* if */
+          } /* if */
+          break;
+        case 36:
+          if (ch >= 0x24d0 && ch <= 0x24e9) {
+            ch -= 26;
+          } /* if */
+          break;
+        case 44:
+          if ("\0\0\0\0\0\0\377\377\377\377\377\177b\025H\0"
+              "\252\252\252\252\252\252\252\252\252\252\252\252\nP\b\0"[ch >> 3 & 31] &
+              1 << (ch & 7)) {
+            if (ch <= 0x2c5e) {
+              ch -= 48;
+            } else if (ch == 0x2c65) {
+              ch = 0x023a;
+            } else if (ch == 0x2c66) {
+              ch = 0x023e;
+            } else {
+              ch -= 1;
+            } /* if */
+          } /* if */
+          break;
+        case 45:
+          if (ch >= 0x2d00 && ch <= 0x2d2d) {
+            ch -= 0x1c60;
+          } /* if */
+          break;
+        case 166:
+          if ("\0\0\0\0\0\0\0\0\252\252\252\252\252*\0\0"
+              "\252\252\252\0\0\0\0\0\0\0\0\0\0\0\0\0"[ch >> 3 & 31] &
+              1 << (ch & 7)) {
+            ch -= 1;
+          } /* if */
+          break;
+        case 167:
+          if ("\0\0\0\0\250\252\250\252\252\252\252\252\252\252\0\224"
+              "\252\020\n\0\252\002\0\0\0\0\0\0\0\0\0\0"[ch >> 3 & 31] &
+              1 << (ch & 7)) {
+            ch -= 1;
+          } /* if */
+          break;
+        case 255:
+          if (ch >= 0xff41 && ch <= 0xff5a) {
+            ch -= 32;
+          } /* if */
+          break;
+        case 260:
+          if (ch >= 0x10428 && ch <= 0x1044f) {
+            ch -= 40;
+          } /* if */
+          break;
+        default:
+          break;
+      } /* switch */
+      dest[pos] = ch;
+    } /* for */
+  } /* toUpper */
 
 
 
@@ -434,7 +935,7 @@ void strAppend (stritype *const destination, const_stritype extension)
 /**
  *  Append the string 'extension' to 'destination'.
  *  StrAppendTemp is used by the compiler when 'extension' is temporary
- *  value that could be reused.
+ *  value that can be reused.
  *  @exception MEMORY_ERROR Not enough memory for the concatenated
  *             string.
  */
@@ -702,7 +1203,7 @@ stritype strCLit (const const_stritype stri)
   {
     register strelemtype character;
     register memsizetype position;
-    memsizetype length;
+    memsizetype striSize;
     memsizetype pos;
     size_t len;
     char buffer[25];
@@ -710,15 +1211,15 @@ stritype strCLit (const const_stritype stri)
     stritype result;
 
   /* strCLit */
-    length = stri->size;
-    if (unlikely(length > (MAX_STRI_LEN - 2) / 4 ||
-                 !ALLOC_STRI_SIZE_OK(result, 4 * length + 2))) {
+    striSize = stri->size;
+    if (unlikely(striSize > (MAX_STRI_LEN - 2) / 4 ||
+                 !ALLOC_STRI_SIZE_OK(result, 4 * striSize + 2))) {
       raise_error(MEMORY_ERROR);
       return NULL;
     } /* if */
     result->mem[0] = (strelemtype) '"';
     pos = 1;
-    for (position = 0; position < length; position++) {
+    for (position = 0; position < striSize; position++) {
       character = stri->mem[position];
       /* The following comparison uses 255 instead of '\377',       */
       /* because chars might be signed and this can produce wrong   */
@@ -741,21 +1242,21 @@ stritype strCLit (const const_stritype stri)
         cstri_expand(&result->mem[pos], buffer, len);
         pos = pos + len;
       } else {
-        FREE_STRI(result, 4 * length + 2);
+        FREE_STRI(result, 4 * striSize + 2);
         raise_error(RANGE_ERROR);
         return NULL;
       } /* if */
     } /* for */
     result->mem[pos] = (strelemtype) '"';
     result->size = pos + 1;
-    REALLOC_STRI_SIZE_OK(resized_result, result, 4 * length + 2, pos + 1);
+    REALLOC_STRI_SIZE_OK(resized_result, result, 4 * striSize + 2, pos + 1);
     if (unlikely(resized_result == NULL)) {
-      FREE_STRI(result, 4 * length + 2);
+      FREE_STRI(result, 4 * striSize + 2);
       raise_error(MEMORY_ERROR);
       return NULL;
     } else {
       result = resized_result;
-      COUNT3_STRI(4 * length + 2, pos + 1);
+      COUNT3_STRI(4 * striSize + 2, pos + 1);
       return result;
     } /* if */
   } /* strCLit */
@@ -775,19 +1276,15 @@ inttype strCompare (const const_stritype stri1, const const_stritype stri2)
 
   /* strCompare */
     if (stri1->size < stri2->size) {
-      if (strelem_memcmp(stri1->mem, stri2->mem, stri1->size) <= 0) {
-        result = -1;
-      } else {
-        result = 1;
-      } /* if */
-    } else if (stri1->size > stri2->size) {
-      if (strelem_memcmp(stri1->mem, stri2->mem, stri2->size) >= 0) {
-        result = 1;
-      } else {
+      result = strelem_memcmp(stri1->mem, stri2->mem, stri1->size);
+      if (result == 0) {
         result = -1;
       } /* if */
     } else {
-      result = strelem_memcmp(stri1->mem, stri2->mem, stri1->size);
+      result = strelem_memcmp(stri1->mem, stri2->mem, stri2->size);
+      if (result == 0 && stri1->size > stri2->size) {
+        result = 1;
+      } /* if */
     } /* if */
     return result;
   } /* strCompare */
@@ -883,7 +1380,7 @@ stritype strConcatN (const const_stritype striArray[], memsizetype arraySize)
  *  Concatenate two strings.
  *  The parameter 'stri1' is resized and 'stri2' is copied to the
  *  enlarged area of 'stri1'. StrConcatTemp is used by the compiler
- *  when 'stri1' is temporary value that could be reused.
+ *  when 'stri1' is temporary value that can be reused.
  *  @return the resized parameter 'stri1.
  */
 stritype strConcatTemp (stritype stri1, const const_stritype stri2)
@@ -1181,16 +1678,8 @@ booltype strGt (const const_stritype stri1, const const_stritype stri2)
  */
 inttype strHashCode (const const_stritype stri)
 
-  {
-    inttype result;
-
-  /* strHashCode */
-    if (stri->size == 0) {
-      result = 0;
-    } else {
-      result = (inttype) (stri->mem[0] << 5 ^ stri->size << 3 ^ stri->mem[stri->size - 1]);
-    } /* if */
-    return result;
+  { /* strHashCode */
+    return hashCode(stri);
   } /* strHashCode */
 
 
@@ -1201,20 +1690,19 @@ inttype strHashCode (const const_stritype stri)
  *  The first character in a string has the position 1.
  *  This function is used by the compiler to avoid copiing string data.
  *  The 'slice' is initialized to refer to the head of 'stri'
- *  @return the parameter 'slice'.
  */
-stritype strHeadSlice (const const_stritype stri, const inttype stop, stritype slice)
+void strHeadSlice (const const_stritype stri, const inttype stop, stritype slice)
 
   {
-    memsizetype length;
+    memsizetype striSize;
 
   /* strHeadSlice */
-    length = stri->size;
-    if (stop >= 1 && length >= 1) {
+    striSize = stri->size;
+    if (stop >= 1 && striSize >= 1) {
       SET_SLICE_CAPACITY(slice, 0);
       slice->mem = stri->mem;
-      if (length <= (uinttype) stop) {
-        slice->size = length;
+      if (striSize <= (uinttype) stop) {
+        slice->size = striSize;
       } else {
         slice->size = (memsizetype) stop;
       } /* if */
@@ -1223,7 +1711,6 @@ stritype strHeadSlice (const const_stritype stri, const inttype stop, stritype s
       slice->mem = NULL;
       slice->size = 0;
     } /* if */
-    return slice;
   } /* strHeadSlice */
 
 #else
@@ -1239,15 +1726,15 @@ stritype strHeadSlice (const const_stritype stri, const inttype stop, stritype s
 stritype strHead (const const_stritype stri, const inttype stop)
 
   {
-    memsizetype length;
+    memsizetype striSize;
     memsizetype result_size;
     stritype result;
 
   /* strHead */
-    length = stri->size;
-    if (stop >= 1 && length >= 1) {
-      if (length <= (uinttype) stop) {
-        result_size = length;
+    striSize = stri->size;
+    if (stop >= 1 && striSize >= 1) {
+      if (striSize <= (uinttype) stop) {
+        result_size = striSize;
       } else {
         result_size = (memsizetype) stop;
       } /* if */
@@ -1275,21 +1762,21 @@ stritype strHead (const const_stritype stri, const inttype stop)
  *  Get a substring ending at a stop position.
  *  The first character in a string has the position 1.
  *  StrHeadTemp is used by the compiler when 'stri' is temporary
- *  value that could be reused.
+ *  value that can be reused.
  *  @return the substring ending at the stop position.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  */
 stritype strHeadTemp (const stritype stri, const inttype stop)
 
   {
-    memsizetype length;
+    memsizetype striSize;
     memsizetype result_size;
     stritype result;
 
   /* strHeadTemp */
-    length = stri->size;
-    if (stop >= 1 && length >= 1) {
-      if (length <= (uinttype) stop) {
+    striSize = stri->size;
+    if (stop >= 1 && striSize >= 1) {
+      if (striSize <= (uinttype) stop) {
         return stri;
       } else {
         result_size = (memsizetype) stop;
@@ -1299,7 +1786,7 @@ stritype strHeadTemp (const stritype stri, const inttype stop)
     } /* if */
 #ifdef WITH_STRI_CAPACITY
     if (!SHRINK_REASON(stri, result_size)) {
-      COUNT3_STRI(length, result_size);
+      COUNT3_STRI(striSize, result_size);
       result = stri;
       result->size = result_size;
     } else {
@@ -1308,17 +1795,17 @@ stritype strHeadTemp (const stritype stri, const inttype stop)
         FREE_STRI(stri, stri->size);
         raise_error(MEMORY_ERROR);
       } else {
-        COUNT3_STRI(length, result_size);
+        COUNT3_STRI(striSize, result_size);
         result->size = result_size;
       } /* if */
     } /* if */
 #else
-    SHRINK_STRI(result, stri, length, result_size);
+    SHRINK_STRI(result, stri, striSize, result_size);
     if (unlikely(result == NULL)) {
       FREE_STRI(stri, stri->size);
       raise_error(MEMORY_ERROR);
     } else {
-      COUNT3_STRI(length, result_size);
+      COUNT3_STRI(striSize, result_size);
       result->size = result_size;
     } /* if */
 #endif
@@ -1491,7 +1978,7 @@ stritype strLit (const const_stritype stri)
   {
     register strelemtype character;
     register memsizetype position;
-    memsizetype length;
+    memsizetype striSize;
     memsizetype pos;
     size_t len;
     char buffer[25];
@@ -1499,15 +1986,15 @@ stritype strLit (const const_stritype stri)
     stritype result;
 
   /* strLit */
-    length = stri->size;
-    if (unlikely(length > (MAX_STRI_LEN - 2) / 12 ||
-                 !ALLOC_STRI_SIZE_OK(result, 12 * length + 2))) {
+    striSize = stri->size;
+    if (unlikely(striSize > (MAX_STRI_LEN - 2) / 12 ||
+                 !ALLOC_STRI_SIZE_OK(result, 12 * striSize + 2))) {
       raise_error(MEMORY_ERROR);
       result = NULL;
     } else {
       result->mem[0] = (strelemtype) '"';
       pos = 1;
-      for (position = 0; position < length; position++) {
+      for (position = 0; position < striSize; position++) {
         character = (strelemtype) stri->mem[position];
         if (character < ' ') {
           len = strlen(stri_escape_sequence[character]);
@@ -1531,14 +2018,14 @@ stritype strLit (const const_stritype stri)
       } /* for */
       result->mem[pos] = (strelemtype) '"';
       result->size = pos + 1;
-      REALLOC_STRI_SIZE_OK(resized_result, result, 12 * length + 2, pos + 1);
+      REALLOC_STRI_SIZE_OK(resized_result, result, 12 * striSize + 2, pos + 1);
       if (unlikely(resized_result == NULL)) {
-        FREE_STRI(result, 12 * length + 2);
+        FREE_STRI(result, 12 * striSize + 2);
         raise_error(MEMORY_ERROR);
         result = NULL;
       } else {
         result = resized_result;
-        COUNT3_STRI(5 * length + 2, pos + 1);
+        COUNT3_STRI(5 * striSize + 2, pos + 1);
       } /* if */
     } /* if */
     return result;
@@ -1546,44 +2033,46 @@ stritype strLit (const const_stritype stri)
 
 
 
+/**
+ *  Convert a string to lower case.
+ *  The conversion uses the default Unicode case mapping,
+ *  where each character is considered in isolation.
+ *  Characters without case mapping are left unchanged.
+ *  The mapping is independend from the locale. Individual
+ *  character case mappings cannot be reversed, because some
+ *  characters have multiple characters that map to them.
+ *  @return the string converted to lower case.
+ */
 stritype strLow (const const_stritype stri)
 
   {
-    memsizetype length;
-    memsizetype pos;
+    memsizetype striSize;
     stritype result;
 
   /* strLow */
-    length = stri->size;
-    if (unlikely(!ALLOC_STRI_SIZE_OK(result, length))) {
+    striSize = stri->size;
+    if (unlikely(!ALLOC_STRI_SIZE_OK(result, striSize))) {
       raise_error(MEMORY_ERROR);
       return NULL;
     } else {
-      result->size = length;
-      for (pos = 0; pos < length; pos++) {
-        if (stri->mem[pos] >= (strelemtype) 'A' && stri->mem[pos] <= (strelemtype) 'Z') {
-          result->mem[pos] = stri->mem[pos] - (strelemtype) 'A' + (strelemtype) 'a';
-        } else {
-          result->mem[pos] = stri->mem[pos];
-        } /* if */
-      } /* for */
+      result->size = striSize;
+      toLower(stri->mem, stri->size, result->mem);
       return result;
     } /* if */
   } /* strLow */
 
 
 
+/**
+ *  Convert a string to lower case.
+ *  StrLowTemp is used by the compiler when 'stri' is temporary
+ *  value that can be reused.
+ *  @return the string converted to lower case.
+ */
 stritype strLowTemp (const stritype stri)
 
-  {
-    memsizetype pos;
-
-  /* strLowTemp */
-    for (pos = 0; pos < stri->size; pos++) {
-      if (stri->mem[pos] >= (strelemtype) 'A' && stri->mem[pos] <= (strelemtype) 'Z') {
-        stri->mem[pos] = stri->mem[pos] - (strelemtype) 'A' + (strelemtype) 'a';
-      } /* if */
-    } /* for */
+  { /* strLowTemp */
+    toLower(stri->mem, stri->size, stri->mem);
     return stri;
   } /* strLowTemp */
 
@@ -1596,12 +2085,12 @@ stritype strLowTemp (const stritype stri)
 stritype strLpad (const const_stritype stri, const inttype pad_size)
 
   {
-    memsizetype length;
+    memsizetype striSize;
     stritype result;
 
   /* strLpad */
-    length = stri->size;
-    if (pad_size > 0 && (uinttype) pad_size > length) {
+    striSize = stri->size;
+    if (pad_size > 0 && (uinttype) pad_size > striSize) {
       if (unlikely((uinttype) pad_size > MAX_STRI_LEN ||
                    !ALLOC_STRI_SIZE_OK(result, (memsizetype) pad_size))) {
         raise_error(MEMORY_ERROR);
@@ -1610,21 +2099,21 @@ stritype strLpad (const const_stritype stri, const inttype pad_size)
         result->size = (memsizetype) pad_size;
         {
           strelemtype *elem = result->mem;
-          memsizetype len = (memsizetype) pad_size - length;
+          memsizetype len = (memsizetype) pad_size - striSize;
 
           while (len--) {
             *elem++ = (strelemtype) ' ';
           } /* while */
         }
-        memcpy(&result->mem[(memsizetype) pad_size - length], stri->mem,
-            length * sizeof(strelemtype));
+        memcpy(&result->mem[(memsizetype) pad_size - striSize], stri->mem,
+            striSize * sizeof(strelemtype));
       } /* if */
     } else {
-      if (unlikely(!ALLOC_STRI_SIZE_OK(result, length))) {
+      if (unlikely(!ALLOC_STRI_SIZE_OK(result, striSize))) {
         raise_error(MEMORY_ERROR);
       } else {
-        result->size = length;
-        memcpy(result->mem, stri->mem, length * sizeof(strelemtype));
+        result->size = striSize;
+        memcpy(result->mem, stri->mem, striSize * sizeof(strelemtype));
       } /* if */
     } /* if */
     return result;
@@ -1635,18 +2124,18 @@ stritype strLpad (const const_stritype stri, const inttype pad_size)
 /**
  *  Pad a string with spaces at the left side up to pad_size.
  *  StrLpadTemp is used by the compiler when 'stri' is temporary
- *  value that could be reused.
+ *  value that can be reused.
  *  @return the string left padded with spaces.
  */
 stritype strLpadTemp (const stritype stri, const inttype pad_size)
 
   {
-    memsizetype length;
+    memsizetype striSize;
     stritype result;
 
   /* strLpadTemp */
-    length = stri->size;
-    if (pad_size > 0 && (uinttype) pad_size > length) {
+    striSize = stri->size;
+    if (pad_size > 0 && (uinttype) pad_size > striSize) {
       if (unlikely((uinttype) pad_size > MAX_STRI_LEN ||
                    !ALLOC_STRI_SIZE_OK(result, (memsizetype) pad_size))) {
         raise_error(MEMORY_ERROR);
@@ -1655,15 +2144,15 @@ stritype strLpadTemp (const stritype stri, const inttype pad_size)
         result->size = (memsizetype) pad_size;
         {
           strelemtype *elem = result->mem;
-          memsizetype len = (memsizetype) pad_size - length;
+          memsizetype len = (memsizetype) pad_size - striSize;
 
           while (len--) {
             *elem++ = (strelemtype) ' ';
           } /* while */
         }
-        memcpy(&result->mem[(memsizetype) pad_size - length], stri->mem,
-            length * sizeof(strelemtype));
-        FREE_STRI(stri, length);
+        memcpy(&result->mem[(memsizetype) pad_size - striSize], stri->mem,
+            striSize * sizeof(strelemtype));
+        FREE_STRI(stri, striSize);
       } /* if */
     } else {
       result = stri;
@@ -1680,15 +2169,15 @@ stritype strLpadTemp (const stritype stri, const inttype pad_size)
 stritype strLpad0 (const const_stritype stri, const inttype pad_size)
 
   {
-    memsizetype length;
+    memsizetype striSize;
     strelemtype *sourceElem;
     strelemtype *destElem;
     memsizetype len;
     stritype result;
 
   /* strLpad0 */
-    length = stri->size;
-    if (pad_size > 0 && (uinttype) pad_size > length) {
+    striSize = stri->size;
+    if (pad_size > 0 && (uinttype) pad_size > striSize) {
       if (unlikely((uinttype) pad_size > MAX_STRI_LEN ||
                    !ALLOC_STRI_SIZE_OK(result, (memsizetype) pad_size))) {
         raise_error(MEMORY_ERROR);
@@ -1697,23 +2186,23 @@ stritype strLpad0 (const const_stritype stri, const inttype pad_size)
         result->size = (memsizetype) pad_size;
         sourceElem = stri->mem;
         destElem = result->mem;
-        len = (memsizetype) pad_size - length;
-        if (length != 0 && (sourceElem[0] == '-' || sourceElem[0] == '+')) {
+        len = (memsizetype) pad_size - striSize;
+        if (striSize != 0 && (sourceElem[0] == '-' || sourceElem[0] == '+')) {
           *destElem++ = sourceElem[0];
           sourceElem++;
-          length--;
+          striSize--;
         } /* if */
         while (len--) {
           *destElem++ = (strelemtype) '0';
         } /* while */
-        memcpy(destElem, sourceElem, length * sizeof(strelemtype));
+        memcpy(destElem, sourceElem, striSize * sizeof(strelemtype));
       } /* if */
     } else {
-      if (unlikely(!ALLOC_STRI_SIZE_OK(result, length))) {
+      if (unlikely(!ALLOC_STRI_SIZE_OK(result, striSize))) {
         raise_error(MEMORY_ERROR);
       } else {
-        result->size = length;
-        memcpy(result->mem, stri->mem, length * sizeof(strelemtype));
+        result->size = striSize;
+        memcpy(result->mem, stri->mem, striSize * sizeof(strelemtype));
       } /* if */
     } /* if */
     return result;
@@ -1724,21 +2213,21 @@ stritype strLpad0 (const const_stritype stri, const inttype pad_size)
 /**
  *  Pad a string with zeroes at the left side up to pad_size.
  *  StrLpad0Temp is used by the compiler when 'stri' is temporary
- *  value that could be reused.
+ *  value that can be reused.
  *  @return the string left padded with zeroes.
  */
 stritype strLpad0Temp (const stritype stri, const inttype pad_size)
 
   {
-    memsizetype length;
+    memsizetype striSize;
     strelemtype *sourceElem;
     strelemtype *destElem;
     memsizetype len;
     stritype result;
 
   /* strLpad0Temp */
-    length = stri->size;
-    if (pad_size > 0 && (uinttype) pad_size > length) {
+    striSize = stri->size;
+    if (pad_size > 0 && (uinttype) pad_size > striSize) {
       if (unlikely((uinttype) pad_size > MAX_STRI_LEN ||
                    !ALLOC_STRI_SIZE_OK(result, (memsizetype) pad_size))) {
         raise_error(MEMORY_ERROR);
@@ -1747,17 +2236,17 @@ stritype strLpad0Temp (const stritype stri, const inttype pad_size)
         result->size = (memsizetype) pad_size;
         sourceElem = stri->mem;
         destElem = result->mem;
-        len = (memsizetype) pad_size - length;
-        if (length != 0 && (sourceElem[0] == '-' || sourceElem[0] == '+')) {
+        len = (memsizetype) pad_size - striSize;
+        if (striSize != 0 && (sourceElem[0] == '-' || sourceElem[0] == '+')) {
           *destElem++ = sourceElem[0];
           sourceElem++;
-          length--;
+          striSize--;
         } /* if */
         while (len--) {
           *destElem++ = (strelemtype) '0';
         } /* while */
-        memcpy(destElem, sourceElem, length * sizeof(strelemtype));
-        FREE_STRI(stri, length);
+        memcpy(destElem, sourceElem, striSize * sizeof(strelemtype));
+        FREE_STRI(stri, striSize);
       } /* if */
     } else {
       result = stri;
@@ -1792,28 +2281,33 @@ booltype strLt (const const_stritype stri1, const const_stritype stri2)
 
 
 
+/**
+ *  Return string with leading whitespace omitted.
+ *  All characters less than or equal to ' ' (space) count as whitespace.
+ *  @return string with leading whitespace omitted.
+ */
 stritype strLtrim (const const_stritype stri)
 
   {
     memsizetype start;
-    memsizetype length;
+    memsizetype striSize;
     stritype result;
 
   /* strLtrim */
     start = 0;
-    length = stri->size;
-    if (length >= 1) {
-      while (start < length && stri->mem[start] <= ' ') {
+    striSize = stri->size;
+    if (striSize >= 1) {
+      while (start < striSize && stri->mem[start] <= ' ') {
         start++;
       } /* while */
-      length -= start;
+      striSize -= start;
     } /* if */
-    if (unlikely(!ALLOC_STRI_SIZE_OK(result, length))) {
+    if (unlikely(!ALLOC_STRI_SIZE_OK(result, striSize))) {
       raise_error(MEMORY_ERROR);
       return NULL;
     } else {
-      result->size = length;
-      memcpy(result->mem, &stri->mem[start], length * sizeof(strelemtype));
+      result->size = striSize;
+      memcpy(result->mem, &stri->mem[start], striSize * sizeof(strelemtype));
       return result;
     } /* if */
   } /* strLtrim */
@@ -2040,33 +2534,29 @@ void strPush (stritype *const destination, const chartype extension)
  *  The first character in a string has the position 1.
  *  This function is used by the compiler to avoid copiing string data.
  *  The 'slice' is initialized to refer to the range of 'stri'
- *  @return the parameter 'slice'.
  */
-stritype strRangeSlice (const const_stritype stri, inttype start, inttype stop, stritype slice)
+void strRangeSlice (const const_stritype stri, inttype start, inttype stop, stritype slice)
 
   {
-    memsizetype length;
+    memsizetype striSize;
 
   /* strRangeSlice */
-    length = stri->size;
-    if (start < 1) {
+    striSize = stri->size;
+    if (unlikely(start < 1)) {
       start = 1;
     } /* if */
-    if (stop >= 1 && stop >= start && (uinttype) start <= length &&
-        length >= 1) {
-      SET_SLICE_CAPACITY(slice, 0);
+    SET_SLICE_CAPACITY(slice, 0);
+    if (stop >= start && (uinttype) start <= striSize) {
       slice->mem = &stri->mem[start - 1];
-      if ((uinttype) stop > length) {
-        slice->size = length - (memsizetype) start + 1;
+      if ((uinttype) stop > striSize) {
+        slice->size = striSize - (memsizetype) start + 1;
       } else {
         slice->size = (memsizetype) stop - (memsizetype) start + 1;
       } /* if */
     } else {
-      SET_SLICE_CAPACITY(slice, 0);
       slice->mem = NULL;
       slice->size = 0;
     } /* if */
-    return slice;
   } /* strRangeSlice */
 
 #else
@@ -2082,19 +2572,18 @@ stritype strRangeSlice (const const_stritype stri, inttype start, inttype stop, 
 stritype strRange (const const_stritype stri, inttype start, inttype stop)
 
   {
-    memsizetype length;
+    memsizetype striSize;
     memsizetype result_size;
     stritype result;
 
   /* strRange */
-    length = stri->size;
-    if (start < 1) {
+    striSize = stri->size;
+    if (unlikely(start < 1)) {
       start = 1;
     } /* if */
-    if (stop >= 1 && stop >= start && (uinttype) start <= length &&
-        length >= 1) {
-      if ((uinttype) stop > length) {
-        result_size = length - (memsizetype) start + 1;
+    if (stop >= start && (uinttype) start <= striSize) {
+      if ((uinttype) stop > striSize) {
+        result_size = striSize - (memsizetype) start + 1;
       } else {
         result_size = (memsizetype) stop - (memsizetype) start + 1;
       } /* if */
@@ -2493,22 +2982,22 @@ inttype strRIPos (const const_stritype mainStri, const const_stritype searched,
 stritype strRpad (const const_stritype stri, const inttype pad_size)
 
   {
-    memsizetype length;
+    memsizetype striSize;
     stritype result;
 
   /* strRpad */
-    length = stri->size;
-    if (pad_size > 0 && (uinttype) pad_size > length) {
+    striSize = stri->size;
+    if (pad_size > 0 && (uinttype) pad_size > striSize) {
       if (unlikely((uinttype) pad_size > MAX_STRI_LEN ||
                    !ALLOC_STRI_SIZE_OK(result, (memsizetype) pad_size))) {
         raise_error(MEMORY_ERROR);
         result = NULL;
       } else {
         result->size = (memsizetype) pad_size;
-        memcpy(result->mem, stri->mem, length * sizeof(strelemtype));
+        memcpy(result->mem, stri->mem, striSize * sizeof(strelemtype));
         {
-          strelemtype *elem = &result->mem[length];
-          memsizetype len = (memsizetype) pad_size - length;
+          strelemtype *elem = &result->mem[striSize];
+          memsizetype len = (memsizetype) pad_size - striSize;
 
           while (len--) {
             *elem++ = (strelemtype) ' ';
@@ -2516,12 +3005,12 @@ stritype strRpad (const const_stritype stri, const inttype pad_size)
         }
       } /* if */
     } else {
-      if (unlikely(!ALLOC_STRI_SIZE_OK(result, length))) {
+      if (unlikely(!ALLOC_STRI_SIZE_OK(result, striSize))) {
         raise_error(MEMORY_ERROR);
         return NULL;
       } /* if */
-      result->size = length;
-      memcpy(result->mem, stri->mem, length * sizeof(strelemtype));
+      result->size = striSize;
+      memcpy(result->mem, stri->mem, striSize * sizeof(strelemtype));
     } /* if */
     return result;
   } /* strRpad */
@@ -2641,23 +3130,28 @@ inttype strRPos (const const_stritype mainStri, const const_stritype searched)
 
 
 
+/**
+ *  Return string with trailing whitespace omitted.
+ *  All characters less than or equal to ' ' (space) count as whitespace.
+ *  @return string with trailing whitespace omitted.
+ */
 stritype strRtrim (const const_stritype stri)
 
   {
-    memsizetype length;
+    memsizetype striSize;
     stritype result;
 
   /* strRtrim */
-    length = stri->size;
-    while (length > 0 && stri->mem[length - 1] <= ' ') {
-      length--;
+    striSize = stri->size;
+    while (striSize > 0 && stri->mem[striSize - 1] <= ' ') {
+      striSize--;
     } /* while */
-    if (unlikely(!ALLOC_STRI_SIZE_OK(result, length))) {
+    if (unlikely(!ALLOC_STRI_SIZE_OK(result, striSize))) {
       raise_error(MEMORY_ERROR);
       return NULL;
     } else {
-      result->size = length;
-      memcpy(result->mem, stri->mem, length * sizeof(strelemtype));
+      result->size = striSize;
+      memcpy(result->mem, stri->mem, striSize * sizeof(strelemtype));
       return result;
     } /* if */
   } /* strRtrim */
@@ -2677,7 +3171,6 @@ arraytype strSplit (const const_stritype mainStri, chartype delimiter)
     const strelemtype *search_start;
     const strelemtype *search_end;
     const strelemtype *found_pos;
-    memsizetype length;
     stritype dest;
 
   /* strSplit */
@@ -2836,35 +3329,35 @@ rtlArraytype strSplit (const const_stritype mainStri,
  *  Get a substring from a start position with a given length.
  *  The first character in a string has the position 1.
  *  This function is used by the compiler to avoid copiing string data.
- *  The 'slice' is initialized to refer to the tail of 'stri'
- *  @return the parameter 'slice'.
+ *  The 'slice' is initialized to refer to the substring of 'stri'
  */
-stritype strSubstrSlice (const const_stritype stri, inttype start, inttype len, stritype slice)
+void strSubstrSlice (const const_stritype stri, inttype start, inttype length, stritype slice)
 
   {
-    memsizetype length;
+    memsizetype striSize;
 
   /* strSubstrSlice */
-    length = stri->size;
-    if (len >= 1 && start > 1 - len && (start < 1 || (uinttype) start <= length) &&
-        length >= 1) {
-      if (start < 1) {
-        len += start - 1;
+    striSize = stri->size;
+    if (unlikely(start < 1)) {
+      if (length >= 1 && start > 1 - length) {
+        length += start - 1;
         start = 1;
-      } /* if */
-      SET_SLICE_CAPACITY(slice, 0);
-      slice->mem = &stri->mem[start - 1];
-      if ((uinttype) start + (uinttype) len - 1 > length) {
-        slice->size = length - (memsizetype) start + 1;
       } else {
-        slice->size = (memsizetype) len;
+        length = 0;
+      } /* if */
+    } /* if */
+    SET_SLICE_CAPACITY(slice, 0);
+    if (length >= 1 && (uinttype) start <= striSize) {
+      slice->mem = &stri->mem[start - 1];
+      if ((uinttype) length > striSize - (memsizetype) start + 1) {
+        slice->size = striSize - (memsizetype) start + 1;
+      } else {
+        slice->size = (memsizetype) length;
       } /* if */
     } else {
-      SET_SLICE_CAPACITY(slice, 0);
       slice->mem = NULL;
       slice->size = 0;
     } /* if */
-    return slice;
   } /* strSubstrSlice */
 
 #else
@@ -2877,25 +3370,28 @@ stritype strSubstrSlice (const const_stritype stri, inttype start, inttype len, 
  *  @return the substring from the start position with a given length.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  */
-stritype strSubstr (const const_stritype stri, inttype start, inttype len)
+stritype strSubstr (const const_stritype stri, inttype start, inttype length)
 
   {
-    memsizetype length;
+    memsizetype striSize;
     memsizetype result_size;
     stritype result;
 
   /* strSubstr */
-    length = stri->size;
-    if (len >= 1 && start > 1 - len && (start < 1 || (uinttype) start <= length) &&
-        length >= 1) {
-      if (start < 1) {
-        len += start - 1;
+    striSize = stri->size;
+    if (unlikely(start < 1)) {
+      if (length >= 1 && start > 1 - length) {
+        length += start - 1;
         start = 1;
-      } /* if */
-      if ((uinttype) start + (uinttype) len - 1 > length) {
-        result_size = length - (memsizetype) start + 1;
       } else {
-        result_size = (memsizetype) len;
+        length = 0;
+      } /* if */
+    } /* if */
+    if (length >= 1 && (uinttype) start <= striSize) {
+      if ((uinttype) length > striSize - (memsizetype) start + 1) {
+        result_size = striSize - (memsizetype) start + 1;
+      } else {
+        result_size = (memsizetype) length;
       } /* if */
       if (unlikely(!ALLOC_STRI_SIZE_OK(result, result_size))) {
         raise_error(MEMORY_ERROR);
@@ -2924,28 +3420,26 @@ stritype strSubstr (const const_stritype stri, inttype start, inttype len)
  *  The first character in a 'string' has the position 1.
  *  This function is used by the compiler to avoid copiing string data.
  *  The 'slice' is initialized to refer to the tail of 'stri'
- *  @return the parameter 'slice'.
  */
-stritype strTailSlice (const const_stritype stri, inttype start, stritype slice)
+void strTailSlice (const const_stritype stri, inttype start, stritype slice)
 
   {
-    memsizetype length;
+    memsizetype striSize;
 
   /* strTailSlice */
-    length = stri->size;
-    if (start < 1) {
+    striSize = stri->size;
+    if (unlikely(start < 1)) {
       start = 1;
     } /* if */
-    if ((uinttype) start <= length && length >= 1) {
+    if ((uinttype) start <= striSize && striSize >= 1) {
       SET_SLICE_CAPACITY(slice, 0);
       slice->mem = &stri->mem[start - 1];
-      slice->size = length - (memsizetype) start + 1;
+      slice->size = striSize - (memsizetype) start + 1;
     } else {
       SET_SLICE_CAPACITY(slice, 0);
       slice->mem = NULL;
       slice->size = 0;
     } /* if */
-    return slice;
   } /* strTailSlice */
 
 #else
@@ -2961,17 +3455,17 @@ stritype strTailSlice (const const_stritype stri, inttype start, stritype slice)
 stritype strTail (const const_stritype stri, inttype start)
 
   {
-    memsizetype length;
+    memsizetype striSize;
     memsizetype result_size;
     stritype result;
 
   /* strTail */
-    length = stri->size;
-    if (start < 1) {
+    striSize = stri->size;
+    if (unlikely(start < 1)) {
       start = 1;
     } /* if */
-    if ((uinttype) start <= length && length >= 1) {
-      result_size = length - (memsizetype) start + 1;
+    if ((uinttype) start <= striSize && striSize >= 1) {
+      result_size = striSize - (memsizetype) start + 1;
       if (unlikely(!ALLOC_STRI_SIZE_OK(result, result_size))) {
         raise_error(MEMORY_ERROR);
         return NULL;
@@ -3064,75 +3558,82 @@ stritype strToUtf8 (const const_stritype stri)
 
 
 
+/**
+ *  Return string with leading and trailing whitespace omitted.
+ *  All characters less than or equal to ' ' (space) count as whitespace.
+ *  @return string with leading and trailing whitespace omitted.
+ */
 stritype strTrim (const const_stritype stri)
 
   {
     memsizetype start;
-    memsizetype length;
+    memsizetype striSize;
     stritype result;
 
   /* strTrim */
     start = 0;
-    length = stri->size;
-    if (length >= 1) {
-      while (start < length && stri->mem[start] <= ' ') {
+    striSize = stri->size;
+    if (striSize >= 1) {
+      while (start < striSize && stri->mem[start] <= ' ') {
         start++;
       } /* while */
-      while (length > start && stri->mem[length - 1] <= ' ') {
-        length--;
+      while (striSize > start && stri->mem[striSize - 1] <= ' ') {
+        striSize--;
       } /* while */
-      length -= start;
+      striSize -= start;
     } /* if */
-    if (unlikely(!ALLOC_STRI_SIZE_OK(result, length))) {
+    if (unlikely(!ALLOC_STRI_SIZE_OK(result, striSize))) {
       raise_error(MEMORY_ERROR);
       return NULL;
     } else {
-      result->size = length;
-      memcpy(result->mem, &stri->mem[start], length * sizeof(strelemtype));
+      result->size = striSize;
+      memcpy(result->mem, &stri->mem[start], striSize * sizeof(strelemtype));
       return result;
     } /* if */
   } /* strTrim */
 
 
 
+/**
+ *  Convert a string to upper case.
+ *  The conversion uses the default Unicode case mapping,
+ *  where each character is considered in isolation.
+ *  Characters without case mapping are left unchanged.
+ *  The mapping is independend from the locale. Individual
+ *  character case mappings cannot be reversed, because some
+ *  characters have multiple characters that map to them.
+ *  @return the string converted to upper case.
+ */
 stritype strUp (const const_stritype stri)
 
   {
-    memsizetype length;
-    memsizetype pos;
+    memsizetype striSize;
     stritype result;
 
   /* strUp */
-    length = stri->size;
-    if (unlikely(!ALLOC_STRI_SIZE_OK(result, length))) {
+    striSize = stri->size;
+    if (unlikely(!ALLOC_STRI_SIZE_OK(result, striSize))) {
       raise_error(MEMORY_ERROR);
       return NULL;
     } else {
-      result->size = length;
-      for (pos = 0; pos < length; pos++) {
-        if (stri->mem[pos] >= (strelemtype) 'a' && stri->mem[pos] <= (strelemtype) 'z') {
-          result->mem[pos] = stri->mem[pos] - (strelemtype) 'a' + (strelemtype) 'A';
-        } else {
-          result->mem[pos] = stri->mem[pos];
-        } /* if */
-      } /* for */
+      result->size = striSize;
+      toUpper(stri->mem, stri->size, result->mem);
       return result;
     } /* if */
   } /* strUp */
 
 
 
+/**
+ *  Convert a string to upper case.
+ *  StrUpTemp is used by the compiler when 'stri' is temporary
+ *  value that can be reused.
+ *  @return the string converted to lower case.
+ */
 stritype strUpTemp (const stritype stri)
 
-  {
-    memsizetype pos;
-
-  /* strUpTemp */
-    for (pos = 0; pos < stri->size; pos++) {
-      if (stri->mem[pos] >= (strelemtype) 'a' && stri->mem[pos] <= (strelemtype) 'z') {
-        stri->mem[pos] = stri->mem[pos] - (strelemtype) 'a' + (strelemtype) 'A';
-      } /* if */
-    } /* for */
+  { /* strUpTemp */
+    toUpper(stri->mem, stri->size, stri->mem);
     return stri;
   } /* strUpTemp */
 
@@ -3141,7 +3642,7 @@ stritype strUpTemp (const stritype stri)
 stritype strUtf8ToStri (const_stritype stri8)
 
   {
-    memsizetype length;
+    memsizetype striSize;
     memsizetype pos;
     const strelemtype *stri8ptr;
     booltype okay = TRUE;
@@ -3149,31 +3650,31 @@ stritype strUtf8ToStri (const_stritype stri8)
     stritype result;
 
   /* strUtf8ToStri */
-    length = stri8->size;
-    if (unlikely(!ALLOC_STRI_SIZE_OK(result, length))) {
+    striSize = stri8->size;
+    if (unlikely(!ALLOC_STRI_SIZE_OK(result, striSize))) {
       raise_error(MEMORY_ERROR);
     } else {
       stri8ptr = &stri8->mem[0];
       pos = 0;
-      for (; length > 0; pos++) {
+      for (; striSize > 0; pos++) {
         if (*stri8ptr <= 0x7F) {
           result->mem[pos] = *stri8ptr++;
-          length--;
-        } else if ((stri8ptr[0] & 0xFFFFFFE0) == 0xC0 && length >= 2 &&
+          striSize--;
+        } else if ((stri8ptr[0] & 0xFFFFFFE0) == 0xC0 && striSize >= 2 &&
                    (stri8ptr[1] & 0xFFFFFFC0) == 0x80) {
           result->mem[pos] = (stri8ptr[0] & 0x1F) << 6 |
                              (stri8ptr[1] & 0x3F);
           stri8ptr += 2;
-          length -= 2;
-        } else if ((stri8ptr[0] & 0xFFFFFFF0) == 0xE0 && length >= 3 &&
+          striSize -= 2;
+        } else if ((stri8ptr[0] & 0xFFFFFFF0) == 0xE0 && striSize >= 3 &&
                    (stri8ptr[1] & 0xFFFFFFC0) == 0x80 &&
                    (stri8ptr[2] & 0xFFFFFFC0) == 0x80) {
           result->mem[pos] = (stri8ptr[0] & 0x0F) << 12 |
                              (stri8ptr[1] & 0x3F) <<  6 |
                              (stri8ptr[2] & 0x3F);
           stri8ptr += 3;
-          length -= 3;
-        } else if ((stri8ptr[0] & 0xFFFFFFF8) == 0xF0 && length >= 4 &&
+          striSize -= 3;
+        } else if ((stri8ptr[0] & 0xFFFFFFF8) == 0xF0 && striSize >= 4 &&
                    (stri8ptr[1] & 0xFFFFFFC0) == 0x80 &&
                    (stri8ptr[2] & 0xFFFFFFC0) == 0x80 &&
                    (stri8ptr[3] & 0xFFFFFFC0) == 0x80) {
@@ -3182,8 +3683,8 @@ stritype strUtf8ToStri (const_stritype stri8)
                              (stri8ptr[2] & 0x3F) <<  6 |
                              (stri8ptr[3] & 0x3F);
           stri8ptr += 4;
-          length -= 4;
-        } else if ((stri8ptr[0] & 0xFFFFFFFC) == 0xF8 && length >= 5 &&
+          striSize -= 4;
+        } else if ((stri8ptr[0] & 0xFFFFFFFC) == 0xF8 && striSize >= 5 &&
                    (stri8ptr[1] & 0xFFFFFFC0) == 0x80 &&
                    (stri8ptr[2] & 0xFFFFFFC0) == 0x80 &&
                    (stri8ptr[3] & 0xFFFFFFC0) == 0x80 &&
@@ -3194,8 +3695,8 @@ stritype strUtf8ToStri (const_stritype stri8)
                              (stri8ptr[3] & 0x3F) <<  6 |
                              (stri8ptr[4] & 0x3F);
           stri8ptr += 5;
-          length -= 5;
-        } else if ((stri8ptr[0] & 0xFFFFFFFC) == 0xFC && length >= 6 &&
+          striSize -= 5;
+        } else if ((stri8ptr[0] & 0xFFFFFFFC) == 0xFC && striSize >= 6 &&
                    (stri8ptr[1] & 0xFFFFFFC0) == 0x80 &&
                    (stri8ptr[2] & 0xFFFFFFC0) == 0x80 &&
                    (stri8ptr[3] & 0xFFFFFFC0) == 0x80 &&
@@ -3208,10 +3709,10 @@ stritype strUtf8ToStri (const_stritype stri8)
                              (stri8ptr[4] & 0x3F) <<  6 |
                              (stri8ptr[5] & 0x3F);
           stri8ptr += 6;
-          length -= 6;
+          striSize -= 6;
         } else {
           okay = FALSE;
-          length = 0;
+          striSize = 0;
         } /* if */
       } /* for */
       if (likely(okay)) {

@@ -43,6 +43,14 @@
 
 
 
+/**
+ *  Logical 'and' for two boolean values.
+ *  The logical 'and' operator works strictly left to right.
+ *  When the result can be determined after the evaluation of
+ *  'boolValue1' the right operand ('boolValue2') is not evaluated.
+ *  @return TRUE if boolValue1 is TRUE and boolValue2 is TRUE,
+ *          FALSE otherwise.
+ */
 objecttype bln_and (listtype arguments)
 
   {
@@ -100,6 +108,11 @@ objecttype bln_create (listtype arguments)
 
 
 
+/**
+ *  Check if boolValue1 is greater than or equal to boolValue2.
+ *  @return TRUE if boolValue1 is TRUE or boolValue2 is FALSE,
+ *          FALSE otherwise.
+ */
 objecttype bln_ge (listtype arguments)
 
   { /* bln_ge */
@@ -118,6 +131,11 @@ objecttype bln_ge (listtype arguments)
 
 
 
+/**
+ *  Check if boolValue1 is greater than boolValue2.
+ *  @return TRUE if boolValue1 is TRUE and boolValue2 is FALSE,
+ *          FALSE otherwise.
+ */
 objecttype bln_gt (listtype arguments)
 
   { /* bln_gt */
@@ -136,6 +154,11 @@ objecttype bln_gt (listtype arguments)
 
 
 
+/**
+ *  Convert an integer to a boolean value.
+ *  @return TRUE when number is odd,
+ *          FALSE otherwise.
+ */
 objecttype bln_iconv (listtype arguments)
 
   { /* bln_iconv */
@@ -149,6 +172,11 @@ objecttype bln_iconv (listtype arguments)
 
 
 
+/**
+ *  Check if boolValue1 is less than or equal to boolValue2.
+ *  @return TRUE if boolValue1 is FALSE or boolValue2 is TRUE,
+ *          FALSE otherwise.
+ */
 objecttype bln_le (listtype arguments)
 
   { /* bln_le */
@@ -163,6 +191,11 @@ objecttype bln_le (listtype arguments)
 
 
 
+/**
+ *  Check if boolValue1 is less than boolValue2.
+ *  @return TRUE if boolValue1 is FALSE and boolValue2 is TRUE,
+ *          FALSE otherwise.
+ */
 objecttype bln_lt (listtype arguments)
 
   { /* bln_lt */
@@ -177,6 +210,11 @@ objecttype bln_lt (listtype arguments)
 
 
 
+/**
+ *  Negate a boolean value.
+ *  @return TRUE if boolValue is FALSE,
+ *          FALSE otherwise.
+ */
 objecttype bln_not (listtype arguments)
 
   { /* bln_not */
@@ -190,6 +228,14 @@ objecttype bln_not (listtype arguments)
 
 
 
+/**
+ *  Inclusive logical 'or' for two boolean values.
+ *  The logical 'or' operator works strictly left to right.
+ *  When the result can be determined after the evaluation of
+ *  'boolValue1' the right operand ('boolValue2') is not evaluated.
+ *  @return TRUE if boolValue1 is TRUE or boolValue2 is TRUE (or both are true),
+ *          FALSE otherwise.
+ */
 objecttype bln_or (listtype arguments)
 
   {
@@ -210,6 +256,11 @@ objecttype bln_or (listtype arguments)
 
 
 
+/**
+ *  Convert to integer.
+ *  @return 0 when boolValue is FALSE and
+ *          1 when boolValue is TRUE.
+ */
 objecttype bln_ord (listtype arguments)
 
   { /* bln_ord */

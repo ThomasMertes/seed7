@@ -60,6 +60,14 @@
 
 
 
+/**
+ *  Determine the size of a file and return it as bigInteger.
+ *  The file length is measured in bytes.
+ *  @return the size of the given file.
+ *  @exception FILE_ERROR A system function returns an error or the
+ *             file length reported by the system is negative.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ */
 objecttype fil_big_lng (listtype arguments)
 
   { /* fil_big_lng */
@@ -70,6 +78,15 @@ objecttype fil_big_lng (listtype arguments)
 
 
 
+/**
+ *  Set the current file position.
+ *  The file position is measured in bytes from the start of the file.
+ *  The first byte in the file has the position 1.
+ *  @exception RANGE_ERROR The file position is negative or zero or
+ *             the file position is not representable in the system
+ *             file position type.
+ *  @exception FILE_ERROR A system function returns an error.
+ */
 objecttype fil_big_seek (listtype arguments)
 
   { /* fil_big_seek */
@@ -82,6 +99,15 @@ objecttype fil_big_seek (listtype arguments)
 
 
 
+/**
+ *  Obtain the current file position.
+ *  The file position is measured in bytes from the start of the file.
+ *  The first byte in the file has the position 1.
+ *  @return the current file position.
+ *  @exception FILE_ERROR A system function returns an error or the
+ *             file position reported by the system is negative.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ */
 objecttype fil_big_tell (listtype arguments)
 
   { /* fil_big_tell */
@@ -92,6 +118,10 @@ objecttype fil_big_tell (listtype arguments)
 
 
 
+/**
+ *  Close a clib_file.
+ *  @exception FILE_ERROR A system function returns an error.
+ */
 objecttype fil_close (listtype arguments)
 
   { /* fil_close */
@@ -137,6 +167,12 @@ objecttype fil_empty (listtype arguments)
 
 
 
+/**
+ *  Determine the end-of-file indicator.
+ *  The end-of-file indicator is set when at least one request to read
+ *  from the file failed.
+ *  @return TRUE if the end-of-file indicator is set, FALSE otherwise.
+ */
 objecttype fil_eof (listtype arguments)
 
   { /* fil_eof */
@@ -150,6 +186,11 @@ objecttype fil_eof (listtype arguments)
 
 
 
+/**
+ *  Check if two files are equal.
+ *  @return TRUE if the two files are equal,
+ *          FALSE otherwise.
+ */
 objecttype fil_eq (listtype arguments)
 
   { /* fil_eq */
@@ -173,6 +214,10 @@ objecttype fil_err (listtype arguments)
 
 
 
+/**
+ *  Forces that all buffered data of 'outFile' is sent to its destination.
+ *  This causes data to be sent to the file system of the OS.
+ */
 objecttype fil_flush (listtype arguments)
 
   { /* fil_flush */
@@ -183,6 +228,10 @@ objecttype fil_flush (listtype arguments)
 
 
 
+/**
+ *  Read a character from a clib_file.
+ *  @return the character read, or EOF at the end of the file.
+ */
 objecttype fil_getc (listtype arguments)
 
   { /* fil_getc */
@@ -193,6 +242,13 @@ objecttype fil_getc (listtype arguments)
 
 
 
+/**
+ *  Read a string with a maximum length from an clib_file.
+ *  @return the string read.
+ *  @exception RANGE_ERROR The length is negative.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ *  @exception FILE_ERROR A system function returns an error.
+ */
 objecttype fil_gets (listtype arguments)
 
   { /* fil_gets */
@@ -204,6 +260,11 @@ objecttype fil_gets (listtype arguments)
 
 
 
+/**
+ *  Determine if at least one character can be read successfully.
+ *  This function allows a file to be handled like an iterator.
+ *  @return FALSE if 'getc' would return EOF, TRUE otherwise.
+ */
 objecttype fil_has_next (listtype arguments)
 
   { /* fil_has_next */
@@ -238,6 +299,16 @@ objecttype fil_input_ready (listtype arguments)
 
 
 
+/**
+ *  Read a line from a clib_file.
+ *  The function accepts lines ending with "\n", "\r\n" or EOF.
+ *  The line ending characters are not copied into the string.
+ *  That means that the "\r" of a "\r\n" sequence is silently removed.
+ *  When the function is left terminationChar contains '\n' or EOF.
+ *  @return the line read.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ *  @exception FILE_ERROR A system function returns an error.
+ */
 objecttype fil_line_read (listtype arguments)
 
   {
@@ -264,6 +335,15 @@ objecttype fil_lit (listtype arguments)
 
 
 
+/**
+ *  Obtain the length of a clib_file.
+ *  The file length is measured in bytes.
+ *  @return the size of the given file.
+ *  @exception RANGE_ERROR The file length does not fit into
+ *             an integer value.
+ *  @exception FILE_ERROR A system function returns an error or the
+ *             file length reported by the system is negative.
+ */
 objecttype fil_lng (listtype arguments)
 
   { /* fil_lng */
@@ -274,6 +354,11 @@ objecttype fil_lng (listtype arguments)
 
 
 
+/**
+ *  Check if two files are not equal.
+ *  @return FALSE if both files are equal,
+ *          TRUE otherwise.
+ */
 objecttype fil_ne (listtype arguments)
 
   { /* fil_ne */
@@ -289,6 +374,24 @@ objecttype fil_ne (listtype arguments)
 
 
 
+/**
+ *  Open a clib_file.
+ *  The following values are allowed as mode: "r", "w", "a",
+ *  "r+", "w+", "a+", "rt", "wt", "at", "rt+", "wt+" and "at+".
+ *  The modes with t are text modes and the modes without t are
+ *  binary modes. Note that this modes differ from the ones used
+ *  by the C function fopen(). When 'mode' is not one of the
+ *  allowed values the exception 'RANGE_ERROR' is raised. An
+ *  attempt to open a directory returns NULL.
+ *  @return return a filetype value when fopen() succeeds, or NULL
+ *          when fopen() fails or when the file is a directory.
+ *  @exception MEMORY_ERROR Not enough memory to convert the path
+ *             to the system path type.
+ *  @exception RANGE_ERROR The 'mode' is not one of the allowed
+ *             values or 'path' does not use the standard path
+ *             representation or 'path' cannot be converted
+ *             to the system path type.
+ */
 objecttype fil_open (listtype arguments)
 
   { /* fil_open */
@@ -318,6 +421,13 @@ objecttype fil_pclose (listtype arguments)
 
 
 
+/**
+ *  Open a pipe to a shell 'command', with 'parameters'.
+ *  The command reads, respectively writes with Latin-1 encoding.
+ *  A pipe can only be opened with the modes "r" and "w".
+ *  @return the pipe file opened, or NULL if it could not be opened.
+ *  @exception RANGE_ERROR An illegal mode was used.
+ */
 objecttype fil_popen (listtype arguments)
 
   { /* fil_popen */
@@ -341,6 +451,15 @@ objecttype fil_print (listtype arguments)
 
 
 
+/**
+ *  Set the current file position.
+ *  The file position is measured in bytes from the start of the file.
+ *  The first byte in the file has the position 1.
+ *  @exception RANGE_ERROR The file position is negative or zero or
+ *             the file position is not representable in the system
+ *             file position type.
+ *  @exception FILE_ERROR A system function returns an error.
+ */
 objecttype fil_seek (listtype arguments)
 
   { /* fil_seek */
@@ -366,6 +485,16 @@ objecttype fil_setbuf (listtype arguments)
 
 
 
+/**
+ *  Obtain the current file position.
+ *  The file position is measured in bytes from the start of the file.
+ *  The first byte in the file has the position 1.
+ *  @return the current file position.
+ *  @exception RANGE_ERROR The file position does not fit into
+ *             an integer value.
+ *  @exception FILE_ERROR A system function returns an error or the
+ *             file position reported by the system is negative.
+ */
 objecttype fil_tell (listtype arguments)
 
   { /* fil_tell */
@@ -393,6 +522,18 @@ objecttype fil_value (listtype arguments)
 
 
 
+/**
+ *  Read a word from a clib_file.
+ *  Before reading the word it skips spaces and tabs. The function
+ *  accepts words ending with " ", "\t", "\n", "\r\n" or EOF.
+ *  The word ending characters are not copied into the string.
+ *  That means that the "\r" of a "\r\n" sequence is silently removed.
+ *  When the function is left terminationChar contains ' ', '\t', '\n' or
+ *  EOF.
+ *  @return the word read.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ *  @exception FILE_ERROR A system function returns an error.
+ */
 objecttype fil_word_read (listtype arguments)
 
   {
@@ -409,6 +550,12 @@ objecttype fil_word_read (listtype arguments)
 
 
 
+/**
+ *  Write a string to a clib_file.
+ *  @exception FILE_ERROR A system function returns an error.
+ *  @exception RANGE_ERROR The string contains a character that does
+ *             not fit into a byte.
+ */
 objecttype fil_write (listtype arguments)
 
   { /* fil_write */

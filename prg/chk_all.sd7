@@ -84,6 +84,10 @@ const string: chkstr_output is "\n\
   \String literals work correct.\n\
   \String comparisons work correct\n\
   \String indices work correct\n\
+  \String head works correct\n\
+  \String tail works correct\n\
+  \String range works correct\n\
+  \String substr works correct\n\
   \String operations work correct\n\
   \String functions work correct\n\
   \split(string) works correct\n\

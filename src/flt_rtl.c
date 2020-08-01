@@ -260,6 +260,13 @@ stritype fltDgts (floattype number, inttype digits_precision)
 
 
 #ifdef NAN_COMPARISON_WRONG
+/**
+ *  Check if two float numbers are equal.
+ *  According to IEEE 754 a NaN is not equal to any float value.
+ *  Therefore 'NaN = any_value' and 'any_value = NaN'
+ *  always return FALSE. Even 'NaN = NaN' returns FALSE.
+ *  @return TRUE if both numbers are equal, FALSE otherwise.
+ */
 booltype fltEq (floattype number1, floattype number2)
 
   { /* fltEq */
@@ -274,6 +281,15 @@ booltype fltEq (floattype number1, floattype number2)
 
 
 #ifdef NAN_COMPARISON_WRONG
+/**
+ *  Check if 'number1' is greater than or equal to 'number2'.
+ *  According to IEEE 754 a NaN is neither less than,
+ *  equal to, nor greater than any value, including itself.
+ *  When 'number1' or 'number2' is NaN, the result
+ *  is FALSE;
+ *  @return TRUE if 'number1' is greater than or equal to 'number2',
+ *          FALSE otherwise.
+ */
 booltype fltGe (floattype number1, floattype number2)
 
   { /* fltGe */
@@ -288,6 +304,15 @@ booltype fltGe (floattype number1, floattype number2)
 
 
 #ifdef NAN_COMPARISON_WRONG
+/**
+ *  Check if 'number1' is greater than 'number2'.
+ *  According to IEEE 754 a NaN is neither less than,
+ *  equal to, nor greater than any value, including itself.
+ *  When 'number1' or 'number2' is NaN, the result
+ *  is FALSE;
+ *  @return TRUE if 'number1' is greater than 'number2',
+ *          FALSE otherwise.
+ */
 booltype fltGt (floattype number1, floattype number2)
 
   { /* fltGt */
@@ -302,7 +327,7 @@ booltype fltGt (floattype number1, floattype number2)
 
 
 /**
- *  Compute the exponentiation of a float 'base' by an integer 'exponent'.
+ *  Compute the exponentiation of a float 'base' with an integer 'exponent'.
  *  @return the result of the exponentation.
  */
 floattype fltIPow (floattype base, inttype exponent)
@@ -397,6 +422,15 @@ booltype fltIsNegativeZero (floattype number)
 
 
 #ifdef NAN_COMPARISON_WRONG
+/**
+ *  Check if 'number1' is less than or equal to 'number2'.
+ *  According to IEEE 754 a NaN is neither less than,
+ *  equal to, nor greater than any value, including itself.
+ *  When 'number1' or 'number2' is NaN, the result
+ *  is FALSE;
+ *  @return TRUE if 'number1' is less than or equal to 'number2',
+ *          FALSE otherwise.
+ */
 booltype fltLe (floattype number1, floattype number2)
 
   { /* fltLe */
@@ -411,6 +445,15 @@ booltype fltLe (floattype number1, floattype number2)
 
 
 #ifdef NAN_COMPARISON_WRONG
+/**
+ *  Check if 'number1' is less than 'number2'.
+ *  According to IEEE 754 a NaN is neither less than,
+ *  equal to, nor greater than any value, including itself.
+ *  When 'number1' or 'number2' is NaN, the result
+ *  is FALSE;
+ *  @return TRUE if 'number1' is less than 'number2',
+ *          FALSE otherwise.
+ */
 booltype fltLt (floattype number1, floattype number2)
 
   { /* fltLt */
@@ -496,6 +539,10 @@ floattype fltParse (const const_stritype stri)
 
 
 #ifdef POWER_OF_ZERO_WRONG
+/**
+ *  Compute the exponentiation of a float 'base' with a float 'exponent'.
+ *  @return the result of the exponentation.
+ */
 floattype fltPow (floattype base, floattype exponent)
 
   { /* fltPow */
@@ -666,6 +713,7 @@ stritype fltSci (floattype number, inttype precision)
 /**
  *  Convert a float number to a string.
  *  The number is converted to a string with decimal representation.
+ *  The sign of negative zero (-0.0) is ignored.
  *  @return the string result of the conversion.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  */

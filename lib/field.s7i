@@ -33,7 +33,7 @@ const type: field_file is sub null_file struct
     var integer: columnPos is 0;
     var integer: width is 0;
     var integer: column is 0;
-    var string: default is "";
+    var string: defaultValue is "";
     var string: field is "";
   end struct;
 
@@ -41,7 +41,7 @@ type_implements_interface(field_file, file);
 
 
 const func file: open_field (in file: in_fil, inout text: out_fil,
-    in integer: line, in integer: column, in integer: width, in string: default) is func
+    in integer: line, in integer: column, in integer: width, in string: defaultValue) is func
   result
     var file: newFile is STD_NULL;
   local
@@ -53,9 +53,9 @@ const func file: open_field (in file: in_fil, inout text: out_fil,
     field_fil.linePos := line;
     field_fil.columnPos := column;
     field_fil.width := width;
-    field_fil.field := (default & " " mult width)[ .. width];
+    field_fil.field := (defaultValue & " " mult width)[ .. width];
     setPos(out_fil, line, column);
-    write(out_fil, default[.. width]);
+    write(out_fil, defaultValue[.. width]);
     newFile := toInterface(field_fil);
   end func;
 

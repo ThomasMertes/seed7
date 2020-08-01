@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  s7   Seed7 interpreter                                          */
-/*  Copyright (C) 1990 - 2010  Thomas Mertes                        */
+/*  Copyright (C) 1990 - 2013  Thomas Mertes                        */
 /*                                                                  */
 /*  This program is free software; you can redistribute it and/or   */
 /*  modify it under the terms of the GNU General Public License as  */
@@ -145,6 +145,12 @@ objecttype bst_cat (listtype arguments)
 
 
 
+/**
+ *  Compare two bstrings.
+ *  @return -1, 0 or 1 if the first argument is considered to be
+ *          respectively less than, equal to, or greater than the
+ *          second.
+ */
 objecttype bst_cmp (listtype arguments)
 
   {
@@ -296,6 +302,11 @@ objecttype bst_empty (listtype arguments)
 
 
 
+/**
+ *  Check if two bstrings are equal.
+ *  @return TRUE if both bstrings are equal,
+ *          FALSE otherwise.
+ */
 objecttype bst_eq (listtype arguments)
 
   {
@@ -317,6 +328,10 @@ objecttype bst_eq (listtype arguments)
 
 
 
+/**
+ *  Compute the hash value of a 'bstring'.
+ *  @return the hash value.
+ */
 objecttype bst_hashcode (listtype arguments)
 
   {
@@ -337,6 +352,13 @@ objecttype bst_hashcode (listtype arguments)
 
 
 
+/**
+ *  Get a character, identified by an index, from a 'bstring'.
+ *  The first character has the index 1.
+ *  @return the character specified with the index.
+ *  @exception RANGE_ERROR When the index is less than 1 or
+ *             greater than the length of the 'bstring'.
+ */
 objecttype bst_idx (listtype arguments)
 
   {
@@ -357,6 +379,10 @@ objecttype bst_idx (listtype arguments)
 
 
 
+/**
+ *  Determine the length of a 'bstring'.
+ *  @return the length of the 'bstring'.
+ */
 objecttype bst_lng (listtype arguments)
 
   {
@@ -378,6 +404,11 @@ objecttype bst_lng (listtype arguments)
 
 
 
+/**
+ *  Check if two bstrings are not equal.
+ *  @return FALSE if both bstrings are equal,
+ *          TRUE otherwise.
+ */
 objecttype bst_ne (listtype arguments)
 
   {
@@ -399,6 +430,12 @@ objecttype bst_ne (listtype arguments)
 
 
 
+/**
+ *  Convert a string to a 'bstring' value.
+ *  @return the 'bstring' result of the conversion.
+ *  @exception RANGE_ERROR When characters beyond '\255\' are present.
+ *  @exception MEMORY_ERROR  Not enough memory to represent the result.
+ */
 objecttype bst_parse (listtype arguments)
 
   { /* bst_parse */
@@ -409,6 +446,11 @@ objecttype bst_parse (listtype arguments)
 
 
 
+/**
+ *  Convert a 'bstring' value to a string.
+ *  @return the string result of the conversion.
+ *  @exception MEMORY_ERROR  Not enough memory to represent the result.
+ */
 objecttype bst_str (listtype arguments)
 
   { /* bst_str */

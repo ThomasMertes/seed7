@@ -121,7 +121,7 @@ const func float: tanh (in float: x)                           is action "FLT_TA
 
 
 (**
- *  Returns Euler's number e raised to the power of x.
+ *  Compute Euler's number e raised to the power of x.
  *  @return e raised to the power of x.
  *)
 const func float: exp (in float: x)                            is action "FLT_EXP";

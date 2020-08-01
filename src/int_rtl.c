@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  int_rtl.c     Primitive actions for the integer type.           */
-/*  Copyright (C) 1989 - 2010  Thomas Mertes                        */
+/*  Copyright (C) 1989 - 2013  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */
@@ -769,7 +769,7 @@ inttype intParse (const const_stritype stri)
 
 
 /**
- *  Compute the exponentiation of a integer base by an integer exponent.
+ *  Compute the exponentiation of a integer base with an integer exponent.
  *  @return the result of the exponentation.
  *  @exception NUMERIC_ERROR When the exponent is negative.
  */
@@ -1020,3 +1020,35 @@ stritype intStr (inttype number)
     } /* if */
     return result;
   } /* intStr */
+
+
+
+#ifdef ALLOW_STRITYPE_SLICES
+stritype intStrToBuffer (inttype number, stritype buffer)
+
+  {
+    register uinttype unsigned_number;
+    booltype negative;
+    strelemtype *bufferPtr;
+
+  /* intStrToBuffer */
+    negative = (number < 0);
+    if (negative) {
+      /* The unsigned value is negated to avoid a signed integer */
+      /* overflow when the smallest signed integer is negated.   */
+      unsigned_number = -(uinttype) number;
+    } else {
+      unsigned_number = (uinttype) number;
+    } /* if */
+    bufferPtr = &buffer->mem1[INTTYPE_DECIMAL_DIGITS + 1];
+    do {
+      *(--bufferPtr) = (strelemtype) (unsigned_number % 10 + '0');
+    } while ((unsigned_number /= 10) != 0);
+    if (negative) {
+      *(--bufferPtr) = (strelemtype) '-';
+    } /* if */
+    buffer->mem = bufferPtr;
+    buffer->size = (memsizetype) (&buffer->mem1[INTTYPE_DECIMAL_DIGITS + 1] - bufferPtr);
+    return buffer;
+  } /* intStrToBuffer */
+#endif

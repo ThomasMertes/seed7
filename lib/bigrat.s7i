@@ -228,7 +228,7 @@ const proc: (inout bigRational: number) /:= (in bigRational: divisor) is func
 
 
 (**
- *  Compute the exponentiation of a ''bigRational'' base by an integer exponent.
+ *  Compute the exponentiation of a ''bigRational'' base with an integer exponent.
  *  @return the result of the exponentation.
  *)
 const func bigRational: (in bigRational: base) ** (in integer: exponent) is func

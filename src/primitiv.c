@@ -468,6 +468,7 @@ static primactrecord prim_act_table[] = {
     { "HSH_KEYS",                hsh_keys,                },
     { "HSH_LNG",                 hsh_lng,                 },
     { "HSH_REFIDX",              hsh_refidx,              },
+    { "HSH_UPDATE",              hsh_update,              },
     { "HSH_VALUES",              hsh_values,              },
 
     { "INT_ABS",                 int_abs,                 },

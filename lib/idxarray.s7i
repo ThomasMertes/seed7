@@ -137,7 +137,7 @@ const func type: array [ (in type: indexType) ] (in type: baseType) is func
 
       (**
        *  Get a sub array from the position ''start'' to the position ''stop''.
-       *  @return the substring from position start to stop.
+       *  @return the sub array from position ''start'' to ''stop''.
        *  @exception MEMORY_ERROR Not enough memory to represent the result.
        *)
       const func arrayType: (in arrayType: an_array) [ (in indexType: start) .. (in indexType: stop) ] is
@@ -145,7 +145,7 @@ const func type: array [ (in type: indexType) ] (in type: baseType) is func
 
       (**
        *  Get a sub array from the position ''start'' with maximum length ''len''.
-       *  @return the substring from position start with maximum length len.
+       *  @return the sub array from position ''start'' with maximum length ''len''.
        *  @exception MEMORY_ERROR Not enough memory to represent the result.
        *)
       const func arrayType: (in arrayType: an_array) [ (in indexType: start) len (in indexType: stop) ] is

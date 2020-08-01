@@ -2168,7 +2168,7 @@ const proc: getStdParamToResultExpr (in reference: aParam, inout expr_type: c_ex
   end func;
 
 
-const proc: process_cast_from_float_expr (in reference: current_expression,
+const proc: getGenericValue (in reference: current_expression,
     inout expr_type: c_expr) is func
 
   local
@@ -2190,7 +2190,38 @@ const proc: process_cast_from_float_expr (in reference: current_expression,
       c_expr.expr &:= temp_name;
       c_expr.expr &:= ".genericvalue)";
     else
+      c_expr.expr &:= "(generictype)(";
       process_expr(current_expression, c_expr);
+      c_expr.expr &:= ")";
+    end if;
+  end func;
+
+
+const proc: getGenericValueToResultExpr (in reference: current_expression,
+    inout expr_type: c_expr) is func
+
+  local
+    var type: result_type is void;
+    var string: temp_name is "";
+  begin
+    result_type := getExprResultType(current_expression);
+    if result_type in typeCategory and typeCategory[result_type] = FLOATOBJECT then
+      incr(c_expr.temp_num);
+      temp_name := "tmp_" & str(c_expr.temp_num);
+      c_expr.temp_decls &:= "rtlValueunion ";
+      c_expr.temp_decls &:= temp_name;
+      c_expr.temp_decls &:= ";\n";
+      c_expr.result_expr &:= "(";
+      c_expr.result_expr &:= temp_name;
+      c_expr.result_expr &:= ".floatvalue=";
+      process_expr(current_expression, c_expr);
+      c_expr.result_expr &:= ",";
+      c_expr.result_expr &:= temp_name;
+      c_expr.result_expr &:= ".genericvalue)";
+    else
+      c_expr.result_expr &:= "(generictype)(";
+      getAnyParamToResultExpr(current_expression, c_expr);
+      c_expr.result_expr &:= ")";
     end if;
   end func;
 
@@ -2273,6 +2304,25 @@ const func string: normalVariable (in reference: aParam, inout expr_type: c_expr
   end func;
 
 
+const func string: getTempVariable (in string: typeName, in string: namePrefix,
+    in reference: param1, inout expr_type: c_expr) is func
+
+  result
+    var string: variableName is "";
+  begin
+    incr(c_expr.temp_num);
+    variableName := namePrefix & str(c_expr.temp_num);
+    c_expr.temp_decls &:= typeName;
+    c_expr.temp_decls &:= " ";
+    c_expr.temp_decls &:= variableName;
+    c_expr.temp_decls &:= ";\n";
+    c_expr.expr &:= variableName;
+    c_expr.expr &:= "=";
+    getAnyParamToExpr(param1, c_expr);
+    c_expr.expr &:= ",";
+  end func;
+
+
 const func string: getParameterAsVariable (in string: typeName, in string: namePrefix,
     in reference: param1, inout expr_type: c_expr) is func
 
@@ -2282,17 +2332,74 @@ const func string: getParameterAsVariable (in string: typeName, in string: nameP
     if isNormalVariable(param1) then
       variableName := normalVariable(param1, c_expr);
     else
-      incr(c_expr.temp_num);
-      variableName := "tmp_" & str(c_expr.temp_num);
-      c_expr.temp_decls &:= typeName;
-      c_expr.temp_decls &:= " ";
-      c_expr.temp_decls &:= variableName;
-      c_expr.temp_decls &:= ";\n";
-      c_expr.expr &:= variableName;
-      c_expr.expr &:= "=";
-      getAnyParamToExpr(param1, c_expr);
-      c_expr.expr &:= ",";
+      variableName := getTempVariable(typeName, namePrefix, param1, c_expr);
     end if;
+  end func;
+
+
+const func string: beginCastGeneric (in type: dest_type, inout expr_type: c_expr) is func
+
+  result
+    var string: temp_name is "";
+  begin
+    c_expr.expr &:= "(";
+    if dest_type in typeCategory and typeCategory[dest_type] = FLOATOBJECT then
+      incr(c_expr.temp_num);
+      temp_name := "tmp_" & str(c_expr.temp_num);
+      c_expr.temp_decls &:= "rtlValueunion ";
+      c_expr.temp_decls &:= temp_name;
+      c_expr.temp_decls &:= ";\n";
+      c_expr.expr &:= temp_name;
+      c_expr.expr &:= ".genericvalue=";
+    else
+      c_expr.expr &:= type_name(dest_type);
+      c_expr.expr &:= ")(";
+    end if;
+  end func;
+
+
+const proc: endCastGeneric (in type: dest_type, in string: temp_name, inout expr_type: c_expr) is func
+
+  begin
+    if dest_type in typeCategory and typeCategory[dest_type] = FLOATOBJECT then
+      c_expr.expr &:= ",";
+      c_expr.expr &:= temp_name;
+      c_expr.expr &:= ".floatvalue";
+    end if;
+    c_expr.expr &:= ")";
+  end func;
+
+
+const func string: beginCastGenericToResultExpr (in type: dest_type, inout expr_type: c_expr) is func
+
+  result
+    var string: temp_name is "";
+  begin
+    c_expr.result_expr &:= "(";
+    if dest_type in typeCategory and typeCategory[dest_type] = FLOATOBJECT then
+      incr(c_expr.temp_num);
+      temp_name := "tmp_" & str(c_expr.temp_num);
+      c_expr.temp_decls &:= "rtlValueunion ";
+      c_expr.temp_decls &:= temp_name;
+      c_expr.temp_decls &:= ";\n";
+      c_expr.result_expr &:= temp_name;
+      c_expr.result_expr &:= ".genericvalue=";
+    else
+      c_expr.result_expr &:= type_name(dest_type);
+      c_expr.result_expr &:= ")(";
+    end if;
+  end func;
+
+
+const proc: endCastGenericToResultExpr (in type: dest_type, in string: temp_name, inout expr_type: c_expr) is func
+
+  begin
+    if dest_type in typeCategory and typeCategory[dest_type] = FLOATOBJECT then
+      c_expr.result_expr &:= ",";
+      c_expr.result_expr &:= temp_name;
+      c_expr.result_expr &:= ".floatvalue";
+    end if;
+    c_expr.result_expr &:= ")";
   end func;
 
 
@@ -4230,32 +4337,13 @@ const proc: process_arr_remove (in reference: function, in ref_list: params,
     proc_type := getType(function);
     result_type := resultType(proc_type);
     prepare_typed_result(result_type, c_expr);
-    if result_type in typeCategory and typeCategory[result_type] = FLOATOBJECT then
-      incr(c_expr.temp_num);
-      temp_name := "tmp_" & str(c_expr.temp_num);
-      c_expr.temp_decls &:= "rtlValueunion ";
-      c_expr.temp_decls &:= temp_name;
-      c_expr.temp_decls &:= ";\n";
-      c_expr.result_expr := "(";
-      c_expr.result_expr &:= temp_name;
-      c_expr.result_expr &:= ".genericvalue=";
-    else
-      c_expr.result_expr := "(";
-      c_expr.result_expr &:= type_name(result_type);
-      c_expr.result_expr &:= ")(";
-    end if;
+    temp_name := beginCastGenericToResultExpr(result_type, c_expr);
     c_expr.result_expr &:= "arrRemove(&(";
     getStdParamToResultExpr(params[1], c_expr);
     c_expr.result_expr &:= "), ";
     getStdParamToResultExpr(params[2], c_expr);
     c_expr.result_expr &:= ")";
-    if result_type in typeCategory and typeCategory[result_type] = FLOATOBJECT then
-      c_expr.result_expr &:= ",";
-      c_expr.result_expr &:= temp_name;
-      c_expr.result_expr &:= ".floatvalue)";
-    else
-      c_expr.result_expr &:= ")";
-    end if;
+    endCastGenericToResultExpr(result_type, temp_name, c_expr);
   end func;
 
 
@@ -6443,7 +6531,7 @@ const proc: process_chr_chr (in reference: function, in ref_list: params, inout 
       c_expr.expr &:= "(";
       number_name := getParameterAsVariable("inttype", "tmp_", params[1], c_expr);
       c_expr.expr &:= number_name;
-      c_expr.expr &:= "< INT32TYPE_MIN||";
+      c_expr.expr &:= "<INT32TYPE_MIN||";
       c_expr.expr &:= number_name;
       c_expr.expr &:= ">INT32TYPE_MAX?";
       process_raise_error("RANGE_ERROR", function, c_expr);
@@ -9803,9 +9891,9 @@ const proc: process_hsh_contains (in ref_list: params, inout expr_type: c_expr) 
   begin
     c_expr.expr &:= "hshContains(";
     process_expr(params[1], c_expr);
-    c_expr.expr &:= ", (generictype)(";
-    process_cast_from_float_expr(params[2], c_expr);
-    c_expr.expr &:= "), ";
+    c_expr.expr &:= ", ";
+    getGenericValue(params[2], c_expr);
+    c_expr.expr &:= ", ";
     process_expr(params[3], c_expr);
     c_expr.expr &:= ", (comparetype)(";
     process_expr(params[4], c_expr);
@@ -9960,9 +10048,9 @@ const proc: process_hsh_excl (in ref_list: params, inout expr_type: c_expr) is f
     setDiagnosticLine(c_expr);
     c_expr.expr &:= "hshExcl(";
     process_expr(params[1], c_expr);
-    c_expr.expr &:= ", (generictype)(";
-    process_cast_from_float_expr(params[2], c_expr);
-    c_expr.expr &:= "), ";
+    c_expr.expr &:= ", ";
+    getGenericValue(params[2], c_expr);
+    c_expr.expr &:= ", ";
     process_expr(params[3], c_expr);
     c_expr.expr &:= ", (comparetype)(";
     process_expr(params[4], c_expr);
@@ -9980,76 +10068,75 @@ const proc: process_hsh_for_generic (in reference: forDataVariable,
   in reference: keyCopyFunc, inout expr_type: c_expr) is func
 
   local
-    var integer: hash_temp_num is 0;
-    var integer: counter_temp_num is 0;
-    var integer: table_elem_temp_num is 0;
-    var integer: helem_temp_num is 0;
-    var integer: stack_temp_num is 0;
+    var string: hash_temp_name is "";
+    var string: counter_temp_name is "";
+    var string: table_elem_temp_name is "";
+    var string: helem_temp_name is "";
+    var string: stack_temp_name is "";
   begin
     incr(c_expr.temp_num);
-    hash_temp_num := c_expr.temp_num;
+    hash_temp_name := "hash_" & str(c_expr.temp_num);
     incr(c_expr.temp_num);
-    counter_temp_num := c_expr.temp_num;
+    counter_temp_name := "counter_" & str(c_expr.temp_num);
     incr(c_expr.temp_num);
-    table_elem_temp_num := c_expr.temp_num;
+    table_elem_temp_name := "table_elem_" & str(c_expr.temp_num);
     incr(c_expr.temp_num);
-    helem_temp_num := c_expr.temp_num;
+    helem_temp_name := "helem_" & str(c_expr.temp_num);
     incr(c_expr.temp_num);
-    stack_temp_num := c_expr.temp_num;
+    stack_temp_name := "stack_" & str(c_expr.temp_num);
     c_expr.expr &:= "/* hsh_for */ {\n";
     setDiagnosticLine(c_expr);
-    c_expr.expr &:= "const_hashtype hash_";
-    c_expr.expr &:= str(hash_temp_num);
+    c_expr.expr &:= "const_hashtype ";
+    c_expr.expr &:= hash_temp_name;
     c_expr.expr &:= "=";
     process_expr(hashTable, c_expr);
     c_expr.expr &:= ";\n";
     setDiagnosticLine(c_expr);
-    c_expr.expr &:= "memsizetype counter_";
-    c_expr.expr &:= str(counter_temp_num);
-    c_expr.expr &:= "=hash_";
-    c_expr.expr &:= str(hash_temp_num);
+    c_expr.expr &:= "memsizetype ";
+    c_expr.expr &:= counter_temp_name;
+    c_expr.expr &:= "=";
+    c_expr.expr &:= hash_temp_name;
     c_expr.expr &:= "->table_size;\n";
     setDiagnosticLine(c_expr);
-    c_expr.expr &:= "helemtype_const *table_elem_";
-    c_expr.expr &:= str(table_elem_temp_num);
-    c_expr.expr &:= "=&hash_";
-    c_expr.expr &:= str(hash_temp_num);
+    c_expr.expr &:= "helemtype_const *";
+    c_expr.expr &:= table_elem_temp_name;
+    c_expr.expr &:= "=&";
+    c_expr.expr &:= hash_temp_name;
     c_expr.expr &:= "->table[0];\n";
     setDiagnosticLine(c_expr);
-    c_expr.expr &:= "const_helemtype helem_";
-    c_expr.expr &:= str(helem_temp_num);
+    c_expr.expr &:= "const_helemtype ";
+    c_expr.expr &:= helem_temp_name;
     c_expr.expr &:= ";\n";
     setDiagnosticLine(c_expr);
-    c_expr.expr &:= "helemlisttype stack_";
-    c_expr.expr &:= str(stack_temp_num);
+    c_expr.expr &:= "helemlisttype ";
+    c_expr.expr &:= stack_temp_name;
     c_expr.expr &:= "=NULL;\n";
 
     setDiagnosticLine(c_expr);
-    c_expr.expr &:= "while (counter_";
-    c_expr.expr &:= str(counter_temp_num);
+    c_expr.expr &:= "while (";
+    c_expr.expr &:= counter_temp_name;
     c_expr.expr &:= " > 0) {\n";
 
     setDiagnosticLine(c_expr);
-    c_expr.expr &:= "helem_";
-    c_expr.expr &:= str(helem_temp_num);
-    c_expr.expr &:= "=*table_elem_";
-    c_expr.expr &:= str(table_elem_temp_num);
+    c_expr.expr &:= helem_temp_name;
+    c_expr.expr &:= "=*";
+    c_expr.expr &:= table_elem_temp_name;
     c_expr.expr &:= ";\n";
 
     setDiagnosticLine(c_expr);
-    c_expr.expr &:= "while (helem_";
-    c_expr.expr &:= str(helem_temp_num);
+    c_expr.expr &:= "while (";
+    c_expr.expr &:= helem_temp_name;
     c_expr.expr &:= " != NULL) {\n";
 
     setDiagnosticLine(c_expr);
-    c_expr.expr &:= "if (helem_";
-    c_expr.expr &:= str(helem_temp_num);
+    c_expr.expr &:= "if (";
+    c_expr.expr &:= helem_temp_name;
     c_expr.expr &:= "->next_greater != NULL) {\n";
     setDiagnosticLine(c_expr);
-    c_expr.expr &:= "push_stack(stack_";
-    c_expr.expr &:= str(stack_temp_num);
-    c_expr.expr &:= ", helem_";
-    c_expr.expr &:= str(helem_temp_num);
+    c_expr.expr &:= "push_stack(";
+    c_expr.expr &:= stack_temp_name;
+    c_expr.expr &:= ", ";
+    c_expr.expr &:= helem_temp_name;
     c_expr.expr &:= "->next_greater);\n";
     setDiagnosticLine(c_expr);
     c_expr.expr &:= "} /* if */\n";
@@ -10060,8 +10147,8 @@ const proc: process_hsh_for_generic (in reference: forDataVariable,
       process_expr(dataCopyFunc, c_expr);
       c_expr.expr &:= ")((generictype *)(&(";
       process_expr(forDataVariable, c_expr);
-      c_expr.expr &:= ")), helem_";
-      c_expr.expr &:= str(helem_temp_num);
+      c_expr.expr &:= ")), ";
+      c_expr.expr &:= helem_temp_name;
       c_expr.expr &:= "->data.value.genericvalue);\n";
     end if;
 
@@ -10071,30 +10158,29 @@ const proc: process_hsh_for_generic (in reference: forDataVariable,
       process_expr(keyCopyFunc, c_expr);
       c_expr.expr &:= ")((generictype *)(&(";
       process_expr(forKeyVariable, c_expr);
-      c_expr.expr &:= ")), helem_";
-      c_expr.expr &:= str(helem_temp_num);
+      c_expr.expr &:= ")), ";
+      c_expr.expr &:= helem_temp_name;
       c_expr.expr &:= "->key.value.genericvalue);\n";
     end if;
 
     process_expr(statement, c_expr);
 
     setDiagnosticLine(c_expr);
-    c_expr.expr &:= "if (helem_";
-    c_expr.expr &:= str(helem_temp_num);
+    c_expr.expr &:= "if (";
+    c_expr.expr &:= helem_temp_name;
     c_expr.expr &:= "->next_less != NULL) {\n";
     setDiagnosticLine(c_expr);
-    c_expr.expr &:= "helem_";
-    c_expr.expr &:= str(helem_temp_num);
-    c_expr.expr &:= "=helem_";
-    c_expr.expr &:= str(helem_temp_num);
+    c_expr.expr &:= helem_temp_name;
+    c_expr.expr &:= "=";
+    c_expr.expr &:= helem_temp_name;
     c_expr.expr &:= "->next_less;\n";
     setDiagnosticLine(c_expr);
     c_expr.expr &:= "} else {\n";
     setDiagnosticLine(c_expr);
-    c_expr.expr &:= "pop_stack(stack_";
-    c_expr.expr &:= str(stack_temp_num);
-    c_expr.expr &:= ", helem_";
-    c_expr.expr &:= str(helem_temp_num);
+    c_expr.expr &:= "pop_stack(";
+    c_expr.expr &:= stack_temp_name;
+    c_expr.expr &:= ", ";
+    c_expr.expr &:= helem_temp_name;
     c_expr.expr &:= ");\n";
     setDiagnosticLine(c_expr);
     c_expr.expr &:= "} /* if */\n";
@@ -10103,12 +10189,10 @@ const proc: process_hsh_for_generic (in reference: forDataVariable,
     c_expr.expr &:= "} /* while */\n";
 
     setDiagnosticLine(c_expr);
-    c_expr.expr &:= "counter_";
-    c_expr.expr &:= str(counter_temp_num);
+    c_expr.expr &:= counter_temp_name;
     c_expr.expr &:= "--;\n";
     setDiagnosticLine(c_expr);
-    c_expr.expr &:= "table_elem_";
-    c_expr.expr &:= str(table_elem_temp_num);
+    c_expr.expr &:= table_elem_temp_name;
     c_expr.expr &:= "++;\n";
     setDiagnosticLine(c_expr);
     c_expr.expr &:= "} /* while */\n";
@@ -10148,6 +10232,7 @@ const proc: process_hsh_idx (in reference: function, in ref_list: params,
   local
     var type: proc_type is void;
     var type: result_type is void;
+    var string: temp_name is "";
   begin
     declare_func_pointer_if_necessary(params[4], global_c_expr);
     proc_type := getType(function);
@@ -10155,21 +10240,60 @@ const proc: process_hsh_idx (in reference: function, in ref_list: params,
     if isVarfunc(proc_type) then
       c_expr.expr &:= "hshIdxAddr(";
     else
-      c_expr.expr &:= "(";
-      c_expr.expr &:= type_name(result_type);
-      c_expr.expr &:= ")hshIdx(";
+      temp_name := beginCastGeneric(result_type, c_expr);
+      c_expr.expr &:= "hshIdx(";
     end if;
     process_expr(params[1], c_expr);
-    c_expr.expr &:= ", (generictype)(";
-    process_cast_from_float_expr(params[2], c_expr);
-    c_expr.expr &:= "), ";
+    c_expr.expr &:= ", ";
+    getGenericValue(params[2], c_expr);
+    c_expr.expr &:= ", ";
     process_expr(params[3], c_expr);
     c_expr.expr &:= ", (comparetype)(";
     process_expr(params[4], c_expr);
     c_expr.expr &:= "))";
     if isVarfunc(proc_type) then
       c_expr.expr &:= select_value_from_rtlObjectptr(result_type);
+    else
+      endCastGeneric(result_type, temp_name, c_expr);
     end if;
+  end func;
+
+
+const proc: process_hsh_idx2 (in reference: function, in ref_list: params,
+    inout expr_type: c_expr) is func
+
+  local
+    var type: proc_type is void;
+    var type: result_type is void;
+    var string: addr_temp_name is "";
+  begin
+    declare_func_pointer_if_necessary(params[5], global_c_expr);
+    declare_func_pointer_if_necessary(params[6], global_c_expr);
+    proc_type := getType(function);
+    result_type := resultType(proc_type);
+    incr(c_expr.temp_num);
+    addr_temp_name := "addr_" & str(c_expr.temp_num);
+    c_expr.temp_decls &:= "rtlObjecttype *";
+    c_expr.temp_decls &:= addr_temp_name;
+    c_expr.temp_decls &:= ";\n";
+    c_expr.expr &:= "(";
+    c_expr.expr &:= addr_temp_name;
+    c_expr.expr &:= "=hshIdxAddr2(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ", ";
+    getGenericValue(params[2], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[3], c_expr);
+    c_expr.expr &:= ", (comparetype)(";
+    process_expr(params[5], c_expr);
+    c_expr.expr &:= ")),";
+    c_expr.expr &:= addr_temp_name;
+    c_expr.expr &:= "!=NULL?";
+    c_expr.expr &:= addr_temp_name;
+    c_expr.expr &:= select_value_from_rtlObjectptr(result_type);
+    c_expr.expr &:= ":(";
+    process_expr(params[4], c_expr);
+    c_expr.expr &:= "))";
   end func;
 
 
@@ -10183,11 +10307,11 @@ const proc: process_hsh_incl (in ref_list: params, inout expr_type: c_expr) is f
     setDiagnosticLine(c_expr);
     c_expr.expr &:= "hshIncl(";
     process_expr(params[1], c_expr);
-    c_expr.expr &:= ", (generictype)(";
-    process_cast_from_float_expr(params[2], c_expr);
-    c_expr.expr &:= "), (generictype)(";
-    process_cast_from_float_expr(params[3], c_expr);
-    c_expr.expr &:= "), ";
+    c_expr.expr &:= ", ";
+    getGenericValue(params[2], c_expr);
+    c_expr.expr &:= ", ";
+    getGenericValue(params[3], c_expr);
+    c_expr.expr &:= ", ";
     process_expr(params[4], c_expr);
     c_expr.expr &:= ", (comparetype)(";
     process_expr(params[5], c_expr);
@@ -10222,6 +10346,58 @@ const proc: process_hsh_lng (in ref_list: params, inout expr_type: c_expr) is fu
     c_expr.expr &:= "(inttype)((";
     process_expr(params[1], c_expr);
     c_expr.expr &:= ")->size)";
+  end func;
+
+
+const proc: process_hsh_update (in reference: function, in ref_list: params,
+    inout expr_type: c_expr) is func
+
+  local
+    var type: result_type is void;
+    var string: temp_name is "";
+  begin
+    declare_func_pointer_if_necessary(params[5], global_c_expr);
+    declare_func_pointer_if_necessary(params[6], global_c_expr);
+    declare_func_pointer_if_necessary(params[7], global_c_expr);
+    result_type := resultType(getType(function));
+    if valueIsAtHeap(result_type) then
+      prepare_typed_result(result_type, c_expr);
+      temp_name := beginCastGenericToResultExpr(result_type, c_expr);
+      c_expr.result_expr &:= "hshUpdate(";
+      getAnyParamToResultExpr(params[1], c_expr);
+      c_expr.result_expr &:= ", ";
+      getGenericValueToResultExpr(params[2], c_expr);
+      c_expr.result_expr &:= ", (generictype)(";
+      getTemporaryToResultExpr(params[3], c_expr);
+      c_expr.result_expr &:= "), ";
+      getAnyParamToResultExpr(params[4], c_expr);
+      c_expr.result_expr &:= ", (comparetype)(";
+      getAnyParamToResultExpr(params[5], c_expr);
+      c_expr.result_expr &:= "), (createfunctype)(";
+      getAnyParamToResultExpr(params[6], c_expr);
+      c_expr.result_expr &:= "), (createfunctype)(";
+      getAnyParamToResultExpr(params[7], c_expr);
+      c_expr.result_expr &:= "))";
+      endCastGenericToResultExpr(result_type, temp_name, c_expr);
+    else
+      temp_name := beginCastGeneric(result_type, c_expr);
+      c_expr.expr &:= "hshUpdate(";
+      process_expr(params[1], c_expr);
+      c_expr.expr &:= ", ";
+      getGenericValue(params[2], c_expr);
+      c_expr.expr &:= ", ";
+      getGenericValue(params[3], c_expr);
+      c_expr.expr &:= ", ";
+      process_expr(params[4], c_expr);
+      c_expr.expr &:= ", (comparetype)(";
+      process_expr(params[5], c_expr);
+      c_expr.expr &:= "), (createfunctype)(";
+      process_expr(params[6], c_expr);
+      c_expr.expr &:= "), (createfunctype)(";
+      process_expr(params[7], c_expr);
+      c_expr.expr &:= "))";
+      endCastGeneric(result_type, temp_name, c_expr);
+    end if;
   end func;
 
 
@@ -11565,7 +11741,7 @@ const proc: process_int_rshift_assign (in ref_list: params, inout expr_type: c_e
   local
     var expr_type: c_param1 is expr_type.value;
     var expr_type: c_param3 is expr_type.value;
-    var integer: temp_num is 0;
+    var string: number_name is "";
   begin
     process_expr(params[1], c_param1);
     c_param3.temp_num := c_param1.temp_num;
@@ -11576,10 +11752,15 @@ const proc: process_int_rshift_assign (in ref_list: params, inout expr_type: c_e
       AppendWithDiagnostic(c_param1.temp_decls, c_expr);
       AppendWithDiagnostic(c_param3.temp_decls, c_expr);
       if not RSHIFT_DOES_SIGN_EXTEND then
-        temp_num := succ(c_param3.temp_num);
-        c_expr.expr &:= "inttype tmp_";
-        c_expr.expr &:= str(temp_num);
-        c_expr.expr &:= ";\n";
+        if isNormalVariable(params[1]) then
+          number_name := "(" & c_param1.expr & ")";
+        else
+          incr(c_param3.temp_num);
+          number_name := "tmp_" & str(c_param3.temp_num);
+          c_expr.expr &:= "inttype *";
+          c_expr.expr &:= number_name;
+          c_expr.expr &:= ";\n";
+        end if;
       end if;
       AppendWithDiagnostic(c_param1.temp_assigns, c_expr);
       AppendWithDiagnostic(c_param3.temp_assigns, c_expr);
@@ -11596,26 +11777,28 @@ const proc: process_int_rshift_assign (in ref_list: params, inout expr_type: c_e
       c_expr.expr &:= ";\n";
     else
       (* Formula used: if (a<0) a= ~(~a>>b); else a>>=b; *)
+      if not isNormalVariable(params[1]) then
+        setDiagnosticLine(c_expr);
+        c_expr.expr &:= number_name;
+        c_expr.expr &:= "=&(";
+        process_expr(params[1], c_expr);
+        c_expr.expr &:= ");\n";
+        number_name := "*" & number_name;
+      end if;
       setDiagnosticLine(c_expr);
-      c_expr.expr &:= "tmp_";
-      c_expr.expr &:= str(temp_num);
-      c_expr.expr &:= "=";
-      process_expr(params[1], c_expr);
-      c_expr.expr &:= ";\n";
-      setDiagnosticLine(c_expr);
-      c_expr.expr &:= "if (tmp_";
-      c_expr.expr &:= str(temp_num);
+      c_expr.expr &:= "if (";
+      c_expr.expr &:= number_name;
       c_expr.expr &:= "<0) ";
-      c_expr.expr &:= c_param1.expr;
-      c_expr.expr &:= "= ~(~tmp_";
-      c_expr.expr &:= str(temp_num);
+      c_expr.expr &:= number_name;
+      c_expr.expr &:= "= ~(~";
+      c_expr.expr &:= number_name;
       c_expr.expr &:= " >> (";
       process_expr(params[3], c_expr);
       c_expr.expr &:= ")); else ";
-      c_expr.expr &:= c_param1.expr;
+      c_expr.expr &:= number_name;
       c_expr.expr &:= " >>= (";
       process_expr(params[3], c_expr);
-      c_expr.expr &:= ");";
+      c_expr.expr &:= ");\n";
     end if;
     if c_param3.temp_num <> 0 or
         not RSHIFT_DOES_SIGN_EXTEND then
@@ -11677,11 +11860,32 @@ const proc: process_int_sqrt (in ref_list: params, inout expr_type: c_expr) is f
 
 const proc: process_int_str (in ref_list: params, inout expr_type: c_expr) is func
 
+  local
+    var string: buffer_name is "";
   begin
-    prepare_stri_result(c_expr);
-    c_expr.result_expr := "intStr(";
-    getStdParamToResultExpr(params[1], c_expr);
-    c_expr.result_expr &:= ")";
+    if ALLOW_STRITYPE_SLICES then
+      incr(c_expr.temp_num);
+      buffer_name := "buffer_" & str(c_expr.temp_num);
+      c_expr.temp_decls &:= "char ";
+      c_expr.temp_decls &:= buffer_name;
+      c_expr.temp_decls &:= "[sizeof(struct stristruct) + ";
+      if INTTYPE_SIZE = 64 then
+        c_expr.temp_decls &:= "19";
+      elsif INTTYPE_SIZE = 32 then
+        c_expr.temp_decls &:= "10";
+      end if;
+      c_expr.temp_decls &:= " * sizeof(strelemtype)];\n";
+      c_expr.expr &:= "intStrToBuffer(";
+      process_expr(params[1], c_expr);
+      c_expr.expr &:= ", (stritype) &";
+      c_expr.expr &:= buffer_name;
+      c_expr.expr &:= ")";
+    else
+      prepare_stri_result(c_expr);
+      c_expr.result_expr := "intStr(";
+      getStdParamToResultExpr(params[1], c_expr);
+      c_expr.result_expr &:= ")";
+    end if;
   end func;
 
 
@@ -11697,8 +11901,6 @@ const proc: process_int_succ (in ref_list: params, inout expr_type: c_expr) is f
 const proc: process_const_int_urshift (in reference: param1, in integer: shiftCount,
     inout expr_type: c_expr) is func
 
-  local
-    var integer: temp_num is 0;
   begin
     if shiftCount < 0 then
       incr(countOptimizations);
@@ -14892,7 +15094,9 @@ const proc: process_str_cpy (in ref_list: params, inout expr_type: c_expr) is fu
       AppendWithDiagnostic(c_param3.temp_assigns, c_expr);
     end if;
     if c_param3.result_expr <> "" then
-      c_expr.expr &:= "{\n";
+      if not has_temp_values(c_param3) then
+        c_expr.expr &:= "{\n";
+      end if;
       setDiagnosticLine(c_expr);
       if isNormalVariable(params[1]) then
         c_expr.expr &:= "stritype old_stri=";
@@ -14914,7 +15118,9 @@ const proc: process_str_cpy (in ref_list: params, inout expr_type: c_expr) is fu
       c_expr.expr &:= ";\n";
       setDiagnosticLine(c_expr);
       c_expr.expr &:= "strDestr(old_stri);\n";
-      c_expr.expr &:= "}\n";
+      if not has_temp_values(c_param3) then
+        c_expr.expr &:= "}\n";
+      end if;
     else
       setDiagnosticLine(c_expr);
       c_expr.expr &:= "strCopy(&(";
@@ -15307,9 +15513,114 @@ const proc: process_str_gt (in ref_list: params, inout expr_type: c_expr) is fun
 
 const proc: process_str_hashcode (in ref_list: params, inout expr_type: c_expr) is func
 
+  local
+    var reference: evaluatedParam is NIL;
+    var string: stri_name is "";
   begin
-    c_expr.expr &:= "strHashCode(";
-    getAnyParamToExpr(params[1], c_expr);
+    if getConstant(params[1], STRIOBJECT, evaluatedParam) then
+      incr(countOptimizations);
+      c_expr.expr &:= integerLiteral(hashCode(getValue(evaluatedParam, string)));
+    elsif inlineFunctions then
+      c_expr.expr &:= "(";
+      stri_name := getParameterAsVariable("const_stritype", "tmp_", params[1], c_expr);
+      c_expr.expr &:= stri_name;
+      c_expr.expr &:= "->size==0 ? 0 : (";
+      c_expr.expr &:= stri_name;
+      c_expr.expr &:= "->mem[0]<<5 ^ ";
+      c_expr.expr &:= stri_name;
+      c_expr.expr &:= "->mem[";
+      c_expr.expr &:= stri_name;
+      c_expr.expr &:= "->size>>1]<<3 ^ ";
+      c_expr.expr &:= stri_name;
+      c_expr.expr &:= "->mem[";
+      c_expr.expr &:= stri_name;
+      c_expr.expr &:= "->size-1]<<1 ^ ";
+      c_expr.expr &:= stri_name;
+      c_expr.expr &:= "->size))";
+    else
+      c_expr.expr &:= "strHashCode(";
+      getAnyParamToExpr(params[1], c_expr);
+      c_expr.expr &:= ")";
+    end if;
+  end func;
+
+
+const proc: process_const_str_head (in string: stri, in reference: param4,
+    inout expr_type: c_expr) is func
+
+  local
+    var reference: evaluatedParam is NIL;
+    var integer: stop is 0;
+    var string: slice_name is "";
+  begin
+    if getConstant(param4, INTOBJECT, evaluatedParam) then
+      incr(countOptimizations);
+      c_expr.expr &:= stringLiteral(stri[ .. getValue(evaluatedParam, integer)]);
+    elsif stri = "" then
+      incr(countOptimizations);
+      c_expr.expr &:= "/* \"\"[ .. n] */ (";
+      # The index expression could have a side effect or raise an exception
+      process_expr(param4, c_expr);
+      c_expr.expr &:= ",";
+      c_expr.expr &:= stringLiteral("");
+      c_expr.expr &:= ")";
+    elsif length(stri) = 1 then
+      incr(countOptimizations);
+      c_expr.expr &:= "((";
+      process_expr(param4, c_expr);
+      c_expr.expr &:= ")>=1?";
+      c_expr.expr &:= stringLiteral(stri);
+      c_expr.expr &:= ":";
+      c_expr.expr &:= stringLiteral("");
+      c_expr.expr &:= ")";
+    elsif ALLOW_STRITYPE_SLICES then
+      incr(c_expr.temp_num);
+      slice_name := "slice_" & str(c_expr.temp_num);
+      c_expr.temp_decls &:= "struct stristruct ";
+      c_expr.temp_decls &:= slice_name;
+      c_expr.temp_decls &:= ";\n";
+      c_expr.expr &:= "(strHeadSlice(";
+      c_expr.expr &:= stringLiteral(stri);
+      c_expr.expr &:= ", ";
+      process_expr(param4, c_expr);
+      c_expr.expr &:= ", &";
+      c_expr.expr &:= slice_name;
+      c_expr.expr &:= "), &";
+      c_expr.expr &:= slice_name;
+      c_expr.expr &:= ")";
+    else
+      prepare_stri_result(c_expr);
+      c_expr.result_expr := "strHead(";
+      c_expr.expr &:= stringLiteral(stri);
+      c_expr.result_expr &:= ", ";
+      getStdParamToResultExpr(param4, c_expr);
+      c_expr.result_expr &:= ")";
+    end if;
+  end func;
+
+
+const proc: process_const_str_head1 (in reference: param1,
+    inout expr_type: c_expr) is func
+
+  local
+    var string: temp_name is "";
+    var string: stri1_name is "";
+  begin
+    incr(countOptimizations);
+    c_expr.expr &:= "(";
+    temp_name := getParameterAsVariable("const_stritype", "tmp_", param1, c_expr);
+    incr(c_expr.temp_num);
+    stri1_name := "stri1_" & str(c_expr.temp_num);
+    c_expr.temp_decls &:= "struct stristruct ";
+    c_expr.temp_decls &:= stri1_name;
+    c_expr.temp_decls &:= ";\n";
+    c_expr.expr &:= temp_name;
+    c_expr.expr &:= "->size>=1?chrStrMacro(";
+    c_expr.expr &:= temp_name;
+    c_expr.expr &:= "->mem[0],";
+    c_expr.expr &:= stri1_name;
+    c_expr.expr &:= "):";
+    c_expr.expr &:= stringLiteral("");
     c_expr.expr &:= ")";
   end func;
 
@@ -15320,60 +15631,45 @@ const proc: process_str_head (in reference: param1, in reference: param4,
   local
     var reference: evaluatedParam is NIL;
     var expr_type: c_param1 is expr_type.value;
-    var integer: temp_num is 0;
+    var string: slice_name is "";
   begin
-    prepareAnyParamTemporarys(param1, c_param1, c_expr);
-    if getConstant(param4, INTOBJECT, evaluatedParam) and
+    if getConstant(param1, STRIOBJECT, evaluatedParam) then
+      process_const_str_head(getValue(evaluatedParam, string), param4, c_expr);
+    elsif getConstant(param4, INTOBJECT, evaluatedParam) and
         getValue(evaluatedParam, integer) = 1 then
-      incr(countOptimizations);
-      incr(c_expr.temp_num);
-      temp_num := c_expr.temp_num;
-      c_expr.temp_decls &:= "const_stritype tmp_";
-      c_expr.temp_decls &:= str(temp_num);
-      c_expr.temp_decls &:= ";\n";
-      c_expr.temp_decls &:= "struct stristruct stri_";
-      c_expr.temp_decls &:= str(temp_num);
-      c_expr.temp_decls &:= ";\n";
-      c_expr.expr &:= "(tmp_";
-      c_expr.expr &:= str(temp_num);
-      c_expr.expr &:= "=";
-      getAnyParamToExpr(c_param1, c_expr);
-      c_expr.expr &:= ",tmp_";
-      c_expr.expr &:= str(temp_num);
-      c_expr.expr &:= "->size>=1?chrStrMacro(tmp_";
-      c_expr.expr &:= str(temp_num);
-      c_expr.expr &:= "->mem[0],stri_";
-      c_expr.expr &:= str(temp_num);
-      c_expr.expr &:= "):";
-      c_expr.expr &:= stringLiteral("");
-      c_expr.expr &:= ")";
-    elsif c_param1.result_expr <> "" then
-      prepare_stri_result(c_expr);
-      c_expr.result_expr := "strHeadTemp(";
-      c_expr.result_expr &:= c_param1.result_expr;
-      c_expr.result_expr &:= ", ";
-      getStdParamToResultExpr(param4, c_expr);
-      c_expr.result_expr &:= ")";
-    elsif ALLOW_STRITYPE_SLICES then
-      incr(c_expr.temp_num);
-      temp_num := c_expr.temp_num;
-      c_expr.temp_decls &:= "struct stristruct slice_";
-      c_expr.temp_decls &:= str(temp_num);
-      c_expr.temp_decls &:= ";\n";
-      c_expr.expr &:= "strHeadSlice(";
-      c_expr.expr &:= c_param1.expr;
-      c_expr.expr &:= ", ";
-      process_expr(param4, c_expr);
-      c_expr.expr &:= ", &slice_";
-      c_expr.expr &:= str(temp_num);
-      c_expr.expr &:= ")";
+      process_const_str_head1(param1, c_expr);
     else
-      prepare_stri_result(c_expr);
-      c_expr.result_expr := "strHead(";
-      c_expr.result_expr &:= c_param1.expr;
-      c_expr.result_expr &:= ", ";
-      getStdParamToResultExpr(param4, c_expr);
-      c_expr.result_expr &:= ")";
+      prepareAnyParamTemporarys(param1, c_param1, c_expr);
+      if c_param1.result_expr <> "" then
+        prepare_stri_result(c_expr);
+        c_expr.result_expr := "strHeadTemp(";
+        c_expr.result_expr &:= c_param1.result_expr;
+        c_expr.result_expr &:= ", ";
+        getStdParamToResultExpr(param4, c_expr);
+        c_expr.result_expr &:= ")";
+      elsif ALLOW_STRITYPE_SLICES then
+        incr(c_expr.temp_num);
+        slice_name := "slice_" & str(c_expr.temp_num);
+        c_expr.temp_decls &:= "struct stristruct ";
+        c_expr.temp_decls &:= slice_name;
+        c_expr.temp_decls &:= ";\n";
+        c_expr.expr &:= "(strHeadSlice(";
+        c_expr.expr &:= c_param1.expr;
+        c_expr.expr &:= ", ";
+        process_expr(param4, c_expr);
+        c_expr.expr &:= ", &";
+        c_expr.expr &:= slice_name;
+        c_expr.expr &:= "), &";
+        c_expr.expr &:= slice_name;
+        c_expr.expr &:= ")";
+      else
+        prepare_stri_result(c_expr);
+        c_expr.result_expr := "strHead(";
+        c_expr.result_expr &:= c_param1.expr;
+        c_expr.result_expr &:= ", ";
+        getStdParamToResultExpr(param4, c_expr);
+        c_expr.result_expr &:= ")";
+      end if;
     end if;
   end func;
 
@@ -16028,24 +16324,96 @@ const proc: process_str_range (in ref_list: params, inout expr_type: c_expr) is 
 
   local
     var reference: evaluatedParam is NIL;
+    var string: stri_name is "";
+    var string: start_name is "";
+    var string: stop_name is "";
     var string: slice_name is "";
   begin
-    if getConstant(params[3], INTOBJECT, evaluatedParam) and
+    if getConstant(params[1], STRIOBJECT, evaluatedParam) and
+        getValue(evaluatedParam, string) = "" then
+      incr(countOptimizations);
+      c_expr.expr &:= "/* \"\"[m .. n] */ (";
+      # The index expressions could have a side effect or raise an exception
+      process_expr(params[3], c_expr);
+      c_expr.expr &:= ",";
+      process_expr(params[5], c_expr);
+      c_expr.expr &:= ",";
+      c_expr.expr &:= stringLiteral("");
+      c_expr.expr &:= ")";
+    elsif getConstant(params[3], INTOBJECT, evaluatedParam) and
         getValue(evaluatedParam, integer) = 1 then
       incr(countOptimizations);
       process_str_head(params[1], params[5], c_expr);
     elsif ALLOW_STRITYPE_SLICES then
+      c_expr.expr &:= "(";
       incr(c_expr.temp_num);
       slice_name := "slice_" & str(c_expr.temp_num);
       c_expr.temp_decls &:= "struct stristruct ";
       c_expr.temp_decls &:= slice_name;
       c_expr.temp_decls &:= ";\n";
-      c_expr.expr &:= "strRangeSlice(";
-      getAnyParamToExpr(params[1], c_expr);
-      c_expr.expr &:= ", ";
-      process_expr(params[3], c_expr);
-      c_expr.expr &:= ", ";
-      process_expr(params[5], c_expr);
+      if inlineFunctions then
+        stri_name := getParameterAsVariable("const_stritype", "stri_", params[1], c_expr);
+        start_name := getTempVariable("inttype", "start_", params[3], c_expr);
+        stop_name := getParameterAsVariable("inttype", "stop_", params[5], c_expr);
+        (* Formula used: start<1 ? start=1 : 0 *)
+        c_expr.expr &:= start_name;
+        c_expr.expr &:= "<1 ? ";
+        c_expr.expr &:= start_name;
+        c_expr.expr &:= "=1 : 0, ";
+        (* Formula used: slice.capacity=0,
+                         stop>=start && (uinttype)start <= stri->size ?
+                         (slice.mem = &stri->mem[start-1],
+                         (uinttype)stop > stri->size ?
+                         slice.size = stri->size-(memsizetype)start+1 :
+                         (slice.size = (memsizetype)stop-(memsizetype)start+1)) :
+                         (slice.mem = NULL,slice.size = 0) *)
+        c_expr.expr &:= slice_name;
+        c_expr.expr &:= ".capacity=0, ";
+        c_expr.expr &:= stop_name;
+        c_expr.expr &:= ">=";
+        c_expr.expr &:= start_name;
+        c_expr.expr &:= " && (uinttype)";
+        c_expr.expr &:= start_name;
+        c_expr.expr &:= "<=";
+        c_expr.expr &:= stri_name;
+        c_expr.expr &:= "->size ? (";
+        c_expr.expr &:= slice_name;
+        c_expr.expr &:= ".mem = &";
+        c_expr.expr &:= stri_name;
+        c_expr.expr &:= "->mem[";
+        c_expr.expr &:= start_name;
+        c_expr.expr &:= "-1], (uinttype)";
+        c_expr.expr &:= stop_name;
+        c_expr.expr &:= " > ";
+        c_expr.expr &:= stri_name;
+        c_expr.expr &:= "->size ? ";
+        c_expr.expr &:= slice_name;
+        c_expr.expr &:= ".size = ";
+        c_expr.expr &:= stri_name;
+        c_expr.expr &:= "->size-(memsizetype)";
+        c_expr.expr &:= start_name;
+        c_expr.expr &:= "+1 : (";
+        c_expr.expr &:= slice_name;
+        c_expr.expr &:= ".size = (memsizetype)";
+        c_expr.expr &:= stop_name;
+        c_expr.expr &:= "-(memsizetype)";
+        c_expr.expr &:= start_name;
+        c_expr.expr &:= "+1)) : (";
+        c_expr.expr &:= slice_name;
+        c_expr.expr &:= ".mem = NULL,";
+        c_expr.expr &:= slice_name;
+        c_expr.expr &:= ".size = 0)";
+      else
+        c_expr.expr &:= "strRangeSlice(";
+        getAnyParamToExpr(params[1], c_expr);
+        c_expr.expr &:= ", ";
+        process_expr(params[3], c_expr);
+        c_expr.expr &:= ", ";
+        process_expr(params[5], c_expr);
+        c_expr.expr &:= ", &";
+        c_expr.expr &:= slice_name;
+        c_expr.expr &:= ")";
+      end if;
       c_expr.expr &:= ", &";
       c_expr.expr &:= slice_name;
       c_expr.expr &:= ")";
@@ -16260,10 +16628,23 @@ const proc: process_str_substr (in ref_list: params, inout expr_type: c_expr) is
 
   local
     var reference: evaluatedParam is NIL;
-    var integer: temp_num is 0;
+    var string: stri_name is "";
+    var string: start_name is "";
+    var string: length_name is "";
     var string: slice_name is "";
   begin
-    if getConstant(params[3], INTOBJECT, evaluatedParam) and
+    if getConstant(params[1], STRIOBJECT, evaluatedParam) and
+        getValue(evaluatedParam, string) = "" then
+      incr(countOptimizations);
+      c_expr.expr &:= "/* \"\"[m len n] */ (";
+      # The index and length expressions could have a side effect or raise an exception
+      process_expr(params[3], c_expr);
+      c_expr.expr &:= ",";
+      process_expr(params[5], c_expr);
+      c_expr.expr &:= ",";
+      c_expr.expr &:= stringLiteral("");
+      c_expr.expr &:= ")";
+    elsif getConstant(params[3], INTOBJECT, evaluatedParam) and
         getValue(evaluatedParam, integer) = 1 then
       incr(countOptimizations);
       process_str_head(params[1], params[5], c_expr);
@@ -16271,17 +16652,85 @@ const proc: process_str_substr (in ref_list: params, inout expr_type: c_expr) is
         getValue(evaluatedParam, integer) = 1 then
       process_str_substr1(params[1], params[3], c_expr);
     elsif ALLOW_STRITYPE_SLICES then
+      c_expr.expr &:= "(";
       incr(c_expr.temp_num);
       slice_name := "slice_" & str(c_expr.temp_num);
       c_expr.temp_decls &:= "struct stristruct ";
       c_expr.temp_decls &:= slice_name;
       c_expr.temp_decls &:= ";\n";
-      c_expr.expr &:= "strSubstrSlice(";
-      getAnyParamToExpr(params[1], c_expr);
-      c_expr.expr &:= ", ";
-      process_expr(params[3], c_expr);
-      c_expr.expr &:= ", ";
-      process_expr(params[5], c_expr);
+      if inlineFunctions then
+        stri_name := getParameterAsVariable("const_stritype", "stri_", params[1], c_expr);
+        start_name := getTempVariable("inttype", "start_", params[3], c_expr);
+        length_name := getTempVariable("inttype", "length_", params[5], c_expr);
+        (* Formula used: start<1 ? (length>=1 && start>1-length ? (length+=start-1, start=1) : (length=0)) : 0 *)
+        c_expr.expr &:= start_name;
+        c_expr.expr &:= "<1 ? (";
+        c_expr.expr &:= length_name;
+        c_expr.expr &:= ">=1 && ";
+        c_expr.expr &:= start_name;
+        c_expr.expr &:= ">1-";
+        c_expr.expr &:= length_name;
+        c_expr.expr &:= " ? (";
+        c_expr.expr &:= length_name;
+        c_expr.expr &:= "+=";
+        c_expr.expr &:= start_name;
+        c_expr.expr &:= "-1, ";
+        c_expr.expr &:= start_name;
+        c_expr.expr &:= "=1) : (";
+        c_expr.expr &:= length_name;
+        c_expr.expr &:= "=0)) : 0, ";
+        (* Formula used: slice.capacity=0,
+                         length>=1 && (uinttype)start<=stri->size ?
+                         (slice.mem = &stri->mem[start-1],
+                         (uinttype)length > stri->size-(memsizetype)start+1 ?
+                         slice.size = stri->size-(memsizetype)start+1 :
+                         (slice.size = (memsizetype)length)) :
+                         (slice.mem = NULL, slice.size = 0) *)
+        c_expr.expr &:= slice_name;
+        c_expr.expr &:= ".capacity=0, ";
+        c_expr.expr &:= length_name;
+        c_expr.expr &:= ">=1 && (uinttype)";
+        c_expr.expr &:= start_name;
+        c_expr.expr &:= "<=";
+        c_expr.expr &:= stri_name;
+        c_expr.expr &:= "->size ? (";
+        c_expr.expr &:= slice_name;
+        c_expr.expr &:= ".mem = &";
+        c_expr.expr &:= stri_name;
+        c_expr.expr &:= "->mem[";
+        c_expr.expr &:= start_name;
+        c_expr.expr &:= "-1], (uinttype)";
+        c_expr.expr &:= length_name;
+        c_expr.expr &:= " > ";
+        c_expr.expr &:= stri_name;
+        c_expr.expr &:= "->size-(memsizetype)";
+        c_expr.expr &:= start_name;
+        c_expr.expr &:= "+1 ? ";
+        c_expr.expr &:= slice_name;
+        c_expr.expr &:= ".size = ";
+        c_expr.expr &:= stri_name;
+        c_expr.expr &:= "->size-(memsizetype)";
+        c_expr.expr &:= start_name;
+        c_expr.expr &:= "+1 : (";
+        c_expr.expr &:= slice_name;
+        c_expr.expr &:= ".size = (memsizetype)";
+        c_expr.expr &:= length_name;
+        c_expr.expr &:= ")) : (";
+        c_expr.expr &:= slice_name;
+        c_expr.expr &:= ".mem = NULL, ";
+        c_expr.expr &:= slice_name;
+        c_expr.expr &:= ".size = 0)";
+      else
+        c_expr.expr &:= "strSubstrSlice(";
+        getAnyParamToExpr(params[1], c_expr);
+        c_expr.expr &:= ", ";
+        process_expr(params[3], c_expr);
+        c_expr.expr &:= ", ";
+        process_expr(params[5], c_expr);
+        c_expr.expr &:= ", &";
+        c_expr.expr &:= slice_name;
+        c_expr.expr &:= ")";
+      end if;
       c_expr.expr &:= ", &";
       c_expr.expr &:= slice_name;
       c_expr.expr &:= ")";
@@ -16301,19 +16750,31 @@ const proc: process_str_substr (in ref_list: params, inout expr_type: c_expr) is
 const proc: process_str_tail (in ref_list: params, inout expr_type: c_expr) is func
 
   local
+    var reference: evaluatedParam is NIL;
     var string: slice_name is "";
   begin
-    if ALLOW_STRITYPE_SLICES then
+    if getConstant(params[1], STRIOBJECT, evaluatedParam) and
+        getValue(evaluatedParam, string) = "" then
+      incr(countOptimizations);
+      c_expr.expr &:= "/* \"\"[n .. ] */ (";
+      # The index expression could have a side effect or raise an exception
+      process_expr(params[3], c_expr);
+      c_expr.expr &:= ",";
+      c_expr.expr &:= stringLiteral("");
+      c_expr.expr &:= ")";
+    elsif ALLOW_STRITYPE_SLICES then
       incr(c_expr.temp_num);
       slice_name := "slice_" & str(c_expr.temp_num);
       c_expr.temp_decls &:= "struct stristruct ";
       c_expr.temp_decls &:= slice_name;
       c_expr.temp_decls &:= ";\n";
-      c_expr.expr &:= "strTailSlice(";
+      c_expr.expr &:= "(strTailSlice(";
       getAnyParamToExpr(params[1], c_expr);
       c_expr.expr &:= ", ";
       process_expr(params[3], c_expr);
       c_expr.expr &:= ", &";
+      c_expr.expr &:= slice_name;
+      c_expr.expr &:= "), &";
       c_expr.expr &:= slice_name;
       c_expr.expr &:= ")";
     else
@@ -17503,12 +17964,16 @@ const proc: process_action (in reference: function, in ref_list: params,
         process_hsh_for_key(params, c_expr);
       elsif action_name = "HSH_IDX" then
         process_hsh_idx(function, params, c_expr);
+      elsif action_name = "HSH_IDX2" then
+        process_hsh_idx2(function, params, c_expr);
       elsif action_name = "HSH_INCL" then
         process_hsh_incl(params, c_expr);
       elsif action_name = "HSH_KEYS" then
         process_hsh_keys(function, params, c_expr);
       elsif action_name = "HSH_LNG" then
         process_hsh_lng(params, c_expr);
+      elsif action_name = "HSH_UPDATE" then
+        process_hsh_update(function, params, c_expr);
       elsif action_name = "HSH_VALUES" then
         process_hsh_values(params, c_expr);
       else
@@ -22669,7 +23134,7 @@ const proc: write_file_head is func
     writeln(c_prog, "rtlValueunion     flt2int;");
     writeln(c_prog, "extern memsizetype hs;");
     writeln(c_prog);
-    writeln(c_prog, "static inttype fact[] = {");
+    writeln(c_prog, "static const inttype fact[] = {");
     writeln(c_prog, "    1, 1, 2, 6, 24, 120, 720, 5040, 40320,");
     writeln(c_prog, "    362880, 3628800, 39916800, 479001600,");
     if INTTYPE_SIZE = 64 then
@@ -23046,8 +23511,10 @@ const proc: write_prototypes is func
     declareExtern("void        hshExcl (const hashtype, const generictype, inttype, comparetype, const destrfunctype, const destrfunctype);");
     declareExtern("generictype hshIdx (const const_hashtype, const generictype, inttype, comparetype);");
     declareExtern("rtlObjecttype *hshIdxAddr (const const_hashtype, const generictype, inttype, comparetype);");
+    declareExtern("rtlObjecttype *hshIdxAddr2 (const const_hashtype, const generictype, inttype, comparetype);");
     declareExtern("void        hshIncl (const hashtype, const generictype, const generictype, inttype, comparetype, const createfunctype, const createfunctype, const copyfunctype);");
     declareExtern("arraytype   hshKeys (const const_hashtype, const createfunctype, const destrfunctype);");
+    declareExtern("generictype hshUpdate (const hashtype, const generictype, const generictype, inttype, comparetype, const createfunctype, const createfunctype);");
     declareExtern("arraytype   hshValues (const const_hashtype, const createfunctype, const destrfunctype);");
     declareExtern("inttype     intBinom (inttype, inttype);");
     declareExtern("inttype     intBitLength (inttype);");
@@ -23066,6 +23533,7 @@ const proc: write_prototypes is func
     declareExtern("inttype     intRand (inttype, inttype);");
     declareExtern("inttype     intSqrt (inttype);");
     declareExtern("stritype    intStr (inttype);");
+    declareExtern("stritype    intStrToBuffer (inttype, stritype);");
     declareExtern("inttype     intValue (objreftype);");
     declareExtern("interfacetype itfCreate (const interfacetype);");
     declareExtern("chartype    kbdGetc (void);");
@@ -23228,7 +23696,7 @@ const proc: write_prototypes is func
     declareExtern("booltype    strGt (const const_stritype, const const_stritype);");
     declareExtern("inttype     strHashCode (const const_stritype);");
     declareExtern("stritype    strHead (const_stritype, inttype);");
-    declareExtern("stritype    strHeadSlice (const const_stritype, const inttype, stritype);");
+    declareExtern("void        strHeadSlice (const const_stritype, const inttype, stritype);");
     declareExtern("stritype    strHeadTemp (const stritype, const inttype);");
     declareExtern("inttype     strIPos (const const_stritype, const const_stritype, const inttype);");
     declareExtern("booltype    strLe (const const_stritype, const const_stritype);");
@@ -23245,7 +23713,7 @@ const proc: write_prototypes is func
     declareExtern("inttype     strPos (const const_stritype, const const_stritype);");
     declareExtern("void        strPush (stritype *const, const chartype);");
     declareExtern("stritype    strRange (const_stritype, inttype, inttype);");
-    declareExtern("stritype    strRangeSlice (const const_stritype, inttype, inttype, stritype);");
+    declareExtern("void        strRangeSlice (const const_stritype, inttype, inttype, stritype);");
     declareExtern("inttype     strRChIPos (const const_stritype, const chartype, const inttype);");
     declareExtern("inttype     strRChPos (const const_stritype, const chartype);");
     declareExtern("stritype    strRepl (const const_stritype, const const_stritype, const const_stritype);");
@@ -23255,9 +23723,9 @@ const proc: write_prototypes is func
     declareExtern("stritype    strRtrim (const const_stritype);");
     declareExtern("arraytype   strSplit (const const_stritype, const const_stritype);");
     declareExtern("stritype    strSubstr (const_stritype, inttype, inttype);");
-    declareExtern("stritype    strSubstrSlice (const const_stritype, inttype, inttype, stritype);");
+    declareExtern("void        strSubstrSlice (const const_stritype, inttype, inttype, stritype);");
     declareExtern("stritype    strTail (const_stritype, inttype);");
-    declareExtern("stritype    strTailSlice (const const_stritype, inttype, stritype);");
+    declareExtern("void        strTailSlice (const const_stritype, inttype, stritype);");
     declareExtern("stritype    strToUtf8 (const const_stritype);");
     declareExtern("stritype    strTrim (const const_stritype);");
     declareExtern("stritype    strUp (const const_stritype);");
@@ -24714,6 +25182,7 @@ const proc: pass_1 (in string: source, inout program: prog,
       writeln("Compiling the program ...");
       if "-r" in compiler_option then
         array_range_check := FALSE;
+        conversion_range_check := FALSE;
         integer_shift_check := FALSE;
       end if;
       if "-g" in compiler_option then

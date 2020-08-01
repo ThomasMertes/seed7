@@ -516,12 +516,18 @@ static void for_data_key_hash (objecttype for_variable, objecttype key_variable,
 
 
 
+/**
+ *  Hash membership test.
+ *  Determine if 'aKey' is a member of the hash map 'aHashMap'.
+ *  @return TRUE when 'aKey' is a member of 'aHashMap',
+ *          FALSE otherwise.
+ */
 objecttype hsh_contains (listtype arguments)
 
   {
-    hashtype hash1;
+    hashtype aHashMap;
     inttype hashcode;
-    objecttype key;
+    objecttype aKey;
     objecttype cmp_func;
     helemtype hashelem;
     objecttype cmp_obj;
@@ -532,14 +538,14 @@ objecttype hsh_contains (listtype arguments)
     isit_hash(arg_1(arguments));
     isit_int(arg_3(arguments));
     isit_reference(arg_4(arguments));
-    hash1    =      take_hash(arg_1(arguments));
-    key      =                arg_2(arguments);
+    aHashMap =      take_hash(arg_1(arguments));
+    aKey     =                arg_2(arguments);
     hashcode =       take_int(arg_3(arguments));
     cmp_func = take_reference(arg_4(arguments));
     result = SYS_FALSE_OBJECT;
-    hashelem = hash1->table[(unsigned int) hashcode & hash1->mask];
+    hashelem = aHashMap->table[(unsigned int) hashcode & aHashMap->mask];
     while (hashelem != NULL) {
-      cmp_obj = param3_call(cmp_func, &hashelem->key, key, cmp_func);
+      cmp_obj = param3_call(cmp_func, &hashelem->key, aKey, cmp_func);
       isit_int(cmp_obj);
       cmp = take_int(cmp_obj);
       FREE_OBJECT(cmp_obj);
@@ -717,12 +723,15 @@ objecttype hsh_empty (listtype arguments)
 
 
 
+/**
+ *  Remove the element with the key 'aKey' from the hash map 'aHashMap'.
+ */
 objecttype hsh_excl (listtype arguments)
 
   {
-    hashtype hash1;
+    hashtype aHashMap;
     inttype hashcode;
-    objecttype key;
+    objecttype aKey;
     objecttype cmp_func;
     objecttype key_destr_func;
     objecttype data_destr_func;
@@ -737,16 +746,16 @@ objecttype hsh_excl (listtype arguments)
     isit_hash(arg_1(arguments));
     isit_int(arg_3(arguments));
     isit_reference(arg_4(arguments));
-    hash1           =      take_hash(arg_1(arguments));
-    key             =                arg_2(arguments);
+    aHashMap        =      take_hash(arg_1(arguments));
+    aKey            =                arg_2(arguments);
     hashcode        =       take_int(arg_3(arguments));
     cmp_func        = take_reference(arg_4(arguments));
     key_destr_func  = take_reference(arg_5(arguments));
     data_destr_func = take_reference(arg_6(arguments));
-    delete_pos = &hash1->table[(unsigned int) hashcode & hash1->mask];
-    hashelem = hash1->table[(unsigned int) hashcode & hash1->mask];
+    delete_pos = &aHashMap->table[(unsigned int) hashcode & aHashMap->mask];
+    hashelem = aHashMap->table[(unsigned int) hashcode & aHashMap->mask];
     while (hashelem != NULL) {
-      cmp_obj = param3_call(cmp_func, &hashelem->key, key, cmp_func);
+      cmp_obj = param3_call(cmp_func, &hashelem->key, aKey, cmp_func);
       isit_int(cmp_obj);
       cmp = take_int(cmp_obj);
       FREE_OBJECT(cmp_obj);
@@ -771,7 +780,7 @@ objecttype hsh_excl (listtype arguments)
         old_hashelem->next_less = NULL;
         old_hashelem->next_greater = NULL;
         free_helem(old_hashelem, key_destr_func, data_destr_func);
-        hash1->size--;
+        aHashMap->size--;
         hashelem = NULL;
       } else {
         delete_pos = &hashelem->next_greater;
@@ -783,32 +792,38 @@ objecttype hsh_excl (listtype arguments)
 
 
 
+/**
+ *  For-loop where 'forVar' loops over the values of the hash map 'aHashMap'.
+ */
 objecttype hsh_for (listtype arguments)
 
   {
     objecttype for_variable;
-    hashtype hash1;
+    hashtype aHashMap;
     objecttype statement;
     objecttype data_copy_func;
 
   /* hsh_for */
     isit_hash(arg_2(arguments));
     for_variable = arg_1(arguments);
-    hash1 = take_hash(arg_2(arguments));
+    aHashMap = take_hash(arg_2(arguments));
     statement = arg_3(arguments);
     data_copy_func = take_reference(arg_4(arguments));
-    for_hash(for_variable, hash1, statement, data_copy_func);
+    for_hash(for_variable, aHashMap, statement, data_copy_func);
     return SYS_EMPTY_OBJECT;
   } /* hsh_for */
 
 
 
+/**
+ *  For-loop where 'forVar' and 'keyVar' loop over the hash map 'aHashMap'.
+ */
 objecttype hsh_for_data_key (listtype arguments)
 
   {
     objecttype key_variable;
     objecttype for_variable;
-    hashtype hash1;
+    hashtype aHashMap;
     objecttype statement;
     objecttype data_copy_func;
     objecttype key_copy_func;
@@ -817,43 +832,52 @@ objecttype hsh_for_data_key (listtype arguments)
     isit_hash(arg_3(arguments));
     for_variable = arg_1(arguments);
     key_variable = arg_2(arguments);
-    hash1 = take_hash(arg_3(arguments));
+    aHashMap = take_hash(arg_3(arguments));
     statement = arg_4(arguments);
     data_copy_func = take_reference(arg_5(arguments));
     key_copy_func = take_reference(arg_6(arguments));
-    for_data_key_hash(for_variable, key_variable, hash1, statement,
+    for_data_key_hash(for_variable, key_variable, aHashMap, statement,
         data_copy_func, key_copy_func);
     return SYS_EMPTY_OBJECT;
   } /* hsh_for_data_key */
 
 
 
+/**
+ *  For-loop where 'keyVar' loops over the keys of the hash map 'aHashMap'.
+ */
 objecttype hsh_for_key (listtype arguments)
 
   {
     objecttype key_variable;
-    hashtype hash1;
+    hashtype aHashMap;
     objecttype statement;
     objecttype key_copy_func;
 
   /* hsh_for_key */
     isit_hash(arg_2(arguments));
     key_variable = arg_1(arguments);
-    hash1 = take_hash(arg_2(arguments));
+    aHashMap = take_hash(arg_2(arguments));
     statement = arg_3(arguments);
     key_copy_func = take_reference(arg_4(arguments));
-    for_key_hash(key_variable, hash1, statement, key_copy_func);
+    for_key_hash(key_variable, aHashMap, statement, key_copy_func);
     return SYS_EMPTY_OBJECT;
   } /* hsh_for_key */
 
 
 
+/**
+ *  Access one value from the hash table 'aHashMap'.
+ *  @return the element with the key 'aKey' from 'aHashMap'.
+ *  @exception RANGE_ERROR When 'aHashMap' does not have an element
+ *             with the key 'aKey'.
+ */
 objecttype hsh_idx (listtype arguments)
 
   {
-    hashtype hash1;
+    hashtype aHashMap;
+    objecttype aKey;
     inttype hashcode;
-    objecttype key;
     objecttype cmp_func;
     helemtype hashelem;
     helemtype result_hashelem;
@@ -865,15 +889,15 @@ objecttype hsh_idx (listtype arguments)
     isit_hash(arg_1(arguments));
     isit_int(arg_3(arguments));
     isit_reference(arg_4(arguments));
-    hash1    =      take_hash(arg_1(arguments));
-    key      =                arg_2(arguments);
+    aHashMap =      take_hash(arg_1(arguments));
+    aKey     =                arg_2(arguments);
     hashcode =       take_int(arg_3(arguments));
     cmp_func = take_reference(arg_4(arguments));
-    /* printf("hsh_idx(%lX, %lX, %lu, %lX)\n", hash1, key, hashcode, cmp_func); */
+    /* printf("hsh_idx(%lX, %lX, %lu, %lX)\n", aHashMap, aKey, hashcode, cmp_func); */
     result_hashelem = NULL;
-    hashelem = hash1->table[(unsigned int) hashcode & hash1->mask];
+    hashelem = aHashMap->table[(unsigned int) hashcode & aHashMap->mask];
     while (hashelem != NULL) {
-      cmp_obj = param3_call(cmp_func, &hashelem->key, key, cmp_func);
+      cmp_obj = param3_call(cmp_func, &hashelem->key, aKey, cmp_func);
       isit_int(cmp_obj);
       cmp = take_int(cmp_obj);
       FREE_OBJECT(cmp_obj);
@@ -908,7 +932,7 @@ objecttype hsh_idx (listtype arguments)
     } else {
       result = raise_with_arguments(SYS_RNG_EXCEPTION, arguments);
     } /* if */
-    /* printf("hsh_idx(%lX, %lX, %lu, %lX) => ", hash1, key, hashcode, cmp_func);
+    /* printf("hsh_idx(%lX, %lX, %lu, %lX) => ", aHashMap, aKey, hashcode, cmp_func);
        trace1(result);
        printf("\n"); */
     return result;
@@ -916,12 +940,106 @@ objecttype hsh_idx (listtype arguments)
 
 
 
+/**
+ *  Access one value from the hash table 'aHashMap'.
+ *  @return the element with the key 'aKey' from 'aHashMap'.
+ *  @exception RANGE_ERROR When 'aHashMap' does not have an element
+ *             with the key 'aKey'.
+ */
 objecttype hsh_idx2 (listtype arguments)
 
   {
-    hashtype hash1;
+    hashtype aHashMap;
+    objecttype aKey;
     inttype hashcode;
-    objecttype key;
+    objecttype defaultValue;
+    objecttype cmp_func;
+    objecttype data_create_func;
+    helemtype hashelem;
+    helemtype result_hashelem;
+    objecttype cmp_obj;
+    inttype cmp;
+    objecttype result;
+
+  /* hsh_idx2 */
+    isit_hash(arg_1(arguments));
+    isit_int(arg_3(arguments));
+    isit_reference(arg_5(arguments));
+    isit_reference(arg_6(arguments));
+    aHashMap         =      take_hash(arg_1(arguments));
+    aKey             =                arg_2(arguments);
+    hashcode         =       take_int(arg_3(arguments));
+    defaultValue     =                arg_4(arguments);
+    cmp_func         = take_reference(arg_5(arguments));
+    data_create_func = take_reference(arg_6(arguments));
+    /* printf("hsh_idx(%lX, %lX, %lu, %lX)\n", aHashMap, aKey, hashcode, cmp_func); */
+    result_hashelem = NULL;
+    hashelem = aHashMap->table[(unsigned int) hashcode & aHashMap->mask];
+    while (hashelem != NULL) {
+      cmp_obj = param3_call(cmp_func, &hashelem->key, aKey, cmp_func);
+      isit_int(cmp_obj);
+      cmp = take_int(cmp_obj);
+      FREE_OBJECT(cmp_obj);
+      if (cmp < 0) {
+        hashelem = hashelem->next_less;
+      } else if (cmp == 0) {
+        result_hashelem = hashelem;
+        hashelem = NULL;
+      } else {
+        hashelem = hashelem->next_greater;
+      } /* if */
+    } /* while */
+    if (result_hashelem != NULL) {
+      if (TEMP2_OBJECT(arg_1(arguments))) {
+        /* The hash will be destroyed after indexing. */
+        /* Therefore it is necessary here to remove it */
+        /* from the hashtable to avoid a crash !!!!! */
+        if (!ALLOC_OBJECT(result)) {
+          result = raise_exception(SYS_MEM_EXCEPTION);
+        } else {
+          memcpy(result, &result_hashelem->data, sizeof(objectrecord));
+          SET_TEMP_FLAG(result);
+          /* Overwrite the data element in the hash with a FORWARDOBJECT value. */
+          /* The function free_helem uses FORWARDOBJECT as magic value */
+          /* and does not call a destructor for it. */
+          SET_CATEGORY_OF_OBJ(&result_hashelem->data, FORWARDOBJECT);
+          result_hashelem->data.value.intvalue = 1234567890;
+        } /* if */
+      } else {
+        result = &result_hashelem->data;
+      } /* if */
+    } else {
+      if (!ALLOC_OBJECT(result)) {
+        result = raise_exception(SYS_MEM_EXCEPTION);
+      } else {
+        result->type_of = defaultValue->type_of;
+        result->descriptor.property = NULL;
+        if (TEMP2_OBJECT(arg_3(arguments))) {
+          INIT_CATEGORY_OF_TEMP(result, CATEGORY_OF_OBJ(defaultValue));
+          result->value = defaultValue->value;
+          memset(&arg_3(arguments)->value, 0, sizeof(valueunion));
+        } else {
+          INIT_CATEGORY_OF_OBJ(result, DECLAREDOBJECT);
+          param3_call(data_create_func, result, SYS_CREA_OBJECT, defaultValue);
+          SET_TEMP_FLAG(result);
+        } /* if */
+      } /* if */
+    } /* if */
+    /* printf("hsh_idx(%lX, %lX, %lu, %lX) => ", aHashMap, aKey, hashcode, cmp_func);
+       trace1(result);
+       printf("\n"); */
+    return result;
+  } /* hsh_idx2 */
+
+
+
+#ifdef OUT_OF_ORDER
+objecttype hsh_idx2 (listtype arguments)
+
+  {
+    hashtype aHashMap;
+    inttype hashcode;
+    objecttype aKey;
     objecttype data;
     objecttype cmp_func;
     objecttype key_create_func;
@@ -937,25 +1055,25 @@ objecttype hsh_idx2 (listtype arguments)
     isit_hash(arg_1(arguments));
     isit_int(arg_4(arguments));
     isit_reference(arg_5(arguments));
-    hash1            =      take_hash(arg_1(arguments));
-    key              =                arg_2(arguments);
+    aHashMap         =      take_hash(arg_1(arguments));
+    aKey             =                arg_2(arguments);
     data             =                arg_3(arguments);
     hashcode         =       take_int(arg_4(arguments));
     cmp_func         = take_reference(arg_5(arguments));
     key_create_func  = take_reference(arg_6(arguments));
     data_create_func = take_reference(arg_7(arguments));
     result_hashelem = NULL;
-    hashelem = hash1->table[(unsigned int) hashcode & hash1->mask];
+    hashelem = aHashMap->table[(unsigned int) hashcode & aHashMap->mask];
     while (hashelem != NULL) {
-      cmp_obj = param3_call(cmp_func, &hashelem->key, key, cmp_func);
+      cmp_obj = param3_call(cmp_func, &hashelem->key, aKey, cmp_func);
       isit_int(cmp_obj);
       cmp = take_int(cmp_obj);
       FREE_OBJECT(cmp_obj);
       if (cmp < 0) {
         if (hashelem->next_less == NULL) {
-          result_hashelem = new_helem(key, data,
+          result_hashelem = new_helem(aKey, data,
               key_create_func, data_create_func, &err_info);
-          hash1->size++;
+          aHashMap->size++;
           hashelem->next_less = result_hashelem;
           hashelem = NULL;
         } else {
@@ -966,9 +1084,9 @@ objecttype hsh_idx2 (listtype arguments)
         hashelem = NULL;
       } else {
         if (hashelem->next_greater == NULL) {
-          result_hashelem = new_helem(key, data,
+          result_hashelem = new_helem(aKey, data,
               key_create_func, data_create_func, &err_info);
-          hash1->size++;
+          aHashMap->size++;
           hashelem->next_greater = result_hashelem;
           hashelem = NULL;
         } else {
@@ -977,7 +1095,7 @@ objecttype hsh_idx2 (listtype arguments)
       } /* if */
     } /* while */
     if (err_info != OKAY_NO_ERROR) {
-      hash1->size--;
+      aHashMap->size--;
       return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
     } else {
       result = &result_hashelem->data;
@@ -990,15 +1108,22 @@ objecttype hsh_idx2 (listtype arguments)
     } /* if */
     return result;
   } /* hsh_idx2 */
+#endif
 
 
 
+/**
+ *  Add 'anElem' with the key 'aKey' to the hash map 'aHashMap'.
+ *  When an element with the key 'aKey' already exists,
+ *  it is overwritten with 'anElem'.
+ *  @exception MEMORY_ERROR When there is not enough memory.
+ */
 objecttype hsh_incl (listtype arguments)
 
   {
-    hashtype hash1;
+    hashtype aHashMap;
     inttype hashcode;
-    objecttype key;
+    objecttype aKey;
     objecttype data;
     objecttype cmp_func;
     objecttype key_create_func;
@@ -1013,30 +1138,30 @@ objecttype hsh_incl (listtype arguments)
     isit_hash(arg_1(arguments));
     isit_int(arg_4(arguments));
     isit_reference(arg_5(arguments));
-    hash1            =      take_hash(arg_1(arguments));
-    key              =                arg_2(arguments);
+    aHashMap         =      take_hash(arg_1(arguments));
+    aKey             =                arg_2(arguments);
     data             =                arg_3(arguments);
     hashcode         =       take_int(arg_4(arguments));
     cmp_func         = take_reference(arg_5(arguments));
     key_create_func  = take_reference(arg_6(arguments));
     data_create_func = take_reference(arg_7(arguments));
     data_copy_func   = take_reference(arg_8(arguments));
-    hashelem = hash1->table[(unsigned int) hashcode & hash1->mask];
+    hashelem = aHashMap->table[(unsigned int) hashcode & aHashMap->mask];
     if (hashelem == NULL) {
-      hash1->table[(unsigned int) hashcode & hash1->mask] = new_helem(key, data,
+      aHashMap->table[(unsigned int) hashcode & aHashMap->mask] = new_helem(aKey, data,
           key_create_func, data_create_func, &err_info);
-      hash1->size++;
+      aHashMap->size++;
     } else {
       do {
-        cmp_obj = param3_call(cmp_func, &hashelem->key, key, cmp_func);
+        cmp_obj = param3_call(cmp_func, &hashelem->key, aKey, cmp_func);
         isit_int(cmp_obj);
         cmp = take_int(cmp_obj);
         FREE_OBJECT(cmp_obj);
         if (cmp < 0) {
           if (hashelem->next_less == NULL) {
-            hashelem->next_less = new_helem(key, data,
+            hashelem->next_less = new_helem(aKey, data,
                 key_create_func, data_create_func, &err_info);
-            hash1->size++;
+            aHashMap->size++;
             hashelem = NULL;
           } else {
             hashelem = hashelem->next_less;
@@ -1046,9 +1171,9 @@ objecttype hsh_incl (listtype arguments)
           hashelem = NULL;
         } else {
           if (hashelem->next_greater == NULL) {
-            hashelem->next_greater = new_helem(key, data,
+            hashelem->next_greater = new_helem(aKey, data,
                 key_create_func, data_create_func, &err_info);
-            hash1->size++;
+            aHashMap->size++;
             hashelem = NULL;
           } else {
             hashelem = hashelem->next_greater;
@@ -1057,7 +1182,7 @@ objecttype hsh_incl (listtype arguments)
       } while (hashelem != NULL);
     } /* if */
     if (err_info != OKAY_NO_ERROR) {
-      hash1->size--;
+      aHashMap->size--;
       return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
     } else {
       return SYS_EMPTY_OBJECT;
@@ -1066,10 +1191,14 @@ objecttype hsh_incl (listtype arguments)
 
 
 
+/**
+ *  Obtain the keys of the hash map 'aHashMap'.
+ *  @return the keys of the hash map.
+ */
 objecttype hsh_keys (listtype arguments)
 
   {
-    hashtype hash1;
+    hashtype aHashMap;
     objecttype key_create_func;
     objecttype key_destr_func;
     arraytype key_array;
@@ -1077,16 +1206,20 @@ objecttype hsh_keys (listtype arguments)
 
   /* hsh_keys */
     isit_hash(arg_1(arguments));
-    hash1 = take_hash(arg_1(arguments));
+    aHashMap = take_hash(arg_1(arguments));
     key_create_func = take_reference(arg_2(arguments));
     key_destr_func = take_reference(arg_3(arguments));
-    key_array = keys_hash(hash1, key_create_func, key_destr_func,
+    key_array = keys_hash(aHashMap, key_create_func, key_destr_func,
         &err_info);
     return bld_array_temp(key_array);
   } /* hsh_keys */
 
 
 
+/**
+ *  Number of elements in the hash map 'aHashMap'.
+ *  @return the number of elements in 'aHashMap'.
+ */
 objecttype hsh_lng (listtype arguments)
 
   { /* hsh_lng */
@@ -1100,9 +1233,9 @@ objecttype hsh_lng (listtype arguments)
 objecttype hsh_refidx (listtype arguments)
 
   {
-    hashtype hash1;
+    hashtype aHashMap;
     inttype hashcode;
-    objecttype key;
+    objecttype aKey;
     objecttype cmp_func;
     helemtype hashelem;
     helemtype result_hashelem;
@@ -1114,14 +1247,14 @@ objecttype hsh_refidx (listtype arguments)
     isit_hash(arg_1(arguments));
     isit_int(arg_3(arguments));
     isit_reference(arg_4(arguments));
-    hash1    =      take_hash(arg_1(arguments));
-    key      =                arg_2(arguments);
+    aHashMap =      take_hash(arg_1(arguments));
+    aKey     =                arg_2(arguments);
     hashcode =       take_int(arg_3(arguments));
     cmp_func = take_reference(arg_4(arguments));
     result_hashelem = NULL;
-    hashelem = hash1->table[(unsigned int) hashcode & hash1->mask];
+    hashelem = aHashMap->table[(unsigned int) hashcode & aHashMap->mask];
     while (hashelem != NULL) {
-      cmp_obj = param3_call(cmp_func, &hashelem->key, key, cmp_func);
+      cmp_obj = param3_call(cmp_func, &hashelem->key, aKey, cmp_func);
       isit_int(cmp_obj);
       cmp = take_int(cmp_obj);
       FREE_OBJECT(cmp_obj);
@@ -1150,10 +1283,97 @@ objecttype hsh_refidx (listtype arguments)
 
 
 
+/**
+ *  Add 'anElem' with the key 'aKey' to the hash map 'aHashMap'.
+ *  When an element with the key 'aKey' already exists,
+ *  it is overwritten with 'anElem'.
+ *  @exception MEMORY_ERROR When there is not enough memory.
+ */
+objecttype hsh_update (listtype arguments)
+
+  {
+    hashtype aHashMap;
+    inttype hashcode;
+    objecttype aKey;
+    objecttype data;
+    objecttype cmp_func;
+    objecttype key_create_func;
+    objecttype data_create_func;
+    helemtype hashelem;
+    objecttype cmp_obj;
+    inttype cmp;
+    errinfotype err_info = OKAY_NO_ERROR;
+    valueunion value;
+
+  /* hsh_update */
+    /* printf("hsh_update\n"); */
+    isit_hash(arg_1(arguments));
+    isit_int(arg_4(arguments));
+    isit_reference(arg_5(arguments));
+    aHashMap         =      take_hash(arg_1(arguments));
+    aKey             =                arg_2(arguments);
+    data             =                arg_3(arguments);
+    hashcode         =       take_int(arg_4(arguments));
+    cmp_func         = take_reference(arg_5(arguments));
+    key_create_func  = take_reference(arg_6(arguments));
+    data_create_func = take_reference(arg_7(arguments));
+    hashelem = aHashMap->table[(unsigned int) hashcode & aHashMap->mask];
+    if (hashelem == NULL) {
+      aHashMap->table[(unsigned int) hashcode & aHashMap->mask] = new_helem(aKey, data,
+          key_create_func, data_create_func, &err_info);
+      aHashMap->size++;
+    } else {
+      do {
+        cmp_obj = param3_call(cmp_func, &hashelem->key, aKey, cmp_func);
+        isit_int(cmp_obj);
+        cmp = take_int(cmp_obj);
+        FREE_OBJECT(cmp_obj);
+        if (cmp < 0) {
+          if (hashelem->next_less == NULL) {
+            hashelem->next_less = new_helem(aKey, data,
+                key_create_func, data_create_func, &err_info);
+            aHashMap->size++;
+            hashelem = NULL;
+          } else {
+            hashelem = hashelem->next_less;
+          } /* if */
+        } else if (cmp == 0) {
+          value = hashelem->data.value;
+          hashelem->data.value = data->value;
+          data->value = value;
+          hashelem = NULL;
+        } else {
+          if (hashelem->next_greater == NULL) {
+            hashelem->next_greater = new_helem(aKey, data,
+                key_create_func, data_create_func, &err_info);
+            aHashMap->size++;
+            hashelem = NULL;
+          } else {
+            hashelem = hashelem->next_greater;
+          } /* if */
+        } /* if */
+      } while (hashelem != NULL);
+    } /* if */
+    if (err_info != OKAY_NO_ERROR) {
+      aHashMap->size--;
+      return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
+    } /* if */
+    /* printf("hsh_update -> ");
+    trace1(data);
+    printf("\n"); */
+    return data;
+  } /* hsh_update */
+
+
+
+/**
+ *  Obtain the values of the hash map 'aHashMap'.
+ *  @return the values of the hash map.
+ */
 objecttype hsh_values (listtype arguments)
 
   {
-    hashtype hash1;
+    hashtype aHashMap;
     objecttype value_create_func;
     objecttype value_destr_func;
     arraytype value_array;
@@ -1161,10 +1381,10 @@ objecttype hsh_values (listtype arguments)
 
   /* hsh_values */
     isit_hash(arg_1(arguments));
-    hash1 = take_hash(arg_1(arguments));
+    aHashMap = take_hash(arg_1(arguments));
     value_create_func = take_reference(arg_2(arguments));
     value_destr_func = take_reference(arg_3(arguments));
-    value_array = values_hash(hash1, value_create_func, value_destr_func,
+    value_array = values_hash(aHashMap, value_create_func, value_destr_func,
         &err_info);
     return bld_array_temp(value_array);
   } /* hsh_values */

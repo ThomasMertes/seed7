@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  fil_rtl.c     Primitive actions for the primitive file type.    */
-/*  Copyright (C) 1989 - 2009  Thomas Mertes                        */
+/*  Copyright (C) 1989 - 2013  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */
@@ -24,7 +24,7 @@
 /*                                                                  */
 /*  Module: Seed7 Runtime Library                                   */
 /*  File: seed7/src/fil_rtl.c                                       */
-/*  Changes: 1992, 1993, 1994, 2009  Thomas Mertes                  */
+/*  Changes: 1992, 1993, 1994, 2009, 2013  Thomas Mertes            */
 /*  Content: Primitive actions for the primitive file type.         */
 /*                                                                  */
 /********************************************************************/
@@ -82,6 +82,26 @@ extern C FILE *_wpopen (const wchar_t *, const wchar_t *);
 
 
 
+/**
+ *  Translate a Seed7 file open mode to a C file open mode.
+ *  The following modes are accepted
+ *   Seed7 mode | C mode | Comment
+ *   "r"        | "rb"   | Open file for reading.
+ *   "w"        | "rw"   | Truncate to zero length or create file for writing.
+ *   "a"        | "ra"   | Append; open or create file for writing at end-of-file.
+ *   "r+"       | "rb+"  | Open file for update (reading and writing).
+ *   "w+"       | "rw+"  | Truncate to zero length or create file for update.
+ *   "a+"       | "ra+"  | Append; open or create file for update, writing at end-of-file.
+ *   "rt"       | "r"    | Open file for reading.
+ *   "wt"       | "w"    | Truncate to zero length or create file for writing.
+ *   "at"       | "a"    | Append; open or create file for writing at end-of-file.
+ *   "rt+"      | "r+"   | Open file for update (reading and writing).
+ *   "wt+"      | "w+"   | Truncate to zero length or create file for update.
+ *   "at+"      | "q+"   | Append; open or create file for update, writing at end-of-file.
+ *  Other Seed7 modes correspond to the C mode "".
+ *  The Seed7 modes with t are text modes and the modes
+ *  without t are binary modes.
+ */
 static void get_mode (os_chartype os_mode[4], const const_stritype file_mode)
 
   { /* get_mode */
@@ -137,6 +157,17 @@ static void get_mode (os_chartype os_mode[4], const const_stritype file_mode)
 
 
 
+/**
+ *  Determine the length of a file by using a seek function.
+ *  The file length is measured in bytes.
+ *  The file position is moved to the end of the file and the
+ *  end position is used as file length. Afterwards the file
+ *  position is moved back to the previous position.
+ *  This function returns an os_off_t result. The size of
+ *  os_off_t might be different from the size of inttype.
+ *  @return the length of the file or
+ *          -1 when the length could not be obtained.
+ */
 static os_off_t seekFileLength (filetype aFile)
 
   {
@@ -220,6 +251,15 @@ static os_off_t seekFileLength (filetype aFile)
 
 
 
+/**
+ *  Determine the current file position.
+ *  The file position is measured in bytes.
+ *  This function uses 0 as the position of the first byte in the file.
+ *  The function returns an os_off_t result. The size of
+ *  os_off_t might be different from the size of inttype.
+ *  @return the current file position or
+ *          -1 when the file position could not be obtained.
+ */
 static os_off_t offsetTell (filetype aFile)
 
   {
@@ -268,6 +308,15 @@ static os_off_t offsetTell (filetype aFile)
 
 
 
+/**
+ *  Set the current file position.
+ *  The file position is measured in bytes.
+ *  This function uses 0 as the position of the first byte in the file.
+ *  The parameter 'anOffset' uses the type os_off_t. The size of
+ *  os_off_t might be different from the size of inttype.
+ *  @return 0 upon successful completion or
+ *          -1 when the file position could not be set.
+ */
 int offsetSeek (filetype aFile, const os_off_t anOffset, const int origin)
 
   {
@@ -402,14 +451,13 @@ inttype getFileLengthUsingSeek (filetype aFile)
 
   /* getFileLengthUsingSeek */
     file_length = seekFileLength(aFile);
-    if (unlikely(file_length == (os_off_t) -1)) {
+    if (unlikely(file_length < (os_off_t) 0)) {
       /* printf("errno=%d\n", errno);
       printf("EBADF=%d  EINVAL=%d  ESPIPE=%d\n",
           EBADF, EINVAL, ESPIPE); */
       raise_error(FILE_ERROR);
       result = 0;
-    } else if (unlikely(file_length > INTTYPE_MAX ||
-                        file_length < (os_off_t) 0)) {
+    } else if (unlikely(file_length > INTTYPE_MAX)) {
       raise_error(RANGE_ERROR);
       result = 0;
     } else {
@@ -428,7 +476,7 @@ biginttype getBigFileLengthUsingSeek (filetype aFile)
 
   /* getBigFileLengthUsingSeek */
     file_length = seekFileLength(aFile);
-    if (unlikely(file_length == (os_off_t) -1)) {
+    if (unlikely(file_length < (os_off_t) 0)) {
       /* printf("errno=%d\n", errno);
       printf("EBADF=%d  EINVAL=%d  ESPIPE=%d\n",
           EBADF, EINVAL, ESPIPE); */
@@ -594,6 +642,14 @@ static stritype read_and_alloc_stri (filetype inFile, memsizetype chars_missing,
 
 
 
+/**
+ *  Determine the size of a file and return it as bigInteger.
+ *  The file length is measured in bytes.
+ *  @return the size of the given file.
+ *  @exception FILE_ERROR A system function returns an error or the
+ *             file length reported by the system is negative.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ */
 biginttype filBigLng (filetype aFile)
 
   {
@@ -605,13 +661,18 @@ biginttype filBigLng (filetype aFile)
     file_no = fileno(aFile);
     if (file_no != -1 && os_fstat(file_no, &stat_buf) == 0 &&
         S_ISREG(stat_buf.st_mode)) {
+      if (unlikely(stat_buf.st_size < 0)) {
+        raise_error(FILE_ERROR);
+        result = NULL;
+      } else {
 #if OS_OFF_T_SIZE == 32
-      result = bigFromUInt32((uint32type) stat_buf.st_size);
+        result = bigFromUInt32((uint32type) stat_buf.st_size);
 #elif OS_OFF_T_SIZE == 64
-      result = bigFromUInt64((uint64type) stat_buf.st_size);
+        result = bigFromUInt64((uint64type) stat_buf.st_size);
 #else
 #error "sizeof(os_off_t) is neither 4 nor 8."
 #endif
+      } /* if */
     } else {
       result = getBigFileLengthUsingSeek(aFile);
     } /* if */
@@ -627,18 +688,18 @@ biginttype filBigLng (filetype aFile)
  *  @exception RANGE_ERROR The file position is negative or zero or
  *             the file position is not representable in the system
  *             file position type.
- *  @exception FILE_ERROR The system function returns an error.
+ *  @exception FILE_ERROR A system function returns an error.
  */
-void filBigSeek (filetype aFile, const const_biginttype big_position)
+void filBigSeek (filetype aFile, const const_biginttype position)
 
   {
     os_off_t file_position;
 
   /* filBigSeek */
 #if OS_OFF_T_SIZE == 32
-    file_position = (os_off_t) bigToInt32(big_position);
+    file_position = (os_off_t) bigToInt32(position);
 #elif OS_OFF_T_SIZE == 64
-    file_position = (os_off_t) bigToInt64(big_position);
+    file_position = (os_off_t) bigToInt64(position);
 #else
 #error "sizeof(os_off_t) is neither 4 nor 8."
 #endif
@@ -656,33 +717,39 @@ void filBigSeek (filetype aFile, const const_biginttype big_position)
  *  The file position is measured in bytes from the start of the file.
  *  The first byte in the file has the position 1.
  *  @return the current file position.
- *  @exception RANGE_ERROR The file position cannot be converted to
- *             an bigInteger value.
- *  @exception FILE_ERROR The system function returns an error.
+ *  @exception FILE_ERROR A system function returns an error or the
+ *             file position reported by the system is negative.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
  */
 biginttype filBigTell (filetype aFile)
 
   {
     os_off_t current_file_position;
+    biginttype result;
 
   /* filBigTell */
     current_file_position = offsetTell(aFile);
-    if (unlikely(current_file_position == (os_off_t) -1)) {
+    if (unlikely(current_file_position < (os_off_t) 0)) {
       raise_error(FILE_ERROR);
-      return NULL;
+      result = NULL;
     } else {
 #if OS_OFF_T_SIZE == 32
-      return bigFromUInt32((uint32type) current_file_position + 1);
+      result = bigFromUInt32((uint32type) current_file_position + 1);
 #elif OS_OFF_T_SIZE == 64
-      return bigFromUInt64((uint64type) current_file_position + 1);
+      result = bigFromUInt64((uint64type) current_file_position + 1);
 #else
 #error "sizeof(os_off_t) is neither 4 nor 8."
 #endif
     } /* if */
+    return result;
   } /* filBigTell */
 
 
 
+/**
+ *  Close a clib_file.
+ *  @exception FILE_ERROR A system function returns an error.
+ */
 void filClose (filetype aFile)
 
   { /* filClose */
@@ -747,6 +814,9 @@ inttype filFileType (filetype aFile)
  *  strategy is used. In this case a smaller block is requested. This
  *  block is filled with data, resized and filled in a loop.
  *  @return the string read.
+ *  @exception RANGE_ERROR The length is negative.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ *  @exception FILE_ERROR A system function returns an error.
  */
 stritype filGets (filetype inFile, inttype length)
 
@@ -856,6 +926,11 @@ stritype filGets (filetype inFile, inttype length)
 
 
 
+/**
+ *  Determine if at least one character can be read successfully.
+ *  This function allows a file to be handled like an iterator.
+ *  @return FALSE if 'getc' would return EOF, TRUE otherwise.
+ */
 booltype filHasNext (filetype inFile)
 
   {
@@ -884,6 +959,16 @@ booltype filHasNext (filetype inFile)
 
 
 
+/**
+ *  Read a line from a clib_file.
+ *  The function accepts lines ending with "\n", "\r\n" or EOF.
+ *  The line ending characters are not copied into the string.
+ *  That means that the "\r" of a "\r\n" sequence is silently removed.
+ *  When the function is left terminationChar contains '\n' or EOF.
+ *  @return the line read.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ *  @exception FILE_ERROR A system function returns an error.
+ */
 stritype filLineRead (filetype inFile, chartype *terminationChar)
 
   {
@@ -974,9 +1059,11 @@ stritype filLit (filetype aFile)
 /**
  *  Obtain the length of a file.
  *  The file length is measured in bytes.
- *  @return the length of a file, or 0 if it cannot be obtained.
- *  @exception RANGE_ERROR The file length is negative or does not
- *             fit in an integer value.
+ *  @return the size of the given file.
+ *  @exception RANGE_ERROR The file length does not fit into
+ *             an integer value.
+ *  @exception FILE_ERROR A system function returns an error or the
+ *             file length reported by the system is negative.
  */
 inttype filLng (filetype aFile)
 
@@ -989,8 +1076,10 @@ inttype filLng (filetype aFile)
     file_no = fileno(aFile);
     if (file_no != -1 && os_fstat(file_no, &stat_buf) == 0 &&
         S_ISREG(stat_buf.st_mode)) {
-      if (unlikely(stat_buf.st_size > INTTYPE_MAX ||
-                   stat_buf.st_size < 0)) {
+      if (unlikely(stat_buf.st_size < 0)) {
+        raise_error(FILE_ERROR);
+        result = 0;
+      } else if (unlikely(stat_buf.st_size > INTTYPE_MAX)) {
         raise_error(RANGE_ERROR);
         result = 0;
       } else {
@@ -1019,12 +1108,12 @@ inttype filLng (filetype aFile)
  *  NULL.
  *  @return return a filetype value when fopen() succeeds, or NULL
  *          when fopen() fails or when the file is a directory.
- *  @exception MEMORY_ERROR There is not enough memory to convert
- *             the path to the system path type.
+ *  @exception MEMORY_ERROR Not enough memory to convert the path
+ *             to the system path type.
  *  @exception RANGE_ERROR The 'mode' is not one of the allowed
  *             values or 'path' does not use the standard path
- *             representation or 'path' is not representable in the
- *             system path type.
+ *             representation or 'path' cannot be converted
+ *             to the system path type.
  */
 filetype filOpen (const const_stritype path, const const_stritype mode)
 
@@ -1101,6 +1190,13 @@ void filPclose (filetype aFile)
 
 
 
+/**
+ *  Open a pipe to a shell 'command', with 'parameters'.
+ *  The command reads, respectively writes with Latin-1 encoding.
+ *  A pipe can only be opened with the modes "r" and "w".
+ *  @return the pipe file opened, or NULL if it could not be opened.
+ *  @exception RANGE_ERROR An illegal mode was used.
+ */
 filetype filPopen (const const_stritype command,
     const const_stritype parameters, const const_stritype mode)
 
@@ -1161,17 +1257,36 @@ void filPrint (const const_stritype stri)
  *  Set the current file position.
  *  The file position is measured in bytes from the start of the file.
  *  The first byte in the file has the position 1.
- *  @exception RANGE_ERROR The file position is negative or zero.
- *  @exception FILE_ERROR The system function returns an error.
+ *  @exception RANGE_ERROR The file position is negative or zero or
+ *             the file position is not representable in the system
+ *             file position type.
+ *  @exception FILE_ERROR A system function returns an error.
  */
-void filSeek (filetype aFile, inttype file_position)
+void filSeek (filetype aFile, inttype position)
 
-  { /* filSeek */
-    /* printf("filSeek(%ld, %ld)\n", aFile, file_position); */
-    if (unlikely(file_position <= 0)) {
+  {
+    os_off_t file_position;
+
+  /* filSeek */
+    /* printf("filSeek(%ld, %ld)\n", aFile, position); */
+    if (unlikely(position <= 0)) {
       raise_error(RANGE_ERROR);
-    } else if (unlikely(offsetSeek(aFile, (os_off_t) (file_position - 1), SEEK_SET) != 0)) {
-      raise_error(FILE_ERROR);
+#if OS_OFF_T_SIZE < INTTYPE_SIZE
+#if OS_OFF_T_SIZE == 32
+    } else if (unlikely(position > INT32TYPE_MAX))
+      raise_error(RANGE_ERROR);
+#elif OS_OFF_T_SIZE == 64
+    } else if (unlikely(position > INT64TYPE_MAX))
+      raise_error(RANGE_ERROR);
+#else
+#error "sizeof(os_off_t) is neither 4 nor 8."
+#endif
+#endif
+    } else {
+      file_position = (os_off_t) position;
+      if (unlikely(offsetSeek(aFile, file_position - 1, SEEK_SET) != 0)) {
+        raise_error(FILE_ERROR);
+      } /* if */
     } /* if */
   } /* filSeek */
 
@@ -1194,9 +1309,10 @@ void filSetbuf (filetype aFile, inttype mode, inttype size)
  *  The file position is measured in bytes from the start of the file.
  *  The first byte in the file has the position 1.
  *  @return the current file position.
- *  @exception RANGE_ERROR The file position is negative or does not
- *             fit in an integer value.
- *  @exception FILE_ERROR The system function returns an error.
+ *  @exception RANGE_ERROR The file position does not fit into
+ *             an integer value.
+ *  @exception FILE_ERROR A system function returns an error or the
+ *             file position reported by the system is negative.
  */
 inttype filTell (filetype aFile)
 
@@ -1206,11 +1322,10 @@ inttype filTell (filetype aFile)
 
   /* filTell */
     current_file_position = offsetTell(aFile);
-    if (unlikely(current_file_position == (os_off_t) -1)) {
+    if (unlikely(current_file_position < (os_off_t) 0)) {
       raise_error(FILE_ERROR);
       result = 0;
-    } else if (unlikely(current_file_position >= INTTYPE_MAX ||
-                        current_file_position < (os_off_t) 0)) {
+    } else if (unlikely(current_file_position >= INTTYPE_MAX)) {
       raise_error(RANGE_ERROR);
       result = 0;
     } else {
@@ -1221,6 +1336,18 @@ inttype filTell (filetype aFile)
 
 
 
+/**
+ *  Read a word from a clib_file.
+ *  Before reading the word it skips spaces and tabs. The function
+ *  accepts words ending with " ", "\t", "\n", "\r\n" or EOF.
+ *  The word ending characters are not copied into the string.
+ *  That means that the "\r" of a "\r\n" sequence is silently removed.
+ *  When the function is left terminationChar contains ' ', '\t', '\n' or
+ *  EOF.
+ *  @return the word read.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ *  @exception FILE_ERROR A system function returns an error.
+ */
 stritype filWordRead (filetype inFile, chartype *terminationChar)
 
   {
@@ -1286,6 +1413,12 @@ stritype filWordRead (filetype inFile, chartype *terminationChar)
 
 
 
+/**
+ *  Write a string to a clib_file.
+ *  @exception FILE_ERROR A system function returns an error.
+ *  @exception RANGE_ERROR The string contains a character that does
+ *             not fit into a byte.
+ */
 void filWrite (filetype outFile, const const_stritype stri)
 
   {

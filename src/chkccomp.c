@@ -357,6 +357,12 @@ int main (int argc, char **argv)
     if (compilationOkay("#include <unistd.h>\nint main(int argc,char *argv[]){return 0;}\n")) {
       puts("#define UNISTD_H_PRESENT");
     } /* if */
+    if (compilationOkay("static inline int test(int a){return 2*a;}\n"
+                        "int main(int argc,char *argv[]){return test(argc);}\n")) {
+      puts("#define INLINE inline");
+    } else {
+      puts("#define INLINE");
+    } /* if */
     if (compilationOkay("#include <stdio.h>\nint main(int argc,char *argv[])\n"
                         "{if(__builtin_expect(1,1))puts(\"1\");else puts(\"0\");return 0;}\n")) {
       puts("#define likely(x)   __builtin_expect((x),1)");

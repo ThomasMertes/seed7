@@ -669,9 +669,9 @@ static rtlGenerictype nextFinding (testType *test,
 
 
 /**
- *  Add ''eventsToCheck'' for ''aSocket'' to ''pollData''.
- *  The parameter ''fileObj'' determines, which file is returned,
- *  when the iterator returns files in ''pollData''.
+ *  Add 'eventsToCheck' for 'aSocket' to 'pollData'.
+ *  The parameter 'fileObj' determines, which file is returned,
+ *  when the iterator returns files in 'pollData'.
  */
 void polAddCheck (const polltype pollData, const sockettype aSocket,
     inttype eventsToCheck, const rtlGenerictype fileObj)
@@ -1251,7 +1251,7 @@ void polPoll (const polltype pollData)
 
 
 /**
- *  Remove ''eventsToCheck'' for ''aSocket'' from ''pollData''.
+ *  Remove 'eventsToCheck' for 'aSocket' from 'pollData'.
  */
 void polRemoveCheck (const polltype pollData, const sockettype aSocket,
     inttype eventsToCheck)

@@ -136,7 +136,7 @@ const func integer: (in integer: dividend) mod (in integer: divisor)   is action
 
 
 (**
- *  Compute the exponentiation of a integer base by an integer exponent.
+ *  Compute the exponentiation of a integer base with an integer exponent.
  *   A ** 0  returns 1           for every A, even for A = 0
  *   1 ** B  returns 1           for B >= 0
  *   A ** B  returns -(-A) ** B  for A <= 0 and B >= 0 and odd(B)

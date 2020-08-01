@@ -50,6 +50,14 @@
 
 
 
+/**
+ *  Compute the arc tangent of y/x.
+ *  The signs of x and y are used to determine the quadrant of the result.
+ *  It determines the angle theta from the conversion of rectangular
+ *  coordinates (x, y) to polar coordinates (r, theta).
+ *  @return the arc tangent of y/x in radians. The returned angle is in
+ *          the range [-PI, PI].
+ */
 objecttype flt_a2tan (listtype arguments)
 
   { /* flt_a2tan */
@@ -61,6 +69,10 @@ objecttype flt_a2tan (listtype arguments)
 
 
 
+/**
+ *  Compute the absolute value of a float number.
+ *  @return the absolute value.
+ */
 objecttype flt_abs (listtype arguments)
 
   {
@@ -77,6 +89,11 @@ objecttype flt_abs (listtype arguments)
 
 
 
+/**
+ *  Compute the arc cosine of x; that is the value whose cosine is x.
+ *  @return the arc cosine of x in radians. The returned angle is in
+ *          the range [0.0, PI].
+ */
 objecttype flt_acos (listtype arguments)
 
   { /* flt_acos */
@@ -87,6 +104,10 @@ objecttype flt_acos (listtype arguments)
 
 
 
+/**
+ *  Add two float numbers.
+ *  @return the sum of the two numbers.
+ */
 objecttype flt_add (listtype arguments)
 
   { /* flt_add */
@@ -99,6 +120,11 @@ objecttype flt_add (listtype arguments)
 
 
 
+/**
+ *  Compute the arc sine of x; that is the value whose sine is x.
+ *  @return the arc sine of x in radians. The return angle is in the
+ *          range [-PI/2, PI/2].
+ */
 objecttype flt_asin (listtype arguments)
 
   { /* flt_asin */
@@ -109,6 +135,11 @@ objecttype flt_asin (listtype arguments)
 
 
 
+/**
+ *  Compute the arc tangent of x; that is the value whose tangent is x.
+ *  @return the arc tangent of x in radians. The returned angle is in
+ *          the range [-PI/2, PI/2].
+ */
 objecttype flt_atan (listtype arguments)
 
   { /* flt_atan */
@@ -129,6 +160,12 @@ objecttype flt_cast (listtype arguments)
 
 
 
+/**
+ *  Round up towards positive infinity.
+ *  Determine the smallest value that is greater than or equal
+ *  to the argument and is equal to a mathematical integer.
+ *  @return the rounded value.
+ */
 objecttype flt_ceil (listtype arguments)
 
   { /* flt_ceil */
@@ -139,6 +176,16 @@ objecttype flt_ceil (listtype arguments)
 
 
 
+/**
+ *  Compare two float numbers.
+ *  Because fltCmp is used to sort float values, a total
+ *  order of all float values is needed. Therefore fltCmp
+ *  considers NaN as equal to itself and greater than
+ *  Infinity.
+ *  @return -1, 0 or 1 if the first argument is considered to be
+ *          respectively less than, equal to, or greater than the
+ *          second.
+ */
 objecttype flt_cmp (listtype arguments)
 
   { /* flt_cmp */
@@ -150,6 +197,10 @@ objecttype flt_cmp (listtype arguments)
 
 
 
+/**
+ *  Compute the cosine of x, where x is given in radians.
+ *  @return the trigonometric cosine of an angle.
+ */
 objecttype flt_cos (listtype arguments)
 
   { /* flt_cos */
@@ -160,6 +211,11 @@ objecttype flt_cos (listtype arguments)
 
 
 
+/**
+ *  Compute the hyperbolic cosine of x.
+ *  cosh(x) is mathematically defined as: (exp(x) + exp(-x)) / 2.0
+ *  @return the hyperbolic cosine.
+ */
 objecttype flt_cosh (listtype arguments)
 
   { /* flt_cosh */
@@ -197,6 +253,15 @@ objecttype flt_create (listtype arguments)
 
 
 
+/**
+ *  Convert a float to a string in decimal fixed point notation.
+ *  The 'precision' parameter specifies the number of digits after
+ *  the decimal point. When the 'precision' is zero the decimal
+ *  point is omitted. When all digits in the result are 0 a negative
+ *  sign is omitted.
+ *  @return the string result of the conversion.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ */
 objecttype flt_dgts (listtype arguments)
 
   { /* flt_dgts */
@@ -208,6 +273,10 @@ objecttype flt_dgts (listtype arguments)
 
 
 
+/**
+ *  Compute the division of two float numbers.
+ *  @return the quotient of the division.
+ */
 objecttype flt_div (listtype arguments)
 
   {
@@ -235,6 +304,9 @@ objecttype flt_div (listtype arguments)
 
 
 
+/**
+ *  Divide a float 'number' by a 'divisor' and assign the result back to 'number'.
+ */
 objecttype flt_div_assign (listtype arguments)
 
   {
@@ -271,6 +343,13 @@ objecttype flt_div_assign (listtype arguments)
 
 
 
+/**
+ *  Check if two float numbers are equal.
+ *  According to IEEE 754 a NaN is not equal to any float value.
+ *  Therefore 'NaN = any_value' and 'any_value = NaN'
+ *  always return FALSE. Even 'NaN = NaN' returns FALSE.
+ *  @return TRUE if both numbers are equal, FALSE otherwise.
+ */
 objecttype flt_eq (listtype arguments)
 
   { /* flt_eq */
@@ -291,6 +370,10 @@ objecttype flt_eq (listtype arguments)
 
 
 
+/**
+ *  Compute Euler's number e raised to the power of x.
+ *  @return e raised to the power of x.
+ */
 objecttype flt_exp (listtype arguments)
 
   { /* flt_exp */
@@ -301,6 +384,12 @@ objecttype flt_exp (listtype arguments)
 
 
 
+/**
+ *  Round down towards negative infinity.
+ *  Returns the largest value that is less than or equal to the
+ *  argument and is equal to a mathematical integer.
+ *  @return the rounded value.
+ */
 objecttype flt_floor (listtype arguments)
 
   { /* flt_floor */
@@ -311,6 +400,15 @@ objecttype flt_floor (listtype arguments)
 
 
 
+/**
+ *  Check if 'number1' is greater than or equal to 'number2'.
+ *  According to IEEE 754 a NaN is neither less than,
+ *  equal to, nor greater than any value, including itself.
+ *  When 'number1' or 'number2' is NaN, the result
+ *  is FALSE;
+ *  @return TRUE if 'number1' is greater than or equal to 'number2',
+ *          FALSE otherwise.
+ */
 objecttype flt_ge (listtype arguments)
 
   { /* flt_ge */
@@ -331,6 +429,9 @@ objecttype flt_ge (listtype arguments)
 
 
 
+/**
+ *  Increment a float 'number' by a 'delta'.
+ */
 objecttype flt_grow (listtype arguments)
 
   {
@@ -347,6 +448,15 @@ objecttype flt_grow (listtype arguments)
 
 
 
+/**
+ *  Check if 'number1' is greater than 'number2'.
+ *  According to IEEE 754 a NaN is neither less than,
+ *  equal to, nor greater than any value, including itself.
+ *  When 'number1' or 'number2' is NaN, the result
+ *  is FALSE;
+ *  @return TRUE if 'number1' is greater than 'number2',
+ *          FALSE otherwise.
+ */
 objecttype flt_gt (listtype arguments)
 
   { /* flt_gt */
@@ -367,6 +477,10 @@ objecttype flt_gt (listtype arguments)
 
 
 
+/**
+ *  Compute the hash value of a float number.
+ *  @return the hash value.
+ */
 objecttype flt_hashcode (listtype arguments)
 
   { /* flt_hashcode */
@@ -387,6 +501,10 @@ objecttype flt_icast (listtype arguments)
 
 
 
+/**
+ *  Convert an integer to a float.
+ *  @return the float result of the conversion.
+ */
 objecttype flt_iconv (listtype arguments)
 
   { /* flt_iconv */
@@ -396,6 +514,10 @@ objecttype flt_iconv (listtype arguments)
 
 
 
+/**
+ *  Convert an integer to a float.
+ *  @return the float result of the conversion.
+ */
 objecttype flt_iflt (listtype arguments)
 
   { /* flt_iflt */
@@ -405,6 +527,10 @@ objecttype flt_iflt (listtype arguments)
 
 
 
+/**
+ *  Compute the exponentiation of a float 'base' with an integer 'exponent'.
+ *  @return the result of the exponentation.
+ */
 objecttype flt_ipow (listtype arguments)
 
   { /* flt_ipow */
@@ -416,6 +542,12 @@ objecttype flt_ipow (listtype arguments)
 
 
 
+/**
+ *  Determine if a number has a Not-a-Number (NaN) value.
+ *  NaN represents an undefined or unrepresentable value.
+ *  @return TRUE if the number has a Not-a-Number (NaN) value,
+ *          FALSE otherwise.
+ */
 objecttype flt_isnan (listtype arguments)
 
   { /* flt_isnan */
@@ -429,6 +561,16 @@ objecttype flt_isnan (listtype arguments)
 
 
 
+/**
+ *  Determine if a number is -0.0.
+ *  This function is the only possibility to determine if a number
+ *  is -0.0. The comparison operators (=, <>, <, >, <=, >=) and
+ *  the function 'compare' treat 0.0 and -0.0 as equal. The
+ *  'digits' operator and the 'str' function convert -0.0 to
+ *  the string "0.0".
+ *  @return TRUE if the number is -0.0,
+ *          FALSE otherwise.
+ */
 objecttype flt_isnegativezero (listtype arguments)
 
   { /* flt_isnegativezero */
@@ -442,6 +584,15 @@ objecttype flt_isnegativezero (listtype arguments)
 
 
 
+/**
+ *  Check if 'number1' is less than or equal to 'number2'.
+ *  According to IEEE 754 a NaN is neither less than,
+ *  equal to, nor greater than any value, including itself.
+ *  When 'number1' or 'number2' is NaN, the result
+ *  is FALSE;
+ *  @return TRUE if 'number1' is less than or equal to 'number2',
+ *          FALSE otherwise.
+ */
 objecttype flt_le (listtype arguments)
 
   { /* flt_le */
@@ -462,6 +613,10 @@ objecttype flt_le (listtype arguments)
 
 
 
+/**
+ *  Return the natural logarithm (base e) of x.
+ *  @return the natural logarithm of x.
+ */
 objecttype flt_log (listtype arguments)
 
   { /* flt_log */
@@ -472,6 +627,10 @@ objecttype flt_log (listtype arguments)
 
 
 
+/**
+ *  Returns the base 10 logarithm of x.
+ *  @return the base 10 logarithm of x.
+ */
 objecttype flt_log10 (listtype arguments)
 
   { /* flt_log10 */
@@ -482,6 +641,15 @@ objecttype flt_log10 (listtype arguments)
 
 
 
+/**
+ *  Check if 'number1' is less than 'number2'.
+ *  According to IEEE 754 a NaN is neither less than,
+ *  equal to, nor greater than any value, including itself.
+ *  When 'number1' or 'number2' is NaN, the result
+ *  is FALSE;
+ *  @return TRUE if 'number1' is less than 'number2',
+ *          FALSE otherwise.
+ */
 objecttype flt_lt (listtype arguments)
 
   { /* flt_lt */
@@ -502,6 +670,10 @@ objecttype flt_lt (listtype arguments)
 
 
 
+/**
+ *  Minus sign, negate a float 'number'.
+ *  @return the negated value of the number.
+ */
 objecttype flt_minus (listtype arguments)
 
   { /* flt_minus */
@@ -512,6 +684,10 @@ objecttype flt_minus (listtype arguments)
 
 
 
+/**
+ *  Multiply two float numbers.
+ *  @return the product of the two numbers.
+ */
 objecttype flt_mult (listtype arguments)
 
   { /* flt_mult */
@@ -524,6 +700,9 @@ objecttype flt_mult (listtype arguments)
 
 
 
+/**
+ *  Multiply a float 'number' by a 'factor' and assign the result back to 'number'.
+ */
 objecttype flt_mult_assign (listtype arguments)
 
   {
@@ -540,6 +719,13 @@ objecttype flt_mult_assign (listtype arguments)
 
 
 
+/**
+ *  Check if two float numbers are not equal.
+ *  According to IEEE 754 a NaN is not equal to any float value.
+ *  Therefore 'NaN <> any_value' and 'any_value <> NaN'
+ *  always return TRUE. Even 'NaN <> NaN' returns TRUE.
+ *  @return FALSE if both numbers are equal, TRUE otherwise.
+ */
 objecttype flt_ne (listtype arguments)
 
   { /* flt_ne */
@@ -560,6 +746,11 @@ objecttype flt_ne (listtype arguments)
 
 
 
+/**
+ *  Convert a string to a float number.
+ *  @return the float result of the conversion.
+ *  @exception RANGE_ERROR When the string contains not a float literal.
+ */
 objecttype flt_parse (listtype arguments)
 
   { /* flt_parse */
@@ -570,6 +761,10 @@ objecttype flt_parse (listtype arguments)
 
 
 
+/**
+ *  Plus sign for float numbers.
+ *  @return its operand unchanged.
+ */
 objecttype flt_plus (listtype arguments)
 
   { /* flt_plus */
@@ -579,6 +774,10 @@ objecttype flt_plus (listtype arguments)
 
 
 
+/**
+ *  Compute the exponentiation of a float 'base' with a float 'exponent'.
+ *  @return the result of the exponentation.
+ */
 objecttype flt_pow (listtype arguments)
 
   { /* flt_pow */
@@ -595,6 +794,12 @@ objecttype flt_pow (listtype arguments)
 
 
 
+/**
+ *  Compute pseudo-random number in the range [low, high].
+ *  The random values are uniform distributed.
+ *  @return the computed pseudo-random number.
+ *  @exception RANGE_ERROR The range is empty (low > high holds).
+ */
 objecttype flt_rand (listtype arguments)
 
   { /* flt_rand */
@@ -606,6 +811,11 @@ objecttype flt_rand (listtype arguments)
 
 
 
+/**
+ *  Round towards the nearest integer.
+ *  Halfway cases are rounded away from zero.
+ *  @return the rounded value.
+ */
 objecttype flt_round (listtype arguments)
 
   {
@@ -623,6 +833,10 @@ objecttype flt_round (listtype arguments)
 
 
 
+/**
+ *  Compute the subtraction of two float numbers.
+ *  @return the difference of the two numbers.
+ */
 objecttype flt_sbtr (listtype arguments)
 
   { /* flt_sbtr */
@@ -635,6 +849,18 @@ objecttype flt_sbtr (listtype arguments)
 
 
 
+/**
+ *  Convert a float to a string in scientific notation.
+ *  Scientific notation uses a decimal float with optional sign, which
+ *  has only one digit before the decimal point. The float is followed
+ *  by the letter e and an exponent, which is always signed.
+ *  The 'precision' parameter specifies the number of digits after
+ *  the decimal point. When the 'precision' is zero the decimal
+ *  point is omitted. When all digits in the result are 0 a negative
+ *  sign is omitted.
+ *  @return the string result of the conversion.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ */
 objecttype flt_sci (listtype arguments)
 
   { /* flt_sci */
@@ -647,6 +873,9 @@ objecttype flt_sci (listtype arguments)
 
 
 
+/**
+ *  Decrement a float 'number' by a 'delta'.
+ */
 objecttype flt_shrink (listtype arguments)
 
   {
@@ -663,6 +892,10 @@ objecttype flt_shrink (listtype arguments)
 
 
 
+/**
+ *  Compute the sine of x, where x is given in radians.
+ *  @return the trigonometric sine of an angle.
+ */
 objecttype flt_sin (listtype arguments)
 
   { /* flt_sin */
@@ -673,6 +906,11 @@ objecttype flt_sin (listtype arguments)
 
 
 
+/**
+ *  Compute the hyperbolic sine of x.
+ *  sinh(x) is mathematically defined as: (exp(x) - exp(-x)) / 2.0
+ *  @return the hyperbolic sine.
+ */
 objecttype flt_sinh (listtype arguments)
 
   { /* flt_sinh */
@@ -683,6 +921,10 @@ objecttype flt_sinh (listtype arguments)
 
 
 
+/**
+ *  Returns the non-negative square root of x.
+ *  @return the square root of x.
+ */
 objecttype flt_sqrt (listtype arguments)
 
   { /* flt_sqrt */
@@ -693,6 +935,13 @@ objecttype flt_sqrt (listtype arguments)
 
 
 
+/**
+ *  Convert a float number to a string.
+ *  The number is converted to a string with decimal representation.
+ *  The sign of negative zero (-0.0) is ignored.
+ *  @return the string result of the conversion.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ */
 objecttype flt_str (listtype arguments)
 
   { /* flt_str */
@@ -703,6 +952,10 @@ objecttype flt_str (listtype arguments)
 
 
 
+/**
+ *  Compute the tangent of x, where x is given in radians.
+ *  @return the trigonometric tangent of an angle.
+ */
 objecttype flt_tan (listtype arguments)
 
   { /* flt_tan */
@@ -713,6 +966,11 @@ objecttype flt_tan (listtype arguments)
 
 
 
+/**
+ *  Compute the hyperbolic tangent of x.
+ *  tanh(x) is mathematically defined as: sinh(x) / cosh(x)
+ *  @return the hyperbolic tangent.
+ */
 objecttype flt_tanh (listtype arguments)
 
   { /* flt_tanh */
@@ -723,6 +981,12 @@ objecttype flt_tanh (listtype arguments)
 
 
 
+/**
+ *  Truncate towards zero.
+ *  The fractional part of a number is discarded.
+ *  @return the nearest integer not larger in absolute value
+ *          than the argument.
+ */
 objecttype flt_trunc (listtype arguments)
 
   { /* flt_trunc */

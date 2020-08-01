@@ -145,11 +145,11 @@ const func string: shellEscape (in string: stri)   is action "CMD_SHELL_ESCAPE";
  *  This function can prepare paths for the ''parameters'' of the
  *  ''shell'' and ''cmd_sh'' function.
  *  @return a string containing an operating system path.
- *  @exception MEMORY_ERROR Not enough memory to convert 'path'.
- *  @exception RANGE_ERROR 'path' is not representable as operating
+ *  @exception MEMORY_ERROR Not enough memory to convert ''standardPath''.
+ *  @exception RANGE_ERROR ''standardPath'' is not representable as operating
  *             system path.
  *)
-const func string: toOsPath (in string: path)   is action "CMD_TO_OS_PATH";
+const func string: toOsPath (in string: standardPath)   is action "CMD_TO_OS_PATH";
 
 
 const func string: toShellPath (in string: path) is

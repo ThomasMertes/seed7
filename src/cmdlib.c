@@ -176,6 +176,18 @@ static objecttype toArraytype (rtlArraytype anRtlArray)
 
 
 
+/**
+ *  Determine the size of a file.
+ *  The file size is measured in bytes.
+ *  For directories a size of 0 is returned.
+ *  @return the size of the file.
+ *  @exception MEMORY_ERROR Not enough memory to convert 'filePath'
+ *             to the system path type.
+ *  @exception RANGE_ERROR 'filePath' does not use the standard path
+ *             representation or it cannot be converted to the system
+ *             path type.
+ *  @exception FILE_ERROR It was not possible to determine the file size.
+ */
 objecttype cmd_big_filesize (listtype arguments)
 
   { /* cmd_big_filesize */
@@ -186,6 +198,15 @@ objecttype cmd_big_filesize (listtype arguments)
 
 
 
+/**
+ *  Changes the current working directory of the calling process.
+ *  @exception MEMORY_ERROR Not enough memory to convert 'dirPath' to
+ *             the system path type.
+ *  @exception RANGE_ERROR 'dirPath' does not use the standard path
+ *             representation or it cannot be converted to the system
+ *             path type.
+ *  @exception FILE_ERROR A system function returns an error.
+ */
 objecttype cmd_chdir (listtype arguments)
 
   { /* cmd_chdir */
@@ -196,6 +217,20 @@ objecttype cmd_chdir (listtype arguments)
 
 
 
+/**
+ *  Clone a file or directory tree.
+ *  Permissions/mode, ownership and timestamps of the original are
+ *  preserved. Symlinks are not followed. Instead the symlink is
+ *  copied. Note that 'cloneFile' does not preserve hard links (they
+ *  are resolved to distinct files).
+ *  @exception MEMORY_ERROR Not enough memory to convert
+ *             'sourcePath' or 'destPath' to the system path type.
+ *  @exception RANGE_ERROR 'sourcePath' or 'destPath' does not use
+ *             the standard path representation or one of them cannot be
+ *             converted to the system path type.
+ *  @exception FILE_ERROR Source file does not exist, destination file
+ *             already exists or a system function returns an error.
+ */
 objecttype cmd_clone_file (listtype arguments)
 
   { /* cmd_clone_file */
@@ -217,6 +252,25 @@ objecttype cmd_config_value (listtype arguments)
 
 
 
+/**
+ *  Copy a file or directory tree.
+ *  Permissions/mode, ownership and timestamps of the destination file
+ *  are determined independent of the corresponding source properties.
+ *  The destination file gets the permissions/mode defined by umask.
+ *  The user executing the program is the owner of the destination file.
+ *  The timestamps of the destination file are set to the current time.
+ *  Symbolic links in 'sourcePath' are always followed.
+ *  Therefore 'copyFile' will never create a symbolic link.
+ *  Note that 'copyFile' does not preserve hard links (they are
+ *  resolved to distinct files).
+ *  @exception MEMORY_ERROR Not enough memory to convert 'sourcePath'
+ *             or 'destPath' to the system path type.
+ *  @exception RANGE_ERROR 'sourcePath' or 'destPath' does not use
+ *             the standard path representation or one of them cannot be
+ *             converted to the system path type.
+ *  @exception FILE_ERROR Source file does not exist, destination file
+ *             already exists or a system function returns an error.
+ */
 objecttype cmd_copy_file (listtype arguments)
 
   { /* cmd_copy_file */
@@ -228,6 +282,11 @@ objecttype cmd_copy_file (listtype arguments)
 
 
 
+/**
+ *  Returns the list of environment variable names as array of strings.
+ *  @return the list of environment variable names.
+ *  @exception MEMORY_ERROR Not enough memory to create the result.
+ */
 objecttype cmd_environment (listtype arguments)
 
   { /* cmd_environment */
@@ -236,6 +295,16 @@ objecttype cmd_environment (listtype arguments)
 
 
 
+/**
+ *  Determine the file mode (permissions) of a file.
+ *  @return the file mode.
+ *  @exception MEMORY_ERROR Not enough memory to convert ''filePath''
+ *             to the system path type.
+ *  @exception RANGE_ERROR ''filePath'' does not use the standard path
+ *             representation or it cannot be converted to the system
+ *             path type.
+ *  @exception FILE_ERROR A system function returns an error.
+ */
 objecttype cmd_filemode (listtype arguments)
 
   { /* cmd_filemode */
@@ -246,6 +315,19 @@ objecttype cmd_filemode (listtype arguments)
 
 
 
+/**
+ *  Determine the size of a file.
+ *  The file size is measured in bytes.
+ *  For directories a size of 0 is returned.
+ *  @return the size of the file.
+ *  @exception MEMORY_ERROR Not enough memory to convert 'filePath'
+ *             to the system path type.
+ *  @exception RANGE_ERROR 'filePath' does not use the standard path
+ *             representation or it cannot be converted to the system
+ *             path type.
+ *  @exception RANGE_ERROR The file size is not representable as integer.
+ *  @exception FILE_ERROR It was not possible to determine the file size.
+ */
 objecttype cmd_filesize (listtype arguments)
 
   { /* cmd_filesize */
@@ -256,6 +338,20 @@ objecttype cmd_filesize (listtype arguments)
 
 
 
+/**
+ *  Determine the type of a file.
+ *  The function does follow symbolic links. Therefore it never
+ *  returns 'FILE_SYMLINK'. A return value of 'FILE_ABSENT' does
+ *  not imply that a file with this name can be created, since missing
+ *  directories and illegal file names cause also 'FILE_ABSENT'.
+ *  @return the type of the file.
+ *  @exception MEMORY_ERROR Not enough memory to convert 'filePath'
+ *             to the system path type.
+ *  @exception RANGE_ERROR 'filePath' does not use the standard path
+ *             representation.
+ *  @exception FILE_ERROR The system function returns an error other
+ *             than ENOENT, ENOTDIR or ENAMETOOLONG.
+ */
 objecttype cmd_filetype (listtype arguments)
 
   { /* cmd_filetype */
@@ -266,6 +362,20 @@ objecttype cmd_filetype (listtype arguments)
 
 
 
+/**
+ *  Determine the type of a file.
+ *  The function does not follow symbolic links. Therefore it may
+ *  return 'FILE_SYMLINK'. A return value of 'FILE_ABSENT' does
+ *  not imply that a file with this name can be created, since missing
+ *  directories and illegal file names cause also 'FILE_ABSENT'.
+ *  @return the type of the file.
+ *  @exception MEMORY_ERROR Not enough memory to convert 'filePath'
+ *             to the system path type.
+ *  @exception RANGE_ERROR 'filePath' does not use the standard path
+ *             representation.
+ *  @exception FILE_ERROR The system function returns an error other
+ *             than ENOENT, ENOTDIR or ENAMETOOLONG.
+ */
 objecttype cmd_filetype_sl (listtype arguments)
 
   { /* cmd_filetype_sl */
@@ -276,6 +386,13 @@ objecttype cmd_filetype_sl (listtype arguments)
 
 
 
+/**
+ *  Determine the current working directory of the calling process.
+ *  @return The absolute path of the current working directory.
+ *  @exception MEMORY_ERROR Not enough memory to represent the
+ *             result string.
+ *  @exception FILE_ERROR The system function returns an error.
+ */
 objecttype cmd_getcwd (listtype arguments)
 
   { /* cmd_getcwd */
@@ -284,6 +401,17 @@ objecttype cmd_getcwd (listtype arguments)
 
 
 
+/**
+ *  Determine the value of an environment variable.
+ *  The function getenv searches the environment for an environment variable
+ *  with the given 'name'. When such an environment variable exists the
+ *  corresponding string value is returned.
+ *  @return the value of an environment variable or "",
+ *          when the requested environment variable does not exist.
+ *  @exception MEMORY_ERROR Not enough memory to convert 'name' to the
+ *             system string type or not enough memory to represent the
+ *             result string.
+ */
 objecttype cmd_getenv (listtype arguments)
 
   { /* cmd_getenv */
@@ -294,6 +422,16 @@ objecttype cmd_getenv (listtype arguments)
 
 
 
+/**
+ *  Determine the access time of a file.
+ *  @return the access time of the file.
+ *  @exception MEMORY_ERROR Not enough memory to convert 'filePath'
+ *             to the system path type.
+ *  @exception RANGE_ERROR 'filePath' does not use the standard path
+ *             representation or it cannot be converted to the system
+ *             path type.
+ *  @exception FILE_ERROR A system function returns an error.
+ */
 objecttype cmd_get_atime (listtype arguments)
 
   {
@@ -330,6 +468,16 @@ objecttype cmd_get_atime (listtype arguments)
 
 
 
+/**
+ *  Determine the change time of a file.
+ *  @return the change time of the file.
+ *  @exception MEMORY_ERROR Not enough memory to convert 'filePath'
+ *             to the system path type.
+ *  @exception RANGE_ERROR 'filePath' does not use the standard path
+ *             representation or it cannot be converted to the system
+ *             path type.
+ *  @exception FILE_ERROR A system function returns an error.
+ */
 objecttype cmd_get_ctime (listtype arguments)
 
   {
@@ -366,6 +514,16 @@ objecttype cmd_get_ctime (listtype arguments)
 
 
 
+/**
+ *  Determine the modification time of a file.
+ *  @return the modification time of the file.
+ *  @exception MEMORY_ERROR Not enough memory to convert 'filePath'
+ *             to the system path type.
+ *  @exception RANGE_ERROR 'filePath' does not use the standard path
+ *             representation or it cannot be converted to the system
+ *             path type.
+ *  @exception FILE_ERROR A system function returns an error.
+ */
 objecttype cmd_get_mtime (listtype arguments)
 
   {
@@ -402,6 +560,11 @@ objecttype cmd_get_mtime (listtype arguments)
 
 
 
+/**
+ *  Returns the search path of the system as array of strings.
+ *  @return the search path of the system.
+ *  @exception MEMORY_ERROR Not enough memory to create the result.
+ */
 objecttype cmd_getSearchPath (listtype arguments)
 
   { /* cmd_getSearchPath */
@@ -410,6 +573,17 @@ objecttype cmd_getSearchPath (listtype arguments)
 
 
 
+/**
+ *  Determine the home directory of the user.
+ *  This function should be preferred over the use of an environment
+ *  variable such as $HOME. $HOME is not supported under all operating
+ *  systems and it is not guaranteed, that it uses the standard path
+ *  representation.
+ *  @return The absolute path of the home directory.
+ *  @exception MEMORY_ERROR Not enough memory to represent the
+ *             result string.
+ *  @exception FILE_ERROR Not able to determine the home directory.
+ */
 objecttype cmd_homeDir (listtype arguments)
 
   { /* cmd_homeDir */
@@ -418,17 +592,31 @@ objecttype cmd_homeDir (listtype arguments)
 
 
 
+/**
+ *  Determine the filenames in a directory.
+ *  The files "." and ".." are left out from the result.
+ *  Note that the function returns only the filenames.
+ *  Additional information must be obtained with other calls.
+ *  @return a string-array containing the filenames in the directory.
+ *  @exception MEMORY_ERROR Not enough memory to convert 'dirPath'
+ *             to the system path type or not enough memory to
+ *             represent the result 'string array'.
+ *  @exception RANGE_ERROR 'dirPath' does not use the standard path
+ *             representation or it cannot be converted to the system
+ *             path type.
+ *  @exception FILE_ERROR A system function returns an error.
+ */
 objecttype cmd_ls (listtype arguments)
 
   {
-    stritype dir_name;
+    stritype dirPath;
     dirtype directory;
     arraytype result;
 
   /* cmd_ls */
     isit_stri(arg_1(arguments));
-    dir_name = take_stri(arg_1(arguments));
-    if ((directory = dirOpen(dir_name)) != NULL) {
+    dirPath = take_stri(arg_1(arguments));
+    if ((directory = dirOpen(dirPath)) != NULL) {
       result = read_dir(directory);
       dirClose(directory);
       if (result == NULL) {
@@ -445,6 +633,15 @@ objecttype cmd_ls (listtype arguments)
 
 
 
+/**
+ *  Creates a new directory.
+ *  @exception MEMORY_ERROR Not enough memory to convert 'dirPath' to
+ *             the system path type.
+ *  @exception RANGE_ERROR 'dirPath' does not use the standard path
+ *             representation or it cannot be converted to the system
+ *             path type.
+ *  @exception FILE_ERROR A system function returns an error.
+ */
 objecttype cmd_mkdir (listtype arguments)
 
   { /* cmd_mkdir */
@@ -455,6 +652,24 @@ objecttype cmd_mkdir (listtype arguments)
 
 
 
+/**
+ *  Move and rename a file or directory tree.
+ *  The function uses the C 'rename()' function. When 'rename()' fails
+ *  the file (or directory tree) is cloned with 'cloneFile' (which
+ *  preserves permissions/mode, ownership and timestamps) to the new
+ *  place and with the new name. When 'cloneFile' succeeds the original
+ *  file is deleted. When 'cloneFile' fails (no space on device or
+ *  other reason) all remains of the failed clone are removed. Note
+ *  that 'cloneFile' works for symbolic links but does not preserve
+ *  hard links (they are resolved to distinct files).
+ *  @exception MEMORY_ERROR Not enough memory to convert 'sourcePath'
+ *             or 'destPath' to the system path type.
+ *  @exception RANGE_ERROR 'sourcePath' or 'destPath' does not use
+ *             the standard path representation or one of them cannot be
+ *             converted to the system path type.
+ *  @exception FILE_ERROR Source file does not exist, destination file
+ *             already exists or a system function returns an error.
+ */
 objecttype cmd_move (listtype arguments)
 
   { /* cmd_move */
@@ -522,6 +737,18 @@ objecttype cmd_pty (listtype arguments)
 
 
 
+/**
+ *  Reads the destination of a symbolic link.
+ *  @return The destination refered by the symbolic link.
+ *  @exception MEMORY_ERROR Not enough memory to convert 'filePath'
+ *             to the system path type or not enough memory to
+ *             represent the result string.
+ *  @exception RANGE_ERROR 'filePath' does not use the standard path
+ *             representation or it cannot be converted to the system
+ *             path type.
+ *  @exception FILE_ERROR The file described with the path does not
+ *             exist or is not a symbolic link.
+ */
 objecttype cmd_readlink (listtype arguments)
 
   { /* cmd_readlink */
@@ -532,6 +759,16 @@ objecttype cmd_readlink (listtype arguments)
 
 
 
+/**
+ *  Remove a file or empty directory.
+ *  @exception MEMORY_ERROR Not enough memory to convert 'filePath' to
+ *             the system path type.
+ *  @exception RANGE_ERROR 'filePath' does not use the standard path
+ *             representation or it cannot be converted to the system
+ *             path type.
+ *  @exception FILE_ERROR The file does not exist or a system function
+ *             returns an error.
+ */
 objecttype cmd_remove (listtype arguments)
 
   { /* cmd_remove */
@@ -542,6 +779,16 @@ objecttype cmd_remove (listtype arguments)
 
 
 
+/**
+ *  Removes a file independent of its file type.
+ *  @exception MEMORY_ERROR Not enough memory to convert 'filePath' to
+ *             the system path type.
+ *  @exception RANGE_ERROR 'filePath' does not use the standard path
+ *             representation or it cannot be converted to the system
+ *             path type.
+ *  @exception FILE_ERROR The file does not exist or a system function
+ *             returns an error.
+ */
 objecttype cmd_remove_any_file (listtype arguments)
 
   { /* cmd_remove_any_file */
@@ -552,6 +799,17 @@ objecttype cmd_remove_any_file (listtype arguments)
 
 
 
+/**
+ *  Add or change an environment variable.
+ *  The function setenv searches the environment for an environment variable
+ *  with the given 'name'. When such an environment variable exists the
+ *  corresponding value is changed to 'value'. When no environment variable
+ *  with the given 'name' exists a new environment variable 'name' with
+ *  the value 'value' is created.
+ *  @exception MEMORY_ERROR Not enough memory to convert 'name' or 'value'
+ *             to the system string type.
+ *  @exception RANGE_ERROR A system function returns an error.
+ */
 objecttype cmd_setenv (listtype arguments)
 
   { /* cmd_setenv */
@@ -563,6 +821,17 @@ objecttype cmd_setenv (listtype arguments)
 
 
 
+/**
+ *  Set the access time of a file.
+ *  @exception MEMORY_ERROR Not enough memory to convert 'filePath'
+ *             to the system path type.
+ *  @exception RANGE_ERROR 'filePath' does not use the standard path
+ *             representation or it cannot be converted to the system
+ *             path type.
+ *  @exception RANGE_ERROR 'aTime' is invalid or cannot be
+ *             converted to the system file time.
+ *  @exception FILE_ERROR A system function returns an error.
+ */
 objecttype cmd_set_atime (listtype arguments)
 
   { /* cmd_set_atime */
@@ -589,6 +858,15 @@ objecttype cmd_set_atime (listtype arguments)
 
 
 
+/**
+ *  Change the file mode (permissions) of a file.
+ *  @exception MEMORY_ERROR Not enough memory to convert 'filePath'
+ *             to the system path type.
+ *  @exception RANGE_ERROR 'filePath' does not use the standard path
+ *             representation or it cannot be converted to the system
+ *             path type.
+ *  @exception FILE_ERROR A system function returns an error.
+ */
 objecttype cmd_set_filemode (listtype arguments)
 
   { /* cmd_set_filemode */
@@ -601,6 +879,17 @@ objecttype cmd_set_filemode (listtype arguments)
 
 
 
+/**
+ *  Set the modification time of a file.
+ *  @exception MEMORY_ERROR Not enough memory to convert 'filePath'
+ *             to the system path type.
+ *  @exception RANGE_ERROR 'filePath' does not use the standard path
+ *             representation or it cannot be converted to the system
+ *             path type.
+ *  @exception RANGE_ERROR 'aTime' is invalid or cannot be
+ *             converted to the system file time.
+ *  @exception FILE_ERROR A system function returns an error.
+ */
 objecttype cmd_set_mtime (listtype arguments)
 
   { /* cmd_set_mtime */
@@ -627,6 +916,25 @@ objecttype cmd_set_mtime (listtype arguments)
 
 
 
+/**
+ *  Use the shell to execute a 'command' with 'parameters'.
+ *  The string 'command' specifies the command to be executed.
+ *  When 'command' contains a path it must use the standard path
+ *  representation (slashes are used as path delimiter and drive
+ *  letters like C: must be written as /c instead). 'Parameters'
+ *  specifies a space separated list of parameters. Parameters
+ *  which contain a space must be enclosed in double quotes
+ *  (E.g.: shell("aCommand", "\"par 1\" par2"); ). The commands
+ *  supported and the format of the 'parameters' are not covered
+ *  by the description of the 'shell' function. Due to the usage of
+ *  the operating system shell and external programs, it is hard to
+ *  write portable programs, which use the 'shell' function.
+ *  @param command Name of the command to be executed. A path must
+ *         use the standard path representation.
+ *  @param parameters The space separated list of parameters for
+ *         the 'command', or "" when there are no parameters.
+ *  @return the return code of the executed command or of the shell.
+ */
 objecttype cmd_shell (listtype arguments)
 
   { /* cmd_shell */
@@ -638,6 +946,12 @@ objecttype cmd_shell (listtype arguments)
 
 
 
+/**
+ *  Convert a string, such that it can be used as shell parameter.
+ *  The function adds escape characters or quotations to a string.
+ *  @return a string which can be used as shell parameter.
+ *  @exception MEMORY_ERROR Not enough memory to convert 'stri'.
+ */
 objecttype cmd_shell_escape (listtype arguments)
 
   { /* cmd_shell_escape */
@@ -668,6 +982,18 @@ objecttype cmd_start_process (listtype arguments)
 
 
 
+/**
+ *  Create a symbolic link.
+ *  The symbolic link 'destPath' will refer to 'sourcePath' afterwards.
+ *  @param sourcePath String to be contained in the symbolic link.
+ *  @param destPath Name of the symbolic link to be created.
+ *  @exception MEMORY_ERROR Not enough memory to convert sourcePath or
+ *             destPath to the system path type.
+ *  @exception RANGE_ERROR 'sourcePath' or 'destPath' does not use the
+ *             standard path representation or one of them cannot be
+ *             converted to the system path type.
+ *  @exception FILE_ERROR A system function returns an error.
+ */
 objecttype cmd_symlink (listtype arguments)
 
   { /* cmd_symlink */
@@ -679,6 +1005,15 @@ objecttype cmd_symlink (listtype arguments)
 
 
 
+/**
+ *  Convert a standard path to the path of the operating system.
+ *  This function can prepare paths for the 'parameters' of the
+ *  'shell' and 'cmd_sh' function.
+ *  @return a string containing an operating system path.
+ *  @exception MEMORY_ERROR Not enough memory to convert 'standardPath'.
+ *  @exception RANGE_ERROR 'standardPath' is not representable as operating
+ *             system path.
+ */
 objecttype cmd_to_os_path (listtype arguments)
 
   { /* cmd_to_os_path */

@@ -1,3 +1,58 @@
+20130616:
+- Documentation comments have been added or improved in bigfile.s7i,
+  char.s7i, clib_file.s7i, complex.s7i, external_file.s7i, file.s7i,
+  float.s7i, hash.s7i, integer.s7i, shell.s7i, string.s7i, utf16.s7i,
+  osfiles.s7i, rational.s7i, arrlib.c, blnlib.c, bstlib.c, arr_rtl.c,
+  big_gmp.c, big_rtl.c, bst_rtl.c, chrlib.c, chr_rtl.c, cmdlib.c,
+  cmd_rtl.c, fillib.c, fil_rtl.c, fltlib.c, flt_rtl.c, hshlib.c,
+  hsh_rtl.c, int_rtl.c, pol_sel.c, pol_unx.c, setlib.c, set_rtl.c,
+  strlib.c, str_rtl.c.
+- The functions lower and upper in string.s7i and char.s7i have been
+  improved to use the default Unicode case mapping. In other words:
+  conversions to lower respectively upper case works for all Unicode
+  characters, which have a case mapping. Characters without case
+  mapping are left unchanged. The mapping is independend from the
+  locale. Individual character case mappings cannot be reversed,
+  because some characters have multiple characters that map to them.
+- In the library deflate.s7i the performance of the deflate
+  compression has been improved by a factor between 5 and 10.
+- The performance of the functions str_cmp, str_range and str_substr
+  in strlib.c has been improved.
+- The performance of the functions strCompare, strRangeSlice,
+  strRange, strSubstrSlice and strSubstr in str_rtl.c has been
+  improved.
+- Tests for the string functions compare, lower and upper and for the
+  index operations head, tail, range and substring have been added to
+  chkstr.sd7.
+- The definition of the macro arrayMaxPos in common.h has been
+  improved and usages of the macro have been added to arrlib.c and
+  arr_rtl.c.
+- The compiler has been improved to support the actions HSH_IDX2 and
+  HSH_UPDATE.
+- The compiler has been improved to inline code for the actions
+  STR_HASHCODE, STR_RANGE and STR_SUBSTR.
+- The function intStrToBuffer has been added to int_rtl.c. This
+  function allows conversions from integer to string, without
+  memory allocation.
+- The compiler has been improved to take advantage of the function
+  intStrToBuffer.
+- The functions getGenericValue, getGenericValueToResultExpr,
+  getTempVariable, beginCastGeneric, endCastGeneric,
+  beginCastGenericToResultExpr and endCastGenericToResultExpr have
+  been added to the compiler.
+- The functions hsh_idx2 and hsh_update have been added to hshlib.c.
+- The functions hshIdxAddr2 and hshUpdate have been added to
+  hsh_rtl.c
+- The macro hashCode has been defined in str_rtl.h and used in
+  str_rtl.c (function strHashCode) and strlib.c (function
+  str_hashcode).
+- The program chkccomp.c was improved to write a definition of the
+  macro INLINE to version.h
+- The deprecated function 'read_dir' has been removed from the
+  library "osfiles.s7i". The replacement of 'read_dir' is 'readDir'.
+- The functions arrHeadTemp, arrRangeTemp and arrSubarrTemp in
+  arr_rtl.c have been improved.  
+
 20130602:
 - The implementation of the type integer has been changed to use a
   64-bit value.

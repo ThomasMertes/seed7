@@ -279,15 +279,13 @@ const func file: gunzip (inout file: aFile) is func
 const func string: gzip (in string: uncompressed) is func
   result
     var string: compressed is "\31\\139\";  # Identification for gzip format
-  local
-    var integer: bitPos is 8;
   begin
     compressed &:= '\8\';  # Compression method: Deflate
     compressed &:= '\0\';  # Flags
     compressed &:= int32AsFourBytesLe(timestamp1970(time(NOW)));
     compressed &:= '\0\';  # Extra flags
     compressed &:= '\3\';  # Operating system: Unix
-    deflateBlock(uncompressed, compressed, bitPos, TRUE);
+    deflateBlock(uncompressed, compressed, TRUE);
     compressed &:= int32AsFourBytesLe(ord(crc32(uncompressed)));
     compressed &:= int32AsFourBytesLe(length(uncompressed));
   end func;
@@ -295,10 +293,9 @@ const func string: gzip (in string: uncompressed) is func
 
 const type: gzipFile is sub null_file struct
     var file: destFile is STD_NULL;
+    var deflateData: deflateState is deflateData.value;
     var string: uncompressed is "";
-    var integer: uPos is 1;
     var string: compressed is "\31\\139\";  # Identification for gzip format
-    var integer: bitPos is 8;
   end struct;
 
 type_implements_interface(gzipFile, file);
@@ -320,7 +317,7 @@ const func file: openGzipFile (inout file: destFile) is func
     new_gzipFile.compressed &:= int32AsFourBytesLe(timestamp1970(time(NOW)));
     new_gzipFile.compressed &:= '\0\';  # Extra flags
     new_gzipFile.compressed &:= '\3\';  # Operating system: Unix
-    beginDeflateBlock(new_gzipFile.compressed, new_gzipFile.bitPos, TRUE);
+    beginDeflateBlock(new_gzipFile.deflateState, new_gzipFile.compressed, TRUE);
     newFile := toInterface(new_gzipFile);
   end func;
 
@@ -330,8 +327,7 @@ const func file: openGzipFile (inout file: destFile) is func
  *)
 const proc: close (inout gzipFile: aFile) is func
   begin
-    closeDeflateBlock(aFile.uncompressed, aFile.uPos,
-                      aFile.compressed, aFile.bitPos);
+    closeDeflateBlock(aFile.deflateState, aFile.uncompressed, aFile.compressed);
     aFile.compressed &:= int32AsFourBytesLe(ord(crc32(aFile.uncompressed)));
     aFile.compressed &:= int32AsFourBytesLe(length(aFile.uncompressed));
     write(aFile.destFile, aFile.compressed);
@@ -345,6 +341,6 @@ const proc: close (inout gzipFile: aFile) is func
 const proc: write (inout gzipFile: outFile, in string: stri) is func
   begin
     outFile.uncompressed &:= stri;
-    addDeflateData(outFile.uncompressed, outFile.uPos,
-                   outFile.compressed, outFile.bitPos);
+    deflate(outFile.deflateState, outFile.uncompressed,
+            length(outFile.uncompressed) - 258, outFile.compressed);
   end func;

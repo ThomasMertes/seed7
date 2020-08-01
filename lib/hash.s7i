@@ -63,16 +63,16 @@ const func type: hash [ (in type: keyType) ] (in type: baseType) is func
       const proc: COPY (inout hashType: dest, in hashType: source,
                         in reference: keyCreate, in reference: keyDestroy,
                         in reference: dataCreate, in reference: dataDestroy)   is action "HSH_CPY";
-      const proc: FOR_DATA (inout baseType: forVar, in hashType: aHash,
+      const proc: FOR_DATA (inout baseType: forVar, in hashType: aHashMap,
                             in proc: statements, in reference: dataCopy)       is action "HSH_FOR";
-      const proc: FOR_KEY (inout keyType: keyVar, in hashType: aHash,
+      const proc: FOR_KEY (inout keyType: keyVar, in hashType: aHashMap,
                            in proc: statements, in reference: keyCop)          is action "HSH_FOR_KEY";
       const proc: FOR_DATA_KEY (inout baseType: forVar, inout keyType: keyVar,
-                                in hashType: aHash, in proc: statements,
+                                in hashType: aHashMap, in proc: statements,
                                 in reference: dataCopy, in reference: keyCopy) is action "HSH_FOR_DATA_KEY";
-      const func array keyType: KEYS (in hashType: aHash, in reference: keyCreate,
+      const func array keyType: KEYS (in hashType: aHashMap, in reference: keyCreate,
                                       in reference: keyDestroy)                is action "HSH_KEYS";
-      const func array baseType: VALUES (in hashType: aHash, in reference: dataCreate,
+      const func array baseType: VALUES (in hashType: aHashMap, in reference: dataCreate,
                                          in reference: dataDestroy)            is action "HSH_VALUES";
 
       const proc: (ref hashType: dest) ::= (in hashType: source) is func
@@ -93,117 +93,132 @@ const func type: hash [ (in type: keyType) ] (in type: baseType) is func
         end func;
 
       (**
-       *  Number of elements in the hash map ''aHash''.
-       *  @return the number of elements in ''aHash''.
+       *  Number of elements in the hash map ''aHashMap''.
+       *  @return the number of elements in ''aHashMap''.
        *)
-      const func integer: length (in hashType: aHash)                          is action "HSH_LNG";
+      const func integer: length (in hashType: aHashMap)                       is action "HSH_LNG";
 
-      const func baseType: INDEX (in hashType: aHash, in keyType: aKey,
+      const func baseType: INDEX (in hashType: aHashMap, in keyType: aKey,
                                   in integer: hashCode,
                                   in reference: keyCompare)                    is action "HSH_IDX";
-      const varfunc baseType: INDEX (inout hashType: aHash, in keyType: aKey,
+      const varfunc baseType: INDEX (inout hashType: aHashMap, in keyType: aKey,
                                      in integer: hashCode,
                                      in reference: keyCompare)                 is action "HSH_IDX";
 
-      const func baseType: INDEX2 (in hashType: aHash, in keyType: aKey,
-                                   in baseType: anElem, in integer: hashCode,
-                                   in reference: keyCompare, in reference: keyCreate,
+      const func baseType: INDEX2 (in hashType: aHashMap, in keyType: aKey,
+                                   in integer: hashCode, in baseType: defaultValue,
+                                   in reference: keyCompare,
                                    in reference: dataCreate)                   is action "HSH_IDX2";
-      const varfunc baseType: INDEX2 (inout hashType: aHash, in keyType: aKey,
-                                      in baseType: anElem, in integer: hashCode,
-                                      in reference: keyCompare, in reference: keyCreate,
-                                      in reference: dataCreate)                is action "HSH_IDX2";
 
       const func ptr baseType: REFINDEX (in hashType param, in keyType param,
                                          in integer param, in reference param) is action "HSH_REFIDX";
-      const proc: INCL (inout hashType: aHash, in keyType: aKey,
+      const proc: INCL (inout hashType: aHashMap, in keyType: aKey,
                         in baseType: anElem, in integer: hashCode,
                         in reference: keyCompare, in reference: keyCreate,
                         in reference: dataCreate, in reference: dataCopy)      is action "HSH_INCL";
-      const proc: EXCL (inout hashType: aHash, in keyType: aKey,
+      const proc: EXCL (inout hashType: aHashMap, in keyType: aKey,
                         in integer: hashCode, in reference: keyCompare,
                         in reference: keyDestroy, in reference: dataDestroy)   is action "HSH_EXCL";
+      const func baseType: UPDATE (inout hashType: aHashMap, in keyType: aKey,
+                                   in baseType: anElem, in integer: hashCode,
+                                   in reference: keyCompare, in reference: keyCreate,
+                                   in reference: dataCreate)                   is action "HSH_UPDATE";
 (*
       const func ptr baseType: @ (in hashType param) [ (in string param) ]     is action "HSH_REFIDX";
       const func varptr baseType: @ (inout hashType param) [ (in string param) ] is action "HSH_REFIDX";
       const varfunc baseType: table (inout hashType param, in baseType param)  is action "HSH_NEW";
       const func baseType: free (inout hashType param, in baseType param)      is action "HSH_FREE";
 *)
-      const func boolean: CONTAINS (in hashType: aHash, in keyType: aKey,
+      const func boolean: CONTAINS (in hashType: aHashMap, in keyType: aKey,
                                     in integer: hashCode,
                                     in reference: keyCompare)                  is action "HSH_CONTAINS";
 (*
-      const func hashType: (attr hashType) conv (in hashType: aHash)           is action "HSH_CONV";
-      const varfunc hashType: (attr hashType) conv (inout hashType: aHash)     is action "TYP_VARCONV";
+      const func hashType: (attr hashType) conv (in hashType: aHashMap)        is action "HSH_CONV";
+      const varfunc hashType: (attr hashType) conv (inout hashType: aHashMap)  is action "TYP_VARCONV";
 *)
       const func hashType: (attr hashType) . _GENERATE_EMPTY_HASH              is action "HSH_EMPTY";
       const hashType: (attr hashType) . EMPTY_HASH                             is hashType._GENERATE_EMPTY_HASH;
       const hashType: (attr hashType) . value                                  is hashType._GENERATE_EMPTY_HASH;
 
       (**
-       *  Access one value from the hash table ''aHash''.
-       *  @return the element with the key ''aKey'' from ''aHash''.
-       *  @exception RANGE_ERROR When the ''aKey'' is not found in ''aHash''.
+       *  Access one value from the hash table ''aHashMap''.
+       *  @return the element with the key ''aKey'' from ''aHashMap''.
+       *  @exception RANGE_ERROR When ''aHashMap'' does not have an element
+       *             with the key ''aKey''.
        *)
-      const func baseType: (in hashType: aHash) [ (in keyType: aKey) ] is
-        return INDEX(aHash, aKey, hashCode(aKey), hashType.keyCompare);
+      const func baseType: (in hashType: aHashMap) [ (in keyType: aKey) ] is
+        return INDEX(aHashMap, aKey, hashCode(aKey), hashType.keyCompare);
 
-      const varfunc baseType: (inout hashType: aHash) [ (in keyType: aKey) ] is
-        return var INDEX(aHash, aKey, hashCode(aKey), hashType.keyCompare);
+      const varfunc baseType: (inout hashType: aHashMap) [ (in keyType: aKey) ] is
+        return var INDEX(aHashMap, aKey, hashCode(aKey), hashType.keyCompare);
+
+      (**
+       *  Access one value from the hash table ''aHashMap''.
+       *  @return the element with the key ''aKey'' from ''aHashMap'' or
+       *          ''defaultValue'' when ''aHashMap'' does not have an element
+       *          with the key ''aKey''.
+       *)
+      const func baseType: (in hashType: aHashMap) [ (in keyType: aKey) default (in baseType: defaultValue) ] is
+        return INDEX2(aHashMap, aKey, hashCode(aKey), defaultValue,
+                      hashType.keyCompare, hashType.dataCreate);
 
       (**
        *  Hash membership test.
-       *  Determine if ''aKey'' is a member of the hash map ''aHash''.
-       *  @return TRUE when ''aKey'' is a member of  ''aHash'',
+       *  Determine if ''aKey'' is a member of the hash map ''aHashMap''.
+       *  @return TRUE when ''aKey'' is a member of ''aHashMap'',
        *          FALSE otherwise.
        *)
-      const func boolean: (in keyType: aKey) in (in hashType: aHash) is
-        return CONTAINS(aHash, aKey, hashCode(aKey), hashType.keyCompare);
+      const func boolean: (in keyType: aKey) in (in hashType: aHashMap) is
+        return CONTAINS(aHashMap, aKey, hashCode(aKey), hashType.keyCompare);
 
       (**
        *  Negated hash membership test.
-       *  Determine if ''aKey'' is not a member of the hash map ''aHash''.
-       *  @return FALSE when ''aKey'' is a member of  ''aHash'',
+       *  Determine if ''aKey'' is not a member of the hash map ''aHashMap''.
+       *  @return FALSE when ''aKey'' is a member of ''aHashMap'',
        *          TRUE otherwise.
        *)
-      const func boolean: (in keyType: aKey) not in (in hashType: aHash) is
-        return not CONTAINS(aHash, aKey, hashCode(aKey), hashType.keyCompare);
+      const func boolean: (in keyType: aKey) not in (in hashType: aHashMap) is
+        return not CONTAINS(aHashMap, aKey, hashCode(aKey), hashType.keyCompare);
 
       (**
-       *  Add ''anElem'' with the key ''aKey'' to the hash map ''aHash''.
+       *  Add ''anElem'' with the key ''aKey'' to the hash map ''aHashMap''.
        *  When an element with the key ''aKey'' already exists,
        *  it is overwritten with ''anElem''.
        *  @exception MEMORY_ERROR When there is not enough memory.
        *)
-      const proc: incl (inout hashType: aHash, in keyType: aKey, in baseType: anElem) is func
+      const proc: incl (inout hashType: aHashMap, in keyType: aKey, in baseType: anElem) is func
         begin
-          INCL(aHash, aKey, anElem, hashCode(aKey), hashType.keyCompare,
+          INCL(aHashMap, aKey, anElem, hashCode(aKey), hashType.keyCompare,
               hashType.keyCreate, hashType.dataCreate, hashType.dataCopy);
         end func;
 
       (**
-       *  Remove the element with the key ''aKey'' from the hash map ''aHash''.
+       *  Remove the element with the key ''aKey'' from the hash map ''aHashMap''.
        *)
-      const proc: excl (inout hashType: aHash, in keyType: aKey) is func
+      const proc: excl (inout hashType: aHashMap, in keyType: aKey) is func
         begin
-          EXCL(aHash, aKey, hashCode(aKey), hashType.keyCompare,
+          EXCL(aHashMap, aKey, hashCode(aKey), hashType.keyCompare,
               hashType.keyDestroy, hashType.dataDestroy);
         end func;
 
       (**
-       *  Add ''anElem'' with the key ''aKey'' to the hash map ''aHash''.
+       *  Add ''anElem'' with the key ''aKey'' to the hash map ''aHashMap''.
        *  When an element with the key ''aKey'' already exists,
        *  it is overwritten with ''anElem''.
        *  @exception MEMORY_ERROR When there is not enough memory.
        *)
-      const proc: (inout hashType: aHash) @:= [ (in keyType: aKey) ] (in baseType: anElem) is func
+      const proc: (inout hashType: aHashMap) @:= [ (in keyType: aKey) ] (in baseType: anElem) is func
         begin
-          INCL(aHash, aKey, anElem, hashCode(aKey), hashType.keyCompare,
+          INCL(aHashMap, aKey, anElem, hashCode(aKey), hashType.keyCompare,
               hashType.keyCreate, hashType.dataCreate, hashType.dataCopy);
         end func;
 
+      const func baseType: update (inout hashType: aHashMap, in keyType: aKey, in baseType: anElem) is
+        return UPDATE(aHashMap, aKey, anElem, hashCode(aKey), hashType.keyCompare,
+                      hashType.keyCreate, hashType.dataCreate);
+
 (*
-      const proc: clear (inout hashType: aHash) is func
+      const proc: clear (inout hashType: aHashMap) is func
         local
           var baseType: anElem is baseType.value;
         begin
@@ -214,65 +229,65 @@ const func type: hash [ (in type: keyType) ] (in type: baseType) is func
 *)
 
       (**
-       *  For-loop where ''forVar'' loops over the values of the hash map ''aHash''.
+       *  For-loop where ''forVar'' loops over the values of the hash map ''aHashMap''.
        *)
-      const proc: for (inout baseType: forVar) range (in hashType: aHash) do
+      const proc: for (inout baseType: forVar) range (in hashType: aHashMap) do
                     (in proc: statements)
                   end for is func
         begin
-          FOR_DATA(forVar, aHash, statements, hashType.dataCopy);
+          FOR_DATA(forVar, aHashMap, statements, hashType.dataCopy);
         end func;
 
       (**
-       *  For-loop where ''keyVar'' loops over the keys of the hash map ''aHash''.
+       *  For-loop where ''keyVar'' loops over the keys of the hash map ''aHashMap''.
        *)
-      const proc: for key (inout keyType: keyVar) range (in hashType: aHash) do
+      const proc: for key (inout keyType: keyVar) range (in hashType: aHashMap) do
                     (in proc: statements)
                   end for is func
         begin
-          FOR_KEY(keyVar, aHash, statements, hashType.keyCopy);
+          FOR_KEY(keyVar, aHashMap, statements, hashType.keyCopy);
         end func;
 
       (**
-       *  For-loop where ''forVar'' and ''keyVar' loop over the hash map ''aHash''.
+       *  For-loop where ''forVar'' and ''keyVar' loop over the hash map ''aHashMap''.
        *)
-      const proc: for (inout baseType: forVar) key (inout keyType: keyVar) range (in hashType: aHash) do
+      const proc: for (inout baseType: forVar) key (inout keyType: keyVar) range (in hashType: aHashMap) do
                     (in proc: statements)
                   end for is func
         begin
-          FOR_DATA_KEY(forVar, keyVar, aHash, statements, hashType.dataCopy, hashType.keyCopy);
+          FOR_DATA_KEY(forVar, keyVar, aHashMap, statements, hashType.dataCopy, hashType.keyCopy);
         end func;
 
       (**
-       *  Obtain the keys of the hash map ''aHash''.
+       *  Obtain the keys of the hash map ''aHashMap''.
        *  @return the keys of the hash map.
        *)
-      const func array keyType: keys (in hashType: aHash) is
-        return KEYS(aHash, hashType.keyCreate, hashType.keyDestroy);
+      const func array keyType: keys (in hashType: aHashMap) is
+        return KEYS(aHashMap, hashType.keyCreate, hashType.keyDestroy);
 
       (**
-       *  Obtain the values of the hash map ''aHash''.
+       *  Obtain the values of the hash map ''aHashMap''.
        *  @return the values of the hash map.
        *)
-      const func array baseType: values (in hashType: aHash) is
-        return VALUES(aHash, hashType.dataCreate, hashType.dataDestroy);
+      const func array baseType: values (in hashType: aHashMap) is
+        return VALUES(aHashMap, hashType.dataCreate, hashType.dataDestroy);
 
       if getfunc(hashCode(in baseType param)) <> NIL and
           getfunc(compare(in baseType param, in baseType param)) <> NIL then
 
         (**
-         *  Create a hash map from ''aHash'' where key and value are exchanged.
+         *  Create a hash map from ''aHashMap'' where key and value are exchanged.
          *  Since a hash value can correspond to many keys the type returned
          *  is ''hash [baseType] array keyType''.
          *)
-        const func hash [baseType] array keyType: flip (in hashType: aHash) is func
+        const func hash [baseType] array keyType: flip (in hashType: aHashMap) is func
           result
             var hash [baseType] array keyType: inverseHash is (hash [baseType] array keyType).value;
           local
             var keyType: aKey is keyType.value;
             var baseType: aValue is baseType.value;
           begin
-            for aValue key aKey range aHash do
+            for aValue key aKey range aHashMap do
               if aValue in inverseHash then
                 inverseHash[aValue] &:= aKey;
               else

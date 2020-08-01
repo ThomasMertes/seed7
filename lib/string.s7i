@@ -390,8 +390,12 @@ const func string: replace2 (in string: mainStri, in string: search1,
 
 (**
  *  Convert a string to upper case.
- *  The letters a to z are converted to upper case.
- *  Other characters are left unchanged.
+ *  The conversion uses the default Unicode case mapping,
+ *  where each character is considered in isolation.
+ *  Characters without case mapping are left unchanged.
+ *  The mapping is independend from the locale. Individual
+ *  character case mappings cannot be reversed, because some
+ *  characters have multiple characters that map to them.
  *  @return the string converted to upper case.
  *)
 const func string: upper (in string: stri)                     is action "STR_UP";
@@ -399,8 +403,12 @@ const func string: upper (in string: stri)                     is action "STR_UP
 
 (**
  *  Convert a string to lower case.
- *  The letters A to Z are converted to lower case.
- *  Other characters are left unchanged.
+ *  The conversion uses the default Unicode case mapping,
+ *  where each character is considered in isolation.
+ *  Characters without case mapping are left unchanged.
+ *  The mapping is independend from the locale. Individual
+ *  character case mappings cannot be reversed, because some
+ *  characters have multiple characters that map to them.
  *  @return the string converted to lower case.
  *)
 const func string: lower (in string: stri)                     is action "STR_LOW";

@@ -41,4 +41,5 @@ objecttype hsh_incl         (listtype arguments);
 objecttype hsh_keys         (listtype arguments);
 objecttype hsh_lng          (listtype arguments);
 objecttype hsh_refidx       (listtype arguments);
+objecttype hsh_update       (listtype arguments);
 objecttype hsh_values       (listtype arguments);

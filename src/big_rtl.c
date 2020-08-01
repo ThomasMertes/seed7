@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
-/*  big_rtl.c     Functions for bigInteger without helping library. */
-/*  Copyright (C) 1989 - 2010  Thomas Mertes                        */
+/*  big_rtl.c     Functions for built-in bigInteger support.        */
+/*  Copyright (C) 1989 - 2013  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */
@@ -24,8 +24,8 @@
 /*                                                                  */
 /*  Module: Seed7 Runtime Library                                   */
 /*  File: seed7/src/big_rtl.c                                       */
-/*  Changes: 2005, 2006, 2008, 2009, 2010  Thomas Mertes            */
-/*  Content: Functions for bigInteger without helping library.      */
+/*  Changes: 2005, 2006, 2008, 2009, 2010, 2013  Thomas Mertes      */
+/*  Content: Functions for built-in bigInteger support.             */
 /*                                                                  */
 /********************************************************************/
 
@@ -3368,7 +3368,7 @@ void bigIncr (biginttype *const big_variable)
 
 
 /**
- *  Compute the exponentiation of a 'bigInteger' base by an integer exponent.
+ *  Compute the exponentiation of a 'bigInteger' base with an integer exponent.
  *  The result variable is set to base or 1 depending on the
  *  rightmost bit of the exponent. After that the base is
  *  squared in a loop and every time the corresponding bit of
@@ -5034,7 +5034,7 @@ void bigRShiftAssign (biginttype *const big_variable, inttype rshift)
 
 
 /**
- *  Compute the subtraction of two ''bigInteger'' numbers.
+ *  Compute the subtraction of two 'bigInteger' numbers.
  *  @return the difference of the two numbers.
  */
 biginttype bigSbtr (const const_biginttype minuend, const const_biginttype subtrahend)
@@ -5108,7 +5108,7 @@ biginttype bigSbtr (const const_biginttype minuend, const const_biginttype subtr
 
 
 /**
- *  Compute the subtraction of two ''bigInteger'' numbers.
+ *  Compute the subtraction of two 'bigInteger' numbers.
  *  Minuend is assumed to be a temporary value which is reused.
  *  @return the difference of the two numbers in 'minuend'.
  */

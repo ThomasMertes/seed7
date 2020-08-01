@@ -85,10 +85,11 @@ const func boolean: hasNext (in utf16_file: inFile) is
 (**
  *  Obtain the length of a file.
  *  The file length is measured in bytes.
- *  @return the length of a file, or 0 if it cannot be obtained.
- *  @exception RANGE_ERROR The file length is negative or does not
- *             fit into an integer value.
- *  @exception FILE_ERROR A system function returns an error.
+ *  @return the size of the given file.
+ *  @exception RANGE_ERROR The file length does not fit into
+ *             an integer value.
+ *  @exception FILE_ERROR A system function returns an error or the
+ *             file length reported by the system is negative.
  *)
 const func integer: length (in utf16_file: aFile) is
   return length(aFile.ext_file);
@@ -112,9 +113,10 @@ const proc: seek (in utf16_file: aFile, in integer: position) is func
  *  The file position is measured in bytes from the start of the file.
  *  The first byte in the file has the position 1.
  *  @return the current file position.
- *  @exception RANGE_ERROR The file position is negative or does not
- *             fit into an integer value.
- *  @exception FILE_ERROR A system function returns an error.
+ *  @exception RANGE_ERROR The file position does not fit into
+ *             an integer value.
+ *  @exception FILE_ERROR A system function returns an error or the
+ *             file position reported by the system is negative.
  *)
 const func integer: tell (in utf16_file: aFile) is
   return tell(aFile.ext_file);

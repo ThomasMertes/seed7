@@ -274,6 +274,11 @@ arraytype str1Split (stritype main_stri, stritype delimiter)
 
 
 
+/**
+ *  Append the string 'extension' to 'destination'.
+ *  @exception MEMORY_ERROR Not enough memory for the concatenated
+ *             string.
+ */
 objecttype str_append (listtype arguments)
 
   {
@@ -321,6 +326,10 @@ objecttype str_append (listtype arguments)
 
 
 
+/**
+ *  Concatenate two strings.
+ *  @return the result of the concatenation.
+ */
 objecttype str_cat (listtype arguments)
 
   {
@@ -370,6 +379,14 @@ objecttype str_cat (listtype arguments)
 
 
 
+/**
+ *  Search char 'searched' in 'mainStri' at or after 'fromIndex'.
+ *  The search starts at 'fromIndex' and proceeds to the right.
+ *  The first character in a string has the position 1.
+ *  @return the position of 'searched' or 0 when 'mainStri'
+ *          does not contain 'searched' at or after 'fromIndex'.
+ *  @exception RANGE_ERROR 'fromIndex' <= 0 holds.
+ */
 objecttype str_chipos (listtype arguments)
 
   { /* str_chipos */
@@ -383,6 +400,12 @@ objecttype str_chipos (listtype arguments)
 
 
 
+/**
+ *  Determine leftmost position of char 'searched' in 'mainStri'.
+ *  The first character in a string has the position 1.
+ *  @return the position of 'searched' or 0 when 'mainStri'
+ *          does not contain 'searched'.
+ */
 objecttype str_chpos (listtype arguments)
 
   { /* str_chpos */
@@ -415,6 +438,12 @@ objecttype str_clit (listtype arguments)
 
 
 
+/**
+ *  Compare two strings.
+ *  @return -1, 0 or 1 if the first argument is considered to be
+ *          respectively less than, equal to, or greater than the
+ *          second.
+ */
 objecttype str_cmp (listtype arguments)
 
   {
@@ -428,23 +457,14 @@ objecttype str_cmp (listtype arguments)
     stri1 = take_stri(arg_1(arguments));
     stri2 = take_stri(arg_2(arguments));
     if (stri1->size < stri2->size) {
-      if (strelem_memcmp(stri1->mem, stri2->mem, stri1->size) <= 0) {
-        result = -1;
-      } else {
-        result = 1;
-      } /* if */
-    } else if (stri1->size > stri2->size) {
-      if (strelem_memcmp(stri1->mem, stri2->mem, stri2->size) >= 0) {
-        result = 1;
-      } else {
+      result = strelem_memcmp(stri1->mem, stri2->mem, stri1->size);
+      if (result == 0) {
         result = -1;
       } /* if */
     } else {
-      result = strelem_memcmp(stri1->mem, stri2->mem, stri1->size);
-      if (result > 0) {
+      result = strelem_memcmp(stri1->mem, stri2->mem, stri2->size);
+      if (result == 0 && stri1->size > stri2->size) {
         result = 1;
-      } else if (result < 0) {
-        result = -1;
       } /* if */
     } /* if */
     return bld_int_temp(result);
@@ -550,6 +570,15 @@ objecttype str_destr (listtype arguments)
 
 
 
+/**
+ *  Assign char 'source' to the 'position' of the 'destination'.
+ *   A @:= [B] C;
+ *  is equivalent to
+ *   A := A[..pred(B)] & str(C) & A[succ(B)..];
+ *  @exception RANGE_ERROR When 'position' is negative or zero.
+ *  @exception RANGE_ERROR A character beyond 'destination' would be
+ *             overwritten ('position' > length('destination') holds).
+ */
 objecttype str_elemcpy (listtype arguments)
 
   {
@@ -573,6 +602,11 @@ objecttype str_elemcpy (listtype arguments)
 
 
 
+/**
+ *  Check if two strings are equal.
+ *  @return TRUE if both strings are equal,
+ *          FALSE otherwise.
+ */
 objecttype str_eq (listtype arguments)
 
   {
@@ -594,6 +628,11 @@ objecttype str_eq (listtype arguments)
 
 
 
+/**
+ *  Check if stri1 is greater than or equal to stri2.
+ *  @return TRUE if stri1 is greater than or equal to stri2,
+ *          FALSE otherwise.
+ */
 objecttype str_ge (listtype arguments)
 
   {
@@ -624,6 +663,11 @@ objecttype str_ge (listtype arguments)
 
 
 
+/**
+ *  Check if stri1 is greater than stri2.
+ *  @return TRUE if stri1 is greater than stri2,
+ *          FALSE otherwise.
+ */
 objecttype str_gt (listtype arguments)
 
   {
@@ -654,31 +698,35 @@ objecttype str_gt (listtype arguments)
 
 
 
+/**
+ *  Compute the hash value of a string.
+ *  @return the hash value.
+ */
 objecttype str_hashcode (listtype arguments)
 
   {
     stritype stri;
-    inttype result;
 
   /* str_hashcode */
     isit_stri(arg_1(arguments));
     stri = take_stri(arg_1(arguments));
-    if (stri->size == 0) {
-      result = 0;
-    } else {
-      result = (inttype) (stri->mem[0] << 5 ^ stri->size << 3 ^ stri->mem[stri->size - 1]);
-    } /* if */
-    return bld_int_temp(result);
+    return bld_int_temp(hashCode(stri));
   } /* str_hashcode */
 
 
 
+/**
+ *  Get a substring ending at a stop position.
+ *  The first character in a string has the position 1.
+ *  @return the substring ending at the stop position.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ */
 objecttype str_head (listtype arguments)
 
   {
     stritype stri;
     inttype stop;
-    memsizetype length;
+    memsizetype striSize;
     memsizetype result_size;
     stritype result;
 
@@ -687,19 +735,19 @@ objecttype str_head (listtype arguments)
     isit_int(arg_4(arguments));
     stri = take_stri(arg_1(arguments));
     stop = take_int(arg_4(arguments));
-    length = stri->size;
-    if (stop >= 1 && length >= 1) {
-      if (length <= (uinttype) stop) {
-        result_size = length;
+    striSize = stri->size;
+    if (stop >= 1 && striSize >= 1) {
+      if (striSize <= (uinttype) stop) {
+        result_size = striSize;
       } else {
         result_size = (memsizetype) stop;
       } /* if */
       if (TEMP_OBJECT(arg_1(arguments))) {
-        SHRINK_STRI(result, stri, length, result_size);
+        SHRINK_STRI(result, stri, striSize, result_size);
         if (result == NULL) {
           return raise_exception(SYS_MEM_EXCEPTION);
         } /* if */
-        COUNT3_STRI(length, result_size);
+        COUNT3_STRI(striSize, result_size);
         result->size = result_size;
         arg_1(arguments)->value.strivalue = NULL;
       } else {
@@ -721,6 +769,13 @@ objecttype str_head (listtype arguments)
 
 
 
+/**
+ *  Get a character, identified by an index, from a 'string'.
+ *  The first character has the index 1.
+ *  @return the character specified with the index.
+ *  @exception RANGE_ERROR When the index is less than 1 or
+ *             greater than the length of the 'string'.
+ */
 objecttype str_idx (listtype arguments)
 
   {
@@ -741,6 +796,14 @@ objecttype str_idx (listtype arguments)
 
 
 
+/**
+ *  Search string 'searched' in 'mainStri' at or before 'fromIndex'.
+ *  The search starts at 'fromIndex' and proceeds to the left.
+ *  The first character in a string has the position 1.
+ *  @return the position of 'searched' or 0 when 'mainStri'
+ *          does not contain 'searched' at or after 'fromIndex'.
+ *  @exception RANGE_ERROR 'fromIndex' <= 0 holds.
+ */
 objecttype str_ipos (listtype arguments)
 
   { /* str_ipos */
@@ -754,6 +817,11 @@ objecttype str_ipos (listtype arguments)
 
 
 
+/**
+ *  Check if stri1 is less than or equal to stri2.
+ *  @return TRUE if stri1 is less than or equal to stri2,
+ *          FALSE otherwise.
+ */
 objecttype str_le (listtype arguments)
 
   {
@@ -794,6 +862,10 @@ objecttype str_lit (listtype arguments)
 
 
 
+/**
+ *  Determine the length of a 'string'.
+ *  @return the length of the 'string'.
+ */
 objecttype str_lng (listtype arguments)
 
   {
@@ -815,41 +887,36 @@ objecttype str_lng (listtype arguments)
 
 
 
+/**
+ *  Convert a string to lower case.
+ *  The conversion uses the default Unicode case mapping,
+ *  where each character is considered in isolation.
+ *  Characters without case mapping are left unchanged.
+ *  The mapping is independend from the locale. Individual
+ *  character case mappings cannot be reversed, because some
+ *  characters have multiple characters that map to them.
+ *  @return the string converted to lower case.
+ */
 objecttype str_low (listtype arguments)
 
-  {
-    stritype stri;
-    memsizetype length;
-    memsizetype pos;
-    stritype result;
-
-  /* str_low */
+  { /* str_low */
     isit_stri(arg_1(arguments));
-    stri = take_stri(arg_1(arguments));
-    length = stri->size;
-    if (!ALLOC_STRI_SIZE_OK(result, length)) {
-      return raise_exception(SYS_MEM_EXCEPTION);
-    } else {
-      result->size = length;
-      for (pos = 0; pos < length; pos++) {
-        if (stri->mem[pos] >= (strelemtype) 'A' && stri->mem[pos] <= (strelemtype) 'Z') {
-          result->mem[pos] = stri->mem[pos] - (strelemtype) 'A' + (strelemtype) 'a';
-        } else {
-          result->mem[pos] = stri->mem[pos];
-        } /* if */
-      } /* for */
-      return bld_stri_temp(result);
-    } /* if */
+    return bld_stri_temp(
+        strLow(take_stri(arg_1(arguments))));
   } /* str_low */
 
 
 
+/**
+ *  Pad a string with spaces at the left side up to pad_size.
+ *  @return the string left padded with spaces.
+ */
 objecttype str_lpad (listtype arguments)
 
   {
     stritype stri;
     inttype pad_size;
-    memsizetype length;
+    memsizetype striSize;
     stritype result;
 
   /* str_lpad */
@@ -857,8 +924,8 @@ objecttype str_lpad (listtype arguments)
     isit_int(arg_3(arguments));
     stri = take_stri(arg_1(arguments));
     pad_size = take_int(arg_3(arguments));
-    length = stri->size;
-    if (pad_size > 0 && (uinttype) pad_size > length) {
+    striSize = stri->size;
+    if (pad_size > 0 && (uinttype) pad_size > striSize) {
       if ((uinttype) pad_size > MAX_STRI_LEN ||
           !ALLOC_STRI_SIZE_OK(result, (memsizetype) pad_size)) {
         return raise_exception(SYS_MEM_EXCEPTION);
@@ -866,26 +933,26 @@ objecttype str_lpad (listtype arguments)
         result->size = (memsizetype) pad_size;
         {
           strelemtype *elem = result->mem;
-          memsizetype len = (memsizetype) pad_size - length;
+          memsizetype len = (memsizetype) pad_size - striSize;
 
           while (len--) {
             *elem++ = (strelemtype) ' ';
           } /* while */
         }
-        memcpy(&result->mem[(memsizetype) pad_size - length], stri->mem,
-            length * sizeof(strelemtype));
+        memcpy(&result->mem[(memsizetype) pad_size - striSize], stri->mem,
+            striSize * sizeof(strelemtype));
       } /* if */
     } else {
       if (TEMP_OBJECT(arg_1(arguments))) {
         result = stri;
         arg_1(arguments)->value.strivalue = NULL;
       } else {
-        if (!ALLOC_STRI_SIZE_OK(result, length)) {
+        if (!ALLOC_STRI_SIZE_OK(result, striSize)) {
           return raise_exception(SYS_MEM_EXCEPTION);
         } /* if */
-        result->size = length;
+        result->size = striSize;
         memcpy(result->mem, stri->mem,
-            length * sizeof(strelemtype));
+            striSize * sizeof(strelemtype));
       } /* if */
     } /* if */
     return bld_stri_temp(result);
@@ -893,12 +960,16 @@ objecttype str_lpad (listtype arguments)
 
 
 
+/**
+ *  Pad a string with zeroes at the left side up to pad_size.
+ *  @return the string left padded with zeroes.
+ */
 objecttype str_lpad0 (listtype arguments)
 
   {
     stritype stri;
     inttype pad_size;
-    memsizetype length;
+    memsizetype striSize;
     strelemtype *sourceElem;
     strelemtype *destElem;
     memsizetype len;
@@ -909,8 +980,8 @@ objecttype str_lpad0 (listtype arguments)
     isit_int(arg_3(arguments));
     stri = take_stri(arg_1(arguments));
     pad_size = take_int(arg_3(arguments));
-    length = stri->size;
-    if (pad_size > 0 && (uinttype) pad_size > length) {
+    striSize = stri->size;
+    if (pad_size > 0 && (uinttype) pad_size > striSize) {
       if ((uinttype) pad_size > MAX_STRI_LEN ||
           !ALLOC_STRI_SIZE_OK(result, (memsizetype) pad_size)) {
         return raise_exception(SYS_MEM_EXCEPTION);
@@ -918,28 +989,28 @@ objecttype str_lpad0 (listtype arguments)
         result->size = (memsizetype) pad_size;
         sourceElem = stri->mem;
         destElem = result->mem;
-        len = (memsizetype) pad_size - length;
-        if (length != 0 && (sourceElem[0] == '-' || sourceElem[0] == '+')) {
+        len = (memsizetype) pad_size - striSize;
+        if (striSize != 0 && (sourceElem[0] == '-' || sourceElem[0] == '+')) {
           *destElem++ = sourceElem[0];
           sourceElem++;
-          length--;
+          striSize--;
         } /* if */
         while (len--) {
           *destElem++ = (strelemtype) '0';
         } /* while */
-        memcpy(destElem, sourceElem, length * sizeof(strelemtype));
+        memcpy(destElem, sourceElem, striSize * sizeof(strelemtype));
       } /* if */
     } else {
       if (TEMP_OBJECT(arg_1(arguments))) {
         result = stri;
         arg_1(arguments)->value.strivalue = NULL;
       } else {
-        if (!ALLOC_STRI_SIZE_OK(result, length)) {
+        if (!ALLOC_STRI_SIZE_OK(result, striSize)) {
           return raise_exception(SYS_MEM_EXCEPTION);
         } /* if */
-        result->size = length;
+        result->size = striSize;
         memcpy(result->mem, stri->mem,
-            length * sizeof(strelemtype));
+            striSize * sizeof(strelemtype));
       } /* if */
     } /* if */
     return bld_stri_temp(result);
@@ -947,6 +1018,11 @@ objecttype str_lpad0 (listtype arguments)
 
 
 
+/**
+ *  Check if stri1 is less than stri2.
+ *  @return TRUE if stri1 is less than stri2,
+ *          FALSE otherwise.
+ */
 objecttype str_lt (listtype arguments)
 
   {
@@ -977,31 +1053,36 @@ objecttype str_lt (listtype arguments)
 
 
 
+/**
+ *  Return string with leading whitespace omitted.
+ *  All characters less than or equal to ' ' (space) count as whitespace.
+ *  @return string with leading whitespace omitted.
+ */
 objecttype str_ltrim (listtype arguments)
 
   {
     stritype stri;
     memsizetype start;
-    memsizetype length;
+    memsizetype striSize;
     stritype result;
 
   /* str_ltrim */
     isit_stri(arg_1(arguments));
     stri = take_stri(arg_1(arguments));
     start = 0;
-    length = stri->size;
-    if (length >= 1) {
-      while (start < length && stri->mem[start] <= ' ') {
+    striSize = stri->size;
+    if (striSize >= 1) {
+      while (start < striSize && stri->mem[start] <= ' ') {
         start++;
       } /* while */
-      length -= start;
+      striSize -= start;
     } /* if */
-    if (!ALLOC_STRI_SIZE_OK(result, length)) {
+    if (!ALLOC_STRI_SIZE_OK(result, striSize)) {
       return raise_exception(SYS_MEM_EXCEPTION);
     } else {
-      result->size = length;
+      result->size = striSize;
       memcpy(result->mem, &stri->mem[start],
-          length * sizeof(strelemtype));
+          striSize * sizeof(strelemtype));
       return bld_stri_temp(result);
     } /* if */
   } /* str_ltrim */
@@ -1019,6 +1100,11 @@ objecttype str_mult (listtype arguments)
 
 
 
+/**
+ *  Check if two strings are not equal.
+ *  @return FALSE if both strings are equal,
+ *          TRUE otherwise.
+ */
 objecttype str_ne (listtype arguments)
 
   {
@@ -1040,6 +1126,13 @@ objecttype str_ne (listtype arguments)
 
 
 
+/**
+ *  Determine leftmost position of string 'searched' in 'mainStri'.
+ *  When the string is found the position of its first character
+ *  is the result. The first character in a string has the position 1.
+ *  @return the position of 'searched' or 0 when 'mainStri'
+ *          does not contain 'searched'.
+ */
 objecttype str_pos (listtype arguments)
 
   { /* str_pos */
@@ -1051,6 +1144,17 @@ objecttype str_pos (listtype arguments)
 
 
 
+/**
+ *  Assign string 'source' to the 'position' of the 'destination'.
+ *   A @:= [B] C;
+ *  is equivalent to
+ *   A := A[..pred(B)] & C & A[B+length(C)..];
+ *  @exception RANGE_ERROR When 'position' is negative or zero.
+ *  @exception RANGE_ERROR When 'destination' is smaller than 'source'.
+ *  @exception RANGE_ERROR Characters beyond 'destination' would be
+ *             overwritten ('position' + length('source') >
+ *             succ(length('destination')) holds).
+ */
 objecttype str_poscpy (listtype arguments)
 
   {
@@ -1083,6 +1187,11 @@ objecttype str_poscpy (listtype arguments)
 
 
 
+/**
+ *  Append the char 'extension' to 'destination'.
+ *  @exception MEMORY_ERROR Not enough memory for the concatenated
+ *             string.
+ */
 objecttype str_push (listtype arguments)
 
   {
@@ -1113,13 +1222,19 @@ objecttype str_push (listtype arguments)
 
 
 
+/**
+ *  Get a substring from a start position to a stop position.
+ *  The first character in a string has the position 1.
+ *  @return the substring from position start to stop.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ */
 objecttype str_range (listtype arguments)
 
   {
     stritype stri;
     inttype start;
     inttype stop;
-    memsizetype length;
+    memsizetype striSize;
     memsizetype result_size;
     stritype result;
 
@@ -1130,14 +1245,13 @@ objecttype str_range (listtype arguments)
     stri = take_stri(arg_1(arguments));
     start = take_int(arg_3(arguments));
     stop = take_int(arg_5(arguments));
-    length = stri->size;
+    striSize = stri->size;
     if (start < 1) {
       start = 1;
     } /* if */
-    if (stop >= 1 && stop >= start && (uinttype) start <= length &&
-        length >= 1) {
-      if ((uinttype) stop > length) {
-        result_size = length - (memsizetype) start + 1;
+    if (stop >= start && (uinttype) start <= striSize) {
+      if ((uinttype) stop > striSize) {
+        result_size = striSize - (memsizetype) start + 1;
       } else {
         result_size = (memsizetype) stop - (memsizetype) start + 1;
       } /* if */
@@ -1164,6 +1278,14 @@ objecttype str_range (listtype arguments)
 
 
 
+/**
+ *  Search char 'searched' in 'mainStri' at or before 'fromIndex'.
+ *  The search starts at 'fromIndex' and proceeds to the left.
+ *  The first character in a string has the position 1.
+ *  @return the position of 'searched' or 0 when 'mainStri'
+ *          does not contain 'searched' at or before 'fromIndex'.
+ *  @exception RANGE_ERROR 'fromIndex' > length(stri) holds.
+ */
 objecttype str_rchipos (listtype arguments)
 
   { /* str_rchipos */
@@ -1177,6 +1299,12 @@ objecttype str_rchipos (listtype arguments)
 
 
 
+/**
+ *  Determine rightmost position of char 'searched' in 'mainStri'.
+ *  The first character in a string has the position 1.
+ *  @return the position of 'searched' or 0 when 'mainStri'
+ *          does not contain 'searched'.
+ */
 objecttype str_rchpos (listtype arguments)
 
   { /* str_rchpos */
@@ -1188,6 +1316,10 @@ objecttype str_rchpos (listtype arguments)
 
 
 
+/**
+ *  Replace all occurrences of 'searched' in 'mainStri' by 'replacement'.
+ *  @return the result of the replacement.
+ */
 objecttype str_repl (listtype arguments)
 
   { /* str_repl */
@@ -1201,6 +1333,14 @@ objecttype str_repl (listtype arguments)
 
 
 
+/**
+ *  Search string 'searched' in 'mainStri' at or before 'fromIndex'.
+ *  The search starts at 'fromIndex' and proceeds to the left.
+ *  The first character in a string has the position 1.
+ *  @return the position of 'searched' or 0 when 'mainStri'
+ *          does not contain 'searched' at or before 'fromIndex'.
+ *  @exception RANGE_ERROR 'fromIndex' > length(stri) holds.
+ */
 objecttype str_ripos (listtype arguments)
 
   { /* str_ripos */
@@ -1214,12 +1354,16 @@ objecttype str_ripos (listtype arguments)
 
 
 
+/**
+ *  Pad a string with spaces at the right side up to pad_size.
+ *  @return the string right padded with spaces.
+ */
 objecttype str_rpad (listtype arguments)
 
   {
     stritype stri;
     inttype pad_size;
-    memsizetype length;
+    memsizetype striSize;
     stritype result;
 
   /* str_rpad */
@@ -1227,17 +1371,17 @@ objecttype str_rpad (listtype arguments)
     isit_int(arg_3(arguments));
     stri = take_stri(arg_1(arguments));
     pad_size = take_int(arg_3(arguments));
-    length = stri->size;
-    if (pad_size > 0 && (uinttype) pad_size > length) {
+    striSize = stri->size;
+    if (pad_size > 0 && (uinttype) pad_size > striSize) {
       if ((uinttype) pad_size > MAX_STRI_LEN ||
           !ALLOC_STRI_SIZE_OK(result, (memsizetype) pad_size)) {
         return raise_exception(SYS_MEM_EXCEPTION);
       } else {
         result->size = (memsizetype) pad_size;
-        memcpy(result->mem, stri->mem, length * sizeof(strelemtype));
+        memcpy(result->mem, stri->mem, striSize * sizeof(strelemtype));
         {
-          strelemtype *elem = &result->mem[length];
-          memsizetype len = (memsizetype) pad_size - length;
+          strelemtype *elem = &result->mem[striSize];
+          memsizetype len = (memsizetype) pad_size - striSize;
 
           while (len--) {
            *elem++ = (strelemtype) ' ';
@@ -1249,12 +1393,12 @@ objecttype str_rpad (listtype arguments)
         result = stri;
         arg_1(arguments)->value.strivalue = NULL;
       } else {
-        if (!ALLOC_STRI_SIZE_OK(result, length)) {
+        if (!ALLOC_STRI_SIZE_OK(result, striSize)) {
           return raise_exception(SYS_MEM_EXCEPTION);
         } /* if */
-        result->size = length;
+        result->size = striSize;
         memcpy(result->mem, stri->mem,
-            length * sizeof(strelemtype));
+            striSize * sizeof(strelemtype));
       } /* if */
     } /* if */
     return bld_stri_temp(result);
@@ -1262,6 +1406,13 @@ objecttype str_rpad (listtype arguments)
 
 
 
+/**
+ *  Determine rightmost position of string 'searched' in 'mainStri'.
+ *  When the string is found the position of its first character
+ *  is the result. The first character in a string has the position 1.
+ *  @return the position of 'searched' or 0 when 'mainStri'
+ *          does not contain 'searched'.
+ */
 objecttype str_rpos (listtype arguments)
 
   { /* str_rpos */
@@ -1273,11 +1424,16 @@ objecttype str_rpos (listtype arguments)
 
 
 
+/**
+ *  Return string with trailing whitespace omitted.
+ *  All characters less than or equal to ' ' (space) count as whitespace.
+ *  @return string with trailing whitespace omitted.
+ */
 objecttype str_rtrim (listtype arguments)
 
   {
     stritype stri;
-    memsizetype length;
+    memsizetype striSize;
     memsizetype result_size;
     stritype result;
 
@@ -1289,12 +1445,12 @@ objecttype str_rtrim (listtype arguments)
       result_size--;
     } /* while */
     if (TEMP_OBJECT(arg_1(arguments))) {
-      length = stri->size;
-      SHRINK_STRI(result, stri, length, result_size);
+      striSize = stri->size;
+      SHRINK_STRI(result, stri, striSize, result_size);
       if (result == NULL) {
         return raise_exception(SYS_MEM_EXCEPTION);
       } /* if */
-      COUNT3_STRI(length, result_size);
+      COUNT3_STRI(striSize, result_size);
       result->size = result_size;
       arg_1(arguments)->value.strivalue = NULL;
     } else {
@@ -1321,6 +1477,10 @@ objecttype str_split (listtype arguments)
 
 
 
+/**
+ *  Convert to a string.
+ *  @return its parameter unchanged.
+ */
 objecttype str_str (listtype arguments)
 
   {
@@ -1348,13 +1508,19 @@ objecttype str_str (listtype arguments)
 
 
 
+/**
+ *  Get a substring from a start position with a given length.
+ *  The first character in a string has the position 1.
+ *  @return the substring from the start position with a given length.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ */
 objecttype str_substr (listtype arguments)
 
   {
     stritype stri;
     inttype start;
-    inttype len;
-    memsizetype length;
+    inttype length;
+    memsizetype striSize;
     memsizetype result_size;
     stritype result;
 
@@ -1364,18 +1530,21 @@ objecttype str_substr (listtype arguments)
     isit_int(arg_5(arguments));
     stri = take_stri(arg_1(arguments));
     start = take_int(arg_3(arguments));
-    len = take_int(arg_5(arguments));
-    length = stri->size;
-    if (len >= 1 && start > 1 - len && (start < 1 || (uinttype) start <= length) &&
-        length >= 1) {
-      if (start < 1) {
-        len += start - 1;
+    length = take_int(arg_5(arguments));
+    striSize = stri->size;
+    if (unlikely(start < 1)) {
+      if (length >= 1 && start > 1 - length) {
+        length += start - 1;
         start = 1;
-      } /* if */
-      if ((uinttype) start + (uinttype) len - 1 > length) {
-        result_size = length - (memsizetype) start + 1;
       } else {
-        result_size = (memsizetype) len;
+        length = 0;
+      } /* if */
+    } /* if */
+    if (length >= 1 && (uinttype) start <= striSize) {
+      if ((uinttype) length > striSize - (memsizetype) start + 1) {
+        result_size = striSize - (memsizetype) start + 1;
+      } else {
+        result_size = (memsizetype) length;
       } /* if */
       if (!ALLOC_STRI_SIZE_OK(result, result_size)) {
         return raise_exception(SYS_MEM_EXCEPTION);
@@ -1394,12 +1563,18 @@ objecttype str_substr (listtype arguments)
 
 
 
+/**
+ *  Get a substring beginning at a start position.
+ *  The first character in a 'string' has the position 1.
+ *  @return the substring beginning at the start position.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ */
 objecttype str_tail (listtype arguments)
 
   {
     stritype stri;
     inttype start;
-    memsizetype length;
+    memsizetype striSize;
     memsizetype result_size;
     stritype result;
 
@@ -1408,12 +1583,12 @@ objecttype str_tail (listtype arguments)
     isit_int(arg_3(arguments));
     stri = take_stri(arg_1(arguments));
     start = take_int(arg_3(arguments));
-    length = stri->size;
+    striSize = stri->size;
     if (start < 1) {
       start = 1;
     } /* if */
-    if ((uinttype) start <= length && length >= 1) {
-      result_size = length - (memsizetype) start + 1;
+    if ((uinttype) start <= striSize && striSize >= 1) {
+      result_size = striSize - (memsizetype) start + 1;
       if (!ALLOC_STRI_SIZE_OK(result, result_size)) {
         return raise_exception(SYS_MEM_EXCEPTION);
       } /* if */
@@ -1447,65 +1622,61 @@ objecttype str_toutf8 (listtype arguments)
 
 
 
+/**
+ *  Return string with leading and trailing whitespace omitted.
+ *  All characters less than or equal to ' ' (space) count as whitespace.
+ *  @return string with leading and trailing whitespace omitted.
+ */
 objecttype str_trim (listtype arguments)
 
   {
     stritype stri;
     memsizetype start;
-    memsizetype length;
+    memsizetype striSize;
     stritype result;
 
   /* str_trim */
     isit_stri(arg_1(arguments));
     stri = take_stri(arg_1(arguments));
     start = 0;
-    length = stri->size;
-    if (length >= 1) {
-      while (start < length && stri->mem[start] <= ' ') {
+    striSize = stri->size;
+    if (striSize >= 1) {
+      while (start < striSize && stri->mem[start] <= ' ') {
         start++;
       } /* while */
-      while (length > start && stri->mem[length - 1] <= ' ') {
-        length--;
+      while (striSize > start && stri->mem[striSize - 1] <= ' ') {
+        striSize--;
       } /* while */
-      length -= start;
+      striSize -= start;
     } /* if */
-    if (!ALLOC_STRI_SIZE_OK(result, length)) {
+    if (!ALLOC_STRI_SIZE_OK(result, striSize)) {
       return raise_exception(SYS_MEM_EXCEPTION);
     } else {
-      result->size = length;
+      result->size = striSize;
       memcpy(result->mem, &stri->mem[start],
-          length * sizeof(strelemtype));
+          striSize * sizeof(strelemtype));
       return bld_stri_temp(result);
     } /* if */
   } /* str_trim */
 
 
 
+/**
+ *  Convert a string to upper case.
+ *  The conversion uses the default Unicode case mapping,
+ *  where each character is considered in isolation.
+ *  Characters without case mapping are left unchanged.
+ *  The mapping is independend from the locale. Individual
+ *  character case mappings cannot be reversed, because some
+ *  characters have multiple characters that map to them.
+ *  @return the string converted to upper case.
+ */
 objecttype str_up (listtype arguments)
 
-  {
-    stritype stri;
-    memsizetype length;
-    memsizetype pos;
-    stritype result;
-
-  /* str_up */
+  { /* str_up */
     isit_stri(arg_1(arguments));
-    stri = take_stri(arg_1(arguments));
-    length = stri->size;
-    if (!ALLOC_STRI_SIZE_OK(result, length)) {
-      return raise_exception(SYS_MEM_EXCEPTION);
-    } else {
-      result->size = length;
-      for (pos = 0; pos < length; pos++) {
-        if (stri->mem[pos] >= (strelemtype) 'a' && stri->mem[pos] <= (strelemtype) 'z') {
-          result->mem[pos] = stri->mem[pos] - (strelemtype) 'a' + (strelemtype) 'A';
-        } else {
-          result->mem[pos] = stri->mem[pos];
-        } /* if */
-      } /* for */
-      return bld_stri_temp(result);
-    } /* if */
+    return bld_stri_temp(
+        strUp(take_stri(arg_1(arguments))));
   } /* str_up */
 
 

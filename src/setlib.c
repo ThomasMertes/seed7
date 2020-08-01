@@ -135,10 +135,14 @@ objecttype set_baselit (listtype arguments)
 
 
 
+/**
+ *  Compute the cardinality of a set.
+ *  @return the number of elements in 'aSet'.
+ */
 objecttype set_card (listtype arguments)
 
   {
-    settype set1;
+    settype aSet;
     memsizetype bitset_index;
     unsigned char *byte;
     size_t idx;
@@ -146,12 +150,12 @@ objecttype set_card (listtype arguments)
 
   /* set_card */
     isit_set(arg_1(arguments));
-    set1 = take_set(arg_1(arguments));
+    aSet = take_set(arg_1(arguments));
     result = 0;
     for (bitset_index = 0;
-        bitset_index <= (uinttype) (set1->max_position - set1->min_position);
+        bitset_index <= (uinttype) (aSet->max_position - aSet->min_position);
         bitset_index++) {
-      byte = (unsigned char *) &set1->bitset[bitset_index];
+      byte = (unsigned char *) &aSet->bitset[bitset_index];
       for (idx = 0; idx < sizeof(bitsettype); idx++) {
         /* printf("%c%c%c%c%c%c%c%c [%d] ",
                *byte & 0x80 ? '1' : '0',
@@ -173,6 +177,17 @@ objecttype set_card (listtype arguments)
 
 
 
+/**
+ *  Compares two sets to make them useable as key in a hash table.
+ *  The sets are compared by determining the biggest element that is
+ *  not present or absent in both sets. The set in which this element
+ *  is not present is the smaller one. Note that the set comparison
+ *  is not related to the concepts of subset or superset. With the
+ *  comparison function setCmp it is posible to sort an array of
+ *  sets or to use sets as key in a hash table. The functions
+ *  setIsSubset and setIsProperSubset are used to check if a set is
+ *  a (proper) subset or superset of another set.
+ */
 objecttype set_cmp (listtype arguments)
 
   { /* set_cmp */
@@ -309,6 +324,11 @@ objecttype set_destr (listtype arguments)
 
 
 
+/**
+ *  Difference of two sets.
+ *  @return the difference of the two sets.
+ *  @exception MEMORY_ERROR Not enough memory for the result.
+ */
 objecttype set_diff (listtype arguments)
 
   { /* set_diff */
@@ -320,10 +340,16 @@ objecttype set_diff (listtype arguments)
 
 
 
+/**
+ *  Set membership test.
+ *  Determine if 'number' is a member of the set 'aSet'.
+ *  @return TRUE when 'number' is a member of  'aSet',
+ *          FALSE otherwise.
+ */
 objecttype set_elem (listtype arguments)
 
   {
-    settype set1;
+    settype aSet;
     inttype number;
     inttype position;
     memsizetype bitset_index;
@@ -333,12 +359,12 @@ objecttype set_elem (listtype arguments)
     isit_int(arg_1(arguments));
     isit_set(arg_3(arguments));
     number = take_int(arg_1(arguments));
-    set1 = take_set(arg_3(arguments));
+    aSet = take_set(arg_3(arguments));
     position = bitset_pos(number);
-    if (position >= set1->min_position && position <= set1->max_position) {
-      bitset_index = bitsetIndex(set1, position);
+    if (position >= aSet->min_position && position <= aSet->max_position) {
+      bitset_index = bitsetIndex(aSet, position);
       bit_index = ((unsigned int) number) & bitset_mask;
-      if (set1->bitset[bitset_index] & (((bitsettype) 1) << bit_index)) {
+      if (aSet->bitset[bitset_index] & (((bitsettype) 1) << bit_index)) {
         return SYS_TRUE_OBJECT;
       } else {
         return SYS_FALSE_OBJECT;
@@ -368,6 +394,11 @@ objecttype set_empty (listtype arguments)
 
 
 
+/**
+ *  Check if two sets are equal.
+ *  @return TRUE if the two sets are equal,
+ *          FALSE otherwise.
+ */
 objecttype set_eq (listtype arguments)
 
   { /* set_eq */
@@ -382,6 +413,10 @@ objecttype set_eq (listtype arguments)
 
 
 
+/**
+ *  Remove 'number' from the set 'set_to'.
+ *  When 'number' is not element of 'set_to' then 'set_to' stays unchanged.
+ */
 objecttype set_excl (listtype arguments)
 
   {
@@ -415,6 +450,14 @@ objecttype set_excl (listtype arguments)
 
 
 
+/**
+ *  Determine if 'set1' is a superset of 'set2'.
+ *  'set1' is a superset of 'set2' when no element X exists for which
+ *   X in set2 and X not in set1
+ *  holds.
+ *  @return TRUE if 'set1' is a superset of 'set2',
+ *          FALSE otherwise.
+ */
 objecttype set_ge (listtype arguments)
 
   { /* set_ge */
@@ -429,6 +472,14 @@ objecttype set_ge (listtype arguments)
 
 
 
+/**
+ *  Determine if 'set1' is a proper superset of 'set2'.
+ *  'set1' is a proper superset of 'set2' when
+ *   set1 >= set2 and set1 <> set2
+ *  holds.
+ *  @return TRUE if 'set1' is a proper superset of 'set2',
+ *          FALSE otherwise.
+ */
 objecttype set_gt (listtype arguments)
 
   { /* set_gt */
@@ -443,6 +494,10 @@ objecttype set_gt (listtype arguments)
 
 
 
+/**
+ *  Compute the hash value of a set.
+ *  @return the hash value.
+ */
 objecttype set_hashcode (listtype arguments)
 
   { /* set_hashcode */
@@ -453,6 +508,11 @@ objecttype set_hashcode (listtype arguments)
 
 
 
+/**
+ *  Convert an integer number to a bitset.
+ *  @return a bitset which corresponds to the given integer.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ */
 objecttype set_iconv (listtype arguments)
 
   { /* set_iconv */
@@ -466,7 +526,7 @@ objecttype set_iconv (listtype arguments)
 objecttype set_idx (listtype arguments)
 
   {
-    settype set1;
+    settype aSet;
     inttype number;
     inttype position;
     memsizetype bitset_index;
@@ -475,13 +535,13 @@ objecttype set_idx (listtype arguments)
   /* set_idx */
     isit_set(arg_1(arguments));
     isit_int(arg_3(arguments));
-    set1 = take_set(arg_1(arguments));
+    aSet = take_set(arg_1(arguments));
     number = take_int(arg_3(arguments));
     position = bitset_pos(number);
-    if (position >= set1->min_position && position <= set1->max_position) {
-      bitset_index = bitsetIndex(set1, position);
+    if (position >= aSet->min_position && position <= aSet->max_position) {
+      bitset_index = bitsetIndex(aSet, position);
       bit_index = ((unsigned int) number) & bitset_mask;
-      if (set1->bitset[bitset_index] & (((bitsettype) 1) << bit_index)) {
+      if (aSet->bitset[bitset_index] & (((bitsettype) 1) << bit_index)) {
         return SYS_TRUE_OBJECT;
       } else {
         return SYS_FALSE_OBJECT;
@@ -493,6 +553,11 @@ objecttype set_idx (listtype arguments)
 
 
 
+/**
+ *  Add 'number' to the set 'set_to'.
+ *  When 'number' is already in 'set_to' then 'set_to' stays unchanged.
+ *  @exception MEMORY_ERROR When there is not enough memory.
+ */
 objecttype set_incl (listtype arguments)
 
   {
@@ -557,6 +622,11 @@ objecttype set_incl (listtype arguments)
 
 
 
+/**
+ *  Intersection of two sets.
+ *  @return the intersection of the two sets.
+ *  @exception MEMORY_ERROR Not enough memory for the result.
+ */
 objecttype set_intersect (listtype arguments)
 
   { /* set_intersect */
@@ -568,6 +638,14 @@ objecttype set_intersect (listtype arguments)
 
 
 
+/**
+ *  Determine if 'set1' is a subset of 'set2'.
+ *  'set1' is a subset of 'set2' when no element X exists for which
+ *   X in set1 and X not in set2
+ *  holds.
+ *  @return TRUE if 'set1' is a subset of 'set2',
+ *          FALSE otherwise.
+ */
 objecttype set_le (listtype arguments)
 
   { /* set_le */
@@ -582,6 +660,14 @@ objecttype set_le (listtype arguments)
 
 
 
+/**
+ *  Determine if 'set1' is a proper subset of 'set2'.
+ *  'set1' is a proper subset of 'set2' when
+ *   set1 <= set2 and set1 <> set2
+ *  holds.
+ *  @return TRUE if 'set1' is a proper subset of 'set2',
+ *          FALSE otherwise.
+ */
 objecttype set_lt (listtype arguments)
 
   { /* set_lt */
@@ -596,6 +682,14 @@ objecttype set_lt (listtype arguments)
 
 
 
+/**
+ *  Maximal element of a set.
+ *  Delivers the element from 'aSet' for which the following condition holds:
+ *   element >= X
+ *  for all X which are in the set.
+ *  @return the maximal element of 'aSet'.
+ *  @exception RANGE_ERROR When 'aSet' is the empty set.
+ */
 objecttype set_max (listtype arguments)
 
   { /* set_max */
@@ -606,6 +700,14 @@ objecttype set_max (listtype arguments)
 
 
 
+/**
+ *  Minimal element of a set.
+ *  Delivers the element from 'aSet' for which the following condition holds:
+ *   element <= X
+ *  for all X which are in the set.
+ *  @return the minimum element of 'aSet'.
+ *  @exception RANGE_ERROR When 'aSet' is the empty set.
+ */
 objecttype set_min (listtype arguments)
 
   { /* set_min */
@@ -616,6 +718,11 @@ objecttype set_min (listtype arguments)
 
 
 
+/**
+ *  Check if two sets are not equal.
+ *  @return FALSE if the two sets are equal,
+ *          TRUE otherwise.
+ */
 objecttype set_ne (listtype arguments)
 
   { /* set_ne */
@@ -641,10 +748,16 @@ objecttype set_next (listtype arguments)
 
 
 
+/**
+ *  Negated set membership test.
+ *  Determine if 'number' is not a member of the set 'aSet'.
+ *  @return FALSE when 'number' is a member of  'aSet',
+ *          TRUE otherwise.
+ */
 objecttype set_not_elem (listtype arguments)
 
   {
-    settype set1;
+    settype aSet;
     inttype number;
     inttype position;
     memsizetype bitset_index;
@@ -654,12 +767,12 @@ objecttype set_not_elem (listtype arguments)
     isit_int(arg_1(arguments));
     isit_set(arg_4(arguments));
     number = take_int(arg_1(arguments));
-    set1 = take_set(arg_4(arguments));
+    aSet = take_set(arg_4(arguments));
     position = bitset_pos(number);
-    if (position >= set1->min_position && position <= set1->max_position) {
-      bitset_index = bitsetIndex(set1, position);
+    if (position >= aSet->min_position && position <= aSet->max_position) {
+      bitset_index = bitsetIndex(aSet, position);
       bit_index = ((unsigned int) number) & bitset_mask;
-      if (set1->bitset[bitset_index] & (((bitsettype) 1) << bit_index)) {
+      if (aSet->bitset[bitset_index] & (((bitsettype) 1) << bit_index)) {
         return SYS_FALSE_OBJECT;
       } else {
         return SYS_TRUE_OBJECT;
@@ -671,6 +784,12 @@ objecttype set_not_elem (listtype arguments)
 
 
 
+/**
+ *  Compute pseudo-random number which is element of 'aSet'.
+ *  The random values are uniform distributed.
+ *  @return a random number such that rand(aSet) in aSet holds.
+ *  @exception RANGE_ERROR When 'aSet' is empty.
+ */
 objecttype set_rand (listtype arguments)
 
   { /* set_rand */
@@ -692,6 +811,12 @@ objecttype set_rangelit (listtype arguments)
 
 
 
+/**
+ *  Convert a bitset to integer.
+ *  @return an integer which corresponds to the given bitset.
+ *  @exception RANGE_ERROR When 'aSet' contains negative values or
+ *             when it does not fit into an integer.
+ */
 objecttype set_sconv (listtype arguments)
 
   { /* set_sconv */
@@ -702,6 +827,11 @@ objecttype set_sconv (listtype arguments)
 
 
 
+/**
+ *  Symmetric difference of two sets.
+ *  @return the symmetric difference of the two sets.
+ *  @exception MEMORY_ERROR Not enough memory for the result.
+ */
 objecttype set_symdiff (listtype arguments)
 
   { /* set_symdiff */
@@ -713,6 +843,11 @@ objecttype set_symdiff (listtype arguments)
 
 
 
+/**
+ *  Union of two sets.
+ *  @return the union of the two sets.
+ *  @exception MEMORY_ERROR Not enough memory for the result.
+ */
 objecttype set_union (listtype arguments)
 
   { /* set_union */
@@ -728,7 +863,7 @@ objecttype set_value (listtype arguments)
 
   {
     objecttype obj_arg;
-    settype set1;
+    settype aSet;
     memsizetype set_size;
     settype result;
 
@@ -739,14 +874,14 @@ objecttype set_value (listtype arguments)
         take_set(obj_arg) == NULL) {
       return raise_exception(SYS_RNG_EXCEPTION);
     } else {
-      set1 = take_set(obj_arg);
-      set_size = bitsetSize(set1);
+      aSet = take_set(obj_arg);
+      set_size = bitsetSize(aSet);
       if (!ALLOC_SET(result, set_size)) {
         return raise_exception(SYS_MEM_EXCEPTION);
       } else {
-        result->min_position = set1->min_position;
-        result->max_position = set1->max_position;
-        memcpy(result->bitset, set1->bitset, set_size * sizeof(bitsettype));
+        result->min_position = aSet->min_position;
+        result->max_position = aSet->max_position;
+        memcpy(result->bitset, aSet->bitset, set_size * sizeof(bitsettype));
         return bld_set_temp(result);
       } /* if */
     } /* if */

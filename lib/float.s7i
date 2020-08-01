@@ -93,7 +93,7 @@ const func float: (in float: dividend) / (in float: divisor)   is action "FLT_DI
 
 
 (**
- *  Compute the exponentiation of a float ''base'' by an [[integer]] ''exponent''.
+ *  Compute the exponentiation of a float ''base'' with an [[integer]] ''exponent''.
  *   A   ** 0  returns 1.0
  *   0.0 ** B  returns 0.0       for B > 0
  *   0.0 ** 0  returns 1.0
@@ -104,7 +104,7 @@ const func float: (in float: base) ** (in integer: exponent)   is action "FLT_IP
 
 
 (**
- *  Compute the exponentiation of a float ''base'' by a float ''exponent''.
+ *  Compute the exponentiation of a float ''base'' with a float ''exponent''.
  *   A   ** B    returns NaN       for A < 0.0 and B is not integer
  *   A   ** 0.0  returns 1.0
  *   0.0 ** B    returns 0.0       for B > 0.0
@@ -128,7 +128,7 @@ const proc: (inout float: number) -:= (in float: delta)        is action "FLT_SH
 
 
 (**
- *  Multiply a float number by a factor and assign the result back to number.
+ *  Multiply a float ''number'' by a ''factor'' and assign the result back to ''number''.
  *)
 const proc: (inout float: number) *:= (in float: factor)       is action "FLT_MULT_ASSIGN";
 

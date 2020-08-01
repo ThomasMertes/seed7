@@ -104,7 +104,7 @@ const func integer: compare (in char: ch1, in char: ch2)      is action "CHR_CMP
 
 
 (**
- *  Compute the hash value of a characer.
+ *  Compute the hash value of a character.
  *  @return the hash value.
  *)
 const func integer: hashCode (in char: ch)                    is action "CHR_HASHCODE";
@@ -164,8 +164,12 @@ const func string: str (in char: ch)                          is action "CHR_STR
 
 (**
  *  Convert a character to upper case.
- *  The letters a to z are converted to upper case.
- *  Other characters are left unchanged.
+ *  The conversion uses the default Unicode case mapping,
+ *  where each character is considered in isolation.
+ *  Characters without case mapping are left unchanged.
+ *  The mapping is independend from the locale. Individual
+ *  character case mappings cannot be reversed, because some
+ *  characters have multiple characters that map to them.
  *  @return the character converted to upper case.
  *)
 const func char: upper (in char: ch)                          is action "CHR_UP";
@@ -173,8 +177,12 @@ const func char: upper (in char: ch)                          is action "CHR_UP"
 
 (**
  *  Convert a character to lower case.
- *  The letters A to Z are converted to lower case.
- *  Other characters are left unchanged.
+ *  The conversion uses the default Unicode case mapping,
+ *  where each character is considered in isolation.
+ *  Characters without case mapping are left unchanged.
+ *  The mapping is independend from the locale. Individual
+ *  character case mappings cannot be reversed, because some
+ *  characters have multiple characters that map to them.
  *  @return the character converted to lower case.
  *)
 const func char: lower (in char: ch)                          is action "CHR_LOW";
