@@ -34,6 +34,7 @@
 chartype gkbGetc (void);
 booltype gkbKeyPressed (void);
 chartype gkbRawGetc (void);
+wintype gkbWindow (void);
 inttype gkbXpos (void);
 inttype gkbYpos (void);
 void drwArc (const_wintype, inttype, inttype, inttype, floattype, floattype);
@@ -78,6 +79,7 @@ inttype drwWidth (const_wintype);
 chartype gkbGetc ();
 booltype gkbKeyPressed ();
 chartype gkbRawGetc ();
+wintype gkbWindow ();
 inttype gkbXpos ();
 inttype gkbYpos ();
 void drwArc ();

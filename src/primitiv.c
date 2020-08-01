@@ -351,14 +351,15 @@ static primactrecord prim_act_table[] = {
 
 #ifdef WITH_DRAW
     { "GKB_BUSY_GETC",       gkb_busy_getc,       },
-    { "GKB_GETC",            gkb_getc           },
-    { "GKB_GETS",            gkb_gets           },
-    { "GKB_KEYPRESSED",      gkb_keypressed     },
-    { "GKB_LINE_READ",       gkb_line_read      },
-    { "GKB_RAW_GETC",        gkb_raw_getc       },
-    { "GKB_WORD_READ",       gkb_word_read      },
-    { "GKB_XPOS",            gkb_xpos           },
-    { "GKB_YPOS",            gkb_ypos           },
+    { "GKB_GETC",            gkb_getc             },
+    { "GKB_GETS",            gkb_gets             },
+    { "GKB_KEYPRESSED",      gkb_keypressed       },
+    { "GKB_LINE_READ",       gkb_line_read        },
+    { "GKB_RAW_GETC",        gkb_raw_getc         },
+    { "GKB_WINDOW",          gkb_window           },
+    { "GKB_WORD_READ",       gkb_word_read        },
+    { "GKB_XPOS",            gkb_xpos             },
+    { "GKB_YPOS",            gkb_ypos             },
 #endif
 
     { "HSH_CONTAINS",        hsh_contains,        },

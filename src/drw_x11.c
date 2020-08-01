@@ -74,7 +74,7 @@ XWMHints mywmhint;
 int myscreen;
 static inttype button_x = 0;
 static inttype button_y = 0;
-
+static Window button_window = 0;
 
 typedef struct x11_winstruct {
   unsigned long usage_count;
@@ -256,6 +256,7 @@ chartype gkbGetc ()
 #endif
         button_x = myevent.xbutton.x;
         button_y = myevent.xbutton.y;
+        button_window = myevent.xbutton.window;
         if (myevent.xbutton.button >= 1 && myevent.xbutton.button <= 5) {
           result = myevent.xbutton.button + K_MOUSE1 - 1;
         } else {
@@ -689,6 +690,27 @@ chartype gkbRawGetc ()
   { /* gkbRawGetc */
     return(gkbGetc());
   } /* gkbRawGetc */
+
+
+
+#ifdef ANSI_C
+
+wintype gkbWindow (void)
+#else
+
+wintype gkbWindow ()
+#endif
+
+  {
+    wintype result;
+
+  /* gkbWindow */
+    result = (wintype) find_window(button_window);
+    if (result != NULL) {
+      result->usage_count++;
+    } /* if */
+    return(result);
+  } /* gkbWindow */
 
 
 

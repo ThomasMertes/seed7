@@ -4496,6 +4496,14 @@ const proc: process_gkb_raw_getc (in ref_list: params, inout expr_type: c_expr) 
   end func;
 
 
+const proc: process_gkb_window (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    prepare_win_result(c_expr);
+    c_expr.result_expr &:= "gkbWindow()";
+  end func;
+
+
 const proc: process_gkb_word_read (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
@@ -8352,6 +8360,8 @@ const proc: process_action (in reference: procedure, in ref_list: params,
         process_gkb_line_read(params, c_expr);
       elsif action_name = "GKB_RAW_GETC" then
         process_gkb_raw_getc(params, c_expr);
+      elsif action_name = "GKB_WINDOW" then
+        process_gkb_window(params, c_expr);
       elsif action_name = "GKB_WORD_READ" then
         process_gkb_word_read(params, c_expr);
       elsif action_name = "GKB_XPOS" then
@@ -12079,6 +12089,7 @@ const proc: write_file_head is func
     c_prog << "inttype     gkbKeyPressed (void);\n";
     c_prog << "stritype    gkbLineRead (chartype *);\n";
     c_prog << "chartype    gkbRawGetc (void);\n";
+    c_prog << "wintype     gkbWindow (void);\n";
     c_prog << "stritype    gkbWordRead (chartype *);\n";
     c_prog << "booltype    hshContains (hashtype, generictype, inttype, comparetype);\n";
     c_prog << "void        hshCpy (hashtype *, hashtype, createfunctype, destrfunctype, createfunctype, destrfunctype);\n";

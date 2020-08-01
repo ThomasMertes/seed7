@@ -180,6 +180,21 @@ listtype arguments;
 
 #ifdef ANSI_C
 
+objecttype gkb_window (listtype arguments)
+#else
+
+objecttype gkb_window (arguments)
+listtype arguments;
+#endif
+
+  { /* gkb_window */
+    return(bld_win_temp(gkbWindow()));
+  } /* gkb_window */
+
+
+
+#ifdef ANSI_C
+
 objecttype gkb_xpos (listtype arguments)
 #else
 

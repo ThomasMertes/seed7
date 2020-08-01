@@ -57,6 +57,7 @@ static inttype init_called = 0;
 
 static inttype button_x = 0;
 static inttype button_y = 0;
+static HWND button_window = 0;
 
 
 typedef struct win_winstruct {
@@ -485,14 +486,17 @@ chartype gkbGetc ()
         } else if (msg.message == WM_LBUTTONDOWN) {
           button_x = LOWORD(msg.lParam);
           button_y = HIWORD(msg.lParam);
+          button_window = msg.hwnd;
           result = K_MOUSE1;
         } else if (msg.message == WM_MBUTTONDOWN) {
           button_x = LOWORD(msg.lParam);
           button_y = HIWORD(msg.lParam);
+          button_window = msg.hwnd;
           result = K_MOUSE2;
         } else if (msg.message == WM_RBUTTONDOWN) {
           button_x = LOWORD(msg.lParam);
           button_y = HIWORD(msg.lParam);
+          button_window = msg.hwnd;
           result = K_MOUSE3;
         } else if (msg.message == WM_SYSKEYDOWN) {
           /* printf("WM_SYSKEYDOWN %lu, %d, %u %d\n", msg.hwnd, msg.wParam, msg.lParam, msg.lParam & 0x20000000); */
@@ -711,6 +715,27 @@ chartype gkbRawGetc ()
   { /* gkbRawGetc */
     return(gkbGetc());
   } /* gkbRawGetc */
+
+
+
+#ifdef ANSI_C
+
+wintype gkbWindow (void)
+#else
+
+wintype gkbWindow ()
+#endif
+
+  {
+    wintype result;
+
+  /* gkbWindow */
+    result = (wintype) find_window(button_window);
+    if (result != NULL) {
+      result->usage_count++;
+    } /* if */
+    return(result);
+  } /* gkbWindow */
 
 
 

@@ -1,3 +1,9 @@
+20071025:
+- A new example program (mahjong.sd7) was added.
+- An include file (mahjng32.s7i) which contains mahjong tiles was added.
+- The interpreter and the compeler were improved to support the gkb_window action.
+- The close interface function was changed to work for the type graphFile.
+
 20071010:
 - The compiler (comp.sd7) was improved to support the 'remove(array, index)' function.
 - The functions isLeapYear, daysInMonth, weekOfYear, weekDateYear and weekDateWeek

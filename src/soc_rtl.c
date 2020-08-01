@@ -129,9 +129,9 @@ void socClose (sock)
 sockettype sock;
 #endif
 
-  { /* socGetc */
+  { /* socClose */
     shutdown(sock, SHUT_RDWR);
-  } /* socGetc */
+  } /* socClose */
 
 
 

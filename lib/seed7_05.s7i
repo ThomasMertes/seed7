@@ -2775,7 +2775,7 @@ const type: file is sub object interface;
 const proc: write (inout file param, in string param) is DYNAMIC;
 const proc: writeln (inout file param) is DYNAMIC;
 const proc: backSpace (inout file param) is DYNAMIC;
-const proc: close (ref file param) is DYNAMIC;
+const proc: close (inout file param) is DYNAMIC;
 const proc: flush (ref file param) is DYNAMIC;
 const func char: getc (inout file param) is DYNAMIC;
 const func string: gets (inout file param, in integer param) is DYNAMIC;
