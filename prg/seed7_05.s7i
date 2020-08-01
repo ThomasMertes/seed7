@@ -463,6 +463,7 @@ const func boolean: pred (attr TRUE) is  FALSE;
 const string: str (attr TRUE) is         "TRUE";
 *)
 
+const type: (attr type) . value is void;
 const func boolean: (in type param) = (in type param) is      action "TYP_EQ";
 const func boolean: (in type param) <> (in type param) is     action "TYP_NE";
 const func integer: compare (in type param, in type param) is action "TYP_CMP";
@@ -1594,6 +1595,17 @@ const func bitset: { (in tuple integer: value) } is func
     end for;
   end func;
 
+const func bitset: { (in integer: lower_value) .. (in integer: upper_value) } is func
+  result
+    var bitset: result is EMPTY_SET;
+  local
+    var integer: value is 0;
+  begin
+    for value range lower_value to upper_value do
+      incl(result, value);
+    end for;
+  end func;
+
 const proc: for (inout integer: variable) range (in bitset: a_set) do
               (in proc: statements)
             end for is func
@@ -1605,6 +1617,21 @@ const proc: for (inout integer: variable) range (in bitset: a_set) do
         end if;
       end for;
     end if;
+  end func;
+
+const func string: str (in bitset: a_set) is func
+  result
+    var string: result is "{";
+  local
+    var integer: setElement is 0;
+  begin
+    for setElement range a_set do
+      if result <> "{" then
+        result &:= ", ";
+      end if;
+      result &:= str(setElement);
+    end for;
+    result &:= "}";
   end func;
 
 const type: set of (attr integer) is bitset;
@@ -2877,6 +2904,7 @@ enable_io(boolean);
 enable_output(type);
 enable_output(ACTION);
 enable_output(reference);
+enable_output(bitset);
 
 
 (* text *)

@@ -551,6 +551,41 @@ const array string: hourglass_pic is [](
   " bbbbbbbbbbbbbbbbbbbbbbbbbbbbbb ");
 
 
+const array string: hut_pic is [](
+  "xxxx           xx               ",
+  "xxxxxx        xxxx              ",
+  " xxxxxx      xxbbxx             ",
+  "   xxxxx    xxbbbbxx            ",
+  "    xxxx   xxbbbbbbxx           ",
+  "    XXXX  xxrrrrrrrrxx          ",
+  "    XXXX xxbbOOOOOObbxx         ",
+  "    XXXXxxbbbO    Obbbxx        ",
+  "    XXXxxrrrrO    Orrrrxx       ",
+  "    XXxxbbbbbO    Obbbbbxx      ",
+  "    XxxbbbbbbO    Obbbbbbxx     ",
+  "    xxrrrrrrrOOOOOOrrrrrrrxx    ",
+  "   xxbbbbbbbbbbbbbbbbbbbbbbxx   ",
+  "  xxbbbbbbbbbbbbbbbbbbbbbbbbxx  ",
+  " xxrrrrrrrrrrrrrrrrrrrrrrrrrrxx ",
+  "xxbbbbbbbbbbbbbbbbbbbbbbbbbbbbxx",
+  " bbrbbbbbbbbbbbbbbbbbbbbbbbbrbb ",
+  "  rbrOOOOOOOOrrrrrOOOOOOOOOrbr  ",
+  " bbrbOccXXccObbbbbObbbbbbbObrbb ",
+  " bbrbOccXXccObbbbbObbbbbbbObrbb ",
+  "  rbrOccXXccOrrrrrObbbbbbbOrbr  ",
+  " bbrbOccXXccObbbbbObbbbbbbObrbb ",
+  " bbrbOccXXccObbbbbObbbbbbbObrbb ",
+  "  rbrOBXXXXBOrrrrrObbbbbbbOrbr  ",
+  " bbrbOccXXccObbbbbO  bbbbbObrbb ",
+  " bbrbOOOOOOOObbbbbObbbbbbbObrbb ",
+  "  rbrrrrrrrrrrrrrrObbbbbbbOrbr  ",
+  " bbrbbbbbbbbbbbbbbObbbbbbbObrbb ",
+  " bbrbbbbbbbbbbbbbbObbbbbbbObrbb ",
+  "  rbrrrrrrrrrrrrrrObbbbbbbOrbr  ",
+  " bbrbbbbbbbbbbbbbbObbbbbbbObrbb ",
+  " bbbbbbbbbbbbbbbbbObbbbbbbObbbb ");
+
+
 const array string: jade_figurine_pic is [](
   "               GGG              ",
   "              GGGGG             ",
@@ -724,6 +759,41 @@ const array string: necklace_pic is [](
   "              RRRRRR            ",
   "               RRRR             ",
   "                RR              ");
+
+
+const array string: ogre_pic is [](
+  "            GGGGGGGGGG          ",
+  "          GGGGGGGGGGGGGG        ",
+  "         GGGGGGGGGGGGGGGG       ",
+  "         GGGG  GGGG  GGGG       ",
+  "        GGGG    GG    GGGG      ",
+  "        GGGGG  GGGG  GGGGG      ",
+  "        GGGGGGGGGGGGGGGGGG      ",
+  "        GGGGG XX  XX GGGGG      ",
+  "        GGGG          GGGG      ",
+  "        GGG            GGG      ",
+  "        GGG  XX XX XX  GGG      ",
+  "         GGG GGGGGGGG GGG       ",
+  "       GxxGGGGGGGGGGGGGGxxG     ",
+  "     GGGxxxxGGGGGGGGGGxxxxGGG   ",
+  "    GGGGxxxxxxxxxxxxxxxxxxGGGG  ",
+  "   GGGGGxxxxxxxxxxxxxxxxxxGGGGG ",
+  "   GGGG xxxxxxxxxxxxxxxxxx GGGG ",
+  "  GGGG  xxxxxxxxxxxxxxxxxx  GGGG",
+  "  GGGG  xxxxxxxxxxxxxxxxxx  GGGG",
+  "  GGGG  xxxxxxxxxxxxxxxxxx  GGGG",
+  "  bbbb  xxxxxxxxxxxxxxxxxx      ",
+  "  bbbb  xxxxxxxxxxxxxxxxxx      ",
+  "  bbbb    bbbbbb  bbbbbb        ",
+  "  bbbb    bbbbbb  bbbbbb        ",
+  " bbbbbb   bbbbbb  bbbbbb        ",
+  "bbbbbbbb  bbbbb    bbbbb        ",
+  "bbbbbbbb  bbbbb    bbbbb        ",
+  "bbbbbbbb  bbbb      bbbb        ",
+  "bbbbbbbb  bbbb      bbbb        ",
+  "bbbbbbbb  bbbb      bbbb        ",
+  " bbbbbb rrrrrr      rrrrrr      ",
+  "  bbbb rrrrrrr      rrrrrrr     ");
 
 
 const array string: ruby_pic is [](

@@ -82,15 +82,13 @@ unsigned int position;
   /* escape_sequence */
     character = next_character();                               /*  0.05% */
     if (character == '\n') {
-      SKIP_CR_SP(character);
-      INCR_LINE_COUNT(in_file.line);
-      while (character == '\n') {
+      do {
         SKIP_CR_SP(character);
+        if (character == '#') {
+          SKIP_TO_NL(character);
+        } /* if */
         INCR_LINE_COUNT(in_file.line);
-#ifdef WITH_STATISTIK
-        empty_line_count++;
-#endif
-      } /* while */
+      } while (character == '\n');
       if (character == '\\') {
         character = next_character();
       } else {
@@ -99,17 +97,16 @@ unsigned int position;
     } else if (character == ' ' || character == '\t' ||
         character == '\r') {
       SKIP_CR_SP(character);
-      if (character == '\n') {
-        SKIP_CR_SP(character);
-        INCR_LINE_COUNT(in_file.line);
-        while (character == '\n') {
-          SKIP_CR_SP(character);
-          INCR_LINE_COUNT(in_file.line);
-#ifdef WITH_STATISTIK
-          empty_line_count++;
-#endif
-        } /* while */
+      if (character == '#') {
+        SKIP_TO_NL(character);
       } /* if */
+      while (character == '\n') {
+        SKIP_CR_SP(character);
+        if (character == '#') {
+          SKIP_TO_NL(character);
+        } /* if */
+        INCR_LINE_COUNT(in_file.line);
+      } /* while */
       if (character == '\\') {
         character = next_character();
       } else {

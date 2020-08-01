@@ -300,6 +300,32 @@ listtype arguments;
 
 
 
+#ifdef OUT_OF_ORDER
+#ifdef ANSI_C
+
+objecttype typ_getcreate (listtype arguments)
+#else
+
+objecttype typ_getcreate (arguments)
+listtype arguments;
+#endif
+
+  {
+    typetype result;
+
+  /* typ_getcreate */
+    isit_type(arg_1(arguments));
+    ;
+    get_create_call_obj(take_type(arg_1(arguments)), errinfotype *err_info)
+    if ((result = new_type(NULL, NULL)) == NULL) {
+      return(raise_exception(SYS_MEM_EXCEPTION));
+    } /* if */
+    return(bld_type_temp(result));
+  } /* typ_getcreate */
+#endif
+
+
+
 #ifdef ANSI_C
 
 objecttype typ_hashcode (listtype arguments)

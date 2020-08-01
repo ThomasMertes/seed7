@@ -504,6 +504,22 @@ const proc: check_power is func
   end func;
 
 
+const func integer: isqrt (in var integer: number) is func
+  result
+    var integer: result is 0;
+  local
+    var integer: res2 is 0;
+  begin
+    if number > 0 then
+      res2 := number;
+      repeat
+        result := res2;
+        res2 := (result + number div result) div 2;
+      until result <= res2;
+    end if;
+  end func;
+
+
 const proc: check_sqrt is func
   local
     var boolean: okay is TRUE;
@@ -517,6 +533,14 @@ const proc: check_sqrt is func
       if sqrt_num * sqrt_num > number or
           (sqrt_num + 1) * (sqrt_num + 1) <= number then
         write("sqrt(");
+        write(number);
+        write(") = ");
+        write(sqrt_num);
+        writeln(" is NOT OKAY");
+        okay := FALSE;
+      end if;
+      if isqrt(number) <> sqrt_num then
+        write("isqrt(");
         write(number);
         write(") = ");
         write(sqrt_num);
@@ -540,12 +564,28 @@ const proc: check_sqrt is func
         writeln(" is NOT OKAY");
         okay := FALSE;
       end if;
+      if isqrt(number) <> sqrt_num then
+        write("isqrt(");
+        write(number);
+        write(") = ");
+        write(sqrt_num);
+        writeln(" is NOT OKAY");
+        okay := FALSE;
+      end if;
     end for;
     for count range 1 to 1000 do
       number := rand(2147395600, 2147483647);
       sqrt_num := sqrt(number);
       if sqrt_num <> 46340 then
         write("sqrt(");
+        write(number);
+        write(") = ");
+        write(sqrt_num);
+        writeln(" is NOT OKAY");
+        okay := FALSE;
+      end if;
+      if isqrt(number) <> sqrt_num then
+        write("isqrt(");
         write(number);
         write(") = ");
         write(sqrt_num);

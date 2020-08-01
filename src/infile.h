@@ -55,6 +55,7 @@
 
 #define SKIP_SPACE(CH) do CH = next_character(); while (CH == ' ' || CH == '\t')
 #define SKIP_CR_SP(CH) do CH = next_character(); while (CH == ' ' || CH == '\t' || CH == '\r')
+#define SKIP_TO_NL(CH) do { CH = next_character(); } while (CH != '\n' && CH != EOF);
 
 
 #ifdef DO_INIT

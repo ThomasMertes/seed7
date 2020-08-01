@@ -676,25 +676,6 @@ const array string: chain_pic is [](
   "     BBB   BBB  ");
 
 
-const array string: ogre_pic is [](
-  "     GGGGGGG    ",
-  "    GGGGGGGGG   ",
-  "    GG  G  GG   ",
-  "    GGGGGGGGG   ",
-  "    GGG   GGG   ",
-  "    GG  G  GG   ",
-  "   GxGGGGGGGxG  ",
-  "  GGxxxxxxxxxGG ",
-  " GG xxxxxxxxx GG",
-  " GG xxxxxxxxx GG",
-  " bb xxxxxxxxx   ",
-  " bb  bbb bbb    ",
-  "bbbb bbb bbb    ",
-  "bbbb bb   bb    ",
-  "bbbb bb   bb    ",
-  " bbrrrr   rrrr  ");
-
-
 const array string: vampire_pic is [](
   "      bbbb      ",
   "     bbbbbb     ",
@@ -766,41 +747,6 @@ const array string: large_gem_pic is [](
   "              RRRR              ",
   "               RR               ",
   "                                ");
-
-
-const array string: hut_pic is [](
-  "xxxx           xx               ",
-  "xxxxxx        xxxx              ",
-  " xxxxxx      xxbbxx             ",
-  "   xxxxx    xxbbbbxx            ",
-  "    xxxx   xxbbbbbbxx           ",
-  "    XXXX  xxrrrrrrrrxx          ",
-  "    XXXX xxbbOOOOOObbxx         ",
-  "    XXXXxxbbbO    Obbbxx        ",
-  "    XXXxxrrrrO    Orrrrxx       ",
-  "    XXxxbbbbbO    Obbbbbxx      ",
-  "    XxxbbbbbbO    Obbbbbbxx     ",
-  "    xxrrrrrrrOOOOOOrrrrrrrxx    ",
-  "   xxbbbbbbbbbbbbbbbbbbbbbbxx   ",
-  "  xxbbbbbbbbbbbbbbbbbbbbbbbbxx  ",
-  " xxrrrrrrrrrrrrrrrrrrrrrrrrrrxx ",
-  "xxbbbbbbbbbbbbbbbbbbbbbbbbbbbbxx",
-  " bbrbbbbbbbbbbbbbbbbbbbbbbbbrbb ",
-  "  rbrOOOOOOOOrrrrrOOOOOOOOOrbr  ",
-  " bbrbOccXXccObbbbbObbbbbbbObrbb ",
-  " bbrbOccXXccObbbbbObbbbbbbObrbb ",
-  "  rbrOccXXccOrrrrrObbbbbbbOrbr  ",
-  " bbrbOccXXccObbbbbObbbbbbbObrbb ",
-  " bbrbOccXXccObbbbbObbbbbbbObrbb ",
-  "  rbrOBXXXXBOrrrrrObbbbbbbOrbr  ",
-  " bbrbOccXXccObbbbbO  bbbbbObrbb ",
-  " bbrbOOOOOOOObbbbbObbbbbbbObrbb ",
-  "  rbrrrrrrrrrrrrrrObbbbbbbOrbr  ",
-  " bbrbbbbbbbbbbbbbbObbbbbbbObrbb ",
-  " bbrbbbbbbbbbbbbbbObbbbbbbObrbb ",
-  "  rbrrrrrrrrrrrrrrObbbbbbbOrbr  ",
-  " bbrbbbbbbbbbbbbbbObbbbbbbObrbb ",
-  " bbbbbbbbbbbbbbbbbObbbbbbbObbbb ");
 
 
 const array string: fairy_pic is [](

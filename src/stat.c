@@ -82,7 +82,6 @@ void show_statistic ()
     } /* if */
 #endif
 #ifdef WITH_STATISTIK
-    printf("%6d empty lines\n", empty_line_count);
     printf("%6d literals\n", literal_count);
     printf("%6d lists\n", list_count);
     printf("%6d comments\n", comment_count);
@@ -114,7 +113,6 @@ void reset_statistic ()
     total_lines = 0;
 #endif
 #ifdef WITH_STATISTIK
-    empty_line_count = 0;
     literal_count = 0;
     list_count = 0;
     comment_count = 0;

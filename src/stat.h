@@ -29,7 +29,6 @@
 EXTERN unsigned long total_lines;
 #endif
 #ifdef WITH_STATISTIK
-EXTERN unsigned int empty_line_count;
 EXTERN unsigned int literal_count;
 EXTERN unsigned int list_count;
 EXTERN unsigned int comment_count;

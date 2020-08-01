@@ -120,25 +120,6 @@ const array string: big_bush_pic is [](
   "             bbbb               ");
 
 
-const array string: ogre_pic is [](
-  "     GGGGGGG    ",
-  "    GGGGGGGGG   ",
-  "    GG  G  GG   ",
-  "    GGGGGGGGG   ",
-  "    GGG   GGG   ",
-  "    GG  G  GG   ",
-  "   GxGGGGGGGxG  ",
-  "  GGxxxxxxxxxGG ",
-  " GG xxxxxxxxx GG",
-  " GG xxxxxxxxx GG",
-  " bb xxxxxxxxx   ",
-  " bb  bbb bbb    ",
-  "bbbb bbb bbb    ",
-  "bbbb bb   bb    ",
-  "bbbb bb   bb    ",
-  " bbrrrr   rrrr  ");
-
-
 const array string: vampire_pic is [](
   "      bbbb      ",
   "     bbbbbb     ",

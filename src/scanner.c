@@ -95,11 +95,6 @@ static INLINE void scan_comment ()
 /*        character = next_line(); */
           SKIP_CR_SP(character);
           INCR_LINE_COUNT(in_file.line);
-#ifdef WITH_STATISTIK
-          if (character == '\n') {
-            empty_line_count++;
-          } /* if */
-#endif
         } /* if */
       } while (character != '*' && character != EOF);
       if (character != EOF) {
@@ -137,11 +132,11 @@ static INLINE void scan_line_comment ()
 #ifdef TRACE_SCANNER
     printf("BEGIN scan_line_comment\n");
 #endif
-    character = next_character();
-    while (character != '\n' && character != EOF) {
-      character = next_character();
-    } /* while */
+    SKIP_TO_NL(character);
     in_file.character = character;
+#ifdef WITH_STATISTIK
+    comment_count++;
+#endif
 #ifdef TRACE_SCANNER
     printf("END scan_line_comment\n");
 #endif
@@ -273,9 +268,6 @@ void scan_symbol ()
         break;
       case '\n':
         /* NEWLINECHAR: */
-#ifdef WITH_STATISTIK
-        empty_line_count++;
-#endif
         in_file.character = character;
         scan_symbol();
         break;

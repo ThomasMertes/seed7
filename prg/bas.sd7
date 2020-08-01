@@ -22,16 +22,17 @@
 (*  This basic interpreter implements the following functions and   *)
 (*  statements ( ** means recognized but not implemented):          *)
 (*                                                                  *)
-(*  ABS, ASC, ATN, **BEEP, CHR$, CINT, **CLEAR, CLOSE, CLS,         *)
-(*  **COLOR, COS, CSRLIN, DATA, DATE$, DEF FN, **DEF SEG, **DEFINT, *)
-(*  DEFSTR, DIM, END, EOF, EXP, FIX, FOR, GOSUB, GOSUB OF, GOTO,    *)
-(*  GOTO OF, HEX$, IF, INKEY$, INPUT, INPUT#, INPUT$, INSTR, INT,   *)
-(*  LCASE$, LEFT$, LEN, LET, LINE INPUT, LINE INPUT#, LOCATE, LOG,  *)
-(*  MID$, NEXT, OCT$, **ON ERROR, ON GOSUB, ON GOTO, **ON KEY,      *)
-(*  OPEN, OPTION BASE, POS, PRINT, RANDOMIZE, READ, REM, RESET,     *)
-(*  RESTORE, RETURN, RIGHT$, RND, SCREEN, SGN, SIN, **SOUND,        *)
-(*  SPACE$, SPC, SQR, STOP, STR$, STRING$, SYSTEM, TAB, TAN, TIME$, *)
-(*  TIMER, UCASE$, VAL, WEND, WHILE, **WIDTH                        *)
+(*  ABS, ASC, ATN, **BEEP, CDBL, CHR$, CINT, **CLEAR, CLOSE, CLS,   *)
+(*  **COLOR, COS, CSNG, CSRLIN, DATA, DATE$, DEF FN, **DEF SEG,     *)
+(*  **DEFINT, DEFSTR, DIM, END, EOF, EXP, FIX, FOR, GOSUB,          *)
+(*  GOSUB OF, GOTO, GOTO OF, HEX$, IF, INKEY$, INPUT, INPUT#,       *)
+(*  INPUT$, INSTR, INT, LCASE$, LEFT$, LEN, LET, LINE INPUT,        *)
+(*  LINE INPUT#, LOCATE, LOG, MID$, NEXT, OCT$, **ON ERROR,         *)
+(*  ON GOSUB, ON GOTO, **ON KEY, OPEN, OPTION BASE, POS, PRINT,     *)
+(*  RANDOMIZE, READ, REM, RESET, RESTORE, RETURN, RIGHT$, RND,      *)
+(*  SCREEN, SGN, SIN, **SOUND, SPACE$, SPC, SQR, STOP, STR$,        *)
+(*  STRING$, SWAP, SYSTEM, TAB, TAN, TIME$, TIMER, UCASE$, VAL,     *)
+(*  WEND, WHILE, **WIDTH                                            *)
 (*                                                                  *)
 (********************************************************************)
 
@@ -1388,6 +1389,26 @@ const func float: exec_primary (inout string: symbol, inout string: line) is fun
       log << result;
       log << NL;
       flush(log);
+    elsif symbol = "CDBL" then
+      symbol := get_symbol(line);
+      expect("(", symbol, line);
+      result := exec_expr(symbol, line);
+      expect(")", symbol, line);
+      log << "CDBL(";
+      log << result;
+      log << ")";
+      log << NL;
+      flush(log);
+    elsif symbol = "CSNG" then
+      symbol := get_symbol(line);
+      expect("(", symbol, line);
+      result := exec_expr(symbol, line);
+      expect(")", symbol, line);
+      log << "CSNG(";
+      log << result;
+      log << ")";
+      log << NL;
+      flush(log);
     elsif symbol = "(" then
       symbol := get_symbol(line);
       result := exec_expr(symbol, line);
@@ -1828,6 +1849,7 @@ const func boolean: exec_cmd (inout string: symbol, inout string: line) is func
     var boolean: result is TRUE;
   local
     var string: variable_name is "";
+    var string: variable2_name is "";
     var string: unused_name is "";
     var string: param1 is "";
     var string: param2 is "";
@@ -3247,6 +3269,41 @@ const func boolean: exec_cmd (inout string: symbol, inout string: line) is func
       flush(log);
       symbol := "";
       result := FALSE;
+    elsif symbol = "SWAP" then
+      symbol := get_symbol(line);
+      if symbol[length(symbol)] = '$' or symbol[1] in defstr_var then
+        variable_name := get_name(symbol, line);
+        expect(",", symbol, line);
+        if symbol[length(symbol)] = '$' or symbol[1] in defstr_var then
+          variable2_name := get_name(symbol, line);
+          param1 := string_var[variable_name];
+          param2 := string_var[variable2_name];
+          string_var @:= [variable_name] param2;
+          string_var @:= [variable2_name] param1;
+        else
+          error_marker;
+          err << "STRING VARIABLE EXPECTED - FOUND ";
+          err << literal(symbol);
+          err << ".";
+          err << NL;
+        end if;
+      else
+        variable_name := get_name(symbol, line);
+        expect(",", symbol, line);
+        if symbol[length(symbol)] <> '$' and symbol[1] not in defstr_var then
+          variable2_name := get_name(symbol, line);
+          num1 := numeric_var[variable_name];
+          num2 := numeric_var[variable2_name];
+          numeric_var @:= [variable_name] num2;
+          numeric_var @:= [variable2_name] num1;
+        else
+          error_marker;
+          err << "NUMERIC VARIABLE EXPECTED - FOUND ";
+          err << literal(symbol);
+          err << ".";
+          err << NL;
+        end if;
+      end if;
     elsif symbol <> "" then
       if symbol = "LET" then
         symbol := get_symbol(line);

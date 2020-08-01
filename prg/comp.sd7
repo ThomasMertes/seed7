@@ -53,6 +53,8 @@ const type: expr_type is new struct
   var string: result_finish is "";
 end struct;
 
+var expr_type: global_c_expr is expr_type.value;
+
 var integer: declaration_count is 1;
 var array ref_list: object_value is 0 times ref_list.EMPTY;
 var expr_type: global_init is expr_type.value;
@@ -72,10 +74,18 @@ const type: const_index_hash is hash [integer] array reference;
 
 var const_table_hash: const_table is const_table_hash.EMPTY_HASH;
 
+const type: array_element_hash is hash [type] type;
 const type: element_number_hash is hash [reference] integer;
+const type: number_element_hash is hash [integer] array reference;
+const type: element_type_hash is hash [reference] type;
 const type: struct_elements_hash is hash [type] element_number_hash;
+const type: struct_element_type_hash is hash [type] element_type_hash;
+const type: create_declared_hash is hash [type] boolean;
 
+var array_element_hash: array_element is array_element_hash.EMPTY_HASH;
 var struct_elements_hash: struct_elements is struct_elements_hash.EMPTY_HASH;
+var struct_element_type_hash: struct_element_type is struct_element_type_hash.EMPTY_HASH;
+var create_declared_hash: create_declared is create_declared_hash.EMPTY_HASH;
 
 const proc: process_action (in reference: procedure, in ref_list: params,
     inout expr_type: c_expr) is forward;
@@ -114,6 +124,25 @@ const proc: prepare_stri_result (inout expr_type: c_expr) is func
     c_expr.result_intro &:= "=";
     c_expr.result_finish := ")";
   end func;
+
+
+(*
+const proc: prepare_struct_result (inout expr_type: c_expr) is func
+
+  begin
+    incr(c_expr.temp_num);
+    c_expr.result_decl := "structtype tmp_";
+    c_expr.result_decl &:= str(c_expr.temp_num);
+    c_expr.result_decl &:= ";\n";
+    c_expr.result_free := "sctDestr(tmp_";
+    c_expr.result_free &:= str(c_expr.temp_num);
+    c_expr.result_free &:= ");\n";
+    c_expr.result_intro := "(tmp_";
+    c_expr.result_intro &:= str(c_expr.temp_num);
+    c_expr.result_intro &:= "=";
+    c_expr.result_finish := ")";
+  end func;
+*)
 
 
 const proc: get_set_arg (in reference: current_expression, inout expr_type: c_expr) is func
@@ -245,6 +274,157 @@ const proc: process_type (in type: object_type, inout expr_type: c_expr) is func
   end func;
 
 
+const proc: process_create_declaration (in type: object_type,
+    inout expr_type: c_expr) is forward;
+
+
+const proc: process_create_call (in type: object_type,
+    in string: param_a, in string: param_b, inout expr_type: c_expr) is forward;
+
+
+const proc: process_arr_create_declaration (in type: object_type,
+    inout expr_type: c_expr) is func
+
+  local
+    var number_element_hash: elements is number_element_hash.EMPTY_HASH;
+    var integer: number is 0;
+    var reference: struct_elem is NIL;
+    var type: elem_type is void;
+  begin
+    process_create_declaration(array_element[object_type], c_expr);
+    process_type(object_type, c_expr);
+    c_expr.expr &:= " create_";
+    c_expr.expr &:= str(type_number(object_type));
+    c_expr.expr &:= " (";
+    process_type(object_type, c_expr);
+    c_expr.expr &:= " b)\n";
+    c_expr.expr &:= "{\n";
+    process_type(object_type, c_expr);
+    c_expr.expr &:= " a;\n";
+    c_expr.expr &:= "int i;\n";
+    c_expr.expr &:= "a=malloc(sizeof(struct arraystruct) - sizeof(long) + ((arraytype)b)->size * sizeof(long));\n";
+    c_expr.expr &:= "for (i=0; i<=((arraytype)b)->size; i++) {\n";
+    process_create_call(array_element[object_type],
+        "((long *)a)[i]", "((long *)b)[i]", c_expr);
+    c_expr.expr &:= ";\n";
+    c_expr.expr &:= "}\n";
+    c_expr.expr &:= "return(a);\n";
+    c_expr.expr &:= "}\n\n";
+  end func;
+
+
+const proc: process_sct_create_declaration (in type: object_type,
+    inout expr_type: c_expr) is func
+
+  local
+    var number_element_hash: elements is number_element_hash.EMPTY_HASH;
+    var integer: number is 0;
+    var reference: struct_elem is NIL;
+    var type: elem_type is void;
+  begin
+    elements := flip(struct_elements[object_type]);
+    for number range 0 to pred(length(elements)) do
+      struct_elem := elements[number][1];
+      process_create_declaration(struct_element_type[object_type][struct_elem], c_expr);
+    end for;
+    process_type(object_type, c_expr);
+    c_expr.expr &:= " create_";
+    c_expr.expr &:= str(type_number(object_type));
+    c_expr.expr &:= " (";
+    process_type(object_type, c_expr);
+    c_expr.expr &:= " b)\n";
+    c_expr.expr &:= "{\n";
+    process_type(object_type, c_expr);
+    c_expr.expr &:= " a;\n";
+    c_expr.expr &:= "a=malloc(";
+    c_expr.expr &:= str(length(elements));
+    c_expr.expr &:= " * sizeof(long));\n";
+    for number range 0 to pred(length(elements)) do
+      struct_elem := elements[number][1];
+      process_create_call(struct_element_type[object_type][struct_elem],
+          "((long *)a)[" & str(number) & "]", "((long *)b)[" & str(number) & "]", c_expr);
+      c_expr.expr &:= ";\n";
+    end for;
+    c_expr.expr &:= "return(a);\n";
+    c_expr.expr &:= "}\n\n";
+  end func;
+
+
+const proc: process_create_declaration (in type: object_type,
+    inout expr_type: c_expr) is func
+
+  begin
+    if object_type not in create_declared then
+      if object_type in array_element then
+        process_arr_create_declaration(object_type, c_expr);
+      elsif object_type in struct_elements then
+        process_sct_create_declaration(object_type, c_expr);
+      else
+        c_expr.expr &:= "/* create_declaration for type ";
+        c_expr.expr &:= "t_";
+        c_expr.expr &:= str(type_number(object_type));
+        c_expr.expr &:= "**";
+        c_expr.expr &:= str(object_type);
+        c_expr.expr &:= "*/\n\n";
+      end if;
+      create_declared @:= [object_type] TRUE;
+    end if;
+  end func;
+
+
+const proc: process_arr_create_call (in type: object_type,
+    in string: param_a, in string: param_b, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= param_a;
+    c_expr.expr &:= "=create_";
+    c_expr.expr &:= str(type_number(object_type));
+    c_expr.expr &:= "(";
+    c_expr.expr &:= param_b;
+    c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process_sct_create_call (in type: object_type,
+    in string: param_a, in string: param_b, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= param_a;
+    c_expr.expr &:= "=create_";
+    c_expr.expr &:= str(type_number(object_type));
+    c_expr.expr &:= "(";
+    c_expr.expr &:= param_b;
+    c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process_create_call (in type: object_type,
+    in string: param_a, in string: param_b, inout expr_type: c_expr) is func
+
+  begin
+    if object_type = inttype then
+      c_expr.expr &:= param_a & "=" & param_b;
+    elsif object_type = chartype then
+      c_expr.expr &:= param_a & "=" & param_b;
+    elsif object_type = stritype then
+      c_expr.expr &:= "strCopy(" & param_a & ", " & param_b & ")";
+    elsif object_type = floattype then
+      c_expr.expr &:= param_a & "=" & param_b;
+    elsif object_type in array_element then
+      process_arr_create_call(object_type, param_a, param_b, c_expr);
+    elsif object_type in struct_elements then
+      process_sct_create_call(object_type, param_a, param_b, c_expr);
+    else
+      c_expr.expr &:= "/* create_ for type ";
+      c_expr.expr &:= "t_";
+      c_expr.expr &:= str(type_number(object_type));
+      c_expr.expr &:= "**";
+      c_expr.expr &:= str(object_type);
+      c_expr.expr &:= "*/";
+    end if;
+  end func;
+
+
 const func string: enum_value (in reference: current_object) is func
 
   result
@@ -350,9 +530,12 @@ const proc: process_object_value (in reference: current_object,
       if current_object not in const_table then
         const_table @:= [current_object] length(const_table);
       end if;
-      local_init &:= "arrCreate(&o_";
+      process_create_declaration(getType(current_object), global_c_expr);
+      local_init &:= "o_";
       local_init &:= str(obj_number(current_object));
-      local_init &:= ", arr[";
+      local_init &:= "=create_";
+      local_init &:= str(type_number(getType(current_object)));
+      local_init &:= "(arr[";
       local_init &:= str(const_table[current_object]);
       local_init &:= "]);\n";
     elsif objclass = "HASHOBJECT" then
@@ -370,9 +553,12 @@ const proc: process_object_value (in reference: current_object,
       if current_object not in const_table then
         const_table @:= [current_object] length(const_table);
       end if;
-      local_init &:= "sctCreate(&o_";
+      process_create_declaration(getType(current_object), global_c_expr);
+      local_init &:= "o_";
       local_init &:= str(obj_number(current_object));
-      local_init &:= ", sct[";
+      local_init &:= "=create_";
+      local_init &:= str(type_number(getType(current_object)));
+      local_init &:= "(sct[";
       local_init &:= str(const_table[current_object]);
       local_init &:= "]);\n";
     elsif objclass = "CLASSOBJECT" then
@@ -1181,9 +1367,9 @@ const proc: process_arr_idx (in ref_list: params, inout expr_type: c_expr) is fu
   begin
     c_expr.expr &:= "((arraytype)(";
     process_expr(params[1], c_expr);
-    c_expr.expr &:= "))->arr[";
+    c_expr.expr &:= "))->arr[(";
     process_expr(params[3], c_expr);
-    c_expr.expr &:= "]";
+    c_expr.expr &:= ")-1]";
   end func;
 
 
@@ -2588,6 +2774,17 @@ const proc: process_flt_ceil (in ref_list: params, inout expr_type: c_expr) is f
   end func;
 
 
+const proc: process_flt_cmp (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "fltCmp(";
+    process_arg(params[1], c_expr);
+    c_expr.expr &:= ", ";
+    process_arg(params[2], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
 const proc: process_flt_cos (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
@@ -3214,6 +3411,17 @@ const proc: process_int_binom (in ref_list: params, inout expr_type: c_expr) is 
     process_expr(params[1], c_expr);
     c_expr.expr &:= ", ";
     process_expr(params[3], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process_int_cmp (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "intCmp(";
+    process_arg(params[1], c_expr);
+    c_expr.expr &:= ", ";
+    process_arg(params[2], c_expr);
     c_expr.expr &:= ")";
   end func;
 
@@ -4779,7 +4987,7 @@ const proc: process_str_lit (in ref_list: params, inout expr_type: c_expr) is fu
 
   begin
     prepare_stri_result(c_expr);
-    c_expr.result_expr &:= "str_lit(";
+    c_expr.result_expr &:= "strLit(";
     get_stri_arg(params[1], c_expr);
     c_expr.result_expr &:= ")";
   end func;
@@ -5482,6 +5690,10 @@ const proc: process_action (in reference: procedure, in ref_list: params,
       process_flt_asin(params, c_expr);
     elsif action_name = "FLT_ATAN" then
       process_flt_atan(params, c_expr);
+    elsif action_name = "FLT_CEIL" then
+      process_flt_ceil(params, c_expr);
+    elsif action_name = "FLT_CMP" then
+      process_flt_cmp(params, c_expr);
     elsif action_name = "FLT_COS" then
       process_flt_cos(params, c_expr);
     elsif action_name = "FLT_CPY" then
@@ -5576,6 +5788,8 @@ const proc: process_action (in reference: procedure, in ref_list: params,
       process_int_add(params, c_expr);
     elsif action_name = "INT_BINOM" then
       process_int_binom(params, c_expr);
+    elsif action_name = "INT_CMP" then
+      process_int_cmp(params, c_expr);
     elsif action_name = "INT_CONV" then
       process_int_conv(params, c_expr);
     elsif action_name = "INT_CPY" then
@@ -6991,7 +7205,7 @@ const proc: process_set_declaration (in reference: current_object,
     if is_var(current_object) then
       c_expr.expr &:= "settype o_";
       create_name(current_object, c_expr);
-      c_expr.expr &:= ";\n";
+      c_expr.expr &:= ";\n\n";
       if bitset value current_object not in set_const_table then
         set_const_table @:= [bitset value current_object] length(set_const_table);
       end if;
@@ -7011,7 +7225,7 @@ const proc: process_struct_declaration (in reference: current_object,
   begin
     c_expr.expr &:= "structtype o_";
     create_name(current_object, c_expr);
-    c_expr.expr &:= ";\n";
+    c_expr.expr &:= ";\n\n";
     if current_object not in const_table then
       const_table @:= [current_object] length(const_table);
     end if;
@@ -7335,6 +7549,31 @@ const proc: process_arr_create_declaration (in reference: current_object,
   end func;
 
 
+const proc: process_arr_idx_declaration (in reference: current_object,
+    inout expr_type: c_expr) is func
+
+  local
+    var ref_list: params is ref_list.EMPTY;
+    var type: result_type is void;
+    var type: object_type is void;
+    var element_number_hash: element_number is element_number_hash.EMPTY_HASH;
+    var element_type_hash: element_type is element_type_hash.EMPTY_HASH;
+  begin
+    result_type := result_type(getType(current_object));
+    params := params(current_object);
+    object_type := getType(params[1]);
+    if object_type not in array_element then
+      array_element @:= [object_type] result_type;
+    end if;
+    c_expr.expr &:= "/* ACTION ARR_IDX for type ";
+    c_expr.expr &:= "t_";
+    c_expr.expr &:= str(type_number(object_type));
+    c_expr.expr &:= "**";
+    c_expr.expr &:= str(object_type);
+    c_expr.expr &:= "*/\n\n";
+  end func;
+
+
 const proc: process_sct_select_declaration (in reference: current_object,
     inout expr_type: c_expr) is func
 
@@ -7344,6 +7583,7 @@ const proc: process_sct_select_declaration (in reference: current_object,
     var type: object_type is void;
     var reference: struct_elem is NIL;
     var element_number_hash: element_number is element_number_hash.EMPTY_HASH;
+    var element_type_hash: element_type is element_type_hash.EMPTY_HASH;
   begin
     result_type := result_type(getType(current_object));
     params := params(current_object);
@@ -7353,9 +7593,14 @@ const proc: process_sct_select_declaration (in reference: current_object,
       if struct_elem not in struct_elements[object_type] then
         struct_elements[object_type] @:= [struct_elem] length(struct_elements[object_type]);
       end if;
+      if struct_elem not in struct_element_type[object_type] then
+        struct_element_type[object_type] @:= [struct_elem] result_type;
+      end if;
     else
       element_number @:= [struct_elem] 0;
       struct_elements @:= [object_type] element_number;
+      element_type @:= [struct_elem] result_type;
+      struct_element_type @:= [object_type] element_type;
     end if;
     c_expr.expr &:= "/* struct element t_";
     c_expr.expr &:= str(type_number(result_type));
@@ -7392,6 +7637,9 @@ const proc: process_action_declaration (in reference: current_object,
       count_declarations;
     elsif action_name = "ARR_CREATE" then
       process_arr_create_declaration(current_object, c_expr);
+      count_declarations;
+    elsif action_name = "ARR_IDX" then
+      process_arr_idx_declaration(current_object, c_expr);
       count_declarations;
     elsif action_name = "SCT_SELECT" then
       process_sct_select_declaration(current_object, c_expr);
@@ -7466,7 +7714,9 @@ const proc: process_object (in reference: current_object) is func
   local
     var expr_type: c_expr is expr_type.value;
   begin
+    global_c_expr := expr_type.value;
     process_object_declaration(current_object, c_expr);
+    c_prog << global_c_expr.expr;
     c_prog << c_expr.expr;
   end func;
 
@@ -7497,12 +7747,12 @@ const proc: write_file_head is func
     c_prog << "  long arr[1];\n";
     c_prog << "} *arraytype;\n";
     c_prog << "typedef unsigned long int hashtype;\n";
-    c_prog << "typedef struct structstruct {\n";
+    c_prog << "typedef struct {\n";
     c_prog << "  inttype min_position;\n";
     c_prog << "  inttype max_position;\n";
     c_prog << "  bitsettype bitset[1];\n";
     c_prog << "} *settype;\n";
-    c_prog << "typedef struct {\n";
+    c_prog << "typedef struct structstruct {\n";
     c_prog << "  unsigned long int size;\n";
     c_prog << "  long stru[1];\n";
     c_prog << "} *structtype;\n";
@@ -7679,7 +7929,7 @@ const proc: write_file_head is func
     c_prog << "inttype   strGt (stritype, stritype);\n";
     c_prog << "inttype   strHashCode (stritype);\n";
     c_prog << "stritype  strHead (stritype, inttype);\n";
-    c_prog << "stritype  str_lit (stritype a)                          {printf(\"str_lit\\n\");}\n";
+    c_prog << "stritype  strLit (stritype);\n";
     c_prog << "stritype  strLpad (stritype, inttype);\n";
     c_prog << "inttype   strLe (stritype, stritype);\n";
     c_prog << "stritype  strLow (stritype);\n";
@@ -7822,7 +8072,7 @@ const proc: write_file_head is func
     c_prog << "inttype   strGt (stritype a, stritype b)                {printf(\"strGt\\n\");}\n";
     c_prog << "inttype   strHashCode (stritype a)                      {printf(\"strHashCode\\n\");}\n";
     c_prog << "stritype  strHead (stritype a, inttype b)               {printf(\"strHead\\n\");}\n";
-    c_prog << "stritype  str_lit (stritype);\n";
+    c_prog << "stritype  strLit (stritype a)                           {printf(\"strLit\\n\");}\n";
     c_prog << "stritype  strLpad (stritype a, inttype b)               {printf(\"strLpad\\n\");}\n";
     c_prog << "inttype   strLe (stritype a, stritype b)                {printf(\"strLe\\n\");}\n";
     c_prog << "stritype  strLow (stritype a)                           {printf(\"strLow\\n\");}\n";
@@ -7904,6 +8154,10 @@ const proc: const_value (in reference: current_object, inout expr_type: c_expr) 
       c_expr.expr &:= "]; /* ";
       c_expr.expr &:= replace(c_literal(string value current_object), "*/", "* /");
       c_expr.expr &:= " */";
+    elsif objclass = "SETOBJECT" then
+      c_expr.expr &:= "set[";
+      c_expr.expr &:= str(set_const_table[bitset value current_object]);
+      c_expr.expr &:= "];\n";
     elsif objclass = "FLOATOBJECT" then
       c_expr.expr &:= str(float value current_object);
     elsif objclass = "REFOBJECT" then
@@ -8052,6 +8306,14 @@ const proc: generate_main (in program: prog) is func
     var ref_list: array_list is ref_list.EMPTY;
     var ref_list: struct_list is ref_list.EMPTY;
   begin
+    for const_object range keys(const_table) do
+      if obj_class(const_object) = "ARRAYOBJECT" then
+        walk_const_list(array_to_list(const_object));
+      elsif obj_class(const_object) = "STRUCTOBJECT" then
+        walk_const_list(struct_to_list(const_object));
+      end if;
+    end for;
+    writeln("after walk_const_list");
     init_string_constants(c_expr);
     init_set_constants(c_expr);
     c_expr.expr &:= "int main (int argc, char **argv)\n";
@@ -8065,13 +8327,6 @@ const proc: generate_main (in program: prog) is func
     c_expr.expr &:= "    arg_v[number]=str_from_cstri(argv[number]);\n";
     c_expr.expr &:= "  }\n";
     c_expr.expr &:= "}\n";
-    for const_object range keys(const_table) do
-      if obj_class(const_object) = "ARRAYOBJECT" then
-        walk_const_list(array_to_list(const_object));
-      elsif obj_class(const_object) = "STRUCTOBJECT" then
-        walk_const_list(struct_to_list(const_object));
-      end if;
-    end for;
 (*
     c_expr.expr &:= "str = malloc(";
     c_expr.expr &:= str(length(stri_const_table));
@@ -8085,7 +8340,6 @@ const proc: generate_main (in program: prog) is func
       c_expr.expr &:= ");\n";
     end for;
 *)
-    writeln("after walk_const_list");
     c_expr.expr &:= "arr = malloc(";
     c_expr.expr &:= str(length(const_table));
     c_expr.expr &:= " * sizeof(arraytype));\n";
@@ -8102,6 +8356,11 @@ const proc: generate_main (in program: prog) is func
         c_expr.expr &:= "]=malloc(sizeof(struct arraystruct) - sizeof(long) + ";
         c_expr.expr &:= str(length(array_list));
         c_expr.expr &:= " * sizeof(long));\n";
+        c_expr.expr &:= "arr[";
+        c_expr.expr &:= str(number);
+        c_expr.expr &:= "]->size=";
+        c_expr.expr &:= str(length(array_list));
+        c_expr.expr &:= ";\n";
         for elem_num range 1 to length(array_list) do
           c_expr.expr &:= "arr[";
           c_expr.expr &:= str(number);

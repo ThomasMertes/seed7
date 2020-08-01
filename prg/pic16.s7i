@@ -311,6 +311,25 @@ const array string: hourglass_pic is [](
   "bbbbbbbbbbbbbbb ");
 
 
+const array string: hut_pic is [](
+  "xx     xx       ",
+  " xx   xrrx      ",
+  "  xx xbbbbx     ",
+  "  XXxrOOOOrx    ",
+  "  XxbbO  Obbx   ",
+  "  xrrrO  Orrrx  ",
+  " xbbbbOOOObbbbx ",
+  "xrrrrrrrrrrrrrrx",
+  "rbbbbbbbbbbbbbbr",
+  "brOOOOOrrOOOOOrb",
+  "rbOcXcObbObbbObr",
+  "brOcXcOrrObbbOrb",
+  "rbOcXcObbO bbObr",
+  "brOOOOOrrObbbOrb",
+  "rbbbbbbbbObbbObr",
+  "brrrrrrrrObbbOrb");
+
+
 const array string: jade_figurine_pic is [](
   "       GGG      ",
   "      GGGGG     ",
@@ -404,6 +423,25 @@ const array string: necklace_pic is [](
   "      RRRRR     ",
   "       RRR      ",
   "        R       ");
+
+
+const array string: ogre_pic is [](
+  "     GGGGGGG    ",
+  "    GGGGGGGGG   ",
+  "    GG  G  GG   ",
+  "    GGGGGGGGG   ",
+  "    GGG   GGG   ",
+  "    GG  G  GG   ",
+  "   GxGGGGGGGxG  ",
+  "  GGxxxxxxxxxGG ",
+  " GG xxxxxxxxx GG",
+  " GG xxxxxxxxx GG",
+  " bb xxxxxxxxx   ",
+  " bb  bbb bbb    ",
+  "bbbb bbb bbb    ",
+  "bbbb bb   bb    ",
+  "bbbb bb   bb    ",
+  " bbrrrr   rrrr  ");
 
 
 const array string: ruby_pic is [](

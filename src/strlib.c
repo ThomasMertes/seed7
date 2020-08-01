@@ -56,15 +56,6 @@ static char *cstri_escape_sequence[] = {
     "\\031", "\\032", "\\033", "\\034", "\\035",
     "\\036", "\\037"};
 
-static char *stri_escape_sequence[] = {
-    "\\0\\",  "\\1\\",  "\\2\\",  "\\3\\",  "\\4\\",
-    "\\5\\",  "\\6\\",  "\\a",    "\\b",    "\\t",
-    "\\n",    "\\v",    "\\f",    "\\r",    "\\14\\",
-    "\\15\\", "\\16\\", "\\17\\", "\\18\\", "\\19\\",
-    "\\20\\", "\\21\\", "\\22\\", "\\23\\", "\\24\\",
-    "\\25\\", "\\26\\", "\\e",    "\\28\\", "\\29\\",
-    "\\30\\", "\\31\\"};
-
 
 
 #ifdef WIDE_CHAR_STRINGS
@@ -746,61 +737,10 @@ objecttype str_lit (arguments)
 listtype arguments;
 #endif
 
-  {
-    register strelemtype character;
-    register memsizetype position;
-    stritype str1;
-    memsizetype length;
-    memsizetype pos;
-    SIZE_TYPE len;
-    uchartype buffer[25];
-    stritype result;
-
-  /* str_lit */
+  { /* str_lit */
     isit_stri(arg_1(arguments));
-    str1 = take_stri(arg_1(arguments));
-    length = str1->size;
-    if (!ALLOC_STRI(result, (memsizetype) (12 * length + 2))) {
-      return(raise_exception(SYS_MEM_EXCEPTION));
-    } /* if */
-    COUNT_STRI(12 * length + 2);
-    result->mem[0] = (strelemtype) '"';
-    pos = 1;
-    for (position = 0; position < length; position++) {
-      character = (int) str1->mem[position];
-      if (character > '\177') {
-        sprintf(buffer, "\\%d\\", (int) character);
-        len = strlen(buffer);
-        stri_expand(&result->mem[pos], buffer, len);
-        pos = pos + len;
-      } else if (no_escape_char(character)) {
-        result->mem[pos] = (strelemtype) character;
-        pos++;
-      } else if (character < ' ') {
-        len = strlen(stri_escape_sequence[character]);
-        stri_expand(&result->mem[pos],
-            stri_escape_sequence[character], len);
-        pos = pos + len;
-      } else if (character <= '~') {
-        result->mem[pos] = (strelemtype) '\\';
-        result->mem[pos + 1] = (strelemtype) character;
-        pos = pos + 2;
-      } else if (character == '\177') {
-        stri_expand(&result->mem[pos],
-            "\\127\\", (SIZE_TYPE) 5);
-        pos = pos + 5;
-      } /* if */
-    } /* for */
-    result->mem[pos] = (strelemtype) '"';
-    result->size = pos + 1;
-    if (!RESIZE_STRI(result, (memsizetype) (5 * length + 2),
-        (memsizetype) (pos + 1))) {
-      FREE_STRI(result, (memsizetype) (5 * length + 2));
-      return(raise_exception(SYS_MEM_EXCEPTION));
-    } else {
-      COUNT3_STRI(5 * length + 2, pos + 1);
-      return(bld_stri_temp(result));
-    } /* if */
+    return(bld_stri_temp(strLit(
+        take_stri(arg_1(arguments)))));
   } /* str_lit */
 
 

@@ -167,6 +167,8 @@ XExposeEvent *xexpose;
         XCopyArea(mydisplay, expose_window->backup,
             expose_window->window, mygc, 0, 0,
             to_width(expose_window), to_height(expose_window), 0, 0);
+        /* XFlush(mydisplay);
+	   XSync(mydisplay, 0); */
       } /* if */
     } /* if */
   } /* redraw */

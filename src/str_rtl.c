@@ -44,6 +44,16 @@
 #include "str_rtl.h"
 
 
+static char *stri_escape_sequence[] = {
+    "\\0\\",  "\\1\\",  "\\2\\",  "\\3\\",  "\\4\\",
+    "\\5\\",  "\\6\\",  "\\a",    "\\b",    "\\t",
+    "\\n",    "\\v",    "\\f",    "\\r",    "\\14\\",
+    "\\15\\", "\\16\\", "\\17\\", "\\18\\", "\\19\\",
+    "\\20\\", "\\21\\", "\\22\\", "\\23\\", "\\24\\",
+    "\\25\\", "\\26\\", "\\e",    "\\28\\", "\\29\\",
+    "\\30\\", "\\31\\"};
+
+
 
 #ifdef WIDE_CHAR_STRINGS
 #ifdef ANSI_C
@@ -592,7 +602,6 @@ stritype stri2;
 
 
 
-#ifdef OUT_OF_ORDER
 #ifdef ANSI_C
 
 stritype strLit (stritype stri)
@@ -622,27 +631,23 @@ stritype stri;
     pos = 1;
     for (position = 0; position < length; position++) {
       character = (int) stri->mem[position];
-      if (character > '\177') {
-        sprintf(buffer, "\\%d\\", (int) character);
-        len = strlen(buffer);
-        stri_expand(&result->mem[pos], buffer, len);
-        pos = pos + len;
-      } else if (no_escape_char(character)) {
-        result->mem[pos] = (strelemtype) character;
-        pos++;
-      } else if (character < ' ') {
+      if (character < ' ') {
         len = strlen(stri_escape_sequence[character]);
         stri_expand(&result->mem[pos],
             stri_escape_sequence[character], len);
         pos = pos + len;
-      } else if (character <= '~') {
+      } else if (character >= '\177' && character < '\237') {
+        sprintf(buffer, "\\%d\\", (int) character);
+        len = strlen(buffer);
+        stri_expand(&result->mem[pos], buffer, len);
+        pos = pos + len;
+      } else if (character == '\\' || character == '\"') {
         result->mem[pos] = (strelemtype) '\\';
         result->mem[pos + 1] = (strelemtype) character;
         pos = pos + 2;
-      } else if (character == '\177') {
-        stri_expand(&result->mem[pos],
-            "\\127\\", (SIZE_TYPE) 5);
-        pos = pos + 5;
+      } else {
+        result->mem[pos] = (strelemtype) character;
+        pos++;
       } /* if */
     } /* for */
     result->mem[pos] = (strelemtype) '"';
@@ -657,7 +662,6 @@ stritype stri;
       return(result);
     } /* if */
   } /* strLit */
-#endif
 
 
 
