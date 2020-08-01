@@ -235,6 +235,7 @@ long sizediff;
         ((memsizetype) count.ident) * SIZ_REC(identrecord) +
         count.idt_bytes + ((memsizetype) count.idt) +
         ((memsizetype) count.entity)         * SIZ_REC(entityrecord) +
+        ((memsizetype) count.property)       * SIZ_REC(propertyrecord) +
         ((memsizetype) count.object)         * SIZ_REC(objectrecord) +
         ((memsizetype) count.node)           * SIZ_REC(noderecord) +
         ((memsizetype) count.token)          * SIZ_REC(tokenrecord) +

@@ -377,7 +377,7 @@ listtype arguments;
     /* prot_list(take_reflist(arg_2(arguments)));
     printf("\n"); */
     expr_object.type_of = NULL;
-    expr_object.descriptor.entity = NULL;
+    expr_object.descriptor.property = NULL;
     expr_object.value.listvalue = take_reflist(arg_2(arguments));
     INIT_CATEGORY_OF_OBJ(&expr_object, EXPROBJECT);
 

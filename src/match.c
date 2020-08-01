@@ -148,8 +148,8 @@ objecttype object;
 /*        printf("call object ");
         trace1(object->value.listvalue->obj);
         printf("\n"); */
-        if (HAS_DESCRIPTOR_ENTITY(object->value.listvalue->obj)) {
-          name_elem = object->value.listvalue->obj->descriptor.entity->name_list;
+        if (HAS_ENTITY(object->value.listvalue->obj)) {
+          name_elem = GET_ENTITY(object->value.listvalue->obj)->name_list;
           expr_list = object->value.listvalue->next;
           while (name_elem != NULL && expr_list != NULL) {
             if (CATEGORY_OF_OBJ(name_elem->obj) == FORMPARAMOBJECT) {
@@ -211,9 +211,9 @@ objecttype expr_object;
     expr_list = expr_object->value.listvalue;
     while (expr_list != NULL) {
       current_element = expr_list->obj;
-      if (HAS_DESCRIPTOR_ENTITY(current_element) &&
-          current_element->descriptor.entity->owner != NULL) {
-        expr_list->obj = current_element->descriptor.entity->owner->obj;
+      if (HAS_ENTITY(current_element) &&
+          GET_ENTITY(current_element)->owner != NULL) {
+        expr_list->obj = GET_ENTITY(current_element)->owner->obj;
         current_element = expr_list->obj;
       } /* if */
       if (CATEGORY_OF_OBJ(current_element) == EXPROBJECT) {
@@ -292,7 +292,7 @@ objecttype object;
       case FORWARDOBJECT:
         if (ALLOC_OBJECT(result)) {
           result->type_of = object->type_of;
-          result->descriptor.entity = entity.literal;
+          result->descriptor.property = property.literal;
           result->value.listvalue = NULL;
           INIT_CATEGORY_OF_OBJ(result, CALLOBJECT);
           incl_list(&result->value.listvalue, object, &err_info);
@@ -379,7 +379,7 @@ objecttype expr_object;
             result->descriptor.posinfo = expr_object->descriptor.posinfo;
             INIT_CATEGORY_OF_POSINFO(result, CALLOBJECT);
           } else {
-            result->descriptor.entity = entity.literal;
+            result->descriptor.property = property.literal;
             INIT_CATEGORY_OF_OBJ(result, CALLOBJECT);
           } /* if */
           result->value.listvalue = NULL;
@@ -556,7 +556,7 @@ booltype look_for_interfaces;
       if (look_for_interfaces) {
         interface_list = object_type->interfaces;
         while (interface_list != NULL && matched_object == NULL) {
-          matched_object = match_subexpr_var(expr_object,start_node,
+          matched_object = match_subexpr_var(expr_object, start_node,
               interface_list->type_elem, rest_of_expression,
               check_access_right, look_for_interfaces);
           interface_list = interface_list->next;
@@ -743,8 +743,8 @@ booltype look_for_interfaces;
       current_element = match_expr->obj;
       rest_of_expression = match_expr->next;
       matched_object = NULL;
-      if (HAS_DESCRIPTOR_ENTITY(current_element) &&
-          current_element->descriptor.entity->syobject != NULL) {
+      if (HAS_ENTITY(current_element) &&
+          GET_ENTITY(current_element)->syobject != NULL) {
         /* Symbol */
         if (trace.match) {
           printf("//SY0//");
@@ -752,10 +752,10 @@ booltype look_for_interfaces;
           printf("=");
           printf("%ld", (inttype) current_element);
           printf("/");
-          printf("%ld", (inttype) current_element->descriptor.entity->syobject);
+          printf("%ld", (inttype) GET_ENTITY(current_element)->syobject);
           fflush(stdout);
         } /* if */
-        node_found = find_node(start_node->symbol, current_element->descriptor.entity->syobject);
+        node_found = find_node(start_node->symbol, GET_ENTITY(current_element)->syobject);
         if (node_found != NULL) {
           matched_object = match_subexpr(expr_object, node_found,
               rest_of_expression, check_access_right, look_for_interfaces);
@@ -765,7 +765,7 @@ booltype look_for_interfaces;
               trace1(current_element);
               printf("\n");
             } /* if */
-            match_expr->obj = current_element->descriptor.entity->syobject;
+            match_expr->obj = GET_ENTITY(current_element)->syobject;
           } /* if */
         } /* if */
       } /* if */

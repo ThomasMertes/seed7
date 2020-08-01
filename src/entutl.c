@@ -751,6 +751,10 @@ errinfotype *err_info;
     if ((entity.literal = new_entity(prog.ident.literal)) == NULL) {
       *err_info = MEMORY_ERROR;
     } /* if */
+    if (!ALLOC_RECORD(property.literal, propertyrecord, count.property)) {
+      *err_info = MEMORY_ERROR;
+    } /* if */
+    property.literal->entity = entity.literal;
 #ifdef TRACE_ENTITY
     printf("END init_entity\n");
 #endif

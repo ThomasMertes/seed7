@@ -50,6 +50,7 @@ typedef struct {
     unsigned long idt;
     memsizetype idt_bytes;
     unsigned long entity;
+    unsigned long property;
     unsigned long object;
     unsigned long node;
     unsigned long token;
@@ -75,7 +76,7 @@ typedef struct {
 counttype count = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
                    0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
                    0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                   0, 0, 0, 0, 0, 0, 0, 0};
+                   0, 0, 0, 0, 0, 0, 0, 0, 0};
 #else
 EXTERN counttype count;
 #endif

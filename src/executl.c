@@ -80,7 +80,7 @@ errinfotype *err_info;
     create_call_obj = NULL;
 
     expr_object.type_of = take_type(SYS_EXPR_TYPE);
-    expr_object.descriptor.entity = NULL;
+    expr_object.descriptor.property = NULL;
     expr_object.value.listvalue = expr_list;
     INIT_CATEGORY_OF_OBJ(&expr_object, EXPROBJECT);
 
@@ -131,7 +131,7 @@ errinfotype *err_info;
     destroy_call_obj = NULL;
 
     expr_object.type_of = take_type(SYS_EXPR_TYPE);
-    expr_object.descriptor.entity = NULL;
+    expr_object.descriptor.property = NULL;
     expr_object.value.listvalue = expr_list;
     INIT_CATEGORY_OF_OBJ(&expr_object, EXPROBJECT);
 
@@ -182,7 +182,7 @@ errinfotype *err_info;
     } /* if */
 #endif
     expr_object.type_of = take_type(SYS_EXPR_TYPE);
-    expr_object.descriptor.entity = NULL;
+    expr_object.descriptor.property = NULL;
     expr_object.value.listvalue = expr_list;
     INIT_CATEGORY_OF_OBJ(&expr_object, EXPROBJECT);
 
@@ -234,7 +234,7 @@ errinfotype *err_info;
     } /* if */
 #endif
     expr_object.type_of = take_type(SYS_EXPR_TYPE);
-    expr_object.descriptor.entity = NULL;
+    expr_object.descriptor.property = NULL;
     expr_object.value.listvalue = expr_list;
     INIT_CATEGORY_OF_OBJ(&expr_object, EXPROBJECT);
 
@@ -282,7 +282,7 @@ errinfotype *err_info;
     } /* if */
 #endif
     expr_object.type_of = take_type(SYS_EXPR_TYPE);
-    expr_object.descriptor.entity = NULL;
+    expr_object.descriptor.property = NULL;
     expr_object.value.listvalue = expr_list;
     INIT_CATEGORY_OF_OBJ(&expr_object, EXPROBJECT);
 
@@ -332,7 +332,7 @@ errinfotype *err_info;
     } /* if */
 #endif
     expr_object.type_of = take_type(SYS_EXPR_TYPE);
-    expr_object.descriptor.entity = NULL;
+    expr_object.descriptor.property = NULL;
     expr_object.value.listvalue = expr_list;
     INIT_CATEGORY_OF_OBJ(&expr_object, EXPROBJECT);
 
@@ -453,7 +453,7 @@ errinfotype *err_info;
       } /* if */
       if (destination->type_of->create_call_obj != NULL) {
         call_object.type_of = NULL;
-        call_object.descriptor.entity = NULL;
+        call_object.descriptor.property = NULL;
         call_object.value.listvalue = call_list;
         INIT_CATEGORY_OF_OBJ(&call_object, CALLOBJECT);
 
@@ -516,7 +516,7 @@ errinfotype *err_info;
     } /* if */
     if (old_obj->type_of->destroy_call_obj != NULL) {
       call_object.type_of = NULL;
-      call_object.descriptor.entity = NULL;
+      call_object.descriptor.property = NULL;
       call_object.value.listvalue = call_list;
       INIT_CATEGORY_OF_OBJ(&call_object, CALLOBJECT);
 
@@ -664,7 +664,7 @@ errinfotype *err_info;
       } /* if */
       if (destination->type_of->copy_call_obj != NULL) {
         call_object.type_of = NULL;
-        call_object.descriptor.entity = NULL;
+        call_object.descriptor.property = NULL;
         call_object.value.listvalue = call_list;
         INIT_CATEGORY_OF_OBJ(&call_object, CALLOBJECT);
 
@@ -728,7 +728,7 @@ errinfotype *err_info;
     } /* if */
     if (any_obj->type_of->ord_call_obj != NULL) {
       call_object.type_of = NULL;
-      call_object.descriptor.entity = NULL;
+      call_object.descriptor.property = NULL;
       call_object.value.listvalue = call_list;
       INIT_CATEGORY_OF_OBJ(&call_object, CALLOBJECT);
 
@@ -823,7 +823,7 @@ errinfotype *err_info;
     } /* if */
     if (elem_obj->type_of->in_call_obj != NULL) {
       call_object.type_of = NULL;
-      call_object.descriptor.entity = NULL;
+      call_object.descriptor.property = NULL;
       call_object.value.listvalue = call_list;
       INIT_CATEGORY_OF_OBJ(&call_object, CALLOBJECT);
 
@@ -908,7 +908,7 @@ objecttype param1;
 
   /* param1_call */
     call_object.type_of = NULL;
-    call_object.descriptor.entity = NULL;
+    call_object.descriptor.property = NULL;
     call_object.value.listvalue = call_list;
     INIT_CATEGORY_OF_OBJ(&call_object, CALLOBJECT);
 
@@ -942,7 +942,7 @@ objecttype param2;
 
   /* param2_call */
     call_object.type_of = NULL;
-    call_object.descriptor.entity = NULL;
+    call_object.descriptor.property = NULL;
     call_object.value.listvalue = call_list;
     INIT_CATEGORY_OF_OBJ(&call_object, CALLOBJECT);
 
@@ -979,7 +979,7 @@ objecttype param3;
 
   /* param3_call */
     call_object.type_of = NULL;
-    call_object.descriptor.entity = NULL;
+    call_object.descriptor.property = NULL;
     call_object.value.listvalue = call_list;
     INIT_CATEGORY_OF_OBJ(&call_object, CALLOBJECT);
 
@@ -1019,7 +1019,7 @@ errinfotype *err_info;
   /* create_return_object */
     if (ALLOC_OBJECT(new_object)) {
       new_object->type_of = init_value->type_of;
-      new_object->descriptor.entity = NULL;
+      new_object->descriptor.property = NULL;
       if (VAR_OBJECT(init_value)) {
         INIT_CATEGORY_OF_VAR(new_object, DECLAREDOBJECT);
       } else {
@@ -1027,7 +1027,7 @@ errinfotype *err_info;
       } /* if */
 
       call_object.type_of = NULL;
-      call_object.descriptor.entity = NULL;
+      call_object.descriptor.property = NULL;
       call_object.value.listvalue = call_list;
       INIT_CATEGORY_OF_OBJ(&call_object, CALLOBJECT);
 
@@ -1079,7 +1079,7 @@ errinfotype *err_info;
   /* create_local_object */
     if (ALLOC_OBJECT(new_object)) {
       new_object->type_of = local->object->type_of;
-      new_object->descriptor.entity = NULL;
+      new_object->descriptor.property = NULL;
       if (VAR_OBJECT(local->object)) {
         INIT_CATEGORY_OF_VAR(new_object, DECLAREDOBJECT);
       } else {
@@ -1087,7 +1087,7 @@ errinfotype *err_info;
       } /* if */
 
       call_object.type_of = NULL;
-      call_object.descriptor.entity = NULL;
+      call_object.descriptor.property = NULL;
       call_object.value.listvalue = call_list;
       INIT_CATEGORY_OF_OBJ(&call_object, CALLOBJECT);
 
@@ -1148,7 +1148,7 @@ errinfotype *err_info;
         break;
       default:
         call_object.type_of = NULL;
-        call_object.descriptor.entity = NULL;
+        call_object.descriptor.property = NULL;
         call_object.value.listvalue = call_list;
         INIT_CATEGORY_OF_OBJ(&call_object, CALLOBJECT);
 
@@ -1221,7 +1221,7 @@ objecttype obj_from;
     errinfotype err_info = OKAY_NO_ERROR;
 
   /* any_var_initialisation */
-    obj_to->descriptor.entity = obj_from->descriptor.entity;
+    obj_to->descriptor.property = obj_from->descriptor.property;
     INIT_CATEGORY_OF_VAR(obj_to, DECLAREDOBJECT);
     obj_to->type_of = obj_from->type_of;
     do_create(obj_to, obj_from, &err_info);

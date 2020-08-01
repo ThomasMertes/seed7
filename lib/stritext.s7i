@@ -1,0 +1,280 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  stritext.s7i  string text library (uses an array string)        *)
+(*  Copyright (C) 1989 - 2007  Thomas Mertes                        *)
+(*                                                                  *)
+(*  This file is part of the Seed7 Runtime Library.                 *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is free software; you can             *)
+(*  redistribute it and/or modify it under the terms of the GNU     *)
+(*  Lesser General Public License as published by the Free Software *)
+(*  Foundation; either version 2.1 of the License, or (at your      *)
+(*  option) any later version.                                      *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is distributed in the hope that it    *)
+(*  will be useful, but WITHOUT ANY WARRANTY; without even the      *)
+(*  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR *)
+(*  PURPOSE.  See the GNU Lesser General Public License for more    *)
+(*  details.                                                        *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU Lesser General       *)
+(*  Public License along with this program; if not, write to the    *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+const type: stritext is sub NULL_FILE struct
+    var array string: content is 0 times "";
+    var integer: line is 1;
+    var integer: column is 1;
+  end struct;
+
+type_implements_interface(stritext, text);
+
+
+const func stritext: malloc (in stritext: aStritext) is func
+  result
+    var stritext: result is stritext.value;
+  begin
+    result := aStritext;
+  end func;
+
+
+const func file: openStritext (in array string: content) is func
+  result
+    var file: result is STD_NULL;
+  local
+    var stritext: new_stritext is stritext.value;
+  begin
+    new_stritext.content := content;
+    result := malloc(new_stritext);
+  end func;
+
+
+const proc: close (in stritext: aStritext) is noop;
+
+
+const proc: flush (in stritext: aStritext) is noop;
+
+
+const proc: write (inout stritext: aStritext, in string: stri) is func
+  begin
+    if aStritext.line > length(aStritext.content) then
+      while aStritext.line > length(aStritext.content) do
+        aStritext.content &:= [] ("");
+      end while;
+    end if;
+    if aStritext.column > succ(length(aStritext.content[aStritext.line])) then
+      aStritext.content[aStritext.line] &:=
+          "" lpad (aStritext.column - succ(length(aStritext.content[aStritext.line])));
+    end if;
+    aStritext.content[aStritext.line] :=
+        aStritext.content[aStritext.line][.. pred(aStritext.column)] &
+        stri &
+        aStritext.content[aStritext.line][aStritext.column ..];
+    aStritext.column +:= length(stri);
+  end func;
+
+
+const proc: writeln (inout stritext: aStritext) is func
+  begin
+    if aStritext.line <= length(aStritext.content) then
+      aStritext.content[aStritext.line] := aStritext.content[aStritext.line][.. aStritext.column];
+      aStritext.content := aStritext.content[.. aStritext.line] &
+          [] (aStritext.content[aStritext.line][aStritext.column ..]) &
+          aStritext.content[succ(aStritext.line) ..];
+    else
+      while aStritext.line > length(aStritext.content) do
+        aStritext.content &:= [] ("");
+      end while;
+      aStritext.content &:= [] ("");
+    end if;
+    incr(aStritext.line);
+    aStritext.column := 1;
+  end func;
+
+
+const proc: backSpace (inout stritext: aStritext) is func
+  begin
+    if aStritext.column > 1 then
+      decr(aStritext.column);
+    elsif aStritext.line > 1 then
+      decr(aStritext.line);
+      if aStritext.line <= length(aStritext.content) then
+        aStritext.column := succ(length(aStritext.content[aStritext.line]));
+      else
+        aStritext.column := 1;
+      end if;
+    end if;
+  end func;
+
+
+const func char: getc (inout stritext: aStritext) is func
+  result
+    var char: result is ' ';
+  begin
+    if aStritext.line <= length(aStritext.content) then
+      if aStritext.column <= length(aStritext.content[aStritext.line]) then
+        result := aStritext.content[aStritext.line][aStritext.column];
+        incr(aStritext.column);
+      else
+        result := '\n';
+        incr(aStritext.line);
+        aStritext.column := 1;
+      end if;
+    else
+      result := EOF;
+    end if;
+  end func;
+
+
+const func string: gets (inout stritext: aStritext, in var integer: leng) is func
+  result
+    var string: stri is "";
+  begin
+    if aStritext.line <= length(aStritext.content) then
+      if leng > succ(length(aStritext.content[aStritext.line]) - aStritext.column) then
+        stri := aStritext.content[aStritext.line][aStritext.column ..];
+        stri &:= "\n";
+        leng -:= length(aStritext.content[aStritext.line]) - aStritext.column + 2;
+        incr(aStritext.line);
+        while aStritext.line <= length(aStritext.content) and
+            leng > length(aStritext.content[aStritext.line]) do
+          stri &:= aStritext.content[aStritext.line];
+          stri &:= "\n";
+          leng -:= succ(length(aStritext.content[aStritext.line]));
+          incr(aStritext.line);
+        end while;
+        if aStritext.line <= length(aStritext.content) and leng > 0 then
+          stri &:= aStritext.content[aStritext.line][aStritext.column len leng];
+          aStritext.column := succ(leng);
+        else
+          aStritext.column := 1;
+        end if;
+      else
+        stri := aStritext.content[aStritext.line][aStritext.column len leng];
+        aStritext.column +:= leng;
+      end if;
+    end if;
+  end func;
+
+
+const func string: getwd (inout stritext: aStritext) is func
+  result
+    var string: stri is "";
+  begin
+    noop; # todo
+  end func;
+
+
+const func string: getln (inout stritext: aStritext) is func
+  result
+    var string: stri is "";
+  begin
+    if aStritext.line <= length(aStritext.content) then
+      stri := aStritext.content[aStritext.line][aStritext.column .. ];
+      incr(aStritext.line);
+      aStritext.column := 1;
+      aStritext.bufferChar := '\n';
+    else
+      stri := "";
+      aStritext.bufferChar := EOF;
+    end if;
+  end func;
+
+
+const func boolean: eof (in stritext: aStritext) is
+  return aStritext.line > length(aStritext.content);
+
+const func integer: length (in stritext: aStritext) is func
+  result
+    var integer: result is 0;
+  local
+    var integer: line is 0;
+  begin
+    for line range 1 to length(aStritext.content) do
+      result +:= succ(length(aStritext.content[aStritext.line]));
+    end for;
+  end func;
+
+
+const proc: seek (in stritext: aStritext, in integer: pos) is func
+  begin
+    # seek(aStritext.sock, pos);
+    noop;
+  end func;
+
+
+const func integer: tell (in stritext: aStritext) is func
+  result
+    var integer: result is 0;
+  local
+    var integer: line is 0;
+  begin
+    for line range 1 to pred(aStritext.line) do
+      result +:= succ(length(aStritext.content[aStritext.line]));
+    end for;
+    result +:= aStritext.column;
+  end func;
+
+
+const func integer: height (in stritext: aStritext) is
+  return aStritext.line;
+
+
+const func integer: width (in stritext: aStritext) is func
+  result
+    var integer: result is 0;
+  local
+    var integer: line is 0;
+  begin
+    for line range 1 to length(aStritext.content) do
+      if length(aStritext.content[line]) > result then
+        result := length(aStritext.content[line]);
+      end if;
+    end for;
+  end func;
+
+
+const func integer: line (in stritext: aStritext) is
+  return aStritext.line;
+
+
+const func integer: column (in stritext: aStritext) is
+  return aStritext.column;
+
+
+const proc: setPos (inout stritext: aStritext, in integer: line, in integer: column) is func
+  begin
+    aStritext.line := line;
+    aStritext.column := column;
+  end func;
+
+
+const proc: setLine (inout stritext: aStritext, in integer: line) is func
+  begin
+    aStritext.line := line;
+  end func;
+
+
+const proc: setColumn (inout stritext: aStritext, in integer: column) is func
+  begin
+    aStritext.column := column;
+  end func;
+
+
+const proc: clear (inout stritext param) is noop;
+const proc: clear (in stritext param, in integer param, in integer param,
+    in integer param, in integer param) is noop;
+const proc: v_scroll (inout stritext param, in integer param) is noop;
+const proc: v_scroll (inout stritext param, in integer param, in integer param,
+    in integer param, in integer param, in integer param) is noop;
+const proc: h_scroll (ref stritext param, in integer param) is noop;
+const proc: h_scroll (ref stritext param, in integer param, in integer param,
+    in integer param, in integer param, in integer param) is noop;
+const proc: color (ref stritext param, ref color param) is noop;
+const proc: color (ref stritext param, ref color param, ref color param) is noop;
+const proc: setPosXY (inout stritext param, in integer param, in integer param) is noop;

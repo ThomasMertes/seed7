@@ -339,8 +339,8 @@ listtype params;
               printf(" var ");
             } /* if */
             write_type(formal_param->type_of);
-            if (HAS_DESCRIPTOR_ENTITY(formal_param)) {
-              printf(": %s", formal_param->descriptor.entity->ident->name);
+            if (HAS_ENTITY(formal_param)) {
+              printf(": %s", GET_ENTITY(formal_param)->ident->name);
             } else {
               printf(" param");
             } /* if */
@@ -352,15 +352,15 @@ listtype params;
               printf("ref ");
             } /* if */
             write_type(formal_param->type_of);
-            if (HAS_DESCRIPTOR_ENTITY(formal_param)) {
-              printf(": %s", formal_param->descriptor.entity->ident->name);
+            if (HAS_ENTITY(formal_param)) {
+              printf(": %s", GET_ENTITY(formal_param)->ident->name);
             } else {
               printf(" param");
             } /* if */
             break;
           case TYPEOBJECT:
-            if (HAS_DESCRIPTOR_ENTITY(formal_param)) {
-              printf("attr %s", formal_param->descriptor.entity->ident->name);
+            if (HAS_ENTITY(formal_param)) {
+              printf("attr %s", GET_ENTITY(formal_param)->ident->name);
             } else {
               printf("attr ");
               write_type(formal_param->value.typevalue);
@@ -380,7 +380,7 @@ listtype params;
         } /* if */
         switch (CATEGORY_OF_OBJ(params->obj)) {
           case SYMBOLOBJECT:
-            printf("%s", params->obj->descriptor.entity->ident->name);
+            printf("%s", GET_ENTITY(params->obj)->ident->name);
             break;
           default:
             printf("unknown param ");
@@ -421,8 +421,8 @@ objecttype anyobject;
             printf(" var ");
           } /* if */
           write_type(anyobject->type_of);
-          if (HAS_DESCRIPTOR_ENTITY(anyobject)) {
-            printf(": %s", anyobject->descriptor.entity->ident->name);
+          if (HAS_ENTITY(anyobject)) {
+            printf(": %s", GET_ENTITY(anyobject)->ident->name);
           } else {
             printf(" param");
           } /* if */
@@ -436,8 +436,8 @@ objecttype anyobject;
             printf("ref ");
           } /* if */
           write_type(anyobject->type_of);
-          if (HAS_DESCRIPTOR_ENTITY(anyobject)) {
-            printf(": %s", anyobject->descriptor.entity->ident->name);
+          if (HAS_ENTITY(anyobject)) {
+            printf(": %s", GET_ENTITY(anyobject)->ident->name);
           } else {
             printf(" param");
           } /* if */
@@ -457,8 +457,8 @@ objecttype anyobject;
             printf("constant ");
           } /* if */
           write_type(anyobject->type_of);
-          if (HAS_DESCRIPTOR_ENTITY(anyobject)) {
-            printf(": %s", anyobject->descriptor.entity->ident->name);
+          if (HAS_ENTITY(anyobject)) {
+            printf(": %s", GET_ENTITY(anyobject)->ident->name);
           } else {
             printvalue(anyobject);
           } /* if */
@@ -474,8 +474,8 @@ objecttype anyobject;
           } /* if */
           break;
         default:
-          if (HAS_DESCRIPTOR_ENTITY(anyobject)) {
-            printf(id_string(anyobject->descriptor.entity->ident));
+          if (HAS_ENTITY(anyobject)) {
+            printf(id_string(GET_ENTITY(anyobject)->ident));
           } else {
             printf("%d ", CATEGORY_OF_OBJ(anyobject));
             printf(" *NULL_ENTITY_OBJECT*");
@@ -681,15 +681,15 @@ objecttype obj_found;
     } /* if */
     switch (err) {
       case OBJTWICEDECLARED:
-        if (obj_found->descriptor.entity->name_list == NULL) {
-          printf("\"%s\" declared twice\n", obj_found->descriptor.entity->ident->name);
+        if (GET_ENTITY(obj_found)->name_list == NULL) {
+          printf("\"%s\" declared twice\n", GET_ENTITY(obj_found)->ident->name);
         } else {
-          write_name_list(obj_found->descriptor.entity->name_list);
+          write_name_list(GET_ENTITY(obj_found)->name_list);
           printf(" declared twice\n");
         } /* if */
         break;
       case OBJUNDECLARED:
-        printf("\"%s\" not declared\n", obj_found->descriptor.entity->ident->name);
+        printf("\"%s\" not declared\n", GET_ENTITY(obj_found)->ident->name);
         break;
       case PARAM_DECL_FAILED:
         printf("Declaration of parameter ");
@@ -697,16 +697,16 @@ objecttype obj_found;
         printf(" failed\n");
         break;
       case DECL_FAILED:
-        if (obj_found->descriptor.entity->name_list == NULL) {
-          printf("Declaration of \"%s\" failed\n", obj_found->descriptor.entity->ident->name);
+        if (GET_ENTITY(obj_found)->name_list == NULL) {
+          printf("Declaration of \"%s\" failed\n", GET_ENTITY(obj_found)->ident->name);
         } else {
           printf("Declaration of ");
-          write_name_list(obj_found->descriptor.entity->name_list);
+          write_name_list(GET_ENTITY(obj_found)->name_list);
           printf(" failed\n");
         } /* if */
         break;
       case EXCEPTION_RAISED:
-        printf("Exception \"%s\" raised\n", obj_found->descriptor.entity->ident->name);
+        printf("Exception \"%s\" raised\n", GET_ENTITY(obj_found)->ident->name);
         break;
       case IDENT_EXPECTED:
         printf("Identifier expected found ");

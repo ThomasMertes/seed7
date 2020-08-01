@@ -31,6 +31,12 @@ typedef struct entrootstruct {
 
 EXTERN entroottype entity;
 
+typedef struct propertyrootstruct {
+    propertytype literal;
+  } propertyroottype;
+
+EXTERN propertyroottype property;
+
 #ifdef ANSI_C
 
 nodetype find_node (nodetype, objecttype);

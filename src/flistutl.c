@@ -314,6 +314,13 @@ void heap_statistic ()
           SIZ_REC(entityrecord));
       bytes_used += count.entity * SIZ_REC(entityrecord);
     } /* if */
+    if (count.property != 0) {
+      printf("%9lu bytes in %8lu propertys of        %4d bytes\n",
+          count.property * SIZ_REC(propertyrecord),
+          count.property,
+          SIZ_REC(propertyrecord));
+      bytes_used += count.property * SIZ_REC(propertyrecord);
+    } /* if */
     if (count.object > num_flist_objects) {
       printf("%9lu bytes in %8lu objects of          %4d bytes\n",
           (count.object - num_flist_objects) * SIZ_REC(objectrecord),
@@ -353,7 +360,7 @@ void heap_statistic ()
       printf("%9lu bytes in %8lu typelist elems of   %4d bytes\n",
           count.typelist_elems * SIZ_REC(typelistrecord),
           count.typelist_elems,
-          SIZ_REC(typelisttype));
+          SIZ_REC(typelistrecord));
       bytes_used += count.typelist_elems * SIZ_REC(typelistrecord);
     } /* if */
     if (count.type != 0) {
@@ -511,6 +518,7 @@ static memsizetype compute_hs ()
     bytes_total += count.ident * SIZ_REC(identrecord);
     bytes_total += count.idt_bytes + count.idt;
     bytes_total += count.entity * SIZ_REC(entityrecord);
+    bytes_total += count.property * SIZ_REC(propertyrecord);
     bytes_total += count.object * SIZ_REC(objectrecord);
     bytes_total += count.node * SIZ_REC(noderecord);
     bytes_total += count.token * SIZ_REC(tokenrecord);

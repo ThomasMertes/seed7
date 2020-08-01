@@ -139,7 +139,7 @@ acttype temp_value;
   /* bld_action_temp */
     if (ALLOC_OBJECT(result)) {
       result->type_of = NULL;
-      result->descriptor.entity = NULL;
+      result->descriptor.property = NULL;
       INIT_CATEGORY_OF_TEMP(result, ACTOBJECT);
       result->value.actvalue = temp_value;
       return(result);
@@ -165,7 +165,7 @@ arraytype temp_value;
   /* bld_array_temp */
     if (ALLOC_OBJECT(result)) {
       result->type_of = NULL;
-      result->descriptor.entity = NULL;
+      result->descriptor.property = NULL;
       INIT_CATEGORY_OF_TEMP(result, ARRAYOBJECT);
       result->value.arrayvalue = temp_value;
       return(result);
@@ -191,7 +191,7 @@ biginttype temp_value;
   /* bld_bigint_temp */
     if (ALLOC_OBJECT(result)) {
       result->type_of = NULL;
-      result->descriptor.entity = NULL;
+      result->descriptor.property = NULL;
       INIT_CATEGORY_OF_TEMP(result, BIGINTOBJECT);
       result->value.bigintvalue = temp_value;
       return(result);
@@ -217,7 +217,7 @@ blocktype temp_value;
   /* bld_block_temp */
     if (ALLOC_OBJECT(result)) {
       result->type_of = NULL;
-      result->descriptor.entity = NULL;
+      result->descriptor.property = NULL;
       INIT_CATEGORY_OF_TEMP(result, BLOCKOBJECT);
       result->value.blockvalue = temp_value;
       return(result);
@@ -243,7 +243,7 @@ bstritype temp_value;
   /* bld_bstri_temp */
     if (ALLOC_OBJECT(result)) {
       result->type_of = NULL;
-      result->descriptor.entity = NULL;
+      result->descriptor.property = NULL;
       INIT_CATEGORY_OF_TEMP(result, BSTRIOBJECT);
       result->value.bstrivalue = temp_value;
       return(result);
@@ -269,7 +269,7 @@ chartype temp_value;
   /* bld_char_temp */
     if (ALLOC_OBJECT(result)) {
       result->type_of = NULL;
-      result->descriptor.entity = NULL;
+      result->descriptor.property = NULL;
       INIT_CATEGORY_OF_TEMP(result, CHAROBJECT);
       result->value.charvalue = temp_value;
       return(result);
@@ -295,7 +295,7 @@ objecttype temp_value;
   /* bld_class_temp */
     if (ALLOC_OBJECT(result)) {
       result->type_of = NULL;
-      result->descriptor.entity = NULL;
+      result->descriptor.property = NULL;
       INIT_CATEGORY_OF_TEMP(result, CLASSOBJECT);
       result->value.objvalue = temp_value;
       return(result);
@@ -321,7 +321,7 @@ filetype temp_value;
   /* bld_file_temp */
     if (ALLOC_OBJECT(result)) {
       result->type_of = NULL;
-      result->descriptor.entity = NULL;
+      result->descriptor.property = NULL;
       INIT_CATEGORY_OF_TEMP(result, FILEOBJECT);
       result->value.filevalue = temp_value;
       return(result);
@@ -347,7 +347,7 @@ double temp_value;
   /* bld_float_temp */
     if (ALLOC_OBJECT(result)) {
       result->type_of = NULL;
-      result->descriptor.entity = NULL;
+      result->descriptor.property = NULL;
       INIT_CATEGORY_OF_TEMP(result, FLOATOBJECT);
       result->value.floatvalue = temp_value;
       return(result);
@@ -373,7 +373,7 @@ hashtype temp_value;
   /* bld_hash_temp */
     if (ALLOC_OBJECT(result)) {
       result->type_of = NULL;
-      result->descriptor.entity = NULL;
+      result->descriptor.property = NULL;
       INIT_CATEGORY_OF_TEMP(result, HASHOBJECT);
       result->value.hashvalue = temp_value;
       return(result);
@@ -399,7 +399,7 @@ inttype temp_value;
   /* bld_int_temp */
     if (ALLOC_OBJECT(result)) {
       result->type_of = NULL;
-      result->descriptor.entity = NULL;
+      result->descriptor.property = NULL;
       INIT_CATEGORY_OF_TEMP(result, INTOBJECT);
       result->value.intvalue = temp_value;
       return(result);
@@ -425,7 +425,7 @@ listtype temp_value;
   /* bld_list_temp */
     if (ALLOC_OBJECT(result)) {
       result->type_of = NULL;
-      result->descriptor.entity = NULL;
+      result->descriptor.property = NULL;
       INIT_CATEGORY_OF_TEMP(result, LISTOBJECT);
       result->value.listvalue = temp_value;
       return(result);
@@ -451,7 +451,7 @@ objecttype temp_value;
   /* bld_param_temp */
     if (ALLOC_OBJECT(result)) {
       result->type_of = NULL;
-      result->descriptor.entity = NULL;
+      result->descriptor.property = NULL;
       INIT_CATEGORY_OF_TEMP(result, FORMPARAMOBJECT);
       result->value.objvalue = temp_value;
       return(result);
@@ -477,7 +477,7 @@ progtype temp_value;
   /* bld_prog_temp */
     if (ALLOC_OBJECT(result)) {
       result->type_of = NULL;
-      result->descriptor.entity = NULL;
+      result->descriptor.property = NULL;
       INIT_CATEGORY_OF_TEMP(result, PROGOBJECT);
       result->value.progvalue = temp_value;
       return(result);
@@ -503,7 +503,7 @@ objecttype temp_value;
   /* bld_reference_temp */
     if (ALLOC_OBJECT(result)) {
       result->type_of = NULL;
-      result->descriptor.entity = NULL;
+      result->descriptor.property = NULL;
       INIT_CATEGORY_OF_TEMP(result, REFOBJECT);
       result->value.objvalue = temp_value;
       return(result);
@@ -529,7 +529,7 @@ listtype temp_value;
   /* bld_reflist_temp */
     if (ALLOC_OBJECT(result)) {
       result->type_of = NULL;
-      result->descriptor.entity = NULL;
+      result->descriptor.property = NULL;
       INIT_CATEGORY_OF_TEMP(result, REFLISTOBJECT);
       result->value.listvalue = temp_value;
       return(result);
@@ -555,7 +555,7 @@ settype temp_value;
   /* bld_set_temp */
     if (ALLOC_OBJECT(result)) {
       result->type_of = NULL;
-      result->descriptor.entity = NULL;
+      result->descriptor.property = NULL;
       INIT_CATEGORY_OF_TEMP(result, SETOBJECT);
       result->value.setvalue = temp_value;
       return(result);
@@ -581,7 +581,7 @@ sockettype temp_value;
   /* bld_socket_temp */
     if (ALLOC_OBJECT(result)) {
       result->type_of = NULL;
-      result->descriptor.entity = NULL;
+      result->descriptor.property = NULL;
       INIT_CATEGORY_OF_TEMP(result, SOCKETOBJECT);
       result->value.socketvalue = temp_value;
       return(result);
@@ -607,7 +607,7 @@ stritype temp_value;
   /* bld_stri_temp */
     if (ALLOC_OBJECT(result)) {
       result->type_of = NULL;
-      result->descriptor.entity = NULL;
+      result->descriptor.property = NULL;
       INIT_CATEGORY_OF_TEMP(result, STRIOBJECT);
       result->value.strivalue = temp_value;
       return(result);
@@ -633,7 +633,7 @@ structtype temp_value;
   /* bld_struct_temp */
     if (ALLOC_OBJECT(result)) {
       result->type_of = NULL;
-      result->descriptor.entity = NULL;
+      result->descriptor.property = NULL;
       INIT_CATEGORY_OF_TEMP(result, STRUCTOBJECT);
       result->value.structvalue = temp_value;
       return(result);
@@ -678,7 +678,7 @@ wintype temp_value;
   /* bld_win_temp */
     if (ALLOC_OBJECT(result)) {
       result->type_of = NULL;
-      result->descriptor.entity = NULL;
+      result->descriptor.property = NULL;
       INIT_CATEGORY_OF_TEMP(result, WINOBJECT);
       result->value.winvalue = temp_value;
       return(result);

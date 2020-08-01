@@ -34,6 +34,8 @@ const set of char: special_char is
      ':', ';', '<', '=', '>', '?', '@', '\\','^', '`',
      '|', '~'};
 const set of char: extended_special_char is special_char | { '"', '#', ''' };
+const set of char: angle_bracket is {'<'};
+const set of char: special_html_char is special_char - angle_bracket;
 const set of char: apostrophe_char is {'''};
 const set of char: quotation_char is {'"'};
 const set of char: sharp_char is {'#'};
@@ -449,6 +451,78 @@ const func string: getSymbol (inout file: inFile) is func
       when sharp_char:
         skipLineComment(inFile);
         symbol := getSymbol(inFile);
+      when {EOF}:
+        symbol := "";
+      otherwise:
+        symbol := str(inFile.bufferChar);
+        inFile.bufferChar := getc(inFile);
+    end case;
+  end func;
+
+
+const func string: getHtmlSymbolOrComment (inout file: inFile) is func
+  result
+    var string: symbol is "";
+  begin
+    while inFile.bufferChar in white_space_char do
+      inFile.bufferChar := getc(inFile);
+    end while;
+    case inFile.bufferChar of
+      when name_start_char:
+        symbol := str(inFile.bufferChar);
+        inFile.bufferChar := getc(inFile);
+        while inFile.bufferChar in name_char do
+          symbol &:= str(inFile.bufferChar);
+          inFile.bufferChar := getc(inFile);
+        end while;
+      when special_html_char:
+        if inFile.bufferChar = '&' then
+          repeat
+            symbol &:= str(inFile.bufferChar);
+            inFile.bufferChar := getc(inFile);
+          until inFile.bufferChar = ';';
+        end if;
+        symbol &:= str(inFile.bufferChar);
+        inFile.bufferChar := getc(inFile);
+        while inFile.bufferChar in special_html_char do
+          if inFile.bufferChar = '&' then
+            repeat
+              symbol &:= str(inFile.bufferChar);
+              inFile.bufferChar := getc(inFile);
+            until inFile.bufferChar = ';';
+          end if;
+          symbol &:= str(inFile.bufferChar);
+          inFile.bufferChar := getc(inFile);
+        end while;
+      when left_paren_char:
+        inFile.bufferChar := getc(inFile);
+        if inFile.bufferChar = '*' then
+          symbol := getComment(inFile);
+        else
+          symbol := "(";
+        end if;
+      when other_paren_char:
+        symbol := str(inFile.bufferChar);
+        inFile.bufferChar := getc(inFile);
+      when angle_bracket:
+        symbol &:= str(inFile.bufferChar);
+        inFile.bufferChar := getc(inFile);
+        while inFile.bufferChar <> '>' and inFile.bufferChar <> EOF do
+          symbol &:= str(inFile.bufferChar);
+          inFile.bufferChar := getc(inFile);
+        end while;
+        if inFile.bufferChar <> EOF then
+          symbol &:= str(inFile.bufferChar);
+          inFile.bufferChar := getc(inFile);
+        end if;
+      when digit_char:
+        symbol := getNumber(inFile);
+      when apostrophe_char:
+        symbol := getChar(inFile);
+      when quotation_char:
+        symbol := getString(inFile);
+      when sharp_char:
+        symbol := getLineComment(inFile);
       when {EOF}:
         symbol := "";
       otherwise:

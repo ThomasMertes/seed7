@@ -161,12 +161,12 @@ listtype arguments;
     type_to->value.typevalue = type_from;
     if (!VAR_OBJECT(type_to)) {
       if (type_from->name == NULL &&
-          HAS_DESCRIPTOR_ENTITY(type_to) &&
-          type_to->descriptor.entity->ident != NULL) {
+          HAS_ENTITY(type_to) &&
+          GET_ENTITY(type_to)->ident != NULL) {
         /* printf("typ_create: Define ");
         trace1(type_to);
         printf("\n"); */
-        type_from->name = type_to->descriptor.entity->ident;
+        type_from->name = GET_ENTITY(type_to)->ident;
       } /* if */
     } /* if */
 #ifdef TRACE_TYPLIB

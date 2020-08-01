@@ -109,12 +109,12 @@ listtype stack_elem;
         } else {
           func_object = stack_elem->obj;
         } /* if */
-        if (HAS_DESCRIPTOR_ENTITY(func_object)) {
-          if (func_object->descriptor.entity->ident != NULL) {
+        if (HAS_ENTITY(func_object)) {
+          if (GET_ENTITY(func_object)->ident != NULL) {
             printf("%s ",
-                id_string(func_object->descriptor.entity->ident));
-          } else if (func_object->descriptor.entity->name_list != NULL) {
-            prot_list(func_object->descriptor.entity->name_list);
+                id_string(GET_ENTITY(func_object)->ident));
+          } else if (GET_ENTITY(func_object)->name_list != NULL) {
+            prot_list(GET_ENTITY(func_object)->name_list);
             printf(" ");
           } /* if */
         } /* if */
@@ -192,7 +192,7 @@ listtype list;
     if (exception == NULL) {
       ALLOC_OBJECT(exception);
       exception->type_of = NULL;
-      exception->descriptor.entity = NULL;
+      exception->descriptor.property = NULL;
       INIT_CATEGORY_OF_TEMP(exception, SYMBOLOBJECT);
       exception->value.intvalue = 0;
     } /* if */

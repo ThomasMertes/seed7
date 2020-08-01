@@ -66,6 +66,7 @@ static objecttype gen_object ()
 
   {
     register entitytype atomic_entity;
+    register propertytype atomic_property;
     register objecttype atomic_object;
 
   /* gen_object */
@@ -75,20 +76,30 @@ static objecttype gen_object ()
     if (!ALLOC_OBJECT(atomic_object)) {
       fatal_memory_error(SOURCE_POSITION(2051));
     } else {
-      if (!ALLOC_RECORD(atomic_entity, entityrecord, count.entity)) {
+      if (!ALLOC_RECORD(atomic_property, propertyrecord, count.property)) {
         FREE_OBJECT(atomic_object);
         atomic_object = NULL;
         fatal_memory_error(SOURCE_POSITION(2052));
       } else {
-        atomic_entity->ident = current_ident;
-        atomic_entity->syobject = atomic_object;
-        atomic_entity->name_list = NULL;
-        atomic_entity->owner = NULL;
-        current_ident->entity = atomic_entity;
-        atomic_object->type_of = NULL;
-        atomic_object->descriptor.entity = atomic_entity;
-        INIT_POS(atomic_object, in_file.line, in_file.file_number);
-        INIT_CATEGORY_OF_OBJ(atomic_object, SYMBOLOBJECT);
+        if (!ALLOC_RECORD(atomic_entity, entityrecord, count.entity)) {
+          FREE_RECORD(atomic_property, propertyrecord, count.property);
+          FREE_OBJECT(atomic_object);
+          atomic_object = NULL;
+          fatal_memory_error(SOURCE_POSITION(2053));
+        } else {
+          atomic_entity->ident = current_ident;
+          atomic_entity->syobject = atomic_object;
+          atomic_entity->name_list = NULL;
+          atomic_entity->owner = NULL;
+          current_ident->entity = atomic_entity;
+          atomic_property->entity = atomic_entity;
+          atomic_property->file_number = in_file.file_number;
+          atomic_property->line = in_file.line;
+          atomic_object->type_of = NULL;
+          atomic_object->descriptor.property = atomic_property;
+          INIT_POS(atomic_object, in_file.line, in_file.file_number);
+          INIT_CATEGORY_OF_OBJ(atomic_object, SYMBOLOBJECT);
+        } /* if */
       } /* if */
     } /* if */
 #ifdef TRACE_OBJECT
@@ -121,7 +132,7 @@ objectcategory category;
     printf("BEGIN gen_literal_object\n");
 #endif
     if (!ALLOC_OBJECT(literal_object)) {
-      fatal_memory_error(SOURCE_POSITION(2053));
+      fatal_memory_error(SOURCE_POSITION(2054));
     } else {
       if (typeof_object == NULL) {
         err_warning(LITERAL_TYPE_UNDEFINED);
@@ -129,7 +140,7 @@ objectcategory category;
       } else {
         literal_object->type_of = take_type(typeof_object);
       } /* if */
-      literal_object->descriptor.entity = entity.literal;
+      literal_object->descriptor.property = property.literal;
       INIT_CATEGORY_OF_OBJ(literal_object, category);
     } /* if */
 #ifdef TRACE_OBJECT
@@ -164,16 +175,16 @@ static INLINE stritype new_string ()
 #ifdef ALTERNATE_STRI_LITERALS
     stri_created = symbol.strivalue;
     if (!RESIZE_STRI(stri_created, symbol.stri_max, stri_created->size)) {
-      fatal_memory_error(SOURCE_POSITION(2054));
+      fatal_memory_error(SOURCE_POSITION(2055));
     } /* if */
     COUNT3_STRI(symbol.stri_max, stri_created->size);
     if (!ALLOC_STRI(symbol.strivalue, symbol.stri_max)) {
-      fatal_memory_error(SOURCE_POSITION(2055));
+      fatal_memory_error(SOURCE_POSITION(2056));
     } /* if */
     COUNT_STRI(symbol.stri_max);
 #else
     if (!ALLOC_STRI(stri_created, symbol.strivalue->size)) {
-      fatal_memory_error(SOURCE_POSITION(2056));
+      fatal_memory_error(SOURCE_POSITION(2057));
     } /* if */
     COUNT_STRI(symbol.strivalue->size);
     stri_created->size = symbol.strivalue->size;
@@ -209,12 +220,16 @@ objecttype read_atom ()
       case PARENSYMBOL:
         if (current_ident->entity == NULL) {
           atomic_object = gen_object();
-          /* printf("read_atom a: %s  %lu  %lu  %lu\n", id_string(current_ident), (unsigned long) current_ident->entity, (unsigned long) atomic_object->descriptor.entity, (unsigned long) atomic_object); */
+          /* printf("read_atom a: %s  %lu  %lu  %lu\n", id_string(current_ident), (unsigned long) current_ident->entity, (unsigned long) GET_ENTITY(atomic_object), (unsigned long) atomic_object); */
         } else if (current_ident->entity->owner != NULL) {
           atomic_object = current_ident->entity->owner->obj;
         } else {
           atomic_object = current_ident->entity->syobject;
-          /* printf("read_atom b: %s  %lu  %lu  %lu\n", id_string(current_ident), (unsigned long) current_ident->entity, (unsigned long) atomic_object->descriptor.entity, (unsigned long) atomic_object); */
+          /* if (HAS_PROPERTY(atomic_object)) {
+            atomic_object->descriptor.property->file_number = in_file.file_number;
+            atomic_object->descriptor.property->line = in_file.line;
+          } $$ if */
+          /* printf("read_atom b: %s  %lu  %lu  %lu\n", id_string(current_ident), (unsigned long) current_ident->entity, (unsigned long) GET_ENTITY(atomic_object), (unsigned long) atomic_object); */
         } /* if */
         break;
       case INTLITERAL:
@@ -280,6 +295,7 @@ objecttype read_name ()
       atomic_object = current_ident->entity->owner->obj;
     } else {
       atomic_object = current_ident->entity->syobject;
+      /* printf("read_name b: %s  %lu  %lu  %lu\n", id_string(current_ident), (unsigned long) current_ident->entity, (unsigned long) GET_ENTITY(atomic_object), (unsigned long) atomic_object); */
     } /* if */
     scan_symbol();
 #ifdef TRACE_ATOM

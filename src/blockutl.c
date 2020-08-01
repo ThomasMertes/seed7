@@ -274,7 +274,7 @@ errinfotype *err_info;
     printf("BEGIN get_return_var\n");
 #endif
     return_object.type_of = return_type;
-    return_object.descriptor.entity = NULL;
+    return_object.descriptor.property = NULL;
     INIT_CATEGORY_OF_VAR(&return_object, RESULTOBJECT);
     return_object.value.objvalue = NULL;
     return_var->object = NULL;
@@ -373,7 +373,7 @@ errinfotype *err_info;
         local_var = local_element->obj;
         if (ALLOC_OBJECT(init_value)) {
           init_value->type_of =     local_var->type_of;
-          init_value->descriptor.entity = NULL;
+          init_value->descriptor.property = NULL;
           init_value->value =       local_var->value;
           init_value->objcategory = local_var->objcategory;
           create_call_obj = get_create_call_obj(local_var, err_info);

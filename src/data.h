@@ -95,6 +95,7 @@ typedef struct nodestruct     *nodetype;
 typedef struct entitystruct   *entitytype;
 typedef struct ownerstruct    *ownertype;
 typedef struct objectstruct   *objecttype;
+typedef struct propertystruct *propertytype;
 typedef struct stackstruct    *stacktype;
 typedef struct typeliststruct *typelisttype;
 typedef struct typestruct     *typetype;
@@ -115,6 +116,7 @@ typedef const struct nodestruct     *const_nodetype;
 typedef const struct entitystruct   *const_entitytype;
 typedef const struct ownerstruct    *const_ownertype;
 typedef const struct objectstruct   *const_objecttype;
+typedef const struct propertystruct *const_propertytype;
 typedef const struct stackstruct    *const_stacktype;
 typedef const struct typeliststruct *const_typelisttype;
 typedef const struct typestruct     *const_typetype;
@@ -218,8 +220,14 @@ typedef union {
 #endif
   } valueunion;
 
-typedef union {
+typedef struct propertystruct {
     entitytype entity;
+    filenumtype file_number;
+    linenumtype line;
+  } propertyrecord;
+
+typedef union {
+    propertytype property;
     postype posinfo;
   } descriptorunion;
 
@@ -436,4 +444,6 @@ extern progrecord prog;
 #define HAS_POSINFO(O)                  ((O)->objcategory & POSINFO_MASK)
 #define COPY_POSINFO_FLAG(O1,O2)        (O1)->objcategory = ((O1)->objcategory & ~POSINFO_MASK) | ((O2)->objcategory & POSINFO_MASK)
 
-#define HAS_DESCRIPTOR_ENTITY(O)        (!HAS_POSINFO(O) && (O)->descriptor.entity != NULL) 
+#define HAS_PROPERTY(O)                 (!HAS_POSINFO(O) && (O)->descriptor.property != NULL)
+#define HAS_ENTITY(O)                   (HAS_PROPERTY(O) && (O)->descriptor.property->entity != NULL)
+#define GET_ENTITY(O)                   ((O)->descriptor.property->entity)

@@ -134,11 +134,11 @@ errinfotype *err_info;
     if (!ALLOC_RECORD(helem, helemrecord, count.helem)) {
       *err_info = MEMORY_ERROR;
     } else {
-      helem->key.descriptor.entity = key->descriptor.entity;
+      helem->key.descriptor.property = NULL;
       INIT_CATEGORY_OF_VAR(&helem->key, DECLAREDOBJECT);
       helem->key.type_of = key->type_of;
       param3_call(key_create_func, &helem->key, SYS_CREA_OBJECT, key);
-      helem->data.descriptor.entity = data->descriptor.entity;
+      helem->data.descriptor.property = NULL;
       INIT_CATEGORY_OF_VAR(&helem->data, DECLAREDOBJECT);
       helem->data.type_of = data->type_of;
       param3_call(data_create_func, &helem->data, SYS_CREA_OBJECT, data);
@@ -199,11 +199,11 @@ errinfotype *err_info;
       if (!ALLOC_RECORD(dest_helem, helemrecord, count.helem)) {
         *err_info = MEMORY_ERROR;
       } else {
-        dest_helem->key.descriptor.entity = source_helem->key.descriptor.entity;
+        dest_helem->key.descriptor.property = source_helem->key.descriptor.property;
         INIT_CATEGORY_OF_VAR(&dest_helem->key, DECLAREDOBJECT);
         dest_helem->key.type_of = source_helem->key.type_of;
         param3_call(key_create_func, &dest_helem->key, SYS_CREA_OBJECT, &source_helem->key);
-        dest_helem->data.descriptor.entity = source_helem->data.descriptor.entity;
+        dest_helem->data.descriptor.property = source_helem->data.descriptor.property;
         INIT_CATEGORY_OF_VAR(&dest_helem->data, DECLAREDOBJECT);
         dest_helem->data.type_of = source_helem->data.type_of;
         param3_call(data_create_func, &dest_helem->data, SYS_CREA_OBJECT, &source_helem->data);
@@ -294,7 +294,7 @@ errinfotype *err_info;
       } /* if */
     } /* if */
     dest_obj = &(*key_array)->arr[*arr_pos];
-    dest_obj->descriptor.entity = curr_helem->key.descriptor.entity;
+    dest_obj->descriptor.property = curr_helem->key.descriptor.property;
     INIT_CATEGORY_OF_VAR(dest_obj, DECLAREDOBJECT);
     dest_obj->type_of = curr_helem->key.type_of;
     param3_call(key_create_func, dest_obj, SYS_CREA_OBJECT, &curr_helem->key);
@@ -399,7 +399,7 @@ errinfotype *err_info;
       } /* if */
     } /* if */
     dest_obj = &(*value_array)->arr[*arr_pos];
-    dest_obj->descriptor.entity = curr_helem->data.descriptor.entity;
+    dest_obj->descriptor.property = curr_helem->data.descriptor.property;
     INIT_CATEGORY_OF_VAR(dest_obj, DECLAREDOBJECT);
     dest_obj->type_of = curr_helem->data.type_of;
     param3_call(value_create_func, dest_obj, SYS_CREA_OBJECT, &curr_helem->data);

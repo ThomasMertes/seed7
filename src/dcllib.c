@@ -120,7 +120,7 @@ listtype arguments;
       printf("\n");
 #endif
       current_object = entername(prog.declaration_root, name_expr, &err_info);
-      /* printf(":%lu\n", (long unsigned) current_object->descriptor.entity); */
+      /* printf(":%lu\n", (long unsigned) GET_ENTITY(current_object)); */
       copy_expression(value_expr, &value, &err_info);
       if (err_info == OKAY_NO_ERROR) {
         current_object->type_of = object_type;
@@ -172,13 +172,13 @@ listtype arguments;
         if (CATEGORY_OF_OBJ(current_object) == BLOCKOBJECT) {
           /*FIXME not ok since parameter names are important here !!! */
           current_object->value.blockvalue->params =
-              get_param_list(current_object->descriptor.entity->owner->params, &err_info);
+              get_param_list(GET_ENTITY(current_object)->owner->params, &err_info);
         } /* if */
       } /* if */
       shrink_stack();
     } /* if */
 #ifdef TRACE_DCL
-    printf("entity=%lu ", (unsigned long) current_object->descriptor.entity);
+    printf("entity=%lu ", (unsigned long) GET_ENTITY(current_object));
     printf("%lu ", (unsigned long) current_object);
     printf("decl const current_object = ");
     trace1(current_object);
@@ -271,7 +271,7 @@ listtype arguments;
       shrink_stack();
     } /* if */
 #ifdef TRACE_DCL
-    printf("entity=%lu ", (unsigned long) current_object->descriptor.entity);
+    printf("entity=%lu ", (unsigned long) GET_ENTITY(current_object));
     printf("%lu ", (unsigned long) current_object);
     printf("forward decl const current_object = ");
     trace1(current_object);
@@ -313,7 +313,7 @@ listtype arguments;
       shrink_stack();
     } /* if */
 #ifdef TRACE_DCL
-    printf("entity=%lu ", (unsigned long) object_found->descriptor.entity);
+    printf("entity=%lu ", (unsigned long) GET_ENTITY(object_found));
     printf("%lu ", (unsigned long) object_found);
     printf("getfunc object_found = ");
     trace1(object_found);
@@ -355,7 +355,7 @@ listtype arguments;
       shrink_stack();
     } /* if */
 #ifdef TRACE_DCL
-    printf("entity=%lu ", (unsigned long) object_found->descriptor.entity);
+    printf("entity=%lu ", (unsigned long) GET_ENTITY(object_found));
     printf("%lu ", (unsigned long) object_found);
     printf("getobj object_found = ");
     trace1(object_found);
@@ -428,7 +428,7 @@ listtype arguments;
     printf(":\n"); */
     if (ALLOC_OBJECT(created_object)) {
       created_object->type_of = object_type;
-      created_object->descriptor.entity = NULL;
+      created_object->descriptor.property = NULL;
       INIT_CATEGORY_OF_VAR(created_object, VALUEPARAMOBJECT);
       created_object->value.objvalue = NULL;
       return(bld_param_temp(created_object));
@@ -505,7 +505,7 @@ listtype arguments;
     printf(":\n"); */
     if (ALLOC_OBJECT(created_object)) {
       created_object->type_of = object_type;
-      created_object->descriptor.entity = NULL;
+      created_object->descriptor.property = NULL;
       INIT_CATEGORY_OF_VAR(created_object, REFPARAMOBJECT);
       created_object->value.objvalue = NULL;
       return(bld_param_temp(created_object));
@@ -582,7 +582,7 @@ listtype arguments;
     printf(":\n"); */
     if (ALLOC_OBJECT(created_object)) {
       created_object->type_of = object_type;
-      created_object->descriptor.entity = NULL;
+      created_object->descriptor.property = NULL;
       INIT_CATEGORY_OF_OBJ(created_object, REFPARAMOBJECT);
       created_object->value.objvalue = NULL;
       return(bld_param_temp(created_object));
@@ -652,14 +652,14 @@ listtype arguments;
 
   /* dcl_symb */
     symb_object = arg_2(arguments);
-    /* printf("decl symb %lu ", (long unsigned) symb_object->descriptor.entity);
+    /* printf("decl symb %lu ", (long unsigned) GET_ENTITY(symb_object));
     trace1(symb_object);
     printf(":\n"); */
-    if (HAS_DESCRIPTOR_ENTITY(symb_object) &&
-        symb_object->descriptor.entity->syobject != NULL) {
-      symb_object = symb_object->descriptor.entity->syobject;
+    if (HAS_ENTITY(symb_object) &&
+        GET_ENTITY(symb_object)->syobject != NULL) {
+      symb_object = GET_ENTITY(symb_object)->syobject;
     } /* if */
-    /* printf("decl symb %lu ", (long unsigned) symb_object->descriptor.entity);
+    /* printf("decl symb %lu ", (long unsigned) GET_ENTITY(symb_object));
     trace1(symb_object);
     printf(":\n"); */
     return(bld_param_temp(symb_object));
@@ -688,7 +688,7 @@ listtype arguments;
     printf(":\n"); */
     if (ALLOC_OBJECT(created_object)) {
       created_object->type_of = object_type;
-      created_object->descriptor.entity = NULL;
+      created_object->descriptor.property = NULL;
       INIT_CATEGORY_OF_OBJ(created_object, VALUEPARAMOBJECT);
       created_object->value.objvalue = NULL;
       return(bld_param_temp(created_object));

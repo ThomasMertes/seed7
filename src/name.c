@@ -77,7 +77,10 @@ errinfotype *err_info;
 
   /* push_owner */
 #ifdef TRACE_NAME
-    printf("BEGIN push_owner\n");
+    printf("BEGIN push_owner ");
+    printf("%lu ", (unsigned long) obj_to_push);
+    trace1(obj_to_push);
+    printf("\n");
 #endif
     if (ALLOC_RECORD(created_owner, ownerrecord, count.owner)) {
       created_owner->obj = obj_to_push;
@@ -100,18 +103,22 @@ errinfotype *err_info;
 
 #ifdef ANSI_C
 
-static objecttype get_object (entitytype ent, listtype params, errinfotype *err_info)
+static objecttype get_object (entitytype ent, listtype params,
+    filenumtype file_number, linenumtype line, errinfotype *err_info)
 #else
 
-static objecttype get_object (ent, params, err_info)
+static objecttype get_object (ent, params, file_number, line, err_info)
 entitytype ent;
 listtype params;
+filenumtype file_number;
+linenumtype line;
 errinfotype *err_info;
 #endif
 
   {
     objecttype defined_object;
     objecttype forward_reference;
+    propertytype defined_property;
 
   /* get_object */
 #ifdef TRACE_NAME
@@ -126,9 +133,11 @@ errinfotype *err_info;
         SET_CATEGORY_OF_OBJ(defined_object, DECLAREDOBJECT);
       } else {
         SET_CATEGORY_OF_OBJ(defined_object, DECLAREDOBJECT);
+        defined_object->descriptor.property->file_number = file_number;
+        defined_object->descriptor.property->line = line;
         if (ALLOC_OBJECT(forward_reference)) {
           forward_reference->type_of = NULL;
-          forward_reference->descriptor.entity = NULL;
+          forward_reference->descriptor.property = NULL;
           INIT_CATEGORY_OF_OBJ(forward_reference, FWDREFOBJECT);
           forward_reference->value.objvalue = defined_object;
           replace_list_elem(prog.stack_current->local_object_list,
@@ -141,13 +150,21 @@ errinfotype *err_info;
       } /* if */
     } else {
       if (ALLOC_OBJECT(defined_object)) {
-        defined_object->type_of = NULL;
-        defined_object->descriptor.entity = ent;
-        INIT_CATEGORY_OF_OBJ(defined_object, DECLAREDOBJECT);
-        defined_object->value.objvalue = NULL;
-        push_owner(&ent->owner, defined_object, params, err_info);
-        prog.stack_current->object_list_insert_place = append_element_to_list(
-            prog.stack_current->object_list_insert_place, defined_object, err_info);
+        if (ALLOC_RECORD(defined_property, propertyrecord, count.property)) {
+          defined_property->entity = ent;
+          defined_property->file_number = file_number;
+          defined_property->line = line;
+          defined_object->type_of = NULL;
+          defined_object->descriptor.property = defined_property;
+          INIT_CATEGORY_OF_OBJ(defined_object, DECLAREDOBJECT);
+          defined_object->value.objvalue = NULL;
+          push_owner(&ent->owner, defined_object, params, err_info);
+          prog.stack_current->object_list_insert_place = append_element_to_list(
+              prog.stack_current->object_list_insert_place, defined_object, err_info);
+        } else {
+          FREE_OBJECT(defined_object);
+          *err_info = MEMORY_ERROR;
+        } /* if */
       } else {
         *err_info = MEMORY_ERROR;
       } /* if */
@@ -234,12 +251,16 @@ printf(" %lu\n", (long unsigned) name_elem->obj); */
 #ifdef ANSI_C
 
 static objecttype push_name (nodetype declaration_base,
-    listtype name_list, errinfotype *err_info)
+    listtype name_list, filenumtype file_number, linenumtype line,
+    errinfotype *err_info)
 #else
 
-static objecttype push_name (declaration_base, name_list, err_info)
+static objecttype push_name (declaration_base, name_list,
+    file_number, line, err_info)
 nodetype declaration_base;
 listtype name_list;
+filenumtype file_number;
+linenumtype line;
 errinfotype *err_info;
 #endif
 
@@ -260,12 +281,13 @@ errinfotype *err_info;
       defined_object = NULL;
     } else {
       params = create_parameter_list(name_list, err_info);
-      defined_object = get_object(ent, params, err_info);
+      defined_object = get_object(ent, params,
+          file_number, line, err_info);
     } /* if */
 #ifdef TRACE_NAME
     printf("END push_name(");
     printf("%lu ", (unsigned long) defined_object);
-    /* prot_list(defined_object->descriptor.entity->params); */
+    /* prot_list(GET_ENTITY(defined_object)->params); */
     printf(")\n");
 #endif
     return(defined_object);
@@ -293,7 +315,7 @@ objecttype obj_to_pop;
     printf(")\n");
     fflush(stdout);
 #endif
-    ent = obj_to_pop->descriptor.entity;
+    ent = GET_ENTITY(obj_to_pop);
     if (ent != NULL) {
       owner = ent->owner;
       if (owner != NULL) {
@@ -616,9 +638,9 @@ errinfotype *err_info;
               name_elem->obj, err_info);
         } /* if */
       } else {
-        if (HAS_DESCRIPTOR_ENTITY(name_elem->obj) &&
-            name_elem->obj->descriptor.entity->syobject != NULL) {
-          parameter = name_elem->obj->descriptor.entity->syobject;
+        if (HAS_ENTITY(name_elem->obj) &&
+            GET_ENTITY(name_elem->obj)->syobject != NULL) {
+          parameter = GET_ENTITY(name_elem->obj)->syobject;
         } else {
           parameter = name_elem->obj;
         } /* if */
@@ -661,7 +683,8 @@ errinfotype *err_info;
     push_stack();
     name_list = eval_name_list(object_name->value.listvalue, err_info);
     down_stack();
-    defined_object = push_name(declaration_base, name_list, err_info);
+    defined_object = push_name(declaration_base, name_list,
+        GET_FILE_NUM(object_name), GET_LINE_NUM(object_name), err_info);
 #ifdef TRACE_NAME
     printf("END inst_list --> ");
     trace1(defined_object);
@@ -675,12 +698,14 @@ errinfotype *err_info;
 #ifdef ANSI_C
 
 static objecttype inst_object (const_nodetype declaration_base, objecttype name_object,
-    errinfotype *err_info)
+    filenumtype file_number, linenumtype line, errinfotype *err_info)
 #else
 
-static objecttype inst_object (declaration_base, name_object, err_info)
+static objecttype inst_object (declaration_base, name_object, file_number, line, err_info)
 nodetype declaration_base;
 objecttype name_object;
+filenumtype file_number;
+linenumtype line;
 errinfotype *err_info;
 #endif
 
@@ -693,10 +718,11 @@ errinfotype *err_info;
     trace1(name_object);
     printf(")\n");
 #endif
-    if (name_object->descriptor.entity == entity.literal) {
+    if (name_object->descriptor.property == property.literal) {
       err_object(IDENT_EXPECTED, name_object);
     } /* if */
-    defined_object = get_object(name_object->descriptor.entity, NULL, err_info);
+    defined_object = get_object(GET_ENTITY(name_object), NULL,
+        file_number, line, err_info);
 #ifdef TRACE_NAME
     printf("END inst_object --> ");
     trace1(defined_object);
@@ -753,7 +779,7 @@ errinfotype *err_info;
         /* printf("param_obj ");
         trace1(param_obj);
         printf("\n"); */
-        defined_object = inst_object(declaration_base, param_obj, err_info);        
+        defined_object = inst_object(declaration_base, param_obj, 0, 0, err_info);        
      } /* if */
     } else {
       err_object(IDENT_EXPECTED, object_name);
@@ -800,10 +826,11 @@ errinfotype *err_info;
         trace1(object_name->value.listvalue->obj);
         printf(")\n"); */
         defined_object = inst_object(declaration_base,
-            object_name->value.listvalue->obj, err_info);
+            object_name->value.listvalue->obj,
+            GET_FILE_NUM(object_name), GET_LINE_NUM(object_name), err_info);
       } /* if */
     } else {
-      defined_object = inst_object(declaration_base, object_name, err_info);
+      defined_object = inst_object(declaration_base, object_name, 0, 0, err_info);
 /* printf(" %s\n", defined_object->IDENT->NAME);
    printf("o%d_%s declared \n", defined_object->NUMBER,
        defined_object->IDENT->NAME); */
@@ -866,16 +893,16 @@ errinfotype *err_info;
               CATEGORY_OF_OBJ(param_obj) == TYPEOBJECT) {
             ent = NULL;
           } else {
-            ent = param_obj->descriptor.entity;
+            ent = GET_ENTITY(param_obj);
          } /* if */
         } else {
           ent = NULL;
         } /* if */
       } else {
-        ent = object_name->value.listvalue->obj->descriptor.entity;
+        ent = GET_ENTITY(object_name->value.listvalue->obj);
       } /* if */
     } else {
-      ent = object_name->descriptor.entity;
+      ent = GET_ENTITY(object_name);
     } /* if */
     if (ent != NULL && ent->owner != NULL) {
       defined_object = ent->owner->obj;
@@ -945,16 +972,16 @@ errinfotype *err_info;
               CATEGORY_OF_OBJ(param_obj) == TYPEOBJECT) {
             ent = NULL;
           } else {
-            ent = param_obj->descriptor.entity;
+            ent = GET_ENTITY(param_obj);
          } /* if */
         } else {
           ent = NULL;
         } /* if */
       } else {
-        ent = object_name->value.listvalue->obj->descriptor.entity;
+        ent = GET_ENTITY(object_name->value.listvalue->obj);
       } /* if */
     } else {
-      ent = object_name->descriptor.entity;
+      ent = GET_ENTITY(object_name);
     } /* if */
     if (ent != NULL && ent->owner != NULL) {
       defined_object = ent->owner->obj;
@@ -1000,7 +1027,7 @@ objecttype param_object;
 #endif
     param_descr = param_object->value.listvalue;
     if (param_descr != NULL) {
-      if (param_descr->obj->descriptor.entity->ident == prog.id_for.ref) {
+      if (GET_ENTITY(param_descr->obj)->ident == prog.id_for.ref) {
         /* printf("### ref param\n"); */
         if (param_descr->next != NULL) {
           type_of_parameter = param_descr->next->obj;
@@ -1009,7 +1036,7 @@ objecttype param_object;
           } /* if */
           if (param_descr->next->next != NULL) {
             FREE_OBJECT(param_object);
-            if (param_descr->next->next->obj->descriptor.entity->ident == prog.id_for.colon) {
+            if (GET_ENTITY(param_descr->next->next->obj)->ident == prog.id_for.colon) {
               param_object = dcl_ref2(param_descr);
             } else {
               param_object = dcl_ref1(param_descr);
@@ -1018,7 +1045,7 @@ objecttype param_object;
           } /* if */
         } /* if */
       } else {
-        err_ident(PARAM_SPECIFIER_EXPECTED, param_descr->obj->descriptor.entity->ident);
+        err_ident(PARAM_SPECIFIER_EXPECTED, GET_ENTITY(param_descr->obj)->ident);
       } /* if */
     } /* if */
 #ifdef TRACE_NAME
@@ -1061,7 +1088,8 @@ errinfotype *err_info;
       name_elem = name_elem->next;
     } /* while */
     defined_object = push_name(declaration_base,
-        object_name->value.listvalue, err_info);
+        object_name->value.listvalue,
+        GET_FILE_NUM(object_name), GET_LINE_NUM(object_name), err_info);
 #ifdef TRACE_NAME
     printf("END dollar_inst_list\n");
 #endif
@@ -1094,7 +1122,7 @@ errinfotype *err_info;
     if (CATEGORY_OF_OBJ(object_name) == EXPROBJECT) {
       defined_object = dollar_inst_list(declaration_base, object_name, err_info);
     } else {
-      defined_object = inst_object(declaration_base, object_name, err_info);
+      defined_object = inst_object(declaration_base, object_name, 0, 0, err_info);
 /* printf(" %s\n", defined_object->IDENT->NAME);
    printf("o%d_%s declared \n", defined_object->NUMBER,
        defined_object->IDENT->NAME); */

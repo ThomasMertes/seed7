@@ -111,12 +111,15 @@ booltype  do_match_expr;
 
   {
     objecttype expression;
+    filenumtype file_number;
+    linenumtype line;
     listtype helplist;
     objecttype procnameobject;
 
   /* read_call_expression */
 #ifdef TRACE_EXPR
-    printf("BEGIN read_call_expression(%d)\n", do_match_expr);
+    printf("BEGIN read_call_expression(%d) %s\n",
+        do_match_expr, id_string(current_ident));
 #endif
     if (current_ident == prog.id_for.lparen) {
       scan_symbol();
@@ -134,6 +137,8 @@ booltype  do_match_expr;
         } /* if */
       } /* if */
     } else {
+      file_number = in_file.file_number;
+      line = in_file.line;
       expression = read_atom();
       if (current_ident == prog.id_for.lparen) {
         scan_symbol();
@@ -144,6 +149,7 @@ booltype  do_match_expr;
           expression = new_nonempty_expression_object(
               pars_infix_expression(COM_PRIORITY, do_match_expr),
               &helplist, SYS_EXPR_TYPE);
+          expression->descriptor.posinfo = CREATE_POSINFO(line, file_number);
           while (current_ident == prog.id_for.comma) {
             scan_symbol();
             helplist = add_element_to_list(helplist,
@@ -196,7 +202,7 @@ booltype  do_match_expr;
             pars_infix_expression(COM_PRIORITY, FALSE), &helplist,
             SYS_EXPR_TYPE);
 #ifdef OUT_OF_ORDER
-        expression->objcategory = LISTOBJECT;
+        SET_CATEGORY_OF_OBJ(expression, LISTOBJECT);
         while (current_ident == prog.id_for.comma) {
           scan_symbol();
           helplist = add_element_to_list(helplist,
@@ -239,7 +245,8 @@ booltype do_match_expr;
 
   /* read_dot_expression */
 #ifdef TRACE_EXPR
-    printf("BEGIN read_dot_expression(%d)\n", do_match_expr);
+    printf("BEGIN read_dot_expression(%d) %s\n",
+        do_match_expr, id_string(current_ident));
 #endif
     if (current_ident == prog.id_for.dot) {
       scan_symbol();
@@ -247,7 +254,7 @@ booltype do_match_expr;
       if (current_ident == prog.id_for.dot) {
         expression = new_nonempty_expression_object(expression, &helplist,
             SYS_EXPR_TYPE);
-        expression->objcategory = LISTOBJECT;
+        SET_CATEGORY_OF_OBJ(expression, LISTOBJECT);
         do {
           scan_symbol();
           sub_expr = read_dot_subexpression(do_match_expr);
@@ -391,7 +398,7 @@ booltype do_match_expr;
 
   /* pars_infix_expression */
 #ifdef TRACE_EXPR
-    printf("BEGIN pars_infix_expression\n");
+    printf("BEGIN pars_infix_expression \"%s\"\n", id_string(current_ident));
 #endif
     expr_prior = current_ident->prefix_priority;
     if (expr_prior == STRONGEST_PRIORITY) {
@@ -399,12 +406,12 @@ booltype do_match_expr;
     } else {
       if (expr_prior <= priority) {
         formal_token = current_ident->prefix_token;
-        expression = new_type_of_expression_object(read_name(),
-            &helplist, NULL);
+        expression = new_expression_object(&helplist);
+        helplist->obj = read_name();
         if (current_ident == prog.id_for.dot) {
           err_num_stri(DOT_EXPR_ILLEGAL,
-              (int) helplist->obj->descriptor.entity->ident->prefix_priority,
-              (int) STRONGEST_PRIORITY, helplist->obj->descriptor.entity->ident->name);
+              (int) GET_ENTITY(helplist->obj)->ident->prefix_priority,
+              (int) STRONGEST_PRIORITY, GET_ENTITY(helplist->obj)->ident->name);
           expression = read_dot_expression(do_match_expr);
         } else {
           expression = pars_token(expression,

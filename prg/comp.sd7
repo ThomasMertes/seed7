@@ -5711,6 +5711,15 @@ const proc: process_ref_eq (in ref_list: params, inout expr_type: c_expr) is fun
   end func;
 
 
+const proc: process_ref_file (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "ref_file(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
 const proc: process_ref_hashcode (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
@@ -5733,6 +5742,15 @@ const proc: process_ref_itftosct (in ref_list: params, inout expr_type: c_expr) 
 
   begin
     c_expr.expr &:= "ref_itftosct(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process_ref_line (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "ref_line(";
     process_expr(params[1], c_expr);
     c_expr.expr &:= ")";
   end func;
@@ -8580,12 +8598,16 @@ const proc: process_action (in reference: procedure, in ref_list: params,
         process_ref_deref(params, c_expr);
       elsif action_name = "REF_EQ" then
         process_ref_eq(params, c_expr);
+      elsif action_name = "REF_FILE" then
+        process_ref_file(params, c_expr);
       elsif action_name = "REF_HASHCODE" then
         process_ref_hashcode(params, c_expr);
       elsif action_name = "REF_ISVAR" then
         process_ref_isvar(params, c_expr);
       elsif action_name = "REF_ITFTOSCT" then
         process_ref_itftosct(params, c_expr);
+      elsif action_name = "REF_LINE" then
+        process_ref_line(params, c_expr);
       elsif action_name = "REF_LOCAL_CONSTS" then
         process_ref_local_consts(params, c_expr);
       elsif action_name = "REF_LOCAL_VARS" then
@@ -8953,6 +8975,15 @@ const func boolean: isCopyParam (in reference: a_param) is func
   begin
     result := category(a_param) = "VALUEPARAMOBJECT" and
         valueIsAtHeap(a_param) and is_var(a_param);
+  end func;
+
+
+const func boolean: isInOutParam (in reference: a_param) is func
+
+  result
+    var boolean: result is TRUE;
+  begin
+    result := category(a_param) = "REFPARAMOBJECT" and is_var(a_param);
   end func;
 
 
@@ -10749,7 +10780,7 @@ const proc: process_dynamic_parameter_list (in ref_list: actual_params,
         else
           c_expr.expr &:= ", ";
         end if;
-        if not is_var(actual_param) and is_var(formal_param) then
+        if not is_var(actual_param) and isInOutParam(formal_param) then
           c_expr.expr &:= "/* SHOULD NOT HAPPEN &o_";
           create_name(actual_param, c_expr.expr);
           c_expr.expr &:= " */";
@@ -10759,7 +10790,7 @@ const proc: process_dynamic_parameter_list (in ref_list: actual_params,
         elsif isPointerParam(actual_param) and not isPointerParam(formal_param) then
           c_expr.expr &:= "*o_";
           create_name(actual_param, c_expr.expr);
-        else # if not is_var(formal_param) or is_var(actual_param) then
+        else # if is_var(actual_param) or not isInOutParam(formal_param) then
           c_expr.expr &:= "&o_";
           create_name(actual_param, c_expr.expr);
         end if;
@@ -11671,7 +11702,7 @@ const proc: replace_locals_from_outside (inout reference: current_expression,
         replace_locals_from_outside(obj, local_objects,
             additional_act_params, additional_form_params);
       elsif category = "LOCALVOBJECT" or category = "VALUEPARAMOBJECT" or
-	      category = "REFPARAMOBJECT" or category = "RESULTOBJECT" then
+          category = "REFPARAMOBJECT" or category = "RESULTOBJECT" then
         if obj not in local_objects then
           if obj in additional_act_params then
             formalRefParam := additional_form_params[pos(additional_act_params, obj)];
@@ -11713,7 +11744,7 @@ const proc: change_calls_from_local_function (inout reference: current_expressio
       end if;
     end for;
     if params[1] = local_function_obj then
-	  params &:= additional_form_params;
+      params &:= additional_form_params;
       setValue(current_expression, params);
     end if;
   end func;
@@ -11743,7 +11774,7 @@ const proc: change_calls_from_global_function (inout reference: current_expressi
       end if;
     end for;
     if params[1] = local_function_obj then
-	  params &:= additional_act_params;
+      params &:= additional_act_params;
       setValue(current_expression, params);
     end if;
   end func;

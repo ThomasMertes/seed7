@@ -46,6 +46,9 @@
 #include "object.h"
 
 
+#undef TRACE_OBJECT
+
+
 
 #ifdef ANSI_C
 
@@ -175,6 +178,48 @@ typetype type_of;
 #endif
     return(created_list);
   } /* new_type_of_expression_object */
+
+
+
+#ifdef ANSI_C
+
+objecttype new_expression_object (listtype *list)
+#else
+
+objecttype new_expression_object (list)
+listtype *list;
+#endif
+
+  {
+    register objecttype created_list;
+
+  /* new_expression_object */
+#ifdef TRACE_OBJECT
+    printf("BEGIN new_expression_object\n");
+#endif
+#ifdef WITH_STATISTIC
+    list_count++;
+#endif
+    if (!ALLOC_OBJECT(created_list)) {
+      fatal_memory_error(SOURCE_POSITION(2034));
+    } /* if */
+    created_list->type_of = NULL;
+    created_list->descriptor.posinfo = CREATE_POSINFO(in_file.line, in_file.file_number);
+    INIT_CATEGORY_OF_POSINFO(created_list, EXPROBJECT);
+    if (!ALLOC_L_ELEM(*list)) {
+      fatal_memory_error(SOURCE_POSITION(2035));
+    } /* if */
+    (*list)->next = NULL;
+    (*list)->obj = NULL;
+    created_list->value.listvalue = *list;
+#ifdef TRACE_OBJECT
+    printf("END new_expression_object ");
+    printf("%lu ", (unsigned long) created_list);
+    trace1(created_list);
+    printf("\n");
+#endif
+    return(created_list);
+  } /* new_expression_object */
 
 
 

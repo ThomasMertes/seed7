@@ -50,6 +50,9 @@
 #include "type.h"
 
 
+#undef TRACE_TYPE
+
+
 
 #ifdef ANSI_C
 

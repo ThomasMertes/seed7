@@ -118,7 +118,7 @@ errinfotype *err_info;
         *err_info = MEMORY_ERROR;
       } else {
         (*object_to)->type_of = object_from->type_of;
-        (*object_to)->descriptor.entity = object_from->descriptor.entity;
+        (*object_to)->descriptor.property = object_from->descriptor.property;
         (*object_to)->value.listvalue = NULL;
         list_insert_place = &(*object_to)->value.listvalue;
         INIT_CATEGORY_OF_OBJ((*object_to), CATEGORY_OF_OBJ(object_from));

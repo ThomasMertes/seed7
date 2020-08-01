@@ -152,7 +152,7 @@ memsizetype *used_max_position;
     } /* if */
     if (new_stri != NULL) {
       work_array->arr[*used_max_position].type_of = take_type(SYS_STRI_TYPE);
-      work_array->arr[*used_max_position].descriptor.entity = NULL;
+      work_array->arr[*used_max_position].descriptor.property = NULL;
       work_array->arr[*used_max_position].value.strivalue = new_stri;
       INIT_CATEGORY_OF_VAR(&work_array->arr[*used_max_position], STRIOBJECT);
       (*used_max_position)++;

@@ -665,7 +665,7 @@ inttype from_index;
         searched_mem = searched->mem;
         ch_1 = searched_mem[0];
         main_mem = &main_stri->mem[from_index - 1];
-        main_size -= from_index;
+        main_size -= from_index - 1;
         search_start = main_mem;
         search_end = &main_mem[main_size - searched_size + 1];
         while ((search_start = search_strelem(search_start,

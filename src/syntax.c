@@ -143,7 +143,7 @@ ustritype *name_of_last_sy_token;
       } /* if */
       *after_expr_token = TRUE;
     } else {
-      identifier = statement_token->descriptor.entity->ident;
+      identifier = GET_ENTITY(statement_token)->ident;
 /*  printf("  >%s<\n", identifier->name); */
       *name_of_last_sy_token = identifier->name;
       new_token = get_sy_token(formal_tokens,
@@ -331,7 +331,7 @@ assoctype statement_associativity;
     printf("BEGIN def_infix_syntax\n");
 #endif
     if (CATEGORY_OF_OBJ(statement_syntax->obj) != EXPROBJECT) {
-      identifier = statement_syntax->obj->descriptor.entity->ident;
+      identifier = GET_ENTITY(statement_syntax->obj)->ident;
       if (identifier->infix_priority == 0) {
         identifier->infix_priority = statement_priority;
       } else {
@@ -393,7 +393,7 @@ assoctype statement_associativity;
 #ifdef TRACE_SYNTAX
     printf("BEGIN def_prefix_syntax\n");
 #endif
-    identifier = statement_syntax->obj->descriptor.entity->ident;
+    identifier = GET_ENTITY(statement_syntax->obj)->ident;
     if (identifier->prefix_priority == 0) {
       identifier->prefix_priority = statement_priority;
     } else {
@@ -475,7 +475,7 @@ assoctype statement_associativity;
       err_warning(DOT_EXPR_REQUESTED);
       token_list_end = NULL;
     } else {
-      identifier = syntax_expression->descriptor.entity->ident;
+      identifier = GET_ENTITY(syntax_expression)->ident;
       if (identifier == prog.ident.literal) {
         err_object(IDENT_EXPECTED, syntax_expression);
       } /* if */

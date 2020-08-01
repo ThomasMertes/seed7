@@ -570,13 +570,13 @@ objecttype object;
 
 #ifdef OUT_OF_ORDER
             if (!HAS_POSINFO(object)) {
-              if (HAS_DESCRIPTOR_ENTITY(object)) {
-                printf("HAS_DESCRIPTOR_ENTITY\n");
-                if (object->descriptor.entity->ident != NULL) {
+              if (HAS_ENTITY(object)) {
+                printf("HAS_ENTITY\n");
+                if (GET_ENTITY(object)->ident != NULL) {
                   printf("%s",
-                      id_string(object->descriptor.entity->ident));
-                } else if (object->descriptor.entity->name_list != NULL) {
-                  prot_list(object->descriptor.entity->name_list);
+                      id_string(GET_ENTITY(object)->ident));
+                } else if (GET_ENTITY(object)->name_list != NULL) {
+                  prot_list(GET_ENTITY(object)->name_list);
                 } /* if */
                 printf("\n");
               } /* if */
@@ -1073,7 +1073,7 @@ listtype expr_list;
     dynamic_call_obj = curr_exec_object;
     if (ALLOC_OBJECT(match_expr)) {
       match_expr->type_of = take_type(SYS_EXPR_TYPE);
-      match_expr->descriptor.entity = entity.literal;
+      match_expr->descriptor.property = property.literal;
       match_expr->value.listvalue = NULL;
       list_insert_place = &match_expr->value.listvalue;
       INIT_CATEGORY_OF_OBJ(match_expr, EXPROBJECT);

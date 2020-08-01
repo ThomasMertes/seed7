@@ -62,6 +62,8 @@ const func ref_list: array_to_list (ref reference param) is                actio
 const func integer: array_min_position (ref reference param) is            action "REF_ARRMINPOS";
 const func ref_list: struct_to_list (ref reference param) is               action "REF_SCTTOLIST";
 const func reference: interface_to_struct (ref reference param) is         action "REF_ITFTOSCT";
+const func string: file (ref reference param) is                           action "REF_FILE";
+const func integer: line (ref reference param) is                          action "REF_LINE";
 const func reference: syobject (ref program param, ref string param) is    action "PRG_SYOBJECT";
 const func reference: alloc (in reference param) is                        action "REF_ALLOC";
 const func integer: obj_number (ref reference param) is                    action "REF_NUM";

@@ -724,10 +724,10 @@ objecttype anyobject;
 #ifdef TRACE_TRACE
     printf("BEGIN printvalue\n");
 #endif
-    if (HAS_DESCRIPTOR_ENTITY(anyobject) &&
-        anyobject->descriptor.entity != entity.literal &&
-        anyobject->descriptor.entity->ident != NULL) {
-      prot_cstri(id_string(anyobject->descriptor.entity->ident));
+    if (HAS_ENTITY(anyobject) &&
+        GET_ENTITY(anyobject) != entity.literal &&
+        GET_ENTITY(anyobject)->ident != NULL) {
+      prot_cstri(id_string(GET_ENTITY(anyobject)->ident));
     } else {
       print_real_value(anyobject);
     } /* if */
@@ -762,8 +762,8 @@ objecttype anyobject;
       } /* if */
       switch (CATEGORY_OF_OBJ(anyobject)) {
         case VARENUMOBJECT:
-          if (HAS_DESCRIPTOR_ENTITY(anyobject)) {
-            prot_cstri(id_string(anyobject->descriptor.entity->ident));
+          if (HAS_ENTITY(anyobject)) {
+            prot_cstri(id_string(GET_ENTITY(anyobject)->ident));
           } else {
             prot_cstri("*NULL_ENTITY_OBJECT*");
           } /* if */
@@ -814,11 +814,11 @@ objecttype anyobject;
           break;
         case LISTOBJECT:
         case EXPROBJECT:
-          if (HAS_DESCRIPTOR_ENTITY(anyobject) &&
-              anyobject->descriptor.entity->ident != NULL) {
-            if (anyobject->descriptor.entity->ident->name != NULL) {
-              if (anyobject->descriptor.entity->ident->name[0] != '\0') {
-                prot_cstri(id_string(anyobject->descriptor.entity->ident));
+          if (HAS_ENTITY(anyobject) &&
+              GET_ENTITY(anyobject)->ident != NULL) {
+            if (GET_ENTITY(anyobject)->ident->name != NULL) {
+              if (GET_ENTITY(anyobject)->ident->name[0] != '\0') {
+                prot_cstri(id_string(GET_ENTITY(anyobject)->ident));
               } else {
                 prot_cstri("(");
                 prot_list(anyobject->value.listvalue);
@@ -836,8 +836,8 @@ objecttype anyobject;
           } /* if */
           break;
         default:
-          if (HAS_DESCRIPTOR_ENTITY(anyobject)) {
-            prot_cstri(id_string(anyobject->descriptor.entity->ident));
+          if (HAS_ENTITY(anyobject)) {
+            prot_cstri(id_string(GET_ENTITY(anyobject)->ident));
           } else {
             printcategory(CATEGORY_OF_OBJ(anyobject));
             prot_cstri(" *NULL_ENTITY_OBJECT*");
@@ -887,8 +887,9 @@ listtype list;
           case MATCHOBJECT:
             if (CATEGORY_OF_OBJ(list->obj->value.listvalue->obj) == ACTOBJECT) {
               prot_cstri(get_primact(list->obj->value.listvalue->obj->value.actvalue)->name);
-            } else if (list->obj->value.listvalue->obj->descriptor.entity->ident != NULL) {
-              prot_cstri(id_string(list->obj->value.listvalue->obj->descriptor.entity->ident));
+            } else if (HAS_ENTITY(list->obj->value.listvalue->obj) &&
+                GET_ENTITY(list->obj->value.listvalue->obj)->ident != NULL) {
+              prot_cstri(id_string(GET_ENTITY(list->obj->value.listvalue->obj)->ident));
             } else {
               printtype(list->obj->value.listvalue->obj->type_of);
               prot_cstri(": <");
@@ -914,9 +915,9 @@ listtype list;
                 case VALUEPARAMOBJECT:
                   prot_cstri("in ");
                   printtype(list->obj->value.objvalue->type_of);
-                  if (HAS_DESCRIPTOR_ENTITY(list->obj->value.objvalue)) {
+                  if (HAS_ENTITY(list->obj->value.objvalue)) {
                     prot_cstri(": ");
-                    prot_cstri(id_string(list->obj->value.objvalue->descriptor.entity->ident));
+                    prot_cstri(id_string(GET_ENTITY(list->obj->value.objvalue)->ident));
                   } else {
                     prot_cstri(" param");
                   } /* if */
@@ -924,9 +925,9 @@ listtype list;
                 case REFPARAMOBJECT:
                   prot_cstri("ref ");
                   printtype(list->obj->value.objvalue->type_of);
-                  if (HAS_DESCRIPTOR_ENTITY(list->obj->value.objvalue)) {
+                  if (HAS_ENTITY(list->obj->value.objvalue)) {
                     prot_cstri(": ");
-                    prot_cstri(id_string(list->obj->value.objvalue->descriptor.entity->ident));
+                    prot_cstri(id_string(GET_ENTITY(list->obj->value.objvalue)->ident));
                   } else {
                     prot_cstri(" param");
                   } /* if */
@@ -963,10 +964,10 @@ listtype list;
             break;
           case VARENUMOBJECT:
             if (list->obj->value.objvalue != NULL) {
-              if (HAS_DESCRIPTOR_ENTITY(list->obj->value.objvalue) &&
-                  list->obj->value.objvalue->descriptor.entity->ident != NULL &&
-                  list->obj->value.objvalue->descriptor.entity->ident != prog.ident.literal) {
-                prot_cstri(id_string(list->obj->value.objvalue->descriptor.entity->ident));
+              if (HAS_ENTITY(list->obj->value.objvalue) &&
+                  GET_ENTITY(list->obj->value.objvalue)->ident != NULL &&
+                  GET_ENTITY(list->obj->value.objvalue)->ident != prog.ident.literal) {
+                prot_cstri(id_string(GET_ENTITY(list->obj->value.objvalue)->ident));
               } else {
                 prot_cstri("<");
                 printcategory(CATEGORY_OF_OBJ(list->obj->value.objvalue));
@@ -986,26 +987,26 @@ listtype list;
             prot_int((inttype) list->obj);
             prot_cstri(" ");
             fflush(stdout);
-            if (HAS_DESCRIPTOR_ENTITY(list->obj)) {
-              prot_int((inttype) list->obj->descriptor.entity);
+            if (HAS_ENTITY(list->obj)) {
+              prot_int((inttype) GET_ENTITY(list->obj));
               prot_cstri(" ");
               fflush(stdout);
-              if (list->obj->descriptor.entity->ident != NULL) {
-                prot_cstri(id_string(list->obj->descriptor.entity->ident));
+              if (GET_ENTITY(list->obj)->ident != NULL) {
+                prot_cstri(id_string(GET_ENTITY(list->obj)->ident));
               } /* if */
             } /* if */
             break;
 #endif
           default:
-            if (HAS_DESCRIPTOR_ENTITY(list->obj) &&
-                list->obj->descriptor.entity->ident != NULL) {
-              prot_cstri(id_string(list->obj->descriptor.entity->ident));
+            if (HAS_ENTITY(list->obj) &&
+                GET_ENTITY(list->obj)->ident != NULL) {
+              prot_cstri(id_string(GET_ENTITY(list->obj)->ident));
             } else {
               printtype(list->obj->type_of);
               prot_cstri(": <");
               printcategory(CATEGORY_OF_OBJ(list->obj));
               prot_cstri("> ");
-              prot_int((inttype) list->obj->descriptor.entity);
+              prot_int((inttype) GET_ENTITY(list->obj));
             } /* if */
             break;
         } /* switch */
@@ -1130,8 +1131,8 @@ nodetype anynode;
       prot_cstri(" *NULL_NODE* ");
     } else {
       if (anynode->match_obj != NULL) {
-        if (HAS_DESCRIPTOR_ENTITY(anynode->match_obj)) {
-          prot_cstri(id_string(anynode->match_obj->descriptor.entity->ident));
+        if (HAS_ENTITY(anynode->match_obj)) {
+          prot_cstri(id_string(GET_ENTITY(anynode->match_obj)->ident));
         } else {
           prot_cstri(" *NULL_MATCH_OBJ_ENTITY* ");
         } /* if */
@@ -1172,8 +1173,8 @@ char *buffer;
     printf("BEGIN list_node_names\n");
 #endif
     if (anyobject != NULL) {
-      if (HAS_DESCRIPTOR_ENTITY(anyobject)) {
-        strcat(buffer, id_string(anyobject->descriptor.entity->ident));
+      if (HAS_ENTITY(anyobject)) {
+        strcat(buffer, id_string(GET_ENTITY(anyobject)->ident));
       } else {
         strcat(buffer, " *NULL_MATCH_OBJ_ENTITY* ");
       } /* if */
@@ -1364,8 +1365,8 @@ nodetype anynode;
         if (CATEGORY_OF_OBJ(anynode->match_obj) == TYPEOBJECT) {
           printtype(anynode->match_obj->value.typevalue);
         } else {
-          if (HAS_DESCRIPTOR_ENTITY(anynode->match_obj)) {
-            prot_cstri(id_string(anynode->match_obj->descriptor.entity->ident));
+          if (HAS_ENTITY(anynode->match_obj)) {
+            prot_cstri(id_string(GET_ENTITY(anynode->match_obj)->ident));
           } else {
             prot_cstri(" *NULL_MATCH_OBJ_ENTITY* ");
           } /* if */
@@ -1423,8 +1424,8 @@ objecttype traceobject;
         prot_int((inttype) GET_LINE_NUM(traceobject));
         prot_cstri(")");
       } else {
-        if (HAS_DESCRIPTOR_ENTITY(traceobject)) {
-          prot_cstri(id_string(traceobject->descriptor.entity->ident));
+        if (HAS_ENTITY(traceobject)) {
+          prot_cstri(id_string(GET_ENTITY(traceobject)->ident));
         } else {
           prot_cstri("*NULL_ENTITY_OBJECT*");
         } /* if */
@@ -1453,9 +1454,9 @@ objecttype traceobject;
               case VALUEPARAMOBJECT:
                 prot_cstri("in ");
                 printtype(traceobject->value.objvalue->type_of);
-                if (HAS_DESCRIPTOR_ENTITY(traceobject->value.objvalue)) {
+                if (HAS_ENTITY(traceobject->value.objvalue)) {
                   prot_cstri(": ");
-                  prot_cstri(id_string(traceobject->value.objvalue->descriptor.entity->ident));
+                  prot_cstri(id_string(GET_ENTITY(traceobject->value.objvalue)->ident));
                 } else {
                   prot_cstri(" param");
                 } /* if */
@@ -1463,9 +1464,9 @@ objecttype traceobject;
               case REFPARAMOBJECT:
                 prot_cstri("ref ");
                 printtype(traceobject->value.objvalue->type_of);
-                if (HAS_DESCRIPTOR_ENTITY(traceobject->value.objvalue)) {
+                if (HAS_ENTITY(traceobject->value.objvalue)) {
                   prot_cstri(": ");
-                  prot_cstri(id_string(traceobject->value.objvalue->descriptor.entity->ident));
+                  prot_cstri(id_string(GET_ENTITY(traceobject->value.objvalue)->ident));
                 } else {
                   prot_cstri(" param");
                 } /* if */
@@ -1543,9 +1544,9 @@ objecttype traceobject;
             prot_cstri("> ");
             if (CATEGORY_OF_OBJ(traceobject->value.listvalue->obj) == ACTOBJECT) {
               prot_cstri(get_primact(traceobject->value.listvalue->obj->value.actvalue)->name);
-            } else if (HAS_DESCRIPTOR_ENTITY(traceobject->value.listvalue->obj) &&
-                traceobject->value.listvalue->obj->descriptor.entity->ident != NULL) {
-              prot_cstri(id_string(traceobject->value.listvalue->obj->descriptor.entity->ident));
+            } else if (HAS_ENTITY(traceobject->value.listvalue->obj) &&
+                GET_ENTITY(traceobject->value.listvalue->obj)->ident != NULL) {
+              prot_cstri(id_string(GET_ENTITY(traceobject->value.listvalue->obj)->ident));
             } else {
               printtype(traceobject->value.listvalue->obj->type_of);
               prot_cstri(": <");

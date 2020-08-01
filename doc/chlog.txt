@@ -1,3 +1,18 @@
+20071125:
+- The interpreter was improved to store the filename and the line of the definition of
+  an object.
+- The line stored for an expression was improved to be identical with the line of the
+  operator symbol or function name.
+- The stritext.s7i include file, which supports string array based text files, was added.
+- The mahjong.sd7 example program was improved to draw darker vertical surfaces.
+- The mahjong tiles of the mahjng32.s7i include file were improved to contain bigger digits.
+- Several new functions like getHtmlSymbolOrComment, gray, file and line were added.
+- The compiler was improved to support functions with 'in var' parameter called by DYNAMIC
+  dispatch functions with a corresponding 'val' parameter.
+- The compiler was improved to support the ref_line and ref_file actions.
+- An error was fixed in the strIpos function and testcases were added to the chkstr.sd7
+  program.
+
 20071110:
 - The functions getSymbol, getWhiteSpace, getSymbolOrComment and getSimpleSymbol
   of the scanner.s7i library were created or improved.

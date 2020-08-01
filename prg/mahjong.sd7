@@ -54,41 +54,43 @@ const integer: PLAYER_HIT_XPOS is UPPER_BORDER + FIELD_LINES * FIELD_X_STEP + FI
 const integer: SHIFT_X is 10;
 const integer: SHIFT_Y is 10;
 const color: BACKGROUND is light_blue;
-const color: leftSideColor is color(57344, 57344, 57344);
-const color: lowerSideColor is color(49152, 49152, 49152);
-const color: leftEdgeColor is color(40960, 40960, 40960);
-const color: lowerEdgeColor is color(32768, 32768, 32768);
-const array color: leftFrameColor is [] (
-    color(57344 + 1 * 1365, 57344 + 1 * 1365, 57344 + 1 * 1365),
-    color(57344 + 2 * 1365, 57344 + 2 * 1365, 57344 + 2 * 1365),
-    color(57344 + 3 * 1365, 57344 + 3 * 1365, 57344 + 3 * 1365),
-    color(57344 + 4 * 1365, 57344 + 4 * 1365, 57344 + 4 * 1365),
-    color(57344 + 5 * 1365, 57344 + 5 * 1365, 57344 + 5 * 1365));
-const array color: rightFrameColor is [] (
-    color(40960 + 1 * 4096, 40960 + 1 * 4096, 40960 + 1 * 4096),
-    color(40960 + 2 * 4096, 40960 + 2 * 4096, 40960 + 2 * 4096),
-    color(40960 + 3 * 4096, 40960 + 3 * 4096, 40960 + 3 * 4096),
-    color(40960 + 4 * 4096, 40960 + 4 * 4096, 40960 + 4 * 4096),
-    color(40960 + 5 * 4096, 40960 + 5 * 4096, 40960 + 5 * 4096));
-const array color: upperFrameColor is [] (
-    color(32768 + 1 * 5461, 32768 + 1 * 5461, 32768 + 1 * 5461),
-    color(32768 + 2 * 5461, 32768 + 2 * 5461, 32768 + 2 * 5461),
-    color(32768 + 3 * 5461, 32768 + 3 * 5461, 32768 + 3 * 5461),
-    color(32768 + 4 * 5461, 32768 + 4 * 5461, 32768 + 4 * 5461),
-    color(32768 + 5 * 5461, 32768 + 5 * 5461, 32768 + 5 * 5461));
-const array color: lowerFrameColor is [] (
-    color(49152 + 1 * 2731, 49152 + 1 * 2731, 49152 + 1 * 2731),
-    color(49152 + 2 * 2731, 49152 + 2 * 2731, 49152 + 2 * 2731),
-    color(49152 + 3 * 2731, 49152 + 3 * 2731, 49152 + 3 * 2731),
-    color(49152 + 4 * 2731, 49152 + 4 * 2731, 49152 + 4 * 2731),
-    color(49152 + 5 * 2731, 49152 + 5 * 2731, 49152 + 5 * 2731));
-const array color: lowerLeftEdgeColor is [] (
-    color(49152 + 1 * 2048, 49152 + 1 * 2048, 49152 + 1 * 2048),
-    color(49152 + 2 * 2048, 49152 + 2 * 2048, 49152 + 2 * 2048),
-    color(49152 + 3 * 2048, 49152 + 3 * 2048, 49152 + 3 * 2048));
-const color: upperLeftEdgeColor is color(32768 + 12288, 32768 + 12288, 32768 + 12288);
-const color: lowerRightEdgeColor is color(40960 + 4096, 40960 + 4096, 40960 + 4096);
+const color: leftSideColor  is gray(49152); # was: 57344
+const color: lowerSideColor is gray(40960); # was: 49152
+const color: leftEdgeColor  is gray(32768); # was: 40960
+const color: lowerEdgeColor is gray(24576); # was: 32768
 
+
+const func array color: colorScale (in color: first, in color: second,
+    in integer: length) is func
+  result
+    var array color: result is 0 times color.value;
+  local
+    var integer: red_delta is 0;
+    var integer: green_delta is 0;
+    var integer: blue_delta is 0;
+    var integer: number is 0;
+  begin
+    result := length times color.value;
+    red_delta   := (second.red_part   - first.red_part)   div succ(length);
+    green_delta := (second.green_part - first.green_part) div succ(length);
+    blue_delta  := (second.blue_part  - first.blue_part)  div succ(length);
+    for number range 1 to length do
+      result[number].red_part   := first.red_part   + number * red_delta;
+      result[number].green_part := first.green_part + number * green_delta;
+      result[number].blue_part  := first.blue_part  + number * blue_delta;
+    end for;
+  end func;
+
+
+const array color: leftFrameColor  is colorScale(leftSideColor,  white, FRAME_THICKNESS);
+const array color: rightFrameColor is colorScale(leftEdgeColor,  white, FRAME_THICKNESS);
+const array color: upperFrameColor is colorScale(lowerEdgeColor, white, FRAME_THICKNESS);
+const array color: lowerFrameColor is colorScale(lowerSideColor, white, FRAME_THICKNESS);
+
+const array color: lowerLeftEdgeColor is colorScale(lowerSideColor, leftSideColor, 3);
+
+const color: upperLeftEdgeColor is colorScale(lowerEdgeColor, leftSideColor, 1)[1];
+const color: lowerRightEdgeColor is colorScale(leftEdgeColor, lowerSideColor, 1)[1];
 
 var array PRIMITIVE_WINDOW: digit_pixmap is 0 times PRIMITIVE_WINDOW.value;
 
@@ -685,6 +687,7 @@ const func color: charColor (in char: ch) is func
       when {'O'}: result := orange;
       when {'r'}: result := dark_red;
       when {'g'}: result := dark_green;
+      when {'m'}: result := dark_magenta;
       when {'c'}: result := light_cyan;
       when {'X'}: result := black;
       when {'x'}: result := light_gray;

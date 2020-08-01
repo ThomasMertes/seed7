@@ -328,6 +328,7 @@ nodetype objects;
         printf("decl_expression ");
         trace1(decl_expression);
         printf("<<<\n");
+        fflush(stdout);
 #endif
         if (CATEGORY_OF_OBJ(decl_expression) == EXPROBJECT) {
           decl_matched = match_expression(decl_expression);
@@ -338,6 +339,7 @@ nodetype objects;
         printf("decl_matched ");
         trace1(decl_matched);
         printf("<<<\n");
+        fflush(stdout);
 #endif
         if (current_ident != prog.id_for.semicolon) {
           err_ident(EXPECTED_SYMBOL, prog.id_for.semicolon);
@@ -404,10 +406,10 @@ errinfotype *err_info;
 /*          printf("main defined as: ");
           trace1(SYS_MAIN_OBJECT);
           printf("\n"); */
-          if (HAS_DESCRIPTOR_ENTITY(SYS_MAIN_OBJECT)) {
-            if (SYS_MAIN_OBJECT->descriptor.entity->owner != NULL) {
-              if (SYS_MAIN_OBJECT->descriptor.entity->owner->obj != NULL) {
-                resultProg->main_object = SYS_MAIN_OBJECT->descriptor.entity->owner->obj;
+          if (HAS_ENTITY(SYS_MAIN_OBJECT)) {
+            if (GET_ENTITY(SYS_MAIN_OBJECT)->owner != NULL) {
+              if (GET_ENTITY(SYS_MAIN_OBJECT)->owner->obj != NULL) {
+                resultProg->main_object = GET_ENTITY(SYS_MAIN_OBJECT)->owner->obj;
                 if ((resultProg->main_object = match_object(resultProg->main_object)) != NULL) {
 /*                  printf("main after match_object: ");
                   trace1(resultProg->main_object);
@@ -416,13 +418,13 @@ errinfotype *err_info;
                   printf("*** Main not callobject\n");
                 } /* if */
               } else {
-                printf("SYS_MAIN_OBJECT->descriptor.entity->objects->obj == NULL\n");
+                printf("GET_ENTITY(SYS_MAIN_OBJECT)->objects->obj == NULL\n");
               } /* if */
             } else {
-              printf("SYS_MAIN_OBJECT->descriptor.entity->objects == NULL\n");
+              printf("GET_ENTITY(SYS_MAIN_OBJECT)->objects == NULL\n");
             } /* if */
           } else {
-            printf("SYS_MAIN_OBJECT->descriptor.entity == NULL\n");
+            printf("GET_ENTITY(SYS_MAIN_OBJECT) == NULL\n");
           } /* if */
         } /* if */
         /* close_stack(&prog); * can be used when no matching is done during the runtime */

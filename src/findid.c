@@ -190,11 +190,18 @@ listtype elem_list;
     printf("BEGIN check_list_of_syntax_elements\n");
 #endif
     while (elem_list != NULL) {
-      if (elem_list->obj->descriptor.entity == entity.literal) {
+      if (!HAS_ENTITY(elem_list->obj)) {
         if (CATEGORY_OF_OBJ(elem_list->obj) != EXPROBJECT) {
           err_object(IDENT_EXPECTED, elem_list->obj);
         } /* if */
       } /* if */
+#ifdef OUT_OF_ORDER
+      if (GET_ENTITY(elem_list->obj) == entity.literal) {
+        if (CATEGORY_OF_OBJ(elem_list->obj) != EXPROBJECT) {
+          err_object(IDENT_EXPECTED, elem_list->obj);
+        } /* if */
+      } /* if */
+#endif
       elem_list = elem_list->next;
     } /* while */
 #ifdef TRACE_FINDID

@@ -2680,6 +2680,16 @@ const func color: color (in integer: red, in integer: green, in integer: blue) i
   end func;
 
 
+const func color: gray (in integer: brightness) is func
+  result
+    var color: result is color.value;
+  begin
+    result.red_part := brightness;
+    result.green_part := brightness;
+    result.blue_part := brightness;
+  end func;
+
+
 const func integer: compare (in color: col1, in color: col2) is func
   result
     var integer: result is 0;
