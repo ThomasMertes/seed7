@@ -109,6 +109,7 @@ var ref_list: dynamic_functions is ref_list.EMPTY;
 var implements_hash: implements is implements_hash.EMPTY_HASH;
 var interface_hash: interfaceOfType is interface_hash.EMPTY_HASH;
 var boolean_type_hash: isInterfaceType is boolean_type_hash.EMPTY_HASH;
+var boolean_type_hash: isHashType is boolean_type_hash.EMPTY_HASH;
 var enum_literal_hash: enum_literal is enum_literal_hash.EMPTY_HASH;
 var boolean_type_hash: set_types is boolean_type_hash.EMPTY_HASH;
 
@@ -707,6 +708,23 @@ const proc: prepare_bigint_result (inout expr_type: c_expr) is func
   end func;
 
 
+const proc: prepare_list_result (inout expr_type: c_expr) is func
+
+  begin
+    incr(c_expr.temp_num);
+    c_expr.result_decl := "listtype tmp_";
+    c_expr.result_decl &:= str(c_expr.temp_num);
+    c_expr.result_decl &:= " = NULL;\n";
+    c_expr.result_free := "rflDestr(tmp_";
+    c_expr.result_free &:= str(c_expr.temp_num);
+    c_expr.result_free &:= ");\n";
+    c_expr.result_intro := "(tmp_";
+    c_expr.result_intro &:= str(c_expr.temp_num);
+    c_expr.result_intro &:= "=";
+    c_expr.result_finish := ")";
+  end func;
+
+
 const proc: prepare_set_result (inout expr_type: c_expr) is func
 
   begin
@@ -1071,12 +1089,29 @@ const proc: process_prc_if_elsif (in ref_list: params, inout expr_type: c_expr) 
 
 const proc: process_prc_while (in ref_list: params, inout expr_type: c_expr) is func
 
+  local
+    var expr_type: c_param2 is expr_type.value;
+    var expr_type: c_param4 is expr_type.value;
   begin
+    process_expr(params[2], c_param2);
+    c_param4.temp_num := c_param2.temp_num;
+    process_expr(params[4], c_param4);
+    if c_param2.temp_num <> 0 then
+      c_expr.expr &:= "{\n";
+      c_expr.expr &:= c_param2.temp_decls;
+      c_expr.expr &:= c_param2.temp_assigns;
+    end if;
     c_expr.expr &:= "while (";
-    process_expr(params[2], c_expr);
+    c_expr.expr &:= c_param2.expr;
     c_expr.expr &:= ") {\n";
-    process_expr(params[4], c_expr);
+    if c_param2.temp_num <> 0 then
+      c_expr.expr &:= c_param2.temp_frees;
+    end if;
+    process_statements(c_param4, c_expr);
     c_expr.expr &:= "}\n";
+    if c_param2.temp_num <> 0 then
+      c_expr.expr &:= "}\n";
+    end if;
   end func;
 
 
@@ -1231,8 +1266,40 @@ const proc: process_prc_case_def (in ref_list: params, inout expr_type: c_expr) 
 
 const proc: process_prc_block (in ref_list: params, inout expr_type: c_expr) is func
 
+  local
+    var reference: current_catch is NIL;
+    var ref_list: catch_expr is ref_list.EMPTY;
+    var reference: catch_value is NIL;
+    var string: objclass is "";
   begin
+    c_expr.expr &:= "{\n";
+    c_expr.expr &:= "int fail_value;\n";
+    # c_expr.expr &:= "if ((fail_value = sigsetjmp(catch_position, 1)) == 0) {\n";
+    c_expr.expr &:= "if ((fail_value = setjmp(catch_position)) == 0) {\n";
     process_expr(params[2], c_expr);
+    c_expr.expr &:= "} else {\n";
+    # c_expr.expr &:= "printf(\"catch %d\\n\", fail_value);\n";
+    current_catch := params[4];
+    catch_expr := ref_list value current_catch;
+    while current_catch <> NIL and
+        obj_class(current_catch) = "MATCHOBJECT" and
+        length(catch_expr) >= 5 do
+      catch_value := catch_expr[3];
+      c_expr.expr &:= "if (";
+      process_expr(catch_value, c_expr);
+      c_expr.expr &:= " == fail_value - 1) {\n";
+      process_expr(catch_expr[5], c_expr);
+      if length(catch_expr) >= 6 then
+        c_expr.expr &:= "} else ";
+        current_catch := catch_expr[6];
+        catch_expr := ref_list value current_catch;
+      else
+        c_expr.expr &:= "}\n";
+        current_catch := NIL;
+      end if;
+    end while;
+    c_expr.expr &:= "}\n";
+    c_expr.expr &:= "}\n";
   end func;
 
 
@@ -1570,12 +1637,13 @@ const proc: process_arr_create (in reference: procedure, in ref_list: params,
     inout expr_type: c_expr) is func
 
   begin
+    process_create_declaration(result_type(getType(procedure)), global_c_expr);
     process_expr(params[1], c_expr);
-    c_expr.expr &:= "=o_";
-    create_name(procedure, c_expr.expr);
+    c_expr.expr &:= "=create_";
+    c_expr.expr &:= str(type_number(result_type(getType(procedure))));
     c_expr.expr &:= "(";
     process_expr(params[3], c_expr);
-    c_expr.expr &:= ")";
+    c_expr.expr &:= ");\n";
   end func;
 
 
@@ -1583,10 +1651,12 @@ const proc: process_arr_destr (in reference: procedure, in ref_list: params,
     inout expr_type: c_expr) is func
 
   begin
-    create_name(procedure, c_expr.expr);
+    process_destr_declaration(result_type(getType(procedure)), global_c_expr);
+    c_expr.expr &:= "destr_";
+    c_expr.expr &:= str(type_number(result_type(getType(procedure))));
     c_expr.expr &:= "(";
     process_expr(params[1], c_expr);
-    c_expr.expr &:= ")";
+    c_expr.expr &:= ");\n";
   end func;
 
 
@@ -1723,20 +1793,12 @@ const proc: process_arr_range (in ref_list: params, inout expr_type: c_expr) is 
 const proc: process_arr_sort (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    incr(c_expr.temp_num);
-    c_expr.temp_decls &:= "arraytype tmp_";
-    c_expr.temp_decls &:= str(c_expr.temp_num);
-    c_expr.temp_decls &:= ";\n";
-    c_expr.temp_frees &:= "arr_free(tmp_";
-    c_expr.temp_frees &:= str(c_expr.temp_num);
-    c_expr.temp_frees &:= ");\n";
-    c_expr.expr &:= "(tmp_";
-    c_expr.expr &:= str(c_expr.temp_num);
-    c_expr.expr &:= "=arrSort(";
-    process_expr(params[1], c_expr);
-    c_expr.expr &:= ", ";
-    process_expr(params[2], c_expr);
-    c_expr.expr &:= "))";
+    prepare_array_result(getExprResultType(params[1]), c_expr);
+    c_expr.result_expr := "arrSort(";
+    get_create_call_arg(params[1], c_expr);
+    c_expr.result_expr &:= ", ";
+    get_std_arg(params[2], c_expr);
+    c_expr.result_expr &:= ")";
   end func;
 
 
@@ -1752,11 +1814,14 @@ const proc: process_arr_tail (in ref_list: params, inout expr_type: c_expr) is f
   end func;
 
 
-const proc: process_arr_times (in ref_list: params, inout expr_type: c_expr) is func
+const proc: process_arr_times (in reference: procedure, in ref_list: params,
+    inout expr_type: c_expr) is func
 
   begin
-    prepare_array_result(getExprResultType(params[1]), c_expr);
-    c_expr.result_expr &:= "arr_times(";
+    prepare_array_result(result_type(getType(procedure)), c_expr);
+    c_expr.result_expr &:= "times_";
+    c_expr.result_expr &:= str(type_number(result_type(getType(procedure))));
+    c_expr.result_expr &:= "(";
     get_std_arg(params[1], c_expr);
     c_expr.result_expr &:= ", ";
     get_result_arg(params[3], c_expr);
@@ -2627,6 +2692,28 @@ const proc: process_cls_cpy2 (in ref_list: params, inout expr_type: c_expr) is f
       c_expr.expr &:= c_param3.temp_frees;
       c_expr.expr &:= "}\n";
     end if;
+  end func;
+
+
+const proc: process_cls_eq (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ") == (";
+    process_expr(params[3], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process_cls_ne (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ") != (";
+    process_expr(params[3], c_expr);
+    c_expr.expr &:= ")";
   end func;
 
 
@@ -3826,10 +3913,19 @@ const proc: process_flt_iflt (in ref_list: params, inout expr_type: c_expr) is f
 const proc: process_flt_ipow (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    c_expr.expr &:= "fltIpow(";
+    c_expr.expr &:= "fltIPow(";
     process_expr(params[1], c_expr);
     c_expr.expr &:= ", ";
     process_expr(params[3], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process_flt_isnan (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "isnan(";
+    process_expr(params[1], c_expr);
     c_expr.expr &:= ")";
   end func;
 
@@ -3849,6 +3945,15 @@ const proc: process_flt_log (in ref_list: params, inout expr_type: c_expr) is fu
 
   begin
     c_expr.expr &:= "log(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process_flt_log10 (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "log10(";
     process_expr(params[1], c_expr);
     c_expr.expr &:= ")";
   end func;
@@ -3908,7 +4013,7 @@ const proc: process_flt_parse (in ref_list: params, inout expr_type: c_expr) is 
 const proc: process_flt_pow (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    c_expr.expr &:= "fltPow(";
+    c_expr.expr &:= "pow(";
     process_expr(params[1], c_expr);
     c_expr.expr &:= ", ";
     process_expr(params[3], c_expr);
@@ -4444,7 +4549,7 @@ const proc: process_int_fact (in ref_list: params, inout expr_type: c_expr) is f
     c_expr.temp_decls &:= "inttype tmp_";
     c_expr.temp_decls &:= str(temp_num);
     c_expr.temp_decls &:= ";\n";
-    (* Formula used: (i<0||i>12?0:fact[i]) *)
+    (* Formula used: (i<0||i>12?NUMERIC_ERROR:fact[i]) *)
     c_expr.expr &:= "(tmp_";
     c_expr.expr &:= str(temp_num);
     c_expr.expr &:= "=(";
@@ -4453,7 +4558,7 @@ const proc: process_int_fact (in ref_list: params, inout expr_type: c_expr) is f
     c_expr.expr &:= str(temp_num);
     c_expr.expr &:= "<0||tmp_";
     c_expr.expr &:= str(temp_num);
-    c_expr.expr &:= ">12?0:fact[tmp_";
+    c_expr.expr &:= ">12?(raise_error(NUMERIC_ERROR),0):fact[tmp_";
     c_expr.expr &:= str(temp_num);
     c_expr.expr &:= "]))";
   end func;
@@ -5217,6 +5322,39 @@ const proc: process_ref_value (in ref_list: params, inout expr_type: c_expr) is 
   end func;
 
 
+const proc: process_rfl_append (in ref_list: params, inout expr_type: c_expr) is func
+
+  local
+    var expr_type: c_param1 is expr_type.value;
+    var expr_type: c_param3 is expr_type.value;
+  begin
+    process_expr(params[1], c_param1);
+    c_param3.temp_num := c_param1.temp_num;
+    get_create_call_arg(params[3], c_param3);
+    if has_temp_values(c_param3) then
+      c_expr.expr &:= "{\n";
+      c_expr.expr &:= c_param1.temp_decls;
+      c_expr.expr &:= c_param3.temp_decls;
+      c_expr.expr &:= c_param1.temp_assigns;
+      c_expr.expr &:= c_param3.temp_assigns;
+    end if;
+    c_expr.expr &:= "rflAppend(&(";
+    c_expr.expr &:= c_param1.expr;
+    c_expr.expr &:= "), ";
+    if c_param3.result_expr <> "" then
+      c_expr.expr &:= c_param3.result_expr;
+    else
+      c_expr.expr &:= c_param3.expr;
+    end if;
+    c_expr.expr &:= ");\n";
+    if has_temp_values(c_param3) then
+      c_expr.expr &:= c_param1.temp_frees;
+      c_expr.expr &:= c_param3.temp_frees;
+      c_expr.expr &:= "}\n";
+    end if;
+  end func;
+
+
 const proc: process_rfl_cpy (in ref_list: params, inout expr_type: c_expr) is func
 
   local
@@ -5226,19 +5364,32 @@ const proc: process_rfl_cpy (in ref_list: params, inout expr_type: c_expr) is fu
     process_expr(params[1], c_param1);
     c_param3.temp_num := c_param1.temp_num;
     process_expr(params[3], c_param3);
-    if c_param3.temp_num <> 0 then
+    if has_temp_values(c_param3) then
       c_expr.expr &:= "{\n";
       c_expr.expr &:= c_param1.temp_decls;
       c_expr.expr &:= c_param3.temp_decls;
       c_expr.expr &:= c_param1.temp_assigns;
       c_expr.expr &:= c_param3.temp_assigns;
     end if;
-    c_expr.expr &:= "rfl_cpy(";
-    c_expr.expr &:= c_param1.expr;
-    c_expr.expr &:= ", ";
-    c_expr.expr &:= c_param3.expr;
-    c_expr.expr &:= ");\n";
-    if c_param3.temp_num <> 0 then
+    if c_param3.result_expr <> "" then
+      c_expr.expr &:= "{\n";
+      c_expr.expr &:= "listtype *rfl_ptr=&(";
+      c_expr.expr &:= c_param1.expr;
+      c_expr.expr &:= ");\n";
+      c_expr.expr &:= "listtype old_rfl=*rfl_ptr;\n";
+      c_expr.expr &:= "*rfl_ptr=";
+      c_expr.expr &:= c_param3.result_expr;
+      c_expr.expr &:= ";\n";
+      c_expr.expr &:= "rflDestr(old_rfl);\n";
+      c_expr.expr &:= "}\n";
+    else
+      c_expr.expr &:= "rflCpy(&(";
+      c_expr.expr &:= c_param1.expr;
+      c_expr.expr &:= "), ";
+      c_expr.expr &:= c_param3.expr;
+      c_expr.expr &:= ");\n";
+    end if;
+    if has_temp_values(c_param3) then
       c_expr.expr &:= c_param1.temp_frees;
       c_expr.expr &:= c_param3.temp_frees;
       c_expr.expr &:= "}\n";
@@ -5260,11 +5411,41 @@ const proc: process_rfl_elem (in ref_list: params, inout expr_type: c_expr) is f
 const proc: process_rfl_eq (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    c_expr.expr &:= "rfl_eq(";
+    c_expr.expr &:= "rflEq(";
     process_expr(params[1], c_expr);
     c_expr.expr &:= ", ";
     process_expr(params[3], c_expr);
     c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process_rfl_for (in ref_list: params, inout expr_type: c_expr) is func
+
+  local
+    var integer: temp_num is 0;
+  begin
+    incr(c_expr.temp_num);
+    temp_num := c_expr.temp_num;
+    c_expr.temp_decls &:= "listtype tmp_elem_";
+    c_expr.temp_decls &:= str(temp_num);
+    c_expr.temp_decls &:= ";\n";
+    c_expr.expr &:= "{\nfor (tmp_elem_";
+    c_expr.expr &:= str(temp_num);
+    c_expr.expr &:= " = (";
+    process_expr(params[4], c_expr);
+    c_expr.expr &:= "); tmp_elem_";
+    c_expr.expr &:= str(temp_num);
+    c_expr.expr &:= " != NULL; tmp_elem_";
+    c_expr.expr &:= str(temp_num);
+    c_expr.expr &:= " = tmp_elem_";
+    c_expr.expr &:= str(temp_num);
+    c_expr.expr &:= "->next) {\n";
+    process_expr(params[2], c_expr);
+    c_expr.expr &:= " = tmp_elem_";
+    c_expr.expr &:= str(temp_num);
+    c_expr.expr &:= "->obj;\n";
+    process_expr(params[6], c_expr);
+    c_expr.expr &:= "}\n}\n";
   end func;
 
 
@@ -5288,10 +5469,20 @@ const proc: process_rfl_lng (in ref_list: params, inout expr_type: c_expr) is fu
   end func;
 
 
+const proc: process_rfl_mklist (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    prepare_list_result(c_expr);
+    c_expr.result_expr := "rflMklist(";
+    get_std_arg(params[1], c_expr);
+    c_expr.result_expr &:= ")";
+  end func;
+
+
 const proc: process_rfl_ne (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    c_expr.expr &:= "rfl_ne(";
+    c_expr.expr &:= "rflNe(";
     process_expr(params[1], c_expr);
     c_expr.expr &:= ", ";
     process_expr(params[3], c_expr);
@@ -5302,20 +5493,12 @@ const proc: process_rfl_ne (in ref_list: params, inout expr_type: c_expr) is fun
 const proc: process_rfl_tail (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    incr(c_expr.temp_num);
-    c_expr.temp_decls &:= "listtype tmp_";
-    c_expr.temp_decls &:= str(c_expr.temp_num);
-    c_expr.temp_decls &:= ";\n";
-    c_expr.temp_frees &:= "rfl_free(tmp_";
-    c_expr.temp_frees &:= str(c_expr.temp_num);
-    c_expr.temp_frees &:= ");\n";
-    c_expr.expr &:= "(tmp_";
-    c_expr.expr &:= str(c_expr.temp_num);
-    c_expr.expr &:= "=rfl_tail(";
-    process_expr(params[1], c_expr);
-    c_expr.expr &:= ", ";
-    process_expr(params[3], c_expr);
-    c_expr.expr &:= "))";
+    prepare_list_result(c_expr);
+    c_expr.result_expr := "rflTail(";
+    get_std_arg(params[1], c_expr);
+    c_expr.result_expr &:= ", ";
+    get_std_arg(params[1], c_expr);
+    c_expr.result_expr &:= ")";
   end func;
 
 
@@ -6273,6 +6456,13 @@ const proc: process_str_rpos (in ref_list: params, inout expr_type: c_expr) is f
   end func;
 
 
+const proc: process_str_str (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    process_expr(params[1], c_expr);
+  end func;
+
+
 const proc: process_str_substr (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
@@ -6656,7 +6846,7 @@ const proc: process_action (in reference: procedure, in ref_list: params,
       elsif action_name = "ARR_SORT" then
         process_arr_sort(params, c_expr);
       elsif action_name = "ARR_TIMES" then
-        process_arr_times(params, c_expr);
+        process_arr_times(procedure, params, c_expr);
       elsif action_name = "ARR_TAIL" then
         process_arr_tail(params, c_expr);
       else
@@ -6813,6 +7003,10 @@ const proc: process_action (in reference: procedure, in ref_list: params,
         process_cls_cpy(params, c_expr);
       elsif action_name = "CLS_CPY2" then
         process_cls_cpy2(params, c_expr);
+      elsif action_name = "CLS_EQ" then
+        process_cls_eq(params, c_expr);
+      elsif action_name = "CLS_NE" then
+        process_cls_ne(params, c_expr);
       else
         process_unknown_action(action_name, c_expr);
       end if;
@@ -7025,10 +7219,14 @@ const proc: process_action (in reference: procedure, in ref_list: params,
         process_flt_iflt(params, c_expr);
       elsif action_name = "FLT_IPOW" then
         process_flt_ipow(params, c_expr);
+      elsif action_name = "FLT_ISNAN" then
+        process_flt_isnan(params, c_expr);
       elsif action_name = "FLT_LE" then
         process_flt_le(params, c_expr);
       elsif action_name = "FLT_LOG" then
         process_flt_log(params, c_expr);
+      elsif action_name = "FLT_LOG10" then
+        process_flt_log10(params, c_expr);
       elsif action_name = "FLT_LT" then
         process_flt_lt(params, c_expr);
       elsif action_name = "FLT_MINUS" then
@@ -7309,16 +7507,22 @@ const proc: process_action (in reference: procedure, in ref_list: params,
         process_unknown_action(action_name, c_expr);
       end if;
     elsif action_prefix = "RFL" then
-      if action_name = "RFL_CPY" then
+      if action_name = "RFL_APPEND" then
+        process_rfl_append(params, c_expr);
+      elsif action_name = "RFL_CPY" then
         process_rfl_cpy(params, c_expr);
       elsif action_name = "RFL_ELEM" then
         process_rfl_elem(params, c_expr);
       elsif action_name = "RFL_EQ" then
         process_rfl_eq(params, c_expr);
+      elsif action_name = "RFL_FOR" then
+        process_rfl_for(params, c_expr);
       elsif action_name = "RFL_IDX" then
         process_rfl_idx(params, c_expr);
       elsif action_name = "RFL_LNG" then
         process_rfl_lng(params, c_expr);
+      elsif action_name = "RFL_MKLIST" then
+        process_rfl_mklist(params, c_expr);
       elsif action_name = "RFL_NE" then
         process_rfl_ne(params, c_expr);
       elsif action_name = "RFL_TAIL" then
@@ -7465,6 +7669,8 @@ const proc: process_action (in reference: procedure, in ref_list: params,
         process_str_rpad(params, c_expr);
       elsif action_name = "STR_RPOS" then
         process_str_rpos(params, c_expr);
+      elsif action_name = "STR_STR" then
+        process_str_str(params, c_expr);
       elsif action_name = "STR_SUBSTR" then
         process_str_substr(params, c_expr);
       elsif action_name = "STR_TAIL" then
@@ -7549,6 +7755,7 @@ const func boolean: valueIsAtHeap (in type: aType) is func
         aType = stritype or
         aType in array_element or
         aType in struct_elements or
+        aType in isHashType or
         aType in isInterfaceType then
       result := TRUE;
     end if;
@@ -7875,9 +8082,6 @@ const proc: push_macro_param (in reference: formal_param,
             c_expr.temp_decls &:= "long tmp_";
             c_expr.temp_decls &:= str(temp_num);
             c_expr.temp_decls &:= ";\n";
-            c_expr.temp_frees &:= "any_free(tmp_";
-            c_expr.temp_frees &:= str(temp_num);
-            c_expr.temp_frees &:= ");\n";
             c_expr.expr &:= "(tmp_";
             c_expr.expr &:= str(temp_num);
             c_expr.expr &:= "=";
@@ -8052,9 +8256,6 @@ const proc: call_params (in ref_list: formal_params,
               c_expr.temp_decls &:= "long tmp_";
               c_expr.temp_decls &:= str(temp_num);
               c_expr.temp_decls &:= ";\n";
-              c_expr.temp_frees &:= "any_free(tmp_";
-              c_expr.temp_frees &:= str(temp_num);
-              c_expr.temp_frees &:= ");\n";
               c_expr.expr &:= "(tmp_";
               c_expr.expr &:= str(temp_num);
               c_expr.expr &:= "=";
@@ -8323,6 +8524,10 @@ const proc: process_expr (in reference: current_expression, inout expr_type: c_e
       if is_var(current_expression) then
         c_expr.expr &:= "o_";
         create_name(current_expression, c_expr.expr);
+      elsif float value current_expression = Infinity then
+        c_expr.expr &:= "(1.0 / 0.0)";
+      elsif isnan(float value current_expression) then
+        c_expr.expr &:= "(0.0 / 0.0)";
       else
         c_expr.expr &:= str(float value current_expression);
       end if;
@@ -8819,6 +9024,14 @@ const proc: action_address (in reference: procedure, inout expr_type: c_expr) is
       c_expr.expr &:= "&chrCpy";
     elsif action_name = "CHR_CREATE" then
       c_expr.expr &:= "&chrCreate";
+    elsif action_name = "DRW_CMP" then
+      c_expr.expr &:= "&drwCmp";
+    elsif action_name = "DRW_CPY" then
+      c_expr.expr &:= "&drwCpy";
+    elsif action_name = "DRW_CREATE" then
+      c_expr.expr &:= "&drwCreate";
+    elsif action_name = "DRW_DESTR" then
+      c_expr.expr &:= "&drwDestr";
     elsif action_name = "FLT_CMP" then
       c_expr.expr &:= "&fltCmp";
     elsif action_name = "FLT_CPY" then
@@ -9546,6 +9759,39 @@ const proc: copy_func_addr(in type: arrayType, inout expr_type: c_expr) is func
   end func;
 
 
+const proc: process_arr_gen_declaration (in reference: current_object,
+    inout expr_type: c_expr) is func
+
+  local
+    var ref_list: params is ref_list.EMPTY;
+    var type: result_type is void;
+    var type: object_type is void;
+    var element_number_hash: element_number is element_number_hash.EMPTY_HASH;
+    var element_type_hash: element_type is element_type_hash.EMPTY_HASH;
+  begin
+    result_type := result_type(getType(current_object));
+    params := params(current_object);
+    object_type := getType(params[1]);
+    if result_type not in array_element then
+      array_element @:= [result_type] object_type;
+    end if;
+    if object_type not in array_type then
+      array_type @:= [object_type] result_type;
+    end if;
+    c_expr.expr &:= "/* ACTION ARR_GEN for type ";
+    c_expr.expr &:= "t_";
+    c_expr.expr &:= str(type_number(result_type));
+    c_expr.expr &:= "**";
+    c_expr.expr &:= str(result_type);
+    c_expr.expr &:= " element is ";
+    c_expr.expr &:= "t_";
+    c_expr.expr &:= str(type_number(object_type));
+    c_expr.expr &:= "**";
+    c_expr.expr &:= str(object_type);
+    c_expr.expr &:= "*/\n\n";
+  end func;
+
+
 const proc: process_arr_idx_declaration (in reference: current_object,
     inout expr_type: c_expr) is func
 
@@ -9570,7 +9816,7 @@ const proc: process_arr_idx_declaration (in reference: current_object,
     c_expr.expr &:= str(type_number(object_type));
     c_expr.expr &:= "**";
     c_expr.expr &:= str(object_type);
-    c_expr.expr &:= " result is ";
+    c_expr.expr &:= " element is ";
     c_expr.expr &:= "t_";
     c_expr.expr &:= str(type_number(result_type));
     c_expr.expr &:= "**";
@@ -9593,27 +9839,26 @@ const proc: process_arr_times_declaration (in reference: current_object,
     result_type := result_type(getType(current_object));
     params := params(current_object);
     object_type := getType(params[3]);
-    process_create_declaration(array_element[object_type], c_expr);
-    c_expr.expr &:= type_name(object_type);
+    process_create_declaration(object_type, c_expr);
+    c_expr.expr &:= type_name(result_type);
     c_expr.expr &:= " times_";
-    c_expr.expr &:= str(type_number(object_type));
+    c_expr.expr &:= str(type_number(result_type));
     c_expr.expr &:= " (inttype n, ";
     c_expr.expr &:= type_name(object_type);
     c_expr.expr &:= " b)\n";
     c_expr.expr &:= "{\n";
-    c_expr.expr &:= type_name(object_type);
+    c_expr.expr &:= type_name(result_type);
     c_expr.expr &:= " a;\n";
     c_expr.expr &:= "unsigned long i;\n";
-    c_expr.expr &:= "unsigned long j;\n";
-    c_expr.expr &:= "unsigned long size = ((arraytype)b)->max_position - ((arraytype)b)->min_position + 1;\n";
-    c_expr.expr &:= "a=malloc(sizeof(struct arraystruct) - sizeof(long) + n * size * sizeof(long));\n";
-    c_expr.expr &:= "((arraytype)a)->min_position = ((arraytype)b)->min_position;\n";
-    c_expr.expr &:= "((arraytype)a)->max_position = ((arraytype)b)->max_position;\n";
-    c_expr.expr &:= "for (i = 0; i < n * size; i+=size) {\n";
-    c_expr.expr &:= "for (j = 0; j < size; j++) {\n";
-    c_expr.expr &:= "((arraytype)a)->arr[i+j]=";
-    process_create_call(array_element[object_type],
-        "((arraytype)b)->arr[i+j]", c_expr.expr);
+    c_expr.expr &:= "if (n  < 0) {\n";
+    c_expr.expr &:= "raise_error(RANGE_ERROR);\n";
+    c_expr.expr &:= "} else {\n";
+    c_expr.expr &:= "a=malloc(sizeof(struct arraystruct) - sizeof(long) + n * sizeof(long));\n";
+    c_expr.expr &:= "((arraytype)a)->min_position = 1;\n";
+    c_expr.expr &:= "((arraytype)a)->max_position = n;\n";
+    c_expr.expr &:= "for (i = 0; i < n; i++) {\n";
+    c_expr.expr &:= "((arraytype)a)->arr[i].value.intvalue=";
+    process_create_call(object_type, "b", c_expr.expr);
     c_expr.expr &:= ";\n";
     c_expr.expr &:= "}\n";
     c_expr.expr &:= "}\n";
@@ -9714,6 +9959,21 @@ const proc: process_fil_cpy_declaration (in reference: current_object,
     filetype := getType(params[1]);
     if filetype not in simple_pod_type then
       simple_pod_type @:= [filetype] TRUE;
+    end if;
+  end func;
+
+
+const proc: process_hsh_cpy_declaration (in reference: current_object,
+    inout expr_type: c_expr) is func
+
+  local
+    var ref_list: params is ref_list.EMPTY;
+    var type: hash_type is void;
+  begin
+    params := params(current_object);
+    hash_type := getType(params[1]);
+    if hash_type not in isHashType then
+      isHashType @:= [hash_type] TRUE;
     end if;
   end func;
 
@@ -9845,8 +10105,14 @@ const proc: process_action_declaration (in reference: current_object,
     if action_name = "PRC_DYNAMIC" then
       process_dynamic_declaration(current_object, c_expr);
       count_declarations;
+    elsif action_name = "ARR_GEN" then
+      process_arr_gen_declaration(current_object, c_expr);
+      count_declarations;
     elsif action_name = "ARR_IDX" then
       process_arr_idx_declaration(current_object, c_expr);
+      count_declarations;
+    elsif action_name = "ARR_TIMES" then
+      process_arr_times_declaration(current_object, c_expr);
       count_declarations;
     elsif action_name = "BLN_CPY" then
       process_bln_cpy_declaration(current_object, c_expr);
@@ -9862,6 +10128,9 @@ const proc: process_action_declaration (in reference: current_object,
       count_declarations;
     elsif action_name = "FIL_CPY" then
       process_fil_cpy_declaration(current_object, c_expr);
+      count_declarations;
+    elsif action_name = "HSH_CPY" then
+      process_hsh_cpy_declaration(current_object, c_expr);
       count_declarations;
     elsif action_name = "REF_CPY" then
       process_ref_cpy_declaration(current_object, c_expr);
@@ -9983,6 +10252,8 @@ const proc: write_file_head is func
     c_prog << "#include <stdlib.h>\n";
     c_prog << "#include <stdio.h>\n";
     c_prog << "#include <string.h>\n";
+    c_prog << "#include <setjmp.h>\n";
+    c_prog << "#include <signal.h>\n";
     c_prog << "typedef long booltype;\n";
     c_prog << "typedef long typetype;\n";
     c_prog << "typedef long int inttype;\n";
@@ -10077,7 +10348,8 @@ const proc: write_file_head is func
     c_prog << "#define COPY_ERROR    7\n";
     c_prog << "#define IN_ERROR      8\n";
     c_prog << "#define FILE_ERROR    9\n";
-    c_prog << "#define any_free(x)\n";
+    # c_prog << "sigjmp_buf catch_position;\n";
+    c_prog << "jmp_buf catch_position;\n";
     c_prog << "stritype   act_str (void *a)                             {printf(\"act_str\\n\");}\n";
     c_prog << "void       arrAppend (arraytype *, arraytype);\n";
     c_prog << "arraytype  arrArrlit (arraytype);\n";
@@ -10085,19 +10357,13 @@ const proc: write_file_head is func
     c_prog << "arraytype  arrBaselit (long);\n";
     c_prog << "arraytype  arrBaselit2 (inttype, long);\n";
     c_prog << "arraytype  arrCat (arraytype a, arraytype b)             {printf(\"arrCat\\n\");}\n";
-    c_prog << "void       arrCpy (arraytype a, arraytype b, void *c, void *d, void *e) {printf(\"arrCpy\\n\");}\n";
-    c_prog << "void       arr_cpy (arraytype a, arraytype b)            {printf(\"arr_cpy\\n\");}\n";
-    c_prog << "void       arrCreate (arraytype a, arraytype b, void *c, void *d) {printf(\"arrCreate\\n\");}\n";
-    c_prog << "void       arr_create (arraytype a, arraytype b)         {printf(\"arr_create\\n\");}\n";
     c_prog << "void       arrDestr (arraytype a)                        {printf(\"arrDestr\\n\");}\n";
     c_prog << "arraytype  arrExtend (arraytype, inttype);\n";
-    c_prog << "void       arr_free (arraytype a)                        {printf(\"arr_free\\n\");}\n";
     c_prog << "arraytype  arrGen (inttype, inttype);\n";
     c_prog << "arraytype  arrHead (arraytype a, inttype b)              {printf(\"arrHead\\n\");}\n";
-    c_prog << "arraytype  arr_range (arraytype a, inttype b, inttype c) {printf(\"arr_range\\n\");}\n";
-    c_prog << "arraytype  arrSort (arraytype a, void *b)                {printf(\"arrSort\\n\");}\n";
+    c_prog << "arraytype  arrRange (arraytype, inttype, inttype);\n";
+    c_prog << "arraytype  arrSort (arraytype, void * );\n";
     c_prog << "arraytype  arrTail (arraytype a, inttype b)              {printf(\"arrTail\\n\");}\n";
-    c_prog << "arraytype  arr_times (inttype a, long b)                 {printf(\"arr_times\\n\");}\n";
     c_prog << "biginttype bigAbs (biginttype);\n";
     c_prog << "biginttype bigAdd (biginttype, biginttype);\n";
     c_prog << "inttype    bigCmp (biginttype, biginttype);\n";
@@ -10179,7 +10445,7 @@ const proc: write_file_head is func
     c_prog << "void       fltCpy (floattype *, floattype);\n";
     c_prog << "floattype  fltCreate (floattype);\n";
     c_prog << "stritype   fltDgts (floattype, inttype);\n";
-    c_prog << "floattype  fltIpow (floattype, inttype);\n";
+    c_prog << "floattype  fltIPow (floattype, inttype);\n";
     c_prog << "floattype  fltParse (stritype);\n";
     c_prog << "floattype  fltPow (floattype, floattype);\n";
     c_prog << "floattype  fltRand (floattype, floattype);\n";
@@ -10217,7 +10483,6 @@ const proc: write_file_head is func
     c_prog << "stritype   kbdLineRead (chartype *);\n";
     c_prog << "chartype   kbdRawGetc (void);\n";
     c_prog << "stritype   kbdWordRead (chartype *);\n";
-    c_prog << "arraytype  prc_args (void)                               {printf(\"prc_args\\n\");}\n";
     c_prog << "void       prcNoop (void)                                {printf(\"prcNoop\\n\");}\n";
     c_prog << "void       prc_print (stritype stri) {\n\
               \char *str1;\n\
@@ -10236,10 +10501,13 @@ const proc: write_file_head is func
     c_prog << "float *    ref_fselect (void *a, inttype b)              {printf(\"ref_fselect\\n\");}\n";
     c_prog << "stritype   ref_str (void *a)                             {printf(\"ref_str\\n\");}\n";
     c_prog << "inttype    ref_type (void *a)                            {printf(\"ref_type\\n\");}\n";
-    c_prog << "void       rfl_cpy (void *a, void *b)                    {printf(\"rfl_cpy\\n\");}\n";
+    c_prog << "void       rflAppend (listtype *, listtype);\n";
+    c_prog << "void       rflCpy (listtype *, listtype);\n";
     c_prog << "inttype    rfl_elem (void *a, void *b)                   {printf(\"rfl_elem\\n\");}\n";
+    c_prog << "booltype   rflEq (listtype, listtype);\n";
     c_prog << "void *     rfl_idx (void *a, inttype b)                  {printf(\"rfl_idx\\n\");}\n";
     c_prog << "inttype    rfl_lng (void *a)                             {printf(\"rfl_lng\\n\");}\n";
+    c_prog << "booltype   rflNe (listtype, listtype);\n";
     c_prog << "void       scrClear (inttype, inttype, inttype, inttype);\n";
     c_prog << "void       scrCursor (booltype);\n";
     c_prog << "void       scrFlush (void);\n";
@@ -10307,17 +10575,7 @@ const proc: write_file_head is func
     c_prog << "stritype   strTail (stritype, inttype);\n";
     c_prog << "stritype   strTrim (stritype);\n";
     c_prog << "stritype   strUp (stritype);\n";
-    c_prog << "stritype   str_from_cstri (char *cstri) {\n\
-              \size_t len;\n\
-              \stritype result;\n\
-              \len = strlen(cstri);\n\
-              \if (result = (stritype) malloc(sizeof(struct stri) - sizeof(strelemtype) + len * sizeof(strelemtype))) {\n\
-              \  result->size = len;\n\
-              \  stri_expand(result->mem, cstri, len * sizeof(char));\n\
-              \  return(result);\n\
-              \}\n\
-              \return(NULL);\n\
-              \}\n";
+    c_prog << "stritype   cstri_to_stri (cstritype);\n";
     c_prog << "char *     str_to_cstri (stritype a)                     {printf(\"str_to_cstri\\n\");}\n";
     c_prog << "void       timAwait (inttype, inttype, inttype, inttype, inttype, inttype, inttype, inttype);\n";
     c_prog << "void       timNow (inttype, inttype, inttype, inttype, inttype, inttype, inttype, inttype);\n";
@@ -10329,18 +10587,17 @@ const proc: write_file_head is func
     c_prog << "void       ut8Seek (filetype, inttype);\n";
     c_prog << "stritype   ut8WordRead (filetype, chartype *);\n";
     c_prog << "void       ut8Write (filetype, stritype);\n";
-    c_prog << "void       raise_error (int a)                           {printf(\"raise_error\\n\");}\n";
+    # c_prog << "void       raise_error (int a)                           {printf(\"raise_error(%d)\\n\", a); siglongjmp(catch_position, a); }\n";
+    # c_prog << "void       raise_error (int a)                           {siglongjmp(catch_position, a); }\n";
+    c_prog << "void       raise_error (int a)                           {longjmp(catch_position, a); }\n";
 (*
     c_prog << "stritype   act_str (void * );\n";
     c_prog << "arraytype  arrCat (arraytype, arraytype);\n";
-    c_prog << "void       arr_cpy (arraytype, arraytype);\n";
     c_prog << "void       arrDestr (arraytype);\n";
-    c_prog << "void       arr_free (arraytype);\n";
     c_prog << "arraytype  arrHead (arraytype, inttype);\n";
-    c_prog << "arraytype  arr_range (arraytype, inttype, inttype);\n";
-    c_prog << "arraytype  arrSort (arraytype, void * );\n";
+    c_prog << "arraytype  arrRange (arraytype a, inttype b, inttype c)  {printf(\"arrRange\\n\");}\n";
+    c_prog << "arraytype  arrSort (arraytype a, void *b)                {printf(\"arrSort\\n\");}\n";
     c_prog << "arraytype  arrTail (arraytype, inttype);\n";
-    c_prog << "arraytype  arr_times (inttype, long);\n";
     c_prog << "inttype    enu_value (void * );\n";
     c_prog << "void       hsh_create (hashtype *, hashtype, void *, void *, void *, void * );\n";
     c_prog << "void       hsh_destr (hashtype, void *, void * );\n";
@@ -10349,12 +10606,12 @@ const proc: write_file_head is func
     c_prog << "void       hsh_incl ();\n";
     c_prog << "void       hsh_excl ();\n";
     c_prog << "inttype    int_hsize (void);\n";
-    c_prog << "arraytype  prc_args (void);\n";
     c_prog << "void       prcNoop (void);\n";
     c_prog << "long *     ref_select (void *, inttype);\n";
     c_prog << "float *    ref_fselect (void *, inttype);\n";
     c_prog << "stritype   ref_str (void * );\n";
-    c_prog << "void       rfl_cpy (void *, void * );\n";
+    c_prog << "void       rflAppend (listtype *a, listtype b)           {printf(\"rflAppend\\n\");}\n";
+    c_prog << "void       rflCpy (listtype *a, listtype b)              {printf(\"rflCpy\\n\");}\n";
     c_prog << "inttype    rfl_elem (void *, void * );\n";
     c_prog << "void *     rfl_idx (void, inttype);\n";
     c_prog << "inttype    rfl_lng (void * );\n";
@@ -10362,9 +10619,73 @@ const proc: write_file_head is func
     c_prog << "long *     sct_select (void *, inttype);\n";
     c_prog << "float *    sct_fselect (void *, inttype);\n";
     c_prog << "stritype   str_clit (stritype);\n";
-    c_prog << "stritype   str_from_cstri (char * );\n";
     c_prog << "char *     str_to_cstri (stritype);\n";
 *)
+    c_prog << "\n";
+    c_prog << "\n";
+    c_prog << "static void activate_signal_handlers (void);\n";
+    c_prog << "\n";
+    c_prog << "\n";
+    c_prog << "static void handle_signals (int sig_num)\n";
+    c_prog << "\n";
+    c_prog << "  {\n";
+    c_prog << "    int ch;\n";
+    c_prog << "    char *sig_name;\n";
+    c_prog << "    char buffer[20];\n";
+    c_prog << "\n";
+    c_prog << "    if (sig_num == SIGABRT) {\n";
+    c_prog << "      sig_name = \"ABORT\";\n";
+    c_prog << "    } else if (sig_num == SIGFPE) {\n";
+    c_prog << "      sig_name = \"FPE\";\n";
+    c_prog << "    } else if (sig_num == SIGILL) {\n";
+    c_prog << "      sig_name = \"ILL\";\n";
+    c_prog << "    } else if (sig_num == SIGINT) {\n";
+    c_prog << "      sig_name = \"INTR\";\n";
+    c_prog << "    } else if (sig_num == SIGSEGV) {\n";
+    c_prog << "      sig_name = \"SEGV\";\n";
+    c_prog << "    } else if (sig_num == SIGTERM) {\n";
+    c_prog << "      sig_name = \"TERM\";\n";
+    c_prog << "    } else {\n";
+    c_prog << "      sprintf(buffer, \"%d\", sig_num);\n";
+    c_prog << "      sig_name = buffer;\n";
+    c_prog << "    } /* if */\n";
+    c_prog << "    printf(\"\\n*** SIGNAL %s RAISED\\n\", sig_name);\n";
+    c_prog << "    printf(\"\\n*** (Type RETURN to continue or '*' to terminate)\\n\");\n";
+    c_prog << "    ch = fgetc(stdin);\n";
+    c_prog << "    if (ch == '*') {\n";
+    c_prog << "      exit(1);\n";
+    c_prog << "    } /* if */\n";
+    c_prog << "    activate_signal_handlers();\n";
+    c_prog << "  }\n";
+    c_prog << "\n";
+    c_prog << "\n";
+    c_prog << "static void handle_term_signal (int sig_num)\n";
+    c_prog << "\n";
+    c_prog << "  {\n";
+    c_prog << "    printf(\"\\n*** SIGNAL TERM RAISED\\n\");\n";
+    c_prog << "    printf(\"\\n*** Program terminated\\n\");\n";
+    c_prog << "    exit(1);\n";
+    c_prog << "  }\n";
+    c_prog << "\n";
+    c_prog << "\n";
+    c_prog << "static void handle_fpe_signal (int sig_num)\n";
+    c_prog << "\n";
+    c_prog << "  {\n";
+    c_prog << "    signal(SIGFPE, handle_fpe_signal);\n";
+    c_prog << "    raise_error(NUMERIC_ERROR);\n";
+    c_prog << "  }\n";
+    c_prog << "\n";
+    c_prog << "\n";
+    c_prog << "static void activate_signal_handlers (void)\n";
+    c_prog << "\n";
+    c_prog << "  {\n";
+    c_prog << "    signal(SIGABRT, handle_signals);\n";
+    c_prog << "    signal(SIGFPE, handle_fpe_signal);\n";
+    c_prog << "    signal(SIGILL, handle_signals);\n";
+    c_prog << "    signal(SIGINT, handle_signals);\n";
+    c_prog << "    signal(SIGSEGV, handle_signals);\n";
+    c_prog << "    signal(SIGTERM, handle_term_signal);\n";
+    c_prog << "  }\n";
     c_prog << "\n";
     c_prog << "\n";
   end func;
@@ -10496,6 +10817,9 @@ const proc: init_const_value (in reference: current_object, inout expr_type: c_e
       c_expr.expr &:= "sct[";
       c_expr.expr &:= str(const_table[current_object]);
       c_expr.expr &:= "]";
+    elsif objclass = "HASHOBJECT" then
+      c_expr.expr &:= ".value.intvalue=";
+      c_expr.expr &:= "hshEmpty()";
     elsif objclass = "CLASSOBJECT" then
       c_expr.expr &:= ".value.intvalue=";
       c_expr.expr &:= "NULL /* ";
@@ -10688,14 +11012,14 @@ const proc: generate_main (in program: prog) is func
     c_expr.expr &:= "int main (int argc, char **argv)\n";
     c_expr.expr &:= "\n";
     c_expr.expr &:= "{\n";
-    c_expr.expr &:= "arg_0 = str_from_cstri(argv[0]);\n";
+    c_expr.expr &:= "arg_0 = cstri_to_stri(argv[0]);\n";
     c_expr.expr &:= "arg_v = malloc(sizeof(struct arraystruct) - sizeof(long) + argc * sizeof(long));\n";
     c_expr.expr &:= "arg_v->min_position = 1;\n";
     c_expr.expr &:= "arg_v->max_position = argc - 1;\n";
     c_expr.expr &:= "{\n";
     c_expr.expr &:= "  int number;\n";
     c_expr.expr &:= "  for (number = 1; number < argc; number++) {\n";
-    c_expr.expr &:= "    arg_v->arr[number-1].value.intvalue=str_from_cstri(argv[number]);\n";
+    c_expr.expr &:= "    arg_v->arr[number-1].value.intvalue=cstri_to_stri(argv[number]);\n";
     c_expr.expr &:= "  }\n";
     c_expr.expr &:= "}\n";
 
@@ -10766,7 +11090,7 @@ const proc: generate_main (in program: prog) is func
           c_expr.expr &:= "]";
         else
           c_expr.expr &:= " /* = ";
-          c_expr.expr &:= str(obj_class(struct_of_interface));
+          c_expr.expr &:= obj_class(struct_of_interface);
           c_expr.expr &:= " */";
         end if;
         c_expr.expr &:= ";\n";
@@ -10778,6 +11102,7 @@ const proc: generate_main (in program: prog) is func
         c_expr.expr &:= "] */\n";
       end if;
     end for;
+    c_expr.expr &:= "activate_signal_handlers();\n";
     c_expr.expr &:= global_init.temp_decls;
     c_expr.expr &:= global_init.temp_assigns;
     c_expr.expr &:= global_init.expr;

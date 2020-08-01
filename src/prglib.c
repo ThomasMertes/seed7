@@ -449,7 +449,7 @@ listtype arguments;
     stritype result;
 
   /* prg_name */
-    result = cp_to_stri(option.source_file_name);
+    result = cstri_to_stri(option.source_file_name);
     if (result == NULL) {
       return(raise_exception(SYS_MEM_EXCEPTION));
     } else {

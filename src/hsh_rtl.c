@@ -33,8 +33,8 @@
 /*                                                                  */
 /*  The functions in this file use type declarations from the       */
 /*  include file data_rtl.h instead of data.h. Therefore the types  */
-/*  helemtype and hashtype are declared different than in the       */
-/*  interpreter.                                                    */
+/*  rtlHelemtype and rtlHashtype are declared different than the    */
+/*  types helemtype and hashtype in the interpreter.                */
 /*                                                                  */
 /********************************************************************/
 
@@ -272,7 +272,7 @@ static void keys_helem (key_array, arr_pos, curr_helem, key_create_func, err_inf
 rtlArraytype *key_array;
 memsizetype *arr_pos;
 rtlHelemtype curr_helem;
-rtlObjecttype key_create_func;
+createfunctype key_create_func;
 errinfotype *err_info;
 #endif
 
@@ -319,7 +319,7 @@ errinfotype *err_info;
 
   {
     memsizetype arr_pos;
-    int number;
+    memsizetype number;
     rtlHelemtype *curr_helem;
     memsizetype array_size;
     rtlArraytype key_array;
@@ -421,7 +421,7 @@ errinfotype *err_info;
 
   {
     memsizetype arr_pos;
-    int number;
+    memsizetype number;
     rtlHelemtype *curr_helem;
     memsizetype array_size;
     rtlArraytype value_array;

@@ -82,7 +82,7 @@ $ syntax expr: .(). [ .(). len .(). ] is       ->  2;
 $ syntax expr: .(). ^  is                      ->  2;
 $ syntax expr: .(). -> .() is                  ->  2;
 $ syntax expr: . & .() is                      ->  3;
-$ syntax expr: .(). ** .() is                  ->  4;
+$ syntax expr: .(). ** .() is                 <-   4;
 $ syntax expr: .(). ! .() is                   ->  4;
 $ syntax expr: . ! .() is                      ->  4;
 $ syntax expr: . + .() is                     <-   5;

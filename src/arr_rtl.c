@@ -48,6 +48,69 @@
 
 #ifdef ANSI_C
 
+static void qsort_array (rtlObjecttype *begin_sort, rtlObjecttype *end_sort,
+    inttype cmp_func (rtlGenerictype, rtlGenerictype))
+#else
+
+static void qsort_array (begin_sort, end_sort, cmp_func)
+rtlObjecttype *begin_sort;
+rtlObjecttype *end_sort;
+inttype cmp_func (rtlGenerictype, rtlGenerictype);
+#endif
+
+  {
+    rtlGenerictype compare_elem;
+    rtlGenerictype help_element;
+    rtlObjecttype *middle_elem;
+    rtlObjecttype *less_elem;
+    rtlObjecttype *greater_elem;
+    int cmp;
+
+  /* qsort_array */
+    if (end_sort - begin_sort < 8) {
+      for (middle_elem = begin_sort + 1; middle_elem <= end_sort; middle_elem++) {
+        compare_elem = middle_elem->value.genericvalue;
+        less_elem = begin_sort - 1;
+        do {
+          less_elem++;
+          cmp = cmp_func(less_elem->value.genericvalue, compare_elem);
+        } while (cmp < 0);
+        memmove(&less_elem[1], less_elem, (middle_elem - less_elem) * sizeof(rtlObjecttype));
+        less_elem->value.genericvalue = compare_elem;
+      } /* for */
+    } else {
+      middle_elem = &begin_sort[(end_sort - begin_sort) >> 1];
+      compare_elem = middle_elem->value.genericvalue;
+      middle_elem->value.genericvalue = end_sort->value.genericvalue;
+      end_sort->value.genericvalue = compare_elem;
+      less_elem = begin_sort - 1;
+      greater_elem = end_sort;
+      do {
+        do {
+          less_elem++;
+          cmp = cmp_func(less_elem->value.genericvalue, compare_elem);
+        } while (cmp < 0);
+        do {
+          greater_elem--;
+          cmp = cmp_func(greater_elem->value.genericvalue, compare_elem);
+        } while (cmp > 0 && greater_elem != begin_sort);
+        help_element = less_elem->value.genericvalue;
+        less_elem->value.genericvalue = greater_elem->value.genericvalue;
+        greater_elem->value.genericvalue = help_element;
+      } while (greater_elem > less_elem);
+      greater_elem->value.genericvalue = less_elem->value.genericvalue;
+      less_elem->value.genericvalue = compare_elem;
+      end_sort->value.genericvalue = help_element;
+      qsort_array(begin_sort, less_elem - 1, cmp_func);
+      qsort_array(less_elem + 1, end_sort, cmp_func);
+    } /* if */
+  } /* qsort_array */
+
+
+
+
+#ifdef ANSI_C
+
 void arrAppend (rtlArraytype *arr_variable, rtlArraytype arr_from)
 #else
 
@@ -276,14 +339,13 @@ rtlObjecttype element2;
 
 
 
-#ifdef OUT_OF_ORDER
 #ifdef ANSI_C
 
-rtlArraytype arrRange (arraytype arr1, inttype start, inttype stop)
+rtlArraytype arrRange (rtlArraytype arr1, inttype start, inttype stop)
 #else
 
 rtlArraytype arrRange (arr1, start, stop)
-arraytype arr1;
+rtlArraytype arr1;
 inttype start;
 inttype stop;
 #endif
@@ -291,6 +353,8 @@ inttype stop;
   {
     memsizetype length;
     memsizetype result_size;
+    memsizetype start_idx;
+    memsizetype stop_idx;
     rtlArraytype result;
 
   /* arrRange */
@@ -304,90 +368,51 @@ inttype stop;
         stop = arr1->max_position;
       } /* if */
       result_size = (memsizetype) (stop - start + 1);
-      if (!ALLOC_ARRAY(result, result_size)) {
-        return(raise_exception(SYS_MEM_EXCEPTION));
+      if (!ALLOC_RTL_ARRAY(result, result_size)) {
+        raise_error(MEMORY_ERROR);
+        return(NULL);
       } /* if */
-      COUNT_ARRAY(result_size);
+      COUNT_RTL_ARRAY(result_size);
       result->min_position = arr1->min_position;
       result->max_position = arr1->min_position + result_size - 1;
-        memcpy(result->arr, &arr1->arr[(memsizetype) (start - 1)],
-            (SIZE_TYPE) (result_size * sizeof(objectrecord)));
-        destr_array(arr1->arr, (memsizetype) start - 1);
-        destr_array(&arr1->arr[stop], length - (memsizetype) stop);
-        FREE_ARRAY(arr1, length);
-        arg_1(arguments)->value.arrayvalue = NULL;
-    } else {
-      if (!ALLOC_ARRAY(result, 0)) {
-        return(raise_exception(SYS_MEM_EXCEPTION));
+      start_idx = start - arr1->min_position;
+      stop_idx = stop - arr1->min_position;
+      memcpy(result->arr, &arr1->arr[start_idx],
+          (SIZE_TYPE) (result_size * sizeof(rtlObjecttype)));
+      memcpy(&arr1->arr[start_idx], &arr1->arr[stop_idx + 1],
+          (SIZE_TYPE) ((length - stop_idx - 1) * sizeof(rtlObjecttype)));
+      if (!RESIZE_RTL_ARRAY(arr1, length, length - result_size)) {
+        raise_error(MEMORY_ERROR);
+      } else {
+        COUNT3_RTL_ARRAY(length, length - result_size);
+        arr1->max_position -= result_size;
       } /* if */
-      COUNT_ARRAY(0);
+    } else {
+      if (!ALLOC_RTL_ARRAY(result, 0)) {
+        raise_error(MEMORY_ERROR);
+        return(NULL);
+      } /* if */
+      COUNT_RTL_ARRAY(0);
       result->min_position = arr1->min_position;
       result->max_position = arr1->min_position - 1;
     } /* if */
     return(result);
   } /* arrRange */
-#endif
 
 
 
-#ifdef OUT_OF_ORDER
 #ifdef ANSI_C
 
-void arrSort (rtlObjecttype begin_sort, rtlObjecttype end_sort,
-    inttype cmp_func (rtlObjecttype, rtoObjecttype))
+rtlArraytype arrSort (rtlArraytype arr1, inttype cmp_func (rtlGenerictype, rtlGenerictype))
 #else
 
-void arrSort (begin_sort, end_sort, cmp_func)
-rtlObjecttype begin_sort;
-rtlObjecttype end_sort;
-inttype cmp_func (rtlObjecttype, rtlObjecttype);
+rtlArraytype arrSort (arr1, cmp_func)
+rtlArraytype arr1;
+inttype cmp_func (rtlGenerictype, rtlGenerictype);
 #endif
 
-  {
-    rtlObjectrecord compare_elem;
-    rtlObjectrecord help_element;
-    rtlObjecttype middle_elem;
-    rtlObjecttype less_elem;
-    rtlObjecttype greater_elem;
-    int cmp;
-
-  /* arrSort */
-    if (end_sort - begin_sort < 8) {
-      for (middle_elem = begin_sort + 1; middle_elem <= end_sort; middle_elem++) {
-        memcpy(&compare_elem, middle_elem, sizeof(rtlObjectrecord));
-        less_elem = begin_sort - 1;
-        do {
-          less_elem++;
-          cmp = cmp_func(less_elem, &compare_elem);
-        } while (cmp < 0);
-        memmove(&less_elem[1], less_elem, (middle_elem - less_elem) * sizeof(rtlObjectrecord));
-        memcpy(less_elem, &compare_elem, sizeof(rtlObjectrecord));
-      } /* for */
-    } else {
-      middle_elem = &begin_sort[(end_sort - begin_sort) >> 1];
-      memcpy(&compare_elem, middle_elem, sizeof(rtlObjectrecord));
-      memcpy(middle_elem, end_sort, sizeof(rtlObjectrecord));
-      memcpy(end_sort, &compare_elem, sizeof(rtlObjectrecord));
-      less_elem = begin_sort - 1;
-      greater_elem = end_sort;
-      do {
-        do {
-          less_elem++;
-          cmp = cmp_func(less_elem, &compare_elem);
-        } while (cmp < 0);
-        do {
-          greater_elem--;
-          cmp = cmp_func(greater_elem, &compare_elem);
-        } while (cmp > 0 && greater_elem != begin_sort);
-        memcpy(&help_element, less_elem, sizeof(rtlObjectrecord));
-        memcpy(less_elem, greater_elem, sizeof(rtlObjectrecord));
-        memcpy(greater_elem, &help_element, sizeof(rtlObjectrecord));
-      } while (greater_elem > less_elem);
-      memcpy(greater_elem, less_elem, sizeof(rtlObjectrecord));
-      memcpy(less_elem, &compare_elem, sizeof(rtlObjectrecord));
-      memcpy(end_sort, &help_element, sizeof(rtlObjectrecord));
-      arrSort(begin_sort, less_elem - 1, cmp_func);
-      arrSort(less_elem + 1, end_sort, cmp_func);
-    } /* if */
+  { /* arrSort */
+    /* printf("arrSort(%lX, %ld, %ld)\n", arr1, arr1->min_position, arr1->max_position); */
+    qsort_array(arr1->arr, &arr1->arr[arr1->max_position - arr1->min_position - 1], cmp_func);
+    return(arr1);
   } /* arrSort */
-#endif

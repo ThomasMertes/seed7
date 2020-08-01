@@ -9,6 +9,7 @@ celsius.sd7  Print a Fahrenheit-Celsius table
 chkbig.sd7   Checks bigInteger literals and operations         
 chkbool.sd7  Checks boolean operations                         
 chkexc.sd7   Checks exceptions                                 
+chkflt.sd7   Checks float literals and operations              
 chkint.sd7   Checks integer literals and operations            
 chkprc.sd7   Checks procedures and statements                  
 chkset.sd7   Checks set literals and operations                

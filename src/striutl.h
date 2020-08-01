@@ -39,7 +39,8 @@ memsizetype utf8_to_stri (strelemtype *, memsizetype *, ustritype, SIZE_TYPE);
 memsizetype utf8_bytes_missing (ustritype, SIZE_TYPE);
 cstritype cp_to_cstri (stritype);
 bstritype cp_to_bstri (stritype);
-stritype cp_to_stri (ustritype);
+stritype cstri_to_stri (cstritype);
+stritype cstri8_to_stri (cstritype);
 strelemtype *stri_charpos (stritype, strelemtype);
 
 #else
@@ -48,7 +49,8 @@ memsizetype utf8_to_stri ();
 memsizetype utf8_bytes_missing ();
 cstritype cp_to_cstri ();
 bstritype cp_to_bstri ();
-stritype cp_to_stri ();
+stritype cstri_to_stri ();
+stritype cstri8_to_stri ();
 strelemtype *stri_charpos ();
 
 #endif

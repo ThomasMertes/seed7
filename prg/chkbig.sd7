@@ -5302,7 +5302,8 @@ const proc: chkPower is func
     # writeln(2_ ** 2677);
     # writeln(2_ ** 26770);
     # writeln(2_ ** 267709);
-    if       0_ **   1 <>                                              0_ or
+    if       0_ **   0 <>                                              1_ or
+             0_ **   1 <>                                              0_ or
              0_ **   2 <>                                              0_ or
              0_ **  15 <>                                              0_ or
              0_ **  64 <>                                              0_ or

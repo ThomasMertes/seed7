@@ -2212,9 +2212,11 @@ const func type: new interface is func
   begin
     interfaceType := newtype;
     IN_PARAM_IS_REFERENCE(interfaceType);
-    const proc: destroy (ref interfaceType param) is                         noop;
-    const proc: (ref interfaceType param) ::= (ref interfaceType param) is   action "CLS_CREATE";
-    const proc: (inout interfaceType param) := (ref interfaceType param) is  action "CLS_CPY";
+    const proc: (ref interfaceType param) ::= (ref interfaceType param) is      action "CLS_CREATE";
+    const proc: destroy (ref interfaceType param) is                            noop;
+    const proc: (inout interfaceType param) := (ref interfaceType param) is     action "CLS_CPY";
+    const func boolean: (in interfaceType param) = (in interfaceType param) is  action "CLS_EQ";
+    const func boolean: (in interfaceType param) <> (in interfaceType param) is action "CLS_NE";
   end func;
 
 const func type: sub (in type: baseType) interface is func
@@ -2223,9 +2225,11 @@ const func type: sub (in type: baseType) interface is func
   begin
     interfaceType := subtype baseType;
     IN_PARAM_IS_REFERENCE(interfaceType);
-    const proc: destroy (ref interfaceType param) is                         noop;
-    const proc: (ref interfaceType param) ::= (ref interfaceType param) is   action "CLS_CREATE";
-    const proc: (inout interfaceType param) := (ref interfaceType param) is  action "CLS_CPY";
+    const proc: (ref interfaceType param) ::= (ref interfaceType param) is      action "CLS_CREATE";
+    const proc: destroy (ref interfaceType param) is                            noop;
+    const proc: (inout interfaceType param) := (ref interfaceType param) is     action "CLS_CPY";
+    const func boolean: (in interfaceType param) = (in interfaceType param) is  action "CLS_EQ";
+    const func boolean: (in interfaceType param) <> (in interfaceType param) is action "CLS_NE";
   end func;
 
 
@@ -2719,8 +2723,6 @@ const char: EOF is chr(-1);
 
 const type: file is sub object interface;
 
-const func boolean: (ref file param) = (ref file param) is DYNAMIC;
-const func boolean: (ref file param) <> (ref file param) is DYNAMIC;
 const proc: write (inout file param, in string param) is DYNAMIC;
 const proc: writeln (inout file param) is DYNAMIC;
 const proc: backSpace (ref file param) is DYNAMIC;

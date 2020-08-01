@@ -2007,22 +2007,22 @@ biginttype *big_variable;
 
 
 /**
- *  Computes base to the power of exp for signed big integers.
+ *  Computes base to the power of exponent for signed big integers.
  *  The result variable is set to base or 1 depending on the
  *  rightmost bit of the exponent. After that the base is
  *  squared in a loop and every time the corresponding bit of
  *  the exponent is set the current square is multiplied
  *  with the result variable. This reduces the number of square
- *  operations to ld(exp).
+ *  operations to ld(exponent).
  */
 #ifdef ANSI_C
 
-biginttype bigIPow (biginttype base, inttype exp)
+biginttype bigIPow (biginttype base, inttype exponent)
 #else
 
-biginttype bigIPow (base, exp)
+biginttype bigIPow (base, exponent)
 biginttype base;
-inttype exp;
+inttype exponent;
 #endif
 
   {
@@ -2033,11 +2033,11 @@ inttype exp;
     biginttype result;
 
   /* bigIPow */
-    if (exp < 0 || (exp == 0 && base->size == 1 && base->bigdigits[0] == 0)) {
+    if (exponent < 0) {
       raise_error(NUMERIC_ERROR);
       return(NULL);
     } else {
-      help_size = base->size * (exp + 1);
+      help_size = base->size * (exponent + 1);
       if (!ALLOC_BIG(base_help, help_size)) {
         raise_error(MEMORY_ERROR);
         return(NULL);
@@ -2065,7 +2065,7 @@ inttype exp;
                   (SIZE_TYPE) base->size * sizeof(bigdigittype));
             } /* if */
             base = base_help;
-            if (exp & 1) {
+            if (exponent & 1) {
               result->size = base->size;
               memcpy(result->bigdigits, base->bigdigits,
                   (SIZE_TYPE) base->size * sizeof(bigdigittype));
@@ -2074,13 +2074,13 @@ inttype exp;
               result->size = 1;
               result->bigdigits[0] = 1;
             } /* if */
-            exp = exp >> 1;
-            while (exp != 0) {
+            exponent >>= 1;
+            while (exponent != 0) {
               base = uBigSqare(base, &big_help);
-              if (exp & 1) {
+              if (exponent & 1) {
                 result = uBigMult(result, base, &big_help);
               } /* if */
-              exp = exp >> 1;
+              exponent >>= 1;
             } /* while */
             memset(&result->bigdigits[result->size], 0,
                 (SIZE_TYPE) (help_size - result->size) * sizeof(bigdigittype));

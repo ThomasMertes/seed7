@@ -569,7 +569,7 @@ char *dir_name;
             } /* if */
           } /* if */
           if (okay) {
-            str1 = cp_to_stri(current_entry->d_name);
+            str1 = cstri_to_stri(current_entry->d_name);
             if (str1 == NULL) {
               okay = FALSE;
             } else {
@@ -741,7 +741,7 @@ stritype cmdGetcwd ()
       raise_error(MEMORY_ERROR);
       return(NULL);
     } else {
-      result = cp_to_stri(cwd);
+      result = cstri_to_stri(cwd);
       if (result == NULL) {
         raise_error(MEMORY_ERROR);
         return(NULL);
@@ -905,7 +905,7 @@ stritype link_name;
       readlink_value = readlink(os_link_name, link_dest, PATH_MAX);
       if (readlink_value != -1 && readlink_value <= PATH_MAX) {
         link_dest[readlink_value] = '\0';
-        result = cp_to_stri(link_dest);
+        result = cstri_to_stri(link_dest);
         if (result == NULL) {
           err_info = MEMORY_ERROR;
         } /* if */

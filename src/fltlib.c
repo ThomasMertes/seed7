@@ -99,17 +99,9 @@ objecttype flt_acos (arguments)
 listtype arguments;
 #endif
 
-  {
-    floattype number;
-
-  /* flt_acos */
+  { /* flt_acos */
     isit_float(arg_1(arguments));
-    number = take_float(arg_1(arguments));
-    if (number < ((floattype) -1.0) || number > ((floattype) 1.0)) {
-      return(raise_exception(SYS_NUM_EXCEPTION));
-    } else {
-      return(bld_float_temp(acos(number)));
-    } /* if */
+    return(bld_float_temp(acos(take_float(arg_1(arguments)))));
   } /* flt_acos */
 
 
@@ -142,17 +134,9 @@ objecttype flt_asin (arguments)
 listtype arguments;
 #endif
 
-  {
-    floattype number;
-
-  /* flt_asin */
+  { /* flt_asin */
     isit_float(arg_1(arguments));
-    number = take_float(arg_1(arguments));
-    if (number < ((floattype) -1.0) || number > ((floattype) 1.0)) {
-      return(raise_exception(SYS_NUM_EXCEPTION));
-    } else {
-      return(bld_float_temp(asin(number)));
-    } /* if */
+    return(bld_float_temp(asin(take_float(arg_1(arguments)))));
   } /* flt_asin */
 
 
@@ -303,19 +287,11 @@ objecttype flt_div (arguments)
 listtype arguments;
 #endif
 
-  {
-    floattype divisor;
-
-  /* flt_div */
+  { /* flt_div */
     isit_float(arg_1(arguments));
     isit_float(arg_3(arguments));
-    divisor = take_float(arg_3(arguments));
-    if (divisor == (floattype) 0.0) {
-      return(raise_exception(SYS_NUM_EXCEPTION));
-    } else {
-      return(bld_float_temp(
-          (double) take_float(arg_1(arguments)) / (double) divisor));
-    } /* if */
+    return(bld_float_temp(
+        ((double) take_float(arg_1(arguments))) / ((double) take_float(arg_3(arguments)))));
   } /* flt_div */
 
 
@@ -531,31 +507,33 @@ objecttype flt_ipow (arguments)
 listtype arguments;
 #endif
 
-  {
-    floattype base;
-    inttype exponent;
-
-  /* flt_ipow */
+  { /* flt_ipow */
     isit_float(arg_1(arguments));
     isit_int(arg_3(arguments));
-    base = take_float(arg_1(arguments));
-    exponent = take_int(arg_3(arguments));
-    if (base < (floattype) 0.0) {
-      if (exponent & 1) {
-        return(bld_float_temp(-pow(-base, (floattype) exponent)));
-      } else {
-        return(bld_float_temp(pow(-base, (floattype) exponent)));
-      } /* if */
-    } else if (base == (floattype) 0.0) {
-      if (exponent <= 0) {
-        return(raise_exception(SYS_NUM_EXCEPTION));
-      } else {
-        return(bld_float_temp(0.0));
-      } /* if */
-    } else { /* base > (floattype) 0.0 */
-      return(bld_float_temp(pow(base, (floattype) exponent)));
-    } /* if */
+    return(bld_float_temp(fltIPow(
+        take_float(arg_1(arguments)),
+        take_int(arg_3(arguments)))));
   } /* flt_ipow */
+
+
+
+#ifdef ANSI_C
+
+objecttype flt_isnan (listtype arguments)
+#else
+
+objecttype flt_isnan (arguments)
+listtype arguments;
+#endif
+
+  { /* flt_isnan */
+    isit_float(arg_1(arguments));
+    if (isnan(take_float(arg_1(arguments)))) {
+      return(SYS_TRUE_OBJECT);
+    } else {
+      return(SYS_FALSE_OBJECT);
+    } /* if */
+  } /* flt_isnan */
 
 
 
@@ -590,17 +568,9 @@ objecttype flt_log (arguments)
 listtype arguments;
 #endif
 
-  {
-    floattype number;
-
-  /* flt_log */
+  { /* flt_log */
     isit_float(arg_1(arguments));
-    number = take_float(arg_1(arguments));
-    if (number <= (floattype) 0.0) {
-      return(raise_exception(SYS_NUM_EXCEPTION));
-    } else {
-      return(bld_float_temp(log(number)));
-    } /* if */
+    return(bld_float_temp(log(take_float(arg_1(arguments)))));
   } /* flt_log */
 
 
@@ -614,17 +584,9 @@ objecttype flt_log10 (arguments)
 listtype arguments;
 #endif
 
-  {
-    floattype number;
-
-  /* flt_log10 */
+  { /* flt_log10 */
     isit_float(arg_1(arguments));
-    number = take_float(arg_1(arguments));
-    if (number <= (floattype) 0.0) {
-      return(raise_exception(SYS_NUM_EXCEPTION));
-    } else {
-      return(bld_float_temp(log10(number)));
-    } /* if */
+    return(bld_float_temp(log10(take_float(arg_1(arguments)))));
   } /* flt_log10 */
 
 
@@ -750,26 +712,12 @@ objecttype flt_pow (arguments)
 listtype arguments;
 #endif
 
-  {
-    floattype base;
-    floattype exponent;
-
-  /* flt_pow */
+  { /* flt_pow */
     isit_float(arg_1(arguments));
     isit_float(arg_3(arguments));
-    base = take_float(arg_1(arguments));
-    exponent = take_float(arg_3(arguments));
-    if (base < (floattype) 0.0) {
-      return(raise_exception(SYS_NUM_EXCEPTION));
-    } else if (base == (floattype) 0.0) {
-      if (exponent <= (floattype) 0.0) {
-        return(raise_exception(SYS_NUM_EXCEPTION));
-      } else {
-        return(bld_float_temp(0.0));
-      } /* if */
-    } else { /* base > (floattype) 0.0 */
-      return(bld_float_temp(pow(base, exponent)));
-    } /* if */
+    return(bld_float_temp(pow(
+        take_float(arg_1(arguments)),
+        take_float(arg_3(arguments)))));
   } /* flt_pow */
 
 
@@ -884,17 +832,9 @@ objecttype flt_sqrt (arguments)
 listtype arguments;
 #endif
 
-  {
-    floattype number;
-
-  /* flt_sqrt */
+  { /* flt_sqrt */
     isit_float(arg_1(arguments));
-    number = take_float(arg_1(arguments));
-    if (number < (floattype) 0.0) {
-      return(raise_exception(SYS_NUM_EXCEPTION));
-    } else {
-      return(bld_float_temp(sqrt(number)));
-    } /* if */
+    return(bld_float_temp(sqrt(take_float(arg_1(arguments)))));
   } /* flt_sqrt */
 
 

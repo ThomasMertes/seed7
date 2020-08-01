@@ -1552,7 +1552,7 @@
       <font color=blue>rem</font>       Reminder of integer division <font color=blue>div</font>
                   ( A <font color=blue>rem</font> B => A - (A <font color=blue>div</font> B) * B,
                     A <font color=blue>rem</font> 0 => EXCEPTION NUMERIC_ERROR )
-      <font color=blue>mdiv</font>      Integer division truncated towards minus infinite
+      <font color=blue>mdiv</font>      Integer division truncated towards negative infinity
                   ( A <font color=blue>mdiv</font> B => round(floor(flt(A) / flt(B))),
                     A <font color=blue>mdiv</font> 0 => EXCEPTION NUMERIC_ERROR )
       <font color=blue>mod</font>       Reminder of integer division <font color=blue>mdiv</font>
@@ -1560,9 +1560,8 @@
                     A <font color=blue>mod</font> 0 => EXCEPTION NUMERIC_ERROR )
       **        Power
                   ( A ** B is okay for B > 0,
-                    A ** 0 is okay for A &lt;> 0,
-                    A ** -1 => EXCEPTION NUMERIC_ERROR,
-                    0 ** 0 => EXCEPTION NUMERIC_ERROR )
+                    A ** 0 => 1,
+                    A ** -1 => EXCEPTION NUMERIC_ERROR )
       !         Binomial coefficient
                   ( A ! B => !A <font color=blue>div</font> (!B * !(A - B)) )
       <font color=red>integer</font> <font color=blue>conv</font> A   Identity
@@ -1701,11 +1700,11 @@
       rat(A)    Conversion to <font color=red>rational</font>
                   ( Type of argument A: <font color=red>integer</font>,
                     rat(1) => 1.0 )
-      floor(A)  Truncation towards minus infinite
+      floor(A)  Truncation towards negative infinity
                   ( Type of result: <font color=red>integer</font>,
                     floor( 1.8)=> 1, floor( 1.0)=> 1,
                     floor(-1.0)=>-1, floor(-1.8)=>-2 )
-      ceil(A)   Rounding up towards plus infinite
+      ceil(A)   Rounding up towards positive infinity
                   ( Type of result: <font color=red>integer</font>,
                     ceil( 1.2)=> 2, ceil( 1.0)=> 1,
                     ceil(-1.0)=>-1, ceil(-1.2)=>-1 )
@@ -1740,6 +1739,9 @@
 <p>
     The type <tt>'<font color=red>float</font>'</tt> consists of floating point numbers.
 </p><pre>
+    Constants:
+      Infinity  Positive infinity
+      NaN       Not-a-Number
     Prefix operators:
       +         Identity
       -         Change sign
@@ -1748,24 +1750,32 @@
       -         Subtraction
       *         Multiplication
       /         Division
-                  ( A / 0.0 => EXCEPTION NUMERIC_ERROR )
+                  ( A / 0.0 =>  Infinity for A > 0.0,
+                    A / 0.0 => -Infinity for A &lt; 0.0,
+                    0.0 / 0.0 => NaN )
       **        Power
                   ( A ** B is okay for A > 0.0,
-                    0.0 ** B => 0.0  for B > 0.0,
-                    -1.0 ** B => EXCEPTION NUMERIC_ERROR,
-                    0.0 ** 0.0 => EXCEPTION NUMERIC_ERROR,
-                    0.0 ** -1.0 => EXCEPTION NUMERIC_ERROR )
+                    A ** B => okay for A &lt; 0.0 and B is integer,
+                    A ** B => NaN for A &lt; 0.0 and B is not integer,
+                    A ** 0.0 => 1.0,
+                    0.0 ** B => 0.0 for B > 0.0,
+                    0.0 ** 0.0 => 1.0,
+                    0.0 ** B => Infinity for B &lt; 0.0 )
       **        Power
                   ( Type of right operand: <font color=red>integer</font>
                     A ** B is okay for A > 0.0,
                     A ** B is okay for A &lt; 0.0,
-                    0.0 ** B => 0.0  for B > 0,
-                    0.0 ** 0 => EXCEPTION NUMERIC_ERROR,
-                    0.0 ** -1 => EXCEPTION NUMERIC_ERROR )
+                    A ** 0 => 1.0,
+                    0.0 ** B => 0.0 for B > 0,
+                    0.0 ** 0 => 1.0,
+                    0.0 ** B => Infinity for B &lt; 0 )
       <font color=blue>digits</font>    Conversion to <font color=red>string</font> with specified precision
                   ( Type of right operand: <font color=red>integer</font>,
                     Type of result: <font color=red>string</font>,
-                    3.1415 <font color=blue>digits</font> 2 => <font color=maroon>"3.14"</font> )
+                    3.1415 <font color=blue>digits</font> 2 => <font color=maroon>"3.14"</font>,
+                    Infinity <font color=blue>digits</font> A => <font color=maroon>"Infinity"</font>,
+                    -Infinity <font color=blue>digits</font> A => <font color=maroon>"-Infinity"</font>,
+                    NaN <font color=blue>digits</font> A => <font color=maroon>"NaN"</font> )
       <font color=red>float</font> <font color=blue>parse</font> A   Conversion of <font color=red>string</font> to <font color=red>float</font>
                   ( Type of argument A: <font color=red>string</font> )
     Relations:
@@ -1775,11 +1785,11 @@
       flt(A)    Conversion to <font color=red>float</font>
                   ( Type of argument A: <font color=red>integer</font>,
                     flt(1) => 1.0 )
-      floor(A)  Truncation towards minus infinite
+      floor(A)  Truncation towards negative infinity
                   ( floor( 1.8)=> 1.0, floor( 1.0)=> 1.0,
                     floor(-1.0)=>-1.0, floor(-1.2)=>-2.0,
                     floor( 0.9)=> 0.0, floor(-0.1)=>-1.0 )
-      ceil(A)   Rounding up towards plus infinite
+      ceil(A)   Rounding up towards positive infinity
                   ( ceil( 1.2)=> 2.0, ceil( 1.0)=> 1.0,
                     ceil(-1.8)=>-1.0, ceil(-1.0)=>-1.0,
                     ceil( 0.1)=> 1.0, ceil(-0.9)=> 0.0 )
@@ -1794,26 +1804,32 @@
                     round(0.5)=>1, round(-0.5)=>-1,
                     round(0.4)=>0, round(-0.4)=>0 )
       str(A)    Conversion to <font color=red>string</font>
-                  ( Type of result: <font color=red>string</font> )
+                  ( Type of result: <font color=red>string</font>,
+                    str(Infinity) => <font color=maroon>"Infinity"</font>,
+                    str(-Infinity) => <font color=maroon>"-Infinity"</font>,
+                    str(NaN) => <font color=maroon>"NaN"</font> )
+      isnan(A)  Check if A is Not-a-Number
       sin(A)    Sine
       cos(A)    Cosine
       tan(A)    Tangent
       exp(A)    Exponential function
       log(A)    Natural logarithm
                   ( log(A) is okay for A > 0.0,
-                    log(-1.0) => EXCEPTION NUMERIC_ERROR )
+                    log(0.0)  => -Infinity,
+                    log(-1.0) =>  NaN )
       log10(A)  Base 10 logarithm
                   ( log10(A) is okay for A > 0.0,
-                    log10(-1.0) => EXCEPTION NUMERIC_ERROR )
+                    log10(0.0)  => -Infinity,
+                    log10(-1.0) =>  NaN )
       sqrt(A)   Square root
                   ( sqrt(A) is okay for A >= 0.0,
-                    sqrt(-1.0) => EXCEPTION NUMERIC_ERROR )
+                    sqrt(-1.0) => NaN )
       asin(A)   Inverse sine
                   ( asin(A) is okay for A >= -1.0 and A &lt;= 1.0,
-                    asin(2.0) => EXCEPTION NUMERIC_ERROR )
+                    asin(2.0) => NaN )
       acos(A)   Inverse cosine
                   ( acos(A) is okay for A >= -1.0 and A &lt;= 1.0,
-                    acos(2.0) => EXCEPTION NUMERIC_ERROR )
+                    acos(2.0) => NaN )
       atan(A)   Inverse tangent
       atan2(A, B) Inverse tangent of A / B
       sinh(A)   Hyperbolic sine

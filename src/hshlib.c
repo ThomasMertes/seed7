@@ -329,7 +329,7 @@ errinfotype *err_info;
 
   {
     memsizetype arr_pos;
-    int number;
+    memsizetype number;
     helemtype *curr_helem;
     memsizetype array_size;
     arraytype key_array;
@@ -435,7 +435,7 @@ errinfotype *err_info;
 
   {
     memsizetype arr_pos;
-    int number;
+    memsizetype number;
     helemtype *curr_helem;
     memsizetype array_size;
     arraytype value_array;

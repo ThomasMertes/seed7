@@ -82,10 +82,20 @@ const func string: str (ref float param) is                        action "FLT_S
 const func float: (attr float) parse (in string param) is          action "FLT_PARSE";
 const func integer: round (ref float param) is                     action "FLT_ROUND";
 const func integer: trunc (ref float param) is                     action "FLT_TRUNC";
+const func boolean: isnan (ref float param) is                     action "FLT_ISNAN";
 const func string: literal (ref float param) is                    action "FLT_STR";
 
 const func float: rand (ref float param, ref float param) is       action "FLT_RAND";
 
 const func float: (attr float) value (ref reference param) is      action "FLT_VALUE";
+
+const float: Infinity is 1.0 / 0.0;
+const float: NaN is 0.0 / 0.0;
+
+const func boolean: (in float: a) = NaN is
+  return isnan(a);
+
+const func boolean: NaN = (in float: a) is
+  return isnan(a);
 
 enable_io(float);

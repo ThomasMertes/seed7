@@ -58,6 +58,267 @@ const func integer: test_func (in integer: number) is func
   end func;
 
 
+const proc: check_integer is func
+  local
+    var boolean: okay is TRUE;
+    var integer: number is 0;
+    var integer: i_num is 0;
+  begin
+    block
+      i_num := 1 div 0;
+      writeln(" ***** 1 div 0 did not raise NUMERIC_ERROR");
+      okay := FALSE;
+    exception
+      catch NUMERIC_ERROR:
+        incr(number);
+    end block;
+
+    block
+      i_num := 1 rem 0;
+      writeln(" ***** 1 rem 0 did not raise NUMERIC_ERROR");
+      okay := FALSE;
+    exception
+      catch NUMERIC_ERROR:
+        incr(number);
+    end block;
+
+    block
+      i_num := 1 mdiv 0;
+      writeln(" ***** 1 mdiv 0 did not raise NUMERIC_ERROR");
+      okay := FALSE;
+    exception
+      catch NUMERIC_ERROR:
+        incr(number);
+    end block;
+
+    block
+      i_num := 1 mod 0;
+      writeln(" ***** 1 mod 0 did not raise NUMERIC_ERROR");
+      okay := FALSE;
+    exception
+      catch NUMERIC_ERROR:
+        incr(number);
+    end block;
+
+    block
+      i_num := ! (-1);
+      writeln(" ***** ! (-1) did not raise NUMERIC_ERROR");
+      okay := FALSE;
+    exception
+      catch NUMERIC_ERROR:
+        incr(number);
+    end block;
+
+    block
+      i_num := ld(-1);
+      writeln(" ***** ld(-1) did not raise NUMERIC_ERROR");
+      okay := FALSE;
+    exception
+      catch NUMERIC_ERROR:
+        incr(number);
+    end block;
+
+    block
+      i_num := 0 ** 0;
+      if i_num = 1 then
+        incr(number);
+      else
+        writeln(" ***** 0 ** 0 did not deliver 1");
+        okay := FALSE;
+      end if;
+    exception
+      catch NUMERIC_ERROR:
+        writeln(" ***** 0 ** 0 did raise NUMERIC_ERROR");
+        okay := FALSE;
+    end block;
+
+    block
+      i_num := 0 ** (-2);
+      writeln(" ***** 0 ** (-2) did not raise NUMERIC_ERROR");
+      okay := FALSE;
+    exception
+      catch NUMERIC_ERROR:
+        incr(number);
+    end block;
+
+    block
+      i_num := 1 ** (-2);
+      writeln(" ***** 1 ** (-2) did not raise NUMERIC_ERROR");
+      okay := FALSE;
+    exception
+      catch NUMERIC_ERROR:
+        incr(number);
+    end block;
+
+    block
+      i_num  := integer parse "asdf";
+      writeln(" ***** integer parse \"asdf\" did not raise RANGE_ERROR");
+      okay := FALSE;
+    exception
+      catch RANGE_ERROR:
+        incr(number);
+    end block;
+
+    block
+      i_num := rand(1, 0);
+      writeln(" ***** rand(1, 0) did not raise RANGE_ERROR");
+      okay := FALSE;
+    exception
+      catch RANGE_ERROR:
+        incr(number);
+    end block;
+
+    block
+      i_num  := sqrt(-1);
+      writeln(" ***** sqrt(-1) did not raise NUMERIC_ERROR");
+      okay := FALSE;
+    exception
+      catch NUMERIC_ERROR:
+        incr(number);
+    end block;
+
+    if okay and number = 12 then
+      writeln("Integer exceptions work correct.");
+    else
+      writeln(" ***** Integer exceptions do not work correct");
+      writeln;
+    end if;
+  end func;
+
+
+const proc: check_float is func
+  local
+    var boolean: okay is TRUE;
+    var integer: number is 0;
+    var float: f_num is 0.0;
+  begin
+    block
+      f_num  := rand(1.0, 0.0);
+      writeln(" ***** rand(1.0, 0.0) did not raise RANGE_ERROR");
+      okay := FALSE;
+    exception
+      catch RANGE_ERROR:
+        incr(number);
+    end block;
+
+    block
+      f_num  := sqrt(-1.0);
+      if isnan(f_num) then
+        incr(number);
+      else
+        writeln(" ***** sqrt(-1.0) did not deliver NaN");
+        okay := FALSE;
+      end if;
+    exception
+      catch NUMERIC_ERROR:
+        writeln(" ***** sqrt(-1.0) raises NUMERIC_ERROR");
+        okay := FALSE;
+    end block;
+
+    block
+      f_num  := 1.0 / 0.0;
+      if f_num = Infinity then
+        incr(number);
+      else
+        writeln(" ***** 1.0 / 0.0 did not deliver Infinity");
+        okay := FALSE;
+      end if;
+    exception
+      catch NUMERIC_ERROR:
+        writeln(" ***** 1.0 / 0.0 raises NUMERIC_ERROR");
+        okay := FALSE;
+    end block;
+
+    block
+      f_num  := -1.0 / 0.0;
+      if f_num = -Infinity then
+        incr(number);
+      else
+        writeln(" ***** -1.0 / 0.0 did not deliver -Infinity");
+        okay := FALSE;
+      end if;
+    exception
+      catch NUMERIC_ERROR:
+        writeln(" ***** -1.0 / 0.0 raises NUMERIC_ERROR");
+        okay := FALSE;
+    end block;
+
+    block
+      f_num  := 0.0 / 0.0;
+      if isnan(f_num) then
+        incr(number);
+      else
+        writeln(" ***** 0.0 / 0.0 did not deliver NaN");
+        okay := FALSE;
+      end if;
+    exception
+      catch NUMERIC_ERROR:
+        writeln(" ***** 0.0 / 0.0 raises NUMERIC_ERROR");
+        okay := FALSE;
+    end block;
+
+    block
+      f_num := 0.0 ** (-2);
+      if f_num = Infinity then
+        incr(number);
+      else
+        writeln(" ***** 0.0 ** (-2) did not deliver Infinity");
+        writeln(f_num);
+        okay := FALSE;
+      end if;
+    exception
+      catch NUMERIC_ERROR:
+        writeln(" ***** 0.0 ** (-2) did raise NUMERIC_ERROR");
+        okay := FALSE;
+    end block;
+
+    block
+      f_num := 0.0 ** 0.0;
+      if f_num = 1.0 then
+        incr(number);
+      else
+        writeln(" ***** 0.0 ** 0.0 did not deliver 1.0");
+        writeln(f_num);
+        okay := FALSE;
+      end if;
+    exception
+      catch NUMERIC_ERROR:
+        writeln(" ***** 0.0 ** 0.0 did raise NUMERIC_ERROR");
+        okay := FALSE;
+    end block;
+
+    block
+      f_num := 0.0 ** (-1.0);
+      if f_num = Infinity then
+        incr(number);
+      else
+        writeln(" ***** 0.0 ** (-1.0) did not deliver Infinity");
+        okay := FALSE;
+      end if;
+    exception
+      catch NUMERIC_ERROR:
+        writeln(" ***** 0.0 ** (-1.0) did raise NUMERIC_ERROR");
+        okay := FALSE;
+    end block;
+
+    block
+      f_num := (-2.0) ** 0.5;
+      incr(number);
+    exception
+      catch NUMERIC_ERROR:
+        writeln(" ***** (-2.0) ** 0.5 did raise NUMERIC_ERROR");
+        okay := FALSE;
+    end block;
+
+    if okay and number = 9 then
+      writeln("Floating point exceptions work correct.");
+    else
+      writeln(" ***** Floating point exceptions do not work correct");
+      writeln;
+    end if;
+  end func;
+
+
 const proc: main is func
   local
     var string: stri is "";
@@ -65,9 +326,12 @@ const proc: main is func
     var boolean: bool is FALSE;
     var integer: number is 0;
     var reference: obj is NIL;
-    var float: f_num is 0.0;
   begin
     # f4(6);
+    writeln;
+    check_integer;
+    check_float;
+
     block
       stri := "asdf" mult -1;
       writeln(" ***** \"asdf\" mult -1 did not raise RANGE_ERROR");
@@ -87,82 +351,6 @@ const proc: main is func
       writeln(" ***** (1 times 2)[0] did not raise RANGE_ERROR");
     exception
       catch RANGE_ERROR: writeln("(1 times 2)[0] raises RANGE_ERROR");
-    end block;
-
-    block
-      number := 1 div 0;
-      writeln(" ***** 1 div 0 did not raise NUMERIC_ERROR");
-    exception
-      catch NUMERIC_ERROR: writeln("1 div 0 raises NUMERIC_ERROR");
-      catch RANGE_ERROR:   writeln("1 div 0 raises RANGE_ERROR");
-    end block;
-
-    block
-      number := ! (-1);
-      writeln(" ***** ! (-1) did not raise NUMERIC_ERROR");
-    exception
-      catch NUMERIC_ERROR: writeln("! (-1) raises NUMERIC_ERROR");
-      catch RANGE_ERROR:   writeln("! (-1) raises RANGE_ERROR");
-    end block;
-
-    block
-      number := ld(-1);
-      writeln(" ***** ld(-1) did not raise NUMERIC_ERROR");
-    exception
-      catch NUMERIC_ERROR: writeln("ld(-1) raises NUMERIC_ERROR");
-      catch RANGE_ERROR:   writeln("ld(-1) raises RANGE_ERROR");
-    end block;
-
-    block
-      number := 1 mdiv 0;
-      writeln(" ***** 1 mdiv 0 did not raise NUMERIC_ERROR");
-    exception
-      catch NUMERIC_ERROR: writeln("1 mdiv 0 raises NUMERIC_ERROR");
-      catch RANGE_ERROR:   writeln("1 mdiv 0 raises RANGE_ERROR");
-    end block;
-
-    block
-      number := 1 mod 0;
-      writeln(" ***** 1 mod 0 did not raise NUMERIC_ERROR");
-    exception
-      catch NUMERIC_ERROR: writeln("1 mod 0 raises NUMERIC_ERROR");
-      catch RANGE_ERROR:   writeln("1 mod 0 raises RANGE_ERROR");
-    end block;
-
-    block
-      number := 1 ** (-2);
-      writeln(" ***** 1 ** (-2) did not raise NUMERIC_ERROR");
-    exception
-      catch NUMERIC_ERROR: writeln("1 ** (-2) raises NUMERIC_ERROR");
-      catch RANGE_ERROR:   writeln("1 ** (-2) raises RANGE_ERROR");
-    end block;
-
-    block
-      number := 0 ** 0;
-      writeln(" ***** 0 ** 0 did not raise NUMERIC_ERROR");
-    exception
-      catch NUMERIC_ERROR: writeln("0 ** 0 raises NUMERIC_ERROR");
-    end block;
-
-    block
-      number := rand(1, 0);
-      writeln(" ***** rand(1, 0) did not raise RANGE_ERROR");
-    exception
-      catch RANGE_ERROR: writeln("rand(1, 0) raises RANGE_ERROR");
-    end block;
-
-    block
-      number := 1 rem 0;
-      writeln(" ***** 1 rem 0 did not raise NUMERIC_ERROR");
-    exception
-      catch NUMERIC_ERROR: writeln("1 rem 0 raises NUMERIC_ERROR");
-    end block;
-
-    block
-      number  := sqrt(-1);
-      writeln(" ***** sqrt(-1) did not raise NUMERIC_ERROR");
-    exception
-      catch  NUMERIC_ERROR: writeln("sqrt(-1) raises NUMERIC_ERROR");
     end block;
 
     block
@@ -191,34 +379,6 @@ const proc: main is func
       writeln(" ***** action \"asdf\" did not raise RANGE_ERROR");
     exception
       catch RANGE_ERROR: writeln("action \"asdf\" raises RANGE_ERROR");
-    end block;
-(*
-    block
-      while -1 do noop; end while;
-      writeln(" ***** while -1 do ...  did not raise RANGE_ERROR");
-    exception
-      catch RANGE_ERROR: writeln("while -1 do ...  raises RANGE_ERROR");
-    end block;
-
-    block
-      repeat noop; noop until -1;
-      writeln(" ***** repeat ... until -1  did not raise RANGE_ERROR");
-    exception
-      catch RANGE_ERROR: writeln("repeat ... until -1  raises RANGE_ERROR");
-    end block;
-*)
-    block
-      f_num  := rand(1.0, 0.0);
-      writeln(" ***** rand(1.0, 0.0) did not raise RANGE_ERROR");
-    exception
-      catch RANGE_ERROR: writeln("rand(1.0, 0.0) raises RANGE_ERROR");
-    end block;
-
-    block
-      f_num  := sqrt(-1.0);
-      writeln(" ***** sqrt(-1.0) did not raise NUMERIC_ERROR");
-    exception
-      catch  NUMERIC_ERROR: writeln("sqrt(-1.0) raises NUMERIC_ERROR");
     end block;
 
     block

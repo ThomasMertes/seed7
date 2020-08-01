@@ -207,34 +207,34 @@ const proc: initialize is func
     clear(info);
     setPos(info, 1, 1);
     writeln(info, "W A T O R");
-	repeat
+    repeat
       setPos(info, 3, 1);
       write(info, "nfish= ");
       readln(nfish);
-	  if nfish > MAX_LINE * MAX_COLUMN then
+      if nfish > MAX_LINE * MAX_COLUMN then
         writeln(info, "*** Too many fish (" <& nfish <& ")");
-		write(info, "Maximum is " <& MAX_LINE * MAX_COLUMN);
+        write(info, "Maximum is " <& MAX_LINE * MAX_COLUMN);
         setPos(info, 3, 1);
-	    write(info, " " mult 30);
+        write(info, " " mult 30);
       else
-	    writeln(info, " " mult 30);
-	    write(info, " " mult 30);
+        writeln(info, " " mult 30);
+        write(info, " " mult 30);
       end if;
-	until nfish <= MAX_LINE * MAX_COLUMN;
-	repeat
+    until nfish <= MAX_LINE * MAX_COLUMN;
+    repeat
       setPos(info, 4, 1);
       write(info, "nsharks= ");
       readln(nsharks);
-	  if nfish + nsharks > MAX_LINE * MAX_COLUMN then
+      if nfish + nsharks > MAX_LINE * MAX_COLUMN then
         writeln(info, "*** Too many sharks (" <& nsharks <& ")");
-		write(info, "Maximum is " <& MAX_LINE * MAX_COLUMN - nfish);
+        write(info, "Maximum is " <& MAX_LINE * MAX_COLUMN - nfish);
         setPos(info, 4, 1);
-	    write(info, " " mult 30);
+        write(info, " " mult 30);
       else
-	    writeln(info, " " mult 30);
-	    write(info, " " mult 30);
+        writeln(info, " " mult 30);
+        write(info, " " mult 30);
       end if;
-	until nfish + nsharks <= MAX_LINE * MAX_COLUMN;
+    until nfish + nsharks <= MAX_LINE * MAX_COLUMN;
     setPos(info, 5, 1);
     write(info, "fbreed= ");
     readln(fbreed);

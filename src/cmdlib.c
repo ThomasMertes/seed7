@@ -117,7 +117,7 @@ char *dir_name;
             } /* if */
           } /* if */
           if (okay) {
-            str1 = cp_to_stri(current_entry->d_name);
+            str1 = cstri_to_stri(current_entry->d_name);
             if (str1 == NULL) {
               okay = FALSE;
             } else {

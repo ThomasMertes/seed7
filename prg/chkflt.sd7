@@ -1,0 +1,263 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  chkflt.sd7    Checks float literals and operations              *)
+(*  Copyright (C) 2007  Thomas Mertes                               *)
+(*                                                                  *)
+(*  This program is free software; you can redistribute it and/or   *)
+(*  modify it under the terms of the GNU General Public License as  *)
+(*  published by the Free Software Foundation; either version 2 of  *)
+(*  the License, or (at your option) any later version.             *)
+(*                                                                  *)
+(*  This program is distributed in the hope that it will be useful, *)
+(*  but WITHOUT ANY WARRANTY; without even the implied warranty of  *)
+(*  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the   *)
+(*  GNU General Public License for more details.                    *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU General Public       *)
+(*  License along with this program; if not, write to the Free      *)
+(*  Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,  *)
+(*  MA 02111-1307 USA                                               *)
+(*                                                                  *)
+(********************************************************************)
+
+
+$ include "seed7_05.s7i";
+  include "float.s7i";
+
+
+const proc: check_conversion is func
+  local
+    var boolean: okay is TRUE;
+  begin
+    if  str(float parse       "0.0") <>       "0.0" or
+        str(float parse  "Infinity") <>  "Infinity" or
+        str(float parse "-Infinity") <> "-Infinity" or
+        str(float parse       "NaN") <>       "NaN" then
+      writeln("Decimal conversion of float does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if okay then
+      writeln("Decimal conversion of float works correct.");
+    else
+      writeln(" ***** Decimal conversion of float does not work correct.");
+      writeln;
+    end if;
+  end func;
+
+
+const proc: check_add is func
+  begin
+    if           0.0 +          0.0 =          0.0 and
+                 2.0 +          3.0 =          5.0 and
+               127.0 +        127.0 =        254.0 and
+               255.0 +        255.0 =        510.0 and
+             18341.0 +      26783.0 =      45124.0 and
+             32767.0 +      32767.0 =      65534.0 and
+             35759.0 +      58537.0 =      94296.0 and
+             65535.0 +      65535.0 =     131070.0 and
+             73819.0 +     124303.0 =     198122.0 and
+        2147483647.0 +          0.0 = 2147483647.0 and
+                 0.0 + 2147483647.0 = 2147483647.0 and
+                 0.1 +          0.0 =          0.1 and
+                 0.0 +          0.1 =          0.1 and
+                 2.3 +          3.2 =          5.5 and
+             12345.12345 +  54321.54321 =  66666.66666 then
+      writeln("Addition works correct for selected values");
+    else
+      writeln(" ***** Addition does not work correct");
+    end if;
+  end func;
+
+
+const proc: check_power is func
+  begin
+    if (-2.0) ** (-2.0) = 0.25 and
+       (-2.0) ** (-1.5) = NaN and
+       (-2.0) ** (-1.0) = -0.5 and
+       (-2.0) ** (-0.5) = NaN and
+       (-2.0) **   0.0  = 1.0 and
+       (-2.0) **   0.5  = NaN and
+       (-2.0) **   1.0  = -2.0 and
+       (-2.0) **   1.5  = NaN and
+       (-2.0) **   2.0  = 4.0 and
+       #(-1.5) ** (-2.0) = 0.444444 and
+       (-1.5) ** (-1.5) = NaN and
+       #(-1.5) ** (-1.0) = -0.666667 and
+       (-1.5) ** (-0.5) = NaN and
+       (-1.5) **   0.0  = 1.0 and
+       (-1.5) **   0.5  = NaN and
+       (-1.5) **   1.0  = -1.5 and
+       (-1.5) **   1.5  = NaN and
+       (-1.5) **   2.0  = 2.25 and
+       (-1.0) ** (-2.0) = 1.0 and
+       (-1.0) ** (-1.5) = NaN and
+       (-1.0) ** (-1.0) = -1.0 and
+       (-1.0) ** (-0.5) = NaN and
+       (-1.0) **   0.0  = 1.0 and
+       (-1.0) **   0.5  = NaN and
+       (-1.0) **   1.0  = -1.0 and
+       (-1.0) **   1.5  = NaN and
+       (-1.0) **   2.0  = 1.0 and
+       (-0.5) ** (-2.0) = 4.0 and
+       (-0.5) ** (-1.5) = NaN and
+       (-0.5) ** (-1.0) = -2.0 and
+       (-0.5) ** (-0.5) = NaN and
+       (-0.5) **   0.0  = 1.0 and
+       (-0.5) **   0.5  = NaN and
+       (-0.5) **   1.0  = -0.5 and
+       (-0.5) **   1.5  = NaN and
+       (-0.5) **   2.0  = 0.25 and
+         0.0  ** (-2.0) = Infinity and
+         0.0  ** (-1.5) = Infinity and
+         0.0  ** (-1.0) = Infinity and
+         0.0  ** (-0.5) = Infinity and
+         0.0  **   0.0  = 1.0 and
+         0.0  **   0.5  = 0.0 and
+         0.0  **   1.0  = 0.0 and
+         0.0  **   1.5  = 0.0 and
+         0.0  **   2.0  = 0.0 and
+         0.5  ** (-2.0) = 4.0 and
+        # 0.5  ** (-1.5) = 2.828427 and
+         0.5  ** (-1.0) = 2.0 and
+        # 0.5  ** (-0.5) = 1.414214 and
+         0.5  **   0.0  = 1.0 and
+        # 0.5  **   0.5  = 0.707107 and
+         0.5  **   1.0  = 0.5 and
+        # 0.5  **   1.5  = 0.353553 and
+         0.5  **   2.0  = 0.25 and
+         1.0  ** (-2.0) = 1.0 and
+         1.0  ** (-1.5) = 1.0 and
+         1.0  ** (-1.0) = 1.0 and
+         1.0  ** (-0.5) = 1.0 and
+         1.0  **   0.0  = 1.0 and
+         1.0  **   0.5  = 1.0 and
+         1.0  **   1.0  = 1.0 and
+         1.0  **   1.5  = 1.0 and
+         1.0  **   2.0  = 1.0 and
+        # 1.5  ** (-2.0) = 0.444444 and
+        # 1.5  ** (-1.5) = 0.544331 and
+        # 1.5  ** (-1.0) = 0.666667 and
+        # 1.5  ** (-0.5) = 0.816497 and
+         1.5  **   0.0  = 1.0 and
+        # 1.5  **   0.5  = 1.224745 and
+         1.5  **   1.0  = 1.5 and
+        # 1.5  **   1.5  = 1.837117 and
+         1.5  **   2.0  = 2.25 then
+      writeln("A ** B works correct for selected values");
+    else
+      writeln(" ***** A ** B does not work correct");
+    end if;
+  end func;
+
+
+const proc: check_ipower is func
+  begin
+    if (-2.0) ** (-2) = 0.25 and
+       (-2.0) ** (-1) = -0.5 and
+       (-2.0) **   0  = 1.0 and
+       (-2.0) **   1  = -2.0 and
+       (-2.0) **   2  = 4.0 and
+       #(-1.5) ** (-2) = 0.444444 and
+       #(-1.5) ** (-1) = -0.666667 and
+       (-1.5) **   0  = 1.0 and
+       (-1.5) **   1  = -1.5 and
+       (-1.5) **   2  = 2.25 and
+       (-1.0) ** (-2) = 1.0 and
+       (-1.0) ** (-1) = -1.0 and
+       (-1.0) **   0  = 1.0 and
+       (-1.0) **   1  = -1.0 and
+       (-1.0) **   2  = 1.0 and
+       (-0.5) ** (-2) = 4.0 and
+       (-0.5) ** (-1) = -2.0 and
+       (-0.5) **   0  = 1.0 and
+       (-0.5) **   1  = -0.5 and
+       (-0.5) **   2  = 0.25 and
+         0.0  ** (-2) = Infinity and
+         0.0  ** (-1) = Infinity and
+         0.0  **   0  = 1.0 and
+         0.0  **   1  = 0.0 and
+         0.0  **   2  = 0.0 and
+         0.5  ** (-2) = 4.0 and
+         0.5  ** (-1) = 2.0 and
+         0.5  **   0  = 1.0 and
+         0.5  **   1  = 0.5 and
+         0.5  **   2  = 0.25 and
+         1.0  ** (-2) = 1.0 and
+         1.0  ** (-1) = 1.0 and
+         1.0  **   0  = 1.0 and
+         1.0  **   1  = 1.0 and
+         1.0  **   2  = 1.0 and
+        #1.5  ** (-2) = 0.444444 and
+        #1.5  ** (-1) = 0.666667 and
+         1.5  **   0  = 1.0 and
+         1.5  **   1  = 1.5 and
+         1.5  **   2  = 2.25 and
+         2.0  ** (-2) = 0.25 and
+         2.0  ** (-1) = 0.5 and
+         2.0  **   0  = 1.0 and
+         2.0  **   1  = 2.0 and
+         2.0  **   2  = 4.0 then
+      writeln("A ** B with integer B works correct for selected values");
+    else
+      writeln(" ***** A ** B with integer B does not work correct");
+    end if;
+  end func;
+
+
+const proc: check_inf is func
+  begin
+    if  1.0 / 0.0     =  Infinity and
+       -1.0 / 0.0     = -Infinity and
+        0.0 ** (-2.0) =  Infinity and
+        0.0 ** (-1.5) =  Infinity and
+        0.0 ** (-1.0) =  Infinity and
+        0.0 ** (-0.5) =  Infinity and
+       log(0.0)       = -Infinity and
+       log10(0.0)     = -Infinity then
+
+      writeln("Infinity works correct for selected values");
+    else
+      writeln(" ***** Infinity does not work correct");
+    end if;
+  end func;
+
+
+const proc: check_nan is func
+  begin
+    if  isnan(0.0 / 0.0)   and
+        isnan(asin(2.0))   and
+        isnan(acos(2.0))   and
+        isnan(sqrt(-1.0))  and
+        isnan(log(-1.0))   and
+        isnan(log10(-1.0)) then
+      writeln("NaN works correct for selected values");
+    else
+      writeln(" ***** NaN does not work correct");
+    end if;
+  end func;
+
+
+const proc: main is func
+
+  begin
+    writeln;
+    check_conversion;
+    check_add;
+    check_power;
+    check_ipower;
+    check_inf;
+    check_nan;
+(*
+    writeln(Infinity);
+    writeln(-Infinity);
+    writeln(NaN);
+    writeln(0.0 / 0.0);
+    writeln(asin(2.0));
+    writeln(acos(2.0));
+    writeln(sqrt(-1.0));
+    writeln(log(-1.0));
+    writeln(log10(-1.0));
+*)
+  end func;

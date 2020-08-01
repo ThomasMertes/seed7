@@ -99,7 +99,7 @@ char **arg_v;
           } /* if */
         } /* if */
         if (okay) {
-          str1 = cp_to_stri(arg_v[arg_idx]);
+          str1 = cstri_to_stri(arg_v[arg_idx]);
           if (str1 == NULL) {
             okay = FALSE;
           } else {
@@ -211,7 +211,6 @@ listtype arguments;
 
   {
     objecttype statement;
-    objecttype catch_objects;
     objecttype current_catch;
     objecttype catch_value;
     objecttype catch_statement;
@@ -221,9 +220,8 @@ listtype arguments;
     statement = arg_2(arguments);
     evaluate(statement);
     if (fail_flag) {
-      catch_objects = arg_4(arguments);
       searching = TRUE;
-      current_catch = catch_objects;
+      current_catch = arg_4(arguments);
       while (current_catch != NULL && searching &&
           CLASS_OF_OBJ(current_catch) == MATCHOBJECT &&
           current_catch->value.listvalue->next->next->next->next != NULL) {
@@ -261,7 +259,6 @@ listtype arguments;
 
   {
     objecttype statement;
-    objecttype catch_objects;
     objecttype default_statement;
     objecttype current_catch;
     objecttype catch_value;
@@ -272,9 +269,8 @@ listtype arguments;
     statement = arg_2(arguments);
     evaluate(statement);
     if (fail_flag) {
-      catch_objects = arg_4(arguments);
       searching = TRUE;
-      current_catch = catch_objects;
+      current_catch = arg_4(arguments);
       while (current_catch != NULL && searching &&
           CLASS_OF_OBJ(current_catch) == MATCHOBJECT &&
           current_catch->value.listvalue->next->next->next->next != NULL) {
@@ -621,7 +617,7 @@ listtype arguments;
   {
     stritype stri;
     uchartype env_name[250];
-    ustritype environment;
+    cstritype environment;
     stritype result;
 
   /* prc_getenv */
@@ -635,7 +631,7 @@ listtype arguments;
         environment = "";
       } /* if */
     } /* if */
-    result = cp_to_stri(environment);
+    result = cstri_to_stri(environment);
     if (result == NULL) {
       return(raise_exception(SYS_MEM_EXCEPTION));
     } else {
@@ -813,7 +809,7 @@ listtype arguments;
   {
     stritype stri;
     uchartype opt_name[250];
-    ustritype opt;
+    cstritype opt;
     stritype result;
 
   /* prc_option */
@@ -829,7 +825,7 @@ listtype arguments;
         opt = "";
       } /* if */
     } /* if */
-    result = cp_to_stri(opt);
+    result = cstri_to_stri(opt);
     if (result == NULL) {
       return(raise_exception(SYS_MEM_EXCEPTION));
     } else {

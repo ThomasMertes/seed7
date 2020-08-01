@@ -47,7 +47,8 @@
 #include "flt_rtl.h"
 
 
-#define USE_ATOF
+#define USE_STRTOD
+#define IPOW_EXPONENTIATION_BY_SQUARING
 
 #ifndef USE_VARIABLE_FORMATS
 #define MAX_FORM 28
@@ -139,16 +140,24 @@ inttype digits_precision;
     if (digits_precision > 1000) {
       digits_precision = 1000;
     } /* if */
-#ifdef USE_VARIABLE_FORMATS
-    sprintf(buffer, "%1.*f", (int) digits_precision, number);
-#else
-    if (digits_precision > MAX_FORM) {
-      sprintf(form_buffer, "%%1.%ldf", digits_precision);
-      sprintf(buffer, form_buffer, number);
+    if (isnan(number)) {
+      strcpy(buffer, "NaN");
+    } else if (number == 1.0 / 0.0) {
+      strcpy(buffer, "Infinity");
+    } else if (number == -1.0 / 0.0) {
+      strcpy(buffer, "-Infinity");
     } else {
-      sprintf(buffer, form[digits_precision], number);
-    } /* if */
+#ifdef USE_VARIABLE_FORMATS
+      sprintf(buffer, "%1.*f", (int) digits_precision, number);
+#else
+      if (digits_precision > MAX_FORM) {
+        sprintf(form_buffer, "%%1.%ldf", digits_precision);
+        sprintf(buffer, form_buffer, number);
+      } else {
+        sprintf(buffer, form[digits_precision], number);
+      } /* if */
 #endif
+    } /* if */
     len = strlen(buffer);
     if (!ALLOC_STRI(result, len)) {
       raise_error(MEMORY_ERROR);
@@ -165,15 +174,56 @@ inttype digits_precision;
 
 #ifdef ANSI_C
 
-floattype fltIpow (floattype base, inttype exponent)
+floattype fltIPow (floattype base, inttype exponent)
 #else
 
-floattype fltIpow (base, exponent)
+floattype fltIPow (base, exponent)
 floattype base;
 inttype exponent;
 #endif
 
-  { /* fltIpow */
+  {
+    booltype neg_exp = FALSE;
+    floattype result;
+
+  /* fltIPow */
+#ifdef IPOW_EXPONENTIATION_BY_SQUARING
+    if (base == 0.0) {
+      if (exponent < 0) {
+        return(1.0 / 0.0);
+      } else if (exponent == 0) {
+        return(1.0);
+      } else {
+        return(0.0);
+      } /* if */
+    } else {
+      if (exponent < 0) {
+        exponent = -exponent;
+        if (exponent < 0) {
+          return(0.0);
+        } /* if */
+        neg_exp = TRUE;
+      } /* if */
+      if (exponent & 1) {
+        result = base;
+      } else {
+        result = 1;
+      } /* if */
+      exponent >>= 1;
+      while (exponent != 0) {
+        base *= base;
+        if (exponent & 1) {
+          result *= base;
+        } /* if */
+        exponent >>= 1;
+      } /* while */
+      if (neg_exp) {
+        return(1.0 / result);
+      } else {
+        return(result);
+      } /* if */
+    } /* if */
+#else
     if (base < 0.0) {
       if (exponent & 1) {
         return(-pow(-base, (floattype) exponent));
@@ -181,16 +231,18 @@ inttype exponent;
         return(pow(-base, (floattype) exponent));
       } /* if */
     } else if (base == 0.0) {
-      if (exponent <= 0) {
-        raise_error(NUMERIC_ERROR);
-        return(0.0);
+      if (exponent < 0) {
+        return(1.0 / 0.0);
+      } else if (exponent == 0) {
+        return(1.0);
       } else {
         return(0.0);
       } /* if */
     } else { /* base > 0.0 */
       return(pow(base, (floattype) exponent));
     } /* if */
-  } /* fltIpow */
+#endif
+  } /* fltIPow */
 
 
 
@@ -205,7 +257,7 @@ stritype stri;
 
   {
     booltype okay;
-#ifdef USE_ATOF
+#ifdef USE_STRTOD
     char buffer[150];
     char *next_ch;
 #else
@@ -216,16 +268,23 @@ stritype stri;
 
   /* fltParse */
     okay = TRUE;
-#ifdef USE_ATOF
+#ifdef USE_STRTOD
     if (compr_size(stri) + 1 <= 150) {
-      stri_export(buffer, stri);
-/*    result = (floattype) atof((cstritype) buffer); */
-      result = (floattype) strtod((cstritype) buffer, &next_ch);
+      stri_export((ustritype) buffer, stri);
+/*    result = (floattype) atof(buffer); */
+      result = (floattype) strtod(buffer, &next_ch);
       if (next_ch == buffer) {
-        okay = FALSE;
+        if (strcmp(buffer, "NaN") == 0) {
+          result = 0.0 / 0.0;
+        } else if (strcmp(buffer, "Infinity") == 0) {
+          result = 1.0 / 0.0;
+        } else if (strcmp(buffer, "-Infinity") == 0) {
+          result = -1.0 / 0.0;
+        } else {
+          okay = FALSE;
+        } /* if */
       } /* if */
     } else {
-      result = 0.0;
       okay = FALSE;
     } /* if */
 #else
@@ -255,34 +314,6 @@ stritype stri;
       return(0.0);
     } /* if */
   } /* fltParse */
-
-
-
-#ifdef ANSI_C
-
-floattype fltPow (floattype base, floattype exponent)
-#else
-
-floattype fltPow (base, exponent)
-floattype base;
-floattype exponent;
-#endif
-
-  { /* fltPow */
-    if (base < 0.0) {
-      raise_error(NUMERIC_ERROR);
-      return(0.0);
-    } else if (base == 0.0) {
-      if (exponent <= 0.0) {
-        raise_error(NUMERIC_ERROR);
-        return(0.0);
-      } else {
-        return(0.0);
-      } /* if */
-    } else { /* base > 0.0 */
-      return(pow(base, exponent));
-    } /* if */
-  } /* fltPow */
 
 
 
@@ -331,7 +362,15 @@ floattype number;
     stritype result;
 
   /* fltStr */
-    sprintf(buffer, "%1.25f", number);
+    if (isnan(number)) {
+      strcpy(buffer, "NaN");
+    } else if (number == 1.0 / 0.0) {
+      strcpy(buffer, "Infinity");
+    } else if (number == -1.0 / 0.0) {
+      strcpy(buffer, "-Infinity");
+    } else {
+      sprintf(buffer, "%1.25f", number);
+    } /* if */
     len = strlen(buffer);
     do {
       len--;

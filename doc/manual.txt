@@ -1552,7 +1552,7 @@ CONTENTS
       rem       Reminder of integer division div
                   ( A rem B => A - (A div B) * B,
                     A rem 0 => EXCEPTION NUMERIC_ERROR )
-      mdiv      Integer division truncated towards minus infinite
+      mdiv      Integer division truncated towards negative infinity
                   ( A mdiv B => round(floor(flt(A) / flt(B))),
                     A mdiv 0 => EXCEPTION NUMERIC_ERROR )
       mod       Reminder of integer division mdiv
@@ -1560,9 +1560,8 @@ CONTENTS
                     A mod 0 => EXCEPTION NUMERIC_ERROR )
       **        Power
                   ( A ** B is okay for B > 0,
-                    A ** 0 is okay for A <> 0,
-                    A ** -1 => EXCEPTION NUMERIC_ERROR,
-                    0 ** 0 => EXCEPTION NUMERIC_ERROR )
+                    A ** 0 => 1,
+                    A ** -1 => EXCEPTION NUMERIC_ERROR )
       !         Binomial coefficient
                   ( A ! B => !A div (!B * !(A - B)) )
       integer conv A   Identity
@@ -1701,11 +1700,11 @@ CONTENTS
       rat(A)    Conversion to rational
                   ( Type of argument A: integer,
                     rat(1) => 1.0 )
-      floor(A)  Truncation towards minus infinite
+      floor(A)  Truncation towards negative infinity
                   ( Type of result: integer,
                     floor( 1.8)=> 1, floor( 1.0)=> 1,
                     floor(-1.0)=>-1, floor(-1.8)=>-2 )
-      ceil(A)   Rounding up towards plus infinite
+      ceil(A)   Rounding up towards positive infinity
                   ( Type of result: integer,
                     ceil( 1.2)=> 2, ceil( 1.0)=> 1,
                     ceil(-1.0)=>-1, ceil(-1.2)=>-1 )
@@ -1740,6 +1739,9 @@ CONTENTS
 
     The type 'float' consists of floating point numbers.
 
+    Constants:
+      Infinity  Positive infinity
+      NaN       Not-a-Number
     Prefix operators:
       +         Identity
       -         Change sign
@@ -1748,24 +1750,32 @@ CONTENTS
       -         Subtraction
       *         Multiplication
       /         Division
-                  ( A / 0.0 => EXCEPTION NUMERIC_ERROR )
+                  ( A / 0.0 =>  Infinity for A > 0.0,
+                    A / 0.0 => -Infinity for A < 0.0,
+                    0.0 / 0.0 => NaN )
       **        Power
                   ( A ** B is okay for A > 0.0,
-                    0.0 ** B => 0.0  for B > 0.0,
-                    -1.0 ** B => EXCEPTION NUMERIC_ERROR,
-                    0.0 ** 0.0 => EXCEPTION NUMERIC_ERROR,
-                    0.0 ** -1.0 => EXCEPTION NUMERIC_ERROR )
+                    A ** B => okay for A < 0.0 and B is integer,
+                    A ** B => NaN for A < 0.0 and B is not integer,
+                    A ** 0.0 => 1.0,
+                    0.0 ** B => 0.0 for B > 0.0,
+                    0.0 ** 0.0 => 1.0,
+                    0.0 ** B => Infinity for B < 0.0 )
       **        Power
                   ( Type of right operand: integer
                     A ** B is okay for A > 0.0,
                     A ** B is okay for A < 0.0,
-                    0.0 ** B => 0.0  for B > 0,
-                    0.0 ** 0 => EXCEPTION NUMERIC_ERROR,
-                    0.0 ** -1 => EXCEPTION NUMERIC_ERROR )
+                    A ** 0 => 1.0,
+                    0.0 ** B => 0.0 for B > 0,
+                    0.0 ** 0 => 1.0,
+                    0.0 ** B => Infinity for B < 0 )
       digits    Conversion to string with specified precision
                   ( Type of right operand: integer,
                     Type of result: string,
-                    3.1415 digits 2 => "3.14" )
+                    3.1415 digits 2 => "3.14",
+                    Infinity digits A => "Infinity",
+                    -Infinity digits A => "-Infinity",
+                    NaN digits A => "NaN" )
       float parse A   Conversion of string to float
                   ( Type of argument A: string )
     Relations:
@@ -1775,11 +1785,11 @@ CONTENTS
       flt(A)    Conversion to float
                   ( Type of argument A: integer,
                     flt(1) => 1.0 )
-      floor(A)  Truncation towards minus infinite
+      floor(A)  Truncation towards negative infinity
                   ( floor( 1.8)=> 1.0, floor( 1.0)=> 1.0,
                     floor(-1.0)=>-1.0, floor(-1.2)=>-2.0,
                     floor( 0.9)=> 0.0, floor(-0.1)=>-1.0 )
-      ceil(A)   Rounding up towards plus infinite
+      ceil(A)   Rounding up towards positive infinity
                   ( ceil( 1.2)=> 2.0, ceil( 1.0)=> 1.0,
                     ceil(-1.8)=>-1.0, ceil(-1.0)=>-1.0,
                     ceil( 0.1)=> 1.0, ceil(-0.9)=> 0.0 )
@@ -1794,26 +1804,32 @@ CONTENTS
                     round(0.5)=>1, round(-0.5)=>-1,
                     round(0.4)=>0, round(-0.4)=>0 )
       str(A)    Conversion to string
-                  ( Type of result: string )
+                  ( Type of result: string,
+                    str(Infinity) => "Infinity",
+                    str(-Infinity) => "-Infinity",
+                    str(NaN) => "NaN" )
+      isnan(A)  Check if A is Not-a-Number
       sin(A)    Sine
       cos(A)    Cosine
       tan(A)    Tangent
       exp(A)    Exponential function
       log(A)    Natural logarithm
                   ( log(A) is okay for A > 0.0,
-                    log(-1.0) => EXCEPTION NUMERIC_ERROR )
+                    log(0.0)  => -Infinity,
+                    log(-1.0) =>  NaN )
       log10(A)  Base 10 logarithm
                   ( log10(A) is okay for A > 0.0,
-                    log10(-1.0) => EXCEPTION NUMERIC_ERROR )
+                    log10(0.0)  => -Infinity,
+                    log10(-1.0) =>  NaN )
       sqrt(A)   Square root
                   ( sqrt(A) is okay for A >= 0.0,
-                    sqrt(-1.0) => EXCEPTION NUMERIC_ERROR )
+                    sqrt(-1.0) => NaN )
       asin(A)   Inverse sine
                   ( asin(A) is okay for A >= -1.0 and A <= 1.0,
-                    asin(2.0) => EXCEPTION NUMERIC_ERROR )
+                    asin(2.0) => NaN )
       acos(A)   Inverse cosine
                   ( acos(A) is okay for A >= -1.0 and A <= 1.0,
-                    acos(2.0) => EXCEPTION NUMERIC_ERROR )
+                    acos(2.0) => NaN )
       atan(A)   Inverse tangent
       atan2(A, B) Inverse tangent of A / B
       sinh(A)   Hyperbolic sine

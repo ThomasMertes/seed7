@@ -35,9 +35,8 @@ inttype fltCmp (floattype, floattype);
 void fltCpy (floattype *, floattype);
 floattype fltCreate (floattype);
 stritype fltDgts (floattype, inttype);
-floattype fltIpow (floattype, inttype);
+floattype fltIPow (floattype, inttype);
 floattype fltParse (stritype);
-floattype fltPow (floattype, floattype);
 floattype fltRand (floattype, floattype);
 stritype fltStr (floattype);
 
@@ -47,9 +46,8 @@ inttype fltCmp ();
 void fltCpy ();
 floattype fltCreate ();
 stritype fltDgts ();
-floattype fltIpow ();
+floattype fltIPow ();
 floattype fltParse ();
-floattype fltPow ();
 floattype fltRand ();
 stritype fltStr ();
 

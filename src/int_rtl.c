@@ -456,34 +456,34 @@ stritype stri;
 
 #ifdef ANSI_C
 
-inttype intPow (inttype base, inttype exp)
+inttype intPow (inttype base, inttype exponent)
 #else
 
-inttype intPow (base, exp)
+inttype intPow (base, exponent)
 inttype base;
-inttype exp;
+inttype exponent;
 #endif
 
   {
     inttype result;
 
   /* intPow */
-    if (exp < 0 || (base == 0 && exp == 0)) {
+    if (exponent < 0) {
       raise_error(NUMERIC_ERROR);
       return(0);
     } else {
-      if (exp & 1) {
+      if (exponent & 1) {
         result = base;
       } else {
         result = 1;
       } /* if */
-      exp = exp >> 1;
-      while (exp != 0) {
+      exponent >>= 1;
+      while (exponent != 0) {
         base *= base;
-        if (exp & 1) {
+        if (exponent & 1) {
           result *= base;
         } /* if */
-        exp = exp >> 1;
+        exponent >>= 1;
       } /* while */
       return(result);
     } /* if */

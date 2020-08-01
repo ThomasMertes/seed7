@@ -38,6 +38,8 @@ rtlArraytype arrBaselit (rtlObjecttype);
 rtlArraytype arrBaselit2 (inttype, rtlObjecttype);
 rtlArraytype arrExtend (rtlArraytype, rtlObjecttype);
 rtlArraytype arrGen (rtlObjecttype, rtlObjecttype);
+rtlArraytype arrRange (rtlArraytype, inttype, inttype);
+rtlArraytype arrSort (rtlArraytype, inttype (rtlGenerictype, rtlGenerictype));
 
 #else
 
@@ -48,5 +50,7 @@ rtlArraytype arrBaselit ();
 rtlArraytype arrBaselit2 ();
 rtlArraytype arrExtend ();
 rtlArraytype arrGen ();
+rtlArraytype arrRange ();
+rtlArraytype arrSort ();
 
 #endif

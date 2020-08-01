@@ -498,6 +498,10 @@ const proc: check_power is func
         okay := FALSE;
       end if;
     end for;
+    if 0 ** 0 <> 1 then
+      write(" ***** 0 ** 0 is not correct computed");
+      okay := FALSE;
+    end if;
     if okay then
       writeln("i ** j is correct for -4 <= i <= 4 and 0 <= j <= 4");
     end if;
