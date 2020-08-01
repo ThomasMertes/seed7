@@ -91,7 +91,7 @@ const func type: array (in type: baseType) is func
       (**
        *  Access one element from the array ''arr''.
        *  @return the element with the specified ''index'' from ''arr''.
-       *  @exception RANGE_ERROR If ''index'' is less than [[#minIdx(in_arrayType)|minIdx]](arr) or
+       *  @exception INDEX_ERROR If ''index'' is less than [[#minIdx(in_arrayType)|minIdx]](arr) or
        *                         greater than [[#minIdx(in_arrayType)|maxIdx]](arr)
        *)
       const func baseType: (in arrayType: arr) [ (in integer: index) ]        is action "ARR_IDX";
@@ -131,7 +131,7 @@ const func type: array (in type: baseType) is func
       (**
        *  Remove the element with ''index'' from ''arr'' and return the removed element.
        *  @return the removed element.
-       *  @exception RANGE_ERROR If ''index'' is less than [[#minIdx(in_arrayType)|minIdx]](arr) or
+       *  @exception INDEX_ERROR If ''index'' is less than [[#minIdx(in_arrayType)|minIdx]](arr) or
        *                         greater than [[#minIdx(in_arrayType)|maxIdx]](arr)
        *)
       const func baseType: remove (inout arrayType: arr, in integer: index)   is action "ARR_REMOVE";

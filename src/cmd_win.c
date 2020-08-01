@@ -37,6 +37,9 @@
 #include "stdlib.h"
 #include "stdio.h"
 #include "windows.h"
+#if ACLAPI_H_PRESENT
+#include "aclapi.h"
+#endif
 #include "io.h"
 #include "fcntl.h"
 #ifdef OS_STRI_WCHAR
@@ -47,6 +50,7 @@
 #include "data_rtl.h"
 #include "heaputl.h"
 #include "striutl.h"
+#include "str_rtl.h"
 #include "rtl_err.h"
 
 #undef EXTERN
@@ -56,6 +60,15 @@
 
 #ifndef PATH_MAX
 #define PATH_MAX 2048
+#endif
+
+#if !ACLAPI_H_PRESENT
+#define SE_FILE_OBJECT 1
+DWORD GetNamedSecurityInfoW (LPCWSTR pObjectName,
+    int ObjectType, SECURITY_INFORMATION SecurityInfo,
+    PSID *ppsidOwner, PSID *ppsidGroup,
+    PACL *ppDacl, PACL *ppSacl,
+    PSECURITY_DESCRIPTOR *ppSecurityDescriptor);
 #endif
 
 
@@ -418,3 +431,199 @@ int wsetenv (const const_os_striType name, const const_os_striType value,
     return result;
   } /* wsetenv */
 #endif
+
+
+
+#ifdef DEFINE_WUNSETENV
+int wunsetenv (const const_os_striType name)
+
+  {
+    int result;
+
+  /* wunsetenv */
+    logFunction(printf("wunsetenv(\"" FMT_S_OS "\")\n", name););
+    result = !SetEnvironmentVariableW(name, NULL);
+    return result;
+  } /* wunsetenv */
+#endif
+
+
+
+static striType getNameFromSid (PSID sid)
+
+  {
+    LPWSTR AcctName = NULL;
+    DWORD dwAcctName = 1;
+    LPWSTR DomainName = NULL;
+    DWORD dwDomainName = 1;
+    SID_NAME_USE eUse = SidTypeUnknown;
+    errInfoType err_info = OKAY_NO_ERROR;
+    striType name;
+
+  /* getNameFromSid */
+    LookupAccountSidW(NULL, sid,
+                      AcctName, (LPDWORD) &dwAcctName,
+                      DomainName, (LPDWORD) &dwDomainName, &eUse);
+    AcctName = (LPWSTR) GlobalAlloc(GMEM_FIXED, dwAcctName * sizeof(os_charType));
+    DomainName = (LPWSTR) GlobalAlloc(GMEM_FIXED, dwDomainName * sizeof(os_charType));
+    if (unlikely(AcctName == NULL || DomainName == NULL)) {
+      logError(printf("getNameFromSid: GlobalAlloc() failed:\n"
+                      "lastError=" FMT_U32 "\n",
+                      (uint32Type) GetLastError()););
+      if (AcctName != NULL) {
+        GlobalFree(AcctName);
+      } /* if */
+      raise_error(MEMORY_ERROR);
+      name = NULL;
+    } else if (unlikely(
+        LookupAccountSidW(NULL, sid,
+                          AcctName, (LPDWORD) &dwAcctName,
+                          DomainName, (LPDWORD) &dwDomainName,
+                          &eUse) == FALSE)) {
+      logError(printf("getNameFromSid: LookupAccountSidW() failed:\n"
+                      "lastError=" FMT_U32 "\n",
+                      (uint32Type) GetLastError()););
+      GlobalFree(AcctName);
+      GlobalFree(DomainName);
+      raise_error(FILE_ERROR);
+      name = NULL;
+    } else {
+      name = os_stri_to_stri(AcctName, &err_info);
+      GlobalFree(AcctName);
+      GlobalFree(DomainName);
+      if (unlikely(name == NULL)) {
+        raise_error(err_info);
+      } /* if */
+    } /* if */
+    return name;
+  } /* getNameFromSid */
+
+
+
+striType cmdGetGroup (const const_striType filePath)
+
+  {
+    os_striType os_path;
+    int path_info = PATH_IS_NORMAL;
+    errInfoType err_info = OKAY_NO_ERROR;
+    PSECURITY_DESCRIPTOR pSD = NULL;
+    PSID pSidGroup = NULL;
+    striType group;
+
+  /* cmdGetGroup */
+    logFunction(printf("cmdGetGroup(\"%s\")", striAsUnquotedCStri(filePath));
+                fflush(stdout););
+    os_path = cp_to_os_path(filePath, &path_info, &err_info);
+    if (unlikely(os_path == NULL)) {
+      logError(printf("cmdGetGroup: cp_to_os_path(\"%s\", *, *) failed:\n"
+                      "path_info=%d, err_info=%d\n",
+                      striAsUnquotedCStri(filePath), path_info, err_info););
+      raise_error(err_info);
+      group = NULL;
+    } else if (unlikely(
+        GetNamedSecurityInfoW(os_path, SE_FILE_OBJECT,
+                              GROUP_SECURITY_INFORMATION, NULL,
+                              &pSidGroup, NULL, NULL, &pSD) != ERROR_SUCCESS)) {
+      logError(printf("cmdGetGroup: "
+                      "GetNamedSecurityInfoW(\"" FMT_S_OS "\", ...) failed:\n"
+                      "lastError=" FMT_U32 "\n",
+                      os_path, (uint32Type) GetLastError()););
+      os_stri_free(os_path);
+      raise_error(FILE_ERROR);
+      group = NULL;
+    } else {
+      os_stri_free(os_path);
+      group = getNameFromSid(pSidGroup);
+    } /* if */
+    logFunctionResult(printf("\"%s\"\n", striAsUnquotedCStri(group)););
+    return group;
+  } /* cmdGetGoup */
+
+
+
+striType cmdGetOwner (const const_striType filePath)
+
+  {
+    os_striType os_path;
+    int path_info = PATH_IS_NORMAL;
+    errInfoType err_info = OKAY_NO_ERROR;
+    PSECURITY_DESCRIPTOR pSD = NULL;
+    PSID pSidOwner = NULL;
+    striType owner;
+
+  /* cmdGetOwner */
+    logFunction(printf("cmdGetOwner(\"%s\")", striAsUnquotedCStri(filePath));
+                fflush(stdout););
+    os_path = cp_to_os_path(filePath, &path_info, &err_info);
+    if (unlikely(os_path == NULL)) {
+      logError(printf("cmdGetOwner: cp_to_os_path(\"%s\", *, *) failed:\n"
+                      "path_info=%d, err_info=%d\n",
+                      striAsUnquotedCStri(filePath), path_info, err_info););
+      raise_error(err_info);
+      owner = NULL;
+    } else if (unlikely(
+        GetNamedSecurityInfoW(os_path, SE_FILE_OBJECT,
+                              OWNER_SECURITY_INFORMATION, &pSidOwner,
+                              NULL, NULL, NULL, &pSD) != ERROR_SUCCESS)) {
+      logError(printf("cmdGetOwner: "
+                      "GetNamedSecurityInfoW(\"" FMT_S_OS "\", ...) failed:\n"
+                      "lastError=" FMT_U32 "\n",
+                      os_path, (uint32Type) GetLastError()););
+      os_stri_free(os_path);
+      raise_error(FILE_ERROR);
+      owner = NULL;
+    } else {
+      os_stri_free(os_path);
+      owner = getNameFromSid(pSidOwner);
+    } /* if */
+    logFunctionResult(printf("\"%s\"\n", striAsUnquotedCStri(owner)););
+    return owner;
+  } /* cmdGetOwner */
+
+
+
+striType cmdUser (void)
+
+  {
+    HANDLE hToken = NULL;
+    PTOKEN_USER ptu = NULL;
+    DWORD dwSize = 0;
+    striType user;
+
+  /* cmdUser */
+    if (unlikely(OpenThreadToken(GetCurrentThread(), TOKEN_QUERY, FALSE, &hToken) == 0 &&
+                 OpenProcessToken(GetCurrentProcess(), TOKEN_QUERY, &hToken) == 0)) {
+      logError(printf("cmdUser: OpenThreadToken() and OpenProcessToken() failed."););
+      raise_error(FILE_ERROR);
+      user = NULL;
+    } else {
+      if (unlikely(GetTokenInformation(hToken, TokenUser, NULL, 0, &dwSize) != 0 ||
+                   ERROR_INSUFFICIENT_BUFFER != GetLastError())) {
+        logError(printf("cmdUser: GetTokenInformation() "
+                        "should fail with ERROR_INSUFFICIENT_BUFFER.\n"
+                        "lastError=" FMT_U32 "\n",
+                        (uint32Type) GetLastError()););
+        raise_error(FILE_ERROR);
+        user = NULL;
+      } else {
+        ptu = (PTOKEN_USER) LocalAlloc(LPTR, dwSize);
+        if (unlikely(ptu == NULL)) {
+          raise_error(MEMORY_ERROR);
+          user = NULL;
+        } else {
+          if (GetTokenInformation(hToken, TokenUser, ptu, dwSize, &dwSize) == 0) {
+            logError(printf("cmdUser: GetNamedSecurityInfoW() failed:\n"
+                            "lastError=" FMT_U32 "\n",
+                            (uint32Type) GetLastError()););
+            LocalFree((HLOCAL) ptu);
+            raise_error(FILE_ERROR);
+            user = NULL;
+          } else {
+            user = getNameFromSid(ptu->User.Sid);
+            LocalFree((HLOCAL) ptu);
+          } /* if */
+        } /* if */
+      } /* if */
+    } /* if */
+    return user;
+  } /* cmdUser */

@@ -45,6 +45,7 @@ void freeEnvironment (os_striType *environment);
 #ifdef EMULATE_ENVIRONMENT
 char *getenv7 (const char *name);
 int setenv7 (const char *name, const char *value, int overwrite);
+int unsetenv7 (const char *name);
 #endif
 #ifdef DEFINE_WGETENV
 os_striType wgetenv (const const_os_striType name);
@@ -53,3 +54,8 @@ os_striType wgetenv (const const_os_striType name);
 int wsetenv (const const_os_striType name, const const_os_striType value,
     int overwrite);
 #endif
+#ifdef DEFINE_WUNSETENV
+int wunsetenv (const const_os_striType name);
+#endif
+striType cmdGetGroup (const const_striType filePath);
+striType cmdGetOwner (const const_striType filePath);

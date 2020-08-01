@@ -127,6 +127,18 @@ const proc: setenv (in string: name, in string: value) is action "CMD_SETENV";
 
 
 (**
+ *  Deletes the variable ''name'' from the environment.
+ *  If ''name'' does not exist in the environment,
+ *  then the function succeeds, and the environment is unchanged.
+ *  @exception MEMORY_ERROR Not enough memory to convert ''name''
+ *             to the system string type.
+ *  @exception RANGE_ERROR ''name'' cannot be converted to the
+ *             system string type or a system function returns an error.
+ *)
+const proc: unsetenv (in string: name)                 is action "CMD_UNSETENV";
+
+
+(**
  *  Returns the list of environment variable names as [[array]] of [[string]]s.
  *  @return the list of environment variable names.
  *  @exception MEMORY_ERROR Not enough memory to create the result.

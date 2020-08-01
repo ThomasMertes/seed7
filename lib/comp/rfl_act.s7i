@@ -330,16 +330,88 @@ const proc: process (RFL_HEAD, in reference: function,
   end func;
 
 
+const proc: process_const_rfl_idx (in reference: param1,
+    in integer: index, inout expr_type: c_expr) is func
+
+  local
+    var string: listName is "";
+    var integer: number is 0;
+  begin
+    incr(countOptimizations);
+    if index < 1 then
+      warning(DOES_RAISE, "INDEX_ERROR", c_expr);
+      c_expr.expr &:= intRaiseError("INDEX_ERROR");
+    elsif index <= 3 and isNormalVariable(param1) and ref_list_index_check then
+      incr(countIndexChecks);
+      c_expr.expr &:= "(";
+      listName := normalVariable(param1, c_expr);
+      c_expr.expr &:= "idxChk(";
+      c_expr.expr &:= listName;
+      c_expr.expr &:= "==NULL";
+      for number range 2 to index do
+        c_expr.expr &:= "||";
+        c_expr.expr &:= listName;
+        c_expr.expr &:= "->next" mult pred(number);
+        c_expr.expr &:= "==NULL";
+      end for;
+      c_expr.expr &:= ")?";
+      c_expr.expr &:= refRaiseError("INDEX_ERROR");
+      c_expr.expr &:= ":";
+      c_expr.expr &:= listName;
+      c_expr.expr &:= "->next" mult pred(index);
+      c_expr.expr &:= "->obj)";
+    elsif index <= 7 and ref_list_index_check then
+      incr(countIndexChecks);
+      c_expr.expr &:= "(";
+      listName := getTempVariable("const_listType", "list_", param1, c_expr);
+      c_expr.expr &:= "idxChk(";
+      c_expr.expr &:= listName;
+      c_expr.expr &:= "==NULL";
+      for number range 2 to index do
+        c_expr.expr &:= "||(";
+        c_expr.expr &:= listName;
+        c_expr.expr &:= "=";
+        c_expr.expr &:= listName;
+        c_expr.expr &:= "->next)==NULL";
+      end for;
+      c_expr.expr &:= ")?";
+      c_expr.expr &:= refRaiseError("INDEX_ERROR");
+      c_expr.expr &:= ":";
+      c_expr.expr &:= listName;
+      c_expr.expr &:= "->obj)";
+    elsif index <= 12 and not ref_list_index_check then
+      incr(countNoIndexChecks);
+      c_expr.expr &:= "(";
+      getAnyParamToExpr(param1, c_expr);
+      c_expr.expr &:= ")";
+      c_expr.expr &:= "->next" mult pred(index);
+      c_expr.expr &:= "->obj";
+    else
+      c_expr.expr &:= "rflIdx(";
+      getAnyParamToExpr(param1, c_expr);
+      c_expr.expr &:= ", ";
+      c_expr.expr &:= integerLiteral(index);
+      c_expr.expr &:= ")";
+    end if;
+  end func;
+
+
 const proc: process (RFL_IDX, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
+  local
+    var reference: evaluatedParam is NIL;
   begin
     compDataLibraryUsed := TRUE;
-    c_expr.expr &:= "rflIdx(";
-    getAnyParamToExpr(params[1], c_expr);
-    c_expr.expr &:= ", ";
-    process_expr(params[3], c_expr);
-    c_expr.expr &:= ")";
+    if getConstant(params[3], INTOBJECT, evaluatedParam) then
+      process_const_rfl_idx(params[1], getValue(evaluatedParam, integer), c_expr);
+    else
+      c_expr.expr &:= "rflIdx(";
+      getAnyParamToExpr(params[1], c_expr);
+      c_expr.expr &:= ", ";
+      process_expr(params[3], c_expr);
+      c_expr.expr &:= ")";
+    end if;
   end func;
 
 

@@ -286,4 +286,5 @@ xml_ent.s7i  XML entity handling library
 xmldom.s7i   Simple XML dom parser
 xz.s7i       XZ compression support library
 zip.s7i      Zip compression support library
+zstd.s7i     Zstandard compression support library
 dna_base.s7i Bacterial dna fight programming game interface

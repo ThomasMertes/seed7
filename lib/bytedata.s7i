@@ -55,32 +55,31 @@ const type: endianness is new enum
 
 
 (**
- *  Get a zero terminated string from ''stri'' starting from ''currPos''.
- *  CurrPos is advanced after the zero ('\0;') character.
- *  @return the zero terminated string without the zero ('\0;') character.
+ *  Get a null terminated string from ''stri'' starting from ''currPos''.
+ *  CurrPos is advanced after the null ('\0;') character.
+ *  @return the null terminated string without the null ('\0;') character.
  *)
 const func string: getAsciiz (in string: stri, inout integer: currPos) is func
   result
     var string: resultStri is "";
   local
-    var integer: startPos is 0;
+    var integer: nullPos is 0;
   begin
-    startPos := currPos;
-    currPos := pos(stri, '\0;', startPos);
-    if currPos = 0 then
-      resultStri := stri[startPos ..];
+    nullPos := pos(stri, '\0;', currPos);
+    if nullPos = 0 then
+      resultStri := stri[currPos ..];
       currPos := succ(length(stri));
     else
-      resultStri := stri[startPos .. pred(currPos)];
-      incr(currPos);
+      resultStri := stri[currPos .. pred(nullPos)];
+      currPos := succ(nullPos);
     end if;
   end func;
 
 
 (**
- *  Get a zero terminated string from ''inFile''.
- *  The file position is advanced after the zero ('\0;') character.
- *  @return the zero terminated string without the zero ('\0;') character.
+ *  Get a null terminated string from ''inFile''.
+ *  The file position is advanced after the null ('\0;') character.
+ *  @return the null terminated string without the null ('\0;') character.
  *)
 const func string: getAsciiz (inout file: inFile) is func
   result

@@ -159,6 +159,7 @@ const proc: process (SET_CARD, in reference: function,
     if evaluate_const_expr >= 1 and
         (isActionExpression(params[1], "SET_ICONV1") or
          isActionExpression(params[1], "SET_ICONV3")) then
+      incr(countOptimizations);
       c_expr.expr &:= "(";
       if isActionExpression(params[1], "SET_ICONV1") then
         argumentName := getTempVariable("intType", "tmp_",
@@ -167,13 +168,19 @@ const proc: process (SET_CARD, in reference: function,
         argumentName := getTempVariable("intType", "tmp_",
             getActionParameter(params[1], 3), c_expr);
       end if;
-      c_expr.expr &:= "unlikely(";
-      c_expr.expr &:= argumentName;
-      c_expr.expr &:= " < ";
-      c_expr.expr &:= integerLiteral(0);
-      c_expr.expr &:= ") ? ";
-      c_expr.expr &:= intRaiseError("RANGE_ERROR");
-      c_expr.expr &:= " : uintCard((uintType) (";
+      if function_range_check then
+        incr(countRangeChecks);
+        c_expr.expr &:= "rngChk(";
+        c_expr.expr &:= argumentName;
+        c_expr.expr &:= " < ";
+        c_expr.expr &:= integerLiteral(0);
+        c_expr.expr &:= ") ? ";
+        c_expr.expr &:= intRaiseError("RANGE_ERROR");
+        c_expr.expr &:= " : ";
+      else
+        incr(countNoRangeChecks);
+      end if;
+      c_expr.expr &:= "uintCard((uintType) (";
       c_expr.expr &:= argumentName;
       c_expr.expr &:= ")))";
     else

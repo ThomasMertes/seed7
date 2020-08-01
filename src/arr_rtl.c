@@ -564,6 +564,65 @@ void freeRtlStriArray (rtlArrayType work_array, intType used_max_position)
 
 
 /**
+ *  Fill an array of 'len' objects with the generic value 'element'.
+ *  This function uses loop unrolling inspired by Duff's device.
+ *  The use of indices relative to pos allows the C compiler
+ *  to do more optimizations.
+ *  @param dest Destination array with object values.
+ *  @param element Generic value to be filled into 'dest'.
+ *  @param len Specifies how often 'element' is filled into 'dest'.
+ */
+static void memsetGeneric (register rtlObjectType *const dest,
+    register const genericType element, memSizeType len)
+
+  {
+    register memSizeType pos;
+
+  /* memsetGeneric */
+    if (len != 0) {
+      pos = (len + 31) & ~(memSizeType) 31;
+      switch (len & 31) {
+        do {
+          case  0: dest[pos -  1].value.genericValue = element;
+          case 31: dest[pos -  2].value.genericValue = element;
+          case 30: dest[pos -  3].value.genericValue = element;
+          case 29: dest[pos -  4].value.genericValue = element;
+          case 28: dest[pos -  5].value.genericValue = element;
+          case 27: dest[pos -  6].value.genericValue = element;
+          case 26: dest[pos -  7].value.genericValue = element;
+          case 25: dest[pos -  8].value.genericValue = element;
+          case 24: dest[pos -  9].value.genericValue = element;
+          case 23: dest[pos - 10].value.genericValue = element;
+          case 22: dest[pos - 11].value.genericValue = element;
+          case 21: dest[pos - 12].value.genericValue = element;
+          case 20: dest[pos - 13].value.genericValue = element;
+          case 19: dest[pos - 14].value.genericValue = element;
+          case 18: dest[pos - 15].value.genericValue = element;
+          case 17: dest[pos - 16].value.genericValue = element;
+          case 16: dest[pos - 17].value.genericValue = element;
+          case 15: dest[pos - 18].value.genericValue = element;
+          case 14: dest[pos - 19].value.genericValue = element;
+          case 13: dest[pos - 20].value.genericValue = element;
+          case 12: dest[pos - 21].value.genericValue = element;
+          case 11: dest[pos - 22].value.genericValue = element;
+          case 10: dest[pos - 23].value.genericValue = element;
+          case  9: dest[pos - 24].value.genericValue = element;
+          case  8: dest[pos - 25].value.genericValue = element;
+          case  7: dest[pos - 26].value.genericValue = element;
+          case  6: dest[pos - 27].value.genericValue = element;
+          case  5: dest[pos - 28].value.genericValue = element;
+          case  4: dest[pos - 29].value.genericValue = element;
+          case  3: dest[pos - 30].value.genericValue = element;
+          case  2: dest[pos - 31].value.genericValue = element;
+          case  1: dest[pos - 32].value.genericValue = element;
+        } while ((pos -= 32) != 0);
+      } /* switch */
+    } /* if */
+  } /* memsetGeneric */
+
+
+
+/**
  *  Append the array 'extension' to the array 'arr_variable'.
  *  @exception MEMORY_ERROR Not enough memory for the concatenated
  *             array.
@@ -908,7 +967,7 @@ rtlArrayType arrHeadTemp (rtlArrayType *arr_temp, intType stop)
  *  after the indexing. To avoid problems the indexed element is
  *  removed from the array.
  *  @return the element with the specified 'position' from 'arr_temp'.
- *  @exception RANGE_ERROR If 'position' is less than minIdx(arr) or
+ *  @exception INDEX_ERROR If 'position' is less than minIdx(arr) or
  *                         greater than maxIdx(arr)
  */
 genericType arrIdxTemp (rtlArrayType *arr_temp, intType position)
@@ -926,7 +985,7 @@ genericType arrIdxTemp (rtlArrayType *arr_temp, intType position)
       logError(printf("arrIdxTemp(arr1, " FMT_D "): "
                       "Index out of range (" FMT_D " .. " FMT_D ").\n",
                       position, arr1->min_position, arr1->max_position););
-      raise_error(RANGE_ERROR);
+      raise_error(INDEX_ERROR);
       result = 0;
     } else {
       length = arraySize(arr1);
@@ -956,6 +1015,8 @@ genericType arrIdxTemp (rtlArrayType *arr_temp, intType position)
  *  @exception MEMORY_ERROR The min or max index is not in the
  *             allowed range, or there is not enough memory to
  *             allocate the array.
+ *  @exception RANGE_ERROR If min and max indicate that the array
+ *             would have a negative number of elements.
  */
 rtlArrayType arrMalloc (intType minPosition, intType maxPosition)
 
@@ -967,10 +1028,12 @@ rtlArrayType arrMalloc (intType minPosition, intType maxPosition)
     if (unlikely(minPosition < MIN_MEM_INDEX ||
                  maxPosition > MAX_MEM_INDEX ||
                  (minPosition == MIN_MEM_INDEX &&
-                  maxPosition == MAX_MEM_INDEX) ||
-                 (minPosition > MIN_MEM_INDEX &&
-                  minPosition - 1 > maxPosition))) {
+                  maxPosition == MAX_MEM_INDEX))) {
       raise_error(MEMORY_ERROR);
+      result = NULL;
+    } else if (unlikely(minPosition > MIN_MEM_INDEX &&
+                        minPosition - 1 > maxPosition)) {
+      raise_error(RANGE_ERROR);
       result = NULL;
     } else {
       size = arraySize2(minPosition, maxPosition);
@@ -1184,7 +1247,7 @@ rtlArrayType arrRealloc (rtlArrayType arr, memSizeType oldSize, memSizeType newS
 /**
  *  Remove the element with 'position' from 'arr_to' and return the removed element.
  *  @return the removed element.
- *  @exception RANGE_ERROR If 'position' is less than minIdx(arr) or
+ *  @exception INDEX_ERROR If 'position' is less than minIdx(arr) or
  *                         greater than maxIdx(arr)
  */
 genericType arrRemove (rtlArrayType *arr_to, intType position)
@@ -1203,7 +1266,7 @@ genericType arrRemove (rtlArrayType *arr_to, intType position)
       logError(printf("arrRemove(arr1, " FMT_D "): "
                       "Index out of range (" FMT_D " .. " FMT_D ").\n",
                       position, arr1->min_position, arr1->max_position););
-      raise_error(RANGE_ERROR);
+      raise_error(INDEX_ERROR);
       result = 0;
     } else {
       array_pointer = arr1->arr;
@@ -1491,3 +1554,32 @@ rtlArrayType arrTailTemp (rtlArrayType *arr_temp, intType start)
     } /* if */
     return result;
   } /* arrTailTemp */
+
+
+
+/**
+ *  Create array with given 'min' and 'max' positions and 'element'.
+ *  The 'min' and 'max' positions of the created array are set and
+ *  the array is filled with 'element' values.
+ *  @return The new created array.
+ *  @exception MEMORY_ERROR The min or max index is not in the
+ *             allowed range, or there is not enough memory to
+ *             allocate the array.
+ *  @exception RANGE_ERROR If min and max indicate that the array
+ *             would have a negative number of elements.
+ */
+rtlArrayType arrTimes (intType minPosition, intType maxPosition,
+    const genericType element)
+
+  {
+    memSizeType size;
+    rtlArrayType result;
+
+  /* arrTimes */
+    result = arrMalloc(minPosition, maxPosition);
+    if (result != NULL) {
+      size = arraySize2(minPosition, maxPosition);
+      memsetGeneric(result->arr, element, size);
+    } /* if */
+    return result;
+  } /* arrTimes */

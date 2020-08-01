@@ -31,9 +31,12 @@ include "time.s7i";
 include "filesys.s7i";
 include "filebits.s7i";
 include "bytedata.s7i";
+include "msgdigest.s7i";
+include "strifile.s7i";
 include "gzip.s7i";
 include "lzma.s7i";
 include "xz.s7i";
+include "zstd.s7i";
 include "cpio.s7i";
 
 
@@ -65,6 +68,7 @@ const type: rpmIndexEntry is new struct
     var integer: offset is 0;
     var integer: count is 0;
     var string: striValue is "";
+    var array string: arrayValue is 0 times "";
   end struct;
 
 const type: rpmTagMap is hash [integer] rpmIndexEntry;
@@ -271,7 +275,68 @@ const integer: RPMTAG_BUILDPROVIDES      is 1193;
 const integer: RPMTAG_BUILDOBSOLETES     is 1194;
 const integer: RPMTAG_DBINSTANCE         is 1195;
 const integer: RPMTAG_NVRA               is 1196;
-const integer: RPMTAG_ENCODING                    is 5062;
+const integer: RPMTAG_FILENAMES          is 5000;
+const integer: RPMTAG_FILEPROVIDE        is 5001;
+const integer: RPMTAG_FILEREQUIRE        is 5002;
+const integer: RPMTAG_FSNAMES            is 5003;
+const integer: RPMTAG_FSSIZES            is 5004;
+const integer: RPMTAG_TRIGGERCONDS       is 5005;
+const integer: RPMTAG_TRIGGERTYPE        is 5006;
+const integer: RPMTAG_ORIGFILENAMES      is 5007;
+const integer: RPMTAG_LONGFILESIZES      is 5008;
+const integer: RPMTAG_LONGSIZE           is 5009;
+const integer: RPMTAG_FILECAPS           is 5010;
+const integer: RPMTAG_FILEDIGESTALGO     is 5011;
+const integer: RPMTAG_BUGURL             is 5012;
+const integer: RPMTAG_EVR                is 5013;
+const integer: RPMTAG_NVR                is 5014;
+const integer: RPMTAG_NEVR               is 5015;
+const integer: RPMTAG_NEVRA              is 5016;
+const integer: RPMTAG_HEADERCOLOR        is 5017;
+const integer: RPMTAG_VERBOSE            is 5018;
+const integer: RPMTAG_EPOCHNUM           is 5019;
+const integer: RPMTAG_PREINFLAGS         is 5020;
+const integer: RPMTAG_POSTINFLAGS        is 5021;
+const integer: RPMTAG_PREUNFLAGS         is 5022;
+const integer: RPMTAG_POSTUNFLAGS        is 5023;
+const integer: RPMTAG_PRETRANSFLAGS      is 5024;
+const integer: RPMTAG_POSTTRANSFLAGS     is 5025;
+const integer: RPMTAG_VERIFYSCRIPTFLAGS  is 5026;
+const integer: RPMTAG_TRIGGERSCRIPTFLAGS is 5027;
+const integer: RPMTAG_COLLECTIONS        is 5029;
+const integer: RPMTAG_POLICYNAMES        is 5030;
+const integer: RPMTAG_POLICYTYPES        is 5031;
+const integer: RPMTAG_POLICYTYPESINDEXES is 5032;
+const integer: RPMTAG_POLICYFLAGS        is 5033;
+const integer: RPMTAG_VCS                is 5034;
+const integer: RPMTAG_ORDERNAME          is 5035;
+const integer: RPMTAG_ORDERVERSION       is 5036;
+const integer: RPMTAG_ORDERFLAGS         is 5037;
+const integer: RPMTAG_MSSFMANIFEST       is 5038;
+const integer: RPMTAG_MSSFDOMAIN         is 5039;
+const integer: RPMTAG_INSTFILENAMES      is 5040;
+const integer: RPMTAG_REQUIRENEVRS       is 5041;
+const integer: RPMTAG_PROVIDENEVRS       is 5042;
+const integer: RPMTAG_OBSOLETENEVRS      is 5043;
+const integer: RPMTAG_CONFLICTNEVRS      is 5044;
+const integer: RPMTAG_FILENLINKS         is 5045;
+const integer: RPMTAG_RECOMMENDNAME      is 5046;
+const integer: RPMTAG_RECOMMENDVERSION   is 5047;
+const integer: RPMTAG_RECOMMENDFLAGS     is 5048;
+const integer: RPMTAG_SUGGESTNAME        is 5049;
+const integer: RPMTAG_SUGGESTVERSION     is 5050;
+const integer: RPMTAG_SUGGESTFLAGS       is 5051;
+const integer: RPMTAG_SUPPLEMENTNAME     is 5052;
+const integer: RPMTAG_SUPPLEMENTVERSION  is 5053;
+const integer: RPMTAG_SUPPLEMENTFLAGS    is 5054;
+const integer: RPMTAG_ENHANCENAME        is 5055;
+const integer: RPMTAG_ENHANCEVERSION     is 5056;
+const integer: RPMTAG_ENHANCEFLAGS       is 5057;
+const integer: RPMTAG_RECOMMENDNEVRS     is 5058;
+const integer: RPMTAG_SUGGESTNEVRS       is 5059;
+const integer: RPMTAG_SUPPLEMENTNEVRS    is 5060;
+const integer: RPMTAG_ENHANCENEVRS       is 5061;
+const integer: RPMTAG_ENCODING           is 5062;
 const integer: RPMTAG_FILETRIGGERIN               is 5063;  # internal
 const integer: RPMTAG_FILETRIGGERUN               is 5064;  # internal
 const integer: RPMTAG_FILETRIGGERPOSTUN           is 5065;  # internal
@@ -317,8 +382,19 @@ const integer: SIGTAG_SHA1HEADER  is 1010;  # STRING Optional
 const integer: SIGTAG_DSAHEADER   is 1011;  # BIN    Optional
 const integer: SIGTAG_RSAHEADER   is 1012;  # BIN    Optional
 
+const integer: RPM_DIGESTALGO_MD5         is  1;
+const integer: RPM_DIGESTALGO_SHA1        is  2;
+const integer: RPM_DIGESTALGO_RIPEMD160   is  3;
+const integer: RPM_DIGESTALGO_MD2         is  5;
+const integer: RPM_DIGESTALGO_TIGER192    is  6;
+const integer: RPM_DIGESTALGO_HAVAL_5_160 is  7;
+const integer: RPM_DIGESTALGO_SHA256      is  8;
+const integer: RPM_DIGESTALGO_SHA384      is  9;
+const integer: RPM_DIGESTALGO_SHA512      is 10;
+const integer: RPM_DIGESTALGO_SHA224      is 11;
 
-const func string: rpmtagDictForSignatureHeader (in integer: tag) is func
+
+const func string: sigtagName (in integer: tag) is func
   result
     var string: name is "";
   begin
@@ -353,298 +429,298 @@ const func string: rpmtagDictForSignatureHeader (in integer: tag) is func
   end func;
 
 
-const func string: rpmtagDictForMetadataHeader (in integer: tag) is func
+const func string: rpmtagName (in integer: tag) is func
   result
     var string: name is "";
   begin
     case tag of
-      when {  63}: name := "HEADERIMMUTABLE";
-      when { 100}: name := "HEADERI18NTABLE";
-      when {1000}: name := "NAME";
-      when {1001}: name := "VERSION";
-      when {1002}: name := "RELEASE";
-      when {1003}: name := "EPOCH";
-      when {1004}: name := "SUMMARY";
-      when {1005}: name := "DESCRIPTION";
-      when {1006}: name := "BUILDTIME";
-      when {1007}: name := "BUILDHOST";
-      when {1008}: name := "INSTALLTIME";
-      when {1009}: name := "SIZE";
-      when {1010}: name := "DISTRIBUTION";
-      when {1011}: name := "VENDOR";
-      when {1012}: name := "GIF";
-      when {1013}: name := "XPM";
-      when {1014}: name := "LICENSE";
-      when {1015}: name := "PACKAGER";
-      when {1016}: name := "GROUP";
-      when {1017}: name := "CHANGELOG";
-      when {1018}: name := "SOURCE";
-      when {1019}: name := "PATCH";
-      when {1020}: name := "URL";
-      when {1021}: name := "OS";
-      when {1022}: name := "ARCH";
-      when {1023}: name := "PREIN";
-      when {1024}: name := "POSTIN";
-      when {1025}: name := "PREUN";
-      when {1026}: name := "POSTUN";
-      when {1027}: name := "OLDFILENAMES";
-      when {1028}: name := "FILESIZES";
-      when {1029}: name := "FILESTATES";
-      when {1030}: name := "FILEMODES";
-      when {1031}: name := "FILEUIDS";
-      when {1032}: name := "FILEGIDS";
-      when {1033}: name := "FILERDEVS";
-      when {1034}: name := "FILEMTIMES";
-      when {1035}: name := "FILEMD5S";
-      when {1036}: name := "FILELINKTOS";
-      when {1037}: name := "FILEFLAGS";
-      when {1038}: name := "ROOT";
-      when {1039}: name := "FILEUSERNAME";
-      when {1040}: name := "FILEGROUPNAME";
-      when {1041}: name := "EXCLUDE";
-      when {1042}: name := "EXCLUSIVE";
-      when {1043}: name := "ICON";
-      when {1044}: name := "SOURCERPM";
-      when {1045}: name := "FILEVERIFYFLAGS";
-      when {1046}: name := "ARCHIVESIZE";
-      when {1047}: name := "PROVIDENAME";
-      when {1048}: name := "REQUIREFLAGS";
-      when {1049}: name := "REQUIRENAME";
-      when {1050}: name := "REQUIREVERSION";
-      when {1051}: name := "NOSOURCE";
-      when {1052}: name := "NOPATCH";
-      when {1053}: name := "CONFLICTFLAGS";
-      when {1054}: name := "CONFLICTNAME";
-      when {1055}: name := "CONFLICTVERSION";
-      when {1056}: name := "DEFAULTPREFIX";
-      when {1057}: name := "BUILDROOT";
-      when {1058}: name := "INSTALLPREFIX";
-      when {1059}: name := "EXCLUDEARCH";
-      when {1060}: name := "EXCLUDEOS";
-      when {1061}: name := "EXCLUSIVEARCH";
-      when {1062}: name := "EXCLUSIVEOS";
-      when {1063}: name := "AUTOREQPROV";
-      when {1064}: name := "RPMVERSION";
-      when {1065}: name := "TRIGGERSCRIPTS";
-      when {1066}: name := "TRIGGERNAME";
-      when {1067}: name := "TRIGGERVERSION";
-      when {1068}: name := "TRIGGERFLAGS";
-      when {1069}: name := "TRIGGERINDEX";
-      when {1079}: name := "VERIFYSCRIPT";
-      when {1080}: name := "CHANGELOGTIME";
-      when {1081}: name := "CHANGELOGNAME";
-      when {1082}: name := "CHANGELOGTEXT";
-      when {1083}: name := "BROKENMD5";
-      when {1084}: name := "PREREQ";
-      when {1085}: name := "PREINPROG";
-      when {1086}: name := "POSTINPROG";
-      when {1087}: name := "PREUNPROG";
-      when {1088}: name := "POSTUNPROG";
-      when {1089}: name := "BUILDARCHS";
-      when {1090}: name := "OBSOLETENAME";
-      when {1091}: name := "VERIFYSCRIPTPROG";
-      when {1092}: name := "TRIGGERSCRIPTPROG";
-      when {1093}: name := "DOCDIR";
-      when {1094}: name := "COOKIE";
-      when {1095}: name := "FILEDEVICES";
-      when {1096}: name := "FILEINODES";
-      when {1097}: name := "FILELANGS";
-      when {1098}: name := "PREFIXES";
-      when {1099}: name := "INSTPREFIXES";
-      when {1100}: name := "TRIGGERIN";
-      when {1101}: name := "TRIGGERUN";
-      when {1102}: name := "TRIGGERPOSTUN";
-      when {1103}: name := "AUTOREQ";
-      when {1104}: name := "AUTOPROV";
-      when {1105}: name := "CAPABILITY";
-      when {1106}: name := "SOURCEPACKAGE";
-      when {1107}: name := "OLDORIGFILENAMES";
-      when {1108}: name := "BUILDPREREQ";
-      when {1109}: name := "BUILDREQUIRES";
-      when {1110}: name := "BUILDCONFLICTS";
-      when {1111}: name := "BUILDMACROS";
-      when {1112}: name := "PROVIDEFLAGS";
-      when {1113}: name := "PROVIDEVERSION";
-      when {1114}: name := "OBSOLETEFLAGS";
-      when {1115}: name := "OBSOLETEVERSION";
-      when {1116}: name := "DIRINDEXES";
-      when {1117}: name := "BASENAMES";
-      when {1118}: name := "DIRNAMES";
-      when {1119}: name := "ORIGDIRINDEXES";
-      when {1120}: name := "ORIGBASENAMES";
-      when {1121}: name := "ORIGDIRNAMES";
-      when {1122}: name := "OPTFLAGS";
-      when {1123}: name := "DISTURL";
-      when {1124}: name := "PAYLOADFORMAT";
-      when {1125}: name := "PAYLOADCOMPRESSOR";
-      when {1126}: name := "PAYLOADFLAGS";
-      when {1127}: name := "INSTALLCOLOR";
-      when {1128}: name := "INSTALLTID";
-      when {1129}: name := "REMOVETID";
-      when {1130}: name := "SHA1RHN";
-      when {1131}: name := "RHNPLATFORM";
-      when {1132}: name := "PLATFORM";
-      when {1133}: name := "PATCHESNAME";
-      when {1134}: name := "PATCHESFLAGS";
-      when {1135}: name := "PATCHESVERSION";
-      when {1136}: name := "CACHECTIME";
-      when {1137}: name := "CACHEPKGPATH";
-      when {1138}: name := "CACHEPKGSIZE";
-      when {1139}: name := "CACHEPKGMTIME";
-      when {1140}: name := "FILECOLORS";
-      when {1141}: name := "FILECLASS";
-      when {1142}: name := "CLASSDICT";
-      when {1143}: name := "FILEDEPENDSX";
-      when {1144}: name := "FILEDEPENDSN";
-      when {1145}: name := "DEPENDSDICT";
-      when {1146}: name := "SOURCEPKGID";
-      when {1147}: name := "FILECONTEXTS";
-      when {1148}: name := "FSCONTEXTS";
-      when {1149}: name := "RECONTEXTS";
-      when {1150}: name := "POLICIES";
-      when {1151}: name := "PRETRANS";
-      when {1152}: name := "POSTTRANS";
-      when {1153}: name := "PRETRANSPROG";
-      when {1154}: name := "POSTTRANSPROG";
-      when {1155}: name := "DISTTAG";
-      when {1156}: name := "OLDSUGGESTSNAME";
-      when {1157}: name := "OLDSUGGESTSVERSION";
-      when {1158}: name := "OLDSUGGESTSFLAGS";
-      when {1159}: name := "OLDENHANCESNAME";
-      when {1160}: name := "OLDENHANCESVERSION";
-      when {1161}: name := "OLDENHANCESFLAGS";
-      when {1162}: name := "PRIORITY";
-      when {1163}: name := "CVSID";
-      when {1164}: name := "BLINKPKGID";
-      when {1165}: name := "BLINKHDRID";
-      when {1166}: name := "BLINKNEVRA";
-      when {1167}: name := "FLINKPKGID";
-      when {1168}: name := "FLINKHDRID";
-      when {1169}: name := "FLINKNEVRA";
-      when {1170}: name := "PACKAGEORIGIN";
-      when {1171}: name := "TRIGGERPREIN";
-      when {1172}: name := "BUILDSUGGESTS";
-      when {1173}: name := "BUILDENHANCES";
-      when {1174}: name := "SCRIPTSTATES";
-      when {1175}: name := "SCRIPTMETRICS";
-      when {1176}: name := "BUILDCPUCLOCK";
-      when {1177}: name := "FILEDIGESTALGOS";
-      when {1178}: name := "VARIANTS";
-      when {1179}: name := "XMAJOR";
-      when {1180}: name := "XMINOR";
-      when {1181}: name := "REPOTAG";
-      when {1182}: name := "KEYWORDS";
-      when {1183}: name := "BUILDPLATFORMS";
-      when {1184}: name := "PACKAGECOLOR";
-      when {1185}: name := "PACKAGEPREFCOLOR";
-      when {1186}: name := "XATTRSDICT";
-      when {1187}: name := "FILEXATTRSX";
-      when {1188}: name := "DEPATTRSDICT";
-      when {1189}: name := "CONFLICTATTRSX";
-      when {1190}: name := "OBSOLETEATTRSX";
-      when {1191}: name := "PROVIDEATTRSX";
-      when {1192}: name := "REQUIREATTRSX";
-      when {1193}: name := "BUILDPROVIDES";
-      when {1194}: name := "BUILDOBSOLETES";
-      when {1195}: name := "DBINSTANCE";
-      when {1196}: name := "NVRA";
-      when {5000}: name := "FILENAMES";
-      when {5001}: name := "FILEPROVIDE";
-      when {5002}: name := "FILEREQUIRE";
-      when {5003}: name := "FSNAMES";
-      when {5004}: name := "FSSIZES";
-      when {5005}: name := "TRIGGERCONDS";
-      when {5006}: name := "TRIGGERTYPE";
-      when {5007}: name := "ORIGFILENAMES";
-      when {5008}: name := "LONGFILESIZES";
-      when {5009}: name := "LONGSIZE";
-      when {5010}: name := "FILECAPS";
-      when {5011}: name := "FILEDIGESTALGO";
-      when {5012}: name := "BUGURL";
-      when {5013}: name := "EVR";
-      when {5014}: name := "NVR";
-      when {5015}: name := "NEVR";
-      when {5016}: name := "NEVRA";
-      when {5017}: name := "HEADERCOLOR";
-      when {5018}: name := "VERBOSE";
-      when {5019}: name := "EPOCHNUM";
-      when {5020}: name := "PREINFLAGS";
-      when {5021}: name := "POSTINFLAGS";
-      when {5022}: name := "PREUNFLAGS";
-      when {5023}: name := "POSTUNFLAGS";
-      when {5024}: name := "PRETRANSFLAGS";
-      when {5025}: name := "POSTTRANSFLAGS";
-      when {5026}: name := "VERIFYSCRIPTFLAGS";
-      when {5027}: name := "TRIGGERSCRIPTFLAGS";
-      when {5029}: name := "COLLECTIONS";
-      when {5030}: name := "POLICYNAMES";
-      when {5031}: name := "POLICYTYPES";
-      when {5032}: name := "POLICYTYPESINDEXES";
-      when {5033}: name := "POLICYFLAGS";
-      when {5034}: name := "VCS";
-      when {5035}: name := "ORDERNAME";
-      when {5036}: name := "ORDERVERSION";
-      when {5037}: name := "ORDERFLAGS";
-      when {5038}: name := "MSSFMANIFEST";
-      when {5039}: name := "MSSFDOMAIN";
-      when {5040}: name := "INSTFILENAMES";
-      when {5041}: name := "REQUIRENEVRS";
-      when {5042}: name := "PROVIDENEVRS";
-      when {5043}: name := "OBSOLETENEVRS";
-      when {5044}: name := "CONFLICTNEVRS";
-      when {5045}: name := "FILENLINKS";
-      when {5046}: name := "RECOMMENDNAME";
-      when {5047}: name := "RECOMMENDVERSION";
-      when {5048}: name := "RECOMMENDFLAGS";
-      when {5049}: name := "SUGGESTNAME";
-      when {5050}: name := "SUGGESTVERSION";
-      when {5051}: name := "SUGGESTFLAGS";
-      when {5052}: name := "SUPPLEMENTNAME";
-      when {5053}: name := "SUPPLEMENTVERSION";
-      when {5054}: name := "SUPPLEMENTFLAGS";
-      when {5055}: name := "ENHANCENAME";
-      when {5056}: name := "ENHANCEVERSION";
-      when {5057}: name := "ENHANCEFLAGS";
-      when {5058}: name := "RECOMMENDNEVRS";
-      when {5059}: name := "SUGGESTNEVRS";
-      when {5060}: name := "SUPPLEMENTNEVRS";
-      when {5061}: name := "ENHANCENEVRS";
-      when {5062}: name := "ENCODING";
-      when {5063}: name := "FILETRIGGERIN";
-      when {5064}: name := "FILETRIGGERUN";
-      when {5065}: name := "FILETRIGGERPOSTUN";
-      when {5066}: name := "FILETRIGGERSCRIPTS";
-      when {5067}: name := "FILETRIGGERSCRIPTPROG";
-      when {5068}: name := "FILETRIGGERSCRIPTFLAGS";
-      when {5069}: name := "FILETRIGGERNAME";
-      when {5070}: name := "FILETRIGGERINDEX";
-      when {5071}: name := "FILETRIGGERVERSION";
-      when {5072}: name := "FILETRIGGERFLAGS";
-      when {5073}: name := "TRANSFILETRIGGERIN";
-      when {5074}: name := "TRANSFILETRIGGERUN";
-      when {5075}: name := "TRANSFILETRIGGERPOSTUN";
-      when {5076}: name := "TRANSFILETRIGGERSCRIPTS";
-      when {5077}: name := "TRANSFILETRIGGERSCRIPTPROG";
-      when {5078}: name := "TRANSFILETRIGGERSCRIPTFLAGS";
-      when {5079}: name := "TRANSFILETRIGGERNAME";
-      when {5080}: name := "TRANSFILETRIGGERINDEX";
-      when {5081}: name := "TRANSFILETRIGGERVERSION";
-      when {5082}: name := "TRANSFILETRIGGERFLAGS";
-      when {5083}: name := "REMOVEPATHPOSTFIXES";
-      when {5084}: name := "FILETRIGGERPRIORITIES";
-      when {5085}: name := "TRANSFILETRIGGERPRIORITIES";
-      when {5086}: name := "FILETRIGGERCONDS";
-      when {5087}: name := "FILETRIGGERTYPE";
-      when {5088}: name := "TRANSFILETRIGGERCONDS";
-      when {5089}: name := "TRANSFILETRIGGERTYPE";
-      when {5090}: name := "FILESIGNATURES";
-      when {5091}: name := "FILESIGNATURELENGTH";
-      when {5092}: name := "PAYLOADDIGEST";
-      when {5093}: name := "PAYLOADDIGESTALGO";
-      when {5094}: name := "AUTOINSTALLED";
-      when {5095}: name := "IDENTITY";
-      when {5096}: name := "MODULARITYLABEL";
-      when {5097}: name := "PAYLOADDIGESTALT";
+      when {RPMTAG_HEADERIMMUTABLE}:             name := "HEADERIMMUTABLE";
+      when {RPMTAG_HEADERI18NTABLE}:             name := "HEADERI18NTABLE";
+      when {RPMTAG_NAME}:                        name := "NAME";
+      when {RPMTAG_VERSION}:                     name := "VERSION";
+      when {RPMTAG_RELEASE}:                     name := "RELEASE";
+      when {RPMTAG_EPOCH}:                       name := "EPOCH";
+      when {RPMTAG_SUMMARY}:                     name := "SUMMARY";
+      when {RPMTAG_DESCRIPTION}:                 name := "DESCRIPTION";
+      when {RPMTAG_BUILDTIME}:                   name := "BUILDTIME";
+      when {RPMTAG_BUILDHOST}:                   name := "BUILDHOST";
+      when {RPMTAG_INSTALLTIME}:                 name := "INSTALLTIME";
+      when {RPMTAG_SIZE}:                        name := "SIZE";
+      when {RPMTAG_DISTRIBUTION}:                name := "DISTRIBUTION";
+      when {RPMTAG_VENDOR}:                      name := "VENDOR";
+      when {RPMTAG_GIF}:                         name := "GIF";
+      when {RPMTAG_XPM}:                         name := "XPM";
+      when {RPMTAG_LICENSE}:                     name := "LICENSE";
+      when {RPMTAG_PACKAGER}:                    name := "PACKAGER";
+      when {RPMTAG_GROUP}:                       name := "GROUP";
+      when {RPMTAG_CHANGELOG}:                   name := "CHANGELOG";
+      when {RPMTAG_SOURCE}:                      name := "SOURCE";
+      when {RPMTAG_PATCH}:                       name := "PATCH";
+      when {RPMTAG_URL}:                         name := "URL";
+      when {RPMTAG_OS}:                          name := "OS";
+      when {RPMTAG_ARCH}:                        name := "ARCH";
+      when {RPMTAG_PREIN}:                       name := "PREIN";
+      when {RPMTAG_POSTIN}:                      name := "POSTIN";
+      when {RPMTAG_PREUN}:                       name := "PREUN";
+      when {RPMTAG_POSTUN}:                      name := "POSTUN";
+      when {RPMTAG_OLDFILENAMES}:                name := "OLDFILENAMES";
+      when {RPMTAG_FILESIZES}:                   name := "FILESIZES";
+      when {RPMTAG_FILESTATES}:                  name := "FILESTATES";
+      when {RPMTAG_FILEMODES}:                   name := "FILEMODES";
+      when {RPMTAG_FILEUIDS}:                    name := "FILEUIDS";
+      when {RPMTAG_FILEGIDS}:                    name := "FILEGIDS";
+      when {RPMTAG_FILERDEVS}:                   name := "FILERDEVS";
+      when {RPMTAG_FILEMTIMES}:                  name := "FILEMTIMES";
+      when {RPMTAG_FILEMD5S}:                    name := "FILEMD5S";
+      when {RPMTAG_FILELINKTOS}:                 name := "FILELINKTOS";
+      when {RPMTAG_FILEFLAGS}:                   name := "FILEFLAGS";
+      when {RPMTAG_ROOT}:                        name := "ROOT";
+      when {RPMTAG_FILEUSERNAME}:                name := "FILEUSERNAME";
+      when {RPMTAG_FILEGROUPNAME}:               name := "FILEGROUPNAME";
+      when {RPMTAG_EXCLUDE}:                     name := "EXCLUDE";
+      when {RPMTAG_EXCLUSIVE}:                   name := "EXCLUSIVE";
+      when {RPMTAG_ICON}:                        name := "ICON";
+      when {RPMTAG_SOURCERPM}:                   name := "SOURCERPM";
+      when {RPMTAG_FILEVERIFYFLAGS}:             name := "FILEVERIFYFLAGS";
+      when {RPMTAG_ARCHIVESIZE}:                 name := "ARCHIVESIZE";
+      when {RPMTAG_PROVIDENAME}:                 name := "PROVIDENAME";
+      when {RPMTAG_REQUIREFLAGS}:                name := "REQUIREFLAGS";
+      when {RPMTAG_REQUIRENAME}:                 name := "REQUIRENAME";
+      when {RPMTAG_REQUIREVERSION}:              name := "REQUIREVERSION";
+      when {RPMTAG_NOSOURCE}:                    name := "NOSOURCE";
+      when {RPMTAG_NOPATCH}:                     name := "NOPATCH";
+      when {RPMTAG_CONFLICTFLAGS}:               name := "CONFLICTFLAGS";
+      when {RPMTAG_CONFLICTNAME}:                name := "CONFLICTNAME";
+      when {RPMTAG_CONFLICTVERSION}:             name := "CONFLICTVERSION";
+      when {RPMTAG_DEFAULTPREFIX}:               name := "DEFAULTPREFIX";
+      when {RPMTAG_BUILDROOT}:                   name := "BUILDROOT";
+      when {RPMTAG_INSTALLPREFIX}:               name := "INSTALLPREFIX";
+      when {RPMTAG_EXCLUDEARCH}:                 name := "EXCLUDEARCH";
+      when {RPMTAG_EXCLUDEOS}:                   name := "EXCLUDEOS";
+      when {RPMTAG_EXCLUSIVEARCH}:               name := "EXCLUSIVEARCH";
+      when {RPMTAG_EXCLUSIVEOS}:                 name := "EXCLUSIVEOS";
+      when {RPMTAG_AUTOREQPROV}:                 name := "AUTOREQPROV";
+      when {RPMTAG_RPMVERSION}:                  name := "RPMVERSION";
+      when {RPMTAG_TRIGGERSCRIPTS}:              name := "TRIGGERSCRIPTS";
+      when {RPMTAG_TRIGGERNAME}:                 name := "TRIGGERNAME";
+      when {RPMTAG_TRIGGERVERSION}:              name := "TRIGGERVERSION";
+      when {RPMTAG_TRIGGERFLAGS}:                name := "TRIGGERFLAGS";
+      when {RPMTAG_TRIGGERINDEX}:                name := "TRIGGERINDEX";
+      when {RPMTAG_VERIFYSCRIPT}:                name := "VERIFYSCRIPT";
+      when {RPMTAG_CHANGELOGTIME}:               name := "CHANGELOGTIME";
+      when {RPMTAG_CHANGELOGNAME}:               name := "CHANGELOGNAME";
+      when {RPMTAG_CHANGELOGTEXT}:               name := "CHANGELOGTEXT";
+      when {RPMTAG_BROKENMD5}:                   name := "BROKENMD5";
+      when {RPMTAG_PREREQ}:                      name := "PREREQ";
+      when {RPMTAG_PREINPROG}:                   name := "PREINPROG";
+      when {RPMTAG_POSTINPROG}:                  name := "POSTINPROG";
+      when {RPMTAG_PREUNPROG}:                   name := "PREUNPROG";
+      when {RPMTAG_POSTUNPROG}:                  name := "POSTUNPROG";
+      when {RPMTAG_BUILDARCHS}:                  name := "BUILDARCHS";
+      when {RPMTAG_OBSOLETENAME}:                name := "OBSOLETENAME";
+      when {RPMTAG_VERIFYSCRIPTPROG}:            name := "VERIFYSCRIPTPROG";
+      when {RPMTAG_TRIGGERSCRIPTPROG}:           name := "TRIGGERSCRIPTPROG";
+      when {RPMTAG_DOCDIR}:                      name := "DOCDIR";
+      when {RPMTAG_COOKIE}:                      name := "COOKIE";
+      when {RPMTAG_FILEDEVICES}:                 name := "FILEDEVICES";
+      when {RPMTAG_FILEINODES}:                  name := "FILEINODES";
+      when {RPMTAG_FILELANGS}:                   name := "FILELANGS";
+      when {RPMTAG_PREFIXES}:                    name := "PREFIXES";
+      when {RPMTAG_INSTPREFIXES}:                name := "INSTPREFIXES";
+      when {RPMTAG_TRIGGERIN}:                   name := "TRIGGERIN";
+      when {RPMTAG_TRIGGERUN}:                   name := "TRIGGERUN";
+      when {RPMTAG_TRIGGERPOSTUN}:               name := "TRIGGERPOSTUN";
+      when {RPMTAG_AUTOREQ}:                     name := "AUTOREQ";
+      when {RPMTAG_AUTOPROV}:                    name := "AUTOPROV";
+      when {RPMTAG_CAPABILITY}:                  name := "CAPABILITY";
+      when {RPMTAG_SOURCEPACKAGE}:               name := "SOURCEPACKAGE";
+      when {RPMTAG_OLDORIGFILENAMES}:            name := "OLDORIGFILENAMES";
+      when {RPMTAG_BUILDPREREQ}:                 name := "BUILDPREREQ";
+      when {RPMTAG_BUILDREQUIRES}:               name := "BUILDREQUIRES";
+      when {RPMTAG_BUILDCONFLICTS}:              name := "BUILDCONFLICTS";
+      when {RPMTAG_BUILDMACROS}:                 name := "BUILDMACROS";
+      when {RPMTAG_PROVIDEFLAGS}:                name := "PROVIDEFLAGS";
+      when {RPMTAG_PROVIDEVERSION}:              name := "PROVIDEVERSION";
+      when {RPMTAG_OBSOLETEFLAGS}:               name := "OBSOLETEFLAGS";
+      when {RPMTAG_OBSOLETEVERSION}:             name := "OBSOLETEVERSION";
+      when {RPMTAG_DIRINDEXES}:                  name := "DIRINDEXES";
+      when {RPMTAG_BASENAMES}:                   name := "BASENAMES";
+      when {RPMTAG_DIRNAMES}:                    name := "DIRNAMES";
+      when {RPMTAG_ORIGDIRINDEXES}:              name := "ORIGDIRINDEXES";
+      when {RPMTAG_ORIGBASENAMES}:               name := "ORIGBASENAMES";
+      when {RPMTAG_ORIGDIRNAMES}:                name := "ORIGDIRNAMES";
+      when {RPMTAG_OPTFLAGS}:                    name := "OPTFLAGS";
+      when {RPMTAG_DISTURL}:                     name := "DISTURL";
+      when {RPMTAG_PAYLOADFORMAT}:               name := "PAYLOADFORMAT";
+      when {RPMTAG_PAYLOADCOMPRESSOR}:           name := "PAYLOADCOMPRESSOR";
+      when {RPMTAG_PAYLOADFLAGS}:                name := "PAYLOADFLAGS";
+      when {RPMTAG_INSTALLCOLOR}:                name := "INSTALLCOLOR";
+      when {RPMTAG_INSTALLTID}:                  name := "INSTALLTID";
+      when {RPMTAG_REMOVETID}:                   name := "REMOVETID";
+      when {RPMTAG_SHA1RHN}:                     name := "SHA1RHN";
+      when {RPMTAG_RHNPLATFORM}:                 name := "RHNPLATFORM";
+      when {RPMTAG_PLATFORM}:                    name := "PLATFORM";
+      when {RPMTAG_PATCHESNAME}:                 name := "PATCHESNAME";
+      when {RPMTAG_PATCHESFLAGS}:                name := "PATCHESFLAGS";
+      when {RPMTAG_PATCHESVERSION}:              name := "PATCHESVERSION";
+      when {RPMTAG_CACHECTIME}:                  name := "CACHECTIME";
+      when {RPMTAG_CACHEPKGPATH}:                name := "CACHEPKGPATH";
+      when {RPMTAG_CACHEPKGSIZE}:                name := "CACHEPKGSIZE";
+      when {RPMTAG_CACHEPKGMTIME}:               name := "CACHEPKGMTIME";
+      when {RPMTAG_FILECOLORS}:                  name := "FILECOLORS";
+      when {RPMTAG_FILECLASS}:                   name := "FILECLASS";
+      when {RPMTAG_CLASSDICT}:                   name := "CLASSDICT";
+      when {RPMTAG_FILEDEPENDSX}:                name := "FILEDEPENDSX";
+      when {RPMTAG_FILEDEPENDSN}:                name := "FILEDEPENDSN";
+      when {RPMTAG_DEPENDSDICT}:                 name := "DEPENDSDICT";
+      when {RPMTAG_SOURCEPKGID}:                 name := "SOURCEPKGID";
+      when {RPMTAG_FILECONTEXTS}:                name := "FILECONTEXTS";
+      when {RPMTAG_FSCONTEXTS}:                  name := "FSCONTEXTS";
+      when {RPMTAG_RECONTEXTS}:                  name := "RECONTEXTS";
+      when {RPMTAG_POLICIES}:                    name := "POLICIES";
+      when {RPMTAG_PRETRANS}:                    name := "PRETRANS";
+      when {RPMTAG_POSTTRANS}:                   name := "POSTTRANS";
+      when {RPMTAG_PRETRANSPROG}:                name := "PRETRANSPROG";
+      when {RPMTAG_POSTTRANSPROG}:               name := "POSTTRANSPROG";
+      when {RPMTAG_DISTTAG}:                     name := "DISTTAG";
+      when {RPMTAG_OLDSUGGESTSNAME}:             name := "OLDSUGGESTSNAME";
+      when {RPMTAG_OLDSUGGESTSVERSION}:          name := "OLDSUGGESTSVERSION";
+      when {RPMTAG_OLDSUGGESTSFLAGS}:            name := "OLDSUGGESTSFLAGS";
+      when {RPMTAG_OLDENHANCESNAME}:             name := "OLDENHANCESNAME";
+      when {RPMTAG_OLDENHANCESVERSION}:          name := "OLDENHANCESVERSION";
+      when {RPMTAG_OLDENHANCESFLAGS}:            name := "OLDENHANCESFLAGS";
+      when {RPMTAG_PRIORITY}:                    name := "PRIORITY";
+      when {RPMTAG_CVSID}:                       name := "CVSID";
+      when {RPMTAG_BLINKPKGID}:                  name := "BLINKPKGID";
+      when {RPMTAG_BLINKHDRID}:                  name := "BLINKHDRID";
+      when {RPMTAG_BLINKNEVRA}:                  name := "BLINKNEVRA";
+      when {RPMTAG_FLINKPKGID}:                  name := "FLINKPKGID";
+      when {RPMTAG_FLINKHDRID}:                  name := "FLINKHDRID";
+      when {RPMTAG_FLINKNEVRA}:                  name := "FLINKNEVRA";
+      when {RPMTAG_PACKAGEORIGIN}:               name := "PACKAGEORIGIN";
+      when {RPMTAG_TRIGGERPREIN}:                name := "TRIGGERPREIN";
+      when {RPMTAG_BUILDSUGGESTS}:               name := "BUILDSUGGESTS";
+      when {RPMTAG_BUILDENHANCES}:               name := "BUILDENHANCES";
+      when {RPMTAG_SCRIPTSTATES}:                name := "SCRIPTSTATES";
+      when {RPMTAG_SCRIPTMETRICS}:               name := "SCRIPTMETRICS";
+      when {RPMTAG_BUILDCPUCLOCK}:               name := "BUILDCPUCLOCK";
+      when {RPMTAG_FILEDIGESTALGOS}:             name := "FILEDIGESTALGOS";
+      when {RPMTAG_VARIANTS}:                    name := "VARIANTS";
+      when {RPMTAG_XMAJOR}:                      name := "XMAJOR";
+      when {RPMTAG_XMINOR}:                      name := "XMINOR";
+      when {RPMTAG_REPOTAG}:                     name := "REPOTAG";
+      when {RPMTAG_KEYWORDS}:                    name := "KEYWORDS";
+      when {RPMTAG_BUILDPLATFORMS}:              name := "BUILDPLATFORMS";
+      when {RPMTAG_PACKAGECOLOR}:                name := "PACKAGECOLOR";
+      when {RPMTAG_PACKAGEPREFCOLOR}:            name := "PACKAGEPREFCOLOR";
+      when {RPMTAG_XATTRSDICT}:                  name := "XATTRSDICT";
+      when {RPMTAG_FILEXATTRSX}:                 name := "FILEXATTRSX";
+      when {RPMTAG_DEPATTRSDICT}:                name := "DEPATTRSDICT";
+      when {RPMTAG_CONFLICTATTRSX}:              name := "CONFLICTATTRSX";
+      when {RPMTAG_OBSOLETEATTRSX}:              name := "OBSOLETEATTRSX";
+      when {RPMTAG_PROVIDEATTRSX}:               name := "PROVIDEATTRSX";
+      when {RPMTAG_REQUIREATTRSX}:               name := "REQUIREATTRSX";
+      when {RPMTAG_BUILDPROVIDES}:               name := "BUILDPROVIDES";
+      when {RPMTAG_BUILDOBSOLETES}:              name := "BUILDOBSOLETES";
+      when {RPMTAG_DBINSTANCE}:                  name := "DBINSTANCE";
+      when {RPMTAG_NVRA}:                        name := "NVRA";
+      when {RPMTAG_FILENAMES}:                   name := "FILENAMES";
+      when {RPMTAG_FILEPROVIDE}:                 name := "FILEPROVIDE";
+      when {RPMTAG_FILEREQUIRE}:                 name := "FILEREQUIRE";
+      when {RPMTAG_FSNAMES}:                     name := "FSNAMES";
+      when {RPMTAG_FSSIZES}:                     name := "FSSIZES";
+      when {RPMTAG_TRIGGERCONDS}:                name := "TRIGGERCONDS";
+      when {RPMTAG_TRIGGERTYPE}:                 name := "TRIGGERTYPE";
+      when {RPMTAG_ORIGFILENAMES}:               name := "ORIGFILENAMES";
+      when {RPMTAG_LONGFILESIZES}:               name := "LONGFILESIZES";
+      when {RPMTAG_LONGSIZE}:                    name := "LONGSIZE";
+      when {RPMTAG_FILECAPS}:                    name := "FILECAPS";
+      when {RPMTAG_FILEDIGESTALGO}:              name := "FILEDIGESTALGO";
+      when {RPMTAG_BUGURL}:                      name := "BUGURL";
+      when {RPMTAG_EVR}:                         name := "EVR";
+      when {RPMTAG_NVR}:                         name := "NVR";
+      when {RPMTAG_NEVR}:                        name := "NEVR";
+      when {RPMTAG_NEVRA}:                       name := "NEVRA";
+      when {RPMTAG_HEADERCOLOR}:                 name := "HEADERCOLOR";
+      when {RPMTAG_VERBOSE}:                     name := "VERBOSE";
+      when {RPMTAG_EPOCHNUM}:                    name := "EPOCHNUM";
+      when {RPMTAG_PREINFLAGS}:                  name := "PREINFLAGS";
+      when {RPMTAG_POSTINFLAGS}:                 name := "POSTINFLAGS";
+      when {RPMTAG_PREUNFLAGS}:                  name := "PREUNFLAGS";
+      when {RPMTAG_POSTUNFLAGS}:                 name := "POSTUNFLAGS";
+      when {RPMTAG_PRETRANSFLAGS}:               name := "PRETRANSFLAGS";
+      when {RPMTAG_POSTTRANSFLAGS}:              name := "POSTTRANSFLAGS";
+      when {RPMTAG_VERIFYSCRIPTFLAGS}:           name := "VERIFYSCRIPTFLAGS";
+      when {RPMTAG_TRIGGERSCRIPTFLAGS}:          name := "TRIGGERSCRIPTFLAGS";
+      when {RPMTAG_COLLECTIONS}:                 name := "COLLECTIONS";
+      when {RPMTAG_POLICYNAMES}:                 name := "POLICYNAMES";
+      when {RPMTAG_POLICYTYPES}:                 name := "POLICYTYPES";
+      when {RPMTAG_POLICYTYPESINDEXES}:          name := "POLICYTYPESINDEXES";
+      when {RPMTAG_POLICYFLAGS}:                 name := "POLICYFLAGS";
+      when {RPMTAG_VCS}:                         name := "VCS";
+      when {RPMTAG_ORDERNAME}:                   name := "ORDERNAME";
+      when {RPMTAG_ORDERVERSION}:                name := "ORDERVERSION";
+      when {RPMTAG_ORDERFLAGS}:                  name := "ORDERFLAGS";
+      when {RPMTAG_MSSFMANIFEST}:                name := "MSSFMANIFEST";
+      when {RPMTAG_MSSFDOMAIN}:                  name := "MSSFDOMAIN";
+      when {RPMTAG_INSTFILENAMES}:               name := "INSTFILENAMES";
+      when {RPMTAG_REQUIRENEVRS}:                name := "REQUIRENEVRS";
+      when {RPMTAG_PROVIDENEVRS}:                name := "PROVIDENEVRS";
+      when {RPMTAG_OBSOLETENEVRS}:               name := "OBSOLETENEVRS";
+      when {RPMTAG_CONFLICTNEVRS}:               name := "CONFLICTNEVRS";
+      when {RPMTAG_FILENLINKS}:                  name := "FILENLINKS";
+      when {RPMTAG_RECOMMENDNAME}:               name := "RECOMMENDNAME";
+      when {RPMTAG_RECOMMENDVERSION}:            name := "RECOMMENDVERSION";
+      when {RPMTAG_RECOMMENDFLAGS}:              name := "RECOMMENDFLAGS";
+      when {RPMTAG_SUGGESTNAME}:                 name := "SUGGESTNAME";
+      when {RPMTAG_SUGGESTVERSION}:              name := "SUGGESTVERSION";
+      when {RPMTAG_SUGGESTFLAGS}:                name := "SUGGESTFLAGS";
+      when {RPMTAG_SUPPLEMENTNAME}:              name := "SUPPLEMENTNAME";
+      when {RPMTAG_SUPPLEMENTVERSION}:           name := "SUPPLEMENTVERSION";
+      when {RPMTAG_SUPPLEMENTFLAGS}:             name := "SUPPLEMENTFLAGS";
+      when {RPMTAG_ENHANCENAME}:                 name := "ENHANCENAME";
+      when {RPMTAG_ENHANCEVERSION}:              name := "ENHANCEVERSION";
+      when {RPMTAG_ENHANCEFLAGS}:                name := "ENHANCEFLAGS";
+      when {RPMTAG_RECOMMENDNEVRS}:              name := "RECOMMENDNEVRS";
+      when {RPMTAG_SUGGESTNEVRS}:                name := "SUGGESTNEVRS";
+      when {RPMTAG_SUPPLEMENTNEVRS}:             name := "SUPPLEMENTNEVRS";
+      when {RPMTAG_ENHANCENEVRS}:                name := "ENHANCENEVRS";
+      when {RPMTAG_ENCODING}:                    name := "ENCODING";
+      when {RPMTAG_FILETRIGGERIN}:               name := "FILETRIGGERIN";
+      when {RPMTAG_FILETRIGGERUN}:               name := "FILETRIGGERUN";
+      when {RPMTAG_FILETRIGGERPOSTUN}:           name := "FILETRIGGERPOSTUN";
+      when {RPMTAG_FILETRIGGERSCRIPTS}:          name := "FILETRIGGERSCRIPTS";
+      when {RPMTAG_FILETRIGGERSCRIPTPROG}:       name := "FILETRIGGERSCRIPTPROG";
+      when {RPMTAG_FILETRIGGERSCRIPTFLAGS}:      name := "FILETRIGGERSCRIPTFLAGS";
+      when {RPMTAG_FILETRIGGERNAME}:             name := "FILETRIGGERNAME";
+      when {RPMTAG_FILETRIGGERINDEX}:            name := "FILETRIGGERINDEX";
+      when {RPMTAG_FILETRIGGERVERSION}:          name := "FILETRIGGERVERSION";
+      when {RPMTAG_FILETRIGGERFLAGS}:            name := "FILETRIGGERFLAGS";
+      when {RPMTAG_TRANSFILETRIGGERIN}:          name := "TRANSFILETRIGGERIN";
+      when {RPMTAG_TRANSFILETRIGGERUN}:          name := "TRANSFILETRIGGERUN";
+      when {RPMTAG_TRANSFILETRIGGERPOSTUN}:      name := "TRANSFILETRIGGERPOSTUN";
+      when {RPMTAG_TRANSFILETRIGGERSCRIPTS}:     name := "TRANSFILETRIGGERSCRIPTS";
+      when {RPMTAG_TRANSFILETRIGGERSCRIPTPROG}:  name := "TRANSFILETRIGGERSCRIPTPROG";
+      when {RPMTAG_TRANSFILETRIGGERSCRIPTFLAGS}: name := "TRANSFILETRIGGERSCRIPTFLAGS";
+      when {RPMTAG_TRANSFILETRIGGERNAME}:        name := "TRANSFILETRIGGERNAME";
+      when {RPMTAG_TRANSFILETRIGGERINDEX}:       name := "TRANSFILETRIGGERINDEX";
+      when {RPMTAG_TRANSFILETRIGGERVERSION}:     name := "TRANSFILETRIGGERVERSION";
+      when {RPMTAG_TRANSFILETRIGGERFLAGS}:       name := "TRANSFILETRIGGERFLAGS";
+      when {RPMTAG_REMOVEPATHPOSTFIXES}:         name := "REMOVEPATHPOSTFIXES";
+      when {RPMTAG_FILETRIGGERPRIORITIES}:       name := "FILETRIGGERPRIORITIES";
+      when {RPMTAG_TRANSFILETRIGGERPRIORITIES}:  name := "TRANSFILETRIGGERPRIORITIES";
+      when {RPMTAG_FILETRIGGERCONDS}:            name := "FILETRIGGERCONDS";
+      when {RPMTAG_FILETRIGGERTYPE}:             name := "FILETRIGGERTYPE";
+      when {RPMTAG_TRANSFILETRIGGERCONDS}:       name := "TRANSFILETRIGGERCONDS";
+      when {RPMTAG_TRANSFILETRIGGERTYPE}:        name := "TRANSFILETRIGGERTYPE";
+      when {RPMTAG_FILESIGNATURES}:              name := "FILESIGNATURES";
+      when {RPMTAG_FILESIGNATURELENGTH}:         name := "FILESIGNATURELENGTH";
+      when {RPMTAG_PAYLOADDIGEST}:               name := "PAYLOADDIGEST";
+      when {RPMTAG_PAYLOADDIGESTALGO}:           name := "PAYLOADDIGESTALGO";
+      when {RPMTAG_AUTOINSTALLED}:               name := "AUTOINSTALLED";
+      when {RPMTAG_IDENTITY}:                    name := "IDENTITY";
+      when {RPMTAG_MODULARITYLABEL}:             name := "MODULARITYLABEL";
+      when {RPMTAG_PAYLOADDIGESTALT}:            name := "PAYLOADDIGESTALT";
       otherwise: name := "tag " <& tag;
     end case;
   end func;
@@ -679,34 +755,6 @@ const proc: show (in rpmHeader: header) is func
   end func;
 
 
-const proc: show (in rpmIndexEntry: indexEntry) is func
-  begin
-    write("Tag: " <& rpmtagDictForSignatureHeader(indexEntry.tag));
-    write(" type: " <& indexEntry.dataType);
-    write(" offset: " <& indexEntry.offset);
-    write(" count: " <& indexEntry.count);
-    if length(indexEntry.striValue) <= 50 then
-      writeln(" value: " <& literal(indexEntry.striValue));
-    else
-      writeln(" value length: " <& length(indexEntry.striValue));
-    end if;
-  end func;
-
-
-const proc: show2 (in rpmIndexEntry: indexEntry) is func
-  begin
-    write("Tag: " <& rpmtagDictForMetadataHeader(indexEntry.tag));
-    write(" type: " <& indexEntry.dataType);
-    write(" offset: " <& indexEntry.offset);
-    write(" count: " <& indexEntry.count);
-    if length(indexEntry.striValue) <= 50 then
-      writeln(" value: " <& literal(indexEntry.striValue));
-    else
-      writeln(" value length: " <& length(indexEntry.striValue));
-    end if;
-  end func;
-
-
 const func string: getStriValue (in string: store,
     in rpmIndexEntry: indexEntry) is func
   result
@@ -733,16 +781,47 @@ const func string: getStriValue (in string: store,
         data := getAsciiz(store, currPos);
       when {RPM_BIN_TYPE}:
         data := store[succ(indexEntry.offset) len indexEntry.count];
-      when {RPM_STRING_ARRAY_TYPE}:
+      when {RPM_STRING_ARRAY_TYPE, RPM_I18NSTRING_TYPE}:
         currPos := succ(indexEntry.offset);
         for index range 1 to indexEntry.count do
           data &:= getAsciiz(store, currPos) & "\0;";
         end for;
-      when {RPM_I18NSTRING_TYPE}:
+    end case;
+  end func;
+
+
+const func array string: getArrayValue (in string: store,
+    in rpmIndexEntry: indexEntry) is func
+  result
+    var array string: arrayValue is 0 times "";
+  local
+    var integer: index is 0;
+    var integer: currPos is 0;
+  begin
+    case indexEntry.dataType of
+      when {RPM_STRING_ARRAY_TYPE, RPM_I18NSTRING_TYPE}:
         currPos := succ(indexEntry.offset);
         for index range 1 to indexEntry.count do
-          data &:= getAsciiz(store, currPos) & "\0;";
+          arrayValue &:= getAsciiz(store, currPos);
         end for;
+    end case;
+  end func;
+
+
+const func integer: getIntValue (in string: store,
+    in rpmIndexEntry: indexEntry) is func
+  result
+    var integer: number is 0;
+  begin
+    case indexEntry.dataType of
+      when {RPM_INT8_TYPE}:
+        number := bytes2Int(store[succ(indexEntry.offset) len 1], UNSIGNED, BE);
+      when {RPM_INT16_TYPE}:
+        number := bytes2Int(store[succ(indexEntry.offset) len 2], UNSIGNED, BE);
+      when {RPM_INT32_TYPE}:
+        number := bytes2Int(store[succ(indexEntry.offset) len 4], UNSIGNED, BE);
+      when {RPM_INT64_TYPE}:
+        number := bytes2Int(store[succ(indexEntry.offset) len 8], UNSIGNED, BE);
     end case;
   end func;
 
@@ -786,8 +865,67 @@ const proc: read (inout file: rpmFile, inout rpmIndexEntry: indexEntry) is func
   end func;
 
 
-const type: rpmRegisterType is hash [string] integer;
-const type: rpmImplicitDirSet is set of string;
+const type: rpmCatalogEntry is new struct
+    var integer: fileSize is 0;
+    var integer: mode is 0;
+    var integer: uid is 0;
+    var integer: gid is 0;
+    var integer: rdev is 0;
+    var integer: mtime is 0;
+    var string: digest is "";
+    var string: linkTo is "";
+    var integer: flags is 0;
+    var string: userName is "";
+    var string: groupName is "";
+    var integer: verifyFlags is 0;
+    var integer: device is 0;
+    var integer: inode is 0;
+    var string: lang is "";
+    var integer: dirIndex is 0;
+    var string: baseName is "";
+    var integer: color is 0;
+    var integer: fileClass is 0;
+    var integer: dependX is 0;
+    var integer: dependN is 0;
+    var boolean: allDataPresent is FALSE;
+    var string: filePath is "";
+    var integer: fileNumber is 0;
+    var boolean: dirty is FALSE;
+  end struct;
+
+
+const proc: write (in rpmCatalogEntry: catalogEntry) is func
+  begin
+    writeln("fileSize: " <& catalogEntry.fileSize);
+    writeln("mode: " <& catalogEntry.mode);
+    writeln("uid: " <& catalogEntry.uid);
+    writeln("gid: " <& catalogEntry.gid);
+    writeln("rdev: " <& catalogEntry.rdev);
+    writeln("mtime: " <& catalogEntry.mtime);
+    writeln("digest: " <& catalogEntry.digest);
+    writeln("linkTo: " <& catalogEntry.linkTo);
+    writeln("flags: " <& catalogEntry.flags);
+    writeln("userName: " <& catalogEntry.userName);
+    writeln("groupName: " <& catalogEntry.groupName);
+    writeln("verifyFlags: " <& catalogEntry.verifyFlags);
+    writeln("device: " <& catalogEntry.device);
+    writeln("inode: " <& catalogEntry.inode);
+    writeln("lang: " <& catalogEntry.lang);
+    writeln("dirIndex: " <& catalogEntry.dirIndex);
+    writeln("baseName: " <& catalogEntry.baseName);
+    writeln("color: " <& catalogEntry.color);
+    writeln("fileClass: " <& catalogEntry.fileClass);
+    writeln("dependX: " <& catalogEntry.dependX);
+    writeln("dependN: " <& catalogEntry.dependN);
+    writeln("allDataPresent: " <& catalogEntry.allDataPresent);
+    writeln("filePath: " <& catalogEntry.filePath);
+    writeln("fileNumber: " <& catalogEntry.fileNumber);
+    writeln("dirty: " <& catalogEntry.dirty);
+  end func;
+
+
+const type: rpmRegisterType is set of string;
+const type: rpmCatalogType is hash [string] rpmCatalogEntry;
 
 
 (**
@@ -815,69 +953,369 @@ const type: rpmArchive is sub emptyFileSys struct
     var rpmTagMap: metadata is rpmTagMap.value;
     var integer: metadataStorePos is 0;
     var string: metadataStore is "";
+    var integer: payloadPos is 0;
     var rpmRegisterType: register is rpmRegisterType.value;
-    var array string: linkTo is 0 times "";
-    var rpmImplicitDirSet: implicitDirs is rpmImplicitDirSet.value;
+    var rpmCatalogType: catalog is rpmCatalogType.value;
+    var integer: fileDigestAlgo is RPM_DIGESTALGO_MD5;
+    var array string: classDict is 0 times "";
+    var file: payloadFile is STD_NULL;
     var fileSys: archive is fileSys.value;
   end struct;
 
 
+const func array string: getStringArray (in rpmArchive: rpm, in integer: tag) is func
+  result
+    var array string: stringArray is 0 times "";
+  local
+    var rpmIndexEntry: stringArrayIndex is rpmIndexEntry.value;
+    var integer: stringPos is 0;
+    var integer: index is 0;
+  begin
+    if tag in rpm.metadata then
+      stringArrayIndex := rpm.metadata[tag];
+      stringPos := succ(stringArrayIndex.offset);
+      stringArray := stringArrayIndex.count times "";
+      for index range 1 to stringArrayIndex.count do
+        stringArray[index] := getAsciiz(rpm.metadataStore, stringPos);
+        # writeln(rpmtagName(tag) <& "[" <& index <& "]: " <& stringArray[index]);
+      end for;
+    end if;
+  end func;
+
+
+const proc: createMinimumOfCatalog (inout rpmArchive: rpm) is func
+  local
+    var array string: dirNameList is 0 times "";
+    var integer: oldFileNamePos is 0;
+    var integer: dirIndexPos is 0;
+    var integer: baseNamePos is 0;
+    var integer: digestPos is 0;
+    var integer: linkToPos is 0;
+    var integer: userNamePos is 0;
+    var integer: groupNamePos is 0;
+    var integer: langPos is 0;
+    var integer: numberOfFiles is 0;
+    var string: filePath8 is "";
+    var rpmCatalogEntry: catalogEntry is rpmCatalogEntry.value;
+    var integer: index is 0;
+  begin
+    if RPMTAG_OLDFILENAMES in rpm.metadata then
+      oldFileNamePos := succ(rpm.metadata[RPMTAG_OLDFILENAMES].offset);
+    else
+      dirNameList := getStringArray(rpm, RPMTAG_DIRNAMES);
+      dirIndexPos := succ(rpm.metadata[RPMTAG_DIRINDEXES].offset);
+      baseNamePos := succ(rpm.metadata[RPMTAG_BASENAMES].offset);
+    end if;
+    digestPos := succ(rpm.metadata[RPMTAG_FILEMD5S].offset);
+    linkToPos := succ(rpm.metadata[RPMTAG_FILELINKTOS].offset);
+    userNamePos := succ(rpm.metadata[RPMTAG_FILEUSERNAME].offset);
+    groupNamePos := succ(rpm.metadata[RPMTAG_FILEGROUPNAME].offset);
+    langPos := succ(rpm.metadata[RPMTAG_FILELANGS].offset);
+    numberOfFiles := rpm.metadata[RPMTAG_FILESIZES].count;
+    for index range 1 to numberOfFiles do
+      if oldFileNamePos <> 0 then
+        filePath8 := getAsciiz(rpm.metadataStore, oldFileNamePos);
+      else
+        catalogEntry.dirIndex := succ(bytes2Int(rpm.metadataStore[dirIndexPos len 4], SIGNED, BE));
+        dirIndexPos +:= 4;
+        catalogEntry.baseName := getAsciiz(rpm.metadataStore, baseNamePos);
+        filePath8 := dirNameList[catalogEntry.dirIndex];
+        # writeln("dirName[" <& index <& "]: " <& filePath8);
+        if filePath8 <> "" and not endsWith(filePath8, "/") then
+          filePath8 &:= "/";
+        end if;
+        filePath8 &:= catalogEntry.baseName;
+      end if;
+      block
+        catalogEntry.filePath := utf8ToStri(filePath8);
+      exception
+        catch RANGE_ERROR:
+          catalogEntry.filePath := filePath8;
+      end block;
+      catalogEntry.digest := getAsciiz(rpm.metadataStore, digestPos);
+      catalogEntry.linkTo := getAsciiz(rpm.metadataStore, linkToPos);
+      catalogEntry.userName  := getAsciiz(rpm.metadataStore, userNamePos);
+      catalogEntry.groupName := getAsciiz(rpm.metadataStore, groupNamePos);
+      catalogEntry.lang := getAsciiz(rpm.metadataStore, langPos);
+      catalogEntry.fileNumber := index;
+      rpm.catalog @:= [catalogEntry.filePath] catalogEntry;
+    end for;
+  end func;
+
+
 const proc: createRegister (inout rpmArchive: rpm) is func
   local
-    var rpmIndexEntry: dirNames is rpmIndexEntry.value;
-    var rpmIndexEntry: dirIndexes is rpmIndexEntry.value;
-    var rpmIndexEntry: baseNames is rpmIndexEntry.value;
-    var rpmIndexEntry: linkTos is rpmIndexEntry.value;
-    var array string: dirNameList is 0 times "";
-    var integer: namePos is 0;
-    var integer: dirIndexPos is 0;
-    var integer: index is 0;
-    var integer: dirIndex is 0;
-    var string: name is "";
+    var string: filePath is "";
   begin
-    if RPMTAG_DIRNAMES in rpm.metadata and
-        RPMTAG_DIRINDEXES in rpm.metadata and
-        RPMTAG_BASENAMES in rpm.metadata then
-      dirNames := rpm.metadata[RPMTAG_DIRNAMES];
-      # writeln("dirNames: " <& literal(getStriValue(rpm.metadataStore, dirNames)));
-      # writeln("dirNames.count: " <& dirNames.count);
-      namePos := succ(dirNames.offset);
-      dirNameList := dirNames.count times "";
-      for index range 1 to dirNames.count do
-        name := getAsciiz(rpm.metadataStore, namePos);
-        # writeln("dirName[" <& index <& "]: " <& name);
-        dirNameList[index] := name;
-      end for;
-      dirIndexes := rpm.metadata[RPMTAG_DIRINDEXES];
-      # writeln("dirIndexes.dataType: " <& dirIndexes.dataType);
-      baseNames := rpm.metadata[RPMTAG_BASENAMES];
-      # writeln("baseNames: " <& literal(getStriValue(rpm.metadataStore, baseNames)));
-      # writeln("baseNames.count: " <& baseNames.count);
-      if dirIndexes.count = baseNames.count then
-        dirIndexPos := succ(dirIndexes.offset);
-        namePos := succ(baseNames.offset);
-        for index range 1 to baseNames.count do
-          dirIndex := succ(bytes2Int(rpm.metadataStore[dirIndexPos len 4], SIGNED, BE));
-          dirIndexPos +:= 4;
-          # writeln("dirIndex[" <& index <& "]: " <& dirIndex);
-          name := dirNameList[dirIndex];
-          # writeln("dirName[" <& index <& "]: " <& name);
-          if name <> "" and not endsWith(name, "/") then
-            name &:= "/";
-          end if;
-          name &:= getAsciiz(rpm.metadataStore, namePos);
-          # writeln("fileName[" <& index <& "]: " <& name);
-          rpm.register @:= [name] index;
-        end for;
+    for key filePath range rpm.catalog do
+      incl(rpm.register, filePath);
+    end for;
+  end func;
+
+
+const func integer: getInt (in rpmArchive: rpm, in integer: tag, in integer: index) is func
+  result
+    var integer: number is 0;
+  local
+    var rpmIndexEntry: indexEntry is rpmIndexEntry.value;
+    var integer: offset is 0;
+    var integer: pos is 0;
+  begin
+    if tag in rpm.metadata then
+      indexEntry := rpm.metadata[tag];
+      if index <= indexEntry.count then
+        offset := succ(indexEntry.offset);
+        case indexEntry.dataType of
+          when {RPM_INT8_TYPE}:
+            pos := offset + pred(index);
+            number := bytes2Int(rpm.metadataStore[pos len 1], UNSIGNED, BE);
+          when {RPM_INT16_TYPE}:
+            pos := offset + pred(index) * 2;
+            number := bytes2Int(rpm.metadataStore[pos len 2], UNSIGNED, BE);
+          when {RPM_INT32_TYPE}:
+            pos := offset + pred(index) * 4;
+            number := bytes2Int(rpm.metadataStore[pos len 4], UNSIGNED, BE);
+          when {RPM_INT64_TYPE}:
+            pos := offset + pred(index) * 8;
+            number := bytes2Int(rpm.metadataStore[pos len 8], UNSIGNED, BE);
+          otherwise:
+            raise RANGE_ERROR;
+        end case;
+      else
+        raise RANGE_ERROR;
       end if;
-      linkTos := rpm.metadata[RPMTAG_FILELINKTOS];
-      namePos := succ(linkTos.offset);
-      rpm.linkTo := linkTos.count times "";
-      for index range 1 to linkTos.count do
-        name := getAsciiz(rpm.metadataStore, namePos);
-        # writeln("linkTo[" <& index <& "]: " <& name);
-        rpm.linkTo[index] := name;
+    end if;
+  end func;
+
+
+const proc: readCatalogEntry (inout rpmArchive: rpm, inout rpmCatalogEntry: catalogEntry) is func
+  local
+    var integer: fileNumber is 0;
+  begin
+    fileNumber := catalogEntry.fileNumber;
+    if fileNumber = 0 then
+      raise RANGE_ERROR;
+    else
+      catalogEntry.fileSize    := getInt(rpm, RPMTAG_FILESIZES,       fileNumber);
+      catalogEntry.mode        := getInt(rpm, RPMTAG_FILEMODES,       fileNumber);
+      catalogEntry.uid         := getInt(rpm, RPMTAG_FILEUIDS,        fileNumber);
+      catalogEntry.gid         := getInt(rpm, RPMTAG_FILEGIDS,        fileNumber);
+      catalogEntry.rdev        := getInt(rpm, RPMTAG_FILERDEVS,       fileNumber);
+      catalogEntry.mtime       := getInt(rpm, RPMTAG_FILEMTIMES,      fileNumber);
+      catalogEntry.flags       := getInt(rpm, RPMTAG_FILEFLAGS,       fileNumber);
+      catalogEntry.verifyFlags := getInt(rpm, RPMTAG_FILEVERIFYFLAGS, fileNumber);
+      catalogEntry.device      := getInt(rpm, RPMTAG_FILEDEVICES,     fileNumber);
+      catalogEntry.inode       := getInt(rpm, RPMTAG_FILEINODES,      fileNumber);
+      catalogEntry.color       := getInt(rpm, RPMTAG_FILECOLORS,      fileNumber);
+      catalogEntry.fileClass   := getInt(rpm, RPMTAG_FILECLASS,       fileNumber);
+      catalogEntry.dependX     := getInt(rpm, RPMTAG_FILEDEPENDSX,    fileNumber);
+      catalogEntry.dependN     := getInt(rpm, RPMTAG_FILEDEPENDSN,    fileNumber);
+      catalogEntry.allDataPresent := TRUE;
+      rpm.catalog @:= [catalogEntry.filePath] catalogEntry;
+      # write(catalogEntry);
+    end if;
+  end func;
+
+
+const proc: updateIndexEntry (inout rpmArchive: rpm, in integer: tag,
+    in integer: dataType, in integer: fileNumber, in integer: value) is func
+  local
+    var rpmIndexEntry: indexEntry is rpmIndexEntry.value;
+    var integer: dataSize is 0;
+    var string: data is "";
+  begin
+    if tag in rpm.metadata then
+      indexEntry := rpm.metadata[tag];
+    else
+      indexEntry.tag := tag;
+      indexEntry.dataType := dataType;
+    end if;
+    case indexEntry.dataType of
+      when {RPM_INT8_TYPE}:
+        dataSize := 1;
+        data := str(chr(value));
+      when {RPM_INT16_TYPE}:
+        dataSize := 2;
+        data := int16AsTwoBytesBe(value);
+      when {RPM_INT32_TYPE}:
+        dataSize := 4;
+        data := int32AsFourBytesBe(value);
+      when {RPM_INT64_TYPE}:
+        dataSize := 8;
+        data := int64AsEightBytesBe(value);
+      otherwise:
+        raise RANGE_ERROR;
+    end case;
+    if fileNumber > indexEntry.count then
+      indexEntry.striValue &:= "\0;" mult (fileNumber - indexEntry.count) * dataSize;
+      indexEntry.count := fileNumber;
+    end if;
+    indexEntry.striValue @:= [succ(pred(fileNumber) * dataSize)] data;
+    rpm.metadata @:= [tag] indexEntry;
+  end func;
+
+
+const proc: updateIndexEntry (inout rpmArchive: rpm, in integer: tag,
+    in integer: dataType, in integer: fileNumber, in string: value) is func
+  local
+    var rpmIndexEntry: indexEntry is rpmIndexEntry.value;
+    var string: data is "";
+  begin
+    if tag in rpm.metadata then
+      indexEntry := rpm.metadata[tag];
+    else
+      indexEntry.tag := tag;
+      indexEntry.dataType := dataType;
+    end if;
+    case indexEntry.dataType of
+      when {RPM_STRING_ARRAY_TYPE, RPM_I18NSTRING_TYPE}:
+        data := value;
+      otherwise:
+        raise RANGE_ERROR;
+    end case;
+    if fileNumber > indexEntry.count then
+      indexEntry.arrayValue &:= (fileNumber - indexEntry.count) times "";
+      indexEntry.count := fileNumber;
+    end if;
+    indexEntry.arrayValue[fileNumber] := data;
+    rpm.metadata @:= [tag] indexEntry;
+  end func;
+
+
+const proc: updateMetadata (inout rpmArchive: rpm, in rpmCatalogEntry: catalogEntry) is func
+  begin
+    updateIndexEntry(rpm, RPMTAG_FILESIZES, RPM_INT32_TYPE,
+                     catalogEntry.fileNumber, catalogEntry.fileSize);
+    updateIndexEntry(rpm, RPMTAG_FILEMODES, RPM_INT16_TYPE,
+                     catalogEntry.fileNumber, catalogEntry.mode);
+    # RPMTAG_FILEUIDS
+    # RPMTAG_FILEGIDS
+    updateIndexEntry(rpm, RPMTAG_FILERDEVS, RPM_INT16_TYPE,
+                     catalogEntry.fileNumber, catalogEntry.rdev);
+    updateIndexEntry(rpm, RPMTAG_FILEMTIMES, RPM_INT32_TYPE,
+                     catalogEntry.fileNumber, catalogEntry.mtime);
+    updateIndexEntry(rpm, RPMTAG_FILEMD5S, RPM_STRING_ARRAY_TYPE,
+                     catalogEntry.fileNumber, catalogEntry.digest);
+    updateIndexEntry(rpm, RPMTAG_FILELINKTOS, RPM_STRING_ARRAY_TYPE,
+                     catalogEntry.fileNumber, catalogEntry.linkTo);
+    updateIndexEntry(rpm, RPMTAG_FILEFLAGS, RPM_INT32_TYPE,
+                     catalogEntry.fileNumber, catalogEntry.flags);
+    updateIndexEntry(rpm, RPMTAG_FILEUSERNAME, RPM_STRING_ARRAY_TYPE,
+                     catalogEntry.fileNumber, catalogEntry.userName);
+    updateIndexEntry(rpm, RPMTAG_FILEGROUPNAME, RPM_STRING_ARRAY_TYPE,
+                     catalogEntry.fileNumber, catalogEntry.groupName);
+    updateIndexEntry(rpm, RPMTAG_FILEVERIFYFLAGS, RPM_INT32_TYPE,
+                     catalogEntry.fileNumber, catalogEntry.verifyFlags);
+    updateIndexEntry(rpm, RPMTAG_FILEDEVICES, RPM_INT32_TYPE,
+                     catalogEntry.fileNumber, catalogEntry.device);
+    updateIndexEntry(rpm, RPMTAG_FILEINODES, RPM_INT32_TYPE,
+                     catalogEntry.fileNumber, catalogEntry.inode);
+    updateIndexEntry(rpm, RPMTAG_FILELANGS, RPM_STRING_ARRAY_TYPE,
+                     catalogEntry.fileNumber, catalogEntry.lang);
+    updateIndexEntry(rpm, RPMTAG_FILECOLORS, RPM_INT32_TYPE,
+                     catalogEntry.fileNumber, catalogEntry.color);
+    updateIndexEntry(rpm, RPMTAG_FILECLASS, RPM_INT32_TYPE,
+                     catalogEntry.fileNumber, catalogEntry.fileClass);
+    updateIndexEntry(rpm, RPMTAG_FILEDEPENDSX, RPM_INT32_TYPE,
+                     catalogEntry.fileNumber, catalogEntry.dependX);
+    updateIndexEntry(rpm, RPMTAG_FILEDEPENDSN, RPM_INT32_TYPE,
+                     catalogEntry.fileNumber, catalogEntry.dependN);
+  end func;
+
+
+const proc: updateMetadata (inout rpmArchive: rpm) is func
+  local
+    var rpmCatalogEntry: catalogEntry is rpmCatalogEntry.value;
+    var rpmIndexEntry: indexEntry is rpmIndexEntry.value;
+    var string: store is "";
+  begin
+    if rpm.metadataStore <> "" then
+      for indexEntry range rpm.metadata do
+        case indexEntry.dataType of
+          when {RPM_INT8_TYPE, RPM_INT16_TYPE, RPM_INT32_TYPE, RPM_INT64_TYPE}:
+            if indexEntry.striValue = "" then
+              indexEntry.striValue := getStriValue(rpm.metadataStore, indexEntry);
+            end if;
+          when {RPM_STRING_ARRAY_TYPE, RPM_I18NSTRING_TYPE}:
+            if length(indexEntry.arrayValue) = 0 then
+              indexEntry.arrayValue := getArrayValue(rpm.metadataStore, indexEntry);
+            end if;
+        end case;
       end for;
+    end if;
+    for catalogEntry range rpm.catalog do
+      if catalogEntry.dirty then
+        updateMetadata(rpm, catalogEntry);     
+      end if;
+    end for;
+    for indexEntry range rpm.metadata do
+      indexEntry.offset := length(store);
+      rpm.metadata @:= [indexEntry.tag] indexEntry;
+      case indexEntry.dataType of
+        when {RPM_INT8_TYPE, RPM_INT16_TYPE, RPM_INT32_TYPE, RPM_INT64_TYPE}:
+          store &:= indexEntry.striValue;
+        when {RPM_STRING_ARRAY_TYPE, RPM_I18NSTRING_TYPE}:
+          store &:= join(indexEntry.arrayValue, "\0;") & "\0;";
+      end case;
+    end for;
+    rpm.metadataStore := store;
+  end func;
+
+
+const proc: doSettings (inout rpmArchive: rpm) is func
+  local
+    var rpmIndexEntry: fileDigestAlgo is rpmIndexEntry.value;
+  begin
+    if rpm.fileDigestAlgo = RPM_DIGESTALGO_MD5 and
+        RPMTAG_FILEDIGESTALGO in rpm.metadata then
+      fileDigestAlgo := rpm.metadata[RPMTAG_FILEDIGESTALGO];
+      rpm.fileDigestAlgo := bytes2Int(rpm.metadataStore[
+          succ(fileDigestAlgo.offset) len 4], SIGNED, BE);
+      # writeln("fileDigestAlgo: " <& rpm.fileDigestAlgo);
+    end if;
+    rpm.classDict := getStringArray(rpm, RPMTAG_CLASSDICT);
+  end func;
+
+
+const func string: getDigest (in string: content, in integer: digestAlgo) is func
+  result
+    var string: digest is "";
+  begin
+    case digestAlgo of
+      when {RPM_DIGESTALGO_MD5}:         digest := md5(content);
+      when {RPM_DIGESTALGO_SHA1}:        digest := sha1(content);
+      when {RPM_DIGESTALGO_RIPEMD160}:   digest := ripemd160(content);
+      when {RPM_DIGESTALGO_MD2}:         noop;
+      when {RPM_DIGESTALGO_TIGER192}:    noop;
+      when {RPM_DIGESTALGO_HAVAL_5_160}: noop;
+      when {RPM_DIGESTALGO_SHA256}:      digest := sha256(content);
+      when {RPM_DIGESTALGO_SHA384}:      digest := sha384(content);
+      when {RPM_DIGESTALGO_SHA512}:      digest := sha512(content);
+      when {RPM_DIGESTALGO_SHA224}:      digest := sha224(content);
+    end case;
+  end func;
+
+
+const proc: checkPayloadDigest (inout rpmArchive: rpm) is func
+  local
+    var string: payloadContent is "";
+    var integer: digestPos is 0;
+    var string: referenceDigest is "";
+    var string: computedDigest is "";
+    var integer: digestAlgo is 0;
+  begin
+    seek(rpm.rpmFile, rpm.payloadPos);
+    payloadContent := gets(rpm.rpmFile, integer.last);
+    digestPos := succ(rpm.metadata[RPMTAG_PAYLOADDIGEST].offset);
+    referenceDigest := getAsciiz(rpm.metadataStore, digestPos);
+    digestAlgo := getIntValue(rpm.metadataStore, rpm.metadata[RPMTAG_PAYLOADDIGESTALGO]);
+    # writeln("length(payloadContent): " <& length(payloadContent));
+    computedDigest := hex(getDigest(payloadContent, digestAlgo));
+    if referenceDigest <> computedDigest then
+      # writeln("digestAlgo: " <& digestAlgo);
+      # writeln("reference digest: " <& literal(referenceDigest));
+      # writeln("computed digest:  " <& literal(computedDigest));
+      raise FILE_ERROR;
     end if;
   end func;
 
@@ -888,24 +1326,52 @@ const proc: getArchive (inout rpmArchive: rpm) is func
     var string: format is "";
     var file: payload is STD_NULL;
   begin
-    if RPMTAG_PAYLOADCOMPRESSOR in rpm.metadata then
-      compressor := getStriValue(rpm.metadataStore, rpm.metadata[RPMTAG_PAYLOADCOMPRESSOR]);
-      # writeln("compressor: " <& compressor);
-      case compressor of
-        when {"gzip"}: payload := openGunzipFile(rpm.rpmFile);
-        when {"lzma"}: payload := openLzmaFile(rpm.rpmFile);
-        when {"xz"}:   payload := openXzFile(rpm.rpmFile);
-      end case;
+    if RPMTAG_PAYLOADDIGEST in rpm.metadata and RPMTAG_PAYLOADDIGESTALGO in rpm.metadata then
+      checkPayloadDigest(rpm);
     end if;
-    if payload <> STD_NULL then
-      # writeln("length uncompressed: " <& length(payload));
+    if rpm.payloadPos = 0 then
+      rpm.payloadFile := openStrifile();
+    else
+      seek(rpm.rpmFile, rpm.payloadPos);
+      if RPMTAG_PAYLOADCOMPRESSOR in rpm.metadata then
+        compressor := getStriValue(rpm.metadataStore, rpm.metadata[RPMTAG_PAYLOADCOMPRESSOR]);
+        # writeln("compressor: " <& compressor);
+        case compressor of
+          when {"gzip"}: payload := openGunzipFile(rpm.rpmFile);
+          when {"lzma"}: payload := openLzmaFile(rpm.rpmFile);
+          when {"xz"}:   payload := openXzFile(rpm.rpmFile);
+          when {"zstd"}: payload := openZstdFile(rpm.rpmFile);
+        end case;
+      end if;
+      if payload <> STD_NULL then
+        # writeln("length uncompressed: " <& length(payload));
+        rpm.payloadFile := openStrifile(gets(payload, integer.last));
+        close(payload);
+      end if;
+    end if;
+    if rpm.payloadFile <> STD_NULL then
       if RPMTAG_PAYLOADFORMAT in rpm.metadata then
         format := getStriValue(rpm.metadataStore, rpm.metadata[RPMTAG_PAYLOADFORMAT]);
         # writeln("format: " <& format);
         case format of
-          when {"cpio"}: rpm.archive := openCpio(payload);
+          when {"cpio"}: rpm.archive := openCpio(rpm.payloadFile);
         end case;
+      elsif rpm.payloadPos = 0 then
+        rpm.archive := openCpio(rpm.payloadFile);
       end if;
+    end if;
+  end func;
+
+
+const func string: archiveFilePath (inout fileSys: archive, in string: filePath) is func
+  result
+    var string: archiveFilePath is "";
+  begin
+    if startsWith(filePath, "/") and
+        fileTypeSL(archive, filePath) = FILE_ABSENT then
+      archiveFilePath := "." & filePath;
+    else
+      archiveFilePath := filePath;
     end if;
   end func;
 
@@ -964,15 +1430,10 @@ const func fileSys: openRpm (inout file: rpmFile) is func
           # writeln("don't skip: " <& 7 - pred(rpm.metadataHead.storeSize) mod 8);
           # ignore(gets(rpmFile, 7 - pred(rpm.metadataHead.storeSize) mod 8));
         end if;
+        rpm.payloadPos := tell(rpmFile);
+        doSettings(rpm);
+        createMinimumOfCatalog(rpm);
         createRegister(rpm);
-        # writeln(hex(gets(rpmFile, 40)));
-        # store := gets(rpmFile, integer.last);
-        # if startsWith(store, "\16#FD;7zXZ\16#00;") then  # XZ compressed
-        # ignore(xzUncompress(store));
-        # writeln(hex(store[1 len 10]));
-        # writeln("length compressed: " <& length(store));
-        # writeln("pos: " <& tell(rpmFile));
-        # getArchive(rpm);
         newFileSys := toInterface(rpm);
       end if;
     end if;
@@ -1015,7 +1476,7 @@ const func boolean: implicitDir (inout rpmArchive: rpm, in string: dirPath) is f
     var string: filePath is "";
   begin
     if dirPath <> "" then
-      for key filePath range rpm.register do
+      for filePath range rpm.register do
         if startsWith(filePath, dirPath) and
             length(filePath) > length(dirPath) and
             (filePath[succ(length(dirPath))] = '/' or dirPath = "/") then
@@ -1026,9 +1487,22 @@ const func boolean: implicitDir (inout rpmArchive: rpm, in string: dirPath) is f
   end func;
 
 
-const func integer: followSymlink (inout rpmArchive: rpm, in var string: filePath) is func
+const func rpmCatalogEntry: addImplicitDir (inout rpmArchive: rpm,
+    in string: dirPath) is func
   result
-    var integer: fileNumber is 0;
+    var rpmCatalogEntry: catalogEntry is rpmCatalogEntry.value;
+  begin
+    catalogEntry.filePath := dirPath;
+    catalogEntry.mode := ord(MODE_FILE_DIR) + 8#775;
+    catalogEntry.allDataPresent := TRUE;
+    rpm.catalog @:= [dirPath] catalogEntry;
+  end func;
+
+
+const func string: followSymlink (inout rpmArchive: rpm, in var string: filePath,
+    inout rpmCatalogEntry: catalogEntry) is func
+  result
+    var string: missingPath is "";
   local
     var integer: offset is 0;
     var integer: pos is 0;
@@ -1037,31 +1511,43 @@ const func integer: followSymlink (inout rpmArchive: rpm, in var string: filePat
     var boolean: isSymlink is TRUE;
   begin
     repeat
-      if filePath in rpm.implicitDirs then
-        fileNumber := 0;
+      if filePath in rpm.catalog then
+        catalogEntry := rpm.catalog[filePath];
+      elsif implicitDir(rpm, filePath) then
+        catalogEntry := addImplicitDir(rpm, filePath);
+      else
+        missingPath := filePath;
         isSymlink := FALSE;
-      elsif filePath in rpm.register then
-        fileNumber := rpm.register[filePath];
-        offset := succ(rpm.metadata[RPMTAG_FILEMODES].offset);
-        pos := offset + pred(fileNumber) * 2;
-        modeValue := bytes2Int(rpm.metadataStore[pos len 2], UNSIGNED, BE);
-        if bin32(modeValue) & MODE_FILE_TYPE_MASK = MODE_FILE_SYMLINK then
-          filePath := rpm.linkTo[fileNumber];
+        # writeln("missing: " <& missingPath);
+      end if;
+      if missingPath = "" then
+        if not catalogEntry.allDataPresent then
+          readCatalogEntry(rpm, catalogEntry);
+        end if;
+        if bin32(catalogEntry.mode) & MODE_FILE_TYPE_MASK = MODE_FILE_SYMLINK then
+          filePath := catalogEntry.linkTo;
         else
           isSymlink := FALSE;
         end if;
-      elsif implicitDir(rpm, filePath) then
-        incl(rpm.implicitDirs, filePath);
-        fileNumber := 0;
-        isSymlink := FALSE;
-      else
-        # The file does not exist.
-        raise FILE_ERROR;
       end if;
       decr(symlinkCount);
     until not isSymlink or symlinkCount = 0;
     if isSymlink then
       # Too many symbolic links.
+      raise FILE_ERROR;
+    end if;
+  end func;
+
+
+const func rpmCatalogEntry: followSymlink (inout rpmArchive: rpm, in string: filePath) is func
+  result
+    var rpmCatalogEntry: catalogEntry is rpmCatalogEntry.value;
+  local
+    var string: missingPath is "";
+  begin
+    missingPath := followSymlink(rpm, filePath, catalogEntry);
+    if missingPath <> "" then
+      # The file does not exist.
       raise FILE_ERROR;
     end if;
   end func;
@@ -1091,7 +1577,7 @@ const func array string: readDir (inout rpmArchive: rpm, in string: dirPath) is 
     if dirPath <> "/" and endsWith(dirPath, "/") then
       raise RANGE_ERROR;
     elsif dirPath = "" or dirPath = "." then
-      for key fileName range rpm.register do
+      for fileName range rpm.register do
         slashPos := pos(fileName, '/');
         if slashPos <> 0 then
           if slashPos = 1 then
@@ -1105,7 +1591,7 @@ const func array string: readDir (inout rpmArchive: rpm, in string: dirPath) is 
         end if;
       end for;
     else
-      for key filePath range rpm.register do
+      for filePath range rpm.register do
         if startsWith(filePath, dirPath) then
           fileName := filePath[succ(length(dirPath)) ..];
           if fileName = "" then
@@ -1141,7 +1627,7 @@ const func array string: readDir (inout rpmArchive: rpm, in string: dirPath) is 
  *  @return an array with the file paths.
  *)
 const func array string: readDir (inout rpmArchive: rpm, RECURSIVE) is
-  return sort(keys(rpm.register));
+  return sort(toArray(rpm.register));
 
 
 (**
@@ -1161,10 +1647,7 @@ const func fileType: fileType (inout rpmArchive: rpm, in var string: filePath) i
   result
     var fileType: aFileType is FILE_UNKNOWN;
   local
-    var integer: fileNumber is 0;
-    var integer: offset is 0;
-    var integer: pos is 0;
-    var integer: modeValue is 0;
+    var rpmCatalogEntry: catalogEntry is rpmCatalogEntry.value;
     var integer: symlinkCount is MAX_SYMLINKS;
   begin
     # writeln("fileType: " <& filePath);
@@ -1174,21 +1657,18 @@ const func fileType: fileType (inout rpmArchive: rpm, in var string: filePath) i
       aFileType := FILE_DIR;
     else
       repeat
-        if filePath in rpm.implicitDirs then
-          aFileType := FILE_DIR;
-        elsif filePath in rpm.register then
-          fileNumber := rpm.register[filePath];
-          offset := succ(rpm.metadata[RPMTAG_FILEMODES].offset);
-          pos := offset + pred(fileNumber) * 2;
-          modeValue := bytes2Int(rpm.metadataStore[pos len 2], UNSIGNED, BE);
+        if filePath in rpm.catalog then
+          catalogEntry := rpm.catalog[filePath];
         elsif implicitDir(rpm, filePath) then
-          incl(rpm.implicitDirs, filePath);
-          aFileType := FILE_DIR;
+          catalogEntry := addImplicitDir(rpm, filePath);
         else
           aFileType := FILE_ABSENT;
         end if;
         if aFileType = FILE_UNKNOWN then
-          case bin32(modeValue) & MODE_FILE_TYPE_MASK of
+          if not catalogEntry.allDataPresent then
+            readCatalogEntry(rpm, catalogEntry);
+          end if;
+          case bin32(catalogEntry.mode) & MODE_FILE_TYPE_MASK of
             when {MODE_FILE_REGULAR}: aFileType := FILE_REGULAR;
             when {MODE_FILE_DIR}:     aFileType := FILE_DIR;
             when {MODE_FILE_CHAR}:    aFileType := FILE_CHAR;
@@ -1196,7 +1676,7 @@ const func fileType: fileType (inout rpmArchive: rpm, in var string: filePath) i
             when {MODE_FILE_FIFO}:    aFileType := FILE_FIFO;
             when {MODE_FILE_SOCKET}:  aFileType := FILE_SOCKET;
             when {MODE_FILE_SYMLINK}:
-              filePath := rpm.linkTo[fileNumber];
+              filePath := catalogEntry.linkTo;
             otherwise:
               raise RANGE_ERROR;
           end case;
@@ -1221,6 +1701,7 @@ const func fileType: fileTypeSL (inout rpmArchive: rpm, in string: filePath) is 
   result
     var fileType: aFileType is FILE_UNKNOWN;
   local
+    var rpmCatalogEntry: catalogEntry is rpmCatalogEntry.value;
     var integer: offset is 0;
     var integer: pos is 0;
     var integer: modeValue is 0;
@@ -1231,20 +1712,18 @@ const func fileType: fileTypeSL (inout rpmArchive: rpm, in string: filePath) is 
     elsif filePath = "" then
       aFileType := FILE_DIR;
     else
-      if filePath in rpm.implicitDirs then
-        aFileType := FILE_DIR;
-      elsif filePath in rpm.register then
-        offset := succ(rpm.metadata[RPMTAG_FILEMODES].offset);
-        pos := offset + pred(rpm.register[filePath]) * 2;
-        modeValue := bytes2Int(rpm.metadataStore[pos len 2], UNSIGNED, BE);
+      if filePath in rpm.catalog then
+        catalogEntry := rpm.catalog[filePath];
       elsif implicitDir(rpm, filePath) then
-        incl(rpm.implicitDirs, filePath);
-        aFileType := FILE_DIR;
+        catalogEntry := addImplicitDir(rpm, filePath);
       else
         aFileType := FILE_ABSENT;
       end if;
       if aFileType = FILE_UNKNOWN then
-        case bin32(modeValue) & MODE_FILE_TYPE_MASK of
+        if not catalogEntry.allDataPresent then
+          readCatalogEntry(rpm, catalogEntry);
+        end if;
+        case bin32(catalogEntry.mode) & MODE_FILE_TYPE_MASK of
           when {MODE_FILE_REGULAR}: aFileType := FILE_REGULAR;
           when {MODE_FILE_DIR}:     aFileType := FILE_DIR;
           when {MODE_FILE_CHAR}:    aFileType := FILE_CHAR;
@@ -1272,26 +1751,11 @@ const func fileType: fileTypeSL (inout rpmArchive: rpm, in string: filePath) is 
 const func fileMode: fileMode (inout rpmArchive: rpm, in string: filePath) is func
   result
     var fileMode: mode is fileMode.value;
-  local
-    var integer: fileNumber is 0;
-    var integer: offset is 0;
-    var integer: pos is 0;
-    var integer: modeValue is 0;
   begin
     if filePath <> "/" and endsWith(filePath, "/") then
       raise RANGE_ERROR;
     else
-      fileNumber := followSymlink(rpm, filePath);
-      if fileNumber = 0 then
-        # This is an implicit directory.
-        modeValue := 8#775;
-      else
-        offset := succ(rpm.metadata[RPMTAG_FILEMODES].offset);
-        pos := offset + pred(fileNumber) * 2;
-        modeValue := bytes2Int(rpm.metadataStore[pos len 2], UNSIGNED, BE);
-      end if;
-      # writeln(filePath <& " mode: " <& modeValue radix 8);
-      mode := fileMode conv modeValue;
+      mode := fileMode(followSymlink(rpm, filePath).mode);
     end if;
   end func;
 
@@ -1307,26 +1771,23 @@ const func fileMode: fileMode (inout rpmArchive: rpm, in string: filePath) is fu
 const proc: setFileMode (inout rpmArchive: rpm, in string: filePath,
     in fileMode: mode) is func
   local
-    var integer: modeValue is 0;
-    var integer: fileNumber is 0;
-    var integer: offset is 0;
-    var integer: pos is 0;
+    var rpmCatalogEntry: catalogEntry is rpmCatalogEntry.value;
   begin
-    modeValue := integer conv (mode);
     if filePath <> "/" and endsWith(filePath, "/") then
       raise RANGE_ERROR;
     else
-      fileNumber := followSymlink(rpm, filePath);
-      if fileNumber = 0 then
-        # This is an implicit directory.
-        raise FILE_ERROR;
+      catalogEntry := followSymlink(rpm, filePath);
+      if catalogEntry.fileNumber <> 0 then
+        catalogEntry.mode := (catalogEntry.mode >> 9 << 9) + integer(mode);
+        catalogEntry.dirty := TRUE;
+        rpm.catalog @:= [catalogEntry.filePath] catalogEntry;
+        if rpm.archive = fileSys.value then
+          getArchive(rpm);
+        end if;
+        setFileMode(rpm.archive,
+            archiveFilePath(rpm.archive, catalogEntry.filePath), mode);
       else
-        offset := succ(rpm.metadata[RPMTAG_FILEMODES].offset);
-        pos := offset + pred(fileNumber) * 2;
-        rpm.metadataStore @:= [pos] int32AsFourBytesBe(modeValue);
-        # The file mode is changed at RPM level but not in the CPIO payload.
-        seek(rpm.rpmFile, rpm.metadataStorePos + pos);
-        write(rpm.rpmFile, int32AsFourBytesBe(modeValue));
+        raise FILE_ERROR;
       end if;
     end if;
   end func;
@@ -1346,23 +1807,11 @@ const proc: setFileMode (inout rpmArchive: rpm, in string: filePath,
 const func integer: fileSize (inout rpmArchive: rpm, in string: filePath) is func
   result
     var integer: size is 0;
-  local
-    var integer: fileNumber is 0;
-    var integer: offset is 0;
-    var integer: pos is 0;
   begin
     if filePath <> "/" and endsWith(filePath, "/") then
       raise RANGE_ERROR;
     else
-      fileNumber := followSymlink(rpm, filePath);
-      if fileNumber = 0 then
-        # This is an implicit directory.
-        size := 0;
-      else
-        offset := succ(rpm.metadata[RPMTAG_FILESIZES].offset);
-        pos := offset + pred(fileNumber) * 4;
-        size := bytes2Int(rpm.metadataStore[pos len 4], UNSIGNED, BE);
-      end if;
+      size := followSymlink(rpm, filePath).fileSize;
     end if;
   end func;
 
@@ -1379,26 +1828,12 @@ const func integer: fileSize (inout rpmArchive: rpm, in string: filePath) is fun
 const func time: getMTime (inout rpmArchive: rpm, in string: filePath) is func
   result
     var time: modificationTime is time.value;
-  local
-    var integer: fileNumber is 0;
-    var integer: offset is 0;
-    var integer: pos is 0;
-    var integer: mtime is 0;
   begin
     if filePath <> "/" and endsWith(filePath, "/") then
       raise RANGE_ERROR;
     else
-      fileNumber := followSymlink(rpm, filePath);
-      if fileNumber = 0 then
-        # This is an implicit directory.
-        mtime := 0;
-      else
-        offset := succ(rpm.metadata[RPMTAG_FILEMTIMES].offset);
-        pos := offset + pred(fileNumber) * 4;
-        mtime := bytes2Int(rpm.metadataStore[pos len 4], UNSIGNED, BE);
-      end if;
-      # writeln(filePath <& " mtime: " <& mtime);
-      modificationTime := timestamp1970ToTime(mtime);
+      modificationTime := timestamp1970ToTime(
+          followSymlink(rpm, filePath).mtime);
     end if;
   end func;
 
@@ -1416,29 +1851,141 @@ const func time: getMTime (inout rpmArchive: rpm, in string: filePath) is func
 const proc: setMTime (inout rpmArchive: rpm, in string: filePath,
     in time: modificationTime) is func
   local
+    var rpmCatalogEntry: catalogEntry is rpmCatalogEntry.value;
     var integer: mtime is 0;
-    var integer: fileNumber is 0;
-    var integer: offset is 0;
-    var integer: pos is 0;
   begin
     mtime := timestamp1970(modificationTime);
-    if mtime < 0 or mtime >= 2 ** 31 then
+    if mtime < 0 or mtime >= 2 ** 31 or
+        (filePath <> "/" and endsWith(filePath, "/")) then
       raise RANGE_ERROR;
+    else
+      catalogEntry := followSymlink(rpm, filePath);
+      if catalogEntry.fileNumber <> 0 then
+        catalogEntry.mtime := mtime;
+        catalogEntry.dirty := TRUE;
+        rpm.catalog @:= [catalogEntry.filePath] catalogEntry;
+        if rpm.archive = fileSys.value then
+          getArchive(rpm);
+        end if;
+        setMTime(rpm.archive,
+                 archiveFilePath(rpm.archive, catalogEntry.filePath),
+                 modificationTime);
+      end if;
     end if;
+  end func;
+
+
+(**
+ *  Determine the name of the owner (UID) of a file in a RPM archive.
+ *  The function follows symbolic links.
+ *  @return the name of the file owner.
+ *  @exception RANGE_ERROR ''filePath'' does not use the standard path
+ *             representation.
+ *  @exception FILE_ERROR ''filePath'' is not present in the RPM archive, or
+ *             the chain of symbolic links is too long.
+ *)
+const func string: getOwner (inout rpmArchive: rpm, in string: filePath) is func
+  result
+    var string: owner is "";
+  local
+    var rpmCatalogEntry: catalogEntry is rpmCatalogEntry.value;
+  begin
     if filePath <> "/" and endsWith(filePath, "/") then
       raise RANGE_ERROR;
     else
-      fileNumber := followSymlink(rpm, filePath);
-      if fileNumber = 0 then
-        # This is an implicit directory.
-        raise FILE_ERROR;
+      catalogEntry := followSymlink(rpm, filePath);
+      if catalogEntry.userName <> "" then
+        owner := catalogEntry.userName;
       else
-        offset := succ(rpm.metadata[RPMTAG_FILEMTIMES].offset);
-        pos := offset + pred(fileNumber) * 4;
-        rpm.metadataStore @:= [pos] int32AsFourBytesBe(mtime);
-        # The modification time is changed at RPM level but not in the CPIO payload.
-        seek(rpm.rpmFile, rpm.metadataStorePos + pos);
-        write(rpm.rpmFile, int32AsFourBytesBe(mtime));
+        owner := str(catalogEntry.uid);
+      end if;
+    end if;
+  end func;
+
+
+const proc: setOwner (inout rpmArchive: rpm, in string: filePath,
+    in string: owner) is func
+  local
+    var rpmCatalogEntry: catalogEntry is rpmCatalogEntry.value;
+  begin
+    if filePath <> "/" and endsWith(filePath, "/") then
+      raise RANGE_ERROR;
+    else
+      catalogEntry := followSymlink(rpm, filePath);
+      if catalogEntry.fileNumber <> 0 then
+        if isDigitString(owner) then
+          catalogEntry.uid := integer(owner);
+          catalogEntry.userName := "";
+        else
+          catalogEntry.uid := 0;
+          catalogEntry.userName := owner;
+        end if;
+        catalogEntry.dirty := TRUE;
+        rpm.catalog @:= [catalogEntry.filePath] catalogEntry;
+        if rpm.archive = fileSys.value then
+          getArchive(rpm);
+        end if;
+        setOwner(rpm.archive,
+                 archiveFilePath(rpm.archive, catalogEntry.filePath),
+                 owner);
+      end if;
+    end if;
+  end func;
+
+
+(**
+ *  Determine the name of the group (GID) of a file in a RPM archive.
+ *  The function follows symbolic links.
+ *  @return the name of the file group.
+ *  @exception RANGE_ERROR ''filePath'' does not use the standard path
+ *             representation.
+ *  @exception FILE_ERROR ''filePath'' is not present in the RPM archive, or
+ *             the chain of symbolic links is too long.
+ *)
+const func string: getGroup (inout rpmArchive: rpm, in string: filePath) is func
+  result
+    var string: group is "";
+  local
+    var rpmCatalogEntry: catalogEntry is rpmCatalogEntry.value;
+  begin
+    if filePath <> "/" and endsWith(filePath, "/") then
+      raise RANGE_ERROR;
+    else
+      catalogEntry := followSymlink(rpm, filePath);
+      if catalogEntry.groupName <> "" then
+        group := catalogEntry.groupName;
+      else
+        group := str(catalogEntry.gid);
+      end if;
+     end if;
+  end func;
+
+
+const proc: setGroup (inout rpmArchive: rpm, in string: filePath,
+    in string: group) is func
+  local
+    var rpmCatalogEntry: catalogEntry is rpmCatalogEntry.value;
+  begin
+    if filePath <> "/" and endsWith(filePath, "/") then
+      raise RANGE_ERROR;
+    else
+      catalogEntry := followSymlink(rpm, filePath);
+      if catalogEntry.fileNumber <> 0 then
+        if isDigitString(group) then
+          catalogEntry.gid := integer(group);
+          catalogEntry.groupName := "";
+        else
+          catalogEntry.gid := 0;
+          catalogEntry.groupName := group;
+        end if;
+        catalogEntry.dirty := TRUE;
+        rpm.catalog @:= [catalogEntry.filePath] catalogEntry;
+        if rpm.archive = fileSys.value then
+          getArchive(rpm);
+        end if;
+        setGroup(rpm.archive,
+                 archiveFilePath(rpm.archive, catalogEntry.filePath),
+                 group);
       end if;
     end if;
   end func;
@@ -1456,23 +2003,20 @@ const func string: readlink (inout rpmArchive: rpm, in string: filePath) is func
   result
     var string: linkPath is "";
   local
-    var integer: fileNumber is 0;
-    var integer: offset is 0;
-    var integer: pos is 0;
-    var integer: modeValue is 0;
+    var rpmCatalogEntry: catalogEntry is rpmCatalogEntry.value;
   begin
     if filePath <> "/" and endsWith(filePath, "/") then
       raise RANGE_ERROR;
-    elsif filePath in rpm.register then
-      fileNumber := rpm.register[filePath];
-      offset := succ(rpm.metadata[RPMTAG_FILEMODES].offset);
-      pos := offset + pred(fileNumber) * 2;
-      modeValue := bytes2Int(rpm.metadataStore[pos len 2], UNSIGNED, BE);
+    elsif filePath in rpm.catalog then
+      catalogEntry := rpm.catalog[filePath];
     else
       raise FILE_ERROR;
     end if;
-    if bin32(modeValue) & MODE_FILE_TYPE_MASK = MODE_FILE_SYMLINK then
-      linkPath := rpm.linkTo[fileNumber];
+    if not catalogEntry.allDataPresent then
+      readCatalogEntry(rpm, catalogEntry);
+    end if;
+    if bin32(catalogEntry.mode) & MODE_FILE_TYPE_MASK = MODE_FILE_SYMLINK then
+      linkPath := catalogEntry.linkTo;
     else
       raise FILE_ERROR;
     end if;
@@ -1489,51 +2033,163 @@ const func string: readlink (inout rpmArchive: rpm, in string: filePath) is func
  *             or is not a regular file, or
  *             the chain of symbolic links is too long.
  *)
-const func string: getFile (inout rpmArchive: rpm, in var string: filePath) is func
+const func string: getFile (inout rpmArchive: rpm, in string: filePath) is func
   result
     var string: content is "";
   local
-    var integer: fileNumber is 0;
-    var integer: offset is 0;
-    var integer: pos is 0;
-    var integer: modeValue is 0;
-    var integer: symlinkCount is MAX_SYMLINKS;
-    var boolean: isSymlink is TRUE;
+    var rpmCatalogEntry: catalogEntry is rpmCatalogEntry.value;
+    var string: digest is "";
   begin
     if filePath <> "/" and endsWith(filePath, "/") then
       raise RANGE_ERROR;
     else
-      repeat
-        if filePath in rpm.register then
-          fileNumber := rpm.register[filePath];
-          offset := succ(rpm.metadata[RPMTAG_FILEMODES].offset);
-          pos := offset + pred(fileNumber) * 2;
-          modeValue := bytes2Int(rpm.metadataStore[pos len 2], UNSIGNED, BE);
-          if bin32(modeValue) & MODE_FILE_TYPE_MASK = MODE_FILE_SYMLINK then
-            filePath := rpm.linkTo[fileNumber];
-          else
-            isSymlink := FALSE;
-          end if;
-        else
-          # The file is an implizit directory or it does not exist.
+      catalogEntry := followSymlink(rpm, filePath);
+      if bin32(catalogEntry.mode) & MODE_FILE_TYPE_MASK = MODE_FILE_REGULAR then
+        if rpm.archive = fileSys.value then
+          getArchive(rpm);
+        end if;
+        content := getFile(rpm.archive, archiveFilePath(rpm.archive, catalogEntry.filePath));
+        digest := hex(getDigest(content, rpm.fileDigestAlgo));
+        if catalogEntry.digest <> digest then
+          # writeln("fileDigestAlgo: " <& rpm.fileDigestAlgo);
+          # writeln("digest: " <& rpm.catalog[fileNumber].digest <&
+          #         " computed digest: " <& digest);
           raise FILE_ERROR;
         end if;
-        decr(symlinkCount);
-      until not isSymlink or symlinkCount = 0;
-      if isSymlink then
-        # Too many symbolic links.
-        raise FILE_ERROR;
+      end if;
+    end if;
+  end func;
+
+
+(**
+ *  Write ''data'' to a RPM archive with the given ''filePath''.
+ *  If the file exists already, it is overwritten.
+ *  The function follows symbolic links.
+ *  @exception RANGE_ERROR ''filePath'' does not use the standard path
+ *             representation.
+ *  @exception FILE_ERROR The file exists, but it is not a regular file.
+ *)
+const proc: putFile (inout rpmArchive: rpm, in string: filePath,
+    in string: data) is func
+  local
+    var rpmCatalogEntry: catalogEntry is rpmCatalogEntry.value;
+    var string: missingPath is "";
+  begin
+    if filePath = "" or filePath <> "/" and endsWith(filePath, "/") then
+      raise RANGE_ERROR;
+    else
+      missingPath := followSymlink(rpm, filePath, catalogEntry);
+      if missingPath = "" then
+        # The file does exist.
+        if bin32(catalogEntry.mode) & MODE_FILE_TYPE_MASK <> MODE_FILE_REGULAR then
+          raise FILE_ERROR;
+        else
+          if rpm.archive = fileSys.value then
+            getArchive(rpm);
+          end if;
+          catalogEntry.fileSize := length(data);
+          catalogEntry.digest := hex(getDigest(data, rpm.fileDigestAlgo));
+          catalogEntry.dirty := TRUE;
+          rpm.catalog @:= [catalogEntry.filePath] catalogEntry;
+          putFile(rpm.archive, catalogEntry.filePath, data);
+        end if;
       else
         if rpm.archive = fileSys.value then
           getArchive(rpm);
         end if;
-        if startsWith(filePath, "/") and
-            fileTypeSL(rpm.archive, filePath) = FILE_ABSENT then
-          content := getFile(rpm.archive, "." & filePath);
-        else
-          content := getFile(rpm.archive, filePath);
-        end if;
+        catalogEntry.fileSize := length(data);
+        catalogEntry.mode := ord(MODE_FILE_REGULAR) + 8#664;
+        catalogEntry.uid := 100;
+        catalogEntry.gid := 100;
+        catalogEntry.rdev := 0;
+        catalogEntry.mtime := timestamp1970(time(NOW));
+        catalogEntry.digest := hex(getDigest(data, rpm.fileDigestAlgo));
+        catalogEntry.linkTo := "";
+        catalogEntry.flags := 0;
+        catalogEntry.userName := "";
+        catalogEntry.groupName := "";
+        catalogEntry.verifyFlags := 0;
+        catalogEntry.device := 0;
+        catalogEntry.inode := succ(card(rpm.register));
+        catalogEntry.lang := "";
+        catalogEntry.dirIndex := 0;
+        catalogEntry.baseName := "";
+        catalogEntry.color := 0;
+        catalogEntry.fileClass := 0;
+        catalogEntry.dependX := 0;
+        catalogEntry.dependN := 0;
+        catalogEntry.allDataPresent := TRUE;
+        catalogEntry.filePath := missingPath;
+        catalogEntry.fileNumber := succ(card(rpm.register));
+        catalogEntry.dirty := TRUE;
+        rpm.catalog @:= [missingPath] catalogEntry;
+        incl(rpm.register, missingPath);
+        putFile(rpm.archive, missingPath, data);
       end if;
+    end if;
+  end func;
+
+
+(**
+ *  Creates a new directory in a RPM archive.
+ *  The function does not follow symbolic links.
+ *  @exception RANGE_ERROR ''dirPath'' does not use the standard path
+ *             representation.
+ *  @exception FILE_ERROR A system function returns an error.
+ *)
+const proc: mkdir (inout rpmArchive: rpm, in string: filePath) is func
+  local
+    var rpmCatalogEntry: catalogEntry is rpmCatalogEntry.value;
+    var rpmHeader: header is rpmHeader.value;
+    var boolean: fileExists is TRUE;
+    var integer: fileNumber is 0;
+    var integer: length is 0;
+    var string: filePath8 is "";
+  begin
+    if filePath = "" or filePath <> "/" and endsWith(filePath, "/") then
+      raise RANGE_ERROR;
+    elsif filePath in rpm.catalog then
+      fileNumber := rpm.catalog[filePath].fileNumber;
+    elsif implicitDir(rpm, filePath) then
+      fileNumber := addImplicitDir(rpm, filePath).fileNumber;
+    else
+      fileExists := FALSE;
+    end if;
+    if fileExists and fileNumber <> 0 then
+      # The file exists and it is not an implicit directory.
+      raise FILE_ERROR;
+    else
+      if rpm.archive = fileSys.value then
+        getArchive(rpm);
+      end if;
+      catalogEntry.fileSize := 0;
+      catalogEntry.mode := ord(MODE_FILE_DIR) + 8#775;
+      catalogEntry.uid := 100;
+      catalogEntry.gid := 100;
+      catalogEntry.rdev := 0;
+      catalogEntry.mtime := timestamp1970(time(NOW));
+      catalogEntry.digest := "";
+      catalogEntry.linkTo := "";
+      catalogEntry.flags := 0;
+      catalogEntry.userName := "";
+      catalogEntry.groupName := "";
+      catalogEntry.verifyFlags := 0;
+      catalogEntry.device := 0;
+      catalogEntry.inode := succ(card(rpm.register));
+      catalogEntry.lang := "";
+      catalogEntry.dirIndex := 0;
+      catalogEntry.baseName := "";
+      catalogEntry.color := 0;
+      catalogEntry.fileClass := 0;
+      catalogEntry.dependX := 0;
+      catalogEntry.dependN := 0;
+      catalogEntry.allDataPresent := TRUE;
+      catalogEntry.filePath := filePath;
+      catalogEntry.fileNumber := succ(card(rpm.register));
+      catalogEntry.dirty := TRUE;
+      rpm.catalog @:= [filePath] catalogEntry;
+      incl(rpm.register, filePath);
+      mkdir(rpm.archive, filePath);
     end if;
   end func;
 
@@ -1545,7 +2201,7 @@ const proc: for (inout string: filePath) range (inout rpmArchive: rpm) do
               (in proc: statements)
             end for is func
   begin
-    for key filePath range rpm.register do
+    for filePath range rpm.register do
       statements;
     end for;
   end func;
@@ -1559,7 +2215,7 @@ const func file: openFileInRpm (inout rpmArchive: rpm, in string: filePath,
     if mode = "r" then
       if filePath <> "/" and endsWith(filePath, "/") then
         raise RANGE_ERROR;
-      elsif filePath in rpm.register then
+      elsif filePath in rpm.catalog then
         if rpm.archive = fileSys.value then
           getArchive(rpm);
         end if;

@@ -473,7 +473,7 @@ const proc: process_prc_for (in reference: variable, in reference: startExpr,
           end if;
         end if;
       else
-        incr(countOverflowChecks);
+        incr(countRangeChecks);
         statement.expr &:= "if (rngChk(";
         statement.expr &:= end_name;
         statement.expr &:= "==";
@@ -798,7 +798,6 @@ const proc: process (PRC_BLOCK, in reference: function,
     var reference: current_catch is NIL;
     var ref_list: catch_expr is ref_list.EMPTY;
     var reference: catch_value is NIL;
-    var string: exception_name is "";
   begin
     setDiagnosticLine(c_expr);
     c_expr.expr &:= "{\n";
@@ -828,12 +827,7 @@ const proc: process (PRC_BLOCK, in reference: function,
         category(current_catch) = MATCHOBJECT and
         length(catch_expr) >= 5 do
       catch_value := catch_expr[3];
-      exception_name := str(catch_value);
-      if  (not integer_division_check and exception_name = "NUMERIC_ERROR") or
-          (not integer_overflow_check and exception_name = "OVERFLOW_ERROR") or
-          (not (array_range_check and conversion_range_check) and exception_name = "RANGE_ERROR") then
-        warning(CATCH_WITH_SUPPRESSED_CHECK, exception_name, current_catch);
-      end if;
+      checkWarning(CATCH_WITH_SUPPRESSED_CHECK, str(catch_value), current_catch);
       c_expr.expr &:= diagnosticLine(current_catch);
       c_expr.expr &:= "if (";
       process_expr(catch_value, c_expr);
@@ -887,6 +881,7 @@ const proc: process (PRC_BLOCK_CATCH_ALL, in reference: function,
     c_expr.expr &:= "} else {\n";
     setDiagnosticLine(c_expr);
     c_expr.expr &:= "catch_stack_pos--;\n";
+    # checkWarning(CATCH_OTHERWISE_WITH_SUPPRESSED_CHECK, params[6]);
     process_call_by_name_expr(params[6], c_expr);
     setDiagnosticLine(c_expr);
     c_expr.expr &:= "}\n";
@@ -902,7 +897,6 @@ const proc: process (PRC_BLOCK_OTHERWISE, in reference: function,
     var reference: current_catch is NIL;
     var ref_list: catch_expr is ref_list.EMPTY;
     var reference: catch_value is NIL;
-    var string: exception_name is "";
   begin
     setDiagnosticLine(c_expr);
     c_expr.expr &:= "{\n";
@@ -919,9 +913,9 @@ const proc: process (PRC_BLOCK_OTHERWISE, in reference: function,
     setDiagnosticLine(c_expr);
     c_expr.expr &:= "if (likely((fail_value = do_setjmp(catch_stack[catch_stack_pos])) == 0)) {\n";
     process_call_by_name_expr(params[2], c_expr);
-    current_catch := params[4];
     setDiagnosticLine(c_expr);
     c_expr.expr &:= "catch_stack_pos--;\n";
+    current_catch := params[4];
     catch_expr := getValue(current_catch, ref_list);
     c_expr.expr &:= diagnosticLine(current_catch);
     c_expr.expr &:= "} else {\n";
@@ -932,12 +926,7 @@ const proc: process (PRC_BLOCK_OTHERWISE, in reference: function,
         category(current_catch) = MATCHOBJECT and
         length(catch_expr) >= 5 do
       catch_value := catch_expr[3];
-      exception_name := str(catch_value);
-      if  (not integer_division_check and exception_name = "NUMERIC_ERROR") or
-          (not integer_overflow_check and exception_name = "OVERFLOW_ERROR") or
-          (not (array_range_check and conversion_range_check) and exception_name = "RANGE_ERROR") then
-        warning(CATCH_WITH_SUPPRESSED_CHECK, exception_name, current_catch);
-      end if;
+      checkWarning(CATCH_WITH_SUPPRESSED_CHECK, str(catch_value), current_catch);
       c_expr.expr &:= diagnosticLine(current_catch);
       c_expr.expr &:= "if (";
       process_expr(catch_value, c_expr);
@@ -952,6 +941,7 @@ const proc: process (PRC_BLOCK_OTHERWISE, in reference: function,
         incr(c_expr.currentLine);
         setDiagnosticLine(c_expr);
         c_expr.expr &:= "} else {\n";
+        # checkWarning(CATCH_OTHERWISE_WITH_SUPPRESSED_CHECK, params[7]);
         process_call_by_name_expr(params[7], c_expr);
         setDiagnosticLine(c_expr);
         c_expr.expr &:= "}\n";

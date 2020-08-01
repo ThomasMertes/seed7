@@ -258,7 +258,9 @@ static const actEntryRecord actEntryTable[] = {
     { "CMD_GETENV",              cmd_getenv,              },
     { "CMD_GET_ATIME",           cmd_get_atime,           },
     { "CMD_GET_CTIME",           cmd_get_ctime,           },
+    { "CMD_GET_GROUP",           cmd_get_group,           },
     { "CMD_GET_MTIME",           cmd_get_mtime,           },
+    { "CMD_GET_OWNER",           cmd_get_owner,           },
     { "CMD_GET_SEARCH_PATH",     cmd_get_search_path,     },
     { "CMD_HOME_DIR",            cmd_home_dir,            },
     { "CMD_LS",                  cmd_ls,                  },
@@ -276,6 +278,7 @@ static const actEntryRecord actEntryTable[] = {
     { "CMD_SHELL_ESCAPE",        cmd_shell_escape,        },
     { "CMD_SYMLINK",             cmd_symlink,             },
     { "CMD_TO_OS_PATH",          cmd_to_os_path,          },
+    { "CMD_UNSETENV",            cmd_unsetenv,            },
 
     { "CON_CLEAR",               con_clear,               },
     { "CON_COLUMN",              con_column,              },

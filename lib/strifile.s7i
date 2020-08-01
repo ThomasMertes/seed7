@@ -115,12 +115,15 @@ const func char: getc (inout strifile: inStrifile) is func
 (**
  *  Read a [[string]] with maximum length from ''inStrifile''.
  *  @return the string read.
+ *  @exception RANGE_ERROR The parameter ''maxLength'' is negative.
  *)
 const func string: gets (inout strifile: inStrifile, in integer: maxLength) is func
   result
     var string: striRead is "";
   begin
-    if pred(inStrifile.position + maxLength) <= length(inStrifile.content) then
+    if maxLength < 0 then
+      raise RANGE_ERROR;
+    elsif maxLength <= succ(length(inStrifile.content) - inStrifile.position) then
       striRead := inStrifile.content[inStrifile.position len maxLength];
       inStrifile.position +:= maxLength;
     else

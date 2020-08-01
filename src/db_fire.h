@@ -29,6 +29,10 @@
 /*                                                                  */
 /********************************************************************/
 
+#if defined(__cplusplus) || defined(c_plusplus)
+extern "C" {
+#endif
+
 #define ISC_FAR
 
 #define METADATALENGTH 68
@@ -262,3 +266,7 @@ ISC_STATUS STDCALL isc_start_transaction (ISC_STATUS *status_vector,
                                           isc_db_handle *db_handle,
                                           unsigned short tpb_length,
                                           char *tpb_address);
+
+#if defined(__cplusplus) || defined(c_plusplus)
+}
+#endif

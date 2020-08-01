@@ -257,22 +257,29 @@ const func char: getc (inout gunzipFile: inFile) is func
 (**
  *  Read a string with maximum length from a ''gunzipFile''.
  *  @return the string read.
+ *  @exception RANGE_ERROR The parameter ''maxLength'' is negative.
  *)
-const func string: gets (inout gunzipFile: inFile, in integer: length) is func
+const func string: gets (inout gunzipFile: inFile, in integer: maxLength) is func
   result
     var string: striRead is "";
   begin
-    while pred(inFile.position + length) > length(inFile.uncompressed) and
-        not inFile.bfinal do
-      processCompressedBlock(inFile.compressed, inFile.bitPos,
-          inFile.uncompressed, inFile.bfinal);
-    end while;
-    if pred(inFile.position + length) <= length(inFile.uncompressed) then
-      striRead := inFile.uncompressed[inFile.position len length];
-      inFile.position +:= length;
+    if maxLength <= 0 then
+      if maxLength <> 0 then
+        raise RANGE_ERROR;
+      end if;
     else
-      striRead := inFile.uncompressed[inFile.position ..];
-      inFile.position := succ(length(inFile.uncompressed));
+      while maxLength > succ(length(inFile.uncompressed) - inFile.position) and
+          not inFile.bfinal do
+        processCompressedBlock(inFile.compressed, inFile.bitPos,
+            inFile.uncompressed, inFile.bfinal);
+      end while;
+      if maxLength <= succ(length(inFile.uncompressed) - inFile.position) then
+        striRead := inFile.uncompressed[inFile.position len maxLength];
+        inFile.position +:= maxLength;
+      else
+        striRead := inFile.uncompressed[inFile.position ..];
+        inFile.position := succ(length(inFile.uncompressed));
+      end if;
     end if;
   end func;
 

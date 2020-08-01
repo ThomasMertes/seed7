@@ -890,6 +890,48 @@ const proc: setMTime (inout cpioArchive: cpio, in string: filePath,
 
 
 (**
+ *  Determine the name of the owner (UID) of a file in a CPIO archive.
+ *  The function follows symbolic links.
+ *  @return the name of the file owner.
+ *  @exception RANGE_ERROR ''filePath'' does not use the standard path
+ *             representation.
+ *  @exception FILE_ERROR ''filePath'' is not present in the CPIO archive, or
+ *             the chain of symbolic links is too long.
+ *)
+const func string: getOwner (inout cpioArchive: cpio, in string: filePath) is func
+  result
+    var string: owner is "";
+  begin
+    if filePath <> "/" and endsWith(filePath, "/") then
+      raise RANGE_ERROR;
+    else
+      owner := str(followSymlink(cpio, filePath).uid);
+    end if;
+  end func;
+
+
+(**
+ *  Determine the name of the group (GID) of a file in a CPIO archive.
+ *  The function follows symbolic links.
+ *  @return the name of the file group.
+ *  @exception RANGE_ERROR ''filePath'' does not use the standard path
+ *             representation.
+ *  @exception FILE_ERROR ''filePath'' is not present in the CPIO archive, or
+ *             the chain of symbolic links is too long.
+ *)
+const func string: getGroup (inout cpioArchive: cpio, in string: filePath) is func
+  result
+    var string: group is "";
+  begin
+    if filePath <> "/" and endsWith(filePath, "/") then
+      raise RANGE_ERROR;
+    else
+      group := str(followSymlink(cpio, filePath).gid);
+    end if;
+  end func;
+
+
+(**
  *  Reads the destination of a symbolic link in a CPIO archive.
  *  @return The destination referred by the symbolic link.
  *  @exception RANGE_ERROR ''filePath'' does not use the standard path
@@ -957,6 +999,7 @@ const func string: getFile (inout cpioArchive: cpio, in string: filePath) is fun
  *  The function follows symbolic links.
  *  @exception RANGE_ERROR ''filePath'' does not use the standard path
  *             representation.
+ *  @exception FILE_ERROR The file exists, but it is not a regular file.
  *)
 const proc: putFile (inout cpioArchive: cpio, in var string: filePath,
     in string: data) is func
@@ -1052,6 +1095,7 @@ const proc: putFile (inout cpioArchive: cpio, in var string: filePath,
 
 (**
  *  Creates a new directory in a CPIO archive.
+ *  The function does not follow symbolic links.
  *  @exception RANGE_ERROR ''dirPath'' does not use the standard path
  *             representation.
  *  @exception FILE_ERROR A system function returns an error.
@@ -1076,27 +1120,26 @@ const proc: mkdir (inout cpioArchive: cpio, in string: filePath) is func
       fileExists := FALSE;
     end if;
     if fileExists and dataStartPos <> -1 then
+      # The file exists and it is not an implicit directory.
       raise FILE_ERROR;
     else
       filePath8 := striToUtf8(filePath);
-      if not fileExists then
-        header.magic      := cpio.magic;
-        header.ino        := 0;
-        header.mode       := ord(MODE_FILE_DIR) + 8#775;
-        header.uid        := 100;
-        header.gid        := 100;
-        header.nlink      := 1;
-        header.mtime      := timestamp1970(time(NOW));
-        header.devmajor   := 0;
-        header.devminor   := 0;
-        header.rdevmajor  := 0;
-        header.rdevminor  := 0;
-        header.nameSize   := succ(length(filePath8));
-        header.check      := 0;
-        header.headerSize := cpio.headerSize;
-        header.filePath   := filePath;
-        header.padding    := cpio.padding;
-      end if;
+      header.magic      := cpio.magic;
+      header.ino        := 0;
+      header.mode       := ord(MODE_FILE_DIR) + 8#775;
+      header.uid        := 100;
+      header.gid        := 100;
+      header.nlink      := 1;
+      header.mtime      := timestamp1970(time(NOW));
+      header.devmajor   := 0;
+      header.devminor   := 0;
+      header.rdevmajor  := 0;
+      header.rdevminor  := 0;
+      header.nameSize   := succ(length(filePath8));
+      header.check      := 0;
+      header.headerSize := cpio.headerSize;
+      header.filePath   := filePath;
+      header.padding    := cpio.padding;
       length := length(cpio.cpioFile);
       if cpio.trailerPos = 0 then
         seek(cpio.cpioFile, succ(length));
@@ -1141,23 +1184,18 @@ const func file: openFileInCpio (inout cpioArchive: cpio, in string: filePath,
     var file: newFile is STD_NULL;
   local
     var cpioHeader: header is cpioHeader.value;
-    var boolean: okay is TRUE;
+    var string: missingPath is "";
   begin
     if mode = "r" then
       if filePath <> "/" and endsWith(filePath, "/") then
         raise RANGE_ERROR;
-      elsif filePath in cpio.catalog then
-        header := cpio.catalog[filePath];
-      elsif filePath in cpio.register then
-        header := addToCatalog(cpio, filePath);
-      elsif implicitDir(cpio, filePath) then
-        header := addImplicitDir(cpio, filePath);
       else
-        okay := FALSE;
-      end if;
-      if okay and
-          bin32(header.mode) & MODE_FILE_TYPE_MASK = MODE_FILE_REGULAR then
-        newFile := openSubFile(cpio.cpioFile, header.dataStartPos, header.fileSize);
+        missingPath := followSymlink(cpio, filePath, header);
+        if missingPath = "" and
+            bin32(header.mode) & MODE_FILE_TYPE_MASK = MODE_FILE_REGULAR then
+          newFile := openSubFile(cpio.cpioFile, header.dataStartPos,
+                                 header.fileSize);
+        end if;
       end if;
     end if;
   end func;

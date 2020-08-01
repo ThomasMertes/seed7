@@ -431,8 +431,12 @@ const proc: process_action (in reference: function, in ref_list: params,
         process(CMD_GET_ATIME, function, params, c_expr);
       when {"CMD_GET_CTIME"}:
         process(CMD_GET_CTIME, function, params, c_expr);
+      when {"CMD_GET_GROUP"}:
+        process(CMD_GET_GROUP, function, params, c_expr);
       when {"CMD_GET_MTIME"}:
         process(CMD_GET_MTIME, function, params, c_expr);
+      when {"CMD_GET_OWNER"}:
+        process(CMD_GET_OWNER, function, params, c_expr);
       when {"CMD_GET_SEARCH_PATH"}:
         process(CMD_GET_SEARCH_PATH, function, params, c_expr);
       when {"CMD_HOME_DIR"}:
@@ -467,6 +471,8 @@ const proc: process_action (in reference: function, in ref_list: params,
         process(CMD_SYMLINK, function, params, c_expr);
       when {"CMD_TO_OS_PATH"}:
         process(CMD_TO_OS_PATH, function, params, c_expr);
+      when {"CMD_UNSETENV"}:
+        process(CMD_UNSETENV, function, params, c_expr);
       when {"CON_CLEAR"}:
         consoleLibraryUsed := TRUE;
         process(CON_CLEAR, function, params, c_expr);

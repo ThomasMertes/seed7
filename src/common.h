@@ -529,14 +529,15 @@ typedef int errInfoType;
 #define NUMERIC_ERROR   2
 #define OVERFLOW_ERROR  3
 #define RANGE_ERROR     4
-#define FILE_ERROR      5
-#define DATABASE_ERROR  6
-#define ACTION_ERROR    7
-#define CREATE_ERROR    7
-#define DESTROY_ERROR   7
-#define COPY_ERROR      7
-#define IN_ERROR        7
-#define VALUE_ERROR     7
+#define INDEX_ERROR     5
+#define FILE_ERROR      6
+#define DATABASE_ERROR  7
+#define ACTION_ERROR    8
+#define CREATE_ERROR    8
+#define DESTROY_ERROR   8
+#define COPY_ERROR      8
+#define IN_ERROR        8
+#define VALUE_ERROR     8
 
 
 #if HAS_SIGSETJMP

@@ -123,8 +123,8 @@ const func char: getc (in utf8_file: inFile) is
 (**
  *  Return a string read with a maximum length from an UTF-8 file.
  *  @return the string read.
- *  @exception RANGE_ERROR The length is negative or the file
- *             contains an illegal encoding.
+ *  @exception RANGE_ERROR The parameter ''maxLength'' is negative, or
+ *             the file contains an illegal encoding.
  *)
 const func string: gets (in utf8_file: inFile, in integer: maxLength) is
   return utf8_gets(inFile.ext_file, maxLength);

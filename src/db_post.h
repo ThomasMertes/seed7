@@ -29,6 +29,10 @@
 /*                                                                  */
 /********************************************************************/
 
+#if defined(__cplusplus) || defined(c_plusplus)
+extern "C" {
+#endif
+
 typedef struct pg_conn PGconn;
 typedef struct pg_result PGresult;
 typedef unsigned int Oid;
@@ -178,3 +182,7 @@ extern PGconn *CDECL PQsetdbLogin (const char *pghost, const char *pgport,
                                    const char *dbName,
                                    const char *login, const char *pwd);
 extern ConnStatusType CDECL PQstatus (const PGconn *conn);
+
+#if defined(__cplusplus) || defined(c_plusplus)
+}
+#endif

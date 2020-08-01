@@ -34,6 +34,77 @@ programming languages:
    different language.
 
 
+What are the design principles Seed7?
+=====================================
+
+The design principles are:
+
+ - Error prevention:
+   Seed7 is statically typed, variables must always have a value,
+   there is no NULL and all errors, inclusive integer overflow,
+   trigger an exception.
+
+ - Source code portability:
+   Programs can be executed without changes. Even the path delimiter
+   (/) and database connection strings are standardized. Seed7 has
+   drivers for graphic, console, etc. to compensate for different
+   operating systems.
+
+ - Readability:
+   Programs are more often read than written.
+
+ - Extensibility:
+   Every programmer can define new statements and operators. This
+   includes new operator symbols. Even the syntax and semantics
+   of Seed7 is defined in libraries.
+
+ - Object orientation:
+   There are interfaces and implementations of them. Classes are
+   not used. This allows multiple dispatch.
+
+ - Multiple dispatch:
+   A method is not attached to one object (this). Instead it can
+   be connected to several objects. This works analog to the
+   overloading of operators.
+
+ - Performance:
+   The Seed7 compiler is written in Seed7. It creates C and calls
+   the C compiler, which generates machine code. The generated C
+   program is adapted for the configured C compiler and operating
+   system.
+
+ - No virtual machine:
+   Seed7 is based on the executables of the operating system.
+   This removes another dependency.
+
+ - An interpreter that starts quickly:
+   This allows a quick edit-test cycle. On my computer the
+   interpreter reads 400000 lines per second or more.
+
+ - No artificial restrictions:
+   There is no limit for length of an identifier or string, for
+   the number of variables or number of nesting levels, etc.
+   Nowadays this is no problem, but old programming languages
+   have lots of this limits.
+
+ - Independent of databases:
+   The database drivers of Seed7 consist of 30000 lines of C.
+   This way many differences are abstracted away.
+
+ - Possibility to work without IDE:
+   IDEs are great, but they have an overhead. Sometimes a simple
+   editor makes more sense.
+
+ - Minimal dependency on external tools and libraries:
+   To compile Seed7 you just need a C compiler and a make utility.
+   Most of the libraries of Seed7 are written in Seed7. They do
+   not need external C libraries, which might be missing on a
+   different computer.
+
+ - Comprehensive libraries:
+   The libraries of Seed7 cover many areas.
+
+
 What is an extensible programming language?
 ===========================================
 
@@ -244,12 +315,12 @@ How many lines of code are in the Seed7 project?
 ================================================
 
 The Seed7 package contains more than 100000 lines of C and more
-than 300000 lines of Seed7. For version 2020-05-31 the number of lines is:
+than 300000 lines of Seed7. For version 2020-06-28 the number of lines is:
 
-  158184  C source files (*.c)
-   12569  C header files (*.h)
-  176424  Seed7 source files (*.sd7)
-  156627  Seed7 library/include files (*.s7i)
+  159072  C source files (*.c)
+   12638  C header files (*.h)
+  177043  Seed7 source files (*.sd7)
+  159368  Seed7 library/include files (*.s7i)
 
 C code (*.c and *.h files) can be divided into the following areas:
 
@@ -493,10 +564,9 @@ already be installed.
 
 Errors such as
 
-  gcc chkccomp.c -lm -o chkccomp
-  chkccomp.c:28:21: fatal error: version.h: No such file or directory
+  gcc chkccomp.c -o chkccomp
+  chkccomp.c:28:10: fatal error: base.h: No such file or directory
   compilation terminated.
-  mingw32-make: *** [version.h] Error 1
 
 or
 
@@ -690,8 +760,9 @@ Possible options are
   -sx  Suppress checks specified with x. E.g.: -sr or -sro
        The checks x are specified with letters from the following list:
          d Suppress the generation of checks for integer division by zero.
+         i Suppress the generation of index checks (e.g. string, array).
          o Suppress the generation of integer overflow checks.
-         r Suppress the generation of range checks for strings and arrays.
+         r Suppress the generation of range checks.
   -tx  Set runtime trace level to x. Where x is a string consisting
        of the following characters:
          e Trace exceptions and handlers
@@ -995,14 +1066,37 @@ Seed7 has a basic principle that would break if type inference would be used:
    The type of every expression (and sub expression) is known at compile time.
    This is independent from the place where this expression is used.
 
-It is exactly the violation of this principle that makes type inference possible.
-As long as this principle holds you need to know the global and local declarations
-to find out the result type of an expression. With type inference it is necessary
+To explain this principle consider the expression:
+
+  a + b
+
+If the types of a and b are known and the definition of + fits the
+type of the expression a + b is also known. In this example a and b can be
+constants, variables or even sub-expressions. If one of the types of a or b
+is not known the type of a + b cannot be determined. Now assume that a + b
+is part of a bigger expression:
+
+  c = (a + b)
+
+In theory you could deduce the type of a + b if you know the type of c and
+how = works. But in this case the information where a + b is used is taken
+into account. The basic principle mentioned above rules that out. According
+to that the place where an expression is used has no influence on the type
+of the expression. In Seed7 the type information moves inside out from
+sub-expressions to expressions. In other words it moves from the bottom to
+the top. This rule simplifies parsing a lot. This is one of the reasons why
+the parser processes several hundred thousand lines per second.
+
+To do type inference it is necessary that type information moves also in
+the other direction. You can see: It is exactly the violation of the basic
+principle mentioned above, that makes type inference possible. As long as
+this principle holds you need to know the global and local declarations to
+find out the result type of an expression. With type inference it is necessary
 to take other expressions in the local function and even expressions in other
-functions into account. I do not say that this is not possible (for sure it is an
-interesting challenge to invent an algorithm to do this). But the reader of the
-program needs to use this algorithm also every time he/she reads the program. And
-that is very bad since a program is more often read than written.
+functions into account. I do not say that this is not possible (for sure it
+is an interesting challenge to invent an algorithm to do this). But the reader
+of the program needs to use this algorithm also every time he/she reads the
+program. And that is very bad since a program is more often read than written.
 
 
 Are there automatic casts to the right type?
@@ -1055,13 +1149,15 @@ overloading has a big advantage:
    The type of every expression (and sub expression) is known at compile time.
    This is independent from the place where this expression is used.
 
-Therefore it is not possible to overload something which has no parameters (like
-a variable or a literal). As a consequence it is sometimes necessary to cast a
-literal to get an unambiguous expression. This concept parallels the approach
-used in mathematics where it is also required to specify measurement units.
-Obviously there is a difference between 5 seconds, 5 square meters and 5 apples.
-In school it is usually considered wrong to just write 5 and let the teacher
-guess the measurement unit.
+This means that the place, where an expression is used, has no influence on
+the type of the expression (see also at the answer about type inference).
+Therefore it is not possible to overload something which has no parameters
+(like a variable or a literal). As a consequence it is sometimes necessary to
+cast a literal to get an unambiguous expression. This concept parallels the
+approach used in mathematics where it is also required to specify measurement
+units. Obviously there is a difference between 5 seconds, 5 square meters and
+5 apples. In school it is usually considered wrong to just write 5 and let
+the teacher guess the measurement unit.
 
 
 Can functions have variable parameter lists?

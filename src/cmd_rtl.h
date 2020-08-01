@@ -97,3 +97,4 @@ intType cmdShell (const const_striType command, const const_striType parameters)
 striType cmdShellEscape (const const_striType stri);
 void cmdSymlink (const const_striType source_name, const const_striType dest_name);
 striType cmdToOsPath (const const_striType standardPath);
+void cmdUnsetenv (const const_striType name);

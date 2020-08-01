@@ -29,6 +29,10 @@
 /*                                                                  */
 /********************************************************************/
 
+#if defined(__cplusplus) || defined(c_plusplus)
+extern "C" {
+#endif
+
 typedef void *sqlite3;
 typedef void *sqlite3_stmt;
 
@@ -95,3 +99,7 @@ int CDECL sqlite3_prepare (sqlite3 *db,
                            const char **pzTail);
 int CDECL sqlite3_reset (sqlite3_stmt *pStmt);
 int CDECL sqlite3_step (sqlite3_stmt *pStmt);
+
+#if defined(__cplusplus) || defined(c_plusplus)
+}
+#endif

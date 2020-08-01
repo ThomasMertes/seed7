@@ -257,7 +257,7 @@ const func char: getc (inout socket: inSocket) is
 (**
  *  Read a [[string]] with a maximum length from ''inSocket''.
  *  @return the string read.
- *  @exception RANGE_ERROR The length is negative.
+ *  @exception RANGE_ERROR The parameter ''maxLength'' is negative.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  *)
 const func string: gets (inout socket: inSocket, in integer: maxLength) is

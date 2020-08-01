@@ -207,7 +207,7 @@ settings.h:
 	echo ^#define COMP_DATA_LIB "$(COMP_DATA_LIB)" >> settings.h
 	echo ^#define COMPILER_LIB "$(COMPILER_LIB)" >> settings.h
 
-version.h: chkccomp.h base.h settings.h bcc32.bat
+version.h: chkccomp.h base.h settings.h
 	$(CC) chkccomp.c
 	chkccomp.exe version.h
 	del chkccomp.obj

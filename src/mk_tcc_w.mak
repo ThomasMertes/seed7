@@ -14,7 +14,7 @@ CFLAGS = -g $(INCLUDE_OPTIONS) -Wall -Wimplicit-function-declaration -Wunusuppor
 LDFLAGS = -Wl,-stack=16777216
 # LDFLAGS = -pg
 # LDFLAGS = -pg -lc_p
-SYSTEM_LIBS = -lws2_32
+SYSTEM_LIBS = -lws2_32 -ladvapi32
 # SYSTEM_LIBS = -lgmp
 SYSTEM_DRAW_LIBS = -lgdi32 -luser32
 SYSTEM_CONSOLE_LIBS =

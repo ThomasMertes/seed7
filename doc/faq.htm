@@ -155,6 +155,9 @@ General
 <li><a class="link" href="#faq_new_language"><b>
 Why a new programming language?
 </b></a></li>
+<li><a class="link" href="#faq_design_principles"><b>
+What are the design principles Seed7?
+</b></a></li>
 <li><a class="link" href="#faq_extensible_programming"><b>
 What is an extensible programming language?
 </b></a></li>
@@ -413,6 +416,77 @@ programming languages:
    different language.</li>
 </ul></div>
 
+<div><br /><a name="faq_design_principles"><h3>What are the design principles Seed7?
+</h3></a><hr />
+<p>
+The design principles are:
+</p><dl>
+<dt>Error prevention:</dt><dd>
+   Seed7 is <a class="link" href="#faq_static_type_checking">statically typed</a>, variables must always have a value,
+   there is no NULL and all errors, inclusive <a class="link" href="#faq_integer_overflow">integer overflow</a>,
+   trigger an exception.</dd>
+
+<dt>Source code portability:</dt><dd>
+   Programs can be <a class="link" href="#faq_portable">executed without changes</a>. Even the path delimiter
+   (/) and database connection strings are standardized. Seed7 has
+   drivers for graphic, console, etc. to compensate for different
+   operating systems.</dd>
+
+<dt>Readability:</dt><dd>
+   Programs are more often read than written.</dd>
+
+<dt>Extensibility:</dt><dd>
+   Every programmer can <a class="link" href="#faq_extensible_programming">define new statements and operators</a>. This
+   includes new operator symbols. Even the syntax and semantics
+   of Seed7 is defined in libraries.</dd>
+
+<dt>Object orientation:</dt><dd>
+   There are interfaces and implementations of them. Classes are
+   not used. This allows <a class="link" href="#faq_multiple_dispatch">multiple dispatch</a>.</dd>
+
+<dt>Multiple dispatch:</dt><dd>
+   A method is not attached to one object (this). Instead it can
+   be connected to several objects. This works analog to the
+   overloading of operators.</dd>
+
+<dt>Performance:</dt><dd>
+   The Seed7 <a class="link" href="#faq_compile">compiler</a> is written in Seed7. It creates C and calls
+   the C compiler, which generates machine code. The generated C
+   program is adapted for the configured C compiler and operating
+   system.</dd>
+
+<dt>No virtual machine:</dt><dd>
+   Seed7 is based on the executables of the operating system.
+   This removes another dependency.</dd>
+
+<dt>An interpreter that starts quickly:</dt><dd>
+   This allows a quick edit-test cycle. On my computer the
+   interpreter reads 400000 lines per second or more.</dd>
+
+<dt>No artificial restrictions:</dt><dd>
+   There is no limit for length of an identifier or string, for
+   the number of variables or number of nesting levels, etc.
+   Nowadays this is no problem, but old programming languages
+   have lots of this limits.</dd>
+
+<dt>Independent of databases:</dt><dd>
+   The <a class="link" href="#faq_database_access">database</a> drivers of Seed7 consist of 30000 lines of C.
+   This way many differences are abstracted away.</dd>
+
+<dt>Possibility to work without IDE:</dt><dd>
+   IDEs are great, but they have an overhead. Sometimes a simple
+   editor makes more sense.</dd>
+
+<dt>Minimal dependency on external tools and libraries:</dt><dd>
+   To <a class="link" href="#faq_compile_interpreter">compile Seed7</a> you just need a C compiler and a make utility.
+   Most of the libraries of Seed7 are written in Seed7. They do
+   not need external C libraries, which might be missing on a
+   different computer.</dd>
+
+<dt>Comprehensive libraries:</dt><dd>
+   The <span class="link">libraries</span> of Seed7 cover many areas.</dd>
+</dl></div>
+
 <div><br /><a name="faq_extensible_programming"><h3>What is an extensible programming language?
 </h3></a><hr />
 <p>
@@ -623,12 +697,12 @@ Seed7 can be used in various application areas:
 </h3></a><hr />
 <p>
 The Seed7 package contains more than 100000 lines of C and more
-than 300000 lines of Seed7. For version 2020-05-31 the number of lines is:
+than 300000 lines of Seed7. For version 2020-06-28 the number of lines is:
 </p><dl><dd><table border="0" cellspacing="0">
-  <tr><td align="right">158184</td> <td width="20"></td> <td>C source files (*.c)</td></tr>
-  <tr><td align="right"> 12569</td> <td width="20"></td> <td>C header files (*.h)</td></tr>
-  <tr><td align="right">176424</td> <td width="20"></td> <td>Seed7 source files (*.sd7)</td></tr>
-  <tr><td align="right">156627</td> <td width="20"></td> <td>Seed7 library/include files (*.s7i)</td></tr>
+  <tr><td align="right">159072</td> <td width="20"></td> <td>C source files (*.c)</td></tr>
+  <tr><td align="right"> 12638</td> <td width="20"></td> <td>C header files (*.h)</td></tr>
+  <tr><td align="right">177043</td> <td width="20"></td> <td>Seed7 source files (*.sd7)</td></tr>
+  <tr><td align="right">159368</td> <td width="20"></td> <td>Seed7 library/include files (*.s7i)</td></tr>
 </table></dd></dl><p>
 C code (*.c and *.h files) can be divided into the following areas:
 </p><dl><dd><table border="0" cellspacing="0">
@@ -872,10 +946,9 @@ already be installed.
 </p><p>
 Errors such as
 </p><pre class="box">
-  gcc chkccomp.c -lm -o chkccomp
-  chkccomp.c:28:21: fatal error: version.h: No such file or directory
+  gcc chkccomp.c -o chkccomp
+  chkccomp.c:28:10: fatal error: base.h: No such file or directory
   compilation terminated.
-  mingw32-make: *** [version.h] Error 1
 </pre><p>
 or
 </p><pre class="box">
@@ -1066,11 +1139,12 @@ Possible options are
          <li><b>2</b> Evaluate constant parameter expressions to simplify expressions.</li>
          <li><b>3</b> Like <b>-oc2</b> and additionally evaluate all constant expressions.</li></ul></li>
   <li><b>-p</b>   Activate simple function profiling.</li>
-  <li><b>-s</b><span class="keywd">x</span>  Suppress checks specified with <span class="keywd">x</span>. E.g.: <b>-sr</b> or <b>-sro</b>
+  <li><a name="faq_compiler_option-s"><b>-s</b><span class="keywd">x</span></a>  <span class="link">Suppress checks</span> specified with <span class="keywd">x</span>. E.g.: <b>-sr</b> or <b>-sro</b>
        The checks <span class="keywd">x</span> are specified with letters from the following list:<ul>
          <li><b>d</b> Suppress the generation of checks for <span class="link">integer division by zero</span>.</li>
+         <li><b>i</b> Suppress the generation of <span class="link">index checks</span> (e.g. string, array).</li>
          <li><b>o</b> Suppress the generation of <span class="link">integer overflow</span> checks.</li>
-         <li><b>r</b> Suppress the generation of range checks for strings and arrays.</li></ul></li>
+         <li><b>r</b> Suppress the generation of range checks.</li></ul></li>
   <li><b>-t</b><span class="keywd">x</span>  Set runtime trace level to <span class="keywd">x</span>. Where <span class="keywd">x</span> is a string consisting
        of the following characters:<ul>
          <li><b>e</b> Trace exceptions and handlers</li>
@@ -1374,14 +1448,37 @@ Seed7 has a basic principle that would break if type inference would be used:
   &nbsp;The type of every expression (and sub expression) is known at compile time.&nbsp;<br />
   &nbsp;This is independent from the place where this expression is used.&nbsp;
 </td></tr></table></dd></dl><p>
-It is exactly the violation of this principle that makes type inference possible.
-As long as this principle holds you need to know the global and local declarations
-to find out the result type of an expression. With type inference it is necessary
+To explain this principle consider the expression:
+</p><pre class="indent">
+<span class="var">a</span> + <span class="var">b</span>
+</pre><p>
+If the types of <tt><span class="var">a</span></tt> and <tt><span class="var">b</span></tt> are known and the definition of <tt>+</tt> fits the
+type of the expression <tt><span class="var">a</span> + <span class="var">b</span></tt> is also known. In this example <tt><span class="var">a</span></tt> and <tt><span class="var">b</span></tt> can be
+constants, variables or even sub-expressions. If one of the types of <tt><span class="var">a</span></tt> or <tt><span class="var">b</span></tt>
+is not known the type of <tt><span class="var">a</span> + <span class="var">b</span></tt> cannot be determined. Now assume that <tt><span class="var">a</span> + <span class="var">b</span></tt>
+is part of a bigger expression:
+</p><pre class="indent">
+<span class="var">c</span> = (<span class="var">a</span> + <span class="var">b</span>)
+</pre><p>
+In theory you could deduce the type of <tt><span class="var">a</span> + <span class="var">b</span></tt> if you know the type of <tt><span class="var">c</span></tt> and
+how <tt>=</tt> works. But in this case the information where <tt><span class="var">a</span> + <span class="var">b</span></tt> is used is taken
+into account. The basic principle mentioned above rules that out. According
+to that the place where an expression is used has no influence on the type
+of the expression. In Seed7 the type information moves inside out from
+sub-expressions to expressions. In other words it moves from the bottom to
+the top. This rule simplifies parsing a lot. This is one of the reasons why
+the parser processes several hundred thousand lines per second.
+</p><p>
+To do type inference it is necessary that type information moves also in
+the other direction. You can see: It is exactly the violation of the basic
+principle mentioned above, that makes type inference possible. As long as
+this principle holds you need to know the global and local declarations to
+find out the result type of an expression. With type inference it is necessary
 to take other expressions in the local function and even expressions in other
-functions into account. I do not say that this is not possible (for sure it is an
-interesting challenge to invent an algorithm to do this). But the reader of the
-program needs to use this algorithm also every time he/she reads the program. And
-that is very bad since a program is more often read than written.
+functions into account. I do not say that this is not possible (for sure it
+is an interesting challenge to invent an algorithm to do this). But the reader
+of the program needs to use this algorithm also every time he/she reads the
+program. And that is very bad since a program is more often read than written.
 </p></div>
 
 <div><br /><a name="faq_automatic_casts"><h3>Are there automatic casts to the right type?
@@ -1434,13 +1531,15 @@ overloading has a big advantage:
   &nbsp;The type of every expression (and sub expression) is known at compile time.&nbsp;<br />
   &nbsp;This is independent from the place where this expression is used.&nbsp;
 </td></tr></table></dd></dl><p>
-Therefore it is not possible to overload something which has no parameters (like
-a variable or a literal). As a consequence it is sometimes necessary to cast a
-literal to get an unambiguous expression. This concept parallels the approach
-used in mathematics where it is also required to specify measurement units.
-Obviously there is a difference between 5 seconds, 5 square meters and 5 apples.
-In school it is usually considered wrong to just write 5 and let the teacher
-guess the measurement unit.
+This means that the place, where an expression is used, has no influence on
+the type of the expression (see also at the answer about <a class="link" href="#faq_type_inference">type inference</a>).
+Therefore it is not possible to overload something which has no parameters
+(like a variable or a literal). As a consequence it is sometimes necessary to
+cast a literal to get an unambiguous expression. This concept parallels the
+approach used in mathematics where it is also required to specify measurement
+units. Obviously there is a difference between 5 seconds, 5 square meters and
+5 apples. In school it is usually considered wrong to just write 5 and let
+the teacher guess the measurement unit.
 </p></div>
 
 <div><br /><a name="faq_variable_parameter_list"><h3>Can functions have variable parameter lists?
@@ -1846,7 +1945,7 @@ dangerous things. A program can make wrong decisions or produce wrong
 output, without any hint that an integer overflow occurred. In Seed7
 the <span class="link">exception</span> <tt><span class="exception">OVERFLOW_ERROR</span></tt> is raised if an overflow occurs.
 If performance is important the overflow checking can be switched
-off with the <span class="link">compiler</span> option <b>-so</b>.
+off with the <span class="link">compiler</span> option <a class="link" href="#faq_compiler_option-s"><tt><b>-so</b></tt></a>.
 </p></div>
 
 <div><br /><a name="faq_garbage_collection"><h3>Is there a garbage collection?

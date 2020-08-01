@@ -815,7 +815,7 @@ objectType arr_head (listType arguments)
 /**
  *  Access one element from the array 'arr'.
  *  @return the element with the specified 'position' from 'arr'.
- *  @exception RANGE_ERROR If 'position' is less than arr_minidx(arr) or
+ *  @exception INDEX_ERROR If 'position' is less than arr_minidx(arr) or
  *                         greater than arr_maxidx(arr)
  */
 objectType arr_idx (listType arguments)
@@ -837,7 +837,7 @@ objectType arr_idx (listType arguments)
       logError(printf("arr_idx(arr1, " FMT_D "): "
                       "Index out of range (" FMT_D " .. " FMT_D ").\n",
                       position, arr1->min_position, arr1->max_position););
-      result = raise_exception(SYS_RNG_EXCEPTION);
+      result = raise_exception(SYS_IDX_EXCEPTION);
     } else {
       array_pointer = arr1->arr;
       if (TEMP_OBJECT(arg_1(arguments))) {
@@ -1067,7 +1067,7 @@ objectType arr_range (listType arguments)
 /**
  *  Remove the element with 'position' from 'arr1' and return the removed element.
  *  @return the removed element.
- *  @exception RANGE_ERROR If 'position' is less than arr_minidx(arr2) or
+ *  @exception INDEX_ERROR If 'position' is less than arr_minidx(arr2) or
  *                         greater than arr_maxidx(arr2)
  */
 objectType arr_remove (listType arguments)
@@ -1092,7 +1092,7 @@ objectType arr_remove (listType arguments)
       logError(printf("arr_remove(arr1, " FMT_D "): "
                       "Index out of range (" FMT_D " .. " FMT_D ").\n",
                       position, arr1->min_position, arr1->max_position););
-      result = raise_exception(SYS_RNG_EXCEPTION);
+      result = raise_exception(SYS_IDX_EXCEPTION);
     } else {
       array_pointer = arr1->arr;
       if (unlikely(!ALLOC_OBJECT(result))) {

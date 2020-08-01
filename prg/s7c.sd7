@@ -1426,6 +1426,7 @@ const proc: optimize_constant_expressions (inout reference: current_expression,
         catch NUMERIC_ERROR:  c_expr.expr &:= "/* NUMERIC_ERROR */ "; # noop;
         catch OVERFLOW_ERROR: c_expr.expr &:= "/* OVERFLOW_ERROR */ "; # noop;
         catch RANGE_ERROR:    c_expr.expr &:= "/* RANGE_ERROR */ "; # noop;
+        catch INDEX_ERROR:    c_expr.expr &:= "/* INDEX_ERROR */ "; # noop;
         catch FILE_ERROR:     c_expr.expr &:= "/* FILE_ERROR */ "; # noop;
         catch DATABASE_ERROR: c_expr.expr &:= "/* DATABASE_ERROR */ "; # noop;
       end block;
@@ -1892,6 +1893,7 @@ const proc: process_result_declaration (in reference: result_object,
           catch NUMERIC_ERROR:  noop;
           catch OVERFLOW_ERROR: noop;
           catch RANGE_ERROR:    noop;
+          catch INDEX_ERROR:    noop;
           catch FILE_ERROR:     noop;
           catch DATABASE_ERROR: noop;
         end block;
@@ -3944,57 +3946,49 @@ const proc: process_arr_times_declaration (in reference: current_object,
     if length(params) >= 3 then
       object_type := getType(params[3]);
       result_type := resultType(getType(current_object));
-      process_create_declaration(object_type, c_expr);
-      c_expr.expr &:= diagnosticLine;
-      # c_expr.expr &:= type_name(result_type);
-      c_expr.expr &:= "static arrayType times_";
-      c_expr.expr &:= str(typeNumber(result_type));
-      c_expr.expr &:= " (intType n, const ";
-      if useConstPrefix(object_type) then
-        c_expr.expr &:= "const_";
-      end if;
-      c_expr.expr &:= type_name(object_type);
-      c_expr.expr &:= " b)\n";
-      c_expr.expr &:= diagnosticLine;
-      prototype_declared @:= [current_object] TRUE;
-      c_expr.expr &:= "{\n";
-      c_expr.expr &:= diagnosticLine;
-      c_expr.expr &:= "arrayType a;\n";
-      c_expr.expr &:= diagnosticLine;
-      c_expr.expr &:= "memSizeType i;\n";
-      if array_range_check then
-        incr(countRangeChecks);
-        c_expr.expr &:= diagnosticLine;
-        c_expr.expr &:= "if (n < 0) {\n";
-        c_expr.expr &:= diagnosticLine;
-        c_expr.expr &:= "raiseError(RANGE_ERROR);\n";
-        c_expr.expr &:= diagnosticLine;
-        c_expr.expr &:= "} else {\n";
+      if object_type in typeCategory and
+          typeCategory[object_type] in simpleValueType then
+        c_expr.expr &:= "/* times_";
+        c_expr.expr &:= str(typeNumber(result_type));
+        c_expr.expr &:= " not defined because arrTimes() is used instead. */\n";
       else
-        incr(countNoRangeChecks);
-      end if;
-      c_expr.expr &:= diagnosticLine;
-      c_expr.expr &:= "a=arrMalloc(1, n);\n";
-      c_expr.expr &:= diagnosticLine;
-      c_expr.expr &:= "for (i = 0; i < (memSizeType)(n); i++) {\n";
-      c_expr.expr &:= diagnosticLine;
-      c_expr.expr &:= "a->arr[i]";
-      c_expr.expr &:= select_value_from_rtlObjectStruct(object_type);
-      c_expr.expr &:= "=";
-      process_create_call(object_type, "b", c_expr.expr);
-      c_expr.expr &:= ";\n";
-      c_expr.expr &:= diagnosticLine;
-      c_expr.expr &:= "}\n";
-      if array_range_check then
+        process_create_declaration(object_type, c_expr);
+        c_expr.expr &:= diagnosticLine;
+        # c_expr.expr &:= type_name(result_type);
+        c_expr.expr &:= "static arrayType times_";
+        c_expr.expr &:= str(typeNumber(result_type));
+        c_expr.expr &:= " (intType n, const ";
+        if useConstPrefix(object_type) then
+          c_expr.expr &:= "const_";
+        end if;
+        c_expr.expr &:= type_name(object_type);
+        c_expr.expr &:= " b)\n";
+        c_expr.expr &:= diagnosticLine;
+        prototype_declared @:= [current_object] TRUE;
+        c_expr.expr &:= "{\n";
+        c_expr.expr &:= diagnosticLine;
+        c_expr.expr &:= "arrayType a;\n";
+        c_expr.expr &:= diagnosticLine;
+        c_expr.expr &:= "memSizeType i;\n";
+        c_expr.expr &:= diagnosticLine;
+        c_expr.expr &:= "a=arrMalloc(1, n);\n";
+        c_expr.expr &:= diagnosticLine;
+        c_expr.expr &:= "for (i = 0; i < (memSizeType)(n); i++) {\n";
+        c_expr.expr &:= diagnosticLine;
+        c_expr.expr &:= "a->arr[i]";
+        c_expr.expr &:= select_value_from_rtlObjectStruct(object_type);
+        c_expr.expr &:= "=";
+        process_create_call(object_type, "b", c_expr.expr);
+        c_expr.expr &:= ";\n";
         c_expr.expr &:= diagnosticLine;
         c_expr.expr &:= "}\n";
+        c_expr.expr &:= diagnosticLine;
+        c_expr.expr &:= "return a;\n";
+        c_expr.expr &:= diagnosticLine;
+        c_expr.expr &:= "}\n";
+        c_expr.expr &:= noDiagnosticLine;
+        c_expr.expr &:= "\n";
       end if;
-      c_expr.expr &:= diagnosticLine;
-      c_expr.expr &:= "return a;\n";
-      c_expr.expr &:= diagnosticLine;
-      c_expr.expr &:= "}\n";
-      c_expr.expr &:= noDiagnosticLine;
-      c_expr.expr &:= "\n";
     end if;
   end func;
 
@@ -5047,19 +5041,21 @@ const proc: write_file_head is func
     writeln(c_prog, "#define NUMERIC_ERROR   2");
     writeln(c_prog, "#define OVERFLOW_ERROR  3");
     writeln(c_prog, "#define RANGE_ERROR     4");
-    writeln(c_prog, "#define FILE_ERROR      5");
-    writeln(c_prog, "#define DATABSE_ERROR   6");
-    writeln(c_prog, "#define ACTION_ERROR    7");
-    writeln(c_prog, "#define CREATE_ERROR    8");
-    writeln(c_prog, "#define DESTROY_ERROR   9");
-    writeln(c_prog, "#define COPY_ERROR     10");
-    writeln(c_prog, "#define IN_ERROR       11");
+    writeln(c_prog, "#define INDEX_ERROR     5");
+    writeln(c_prog, "#define FILE_ERROR      6");
+    writeln(c_prog, "#define DATABSE_ERROR   7");
+    writeln(c_prog, "#define ACTION_ERROR    8");
+    writeln(c_prog, "#define CREATE_ERROR    9");
+    writeln(c_prog, "#define DESTROY_ERROR  10");
+    writeln(c_prog, "#define COPY_ERROR     11");
+    writeln(c_prog, "#define IN_ERROR       12");
     writeln(c_prog, "static const char *exception_name[] = {");
     writeln(c_prog, "    \"OKAY_NO_ERROR\",");
     writeln(c_prog, "    \"MEMORY_ERROR\",");
     writeln(c_prog, "    \"NUMERIC_ERROR\",");
     writeln(c_prog, "    \"OVERFLOW_ERROR\",");
     writeln(c_prog, "    \"RANGE_ERROR\",");
+    writeln(c_prog, "    \"INDEX_ERROR\",");
     writeln(c_prog, "    \"FILE_ERROR\",");
     writeln(c_prog, "    \"DATABASE_ERROR\",");
     writeln(c_prog, "    \"ACTION_ERROR\",");
@@ -5220,6 +5216,7 @@ const proc: write_prototypes is func
     writeln(c_prog, "#define intRaiseError(num) (rtlRaiseError(num, __FILE__, __LINE__), 0)");
     writeln(c_prog, "#define bigRaiseError(num) (bigIntType)(rtlRaiseError(num, __FILE__, __LINE__), NULL)");
     writeln(c_prog, "#define strRaiseError(num) (striType)(rtlRaiseError(num, __FILE__, __LINE__), NULL)");
+    writeln(c_prog, "#define refRaiseError(num) (objRefType)(rtlRaiseError(num, __FILE__, __LINE__), NULL)");
 (*
     declareExtern("intType     enuValue (objRefType a)                         {printf(\"enuValue\\n\");}");
     declareExtern("intType     enuValue (objRefType);");
@@ -6906,11 +6903,17 @@ const proc: pass_1 (in string: source, inout program: prog,
         if pos(compiler_option["-s"], 'd') <> 0 then
           integer_division_check := FALSE;
         end if;
+        if pos(compiler_option["-s"], 'i') <> 0 then
+          string_index_check := FALSE;
+          bstring_index_check := FALSE;
+          array_index_check := FALSE;
+          ref_list_index_check := FALSE;
+        end if;
         if pos(compiler_option["-s"], 'o') <> 0 then
           integer_overflow_check := FALSE;
         end if;
         if pos(compiler_option["-s"], 'r') <> 0 then
-          array_range_check := FALSE;
+          function_range_check := FALSE;
           conversion_range_check := FALSE;
         end if;
       end if;
@@ -7011,6 +7014,12 @@ const proc: pass_2 (in string: source, in program: prog,
             end if;
             if countNoRangeChecks <> 0 then
               writeln(countNoRangeChecks <& " range checks suppressed");
+            end if;
+            if countIndexChecks <> 0 then
+              writeln(countIndexChecks   <& " index checks inserted");
+            end if;
+            if countNoIndexChecks <> 0 then
+              writeln(countNoIndexChecks <& " index checks suppressed");
             end if;
             if countOverflowChecks <> 0 then
               writeln(countOverflowChecks   <& " overflow checks inserted");
@@ -7403,8 +7412,9 @@ const proc: writeHelp is func
     writeln("  -sx  Suppress checks specified with x. E.g.: -sr or -sro");
     writeln("       The checks x are specified with letters from the following list:");
     writeln("         d Suppress the generation of checks for integer division by zero.");
+    writeln("         i Suppress the generation of index checks (e.g. string, array).");
     writeln("         o Suppress the generation of integer overflow checks.");
-    writeln("         r Suppress the generation of range checks for strings and arrays.");
+    writeln("         r Suppress the generation of range checks.");
     writeln("  -tx  Set runtime trace level to x. Where x is a string consisting of:");
     writeln("         e Trace exceptions and handlers");
     writeln("         f Trace functions");

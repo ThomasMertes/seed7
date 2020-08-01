@@ -235,7 +235,8 @@ const proc: write (in utf16le_file: outFile, in string: stri) is func
 (**
  *  Return a string read with a maximum length from an UTF-16LE file.
  *  @return the string read.
- *  @exception RANGE_ERROR The file contains an illegal surrogate pair.
+ *  @exception RANGE_ERROR The parameter ''maxLength'' is negative, or
+ *             the file contains an illegal surrogate pair.
  *)
 const func string: gets (in utf16le_file: inFile, in integer: maxLength) is func
   result
@@ -249,42 +250,48 @@ const func string: gets (in utf16le_file: inFile, in integer: maxLength) is func
     var char: ch1 is ' ';
     var char: ch2 is ' ';
   begin
-    charsMissing := maxLength;
-    repeat
-      stri := gets(inFile.ext_file, 2 * charsMissing);
-      if odd(length(stri)) then
+    if maxLength <= 0 then
+      if maxLength <> 0 then
         raise RANGE_ERROR;
-      elsif length(stri) <> 2 * charsMissing then
-        partialRead := TRUE;
       end if;
-      for index range 1 to length(stri) mdiv 2 do
-        ch1 := chr(ord(stri[index * 2]) * 256 + ord(stri[pred(index * 2)]));
-        if ch1 >= '\16#d800;' and ch1 <= '\16#dbff;' then
-          # ch1 introduces a surrogate pair
-          if index = length(stri) mdiv 2 then
-            surrogate_part := gets(inFile.ext_file, 2);
-            if length(surrogate_part) = 2 then
-              ch2 := chr(ord(surrogate_part[2]) * 256 + ord(surrogate_part[1]));
+    else
+      charsMissing := maxLength;
+      repeat
+        stri := gets(inFile.ext_file, 2 * charsMissing);
+        if odd(length(stri)) then
+          raise RANGE_ERROR;
+        elsif length(stri) <> 2 * charsMissing then
+          partialRead := TRUE;
+        end if;
+        for index range 1 to length(stri) mdiv 2 do
+          ch1 := chr(ord(stri[index * 2]) * 256 + ord(stri[pred(index * 2)]));
+          if ch1 >= '\16#d800;' and ch1 <= '\16#dbff;' then
+            # ch1 introduces a surrogate pair
+            if index = length(stri) mdiv 2 then
+              surrogate_part := gets(inFile.ext_file, 2);
+              if length(surrogate_part) = 2 then
+                ch2 := chr(ord(surrogate_part[2]) * 256 + ord(surrogate_part[1]));
+              else
+                raise RANGE_ERROR;
+              end if;
+            else
+              incr(index);
+              ch2 := chr(ord(stri[index * 2]) * 256 + ord(stri[pred(index * 2)]));
+            end if;
+            if ch2 >= '\16#dc00;' and ch2 <= '\16#dfff;' then
+              # ch1 and ch2 are a surrogate pair
+              striRead &:= chr((ord(ch1) - 16#d800) << 10 +
+                               (ord(ch2) - 16#dc00) + 16#10000);
             else
               raise RANGE_ERROR;
             end if;
           else
-            incr(index);
-            ch2 := chr(ord(stri[index * 2]) * 256 + ord(stri[pred(index * 2)]));
+            striRead &:= str(ch1);
           end if;
-          if ch2 >= '\16#dc00;' and ch2 <= '\16#dfff;' then
-            # ch1 and ch2 are a surrogate pair
-            striRead &:= chr((ord(ch1) - 16#d800) << 10 +
-                             (ord(ch2) - 16#dc00) + 16#10000);
-          else
-            raise RANGE_ERROR;
-          end if;
-        else
-          striRead &:= str(ch1);
-        end if;
-      end for;
-      charsMissing := maxLength - length(striRead);
-    until charsMissing = 0 or partialRead;
+        end for;
+        charsMissing := maxLength - length(striRead);
+      until charsMissing = 0 or partialRead;
+    end if;
   end func;
 
 
@@ -383,7 +390,8 @@ const proc: write (in utf16be_file: outFile, in string: stri) is func
 (**
  *  Return a string read with a maximum length from an UTF-16BE file.
  *  @return the string read.
- *  @exception RANGE_ERROR The file contains an illegal surrogate pair.
+ *  @exception RANGE_ERROR The parameter ''maxLength'' is negative, or
+ *             the file contains an illegal surrogate pair.
  *)
 const func string: gets (in utf16be_file: inFile, in integer: maxLength) is func
   result
@@ -397,42 +405,48 @@ const func string: gets (in utf16be_file: inFile, in integer: maxLength) is func
     var char: ch1 is ' ';
     var char: ch2 is ' ';
   begin
-    charsMissing := maxLength;
-    repeat
-      stri := gets(inFile.ext_file, 2 * charsMissing);
-      if odd(length(stri)) then
+    if maxLength <= 0 then
+      if maxLength <> 0 then
         raise RANGE_ERROR;
-      elsif length(stri) <> 2 * charsMissing then
-        partialRead := TRUE;
       end if;
-      for index range 1 to length(stri) mdiv 2 do
-        ch1 := chr(ord(stri[pred(index * 2)]) * 256 + ord(stri[index * 2]));
-        if ch1 >= '\16#d800;' and ch1 <= '\16#dbff;' then
-          # ch1 introduces a surrogate pair
-          if index = length(stri) mdiv 2 then
-            surrogate_part := gets(inFile.ext_file, 2);
-            if length(surrogate_part) = 2 then
-              ch2 := chr(ord(surrogate_part[1]) * 256 + ord(surrogate_part[2]));
+    else
+      charsMissing := maxLength;
+      repeat
+        stri := gets(inFile.ext_file, 2 * charsMissing);
+        if odd(length(stri)) then
+          raise RANGE_ERROR;
+        elsif length(stri) <> 2 * charsMissing then
+          partialRead := TRUE;
+        end if;
+        for index range 1 to length(stri) mdiv 2 do
+          ch1 := chr(ord(stri[pred(index * 2)]) * 256 + ord(stri[index * 2]));
+          if ch1 >= '\16#d800;' and ch1 <= '\16#dbff;' then
+            # ch1 introduces a surrogate pair
+            if index = length(stri) mdiv 2 then
+              surrogate_part := gets(inFile.ext_file, 2);
+              if length(surrogate_part) = 2 then
+                ch2 := chr(ord(surrogate_part[1]) * 256 + ord(surrogate_part[2]));
+              else
+                raise RANGE_ERROR;
+              end if;
+            else
+              incr(index);
+              ch2 := chr(ord(stri[pred(index * 2)]) * 256 + ord(stri[index * 2]));
+            end if;
+            if ch2 >= '\16#dc00;' and ch2 <= '\16#dfff;' then
+              # ch1 and ch2 are a surrogate pair
+              striRead &:= chr((ord(ch1) - 16#d800) << 10 +
+                               (ord(ch2) - 16#dc00) + 16#10000);
             else
               raise RANGE_ERROR;
             end if;
           else
-            incr(index);
-            ch2 := chr(ord(stri[pred(index * 2)]) * 256 + ord(stri[index * 2]));
+            striRead &:= str(ch1);
           end if;
-          if ch2 >= '\16#dc00;' and ch2 <= '\16#dfff;' then
-            # ch1 and ch2 are a surrogate pair
-            striRead &:= chr((ord(ch1) - 16#d800) << 10 +
-                             (ord(ch2) - 16#dc00) + 16#10000);
-          else
-            raise RANGE_ERROR;
-          end if;
-        else
-          striRead &:= str(ch1);
-        end if;
-      end for;
-      charsMissing := maxLength - length(striRead);
-    until charsMissing = 0 or partialRead;
+        end for;
+        charsMissing := maxLength - length(striRead);
+      until charsMissing = 0 or partialRead;
+    end if;
   end func;
 
 

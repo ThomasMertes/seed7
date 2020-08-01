@@ -1,3 +1,91 @@
+20200628:
+- The new library zstd.s7i has been added. This library supports
+  Zstandard compressed files.
+- The functions getOwner() and getGroup() have been added to cpio.s7i,
+  osfiles.s7i, ar.s7i, rpm.s7i, tar.s7i, zip.s7i and filesys.s7i.
+- The function unsetenv() has been added to the library
+  environment.s7i. This function deletes a variable from the
+  environment.
+- In bytedata.s7i the function getAsciiz() has been improved.
+- The function gets() has been improved in gzip.s7i, iobuffer.s7i,
+  lzma.s7i, strifile.s7i, subfile.s7i, utf16.s7i, xz.s7i and
+  string.s7i. Now gets() can be called with a maxLength of
+  integer.last, without triggering an OVERFLOW_ERROR.
+- Several improvents have been done for the library rpm.s7i:
+  - Now it supports a Zstandard compressed payload.
+  - A catalog has been added to rpm.s7i. This is necessary allow
+    writing to an RPM archive. Several functions have been rewritten
+    to use the catalog instead of file numbers.
+  - Checks for the payload digest and for file digests have
+    been added.
+  - Several RPM tags have been added and the function to write a tag
+    name has been renamed to rpmtagName().
+  - The functions getStringArray(), createMinimumOfCatalog(),
+    createRegister(), getInt(), readCatalogEntry(),
+    updateIndexEntry(), updateMetadata(), doSettings(), getDigest(),
+    checkPayloadDigest(), archiveFilePath(), getOwner(), setOwner(),
+    getGroup(), setGroup(), putFile() and mkdir() have been added.
+- The functions setOwner() and setGroup have been added to tar.s7i.
+- The library bitdata.s7i has been improved. Now it supports the type
+  reverseBitStream and functions to create and read reverse bit
+  streams. Reverse bit streams are used by the Zstandard compression.
+- The new exception INDEX_ERROR has been introduced. An INDEX_ERROR
+  occurs, if an index is used to access an 'array', 'string',
+  'bstring' or 'ref_list' element beyond the elements that actually
+  exist. Formerly this triggered a RANGE_ERROR.
+- Several files have been adjusted to use INDEX_ERROR instead of
+  RANGE_ERROR. Checks for INDEX_ERROR have been added to chkexc.sd7
+  and chkstr.sd7.
+- The FAQ has been improved. Now the design principles of Seed7 are
+  listed. The description how the type of an expression is determined
+  (bottom up), has been improved also.
+- Chapters about the exception RANGE_ERROR and about the suppresson
+  of exception checks have been added to the manual.
+- Several things in the compiler have been improved:
+  - Index checks can now be suppresed with the option -si.
+  - The generation of warnings, for a catch with suppressed exception
+    checks, has been improved.
+  - Code for the actions INT_BYTES_BE_2_UINT and INT_BYTES_LE_2_UINT
+    is inlined, if the option -oc3 is used and the argument of the
+    function is a string slice. This actions are used by the function
+    bytes2Int().
+  - Now optimized code for the index access of a ref_list is generated.
+    This reduces the runtime of an index access by 56% (Measured with
+    gcc and Valgrind when the compiler compiles bas7). The runtime of
+    the compiler is reduced by 0.2%.
+  - Better code for the 'times' operator is generated. Now arrTimes()
+    is used, if the array element is a simple value type (e.g. an
+    integer).
+  - Converting an integer to a bitset and computing the cardinality
+    of the set is already optimized by the compiler. Now the check for
+    negative integers can be suppressed with -sr.
+  - Index accesses for string and bstring have been improved to use
+    the function getParameterAsVariable().
+- Tests for the compiler optimization of bytes2Int() have been added
+  to chkint.sd7.
+- In chkstr.sd7 tests vor @:= with an empty source string (e.g.
+  stri @:= [1] "") have been added.
+- The functions memsetGeneric() and arrTimes() have been added to
+  arr_rtl.c.
+- In arr_rtl.c a check to avoid creating an array with a negative
+  number of elements has been added to arrMalloc().
+- The program chkccomp.c has been improved to determine the values
+  os_unsetenv, PUTENV_CAN_REMOVE_KEYS, DEFINE_WUNSETENV, HAS_WCSNLEN,
+  HAS_GETGRGID_R, HAS_GETGRGID, HAS_GETPWUID_R and HAS_GETPWUID.
+- The function linkerOptionAllowed() has been added to chkccomp.c.
+- The program chkccomp.c has been improved to write the linker option
+  -rpath in a way that works with modern linkers. The meaning of the
+  -rpath option has changed and it must be combined with the option
+  --disable-new-dtags to get the old behavior.
+- The functions getGroupFromGid(), getUserFromUid(), cmdGetGroup(),
+  cmdGetOwner() and cmdUser() have been added to cmd_unx.c.
+- The functions wunsetenv(), getNameFromSid(), cmdGetGroup(),
+  cmdGetOwner() and cmdUser() have been added to cmd_win.c.
+- Definition of extern "C" have been added to db_fire.h, db_lite.h,
+  db_my.h, db_oci.h, db_odbc.h, db_post.h and db_tds.h.
+- Interpreter and compiler have been improved to support the actions
+  CMD_GET_GROUP, CMD_GET_OWNER and CMD_UNSETENV.
+
 20200531:
 - The libraries tar.s7i, cpio.s7i and rpm.s7i have been improved such
   that the file system functions follow symbolic links (inside of the

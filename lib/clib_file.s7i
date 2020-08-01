@@ -168,7 +168,7 @@ const func char: getc (in clib_file: inFile)                         is action "
 (**
  *  Read a [[string]] with a maximum length from a clib_file.
  *  @return the string read.
- *  @exception RANGE_ERROR The length is negative.
+ *  @exception RANGE_ERROR The parameter ''maxLength'' is negative.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  *  @exception FILE_ERROR A system function returns an error.
  *)

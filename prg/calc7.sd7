@@ -82,6 +82,7 @@ const proc: main is func
           \      catch NUMERIC_ERROR:  writeln(\"NUMERIC_ERROR\");\n\
           \      catch OVERFLOW_ERROR: writeln(\"OVERFLOW_ERROR\");\n\
           \      catch RANGE_ERROR:    writeln(\"RANGE_ERROR\");\n\
+          \      catch INDEX_ERROR:    writeln(\"INDEX_ERROR\");\n\
           \      catch FILE_ERROR:     writeln(\"FILE_ERROR\");\n\
           \    end block;\n\
           \  end func;\n\

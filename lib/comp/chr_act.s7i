@@ -221,10 +221,11 @@ const proc: process (CHR_ICONV1, in reference: function,
       incr(countRangeChecks);
       c_expr.expr &:= "(";
       number_name := getParameterAsVariable("intType", "tmp_", params[1], c_expr);
+      c_expr.expr &:= "rngChk(";
       c_expr.expr &:= number_name;
       c_expr.expr &:= "<INT32TYPE_MIN||";
       c_expr.expr &:= number_name;
-      c_expr.expr &:= ">INT32TYPE_MAX?";
+      c_expr.expr &:= ">INT32TYPE_MAX)?";
       c_expr.expr &:= intRaiseError("RANGE_ERROR");
       c_expr.expr &:= ":(charType)";
       c_expr.expr &:= number_name;
@@ -253,10 +254,11 @@ const proc: process (CHR_ICONV3, in reference: function,
       incr(countRangeChecks);
       c_expr.expr &:= "(";
       number_name := getParameterAsVariable("intType", "tmp_", params[3], c_expr);
+      c_expr.expr &:= "rngChk(";
       c_expr.expr &:= number_name;
       c_expr.expr &:= "<INT32TYPE_MIN||";
       c_expr.expr &:= number_name;
-      c_expr.expr &:= ">INT32TYPE_MAX?";
+      c_expr.expr &:= ">INT32TYPE_MAX)?";
       c_expr.expr &:= intRaiseError("RANGE_ERROR");
       c_expr.expr &:= ":(charType)";
       c_expr.expr &:= number_name;

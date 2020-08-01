@@ -463,6 +463,16 @@ objectType cmd_get_ctime (listType arguments)
 
 
 
+objectType cmd_get_group (listType arguments)
+
+  { /* cmd_get_group */
+    isit_stri(arg_1(arguments));
+    return bld_stri_temp(
+        cmdGetGroup(take_stri(arg_1(arguments))));
+  } /* cmd_get_group */
+
+
+
 /**
  *  Determine the modification time of a file.
  *  @return the modification time of the file.
@@ -506,6 +516,16 @@ objectType cmd_get_mtime (listType arguments)
     } /* if */
     return SYS_EMPTY_OBJECT;
   } /* cmd_get_mtime */
+
+
+
+objectType cmd_get_owner (listType arguments)
+
+  { /* cmd_get_owner */
+    isit_stri(arg_1(arguments));
+    return bld_stri_temp(
+        cmdGetOwner(take_stri(arg_1(arguments))));
+  } /* cmd_get_owner */
 
 
 
@@ -909,3 +929,22 @@ objectType cmd_to_os_path (listType arguments)
     return bld_stri_temp(
         cmdToOsPath(take_stri(arg_1(arguments))));
   } /* cmd_to_os_path */
+
+
+
+/**
+ *  Deletes the variable 'name' from the environment.
+ *  If 'name' does not exist in the environment,
+ *  then the function succeeds, and the environment is unchanged.
+ *  @exception MEMORY_ERROR Not enough memory to convert 'name'
+ *             to the system string type.
+ *  @exception RANGE_ERROR 'name' cannot be converted to the
+ *             system string type or a system function returns an error.
+ */
+objectType cmd_unsetenv (listType arguments)
+
+  { /* cmd_unsetenv */
+    isit_stri(arg_1(arguments));
+    cmdUnsetenv(take_stri(arg_1(arguments)));
+    return SYS_EMPTY_OBJECT;
+  } /* cmd_unsetenv */

@@ -372,7 +372,7 @@ void memcpy_to_strelem (register strElemType *const dest,
 
 
 /**
- *  Fill len Seed7 characters with the character ch.
+ *  Fill an array of len Seed7 characters with the character ch.
  *  This function uses loop unrolling inspired by Duff's device.
  *  Up to a length of 6 a simple loop is faster than calling
  *  this function. With a length of 7 a simple loop is as fast

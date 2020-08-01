@@ -93,7 +93,7 @@ const func bstring: (attr bstring) parse (in string: stri) is
  *  Get a character, identified by an index, from a ''bstring''.
  *  The first character has the index 1.
  *  @return the character specified with the index.
- *  @exception RANGE_ERROR If the index is less than 1 or
+ *  @exception INDEX_ERROR If the index is less than 1 or
  *             greater than the length of the ''bstring''.
  *)
 const func char: (in bstring: bstri) [ (in integer: index) ]            is action "BST_IDX";

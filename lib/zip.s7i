@@ -431,6 +431,7 @@ const func central_file_header: get_central_header (inout file: inFile) is func
         header.filePath := header.filePath[.. pred(length(header.filePath))];
       end if;
       # write(header);
+      # writeExtraField(header.extra_field);
     end if;
   end func;
 
@@ -1041,8 +1042,12 @@ const func time: getMTime (inout zipArchive: zip, in string: filePath) is func
         raise FILE_ERROR;
       end if;
       if 16#5455 in header.extraFieldMap then
-        # Extended Timestamp Extra Field:
+        # Extended Timestamp Extra Field
         timestamp := bytes2Int(header.extraFieldMap[16#5455][2 len 4], UNSIGNED, LE);
+        modificationTime := timestamp1970ToTime(timestamp);
+      elsif 16#5855 in header.extraFieldMap then
+        # Info-ZIP Unix Extra Field (type 1)
+        timestamp := bytes2Int(header.extraFieldMap[16#5855][5 len 4], UNSIGNED, LE);
         modificationTime := timestamp1970ToTime(timestamp);
       elsif 16#000d in header.extraFieldMap then
         # UNIX Extra Field
@@ -1106,6 +1111,102 @@ const proc: setMTime (inout zipArchive: zip, in string: filePath,
 
 
 (**
+ *  Determine the name of the owner (UID) of a file in a ZIP archive.
+ *  The function follows symbolic links.
+ *  @return the name of the file owner.
+ *  @exception RANGE_ERROR ''filePath'' does not use the standard path
+ *             representation.
+ *  @exception FILE_ERROR ''filePath'' is not present in the ZIP archive, or
+ *             the chain of symbolic links is too long.
+ *)
+const func string: getOwner (inout zipArchive: zip, in string: filePath) is func
+  result
+    var string: owner is "";
+  local
+    var central_file_header: header is central_file_header.value;
+    var integer: size is 0;
+    var integer: uid is 0;
+  begin
+    if filePath <> "/" and endsWith(filePath, "/") then
+      raise RANGE_ERROR;
+    else
+      if filePath in zip.catalog then
+        header := zip.catalog[filePath];
+      elsif filePath in zip.register then
+        header := addToCatalog(zip, filePath);
+      elsif implicitDir(zip, filePath) then
+        header := addImplicitDir(zip, filePath);
+      else
+        raise FILE_ERROR;
+      end if;
+      if 16#000d in header.extraFieldMap then
+        # UNIX Extra Field
+        uid := bytes2Int(header.extraFieldMap[16#000d][9 len 2], UNSIGNED, LE);
+        owner := str(uid);
+      elsif 16#756e in header.extraFieldMap then
+        # ASi Unix Extra Field:
+        uid := bytes2Int(header.extraFieldMap[16#756e][11 len 2], UNSIGNED, LE);
+        owner := str(uid);
+      elsif 16#7875 in header.extraFieldMap then
+        # New Unix Extra Field:
+        size := ord(header.extraFieldMap[16#7875][2]);
+        uid := bytes2Int(header.extraFieldMap[16#7875][3 len size], UNSIGNED, LE);
+        owner := str(uid);
+      end if;
+    end if;
+  end func;
+
+
+(**
+ *  Determine the name of the group (GID) of a file in a ZIP archive.
+ *  The function follows symbolic links.
+ *  @return the name of the file group.
+ *  @exception RANGE_ERROR ''filePath'' does not use the standard path
+ *             representation.
+ *  @exception FILE_ERROR ''filePath'' is not present in the ZIP archive, or
+ *             the chain of symbolic links is too long.
+ *)
+const func string: getGroup (inout zipArchive: zip, in string: filePath) is func
+  result
+    var string: group is "";
+  local
+    var central_file_header: header is central_file_header.value;
+    var integer: pos is 0;
+    var integer: size is 0;
+    var integer: gid is 0;
+  begin
+    if filePath <> "/" and endsWith(filePath, "/") then
+      raise RANGE_ERROR;
+    else
+      if filePath in zip.catalog then
+        header := zip.catalog[filePath];
+      elsif filePath in zip.register then
+        header := addToCatalog(zip, filePath);
+      elsif implicitDir(zip, filePath) then
+        header := addImplicitDir(zip, filePath);
+      else
+        raise FILE_ERROR;
+      end if;
+      if 16#000d in header.extraFieldMap then
+        # UNIX Extra Field
+        gid := bytes2Int(header.extraFieldMap[16#000d][11 len 2], UNSIGNED, LE);
+        group := str(gid);
+      elsif 16#756e in header.extraFieldMap then
+        # ASi Unix Extra Field:
+        gid := bytes2Int(header.extraFieldMap[16#756e][13 len 2], UNSIGNED, LE);
+        group := str(gid);
+      elsif 16#7875 in header.extraFieldMap then
+        # New Unix Extra Field:
+        pos := 3 + ord(header.extraFieldMap[16#7875][2]);
+        size := ord(header.extraFieldMap[16#7875][pos]);
+        gid := bytes2Int(header.extraFieldMap[16#7875][succ(pos) len size], UNSIGNED, LE);
+        group := str(gid);
+      end if;
+    end if;
+  end func;
+
+
+(**
  *  Get the contents of a file in a ZIP archive.
  *  @return the specified file as string.
  *  @exception RANGE_ERROR ''filePath'' does not use the standard path
@@ -1115,7 +1216,7 @@ const proc: setMTime (inout zipArchive: zip, in string: filePath,
  *)
 const func string: getFile (inout zipArchive: zip, in string: filePath) is func
   result
-    var string: fileData is "";
+    var string: content is "";
   local
     var central_file_header: header is central_file_header.value;
     var local_file_header: localHeader is local_file_header.value;
@@ -1137,13 +1238,13 @@ const func string: getFile (inout zipArchive: zip, in string: filePath) is func
       # write(localHeader);
       if localHeader.compression_method = 0 then
         # The file is stored (no compression).
-        fileData := gets(zip.zipFile, localHeader.compressed_size);
+        content := gets(zip.zipFile, localHeader.compressed_size);
       elsif localHeader.compression_method = 8 then
         # The file is Deflated.
         if localHeader.general_purpose_bit_flag & ZIP_HAS_DATA_DESCRIPTOR <> bin32(0) then
           # The fields crc_32, compressed_size and uncompressed_size are 0.
           # Instead there is a data descriptor after the compressed data.
-          fileData := inflate(zip.zipFile);
+          content := inflate(zip.zipFile);
           localHeader.crc_32            := bin32(getUInt32Le(zip.zipFile));
           if localHeader.crc_32 = ZIP_DATA_DESCRIPTOR_SIGNATURE_VALUE then
             # Optional signature value for the data descriptor record.
@@ -1152,19 +1253,19 @@ const func string: getFile (inout zipArchive: zip, in string: filePath) is func
           localHeader.compressed_size   := getUInt32Le(zip.zipFile);
           localHeader.uncompressed_size := getUInt32Le(zip.zipFile);
         else
-          fileData := gets(zip.zipFile, localHeader.compressed_size);
-          fileData := inflate(fileData);
+          content := gets(zip.zipFile, localHeader.compressed_size);
+          content := inflate(content);
         end if;
       else
         # writeln("unsupported compression method: " <& localHeader.compression_method);
         raise FILE_ERROR;
       end if;
-      if localHeader.uncompressed_size <> length(fileData) or
-          localHeader.crc_32 <> crc32(fileData) then
+      if localHeader.uncompressed_size <> length(content) or
+          localHeader.crc_32 <> crc32(content) then
         # writeln("uncompressed_size: " <& localHeader.uncompressed_size <&
-        #         " actual size: " <& length(fileData) radix 16);
+        #         " actual size: " <& length(content) radix 16);
         # writeln("crc_32: " <& localHeader.crc_32 radix 16 <&
-        #         " actual crc_32: " <& crc32(fileData) radix 16);
+        #         " actual crc_32: " <& crc32(content) radix 16);
         # write(localHeader);
         raise FILE_ERROR;
       end if;

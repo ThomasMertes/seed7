@@ -1460,26 +1460,26 @@ intType strChIPos (const const_striType mainStri, const charType searched,
     const intType fromIndex)
 
   {
+    uintType startIndex;
     const strElemType *main_mem;
     const strElemType *found_pos;
 
   /* strChIPos */
     logFunction(printf("strChIPos(\"%s\", '\\" FMT_U32 ";', " FMT_D ")\n",
                        striAsUnquotedCStri(mainStri), searched, fromIndex););
-    if (unlikely(fromIndex <= 0)) {
+    startIndex = ((uintType) fromIndex) - 1;
+    if (startIndex < mainStri->size) {
+      main_mem = mainStri->mem;
+      found_pos = memchr_strelem(&main_mem[startIndex], searched,
+          mainStri->size - (memSizeType) startIndex);
+      if (found_pos != NULL) {
+        return ((intType) (found_pos - main_mem)) + 1;
+      } /* if */
+    } else if (unlikely(fromIndex <= 0)) {
       logError(printf("strChIPos(\"%s\", '\\" FMT_U32 ";', " FMT_D "): "
                       "fromIndex <= 0.\n",
                       striAsUnquotedCStri(mainStri), searched, fromIndex););
       raise_error(RANGE_ERROR);
-    } else {
-      if ((uintType) fromIndex <= mainStri->size) {
-        main_mem = mainStri->mem;
-        found_pos = memchr_strelem(&main_mem[fromIndex - 1], searched,
-            mainStri->size - (memSizeType) (uintType) fromIndex + 1);
-        if (found_pos != NULL) {
-          return ((intType) (found_pos - main_mem)) + 1;
-        } /* if */
-      } /* if */
     } /* if */
     return 0;
   } /* strChIPos */

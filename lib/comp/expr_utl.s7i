@@ -425,6 +425,36 @@ const proc: getGenericValue (in reference: current_expression,
   end func;
 
 
+const proc: getGenericValue (in type: variableType, in string: variableName,
+    inout expr_type: c_expr) is func
+
+  local
+    var string: temp_name is "";
+  begin
+    if variableType in typeCategory and typeCategory[variableType] = FLOATOBJECT or
+        not ccConf.LITTLE_ENDIAN_INTTYPE then
+      incr(c_expr.temp_num);
+      temp_name := "tmp_" & str(c_expr.temp_num);
+      c_expr.temp_decls &:= "const_rtlValueUnion ";
+      c_expr.temp_decls &:= temp_name;
+      c_expr.temp_decls &:= ";\n";
+      c_expr.expr &:= "(";
+      c_expr.expr &:= temp_name;
+      c_expr.expr &:= ".";
+      c_expr.expr &:= raw_type_value(variableType);
+      c_expr.expr &:= "=";
+      c_expr.expr &:= variableName;
+      c_expr.expr &:= ",";
+      c_expr.expr &:= temp_name;
+      c_expr.expr &:= ".genericValue)";
+    else
+      c_expr.expr &:= "(genericType)(";
+      c_expr.expr &:= variableName;
+      c_expr.expr &:= ")";
+    end if;
+  end func;
+
+
 const proc: getGenericValueOfVariableObject (in reference: variableObject,
     inout expr_type: c_expr) is func
 
@@ -651,6 +681,27 @@ const func string: normalVariable (in reference: aParam, inout expr_type: c_expr
   begin
     prepareAnyParamTemporarys(aParam, c_param, c_expr);
     varName := "(" & c_param.expr & ")";
+  end func;
+
+
+const func string: getTempVariable (in string: typeName, in string: namePrefix,
+    in string: initValue, inout expr_type: c_expr) is func
+
+  result
+    var string: variableName is "";
+  begin
+    incr(c_expr.temp_num);
+    variableName := namePrefix & str(c_expr.temp_num);
+    c_expr.temp_decls &:= typeName;
+    c_expr.temp_decls &:= " ";
+    c_expr.temp_decls &:= variableName;
+    c_expr.temp_decls &:= ";\n";
+    if initValue <> "" then
+      c_expr.expr &:= variableName;
+      c_expr.expr &:= "=";
+      c_expr.expr &:= initValue;
+      c_expr.expr &:= ",";
+    end if;
   end func;
 
 

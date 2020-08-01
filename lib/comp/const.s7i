@@ -350,6 +350,7 @@ const func reference: evaluate (in reference: current_expression,
       catch NUMERIC_ERROR:  noop;
       catch OVERFLOW_ERROR: noop;
       catch RANGE_ERROR:    noop;
+      catch INDEX_ERROR:    noop;
       catch FILE_ERROR:     noop;
       catch DATABASE_ERROR: noop;
     end block;
@@ -446,6 +447,7 @@ const func boolean: getConstant (in var reference: currExpr, in category: exprCa
         catch NUMERIC_ERROR:  noop;
         catch OVERFLOW_ERROR: noop;
         catch RANGE_ERROR:    noop;
+        catch INDEX_ERROR:    noop;
         catch FILE_ERROR:     noop;
         catch DATABASE_ERROR: noop;
       end block;
@@ -482,6 +484,7 @@ const func boolean: getConstant (in var reference: currExpr,
         catch NUMERIC_ERROR:  noop;
         catch OVERFLOW_ERROR: noop;
         catch RANGE_ERROR:    noop;
+        catch INDEX_ERROR:    noop;
         catch FILE_ERROR:     noop;
         catch DATABASE_ERROR: noop;
       end block;

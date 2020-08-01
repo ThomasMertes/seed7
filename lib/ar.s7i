@@ -804,6 +804,66 @@ const proc: setMTime (inout arArchive: ar, in string: filePath,
 
 
 (**
+ *  Determine the name of the owner (UID) of a file in a AR archive.
+ *  @return the name of the file owner.
+ *  @exception RANGE_ERROR ''filePath'' does not use the standard path
+ *             representation.
+ *  @exception FILE_ERROR ''filePath'' is not present in the AR archive, or
+ *             the chain of symbolic links is too long.
+ *)
+const func string: getOwner (inout arArchive: ar, in string: filePath) is func
+  result
+    var string: owner is "";
+  local
+    var integer: uid is 0;
+  begin
+    if filePath <> "/" and endsWith(filePath, "/") then
+      raise RANGE_ERROR;
+    elsif filePath in ar.catalog then
+      uid := ar.catalog[filePath].ownerId;
+    elsif filePath in ar.register then
+      uid := addToCatalog(ar, filePath).ownerId;
+    elsif implicitDir(ar, filePath) then
+      uid := addImplicitDir(ar, filePath).ownerId;
+    else
+      raise FILE_ERROR;
+    end if;
+    # writeln(filePath <& " uid: " <& uid);
+    owner := str(uid);
+  end func;
+
+
+(**
+ *  Determine the name of the group (GID) of a file in a AR archive.
+ *  @return the name of the file group.
+ *  @exception RANGE_ERROR ''filePath'' does not use the standard path
+ *             representation.
+ *  @exception FILE_ERROR ''filePath'' is not present in the AR archive, or
+ *             the chain of symbolic links is too long.
+ *)
+const func string: getGroup (inout arArchive: ar, in string: filePath) is func
+  result
+    var string: group is "";
+  local
+    var integer: gid is 0;
+  begin
+    if filePath <> "/" and endsWith(filePath, "/") then
+      raise RANGE_ERROR;
+    elsif filePath in ar.catalog then
+      gid := ar.catalog[filePath].groupId;
+    elsif filePath in ar.register then
+      gid := addToCatalog(ar, filePath).groupId;
+    elsif implicitDir(ar, filePath) then
+      gid := addImplicitDir(ar, filePath).groupId;
+    else
+      raise FILE_ERROR;
+    end if;
+    # writeln(filePath <& " gid: " <& gid);
+    group := str(gid);
+  end func;
+
+
+(**
  *  Get the contents of a file in an AR archive.
  *  @return the specified file as string.
  *  @exception RANGE_ERROR ''filePath'' does not use the standard path

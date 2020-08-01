@@ -29,6 +29,10 @@
 /*                                                                  */
 /********************************************************************/
 
+#if defined(__cplusplus) || defined(c_plusplus)
+extern "C" {
+#endif
+
 #define boolean int
 #define dvoid void
 
@@ -286,3 +290,7 @@ oratext *OCIStringPtr (OCIEnv *env, const OCIString *vs);
 ub4 OCIStringSize (OCIEnv *env, const OCIString *vs);
 sword OCITransCommit (OCISvcCtx *svchp, OCIError *errhp, ub4 flags);
 sword OCITransRollback (dvoid *svchp,  OCIError *errhp, ub4 flags);
+
+#if defined(__cplusplus) || defined(c_plusplus)
+}
+#endif

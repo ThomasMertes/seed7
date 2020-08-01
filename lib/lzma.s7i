@@ -58,19 +58,19 @@ const func char: getc (inout lzmaRangeDecoderState: decoderState) is func
   end func;
 
 
-const func string: gets (inout lzmaRangeDecoderState: decoderState, in integer: length) is func
+const func string: gets (inout lzmaRangeDecoderState: decoderState, in integer: maxLength) is func
   result
     var string: stri is "";
   begin
-    if pred(decoderState.inBufferPos + length) > length(decoderState.inBuffer) then
+    if maxLength > succ(length(decoderState.inBuffer) - decoderState.inBufferPos) then
       # Not enough chars in inBuffer.
       stri := decoderState.inBuffer[decoderState.inBufferPos ..] &
               gets(decoderState.compressed,
-                   pred(decoderState.inBufferPos + length) - length(decoderState.inBuffer));
+                   maxLength - succ(length(decoderState.inBuffer) - decoderState.inBufferPos));
       decoderState.inBuffer := "";
       decoderState.inBufferPos := 1;
     else
-      stri := decoderState.inBuffer[decoderState.inBufferPos len length];
+      stri := decoderState.inBuffer[decoderState.inBufferPos len maxLength];
       decoderState.inBufferPos +:= length(stri);
     end if;
   end func;
@@ -699,11 +699,18 @@ const proc: close (in lzmaFile: aFile) is noop;
 const func char: getc (inout lzmaFile: inFile) is func
   result
     var char: charRead is ' ';
+  local
+    const integer: BUFFER_SIZE is 1024;
+    var integer: missing is integer.last;
   begin
     if inFile.position > length(inFile.lzmaDec.uncompressed) and
         inFile.decodeResult = LZMA_RES_ONGOING then
-      inFile.decodeResult := decodePacket(inFile.lzmaDec, TRUE,
-          inFile.position - length(inFile.lzmaDec.uncompressed) + 1024);
+      if inFile.position - length(inFile.lzmaDec.uncompressed) <=
+          integer.last - BUFFER_SIZE then
+        # The number of missing characters can be computed without integer overflow.
+        missing := inFile.position - length(inFile.lzmaDec.uncompressed) + BUFFER_SIZE;
+      end if;
+      inFile.decodeResult := decodePacket(inFile.lzmaDec, TRUE, missing);
     end if;
     if inFile.position <= length(inFile.lzmaDec.uncompressed) then
       charRead := inFile.lzmaDec.uncompressed[inFile.position];
@@ -717,22 +724,37 @@ const func char: getc (inout lzmaFile: inFile) is func
 (**
  *  Read a string with maximum length from a ''lzmaFile''.
  *  @return the string read.
+ *  @exception RANGE_ERROR The parameter ''maxLength'' is negative.
  *)
-const func string: gets (inout lzmaFile: inFile, in integer: length) is func
+const func string: gets (inout lzmaFile: inFile, in integer: maxLength) is func
   result
     var string: striRead is "";
+  local
+    const integer: BUFFER_SIZE is 1024;
+    var integer: charsPresent is 0;
+    var integer: missing is integer.last;
   begin
-    if pred(inFile.position + length) > length(inFile.lzmaDec.uncompressed) and
-        inFile.decodeResult = LZMA_RES_ONGOING then
-      inFile.decodeResult := decodePacket(inFile.lzmaDec, TRUE,
-          pred(inFile.position + length) - length(inFile.lzmaDec.uncompressed) + 1024);
-    end if;
-    if pred(inFile.position + length) <= length(inFile.lzmaDec.uncompressed) then
-      striRead := inFile.lzmaDec.uncompressed[inFile.position len length];
-      inFile.position +:= length;
+    if maxLength <= 0 then
+      if maxLength <> 0 then
+        raise RANGE_ERROR;
+      end if;
     else
-      striRead := inFile.lzmaDec.uncompressed[inFile.position ..];
-      inFile.position := succ(length(inFile.lzmaDec.uncompressed));
+      charsPresent := succ(length(inFile.lzmaDec.uncompressed) - inFile.position);
+      if maxLength > charsPresent and inFile.decodeResult = LZMA_RES_ONGOING then
+        if (charsPresent >= 0 and maxLength - charsPresent <= integer.last - BUFFER_SIZE) or
+            (charsPresent < 0 and maxLength - integer.last + BUFFER_SIZE <= charsPresent) then
+          # The number of missing characters can be computed without integer overflow.
+          missing := maxLength - charsPresent + BUFFER_SIZE;
+        end if;
+        inFile.decodeResult := decodePacket(inFile.lzmaDec, TRUE, missing);
+      end if;
+      if maxLength <= succ(length(inFile.lzmaDec.uncompressed) - inFile.position) then
+        striRead := inFile.lzmaDec.uncompressed[inFile.position len maxLength];
+        inFile.position +:= maxLength;
+      else
+        striRead := inFile.lzmaDec.uncompressed[inFile.position ..];
+        inFile.position := succ(length(inFile.lzmaDec.uncompressed));
+      end if;
     end if;
   end func;
 
@@ -757,11 +779,18 @@ const func boolean: eof (in lzmaFile: inFile) is
 const func boolean: hasNext (inout lzmaFile: inFile) is func
   result
     var boolean: hasNext is FALSE;
+  local
+    const integer: BUFFER_SIZE is 1024;
+    var integer: missing is integer.last;
   begin
     if inFile.position > length(inFile.lzmaDec.uncompressed) and
         inFile.decodeResult = LZMA_RES_ONGOING then
-      inFile.decodeResult := decodePacket(inFile.lzmaDec, TRUE,
-          inFile.position - length(inFile.lzmaDec.uncompressed) + 1024);
+      if inFile.position - length(inFile.lzmaDec.uncompressed) <=
+          integer.last - BUFFER_SIZE then
+        # The number of missing characters can be computed without integer overflow.
+	missing := inFile.position - length(inFile.lzmaDec.uncompressed) + BUFFER_SIZE;
+      end if;
+      inFile.decodeResult := decodePacket(inFile.lzmaDec, TRUE, missing);
     end if;
     hasNext := inFile.position <= length(inFile.lzmaDec.uncompressed);
   end func;

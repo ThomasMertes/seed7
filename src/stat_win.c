@@ -152,6 +152,7 @@ static time_t correctAdjustedUnixTime (time_t aTime)
 #endif
 
 
+
 /**
  *  Determine a Unix file mode from Windows attributes and file name.
  */

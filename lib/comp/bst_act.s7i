@@ -204,8 +204,8 @@ const proc: process_const_bst_idx (in bstring: bstri,
     if getConstant(index, INTOBJECT, evaluatedParam) then
       index_value := getValue(evaluatedParam, integer);
       if index_value < 1 or index_value > length(bstri) then
-        warning(DOES_RAISE, "RANGE_ERROR", c_expr);
-        c_expr.expr &:= intRaiseError("RANGE_ERROR");
+        warning(DOES_RAISE, "INDEX_ERROR", c_expr);
+        c_expr.expr &:= intRaiseError("INDEX_ERROR");
       else
         c_expr.expr &:= charLiteral(bstri[index_value]);
       end if;
@@ -213,8 +213,8 @@ const proc: process_const_bst_idx (in bstring: bstri,
       c_expr.expr &:= "(";
       c_expr.expr &:= bstriLiteral(bstri);
       c_expr.expr &:= ")->mem[";
-      if array_range_check then
-        incr(countRangeChecks);
+      if bstring_index_check then
+        incr(countIndexChecks);
         incr(c_expr.temp_num);
         index_name := "idx_" & str(c_expr.temp_num);
         if ccConf.TWOS_COMPLEMENT_INTTYPE then
@@ -243,8 +243,8 @@ const proc: process_const_bst_idx (in bstring: bstri,
         end if;
         c_expr.expr &:= integerLiteral(length(bstri));
         c_expr.expr &:= ") ? ";
-        c_expr.expr &:= intRaiseError("RANGE_ERROR");
-        c_expr.expr &:= " : 0, ";
+        c_expr.expr &:= intRaiseError("INDEX_ERROR");
+        c_expr.expr &:= " : ";
         c_expr.expr &:= index_name;
         if ccConf.TWOS_COMPLEMENT_INTTYPE then
           c_expr.expr &:= ")";
@@ -252,7 +252,7 @@ const proc: process_const_bst_idx (in bstring: bstri,
           c_expr.expr &:= "-1)";
         end if;
       else
-        incr(countNoRangeChecks);
+        incr(countNoIndexChecks);
         c_expr.expr &:= "(";
         process_expr(index, c_expr);
         c_expr.expr &:= ")-1";
@@ -270,32 +270,24 @@ const proc: process_const_bst_idx (in reference: param1,
   begin
     incr(countOptimizations);
     if index < 1 then
-      warning(DOES_RAISE, "RANGE_ERROR", c_expr);
-      c_expr.expr &:= intRaiseError("RANGE_ERROR");
-    elsif array_range_check then
-      incr(countRangeChecks);
-      incr(c_expr.temp_num);
-      bstri_name := "tmp_" & str(c_expr.temp_num);
-      c_expr.temp_decls &:= "const_bstriType ";
-      c_expr.temp_decls &:= bstri_name;
-      c_expr.temp_decls &:= ";\n";
-      c_expr.expr &:= "(*(";
-      c_expr.expr &:= bstri_name;
-      c_expr.expr &:= "=";
-      getAnyParamToExpr(param1, c_expr);
-      c_expr.expr &:= ", &";
+      warning(DOES_RAISE, "INDEX_ERROR", c_expr);
+      c_expr.expr &:= intRaiseError("INDEX_ERROR");
+    elsif bstring_index_check then
+      incr(countIndexChecks);
+      c_expr.expr &:= "(";
+      bstri_name := getParameterAsVariable("const_bstriType", "tmp_", param1, c_expr);
       c_expr.expr &:= bstri_name;
       c_expr.expr &:= "->mem[(idxChk(";
       c_expr.expr &:= bstri_name;
       c_expr.expr &:= "->size<";
       c_expr.expr &:= integerLiteral(index);
       c_expr.expr &:= ") ? ";
-      c_expr.expr &:= intRaiseError("RANGE_ERROR");
-      c_expr.expr &:= " : 0, ";
+      c_expr.expr &:= intRaiseError("INDEX_ERROR");
+      c_expr.expr &:= " : ";
       c_expr.expr &:= integerLiteral(pred(index));
-      c_expr.expr &:= ")]))";
+      c_expr.expr &:= ")])";
     else
-      incr(countNoRangeChecks);
+      incr(countNoIndexChecks);
       c_expr.expr &:= "(";
       getAnyParamToExpr(param1, c_expr);
       c_expr.expr &:= ")->mem[";
@@ -317,14 +309,10 @@ const proc: process (BST_IDX, in reference: function,
       process_const_bst_idx(getValue(evaluatedParam, bstring), params[3], c_expr);
     elsif getConstant(params[3], INTOBJECT, evaluatedParam) then
       process_const_bst_idx(params[1], getValue(evaluatedParam, integer), c_expr);
-    elsif array_range_check then
-      incr(countRangeChecks);
+    elsif bstring_index_check then
+      incr(countIndexChecks);
       incr(c_expr.temp_num);
-      bstri_name := "tmp_" & str(c_expr.temp_num);
       index_name := "idx_" & str(c_expr.temp_num);
-      c_expr.temp_decls &:= "const_bstriType ";
-      c_expr.temp_decls &:= bstri_name;
-      c_expr.temp_decls &:= ";\n";
       if ccConf.TWOS_COMPLEMENT_INTTYPE then
         c_expr.temp_decls &:= "uintType ";
       else
@@ -332,11 +320,8 @@ const proc: process (BST_IDX, in reference: function,
       end if;
       c_expr.temp_decls &:= index_name;
       c_expr.temp_decls &:= ";\n";
-      c_expr.expr &:= "(*(";
-      c_expr.expr &:= bstri_name;
-      c_expr.expr &:= "=";
-      getAnyParamToExpr(params[1], c_expr);
-      c_expr.expr &:= ", &";
+      c_expr.expr &:= "(";
+      bstri_name := getParameterAsVariable("const_bstriType", "tmp_", params[1], c_expr);
       c_expr.expr &:= bstri_name;
       c_expr.expr &:= "->mem[(";
       c_expr.expr &:= index_name;
@@ -357,16 +342,16 @@ const proc: process (BST_IDX, in reference: function,
       end if;
       c_expr.expr &:= bstri_name;
       c_expr.expr &:= "->size) ? ";
-      c_expr.expr &:= intRaiseError("RANGE_ERROR");
-      c_expr.expr &:= " : 0, ";
+      c_expr.expr &:= intRaiseError("INDEX_ERROR");
+      c_expr.expr &:= " : ";
       c_expr.expr &:= index_name;
       if ccConf.TWOS_COMPLEMENT_INTTYPE then
-        c_expr.expr &:= ")]))";
+        c_expr.expr &:= ")])";
       else
-        c_expr.expr &:= "-1)]))";
+        c_expr.expr &:= "-1)])";
       end if;
     else
-      incr(countNoRangeChecks);
+      incr(countNoIndexChecks);
       c_expr.expr &:= "(";
       getAnyParamToExpr(params[1], c_expr);
       c_expr.expr &:= ")->mem[(";

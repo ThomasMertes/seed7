@@ -367,12 +367,14 @@ pre.indent {
 <li><a class="link" href="#errors_MEMORY_ERROR"><b><i>MEMORY_ERROR</i></b></a></li>
 <li><a class="link" href="#errors_NUMERIC_ERROR"><b><i>NUMERIC_ERROR</i></b></a></li>
 <li><a class="link" href="#errors_OVERFLOW_ERROR"><b><i>OVERFLOW_ERROR</i></b></a></li>
+<li><a class="link" href="#errors_INDEX_ERROR"><b><i>INDEX_ERROR</i></b></a></li>
 <li><a class="link" href="#errors_RANGE_ERROR"><b><i>RANGE_ERROR</i></b></a></li>
 <li><a class="link" href="#errors_FILE_ERROR"><b><i>FILE_ERROR</i></b></a></li>
 <li><a class="link" href="#errors_DATABASE_ERROR"><b><i>DATABASE_ERROR</i></b></a></li>
 <li><a class="link" href="#errors_ILLEGAL_ACTION"><b><i>ILLEGAL_ACTION</i></b></a></li></ol></li>
 <li><a class="link" href="#errors_Handlers"><b>Handlers</b></a></li>
 <li><a class="link" href="#errors_Stack_trace"><b>Stack trace</b></a></li>
+<li><a class="link" href="#errors_Suppressing_exception_checks"><b>Suppressing exception checks</b></a></li>
 <li><a class="link" href="#errors_Signals"><b>Signals</b></a></li>
 <li><a class="link" href="#errors_Other_errors_and_warnings"><b>Other errors and warnings</b></a></li></ol></li>
 </ol></div>
@@ -1191,14 +1193,17 @@ $ <span class="keywd">system</span> <span class="stri">"string"</span> <span cla
 $ <span class="keywd">system</span> <span class="stri">"proc"</span> <span class="keywd">is</span> <a class="type" href="#types_proc">proc</a>;
 $ <span class="keywd">system</span> <span class="stri">"float"</span> <span class="keywd">is</span> <a class="type" href="#types_float">float</a>;
 
-$ <span class="keywd">system</span> <span class="stri">"true"</span> <span class="keywd">is</span> TRUE;
-$ <span class="keywd">system</span> <span class="stri">"false"</span> <span class="keywd">is</span> FALSE;
+$ <span class="keywd">system</span> <span class="stri">"true"</span> <span class="keywd">is</span> <span class="var">TRUE</span>;
+$ <span class="keywd">system</span> <span class="stri">"false"</span> <span class="keywd">is</span> <span class="var">FALSE</span>;
 $ <span class="keywd">system</span> <span class="stri">"empty"</span> <span class="keywd">is</span> empty;
 
 $ <span class="keywd">system</span> <span class="stri">"memory_error"</span> <span class="keywd">is</span> <a class="exception" href="#errors_MEMORY_ERROR">MEMORY_ERROR</a>;
 $ <span class="keywd">system</span> <span class="stri">"numeric_error"</span> <span class="keywd">is</span> <a class="exception" href="#errors_NUMERIC_ERROR">NUMERIC_ERROR</a>;
+$ <span class="keywd">system</span> <span class="stri">"overflow_error"</span> <span class="keywd">is</span> <a class="exception" href="#errors_OVERFLOW_ERROR">OVERFLOW_ERROR</a>;
 $ <span class="keywd">system</span> <span class="stri">"range_error"</span> <span class="keywd">is</span> <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a>;
+$ <span class="keywd">system</span> <span class="stri">"index_error"</span> <span class="keywd">is</span> <a class="exception" href="#errors_INDEX_ERROR">INDEX_ERROR</a>;
 $ <span class="keywd">system</span> <span class="stri">"file_error"</span> <span class="keywd">is</span> <a class="exception" href="#errors_FILE_ERROR">FILE_ERROR</a>;
+$ <span class="keywd">system</span> <span class="stri">"database_error"</span> <span class="keywd">is</span> <a class="exception" href="#errors_DATABASE_ERROR">DATABASE_ERROR</a>;
 $ <span class="keywd">system</span> <span class="stri">"illegal_action"</span> <span class="keywd">is</span> <a class="exception" href="#errors_ILLEGAL_ACTION">ILLEGAL_ACTION</a>;
 
 $ <span class="keywd">system</span> <span class="stri">"assign"</span> <span class="keywd">is</span> := ;
@@ -3303,8 +3308,8 @@ CASE_DECLS(<a class="type" href="#types_boolean">boolean</a>);
                     Type of result: <a class="type" href="#types_char">char</a>,
                     <span class="stri">"abcde"</span>[1] <b>&rArr;</b> <span class="stri">'a'</span>,
                     <span class="stri">"abcde"</span>[5] <b>&rArr;</b> <span class="stri">'e'</span>,
-                    <span class="stri">"abcde"</span>[0] <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a>,
-                    <span class="stri">"abcde"</span>[6] <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a> )
+                    <span class="stri">"abcde"</span>[0] <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_INDEX_ERROR">INDEX_ERROR</a>,
+                    <span class="stri">"abcde"</span>[6] <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_INDEX_ERROR">INDEX_ERROR</a> )
       <span class="op">[</span> A .. B ] Access a substring from position A to B
                   ( Type of arguments A and B: <a class="type" href="#types_integer">integer</a>,
                     <span class="stri">"abcde"</span>[2 .. 4] <b>&rArr;</b> <span class="stri">"bcd"</span>,
@@ -3461,8 +3466,14 @@ CASE_DECLS(<a class="type" href="#types_boolean">boolean</a>);
                     Type of argument C: <a class="type" href="#types_char">char</a>,
                     A @:= [B] C <b>&rArr;</b>
                         A := A[..pred(B)] &amp; str(C) &amp; A[succ(B)..],
-                    A @:= [0] 'x' <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a>,
-                    A @:= [succ(length(A))] 'x' <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a> )
+                    A @:= [0] <span class="stri">'x'</span> <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_INDEX_ERROR">INDEX_ERROR</a>,
+                    A @:= [succ(length(A))] <span class="stri">'x'</span> <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_INDEX_ERROR">INDEX_ERROR</a> )
+      A <span class="op">@:=</span> [B] C  Assign C to the position B of <a class="type" href="#types_string">string</a> A
+                  ( Type of argument B: <a class="type" href="#types_integer">integer</a>,
+                    A @:= [B] C <b>&rArr;</b>
+                        A := A[..pred(B)] &amp; C &amp; A[B+length(C)..],
+                    A @:= [0] <span class="stri">"xyz"</span> <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_INDEX_ERROR">INDEX_ERROR</a>,
+                    A @:= [pred(length(A))] <span class="stri">"xyz"</span> <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_INDEX_ERROR">INDEX_ERROR</a> )
 </pre><p></p>
 
 <a name="types_array"><h3>5.10 array</h3></a>
@@ -3508,8 +3519,8 @@ CASE_DECLS(<a class="type" href="#types_boolean">boolean</a>);
                     Type of result: <span class="type">baseType</span>,
                     A[minIdx(A)] <b>&rArr;</b> First element,
                     A[maxIdx(A)] <b>&rArr;</b> Last element,
-                    A[pred(minIdx(A))] <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a>,
-                    A[succ(maxIdx(A))] <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a> )
+                    A[pred(minIdx(A))] <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_INDEX_ERROR">INDEX_ERROR</a>,
+                    A[succ(maxIdx(A))] <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_INDEX_ERROR">INDEX_ERROR</a> )
       <span class="op">[</span> A .. B ]  Get a sub array from the position A to the position B
                   ( Type of arguments A and B: <a class="type" href="#types_integer">integer</a> )
       <span class="op">[</span> A <span class="keywd">len</span> B ]  Get a sub array from the position A with maximum length B
@@ -3540,7 +3551,7 @@ CASE_DECLS(<a class="type" href="#types_boolean">boolean</a>);
                   return the removed element
                   ( Type of argument B: <a class="type" href="#types_integer">integer</a>,
                     Type of result: <span class="type">baseType</span>,
-                    remove(0 <span class="op">times</span> <span class="var">TRUE</span>, 1) <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a> )
+                    remove(0 <span class="op">times</span> <span class="var">TRUE</span>, 1) <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_INDEX_ERROR">INDEX_ERROR</a> )
       <a class="func" href="#types_..">sort</a>(A)   Sort array using the compare(<span class="type">baseType</span>, <span class="type">baseType</span>) function
     Statements:
       A <span class="op">&amp;:=</span> B   Append B to A
@@ -3993,8 +4004,8 @@ CASE_DECLS(<a class="type" href="#types_boolean">boolean</a>);
                     Type of result: <a class="type" href="#types_reference">reference</a>,
                     A[1]<b>&rArr;</b>First element,
                     A[length(A)]<b>&rArr;</b>Last element,
-                    A[0] <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a>,
-                    A[succ(length(A))] <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a> )
+                    A[0] <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_INDEX_ERROR">INDEX_ERROR</a>,
+                    A[succ(length(A))] <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_INDEX_ERROR">INDEX_ERROR</a> )
       <span class="op">[</span> A .. B ]  Access a sub list
                   ( Type of arguments A and B: <a class="type" href="#types_integer">integer</a> )
       <span class="op">[</span> A .. ]  Access a sub list beginning at position A
@@ -4029,8 +4040,8 @@ CASE_DECLS(<a class="type" href="#types_boolean">boolean</a>);
                     Type of argument C: <a class="type" href="#types_reference">reference</a>,
                     A @:= [B] C <b>&rArr;</b>
                         A := A[..pred(B)] &amp; make_list(C) &amp; A[succ(B)..],
-                    A @:= [0] C <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a>,
-                    A @:= [succ(length(A))] C <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a> )
+                    A @:= [0] C <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_INDEX_ERROR">INDEX_ERROR</a>,
+                    A @:= [succ(length(A))] C <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_INDEX_ERROR">INDEX_ERROR</a> )
       <span class="keywd">for</span> A <span class="keywd">range</span> B <span class="keywd">do</span>
         C
       <span class="keywd">end</span> <span class="keywd">for</span>   Loop over all elements of a ref_list
@@ -12713,7 +12724,7 @@ SYSTEM_LIBS = -lm <b>superlib.a</b>
        the dividend is the <span class="link">most negative integer</span> and the divisor is <tt>-1</tt>.
        E.g.: <tt><a class="type" href="#types_integer">integer</a>.<span class="var">first</span> <span class="op">rem</span> -1</tt> raises <tt><span class="exception">OVERFLOW_ERROR</span></tt>. This has been
        defined as overflow because it can trigger so called undefined
-       behaviour of the underlying C code.
+       behavior of the underlying C code.
     <li>All shift operations (<tt><span class="op">&lt;&lt;</span></tt>, <tt><span class="op">&gt;&gt;</span></tt>, <span class="op">&lt;&lt;:=</span> and <tt><span class="op">&gt;&gt;:=</span></tt>) trigger an
        overflow if the shift amount is negative or greater equal <tt>64</tt>.</li>
     <li>Left shift operations (<tt><span class="op">&lt;&lt;</span></tt> and <span class="op">&lt;&lt;:=</span>) can also trigger an
@@ -12729,33 +12740,12 @@ SYSTEM_LIBS = -lm <b>superlib.a</b>
   <span class="link">compiler</span> generates code to check for an integer overflow. The option
   <b>-so</b> can be used to suppress the generation of integer overflow checks.
   If an overflow situation occurs, although overflow checking has been
-  switched off (with <b>-so</b>), the behaviour is undefined. In this case the
-  following things can happen:
-</p><ul>
-    <li>The exception <tt><span class="exception">OVERFLOW_ERROR</span></tt> is still raised.</li>
-    <li>A different exception is raised.</li>
-    <li>The program hangs.</li>
-    <li>The program crashes.</li>
-    <li>The computation continues with some garbage value. This garbage
-       value can then trigger dangerous things: The X-ray dosis computed
-       by your program might be totally wrong. Your program might compute
-       the statics of a bridge wrong.</li>
-</ul><p>
-  A <a class="link" href="#errors_Handlers">handler</a> for <tt><span class="exception">OVERFLOW_ERROR</span></tt> can only work reliable with integer
-  overflow checks. The <span class="link">compiler</span> warns if <b>-so</b> is used and there
-  is a <a class="link" href="#errors_Handlers">handler</a> for <tt><span class="exception">OVERFLOW_ERROR</span></tt>:
-</p><pre class="indent">
-*** example.sd7(123): Catch of <span class="exception">OVERFLOW_ERROR</span> although the checks are suppressed.
-</pre><p>
-  Only a program that never raises <tt><span class="exception">OVERFLOW_ERROR</span></tt> and that does not
-  have a <a class="link" href="#errors_Handlers">handler</a> for <tt><span class="exception">OVERFLOW_ERROR</span></tt> can be considered to be compiled
-  without overflow checks. Careful program analysis and testing
-  (<tt><span class="exception">OVERFLOW_ERROR</span></tt> should never be raised) is necessary to decide
-  about the omission of overflow checking.
+  switched off (with <b>-so</b>), the behavior is undefined (see chapter
+  <a class="link" href="#errors_Suppressing_exception_checks">16.6 Suppressing exception checks</a>).
 </p><p>
   The separate overflow exception allows easy recognition of overflow
   situations. All overflow situations, where <tt><span class="exception">OVERFLOW_ERROR</span></tt> is raised
-  correspond to C situations, which have undefined behaviour. The
+  correspond to C situations, which have undefined behavior. The
   overflow concept of Seed7 has been designed to allow, that simple
   C code is generated, if the overflow checks are switched off.
 </p><p>
@@ -12782,12 +12772,34 @@ number <span class="op">+</span> <a class="type" href="#types_integer">integer</
   result.
 </p>
 
-<a name="errors_RANGE_ERROR"><h4>16.2.4 RANGE_ERROR</h4></a>
+<a name="errors_INDEX_ERROR"><h4>16.2.4 INDEX_ERROR</h4></a>
 <p>
-  A <tt><span class="exception">RANGE_ERROR</span></tt> occurs if an index is used to access an array or string
-  element beyond the elements that actually exist. Many functions define
-  a range of valid arguments and raise <tt><span class="exception">RANGE_ERROR</span></tt> if this range is
-  violated.
+  An <tt><span class="exception">INDEX_ERROR</span></tt> occurs if an index is used to access an <tt><a class="type" href="#types_array">array</a></tt>, <tt><a class="type" href="#types_string">string</a></tt>,
+  <tt><span class="type">bstring</span></tt> or <tt><a class="type" href="#types_ref_list">ref_list</a></tt> element beyond the elements that actually exist.
+  An attempt to get an element of a <tt><a class="type" href="#types_string">string</a></tt>,
+  <tt><span class="type">bstring</span></tt> or <tt><a class="type" href="#types_ref_list">ref_list</a></tt> with a negative or zero index raises also <tt><span class="exception">INDEX_ERROR</span></tt>.
+</p><dl><dt>
+    It may be raised from the following <tt><a class="type" href="#types_array">array</a></tt> operations:</dt><dd>
+        <span class="op">[index]</span>, <span class="func">remove</span>.</dd><dt>
+    It may be raised from the following <tt><a class="type" href="#types_string">string</a></tt> operations:</dt><dd>
+        <span class="op">[index]</span>, <span class="op">@:= [index] char</span>, <span class="op">@:= [index] string</span>.</dd><dt>
+    It may be raised from the following <tt><span class="type">bstring</span></tt> operation:</dt><dd>
+        <span class="op">[index]</span>.</dd><dt>
+    It may be raised from the following <tt><a class="type" href="#types_ref_list">ref_list</a></tt> operations:</dt><dd>
+        <span class="op">[index]</span>, <span class="op">@:= [index] element</span>.</dd></dl>
+<p>
+  The interpreter checks always if an index refers to an existing element.
+  By default the <span class="link">compiler</span> generates code to check if indices refer to an
+  existing element. The option <b>-si</b> can be used to suppress the generation
+  of index checks. If a nonexisting element is referred, although index
+  checking has been switched off (with <b>-si</b>), the behavior is undefined
+  (see chapter <a class="link" href="#errors_Suppressing_exception_checks">16.6 Suppressing exception checks</a>).
+</p>
+
+<a name="errors_RANGE_ERROR"><h4>16.2.5 RANGE_ERROR</h4></a>
+<p>
+  Many functions define a range of valid arguments and raise <tt><span class="exception">RANGE_ERROR</span></tt>
+  if this range is violated.
 </p><dl><dt>
     It may be raised from the following <tt><a class="type" href="#types_boolean">boolean</a></tt> operations:</dt><dd>
         <span class="op">parse</span>, <span class="func">rand</span>.</dd><dt>
@@ -12806,11 +12818,11 @@ number <span class="op">+</span> <a class="type" href="#types_integer">integer</
     It may be raised from the following <tt><a class="type" href="#types_char">char</a></tt> operations:</dt><dd>
         <span class="func">chr</span>, <span class="func">rand</span>.</dd><dt>
     It may be raised from the following <tt><a class="type" href="#types_string">string</a></tt> operations:</dt><dd>
-        <span class="op">[</span>, <span class="op">@:=</span>, <span class="op">mult</span>, <span class="func">pos</span>, <span class="func">rpos</span>.</dd><dt>
+        <span class="op">mult</span>, <span class="func">pos</span>, <span class="func">rpos</span>.</dd><dt>
     It may be raised from the following <tt><a class="type" href="#types_set">bitset</a></tt> operations:</dt><dd>
         <span class="op">conv</span>, <span class="op">parse</span>, <span class="func">min</span>, <span class="func">max</span>, <span class="func">rand</span>.</dd><dt>
     It may be raised from the following <tt><a class="type" href="#types_array">array</a></tt> operations:</dt><dd>
-        <span class="op">[</span>, <span class="op">times</span>, <span class="func">remove</span>, <span class="func">rand</span>.</dd><dt>
+        <span class="op">times</span>, <span class="func">rand</span>.</dd><dt>
     It may be raised from the following <tt><a class="type" href="#types_hash">hash</a></tt> operations:</dt><dd>
         <span class="op">[</span>.</dd><dt>
     It may be raised from the following <tt><span class="type">bin32</span></tt> operations:</dt><dd>
@@ -12820,12 +12832,12 @@ number <span class="op">+</span> <a class="type" href="#types_integer">integer</
     It may be raised from the following <tt><a class="type" href="#types_category">category</a></tt> operations:</dt><dd>
         <span class="op">parse</span>.</dd><dt>
     It may be raised from the following <tt><a class="type" href="#types_ref_list">ref_list</a></tt> operations:</dt><dd>
-        <span class="op">[</span>, <span class="op">@:=</span>, <span class="func">pos</span>.</dd><dt>
+        <span class="func">pos</span>.</dd><dt>
     It may be raised from the following <tt><a class="type" href="#types_file">file</a></tt> operations:</dt><dd>
         <span class="func">open</span>, <span class="func">write</span>, <span class="func">gets</span>, <span class="func">length</span>, <span class="func">seek</span>, <span class="func">tell</span>.</dd></dl>
 <p></p>
 
-<a name="errors_FILE_ERROR"><h4>16.2.5 FILE_ERROR</h4></a>
+<a name="errors_FILE_ERROR"><h4>16.2.6 FILE_ERROR</h4></a>
 <p>
   A <tt><span class="exception">FILE_ERROR</span></tt> occurs if an illegal operation with a file is done.
 </p><dl><dt>
@@ -12836,7 +12848,7 @@ number <span class="op">+</span> <a class="type" href="#types_integer">integer</
         <span class="func">inetSocketAddress</span>, <span class="func">inetListenerAddress</span>, <span class="func">openInetSocket</span>, <span class="func">openInetListener</span>.</dd></dl>
 <p></p>
 
-<a name="errors_DATABASE_ERROR"><h4>16.2.6 DATABASE_ERROR</h4></a>
+<a name="errors_DATABASE_ERROR"><h4>16.2.7 DATABASE_ERROR</h4></a>
 <p>
   The exception <tt><span class="exception">DATABASE_ERROR</span></tt> may be raised by database
   functions. If a <tt><span class="exception">DATABASE_ERROR</span></tt> is caught it is possible
@@ -12854,7 +12866,7 @@ Searching for dynamic libraries failed: libclntsh.so
   be used to specify the place of the connector library.
 </p>
 
-<a name="errors_ILLEGAL_ACTION"><h4>16.2.7 ILLEGAL_ACTION</h4></a>
+<a name="errors_ILLEGAL_ACTION"><h4>16.2.8 ILLEGAL_ACTION</h4></a>
 <p>
   The exception <tt><span class="exception">ILLEGAL_ACTION</span></tt> may be raised by the interpreter
   kernel, if a primitive action does not point to any legal action.
@@ -12978,7 +12990,51 @@ Program received signal SIGFPE, Arithmetic exception.
   allows the debugger to show a backtrace for uncaught Seed7 exceptions.
 </p>
 
-<a name="errors_Signals"><h3>16.5 Signals</h3></a>
+<a name="errors_Suppressing_exception_checks"><h3>16.5 Suppressing exception checks</h3></a>
+<p>
+  A Seed7 program can be <span class="link">compiled</span> with the option <b>-s</b><span class="keywd">x</span>, to suppress the
+  generation of checks for exceptions. The suppressed checks <span class="keywd">x</span> are
+  specified with letters from the following list:
+</p><ul>
+    <li><b>d</b> Suppress the generation of checks for <a class="link" href="#errors_NUMERIC_ERROR">integer division by zero</a>.</li>
+    <li><b>i</b> Suppress the generation of <a class="link" href="#errors_INDEX_ERROR">index checks</a> (e.g. string, array).</li>
+    <li><b>o</b> Suppress the generation of <a class="link" href="#errors_OVERFLOW_ERROR">integer overflow</a> checks.</li>
+    <li><b>r</b> Suppress the generation of <a class="link" href="#errors_RANGE_ERROR">range</a> checks.</li>
+</ul><p>
+  If an exception situation occurs, although exception checking has
+  been switched off (with <b>-s</b>), the behavior is undefined. In this
+  case the following things can happen:
+</p><ul>
+    <li>The exception is still raised.</li>
+    <li>A different exception is raised.</li>
+    <li>The program hangs.</li>
+    <li>The program crashes.</li>
+    <li>The computation continues with some garbage value. This garbage
+       value can then trigger dangerous things: The X-ray dosis computed
+       by your program might be totally wrong. Your program might compute
+       the statics of a bridge wrong.</li>
+</ul><p>
+  Undefined behavior is a term used in the language specification
+  of C and other programming languages. Undefined behavior usually
+  means that the behavior of the program is unpredictable. Normally
+  Seed7 has a well defined behavior in all situations. Even in
+  situations where the language specification of C refers to
+  undefined behavior.
+</p><p>
+  A <a class="link" href="#errors_Handlers">handler</a> for an exception can only work reliable if the checks
+  for the exception are done. The <span class="link">compiler</span> warns if <b>-s</b> is used
+  and there is a <a class="link" href="#errors_Handlers">handler</a> for an exception. e.g.:
+</p><pre class="indent">
+*** example.sd7(123): Catch of <span class="exception">OVERFLOW_ERROR</span> although the checks are suppressed.
+</pre><p>
+  Only a program that never raises the specific exception and that
+  does not have a <a class="link" href="#errors_Handlers">handler</a> for this exception can be considered
+  to be compiled without checks for that exception. Careful program
+  analysis and testing (the exception should never be raised) is
+  necessary to decide about the omission of exception checking.
+</p><p>
+
+<a name="errors_Signals"><h3>16.6 Signals</h3></a>
 <p>
   A signal is an asynchronous notification of an event. The event
   can come from outside such as a request to terminate the program.
@@ -13030,7 +13086,7 @@ re-enter input>
   must be executed with a debugger to get a stack trace.
 </p>
 
-<a name="errors_Other_errors_and_warnings"><h3>16.6 Other errors and warnings</h3></a>
+<a name="errors_Other_errors_and_warnings"><h3>16.7 Other errors and warnings</h3></a>
 <p><dl><dt>
   No more memory. Program terminated.</dt><dd>
     This error message is displayed after the compile time error 1

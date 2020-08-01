@@ -614,9 +614,9 @@ objectType str_destr (listType arguments)
  *   A @:= [B] C;
  *  is equivalent to
  *   A := A[..pred(B)] & str(C) & A[succ(B)..];
- *  @exception RANGE_ERROR If 'position' is negative or zero.
- *  @exception RANGE_ERROR A character beyond 'destination' would be
- *             overwritten ('position' > length('destination') holds).
+ *  @exception INDEX_ERROR If 'position' is negative or zero, or
+ *             a character beyond 'destination' would be overwritten
+ *             ('position' > length('destination') holds).
  */
 objectType str_elemcpy (listType arguments)
 
@@ -637,7 +637,7 @@ objectType str_elemcpy (listType arguments)
                       striAsUnquotedCStri(stri), position,
                       take_char(arg_6(arguments)),
                       position <= 0 ? "<= 0" : "> length(destination)"););
-      return raise_exception(SYS_RNG_EXCEPTION);
+      return raise_exception(SYS_IDX_EXCEPTION);
     } else {
       stri->mem[position - 1] = (strElemType) take_char(arg_6(arguments));
     } /* if */
@@ -906,7 +906,7 @@ objectType str_head (listType arguments)
  *  Get a character, identified by an index, from a 'string'.
  *  The first character has the index 1.
  *  @return the character specified with the index.
- *  @exception RANGE_ERROR If the index is less than 1 or
+ *  @exception INDEX_ERROR If the index is less than 1 or
  *             greater than the length of the 'string'.
  */
 objectType str_idx (listType arguments)
@@ -924,7 +924,7 @@ objectType str_idx (listType arguments)
       logError(printf("str_idx(\"%s\", " FMT_D "): Position %s.\n",
                       striAsUnquotedCStri(stri), position,
                       position <= 0 ? "<= 0" : "> length(string)"););
-      return raise_exception(SYS_RNG_EXCEPTION);
+      return raise_exception(SYS_IDX_EXCEPTION);
     } else {
       return bld_char_temp((charType) stri->mem[position - 1]);
     } /* if */
@@ -1293,11 +1293,11 @@ objectType str_pos (listType arguments)
  *   A @:= [B] C;
  *  is equivalent to
  *   A := A[..pred(B)] & C & A[B+length(C)..];
- *  @exception RANGE_ERROR If 'position' is negative or zero.
- *  @exception RANGE_ERROR If 'destination' is smaller than 'source'.
- *  @exception RANGE_ERROR Characters beyond 'destination' would be
- *             overwritten ('position' + length('source') >
- *             succ(length('destination')) holds).
+ *  @exception INDEX_ERROR If 'position' is negative or zero, or
+ *             if 'destination' is smaller than 'source', or
+ *             characters beyond 'destination' would be overwritten
+ *             ('position' + length('source') > succ(length('destination'))
+ *             holds).
  */
 objectType str_poscpy (listType arguments)
 
@@ -1320,7 +1320,7 @@ objectType str_poscpy (listType arguments)
                       striAsUnquotedCStri(destStri), position);
                printf("\"%s\"): Position not in allowed range.\n",
                       striAsUnquotedCStri(sourceStri)););
-      return raise_exception(SYS_RNG_EXCEPTION);
+      return raise_exception(SYS_IDX_EXCEPTION);
     } else {
       /* It is possible that destStri and sourceStri overlap. */
       /* E.g. for the expression: stri @:= [idx] stri;        */

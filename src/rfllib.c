@@ -269,9 +269,9 @@ objectType rfl_elem (listType arguments)
  *   A @:= [B] C;
  *  is equivalent to
  *   A := A[..pred(B)] & make_list(C) & A[succ(B)..];
- *  @exception RANGE_ERROR If 'position/arg_4' is negative or zero.
- *  @exception RANGE_ERROR An element beyond 'dest/arg_1' would be
- *             overwritten ('position/arg_4' > length('dest/arg_1') holds).
+ *  @exception INDEX_ERROR If 'position/arg_4' is negative or zero, or
+ *             an element beyond 'dest/arg_1' would be overwritten
+ *             ('position/arg_4' > length('dest/arg_1') holds).
  */
 objectType rfl_elemcpy (listType arguments)
 
@@ -292,7 +292,7 @@ objectType rfl_elemcpy (listType arguments)
                       (memSizeType) take_reflist(arg_1(arguments)),
                       position,
                       (memSizeType) take_reference(arg_6(arguments))););
-      return raise_exception(SYS_RNG_EXCEPTION);
+      return raise_exception(SYS_IDX_EXCEPTION);
     } else {
       position--;
       while (position != 0 && list_element != NULL) {
@@ -305,7 +305,7 @@ objectType rfl_elemcpy (listType arguments)
                         (memSizeType) take_reflist(arg_1(arguments)),
                         position,
                         (memSizeType) take_reference(arg_6(arguments))););
-        return raise_exception(SYS_RNG_EXCEPTION);
+        return raise_exception(SYS_IDX_EXCEPTION);
       } else {
         list_element->obj = take_reference(arg_6(arguments));
       } /* if */
@@ -583,7 +583,7 @@ objectType rfl_head (listType arguments)
 /**
  *  Access one element from the 'ref_list' 'list/arg_1'.
  *  @return the element with the specified 'position/arg_3' from 'list/arg_1'.
- *  @exception RANGE_ERROR If the index is less than 1 or
+ *  @exception INDEX_ERROR If the index is less than 1 or
  *             greater than the length of the 'ref_list'.
  */
 objectType rfl_idx (listType arguments)
@@ -603,7 +603,7 @@ objectType rfl_idx (listType arguments)
                       "Index <= 0.\n",
                       (memSizeType) take_reflist(arg_1(arguments)),
                       position););
-      result = raise_exception(SYS_RNG_EXCEPTION);
+      result = raise_exception(SYS_IDX_EXCEPTION);
     } else {
       position--;
       while (position != 0 && list_element != NULL) {
@@ -615,7 +615,7 @@ objectType rfl_idx (listType arguments)
                         "Index > length(list).\n",
                         (memSizeType) take_reflist(arg_1(arguments)),
                         position););
-        result = raise_exception(SYS_RNG_EXCEPTION);
+        result = raise_exception(SYS_IDX_EXCEPTION);
       } else {
         result = bld_reference_temp(list_element->obj);
       } /* if */

@@ -992,6 +992,116 @@ const proc: setMTime (inout tarArchive: tar, in string: filePath,
 
 
 (**
+ *  Determine the name of the owner (UID) of a file in a TAR archive.
+ *  The function follows symbolic links.
+ *  @return the name of the file owner.
+ *  @exception RANGE_ERROR ''filePath'' does not use the standard path
+ *             representation.
+ *  @exception FILE_ERROR ''filePath'' is not present in the TAR archive, or
+ *             the chain of symbolic links is too long.
+ *)
+const func string: getOwner (inout tarArchive: tar, in string: filePath) is func
+  result
+    var string: owner is "";
+  local
+    var tarHeader: header is tarHeader.value;
+  begin
+    if filePath <> "/" and endsWith(filePath, "/") then
+      raise RANGE_ERROR;
+    else
+      header := followSymlink(tar, filePath);
+      if header.uname <> "" then
+        owner := header.uname;
+      else
+        owner := str(header.uid);
+      end if;
+    end if;
+  end func;
+
+
+const proc: setOwner (inout tarArchive: tar, in string: filePath,
+    in string: owner) is func
+  local
+    var tarHeader: header is tarHeader.value;
+  begin
+    if filePath <> "/" and endsWith(filePath, "/") then
+      raise RANGE_ERROR;
+    else
+      header := followSymlink(tar, filePath);
+      if header.filePath in tar.register then
+        if isDigitString(owner) then
+          header.uid := integer(owner);
+          header.uname := "";
+        else
+          header.uid := 0;
+          header.uname := owner;
+        end if;
+        tar.catalog @:= [header.filePath] header;
+        seek(tar.tarFile, tar.register[header.filePath]);
+        writeHead(tar.tarFile, tar.catalog[header.filePath]);
+      else
+        raise FILE_ERROR;
+      end if;
+    end if;
+  end func;
+
+
+(**
+ *  Determine the name of the group (GID) of a file in a TAR archive.
+ *  The function follows symbolic links.
+ *  @return the name of the file group.
+ *  @exception RANGE_ERROR ''filePath'' does not use the standard path
+ *             representation.
+ *  @exception FILE_ERROR ''filePath'' is not present in the TAR archive, or
+ *             the chain of symbolic links is too long.
+ *)
+const func string: getGroup (inout tarArchive: tar, in string: filePath) is func
+  result
+    var string: group is "";
+  local
+    var tarHeader: header is tarHeader.value;
+  begin
+    if filePath <> "/" and endsWith(filePath, "/") then
+      raise RANGE_ERROR;
+    else
+      header := followSymlink(tar, filePath);
+      if header.gname <> "" then
+        group := header.gname;
+      else
+        group := str(header.gid);
+      end if;
+    end if;
+  end func;
+
+
+const proc: setGroup (inout tarArchive: tar, in string: filePath,
+    in string: group) is func
+  local
+    var tarHeader: header is tarHeader.value;
+  begin
+    if filePath <> "/" and endsWith(filePath, "/") then
+      raise RANGE_ERROR;
+    else
+      header := followSymlink(tar, filePath);
+      if header.filePath in tar.register then
+        if isDigitString(group) then
+          header.gid := integer(group);
+          header.gname := "";
+        else
+          header.gid := 0;
+          header.gname := group;
+        end if;
+        tar.catalog @:= [header.filePath] header;
+        seek(tar.tarFile, tar.register[header.filePath]);
+        writeHead(tar.tarFile, tar.catalog[header.filePath]);
+      else
+        raise FILE_ERROR;
+      end if;
+    end if;
+  end func;
+
+
+(**
  *  Reads the destination of a symbolic link in a TAR archive.
  *  @return The destination referred by the symbolic link.
  *  @exception RANGE_ERROR ''filePath'' does not use the standard path
@@ -1137,6 +1247,7 @@ const func string: getFile (inout tarArchive: tar, in string: filePath) is func
  *  The function follows symbolic links.
  *  @exception RANGE_ERROR ''filePath'' does not use the standard path
  *             representation.
+ *  @exception FILE_ERROR The file exists, but it is not a regular file.
  *)
 const proc: putFile (inout tarArchive: tar, in var string: filePath,
     in string: data) is func
@@ -1207,6 +1318,7 @@ const proc: putFile (inout tarArchive: tar, in var string: filePath,
 
 (**
  *  Creates a new directory in a TAR archive.
+ *  The function does not follow symbolic links.
  *  @exception RANGE_ERROR ''dirPath'' does not use the standard path
  *             representation.
  *  @exception FILE_ERROR A system function returns an error.
@@ -1230,6 +1342,7 @@ const proc: mkdir (inout tarArchive: tar, in string: filePath) is func
       fileExists := FALSE;
     end if;
     if fileExists and dataStartPos <> -1 then
+      # The file exists and it is not an implicit directory.
       raise FILE_ERROR;
     else
       length := length(tar.tarFile);
@@ -1237,18 +1350,16 @@ const proc: mkdir (inout tarArchive: tar, in string: filePath) is func
       # Add zero bytes such that the next header starts at a multiple of the block size:
       write(tar.tarFile, "\0;" mult pred(TAR_BLOCK_SIZE) - pred(length) mod TAR_BLOCK_SIZE);
       tar.register @:= [filePath] tell(tar.tarFile);
-      if not fileExists then
-        header.name     := (filePath & "/") [.. 100];
-        header.mode     := fileMode conv 8#775;
-        header.uid      := 100;
-        header.gid      := 100;
-        header.mtime    := timestamp1970(time(NOW));
-        header.typeflag := DIRTYPE;
-        header.magic    := TAR_MAGIC;
-        header.version  := "  ";
-        header.filePath := filePath;
-        header.filePathSuffix := "/";
-      end if;
+      header.name     := (filePath & "/") [.. 100];
+      header.mode     := fileMode conv 8#775;
+      header.uid      := 100;
+      header.gid      := 100;
+      header.mtime    := timestamp1970(time(NOW));
+      header.typeflag := DIRTYPE;
+      header.magic    := TAR_MAGIC;
+      header.version  := "  ";
+      header.filePath := filePath;
+      header.filePathSuffix := "/";
       header.fileSize := 0;
       writeHead(tar.tarFile, header);
       header.dataStartPos := tell(tar.tarFile);
@@ -1277,23 +1388,18 @@ const func file: openFileInTar (inout tarArchive: tar, in string: filePath,
     var file: newFile is STD_NULL;
   local
     var tarHeader: header is tarHeader.value;
-    var boolean: okay is TRUE;
+    var string: missingPath is "";
   begin
     if mode = "r" then
       if filePath <> "/" and endsWith(filePath, "/") then
         raise RANGE_ERROR;
-      elsif filePath in tar.catalog then
-        header := tar.catalog[filePath];
-      elsif filePath in tar.register then
-        header := addToCatalog(tar, filePath);
-      elsif implicitDir(tar, filePath) then
-        header := addImplicitDir(tar, filePath);
       else
-        okay := FALSE;
-      end if;
-      if okay and (header.typeflag = REGTYPE or
-                   header.typeflag = AREGTYPE) then
-        newFile := openSubFile(tar.tarFile, header.dataStartPos, header.fileSize);
+        missingPath := followSymlink(tar, filePath, header);
+        if missingPath = "" and (header.typeflag = REGTYPE or
+                                 header.typeflag = AREGTYPE) then
+          newFile := openSubFile(tar.tarFile, header.dataStartPos,
+                                 header.fileSize);
+        end if;
       end if;
     end if;
   end func;

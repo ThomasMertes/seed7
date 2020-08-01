@@ -68,6 +68,17 @@ const func string: strRaiseError (in string: exceptionName) is func
   end func;
 
 
+const func string: refRaiseError (in string: exceptionName) is func
+
+  result
+    var string: expr is "";
+  begin
+    expr &:= "refRaiseError(";
+    expr &:= exceptionName;
+    expr &:= ")";
+  end func;
+
+
 const proc: warning (DOES_RAISE, in string: exceptionName, in expr_type: c_expr) is func
   begin
     noop;
@@ -76,10 +87,50 @@ const proc: warning (DOES_RAISE, in string: exceptionName, in expr_type: c_expr)
   end func;
 
 
-const proc: warning (CATCH_WITH_SUPPRESSED_CHECK, in string: exceptionName, in reference: current_catch) is func
+const proc: checkWarning (CATCH_WITH_SUPPRESSED_CHECK, in string: exceptionName, in reference: place) is func
   begin
-    writeln("*** " <& sourceNameString(file(current_catch)) <& "(" <& line(current_catch) <&
-            "): Catch of " <& exceptionName <& " although the checks are suppressed.");
+    if  (not (string_index_check and bstring_index_check and array_index_check) and exceptionName = "INDEX_ERROR") or
+        (not integer_division_check and exceptionName = "NUMERIC_ERROR") or
+        (not integer_overflow_check and exceptionName = "OVERFLOW_ERROR") or
+        (not (function_range_check and conversion_range_check) and exceptionName = "RANGE_ERROR") then
+      writeln("*** " <& sourceNameString(file(place)) <& "(" <& line(place) <&
+              "): Catch of " <& exceptionName <& " although the checks are suppressed.");
+    end if;
+  end func;
+
+
+const proc: checkWarning (CATCH_OTHERWISE_WITH_SUPPRESSED_CHECK, in reference: place) is func
+  local
+    var array string: exceptionNameList is 0 times "";
+    var integer: index is 0;
+  begin
+    if not (string_index_check and bstring_index_check and array_index_check) then
+      exceptionNameList &:= "INDEX_ERROR";
+    end if;
+    if not integer_division_check then
+      exceptionNameList &:= "NUMERIC_ERROR";
+    end if;
+    if not integer_overflow_check then
+      exceptionNameList &:= "OVERFLOW_ERROR";
+    end if;
+    if not (function_range_check and conversion_range_check) then
+      exceptionNameList &:= "RANGE_ERROR";
+    end if;
+    if length(exceptionNameList) <> 0 then
+      write("*** " <& sourceNameString(file(place)) <& "(" <& line(place) <&
+            "): Catch of otherwise although the checks for ");
+      for index range 1 to pred(length(exceptionNameList)) do
+        if index <> 1 then
+          write(", ");
+        end if;
+        write(exceptionNameList[index]);
+      end for;
+      if length(exceptionNameList) >= 2 then
+        write(" and ");
+      end if;
+      write(exceptionNameList[length(exceptionNameList)]);
+      writeln(" are suppressed.");
+    end if;
   end func;
 
 

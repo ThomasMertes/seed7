@@ -268,6 +268,28 @@ const proc: setMTime (in string: filePath, in time: aTime) is func
 
 
 (**
+ *  Determine the name of the owner (UID) of a file.
+ *  @return the name of the file owner.
+ *  @exception RANGE_ERROR ''filePath'' does not use the standard path
+ *             representation or it cannot be converted to the system
+ *             path type.
+ *  @exception FILE_ERROR A system function returns an error.
+ *)
+const func string: getOwner (in string: filePath)            is action "CMD_GET_OWNER";
+
+
+(**
+ *  Determine the name of the group (GID) to which a file belongs.
+ *  @return the name of the file group.
+ *  @exception RANGE_ERROR ''filePath'' does not use the standard path
+ *             representation or it cannot be converted to the system
+ *             path type.
+ *  @exception FILE_ERROR A system function returns an error.
+ *)
+const func string: getGroup (in string: filePath)            is action "CMD_GET_GROUP";
+
+
+(**
  *  Reads the destination of a symbolic link.
  *  @return The destination referred by the symbolic link.
  *  @exception MEMORY_ERROR Not enough memory to convert ''filePath''
@@ -639,6 +661,12 @@ const proc: setMTime (inout osFileSys: fileSystem, in string: filePath,
   begin
     setMTime(filePath, modificationTime);
   end func;
+
+const func string: getOwner (inout osFileSys: fileSystem, in string: filePath) is
+  return getOwner(filePath);
+
+const func string: getGroup (inout osFileSys: fileSystem, in string: filePath) is
+  return getGroup(filePath);
 
 const func file: open (inout osFileSys: fileSystem, in string: filePath, in string: mode) is
   return open(filePath, mode);

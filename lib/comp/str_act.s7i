@@ -733,20 +733,20 @@ const proc: process_const_str_elemcpy (in reference: destStri,
     incr(countOptimizations);
     if position < 1 then
       c_expr.expr &:= "/* 'string @:= [n] char' with n < 1 */\n";
-      warning(DOES_RAISE, "RANGE_ERROR", c_expr);
-      c_expr.expr &:= raiseError("RANGE_ERROR");
+      warning(DOES_RAISE, "INDEX_ERROR", c_expr);
+      c_expr.expr &:= raiseError("INDEX_ERROR");
       c_expr.expr &:= "\n";
     else
       process_expr(destStri, c_destStri);
-      if c_destStri.temp_num <> 0 or array_range_check then
+      if c_destStri.temp_num <> 0 or string_index_check then
         c_expr.expr &:= "{\n";
       end if;
       if c_destStri.temp_num <> 0 then
         appendWithDiagnostic(c_destStri.temp_decls, c_expr);
         appendWithDiagnostic(c_destStri.temp_assigns, c_expr);
       end if;
-      if array_range_check then
-        incr(countRangeChecks);
+      if string_index_check then
+        incr(countIndexChecks);
         c_expr.expr &:= "striType destStri=";
         c_expr.expr &:= c_destStri.expr;
         c_expr.expr &:= ";\n";
@@ -754,7 +754,7 @@ const proc: process_const_str_elemcpy (in reference: destStri,
         c_expr.expr &:= integerLiteral(pred(position));
         c_expr.expr &:= ")) {\n";
         c_expr.expr &:= "  ";
-        c_expr.expr &:= raiseError("RANGE_ERROR");
+        c_expr.expr &:= raiseError("INDEX_ERROR");
         c_expr.expr &:= "\n";
         c_expr.expr &:= "} else {\n";
         setDiagnosticLine(c_expr);
@@ -765,7 +765,7 @@ const proc: process_const_str_elemcpy (in reference: destStri,
         c_expr.expr &:= ");\n";
         c_expr.expr &:= "}\n";
       else
-        incr(countNoRangeChecks);
+        incr(countNoIndexChecks);
         setDiagnosticLine(c_expr);
         c_expr.expr &:= "(";
         c_expr.expr &:= c_destStri.expr;
@@ -778,7 +778,7 @@ const proc: process_const_str_elemcpy (in reference: destStri,
       if c_destStri.temp_num <> 0 then
         appendWithDiagnostic(c_destStri.temp_frees, c_expr);
       end if;
-      if c_destStri.temp_num <> 0 or array_range_check then
+      if c_destStri.temp_num <> 0 or string_index_check then
         c_expr.expr &:= "}\n";
       end if;
     end if;
@@ -795,14 +795,14 @@ const proc: process_const_str_elemcpy (in reference: destStri,
     incr(countOptimizations);
     if position < 1 then
       c_expr.expr &:= "/* 'string @:= [n] char' with n < 1 */\n";
-      warning(DOES_RAISE, "RANGE_ERROR", c_expr);
-      c_expr.expr &:= raiseError("RANGE_ERROR");
+      warning(DOES_RAISE, "INDEX_ERROR", c_expr);
+      c_expr.expr &:= raiseError("INDEX_ERROR");
       c_expr.expr &:= "\n";
     else
       process_expr(destStri, c_destStri);
       c_aChar.temp_num := c_destStri.temp_num;
       process_expr(aChar, c_aChar);
-      if c_aChar.temp_num <> 0 or array_range_check then
+      if c_aChar.temp_num <> 0 or string_index_check then
         c_expr.expr &:= "{\n";
       end if;
       if c_aChar.temp_num <> 0 then
@@ -811,8 +811,8 @@ const proc: process_const_str_elemcpy (in reference: destStri,
         appendWithDiagnostic(c_destStri.temp_assigns, c_expr);
         appendWithDiagnostic(c_aChar.temp_assigns, c_expr);
       end if;
-      if array_range_check then
-        incr(countRangeChecks);
+      if string_index_check then
+        incr(countIndexChecks);
         c_expr.expr &:= "striType destStri=";
         c_expr.expr &:= c_destStri.expr;
         c_expr.expr &:= ";\n";
@@ -820,7 +820,7 @@ const proc: process_const_str_elemcpy (in reference: destStri,
         c_expr.expr &:= integerLiteral(pred(position));
         c_expr.expr &:= ")) {\n";
         c_expr.expr &:= "  ";
-        c_expr.expr &:= raiseError("RANGE_ERROR");
+        c_expr.expr &:= raiseError("INDEX_ERROR");
         c_expr.expr &:= "\n";
         c_expr.expr &:= "} else {\n";
         setDiagnosticLine(c_expr);
@@ -831,7 +831,7 @@ const proc: process_const_str_elemcpy (in reference: destStri,
         c_expr.expr &:= ");\n";
         c_expr.expr &:= "}\n";
       else
-        incr(countNoRangeChecks);
+        incr(countNoIndexChecks);
         setDiagnosticLine(c_expr);
         c_expr.expr &:= "(";
         c_expr.expr &:= c_destStri.expr;
@@ -845,7 +845,7 @@ const proc: process_const_str_elemcpy (in reference: destStri,
         appendWithDiagnostic(c_destStri.temp_frees, c_expr);
         appendWithDiagnostic(c_aChar.temp_frees, c_expr);
       end if;
-      if c_aChar.temp_num <> 0 or array_range_check then
+      if c_aChar.temp_num <> 0 or string_index_check then
         c_expr.expr &:= "}\n";
       end if;
     end if;
@@ -867,7 +867,7 @@ const proc: process_const_str_elemcpy (in reference: destStri,
       process_expr(destStri, c_destStri);
       c_position.temp_num := c_destStri.temp_num;
       process_expr(position, c_position);
-      if c_position.temp_num <> 0 or array_range_check then
+      if c_position.temp_num <> 0 or string_index_check then
         c_expr.expr &:= "{\n";
       end if;
       if c_position.temp_num <> 0 then
@@ -876,8 +876,8 @@ const proc: process_const_str_elemcpy (in reference: destStri,
         appendWithDiagnostic(c_destStri.temp_assigns, c_expr);
         appendWithDiagnostic(c_position.temp_assigns, c_expr);
       end if;
-      if array_range_check then
-        incr(countRangeChecks);
+      if string_index_check then
+        incr(countIndexChecks);
         c_expr.expr &:= "striType destStri=";
         c_expr.expr &:= c_destStri.expr;
         c_expr.expr &:= ";\n";
@@ -896,7 +896,7 @@ const proc: process_const_str_elemcpy (in reference: destStri,
           c_expr.expr &:= "position>destStri->size)) {\n";
         end if;
         c_expr.expr &:= "  ";
-        c_expr.expr &:= raiseError("RANGE_ERROR");
+        c_expr.expr &:= raiseError("INDEX_ERROR");
         c_expr.expr &:= "\n";
         c_expr.expr &:= "} else {\n";
         setDiagnosticLine(c_expr);
@@ -909,7 +909,7 @@ const proc: process_const_str_elemcpy (in reference: destStri,
         c_expr.expr &:= ");\n";
         c_expr.expr &:= "}\n";
       else
-        incr(countNoRangeChecks);
+        incr(countNoIndexChecks);
         setDiagnosticLine(c_expr);
         c_expr.expr &:= "(";
         c_expr.expr &:= c_destStri.expr;
@@ -923,7 +923,7 @@ const proc: process_const_str_elemcpy (in reference: destStri,
         appendWithDiagnostic(c_destStri.temp_frees, c_expr);
         appendWithDiagnostic(c_position.temp_frees, c_expr);
       end if;
-      if c_position.temp_num <> 0 or array_range_check then
+      if c_position.temp_num <> 0 or string_index_check then
         c_expr.expr &:= "}\n";
       end if;
     end if;
@@ -949,7 +949,7 @@ const proc: process (STR_ELEMCPY, in reference: function,
       process_expr(params[4], c_position);
       c_aChar.temp_num := c_position.temp_num;
       process_expr(params[6], c_aChar);
-      if c_aChar.temp_num <> 0 or array_range_check then
+      if c_aChar.temp_num <> 0 or string_index_check then
         c_expr.expr &:= "{\n";
       end if;
       if c_aChar.temp_num <> 0 then
@@ -960,8 +960,8 @@ const proc: process (STR_ELEMCPY, in reference: function,
         appendWithDiagnostic(c_position.temp_assigns, c_expr);
         appendWithDiagnostic(c_aChar.temp_assigns, c_expr);
       end if;
-      if array_range_check then
-        incr(countRangeChecks);
+      if string_index_check then
+        incr(countIndexChecks);
         c_expr.expr &:= "striType destStri=";
         c_expr.expr &:= c_destStri.expr;
         c_expr.expr &:= ";\n";
@@ -980,7 +980,7 @@ const proc: process (STR_ELEMCPY, in reference: function,
           c_expr.expr &:= "position>destStri->size)) {\n";
         end if;
         c_expr.expr &:= "  ";
-        c_expr.expr &:= raiseError("RANGE_ERROR");
+        c_expr.expr &:= raiseError("INDEX_ERROR");
         c_expr.expr &:= "\n";
         c_expr.expr &:= "} else {\n";
         setDiagnosticLine(c_expr);
@@ -993,7 +993,7 @@ const proc: process (STR_ELEMCPY, in reference: function,
         c_expr.expr &:= ");\n";
         c_expr.expr &:= "}\n";
       else
-        incr(countNoRangeChecks);
+        incr(countNoIndexChecks);
         setDiagnosticLine(c_expr);
         c_expr.expr &:= "(";
         c_expr.expr &:= c_destStri.expr;
@@ -1008,7 +1008,7 @@ const proc: process (STR_ELEMCPY, in reference: function,
         appendWithDiagnostic(c_position.temp_frees, c_expr);
         appendWithDiagnostic(c_aChar.temp_frees, c_expr);
       end if;
-      if c_aChar.temp_num <> 0 or array_range_check then
+      if c_aChar.temp_num <> 0 or string_index_check then
         c_expr.expr &:= "}\n";
       end if;
     end if;
@@ -1528,8 +1528,8 @@ const proc: process_const_str_idx (in string: stri,
     if getConstant(index, INTOBJECT, evaluatedParam) then
       index_value := getValue(evaluatedParam, integer);
       if index_value < 1 or index_value > length(stri) then
-        warning(DOES_RAISE, "RANGE_ERROR", c_expr);
-        c_expr.expr &:= intRaiseError("RANGE_ERROR");
+        warning(DOES_RAISE, "INDEX_ERROR", c_expr);
+        c_expr.expr &:= intRaiseError("INDEX_ERROR");
       else
         c_expr.expr &:= charLiteral(stri[index_value]);
       end if;
@@ -1537,8 +1537,8 @@ const proc: process_const_str_idx (in string: stri,
       c_expr.expr &:= "(";
       c_expr.expr &:= stringLiteral(stri);
       c_expr.expr &:= ")->mem[";
-      if array_range_check then
-        incr(countRangeChecks);
+      if string_index_check then
+        incr(countIndexChecks);
         incr(c_expr.temp_num);
         index_name := "idx_" & str(c_expr.temp_num);
         if ccConf.TWOS_COMPLEMENT_INTTYPE then
@@ -1567,8 +1567,8 @@ const proc: process_const_str_idx (in string: stri,
         end if;
         c_expr.expr &:= str(length(stri));
         c_expr.expr &:= ") ? ";
-        c_expr.expr &:= intRaiseError("RANGE_ERROR");
-        c_expr.expr &:= " : 0, ";
+        c_expr.expr &:= intRaiseError("INDEX_ERROR");
+        c_expr.expr &:= " : ";
         c_expr.expr &:= index_name;
         if ccConf.TWOS_COMPLEMENT_INTTYPE then
           c_expr.expr &:= ")";
@@ -1576,7 +1576,7 @@ const proc: process_const_str_idx (in string: stri,
           c_expr.expr &:= "-1)";
         end if;
       else
-        incr(countNoRangeChecks);
+        incr(countNoIndexChecks);
         c_expr.expr &:= "(";
         process_expr(index, c_expr);
         c_expr.expr &:= ")-1";
@@ -1594,39 +1594,24 @@ const proc: process_const_str_idx (in reference: param1,
   begin
     incr(countOptimizations);
     if index < 1 then
-      warning(DOES_RAISE, "RANGE_ERROR", c_expr);
-      c_expr.expr &:= intRaiseError("RANGE_ERROR");
-    elsif array_range_check then
-      incr(countRangeChecks);
-      if isNormalVariable(param1) then
-        stri_name := normalVariable(param1, c_expr);
-      else
-        incr(c_expr.temp_num);
-        stri_name := "tmp_" & str(c_expr.temp_num);
-        c_expr.temp_decls &:= "const_striType ";
-        c_expr.temp_decls &:= stri_name;
-        c_expr.temp_decls &:= ";\n";
-        c_expr.expr &:= "(*(";
-        c_expr.expr &:= stri_name;
-        c_expr.expr &:= "=";
-        getAnyParamToExpr(param1, c_expr);
-        c_expr.expr &:= ", &";
-      end if;
+      warning(DOES_RAISE, "INDEX_ERROR", c_expr);
+      c_expr.expr &:= intRaiseError("INDEX_ERROR");
+    elsif string_index_check then
+      incr(countIndexChecks);
+      c_expr.expr &:= "(";
+      stri_name := getParameterAsVariable("const_striType", "tmp_", param1, c_expr);
       c_expr.expr &:= stri_name;
       c_expr.expr &:= "->mem[(idxChk(";
       c_expr.expr &:= stri_name;
       c_expr.expr &:= "->size<";
       c_expr.expr &:= integerLiteral(index);
       c_expr.expr &:= ") ? ";
-      c_expr.expr &:= intRaiseError("RANGE_ERROR");
-      c_expr.expr &:= " : 0, ";
+      c_expr.expr &:= intRaiseError("INDEX_ERROR");
+      c_expr.expr &:= " : ";
       c_expr.expr &:= integerLiteral(pred(index));
-      c_expr.expr &:= ")]";
-      if not isNormalVariable(param1) then
-        c_expr.expr &:= "))";
-      end if;
+      c_expr.expr &:= ")])";
     else
-      incr(countNoRangeChecks);
+      incr(countNoIndexChecks);
       c_expr.expr &:= "(";
       getAnyParamToExpr(param1, c_expr);
       c_expr.expr &:= ")->mem[";
@@ -1648,8 +1633,8 @@ const proc: process (STR_IDX, in reference: function,
       process_const_str_idx(getValue(evaluatedParam, string), params[3], c_expr);
     elsif getConstant(params[3], INTOBJECT, evaluatedParam) then
       process_const_str_idx(params[1], getValue(evaluatedParam, integer), c_expr);
-    elsif array_range_check then
-      incr(countRangeChecks);
+    elsif string_index_check then
+      incr(countIndexChecks);
       incr(c_expr.temp_num);
       index_name := "idx_" & str(c_expr.temp_num);
       if ccConf.TWOS_COMPLEMENT_INTTYPE then
@@ -1659,19 +1644,8 @@ const proc: process (STR_IDX, in reference: function,
       end if;
       c_expr.temp_decls &:= index_name;
       c_expr.temp_decls &:= ";\n";
-      if isNormalVariable(params[1]) then
-        stri_name := normalVariable(params[1], c_expr);
-      else
-        stri_name := "tmp_" & str(c_expr.temp_num);
-        c_expr.temp_decls &:= "const_striType ";
-        c_expr.temp_decls &:= stri_name;
-        c_expr.temp_decls &:= ";\n";
-        c_expr.expr &:= "(*(";
-        c_expr.expr &:= stri_name;
-        c_expr.expr &:= "=";
-        getAnyParamToExpr(params[1], c_expr);
-        c_expr.expr &:= ", &";
-      end if;
+      c_expr.expr &:= "(";
+      stri_name := getParameterAsVariable("const_striType", "tmp_", params[1], c_expr);
       c_expr.expr &:= stri_name;
       c_expr.expr &:= "->mem[(";
       c_expr.expr &:= index_name;
@@ -1692,19 +1666,16 @@ const proc: process (STR_IDX, in reference: function,
       end if;
       c_expr.expr &:= stri_name;
       c_expr.expr &:= "->size) ? ";
-      c_expr.expr &:= intRaiseError("RANGE_ERROR");
-      c_expr.expr &:= " : 0, ";
+      c_expr.expr &:= intRaiseError("INDEX_ERROR");
+      c_expr.expr &:= " : ";
       c_expr.expr &:= index_name;
       if ccConf.TWOS_COMPLEMENT_INTTYPE then
-        c_expr.expr &:= ")]";
+        c_expr.expr &:= ")])";
       else
-        c_expr.expr &:= "-1)]";
-      end if;
-      if not isNormalVariable(params[1]) then
-        c_expr.expr &:= "))";
+        c_expr.expr &:= "-1)])";
       end if;
     else
-      incr(countNoRangeChecks);
+      incr(countNoIndexChecks);
       c_expr.expr &:= "(";
       getAnyParamToExpr(params[1], c_expr);
       c_expr.expr &:= ")->mem[(";
@@ -2045,13 +2016,19 @@ const proc: process_const_str_mult (in string: stri, in reference: factor,
   begin
     if stri = "" then
       incr(countOptimizations);
-      c_expr.expr &:= "((";
-      process_expr(factor, c_expr);
-      c_expr.expr &:= ")<0?";
-      c_expr.expr &:= strRaiseError("RANGE_ERROR");
-      c_expr.expr &:= ":";
-      c_expr.expr &:= stringLiteral("");
-      c_expr.expr &:= ")";
+      if function_range_check then
+        incr(countRangeChecks);
+        c_expr.expr &:= "(rngChk((";
+        process_expr(factor, c_expr);
+        c_expr.expr &:= ")<0)?";
+        c_expr.expr &:= strRaiseError("RANGE_ERROR");
+        c_expr.expr &:= ":";
+        c_expr.expr &:= stringLiteral("");
+        c_expr.expr &:= ")";
+      else
+        incr(countNoRangeChecks);
+        c_expr.expr &:= stringLiteral("");
+      end if;
     else
       prepare_stri_result(c_expr);
       if length(stri) = 1 then
@@ -2283,8 +2260,8 @@ const proc: process_const_str_poscpy (in reference: destStri,
     incr(countOptimizations);
     if position < 1 then
       c_expr.expr &:= "/* 'string @:= [n] string' with n < 1 */\n";
-      warning(DOES_RAISE, "RANGE_ERROR", c_expr);
-      c_expr.expr &:= raiseError("RANGE_ERROR");
+      warning(DOES_RAISE, "INDEX_ERROR", c_expr);
+      c_expr.expr &:= raiseError("INDEX_ERROR");
       c_expr.expr &:= "\n";
     else
       incr(countOptimizations);
@@ -2294,8 +2271,8 @@ const proc: process_const_str_poscpy (in reference: destStri,
         appendWithDiagnostic(c_destStri.temp_decls, c_expr);
         appendWithDiagnostic(c_destStri.temp_assigns, c_expr);
        end if;
-      if array_range_check then
-        incr(countRangeChecks);
+      if string_index_check then
+        incr(countIndexChecks);
         c_expr.expr &:= "striType destStri=";
         c_expr.expr &:= c_destStri.expr;
         c_expr.expr &:= ";\n";
@@ -2308,7 +2285,7 @@ const proc: process_const_str_poscpy (in reference: destStri,
         c_expr.expr &:= integerLiteral(length(aStri));
         c_expr.expr &:= ")) {\n";
         c_expr.expr &:= "  ";
-        c_expr.expr &:= raiseError("RANGE_ERROR");
+        c_expr.expr &:= raiseError("INDEX_ERROR");
         c_expr.expr &:= "\n";
         c_expr.expr &:= "} else {\n";
         setDiagnosticLine(c_expr);
@@ -2321,7 +2298,7 @@ const proc: process_const_str_poscpy (in reference: destStri,
         c_expr.expr &:= "*sizeof(strElemType));\n";
         c_expr.expr &:= "}\n";
       else
-        incr(countNoRangeChecks);
+        incr(countNoIndexChecks);
         setDiagnosticLine(c_expr);
         c_expr.expr &:= "memcpy(&(";
         c_expr.expr &:= c_destStri.expr;
@@ -2351,8 +2328,8 @@ const proc: process_const_str_poscpy (in reference: destStri,
     incr(countOptimizations);
     if position < 1 then
       c_expr.expr &:= "/* 'string @:= [n] string' with n < 1 */\n";
-      warning(DOES_RAISE, "RANGE_ERROR", c_expr);
-      c_expr.expr &:= raiseError("RANGE_ERROR");
+      warning(DOES_RAISE, "INDEX_ERROR", c_expr);
+      c_expr.expr &:= raiseError("INDEX_ERROR");
       c_expr.expr &:= "\n";
     else
       process_expr(destStri, c_destStri);
@@ -2365,8 +2342,8 @@ const proc: process_const_str_poscpy (in reference: destStri,
         appendWithDiagnostic(c_destStri.temp_assigns, c_expr);
         appendWithDiagnostic(c_aStri.temp_assigns, c_expr);
       end if;
-      if array_range_check then
-        incr(countRangeChecks);
+      if string_index_check then
+        incr(countIndexChecks);
         c_expr.expr &:= "striType destStri=";
         c_expr.expr &:= c_destStri.expr;
         c_expr.expr &:= ";\n";
@@ -2377,7 +2354,7 @@ const proc: process_const_str_poscpy (in reference: destStri,
         c_expr.expr &:= integerLiteral(pred(position));
         c_expr.expr &:= ">destStri->size-aStri->size)) {\n";
         c_expr.expr &:= "  ";
-        c_expr.expr &:= raiseError("RANGE_ERROR");
+        c_expr.expr &:= raiseError("INDEX_ERROR");
         c_expr.expr &:= "\n";
         c_expr.expr &:= "} else {\n";
         setDiagnosticLine(c_expr);
@@ -2386,7 +2363,7 @@ const proc: process_const_str_poscpy (in reference: destStri,
         c_expr.expr &:= "], aStri->mem, aStri->size*sizeof(strElemType));\n";
         c_expr.expr &:= "}\n";
       else
-        incr(countNoRangeChecks);
+        incr(countNoIndexChecks);
         c_expr.expr &:= "striType aStri=";
         c_expr.expr &:= c_aStri.expr;
         c_expr.expr &:= ";\n";
@@ -2428,8 +2405,8 @@ const proc: process_const_str_poscpy (in reference: destStri,
         appendWithDiagnostic(c_destStri.temp_assigns, c_expr);
         appendWithDiagnostic(c_position.temp_assigns, c_expr);
       end if;
-      if array_range_check then
-        incr(countRangeChecks);
+      if string_index_check then
+        incr(countIndexChecks);
         c_expr.expr &:= "striType destStri=";
         c_expr.expr &:= c_destStri.expr;
         c_expr.expr &:= ";\n";
@@ -2444,7 +2421,7 @@ const proc: process_const_str_poscpy (in reference: destStri,
         c_expr.expr &:= integerLiteral(length(aStri));
         c_expr.expr &:= ")) {\n";
         c_expr.expr &:= "  ";
-        c_expr.expr &:= raiseError("RANGE_ERROR");
+        c_expr.expr &:= raiseError("INDEX_ERROR");
         c_expr.expr &:= "\n";
         c_expr.expr &:= "} else {\n";
         setDiagnosticLine(c_expr);
@@ -2455,7 +2432,7 @@ const proc: process_const_str_poscpy (in reference: destStri,
         c_expr.expr &:= "*sizeof(strElemType));\n";
         c_expr.expr &:= "}\n";
       else
-        incr(countNoRangeChecks);
+        incr(countNoIndexChecks);
         setDiagnosticLine(c_expr);
         c_expr.expr &:= "memcpy(&(";
         c_expr.expr &:= c_destStri.expr;
@@ -2510,8 +2487,8 @@ const proc: process (STR_POSCPY, in reference: function,
         appendWithDiagnostic(c_position.temp_assigns, c_expr);
         appendWithDiagnostic(c_aStri.temp_assigns, c_expr);
       end if;
-      if array_range_check then
-        incr(countRangeChecks);
+      if string_index_check then
+        incr(countIndexChecks);
         c_expr.expr &:= "striType destStri=";
         c_expr.expr &:= c_destStri.expr;
         c_expr.expr &:= ";\n";
@@ -2525,14 +2502,14 @@ const proc: process (STR_POSCPY, in reference: function,
         c_expr.expr &:= "position<=0 || ";
         c_expr.expr &:= "destStri->size<aStri->size || (uintType)(position-1)>destStri->size-aStri->size)) {\n";
         c_expr.expr &:= "  ";
-        c_expr.expr &:= raiseError("RANGE_ERROR");
+        c_expr.expr &:= raiseError("INDEX_ERROR");
         c_expr.expr &:= "\n";
         c_expr.expr &:= "} else {\n";
         setDiagnosticLine(c_expr);
         c_expr.expr &:= "  memmove(&destStri->mem[position-1], aStri->mem, aStri->size*sizeof(strElemType));\n";
         c_expr.expr &:= "}\n";
       else
-        incr(countNoRangeChecks);
+        incr(countNoIndexChecks);
         c_expr.expr &:= "striType aStri=";
         c_expr.expr &:= c_aStri.expr;
         c_expr.expr &:= ";\n";

@@ -34,7 +34,7 @@
 
 #include "version.h"
 
-#define _XOPEN_SOURCE
+#define _XOPEN_SOURCE 600
 #include "stdlib.h"
 #include "stdio.h"
 #include "string.h"

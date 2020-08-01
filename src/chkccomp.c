@@ -483,7 +483,9 @@ static void determineCompilerVersion (FILE *versionFile)
     cc_version_info_filedes = CC_VERSION_INFO_FILEDES;
 #else
     /* Use heuristic to determine CC_VERSION_INFO_FILEDES. */
-    sprintf(command, "%s %s > cc_vers1.txt 2> cc_vers2.txt", c_compiler, CC_OPT_VERSION_INFO);
+    sprintf(command, "%s %s %s cc_vers1.txt %s cc_vers2.txt",
+            c_compiler, CC_OPT_VERSION_INFO,
+            REDIRECT_FILEDES_1, REDIRECT_FILEDES_2);
     aFile = fopen("cc_vers1.txt", "r");
     if (aFile != NULL) {
       ch = getc(aFile);
@@ -507,15 +509,32 @@ static void determineCompilerVersion (FILE *versionFile)
     fprintf(versionFile, "#define CC_VERSION_INFO_FILEDES %d\n", cc_version_info_filedes);
 #endif
     if (cc_version_info_filedes == 1) {
-      sprintf(command, "%s %s > cc_vers.txt", c_compiler, CC_OPT_VERSION_INFO);
+      if (nullDevice != NULL) {
+        sprintf(command, "%s %s %s cc_vers.txt %s %s",
+                c_compiler, CC_OPT_VERSION_INFO, REDIRECT_FILEDES_1,
+                REDIRECT_FILEDES_2, nullDevice);
+      } else {
+        sprintf(command, "%s %s %s cc_vers.txt",
+                c_compiler, CC_OPT_VERSION_INFO, REDIRECT_FILEDES_1);
+      } /* if */
     } else if (cc_version_info_filedes == 2) {
-      sprintf(command, "%s %s 2> cc_vers.txt", c_compiler, CC_OPT_VERSION_INFO);
+      if (nullDevice != NULL) {
+        sprintf(command, "%s %s %s cc_vers.txt %s %s",
+                c_compiler, CC_OPT_VERSION_INFO, REDIRECT_FILEDES_2,
+                REDIRECT_FILEDES_1, nullDevice);
+      } else {
+        sprintf(command, "%s %s %s cc_vers.txt",
+                c_compiler, CC_OPT_VERSION_INFO, REDIRECT_FILEDES_2);
+      } /* if */
     } /* if */
     system(command);
     aFile = fopen("cc_vers.txt", "r");
     if (aFile != NULL) {
       fprintf(versionFile, "#define C_COMPILER_VERSION \"");
-      for (ch=getc(aFile); ch != EOF && ch != 10 && ch != 13; ch = getc(aFile)) {
+      do {
+        ch = getc(aFile);
+      } while (ch == 10 || ch == 13);
+      for (; ch != EOF && ch != 10 && ch != 13; ch = getc(aFile)) {
         if (ch >= ' ' && ch <= '~') {
           if (ch == '\"' || ch == '\'' || ch == '\\') {
             putc('\\', versionFile);
@@ -3973,7 +3992,7 @@ static void determineFtruncate (FILE *versionFile, const char *fileno)
 /**
  *  Determine values for DECLARE_OS_ENVIRON, USE_GET_ENVIRONMENT,
  *  INITIALIZE_OS_ENVIRON, DEFINE_WGETENV, DEFINE_WSETENV, os_environ.
- *  os_getenv, os_setenv, os_putenv and DELETE_PUTENV_STRING.
+ *  os_getenv, os_setenv, os_putenv and DELETE_PUTENV_ARGUMENT.
  */
 static void determineEnvironDefines (FILE *versionFile)
 
@@ -3987,11 +4006,14 @@ static void determineEnvironDefines (FILE *versionFile)
     int initialize_os_environ = 0;
     int define_wgetenv = 0;
     int define_wsetenv = 0;
+    int define_wunsetenv = 0;
     int test_result;
-    int getenv_is_case_sensitive = 0;
+    int putenv_can_remove_keys = 0;
+    int getenv_is_case_sensitive = -1;
     char *os_getenv_stri = NULL;
     char *os_putenv_stri = NULL;
     char *os_setenv_stri = NULL;
+    char *os_unsetenv_stri = NULL;
 
   /* determineEnvironDefines */
     buffer[0] = '\0';
@@ -4125,9 +4147,6 @@ static void determineEnvironDefines (FILE *versionFile)
       define_wgetenv = 1;
       os_getenv_stri = "wgetenv";
     } /* if */
-    if (define_wgetenv) {
-      fputs("#define DEFINE_WGETENV\n", versionFile);
-    } /* if */
 #else
     if (compileAndLinkOk("#include <stdio.h>\n#include <stdlib.h>\n"
                          "int main(int argc,char *argv[])\n"
@@ -4146,13 +4165,9 @@ static void determineEnvironDefines (FILE *versionFile)
       os_getenv_stri = "getenv";
     } /* if */
 #endif
-    if (os_getenv_stri != NULL) {
-      fprintf(versionFile, "#define os_getenv %s\n", os_getenv_stri);
-    } else {
-      fprintf(logFile, "\n *** Cannot define os_getenv.\n");
-    } /* if */
 #ifdef EMULATE_ENVIRONMENT
     os_setenv_stri = "setenv7";
+    os_unsetenv_stri = "unsetenv7";
     getenv_is_case_sensitive = 1;
 #elif defined OS_STRI_WCHAR
     if (compileAndLinkOk("#include <stdio.h>\n#include <stdlib.h>\n"
@@ -4179,6 +4194,36 @@ static void determineEnvironDefines (FILE *versionFile)
                                 "return 0;}\n") && (test_result = doTest()) >= 1) {
       os_setenv_stri = "wsetenv";
       getenv_is_case_sensitive = test_result == 1;
+    } /* if */
+    if (os_setenv_stri != NULL) {
+      sprintf(buffer, "#include <stdio.h>\n#include <stdlib.h>\n"
+                      "#include <string.h>\n"
+                      "int main(int argc,char *argv[])\n"
+                      "{printf(\"%%d\\n\",\n"
+                      "    (%s(L\"AsDfGhJkL\", L\"asdfghjkl\", 1) == 0 &&\n"
+                      "     getenv(\"AsDfGhJkL\") != NULL &&\n"
+                      "     _wunsetenv(L\"AsDfGhJkL\") == 0 &&\n"
+                      "     getenv(\"AsDfGhJkL\") == NULL));\n"
+                      "return 0;}\n", os_setenv_stri);
+      if (compileAndLinkOk(buffer) && doTest() == 1) {
+        os_unsetenv_stri = "_wunsetenv";
+      } else {
+        sprintf(buffer, "#include <stdio.h>\n#include <stdlib.h>\n"
+                        "#include <string.h>\n"
+                        "int main(int argc,char *argv[])\n"
+                        "{printf(\"%%d\\n\",\n"
+                        "    (%s(L\"AsDfGhJkL\", L\"asdfghjkl\", 1) == 0 &&\n"
+                        "     getenv(\"AsDfGhJkL\") != NULL &&\n"
+                        "     wunsetenv(L\"AsDfGhJkL\") == 0 &&\n"
+                        "     getenv(\"AsDfGhJkL\") == NULL));\n"
+                        "return 0;}\n", os_setenv_stri);
+        if (compileAndLinkOk(buffer) && doTest() == 1) {
+          os_unsetenv_stri = "wunsetenv";
+        } /* if */
+      } /* if */
+    } /* if */
+    if (os_setenv_stri != NULL && os_unsetenv_stri != NULL) {
+      /* No need to consider putenv(). */
     } else if (!define_wgetenv &&
                compileAndLinkOk("#include <stdio.h>\n#include <stdlib.h>\n"
                                 "#include <string.h>\n"
@@ -4240,6 +4285,59 @@ static void determineEnvironDefines (FILE *versionFile)
       define_wsetenv = 1;
       os_setenv_stri = "wsetenv";
     } /* if */
+    if (os_putenv_stri != NULL) {
+      sprintf(buffer, "#include <stdio.h>\n#include <stdlib.h>\n"
+                      "#include <string.h>\n"
+                      "wchar_t *key_value = L\"AsDfGhJkL=asdfghjkl\";\n"
+                      "wchar_t *key_no_value = L\"AsDfGhJkL=\";\n"
+                      "wchar_t *key_missing = L\"QqAaWwSsEeDdRrFfTtGg=\";\n"
+                      "int main(int argc,char *argv[])\n"
+                      "{printf(\"%%d\\n\",\n"
+                      "    %s(key_value) == 0 &&\n"
+                      "    getenv(\"AsDfGhJkL\") != NULL &&\n"
+                      "    %s(key_no_value) == 0 &&\n"
+                      "    getenv(\"AsDfGhJkL\") == NULL &&\n"
+                      "    %s(key_missing) == 0);\n"
+                      "return 0;}\n", os_putenv_stri, os_putenv_stri, os_putenv_stri);
+      if (compileAndLinkOk(buffer) && doTest() == 1) {
+        putenv_can_remove_keys = 1;
+      } /* if */
+    } else if (define_wsetenv) {
+      if (os_getenv_stri != NULL && !define_wgetenv) {
+        sprintf(buffer, "#include <stdio.h>\n#include <stdlib.h>\n"
+                        "#include <string.h>\n#include <windows.h>\n"
+                        "int main(int argc,char *argv[])\n"
+                        "{printf(\"%%d\\n\",\n"
+                        "    SetEnvironmentVariableW(L\"AsDfGhJkL\", L\"asdfghjkl\") != 0 &&\n"
+                        "    %s(L\"AsDfGhJkL\") != NULL &&\n"
+                        "    SetEnvironmentVariableW(L\"AsDfGhJkL\", NULL) != 0 &&\n"
+                        "    %s(L\"AsDfGhJkL\") == NULL);\n"
+                        "return 0;}\n", os_getenv_stri, os_getenv_stri);
+        if (compileAndLinkOk(buffer) && doTest() == 1) {
+          define_wunsetenv = 1;
+          os_unsetenv_stri = "wunsetenv";
+        } /* if */
+      } /* if */
+      if (!define_wunsetenv &&
+          compileAndLinkOk("#include <stdio.h>\n#include <stdlib.h>\n"
+                           "#include <string.h>\n#include <windows.h>\n"
+                           "int main(int argc,char *argv[])\n"
+                           "{wchar_t buf1[10], buf2[10];\n"
+                           "printf(\"%d\\n\",\n"
+                           "    SetEnvironmentVariableW(L\"AsDfGhJkL\", L\"asdfghjkl\") != 0 &&\n"
+                           "    GetEnvironmentVariableW(L\"AsDfGhJkL\", buf1, 10) == 9 &&\n"
+                           "    SetEnvironmentVariableW(L\"AsDfGhJkL\", NULL) != 0 &&\n"
+                           "    GetEnvironmentVariableW(L\"AsDfGhJkL\", buf2, 10) == 0);\n"
+                           "return 0;}\n") && doTest() == 1) {
+        /* Either define_wgetenv is already active or os_getenv_stri() */
+        /* is not able to recieve the correct result after */
+        /* SetEnvironmentVariableW() has been called. */
+        define_wgetenv = 1;
+        os_getenv_stri = "wgetenv";
+        define_wunsetenv = 1;
+        os_unsetenv_stri = "wunsetenv";
+      } /* if */
+    } /* if */
 #else
     if (compileAndLinkOk("#include <stdio.h>\n#include <stdlib.h>\n"
                          "#include <string.h>\n"
@@ -4267,14 +4365,38 @@ static void determineEnvironDefines (FILE *versionFile)
       os_putenv_stri = "putenv";
       getenv_is_case_sensitive = test_result == 1;
     } /* if */
-#endif
     if (os_setenv_stri != NULL) {
+      sprintf(buffer, "#include <stdio.h>\n#include <stdlib.h>\n"
+                      "#include <string.h>\n"
+                      "int main(int argc,char *argv[])\n"
+                      "{printf(\"%%d\\n\",\n"
+                      "    (%s(\"AsDfGhJkL\", \"asdfghjkl\", 1) == 0 &&\n"
+                      "     getenv(\"AsDfGhJkL\") != NULL &&\n"
+                      "     unsetenv(\"AsDfGhJkL\") == 0 &&\n"
+                      "     getenv(\"AsDfGhJkL\") == NULL));\n"
+                      "return 0;}\n", os_setenv_stri);
+      if (compileAndLinkOk(buffer) && doTest() == 1) {
+        os_unsetenv_stri = "unsetenv";
+      } /* if */
+    } /* if */
+#endif
+    if (define_wgetenv) {
+      fputs("#define DEFINE_WGETENV\n", versionFile);
+    } /* if */
+    if (os_getenv_stri != NULL) {
+      fprintf(versionFile, "#define os_getenv %s\n", os_getenv_stri);
+    } else {
+      fprintf(logFile, "\n *** Cannot define os_getenv.\n");
+    } /* if */
+    if (getenv_is_case_sensitive != -1) {
       fprintf(versionFile, "#define GETENV_IS_CASE_SENSITIVE %d\n",
               getenv_is_case_sensitive);
-      fprintf(versionFile, "#define os_setenv %s\n", os_setenv_stri);
+    } /* if */
+    if (os_setenv_stri != NULL) {
       if (define_wsetenv) {
         fputs("#define DEFINE_WSETENV\n", versionFile);
       } /* if */
+      fprintf(versionFile, "#define os_setenv %s\n", os_setenv_stri);
 #ifndef EMULATE_ENVIRONMENT
       if (define_wgetenv) {
         sprintf(getenv_definition,
@@ -4354,9 +4476,9 @@ static void determineEnvironDefines (FILE *versionFile)
                 test_result >> 1);
       } /* if */
 #endif
-    } else if (os_putenv_stri != NULL && os_getenv_stri != NULL && !define_wgetenv) {
-      fprintf(versionFile, "#define GETENV_IS_CASE_SENSITIVE %d\n",
-              getenv_is_case_sensitive);
+    } /* if */
+    if ((os_setenv_stri == NULL || os_unsetenv_stri == NULL) &&
+        os_putenv_stri != NULL && os_getenv_stri != NULL && !define_wgetenv) {
       fprintf(versionFile, "#define os_putenv %s\n", os_putenv_stri);
       sprintf(buffer, "#include <stdio.h>\n"
                       "#include <stdlib.h>\n"
@@ -4380,10 +4502,25 @@ static void determineEnvironDefines (FILE *versionFile)
 #endif
                       "return 0;}\n", os_putenv_stri, os_getenv_stri);
       if (assertCompAndLnk(buffer)) {
-        fprintf(versionFile, "#define DELETE_PUTENV_STRING %d\n", doTest());
+        /* There are two posible implementations of putenv():   */
+        /* 1. Putenv inserts its argument into the environment. */
+        /*    In this case the argument of putenv() must not be */
+        /*    changed afterwards.                               */
+        /* 2. Putenv inserts a copy of its argument into the    */
+        /*    environment. In this case it is okay to delete    */
+        /*    the argument of putenv() afterwards.              */
+        fprintf(versionFile, "#define DELETE_PUTENV_ARGUMENT %d\n", doTest());
       } /* if */
-    } else {
+      fprintf(versionFile, "#define PUTENV_CAN_REMOVE_KEYS %d\n",
+              putenv_can_remove_keys);
+    } else if (os_setenv_stri == NULL) {
       fprintf(logFile, "\n *** Cannot define os_setenv or os_putenv.\n");
+    } /* if */
+    if (os_unsetenv_stri != NULL) {
+      if (define_wunsetenv) {
+        fputs("#define DEFINE_WUNSETENV\n", versionFile);
+      } /* if */
+      fprintf(versionFile, "#define os_unsetenv %s\n", os_unsetenv_stri);
     } /* if */
   } /* determineEnvironDefines */
 
@@ -4975,6 +5112,22 @@ static void determineOsFunctions (FILE *versionFile)
                              "return 0;}\n") &&
             doTest() == 1);
   } /* determineOsFunctions */
+
+
+
+static int linkerOptionAllowed (const char *linkerOption)
+
+  {
+    int optionAllowed;
+
+  /* linkerOptionAllowed */
+    optionAllowed = compileAndLinkWithOptionsOk(
+        "#include <stdio.h>\n"
+        "int main(int argc,char *argv[]){\n"
+        "printf(\"hello world\\n\");\n"
+        "return 0;}\n", "", linkerOption);
+    return optionAllowed;
+  } /* linkerOptionAllowed */
 
 
 
@@ -6301,7 +6454,7 @@ static void determineOdbcDefines (FILE *versionFile,
 
 
 static void determineOciDefines (FILE *versionFile,
-    char *include_options, char *system_database_libs)
+    char *include_options, char *system_database_libs, char *rpath)
 
   {
     const char *dbHome;
@@ -6330,7 +6483,6 @@ static void determineOciDefines (FILE *versionFile,
     char dirPath[BUFFER_SIZE];
     char filePath[BUFFER_SIZE];
     char includeOption[BUFFER_SIZE];
-    char rpathOption[BUFFER_SIZE];
     const char *ociInclude = NULL;
     char testProgram[BUFFER_SIZE];
     int dbHomeExists = 0;
@@ -6408,7 +6560,7 @@ static void determineOciDefines (FILE *versionFile,
     if (searchForLib) {
       /* Handle dynamic libraries: */
       fprintf(versionFile, "#define OCI_DLL");
-      if (dbHomeExists) {
+      if (dbHomeExists && rpath != NULL) {
         listDynamicLibs("Oracle", dbHome,
                         dllDirList, sizeof(dllDirList) / sizeof(char *),
                         dllNameList, sizeof(dllNameList) / sizeof(char *), versionFile);
@@ -6418,20 +6570,32 @@ static void determineOciDefines (FILE *versionFile,
         fprintf(versionFile, " \"%s\",", dllNameList[nameIndex]);
       } /* for */
       fprintf(versionFile, "\n");
-      for (dirIndex = 0; !found && dirIndex < sizeof(dllDirList) / sizeof(char *); dirIndex++) {
-        sprintf(dirPath, "%s%s", dbHome, dllDirList[dirIndex]);
-        if (fileIsDir(dirPath)) {
-          for (nameIndex = 0; nameIndex < sizeof(dllNameList) / sizeof(char *); nameIndex++) {
-            sprintf(filePath, "%s/%s", dirPath, dllNameList[nameIndex]);
-            if (fileIsRegular(filePath)) {
-              fprintf(logFile, "\rOracle: %s found in %s\n", dllNameList[nameIndex], dirPath);
-              sprintf(rpathOption, "-Wl,-rpath=%s", dirPath);
-              appendOption(system_database_libs, rpathOption);
-              found = 1;
-            } /* if */
-          } /* for */
-        } /* if */
-      } /* for */
+      if (dbHomeExists && rpath != NULL) {
+        /* The oci library has many dependencies to other shared  */
+        /* object libraries, which are in the directory of the    */
+        /* main oci library. To dynamically link with ldopen() at */
+        /* the run-time of the program either this directory must */
+        /* be listed in the LD_LIBRARY_PATH or the -rpath option  */
+        /* must be used. Note that the meaning of the -rpath      */
+        /* option has changed and it must be combined with the    */
+        /* option --disable-new-dtags to get the old behavior.    */
+        for (dirIndex = 0; !found && dirIndex < sizeof(dllDirList) / sizeof(char *); dirIndex++) {
+          sprintf(dirPath, "%s%s", dbHome, dllDirList[dirIndex]);
+          if (fileIsDir(dirPath)) {
+            for (nameIndex = 0; nameIndex < sizeof(dllNameList) / sizeof(char *); nameIndex++) {
+              sprintf(filePath, "%s/%s", dirPath, dllNameList[nameIndex]);
+              if (fileIsRegular(filePath)) {
+                fprintf(logFile, "\rOracle: %s found in %s\n", dllNameList[nameIndex], dirPath);
+                if (rpath[0] != '\0') {
+                  strcat(rpath, ":");
+                } /* if */
+                strcat(rpath, dirPath);
+                found = 1;
+              } /* if */
+            } /* for */
+          } /* if */
+        } /* for */
+      } /* if */
     } /* if */
   } /* determineOciDefines */
 
@@ -7044,6 +7208,9 @@ static void determineIncludesAndLibs (FILE *versionFile)
     char include_options[BUFFER_SIZE];
     char system_database_libs[BUFFER_SIZE];
     char additional_system_libs[BUFFER_SIZE];
+    char rpath_buffer[BUFFER_SIZE];
+    char *rpath = NULL;
+    char rpathOption[BUFFER_SIZE];
     char buffer[BUFFER_SIZE];
 
   /* determineIncludesAndLibs */
@@ -7057,6 +7224,10 @@ static void determineIncludesAndLibs (FILE *versionFile)
     include_options[0] = '\0';
     system_database_libs[0] = '\0';
     additional_system_libs[0] = '\0';
+    if (linkerOptionAllowed("-Wl,--disable-new-dtags")) {
+      rpath_buffer[0] = '\0';
+      rpath = rpath_buffer;
+    } /* if */
 #if LIBRARY_TYPE == UNIX_LIBRARIES || LIBRARY_TYPE == MACOS_LIBRARIES
     determineX11Defines(versionFile, include_options);
     determineConsoleDefines(versionFile, include_options);
@@ -7065,12 +7236,16 @@ static void determineIncludesAndLibs (FILE *versionFile)
     determineSqliteDefines(versionFile, include_options, system_database_libs);
     determinePostgresDefines(versionFile, include_options, system_database_libs);
     determineOdbcDefines(versionFile, include_options, system_database_libs);
-    determineOciDefines(versionFile, include_options, system_database_libs);
+    determineOciDefines(versionFile, include_options, system_database_libs, rpath);
     determineFireDefines(versionFile, include_options, system_database_libs);
     determineDb2Defines(versionFile, include_options, system_database_libs);
     determineSqlServerDefines(versionFile, include_options, system_database_libs);
     determineTdsDefines(versionFile, include_options, system_database_libs);
     determineBigIntDefines(versionFile, include_options, additional_system_libs);
+    if (rpath != NULL && rpath[0] != '\0') {
+      sprintf(rpathOption, "-Wl,--disable-new-dtags,-rpath=%s", rpath);
+      appendOption(system_database_libs, rpathOption);
+    } /* if */
     sprintf(buffer, "INCLUDE_OPTIONS = %s", include_options);
     replaceNLBySpace(buffer);
     strcat(buffer, "\n");
@@ -7259,13 +7434,13 @@ int main (int argc, char **argv)
     if (logFile == NULL) {
       logFile = stdout;
     } /* if */
+    initializeNullDevice();
+    fprintf(logFile, "Chkccomp uses %s as null device.\n", nullDevice);
     fprintf(logFile, "Prepare compile command: ");
     fflush(logFile);
     prepareCompileCommand();
     determineCompilerVersion(versionFile);
-    initializeNullDevice();
     fprintf(logFile, "done\n");
-    fprintf(logFile, "Chkccomp uses %s as null device.\n", nullDevice);
     numericSizes(versionFile);
     fprintf(logFile, "General settings: ");
     determineNullDevice(versionFile);
@@ -7282,6 +7457,9 @@ int main (int argc, char **argv)
                              "int main(int argc,char *argv[]){return 0;}\n"));
     fprintf(versionFile, "#define STDINT_H_PRESENT %d\n",
             compileAndLinkOk("#include <stdint.h>\n"
+                             "int main(int argc,char *argv[]){return 0;}\n"));
+    fprintf(versionFile, "#define ACLAPI_H_PRESENT %d\n",
+            compileAndLinkOk("#include <aclapi.h>\n"
                              "int main(int argc,char *argv[]){return 0;}\n"));
     checkSignal(versionFile);
     writeMacroDefs(versionFile);
@@ -7491,6 +7669,51 @@ int main (int argc, char **argv)
                          "wchar_t str1[] = {0x0201, 0x0102, 0};\n"
                          "wchar_t ch1 = 0x0102;\n"
                          "printf(\"%d\\n\", wmemchr(str1, ch1, 2) ==  &str1[1]);\n"
+                         "return 0;}\n") && doTest() == 1);
+    fprintf(versionFile, "#define HAS_WCSNLEN %d\n",
+        compileAndLinkOk("#include <stdio.h>\n#include <wchar.h>\n"
+                         "int main(int argc, char *argv[]){\n"
+                         "wchar_t str1[] = {0x0201, 0x0102, 0x0303, 0, 0x0301, 0};\n"
+                         "printf(\"%d\\n\", wcsnlen(str1, 5) == 3 &&\n"
+                         "                  wcsnlen(str1, 4) == 3 &&\n"
+                         "                  wcsnlen(str1, 3) == 3 &&\n"
+                         "                  wcsnlen(str1, 2) == 2);\n"
+                         "return 0;}\n") && doTest() == 1);
+    fprintf(versionFile, "#define HAS_GETGRGID_R %d\n",
+        compileAndLinkOk("#include <stdio.h>\n#include <sys/types.h>\n"
+                         "#include <grp.h>\n"
+                         "int main(int argc, char *argv[]){\n"
+                         "int funcRes; struct group grp;\n"
+                         "char buffer[2048]; struct group *grpResult;\n"
+                         "funcRes = getgrgid_r((gid_t) 0, &grp,\n"
+                         "buffer, sizeof(buffer), &grpResult);\n"
+                         "printf(\"%d\\n\", funcRes==0 && grpResult==&grp);\n"
+                         "return 0;}\n") && doTest() == 1);
+    fprintf(versionFile, "#define HAS_GETGRGID %d\n",
+        compileAndLinkOk("#include <stdio.h>\n#include <sys/types.h>\n"
+                         "#include <grp.h>\n"
+                         "int main(int argc, char *argv[]){\n"
+                         "struct group *grpResult;\n"
+                         "grpResult = getgrgid((gid_t) 0);\n"
+                         "printf(\"%d\\n\", grpResult!=NULL);\n"
+                         "return 0;}\n") && doTest() == 1);
+    fprintf(versionFile, "#define HAS_GETPWUID_R %d\n",
+        compileAndLinkOk("#include <stdio.h>\n#include <sys/types.h>\n"
+                         "#include <pwd.h>\n"
+                         "int main(int argc, char *argv[]){\n"
+                         "int funcRes; struct passwd pwd;\n"
+                         "char buffer[2048]; struct passwd *pwdResult;\n"
+                         "funcRes = getpwuid_r((uid_t) 0, &pwd,\n"
+                         "buffer, sizeof(buffer), &pwdResult);\n"
+                         "printf(\"%d\\n\", funcRes==0 && pwdResult==&pwd);\n"
+                         "return 0;}\n") && doTest() == 1);
+    fprintf(versionFile, "#define HAS_GETPWUID %d\n",
+        compileAndLinkOk("#include <stdio.h>\n#include <sys/types.h>\n"
+                         "#include <pwd.h>\n"
+                         "int main(int argc, char *argv[]){\n"
+                         "struct passwd *pwdResult;\n"
+                         "pwdResult = getpwuid((uid_t) 0);\n"
+                         "printf(\"%d\\n\", pwdResult!=NULL);\n"
                          "return 0;}\n") && doTest() == 1);
     fprintf(versionFile, "#define HAS_SETJMP %d\n",
         compileAndLinkOk("#include <stdio.h>\n#include <setjmp.h>\n"

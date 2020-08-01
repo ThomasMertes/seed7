@@ -33,7 +33,7 @@ include "crc32.s7i";
 include "lzma.s7i";
 
 
-const string: XZ_MAGIC is "\16#FD;7zXZ\16#00;";
+const string: XZ_MAGIC is "\16#FD;7zXZ\0;";
 
 
 const type: xzFilterFlags is new struct
@@ -76,7 +76,7 @@ const func integer: xzDictionarySize (in integer: bits) is func
 
 const func boolean: xzPacket (inout lzmaDecoder: lzmaDec) is func
   result
-    var boolean: eof is FALSE;
+    var boolean: finished is FALSE;
   local
     var integer: controlByte is 0;
     var integer: resetIndicator is 0;
@@ -91,7 +91,7 @@ const func boolean: xzPacket (inout lzmaDecoder: lzmaDec) is func
     if controlByte < 16#80 then
       if controlByte = 0 or controlByte = -1 then
         # writeln("end of file");
-        eof := TRUE;
+        finished := TRUE;
       elsif controlByte <= 2 then
         # writeln("uncompressed chunk");
         uncompressedSize := succ(bytes2Int(gets(lzmaDec.rangeDec, 2), UNSIGNED, BE));
@@ -230,7 +230,7 @@ const type: xzFile is sub null_file struct
     var integer: flags is 0;
     var integer: crc32 is 0;
     var lzmaDecoder: lzmaDec is lzmaDecoder.value;
-    var boolean: eof is FALSE;
+    var boolean: finished is FALSE;
     var integer: position is 1;
   end struct;
 
@@ -279,8 +279,8 @@ const func char: getc (inout xzFile: inFile) is func
     var char: charRead is ' ';
   begin
     while inFile.position > length(inFile.lzmaDec.uncompressed) and
-        not inFile.eof do
-      inFile.eof := xzPacket(inFile.lzmaDec);
+        not inFile.finished do
+      inFile.finished := xzPacket(inFile.lzmaDec);
     end while;
     if inFile.position <= length(inFile.lzmaDec.uncompressed) then
       charRead := inFile.lzmaDec.uncompressed[inFile.position];
@@ -294,21 +294,28 @@ const func char: getc (inout xzFile: inFile) is func
 (**
  *  Read a string with maximum length from a ''xzFile''.
  *  @return the string read.
+ *  @exception RANGE_ERROR The parameter ''maxLength'' is negative.
  *)
-const func string: gets (inout xzFile: inFile, in integer: length) is func
+const func string: gets (inout xzFile: inFile, in integer: maxLength) is func
   result
     var string: striRead is "";
   begin
-    while pred(inFile.position + length) > length(inFile.lzmaDec.uncompressed) and
-        not inFile.eof do
-      inFile.eof := xzPacket(inFile.lzmaDec);
-    end while;
-    if pred(inFile.position + length) <= length(inFile.lzmaDec.uncompressed) then
-      striRead := inFile.lzmaDec.uncompressed[inFile.position len length];
-      inFile.position +:= length;
+    if maxLength <= 0 then
+      if maxLength <> 0 then
+        raise RANGE_ERROR;
+      end if;
     else
-      striRead := inFile.lzmaDec.uncompressed[inFile.position ..];
-      inFile.position := succ(length(inFile.lzmaDec.uncompressed));
+      while maxLength > succ(length(inFile.lzmaDec.uncompressed) - inFile.position) and
+          not inFile.finished do
+        inFile.finished := xzPacket(inFile.lzmaDec);
+      end while;
+      if maxLength <= succ(length(inFile.lzmaDec.uncompressed) - inFile.position) then
+        striRead := inFile.lzmaDec.uncompressed[inFile.position len maxLength];
+        inFile.position +:= maxLength;
+      else
+        striRead := inFile.lzmaDec.uncompressed[inFile.position ..];
+        inFile.position := succ(length(inFile.lzmaDec.uncompressed));
+      end if;
     end if;
   end func;
 
@@ -320,7 +327,7 @@ const func string: gets (inout xzFile: inFile, in integer: length) is func
  *  @return TRUE if the end-of-file indicator is set, FALSE otherwise.
  *)
 const func boolean: eof (in xzFile: inFile) is
-  return inFile.position > length(inFile.lzmaDec.uncompressed) and inFile.eof;
+  return inFile.position > length(inFile.lzmaDec.uncompressed) and inFile.finished;
 
 
 (**
@@ -333,8 +340,8 @@ const func boolean: hasNext (inout xzFile: inFile) is func
     var boolean: hasNext is FALSE;
   begin
     while inFile.position > length(inFile.lzmaDec.uncompressed) and
-        not inFile.eof do
-      inFile.eof := xzPacket(inFile.lzmaDec);
+        not inFile.finished do
+      inFile.finished := xzPacket(inFile.lzmaDec);
     end while;
     hasNext := inFile.position <= length(inFile.lzmaDec.uncompressed);
   end func;
@@ -349,8 +356,8 @@ const func integer: length (inout xzFile: aFile) is func
   result
     var integer: length is 0;
   begin
-    while not aFile.eof do
-      aFile.eof := xzPacket(aFile.lzmaDec);
+    while not aFile.finished do
+      aFile.finished := xzPacket(aFile.lzmaDec);
     end while;
     length := length(aFile.lzmaDec.uncompressed);
   end func;

@@ -1480,19 +1480,19 @@ const proc: check_string is func
   begin
     block
       ch := "asdf"[-1];
-      writeln(" ***** \"asdf\"[-1] did not raise RANGE_ERROR");
+      writeln(" ***** \"asdf\"[-1] did not raise INDEX_ERROR");
       okay := FALSE;
     exception
-      catch RANGE_ERROR:
+      catch INDEX_ERROR:
         incr(number);
     end block;
 
     block
       ch := "asdf"[0];
-      writeln(" ***** \"asdf\"[0] did not raise RANGE_ERROR");
+      writeln(" ***** \"asdf\"[0] did not raise INDEX_ERROR");
       okay := FALSE;
     exception
-      catch RANGE_ERROR:
+      catch INDEX_ERROR:
         incr(number);
     end block;
 
@@ -1500,8 +1500,8 @@ const proc: check_string is func
       ch := "asdf"[1];
       incr(number);
     exception
-      catch RANGE_ERROR:
-        writeln(" ***** \"asdf\"[1] did raise RANGE_ERROR");
+      catch INDEX_ERROR:
+        writeln(" ***** \"asdf\"[1] did raise INDEX_ERROR");
         okay := FALSE;
     end block;
 
@@ -1509,46 +1509,46 @@ const proc: check_string is func
       ch := "asdf"[4];
       incr(number);
     exception
-      catch RANGE_ERROR:
-        writeln(" ***** \"asdf\"[4] did raise RANGE_ERROR");
+      catch INDEX_ERROR:
+        writeln(" ***** \"asdf\"[4] did raise INDEX_ERROR");
         okay := FALSE;
     end block;
 
     block
       ch := "asdf"[5];
-      writeln(" ***** \"asdf\"[5] did not raise RANGE_ERROR");
+      writeln(" ***** \"asdf\"[5] did not raise INDEX_ERROR");
       okay := FALSE;
     exception
-      catch RANGE_ERROR:
+      catch INDEX_ERROR:
         incr(number);
     end block;
 
     block
       ch := "asdf"[6];
-      writeln(" ***** \"asdf\"[6] did not raise RANGE_ERROR");
+      writeln(" ***** \"asdf\"[6] did not raise INDEX_ERROR");
       okay := FALSE;
     exception
-      catch RANGE_ERROR:
+      catch INDEX_ERROR:
         incr(number);
     end block;
 
     block
       stri := "asdf";
       stri @:= [-1] 'x';
-      writeln(" ***** stri @:= [-1] 'x'; did not raise RANGE_ERROR");
+      writeln(" ***** stri @:= [-1] 'x'; did not raise INDEX_ERROR");
       okay := FALSE;
     exception
-      catch RANGE_ERROR:
+      catch INDEX_ERROR:
         incr(number);
     end block;
 
     block
       stri := "asdf";
       stri @:= [0] 'x';
-      writeln(" ***** stri @:= [0] 'x'; did not raise RANGE_ERROR");
+      writeln(" ***** stri @:= [0] 'x'; did not raise INDEX_ERROR");
       okay := FALSE;
     exception
-      catch RANGE_ERROR:
+      catch INDEX_ERROR:
         incr(number);
     end block;
 
@@ -1557,8 +1557,8 @@ const proc: check_string is func
       stri @:= [1] 'x';
       incr(number);
     exception
-      catch RANGE_ERROR:
-        writeln(" ***** stri @:= [1] 'x'; did raise RANGE_ERROR");
+      catch INDEX_ERROR:
+        writeln(" ***** stri @:= [1] 'x'; did raise INDEX_ERROR");
         okay := FALSE;
     end block;
 
@@ -1567,28 +1567,28 @@ const proc: check_string is func
       stri @:= [4] 'x';
       incr(number);
     exception
-      catch RANGE_ERROR:
-        writeln(" ***** stri @:= [4] 'x'; did raise RANGE_ERROR");
+      catch INDEX_ERROR:
+        writeln(" ***** stri @:= [4] 'x'; did raise INDEX_ERROR");
         okay := FALSE;
     end block;
 
     block
       stri := "asdf";
       stri @:= [5] 'x';
-      writeln(" ***** stri @:= [5] 'x'; did not raise RANGE_ERROR");
+      writeln(" ***** stri @:= [5] 'x'; did not raise INDEX_ERROR");
       okay := FALSE;
     exception
-      catch RANGE_ERROR:
+      catch INDEX_ERROR:
         incr(number);
     end block;
 
     block
       stri := "asdf";
       stri @:= [6] 'x';
-      writeln(" ***** stri @:= [6] 'x'; did not raise RANGE_ERROR");
+      writeln(" ***** stri @:= [6] 'x'; did not raise INDEX_ERROR");
       okay := FALSE;
     exception
-      catch RANGE_ERROR:
+      catch INDEX_ERROR:
         incr(number);
     end block;
 
@@ -1596,10 +1596,10 @@ const proc: check_string is func
       stri := "asdf";
       i_num := -1;
       stri @:= [i_num] 'x';
-      writeln(" ***** stri @:= [-1] 'x'; did not raise RANGE_ERROR");
+      writeln(" ***** stri @:= [-1] 'x'; did not raise INDEX_ERROR");
       okay := FALSE;
     exception
-      catch RANGE_ERROR:
+      catch INDEX_ERROR:
         incr(number);
     end block;
 
@@ -1607,10 +1607,10 @@ const proc: check_string is func
       stri := "asdf";
       i_num := 0;
       stri @:= [i_num] 'x';
-      writeln(" ***** stri @:= [0] 'x'; did not raise RANGE_ERROR");
+      writeln(" ***** stri @:= [0] 'x'; did not raise INDEX_ERROR");
       okay := FALSE;
     exception
-      catch RANGE_ERROR:
+      catch INDEX_ERROR:
         incr(number);
     end block;
 
@@ -1620,8 +1620,8 @@ const proc: check_string is func
       stri @:= [i_num] 'x';
       incr(number);
     exception
-      catch RANGE_ERROR:
-        writeln(" ***** stri @:= [1] 'x'; did raise RANGE_ERROR");
+      catch INDEX_ERROR:
+        writeln(" ***** stri @:= [1] 'x'; did raise INDEX_ERROR");
         okay := FALSE;
     end block;
 
@@ -1631,8 +1631,8 @@ const proc: check_string is func
       stri @:= [i_num] 'x';
       incr(number);
     exception
-      catch RANGE_ERROR:
-        writeln(" ***** stri @:= [4] 'x'; did raise RANGE_ERROR");
+      catch INDEX_ERROR:
+        writeln(" ***** stri @:= [4] 'x'; did raise INDEX_ERROR");
         okay := FALSE;
     end block;
 
@@ -1640,10 +1640,10 @@ const proc: check_string is func
       stri := "asdf";
       i_num := 5;
       stri @:= [i_num] 'x';
-      writeln(" ***** stri @:= [5] 'x'; did not raise RANGE_ERROR");
+      writeln(" ***** stri @:= [5] 'x'; did not raise INDEX_ERROR");
       okay := FALSE;
     exception
-      catch RANGE_ERROR:
+      catch INDEX_ERROR:
         incr(number);
     end block;
 
@@ -1651,10 +1651,10 @@ const proc: check_string is func
       stri := "asdf";
       i_num := 6;
       stri @:= [i_num] 'x';
-      writeln(" ***** stri @:= [6] 'x'; did not raise RANGE_ERROR");
+      writeln(" ***** stri @:= [6] 'x'; did not raise INDEX_ERROR");
       okay := FALSE;
     exception
-      catch RANGE_ERROR:
+      catch INDEX_ERROR:
         incr(number);
     end block;
 
@@ -1717,19 +1717,19 @@ const proc: check_array is func
   begin
     block
       i_num := constantArray[-1];
-      writeln(" ***** constantArray[-1] did not raise RANGE_ERROR");
+      writeln(" ***** constantArray[-1] did not raise INDEX_ERROR");
       okay := FALSE;
     exception
-      catch RANGE_ERROR:
+      catch INDEX_ERROR:
         incr(number);
     end block;
 
     block
       i_num := constantArray[0];
-      writeln(" ***** constantArray[0] did not raise RANGE_ERROR");
+      writeln(" ***** constantArray[0] did not raise INDEX_ERROR");
       okay := FALSE;
     exception
-      catch RANGE_ERROR:
+      catch INDEX_ERROR:
         incr(number);
     end block;
 
@@ -1737,8 +1737,8 @@ const proc: check_array is func
       i_num := constantArray[1];
       incr(number);
     exception
-      catch RANGE_ERROR:
-        writeln(" ***** constantArray[1] did raise RANGE_ERROR");
+      catch INDEX_ERROR:
+        writeln(" ***** constantArray[1] did raise INDEX_ERROR");
         okay := FALSE;
     end block;
 
@@ -1746,46 +1746,46 @@ const proc: check_array is func
       i_num := constantArray[4];
       incr(number);
     exception
-      catch RANGE_ERROR:
-        writeln(" ***** constantArray[4] did raise RANGE_ERROR");
+      catch INDEX_ERROR:
+        writeln(" ***** constantArray[4] did raise INDEX_ERROR");
         okay := FALSE;
     end block;
 
     block
       i_num := constantArray[5];
-      writeln(" ***** constantArray[5] did not raise RANGE_ERROR");
+      writeln(" ***** constantArray[5] did not raise INDEX_ERROR");
       okay := FALSE;
     exception
-      catch RANGE_ERROR:
+      catch INDEX_ERROR:
         incr(number);
     end block;
 
     block
       i_num := constantArray[6];
-      writeln(" ***** constantArray[6] did not raise RANGE_ERROR");
+      writeln(" ***** constantArray[6] did not raise INDEX_ERROR");
       okay := FALSE;
     exception
-      catch RANGE_ERROR:
+      catch INDEX_ERROR:
         incr(number);
     end block;
 
     block
       index := -1;
       i_num := constantArray[index];
-      writeln(" ***** constantArray[index] for -1 did not raise RANGE_ERROR");
+      writeln(" ***** constantArray[index] for -1 did not raise INDEX_ERROR");
       okay := FALSE;
     exception
-      catch RANGE_ERROR:
+      catch INDEX_ERROR:
         incr(number);
     end block;
 
     block
       index := 0;
       i_num := constantArray[index];
-      writeln(" ***** constantArray[index] for 0 did not raise RANGE_ERROR");
+      writeln(" ***** constantArray[index] for 0 did not raise INDEX_ERROR");
       okay := FALSE;
     exception
-      catch RANGE_ERROR:
+      catch INDEX_ERROR:
         incr(number);
     end block;
 
@@ -1794,8 +1794,8 @@ const proc: check_array is func
       i_num := constantArray[index];
       incr(number);
     exception
-      catch RANGE_ERROR:
-        writeln(" ***** constantArray[index] for 1 did raise RANGE_ERROR");
+      catch INDEX_ERROR:
+        writeln(" ***** constantArray[index] for 1 did raise INDEX_ERROR");
         okay := FALSE;
     end block;
 
@@ -1804,46 +1804,46 @@ const proc: check_array is func
       i_num := constantArray[index];
       incr(number);
     exception
-      catch RANGE_ERROR:
-        writeln(" ***** constantArray[index] for 4 did raise RANGE_ERROR");
+      catch INDEX_ERROR:
+        writeln(" ***** constantArray[index] for 4 did raise INDEX_ERROR");
         okay := FALSE;
     end block;
 
     block
       index := 5;
       i_num := constantArray[index];
-      writeln(" ***** constantArray[index] for 5 did not raise RANGE_ERROR");
+      writeln(" ***** constantArray[index] for 5 did not raise INDEX_ERROR");
       okay := FALSE;
     exception
-      catch RANGE_ERROR:
+      catch INDEX_ERROR:
         incr(number);
     end block;
 
     block
       index := 6;
       i_num := constantArray[index];
-      writeln(" ***** constantArray[index] for 6 did not raise RANGE_ERROR");
+      writeln(" ***** constantArray[index] for 6 did not raise INDEX_ERROR");
       okay := FALSE;
     exception
-      catch RANGE_ERROR:
+      catch INDEX_ERROR:
         incr(number);
     end block;
 
     block
       i_num := (4 times 1)[-1];
-      writeln(" ***** (4 times 1)[-1] did not raise RANGE_ERROR");
+      writeln(" ***** (4 times 1)[-1] did not raise INDEX_ERROR");
       okay := FALSE;
     exception
-      catch RANGE_ERROR:
+      catch INDEX_ERROR:
         incr(number);
     end block;
 
     block
       i_num := (4 times 1)[0];
-      writeln(" ***** (4 times 1)[0] did not raise RANGE_ERROR");
+      writeln(" ***** (4 times 1)[0] did not raise INDEX_ERROR");
       okay := FALSE;
     exception
-      catch RANGE_ERROR:
+      catch INDEX_ERROR:
         incr(number);
     end block;
 
@@ -1851,8 +1851,8 @@ const proc: check_array is func
       i_num := (4 times 1)[1];
       incr(number);
     exception
-      catch RANGE_ERROR:
-        writeln(" ***** (4 times 1)[1] did raise RANGE_ERROR");
+      catch INDEX_ERROR:
+        writeln(" ***** (4 times 1)[1] did raise INDEX_ERROR");
         okay := FALSE;
     end block;
 
@@ -1860,46 +1860,46 @@ const proc: check_array is func
       i_num := (4 times 1)[4];
       incr(number);
     exception
-      catch RANGE_ERROR:
-        writeln(" ***** (4 times 1)[4] did raise RANGE_ERROR");
+      catch INDEX_ERROR:
+        writeln(" ***** (4 times 1)[4] did raise INDEX_ERROR");
         okay := FALSE;
     end block;
 
     block
       i_num := (4 times 1)[5];
-      writeln(" ***** (4 times 1)[5] did not raise RANGE_ERROR");
+      writeln(" ***** (4 times 1)[5] did not raise INDEX_ERROR");
       okay := FALSE;
     exception
-      catch RANGE_ERROR:
+      catch INDEX_ERROR:
         incr(number);
     end block;
 
     block
       i_num := (4 times 1)[6];
-      writeln(" ***** (4 times 1)[6] did not raise RANGE_ERROR");
+      writeln(" ***** (4 times 1)[6] did not raise INDEX_ERROR");
       okay := FALSE;
     exception
-      catch RANGE_ERROR:
+      catch INDEX_ERROR:
         incr(number);
     end block;
 
     block
       arr := 4 times 1;
       arr[-1] := 2;
-      writeln(" ***** arr[-1] := 2; did not raise RANGE_ERROR");
+      writeln(" ***** arr[-1] := 2; did not raise INDEX_ERROR");
       okay := FALSE;
     exception
-      catch RANGE_ERROR:
+      catch INDEX_ERROR:
         incr(number);
     end block;
 
     block
       arr := 4 times 1;
       arr[0] := 2;
-      writeln(" ***** arr[0] := 2; did not raise RANGE_ERROR");
+      writeln(" ***** arr[0] := 2; did not raise INDEX_ERROR");
       okay := FALSE;
     exception
-      catch RANGE_ERROR:
+      catch INDEX_ERROR:
         incr(number);
     end block;
 
@@ -1908,8 +1908,8 @@ const proc: check_array is func
       arr[1] := 2;
       incr(number);
     exception
-      catch RANGE_ERROR:
-        writeln(" ***** arr[1] := 2; did raise RANGE_ERROR");
+      catch INDEX_ERROR:
+        writeln(" ***** arr[1] := 2; did raise INDEX_ERROR");
         okay := FALSE;
     end block;
 
@@ -1918,48 +1918,48 @@ const proc: check_array is func
       arr[4] := 2;
       incr(number);
     exception
-      catch RANGE_ERROR:
-        writeln(" ***** arr[4] := 2; did raise RANGE_ERROR");
+      catch INDEX_ERROR:
+        writeln(" ***** arr[4] := 2; did raise INDEX_ERROR");
         okay := FALSE;
     end block;
 
     block
       arr := 4 times 1;
       arr[5] := 2;
-      writeln(" ***** arr[5] := 2; did not raise RANGE_ERROR");
+      writeln(" ***** arr[5] := 2; did not raise INDEX_ERROR");
       okay := FALSE;
     exception
-      catch RANGE_ERROR:
+      catch INDEX_ERROR:
         incr(number);
     end block;
 
     block
       arr := 4 times 1;
       arr[6] := 2;
-      writeln(" ***** arr[6] := 2; did not raise RANGE_ERROR");
+      writeln(" ***** arr[6] := 2; did not raise INDEX_ERROR");
       okay := FALSE;
     exception
-      catch RANGE_ERROR:
+      catch INDEX_ERROR:
         incr(number);
     end block;
 
     block
       arr := 4 times 1;
       i_num := remove(arr, -1);
-      writeln(" ***** remove(arr, -1); did not raise RANGE_ERROR");
+      writeln(" ***** remove(arr, -1); did not raise INDEX_ERROR");
       okay := FALSE;
     exception
-      catch RANGE_ERROR:
+      catch INDEX_ERROR:
         incr(number);
     end block;
 
     block
       arr := 4 times 1;
       i_num := remove(arr, 0);
-      writeln(" ***** remove(arr, 0); did not raise RANGE_ERROR");
+      writeln(" ***** remove(arr, 0); did not raise INDEX_ERROR");
       okay := FALSE;
     exception
-      catch RANGE_ERROR:
+      catch INDEX_ERROR:
         incr(number);
     end block;
 
@@ -1968,8 +1968,8 @@ const proc: check_array is func
       i_num := remove(arr, 1);
       incr(number);
     exception
-      catch RANGE_ERROR:
-        writeln(" ***** remove(arr, 1); did raise RANGE_ERROR");
+      catch INDEX_ERROR:
+        writeln(" ***** remove(arr, 1); did raise INDEX_ERROR");
         okay := FALSE;
     end block;
 
@@ -1978,28 +1978,28 @@ const proc: check_array is func
       i_num := remove(arr, 4);
       incr(number);
     exception
-      catch RANGE_ERROR:
-        writeln(" ***** remove(arr, 4); did raise RANGE_ERROR");
+      catch INDEX_ERROR:
+        writeln(" ***** remove(arr, 4); did raise INDEX_ERROR");
         okay := FALSE;
     end block;
 
     block
       arr := 4 times 1;
       i_num := remove(arr, 5);
-      writeln(" ***** remove(arr, 5); did not raise RANGE_ERROR");
+      writeln(" ***** remove(arr, 5); did not raise INDEX_ERROR");
       okay := FALSE;
     exception
-      catch RANGE_ERROR:
+      catch INDEX_ERROR:
         incr(number);
     end block;
 
     block
       arr := 4 times 1;
       i_num := remove(arr, 6);
-      writeln(" ***** remove(arr, 6); did not raise RANGE_ERROR");
+      writeln(" ***** remove(arr, 6); did not raise INDEX_ERROR");
       okay := FALSE;
     exception
-      catch RANGE_ERROR:
+      catch INDEX_ERROR:
         incr(number);
     end block;
 
@@ -2409,16 +2409,16 @@ const proc: main is func
 (*
     block
       obj := ref_list.EMPTY[0];
-      writeln(" ***** ref_list.EMPTY[0] did not raise RANGE_ERROR");
+      writeln(" ***** ref_list.EMPTY[0] did not raise INDEX_ERROR");
     exception
-      catch RANGE_ERROR: writeln("ref_list.EMPTY[0] raises RANGE_ERROR");
+      catch INDEX_ERROR: writeln("ref_list.EMPTY[0] raises INDEX_ERROR");
     end block;
 
     block
       obj := ref_list.EMPTY[1];
-      writeln(" ***** ref_list.EMPTY[1] did not raise RANGE_ERROR");
+      writeln(" ***** ref_list.EMPTY[1] did not raise INDEX_ERROR");
     exception
-      catch RANGE_ERROR: writeln("ref_list.EMPTY[1] raises RANGE_ERROR");
+      catch INDEX_ERROR: writeln("ref_list.EMPTY[1] raises INDEX_ERROR");
     end block;
 
     block

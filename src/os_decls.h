@@ -110,9 +110,6 @@
 #ifndef os_getenv
 #define os_getenv getenv
 #endif
-#ifndef os_setenv
-#define os_setenv setenv
-#endif
 
 #ifdef OS_STRI_WCHAR
 #define os_mode_rb L"rb"

@@ -524,10 +524,9 @@ WHAT TO DO IF ERRORS HAPPEN DURING THE COMPILATION?
 
  --- Errors such as
 
-    gcc chkccomp.c -lm -o chkccomp
-    chkccomp.c:28:21: fatal error: version.h: No such file or directory
+    gcc chkccomp.c -o chkccomp
+    chkccomp.c:28:10: fatal error: base.h: No such file or directory
     compilation terminated.
-    mingw32-make: *** [version.h] Error 1
 
   or
 

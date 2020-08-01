@@ -52,9 +52,9 @@ const proc: (inout ref_list: dest) &:= (in ref_list: extension)          is acti
  *   A @:= [B] C;
  *  is equivalent to
  *   A := A[..pred(B)] & make_list(C) & A[succ(B)..];
- *  @exception RANGE_ERROR If ''position'' is negative or zero.
- *  @exception RANGE_ERROR An element beyond ''dest'' would be
-               overwritten (''position'' > length(''dest'') holds).
+ *  @exception INDEX_ERROR If ''position'' is negative or zero, or
+ *             an element beyond ''dest'' would be overwritten
+ *             (''position'' > length(''dest'') holds).
  *)
 const proc: (inout ref_list: dest) @:=
              [ (in integer: position) ] (in reference: source)           is action "RFL_ELEMCPY";
@@ -92,7 +92,7 @@ const func boolean: (in ref_list: refList1) <> (in ref_list: refList2)   is acti
 (**
  *  Access one element from the ''ref_list'' ''aRefList''.
  *  @return the element with the specified ''index'' from ''aRefList''.
- *  @exception RANGE_ERROR If the index is less than 1 or
+ *  @exception INDEX_ERROR If the index is less than 1 or
  *             greater than the length of the ''ref_list''.
  *)
 const func reference: (in ref_list: aRefList) [ (in integer: index) ]    is action "RFL_IDX";

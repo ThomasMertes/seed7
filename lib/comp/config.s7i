@@ -50,8 +50,15 @@ var boolean: check_int_shift_overflow      is FALSE;
 
 # Checks related to RANGE_ERROR:
 
-var boolean: array_range_check       is TRUE;
+var boolean: function_range_check    is TRUE;
 var boolean: conversion_range_check  is TRUE;
+
+# Checks ralated to INDEX_ERROR:
+
+var boolean: string_index_check      is TRUE;
+var boolean: bstring_index_check     is TRUE;
+var boolean: array_index_check       is TRUE;
+var boolean: ref_list_index_check    is TRUE;
 
 # Checks related to NUMERIC_ERROR:
 

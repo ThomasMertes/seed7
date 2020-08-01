@@ -29,6 +29,10 @@
 /*                                                                  */
 /********************************************************************/
 
+#if defined(__cplusplus) || defined(c_plusplus)
+extern "C" {
+#endif
+
 typedef unsigned char SQLCHAR;
 typedef signed char   SQLSCHAR;
 typedef UINT16TYPE    SQLWCHAR;
@@ -414,3 +418,7 @@ SQLRETURN STDCALL SQLSetEnvAttr (SQLHENV    environmentHandle,
                                  SQLINTEGER attribute,
                                  SQLPOINTER value,
                                  SQLINTEGER stringLength);
+
+#if defined(__cplusplus) || defined(c_plusplus)
+}
+#endif

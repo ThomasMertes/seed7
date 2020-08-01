@@ -91,7 +91,7 @@ const func string: (in string: stri1) <& (in string: stri2)      is action "STR_
  *  Get a character, identified by an index, from a ''string''.
  *  The first character has the index 1.
  *  @return the character specified with the index.
- *  @exception RANGE_ERROR If the index is less than 1 or
+ *  @exception INDEX_ERROR If the index is less than 1 or
  *             greater than the length of the ''string''.
  *)
 const func char: (in string: stri) [ (in integer: index) ]       is action "STR_IDX";
@@ -156,9 +156,9 @@ const proc: (inout string: destination) &:= (in char: extension)     is action "
  *   A @:= [B] C;
  *  is equivalent to
  *   A := A[..pred(B)] & str(C) & A[succ(B)..];
- *  @exception RANGE_ERROR If ''position'' is negative or zero.
- *  @exception RANGE_ERROR A character beyond ''destination'' would be
- *             overwritten (''position'' > length(''destination'') holds).
+ *  @exception INDEX_ERROR If ''position'' is negative or zero, or
+ *             a character beyond ''destination'' would be overwritten
+ *             (''position'' > length(''destination'') holds).
  *)
 const proc: (inout string: destination) @:= [ (in integer: position) ] (in char: source) is action "STR_ELEMCPY";
 
@@ -168,11 +168,11 @@ const proc: (inout string: destination) @:= [ (in integer: position) ] (in char:
  *   A @:= [B] C;
  *  is equivalent to
  *   A := A[..pred(B)] & C & A[B+length(C)..];
- *  @exception RANGE_ERROR If ''position'' is negative or zero.
- *  @exception RANGE_ERROR If ''destination'' is smaller than ''source''.
- *  @exception RANGE_ERROR Characters beyond ''destination'' would be
- *             overwritten (''position'' + length(''source'') >
- *             succ(length(''destination'')) holds).
+ *  @exception INDEX_ERROR If ''position'' is negative or zero, or
+ *             if ''destination'' is smaller than ''source'', or
+ *             characters beyond ''destination'' would be overwritten
+ *             (''position'' + length(''source'') > succ(length(''destination''))
+ *             holds).
  *)
 const proc: (inout string: destination) @:= [ (in integer: position) ] (in string: source) is action "STR_POSCPY";
 
@@ -636,12 +636,12 @@ const func string: getint (inout string: stri) is func
   end func;
 
 
-const func string: gets (inout string: stri, in integer: length) is func
+const func string: gets (inout string: stri, in integer: maxLength) is func
   result
     var string: striRead is "";
   begin
-    striRead := stri[.. length];
-    stri := stri[succ(length) ..];
+    striRead := stri[.. maxLength];
+    stri := stri[succ(length(striRead)) ..];
   end func;
 
 

@@ -29,6 +29,10 @@
 /*                                                                  */
 /********************************************************************/
 
+#if defined(__cplusplus) || defined(c_plusplus)
+extern "C" {
+#endif
+
 typedef int RETCODE;
 
 typedef unsigned char DBBOOL;
@@ -208,3 +212,7 @@ RETCODE dbtablecolinfo (DBPROCESS *dbproc,
                         DBCOL     *pdbcol);
 RETCODE dbuse (DBPROCESS * dbproc, const char *name);
 DBPROCESS *tdsdbopen (LOGINREC * login, const char *server, int msdblib);
+
+#if defined(__cplusplus) || defined(c_plusplus)
+}
+#endif

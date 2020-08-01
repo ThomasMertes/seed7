@@ -693,3 +693,106 @@ const proc: putBitsMsb (inout file: outFile, inout integer: bitPos, in var integ
       end if;
     end if;
   end func;
+
+
+(**
+ *  Type describing a stream of bits that is read backwards.
+ *  The bits are read from the most significant bit of the last byte
+ *  to the least significant bit of the first byte.
+ *)
+const type: reverseBitStream is new struct
+    var string: data is "";
+    var integer: offset is 0;
+  end struct;
+
+
+(**
+ *  Create a reverse bit stream from ''length'' bytes read from ''inFile''.
+ *)
+const func reverseBitStream: reverseBitStream (inout file: inFile, in integer: length) is func
+  result
+    var reverseBitStream: bitStream is reverseBitStream.value;
+  begin
+    bitStream.data := gets(inFile, length);
+    bitStream.offset := pred(length(bitStream.data) * 8);
+  end func;
+
+
+(**
+ *  Return the number of bits still present in the given reverse ''bitStream''.
+ *  Note that it is possible to read beyond the end fo the stream. In this
+ *  case negative values are returned.
+ *)
+const func integer: bitsStillInStream (in reverseBitStream: bitStream) is
+    return succ(bitStream.offset);
+
+
+(**
+ *  Return the number of bits read from the given reverse ''bitStream''.
+ *  Note that it is possible to read beyond the end fo the stream.
+ *  So the function might return more bits than actually present.
+ *)
+const func integer: bitsRead (in reverseBitStream: bitStream) is
+    return pred(length(bitStream.data) * 8) - bitStream.offset;
+
+
+(**
+ *  Get ''bitWidth'' bits from the given reverse ''bitStream''.
+ *  The bits are read from the most significant bit of the last byte
+ *  to the least significant bit of the first byte.
+ *  It is possible to read beyond the end of the stream.
+ *  In this case the stream is assumed to consist of zero bytes.
+ *)
+const func integer: getBits (inout reverseBitStream: bitStream, in integer: bitWidth) is func
+  result
+    var integer: resultBits is 0;
+  local
+    var integer: indexOfHighestByte is 0;
+    var integer: bitsLeftInHighestByte is 0;
+    var integer: keepBitsInHighestByte is 0;
+    var integer: valueFromHighestByte is 0;
+    var integer: spanningFullBytes is 0;
+    var integer: bitsFromLowestByte is 0;
+    var integer: indexOfLowestByte is 0;
+    var integer: startIndex is 0;
+    var integer: index is 0;
+  begin
+    if bitWidth <> 0 then
+      if bitStream.offset >= 0 then
+        indexOfHighestByte    := succ(bitStream.offset mdiv 8);
+        bitsLeftInHighestByte := succ(bitStream.offset mod 8);
+
+        if bitWidth < bitsLeftInHighestByte then
+          # Can satisfy with bits from the higest byte
+          keepBitsInHighestByte := bitsLeftInHighestByte - bitWidth;  # Number of bits that are preserved.
+          resultBits := (ord(bitStream.data[indexOfHighestByte]) >> keepBitsInHighestByte) mod (1 << bitWidth);
+        else
+          # take bits from highest byte
+          valueFromHighestByte := ord(bitStream.data[indexOfHighestByte]) mod (1 << bitsLeftInHighestByte);
+          if bitWidth = bitsLeftInHighestByte then
+            # Can satisfy with bits from the higest byte
+            resultBits := valueFromHighestByte;
+          else
+            spanningFullBytes  := (bitWidth - bitsLeftInHighestByte) mdiv 8;
+            bitsFromLowestByte := (bitWidth - bitsLeftInHighestByte) mod 8;
+
+            indexOfLowestByte := pred(indexOfHighestByte - spanningFullBytes);
+            if indexOfLowestByte >= 1 then
+              resultBits := ord(bitStream.data[indexOfLowestByte]) >> (8 - bitsFromLowestByte);
+            else
+              # We assume that below the offset 0 there are zero bytes.
+              startIndex := -indexOfLowestByte;
+            end if;
+
+            for index range startIndex to pred(spanningFullBytes) do
+              resultBits +:= ord(bitStream.data[succ(indexOfLowestByte) + index]) << (index * 8 + bitsFromLowestByte);
+            end for;
+
+            resultBits +:= valueFromHighestByte << (spanningFullBytes * 8 + bitsFromLowestByte);
+          end if;
+        end if;
+      end if;
+      # Update offset even if we are beyond the end of the stream.
+      bitStream.offset -:= bitWidth;
+    end if;
+  end func;

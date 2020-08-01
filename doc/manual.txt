@@ -221,14 +221,16 @@ CONTENTS
   16.2.1  MEMORY_ERROR
   16.2.2  NUMERIC_ERROR
   16.2.3  OVERFLOW_ERROR
-  16.2.4  RANGE_ERROR
-  16.2.5  FILE_ERROR
-  16.2.6  DATABASE_ERROR
-  16.2.7  ILLEGAL_ACTION
+  16.2.4  INDEX_ERROR
+  16.2.5  RANGE_ERROR
+  16.2.6  FILE_ERROR
+  16.2.7  DATABASE_ERROR
+  16.2.8  ILLEGAL_ACTION
   16.3    Handlers
   16.4    Stack trace
-  16.5    Signals
-  16.6    Other errors and warnings
+  16.5    Suppressing exception checks
+  16.6    Signals
+  16.7    Other errors and warnings
 
 
 
@@ -1051,8 +1053,11 @@ CONTENTS
 
     $ system "memory_error" is MEMORY_ERROR;
     $ system "numeric_error" is NUMERIC_ERROR;
+    $ system "overflow_error" is OVERFLOW_ERROR;
     $ system "range_error" is RANGE_ERROR;
+    $ system "index_error" is INDEX_ERROR;
     $ system "file_error" is FILE_ERROR;
+    $ system "database_error" is DATABASE_ERROR;
     $ system "illegal_action" is ILLEGAL_ACTION;
 
     $ system "assign" is := ;
@@ -3157,8 +3162,8 @@ CONTENTS
                     Type of result: char,
                     "abcde"[1] => 'a',
                     "abcde"[5] => 'e',
-                    "abcde"[0] => EXCEPTION RANGE_ERROR,
-                    "abcde"[6] => EXCEPTION RANGE_ERROR )
+                    "abcde"[0] => EXCEPTION INDEX_ERROR,
+                    "abcde"[6] => EXCEPTION INDEX_ERROR )
       [ A .. B ] Access a substring from position A to B
                   ( Type of arguments A and B: integer,
                     "abcde"[2 .. 4] => "bcd",
@@ -3315,8 +3320,14 @@ CONTENTS
                     Type of argument C: char,
                     A @:= [B] C =>
                         A := A[..pred(B)] & str(C) & A[succ(B)..],
-                    A @:= [0] 'x' => EXCEPTION RANGE_ERROR,
-                    A @:= [succ(length(A))] 'x' => EXCEPTION RANGE_ERROR )
+                    A @:= [0] 'x' => EXCEPTION INDEX_ERROR,
+                    A @:= [succ(length(A))] 'x' => EXCEPTION INDEX_ERROR )
+      A @:= [B] C  Assign C to the position B of string A
+                  ( Type of argument B: integer,
+                    A @:= [B] C =>
+                        A := A[..pred(B)] & C & A[B+length(C)..],
+                    A @:= [0] "xyz" => EXCEPTION INDEX_ERROR,
+                    A @:= [pred(length(A))] "xyz" => EXCEPTION INDEX_ERROR )
 
 
 5.10 array
@@ -3362,8 +3373,8 @@ CONTENTS
                     Type of result: baseType,
                     A[minIdx(A)] => First element,
                     A[maxIdx(A)] => Last element,
-                    A[pred(minIdx(A))] => EXCEPTION RANGE_ERROR,
-                    A[succ(maxIdx(A))] => EXCEPTION RANGE_ERROR )
+                    A[pred(minIdx(A))] => EXCEPTION INDEX_ERROR,
+                    A[succ(maxIdx(A))] => EXCEPTION INDEX_ERROR )
       [ A .. B ]  Get a sub array from the position A to the position B
                   ( Type of arguments A and B: integer )
       [ A len B ]  Get a sub array from the position A with maximum length B
@@ -3394,7 +3405,7 @@ CONTENTS
                   return the removed element
                   ( Type of argument B: integer,
                     Type of result: baseType,
-                    remove(0 times TRUE, 1) => EXCEPTION RANGE_ERROR )
+                    remove(0 times TRUE, 1) => EXCEPTION INDEX_ERROR )
       sort(A)   Sort array using the compare(baseType, baseType) function
     Statements:
       A &:= B   Append B to A
@@ -3847,8 +3858,8 @@ CONTENTS
                     Type of result: reference,
                     A[1]=>First element,
                     A[length(A)]=>Last element,
-                    A[0] => EXCEPTION RANGE_ERROR,
-                    A[succ(length(A))] => EXCEPTION RANGE_ERROR )
+                    A[0] => EXCEPTION INDEX_ERROR,
+                    A[succ(length(A))] => EXCEPTION INDEX_ERROR )
       [ A .. B ]  Access a sub list
                   ( Type of arguments A and B: integer )
       [ A .. ]  Access a sub list beginning at position A
@@ -3883,8 +3894,8 @@ CONTENTS
                     Type of argument C: reference,
                     A @:= [B] C =>
                         A := A[..pred(B)] & make_list(C) & A[succ(B)..],
-                    A @:= [0] C => EXCEPTION RANGE_ERROR,
-                    A @:= [succ(length(A))] C => EXCEPTION RANGE_ERROR )
+                    A @:= [0] C => EXCEPTION INDEX_ERROR,
+                    A @:= [succ(length(A))] C => EXCEPTION INDEX_ERROR )
       for A range B do
         C
       end for   Loop over all elements of a ref_list
@@ -12567,7 +12578,7 @@ CONTENTS
        the dividend is the most negative integer and the divisor is -1.
        E.g.: integer.first rem -1 raises OVERFLOW_ERROR. This has been
        defined as overflow because it can trigger so called undefined
-       behaviour of the underlying C code.
+       behavior of the underlying C code.
      - All shift operations ('<<', '>>', <<:= and '>>:=') trigger an
        overflow if the shift amount is negative or greater equal 64.
      - Left shift operations ('<<' and <<:=) can also trigger an
@@ -12583,33 +12594,12 @@ CONTENTS
   compiler generates code to check for an integer overflow. The option
   -so can be used to suppress the generation of integer overflow checks.
   If an overflow situation occurs, although overflow checking has been
-  switched off (with -so), the behaviour is undefined. In this case the
-  following things can happen:
-
-     - The exception OVERFLOW_ERROR is still raised.
-     - A different exception is raised.
-     - The program hangs.
-     - The program crashes.
-     - The computation continues with some garbage value. This garbage
-       value can then trigger dangerous things: The X-ray dosis computed
-       by your program might be totally wrong. Your program might compute
-       the statics of a bridge wrong.
-
-  A handler for OVERFLOW_ERROR can only work reliable with integer
-  overflow checks. The compiler warns if -so is used and there
-  is a handler for OVERFLOW_ERROR:
-
-    *** example.sd7(123): Catch of OVERFLOW_ERROR although the checks are suppressed.
-
-  Only a program that never raises OVERFLOW_ERROR and that does not
-  have a handler for OVERFLOW_ERROR can be considered to be compiled
-  without overflow checks. Careful program analysis and testing
-  (OVERFLOW_ERROR should never be raised) is necessary to decide
-  about the omission of overflow checking.
+  switched off (with -so), the behavior is undefined (see chapter
+  16.6 Suppressing exception checks).
 
   The separate overflow exception allows easy recognition of overflow
   situations. All overflow situations, where OVERFLOW_ERROR is raised
-  correspond to C situations, which have undefined behaviour. The
+  correspond to C situations, which have undefined behavior. The
   overflow concept of Seed7 has been designed to allow, that simple
   C code is generated, if the overflow checks are switched off.
 
@@ -12636,12 +12626,34 @@ CONTENTS
   result.
 
 
-16.2.4 RANGE_ERROR
+16.2.4 INDEX_ERROR
 
-  A RANGE_ERROR occurs if an index is used to access an array or string
-  element beyond the elements that actually exist. Many functions define
-  a range of valid arguments and raise RANGE_ERROR if this range is
-  violated.
+  An INDEX_ERROR occurs if an index is used to access an 'array', 'string',
+  'bstring' or 'ref_list' element beyond the elements that actually exist.
+  An attempt to get an element of a 'string',
+  'bstring' or 'ref_list' with a negative or zero index raises also INDEX_ERROR.
+
+    It may be raised from the following 'array' operations:
+        [index], remove.
+    It may be raised from the following 'string' operations:
+        [index], @:= [index] char, @:= [index] string.
+    It may be raised from the following 'bstring' operation:
+        [index].
+    It may be raised from the following 'ref_list' operations:
+        [index], @:= [index] element.
+
+  The interpreter checks always if an index refers to an existing element.
+  By default the compiler generates code to check if indices refer to an
+  existing element. The option -si can be used to suppress the generation
+  of index checks. If a nonexisting element is referred, although index
+  checking has been switched off (with -si), the behavior is undefined
+  (see chapter 16.6 Suppressing exception checks).
+
+
+16.2.5 RANGE_ERROR
+
+  Many functions define a range of valid arguments and raise RANGE_ERROR
+  if this range is violated.
 
     It may be raised from the following 'boolean' operations:
         parse, rand.
@@ -12660,11 +12672,11 @@ CONTENTS
     It may be raised from the following 'char' operations:
         chr, rand.
     It may be raised from the following 'string' operations:
-        [, @:=, mult, pos, rpos.
+        mult, pos, rpos.
     It may be raised from the following 'bitset' operations:
         conv, parse, min, max, rand.
     It may be raised from the following 'array' operations:
-        [, times, remove, rand.
+        times, rand.
     It may be raised from the following 'hash' operations:
         [.
     It may be raised from the following 'bin32' operations:
@@ -12674,12 +12686,12 @@ CONTENTS
     It may be raised from the following 'category' operations:
         parse.
     It may be raised from the following 'ref_list' operations:
-        [, @:=, pos.
+        pos.
     It may be raised from the following 'file' operations:
         open, write, gets, length, seek, tell.
 
 
-16.2.5 FILE_ERROR
+16.2.6 FILE_ERROR
 
   A FILE_ERROR occurs if an illegal operation with a file is done.
 
@@ -12690,7 +12702,7 @@ CONTENTS
         inetSocketAddress, inetListenerAddress, openInetSocket, openInetListener.
 
 
-16.2.6 DATABASE_ERROR
+16.2.7 DATABASE_ERROR
 
   The exception DATABASE_ERROR may be raised by database
   functions. If a DATABASE_ERROR is caught it is possible
@@ -12708,7 +12720,7 @@ CONTENTS
   be used to specify the place of the connector library.
 
 
-16.2.7 ILLEGAL_ACTION
+16.2.8 ILLEGAL_ACTION
 
   The exception ILLEGAL_ACTION may be raised by the interpreter
   kernel, if a primitive action does not point to any legal action.
@@ -12832,7 +12844,51 @@ CONTENTS
   allows the debugger to show a backtrace for uncaught Seed7 exceptions.
 
 
-16.5 Signals
+16.5 Suppressing exception checks
+
+  A Seed7 program can be compiled with the option -sx, to suppress the
+  generation of checks for exceptions. The suppressed checks x are
+  specified with letters from the following list:
+
+    d Suppress the generation of checks for integer division by zero.
+    i Suppress the generation of index checks (e.g. string, array).
+    o Suppress the generation of integer overflow checks.
+    r Suppress the generation of range checks.
+
+  If an exception situation occurs, although exception checking has
+  been switched off (with -s), the behavior is undefined. In this
+  case the following things can happen:
+
+     - The exception is still raised.
+     - A different exception is raised.
+     - The program hangs.
+     - The program crashes.
+     - The computation continues with some garbage value. This garbage
+       value can then trigger dangerous things: The X-ray dosis computed
+       by your program might be totally wrong. Your program might compute
+       the statics of a bridge wrong.
+
+  Undefined behavior is a term used in the language specification
+  of C and other programming languages. Undefined behavior usually
+  means that the behavior of the program is unpredictable. Normally
+  Seed7 has a well defined behavior in all situations. Even in
+  situations where the language specification of C refers to
+  undefined behavior.
+
+  A handler for an exception can only work reliable if the checks
+  for the exception are done. The compiler warns if -s is used
+  and there is a handler for an exception. e.g.:
+
+    *** example.sd7(123): Catch of OVERFLOW_ERROR although the checks are suppressed.
+
+  Only a program that never raises the specific exception and that
+  does not have a handler for this exception can be considered
+  to be compiled without checks for that exception. Careful program
+  analysis and testing (the exception should never be raised) is
+  necessary to decide about the omission of exception checking.
+
+
+16.6 Signals
 
   A signal is an asynchronous notification of an event. The event
   can come from outside such as a request to terminate the program.
@@ -12884,7 +12940,7 @@ CONTENTS
   must be executed with a debugger to get a stack trace.
 
 
-16.6 Other errors and warnings
+16.7 Other errors and warnings
 
   No more memory. Program terminated.
     This error message is displayed after the compile time error 1

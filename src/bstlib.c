@@ -366,7 +366,7 @@ objectType bst_hashcode (listType arguments)
  *  Get a character, identified by an index, from a 'bstring'.
  *  The first character has the index 1.
  *  @return the character specified with the index.
- *  @exception RANGE_ERROR If the index is less than 1 or
+ *  @exception INDEX_ERROR If the index is less than 1 or
  *             greater than the length of the 'bstring'.
  */
 objectType bst_idx (listType arguments)
@@ -384,7 +384,7 @@ objectType bst_idx (listType arguments)
       logError(printf("bst_idx(\"%s\", " FMT_D "): Position %s.\n",
                       bstriAsUnquotedCStri(bstri), position,
                       position <= 0 ? "<= 0" : "> length(string)"););
-      return raise_exception(SYS_RNG_EXCEPTION);
+      return raise_exception(SYS_IDX_EXCEPTION);
     } else {
       return bld_char_temp((charType) bstri->mem[position - 1]);
     } /* if */

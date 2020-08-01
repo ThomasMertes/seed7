@@ -25,7 +25,7 @@ LDFLAGS = -Wl,/STACK:8388608
 # LDFLAGS = -Wl,--gc-sections,--stack,8388608 -fsanitize=address,integer,undefined
 # LDFLAGS = -pg
 # LDFLAGS = -pg -lc_p
-SYSTEM_LIBS = -luser32 -lshell32 -lws2_32
+SYSTEM_LIBS = -luser32 -lshell32 -lws2_32 -ladvapi32
 # SYSTEM_LIBS = -lm -lws2_32 -lgmp
 SYSTEM_DRAW_LIBS = -lgdi32
 SYSTEM_CONSOLE_LIBS =

@@ -1,3 +1,4 @@
+
 /********************************************************************/
 /*                                                                  */
 /*  cmd_rtl.c     Directory, file and other system functions.       */
@@ -895,7 +896,49 @@ static rtlArrayType read_dir (const const_striType dir_name, errInfoType *err_in
 
 
 
-#ifdef os_putenv
+#ifdef os_setenv
+static void setEnvironmentVariable (const const_striType name, const const_striType value,
+    errInfoType *err_info)
+
+  {
+    os_striType env_name;
+    os_striType env_value;
+    int setenv_result;
+    int saved_errno;
+
+  /* setEnvironmentVariable */
+    logFunction(printf("setEnvironmentVariable(\"%s\", ",
+                       striAsUnquotedCStri(name));
+                printf("\"%s\", *)\n",
+                       striAsUnquotedCStri(value)););
+    env_name = stri_to_os_stri(name, err_info);
+    if (likely(env_name != NULL)) {
+      env_value = stri_to_os_stri(value, err_info);
+      if (likely(env_value != NULL)) {
+        setenv_result = os_setenv(env_name, env_value, 1);
+        saved_errno = errno;
+        os_stri_free(env_value);
+        if (unlikely(setenv_result != 0)) {
+          logError(printf("setEnvironmentVariable: "
+                          "os_setenv(\"" FMT_S_OS "\", \"" FMT_S_OS "\") failed:\n"
+                          "errno=%d\nerror: %s\n",
+                          env_name, env_value, saved_errno, strerror(saved_errno)););
+          if (saved_errno == ENOMEM) {
+            *err_info = MEMORY_ERROR;
+          } else {
+            *err_info = RANGE_ERROR;
+          } /* if */
+        } /* if */
+      } /* if */
+      os_stri_free(env_name);
+    } /* if */
+    logFunction(printf("setEnvironmentVariable -->\n"););
+  } /* setEnvironmentVariable */
+
+#else
+
+
+
 static void setEnvironmentVariable (const const_striType name, const const_striType value,
     errInfoType *err_info)
 
@@ -935,59 +978,17 @@ static void setEnvironmentVariable (const const_striType name, const const_striT
         FREE_STRI(stri, stri->size);
         if (likely(env_stri != NULL)) {
           putenv_result = os_putenv(env_stri);
-#if DELETE_PUTENV_STRING
-          os_stri_free(env_stri);
-#endif
           if (unlikely(putenv_result != 0)) {
             logError(printf("setEnvironmentVariable: os_putenv(\"" FMT_S_OS "\") failed:\n"
                             "errno=%d\nerror: %s\n",
                             env_stri, errno, strerror(errno)););
             *err_info = RANGE_ERROR;
           } /* if */
+#if DELETE_PUTENV_ARGUMENT
+          os_stri_free(env_stri);
+#endif
         } /* if */
       } /* if */
-    } /* if */
-    logFunction(printf("setEnvironmentVariable -->\n"););
-  } /* setEnvironmentVariable */
-
-#else
-
-
-
-static void setEnvironmentVariable (const const_striType name, const const_striType value,
-    errInfoType *err_info)
-
-  {
-    os_striType env_name;
-    os_striType env_value;
-    int setenv_result;
-    int saved_errno;
-
-  /* setEnvironmentVariable */
-    logFunction(printf("setEnvironmentVariable(\"%s\", ",
-                       striAsUnquotedCStri(name));
-                printf("\"%s\", *)\n",
-                       striAsUnquotedCStri(value)););
-    env_name = stri_to_os_stri(name, err_info);
-    if (likely(env_name != NULL)) {
-      env_value = stri_to_os_stri(value, err_info);
-      if (likely(env_value != NULL)) {
-        setenv_result = os_setenv(env_name, env_value, 1);
-        saved_errno = errno;
-        os_stri_free(env_value);
-        if (unlikely(setenv_result != 0)) {
-          logError(printf("setEnvironmentVariable: "
-                          "os_setenv(\"" FMT_S_OS "\", \"" FMT_S_OS "\") failed:\n"
-                          "errno=%d\nerror: %s\n",
-                          env_name, env_value, saved_errno, strerror(saved_errno)););
-          if (saved_errno == ENOMEM) {
-            *err_info = MEMORY_ERROR;
-          } else {
-            *err_info = RANGE_ERROR;
-          } /* if */
-        } /* if */
-      } /* if */
-      os_stri_free(env_name);
     } /* if */
     logFunction(printf("setEnvironmentVariable -->\n"););
   } /* setEnvironmentVariable */
@@ -3917,3 +3918,114 @@ striType cmdToOsPath (const const_striType standardPath)
     logFunctionResult(printf("\"%s\"\n", striAsUnquotedCStri(result)););
     return result;
   } /* cmdToOsPath */
+
+
+
+#ifdef os_unsetenv
+/**
+ *  Deletes the variable 'name' from the environment.
+ *  If 'name' does not exist in the environment,
+ *  then the function succeeds, and the environment is unchanged.
+ *  @exception MEMORY_ERROR Not enough memory to convert 'name'
+ *             to the system string type.
+ *  @exception RANGE_ERROR 'name' cannot be converted to the
+ *             system string type or a system function returns an error.
+ */
+void cmdUnsetenv (const const_striType name)
+
+  {
+    os_striType env_name;
+    int unsetenv_result;
+    errInfoType err_info = OKAY_NO_ERROR;
+
+  /* cmdUnsetenv */
+    logFunction(printf("cmdUnsetenv(\"%s\")", striAsUnquotedCStri(name));
+                fflush(stdout););
+    env_name = stri_to_os_stri(name, &err_info);
+    if (unlikely(env_name == NULL)) {
+      logError(printf("cmdUnsetenv: stri_to_os_stri(\"%s\", *, *) failed:\n"
+                      "err_info=%d\n",
+                      striAsUnquotedCStri(name), err_info););
+      raise_error(err_info);
+    } else {
+      unsetenv_result = os_unsetenv(env_name);
+      if (unlikely(unsetenv_result != 0)) {
+        logError(printf("cmdUnsetenv: os_unsetenv(\"" FMT_S_OS "\") failed:\n"
+                        "errno=%d\nerror: %s\n",
+                        env_name, errno, strerror(errno)););
+        err_info = RANGE_ERROR;
+      } /* if */
+      os_stri_free(env_name);
+      if (unlikely(err_info != OKAY_NO_ERROR)) {
+        raise_error(err_info);
+      } /* if */
+    } /* if */
+    logFunction(printf("cmdUnsetenv -->\n"););
+  } /* cmdUnsetenv */
+
+#else
+
+
+
+/**
+ *  Deletes the variable 'name' from the environment.
+ *  If 'name' does not exist in the environment,
+ *  then the function succeeds, and the environment is unchanged.
+ *  @exception MEMORY_ERROR Not enough memory to convert 'name'
+ *             to the system string type.
+ *  @exception RANGE_ERROR 'name' cannot be converted to the
+ *             system string type or a system function returns an error.
+ */
+void cmdUnsetenv (const const_striType name)
+
+  {
+    memSizeType stri_size;
+    striType stri;
+    os_striType env_stri;
+    int putenv_result;
+    errInfoType err_info = OKAY_NO_ERROR;
+
+  /* cmdUnsetenv */
+    logFunction(printf("cmdUnsetenv(\"%s\")", striAsUnquotedCStri(name));
+                fflush(stdout););
+    if (strChPos(name, (charType) '=') != 0) {
+      logError(printf("cmdUnsetenv(\"%s\"): "
+                      "Name contains '=' (putenv() works with \"name=value\").\n",
+                      striAsUnquotedCStri(name)););
+      err_info = RANGE_ERROR;
+    } else if (unlikely(name->size > MAX_STRI_LEN - 1)) {
+      /* Number of bytes does not fit into memSizeType. */
+      err_info = MEMORY_ERROR;
+    } else {
+      stri_size = name->size + 1;
+      if (unlikely(!ALLOC_STRI_SIZE_OK(stri, stri_size))) {
+        err_info = MEMORY_ERROR;
+      } else {
+        stri->size = stri_size;
+        memcpy(stri->mem, name->mem,
+            name->size * sizeof(strElemType));
+        stri->mem[name->size] = (strElemType) '=';
+        env_stri = stri_to_os_stri(stri, &err_info);
+        FREE_STRI(stri, stri->size);
+        if (likely(env_stri != NULL)) {
+          /* printf("os_putenv(\"" FMT_S_OS "\")\n", env_stri); */
+          putenv_result = os_putenv(env_stri);
+          if (unlikely(putenv_result != 0)) {
+            logError(printf("cmdUnsetenv: os_putenv(\"" FMT_S_OS "\") failed:\n"
+                            "errno=%d\nerror: %s\n",
+                            env_stri, errno, strerror(errno)););
+            err_info = RANGE_ERROR;
+          } /* if */
+#if DELETE_PUTENV_ARGUMENT
+          os_stri_free(env_stri);
+#endif
+        } /* if */
+      } /* if */
+    } /* if */
+    if (unlikely(err_info != OKAY_NO_ERROR)) {
+      raise_error(err_info);
+    } /* if */
+    logFunction(printf("cmdUnsetenv -->\n"););
+  } /* cmdUnsetenv */
+
+#endif

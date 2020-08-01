@@ -286,9 +286,9 @@ boolType rflElem (const const_objectType searched_object, const_listType list_el
  *   A @:= [B] C;
  *  is equivalent to
  *   A := A[..pred(B)] & make_list(C) & A[succ(B)..];
- *  @exception RANGE_ERROR If 'position' is negative or zero.
- *  @exception RANGE_ERROR An element beyond 'dest' would be
- *             overwritten ('position' > length('dest') holds).
+ *  @exception INDEX_ERROR If 'position' is negative or zero, or
+ *             an element beyond 'dest' would be overwritten
+ *             ('position' > length('dest') holds).
  */
 void rflElemcpy (listType dest, intType position, objectType elem)
 
@@ -299,7 +299,7 @@ void rflElemcpy (listType dest, intType position, objectType elem)
       logError(printf("rflElemcpy(" FMT_U_MEM ", " FMT_D ", " FMT_U_MEM"): "
                       "Index <= 0.\n",
                       (memSizeType) dest, position, (memSizeType) elem););
-      raise_error(RANGE_ERROR);
+      raise_error(INDEX_ERROR);
     } else {
       position--;
       while (position != 0 && dest != NULL) {
@@ -310,7 +310,7 @@ void rflElemcpy (listType dest, intType position, objectType elem)
         logError(printf("rflElemcpy(" FMT_U_MEM ", " FMT_D ", " FMT_U_MEM"): "
                         "Index > length(dest).\n",
                         (memSizeType) dest, position, (memSizeType) elem););
-        raise_error(RANGE_ERROR);
+        raise_error(INDEX_ERROR);
       } else {
         dest->obj = elem;
       } /* if */
@@ -393,7 +393,7 @@ listType rflHead (const listType list, intType stop)
 /**
  *  Access one element from the 'ref_list' 'list'.
  *  @return the element with the specified 'position' from 'list'.
- *  @exception RANGE_ERROR If the index is less than 1 or
+ *  @exception INDEX_ERROR If the index is less than 1 or
  *             greater than the length of the 'ref_list'.
  */
 objectType rflIdx (const_listType list, intType position)
@@ -407,7 +407,7 @@ objectType rflIdx (const_listType list, intType position)
     if (unlikely(position <= 0)) {
       logError(printf("rflIdx(" FMT_U_MEM ", " FMT_D "): Index <= 0.\n",
                       (memSizeType) list, position););
-      raise_error(RANGE_ERROR);
+      raise_error(INDEX_ERROR);
       result = NULL;
     } else {
       position--;
@@ -419,7 +419,7 @@ objectType rflIdx (const_listType list, intType position)
         logError(printf("rflIdx(" FMT_U_MEM ", " FMT_D "): "
                         "Index > length(list).\n",
                         (memSizeType) list, position););
-        raise_error(RANGE_ERROR);
+        raise_error(INDEX_ERROR);
         result = NULL;
       } else {
         result = list->obj;

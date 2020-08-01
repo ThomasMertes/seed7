@@ -39,15 +39,30 @@ const func char: charExpr (in char: ch) is
   return chr(ord(ch) + length(str(rand(1, 9))[2 ..]));
 
 
-const func boolean: raisesRangeError (ref proc: statement) is func
+const func boolean: raisesIndexError (ref proc: statement) is func
   result
-    var boolean: raisesRangeError is FALSE;
+    var boolean: raisesIndexError is FALSE;
   begin
     block
       statement;
     exception
-      catch RANGE_ERROR:
-        raisesRangeError := TRUE;
+      catch INDEX_ERROR:
+        raisesIndexError := TRUE;
+    end block;
+  end func;
+
+
+const func boolean: raisesIndexError (ref func char: expression) is func
+  result
+    var boolean: raisesIndexError is FALSE;
+  local
+    var char: exprResult is ' ';
+  begin
+    block
+      exprResult := expression;
+    exception
+      catch INDEX_ERROR:
+        raisesIndexError := TRUE;
     end block;
   end func;
 
@@ -57,21 +72,6 @@ const func boolean: raisesRangeError (ref func string: expression) is func
     var boolean: raisesRangeError is FALSE;
   local
     var string: exprResult is "";
-  begin
-    block
-      exprResult := expression;
-    exception
-      catch RANGE_ERROR:
-        raisesRangeError := TRUE;
-    end block;
-  end func;
-
-
-const func boolean: raisesRangeError (ref func char: expression) is func
-  result
-    var boolean: raisesRangeError is FALSE;
-  local
-    var char: exprResult is ' ';
   begin
     block
       exprResult := expression;
@@ -2862,35 +2862,35 @@ const proc: check_string_index is func
       okay := FALSE;
     end if;
 
-    if  not raisesRangeError("1234567890" [integer.first]) or
-        not raisesRangeError("1234567890" [           -2]) or
-        not raisesRangeError("1234567890" [           -1]) or
-        not raisesRangeError("1234567890" [            0]) or
-        not raisesRangeError("1234567890" [           11]) or
-        not raisesRangeError("1234567890" [           12]) or
-        not raisesRangeError("1234567890" [ integer.last]) or
-        not raisesRangeError(striExpr("1234567890") [integer.first]) or
-        not raisesRangeError(striExpr("1234567890") [           -2]) or
-        not raisesRangeError(striExpr("1234567890") [           -1]) or
-        not raisesRangeError(striExpr("1234567890") [            0]) or
-        not raisesRangeError(striExpr("1234567890") [           11]) or
-        not raisesRangeError(striExpr("1234567890") [           12]) or
-        not raisesRangeError(striExpr("1234567890") [ integer.last]) or
-        not raisesRangeError("1234567890" [intExpr(integer.first)]) or
-        not raisesRangeError("1234567890" [intExpr(           -2)]) or
-        not raisesRangeError("1234567890" [intExpr(           -1)]) or
-        not raisesRangeError("1234567890" [intExpr(            0)]) or
-        not raisesRangeError("1234567890" [intExpr(           11)]) or
-        not raisesRangeError("1234567890" [intExpr(           12)]) or
-        not raisesRangeError("1234567890" [intExpr( integer.last)]) or
-        not raisesRangeError(striExpr("1234567890") [intExpr(integer.first)]) or
-        not raisesRangeError(striExpr("1234567890") [intExpr(           -2)]) or
-        not raisesRangeError(striExpr("1234567890") [intExpr(           -1)]) or
-        not raisesRangeError(striExpr("1234567890") [intExpr(            0)]) or
-        not raisesRangeError(striExpr("1234567890") [intExpr(           11)]) or
-        not raisesRangeError(striExpr("1234567890") [intExpr(           12)]) or
-        not raisesRangeError(striExpr("1234567890") [intExpr( integer.last)]) then
-      writeln(" ***** String indexing outside of string does not raise RANGE_ERROR.");
+    if  not raisesIndexError("1234567890" [integer.first]) or
+        not raisesIndexError("1234567890" [           -2]) or
+        not raisesIndexError("1234567890" [           -1]) or
+        not raisesIndexError("1234567890" [            0]) or
+        not raisesIndexError("1234567890" [           11]) or
+        not raisesIndexError("1234567890" [           12]) or
+        not raisesIndexError("1234567890" [ integer.last]) or
+        not raisesIndexError(striExpr("1234567890") [integer.first]) or
+        not raisesIndexError(striExpr("1234567890") [           -2]) or
+        not raisesIndexError(striExpr("1234567890") [           -1]) or
+        not raisesIndexError(striExpr("1234567890") [            0]) or
+        not raisesIndexError(striExpr("1234567890") [           11]) or
+        not raisesIndexError(striExpr("1234567890") [           12]) or
+        not raisesIndexError(striExpr("1234567890") [ integer.last]) or
+        not raisesIndexError("1234567890" [intExpr(integer.first)]) or
+        not raisesIndexError("1234567890" [intExpr(           -2)]) or
+        not raisesIndexError("1234567890" [intExpr(           -1)]) or
+        not raisesIndexError("1234567890" [intExpr(            0)]) or
+        not raisesIndexError("1234567890" [intExpr(           11)]) or
+        not raisesIndexError("1234567890" [intExpr(           12)]) or
+        not raisesIndexError("1234567890" [intExpr( integer.last)]) or
+        not raisesIndexError(striExpr("1234567890") [intExpr(integer.first)]) or
+        not raisesIndexError(striExpr("1234567890") [intExpr(           -2)]) or
+        not raisesIndexError(striExpr("1234567890") [intExpr(           -1)]) or
+        not raisesIndexError(striExpr("1234567890") [intExpr(            0)]) or
+        not raisesIndexError(striExpr("1234567890") [intExpr(           11)]) or
+        not raisesIndexError(striExpr("1234567890") [intExpr(           12)]) or
+        not raisesIndexError(striExpr("1234567890") [intExpr( integer.last)]) then
+      writeln(" ***** String indexing outside of string does not raise INDEX_ERROR.");
       okay := FALSE;
     end if;
 
@@ -24128,16 +24128,31 @@ const proc: check_string_assign_at is func
     stri := "abcd"; index := 3; stri @:= [index] ch; ok := ok and stri = "abXd";
     stri := "abcd"; index := 4; stri @:= [index] ch; ok := ok and stri = "abcX";
 
+    stri := "";     stri @:= [1] "";     ok := ok and stri = "";
+    stri := "a";    stri @:= [1] "";     ok := ok and stri = "a";
+    stri := "a";    stri @:= [2] "";     ok := ok and stri = "a";
     stri := "a";    stri @:= [1] "X";    ok := ok and stri = "X";
+    stri := "ab";   stri @:= [1] "";     ok := ok and stri = "ab";
+    stri := "ab";   stri @:= [2] "";     ok := ok and stri = "ab";
+    stri := "ab";   stri @:= [3] "";     ok := ok and stri = "ab";
     stri := "ab";   stri @:= [1] "X";    ok := ok and stri = "Xb";
     stri := "ab";   stri @:= [2] "X";    ok := ok and stri = "aX";
     stri := "ab";   stri @:= [1] "XY";   ok := ok and stri = "XY";
+    stri := "abc";  stri @:= [1] "";     ok := ok and stri = "abc";
+    stri := "abc";  stri @:= [2] "";     ok := ok and stri = "abc";
+    stri := "abc";  stri @:= [3] "";     ok := ok and stri = "abc";
+    stri := "abc";  stri @:= [4] "";     ok := ok and stri = "abc";
     stri := "abc";  stri @:= [1] "X";    ok := ok and stri = "Xbc";
     stri := "abc";  stri @:= [2] "X";    ok := ok and stri = "aXc";
     stri := "abc";  stri @:= [3] "X";    ok := ok and stri = "abX";
     stri := "abc";  stri @:= [1] "XY";   ok := ok and stri = "XYc";
     stri := "abc";  stri @:= [2] "XY";   ok := ok and stri = "aXY";
     stri := "abc";  stri @:= [1] "XYZ";  ok := ok and stri = "XYZ";
+    stri := "abcd"; stri @:= [1] "";     ok := ok and stri = "abcd";
+    stri := "abcd"; stri @:= [2] "";     ok := ok and stri = "abcd";
+    stri := "abcd"; stri @:= [3] "";     ok := ok and stri = "abcd";
+    stri := "abcd"; stri @:= [4] "";     ok := ok and stri = "abcd";
+    stri := "abcd"; stri @:= [5] "";     ok := ok and stri = "abcd";
     stri := "abcd"; stri @:= [1] "X";    ok := ok and stri = "Xbcd";
     stri := "abcd"; stri @:= [2] "X";    ok := ok and stri = "aXcd";
     stri := "abcd"; stri @:= [3] "X";    ok := ok and stri = "abXd";
@@ -24149,16 +24164,139 @@ const proc: check_string_assign_at is func
     stri := "abcd"; stri @:= [2] "XYZ";  ok := ok and stri = "aXYZ";
     stri := "abcd"; stri @:= [1] "XYZA"; ok := ok and stri = "XYZA";
 
+    stri := "";     stri @:= [intExpr(1)] "";     ok := ok and stri = "";
+    stri := "a";    stri @:= [intExpr(1)] "";     ok := ok and stri = "a";
+    stri := "a";    stri @:= [intExpr(2)] "";     ok := ok and stri = "a";
+    stri := "a";    stri @:= [intExpr(1)] "X";    ok := ok and stri = "X";
+    stri := "ab";   stri @:= [intExpr(1)] "";     ok := ok and stri = "ab";
+    stri := "ab";   stri @:= [intExpr(2)] "";     ok := ok and stri = "ab";
+    stri := "ab";   stri @:= [intExpr(3)] "";     ok := ok and stri = "ab";
+    stri := "ab";   stri @:= [intExpr(1)] "X";    ok := ok and stri = "Xb";
+    stri := "ab";   stri @:= [intExpr(2)] "X";    ok := ok and stri = "aX";
+    stri := "ab";   stri @:= [intExpr(1)] "XY";   ok := ok and stri = "XY";
+    stri := "abc";  stri @:= [intExpr(1)] "";     ok := ok and stri = "abc";
+    stri := "abc";  stri @:= [intExpr(2)] "";     ok := ok and stri = "abc";
+    stri := "abc";  stri @:= [intExpr(3)] "";     ok := ok and stri = "abc";
+    stri := "abc";  stri @:= [intExpr(4)] "";     ok := ok and stri = "abc";
+    stri := "abc";  stri @:= [intExpr(1)] "X";    ok := ok and stri = "Xbc";
+    stri := "abc";  stri @:= [intExpr(2)] "X";    ok := ok and stri = "aXc";
+    stri := "abc";  stri @:= [intExpr(3)] "X";    ok := ok and stri = "abX";
+    stri := "abc";  stri @:= [intExpr(1)] "XY";   ok := ok and stri = "XYc";
+    stri := "abc";  stri @:= [intExpr(2)] "XY";   ok := ok and stri = "aXY";
+    stri := "abc";  stri @:= [intExpr(1)] "XYZ";  ok := ok and stri = "XYZ";
+    stri := "abcd"; stri @:= [intExpr(1)] "";     ok := ok and stri = "abcd";
+    stri := "abcd"; stri @:= [intExpr(2)] "";     ok := ok and stri = "abcd";
+    stri := "abcd"; stri @:= [intExpr(3)] "";     ok := ok and stri = "abcd";
+    stri := "abcd"; stri @:= [intExpr(4)] "";     ok := ok and stri = "abcd";
+    stri := "abcd"; stri @:= [intExpr(5)] "";     ok := ok and stri = "abcd";
+    stri := "abcd"; stri @:= [intExpr(1)] "X";    ok := ok and stri = "Xbcd";
+    stri := "abcd"; stri @:= [intExpr(2)] "X";    ok := ok and stri = "aXcd";
+    stri := "abcd"; stri @:= [intExpr(3)] "X";    ok := ok and stri = "abXd";
+    stri := "abcd"; stri @:= [intExpr(4)] "X";    ok := ok and stri = "abcX";
+    stri := "abcd"; stri @:= [intExpr(1)] "XY";   ok := ok and stri = "XYcd";
+    stri := "abcd"; stri @:= [intExpr(2)] "XY";   ok := ok and stri = "aXYd";
+    stri := "abcd"; stri @:= [intExpr(3)] "XY";   ok := ok and stri = "abXY";
+    stri := "abcd"; stri @:= [intExpr(1)] "XYZ";  ok := ok and stri = "XYZd";
+    stri := "abcd"; stri @:= [intExpr(2)] "XYZ";  ok := ok and stri = "aXYZ";
+    stri := "abcd"; stri @:= [intExpr(1)] "XYZA"; ok := ok and stri = "XYZA";
+
+    stri := "";     stri @:= [1] striExpr("");     ok := ok and stri = "";
+    stri := "a";    stri @:= [1] striExpr("");     ok := ok and stri = "a";
+    stri := "a";    stri @:= [2] striExpr("");     ok := ok and stri = "a";
+    stri := "a";    stri @:= [1] striExpr("X");    ok := ok and stri = "X";
+    stri := "ab";   stri @:= [1] striExpr("");     ok := ok and stri = "ab";
+    stri := "ab";   stri @:= [2] striExpr("");     ok := ok and stri = "ab";
+    stri := "ab";   stri @:= [3] striExpr("");     ok := ok and stri = "ab";
+    stri := "ab";   stri @:= [1] striExpr("X");    ok := ok and stri = "Xb";
+    stri := "ab";   stri @:= [2] striExpr("X");    ok := ok and stri = "aX";
+    stri := "ab";   stri @:= [1] striExpr("XY");   ok := ok and stri = "XY";
+    stri := "abc";  stri @:= [1] striExpr("");     ok := ok and stri = "abc";
+    stri := "abc";  stri @:= [2] striExpr("");     ok := ok and stri = "abc";
+    stri := "abc";  stri @:= [3] striExpr("");     ok := ok and stri = "abc";
+    stri := "abc";  stri @:= [4] striExpr("");     ok := ok and stri = "abc";
+    stri := "abc";  stri @:= [1] striExpr("X");    ok := ok and stri = "Xbc";
+    stri := "abc";  stri @:= [2] striExpr("X");    ok := ok and stri = "aXc";
+    stri := "abc";  stri @:= [3] striExpr("X");    ok := ok and stri = "abX";
+    stri := "abc";  stri @:= [1] striExpr("XY");   ok := ok and stri = "XYc";
+    stri := "abc";  stri @:= [2] striExpr("XY");   ok := ok and stri = "aXY";
+    stri := "abc";  stri @:= [1] striExpr("XYZ");  ok := ok and stri = "XYZ";
+    stri := "abcd"; stri @:= [1] striExpr("");     ok := ok and stri = "abcd";
+    stri := "abcd"; stri @:= [2] striExpr("");     ok := ok and stri = "abcd";
+    stri := "abcd"; stri @:= [3] striExpr("");     ok := ok and stri = "abcd";
+    stri := "abcd"; stri @:= [4] striExpr("");     ok := ok and stri = "abcd";
+    stri := "abcd"; stri @:= [5] striExpr("");     ok := ok and stri = "abcd";
+    stri := "abcd"; stri @:= [1] striExpr("X");    ok := ok and stri = "Xbcd";
+    stri := "abcd"; stri @:= [2] striExpr("X");    ok := ok and stri = "aXcd";
+    stri := "abcd"; stri @:= [3] striExpr("X");    ok := ok and stri = "abXd";
+    stri := "abcd"; stri @:= [4] striExpr("X");    ok := ok and stri = "abcX";
+    stri := "abcd"; stri @:= [1] striExpr("XY");   ok := ok and stri = "XYcd";
+    stri := "abcd"; stri @:= [2] striExpr("XY");   ok := ok and stri = "aXYd";
+    stri := "abcd"; stri @:= [3] striExpr("XY");   ok := ok and stri = "abXY";
+    stri := "abcd"; stri @:= [1] striExpr("XYZ");  ok := ok and stri = "XYZd";
+    stri := "abcd"; stri @:= [2] striExpr("XYZ");  ok := ok and stri = "aXYZ";
+    stri := "abcd"; stri @:= [1] striExpr("XYZA"); ok := ok and stri = "XYZA";
+
+    stri := "";     stri @:= [intExpr(1)] striExpr("");     ok := ok and stri = "";
+    stri := "a";    stri @:= [intExpr(1)] striExpr("");     ok := ok and stri = "a";
+    stri := "a";    stri @:= [intExpr(2)] striExpr("");     ok := ok and stri = "a";
+    stri := "a";    stri @:= [intExpr(1)] striExpr("X");    ok := ok and stri = "X";
+    stri := "ab";   stri @:= [intExpr(1)] striExpr("");     ok := ok and stri = "ab";
+    stri := "ab";   stri @:= [intExpr(2)] striExpr("");     ok := ok and stri = "ab";
+    stri := "ab";   stri @:= [intExpr(3)] striExpr("");     ok := ok and stri = "ab";
+    stri := "ab";   stri @:= [intExpr(1)] striExpr("X");    ok := ok and stri = "Xb";
+    stri := "ab";   stri @:= [intExpr(2)] striExpr("X");    ok := ok and stri = "aX";
+    stri := "ab";   stri @:= [intExpr(1)] striExpr("XY");   ok := ok and stri = "XY";
+    stri := "abc";  stri @:= [intExpr(1)] striExpr("");     ok := ok and stri = "abc";
+    stri := "abc";  stri @:= [intExpr(2)] striExpr("");     ok := ok and stri = "abc";
+    stri := "abc";  stri @:= [intExpr(3)] striExpr("");     ok := ok and stri = "abc";
+    stri := "abc";  stri @:= [intExpr(4)] striExpr("");     ok := ok and stri = "abc";
+    stri := "abc";  stri @:= [intExpr(1)] striExpr("X");    ok := ok and stri = "Xbc";
+    stri := "abc";  stri @:= [intExpr(2)] striExpr("X");    ok := ok and stri = "aXc";
+    stri := "abc";  stri @:= [intExpr(3)] striExpr("X");    ok := ok and stri = "abX";
+    stri := "abc";  stri @:= [intExpr(1)] striExpr("XY");   ok := ok and stri = "XYc";
+    stri := "abc";  stri @:= [intExpr(2)] striExpr("XY");   ok := ok and stri = "aXY";
+    stri := "abc";  stri @:= [intExpr(1)] striExpr("XYZ");  ok := ok and stri = "XYZ";
+    stri := "abcd"; stri @:= [intExpr(1)] striExpr("");     ok := ok and stri = "abcd";
+    stri := "abcd"; stri @:= [intExpr(2)] striExpr("");     ok := ok and stri = "abcd";
+    stri := "abcd"; stri @:= [intExpr(3)] striExpr("");     ok := ok and stri = "abcd";
+    stri := "abcd"; stri @:= [intExpr(4)] striExpr("");     ok := ok and stri = "abcd";
+    stri := "abcd"; stri @:= [intExpr(5)] striExpr("");     ok := ok and stri = "abcd";
+    stri := "abcd"; stri @:= [intExpr(1)] striExpr("X");    ok := ok and stri = "Xbcd";
+    stri := "abcd"; stri @:= [intExpr(2)] striExpr("X");    ok := ok and stri = "aXcd";
+    stri := "abcd"; stri @:= [intExpr(3)] striExpr("X");    ok := ok and stri = "abXd";
+    stri := "abcd"; stri @:= [intExpr(4)] striExpr("X");    ok := ok and stri = "abcX";
+    stri := "abcd"; stri @:= [intExpr(1)] striExpr("XY");   ok := ok and stri = "XYcd";
+    stri := "abcd"; stri @:= [intExpr(2)] striExpr("XY");   ok := ok and stri = "aXYd";
+    stri := "abcd"; stri @:= [intExpr(3)] striExpr("XY");   ok := ok and stri = "abXY";
+    stri := "abcd"; stri @:= [intExpr(1)] striExpr("XYZ");  ok := ok and stri = "XYZd";
+    stri := "abcd"; stri @:= [intExpr(2)] striExpr("XYZ");  ok := ok and stri = "aXYZ";
+    stri := "abcd"; stri @:= [intExpr(1)] striExpr("XYZA"); ok := ok and stri = "XYZA";
+
+    stri := "";     index := 1; stri @:= [index] "";     ok := ok and stri = "";
+    stri := "a";    index := 1; stri @:= [index] "";     ok := ok and stri = "a";
+    stri := "a";    index := 2; stri @:= [index] "";     ok := ok and stri = "a";
     stri := "a";    index := 1; stri @:= [index] "X";    ok := ok and stri = "X";
     stri := "ab";   index := 1; stri @:= [index] "X";    ok := ok and stri = "Xb";
+    stri := "ab";   index := 1; stri @:= [index] "";     ok := ok and stri = "ab";
+    stri := "ab";   index := 2; stri @:= [index] "";     ok := ok and stri = "ab";
+    stri := "ab";   index := 3; stri @:= [index] "";     ok := ok and stri = "ab";
     stri := "ab";   index := 2; stri @:= [index] "X";    ok := ok and stri = "aX";
     stri := "ab";   index := 1; stri @:= [index] "XY";   ok := ok and stri = "XY";
+    stri := "abc";  index := 1; stri @:= [index] "";     ok := ok and stri = "abc";
+    stri := "abc";  index := 2; stri @:= [index] "";     ok := ok and stri = "abc";
+    stri := "abc";  index := 3; stri @:= [index] "";     ok := ok and stri = "abc";
+    stri := "abc";  index := 4; stri @:= [index] "";     ok := ok and stri = "abc";
     stri := "abc";  index := 1; stri @:= [index] "X";    ok := ok and stri = "Xbc";
     stri := "abc";  index := 2; stri @:= [index] "X";    ok := ok and stri = "aXc";
     stri := "abc";  index := 3; stri @:= [index] "X";    ok := ok and stri = "abX";
     stri := "abc";  index := 1; stri @:= [index] "XY";   ok := ok and stri = "XYc";
     stri := "abc";  index := 2; stri @:= [index] "XY";   ok := ok and stri = "aXY";
     stri := "abc";  index := 1; stri @:= [index] "XYZ";  ok := ok and stri = "XYZ";
+    stri := "abcd"; index := 1; stri @:= [index] "";     ok := ok and stri = "abcd";
+    stri := "abcd"; index := 2; stri @:= [index] "";     ok := ok and stri = "abcd";
+    stri := "abcd"; index := 3; stri @:= [index] "";     ok := ok and stri = "abcd";
+    stri := "abcd"; index := 4; stri @:= [index] "";     ok := ok and stri = "abcd";
+    stri := "abcd"; index := 5; stri @:= [index] "";     ok := ok and stri = "abcd";
     stri := "abcd"; index := 1; stri @:= [index] "X";    ok := ok and stri = "Xbcd";
     stri := "abcd"; index := 2; stri @:= [index] "X";    ok := ok and stri = "aXcd";
     stri := "abcd"; index := 3; stri @:= [index] "X";    ok := ok and stri = "abXd";
@@ -24170,6 +24308,43 @@ const proc: check_string_assign_at is func
     stri := "abcd"; index := 2; stri @:= [index] "XYZ";  ok := ok and stri = "aXYZ";
     stri := "abcd"; index := 1; stri @:= [index] "XYZA"; ok := ok and stri = "XYZA";
 
+    stri := "";     index := 1; stri @:= [index] striExpr("");     ok := ok and stri = "";
+    stri := "a";    index := 1; stri @:= [index] striExpr("");     ok := ok and stri = "a";
+    stri := "a";    index := 2; stri @:= [index] striExpr("");     ok := ok and stri = "a";
+    stri := "a";    index := 1; stri @:= [index] striExpr("X");    ok := ok and stri = "X";
+    stri := "ab";   index := 1; stri @:= [index] striExpr("X");    ok := ok and stri = "Xb";
+    stri := "ab";   index := 1; stri @:= [index] striExpr("");     ok := ok and stri = "ab";
+    stri := "ab";   index := 2; stri @:= [index] striExpr("");     ok := ok and stri = "ab";
+    stri := "ab";   index := 3; stri @:= [index] striExpr("");     ok := ok and stri = "ab";
+    stri := "ab";   index := 2; stri @:= [index] striExpr("X");    ok := ok and stri = "aX";
+    stri := "ab";   index := 1; stri @:= [index] striExpr("XY");   ok := ok and stri = "XY";
+    stri := "abc";  index := 1; stri @:= [index] striExpr("");     ok := ok and stri = "abc";
+    stri := "abc";  index := 2; stri @:= [index] striExpr("");     ok := ok and stri = "abc";
+    stri := "abc";  index := 3; stri @:= [index] striExpr("");     ok := ok and stri = "abc";
+    stri := "abc";  index := 4; stri @:= [index] striExpr("");     ok := ok and stri = "abc";
+    stri := "abc";  index := 1; stri @:= [index] striExpr("X");    ok := ok and stri = "Xbc";
+    stri := "abc";  index := 2; stri @:= [index] striExpr("X");    ok := ok and stri = "aXc";
+    stri := "abc";  index := 3; stri @:= [index] striExpr("X");    ok := ok and stri = "abX";
+    stri := "abc";  index := 1; stri @:= [index] striExpr("XY");   ok := ok and stri = "XYc";
+    stri := "abc";  index := 2; stri @:= [index] striExpr("XY");   ok := ok and stri = "aXY";
+    stri := "abc";  index := 1; stri @:= [index] striExpr("XYZ");  ok := ok and stri = "XYZ";
+    stri := "abcd"; index := 1; stri @:= [index] striExpr("");     ok := ok and stri = "abcd";
+    stri := "abcd"; index := 2; stri @:= [index] striExpr("");     ok := ok and stri = "abcd";
+    stri := "abcd"; index := 3; stri @:= [index] striExpr("");     ok := ok and stri = "abcd";
+    stri := "abcd"; index := 4; stri @:= [index] striExpr("");     ok := ok and stri = "abcd";
+    stri := "abcd"; index := 5; stri @:= [index] striExpr("");     ok := ok and stri = "abcd";
+    stri := "abcd"; index := 1; stri @:= [index] striExpr("X");    ok := ok and stri = "Xbcd";
+    stri := "abcd"; index := 2; stri @:= [index] striExpr("X");    ok := ok and stri = "aXcd";
+    stri := "abcd"; index := 3; stri @:= [index] striExpr("X");    ok := ok and stri = "abXd";
+    stri := "abcd"; index := 4; stri @:= [index] striExpr("X");    ok := ok and stri = "abcX";
+    stri := "abcd"; index := 1; stri @:= [index] striExpr("XY");   ok := ok and stri = "XYcd";
+    stri := "abcd"; index := 2; stri @:= [index] striExpr("XY");   ok := ok and stri = "aXYd";
+    stri := "abcd"; index := 3; stri @:= [index] striExpr("XY");   ok := ok and stri = "abXY";
+    stri := "abcd"; index := 1; stri @:= [index] striExpr("XYZ");  ok := ok and stri = "XYZd";
+    stri := "abcd"; index := 2; stri @:= [index] striExpr("XYZ");  ok := ok and stri = "aXYZ";
+    stri := "abcd"; index := 1; stri @:= [index] striExpr("XYZA"); ok := ok and stri = "XYZA";
+
+    stri := "";     stri @:= [1] stri;          ok := ok and stri = "";
     stri := "a";    stri @:= [1] stri;          ok := ok and stri = "a";
     stri := "ab";   stri @:= [1] stri[1 len 1]; ok := ok and stri = "ab";
     stri := "ab";   stri @:= [1] stri[2 len 1]; ok := ok and stri = "bb";
@@ -24222,6 +24397,59 @@ const proc: check_string_assign_at is func
     stri := "abcd"; stri @:= [1] stri;          ok := ok and stri = "abcd";
     stri := "abcd"; stri @:= [2] stri[3 len 1] & stri[2 .. 2]; ok := ok and stri = "acbd";
 
+    stri := "";     stri @:= [intExpr(1)] stri;          ok := ok and stri = "";
+    stri := "a";    stri @:= [intExpr(1)] stri;          ok := ok and stri = "a";
+    stri := "ab";   stri @:= [intExpr(1)] stri[1 len 1]; ok := ok and stri = "ab";
+    stri := "ab";   stri @:= [intExpr(1)] stri[2 len 1]; ok := ok and stri = "bb";
+    stri := "ab";   stri @:= [intExpr(2)] stri[1 len 1]; ok := ok and stri = "aa";
+    stri := "ab";   stri @:= [intExpr(2)] stri[2 len 1]; ok := ok and stri = "ab";
+    stri := "ab";   stri @:= [intExpr(1)] stri;          ok := ok and stri = "ab";
+    stri := "abc";  stri @:= [intExpr(1)] stri[1 len 1]; ok := ok and stri = "abc";
+    stri := "abc";  stri @:= [intExpr(1)] stri[2 len 1]; ok := ok and stri = "bbc";
+    stri := "abc";  stri @:= [intExpr(1)] stri[3 len 1]; ok := ok and stri = "cbc";
+    stri := "abc";  stri @:= [intExpr(2)] stri[1 len 1]; ok := ok and stri = "aac";
+    stri := "abc";  stri @:= [intExpr(2)] stri[2 len 1]; ok := ok and stri = "abc";
+    stri := "abc";  stri @:= [intExpr(2)] stri[3 len 1]; ok := ok and stri = "acc";
+    stri := "abc";  stri @:= [intExpr(3)] stri[1 len 1]; ok := ok and stri = "aba";
+    stri := "abc";  stri @:= [intExpr(3)] stri[2 len 1]; ok := ok and stri = "abb";
+    stri := "abc";  stri @:= [intExpr(3)] stri[3 len 1]; ok := ok and stri = "abc";
+    stri := "abc";  stri @:= [intExpr(1)] stri[1 len 2]; ok := ok and stri = "abc";
+    stri := "abc";  stri @:= [intExpr(1)] stri[2 len 2]; ok := ok and stri = "bcc";
+    stri := "abc";  stri @:= [intExpr(2)] stri[1 len 2]; ok := ok and stri = "aab";
+    stri := "abc";  stri @:= [intExpr(2)] stri[2 len 2]; ok := ok and stri = "abc";
+    stri := "abc";  stri @:= [intExpr(1)] stri;          ok := ok and stri = "abc";
+    stri := "abcd"; stri @:= [intExpr(1)] stri[1 len 1]; ok := ok and stri = "abcd";
+    stri := "abcd"; stri @:= [intExpr(1)] stri[2 len 1]; ok := ok and stri = "bbcd";
+    stri := "abcd"; stri @:= [intExpr(1)] stri[3 len 1]; ok := ok and stri = "cbcd";
+    stri := "abcd"; stri @:= [intExpr(1)] stri[4 len 1]; ok := ok and stri = "dbcd";
+    stri := "abcd"; stri @:= [intExpr(2)] stri[1 len 1]; ok := ok and stri = "aacd";
+    stri := "abcd"; stri @:= [intExpr(2)] stri[2 len 1]; ok := ok and stri = "abcd";
+    stri := "abcd"; stri @:= [intExpr(2)] stri[3 len 1]; ok := ok and stri = "accd";
+    stri := "abcd"; stri @:= [intExpr(2)] stri[4 len 1]; ok := ok and stri = "adcd";
+    stri := "abcd"; stri @:= [intExpr(3)] stri[1 len 1]; ok := ok and stri = "abad";
+    stri := "abcd"; stri @:= [intExpr(3)] stri[2 len 1]; ok := ok and stri = "abbd";
+    stri := "abcd"; stri @:= [intExpr(3)] stri[3 len 1]; ok := ok and stri = "abcd";
+    stri := "abcd"; stri @:= [intExpr(3)] stri[4 len 1]; ok := ok and stri = "abdd";
+    stri := "abcd"; stri @:= [intExpr(4)] stri[1 len 1]; ok := ok and stri = "abca";
+    stri := "abcd"; stri @:= [intExpr(4)] stri[2 len 1]; ok := ok and stri = "abcb";
+    stri := "abcd"; stri @:= [intExpr(4)] stri[3 len 1]; ok := ok and stri = "abcc";
+    stri := "abcd"; stri @:= [intExpr(4)] stri[4 len 1]; ok := ok and stri = "abcd";
+    stri := "abcd"; stri @:= [intExpr(1)] stri[1 len 2]; ok := ok and stri = "abcd";
+    stri := "abcd"; stri @:= [intExpr(1)] stri[2 len 2]; ok := ok and stri = "bccd";
+    stri := "abcd"; stri @:= [intExpr(1)] stri[3 len 2]; ok := ok and stri = "cdcd";
+    stri := "abcd"; stri @:= [intExpr(2)] stri[1 len 2]; ok := ok and stri = "aabd";
+    stri := "abcd"; stri @:= [intExpr(2)] stri[2 len 2]; ok := ok and stri = "abcd";
+    stri := "abcd"; stri @:= [intExpr(2)] stri[3 len 2]; ok := ok and stri = "acdd";
+    stri := "abcd"; stri @:= [intExpr(3)] stri[1 len 2]; ok := ok and stri = "abab";
+    stri := "abcd"; stri @:= [intExpr(3)] stri[2 len 2]; ok := ok and stri = "abbc";
+    stri := "abcd"; stri @:= [intExpr(3)] stri[3 len 2]; ok := ok and stri = "abcd";
+    stri := "abcd"; stri @:= [intExpr(1)] stri[1 len 3]; ok := ok and stri = "abcd";
+    stri := "abcd"; stri @:= [intExpr(1)] stri[2 len 3]; ok := ok and stri = "bcdd";
+    stri := "abcd"; stri @:= [intExpr(2)] stri[1 len 3]; ok := ok and stri = "aabc";
+    stri := "abcd"; stri @:= [intExpr(2)] stri[2 len 3]; ok := ok and stri = "abcd";
+    stri := "abcd"; stri @:= [intExpr(1)] stri;          ok := ok and stri = "abcd";
+    stri := "abcd"; stri @:= [intExpr(2)] stri[3 len 1] & stri[2 .. 2]; ok := ok and stri = "acbd";
+
     stri := "abcdefghijklmnopqrstuvwxyz"; stri @:= [ 7] stri [13 len 11]; ok := ok and stri = "abcdefmnopqrstuvwrstuvwxyz";
     stri := "abcdefghijklmnopqrstuvwxyz"; stri @:= [13] stri [ 7 len 11]; ok := ok and stri = "abcdefghijklghijklmnopqxyz";
     if not ok then
@@ -24230,188 +24458,216 @@ const proc: check_string_assign_at is func
     end if;
 
     stri := "abcd";
-    if  not raisesRangeError(stri @:= [            0] 'x') or
-        not raisesRangeError(stri @:= [           -1] 'x') or
-        not raisesRangeError(stri @:= [           -2] 'x') or
-        not raisesRangeError(stri @:= [integer.first] 'x') or
-        not raisesRangeError(stri @:= [            0] "x") or
-        not raisesRangeError(stri @:= [           -1] "x") or
-        not raisesRangeError(stri @:= [           -2] "x") or
-        not raisesRangeError(stri @:= [integer.first] "x") or
-        not raisesRangeError(stri @:= [            0] "xy") or
-        not raisesRangeError(stri @:= [           -1] "xy") or
-        not raisesRangeError(stri @:= [           -2] "xy") or
-        not raisesRangeError(stri @:= [integer.first] "xy") or
-        not raisesRangeError(stri @:= [            0] "xyz") or
-        not raisesRangeError(stri @:= [           -1] "xyz") or
-        not raisesRangeError(stri @:= [           -2] "xyz") or
-        not raisesRangeError(stri @:= [integer.first] "xyz") or
-        not raisesRangeError(stri @:= [intExpr(            0)] 'x') or
-        not raisesRangeError(stri @:= [intExpr(           -1)] 'x') or
-        not raisesRangeError(stri @:= [intExpr(           -2)] 'x') or
-        not raisesRangeError(stri @:= [intExpr(integer.first)] 'x') or
-        not raisesRangeError(stri @:= [intExpr(            0)] "x") or
-        not raisesRangeError(stri @:= [intExpr(           -1)] "x") or
-        not raisesRangeError(stri @:= [intExpr(           -2)] "x") or
-        not raisesRangeError(stri @:= [intExpr(integer.first)] "x") or
-        not raisesRangeError(stri @:= [intExpr(            0)] "xy") or
-        not raisesRangeError(stri @:= [intExpr(           -1)] "xy") or
-        not raisesRangeError(stri @:= [intExpr(           -2)] "xy") or
-        not raisesRangeError(stri @:= [intExpr(integer.first)] "xy") or
-        not raisesRangeError(stri @:= [intExpr(            0)] "xyz") or
-        not raisesRangeError(stri @:= [intExpr(           -1)] "xyz") or
-        not raisesRangeError(stri @:= [intExpr(           -2)] "xyz") or
-        not raisesRangeError(stri @:= [intExpr(integer.first)] "xyz")  or
-        not raisesRangeError(stri @:= [            0] charExpr('x')) or
-        not raisesRangeError(stri @:= [           -1] charExpr('x')) or
-        not raisesRangeError(stri @:= [           -2] charExpr('x')) or
-        not raisesRangeError(stri @:= [integer.first] charExpr('x')) or
-        not raisesRangeError(stri @:= [            0] striExpr("x")) or
-        not raisesRangeError(stri @:= [           -1] striExpr("x")) or
-        not raisesRangeError(stri @:= [           -2] striExpr("x")) or
-        not raisesRangeError(stri @:= [integer.first] striExpr("x")) or
-        not raisesRangeError(stri @:= [            0] striExpr("xy")) or
-        not raisesRangeError(stri @:= [           -1] striExpr("xy")) or
-        not raisesRangeError(stri @:= [           -2] striExpr("xy")) or
-        not raisesRangeError(stri @:= [integer.first] striExpr("xy")) or
-        not raisesRangeError(stri @:= [            0] striExpr("xyz")) or
-        not raisesRangeError(stri @:= [           -1] striExpr("xyz")) or
-        not raisesRangeError(stri @:= [           -2] striExpr("xyz")) or
-        not raisesRangeError(stri @:= [integer.first] striExpr("xyz")) or
-        not raisesRangeError(stri @:= [intExpr(            0)] charExpr('x')) or
-        not raisesRangeError(stri @:= [intExpr(           -1)] charExpr('x')) or
-        not raisesRangeError(stri @:= [intExpr(           -2)] charExpr('x')) or
-        not raisesRangeError(stri @:= [intExpr(integer.first)] charExpr('x')) or
-        not raisesRangeError(stri @:= [intExpr(            0)] striExpr("x")) or
-        not raisesRangeError(stri @:= [intExpr(           -1)] striExpr("x")) or
-        not raisesRangeError(stri @:= [intExpr(           -2)] striExpr("x")) or
-        not raisesRangeError(stri @:= [intExpr(integer.first)] striExpr("x")) or
-        not raisesRangeError(stri @:= [intExpr(            0)] striExpr("xy")) or
-        not raisesRangeError(stri @:= [intExpr(           -1)] striExpr("xy")) or
-        not raisesRangeError(stri @:= [intExpr(           -2)] striExpr("xy")) or
-        not raisesRangeError(stri @:= [intExpr(integer.first)] striExpr("xy")) or
-        not raisesRangeError(stri @:= [intExpr(            0)] striExpr("xyz")) or
-        not raisesRangeError(stri @:= [intExpr(           -1)] striExpr("xyz")) or
-        not raisesRangeError(stri @:= [intExpr(           -2)] striExpr("xyz")) or
-        not raisesRangeError(stri @:= [intExpr(integer.first)] striExpr("xyz")) then
-      writeln(" ***** @:= with zero or negative index does not raise RANGE_ERROR.");
+    if  not raisesIndexError(stri @:= [            0] 'x') or
+        not raisesIndexError(stri @:= [           -1] 'x') or
+        not raisesIndexError(stri @:= [           -2] 'x') or
+        not raisesIndexError(stri @:= [integer.first] 'x') or
+        not raisesIndexError(stri @:= [            0] "") or
+        not raisesIndexError(stri @:= [           -1] "") or
+        not raisesIndexError(stri @:= [           -2] "") or
+        not raisesIndexError(stri @:= [integer.first] "") or
+        not raisesIndexError(stri @:= [            0] "x") or
+        not raisesIndexError(stri @:= [           -1] "x") or
+        not raisesIndexError(stri @:= [           -2] "x") or
+        not raisesIndexError(stri @:= [integer.first] "x") or
+        not raisesIndexError(stri @:= [            0] "xy") or
+        not raisesIndexError(stri @:= [           -1] "xy") or
+        not raisesIndexError(stri @:= [           -2] "xy") or
+        not raisesIndexError(stri @:= [integer.first] "xy") or
+        not raisesIndexError(stri @:= [            0] "xyz") or
+        not raisesIndexError(stri @:= [           -1] "xyz") or
+        not raisesIndexError(stri @:= [           -2] "xyz") or
+        not raisesIndexError(stri @:= [integer.first] "xyz") or
+        not raisesIndexError(stri @:= [intExpr(            0)] 'x') or
+        not raisesIndexError(stri @:= [intExpr(           -1)] 'x') or
+        not raisesIndexError(stri @:= [intExpr(           -2)] 'x') or
+        not raisesIndexError(stri @:= [intExpr(integer.first)] 'x') or
+        not raisesIndexError(stri @:= [intExpr(            0)] "") or
+        not raisesIndexError(stri @:= [intExpr(           -1)] "") or
+        not raisesIndexError(stri @:= [intExpr(           -2)] "") or
+        not raisesIndexError(stri @:= [intExpr(integer.first)] "") or
+        not raisesIndexError(stri @:= [intExpr(            0)] "x") or
+        not raisesIndexError(stri @:= [intExpr(           -1)] "x") or
+        not raisesIndexError(stri @:= [intExpr(           -2)] "x") or
+        not raisesIndexError(stri @:= [intExpr(integer.first)] "x") or
+        not raisesIndexError(stri @:= [intExpr(            0)] "xy") or
+        not raisesIndexError(stri @:= [intExpr(           -1)] "xy") or
+        not raisesIndexError(stri @:= [intExpr(           -2)] "xy") or
+        not raisesIndexError(stri @:= [intExpr(integer.first)] "xy") or
+        not raisesIndexError(stri @:= [intExpr(            0)] "xyz") or
+        not raisesIndexError(stri @:= [intExpr(           -1)] "xyz") or
+        not raisesIndexError(stri @:= [intExpr(           -2)] "xyz") or
+        not raisesIndexError(stri @:= [intExpr(integer.first)] "xyz")  or
+        not raisesIndexError(stri @:= [            0] charExpr('x')) or
+        not raisesIndexError(stri @:= [           -1] charExpr('x')) or
+        not raisesIndexError(stri @:= [           -2] charExpr('x')) or
+        not raisesIndexError(stri @:= [integer.first] charExpr('x')) or
+        not raisesIndexError(stri @:= [            0] striExpr("")) or
+        not raisesIndexError(stri @:= [           -1] striExpr("")) or
+        not raisesIndexError(stri @:= [           -2] striExpr("")) or
+        not raisesIndexError(stri @:= [integer.first] striExpr("")) or
+        not raisesIndexError(stri @:= [            0] striExpr("x")) or
+        not raisesIndexError(stri @:= [           -1] striExpr("x")) or
+        not raisesIndexError(stri @:= [           -2] striExpr("x")) or
+        not raisesIndexError(stri @:= [integer.first] striExpr("x")) or
+        not raisesIndexError(stri @:= [            0] striExpr("xy")) or
+        not raisesIndexError(stri @:= [           -1] striExpr("xy")) or
+        not raisesIndexError(stri @:= [           -2] striExpr("xy")) or
+        not raisesIndexError(stri @:= [integer.first] striExpr("xy")) or
+        not raisesIndexError(stri @:= [            0] striExpr("xyz")) or
+        not raisesIndexError(stri @:= [           -1] striExpr("xyz")) or
+        not raisesIndexError(stri @:= [           -2] striExpr("xyz")) or
+        not raisesIndexError(stri @:= [integer.first] striExpr("xyz")) or
+        not raisesIndexError(stri @:= [intExpr(            0)] charExpr('x')) or
+        not raisesIndexError(stri @:= [intExpr(           -1)] charExpr('x')) or
+        not raisesIndexError(stri @:= [intExpr(           -2)] charExpr('x')) or
+        not raisesIndexError(stri @:= [intExpr(integer.first)] charExpr('x')) or
+        not raisesIndexError(stri @:= [intExpr(            0)] striExpr("")) or
+        not raisesIndexError(stri @:= [intExpr(           -1)] striExpr("")) or
+        not raisesIndexError(stri @:= [intExpr(           -2)] striExpr("")) or
+        not raisesIndexError(stri @:= [intExpr(integer.first)] striExpr("")) or
+        not raisesIndexError(stri @:= [intExpr(            0)] striExpr("x")) or
+        not raisesIndexError(stri @:= [intExpr(           -1)] striExpr("x")) or
+        not raisesIndexError(stri @:= [intExpr(           -2)] striExpr("x")) or
+        not raisesIndexError(stri @:= [intExpr(integer.first)] striExpr("x")) or
+        not raisesIndexError(stri @:= [intExpr(            0)] striExpr("xy")) or
+        not raisesIndexError(stri @:= [intExpr(           -1)] striExpr("xy")) or
+        not raisesIndexError(stri @:= [intExpr(           -2)] striExpr("xy")) or
+        not raisesIndexError(stri @:= [intExpr(integer.first)] striExpr("xy")) or
+        not raisesIndexError(stri @:= [intExpr(            0)] striExpr("xyz")) or
+        not raisesIndexError(stri @:= [intExpr(           -1)] striExpr("xyz")) or
+        not raisesIndexError(stri @:= [intExpr(           -2)] striExpr("xyz")) or
+        not raisesIndexError(stri @:= [intExpr(integer.first)] striExpr("xyz")) then
+      writeln(" ***** @:= with zero or negative index does not raise INDEX_ERROR.");
       okay := FALSE;
     end if;
 
     stri := "abcd";
-    if  not raisesRangeError(stri @:= [           5] 'x') or
-        not raisesRangeError(stri @:= [           6] 'x') or
-        not raisesRangeError(stri @:= [integer.last] 'x') or
-        not raisesRangeError(stri @:= [           5] "x") or
-        not raisesRangeError(stri @:= [           6] "x") or
-        not raisesRangeError(stri @:= [integer.last] "x") or
-        not raisesRangeError(stri @:= [           4] "xy") or
-        not raisesRangeError(stri @:= [           5] "xy") or
-        not raisesRangeError(stri @:= [           6] "xy") or
-        not raisesRangeError(stri @:= [integer.last] "xy") or
-        not raisesRangeError(stri @:= [           3] "xyz") or
-        not raisesRangeError(stri @:= [           4] "xyz") or
-        not raisesRangeError(stri @:= [           5] "xyz") or
-        not raisesRangeError(stri @:= [           6] "xyz") or
-        not raisesRangeError(stri @:= [integer.last] "xyz") or
-        not raisesRangeError(stri @:= [           2] "xyz0") or
-        not raisesRangeError(stri @:= [           3] "xyz0") or
-        not raisesRangeError(stri @:= [           4] "xyz0") or
-        not raisesRangeError(stri @:= [           5] "xyz0") or
-        not raisesRangeError(stri @:= [           6] "xyz0") or
-        not raisesRangeError(stri @:= [integer.last] "xyz0") or
-        not raisesRangeError(stri @:= [           1] "xyz01") or
-        not raisesRangeError(stri @:= [           2] "xyz01") or
-        not raisesRangeError(stri @:= [           3] "xyz01") or
-        not raisesRangeError(stri @:= [           4] "xyz01") or
-        not raisesRangeError(stri @:= [           5] "xyz01") or
-        not raisesRangeError(stri @:= [           6] "xyz01") or
-        not raisesRangeError(stri @:= [integer.last] "xyz01") or
-        not raisesRangeError(stri @:= [intExpr(           5)] 'x') or
-        not raisesRangeError(stri @:= [intExpr(           6)] 'x') or
-        not raisesRangeError(stri @:= [intExpr(integer.last)] 'x') or
-        not raisesRangeError(stri @:= [intExpr(           5)] "x") or
-        not raisesRangeError(stri @:= [intExpr(           6)] "x") or
-        not raisesRangeError(stri @:= [intExpr(integer.last)] "x") or
-        not raisesRangeError(stri @:= [intExpr(           4)] "xy") or
-        not raisesRangeError(stri @:= [intExpr(           5)] "xy") or
-        not raisesRangeError(stri @:= [intExpr(           6)] "xy") or
-        not raisesRangeError(stri @:= [intExpr(integer.last)] "xy") or
-        not raisesRangeError(stri @:= [intExpr(           3)] "xyz") or
-        not raisesRangeError(stri @:= [intExpr(           4)] "xyz") or
-        not raisesRangeError(stri @:= [intExpr(           5)] "xyz") or
-        not raisesRangeError(stri @:= [intExpr(           6)] "xyz") or
-        not raisesRangeError(stri @:= [intExpr(integer.last)] "xyz") or
-        not raisesRangeError(stri @:= [intExpr(           2)] "xyz0") or
-        not raisesRangeError(stri @:= [intExpr(           3)] "xyz0") or
-        not raisesRangeError(stri @:= [intExpr(           4)] "xyz0") or
-        not raisesRangeError(stri @:= [intExpr(           5)] "xyz0") or
-        not raisesRangeError(stri @:= [intExpr(           6)] "xyz0") or
-        not raisesRangeError(stri @:= [intExpr(integer.last)] "xyz0") or
-        not raisesRangeError(stri @:= [intExpr(           1)] "xyz01") or
-        not raisesRangeError(stri @:= [intExpr(           2)] "xyz01") or
-        not raisesRangeError(stri @:= [intExpr(           3)] "xyz01") or
-        not raisesRangeError(stri @:= [intExpr(           4)] "xyz01") or
-        not raisesRangeError(stri @:= [intExpr(           5)] "xyz01") or
-        not raisesRangeError(stri @:= [intExpr(           6)] "xyz01") or
-        not raisesRangeError(stri @:= [intExpr(integer.last)] "xyz01") or
-        not raisesRangeError(stri @:= [           5] charExpr('x')) or
-        not raisesRangeError(stri @:= [           6] charExpr('x')) or
-        not raisesRangeError(stri @:= [integer.last] charExpr('x')) or
-        not raisesRangeError(stri @:= [           5] striExpr("x")) or
-        not raisesRangeError(stri @:= [           6] striExpr("x")) or
-        not raisesRangeError(stri @:= [integer.last] striExpr("x")) or
-        not raisesRangeError(stri @:= [           4] striExpr("xy")) or
-        not raisesRangeError(stri @:= [           5] striExpr("xy")) or
-        not raisesRangeError(stri @:= [           6] striExpr("xy")) or
-        not raisesRangeError(stri @:= [integer.last] striExpr("xy")) or
-        not raisesRangeError(stri @:= [           3] striExpr("xyz")) or
-        not raisesRangeError(stri @:= [           4] striExpr("xyz")) or
-        not raisesRangeError(stri @:= [           5] striExpr("xyz")) or
-        not raisesRangeError(stri @:= [           6] striExpr("xyz")) or
-        not raisesRangeError(stri @:= [integer.last] striExpr("xyz")) or
-        not raisesRangeError(stri @:= [           2] striExpr("xyz0")) or
-        not raisesRangeError(stri @:= [           3] striExpr("xyz0")) or
-        not raisesRangeError(stri @:= [           4] striExpr("xyz0")) or
-        not raisesRangeError(stri @:= [           5] striExpr("xyz0")) or
-        not raisesRangeError(stri @:= [           6] striExpr("xyz0")) or
-        not raisesRangeError(stri @:= [integer.last] striExpr("xyz0")) or
-        not raisesRangeError(stri @:= [           1] striExpr("xyz01")) or
-        not raisesRangeError(stri @:= [           2] striExpr("xyz01")) or
-        not raisesRangeError(stri @:= [           3] striExpr("xyz01")) or
-        not raisesRangeError(stri @:= [           4] striExpr("xyz01")) or
-        not raisesRangeError(stri @:= [           5] striExpr("xyz01")) or
-        not raisesRangeError(stri @:= [           6] striExpr("xyz01")) or
-        not raisesRangeError(stri @:= [integer.last] striExpr("xyz01")) or
-        not raisesRangeError(stri @:= [intExpr(           5)] charExpr('x')) or
-        not raisesRangeError(stri @:= [intExpr(           6)] charExpr('x')) or
-        not raisesRangeError(stri @:= [intExpr(integer.last)] charExpr('x')) or
-        not raisesRangeError(stri @:= [intExpr(           5)] striExpr("x")) or
-        not raisesRangeError(stri @:= [intExpr(           6)] striExpr("x")) or
-        not raisesRangeError(stri @:= [intExpr(integer.last)] striExpr("x")) or
-        not raisesRangeError(stri @:= [intExpr(           4)] striExpr("xy")) or
-        not raisesRangeError(stri @:= [intExpr(           5)] striExpr("xy")) or
-        not raisesRangeError(stri @:= [intExpr(           6)] striExpr("xy")) or
-        not raisesRangeError(stri @:= [intExpr(integer.last)] striExpr("xy")) or
-        not raisesRangeError(stri @:= [intExpr(           3)] striExpr("xyz")) or
-        not raisesRangeError(stri @:= [intExpr(           4)] striExpr("xyz")) or
-        not raisesRangeError(stri @:= [intExpr(           5)] striExpr("xyz")) or
-        not raisesRangeError(stri @:= [intExpr(           6)] striExpr("xyz")) or
-        not raisesRangeError(stri @:= [intExpr(integer.last)] striExpr("xyz")) or
-        not raisesRangeError(stri @:= [intExpr(           2)] striExpr("xyz0")) or
-        not raisesRangeError(stri @:= [intExpr(           3)] striExpr("xyz0")) or
-        not raisesRangeError(stri @:= [intExpr(           4)] striExpr("xyz0")) or
-        not raisesRangeError(stri @:= [intExpr(           5)] striExpr("xyz0")) or
-        not raisesRangeError(stri @:= [intExpr(           6)] striExpr("xyz0")) or
-        not raisesRangeError(stri @:= [intExpr(integer.last)] striExpr("xyz0")) or
-        not raisesRangeError(stri @:= [intExpr(           1)] striExpr("xyz01")) or
-        not raisesRangeError(stri @:= [intExpr(           2)] striExpr("xyz01")) or
-        not raisesRangeError(stri @:= [intExpr(           3)] striExpr("xyz01")) or
-        not raisesRangeError(stri @:= [intExpr(           4)] striExpr("xyz01")) or
-        not raisesRangeError(stri @:= [intExpr(           5)] striExpr("xyz01")) or
-        not raisesRangeError(stri @:= [intExpr(           6)] striExpr("xyz01")) or
-        not raisesRangeError(stri @:= [intExpr(integer.last)] striExpr("xyz01")) then
-      writeln(" ***** @:= with destination positions beyond the length does not raise RANGE_ERROR.");
+    if  not raisesIndexError(stri @:= [           5] 'x') or
+        not raisesIndexError(stri @:= [           6] 'x') or
+        not raisesIndexError(stri @:= [integer.last] 'x') or
+        not raisesIndexError(stri @:= [           6] "") or
+        not raisesIndexError(stri @:= [           7] "") or
+        not raisesIndexError(stri @:= [integer.last] "") or
+        not raisesIndexError(stri @:= [           5] "x") or
+        not raisesIndexError(stri @:= [           6] "x") or
+        not raisesIndexError(stri @:= [integer.last] "x") or
+        not raisesIndexError(stri @:= [           4] "xy") or
+        not raisesIndexError(stri @:= [           5] "xy") or
+        not raisesIndexError(stri @:= [           6] "xy") or
+        not raisesIndexError(stri @:= [integer.last] "xy") or
+        not raisesIndexError(stri @:= [           3] "xyz") or
+        not raisesIndexError(stri @:= [           4] "xyz") or
+        not raisesIndexError(stri @:= [           5] "xyz") or
+        not raisesIndexError(stri @:= [           6] "xyz") or
+        not raisesIndexError(stri @:= [integer.last] "xyz") or
+        not raisesIndexError(stri @:= [           2] "xyz0") or
+        not raisesIndexError(stri @:= [           3] "xyz0") or
+        not raisesIndexError(stri @:= [           4] "xyz0") or
+        not raisesIndexError(stri @:= [           5] "xyz0") or
+        not raisesIndexError(stri @:= [           6] "xyz0") or
+        not raisesIndexError(stri @:= [integer.last] "xyz0") or
+        not raisesIndexError(stri @:= [           1] "xyz01") or
+        not raisesIndexError(stri @:= [           2] "xyz01") or
+        not raisesIndexError(stri @:= [           3] "xyz01") or
+        not raisesIndexError(stri @:= [           4] "xyz01") or
+        not raisesIndexError(stri @:= [           5] "xyz01") or
+        not raisesIndexError(stri @:= [           6] "xyz01") or
+        not raisesIndexError(stri @:= [integer.last] "xyz01") or
+        not raisesIndexError(stri @:= [intExpr(           5)] 'x') or
+        not raisesIndexError(stri @:= [intExpr(           6)] 'x') or
+        not raisesIndexError(stri @:= [intExpr(integer.last)] 'x') or
+        not raisesIndexError(stri @:= [intExpr(           6)] "") or
+        not raisesIndexError(stri @:= [intExpr(           7)] "") or
+        not raisesIndexError(stri @:= [intExpr(integer.last)] "") or
+        not raisesIndexError(stri @:= [intExpr(           5)] "x") or
+        not raisesIndexError(stri @:= [intExpr(           6)] "x") or
+        not raisesIndexError(stri @:= [intExpr(integer.last)] "x") or
+        not raisesIndexError(stri @:= [intExpr(           4)] "xy") or
+        not raisesIndexError(stri @:= [intExpr(           5)] "xy") or
+        not raisesIndexError(stri @:= [intExpr(           6)] "xy") or
+        not raisesIndexError(stri @:= [intExpr(integer.last)] "xy") or
+        not raisesIndexError(stri @:= [intExpr(           3)] "xyz") or
+        not raisesIndexError(stri @:= [intExpr(           4)] "xyz") or
+        not raisesIndexError(stri @:= [intExpr(           5)] "xyz") or
+        not raisesIndexError(stri @:= [intExpr(           6)] "xyz") or
+        not raisesIndexError(stri @:= [intExpr(integer.last)] "xyz") or
+        not raisesIndexError(stri @:= [intExpr(           2)] "xyz0") or
+        not raisesIndexError(stri @:= [intExpr(           3)] "xyz0") or
+        not raisesIndexError(stri @:= [intExpr(           4)] "xyz0") or
+        not raisesIndexError(stri @:= [intExpr(           5)] "xyz0") or
+        not raisesIndexError(stri @:= [intExpr(           6)] "xyz0") or
+        not raisesIndexError(stri @:= [intExpr(integer.last)] "xyz0") or
+        not raisesIndexError(stri @:= [intExpr(           1)] "xyz01") or
+        not raisesIndexError(stri @:= [intExpr(           2)] "xyz01") or
+        not raisesIndexError(stri @:= [intExpr(           3)] "xyz01") or
+        not raisesIndexError(stri @:= [intExpr(           4)] "xyz01") or
+        not raisesIndexError(stri @:= [intExpr(           5)] "xyz01") or
+        not raisesIndexError(stri @:= [intExpr(           6)] "xyz01") or
+        not raisesIndexError(stri @:= [intExpr(integer.last)] "xyz01") or
+        not raisesIndexError(stri @:= [           5] charExpr('x')) or
+        not raisesIndexError(stri @:= [           6] charExpr('x')) or
+        not raisesIndexError(stri @:= [integer.last] charExpr('x')) or
+        not raisesIndexError(stri @:= [           6] striExpr("")) or
+        not raisesIndexError(stri @:= [           7] striExpr("")) or
+        not raisesIndexError(stri @:= [integer.last] striExpr("")) or
+        not raisesIndexError(stri @:= [           5] striExpr("x")) or
+        not raisesIndexError(stri @:= [           6] striExpr("x")) or
+        not raisesIndexError(stri @:= [integer.last] striExpr("x")) or
+        not raisesIndexError(stri @:= [           4] striExpr("xy")) or
+        not raisesIndexError(stri @:= [           5] striExpr("xy")) or
+        not raisesIndexError(stri @:= [           6] striExpr("xy")) or
+        not raisesIndexError(stri @:= [integer.last] striExpr("xy")) or
+        not raisesIndexError(stri @:= [           3] striExpr("xyz")) or
+        not raisesIndexError(stri @:= [           4] striExpr("xyz")) or
+        not raisesIndexError(stri @:= [           5] striExpr("xyz")) or
+        not raisesIndexError(stri @:= [           6] striExpr("xyz")) or
+        not raisesIndexError(stri @:= [integer.last] striExpr("xyz")) or
+        not raisesIndexError(stri @:= [           2] striExpr("xyz0")) or
+        not raisesIndexError(stri @:= [           3] striExpr("xyz0")) or
+        not raisesIndexError(stri @:= [           4] striExpr("xyz0")) or
+        not raisesIndexError(stri @:= [           5] striExpr("xyz0")) or
+        not raisesIndexError(stri @:= [           6] striExpr("xyz0")) or
+        not raisesIndexError(stri @:= [integer.last] striExpr("xyz0")) or
+        not raisesIndexError(stri @:= [           1] striExpr("xyz01")) or
+        not raisesIndexError(stri @:= [           2] striExpr("xyz01")) or
+        not raisesIndexError(stri @:= [           3] striExpr("xyz01")) or
+        not raisesIndexError(stri @:= [           4] striExpr("xyz01")) or
+        not raisesIndexError(stri @:= [           5] striExpr("xyz01")) or
+        not raisesIndexError(stri @:= [           6] striExpr("xyz01")) or
+        not raisesIndexError(stri @:= [integer.last] striExpr("xyz01")) or
+        not raisesIndexError(stri @:= [intExpr(           5)] charExpr('x')) or
+        not raisesIndexError(stri @:= [intExpr(           6)] charExpr('x')) or
+        not raisesIndexError(stri @:= [intExpr(integer.last)] charExpr('x')) or
+        not raisesIndexError(stri @:= [intExpr(           6)] striExpr("")) or
+        not raisesIndexError(stri @:= [intExpr(           7)] striExpr("")) or
+        not raisesIndexError(stri @:= [intExpr(integer.last)] striExpr("")) or
+        not raisesIndexError(stri @:= [intExpr(           5)] striExpr("x")) or
+        not raisesIndexError(stri @:= [intExpr(           6)] striExpr("x")) or
+        not raisesIndexError(stri @:= [intExpr(integer.last)] striExpr("x")) or
+        not raisesIndexError(stri @:= [intExpr(           4)] striExpr("xy")) or
+        not raisesIndexError(stri @:= [intExpr(           5)] striExpr("xy")) or
+        not raisesIndexError(stri @:= [intExpr(           6)] striExpr("xy")) or
+        not raisesIndexError(stri @:= [intExpr(integer.last)] striExpr("xy")) or
+        not raisesIndexError(stri @:= [intExpr(           3)] striExpr("xyz")) or
+        not raisesIndexError(stri @:= [intExpr(           4)] striExpr("xyz")) or
+        not raisesIndexError(stri @:= [intExpr(           5)] striExpr("xyz")) or
+        not raisesIndexError(stri @:= [intExpr(           6)] striExpr("xyz")) or
+        not raisesIndexError(stri @:= [intExpr(integer.last)] striExpr("xyz")) or
+        not raisesIndexError(stri @:= [intExpr(           2)] striExpr("xyz0")) or
+        not raisesIndexError(stri @:= [intExpr(           3)] striExpr("xyz0")) or
+        not raisesIndexError(stri @:= [intExpr(           4)] striExpr("xyz0")) or
+        not raisesIndexError(stri @:= [intExpr(           5)] striExpr("xyz0")) or
+        not raisesIndexError(stri @:= [intExpr(           6)] striExpr("xyz0")) or
+        not raisesIndexError(stri @:= [intExpr(integer.last)] striExpr("xyz0")) or
+        not raisesIndexError(stri @:= [intExpr(           1)] striExpr("xyz01")) or
+        not raisesIndexError(stri @:= [intExpr(           2)] striExpr("xyz01")) or
+        not raisesIndexError(stri @:= [intExpr(           3)] striExpr("xyz01")) or
+        not raisesIndexError(stri @:= [intExpr(           4)] striExpr("xyz01")) or
+        not raisesIndexError(stri @:= [intExpr(           5)] striExpr("xyz01")) or
+        not raisesIndexError(stri @:= [intExpr(           6)] striExpr("xyz01")) or
+        not raisesIndexError(stri @:= [intExpr(integer.last)] striExpr("xyz01")) then
+      writeln(" ***** @:= with destination positions beyond the length does not raise INDEX_ERROR.");
       okay := FALSE;
     end if;
 

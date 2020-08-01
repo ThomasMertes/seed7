@@ -110,7 +110,7 @@ const func type: array [ (in type: indexType) ] (in type: baseType) is func
       (**
        *  Access one element from the array ''an_array''.
        *  @return the element with the specified ''index'' from ''an_array''.
-       *  @exception RANGE_ERROR If ''index'' is less than [[#minIdx(in_arrayType)|minIdx]](an_array) or
+       *  @exception INDEX_ERROR If ''index'' is less than [[#minIdx(in_arrayType)|minIdx]](an_array) or
        *                         greater than [[#minIdx(in_arrayType)|maxIdx]](an_array)
        *)
       const func baseType: (in arrayType: an_array) [ (in indexType: index) ] is

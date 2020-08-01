@@ -29,6 +29,10 @@
 /*                                                                  */
 /********************************************************************/
 
+#if defined(__cplusplus) || defined(c_plusplus)
+extern "C" {
+#endif
+
 typedef char my_bool;
 
 typedef struct { int dummy; } MYSQL;
@@ -186,3 +190,7 @@ int STDCALL mysql_stmt_prepare (MYSQL_STMT *stmt,
                                 unsigned long length);
 MYSQL_RES *STDCALL mysql_stmt_result_metadata (MYSQL_STMT *stmt);
 int STDCALL mysql_stmt_store_result (MYSQL_STMT *stmt);
+
+#if defined(__cplusplus) || defined(c_plusplus)
+}
+#endif
