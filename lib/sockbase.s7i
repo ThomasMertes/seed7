@@ -36,13 +36,13 @@ IN_PARAM_IS_REFERENCE(socketAddress);
 
 const proc: destroy (ref socketAddress param)                               is action "BST_DESTR";
 const proc: (ref socketAddress param) ::= (ref socketAddress param)         is action "BST_CREATE";
-const proc: (inout socketAddress param) := (ref socketAddress param)        is action "BST_CPY";
+const proc: (inout socketAddress: dest) := (ref socketAddress: source)      is action "BST_CPY";
 
 const func socketAddress: _GENERATE_EMPTY_SOCKET_ADDRESS                    is action "BST_EMPTY";
 const socketAddress: (attr socketAddress) . value                           is _GENERATE_EMPTY_SOCKET_ADDRESS;
 
-const func boolean: (ref socketAddress param) = (ref socketAddress param)   is action "BST_EQ";
-const func boolean: (ref socketAddress param) <> (ref socketAddress param)  is action "BST_NE";
+const func boolean: (ref socketAddress: addr1) = (ref socketAddress: addr2) is action "BST_EQ";
+const func boolean: (ref socketAddress: addr1) <> (ref socketAddress: addr2) is action "BST_NE";
 
 const func integer: addrFamily (in socketAddress param)                     is action "SOC_ADDR_FAMILY";
 
@@ -111,7 +111,7 @@ IN_PARAM_IS_VALUE(PRIMITIVE_SOCKET);
 
 const proc: destroy (ref PRIMITIVE_SOCKET param)                            is noop;
 const proc: (ref PRIMITIVE_SOCKET param) ::= (ref PRIMITIVE_SOCKET param)   is action "SOC_CREATE";
-const proc: (inout PRIMITIVE_SOCKET param) := (ref PRIMITIVE_SOCKET param)  is action "SOC_CPY";
+const proc: (inout PRIMITIVE_SOCKET: dest) := (ref PRIMITIVE_SOCKET: source) is action "SOC_CPY";
 
 const func boolean: (in PRIMITIVE_SOCKET param) = (in PRIMITIVE_SOCKET param)  is action "SOC_EQ";
 const func boolean: (in PRIMITIVE_SOCKET param) <> (in PRIMITIVE_SOCKET param) is action "SOC_NE";

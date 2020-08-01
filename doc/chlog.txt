@@ -1,3 +1,18 @@
+20120703:
+- The manual was improved to contain more links and to use more
+  coloring.
+- Parameter names were added to function definitions in the
+  libraries array.s7i, integer.s7i, bigint.s7i, float.s7i, keybd.s7i,
+  bitsetof.s7i, idxarray.s7i, boolean.s7i, hashsetof.s7i, socket.s7i,
+  char.s7i, file.s7i, bitset.s7i, poll.s7i, sockbase.s7i and
+  string.s7i .
+- Documentation comments were improved in the libraries string.s7i,
+  poll.s7i and progs.s7i .
+- The new libraries "bstring.s7i" and "category.s7i" were added. The
+  contents of this libraries were extracted from the "progs.s7i"
+  library.
+- Interpreter and compiler were improved to explain the option -?.
+
 20120617:
 - FAQ and manual were improved to contain more links. The additional
   links improve also the Seed7 homepage.

@@ -44,7 +44,7 @@ IN_PARAM_IS_VALUE(float);
 const float: (attr float) . value is 0.0;
 
 
-const proc: (inout float param) := (in float param)            is action "FLT_CPY";
+const proc: (inout float: dest) := (in float: source)          is action "FLT_CPY";
 
 
 (**
@@ -195,8 +195,8 @@ const func boolean: (in float: number1) <= (in float: number2) is action "FLT_LE
 const func boolean: (in float: number1) >= (in float: number2) is action "FLT_GE";
 
 
-const func integer: (attr integer) cast (in float param)       is action "FLT_CAST";
-const func float: (attr float) cast (in integer param)         is action "FLT_ICAST";
+const func integer: (attr integer) cast (in float: number)     is action "FLT_CAST";
+const func float: (attr float) cast (in integer: number)       is action "FLT_ICAST";
 
 
 (**

@@ -126,7 +126,7 @@ filetype aFile;
         } else if (err_num == EAGAIN || err_num == EIO) {
           result = FALSE;
         } else {
-	  result = TRUE;
+          result = TRUE;
         } /* if */
       } else {
         ungetc(ch, aFile);

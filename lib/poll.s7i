@@ -37,14 +37,15 @@ const integer: POLLINOUT   is 3;
 
 (**
  *  Type to manage sockets and corresponding event checks and findings.
- *  ''PollData'' maintains input (checkedEvents) and output
- *  (eventFindings) of the function ''poll''. ''PollData'' contains
+ *  ''PollData'' maintains input (checkedEvents) and output (eventFindings)
+ *  of the function [[#poll(inout_pollData)|poll]]. ''PollData'' contains
  *  a set of sockets. For every [[socket]] the checkedEvents and the
  *  eventFindings are maintained. The checkedEvents determine, which
  *  events (POLLIN, POLLOUT, or POLLINOUT) should be checked by
- *  ''poll''. ''Poll'' determines the events found and stores them
- *  as eventFindings. ''PollData'' provides also an iterator, which
- *  can be used to iterate over checkedEvents and eventFindings.
+ *  [[#poll(inout_pollData)|poll]]. ''Poll'' determines the events found
+ *  and stores them as eventFindings. ''PollData'' provides also an
+ *  iterator, which can be used to iterate over checkedEvents and
+ *  eventFindings.
  *)
 const type: pollData is newtype;
 
@@ -53,7 +54,7 @@ IN_PARAM_IS_REFERENCE(pollData);
 
 const proc: destroy (ref pollData param)                                   is action "POL_DESTR";
 const proc: (ref pollData param) ::= (ref pollData param)                  is action "POL_CREATE";
-const proc: (inout pollData param) := (ref pollData param)                 is action "POL_CPY";
+const proc: (inout pollData: dest) := (ref pollData: source)               is action "POL_CPY";
 
 const func pollData: _GENERATE_EMPTY_POLL_DATA (in file param)             is action "POL_EMPTY";
 const pollData: (attr pollData) . value                                    is _GENERATE_EMPTY_POLL_DATA(STD_NULL);
@@ -139,8 +140,8 @@ const proc: removeCheck (inout pollData: pData, in file: aFile,
 
 (**
  *  Return the checkedEvents field from ''pData'' for ''aSocket''.
- *  The ''poll'' function uses the checkedEvents as input.
- *  The following checkedEvents can be returned:
+ *  The [[#poll(inout_pollData)|poll]] function uses the checkedEvents
+ *  as input. The following checkedEvents can be returned:
  *  * POLLNOTHING no data can be read or written.
  *  * POLLIN data can be read from the corresponding [[socket]].
  *  * POLLOUT data can be written to the corresponding socket.
@@ -159,8 +160,8 @@ const func integer: getCheck (inout pollData: pData, in socket: aSocket) is
 
 (**
  *  Return the checkedEvents field from ''pData'' for ''aFile''.
- *  The ''poll'' function uses the checkedEvents as input.
- *  The following checkedEvents can be returned:
+ *  The [[#poll(inout_pollData)|poll]] function uses the checkedEvents
+ *  as input. The following checkedEvents can be returned:
  *  * POLLNOTHING no data can be read or written.
  *  * POLLIN data can be read from the corresponding [[socket]].
  *  * POLLOUT data can be written to the corresponding socket.
@@ -188,14 +189,16 @@ const proc: poll (inout pollData: pData)                                   is ac
 
 (**
  *  Return the eventFindings field from ''pData'' for ''aSocket''.
- *  The ''poll'' function assigns the eventFindings for ''aSocket''
- *  to ''pData''. The following eventFindings can be returned:
+ *  The [[#poll(inout_pollData)|poll]] function assigns the
+ *  eventFindings for ''aSocket'' to ''pData''. The following
+ *  eventFindings can be returned:
  *  * POLLNOTHING no data can be read or written.
  *  * POLLIN data can be read from the corresponding [[socket]].
  *  * POLLOUT data can be written to the corresponding socket.
  *  * POLLINOUT data can be read and written (POLLIN and POLLOUT).
  *  @return POLLNOTHING, POLLIN, POLLOUT or POLLINOUT, depending on
- *          the findings of ''poll'' concerning ''aSocket''.
+ *          the findings of [[#poll(inout_pollData)|poll]]
+ *          concerning ''aSocket''.
  *)
 const func integer: getFinding (inout pollData: pData,
                                 in PRIMITIVE_SOCKET: aSocket)              is action "POL_GET_FINDING";
@@ -207,14 +210,16 @@ const func integer: getFinding (inout pollData: pData, in socket: aSocket) is
 
 (**
  *  Return the eventFindings field from ''pData'' for ''aFile''.
- *  The ''poll'' function assigns the eventFindings for ''aFile''
- *  to ''pData''. The following eventFindings can be returned:
+ *  The [[#poll(inout_pollData)|poll]] function assigns the
+ *  eventFindings for ''aFile'' to ''pData''. The following
+ *  eventFindings can be returned:
  *  * POLLNOTHING no data can be read or written.
  *  * POLLIN data can be read from the corresponding [[socket]].
  *  * POLLOUT data can be written to the corresponding socket.
  *  * POLLINOUT data can be read and written (POLLIN and POLLOUT).
  *  @return POLLNOTHING, POLLIN, POLLOUT or POLLINOUT, depending on
- *          the findings of ''poll'' concerning ''aFile''.
+ *          the findings of [[#poll(inout_pollData)|poll]]
+ *          concerning ''aFile''.
  *)
 const func integer: getFinding (inout pollData: pData, in file: aFile) is DYNAMIC;
 

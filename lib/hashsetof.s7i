@@ -44,8 +44,8 @@ const func type: HASHSET_OF (in type: baseType) is func
       global
       setType := newtype;
       IN_PARAM_IS_REFERENCE(setType);
-      const type: HASHSET_OF (attr baseType) is                             setType;
-      const type: base_type (attr setType) is                               baseType;
+      const type: HASHSET_OF (attr baseType)  is setType;
+      const type: base_type (attr setType)    is baseType;
 
       const reference: (attr setType) . keyCreate   is getfunc((ref baseType param) ::= (in baseType param));
       const reference: (attr setType) . keyDestroy  is getfunc(destroy(ref baseType param));
@@ -55,16 +55,16 @@ const func type: HASHSET_OF (in type: baseType) is func
       const reference: (attr setType) . dataDestroy is getfunc(destroy(ref boolean param));
       const reference: (attr setType) . dataCopy    is getfunc((inout boolean param) := (in boolean param));
 
-      const proc: CREATE (ref setType param, in setType param,
-                          in reference param, in reference param,
-                          in reference param, in reference param) is             action "HSH_CREATE";
-      const proc: DESTROY (ref setType param, in reference param,
-                           in reference param) is                                action "HSH_DESTR";
-      const proc: COPY (inout setType param, in setType param,
-                        in reference param, in reference param,
-                        in reference param, in reference param) is               action "HSH_CPY";
-      const proc: FOR_KEY (inout baseType param, in setType param,
-                           in proc param, in reference param) is                 action "HSH_FOR_KEY";
+      const proc: CREATE (ref setType: dest, in setType: source,
+                          in reference: keyCreate, in reference: keyDestroy,
+                          in reference: dataCreate, in reference: dataDestroy) is action "HSH_CREATE";
+      const proc: DESTROY (ref setType: oldSet, in reference: keyDestroy,
+                           in reference: dataDestroy)                          is action "HSH_DESTR";
+      const proc: COPY (inout setType: dest, in setType: source,
+                        in reference: keyCreate, in reference: keyDestroy,
+                        in reference: dataCreate, in reference: dataDestroy)   is action "HSH_CPY";
+      const proc: FOR_KEY (inout baseType: variable, in setType: aSet,
+                           in proc: statements, in reference: keyCopy)         is action "HSH_FOR_KEY";
 
       const proc: (ref setType: dest) ::= (in setType: source) is func
         begin
@@ -87,21 +87,22 @@ const func type: HASHSET_OF (in type: baseType) is func
        *  Compute the cardinality of a set.
        *  @return the number of elements in ''aSet''.
        *)
-      const func integer: card (in setType param) is                             action "HSH_LNG";
+      const func integer: card (in setType: aSet)                              is action "HSH_LNG";
 
-      const func setType: (attr setType) . _GENERATE_EMPTY_SET is                action "HSH_EMPTY";
-      const setType: (attr setType) . EMPTY_SET is                               setType._GENERATE_EMPTY_SET;
-      const setType: (attr setType) . value is                                   setType._GENERATE_EMPTY_SET;
+      const func setType: (attr setType) . _GENERATE_EMPTY_SET                 is action "HSH_EMPTY";
+      const setType: (attr setType) . EMPTY_SET                                is setType._GENERATE_EMPTY_SET;
+      const setType: (attr setType) . value                                    is setType._GENERATE_EMPTY_SET;
 
-      const proc: INCL (inout setType param, in baseType param,
-                        in boolean param, in integer param,
-                        in reference param, in reference param,
-                        in reference param, in reference param) is               action "HSH_INCL";
-      const proc: EXCL (inout setType param, in baseType param,
-                        in integer param, in reference param,
-                        in reference param, in reference param) is               action "HSH_EXCL";
-      const func boolean: CONTAINS (in setType param, in baseType param,
-                                    in integer param, in reference param) is     action "HSH_CONTAINS";
+      const proc: INCL (inout setType: aSet, in baseType: hashKey,
+                        in boolean: data, in integer: hashCode,
+                        in reference: keyCompare, in reference: keyCreate,
+                        in reference: dataCreate, in reference: dataCopy)      is action "HSH_INCL";
+      const proc: EXCL (inout setType: aSet, in baseType: hashKey,
+                        in integer: hashCode, in reference: keyCompare,
+                        in reference: keyDestroy, in reference: dataDestroy)   is action "HSH_EXCL";
+      const func boolean: CONTAINS (in setType: aSet, in baseType: hashKey,
+                                    in integer: hashCode,
+                                    in reference: keyCompare)                  is action "HSH_CONTAINS";
 
       (**
        *  Set membership test.

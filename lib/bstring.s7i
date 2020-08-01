@@ -1,0 +1,104 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  bstring.s7i   Byte string support library                       *)
+(*  Copyright (C) 1991 - 1994, 2004, 2005, 2012  Thomas Mertes      *)
+(*                                                                  *)
+(*  This file is part of the Seed7 Runtime Library.                 *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is free software; you can             *)
+(*  redistribute it and/or modify it under the terms of the GNU     *)
+(*  Lesser General Public License as published by the Free Software *)
+(*  Foundation; either version 2.1 of the License, or (at your      *)
+(*  option) any later version.                                      *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is distributed in the hope that it    *)
+(*  will be useful, but WITHOUT ANY WARRANTY; without even the      *)
+(*  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR *)
+(*  PURPOSE.  See the GNU Lesser General Public License for more    *)
+(*  details.                                                        *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU Lesser General       *)
+(*  Public License along with this program; if not, write to the    *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+(**
+ *  Type for byte strings.
+ *)
+const type: bstring is newtype;
+
+
+IN_PARAM_IS_REFERENCE(bstring);
+
+const proc: destroy (ref bstring param)                                 is action "BST_DESTR";
+const proc: (ref bstring param) ::= (ref bstring param)                 is action "BST_CREATE";
+const proc: (inout bstring: dest) := (ref bstring: source)              is action "BST_CPY";
+
+const func bstring: _GENERATE_EMPTY_BSTRING                             is action "BST_EMPTY";
+const bstring: (attr bstring) . value                                   is _GENERATE_EMPTY_BSTRING;
+
+
+(**
+ *  Get a character, identified by an index, from a ''bstring''.
+ *  The first character has the index 1.
+ *  @return the character specified with the index.
+ *  @exception RANGE_ERROR When the index is less than 1 or
+ *             greater than the length of the ''bstring''.
+ *)
+const func char: (in bstring: bstri) [ (in integer: index) ]            is action "BST_IDX";
+
+
+(**
+ *  Determine the length of a ''bstring''.
+ *  @return the length of the ''bstring''.
+ *)
+const func integer: length (in bstring: bstri)                          is action "BST_LNG";
+
+
+(**
+ *  Check if two bstrings are equal.
+ *  @return TRUE if both bstrings are equal,
+ *          FALSE otherwise.
+ *)
+const func boolean: (in bstring: bstri1) = (in bstring: bstri2)         is action "BST_EQ";
+
+
+(**
+ *  Check if two bstrings are not equal.
+ *  @return FALSE if both bstrings are equal,
+ *          TRUE otherwise.
+ *)
+const func boolean: (in bstring: bstri1) <> (in bstring: bstri2)        is action "BST_NE";
+
+
+(**
+ *  Compute the hash value of a ''bstring''.
+ *  @return the hash value.
+ *)
+const func integer: hashCode (in bstring: bstri)                        is action "BST_HASHCODE";
+
+
+(**
+ *  Compare two bstrings.
+ *  @return -1, 0 or 1 if the first argument is considered to be
+ *          respectively less than, equal to, or greater than the
+ *          second.
+ *)
+const func integer: compare (in bstring: bstri1, in bstring: bstri2)    is action "BST_CMP";
+
+
+const proc: for (inout char: variable) range (in bstring: bstri) do
+              (in proc: statements)
+            end for is func
+  local
+    var integer: number is 0;
+  begin
+    for number range 1 to length(bstri) do
+      variable := bstri[number];
+      statements;
+    end for;
+  end func;

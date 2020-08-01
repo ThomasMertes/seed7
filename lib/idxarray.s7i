@@ -48,7 +48,7 @@ const func type: array [ (in type: indexType) ] (in type: baseType) is func
 
       const proc: (ref arrayType param) ::= (in arrayType param)              is action "ARR_CREATE";
       const proc: destroy (ref arrayType param)                               is action "ARR_DESTR";
-      const proc: (inout arrayType param) := (in arrayType param)             is action "ARR_CPY";
+      const proc: (inout arrayType: destr) := (in arrayType: source)          is action "ARR_CPY";
 
       (**
        *  Append the array ''extension'' to the array ''arr''.
@@ -80,13 +80,13 @@ const func type: array [ (in type: indexType) ] (in type: baseType) is func
        *  Minimal index of array ''arr'' converted to [[integer]].
        *  @return the minimal index of the array converted to [[integer]].
        *)
-      const func integer: minIntIdx (in arrayType param)                      is action "ARR_MINIDX";
+      const func integer: minIntIdx (in arrayType: arr)                       is action "ARR_MINIDX";
       
       (**
        *  Maximal index of array ''arr'' converted to [[integer]].
        *  @return the maximal index of the array converted to [[integer]].
        *)
-      const func integer: maxIntIdx (in arrayType param)                      is action "ARR_MAXIDX";
+      const func integer: maxIntIdx (in arrayType: arr)                       is action "ARR_MAXIDX";
       
       const func stdArrayType: (attr stdArrayType) conv (in arrayType param)  is action "ARR_CONV";
       const func arrayType: (attr arrayType) conv (in stdArrayType param)     is action "ARR_CONV";

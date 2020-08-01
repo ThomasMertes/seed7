@@ -51,7 +51,7 @@ const proc: write (inout file: outFile, in string: stri)     is DYNAMIC;
 const proc: writeln (inout file: outFile)                    is DYNAMIC;
 
 
-const proc: backSpace (inout file param)                     is DYNAMIC;
+const proc: backSpace (inout file: outFile)                  is DYNAMIC;
 
 
 (**
@@ -105,8 +105,8 @@ const func string: getwd (inout file: inFile)                is DYNAMIC;
 const func string: getln (inout file: inFile)                is DYNAMIC;
 
 
-const func string: getk (in file param)                      is DYNAMIC;
-const func boolean: eoln (in file param)                     is DYNAMIC;
+const func string: getk (in file: inFile)                    is DYNAMIC;
+const func boolean: eoln (in file: inFile)                   is DYNAMIC;
 
 
 (**
@@ -178,12 +178,12 @@ const func integer: compare (in file: file1, in file: file2) is action "ITF_CMP"
 const func integer: hashCode (in file: aFile)                is action "ITF_HASHCODE";
 
 
-const func char: (in file param).bufferChar           is DYNAMIC;
-const varfunc char: (inout file param).bufferChar     is DYNAMIC;
-const func boolean: (in file param).io_empty          is DYNAMIC;
-const varfunc boolean: (inout file param).io_empty    is DYNAMIC;
-const func boolean: (in file param).io_ok             is DYNAMIC;
-const varfunc boolean: (inout file param).io_ok       is DYNAMIC;
+const func char: (in file: aFile).bufferChar          is DYNAMIC;
+const varfunc char: (inout file: aFile).bufferChar    is DYNAMIC;
+const func boolean: (in file: aFile).io_empty         is DYNAMIC;
+const varfunc boolean: (inout file: aFile).io_empty   is DYNAMIC;
+const func boolean: (in file: aFile).io_ok            is DYNAMIC;
+const varfunc boolean: (inout file: aFile).io_ok      is DYNAMIC;
 
 const func boolean: io_ok (in file: aFile) is
   return aFile.io_ok;

@@ -486,10 +486,10 @@ Seed7 can be used in various application areas:
 The Seed7 package contains more than 100000 lines of C and more
 than 150000 lines of Seed7. For version 2012-06-17 the number of lines is:
 </p><dl><dd><table border="0" cellspacing="0">
-  <tr><td align="right">101283</td> <td width="20"></td> <td>C source files (*.c)</td></tr>
-  <tr><td align="right"> 10093</td> <td width="20"></td> <td>C header files (*.h)</td></tr>
-  <tr><td align="right">111629</td> <td width="20"></td> <td>Seed7 source files (*.sd7)</td></tr>
-  <tr><td align="right"> 77913</td> <td width="20"></td> <td>Seed7 library/include files (*.s7i)</td></tr>
+  <tr><td align="right"> 101284</td> <td width="20"></td> <td>C source files (*.c)</td></tr>
+  <tr><td align="right">  10093</td> <td width="20"></td> <td>C header files (*.h)</td></tr>
+  <tr><td align="right"> 111648</td> <td width="20"></td> <td>Seed7 source files (*.sd7)</td></tr>
+  <tr><td align="right">  78144</td> <td width="20"></td> <td>Seed7 library/include files (*.s7i)</td></tr>
 </table></dd></dl><p>
 C code (*.c and *.h files) can be divided into the following areas:
 </p><dl><dd><table border="0" cellspacing="0">
@@ -729,6 +729,7 @@ and searched for that file.
 </p><p>
 The following options are recognized by hi:
 </p><ul>
+  <li><b>-?</b>   Write hi interpreter usage.</li>
   <li><b>-a</b>   Analyze only and suppress the execution phase.</li>
   <li><b>-d</b><span class="keywd">x</span>  Set compile-time trace level to <span class="keywd">x</span>. Where <span class="keywd">x</span> is a string consisting
        of the following characters:<ul>
@@ -779,6 +780,7 @@ program is compiled and linked afterwards. The Seed7 compiler can be called with
 </pre><p>
 Possible options are
 </p><ul>
+  <li><b>-?</b>   Write Seed7 compiler usage.</li>
   <li><b>-O</b> and <b>-O2</b>  Tell the C compiler to optimize.</li>
   <li><b>-g</b>   Tell the C compiler to generate an executable with debug information.
        This way the debugger will refer to Seed7 source files and line numbers.

@@ -480,21 +480,18 @@ CONTENTS
 
   The Seed7 interpreter writes something like
 
-    HI INTERPRETER Version 4.5.79  Copyright (c) 1990-2005 Thomas Mertes
-       245 syntax.s7i
-      2635 seed7_05.s7i
-        33 hello.sd7
-      2913 lines total
-     29130 lines per second
-    1184171 bytes
+    HI INTERPRETER Version 4.5.9610  Copyright (c) 1990-2012 Thomas Mertes
     hello world
 
-  You get information about the Seed7 interpreter, a list of
-  libraries included and how many lines they contain, the
-  number of bytes used by the hello.sd7 program and finally
-  the output of the hello.sd7 program itself:
-
+  You get information about the Seed7 interpreter and
+  the output of the world.sd7 program:
+<pre class="indent">
     hello world
+
+  The the option -q can be used to suppress the line
+  with information about the Seed7 interpreter:
+
+    hi -q hello
 
 
 2.2 Local declarations and expressions
@@ -3070,6 +3067,7 @@ CONTENTS
 5.14 category
 
     The type 'category' describes the category of a 'reference'.
+  The 'category' functions are defined in the library "category.s7i".
 
     Constants:
       SYMBOLOBJECT, DECLAREDOBJECT, FORWARDOBJECT, FWDREFOBJECT, BLOCKOBJECT,
@@ -3301,6 +3299,7 @@ CONTENTS
 5.17 program
 
     The type 'program' describes a Seed7 program.
+  The 'program' functions are defined in the library "progs.s7i".
 
     Constants:
       program.EMPTY  Empty program.
@@ -3436,6 +3435,12 @@ CONTENTS
                   ( Type of argument R: integer,
                     Type of argument G: integer,
                     Type of argument B: integer )
+      gray(BR)  Create a gray color value from BR
+                  ( Type of argument BR: integer )
+      compare(A, B) Compare function
+                  ( Type of result: integer )
+      hashCode(A) Hash function
+                  ( Type of result: integer )
 
 
 5.21 time
@@ -4116,11 +4121,11 @@ CONTENTS
 
   Declaration:
 
-    $ syntax expr: .val.().param is                   -> 40;
-    $ syntax expr: .val.(). : .(expr) is              -> 40;
+    $ syntax expr: .val.().param       is -> 40;
+    $ syntax expr: .val.(). : .(expr)  is -> 40;
 
-    const func f_param: val (ref type param) param is               action "DCL_VAL1";
-    const func f_param: val (ref type param) : (ref expr param) is  action "DCL_VAL2";
+    const func f_param: val (ref type param) param               is action "DCL_VAL1";
+    const func f_param: val (ref type param) : (ref expr param)  is action "DCL_VAL2";
 
 
 6.2 'ref' parameter
@@ -4176,11 +4181,11 @@ CONTENTS
 
   Declaration:
 
-    $ syntax expr: .ref.().param is                   -> 40;
-    $ syntax expr: .ref.(). : .(expr) is              -> 40;
+    $ syntax expr: .ref.().param       is -> 40;
+    $ syntax expr: .ref.(). : .(expr)  is -> 40;
 
-    const func f_param: ref (ref type param) param is               action "DCL_REF1";
-    const func f_param: ref (ref type param) : (ref expr param) is  action "DCL_REF2";
+    const func f_param: ref (ref type param) param               is action "DCL_REF1";
+    const func f_param: ref (ref type param) : (ref expr param)  is action "DCL_REF2";
 
 
 6.3 'in' parameter
@@ -4247,19 +4252,19 @@ CONTENTS
 
   Declaration:
 
-    $ syntax expr: .in.().param is                    -> 40;
-    $ syntax expr: .in.(). : .(expr) is               -> 40;
+    $ syntax expr: .in.().param       is -> 40;
+    $ syntax expr: .in.(). : .(expr)  is -> 40;
 
-    const func f_param: in (ref type param) param is                action "DCL_REF1";
+    const func f_param: in (ref type param) param                is action "DCL_REF1";
 
     const proc: IN_PARAM_IS_VALUE (ref type: aType) is func
       begin
-        const func f_param: in (attr aType) : (ref expr param) is   action "DCL_VAL2";
+        const func f_param: in (attr aType) : (ref expr param)   is action "DCL_VAL2";
       end func;
 
     const proc: IN_PARAM_IS_REFERENCE (ref type: aType) is func
       begin
-        const func f_param: in (attr aType) : (ref expr param) is   action "DCL_REF2";
+        const func f_param: in (attr aType) : (ref expr param)   is action "DCL_REF2";
       end func;
 
 
@@ -4300,11 +4305,11 @@ CONTENTS
 
   Declaration:
 
-    $ syntax expr: .in.var.().param is                -> 40;
-    $ syntax expr: .in.var.(). : .(expr) is           -> 40;
+    $ syntax expr: .in.var.().param       is -> 40;
+    $ syntax expr: .in.var.(). : .(expr)  is -> 40;
 
-    const func f_param: in var (ref type param) param is               action "DCL_IN1VAR";
-    const func f_param: in var (ref type param) : (ref expr param) is  action "DCL_IN2VAR";
+    const func f_param: in var (ref type param) param               is action "DCL_IN1VAR";
+    const func f_param: in var (ref type param) : (ref expr param)  is action "DCL_IN2VAR";
 
 
 6.5 'inout' parameter
@@ -4333,11 +4338,11 @@ CONTENTS
 
   Declaration:
 
-    $ syntax expr: .inout.().param is                 -> 40;
-    $ syntax expr: .inout.(). : .(expr) is            -> 40;
+    $ syntax expr: .inout.().param       is -> 40;
+    $ syntax expr: .inout.(). : .(expr)  is -> 40;
 
-    const func f_param: inout (ref type param) param is                action "DCL_INOUT1";
-    const func f_param: inout (ref type param) : (ref expr param) is   action "DCL_INOUT2";
+    const func f_param: inout (ref type param) param               is action "DCL_INOUT1";
+    const func f_param: inout (ref type param) : (ref expr param)  is action "DCL_INOUT2";
 
 
 6.6 Symbol parameter
@@ -4352,7 +4357,7 @@ CONTENTS
 
   After defining the syntax of this IF-statement with
 
-    $ syntax expr: .IF.().THEN.().END.IF is -> 25;
+    $ syntax expr: .IF.().THEN.().END.IF  is -> 25;
 
   the semantic can be defined with:
 
@@ -4399,8 +4404,8 @@ CONTENTS
 
   It is possible to overload such declarations:
 
-    const string: name (attr boolean) is "boolean";
-    const string: name (attr float) is "float";
+    const string: name (attr boolean)  is "boolean";
+    const string: name (attr float)    is "float";
 
   An 'attr' parameter can be used in a function also:
 
@@ -7728,7 +7733,7 @@ CONTENTS
     MEMORY_ERROR
         Not enough memory to convert 'dirPath' to the system
         path type or not enough memory to represent the result
-        'string array'.
+        'array string'.
     RANGE_ERROR
         'dirPath' is not representable in the system path type.
     FILE_ERROR
@@ -7771,7 +7776,7 @@ CONTENTS
     MEMORY_ERROR
         Not enough memory to convert 'dirPath' to the system
         path type or not enough memory to represent the result
-        'string array'.
+        'array string'.
     RANGE_ERROR
         'dirPath' is not representable in the system path type.
     FILE_ERROR

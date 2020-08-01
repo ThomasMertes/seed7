@@ -48,7 +48,7 @@ const func type: BITSET_OF (in type: baseType) is func
       const type: base_type (attr setType)                               is baseType;
       const proc: (ref setType param) ::= (in setType param)             is action "SET_CREATE";
       const proc: destroy (ref setType param)                            is action "SET_DESTR";
-      const proc: (inout setType param) := (in setType param)            is action "SET_CPY";
+      const proc: (inout setType: dest) := (in setType: source)          is action "SET_CPY";
 
       (**
        *  Union of two sets.
@@ -156,7 +156,7 @@ const func type: BITSET_OF (in type: baseType) is func
        *  Compute the cardinality of a set.
        *  @return the number of elements in ''aSet''.
        *)
-      const func integer: card (in setType param)                        is action "SET_CARD";
+      const func integer: card (in setType: aSet)                        is action "SET_CARD";
 
       const func bitset: (attr bitset) conv (in setType param)           is action "SET_CONV";
       const varfunc bitset: (attr bitset) varConv (inout setType param)  is action "TYP_VARCONV";

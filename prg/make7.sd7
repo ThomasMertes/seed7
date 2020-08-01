@@ -519,7 +519,7 @@ const proc: readMakefile (in string: fileName) is func
           elsif name = "include" or name = "-include" then
             skipSpace(makefile);
             name := getTargetName(makefile);
-	    # writeln("include " <& name);
+            # writeln("include " <& name);
             skipLine(makefile);
             makefile.bufferChar := getc(makefile);
             if fileType(name) = FILE_REGULAR then

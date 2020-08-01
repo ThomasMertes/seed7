@@ -26,135 +26,118 @@
 (********************************************************************)
 
 
+include "category.s7i";
+include "bstring.s7i";
 include "bigint.s7i";
 include "float.s7i";
 include "external_file.s7i";
 include "poll.s7i";
 
 
+(**
+ *  Type to describe a Seed7 program.
+ *)
 const type: program is subtype object;
+
 
 const proc: (ref program param) ::= (ref program param)                 is action "PRG_CREATE";
 const proc: destroy (ref program param)                                 is action "PRG_DESTR";
-const proc: (inout program param) := (ref program param)                is action "PRG_CPY";
+const proc: (inout program: dest) := (ref program: source)              is action "PRG_CPY";
 
 const func program: _GENERATE_EMPTY_PROG                                is action "PRG_EMPTY";
 const program: (attr program) . EMPTY                                   is _GENERATE_EMPTY_PROG;
 const program: (attr program) . value                                   is program.EMPTY;
 
-const func boolean: (ref program param) = (ref program param)           is action "PRG_EQ";
-const func boolean: (ref program param) <> (ref program param)          is action "PRG_NE";
 
-const func program: parseFile (in string param)                         is action "PRG_FIL_PARSE";
-const func program: parseStri (in string param)                         is action "PRG_STR_PARSE";
-const func reference: evaluate (ref program param, ref reference param) is action "PRG_EVAL";
-const proc: execute (ref program param)                                 is action "PRG_EXEC";
+(**
+ *  Check if two ''program'' values are equal.
+ *  @return TRUE if both values are equal, FALSE otherwise.
+ *)
+const func boolean: (ref program: prog1) = (ref program: prog2)         is action "PRG_EQ";
 
-const func reference: sys_var (ref program param, in string param)      is action "PRG_SYSVAR";
-const func integer: error_count (ref program param)                     is action "PRG_ERROR_COUNT";
-const func ref_list: declared_objects (ref program param)               is action "PRG_DECL_OBJECTS";
-const func reference: syobject (ref program param, ref string param)    is action "PRG_SYOBJECT";
 
-const func reference: match (ref program param, ref ref_list param)     is action "PRG_MATCH";
+(**
+ *  Check if two ''program'' values are not equal.
+ *  @return FALSE if both values are equal, TRUE otherwise.
+ *)
+const func boolean: (ref program: prog1) <> (ref program: prog2)        is action "PRG_NE";
+
+
+(**
+ *  Parse the file with the name ''fileName''.
+ *  @return the parsed program.
+ *  @exception RANGE_ERROR ''fileName'' does not use the standard path
+ *             representation or ''fileName'' is not representable in
+ *             the system path type.
+ *  @exception MEMORY_ERROR An out of memory situation occurred.
+ *)
+const func program: parseFile (in string: fileName)                     is action "PRG_FIL_PARSE";
+
+
+(**
+ *  Parse the given ''string''.
+ *  @return the parsed program.
+ *  @exception MEMORY_ERROR An out of memory situation occurred.
+ *)
+const func program: parseStri (in string: stri)                         is action "PRG_STR_PARSE";
+
+
+(**
+ *  Evaluate ''anExpression'' which is part of ''aProgram''.
+ *  @return the result of the evaluation.
+ *)
+const func reference: evaluate (ref program: aProgram,
+                                ref reference: anExpression)            is action "PRG_EVAL";
+
+
+(**
+ *  Execute the program referred by ''aProgram''.
+ *)
+const proc: execute (ref program: aProgram)                             is action "PRG_EXEC";
+
+
+(**
+ *  Determine the value of the system variable ''name'' in ''aProgram''.
+ *  @return a reference to the system variable or
+ *          NIL when no system variable ''name'' exists.
+ *  @exception MEMORY_ERROR When ''name'' cannot be converted to
+ *             the internal representation.
+ *)
+const func reference: sys_var (ref program: aProgram, in string: name)  is action "PRG_SYSVAR";
+
+
+(**
+ *  Determine the number of errors in ''aProgram''.
+ *  @return the number of errors.
+ *)
+const func integer: error_count (ref program: aProgram)                 is action "PRG_ERROR_COUNT";
+
+
+(**
+ *  Determine the list of objects declared in ''aProgram''.
+ *  @return the list of declared objects.
+ *)
+const func ref_list: declared_objects (ref program: aProgram)           is action "PRG_DECL_OBJECTS";
+
+
+(**
+ *  Determine object with ''name'' from program ''aProgram''.
+ *  @return a reference to the object or NIL when no object ''name'' exists.
+ *  @exception MEMORY_ERROR When ''name'' cannot be converted to
+ *             the internal representation.
+ *)
+const func reference: syobject (ref program: aProgram, ref string: name) is action "PRG_SYOBJECT";
+
+
+(**
+ *  Determine object from program ''aProgram'' which matches ''expession''.
+ *  @return object from program.
+ *)
+const func reference: match (ref program: aProgram, ref ref_list: expession) is action "PRG_MATCH";
+
+
 const func reference: matchExpr (ref program param, ref ref_list param) is action "PRG_MATCH_EXPR";
 # const func program: get (PROGRAM)                                       is action "PRG_PROG";
-
-
-const type: category is newtype;
-IN_PARAM_IS_VALUE(category);
-
-const proc: (ref category param) ::= (ref category param)      is action "INT_CREATE";
-const proc: destroy (ref category param)                       is noop;
-const proc: (inout category param) := (in category param)      is action "INT_CPY";
-
-const func boolean: (in category param) = (in category param)  is action "INT_EQ";
-const func boolean: (in category param) <> (in category param) is action "INT_NE";
-
-const func integer: ord (in category param)                    is action "INT_ORD";
-const func category: (attr category) conv (in integer param)   is action "INT_CONV";
-
-const func string: str (in category param)                     is action "REF_CAT_STR";
-const func category: (attr category) parse (in string param)   is action "REF_CAT_PARSE";
-
-const category: (attr category) . value is category parse "SYMBOLOBJECT";
-
-const category: SYMBOLOBJECT      is category parse "SYMBOLOBJECT";
-const category: DECLAREDOBJECT    is category parse "DECLAREDOBJECT";
-const category: FORWARDOBJECT     is category parse "FORWARDOBJECT";
-const category: FWDREFOBJECT      is category parse "FWDREFOBJECT";
-const category: BLOCKOBJECT       is category parse "BLOCKOBJECT";
-const category: CALLOBJECT        is category parse "CALLOBJECT";
-const category: MATCHOBJECT       is category parse "MATCHOBJECT";
-const category: TYPEOBJECT        is category parse "TYPEOBJECT";
-const category: FORMPARAMOBJECT   is category parse "FORMPARAMOBJECT";
-const category: INTOBJECT         is category parse "INTOBJECT";
-const category: BIGINTOBJECT      is category parse "BIGINTOBJECT";
-const category: CHAROBJECT        is category parse "CHAROBJECT";
-const category: STRIOBJECT        is category parse "STRIOBJECT";
-const category: BSTRIOBJECT       is category parse "BSTRIOBJECT";
-const category: ARRAYOBJECT       is category parse "ARRAYOBJECT";
-const category: HASHOBJECT        is category parse "HASHOBJECT";
-const category: STRUCTOBJECT      is category parse "STRUCTOBJECT";
-const category: CLASSOBJECT       is category parse "CLASSOBJECT";
-const category: INTERFACEOBJECT   is category parse "INTERFACEOBJECT";
-const category: SETOBJECT         is category parse "SETOBJECT";
-const category: FILEOBJECT        is category parse "FILEOBJECT";
-const category: SOCKETOBJECT      is category parse "SOCKETOBJECT";
-const category: POLLOBJECT        is category parse "POLLOBJECT";
-const category: LISTOBJECT        is category parse "LISTOBJECT";
-const category: FLOATOBJECT       is category parse "FLOATOBJECT";
-const category: WINOBJECT         is category parse "WINOBJECT";
-const category: ENUMLITERALOBJECT is category parse "ENUMLITERALOBJECT";
-const category: CONSTENUMOBJECT   is category parse "CONSTENUMOBJECT";
-const category: VARENUMOBJECT     is category parse "VARENUMOBJECT";
-const category: REFOBJECT         is category parse "REFOBJECT";
-const category: REFLISTOBJECT     is category parse "REFLISTOBJECT";
-const category: EXPROBJECT        is category parse "EXPROBJECT";
-const category: ACTOBJECT         is category parse "ACTOBJECT";
-const category: VALUEPARAMOBJECT  is category parse "VALUEPARAMOBJECT";
-const category: REFPARAMOBJECT    is category parse "REFPARAMOBJECT";
-const category: RESULTOBJECT      is category parse "RESULTOBJECT";
-const category: LOCALVOBJECT      is category parse "LOCALVOBJECT";
-const category: PROGOBJECT        is category parse "PROGOBJECT";
-
-const proc: for (inout category param) range (in category param) to (in category param) do
-              (in proc param)
-            end for                                                     is action "PRC_FOR_TO";
-const proc: for (inout category param) range (in category param) downto (in category param) do
-              (in proc param)
-            end for                                                     is action "PRC_FOR_DOWNTO";
-
-CASE_DECLS(category);
-
-
-const type: bstring is newtype;
-IN_PARAM_IS_REFERENCE(bstring);
-
-const proc: destroy (ref bstring param)                                 is action "BST_DESTR";
-const proc: (ref bstring param) ::= (ref bstring param)                 is action "BST_CREATE";
-const proc: (inout bstring param) := (ref bstring param)                is action "BST_CPY";
-
-const func bstring: _GENERATE_EMPTY_BSTRING                             is action "BST_EMPTY";
-const bstring: (attr bstring) . value                                   is _GENERATE_EMPTY_BSTRING;
-
-const func char: (in bstring param) [ (in integer param) ]              is action "BST_IDX";
-const func integer: length (ref bstring param)                          is action "BST_LNG";
-const func boolean: (ref bstring param) = (ref bstring param)           is action "BST_EQ";
-const func boolean: (ref bstring param) <> (ref bstring param)          is action "BST_NE";
-const func integer: hashCode (ref bstring param)                        is action "BST_HASHCODE";
-const func integer: compare (ref bstring param, ref bstring param)      is action "BST_CMP";
-
-const proc: for (inout char: variable) range (in bstring: bstri) do
-              (in proc: statements)
-            end for is func
-  local
-    var integer: number is 0;
-  begin
-    for number range 1 to length(bstri) do
-      variable := bstri[number];
-      statements;
-    end for;
-  end func;
 
 
 const func boolean: isVar (ref reference param)                         is action "REF_ISVAR";

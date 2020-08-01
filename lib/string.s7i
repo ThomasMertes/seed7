@@ -32,26 +32,26 @@ const string: (attr string) . value is "";
 
 const func string: (in string param) mult (in integer param)     is action "STR_MULT";
 
-const proc: (inout string param) := (in string param)            is action "STR_CPY";
+const proc: (inout string: dest) := (in string: source)          is action "STR_CPY";
 
 
 (**
- *  Pad a string with spaces at the left side up to a given length.
- *  @return the string left padded with spaces.
+ *  Pad a ''string'' with spaces at the left side up to a given length.
+ *  @return the ''string'' left padded with spaces.
  *)
 const func string: (in string: stri) lpad (in integer: length)   is action "STR_LPAD";
 
 
 (**
- *  Pad a string with zeroes at the left side up to a given length.
- *  @return the string left padded with zeroes.
+ *  Pad a ''string'' with zeroes at the left side up to a given length.
+ *  @return the ''string'' left padded with zeroes.
  *)
 const func string: (in string: stri) lpad0 (in integer: length)  is action "STR_LPAD0";
 
 
 (**
- *  Pad a string with spaces at the right side up to a given length.
- *  @return the string right padded with spaces.
+ *  Pad a ''string'' with spaces at the right side up to a given length.
+ *  @return the ''string'' right padded with spaces.
  *)
 const func string: (in string: stri) rpad (in integer: length)   is action "STR_RPAD";
 
@@ -71,18 +71,18 @@ const func string: (in string: stri1) <& (in string: stri2)      is action "STR_
 
 
 (**
- *  Get a character, identified by an index, from a string.
+ *  Get a character, identified by an index, from a ''string''.
  *  The first character has the index 1.
  *  @return the character specified with the index.
  *  @exception RANGE_ERROR When the index is less than 1 or
- *             greater than the length of the string.
+ *             greater than the length of the ''string''.
  *)
 const func char: (in string: stri) [ (in integer: index) ]       is action "STR_IDX";
 
 
 (**
  *  Get a substring beginning at a start position.
- *  The first character in a string has the position 1.
+ *  The first character in a ''string'' has the position 1.
  *  @return the substring beginning at the start position.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  *)
@@ -91,7 +91,7 @@ const func string: (in string: stri) [ (in integer: start) .. ]  is action "STR_
 
 (**
  *  Get a substring ending at a stop position.
- *  The first character in a string has the position 1.
+ *  The first character in a ''string'' has the position 1.
  *  @return the substring ending at the stop position.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  *)
@@ -100,7 +100,7 @@ const func string: (in string: stri) [ .. (in integer: stop) ]   is action "STR_
 
 (**
  *  Get a substring from a start position to a stop position.
- *  The first character in a string has the position 1.
+ *  The first character in a ''string'' has the position 1.
  *  @return the substring from position start to stop.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  *)
@@ -110,7 +110,7 @@ const func string: (in string: stri) [ (in integer: start) ..
 
 (**
  *  Get a substring from a start position with a given length.
- *  The first character in a string has the position 1.
+ *  The first character in a ''string'' has the position 1.
  *  @return the substring from the start position with a given length.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  *)
@@ -218,34 +218,34 @@ const func integer: compare (in string: stri1, in string: stri2) is action "STR_
 
 
 (**
- *  Compute the hash value of a string.
+ *  Compute the hash value of a ''string''.
  *  @return the hash value.
  *)
 const func integer: hashCode (in string: stri)                   is action "STR_HASHCODE";
 
 
 (**
- *  Determine the length of a string.
- *  @return the length of the string.
+ *  Determine the length of a ''string''.
+ *  @return the length of the ''string''.
  *)
 const func integer: length (in string: stri)                     is action "STR_LNG";
 
 
 (**
- *  Determine leftmost position of string 'searched' in 'main_stri'.
+ *  Determine leftmost position of string ''searched'' in ''main_stri''.
  *  When the string is found the position of its first character
  *  is the result. The first character in a string has the position 1.
- *  @return the position of 'searched' or 0 when 'main_stri'
- *          does not contain 'searched'.
+ *  @return the position of ''searched'' or 0 when ''main_stri''
+ *          does not contain ''searched''.
  *)
 const func integer: pos (in string: main_stri, in string: searched)  is action "STR_POS";
 
 
 (**
- *  Determine leftmost position of char 'searched' in 'main_stri'.
+ *  Determine leftmost position of char ''searched'' in ''main_stri''.
  *  The first character in a string has the position 1.
- *  @return the position of 'searched' or 0 when 'main_stri'
- *          does not contain 'searched'.
+ *  @return the position of ''searched'' or 0 when ''main_stri''
+ *          does not contain ''searched''.
  *)
 const func integer: pos (in string: main_stri, in char: searched)    is action "STR_CHPOS";
 
@@ -272,11 +272,11 @@ const func integer: pos (in string: main_stri, in string: searched,
 
 
 (**
- *  Search char 'searched' in 'main_stri' at or after 'from_index'.
- *  The search starts at position 'from_index' and proceeds to the
+ *  Search char ''searched'' in ''main_stri'' at or after ''from_index''.
+ *  The search starts at position ''from_index'' and proceeds to the
  *  right. The first character in a string has the position 1.
- *  @return the position of 'searched' or 0 when 'main_stri'
- *          does not contain 'searched' at or after 'from_index'.
+ *  @return the position of ''searched'' or 0 when ''main_stri''
+ *          does not contain ''searched'' at or after ''from_index''.
  *  @exception RANGE_ERROR 'from_index' <= 0 holds.
  *)
 const func integer: pos (in string: main_stri, in char: searched,
@@ -284,27 +284,27 @@ const func integer: pos (in string: main_stri, in char: searched,
 
 
 (**
- *  Determine rightmost position of string 'searched' in 'main_stri'.
+ *  Determine rightmost position of string ''searched'' in ''main_stri''.
  *  When the string is found the position of its first character
  *  is the result. The first character in a string has the position 1.
- *  @return the position of 'searched' or 0 when 'main_stri'
- *          does not contain 'searched'.
+ *  @return the position of ''searched'' or 0 when ''main_stri''
+ *          does not contain ''searched''.
  *)
 const func integer: rpos (in string: main_stri, in string: searched) is action "STR_RPOS";
 
 
 (**
- *  Determine rightmost position of char 'searched' in 'main_stri'.
+ *  Determine rightmost position of char ''searched'' in ''main_stri''.
  *  The first character in a string has the position 1.
- *  @return the position of 'searched' or 0 when 'main_stri'
- *          does not contain 'searched'.
+ *  @return the position of ''searched'' or 0 when ''main_stri''
+ *          does not contain ''searched''.
  *)
 const func integer: rpos (in string: main_stri, in char: searched)   is action "STR_RCHPOS";
 
 
 (**
- *  Search string 'searched' in 'main_stri' at or before 'from_index'.
- *  The search starts at position 'from_index' and proceeds to the
+ *  Search string ''searched'' in ''main_stri'' at or before ''from_index''.
+ *  The search starts at position ''from_index'' and proceeds to the
  *  left. The first character in a string has the position 1.
  *  The rpos function is designed to allow loops like:
  *
@@ -314,21 +314,21 @@ const func integer: rpos (in string: main_stri, in char: searched)   is action "
  *     index := rpos(stri, searched_stri, pred(index));
  *   end while;
  *
- *  @return the position of 'searched' or 0 when 'main_stri'
- *          does not contain 'searched' at or before 'from_index'.
- *  @exception RANGE_ERROR 'from_index' > length(stri) holds.
+ *  @return the position of ''searched'' or 0 when ''main_stri''
+ *          does not contain ''searched'' at or before ''from_index''.
+ *  @exception RANGE_ERROR ''from_index'' > length(stri) holds.
  *)
 const func integer: rpos (in string: main_stri, in string: searched,
                           in integer: from_index)                    is action "STR_RIPOS";
 
 
 (**
- *  Search char 'searched' in 'main_stri' at or before 'from_index'.
- *  The search starts at position 'from_index' and proceeds to the
+ *  Search char ''searched'' in ''main_stri'' at or before ''from_index''.
+ *  The search starts at position ''from_index'' and proceeds to the
  *  left. The first character in a string has the position 1.
- *  @return the position of 'searched' or 0 when 'main_stri'
- *          does not contain 'searched' at or before 'from_index'.
- *  @exception RANGE_ERROR 'from_index' > length(stri) holds.
+ *  @return the position of ''searched'' or 0 when ''main_stri''
+ *          does not contain ''searched'' at or before ''from_index''.
+ *  @exception RANGE_ERROR ''from_index'' > length(stri) holds.
  *)
 const func integer: rpos (in string: main_stri, in char: searched,
                           in integer: from_index)                    is action "STR_RCHIPOS";
@@ -338,7 +338,7 @@ const func integer: rpos (in string: main_stri, in char: searched,
 
 
 (**
- *  Replace all occurrences of 'target' in 'main_stri' by 'replacement'.
+ *  Replace all occurrences of ''target'' in ''main_stri'' by ''replacement''.
  *  @return the result of the replacement.
  *)
 const func string: replace (in string: main_stri, in string: target,
@@ -346,11 +346,11 @@ const func string: replace (in string: main_stri, in string: target,
 
 
 (**
- *  Replace all occurrences of 'search1' followed by 'search2'.
- *  Searches 'main_stri' for 'search1' followed by 'search2'. The
- *  characters from the beginning of 'search1' to the end of 'search2'
- *  are replaced by 'replacement'. Between 'search1' and 'search2'
- *  can be zero or more characters. With 'replace2' unnested comments
+ *  Replace all occurrences of ''search1'' followed by ''search2''.
+ *  Searches ''main_stri'' for ''search1'' followed by ''search2''. The
+ *  characters from the beginning of ''search1'' to the end of ''search2''
+ *  are replaced by ''replacement''. Between ''search1'' and ''search2''
+ *  can be zero or more characters. With ''replace2'' unnested comments
  *  can be removed: replace2(stri, "(*", "*)", "")
  *  @return the result of the replacement.
  *)
@@ -405,8 +405,8 @@ const func string: lower (in string: stri)                     is action "STR_LO
 const func string: trim (in string: stri)                      is action "STR_TRIM";
 
 
-const func string: striToUtf8 (in string param)                is action "STR_TOUTF8";
-const func string: utf8ToStri (in string param)                is action "STR_UTF8TOSTRI";
+const func string: striToUtf8 (in string: stri)                is action "STR_TOUTF8";
+const func string: utf8ToStri (in string: stri8)               is action "STR_UTF8TOSTRI";
 
 
 (**
@@ -416,13 +416,13 @@ const func string: utf8ToStri (in string param)                is action "STR_UT
 const func string: str (in string: stri)                       is action "STR_STR";
 
 
-const func string: literal (in string param)                   is action "STR_LIT";
-const func string: c_literal (in string param)                 is action "STR_CLIT";
+const func string: literal (in string: stri)                   is action "STR_LIT";
+const func string: c_literal (in string: stri)                 is action "STR_CLIT";
 
 
 (**
- *  Determine if a string starts with a 'prefix'.
- *  @return TRUE if 'stri' starts with 'prefix',
+ *  Determine if a string starts with a ''prefix''.
+ *  @return TRUE if ''stri'' starts with ''prefix'',
  *          FALSE otherwise.
  *)
 const func boolean: startsWith (in string: stri, in string: prefix) is
@@ -430,8 +430,8 @@ const func boolean: startsWith (in string: stri, in string: prefix) is
 
 
 (**
- *  Determine if a string ends with a 'suffix'.
- *  @return TRUE if 'stri' ends with 'suffix',
+ *  Determine if a string ends with a ''suffix''.
+ *  @return TRUE if ''stri'' ends with ''suffix'',
  *          FALSE otherwise.
  *)
 const func boolean: endsWith (in string: stri, in string: suffix) is
@@ -439,8 +439,8 @@ const func boolean: endsWith (in string: stri, in string: suffix) is
 
 
 (**
- *  Check if 'stri' has the 'searched' characters starting from 'index'.
- *  @return TRUE if 'stri' has the 'searched' characters starting from 'index',
+ *  Check if ''stri'' has the ''searched'' characters starting from ''index''.
+ *  @return TRUE if ''stri'' has the ''searched'' characters starting from ''index'',
  *          FALSE otherwise.
  *)
 const func boolean: equalAtIndex (in string: stri, in string: searched, in integer: index) is

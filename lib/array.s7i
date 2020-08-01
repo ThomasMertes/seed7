@@ -61,7 +61,7 @@ const func type: array (in type: baseType) is func
 
       const proc: (ref arrayType param) ::= (in arrayType param)              is action "ARR_CREATE";
       const proc: destroy (ref arrayType param)                               is action "ARR_DESTR";
-      const proc: (inout arrayType param) := (in arrayType param)             is action "ARR_CPY";
+      const proc: (inout arrayType: destr) := (in arrayType: source)          is action "ARR_CPY";
 
       (**
        *  Append the array ''extension'' to the array ''arr''.
@@ -96,7 +96,7 @@ const func type: array (in type: baseType) is func
        *)
       const func baseType: (in arrayType: arr) [ (in integer: index) ]        is action "ARR_IDX";
 
-      const varfunc baseType: (inout arrayType param) [ (in integer param) ]  is action "ARR_IDX";
+      const varfunc baseType: (inout arrayType: arr) [ (in integer: index) ]  is action "ARR_IDX";
 
       (**
        *  Get a sub array beginning at the position ''start''.
@@ -117,8 +117,8 @@ const func type: array (in type: baseType) is func
        *  @return the substring from position start to stop.
        *  @exception MEMORY_ERROR Not enough memory to represent the result.
        *)
-      const func arrayType: (in arrayType param) [ (in integer param) ..
-                                                   (in integer param) ]       is action "ARR_RANGE";
+      const func arrayType: (in arrayType: arr) [ (in integer: start) ..
+                                                  (in integer: stop) ]        is action "ARR_RANGE";
 
       (**
        *  Remove the element with ''index'' from ''arr'' and return the removed element.
@@ -157,7 +157,7 @@ const func type: array (in type: baseType) is func
       const func arrayType: (attr arrayType) . _GENERATE_EMPTY_ARRAY          is action "ARR_EMPTY";
       const arrayType: (attr arrayType) . value                               is arrayType._GENERATE_EMPTY_ARRAY;
 
-      const func tupleType: (attr tupleType) conv (in arrayType param)        is action "ARR_CONV";
+      const func tupleType: (attr tupleType) conv (in arrayType: arr)         is action "ARR_CONV";
 
       const func arrayType: (in ARRAY_IDX_RANGE: arrayIdxRange) times
           (in baseType: base_value) is func

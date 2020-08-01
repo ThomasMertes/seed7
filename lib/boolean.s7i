@@ -34,9 +34,9 @@ const type: boolean is subtype ENUMERATION;
 
 IN_PARAM_IS_VALUE(boolean);
 
-const proc: (ref boolean param) ::= (in boolean param)   is action "BLN_CREATE";
-const proc: destroy (ref boolean param)                  is noop;
-const proc: (inout boolean param) := (in boolean param)  is action "BLN_CPY";
+const proc: (ref boolean param) ::= (in boolean param)     is action "BLN_CREATE";
+const proc: destroy (ref boolean param)                    is noop;
+const proc: (inout boolean: dest) := (in boolean: source)  is action "BLN_CPY";
 
 const boolean: FALSE is enumlit;
 const boolean: TRUE is enumlit;
@@ -157,7 +157,7 @@ const func integer: ord (in boolean: boolValue)                          is acti
 const func boolean: (attr boolean) conv (in integer: number)             is action "BLN_ICONV";
 
 
-const varfunc boolean: (attr boolean) varConv (inout integer param)      is action "TYP_VARCONV";
+const varfunc boolean: (attr boolean) varConv (inout integer: number)    is action "TYP_VARCONV";
 
 
 const boolean: succ (FALSE) is TRUE;

@@ -82,21 +82,20 @@ const type: socket is sub null_file struct
 type_implements_interface(socket, file);
 
 
-const func string: service (in file param) is DYNAMIC;
+const func string: service (in file: aFile) is DYNAMIC;
 const func string: service (in socket: aSocket) is
   return aSocket.service;
 
-const func socketAddress: address (in file param) is DYNAMIC;
+const func socketAddress: address (in file: aFile) is DYNAMIC;
 const func socketAddress: address (in socket: aSocket) is
   return address(aSocket.sock);
 
-const func integer: port (in file param) is DYNAMIC;
+const func integer: port (in file: aFile) is DYNAMIC;
 const func integer: port (in socket: aSocket) is
-#  return integer parse (aSocket.service);
   return integer parse service(aSocket.addr);
 
 
-const func boolean: inputReady (in file param, in duration param) is DYNAMIC;
+const func boolean: inputReady (in file: inFile, in duration: timeout) is DYNAMIC;
 const func boolean: inputReady (in socket: aSocket, in duration: timeout) is
   return inputReady(aSocket.sock, toSeconds(timeout), timeout.micro_second);
 

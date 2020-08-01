@@ -3026,6 +3026,7 @@ const proc: chkDecr is func
 
 const proc: chkAddition is func
   local
+    var bigInteger: number is 0_;
     var boolean: okay is TRUE;
   begin
     if  -2147483650_ + -2147483650_ <> -4294967300_ or
@@ -3429,6 +3430,17 @@ const proc: chkAddition is func
          2147483649_ +  2147483648_ <>  4294967297_ or
          2147483649_ +  2147483649_ <>  4294967298_ then
       writeln("Addition of bigInteger does not work correct.");
+      okay := FALSE;
+    end if;
+
+    number := 1000000_;
+    if number + number <> 2000000_ then
+      writeln("Addition of bigInteger with itself does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if number + -number <> 0_ then
+      writeln("Addition of bigInteger with its negated value does not work correct.");
       okay := FALSE;
     end if;
 

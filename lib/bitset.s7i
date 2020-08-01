@@ -36,7 +36,7 @@ IN_PARAM_IS_REFERENCE(bitset);
 
 const proc: (ref bitset param) ::= (in bitset param)            is action "SET_CREATE";
 const proc: destroy (ref bitset param)                          is action "SET_DESTR";
-const proc: (inout bitset param) := (in bitset param)           is action "SET_CPY";
+const proc: (inout bitset: dest) := (in bitset: source)         is action "SET_CPY";
 
 
 (**
@@ -221,7 +221,7 @@ const func integer: min (in bitset: aSet)                       is action "SET_M
  *  @return the maximal element of ''aSet''.
  *  @exception RANGE_ERROR When ''aSet'' is the empty set.
  *)
-const func integer: max (in bitset param)                       is action "SET_MAX";
+const func integer: max (in bitset: aSet)                       is action "SET_MAX";
 
 
 const func integer: next (in bitset param, in integer param)    is action "SET_NEXT";
@@ -251,7 +251,7 @@ const func integer: (attr integer) conv (in bitset: aSet)       is action "SET_S
  *  @return a character which corresponds to the given integer.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  *)
-const func bitset: (attr bitset) conv (in integer param)        is action "SET_ICONV";
+const func bitset: (attr bitset) conv (in integer: number)      is action "SET_ICONV";
 
 
 const func bitset: _GENERATE_EMPTY_SET                          is action "SET_EMPTY";

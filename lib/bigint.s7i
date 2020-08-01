@@ -47,7 +47,7 @@ const proc: (ref bigInteger param) ::= (ref bigInteger param)            is acti
 IN_PARAM_IS_REFERENCE(bigInteger);
 
 
-const proc: (inout bigInteger param) := (in bigInteger param)            is action "BIG_CPY";
+const proc: (inout bigInteger: dest) := (in bigInteger: source)          is action "BIG_CPY";
 
 
 (**
@@ -149,7 +149,7 @@ const func bigInteger: (in bigInteger: dividend) mod (in bigInteger: divisor)   
 const func bigInteger: (in bigInteger: base) ** (in integer: exponent)   is action "BIG_IPOW";
 
 
-# const func bigInteger: (in bigInteger param) ** (in bigInteger param)    is action "BIG_POW";
+# const func bigInteger: (in bigInteger: base) ** (in bigInteger: exponent) is action "BIG_POW";
 
 
 (**
@@ -348,7 +348,7 @@ const func string: str (in bigInteger: number)                           is acti
 const func bigInteger: (attr bigInteger) parse (in string: stri)         is action "BIG_PARSE";
 
 
-const func string: c_literal (in bigInteger param)                       is action "BIG_CLIT";
+const func string: c_literal (in bigInteger: number)                     is action "BIG_CLIT";
 
 
 (**
@@ -387,7 +387,7 @@ const bigInteger: (attr bigInteger) . value                              is bigI
  *  This is equivalent to:
  *   number := succ(number);
  *)
-const proc: incr (inout bigInteger param)                                is action "BIG_INCR";
+const proc: incr (inout bigInteger: number)                              is action "BIG_INCR";
 
 
 (**
@@ -395,10 +395,10 @@ const proc: incr (inout bigInteger param)                                is acti
  *  This is equivalent to:
  *   number := pred(number);
  *)
-const proc: decr (inout bigInteger param)                                is action "BIG_DECR";
+const proc: decr (inout bigInteger: number)                              is action "BIG_DECR";
 
 
-const boolean: ord (in bigInteger param, mayRaiseRangeError)             is TRUE;
+const boolean: ord (in bigInteger: number, mayRaiseRangeError)           is TRUE;
 
 enable_io(bigInteger);
 FOR_DECLS(bigInteger);

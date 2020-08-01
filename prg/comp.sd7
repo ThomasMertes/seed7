@@ -4354,6 +4354,12 @@ const proc: process_big_add (in ref_list: params, inout expr_type: c_expr) is fu
       process_const_big_add(params[1], getValue(evaluatedParam, bigInteger), c_expr);
     elsif getConstant(params[1], BIGINTOBJECT, evaluatedParam) then
       process_const_big_add(params[3], getValue(evaluatedParam, bigInteger), c_expr);
+    elsif params[1] = params[3] then
+      incr(countOptimizations);
+      prepare_bigint_result(c_expr);
+      c_expr.result_expr := "bigLShift(";
+      getAnyParamToResultExpr(params[1], c_expr);
+      c_expr.result_expr &:= ", 1)";
     else
       prepare_bigint_result(c_expr);
       if isActionExpression(params[1], "BIG_MINUS") then
@@ -24408,6 +24414,7 @@ const proc: writeHelp is func
     writeln("usage: comp [options] source");
     writeln;
     writeln("Options:");
+    writeln("  -?   Write Seed7 compiler usage.");
     writeln("  -O and -O2  Tell the C compiler to optimize.");
     writeln("  -g   Tell the C compiler to generate an executable with debug information.");
     writeln("       This way the debugger will refer to Seed7 source files and line numbers.");

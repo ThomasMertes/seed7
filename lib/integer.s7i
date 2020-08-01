@@ -33,7 +33,7 @@ const proc: (ref integer param) ::= (ref integer param)             is action "I
 
 const integer: (attr integer) . value is 0;
 
-const proc: (inout integer param) := (in integer param)             is action "INT_CPY";
+const proc: (inout integer: dest) := (in integer: source)           is action "INT_CPY";
 
 
 (**
@@ -352,7 +352,7 @@ const func string: literal (in integer: number)                  is action "INT_
 const func string: str (in integer: number, in integer: base)    is action "INT_STR_BASED";
 
 
-const func string: (in integer param) lpad0 (in integer param)   is action "INT_LPAD0";
+const func string: (in integer: number) lpad0 (in integer: length) is action "INT_LPAD0";
 
 
 (**
