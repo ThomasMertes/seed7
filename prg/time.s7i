@@ -457,7 +457,7 @@ const func integer: julianDayNumber (in time: aTime) is func
           (367 * (month - 2)) mdiv 12 -
           (3 * ((year + 4900) mdiv 100)) mdiv 4 +
           aTime.day - 32075;
-  end func; (* julianDayI *)
+  end func;
 
 
 const func time: julianDayNumToTime (in integer: julianDayNumber) is func

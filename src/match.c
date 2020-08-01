@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  hi   Interpreter for Seed7 programs.                            */
-/*  Copyright (C) 1990 - 2004  Thomas Mertes                        */
+/*  Copyright (C) 1990 - 2007  Thomas Mertes                        */
 /*                                                                  */
 /*  This program is free software; you can redistribute it and/or   */
 /*  modify it under the terms of the GNU General Public License as  */
@@ -20,7 +20,7 @@
 /*                                                                  */
 /*  Module: Analyzer                                                */
 /*  File: seed7/src/match.c                                         */
-/*  Changes: 1995, 1999, 2000  Thomas Mertes                        */
+/*  Changes: 1995, 1999, 2000, 2007  Thomas Mertes                  */
 /*  Content: Procedures to do static match on expressions.          */
 /*                                                                  */
 /********************************************************************/
@@ -41,6 +41,7 @@
 #include "traceutl.h"
 #include "memory.h"
 #include "error.h"
+#include "prclib.h"
 
 #undef EXTERN
 #define EXTERN
@@ -52,7 +53,8 @@
 
 
 #ifdef ANSI_C
-static objecttype match_subexpr (objecttype, nodetype, listtype);
+static objecttype match_subexpr (objecttype, nodetype, listtype,
+     booltype, booltype);
 #else
 static objecttype match_subexpr ();
 #endif
@@ -108,17 +110,16 @@ objecttype actual_param;
     if (CLASS_OF_OBJ(actual_param) == CALLOBJECT) {
       if (actual_param->type_of != NULL &&
           !actual_param->type_of->is_varfunc_type) {
-        err_expr_obj(WRONGACCESSRIGHT,
-            expr_object->value.listvalue->next, actual_param);
+        err_expr_obj(WRONGACCESSRIGHT, expr_object, actual_param);
       } /* if */
     } else {
       if (!VAR_OBJECT(actual_param)) {
         /* printf("class: %s\n", class_stri(CLASS_OF_OBJ(actual_param))); */
-        err_expr_obj(WRONGACCESSRIGHT,
-            expr_object->value.listvalue->next, actual_param);
+        err_expr_obj(WRONGACCESSRIGHT, expr_object, actual_param);
       } /* if */
     } /* if */
   } /* check_parameter */
+#endif
 
 
 
@@ -160,14 +161,12 @@ objecttype object;
                 if (CLASS_OF_OBJ(expr_list->obj) == CALLOBJECT) {
                   if (expr_list->obj->type_of != NULL &&
                       !expr_list->obj->type_of->is_varfunc_type) {
-                    err_expr_obj(WRONGACCESSRIGHT,
-                        object->value.listvalue->next, expr_list->obj);
+                    err_expr_obj(WRONGACCESSRIGHT, object, expr_list->obj);
                   } /* if */
                 } else {
                   if (!VAR_OBJECT(expr_list->obj)) {
                     /* printf("class: %s\n", class_stri(CLASS_OF_OBJ(expr_list->obj))); */
-                    err_expr_obj(WRONGACCESSRIGHT,
-                        object->value.listvalue->next, expr_list->obj);
+                    err_expr_obj(WRONGACCESSRIGHT, object, expr_list->obj);
                   } /* if */
                 } /* if */
               } /* if */
@@ -189,7 +188,6 @@ objecttype object;
     printf("END check_access_rights\n");
 #endif
   } /* check_access_rights */
-#endif
 
 
 
@@ -418,23 +416,135 @@ objecttype expr_object;
 
 #ifdef ANSI_C
 
-static objecttype match_subexpr_type (objecttype expr_object,
-    nodetype start_node, typetype object_type, int is_variable_obj,
-    nodetype *error_node, listtype rest_of_expression)
+static objecttype match_subexpr_var (objecttype expr_object,
+    nodetype start_node, typetype object_type,
+    listtype rest_of_expression, booltype check_access_right,
+    booltype look_for_interfaces)
 #else
 
-static objecttype match_subexpr_type (expr_object, start_node,
-    object_type, is_variable_obj, error_node, rest_of_expression)
+static objecttype match_subexpr_var (expr_object, start_node,
+    object_type, rest_of_expression, check_access_right,
+    look_for_interfaces)
 objecttype expr_object;
 nodetype start_node;
 typetype object_type;
-int is_variable_obj;
-nodetype *error_node;
 listtype rest_of_expression;
+booltype check_access_right;
+booltype look_for_interfaces;
 #endif
 
   {
     nodetype node_found;
+    objecttype matched_object;
+
+  /* match_subexpr_var */
+    matched_object = NULL;
+    if (trace.match) {
+      printf("//ST1v//");
+      trace1(object_type->match_obj);
+      printf("=");
+      printf("%ld", (inttype) object_type);
+      fflush(stdout);
+    } /* if */
+    node_found = find_node(start_node->inout_param, object_type->match_obj);
+    if (node_found != NULL) {
+      matched_object = match_subexpr(expr_object, node_found,
+          rest_of_expression, check_access_right, look_for_interfaces);
+      if (matched_object == NULL) {
+        node_found = find_node(start_node->other_param, object_type->match_obj);
+        if (node_found != NULL) {
+          matched_object = match_subexpr(expr_object, node_found,
+              rest_of_expression, check_access_right, look_for_interfaces);
+        } /* if */
+      } /* if */
+    } else {
+      node_found = find_node(start_node->other_param, object_type->match_obj);
+      if (node_found != NULL) {
+        matched_object = match_subexpr(expr_object, node_found,
+            rest_of_expression, check_access_right, look_for_interfaces);
+      } /* if */
+    } /* if */
+    return(matched_object);
+  } /* match_subexpr_var */
+
+
+
+#ifdef ANSI_C
+
+static objecttype match_subexpr_const (objecttype expr_object,
+    nodetype start_node, typetype object_type,listtype rest_of_expression,
+    booltype check_access_right, booltype look_for_interfaces)
+#else
+
+static objecttype match_subexpr_const (expr_object, start_node,
+    object_type, rest_of_expression, check_access_right,
+    look_for_interfaces)
+objecttype expr_object;
+nodetype start_node;
+typetype object_type;
+listtype rest_of_expression;
+booltype check_access_right;
+booltype look_for_interfaces;
+#endif
+
+  {
+    nodetype node_found;
+    objecttype matched_object;
+
+  /* match_subexpr_const */
+    matched_object = NULL;
+    if (trace.match) {
+      printf("//ST1o//");
+      trace1(object_type->match_obj);
+      printf("=");
+      printf("%ld", (inttype) object_type);
+      fflush(stdout);
+    } /* if */
+    node_found = find_node(start_node->other_param, object_type->match_obj);
+    if (node_found != NULL) {
+      matched_object = match_subexpr(expr_object, node_found,
+          rest_of_expression, check_access_right, look_for_interfaces);
+      if (matched_object == NULL && check_access_right) {
+        node_found = find_node(start_node->inout_param, object_type->match_obj);
+        if (node_found != NULL) {
+          matched_object = match_subexpr(expr_object, node_found,
+              rest_of_expression, check_access_right, look_for_interfaces);
+        } /* if */
+      } /* if */
+    } else if (check_access_right) {
+      node_found = find_node(start_node->inout_param, object_type->match_obj);
+      if (node_found != NULL) {
+        matched_object = match_subexpr(expr_object, node_found,
+            rest_of_expression, check_access_right, look_for_interfaces);
+      } /* if */
+    } /* if */
+    return(matched_object);
+  } /* match_subexpr_const */
+
+
+
+#ifdef ANSI_C
+
+static objecttype match_subexpr_type (objecttype expr_object,
+    nodetype start_node, typetype object_type, int is_variable_obj,
+    listtype rest_of_expression, booltype check_access_right,
+    booltype look_for_interfaces)
+#else
+
+static objecttype match_subexpr_type (expr_object, start_node,
+    object_type, is_variable_obj, rest_of_expression,
+    check_access_right, look_for_interfaces)
+objecttype expr_object;
+nodetype start_node;
+typetype object_type;
+int is_variable_obj;
+listtype rest_of_expression;
+booltype check_access_right;
+booltype look_for_interfaces;
+#endif
+
+  {
+    typelisttype interface_list;
     objecttype matched_object;
 
   /* match_subexpr_type */
@@ -443,57 +553,65 @@ listtype rest_of_expression;
 #endif
     matched_object = NULL;
     if (is_variable_obj) {
-      do {
-        if (trace.match) {
-          printf("//ST1v//");
-          trace1(object_type->match_obj);
-          printf("=");
-          printf("%ld", (inttype) object_type);
-          fflush(stdout);
-        } /* if */
-        node_found = find_node(start_node->inout_param, object_type->match_obj);
-        if (node_found != NULL) {
-          matched_object = match_subexpr(expr_object, node_found, rest_of_expression);
-          if (matched_object == NULL) {
-            node_found = find_node(start_node->other_param, object_type->match_obj);
-            if (node_found != NULL) {
-              matched_object = match_subexpr(expr_object, node_found, rest_of_expression);
-            } /* if */
-          } /* if */
-        } else {
-          node_found = find_node(start_node->other_param, object_type->match_obj);
-          if (node_found != NULL) {
-            matched_object = match_subexpr(expr_object, node_found, rest_of_expression);
+      if (look_for_interfaces) {
+        interface_list = object_type->interfaces;
+        while (interface_list != NULL && matched_object == NULL) {
+          matched_object = match_subexpr_var(expr_object,start_node,
+              interface_list->type_elem, rest_of_expression,
+              check_access_right, look_for_interfaces);
+          interface_list = interface_list->next;
+        } /* while */
+        if (matched_object != NULL &&
+            (CLASS_OF_OBJ(matched_object) == MATCHOBJECT ||
+            CLASS_OF_OBJ(matched_object) == CALLOBJECT) &&
+            matched_object->value.listvalue != NULL &&
+            matched_object->value.listvalue->obj != NULL) {
+          if (CLASS_OF_OBJ(matched_object->value.listvalue->obj) != ACTOBJECT ||
+              matched_object->value.listvalue->obj->value.actvalue != prc_dynamic) {
+            pop_list(&matched_object->value.listvalue);
+            SET_CLASS_OF_OBJ(expr_object, EXPROBJECT);
+            matched_object = NULL;
           } /* if */
         } /* if */
-        object_type = object_type->meta;
-      } while (object_type != NULL && matched_object == NULL);
+      } /* if */
+      if (matched_object == NULL) {
+        do {
+          matched_object = match_subexpr_var(expr_object, start_node,
+              object_type, rest_of_expression, check_access_right,
+              look_for_interfaces);
+          object_type = object_type->meta;
+        } while (object_type != NULL && matched_object == NULL);
+      } /* if */
     } else {
-      do {
-        if (trace.match) {
-          printf("//ST1o//");
-          trace1(object_type->match_obj);
-          printf("=");
-          printf("%ld", (inttype) object_type);
-          fflush(stdout);
-        } /* if */
-        node_found = find_node(start_node->other_param, object_type->match_obj);
-        if (node_found != NULL) {
-          matched_object = match_subexpr(expr_object, node_found, rest_of_expression);
-          if (matched_object == NULL) {
-            node_found = find_node(start_node->inout_param, object_type->match_obj);
-            if (node_found != NULL) {
-              *error_node = node_found;
-            } /* if */
-          } /* if */
-        } else {
-          node_found = find_node(start_node->inout_param, object_type->match_obj);
-          if (node_found != NULL) {
-            *error_node = node_found;
+      if (look_for_interfaces) {
+        interface_list = object_type->interfaces;
+        while (interface_list != NULL && matched_object == NULL) {
+          matched_object = match_subexpr_const(expr_object, start_node,
+              interface_list->type_elem, rest_of_expression,
+              check_access_right, look_for_interfaces);
+          interface_list = interface_list->next;
+        } /* while */
+        if (matched_object != NULL &&
+            (CLASS_OF_OBJ(matched_object) == MATCHOBJECT ||
+            CLASS_OF_OBJ(matched_object) == CALLOBJECT) &&
+            matched_object->value.listvalue != NULL &&
+            matched_object->value.listvalue->obj != NULL) {
+          if (CLASS_OF_OBJ(matched_object->value.listvalue->obj) != ACTOBJECT ||
+              matched_object->value.listvalue->obj->value.actvalue != prc_dynamic) {
+            pop_list(&matched_object->value.listvalue);
+            SET_CLASS_OF_OBJ(expr_object, EXPROBJECT);
+            matched_object = NULL;
           } /* if */
         } /* if */
-        object_type = object_type->meta;
-      } while (object_type != NULL && matched_object == NULL);
+      } /* if */
+      if (matched_object == NULL) {
+        do {
+          matched_object = match_subexpr_const(expr_object, start_node,
+              object_type, rest_of_expression,
+              check_access_right, look_for_interfaces);
+          object_type = object_type->meta;
+        } while (object_type != NULL && matched_object == NULL);
+      } /* if */
     } /* if */
 #ifdef TRACE_MATCH
     printf("END match_subexpr_type\n");
@@ -507,15 +625,19 @@ listtype rest_of_expression;
 
 static objecttype match_subexpr_attr (objecttype expr_object,
     nodetype start_node, typetype object_type,
-    listtype rest_of_expression)
+    listtype rest_of_expression, booltype check_access_right,
+    booltype look_for_interfaces)
 #else
 
 static objecttype match_subexpr_attr (expr_object, start_node,
-    object_type, rest_of_expression)
+    object_type, rest_of_expression, check_access_right,
+    look_for_interfaces)
 objecttype expr_object;
 nodetype start_node;
 typetype object_type;
 listtype rest_of_expression;
+booltype check_access_right;
+booltype look_for_interfaces;
 #endif
 
   {
@@ -535,7 +657,9 @@ listtype rest_of_expression;
       } /* if */
       node_found = find_node(start_node->attr, object_type->match_obj);
       if (node_found != NULL) {
-        matched_object = match_subexpr(expr_object, node_found, rest_of_expression);
+        matched_object = match_subexpr(expr_object, node_found,
+            rest_of_expression, check_access_right,
+            look_for_interfaces);
       } /* if */
       object_type = object_type->meta;
     } while (object_type != NULL && matched_object == NULL);
@@ -550,19 +674,21 @@ listtype rest_of_expression;
 #ifdef ANSI_C
 
 static objecttype match_subexpr (objecttype expr_object,
-    nodetype start_node, listtype match_expr)
+    nodetype start_node, listtype match_expr, booltype check_access_right,
+    booltype look_for_interfaces)
 #else
 
 static objecttype match_subexpr (expr_object, start_node,
-    match_expr)
+    match_expr, check_access_right, look_for_interfaces)
 objecttype expr_object;
 nodetype start_node;
 listtype match_expr;
+booltype check_access_right;
+booltype look_for_interfaces;
 #endif
 
   {
     nodetype node_found;
-    nodetype error_node;
     objecttype current_element;
     listtype rest_of_expression;
     objecttype matched_object;
@@ -589,7 +715,6 @@ listtype match_expr;
       printf("} does ");
       fflush(stdout);
     } /* if */
-    error_node = NULL;
     if (match_expr == NULL) {
       if (start_node->entity == NULL) {
         if (trace.match) {
@@ -632,7 +757,8 @@ listtype match_expr;
         } /* if */
         node_found = find_node(start_node->symbol, current_element->descriptor.entity->syobject);
         if (node_found != NULL) {
-          matched_object = match_subexpr(expr_object, node_found, rest_of_expression);
+          matched_object = match_subexpr(expr_object, node_found,
+              rest_of_expression, check_access_right, look_for_interfaces);
           if (matched_object != NULL) {
             if (trace.match) {
               printf("//SYOBJECT// ");
@@ -657,7 +783,8 @@ listtype match_expr;
           object_type = take_type(attribute_object);
           /* Attribute */
           matched_object = match_subexpr_attr(expr_object, start_node,
-              object_type, rest_of_expression);
+              object_type, rest_of_expression, check_access_right,
+              look_for_interfaces);
         } /* if */
       } /* if */
       if (matched_object == NULL) {
@@ -679,7 +806,7 @@ listtype match_expr;
           } /* if */
           matched_object = match_subexpr_type(expr_object, start_node,
               object_type, VAR_OBJECT(current_element),
-              &error_node, rest_of_expression);
+              rest_of_expression, check_access_right, look_for_interfaces);
 #ifdef OUT_OF_ORDER
           if (matched_object != NULL) {
             if (CLASS_OF_OBJ(current_element) == DECLAREDOBJECT) {
@@ -699,7 +826,7 @@ listtype match_expr;
                 if (object_type != NULL) {
                   matched_object = match_subexpr_type(expr_object, start_node,
                       object_type, VAR_OBJECT(match_expr->obj),
-                      &error_node, rest_of_expression);
+                      rest_of_expression, check_access_right, look_for_interfaces);
                 } /* if */
               } else {
                 return(NULL);
@@ -711,7 +838,8 @@ listtype match_expr;
                   object_type = take_type(current_element->value.listvalue->obj);
                   /* Attribute */
                   matched_object = match_subexpr_attr(expr_object, start_node,
-                      object_type, rest_of_expression);
+                      object_type, rest_of_expression, check_access_right,
+                      look_for_interfaces);
                 } /* if */
               } /* if */
             } /* if */
@@ -727,7 +855,7 @@ listtype match_expr;
                 if (result_type != NULL) {
                   matched_object = match_subexpr_type(expr_object, start_node,
                       result_type, object_type->is_varfunc_type,
-                      &error_node, rest_of_expression);
+                      rest_of_expression, check_access_right, look_for_interfaces);
                 } /* if */
                 object_type = object_type->meta;
               } while (object_type != NULL && matched_object == NULL);
@@ -736,14 +864,6 @@ listtype match_expr;
                   match_expr->obj = current_element;
                 } else {
                   matched_object = NULL;
-                } /* if */
-              } else {
-                if (error_node != NULL) {
-                  matched_object = match_subexpr(expr_object, error_node, rest_of_expression);
-                  if (matched_object != NULL) {
-                    err_expr_obj(WRONGACCESSRIGHT,
-                        expr_object->value.listvalue->next, current_element);
-                  } /* if */
                 } /* if */
               } /* if */
             } /* if */
@@ -793,17 +913,22 @@ objecttype expr_object;
       fflush(stdout);
     } /* if */
     if (expr_list != NULL) {
-      matched_object = match_subexpr(expr_object, prog.declaration_root, expr_list);
+      matched_object = match_subexpr(expr_object, prog.declaration_root,
+          expr_list, FALSE, TRUE);
     } else {
       matched_object = NULL;
     } /* if */
     if (matched_object == NULL) {
-      err_match(NO_MATCH, expr_object);
+      if (expr_list != NULL) {
+        matched_object = match_subexpr(expr_object, prog.declaration_root,
+            expr_list, TRUE, TRUE);
+      } /* if */
+      if (matched_object != NULL) {
+        check_access_rights(matched_object);
+      } else {
+        err_match(NO_MATCH, expr_object);
+      } /* if */
       /* trace1(expr_object); */
-#ifdef OUT_OF_ORDER
-    } else {
-      check_access_rights(matched_object);
-#endif
     } /* if */
     if (trace.match) {
       printf("expr_object ");
@@ -850,7 +975,8 @@ objecttype expr_object;
       fflush(stdout);
     } /* if */
     if (expr_list != NULL) {
-      matched_object = match_subexpr(expr_object, start_node, expr_list);
+      matched_object = match_subexpr(expr_object, start_node,
+          expr_list, FALSE, FALSE);
     } else {
       matched_object = NULL;
     } /* if */

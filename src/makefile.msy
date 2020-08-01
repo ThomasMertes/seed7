@@ -120,6 +120,7 @@ version.h:
 	echo "#define CHOWN_MISSING" >> version.h
 	echo "#undef  CHMOD_MISSING" >> version.h
 	echo "#define USE_FSEEKO64" >> version.h
+	echo "#define LINKER_LIBS \"$(LIBS)\"" >> version.h
 
 hi.o: hi.c
 	$(CC) $(CFLAGS) -c hi.c

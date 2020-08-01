@@ -1,5 +1,6 @@
 # CFLAGS = -O2 -fomit-frame-pointer -funroll-loops -Wall
 CFLAGS = -O2 -fomit-frame-pointer -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
+# CFLAGS =
 # CFLAGS = -O2 -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
 #CFLAGS = -O2 -pg -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
 # CFLAGS = -O2 -funroll-loops -Wall -pg
@@ -122,6 +123,7 @@ version.h:
 	echo "#undef  CHOWN_MISSING" >> version.h
 	echo "#undef  CHMOD_MISSING" >> version.h
 	echo "#define _FILE_OFFSET_BITS 64" >> version.h
+	echo "#define LINKER_LIBS \"$(LIBS)\"" >> version.h
 
 hi.o: hi.c
 	$(CC) $(CFLAGS) -c hi.c

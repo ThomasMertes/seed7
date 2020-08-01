@@ -86,7 +86,7 @@ const proc: check (ref file: out_file, ref header: head) is func
   end func;
 
 
-const func string: gets0 (ref file: in_file, in integer: leng) is func
+const func string: gets0 (inout file: in_file, in integer: leng) is func
   result
     var string: stri is "";
   local
@@ -100,7 +100,7 @@ const func string: gets0 (ref file: in_file, in integer: leng) is func
   end func;
 
 
-const func integer: getoct (ref file: in_file, in integer: leng) is func
+const func integer: getoct (inout file: in_file, in integer: leng) is func
   result
     var integer: result is 0;
   local
@@ -164,7 +164,7 @@ const func integer: chksum (in string: stri) is func
   end func;
 
 
-const proc: read (ref file: in_file, inout header: head) is func
+const proc: read (inout file: in_file, inout header: head) is func
   local
     var string: stri is "";
   begin
@@ -188,7 +188,7 @@ const proc: read (ref file: in_file, inout header: head) is func
   end func;
 
 
-const proc: write (ref file: out_file, ref header: head) is func
+const proc: write (inout file: out_file, ref header: head) is func
   local
     var string: out_stri is "";
     var string: chksum is "";
@@ -423,7 +423,7 @@ const proc: tar_xtract (in string: in_file_name, in boolean: do_view,
   end func;
 
 
-const proc: tar_create (in file: out_file, in boolean: do_view,
+const proc: tar_create (inout file: out_file, in boolean: do_view,
     in string: path, in array string: arg_list) is func
   local
     var string: name is "";

@@ -27,6 +27,7 @@
 
 #ifdef ANSI_C
 
+objecttype typ_addinterface (listtype);
 objecttype typ_cmp (listtype);
 objecttype typ_cpy (listtype);
 objecttype typ_create (listtype);
@@ -53,6 +54,7 @@ objecttype typ_varfunc (listtype);
 
 #else
 
+objecttype typ_addinterface ();
 objecttype typ_cmp ();
 objecttype typ_cpy ();
 objecttype typ_create ();

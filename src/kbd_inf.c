@@ -709,7 +709,7 @@ chartype kbdRawGetc ()
     } /* if */
     if (key_buffer_filled) {
       key_buffer_filled = FALSE;
-      result = last_key;
+      result = ((chartype) last_key) & 0xFF;
     } else {
       if (changes) {
         scrFlush();

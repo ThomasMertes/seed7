@@ -36,7 +36,6 @@ const func line_file: open_line (ref file: in_fil) is func
   result
     var line_file: line_fil is line_file.value;
   begin
-    line_fil := line_file.value;
     line_fil.in_file := in_fil;
   end func;
 

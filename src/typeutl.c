@@ -74,6 +74,7 @@ typetype result_type;
         created_type->varfunc_type = NULL;
         created_type->result_type = result_type;
         created_type->is_varfunc_type = FALSE;
+        created_type->interfaces = NULL;
         created_type->name = NULL;
         created_type->create_call_obj = NULL;
         created_type->destroy_call_obj = NULL;
@@ -143,3 +144,71 @@ typetype basic_type;
     } /* if */
     return(varfunc_type);
   } /* get_varfunc_type */
+
+
+
+#ifdef ANSI_C
+
+void add_interface (typetype basic_type, typetype interface_type)
+#else
+
+void add_interface (basic_type, interface_type)
+typetype basic_type;
+typetype interface_type;
+#endif
+
+  {
+    typelisttype typelist_elem;
+    typelisttype current_elem;
+
+  /* add_interface */
+    if (ALLOC_RECORD(typelist_elem, typelistrecord)) {
+      COUNT_RECORD(typelistrecord, count.typelist_elems);
+      typelist_elem->next = NULL;
+      typelist_elem->type_elem = interface_type;
+      if (basic_type->interfaces == NULL) {
+        basic_type->interfaces = typelist_elem;
+      } else {
+        current_elem = basic_type->interfaces;
+        while (current_elem->next != NULL) {
+          current_elem = current_elem->next;
+        } /* while */
+        current_elem->next = typelist_elem;
+      } /* if */
+    } /* if */
+  } /* add_interface */
+
+
+
+#ifdef OUT_OF_ORDER
+#ifdef ANSI_C
+
+void get_interfaces (typetype basic_type)
+#else
+
+void get_interfaces (basic_type)
+typetype basic_type;
+#endif
+
+  {
+    typelisttype typelist_elem;
+    listtype *list_insert_place;
+    errinfotype err_info = OKAY_NO_ERROR;
+    listtype result;
+
+  /* get_interfaces */
+    result = NULL;
+    list_insert_place = &result;
+    typelist_elem = basic_type->interfaces;
+    while (typelist_elem->next != NULL) {
+      list_insert_place = append_element_to_list(list_insert_place,
+          typelist_elem->type_elem, &err_info);
+      typelist_elem = typelist_elem->next;
+    } /* while */
+    if (err_info != OKAY_NO_ERROR) {
+      emptylist(result);
+      return(raise_exception(SYS_MEM_EXCEPTION));
+    } /* if */
+    return(bld_reflist_temp(result));
+  } /* get_interfaces */
+#endif

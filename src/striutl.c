@@ -470,6 +470,39 @@ ustritype stri;
 
 #ifdef ANSI_C
 
+stritype cp_ustri8_to_stri (ustritype ustri)
+#else
+
+stritype cp_ustri8_to_stri (ustri)
+ustritype stri;
+#endif
+
+  {
+    memsizetype length;
+    memsizetype bytes_remaining;
+    stritype stri;
+
+  /* cp_ustri8_to_stri */
+    length = strlen(ustri);
+    if (ALLOC_STRI(stri, length)) {
+      COUNT_STRI(length);
+      if (utf8_to_stri(stri->mem, &stri->size, ustri, length) == 0) {
+        if (!RESIZE_STRI(stri, length, stri->size)) {
+          FREE_STRI(stri, length);
+          stri = NULL;
+        } /* if */
+      } else {
+        FREE_STRI(stri, length);
+        stri = NULL;
+      } /* if */
+    } /* if */
+    return(stri);
+  } /* cp_ustri8_to_stri */
+
+
+
+#ifdef ANSI_C
+
 strelemtype *stri_charpos (stritype stri, strelemtype ch)
 #else
 

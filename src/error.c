@@ -800,21 +800,30 @@ typetype type_found;
 
 #ifdef ANSI_C
 
-void err_expr_obj (errortype err, listtype expr, objecttype obj_found)
+void err_expr_obj (errortype err, objecttype expr_object, objecttype obj_found)
 #else
 
-void err_expr_obj (err, expr, obj_found)
+void err_expr_obj (err, expr_object, obj_found)
 errortype err;
-listtype expr;
+objecttype expr_object;
 objecttype obj_found;
 #endif
 
-  { /* err_list_obj */
-    place_of_error(err);
+  { /* err_expr_obj */
+    /* place_of_error(err); */
+    error_count++;
+    if (HAS_POSINFO(expr_object)){
+      printf("*** %s(%1u):%d: ", file_name(GET_FILE_NUM(expr_object)),
+          GET_LINE_NUM(expr_object), ((int) err) + 1);
+    } else if (in_file.name != NULL) {
+      printf("*** %s(%1u):%d: ", in_file.name, in_file.line, ((int) err) + 1);
+    } else {
+      printf("*** ");
+    } /* if */
     switch (err) {
       case WRONGACCESSRIGHT:
         printf("Variable expected in ");
-        prot_list(expr);
+        prot_list(expr_object->value.listvalue->next);
         printf(" found ");
         write_object(obj_found);
         printf("\n");
@@ -823,9 +832,13 @@ objecttype obj_found;
         undef_err();
         break;
     } /* switch */
-    print_error_line();
+    if (HAS_POSINFO(expr_object)){
+      print_line(GET_LINE_NUM(expr_object));
+    } else {
+      print_error_line();
+    } /* if */
     display_compilation_info();
-  } /* err_list_obj */
+  } /* err_expr_obj */
 
 
 

@@ -50,7 +50,7 @@ const proc: page (ref reverse_file: reverse_fil) is func
 *)
 
 
-const proc: write (ref reverse_file: reverse_fil, ref string: stri) is func
+const proc: write (inout reverse_file: reverse_fil, in string: stri) is func
   local
     var integer: number is 0;
   begin
@@ -67,14 +67,14 @@ const proc: write (ref reverse_file: reverse_fil, ref string: stri) is func
   end func;
 
 
-const proc: writeln (ref reverse_file: reverse_fil) is func
+const proc: writeln (inout reverse_file: reverse_fil) is func
   begin
     writeln(reverse_fil.out_file);
     write(reverse_fil.out_file, "" lpad pred(reverse_fil.line_size));
   end func;
 
 
-const proc: backSpace (ref reverse_file: reverse_fil) is func
+const proc: backSpace (inout reverse_file: reverse_fil) is func
   begin
     write(reverse_fil.out_file, "  ");
     write(reverse_fil.out_file, "\b");

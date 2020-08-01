@@ -257,6 +257,34 @@ objecttype elementobject;
 
 #ifdef ANSI_C
 
+void pop_list (listtype *list)
+#else
+
+void pop_list (list)
+listtype *list;
+#endif
+
+  {
+    listtype listelement;
+
+  /* pop_list */
+#ifdef TRACE_RUNLIST
+    printf("BEGIN excl_list\n");
+#endif
+    if (*list != NULL) {
+      listelement = *list;
+      *list = listelement->next;
+      FREE_L_ELEM(listelement);
+    } /* if */
+#ifdef TRACE_RUNLIST
+    printf("END excl_list\n");
+#endif
+  } /* pop_list */
+
+
+
+#ifdef ANSI_C
+
 void replace_list_elem (listtype list, objecttype elem1,
     objecttype elem2)
 #else

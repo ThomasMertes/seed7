@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  hi   Interpreter for Seed7 programs.                            */
-/*  Copyright (C) 1990 - 2000  Thomas Mertes                        */
+/*  Copyright (C) 1990 - 2007  Thomas Mertes                        */
 /*                                                                  */
 /*  This program is free software; you can redistribute it and/or   */
 /*  modify it under the terms of the GNU General Public License as  */
@@ -37,15 +37,16 @@ objecttype prc_cpy (listtype);
 objecttype prc_create (listtype);
 objecttype prc_decls (listtype);
 objecttype prc_dynamic (listtype);
-objecttype prc_env (listtype);
 objecttype prc_exit (listtype);
 objecttype prc_for_downto (listtype);
 objecttype prc_for_to (listtype);
+objecttype prc_getenv (listtype);
 objecttype prc_if (listtype);
 objecttype prc_if_elsif (listtype);
 objecttype prc_include (listtype);
 objecttype prc_local (listtype);
 objecttype prc_noop (listtype);
+objecttype prc_option (listtype);
 objecttype prc_print (listtype);
 objecttype prc_raise (listtype);
 objecttype prc_repeat (listtype);
@@ -71,15 +72,16 @@ objecttype prc_cpy ();
 objecttype prc_create ();
 objecttype prc_decls ();
 objecttype prc_dynamic ();
-objecttype prc_env ();
 objecttype prc_exit ();
 objecttype prc_for_downto ();
 objecttype prc_for_to ();
+objecttype prc_getenv ();
 objecttype prc_if ();
 objecttype prc_if_elsif ();
 objecttype prc_include ();
 objecttype prc_local ();
 objecttype prc_noop ();
+objecttype prc_option ();
 objecttype prc_print ();
 objecttype prc_raise ();
 objecttype prc_repeat ();

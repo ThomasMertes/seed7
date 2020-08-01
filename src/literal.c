@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  hi   Interpreter for Seed7 programs.                            */
-/*  Copyright (C) 1990 - 2000  Thomas Mertes                        */
+/*  Copyright (C) 1990 - 2007  Thomas Mertes                        */
 /*                                                                  */
 /*  This program is free software; you can redistribute it and/or   */
 /*  modify it under the terms of the GNU General Public License as  */
@@ -87,6 +87,9 @@ unsigned int position;
         SKIP_CR_SP(character);
         if (character == '#') {
           SKIP_TO_NL(character);
+#ifdef WITH_STATISTIK
+          comment_count++;
+#endif
         } /* if */
         INCR_LINE_COUNT(in_file.line);
       } while (character == '\n');
@@ -100,11 +103,17 @@ unsigned int position;
       SKIP_CR_SP(character);
       if (character == '#') {
         SKIP_TO_NL(character);
+#ifdef WITH_STATISTIK
+        comment_count++;
+#endif
       } /* if */
       while (character == '\n') {
         SKIP_CR_SP(character);
         if (character == '#') {
           SKIP_TO_NL(character);
+#ifdef WITH_STATISTIK
+          comment_count++;
+#endif
         } /* if */
         INCR_LINE_COUNT(in_file.line);
       } /* while */

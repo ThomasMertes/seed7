@@ -1,7 +1,7 @@
 
 (********************************************************************)
 (*                                                                  *)
-(*  wrinum.s7i    Functions to write numbers         *)
+(*  wrinum.s7i    Functions to write numbers                        *)
 (*  Copyright (C) 1991, 1992, 1993, 1994, 2005  Thomas Mertes       *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)

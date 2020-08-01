@@ -177,7 +177,7 @@ const proc: (ref GRAPH param) := (ref NULL_GRAPH param) is           action "ENU
 
 (* The type window and its functions are not in use *)
 
-const type: window is sub NULL_FILE struct
+const type: window is new struct
     var PRIMITIVE_WINDOW: EXT_WINDOW is PRIMITIVE_WINDOW.value;
     var GRAPH: CONTENT is EMPTY_NODE;
   end struct;

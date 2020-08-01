@@ -76,7 +76,7 @@ const proc: writeln (inout more_file: more_fil) is func
   end func;
 
 
-const proc: write (ref more_file: more_fil, ref string: stri) is func
+const proc: write (inout more_file: more_fil, in string: stri) is func
   begin
     if more_fil.active then
       write(more_fil.out_file, stri);

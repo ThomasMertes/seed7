@@ -163,42 +163,10 @@ char *strg1;
 char *strg2;
 #endif
 
-  {
-    register memsizetype size1;
-    register memsizetype size2;
-    int result;
-
-  /* cmp_mem */
-    size1 = ((rtlObjecttype *) strg1)->value.strivalue->size;
-    size2 = ((rtlObjecttype *) strg2)->value.strivalue->size;
-/*
-    printf("MEM_CMP(");
-    fwrite(((objecttype) strg1)->value.strivalue->mem, 1, size1, stdout);
-    printf(",");
-    fwrite(((objecttype) strg2)->value.strivalue->mem, 1, size2, stdout);
-    printf(");\n");
-*/
-    if (size1 == size2) {
-      return(memcmp(
-          ((rtlObjecttype *) strg1)->value.strivalue->mem,
-          ((rtlObjecttype *) strg2)->value.strivalue->mem,
-          (SIZE_TYPE) size1));
-    } else if (size1 > size2) {
-      if ((result = memcmp(
-          ((rtlObjecttype *) strg1)->value.strivalue->mem,
-          ((rtlObjecttype *) strg2)->value.strivalue->mem,
-          (SIZE_TYPE) size2)) == 0) {
-        return(1);
-      } /* if */
-    } else {
-      if ((result = memcmp(
-          ((rtlObjecttype *) strg1)->value.strivalue->mem,
-          ((rtlObjecttype *) strg2)->value.strivalue->mem,
-          (SIZE_TYPE) size1)) == 0) {
-        return(-1);
-      } /* if */
-    } /* if */
-    return(result);
+  { /* cmp_mem */
+    return(strCompare(
+        ((rtlObjecttype *) strg1)->value.strivalue,
+        ((rtlObjecttype *) strg2)->value.strivalue));
   } /* cmp_mem */
 
 

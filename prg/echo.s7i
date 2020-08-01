@@ -37,7 +37,6 @@ const func echo_file: open_echo (ref file: in_fil, ref file: out_fil) is func
   result
     var echo_file: echo_fil is echo_file.value;
   begin
-    echo_fil := echo_file.value;
     echo_fil.in_file := in_fil;
     echo_fil.out_file := out_fil;
     echo_fil.in_pos := 0;
@@ -88,7 +87,7 @@ const func char: getc (inout echo_file: echo_fil) is func
   end func;
 
 
-const func string: gets (inout echo_file: echo_fil, ref integer: length) is func
+const func string: gets (inout echo_file: echo_fil, in integer: length) is func
   result
     var string: stri is "";
   local

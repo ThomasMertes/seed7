@@ -1096,7 +1096,6 @@ listtype arguments;
 
   {
     objecttype obj;
-    typetype type_to_set;
 
   /* ref_settype */
     isit_reference(arg_1(arguments));

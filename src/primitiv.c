@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  hi   Interpreter for Seed7 programs.                            */
-/*  Copyright (C) 1990 - 2004  Thomas Mertes                        */
+/*  Copyright (C) 1990 - 2007  Thomas Mertes                        */
 /*                                                                  */
 /*  This program is free software; you can redistribute it and/or   */
 /*  modify it under the terms of the GNU General Public License as  */
@@ -434,15 +434,16 @@ static primactrecord prim_act_table[] = {
     { "PRC_CREATE",        prc_create,        },
     { "PRC_DECLS",         prc_decls,         },
     { "PRC_DYNAMIC",       prc_dynamic,       },
-    { "PRC_ENV",           prc_env,           },
     { "PRC_EXIT",          prc_exit,          },
     { "PRC_FOR_DOWNTO",    prc_for_downto,    },
     { "PRC_FOR_TO",        prc_for_to,        },
+    { "PRC_GETENV",        prc_getenv,        },
     { "PRC_IF",            prc_if,            },
     { "PRC_IF_ELSIF",      prc_if_elsif,      },
     { "PRC_INCLUDE",       prc_include,       },
     { "PRC_LOCAL",         prc_local,         },
     { "PRC_NOOP",          prc_noop,          },
+    { "PRC_OPTION",        prc_option,        },
     { "PRC_PRINT",         prc_print,         },
     { "PRC_RAISE",         prc_raise,         },
     { "PRC_REPEAT",        prc_repeat,        },
@@ -631,6 +632,8 @@ static primactrecord prim_act_table[] = {
     { "TIM_AWAIT",         tim_await,         },
     { "TIM_NOW",           tim_now,           },
 
+
+    { "TYP_ADDINTERFACE",  typ_addinterface,  },
     { "TYP_CMP",           typ_cmp,           },
     { "TYP_CPY",           typ_cpy,           },
     { "TYP_CREATE",        typ_create,        },

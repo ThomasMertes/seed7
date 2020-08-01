@@ -248,7 +248,7 @@ const proc: writescreen is func
 
 
 
-const proc: writemap (in text: map_win) is func
+const proc: writemap (inout text: map_win) is func
   local
     var integer: index is 0;
     var integer: line_div is 0;

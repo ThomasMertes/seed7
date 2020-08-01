@@ -165,3 +165,19 @@
 - The support for the actions gkb_busy_getc, gkb_xpos, gkb_ypos, kbd_busy_getc,
   drw_pfellipse and arr_arrlit2 was added to the compiler.
 - The X11 keyboard driver was improved.
+
+20070204:
+- An abstract data type to create interface types was added.
+- The matching of functions was changed such that interface functions are
+  preferred over non interface functions.
+- The error message which flags wrong access rights of actual parameters was improved.
+- The sorting of directory entrys for cmd_ls was improved.
+- The unicode support for prc_getenv and prc_option was improved.
+- The -v (verbose) option was added to the interpreter.
+- A small bug in the startrek.sd7 example program was fixed.
+- The handling of interface (DYNAMIC) functions in the compiler was improved.
+- The compiler was improved to support the actions arr_cpy, drw_create, drw_destr,
+  drw_pfarcchord and drw_pfarcpieslice.
+- The handling of enumeration types in the compiler was improved.
+- Several accessright changes for file functions in seed7_05.s7i and other libraries
+  allow the compiler to produce working code for more file functions.

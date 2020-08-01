@@ -103,9 +103,9 @@ filetype fil1;
       raise_error(FILE_ERROR);
       return(NULL);
     } else {
-      printf("current_file_position %lld\n", current_file_position);
+      /* printf("current_file_position %lld\n", current_file_position); */
       file_length = ftello(fil1);
-      printf("file_length %lld\n", file_length);
+      /* printf("file_length %lld\n", file_length); */
       if (file_length == -1) {
         raise_error(FILE_ERROR);
         return(NULL);
@@ -113,7 +113,7 @@ filetype fil1;
         raise_error(FILE_ERROR);
         return(NULL);
       } else if (sizeof(offsettype) == 8) {
-	printf("file_length %lld\n", file_length);
+	/* printf("file_length %lld\n", file_length); */
         return(bigULConv(file_length));
       } else {
         return(bigUIConv(file_length));

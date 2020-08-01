@@ -7,18 +7,18 @@ calc.sd7     Calculator
 castle.sd7   Castle Adventure                                  
 celsius.sd7  Print a Fahrenheit-Celsius table                  
 chkbig.sd7   Checks bigInteger literals and operations         
+chkbool.sd7  Checks boolean operations                         
 chkexc.sd7   Checks exceptions                                 
 chkint.sd7   Checks integer literals and operations            
 chkprc.sd7   Checks procedures and statements                  
 chkset.sd7   Checks set literals and operations                
 chkstr.sd7   Checks string literals and operations             
-chkbool.sd7  Checks boolean operations                         
 clock.sd7    Displays a digital clock                          
 clock2.sd7   Displays a digital clock with mycroseconds        
 cmpfil.sd7   Compares two files in main memory                 
 comp.sd7     Compiler from Seed7 to C                          
-dirx.sd7     Make a directory listing                          
 dirtst.sd7   Test reading a directory as file                  
+dirx.sd7     Make a directory listing                          
 dnafight.sd7 Bacterial dna fight programming game              
 echo.sd7     Write the arguments of the program                
 eliza.sd7    The computer psychiatrist                         
@@ -61,9 +61,9 @@ wrinum.sd7   Write numbers as english text
 wumpus.sd7   Hunt the Wumpus game                              
 
   Seed7 include files:
+bigfile.s7i  bigInteger versions of seek, tell and length      
 bigint.s7i   bigInteger point support library                  
 bigrat.s7i   Big rational number support library               
-bigfile.s7i  bigInteger versions of seek, tell and length      
 complex.s7i  Complex support library                           
 dir.s7i      Read directorys as files                          
 dna_base.s7i Bacterial dna fight programming game interface    
@@ -92,4 +92,4 @@ time.s7i     Time library
 upper.s7i    Filter file which turns characters to upper case  
 utf8.s7i     Read and write utf-8 files                        
 window.s7i   Filter file for text windows with random access   
-wrinum.s7i   Functions to write numbers         *)
+wrinum.s7i   Functions to write numbers                        

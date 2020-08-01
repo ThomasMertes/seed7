@@ -88,24 +88,25 @@ typedef unsigned int       filenumtype;
 typedef unsigned int       classtype;
 /* typedef unsigned long int  wintype; */
 
-typedef struct identstruct   *identtype;
-typedef struct tokenstruct   *tokentype;
-typedef struct nodestruct    *nodetype;
-typedef struct entitystruct  *entitytype;
-typedef struct ownerstruct   *ownertype;
-typedef struct objectstruct  *objecttype;
-typedef struct stackstruct   *stacktype;
-typedef struct typestruct    *typetype;
-typedef struct liststruct    *listtype;
-typedef struct locobjstruct  *locobjtype;
-typedef struct locliststruct *loclisttype;
-typedef struct blockstruct   *blocktype;
-typedef struct arraystruct   *arraytype;
-typedef struct helemstruct   *helemtype;
-typedef struct hashstruct    *hashtype;
-typedef struct structstruct  *structtype;
-typedef struct progstruct    *progtype;
-typedef struct infilstruct   *infiltype;
+typedef struct identstruct    *identtype;
+typedef struct tokenstruct    *tokentype;
+typedef struct nodestruct     *nodetype;
+typedef struct entitystruct   *entitytype;
+typedef struct ownerstruct    *ownertype;
+typedef struct objectstruct   *objecttype;
+typedef struct stackstruct    *stacktype;
+typedef struct typeliststruct *typelisttype;
+typedef struct typestruct     *typetype;
+typedef struct liststruct     *listtype;
+typedef struct locobjstruct   *locobjtype;
+typedef struct locliststruct  *loclisttype;
+typedef struct blockstruct    *blocktype;
+typedef struct arraystruct    *arraytype;
+typedef struct helemstruct    *helemtype;
+typedef struct hashstruct     *hashtype;
+typedef struct structstruct   *structtype;
+typedef struct progstruct     *progtype;
+typedef struct infilstruct    *infiltype;
 
 #ifdef ANSI_C
 typedef objecttype (*acttype) (listtype);
@@ -213,6 +214,11 @@ typedef struct stackstruct {
     stacktype downward;
   } stackrecord;
 
+typedef struct typeliststruct {
+    typelisttype next;
+    typetype type_elem;
+  } typelistrecord;
+
 typedef struct typestruct {
     objecttype match_obj;
     typetype meta;
@@ -220,6 +226,7 @@ typedef struct typestruct {
     typetype varfunc_type;
     typetype result_type;
     booltype is_varfunc_type;
+    typelisttype interfaces;
     identtype name;
     objecttype create_call_obj;
     objecttype destroy_call_obj;

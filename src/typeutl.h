@@ -30,11 +30,13 @@
 typetype new_type (typetype, typetype);
 typetype get_func_type (typetype, typetype);
 typetype get_varfunc_type (typetype, typetype);
+void add_interface (typetype, typetype);
 
 #else
 
 typetype new_type ();
 typetype get_func_type ();
 typetype get_varfunc_type ();
+void add_interface ();
 
 #endif

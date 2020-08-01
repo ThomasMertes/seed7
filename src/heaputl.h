@@ -55,6 +55,7 @@ typedef struct {
     unsigned long token;
     unsigned long owner;
     unsigned long stack;
+    unsigned long typelist_elems;
     unsigned long type;
     unsigned long list_elem;
     unsigned long block;
@@ -69,7 +70,7 @@ typedef struct {
   } counttype;
 
 #ifdef DO_INIT
-counttype count = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+counttype count = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 #else
 EXTERN counttype count;
 #endif

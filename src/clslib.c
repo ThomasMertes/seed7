@@ -91,7 +91,13 @@ listtype arguments;
     modu_from = arg_3(arguments);
     isit_class(modu_to);
     isit_class(modu_from);
+ /* printf("cls_cpy from: ");
+    trace1(modu_from);
+    printf("\n"); */
     modu_to->value.objvalue = take_reference(modu_from);
+ /* printf("cls_cpy to: ");
+    trace1(modu_to);
+    printf("\n"); */
     return(SYS_EMPTY_OBJECT);
   } /* cls_cpy */
 

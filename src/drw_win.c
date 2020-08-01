@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  drw_win.c     Graphic access using the windows capabilitys.     */
-/*  Copyright (C) 1989 - 2006  Thomas Mertes                        */
+/*  Copyright (C) 1989 - 2007  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */
@@ -24,7 +24,7 @@
 /*                                                                  */
 /*  Module: Seed7 Runtime Library                                   */
 /*  File: seed7/src/drw_win.c                                       */
-/*  Changes: 2005  Thomas Mertes                                    */
+/*  Changes: 2005 - 2007  Thomas Mertes                             */
 /*  Content: Graphic access using the windows capabilitys.          */
 /*                                                                  */
 /********************************************************************/
@@ -1055,6 +1055,44 @@ wintype win_from;
       win_from->usage_count++;
     } /* if */
   } /* drwCpy */
+
+
+
+#ifdef ANSI_C
+
+wintype drwCreate (wintype win_from)
+#else
+
+wintype drwCreate (win_from)
+wintype win_from;
+#endif
+
+  { /* drwCreate */
+    if (win_from != NULL) {
+      win_from->usage_count++;
+    } /* if */
+    return(win_from);
+  } /* drwCreate */
+
+
+
+#ifdef ANSI_C
+
+void drwDestr (wintype old_win)
+#else
+
+void drwDestr (old_win)
+wintype old_win;
+#endif
+
+  { /* drwDestr */
+    if (old_win != NULL) {
+      old_win->usage_count--;
+      if (old_win->usage_count == 0) {
+        drwFree(old_win);
+      } /* if */
+    } /* if */
+  } /* drwDestr */
 
 
 

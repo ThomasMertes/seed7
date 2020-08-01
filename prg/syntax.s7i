@@ -122,6 +122,8 @@ $ syntax expr: .array. [ .(). ] .() is        <-  13;
 $ syntax expr: .hash. [ .(). ] .() is         <-  13;
 $ syntax expr: .new.enum.(expr).end.enum is    -> 13;
 $ syntax expr: .new.enum.end.enum is           -> 13;
+$ syntax expr: .new.interface is               -> 13;
+$ syntax expr: .sub.().interface is            -> 13;
 $ syntax expr: .new.struct2.().end.struct is   -> 13;
 $ syntax expr: .new.struct.().end.struct is    -> 13;
 $ syntax expr: .new.struct.end.struct is       -> 13;

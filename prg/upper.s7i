@@ -48,7 +48,7 @@ const proc: page (ref upper_file: upper_fil) is func
 *)
 
 
-const proc: writeln (ref upper_file: upper_fil) is func
+const proc: writeln (inout upper_file: upper_fil) is func
   begin
     writeln(upper_fil.destination_file);
   end func;
@@ -60,13 +60,13 @@ const proc: backSpace (ref upper_file: upper_fil) is func
   end func;
 
 
-const proc: write (ref upper_file: upper_fil, ref string: stri) is func
+const proc: write (inout upper_file: upper_fil, in string: stri) is func
   begin
     write(upper_fil.destination_file, upper(stri));
   end func;
 
 
-const func string: gets (ref upper_file: upper_fil, in integer: leng) is func
+const func string: gets (inout upper_file: upper_fil, in integer: leng) is func
   result
     var string: stri is "";
   begin

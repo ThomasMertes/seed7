@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  hi   Interpreter for Seed7 programs.                            */
-/*  Copyright (C) 1990 - 2005  Thomas Mertes                        */
+/*  Copyright (C) 1990 - 2007  Thomas Mertes                        */
 /*                                                                  */
 /*  This program is free software; you can redistribute it and/or   */
 /*  modify it under the terms of the GNU General Public License as  */
@@ -121,6 +121,10 @@ int start;
                 option.exec_trace_level = "a";
               } /* if */
               break;
+            case 'v':
+              option.compilation_info = TRUE;
+              option.linecount_info = TRUE;
+              break;
             default:
               printf("*** Unknown option %s\n", opt);
               break;
@@ -135,6 +139,9 @@ int start;
         } /* if */
       } /* if */
     } /* for */
+    /* printf("%d %d\n",
+        option.compilation_info,
+        option.linecount_info); */
 #ifdef TRACE_OPTION
     printf("END options\n");
 #endif

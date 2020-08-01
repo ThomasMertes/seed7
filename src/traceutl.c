@@ -332,11 +332,13 @@ stritype out_mem;
         if (*str <= (chartype) 26) {
           sprintf(buffer, "\\%c", ((int) *str) + '@');
         } else if (*str <= (chartype) 31) {
-          sprintf(buffer, "\\%ld\\", *str);
+          sprintf(buffer, "\\%lu\\", *str);
         } else if (*str <= (chartype) 127) {
           sprintf(buffer, "%c", (int) *str);
+        } else if (*str == (chartype) -1) {
+          sprintf(buffer, "\\-1\\");
         } else {
-          sprintf(buffer, "\\%ld\\", *str);
+          sprintf(buffer, "\\%lu\\", *str);
         } /* if */
         prot_cstri(buffer);
         /* putc((int) *str, protfile); */

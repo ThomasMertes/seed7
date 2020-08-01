@@ -72,16 +72,15 @@ const bigInteger: (attr bigInteger) . value is bigInteger parse "0";
 
 const func bigInteger: sqrt (in var bigInteger: number) is func
   result
-    var bigInteger: result is bigInteger.value;
+    var bigInteger: result is 0_;
   local
-    var bigInteger: res2 is bigInteger.value;
-    const bigInteger: two is bigInteger parse "2";
+    var bigInteger: res2 is 0_;
   begin
-    if number > bigInteger.value then
+    if number > 0_ then
       res2 := number;
       repeat
         result := res2;
-        res2 := (result + number div result) div two;
+        res2 := (result + number div result) div 2_;
       until result <= res2;
     end if;
   end func;

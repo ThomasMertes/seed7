@@ -37,8 +37,10 @@ const type: field_file is sub NULL_FILE struct
     var string: field is "";
   end struct;
 
+type_implements_interface(field_file, text);
 
-const func field_file: open_field (in file: in_fil, in text: out_fil,
+
+const func field_file: open_field (in file: in_fil, inout text: out_fil,
     in integer: line, in integer: column, in integer: width, in string: default) is func
   result
     var field_file: field_fil is field_file.value;

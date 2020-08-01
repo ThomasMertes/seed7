@@ -29,6 +29,8 @@
 const type: screen_file is sub NULL_FILE struct
   end struct;
 
+type_implements_interface(screen_file, text);
+
 const screen_file: STD_SCREEN is screen_file.value;
 
 const proc: SCR_OPEN is                               action "SCR_OPEN";
@@ -47,11 +49,11 @@ const proc: flush (ref screen_file param) is                        action "SCR_
 const func integer: height (ref screen_file param) is               action "SCR_HEIGHT";
 const func integer: width (ref screen_file param) is                action "SCR_WIDTH";
 const proc: cursor (ref screen_file param, ref boolean param) is    action "SCR_CURSOR";
-const proc: clear (ref screen_file param, ref integer param,
-    ref integer param, ref integer param, ref integer param) is     action "SCR_CLEAR";
-const proc: v_scroll (ref screen_file param,
-    ref integer param, ref integer param, ref integer param,
-    ref integer param, ref integer param) is                        action "SCR_V_SCL";
+const proc: clear (in screen_file param, in integer param,
+    in integer param, in integer param, in integer param) is        action "SCR_CLEAR";
+const proc: v_scroll (inout screen_file param,
+    in integer param, in integer param, in integer param,
+    in integer param, in integer param) is                          action "SCR_V_SCL";
 const proc: h_scroll (ref screen_file param,
     ref integer param, ref integer param, ref integer param,
     ref integer param, ref integer param) is                        action "SCR_H_SCL";
@@ -68,7 +70,7 @@ const proc: write (ref screen_file: screen_fil, in char: ch) is func
     write(screen_fil, str(ch));
   end func;
 
-const proc: clear (ref screen_file: screen_fil) is func
+const proc: clear (in screen_file: screen_fil) is func
   begin
     clear(screen_fil, 1, 1, height(screen_fil), width(screen_fil));
   end func;

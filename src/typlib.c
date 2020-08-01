@@ -56,6 +56,30 @@
 
 #ifdef ANSI_C
 
+objecttype typ_addinterface (listtype arguments)
+#else
+
+objecttype typ_addinterface (arguments)
+listtype arguments;
+#endif
+
+  {
+    typetype typ1;
+    typetype typ2;
+
+  /* typ_addinterface */
+    isit_type(arg_1(arguments));
+    isit_type(arg_2(arguments));
+    typ1 = take_type(arg_1(arguments));
+    typ2 = take_type(arg_2(arguments));
+    add_interface(typ1, typ2);
+    return(SYS_EMPTY_OBJECT);
+  } /* typ_addinterface */
+
+
+
+#ifdef ANSI_C
+
 objecttype typ_cmp (listtype arguments)
 #else
 
@@ -298,6 +322,29 @@ listtype arguments;
 #endif
     return(bld_type_temp(result));
   } /* typ_gentype */
+
+
+
+#ifdef OUT_OF_ORDER
+#ifdef ANSI_C
+
+objecttype typ_getinterfaces (listtype arguments)
+#else
+
+objecttype typ_getinterfaces (arguments)
+listtype arguments;
+#endif
+
+  {
+    typetype typ1;
+
+  /* typ_getinterfaces */
+    isit_type(arg_1(arguments));
+    typ1 = take_type(arg_1(arguments));
+    get_interfaces(typ1);
+    return(SYS_EMPTY_OBJECT);
+  } /* typ_getinterfaces */
+#endif
 
 
 

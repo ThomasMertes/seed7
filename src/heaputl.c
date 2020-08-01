@@ -82,6 +82,7 @@ long sizediff;
         ((memsizetype) count.token) *     SIZ_REC(tokenrecord) +
         ((memsizetype) count.owner) *     SIZ_REC(ownerrecord) +
         ((memsizetype) count.stack) *     SIZ_REC(stackrecord) +
+        count.typelist_elems * SIZ_REC(typelisttype) +
         ((memsizetype) count.type) *      SIZ_REC(typerecord) +
         ((memsizetype) count.list_elem) * SIZ_REC(listrecord) +
         ((memsizetype) count.block) *     SIZ_REC(blockrecord) +

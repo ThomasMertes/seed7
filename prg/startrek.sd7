@@ -522,8 +522,8 @@ const proc: move_ship (in float: course, in float: warp_factor,
       sectorColumn := column;
       sect[sectorRow][sectorColumn] := 2;
     else  (* Out of quadrant -- move to new quadrant *)
-      quadrantRow := trunc(flt(quadrantRow) + warp_factor * delta_y + (flt(sectorRow) + 0.5) / 8.0);
-      quadrantColumn := trunc(flt(quadrantColumn) + warp_factor * delta_x + (flt(sectorColumn) + 0.5) / 8.0);
+      quadrantRow := trunc(flt(quadrantRow) + warp_factor * delta_y + (flt(sectorRow) - 0.5) / 8.0);
+      quadrantColumn := trunc(flt(quadrantColumn) + warp_factor * delta_x + (flt(sectorColumn) - 0.5) / 8.0);
       if quadrantRow < 1 then
         quadrantRow := 1;
       elsif quadrantRow > 8 then

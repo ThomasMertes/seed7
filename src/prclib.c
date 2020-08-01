@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  hi   Interpreter for Seed7 programs.                            */
-/*  Copyright (C) 1990 - 2000  Thomas Mertes                        */
+/*  Copyright (C) 1990 - 2007  Thomas Mertes                        */
 /*                                                                  */
 /*  This program is free software; you can redistribute it and/or   */
 /*  modify it under the terms of the GNU General Public License as  */
@@ -20,7 +20,7 @@
 /*                                                                  */
 /*  Module: Library                                                 */
 /*  File: seed7/src/prclib.c                                        */
-/*  Changes: 1991, 1992, 1993, 1994  Thomas Mertes                  */
+/*  Changes: 1991, 1992, 1993, 1994, 2007  Thomas Mertes            */
 /*  Content: Primitive actions to implement simple statements.      */
 /*                                                                  */
 /********************************************************************/
@@ -520,44 +520,6 @@ listtype arguments;
 
 #ifdef ANSI_C
 
-objecttype prc_env (listtype arguments)
-#else
-
-objecttype prc_env (arguments)
-listtype arguments;
-#endif
-
-  {
-    stritype stri;
-    char env_name[250];
-    char *environment;
-    memsizetype length;
-    stritype result;
-
-  /* prc_env */
-    isit_stri(arg_1(arguments));
-    stri = take_stri(arg_1(arguments));
-    memcpy(env_name, stri->mem, (SIZE_TYPE) stri->size);
-    env_name[stri->size] = '\0';
-    if ((environment = getenv(env_name)) != NULL) {
-      length = strlen(environment);
-    } else {
-      length = 0;
-    } /* if */
-    if (!ALLOC_STRI(result, length)) {
-      return(raise_exception(SYS_MEM_EXCEPTION));
-    } else {
-      COUNT_STRI(length);
-      result->size = length;
-      memcpy(result->mem, environment, (SIZE_TYPE) length);
-      return(bld_stri_temp(result));
-    } /* if */
-  } /* prc_env */
-
-
-
-#ifdef ANSI_C
-
 objecttype prc_exit (listtype arguments)
 #else
 
@@ -644,6 +606,42 @@ listtype arguments;
     } /* if */
     return(SYS_EMPTY_OBJECT);
   } /* prc_for_to */
+
+
+
+#ifdef ANSI_C
+
+objecttype prc_getenv (listtype arguments)
+#else
+
+objecttype prc_getenv (arguments)
+listtype arguments;
+#endif
+
+  {
+    stritype stri;
+    uchartype env_name[250];
+    ustritype environment;
+    stritype result;
+
+  /* prc_getenv */
+    isit_stri(arg_1(arguments));
+    stri = take_stri(arg_1(arguments));
+    if (compr_size(stri) + 1 > 250) {
+      environment = "";
+    } else {
+      stri_export(env_name, stri);
+      if ((environment = getenv(env_name)) == NULL) {
+        environment = "";
+      } /* if */
+    } /* if */
+    result = cp_to_stri(environment);
+    if (result == NULL) {
+      return(raise_exception(SYS_MEM_EXCEPTION));
+    } else {
+      return(bld_stri_temp(result));
+    } /* if */
+  } /* prc_getenv */
 
 
 
@@ -800,6 +798,44 @@ listtype arguments;
   { /* prc_noop */
     return(SYS_EMPTY_OBJECT);
   } /* prc_noop */
+
+
+
+#ifdef ANSI_C
+
+objecttype prc_option (listtype arguments)
+#else
+
+objecttype prc_option (arguments)
+listtype arguments;
+#endif
+
+  {
+    stritype stri;
+    uchartype opt_name[250];
+    ustritype opt;
+    stritype result;
+
+  /* prc_option */
+    isit_stri(arg_1(arguments));
+    stri = take_stri(arg_1(arguments));
+    if (compr_size(stri) + 1 > 250) {
+      opt = "";
+    } else {
+      stri_export(opt_name, stri);
+      if (strcmp(opt_name, "LIBS") == 0) {
+        opt = LINKER_LIBS;
+      } else {
+        opt = "";
+      } /* if */
+    } /* if */
+    result = cp_to_stri(opt);
+    if (result == NULL) {
+      return(raise_exception(SYS_MEM_EXCEPTION));
+    } else {
+      return(bld_stri_temp(result));
+    } /* if */
+  } /* prc_option */
 
 
 

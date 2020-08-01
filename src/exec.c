@@ -1076,10 +1076,21 @@ printf("\n"); */
             element_value, &err_info);
         actual_element = actual_element->next;
       } /* while */
+#ifdef WITH_PROTOCOL
+    if (trace.dynamic) {
+      if (trace.heapsize) {
+        prot_heapsize();
+        prot_cstri(" ");
+      } /* if */
+      prot_cstri("DYNAMIC2 ");
+      prot_list(match_expr->value.listvalue);
+      prot_nl();
+    } /* if */
+#endif
 /* printf("match_expr ");
 trace1(match_expr);
 printf("\n"); */
-      if (match_expression(match_expr) != NULL &&
+      if (match_prog_expression(prog.declaration_root, match_expr) != NULL &&
           (match_result = match_object(match_expr)) != NULL) {
 #ifdef WITH_PROTOCOL
         if (trace.dynamic) {
@@ -1107,7 +1118,7 @@ printf("\n"); */
         } /* if */
 #endif
       } else {
-        return(raise_with_arguments(SYS_MEM_EXCEPTION, expr_list));
+        return(raise_with_arguments(SYS_ACT_ILLEGAL_EXCEPTION, expr_list));
       } /* if */
     } else {
       return(raise_with_arguments(SYS_MEM_EXCEPTION, expr_list));

@@ -451,7 +451,7 @@ const func PRIMITIVE_WINDOW: imagePixmap (ref array array pixel: image) is func
   end func;
 
 
-const func integer: get_le_uint2 (ref file: in_file) is func
+const func integer: get_le_uint2 (inout file: in_file) is func
   result
     var integer: number is 0;
   local
@@ -465,7 +465,7 @@ const func integer: get_le_uint2 (ref file: in_file) is func
   end func;
 
 
-const func integer: get_le_uint4 (ref file: in_file) is func
+const func integer: get_le_uint4 (inout file: in_file) is func
   result
     var integer: number is 0;
   local
@@ -608,6 +608,9 @@ const type: graph_file is sub NULL_FILE struct
     var color: foreground is white;
     var color: background is black;
   end struct;
+
+
+type_implements_interface(graph_file, text);
 
 
 const func graph_file: open (in PRIMITIVE_WINDOW: graph_win) is func

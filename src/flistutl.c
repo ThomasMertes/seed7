@@ -349,6 +349,13 @@ void heap_statistic ()
           SIZ_REC(stackrecord));
       bytes_used += count.stack * SIZ_REC(stackrecord);
     } /* if */
+    if (count.typelist_elems != 0) {
+      printf("%9lu bytes in %8lu typelist elems of   %4d bytes\n",
+          count.typelist_elems * SIZ_REC(typelisttype),
+          count.typelist_elems,
+          SIZ_REC(typelisttype));
+      bytes_used += count.typelist_elems * SIZ_REC(typelisttype);
+    } /* if */
     if (count.type != 0) {
       printf("%9lu bytes in %8lu types of            %4d bytes\n",
           count.type * SIZ_REC(typerecord),
@@ -502,6 +509,7 @@ static memsizetype compute_hs ()
     bytes_total += count.token * SIZ_REC(tokenrecord);
     bytes_total += count.owner * SIZ_REC(ownerrecord);
     bytes_total += count.stack * SIZ_REC(stackrecord);
+    bytes_total += count.typelist_elems * SIZ_REC(typelisttype);
     bytes_total += count.type * SIZ_REC(typerecord);
     bytes_total += count.list_elem * SIZ_REC(listrecord);
     bytes_total += count.block * SIZ_REC(blockrecord);

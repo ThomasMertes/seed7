@@ -93,7 +93,7 @@ void err_num_stri (errortype, int, int, ustritype);
 void err_ident (errortype, identtype);
 void err_object (errortype, objecttype);
 void err_type (errortype, typetype);
-void err_expr_obj (errortype, listtype, objecttype);
+void err_expr_obj (errortype, objecttype, objecttype);
 void err_match (errortype, objecttype);
 void err_string (errortype, ustritype);
 void err_stri (errortype, stritype);
