@@ -565,6 +565,60 @@ listtype arguments;
 
 #ifdef ANSI_C
 
+objecttype dcl_param_attr (listtype arguments)
+#else
+
+objecttype dcl_param_attr (arguments)
+listtype arguments;
+#endif
+
+  {
+    objecttype f_param_object;
+    objecttype param_object;
+    objecttype *f_param_prototype;
+    objecttype result;
+
+  /* dcl_param_attr */
+    isit_param(arg_2(arguments));
+    f_param_object = arg_2(arguments);
+    /* printf("decl param attr ");
+       trace1(f_param_object);
+       printf(":\n"); */
+    param_object = take_param(f_param_object);
+    /* printf("decl param attr ");
+       trace1(param_object);
+       printf(":\n"); */
+    if (CATEGORY_OF_OBJ(param_object) == REFPARAMOBJECT && VAR_OBJECT(param_object)) {
+      f_param_prototype = &param_object->type_of->inout_f_param_prototype;
+    } else {
+      f_param_prototype = &param_object->type_of->other_f_param_prototype;
+    } /* if */
+    if (*f_param_prototype == NULL) {
+      if (ALLOC_OBJECT(result)) {
+        result->type_of = NULL;
+        result->descriptor.property = NULL;
+        INIT_CATEGORY_OF_OBJ(result, FORMPARAMOBJECT);
+        result->value.objvalue = param_object;
+      } else {
+        return(raise_exception(SYS_MEM_EXCEPTION));
+      } /* if */
+      *f_param_prototype = result;
+      f_param_object->value.objvalue = NULL;
+    } else {
+      result = *f_param_prototype;
+    } /* if */
+    /* trace1(param_object);
+       printf("\n");
+       printf("dcl_param_attr => %lX\n", result);
+       trace1(result);
+       printf("\n"); */
+    return(bld_param_temp(result));
+  } /* dcl_param_attr */
+
+
+
+#ifdef ANSI_C
+
 objecttype dcl_ref1 (listtype arguments)
 #else
 

@@ -66,6 +66,7 @@ const func f_param: inout (ref type param) param is                action "DCL_I
 const func f_param: inout (ref type param) : (ref expr param) is   action "DCL_INOUT2";
 const func f_param: in (ref type param) param is                   action "DCL_REF1";
 const func f_param: attr (ref type param) is                       action "DCL_ATTR";
+const func f_param: attr (ref f_param param) is                    action "DCL_PARAM_ATTR";
 
 const proc: (ref type param) ::= (ref type param) is            action "TYP_CREATE";
 const proc: destroy (ref type param) is                         action "TYP_DESTR";

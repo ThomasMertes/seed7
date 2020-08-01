@@ -1,3 +1,9 @@
+20090510:
+- A new example program, the Comanche webserver (comanche.sd7), was added.
+- The function getNonDigits was added to the scanstri.s7i library.
+- Experimental support for new attribute parameters was added.
+- Memory leaks in the functions hsh_excl (hshlib.c) and hshExcl (hsh_rtl.c) were fixed.
+
 20090426:
 - The function 'inflate' was added to the gzip.s7i library.
 - The function getNextHtmlAttribute was added to the scanfile.s7i library.

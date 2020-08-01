@@ -24,6 +24,7 @@ clock.sd7    Displays a digital clock
 clock2.sd7   Displays a digital clock with mycroseconds        
 clock3.sd7   Analog Clock                                      
 cmpfil.sd7   Compares two files in main memory                 
+comanche.sd7 Simple webserver for static pages.                
 comp.sd7     Compiler from Seed7 to C                          
 dirtst.sd7   Test reading a directory as file                  
 dirx.sd7     Make a directory listing                          

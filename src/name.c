@@ -1139,3 +1139,42 @@ errinfotype *err_info;
 #endif
     return(defined_object);
   } /* dollar_entername */
+
+
+
+#ifdef ANSI_C
+
+objecttype enterFuncName (nodetype declaration_base, objecttype object_name,
+    errinfotype *err_info)
+#else
+
+objecttype enterFuncName (declaration_base, object_name, err_info)
+nodetype declaration_base;
+objecttype object_name;
+errinfotype *err_info;
+#endif
+
+  {
+    objecttype defined_object;
+
+  /* enterFuncName */
+#ifdef TRACE_NAME
+    printf("BEGIN enterFuncName(%ld, ", (long) declaration_base);
+    trace1(object_name);
+    printf(")\n");
+#endif
+    if (CATEGORY_OF_OBJ(object_name) == EXPROBJECT) {
+      if (object_name->value.listvalue->next != NULL) {
+        defined_object = inst_list(declaration_base, object_name, err_info);
+      } /* if */
+    } /* if */
+#ifdef TRACE_NAME
+    trace_nodes();
+    printf("END enterFuncName(");
+    trace1(object_name);
+    printf(") --> ");
+    trace1(defined_object);
+    printf("\n");
+#endif
+    return(defined_object);
+  } /* enterFuncName */

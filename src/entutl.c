@@ -479,6 +479,11 @@ printf("\n"); */
 trace1(param_obj);
 printf("\n"); */
           curr_node = get_node(&curr_node->attr, param_obj->value.typevalue->match_obj);
+        } else if (CATEGORY_OF_OBJ(param_obj) == FORMPARAMOBJECT) {
+/* printf("attr param attr ");
+trace1(param_obj);
+printf("\n"); */
+          curr_node = get_node(&curr_node->attr, param_obj);
         } else {
 /* printf("symbol param ");
 trace1(param_obj);
@@ -558,6 +563,11 @@ printf("\n"); */
 trace1(param_obj);
 printf("\n"); */
           curr_node = find_node(curr_node->attr, param_obj->value.typevalue->match_obj);
+        } else if (CATEGORY_OF_OBJ(param_obj) == FORMPARAMOBJECT) {
+/* printf("attr param attr ");
+trace1(param_obj);
+printf("\n"); */
+          curr_node = find_node(curr_node->attr, param_obj);
         } else {
 /* printf("symbol param ");
 trace1(param_obj);

@@ -225,7 +225,7 @@ $ syntax expr: .inout.(). : .(expr) is            -> 40;
 $ syntax expr: .ref.().param is                   -> 40;
 $ syntax expr: .ref.(). : .(expr) is              -> 40;
 $ syntax expr: .symb.() is                        -> 40;
-$ syntax expr: .attr.() is                        -> 40;
+$ syntax expr: .attr.() is                        <- 40;
 
 (* DECLARATORS *)
 $ syntax expr: .syntax. : .().is.() is            -> 40;

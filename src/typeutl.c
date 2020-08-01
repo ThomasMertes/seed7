@@ -75,6 +75,8 @@ typetype result_type;
         created_type->is_varfunc_type = FALSE;
         created_type->interfaces = NULL;
         created_type->name = NULL;
+        created_type->inout_f_param_prototype = NULL;
+        created_type->other_f_param_prototype = NULL;
         created_type->create_call_obj = NULL;
         created_type->destroy_call_obj = NULL;
         created_type->copy_call_obj = NULL;

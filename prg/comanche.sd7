@@ -1,0 +1,175 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  comanche.sd7  Simple webserver for static pages.                *)
+(*  Copyright (C) 2009  Thomas Mertes                               *)
+(*                                                                  *)
+(*  This program is free software; you can redistribute it and/or   *)
+(*  modify it under the terms of the GNU General Public License as  *)
+(*  published by the Free Software Foundation; either version 2 of  *)
+(*  the License, or (at your option) any later version.             *)
+(*                                                                  *)
+(*  This program is distributed in the hope that it will be useful, *)
+(*  but WITHOUT ANY WARRANTY; without even the implied warranty of  *)
+(*  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the   *)
+(*  GNU General Public License for more details.                    *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU General Public       *)
+(*  License along with this program; if not, write to the           *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+$ include "seed7_05.s7i";
+  include "socket.s7i";
+  include "getf.s7i";
+
+const integer: port is 1080;
+var string: htdocs is "../htdocs";
+
+
+const proc: sendHttpResponse (inout file: sock, in string: buffer) is func
+  begin
+    writeln(sock, "HTTP/1.0 200 OK");
+    writeln(sock, "Server: Comanche");
+    writeln(sock, "Transfer-Encoding: identity");
+    if startsWith(buffer, "\137\PNG") then
+      writeln(sock, "Content-Type: image/png");
+    elsif pos(buffer, "<html") = 0 then
+      writeln(sock, "Content-Type: text/plain");
+    else
+      writeln(sock, "Content-Type: text/html");
+    end if;
+    writeln(sock, "Content-Length: " <& length(buffer));
+    # writeln("Content-Length: " <& length(buffer));
+    writeln(sock);
+    writeln(sock, buffer);
+  end func;
+
+
+const proc: sendClientError (inout file: sock, in string: message,
+    in string: explanation) is func
+  begin
+    writeln(sock, "HTTP/1.0 " <& message);
+    writeln(sock, "Server: Comanche");
+    writeln(sock, "Transfer-Encoding: identity");
+    writeln(sock, "Content-Type: text/html");
+    writeln(sock);
+    writeln(sock, "<html><head>");
+    writeln(sock, "<title>" <& message <& "</title>");
+    writeln(sock, "</head><body>");
+    writeln(sock, "<h1>Not Found</h1>");
+    writeln(sock, "<p>" <& explanation <& "</p>");
+    writeln(sock, "<hr>");
+    writeln(sock, "<address>Comanche</address>");
+    writeln(sock, "</body></html>");
+    writeln(sock);
+  end func;
+
+
+const proc: processHttpRequest (inout file: sock) is func
+  local
+    var string: line is "";
+    var array string: header is 0 times "";
+    var string: requestCommand is "";
+    var string: requestPath is "";
+    var string: filePath is "";
+    var string: hostName is "";
+    var string: buffer is "";
+  begin
+    line := getln(sock);
+    while line <> "" do
+      # writeln(line);
+      if startsWith(line, "GET") then
+        requestCommand := "GET";
+        requestPath := trim(line[4 ..]);
+        requestPath := requestPath[.. pred(pos(requestPath, ' '))];
+      end if;
+      if startsWith(line, "Host") then
+        hostName := trim(line[succ(pos(line, ":")) ..]);
+      end if;
+      header &:= [] (line);
+      line := getln(sock);
+    end while;
+    if requestCommand = "GET" then
+      # writeln(requestPath);
+      filePath := requestPath;
+      filePath := replace(filePath, "\\", "/");   # Path delimiter is slash
+      while pos(filePath, "//") <> 0 do           # Remove double slashes
+        filePath := replace(filePath, "//", "/");
+      end while;
+      if not startsWith(filePath, "/") then
+        filePath := "/" & filePath;
+      end if;
+      filePath := htdocs & filePath;
+      while endsWith(filePath, "/") do
+        filePath := filePath[.. pred(length(filePath))];
+      end while;
+      # writeln(literal(filePath));
+      if fileType(filePath) = FILE_ABSENT then
+        if fileType(filePath & ".html") <> FILE_ABSENT then
+          filePath &:= ".html";
+        elsif fileType(filePath & ".htm") <> FILE_ABSENT then
+          filePath &:= ".htm";
+        end if;
+      elsif fileType(filePath) = FILE_DIR then
+        if fileType(filePath & "/index.html") <> FILE_ABSENT then
+          filePath &:= "/index.html";
+        elsif fileType(filePath & "/index.htm") <> FILE_ABSENT then
+          filePath &:= "/index.htm";
+        end if;
+      end if;
+      if fileType(filePath) = FILE_REGULAR then
+        buffer := getf(filePath);
+      else
+        buffer := "";
+      end if;        
+      if buffer <> "" then
+        sendHttpResponse(sock, buffer);
+      else
+        sendClientError(sock, "404 Not Found",
+            "The requested URL " <& requestPath <&
+            " was not found on this server.");
+      end if;
+    end if;
+  end func;
+
+
+const proc: main is func
+  local
+    var listener: inetListener is listener.value;
+    var file: sock is socket.value;
+    var string: line is "";
+    var char: ch is ' ';
+  begin
+    writeln("Comanche Version 1.0 - Simple webserver for static pages");
+    writeln("Copyright (C) 2009 Thomas Mertes");
+    writeln("This is free software; see the source for copying conditions.  There is NO");
+    writeln("warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.");
+    writeln("Comanche is written in the Seed7 programming language");
+    writeln("Homepage: http://seed7.sourceforge.net");
+    if length(argv(PROGRAM)) >= 1 then
+      htdocs := argv(PROGRAM)[1];
+    end if;
+    if not fileExists(htdocs) then
+      writeln(" *** Directory " <& literal(htdocs) <& " not found.");
+      writeln("     You need to specify a directory which contains");
+      writeln("     at least \"index.htm\" and possibly other HTML files.");
+    else
+      writeln("HTML directory: " <& htdocs);
+      writeln("Port: " <& port);
+      writeln("To test comanche make sure that " <&
+              literal(htdocs & "/index.htm") <&
+              " exists and");
+      writeln("open http://localhost:" <& port <& "/ in your browser.");
+      inetListener := openInetListener(port);
+      listen(inetListener, 10);
+      while TRUE do
+        sock := accept(inetListener);
+        processHttpRequest(sock);
+        close(sock);
+      end while;
+    end if;
+  end func;

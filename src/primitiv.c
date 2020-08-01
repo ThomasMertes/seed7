@@ -222,6 +222,7 @@ static primactrecord prim_act_table[] = {
     { "DCL_IN2VAR",          dcl_in2var,          },
     { "DCL_INOUT1",          dcl_inout1,          },
     { "DCL_INOUT2",          dcl_inout2,          },
+    { "DCL_PARAM_ATTR",      dcl_param_attr,      },
     { "DCL_REF1",            dcl_ref1,            },
     { "DCL_REF2",            dcl_ref2,            },
     { "DCL_SYMB",            dcl_symb,            },

@@ -43,6 +43,7 @@
 #include "memory.h"
 #include "error.h"
 #include "prclib.h"
+#include "dcllib.h"
 
 #undef EXTERN
 #define EXTERN
@@ -737,6 +738,72 @@ booltype look_for_interfaces;
 
 #ifdef ANSI_C
 
+static objecttype match_subexpr_param_attr (objecttype expr_object,
+    const_nodetype start_node, const_typetype f_param_type,
+    booltype is_inout_f_param, listtype rest_of_expression,
+    booltype check_access_right, booltype look_for_interfaces)
+#else
+
+static objecttype match_subexpr_param_attr (expr_object, start_node,
+    f_param_type, is_inout_f_param, rest_of_expression, check_access_right,
+    look_for_interfaces)
+objecttype expr_object;
+nodetype start_node;
+const_typetype f_param_type;
+booltype is_inout_f_param;
+listtype rest_of_expression;
+booltype check_access_right;
+booltype look_for_interfaces;
+#endif
+
+  {
+    nodetype node_found;
+    objecttype matched_object;
+
+  /* match_subexpr_param_attr */
+#ifdef TRACE_MATCH
+    printf("BEGIN match_subexpr_param_attr\n");
+#endif
+    /* printf("inout_f_param_prototype = %lX\n", f_param_type->inout_f_param_prototype);
+       trace1(f_param_type->inout_f_param_prototype);
+       printf("\n");
+       printf("other_f_param_prototype = %lX\n", f_param_type->other_f_param_prototype);
+       trace1(f_param_type->other_f_param_prototype);
+       printf("\n"); */
+    matched_object = NULL;
+    do {
+      if (is_inout_f_param) {
+        if (trace.match) {
+          printf("//PA1//");
+          trace1(f_param_type->inout_f_param_prototype);
+          fflush(stdout);
+        } /* if */
+        node_found = find_node(start_node->attr, f_param_type->inout_f_param_prototype);
+      } else {
+        if (trace.match) {
+          printf("//PA1//");
+          trace1(f_param_type->other_f_param_prototype);
+          fflush(stdout);
+        } /* if */
+        node_found = find_node(start_node->attr, f_param_type->other_f_param_prototype);
+      } /* if */
+      if (node_found != NULL) {
+        matched_object = match_subexpr(expr_object, node_found,
+            rest_of_expression, check_access_right,
+            look_for_interfaces);
+      } /* if */
+      f_param_type = f_param_type->meta;
+    } while (f_param_type != NULL && matched_object == NULL);
+#ifdef TRACE_MATCH
+    printf("END match_subexpr_param_attr\n");
+#endif
+    return(matched_object);
+  } /* match_subexpr_param_attr */
+
+
+
+#ifdef ANSI_C
+
 static objecttype match_subexpr (objecttype expr_object,
     const_nodetype start_node, listtype match_expr, booltype check_access_right,
     booltype look_for_interfaces)
@@ -906,6 +973,41 @@ booltype look_for_interfaces;
                   matched_object = match_subexpr_attr(expr_object, start_node,
                       object_type, rest_of_expression, check_access_right,
                       look_for_interfaces);
+		/* } else {
+                  trace1(current_element->value.listvalue->obj);
+                  printf("\n"); */
+                } /* if */
+              } else if (CATEGORY_OF_OBJ(current_element) == MATCHOBJECT) {
+                if (CATEGORY_OF_OBJ(current_element->value.listvalue->obj) == ACTOBJECT) {
+		  /* if (current_element->value.listvalue->obj->type_of->result_type == */
+                  /* trace1(current_element->value.listvalue->obj);
+		     printf("\n"); */
+                  if (current_element->value.listvalue->obj->value.actvalue == dcl_val1 ||
+                      current_element->value.listvalue->obj->value.actvalue == dcl_val2 ||
+                      current_element->value.listvalue->obj->value.actvalue == dcl_ref1 ||
+                      current_element->value.listvalue->obj->value.actvalue == dcl_ref2 ||
+                      current_element->value.listvalue->obj->value.actvalue == dcl_attr) {
+                    object_type = take_type(current_element->value.listvalue->next->next->obj);
+                    /* trace1(current_element->value.listvalue->obj);
+                       printf(" **** other\n");
+                       trace1(current_element->value.listvalue->next->next->obj);
+                       printf(" #### other\n"); */
+                    matched_object = match_subexpr_param_attr(expr_object, start_node,
+                        object_type, FALSE, rest_of_expression, check_access_right,
+                        look_for_interfaces);
+                    /* printf(" ++++ other\n"); */
+                  } else if (current_element->value.listvalue->obj->value.actvalue == dcl_inout1 ||
+                      current_element->value.listvalue->obj->value.actvalue == dcl_inout2) {
+                    object_type = take_type(current_element->value.listvalue->next->next->obj);
+                    /* trace1(current_element->value.listvalue->obj);
+                       printf(" **** inout\n");
+                       trace1(current_element->value.listvalue->next->next->obj);
+                       printf(" #### inout\n"); */
+                    matched_object = match_subexpr_param_attr(expr_object, start_node,
+                        object_type, TRUE, rest_of_expression, check_access_right,
+                        look_for_interfaces);
+                    /* printf(" ++++ inout\n"); */
+                  } /* if */
                 } /* if */
               } /* if */
             } /* if */

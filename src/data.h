@@ -260,6 +260,8 @@ typedef struct typestruct {
     booltype is_varfunc_type;
     typelisttype interfaces;
     identtype name;
+    objecttype inout_f_param_prototype;
+    objecttype other_f_param_prototype;
     objecttype create_call_obj;
     objecttype destroy_call_obj;
     objecttype copy_call_obj;

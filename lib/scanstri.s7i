@@ -274,6 +274,30 @@ const func string: getNumber (inout string: stri) is func
 
 
 (**
+ *  Reads a sequence of non digits from a 'string'.
+ *  When the function is called it is assumed that 'stri' is empty or
+ *  stri[1] contains the first character to be handled. When the
+ *  function is left 'stri' is empty or stri[1] contains the character
+ *  after the digits.
+ *  @return the digit sequence or "" when no digit was found.
+ *)
+const func string: getNonDigits (inout string: stri) is func
+  result
+    var string: symbol is "";
+  local
+    var integer: leng is 0;
+    var integer: pos is 1;
+  begin
+    leng := length(stri);
+    while pos <= leng and (stri[pos] < '0' or stri[pos] > '9') do
+      incr(pos);
+    end while;
+    symbol := stri[.. pred(pos)];
+    stri := stri[pos ..];
+  end func;
+
+
+(**
  *  Reads an escape sequence from 'stri' and appends it to 'symbol'.
  *  The function accepts escape sequences from character end string
  *  literals. When the function is called it is assumed that stri[1]

@@ -948,12 +948,12 @@ listtype arguments;
         delete_pos = &hashelem->next_less;
         hashelem = hashelem->next_less;
       } else if (cmp == 0) {
+        old_hashelem = hashelem;
         if (hashelem->next_less == NULL) {
           *delete_pos = hashelem->next_greater;
         } else if (hashelem->next_greater == NULL) {
           *delete_pos = hashelem->next_less;
         } else {
-          old_hashelem = hashelem;
           *delete_pos = hashelem->next_less;
           greater_hashelems = hashelem->next_greater;
           hashelem = hashelem->next_less;
@@ -961,12 +961,11 @@ listtype arguments;
             hashelem = hashelem->next_greater;
           } /* while */
           hashelem->next_greater = greater_hashelems;
-          old_hashelem->next_less = NULL;
-          old_hashelem->next_greater = NULL;
-          free_helem(old_hashelem, key_destr_func,
-              data_destr_func);
-          hash1->size--;
         } /* if */
+        old_hashelem->next_less = NULL;
+        old_hashelem->next_greater = NULL;
+        free_helem(old_hashelem, key_destr_func, data_destr_func);
+        hash1->size--;
         hashelem = NULL;
       } else {
         delete_pos = &hashelem->next_greater;
