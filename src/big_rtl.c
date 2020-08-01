@@ -2353,7 +2353,7 @@ rtlBiginttype big2;
 rtlBiginttype bigAddTemp (rtlBiginttype big1, const_rtlBiginttype big2)
 #else
 
-rtlBiginttype bigAddTemp  (big1, big2)
+rtlBiginttype bigAddTemp (big1, big2)
 rtlBiginttype big1;
 rtlBiginttype big2;
 #endif
@@ -4227,6 +4227,9 @@ stritype stri;
 
 
 
+/**
+ *  Returns a signed big integer decremented by 1.
+ */
 #ifdef ANSI_C
 
 rtlBiginttype bigPred (const const_rtlBiginttype big1)
@@ -4280,6 +4283,26 @@ rtlBiginttype big1;
       return(result);
     } /* if */
   } /* bigPred */
+
+
+
+/**
+ *  Returns a signed big integer decremented by 1.
+ *  Big1 is assumed to be a temporary value which is reused.
+ */
+#ifdef ANSI_C
+
+rtlBiginttype bigPredTemp (rtlBiginttype big1)
+#else
+
+rtlBiginttype bigPredTemp (big1)
+rtlBiginttype big1;
+#endif
+
+  { /* bigPredTemp */
+    bigDecr(&big1);
+    return(big1);
+  } /* bigPredTemp */
 
 
 
@@ -4759,7 +4782,7 @@ rtlBiginttype big2;
 rtlBiginttype bigSbtrTemp (rtlBiginttype big1, const_rtlBiginttype big2)
 #else
 
-rtlBiginttype bigSbtrTemp  (big1, big2)
+rtlBiginttype bigSbtrTemp (big1, big2)
 rtlBiginttype big1;
 rtlBiginttype big2;
 #endif
@@ -4982,6 +5005,9 @@ rtlBiginttype big1;
 
 
 
+/**
+ *  Returns a signed big integer incremented by 1.
+ */
 #ifdef ANSI_C
 
 rtlBiginttype bigSucc (const const_rtlBiginttype big1)
@@ -5035,6 +5061,26 @@ rtlBiginttype big1;
       return(result);
     } /* if */
   } /* bigSucc */
+
+
+
+/**
+ *  Returns a signed big integer incremented by 1.
+ *  Big1 is assumed to be a temporary value which is reused.
+ */
+#ifdef ANSI_C
+
+rtlBiginttype bigSuccTemp (rtlBiginttype big1)
+#else
+
+rtlBiginttype bigSuccTemp (big1)
+rtlBiginttype big1;
+#endif
+
+  { /* bigSuccTemp */
+    bigIncr(&big1);
+    return(big1);
+  } /* bigSuccTemp */
 
 
 

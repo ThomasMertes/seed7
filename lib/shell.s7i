@@ -1,0 +1,70 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  shell.s7i     Support for shell commands                        *)
+(*  Copyright (C) 2009  Thomas Mertes                               *)
+(*                                                                  *)
+(*  This file is part of the Seed7 Runtime Library.                 *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is free software; you can             *)
+(*  redistribute it and/or modify it under the terms of the GNU     *)
+(*  Lesser General Public License as published by the Free Software *)
+(*  Foundation; either version 2.1 of the License, or (at your      *)
+(*  option) any later version.                                      *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is distributed in the hope that it    *)
+(*  will be useful, but WITHOUT ANY WARRANTY; without even the      *)
+(*  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR *)
+(*  PURPOSE.  See the GNU Lesser General Public License for more    *)
+(*  details.                                                        *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU Lesser General       *)
+(*  Public License along with this program; if not, write to the    *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+(**
+ *  Executes a program using the shell of the operating system.
+ *  The comand string must contain the program name and an optional
+ *  space separated list of parameters. The 'shell' function always
+ *  uses slashes as path separator for the command path (independend
+ *  of the operating system used). Spaces in the program name (or
+ *  path) must be preceded by a backslash (E.g.: shell("do\\ it"); ).
+ *  The first space without preceding backslash marks the end of the
+ *  program name. Command parameters containing a space must be
+ *  enclosed in double quotes (E.g.: shell("do_it \"par 1\" par2"); ).
+ *  The commands supported and the path delimiters used in parameters
+ *  of a specific command are not coverd by the description of the
+ *  'shell' function. Due to the usage of the operating system shell
+ *  and of external programs it is hard to write portable programs
+ *  which use the 'shell' function.
+ *  @return the return code of the executed command or of the shell.
+ *)
+const func integer: shell (in string param)     is action "CMD_SHELL";
+
+const proc: cmd_sh (in string: command) is func
+  begin
+    ignore(shell(command));
+  end func;
+
+
+const func PRIMITIVE_FILE: PRIMITIVE_FILE_POPEN
+    (in string param, in string param)          is action "FIL_POPEN";
+
+const func file: popen (in string: command, in string: access) is func
+  result
+    var file: result is STD_NULL;
+  local
+    var PRIMITIVE_FILE: open_file is PRIMITIVE_NULL_FILE;
+    var external_file: new_file is external_file.value;
+  begin
+    open_file := PRIMITIVE_FILE_POPEN(command, access);
+    if open_file <> PRIMITIVE_NULL_FILE then
+      new_file.ext_file := open_file;
+      new_file.name := command;
+      result := malloc(new_file);
+    end if;
+  end func;

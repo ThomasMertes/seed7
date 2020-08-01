@@ -117,6 +117,7 @@ scanfile.s7i File scanner functions
 scanstri.s7i String scanner functions                          
 screen.s7i   General text screen with random access            
 seed7_05.s7i Standard Seed7 library                            
+shell.s7i    Support for shell commands                        
 socket.s7i   Socket library                                    
 stars.s7i    List of stars with name, RA, DEC and magnitude V  
 strifile.s7i string file library (uses a string)               

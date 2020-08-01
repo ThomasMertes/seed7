@@ -537,18 +537,18 @@ listtype arguments;
 
 #ifdef ANSI_C
 
-objecttype cmd_sh (listtype arguments)
+objecttype cmd_shell (listtype arguments)
 #else
 
-objecttype cmd_sh (arguments)
+objecttype cmd_shell (arguments)
 listtype arguments;
 #endif
 
-  { /* cmd_sh */
+  { /* cmd_shell */
     isit_stri(arg_1(arguments));
-    cmdSh(take_stri(arg_1(arguments)));
-    return(SYS_EMPTY_OBJECT);
-  } /* cmd_sh */
+    return(bld_int_temp(
+        cmdShell(take_stri(arg_1(arguments)))));
+  } /* cmd_shell */
 
 
 

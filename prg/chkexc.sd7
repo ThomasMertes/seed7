@@ -60,6 +60,223 @@ const func integer: test_func (in integer: number) is func
   end func;
 
 
+const func integer: intExpr (in integer: number) is
+  return number;
+
+
+const proc: check_integer_exponentiation (inout boolean: okay) is func
+  local
+    var integer: number is 0;
+    var integer: i_num is 0;
+  begin
+    block
+      i_num := 0 ** 0;
+      if i_num = 1 then
+        incr(number);
+      else
+        writeln(" ***** 0 ** 0 did not deliver 1");
+        okay := FALSE;
+      end if;
+    exception
+      catch NUMERIC_ERROR:
+        writeln(" ***** 0 ** 0 did raise NUMERIC_ERROR");
+        okay := FALSE;
+    end block;
+
+    block
+      i_num := 0 ** (-2);
+      writeln(" ***** 0 ** (-2) did not raise NUMERIC_ERROR");
+      okay := FALSE;
+    exception
+      catch NUMERIC_ERROR:
+        incr(number);
+    end block;
+
+    block
+      i_num := 0 ** intExpr(0);
+      if i_num = 1 then
+        incr(number);
+      else
+        writeln(" ***** 0 ** intExpr(0) did not deliver 1");
+        okay := FALSE;
+      end if;
+    exception
+      catch NUMERIC_ERROR:
+        writeln(" ***** 0 ** intExpr(0) did raise NUMERIC_ERROR");
+        okay := FALSE;
+    end block;
+
+    block
+      i_num := 0 ** intExpr(-2);
+      writeln(" ***** 0 ** intExpr(-2) did not raise NUMERIC_ERROR");
+      okay := FALSE;
+    exception
+      catch NUMERIC_ERROR:
+        incr(number);
+    end block;
+
+    block
+      i_num := intExpr(0) ** 0;
+      if i_num = 1 then
+        incr(number);
+      else
+        writeln(" ***** intExpr(0) ** 0 did not deliver 1");
+        okay := FALSE;
+      end if;
+    exception
+      catch NUMERIC_ERROR:
+        writeln(" ***** intExpr(0) ** 0 did raise NUMERIC_ERROR");
+        okay := FALSE;
+    end block;
+
+    block
+      i_num := intExpr(0) ** (-2);
+      writeln(" ***** intExpr(0) ** (-2) did not raise NUMERIC_ERROR");
+      okay := FALSE;
+    exception
+      catch NUMERIC_ERROR:
+        incr(number);
+    end block;
+
+    block
+      i_num := intExpr(0) ** intExpr(0);
+      if i_num = 1 then
+        incr(number);
+      else
+        writeln(" ***** intExpr(0) ** intExpr(0) did not deliver 1");
+        okay := FALSE;
+      end if;
+    exception
+      catch NUMERIC_ERROR:
+        writeln(" ***** intExpr(0) ** intExpr(0) did raise NUMERIC_ERROR");
+        okay := FALSE;
+    end block;
+
+    block
+      i_num := intExpr(0) ** intExpr(-2);
+      writeln(" ***** intExpr(0) ** intExpr(-2) did not raise NUMERIC_ERROR");
+      okay := FALSE;
+    exception
+      catch NUMERIC_ERROR:
+        incr(number);
+    end block;
+
+    block
+      i_num := 1 ** (-2);
+      writeln(" ***** 1 ** (-2) did not raise NUMERIC_ERROR");
+      okay := FALSE;
+    exception
+      catch NUMERIC_ERROR:
+        incr(number);
+    end block;
+
+    block
+      i_num := 1 ** intExpr(-2);
+      writeln(" ***** 1 ** intExpr(-2) did not raise NUMERIC_ERROR");
+      okay := FALSE;
+    exception
+      catch NUMERIC_ERROR:
+        incr(number);
+    end block;
+
+    block
+      i_num := intExpr(1) ** (-2);
+      writeln(" ***** intExpr(1) ** (-2) did not raise NUMERIC_ERROR");
+      okay := FALSE;
+    exception
+      catch NUMERIC_ERROR:
+        incr(number);
+    end block;
+
+    block
+      i_num := intExpr(1) ** intExpr(-2);
+      writeln(" ***** intExpr(1) ** intExpr(-2) did not raise NUMERIC_ERROR");
+      okay := FALSE;
+    exception
+      catch NUMERIC_ERROR:
+        incr(number);
+    end block;
+
+    block
+      i_num := 3 ** (-2);
+      writeln(" ***** 3 ** (-2) did not raise NUMERIC_ERROR");
+      okay := FALSE;
+    exception
+      catch NUMERIC_ERROR:
+        incr(number);
+    end block;
+
+    block
+      i_num := 3 ** intExpr(-2);
+      writeln(" ***** 3 ** intExpr(-2) did not raise NUMERIC_ERROR");
+      okay := FALSE;
+    exception
+      catch NUMERIC_ERROR:
+        incr(number);
+    end block;
+
+    block
+      i_num := intExpr(3) ** (-2);
+      writeln(" ***** intExpr(3) ** (-2) did not raise NUMERIC_ERROR");
+      okay := FALSE;
+    exception
+      catch NUMERIC_ERROR:
+        incr(number);
+    end block;
+
+    block
+      i_num := intExpr(3) ** intExpr(-2);
+      writeln(" ***** 3 ** intExpr(-2) did not raise NUMERIC_ERROR");
+      okay := FALSE;
+    exception
+      catch NUMERIC_ERROR:
+        incr(number);
+    end block;
+
+    block
+      i_num := (-1) ** (-2);
+      writeln(" ***** (-1) ** (-2) did not raise NUMERIC_ERROR");
+      okay := FALSE;
+    exception
+      catch NUMERIC_ERROR:
+        incr(number);
+    end block;
+
+    block
+      i_num := (-1) ** (-3);
+      writeln(" ***** (-1) ** (-3) did not raise NUMERIC_ERROR");
+      okay := FALSE;
+    exception
+      catch NUMERIC_ERROR:
+        incr(number);
+    end block;
+
+    block
+      i_num := (-1) ** intExpr(-2);
+      writeln(" ***** (-1) ** intExpr(-2) did not raise NUMERIC_ERROR");
+      okay := FALSE;
+    exception
+      catch NUMERIC_ERROR:
+        incr(number);
+    end block;
+
+    block
+      i_num := (-1) ** intExpr(-3);
+      writeln(" ***** (-1) ** intExpr(-3) did not raise NUMERIC_ERROR");
+      okay := FALSE;
+    exception
+      catch NUMERIC_ERROR:
+        incr(number);
+    end block;
+
+    if okay and number <> 20 then
+      writeln(" ***** Integer exceptions for exponentiation do not work correct");
+      writeln;
+      okay := FALSE;
+    end if;
+  end func;
+
+
 const proc: check_integer is func
   local
     var boolean: okay is TRUE;
@@ -67,7 +284,9 @@ const proc: check_integer is func
     var integer: zero is 0;
     var integer: one is 0;
     var integer: i_num is 0;
+    const integer: int0 is 0;
     const integer: int2m is -2;
+    const integer: int3m is -3;
   begin
     block
       i_num := 1 div 0;
@@ -376,56 +595,6 @@ const proc: check_integer is func
     end block;
 
     block
-      i_num := 0 ** 0;
-      if i_num = 1 then
-        incr(number);
-      else
-        writeln(" ***** 0 ** 0 did not deliver 1");
-        okay := FALSE;
-      end if;
-    exception
-      catch NUMERIC_ERROR:
-        writeln(" ***** 0 ** 0 did raise NUMERIC_ERROR");
-        okay := FALSE;
-    end block;
-
-    block
-      i_num := 0 ** (-2);
-      writeln(" ***** 0 ** (-2) did not raise NUMERIC_ERROR");
-      okay := FALSE;
-    exception
-      catch NUMERIC_ERROR:
-        incr(number);
-    end block;
-
-    block
-      i_num := 1 ** (-2);
-      writeln(" ***** 1 ** (-2) did not raise NUMERIC_ERROR");
-      okay := FALSE;
-    exception
-      catch NUMERIC_ERROR:
-        incr(number);
-    end block;
-
-    block
-      i_num := 0 ** int2m;
-      writeln(" ***** 0 ** (-2) did not raise NUMERIC_ERROR");
-      okay := FALSE;
-    exception
-      catch NUMERIC_ERROR:
-        incr(number);
-    end block;
-
-    block
-      i_num := 1 ** int2m;
-      writeln(" ***** 1 ** (-2) did not raise NUMERIC_ERROR");
-      okay := FALSE;
-    exception
-      catch NUMERIC_ERROR:
-        incr(number);
-    end block;
-
-    block
       i_num  := integer parse "asdf";
       writeln(" ***** integer parse \"asdf\" did not raise RANGE_ERROR");
       okay := FALSE;
@@ -480,7 +649,9 @@ const proc: check_integer is func
         incr(number);
     end block;
 
-    if okay and number = 44 then
+    check_integer_exponentiation(okay);
+
+    if okay and number = 39 then
       writeln("Integer exceptions work correct.");
     else
       writeln(" ***** Integer exceptions do not work correct");

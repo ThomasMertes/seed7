@@ -125,7 +125,11 @@
 <li><!--   12.    --><a href="#OPERATING_SYSTEM_ACCESS"><big><b>OPERATING SYSTEM ACCESS</b></big></a><ol>
 <li><!--   12.1     --><a href="#Directory_access"><b>Directory access</b></a></li>
 <li><!--   12.2     --><a href="#Other_directory_operations"><b>Other directory operations</b></a></li>
-<li><!--   12.3     --><a href="#File_operations"><b>File operations</b></a></li></ol></li>
+<li><!--   12.3     --><a href="#fileType"><b>fileType</b></a></li>
+<li><!--   12.4     --><a href="#fileSize"><b>fileSize</b></a></li>
+<li><!--   12.5     --><a href="#readlink"><b>readlink</b></a></li>
+<li><!--   12.6     --><a href="#symlink"><b>symlink</b></a></li>
+<li><!--   12.7     --><a href="#other_functions"><b>Other functions</b></a></li></ol></li>
 <li><!--   13.    --><a href="#PRIMITIVE_ACTIONS"><big><b>PRIMITIVE ACTIONS</b></big></a><ol>
 <li><!--   13.1     --><a href="#ACTION"><b>Actions for the type ACTION</b></a></li>
 <li><!--   13.2     --><a href="#array"><b>Actions for array types</b></a></li>
@@ -252,7 +256,7 @@
     <li><!-- -  -->Object orientation is based on interfaces, supports
       multiple dispatch and allows to connect methods to objects.</li>
 
-    <li><!-- -  -->Strong typing</li>
+    <li><!-- -  -->Static type checking and no automatic casts.</li>
 
     <li><!-- -  -->exception handling</li>
 
@@ -1646,7 +1650,9 @@
       **        Power
                   ( A ** B is okay for B >= 0,
                     A ** 0 => 1,
-                    1 ** B => 1,
+                    1 ** B => 1 for B >= 0,
+                    A ** B => -(-A) ** B for A <= 0 and B >= 0 and odd(B),
+                    A ** B => (-A) ** B for A <= 0 and B >= 0 and not odd(B),
                     A ** -1 => EXCEPTION NUMERIC_ERROR )
       A &lt;&lt; B    Shift left
                   ( A &lt;&lt; B is okay for B >= 0 and B <= 31,
@@ -1844,7 +1850,9 @@
                   ( Type of argument B: <font color=red>integer</font>,
                     A ** B is okay for B >= 0,
                     A ** 0 => 1_,
-                    1_ ** B => 1_,
+                    1_ ** B => 1_ for B >= 0,
+                    A ** B => -(-A) ** B for A <= 0 and B >= 0 and odd(B),
+                    A ** B => (-A) ** B for A <= 0 and B >= 0 and not odd(B),
                     A ** -1 => EXCEPTION NUMERIC_ERROR )
       A &lt;&lt; B    Shift left
                   ( Type of argument B: <font color=red>integer</font>,
@@ -2179,7 +2187,7 @@
                     0.0 / 0.0 => NaN )
       **        Power
                   ( A ** B is okay for A > 0.0,
-                    A ** B => okay for A &lt; 0.0 and B is integer,
+                    A ** B is okay for A &lt; 0.0 and B is integer,
                     A ** B => NaN for A &lt; 0.0 and B is not integer,
                     A ** 0.0 => 1.0,
                     0.0 ** B => 0.0 for B > 0.0,
@@ -6942,14 +6950,125 @@
     mkdir(<font color=maroon>"my_dir"</font>);
 </pre><p></p>
 
-<a name="File_operations"><b>12.3 File operations</b></a>
+<a name="fileType"><b>12.3 fileType</b></a>
 <p>
-    There are the following file operations accessible
+    The type of a file can determined with <tt>'fileType'</tt>:
 </p><pre>
+      <font color=blue>const</font> <font color=red>func integer</font>: fileType (<font color=blue>in</font> <font color=red>string</font>: filePath) <font color=blue>is</font> ...
+</pre>
+    <p><dl><dt><p>Returns:</p></dt><dd>
+      <dl>
+      <dt>FILE_ABSENT</dt>
+          <dd>A component of path does not exist.</dd>
+      <dt>FILE_UNKNOWN</dt>
+          <dd>The file exists but has an unknown type.</dd>
+      <dt>FILE_REGULAR</dt>
+          <dd>The file is a regular file.</dd>
+      <dt>FILE_DIR</dt>
+          <dd>The file is a directory.</dd>
+      <dt>FILE_CHAR</dt>
+          <dd>The file is a character special file.</dd>
+      <dt>FILE_BLOCK</dt>
+          <dd>The file is a block special file.</dd>
+      <dt>FILE_FIFO</dt>
+          <dd>The file is a pipe or FIFO special file.</dd>
+      <dt>FILE_SYMLINK</dt>
+          <dd>The file is a symbolic link.</dd>
+      <dt>FILE_SOCKET</dt>
+          <dd>The file is a socket.</dd>
+      </dl></dd></dl></p>
+    <p><dl><dt><p>Possible exceptions:</p></dt><dd>
+      <dl>
+      <dt>MEMORY_ERROR</dt>
+          <dd>Not enough memory to convert <tt>'filePath'</tt> to the system path type.</dd>
+      <dt>RANGE_ERROR</dt>
+          <dd>FilePath is not representable in the system path type.</dd>
+      <dt>FILE_ERROR</dt>
+          <dd>The system returns an error other than ENOENT.</dd>
+      </dl></dd></dl></p>
+
+<a name="fileSize"><b>12.4 fileSize</b></a>
+<p>
+    The size of a file can be determined with <tt>'fileSize'</tt> and <tt>'bigFileSize'</tt>:
+</p><pre>
+      <font color=blue>const</font> <font color=red>func integer</font>: fileSize (<font color=blue>in</font> <font color=red>string</font>: filePath) <font color=blue>is</font> ...
+      <font color=blue>const</font> <font color=red>func bigInteger</font>: bigFileSize (<font color=blue>in</font> <font color=red>string</font>: filePath) <font color=blue>is</font> ...
+</pre>
+    <p><dl><dt><p>Returns:</p></dt><dd><p>
+      For directorys a size of 0 is returned. For other file types
+      the operating system functions <tt>'stat()'</tt> and <tt>'seek()'</tt> are
+      used to determine the size of a file. The functions <tt>'fileSize'</tt>
+      and <tt>'bigFileSize'</tt> succeed when at least one strategy to determine
+      the file size succeeds. 
+      </p></dd></dl></p>
+    <p><dl><dt><p>Possible exceptions:</p></dt><dd>
+      <dl>
+      <dt>MEMORY_ERROR</dt>
+          <dd>Not enough memory to convert <tt>'filePath'</tt> to the system path type.</dd>
+      <dt>RANGE_ERROR</dt>
+          <dd>FilePath is not representable in the system path type.</dd>
+      <dt>RANGE_ERROR</dt>
+          <dd>The file size is not representable as <font color=red>integer</font>.</dd>
+      <dt>FILE_ERROR</dt>
+          <dd>It was not possible to determine the file size.</dd>
+      </dl></dd></dl></p>
+
+<a name="readlink"><b>12.5 readlink</b></a>
+<p>
+    The function <tt>'readlink'</tt> reads the destination of a symbolic link:
+</p><pre>
+      <font color=blue>const</font> <font color=red>func string</font>: readlink (<font color=blue>in</font> <font color=red>string</font>: filePath) <font color=blue>is</font> ...
+</pre>
+    <p><dl><dt><p>Returns:</p></dt><dd><p>
+      The symbolic link refered by <tt>'filePath'</tt>. 
+      </p></dd></dl></p>
+    <p><dl><dt><p>Possible exceptions:</p></dt><dd>
+      <dl>
+      <dt>MEMORY_ERROR</dt>
+          <dd>Not enough memory to convert <tt>'filePath'</tt> to the system path type or not
+              enough memory to represent the result <tt>'<font color=red>string</font>'</tt>.</dd>
+      <dt>RANGE_ERROR</dt>
+          <dd><tt>'filePath'</tt> is not representable in the system path type.</dd>
+      <dt>FILE_ERROR</dt>
+          <dd>The file described with <tt>'filePath'</tt> does not exist or is not a symbolic link.</dd>
+      </dl></dd></dl></p>
+
+<a name="symlink"><b>12.6 symlink</b></a>
+<p>
+    The function <tt>'symlink'</tt> creates a symbolic link called
+    <tt>'dest'</tt> that contains the string referred by <tt>'source'</tt>:
+</p><pre>
+      <font color=blue>const</font> <font color=red>proc</font>: symlink (<font color=blue>in</font> <font color=red>string</font>: source, <font color=blue>in</font> <font color=red>string</font>: dest) <font color=blue>is</font> ...
+</pre>
+    <p><dl><dt><p>Parameters:</p></dt><dd>
+      <dl>
+      <dt>source</dt>
+          <dd>Name of the symbolic link to be created.</dd>
+      <dt>dest</dt>
+          <dd>String to be contained in the symbolic link.</dd>
+      </dl></dd></dl></p>
+
+    <p><dl><dt><p>Possible exceptions:</p></dt><dd>
+      <dl>
+      <dt>MEMORY_ERROR</dt>
+          <dd>Not enough memory to convert <tt>'source'</tt> or <tt>'dest'</tt>
+              to the system path type.</dd>
+      <dt>RANGE_ERROR</dt>
+          <dd><tt>'source'</tt> or <tt>'dest'</tt> is not representable in the
+          system path type.</dd>
+      <dt>FILE_ERROR</dt>
+          <dd>The system function returns an error.</dd>
+      </dl></dd></dl></p>
+
+<a name="other_functions"><b>12.7 Other functions</b></a>
+<p>
+    Other functions are:
+</p>
+<pre>
     remove(<font color=maroon>"file"</font>);
     rename(<font color=maroon>"old_name"</font>, <font color=maroon>"new_name"</font>);
     copy(<font color=maroon>"from"</font>, <font color=maroon>"to"</font>);
-</pre><p></p>
+</pre>
 
 <p></p>
 <a name="PRIMITIVE_ACTIONS"><big><b>13. PRIMITIVE ACTIONS</b></big></a>

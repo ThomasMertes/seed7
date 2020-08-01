@@ -1,3 +1,24 @@
+20090329:
+- The chapters explaining exponentiation and operating system functions in the manual
+  were improved.
+- The function getSymbolInXmlTag in scanfile.s7i was fixed to really return "" when EOF
+  was reached.
+- A documentation comment was added to the function getNextXmlAttribute in scanfile.s7i
+  and the function was improved to correctly handle tags ending with > and /> .
+- The functions cmd_sh and popen were moved from progs.s7i and seed7_05.s7i to the new
+  library shell.s7i .
+- The function 'shell' was introduced execute shell commands and to return the exit
+  code of the shell.
+- The chkbig.sd7 program was improved to contain checks for the exponentiation of -1.
+- The chkexc.sd7 program was improved to contain more checks for exceptions raised by
+  integer exponentiation.
+- The compiler (comp.sd7) was improved to generate better code for some bigInteger
+  operations and to support the actions cmd_readlink and cmd_remove_any_file.
+- Parameter names were added to the function prototypes of the header file big_drv.h .
+- The functions bigSuccTemp and bigPredTemp were added to the files big_rtl.c and
+  big_gmp.c .
+- A documentation comment was added to the function cp_to_command in the file striutl.c .
+
 20090309:
 - The chapters about boolean, complex, char, string and time in the manual were improved.
 - A new library named utf16.s7i, which contains support to read and write UTF-16 files,

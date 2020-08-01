@@ -628,7 +628,7 @@ inttype exponent;
   /* intPow */
     if (exponent < 0) {
       raise_error(NUMERIC_ERROR);
-      return(0);
+      result = 0;
     } else {
       if (exponent & 1) {
         result = base;
@@ -643,8 +643,8 @@ inttype exponent;
         } /* if */
         exponent >>= 1;
       } /* while */
-      return(result);
     } /* if */
+    return(result);
   } /* intPow */
 
 

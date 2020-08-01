@@ -6406,6 +6406,18 @@ const proc: chkPower is func
          18446744073709551615_ ** 2 <>                    340282366920938463426481119284349108225_ or
          18446744073709551615_ ** 3 <> 6277101735386680762814942322444851025767571854389858533375_ or
 
+        (-1_) **   0 <>  1_ or
+        (-1_) **   1 <> -1_ or
+        (-1_) **   2 <>  1_ or
+        (-1_) **   3 <> -1_ or
+        (-1_) **   4 <>  1_ or
+        (-1_) **  15 <> -1_ or
+        (-1_) **  16 <>  1_ or
+        (-1_) **  63 <> -1_ or
+        (-1_) **  64 <>  1_ or
+        (-1_) **  99 <> -1_ or
+        (-1_) ** 100 <>  1_ or
+        
         (-65535_) ** 0 <>                                         1_ or
         (-65535_) ** 1 <>                                    -65535_ or
         (-65535_) ** 2 <>                                4294836225_ or
@@ -6589,6 +6601,18 @@ const proc: chkPower is func
         bigintExpr(18446744073709551615_) ** 2 <>                    340282366920938463426481119284349108225_ or
         bigintExpr(18446744073709551615_) ** 3 <> 6277101735386680762814942322444851025767571854389858533375_ or
 
+        bigintExpr(-1_) **   0 <>  1_ or
+        bigintExpr(-1_) **   1 <> -1_ or
+        bigintExpr(-1_) **   2 <>  1_ or
+        bigintExpr(-1_) **   3 <> -1_ or
+        bigintExpr(-1_) **   4 <>  1_ or
+        bigintExpr(-1_) **  15 <> -1_ or
+        bigintExpr(-1_) **  16 <>  1_ or
+        bigintExpr(-1_) **  63 <> -1_ or
+        bigintExpr(-1_) **  64 <>  1_ or
+        bigintExpr(-1_) **  99 <> -1_ or
+        bigintExpr(-1_) ** 100 <>  1_ or
+        
         bigintExpr(-65535_) ** 0 <>                                         1_ or
         bigintExpr(-65535_) ** 1 <>                                    -65535_ or
         bigintExpr(-65535_) ** 2 <>                                4294836225_ or
@@ -6772,6 +6796,18 @@ const proc: chkPower is func
          18446744073709551615_ ** intExpr(2) <>                    340282366920938463426481119284349108225_ or
          18446744073709551615_ ** intExpr(3) <> 6277101735386680762814942322444851025767571854389858533375_ or
 
+        (-1_) ** intExpr(  0) <>  1_ or
+        (-1_) ** intExpr(  1) <> -1_ or
+        (-1_) ** intExpr(  2) <>  1_ or
+        (-1_) ** intExpr(  3) <> -1_ or
+        (-1_) ** intExpr(  4) <>  1_ or
+        (-1_) ** intExpr( 15) <> -1_ or
+        (-1_) ** intExpr( 16) <>  1_ or
+        (-1_) ** intExpr( 63) <> -1_ or
+        (-1_) ** intExpr( 64) <>  1_ or
+        (-1_) ** intExpr( 99) <> -1_ or
+        (-1_) ** intExpr(100) <>  1_ or
+        
         (-65535_) ** intExpr(0) <>                                         1_ or
         (-65535_) ** intExpr(1) <>                                    -65535_ or
         (-65535_) ** intExpr(2) <>                                4294836225_ or
@@ -6955,6 +6991,18 @@ const proc: chkPower is func
         bigintExpr(18446744073709551615_) ** intExpr(2) <>                    340282366920938463426481119284349108225_ or
         bigintExpr(18446744073709551615_) ** intExpr(3) <> 6277101735386680762814942322444851025767571854389858533375_ or
 
+        bigintExpr(-1_) ** intExpr(  0) <>  1_ or
+        bigintExpr(-1_) ** intExpr(  1) <> -1_ or
+        bigintExpr(-1_) ** intExpr(  2) <>  1_ or
+        bigintExpr(-1_) ** intExpr(  3) <> -1_ or
+        bigintExpr(-1_) ** intExpr(  4) <>  1_ or
+        bigintExpr(-1_) ** intExpr( 15) <> -1_ or
+        bigintExpr(-1_) ** intExpr( 16) <>  1_ or
+        bigintExpr(-1_) ** intExpr( 63) <> -1_ or
+        bigintExpr(-1_) ** intExpr( 64) <>  1_ or
+        bigintExpr(-1_) ** intExpr( 99) <> -1_ or
+        bigintExpr(-1_) ** intExpr(100) <>  1_ or
+        
         bigintExpr(-65535_) ** intExpr(0) <>                                         1_ or
         bigintExpr(-65535_) ** intExpr(1) <>                                    -65535_ or
         bigintExpr(-65535_) ** intExpr(2) <>                                4294836225_ or

@@ -906,11 +906,13 @@ const func string: getSymbolInXmlTag (inout file: inFile) is func
         symbol &:= str(inFile.bufferChar);
         inFile.bufferChar := getc(inFile);
       otherwise:
-        repeat
-          symbol &:= str(inFile.bufferChar);
-          inFile.bufferChar := getc(inFile);
-        until inFile.bufferChar in white_space_or_end_tag or
-            inFile.bufferChar = EOF;
+        if inFile.bufferChar <> EOF then
+          repeat
+            symbol &:= str(inFile.bufferChar);
+            inFile.bufferChar := getc(inFile);
+          until inFile.bufferChar in white_space_or_end_tag or
+              inFile.bufferChar = EOF;
+        end if;
     end case;
   end func;
 
@@ -959,12 +961,28 @@ const func string: getHtmlAttributeValue (inout file: inFile) is func
   end func;
 
 
+(**
+ *  Reads name and value of an attribute inside a XML tag from a 'file'.
+ *  The variable 'attributeName' is set to "" when no more attributes
+ *  are present in the XML tag. When the XML tag ends with / the
+ *  function assigns "/" to 'attributeValue' when 'attributeName' is
+ *  set to "". When the XML tag does not end with / 'attributeValue'
+ *  and 'attributeName' are set to "" when no more attributes are
+ *  present.
+ *)
 const proc: getNextXmlAttribute (inout file: inFile,
     inout string: attributeName, inout string: attributeValue) is func
   begin
     attributeName := getSymbolInXmlTag(inFile);
-    if attributeName = "/" or attributeName = ">" then
+    if attributeName = "/" then
+      repeat
+        attributeName := getSymbolInXmlTag(inFile);
+      until attributeName = ">" or attributeName = "";
       attributeName := "";
+      attributeValue := "/";
+    elsif attributeName = ">" then
+      attributeName := "";
+      attributeValue := "";
     else
       if getSymbolInXmlTag(inFile) = "=" then
         attributeValue := getSymbolInXmlTag(inFile);

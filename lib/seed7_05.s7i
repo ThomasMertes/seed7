@@ -2925,7 +2925,6 @@ const integer: IO_LINE_BUFFERING is 1;
 const integer: IO_NO_BUFFERING   is 2;
 
 const func PRIMITIVE_FILE: PRIMITIVE_FILE_OPEN (in string param, in string param)   is action "FIL_OPEN";
-const func PRIMITIVE_FILE: PRIMITIVE_FILE_POPEN (in string param, in string param)  is action "FIL_POPEN";
 const proc: setbuf (ref PRIMITIVE_FILE param, ref integer param, ref integer param) is action "FIL_SETBUF";
 const proc: close (ref PRIMITIVE_FILE param)                              is action "FIL_CLOSE";
 const func boolean: eof (ref PRIMITIVE_FILE param)                        is action "FIL_EOF";
@@ -3132,21 +3131,6 @@ const func file: open (in string: file_name, in string: access) is func
     if open_file <> PRIMITIVE_NULL_FILE then
       new_file.ext_file := open_file;
       new_file.name := file_name;
-      result := malloc(new_file);
-    end if;
-  end func;
-
-const func file: popen (in string: command, in string: access) is func
-  result
-    var file: result is STD_NULL;
-  local
-    var PRIMITIVE_FILE: open_file is PRIMITIVE_NULL_FILE;
-    var external_file: new_file is external_file.value;
-  begin
-    open_file := PRIMITIVE_FILE_POPEN(command, access);
-    if open_file <> PRIMITIVE_NULL_FILE then
-      new_file.ext_file := open_file;
-      new_file.name := command;
       result := malloc(new_file);
     end if;
   end func;

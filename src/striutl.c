@@ -697,13 +697,31 @@ strelemtype ch;
 
 
 
+/**
+ *  Returns a command string suitable for the operating system shell.
+ *  The string 'stri' is converted to UTF-8. The command part of
+ *  'stri' (which extends from the beginning up to the first blank)
+ *  is treated special: All occurances of slash ( / ) are replaced
+ *  by PATH_DELIMITER (which is defined as the path delimiter used
+ *  by the operating system shell). Note that some operating systems
+ *  accept / in paths used by C system calls but insist on \ in paths
+ *  used by the system shell. Additionally the command part is also
+ *  searched for the sequence "\ " which is treated special (Note
+ *  that Seed7 string literals need a double backslash to represend
+ "  one backslash. E.g.: "usr/home/tm/My\\ Dir/myCommand"). The
+ *  sequence "\ " is used to allow space characters in the command
+ *  path. Depending on the operating system the sequence "\ " is left
+ *  as is or forces the command path to be surrounded by double
+ *  quotes (in that case "\ " is replaced by " ").
+ */
 #ifdef ANSI_C
 
-cstritype cp_to_command (stritype stri)
+cstritype cp_to_command (stritype stri, errinfotype *err_info)
 #else
 
-cstritype cp_to_command (stri)
+cstritype cp_to_command (stri, err_info)
 stritype stri;
+errinfotype *err_info;
 #endif
 
   {
@@ -713,7 +731,9 @@ stritype stri;
     cstritype cmd;
 
   /* cp_to_command */
-    if (ALLOC_CSTRI(cmd, compr_size(stri))) {
+    if (!ALLOC_CSTRI(cmd, compr_size(stri))) {
+      *err_info = MEMORY_ERROR;
+    } else {
       stri_export((ustritype) cmd, stri);
       quote_path = FALSE;
       /* replace "/" by PATH_DELIMITER in cmd */
@@ -747,13 +767,12 @@ stritype stri;
         cmd[0] = '"';
         cmd[outPos + 1] = '"';
       } /* if */
-      /* for (inPos = 0; cmd[inPos] != '\0'; inPos++) {
-           printf("%c", cmd[inPos]);
-         }
-         printf("\n"); */
+#ifdef TRACE_CP_TO_COMMAND
+      for (inPos = 0; cmd[inPos] != '\0'; inPos++) {
+        printf("%c", cmd[inPos]);
+      } /* for */
+      printf("\n");
+#endif
     } /* if */
     return(cmd);
   } /* cp_to_command */
-
-
-

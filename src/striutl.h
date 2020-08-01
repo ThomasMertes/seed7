@@ -74,7 +74,7 @@ stritype cstri_to_stri (const_cstritype cstri);
 stritype cstri8_to_stri (const_cstritype cstri);
 stritype wstri_to_stri (const_wstritype wstri);
 strelemtype *stri_charpos (stritype, strelemtype);
-cstritype cp_to_command (stritype);
+cstritype cp_to_command (stritype, errinfotype *);
 
 #else
 

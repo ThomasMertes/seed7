@@ -125,7 +125,11 @@ CONTENTS
   12.   OPERATING SYSTEM ACCESS
   12.1    Directory access
   12.2    Other directory operations
-  12.3    File operations
+  12.3    fileType
+  12.4    fileSize
+  12.5    readlink
+  12.6    symlink
+  12.7    Other functions
   13.   PRIMITIVE ACTIONS
   13.1    Actions for the type ACTION
   13.2    Actions for array types
@@ -252,7 +256,7 @@ CONTENTS
     - Object orientation is based on interfaces, supports
       multiple dispatch and allows to connect methods to objects.
 
-    - Strong typing
+    - Static type checking and no automatic casts.
 
     - exception handling
 
@@ -1646,7 +1650,9 @@ CONTENTS
       **        Power
                   ( A ** B is okay for B >= 0,
                     A ** 0 => 1,
-                    1 ** B => 1,
+                    1 ** B => 1 for B >= 0,
+                    A ** B => -(-A) ** B for A <= 0 and B >= 0 and odd(B),
+                    A ** B => (-A) ** B for A <= 0 and B >= 0 and not odd(B),
                     A ** -1 => EXCEPTION NUMERIC_ERROR )
       A << B    Shift left
                   ( A << B is okay for B >= 0 and B <= 31,
@@ -1844,7 +1850,9 @@ CONTENTS
                   ( Type of argument B: integer,
                     A ** B is okay for B >= 0,
                     A ** 0 => 1_,
-                    1_ ** B => 1_,
+                    1_ ** B => 1_ for B >= 0,
+                    A ** B => -(-A) ** B for A <= 0 and B >= 0 and odd(B),
+                    A ** B => (-A) ** B for A <= 0 and B >= 0 and not odd(B),
                     A ** -1 => EXCEPTION NUMERIC_ERROR )
       A << B    Shift left
                   ( Type of argument B: integer,
@@ -2179,7 +2187,7 @@ CONTENTS
                     0.0 / 0.0 => NaN )
       **        Power
                   ( A ** B is okay for A > 0.0,
-                    A ** B => okay for A < 0.0 and B is integer,
+                    A ** B is okay for A < 0.0 and B is integer,
                     A ** B => NaN for A < 0.0 and B is not integer,
                     A ** 0.0 => 1.0,
                     0.0 ** B => 0.0 for B > 0.0,
@@ -6942,9 +6950,120 @@ CONTENTS
     mkdir("my_dir");
 
 
-12.3 File operations
+12.3 fileType
 
-    There are the following file operations accessible
+    The type of a file can determined with 'fileType':
+
+      const func integer: fileType (in string: filePath) is ...
+
+    Returns:
+      
+      FILE_ABSENT
+          A component of path does not exist.
+      FILE_UNKNOWN
+          The file exists but has an unknown type.
+      FILE_REGULAR
+          The file is a regular file.
+      FILE_DIR
+          The file is a directory.
+      FILE_CHAR
+          The file is a character special file.
+      FILE_BLOCK
+          The file is a block special file.
+      FILE_FIFO
+          The file is a pipe or FIFO special file.
+      FILE_SYMLINK
+          The file is a symbolic link.
+      FILE_SOCKET
+          The file is a socket.
+      
+    Possible exceptions:
+      
+      MEMORY_ERROR
+          Not enough memory to convert 'filePath' to the system path type.
+      RANGE_ERROR
+          FilePath is not representable in the system path type.
+      FILE_ERROR
+          The system returns an error other than ENOENT.
+      
+
+12.4 fileSize
+
+    The size of a file can be determined with 'fileSize' and 'bigFileSize':
+
+      const func integer: fileSize (in string: filePath) is ...
+      const func bigInteger: bigFileSize (in string: filePath) is ...
+
+    Returns:
+      For directorys a size of 0 is returned. For other file types
+      the operating system functions 'stat()' and 'seek()' are
+      used to determine the size of a file. The functions 'fileSize'
+      and 'bigFileSize' succeed when at least one strategy to determine
+      the file size succeeds. 
+      
+    Possible exceptions:
+      
+      MEMORY_ERROR
+          Not enough memory to convert 'filePath' to the system path type.
+      RANGE_ERROR
+          FilePath is not representable in the system path type.
+      RANGE_ERROR
+          The file size is not representable as integer.
+      FILE_ERROR
+          It was not possible to determine the file size.
+      
+
+12.5 readlink
+
+    The function 'readlink' reads the destination of a symbolic link:
+
+      const func string: readlink (in string: filePath) is ...
+
+    Returns:
+      The symbolic link refered by 'filePath'. 
+      
+    Possible exceptions:
+      
+      MEMORY_ERROR
+          Not enough memory to convert 'filePath' to the system path type or not
+              enough memory to represent the result 'string'.
+      RANGE_ERROR
+          'filePath' is not representable in the system path type.
+      FILE_ERROR
+          The file described with 'filePath' does not exist or is not a symbolic link.
+      
+
+12.6 symlink
+
+    The function 'symlink' creates a symbolic link called
+    'dest' that contains the string referred by 'source':
+
+      const proc: symlink (in string: source, in string: dest) is ...
+
+    Parameters:
+      
+      source
+          Name of the symbolic link to be created.
+      dest
+          String to be contained in the symbolic link.
+      
+
+    Possible exceptions:
+      
+      MEMORY_ERROR
+          Not enough memory to convert 'source' or 'dest'
+              to the system path type.
+      RANGE_ERROR
+          'source' or 'dest' is not representable in the
+          system path type.
+      FILE_ERROR
+          The system function returns an error.
+      
+
+12.7 Other functions
+
+    Other functions are:
+
 
     remove("file");
     rename("old_name", "new_name");

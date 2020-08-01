@@ -1265,19 +1265,14 @@ stritype link_name;
 
   /* cmdReadlink */
 #ifdef HAS_SYMLINKS
-    os_link_name = cp_to_cstri(link_name);
-    if (os_link_name == NULL) {
-      err_info = MEMORY_ERROR;
-      result = NULL;
-    } else {
-      if (os_lstat(os_link_name, &link_stat) != 0) {
+    os_link_name = cp_to_os_path(link_name, &err_info);
+    if (os_link_name != NULL) {
+      if (os_lstat(os_link_name, &link_stat) != 0 || !S_ISLNK(link_stat.st_mode)) {
         err_info = FILE_ERROR;
-        result = NULL;
       } else {
         /* printf("link size=%lu\n", link_stat.st_size); */
         if (!os_path_alloc(link_destination, link_stat.st_size)) {
           err_info = MEMORY_ERROR;
-          result = NULL;
         } else {
           readlink_result = readlink(os_link_name, link_destination, link_stat.st_size);
           if (readlink_result != -1) {
@@ -1299,7 +1294,6 @@ stritype link_name;
             } /* if */
           } else {
             err_info = FILE_ERROR;
-            result = NULL;
           } /* if */
           os_path_free(link_destination);
         } /* if */
@@ -1308,10 +1302,10 @@ stritype link_name;
     } /* if */
 #else
     err_info = FILE_ERROR;
-    result = NULL;
 #endif
     if (err_info != OKAY_NO_ERROR) {
       raise_error(err_info);
+      result = NULL;
     } /* if */
     return(result);
   } /* cmdReadlink */
@@ -1357,6 +1351,9 @@ stritype file_name;
     errinfotype err_info = OKAY_NO_ERROR;
 
   /* cmdRemoveAnyFile */
+#ifdef TRACE_CMD_RTL
+    printf("BEGIN cmdRemoveAnyFile\n");
+#endif
     os_file_name = cp_to_os_path(file_name, &err_info);
     if (os_file_name != NULL) {
       remove_any_file(os_file_name, &err_info);
@@ -1365,6 +1362,9 @@ stritype file_name;
     if (err_info != OKAY_NO_ERROR) {
       raise_error(err_info);
     } /* if */
+#ifdef TRACE_CMD_RTL
+    printf("END cmdRemoveAnyFile\n");
+#endif
   } /* cmdRemoveAnyFile */
 
 
@@ -1461,25 +1461,29 @@ inttype time_zone;
 
 #ifdef ANSI_C
 
-void cmdSh (stritype command_stri)
+inttype cmdShell (stritype command_stri)
 #else
 
-void cmdSh (command_stri)
+inttype cmdShell (command_stri)
 stritype command_stri;
 #endif
 
   {
     cstritype os_command_stri;
+    errinfotype err_info = OKAY_NO_ERROR;
+    inttype result;
 
-  /* cmdSh */
-    os_command_stri = cp_to_command(command_stri);
+  /* cmdShell */
+    os_command_stri = cp_to_command(command_stri, &err_info);
     if (os_command_stri == NULL) {
-      raise_error(MEMORY_ERROR);
+      raise_error(err_info);
+      result = 0;
     } else {
-      system(os_command_stri);
+      result = (inttype) system(os_command_stri);
       free_cstri(os_command_stri, command_stri);
     } /* if */
-  } /* cmdSh */
+    return(result);
+  } /* cmdShell */
 
 
 

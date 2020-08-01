@@ -752,12 +752,13 @@ stritype file_mode;
   {
     cstritype cmd;
     char mode[4];
+    errinfotype err_info = OKAY_NO_ERROR;
     filetype result;
 
   /* filPopen */
-    cmd = cp_to_command(command);
+    cmd = cp_to_command(command, &err_info);
     if (cmd == NULL) {
-      raise_error(MEMORY_ERROR);
+      raise_error(err_info);
       result = NULL;
     } else {
       mode[0] = '\0';

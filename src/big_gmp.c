@@ -190,7 +190,7 @@ gmpBiginttype big2;
 gmpBiginttype bigAddTemp (gmpBiginttype big1, const_gmpBiginttype big2)
 #else
 
-gmpBiginttype bigAddTemp  (big1, big2)
+gmpBiginttype bigAddTemp (big1, big2)
 gmpBiginttype big1;
 gmpBiginttype big2;
 #endif
@@ -1042,6 +1042,22 @@ gmpBiginttype big1;
 
 
 
+#ifdef ANSI_C
+
+gmpBiginttype bigPredTemp (gmpBiginttype big1)
+#else
+
+gmpBiginttype bigPredTemp (big1)
+gmpBiginttype big1;
+#endif
+
+  { /* bigPredTemp */
+    mpz_sub_ui(big1, big1, 1);
+    return(big1);
+  } /* bigPredTemp */
+
+
+
 /**
  *  Computes a random number between lower_limit and upper_limit
  *  for signed big integers.
@@ -1197,7 +1213,7 @@ gmpBiginttype big2;
 gmpBiginttype bigSbtrTemp (gmpBiginttype big1, const_gmpBiginttype big2)
 #else
 
-gmpBiginttype bigSbtrTemp  (big1, big2)
+gmpBiginttype bigSbtrTemp (big1, big2)
 gmpBiginttype big1;
 gmpBiginttype big2;
 #endif
@@ -1271,6 +1287,22 @@ gmpBiginttype big1;
     mpz_add_ui(result, big1, 1);
     return(result);
   } /* bigSucc */
+
+
+
+#ifdef ANSI_C
+
+gmpBiginttype bigSuccTemp (gmpBiginttype big1)
+#else
+
+gmpBiginttype bigSuccTemp (big1)
+gmpBiginttype big1;
+#endif
+
+  { /* bigSuccTemp */
+    mpz_add_ui(big1, big1, 1);
+    return(big1);
+  } /* bigSuccTemp */
 
 
 

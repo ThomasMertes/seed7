@@ -173,5 +173,3 @@ const proc: setValue(inout reference param, in ref_list param) is          actio
 
 const func integer: type_number (ref type param) is                        action "TYP_NUM";
 const func reference: match_obj (ref type param) is                        action "TYP_MATCHOBJ";
-
-const proc: cmd_sh (in string param) is                                    action "CMD_SH";

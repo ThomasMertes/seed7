@@ -23,9 +23,7 @@
 
 
 $ include "seed7_05.s7i";
-  include "float.s7i";
-  include "bigint.s7i";
-  include "progs.s7i";
+  include "shell.s7i";
 
 const string: EXECUTABLE_FILE_EXTENSION is configValue("EXECUTABLE_FILE_EXTENSION");
 

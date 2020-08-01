@@ -205,7 +205,7 @@ static primactrecord prim_act_table[] = {
     { "CMD_REMOVE_ANY_FILE", cmd_remove_any_file, },
     { "CMD_SET_ATIME",       cmd_set_atime,       },
     { "CMD_SET_MTIME",       cmd_set_mtime,       },
-    { "CMD_SH",              cmd_sh,              },
+    { "CMD_SHELL",           cmd_shell,           },
     { "CMD_SYMLINK",         cmd_symlink,         },
 
     { "DCL_ATTR",            dcl_attr,            },

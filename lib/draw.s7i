@@ -52,6 +52,7 @@ const color: white         is color(65535, 65535, 65535); (* White   X *)
 const color: orange        is color(65535, 32768, 0);     (*         O *)
 const color: amber         is color(49152, 32768, 16384);
 const color: pink          is color(65535, 32768, 32768);
+const color: forestgreen   is color(8704, 35584, 8704);
 
 (* Basic HTML colors: *)
 

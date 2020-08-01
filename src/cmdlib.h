@@ -44,7 +44,7 @@ objecttype cmd_remove (listtype);
 objecttype cmd_remove_any_file (listtype);
 objecttype cmd_set_atime (listtype);
 objecttype cmd_set_mtime (listtype);
-objecttype cmd_sh (listtype);
+objecttype cmd_shell (listtype);
 objecttype cmd_symlink (listtype);
 
 #else
@@ -66,7 +66,7 @@ objecttype cmd_remove ();
 objecttype cmd_remove_any_file ();
 objecttype cmd_set_atime ();
 objecttype cmd_set_mtime ();
-objecttype cmd_sh ();
+objecttype cmd_shell ();
 objecttype cmd_symlink ();
 
 #endif
