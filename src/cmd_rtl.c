@@ -103,6 +103,9 @@
 #ifndef EXECUTABLE_FILE_EXTENSION
 #define EXECUTABLE_FILE_EXTENSION ""
 #endif
+#ifndef CC_ENVIRONMENT_INI
+#define CC_ENVIRONMENT_INI ""
+#endif
 #ifndef CC_FLAGS
 #define CC_FLAGS ""
 #endif
@@ -143,6 +146,8 @@
 #ifndef PATH_MAX
 #define PATH_MAX 2048
 #endif
+
+#define CLASSIC_WINDOWS_MAX_PATH 260
 
 #define SIZE_NORMAL_BUFFER   32768
 #define SIZE_RESERVE_BUFFER   2048
@@ -1049,13 +1054,6 @@ static rtlArrayType getSearchPath (errInfoType *err_info)
             } /* if */
             pathStri = cp_from_os_path(path_start, err_info);
             if (likely(pathStri != NULL)) {
-              while (pathStri->size > 1 &&
-                     pathStri->mem[pathStri->size - 1] == (charType) '/') {
-                pathStri->size--;
-#if WITH_STRI_CAPACITY
-                COUNT3_STRI(pathStri->size + 1, pathStri->size);
-#endif
-              } /* while */
               path_array = addStriToRtlArray(pathStri, path_array,
                   used_max_position);
               used_max_position++;
@@ -1268,7 +1266,7 @@ void adjustCwdForShell (errInfoType *err_info)
         logError(printf("adjustCwdForShell: Cannot get current_emulated_cwd.\n"););
       } /* if */
     } else {
-      logMessage(printf("adjustCwdForShell: before os_chdir(\"" FMT_S_OS "\")\n",
+      logMessage(printf("adjustCwdForShell: os_chdir(\"" FMT_S_OS "\")\n",
                         &os_cwd[PREFIX_LEN]););
       chdir_result = os_chdir(&os_cwd[PREFIX_LEN]);
       if (unlikely(chdir_result != 0)) {
@@ -1467,14 +1465,30 @@ void cmdChdir (const const_striType dirPath)
         raise_error(err_info);
       } /* if */
     } else {
-      chdir_result = os_chdir(os_path);
-      if (unlikely(chdir_result != 0)) {
 #if defined USE_EXTENDED_LENGTH_PATH && USE_EXTENDED_LENGTH_PATH
+      /* The extended length path is only used, if it */
+      /* is absolutely necessary. Many subprocesses   */
+      /* cannot handle a current working directory    */
+      /* with an extended length path.                */
+      if (os_stri_strlen(&os_path[PREFIX_LEN]) < CLASSIC_WINDOWS_MAX_PATH) {
+        logMessage(printf("cmdChdir: os_chdir(\"" FMT_S_OS "\")\n",
+                          &os_path[PREFIX_LEN]););
+        chdir_result = os_chdir(&os_path[PREFIX_LEN]);
+      } else {
+        logMessage(printf("cmdChdir: os_chdir(\"" FMT_S_OS "\")\n",
+                          os_path););
+        chdir_result = os_chdir(os_path);
+      } /* if */
+      if (unlikely(chdir_result != 0)) {
         logMessage(printf("cmdChdir: os_chdir(\"" FMT_S_OS "\") failed:\n"
                           "errno=%d\nerror: %s\n",
                           os_path, errno, strerror(errno)););
         setEmulatedCwd(os_path, &err_info);
 #else
+      logMessage(printf("cmdChdir: os_chdir(\"" FMT_S_OS "\")\n",
+                        os_path););
+      chdir_result = os_chdir(os_path);
+      if (unlikely(chdir_result != 0)) {
         logError(printf("cmdChdir: os_chdir(\"" FMT_S_OS "\") failed:\n"
                         "errno=%d\nerror: %s\n",
                         os_path, errno, strerror(errno)););
@@ -1489,6 +1503,8 @@ void cmdChdir (const const_striType dirPath)
                       striAsUnquotedCStri(dirPath), path_info, err_info););
       raise_error(err_info);
     } else {
+      logMessage(printf("cmdChdir: os_chdir(\"" FMT_S_OS "\")\n",
+                        os_path););
       chdir_result = os_chdir(os_path);
       if (unlikely(chdir_result != 0)) {
         logError(printf("cmdChdir: os_chdir(\"" FMT_S_OS "\") failed:\n"
@@ -1617,6 +1633,8 @@ striType cmdConfigValue (const const_striType name)
       opt = CC_OPT_OPTIMIZE_2;
     } else if (strcmp(opt_name, "CC_OPT_OPTIMIZE_3") == 0) {
       opt = CC_OPT_OPTIMIZE_3;
+    } else if (strcmp(opt_name, "CC_ENVIRONMENT_INI") == 0) {
+      opt = CC_ENVIRONMENT_INI;
     } else if (strcmp(opt_name, "CC_FLAGS") == 0) {
       opt = CC_FLAGS;
     } else if (strcmp(opt_name, "CC_ERROR_FILDES") == 0) {
@@ -1631,18 +1649,20 @@ striType cmdConfigValue (const const_striType name)
       opt = LINKER_FLAGS;
     } else if (strcmp(opt_name, "SYSTEM_LIBS") == 0) {
       opt = SYSTEM_LIBS;
-    } else if (strcmp(opt_name, "SYSTEM_CONSOLE_LIBS") == 0) {
-      opt = SYSTEM_CONSOLE_LIBS;
     } else if (strcmp(opt_name, "SYSTEM_DRAW_LIBS") == 0) {
       opt = SYSTEM_DRAW_LIBS;
+    } else if (strcmp(opt_name, "SYSTEM_CONSOLE_LIBS") == 0) {
+      opt = SYSTEM_CONSOLE_LIBS;
     } else if (strcmp(opt_name, "ADDITIONAL_SYSTEM_LIBS") == 0) {
       opt = ADDITIONAL_SYSTEM_LIBS;
     } else if (strcmp(opt_name, "SEED7_LIB") == 0) {
       opt = SEED7_LIB;
-    } else if (strcmp(opt_name, "CONSOLE_LIB") == 0) {
-      opt = CONSOLE_LIB;
     } else if (strcmp(opt_name, "DRAW_LIB") == 0) {
       opt = DRAW_LIB;
+    } else if (strcmp(opt_name, "CONSOLE_LIB") == 0) {
+      opt = CONSOLE_LIB;
+    } else if (strcmp(opt_name, "DATABASE_LIB") == 0) {
+      opt = DATABASE_LIB;
     } else if (strcmp(opt_name, "COMP_DATA_LIB") == 0) {
       opt = COMP_DATA_LIB;
     } else if (strcmp(opt_name, "COMPILER_LIB") == 0) {

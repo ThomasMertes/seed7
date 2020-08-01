@@ -67,12 +67,14 @@ const ACTION: SQL_FETCH              is action "SQL_FETCH";
 const ACTION: SQL_IS_NULL            is action "SQL_IS_NULL";
 const ACTION: SQL_NE_DB              is action "SQL_NE_DB";
 const ACTION: SQL_NE_STMT            is action "SQL_NE_STMT";
+const ACTION: SQL_OPEN_DB2           is action "SQL_OPEN_DB2";
 const ACTION: SQL_OPEN_FIRE          is action "SQL_OPEN_FIRE";
 const ACTION: SQL_OPEN_LITE          is action "SQL_OPEN_LITE";
 const ACTION: SQL_OPEN_MY            is action "SQL_OPEN_MY";
 const ACTION: SQL_OPEN_OCI           is action "SQL_OPEN_OCI";
 const ACTION: SQL_OPEN_ODBC          is action "SQL_OPEN_ODBC";
 const ACTION: SQL_OPEN_POST          is action "SQL_OPEN_POST";
+const ACTION: SQL_OPEN_SQLSRV        is action "SQL_OPEN_SQLSRV";
 const ACTION: SQL_PREPARE            is action "SQL_PREPARE";
 const ACTION: SQL_STMT_COLUMN_COUNT  is action "SQL_STMT_COLUMN_COUNT";
 const ACTION: SQL_STMT_COLUMN_NAME   is action "SQL_STMT_COLUMN_NAME";
@@ -122,12 +124,14 @@ const proc: sql_prototypes (inout file: c_prog) is func
     declareExtern(c_prog, "void        sqlExecute (sqlStmtType);");
     declareExtern(c_prog, "boolType    sqlFetch (sqlStmtType);");
     declareExtern(c_prog, "boolType    sqlIsNull (sqlStmtType, intType);");
+    declareExtern(c_prog, "databaseType sqlOpenDb2 (const const_striType, intType, const const_striType, const const_striType, const const_striType);");
     declareExtern(c_prog, "databaseType sqlOpenFire (const const_striType, intType, const const_striType, const const_striType, const const_striType);");
     declareExtern(c_prog, "databaseType sqlOpenLite (const const_striType, intType, const const_striType, const const_striType, const const_striType);");
     declareExtern(c_prog, "databaseType sqlOpenMy (const const_striType, intType, const const_striType, const const_striType, const const_striType);");
     declareExtern(c_prog, "databaseType sqlOpenOci (const const_striType, intType, const const_striType, const const_striType, const const_striType);");
     declareExtern(c_prog, "databaseType sqlOpenOdbc (const const_striType driver, const const_striType server, const const_striType, const const_striType, const const_striType);");
     declareExtern(c_prog, "databaseType sqlOpenPost (const const_striType, intType, const const_striType, const const_striType, const const_striType);");
+    declareExtern(c_prog, "databaseType sqlOpenSqlServer (const const_striType, intType, const const_striType, const const_striType, const const_striType);");
     declareExtern(c_prog, "sqlStmtType sqlPrepare (databaseType, striType);");
     declareExtern(c_prog, "intType     sqlStmtColumnCount (sqlStmtType);");
     declareExtern(c_prog, "striType    sqlStmtColumnName (sqlStmtType, intType);");
@@ -754,6 +758,25 @@ const proc: process (SQL_NE_STMT, in reference: function,
   end func;
 
 
+const proc: process (SQL_OPEN_DB2, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    prepare_typed_result(resultType(getType(function)), c_expr);
+    c_expr.result_expr := "sqlOpenDb2(";
+    getAnyParamToResultExpr(params[2], c_expr);
+    c_expr.result_expr &:= ", ";
+    getStdParamToResultExpr(params[3], c_expr);
+    c_expr.result_expr &:= ", ";
+    getAnyParamToResultExpr(params[4], c_expr);
+    c_expr.result_expr &:= ", ";
+    getAnyParamToResultExpr(params[5], c_expr);
+    c_expr.result_expr &:= ", ";
+    getAnyParamToResultExpr(params[6], c_expr);
+    c_expr.result_expr &:= ")";
+  end func;
+
+
 const proc: process (SQL_OPEN_FIRE, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
@@ -855,6 +878,25 @@ const proc: process (SQL_OPEN_POST, in reference: function,
   begin
     prepare_typed_result(resultType(getType(function)), c_expr);
     c_expr.result_expr := "sqlOpenPost(";
+    getAnyParamToResultExpr(params[2], c_expr);
+    c_expr.result_expr &:= ", ";
+    getStdParamToResultExpr(params[3], c_expr);
+    c_expr.result_expr &:= ", ";
+    getAnyParamToResultExpr(params[4], c_expr);
+    c_expr.result_expr &:= ", ";
+    getAnyParamToResultExpr(params[5], c_expr);
+    c_expr.result_expr &:= ", ";
+    getAnyParamToResultExpr(params[6], c_expr);
+    c_expr.result_expr &:= ")";
+  end func;
+
+
+const proc: process (SQL_OPEN_SQLSRV, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    prepare_typed_result(resultType(getType(function)), c_expr);
+    c_expr.result_expr := "sqlOpenSqlServer(";
     getAnyParamToResultExpr(params[2], c_expr);
     c_expr.result_expr &:= ", ";
     getStdParamToResultExpr(params[3], c_expr);

@@ -273,7 +273,8 @@ static boolType findDll (void)
       found = setupDll(dllList[pos]);
     } /* for */
     if (!found) {
-      dllErrorMessage("sqlOpenMy", "findDll", dllList, sizeof(dllList));
+      dllErrorMessage("sqlOpenMy", "findDll", dllList,
+                      sizeof(dllList) / sizeof(char *));
     } /* if */
     return found;
   } /* findDll */
@@ -2833,7 +2834,7 @@ databaseType sqlOpenMy (const const_striType host, intType port,
                   memset(database, 0, sizeof(dbRecord));
                   database->usage_count = 1;
                   database->sqlFunc = sqlFunc;
-                  database->driver = 1; /* MariaDB/MySQL */
+                  database->driver = DB_CATEGORY_MYSQL;
                   database->connection = connection;
                   determineIfBackslashEscapes(database);
                 } /* if */

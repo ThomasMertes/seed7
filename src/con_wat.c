@@ -302,7 +302,7 @@ static void kbd_init (void)
       memcpy(&term_bak, &term_descr, sizeof(struct termios));
       term_descr.c_cc[VINTR] = (cc_t) -1;
       if (!tcset_term_descr(file_no, &term_descr)) {
-        printf("kbd_init: tcsetattr(%d, VMIN=1) failed:\n"
+        printf("kbd_init: tcsetattr(%d, VINTR=-1) failed:\n"
                "errno=%d\nerror: %s\n",
                file_no, errno, strerror(errno));
         /* show_term_descr(&term_descr); */

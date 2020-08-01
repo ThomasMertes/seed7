@@ -1350,6 +1350,38 @@ void strAppendTemp (striType *const destination, const striType extension)
 
 
 
+/**
+ *  Replace all occurrences of char 'searched' in 'mainStri' by 'replacement'.
+ *  @return the result of the replacement.
+ */
+striType strChChRepl (const const_striType mainStri,
+    const charType searched, const charType replacement)
+
+  {
+    memSizeType main_size;
+    memSizeType pos;
+    strElemType ch;
+    striType result;
+
+  /* strChChRepl */
+    main_size = mainStri->size;
+    if (unlikely(!ALLOC_STRI_SIZE_OK(result, main_size))) {
+      raise_error(MEMORY_ERROR);
+    } else {
+      result->size = main_size;
+      for (pos = 0; pos < main_size; pos++) {
+        ch = mainStri->mem[pos];
+        if (ch == searched) {
+          ch = replacement;
+        } /* if */
+        result->mem[pos] = ch;
+      } /* for */
+    } /* if */
+    return result;
+  } /* strChRepl */
+
+
+
 #ifdef OUT_OF_ORDER
 rtlArrayType strChEscSplit (const const_striType mainStri, const charType delimiter,
     const charType escape)

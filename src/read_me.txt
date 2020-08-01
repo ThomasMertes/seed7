@@ -139,18 +139,24 @@ COMPILING UNDER WINDOWS WITH CL FROM MSVC
 
     To compile Seed7 with cl and nmake (C compiler and make
   utility from a big big software company) it is necessary, that
-  cl and nmake can be executed from a console window. Therefore
-  the directory ..Visual Studio../VC/bin (fill in the actual
-  absolute path of your MSVC installation) must be added to the
-  PATH variable. The build process of Seed7 uses the scripts
-  seed7/bin/call_cl.bat and seed7/bin/call_lib.bat to call
-  C compiler and LIB utility program. This scripts contain
-  calls to vcvars32. If your PATH variable does not contain
-  a path to vcvars32 you can use an absolute path in the
-  scripts. If you want to use the 64-bit compiler you must
-  replace the calls of vcvars32 with calls of vcvars64. After
-  checking and possibly changing the scripts you can go to the
-  'seed7\src' directory and type:
+  cl and nmake can be executed from a console window. The script
+  vcvarsall.bat sets up the environment for cl and nmake. This
+  script is in the directory
+
+    ...Visual Studio\2019\Community\VC\Auxiliary\Build
+
+  Note that 2019 is the year of the MSVC release. In a 32-bit
+  operating system use a console and execute:
+  
+    ...Studio\2019\Community\VC\Auxiliary\Build\vcvarsall x86
+
+  In older versions of MSVS the script was named vcvars32.bat.
+  In a 64-bit operating system you need to execute:
+
+    ...Studio\2019\Community\VC\Auxiliary\Build\vcvarsall x64
+
+  Afterwards the environment is set up for MSVC. Now you can go
+  to the 'seed7\src' directory and type:
 
     copy mk_msvc.mak makefile
     nmake depend
@@ -158,6 +164,14 @@ COMPILING UNDER WINDOWS WITH CL FROM MSVC
 
   After the compilation the interpreter executable can be found
   in the 'bin' directory and it is also copied to prg/s7.exe.
+  Note that the build process saves all environment variables
+  in the file seed7/bin/cl_env.ini. Every time the Seed7
+  compiler calls cl it restores the environment variables from
+  the file seed7/bin/cl_env.ini beforehand. This change of the
+  environment happens in the Seed7 compiler and the original
+  environment of the console remains unchanged. This means that
+  the Seed7 compiler (s7c) can be used without the need to call
+  vcvarsall.bat. 
 
 
 COMPILING UNDER WINDOWS WITH BCC32

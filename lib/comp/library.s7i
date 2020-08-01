@@ -24,7 +24,8 @@
 (********************************************************************)
 
 
-var boolean: consoleLibraryUsed  is FALSE;
 var boolean: drawLibraryUsed     is FALSE;
+var boolean: consoleLibraryUsed  is FALSE;
+var boolean: databaseLibraryUsed is FALSE;
 var boolean: compilerLibraryUsed is FALSE;
 var boolean: compDataLibraryUsed is FALSE;

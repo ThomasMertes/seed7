@@ -1571,18 +1571,30 @@ const proc: process_action (in reference: function, in ref_list: params,
         process(SQL_NE_DB, function, params, c_expr);
       when {"SQL_NE_STMT"}:
         process(SQL_NE_STMT, function, params, c_expr);
+      when {"SQL_OPEN_DB2"}:
+        databaseLibraryUsed := TRUE;
+        process(SQL_OPEN_DB2, function, params, c_expr);
       when {"SQL_OPEN_FIRE"}:
+        databaseLibraryUsed := TRUE;
         process(SQL_OPEN_FIRE, function, params, c_expr);
       when {"SQL_OPEN_LITE"}:
+        databaseLibraryUsed := TRUE;
         process(SQL_OPEN_LITE, function, params, c_expr);
       when {"SQL_OPEN_MY"}:
+        databaseLibraryUsed := TRUE;
         process(SQL_OPEN_MY, function, params, c_expr);
       when {"SQL_OPEN_OCI"}:
+        databaseLibraryUsed := TRUE;
         process(SQL_OPEN_OCI, function, params, c_expr);
       when {"SQL_OPEN_ODBC"}:
+        databaseLibraryUsed := TRUE;
         process(SQL_OPEN_ODBC, function, params, c_expr);
       when {"SQL_OPEN_POST"}:
+        databaseLibraryUsed := TRUE;
         process(SQL_OPEN_POST, function, params, c_expr);
+      when {"SQL_OPEN_SQLSRV"}:
+        databaseLibraryUsed := TRUE;
+        process(SQL_OPEN_SQLSRV, function, params, c_expr);
       when {"SQL_PREPARE"}:
         process(SQL_PREPARE, function, params, c_expr);
       when {"SQL_STMT_COLUMN_COUNT"}:

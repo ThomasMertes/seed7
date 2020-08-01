@@ -16486,31 +16486,191 @@ const proc: check_string_rpos_idx is func
   end func;
 
 
+const proc: check_string_replace is func
+  local
+    var boolean: okay is TRUE;
+  begin
+    if  replace(         "abcd",               "",                 "d")   <> "abcd" or
+        replace(         "abcd",               "b",                "b")   <> "abcd" or
+        replace(         "abcd",               "b",                "d")   <> "adcd" or
+        replace(         "abcd",               "p",                "b")   <> "abcd" or
+        replace(         "abcd",               "bc",               "bc")  <> "abcd" or
+        replace(         "abcd",               "bc",               "de")  <> "aded" or
+        replace(         "abcd",               "cb",               "ad")  <> "abcd" or
+        replace(         "abcd",               "de",               "fg")  <> "abcd" or
+        replace(         "abcd",               "za",               "az")  <> "abcd" or
+        replace(         "abcd",  str(         'b'),               "b")   <> "abcd" or
+        replace(         "abcd",  str(         'b'),               "d")   <> "adcd" or
+        replace(         "abcd",  str(charExpr('b')),              "b")   <> "abcd" or
+        replace(         "abcd",  str(charExpr('b')),              "d")   <> "adcd" or
+        replace(         "abcd",               "b",   str(         'b'))  <> "abcd" or
+        replace(         "abcd",               "b",   str(         'd'))  <> "adcd" or
+        replace(         "abcd",               "b",   str(charExpr('b'))) <> "abcd" or
+        replace(         "abcd",               "b",   str(charExpr('d'))) <> "adcd" or
+        replace(         "abcd",  str(         'b'),  str(         'b'))  <> "abcd" or
+        replace(         "abcd",  str(         'b'),  str(         'd'))  <> "adcd" or
+        replace(         "abcd",  str(charExpr('b')), str(charExpr('b'))) <> "abcd" or
+        replace(         "abcd",  str(charExpr('b')), str(charExpr('d'))) <> "adcd" or
+        replace(striExpr("abcd"),              "",                 "d")   <> "abcd" or
+        replace(striExpr("abcd"),              "b",                "b")   <> "abcd" or
+        replace(striExpr("abcd"),              "b",                "d")   <> "adcd" or
+        replace(striExpr("abcd"),              "p",                "b")   <> "abcd" or
+        replace(striExpr("abcd"),              "bc",               "bc")  <> "abcd" or
+        replace(striExpr("abcd"),              "bc",               "de")  <> "aded" or
+        replace(striExpr("abcd"),              "cb",               "ad")  <> "abcd" or
+        replace(striExpr("abcd"),              "de",               "fg")  <> "abcd" or
+        replace(striExpr("abcd"),              "za",               "az")  <> "abcd" or
+        replace(striExpr("abcd"), str(         'b'),               "b")   <> "abcd" or
+        replace(striExpr("abcd"), str(         'b'),               "d")   <> "adcd" or
+        replace(striExpr("abcd"), str(charExpr('b')),              "b")   <> "abcd" or
+        replace(striExpr("abcd"), str(charExpr('b')),              "d")   <> "adcd" or
+        replace(striExpr("abcd"),              "b",   str(         'b'))  <> "abcd" or
+        replace(striExpr("abcd"),              "b",   str(         'd'))  <> "adcd" or
+        replace(striExpr("abcd"),              "b",   str(charExpr('b'))) <> "abcd" or
+        replace(striExpr("abcd"),              "b",   str(charExpr('d'))) <> "adcd" or
+        replace(striExpr("abcd"), str(         'b'),  str(         'b'))  <> "abcd" or
+        replace(striExpr("abcd"), str(         'b'),  str(         'd'))  <> "adcd" or
+        replace(striExpr("abcd"), str(charExpr('b')), str(charExpr('b'))) <> "abcd" or
+        replace(striExpr("abcd"), str(charExpr('b')), str(charExpr('d'))) <> "adcd" or
+        replace(         "abcd",  striExpr(             ""),                 "d")   <> "abcd" or
+        replace(         "abcd",  striExpr(             "b"),                "b")   <> "abcd" or
+        replace(         "abcd",  striExpr(             "b"),                "d")   <> "adcd" or
+        replace(         "abcd",  striExpr(             "p"),                "b")   <> "abcd" or
+        replace(         "abcd",  striExpr(             "bc"),               "bc")  <> "abcd" or
+        replace(         "abcd",  striExpr(             "bc"),               "de")  <> "aded" or
+        replace(         "abcd",  striExpr(             "cb"),               "ad")  <> "abcd" or
+        replace(         "abcd",  striExpr(             "de"),               "fg")  <> "abcd" or
+        replace(         "abcd",  striExpr(             "za"),               "az")  <> "abcd" or
+        replace(         "abcd",  striExpr(str(         'b')),               "b")   <> "abcd" or
+        replace(         "abcd",  striExpr(str(         'b')),               "d")   <> "adcd" or
+        replace(         "abcd",  striExpr(str(charExpr('b'))),              "b")   <> "abcd" or
+        replace(         "abcd",  striExpr(str(charExpr('b'))),              "d")   <> "adcd" or
+        replace(         "abcd",  striExpr(             "b"),   str(         'b'))  <> "abcd" or
+        replace(         "abcd",  striExpr(             "b"),   str(         'd'))  <> "adcd" or
+        replace(         "abcd",  striExpr(             "b"),   str(charExpr('b'))) <> "abcd" or
+        replace(         "abcd",  striExpr(             "b"),   str(charExpr('d'))) <> "adcd" or
+        replace(         "abcd",  striExpr(str(         'b')),  str(         'b'))  <> "abcd" or
+        replace(         "abcd",  striExpr(str(         'b')),  str(         'd'))  <> "adcd" or
+        replace(         "abcd",  striExpr(str(charExpr('b'))), str(charExpr('b'))) <> "abcd" or
+        replace(         "abcd",  striExpr(str(charExpr('b'))), str(charExpr('d'))) <> "adcd" or
+        replace(striExpr("abcd"), striExpr(             ""),                 "d")   <> "abcd" or
+        replace(striExpr("abcd"), striExpr(             "b"),                "b")   <> "abcd" or
+        replace(striExpr("abcd"), striExpr(             "b"),                "d")   <> "adcd" or
+        replace(striExpr("abcd"), striExpr(             "p"),                "b")   <> "abcd" or
+        replace(striExpr("abcd"), striExpr(             "bc"),               "bc")  <> "abcd" or
+        replace(striExpr("abcd"), striExpr(             "bc"),               "de")  <> "aded" or
+        replace(striExpr("abcd"), striExpr(             "cb"),               "ad")  <> "abcd" or
+        replace(striExpr("abcd"), striExpr(             "de"),               "fg")  <> "abcd" or
+        replace(striExpr("abcd"), striExpr(             "za"),               "az")  <> "abcd" or
+        replace(striExpr("abcd"), striExpr(str(         'b')),               "b")   <> "abcd" or
+        replace(striExpr("abcd"), striExpr(str(         'b')),               "d")   <> "adcd" or
+        replace(striExpr("abcd"), striExpr(str(charExpr('b'))),              "b")   <> "abcd" or
+        replace(striExpr("abcd"), striExpr(str(charExpr('b'))),              "d")   <> "adcd" or
+        replace(striExpr("abcd"), striExpr(             "b"),   str(         'b'))  <> "abcd" or
+        replace(striExpr("abcd"), striExpr(             "b"),   str(         'd'))  <> "adcd" or
+        replace(striExpr("abcd"), striExpr(             "b"),   str(charExpr('b'))) <> "abcd" or
+        replace(striExpr("abcd"), striExpr(             "b"),   str(charExpr('d'))) <> "adcd" or
+        replace(striExpr("abcd"), striExpr(str(         'b')),  str(         'b'))  <> "abcd" or
+        replace(striExpr("abcd"), striExpr(str(         'b')),  str(         'd'))  <> "adcd" or
+        replace(striExpr("abcd"), striExpr(str(charExpr('b'))), str(charExpr('b'))) <> "abcd" or
+        replace(striExpr("abcd"), striExpr(str(charExpr('b'))), str(charExpr('d'))) <> "adcd" or
+        replace(         "abcd",               "",    striExpr(             "d"))   <> "abcd" or
+        replace(         "abcd",               "b",   striExpr(             "b"))   <> "abcd" or
+        replace(         "abcd",               "b",   striExpr(             "d"))   <> "adcd" or
+        replace(         "abcd",               "p",   striExpr(             "b"))   <> "abcd" or
+        replace(         "abcd",               "bc",  striExpr(             "bc"))  <> "abcd" or
+        replace(         "abcd",               "bc",  striExpr(             "de"))  <> "aded" or
+        replace(         "abcd",               "cb",  striExpr(             "ad"))  <> "abcd" or
+        replace(         "abcd",               "de",  striExpr(             "fg"))  <> "abcd" or
+        replace(         "abcd",               "za",  striExpr(             "az"))  <> "abcd" or
+        replace(         "abcd",  str(         'b'),  striExpr(             "b"))   <> "abcd" or
+        replace(         "abcd",  str(         'b'),  striExpr(             "d"))   <> "adcd" or
+        replace(         "abcd",  str(charExpr('b')), striExpr(             "b"))   <> "abcd" or
+        replace(         "abcd",  str(charExpr('b')), striExpr(             "d"))   <> "adcd" or
+        replace(         "abcd",               "b",   striExpr(str(         'b')))  <> "abcd" or
+        replace(         "abcd",               "b",   striExpr(str(         'd')))  <> "adcd" or
+        replace(         "abcd",               "b",   striExpr(str(charExpr('b')))) <> "abcd" or
+        replace(         "abcd",               "b",   striExpr(str(charExpr('d')))) <> "adcd" or
+        replace(         "abcd",  str(         'b'),  striExpr(str(         'b')))  <> "abcd" or
+        replace(         "abcd",  str(         'b'),  striExpr(str(         'd')))  <> "adcd" or
+        replace(         "abcd",  str(charExpr('b')), striExpr(str(charExpr('b')))) <> "abcd" or
+        replace(         "abcd",  str(charExpr('b')), striExpr(str(charExpr('d')))) <> "adcd" or
+        replace(striExpr("abcd"),              "",    striExpr(             "d"))   <> "abcd" or
+        replace(striExpr("abcd"),              "b",   striExpr(             "b"))   <> "abcd" or
+        replace(striExpr("abcd"),              "b",   striExpr(             "d"))   <> "adcd" or
+        replace(striExpr("abcd"),              "p",   striExpr(             "b"))   <> "abcd" or
+        replace(striExpr("abcd"),              "bc",  striExpr(             "bc"))  <> "abcd" or
+        replace(striExpr("abcd"),              "bc",  striExpr(             "de"))  <> "aded" or
+        replace(striExpr("abcd"),              "cb",  striExpr(             "ad"))  <> "abcd" or
+        replace(striExpr("abcd"),              "de",  striExpr(             "fg"))  <> "abcd" or
+        replace(striExpr("abcd"),              "za",  striExpr(             "az"))  <> "abcd" or
+        replace(striExpr("abcd"), str(         'b'),  striExpr(             "b"))   <> "abcd" or
+        replace(striExpr("abcd"), str(         'b'),  striExpr(             "d"))   <> "adcd" or
+        replace(striExpr("abcd"), str(charExpr('b')), striExpr(             "b"))   <> "abcd" or
+        replace(striExpr("abcd"), str(charExpr('b')), striExpr(             "d"))   <> "adcd" or
+        replace(striExpr("abcd"),              "b",   striExpr(str(         'b')))  <> "abcd" or
+        replace(striExpr("abcd"),              "b",   striExpr(str(         'd')))  <> "adcd" or
+        replace(striExpr("abcd"),              "b",   striExpr(str(charExpr('b')))) <> "abcd" or
+        replace(striExpr("abcd"),              "b",   striExpr(str(charExpr('d')))) <> "adcd" or
+        replace(striExpr("abcd"), str(         'b'),  striExpr(str(         'b')))  <> "abcd" or
+        replace(striExpr("abcd"), str(         'b'),  striExpr(str(         'd')))  <> "adcd" or
+        replace(striExpr("abcd"), str(charExpr('b')), striExpr(str(charExpr('b')))) <> "abcd" or
+        replace(striExpr("abcd"), str(charExpr('b')), striExpr(str(charExpr('d')))) <> "adcd" or
+        replace(         "abcd",  striExpr(             ""),    striExpr(             "d"))   <> "abcd" or
+        replace(         "abcd",  striExpr(             "b"),   striExpr(             "b"))   <> "abcd" or
+        replace(         "abcd",  striExpr(             "b"),   striExpr(             "d"))   <> "adcd" or
+        replace(         "abcd",  striExpr(             "p"),   striExpr(             "b"))   <> "abcd" or
+        replace(         "abcd",  striExpr(             "bc"),  striExpr(             "bc"))  <> "abcd" or
+        replace(         "abcd",  striExpr(             "bc"),  striExpr(             "de"))  <> "aded" or
+        replace(         "abcd",  striExpr(             "cb"),  striExpr(             "ad"))  <> "abcd" or
+        replace(         "abcd",  striExpr(             "de"),  striExpr(             "fg"))  <> "abcd" or
+        replace(         "abcd",  striExpr(             "za"),  striExpr(             "az"))  <> "abcd" or
+        replace(         "abcd",  striExpr(str(         'b')),  striExpr(             "b"))   <> "abcd" or
+        replace(         "abcd",  striExpr(str(         'b')),  striExpr(             "d"))   <> "adcd" or
+        replace(         "abcd",  striExpr(str(charExpr('b'))), striExpr(             "b"))   <> "abcd" or
+        replace(         "abcd",  striExpr(str(charExpr('b'))), striExpr(             "d"))   <> "adcd" or
+        replace(         "abcd",  striExpr(             "b"),   striExpr(str(         'b')))  <> "abcd" or
+        replace(         "abcd",  striExpr(             "b"),   striExpr(str(         'd')))  <> "adcd" or
+        replace(         "abcd",  striExpr(             "b"),   striExpr(str(charExpr('b')))) <> "abcd" or
+        replace(         "abcd",  striExpr(             "b"),   striExpr(str(charExpr('d')))) <> "adcd" or
+        replace(         "abcd",  striExpr(str(         'b')),  striExpr(str(         'b')))  <> "abcd" or
+        replace(         "abcd",  striExpr(str(         'b')),  striExpr(str(         'd')))  <> "adcd" or
+        replace(         "abcd",  striExpr(str(charExpr('b'))), striExpr(str(charExpr('b')))) <> "abcd" or
+        replace(         "abcd",  striExpr(str(charExpr('b'))), striExpr(str(charExpr('d')))) <> "adcd" or
+        replace(striExpr("abcd"), striExpr(             ""),    striExpr(             "d"))   <> "abcd" or
+        replace(striExpr("abcd"), striExpr(             "b"),   striExpr(             "b"))   <> "abcd" or
+        replace(striExpr("abcd"), striExpr(             "b"),   striExpr(             "d"))   <> "adcd" or
+        replace(striExpr("abcd"), striExpr(             "p"),   striExpr(             "b"))   <> "abcd" or
+        replace(striExpr("abcd"), striExpr(             "bc"),  striExpr(             "bc"))  <> "abcd" or
+        replace(striExpr("abcd"), striExpr(             "bc"),  striExpr(             "de"))  <> "aded" or
+        replace(striExpr("abcd"), striExpr(             "cb"),  striExpr(             "ad"))  <> "abcd" or
+        replace(striExpr("abcd"), striExpr(             "de"),  striExpr(             "fg"))  <> "abcd" or
+        replace(striExpr("abcd"), striExpr(             "za"),  striExpr(             "az"))  <> "abcd" or
+        replace(striExpr("abcd"), striExpr(str(         'b')),  striExpr(             "b"))   <> "abcd" or
+        replace(striExpr("abcd"), striExpr(str(         'b')),  striExpr(             "d"))   <> "adcd" or
+        replace(striExpr("abcd"), striExpr(str(charExpr('b'))), striExpr(             "b"))   <> "abcd" or
+        replace(striExpr("abcd"), striExpr(str(charExpr('b'))), striExpr(             "d"))   <> "adcd" or
+        replace(striExpr("abcd"), striExpr(             "b"),   striExpr(str(         'b')))  <> "abcd" or
+        replace(striExpr("abcd"), striExpr(             "b"),   striExpr(str(         'd')))  <> "adcd" or
+        replace(striExpr("abcd"), striExpr(             "b"),   striExpr(str(charExpr('b')))) <> "abcd" or
+        replace(striExpr("abcd"), striExpr(             "b"),   striExpr(str(charExpr('d')))) <> "adcd" or
+        replace(striExpr("abcd"), striExpr(str(         'b')),  striExpr(str(         'b')))  <> "abcd" or
+        replace(striExpr("abcd"), striExpr(str(         'b')),  striExpr(str(         'd')))  <> "adcd" or
+        replace(striExpr("abcd"), striExpr(str(charExpr('b'))), striExpr(str(charExpr('b')))) <> "abcd" or
+        replace(striExpr("abcd"), striExpr(str(charExpr('b'))), striExpr(str(charExpr('d')))) <> "adcd" then
+      writeln(" ***** replace(STRING, STRING, STRING) does not work correct.");
+      okay := FALSE;
+    end if;
+    if okay then
+      writeln("replace(string, searched, replacement) works correct.");
+    end if;
+  end func;
+
+
 const proc: check_string_funcs is func
   local
     var boolean: okay is TRUE;
   begin
-    if  replace(         "abcd",               "",    "d")  <> "abcd" or
-        replace(         "abcd",               "b",   "d")  <> "adcd" or
-        replace(         "abcd",               "p",   "b")  <> "abcd" or
-        replace(         "abcd",               "bc",  "de") <> "aded" or
-        replace(         "abcd",               "cb",  "ad") <> "abcd" or
-        replace(         "abcd",               "de",  "fg") <> "abcd" or
-        replace(         "abcd",               "za",  "az") <> "abcd" or
-        replace(         "abcd",  str(         'b'),  "d")  <> "adcd" or
-        replace(         "abcd",  str(charExpr('b')), "d")  <> "adcd" or
-        replace(striExpr("abcd"),              "",    "d")  <> "abcd" or
-        replace(striExpr("abcd"),              "b",   "d")  <> "adcd" or
-        replace(striExpr("abcd"),              "p",   "b")  <> "abcd" or
-        replace(striExpr("abcd"),              "bc",  "de") <> "aded" or
-        replace(striExpr("abcd"),              "cb",  "ad") <> "abcd" or
-        replace(striExpr("abcd"),              "de",  "fg") <> "abcd" or
-        replace(striExpr("abcd"),              "za",  "az") <> "abcd" or
-        replace(striExpr("abcd"), str(         'b'),  "d")  <> "adcd" or
-        replace(striExpr("abcd"), str(charExpr('b')), "d")  <> "adcd" then
-      writeln(" ***** replace(STRING, STRING, STRING) does not work correct.");
-      okay := FALSE;
-    end if;
     if  lower("") <> "" or
         lower("a") <> "a" or
         lower("A") <> "a" or
@@ -18767,6 +18927,7 @@ const proc: main is func
     check_string_rpos;
     check_string_char_rpos;
     check_string_rpos_idx;
+    check_string_replace;
     check_string_funcs;
     check_string_split;
     check_string_join;

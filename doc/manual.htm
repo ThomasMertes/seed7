@@ -9290,9 +9290,9 @@ my_dir := homeDir;
 
 <a name="database_Opening_a_database_connection"><h3>13.1 Opening a database connection</h3></a>
 <p>
-  To open a database connection you need to know several things:
+  To open a database connection you need to provide several things:
 </p><ul>
-    <li>The database used.</li>
+    <li>The database type used.</li>
     <li>The <tt>host</tt> where the database is running.
       An empty <tt>host</tt> name (<tt><span class="stri">""</span></tt>) specifies the local machine (<tt><span class="stri">"localhost"</span></tt>).</li>
     <li>The <tt>port</tt> to access the database.
@@ -9304,16 +9304,17 @@ my_dir := homeDir;
   Depending on the database a corresponding database driver must
   be used:
 </p><dl><dd><table border="1" cellspacing="0" cellpadding="5">
-  <tr><th>Database   </th><th> Driver        </th><th> Default port </th><th> Comment</th></tr>
+  <tr><th>Database Type </th><th> Driver        </th><th> Default port </th><th> Comment</th></tr>
   
-  <tr><td>MySQL      </td><td> DB_MYSQL      </td><td>  3306        </td><td></td></tr>
-  <tr><td>MariaDB    </td><td> DB_MYSQL      </td><td>  3306        </td><td></td></tr>
-  <tr><td>SQLLite    </td><td> DB_SQLITE     </td><td>              </td><td> Host must be <tt><span class="stri">""</span></tt> and port must be 0.</td></tr>
-  <tr><td>PostgreSQL </td><td> DB_POSTGRESQL </td><td>  5432        </td><td></td></tr>
-  <tr><td>Oracle     </td><td> DB_OCI        </td><td>  1521        </td><td></td></tr>
-  <tr><td>SQL Server </td><td> DB_ODBC       </td><td>              </td><td> Can also connect to other databases.</td></tr>
-  <tr><td>Firebird   </td><td> DB_FIRE       </td><td>              </td><td></td></tr>
-  <tr><td>Interbase  </td><td> DB_FIRE       </td><td>              </td><td></td></tr>
+  <tr><td>MySQL         </td><td> DB_MYSQL      </td><td>   3306       </td><td></td></tr>
+  <tr><td>MariaDB       </td><td> DB_MYSQL      </td><td>   3306       </td><td></td></tr>
+  <tr><td>SQLLite       </td><td> DB_SQLITE     </td><td>              </td><td> Host must be <tt><span class="stri">""</span></tt> and port must be 0.</td></tr>
+  <tr><td>PostgreSQL    </td><td> DB_POSTGRESQL </td><td>   5432       </td><td></td></tr>
+  <tr><td>Oracle        </td><td> DB_OCI        </td><td>   1521       </td><td></td></tr>
+  <tr><td>SQL Server    </td><td> DB_ODBC       </td><td>              </td><td> Can also connect to other databases.</td></tr>
+  <tr><td>Firebird      </td><td> DB_FIRE       </td><td>              </td><td></td></tr>
+  <tr><td>Interbase     </td><td> DB_FIRE       </td><td>              </td><td></td></tr>
+  <tr><td>Db2           </td><td> DB_DB2        </td><td>  50000       </td><td></td></tr>
 </table></dd></dl><p>
   A basic function to open a database is:
 </p><pre class="indent">
@@ -9331,19 +9332,21 @@ currDb := <span class="func">openDatabase</span>(<span class="var">DB_POSTGRESQL
 
 currDb := <span class="func">openDatabase</span>(<span class="var">DB_POSTGRESQL</span>, <span class="stri">"localhost"</span>, 0, <span class="stri">"testDb"</span>, <span class="stri">"testUser"</span>, <span class="stri">"testPassword"</span>);
 
-currDb := <span class="func">openDatabase</span>(<span class="var">DB_OCI</span>, <span class="stri">""</span>, 0, <span class="stri">"dbName"</span>, <span class="stri">"testUser"</span>, <span class="stri">"testPassword"</span>);
+currDb := <span class="func">openDatabase</span>(<span class="var">DB_OCI</span>, <span class="stri">""</span>, 0, <span class="stri">"aServiceName"</span>, <span class="stri">"testUser"</span>, <span class="stri">"testPassword"</span>);
 
-currDb := <span class="func">openDatabase</span>(<span class="var">DB_OCI</span>, <span class="stri">"www.example.org"</span>, 2345, <span class="stri">"testDb"</span>, <span class="stri">"testUser"</span>, <span class="stri">"testPassword"</span>);
+currDb := <span class="func">openDatabase</span>(<span class="var">DB_OCI</span>, <span class="stri">"www.example.org"</span>, 2345, <span class="stri">"aServiceName"</span>, <span class="stri">"testUser"</span>, <span class="stri">"testPassword"</span>);
+
+currDb := <span class="func">openDatabase</span>(<span class="var">DB_OCI</span>, <span class="stri">"192.0.2.235"</span>, 0, <span class="stri">"aSid"</span>, <span class="stri">"testUser"</span>, <span class="stri">"testPassword"</span>);
 </pre><p>
   The <tt>host</tt> can be specified by name (e.g.: <tt><span class="stri">"www.example.org"</span></tt>),
   by an IPv4 address (e.g.: <tt><span class="stri">"192.0.2.235"</span></tt>) or by an IPv6
-  addresss in colon notation (e.g.: <tt><span class="stri">"1234:feed::dead:beef"</span></tt>).
+  address in colon notation (e.g.: <tt><span class="stri">"1234:feed::dead:beef"</span></tt>).
   Specifying <tt><span class="stri">""</span></tt> as <tt>host</tt> means <tt><span class="stri">"localhost"</span></tt>.
 </p><p>
-  The <tt><span class="var">DB_OCI</span></tt> driver allows the usage of <tt><span class="stri">"tnsnames.ora"</span></tt>. An entry
-  name from <tt><span class="stri">"tnsnames.ora"</span></tt> (a <tt>net_service_name</tt>) can be used as
-  <tt>dbName</tt>. If <tt><span class="stri">"tnsnames.ora"</span></tt> is used the parameter <tt>host</tt> must
-  be <tt><span class="stri">""</span></tt> and the parameter <tt>port</tt> must be 0.
+  When using the <tt><span class="var">DB_OCI</span></tt> driver you can either supply a <tt>net_service_name</tt>
+  from <tt><span class="stri">tnsnames.ora</span></tt> or a <tt>service_name</tt> or a <tt>sid</tt> as <tt>dbName</tt>. If
+  <tt><span class="stri">tnsnames.ora</span></tt> is used the parameter <tt>host</tt> must be <tt><span class="stri">""</span></tt> and the
+  parameter <tt>port</tt> must be 0.
 </p><pre class="indent">
 currDb := <span class="func">openDatabase</span>(<span class="var">DB_OCI</span>, <span class="stri">""</span>, 0, <span class="stri">"tnsnamesOraEntryName"</span>, <span class="stri">"testUser"</span>, <span class="stri">"testPassword"</span>);
 </pre><p>
@@ -9358,13 +9361,12 @@ currDb := <span class="func">openDatabase</span>(<span class="var">DB_SQLITE</sp
   For a SQLite database <tt>host</tt> must be <tt><span class="stri">""</span></tt> and <tt>port</tt> must be 0.
 </p><p>
   The Seed7 database driver <tt><span class="var">DB_ODBC</span></tt> is special, as the ODBC
-  interface itself allows also connecting to different databases.
+  interface itself allows connecting to several database types.
   The ODBC interface library accomplishes this by using ODBC drivers.
   Unfortunately these drivers do come in varying quality. Accessing
   a database directly via the Seed7 driver should be the preferred
-  method. SQL Server is the only database, that only has an ODBC
-  interface. Opening an ODBC database can be done with the following
-  function:
+  method. For SQL Server ODBC is the only connection interface.
+  Opening an ODBC database can be done with the following function:
 </p><pre class="indent">
 <span class="keywd">const</span> <a class="type" href="#types_func">func</a> <span class="type">database</span>: <b><span class="func">openDatabase</span></b> (<span class="var">DB_ODBC</span>, <span class="keywd">in</span> <a class="type" href="#types_string">string</a>: odbcDriver,
                                    <span class="keywd">in</span> <a class="type" href="#types_string">string</a>: server, <span class="keywd">in</span> <a class="type" href="#types_string">string</a>: dbName,
@@ -9389,7 +9391,7 @@ currDb := <span class="func">openDatabase</span>(<span class="var">DB_ODBC</span
 
 currDb := <span class="func">openDatabase</span>(<span class="var">DB_ODBC</span>, <span class="stri">""</span>, <span class="stri">""</span>, <span class="stri">"dsnName"</span>, <span class="stri">""</span>, <span class="stri">""</span>);
 </pre><p>
-  When opening with a DSN succeeds the parameters <tt>odbcDriver</tt>
+  When opening using a DSN succeeds, the parameters <tt>odbcDriver</tt>
   and <tt>server</tt> are ignored. A DSN might also specify <tt>user</tt>
   and <tt>password</tt>. In this case this parameters can be left empty,
   when <tt><span class="func">openDatabase</span>()</tt> is called.
@@ -9400,8 +9402,8 @@ currDb := <span class="func">openDatabase</span>(<span class="var">DB_ODBC</span
     Start -> Control Panel -> Administrative Tools -> Data Sources (ODBC).
 </dd></dl><p>
   The data source names (DSNs) of unixODBC are specified in the
-  file <tt><span class="stri">"odbc.ini"</span></tt>. The ODBC drivers of unixODBC are specified
-  in the file <tt><span class="stri">"odbcinst.ini"</span></tt>.
+  file <tt><span class="stri">odbc.ini</span></tt>. The ODBC drivers of unixODBC are specified
+  in the file <tt><span class="stri">odbcinst.ini</span></tt>.
 </p>
 
 <a name="database_Other_ways_to_open_a_database_connection"><h3>13.2 Other ways to open a database connection</h3></a>
@@ -9421,8 +9423,8 @@ currDb := <span class="func">openDatabase</span>(<span class="var">DB_ODBC</span
   or by IPv4 address (e.g.: <tt><span class="stri">"192.0.2.235"</span></tt>) or by IPv6 address in
   colon notation (e.g.: <tt><span class="stri">"[1234:feed::dead:beef]"</span></tt>). Note that an
   IPv6 address must be enclosed in brackets. If <tt>host</tt> is not
-  specified the default host (<tt><span class="stri">"localhost"</span></tt>) is used. If <tt>port</tt>
-  is not specified the default port of the driver is used. The
+  specified the default host (<tt><span class="stri">"localhost"</span></tt>) will be used. If <tt>port</tt>
+  is not specified the default port of the driver will be used. The
   following statements each open a database:
 </p><pre class="indent">
 currDb := <span class="func">openDatabase</span>(<span class="var">DB_MYSQL</span>, <span class="stri">"www.example.org:1234/testDb"</span>, <span class="stri">"testUser"</span>, <span class="stri">"testPassword"</span>);
@@ -9465,8 +9467,8 @@ currDb := <span class="func">openDatabase</span>(<span class="var">DB_SQLITE</sp
     <li>user@dbPath</li>
     <li>dbPath</li>
 </ul><p>
-  If no <tt>user</tt> is specified the user <tt><span class="stri">"guest"</span></tt> is used. If no
-  <tt>password</tt> is specified the password <tt><span class="stri">"guest"</span></tt> is used. The
+  If no <tt>user</tt> is specified the user <tt><span class="stri">"guest"</span></tt> will be used. If no
+  <tt>password</tt> is specified the password <tt><span class="stri">"guest"</span></tt> will be used. The
   <tt>dbPath</tt> is specified as before.
 </p>
 
@@ -9484,7 +9486,7 @@ currDb := <span class="func">openDatabase</span>(<span class="var">DB_SQLITE</sp
 </pre><p>
   Regarding the parameter <tt>sqlStatementStri</tt> some things must be considered:
 </p><ul>
-    <li>A question mark (<tt>?</tt>) is used as placeholder for bind variables.</li>
+    <li>A question mark (<tt>?</tt>) will be used as placeholder for bind variables.</li>
     <li>Strings in a SQL statement are enclosed in apostrophes (e.g. <tt>'abc'</tt>).<ul>
       <li>A string consists of all characters between the enclosing
         apostrophes.</li>
@@ -9494,9 +9496,9 @@ currDb := <span class="func">openDatabase</span>(<span class="var">DB_SQLITE</sp
     <li>Line comments in a SQL statement start with <tt>--</tt> and end
       with a newline characer (<tt>'\n'</tt>).</li>
     <li>Table and field names can be enclosed in double quotes (e.g. <tt>"aTable"</tt>).<ul>
-      <li>This way a table or field name can contain spaces or other
+      <li>This way a table or field name may contain spaces or other
         characters, that are normally not allowed.</li>
-      <li>Double quotes in a quoted name must be doubled (several
+      <li>Double quotes in a quoted name must be doubled (be aware that several
         databases do not allow double quotes in names).</li></ul></li>
 </ul><p>
   The following statements each create a prepared SQL statement:
@@ -9519,11 +9521,11 @@ statement := <span class="func">prepare</span>(currDb, <span class="stri">"SELEC
   is not open. This is checked by the driver. Other things are
   checked by the database. The database might raise the exception
   <tt><span class="exception">DATABASE_ERROR</span></tt>. Note that some databases do not check everything,
-  when the statement is prepared. So an illegal SQL statement might
+  when preparing the statement. So an illegal SQL statement might
   be accepted by <tt><span class="func">prepare</span>()</tt>, but executing the prepared statement
-  later fails.
+  later will fail.
 </p><p>
-  Executing a prepared statement, that neither has bind variables
+  Executing a prepared statement that neither has bind variables
   nor returns a result is quite simple:
 </p><pre class="indent">
 statement := <span class="func">prepare</span>(currDb, <span class="stri">"CREATE TABLE customers (name CHAR(128), area CHAR(128))"</span>);
@@ -9536,7 +9538,7 @@ statement := <span class="func">prepare</span>(currDb, <span class="stri">"CREAT
   placeholder for bind variables. Before a prepared statement is
   executed it is necessary to bind values to the placeholders (<tt>?</tt>).
   Prepared statements without placeholders do not need a binding.
-  It is possible to bind the same placeholder again and again,
+  It is possible to bind the same placeholder as often as you like.
   even with values from different types. This can be used to
   execute the same prepared statement multiple times with
   different values. The binding is done with a <tt><span class="func">bind</span>()</tt> function.
@@ -9571,13 +9573,13 @@ statement := <span class="func">prepare</span>(currDb, <span class="stri">"CREAT
 </pre><p>
   The <tt><span class="func">bind</span>()</tt> functions check the given position (<tt>pos</tt>) and raise
   the exception <tt><span class="exception">RANGE_ERROR</span></tt>, if no corresponding placeholder (<tt>?</tt>)
-  exists. This happens if <tt>pos <= 0</tt> holds or if <tt>pos</tt> is greater
+  is found. This happens if <tt>pos <= 0</tt> holds or if <tt>pos</tt> is greater
   than the number of placeholders. The <tt><span class="func">bind</span>()</tt> functions check
   also, if the type of the given value fits to the database
   column. If the type does not fit the exception <tt><span class="exception">RANGE_ERROR</span></tt> is
   raised.
 </p><p>
-  Another examble with binding is:
+  Another example with binding is:
 </p><pre class="indent">
 write("name? ");
 readln(name);
@@ -9605,14 +9607,13 @@ statement := <span class="func">prepare</span>(currDb, <span class="stri">"SELEC
 </p><pre class="indent">
 SELECT name, area FROM customers WHERE name = '' UNION SELECT login, password FROM user --'
 </pre><p>
-  This would trigger that secret login data is written.
+  The result would additionally contain secret data you certainly would not like to be displayed.
 </p>
 
 <a name="database_Execute_a_prepared_statement"><h3>13.5 Execute a prepared statement</h3></a>
 <p>
-  To trigger that a prepared statement actually does something
-  it must be executed. Prepared statements are executed with
-  the following function:
+  To make a prepared statement run it must be executed.
+  Prepared statements are executed with the following function:
 </p><pre class="indent">
 <span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: <b><span class="func">execute</span></b> (<span class="keywd">inout</span> <span class="type">sqlStatement</span>: statement)
 </pre><p>
@@ -9622,14 +9623,14 @@ SELECT name, area FROM customers WHERE name = '' UNION SELECT login, password FR
 </pre><p>
   Executing fails with a <tt><span class="exception">RANGE_ERROR</span></tt>, if the statement has not
   been prepared. Executing fails with a <tt><span class="exception">DATABASE_ERROR</span></tt>, if
-  not all parameters have been <a class="link" href="#database_Bind_values_to_placeholders">bound</a>. If the database finds
-  an error the exception <tt><span class="exception">DATABASE_ERROR</span></tt> is also raised. Note
+  not all parameters have been <a class="link" href="#database_Bind_values_to_placeholders">bound</a>. If the database returns
+  an error the exception <tt><span class="exception">DATABASE_ERROR</span></tt> gets also raised. Note
   that illegal SQL statements might raise a <tt><span class="exception">DATABASE_ERROR</span></tt> in
-  <tt><span class="func">prepare</span>()</tt> or in <tt><span class="func">execute</span>()</tt>. Where the exception is raised
+  <tt><span class="func">prepare</span>()</tt> or in <tt><span class="func">execute</span>()</tt>. When the exception is raised
   depends on the database.
 </p><p>
   There are prepared statements, that return a result set of
-  records (e.g.: SELECT) and prepared statements that do not
+  records (e.g.: SELECT) and others that do not
   return data (e.g.: UPDATE). After <a class="link" href="#database_Execute_a_prepared_statement">executing</a> a prepared
   statement the number of columns in a record (row) of the
   result set can be retrieved with the following function:
@@ -9654,10 +9655,10 @@ writeln;
 
 <a name="database_Fetch_records_from_the_result_set"><h3>13.6 Fetch records from the result set</h3></a>
 <p>
-  After <a class="link" href="#database_Execute_a_prepared_statement">executing</a> a prepared statement, that returns data
+  After <a class="link" href="#database_Execute_a_prepared_statement">executing</a> a prepared statement that returns data
   (e.g.: SELECT), the records (rows) can be fetched one by one
-  with <tt><span class="func">fetch</span>()</tt>. After <a class="link" href="#database_Execute_a_prepared_statement">executing</a> a prepared statement, that does
-  not return data, no fetching is necessary. Fetching is done
+  with <tt><span class="func">fetch</span>()</tt>. After <a class="link" href="#database_Execute_a_prepared_statement">executing</a> a prepared statement
+  returning no data fetching is not necessary. Fetching is done
   with the following function:
 </p><pre class="indent">
 <span class="keywd">const</span> <a class="type" href="#types_func">func</a> <a class="type" href="#types_boolean">boolean</a>: <b><span class="func">fetch</span></b> (<span class="keywd">in</span> <span class="type">sqlStatement</span>: statement)
@@ -9677,7 +9678,7 @@ end while;
 <a name="database_Get_columns_from_fetched_records"><h3>13.7 Get columns from fetched records</h3></a>
 <p>
   After a record (row) has been <a class="link" href="#database_Fetch_records_from_the_result_set">fetched</a> from a result set
-  individual colum data can be retrieved with a <tt><span class="func">column</span>()</tt> function.
+  individual column data can be retrieved with a <tt><span class="func">column</span>()</tt> function.
   For several types <tt><span class="func">column</span>()</tt> functions are defined:
 </p><pre class="indent">
 <span class="keywd">const</span> <a class="type" href="#types_func">func</a> <a class="type" href="#types_bigInteger">bigInteger</a>: <b><span class="func">column</span></b> (<span class="keywd">in</span> <span class="type">sqlStatement</span>: statement, <span class="keywd">in</span> <a class="type" href="#types_integer">integer</a>: column, <span class="keywd">attr</span> <a class="type" href="#types_bigInteger">bigInteger</a>)
@@ -9708,7 +9709,7 @@ end while;
   The <tt><span class="func">column</span>()</tt> functions check the given position (<tt>column</tt>) and
   raise the exception <tt><span class="exception">RANGE_ERROR</span></tt>, if no corresponding column
   exists in the result record. This happens if <tt>column <= 0</tt>
-  holds or if <tt>column</tt> is greater than the number of columns
+  is <tt><span class="var">TRUE</span></tt> or if <tt>column</tt> is greater than the number of columns
   (which can be obtained with <tt><span class="func">columnCount</span>()</tt>). Database columns can
   be <tt>NULL</tt>. This can be checked with the following function:
 </p><pre class="indent">

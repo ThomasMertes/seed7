@@ -105,7 +105,8 @@ const func keyDescriptionType: genKeyDescription is func
     end for;
     for description key index range [](
         "KEY_NULLCMD", "KEY_REDRAW", "KEY_NEWWINDOW",
-        "KEY_MOUSE1", "KEY_MOUSE2", "KEY_MOUSE3", "KEY_MOUSE4", "KEY_MOUSE5") do
+        "KEY_MOUSE1", "KEY_MOUSE2", "KEY_MOUSE3", "KEY_MOUSE4", "KEY_MOUSE5",
+        "KEY_MOUSE_FWD", "KEY_MOUSE_BACK") do
       keyDescription @:= [chr(pred(ord(KEY_NULLCMD)) + index)] description;
     end for;
     for description key index range [](

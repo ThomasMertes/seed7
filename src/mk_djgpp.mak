@@ -18,14 +18,15 @@ LDFLAGS =
 # LDFLAGS = -pg -lc_p
 SYSTEM_LIBS = -lm
 # SYSTEM_LIBS = -lm -lgmp
-SYSTEM_CONSOLE_LIBS =
 SYSTEM_DRAW_LIBS =
+SYSTEM_CONSOLE_LIBS =
 SEED7_LIB = seed7_05.a
-CONSOLE_LIB = s7_con.a
 DRAW_LIB = s7_draw.a
+CONSOLE_LIB = s7_con.a
+DATABASE_LIB = s7_db.a
 COMP_DATA_LIB = s7_data.a
 COMPILER_LIB = s7_comp.a
-ALL_S7_LIBS = ..\bin\$(COMPILER_LIB) ..\bin\$(COMP_DATA_LIB) ..\bin\$(DRAW_LIB) ..\bin\$(CONSOLE_LIB) ..\bin\$(SEED7_LIB)
+ALL_S7_LIBS = ..\bin\$(COMPILER_LIB) ..\bin\$(COMP_DATA_LIB) ..\bin\$(DRAW_LIB) ..\bin\$(CONSOLE_LIB) ..\bin\$(DATABASE_LIB) ..\bin\$(SEED7_LIB)
 # CC = g++
 CC = gcc
 GET_CC_VERSION_INFO = $(CC) --version >
@@ -47,11 +48,12 @@ ROBJ = arr_rtl.o bln_rtl.o bst_rtl.o chr_rtl.o cmd_rtl.o con_rtl.o dir_rtl.o drw
        flt_rtl.o hsh_rtl.o int_rtl.o itf_rtl.o pcs_rtl.o set_rtl.o soc_rtl.o sql_rtl.o str_rtl.o \
        tim_rtl.o ut8_rtl.o heaputl.o numutl.o sigutl.o striutl.o
 DOBJ = big_rtl.o big_gmp.o cmd_unx.o dir_win.o dll_dos.o fil_dos.o pcs_dos.o pol_dos.o soc_none.o \
-       sql_base.o sql_fire.o sql_lite.o sql_my.o sql_oci.o sql_odbc.o sql_post.o tim_dos.o
+       tim_dos.o
 OBJ = $(MOBJ)
 SEED7_LIB_OBJ = $(ROBJ) $(DOBJ)
 DRAW_LIB_OBJ = gkb_rtl.o drw_dos.o
 CONSOLE_LIB_OBJ = kbd_rtl.o con_wat.o
+DATABASE_LIB_OBJ = sql_base.o sql_db2.o sql_fire.o sql_lite.o sql_my.o sql_oci.o sql_odbc.o sql_post.o sql_srv.o
 COMP_DATA_LIB_OBJ = typ_data.o rfl_data.o ref_data.o listutl.o flistutl.o typeutl.o datautl.o
 COMPILER_LIB_OBJ = $(POBJ) $(LOBJ) $(EOBJ) $(AOBJ) $(GOBJ)
 
@@ -71,11 +73,12 @@ RSRC = arr_rtl.c bln_rtl.c bst_rtl.c chr_rtl.c cmd_rtl.c con_rtl.c dir_rtl.c drw
        flt_rtl.c hsh_rtl.c int_rtl.c itf_rtl.c pcs_rtl.c set_rtl.c soc_rtl.c sql_rtl.c str_rtl.c \
        tim_rtl.c ut8_rtl.c heaputl.c numutl.c sigutl.c striutl.c
 DSRC = big_rtl.c big_gmp.c cmd_unx.c dir_win.c dll_unx.c fil_dos.c pcs_dos.c pol_dos.c soc_none.c \
-       sql_base.c sql_fire.c sql_lite.c sql_my.c sql_oci.c sql_odbc.c sql_post.c tim_dos.c
+       tim_dos.c
 SRC = $(MSRC)
 SEED7_LIB_SRC = $(RSRC) $(DSRC)
 DRAW_LIB_SRC = gkb_rtl.c drw_dos.c
 CONSOLE_LIB_SRC = kbd_rtl.c con_wat.c
+DATABASE_LIB_SRC = sql_base.c sql_db2.c sql_fire.c sql_lite.c sql_my.c sql_oci.c sql_odbc.c sql_post.c sql_srv.c
 COMP_DATA_LIB_SRC = typ_data.c rfl_data.c ref_data.c listutl.c flistutl.c typeutl.c datautl.c
 COMPILER_LIB_SRC = $(PSRC) $(LSRC) $(ESRC) $(ASRC) $(GSRC)
 
@@ -91,7 +94,7 @@ s7c: ..\bin\s7c.exe ..\prg\s7c.exe
 	@$(ECHO)
 
 ..\bin\s7.exe: $(OBJ) $(ALL_S7_LIBS)
-	$(CC) $(LDFLAGS) $(OBJ) $(ALL_S7_LIBS) $(SYSTEM_DRAW_LIBS) $(SYSTEM_CONSOLE_LIBS) $(SYSTEM_LIBS) -o ..\bin\s7.exe
+	$(CC) $(LDFLAGS) $(OBJ) $(ALL_S7_LIBS) $(SYSTEM_DRAW_LIBS) $(SYSTEM_CONSOLE_LIBS) $(SYSTEM_LIBS) $(ADDITIONAL_SYSTEM_LIBS) -o ..\bin\s7.exe
 
 ..\prg\s7.exe: ..\bin\s7.exe
 	copy ..\bin\s7.exe ..\prg
@@ -101,6 +104,12 @@ s7c: ..\bin\s7c.exe ..\prg\s7c.exe
 
 ..\prg\s7c.exe: ..\prg\s7c.sd7 $(ALL_S7_LIBS)
 	..\bin\s7 -l ..\lib ..\prg\s7c -l ..\lib -b ..\bin -O2 ..\prg\s7c
+
+sql_db2.o: sql_db2.c
+	$(CC) -c $(CPPFLAGS) $(DB2_INCLUDE_OPTION) $(CFLAGS) $< -o $@
+
+sql_srv.o: sql_srv.c
+	$(CC) -c $(CPPFLAGS) $(SQL_SERVER_INCLUDE_OPTION) $(CFLAGS) $< -o $@
 
 clear: clean
 
@@ -154,8 +163,8 @@ version.h: chkccomp.h
 	$(ECHO) "#define LINKER_OPT_OUTPUT_FILE \"-o \"" >> version.h
 	$(ECHO) "#define LINKER_FLAGS \"$(LDFLAGS)\"" >> version.h
 	$(ECHO) "#define SYSTEM_LIBS \"$(SYSTEM_LIBS)\"" >> version.h
-	$(ECHO) "#define SYSTEM_CONSOLE_LIBS \"$(SYSTEM_CONSOLE_LIBS)\"" >> version.h
 	$(ECHO) "#define SYSTEM_DRAW_LIBS \"$(SYSTEM_DRAW_LIBS)\"" >> version.h
+	$(ECHO) "#define SYSTEM_CONSOLE_LIBS \"$(SYSTEM_CONSOLE_LIBS)\"" >> version.h
 	$(CC) chkccomp.c -o chkccomp.exe
 	@$(ECHO)
 	@$(ECHO) "The following C compiler errors can be safely ignored"
@@ -163,8 +172,9 @@ version.h: chkccomp.h
 	del chkccomp.exe
 	del cc_vers.txt
 	$(ECHO) "#define SEED7_LIB \"$(SEED7_LIB)\"" >> version.h
-	$(ECHO) "#define CONSOLE_LIB \"$(CONSOLE_LIB)\"" >> version.h
 	$(ECHO) "#define DRAW_LIB \"$(DRAW_LIB)\"" >> version.h
+	$(ECHO) "#define CONSOLE_LIB \"$(CONSOLE_LIB)\"" >> version.h
+	$(ECHO) "#define DATABASE_LIB \"$(DATABASE_LIB)\"" >> version.h
 	$(ECHO) "#define COMP_DATA_LIB \"$(COMP_DATA_LIB)\"" >> version.h
 	$(ECHO) "#define COMPILER_LIB \"$(COMPILER_LIB)\"" >> version.h
 	$(ECHO) "#define STACK_SIZE_DEFINITION unsigned _stklen = 4194304" >> version.h
@@ -185,11 +195,14 @@ level.h:
 ..\bin\$(SEED7_LIB): $(SEED7_LIB_OBJ)
 	ar r ..\bin\$(SEED7_LIB) $(SEED7_LIB_OBJ)
 
+..\bin\$(DRAW_LIB): $(DRAW_LIB_OBJ)
+	ar r ..\bin\$(DRAW_LIB) $(DRAW_LIB_OBJ)
+
 ..\bin\$(CONSOLE_LIB): $(CONSOLE_LIB_OBJ)
 	ar r ..\bin\$(CONSOLE_LIB) $(CONSOLE_LIB_OBJ)
 
-..\bin\$(DRAW_LIB): $(DRAW_LIB_OBJ)
-	ar r ..\bin\$(DRAW_LIB) $(DRAW_LIB_OBJ)
+..\bin\$(DATABASE_LIB): $(DATABASE_LIB_OBJ)
+	ar r ..\bin\$(DATABASE_LIB) $(DATABASE_LIB_OBJ)
 
 ..\bin\$(COMP_DATA_LIB): $(COMP_DATA_LIB_OBJ)
 	ar r ..\bin\$(COMP_DATA_LIB) $(COMP_DATA_LIB_OBJ)
@@ -315,10 +328,12 @@ wc: $(SRC)
 	wc $(SRC)
 	@$(ECHO) SEED7_LIB_SRC:
 	wc $(SEED7_LIB_SRC)
-	@$(ECHO) CONSOLE_LIB_SRC:
-	wc $(CONSOLE_LIB_SRC)
 	@$(ECHO) DRAW_LIB_SRC:
 	wc $(DRAW_LIB_SRC)
+	@$(ECHO) CONSOLE_LIB_SRC:
+	wc $(CONSOLE_LIB_SRC)
+	@$(ECHO) DATABASE_LIB_SRC:
+	wc $(DATABASE_LIB_SRC)
 	@$(ECHO) COMP_DATA_LIB_SRC:
 	wc $(COMP_DATA_LIB_SRC)
 	@$(ECHO) COMPILER_LIB_SRC:

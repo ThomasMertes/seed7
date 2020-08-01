@@ -1117,6 +1117,16 @@ memSizeType stri_to_utf16 (const wstriType out_wstri,
 
 
 
+void memcpy_to_wstri (wstriType dest, const char *src, memSizeType len)
+
+  { /* memcpy_to_wstri */
+    for (; len > 0; src++, dest++, len--) {
+      *dest = (wcharType) *src;
+    } /* for */
+  } /* memcpy_to_wstri */
+
+
+
 #ifdef OS_STRI_WCHAR
 static inline void conv_to_os_stri (register os_striType os_stri,
     register const strElemType *strelem, memSizeType len,
@@ -2230,37 +2240,86 @@ striType os_stri_to_stri (const const_os_striType os_stri, errInfoType *err_info
 striType stri_to_standard_path (const striType stri)
 
   {
-    striType result;
+    memSizeType pathLength;
+    striType resized_stdPath;
+    striType stdPath;
 
   /* stri_to_standard_path */
-    result = stri;
-    if (result != NULL) {
+    stdPath = stri;
+    if (stdPath != NULL) {
+      pathLength = stdPath->size;
 #if PATH_DELIMITER != '/'
       {
-        unsigned int pos;
+        memSizeType pos;
 
-        for (pos = 0; pos < result->size; pos++) {
-          if (result->mem[pos] == PATH_DELIMITER) {
-            result->mem[pos] = (strElemType) '/';
+        for (pos = 0; pos < pathLength; pos++) {
+          if (stdPath->mem[pos] == PATH_DELIMITER) {
+            stdPath->mem[pos] = (strElemType) '/';
           } /* if */
         } /* for */
       }
 #endif
 #if MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
-      if (result->size >= 2 && result->mem[1] == ':' &&
-          ((result->mem[0] >= 'a' && result->mem[0] <= 'z') ||
-           (result->mem[0] >= 'A' && result->mem[0] <= 'Z'))) {
-        if (result->size >= 3 && result->mem[2] == '/') {
-          result->mem[1] = (strElemType) tolower((int) result->mem[0]);
-          result->mem[0] = (strElemType) '/';
-          if (result->size == 3) {
-            result->size = 2;
+      if (pathLength >= 2 && stdPath->mem[1] == ':' &&
+          ((stdPath->mem[0] >= 'a' && stdPath->mem[0] <= 'z') ||
+           (stdPath->mem[0] >= 'A' && stdPath->mem[0] <= 'Z'))) {
+        stdPath->mem[1] = (strElemType) tolower((int) stdPath->mem[0]);
+        stdPath->mem[0] = (strElemType) '/';
+        if (pathLength >= 3) {
+          if (stdPath->mem[2] != '/') {
+            if (likely(ALLOC_STRI_CHECK_SIZE(stdPath, pathLength + 1))) {
+              /* Stri points to the old stdPath. */
+              stdPath->mem[0] = stri->mem[0];
+              stdPath->mem[1] = stri->mem[1];
+              stdPath->mem[2] = (strElemType) '/';
+              memcpy(&stdPath->mem[3], &stri->mem[2],
+                     (pathLength - 2) * sizeof(strElemType));
+              FREE_STRI(stri, pathLength);
+              pathLength++;
+              stdPath->size = pathLength;
+            } /* if */
           } /* if */
         } /* if */
       } /* if */
 #endif
+      if (likely(stdPath != NULL)) {
+        {
+          memSizeType pos;
+          memSizeType pos2;
+
+          for (pos = 0; pos < stdPath->size; pos++) {
+            if (stdPath->mem[pos] == '/') {
+              pos2 = pos + 1;
+              while (pos2 < stdPath->size && stdPath->mem[pos2] == '/') {
+                pos2++;
+              } /* while */
+              if (pos2 > pos + 1) {
+                if (pos2 < stdPath->size) {
+                  memmove(&stdPath->mem[pos + 1], &stdPath->mem[pos2],
+                          (stdPath->size - pos2) * sizeof(strElemType));
+                } /* if */
+                stdPath->size -= pos2 - pos - 1;
+              } /* if */
+            } /* if */
+          } /* for */
+        }
+        if (stdPath->size > 1 &&
+               stdPath->mem[stdPath->size - 1] == (charType) '/') {
+          stdPath->size--;
+        } /* if */
+        if (unlikely(stdPath->size != pathLength)) {
+          REALLOC_STRI_SIZE_SMALLER(resized_stdPath, stdPath, pathLength, stdPath->size);
+          if (unlikely(resized_stdPath == NULL)) {
+            FREE_STRI(stdPath, pathLength);
+            stdPath = NULL;
+          } else {
+            stdPath = resized_stdPath;
+            COUNT3_STRI(pathLength, stdPath->size);
+          } /* if */
+        } /* if */
+      } /* if */
     } /* if */
-    return result;
+    return stdPath;
   } /* stri_to_standard_path */
 
 
@@ -2283,7 +2342,7 @@ striType stri_to_standard_path (const striType stri)
 striType cp_from_os_path (const_os_striType os_path, errInfoType *err_info)
 
   {
-    striType result;
+    striType stdPath;
 
   /* cp_from_os_path */
 #if defined USE_EXTENDED_LENGTH_PATH && USE_EXTENDED_LENGTH_PATH
@@ -2292,14 +2351,14 @@ striType cp_from_os_path (const_os_striType os_path, errInfoType *err_info)
       os_path = &os_path[PREFIX_LEN];
     } /* if */
 #endif
-    result = os_stri_to_stri(os_path, err_info);
-    if (likely(result != NULL)) {
-      result = stri_to_standard_path(result);
-      if (unlikely(result == NULL)) {
+    stdPath = os_stri_to_stri(os_path, err_info);
+    if (likely(stdPath != NULL)) {
+      stdPath = stri_to_standard_path(stdPath);
+      if (unlikely(stdPath == NULL)) {
         *err_info = MEMORY_ERROR;
       } /* if */
     } /* if */
-    return result;
+    return stdPath;
   } /* cp_from_os_path */
 
 

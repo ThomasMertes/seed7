@@ -165,6 +165,7 @@ const string: chkstr_output is "\n\
   \rpos(string) works correct.\n\
   \rpos(string, char) works correct.\n\
   \rpos(string) with start index works correct.\n\
+  \replace(string, searched, replacement) works correct.\n\
   \String functions work correct.\n\
   \split(string) works correct.\n\
   \join(string) works correct.\n\

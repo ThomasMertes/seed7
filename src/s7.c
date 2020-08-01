@@ -251,7 +251,7 @@ static void processOptions (rtlArrayType arg_v, const optionType option)
                 position++;
                 opt = arg_v->arr[position].value.striValue;
                 pathObj.value.striValue = stri_to_standard_path(opt);
-                if (libraryDirs != NULL) {
+                if (libraryDirs != NULL && pathObj.value.striValue != NULL) {
                   arrPush(&libraryDirs, pathObj.value.genericValue);
                 } /* if */
                 arg_v->arr[position].value.striValue = NULL;

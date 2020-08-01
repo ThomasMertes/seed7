@@ -288,6 +288,7 @@ int main (int argc, char **argv)
     os_charType buffer[BUFFER_LEN];
     char *s7_lib_dir = NULL;
     char *seed7_library = NULL;
+    char *cc_env_ini = NULL;
 
   /* main */
 #ifdef OS_STRI_USES_CODE_PAGE
@@ -302,9 +303,16 @@ int main (int argc, char **argv)
       } else if (memcmp(*curr_arg, "SEED7_LIBRARY=", 14 * sizeof(char)) == 0 &&
                  (*curr_arg)[14] != '\0') {
         seed7_library = &(*curr_arg)[14];
+      } else if (memcmp(*curr_arg, "CC_ENVIRONMENT_INI=", 19 * sizeof(char)) == 0 &&
+                 (*curr_arg)[19] != '\0') {
+        cc_env_ini = &(*curr_arg)[19];
       } /* if */
     } /* for */
     if (s7_lib_dir != NULL) {
+      if (cc_env_ini != NULL) {
+        printf("#define CC_ENVIRONMENT_INI \"%s/%s\"\n",
+             s7_lib_dir, cc_env_ini);
+      } /* if */
 #ifdef C_COMPILER_SCRIPT
 #if !defined C_COMPILER
       printf("#define C_COMPILER \"%s/%s\"\n",
@@ -319,6 +327,11 @@ int main (int argc, char **argv)
       printf("#define S7_LIB_DIR \"%s\"\n", s7_lib_dir);
     } else {
       get_cwd_to_buffer(buffer);
+      if (cc_env_ini != NULL) {
+        printf("#define CC_ENVIRONMENT_INI \"");
+        write_as_utf8(buffer);
+        printf("/%s\"\n", cc_env_ini);
+      } /* if */
 #ifdef C_COMPILER_SCRIPT
 #if !defined C_COMPILER
       printf("#define C_COMPILER \"");

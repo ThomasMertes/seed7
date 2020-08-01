@@ -485,5 +485,7 @@ const char: KEY_MOUSE2     is chr(KEYCODE_BASE + 248);
 const char: KEY_MOUSE3     is chr(KEYCODE_BASE + 249);
 const char: KEY_MOUSE4     is chr(KEYCODE_BASE + 250);
 const char: KEY_MOUSE5     is chr(KEYCODE_BASE + 251);
+const char: KEY_MOUSE_FWD  is chr(KEYCODE_BASE + 252);
+const char: KEY_MOUSE_BACK is chr(KEYCODE_BASE + 253);
 const char: KEY_UNDEF      is chr(KEYCODE_BASE + 255);
 const char: KEY_NONE       is chr(KEYCODE_BASE + 256);

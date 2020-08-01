@@ -252,7 +252,8 @@ static boolType findDll (void)
       found = setupDll(dllList[pos]);
     } /* for */
     if (!found) {
-      dllErrorMessage("sqlOpenLite", "findDll", dllList, sizeof(dllList));
+      dllErrorMessage("sqlOpenLite", "findDll", dllList,
+                      sizeof(dllList) / sizeof(char *));
     } /* if */
     return found;
   } /* findDll */
@@ -2371,7 +2372,7 @@ databaseType sqlOpenLite (const const_striType host, intType port,
           memset(database, 0, sizeof(dbRecord));
           database->usage_count = 1;
           database->sqlFunc = sqlFunc;
-          database->driver = 2; /* SQLite */
+          database->driver = DB_CATEGORY_SQLITE;
           database->connection = connection;
         } /* if */
       } /* if */

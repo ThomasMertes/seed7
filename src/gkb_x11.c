@@ -51,7 +51,14 @@
 #include "hsh_rtl.h"
 #include "kbd_drv.h"
 
-#undef FLAG_EVENTS
+
+#define TRACE_REPARENT_NOTIFY 0
+#define TRACE_EVENTS 0
+#if TRACE_EVENTS
+#define traceEvent(traceStatements) traceStatements
+#else
+#define traceEvent(traceStatements)
+#endif
 
 #define ALLOW_REPARENT_NOTIFY
 
@@ -1023,25 +1030,21 @@ charType gkbGetc (void)
       } /* while */
       switch(currentEvent.type) {
         case Expose:
-#ifdef FLAG_EVENTS
-          printf("Expose\n");
-#endif
+          traceEvent(printf("Expose\n"););
           handleExpose(&currentEvent.xexpose);
           getNextChar = TRUE;
           break;
 
 #ifdef OUT_OF_ORDER
         case ConfigureNotify:
-#ifdef FLAG_EVENTS
-          printf("ConfigureNotify");
-#endif
+          traceEvent(printf("ConfigureNotify"););
           configure(&currentEvent.xconfigure);
           getNextChar = TRUE;
           break;
         case MapNotify:
 #endif
 
-#ifdef TRACE_REPARENT_NOTIFY
+#if TRACE_REPARENT_NOTIFY
         case ReparentNotify:
           printf("gkbGetc: Reparent\n");
           getNextChar = TRUE;
@@ -1060,32 +1063,24 @@ charType gkbGetc (void)
 #endif
         case GraphicsExpose:
         case NoExpose:
-#ifdef FLAG_EVENTS
-          printf("NoExpose\n");
-#endif
+          traceEvent(printf("NoExpose\n"););
           getNextChar = TRUE;
           break;
 
         case MappingNotify:
-#ifdef FLAG_EVENTS
-          printf("MappingNotify\n");
-#endif
+          traceEvent(printf("MappingNotify\n"););
           XRefreshKeyboardMapping(&currentEvent.xmapping);
           break;
 
 #ifdef OUT_OF_ORDER
         case DestroyNotify:
-#ifdef FLAG_EVENTS
-          printf("DestroyNotify\n");
-#endif
+          traceEvent(printf("DestroyNotify\n"););
           exit(1);
           break;
 #endif
 
         case ClientMessage:
-#ifdef FLAG_EVENTS
-          printf("ClientMessage\n");
-#endif
+          traceEvent(printf("ClientMessage\n"););
           if ((Atom) currentEvent.xclient.data.l[0] == wm_delete_window) {
             /* printf("do exit\n"); */
             exit(1);
@@ -1093,26 +1088,26 @@ charType gkbGetc (void)
           break;
 
         case ButtonPress:
-#ifdef FLAG_EVENTS
-          printf("ButtonPress (%d, %d, %u %lu)\n",
-              currentEvent.xbutton.x, currentEvent.xbutton.y,
-              currentEvent.xbutton.button, (unsigned long) currentEvent.xbutton.window);
-#endif
+          traceEvent(printf("ButtonPress (%d, %d, %u %lu)\n",
+                            currentEvent.xbutton.x, currentEvent.xbutton.y,
+                            currentEvent.xbutton.button,
+                            (unsigned long) currentEvent.xbutton.window););
           button_x = currentEvent.xbutton.x;
           button_y = currentEvent.xbutton.y;
           button_window = currentEvent.xbutton.window;
           if (currentEvent.xbutton.button >= 1 && currentEvent.xbutton.button <= 5) {
             result = currentEvent.xbutton.button + K_MOUSE1 - 1;
+          } else if (currentEvent.xbutton.button == 8) {
+            result = K_MOUSE_BACK;
+          } else if (currentEvent.xbutton.button == 9) {
+            result = K_MOUSE_FWD;
           } else {
             result = K_UNDEF;
           } /* if */
           break;
 
         case KeyPress:
-#ifdef FLAG_EVENTS
-          printf("KeyPress\n");
-          printf("xkey.state (%o)\n", currentEvent.xkey.state);
-#endif
+          traceEvent(printf("KeyPress key.state (%o)\n", currentEvent.xkey.state););
           lookup_count = XLookupString(&currentEvent.xkey, (cstriType) buffer,
                                        20, &currentKey, 0);
           buffer[lookup_count] = '\0';
@@ -1517,9 +1512,7 @@ charType gkbGetc (void)
           } /* if */
           break;
         default:
-#ifdef FLAG_EVENTS
-          printf("Other Event %d\n", currentEvent.type);
-#endif
+          traceEvent(printf("Other Event %d\n", currentEvent.type););
           getNextChar = TRUE;
           break;
       } /* switch */
@@ -1569,7 +1562,7 @@ boolType processEvents (void)
             break;
           case MapNotify:
 #endif
-#ifdef TRACE_REPARENT_NOTIFY
+#if TRACE_REPARENT_NOTIFY
           case ReparentNotify:
             printf("processEvents: Reparent\n");
             if (num_events == 1) {

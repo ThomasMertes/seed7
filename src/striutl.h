@@ -200,6 +200,7 @@ void conv_to_cstri8 (cstriType cstri, const const_striType stri,
 memSizeType stri_to_utf16 (const wstriType out_wstri,
                            register const strElemType *strelem, memSizeType len,
                            errInfoType *const err_info);
+void memcpy_to_wstri (wstriType dest, const char *src, memSizeType len);
 cstriType stri_to_cstri (const const_striType stri, errInfoType *err_info);
 cstriType stri_to_cstri8 (const const_striType stri, errInfoType *err_info);
 cstriType stri_to_cstri8_buf (const const_striType stri, memSizeType *length);

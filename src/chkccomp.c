@@ -138,6 +138,18 @@
 #endif
 #endif
 
+#define UNIX_LIBRARIES 1
+#define OSX_LIBRARIES 2
+#define WINDOWS_LIBRARIES 3
+
+#ifdef _WIN32
+#define LIBRARY_TYPE WINDOWS_LIBRARIES
+#elif __APPLE__
+#define LIBRARY_TYPE OSX_LIBRARIES
+#else
+#define LIBRARY_TYPE UNIX_LIBRARIES
+#endif
+
 #ifndef CC_FLAGS
 #define CC_FLAGS ""
 #endif
@@ -170,6 +182,7 @@ static int testNumber = 0;
 static char c_compiler[COMMAND_SIZE];
 static char *nullDevice = NULL;
 static FILE *logFile;
+static unsigned long removeReattempts = 0;
 
 static const char *int16TypeStri = NULL;
 static const char *uint16TypeStri = NULL;
@@ -301,7 +314,9 @@ static void doRemove (const char *fileName)
         start_time = time(NULL);
         while (time(NULL) < start_time + 20 &&
                fileIsRegular(fileName)) {
+          removeReattempts++;
           if (remove(fileName) != 0) {
+            removeReattempts++;
             system(command);
           } /* if */
         } /* while */
@@ -3481,11 +3496,14 @@ static void determineEnvironDefines (FILE *versionFile)
 
   {
     char buffer[BUFFER_SIZE];
+    char getenv_definition[BUFFER_SIZE];
+    char setenv_definition[BUFFER_SIZE];
     char *os_environ = NULL;
     int declare_os_environ = 0;
     int use_get_environment = 0;
     int initialize_os_environ = 0;
-    int define_os_getenv = 0;
+    int define_wgetenv = 0;
+    int define_wsetenv = 0;
     int test_result;
     int getenv_is_case_sensitive = 0;
     char *os_getenv = NULL;
@@ -3617,14 +3635,15 @@ static void determineEnvironDefines (FILE *versionFile)
                                 "  GetEnvironmentVariableW(L\"TMP\", buf, 4096) != 0 ||\n"
                                 "  GetEnvironmentVariableW(L\"OS\", buf, 4096) != 0);\n"
                                 "return 0;}\n") && doTest() == 1) {
-      define_os_getenv = 1;
-      fputs("#define DEFINE_WGETENV\n", versionFile);
+      define_wgetenv = 1;
       os_getenv = "wgetenv";
     } else {
       fprintf(logFile, "\nAssume that wgetenv() should be defined.\n");
-      define_os_getenv = 1;
-      fputs("#define DEFINE_WGETENV\n", versionFile);
+      define_wgetenv = 1;
       os_getenv = "wgetenv";
+    } /* if */
+    if (define_wgetenv) {
+      fputs("#define DEFINE_WGETENV\n", versionFile);
     } /* if */
 #else
     if (compileAndLinkOk("#include <stdio.h>\n#include <stdlib.h>\n"
@@ -3677,7 +3696,7 @@ static void determineEnvironDefines (FILE *versionFile)
                                 "return 0;}\n") && (test_result = doTest()) >= 1) {
       os_setenv = "wsetenv";
       getenv_is_case_sensitive = test_result == 1;
-    } else if (!define_os_getenv &&
+    } else if (!define_wgetenv &&
                compileAndLinkOk("#include <stdio.h>\n#include <stdlib.h>\n"
                                 "#include <string.h>\n"
                                 "wchar_t *key_value = L\"AsDfGhJkL=asdfghjkl\";\n"
@@ -3691,7 +3710,7 @@ static void determineEnvironDefines (FILE *versionFile)
                                 "return 0;}\n") && (test_result = doTest()) >= 1) {
       os_putenv = "_wputenv";
       getenv_is_case_sensitive = test_result == 1;
-    } else if (!define_os_getenv &&
+    } else if (!define_wgetenv &&
                compileAndLinkOk("#include <stdio.h>\n#include <stdlib.h>\n"
                                 "#include <string.h>\n"
                                 "wchar_t *key_value = L\"AsDfGhJkL=asdfghjkl\";\n"
@@ -3705,7 +3724,7 @@ static void determineEnvironDefines (FILE *versionFile)
                                 "return 0;}\n") && (test_result = doTest()) >= 1) {
       os_putenv = "wputenv";
       getenv_is_case_sensitive = test_result == 1;
-    } else if (!define_os_getenv &&
+    } else if (!define_wgetenv &&
                compileAndLinkOk("#include <stdio.h>\n#include <stdlib.h>\n"
                                 "#include <string.h>\n#include <windows.h>\n"
                                 "int main(int argc,char *argv[])\n"
@@ -3716,7 +3735,7 @@ static void determineEnvironDefines (FILE *versionFile)
                                 "    (getenv(\"ASDFGHJKL\") != NULL &&\n"
                                 "     strcmp(getenv(\"ASDFGHJKL\"), \"asdfghjkl\") == 0));\n"
                                 "return 0;}\n") && (test_result = doTest()) >= 1) {
-      fputs("#define DEFINE_WSETENV\n", versionFile);
+      define_wsetenv = 1;
       os_setenv = "wsetenv";
       getenv_is_case_sensitive = test_result == 1;
     } else if (compileAndLinkOk("#include <stdio.h>\n#include <stdlib.h>\n"
@@ -3730,12 +3749,12 @@ static void determineEnvironDefines (FILE *versionFile)
                                 "    (GetEnvironmentVariable(\"ASDFGHJKL\", buf2, 10) == 9 &&\n"
                                 "     strcmp(buf2, \"asdfghjkl\") == 0));\n"
                                 "return 0;}\n") && (test_result = doTest()) >= 1) {
-      fputs("#define DEFINE_WSETENV\n", versionFile);
+      define_wsetenv = 1;
       os_setenv = "wsetenv";
       getenv_is_case_sensitive = test_result == 1;
     } else {
       fprintf(logFile, "\nAssume that wsetenv() should be defined.\n");
-      fputs("#define DEFINE_WSETENV\n", versionFile);
+      define_wsetenv = 1;
       os_setenv = "wsetenv";
     } /* if */
 #else
@@ -3770,7 +3789,89 @@ static void determineEnvironDefines (FILE *versionFile)
       fprintf(versionFile, "#define GETENV_IS_CASE_SENSITIVE %d\n",
               getenv_is_case_sensitive);
       fprintf(versionFile, "#define os_setenv %s\n", os_setenv);
-    } else if (os_putenv != NULL && os_getenv != NULL && !define_os_getenv) {
+      if (define_wsetenv) {
+        fputs("#define DEFINE_WSETENV\n", versionFile);
+      } /* if */
+#ifndef EMULATE_ENVIRONMENT
+      if (define_wgetenv) {
+        sprintf(getenv_definition,
+                "#ifndef WINDOWS_H_INCLUDED\n"
+                "#include <windows.h>\n"
+                "#define WINDOWS_H_INCLUDED\n"
+                "#endif\n"
+                "wchar_t *wgetenv (wchar_t *name) {\n"
+                "  size_t value_size;\n"
+                "  wchar_t *value;\n"
+                "  value_size = GetEnvironmentVariableW(name, NULL, 0);\n"
+                "  if (value_size == 0) {\n"
+                "    value = NULL;\n"
+                "  } else {\n"
+                "    if ((value = malloc(value_size * sizeof(wchar_t))) != NULL) {\n"
+                "      if (GetEnvironmentVariableW(name, value, value_size) != value_size - 1) {\n"
+                "        free(value);\n"
+                "        value = NULL;\n"
+                "      } /* if */\n"
+                "    } /* if */\n"
+                "  } /* if */\n"
+                "  return value;\n"
+                "}\n");
+      } else {
+        getenv_definition[0] = '\0';
+      } /* if */
+      if (define_wsetenv) {
+        sprintf(setenv_definition,
+                "#ifndef WINDOWS_H_INCLUDED\n"
+                "#include <windows.h>\n"
+                "#define WINDOWS_H_INCLUDED\n"
+                "#endif\n"
+                "int wsetenv (wchar_t *name, wchar_t *value, int overwrite) {\n"
+                "return !SetEnvironmentVariableW(name, value);\n"
+                "}\n");
+      } else {
+        setenv_definition[0] = '\0';
+      } /* if */
+      sprintf(buffer, "#include <stdio.h>\n"
+                      "#include <stdlib.h>\n"
+                      "#include <string.h>\n"
+                      "#include <wchar.h>\n"
+                      "%s\n"
+                      "%s\n"
+                      "int main(int argc,char *argv[]){\n"
+                      "int setenv_result;\n"
+                      "int setenv_okay;\n"
+                      "int getenv_okay = 0;\n"
+#ifdef OS_STRI_WCHAR
+                      "wchar_t *key = L\"ASDF=ghjkl\";\n"
+                      "wchar_t *value = L\"asdfghjkl\";\n"
+                      "wchar_t *getenv_result;\n"
+#else
+                      "char *key = \"ASDF=ghjkl\";\n"
+                      "char *value = \"asdfghjkl\";\n"
+                      "char *getenv_result;\n"
+#endif
+                      "setenv_result = %s(key, value, 1);\n"
+                      "setenv_okay = setenv_result == 0;\n"
+                      "getenv_result = %s(key);\n"
+                      "getenv_okay = getenv_result != NULL;\n"
+                      "if (setenv_okay && getenv_okay) {\n"
+#ifdef OS_STRI_WCHAR
+                      "  getenv_okay = wcscmp(getenv_result, value);\n"
+#else
+                      "  getenv_okay = strcmp(getenv_result, value);\n"
+#endif
+                      "}\n"
+                      "printf(\"%%d\\n\", setenv_okay + 2 * getenv_okay);\n"
+                      "return 0;}\n",
+                      getenv_definition, setenv_definition,
+                      os_setenv, os_getenv);
+      if (assertCompAndLnk(buffer) && (test_result = doTest()) >= 0) {
+        fprintf(versionFile, "#define SETENV_ALLOWS_KEY_WITH_EQUALS_SIGN %d\n",
+                test_result & 1);
+        fprintf(versionFile, "#define GETENV_ALLOWS_KEY_WITH_EQUALS_SIGN %d\n",
+                test_result >> 1);
+      } /* if */
+#endif
+    } else if (os_putenv != NULL && os_getenv != NULL && !define_wgetenv) {
       fprintf(versionFile, "#define GETENV_IS_CASE_SENSITIVE %d\n",
               getenv_is_case_sensitive);
       fprintf(versionFile, "#define os_putenv %s\n", os_putenv);
@@ -4460,7 +4561,11 @@ static void determineMySqlDefines (FILE *versionFile,
                                "MySQL/MySQL Connector C 6.1"};
 #ifdef MYSQL_DLL
     const char *dllNameList[] = { MYSQL_DLL };
-#else
+#elif LIBRARY_TYPE == UNIX_LIBRARIES
+    const char *dllNameList[] = {"libmysqlclient.so"};
+#elif LIBRARY_TYPE == OSX_LIBRARIES
+    const char *dllNameList[] = {"libmysqlclient.dylib"};
+#elif LIBRARY_TYPE == WINDOWS_LIBRARIES
     const char *dllNameList[] = {"libmariadb.dll", "libmysql.dll"};
 #endif
     const char *libNameList[] = {"mariadbclient.lib", "vs11/mysqlclient.lib"};
@@ -4544,14 +4649,14 @@ static void determineMySqlDefines (FILE *versionFile,
         fprintf(logFile, "\rMySql/MariaDb: %s found with option %s.\n", mySqlInclude, includeOption);
         appendOption(include_options, includeOption);
       } else if (compileAndLinkWithOptionsOk("#include \"db_my.h\"\n"
-                                             "int main(int argc,char *argv[]){"
+                                             "int main(int argc,char *argv[]){\n"
                                              "MYSQL *connection; return 0;}\n",
-                                             includeOption, "") ||
+                                             "", "") ||
                  compileAndLinkWithOptionsOk("#define STDCALL\n"
                                              "#include \"db_my.h\"\n"
-                                             "int main(int argc,char *argv[]){"
+                                             "int main(int argc,char *argv[]){\n"
                                              "MYSQL *connection; return 0;}\n",
-                                             includeOption, "")) {
+                                             "", "")) {
         mySqlInclude = "db_my.h";
         fprintf(logFile, "\rMySql/MariaDb: %s found in Seed7 include directory.\n", mySqlInclude);
       } /* if */
@@ -4641,7 +4746,11 @@ static void determineSqliteDefines (FILE *versionFile,
     const char *dbHomeDirs[] = {"C:/sqlite", "D:/sqlite"};
 #ifdef SQLITE_DLL
     const char *dllNameList[] = { SQLITE_DLL };
-#else
+#elif LIBRARY_TYPE == UNIX_LIBRARIES
+    const char *dllNameList[] = {"libsqlite3.so"};
+#elif LIBRARY_TYPE == OSX_LIBRARIES
+    const char *dllNameList[] = {"libsqlite3.dylib"};
+#elif LIBRARY_TYPE == WINDOWS_LIBRARIES
     const char *dllNameList[] = {"sqlite3.dll"};
 #endif
     const char *libNameList[] = {"sqlite3.lib"};
@@ -4673,27 +4782,37 @@ static void determineSqliteDefines (FILE *versionFile,
       sprintf(includeOption, "-I\"%s\"", dbHome);
       /* fprintf(logFile, "includeOption=%s\n", includeOption); */
       if (compileAndLinkWithOptionsOk("#include <sqlite3.h>\n"
-                                      "int main(int argc,char *argv[]){return 0;}\n",
+                                      "int main(int argc,char *argv[]){\n"
+                                      "sqlite3_stmt *ppStmt;\n"
+                                      "return 0;}\n",
                                       includeOption, "")) {
         sqliteInclude = "sqlite3.h";
         fprintf(logFile, "\rSQLite: %s found in %s\n", sqliteInclude, dbHome);
         appendOption(include_options, includeOption);
       } /* if */
     } else if (compileAndLinkWithOptionsOk("#include <sqlite3.h>\n"
-                                           "int main(int argc,char *argv[]){return 0;}\n",
+                                           "int main(int argc,char *argv[]){\n"
+                                           "sqlite3_stmt *ppStmt;\n"
+                                           "return 0;}\n",
                                            includeOption, "")) {
       sqliteInclude = "sqlite3.h";
       fprintf(logFile, "\rSQLite: %s found in system include directory.\n", sqliteInclude);
       appendOption(include_options, includeOption);
     } else if (compileAndLinkWithOptionsOk("#include \"tst_vers.h\"\n"
-                                           /* Tcc needs to include stdio.h to make __cdecl work. */
-                                           "#include \"stdio.h\"\n"
                                            "#include \"db_lite.h\"\n"
-                                           "int main(int argc,char *argv[]){return 0;}\n",
-                                           includeOption, "")) {
+                                           "int main(int argc,char *argv[]){\n"
+                                           "sqlite3_stmt *ppStmt;\n"
+                                           "return 0;}\n",
+                                           "", "") ||
+               compileAndLinkWithOptionsOk("#define CDECL\n"
+                                           "#include \"tst_vers.h\"\n"
+                                           "#include \"db_lite.h\"\n"
+                                           "int main(int argc,char *argv[]){\n"
+                                           "sqlite3_stmt *ppStmt;\n"
+                                           "return 0;}\n",
+                                           "", "")) {
       sqliteInclude = "db_lite.h";
       fprintf(logFile, "\rSQLite: %s found in Seed7 include directory.\n", sqliteInclude);
-      appendOption(include_options, includeOption);
     } /* if */
     if (sqliteInclude != NULL) {
       fprintf(versionFile, "#define SQLITE_INCLUDE \"%s\"\n", sqliteInclude);
@@ -4911,11 +5030,16 @@ static void determinePostgresDefines (FILE *versionFile,
     char *include_options, char *additional_system_libs)
 
   {
-    const char *dbVersion[] = {"11", "10", "9.6", "9.5", "9.4", "9.3",
+    const char *dbVersion[] = {"12", "11", "10",
+                               "9.6", "9.5", "9.4", "9.3",
                                "9.2", "9.1", "9.0", "8.4", "8.3"};
 #ifdef POSTGRESQL_DLL
     const char *dllNameList[] = { POSTGRESQL_DLL };
-#else
+#elif LIBRARY_TYPE == UNIX_LIBRARIES
+    const char *dllNameList[] = {"libpq.so", "libpq.so.5"};
+#elif LIBRARY_TYPE == OSX_LIBRARIES
+    const char *dllNameList[] = {"libpq.dylib"};
+#elif LIBRARY_TYPE == WINDOWS_LIBRARIES
     const char *dllNameList[] = {"libpq.dll"};
 #endif
     const char *libNameList[] = {"libpq.lib"};
@@ -5050,13 +5174,15 @@ static void determinePostgresDefines (FILE *versionFile,
       } /* if */
     } /* if */
     if ((postgresqlInclude == NULL || postgresInclude == NULL || pgTypeInclude == NULL) &&
-        compileAndLinkWithOptionsOk("#include \"tst_vers.h\"\n"
-                                    /* Tcc needs to include stdio.h to make __cdecl work. */
-                                    "#include \"stdio.h\"\n"
-                                    "#include \"db_post.h\"\n"
-                                    "int main(int argc,char *argv[]){"
-                                    "PGconn *connection; return 0;}\n",
-                                    "", "")) {
+        (compileAndLinkWithOptionsOk("#include \"db_post.h\"\n"
+                                     "int main(int argc,char *argv[]){\n"
+                                     "PGconn *connection; return 0;}\n",
+                                     "", "") ||
+         compileAndLinkWithOptionsOk("#define CDECL\n"
+                                     "include \"db_post.h\"\n"
+                                     "int main(int argc,char *argv[]){\n"
+                                     "PGconn *connection; return 0;}\n",
+                                     "", ""))) {
       postgresqlInclude = "db_post.h";
       fprintf(logFile, "\rPostgreSQL: %s found in Seed7 include directory.\n", postgresqlInclude);
       includeOption[0] = '\0';
@@ -5180,7 +5306,11 @@ static void determineOdbcDefines (FILE *versionFile,
   {
 #ifdef ODBC_DLL
     const char *dllNameList[] = { ODBC_DLL };
-#else
+#elif LIBRARY_TYPE == UNIX_LIBRARIES
+    const char *dllNameList[] = {"libodbc.so"};
+#elif LIBRARY_TYPE == OSX_LIBRARIES
+    const char *dllNameList[] = {"libiodbc.dylib"};
+#elif LIBRARY_TYPE == WINDOWS_LIBRARIES
     const char *dllNameList[] = {"odbc32.dll"};
 #endif
     char includeOption[BUFFER_SIZE];
@@ -5295,7 +5425,11 @@ static void determineOciDefines (FILE *versionFile,
     const char *oci_dll_dir[] = {"/lib", "/bin", ""};
 #ifdef OCI_DLL
     const char *dllNameList[] = { OCI_DLL };
-#else
+#elif LIBRARY_TYPE == UNIX_LIBRARIES
+    const char *dllNameList[] = {"libclntsh.so"};
+#elif LIBRARY_TYPE == OSX_LIBRARIES
+    const char *dllNameList[] = {"libclntsh.dylib"};
+#elif LIBRARY_TYPE == WINDOWS_LIBRARIES
     const char *dllNameList[] = {"oci.dll"};
 #endif
     char incl_path[BUFFER_SIZE];
@@ -5350,10 +5484,9 @@ static void determineOciDefines (FILE *versionFile,
                                     "#include \"db_oci.h\"\n"
                                     "int main(int argc,char *argv[]){"
                                     "OCIEnv *oci_environment; return 0;}\n",
-                                    includeOption, "")) {
+                                    "", "")) {
       ociInclude = "db_oci.h";
       fprintf(logFile, "\rOracle: %s found in Seed7 include directory.\n", ociInclude);
-      appendOption(include_options, includeOption);
     } /* if */
     if (ociInclude != NULL) {
       fprintf(versionFile, "#define OCI_INCLUDE \"%s\"\n", ociInclude);
@@ -5431,8 +5564,12 @@ static void determineFireDefines (FILE *versionFile,
   {
 #ifdef FIRE_DLL
     const char *dllNameList[] = { FIRE_DLL };
-#else
-    const char *dllNameList[] = {"fbclient.dll"};
+#elif LIBRARY_TYPE == UNIX_LIBRARIES
+    const char *dllNameList[] = {"libfbclient.so"};
+#elif LIBRARY_TYPE == OSX_LIBRARIES
+    const char *dllNameList[] = {"libfbclient.dylib"};
+#elif LIBRARY_TYPE == WINDOWS_LIBRARIES
+    const char *dllNameList[] = {"fbclient.dll", "gds32.dll"};
 #endif
     char includeOption[BUFFER_SIZE];
     const char *fireInclude = NULL;
@@ -5541,6 +5678,259 @@ static void determineFireDefines (FILE *versionFile,
 
 
 
+static void determineDb2Defines (FILE *versionFile,
+    char *include_options, char *additional_system_libs)
+
+  {
+#ifdef DB2_LIBS
+    const char *libNameList[] = { DB2_LIBS };
+#elif LIBRARY_TYPE == UNIX_LIBRARIES || LIBRARY_TYPE == OSX_LIBRARIES
+    const char *libNameList[] = {"libdb2.a"};
+#elif LIBRARY_TYPE == WINDOWS_LIBRARIES
+    const char *libNameList[] = {"db2cli.lib"};
+#endif
+#ifdef DB2_DLL
+    const char *dllNameList[] = { DB2_DLL };
+#elif LIBRARY_TYPE == UNIX_LIBRARIES
+    const char *dllNameList[] = {"libdb2.so"};
+#elif LIBRARY_TYPE == OSX_LIBRARIES
+    const char *dllNameList[] = {"libdb2.dylib"};
+#elif LIBRARY_TYPE == WINDOWS_LIBRARIES
+    const char *dllNameList[] = {"db2cli.dll"};
+#endif
+    const char *db2DSDriverDir[] = {"C:/ProgramData/IBM/DB2DSDriver",
+                                    "D:/ProgramData/IBM/DB2DSDriver",
+                                    "/disk3_1.82TiB/db2/DB2DSDriver"};
+    const char *db2IncludeDir[] = {"/include"};
+    const char *db2LibraryDir[] = {"/lib"};
+    char includeFilePath[BUFFER_SIZE];
+    char includeOption[BUFFER_SIZE];
+    const char *db2Include = NULL;
+    int driverDirIndex;
+    int includeDirIndex;
+    char libraryDirPath[BUFFER_SIZE];
+    char libraryFilePath[BUFFER_SIZE];
+    int libraryDirIndex;
+    int libraryFileIndex;
+    char buffer[BUFFER_SIZE];
+    int writeDllList = 1;
+    int idx;
+
+  /* determineDb2Defines */
+#ifdef DB2_INCLUDE_OPTIONS
+    strcpy(includeOption, DB2_INCLUDE_OPTIONS);
+#else
+    includeOption[0] = '\0';
+#endif
+    for (driverDirIndex = 0;
+         db2Include == NULL && driverDirIndex < sizeof(db2DSDriverDir) / sizeof(char *);
+         driverDirIndex++) {
+      /* printf("driverDir: %s\n", db2DSDriverDir[driverDirIndex]); */
+      if (fileIsDir(db2DSDriverDir[driverDirIndex])) {
+        /* printf("fileIsDir(%s)\n", db2DSDriverDir[driverDirIndex]); */
+        for (includeDirIndex = 0;
+             db2Include == NULL && includeDirIndex < sizeof(db2IncludeDir) / sizeof(char *);
+             includeDirIndex++) {
+          sprintf(includeFilePath, "%s%s/sqlcli1.h",
+                  db2DSDriverDir[driverDirIndex], db2IncludeDir[includeDirIndex]);
+          /* printf("includeFilePath: %s\n", includeFilePath); */
+          if (fileIsRegular(includeFilePath)) {
+            /* printf("fileIsRegular(%s)\n", includeFilePath); */
+            sprintf(includeOption, "-I\"%s%s\"",
+                    db2DSDriverDir[driverDirIndex], db2IncludeDir[includeDirIndex]);
+            /* printf("includeOption: %s\n", includeOption); */
+            if (compileAndLinkWithOptionsOk("#include <sqlcli1.h>\n"
+                                            "int main(int argc,char *argv[]){\n"
+                                            "SQLHDBC conn; SQLHSTMT stmt;\n"
+                                            "SQLSMALLINT h = SQL_HANDLE_STMT;\n"
+                                            "return 0;}\n",
+                                            includeOption, "")) {
+              db2Include = "sqlcli1.h";
+              fprintf(logFile, "\rDb2: %s found in %s%s\n", db2Include,
+                      db2DSDriverDir[driverDirIndex], db2IncludeDir[includeDirIndex]);
+            } /* if */
+          } /* if */
+        } /* for */
+      } /* if */
+    } /* for */
+    if (db2Include == NULL) {
+      if (compileAndLinkWithOptionsOk("#include \"tst_vers.h\"\n"
+                                      "#include \"db_odbc.h\"\n"
+                                      "int main(int argc,char *argv[]){\n"
+                                      "SQLHDBC conn; SQLHSTMT stmt;\n"
+                                      "SQLSMALLINT h = SQL_HANDLE_STMT;\n"
+                                      "return 0;}\n",
+                                      "", "") ||
+          compileAndLinkWithOptionsOk("#define STDCALL\n"
+                                      "#include \"tst_vers.h\"\n"
+                                      "#include \"db_odbc.h\"\n"
+                                      "int main(int argc,char *argv[]){\n"
+                                      "SQLHDBC conn; SQLHSTMT stmt;\n"
+                                      "SQLSMALLINT h = SQL_HANDLE_STMT;\n"
+                                      "return 0;}\n",
+                                      "", "")) {
+        db2Include = "db_odbc.h";
+        fprintf(logFile, "\rDb2: %s found in Seed7 include directory.\n",
+                db2Include);
+        includeOption[0] = '\0';
+      } /* if */
+    } /* if */
+    if (db2Include != NULL) {
+      fprintf(versionFile, "#define DB2_INCLUDE \"%s\"\n", db2Include);
+      sprintf(buffer, "DB2_INCLUDE_OPTION = %s\n", includeOption);
+      appendToFile("macros", buffer);
+    } /* if */
+#if defined DB2_USE_LIB
+    for (driverDirIndex = 0;
+         writeDllList && driverDirIndex < sizeof(db2DSDriverDir) / sizeof(char *);
+         driverDirIndex++) {
+      /* printf("driverDir: %s\n", db2DSDriverDir[driverDirIndex]); */
+      if (fileIsDir(db2DSDriverDir[driverDirIndex])) {
+        /* printf("fileIsDir(%s)\n", db2DSDriverDir[driverDirIndex]); */
+        for (libraryDirIndex = 0;
+             writeDllList && libraryDirIndex < sizeof(db2LibraryDir) / sizeof(char *);
+             libraryDirIndex++) {
+          sprintf(libraryDirPath, "%s%s",
+                  db2DSDriverDir[driverDirIndex], db2LibraryDir[libraryDirIndex]);
+          /* printf("libraryDirPath: %s\n", libraryDirPath); */
+          if (fileIsDir(libraryDirPath)) {
+            /* printf("fileIsDir(%s)\n", libraryDirPath); */
+            for (libraryFileIndex = 0;
+                 writeDllList && libraryFileIndex < sizeof(libNameList) / sizeof(char *);
+                 libraryFileIndex++) {
+              sprintf(libraryFilePath, "%s%s/%s",
+                      db2DSDriverDir[driverDirIndex], db2LibraryDir[libraryDirIndex],
+                      libNameList[libraryFileIndex]);
+              /* printf("libraryFilePath: %s\n", libraryFilePath); */
+              if (fileIsRegular(libraryFilePath)) {
+                /* printf("fileIsRegular(%s)\n", libraryFilePath); */
+                sprintf(buffer, "#include \"tst_vers.h\"\n#include \"%s\"\n"
+                                "int main(int argc,char *argv[]){\n"
+                                "SQLHENV sql_env;\n"
+                                "SQLAllocHandle(SQL_HANDLE_ENV, SQL_NULL_HANDLE, &sql_env);\n"
+                                "SQLFreeHandle(SQL_HANDLE_ENV, sql_env);\n"
+                                "return 0;\n}\n",
+                                db2Include);
+                /* fprintf(logFile, "%s\n", buffer);
+                fprintf(logFile, "db2Include: \"%s\"\n", db2Include);
+                fprintf(logFile, "includeOption: \"%s\"\n", includeOption);
+                fprintf(logFile, "libraryFilePath: \"%s\"\n", libraryFilePath); */
+                if (compileAndLinkWithOptionsOk(buffer, includeOption, libraryFilePath)) {
+                  fprintf(logFile, "\rDb2: %s found in %s%s\n", libNameList[libraryFileIndex],
+                          db2DSDriverDir[driverDirIndex], db2LibraryDir[libraryDirIndex]);
+                  sprintf(buffer, "DB2_LIBS = %s\n", libraryFilePath);
+                  appendToFile("macros", buffer);
+                  writeDllList = 0;
+                } /* if */
+              } /* if */
+            } /* for */
+          } /* if */
+        } /* for */
+      } /* if */
+    } /* for */
+#endif
+    if (writeDllList) {
+      fprintf(versionFile, "#define DB2_DLL");
+      for (idx = 0; idx < sizeof(dllNameList) / sizeof(char *); idx++) {
+        fprintf(logFile, "\rDb2: DLL / Shared library: %s\n", dllNameList[idx]);
+        fprintf(versionFile, " \"%s\",", dllNameList[idx]);
+      } /* for */
+      fprintf(versionFile, "\n");
+    } /* if */
+  } /* determineDb2Defines */
+
+
+
+static void determineSqlServerDefines (FILE *versionFile,
+    char *include_options, char *additional_system_libs)
+
+  {
+#ifdef DB2_DLL
+    const char *dllNameList[] = { DB2_DLL };
+#elif LIBRARY_TYPE == UNIX_LIBRARIES
+    const char *dllNameList[] = {};
+#elif LIBRARY_TYPE == OSX_LIBRARIES
+    const char *dllNameList[] = {};
+#elif LIBRARY_TYPE == WINDOWS_LIBRARIES
+    const char *dllNameList[] = {"sqlsrv32.dll"};
+#endif
+    char includeOption[BUFFER_SIZE];
+    int windowsSqlServer = 0;
+    int includeSqlext = 0;
+    const char *sqlServerInclude = NULL;
+    char buffer[BUFFER_SIZE];
+    int writeDllList = 1;
+    int idx;
+
+  /* determineSqlServerDefines */
+#ifdef SQL_SERVER_INCLUDE_OPTIONS
+    strcpy(includeOption, SQL_SERVER_INCLUDE_OPTIONS);
+#else
+    includeOption[0] = '\0';
+#endif
+    if (compileAndLinkWithOptionsOk("#include <windows.h>\n"
+                                    "#include <sql.h>\n"
+                                    "#include <sqlext.h>\n"
+                                    "int main(int argc,char *argv[]){\n"
+                                    "SQLHDBC conn; SQLHSTMT stmt;\n"
+                                    "SQLSMALLINT h = SQL_HANDLE_STMT;\n"
+                                    "return 0;}\n",
+                                    includeOption, "")) {
+      windowsSqlServer = 1;
+      includeSqlext = 1;
+      sqlServerInclude = "sql.h";
+      fprintf(logFile, "\rSQL Server: %s found in system include directory.\n",
+              sqlServerInclude);
+    } else if (compileAndLinkWithOptionsOk("#include <sql.h>\n"
+                                           "#include <sqlext.h>\n"
+                                           "int main(int argc,char *argv[]){\n"
+                                           "SQLHDBC conn; SQLHSTMT stmt;\n"
+                                           "SQLSMALLINT h = SQL_HANDLE_STMT;\n"
+                                           "return 0;}\n",
+                                           includeOption, "")) {
+      includeSqlext = 1;
+      sqlServerInclude = "sql.h";
+      fprintf(logFile, "\rSQL Server: %s found in system include directory.\n",
+              sqlServerInclude);
+    } else if (compileAndLinkWithOptionsOk("#include \"tst_vers.h\"\n"
+                                           "#include \"db_odbc.h\"\n"
+                                           "int main(int argc,char *argv[]){\n"
+                                           "SQLHDBC conn; SQLHSTMT stmt;\n"
+                                           "SQLSMALLINT h = SQL_HANDLE_STMT;\n"
+                                           "return 0;}\n",
+                                           "", "") ||
+               compileAndLinkWithOptionsOk("#define STDCALL\n"
+                                           "#include \"tst_vers.h\"\n"
+                                           "#include \"db_odbc.h\"\n"
+                                           "int main(int argc,char *argv[]){\n"
+                                           "SQLHDBC conn; SQLHSTMT stmt;\n"
+                                           "SQLSMALLINT h = SQL_HANDLE_STMT;\n"
+                                           "return 0;}\n",
+                                           "", "")) {
+      sqlServerInclude = "db_odbc.h";
+      fprintf(logFile, "\rSQL Server: %s found in Seed7 include directory.\n",
+              sqlServerInclude);
+      includeOption[0] = '\0';
+    } /* if */
+    if (sqlServerInclude != NULL) {
+      fprintf(versionFile, "#define WINDOWS_SQL_SERVER %d\n", windowsSqlServer);
+      fprintf(versionFile, "#define SQL_SERVER_INCLUDE \"%s\"\n", sqlServerInclude);
+      fprintf(versionFile, "#define SQL_SERVER_INCLUDE_SQLEXT_H %d\n", includeSqlext);
+      sprintf(buffer, "SQL_SERVER_INCLUDE_OPTION = %s\n", includeOption);
+      appendToFile("macros", buffer);
+    } /* if */
+    if (writeDllList) {
+      fprintf(versionFile, "#define SQL_SERVER_DLL");
+      for (idx = 0; idx < sizeof(dllNameList) / sizeof(char *); idx++) {
+        fprintf(logFile, "\rSQL Server: DLL / Shared library: %s\n", dllNameList[idx]);
+        fprintf(versionFile, " \"%s\",", dllNameList[idx]);
+      } /* for */
+      fprintf(versionFile, "\n");
+    } /* if */
+  } /* determineSqlServerDefines */
+
+
+
 static void determineBigIntDefines (FILE *versionFile,
     char *include_options, char *additional_system_libs)
 
@@ -5599,6 +5989,8 @@ static void determineIncludesAndLibs (FILE *versionFile)
     determineOdbcDefines(versionFile, include_options, additional_system_libs);
     determineOciDefines(versionFile, include_options, additional_system_libs);
     determineFireDefines(versionFile, include_options, additional_system_libs);
+    determineDb2Defines(versionFile, include_options, additional_system_libs);
+    determineSqlServerDefines(versionFile, include_options, additional_system_libs);
     determineBigIntDefines(versionFile, include_options, additional_system_libs);
     sprintf(buffer, "INCLUDE_OPTIONS = %s", include_options);
     replaceNLBySpace(buffer);
@@ -6088,6 +6480,7 @@ int main (int argc, char **argv)
     determineIncludesAndLibs(versionFile);
     writeReadBufferEmptyMacro(versionFile);
     cleanUpCompilation(testNumber);
+    fprintf(versionFile, "#define REMOVE_REATTEMPTS %lu\n", removeReattempts);
     closeVersionFile(versionFile);
     if (fileIsRegular("tst_vers.h")) {
       remove("tst_vers.h");

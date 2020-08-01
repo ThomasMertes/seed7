@@ -415,7 +415,7 @@ charType kbdGetc (void)
         printf("kbdGetc: EventType = %d\n", event.EventType);
       } /* if */
     } /* while */
-    logFunction(printf("gkbGetc --> %d\n", result););
+    logFunction(printf("kbdGetc --> %d\n", result););
     return result;
   } /* kbdGetc */
 

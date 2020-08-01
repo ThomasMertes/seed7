@@ -435,7 +435,8 @@ static boolType findDll (void)
       found = setupDll(dllList[pos]);
     } /* for */
     if (!found) {
-      dllErrorMessage("sqlOpenOci", "findDll", dllList, sizeof(dllList));
+      dllErrorMessage("sqlOpenOci", "findDll", dllList,
+                      sizeof(dllList) / sizeof(char *));
     } /* if */
     return found;
   } /* findDll */
@@ -4725,7 +4726,7 @@ databaseType sqlOpenOci (const const_striType host, intType port,
                 memset(database, 0, sizeof(dbRecord));
                 database->usage_count = 1;
                 database->sqlFunc = sqlFunc;
-                database->driver = 4; /* OCI */
+                database->driver = DB_CATEGORY_OCI;
                 database->oci_environment     = db.oci_environment;
                 database->oci_server          = db.oci_server;
                 database->oci_error           = db.oci_error;

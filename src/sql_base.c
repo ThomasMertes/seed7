@@ -77,7 +77,7 @@ void dbInconsistentMsg (const char *funcName, const char *dbFuncName,
 
 
 void dllErrorMessage (const char *funcName, const char *dbFuncName,
-    const char *dllList[], memSizeType dllListSize)
+    const char *dllList[], memSizeType dllListLength)
 
   {
     unsigned int pos;
@@ -86,13 +86,13 @@ void dllErrorMessage (const char *funcName, const char *dbFuncName,
     char *currPos;
 
   /* dllErrorMessage */
-    for (pos = 0; pos < dllListSize / sizeof(char *); pos++) {
+    for (pos = 0; pos < dllListLength; pos++) {
       dllNamesSize += strlen(dllList[pos]) + 2; /* 2 chars for comma and space */
     } /* for */
     if (ALLOC_CSTRI(dllNames, dllNamesSize)) {
       currPos = dllNames;
       currPos[0] = '\0';
-      for (pos = 0; pos < dllListSize / sizeof(char *); pos++) {
+      for (pos = 0; pos < dllListLength; pos++) {
         currPos += sprintf(currPos, "%s, ", dllList[pos]);
       } /* for */
       if (currPos != dllNames) {

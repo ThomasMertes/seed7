@@ -350,7 +350,8 @@ static boolType findDll (void)
       found = setupDll(dllList[pos]);
     } /* for */
     if (!found) {
-      dllErrorMessage("sqlOpenFire", "findDll", dllList, sizeof(dllList));
+      dllErrorMessage("sqlOpenFire", "findDll", dllList,
+                      sizeof(dllList) / sizeof(char *));
     } /* if */
     return found;
   } /* findDll */
@@ -1426,15 +1427,16 @@ static void sqlBindBigInt (sqlStmtType sqlStatement, intType pos,
             err_info = RANGE_ERROR;
             break;
         } /* switch */
+        if (likely(err_info == OKAY_NO_ERROR)) {
+          if (sqlvar->sqltype & 1) {
+            *sqlvar->sqlind = 0;
+          } /* if */
+          preparedStmt->fetchOkay = FALSE;
+          preparedStmt->param_array[pos - 1].bound = TRUE;
+        } /* if */
       } /* if */
       if (unlikely(err_info != OKAY_NO_ERROR)) {
         raise_error(err_info);
-      } else {
-        if (sqlvar->sqltype & 1) {
-          *sqlvar->sqlind = 0;
-        } /* if */
-        preparedStmt->fetchOkay = FALSE;
-        preparedStmt->param_array[pos - 1].bound = TRUE;
       } /* if */
     } /* if */
   } /* sqlBindBigInt */
@@ -1497,15 +1499,16 @@ static void sqlBindBigRat (sqlStmtType sqlStatement, intType pos,
             err_info = RANGE_ERROR;
             break;
         } /* switch */
+        if (likely(err_info == OKAY_NO_ERROR)) {
+          if (sqlvar->sqltype & 1) {
+            *sqlvar->sqlind = 0;
+          } /* if */
+          preparedStmt->fetchOkay = FALSE;
+          preparedStmt->param_array[pos - 1].bound = TRUE;
+        } /* if */
       } /* if */
       if (unlikely(err_info != OKAY_NO_ERROR)) {
         raise_error(err_info);
-      } else {
-        if (sqlvar->sqltype & 1) {
-          *sqlvar->sqlind = 0;
-        } /* if */
-        preparedStmt->fetchOkay = FALSE;
-        preparedStmt->param_array[pos - 1].bound = TRUE;
       } /* if */
     } /* if */
   } /* sqlBindBigRat */
@@ -1579,15 +1582,16 @@ static void sqlBindBool (sqlStmtType sqlStatement, intType pos, boolType value)
             err_info = RANGE_ERROR;
             break;
         } /* switch */
+        if (likely(err_info == OKAY_NO_ERROR)) {
+          if (sqlvar->sqltype & 1) {
+            *sqlvar->sqlind = 0;
+          } /* if */
+          preparedStmt->fetchOkay = FALSE;
+          preparedStmt->param_array[pos - 1].bound = TRUE;
+        } /* if */
       } /* if */
       if (unlikely(err_info != OKAY_NO_ERROR)) {
         raise_error(err_info);
-      } else {
-        if (sqlvar->sqltype & 1) {
-          *sqlvar->sqlind = 0;
-        } /* if */
-        preparedStmt->fetchOkay = FALSE;
-        preparedStmt->param_array[pos - 1].bound = TRUE;
       } /* if */
     } /* if */
   } /* sqlBindBool */
@@ -1668,15 +1672,16 @@ static void sqlBindBStri (sqlStmtType sqlStatement, intType pos, bstriType bstri
             err_info = RANGE_ERROR;
             break;
         } /* switch */
+        if (likely(err_info == OKAY_NO_ERROR)) {
+          if (sqlvar->sqltype & 1) {
+            *sqlvar->sqlind = 0;
+          } /* if */
+          preparedStmt->fetchOkay = FALSE;
+          preparedStmt->param_array[pos - 1].bound = TRUE;
+        } /* if */
       } /* if */
       if (unlikely(err_info != OKAY_NO_ERROR)) {
         raise_error(err_info);
-      } else {
-        if (sqlvar->sqltype & 1) {
-          *sqlvar->sqlind = 0;
-        } /* if */
-        preparedStmt->fetchOkay = FALSE;
-        preparedStmt->param_array[pos - 1].bound = TRUE;
       } /* if */
     } /* if */
   } /* sqlBindBStri */
@@ -1765,15 +1770,16 @@ static void sqlBindDuration (sqlStmtType sqlStatement, intType pos,
             err_info = RANGE_ERROR;
             break;
         } /* switch */
+        if (likely(err_info == OKAY_NO_ERROR)) {
+          if (sqlvar->sqltype & 1) {
+            *sqlvar->sqlind = 0;
+          } /* if */
+          preparedStmt->fetchOkay = FALSE;
+          preparedStmt->param_array[pos - 1].bound = TRUE;
+        } /* if */
       } /* if */
       if (unlikely(err_info != OKAY_NO_ERROR)) {
         raise_error(err_info);
-      } else {
-        if (sqlvar->sqltype & 1) {
-          *sqlvar->sqlind = 0;
-        } /* if */
-        preparedStmt->fetchOkay = FALSE;
-        preparedStmt->param_array[pos - 1].bound = TRUE;
       } /* if */
     } /* if */
   } /* sqlBindDuration */
@@ -1827,15 +1833,16 @@ static void sqlBindFloat (sqlStmtType sqlStatement, intType pos, floatType value
             err_info = RANGE_ERROR;
             break;
         } /* switch */
+        if (likely(err_info == OKAY_NO_ERROR)) {
+          if (sqlvar->sqltype & 1) {
+            *sqlvar->sqlind = 0;
+          } /* if */
+          preparedStmt->fetchOkay = FALSE;
+          preparedStmt->param_array[pos - 1].bound = TRUE;
+        } /* if */
       } /* if */
       if (unlikely(err_info != OKAY_NO_ERROR)) {
         raise_error(err_info);
-      } else {
-        if (sqlvar->sqltype & 1) {
-          *sqlvar->sqlind = 0;
-        } /* if */
-        preparedStmt->fetchOkay = FALSE;
-        preparedStmt->param_array[pos - 1].bound = TRUE;
       } /* if */
     } /* if */
   } /* sqlBindFloat */
@@ -1951,15 +1958,16 @@ static void sqlBindInt (sqlStmtType sqlStatement, intType pos, intType value)
             err_info = RANGE_ERROR;
             break;
         } /* switch */
+        if (likely(err_info == OKAY_NO_ERROR)) {
+          if (sqlvar->sqltype & 1) {
+            *sqlvar->sqlind = 0;
+          } /* if */
+          preparedStmt->fetchOkay = FALSE;
+          preparedStmt->param_array[pos - 1].bound = TRUE;
+        } /* if */
       } /* if */
       if (unlikely(err_info != OKAY_NO_ERROR)) {
         raise_error(err_info);
-      } else {
-        if (sqlvar->sqltype & 1) {
-          *sqlvar->sqlind = 0;
-        } /* if */
-        preparedStmt->fetchOkay = FALSE;
-        preparedStmt->param_array[pos - 1].bound = TRUE;
       } /* if */
     } /* if */
   } /* sqlBindInt */
@@ -2110,15 +2118,16 @@ static void sqlBindStri (sqlStmtType sqlStatement, intType pos, striType stri)
             err_info = RANGE_ERROR;
             break;
         } /* switch */
+        if (likely(err_info == OKAY_NO_ERROR)) {
+          if (sqlvar->sqltype & 1) {
+            *sqlvar->sqlind = 0;
+          } /* if */
+          preparedStmt->fetchOkay = FALSE;
+          preparedStmt->param_array[pos - 1].bound = TRUE;
+        } /* if */
       } /* if */
       if (unlikely(err_info != OKAY_NO_ERROR)) {
         raise_error(err_info);
-      } else {
-        if (sqlvar->sqltype & 1) {
-          *sqlvar->sqlind = 0;
-        } /* if */
-        preparedStmt->fetchOkay = FALSE;
-        preparedStmt->param_array[pos - 1].bound = TRUE;
       } /* if */
     } /* if */
   } /* sqlBindStri */
@@ -2212,15 +2221,16 @@ static void sqlBindTime (sqlStmtType sqlStatement, intType pos,
             err_info = RANGE_ERROR;
             break;
         } /* switch */
+        if (likely(err_info == OKAY_NO_ERROR)) {
+          if (sqlvar->sqltype & 1) {
+            *sqlvar->sqlind = 0;
+          } /* if */
+          preparedStmt->fetchOkay = FALSE;
+          preparedStmt->param_array[pos - 1].bound = TRUE;
+        } /* if */
       } /* if */
       if (unlikely(err_info != OKAY_NO_ERROR)) {
         raise_error(err_info);
-      } else {
-        if (sqlvar->sqltype & 1) {
-          *sqlvar->sqlind = 0;
-        } /* if */
-        preparedStmt->fetchOkay = FALSE;
-        preparedStmt->param_array[pos - 1].bound = TRUE;
       } /* if */
     } /* if */
   } /* sqlBindTime */
@@ -3736,7 +3746,7 @@ databaseType sqlOpenFire (const const_striType host, intType port,
                     memset(database, 0, sizeof(dbRecord));
                     database->usage_count = 1;
                     database->sqlFunc = sqlFunc;
-                    database->driver = 6; /* Firebird/InterBase */
+                    database->driver = DB_CATEGORY_FIREBIRD;
                     database->connection = db_handle;
                     database->trans_handle = trans_handle;
                   } /* if */

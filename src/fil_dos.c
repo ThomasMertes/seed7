@@ -163,7 +163,7 @@ void setupFiles (void)
       } else {
         term_descr.c_cc[VEOL] = (cc_t) 3;
         if (tcsetattr(STDIN_FILENO, TCSANOW, &term_descr) != 0) {
-          printf("setupFiles: tcsetattr(STDIN_FILENO, TCSANOW, VMIN=1) failed:\n"
+          printf("setupFiles: tcsetattr(STDIN_FILENO, TCSANOW, VEOL=3) failed:\n"
                  "errno=%d\nerror: %s\n",
                  errno, strerror(errno));
         } /* if */

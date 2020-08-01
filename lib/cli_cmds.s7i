@@ -1149,6 +1149,7 @@ const func integer: processCommand (in var string: command) is func
           commandOutput := gets(aFile, 999999999);
           close(aFile);
           if fileName <> "/dev/null" and fileName <> "NUL:" and fileName <> "NUL" then
+            fileName := convDosPath(fileName);
             if doAppend then
               appendToFile(fileName, commandOutput);
             else

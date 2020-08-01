@@ -30,7 +30,10 @@ const type: sizeMapType is hash [string] bigInteger;
 const type: pathsWithLengthHash is hash [bigInteger] array string;
 
 
-const proc: searchDir (in string: dirPath, inout sizeMapType: sizeMap) is func
+const func bigInteger: searchDir (in string: dirPath, inout sizeMapType: fileSizeMap,
+    inout sizeMapType: dirSizeMap) is func
+  result
+    var bigInteger: dirSize is 0_;
   local
     var array string: dirElements is 0 times "";
     var string: fileName is "";
@@ -52,13 +55,15 @@ const proc: searchDir (in string: dirPath, inout sizeMapType: sizeMap) is func
       case fileTypeSL(filePath) of
         when {FILE_REGULAR}:
           fileSize := bigFileSize(filePath);
-          sizeMap @:= [filePath] fileSize;
+          dirSize +:= fileSize;
+          fileSizeMap @:= [filePath] fileSize;
         when {FILE_DIR}:
-          searchDir(filePath, sizeMap);
+          dirSize +:= searchDir(filePath, fileSizeMap, dirSizeMap);
         when {FILE_SYMLINK}:
           noop; # Ignore symbolic link.
       end case;
     end for;
+    dirSizeMap @:= [dirPath] dirSize;
   end func;
 
 
@@ -89,7 +94,8 @@ const proc: main is func
   local
     var string: dirPath is "";
     var integer: lines is 10;
-    var sizeMapType: sizeMap is sizeMapType.value;
+    var sizeMapType: fileSizeMap is sizeMapType.value;
+    var sizeMapType: dirSizeMap is sizeMapType.value;
   begin
     OUT := STD_CONSOLE;
     if length(argv(PROGRAM)) < 1 then
@@ -112,7 +118,11 @@ const proc: main is func
             writeln(" ***** Number of lines not numeric. " <& lines <& " used instead.");
         end block;
       end if;
-      searchDir(dirPath, sizeMap);
-      showResults(sizeMap, lines);
+      ignore(searchDir(dirPath, fileSizeMap, dirSizeMap));
+      writeln("Big files:");
+      showResults(fileSizeMap, lines);
+      writeln;
+      writeln("Big directories:");
+      showResults(dirSizeMap, lines);
     end if;
   end func;

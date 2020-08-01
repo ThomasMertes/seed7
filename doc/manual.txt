@@ -9144,9 +9144,9 @@ CONTENTS
 
 13.1 Opening a database connection
 
-  To open a database connection you need to know several things:
+  To open a database connection you need to provide several things:
 
-    - The database used.
+    - The database type used.
     - The 'host' where the database is running.
       An empty 'host' name ("") specifies the local machine ("localhost").
     - The 'port' to access the database.
@@ -9158,16 +9158,17 @@ CONTENTS
   Depending on the database a corresponding database driver must
   be used:
 
-  Database   | Driver        | Default port | Comment
-  -----------+---------------+--------------+--------------------------------------
-  MySQL      | DB_MYSQL      |  3306        |
-  MariaDB    | DB_MYSQL      |  3306        |
-  SQLLite    | DB_SQLITE     |              | Host must be "" and port must be 0.
-  PostgreSQL | DB_POSTGRESQL |  5432        |
-  Oracle     | DB_OCI        |  1521        |
-  SQL Server | DB_ODBC       |              | Can also connect to other databases.
-  Firebird   | DB_FIRE       |              |
-  Interbase  | DB_FIRE       |              |
+  Database Type | Driver        | Default port | Comment
+  --------------+---------------+--------------+--------------------------------------
+  MySQL         | DB_MYSQL      |   3306       |
+  MariaDB       | DB_MYSQL      |   3306       |
+  SQLLite       | DB_SQLITE     |              | Host must be "" and port must be 0.
+  PostgreSQL    | DB_POSTGRESQL |   5432       |
+  Oracle        | DB_OCI        |   1521       |
+  SQL Server    | DB_ODBC       |              | Can also connect to other databases.
+  Firebird      | DB_FIRE       |              |
+  Interbase     | DB_FIRE       |              |
+  Db2           | DB_DB2        |  50000       |
 
   A basic function to open a database is:
 
@@ -9185,19 +9186,21 @@ CONTENTS
 
     currDb := openDatabase(DB_POSTGRESQL, "localhost", 0, "testDb", "testUser", "testPassword");
 
-    currDb := openDatabase(DB_OCI, "", 0, "dbName", "testUser", "testPassword");
+    currDb := openDatabase(DB_OCI, "", 0, "aServiceName", "testUser", "testPassword");
 
-    currDb := openDatabase(DB_OCI, "www.example.org", 2345, "testDb", "testUser", "testPassword");
+    currDb := openDatabase(DB_OCI, "www.example.org", 2345, "aServiceName", "testUser", "testPassword");
+
+    currDb := openDatabase(DB_OCI, "192.0.2.235", 0, "aSid", "testUser", "testPassword");
 
   The 'host' can be specified by name (e.g.: "www.example.org"),
   by an IPv4 address (e.g.: "192.0.2.235") or by an IPv6
-  addresss in colon notation (e.g.: "1234:feed::dead:beef").
+  address in colon notation (e.g.: "1234:feed::dead:beef").
   Specifying "" as 'host' means "localhost".
 
-  The 'DB_OCI' driver allows the usage of "tnsnames.ora". An entry
-  name from "tnsnames.ora" (a net_service_name) can be used as
-  'dbName'. If "tnsnames.ora" is used the parameter 'host' must
-  be "" and the parameter 'port' must be 0.
+  When using the 'DB_OCI' driver you can either supply a net_service_name
+  from tnsnames.ora or a service_name or a sid as 'dbName'. If
+  tnsnames.ora is used the parameter 'host' must be "" and the
+  parameter 'port' must be 0.
 
     currDb := openDatabase(DB_OCI, "", 0, "tnsnamesOraEntryName", "testUser", "testPassword");
 
@@ -9212,13 +9215,12 @@ CONTENTS
   For a SQLite database 'host' must be "" and 'port' must be 0.
 
   The Seed7 database driver 'DB_ODBC' is special, as the ODBC
-  interface itself allows also connecting to different databases.
+  interface itself allows connecting to several database types.
   The ODBC interface library accomplishes this by using ODBC drivers.
   Unfortunately these drivers do come in varying quality. Accessing
   a database directly via the Seed7 driver should be the preferred
-  method. SQL Server is the only database, that only has an ODBC
-  interface. Opening an ODBC database can be done with the following
-  function:
+  method. For SQL Server ODBC is the only connection interface.
+  Opening an ODBC database can be done with the following function:
 
     const func database: openDatabase (DB_ODBC, in string: odbcDriver,
                                        in string: server, in string: dbName,
@@ -9243,7 +9245,7 @@ CONTENTS
 
     currDb := openDatabase(DB_ODBC, "", "", "dsnName", "", "");
 
-  When opening with a DSN succeeds the parameters 'odbcDriver'
+  When opening using a DSN succeeds, the parameters 'odbcDriver'
   and 'server' are ignored. A DSN might also specify 'user'
   and 'password'. In this case this parameters can be left empty,
   when openDatabase() is called.
@@ -9254,8 +9256,8 @@ CONTENTS
     Start -> Control Panel -> Administrative Tools -> Data Sources (ODBC).
 
   The data source names (DSNs) of unixODBC are specified in the
-  file "odbc.ini". The ODBC drivers of unixODBC are specified
-  in the file "odbcinst.ini".
+  file odbc.ini. The ODBC drivers of unixODBC are specified
+  in the file odbcinst.ini.
 
 
 13.2 Other ways to open a database connection
@@ -9275,8 +9277,8 @@ CONTENTS
   or by IPv4 address (e.g.: "192.0.2.235") or by IPv6 address in
   colon notation (e.g.: "[1234:feed::dead:beef]"). Note that an
   IPv6 address must be enclosed in brackets. If 'host' is not
-  specified the default host ("localhost") is used. If 'port'
-  is not specified the default port of the driver is used. The
+  specified the default host ("localhost") will be used. If 'port'
+  is not specified the default port of the driver will be used. The
   following statements each open a database:
 
     currDb := openDatabase(DB_MYSQL, "www.example.org:1234/testDb", "testUser", "testPassword");
@@ -9319,8 +9321,8 @@ CONTENTS
     - user@dbPath
     - dbPath
 
-  If no 'user' is specified the user "guest" is used. If no
-  'password' is specified the password "guest" is used. The
+  If no 'user' is specified the user "guest" will be used. If no
+  'password' is specified the password "guest" will be used. The
   'dbPath' is specified as before.
 
 
@@ -9338,7 +9340,7 @@ CONTENTS
 
   Regarding the parameter sqlStatementStri some things must be considered:
 
-    - A question mark (?) is used as placeholder for bind variables.
+    - A question mark (?) will be used as placeholder for bind variables.
     - Strings in a SQL statement are enclosed in apostrophes (e.g. 'abc').
       - A string consists of all characters between the enclosing
         apostrophes.
@@ -9348,9 +9350,9 @@ CONTENTS
     - Line comments in a SQL statement start with -- and end
       with a newline characer ('\n').
     - Table and field names can be enclosed in double quotes (e.g. "aTable").
-      - This way a table or field name can contain spaces or other
+      - This way a table or field name may contain spaces or other
         characters, that are normally not allowed.
-      - Double quotes in a quoted name must be doubled (several
+      - Double quotes in a quoted name must be doubled (be aware that several
         databases do not allow double quotes in names).
 
   The following statements each create a prepared SQL statement:
@@ -9373,11 +9375,11 @@ CONTENTS
   is not open. This is checked by the driver. Other things are
   checked by the database. The database might raise the exception
   DATABASE_ERROR. Note that some databases do not check everything,
-  when the statement is prepared. So an illegal SQL statement might
+  when preparing the statement. So an illegal SQL statement might
   be accepted by prepare(), but executing the prepared statement
-  later fails.
+  later will fail.
 
-  Executing a prepared statement, that neither has bind variables
+  Executing a prepared statement that neither has bind variables
   nor returns a result is quite simple:
 
     statement := prepare(currDb, "CREATE TABLE customers (name CHAR(128), area CHAR(128))");
@@ -9390,7 +9392,7 @@ CONTENTS
   placeholder for bind variables. Before a prepared statement is
   executed it is necessary to bind values to the placeholders (?).
   Prepared statements without placeholders do not need a binding.
-  It is possible to bind the same placeholder again and again,
+  It is possible to bind the same placeholder as often as you like.
   even with values from different types. This can be used to
   execute the same prepared statement multiple times with
   different values. The binding is done with a bind() function.
@@ -9425,13 +9427,13 @@ CONTENTS
 
   The bind() functions check the given position (pos) and raise
   the exception RANGE_ERROR, if no corresponding placeholder (?)
-  exists. This happens if pos <= 0 holds or if pos is greater
+  is found. This happens if pos <= 0 holds or if pos is greater
   than the number of placeholders. The bind() functions check
   also, if the type of the given value fits to the database
   column. If the type does not fit the exception RANGE_ERROR is
   raised.
 
-  Another examble with binding is:
+  Another example with binding is:
 
     write("name? ");
     readln(name);
@@ -9459,14 +9461,13 @@ CONTENTS
 
     SELECT name, area FROM customers WHERE name = '' UNION SELECT login, password FROM user --'
 
-  This would trigger that secret login data is written.
+  The result would additionally contain secret data you certainly would not like to be displayed.
 
 
 13.5 Execute a prepared statement
 
-  To trigger that a prepared statement actually does something
-  it must be executed. Prepared statements are executed with
-  the following function:
+  To make a prepared statement run it must be executed.
+  Prepared statements are executed with the following function:
 
     const proc: execute (inout sqlStatement: statement)
 
@@ -9476,14 +9477,14 @@ CONTENTS
 
   Executing fails with a RANGE_ERROR, if the statement has not
   been prepared. Executing fails with a DATABASE_ERROR, if
-  not all parameters have been bound. If the database finds
-  an error the exception DATABASE_ERROR is also raised. Note
+  not all parameters have been bound. If the database returns
+  an error the exception DATABASE_ERROR gets also raised. Note
   that illegal SQL statements might raise a DATABASE_ERROR in
-  prepare() or in execute(). Where the exception is raised
+  prepare() or in execute(). When the exception is raised
   depends on the database.
 
   There are prepared statements, that return a result set of
-  records (e.g.: SELECT) and prepared statements that do not
+  records (e.g.: SELECT) and others that do not
   return data (e.g.: UPDATE). After executing a prepared
   statement the number of columns in a record (row) of the
   result set can be retrieved with the following function:
@@ -9508,10 +9509,10 @@ CONTENTS
 
 13.6 Fetch records from the result set
 
-  After executing a prepared statement, that returns data
+  After executing a prepared statement that returns data
   (e.g.: SELECT), the records (rows) can be fetched one by one
-  with fetch(). After executing a prepared statement, that does
-  not return data, no fetching is necessary. Fetching is done
+  with fetch(). After executing a prepared statement
+  returning no data fetching is not necessary. Fetching is done
   with the following function:
 
     const func boolean: fetch (in sqlStatement: statement)
@@ -9531,7 +9532,7 @@ CONTENTS
 13.7 Get columns from fetched records
 
   After a record (row) has been fetched from a result set
-  individual colum data can be retrieved with a column() function.
+  individual column data can be retrieved with a column() function.
   For several types column() functions are defined:
 
     const func bigInteger: column (in sqlStatement: statement, in integer: column, attr bigInteger)
@@ -9562,7 +9563,7 @@ CONTENTS
   The column() functions check the given position (column) and
   raise the exception RANGE_ERROR, if no corresponding column
   exists in the result record. This happens if column <= 0
-  holds or if column is greater than the number of columns
+  is TRUE or if column is greater than the number of columns
   (which can be obtained with columnCount()). Database columns can
   be NULL. This can be checked with the following function:
 

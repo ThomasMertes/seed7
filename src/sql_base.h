@@ -29,7 +29,7 @@
 /*                                                                  */
 /********************************************************************/
 
-#define DB_ERR_MESSAGE_SIZE 1024
+#define DB_ERR_MESSAGE_SIZE 4096
 
 typedef struct dbErrorStruct {
     const char *funcName;
@@ -54,4 +54,4 @@ void dbLibError (const char *funcName, const char *dbFuncName,
 void dbInconsistentMsg (const char *funcName, const char *dbFuncName,
                         const char *file, int line);
 void dllErrorMessage (const char *funcName, const char *dbFuncName,
-                      const char *dllList[], memSizeType dllListSize);
+                      const char *dllList[], memSizeType dllListLength);

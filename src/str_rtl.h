@@ -51,6 +51,8 @@ void strAppend (striType *const destination, const_striType extension);
 void strAppendN (striType *const destination,
     const const_striType extensionArray[], memSizeType arraySize);
 void strAppendTemp (striType *const destination, const striType extension);
+striType strChChRepl (const const_striType mainStri,
+    const charType searched, const charType replacement);
 intType strChIPos (const const_striType mainStri, const charType searched,
     const intType fromIndex);
 striType strChMult (const charType ch, const intType factor);

@@ -339,7 +339,7 @@ const func database: doLogin (inout browserConnection: browser) is func
     var database: currDb is database.value;
   local
     var radioButton: driverRadioButton is
-        radioButton([] ("MySQL", "SQLite", "PostgreSQL", "Oracle", "ODBC", "Firebird"));
+        radioButton([] ("MySQL", "SQLite", "PostgreSQL", "Oracle", "ODBC", "Firebird", "Db2", "SQL Server"));
     var textField: dbName is textField("", 15);
     var textField: userName is textField("", 15);
     var passwordField: password is passwordField("", 15);

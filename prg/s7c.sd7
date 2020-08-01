@@ -37,6 +37,7 @@ $ include "seed7_05.s7i";
   include "progs.s7i";
   include "shell.s7i";
   include "cc_conf.s7i";
+  include "inifile.s7i";
   include "comp/config.s7i";
   include "comp/type.s7i";
   include "comp/expr.s7i";
@@ -6988,6 +6989,24 @@ const proc: pass_2 (in string: source, in program: prog,
   end func;
 
 
+const proc: importEnvironment (in string: fileName) is func
+  local
+    var iniDataType: iniData is iniDataType.value;
+    var string: aKey is "";
+    var string: aValue is "";
+  begin
+    iniData := readIniFile(fileName);
+    if "" in iniData then
+      for aValue key aKey range iniData[""] do
+        # writeln(aKey <& "=" <& aValue);
+        setenv(aKey, aValue);
+      end for;
+    else
+      writeln("*** C compiler environment file " <& literal(fileName) <& " not found.");
+    end if;
+  end func;
+
+
 const proc: logProgram (in string: command, in array string: parameters,
     in string: errorFile) is func
 
@@ -7066,8 +7085,9 @@ const proc: pass_3 (in string: sourcePath, in string: sourceExtension, in progra
   local
     var string: s7_lib_dir     is "";
     var string: seed7_lib      is "";
-    var string: console_lib    is "";
     var string: draw_lib       is "";
+    var string: console_lib    is "";
+    var string: database_lib   is "";
     var string: comp_data_lib  is "";
     var string: compiler_lib   is "";
     var string: cwd            is "";
@@ -7086,14 +7106,18 @@ const proc: pass_3 (in string: sourcePath, in string: sourceExtension, in progra
   begin
     if okay then
       writeln("Calling the C compiler ...");
+      if ccConf.CC_ENVIRONMENT_INI <> "" then
+        importEnvironment(ccConf.CC_ENVIRONMENT_INI);
+      end if;
       if "-b" in compiler_option then
         s7_lib_dir := convDosPath(compiler_option["-b"]);
       else
         s7_lib_dir := ccConf.S7_LIB_DIR;
       end if;
       seed7_lib     := s7_lib_dir & "/" & ccConf.SEED7_LIB;
-      console_lib   := s7_lib_dir & "/" & ccConf.CONSOLE_LIB;
       draw_lib      := s7_lib_dir & "/" & ccConf.DRAW_LIB;
+      console_lib   := s7_lib_dir & "/" & ccConf.CONSOLE_LIB;
+      database_lib  := s7_lib_dir & "/" & ccConf.DATABASE_LIB;
       comp_data_lib := s7_lib_dir & "/" & ccConf.COMP_DATA_LIB;
       compiler_lib  := s7_lib_dir & "/" & ccConf.COMPILER_LIB;
       cwd := getcwd();
@@ -7182,19 +7206,24 @@ const proc: pass_3 (in string: sourcePath, in string: sourceExtension, in progra
           removeFile(cSourceFile);
         end if;
         if compilerLibraryUsed then
-          consoleLibraryUsed := TRUE;
           drawLibraryUsed := TRUE;
+          consoleLibraryUsed := TRUE;
+          databaseLibraryUsed := TRUE;
         end if;
         if fileType(seed7_lib) <> FILE_REGULAR then
           writeln("*** Seed7 library " <& literal(seed7_lib) <& " missing");
+          okay := FALSE;
+        end if;
+        if drawLibraryUsed and fileType(draw_lib) <> FILE_REGULAR then
+          writeln("*** Draw library " <& literal(draw_lib) <& " missing");
           okay := FALSE;
         end if;
         if consoleLibraryUsed and fileType(console_lib) <> FILE_REGULAR then
           writeln("*** Console library " <& literal(console_lib) <& " missing");
           okay := FALSE;
         end if;
-        if drawLibraryUsed and fileType(draw_lib) <> FILE_REGULAR then
-          writeln("*** Draw library " <& literal(draw_lib) <& " missing");
+        if databaseLibraryUsed and fileType(database_lib) <> FILE_REGULAR then
+          writeln("*** Console library " <& literal(database_lib) <& " missing");
           okay := FALSE;
         end if;
         if compilerLibraryUsed and fileType(compiler_lib) <> FILE_REGULAR then
@@ -7248,18 +7277,21 @@ const proc: pass_3 (in string: sourcePath, in string: sourceExtension, in progra
             if compDataLibraryUsed then
               linkParams &:= toOsPath(comp_data_lib);
             end if;
-            if consoleLibraryUsed then
-              linkParams &:= toOsPath(console_lib);
-            end if;
             if drawLibraryUsed then
               linkParams &:= toOsPath(draw_lib);
             end if;
-            linkParams &:= toOsPath(seed7_lib);
             if consoleLibraryUsed then
-              linkParams &:= ccConf.SYSTEM_CONSOLE_LIBS;
+              linkParams &:= toOsPath(console_lib);
             end if;
+            if databaseLibraryUsed then
+              linkParams &:= toOsPath(database_lib);
+            end if;
+            linkParams &:= toOsPath(seed7_lib);
             if drawLibraryUsed then
               linkParams &:= ccConf.SYSTEM_DRAW_LIBS;
+            end if;
+            if consoleLibraryUsed then
+              linkParams &:= ccConf.SYSTEM_CONSOLE_LIBS;
             end if;
             linkParams &:= ccConf.SYSTEM_LIBS;
             linkParams &:= ccConf.ADDITIONAL_SYSTEM_LIBS;

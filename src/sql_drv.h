@@ -75,7 +75,19 @@ typedef struct {
     striType (*sqlStmtColumnName) (sqlStmtType sqlStatement, intType column);
   } sqlFuncRecord, *sqlFuncType;
 
+#define DB_CATEGORY_MYSQL      1
+#define DB_CATEGORY_SQLITE     2
+#define DB_CATEGORY_POSTGRESQL 3
+#define DB_CATEGORY_OCI        4
+#define DB_CATEGORY_ODBC       5
+#define DB_CATEGORY_FIREBIRD   6
+#define DB_CATEGORY_DB2        7
+#define DB_CATEGORY_SQL_SERVER 8
 
+
+databaseType sqlOpenDb2 (const const_striType host, intType port,
+    const const_striType dbName, const const_striType user,
+    const const_striType password);
 databaseType sqlOpenFire (const const_striType host, intType port,
     const const_striType dbName, const const_striType user,
     const const_striType password);
@@ -92,5 +104,8 @@ databaseType sqlOpenOdbc (const const_striType driver,
     const const_striType server, const const_striType dbName,
     const const_striType user, const const_striType password);
 databaseType sqlOpenPost (const const_striType host, intType port,
+    const const_striType dbName, const const_striType user,
+    const const_striType password);
+databaseType sqlOpenSqlServer (const const_striType host, intType port,
     const const_striType dbName, const const_striType user,
     const const_striType password);

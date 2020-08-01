@@ -18,14 +18,15 @@ LDFLAGS = -lS:0x800000
 # LDFLAGS = -pg
 SYSTEM_LIBS = user32.lib ws2_32.lib
 # SYSTEM_LIBS = user32.lib ws2_32.lib gmp.lib
-SYSTEM_CONSOLE_LIBS =
 SYSTEM_DRAW_LIBS = gdi32.lib
+SYSTEM_CONSOLE_LIBS =
 SEED7_LIB = seed7_05.lib
-CONSOLE_LIB = s7_con.lib
 DRAW_LIB = s7_draw.lib
+CONSOLE_LIB = s7_con.lib
+DATABASE_LIB = s7_db.lib
 COMP_DATA_LIB = s7_data.lib
 COMPILER_LIB = s7_comp.lib
-ALL_S7_LIBS = ..\bin\$(COMPILER_LIB) ..\bin\$(COMP_DATA_LIB) ..\bin\$(DRAW_LIB) ..\bin\$(CONSOLE_LIB) ..\bin\$(SEED7_LIB)
+ALL_S7_LIBS = ..\bin\$(COMPILER_LIB) ..\bin\$(COMP_DATA_LIB) ..\bin\$(DRAW_LIB) ..\bin\$(CONSOLE_LIB) ..\bin\$(DATABASE_LIB) ..\bin\$(SEED7_LIB)
 CC = bcc32
 GET_CC_VERSION_INFO = bcc32.exe >
 
@@ -45,11 +46,12 @@ ROBJ = arr_rtl.obj bln_rtl.obj bst_rtl.obj chr_rtl.obj cmd_rtl.obj con_rtl.obj d
        flt_rtl.obj hsh_rtl.obj int_rtl.obj itf_rtl.obj pcs_rtl.obj set_rtl.obj soc_rtl.obj sql_rtl.obj str_rtl.obj \
        tim_rtl.obj ut8_rtl.obj heaputl.obj numutl.obj sigutl.obj striutl.obj
 DOBJ = big_rtl.obj big_gmp.obj cmd_win.obj dir_win.obj dll_win.obj fil_win.obj pcs_win.obj pol_sel.obj soc_none.obj \
-       sql_base.obj sql_fire.obj sql_lite.obj sql_my.obj sql_oci.obj sql_odbc.obj sql_post.obj stat_win.obj tim_win.obj
+       stat_win.obj tim_win.obj
 OBJ = $(MOBJ)
 SEED7_LIB_OBJ = $(ROBJ) $(DOBJ)
 DRAW_LIB_OBJ = gkb_rtl.obj drw_win.obj gkb_win.obj
 CONSOLE_LIB_OBJ = kbd_rtl.obj con_win.obj
+DATABASE_LIB_OBJ = sql_base.obj sql_db2.obj sql_fire.obj sql_lite.obj sql_my.obj sql_oci.obj sql_odbc.obj sql_post.obj sql_srv.obj
 COMP_DATA_LIB_OBJ = typ_data.obj rfl_data.obj ref_data.obj listutl.obj flistutl.obj typeutl.obj datautl.obj
 COMPILER_LIB_OBJ = $(POBJ) $(LOBJ) $(EOBJ) $(AOBJ) $(GOBJ)
 
@@ -69,11 +71,12 @@ RSRC = arr_rtl.c bln_rtl.c bst_rtl.c chr_rtl.c cmd_rtl.c con_rtl.c dir_rtl.c drw
        flt_rtl.c hsh_rtl.c int_rtl.c itf_rtl.c pcs_rtl.c set_rtl.c soc_rtl.c sql_rtl.c str_rtl.c \
        tim_rtl.c ut8_rtl.c heaputl.c numutl.c sigutl.c striutl.c
 DSRC = big_rtl.c big_gmp.c cmd_win.c dir_win.c dll_win.c fil_win.c pcs_win.c pol_sel.c soc_none.c \
-       sql_base.c sql_fire.c sql_lite.c sql_my.c sql_oci.c sql_odbc.c sql_post.c stat_win.c tim_win.c
+       stat_win.c tim_win.c
 SRC = $(MSRC)
 SEED7_LIB_SRC = $(RSRC) $(DSRC)
 DRAW_LIB_SRC = gkb_rtl.c drw_win.c gkb_win.c
 CONSOLE_LIB_SRC = kbd_rtl.c con_win.c
+DATABASE_LIB_SRC = sql_base.c sql_db2.c sql_fire.c sql_lite.c sql_my.c sql_oci.c sql_odbc.c sql_post.c sql_srv.c
 COMP_DATA_LIB_SRC = typ_data.c rfl_data.c ref_data.c listutl.c flistutl.c typeutl.c datautl.c
 COMPILER_LIB_SRC = $(PSRC) $(LSRC) $(ESRC) $(ASRC) $(GSRC)
 
@@ -100,6 +103,12 @@ s7c: ..\bin\s7c.exe ..\prg\s7c.exe
 
 ..\prg\s7c.exe: ..\prg\s7c.sd7 $(ALL_S7_LIBS)
 	..\bin\s7 -l ..\lib ..\prg\s7c -l ..\lib -b ..\bin -O2 ..\prg\s7c
+
+sql_db2.o: sql_db2.c
+	$(CC) -c $(CPPFLAGS) $(DB2_INCLUDE_OPTION) $(CFLAGS) $< -o $@
+
+sql_srv.o: sql_srv.c
+	$(CC) -c $(CPPFLAGS) $(SQL_SERVER_INCLUDE_OPTION) $(CFLAGS) $< -o $@
 
 clear: clean
 
@@ -129,7 +138,7 @@ distclean: clean
 test:
 	..\bin\s7 -l ..\lib ..\prg\chk_all build
 	@echo.
-	@echo Use 'sudo make install' (with your make command) to install Seed7."
+	@echo Use 'sudo make install' (with your make command) to install Seed7.
 	@echo Or open a console as administrator, go to the directory seed7/src
 	@echo and use 'make install' (with your make command) to install Seed7.
 	@echo.
@@ -144,19 +153,13 @@ dep: depend
 
 chkccomp.h:
 	echo ^#define LIST_DIRECTORY_CONTENTS "dir" >> chkccomp.h
-	echo ^#define MYSQL_DLL "libmariadb.dll", "libmysql.dll" >> chkccomp.h
 	echo ^#define MYSQL_USE_DLL >> chkccomp.h
-	echo ^#define SQLITE_DLL "sqlite3.dll" >> chkccomp.h
 	echo ^#define SQLITE_USE_DLL >> chkccomp.h
-	echo ^#define POSTGRESQL_DLL "libpq.dll" >> chkccomp.h
 	echo ^#define POSTGRESQL_USE_DLL >> chkccomp.h
 	echo ^#define ODBC_LIBS "-lodbc32" >> chkccomp.h
-	echo ^#define ODBC_DLL "odbc32.dll" >> chkccomp.h
 	echo ^#define ODBC_USE_LIB >> chkccomp.h
-	echo ^#define OCI_DLL "oci.dll" >> chkccomp.h
 	echo ^#define OCI_USE_DLL >> chkccomp.h
 	echo ^#define FIRE_LIBS "-lfbclient" >> chkccomp.h
-	echo ^#define FIRE_DLL "fbclient.dll", "gds32.dll" >> chkccomp.h
 	echo ^#define FIRE_USE_DLL >> chkccomp.h
 
 version.h: chkccomp.h
@@ -185,8 +188,8 @@ version.h: chkccomp.h
 	echo ^#define LINKER_OPT_DEBUG_INFO "-v" >> version.h
 	echo ^#define LINKER_FLAGS "$(LDFLAGS)" >> version.h
 	echo ^#define SYSTEM_LIBS "$(SYSTEM_LIBS)" >> version.h
-	echo ^#define SYSTEM_CONSOLE_LIBS "$(SYSTEM_CONSOLE_LIBS)" >> version.h
 	echo ^#define SYSTEM_DRAW_LIBS "$(SYSTEM_DRAW_LIBS)" >> version.h
+	echo ^#define SYSTEM_CONSOLE_LIBS "$(SYSTEM_CONSOLE_LIBS)" >> version.h
 	$(GET_CC_VERSION_INFO) cc_vers.txt
 	$(CC) chkccomp.c
 	chkccomp.exe version.h
@@ -195,8 +198,9 @@ version.h: chkccomp.h
 	del chkccomp.exe
 	del cc_vers.txt
 	echo ^#define SEED7_LIB "$(SEED7_LIB)" >> version.h
-	echo ^#define CONSOLE_LIB "$(CONSOLE_LIB)" >> version.h
 	echo ^#define DRAW_LIB "$(DRAW_LIB)" >> version.h
+	echo ^#define CONSOLE_LIB "$(CONSOLE_LIB)" >> version.h
+	echo ^#define DATABASE_LIB "$(DATABASE_LIB)" >> version.h
 	echo ^#define COMP_DATA_LIB "$(COMP_DATA_LIB)" >> version.h
 	echo ^#define COMPILER_LIB "$(COMPILER_LIB)" >> version.h
 	$(CC) setpaths.c
@@ -244,11 +248,14 @@ level.h:
 ..\bin\$(SEED7_LIB): $(SEED7_LIB_OBJ)
 	calltlib ..\bin\$(SEED7_LIB) $(SEED7_LIB_OBJ)
 
+..\bin\$(DRAW_LIB): $(DRAW_LIB_OBJ)
+	calltlib ..\bin\$(DRAW_LIB) $(DRAW_LIB_OBJ)
+
 ..\bin\$(CONSOLE_LIB): $(CONSOLE_LIB_OBJ)
 	calltlib ..\bin\$(CONSOLE_LIB) $(CONSOLE_LIB_OBJ)
 
-..\bin\$(DRAW_LIB): $(DRAW_LIB_OBJ)
-	calltlib ..\bin\$(DRAW_LIB) $(DRAW_LIB_OBJ)
+..\bin\$(DATABASE_LIB): $(DATABASE_LIB_OBJ)
+	calltlib ..\bin\$(DATABASE_LIB) $(DATABASE_LIB_OBJ)
 
 ..\bin\$(COMP_DATA_LIB): $(COMP_DATA_LIB_OBJ)
 	calltlib ..\bin\$(COMP_DATA_LIB) $(COMP_DATA_LIB_OBJ)
@@ -374,10 +381,12 @@ wc: $(SRC)
 	wc $(SRC)
 	@echo SEED7_LIB_SRC:
 	wc $(SEED7_LIB_SRC)
-	@echo CONSOLE_LIB_SRC:
-	wc $(CONSOLE_LIB_SRC)
 	@echo DRAW_LIB_SRC:
 	wc $(DRAW_LIB_SRC)
+	@echo CONSOLE_LIB_SRC:
+	wc $(CONSOLE_LIB_SRC)
+	@echo DATABASE_LIB_SRC:
+	wc $(DATABASE_LIB_SRC)
 	@echo COMP_DATA_LIB_SRC:
 	wc $(COMP_DATA_LIB_SRC)
 	@echo COMPILER_LIB_SRC:

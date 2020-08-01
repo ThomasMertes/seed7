@@ -700,6 +700,27 @@ objectType sql_ne_stmt (listType arguments)
 
 
 
+objectType sql_open_db2 (listType arguments)
+
+  {
+    databaseType database;
+
+  /* sql_open_db2 */
+    isit_stri(arg_2(arguments));
+    isit_int(arg_3(arguments));
+    isit_stri(arg_4(arguments));
+    isit_stri(arg_5(arguments));
+    isit_stri(arg_6(arguments));
+    database = sqlOpenDb2(take_stri(arg_2(arguments)),
+                          take_int(arg_3(arguments)),
+                          take_stri(arg_4(arguments)),
+                          take_stri(arg_5(arguments)),
+                          take_stri(arg_6(arguments)));
+    return bld_database_temp(database);
+  } /* sql_open_db2 */
+
+
+
 objectType sql_open_fire (listType arguments)
 
   {
@@ -823,6 +844,27 @@ objectType sql_open_post (listType arguments)
                            take_stri(arg_6(arguments)));
     return bld_database_temp(database);
   } /* sql_open_post */
+
+
+
+objectType sql_open_sqlsrv (listType arguments)
+
+  {
+    databaseType database;
+
+  /* sql_open_sqlsrv */
+    isit_stri(arg_2(arguments));
+    isit_int(arg_3(arguments));
+    isit_stri(arg_4(arguments));
+    isit_stri(arg_5(arguments));
+    isit_stri(arg_6(arguments));
+    database = sqlOpenSqlServer(take_stri(arg_2(arguments)),
+                                take_int(arg_3(arguments)),
+                                take_stri(arg_4(arguments)),
+                                take_stri(arg_5(arguments)),
+                                take_stri(arg_6(arguments)));
+    return bld_database_temp(database);
+  } /* sql_open_sqlsrv */
 
 
 

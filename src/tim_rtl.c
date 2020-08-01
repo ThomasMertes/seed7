@@ -243,7 +243,7 @@ void timFromTimestamp (time_t timestamp,
       *time_zone = (intType) (unchecked_mkutc(local_time) - timestamp) / 60;
       *is_dst    = local_time->tm_isdst > 0;
     } /* if */
-    logFunction(printf("timFromTimestamp(%ld, " F_D(04) "-" F_D(02) "-" F_D(02),
+    logFunction(printf("timFromTimestamp(" FMT_T ", " F_D(04) "-" F_D(02) "-" F_D(02),
                        timestamp, *year, *month, *day);
                 printf(" " F_D(02) ":" F_D(02) ":" F_D(02) "." F_D(06) " " FMT_D " %d) -->\n",
                        *hour, *min, *sec, *micro_sec, *time_zone, *is_dst););
@@ -317,7 +317,7 @@ void timUtcFromTimestamp (time_t timestamp,
       *time_zone = (intType) (unchecked_mkutc(gm_time) - timestamp) / 60;
       *is_dst    = gm_time->tm_isdst > 0;
     } /* if */
-    logFunction(printf("timUtcFromTimestamp(%ld, " F_D(04) "-" F_D(02) "-" F_D(02),
+    logFunction(printf("timUtcFromTimestamp(" FMT_T ", " F_D(04) "-" F_D(02) "-" F_D(02),
                        timestamp, *year, *month, *day);
                 printf(" " F_D(02) ":" F_D(02) ":" F_D(02) "." F_D(06) " " FMT_D " %d) -->\n",
                        *hour, *min, *sec, *micro_sec, *time_zone, *is_dst););

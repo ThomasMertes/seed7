@@ -44,6 +44,13 @@
 #include "kbd_drv.h"
 
 
+#define TRACE_EVENTS 0
+#if TRACE_EVENTS
+#define traceEvent(traceStatements) traceStatements
+#else
+#define traceEvent(traceStatements)
+#endif
+
 static intType button_x = 0;
 static intType button_y = 0;
 static HWND button_window = 0;
@@ -57,6 +64,10 @@ static const charType map_1252_to_unicode[] = {
 
 #ifdef DMC_GKB_WIN_DEFINES
 #define WM_MOUSEWHEEL                   0x020A
+#endif
+
+#ifndef WM_XBUTTONDOWN
+#define WM_XBUTTONDOWN 0x020B
 #endif
 
 #if defined(_WIN64)
@@ -82,7 +93,7 @@ winType find_window (HWND sys_window)
                          (intType) ((memSizeType) sys_window) >> 6,
                          (compareType) &genericCmp);
     } /* if */
-    logFunction(printf("find_window(" FMT_X_MEM ") --> %" FMT_X_MEM "\n",
+    logFunction(printf("find_window(" FMT_X_MEM ") --> " FMT_X_MEM "\n",
                        (memSizeType) sys_window, (memSizeType) window););
     return window;
   } /* find_window */
@@ -136,10 +147,10 @@ charType gkbGetc (void)
       } else {
         /* printf("gkbGetc message=%d %lu, %d, %u\n", msg.message, msg.hwnd, msg.wParam, msg.lParam); */
         if (msg.message == WM_KEYDOWN) {
-          /* printf("WM_KEYDOWN %lu, %d, %d\n", msg.hwnd, msg.wParam, msg.lParam); */
-          /* printf("GetKeyState(VK_SHIFT)=%hx\n",   GetKeyState(VK_SHIFT));
-          printf("GetKeyState(VK_CONTROL)=%hx\n", GetKeyState(VK_CONTROL));
-          printf("GetKeyState(VK_MENU)=%hx\n",   GetKeyState(VK_MENU)); */
+          traceEvent(printf("WM_KEYDOWN hwnd=%lu, msg.wParam=%d, lParam=%u, "
+                            "SHIFT=%hx, CONTROL=%hx, MENU=%hx\n",
+                            msg.hwnd, msg.wParam, msg.lParam, GetKeyState(VK_SHIFT),
+                            GetKeyState(VK_CONTROL), GetKeyState(VK_MENU)););
           if (GetKeyState(VK_SHIFT) & 0xFF80) {
             switch (msg.wParam) {
               case VK_LBUTTON:  result = K_MOUSE1;     break;
@@ -308,22 +319,29 @@ charType gkbGetc (void)
             } /* if */
           } /* if */
         } else if (msg.message == WM_LBUTTONDOWN) {
+          traceEvent(printf("WM_LBUTTONDOWN hwnd=%lu, msg.wParam=%d, lParam=%u\n",
+                            msg.hwnd, msg.wParam, msg.lParam););
           button_x = LOWORD(msg.lParam);
           button_y = HIWORD(msg.lParam);
           button_window = msg.hwnd;
           result = K_MOUSE1;
         } else if (msg.message == WM_MBUTTONDOWN) {
+          traceEvent(printf("WM_MBUTTONDOWN hwnd=%lu, msg.wParam=%d, lParam=%u\n",
+                            msg.hwnd, msg.wParam, msg.lParam););
           button_x = LOWORD(msg.lParam);
           button_y = HIWORD(msg.lParam);
           button_window = msg.hwnd;
           result = K_MOUSE2;
         } else if (msg.message == WM_RBUTTONDOWN) {
+          traceEvent(printf("WM_RBUTTONDOWN hwnd=%lu, msg.wParam=%d, lParam=%u\n",
+                            msg.hwnd, msg.wParam, msg.lParam););
           button_x = LOWORD(msg.lParam);
           button_y = HIWORD(msg.lParam);
           button_window = msg.hwnd;
           result = K_MOUSE3;
         } else if (msg.message == WM_MOUSEWHEEL) {
-          /* printf("WM_MOUSEWHEEL %lu, %d, %u\n", msg.hwnd, msg.wParam, msg.lParam); */
+          traceEvent(printf("WM_MOUSEWHEEL hwnd=%lu, msg.wParam=%d, lParam=%u\n",
+                            msg.hwnd, msg.wParam, msg.lParam););
           button_x = LOWORD(msg.lParam);
           button_y = HIWORD(msg.lParam);
           button_window = msg.hwnd;
@@ -332,11 +350,24 @@ charType gkbGetc (void)
           } else {
             result = K_MOUSE5;
           } /* if */
+        } else if (msg.message == WM_XBUTTONDOWN) {
+          traceEvent(printf("WM_XBUTTONDOWN hwnd=%lu, msg.wParam=%d, lParam=%u\n",
+                            msg.hwnd, msg.wParam, msg.lParam););
+          button_x = LOWORD(msg.lParam);
+          button_y = HIWORD(msg.lParam);
+          button_window = msg.hwnd;
+          if ((msg.wParam & 0xffff0) == 0x20040) {
+            result = K_MOUSE_FWD;
+          } else if ((msg.wParam & 0xffff0) == 0x10020) {
+            result = K_MOUSE_BACK;
+          } else {
+            result = K_UNDEF;
+          } /* if */
         } else if (msg.message == WM_SYSKEYDOWN) {
-          /* printf("WM_SYSKEYDOWN %lu, %d, %u %d\n", msg.hwnd, msg.wParam, msg.lParam, msg.lParam & 0x20000000); */
-          /* printf("GetKeyState(VK_SHIFT)=%hx\n",   GetKeyState(VK_SHIFT));
-          printf("GetKeyState(VK_CONTROL)=%hx\n", GetKeyState(VK_CONTROL));
-          printf("GetKeyState(VK_MENU)=%hx\n",   GetKeyState(VK_MENU)); */
+          traceEvent(printf("WM_SYSKEYDOWN hwnd=%lu, msg.wParam=%d, lParam=%u, "
+                            "SHIFT=%hx, CONTROL=%hx, MENU=%hx\n",
+                            msg.hwnd, msg.wParam, msg.lParam, GetKeyState(VK_SHIFT),
+                            GetKeyState(VK_CONTROL), GetKeyState(VK_MENU)););
           switch (msg.wParam) {
               case 'A':         result = K_ALT_A;   break;
               case 'B':         result = K_ALT_B;   break;
@@ -418,7 +449,10 @@ charType gkbGetc (void)
                 break;
           } /* switch */
         } else if (msg.message == WM_NCLBUTTONDOWN) {
-          /* printf("WM_NCLBUTTONDOWN %lu, %d, %u\n", msg.hwnd, msg.wParam, msg.lParam); */
+          traceEvent(printf("WM_NCLBUTTONDOWN hwnd=%lu, msg.wParam=%d, lParam=%u, "
+                            "SHIFT=%hx, CONTROL=%hx, MENU=%hx\n",
+                            msg.hwnd, msg.wParam, msg.lParam, GetKeyState(VK_SHIFT),
+                            GetKeyState(VK_CONTROL), GetKeyState(VK_MENU)););
           TranslateMessage(&msg);
           DispatchMessage(&msg);
           if (msg.wParam == HTCLOSE && !IsWindow(msg.hwnd)) {
@@ -426,13 +460,15 @@ charType gkbGetc (void)
             exit(1);
           } /* if */
         } else if (msg.message == WM_CHAR) {
-          /* printf("WM_CHAR %lu, %d, %u\n", msg.hwnd, msg.wParam, msg.lParam); */
+          traceEvent(printf("WM_CHAR hwnd=%lu, msg.wParam=%d, lParam=%u\n",
+                            msg.hwnd, msg.wParam, msg.lParam););
           result = msg.wParam;
           if (result >= 128 && result <= 159) {
             result = map_1252_to_unicode[result - 128];
           } /* if */
         } else {
-          /* printf("message=%d %lu, %d, %u\n", msg.message, msg.hwnd, msg.wParam, msg.lParam); */
+          traceEvent(printf("message=%d, hwnd=%lu, msg.wParam=%d, lParam=%u\n",
+                            msg.hwnd, msg.wParam, msg.lParam););
           TranslateMessage(&msg);
           /* printf("translated message=%d %lu, %d %u\n", msg.message, msg.hwnd, msg.wParam, msg.lParam); */
           DispatchMessage(&msg);
@@ -491,6 +527,7 @@ boolType gkbKeyPressed (void)
         case WM_MBUTTONDOWN:
         case WM_RBUTTONDOWN:
         case WM_MOUSEWHEEL:
+        case WM_XBUTTONDOWN:
           /* printf("gkbKeyPressed --> TRUE for message %d\n", msg.message); */
           msg_present = 0;
           result = TRUE;

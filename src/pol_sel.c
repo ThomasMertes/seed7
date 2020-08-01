@@ -529,7 +529,7 @@ static void doPoll (const pollType pollData, struct timeval *timeout)
     if (unlikely(select_result < 0)) {
       logError(printf("doPoll: select(%d, *, *, NULL, " FMT_U_MEM ") failed:\n"
                       "%s=%d\nerror: %s\n",
-                      nfds, timeout, ERROR_INFORMATION););
+                      nfds, (memSizeType) timeout, ERROR_INFORMATION););
       raise_error(FILE_ERROR);
     } else {
       var_conv(pollData)->readTest.iterPos = 0;

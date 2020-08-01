@@ -43,6 +43,8 @@ const proc: writeHelp is func
     writeln("  ORACLE     OCI       Oracle");
     writeln("  ODBC                 Odbc");
     writeln("  FIREBIRD   FIRE      Firebird/Interbase");
+    writeln("  DB2                  Db2");
+    writeln("  SQL_SERVER SQLSRV    SQL Server");
     writeln;
     writeln("The database name (dbName) can be specified with or without host name:");
     writeln("  myDb");

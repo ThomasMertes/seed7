@@ -43,15 +43,17 @@ include "bstring.s7i";
  *  * DB_OCI Oracle
  *  * DB_ODBC Odbc
  *  * DB_FIRE Firebird/Interbase
+ *  * DB_DB2 Db2
+ *  * DB_SQL_SERVER SQL Server
  *)
 const type: dbCategory is new enum
-    NO_DB, DB_MYSQL, DB_SQLITE, DB_POSTGRESQL, DB_OCI, DB_ODBC, DB_FIRE
+    NO_DB, DB_MYSQL, DB_SQLITE, DB_POSTGRESQL, DB_OCI, DB_ODBC, DB_FIRE, DB_DB2, DB_SQL_SERVER
   end enum;
 
 
 const func string: str (in dbCategory: driver) is
   return [] ("NO_DB", "DB_MYSQL", "DB_SQLITE", "DB_POSTGRESQL",
-             "DB_OCI", "DB_ODBC", "DB_FIRE") [succ(ord(driver))];
+             "DB_OCI", "DB_ODBC", "DB_FIRE", "DB_DB2", "DB_SQL_SERVER") [succ(ord(driver))];
 
 
 const func dbCategory: dbCategory (in string: name) is func
@@ -79,6 +81,12 @@ const func dbCategory: dbCategory (in string: name) is func
           ucName = "FIREBIRD" or
           ucName = "INTERBASE" then
       driver := DB_FIRE;
+    elsif ucName = "DB2" then
+      driver := DB_DB2;
+    elsif ucName = "SQLSRV" or
+          ucName = "SQL_SERVER" or
+          ucName = "SQL SERVER" then
+      driver := DB_SQL_SERVER;
     end if;
   end func;
 
@@ -190,6 +198,14 @@ const func database: openDatabase (DB_OCI, in string: host,
 const func database: openDatabase (DB_FIRE, in string: host,
                                    in integer: port, in string: dbName,
                                    in string: user, in string: password) is action "SQL_OPEN_FIRE";
+
+const func database: openDatabase (DB_DB2, in string: host,
+                                   in integer: port, in string: dbName,
+                                   in string: user, in string: password) is action "SQL_OPEN_DB2";
+
+const func database: openDatabase (DB_SQL_SERVER, in string: host,
+                                   in integer: port, in string: dbName,
+                                   in string: user, in string: password) is action "SQL_OPEN_SQLSRV";
 
 (**
  *  Open database with ''host'', ''port'', ''dbName'' ''user'' and ''password''.
@@ -832,6 +848,10 @@ const func string: tableNamesCommand (in database: currDb,
       when {DB_ODBC}:       getTableNames := "SELECT table_name FROM information_schema.tables";
       when {DB_FIRE}:       getTableNames := "SELECT rdb$relation_name FROM rdb$relations \
                                              \WHERE rdb$view_blr IS NULL AND (rdb$system_flag IS NULL OR rdb$system_flag = 0)";
+      when {DB_DB2}:        getTableNames := "SELECT tabname FROM syscat.tables WHERE type = 'T' AND \
+                                             \tabschema=(SELECT current_schema FROM sysibm.sysdummy1)";
+      # when {DB_DB2}:        getTableNames := "SELECT name FROM sysibm.systables WHERE type = 'T'";
+      when {DB_SQL_SERVER}: getTableNames := "SELECT table_name FROM information_schema.tables";
     end case;
   end func;
 

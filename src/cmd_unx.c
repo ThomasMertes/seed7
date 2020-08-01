@@ -172,7 +172,7 @@ int setenv7 (const char *name, const char *value, int overwrite)
       len = strlen(name);
       if (environ7 != NULL) {
         for (p = environ7; (c = *p) != NULL; ++p) {
-          nameCount ++;
+          nameCount++;
           if (strncmp(c, name, len) == 0 && c[len] == '=') {
             if (overwrite) {
               if ((*p = realloc(*p, len + strlen(value) + 2)) == NULL) {
@@ -200,4 +200,42 @@ int setenv7 (const char *name, const char *value, int overwrite)
       } /* if */
     } /* if */
   } /* setenv7 */
+
+
+
+int unsetenv7 (const char *name)
+
+  {
+    size_t len;
+    char **p, *c;
+    char **found = NULL;
+    size_t nameCount = 0;
+
+  /* unsetenv7 */
+    if (name == NULL || name[0] == '\0' || strchr(name, '=') != NULL) {
+      errno = EINVAL;
+      return -1;
+    } else {
+      len = strlen(name);
+      if (environ7 != NULL) {
+        for (p = environ7; (c = *p) != NULL; ++p) {
+          nameCount++;
+          if (found == NULL && strncmp(c, name, len) == 0 && c[len] == '=') {
+            found = p;
+          } /* if */
+        } /* for */
+        if (found != NULL) {
+          if ((environ7 = realloc(environ7, sizeof(char *) * (nameCount))) == NULL) {
+            errno = ENOMEM;
+            return -1;
+          } else {
+            free(*found);
+            *found = environ7[nameCount - 1];
+            environ7[nameCount - 1] = NULL;
+          } /* if */
+        } /* if */
+      } /* if */
+      return 0;
+    } /* if */
+  } /* unsetenv7 */
 #endif

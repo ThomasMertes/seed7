@@ -1,3 +1,81 @@
+20191117:
+- Support for mice with forward and back button has been added to the
+  Seed7 run-time library. Many thanks go to Zachary Menzies, for
+  driving my focus towards mice with additional buttons.
+- Support for the C compiler from Visual Studio 2019 has been added.
+  Many thanks go to Alexander Yu. Vlasov for pointing out compilation
+  problems with Visual Studio 2019 and for investigating the problems.
+- Interpreter and compiler have been improved to support DB2 and SQL
+  Server databases.
+- In the manual the chapter about the database abstraction API has been
+  improved.
+- The compiler has been improved to optimize the function replace()
+  (action STR_REPL). Special functions (strChRepl() and strChChRepl())
+  are used, if the searched or the replaced string consist of one
+  character. This works even, if a character is converted to a string
+  with the function str().
+- Testcases for replace() have been added to chkstr.sd7.
+- The program bigfiles.sd7 has been improved to search for the biggest
+  directories additionally to the biggest files.
+- The libraries keybd.s7i and keydescr.s7i have been improved to
+  support KEY_MOUSE_FWD and KEY_MOUSE_BACK.
+- The library sql_base.s7i and the programs db7.sd7 and sql7.sd7 have
+  been improved to support DB_DB2 and DB_SQL_SERVER.
+- In striutl.c the function stri_to_standard_path() has been improved,
+  to do a smarter mapping from a DOS/Windows path to the Seed7 standard
+  path representation.
+- In osfiles.s7i the functions makeParentDirs() and convDosPath() have
+  been improved. Now convDosPath() and stri_to_standard_path() use the
+  same algorithm to map from a DOS/Windows path to the Seed7 standard
+  path representation.
+- The function strChChRepl() has been added to str_rtl.c.
+- The program chkccomp.c has been improved to define the macros
+  REMOVE_REATTEMPTS, SETENV_ALLOWS_KEY_WITH_EQUALS_SIGN and
+  GETENV_ALLOWS_KEY_WITH_EQUALS_SIGN.
+- The functions determineDb2Defines() and determineSqlServerDefines()
+  have been added to chkccomp.c.
+- The names of database DLLs (shared libraries) has been moved from
+  the makefiles to chkccomp.c.
+- The database driver sql_odbc.c has been refactored to be based on
+  sql_cli.c. Most of the contents of sql_odbc.c has been moved to
+  sql_cli.c and sql_odbc.c now includes sql_cli.c.
+- The new database drivers sql_db2.c (for DB2) and sql_srv.c (for SQL
+  Server) have been added. Like sql_odbc.c this drivers also include
+  sql_cli.c.
+- In cmd_rtl.c the function cmdChdir() has been improved to use an
+  extended length path only, if it is absolutely necessary. In Windows
+  an extended length path starts with \\?\ and can have a length
+  greater equal 260. Many subprocesses cannot handle a current working
+  directory with an extended length path.
+- The makefiles mk_msvc.mak and mk_clangw.mak have been improved to
+  write INI files with all environment variables. The INI files are
+  seed7/bin/cl_env.ini and seed7/bin/clangenv.ini. This INI files
+  contain the environment variables necessary to use the C compiler.
+- The program setpaths.c has been improved to optionally write a
+  definition of the macro CC_ENVIRONMENT_INI to version.h. The macro
+  CC_ENVIRONMENT_INI defines the path of seed7/bin/cl_env.ini or
+  seed7/bin/clangenv.ini.
+- Support for the configuration values CC_ENVIRONMENT_INI and
+  DATABASE_LIB has been added to cc_conf.s7i and cmd_rtl.c (in
+  cmdConfigValue()).
+- The function unsetenv7() has been added to cmd_unx.c.
+- In gkb_x11.c and gkb_x11.c the functions gkbGetc() and
+  gkbKeyPressed() have been improved to support KEY_MOUSE_FWD and
+  KEY_MOUSE_BACK. Additionally the macro TRACE_EVENTS, to optionally
+  trace events has been introduced.
+- The makefiles have been improved to create the new library s7_db.a
+  (s7_db.lib), which contains all database drivers.
+- The files sql_cli.c (former sql_odbc.c) and sql_fire.c have been
+  improved to reduce the number of C compiler warnings.
+- In sql_cli.c (former sql_odbc.c) the function setDbErrorMsg() has
+  been improved to work for database error messages with Unicode
+  characters. The function wstri_to_cstri8() has been added to do the
+  conversion.
+- The file db_odbc.h has been improved to define wide character
+  functions instead of ASCII functions. This was needed by sql_srv.c
+  because it links dynamically to sqlsrv32.dll, which only defines
+  wide character functions.
+
 20191020:
 - The support for Emscripten has been improved to allow the compilation
   of Seed7 programs.

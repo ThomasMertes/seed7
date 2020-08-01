@@ -184,6 +184,8 @@
 #define K_MOUSE3     (KEYCODE_BASE + 249)
 #define K_MOUSE4     (KEYCODE_BASE + 250)
 #define K_MOUSE5     (KEYCODE_BASE + 251)
+#define K_MOUSE_FWD  (KEYCODE_BASE + 252)
+#define K_MOUSE_BACK (KEYCODE_BASE + 253)
 #define K_UNDEF      (KEYCODE_BASE + 255)
 #define K_NONE       (KEYCODE_BASE + 256)
 

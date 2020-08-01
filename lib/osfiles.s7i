@@ -526,10 +526,7 @@ const proc: makeParentDirs (in string: filePath) is func
     var integer: slashPos is 0;
     var string: dirPath is "";
   begin
-    slashPos := pos(filePath, '/');
-    if slashPos = 1 then
-      slashPos := pos(filePath, '/', succ(slashPos));
-    end if;
+    slashPos := pos(filePath, '/', 2);
     while slashPos <> 0 do
       dirPath := filePath[.. pred(slashPos)];
       if fileTypeSL(dirPath) = FILE_ABSENT then
@@ -551,17 +548,20 @@ const func string: convDosPath (in string: path) is func
     # Path delimiter is slash
     stdPath := replace(path, "\\", "/");
     # Convert drive letters to standard path
-    if (length(stdPath) = 2 or (length(stdPath) >= 3 and stdPath[3] = '/')) and
-        stdPath[2] = ':' and lower(stdPath[1]) >= 'a' and lower(stdPath[1]) <= 'z' then
+    if length(stdPath) >= 2 and stdPath[2] = ':' and
+        lower(stdPath[1]) >= 'a' and lower(stdPath[1]) <= 'z' then
       stdPath @:= [2] lower(stdPath[1]);
       stdPath @:= [1] '/';
+      if length(stdPath) >= 3 and stdPath[3] <> '/' then
+        stdPath := stdPath[.. 2] & "/" & stdPath[3 ..];
+      end if;
     end if;
     # Remove double slashes
     stdPath := replaceN(stdPath, "//", "/");
     # Remove slash at end of path
-    while stdPath <> "/" and endsWith(stdPath, "/") do
+    if stdPath <> "/" and endsWith(stdPath, "/") then
       stdPath := stdPath[.. pred(length(stdPath))];
-    end while;
+    end if;
   end func;
 
 

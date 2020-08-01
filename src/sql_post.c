@@ -292,7 +292,8 @@ static boolType findDll (void)
       found = setupDll(dllList[pos]);
     } /* for */
     if (!found) {
-      dllErrorMessage("sqlOpenPost", "findDll", dllList, sizeof(dllList));
+      dllErrorMessage("sqlOpenPost", "findDll", dllList,
+                      sizeof(dllList) / sizeof(char *));
     } /* if */
     return found;
   } /* findDll */
@@ -3443,7 +3444,7 @@ databaseType sqlOpenPost (const const_striType host, intType port,
               memset(database, 0, sizeof(dbRecord));
               database->usage_count = 1;
               database->sqlFunc = sqlFunc;
-              database->driver = 3; /* PostgreSQL */
+              database->driver = DB_CATEGORY_POSTGRESQL;
               database->connection = db.connection;
               setting = PQparameterStatus(db.connection, "integer_datetimes");
               database->integerDatetimes = setting != NULL && strcmp(setting, "on") == 0;
