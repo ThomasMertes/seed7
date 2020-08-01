@@ -37,6 +37,9 @@
 #include "stdlib.h"
 #include "stdio.h"
 
+#ifdef X11_INCLUDE
+#include X11_INCLUDE
+#else
 #include <X11/X.h>
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
@@ -45,6 +48,7 @@
 #include <X11/keysymdef.h>
 #endif
 #include <X11/keysym.h>
+#endif
 
 #include "common.h"
 #include "data_rtl.h"

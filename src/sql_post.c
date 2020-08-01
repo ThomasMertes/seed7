@@ -232,20 +232,29 @@ static boolType setupDll (const char *dllName)
   /* setupDll */
     logFunction(printf("setupDll(\"%s\")\n", dllName););
     if (dbDll == NULL) {
-#if defined LIBINTL_DLL || defined LIBEAY32_DLL
-      if (TRUE
 #ifdef LIBINTL_DLL
-          && (dllOpen(LIBINTL_DLL_PATH) != NULL || dllOpen(LIBINTL_DLL) != NULL)
+      {
+        const char *libIntlDllList[] = { LIBINTL_DLL };
+        unsigned int pos;
+        boolType found = FALSE;
+
+        for (pos = 0; pos < sizeof(libIntlDllList) / sizeof(char *) && !found; pos++) {
+          found = setupDll(libIntlDllList[pos]);
+        } /* for */
+      }
 #endif
 #ifdef LIBEAY32_DLL
-          && (dllOpen(LIBEAY32_DLL_PATH) != NULL || dllOpen(LIBEAY32_DLL) != NULL)
+      {
+        const char *libeay32DllList[] = { LIBEAY32_DLL };
+        unsigned int pos;
+        boolType found = FALSE;
+
+        for (pos = 0; pos < sizeof(libeay32DllList) / sizeof(char *) && !found; pos++) {
+          found = setupDll(libeay32DllList[pos]);
+        } /* for */
+      }
 #endif
-      ) {
-        dbDll = dllOpen(dllName);
-      } /* if */
-#else
       dbDll = dllOpen(dllName);
-#endif
       if (dbDll != NULL) {
         if ((PQclear              = (tp_PQclear)              dllFunc(dbDll, "PQclear"))              == NULL ||
             (PQdescribePrepared   = (tp_PQdescribePrepared)   dllFunc(dbDll, "PQdescribePrepared"))   == NULL ||

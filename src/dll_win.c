@@ -38,6 +38,7 @@
 #include "windows.h"
 
 #include "common.h"
+#include "heaputl.h"
 #include "dll_drv.h"
 
 
@@ -49,10 +50,33 @@
 void *dllOpen (const char *dllName)
 
   {
+    memSizeType nameLength;
+    char *dllPath;
+    memSizeType pos;
     void *aDll;
 
   /* dllOpen */
-    aDll = (void *) LoadLibrary(dllName);
+    if (strchr(dllName, '/') != NULL) {
+      /* LoadLibrary() needs a path with backslashes (\) */
+      /* instead of forward slashes (/). */
+      nameLength = strlen(dllName);
+      if (unlikely(!ALLOC_CSTRI(dllPath, nameLength))) {
+        aDll = NULL;
+      } else {
+        for (pos = 0; pos < nameLength; pos++) {
+          if (dllName[pos] == '/') {
+            dllPath[pos] = '\\';
+	      } else {
+            dllPath[pos] = dllName[pos];
+          } /* if */
+        } /* for */
+        dllPath[nameLength] = '\0';
+        aDll = (void *) LoadLibrary(dllPath);
+        UNALLOC_CSTRI(dllPath, nameLength);
+      } /* if */
+    } else {
+      aDll = (void *) LoadLibrary(dllName);
+    } /* if */
     logError(if (unlikely(aDll == NULL)) {
                printf("LoadLibrary(\"%s\") failed:\n"
                       "error: " FMT_U32 "\n",

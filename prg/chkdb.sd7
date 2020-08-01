@@ -65,6 +65,7 @@ const func string: int8Type (in dbCategory: databaseKind) is func
       when {DB_OCI}:        int8Type := "SMALLINT";
       when {DB_ODBC}:       int8Type := "TINYINT";
       when {DB_FIRE}:       int8Type := "SMALLINT";
+      when {DB_SQL_SERVER}: int8Type := "TINYINT";
     end case;
   end func;
 
@@ -80,6 +81,7 @@ const func integer: maxInt8Value (in dbCategory: databaseKind) is func
       when {DB_OCI}:        maxInt8Value := 127;
       when {DB_ODBC}:       maxInt8Value := 255;
       when {DB_FIRE}:       maxInt8Value := 127;
+      when {DB_SQL_SERVER}: maxInt8Value := 255;
     end case;
   end func;
 
@@ -95,6 +97,7 @@ const func string: int64Type (in dbCategory: databaseKind) is func
       when {DB_OCI}:        int64Type := "INTEGER";
       when {DB_ODBC}:       int64Type := "BIGINT";
       when {DB_FIRE}:       int64Type := "BIGINT";
+      when {DB_SQL_SERVER}: int64Type := "BIGINT";
     end case;
   end func;
 
@@ -110,6 +113,7 @@ const func boolean: withRangeCheck (in dbCategory: databaseKind) is func
       when {DB_OCI}:        withRangeCheck := FALSE;
       when {DB_ODBC}:       withRangeCheck := TRUE;
       when {DB_FIRE}:       withRangeCheck := TRUE;
+      when {DB_SQL_SERVER}: withRangeCheck := TRUE;
     end case;
   end func;
 
@@ -125,6 +129,7 @@ const func string: bigIntType (in dbCategory: databaseKind) is func
       when {DB_OCI}:        bigIntType := "DECIMAL";
       when {DB_ODBC}:       bigIntType := "DECIMAL(38)";
       when {DB_FIRE}:       bigIntType := "DECIMAL(18)";
+      when {DB_SQL_SERVER}: bigIntType := "DECIMAL(38)";
     end case;
   end func;
 
@@ -140,6 +145,7 @@ const func integer: sqlIntLiteralBits (in dbCategory: databaseKind) is func
       when {DB_OCI}:        sqlIntLiteralBits := 127;
       when {DB_ODBC}:       sqlIntLiteralBits := 127;
       when {DB_FIRE}:       sqlIntLiteralBits := 64;
+      when {DB_SQL_SERVER}: sqlIntLiteralBits := 127;
     end case;
   end func;
 
@@ -155,6 +161,7 @@ const func integer: bigIntTypeBits (in dbCategory: databaseKind) is func
       when {DB_OCI}:        bigIntTypeBits := 127;
       when {DB_ODBC}:       bigIntTypeBits := 127;
       when {DB_FIRE}:       bigIntTypeBits := 64;
+      when {DB_SQL_SERVER}: bigIntTypeBits := 127;
     end case;
   end func;
 
@@ -170,6 +177,7 @@ const func string: floatType (in dbCategory: databaseKind) is func
       when {DB_OCI}:        floatType := "FLOAT";
       when {DB_ODBC}:       floatType := "REAL";
       when {DB_FIRE}:       floatType := "FLOAT";
+      when {DB_SQL_SERVER}: floatType := "REAL";
     end case;
   end func;
 
@@ -185,6 +193,7 @@ const func string: doubleType (in dbCategory: databaseKind) is func
       when {DB_OCI}:        doubleType := "DOUBLE PRECISION";
       when {DB_ODBC}:       doubleType := "DOUBLE PRECISION";
       when {DB_FIRE}:       doubleType := "DOUBLE PRECISION";
+      when {DB_SQL_SERVER}: doubleType := "DOUBLE PRECISION";
     end case;
   end func;
 
@@ -200,6 +209,7 @@ const func string: bigRatType (in dbCategory: databaseKind) is func
       when {DB_OCI}:        bigRatType := "NUMBER";
       when {DB_ODBC}:       bigRatType := "NUMERIC(38,15)";
       when {DB_FIRE}:       bigRatType := "DECIMAL(18, 9)";
+      when {DB_SQL_SERVER}: bigRatType := "NUMERIC(38,15)";
     end case;
   end func;
 
@@ -215,6 +225,7 @@ const func string: decimalIntType (in dbCategory: databaseKind) is func
       when {DB_OCI}:        decimalType := "NUMBER(38)";    # NUMBER(p),  1 <= p <= 38
       when {DB_ODBC}:       decimalType := "DECIMAL(38)";   # DECIMAL(p), 1 <= p <= 38
       when {DB_FIRE}:       decimalType := "DECIMAL(18)";   # DECIMAL(p), 1 <= p <= 18
+      when {DB_SQL_SERVER}: decimalType := "DECIMAL(38)";   # DECIMAL(p), 1 <= p <= 38
     end case;
   end func;
 
@@ -230,6 +241,7 @@ const func integer: maxDecimalPrecision (in dbCategory: databaseKind) is func
       when {DB_OCI}:        precision := 38;
       when {DB_ODBC}:       precision := 38;
       when {DB_FIRE}:       precision := 18;
+      when {DB_SQL_SERVER}: precision := 38;
     end case;
   end func;
 
@@ -245,6 +257,7 @@ const func integer: maxDecimalLiteralPrecision (in dbCategory: databaseKind) is 
       when {DB_OCI}:        precision := 38;
       when {DB_ODBC}:       precision := 38;
       when {DB_FIRE}:       precision := 18;
+      when {DB_SQL_SERVER}: precision := 38;
     end case;
   end func;
 
@@ -260,6 +273,7 @@ const func string: numericIntType (in dbCategory: databaseKind) is func
       when {DB_OCI}:        numericType := "NUMBER(38)";    # NUMBER(p),  1 <= p <= 38
       when {DB_ODBC}:       numericType := "NUMERIC(38)";   # NUMERIC(p), 1 <= p <= 38
       when {DB_FIRE}:       numericType := "NUMERIC(18)";   # NUMERIC(p), 1 <= p <= 18
+      when {DB_SQL_SERVER}: numericType := "NUMERIC(38)";   # NUMERIC(p), 1 <= p <= 38
      end case;
   end func;
 
@@ -275,6 +289,7 @@ const func integer: maxNumericPrecision (in dbCategory: databaseKind) is func
       when {DB_OCI}:        precision := 38;
       when {DB_ODBC}:       precision := 38;
       when {DB_FIRE}:       precision := 18;
+      when {DB_SQL_SERVER}: precision := 38;
      end case;
   end func;
 
@@ -290,6 +305,7 @@ const func integer: maxNumericLiteralPrecision (in dbCategory: databaseKind) is 
       when {DB_OCI}:        precision := 38;
       when {DB_ODBC}:       precision := 38;
       when {DB_FIRE}:       precision := 18;
+      when {DB_SQL_SERVER}: precision := 38;
     end case;
   end func;
 
@@ -305,6 +321,7 @@ const func string: decimalType (in dbCategory: databaseKind, in integer: scale) 
       when {DB_OCI}:        decimalType := "NUMBER(38," <& scale <& ")";    # NUMBER(p,s),  1 <= p <= 38, -84 <= s <= 127
       when {DB_ODBC}:       decimalType := "DECIMAL(38," <& scale <& ")";   # DECIMAL(p,s), 1 <= p <= 38, 0 <= s <= p
       when {DB_FIRE}:       decimalType := "DECIMAL(18," <& scale <& ")";   # DECIMAL(p,s), 1 <= p <= 18, 0 <= s <= p
+      when {DB_SQL_SERVER}: decimalType := "DECIMAL(38," <& scale <& ")";   # DECIMAL(p,s), 1 <= p <= 38, 0 <= s <= p
     end case;
   end func;
 
@@ -320,6 +337,7 @@ const func integer: minDecimalScale (in dbCategory: databaseKind) is func
       when {DB_OCI}:        scale := -84;
       when {DB_ODBC}:       scale := 0;
       when {DB_FIRE}:       scale := 0;
+      when {DB_SQL_SERVER}: scale := 0;
     end case;
   end func;
 
@@ -335,6 +353,7 @@ const func integer: maxDecimalScale (in dbCategory: databaseKind) is func
       when {DB_OCI}:        scale := 127;  # The scale can be bigger than the precision.
       when {DB_ODBC}:       scale := 38;
       when {DB_FIRE}:       scale := 18;
+      when {DB_SQL_SERVER}: scale := 38;
     end case;
   end func;
 
@@ -350,6 +369,7 @@ const func string: numericType (in dbCategory: databaseKind, in integer: scale) 
       when {DB_OCI}:        numericType := "NUMBER(38," <& scale <& ")";    # NUMBER(p,s),  1 <= p <= 38, -84 <= s <= 127
       when {DB_ODBC}:       numericType := "NUMERIC(38," <& scale <& ")";   # NUMERIC(p,s), 1 <= p <= 38, 0 <= s <= p
       when {DB_FIRE}:       numericType := "NUMERIC(18," <& scale <& ")";   # NUMERIC(p,s), 1 <= p <= 18, 0 <= s <= p
+      when {DB_SQL_SERVER}: numericType := "NUMERIC(38," <& scale <& ")";   # NUMERIC(p,s), 1 <= p <= 38, 0 <= s <= p
      end case;
   end func;
 
@@ -365,6 +385,7 @@ const func integer: minNumericScale (in dbCategory: databaseKind) is func
       when {DB_OCI}:        scale := -84;
       when {DB_ODBC}:       scale := 0;
       when {DB_FIRE}:       scale := 0;
+      when {DB_SQL_SERVER}: scale := 0;
     end case;
   end func;
 
@@ -380,6 +401,7 @@ const func integer: maxNumericScale (in dbCategory: databaseKind) is func
       when {DB_OCI}:        scale := 127;  # The scale can be bigger than the precision.
       when {DB_ODBC}:       scale := 38;
       when {DB_FIRE}:       scale := 18;
+      when {DB_SQL_SERVER}: scale := 38;
     end case;
   end func;
 
@@ -395,6 +417,7 @@ const func char: maxChar1FieldCharacter (in dbCategory: databaseKind) is func
       when {DB_OCI}:        maxChar1FieldCharacter := char.last;
       when {DB_ODBC}:       maxChar1FieldCharacter := char.last;
       when {DB_FIRE}:       maxChar1FieldCharacter := '\127;';
+      when {DB_SQL_SERVER}: maxChar1FieldCharacter := char.last;
     end case;
   end func;
 
@@ -410,6 +433,7 @@ const func boolean: charFieldPreservesTrailingSpaces (in dbCategory: databaseKin
       when {DB_OCI}:        charFieldPreservesTrailingSpaces := FALSE;
       when {DB_ODBC}:       charFieldPreservesTrailingSpaces := FALSE;
       when {DB_FIRE}:       charFieldPreservesTrailingSpaces := FALSE;
+      when {DB_SQL_SERVER}: charFieldPreservesTrailingSpaces := FALSE;
     end case;
   end func;
 
@@ -425,6 +449,7 @@ const func boolean: nullAllowedInStringLiteral (in dbCategory: databaseKind) is 
       when {DB_OCI}:        nullAllowedInStringLiteral := TRUE;
       when {DB_ODBC}:       nullAllowedInStringLiteral := FALSE;
       when {DB_FIRE}:       nullAllowedInStringLiteral := TRUE;
+      when {DB_SQL_SERVER}: nullAllowedInStringLiteral := FALSE;
     end case;
   end func;
 
@@ -440,6 +465,7 @@ const func boolean: nullAllowedInString (in dbCategory: databaseKind) is func
       when {DB_OCI}:        nullAllowedInString := TRUE;
       when {DB_ODBC}:       nullAllowedInString := FALSE;
       when {DB_FIRE}:       nullAllowedInString := TRUE;
+      when {DB_SQL_SERVER}: nullAllowedInString := FALSE;
     end case;
   end func;
 
@@ -455,6 +481,7 @@ const func string: varcharType (in dbCategory: databaseKind) is func
       when {DB_OCI}:        varcharType := "VARCHAR2";
       when {DB_ODBC}:       varcharType := "VARCHAR";
       when {DB_FIRE}:       varcharType := "VARCHAR";
+      when {DB_SQL_SERVER}: varcharType := "VARCHAR";
     end case;
   end func;
 
@@ -470,6 +497,7 @@ const func string: blobType (in dbCategory: databaseKind) is func
       when {DB_OCI}:        blobType := "BLOB";
       when {DB_ODBC}:       blobType := "VARBINARY(MAX)";
       when {DB_FIRE}:       blobType := "BLOB";
+      when {DB_SQL_SERVER}: blobType := "VARBINARY(MAX)";
     end case;
   end func;
 
@@ -485,6 +513,7 @@ const func string: clobType (in dbCategory: databaseKind) is func
       when {DB_OCI}:        clobType := "CLOB";
       when {DB_ODBC}:       clobType := "VARCHAR(MAX)";
       when {DB_FIRE}:       clobType := "BLOB SUB_TYPE TEXT";
+      when {DB_SQL_SERVER}: clobType := "VARCHAR(MAX)";
     end case;
   end func;
 
@@ -500,6 +529,7 @@ const func string: timeType (in dbCategory: databaseKind) is func
       when {DB_OCI}:        timeType := "TIMESTAMP WITH TIME ZONE";
       when {DB_ODBC}:       timeType := "DATETIME2";
       when {DB_FIRE}:       timeType := "TIMESTAMP";
+      when {DB_SQL_SERVER}: timeType := "DATETIME2";
     end case;
   end func;
 
@@ -515,6 +545,7 @@ const func string: durationType (in dbCategory: databaseKind) is func
       when {DB_OCI}:        durationType := "INTERVAL DAY TO SECOND";
       when {DB_ODBC}:       durationType := "DATETIMEOFFSET"; # "INTERVAL DAY(3) TO SECOND(6)";
       when {DB_FIRE}:       durationType := "TIMESTAMP";
+      when {DB_SQL_SERVER}: durationType := "DATETIMEOFFSET"; # "INTERVAL DAY(3) TO SECOND(6)";
     end case;
   end func;
 
@@ -529,6 +560,7 @@ const func boolean: supportsFloatingDecimals (in dbCategory: databaseKind) is fu
       when {DB_POSTGRESQL}: supportsFloatingDecimals := TRUE;
       when {DB_OCI}:        supportsFloatingDecimals := TRUE;
       when {DB_ODBC}:       supportsFloatingDecimals := FALSE;
+      when {DB_SQL_SERVER}: supportsFloatingDecimals := FALSE;
     end case;
   end func;
 

@@ -34,6 +34,10 @@
  *      Contains the command to call the stand-alone C compiler and linker.
  *  INCLUDE_OPTIONS:
  *      Options to specify include directories.
+ *  DB2_INCLUDE_OPTION:
+ *      Option to specify the include directory of DB2.
+ *  SQL_SERVER_INCLUDE_OPTION:
+ *      Option to specify the include directory of SQL Server.
  */
 
 #include "stdlib.h"
@@ -134,23 +138,42 @@ void writeOptionList (const char *optionList, char *command)
 int main (int argc, char **argv)
 
   {
-    int idx;
+    int idx = 1;
+    char *curr_arg;
+    char *include_option;
     char command[COMMAND_SIZE];
 
   /* main */
     prepareCompileCommand();
     sprintf(command, "%s", c_compiler);
-    writeOptionList(INCLUDE_OPTIONS, command);
-    for (idx = 1; idx < argc; idx++) {
+    curr_arg = argv[idx];
+    if (memcmp(curr_arg, "OPTION=", 7 * sizeof(char)) == 0 &&
+        (curr_arg)[7] != '\0') {
+      /* fprintf(stderr, "arg[%d]: %s\n", idx, curr_arg); */
+      include_option = &(curr_arg)[7];
+      if (strcmp(include_option, "DB2_INCLUDE_OPTION") == 0 &&
+          DB2_INCLUDE_OPTION[0] != '\0') {
+        writeOptionList(DB2_INCLUDE_OPTION, command);
+      } else if (strcmp(include_option, "SQL_SERVER_INCLUDE_OPTION") == 0 &&
+          SQL_SERVER_INCLUDE_OPTION[0] != '\0') {
+        writeOptionList(SQL_SERVER_INCLUDE_OPTION, command);
+      } else if (strcmp(include_option, "INCLUDE_OPTIONS") == 0 &&
+          INCLUDE_OPTIONS[0] != '\0') {
+        writeOptionList(INCLUDE_OPTIONS, command);
+      } /* if */
+      idx++;
+    } /* if */
+    for (; idx < argc; idx++) {
+      curr_arg = argv[idx];
       strcat(command, " ");
-      if (strchr(argv[idx], ' ') != NULL && argv[idx][0] != '>') {
+      if (strchr(curr_arg, ' ') != NULL && curr_arg[0] != '>') {
         strcat(command, "\"");
-        strcat(command, argv[idx]);
+        strcat(command, curr_arg);
         strcat(command, "\"");
       } else {
-        strcat(command, argv[idx]);
+        strcat(command, curr_arg);
       } /* if */
-      /* fprintf(stderr, "arg[%d]: %s\n", idx, argv[idx]); */
+      /* fprintf(stderr, "arg[%d]: %s\n", idx, curr_arg); */
     } /* for */
     /* fprintf(stderr, "command: %s\n", command); */
     system(command);

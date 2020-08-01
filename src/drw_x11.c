@@ -41,11 +41,15 @@
 
 #undef WITH_XSHAPE_EXTENSION
 
+#ifdef X11_INCLUDE
+#include X11_INCLUDE
+#else
 #include <X11/X.h>
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 #ifdef WITH_XSHAPE_EXTENSION
 #include <X11/extensions/shape.h>
+#endif
 #endif
 
 #include "common.h"
@@ -61,6 +65,12 @@
 
 #ifndef C_PLUS_PLUS
 #define c_class class
+#endif
+
+#if FORWARD_X11_CALLS
+boolType findX11Dll (void);
+#else
+#define findX11Dll() TRUE
 #endif
 
 
@@ -315,11 +325,13 @@ static void drawInit (void)
 
   /* drawInit */
     logFunction(printf("drawInit()\n"););
-    /* If linking with a profiling standard library XOpenDisplay */
-    /* deadlocked. Be careful to avoid this situation.           */
-    mydisplay = XOpenDisplay("");
-    /* printf("mydisplay = %lu\n", (long unsigned) mydisplay); */
-    /* printf("DISPLAY=%s\n", getenv("DISPLAY")); */
+    if (findX11Dll()) {
+      /* If linking with a profiling standard library XOpenDisplay */
+      /* deadlocked. Be careful to avoid this situation.           */
+      mydisplay = XOpenDisplay("");
+      /* printf("mydisplay = %lu\n", (long unsigned) mydisplay); */
+      /* printf("DISPLAY=%s\n", getenv("DISPLAY")); */
+    } /* if */
     if (mydisplay != NULL) {
       myscreen = DefaultScreen(mydisplay);
       /* printf("myscreen = %lu\n", (long unsigned) myscreen); */
@@ -398,11 +410,12 @@ static void setupBackup (x11_winType result)
     XWindowAttributes attribs;
 
   /* setupBackup */
+    logFunction(printf("setupBackup()\n"););
     x_screen = XScreenOfDisplay(mydisplay, myscreen);
     /* printf("backing_store=%d (NotUseful=%d/WhenMapped=%d/Always=%d)\n",
         x_screen->backing_store, NotUseful, WhenMapped, Always); */
-    if (x_screen->backing_store != NotUseful) {
-      attributes.backing_store = x_screen->backing_store;
+    if (DoesBackingStore(x_screen) != NotUseful) {
+      attributes.backing_store = DoesBackingStore(x_screen);
       XChangeWindowAttributes(mydisplay, result->window,
           CWBackingStore, &attributes);
       if (XGetWindowAttributes(mydisplay, result->window, &attribs) == 0 ||
@@ -419,6 +432,7 @@ static void setupBackup (x11_winType result)
           (unsigned int) DefaultDepth(mydisplay, myscreen));
       /* printf("backup=%lu\n", (long unsigned) result->backup); */
     } /* if */
+    logFunction(printf("setupBackup -->\n"););
   } /* setupBackup */
 
 
@@ -1075,6 +1089,7 @@ winType drwImage (int32Type *image_data, memSizeType width, memSizeType height)
         drawInit();
       } /* if */
       if (unlikely(mydisplay == NULL)) {
+        logError(printf("drwImage: drawInit() failed to open a display.\n"););
         raise_error(FILE_ERROR);
         result = NULL;
       } else {
@@ -1160,6 +1175,7 @@ winType drwNewPixmap (intType width, intType height)
         drawInit();
       } /* if */
       if (unlikely(mydisplay == NULL)) {
+        logError(printf("drwNewPixmap: drawInit() failed to open a display.\n"););
         raise_error(FILE_ERROR);
         result = NULL;
       } else {
@@ -1339,6 +1355,7 @@ winType drwOpenSubWindow (const_winType parent_window, intType xPos, intType yPo
         drawInit();
       } /* if */
       if (unlikely(mydisplay == NULL)) {
+        logError(printf("drwOpenSubWindow: drawInit() failed to open a display.\n"););
         raise_error(FILE_ERROR);
       } else {
         if (ALLOC_RECORD(result, x11_winRecord, count.win)) {

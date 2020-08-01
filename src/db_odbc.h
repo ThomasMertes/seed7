@@ -249,10 +249,10 @@ typedef SQLHANDLE SQLHWND;
 #define SQL_ARD_TYPE (-99)
 
 /* Used by SQLGetFunctions() */
-#define SQL_API_SQLDESCRIBEPARAM    58
+#define SQL_API_SQLDESCRIBEPARAM       58
 
-/* Used by SQLGetInfo() */
-#define SQL_MAX_CONCURRENT_ACTIVITIES        1
+/* Used by SQLGetInfoW() */
+#define SQL_MAX_CONCURRENT_ACTIVITIES   1
 
 #ifndef STDCALL
 #if defined(_WIN32) && HAS_STDCALL
@@ -372,11 +372,6 @@ SQLRETURN STDCALL SQLGetDiagRecW (SQLSMALLINT  handleType,
 SQLRETURN STDCALL SQLGetFunctions (SQLHDBC       connectionHandle,
                                    SQLUSMALLINT  functionId,
                                    SQLUSMALLINT *supportedPtr);
-SQLRETURN STDCALL SQLGetInfo (SQLHDBC      connectionHandle,
-                              SQLUSMALLINT infoType,
-                              SQLPOINTER   infoValuePtr,
-                              SQLSMALLINT  bufferLength,
-                              SQLSMALLINT *stringLengthPtr);
 SQLRETURN STDCALL SQLGetInfoW (SQLHDBC      connectionHandle,
                                SQLUSMALLINT infoType,
                                SQLPOINTER   infoValuePtr,
@@ -387,8 +382,6 @@ SQLRETURN STDCALL SQLGetStmtAttrW (SQLHSTMT    statementHandle,
                                    SQLPOINTER  value,
                                    SQLINTEGER  bufferLength,
                                    SQLINTEGER *stringLength);
-SQLRETURN STDCALL SQLGetTypeInfo (SQLHSTMT    statementHandle,
-                                  SQLSMALLINT dataType);
 SQLRETURN STDCALL SQLGetTypeInfoW (SQLHSTMT    statementHandle,
                                    SQLSMALLINT dataType);
 SQLRETURN STDCALL SQLNumParams(SQLHSTMT     statementHandle,

@@ -444,7 +444,8 @@ PACKAGES FOR DATABASES UNDER LINUX
   - Sqlite:      sqlite3
   - PostgreSql:  postgresql
   - ODBC:        unixODBC
-  - Firebird     firebird
+  - Firebird:    firebird
+  - SQL Server:  libtdsodbc0
 
   The client libraries are sufficient for Seed7 to access the
   databases. Seed7 provides replacements for the C header files
@@ -457,7 +458,8 @@ PACKAGES FOR DATABASES UNDER LINUX
   - Sqlite:      sqlite3-devel
   - PostgreSql:  postgresql-devel
   - ODBC:        unixODBC-devel
-  - Firebird     libfbclient-devel
+  - Firebird:    libfbclient-devel
+  - SQL Server:  freetds-devel
 
 
 WHAT TO DO IF ERRORS HAPPEN DURING THE COMPILATION?
@@ -732,9 +734,11 @@ HOW TO VERIFY THAT THE INTERPRETER WORKS CORRECT?
     chkprc ........... okay
     chkbig ........... okay
     chkbool ........... okay
+    chkbitdata ........... okay
     chkset ........... okay
     chkhsh ........... okay
     chkexc ........... okay
+
 
   This verifies that interpreter and compiler work correct.
 
@@ -1318,12 +1322,23 @@ MACROS WRITTEN TO VERSION.H BY THE MAKEFILE
                           (e.g.: "-lmysqlclient") or the
                           multiprecision library (e.g.: "-lgmp").
 
-  DEFINE_COMMAND_LINE_TO_ARGV_W Defined if the function
-                                CommandLineToArgvW() is missing or
-                                buggy. In this case the definition
-                                of CommandLineToArgvW() in cmd_win.c
-                                is be used instead.
+  DEFINE_COMMAND_LINE_TO_ARGV_W: Defined if the function
+                                 CommandLineToArgvW() is missing or
+                                 buggy. In this case the definition
+                                 of CommandLineToArgvW() in
+                                 cmd_win.c is be used instead.
 
+  SUPPORTS_PARTIAL_LINKING: Defined in chkccomp.h, if partial
+                            linking (with the option -r) is
+                            supporded and the tool objcopy is
+                            present.
+
+  ALLOW_REPLACEMENT_OF_SYSTEM_HEADERS: Defined in chkccomp.h, if
+                                       system header files for X11
+                                       and ncurses can be replaced
+                                       with header files provided
+                                       by Seed7.
+  
 MACROS WRITTEN TO VERSION.H BY CHKCCOMP.C
 
     The program chkccomp.c is compiled and executed by the

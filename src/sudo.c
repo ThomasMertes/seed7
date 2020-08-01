@@ -64,6 +64,10 @@ int main (int argc, char *argv[])
           } /* for */
         } /* if */
         printf("%s %s\n", argv[1], parameters);
+        /* The result type of ShellExecuteA() is an HINSTANCE for   */
+        /* backward compatibility with 16-bit Windows applications. */
+        /* It is not a true HINSTANCE, however. It can be cast only */
+        /* to an int and compared to either 32 or an error code.    */
         returnValue = (int) ShellExecuteA(NULL, "runas", argv[1], parameters, NULL, SW_HIDE);
         /* printf("returnValue: %d\n", returnValue); */
         if (returnValue <= 32) {

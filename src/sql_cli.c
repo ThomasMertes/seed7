@@ -141,6 +141,8 @@ static sqlFuncType sqlFunc = NULL;
 
 #ifdef CLI_DLL
 
+#define FUNCTION_PRESENT(func) ((func) != NULL)
+  
 #ifndef STDCALL
 #if defined(_WIN32) && HAS_STDCALL
 #define STDCALL __stdcall
@@ -351,7 +353,11 @@ static boolType setupDll (const char *dllName)
         if ((SQLAllocHandle    = (tp_SQLAllocHandle)    dllFunc(dbDll, "SQLAllocHandle"))    == NULL ||
             (SQLBindCol        = (tp_SQLBindCol)        dllFunc(dbDll, "SQLBindCol"))        == NULL ||
             (SQLBindParameter  = (tp_SQLBindParameter)  dllFunc(dbDll, "SQLBindParameter"))  == NULL ||
+#ifdef ODBC_DRIVER_FUNCTIONS_NEEDED
             (SQLBrowseConnectW = (tp_SQLBrowseConnectW) dllFunc(dbDll, "SQLBrowseConnectW")) == NULL ||
+#else
+            (SQLBrowseConnectW = (tp_SQLBrowseConnectW) dllFunc(dbDll, "SQLBrowseConnectW"),  FALSE) ||
+#endif
             (SQLColAttributeW  = (tp_SQLColAttributeW)  dllFunc(dbDll, "SQLColAttributeW"))  == NULL ||
             (SQLConnectW       = (tp_SQLConnectW)       dllFunc(dbDll, "SQLConnectW"))       == NULL ||
 #ifdef ODBC_DRIVER_FUNCTIONS_NEEDED
@@ -360,7 +366,7 @@ static boolType setupDll (const char *dllName)
             (SQLDataSources    = (tp_SQLDataSources)    NULL, FALSE) ||
 #endif
             (SQLDescribeColW   = (tp_SQLDescribeColW)   dllFunc(dbDll, "SQLDescribeColW"))   == NULL ||
-            (SQLDescribeParam  = (tp_SQLDescribeParam)  dllFunc(dbDll, "SQLDescribeParam"))  == NULL ||
+            (SQLDescribeParam  = (tp_SQLDescribeParam)  dllFunc(dbDll, "SQLDescribeParam"),   FALSE) ||
             (SQLDisconnect     = (tp_SQLDisconnect)     dllFunc(dbDll, "SQLDisconnect"))     == NULL ||
             (SQLDriverConnectW = (tp_SQLDriverConnectW) dllFunc(dbDll, "SQLDriverConnectW")) == NULL ||
 #ifdef ODBC_DRIVER_FUNCTIONS_NEEDED
@@ -414,6 +420,7 @@ static boolType findDll (void)
 #else
 
 #define findDll() TRUE
+#define FUNCTION_PRESENT(func) TRUE
 
 #endif
 
@@ -803,6 +810,7 @@ static boolType hasDataType (SQLHDBC sql_connection, SQLSMALLINT requestedDataTy
 
   {
     SQLHSTMT ppStmt;
+    SQLRETURN returnCode;
     boolType hasType = FALSE;
 
   /* hasDataType */
@@ -816,7 +824,9 @@ static boolType hasDataType (SQLHDBC sql_connection, SQLSMALLINT requestedDataTy
                       dbError.message););
       *err_info = DATABASE_ERROR;
     } else {
-      if (SQLGetTypeInfoW(ppStmt, requestedDataType) == SQL_SUCCESS) {
+      returnCode = SQLGetTypeInfoW(ppStmt, requestedDataType);
+      /* printf("returnCode: " FMT_D16 "\n", returnCode); */
+      if (returnCode == SQL_SUCCESS) {
         if (SQLFetch(ppStmt) == SQL_SUCCESS) {
           hasType = TRUE;
         } /* if */
@@ -834,6 +844,7 @@ static boolType dataTypeIsUnsigned (SQLHDBC sql_connection, SQLSMALLINT requeste
 
   {
     SQLHSTMT ppStmt;
+    SQLRETURN returnCode;
     SQLSMALLINT unsignedAttribute;
     SQLLEN unsignedAttribute_ind;
     SQLRETURN fetchResult;
@@ -850,7 +861,9 @@ static boolType dataTypeIsUnsigned (SQLHDBC sql_connection, SQLSMALLINT requeste
                       dbError.message););
       *err_info = DATABASE_ERROR;
     } else {
-      if (SQLGetTypeInfoW(ppStmt, requestedDataType) != SQL_SUCCESS) {
+      returnCode = SQLGetTypeInfoW(ppStmt, requestedDataType);
+      /* printf("returnCode: " FMT_D16 "\n", returnCode); */
+      if (returnCode != SQL_SUCCESS) {
         setDbErrorMsg("dataTypeIsUnsigned", "SQLGetTypeInfoW",
                       SQL_HANDLE_DBC, sql_connection);
         logError(printf("dataTypeIsUnsigned: SQLGetTypeInfoW error:\n%s\n",
@@ -2363,7 +2376,7 @@ static errInfoType getBlob (preparedStmtType preparedStmt, memSizeType column,
       } else if (unlikely(totalLength < 0)) {
         dbInconsistent("getBlob", "SQLGetData");
         logError(printf("getBlob: Column " FMT_U_MEM ": "
-                        "SQLGetData returns negative total length: " FMT_D64 "\n",
+                        "SQLGetData returns negative total length: " FMT_D_MEM "\n",
                         column, totalLength););
         err_info = DATABASE_ERROR;
       } else {
@@ -2392,7 +2405,7 @@ static errInfoType getBlob (preparedStmtType preparedStmt, memSizeType column,
         } /* if */
       } /* if */
     } else {
-      /* printf("returnCode: %ld\n", returnCode); */
+      /* printf("returnCode: " FMT_D16 "\n", returnCode); */
       setDbErrorMsg("getBlob", "SQLGetData",
                     SQL_HANDLE_STMT, preparedStmt->ppStmt);
       logError(printf("getBlob: SQLGetData:\n%s\n",
@@ -2438,7 +2451,7 @@ static errInfoType getWClob (preparedStmtType preparedStmt, memSizeType column,
       } else if (unlikely(totalLength < 0)) {
         dbInconsistent("getWClob", "SQLGetData");
         logError(printf("getWClob: Column " FMT_U_MEM ": "
-                        "SQLGetData returns negative total length: " FMT_D64 "\n",
+                        "SQLGetData returns negative total length: " FMT_D_MEM "\n",
                         column, totalLength););
         err_info = DATABASE_ERROR;
       } else if (unlikely(totalLength > MAX_MEMSIZETYPE)){
@@ -2471,7 +2484,7 @@ static errInfoType getWClob (preparedStmtType preparedStmt, memSizeType column,
         } /* if */
       } /* if */
     } else {
-      /* printf("returnCode: %ld\n", returnCode); */
+      /* printf("returnCode: " FMT_D16 "\n", returnCode); */
       setDbErrorMsg("getWClob", "SQLGetData",
                     SQL_HANDLE_STMT, preparedStmt->ppStmt);
       logError(printf("getWClob: SQLGetData:\n%s\n",
@@ -2516,7 +2529,7 @@ static errInfoType getData (preparedStmtType preparedStmt, memSizeType column,
                            (SQLLEN) columnDescr->buffer_length,
                            &columnData->length);
     if (returnCode != SQL_SUCCESS) {
-      /* printf("returnCode: %ld\n", returnCode); */
+      /* printf("returnCode: " FMT_D16 "\n", returnCode); */
       setDbErrorMsg("getData", "SQLGetData",
                     SQL_HANDLE_STMT, preparedStmt->ppStmt);
       logError(printf("getData: SQLGetData:\n%s\n",
@@ -5372,14 +5385,17 @@ static databaseType createDbRecord (SQLHENV sql_environment, SQLHDBC sql_connect
     intType driver, errInfoType *err_info)
 
   {
-    SQLUSMALLINT SQLDescribeParam_supported;
+    SQLUSMALLINT SQLDescribeParam_supported = SQL_FALSE;
     SQLUSMALLINT maxConcurrentActivities;
     boolType wideCharsSupported;
     boolType tinyintIsUnsigned;
     dbType database;
 
   /* createDbRecord */
-    if (SQLGetFunctions(sql_connection,
+    logFunction(printf("createDbRecord(*, *, " FMT_D ", %d)\n",
+                       driver, *err_info););
+    if (FUNCTION_PRESENT(SQLDescribeParam) &&
+        SQLGetFunctions(sql_connection,
                         SQL_API_SQLDESCRIBEPARAM,
                         &SQLDescribeParam_supported) != SQL_SUCCESS) {
       setDbErrorMsg("sqlOpenDb2", "SQLGetFunctions",
@@ -5398,8 +5414,16 @@ static databaseType createDbRecord (SQLHENV sql_environment, SQLHDBC sql_connect
                       dbError.message););
       *err_info = DATABASE_ERROR;
     } else {
+#ifdef WIDE_CHARS_SUPPORTED
+      wideCharsSupported = WIDE_CHARS_SUPPORTED;
+#else
       wideCharsSupported = hasDataType(sql_connection, SQL_WCHAR, err_info);
+#endif
+#ifdef TINY_INT_IS_UNSIGNED
+      tinyintIsUnsigned = TINY_INT_IS_UNSIGNED;
+#else
       tinyintIsUnsigned = dataTypeIsUnsigned(sql_connection, SQL_TINYINT, err_info);
+#endif
       if (likely(*err_info == OKAY_NO_ERROR)) {
         if (unlikely(!setupFuncTable() ||
                      !ALLOC_RECORD(database, dbRecord, count.database))) {
@@ -5420,13 +5444,13 @@ static databaseType createDbRecord (SQLHENV sql_environment, SQLHDBC sql_connect
       database->driver = driver;
       database->sql_environment = sql_environment;
       database->sql_connection = sql_connection;
-      database->SQLDescribeParam_supported =
+      database->SQLDescribeParam_supported = FUNCTION_PRESENT(SQLDescribeParam) &&
           SQLDescribeParam_supported == SQL_TRUE;
       database->wideCharsSupported = wideCharsSupported;
       database->tinyintIsUnsigned = tinyintIsUnsigned;
       database->maxConcurrentActivities = maxConcurrentActivities;
     } /* if */
-    logFunction(printf("createDbRecord --> " FMT_U_MEM "\n",
-                       (memSizeType) database););
+    logFunction(printf("createDbRecord --> " FMT_U_MEM " (err_info=%d)\n",
+                       (memSizeType) database, *err_info););
     return (databaseType) database;
   } /* createDbRecord */

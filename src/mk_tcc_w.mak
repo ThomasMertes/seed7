@@ -110,7 +110,7 @@ sql_srv.o: sql_srv.c
 	$(CC) -c $(CPPFLAGS) $(SQL_SERVER_INCLUDE_OPTION) $(CFLAGS) -r $< -o $@
 
 all: depend
-	$(MAKE) -f mk_tcc_W.mak s7 s7c
+	$(MAKE) -f mk_tcc_w.mak s7 s7c
 
 clear: clean
 
@@ -154,14 +154,6 @@ strip:
 
 chkccomp.h:
 	echo #define LIST_DIRECTORY_CONTENTS "dir" >> chkccomp.h
-	echo #define MYSQL_USE_DLL >> chkccomp.h
-	echo #define SQLITE_USE_DLL >> chkccomp.h
-	echo #define POSTGRESQL_USE_DLL >> chkccomp.h
-	echo #define ODBC_LIBS "-lodbc32" >> chkccomp.h
-	echo #define ODBC_USE_LIB >> chkccomp.h
-	echo #define OCI_USE_DLL >> chkccomp.h
-	echo #define FIRE_LIBS "-lfbclient" >> chkccomp.h
-	echo #define FIRE_USE_DLL >> chkccomp.h
 
 version.h: chkccomp.h
 	echo #define PATH_DELIMITER '\\' > version.h
@@ -202,7 +194,6 @@ version.h: chkccomp.h
 	.\setpaths.exe S7_LIB_DIR=$(S7_LIB_DIR) SEED7_LIBRARY=$(SEED7_LIBRARY) >> version.h
 	del setpaths.exe
 	$(CC) -o setwpath.exe setwpath.c -luser32 -ladvapi32
-	$(CC) -o wrdepend.exe wrdepend.c
 	copy version.h vers_tcc_w.h /Y
 
 depend: version.h

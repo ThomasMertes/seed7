@@ -203,7 +203,7 @@ static databaseType doOpenDb2 (connectDataType connectData, errInfoType *err_inf
     databaseType database;
 
   /* doOpenDb2 */
-    logFunction(printf("doOpenDb2()\n"););
+    logFunction(printf("doOpenDb2(*, %d)\n", *err_info););
     if (unlikely(connectData->databaseLength > SHRT_MAX ||
                  connectData->uidLength > SHRT_MAX ||
                  connectData->pwdLength > SHRT_MAX ||
@@ -258,8 +258,8 @@ static databaseType doOpenDb2 (connectDataType connectData, errInfoType *err_inf
         } /* if */
       } /* if */
     } /* if */
-    logFunction(printf("doOpenDb2 --> " FMT_U_MEM "\n",
-                       (memSizeType) database););
+    logFunction(printf("doOpenDb2 --> " FMT_U_MEM " (err_info=%d)\n",
+                       (memSizeType) database, *err_info););
     return database;
   } /* doOpenDb2 */
 

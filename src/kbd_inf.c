@@ -31,6 +31,7 @@
 
 #include "version.h"
 
+#ifdef USE_KBD_INF
 #include "stdlib.h"
 #include "stdio.h"
 #include "string.h"
@@ -43,6 +44,9 @@
 #include "common.h"
 #include "striutl.h"
 
+#ifdef TERM_INCLUDE
+#include TERM_INCLUDE
+#else
 #ifdef INCL_CURSES_BEFORE_TERM
 /* The following include is necessary for RM Machines. */
 #include "curses.h"
@@ -57,10 +61,12 @@
 #include "term.h"
 #endif
 #endif
+#endif
 
 #include "errno.h"
 
 #include "os_decls.h"
+#include "rtl_err.h"
 #include "trm_drv.h"
 
 #ifdef USE_TERMCAP
@@ -763,45 +769,49 @@ static void kbd_init (void)
     int file_no;
 
   /* kbd_init */
-    if (!caps_initialized) {
-      getcaps();
-    } /* if */
-    file_no = fileno(stdin);
-    if (tcgetattr(file_no, &term_descr) != 0) {
-      printf("kbd_init: tcgetattr(%d, ...) failed:\n"
-             "errno=%d\nerror: %s\n",
-             file_no, errno, strerror(errno));
+    if (!findTermDll()) {
+      logError(printf("kbd_init: findTermDll() failed.\n"););
     } else {
-      /* show_term_descr(&term_descr); */
-      memcpy(&term_bak, &term_descr, sizeof(struct termios));
-      erase_ch[0] = (char) term_descr.c_cc[VERASE];
-      erase_ch[1] = '\0';
-      /* printf("erase_ch %d\n", erase_ch[0]); */
-      term_descr.c_lflag &= (unsigned int) ~(ECHO | ECHOE | ECHOK | ECHONL | ICANON);
-      term_descr.c_cc[VINTR] = (cc_t) -1;
-      term_descr.c_cc[VQUIT] = (cc_t) -1;
-      term_descr.c_cc[VSTOP] = (cc_t) -1;
-#ifdef VSTART
-      term_descr.c_cc[VSTART] = (cc_t) -1;
-#endif
-#ifdef VSUSP
-      term_descr.c_cc[VSUSP] = (cc_t) -1;
-#endif
-      term_descr.c_cc[VMIN] = 1;
-      term_descr.c_cc[VTIME] = 0;
-      if (!tcset_term_descr(file_no, &term_descr)) {
-        printf("kbd_init: tcsetattr(%d, VMIN=1) failed:\n"
+      if (!caps_initialized) {
+        getcaps();
+      } /* if */
+      file_no = fileno(stdin);
+      if (tcgetattr(file_no, &term_descr) != 0) {
+        printf("kbd_init: tcgetattr(%d, ...) failed:\n"
                "errno=%d\nerror: %s\n",
                file_no, errno, strerror(errno));
-        /* show_term_descr(&term_descr); */
       } else {
-        keybd_initialized = TRUE;
-        atexit(kbdShut);
-        if (getcaps()) {
-          key_table_init();
+        /* show_term_descr(&term_descr); */
+        memcpy(&term_bak, &term_descr, sizeof(struct termios));
+        erase_ch[0] = (char) term_descr.c_cc[VERASE];
+        erase_ch[1] = '\0';
+        /* printf("erase_ch %d\n", erase_ch[0]); */
+        term_descr.c_lflag &= (unsigned int) ~(ECHO | ECHOE | ECHOK | ECHONL | ICANON);
+        term_descr.c_cc[VINTR] = (cc_t) -1;
+        term_descr.c_cc[VQUIT] = (cc_t) -1;
+        term_descr.c_cc[VSTOP] = (cc_t) -1;
+#ifdef VSTART
+        term_descr.c_cc[VSTART] = (cc_t) -1;
+#endif
+#ifdef VSUSP
+        term_descr.c_cc[VSUSP] = (cc_t) -1;
+#endif
+        term_descr.c_cc[VMIN] = 1;
+        term_descr.c_cc[VTIME] = 0;
+        if (!tcset_term_descr(file_no, &term_descr)) {
+          printf("kbd_init: tcsetattr(%d, VMIN=1) failed:\n"
+                 "errno=%d\nerror: %s\n",
+                 file_no, errno, strerror(errno));
+          /* show_term_descr(&term_descr); */
+        } else {
+          keybd_initialized = TRUE;
+          atexit(kbdShut);
+          if (getcaps()) {
+            key_table_init();
+          } /* if */
+          utf8_init();
+          fflush(stdout);
         } /* if */
-        utf8_init();
-        fflush(stdout);
       } /* if */
     } /* if */
   } /* kbd_init */
@@ -819,7 +829,11 @@ boolType kbdKeyPressed (void)
     if (!keybd_initialized) {
       kbd_init();
     } /* if */
-    if (key_buffer_filled) {
+    if (!keybd_initialized) {
+      logError(printf("kbdKeyPressed: kbd_init() failed to open the keyboard.\n"););
+      raise_error(FILE_ERROR);
+      result = FALSE;
+    } else if (key_buffer_filled) {
       result = TRUE;
     } else {
       if (changes) {
@@ -861,7 +875,11 @@ charType kbdGetc (void)
     if (!keybd_initialized) {
       kbd_init();
     } /* if */
-    if (key_buffer_filled) {
+    if (!keybd_initialized) {
+      logError(printf("kbdGetc: kbd_init() failed to open the keyboard.\n"););
+      raise_error(FILE_ERROR);
+      result = (charType) EOF;
+    } else if (key_buffer_filled) {
       key_buffer_filled = FALSE;
       result = (charType) last_key;
     } else {
@@ -891,7 +909,11 @@ charType kbdRawGetc (void)
     if (!keybd_initialized) {
       kbd_init();
     } /* if */
-    if (key_buffer_filled) {
+    if (!keybd_initialized) {
+      logError(printf("kbdRawGetc: kbd_init() failed to open the keyboard.\n"););
+      raise_error(FILE_ERROR);
+      result = (charType) EOF;
+    } else if (key_buffer_filled) {
       key_buffer_filled = FALSE;
       result = ((charType) last_key) & 0xFF;
     } else {
@@ -907,3 +929,5 @@ charType kbdRawGetc (void)
 /*  fprintf(stderr, "<%d>", result); */
     return result;
   } /* kbdRawRead */
+
+#endif

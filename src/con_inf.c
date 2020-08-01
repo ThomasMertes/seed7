@@ -45,6 +45,9 @@
 #endif
 
 #ifdef USE_TERMINFO
+#ifdef TERM_INCLUDE
+#include TERM_INCLUDE
+#else
 #ifdef INCL_CURSES_BEFORE_TERM
 /* The following includes are necessary for RM Machines. */
 #include "curses.h"
@@ -55,6 +58,7 @@
 #include "ncurses/term.h"
 #else
 #include "term.h"
+#endif
 #endif
 #endif
 
@@ -1401,52 +1405,57 @@ int conOpen (void)
 
   /* conOpen */
     logFunction(printf("conOpen\n"););
-    if (getcaps()) {
-/*    printf("lines: %d  columns: %d\n", lines, columns); */
-      if (lines < 0) {
-        lines = 24;
-      } /* if */
-      if (columns < 0) {
-        columns = 80;
-      } /* if */
-      con = create_console(lines, columns);
-      if (con != NULL) {
-        putctl(enter_ca_mode); /* enter cursor addressing mode */
-        putctl(cursor_invisible); /* makes cursor invisible */
-        putctl(clear_screen); /* clear screen */
-        cursor_on = FALSE;
-        inf_normalcolour();
-        cursor_position_okay = FALSE;
-        cursor_line = 1;
-        cursor_column = 1;
-        changes = TRUE;
-        console_initialized = TRUE;
-        atexit(conShut);
+    if (!findTermDll()) {
+      logError(printf("conOpen: findTermDll() failed.\n"););
+      raise_error(FILE_ERROR);
+    } else {
+      if (getcaps()) {
+/*      printf("lines: %d  columns: %d\n", lines, columns); */
+        if (lines < 0) {
+          lines = 24;
+        } /* if */
+        if (columns < 0) {
+          columns = 80;
+        } /* if */
+        con = create_console(lines, columns);
+        if (con != NULL) {
+          putctl(enter_ca_mode); /* enter cursor addressing mode */
+          putctl(cursor_invisible); /* makes cursor invisible */
+          putctl(clear_screen); /* clear screen */
+          cursor_on = FALSE;
+          inf_normalcolour();
+          cursor_position_okay = FALSE;
+          cursor_line = 1;
+          cursor_column = 1;
+          changes = TRUE;
+          console_initialized = TRUE;
+          atexit(conShut);
 #ifdef SIGWINCH
 #if HAS_SIGACTION
-        {
-          struct sigaction sigAct;
+          {
+            struct sigaction sigAct;
 
-          sigAct.sa_handler = handle_winch_signal;
-          sigemptyset(&sigAct.sa_mask);
-          sigAct.sa_flags = SA_RESTART;
-          if (unlikely(sigaction(SIGWINCH, &sigAct, NULL) != 0)) {
-            logError(printf("conOpen: sigaction(SIGWINCH, &sigAct, NULL) failed:\n"
+            sigAct.sa_handler = handle_winch_signal;
+            sigemptyset(&sigAct.sa_mask);
+            sigAct.sa_flags = SA_RESTART;
+            if (unlikely(sigaction(SIGWINCH, &sigAct, NULL) != 0)) {
+              logError(printf("conOpen: sigaction(SIGWINCH, &sigAct, NULL) failed:\n"
+                              "errno=%d\nerror: %s\n",
+                              errno, strerror(errno)););
+              raise_error(FILE_ERROR);
+            } /* if */
+          }
+#elif HAS_SIGNAL
+          if (unlikely(signal(SIGWINCH, handle_winch_signal) == SIG_ERR)) {
+            logError(printf("conOpen: signal(SIGWINCH, handle_winch_signal) failed:\n"
                             "errno=%d\nerror: %s\n",
                             errno, strerror(errno)););
             raise_error(FILE_ERROR);
           } /* if */
-        }
-#elif HAS_SIGNAL
-        if (unlikely(signal(SIGWINCH, handle_winch_signal) == SIG_ERR)) {
-          logError(printf("conOpen: signal(SIGWINCH, handle_winch_signal) failed:\n"
-                          "errno=%d\nerror: %s\n",
-                          errno, strerror(errno)););
-          raise_error(FILE_ERROR);
+#endif
+#endif
+          result = 1;
         } /* if */
-#endif
-#endif
-        result = 1;
       } /* if */
     } /* if */
     logFunction(printf("conOpen --> %d\n", result););

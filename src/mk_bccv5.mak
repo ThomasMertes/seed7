@@ -110,6 +110,9 @@ sql_db2.o: sql_db2.c
 sql_srv.o: sql_srv.c
 	$(CC) -c $(CPPFLAGS) $(SQL_SERVER_INCLUDE_OPTION) $(CFLAGS) $< -o $@
 
+all: depend
+	$(MAKE) -f mk_bccv5.mak s7 s7c
+
 clear: clean
 
 clean:
@@ -153,14 +156,6 @@ dep: depend
 
 chkccomp.h:
 	echo ^#define LIST_DIRECTORY_CONTENTS "dir" >> chkccomp.h
-	echo ^#define MYSQL_USE_DLL >> chkccomp.h
-	echo ^#define SQLITE_USE_DLL >> chkccomp.h
-	echo ^#define POSTGRESQL_USE_DLL >> chkccomp.h
-	echo ^#define ODBC_LIBS "-lodbc32" >> chkccomp.h
-	echo ^#define ODBC_USE_LIB >> chkccomp.h
-	echo ^#define OCI_USE_DLL >> chkccomp.h
-	echo ^#define FIRE_LIBS "-lfbclient" >> chkccomp.h
-	echo ^#define FIRE_USE_DLL >> chkccomp.h
 
 version.h: chkccomp.h
 	echo ^#define PATH_DELIMITER '\\' > version.h

@@ -108,10 +108,13 @@ s7c: ..\bin\s7c.exe ..\prg\s7c.exe
 	..\bin\s7 -l ..\lib ..\prg\s7c -l ..\lib -b ..\bin -O2 ..\prg\s7c
 
 sql_db2.obj: sql_db2.c
-	$(CC) -c $(CPPFLAGS) $(DB2_INCLUDE_OPTION) $(CFLAGS) $< -o $@
+	$(CC) -c $(CPPFLAGS) $(DB2_INCLUDE_OPTION) $(CFLAGS) sql_db2.c
 
 sql_srv.obj: sql_srv.c
-	$(CC) -c $(CPPFLAGS) $(SQL_SERVER_INCLUDE_OPTION) $(CFLAGS) $< -o $@
+	$(CC) -c $(CPPFLAGS) $(SQL_SERVER_INCLUDE_OPTION) $(CFLAGS) sql_srv.c
+
+all: depend
+	$(MAKE) -f mk_msvc.mak s7 s7c
 
 clear: clean
 
@@ -142,7 +145,7 @@ distclean: clean
 test:
 	..\bin\s7 -l ..\lib ..\prg\chk_all build
 	@echo.
-	@echo Use 'sudo make install' (with your make command) to install Seed7."
+	@echo Use 'sudo make install' (with your make command) to install Seed7.
 	@echo Or open a console as administrator, go to the directory seed7/src
 	@echo and use 'make install' (with your make command) to install Seed7.
 	@echo.
@@ -157,14 +160,6 @@ dep: depend
 
 chkccomp.h:
 	echo #define LIST_DIRECTORY_CONTENTS "dir" >> chkccomp.h
-	echo #define MYSQL_USE_DLL >> chkccomp.h
-	echo #define SQLITE_USE_DLL >> chkccomp.h
-	echo #define POSTGRESQL_USE_DLL >> chkccomp.h
-	echo #define ODBC_LIBS "odbc32.lib" >> chkccomp.h
-	echo #define ODBC_USE_LIB >> chkccomp.h
-	echo #define OCI_USE_DLL >> chkccomp.h
-	echo #define FIRE_LIBS "-lfbclient" >> chkccomp.h
-	echo #define FIRE_USE_DLL >> chkccomp.h
 
 version.h: chkccomp.h
 	echo #define PATH_DELIMITER '\\' > version.h

@@ -9165,10 +9165,11 @@ CONTENTS
   SQLLite       | DB_SQLITE     |              | Host must be "" and port must be 0.
   PostgreSQL    | DB_POSTGRESQL |   5432       |
   Oracle        | DB_OCI        |   1521       |
-  SQL Server    | DB_ODBC       |              | Can also connect to other databases.
+   various DBs  | DB_ODBC       |              | Needs an ODBC driver to connect to a database.
   Firebird      | DB_FIRE       |              |
   Interbase     | DB_FIRE       |              |
   Db2           | DB_DB2        |  50000       |
+  SQL Server    | DB_SQL_SERVER |   1433       |
 
   A basic function to open a database is:
 

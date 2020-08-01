@@ -31,6 +31,7 @@
 
 #include "version.h"
 
+#ifdef USE_TERMCAP
 #include "stdlib.h"
 #include "stdio.h"
 #include "string.h"
@@ -432,3 +433,5 @@ void putcontrol (char *control)
       tputs(control, 1, outch);
     } /* if */
   } /* putcontrol */
+
+#endif

@@ -67,6 +67,11 @@
 #define CLI_DLL SQL_SERVER_DLL
 #endif
 
+#ifdef FREETDS_SQL_SERVER_CONNECTION
+#define WIDE_CHARS_SUPPORTED 1
+#define TINY_INT_IS_UNSIGNED 1
+#endif
+
 #include "sql_cli.c"
 
 typedef struct {
@@ -119,7 +124,11 @@ static boolType createConnectionString (connectDataType connectData)
       serverLength = connectData->serverLength;
     } /* if */
     if (connectData->port == 0) {
+#if SPECIFY_SQL_SERVER_PORT_EXPLICIT
+      portNameLength = (memSizeType) sprintf(portName, ",%d", DEFAULT_PORT);
+#else
       portNameLength = 0;
+#endif
     } else {
       portNameLength = (memSizeType) sprintf(portName, "," FMT_D, connectData->port);
     } /* if */
@@ -373,7 +382,7 @@ static databaseType doOpenSqlServer (connectDataType connectData, errInfoType *e
     databaseType database;
 
   /* doOpenSqlServer */
-    logFunction(printf("doOpenSqlServer()\n"););
+    logFunction(printf("doOpenSqlServer(*, %d)\n", *err_info););
     if (unlikely(connectData->databaseLength > SHRT_MAX ||
                  connectData->uidLength > SHRT_MAX ||
                  connectData->pwdLength > SHRT_MAX ||
@@ -385,7 +394,8 @@ static databaseType doOpenSqlServer (connectDataType connectData, errInfoType *e
       if (unlikely(*err_info != OKAY_NO_ERROR)) {
         database = NULL;
       } else {
-        if (connectData->serverLength == 0 && connectData->port == 0) {
+        if (connectData->serverLength == 0 && connectData->port == 0 &&
+            FUNCTION_PRESENT(SQLBrowseConnectW)) {
           returnCode = connectToLocalServer(connectData, sql_connection);
         } else {
           returnCode = SQL_ERROR;
@@ -404,7 +414,7 @@ static databaseType doOpenSqlServer (connectDataType connectData, errInfoType *e
                                          sizeof(outConnectionString) / sizeof(SQLWCHAR),
                                          &outConnectionStringLength,
                                          SQL_DRIVER_NOPROMPT);
-          printf("returnCode: %d\n", returnCode);
+          /* printf("returnCode: %d\n", returnCode); */
           logMessage(printf("outConnectionString: ");
                      printWstri(outConnectionString);
                      printf("\n"););
@@ -426,8 +436,8 @@ static databaseType doOpenSqlServer (connectDataType connectData, errInfoType *e
         } /* if */
       } /* if */
     } /* if */
-    logFunction(printf("doOpenSqlServer --> " FMT_U_MEM "\n",
-                       (memSizeType) database););
+    logFunction(printf("doOpenSqlServer --> " FMT_U_MEM " (err_info=%d)\n",
+                       (memSizeType) database, *err_info););
     return database;
   } /* doOpenSqlServer */
 

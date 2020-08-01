@@ -78,7 +78,8 @@ SRC = $(MSRC)
 SEED7_LIB_SRC = $(RSRC) $(DSRC)
 DRAW_LIB_SRC = gkb_rtl.c drw_dos.c gkb_x11.c
 CONSOLE_LIB_SRC = kbd_rtl.c con_emc.c
-DATABASE_LIB_SRC = sql_base.c sql_db2.c sql_fire.c sql_lite.c sql_my.c sql_oci.c sql_odbc.c sql_post.c sql_srv.c
+DATABASE_LIB_SRC_STD_INCL = sql_base.c sql_fire.c sql_lite.c sql_my.c sql_oci.c sql_odbc.c sql_post.c
+DATABASE_LIB_SRC = $(DATABASE_LIB_SRC_STD_INCL) sql_db2.c sql_srv.c
 COMP_DATA_LIB_SRC = typ_data.c rfl_data.c ref_data.c listutl.c flistutl.c typeutl.c datautl.c
 COMPILER_LIB_SRC = $(PSRC) $(LSRC) $(ESRC) $(ASRC) $(GSRC)
 
@@ -114,10 +115,10 @@ big_%.o: big_%.c
 	$(CC) -c $(CPPFLAGS) $(CFLAGS) $(INCLUDE_OPTIONS) $< -o $@
 
 sql_db2.o: sql_db2.c
-	$(CC) -c $(CPPFLAGS) $(DB2_INCLUDE_OPTION) $(CFLAGS) $(INCLUDE_OPTIONS) $< -o $@
+	$(CC) -c $(CPPFLAGS) $(DB2_INCLUDE_OPTION) $(CFLAGS) $(INCLUDE_OPTIONS) $<
 
 sql_srv.o: sql_srv.c
-	$(CC) -c $(CPPFLAGS) $(SQL_SERVER_INCLUDE_OPTION) $(CFLAGS) $(INCLUDE_OPTIONS) $< -o $@
+	$(CC) -c $(CPPFLAGS) $(SQL_SERVER_INCLUDE_OPTION) $(CFLAGS) $(INCLUDE_OPTIONS) $<
 
 clear: clean
 
@@ -168,18 +169,18 @@ strip:
 
 chkccomp.h:
 	echo #define LIST_DIRECTORY_CONTENTS "dir" >> chkccomp.h
-	echo #define MYSQL_DLL >> chkccomp.h
+	echo #define MYSQL_DLL "" >> chkccomp.h
 	echo #define MYSQL_USE_DLL >> chkccomp.h
-	echo #define SQLITE_DLL >> chkccomp.h
+	echo #define SQLITE_DLL "" >> chkccomp.h
 	echo #define SQLITE_USE_DLL >> chkccomp.h
-	echo #define POSTGRESQL_DLL >> chkccomp.h
+	echo #define POSTGRESQL_DLL "" >> chkccomp.h
 	echo #define POSTGRESQL_USE_DLL >> chkccomp.h
-	echo #define ODBC_DLL >> chkccomp.h
+	echo #define ODBC_DLL "" >> chkccomp.h
 	echo #define ODBC_USE_DLL >> chkccomp.h
-	echo #define OCI_DLL >> chkccomp.h
+	echo #define OCI_DLL "" >> chkccomp.h
 	echo #define OCI_USE_DLL >> chkccomp.h
 	echo #define FIRE_LIBS "-lfbclient" >> chkccomp.h
-	echo #define FIRE_DLL >> chkccomp.h
+	echo #define FIRE_DLL "" >> chkccomp.h
 	echo #define FIRE_USE_DLL >> chkccomp.h
 
 version.h: chkccomp.h
@@ -234,13 +235,15 @@ version.h: chkccomp.h
 	copy version.h vers_emccw.h /Y
 
 depend: version.h
-	.\wrdepend.exe $(CFLAGS) -M $(SRC) "> depend"
-	.\wrdepend.exe $(CFLAGS) -M $(SEED7_LIB_SRC) ">> depend"
-	.\wrdepend.exe $(CFLAGS) -M $(DRAW_LIB_SRC) ">> depend"
-	.\wrdepend.exe $(CFLAGS) -M $(CONSOLE_LIB_SRC) ">> depend"
-	.\wrdepend.exe $(CFLAGS) -M $(DATABASE_LIB_SRC) ">> depend"
-	.\wrdepend.exe $(CFLAGS) -M $(COMP_DATA_LIB_SRC) ">> depend"
-	.\wrdepend.exe $(CFLAGS) -M $(COMPILER_LIB_SRC) ">> depend"
+	.\wrdepend.exe OPTION=INCLUDE_OPTIONS $(CFLAGS) -M -c $(SRC) "> depend"
+	.\wrdepend.exe OPTION=INCLUDE_OPTIONS $(CFLAGS) -M -c $(SEED7_LIB_SRC) ">> depend"
+	.\wrdepend.exe OPTION=INCLUDE_OPTIONS $(CFLAGS) -M -c $(DRAW_LIB_SRC) ">> depend"
+	.\wrdepend.exe OPTION=INCLUDE_OPTIONS $(CFLAGS) -M -c $(CONSOLE_LIB_SRC) ">> depend"
+	.\wrdepend.exe OPTION=INCLUDE_OPTIONS $(CFLAGS) -M -c $(DATABASE_LIB_SRC_STD_INCL) ">> depend"
+	.\wrdepend.exe OPTION=DB2_INCLUDE_OPTION $(CFLAGS) -M -c sql_db2.c ">> depend"
+	.\wrdepend.exe OPTION=SQL_SERVER_INCLUDE_OPTION $(CFLAGS) -M -c sql_srv.c ">> depend"
+	.\wrdepend.exe OPTION=INCLUDE_OPTIONS $(CFLAGS) -M -c $(COMP_DATA_LIB_SRC) ">> depend"
+	.\wrdepend.exe OPTION=INCLUDE_OPTIONS $(CFLAGS) -M -c $(COMPILER_LIB_SRC) ">> depend"
 	@echo.
 	@echo Use 'make' (with your make command) to create the interpreter.
 	@echo.

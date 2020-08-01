@@ -21,19 +21,22 @@ CFLAGS = -O2 -g $(INCLUDE_OPTIONS) -Wall -Wstrict-prototypes -Winline -Wconversi
 # CFLAGS = -O2 -g -pg -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
 # CFLAGS = -O2 -fomit-frame-pointer -funroll-loops -Wall
 # CFLAGS = -O2 -funroll-loops -Wall -pg
-LDFLAGS = -L/usr/X11R6/lib
+LDFLAGS =
+# LDFLAGS = -L/usr/X11R6/lib
 # LDFLAGS = -L/usr/X11R6/lib -fsanitize=address,undefined
 # LDFLAGS = -pg
 # LDFLAGS = -pg -lc_p
 SYSTEM_LIBS = -lm -ldl
 # SYSTEM_LIBS = -lm -ldl -lgmp
 # SYSTEM_LIBS = -lm_p -lc_p
-SYSTEM_DRAW_LIBS = -lX11
+# SYSTEM_DRAW_LIBS is defined in the file "macros". When doing "make depend" chkccomp.c writes it.
+# SYSTEM_DRAW_LIBS = -lX11
 # SYSTEM_DRAW_LIBS = /usr/Xlib/libX11.so
 # SYSTEM_DRAW_LIBS = -lX11 -lXext
 # SYSTEM_DRAW_LIBS = -lGL -lGLEW -lglut
 # SYSTEM_DRAW_LIBS = -lGL -lGLEW -lX11
-SYSTEM_CONSOLE_LIBS = -lncurses
+# SYSTEM_CONSOLE_LIBS is defined in the file "macros". When doing "make depend" chkccomp.c writes it.
+# SYSTEM_CONSOLE_LIBS = -lncurses
 SEED7_LIB = seed7_05.a
 DRAW_LIB = s7_draw.a
 CONSOLE_LIB = s7_con.a
@@ -44,30 +47,6 @@ ALL_S7_LIBS = ../bin/$(COMPILER_LIB) ../bin/$(COMP_DATA_LIB) ../bin/$(DRAW_LIB) 
 # CC = g++
 CC = gcc
 GET_CC_VERSION_INFO = $(CC) --version >
-
-# TERMINFO_OR_TERMCAP = USE_TERMINFO
-# CONSOLE_LIB_OBJ = kbd_rtl.o con_inf.o kbd_inf.o trm_inf.o
-# CONSOLE_LIB_SRC = kbd_rtl.c con_inf.c kbd_inf.c trm_inf.c
-# TERMINFO_OR_TERMCAP = USE_TERMCAP
-# CONSOLE_LIB_OBJ = kbd_rtl.o con_inf.o kbd_inf.o trm_cap.o
-# CONSOLE_LIB_SRC = kbd_rtl.c con_inf.c kbd_inf.c trm_cap.c
-TERMINFO_OR_TERMCAP = USE_TERMINFO
-CONSOLE_LIB_OBJ = kbd_rtl.o con_inf.o kbd_poll.o trm_inf.o
-CONSOLE_LIB_SRC = kbd_rtl.c con_inf.c kbd_poll.c trm_inf.c
-# TERMINFO_OR_TERMCAP = USE_TERMCAP
-# CONSOLE_LIB_OBJ = kbd_rtl.o con_inf.o kbd_poll.o trm_cap.o
-# CONSOLE_LIB_SRC = kbd_rtl.c con_inf.c kbd_poll.c trm_cap.c
-
-# CONSOLE_LIB_OBJ = kbd_rtl.o con_cur.o
-# CONSOLE_LIB_SRC = kbd_rtl.c con_cur.c
-# CONSOLE_LIB_OBJ = kbd_rtl.o con_cap.o
-# CONSOLE_LIB_SRC = kbd_rtl.c con_cap.c
-# CONSOLE_LIB_OBJ = kbd_rtl.o con_tcp.o
-# CONSOLE_LIB_SRC = kbd_rtl.c con_tcp.c
-# CONSOLE_LIB_OBJ = kbd_rtl.o con_x11.o
-# CONSOLE_LIB_SRC = kbd_rtl.c con_x11.c
-# CONSOLE_LIB_OBJ = kbd_rtl.o con_win.o
-# CONSOLE_LIB_SRC = kbd_rtl.c con_win.c
 
 MOBJ = s7.o
 POBJ = runerr.o option.o primitiv.o
@@ -88,7 +67,8 @@ DOBJ = big_rtl.o big_gmp.o cmd_unx.o dir_win.o dll_unx.o fil_unx.o pcs_unx.o pol
        tim_unx.o
 OBJ = $(MOBJ)
 SEED7_LIB_OBJ = $(ROBJ) $(DOBJ)
-DRAW_LIB_OBJ = gkb_rtl.o drw_x11.o gkb_x11.o
+DRAW_LIB_OBJ = gkb_rtl.o drw_x11.o gkb_x11.o fwd_x11.o
+CONSOLE_LIB_OBJ = kbd_rtl.o con_inf.o kbd_inf.o kbd_poll.o trm_inf.o trm_cap.o fwd_term.o
 DATABASE_LIB_OBJ = sql_base.o sql_db2.o sql_fire.o sql_lite.o sql_my.o sql_oci.o sql_odbc.o sql_post.o sql_srv.o
 COMP_DATA_LIB_OBJ = typ_data.o rfl_data.o ref_data.o listutl.o flistutl.o typeutl.o datautl.o
 COMPILER_LIB_OBJ = $(POBJ) $(LOBJ) $(EOBJ) $(AOBJ) $(GOBJ)
@@ -112,8 +92,10 @@ DSRC = big_rtl.c big_gmp.c cmd_unx.c dir_win.c dll_unx.c fil_unx.c pcs_unx.c pol
        tim_unx.c
 SRC = $(MSRC)
 SEED7_LIB_SRC = $(RSRC) $(DSRC)
-DRAW_LIB_SRC = gkb_rtl.c drw_x11.c gkb_x11.c
-DATABASE_LIB_SRC = sql_base.c sql_db2.c sql_fire.c sql_lite.c sql_my.c sql_oci.c sql_odbc.c sql_post.c sql_srv.c
+DRAW_LIB_SRC = gkb_rtl.c drw_x11.c gkb_x11.c fwd_x11.c
+CONSOLE_LIB_SRC = kbd_rtl.c con_inf.c kbd_inf.c kbd_poll.c trm_inf.c trm_cap.c fwd_term.c
+DATABASE_LIB_SRC_STD_INCL = sql_base.c sql_fire.c sql_lite.c sql_my.c sql_oci.c sql_odbc.c sql_post.c
+DATABASE_LIB_SRC = $(DATABASE_LIB_SRC_STD_INCL) sql_db2.c sql_srv.c
 COMP_DATA_LIB_SRC = typ_data.c rfl_data.c ref_data.c listutl.c flistutl.c typeutl.c datautl.c
 COMPILER_LIB_SRC = $(PSRC) $(LSRC) $(ESRC) $(ASRC) $(GSRC)
 
@@ -188,24 +170,12 @@ strip:
 chkccomp.h:
 	echo "#define LIST_DIRECTORY_CONTENTS \"ls\"" >> chkccomp.h
 	echo "#define LINKER_OPT_STATIC_LINKING \"-static\"" >> chkccomp.h
-	echo "#define MYSQL_LIBS \"-lmysqlclient\"" >> chkccomp.h
-	echo "#define MYSQL_USE_LIB" >> chkccomp.h
-	echo "#define SQLITE_LIBS \"-lsqlite3\"" >> chkccomp.h
-	echo "#define SQLITE_USE_LIB" >> chkccomp.h
-	echo "#define POSTGRESQL_LIBS \"-lpq\"" >> chkccomp.h
-	echo "#define POSTGRESQL_USE_LIB" >> chkccomp.h
-	echo "#define ODBC_LIBS \"-liodbc\"" >> chkccomp.h
-	echo "#define ODBC_USE_LIB" >> chkccomp.h
-	echo "#define OCI_LIBS \"-lclntsh\"" >> chkccomp.h
-	echo "#define OCI_USE_DLL" >> chkccomp.h
-	echo "#define FIRE_LIBS \"-lfbclient\"" >> chkccomp.h
-	echo "#define FIRE_USE_DLL" >> chkccomp.h
+	echo "#define X11_LIBRARY_PATH \"/usr/X11R6/lib\"" >> chkccomp.h
 
 version.h: chkccomp.h
 	echo "#define PATH_DELIMITER '/'" > version.h
 	echo "#define SEARCH_PATH_DELIMITER ':'" >> version.h
 	echo "#define AWAIT_WITH_SELECT" >> version.h
-	echo "#define $(TERMINFO_OR_TERMCAP)" >> version.h
 	echo "#define SIGNAL_HANDLER_CAN_DO_IO" >> version.h
 	echo "#define CONSOLE_UTF8" >> version.h
 	echo "#define OS_STRI_UTF8" >> version.h
@@ -222,8 +192,6 @@ version.h: chkccomp.h
 	echo "#define LINKER_OPT_OUTPUT_FILE \"-o \"" >> version.h
 	echo "#define LINKER_FLAGS \"$(LDFLAGS)\"" >> version.h
 	echo "#define SYSTEM_LIBS \"$(SYSTEM_LIBS)\"" >> version.h
-	echo "#define SYSTEM_DRAW_LIBS \"$(SYSTEM_DRAW_LIBS)\"" >> version.h
-	echo "#define SYSTEM_CONSOLE_LIBS \"$(SYSTEM_CONSOLE_LIBS)\"" >> version.h
 	$(GET_CC_VERSION_INFO) cc_vers.txt
 	$(CC) chkccomp.c -o chkccomp
 	./chkccomp version.h
@@ -242,13 +210,15 @@ version.h: chkccomp.h
 	cp version.h vers_osx.h
 
 depend: version.h
-	./wrdepend $(CFLAGS) -M $(SRC) "> depend"
-	./wrdepend $(CFLAGS) -M $(SEED7_LIB_SRC) ">> depend"
-	./wrdepend $(CFLAGS) -M $(DRAW_LIB_SRC) ">> depend"
-	./wrdepend $(CFLAGS) -M $(CONSOLE_LIB_SRC) ">> depend"
-	./wrdepend $(CFLAGS) -M $(DATABASE_LIB_SRC) ">> depend"
-	./wrdepend $(CFLAGS) -M $(COMP_DATA_LIB_SRC) ">> depend"
-	./wrdepend $(CFLAGS) -M $(COMPILER_LIB_SRC) ">> depend"
+	./wrdepend OPTION=INCLUDE_OPTIONS $(CFLAGS) -M $(SRC) "> depend"
+	./wrdepend OPTION=INCLUDE_OPTIONS $(CFLAGS) -M $(SEED7_LIB_SRC) ">> depend"
+	./wrdepend OPTION=INCLUDE_OPTIONS $(CFLAGS) -M $(DRAW_LIB_SRC) ">> depend"
+	./wrdepend OPTION=INCLUDE_OPTIONS $(CFLAGS) -M $(CONSOLE_LIB_SRC) ">> depend"
+	./wrdepend OPTION=INCLUDE_OPTIONS $(CFLAGS) -M $(DATABASE_LIB_SRC_STD_INCL) ">> depend"
+	./wrdepend OPTION=DB2_INCLUDE_OPTION $(CFLAGS) -M sql_db2.c ">> depend"
+	./wrdepend OPTION=SQL_SERVER_INCLUDE_OPTION $(CFLAGS) -M sql_srv.c ">> depend"
+	./wrdepend OPTION=INCLUDE_OPTIONS $(CFLAGS) -M $(COMP_DATA_LIB_SRC) ">> depend"
+	./wrdepend OPTION=INCLUDE_OPTIONS $(CFLAGS) -M $(COMPILER_LIB_SRC) ">> depend"
 	@echo
 	@echo "  Use 'make' (with your make command) to create the interpreter."
 	@echo

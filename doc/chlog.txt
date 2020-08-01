@@ -1,3 +1,49 @@
+20191215:
+- The database libraries sql_srv.c and sql_cli.c have been improved to
+  allow the connection to a SQL Server database from Linux. The library
+  libtdsodbc.so is used to do the actual communication with the
+  database.
+- The build system of Seed7 has been improved. Logic regarding X11,
+  ncurses and the databases has been moved from the makefiles to
+  chkccomp.c.
+- The build for Linux has been improved to work even if essential
+  header files (for X11 or ncurses) are missing. This should only be
+  used, if it is impossible to install the development packages of X11
+  or ncurses.
+- The example program chkdb.sd7 has been improved to do tests for SQL
+  Server.
+- In the FAQ the explanation of "What is necessary to compile Seed7
+  with database connections", has been improved.
+- In chkccomp.c the functions findIncludeFile(), findStaticLib(),
+  findLinkerOption(), listDynamicLibs() and determineConsoleDefines()
+  have been added.
+- In chkccomp.c the functions determineEnvironDefines(),
+  determineStatFunctions(), determineX11Includes(),
+  determineMySqlDefines(), determineSqliteDefines(),
+  determinePostgresDefines(), determineOdbcDefines(),
+  determineOciDefines(), determineFireDefines(), determineDb2Defines(),
+  determineSqlServerDefines(), determineIncludesAndLibs() and main()
+  have been improved.
+- The files fwd_term.c and fwd_term.h have been added. The functions in
+  fwd_term.c forward calls to a shared terminfo library.
+- The files con_inf.c, kbd_inf.c, kbd_poll.c, trm_cap.c and trm_inf.c
+  have been improved to work with fwd_term.c and fwd_term.h.
+- The file fwd_x11.c has been added. The functions in fwd_x11.c forward
+  X11 calls to a shared X11 library. Fwd_x11.c is used, if it is not
+  possible to link to a static X11 library.
+- The file x11_x.h has been added. This file is used, if no X11 include
+  file can be found.
+- The files drw_x11.c and gkb_x11.c have been improved to work with
+  x11_x.h and x11_x.h.
+- The makefiles have been adjusted to work with the new build system.
+- The program warn.c has been added. This program writes a warning, if
+  header files of X11 or ncurses are missing.
+- Documentation has been added to read_me.txt.
+- In dll_win.c the function dllOpen() has been improved to assure, that
+  a path to a DLL uses a backslash as path delimiter. This is required
+  by the function LoadLibrary().
+- The files bin/call_cl.bat and bin/call_lib.bat have been removed.
+
 20191117:
 - Support for mice with forward and back button has been added to the
   Seed7 run-time library. Many thanks go to Zachary Menzies, for

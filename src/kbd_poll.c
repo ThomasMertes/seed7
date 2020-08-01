@@ -31,6 +31,7 @@
 
 #include "version.h"
 
+#ifdef USE_KBD_POLL
 #include "stdlib.h"
 #include "stdio.h"
 #include "string.h"
@@ -43,6 +44,9 @@
 #include "common.h"
 #include "striutl.h"
 
+#ifdef TERM_INCLUDE
+#include TERM_INCLUDE
+#else
 #ifdef INCL_CURSES_BEFORE_TERM
 /* The following include is necessary for RM Machines. */
 #include "curses.h"
@@ -57,11 +61,13 @@
 #include "term.h"
 #endif
 #endif
+#endif
 
 #include "poll.h"
 #include "errno.h"
 
 #include "os_decls.h"
+#include "rtl_err.h"
 #include "trm_drv.h"
 
 #ifdef USE_TERMCAP
@@ -567,45 +573,49 @@ static void kbd_init (void)
     int file_no;
 
   /* kbd_init */
-    if (!caps_initialized) {
-      getcaps();
-    } /* if */
-    file_no = fileno(stdin);
-    if (tcgetattr(file_no, &term_descr) != 0) {
-      printf("kbd_init: tcgetattr(%d, ...) failed, errno=%d\n",
-          file_no, errno);
-      printf("EBADF=%d  EINTR=%d  EINVAL=%d  ENOTTY=%d  EIO=%d\n",
-          EBADF, EINTR, EINVAL, ENOTTY, EIO);
+    if (!findTermDll()) {
+      logError(printf("kbd_init: findTermDll() failed.\n"););
     } else {
-      memcpy(&term_bak, &term_descr, sizeof(struct termios));
-      erase_ch[0] = (char) term_descr.c_cc[VERASE];
-      erase_ch[1] = '\0';
-      /* printf("erase_ch %d\n", erase_ch[0]); */
-      term_descr.c_lflag &= (unsigned int) ~(ECHO | ECHOE | ECHOK | ECHONL | ICANON);
-      term_descr.c_cc[VINTR] = (cc_t) -1;
-      term_descr.c_cc[VQUIT] = (cc_t) -1;
-      term_descr.c_cc[VSTOP] = (cc_t) -1;
-#ifdef VSTART
-      term_descr.c_cc[VSTART] = (cc_t) -1;
-#endif
-#ifdef VSUSP
-      term_descr.c_cc[VSUSP] = (cc_t) -1;
-#endif
-      term_descr.c_cc[VMIN] = 1;
-      term_descr.c_cc[VTIME] = 0;
-      if (!tcset_term_descr(file_no, &term_descr)) {
-        printf("kbd_init: tcsetattr(%d, VMIN=1) failed, errno=%d\n",
+      if (!caps_initialized) {
+        getcaps();
+      } /* if */
+      file_no = fileno(stdin);
+      if (tcgetattr(file_no, &term_descr) != 0) {
+        printf("kbd_init: tcgetattr(%d, ...) failed, errno=%d\n",
             file_no, errno);
         printf("EBADF=%d  EINTR=%d  EINVAL=%d  ENOTTY=%d  EIO=%d\n",
             EBADF, EINTR, EINVAL, ENOTTY, EIO);
       } else {
-        keybd_initialized = TRUE;
-        atexit(kbdShut);
-        if (getcaps()) {
-          key_table_init();
+        memcpy(&term_bak, &term_descr, sizeof(struct termios));
+        erase_ch[0] = (char) term_descr.c_cc[VERASE];
+        erase_ch[1] = '\0';
+        /* printf("erase_ch %d\n", erase_ch[0]); */
+        term_descr.c_lflag &= (unsigned int) ~(ECHO | ECHOE | ECHOK | ECHONL | ICANON);
+        term_descr.c_cc[VINTR] = (cc_t) -1;
+        term_descr.c_cc[VQUIT] = (cc_t) -1;
+        term_descr.c_cc[VSTOP] = (cc_t) -1;
+#ifdef VSTART
+        term_descr.c_cc[VSTART] = (cc_t) -1;
+#endif
+#ifdef VSUSP
+        term_descr.c_cc[VSUSP] = (cc_t) -1;
+#endif
+        term_descr.c_cc[VMIN] = 1;
+        term_descr.c_cc[VTIME] = 0;
+        if (!tcset_term_descr(file_no, &term_descr)) {
+          printf("kbd_init: tcsetattr(%d, VMIN=1) failed, errno=%d\n",
+              file_no, errno);
+          printf("EBADF=%d  EINTR=%d  EINVAL=%d  ENOTTY=%d  EIO=%d\n",
+              EBADF, EINTR, EINVAL, ENOTTY, EIO);
+        } else {
+          keybd_initialized = TRUE;
+          atexit(kbdShut);
+          if (getcaps()) {
+            key_table_init();
+          } /* if */
+          utf8_init();
+          fflush(stdout);
         } /* if */
-        utf8_init();
-        fflush(stdout);
       } /* if */
     } /* if */
   } /* kbd_init */
@@ -623,7 +633,11 @@ boolType kbdKeyPressed (void)
     if (!keybd_initialized) {
       kbd_init();
     } /* if */
-    if (key_buffer_size > 0) {
+    if (!keybd_initialized) {
+      logError(printf("kbdKeyPressed: kbd_init() failed to open the keyboard.\n"););
+      raise_error(FILE_ERROR);
+      result = FALSE;
+    } else if (key_buffer_size > 0) {
       result = TRUE;
     } else {
       if (changes) {
@@ -662,99 +676,105 @@ charType kbdGetc (void)
     if (!keybd_initialized) {
       kbd_init();
     } /* if */
-    if (changes) {
-      conFlush();
-    } /* if */
-    if (key_buffer_size == 0) {
-      read_result = (memSizeType) read(fileno(stdin), &key_buffer, KEY_BUFFER_SIZE);
-      /* printf("kbdGetc: read_result=%ld", read_result); */
-      if (read_result == 0 || read_result == (memSizeType) (-1)) {
-        return (charType) EOF;
-      } else {
-        key_buffer_size = read_result;
+    if (!keybd_initialized) {
+      logError(printf("kbdGetc: kbd_init() failed to open the keyboard.\n"););
+      raise_error(FILE_ERROR);
+      result = (charType) EOF;
+    } else {
+      if (changes) {
+        conFlush();
       } /* if */
-    } /* if */
+      if (key_buffer_size == 0) {
+        read_result = (memSizeType) read(fileno(stdin), &key_buffer, KEY_BUFFER_SIZE);
+        /* printf("kbdGetc: read_result=%ld", read_result); */
+        if (read_result == 0 || read_result == (memSizeType) (-1)) {
+          return (charType) EOF;
+        } else {
+          key_buffer_size = read_result;
+        } /* if */
+      } /* if */
 #ifdef TRACE_FKEYS
-    printf("key_buffer:\n");
-    for (number = 0; number < key_buffer_size; number++) {
-      if (key_buffer[number] == '\\') {
-        printf("\\\\");
-      } else if (key_buffer[number] >= ' ' && key_buffer[number] <= '~') {
-        printf("%c", key_buffer[number]);
-      } else {
-        printf("\\%u\\", key_buffer[number]);
+      printf("key_buffer:\n");
+      for (number = 0; number < key_buffer_size; number++) {
+        if (key_buffer[number] == '\\') {
+          printf("\\\\");
+        } else if (key_buffer[number] >= ' ' && key_buffer[number] <= '~') {
+          printf("%c", key_buffer[number]);
+        } else {
+          printf("\\%u\\", key_buffer[number]);
+        } /* if */
       } /* if */
-    } /* if */
-    printf("\n");
+      printf("\n");
 #endif
-    exact_match_count = 0;
-    exact_matched_key = 0;
-    partial_match_len = 0;
-    partial_match_count = 0;
-    partial_matched_key = 0;
-    for (number = 0; number < SIZE_KEY_TABLE; number++) {
-      if (key_table[number] != NULL) {
-        len = strlen(key_table[number]);
-        if (key_buffer_size >= len &&
-            memcmp(key_table[number], key_buffer, len) == 0) {
-          if (key_buffer_size == len) {
-            exact_match_count++;
-            exact_matched_key = number;
-          } else if (len > partial_match_len) {
-            partial_match_len = len;
-            partial_match_count = 1;
-            partial_matched_key = number;
-          } else if (len == partial_match_len) {
-            partial_match_count++;
-            partial_matched_key = number;
+      exact_match_count = 0;
+      exact_matched_key = 0;
+      partial_match_len = 0;
+      partial_match_count = 0;
+      partial_matched_key = 0;
+      for (number = 0; number < SIZE_KEY_TABLE; number++) {
+        if (key_table[number] != NULL) {
+          len = strlen(key_table[number]);
+          if (key_buffer_size >= len &&
+              memcmp(key_table[number], key_buffer, len) == 0) {
+            if (key_buffer_size == len) {
+              exact_match_count++;
+              exact_matched_key = number;
+            } else if (len > partial_match_len) {
+              partial_match_len = len;
+              partial_match_count = 1;
+              partial_matched_key = number;
+            } else if (len == partial_match_len) {
+              partial_match_count++;
+              partial_matched_key = number;
+            } /* if */
           } /* if */
         } /* if */
-      } /* if */
-    } /* for */
-    if (exact_match_count == 1) {
-      /* Exact match means:                     */
-      /* All characters in key_buffer are used. */
-      key_buffer_size = 0;
-      result = key_code[exact_matched_key];
-    } else if (partial_match_count == 1) {
-      /* Partial match means:                       */
-      /* Not all characters in key_buffer are used. */
-      len = strlen(key_table[partial_matched_key]);
-      /* Preserve the characters of the next key(s). */
-      memmove(key_buffer, &key_buffer[len], key_buffer_size - len);
-      key_buffer_size -= len;
-      result = key_code[partial_matched_key];
-    } else if (key_buffer[0] == '\033') {
-      if (key_buffer_size == 1) {
-        /* It is assumed that read() reads all characters of   */
-        /* an encoded key. Therefore a single escape character */
-        /* cannot be part of a larger escape sequence. If      */
-        /* escape sequences can be ripped apart this function  */
-        /* will not work correct.                              */
-        result = K_ESC;
+      } /* for */
+      if (exact_match_count == 1) {
+        /* Exact match means:                     */
+        /* All characters in key_buffer are used. */
         key_buffer_size = 0;
-      } else if (key_buffer[1] == '\033') {
-        /* It is assumed that no key encoding starts with two */
-        /* escape characters.                                 */
-        result = K_ESC;
+        result = key_code[exact_matched_key];
+      } else if (partial_match_count == 1) {
+        /* Partial match means:                       */
+        /* Not all characters in key_buffer are used. */
+        len = strlen(key_table[partial_matched_key]);
         /* Preserve the characters of the next key(s). */
-        memmove(key_buffer, &key_buffer[1], key_buffer_size - 1);
-        key_buffer_size--;
-      } else {
-        /* The check for key encodings did not find an unique result. */
-        result = K_UNDEF;
-        key_buffer_size = 0;
-      } /* if */
-    } else {
-      if (utf8_mode) {
-        result = read_utf8_key();
-      } else {
-        result = key_buffer[0];
-        if (key_buffer_size >= 2) {
+        memmove(key_buffer, &key_buffer[len], key_buffer_size - len);
+        key_buffer_size -= len;
+        result = key_code[partial_matched_key];
+      } else if (key_buffer[0] == '\033') {
+        if (key_buffer_size == 1) {
+          /* It is assumed that read() reads all characters of   */
+          /* an encoded key. Therefore a single escape character */
+          /* cannot be part of a larger escape sequence. If      */
+          /* escape sequences can be ripped apart this function  */
+          /* will not work correct.                              */
+          result = K_ESC;
+          key_buffer_size = 0;
+        } else if (key_buffer[1] == '\033') {
+          /* It is assumed that no key encoding starts with two */
+          /* escape characters.                                 */
+          result = K_ESC;
           /* Preserve the characters of the next key(s). */
           memmove(key_buffer, &key_buffer[1], key_buffer_size - 1);
+          key_buffer_size--;
+        } else {
+          /* The check for key encodings did not find an unique result. */
+          result = K_UNDEF;
+          key_buffer_size = 0;
         } /* if */
-        key_buffer_size--;
+      } else {
+        if (utf8_mode) {
+          result = read_utf8_key();
+        } else {
+          result = key_buffer[0];
+          if (key_buffer_size >= 2) {
+            /* Preserve the characters of the next key(s). */
+            memmove(key_buffer, &key_buffer[1], key_buffer_size - 1);
+          } /* if */
+          key_buffer_size--;
+        } /* if */
       } /* if */
     } /* if */
     return result;
@@ -772,7 +792,11 @@ charType kbdRawGetc (void)
     if (!keybd_initialized) {
       kbd_init();
     } /* if */
-    if (key_buffer_size > 0) {
+    if (!keybd_initialized) {
+      logError(printf("kbdRawGetc: kbd_init() failed to open the keyboard.\n"););
+      raise_error(FILE_ERROR);
+      result = (charType) EOF;
+    } else if (key_buffer_size > 0) {
       result = key_buffer[0];
       if (key_buffer_size >= 2) {
         memmove(key_buffer, &key_buffer[1], key_buffer_size - 1);
@@ -791,3 +815,5 @@ charType kbdRawGetc (void)
 /*  fprintf(stderr, "<%d>", result); */
     return result;
   } /* kbdRawRead */
+
+#endif

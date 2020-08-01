@@ -623,11 +623,11 @@ Seed7 can be used in various application areas:
 </h3></a><hr />
 <p>
 The Seed7 package contains more than 100000 lines of C and more
-than 300000 lines of Seed7. For version 2019-11-17 the number of lines is:
+than 300000 lines of Seed7. For version 2019-12-15 the number of lines is:
 </p><dl><dd><table border="0" cellspacing="0">
-  <tr><td align="right">150253</td> <td width="20"></td> <td>C source files (*.c)</td></tr>
-  <tr><td align="right"> 11166</td> <td width="20"></td> <td>C header files (*.h)</td></tr>
-  <tr><td align="right">165548</td> <td width="20"></td> <td>Seed7 source files (*.sd7)</td></tr>
+  <tr><td align="right">152766</td> <td width="20"></td> <td>C source files (*.c)</td></tr>
+  <tr><td align="right"> 12171</td> <td width="20"></td> <td>C header files (*.h)</td></tr>
+  <tr><td align="right">165580</td> <td width="20"></td> <td>Seed7 source files (*.sd7)</td></tr>
   <tr><td align="right">146933</td> <td width="20"></td> <td>Seed7 library/include files (*.s7i)</td></tr>
 </table></dd></dl><p>
 C code (*.c and *.h files) can be divided into the following areas:
@@ -2366,8 +2366,9 @@ command <tt>'make depend'</tt> writes C preprocessor macros to <nobr><span class
 </p><pre class="indent">
 #define CC_SOURCE_UTF8
 #define SEED7_LIB <span class="stri">"seed7_05.a"</span>
-#define CONSOLE_LIB <span class="stri">"s7_con.a"</span>
 #define DRAW_LIB <span class="stri">"s7_draw.a"</span>
+#define CONSOLE_LIB <span class="stri">"s7_con.a"</span>
+#define DATABASE_LIB <span class="stri">"s7_db.a"</span>
 #define COMP_DATA_LIB <span class="stri">"s7_data.a"</span>
 #define COMPILER_LIB <span class="stri">"s7_comp.a"</span>
 #define S7_LIB_DIR <span class="stri">"/home/abc/seed7/bin"</span>
@@ -2413,8 +2414,8 @@ A binary Seed7 package needs to install four groups of files:
 <li>The executables of the interpreter (s7 from <nobr><span class="lib">seed7/bin</span></nobr>) and the compiler
    (<span class="link">s7c</span> from <nobr><span class="lib">seed7/bin</span></nobr> or <nobr><span class="lib">seed7/prg</span></nobr>).</li>
 <li>The Seed7 include libraries (files from <nobr><span class="lib">seed7/lib</span></nobr> with the extension <tt><span class="lib">.s7i</span></tt>).</li>
-<li>The static Seed7 object libraries (the files <nobr><span class="lib">seed7_05.a</span></nobr>, <nobr><span class="lib">s7_con.a</span></nobr>, <nobr><span class="lib">s7_draw.a</span></nobr>,
-   <nobr><span class="lib">s7_data.a</span></nobr> and <nobr><span class="lib">s7_comp.a</span></nobr> from <nobr><span class="lib">seed7/bin</span></nobr>).</li>
+<li>The static Seed7 object libraries (the files <nobr><span class="lib">seed7_05.a</span></nobr>, <nobr><span class="lib">s7_draw.a</span></nobr>, <nobr><span class="lib">s7_con.a</span></nobr>,
+   <nobr><span class="lib">s7_db.a</span></nobr>, <nobr><span class="lib">s7_data.a</span></nobr> and <nobr><span class="lib">s7_comp.a</span></nobr> from <nobr><span class="lib">seed7/bin</span></nobr>).</li>
 <li>Documentation files (the files <tt>COPYING</tt> and <tt>LGPL</tt> and all files from <nobr><span class="lib">seed7/doc</span></nobr>).</li>
 </ul><p>
 The table below shows the suggested directories for Linux/Unix/BSD:
@@ -2455,24 +2456,80 @@ Compiling <span class="link">s7c</span> with a make command should be preferred.
 <div><br /><a name="faq_compile_with_database_connectons"><h3>What is necessary to compile Seed7 with database connections?
 </h3></a><hr />
 <p>
-The Seed7 runtime library provides the possibility to connect to MySQL,
-MariaDB, SQLLite, PostgreSQL, Oracle, ODBC, Firebird and Interbase databases.
-During the compilation of the Seed7 interpreter the program <tt><span class="stri">"chkccomp.c"</span></tt>
-searches for the availability of database connector libraries and the
-corresponding database include files. The program <tt><span class="stri">"chkccomp.c"</span></tt> uses
-configuration settings (e.g. MYSQL_LIBS, MYSQL_DLL, MYSQL_USE_LIB, ...
-FIRE_LIBS, FIRE_DLL, FIRE_USE_DLL) from the makefile. These settings
-allow the specification of static and dynamic connector libraries and if
-dynamic or static libraries should be used. For Oracle it is assumed that
-the environment variable ORACLE_HOME has been set. In case a database
-include file cannot be found Seed7 uses its own database include file
-(db_my.h, db_lite.h, db_post.h, db_oci.h, db_odbc.h, db_fire.h), with all
-definitions needed by Seed7. The Seed7 database drivers (sql_my.c,
-sql_lite.c, sql_post.c, sql_oci.c, sql_odbc.c, sql_fire.c) can work with
-static or dynamic database connector libraries. If possible, a Seed7
-database driver is added to the Seed7 runtime library. For a Seed7 package
-this means, that the packages for database connection should be installed
-during the compilation of the Seed7 interpreter.
+The Seed7 runtime library provides the possibility to connect to several
+databases. During the compilation of the Seed7 interpreter the program
+<tt><span class="stri">"chkccomp.c"</span></tt> searches for the availability of database connector libraries
+and the corresponding database include files (*.h header files). The
+connector libraries are provided by the database and can be static or
+dynamic. Often a connector library provides also a database include file
+(column <b>DB include</b> below). If the database include file is missing Seed7
+uses its own database include file (the one from the column <b>Other *.h</b>
+below). The names of the connector libraries can be specified in the
+makefile (macro definitions can be written to <tt><span class="stri">"chkccomp.h"</span></tt>). The names of
+the macros for the connector library names are provided in the columns
+<b>Static lib macro</b> and <b>Dynamic lib macro</b> below. The list below lists the
+currently supported databases:
+</p><dl><dd><table border="1" cellspacing="0" cellpadding="5">
+  
+  <tr><th> Database   </th><th> DB include </th><th> Other *.h </th><th> DB driver  </th><th> Static lib macro </th><th> Dynamic lib macro </th></tr>
+  
+  <tr><td> MySQL      </td><td> mysql.h    </td><td> db_my.h   </td><td> sql_my.c   </td><td> MYSQL_LIBS       </td><td> MYSQL_DLL         </td></tr>
+  <tr><td> MariaDB    </td><td> mysql.h    </td><td> db_my.h   </td><td> sql_my.c   </td><td> MYSQL_LIBS       </td><td> MYSQL_DLL         </td></tr>
+  <tr><td> SQLLite    </td><td> sqlite3.h  </td><td> db_lite.h </td><td> sql_lite.c </td><td> SQLITE_LIBS      </td><td> SQLITE_DLL        </td></tr>
+  <tr><td> PostgreSQL </td><td> libpq-fe.h </td><td> db_post.h </td><td> sql_post.c </td><td> POSTGRESQL_LIBS  </td><td> POSTGRESQL_DLL    </td></tr>
+  <tr><td> Oracle     </td><td> oci.h      </td><td> db_oci.h  </td><td> sql_oci.c  </td><td> OCI_LIBS         </td><td> OCI_DLL           </td></tr>
+  <tr><td> Firebird   </td><td> ibase.h    </td><td> db_fire.h </td><td> sql_fire.c </td><td> FIRE_LIBS        </td><td> FIRE_DLL          </td></tr>
+  <tr><td> Interbase  </td><td> ibase.h    </td><td> db_fire.h </td><td> sql_fire.c </td><td> FIRE_LIBS        </td><td> FIRE_DLL          </td></tr>
+  <tr><td> DB2        </td><td> sqlcli1.h  </td><td> db_odbc.h </td><td> sql_db2.c  </td><td> DB2_LIBS         </td><td> DB2_LIBS          </td></tr>
+  <tr><td> SQL Server </td><td> sql.h      </td><td> db_odbc.h </td><td> sql_srv.c  </td><td> SQL_SERVER_LIBS  </td><td> SQL_SERVER_DLL    </td></tr>
+  <tr><td> ODBC       </td><td> sql.h      </td><td> db_odbc.h </td><td> sql_odbc.c </td><td> ODBC_LIBS        </td><td> ODBC_DLL          </td></tr>
+  
+</table></dd></dl><p>
+If no static library is provided in the makefile (by writing it to
+<tt><span class="stri">"chkccomp.h"</span></tt>) a default value if used by <tt><span class="stri">"chkccomp.c"</span></tt>. This default
+value differs between Linux, macOS and Windows:
+</p><dl><dd><table border="1" cellspacing="0" cellpadding="5">
+  
+  <tr><th> Static lib macro </th><th> Linux connector lib </th><th> macOS connector lib </th><th> Windows connector lib                </th></tr>
+  
+  <tr><td> MYSQL_LIBS       </td><td> -lmysqlclient       </td><td> -lmysqlclient       </td><td> mariadbclient.lib or mysqlclient.lib </td></tr>
+  <tr><td> SQLITE_LIBS      </td><td> -lsqlite3           </td><td> -lsqlite3           </td><td> sqlite3.lib                          </td></tr>
+  <tr><td> POSTGRESQL_LIBS  </td><td> -lpq                </td><td> -lpq                </td><td> libpq.lib                            </td></tr>
+  <tr><td> OCI_LIBS         </td><td> -lclntsh            </td><td> -lclntsh            </td><td>                                      </td></tr>
+  <tr><td> FIRE_LIBS        </td><td> -lfbclient          </td><td> -lfbclient          </td><td> fbclient.dll or gds32.dll            </td></tr>
+  <tr><td> DB2_LIBS         </td><td> libdb2.a            </td><td> libdb2.a            </td><td> db2cli.lib                           </td></tr>
+  <tr><td> SQL_SERVER_LIBS  </td><td>                     </td><td>                     </td><td>                                      </td></tr>
+  <tr><td> ODBC_LIBS        </td><td> -lodbc              </td><td> -liodbc             </td><td> -lodbc32 or odbc32.lib               </td></tr>
+  
+</table></dd></dl><p>
+If no dynamic library is provided in the makefile (by writing it to
+<tt><span class="stri">"chkccomp.h"</span></tt>) a default value if used by <tt><span class="stri">"chkccomp.c"</span></tt>. This default
+value differs between Linux, macOS and Windows:
+</p><dl><dd><table border="1" cellspacing="0" cellpadding="5">
+  
+  <tr><th> Dynamic lib macro </th><th> Linux connector lib    </th><th> macOS connector lib  </th><th> Windows connector lib          </th></tr>
+  
+  <tr><td> MYSQL_DLL         </td><td> libmysqlclient.so      </td><td> libmysqlclient.dylib </td><td> libmariadb.dll or libmysql.dll </td></tr>
+  <tr><td> SQLITE_DLL        </td><td> libsqlite3.so          </td><td> libsqlite3.dylib     </td><td> sqlite3.dll                    </td></tr>
+  <tr><td> POSTGRESQL_DLL    </td><td> libpq.so or libpq.so.5 </td><td> libpq.dylib          </td><td> libpq.dll                      </td></tr>
+  <tr><td> OCI_DLL           </td><td> libclntsh.so           </td><td> libclntsh.dylib      </td><td> oci.dll                        </td></tr>
+  <tr><td> FIRE_DLL          </td><td> libfbclient.so         </td><td> libfbclient.dylib    </td><td> fbclient.dll or gds32.dll      </td></tr>
+  <tr><td> DB2_LIBS          </td><td> libdb2.so              </td><td> libdb2.dylib         </td><td> db2cli.dll                     </td></tr>
+  <tr><td> SQL_SERVER_DLL    </td><td> libtdsodbc.so          </td><td> libtdsodbc.dylib     </td><td> sqlsrv32.dll                   </td></tr>
+  <tr><td> ODBC_DLL          </td><td> libodbc.so             </td><td> libiodbc.dylib       </td><td> odbc32.dll                     </td></tr>
+  
+</table></dd></dl><p>
+For Oracle it is assumed that the environment variable ORACLE_HOME has
+been set. Static libraries are preferred over dynamic libraries. When
+no connector library can be found a dynamic library is expected. This
+way the database can be connected if a dynamic database connector
+library is installed later.
+</p><p>
+For a Seed7 package this means: During the compilation of Seed7 the
+development packages of all supported databases should be installed.
+This way the original headers are used instead of the headers provided
+by Seed7. When dynamic database connector libraries are used the Seed7
+package must require this packages.
 </p><p>
 Depending on the configuration the database connector library is linked
 statically or dynamically. If a dynamic database connector library cannot

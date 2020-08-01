@@ -78,7 +78,8 @@ SRC = $(MSRC)
 SEED7_LIB_SRC = $(RSRC) $(DSRC)
 DRAW_LIB_SRC = gkb_rtl.c drw_dos.c gkb_x11.c
 CONSOLE_LIB_SRC = kbd_rtl.c con_emc.c
-DATABASE_LIB_SRC = sql_base.c sql_db2.c sql_fire.c sql_lite.c sql_my.c sql_oci.c sql_odbc.c sql_post.c sql_srv.c
+DATABASE_LIB_SRC_STD_INCL = sql_base.c sql_fire.c sql_lite.c sql_my.c sql_oci.c sql_odbc.c sql_post.c
+DATABASE_LIB_SRC = $(DATABASE_LIB_SRC_STD_INCL) sql_db2.c sql_srv.c
 COMP_DATA_LIB_SRC = typ_data.c rfl_data.c ref_data.c listutl.c flistutl.c typeutl.c datautl.c
 COMPILER_LIB_SRC = $(PSRC) $(LSRC) $(ESRC) $(ASRC) $(GSRC)
 
@@ -114,10 +115,10 @@ big_%.o: big_%.c
 	$(CC) $(CPPFLAGS) $(CFLAGS) $(INCLUDE_OPTIONS) -c $< -o $@
 
 sql_db2.o: sql_db2.c
-	$(CC) $(CPPFLAGS) $(DB2_INCLUDE_OPTION) $(CFLAGS) $(INCLUDE_OPTIONS) -c $< -o $@
+	$(CC) $(CPPFLAGS) $(DB2_INCLUDE_OPTION) $(CFLAGS) $(INCLUDE_OPTIONS) -c $<
 
 sql_srv.o: sql_srv.c
-	$(CC) $(CPPFLAGS) $(SQL_SERVER_INCLUDE_OPTION) $(CFLAGS) $(INCLUDE_OPTIONS) -c $< -o $@
+	$(CC) $(CPPFLAGS) $(SQL_SERVER_INCLUDE_OPTION) $(CFLAGS) $(INCLUDE_OPTIONS) -c $<
 
 clear: clean
 
@@ -152,24 +153,6 @@ strip:
 
 chkccomp.h:
 	echo "#define LIST_DIRECTORY_CONTENTS \"dir\"" >> chkccomp.h
-	echo "#define MYSQL_LIBS \"-lmysqlclient\"" >> chkccomp.h
-	echo "#define MYSQL_DLL >> chkccomp.h
-	echo "#define MYSQL_USE_LIB" >> chkccomp.h
-	echo "#define SQLITE_LIBS \"-lsqlite3\"" >> chkccomp.h
-	echo "#define SQLITE_DLL >> chkccomp.h
-	echo "#define SQLITE_USE_LIB" >> chkccomp.h
-	echo "#define POSTGRESQL_LIBS \"-lpq\"" >> chkccomp.h
-	echo "#define POSTGRESQL_DLL >> chkccomp.h
-	echo "#define POSTGRESQL_USE_LIB" >> chkccomp.h
-	echo "#define ODBC_LIBS \"-lodbc\"" >> chkccomp.h
-	echo "#define ODBC_DLL >> chkccomp.h
-	echo "#define ODBC_USE_LIB" >> chkccomp.h
-	echo "#define OCI_LIBS \"-lclntsh\"" >> chkccomp.h
-	echo "#define OCI_DLL >> chkccomp.h
-	echo "#define OCI_USE_DLL" >> chkccomp.h
-	echo "#define FIRE_LIBS \"-lfbclient\"" >> chkccomp.h
-	echo "#define FIRE_DLL >> chkccomp.h
-	echo "#define FIRE_USE_DLL" >> chkccomp.h
 
 version.h: chkccomp.h
 	echo "#define PATH_DELIMITER '/'" > version.h
@@ -220,13 +203,15 @@ version.h: chkccomp.h
 	cp version.h vers_emccl.h
 
 depend: version.h
-	./wrdepend $(CFLAGS) -M $(SRC) "> depend"
-	./wrdepend $(CFLAGS) -M $(SEED7_LIB_SRC) ">> depend"
-	./wrdepend $(CFLAGS) -M $(DRAW_LIB_SRC) ">> depend"
-	./wrdepend $(CFLAGS) -M $(CONSOLE_LIB_SRC) ">> depend"
-	./wrdepend $(CFLAGS) -M $(DATABASE_LIB_SRC) ">> depend"
-	./wrdepend $(CFLAGS) -M $(COMP_DATA_LIB_SRC) ">> depend"
-	./wrdepend $(CFLAGS) -M $(COMPILER_LIB_SRC) ">> depend"
+	./wrdepend OPTION=INCLUDE_OPTIONS $(CFLAGS) -M -c $(SRC) "> depend"
+	./wrdepend OPTION=INCLUDE_OPTIONS $(CFLAGS) -M -c $(SEED7_LIB_SRC) ">> depend"
+	./wrdepend OPTION=INCLUDE_OPTIONS $(CFLAGS) -M -c $(DRAW_LIB_SRC) ">> depend"
+	./wrdepend OPTION=INCLUDE_OPTIONS $(CFLAGS) -M -c $(CONSOLE_LIB_SRC) ">> depend"
+	./wrdepend OPTION=INCLUDE_OPTIONS $(CFLAGS) -M -c $(DATABASE_LIB_SRC_STD_INCL) ">> depend"
+	./wrdepend OPTION=DB2_INCLUDE_OPTION $(CFLAGS) -M -c sql_db2.c ">> depend"
+	./wrdepend OPTION=SQL_SERVER_INCLUDE_OPTION $(CFLAGS) -M -c sql_srv.c ">> depend"
+	./wrdepend OPTION=INCLUDE_OPTIONS $(CFLAGS) -M -c $(COMP_DATA_LIB_SRC) ">> depend"
+	./wrdepend OPTION=INCLUDE_OPTIONS $(CFLAGS) -M -c $(COMPILER_LIB_SRC) ">> depend"
 	@echo
 	@echo "  Use 'make' (with your make command) to create the interpreter."
 	@echo
@@ -235,22 +220,22 @@ level.h:
 	node ../bin/s7.js -l ../lib level
 
 ../bin/$(SEED7_LIB): $(SEED7_LIB_OBJ)
-	ar r ../bin/$(SEED7_LIB) $(SEED7_LIB_OBJ)
+	emar r ../bin/$(SEED7_LIB) $(SEED7_LIB_OBJ)
 
 ../bin/$(DRAW_LIB): $(DRAW_LIB_OBJ)
-	ar r ../bin/$(DRAW_LIB) $(DRAW_LIB_OBJ)
+	emar r ../bin/$(DRAW_LIB) $(DRAW_LIB_OBJ)
 
 ../bin/$(CONSOLE_LIB): $(CONSOLE_LIB_OBJ)
-	ar r ../bin/$(CONSOLE_LIB) $(CONSOLE_LIB_OBJ)
+	emar r ../bin/$(CONSOLE_LIB) $(CONSOLE_LIB_OBJ)
 
 ../bin/$(DATABASE_LIB): $(DATABASE_LIB_OBJ)
-	ar r ../bin/$(DATABASE_LIB) $(DATABASE_LIB_OBJ)
+	emar r ../bin/$(DATABASE_LIB) $(DATABASE_LIB_OBJ)
 
 ../bin/$(COMP_DATA_LIB): $(COMP_DATA_LIB_OBJ)
-	ar r ../bin/$(COMP_DATA_LIB) $(COMP_DATA_LIB_OBJ)
+	emar r ../bin/$(COMP_DATA_LIB) $(COMP_DATA_LIB_OBJ)
 
 ../bin/$(COMPILER_LIB): $(COMPILER_LIB_OBJ)
-	ar r ../bin/$(COMPILER_LIB) $(COMPILER_LIB_OBJ)
+	emar r ../bin/$(COMPILER_LIB) $(COMPILER_LIB_OBJ)
 
 make7: ../bin/make7
 

@@ -79,7 +79,8 @@ SRC = $(MSRC)
 SEED7_LIB_SRC = $(RSRC) $(DSRC)
 DRAW_LIB_SRC = gkb_rtl.c drw_win.c gkb_win.c
 CONSOLE_LIB_SRC = kbd_rtl.c con_win.c
-DATABASE_LIB_SRC = sql_base.c sql_db2.c sql_fire.c sql_lite.c sql_my.c sql_oci.c sql_odbc.c sql_post.c sql_srv.c
+DATABASE_LIB_SRC_STD_INCL = sql_base.c sql_fire.c sql_lite.c sql_my.c sql_oci.c sql_odbc.c sql_post.c
+DATABASE_LIB_SRC = $(DATABASE_LIB_SRC_STD_INCL) sql_db2.c sql_srv.c
 COMP_DATA_LIB_SRC = typ_data.c rfl_data.c ref_data.c listutl.c flistutl.c typeutl.c datautl.c
 COMPILER_LIB_SRC = $(PSRC) $(LSRC) $(ESRC) $(ASRC) $(GSRC)
 
@@ -101,10 +102,10 @@ s7c: ..\bin\s7c.exe ..\prg\s7c.exe
 	..\bin\s7 -l ..\lib ..\prg\s7c -l ..\lib -b ..\bin -O2 ..\prg\s7c
 
 sql_db2.o: sql_db2.c
-	$(CC) -c $(CPPFLAGS) $(DB2_INCLUDE_OPTION) $(CFLAGS) $< -o $@
+	$(CC) -c $(CPPFLAGS) $(DB2_INCLUDE_OPTION) $(CFLAGS) $<
 
 sql_srv.o: sql_srv.c
-	$(CC) -c $(CPPFLAGS) $(SQL_SERVER_INCLUDE_OPTION) $(CFLAGS) $< -o $@
+	$(CC) -c $(CPPFLAGS) $(SQL_SERVER_INCLUDE_OPTION) $(CFLAGS) $<
 
 all: depend
 	$(MAKE) -f mk_mingc.mak s7 s7c
@@ -148,14 +149,7 @@ chkccomp.h:
 	echo #define TEST_C_COMPILER "../bin/call_gcc" >> chkccomp.h
 	echo #define LINKER_OPT_STATIC_LINKING "-static" >> chkccomp.h
 	echo #define LIST_DIRECTORY_CONTENTS "dir" >> chkccomp.h
-	echo #define MYSQL_USE_DLL >> chkccomp.h
-	echo #define SQLITE_USE_DLL >> chkccomp.h
 	echo #define POSTGRESQL_USE_DLL >> chkccomp.h
-	echo #define ODBC_LIBS "-lodbc32" >> chkccomp.h
-	echo #define ODBC_USE_LIB >> chkccomp.h
-	echo #define OCI_USE_DLL >> chkccomp.h
-	echo #define FIRE_LIBS "-lfbclient" >> chkccomp.h
-	echo #define FIRE_USE_DLL >> chkccomp.h
 
 version.h: chkccomp.h
 	echo #define PATH_DELIMITER '\\' > version.h
@@ -200,13 +194,15 @@ version.h: chkccomp.h
 	copy version.h vers_mingc.h /Y
 
 depend: version.h
-	.\wrdepend.exe $(CFLAGS) -M $(SRC) "> depend"
-	.\wrdepend.exe $(CFLAGS) -M $(SEED7_LIB_SRC) ">> depend"
-	.\wrdepend.exe $(CFLAGS) -M $(DRAW_LIB_SRC) ">> depend"
-	.\wrdepend.exe $(CFLAGS) -M $(CONSOLE_LIB_SRC) ">> depend"
-	.\wrdepend.exe $(CFLAGS) -M $(DATABASE_LIB_SRC) ">> depend"
-	.\wrdepend.exe $(CFLAGS) -M $(COMP_DATA_LIB_SRC) ">> depend"
-	.\wrdepend.exe $(CFLAGS) -M $(COMPILER_LIB_SRC) ">> depend"
+	.\wrdepend.exe OPTION=INCLUDE_OPTIONS $(CFLAGS) -M $(SRC) "> depend"
+	.\wrdepend.exe OPTION=INCLUDE_OPTIONS $(CFLAGS) -M $(SEED7_LIB_SRC) ">> depend"
+	.\wrdepend.exe OPTION=INCLUDE_OPTIONS $(CFLAGS) -M $(DRAW_LIB_SRC) ">> depend"
+	.\wrdepend.exe OPTION=INCLUDE_OPTIONS $(CFLAGS) -M $(CONSOLE_LIB_SRC) ">> depend"
+	.\wrdepend.exe OPTION=INCLUDE_OPTIONS $(CFLAGS) -M $(DATABASE_LIB_SRC_STD_INCL) ">> depend"
+	.\wrdepend.exe OPTION=DB2_INCLUDE_OPTION $(CFLAGS) -M sql_db2.c ">> depend"
+	.\wrdepend.exe OPTION=SQL_SERVER_INCLUDE_OPTION $(CFLAGS) -M sql_srv.c ">> depend"
+	.\wrdepend.exe OPTION=INCLUDE_OPTIONS $(CFLAGS) -M $(COMP_DATA_LIB_SRC) ">> depend"
+	.\wrdepend.exe OPTION=INCLUDE_OPTIONS $(CFLAGS) -M $(COMPILER_LIB_SRC) ">> depend"
 
 level.h:
 	..\bin\s7 -l ..\lib level

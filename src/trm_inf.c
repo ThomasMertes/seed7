@@ -34,10 +34,14 @@
 
 #include "version.h"
 
+#ifdef USE_TERMINFO
 #include "stdlib.h"
 #include "stdio.h"
 #include "string.h"
 
+#ifdef TERM_INCLUDE
+#include TERM_INCLUDE
+#else
 #ifdef INCL_CURSES_BEFORE_TERM
 /* The following includes are necessary for RM Machines. */
 #include "curses.h"
@@ -48,6 +52,7 @@
 #include "ncurses/term.h"
 #else
 #include "term.h"
+#endif
 #endif
 
 #include "common.h"
@@ -391,3 +396,5 @@ void putcontrol (char *control)
       tputs(control, 1, outch);
     } /* if */
   } /* putcontrol */
+
+#endif

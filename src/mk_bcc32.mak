@@ -51,7 +51,8 @@ OBJ = $(MOBJ)
 SEED7_LIB_OBJ = $(ROBJ) $(DOBJ)
 DRAW_LIB_OBJ = gkb_rtl.obj drw_win.obj gkb_win.obj
 CONSOLE_LIB_OBJ = kbd_rtl.obj con_win.obj
-DATABASE_LIB_OBJ = sql_base.obj sql_db2.obj sql_fire.obj sql_lite.obj sql_my.obj sql_oci.obj sql_odbc.obj sql_post.obj sql_srv.obj
+DATABASE_LIB_OBJ_STD_INCL = sql_base.obj sql_fire.obj sql_lite.obj sql_my.obj sql_oci.obj sql_odbc.obj sql_post.obj
+DATABASE_LIB_OBJ = $(DATABASE_LIB_OBJ_STD_INCL) sql_db2.obj sql_srv.obj
 COMP_DATA_LIB_OBJ = typ_data.obj rfl_data.obj ref_data.obj listutl.obj flistutl.obj typeutl.obj datautl.obj
 COMPILER_LIB_OBJ = $(POBJ) $(LOBJ) $(EOBJ) $(AOBJ) $(GOBJ)
 
@@ -76,7 +77,8 @@ SRC = $(MSRC)
 SEED7_LIB_SRC = $(RSRC) $(DSRC)
 DRAW_LIB_SRC = gkb_rtl.c drw_win.c gkb_win.c
 CONSOLE_LIB_SRC = kbd_rtl.c con_win.c
-DATABASE_LIB_SRC = sql_base.c sql_db2.c sql_fire.c sql_lite.c sql_my.c sql_oci.c sql_odbc.c sql_post.c sql_srv.c
+DATABASE_LIB_SRC_STD_INCL = sql_base.c sql_fire.c sql_lite.c sql_my.c sql_oci.c sql_odbc.c sql_post.c
+DATABASE_LIB_SRC = $(DATABASE_LIB_SRC_STD_INCL) sql_db2.c sql_srv.c
 COMP_DATA_LIB_SRC = typ_data.c rfl_data.c ref_data.c listutl.c flistutl.c typeutl.c datautl.c
 COMPILER_LIB_SRC = $(PSRC) $(LSRC) $(ESRC) $(ASRC) $(GSRC)
 
@@ -104,10 +106,13 @@ s7c: ..\bin\s7c.exe ..\prg\s7c.exe
 	..\bin\s7 -l ..\lib ..\prg\s7c -l ..\lib -b ..\bin -O2 ..\prg\s7c
 
 sql_db2.o: sql_db2.c
-	$(CC) -c $(CPPFLAGS) $(DB2_INCLUDE_OPTION) $(CFLAGS) $< -o $@
+	$(CC) -c $(CPPFLAGS) $(DB2_INCLUDE_OPTION) $(CFLAGS) $<
 
 sql_srv.o: sql_srv.c
-	$(CC) -c $(CPPFLAGS) $(SQL_SERVER_INCLUDE_OPTION) $(CFLAGS) $< -o $@
+	$(CC) -c $(CPPFLAGS) $(SQL_SERVER_INCLUDE_OPTION) $(CFLAGS) $<
+
+all: depend
+	$(MAKE) -f mk_bcc32.mak s7 s7c
 
 clear: clean
 
@@ -154,14 +159,6 @@ dep: depend
 
 chkccomp.h:
 	echo ^#define LIST_DIRECTORY_CONTENTS "dir" >> chkccomp.h
-	echo ^#define MYSQL_USE_DLL >> chkccomp.h
-	echo ^#define SQLITE_USE_DLL >> chkccomp.h
-	echo ^#define POSTGRESQL_USE_DLL >> chkccomp.h
-	echo ^#define ODBC_LIBS "-lodbc32" >> chkccomp.h
-	echo ^#define ODBC_USE_LIB >> chkccomp.h
-	echo ^#define OCI_USE_DLL >> chkccomp.h
-	echo ^#define FIRE_LIBS "-lfbclient" >> chkccomp.h
-	echo ^#define FIRE_USE_DLL >> chkccomp.h
 
 version.h: chkccomp.h
 	echo ^#define PATH_DELIMITER '\\' > version.h
@@ -240,36 +237,46 @@ version.h: chkccomp.h
 	$(CC) $(CFLAGS) -c $<
 
 depend: version.h
-	wrdepend.exe $(CFLAGS) -c -w- -m -md $(SRC)
+	wrdepend.exe OPTION=INCLUDE_OPTIONS $(CFLAGS) -c -w- -m -md $(SRC)
 	copy *.d depend
 	del *.d
 	del $(OBJ)
-	wrdepend.exe $(CFLAGS) -c -w- -m -md $(SEED7_LIB_SRC)
+	wrdepend.exe OPTION=INCLUDE_OPTIONS $(CFLAGS) -c -w- -m -md $(SEED7_LIB_SRC)
 	copy *.d a_depend
 	del *.d
 	del $(SEED7_LIB_OBJ)
 	type a_depend >> depend
-	wrdepend.exe $(CFLAGS) -c -w- -m -md $(DRAW_LIB_SRC)
+	wrdepend.exe OPTION=INCLUDE_OPTIONS $(CFLAGS) -c -w- -m -md $(DRAW_LIB_SRC)
 	copy *.d a_depend
 	del *.d
 	del $(DRAW_LIB_OBJ)
 	type a_depend >> depend
-	wrdepend.exe $(CFLAGS) -c -w- -m -md $(CONSOLE_LIB_SRC)
+	wrdepend.exe OPTION=INCLUDE_OPTIONS $(CFLAGS) -c -w- -m -md $(CONSOLE_LIB_SRC)
 	copy *.d a_depend
 	del *.d
 	del $(CONSOLE_LIB_OBJ)
 	type a_depend >> depend
-	wrdepend.exe $(CFLAGS) -c -w- -m -md $(DATABASE_LIB_SRC)
+	wrdepend.exe OPTION=INCLUDE_OPTIONS $(CFLAGS) -c -w- -m -md $(DATABASE_LIB_SRC_STD_INCL)
 	copy *.d a_depend
 	del *.d
-	del $(DATABASE_LIB_OBJ)
+	del $(DATABASE_LIB_OBJ_STD_INCL)
 	type a_depend >> depend
-	wrdepend.exe $(CFLAGS) -c -w- -m -md $(COMP_DATA_LIB_SRC)
+	wrdepend.exe OPTION=DB2_INCLUDE_OPTION $(CFLAGS) -c -w- -m -md sql_db2.c
+	copy *.d a_depend
+	del *.d
+	del sql_db2.obj
+	type a_depend >> depend
+	wrdepend.exe OPTION=SQL_SERVER_INCLUDE_OPTION $(CFLAGS) -c -w- -m -md sql_srv.c
+	copy *.d a_depend
+	del *.d
+	del sql_srv.obj
+	type a_depend >> depend
+	wrdepend.exe OPTION=INCLUDE_OPTIONS $(CFLAGS) -c -w- -m -md $(COMP_DATA_LIB_SRC)
 	copy *.d a_depend
 	del *.d
 	del $(COMP_DATA_LIB_OBJ)
 	type a_depend >> depend
-	wrdepend.exe $(CFLAGS) -c -w- -m -md $(COMPILER_LIB_SRC)
+	wrdepend.exe OPTION=INCLUDE_OPTIONS $(CFLAGS) -c -w- -m -md $(COMPILER_LIB_SRC)
 	copy *.d d_depend
 	del *.d
 	del $(COMPILER_LIB_OBJ)

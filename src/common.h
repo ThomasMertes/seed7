@@ -540,6 +540,12 @@ typedef int errInfoType;
 #define longjmpPosition jmp_buf
 #endif
 
+#if FORWARD_TERM_CALLS
+boolType findTermDll (void);
+#else
+#define findTermDll() TRUE
+#endif
+
 
 /* The macros below compute the array size as memSizeType    */
 /* value. The computation avoids a signed integer overflow.  */

@@ -4548,7 +4548,7 @@ databaseType sqlOpenOci (const const_striType host, intType port,
 
   {
     const_cstriType host8;
-    cstriType dbName8;
+    const_cstriType dbName8;
     connectDataRecord connectData;
     cstriType user8;
     memSizeType user8Length;
