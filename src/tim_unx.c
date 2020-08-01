@@ -113,6 +113,7 @@ void timAwait (intType year, intType month, intType day, intType hour,
     tm_time.tm_isdst = 0;
     await_second = mkutc(&tm_time);
     if (unlikely(await_second == (time_t) -1)) {
+      logError(printf("timAwait: mkutc() failed.\n"););
       raise_error(RANGE_ERROR);
     } else {
       await_second -= time_zone * 60;
@@ -169,6 +170,7 @@ void timAwait (intType year, intType month, intType day, intType hour,
     tm_time.tm_isdst = 0;
     await_second = mkutc(&tm_time);
     if (unlikely(await_second == (time_t) -1)) {
+      logError(printf("timAwait: mkutc() failed.\n"););
       raise_error(RANGE_ERROR);
     } else {
       await_second -= time_zone * 60;
@@ -230,6 +232,7 @@ void timAwait (intType year, intType month, intType day, intType hour,
     tm_time.tm_isdst = 0;
     await_second = mkutc(&tm_time);
     if (unlikely(await_second == (time_t) -1)) {
+      logError(printf("timAwait: mkutc() failed.\n"););
       raise_error(RANGE_ERROR);
     } else {
       await_second -= time_zone * 60;
@@ -308,6 +311,7 @@ void timAwait (intType year, intType month, intType day, intType hour,
     tm_time.tm_isdst = 0;
     await_second = mkutc(&tm_time);
     if (unlikely(await_second == (time_t) -1)) {
+      logError(printf("timAwait: mkutc() failed.\n"););
       raise_error(RANGE_ERROR);
     } else {
       await_second -= time_zone * 60;
@@ -383,6 +387,7 @@ void timAwait (intType year, intType month, intType day, intType hour,
     tm_time.tm_isdst = 0;
     await_second = mkutc(&tm_time);
     if (unlikely(await_second == (time_t) -1)) {
+      logError(printf("timAwait: mkutc() failed.\n"););
       raise_error(RANGE_ERROR);
     } else {
       await_second -= time_zone * 60;
@@ -469,6 +474,10 @@ void timNow (intType *year, intType *month, intType *day, intType *hour,
     local_time = localtime(&time_val.tv_sec);
 #endif
     if (unlikely(local_time == NULL)) {
+      logError(printf("timNow: One of "
+                      "localtime/localtime_r/localtime_s(" FMT_T ") failed:\n"
+                      "errno=%d\nerror: %s\n",
+                      time_val.tv_sec, errno, strerror(errno)););
       raise_error(RANGE_ERROR);
     } else {
       *year      = local_time->tm_year + 1900;

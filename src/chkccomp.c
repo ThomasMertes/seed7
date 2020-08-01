@@ -1024,7 +1024,7 @@ static void numericSizes (FILE *versionFile)
       } /* if */
       fprintf(versionFile, "#define UINT32_SUFFIX(num) num ## U%s\n", int32TypeSuffix);
       fprintf(versionFile, "#define INT32TYPE_LITERAL_SUFFIX \"%s\"\n", int32TypeSuffix);
-      fprintf(versionFile, "#define INT32TYPE_FORMAT \"%s\"\n", int32TypeFormat);
+      fprintf(versionFile, "#define INT32TYPE_FORMAT_LENGTH_MODIFIER \"%s\"\n", int32TypeFormat);
     } /* if */
     if (sizeof_long == 8) {
       int64TypeStri = "long";
@@ -1109,7 +1109,7 @@ static void numericSizes (FILE *versionFile)
       fprintf(versionFile, "#define UINT64_SUFFIX(num) num ## U%s\n", int64TypeSuffix);
       fprintf(versionFile, "#define INT64TYPE_LITERAL_SUFFIX \"%s\"\n", int64TypeSuffix);
 #endif
-      fprintf(versionFile, "#define INT64TYPE_FORMAT \"%s\"\n", int64TypeFormat);
+      fprintf(versionFile, "#define INT64TYPE_FORMAT_LENGTH_MODIFIER \"%s\"\n", int64TypeFormat);
     } /* if */
     if (compileAndLinkOk("#include <stdio.h>\n#include <time.h>\n"
                          "int main(int argc, char *argv[])\n"

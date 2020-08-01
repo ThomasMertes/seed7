@@ -43,6 +43,7 @@
 #include "data_rtl.h"
 #include "heaputl.h"
 #include "striutl.h"
+#include "arr_rtl.h"
 #include "rtl_err.h"
 
 #undef EXTERN
@@ -662,50 +663,66 @@ void toUpper (const strElemType *const source, memSizeType length,
 
 
 
-static rtlArrayType add_stri_to_array (const strElemType *const stri_elems,
-    const memSizeType length, rtlArrayType work_array, intType *used_max_position)
+static rtlArrayType addCopiedStriToRtlArray (const strElemType *const stri_elems,
+    const memSizeType length, rtlArrayType work_array, intType used_max_position)
 
   {
     striType new_stri;
     rtlArrayType resized_work_array;
-    memSizeType position;
 
-  /* add_stri_to_array */
+  /* addCopiedStriToRtlArray */
     if (likely(ALLOC_STRI_SIZE_OK(new_stri, length))) {
       new_stri->size = length;
       memcpy(new_stri->mem, stri_elems, length * sizeof(strElemType));
-      if (*used_max_position >= work_array->max_position) {
-        if (unlikely(work_array->max_position >= MAX_MEM_INDEX - ARRAY_SIZE_DELTA)) {
-          resized_work_array = NULL;
-        } else {
-          resized_work_array = REALLOC_RTL_ARRAY(work_array,
-              (uintType) work_array->max_position,
-              (uintType) work_array->max_position + ARRAY_SIZE_DELTA);
-        } /* if */
-        if (unlikely(resized_work_array == NULL)) {
+      if (used_max_position >= work_array->max_position) {
+        if (unlikely(work_array->max_position > MAX_RTL_ARR_INDEX - ARRAY_SIZE_DELTA ||
+            (resized_work_array = REALLOC_RTL_ARRAY(work_array,
+                (uintType) work_array->max_position,
+                (uintType) work_array->max_position + ARRAY_SIZE_DELTA)) == NULL)) {
           FREE_STRI(new_stri, new_stri->size);
-          new_stri = NULL;
+          freeRtlStriArray(work_array, used_max_position);
+          work_array = NULL;
         } else {
           work_array = resized_work_array;
           COUNT3_RTL_ARRAY((uintType) work_array->max_position,
                            (uintType) work_array->max_position + ARRAY_SIZE_DELTA);
           work_array->max_position += ARRAY_SIZE_DELTA;
+          work_array->arr[used_max_position].value.striValue = new_stri;
         } /* if */
+      } else {
+        work_array->arr[used_max_position].value.striValue = new_stri;
       } /* if */
-    } /* if */
-    if (likely(new_stri != NULL)) {
-      work_array->arr[*used_max_position].value.striValue = new_stri;
-      (*used_max_position)++;
     } else {
-      for (position = 0; position < (uintType) *used_max_position; position++) {
-        FREE_STRI(work_array->arr[position].value.striValue,
-                  work_array->arr[position].value.striValue->size);
-      } /* for */
-      FREE_RTL_ARRAY(work_array, (uintType) work_array->max_position);
+      freeRtlStriArray(work_array, used_max_position);
       work_array = NULL;
     } /* if */
     return work_array;
-  } /* add_stri_to_array */
+  } /* addCopiedStriToRtlArray */
+
+
+
+static inline rtlArrayType completeRtlStriArray (rtlArrayType work_array,
+    intType used_max_position)
+
+  {
+    rtlArrayType resized_work_array;
+
+  /* completeRtlStriArray */
+    if (likely(work_array != NULL)) {
+      resized_work_array = REALLOC_RTL_ARRAY(work_array,
+          (uintType) work_array->max_position, (uintType) used_max_position);
+      if (unlikely(resized_work_array == NULL)) {
+        freeRtlStriArray(work_array, used_max_position);
+        work_array = NULL;
+      } else {
+        work_array = resized_work_array;
+        COUNT3_RTL_ARRAY((uintType) work_array->max_position,
+                         (uintType) used_max_position);
+        work_array->max_position = used_max_position;
+      } /* if */
+    } /* if */
+    return work_array;
+  } /* completeRtlStriArray */
 
 
 
@@ -1376,31 +1393,18 @@ rtlArrayType strChEscSplit (const const_striType mainStri, const charType delimi
               } /* if */
             } /* if */
           } /* while */
-          result_array = add_stri_to_array(search_start,
+          result_array = addCopiedStriToRtlArray(search_start,
               (memSizeType) (found_pos - search_start), result_array,
-              &used_max_position);
+              used_max_position);
+          used_max_position++;
           search_start = found_pos + 1;
 
       if (result_array != NULL) {
-        result_array = add_stri_to_array(search_start,
+        result_array = addCopiedStriToRtlArray(search_start,
             (memSizeType) (search_end - search_start), result_array,
-            &used_max_position);
-        if (result_array != NULL) {
-          resized_result_array = REALLOC_RTL_ARRAY(result_array,
-              (uintType) result_array->max_position, (uintType) used_max_position);
-          if (resized_result_array == NULL) {
-            for (pos = 0; pos < (uintType) used_max_position; pos++) {
-              FREE_STRI(result_array->arr[pos].value.striValue,
-                        result_array->arr[pos].value.striValue->size);
-            } /* for */
-            FREE_RTL_ARRAY(result_array, (uintType) result_array->max_position);
-            result_array = NULL;
-          } else {
-            result_array = resized_result_array;
-            COUNT3_RTL_ARRAY((uintType) result_array->max_position, (uintType) used_max_position);
-            result_array->max_position = used_max_position;
-          } /* if */
-        } /* if */
+            used_max_position);
+        used_max_position++;
+        result_array = completeRtlStriArray(result_array, used_max_position);
       } /* if */
     } /* if */
     if (unlikely(result_array == NULL)) {
@@ -1513,6 +1517,83 @@ intType strChPos (const const_striType mainStri, const charType searched)
 
 
 
+/**
+ *  Replace all occurrences of char 'searched' in 'mainStri' by 'replacement'.
+ *  @return the result of the replacement.
+ */
+striType strChRepl (const const_striType mainStri,
+    const charType searched, const const_striType replacement)
+
+  {
+    memSizeType main_size;
+    memSizeType guessed_result_size;
+    memSizeType result_size;
+    const strElemType *main_mem;
+    const strElemType *search_start;
+    const strElemType *search_end;
+    const strElemType *copy_start;
+    strElemType *result_end;
+    striType resized_result;
+    striType result;
+
+  /* strChRepl */
+    main_size = mainStri->size;
+    /* printf("main_size=" FMT_U_MEM ", replacement->size=" FMT_U_MEM "\n",
+        main_size, replacement->size); */
+    if (replacement->size > 1) {
+      if (unlikely(main_size > MAX_STRI_LEN / replacement->size)) {
+        raise_error(MEMORY_ERROR);
+        return NULL;
+      } else {
+        guessed_result_size = main_size * replacement->size;
+      } /* if */
+    } else {
+      guessed_result_size = main_size;
+    } /* if */
+    if (unlikely(!ALLOC_STRI_SIZE_OK(result, guessed_result_size))) {
+      raise_error(MEMORY_ERROR);
+    } else {
+      copy_start = mainStri->mem;
+      result_end = result->mem;
+      if (main_size != 0) {
+        main_mem = mainStri->mem;
+        search_start = main_mem;
+        search_end = &main_mem[main_size];
+        while (search_start < search_end &&
+          (search_start = memchr_strelem(search_start, searched,
+              (memSizeType) (search_end - search_start))) != NULL) {
+          memcpy(result_end, copy_start,
+                 (memSizeType) (search_start - copy_start) * sizeof(strElemType));
+          result_end += search_start - copy_start;
+          memcpy(result_end, replacement->mem,
+                 replacement->size * sizeof(strElemType));
+          result_end += replacement->size;
+          search_start++;
+          copy_start = search_start;
+        } /* while */
+      } /* if */
+      memcpy(result_end, copy_start,
+             (memSizeType) (&mainStri->mem[main_size] - copy_start) * sizeof(strElemType));
+      result_end += &mainStri->mem[main_size] - copy_start;
+      result_size = (memSizeType) (result_end - result->mem);
+      /* printf("result=%lu, guessed_result_size=%ld, result_size=%ld\n",
+         result, guessed_result_size, result_size); */
+      REALLOC_STRI_SIZE_SMALLER(resized_result, result, guessed_result_size, result_size);
+      if (unlikely(resized_result == NULL)) {
+        FREE_STRI(result, guessed_result_size);
+        raise_error(MEMORY_ERROR);
+        result = NULL;
+      } else {
+        result = resized_result;
+        COUNT3_STRI(guessed_result_size, result_size);
+        result->size = result_size;
+      } /* if */
+    } /* if */
+    return result;
+  } /* strChRepl */
+
+
+
 rtlArrayType strChSplit (const const_striType mainStri, const charType delimiter)
 
   {
@@ -1520,8 +1601,6 @@ rtlArrayType strChSplit (const const_striType mainStri, const charType delimiter
     const strElemType *search_start;
     const strElemType *search_end;
     const strElemType *found_pos;
-    memSizeType pos;
-    rtlArrayType resized_result_array;
     rtlArrayType result_array;
 
   /* strChSplit */
@@ -1536,36 +1615,24 @@ rtlArrayType strChSplit (const const_striType mainStri, const charType delimiter
       while ((found_pos = memchr_strelem(search_start, delimiter,
           (memSizeType) (search_end - search_start))) != NULL &&
           result_array != NULL) {
-        result_array = add_stri_to_array(search_start,
+        result_array = addCopiedStriToRtlArray(search_start,
             (memSizeType) (found_pos - search_start), result_array,
-            &used_max_position);
+            used_max_position);
+        used_max_position++;
         search_start = found_pos + 1;
       } /* while */
-      if (result_array != NULL) {
-        result_array = add_stri_to_array(search_start,
+      if (likely(result_array != NULL)) {
+        result_array = addCopiedStriToRtlArray(search_start,
             (memSizeType) (search_end - search_start), result_array,
-            &used_max_position);
-        if (result_array != NULL) {
-          resized_result_array = REALLOC_RTL_ARRAY(result_array,
-              (uintType) result_array->max_position, (uintType) used_max_position);
-          if (resized_result_array == NULL) {
-            for (pos = 0; pos < (uintType) used_max_position; pos++) {
-              FREE_STRI(result_array->arr[pos].value.striValue,
-                        result_array->arr[pos].value.striValue->size);
-            } /* for */
-            FREE_RTL_ARRAY(result_array, (uintType) result_array->max_position);
-            result_array = NULL;
-          } else {
-            result_array = resized_result_array;
-            COUNT3_RTL_ARRAY((uintType) result_array->max_position, (uintType) used_max_position);
-            result_array->max_position = used_max_position;
-          } /* if */
-        } /* if */
+            used_max_position);
+        used_max_position++;
+        result_array = completeRtlStriArray(result_array, used_max_position);
       } /* if */
     } /* if */
     if (unlikely(result_array == NULL)) {
       raise_error(MEMORY_ERROR);
     } /* if */
+    logFunction(printf("strChSplit -->\n"););
     return result_array;
   } /* strChSplit */
 
@@ -1829,6 +1896,8 @@ striType strConcatTemp (striType stri1, const const_striType stri2)
       result_size = stri1->size + stri2->size;
 #if WITH_STRI_CAPACITY
       if (result_size > stri1->capacity) {
+        /* Because 'stri1' is a temporary string it cannot happen */
+        /* that 'stri2' is identical to 'stri1' or a slice of it. */
         resized_stri1 = growStri(stri1, result_size);
         if (unlikely(resized_stri1 == NULL)) {
           FREE_STRI(stri1, stri1->size);
@@ -1843,6 +1912,8 @@ striType strConcatTemp (striType stri1, const const_striType stri2)
              stri2->size * sizeof(strElemType));
       stri1->size = result_size;
 #else
+      /* Because 'stri1' is a temporary string it cannot happen */
+      /* that 'stri2' is identical to 'stri1' or a slice of it.  */
       GROW_STRI(resized_stri1, stri1, stri1->size, result_size);
       if (unlikely(resized_stri1 == NULL)) {
         FREE_STRI(stri1, stri1->size);
@@ -3335,7 +3406,7 @@ striType strRepl (const const_striType mainStri,
             } else {
               search_start++;
             } /* if */
-          } /* if */
+          } /* while */
         } /* if */
         memcpy(result_end, copy_start,
                (memSizeType) (&mainStri->mem[main_size] - copy_start) * sizeof(strElemType));
@@ -3699,8 +3770,6 @@ rtlArrayType strSplit (const const_striType mainStri,
     const strElemType *segment_start;
     const strElemType *search_end;
     const strElemType *found_pos;
-    memSizeType pos;
-    rtlArrayType resized_result_array;
     rtlArrayType result_array;
 
   /* strSplit */
@@ -3720,9 +3789,10 @@ rtlArrayType strSplit (const const_striType mainStri,
             result_array != NULL) {
           if (memcmp(found_pos, delimiter_mem,
               delimiter_size * sizeof(strElemType)) == 0) {
-            result_array = add_stri_to_array(segment_start,
+            result_array = addCopiedStriToRtlArray(segment_start,
                 (memSizeType) (found_pos - segment_start), result_array,
-                &used_max_position);
+                used_max_position);
+            used_max_position++;
             search_start = found_pos + delimiter_size;
             segment_start = search_start;
           } else {
@@ -3730,31 +3800,18 @@ rtlArrayType strSplit (const const_striType mainStri,
           } /* if */
         } /* while */
       } /* if */
-      if (result_array != NULL) {
-        result_array = add_stri_to_array(segment_start,
+      if (likely(result_array != NULL)) {
+        result_array = addCopiedStriToRtlArray(segment_start,
             (memSizeType) (&mainStri->mem[mainStri->size] - segment_start), result_array,
-            &used_max_position);
-        if (result_array != NULL) {
-          resized_result_array = REALLOC_RTL_ARRAY(result_array,
-              (uintType) result_array->max_position, (uintType) used_max_position);
-          if (resized_result_array == NULL) {
-            for (pos = 0; pos < (uintType) used_max_position; pos++) {
-              FREE_STRI(result_array->arr[pos].value.striValue,
-                        result_array->arr[pos].value.striValue->size);
-            } /* for */
-            FREE_RTL_ARRAY(result_array, (uintType) result_array->max_position);
-            result_array = NULL;
-          } else {
-            result_array = resized_result_array;
-            COUNT3_RTL_ARRAY((uintType) result_array->max_position, (uintType) used_max_position);
-            result_array->max_position = used_max_position;
-          } /* if */
-        } /* if */
+            used_max_position);
+        used_max_position++;
+        result_array = completeRtlStriArray(result_array, used_max_position);
       } /* if */
     } /* if */
     if (unlikely(result_array == NULL)) {
       raise_error(MEMORY_ERROR);
     } /* if */
+    logFunction(printf("strSplit -->\n"););
     return result_array;
   } /* strSplit */
 
@@ -4105,7 +4162,7 @@ striType strUpTemp (const striType stri)
 striType strUtf8ToStri (const const_striType utf8)
 
   {
-    memSizeType striSize;
+    memSizeType utf8Size;
     memSizeType pos;
     const strElemType *utf8ptr;
     boolType okay = TRUE;
@@ -4115,24 +4172,24 @@ striType strUtf8ToStri (const const_striType utf8)
   /* strUtf8ToStri */
     logFunction(printf("strUtf8ToStri(\"%s\")\n",
                        striAsUnquotedCStri(utf8)););
-    striSize = utf8->size;
-    if (unlikely(!ALLOC_STRI_SIZE_OK(result, striSize))) {
+    utf8Size = utf8->size;
+    if (unlikely(!ALLOC_STRI_SIZE_OK(result, utf8Size))) {
       raise_error(MEMORY_ERROR);
     } else {
       utf8ptr = &utf8->mem[0];
       pos = 0;
-      for (; striSize > 0; pos++, striSize--) {
+      for (; utf8Size > 0; pos++, utf8Size--) {
         if (*utf8ptr <= 0x7F) {
           result->mem[pos] = *utf8ptr++;
-        } else if (utf8ptr[0] >= 0xC0 && utf8ptr[0] <= 0xDF && striSize >= 2 &&
+        } else if (utf8ptr[0] >= 0xC0 && utf8ptr[0] <= 0xDF && utf8Size >= 2 &&
                    utf8ptr[1] >= 0x80 && utf8ptr[1] <= 0xBF) {
           /* utf8ptr[0]   range 192 to 223 (leading bits 110.....) */
           /* utf8ptr[1]   range 128 to 191 (leading bits 10......) */
           result->mem[pos] = (utf8ptr[0] & 0x1F) << 6 |
                              (utf8ptr[1] & 0x3F);
           utf8ptr += 2;
-          striSize--;
-        } else if (utf8ptr[0] >= 0xE0 && utf8ptr[0] <= 0xEF && striSize >= 3 &&
+          utf8Size--;
+        } else if (utf8ptr[0] >= 0xE0 && utf8ptr[0] <= 0xEF && utf8Size >= 3 &&
                    utf8ptr[1] >= 0x80 && utf8ptr[1] <= 0xBF &&
                    utf8ptr[2] >= 0x80 && utf8ptr[2] <= 0xBF) {
           /* utf8ptr[0]   range 224 to 239 (leading bits 1110....) */
@@ -4141,8 +4198,8 @@ striType strUtf8ToStri (const const_striType utf8)
                              (utf8ptr[1] & 0x3F) <<  6 |
                              (utf8ptr[2] & 0x3F);
           utf8ptr += 3;
-          striSize -= 2;
-        } else if (utf8ptr[0] >= 0xF0 && utf8ptr[0] <= 0xF7 && striSize >= 4 &&
+          utf8Size -= 2;
+        } else if (utf8ptr[0] >= 0xF0 && utf8ptr[0] <= 0xF7 && utf8Size >= 4 &&
                    utf8ptr[1] >= 0x80 && utf8ptr[1] <= 0xBF &&
                    utf8ptr[2] >= 0x80 && utf8ptr[2] <= 0xBF &&
                    utf8ptr[3] >= 0x80 && utf8ptr[3] <= 0xBF) {
@@ -4153,8 +4210,8 @@ striType strUtf8ToStri (const const_striType utf8)
                              (utf8ptr[2] & 0x3F) <<  6 |
                              (utf8ptr[3] & 0x3F);
           utf8ptr += 4;
-          striSize -= 3;
-        } else if (utf8ptr[0] >= 0xF8 && utf8ptr[0] <= 0xFB && striSize >= 5 &&
+          utf8Size -= 3;
+        } else if (utf8ptr[0] >= 0xF8 && utf8ptr[0] <= 0xFB && utf8Size >= 5 &&
                    utf8ptr[1] >= 0x80 && utf8ptr[1] <= 0xBF &&
                    utf8ptr[2] >= 0x80 && utf8ptr[2] <= 0xBF &&
                    utf8ptr[3] >= 0x80 && utf8ptr[3] <= 0xBF &&
@@ -4167,8 +4224,8 @@ striType strUtf8ToStri (const const_striType utf8)
                              (utf8ptr[3] & 0x3F) <<  6 |
                              (utf8ptr[4] & 0x3F);
           utf8ptr += 5;
-          striSize -= 4;
-        } else if (utf8ptr[0] >= 0xFC && utf8ptr[0] <= 0xFF && striSize >= 6 &&
+          utf8Size -= 4;
+        } else if (utf8ptr[0] >= 0xFC && utf8ptr[0] <= 0xFF && utf8Size >= 6 &&
                    utf8ptr[1] >= 0x80 && utf8ptr[1] <= 0xBF &&
                    utf8ptr[2] >= 0x80 && utf8ptr[2] <= 0xBF &&
                    utf8ptr[3] >= 0x80 && utf8ptr[3] <= 0xBF &&
@@ -4183,7 +4240,7 @@ striType strUtf8ToStri (const const_striType utf8)
                              (utf8ptr[4] & 0x3F) <<  6 |
                              (utf8ptr[5] & 0x3F);
           utf8ptr += 6;
-          striSize -= 5;
+          utf8Size -= 5;
         } else {
           /* utf8ptr[0] not in range 0xC0 to 0xFF (192 to 255) */
           /* or not enough continuation bytes found.           */
@@ -4193,19 +4250,21 @@ striType strUtf8ToStri (const const_striType utf8)
                           (memSizeType) (utf8ptr - &utf8->mem[0]),
                           utf8ptr[0]););
           okay = FALSE;
-          striSize = 1;
+          utf8Size = 1;
         } /* if */
       } /* for */
       if (likely(okay)) {
-        REALLOC_STRI_SIZE_SMALLER(resized_result, result, utf8->size, pos);
-        if (unlikely(resized_result == NULL)) {
-          FREE_STRI(result, utf8->size);
-          raise_error(MEMORY_ERROR);
-          result = NULL;
-        } else {
-          result = resized_result;
-          COUNT3_STRI(utf8->size, pos);
-          result->size = pos;
+        result->size = pos;
+        if (pos != utf8->size) {
+          REALLOC_STRI_SIZE_SMALLER(resized_result, result, utf8->size, pos);
+          if (unlikely(resized_result == NULL)) {
+            FREE_STRI(result, utf8->size);
+            raise_error(MEMORY_ERROR);
+            result = NULL;
+          } else {
+            result = resized_result;
+            COUNT3_STRI(utf8->size, pos);
+          } /* if */
         } /* if */
       } else {
         FREE_STRI(result, utf8->size);

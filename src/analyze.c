@@ -655,7 +655,7 @@ progType analyzeString (const const_striType input_string, uintType options,
     interpreter_exception = TRUE;
     initAnalyze();
     resultProg = NULL;
-    sourceFileArgument = cstri_to_stri("STRING");
+    sourceFileArgument = CSTRI_LITERAL_TO_STRI("STRING");
     if (sourceFileArgument == NULL) {
       *err_info = MEMORY_ERROR;
     } else {

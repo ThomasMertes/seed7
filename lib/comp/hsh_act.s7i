@@ -60,18 +60,31 @@ const proc: hsh_prototypes (inout file: c_prog) is func
   end func;
 
 
-const proc: process_const_hsh_contains (in reference: aSetRef, in reference: param2,
+const proc: process_const_hsh_contains (in reference: aSetRef, in reference: keyParam,
     in reference: param3, in reference: param4, inout expr_type: c_expr) is func
 
+  local
+    var reference: key_element is NIL;
   begin
     if hashLength(aSetRef) = 0 then
       incr(countOptimizations);
       c_expr.expr &:= "0/*FALSE*/";
+    elsif hashLength(aSetRef) = 1 then
+      key_element := hashKeysToList(aSetRef)[1];
+      c_expr.expr &:= "((compareType)(";
+      process_expr(param4, c_expr);
+      c_expr.expr &:= "))(";
+      setVar(key_element, FALSE);
+      getGenericValue(key_element, c_expr);
+      setVar(key_element, TRUE);
+      c_expr.expr &:= ", ";
+      getGenericValue(keyParam, c_expr);
+      c_expr.expr &:= ") == 0";
     else
       c_expr.expr &:= "hshContains(";
       process_expr(aSetRef, c_expr);
       c_expr.expr &:= ", ";
-      getGenericValue(param2, c_expr);
+      getGenericValue(keyParam, c_expr);
       c_expr.expr &:= ", ";
       process_expr(param3, c_expr);
       c_expr.expr &:= ", (compareType)(";

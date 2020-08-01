@@ -479,7 +479,7 @@ striType get_file_name (fileNumType file_num)
       result = help_file->name;
     } else {
       if (question_mark == NULL) {
-        question_mark = cstri_to_stri("?");
+        question_mark = CSTRI_LITERAL_TO_STRI("?");
       } /* if */
       result = question_mark;
     } /* if */

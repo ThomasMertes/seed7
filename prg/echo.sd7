@@ -24,13 +24,13 @@
 
 $ include "seed7_05.s7i";
   include "stdio.s7i";
-  include "utf8.s7i";
+  include "console.s7i";
 
 const proc: main is func
   local
     var string: stri is "";
   begin
-    OUT := STD_UTF8_OUT;
+    OUT := STD_CONSOLE;
     for stri range argv(PROGRAM) do
       write(stri <& " ");
     end for;

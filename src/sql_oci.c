@@ -119,7 +119,7 @@ static sqlFuncType sqlFunc = NULL;
 
 #define MAX_BIND_VAR_SIZE 4
 #define MIN_BIND_VAR_NUM 0
-#define MAX_BIND_VAR_NUM 17575
+#define MAX_BIND_VAR_NUM (26 * 26 * 26 - 1)
 #define SIZEOF_SQLT_NUM 22
 #define SIZEOF_SQLT_TIMESTAMP_TZ 13
 #define MANTISSA_LEN 40

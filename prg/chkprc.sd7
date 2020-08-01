@@ -1430,6 +1430,51 @@ const proc: check_for_int_downto is func
   end func;
 
 
+const proc: check_for_big_to is func
+  local
+    var boolean: okay is TRUE;
+    var bigInteger: num1 is 0_;
+    var bigInteger: num2 is 0_;
+    var bigInteger: check1 is 0_;
+    var bigInteger: check2 is 0_;
+    var bigInteger: counter is 0_;
+  begin
+    for num1 range 1_ to 100_ do
+      incr(check1);
+      okay := okay and num1 = check1;
+      check2 := 0_;
+      for num2 range 1_ to 50_ do
+        incr(check2);
+        okay := okay and num1 = check1 and num2 = check2;
+      end for;
+      for num2 range 51_ to 100_ do
+        incr(check2);
+        okay := okay and num1 = check1 and num2 = check2;
+      end for;
+    end for;
+    check1 := 0_;
+    for num1 range 1_ to 100_ do
+      incr(check1);
+      okay := okay and num1 = check1;
+      check2 := 0_;
+      for num2 range 1_ to num1 do
+        incr(check2);
+        okay := okay and num1 = check1 and num2 = check2;
+      end for;
+      for num2 range succ(num1) to 100_ do
+        incr(check2);
+        okay := okay and num1 = check1 and num2 = check2;
+      end for;
+    end for;
+    if okay then
+      writeln("For bigInteger statements work correct.");
+    else
+      writeln(" ***** For bigInteger statements do not work correct");
+      writeln;
+    end if;
+  end func;
+
+
 const proc: check_case_int is func
   local
     var integer: num is 0;
@@ -4699,6 +4744,7 @@ const proc: main is func
     check_repeat;
     check_for_int_to;
     check_for_int_downto;
+    check_for_big_to;
     check_case_int;
     check_case_char;
     check_case_string;

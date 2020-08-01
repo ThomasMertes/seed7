@@ -1395,6 +1395,24 @@ const proc: chkForLoop is func
   end func;
 
 
+const proc: chkAssignmentToItself is func
+  local
+    var boolean: okay is TRUE;
+    var stringStringHash: aHash is stringStringHash.value;
+  begin
+    aHash @:= ["asdf"] "qwer";
+    okay := okay and aHash["asdf"] = "qwer";
+    aHash := aHash;
+    okay := okay and aHash["asdf"] = "qwer";
+    if okay then
+      writeln("The assignment of a hash variable to itself works correct.");
+    else
+      writeln(" ***** The assignment of a hash variable to itself does not work correct.");
+      writeln;
+    end if;
+  end func;
+
+
 const proc: main is func
   begin
     writeln;
@@ -1409,4 +1427,5 @@ const proc: main is func
     chkStringHash;
     chkKeysFunction;
     chkForLoop;
+    chkAssignmentToItself;
   end func;

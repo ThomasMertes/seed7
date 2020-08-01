@@ -816,7 +816,7 @@ striType pcsStr (const const_processType process)
 
   /* pcsStr */
     if (process == NULL) {
-      result = cstri_buf_to_stri("NULL", 4);
+      result = CSTRI_LITERAL_TO_STRI("NULL");
       if (unlikely(result == NULL)) {
         raise_error(MEMORY_ERROR);
       } /* if */

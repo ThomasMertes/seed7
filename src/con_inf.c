@@ -29,6 +29,9 @@
 /*                                                                  */
 /********************************************************************/
 
+#define LOG_FUNCTIONS 0
+#define VERBOSE_EXCEPTIONS 0
+
 #include "version.h"
 
 #include "stdlib.h"
@@ -167,14 +170,22 @@ static void strelem_fwrite (const strElemType *stri, memSizeType length,
     for (; length >= WRITE_STRI_BLOCK_SIZE;
         stri += WRITE_STRI_BLOCK_SIZE, length -= WRITE_STRI_BLOCK_SIZE) {
       size = stri_to_utf8(stri_buffer, stri, WRITE_STRI_BLOCK_SIZE);
-      if (size != fwrite(stri_buffer, sizeof(ucharType), (size_t) size, outFile)) {
+      if (unlikely(size != fwrite(stri_buffer, 1, (size_t) size, outFile))) {
+        logError(printf("strelem_fwrite: fwrite(*, 1, " FMT_U_MEM ", %d) failed:\n"
+                        "errno=%d\nerror: %s\n",
+                        size, safe_fileno(outFile),
+                        errno, strerror(errno)););
         raise_error(FILE_ERROR);
         return;
       } /* if */
     } /* for */
     if (length > 0) {
       size = stri_to_utf8(stri_buffer, stri, length);
-      if (size != fwrite(stri_buffer, sizeof(ucharType), (size_t) size, outFile)) {
+      if (unlikely(size != fwrite(stri_buffer, 1, (size_t) size, outFile))) {
+        logError(printf("strelem_fwrite: fwrite(*, 1, " FMT_U_MEM ", %d) failed:\n"
+                        "errno=%d\nerror: %s\n",
+                        size, safe_fileno(outFile),
+                        errno, strerror(errno)););
         raise_error(FILE_ERROR);
         return;
       } /* if */

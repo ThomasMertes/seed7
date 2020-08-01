@@ -78,6 +78,7 @@ void cmdGetMTime (const const_striType file_name,
     boolType *is_dst);
 rtlArrayType cmdGetSearchPath (void);
 striType cmdHomeDir (void);
+rtlArrayType cmdLs (const const_striType dirPath);
 void cmdMkdir (const const_striType dir_name);
 void cmdMove (const const_striType source_name, const const_striType dest_name);
 striType cmdReadlink (const const_striType link_name);

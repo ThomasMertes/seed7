@@ -500,7 +500,7 @@ setType setDiff (const const_setType set1, const const_setType set2)
     memSizeType bitset_index;
     memSizeType bitset_index2;
     memSizeType index_beyond;
-    setType result;
+    setType difference;
 
   /* setDiff */
     logFunction(printf("setDiff(");
@@ -508,41 +508,41 @@ setType setDiff (const const_setType set1, const const_setType set2)
                 printf(", ");
                 prot_set(set2);
                 printf(")\n"););
-    if (unlikely(!ALLOC_SET(result, bitsetSize(set1)))) {
+    if (unlikely(!ALLOC_SET(difference, bitsetSize(set1)))) {
       raise_error(MEMORY_ERROR);
     } else {
-      result->min_position = set1->min_position;
-      result->max_position = set1->max_position;
+      difference->min_position = set1->min_position;
+      difference->max_position = set1->max_position;
       if (set1->max_position < set2->min_position ||
           set1->min_position > set2->max_position) {
-        memcpy(result->bitset, set1->bitset, bitsetSize(set1) * sizeof(bitSetType));
+        memcpy(difference->bitset, set1->bitset, bitsetSize(set1) * sizeof(bitSetType));
       } else {
         if (set2->min_position > set1->min_position) {
           bitset_index = bitsetIndex(set1, set2->min_position);
           bitset_index2 = 0;
-          memcpy(result->bitset, set1->bitset, bitset_index * sizeof(bitSetType));
+          memcpy(difference->bitset, set1->bitset, bitset_index * sizeof(bitSetType));
         } else {
           bitset_index = 0;
           bitset_index2 = bitsetIndex(set2, set1->min_position);
         } /* if */
         if (set1->max_position > set2->max_position) {
           index_beyond = bitsetIndex(set1, set2->max_position + 1);
-          memcpy(&result->bitset[index_beyond], &set1->bitset[index_beyond],
+          memcpy(&difference->bitset[index_beyond], &set1->bitset[index_beyond],
                  (size_t) (uintType) (set1->max_position - set2->max_position) *
                  sizeof(bitSetType));
         } else {
           index_beyond = bitsetSize(set1);
         } /* if */
         for (; bitset_index < index_beyond; bitset_index++, bitset_index2++) {
-          result->bitset[bitset_index] = set1->bitset[bitset_index] &
+          difference->bitset[bitset_index] = set1->bitset[bitset_index] &
               ~ set2->bitset[bitset_index2];
         } /* for */
       } /* if */
     } /* if */
     logFunction(printf("setDiff --> ");
-                prot_set(result);
+                prot_set(difference);
                 printf("\n"););
-    return result;
+    return difference;
   } /* setDiff */
 
 
@@ -585,17 +585,17 @@ boolType setElem (const intType number, const const_setType aSet)
 setType setEmpty (void)
 
   {
-    setType result;
+    setType emtpySet;
 
   /* setEmpty */
-    if (unlikely(!ALLOC_SET(result, 1))) {
+    if (unlikely(!ALLOC_SET(emtpySet, 1))) {
       raise_error(MEMORY_ERROR);
     } else {
-      result->min_position = 0;
-      result->max_position = 0;
-      result->bitset[0] = (bitSetType) 0;
+      emtpySet->min_position = 0;
+      emtpySet->max_position = 0;
+      emtpySet->bitset[0] = (bitSetType) 0;
     } /* if */
-    return result;
+    return emtpySet;
   } /* setEmpty */
 
 
@@ -857,7 +857,7 @@ setType setIntersect (const const_setType set1, const const_setType set2)
     intType position;
     intType min_position;
     intType max_position;
-    setType result;
+    setType intersection;
 
   /* setIntersect */
     logFunction(printf("setIntersect(\n");
@@ -876,30 +876,30 @@ setType setIntersect (const const_setType set1, const const_setType set2)
       max_position = set2->max_position;
     } /* if */
     if (min_position > max_position) {
-      if (unlikely(!ALLOC_SET(result, 1))) {
+      if (unlikely(!ALLOC_SET(intersection, 1))) {
         raise_error(MEMORY_ERROR);
       } else {
-        result->min_position = 0;
-        result->max_position = 0;
-        result->bitset[0] = (bitSetType) 0;
+        intersection->min_position = 0;
+        intersection->max_position = 0;
+        intersection->bitset[0] = (bitSetType) 0;
       } /* if */
     } else {
-      if (unlikely(!ALLOC_SET(result, (uintType) (max_position - min_position + 1)))) {
+      if (unlikely(!ALLOC_SET(intersection, (uintType) (max_position - min_position + 1)))) {
         raise_error(MEMORY_ERROR);
       } else {
-        result->min_position = min_position;
-        result->max_position = max_position;
+        intersection->min_position = min_position;
+        intersection->max_position = max_position;
         for (position = min_position; position <= max_position; position++) {
-          result->bitset[position - min_position] =
+          intersection->bitset[position - min_position] =
               set1->bitset[position - set1->min_position] &
               set2->bitset[position - set2->min_position];
         } /* for */
       } /* if */
     } /* if */
     logFunction(printf("setIntersect --> ");
-                prot_set(result);
+                prot_set(intersection);
                 printf("\n"););
-    return result;
+    return intersection;
   } /* setIntersect */
 
 
@@ -1359,7 +1359,7 @@ setType setSymdiff (const const_setType set1, const const_setType set2)
     intType max_position;
     intType start_position;
     intType stop_position;
-    setType result;
+    setType symDiff;
 
   /* setSymdiff */
     logFunction(printf("setSymdiff(\n");
@@ -1382,53 +1382,53 @@ setType setSymdiff (const const_setType set1, const const_setType set2)
       stop_position = set1->max_position;
     } /* if */
     if (unlikely((uintType) (max_position - min_position + 1) > MAX_SET_LEN ||
-        !ALLOC_SET(result, (uintType) (max_position - min_position + 1)))) {
+        !ALLOC_SET(symDiff, (uintType) (max_position - min_position + 1)))) {
       raise_error(MEMORY_ERROR);
-      result = NULL;
+      symDiff = NULL;
     } else {
-      result->min_position = min_position;
-      result->max_position = max_position;
+      symDiff->min_position = min_position;
+      symDiff->max_position = max_position;
       if (set1->max_position < set2->min_position ||
           set1->min_position > set2->max_position) {
-        memcpy(&result->bitset[set1->min_position - min_position], set1->bitset,
+        memcpy(&symDiff->bitset[set1->min_position - min_position], set1->bitset,
                bitsetSize(set1) * sizeof(bitSetType));
-        memcpy(&result->bitset[set2->min_position - min_position], set2->bitset,
+        memcpy(&symDiff->bitset[set2->min_position - min_position], set2->bitset,
                bitsetSize(set2) * sizeof(bitSetType));
-        memset(&result->bitset[stop_position - min_position + 1], 0,
+        memset(&symDiff->bitset[stop_position - min_position + 1], 0,
                (size_t) (uintType) (start_position - stop_position - 1) *
                sizeof(bitSetType));
       } else {
         if (set2->min_position > set1->min_position) {
-          memcpy(&result->bitset[set1->min_position - min_position], set1->bitset,
+          memcpy(&symDiff->bitset[set1->min_position - min_position], set1->bitset,
                  (size_t) (uintType) (set2->min_position - set1->min_position) *
                  sizeof(bitSetType));
         } else {
-          memcpy(&result->bitset[set2->min_position - min_position], set2->bitset,
+          memcpy(&symDiff->bitset[set2->min_position - min_position], set2->bitset,
                  (size_t) (uintType) (set1->min_position - set2->min_position) *
                  sizeof(bitSetType));
         } /* if */
         if (set2->max_position > set1->max_position) {
-          memcpy(&result->bitset[set1->max_position - min_position + 1],
+          memcpy(&symDiff->bitset[set1->max_position - min_position + 1],
                  &set2->bitset[set1->max_position - set2->min_position + 1],
                  (size_t) (uintType) (set2->max_position - set1->max_position) *
                  sizeof(bitSetType));
         } else {
-          memcpy(&result->bitset[set2->max_position - min_position + 1],
+          memcpy(&symDiff->bitset[set2->max_position - min_position + 1],
                  &set1->bitset[set2->max_position - set1->min_position + 1],
                  (size_t) (uintType) (set1->max_position - set2->max_position) *
                  sizeof(bitSetType));
         } /* if */
         for (position = start_position; position <= stop_position; position++) {
-          result->bitset[position - min_position] =
+          symDiff->bitset[position - min_position] =
               set1->bitset[position - set1->min_position] ^
               set2->bitset[position - set2->min_position];
         } /* for */
       } /* if */
     } /* if */
     logFunction(printf("setSymdiff --> ");
-                prot_set(result);
+                prot_set(symDiff);
                 printf("\n"););
-    return result;
+    return symDiff;
   } /* setSymdiff */
 
 
@@ -1483,7 +1483,7 @@ setType setUnion (const const_setType set1, const const_setType set2)
     intType max_position;
     intType start_position;
     intType stop_position;
-    setType result;
+    setType unionOfSets;
 
   /* setUnion */
     logFunction(printf("setUnion(\n");
@@ -1506,53 +1506,53 @@ setType setUnion (const const_setType set1, const const_setType set2)
       stop_position = set1->max_position;
     } /* if */
     if (unlikely((uintType) (max_position - min_position + 1) > MAX_SET_LEN ||
-        !ALLOC_SET(result, (uintType) (max_position - min_position + 1)))) {
+        !ALLOC_SET(unionOfSets, (uintType) (max_position - min_position + 1)))) {
       raise_error(MEMORY_ERROR);
-      result = NULL;
+      unionOfSets = NULL;
     } else {
-      result->min_position = min_position;
-      result->max_position = max_position;
+      unionOfSets->min_position = min_position;
+      unionOfSets->max_position = max_position;
       if (set1->max_position < set2->min_position ||
           set1->min_position > set2->max_position) {
-        memcpy(&result->bitset[set1->min_position - min_position], set1->bitset,
+        memcpy(&unionOfSets->bitset[set1->min_position - min_position], set1->bitset,
                bitsetSize(set1) * sizeof(bitSetType));
-        memcpy(&result->bitset[set2->min_position - min_position], set2->bitset,
+        memcpy(&unionOfSets->bitset[set2->min_position - min_position], set2->bitset,
                bitsetSize(set2) * sizeof(bitSetType));
-        memset(&result->bitset[stop_position - min_position + 1], 0,
+        memset(&unionOfSets->bitset[stop_position - min_position + 1], 0,
                (size_t) (uintType) (start_position - stop_position - 1) *
                sizeof(bitSetType));
       } else {
         if (set2->min_position > set1->min_position) {
-          memcpy(&result->bitset[set1->min_position - min_position], set1->bitset,
+          memcpy(&unionOfSets->bitset[set1->min_position - min_position], set1->bitset,
                  (size_t) (uintType) (set2->min_position - set1->min_position) *
                  sizeof(bitSetType));
         } else {
-          memcpy(&result->bitset[set2->min_position - min_position], set2->bitset,
+          memcpy(&unionOfSets->bitset[set2->min_position - min_position], set2->bitset,
                  (size_t) (uintType) (set1->min_position - set2->min_position) *
                  sizeof(bitSetType));
         } /* if */
         if (set2->max_position > set1->max_position) {
-          memcpy(&result->bitset[set1->max_position - min_position + 1],
+          memcpy(&unionOfSets->bitset[set1->max_position - min_position + 1],
                  &set2->bitset[set1->max_position - set2->min_position + 1],
                  (size_t) (uintType) (set2->max_position - set1->max_position) *
                  sizeof(bitSetType));
         } else {
-          memcpy(&result->bitset[set2->max_position - min_position + 1],
+          memcpy(&unionOfSets->bitset[set2->max_position - min_position + 1],
                  &set1->bitset[set2->max_position - set1->min_position + 1],
                  (size_t) (uintType) (set1->max_position - set2->max_position) *
                  sizeof(bitSetType));
         } /* if */
         for (position = start_position; position <= stop_position; position++) {
-          result->bitset[position - min_position] =
+          unionOfSets->bitset[position - min_position] =
               set1->bitset[position - set1->min_position] |
               set2->bitset[position - set2->min_position];
         } /* for */
       } /* if */
     } /* if */
     logFunction(printf("setUnion --> ");
-                prot_set(result);
+                prot_set(unionOfSets);
                 printf("\n"););
-    return result;
+    return unionOfSets;
   } /* setUnion */
 
 

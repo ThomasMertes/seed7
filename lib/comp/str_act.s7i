@@ -82,6 +82,7 @@ const proc: str_prototypes (inout file: c_prog) is func
     declareExtern(c_prog, "intType     strChIPos (const const_striType, const charType, const intType);");
     declareExtern(c_prog, "striType    strChMult (const charType, const intType);");
     declareExtern(c_prog, "intType     strChPos (const const_striType, const charType);");
+    declareExtern(c_prog, "striType    strChRepl (const const_striType, const charType, const const_striType);");
     declareExtern(c_prog, "arrayType   strChSplit (const const_striType, const charType);");
     declareExtern(c_prog, "intType     strCmpGeneric (const genericType, const genericType);");
     declareExtern(c_prog, "intType     strCompare (const const_striType, const const_striType);");
@@ -663,7 +664,7 @@ const proc: process (STR_CPY, in reference: function,
   end func;
 
 
-const proc: process_const_str_elemcpy (in reference: function, in reference: param1,
+const proc: process_const_str_elemcpy (in reference: param1,
     in integer: index, in char: ch, inout expr_type: c_expr) is func
 
   local
@@ -723,7 +724,7 @@ const proc: process_const_str_elemcpy (in reference: function, in reference: par
   end func;
 
 
-const proc: process_const_str_elemcpy (in reference: function, in reference: param1,
+const proc: process_const_str_elemcpy (in reference: param1,
     in integer: index, in reference: param6, inout expr_type: c_expr) is func
 
   local
@@ -789,7 +790,7 @@ const proc: process_const_str_elemcpy (in reference: function, in reference: par
   end func;
 
 
-const proc: process_const_str_elemcpy (in reference: function, in reference: param1,
+const proc: process_const_str_elemcpy (in reference: param1,
     in reference: param4, in char: ch, inout expr_type: c_expr) is func
 
   local
@@ -798,7 +799,7 @@ const proc: process_const_str_elemcpy (in reference: function, in reference: par
     var expr_type: c_param4 is expr_type.value;
   begin
     if getConstant(param4, INTOBJECT, evaluatedParam) then
-      process_const_str_elemcpy(function, param1, getValue(evaluatedParam, integer), ch, c_expr);
+      process_const_str_elemcpy(param1, getValue(evaluatedParam, integer), ch, c_expr);
     else
       process_expr(param1, c_param1);
       c_param4.temp_num := c_param1.temp_num;
@@ -870,9 +871,9 @@ const proc: process (STR_ELEMCPY, in reference: function,
     var expr_type: c_param6 is expr_type.value;
   begin
     if getConstant(params[6], CHAROBJECT, evaluatedParam) then
-      process_const_str_elemcpy(function, params[1], params[4], getValue(evaluatedParam, char), c_expr);
+      process_const_str_elemcpy(params[1], params[4], getValue(evaluatedParam, char), c_expr);
     elsif getConstant(params[4], INTOBJECT, evaluatedParam) then
-      process_const_str_elemcpy(function, params[1], getValue(evaluatedParam, integer), params[6], c_expr);
+      process_const_str_elemcpy(params[1], getValue(evaluatedParam, integer), params[6], c_expr);
     else
       process_expr(params[1], c_param1);
       c_param4.temp_num := c_param1.temp_num;
@@ -1350,7 +1351,7 @@ const proc: process (STR_HEAD, in reference: function,
   end func;
 
 
-const proc: process_const_str_idx (in reference: function, in string: stri,
+const proc: process_const_str_idx (in string: stri,
     in reference: param3, inout expr_type: c_expr) is func
 
   local
@@ -1414,7 +1415,7 @@ const proc: process_const_str_idx (in reference: function, in string: stri,
   end func;
 
 
-const proc: process_const_str_idx (in reference: function, in reference: param1,
+const proc: process_const_str_idx (in reference: param1,
     in integer: index, inout expr_type: c_expr) is func
 
   local
@@ -1472,9 +1473,9 @@ const proc: process (STR_IDX, in reference: function,
     var string: index_name is "";
   begin
     if getConstant(params[1], STRIOBJECT, evaluatedParam) then
-      process_const_str_idx(function, getValue(evaluatedParam, string), params[3], c_expr);
+      process_const_str_idx(getValue(evaluatedParam, string), params[3], c_expr);
     elsif getConstant(params[3], INTOBJECT, evaluatedParam) then
-      process_const_str_idx(function, params[1], getValue(evaluatedParam, integer), c_expr);
+      process_const_str_idx(params[1], getValue(evaluatedParam, integer), c_expr);
     elsif array_range_check then
       incr(countRangeChecks);
       incr(c_expr.temp_num);
@@ -2062,7 +2063,7 @@ const proc: process (STR_POS, in reference: function,
   end func;
 
 
-const proc: process_const_str_poscpy (in reference: function, in reference: param1,
+const proc: process_const_str_poscpy (in reference: param1,
     in integer: index, in reference: param6, inout expr_type: c_expr) is func
 
   local
@@ -2137,9 +2138,9 @@ const proc: process (STR_POSCPY, in reference: function,
   begin
     if getConstant(params[6], STRIOBJECT, evaluatedParam) and
         length(getValue(evaluatedParam, string)) = 1 then
-      process_const_str_elemcpy(function, params[1], params[4], getValue(evaluatedParam, string)[1], c_expr);
+      process_const_str_elemcpy(params[1], params[4], getValue(evaluatedParam, string)[1], c_expr);
     elsif getConstant(params[4], INTOBJECT, evaluatedParam) then
-      process_const_str_poscpy(function, params[1], getValue(evaluatedParam, integer), params[6], c_expr);
+      process_const_str_poscpy(params[1], getValue(evaluatedParam, integer), params[6], c_expr);
     else
       process_expr(params[1], c_param1);
       c_param4.temp_num := c_param1.temp_num;
@@ -2449,18 +2450,67 @@ const proc: process (STR_RCHPOS, in reference: function,
   end func;
 
 
+const proc: process_const_str_repl (in reference: param1,
+    in string: searched, in reference: param3, inout expr_type: c_expr) is func
+
+  begin
+    if searched = "" then
+      incr(countOptimizations);
+      prepare_stri_result(c_expr);
+      c_expr.result_expr := "strCreate(";
+      getAnyParamToResultExpr(param1, c_expr);
+      c_expr.result_expr &:= ")";
+    elsif length(searched) = 1 then
+      incr(countOptimizations);
+      prepare_stri_result(c_expr);
+      c_expr.result_expr := "strChRepl(";
+      getAnyParamToResultExpr(param1, c_expr);
+      c_expr.result_expr &:= ", ";
+      c_expr.result_expr &:= charLiteral(searched[1]);
+      c_expr.result_expr &:= ", ";
+      getAnyParamToResultExpr(param3, c_expr);
+      c_expr.result_expr &:= ")";
+    else
+      prepare_stri_result(c_expr);
+      c_expr.result_expr := "strRepl(";
+      getAnyParamToResultExpr(param1, c_expr);
+      c_expr.result_expr &:= ", ";
+      c_expr.result_expr &:= stringLiteral(searched);
+      c_expr.result_expr &:= ", ";
+      getAnyParamToResultExpr(param3, c_expr);
+      c_expr.result_expr &:= ")";
+    end if;
+  end func;
+
+
 const proc: process (STR_REPL, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
+  local
+    var reference: evaluatedParam is NIL;
   begin
-    prepare_stri_result(c_expr);
-    c_expr.result_expr := "strRepl(";
-    getAnyParamToResultExpr(params[1], c_expr);
-    c_expr.result_expr &:= ", ";
-    getAnyParamToResultExpr(params[2], c_expr);
-    c_expr.result_expr &:= ", ";
-    getAnyParamToResultExpr(params[3], c_expr);
-    c_expr.result_expr &:= ")";
+    if getConstant(params[2], STRIOBJECT, evaluatedParam) then
+      process_const_str_repl(params[1], getValue(evaluatedParam, string), params[3], c_expr);
+    elsif isActionExpression(params[2], "CHR_STR") then
+      incr(countOptimizations);
+      prepare_stri_result(c_expr);
+      c_expr.result_expr := "strChRepl(";
+      getAnyParamToResultExpr(params[1], c_expr);
+      c_expr.result_expr &:= ", ";
+      getAnyParamToResultExpr(getActionParameter(params[2], 1), c_expr);
+      c_expr.result_expr &:= ", ";
+      getAnyParamToResultExpr(params[3], c_expr);
+      c_expr.result_expr &:= ")";
+    else
+      prepare_stri_result(c_expr);
+      c_expr.result_expr := "strRepl(";
+      getAnyParamToResultExpr(params[1], c_expr);
+      c_expr.result_expr &:= ", ";
+      getAnyParamToResultExpr(params[2], c_expr);
+      c_expr.result_expr &:= ", ";
+      getAnyParamToResultExpr(params[3], c_expr);
+      c_expr.result_expr &:= ")";
+    end if;
   end func;
 
 

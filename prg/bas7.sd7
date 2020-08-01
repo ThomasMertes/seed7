@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  bas7.sd7      Basic interpreter                                 *)
-(*  Copyright (C) 1994, 2001, 2004 - 2010, 2013, 2016               *)
+(*  Copyright (C) 1994, 2001, 2004 - 2010, 2013, 2016 - 2018        *)
 (*                Thomas Mertes                                     *)
 (*                                                                  *)
 (*  This program is free software; you can redistribute it and/or   *)
@@ -27,24 +27,24 @@
 (*  CINT, **CIRCLE, CLEAR, CLNG, CLOSE, CLS, **COLOR, **COMMON,     *)
 (*  CONST, COS, CSNG, CSRLIN, CVD, CVDMBF, CVI, CVL, CVS, CVSMBF,   *)
 (*  DATA, DATE$, **DECLARE, DECR, DEF FN, **DEF SEG, DEFDBL,        *)
-(*  DEFINT, DEFLNG, DEFSNG, DEFSTR, DELAY, DIM, DO, DO UNTIL,       *)
-(*  DO WHILE, **DRAW, ELSE, ELSEIF, END, EOF, **ERASE, ERR, ERROR,  *)
-(*  EXIT DO, EXIT FOR, EXP, FIELD, FIX, **FLASH, FOR, FRE,          *)
-(*  FREEFILE, **FUNCTION, GET, GET#, GOSUB, GOSUB OF, GOTO,         *)
-(*  GOTO OF, GR, HEX$, HGR, HOME, HPLOT, HTAB, IF, INCR, INKEY$,    *)
-(*  **INP, INPUT, INPUT#, INPUT$, INSTR, INT, **INVERSE, **KEY,     *)
-(*  LBOUND, LCASE$, LEFT$, LEN, LET, LINE INPUT, LINE INPUT#,       *)
-(*  LOCATE, LOF, LOG, LOOP, LOOP UNTIL, LOOP WHILE, LSET, LTRIM$,   *)
-(*  MID$, MKD$, MKDMBF$, MKI$, MKL$, MKS$, MKSMBF$, NEXT, **NORMAL, *)
-(*  OCT$, ON ERROR, ON GOSUB, ON GOTO, **ON KEY, **ON TIMER, OPEN,  *)
-(*  OPTION BASE, **OUT, **PAINT, **PALETTE, **PEEK, **PLAY, PLOT,   *)
-(*  **POINT, **POKE, POS, PRESET, PRINT, PRINT#, PRINT USING,       *)
-(*  **PR#, PSET, PUT, PUT#, RANDOMIZE, READ, REDIM, REM, RESET,     *)
-(*  RESTORE, RESUME, RETURN, RIGHT$, RND, RSET, RTRIM$, **RUN,      *)
-(*  SCREEN, SEEK#, SELECT, SGN, SIN, SLEEP, **SOUND, SPACE$, SPC,   *)
-(*  SQR, STOP, STR$, **STRIG, STRING$, **SUB, SWAP, SYSTEM, TAB,    *)
-(*  TAN, TEXT, TIME$, TIMER, **TYPE, UBOUND, UCASE$, VAL, VTAB,     *)
-(*  WEND, WHILE, WRITE, WRITE#                                      *)
+(*  DEFINT, DEFLNG, DEFSNG, DEFSTR, DELAY, DIM, DISPLAY, DO,        *)
+(*  DO UNTIL, DO WHILE, **DRAW, ELSE, ELSEIF, END, EOF, **ERASE,    *)
+(*  ERR, ERROR, EXIT DO, EXIT FOR, EXP, FIELD, FIX, **FLASH, FOR,   *)
+(*  FRE, FREEFILE, **FUNCTION, GET, GET#, GOSUB, GOSUB OF, GOTO,    *)
+(*  GOTO OF, GR, HEX$, HGR, HOME, HPLOT, HTAB, IF THEN, IF GOSUB,   *)
+(*  IF GOTO, INCR, INKEY$, **INP, INPUT, INPUT#, INPUT$, INSTR,     *)
+(*  INT, **INVERSE, **KEY, LBOUND, LCASE$, LEFT$, LEN, LET,         *)
+(*  LINE INPUT, LINE INPUT#, LOCATE, LOF, LOG, LOOP, LOOP UNTIL,    *)
+(*  LOOP WHILE, LSET, LTRIM$, MID$, MKD$, MKDMBF$, MKI$, MKL$,      *)
+(*  MKS$, MKSMBF$, NEXT, **NORMAL, OCT$, ON ERROR, ON GOSUB,        *)
+(*  ON GOTO, **ON KEY, **ON TIMER, OPEN, OPTION BASE, **OUT,        *)
+(*  **PAINT, **PALETTE, **PEEK, **PLAY, PLOT, **POINT, **POKE, POS, *)
+(*  PRESET, PRINT, PRINT#, PRINT USING, **PR#, PSET, PUT, PUT#,     *)
+(*  RANDOMIZE, READ, REDIM, REM, RESET, RESTORE, RESUME, RETURN,    *)
+(*  RIGHT$, RND, RSET, RTRIM$, **RUN, SCREEN, SEEK#, SELECT, SGN,   *)
+(*  SIN, SLEEP, **SOUND, SPACE$, SPC, SQR, STOP, STR$, **STRIG,     *)
+(*  STRING$, **SUB, SWAP, SYSTEM, TAB, TAN, TEXT, TIME$, TIMER,     *)
+(*  **TYPE, UBOUND, UCASE$, VAL, VTAB, WEND, WHILE, WRITE, WRITE#   *)
 (*                                                                  *)
 (********************************************************************)
 
@@ -70,6 +70,7 @@ $ include "seed7_05.s7i";
   include "bin32.s7i";
   include "bin64.s7i";
   include "wildcard.s7i";
+  include "logfile.s7i";
 
 const integer: MAX_LINENUM is 2147483647;
 const integer: TEXT_LINES is 25;
@@ -88,8 +89,9 @@ const type: lineType is new struct
   end struct;
 
 var array lineType: prg is 0 times lineType.value;
+var string: command_line is "";
 
-var file: log is STD_NULL;
+var logFile: log is STD_NULL;
 var file: err is STD_NULL;
 var text: scr is STD_NULL;
 var text: win is STD_NULL;
@@ -840,6 +842,15 @@ const proc: error_expect2 (in string: expected_symbol1, in string: expected_symb
   end func;
 
 
+const proc: error_expect3 (in string: expected_symbol1, in string: expected_symbol2,
+    in string: expected_symbol3, in string: symbol) is func
+  begin
+    error_marker;
+    writeln(err, literal(expected_symbol1) <& ", " <& literal(expected_symbol2) <& " OR " <&
+        literal(expected_symbol3) <&  " EXPECTED - FOUND " <& literal(symbol) <& ".");
+  end func;
+
+
 const proc: expect (in string: expected_symbol, inout string: symbol, inout string: line) is func
   begin
     if symbol = expected_symbol then
@@ -1079,6 +1090,27 @@ const func string: get_data_line (inout string: symbol, inout string: line) is f
   end func;
 
 
+const proc: data_statement_in_line is func
+  local
+    var string: data_symbol is "";
+  begin
+    data_symbol := get_symbol(data_line);
+    if data_symbol = "DATA&" then
+      data_symbol := "DATA";
+      data_line := "&" & data_line;
+      line_marker;
+      writeln(log, "DATA STATEMENT CORRECTED FROM " <&
+          literal(prg[data_line_number].line) <&
+          " TO " <& literal("DATA " & data_line));
+    end if;
+    if data_symbol = "'" or data_symbol = "REM" then
+      data_line := "";
+    elsif data_symbol <> "" and data_symbol <> "DATA" then
+      error_expect3("DATA", "REM", "'", data_symbol);
+    end if;
+  end func;
+
+
 const func string: get_data_field (inout string: symbol, inout string: line) is func
   result
     var string: data_field is "";
@@ -1111,11 +1143,23 @@ const func string: get_data_field (inout string: symbol, inout string: line) is 
             quote_pos := 0;
           end if;
         end while;
-        comma_pos := pos(data_line, ",");
-        if comma_pos <> 0 then
-          data_line := data_line[succ(comma_pos) .. ];
-        else
-          data_line := "";
+        while data_line <> "" and data_line[1] = ' ' do
+          data_line := data_line[2 .. ];
+        end while;
+        if data_line <> "" then
+          if data_line[1] = ':' then
+            data_line := data_line[2 .. ];
+            data_statement_in_line;
+          elsif data_line[1] = ',' then
+            data_line := data_line[2 .. ];
+          else
+            data_symbol := get_symbol(data_line);
+            if data_symbol = "'" or data_symbol = "REM" then
+              data_line := "";
+            else
+              error_expect2(",", ":", data_symbol);
+            end if;
+          end if;
         end if;
       else
         comma_pos := pos(data_line, ",");
@@ -1124,22 +1168,7 @@ const func string: get_data_field (inout string: symbol, inout string: line) is 
           if comma_pos = 0 or colon_pos < comma_pos then
             data_field := data_line[ .. pred(colon_pos)];
             data_line :=  data_line[succ(colon_pos) .. ];
-            repeat
-              data_symbol := get_symbol(data_line);
-            until data_symbol = "" or
-                data_symbol = "DATA" or data_symbol = "DATA&" or
-                data_symbol = "'" or data_symbol = "REM";
-            if data_symbol = "DATA&" then
-              data_symbol := "DATA";
-              data_line := "&" & data_line;
-              line_marker;
-              writeln(log, "DATA STATEMENT CORRECTED FROM " <&
-                  literal(prg[data_line_number].line) <&
-                  " TO " <& literal("DATA " & data_line));
-            end if;
-            if data_symbol <> "DATA" then
-              data_line := "";
-            end if;
+            data_statement_in_line;
           else
             data_field := data_line[ .. pred(comma_pos)];
             data_line :=  data_line[succ(comma_pos) .. ];
@@ -2068,6 +2097,10 @@ const func string: exec_str_primary (
       expect(")", symbol, line);
       exprResult := varptrStri(variable_name);
       writeln(log, "VARPTR$(" <& variable_name <& ") -> " <& literal(exprResult));
+    elsif symbol = "COMMAND$" then
+      symbol := get_symbol(line);
+      exprResult := command_line;
+      writeln(log, "COMMAND$ -> " <& literal(exprResult));
     elsif symbol[1] >= 'A' and symbol[1] <= 'Z' then
       if symbol in def_fn_list then
         func_name := symbol;
@@ -4006,6 +4039,9 @@ const proc: exec_if (inout string: symbol, inout string: line,
     elsif startsWith(symbol, "GOTO") then
       line := symbol[5 ..] & line;
       symbol := "GOTO";
+    elsif startsWith(symbol, "GOSUB") then
+      line := symbol[6 ..] & line;
+      symbol := "GOSUB";
     end if;
     if num1 <> 0.0 then
       if symbol = "THEN" then
@@ -4045,14 +4081,28 @@ const proc: exec_if (inout string: symbol, inout string: line,
           error_marker;
           writeln(err, "UNDEFINED LABEL " <& symbol <& " AFTER \"GOTO\".");
         end if;
+      elsif symbol = "GOSUB" then
+        symbol := get_symbol(line);
+        line_marker;
+        writeln(log, "IF " <& num1 <& " GOSUB " <& symbol <& " - GOSUB LINE");
+        if label_or_linenum(symbol) then
+          set_return_position(line);
+          goto_label_or_linenum(symbol);
+          set_sub_entry_position;
+          symbol := "";
+          line := "";
+        else
+          error_marker;
+          writeln(err, "UNDEFINED LABEL " <& symbol <& " AFTER \"GOSUB\".");
+        end if;
       else
-        error_expect2("THEN", "GOTO", symbol);
+        error_expect3("THEN", "GOTO", "GOSUB", symbol);
       end if;
     else
-      if symbol = "THEN" or symbol = "GOTO" then
+      if symbol = "THEN" or symbol = "GOTO" or symbol = "GOSUB" then
         symbol := get_symbol(line);
       else
-        error_expect2("THEN", "GOTO", symbol);
+        error_expect3("THEN", "GOTO", "GOSUB", symbol);
       end if;
       line_marker;
       write(log, "IF " <& num1);
@@ -5617,6 +5667,76 @@ const proc: exec_line_input (inout string: symbol, inout string: line) is func
   end func;
 
 
+const proc: exec_display (inout string: symbol, inout string: line) is func
+  local
+    const set of string: display_keywords is {"AT", "BEEP", "ERASE", "SIZE"};
+    var integer: row is 0;
+    var integer: column is 0;
+    var integer: count is 0;
+    var string: unused_name is "";
+    var string: param1 is "";
+    var float: num1 is 0.0;
+    var boolean: finished is FALSE;
+  begin
+    line_marker;
+    write(log, "DISPLAY ");
+    if symbol in display_keywords then
+      repeat
+        if symbol = "AT" then
+          symbol := get_symbol(line);
+          expect("(", symbol, line);
+          row := round(exec_expr(symbol, line));
+          expect(",", symbol, line);
+          column := round(exec_expr(symbol, line));
+          expect(")", symbol, line);
+          write(log, "AT(" <& row <& ", " <& column <& ") ");
+          setPos(win, row, column);
+        end if;
+        if symbol = "BEEP" then
+          symbol := get_symbol(line);
+          write(log, "DISPLAY **BEEP ");
+        end if;
+        if symbol = "ERASE" then
+          symbol := get_symbol(line);
+          expect("ALL", symbol, line);
+          clear(win);
+          write(log, "ERASE ALL ");
+        end if;
+        if symbol = "SIZE" then
+          symbol := get_symbol(line);
+          expect("(", symbol, line);
+          count := round(exec_expr(symbol, line));
+          expect(")", symbol, line);
+          write(win, " " mult count);
+          write(win, "\b" mult count);
+          write(log, "SIZE(" <& count <& ") ");
+        end if;
+      until symbol not in display_keywords;
+      expect(":", symbol, line);
+      write(log, ": ");
+    end if;
+    repeat
+      if isStringExpr(symbol) then
+        param1 := exec_str_expr(symbol, line, unused_name);
+        write(win, literal(param1));
+        write(log, literal(param1));
+      else
+        num1 := exec_expr(symbol, line);
+        write(win, num1);
+        write(log, num1);
+      end if;
+      if symbol = "," then
+        symbol := get_symbol(line);
+        write(win, ", ");
+        write(log, ", ");
+      else
+        finished := TRUE;
+      end if;
+    until finished;
+    writeln(log);
+  end func;
+
+
 const func file: basicOpen (in var string: filePath, in string: access) is func
   result
     var file: fileOpened is STD_NULL;
@@ -6591,7 +6711,7 @@ const func PRIMITIVE_WINDOW: getCga2ImageFromBytes (in string: bytes) is func
     if bytes <> "" then
       width := bytes2Int(bytes[1 len 2], UNSIGNED, LE);
       height := bytes2Int(bytes[3 len 2], UNSIGNED, LE);
-      writeln(log, "width=" <& width <& " height=" <& height);
+      # writeln(log, "width=" <& width <& " height=" <& height);
       image := newPixmap(width, height);
       bytesPerLine := pred(width) mdiv 8 + 1;
       for yPos range 0 to pred(height) do
@@ -6602,7 +6722,6 @@ const func PRIMITIVE_WINDOW: getCga2ImageFromBytes (in string: bytes) is func
           imageByte := ord(bytes[5 + byteIndex]);
           if (imageByte >> (7 - xPos mod 8)) mod 2 = 1 then
             point(image, xPos, yPos, white);
-            write(log, " ");
           else
             point(image, xPos, yPos, black);
           end if;
@@ -6630,7 +6749,7 @@ const func PRIMITIVE_WINDOW: getCga4ImageFromBytes (in string: bytes) is func
     if bytes <> "" then
       width := bytes2Int(bytes[1 len 2], UNSIGNED, LE);
       height := bytes2Int(bytes[3 len 2], UNSIGNED, LE);
-      writeln(log, "width=" <& width <& " height=" <& height);
+      # writeln(log, "width=" <& width <& " height=" <& height);
       width := width div 2;
       image := newPixmap(width, height);
       bytesPerLine := pred(width) mdiv 4 + 1;
@@ -6666,7 +6785,7 @@ const func PRIMITIVE_WINDOW: getEgaImageFromBytes (in string: bytes) is func
     if bytes <> "" then
       width := bytes2Int(bytes[1 len 2], UNSIGNED, LE);
       height := bytes2Int(bytes[3 len 2], UNSIGNED, LE);
-      writeln(log, "width=" <& width <& " height=" <& height);
+      # writeln(log, "width=" <& width <& " height=" <& height);
       image := newPixmap(width, height);
       bytesPerLine := pred(width) mdiv 8 + 1;
       for yPos range 0 to pred(height) do
@@ -7512,7 +7631,7 @@ const proc: exec_let (inout string: symbol, inout string: line,
         line := symbol[6 ..] & line;
         exec_gosub(symbol, line);
       elsif startsWith(symbol, "ELSE") and not startsWith(symbol, "ELSEIF") then
-        line := symbol[6 ..] & line;
+        line := symbol[5 ..] & line;
         exec_else(symbol, line);
       elsif startsWith(symbol, "NEXT") then
         line := symbol[5 ..] & line;
@@ -7577,7 +7696,8 @@ const proc: exec_let (inout string: symbol, inout string: line,
           param1 := exec_str_expr(symbol, line, unused_name);
           if startsWith(variable_name, "IF") and startsWith(symbol, "THEN") then
             line := backup_line[3 ..] & "\"" & param1 & "\"" & symbol & line;
-            writeln(log, "asdf " <& literal(symbol) <& " " <& literal(line));
+            line_marker;
+            writeln(log, "IF RECOGNIZED: IF " <& literal(line));
             exec_if(symbol, line, process_next);
           else
             setStringVar(variable_name, param1);
@@ -7596,9 +7716,13 @@ const proc: exec_let (inout string: symbol, inout string: line,
           num1 := exec_expr(symbol, line);
           if startsWith(variable_name, "IF") and startsWith(symbol, "THEN") then
             line := variable_name[3 ..] & "=" & str(num1) & symbol & line;
+            line_marker;
+            writeln(log, "IF RECOGNIZED: IF " <& literal(line));
             exec_if(symbol, line, process_next);
           elsif startsWith(variable_name, "FOR") and startsWith(symbol, "TO") then
             line := variable_name[4 ..] & "=" & str(num1) & symbol & line;
+            line_marker;
+            writeln(log, "FOR RECOGNIZED: FOR " <& literal(line));
             exec_for(symbol, line);
           else
             setNumericVar(variable_name, num1);
@@ -8339,11 +8463,19 @@ const func boolean: execCmd (inout string: symbol, inout string: line) is func
         writeln(log, "**POKE " <& index1 <& ", " <& index2);
       elsif symbol = "OUT" then
         symbol := get_symbol(line);
-        index1 := round(exec_expr(symbol, line));
-        expect(",", symbol, line);
-        index2 := round(exec_expr(symbol, line));
-        line_marker;
-        writeln(log, "**OUT " <& index1 <& ", " <& index2);
+        if symbol = "=" or symbol = "("  or symbol = "[" then
+          exec_let("OUT", symbol, line);
+        elsif symbol = ":" and "OUT" in usedLabel then
+          line_marker;
+          writeln(log, "SKIP LABEL: OUT");
+        else
+          symbol := get_symbol(line);
+          index1 := round(exec_expr(symbol, line));
+          expect(",", symbol, line);
+          index2 := round(exec_expr(symbol, line));
+          line_marker;
+          writeln(log, "**OUT " <& index1 <& ", " <& index2);
+        end if;
       elsif symbol = "SUB" then
         symbol := get_symbol(line);
         line_marker;
@@ -8383,6 +8515,16 @@ const func boolean: execCmd (inout string: symbol, inout string: line) is func
         sleep(index1);
         line_marker;
         writeln(log, "SLEEP " <& index1);
+      elsif symbol = "DISPLAY" then
+        symbol := get_symbol(line);
+        if symbol = "=" or symbol = "("  or symbol = "[" then
+          exec_let("DISPLAY", symbol, line);
+        elsif symbol = ":" and "DISPLAY" in usedLabel then
+          line_marker;
+          writeln(log, "SKIP LABEL: DISPLAY");
+        else
+          exec_display(symbol, line);
+        end if;
       elsif symbol = "PRI" then
         symbol := get_symbol(line);
         if symbol = "=" or symbol = "("  or symbol = "[" then
@@ -9180,8 +9322,10 @@ const proc: prepareLoops is func
               file_line_number := headLine;
               line := prg[file_line_number].line[headColumn .. ];
               symbol := get_symbol(line);
-              error_marker(headLabel);
-              writeln(err, "DO - NO STATICALLY CORRESPONDING \"LOOP\" STATEMENT FOUND");
+              if symbol <> "=" then
+                error_marker(headLabel);
+                writeln(err, "DO - NO STATICALLY CORRESPONDING \"LOOP\" STATEMENT FOUND ");
+              end if;
             end if;
           elsif symbol = "LOOP" then
             tailLine := file_line_number;
@@ -9594,6 +9738,9 @@ const proc: main is func
         incr(argumentIndex);
       end while;
       if argumentIndex <= length(arg_v) then
+        if succ(argumentIndex) <= length(arg_v) then
+          command_line := join(arg_v[succ(argumentIndex) ..], " ");
+        end if;
         err := open("bas7.log", "w");
         if err = STD_NULL then
           writeln(" ***** Could not open log file.");
@@ -9629,7 +9776,15 @@ const proc: main is func
         writeln(" ***** File name missing");
       end if;
     else
+      writeln("Bas7 Version 1.0 - Basic interpreter");
+      writeln("Copyright (C) 1994, 2001, 2004 - 2010, 2013, 2016 - 2018 Thomas Mertes");
+      writeln("This is free software; see the source for copying conditions.  There is NO");
+      writeln("warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.");
+      writeln("Bas7 is written in the Seed7 programming language");
+      writeln("Homepage: http://seed7.sourceforge.net");
+      writeln;
       writeln("usage: bas7 [options] basic_program");
+      writeln;
       writeln("options: -p  Ask for a prompt at the end of the program");
       writeln("         -l  List program and write log of executed statements");
     end if;

@@ -1,7 +1,7 @@
 
 (********************************************************************)
 (*                                                                  *)
-(*  file.s7i      Interface type describing sequential files        *)
+(*  file.s7i      Interface type describing sequential files.       *)
 (*  Copyright (C) 1989 - 2011  Thomas Mertes                        *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)

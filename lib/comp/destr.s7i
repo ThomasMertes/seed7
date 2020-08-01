@@ -226,7 +226,10 @@ const proc: process_itf_destr_declaration (in type: object_type,
 
   local
     var string: diagnosticLine is "";
+    var type: interfaceType is void;
     var type: implementationType is void;
+    var boolean: isDerived is FALSE;
+    var bitset: typeNumUsed is bitset.value;
   begin
     if object_type in destrFunction then
       diagnosticLine := diagnosticLine(destrFunction[object_type]);
@@ -248,22 +251,33 @@ const proc: process_itf_destr_declaration (in type: object_type,
     c_expr.expr &:= diagnosticLine;
     c_expr.expr &:= "} else if (b->usage_count != 0) {\n";
     c_expr.expr &:= diagnosticLine;
-    if object_type in implements then
-      for implementationType range implements[object_type] do
-        c_expr.expr &:= "if (b->type_num == ";
-        c_expr.expr &:= str(typeNumber(implementationType));
-        c_expr.expr &:= "/*";
-        c_expr.expr &:= str(implementationType);
-        c_expr.expr &:= "*/";
-        c_expr.expr &:= ") {\n";
-        c_expr.expr &:= diagnosticLine;
-        process_destr_declaration(implementationType, global_c_expr);
-        process_destr_call(implementationType, "b", c_expr.expr);
-        c_expr.expr &:= diagnosticLine;
-        c_expr.expr &:= "} else ";
-      end for;
-    end if;
-    c_expr.expr &:= "{\n";
+    interfaceType := object_type;
+    c_expr.expr &:= "switch (b->type_num) {\n";
+    repeat
+      if interfaceType in implements then
+        for implementationType range implements[interfaceType] do
+          if typeNumber(implementationType) not in typeNumUsed then
+            c_expr.expr &:= "case ";
+            c_expr.expr &:= str(typeNumber(implementationType));
+            c_expr.expr &:= "/*";
+            c_expr.expr &:= str(implementationType);
+            c_expr.expr &:= "*/";
+            c_expr.expr &:= ": ";
+            c_expr.expr &:= diagnosticLine;
+            process_destr_declaration(implementationType, global_c_expr);
+            process_destr_call(implementationType, "b", c_expr.expr);
+            c_expr.expr &:= diagnosticLine;
+            c_expr.expr &:= "break;\n";
+            incl(typeNumUsed, typeNumber(implementationType));
+          end if;
+        end for;
+      end if;
+      isDerived := isDerived(interfaceType);
+      if isDerived then
+        interfaceType := meta(interfaceType);
+      end if;
+    until not isDerived;
+    c_expr.expr &:= "default:";
     c_expr.expr &:= diagnosticLine;
     c_expr.expr &:= "raiseError(ACTION_ERROR);\n";
     c_expr.expr &:= diagnosticLine;

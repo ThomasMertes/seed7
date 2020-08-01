@@ -199,10 +199,10 @@ double setMantissaAndExponent (int64Type intMantissa, int binaryExponent)
  *  zero (+0.0) are both converted to "0.0".
  *  @param doubleValue Number to be converted (NaN, Infinity and
  *         -Infinity are not allowed).
- *  @param largeNumber When abs(doubleValue) < largeValue holds
+ *  @param largeNumber When abs(doubleValue) > largeValue holds
  *         the format %1.1f is used (largeNumber is either
  *         DOUBLE_STR_LARGE_NUMBER or FLOAT_STR_LARGE_NUMBER).
- *  @param format Format to be used when abs(doubleValue) >= largeValue
+ *  @param format Format to be used when abs(doubleValue) <= largeValue
  *         holds (format is eitner FMT_E_DBL or FMT_E_FLT).
  *  @param buffer Destination buffer for the decimal representation.
  *  @return the number of characters in the destination buffer.
@@ -211,7 +211,8 @@ memSizeType doubleToCharBuffer (const double doubleValue,
     const double largeNumber, const char *format, char *buffer)
 
   {
-    long decimalExponent;
+    int decimalExponent;
+    memSizeType pos;
     memSizeType start;
     memSizeType scale;
     memSizeType len;
@@ -233,7 +234,17 @@ memSizeType doubleToCharBuffer (const double doubleValue,
       while (buffer[len] != 'e') {
         len--;
       } /* while */
-      decimalExponent = strtol(&buffer[len + 1], NULL, 10);
+      pos = len + 2; /* skip the exponent sign */
+      decimalExponent = buffer[pos] - (long) '0';
+      pos++;
+      while (buffer[pos] >= '0') {
+        decimalExponent *= 10;
+        decimalExponent += buffer[pos] - (long) '0';
+        pos++;
+      } /* while */
+      if (buffer[len + 1] == '-') {
+        decimalExponent = -decimalExponent;
+      } /* if */
       /* printf("decimalExponent: %ld\n", decimalExponent); */
       do {
         len--;

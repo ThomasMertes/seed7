@@ -101,6 +101,7 @@ void timAwait (intType year, intType month, intType day, intType hour,
     await_time_struct.wMilliseconds = 0;
     if (unlikely(SystemTimeToFileTime(
         &await_time_struct, &await_file_time.filetime) == 0)) {
+      logError(printf("timAwait: SystemTimeToFileTime() failed.\n"););
       raise_error(RANGE_ERROR);
     } else {
       await_second = await_file_time.nanosecs100 / 10000000;
@@ -187,6 +188,10 @@ void timNow (intType *year, intType *month, intType *day, intType *hour,
     local_time = localtime(&utc_seconds);
 #endif
     if (unlikely(local_time == NULL)) {
+      logError(printf("timNow: One of "
+                      "localtime/localtime_r/localtime_s(" FMT_T ") failed:\n"
+                      "errno=%d\nerror: %s\n",
+                      utc_seconds, errno, strerror(errno)););
       raise_error(RANGE_ERROR);
     } else {
       *year      = local_time->tm_year + 1900;

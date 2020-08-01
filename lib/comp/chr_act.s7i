@@ -194,7 +194,7 @@ const proc: process (CHR_HASHCODE, in reference: function,
   end func;
 
 
-const proc: process_const_chr_iconv (in reference: function, in integer: number, inout expr_type: c_expr) is func
+const proc: process_const_chr_iconv (in integer: number, inout expr_type: c_expr) is func
 
   begin
     incr(countOptimizations);
@@ -215,7 +215,7 @@ const proc: process (CHR_ICONV1, in reference: function,
     var string: number_name is "";
   begin
     if getConstant(params[1], INTOBJECT, evaluatedParam) then
-      process_const_chr_iconv(function, getValue(evaluatedParam, integer), c_expr);
+      process_const_chr_iconv(getValue(evaluatedParam, integer), c_expr);
     elsif conversion_range_check and ccConf.INTTYPE_SIZE > 32 then
       incr(countRangeChecks);
       c_expr.expr &:= "(";
@@ -247,7 +247,7 @@ const proc: process (CHR_ICONV3, in reference: function,
     var string: number_name is "";
   begin
     if getConstant(params[3], INTOBJECT, evaluatedParam) then
-      process_const_chr_iconv(function, getValue(evaluatedParam, integer), c_expr);
+      process_const_chr_iconv(getValue(evaluatedParam, integer), c_expr);
     elsif conversion_range_check and ccConf.INTTYPE_SIZE > 32 then
       incr(countRangeChecks);
       c_expr.expr &:= "(";

@@ -35,6 +35,10 @@ const func integer: intExpr (in integer: number) is
   return number + length(str(rand(1, 9))[2 ..]);
 
 
+const func char: charExpr (in char: ch) is
+  return chr(ord(ch) + length(str(rand(1, 9))[2 ..]));
+
+
 const proc: check_string_literal is func
   local
     var boolean: okay is TRUE;
@@ -9980,7 +9984,24 @@ const proc: check_string_funcs is func
       writeln(" ***** rpos(STRING, 'a') does not work correct.");
       okay := FALSE;
     end if;
-    if  replace("abc", "de", "fg") <> "abc" then
+    if  replace(         "abcd",               "",    "d")  <> "abcd" or
+        replace(         "abcd",               "b",   "d")  <> "adcd" or
+        replace(         "abcd",               "p",   "b")  <> "abcd" or
+        replace(         "abcd",               "bc",  "de") <> "aded" or
+        replace(         "abcd",               "cb",  "ad") <> "abcd" or
+        replace(         "abcd",               "de",  "fg") <> "abcd" or
+        replace(         "abcd",               "za",  "az") <> "abcd" or
+        replace(         "abcd",  str(         'b'),  "d")  <> "adcd" or
+        replace(         "abcd",  str(charExpr('b')), "d")  <> "adcd" or
+        replace(striExpr("abcd"),              "",    "d")  <> "abcd" or
+        replace(striExpr("abcd"),              "b",   "d")  <> "adcd" or
+        replace(striExpr("abcd"),              "p",   "b")  <> "abcd" or
+        replace(striExpr("abcd"),              "bc",  "de") <> "aded" or
+        replace(striExpr("abcd"),              "cb",  "ad") <> "abcd" or
+        replace(striExpr("abcd"),              "de",  "fg") <> "abcd" or
+        replace(striExpr("abcd"),              "za",  "az") <> "abcd" or
+        replace(striExpr("abcd"), str(         'b'),  "d")  <> "adcd" or
+        replace(striExpr("abcd"), str(charExpr('b')), "d")  <> "adcd" then
       writeln(" ***** replace(STRING, STRING, STRING) does not work correct.");
       okay := FALSE;
     end if;

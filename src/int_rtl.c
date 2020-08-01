@@ -172,6 +172,7 @@ static const int least_significant[] = {
   };
 
 /**
+ *  Table to support the overflow checking of intPowOvfChk().
  *  For a base between -8 and 8 use maxExponentOfBase[base + 8]
  *  to determine the maximum exponent. When the exponent is
  *  between 0 and maxExponentOfBase[base + 8] the expression
@@ -184,6 +185,7 @@ static const intType maxExponentOfBase[] = {
   };
 
 /**
+ *  Table to support the overflow checking of intPowOvfChk().
  *  For an exponent between 0 and 22 minBaseOfExponent[exponent]
  *  is used to detemine the minimum base. When a base is between
  *  minBaseOfExponent[exponent] and maxBaseOfExponent[exponent] the
@@ -191,11 +193,12 @@ static const intType maxExponentOfBase[] = {
  */
 static const intType minBaseOfExponent[] = {
     INTTYPE_MIN, INTTYPE_MIN,
-    -INT_SUFFIX(3037000499), -2097152, -55108, -6208, -1448, -512, -234, -128,
-    -78, -52, -38, -28, -22, -18, -15, -13, -11, -9, -8, -8, -7
+    -INT_SUFFIX(3037000499), -2097152, -55108, -6208, -1448, -512, -234,
+    -128, -78, -52, -38, -28, -22, -18, -15, -13, -11, -9, -8, -8, -7
   };
 
 /**
+ *  Table to support the overflow checking of intPowOvfChk().
  *  For an exponent between 0 and 22 maxBaseOfExponent[exponent]
  *  is used to detemine the maximum base. When a base is between
  *  minBaseOfExponent[exponent] and maxBaseOfExponent[exponent] the
@@ -203,8 +206,8 @@ static const intType minBaseOfExponent[] = {
  */
 static const intType maxBaseOfExponent[] = {
     INTTYPE_MAX, INTTYPE_MAX,
-    INT_SUFFIX(3037000499), 2097151, 55108, 6208, 1448,
-    511, 234, 127, 78, 52, 38, 28, 22, 18, 15, 13, 11, 9, 8, 7, 7
+    INT_SUFFIX(3037000499), 2097151, 55108, 6208, 1448, 511, 234,
+    127, 78, 52, 38, 28, 22, 18, 15, 13, 11, 9, 8, 7, 7
 };
 
 const const_ustriType digitTable[] = {

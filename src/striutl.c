@@ -1463,14 +1463,16 @@ striType conv_from_os_stri (const const_os_striType os_stri,
   /* conv_from_os_stri */
     if (likely(ALLOC_STRI_CHECK_SIZE(stri, length))) {
       if (likely(utf8_to_stri(stri->mem, &stri_size, (const_ustriType) os_stri, length) == 0)) {
-        REALLOC_STRI_SIZE_SMALLER(resized_stri, stri, length, stri_size);
-        if (unlikely(resized_stri == NULL)) {
-          FREE_STRI(stri, length);
-          stri = NULL;
-        } else {
-          stri = resized_stri;
-          COUNT3_STRI(length, stri_size);
-          stri->size = stri_size;
+        stri->size = stri_size;
+        if (stri_size != length) {
+          REALLOC_STRI_SIZE_SMALLER(resized_stri, stri, length, stri_size);
+          if (unlikely(resized_stri == NULL)) {
+            FREE_STRI(stri, length);
+            stri = NULL;
+          } else {
+            stri = resized_stri;
+            COUNT3_STRI(length, stri_size);
+          } /* if */
         } /* if */
       } else {
         /* Assume that os_stri is encoded in Latin-1 instead of UTF-8. */
@@ -1880,15 +1882,17 @@ striType cstri8_to_stri (const_cstriType cstri, errInfoType *err_info)
       *err_info = MEMORY_ERROR;
     } else {
       if (likely(utf8_to_stri(stri->mem, &stri_size, (const_ustriType) cstri, length) == 0)) {
-        REALLOC_STRI_SIZE_SMALLER(resized_stri, stri, length, stri_size);
-        if (unlikely(resized_stri == NULL)) {
-          FREE_STRI(stri, length);
-          *err_info = MEMORY_ERROR;
-          stri = NULL;
-        } else {
-          stri = resized_stri;
-          COUNT3_STRI(length, stri_size);
-          stri->size = stri_size;
+        stri->size = stri_size;
+        if (stri_size != length) {
+          REALLOC_STRI_SIZE_SMALLER(resized_stri, stri, length, stri_size);
+          if (unlikely(resized_stri == NULL)) {
+            FREE_STRI(stri, length);
+            *err_info = MEMORY_ERROR;
+            stri = NULL;
+          } else {
+            stri = resized_stri;
+            COUNT3_STRI(length, stri_size);
+          } /* if */
         } /* if */
       } else {
         FREE_STRI(stri, length);
@@ -1926,15 +1930,17 @@ striType cstri8_buf_to_stri (const_cstriType cstri, memSizeType length,
       *err_info = MEMORY_ERROR;
     } else {
       if (likely(utf8_to_stri(stri->mem, &stri_size, (const_ustriType) cstri, length) == 0)) {
-        REALLOC_STRI_SIZE_SMALLER(resized_stri, stri, length, stri_size);
-        if (unlikely(resized_stri == NULL)) {
-          FREE_STRI(stri, length);
-          *err_info = MEMORY_ERROR;
-          stri = NULL;
-        } else {
-          stri = resized_stri;
-          COUNT3_STRI(length, stri_size);
-          stri->size = stri_size;
+        stri->size = stri_size;
+        if (stri_size != length) {
+          REALLOC_STRI_SIZE_SMALLER(resized_stri, stri, length, stri_size);
+          if (unlikely(resized_stri == NULL)) {
+            FREE_STRI(stri, length);
+            *err_info = MEMORY_ERROR;
+            stri = NULL;
+          } else {
+            stri = resized_stri;
+            COUNT3_STRI(length, stri_size);
+          } /* if */
         } /* if */
       } else {
         FREE_STRI(stri, length);

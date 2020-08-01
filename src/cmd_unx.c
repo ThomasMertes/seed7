@@ -98,9 +98,8 @@ striType getExecutablePath (const const_striType arg_0)
         raise_error(err_info);
 #ifdef APPEND_EXTENSION_TO_EXECUTABLE_PATH
       } else {
-        exeExtension = cstri8_or_cstri_to_stri(EXECUTABLE_FILE_EXTENSION);
-        result = strConcat(result, exeExtension);
-        FREE_STRI(exeExtension, exeExtension->size);
+        exeExtension = CSTRI_LITERAL_TO_STRI(EXECUTABLE_FILE_EXTENSION);
+        strAppendTemp(&result, exeExtension);
 #endif
       } /* if */
     } else {

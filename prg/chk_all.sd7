@@ -166,6 +166,7 @@ const string: chkprc_output is "\n\
   \Repeat statements work correct.\n\
   \For to statements work correct.\n\
   \For downto statements work correct.\n\
+  \For bigInteger statements work correct.\n\
   \Case integer statements work correct.\n\
   \Case char statements work correct.\n\
   \Case string statements work correct.\n\
@@ -259,7 +260,8 @@ const string: chkhsh_output is "\n\
   \Hash tables with char keys work correct.\n\
   \Hash tables with string keys work correct.\n\
   \The keys function for hash tables works correct.\n\
-  \The for loop for hash tables works correct.\n";
+  \The for loop for hash tables works correct.\n\
+  \The assignment of a hash variable to itself works correct.\n";
 
 const string: chkexc_output is "\n\
   \Integer exceptions work correct.\n\

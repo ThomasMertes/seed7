@@ -34,6 +34,8 @@
  */
 #define STRLEN(s) (sizeof(s) / sizeof(s[0]) - 1)
 
+#define CSTRI_LITERAL_TO_STRI(literal) cstri_buf_to_stri(literal, STRLEN(literal))
+
 #define toStri(name) #name
 
 extern const const_cstriType stri_escape_sequence[];

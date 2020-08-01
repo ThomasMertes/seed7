@@ -72,29 +72,40 @@ static inline int strelem_memcmp (const strElemType *mem1,
 
 
 
-static arrayType add_stri_to_array (const strElemType *stri_elems,
-    memSizeType length, arrayType work_array, intType *used_max_position)
+static void freeStriArray (arrayType work_array, intType used_max_position)
+
+  {
+    memSizeType position;
+
+  /* freeStriArray */
+    for (position = 0; position < (uintType) used_max_position; position++) {
+      FREE_STRI(work_array->arr[position].value.striValue,
+                work_array->arr[position].value.striValue->size);
+    } /* for */
+    FREE_ARRAY(work_array, (uintType) work_array->max_position);
+  } /* freeStriArray */
+
+
+
+static arrayType addCopiedStriToArray (const strElemType *stri_elems,
+    memSizeType length, arrayType work_array, intType used_max_position)
 
   {
     striType new_stri;
     arrayType resized_work_array;
-    memSizeType position;
 
-  /* add_stri_to_array */
+  /* addCopiedStriToArray */
     if (ALLOC_STRI_SIZE_OK(new_stri, length)) {
       new_stri->size = length;
       memcpy(new_stri->mem, stri_elems, length * sizeof(strElemType));
-      if (*used_max_position >= work_array->max_position) {
-        if (unlikely(work_array->max_position >= MAX_MEM_INDEX - ARRAY_SIZE_DELTA)) {
-          resized_work_array = NULL;
-        } else {
-          resized_work_array = REALLOC_ARRAY(work_array,
-              (uintType) work_array->max_position,
-              (uintType) work_array->max_position + ARRAY_SIZE_DELTA);
-        } /* if */
-        if (unlikely(resized_work_array == NULL)) {
+      if (used_max_position >= work_array->max_position) {
+        if (unlikely(work_array->max_position >= MAX_ARR_INDEX - ARRAY_SIZE_DELTA ||
+            (resized_work_array = REALLOC_ARRAY(work_array,
+                (uintType) work_array->max_position,
+                (uintType) work_array->max_position + ARRAY_SIZE_DELTA)) == NULL)) {
           FREE_STRI(new_stri, new_stri->size);
-          new_stri = NULL;
+          freeStriArray(work_array, used_max_position);
+          work_array = NULL;
         } else {
           work_array = resized_work_array;
           COUNT3_ARRAY((uintType) work_array->max_position,
@@ -102,23 +113,44 @@ static arrayType add_stri_to_array (const strElemType *stri_elems,
           work_array->max_position += ARRAY_SIZE_DELTA;
         } /* if */
       } /* if */
-    } /* if */
-    if (likely(new_stri != NULL)) {
-      work_array->arr[*used_max_position].type_of = take_type(SYS_STRI_TYPE);
-      work_array->arr[*used_max_position].descriptor.property = NULL;
-      work_array->arr[*used_max_position].value.striValue = new_stri;
-      INIT_CATEGORY_OF_VAR(&work_array->arr[*used_max_position], STRIOBJECT);
-      (*used_max_position)++;
+      if (likely(work_array != NULL)) {
+        work_array->arr[used_max_position].type_of = take_type(SYS_STRI_TYPE);
+        work_array->arr[used_max_position].descriptor.property = NULL;
+        work_array->arr[used_max_position].value.striValue = new_stri;
+        INIT_CATEGORY_OF_VAR(&work_array->arr[used_max_position], STRIOBJECT);
+      } /* if */
     } else {
-      for (position = 0; position < (uintType) *used_max_position; position++) {
-        FREE_STRI(work_array->arr[position].value.striValue,
-                  work_array->arr[position].value.striValue->size);
-      } /* for */
-      FREE_ARRAY(work_array, (uintType) work_array->max_position);
+      freeStriArray(work_array, used_max_position);
       work_array = NULL;
     } /* if */
     return work_array;
-  } /* add_stri_to_array */
+  } /* addCopiedStriToArray */
+
+
+
+static inline arrayType completeStriArray (arrayType work_array,
+    intType used_max_position)
+
+  {
+    arrayType resized_work_array;
+
+  /* completeStriArray */
+    if (work_array != NULL) {
+      resized_work_array = REALLOC_ARRAY(work_array,
+          (uintType) work_array->max_position,
+          (uintType) used_max_position);
+      if (resized_work_array == NULL) {
+        freeStriArray(work_array, used_max_position);
+        work_array = NULL;
+      } else {
+        work_array = resized_work_array;
+        COUNT3_ARRAY((uintType) work_array->max_position,
+                     (uintType) used_max_position);
+        work_array->max_position = used_max_position;
+      } /* if */
+    } /* if */
+    return work_array;
+  } /* completeStriArray */
 
 
 
@@ -130,8 +162,6 @@ static arrayType strChSplit (const const_striType mainStri,
     const strElemType *search_start;
     const strElemType *search_end;
     const strElemType *found_pos;
-    memSizeType pos;
-    arrayType resized_result_array;
     arrayType result_array;
 
   /* strChSplit */
@@ -146,33 +176,18 @@ static arrayType strChSplit (const const_striType mainStri,
       while ((found_pos = memchr_strelem(search_start, delimiter,
           (memSizeType) (search_end - search_start))) != NULL &&
           result_array != NULL) {
-        result_array = add_stri_to_array(search_start,
+        result_array = addCopiedStriToArray(search_start,
             (memSizeType) (found_pos - search_start), result_array,
-            &used_max_position);
+            used_max_position);
+        used_max_position++;
         search_start = found_pos + 1;
       } /* while */
-      if (result_array != NULL) {
-        result_array = add_stri_to_array(search_start,
+      if (likely(result_array != NULL)) {
+        result_array = addCopiedStriToArray(search_start,
             (memSizeType) (search_end - search_start), result_array,
-            &used_max_position);
-        if (result_array != NULL) {
-          resized_result_array = REALLOC_ARRAY(result_array,
-              (uintType) result_array->max_position,
-              (uintType) used_max_position);
-          if (resized_result_array == NULL) {
-            for (pos = 0; pos < (uintType) used_max_position; pos++) {
-              FREE_STRI(result_array->arr[pos].value.striValue,
-                  result_array->arr[pos].value.striValue->size);
-            } /* for */
-            FREE_ARRAY(result_array, (uintType) result_array->max_position);
-            result_array = NULL;
-          } else {
-            result_array = resized_result_array;
-            COUNT3_ARRAY((uintType) result_array->max_position,
-                         (uintType) used_max_position);
-            result_array->max_position = used_max_position;
-          } /* if */
-        } /* if */
+            used_max_position);
+        used_max_position++;
+        result_array = completeStriArray(result_array, used_max_position);
       } /* if */
     } /* if */
     if (unlikely(result_array == NULL)) {
@@ -195,8 +210,6 @@ static arrayType strSplit (const const_striType mainStri,
     const strElemType *segment_start;
     const strElemType *search_end;
     const strElemType *found_pos;
-    memSizeType pos;
-    arrayType resized_result_array;
     arrayType result_array;
 
   /* strSplit */
@@ -216,9 +229,10 @@ static arrayType strSplit (const const_striType mainStri,
             result_array != NULL) {
           if (memcmp(found_pos, delimiter_mem,
               delimiter_size * sizeof(strElemType)) == 0) {
-            result_array = add_stri_to_array(segment_start,
+            result_array = addCopiedStriToArray(segment_start,
                 (memSizeType) (found_pos - segment_start), result_array,
-                &used_max_position);
+                used_max_position);
+            used_max_position++;
             search_start = found_pos + delimiter_size;
             segment_start = search_start;
           } else {
@@ -226,28 +240,12 @@ static arrayType strSplit (const const_striType mainStri,
           } /* if */
         } /* while */
       } /* if */
-      if (result_array != NULL) {
-        result_array = add_stri_to_array(segment_start,
+      if (likely(result_array != NULL)) {
+        result_array = addCopiedStriToArray(segment_start,
             (memSizeType) (&mainStri->mem[mainStri->size] - segment_start),
-            result_array, &used_max_position);
-        if (result_array != NULL) {
-          resized_result_array = REALLOC_ARRAY(result_array,
-              (uintType) result_array->max_position,
-              (uintType) used_max_position);
-          if (resized_result_array == NULL) {
-            for (pos = 0; pos < (uintType) used_max_position; pos++) {
-              FREE_STRI(result_array->arr[pos].value.striValue,
-                  result_array->arr[pos].value.striValue->size);
-            } /* for */
-            FREE_ARRAY(result_array, (uintType) result_array->max_position);
-            result_array = NULL;
-          } else {
-            result_array = resized_result_array;
-            COUNT3_ARRAY((uintType) result_array->max_position,
-                         (uintType) used_max_position);
-            result_array->max_position = used_max_position;
-          } /* if */
-        } /* if */
+            result_array, used_max_position);
+        used_max_position++;
+        result_array = completeStriArray(result_array, used_max_position);
       } /* if */
     } /* if */
     if (unlikely(result_array == NULL)) {

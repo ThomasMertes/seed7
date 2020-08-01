@@ -73,6 +73,7 @@
 #include "dir_rtl.h"
 #include "set_rtl.h"
 #include "tim_rtl.h"
+#include "arr_rtl.h"
 #include "tim_drv.h"
 #include "big_drv.h"
 #include "cmd_drv.h"
@@ -741,53 +742,50 @@ static void move_any_file (const const_os_striType from_name,
 
 
 
-static rtlArrayType add_stri_to_array (const striType stri,
-    rtlArrayType work_array, intType *used_max_position, errInfoType *err_info)
+static rtlArrayType addStriToRtlArray (const striType stri,
+    rtlArrayType work_array, intType used_max_position)
 
   {
     rtlArrayType resized_work_array;
 
-  /* add_stri_to_array */
-    logFunction(printf("add_stri_to_array\n"););
-    if (*used_max_position >= work_array->max_position) {
-      if (unlikely(work_array->max_position >= MAX_MEM_INDEX - ARRAY_SIZE_DELTA)) {
-        *err_info = MEMORY_ERROR;
+  /* addStriToRtlArray */
+    logFunction(printf("addStriToRtlArray\n"););
+    if (used_max_position >= work_array->max_position) {
+      if (unlikely(work_array->max_position > MAX_RTL_ARR_INDEX - ARRAY_SIZE_DELTA ||
+          (resized_work_array = REALLOC_RTL_ARRAY(work_array,
+              (uintType) work_array->max_position,
+              (uintType) work_array->max_position + ARRAY_SIZE_DELTA)) == NULL)) {
+        FREE_STRI(stri, stri->size);
+        freeRtlStriArray(work_array, used_max_position);
+        work_array = NULL;
       } else {
-        resized_work_array = REALLOC_RTL_ARRAY(work_array,
-            (uintType) work_array->max_position,
+        work_array = resized_work_array;
+        COUNT3_RTL_ARRAY((uintType) work_array->max_position,
             (uintType) work_array->max_position + ARRAY_SIZE_DELTA);
-        if (unlikely(resized_work_array == NULL)) {
-          *err_info = MEMORY_ERROR;
-        } else {
-          work_array = resized_work_array;
-          COUNT3_RTL_ARRAY((uintType) work_array->max_position,
-              (uintType) work_array->max_position + ARRAY_SIZE_DELTA);
-          work_array->max_position += ARRAY_SIZE_DELTA;
-        } /* if */
+        work_array->max_position += ARRAY_SIZE_DELTA;
+        work_array->arr[used_max_position].value.striValue = stri;
       } /* if */
-    } /* if */
-    if (*err_info == OKAY_NO_ERROR) {
-      work_array->arr[*used_max_position].value.striValue = stri;
-      (*used_max_position)++;
+    } else {
+      work_array->arr[used_max_position].value.striValue = stri;
     } /* if */
     return work_array;
-  } /* add_stri_to_array */
+  } /* addStriToRtlArray */
 
 
 
-static rtlArrayType complete_stri_array (rtlArrayType work_array,
-    intType used_max_position, errInfoType *err_info)
+static rtlArrayType completeRtlStriArray (rtlArrayType work_array,
+    intType used_max_position)
 
   {
     rtlArrayType resized_work_array;
-    memSizeType position;
 
-  /* complete_stri_array */
-    if (*err_info == OKAY_NO_ERROR) {
+  /* completeRtlStriArray */
+    if (likely(work_array != NULL)) {
       resized_work_array = REALLOC_RTL_ARRAY(work_array,
           (uintType) work_array->max_position, (uintType) used_max_position);
-      if (resized_work_array == NULL) {
-        *err_info = MEMORY_ERROR;
+      if (unlikely(resized_work_array == NULL)) {
+        freeRtlStriArray(work_array, used_max_position);
+        work_array = NULL;
       } else {
         work_array = resized_work_array;
         COUNT3_RTL_ARRAY((uintType) work_array->max_position,
@@ -795,16 +793,8 @@ static rtlArrayType complete_stri_array (rtlArrayType work_array,
         work_array->max_position = used_max_position;
       } /* if */
     } /* if */
-    if (unlikely(*err_info != OKAY_NO_ERROR)) {
-      for (position = 0; position < (memSizeType) used_max_position; position++) {
-        FREE_STRI(work_array->arr[position].value.striValue,
-            work_array->arr[position].value.striValue->size);
-      } /* for */
-      FREE_RTL_ARRAY(work_array, (uintType) work_array->max_position);
-      work_array = NULL;
-    } /* if */
     return work_array;
-  } /* complete_stri_array */
+  } /* completeRtlStriArray */
 
 
 
@@ -819,25 +809,36 @@ static rtlArrayType read_dir (const const_striType dir_name, errInfoType *err_in
   /* read_dir */
     logFunction(printf("read_dir(\"%s\", *)\n",
                        striAsUnquotedCStri(dir_name)););
-    if (likely((directory = dirOpen(dir_name)) != NULL)) {
+    if (unlikely((directory = dirOpen(dir_name)) == NULL)) {
+      logError(printf("read_dir: dirOpen(\"%s\") failed.\n",
+                      striAsUnquotedCStri(dirPath)););
+      dir_array = NULL;
+      *err_info = FILE_ERROR;
+    } else {
       if (likely(ALLOC_RTL_ARRAY(dir_array, INITAL_ARRAY_SIZE))) {
         dir_array->min_position = 1;
         dir_array->max_position = INITAL_ARRAY_SIZE;
         used_max_position = 0;
         nameStri = dirRead(directory);
-        while (*err_info == OKAY_NO_ERROR && nameStri != NULL) {
-          dir_array = add_stri_to_array(nameStri, dir_array,
-              &used_max_position, err_info);
-          nameStri = dirRead(directory);
-        } /* while */
-        dir_array = complete_stri_array(dir_array, used_max_position, err_info);
+        if (nameStri != NULL) {
+          do {
+            dir_array = addStriToRtlArray(nameStri, dir_array,
+                used_max_position);
+            used_max_position++;
+            nameStri = dirRead(directory);
+          } while (nameStri != NULL && dir_array != NULL);
+        } /* if */
+        if (unlikely(nameStri != NULL)) {
+          FREE_STRI(nameStri, nameStri->size);
+        } /* if */
+        dir_array = completeRtlStriArray(dir_array, used_max_position);
+        if (unlikely(dir_array == NULL)) {
+          *err_info = MEMORY_ERROR;
+        } /* if */
       } else {
         *err_info = MEMORY_ERROR;
       } /* if */
       dirClose(directory);
-    } else {
-      dir_array = NULL;
-      *err_info = FILE_ERROR;
     } /* if */
     return dir_array;
   } /* read_dir */
@@ -975,20 +976,24 @@ static rtlArrayType getSearchPath (errInfoType *err_info)
                 COUNT3_STRI(pathStri->size + 1, pathStri->size);
 #endif
               } /* while */
-              path_array = add_stri_to_array(pathStri, path_array,
-                  &used_max_position, err_info);
+              path_array = addStriToRtlArray(pathStri, path_array,
+                  used_max_position);
+              used_max_position++;
             } /* if */
             if (path_end == NULL) {
               path_start = NULL;
             } else {
               path_start = path_end + 1;
             } /* if */
-          } while (path_start != NULL && *err_info == OKAY_NO_ERROR);
+          } while (path_start != NULL && path_array != NULL);
           os_stri_free(path_copy);
         } /* if */
         os_getenv_string_free(path_environment_variable);
       } /* if */
-      path_array = complete_stri_array(path_array, used_max_position, err_info);
+      path_array = completeRtlStriArray(path_array, used_max_position);
+      if (unlikely(path_array == NULL)) {
+        *err_info = MEMORY_ERROR;
+      } /* if */
     } else {
       *err_info = MEMORY_ERROR;
     } /* if */
@@ -1038,7 +1043,7 @@ static void setSearchPath (rtlArrayType searchPath, errInfoType *err_info)
           pos += pathElement->size;
         } /* for */
       } /* if */
-      pathVariableName = cstri_buf_to_stri("PATH", 4);
+      pathVariableName = CSTRI_LITERAL_TO_STRI("PATH");
       if (pathVariableName == NULL) {
         *err_info = MEMORY_ERROR;
       } else {
@@ -1715,7 +1720,8 @@ rtlArrayType cmdEnvironment (void)
       environment_array->max_position = INITAL_ARRAY_SIZE;
       used_max_position = 0;
       if (os_environ != NULL) {
-        for (nameStartPos = os_environ; *nameStartPos != NULL; ++nameStartPos) {
+        for (nameStartPos = os_environ; *nameStartPos != NULL && environment_array != NULL;
+             ++nameStartPos) {
           /* printf("nameStartPos: \"" FMT_S_OS "\"\n", *nameStartPos); */
           if ((*nameStartPos)[0] != '=' && (*nameStartPos)[0] != '\0') {
             nameEndPos = os_stri_strchr(*nameStartPos, '=');
@@ -1729,14 +1735,17 @@ rtlArrayType cmdEnvironment (void)
               variableName = os_stri_to_stri(*nameStartPos, &err_info);
             } /* if */
             if (likely(variableName != NULL)) {
-              environment_array = add_stri_to_array(variableName, environment_array,
-                  &used_max_position, &err_info);
+              environment_array = addStriToRtlArray(variableName, environment_array,
+                  used_max_position);
+              used_max_position++;
             } /* if */
           } /* if */
         } /* for */
       } /* if */
-      environment_array = complete_stri_array(environment_array, used_max_position,
-                                              &err_info);
+      environment_array = completeRtlStriArray(environment_array, used_max_position);
+      if (unlikely(environment_array == NULL)) {
+        err_info = MEMORY_ERROR;
+      } /* if */
       if (unlikely(err_info != OKAY_NO_ERROR)) {
         raise_error(err_info);
         environment_array = NULL;

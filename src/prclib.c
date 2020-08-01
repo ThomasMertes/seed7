@@ -26,7 +26,7 @@
 /********************************************************************/
 
 #define LOG_FUNCTIONS 0
-#define VERBOSE_EXCEPTIONS 0
+#define VERBOSE_EXCEPTIONS 1
 
 #include "version.h"
 
@@ -375,6 +375,9 @@ objectType prc_case (listType arguments)
       } /* if */
       if (setElem(switch_value, set_value)) {
         if (unlikely(when_statement != NULL)) {
+          logError(printf("prc_case(" FMT_D "): "
+                          FMT_D " is in more then one \"when\" set.\n",
+                          switch_value, switch_value););
           err_info = ACTION_ERROR;
           err_arguments = current_when->value.listValue->next;
         } else {
@@ -440,6 +443,9 @@ objectType prc_case_def (listType arguments)
       } /* if */
       if (setElem(switch_value, set_value)) {
         if (unlikely(when_statement != NULL)) {
+          logError(printf("prc_case_def(" FMT_D "): "
+                          FMT_D " is in more then one \"when\" set.\n",
+                          switch_value, switch_value););
           err_info = ACTION_ERROR;
           err_arguments = current_when->value.listValue->next;
         } else {
@@ -502,6 +508,8 @@ objectType prc_case_hashset (listType arguments)
       } /* if */
       if (do_in(switch_object, when_values, &err_info)) {
         if (unlikely(when_statement != NULL)) {
+          logError(printf("prc_case_hashset: "
+                          "Switch value in more then one \"when\" set.\n"););
           err_info = ACTION_ERROR;
           err_arguments = current_when->value.listValue->next;
         } else {
@@ -562,6 +570,8 @@ objectType prc_case_hashset_def (listType arguments)
       } /* if */
       if (do_in(switch_object, when_values, &err_info)) {
         if (unlikely(when_statement != NULL)) {
+          logError(printf("prc_case_hashset_def: "
+                          "Switch value in more then one \"when\" set.\n"););
           err_info = ACTION_ERROR;
           err_arguments = current_when->value.listValue->next;
         } else {

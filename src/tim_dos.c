@@ -39,6 +39,8 @@
 #include "time.h"
 #include "sys/types.h"
 #include "sys/timeb.h"
+#include "string.h"
+#include "errno.h"
 
 #include "common.h"
 #include "tim_rtl.h"
@@ -152,6 +154,10 @@ void timNow (intType *year, intType *month, intType *day, intType *hour,
     local_time = localtime(&tstruct.time);
 #endif
     if (unlikely(local_time == NULL)) {
+      logError(printf("timNow: One of "
+                      "localtime/localtime_r/localtime_s(" FMT_T ") failed:\n"
+                      "errno=%d\nerror: %s\n",
+                      tstruct.time, errno, strerror(errno)););
       raise_error(RANGE_ERROR);
     } else {
       *year      = local_time->tm_year + 1900;

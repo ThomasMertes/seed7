@@ -192,7 +192,7 @@ const proc: process (BST_HASHCODE, in reference: function,
   end func;
 
 
-const proc: process_const_bst_idx (in reference: function, in bstring: bstri,
+const proc: process_const_bst_idx (in bstring: bstri,
     in reference: param3, inout expr_type: c_expr) is func
 
   local
@@ -255,7 +255,7 @@ const proc: process_const_bst_idx (in reference: function, in bstring: bstri,
   end func;
 
 
-const proc: process_const_bst_idx (in reference: function, in reference: param1,
+const proc: process_const_bst_idx (in reference: param1,
     in integer: index, inout expr_type: c_expr) is func
 
   local
@@ -306,9 +306,9 @@ const proc: process (BST_IDX, in reference: function,
     var string: index_name is "";
   begin
     if getConstant(params[1], BSTRIOBJECT, evaluatedParam) then
-      process_const_bst_idx(function, getValue(evaluatedParam, bstring), params[3], c_expr);
+      process_const_bst_idx(getValue(evaluatedParam, bstring), params[3], c_expr);
     elsif getConstant(params[3], INTOBJECT, evaluatedParam) then
-      process_const_bst_idx(function, params[1], getValue(evaluatedParam, integer), c_expr);
+      process_const_bst_idx(params[1], getValue(evaluatedParam, integer), c_expr);
     elsif array_range_check then
       incr(countRangeChecks);
       incr(c_expr.temp_num);

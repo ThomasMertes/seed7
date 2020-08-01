@@ -154,7 +154,7 @@ encoding.s7i Encoding and decoding functions
 environment.s7i Support for program arguments and environment.
 external_file.s7i File implementation type describing OS files
 field.s7i    Filter file which reads the input fieldwise
-file.s7i     Interface type describing sequential files
+file.s7i     Interface type describing sequential files.
 filesys.s7i  Interface for file systems (os, tar, zip, ...)
 float.s7i    Floating point support library
 font.s7i     Defines the font interface
@@ -185,6 +185,7 @@ keybd.s7i    Read from keyboard without buffering and echo
 keydescr.s7i Descriptive text for function keys
 line.s7i     Filter file which reads the input linewise
 listener.s7i Support for inet listener
+logfile.s7i  Interface type describing log files.
 lower.s7i    Filter file which turns characters to lower case
 lzw.s7i      Lempel-Ziv-Welch compression support library
 mahjng32.s7i Pictures of mahjong tiles in the size 32 x 24

@@ -130,6 +130,7 @@ const proc: syncFile (in string: sourcePath, in string: destPath,
     var fileType: sourceType is FILE_ABSENT;
     var fileType: destType is FILE_ABSENT;
     var time: sourceTime is time.value;
+    var time: destTime is time.value;
     var array string: dirContent is 0 times "";
     var string: fileName is "";
   begin
@@ -182,9 +183,10 @@ const proc: syncFile (in string: sourcePath, in string: destPath,
         end block;
       elsif destType = FILE_REGULAR then
         sourceTime := getMTime(sourcePath);
+        destTime := getMTime(destPath);
         # writeln(sourceTime);
-        # writeln(getMTime(destPath));
-        if sourceTime > getMTime(destPath) + 1 . SECONDS then
+        # writeln(destTime);
+        if sourceTime > destTime + 1 . SECONDS then
           if fileSize(sourcePath) = fileSize(destPath) and equalFileContent(sourcePath, destPath) then
             writeln("Correct time of identical files " <& literal(sourcePath) <& " - " <& literal(destPath));
             setMTime(destPath, sourceTime);
@@ -193,7 +195,7 @@ const proc: syncFile (in string: sourcePath, in string: destPath,
             removeFile(destPath);
             cloneFile(sourcePath, destPath);
           end if;
-        elsif sourceTime < getMTime(destPath) - 1 . SECONDS then
+        elsif sourceTime < destTime - 1 . SECONDS then
           if fileSize(sourcePath) = fileSize(destPath) and equalFileContent(sourcePath, destPath) then
             writeln("Correct time of identical files " <& literal(sourcePath) <& " - " <& literal(destPath));
             setMTime(destPath, sourceTime);
@@ -203,7 +205,7 @@ const proc: syncFile (in string: sourcePath, in string: destPath,
             cloneFile(sourcePath, destPath);
           else
             writeln(" *** Destination newer " <& literal(sourcePath) <& " - " <& literal(destPath));
-            # writeln(sourceTime <& "   " <& getMTime(destPath) <& "   " <& getMTime(destPath) - 1 . SECONDS);
+            # writeln(sourceTime <& "   " <& destTime <& "   " <& destTime - 1 . SECONDS);
           end if;
         elsif fileSize(sourcePath) <> fileSize(destPath) then
           writeln("Correct file " <& literal(sourcePath) <& " to " <& literal(destPath));

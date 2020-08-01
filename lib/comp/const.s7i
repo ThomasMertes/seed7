@@ -31,8 +31,9 @@ const set of category: constantExpressionCategories is {
     PROCESSOBJECT, ENUMLITERALOBJECT, REFLISTOBJECT, SYMBOLOBJECT};
 
 const set of string: specialActions is
-    {"HSH_CONTAINS", "HSH_EXCL", "HSH_INCL", "HSH_KEYS", "SET_BASELIT",
-     "SET_CONV", "SET_ELEM", "SET_EXCL", "SET_INCL", "SET_NOT_ELEM"};
+    {"BLN_ORD", "CHR_ICONV1", "CHR_ORD", "HSH_CONTAINS", "HSH_EXCL",
+     "HSH_INCL", "HSH_KEYS", "INT_ODD", "SET_BASELIT", "SET_CONV",
+     "SET_ELEM", "SET_EXCL", "SET_INCL", "SET_NOT_ELEM"};
 
 
 const func boolean: isPureFunction (in reference: function) is forward;

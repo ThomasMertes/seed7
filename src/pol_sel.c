@@ -59,23 +59,27 @@
 
 #ifdef USE_WINSOCK
 
-#define DYNAMIC_FD_SET
-#define VERIFY_FD_SETSIZE
+#define DYNAMIC_FD_SET 1
+#define SELECT_WITH_NFDS 0
+#define VERIFY_FD_SETSIZE 1
+#define VERIFY_MAXIMUM_FD_NUMBER 0
 #define SIZEOF_FD_SET(size) \
     (sizeof(fd_set) - FD_SETSIZE * sizeof(SOCKET) + (size) * sizeof(SOCKET))
 #define USED_FD_SET_SIZE(fdset) SIZEOF_FD_SET((fdset)->fd_count)
 
 #else
 
-#define SELECT_WITH_NFDS
-#define VERIFY_MAXIMUM_FD_NUMBER
+#define DYNAMIC_FD_SET 0
+#define SELECT_WITH_NFDS 1
+#define VERIFY_FD_SETSIZE 0
+#define VERIFY_MAXIMUM_FD_NUMBER 1
 #define SIZEOF_FD_SET(size) sizeof(fd_set)
 #define USED_FD_SET_SIZE(fdset) sizeof(fd_set)
 
 #endif
 
-#define USE_PREPARED_FD_SET
-#define MEMCPY_FD_SET
+#define USE_PREPARED_FD_SET 1
+#define MEMCPY_FD_SET 1
 
 
 typedef enum {
@@ -90,18 +94,18 @@ typedef struct {
   } fdAndFileType;
 
 typedef struct {
-#ifdef DYNAMIC_FD_SET
-#ifdef USE_PREPARED_FD_SET
+#if DYNAMIC_FD_SET
+#if USE_PREPARED_FD_SET
     fd_set *inFdset;
 #endif
     fd_set *outFdset;
 #else
-#ifdef USE_PREPARED_FD_SET
+#if USE_PREPARED_FD_SET
     fd_set inFdset;
 #endif
     fd_set outFdset;
 #endif
-#if defined USE_PREPARED_FD_SET && defined SELECT_WITH_NFDS
+#if USE_PREPARED_FD_SET && SELECT_WITH_NFDS
     int preparedNfds;
 #endif
     memSizeType size;
@@ -129,7 +133,7 @@ size_t sizeof_pollRecord = sizeof(select_based_pollRecord);
 #define var_conv(genericPollData) ((select_based_pollType) genericPollData)
 
 
-#ifdef DYNAMIC_FD_SET
+#if DYNAMIC_FD_SET
 
 #define to_inFdset(test)            ((test)->inFdset)
 #define to_outFdset(test)           ((test)->outFdset)
@@ -183,7 +187,7 @@ static void dumpPoll (const const_pollType pollData)
       printf("iterEvents=%d\n", conv(pollData)->iterEvents);
       printf("numOfEvents=%d\n", conv(pollData)->numOfEvents);
       */
-#ifdef USE_PREPARED_FD_SET
+#if USE_PREPARED_FD_SET
       //if (conv(pollData)->readTest.size <= 5) {
       printf("readFds:");
       for (pos = 0; pos < conv(pollData)->readTest.size; pos++) {
@@ -219,7 +223,7 @@ void initPollOperations (const createFuncType incrUsageCount,
 
 
 
-#ifdef MEMCPY_FD_SET
+#if MEMCPY_FD_SET
 #define copyFdSet(dest, source, unused) memcpy(dest, source, USED_FD_SET_SIZE(source))
 #else
 
@@ -240,7 +244,7 @@ static void copyFdSet (fd_set *dest, const fd_set *source, testType *test)
 
 
 
-#ifndef DYNAMIC_FD_SET
+#if !DYNAMIC_FD_SET
 #define allocFdSet(test, capacity) TRUE
 #else
 
@@ -250,7 +254,7 @@ static boolType allocFdSet (testType *test, memSizeType capacity)
     boolType result = TRUE;
 
   /* allocFdSet */
-#ifdef USE_PREPARED_FD_SET
+#if USE_PREPARED_FD_SET
     if (unlikely(!ALLOC_FDSET(test->inFdset, capacity))) {
       result = FALSE;
       test->outFdset = NULL;
@@ -270,7 +274,7 @@ static boolType allocFdSet (testType *test, memSizeType capacity)
 
 
 
-#ifndef DYNAMIC_FD_SET
+#if !DYNAMIC_FD_SET
 #define freeFdSet(test, capacity) 0
 #else
 
@@ -278,7 +282,7 @@ static void freeFdSet (testType *test, memSizeType capacity)
 
   { /* freeFdSet */
     if (test->outFdset != NULL) {
-#ifdef USE_PREPARED_FD_SET
+#if USE_PREPARED_FD_SET
       FREE_FDSET(test->inFdset, capacity);
 #endif
       FREE_FDSET(test->outFdset, capacity);
@@ -288,7 +292,7 @@ static void freeFdSet (testType *test, memSizeType capacity)
 
 
 
-#ifndef DYNAMIC_FD_SET
+#if !DYNAMIC_FD_SET
 #define reallocFdSet(pollData, increment) TRUE
 #else
 
@@ -299,7 +303,7 @@ static boolType reallocFdSet (testType *test, memSizeType increment)
     boolType result = TRUE;
 
   /* reallocFdSet */
-#ifdef USE_PREPARED_FD_SET
+#if USE_PREPARED_FD_SET
     if (unlikely((newFdset = REALLOC_FDSET(test->inFdset,
         test->capacity + increment)) == NULL)) {
       result = FALSE;
@@ -323,35 +327,35 @@ static boolType reallocFdSet (testType *test, memSizeType increment)
 
 
 
-#ifndef DYNAMIC_FD_SET
+#if !DYNAMIC_FD_SET
 #define replaceFdSet(test, capacity) TRUE
 #else
 
 static boolType replaceFdSet (testType *test, memSizeType capacity)
 
   {
-#ifdef USE_PREPARED_FD_SET
+#if USE_PREPARED_FD_SET
     fd_set *newInFdset;
 #endif
     fd_set *newOutFdset;
     boolType result = TRUE;
 
   /* replaceFdSet */
-#ifdef USE_PREPARED_FD_SET
+#if USE_PREPARED_FD_SET
     if (unlikely(!ALLOC_FDSET(newInFdset, capacity))) {
       result = FALSE;
     } /* if */
 #endif
     if (unlikely(!ALLOC_FDSET(newOutFdset, capacity))) {
       result = FALSE;
-#ifdef USE_PREPARED_FD_SET
+#if USE_PREPARED_FD_SET
       if (newInFdset != NULL) {
         FREE_FDSET(newInFdset, capacity);
       } /* if */
 #endif
     } /* if */
     if (result) {
-#ifdef USE_PREPARED_FD_SET
+#if USE_PREPARED_FD_SET
       FREE_FDSET(test->inFdset, capacity);
       test->inFdset = newInFdset;
 #endif
@@ -372,13 +376,13 @@ static void addCheck (testType *test, const socketType aSocket,
 
   /* addCheck */
     /* printf("addCheck(..., %u, 0x%lx)\n", aSocket, (unsigned long) fileObj); */
-#ifdef VERIFY_MAXIMUM_FD_NUMBER
+#if VERIFY_MAXIMUM_FD_NUMBER
     if (aSocket < 0 || aSocket >= FD_SETSIZE) {
       raise_error(FILE_ERROR);
       return;
     } /* if */
 #endif
-#ifdef VERIFY_FD_SETSIZE
+#if VERIFY_FD_SETSIZE
     if (test->size >= FD_SETSIZE) {
       raise_error(FILE_ERROR);
       return;
@@ -407,9 +411,9 @@ static void addCheck (testType *test, const socketType aSocket,
       test->size++;
       test->files[pos].fd = (os_socketType) aSocket;
       test->files[pos].file = fileObjectOps.incrUsageCount(fileObj);
-#ifdef USE_PREPARED_FD_SET
+#if USE_PREPARED_FD_SET
       FD_SET((os_socketType) aSocket, to_inFdset(test));
-#ifdef SELECT_WITH_NFDS
+#if SELECT_WITH_NFDS
       if (aSocket >= test->preparedNfds) {
         test->preparedNfds = (int) aSocket + 1;
       } /* if */
@@ -456,7 +460,7 @@ static void removeCheck (testType *test, const socketType aSocket)
       hshExcl(test->indexHash, (genericType) (usocketType) aSocket,
               (intType) aSocket, (compareType) &genericCmp,
               (destrFuncType) &genericDestr, (destrFuncType) &genericDestr);
-#ifdef USE_PREPARED_FD_SET
+#if USE_PREPARED_FD_SET
       FD_CLR((os_socketType) aSocket, to_inFdset(test));
 #endif
     } /* if */
@@ -470,7 +474,7 @@ static void doPoll (const pollType pollData, struct timeval *timeout)
     int nfds = 0;
     fd_set *readFds;
     fd_set *writeFds;
-#ifndef USE_PREPARED_FD_SET
+#if !USE_PREPARED_FD_SET
     memSizeType pos;
     os_socketType sock;
 #endif
@@ -480,10 +484,10 @@ static void doPoll (const pollType pollData, struct timeval *timeout)
     /* printf("doPoll\n");
        dumpPoll(pollData); */
     readFds = to_var_read_outFdset(pollData);
-#ifdef USE_PREPARED_FD_SET
+#if USE_PREPARED_FD_SET
     copyFdSet(readFds, to_read_inFdset(pollData),
               &conv(pollData)->readTest.files);
-#ifdef SELECT_WITH_NFDS
+#if SELECT_WITH_NFDS
     nfds = conv(pollData)->readTest.preparedNfds;
 #endif
 #else
@@ -491,7 +495,7 @@ static void doPoll (const pollType pollData, struct timeval *timeout)
     for (pos = 0; pos < conv(pollData)->readTest.size; pos++) {
       sock = conv(pollData)->readTest.files[pos].fd;
       FD_SET(sock, readFds);
-#ifdef SELECT_WITH_NFDS
+#if SELECT_WITH_NFDS
       if ((int) sock >= nfds) {
         nfds = (int) sock + 1;
       } /* if */
@@ -499,10 +503,10 @@ static void doPoll (const pollType pollData, struct timeval *timeout)
     } /* for */
 #endif
     writeFds = to_var_write_outFdset(pollData);
-#ifdef USE_PREPARED_FD_SET
+#if USE_PREPARED_FD_SET
     copyFdSet(writeFds, to_write_inFdset(pollData),
               &conv(pollData)->writeTest.files);
-#ifdef SELECT_WITH_NFDS
+#if SELECT_WITH_NFDS
     if (conv(pollData)->writeTest.preparedNfds > nfds) {
       nfds = conv(pollData)->writeTest.preparedNfds;
     } /* if */
@@ -512,7 +516,7 @@ static void doPoll (const pollType pollData, struct timeval *timeout)
     for (pos = 0; pos < conv(pollData)->writeTest.size; pos++) {
       sock = conv(pollData)->writeTest.files[pos].fd;
       FD_SET(sock, writeFds);
-#ifdef SELECT_WITH_NFDS
+#if SELECT_WITH_NFDS
       if ((int) sock >= nfds) {
         nfds = (int) sock + 1;
       } /* if */
@@ -722,10 +726,10 @@ void polClear (const pollType pollData)
 
   /* polClear */
     /* printf("polClear\n"); */
-#ifdef USE_PREPARED_FD_SET
+#if USE_PREPARED_FD_SET
     FD_ZERO(to_read_inFdset(pollData));
     FD_ZERO(to_write_inFdset(pollData));
-#ifdef SELECT_WITH_NFDS
+#if SELECT_WITH_NFDS
     var_conv(pollData)->readTest.preparedNfds = 0;
     var_conv(pollData)->writeTest.preparedNfds = 0;
 #endif
@@ -840,10 +844,10 @@ void polCpy (const pollType dest, const const_pollType source)
             } /* if */
           } /* if */
         } /* if */
-#ifdef USE_PREPARED_FD_SET
+#if USE_PREPARED_FD_SET
         copyFdSet(to_var_read_inFdset(pollData), to_read_inFdset(source),
                   &conv(source)->readTest);
-#ifdef SELECT_WITH_NFDS
+#if SELECT_WITH_NFDS
         pollData->readTest.preparedNfds = conv(source)->readTest.preparedNfds;
 #endif
 #endif
@@ -855,10 +859,10 @@ void polCpy (const pollType dest, const const_pollType source)
         hshDestr(pollData->readTest.indexHash, (destrFuncType) &genericDestr,
                  (destrFuncType) &genericDestr);
         pollData->readTest.indexHash = newReadIndexHash;
-#ifdef USE_PREPARED_FD_SET
+#if USE_PREPARED_FD_SET
         copyFdSet(to_var_write_inFdset(pollData), to_write_inFdset(source),
                   &conv(source)->writeTest);
-#ifdef SELECT_WITH_NFDS
+#if SELECT_WITH_NFDS
         pollData->writeTest.preparedNfds = conv(source)->writeTest.preparedNfds;
 #endif
 #endif
@@ -945,10 +949,10 @@ pollType polCreate (const const_pollType source)
         raise_error(MEMORY_ERROR);
         result = NULL;
       } else {
-#ifdef USE_PREPARED_FD_SET
+#if USE_PREPARED_FD_SET
         copyFdSet(to_var_read_inFdset(result), to_read_inFdset(source),
                   &conv(source)->readTest);
-#ifdef SELECT_WITH_NFDS
+#if SELECT_WITH_NFDS
         result->readTest.preparedNfds = conv(source)->readTest.preparedNfds;
 #endif
 #endif
@@ -963,10 +967,10 @@ pollType polCreate (const const_pollType source)
               fileObjectOps.incrUsageCount(conv(source)->readTest.files[pos].file);
         } /* for */
         result->readTest.indexHash = newReadIndexHash;
-#ifdef USE_PREPARED_FD_SET
+#if USE_PREPARED_FD_SET
         copyFdSet(to_var_write_inFdset(result), to_write_inFdset(source),
                   &conv(source)->writeTest);
-#ifdef SELECT_WITH_NFDS
+#if SELECT_WITH_NFDS
         result->writeTest.preparedNfds = conv(source)->writeTest.preparedNfds;
 #endif
 #endif
@@ -1011,8 +1015,8 @@ void polDestr (const pollType oldPollData)
         fileObjectOps.decrUsageCount(conv(oldPollData)->readTest.files[pos].file);
       } /* for */
       capacity = conv(oldPollData)->readTest.capacity;
-#ifdef DYNAMIC_FD_SET
-#ifdef USE_PREPARED_FD_SET
+#if DYNAMIC_FD_SET
+#if USE_PREPARED_FD_SET
       FREE_FDSET(conv(oldPollData)->readTest.inFdset, capacity);
 #endif
       FREE_FDSET(conv(oldPollData)->readTest.outFdset, capacity);
@@ -1025,8 +1029,8 @@ void polDestr (const pollType oldPollData)
         fileObjectOps.decrUsageCount(conv(oldPollData)->writeTest.files[pos].file);
       } /* for */
       capacity = conv(oldPollData)->writeTest.capacity;
-#ifdef DYNAMIC_FD_SET
-#ifdef USE_PREPARED_FD_SET
+#if DYNAMIC_FD_SET
+#if USE_PREPARED_FD_SET
       FREE_FDSET(conv(oldPollData)->writeTest.inFdset, capacity);
 #endif
       FREE_FDSET(conv(oldPollData)->writeTest.outFdset, capacity);
@@ -1076,10 +1080,10 @@ pollType polEmpty (void)
         raise_error(MEMORY_ERROR);
         result = NULL;
       } else {
-#ifdef USE_PREPARED_FD_SET
+#if USE_PREPARED_FD_SET
         FD_ZERO(to_read_inFdset(result));
         FD_ZERO(to_write_inFdset(result));
-#ifdef SELECT_WITH_NFDS
+#if SELECT_WITH_NFDS
         result->readTest.preparedNfds = 0;
         result->writeTest.preparedNfds = 0;
 #endif

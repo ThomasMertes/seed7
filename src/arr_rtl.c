@@ -183,7 +183,7 @@ static striType getProgramName (const const_striType arg_0)
                 fflush(stdout););
     name_len = arg_0->size;
 #ifdef EXECUTABLE_FILE_EXTENSION
-    exeExtension = cstri8_or_cstri_to_stri(EXECUTABLE_FILE_EXTENSION);
+    exeExtension = CSTRI_LITERAL_TO_STRI(EXECUTABLE_FILE_EXTENSION);
     if (name_len > exeExtension->size &&
         memcmp(&arg_0->mem[arg_0->size - exeExtension->size],
                exeExtension->mem, exeExtension->size * sizeof(strElemType)) == 0) {
@@ -543,6 +543,21 @@ striType examineSearchPath (const const_striType fileName)
 
 
 
+void freeRtlStriArray (rtlArrayType work_array, intType used_max_position)
+
+  {
+    memSizeType position;
+
+  /* freeRtlStriArray */
+    for (position = 0; position < (uintType) used_max_position; position++) {
+      FREE_STRI(work_array->arr[position].value.striValue,
+                work_array->arr[position].value.striValue->size);
+    } /* for */
+    FREE_RTL_ARRAY(work_array, (uintType) work_array->max_position);
+  } /* freeRtlStriArray */
+
+
+
 /**
  *  Append the array 'extension' to the array 'arr_variable'.
  *  @exception MEMORY_ERROR Not enough memory for the concatenated
@@ -557,6 +572,8 @@ void arrAppend (rtlArrayType *const arr_variable, const rtlArrayType extension)
     memSizeType extension_size;
 
   /* arrAppend */
+    logFunction(printf("arrAppend(arr1 (size=" FMT_U_MEM "), arr2 (size=" FMT_U_MEM "))\n",
+                       arraySize(*arr_variable), arraySize(extension)););
     extension_size = arraySize(extension);
     if (extension_size != 0) {
       arr_to = *arr_variable;
@@ -579,6 +596,8 @@ void arrAppend (rtlArrayType *const arr_variable, const rtlArrayType extension)
         } /* if */
       } /* if */
     } /* if */
+    logFunction(printf("arrAppend --> arr (size=" FMT_U_MEM ")\n",
+                       arraySize(*arr_variable)););
   } /* arrAppend */
 
 

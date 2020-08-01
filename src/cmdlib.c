@@ -60,99 +60,27 @@
 
 
 
-#ifdef USE_CDECL
-static int _cdecl cmp_mem (char *strg1, char *strg2)
-#else
-static int cmp_mem (void const *strg1, void const *strg2)
-#endif
-
-  { /* cmp_mem */
-    return (int) strCompare(
-        ((const_objectType) strg1)->value.striValue,
-        ((const_objectType) strg2)->value.striValue);
-  } /* cmp_mem */
-
-
-
-static arrayType read_dir (dirType directory)
-
-  {
-    arrayType dir_array;
-    arrayType resized_dir_array;
-    memSizeType max_array_size;
-    intType used_array_size;
-    memSizeType position;
-    striType stri1;
-    boolType okay;
-
-  /* read_dir */
-    max_array_size = INITAL_ARRAY_SIZE;
-    if (ALLOC_ARRAY(dir_array, max_array_size)) {
-      used_array_size = 0;
-      stri1 = dirRead(directory);
-      okay = TRUE;
-      while (okay && stri1 != NULL) {
-        if ((memSizeType) used_array_size >= max_array_size) {
-          if (max_array_size >= MAX_MEM_INDEX - ARRAY_SIZE_DELTA) {
-            resized_dir_array = NULL;
-          } else {
-            resized_dir_array = REALLOC_ARRAY(dir_array,
-                max_array_size, max_array_size + ARRAY_SIZE_DELTA);
-          } /* if */
-          if (resized_dir_array == NULL) {
-            okay = FALSE;
-          } else {
-            dir_array = resized_dir_array;
-            COUNT3_ARRAY(max_array_size, max_array_size + ARRAY_SIZE_DELTA);
-            max_array_size += ARRAY_SIZE_DELTA;
-          } /* if */
-        } /* if */
-        if (okay) {
-          dir_array->arr[used_array_size].type_of = take_type(SYS_STRI_TYPE);
-          dir_array->arr[used_array_size].descriptor.property = NULL;
-          dir_array->arr[used_array_size].value.striValue = stri1;
-          INIT_CATEGORY_OF_VAR(&dir_array->arr[used_array_size],
-              STRIOBJECT);
-          used_array_size++;
-          stri1 = dirRead(directory);
-        } /* if */
-      } /* while */
-      if (okay) {
-        resized_dir_array = REALLOC_ARRAY(dir_array,
-            max_array_size, (memSizeType) used_array_size);
-        if (resized_dir_array == NULL) {
-          okay = FALSE;
-        } else {
-          dir_array = resized_dir_array;
-          COUNT3_ARRAY(max_array_size, (memSizeType) used_array_size);
-          dir_array->min_position = 1;
-          dir_array->max_position = used_array_size;
-        } /* if */
-      } /* if */
-      if (!okay) {
-        for (position = 0; position < (memSizeType) used_array_size; position++) {
-          FREE_STRI(dir_array->arr[position].value.striValue,
-              dir_array->arr[position].value.striValue->size);
-        } /* for */
-        FREE_ARRAY(dir_array, max_array_size);
-        dir_array = NULL;
-      } /* if */
-    } /* if */
-    return dir_array;
-  } /* read_dir */
-
-
-
+/**
+ *  Convert an rtlArrayType to an arrayType object.
+ *  The strings in ''anRtlArray'' are reused in the created arrayType
+ *  object. The memory of ''anRtlArray'' itself is freed. It is assumed
+ *  that ''anRtlArray'' is not used afterwards.
+ *  @return the new created arrayType object.
+ *  @exception MEMORY_ERROR Not enough memory to convert the path
+ *             to the system string type.
+ */
 static objectType toArrayType (rtlArrayType anRtlArray)
 
   {
     memSizeType arraySize;
     memSizeType pos;
     arrayType anArray;
+    typeType typeOfString;
+    objectType element;
     objectType result;
 
   /* toArrayType */
-    if (anRtlArray == NULL) {
+    if (unlikely(anRtlArray == NULL)) {
       /* Assume that an exception was already raised */
       result = NULL;
     } else {
@@ -166,12 +94,17 @@ static objectType toArrayType (rtlArrayType anRtlArray)
       } else {
         anArray->min_position = anRtlArray->min_position;
         anArray->max_position = anRtlArray->max_position;
-        for (pos = 0; pos < arraySize; pos++) {
-          anArray->arr[pos].type_of = take_type(SYS_STRI_TYPE);
-          anArray->arr[pos].descriptor.property = NULL;
-          anArray->arr[pos].value.striValue = anRtlArray->arr[pos].value.striValue;
-          INIT_CATEGORY_OF_VAR(&anArray->arr[pos], STRIOBJECT);
-        } /* for */
+        typeOfString = take_type(SYS_STRI_TYPE);
+        pos = arraySize;
+        element = &anArray->arr[pos];
+        while (pos != 0) {
+          pos--;
+          element--;
+          element->type_of = typeOfString;
+          element->descriptor.property = NULL;
+          element->value.striValue = anRtlArray->arr[pos].value.striValue;
+          INIT_CATEGORY_OF_VAR(element, STRIOBJECT);
+        } /* while */
         FREE_RTL_ARRAY(anRtlArray, arraySize);
         result = bld_array_temp(anArray);
       } /* if */
@@ -626,30 +559,11 @@ objectType cmd_ls (listType arguments)
 
   {
     striType dirPath;
-    dirType directory;
-    arrayType result;
 
   /* cmd_ls */
     isit_stri(arg_1(arguments));
     dirPath = take_stri(arg_1(arguments));
-    logFunction(printf("cmd_ls(\"%s\")\n", striAsUnquotedCStri(dirPath)););
-    if (unlikely((directory = dirOpen(dirPath)) == NULL)) {
-      logError(printf("cmd_ls: dirOpen(\"%s\") failed.\n",
-                      striAsUnquotedCStri(dirPath)););
-      return raise_with_arguments(SYS_FIL_EXCEPTION, arguments);
-    } else {
-      result = read_dir(directory);
-      dirClose(directory);
-      if (unlikely(result == NULL)) {
-        return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
-      } else {
-        qsort((void *) result->arr, (size_t) arraySize(result),
-            sizeof(objectRecord), &cmp_mem);
-        logFunction(printf("cmdLs --> array[size = " FMT_U_MEM "]\n",
-                           arraySize(result)););
-        return bld_array_temp(result);
-      } /* if */
-    } /* if */
+    return toArrayType(cmdLs(dirPath));
   } /* cmd_ls */
 
 

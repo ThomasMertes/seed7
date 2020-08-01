@@ -253,9 +253,12 @@ EXTERN memSizeType hs;
 #define MAX_WSTRI_LEN   (MAX_MEMSIZETYPE / sizeof(wcharType) - NULL_TERMINATION_LEN)
 #define MAX_STRI_LEN    ((MAX_MEMSIZETYPE - sizeof(striRecord)     + sizeof(strElemType))   / sizeof(strElemType))
 #define MAX_BSTRI_LEN   ((MAX_MEMSIZETYPE - sizeof(bstriRecord)    + sizeof(ucharType))     / sizeof(ucharType))
-#define MAX_ARR_LEN     ((MAX_MEMSIZETYPE - sizeof(arrayRecord)    + sizeof(objectRecord))  / sizeof(objectRecord))
 #define MAX_SET_LEN     ((MAX_MEMSIZETYPE - sizeof(setRecord)      + sizeof(bitSetType))    / sizeof(bitSetType))
+#define MAX_ARR_LEN     ((MAX_MEMSIZETYPE - sizeof(arrayRecord)    + sizeof(objectRecord))  / sizeof(objectRecord))
 #define MAX_RTL_ARR_LEN ((MAX_MEMSIZETYPE - sizeof(rtlArrayRecord) + sizeof(rtlObjectType)) / sizeof(rtlObjectType))
+
+#define MAX_ARR_INDEX     ((MAX_MEM_INDEX - sizeof(arrayRecord)    + sizeof(objectRecord))  / sizeof(objectRecord))
+#define MAX_RTL_ARR_INDEX ((MAX_MEM_INDEX - sizeof(rtlArrayRecord) + sizeof(rtlObjectType)) / sizeof(rtlObjectType))
 
 #if DO_HEAPSIZE_COMPUTATION
 #if DO_HEAP_STATISTIC

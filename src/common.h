@@ -108,12 +108,12 @@ typedef UINT32TYPE         uint32Type;
 #endif
 #define UINT32TYPE_MAX           UINT32_SUFFIX(0xffffffff)
 
-#define F_D32(width) "%" #width INT32TYPE_FORMAT "d"
-#define F_U32(width) "%" #width INT32TYPE_FORMAT "u"
-#define F_X32(width) "%" #width INT32TYPE_FORMAT "x"
-#define FMT_D32      "%" INT32TYPE_FORMAT "d"
-#define FMT_U32      "%" INT32TYPE_FORMAT "u"
-#define FMT_X32      "%" INT32TYPE_FORMAT "x"
+#define F_D32(width) "%" #width INT32TYPE_FORMAT_LENGTH_MODIFIER "d"
+#define F_U32(width) "%" #width INT32TYPE_FORMAT_LENGTH_MODIFIER "u"
+#define F_X32(width) "%" #width INT32TYPE_FORMAT_LENGTH_MODIFIER "x"
+#define FMT_D32      "%" INT32TYPE_FORMAT_LENGTH_MODIFIER "d"
+#define FMT_U32      "%" INT32TYPE_FORMAT_LENGTH_MODIFIER "u"
+#define FMT_X32      "%" INT32TYPE_FORMAT_LENGTH_MODIFIER "x"
 
 /* INT32TYPE_DECIMAL_SIZE includes space for the sign */
 #define INT32TYPE_DECIMAL_SIZE      11
@@ -144,12 +144,12 @@ typedef UINT64TYPE         uint64Type;
 #define UINT64TYPE_MAX           UINT64_SUFFIX(0xffffffffffffffff)
 #endif
 
-#define F_D64(width) "%" #width INT64TYPE_FORMAT "d"
-#define F_U64(width) "%" #width INT64TYPE_FORMAT "u"
-#define F_X64(width) "%" #width INT64TYPE_FORMAT "x"
-#define FMT_D64      "%" INT64TYPE_FORMAT "d"
-#define FMT_U64      "%" INT64TYPE_FORMAT "u"
-#define FMT_X64      "%" INT64TYPE_FORMAT "x"
+#define F_D64(width) "%" #width INT64TYPE_FORMAT_LENGTH_MODIFIER "d"
+#define F_U64(width) "%" #width INT64TYPE_FORMAT_LENGTH_MODIFIER "u"
+#define F_X64(width) "%" #width INT64TYPE_FORMAT_LENGTH_MODIFIER "x"
+#define FMT_D64      "%" INT64TYPE_FORMAT_LENGTH_MODIFIER "d"
+#define FMT_U64      "%" INT64TYPE_FORMAT_LENGTH_MODIFIER "u"
+#define FMT_X64      "%" INT64TYPE_FORMAT_LENGTH_MODIFIER "x"
 
 /* INT64TYPE_DECIMAL_SIZE includes space for the sign */
 #define INT64TYPE_DECIMAL_SIZE      20

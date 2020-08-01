@@ -55,6 +55,8 @@ intType strChIPos (const const_striType main_stri, const charType searched,
     const intType from_index);
 striType strChMult (const charType ch, const intType factor);
 intType strChPos (const const_striType main_stri, const charType searched);
+striType strChRepl (const const_striType mainStri,
+    const charType searched, const const_striType replacement);
 /* rtlArrayType strChSplit (const const_striType main_stri,
     const charType delimiter); */
 striType strCLit (const const_striType stri);

@@ -1101,6 +1101,9 @@ bstriType socInetAddr (const const_striType hostName, intType port)
     } else {
       name = stri_to_cstri8(hostName, &err_info);
       if (unlikely(name == NULL)) {
+        logError(printf("socInetAddr: stri_to_cstri8(\"%s\", *) failed:\n"
+                        "err_info=%d\n",
+                        striAsUnquotedCStri(hostName), err_info););
         raise_error(err_info);
         result = NULL;
       } else {
@@ -1881,6 +1884,9 @@ intType socSend (socketType sock, const const_striType stri, intType flags)
     } else {
       buf = stri_to_bstri(stri, &err_info);
       if (unlikely(buf == NULL)) {
+        logError(printf("socSend: stri_to_bstri(\"%s\", *) failed:\n"
+                        "err_info=%d\n",
+                        striAsUnquotedCStri(stri), err_info););
         raise_error(err_info);
         result = 0;
       } else {
@@ -1922,6 +1928,9 @@ intType socSendto (socketType sock, const const_striType stri, intType flags,
     } else {
       buf = stri_to_bstri(stri, &err_info);
       if (unlikely(buf == NULL)) {
+        logError(printf("socSendto: stri_to_bstri(\"%s\", *) failed:\n"
+                        "err_info=%d\n",
+                        striAsUnquotedCStri(stri), err_info););
         raise_error(err_info);
         result = 0;
       } else {

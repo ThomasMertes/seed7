@@ -36,6 +36,8 @@
 
 #include "stdio.h"
 #include "time.h"
+#include "string.h"
+#include "errno.h"
 
 #include "common.h"
 #include "big_drv.h"
@@ -77,13 +79,20 @@ static const time_t year_days[2][12] = {
 
 
 
+/**
+ *  Convert a broken down time in '*timeptr' to a timestamp.
+ *  The timestamp is expressed in seconds since the Unix Epoch.
+ *  The Unix Epoch (1970-01-01 00:00:00 UTC) corresponds to 0.
+ *  @return the timestamp that corresponds to the time, or
+ *          -1 when the date/time in '*timeptr' is not correct.
+ */
 time_t mkutc (struct tm *timeptr)
 
   {
     int real_year;
     int leap_year;
     int year_before;
-    time_t result;
+    time_t timestamp;
 
   /* mkutc */
     real_year = 1900 + timeptr->tm_year;
@@ -99,31 +108,38 @@ time_t mkutc (struct tm *timeptr)
         timeptr->tm_hour < 0 || timeptr->tm_hour >= 24 ||
         timeptr->tm_min < 0 || timeptr->tm_min >= 60 ||
         timeptr->tm_sec < 0 || timeptr->tm_sec >= 60)) {
-      result = (time_t) -1;
+      timestamp = (time_t) -1;
     } else {
       year_before = real_year - 1;
-      result = ((((time_t) year_before * 365 +
-                           year_before / 4 -
-                           year_before / 100 +
-                           year_before / 400 -
+      timestamp = ((((time_t) year_before * 365 +
+                              year_before / 4 -
+                              year_before / 100 +
+                              year_before / 400 -
                (time_t) 719162 +
                year_days[leap_year][timeptr->tm_mon] + timeptr->tm_mday - 1) * 24 +
                (time_t) timeptr->tm_hour) * 60 +
                (time_t) timeptr->tm_min) * 60 +
                (time_t) timeptr->tm_sec;
     } /* if */
-    return result;
+    return timestamp;
   } /* mkutc */
 
 
 
+/**
+ *  Convert a broken down time in '*timeptr' to a timestamp.
+ *  The timestamp is expressed in seconds since the Unix Epoch.
+ *  The Unix Epoch (1970-01-01 00:00:00 UTC) corresponds to 0.
+ *  The date/time in '*timeptr' is not checked for correctness.
+ *  @return the timestamp that corresponds to the time.
+ */
 time_t unchecked_mkutc (struct tm *timeptr)
 
   {
     int real_year;
     int leap_year;
     int year_before;
-    time_t result;
+    time_t timestamp;
 
   /* unchecked_mkutc */
     real_year = 1900 + timeptr->tm_year;
@@ -133,16 +149,16 @@ time_t unchecked_mkutc (struct tm *timeptr)
       leap_year = 0;
     } /* if */
     year_before = real_year - 1;
-    result = ((((time_t) year_before * 365 +
-                         year_before / 4 -
-                         year_before / 100 +
-                         year_before / 400 -
+    timestamp = ((((time_t) year_before * 365 +
+                            year_before / 4 -
+                            year_before / 100 +
+                            year_before / 400 -
              (time_t) 719162 +
              year_days[leap_year][timeptr->tm_mon] + timeptr->tm_mday - 1) * 24 +
              (time_t) timeptr->tm_hour) * 60 +
              (time_t) timeptr->tm_min) * 60 +
              (time_t) timeptr->tm_sec;
-    return result;
+    return timestamp;
   } /* unchecked_mkutc */
 
 
@@ -165,7 +181,7 @@ void timFromTimestamp (time_t timestamp,
     struct tm *local_time;
 
   /* timFromTimestamp */
-    logFunction(printf("timFromTimestamp(%ld)\n", timestamp););
+    logFunction(printf("timFromTimestamp(" FMT_T ")\n", timestamp););
 #if defined USE_LOCALTIME_R
     local_time = localtime_r(&timestamp, &tm_result);
 #elif defined USE_LOCALTIME_S
@@ -178,6 +194,10 @@ void timFromTimestamp (time_t timestamp,
     local_time = localtime(&timestamp);
 #endif
     if (unlikely(local_time == NULL)) {
+      logError(printf("timFromTimestamp(" FMT_T "): "
+                      "One of localtime/localtime_r/localtime_s failed:\n"
+                      "errno=%d\nerror: %s\n",
+                      timestamp, errno, strerror(errno)););
       raise_error(RANGE_ERROR);
     } else {
       *year      = local_time->tm_year + 1900;
@@ -211,6 +231,9 @@ void timFromIntTimestamp (intType timestamp,
 
   { /* timFromIntTimestamp */
     if (!inTimeTRange(timestamp)) {
+      logError(printf("timFromIntTimestamp(" FMT_D "): "
+                      "Timestamp not in allowed range of time_t.\n",
+                      timestamp););
       raise_error(RANGE_ERROR);
     } else {
       timFromTimestamp((time_t) timestamp,
@@ -231,7 +254,7 @@ time_t timToTimestamp (intType year, intType month, intType day, intType hour,
 
   {
     struct tm tm_time;
-    time_t result;
+    time_t timestamp;
 
   /* timToTimestamp */
     logFunction(printf("timToTimestamp(" F_D(04) "-" F_D(02) "-" F_D(02),
@@ -245,16 +268,16 @@ time_t timToTimestamp (intType year, intType month, intType day, intType hour,
     tm_time.tm_min   = (int) min;
     tm_time.tm_sec   = (int) sec;
     tm_time.tm_isdst = 0;
-    result = mkutc(&tm_time);
-    if (likely(result != (time_t) -1)) {
+    timestamp = mkutc(&tm_time);
+    if (likely(timestamp != (time_t) -1)) {
       if (unlikely(time_zone < -1500 || time_zone > 1500)) {
-        result = (time_t) -1;
+        timestamp = (time_t) -1;
       } else {
-        result -= (time_t) time_zone * 60;
+        timestamp -= (time_t) time_zone * 60;
       } /* if */
     } /* if */
-    logFunction(printf("timToTimestamp --> " FMT_T "\n", result););
-    return result;
+    logFunction(printf("timToTimestamp --> " FMT_T "\n", timestamp););
+    return timestamp;
   } /* timToTimestamp */
 
 
@@ -293,6 +316,10 @@ void timSetLocalTZ (intType year, intType month, intType day, intType hour,
     local_time = localtime(&timestamp);
 #endif
     if (unlikely(local_time == NULL)) {
+      logError(printf("timSetLocalTZ: "
+                      "One of localtime/localtime_r/localtime_s(" FMT_T ") failed:\n"
+                      "errno=%d\nerror: %s\n",
+                      timestamp, errno, strerror(errno)););
       raise_error(RANGE_ERROR);
     } else {
       time_zone_reference = unchecked_mkutc(local_time) / 60;
@@ -329,6 +356,10 @@ void timSetLocalTZ (intType year, intType month, intType day, intType hour,
           local_time = localtime(&timestamp);
 #endif
           if (unlikely(local_time == NULL)) {
+            logError(printf("timSetLocalTZ: One of "
+                            "localtime/localtime_r/localtime_s(" FMT_T ") failed:\n"
+                            "errno=%d\nerror: %s\n",
+                            timestamp, errno, strerror(errno)););
             raise_error(RANGE_ERROR);
           } else {
             *time_zone = (intType) (unchecked_mkutc(local_time) - timestamp) / 60;
@@ -384,23 +415,25 @@ bigIntType timToBigTimestamp (intType year, intType month, intType day, intType 
 
   {
     time_t os_timestamp;
-    bigIntType result;
+    bigIntType timestamp;
 
   /* timToBigTimestamp */
     os_timestamp = timToTimestamp(year, month, day, hour, min, sec, micro_sec, time_zone);
     if (sizeof(time_t) == 8) {
 #ifdef INT64TYPE
-      result = bigFromInt64((int64Type) os_timestamp);
+      timestamp = bigFromInt64((int64Type) os_timestamp);
 #else
       if (os_timestamp > INT32TYPE_MAX || os_timestamp < INT32TYPE_MIN) {
+        logError(printf("timToBigTimestamp: Size of time_t too big " FMT_T ").\n",
+                        os_timestamp););
         raise_error(RANGE_ERROR);
-        result = NULL;
+        timestamp = NULL;
       } else {
-        result = bigFromInt32((int32Type) os_timestamp);
+        timestamp = bigFromInt32((int32Type) os_timestamp);
       } /* if */
 #endif
     } else {
-      result = bigFromInt32((int32Type) os_timestamp);
+      timestamp = bigFromInt32((int32Type) os_timestamp);
     } /* if */
-    return result;
+    return timestamp;
   } /* timToBigTimestamp */

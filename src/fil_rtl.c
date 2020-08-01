@@ -1023,8 +1023,9 @@ charType filGetcChkCtrlC (fileType inFile)
  *  a different strategy is used. In this case the function tries to
  *  find out the number of available characters (this is possible
  *  for a regular file but not for a pipe). If this fails a third
- *  strategy is used. In this case a smaller block is requested. This
- *  block is filled with data, resized and filled in a loop.
+ *  strategy is used. In this case data is read into a list of buffers.
+ *  After the data has been read memory is requested, the data is
+ *  copied from the buffers and the list of buffers is freed.
  *  @return the string read.
  *  @exception RANGE_ERROR The length is negative.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.

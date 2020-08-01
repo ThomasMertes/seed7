@@ -1,3 +1,75 @@
+20180401:
+- The new library logfile.s7i has been added. It defines the interface
+  logFile. A logFile works like a normal file unless the log file
+  has the value STD_NULL. When a logFile has the value STD_NULL string
+  expressions written to the logFile are not evaluated. This reduces
+  the overhead, when logging is turned off.
+- The bas7.sd7 (basic interpreter) example program has been improved.
+  The logging is now done via the new logFile type. This improves the
+  performance, when no logging is done. Several DATA statements in one
+  line are processed correctly now. Support for IF GOSUB and DISPLAY
+  statements and for the function COMMAND$ has been added.
+- Tests of nested bigInteger for loops have been added to chkbig.sd7.
+- A test with the assignment of a hash variable to itself have been
+  added to chkhsh.sd7.
+- Tests of the replace function have been added to chkstr.sd7.
+- In striutl.c the functions conv_from_os_stri, cstri8_to_stri and
+  cstri8_buf_to_stri have been improved. Now they call realloc()
+  only, when the size has changed. This improves the performance of
+  conv_from_os_stri by 32% (measured with gcc and valgrind, when
+  reading a directory).
+- In str_rtl.c the function strUtf8ToStri has been improved to call
+  realloc() only, when the size has changed.
+- In cmd_rtl.c the functions add_stri_to_array and
+  complete_stri_array have been renamed to addStriToRtlArray and
+  completeRtlStriArray respectively. The renamed functions have also
+  been improved to work with a simpler parameter list. Together with
+  the improvement of conv_from_os_stri this improves the performance
+  of cmdLs by 14% (measured with gcc and valgrind, when reading a
+  directory).
+- In cmdlib.c the function cmd_ls has been rewritten to be based on
+  cmdLs. The functions cmp_mem and read_dir have been removed.
+- In cmdlib.c the main loop in the function toArrayType has been
+  optimized for performance.
+- In str_rtl.c the function add_stri_to_array has been renamed to
+  addCopiedStriToRtlArray and the function completeRtlStriArray has
+  been introduced. The code of addCopiedStriToRtlArray has also been
+  improved to work with a simpler parameter list.
+- In strlib.c the function add_stri_to_array has been renamed to
+  addCopiedStriToArray and the functions freeStriArray and
+  completeStriArray have been introduced. The code of
+  addCopiedStriToArray has also been improved to work with a simpler
+  parameter list.
+- The compiler has been improved to optimize the action HSH_CONTAINS,
+  when the hash table is constant and contains one element.
+- In the compiler (in comp/const.s7i) the actions BLN_ORD, CHR_ICONV1,
+  CHR_ORD and INT_ODD have been added to the list of special actions.
+  The compiler implements functions, which just call one of the
+  special actions as inline functions. This allows optimizations for
+  the boolean and char random number generator.
+- The compiler (s7c) has been improved (in comp/destr.s7i) to define
+  interface destructors, which take all possible implementation
+  types into account. Additionally a switch statement is used instead
+  of an if-then-else chain. Double entries are also avoided now.
+- The function strChRepl has been added to str_rtl.c.
+- The compiler has been improved to use strChRepl instead of strRepl,
+  to optimize split operations.
+- Unnecessary function parameters have been removed in several
+  include files of the compiler.
+- In flt_rtl.c the function doubleToCharBuffer has been improved to
+  determine the integer value of the exponent without calling
+  strtol().
+- The function freeRtlStriArray has been added to arr_rtl.c.
+- Several #define flags in pol_sel.c have been improved.
+- The macro CSTRI_LITERAL_TO_STRI has been defined in striutl.h and
+  used in analyze.c, arr_rtl.c, cmd_rtl.c, cmd_unx.c, infile.c,
+  pcs_unx.c and pcs_win.c.
+- Calls of logError have been added to functions in cmd_rtl.c,
+  con_inf.c, prclib.c, soc_rtl.c, tim_dos.c, tim_rtl.c, tim_unx.c and
+  tim_win.c.
+- Documentation comments have been added or improved in cmdlib.c,
+  int_rtl.c and tim_rtl.c.
+
 20180304:
 - In fil_rtl.c and ut8_rlt.c the functions filLineRead, filWordRead,
   ut8LineRead and ut8WordRead have been improved to use
@@ -10,8 +82,11 @@
   by a factor of 4 (measured with gcc and valgrind).
 - The functions free_helem and free_hash in hshlib.c have been
   improved to stop searching for helems as soon as the last helem
-  has been freed. This improves the performance free_hash by 36%
+  has been freed. This improves the performance of free_hash by 36%
   (measured with gcc and valgrind).
+- Code to avoid an error with the assignment of a hash variable to
+  itself (e.g.: aHash := aHash;) has been added to hshlib.c and
+  hsh_rtl.c.
 - In fil_rtl.c the function read_and_alloc_stri and filGets have been
   improved to have less usages of err_info and num_of_chars_read.
 - In soc_rtl.c the function receive_and_alloc_stri has been improved
