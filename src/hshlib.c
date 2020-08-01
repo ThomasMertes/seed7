@@ -231,27 +231,26 @@ static hashType create_hash (hashType source_hash,
 
 
 static memSizeType keys_helem (const arrayType key_array, memSizeType arr_pos,
-    const hashElemType curr_helem, objectType key_create_func)
+    hashElemType curr_helem, objectType key_create_func)
 
   {
     objectType dest_obj;
 
   /* keys_helem */
-    arr_pos--;
-    dest_obj = &key_array->arr[arr_pos];
-    memcpy(&dest_obj->descriptor, &curr_helem->key.descriptor, sizeof(descriptorUnion));
-    INIT_CATEGORY_OF_VAR(dest_obj, DECLAREDOBJECT);
-    SET_ANY_FLAG(dest_obj, HAS_POSINFO(&curr_helem->key));
-    dest_obj->type_of = curr_helem->key.type_of;
-    param3_call(key_create_func, dest_obj, SYS_CREA_OBJECT, &curr_helem->key);
-    if (curr_helem->next_less != NULL) {
-      arr_pos = keys_helem(key_array, arr_pos, curr_helem->next_less,
-                           key_create_func);
-    } /* if */
-    if (curr_helem->next_greater != NULL) {
-      arr_pos = keys_helem(key_array, arr_pos, curr_helem->next_greater,
-                           key_create_func);
-    } /* if */
+    do {
+      arr_pos--;
+      dest_obj = &key_array->arr[arr_pos];
+      memcpy(&dest_obj->descriptor, &curr_helem->key.descriptor, sizeof(descriptorUnion));
+      INIT_CATEGORY_OF_VAR(dest_obj, DECLAREDOBJECT);
+      SET_ANY_FLAG(dest_obj, HAS_POSINFO(&curr_helem->key));
+      dest_obj->type_of = curr_helem->key.type_of;
+      param3_call(key_create_func, dest_obj, SYS_CREA_OBJECT, &curr_helem->key);
+      if (curr_helem->next_less != NULL) {
+        arr_pos = keys_helem(key_array, arr_pos, curr_helem->next_less,
+                             key_create_func);
+      } /* if */
+      curr_helem = curr_helem->next_greater;
+    } while (curr_helem != NULL);
     return arr_pos;
   } /* keys_helem */
 
@@ -300,27 +299,26 @@ static inline arrayType keys_hash (const const_hashType curr_hash,
 
 
 static memSizeType values_helem (const arrayType value_array, memSizeType arr_pos,
-    const hashElemType curr_helem, const objectType value_create_func)
+    hashElemType curr_helem, const objectType value_create_func)
 
   {
     objectType dest_obj;
 
   /* values_helem */
-    arr_pos--;
-    dest_obj = &value_array->arr[arr_pos];
-    memcpy(&dest_obj->descriptor, &curr_helem->data.descriptor, sizeof(descriptorUnion));
-    INIT_CATEGORY_OF_VAR(dest_obj, DECLAREDOBJECT);
-    SET_ANY_FLAG(dest_obj, HAS_POSINFO(&curr_helem->data));
-    dest_obj->type_of = curr_helem->data.type_of;
-    param3_call(value_create_func, dest_obj, SYS_CREA_OBJECT, &curr_helem->data);
-    if (curr_helem->next_less != NULL) {
-      arr_pos = values_helem(value_array, arr_pos, curr_helem->next_less,
-                             value_create_func);
-    } /* if */
-    if (curr_helem->next_greater != NULL) {
-      arr_pos = values_helem(value_array, arr_pos, curr_helem->next_greater,
-                             value_create_func);
-    } /* if */
+    do {
+      arr_pos--;
+      dest_obj = &value_array->arr[arr_pos];
+      memcpy(&dest_obj->descriptor, &curr_helem->data.descriptor, sizeof(descriptorUnion));
+      INIT_CATEGORY_OF_VAR(dest_obj, DECLAREDOBJECT);
+      SET_ANY_FLAG(dest_obj, HAS_POSINFO(&curr_helem->data));
+      dest_obj->type_of = curr_helem->data.type_of;
+      param3_call(value_create_func, dest_obj, SYS_CREA_OBJECT, &curr_helem->data);
+      if (curr_helem->next_less != NULL) {
+        arr_pos = values_helem(value_array, arr_pos, curr_helem->next_less,
+                               value_create_func);
+      } /* if */
+      curr_helem = curr_helem->next_greater;
+    } while (curr_helem != NULL);
     return arr_pos;
   } /* values_helem */
 

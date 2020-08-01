@@ -139,6 +139,7 @@ distclean: clean
 test:
 	../bin/s7 -l ../lib ../prg/chk_all build
 
+
 dep: depend
 
 strip:
@@ -175,7 +176,6 @@ chkccomp.h:
 
 version.h: chkccomp.h
 	echo "#define PATH_DELIMITER '/'" > version.h
-	echo "#define USE_DIRENT" >> version.h
 	echo "#define SEARCH_PATH_DELIMITER ':'" >> version.h
 	echo "#define USE_MMAP" >> version.h
 	echo "#define AWAIT_WITH_SELECT" >> version.h

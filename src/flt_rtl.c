@@ -245,13 +245,15 @@ intType fltCmp (floatType number1, floatType number2)
     intType signumValue;
 
   /* fltCmp */
+    logFunction(printf("fltCmp(" FMT_E ", " FMT_E ")\n",
+                       number1, number2););
 #if NAN_COMPARISON_OKAY
     if (number1 < number2) {
       signumValue = -1;
     } else if (number1 > number2) {
       signumValue = 1;
     } else {
-      signumValue = os_isnan(number1) - os_isnan(number2);
+      signumValue = (os_isnan(number1) != 0) - (os_isnan(number2) != 0);
     } /* if */
 #else
     if (os_isnan(number1)) {
@@ -270,6 +272,7 @@ intType fltCmp (floatType number1, floatType number2)
       signumValue = 0;
     } /* if */
 #endif
+    logFunction(printf("fltCmp --> " FMT_D "\n", signumValue););
     return signumValue;
   } /* fltCmp */
 

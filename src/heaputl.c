@@ -37,6 +37,8 @@
 #include "stdlib.h"
 #include "stdio.h"
 #if HAS_GETRLIMIT && defined STACK_SIZE
+/* In FreeBSD it is necessary to include <sys/types.h> before <sys/resource.h> */
+#include "sys/types.h"
 #include "sys/resource.h"
 #endif
 

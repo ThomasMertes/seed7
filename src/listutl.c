@@ -496,13 +496,13 @@ static void helem_data_to_list (listType *list_insert_place,
     hashElemType helem, errInfoType *err_info)
 
   { /* helem_data_to_list */
-    incl_list(list_insert_place, &helem->data, err_info);
-    if (helem->next_less != NULL && *err_info == OKAY_NO_ERROR) {
-      helem_data_to_list(list_insert_place, helem->next_less, err_info);
-    } /* if */
-    if (helem->next_greater != NULL && *err_info == OKAY_NO_ERROR) {
-      helem_data_to_list(list_insert_place, helem->next_greater, err_info);
-    } /* if */
+    do {
+      incl_list(list_insert_place, &helem->data, err_info);
+      if (helem->next_less != NULL && *err_info == OKAY_NO_ERROR) {
+        helem_data_to_list(list_insert_place, helem->next_less, err_info);
+      } /* if */
+      helem = helem->next_greater;
+    } while (helem != NULL && *err_info == OKAY_NO_ERROR);
   } /* helem_data_to_list */
 
 
@@ -537,13 +537,13 @@ static void helem_key_to_list (listType *list_insert_place,
     hashElemType helem, errInfoType *err_info)
 
   { /* helem_key_to_list */
-    incl_list(list_insert_place, &helem->key, err_info);
-    if (helem->next_less != NULL && *err_info == OKAY_NO_ERROR) {
-      helem_key_to_list(list_insert_place, helem->next_less, err_info);
-    } /* if */
-    if (helem->next_greater != NULL && *err_info == OKAY_NO_ERROR) {
-      helem_key_to_list(list_insert_place, helem->next_greater, err_info);
-    } /* if */
+    do {
+      incl_list(list_insert_place, &helem->key, err_info);
+      if (helem->next_less != NULL && *err_info == OKAY_NO_ERROR) {
+        helem_key_to_list(list_insert_place, helem->next_less, err_info);
+      } /* if */
+      helem = helem->next_greater;
+    } while (helem != NULL && *err_info == OKAY_NO_ERROR);
   } /* helem_key_to_list */
 
 

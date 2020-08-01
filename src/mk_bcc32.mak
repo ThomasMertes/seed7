@@ -147,7 +147,6 @@ dep: depend
 
 chkccomp.h:
 	echo ^#include "dir.h" > chkccomp.h
-	echo ^#define mkdir(path,mode) mkdir(path) >> chkccomp.h
 	echo ^#define rmdir _rmdir >> chkccomp.h
 	echo ^#define LIST_DIRECTORY_CONTENTS "dir" >> chkccomp.h
 	echo ^#define MYSQL_DLL "libmariadb.dll", "libmysql.dll" >> chkccomp.h
@@ -164,7 +163,6 @@ chkccomp.h:
 
 version.h: chkccomp.h
 	echo ^#define PATH_DELIMITER '\\' > version.h
-	echo ^#define USE_DIRENT >> version.h
 	echo ^#define SEARCH_PATH_DELIMITER ';' >> version.h
 	echo ^#define USE_ALTERNATE_LOCALTIME_R >> version.h
 	echo ^#define UTIME_ORIG_BUGGY_FOR_FAT_FILES >> version.h
@@ -175,39 +173,16 @@ version.h: chkccomp.h
 	echo ^#define WITH_SQL >> version.h
 	echo ^#define CONSOLE_WCHAR >> version.h
 	echo ^#define OS_STRI_WCHAR >> version.h
-	echo ^#define OS_WIDE_DIR_INCLUDE_DIR_H >> version.h
-	echo ^#define OS_CHMOD_INCLUDE_IO_H >> version.h
-	echo ^#define os_chdir _wchdir >> version.h
-	echo ^#define os_getcwd _wgetcwd >> version.h
-	echo ^#define os_mkdir(path,mode) _wmkdir(path) >> version.h
-	echo ^#define os_rmdir _wrmdir >> version.h
-	echo ^#define os_opendir wopendir >> version.h
-	echo ^#define os_readdir wreaddir >> version.h
-	echo ^#define os_closedir wclosedir >> version.h
-	echo ^#define os_DIR wDIR >> version.h
-	echo ^#define os_dirent_struct struct wdirent >> version.h
 	echo ^#define os_fstat _fstati64 >> version.h
 	echo ^#define os_lstat _wstati64 >> version.h
 	echo ^#define os_stat _wstati64 >> version.h
 	echo ^#define os_stat_struct struct stati64 >> version.h
-	echo ^#define os_chown(name,uid,gid) >> version.h
-	echo ^#define os_chmod _wchmod >> version.h
-	echo ^#define os_utime _wutime >> version.h
-	echo ^#define os_utimbuf_struct struct utimbuf >> version.h
-	echo ^#define os_remove _wremove >> version.h
-	echo ^#define os_rename _wrename >> version.h
-	echo ^#define os_system _wsystem >> version.h
-	echo ^#define os_pclose _pclose >> version.h
-	echo ^#define os_popen _wpopen >> version.h
-	echo ^#define os_fopen _wfopen >> version.h
 	echo ^#define DEFINE_FSEEKI64_PROTOTYPE >> version.h
 	echo ^#define os_fseek _fseeki64 >> version.h
 	echo ^#define DEFINE_FTELLI64_PROTOTYPE >> version.h
 	echo ^#define os_ftell _ftelli64 >> version.h
 	echo ^#define os_off_t __int64 >> version.h
 	echo ^#define os_environ _wenviron >> version.h
-	echo ^#define DEFINE_WGETENV >> version.h
-	echo ^#define os_getenv wgetenv >> version.h
 	echo ^#define DEFINE_WSETENV >> version.h
 	echo ^#define os_setenv wsetenv >> version.h
 	echo ^#define os_getch getch >> version.h

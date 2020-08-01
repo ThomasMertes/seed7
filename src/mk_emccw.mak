@@ -153,7 +153,6 @@ strip:
 chkccomp.h:
 	echo #include "dirent.h" > chkccomp.h
 	echo #include "unistd.h" >> chkccomp.h
-	echo #define mkdir(path,mode) mkdir(path) >> chkccomp.h
 	echo #define LIST_DIRECTORY_CONTENTS "dir" >> chkccomp.h
 	echo #define MYSQL_DLL "libmariadb.dll", "libmysql.dll" >> chkccomp.h
 	echo #define MYSQL_USE_DLL >> chkccomp.h

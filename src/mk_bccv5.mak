@@ -43,7 +43,7 @@ LOBJ = actlib.obj arrlib.obj biglib.obj binlib.obj blnlib.obj bstlib.obj chrlib.
 EOBJ = exec.obj doany.obj objutl.obj
 AOBJ = act_comp.obj prg_comp.obj analyze.obj syntax.obj token.obj parser.obj name.obj type.obj \
        expr.obj atom.obj object.obj scanner.obj literal.obj numlit.obj findid.obj \
-       error.obj infile.obj libpath.obj  symbol.obj info.obj stat.obj fatal.obj match.obj
+       error.obj infile.obj libpath.obj symbol.obj info.obj stat.obj fatal.obj match.obj
 GOBJ = syvarutl.obj traceutl.obj actutl.obj executl.obj blockutl.obj \
        entutl.obj identutl.obj chclsutl.obj sigutl.obj arrutl.obj
 ROBJ = arr_rtl.obj bln_rtl.obj bst_rtl.obj chr_rtl.obj cmd_rtl.obj con_rtl.obj dir_rtl.obj drw_rtl.obj fil_rtl.obj \
@@ -146,7 +146,6 @@ dep: depend
 
 chkccomp.h:
 	echo ^#include "dir.h" > chkccomp.h
-	echo ^#define mkdir(path,mode) mkdir(path) >> chkccomp.h
 	echo ^#define rmdir _rmdir >> chkccomp.h
 	echo ^#define LIST_DIRECTORY_CONTENTS "dir" >> chkccomp.h
 	echo ^#define MYSQL_DLL "libmariadb.dll", "libmysql.dll" >> chkccomp.h
@@ -163,7 +162,6 @@ chkccomp.h:
 
 version.h: chkccomp.h
 	echo ^#define PATH_DELIMITER '\\' > version.h
-	echo ^#define USE_DIRENT >> version.h
 	echo ^#define SEARCH_PATH_DELIMITER ';' >> version.h
 	echo ^#define INT64TYPE_NO_SUFFIX_BUT_CAST >> version.h
 	echo ^#define USE_ALTERNATE_LOCALTIME_R >> version.h
@@ -175,39 +173,16 @@ version.h: chkccomp.h
 	echo ^#define WITH_SQL >> version.h
 	echo ^#define CONSOLE_WCHAR >> version.h
 	echo ^#define OS_STRI_WCHAR >> version.h
-	echo ^#define OS_WIDE_DIR_INCLUDE_DIR_H >> version.h
-	echo ^#define OS_CHMOD_INCLUDE_IO_H >> version.h
-	echo ^#define os_chdir _wchdir >> version.h
-	echo ^#define os_getcwd _wgetcwd >> version.h
-	echo ^#define os_mkdir(path,mode) _wmkdir(path) >> version.h
-	echo ^#define os_rmdir _wrmdir >> version.h
-	echo ^#define os_opendir wopendir >> version.h
-	echo ^#define os_readdir wreaddir >> version.h
-	echo ^#define os_closedir wclosedir >> version.h
-	echo ^#define os_DIR wDIR >> version.h
-	echo ^#define os_dirent_struct struct wdirent >> version.h
 	echo ^#define os_fstat fstat >> version.h
 	echo ^#define os_lstat _wstati64 >> version.h
 	echo ^#define os_stat _wstati64 >> version.h
 	echo ^#define os_fstat_struct struct stat >> version.h
 	echo ^#define os_stat_struct struct stati64 >> version.h
-	echo ^#define os_chown(name,uid,gid) >> version.h
-	echo ^#define os_chmod _wchmod >> version.h
-	echo ^#define os_utime _wutime >> version.h
-	echo ^#define os_utimbuf_struct struct utimbuf >> version.h
-	echo ^#define os_remove _wremove >> version.h
-	echo ^#define os_rename _wrename >> version.h
-	echo ^#define os_system _wsystem >> version.h
-	echo ^#define os_pclose _pclose >> version.h
-	echo ^#define os_popen _wpopen >> version.h
-	echo ^#define os_fopen _wfopen >> version.h
 	echo ^#define os_fseek fseek >> version.h
 	echo ^#define os_ftell ftell >> version.h
 	echo ^#define OS_FSEEK_OFFSET_BITS 32 >> version.h
 	echo ^#define os_off_t __int64 >> version.h
 	echo ^#define os_environ _wenviron >> version.h
-	echo ^#define DEFINE_WGETENV >> version.h
-	echo ^#define os_getenv wgetenv >> version.h
 	echo ^#define DEFINE_WSETENV >> version.h
 	echo ^#define os_setenv wsetenv >> version.h
 	echo ^#define os_getch getch >> version.h

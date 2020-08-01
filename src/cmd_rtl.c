@@ -1080,18 +1080,70 @@ striType followLink (striType path)
 
 
 
+static os_striType getOsCwd (const os_striType buffer, memSizeType buffer_size,
+    errInfoType *err_info)
+
+  {
+    os_striType large_buffer = NULL;
+    os_striType os_cwd;
+
+  /* getOsCwd */
+    logFunction(printf("getOsCwd(*, " FMT_U_MEM ", *)",
+                       buffer_size);
+                fflush(stdout););
+    if (unlikely((os_cwd = os_getcwd(buffer, buffer_size)) == NULL)) {
+      if (errno == ERANGE || errno == ENAMETOOLONG) {
+        do {
+          buffer_size *= 2;
+          FREE_OS_STRI(large_buffer);
+#ifdef OS_GETCWD_MAX_BUFFER_SIZE
+          if (unlikely(buffer_size > OS_GETCWD_MAX_BUFFER_SIZE)) {
+            large_buffer = NULL;
+            *err_info = MEMORY_ERROR;
+          } else
+#endif
+          if (unlikely(!ALLOC_OS_STRI(large_buffer, buffer_size))) {
+            *err_info = MEMORY_ERROR;
+          } else {
+            /* printf("getOsCwd: os_getcwd(*, " FMT_U_MEM ")\n", buffer_size); */
+            if (unlikely((os_cwd = os_getcwd(large_buffer, buffer_size)) == NULL)) {
+              if (errno != ERANGE && errno != ENAMETOOLONG) {
+                logError(printf("getOsCwd: os_getcwd(*, " FMT_U_MEM ") failed:\n"
+                                "errno=%d\nerror: %s\n",
+                                buffer_size, errno, strerror(errno)););
+                FREE_OS_STRI(large_buffer);
+                large_buffer = NULL;
+                *err_info = FILE_ERROR;
+              } /* if */
+            } /* if */
+          } /* if */
+        } while (os_cwd == NULL && large_buffer != NULL);
+      } else {
+        logError(printf("getOsCwd: os_getcwd(*, " FMT_U_MEM ") failed:\n"
+                        "errno=%d\nerror: %s\n",
+                        buffer_size, errno, strerror(errno)););
+        *err_info = FILE_ERROR;
+      } /* if */
+    } /* if */
+    logFunctionResult(printf("\"" FMT_S_OS "\"\n", os_cwd););
+    return os_cwd;
+  } /* getOsCwd */
+
+
+
 #ifdef EMULATE_ROOT_CWD
 void initEmulatedCwd (errInfoType *err_info)
 
   {
-    os_charType buffer[PATH_MAX + 1];
-    os_striType cwd;
+    os_charType buffer[PATH_MAX];
+    os_striType os_cwd;
 
   /* initEmulatedCwd */
-    if ((cwd = os_getcwd(buffer, PATH_MAX)) == NULL) {
-      *err_info = FILE_ERROR;
-    } else {
-      setEmulatedCwd(cwd, err_info);
+    if ((os_cwd = getOsCwd(buffer, PATH_MAX, err_info)) != NULL) {
+      setEmulatedCwd(os_cwd, err_info);
+      if (os_cwd != buffer) {
+        FREE_OS_STRI(os_cwd);
+      } /* if */
     } /* if */
   } /* initEmulatedCwd */
 #endif
@@ -1997,14 +2049,13 @@ intType cmdFileTypeSL (const const_striType filePath)
 striType cmdGetcwd (void)
 
   {
-    os_charType buffer[PATH_MAX + 1];
+    os_charType buffer[PATH_MAX];
     os_striType os_cwd;
     errInfoType err_info = OKAY_NO_ERROR;
     striType cwd;
 
   /* cmdGetcwd */
-    logFunction(printf("cmdGetcwd");
-                fflush(stdout););
+    logFunction(printf("cmdGetcwd\n"););
 #ifdef EMULATE_ROOT_CWD
     if (IS_EMULATED_ROOT(current_emulated_cwd)) {
       cwd = cp_from_os_path(current_emulated_cwd, &err_info);
@@ -2017,11 +2068,8 @@ striType cmdGetcwd (void)
       } /* if */
     } else {
 #endif
-      if (unlikely((os_cwd = os_getcwd(buffer, PATH_MAX)) == NULL)) {
-        logError(printf("cmdGetcwd: os_getcwd(*, %d) failed:\n"
-                        "errno=%d\nerror: %s\n",
-                        PATH_MAX, errno, strerror(errno)););
-        raise_error(FILE_ERROR);
+      if (unlikely((os_cwd = getOsCwd(buffer, PATH_MAX, &err_info)) == NULL)) {
+        raise_error(err_info);
         cwd = NULL;
       } else {
         cwd = cp_from_os_path(os_cwd, &err_info);
@@ -2030,13 +2078,19 @@ striType cmdGetcwd (void)
                           "cp_from_os_path(\"" FMT_S_OS "\", *) failed:\n"
                           "err_info=%d\n",
                           os_cwd, err_info););
+          if (os_cwd != buffer) {
+            FREE_OS_STRI(os_cwd);
+          } /* if */
           raise_error(err_info);
+        } /* if */
+        if (os_cwd != buffer) {
+          FREE_OS_STRI(os_cwd);
         } /* if */
       } /* if */
 #ifdef EMULATE_ROOT_CWD
     } /* if */
 #endif
-    logFunctionResult(printf("\"%s\"\n", striAsUnquotedCStri(cwd)););
+    logFunction(printf("cmdGetcwd --> \"%s\"\n", striAsUnquotedCStri(cwd)););
     return cwd;
   } /* cmdGetcwd */
 

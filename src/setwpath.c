@@ -30,7 +30,12 @@
 #include "stdio.h"
 #include "string.h"
 #include "wchar.h"
+#ifdef USE_DIRECT
 #include "direct.h"
+#endif
+#ifdef USE_DIRENT
+#include "dirent.h"
+#endif
 #include "windows.h"
 
 #include "os_decls.h"

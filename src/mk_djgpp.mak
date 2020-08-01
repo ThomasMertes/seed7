@@ -129,7 +129,6 @@ strip:
 chkccomp.h:
 	$(ECHO) "#include \"direct.h\"" > chkccomp.h
 	$(ECHO) "#include \"unistd.h\"" >> chkccomp.h
-	$(ECHO) "#define mkdir(path,mode) mkdir(path)" >> chkccomp.h
 	$(ECHO) "#define WRITE_CC_VERSION_INFO system(\"$(GET_CC_VERSION_INFO) cc_vers.txt\");" >> chkccomp.h
 	$(ECHO) "#define LIST_DIRECTORY_CONTENTS \"dir\"" >> chkccomp.h
 

@@ -34,8 +34,9 @@ include "bytedata.s7i";
  *  Encode a string with the Base64 encoding.
  *  Base64 encodes a byte string as ASCII string. This is done by
  *  taking packs of 6-bits and translating them into a radix-64
- *  representation. The radix-64 digits are encoded with letters,
- *  digits and the characters '+' and '/'.
+ *  representation. The radix-64 digits are encoded with letters
+ *  (upper case followed by lower case), digits and the characters
+ *  '+' and '/'.
  *  @return the Base64 encoded string.
  *  @exception RANGE_ERROR When characters beyond '\255;' are present.
  *)
@@ -488,7 +489,8 @@ const func string: fromUrlEncoded (in string: urlEncoded) is func
  *  If the last block of the byte string contains fewer than 4 bytes,
  *  the block is padded with up to three null bytes before encoding.
  *  After encoding, as many bytes as were added as padding are removed 
- *  from the end of the output.
+ *  from the end of the output. In files the end of an Ascii85 encoding
+ *  is marked with "~>" (this end marker is not added by toAscii85).
  *  @return the Ascii85 encoded string.
  *  @exception RANGE_ERROR When characters beyond '\255;' are present.
  *)
@@ -527,12 +529,18 @@ const func string: toAscii85 (in string: byteStri) is func
     if length(byteStri) rem 4 <> 0 then
       ascii85 := ascii85[.. length(ascii85) - 4 + length(byteStri) rem 4];
     end if;
-    ascii85 &:= "~>";
   end func;
 
 
 (**
  *  Decode a Ascii85 encoded string.
+ *  Every block of five radix 85 characters is decoded to four bytes.
+ *  Radix 85 charaters are between '!' (encodes 0) and 'u' (encodes 84).
+ *  The character 'z' is used to encode a block of four zero bytes.
+ *  White space in the Ascii85 encoded string is ignored.
+ *  The last block is padded to 5 bytes with the Ascii85 character "u",
+ *  and as many bytes as were added as padding are omitted from the
+ *  end of the output.
  *  @return the decoded string.
  *  @exception RANGE_ERROR When ''ascii85'' is not in Ascii85 format.
  *)
@@ -540,6 +548,7 @@ const func string: fromAscii85 (in string: ascii85) is func
   result
     var string: decoded is "";
   local
+    const set of char: whiteSpace is {'\0;', '\t', '\n', '\f', '\r', ' '};
     var char: ch is ' ';
     var integer: digitIndex is 0;
     var integer: base85Number is 0;
@@ -556,7 +565,7 @@ const func string: fromAscii85 (in string: ascii85) is func
         end if;
       elsif ch = 'z' and digitIndex = 0 then
         decoded &:= "\0;\0;\0;\0;";
-      else
+      elsif ch not in whiteSpace then
         raise RANGE_ERROR;
       end if;
     end for;

@@ -86,10 +86,6 @@
  *  removed after chkccomp was compiled and executed.
  *  In chkccomp.h the following macros might be defined:
  *
- *  mkdir(path,mode)
- *      Macro to replace the Posix function mkdir.
- *      E.g.: #define mkdir(path,mode) mkdir(path)
- *            #define mkdir(path,mode) _mkdir(path)
  *  rmdir
  *      Name of Posix function rmdir.
  *      E.g.: #define rmdir _rmdir
@@ -137,6 +133,8 @@ const char *int64TypeSuffix = "";
 const char *int64TypeFormat = NULL;
 const char *int128TypeStri = NULL;
 const char *uint128TypeStri = NULL;
+
+const char *makeDirDefinition = NULL;
 
 
 
@@ -522,23 +520,6 @@ void writeMacroDefs (FILE *versionFile)
     char macroDefs[4096];
 
   /* writeMacroDefs */
-    if (compileAndLinkOk("#include <stdio.h>\n#include <direct.h>\n"
-                         "int main(int argc,char *argv[])\n"
-                         "{mkdir(\"tmp_empty_dir1\");return 0;}\n") ||
-        compileAndLinkOk("#include <stdio.h>\n#include <sys/stat.h>\n#include <sys/types.h>\n"
-                         "int main(int argc,char *argv[])\n"
-                         "{mkdir(\"tmp_empty_dir1\");return 0;}\n")) {
-      fputs("#define makeDir(path,mode) mkdir(path)\n", versionFile);
-    } else if (compileAndLinkOk("#include <stdio.h>\n#include <direct.h>\n"
-                                "int main(int argc,char *argv[])\n"
-                                "{_mkdir(\"tmp_empty_dir1\");return 0;}\n") ||
-               compileAndLinkOk("#include <stdio.h>\n#include <sys/stat.h>\n#include <sys/types.h>\n"
-                                "int main(int argc,char *argv[])\n"
-                                "{_mkdir(\"tmp_empty_dir1\");return 0;}\n")) {
-      fputs("#define makeDir(path,mode) _mkdir(path)\n", versionFile);
-    } else {
-      fputs("#define makeDir(path,mode) mkdir(path,mode)\n", versionFile);
-    } /* if */
     if (compileAndLinkOk("static inline int test(int a){return 2*a;}\n"
                          "int main(int argc,char *argv[]){return test(argc);}\n")) {
       /* The C compiler accepts the definition of inline functions. */
@@ -552,7 +533,7 @@ void writeMacroDefs (FILE *versionFile)
       fputs("#define inline\n", versionFile);
     } /* if */
     if (!compileAndLinkOk("int test (int *restrict ptrA, int *restrict ptrB, int *restrict ptrC)\n"
-                          "{*ptrA += *ptrC; *ptrB += *ptrC; return *ptrA+ptrB;}\n"
+                          "{*ptrA += *ptrC; *ptrB += *ptrC; return *ptrA + *ptrB;}\n"
                           "int main(int argc,char *argv[])\n"
                           "{int a=1, b=2, c=3; return test(&a, &b, &c);}\n")) {
       fputs("#define restrict\n", versionFile);
@@ -663,56 +644,64 @@ void checkPopen (FILE *versionFile)
 
 
 
-void checkMoveDirectory (FILE *versionFile)
+void checkMoveDirectory (const char *makeDirDefinition, FILE *versionFile)
 
   {
+    char buffer[4096];
     FILE *aFile;
-    char *buffer[1024];
+    char line[128];
     int okay = 1;
 
   /* checkMoveDirectory */
-    mkdir("test_dir1", 0755);
-    mkdir("test_dir1/subdir1", 0755);
-    aFile = fopen("test_dir1/subdir1/subfile", "w");
-    if (aFile != NULL) {
-      fprintf(aFile, "File content\n");
-      fclose(aFile);
-    } /* if */
-    mkdir("test_dir2", 0755);
-    if (rename("test_dir1/subdir1", "test_dir2/subdir2") != 0) {
-      okay = 0;
-    } /* if */
-    if (fileIsDir("test_dir1/subdir1")) {
-      okay = 0;
-      if (fileIsRegular("test_dir1/subdir1/subfile")) {
-        remove("test_dir1/subdir1/subfile");
+      sprintf(buffer, "#include <stdio.h>\n%s"
+                      "int main(int argc, char *argv[])\n"
+                      "{FILE *aFile;\n"
+                      "makeDir(\"test_dir1\", 0755);\n"
+                      "makeDir(\"test_dir1/subdir1\", 0755);\n"
+                      "aFile = fopen(\"test_dir1/subdir1/subfile\", \"w\");\n"
+                      "if (aFile != NULL) {\n"
+                      "  fprintf(aFile, \"File content\\n\");\n"
+                      "  fclose(aFile);\n"
+                      "}\n"
+                      "makeDir(\"test_dir2\", 0755);\n"
+                      "return 1;}\n",
+                      makeDirDefinition);
+    if (assertCompAndLnk(buffer) && doTest() == 1) {
+      if (rename("test_dir1/subdir1", "test_dir2/subdir2") != 0) {
+        okay = 0;
       } /* if */
-      rmdir("test_dir1/subdir1");
-    } /* if */
-    if (fileIsDir("test_dir2/subdir2")) {
-      if (fileIsRegular("test_dir2/subdir2/subfile")) {
-        aFile = fopen("test_dir2/subdir2/subfile", "r");
-        if (aFile == NULL) {
-          okay = 0;
-        } else {
-          if (fread(buffer, 1, 13, aFile) != 13 ||
-              memcmp(buffer, "File content\n", 13) != 0) {
-            okay = 0;
-          } /* if */
-          fclose(aFile);
+      if (fileIsDir("test_dir1/subdir1")) {
+        okay = 0;
+        if (fileIsRegular("test_dir1/subdir1/subfile")) {
+          remove("test_dir1/subdir1/subfile");
         } /* if */
-        remove("test_dir2/subdir2/subfile");
+        rmdir("test_dir1/subdir1");
+      } /* if */
+      if (fileIsDir("test_dir2/subdir2")) {
+        if (fileIsRegular("test_dir2/subdir2/subfile")) {
+          aFile = fopen("test_dir2/subdir2/subfile", "r");
+          if (aFile == NULL) {
+            okay = 0;
+          } else {
+            if (fread(line, 1, 13, aFile) != 13 ||
+                memcmp(line, "File content\n", 13) != 0) {
+              okay = 0;
+            } /* if */
+            fclose(aFile);
+          } /* if */
+          remove("test_dir2/subdir2/subfile");
+        } else {
+          okay = 0;
+        } /* if */
+        rmdir("test_dir2/subdir2");
       } else {
         okay = 0;
       } /* if */
-      rmdir("test_dir2/subdir2");
-    } else {
-      okay = 0;
-    } /* if */
-    rmdir("test_dir1");
-    rmdir("test_dir2");
-    if (!okay) {
-      fputs("#define MOVE_DIR_WITH_RENAME_FAILS\n", versionFile);
+      rmdir("test_dir1");
+      rmdir("test_dir2");
+      if (!okay) {
+        fputs("#define MOVE_DIR_WITH_RENAME_FAILS\n", versionFile);
+      } /* if */
     } /* if */
   } /* checkMoveDirectory */
 
@@ -802,6 +791,7 @@ void numericSizes (FILE *versionFile)
     fprintf(versionFile, "#define TIME_T_SIZE %d\n",      8 * getSizeof("time_t"));
     fprintf(versionFile, "#define TIME_T_SIGNED %d\n", isSignedType("time_t"));
     fprintf(versionFile, "#define SIZE_T_SIGNED %d\n", isSignedType("size_t"));
+    fprintf(versionFile, "#define CHAR_SIGNED %d\n",   isSignedType("char"));
     if (compileAndLinkOk("#include <stdio.h>\nint main(int argc, char *argv[])"
                          "{_Bool flag = 1;return 0;}\n")) {
       fputs("#define BOOLTYPE _Bool\n", versionFile);
@@ -1749,6 +1739,7 @@ void determineMallocAlignment (FILE *versionFile)
 
 
 void checkForLimitedStringLiteralLength (FILE *versionFile)
+
   {
     const char *programStart = "#include <stdio.h>\n#include <string.h>\n"
                                "int main(int argc, char *argv[]){\n"
@@ -1853,6 +1844,80 @@ void localtimeProperties (FILE *versionFile)
 
 
 
+const char *defineMakeDir (void)
+
+  {
+    const char *makeDirDefinition = NULL;
+
+  /* defineMakeDir */
+    if (compileAndLinkOk("#include <stdio.h>\n#include <direct.h>\n"
+                         "int main(int argc,char *argv[])\n"
+                         "{mkdir(\"tmp_empty_dir1\");return 0;}\n")) {
+      makeDirDefinition = "#include <direct.h>\n"
+                          "#define makeDir(path,mode) mkdir(path)\n";
+    } else if (compileAndLinkOk("#include <stdio.h>\n"
+                                "#include <sys/stat.h>\n#include <sys/types.h>\n"
+                                "int main(int argc,char *argv[])\n"
+                                "{mkdir(\"tmp_empty_dir1\");return 0;}\n")) {
+      makeDirDefinition = "#include <sys/stat.h>\n#include <sys/types.h>\n"
+                          "#define makeDir(path,mode) mkdir(path)\n";
+    } else if (compileAndLinkOk("#include <stdio.h>\n#include <direct.h>\n"
+                                "int main(int argc,char *argv[])\n"
+                                "{_mkdir(\"tmp_empty_dir1\");return 0;}\n")) {
+      makeDirDefinition = "#include <direct.h>\n"
+                          "#define makeDir(path,mode) _mkdir(path)\n";
+    } else if (compileAndLinkOk("#include <stdio.h>\n"
+                                "#include <sys/stat.h>\n#include <sys/types.h>\n"
+                                "int main(int argc,char *argv[])\n"
+                                "{_mkdir(\"tmp_empty_dir1\");return 0;}\n")) {
+      makeDirDefinition = "#include <sys/stat.h>\n#include <sys/types.h>\n"
+                          "#define makeDir(path,mode) _mkdir(path)\n";
+    } else if (compileAndLinkOk("#include <stdio.h>\n#include <direct.h>\n"
+                                "int main(int argc,char *argv[])\n"
+                                "{mkdir(\"tmp_empty_dir1\", 0755);return 0;}\n")) {
+      makeDirDefinition = "#include <direct.h>\n"
+                          "#define makeDir(path,mode) mkdir(path,mode)\n";
+    } else if (compileAndLinkOk("#include <stdio.h>\n"
+                                "#include <sys/stat.h>\n#include <sys/types.h>\n"
+                                "int main(int argc,char *argv[])\n"
+                                "{mkdir(\"tmp_empty_dir1\", 0755);return 0;}\n")) {
+      makeDirDefinition = "#include <sys/stat.h>\n#include <sys/types.h>\n"
+                          "#define makeDir(path,mode) mkdir(path,mode)\n";
+    } /* if */
+    return makeDirDefinition;
+  } /* defineMakeDir */
+
+
+
+void checkRemoveDir (const char *makeDirDefinition, FILE *versionFile)
+
+  {
+    char buffer[4096];
+
+  /* checkRemoveDir */
+    sprintf(buffer, "#include <stdio.h>\n#include <unistd.h>\n%s"
+                    "int main(int argc,char *argv[])\n"
+                    "{int rmFail=0;makeDir(\"tmp_empty_dir1\",0755);\n"
+                    "if(remove(\"tmp_empty_dir1\")!=0){rmFail=1;rmdir(\"tmp_empty_dir1\");}\n"
+                    "printf(\"%%d\\n\",rmFail);return 0;}\n",
+                    makeDirDefinition);
+    if (compileAndLinkOk(buffer)) {
+      fprintf(versionFile, "#define REMOVE_FAILS_FOR_EMPTY_DIRS %d\n", doTest() == 1);
+    } else {
+      sprintf(buffer, "#include <stdio.h>\n#include <direct.h>\n%s"
+                      "int main(int argc,char *argv[])\n"
+                      "{int rmFail=0;makeDir(\"tmp_empty_dir1\",0755);\n"
+                      "if(remove(\"tmp_empty_dir1\")!=0){rmFail=1;rmdir(\"tmp_empty_dir1\");}\n"
+                      "printf(\"%%d\\n\",rmFail);return 0;}\n",
+                      makeDirDefinition);
+      if (compileAndLinkOk(buffer)) {
+        fprintf(versionFile, "#define REMOVE_FAILS_FOR_EMPTY_DIRS %d\n", doTest() == 1);
+      } /* if */
+    } /* if */
+  } /* checkRemoveDir */
+
+
+
 /**
  *  Determine values for DEFINE_OS_ENVIRON, DECLARE_OS_ENVIRON and
  *  INITIALIZE_OS_ENVIRON.
@@ -1925,14 +1990,17 @@ void determineGetaddrlimit (FILE *versionFile)
     int has_getrlimit;
 
   /* determineGetaddrlimit */
-    has_getrlimit = compileAndLinkOk("#include <stdio.h>\n#include <sys/resource.h>\n"
+    /* In FreeBSD it is necessary to include <sys/types.h> before <sys/resource.h> */
+    has_getrlimit = compileAndLinkOk("#include <stdio.h>\n"
+                                     "#include <sys/types.h>\n#include <sys/resource.h>\n"
                                      "int main(int argc, char *argv[]){\n"
                                      "struct rlimit rlim;\n"
                                      "printf(\"%d\\n\", getrlimit(RLIMIT_STACK, &rlim) == 0);\n"
                                      "return 0;}\n") && doTest() == 1;
     fprintf(versionFile, "#define HAS_GETRLIMIT %d\n", has_getrlimit);
     if (has_getrlimit) {
-      if (assertCompAndLnk("#include <stdio.h>\n#include <sys/resource.h>\n"
+      if (assertCompAndLnk("#include <stdio.h>\n"
+                           "#include <sys/types.h>\n#include <sys/resource.h>\n"
                            "int main(int argc, char *argv[]){\n"
                            "struct rlimit rlim;\n"
                            "getrlimit(RLIMIT_STACK, &rlim);"
@@ -1943,7 +2011,8 @@ void determineGetaddrlimit (FILE *versionFile)
                            "return 0;}\n")) {
         fprintf(versionFile, "#define SOFT_STACK_LIMIT %lu\n", (unsigned long) doTest() * 1024);
       } /* if */
-      if (assertCompAndLnk("#include <stdio.h>\n#include <sys/resource.h>\n"
+      if (assertCompAndLnk("#include <stdio.h>\n"
+                           "#include <sys/types.h>\n#include <sys/resource.h>\n"
                            "int main(int argc, char *argv[]){\n"
                            "struct rlimit rlim;\n"
                            "getrlimit(RLIMIT_STACK, &rlim);"
@@ -1957,6 +2026,310 @@ void determineGetaddrlimit (FILE *versionFile)
     } /* if */
   } /* determineGetaddrlimit */
 
+
+void determineOsDirAccess (FILE *versionFile)
+
+  {
+    char *dir_include = NULL;
+    char buffer[4096];
+
+  /* determineOsDirAccess */
+    if (compileAndLinkOk("#include <stdio.h>\n#include <dirent.h>\n"
+                         "int main(int argc,char *argv[])\n"
+                         "{DIR *directory; struct dirent *dirEntry;\n"
+                         "printf(\"%d\\n\", (directory = opendir(\".\")) != NULL &&\n"
+                         "(dirEntry = readdir(directory)) != NULL &&\n"
+                         "closedir(directory) == 0);\n"
+                         "return 0;}\n")) {
+      dir_include = "<dirent.h>";
+      fputs("#define USE_DIRENT\n", versionFile);
+    } else {
+#ifdef OS_STRI_WCHAR
+      dir_include = "\"dir_win.h\"";
+      fputs("#define USE_DIRWIN\n", versionFile);
+#else
+      fprintf(logFile, " *** Cannot define USE_DIRENT or USE_DIRWIN.\n");
+#endif
+    } /* if */
+#ifdef OS_STRI_WCHAR
+    if (dir_include != NULL) {
+      if ((sprintf(buffer,
+                   "#include <stdio.h>\n#include %s\n"
+                   "int main(int argc,char *argv[])\n"
+                   "{_WDIR *directory; struct _wdirent *dirEntry;\n"
+                   "printf(\"%%d\\n\", (directory = _wopendir(\".\")) != NULL &&\n"
+                   "(dirEntry = _wreaddir(directory)) != NULL &&\n"
+                   "_wclosedir(directory) == 0);\n"
+                   "return 0;}\n",
+                   dir_include), compileAndLinkOk(buffer))) {
+        fputs("#define os_DIR _WDIR\n", versionFile);
+        fputs("#define os_dirent_struct struct _wdirent\n", versionFile);
+        fputs("#define os_opendir _wopendir\n", versionFile);
+        fputs("#define os_readdir _wreaddir\n", versionFile);
+        fputs("#define os_closedir _wclosedir\n", versionFile);
+      } else if ((sprintf(buffer,
+                          "#include <stdio.h>\n#include %s\n"
+                          "int main(int argc,char *argv[])\n"
+                          "{wDIR *directory; struct wdirent *dirEntry;\n"
+                          "printf(\"%%d\\n\", (directory = wopendir(\".\")) != NULL &&\n"
+                          "(dirEntry = wreaddir(directory)) != NULL &&\n"
+                          "wclosedir(directory) == 0);\n"
+                          "return 0;}\n",
+                          dir_include), compileAndLinkOk(buffer))) {
+          fputs("#define os_DIR wDIR\n", versionFile);
+          fputs("#define os_dirent_struct struct wdirent\n", versionFile);
+          fputs("#define os_opendir wopendir\n", versionFile);
+          fputs("#define os_readdir wreaddir\n", versionFile);
+          fputs("#define os_closedir wclosedir\n", versionFile);
+      } else if ((sprintf(buffer,
+                          "#include <stdio.h>\n#include %s\n#include \"dir.h\""
+                          "int main(int argc,char *argv[])\n"
+                          "{wDIR *directory; struct wdirent *dirEntry;\n"
+                          "printf(\"%%d\\n\", (directory = wopendir(\".\")) != NULL &&\n"
+                          "(dirEntry = wreaddir(directory)) != NULL &&\n"
+                          "wclosedir(directory) == 0);\n"
+                          "return 0;}\n",
+                          dir_include), compileAndLinkOk(buffer))) {
+          fputs("#define OS_WIDE_DIR_INCLUDE_DIR_H\n", versionFile);
+          fputs("#define os_DIR wDIR\n", versionFile);
+          fputs("#define os_dirent_struct struct wdirent\n", versionFile);
+          fputs("#define os_opendir wopendir\n", versionFile);
+          fputs("#define os_readdir wreaddir\n", versionFile);
+          fputs("#define os_closedir wclosedir\n", versionFile);
+      } else {
+        fputs("#define os_DIR WDIR\n", versionFile);
+        fputs("#define os_dirent_struct struct wdirent\n", versionFile);
+        fputs("#define os_opendir wopendir\n", versionFile);
+        fputs("#define os_readdir wreaddir\n", versionFile);
+        fputs("#define os_closedir wclosedir\n", versionFile);
+      } /* if */
+    } /* if */
+#endif
+  } /* determineOsDirAccess */
+
+
+void determineOsUtime (FILE *versionFile)
+
+  {
+    char *utime_include = NULL;
+    char *os_utimbuf_struct_stri = NULL;
+    char *os_utime_stri = NULL;
+    char buffer[4096];
+
+  /* determineOsUtime */
+    if (compileAndLinkOk("#include <stdio.h>\n#include <utime.h>\n"
+                         "int main(int argc,char *argv[])\n"
+                         "{struct _utimbuf buf; buf.actime = 0, buf.modtime = 0;\n"
+                         "printf(\"%d\\n\", &buf != NULL); return 0;}\n")) {
+      utime_include = "utime.h";
+      os_utimbuf_struct_stri = "struct _utimbuf";
+    } else if (compileAndLinkOk("#include <stdio.h>\n#include <utime.h>\n"
+                         "int main(int argc,char *argv[])\n"
+                         "{struct utimbuf buf; buf.actime = 0, buf.modtime = 0;\n"
+                         "printf(\"%d\\n\",  &buf != NULL); return 0;}\n")) {
+      utime_include = "utime.h";
+      os_utimbuf_struct_stri = "struct utimbuf";
+    } else if (compileAndLinkOk("#include <stdio.h>\n#include <sys/utime.h>\n"
+                         "int main(int argc,char *argv[])\n"
+                         "{struct utimbuf buf; buf.actime = 0, buf.modtime = 0;\n"
+                         "printf(\"%d\\n\",  &buf != NULL); return 0;}\n")) {
+      utime_include = "sys/utime.h";
+      os_utimbuf_struct_stri = "struct _utimbuf";
+      fputs("#define INCLUDE_SYS_UTIME\n", versionFile);
+    } else if (compileAndLinkOk("#include <stdio.h>\n#include <sys/utime.h>\n"
+                         "int main(int argc,char *argv[])\n"
+                         "{struct utimbuf buf; buf.actime = 0, buf.modtime = 0;\n"
+                         "printf(\"%d\\n\",  &buf != NULL); return 0;}\n")) {
+      utime_include = "sys/utime.h";
+      os_utimbuf_struct_stri = "struct utimbuf";
+      fputs("#define INCLUDE_SYS_UTIME\n", versionFile);
+    } /* if */
+    if (utime_include == NULL || os_utimbuf_struct_stri == NULL) {
+      fprintf(logFile, " *** Cannot find utime.h include and os_utimbuf_struct.\n");
+    } else {
+      fprintf(versionFile, "#define os_utimbuf_struct %s\n", os_utimbuf_struct_stri);
+      sprintf(buffer, "#include <stdio.h>\n#include <%s>\n"
+                      "int main(int argc,char *argv[])\n"
+                      "{%s buf; buf.actime = 0, buf.modtime = 0;\n"
+                      "printf(\"%%d\\n\", _wutime(\"testfile\", &buf) != -1);return 0;}\n",
+                      utime_include, os_utimbuf_struct_stri);
+      if (compileAndLinkOk(buffer)) {
+        os_utime_stri = "_wutime";
+      } else {
+        sprintf(buffer, "#include <stdio.h>\n#include <%s>\n"
+                        "int main(int argc,char *argv[])\n"
+                        "{%s buf; buf.actime = 0, buf.modtime = 0;\n"
+                        "printf(\"%%d\\n\", wutime(\"testfile\", &buf) != -1);return 0;}\n",
+                        utime_include, os_utimbuf_struct_stri);
+        if (compileAndLinkOk(buffer)) {
+          os_utime_stri = "wutime";
+        } /* if */
+      } /* if */
+      if (os_utime_stri != NULL) {
+        sprintf(buffer,
+                "#include <stdio.h>\n#include <%s>\n#include <errno.h>\n%s"
+                "int main(int argc,char *argv[])"
+                "{%s utime_buf;makeDir(\"tmp_empty_dir2\",0755);\n"
+                "utime_buf.actime=1234567890;utime_buf.modtime=1234567890;\n"
+                "printf(\"%%d\\n\",utime(\"tmp_empty_dir2\",&utime_buf)!=0&&errno==EACCES);\n"
+                "if(remove(\"tmp_empty_dir2\")!=0)rmdir(\"tmp_empty_dir2\");return 0;}\n",
+                makeDirDefinition, utime_include, os_utimbuf_struct_stri);
+        if (compileAndLinkOk(buffer) && doTest() == 1) {
+          fputs("#define USE_ALTERNATE_UTIME\n", versionFile);
+          fprintf(versionFile, "#define os_utime_orig %s\n", os_utime_stri);
+          fputs("#define os_utime alternate_utime\n", versionFile);
+        } else {
+          fprintf(versionFile, "#define os_utime %s\n", os_utime_stri);
+        } /* if */
+      } else {
+        fprintf(logFile, " *** Cannot define os_utime.\n");
+      } /* if */
+    } /* if */
+  } /* determineOsUtime */
+
+
+void determineOsFunctions (FILE *versionFile)
+
+  { /* determineOsFunctions */
+    determineOsDirAccess(versionFile);
+#ifdef OS_STRI_WCHAR
+#ifndef os_chdir
+    if (compileAndLinkOk("#include <stdio.h>\n#include <direct.h>\n"
+                         "int main(int argc,char *argv[])\n"
+                         "{printf(\"%d\\n\", _wchdir(L\"..\") != -1);return 0;}\n")) {
+      fputs("#define os_chdir _wchdir\n", versionFile);
+    } else {
+      fprintf(logFile, " *** Cannot define os_chdir.\n");
+    } /* if */
+#endif
+#ifndef os_getcwd
+    if (compileAndLinkOk("#include <stdio.h>\n#include <direct.h>\n"
+                         "int main(int argc,char *argv[])\n"
+                         "{wchar_t buffer[1024];\n"
+                         "printf(\"%d\\n\", _wgetcwd(buffer, 1024) != NULL);return 0;}\n")) {
+      fputs("#define OS_GETCWD_MAX_BUFFER_SIZE INT_MAX\n", versionFile);
+      fputs("#define os_getcwd(buf,size) _wgetcwd((buf),(int)(size))\n", versionFile);
+    } else {
+      fprintf(logFile, " *** Cannot define os_getcwd.\n");
+    } /* if */
+#endif
+#ifndef os_mkdir
+    if (compileAndLinkOk("#include <stdio.h>\n#include <direct.h>\n"
+                         "int main(int argc,char *argv[])\n"
+                         "{printf(\"%d\\n\", _wmkdir(L\"testdir\") != -1);return 0;}\n")) {
+      fputs("#define os_mkdir(path,mode) _wmkdir(path)\n", versionFile);
+    } else {
+      fprintf(logFile, " *** Cannot define os_mkdir.\n");
+    } /* if */
+#endif
+#ifndef os_rmdir
+    if (compileAndLinkOk("#include <stdio.h>\n#include <direct.h>\n"
+                         "int main(int argc,char *argv[])\n"
+                         "{printf(\"%d\\n\", _wrmdir(L\"testdir\") != -1);return 0;}\n")) {
+      fputs("#define os_rmdir _wrmdir\n", versionFile);
+    } else {
+      fprintf(logFile, " *** Cannot define os_rmdir.\n");
+    } /* if */
+#endif
+#ifndef os_chmod
+    if (compileAndLinkOk("#include <stdio.h>\n#include <direct.h>\n"
+                         "int main(int argc,char *argv[])\n"
+                         "{printf(\"%d\\n\", _wchmod(L\"testfile\",0777) != -1);return 0;}\n")) {
+      fputs("#define os_chmod _wchmod\n", versionFile);
+    } else if (compileAndLinkOk("#include <stdio.h>\n#include <direct.h>\n#include <io.h>\n"
+                         "int main(int argc,char *argv[])\n"
+                         "{printf(\"%d\\n\", _wchmod(L\"testfile\",0777) != -1);return 0;}\n")) {
+      fputs("#define OS_CHMOD_INCLUDE_IO_H\n", versionFile);
+      fputs("#define os_chmod _wchmod\n", versionFile);
+    } else {
+      fprintf(logFile, " *** Cannot define os_chmod.\n");
+    } /* if */
+#endif
+#ifndef os_chown
+    fputs("#define os_chown(name,uid,gid)\n", versionFile);
+#endif
+#ifndef os_utime
+    determineOsUtime(versionFile);
+#endif
+#ifndef os_remove
+    if (compileAndLinkOk("#include <stdio.h>\n"
+                         "int main(int argc,char *argv[])\n"
+                         "{printf(\"%d\\n\", _wremove(L\"testfile\") != -1);return 0;}\n")) {
+      fputs("#define os_remove _wremove\n", versionFile);
+    } else {
+      fprintf(logFile, " *** Cannot define os_remove.\n");
+    } /* if */
+#endif
+#ifndef os_rename
+    if (compileAndLinkOk("#include <stdio.h>\n"
+                         "int main(int argc,char *argv[])\n"
+                         "{printf(\"%d\\n\", _wrename(L\"testfile\", \"newname\") == 0);return 0;}\n")) {
+      fputs("#define os_rename _wrename\n", versionFile);
+    } else {
+      fprintf(logFile, " *** Cannot define os_rename.\n");
+    } /* if */
+#endif
+#ifndef os_system
+    if (compileAndLinkOk("#include <stdio.h>\n#include <stdlib.h>\n"
+                         "int main(int argc,char *argv[])\n"
+                         "{printf(\"%d\\n\", _wsystem(L\"pwd\") != -1);return 0;}\n")) {
+      fputs("#define os_system _wsystem\n", versionFile);
+    } else {
+      fprintf(logFile, " *** Cannot define os_system.\n");
+    } /* if */
+#endif
+#ifndef os_fopen
+    if (compileAndLinkOk("#include <stdio.h>\n"
+                         "int main(int argc,char *argv[])\n"
+                         "{printf(\"%d\\n\", _wfopen(L\"testfile\", \"r\") != NULL);return 0;}\n")) {
+      fputs("#define os_fopen _wfopen\n", versionFile);
+    } else if (compileAndLinkOk("#include <stdio.h>\n"
+                         "int main(int argc,char *argv[])\n"
+                         "{printf(\"%d\\n\", wfopen(L\"testfile\", \"r\") != NULL);return 0;}\n")) {
+      fputs("#define os_fopen wfopen\n", versionFile);
+    } else {
+      fprintf(logFile, " *** Cannot define os_fopen.\n");
+    } /* if */
+#endif
+#ifndef os_popen
+    if (compileAndLinkOk("#include <stdio.h>\n"
+                         "int main(int argc,char *argv[])\n"
+                         "{printf(\"%d\\n\", _wpopen(L\"pwd\", \"r\") != NULL);return 0;}\n")) {
+      fputs("#define os_popen _wpopen\n", versionFile);
+    } else if (compileAndLinkOk("#include <stdio.h>\n"
+                         "int main(int argc,char *argv[])\n"
+                         "{printf(\"%d\\n\", wpopen(L\"pwd\", \"r\") != NULL);return 0;}\n")) {
+      fputs("#define os_popen wpopen\n", versionFile);
+    } else {
+      fputs("#define DEFINE_WPOPEN FILE *wpopen (const wchar_t *command, const wchar_t *mode) { return NULL; }\n", versionFile);
+      fputs("#define os_popen wpopen\n", versionFile);
+    } /* if */
+#endif
+#ifndef os_pclose
+    if (compileAndLinkOk("#include <stdio.h>\n"
+                         "int main(int argc,char *argv[])\n"
+                         "{printf(\"%d\\n\", _pclose(NULL) != -1);return 0;}\n")) {
+      fputs("#define os_pclose _pclose\n", versionFile);
+    } else {
+      fprintf(logFile, " *** Cannot define os_pclose.\n");
+    } /* if */
+#endif
+#ifndef os_getenv
+    if (compileAndLinkOk("#include <stdio.h>\n#include <stdlib.h>\n"
+                         "int main(int argc,char *argv[])\n"
+                         "{printf(\"%d\\n\", _wgetenv(L\"PATH\") != NULL);return 0;}\n")) {
+      fputs("#define os_getenv _wgetenv\n", versionFile);
+    } else if (compileAndLinkOk("#include <stdio.h>\n#include <stdlib.h>\n"
+                         "int main(int argc,char *argv[])\n"
+                         "{printf(\"%d\\n\", wgetenv(L\"PATH\") != NULL);return 0;}\n")) {
+      fputs("#define os_getenv wgetenv\n", versionFile);
+    } else {
+      fputs("#define DEFINE_WGETENV\n", versionFile);
+      fputs("#define os_getenv wgetenv\n", versionFile);
+    } /* if */
+#endif
+#endif
+  } /* determineOsFunctions */
 
 
 void appendToFile (const char *fileName, const char *data)
@@ -3041,6 +3414,8 @@ int main (int argc, char **argv)
     closeVersionFile(versionFile);
     copyFile(versionFileName, "tst_vers.h");
     versionFile = openVersionFile(versionFileName);
+    makeDirDefinition = defineMakeDir();
+    determineOsFunctions(versionFile);
     checkPopen(versionFile);
 #ifndef FILENO_WORKS_FOR_NULL
     if (assertCompAndLnk("#include <stdlib.h>\n#include <stdio.h>\n#include <signal.h>\n"
@@ -3073,20 +3448,7 @@ int main (int argc, char **argv)
                          "printf(\"%d\\n\",canWrite);return 0;}\n")) {
       fprintf(versionFile, "#define FWRITE_WRONG_FOR_READ_ONLY_FILES %d\n", doTest() == 1);
     } /* if */
-    if (compileAndLinkOk("#include <stdio.h>\n#include <unistd.h>\n#include <sys/stat.h>\n"
-                         "#include \"tst_vers.h\"\n"
-                         "int main(int argc,char *argv[])\n"
-                         "{int rmFail=0;makeDir(\"tmp_empty_dir1\",0755);\n"
-                         "if(remove(\"tmp_empty_dir1\")!=0){rmFail=1;rmdir(\"tmp_empty_dir1\");}\n"
-                         "printf(\"%d\\n\",rmFail);return 0;}\n") ||
-        compileAndLinkOk("#include <stdio.h>\n#include <direct.h>\n"
-                         "#include \"tst_vers.h\"\n"
-                         "int main(int argc,char *argv[])\n"
-                         "{int rmFail=0;makeDir(\"tmp_empty_dir1\",0755);\n"
-                         "if(remove(\"tmp_empty_dir1\")!=0){rmFail=1;rmdir(\"tmp_empty_dir1\");}\n"
-                         "printf(\"%d\\n\",rmFail);return 0;}\n")) {
-      fprintf(versionFile, "#define REMOVE_FAILS_FOR_EMPTY_DIRS %d\n", doTest() == 1);
-    } /* if */
+    checkRemoveDir(makeDirDefinition, versionFile);
     if (compileAndLinkOk("#include <stdio.h>\n#include <unistd.h>\n#include <ctype.h>\n"
                          "int main(int argc, char *argv[])\n"
                          "{char buffer[8192]; char *cwd;\n"
@@ -3136,41 +3498,7 @@ int main (int argc, char **argv)
         fputs("#define HOME_DIR_ENV_VAR {'H', 'O', 'M', 'E', 0}\n", versionFile);
       } /* if */
     } /* if */
-    if (compileAndLinkOk(
-        "#include <stdio.h>\n#include <utime.h>\n#include <errno.h>\n#include \"tst_vers.h\"\n"
-        "int main(int argc,char *argv[])"
-        "{struct utimbuf utime_buf;makeDir(\"tmp_empty_dir2\",0755);\n"
-        "utime_buf.actime=1234567890;utime_buf.modtime=1234567890;\n"
-        "printf(\"%d\\n\",utime(\"tmp_empty_dir2\",&utime_buf)!=0&&errno==EACCES);\n"
-        "if(remove(\"tmp_empty_dir2\")!=0)rmdir(\"tmp_empty_dir2\");return 0;}\n") &&
-        doTest() == 1) {
-      fputs("#define USE_ALTERNATE_UTIME\n", versionFile);
-#ifdef os_utime
-      fprintf(versionFile, "#define os_utime_orig %s\n", xstr(os_utime));
-      fputs("#undef os_utime\n", versionFile);
-#else
-      fputs("#define os_utime_orig utime\n", versionFile);
-#endif
-      fputs("#define os_utime alternate_utime\n", versionFile);
-    } else if (compileAndLinkOk(
-        "#include <stdio.h>\n#include <sys/utime.h>\n#include <errno.h>\n#include \"tst_vers.h\"\n"
-        "int main(int argc,char *argv[])"
-        "{struct utimbuf utime_buf;makeDir(\"tmp_empty_dir3\",0755);\n"
-        "utime_buf.actime=1234567890;utime_buf.modtime=1234567890;\n"
-        "printf(\"%d\\n\",utime(\"tmp_empty_dir3\",&utime_buf)!=0&&errno==EACCES);\n"
-        "if(remove(\"tmp_empty_dir3\")!=0)rmdir(\"tmp_empty_dir3\");return 0;}\n") &&
-        doTest() == 1) {
-      fputs("#define INCLUDE_SYS_UTIME\n", versionFile);
-      fputs("#define USE_ALTERNATE_UTIME\n", versionFile);
-#ifdef os_utime
-      fprintf(versionFile, "#define os_utime_orig %s\n", xstr(os_utime));
-      fputs("#undef os_utime\n", versionFile);
-#else
-      fputs("#define os_utime_orig utime\n", versionFile);
-#endif
-      fputs("#define os_utime alternate_utime\n", versionFile);
-    } /* if */
-    checkMoveDirectory(versionFile);
+    checkMoveDirectory(makeDirDefinition, versionFile);
     if (compileAndLinkOk("#include <stdio.h>\n#include <errno.h>\nint main(int argc,char *argv[])"
                          "{int saved_errno=EXDEV; printf(\"%d\\n\",saved_errno); return 0;}\n")) {
       fputs("#define EXDEV_IS_DEFINED\n", versionFile);

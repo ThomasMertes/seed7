@@ -128,7 +128,6 @@ strip:
 chkccomp.h:
 	echo #include "direct.h" > chkccomp.h
 	echo #include "unistd.h" >> chkccomp.h
-	echo #define mkdir(path,mode) mkdir(path) >> chkccomp.h
 	echo #define LIST_DIRECTORY_CONTENTS "dir" >> chkccomp.h
 
 version.h: chkccomp.h

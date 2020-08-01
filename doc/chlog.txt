@@ -1,3 +1,34 @@
+20160229:
+- The function fltCmp in flt_rtl.c has been improved to work correct
+  in the case that isnan returns neither 0 nor 1 (Many thanks go to
+  Arnel L. for reporting this problem).
+- The function determineGetaddrlimit in chkccomp.c has been improved
+  to include <sys/types.h> before <sys/resource.h>. FreeBSD needs
+  that to work correctly (Many thanks go to Pietro Cerutti for
+  providing a fix and explaining the background.
+- The function getOsCwd has been added to cmd_rtl.c. With this
+  function it is possible to read (e.g. under Linux) a current
+  working directory that is longer than PATH_MAX.
+- Documentation comments have been improved in encoding.s7i.
+- The program chkccomp.c has been improved to write definitions of
+  USE_DIRENT, USE_DIRWIN, OS_WIDE_DIR_INCLUDE_DIR_H, os_DIR,
+  os_dirent_struct, os_opendir, os_readdir, os_closedir,
+  INCLUDE_SYS_UTIME, os_utimbuf_struct, USE_ALTERNATE_UTIME,
+  os_utime_orig, os_utime, os_chdir, OS_GETCWD_MAX_BUFFER_SIZE,
+  os_getcwd, os_mkdir, os_rmdir, OS_CHMOD_INCLUDE_IO_H, os_chmod,
+  os_remove, os_rename, os_system, os_fopen, os_popen, os_pclose,
+  DEFINE_WGETENV, os_getenv
+- The functions keys_helem and values_helem in hshlib.c and
+  hsh_rtl.c have been improved to use a loop instead of a tail
+  recursion. For compilers that don't recognize the tail recursion
+  this results in a speed improvement (Gcc recognizes tail
+  recursions so there is no speed improvement).
+- The functions free_helem and free_hash in hsh_rtl.c have been
+  improved to stop searching for helems as soon as the last helem
+  has been freed.
+- The functions helem_data_to_list and helem_key_to_list have been
+  improved to use a loop instead of a tail recursion (see above).
+
 20160130:
 - A code page for pdf doc encoding has been added to charsets.s7i.
 - An optimization for the length of concatenated strings has been

@@ -64,21 +64,25 @@
 
 
 
-static void free_helem (const const_rtlHashElemType old_helem,
+static memSizeType free_helem (const const_rtlHashElemType old_helem,
     const destrFuncType key_destr_func, const destrFuncType data_destr_func)
 
-  { /* free_helem */
+  {
+    memSizeType freed = 1;
+
+  /* free_helem */
     key_destr_func(old_helem->key.value.genericValue);
     data_destr_func(old_helem->data.value.genericValue);
     if (old_helem->next_less != NULL) {
-      free_helem(old_helem->next_less, key_destr_func,
-          data_destr_func);
+      freed += free_helem(old_helem->next_less, key_destr_func,
+                         data_destr_func);
     } /* if */
     if (old_helem->next_greater != NULL) {
-      free_helem(old_helem->next_greater, key_destr_func,
-          data_destr_func);
+      freed += free_helem(old_helem->next_greater, key_destr_func,
+                         data_destr_func);
     } /* if */
     FREE_RECORD(old_helem, rtlHashElemRecord, count.rtl_helem);
+    return freed;
   } /* free_helem */
 
 
@@ -87,22 +91,22 @@ static void free_hash (const const_rtlHashType old_hash,
     const destrFuncType key_destr_func, const destrFuncType data_destr_func)
 
   {
+    memSizeType to_free;
     unsigned int number;
     const rtlHashElemType *table;
 
   /* free_hash */
     if (old_hash != NULL) {
       if (old_hash->size != 0) {
+        to_free = old_hash->size;
         number = old_hash->table_size;
         table = old_hash->table;
-        while (number != 0) {
+        do {
           do {
             number--;
-          } while (number != 0 && table[number] == NULL);
-          if (number != 0 || table[number] != NULL) {
-            free_helem(table[number], key_destr_func, data_destr_func);
-          } /* if */
-        } /* while */
+          } while (table[number] == NULL);
+          to_free -= free_helem(table[number], key_destr_func, data_destr_func);
+        } while (to_free != 0);
       } /* if */
       FREE_RTL_HASH(old_hash, old_hash->table_size);
     } /* if */
@@ -266,21 +270,20 @@ static void copy_hash (const rtlHashType dest_hash, const const_rtlHashType sour
 
 
 static memSizeType keys_helem (const rtlArrayType key_array,
-    memSizeType arr_pos, const const_rtlHashElemType curr_helem,
+    memSizeType arr_pos, const_rtlHashElemType curr_helem,
     const createFuncType key_create_func)
 
   { /* keys_helem */
-    arr_pos--;
-    key_array->arr[arr_pos].value.genericValue =
-        key_create_func(curr_helem->key.value.genericValue);
-    if (curr_helem->next_less != NULL) {
-      arr_pos = keys_helem(key_array, arr_pos, curr_helem->next_less,
-                           key_create_func);
-    } /* if */
-    if (curr_helem->next_greater != NULL) {
-      arr_pos = keys_helem(key_array, arr_pos, curr_helem->next_greater,
-                           key_create_func);
-    } /* if */
+    do {
+      arr_pos--;
+      key_array->arr[arr_pos].value.genericValue =
+          key_create_func(curr_helem->key.value.genericValue);
+      if (curr_helem->next_less != NULL) {
+        arr_pos = keys_helem(key_array, arr_pos, curr_helem->next_less,
+                             key_create_func);
+      } /* if */
+      curr_helem = curr_helem->next_greater;
+    } while (curr_helem != NULL);
     return arr_pos;
   } /* keys_helem */
 
@@ -322,21 +325,20 @@ static inline rtlArrayType keys_hash (const const_rtlHashType curr_hash,
 
 
 static memSizeType values_helem (const rtlArrayType value_array,
-    memSizeType arr_pos, const const_rtlHashElemType curr_helem,
+    memSizeType arr_pos, const_rtlHashElemType curr_helem,
     const createFuncType value_create_func)
 
   { /* values_helem */
-    arr_pos--;
-    value_array->arr[arr_pos].value.genericValue =
-        value_create_func(curr_helem->data.value.genericValue);
-    if (curr_helem->next_less != NULL) {
-      arr_pos = values_helem(value_array, arr_pos, curr_helem->next_less,
-                             value_create_func);
-    } /* if */
-    if (curr_helem->next_greater != NULL) {
-      arr_pos = values_helem(value_array, arr_pos, curr_helem->next_greater,
-                             value_create_func);
-    } /* if */
+    do {
+      arr_pos--;
+      value_array->arr[arr_pos].value.genericValue =
+          value_create_func(curr_helem->data.value.genericValue);
+      if (curr_helem->next_less != NULL) {
+        arr_pos = values_helem(value_array, arr_pos, curr_helem->next_less,
+                               value_create_func);
+      } /* if */
+      curr_helem = curr_helem->next_greater;
+    } while (curr_helem != NULL);
     return arr_pos;
   } /* values_helem */
 

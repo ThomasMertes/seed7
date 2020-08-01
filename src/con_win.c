@@ -29,6 +29,9 @@
 /*                                                                  */
 /********************************************************************/
 
+#define LOG_FUNCTIONS 0
+#define VERBOSE_EXCEPTIONS 0
+
 #include "version.h"
 
 #include "stdlib.h"
@@ -163,9 +166,14 @@ static void kbd_init (void)
     HANDLE hConsole;
 
   /* kbd_init */
+    logFunction(printf("kbd_init\n"););
     hConsole = GetStdHandle(STD_INPUT_HANDLE);
     if (hConsole != INVALID_HANDLE_VALUE) {
-      if (GetConsoleMode(hConsole, &saved_console_input_mode)) {
+      if (!GetConsoleMode(hConsole, &saved_console_input_mode)) {
+        logError(printf("kbd_init: GetConsoleMode(hConsole, *) failed:\n"
+                        "Error=%d\n", GetLastError());
+                 fflush(stdout););
+      } else {
 #ifdef OUT_OF_ORDER
         if (saved_console_input_mode & ENABLE_ECHO_INPUT) { printf("ECHO_INPUT\n"); }
         /* if (saved_console_input_mode & ENABLE_INSERT_MODE) { printf("INSERT_MODE\n"); } */
@@ -179,6 +187,7 @@ static void kbd_init (void)
         keybd_initialized = TRUE;
       } /* if */
     } /* if */
+    logFunction(printf("kbd_init -->\n"););
   } /* kbd_init */
 
 
@@ -217,6 +226,7 @@ charType kbdGetc (void)
     charType result;
 
   /* kbdGetc */
+    logFunction(printf("kbdGetc\n"););
     if (!keybd_initialized) {
       kbd_init();
     } /* if */
@@ -236,6 +246,7 @@ charType kbdGetc (void)
     if (result == 13) {
       result = 10;
     } /* if */
+    logFunction(printf("kbdGetc --> %d\n", result););
     return result;
   } /* kbdGetc */
 
@@ -731,6 +742,7 @@ void conRightScroll (intType startlin, intType startcol,
 void conShut (void)
 
   { /* conShut */
+    logFunction(printf("conShut\n"););
     if (console_initialized) {
       con_standardcolour();
       conCursor(TRUE);
@@ -738,6 +750,7 @@ void conShut (void)
       conSetCursor(1, 24);
       console_initialized = FALSE;
     } /* if */
+    logFunction(printf("conShut -->\n"););
   } /* conShut */
 
 
@@ -748,10 +761,12 @@ void conShut (void)
 int conOpen (void)
 
   { /* conOpen */
+    logFunction(printf("conOpen\n"););
     con_normalcolour();
     conClear(1, 1, conHeight(), conWidth());
     conCursor(FALSE);
     console_initialized = TRUE;
     atexit(conShut);
+    logFunction(printf("conOpen -->\n"););
     return 1;
   } /* conOpen */

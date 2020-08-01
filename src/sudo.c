@@ -38,6 +38,7 @@ int main (int argc, char *argv[])
     int length = 0;
     char *parameters;
     int idx;
+    int returnValue;
     int mainResult = 0;
 
   /* main */
@@ -63,7 +64,9 @@ int main (int argc, char *argv[])
           } /* for */
         } /* if */
         printf("%s %s\n", argv[1], parameters);
-        if ((int) ShellExecute(NULL, "runas", argv[1], parameters, NULL, SW_HIDE) <= 32) {
+        returnValue = (int) ShellExecute(NULL, "runas", argv[1], parameters, NULL, SW_HIDE);
+        /* printf("returnValue: %d\n", returnValue); */
+        if (returnValue <= 32) {
           mainResult = -1;
         } /* if */
         free(parameters);
