@@ -109,7 +109,7 @@ var integer: foreground_color is 0;
 var integer: background_color is 0;
 
 
-const proc: list_prog () is func
+const proc: list_prog is func
   local
     var integer: number is 0;
   begin
@@ -531,7 +531,7 @@ const func color: color_num (in integer: col_num) is func
   end func;
 
 
-const func string: get_data_line () is func
+const func string: get_data_line is func
   result
     var string: data_line is "";
   local
@@ -564,7 +564,7 @@ const func string: get_data_line () is func
   end func;
 
 
-const func string: get_data_field () is func
+const func string: get_data_field is func
   result
     var string: data_field is "";
   local
@@ -574,7 +574,7 @@ const func string: get_data_field () is func
     var string: data_symbol is "";
   begin
     if data_line = "" then
-      data_line := get_data_line();
+      data_line := get_data_line;
     end if;
     while data_line[1] = ' ' do
       data_line := data_line[2 .. ];
@@ -2164,7 +2164,7 @@ const proc: exec_read (inout string: symbol, inout string: line) is func
       symbol := get_symbol(line);
       if symbol[length(symbol)] = '$' or symbol[1] in defstr_var then
         variable_name := get_name(symbol, line);
-        param1 := get_data_field();
+        param1 := get_data_field;
         string_var @:= [variable_name] param1;
         line_marker;
         log << "READ ";
@@ -2175,7 +2175,7 @@ const proc: exec_read (inout string: symbol, inout string: line) is func
         flush(log);
       else
         variable_name := get_name(symbol, line);
-        param1 := get_data_field();
+        param1 := get_data_field;
         if param1 = "" then
           (* Empty DATA fields can be read as 0.0 *)
           numeric_var @:= [variable_name] 0.0;
@@ -4251,7 +4251,7 @@ const func boolean: exec_cmd (inout string: symbol, inout string: line) is func
   end func;
 
 
-const proc: exec_lines () is func
+const proc: exec_lines is func
   local
     var boolean: running is TRUE;
     var string: symbol is "";
@@ -4278,10 +4278,10 @@ const proc: exec_lines () is func
   end func;
 
 
-const proc: run_prog () is func
+const proc: run_prog is func
   begin
     file_line_number := 1;
-    exec_lines();
+    exec_lines;
   end func;
 
 
@@ -4448,7 +4448,7 @@ const proc: main is func
       log := open("bas.log", "w");
       err := log;
       if load_prog(argv(PROGRAM)[1]) then
-        (* list_prog(); *)
+        (* list_prog; *)
         scr := open(SCREEN);
         cursor(scr, TRUE);
         win := open_window(scr, 1, 1, 35, 150);
@@ -4456,7 +4456,7 @@ const proc: main is func
         IN := KEYBOARD;
         IN := open_echo(IN, OUT);
         IN := open_line(IN);
-        run_prog();
+        run_prog;
       else
         write(" ***** FILE ");
         write(literal(argv(PROGRAM)[1]));

@@ -127,6 +127,7 @@ version.h:
 	echo "#define CHOWN_MISSING" >> version.h
 	echo "#undef  CHMOD_MISSING" >> version.h
 	echo "#define HAS_LONGTYPE_64" >> version.h
+	echo "#define USE_WFOPEN" >> version.h
 	echo "#define USE_FSEEKO64" >> version.h
 	echo "#define USE_WINSOCK" >> version.h
 	echo "#define OBJECT_FILE_EXTENSION \".o\"" >> version.h

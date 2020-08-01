@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  scanner.s7i   Scanner functions                                 *)
-(*  Copyright (C) 1989 - 2005  Thomas Mertes                        *)
+(*  Copyright (C) 1989 - 2007  Thomas Mertes                        *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)
 (*                                                                  *)
@@ -34,48 +34,466 @@ const set of char: special_char is
      ':', ';', '<', '=', '>', '?', '@', '\\','^', '`',
      '|', '~'};
 const set of char: extended_special_char is special_char | { '"', '#', ''' };
+const set of char: apostrophe_char is {'''};
+const set of char: quotation_char is {'"'};
+const set of char: sharp_char is {'#'};
 const set of char: paren_char is {'(', ')', '[', ']', '{', '}'};
+const set of char: left_paren_char is {'('};
+const set of char: other_paren_char is {')', '[', ']', '{', '}'};
 const set of char: name_start_char is letter_char | {'_'};
 const set of char: name_char is letter_char | digit_char | {'_'};
 const set of char: white_space_char is {' ', '\t', '\n', '\r'};
+const set of char: special_comment_char is {'(', '*', EOF};
+const set of char: no_escape_char is
+    {' ', '!',      '#', '$', '%', '&', ''',
+     '(', ')', '*', '+', ',', '-', '.', '/',
+     '0', '1', '2', '3', '4', '5', '6', '7',
+     '8', '9', ':', ';', '<', '=', '>', '?',
+     '@', 'A', 'B', 'C', 'D', 'E', 'F', 'G',
+     'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O',
+     'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W',
+     'X', 'Y', 'Z', '[',      ']', '^', '_',
+     '`', 'a', 'b', 'c', 'd', 'e', 'f', 'g',
+     'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o',
+     'p', 'q', 'r', 's', 't', 'u', 'v', 'w',
+     'x', 'y', 'z', '{', '|', '}', '~'};
+
+const array string: esc_tab is [](
+    (* " *) "\"", (* # *) " ",  (* $ *) " ",  (* % *) " ",  (* & *) " ",
+    (* ' *) "'",  (* ( *) " ",  (* ) *) " ",  (* * *) " ",  (* + *) " ",
+    (* , *) " ",  (* - *) " ",  (* . *) " ",  (* / *) " ",  (* 0 *) " ",
+    (* 1 *) " ",  (* 2 *) " ",  (* 3 *) " ",  (* 4 *) " ",  (* 5 *) " ",
+    (* 6 *) " ",  (* 7 *) " ",  (* 8 *) " ",  (* 9 *) " ",  (* : *) " ",
+    (* ; *) " ",  (* < *) " ",  (* = *) " ",  (* > *) " ",  (* ? *) " ",
+    (* @ *) " ",  (* A *) "\A", (* B *) "\B", (* C *) "\C", (* D *) "\D",
+    (* E *) "\E", (* F *) "\F", (* G *) "\G", (* H *) "\H", (* I *) "\I",
+    (* J *) "\J", (* K *) "\K", (* L *) "\L", (* M *) "\M", (* N *) "\N",
+    (* O *) "\O", (* P *) "\P", (* Q *) "\Q", (* R *) "\R", (* S *) "\S",
+    (* T *) "\T", (* U *) "\U", (* V *) "\V", (* W *) "\W", (* X *) "\X",
+    (* Y *) "\Y", (* Z *) "\Z", (* [ *) " ",  (* \ *) "\\", (* ] *) " ",
+    (* ^ *) " ",  (* _ *) " ",  (* ` *) " ",  (* a *) "\a", (* b *) "\b",
+    (* c *) " ",  (* d *) " ",  (* e *) "\e", (* f *) "\f", (* g *) " ",
+    (* h *) " ",  (* i *) " ",  (* j *) " ",  (* k *) " ",  (* l *) " ",
+    (* m *) " ",  (* n *) "\n", (* o *) " ",  (* p *) " ",  (* q *) " ",
+    (* r *) "\r", (* s *) " ",  (* t *) "\t", (* u *) " ",  (* v *) "\v");
 
 
-const func string: getSymbol (inout file: aFile) is func
+const proc: skipComment (inout file: inFile) is func
+  local
+    var char: character is ' ';
+  begin
+    character := getc(inFile);
+    repeat
+      repeat
+        while character not in special_comment_char do
+          character := getc(inFile);
+        end while;
+        if character = '(' then
+          character := getc(inFile);
+          if character = '*' then
+            skipComment(inFile);
+            character := getc(inFile);
+          end if;
+        end if;
+      until character = '*' or character = EOF;
+      if character <> EOF then
+        character := getc(inFile);
+      end if;
+    until character = ')' or character = EOF;
+    if character = EOF then
+      inFile.bufferChar := EOF;
+    else
+      inFile.bufferChar := getc(inFile);
+    end if;
+  end func; # skipComment
+
+
+const func string: getComment (inout file: inFile) is func
+  result
+    var string: symbol is "(*";
+  local
+    var char: character is ' ';
+  begin
+    character := getc(inFile);
+    repeat
+      repeat
+        while character not in special_comment_char do
+          symbol &:= str(character);
+          character := getc(inFile);
+        end while;
+        if character = '(' then
+          character := getc(inFile);
+          if character = '*' then
+            symbol &:= getComment(inFile);
+            character := inFile.bufferChar;
+          else
+            symbol &:= "(";
+          end if;
+        end if;
+      until character = '*' or character = EOF;
+      if character <> EOF then
+        symbol &:= str(character);
+        character := getc(inFile);
+      end if;
+    until character = ')' or character = EOF;
+    if character = EOF then
+      inFile.bufferChar := EOF;
+    else
+      symbol &:= str(character);
+      inFile.bufferChar := getc(inFile);
+    end if;
+  end func; # getComment
+
+
+const proc: skipLineComment (inout file: inFile) is func
+  local
+    var char: character is ' ';
+  begin
+    repeat
+      character := getc(inFile);
+    until character = '\n' or character = EOF;
+    inFile.bufferChar := character;
+  end func; # skipLineComment
+
+
+const func string: getLineComment (inout file: inFile) is func
+  result
+    var string: symbol is "#";
+  local
+    var char: character is ' ';
+  begin
+    character := getc(inFile);
+    while character <> '\n' and character <> EOF do
+      symbol &:= str(character);
+      character := getc(inFile);
+    end while;
+    inFile.bufferChar := character;
+  end func; # getLineComment
+
+
+const func string: getNumber (inout file: inFile) is func
+  result
+    var string: symbol is "";
+  local
+    var char: character is ' ';
+  begin
+    symbol &:= str(inFile.bufferChar);
+    character := getc(inFile);
+    while character in digit_char do
+      symbol &:= str(character);
+      character := getc(inFile);
+    end while;
+    if character = '.' then
+      # float literal
+      symbol &:= str(character);
+      character := getc(inFile);
+      while character in digit_char do
+        symbol &:= str(character);
+        character := getc(inFile);
+      end while;
+      if character = 'E' or character = 'e' then
+        symbol &:= str(character);
+        character := getc(inFile);
+        if character = '+' then
+          symbol &:= str(character);
+          character := getc(inFile);
+        elsif character = '-' then
+          symbol &:= str(character);
+          character := getc(inFile);
+        end if;
+        while character in digit_char do
+          symbol &:= str(character);
+          character := getc(inFile);
+        end while;
+      end if;
+    elsif character = '#' then
+      # based integer literal
+      symbol &:= str(character);
+      character := getc(inFile);
+      while character in alphanum_char do
+        symbol &:= str(character);
+        character := getc(inFile);
+      end while;
+    elsif character = 'E' or character = 'e' then
+      # integer literal with exponent
+      symbol &:= str(character);
+      character := getc(inFile);
+      if character = '+' then
+        symbol &:= str(character);
+        character := getc(inFile);
+      elsif character = '-' then
+        symbol &:= str(character);
+        character := getc(inFile);
+      end if;
+      while character in digit_char do
+        symbol &:= str(character);
+        character := getc(inFile);
+      end while;
+    elsif character = '_' then
+      # bigInteger literal
+      symbol &:= str(character);
+      character := getc(inFile);
+    end if;
+    inFile.bufferChar := character;
+  end func;
+
+
+const proc: getEscapeSequence (inout file: inFile, inout string: symbol) is func
+  local
+    var char: character is ' ';
+  begin
+    symbol &:= "\\";
+    character := getc(inFile);
+    if character = '\n' or character = ' ' or character = '\t' or character = '\r' then
+      repeat
+        symbol &:= str(character);
+        character := getc(inFile);
+      until character <> '\n' and character <> ' ' and character <> '\t' and character <> '\r';
+      if character = '\\' then
+        symbol &:= str(character);
+        character := getc(inFile);
+      end if;
+    elsif character in digit_char then
+      inFile.bufferChar := character;
+      symbol &:= getNumber(inFile);
+      character := inFile.bufferChar;
+      if character = '\\' then
+        symbol &:= str(character);
+        character := getc(inFile);
+      end if;
+    elsif character <> EOF then
+      symbol &:= str(character);
+      character := getc(inFile);
+    end if;
+    inFile.bufferChar := character;
+  end func;
+
+
+const func string: getChar (inout file: inFile) is func
+  result
+    var string: symbol is "'";
+  local
+    var char: character is ' ';
+  begin
+    character := getc(inFile);
+    if character <> '\n' and character <> '\r' and character <> EOF then
+      if character = '\\' then
+        repeat
+          getEscapeSequence(inFile, symbol);
+          character := inFile.bufferChar;
+        until character <> '\\';
+      else
+        symbol &:= str(character);
+        character := getc(inFile);
+      end if;
+      if character <> '\'' then
+        if character <> '\n' and character <> '\r' and character <> EOF then
+          repeat
+            symbol &:= str(character);
+            character := getc(inFile);
+          until character = '\'' or
+              character = '\n' or
+              character = '\r' or
+              character = EOF;
+          if character = '\'' then
+            symbol &:= str(character);
+            character := getc(inFile);
+          end if;
+        end if;
+      else
+        symbol &:= str(character);
+        character := getc(inFile);
+      end if;
+    end if;
+    inFile.bufferChar := character;
+  end func;
+
+
+const func string: getString (inout file: inFile) is func
+  result
+    var string: symbol is "\"";
+  local
+    var char: character is ' ';
+    var boolean: reading_string is TRUE;
+  begin
+    character := getc(inFile);
+    repeat
+      while character in no_escape_char do
+        symbol &:= str(character);
+        character := getc(inFile);
+      end while;
+      if character = '\"' then
+        symbol &:= str(character);
+        character := getc(inFile);
+        if character = '\"' then
+          symbol &:= str(character);
+          character := getc(inFile);
+        else
+          reading_string := FALSE;
+        end if;
+      elsif character = '\\' then
+        getEscapeSequence(inFile, symbol);
+        character := inFile.bufferChar;
+      elsif character = '\n' or character = '\r' or character = EOF then
+        reading_string := FALSE;
+      else
+        repeat
+          symbol &:= str(character);
+          character := getc(inFile);
+        until character < ' ' or character > '~' or character = EOF;
+      end if;
+    until not reading_string;
+    inFile.bufferChar := character;
+  end func;
+
+
+const func string: getWhiteSpace (inout file: inFile) is func
   result
     var string: symbol is "";
   begin
-    while aFile.bufferChar in white_space_char do
-      aFile.bufferChar := getc(aFile);
+    while inFile.bufferChar in white_space_char do
+      symbol &:= str(inFile.bufferChar);
+      inFile.bufferChar := getc(inFile);
     end while;
-    case aFile.bufferChar of
+  end func;
+
+
+const func string: getSymbolOrComment (inout file: inFile) is func
+  result
+    var string: symbol is "";
+  begin
+    while inFile.bufferChar in white_space_char do
+      inFile.bufferChar := getc(inFile);
+    end while;
+    case inFile.bufferChar of
       when name_start_char:
-        symbol := str(aFile.bufferChar);
-        aFile.bufferChar := getc(aFile);
-        while aFile.bufferChar in name_char do
-          symbol &:= str(aFile.bufferChar);
-          aFile.bufferChar := getc(aFile);
+        symbol := str(inFile.bufferChar);
+        inFile.bufferChar := getc(inFile);
+        while inFile.bufferChar in name_char do
+          symbol &:= str(inFile.bufferChar);
+          inFile.bufferChar := getc(inFile);
+        end while;
+      when special_char:
+        symbol := str(inFile.bufferChar);
+        inFile.bufferChar := getc(inFile);
+        while inFile.bufferChar in special_char do
+          symbol &:= str(inFile.bufferChar);
+          inFile.bufferChar := getc(inFile);
+        end while;
+      when left_paren_char:
+        inFile.bufferChar := getc(inFile);
+        if inFile.bufferChar = '*' then
+          symbol := getComment(inFile);
+        else
+          symbol := "(";
+        end if;
+      when other_paren_char:
+        symbol := str(inFile.bufferChar);
+        inFile.bufferChar := getc(inFile);
+      when digit_char:
+        symbol := getNumber(inFile);
+      when apostrophe_char:
+        symbol := getChar(inFile);
+      when quotation_char:
+        symbol := getString(inFile);
+      when sharp_char:
+        symbol := getLineComment(inFile);
+      when {EOF}:
+        symbol := "";
+      otherwise:
+        symbol := str(inFile.bufferChar);
+        inFile.bufferChar := getc(inFile);
+    end case;
+  end func;
+
+
+const func string: getSymbol (inout file: inFile) is func
+  result
+    var string: symbol is "";
+  begin
+    while inFile.bufferChar in white_space_char do
+      inFile.bufferChar := getc(inFile);
+    end while;
+    case inFile.bufferChar of
+      when name_start_char:
+        symbol := str(inFile.bufferChar);
+        inFile.bufferChar := getc(inFile);
+        while inFile.bufferChar in name_char do
+          symbol &:= str(inFile.bufferChar);
+          inFile.bufferChar := getc(inFile);
+        end while;
+      when special_char:
+        symbol := str(inFile.bufferChar);
+        inFile.bufferChar := getc(inFile);
+        while inFile.bufferChar in special_char do
+          symbol &:= str(inFile.bufferChar);
+          inFile.bufferChar := getc(inFile);
+        end while;
+      when left_paren_char:
+        inFile.bufferChar := getc(inFile);
+        if inFile.bufferChar = '*' then
+          skipComment(inFile);
+          symbol := getSymbol(inFile);
+        else
+          symbol := "(";
+        end if;
+      when other_paren_char:
+        symbol := str(inFile.bufferChar);
+        inFile.bufferChar := getc(inFile);
+      when digit_char:
+        symbol := getNumber(inFile);
+      when apostrophe_char:
+        symbol := getChar(inFile);
+      when quotation_char:
+        symbol := getString(inFile);
+      when sharp_char:
+        skipLineComment(inFile);
+        symbol := getSymbol(inFile);
+      when {EOF}:
+        symbol := "";
+      otherwise:
+        symbol := str(inFile.bufferChar);
+        inFile.bufferChar := getc(inFile);
+    end case;
+  end func;
+
+
+const func string: getSimpleSymbol (inout file: inFile) is func
+  result
+    var string: symbol is "";
+  begin
+    while inFile.bufferChar in white_space_char do
+      inFile.bufferChar := getc(inFile);
+    end while;
+    case inFile.bufferChar of
+      when name_start_char:
+        symbol := str(inFile.bufferChar);
+        inFile.bufferChar := getc(inFile);
+        while inFile.bufferChar in name_char do
+          symbol &:= str(inFile.bufferChar);
+          inFile.bufferChar := getc(inFile);
         end while;
       when extended_special_char:
-        symbol := str(aFile.bufferChar);
-        aFile.bufferChar := getc(aFile);
-        while aFile.bufferChar in extended_special_char do
-          symbol &:= str(aFile.bufferChar);
-          aFile.bufferChar := getc(aFile);
+        symbol := str(inFile.bufferChar);
+        inFile.bufferChar := getc(inFile);
+        while inFile.bufferChar in extended_special_char do
+          symbol &:= str(inFile.bufferChar);
+          inFile.bufferChar := getc(inFile);
         end while;
       when paren_char:
-        symbol := str(aFile.bufferChar);
-        aFile.bufferChar := getc(aFile);
+        symbol := str(inFile.bufferChar);
+        inFile.bufferChar := getc(inFile);
       when digit_char:
-        symbol := str(aFile.bufferChar);
-        aFile.bufferChar := getc(aFile);
-        while aFile.bufferChar in digit_char do
-          symbol &:= str(aFile.bufferChar);
-          aFile.bufferChar := getc(aFile);
+        symbol := str(inFile.bufferChar);
+        inFile.bufferChar := getc(inFile);
+        while inFile.bufferChar in digit_char do
+          symbol &:= str(inFile.bufferChar);
+          inFile.bufferChar := getc(inFile);
         end while;
       when {EOF}:
         symbol := "";
       otherwise:
-        symbol := str(aFile.bufferChar);
-        aFile.bufferChar := getc(aFile);
+        symbol := str(inFile.bufferChar);
+        inFile.bufferChar := getc(inFile);
     end case;
   end func;

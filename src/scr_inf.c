@@ -142,7 +142,7 @@ int tputs ();
 
 
 #undef TPARM_PRESENT
-#define MAP_CHARS
+#undef MAP_CHARS
 #define MAP_1_1
 
 #define TEXT_NORMAL 0

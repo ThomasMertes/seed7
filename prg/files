@@ -12,6 +12,7 @@ chkexc.sd7   Checks exceptions
 chkflt.sd7   Checks float literals and operations              
 chkint.sd7   Checks integer literals and operations            
 chkprc.sd7   Checks procedures and statements                  
+chkscan.sd7  Checks the scanner functions                      
 chkset.sd7   Checks set literals and operations                
 chkstr.sd7   Checks string literals and operations             
 clock.sd7    Displays a digital clock                          

@@ -633,19 +633,19 @@ const proc: main is func
 
   begin
     writeln;
-    check_exponent_integer_literal();
-    chack_based_integer_literal();
-    check_negation();
-    check_add();
-    check_div();
-(*    check_div_exception(); *)
-    check_rem();
-    check_division();
-    check_mdiv();
-    check_odd();
-    check_fact();
-    check_binom();
-    check_power();
-    check_sqrt();
-    check_log2();
+    check_exponent_integer_literal;
+    chack_based_integer_literal;
+    check_negation;
+    check_add;
+    check_div;
+(*    check_div_exception; *)
+    check_rem;
+    check_division;
+    check_mdiv;
+    check_odd;
+    check_fact;
+    check_binom;
+    check_power;
+    check_sqrt;
+    check_log2;
   end func;

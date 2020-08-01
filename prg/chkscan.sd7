@@ -1,0 +1,87 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  chkscan.sd7   Checks the scanner functions                      *)
+(*  Copyright (C) 2007  Thomas Mertes                               *)
+(*                                                                  *)
+(*  This program is free software; you can redistribute it and/or   *)
+(*  modify it under the terms of the GNU General Public License as  *)
+(*  published by the Free Software Foundation; either version 2 of  *)
+(*  the License, or (at your option) any later version.             *)
+(*                                                                  *)
+(*  This program is distributed in the hope that it will be useful, *)
+(*  but WITHOUT ANY WARRANTY; without even the implied warranty of  *)
+(*  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the   *)
+(*  GNU General Public License for more details.                    *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU General Public       *)
+(*  License along with this program; if not, write to the           *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+$ include "seed7_05.s7i";
+  include "scanner.s7i";
+  include "getf.s7i";
+
+
+const proc: main is func
+  local
+    var array string: directoryContent is 0 times "";
+    var string: fileName is "";
+    var file: inFile is STD_NULL;
+    var string: currSymbol is "";
+    var string: processedFile is "";
+    var string: originalFile is "";
+    var string: compareFile is "";
+  begin
+    directoryContent := read_dir(".");
+    for fileName range directoryContent do
+      if endsWith(fileName, ".sd7") then
+        inFile := open(fileName, "r");
+        if inFile <> STD_NULL then
+          write(literal(fileName));
+          processedFile := getWhiteSpace(inFile)[2 ..];
+          currSymbol := getSymbolOrComment(inFile);
+          while currSymbol <> "" do
+            # writeln(literal(currSymbol));
+            processedFile &:= currSymbol;
+            processedFile &:= getWhiteSpace(inFile);
+            currSymbol := getSymbolOrComment(inFile);
+          end while;
+          originalFile := getf(fileName);
+          if processedFile <> originalFile then
+            write(" *** Differ");
+            putf(fileName & ".xxx", processedFile);
+          end if;
+
+          seek(inFile, 1);
+          processedFile := "";
+          currSymbol := getSymbol(inFile);
+          while currSymbol <> "" do
+            # writeln(literal(currSymbol));
+            processedFile &:= currSymbol;
+            currSymbol := getSymbol(inFile);
+          end while;
+          seek(inFile, 1);
+          compareFile := "";
+          compareFile := getSymbolOrComment(inFile);
+          while currSymbol <> "" do
+            # writeln(literal(currSymbol));
+            if not (startsWith(currSymbol, "(*") or startsWith(currSymbol, "#")) then
+              compareFile &:= currSymbol;
+            end if;
+            currSymbol := getSymbolOrComment(inFile);
+          end while;
+          if processedFile <> compareFile then
+            write(" ### Differ");
+            putf(fileName & ".yyy", processedFile);
+          end if;
+
+          writeln;
+        end if;
+      end if;
+    end for;
+  end func;

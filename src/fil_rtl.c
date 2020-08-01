@@ -545,12 +545,21 @@ stritype file_mode;
 #endif
 
   {
+#ifdef USE_WFOPEN
+    wchar_t *name;
+    wchar_t wide_mode[4];
+#else
     cstritype name;
+#endif
     char mode[4];
     filetype result;
 
   /* filOpen */
+#ifdef USE_WFOPEN
+    name = cp_to_wstri(file_name);
+#else
     name = cp_to_cstri(file_name);
+#endif
     if (name == NULL) {
       raise_error(MEMORY_ERROR);
       result = NULL;
@@ -560,7 +569,15 @@ stritype file_mode;
         raise_error(RANGE_ERROR);
         result = NULL;
       } else {
+#ifdef USE_WFOPEN
+        wide_mode[0] = mode[0];
+        wide_mode[1] = mode[1];
+        wide_mode[2] = mode[2];
+        wide_mode[3] = mode[3];
+        result = _wfopen(name, wide_mode);
+#else
         result = fopen(name, mode);
+#endif
       } /* if */
       free_cstri(name, file_name);
     } /* if */

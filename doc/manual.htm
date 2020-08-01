@@ -2017,8 +2017,10 @@
 
 <a name="char"><b>5.6 char</b></a>
 <p>
-    A character literal is a character enclosed in single
-  quotes. For example:
+    The type <tt>'<font color=red>char</font>'</tt> describes UNICODE characters. The <tt>'<font color=red>char</font>'</tt>
+  values use the UTF-32 encoding. In the source file a
+  character literal is written as UTF-8 UNICODE character
+  enclosed in single quotes. For example:
 </p><pre>
     <font color=maroon>'a'</font>   <font color=maroon>' '</font>   <font color=maroon>'\n'</font>   <font color=maroon>'!'</font>   <font color=maroon>'\\'</font>   <font color=maroon>'2'</font>   <font color=maroon>'"'</font>   <font color=maroon>'\"'</font>   <font color=maroon>'\''</font>
 </pre><p>
@@ -2086,10 +2088,14 @@
 
 <a name="string"><b>5.7 string</b></a>
 <p>
-    The type <tt>'<font color=red>string</font>'</tt> describes sequences of ASCII-characters
-  (including the empty string). A string literal is a
-  sequence of ASCII-characters surrounded by double quotes.</p><pre>
-  For example: <font color=maroon>""</font>   <font color=maroon>" "</font>   <font color=maroon>"\""</font>   <font color=maroon>"'"</font>   <font color=maroon>"String"</font>   <font color=maroon>"CAN\"T !"</font></pre><p>
+    The type <tt>'<font color=red>string</font>'</tt> describes sequences of UNICODE characters
+  (including the empty string). The characters in the <tt>'<font color=red>string</font>'</tt>
+  use the UTF-32 encoding. In the source file a string literal
+  is a sequence of UTF-8 UNICODE characters surrounded by
+  double quotes. For example:
+</p><pre>
+    <font color=maroon>""</font>   <font color=maroon>" "</font>   <font color=maroon>"\""</font>   <font color=maroon>"'"</font>   <font color=maroon>"String"</font>   <font color=maroon>"CAN\"T !"</font>
+</pre><p>
   To represent control characters and certain other
   characters in strings the same escape sequences as for
   character literals may be used. Additionally quotation
@@ -2214,7 +2220,9 @@
                   ( Type of argument B: <font color=red>integer</font>,
                     Type of argument C: <font color=red>char</font>,
                     A @:= [B] C =>
-                      A := A[..pred(B)] & str(C) & A[succ(B)..] )
+                      A := A[..pred(B)] & str(C) & A[succ(B)..],
+                    A @:= [0] 'x' => EXCEPTION RANGE_ERROR,
+                    A @:= [succ(length(A))] 'x' => EXCEPTION RANGE_ERROR )
 </pre><p></p>
 
 <a name="array"><b>5.8 array</b></a>

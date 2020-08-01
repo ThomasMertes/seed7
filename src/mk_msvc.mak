@@ -135,6 +135,7 @@ version.h:
 	echo #define USE_MYUNISTD_H >> version.h
 	echo #define HAS_LONGTYPE_64 >> version.h
 	echo #define LONGTYPE_64_IS_INT64 >> version.h
+	echo #define USE_WFOPEN >> version.h
 	echo #define USE_FSEEKI64 >> version.h
 	echo #define USE_WINSOCK >> version.h
 	echo #define popen _popen >> version.h

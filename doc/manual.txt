@@ -2017,8 +2017,10 @@ CONTENTS
 
 5.6 char
 
-    A character literal is a character enclosed in single
-  quotes. For example:
+    The type 'char' describes UNICODE characters. The 'char'
+  values use the UTF-32 encoding. In the source file a
+  character literal is written as UTF-8 UNICODE character
+  enclosed in single quotes. For example:
 
     'a'   ' '   '\n'   '!'   '\\'   '2'   '"'   '\"'   '\''
 
@@ -2086,10 +2088,14 @@ CONTENTS
 
 5.7 string
 
-    The type 'string' describes sequences of ASCII-characters
-  (including the empty string). A string literal is a
-  sequence of ASCII-characters surrounded by double quotes.
-  For example: ""   " "   "\""   "'"   "String"   "CAN\"T !"
+    The type 'string' describes sequences of UNICODE characters
+  (including the empty string). The characters in the 'string'
+  use the UTF-32 encoding. In the source file a string literal
+  is a sequence of UTF-8 UNICODE characters surrounded by
+  double quotes. For example:
+
+    ""   " "   "\""   "'"   "String"   "CAN\"T !"
+
   To represent control characters and certain other
   characters in strings the same escape sequences as for
   character literals may be used. Additionally quotation
@@ -2214,7 +2220,9 @@ CONTENTS
                   ( Type of argument B: integer,
                     Type of argument C: char,
                     A @:= [B] C =>
-                      A := A[..pred(B)] & str(C) & A[succ(B)..] )
+                      A := A[..pred(B)] & str(C) & A[succ(B)..],
+                    A @:= [0] 'x' => EXCEPTION RANGE_ERROR,
+                    A @:= [succ(length(A))] 'x' => EXCEPTION RANGE_ERROR )
 
 
 5.8 array

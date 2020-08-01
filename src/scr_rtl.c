@@ -31,10 +31,12 @@
 
 #include "version.h"
 
+#include "stdlib.h"
 #include "stdio.h"
 
 #include "common.h"
 #include "striutl.h"
+#include "heaputl.h"
 #include "scr_drv.h"
 
 #undef EXTERN
@@ -130,18 +132,30 @@ stritype stri;
 
   { /* scrWrite */
 #ifdef WIDE_CHAR_STRINGS
-    {
+    if (stri->size <= 256) {
       memsizetype size;
-      uchartype stri_buffer[2000];
+      uchartype stri_buffer[6 * 256];
 
+#ifdef SCREEN_UTF8
+      size = stri_to_utf8(stri_buffer, stri);
+#else
+      stri_compress(stri_buffer, stri->mem, stri->size);
       size = stri->size;
-      if (size > 2000) {
-        size = 2000;
+#endif
+      scrText(cursor_line, cursor_column, stri_buffer, size);
+    } else {
+      bstritype bstri;
+
+#ifdef SCREEN_UTF8
+      bstri = stri_to_bstri8(stri);
+#else
+      bstri = stri_to_bstri(stri);
+#endif
+      if (bstri != NULL) {
+        scrText(cursor_line, cursor_column, bstri->mem, bstri->size);
+        FREE_BSTRI(bstri, bstri->size);
       } /* if */
-      stri_compress(stri_buffer, stri->mem, size);
-      scrText(cursor_line, cursor_column,
-          stri_buffer, size);
-    }
+    } /* if */
 #else
     scrText(cursor_line, cursor_column,
         stri->mem, stri->size);

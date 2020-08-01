@@ -36,7 +36,7 @@ const proc: main is func
     var string: symbol is "";
   begin
     while not eof(IN) do
-      symbol := getSymbol(IN);
+      symbol := getSimpleSymbol(IN);
       if symbol in numberOfWords then
         incr(numberOfWords[symbol]);
       else

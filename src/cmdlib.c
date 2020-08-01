@@ -116,7 +116,14 @@ char *dir_name;
             } /* if */
           } /* if */
           if (okay) {
+#ifdef READDIR_UTF8
+            str1 = cstri8_to_stri(current_entry->d_name);
+            if (str1 == NULL) {
+              str1 = cstri_to_stri(current_entry->d_name);
+            } /* if */
+#else
             str1 = cstri_to_stri(current_entry->d_name);
+#endif
             if (str1 == NULL) {
               okay = FALSE;
             } else {

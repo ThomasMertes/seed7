@@ -424,7 +424,8 @@ const func heliocentricPlanetType: locatePositionOfPlanetInItsOrbitalPlane (
     planet.eccentricity := planetDescr.eccentricity +
         planetDescr.eccentricityPerCentury * (julianDay(aTime) - julianDayOfEpoch) / 36525.0;
     planet.meanLongitude := planetDescr.meanLongitudeAtEpoch +
-        360.0 * (julianDay(aTime) - julianDayOfEpoch) / planetDescr.orbitalPeriod;
+        360.0 / (planetDescr.orbitalPeriod / orbitDescr[3].orbitalPeriod  * 365.2425) *
+        (julianDay(aTime) - julianDayOfEpoch);
     degreesToRange(planet.meanLongitude);
     planet.longitudeOfPerihelion := planetDescr.longitudeOfPerihelion +
         planetDescr.longitudeOfPerihelionPerCentury * (julianDay(aTime) - julianDayOfEpoch) / 36525.0;

@@ -269,13 +269,30 @@ listtype arguments;
     isit_stri(arg_2(arguments));
     stri = take_stri(arg_2(arguments));
 #ifdef WIDE_CHAR_STRINGS
-    {
-      uchartype stri_buffer[2000];
+    if (stri->size <= 256) {
+      memsizetype size;
+      uchartype stri_buffer[6 * 256];
 
+#ifdef SCREEN_UTF8
+      size = stri_to_utf8(stri_buffer, stri);
+#else
       stri_compress(stri_buffer, stri->mem, stri->size);
-      scrText(current_line, current_column,
-        stri_buffer, stri->size);
-    }
+      size = stri->size;
+#endif
+      scrText(current_line, current_column, stri_buffer, size);
+    } else {
+      bstritype bstri;
+
+#ifdef SCREEN_UTF8
+      bstri = stri_to_bstri8(stri);
+#else
+      bstri = stri_to_bstri(stri);
+#endif
+      if (bstri != NULL) {
+        scrText(current_line, current_column, bstri->mem, bstri->size);
+        FREE_BSTRI(bstri, bstri->size);
+      } /* if */
+    } /* if */
 #else
     scrText(current_line, current_column,
         stri->mem, stri->size);

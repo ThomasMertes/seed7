@@ -24,6 +24,7 @@
 
 $ info off;
 $ include "seed7_05.s7i";
+  include "utf8.s7i";
 
 
 const func boolean: wildcard_match (in string: main_stri, in string: pattern) is func
@@ -82,6 +83,7 @@ const proc: main is func
     var integer: num2 is 0;
 
   begin
+    OUT := STD_UTF8_OUT;
     if length(argv(PROGRAM)) = 0 then
       names := read_dir(".");
     elsif length(argv(PROGRAM)) = 1 then

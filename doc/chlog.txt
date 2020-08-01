@@ -1,7 +1,19 @@
+20071110:
+- The functions getSymbol, getWhiteSpace, getSymbolOrComment and getSimpleSymbol
+  of the scanner.s7i library were created or improved.
+- A new example program (chkscan.sd7) to check the new scanner functions was added.
+- A bug in the planets.sd7 example program was fixed.
+- The manual was corrected to explain that the types 'char' and 'string' support UNICODE.
+- The actions cmd_ls and scr_write were improved to use utf-8 characters when available.
+- The filOpen function was improved to use _wfopen under windows.
+- The timezone handling to get the Greenwich Mean Time was improved.
+- A string in shisen.sd7 was enlarged to avoid a RANGE_ERROR exception
+  when accessing it.
+
 20071025:
 - A new example program (mahjong.sd7) was added.
 - An include file (mahjng32.s7i) which contains mahjong tiles was added.
-- The interpreter and the compeler were improved to support the gkb_window action.
+- The interpreter and the compiler were improved to support the gkb_window action.
 - The close interface function was changed to work for the type graphFile.
 
 20071010:

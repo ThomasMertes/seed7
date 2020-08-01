@@ -47,10 +47,10 @@
 #ifdef WIDE_CHAR_STRINGS
 #ifdef ANSI_C
 
-static memsizetype stri_to_utf8 (ustritype out_stri, stritype in_stri)
+memsizetype stri_to_utf8 (ustritype out_stri, stritype in_stri)
 #else
 
-static memsizetype stri_to_utf8 (out_stri, in_stri)
+memsizetype stri_to_utf8 (out_stri, in_stri)
 ustritype out_stri;
 stritype in_stri;
 #endif
@@ -408,6 +408,37 @@ stritype stri;
     } /* if */
     return(cstri);
   } /* cp_to_cstri */
+
+
+
+#ifdef ANSI_C
+
+wchar_t *cp_to_wstri (stritype stri)
+#else
+
+wchar_t *cp_to_wstri (stri)
+stritype stri;
+#endif
+
+  {
+    wchar_t *stri_buffer;
+    wchar_t *wstri;
+    strelemtype *strelem;
+    memsizetype len;
+
+  /* cp_to_wstri */
+    stri_buffer = (wchar_t *) malloc(sizeof(wchar_t) * (stri->size + 1));
+    if (stri_buffer != NULL) {
+      wstri = stri_buffer;
+      strelem = stri->mem;
+      len = stri->size;
+      for (; len > 0; wstri++, strelem++, len--) {
+        *wstri = *strelem;
+      } /* while */
+      *wstri = 0;
+    } /* if */
+    return(stri_buffer);
+  } /* cp_to_wstri */
 
 
 
