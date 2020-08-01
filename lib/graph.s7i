@@ -179,7 +179,14 @@ const proc: (inout pointList param) := (ref pointList param) is      action "BST
 const func pointList: _GENERATE_EMPTY_POINT_LIST     is              action "BST_EMPTY";
 const pointList: (attr pointList) . value is                         _GENERATE_EMPTY_POINT_LIST;
 
+(**
+ *  The function 'genPointList' creates a 'pointList'.
+ *  It converts an array of alternate x and y values to a 'pointList'.
+ *  @return a pointList with the points from the array.
+ *  @raise RANGE_ERROR when the length of the array is odd.
+ *)
 const func pointList: genPointList (ref array integer param) is      action "DRW_GENPOINTLIST";
+
 const proc: DRAW_POLYLINE (inout PRIMITIVE_WINDOW param,
     in integer param, in integer param, in pointList param,
     ref pixel param) is                                              action "DRW_POLYLINE";

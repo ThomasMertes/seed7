@@ -27,11 +27,13 @@
 
 #ifdef ANSI_C
 
-progtype analyze (const_ustritype source_file_name);
-progtype analyze_string (stritype input_string);
+progtype analyze_file (const_stritype source_file_name, errinfotype *err_info);
+progtype analyze (stritype source_file_name);
+progtype analyze_string (const_stritype input_string, errinfotype *err_info);
 
 #else
 
+progtype analyze_file ();
 progtype analyze ();
 progtype analyze_string ();
 

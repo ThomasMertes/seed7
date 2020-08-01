@@ -187,7 +187,7 @@ progtype currentProg;
 
 #ifdef ANSI_C
 
-progtype prgFilParse (stritype stri)
+progtype prgFilParse (const_stritype stri)
 #else
 
 progtype prgFilParse (stri)
@@ -195,20 +195,15 @@ stritype stri;
 #endif
 
   {
-    cstritype file_name;
+    errinfotype err_info = OKAY_NO_ERROR;
     progtype result;
 
   /* prgFilParse */
-    file_name = cp_to_cstri(stri);
-    if (file_name == NULL) {
-      free_cstri(file_name, stri);
-      raise_error(MEMORY_ERROR);
-      result = NULL;
-    } else {
-      option.source_file_name = file_name;
-      result = analyze((ustritype) file_name);
-      /* ?? set_trace(option.exec_trace_level, -1, NULL); */
+    result = analyze_file(stri, &err_info);
+    if (err_info != OKAY_NO_ERROR) {
+      raise_error(err_info);
     } /* if */
+    /* ?? set_trace(option.exec_trace_level, -1, NULL); */
     return(result);
   } /* prgFilParse */
 
@@ -304,7 +299,7 @@ listtype curr_expr;
 
 #ifdef ANSI_C
 
-progtype prgStrParse (stritype stri)
+progtype prgStrParse (const_stritype stri)
 #else
 
 progtype prgStrParse (stri)
@@ -312,11 +307,14 @@ stritype stri;
 #endif
 
   {
+    errinfotype err_info = OKAY_NO_ERROR;
     progtype result;
 
   /* prgStrParse */
-    option.source_file_name = "STRING";
-    result = analyze_string(stri);
+    result = analyze_string(stri, &err_info);
+    if (err_info != OKAY_NO_ERROR) {
+      raise_error(err_info);
+    } /* if */
     /* ?? set_trace(option.exec_trace_level, -1, NULL); */
     return(result);
   } /* prgStrParse */

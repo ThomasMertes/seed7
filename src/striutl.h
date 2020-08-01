@@ -31,8 +31,9 @@
 
 extern const_cstritype cstri_escape_sequence[];
 
-#define compr_size(stri) (6 * (stri)->size)
-#define free_cstri(cstri,stri) UNALLOC_CSTRI(cstri, compr_size(stri));
+#define MAX_UTF8_EXPANSION_FACTOR 6
+#define max_utf8_size(stri) (MAX_UTF8_EXPANSION_FACTOR * (stri)->size)
+#define free_cstri(cstri,stri) UNALLOC_CSTRI(cstri, max_utf8_size(stri));
 #define free_wstri(wstri,stri) free(wstri);
 #define cstri_expand(stri,cstri,size) ustri_expand(stri, (const_ustritype) cstri, size)
 #define cstri0_expand(stri,cstri) ustri0_expand(stri, (const_ustritype) cstri)
@@ -60,18 +61,19 @@ typedef cstritype        os_stritype;
 
 #ifdef ANSI_C
 
-memsizetype utf8_to_stri (strelemtype *, memsizetype *, const_ustritype, size_t);
-memsizetype utf8_bytes_missing (const_ustritype, size_t);
+memsizetype utf8_to_stri (strelemtype *dest_stri, memsizetype *dest_len,
+                          const_ustritype ustri, size_t len);
+memsizetype utf8_bytes_missing (const_ustritype ustri, size_t len);
 void ustri0_expand (strelemtype *stri, const_ustritype ustri);
-cstritype cp_to_cstri (const_stritype);
-os_stritype cp_to_os_path (const_stritype, errinfotype *);
-bstritype stri_to_bstri (const_stritype);
-bstritype stri_to_bstri8 (const_stritype);
+cstritype cp_to_cstri (const_stritype stri);
+os_stritype cp_to_os_path (const_stritype stri, errinfotype *err_info);
+bstritype stri_to_bstri (const_stritype stri);
+bstritype stri_to_bstri8 (const_stritype stri);
 stritype cstri_to_stri (const_cstritype cstri);
 stritype cstri8_or_cstri_to_stri (const_cstritype cstri);
 stritype os_stri_to_stri (os_stritype os_stri);
-strelemtype *stri_charpos (stritype, strelemtype);
-os_stritype cp_to_command (stritype, errinfotype *);
+const strelemtype *stri_charpos (const_stritype stri, strelemtype ch);
+os_stritype cp_to_command (stritype stri, errinfotype *err_info);
 
 #else
 

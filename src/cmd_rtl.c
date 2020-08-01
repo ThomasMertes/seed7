@@ -93,6 +93,13 @@
 #define LINKER_OPT_OUTPUT_FILE ""
 #endif
 
+#ifndef INT64TYPE
+#define INT64TYPE_STRI ""
+#define UINT64TYPE_STRI ""
+#define INT32TYPE_LITERAL_SUFFIX ""
+#define INT64TYPE_LITERAL_SUFFIX ""
+#endif
+
 #ifndef PATH_MAX
 #define PATH_MAX 2048
 #endif
@@ -131,7 +138,7 @@ char *strg2;
 #endif
 
   { /* cmp_mem */
-    return strCompare(
+    return (int) strCompare(
         ((const_rtlObjecttype *) strg1)->value.strivalue,
         ((const_rtlObjecttype *) strg2)->value.strivalue);
   } /* cmp_mem */
@@ -859,7 +866,7 @@ stritype name;
     stritype result;
 
   /* cmdConfigValue */
-    if (compr_size(name) + 1 > 250) {
+    if (name->size >= 250 / MAX_UTF8_EXPANSION_FACTOR) {
       opt = "";
     } else {
       stri_export((ustritype) opt_name, name);

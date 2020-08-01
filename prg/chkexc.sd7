@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  chkexc.sd7    Checks exceptions                                 *)
-(*  Copyright (C) 1994, 2005  Thomas Mertes                         *)
+(*  Copyright (C) 1994, 2005, 2010  Thomas Mertes                   *)
 (*                                                                  *)
 (*  This program is free software; you can redistribute it and/or   *)
 (*  modify it under the terms of the GNU General Public License as  *)
@@ -26,6 +26,9 @@ $ include "seed7_05.s7i";
   include "bigint.s7i";
   include "float.s7i";
   include "math.s7i";
+  include "utf8.s7i";
+  include "shell.s7i";
+  include "bigfile.s7i";
 
 
 const proc: f1 (in integer: number) is func
@@ -1337,6 +1340,297 @@ const proc: check_array is func
   end func;
 
 
+const proc: check_file is func
+  local
+    var boolean: okay is TRUE;
+    var integer: number is 0;
+    var file: aFile is STD_NULL;
+    var string: stri is "";
+    var integer: file_pos is 0;
+    var bigInteger: big_file_pos is 0_;
+  begin
+    aFile := open("tmp_test_file", "w");
+    if aFile = STD_NULL then
+      writeln(" ***** Failed to open file");
+    else
+      block
+        stri := gets(aFile, 0);
+        incr(number);
+      exception
+        catch FILE_ERROR:
+          writeln(" ***** gets(aFile, 0) from write only file fails");
+          okay := FALSE;
+      end block;
+      block
+        stri := gets(aFile, 10);
+        writeln(" ***** gets from write only file succeeded");
+        okay := FALSE;
+      exception
+        catch FILE_ERROR:
+          incr(number);
+      end block;
+      block
+        stri := gets(aFile, 2000000);
+        writeln(" ***** gets from write only file succeeded");
+        okay := FALSE;
+      exception
+        catch FILE_ERROR:
+          incr(number);
+      end block;
+      block
+        stri := getln(aFile);
+        writeln(" ***** getln from write only file succeeded");
+        okay := FALSE;
+      exception
+        catch FILE_ERROR:
+          incr(number);
+      end block;
+      block
+        stri := getwd(aFile);
+        writeln(" ***** getwd from write only file succeeded");
+        okay := FALSE;
+      exception
+        catch FILE_ERROR:
+          incr(number);
+      end block;
+      close(aFile);
+    end if;
+
+    aFile := open_utf8("tmp_test_file8", "w");
+    if aFile = STD_NULL then
+      writeln(" ***** Failed to open UTF-8 file");
+    else
+      block
+        stri := gets(aFile, 0);
+        incr(number);
+      exception
+        catch FILE_ERROR:
+          writeln(" ***** gets(aFile, 0) from UTF-8 write only file fails");
+          okay := FALSE;
+      end block;
+      block
+        stri := gets(aFile, 10);
+        writeln(" ***** gets from UTF-8 write only file succeeded");
+        okay := FALSE;
+      exception
+        catch FILE_ERROR:
+          incr(number);
+      end block;
+      block
+        stri := gets(aFile, 2000000);
+        writeln(" ***** gets from UTF-8 write only file succeeded");
+        okay := FALSE;
+      exception
+        catch FILE_ERROR:
+          incr(number);
+      end block;
+      block
+        stri := getln(aFile);
+        writeln(" ***** getln from UTF-8 write only file succeeded");
+        okay := FALSE;
+      exception
+        catch FILE_ERROR:
+          incr(number);
+      end block;
+      block
+        stri := getwd(aFile);
+        writeln(" ***** getwd from UTF-8 write only file succeeded");
+        okay := FALSE;
+      exception
+        catch FILE_ERROR:
+          incr(number);
+      end block;
+      close(aFile);
+    end if;
+
+    aFile := open("tmp_test_file", "w");
+    if aFile = STD_NULL then
+      writeln(" ***** Failed to open file");
+    else
+      writeln(aFile, "asdf");
+      close(aFile);
+    end if;
+    aFile := open("tmp_test_file", "r");
+    if aFile = STD_NULL then
+      writeln(" ***** Failed to open file");
+    else
+      block
+        write(aFile, "");
+        incr(number);
+      exception
+        catch FILE_ERROR:
+          writeln(" ***** writing \"\" to read only file fails");
+          okay := FALSE;
+      end block;
+      block
+        write(aFile, "qwert");
+        writeln(" ***** write to read only file succeeded");
+        okay := FALSE;
+      exception
+        catch FILE_ERROR:
+          incr(number);
+      end block;
+      block
+        close(aFile);
+        incr(number);
+      exception
+        catch FILE_ERROR:
+          writeln(" ***** closing a read only file fails");
+          okay := FALSE;
+      end block;
+    end if;
+
+    aFile := open_utf8("tmp_test_file", "r");
+    if aFile = STD_NULL then
+      writeln(" ***** Failed to open file");
+    else
+      block
+        write(aFile, "");
+        incr(number);
+      exception
+        catch FILE_ERROR:
+          writeln(" ***** writing \"\" to UTF-8 read only file fails");
+          okay := FALSE;
+      end block;
+      block
+        write(aFile, "qwert");
+        writeln(" ***** write to UTF-8 read only file succeeded");
+        okay := FALSE;
+      exception
+        catch FILE_ERROR:
+          incr(number);
+      end block;
+      block
+        close(aFile);
+        incr(number);
+      exception
+        catch FILE_ERROR:
+          writeln(" ***** closing an UTF-8 read only file fails");
+          okay := FALSE;
+      end block;
+    end if;
+
+    aFile := popen("./hi", "r");
+    if aFile = STD_NULL then
+      writeln(" ***** Failed to popen pipe");
+    else
+      block
+        file_pos := length(aFile);
+        writeln(" ***** length for pipe succeeded");
+        okay := FALSE;
+      exception
+        catch FILE_ERROR:
+          incr(number);
+      end block;
+      block
+        big_file_pos := bigLength(aFile);
+        writeln(" ***** bigLength for pipe succeeded");
+        okay := FALSE;
+      exception
+        catch FILE_ERROR:
+          incr(number);
+      end block;
+      block
+        seek(aFile, 123);
+        writeln(" ***** seek for pipe succeeded");
+        okay := FALSE;
+      exception
+        catch FILE_ERROR:
+          incr(number);
+      end block;
+      block
+        seek(aFile, 123_);
+        writeln(" ***** seek for pipe succeeded");
+        okay := FALSE;
+      exception
+        catch FILE_ERROR:
+          incr(number);
+      end block;
+      block
+        file_pos := tell(aFile);
+        writeln(" ***** tell for pipe succeeded");
+        okay := FALSE;
+      exception
+        catch FILE_ERROR:
+          incr(number);
+      end block;
+      block
+        big_file_pos := bigTell(aFile);
+        writeln(" ***** bigTell for pipe succeeded");
+        okay := FALSE;
+      exception
+        catch FILE_ERROR:
+          incr(number);
+      end block;
+      ignore(gets(aFile, 1)); # Necessary to avoid a SIGPIPE in the executed process
+      close(aFile);
+    end if;
+    
+    aFile := popen8("./hi", "r");
+    if aFile = STD_NULL then
+      writeln(" ***** Failed to popen pipe");
+    else
+      block
+        file_pos := length(aFile);
+        writeln(" ***** length for pipe succeeded");
+        okay := FALSE;
+      exception
+        catch FILE_ERROR:
+          incr(number);
+      end block;
+      block
+        big_file_pos := bigLength(aFile);
+        writeln(" ***** bigLength for pipe succeeded");
+        okay := FALSE;
+      exception
+        catch FILE_ERROR:
+          incr(number);
+      end block;
+      block
+        seek(aFile, 123);
+        writeln(" ***** seek for pipe succeeded");
+        okay := FALSE;
+      exception
+        catch FILE_ERROR:
+          incr(number);
+      end block;
+      block
+        seek(aFile, 123_);
+        writeln(" ***** seek for pipe succeeded");
+        okay := FALSE;
+      exception
+        catch FILE_ERROR:
+          incr(number);
+      end block;
+      block
+        file_pos := tell(aFile);
+        writeln(" ***** tell for pipe succeeded");
+        okay := FALSE;
+      exception
+        catch FILE_ERROR:
+          incr(number);
+      end block;
+      block
+        big_file_pos := bigTell(aFile);
+        writeln(" ***** bigTell for pipe succeeded");
+        okay := FALSE;
+      exception
+        catch FILE_ERROR:
+          incr(number);
+      end block;
+      ignore(gets(aFile, 1)); # Necessary to avoid a SIGPIPE in the executed process
+      close(aFile);
+    end if;
+
+    if okay and number = 28 then
+      writeln("File exceptions work correct.");
+    else
+      writeln(" ***** File exceptions do not work correct");
+      writeln;
+    end if;
+  end func;
+
+
 const proc: main is func
   local
     var string: stri is "";
@@ -1351,6 +1645,7 @@ const proc: main is func
     check_float;
     check_string;
     check_array;
+    check_file;
 
 (*
     block

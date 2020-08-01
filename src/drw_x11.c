@@ -2326,6 +2326,7 @@ rtlArraytype xyArray;
 #endif
 
   {
+    uinttype num_elements;
     memsizetype len;
     XPoint *points;
     memsizetype pos;
@@ -2333,21 +2334,30 @@ rtlArraytype xyArray;
 
   /* drwGenPointList */
     /* printf("drwGenPointList(%ld .. %ld)\n", xyArray->min_position, xyArray->max_position); */
-    len = (memsizetype) (((uinttype) (xyArray->max_position - xyArray->min_position)) >> 1);
-    if (!ALLOC_BSTRI(result, len * sizeof(XPoint))) {
+    num_elements = (uinttype) (xyArray->max_position - xyArray->min_position) + 1;
+    if (num_elements & 1) {
+      raise_error(RANGE_ERROR);
+      result = NULL;
+    } else if (num_elements >> 1 > MAX_BSTRI_LEN / sizeof(XPoint)) {
       raise_error(MEMORY_ERROR);
+      result = NULL;
     } else {
-      result->size = len * sizeof(XPoint);
-      if (len > 0) {
-        points = (XPoint *) result->mem;
-        points[0].x = xyArray->arr[0].value.intvalue;
-        points[0].y = xyArray->arr[1].value.intvalue;
-        for (pos = 1; pos < len; pos ++) {
-          points[pos].x = xyArray->arr[ pos << 1     ].value.intvalue -
-                          xyArray->arr[(pos << 1) - 2].value.intvalue;
-          points[pos].y = xyArray->arr[(pos << 1) + 1].value.intvalue -
-                          xyArray->arr[(pos << 1) - 1].value.intvalue;
-        } /* for */
+      len = (memsizetype) num_elements >> 1;
+      if (!ALLOC_BSTRI_SIZE_OK(result, len * sizeof(XPoint))) {
+        raise_error(MEMORY_ERROR);
+      } else {
+        result->size = len * sizeof(XPoint);
+        if (len > 0) {
+          points = (XPoint *) result->mem;
+          points[0].x = xyArray->arr[0].value.intvalue;
+          points[0].y = xyArray->arr[1].value.intvalue;
+          for (pos = 1; pos < len; pos ++) {
+            points[pos].x = xyArray->arr[ pos << 1     ].value.intvalue -
+                            xyArray->arr[(pos << 1) - 2].value.intvalue;
+            points[pos].y = xyArray->arr[(pos << 1) + 1].value.intvalue -
+                            xyArray->arr[(pos << 1) - 1].value.intvalue;
+          } /* for */
+        } /* if */
       } /* if */
     } /* if */
     return(result);

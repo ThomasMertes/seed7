@@ -65,7 +65,7 @@ chartype character;
     if (character < 127) {
       if (character < ' ') {
         len = strlen(cstri_escape_sequence[character]);
-        if (!ALLOC_STRI(result, len + 2)) {
+        if (!ALLOC_STRI_SIZE_OK(result, len + 2)) {
           raise_error(MEMORY_ERROR);
         } else {
           result->size = len + 2;
@@ -75,7 +75,7 @@ chartype character;
           result->mem[len + 1] = '\'';
         } /* if */
       } else if (character == '\\' || character == '\'') {
-        if (!ALLOC_STRI(result, (memsizetype) (4))) {
+        if (!ALLOC_STRI_SIZE_OK(result, (memsizetype) 4)) {
           raise_error(MEMORY_ERROR);
         } else {
           result->size = 4;
@@ -85,7 +85,7 @@ chartype character;
           result->mem[3] = '\'';
         } /* if */
       } else {
-        if (!ALLOC_STRI(result, (memsizetype) (3))) {
+        if (!ALLOC_STRI_SIZE_OK(result, (memsizetype) 3)) {
           raise_error(MEMORY_ERROR);
         } else {
           result->size = 3;
@@ -200,7 +200,7 @@ chartype ch;
       return NULL;
     } else {
 #endif
-      if (!ALLOC_STRI(result, 1)) {
+      if (!ALLOC_STRI_SIZE_OK(result, (memsizetype) 1)) {
         raise_error(MEMORY_ERROR);
         return NULL;
       } else {

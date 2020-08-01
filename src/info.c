@@ -115,8 +115,8 @@ void open_compilation_info ()
     if (option.compilation_info) {
       printf("     1 %s", in_file.name);
       if (in_file.curr_infile != NULL) {
-        new_name_length = strlen((cstritype) in_file.name);
-        curr_name_length = strlen((cstritype) in_file.curr_infile->name);
+        new_name_length = strlen((const_cstritype) in_file.name);
+        curr_name_length = strlen((const_cstritype) in_file.curr_infile->name);
         for (number = new_name_length; number < curr_name_length;
             number++) {
           fputc(' ', stdout);

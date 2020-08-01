@@ -238,8 +238,13 @@ EXTERN memsizetype hs;
 #define SIZ_RTL_ARR(len) ((sizeof(rtlArrayrecord) - sizeof(rtlObjecttype)) + (len) * sizeof(rtlObjecttype))
 #define SIZ_RTL_HSH(len) ((sizeof(rtlHashrecord)  - sizeof(rtlHelemtype))  + (len) * sizeof(rtlHelemtype))
 
-#define MAX_STRI_LEN ((MAX_MEMSIZETYPE - sizeof(strirecord) + sizeof(strelemtype)) / sizeof(strelemtype))
-
+#define MAX_USTRI_LEN   (MAX_MEMSIZETYPE - 1)
+#define MAX_CSTRI_LEN   (MAX_MEMSIZETYPE - 1)
+#define MAX_STRI_LEN    ((MAX_MEMSIZETYPE - sizeof(strirecord)     + sizeof(strelemtype))   / sizeof(strelemtype))
+#define MAX_BSTRI_LEN   ((MAX_MEMSIZETYPE - sizeof(bstrirecord)    + sizeof(uchartype))     / sizeof(uchartype))
+#define MAX_ARR_LEN     ((MAX_MEMSIZETYPE - sizeof(arrayrecord)    + sizeof(objectrecord))  / sizeof(objectrecord))
+#define MAX_SET_LEN     ((MAX_MEMSIZETYPE - sizeof(setrecord)      + sizeof(bitsettype))    / sizeof(bitsettype)))
+#define MAX_RTL_ARR_LEN ((MAX_MEMSIZETYPE - sizeof(rtlArrayrecord) + sizeof(rtlObjecttype)) / sizeof(rtlObjecttype))
 
 #ifdef DO_HEAPSIZE_COMPUTATION
 #define CNT1_USTRI(L,S,C,B)    (HS_ADD(S)    USTRI_ADD(L,C,B) H_LOG1(S))
@@ -323,32 +328,37 @@ EXTERN memsizetype hs;
 
 #ifndef WITH_STRI_FLIST
 #ifdef WITH_STRI_CAPACITY
-#define ALLOC_STRI(var,len)        ((len) <= MAX_STRI_LEN?(ALLOC_HEAP(var, stritype, SIZ_STRI(len))?((var)->capacity = (len), CNT1_STRI(len, SIZ_STRI(len)), TRUE):FALSE):(var=NULL,FALSE))
-#define FREE_STRI(var,len)         (CNT2_STRI(len, SIZ_STRI(len)) FREE_HEAP(var, SIZ_STRI(len)))
-#define REALLOC_STRI(v1,v2,l1,l2)  ((l2) <= MAX_STRI_LEN?((v1=REALLOC_HEAP(v2, stritype, SIZ_STRI(l2)))!=NULL?((v1)->capacity=l2,0):0):(v1=NULL,0))
-#define GROW_STRI(v1,v2,l1,l2)     ((l2)>(v2)->capacity?(v1=growStri(v2,l2)):(v1=(v2)))
-#define SHRINK_STRI(v1,v2,l1,l2)   ((l2)<(v2)->capacity>>2?(v1=shrinkStri(v2,l2)):(v1=(v2)))
+#define ALLOC_STRI_SIZE_OK(var,len)       (ALLOC_HEAP(var, stritype, SIZ_STRI(len))?((var)->capacity = (len), CNT1_STRI(len, SIZ_STRI(len)), TRUE):FALSE)
+#define FREE_STRI(var,len)                (CNT2_STRI(len, SIZ_STRI(len)) FREE_HEAP(var, SIZ_STRI(len)))
+#define REALLOC_STRI_SIZE_OK(v1,v2,l1,l2) ((v1=REALLOC_HEAP(v2, stritype, SIZ_STRI(l2)))!=NULL?((v1)->capacity=l2,0):0)
+#define GROW_STRI(v1,v2,l1,l2)            ((l2)>(v2)->capacity?(v1=growStri(v2,l2)):(v1=(v2)))
+#define SHRINK_STRI(v1,v2,l1,l2)          ((l2)<(v2)->capacity>>2?(v1=shrinkStri(v2,l2)):(v1=(v2)))
+#define SHRINK_REASON(v2,l2)              ((l2)<(v2)->capacity>>2)
 #else
-#define ALLOC_STRI(var,len)        ((len) <= MAX_STRI_LEN?(ALLOC_HEAP(var, stritype, SIZ_STRI(len))?(CNT1_STRI(len, SIZ_STRI(len)), TRUE):FALSE):(var=NULL,FALSE))
-#define FREE_STRI(var,len)         (CNT2_STRI(len, SIZ_STRI(len)) FREE_HEAP(var, SIZ_STRI(len)))
-#define REALLOC_STRI(v1,v2,l1,l2)  ((l2) <= MAX_STRI_LEN?v1=REALLOC_HEAP(v2, stritype, SIZ_STRI(l2)):(v1=NULL))
-#define GROW_STRI(v1,v2,l1,l2)     ((l2) <= MAX_STRI_LEN?v1=REALLOC_HEAP(v2, stritype, SIZ_STRI(l2)):(v1=NULL))
-#define SHRINK_STRI(v1,v2,l1,l2)   v1=REALLOC_HEAP(v2, stritype, SIZ_STRI(l2))
+#define ALLOC_STRI_SIZE_OK(var,len)       (ALLOC_HEAP(var, stritype, SIZ_STRI(len))?(CNT1_STRI(len, SIZ_STRI(len)), TRUE):FALSE)
+#define FREE_STRI(var,len)                (CNT2_STRI(len, SIZ_STRI(len)) FREE_HEAP(var, SIZ_STRI(len)))
+#define REALLOC_STRI_SIZE_OK(v1,v2,l1,l2) (v1=REALLOC_HEAP(v2, stritype, SIZ_STRI(l2)),0)
+#define GROW_STRI(v1,v2,l1,l2)            ((l2) <= MAX_STRI_LEN?v1=REALLOC_HEAP(v2, stritype, SIZ_STRI(l2)):(v1=NULL))
+#define SHRINK_STRI(v1,v2,l1,l2)          v1=REALLOC_HEAP(v2, stritype, SIZ_STRI(l2))
 #endif
 #endif
-#define COUNT3_STRI(len1,len2)     CNT3(CNT2_STRI(len1, SIZ_STRI(len1)) CNT1_STRI(len2, SIZ_STRI(len2)))
+#define ALLOC_STRI_CHECK_SIZE(var,len)       ((len) <= MAX_STRI_LEN?ALLOC_STRI_SIZE_OK(var, len):(var=NULL,FALSE))
+#define REALLOC_STRI_CHECK_SIZE(v1,v2,l1,l2) ((l2)  <= MAX_STRI_LEN?REALLOC_STRI_SIZE_OK(v1,v2,l1,l2):(v1=NULL,0))
+#define COUNT3_STRI(len1,len2)               CNT3(CNT2_STRI(len1, SIZ_STRI(len1)) CNT1_STRI(len2, SIZ_STRI(len2)))
 
 
 #ifdef MMAP_ABLE_BSTRI
-#define ALLOC_BSTRI(var,len)       (ALLOC_HEAP(var, bstritype, SIZ_BSTRI(len))?(var->mem = var->mem1, CNT1_BSTRI(len, SIZ_BSTRI(len)), TRUE):FALSE)
-#define FREE_BSTRI(var,len)        (var->mem == var->mem1 ? (CNT2_BSTRI(len, SIZ_BSTRI(len)) FREE_HEAP(var, SIZ_BSTRI(len))) : void)
-#define REALLOC_BSTRI(v1,v2,l1,l2) ((v1=REALLOC_HEAP(v2, bstritype, SIZ_BSTRI(l2)))?(v1)->mem=(v1)->mem1:0)
+#define ALLOC_BSTRI_SIZE_OK(var,len)       (ALLOC_HEAP(var, bstritype, SIZ_BSTRI(len))?(var->mem = var->mem1, CNT1_BSTRI(len, SIZ_BSTRI(len)), TRUE):FALSE)
+#define FREE_BSTRI(var,len)                (var->mem==var->mem1?(CNT2_BSTRI(len, SIZ_BSTRI(len)) FREE_HEAP(var, SIZ_BSTRI(len))):void)
+#define REALLOC_BSTRI_SIZE_OK(v1,v2,l1,l2) ((v1=REALLOC_HEAP(v2, bstritype, SIZ_BSTRI(l2)))?((v1)->mem=(v1)->mem1,0):0)
 #else
-#define ALLOC_BSTRI(var,len)       (ALLOC_HEAP(var, bstritype, SIZ_BSTRI(len))?CNT1_BSTRI(len, SIZ_BSTRI(len)), TRUE:FALSE)
-#define FREE_BSTRI(var,len)        (CNT2_BSTRI(len, SIZ_BSTRI(len)) FREE_HEAP(var, SIZ_BSTRI(len)))
-#define REALLOC_BSTRI(v1,v2,l1,l2) v1=REALLOC_HEAP(v2, bstritype, SIZ_BSTRI(l2))
+#define ALLOC_BSTRI_SIZE_OK(var,len)       (ALLOC_HEAP(var, bstritype, SIZ_BSTRI(len))?CNT1_BSTRI(len, SIZ_BSTRI(len)), TRUE:FALSE)
+#define FREE_BSTRI(var,len)                (CNT2_BSTRI(len, SIZ_BSTRI(len)) FREE_HEAP(var, SIZ_BSTRI(len)))
+#define REALLOC_BSTRI_SIZE_OK(v1,v2,l1,l2) (v1=REALLOC_HEAP(v2, bstritype, SIZ_BSTRI(l2)),0)
 #endif
-#define COUNT3_BSTRI(len1,len2)    CNT3(CNT2_BSTRI(len1, SIZ_BSTRI(len1)) CNT1_BSTRI(len2, SIZ_BSTRI(len2)))
+#define ALLOC_BSTRI_CHECK_SIZE(var,len)       ((len) <= MAX_BSTRI_LEN?ALLOC_BSTRI_SIZE_OK(var, len):(var=NULL,FALSE))
+#define REALLOC_BSTRI_CHECK_SIZE(v1,v2,l1,l2) ((l2)  <= MAX_BSTRI_LEN?REALLOC_BSTRI_SIZE_OK(v1,v2,l1,l2):(v1=NULL,0))
+#define COUNT3_BSTRI(len1,len2)               CNT3(CNT2_BSTRI(len1, SIZ_BSTRI(len1)) CNT1_BSTRI(len2, SIZ_BSTRI(len2)))
 
 
 #define ALLOC_RTL_L_ELEM(var)      (ALLOC_HEAP(var, rtlListtype, SIZ_RTL_L_ELEM)?CNT1_RTL_L_ELEM(SIZ_RTL_L_ELEM),TRUE:FALSE)

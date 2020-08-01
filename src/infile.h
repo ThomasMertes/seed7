@@ -80,15 +80,16 @@ EXTERN arraytype lib_path;
 #ifdef ANSI_C
 
 int fill_buf (void);
-void open_infile (stritype, errinfotype *);
+void open_infile (const_stritype source_file_name, errinfotype *err_info);
 void close_infile (void);
-void open_string (bstritype, errinfotype *);
+void open_string (bstritype input_string, errinfotype *err_info);
 void next_file (void);
 int next_line (void);
-const_ustritype file_name (filenumtype);
-void find_include_file (stritype, errinfotype *);
-void append_to_lib_path (const_stritype, errinfotype *);
-void init_lib_path (void);
+const_ustritype file_name (filenumtype file_num);
+void find_include_file (const_stritype include_file_name, errinfotype *err_info);
+void append_to_lib_path (const_stritype path, errinfotype *err_info);
+void init_lib_path (const_stritype source_file_name, errinfotype *err_info);
+void free_lib_path (void);
 
 #else
 
@@ -102,5 +103,6 @@ ustritype file_name ();
 void find_include_file ();
 void append_to_lib_path ();
 void init_lib_path ();
+void free_lib_path ();
 
 #endif

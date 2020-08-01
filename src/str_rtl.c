@@ -84,7 +84,7 @@ size_t number;
 #ifdef ANSI_C
 
 static INLINE const strelemtype *search_strelem (const strelemtype *mem,
-    strelemtype ch, size_t number)
+    const strelemtype ch, const size_t number)
 #else
 
 static INLINE strelemtype *search_strelem (mem, ch, number)
@@ -119,7 +119,7 @@ size_t number;
 #ifdef ANSI_C
 
 static INLINE const strelemtype *rsearch_strelem (const strelemtype *mem,
-    strelemtype ch, size_t number)
+    const strelemtype ch, size_t number)
 #else
 
 static INLINE strelemtype *rsearch_strelem (mem, ch, number)
@@ -141,8 +141,8 @@ size_t number;
 
 #ifdef ANSI_C
 
-static rtlArraytype add_stri_to_array (const strelemtype *stri_elems,
-    memsizetype length, rtlArraytype work_array, inttype *used_max_position)
+static rtlArraytype add_stri_to_array (const strelemtype *const stri_elems,
+    const memsizetype length, rtlArraytype work_array, inttype *used_max_position)
 #else
 
 static rtlArraytype add_stri_to_array (stri_elems, length,
@@ -159,7 +159,7 @@ inttype *used_max_position;
     memsizetype position;
 
   /* add_stri_to_array */
-    if (ALLOC_STRI(new_stri, length)) {
+    if (ALLOC_STRI_SIZE_OK(new_stri, length)) {
       new_stri->size = length;
       memcpy(new_stri->mem, stri_elems,
           length * sizeof(strelemtype));
@@ -198,7 +198,7 @@ inttype *used_max_position;
 
 #ifdef ANSI_C
 
-static rtlArraytype copyArgv (memsizetype argc, os_stritype *argv)
+static rtlArraytype copyArgv (const memsizetype argc, const os_stritype *const argv)
 #else
 
 static rtlArraytype copyArgv (argc, argv)
@@ -273,42 +273,50 @@ stritype stri_from;
 
   /* strAppend */
     stri_dest = *stri_to;
-    new_size = stri_dest->size + stri_from->size;
-#ifdef WITH_STRI_CAPACITY
-    if (new_size > stri_dest->capacity) {
-      new_stri = growStri(stri_dest, new_size);
-      if (new_stri == NULL) {
-        raise_error(MEMORY_ERROR);
-        return;
-      } else if (stri_dest == stri_from) {
-        stri_from = new_stri;
-      } /* if */
-    } else {
-      new_stri = stri_dest;
-    } /* if */
-    COUNT3_STRI(new_stri->size, new_size);
-    memcpy(&new_stri->mem[new_stri->size], stri_from->mem,
-        stri_from->size * sizeof(strelemtype));
-    new_stri->size = new_size;
-    *stri_to = new_stri;
-#else
-    GROW_STRI(new_stri, stri_dest, stri_dest->size, new_size);
-    if (new_stri == NULL) {
+    if (stri_dest->size > MAX_STRI_LEN - stri_from->size) {
+      /* number of bytes does not fit into memsizetype */
       raise_error(MEMORY_ERROR);
     } else {
-      /* It is possible that stri_dest == stri_from holds. */
-      /* In this case 'stri_from' must be corrected        */
-      /* after realloc() enlarged 'stri_dest'.             */
-      if (stri_dest == stri_from) {
-        stri_from = new_stri;
+      new_size = stri_dest->size + stri_from->size;
+#ifdef WITH_STRI_CAPACITY
+      if (new_size > stri_dest->capacity) {
+        new_stri = growStri(stri_dest, new_size);
+        if (new_stri == NULL) {
+          raise_error(MEMORY_ERROR);
+          return;
+        } else if (stri_dest == stri_from) {
+          /* It is possible that stri_dest == stri_from holds. */
+          /* In this case 'stri_from' must be corrected        */
+          /* after realloc() enlarged 'stri_dest'.             */
+          stri_from = new_stri;
+        } /* if */
+      } else {
+        new_stri = stri_dest;
       } /* if */
       COUNT3_STRI(new_stri->size, new_size);
       memcpy(&new_stri->mem[new_stri->size], stri_from->mem,
           stri_from->size * sizeof(strelemtype));
       new_stri->size = new_size;
       *stri_to = new_stri;
-    } /* if */
+#else
+      GROW_STRI(new_stri, stri_dest, stri_dest->size, new_size);
+      if (new_stri == NULL) {
+        raise_error(MEMORY_ERROR);
+      } else {
+        if (stri_dest == stri_from) {
+          /* It is possible that stri_dest == stri_from holds. */
+          /* In this case 'stri_from' must be corrected        */
+          /* after realloc() enlarged 'stri_dest'.             */
+          stri_from = new_stri;
+        } /* if */
+        COUNT3_STRI(new_stri->size, new_size);
+        memcpy(&new_stri->mem[new_stri->size], stri_from->mem,
+            stri_from->size * sizeof(strelemtype));
+        new_stri->size = new_size;
+        *stri_to = new_stri;
+      } /* if */
 #endif
+    } /* if */
   } /* strAppend */
 
 
@@ -331,37 +339,38 @@ stritype stri_from;
     /* printf("strAppend(dest->size=%lu, from->size=%lu)\n",
        (*stri_to)->size, stri_from->size); */
     stri_dest = *stri_to;
-#ifdef WITH_STRI_CAPACITY
-    new_size = stri_dest->size + stri_from->size;
-    if (new_size <= stri_from->capacity) {
-      if (stri_dest->size != 0) {
-        memmove(&stri_from->mem[stri_dest->size], stri_from->mem,
-            stri_from->size * sizeof(strelemtype));
-        memcpy(stri_from->mem, stri_dest->mem,
-            stri_dest->size * sizeof(strelemtype));
-        stri_from->size = new_size;
-      } /* if */
-      *stri_to = stri_from;
-      FREE_STRI(stri_dest, stri_dest->size);
-    } else {
-#else
-    if (stri_dest->size == 0) {
-      *stri_to = stri_from;
-      FREE_STRI(stri_dest, stri_dest->size);
+    if (stri_dest->size > MAX_STRI_LEN - stri_from->size) {
+      /* number of bytes does not fit into memsizetype */
+      raise_error(MEMORY_ERROR);
     } else {
       new_size = stri_dest->size + stri_from->size;
+#ifdef WITH_STRI_CAPACITY
+      if (new_size <= stri_from->capacity) {
+        if (stri_dest->size != 0) {
+          memmove(&stri_from->mem[stri_dest->size], stri_from->mem,
+              stri_from->size * sizeof(strelemtype));
+          memcpy(stri_from->mem, stri_dest->mem,
+              stri_dest->size * sizeof(strelemtype));
+          stri_from->size = new_size;
+        } /* if */
+#else
+      if (stri_dest->size == 0) {
 #endif
-      GROW_STRI(stri_dest, stri_dest, stri_dest->size, new_size);
-      if (stri_dest == NULL) {
-        FREE_STRI(stri_from, stri_from->size);
-        raise_error(MEMORY_ERROR);
+        *stri_to = stri_from;
+        FREE_STRI(stri_dest, stri_dest->size);
       } else {
-        COUNT3_STRI(stri_dest->size, new_size);
-        memcpy(&stri_dest->mem[stri_dest->size], stri_from->mem,
-            stri_from->size * sizeof(strelemtype));
-        stri_dest->size = new_size;
-        *stri_to = stri_dest;
-        FREE_STRI(stri_from, stri_from->size);
+        GROW_STRI(stri_dest, stri_dest, stri_dest->size, new_size);
+        if (stri_dest == NULL) {
+          FREE_STRI(stri_from, stri_from->size);
+          raise_error(MEMORY_ERROR);
+        } else {
+          COUNT3_STRI(stri_dest->size, new_size);
+          memcpy(&stri_dest->mem[stri_dest->size], stri_from->mem,
+              stri_from->size * sizeof(strelemtype));
+          stri_dest->size = new_size;
+          *stri_to = stri_dest;
+          FREE_STRI(stri_from, stri_from->size);
+        } /* if */
       } /* if */
     } /* if */
     /* printf("strAppend() => dest->size=%lu\n", (*stri_to)->size); */
@@ -548,7 +557,7 @@ inttype from_index;
       if ((uinttype) from_index <= main_stri->size) {
         main_mem = main_stri->mem;
         found_pos = search_strelem(&main_mem[from_index - 1], searched,
-            main_stri->size - (uinttype) from_index + 1);
+            main_stri->size - (memsizetype) from_index + 1);
         if (found_pos != NULL) {
           return ((inttype) (found_pos - main_mem)) + 1;
         } /* if */
@@ -672,7 +681,8 @@ stritype stri;
 
   /* strCLit */
     length = stri->size;
-    if (!ALLOC_STRI(result, (memsizetype) (4 * length + 2))) {
+    if (length > (MAX_STRI_LEN - 2) / 4 ||
+        !ALLOC_STRI_SIZE_OK(result, 4 * length + 2)) {
       raise_error(MEMORY_ERROR);
       return NULL;
     } /* if */
@@ -701,17 +711,16 @@ stritype stri;
         cstri_expand(&result->mem[pos], buffer, len);
         pos = pos + len;
       } else {
-        FREE_STRI(result, (memsizetype) (4 * length + 2));
+        FREE_STRI(result, 4 * length + 2);
         raise_error(RANGE_ERROR);
         return NULL;
       } /* if */
     } /* for */
     result->mem[pos] = (strelemtype) '"';
     result->size = pos + 1;
-    REALLOC_STRI(resized_result, result,
-        (memsizetype) (4 * length + 2), (memsizetype) (pos + 1));
+    REALLOC_STRI_SIZE_OK(resized_result, result, 4 * length + 2, pos + 1);
     if (resized_result == NULL) {
-      FREE_STRI(result, (memsizetype) (4 * length + 2));
+      FREE_STRI(result, 4 * length + 2);
       raise_error(MEMORY_ERROR);
       return NULL;
     } else {
@@ -799,16 +808,21 @@ stritype stri2;
     stritype result;
 
   /* strConcat */
-    result_size = stri1->size + stri2->size;
-    if (!ALLOC_STRI(result, result_size)) {
+    if (stri1->size > MAX_STRI_LEN - stri2->size) {
+      /* number of bytes does not fit into memsizetype */
       raise_error(MEMORY_ERROR);
       result = NULL;
     } else {
-      result->size = result_size;
-      memcpy(result->mem, stri1->mem,
-          stri1->size * sizeof(strelemtype));
-      memcpy(&result->mem[stri1->size], stri2->mem,
-          stri2->size * sizeof(strelemtype));
+      result_size = stri1->size + stri2->size;
+      if (!ALLOC_STRI_SIZE_OK(result, result_size)) {
+        raise_error(MEMORY_ERROR);
+      } else {
+        result->size = result_size;
+        memcpy(result->mem, stri1->mem,
+            stri1->size * sizeof(strelemtype));
+        memcpy(&result->mem[stri1->size], stri2->mem,
+            stri2->size * sizeof(strelemtype));
+      } /* if */
     } /* if */
     return result;
   } /* strConcat */
@@ -836,18 +850,25 @@ stritype stri2;
     stritype resized_stri1;
 
   /* strConcatTemp */
-    result_size = stri1->size + stri2->size;
-    GROW_STRI(resized_stri1, stri1, stri1->size, result_size);
-    if (resized_stri1 == NULL) {
+    if (stri1->size > MAX_STRI_LEN - stri2->size) {
+      /* number of bytes does not fit into memsizetype */
       FREE_STRI(stri1, stri1->size);
       raise_error(MEMORY_ERROR);
       stri1 = NULL;
     } else {
-      stri1 = resized_stri1;
-      COUNT3_STRI(stri1->size, result_size);
-      memcpy(&stri1->mem[stri1->size], stri2->mem,
-          stri2->size * sizeof(strelemtype));
-      stri1->size = result_size;
+      result_size = stri1->size + stri2->size;
+      GROW_STRI(resized_stri1, stri1, stri1->size, result_size);
+      if (resized_stri1 == NULL) {
+        FREE_STRI(stri1, stri1->size);
+        raise_error(MEMORY_ERROR);
+        stri1 = NULL;
+      } else {
+        stri1 = resized_stri1;
+        COUNT3_STRI(stri1->size, result_size);
+        memcpy(&stri1->mem[stri1->size], stri2->mem,
+            stri2->size * sizeof(strelemtype));
+        stri1->size = result_size;
+      } /* if */
     } /* if */
     return stri1;
   } /* strConcatTemp */
@@ -875,12 +896,12 @@ stritype stri_from;
     new_size = stri_from->size;
     if (stri_dest->size != new_size) {
 #ifdef WITH_STRI_CAPACITY
-      if (stri_dest->capacity >= new_size) {
+      if (stri_dest->capacity >= new_size && !SHRINK_REASON(stri_dest, new_size)) {
+        stri_dest->size = new_size;
 #else
       if (stri_dest->size > new_size) {
-#endif
-        /* printf("strCopy(old_size=%lu, new_size=%lu)\n", stri_dest->size, new_size); */
         SHRINK_STRI(stri_dest, stri_dest, stri_dest->size, new_size);
+        /* printf("strCopy(old_size=%lu, new_size=%lu)\n", stri_dest->size, new_size); */
         if (stri_dest == NULL) {
           raise_error(MEMORY_ERROR);
           return;
@@ -889,8 +910,9 @@ stritype stri_from;
           stri_dest->size = new_size;
           *stri_to = stri_dest;
         } /* if */
+#endif
       } else {
-        if (!ALLOC_STRI(stri_dest, new_size)) {
+        if (!ALLOC_STRI_SIZE_OK(stri_dest, new_size)) {
           raise_error(MEMORY_ERROR);
           return;
         } else {
@@ -925,7 +947,7 @@ stritype stri_from;
 
   /* strCreate */
     new_size = stri_from->size;
-    if (!ALLOC_STRI(result, new_size)) {
+    if (!ALLOC_STRI_SIZE_OK(result, new_size)) {
       raise_error(MEMORY_ERROR);
     } else {
       result->size = new_size;
@@ -990,7 +1012,7 @@ stritype strEmpty ()
     stritype result;
 
   /* strEmpty */
-    if (!ALLOC_STRI(result, 0)) {
+    if (!ALLOC_STRI_SIZE_OK(result, 0)) {
       raise_error(MEMORY_ERROR);
     } else {
       result->size = 0;
@@ -1043,7 +1065,7 @@ stritype stri;
     stritype result;
 
   /* strGetenv */
-    if (compr_size(stri) + 1 > 250) {
+    if (stri->size >= 250 / MAX_UTF8_EXPANSION_FACTOR) {
       environment = "";
     } else {
       stri_export((ustritype) env_name, stri);
@@ -1132,9 +1154,9 @@ inttype stop;
       if (length <= (uinttype) stop) {
         result_size = length;
       } else {
-        result_size = (uinttype) stop;
+        result_size = (memsizetype) stop;
       } /* if */
-      if (!ALLOC_STRI(result, result_size)) {
+      if (!ALLOC_STRI_SIZE_OK(result, result_size)) {
         raise_error(MEMORY_ERROR);
       } else {
         result->size = result_size;
@@ -1142,7 +1164,7 @@ inttype stop;
             result_size * sizeof(strelemtype));
       } /* if */
     } else {
-      if (!ALLOC_STRI(result, (memsizetype) 0)) {
+      if (!ALLOC_STRI_SIZE_OK(result, (memsizetype) 0)) {
         raise_error(MEMORY_ERROR);
       } else {
         result->size = 0;
@@ -1174,7 +1196,7 @@ inttype stop;
       if (length <= (uinttype) stop) {
         return stri;
       } else {
-        result_size = (uinttype) stop;
+        result_size = (memsizetype) stop;
       } /* if */
     } else {
       result_size = 0;
@@ -1224,7 +1246,7 @@ inttype from_index;
         searched_mem = searched->mem;
         ch_1 = searched_mem[0];
         main_mem = &main_stri->mem[from_index - 1];
-        main_size -= (uinttype) from_index - 1;
+        main_size -= (memsizetype) from_index - 1;
         search_start = main_mem;
         search_end = &main_mem[main_size - searched_size + 1];
         while ((search_start = search_strelem(search_start,
@@ -1292,8 +1314,10 @@ stritype stri;
 
   /* strLit */
     length = stri->size;
-    if (!ALLOC_STRI(result, (memsizetype) (12 * length + 2))) {
+    if (length > (MAX_STRI_LEN - 2) / 12 ||
+        !ALLOC_STRI_SIZE_OK(result, 12 * length + 2)) {
       raise_error(MEMORY_ERROR);
+      result = NULL;
     } else {
       result->mem[0] = (strelemtype) '"';
       pos = 1;
@@ -1321,10 +1345,9 @@ stritype stri;
       } /* for */
       result->mem[pos] = (strelemtype) '"';
       result->size = pos + 1;
-      REALLOC_STRI(resized_result, result,
-          (memsizetype) (12 * length + 2), (memsizetype) (pos + 1));
+      REALLOC_STRI_SIZE_OK(resized_result, result, 12 * length + 2, pos + 1);
       if (resized_result == NULL) {
-        FREE_STRI(result, (memsizetype) (12 * length + 2));
+        FREE_STRI(result, 12 * length + 2);
         raise_error(MEMORY_ERROR);
         result = NULL;
       } else {
@@ -1353,7 +1376,7 @@ stritype stri;
 
   /* strLow */
     length = stri->size;
-    if (!ALLOC_STRI(result, length)) {
+    if (!ALLOC_STRI_SIZE_OK(result, length)) {
       raise_error(MEMORY_ERROR);
       return NULL;
     } else {
@@ -1413,35 +1436,35 @@ inttype pad_size;
 #endif
 
   {
-    memsizetype f_size;
     memsizetype length;
     stritype result;
 
   /* strLpad */
     length = stri->size;
     if (pad_size > 0 && (uinttype) pad_size > length) {
-      f_size = (uinttype) pad_size;
-      if (!ALLOC_STRI(result, f_size)) {
+      if ((uinttype) pad_size > MAX_STRI_LEN ||
+          !ALLOC_STRI_SIZE_OK(result, (memsizetype) pad_size)) {
         raise_error(MEMORY_ERROR);
+        result = NULL;
       } else {
-        result->size = f_size;
+        result->size = (memsizetype) pad_size;
 #ifdef UTF32_STRINGS
         {
           strelemtype *elem = result->mem;
-          memsizetype len = f_size - length;
+          memsizetype len = (memsizetype) pad_size - length;
 
           while (len--) {
             *elem++ = (strelemtype) ' ';
           } /* while */
         }
 #else
-        memset(result->mem, ' ', f_size - length);
+        memset(result->mem, ' ', (memsizetype) pad_size - length);
 #endif
-        memcpy(&result->mem[f_size - length], stri->mem,
+        memcpy(&result->mem[(memsizetype) pad_size - length], stri->mem,
             length * sizeof(strelemtype));
       } /* if */
     } else {
-      if (!ALLOC_STRI(result, length)) {
+      if (!ALLOC_STRI_SIZE_OK(result, length)) {
         raise_error(MEMORY_ERROR);
       } else {
         result->size = length;
@@ -1465,35 +1488,35 @@ inttype pad_size;
 #endif
 
   {
-    memsizetype f_size;
     memsizetype length;
     stritype result;
 
   /* strLpad0 */
     length = stri->size;
     if (pad_size > 0 && (uinttype) pad_size > length) {
-      f_size = (uinttype) pad_size;
-      if (!ALLOC_STRI(result, f_size)) {
+      if ((uinttype) pad_size > MAX_STRI_LEN ||
+          !ALLOC_STRI_SIZE_OK(result, (memsizetype) pad_size)) {
         raise_error(MEMORY_ERROR);
+        result = NULL;
       } else {
-        result->size = f_size;
+        result->size = (memsizetype) pad_size;
 #ifdef UTF32_STRINGS
         {
           strelemtype *elem = result->mem;
-          memsizetype len = f_size - length;
+          memsizetype len = (memsizetype) pad_size - length;
 
           while (len--) {
             *elem++ = (strelemtype) '0';
           } /* while */
         }
 #else
-        memset(result->mem, '0', f_size - length);
+        memset(result->mem, '0', (memsizetype) pad_size - length);
 #endif
-        memcpy(&result->mem[f_size - length], stri->mem,
+        memcpy(&result->mem[(memsizetype) pad_size - length], stri->mem,
             length * sizeof(strelemtype));
       } /* if */
     } else {
-      if (!ALLOC_STRI(result, length)) {
+      if (!ALLOC_STRI_SIZE_OK(result, length)) {
         raise_error(MEMORY_ERROR);
       } else {
         result->size = length;
@@ -1517,31 +1540,31 @@ inttype pad_size;
 #endif
 
   {
-    memsizetype f_size;
     memsizetype length;
     stritype result;
 
   /* strLpad0Temp */
     length = stri->size;
     if (pad_size > 0 && (uinttype) pad_size > length) {
-      f_size = (uinttype) pad_size;
-      if (!ALLOC_STRI(result, f_size)) {
+      if ((uinttype) pad_size > MAX_STRI_LEN ||
+          !ALLOC_STRI_SIZE_OK(result, (memsizetype) pad_size)) {
         raise_error(MEMORY_ERROR);
+        result = NULL;
       } else {
-        result->size = f_size;
+        result->size = (memsizetype) pad_size;
 #ifdef UTF32_STRINGS
         {
           strelemtype *elem = result->mem;
-          memsizetype len = f_size - length;
+          memsizetype len = (memsizetype) pad_size - length;
 
           while (len--) {
             *elem++ = (strelemtype) '0';
           } /* while */
         }
 #else
-        memset(result->mem, '0', f_size - length);
+        memset(result->mem, '0', (memsizetype) pad_size - length);
 #endif
-        memcpy(&result->mem[f_size - length], stri->mem,
+        memcpy(&result->mem[(memsizetype) pad_size - length], stri->mem,
             length * sizeof(strelemtype));
         FREE_STRI(stri, length);
       } /* if */
@@ -1604,7 +1627,7 @@ stritype stri;
       } /* while */
       length -= start;
     } /* if */
-    if (!ALLOC_STRI(result, length)) {
+    if (!ALLOC_STRI_SIZE_OK(result, length)) {
       raise_error(MEMORY_ERROR);
       return NULL;
     } else {
@@ -1636,17 +1659,18 @@ inttype factor;
     stritype result;
 
   /* strMult */
+    /* printf("strMult(stri->size=%lu, %ld)\n", stri->size, factor); */
     if (factor < 0) {
       raise_error(RANGE_ERROR);
       result = NULL;
     } else {
       len = stri->size;
-      if (len != 0 && (memsizetype) factor > MAX_MEMSIZETYPE / len) {
+      if (len != 0 && (uinttype) factor > MAX_STRI_LEN / len) {
         raise_error(MEMORY_ERROR);
         result = NULL;
       } else {
         result_size = (memsizetype) factor * len;
-        if (!ALLOC_STRI(result, result_size)) {
+        if (!ALLOC_STRI_SIZE_OK(result, result_size)) {
           raise_error(MEMORY_ERROR);
         } else {
           result->size = result_size;
@@ -1782,10 +1806,11 @@ inttype stop;
     if (stop >= 1 && stop >= start && (uinttype) start <= length &&
         length >= 1) {
       if ((uinttype) stop > length) {
-        stop = (inttype) length;
+        result_size = length - (memsizetype) start + 1;
+      } else {
+        result_size = (memsizetype) stop - (memsizetype) start + 1;
       } /* if */
-      result_size = (uinttype) (stop - start + 1);
-      if (!ALLOC_STRI(result, result_size)) {
+      if (!ALLOC_STRI_SIZE_OK(result, result_size)) {
         raise_error(MEMORY_ERROR);
         return NULL;
       } /* if */
@@ -1799,7 +1824,7 @@ inttype stop;
           result_size * sizeof(strelemtype));
       result->size = result_size;
     } else {
-      if (!ALLOC_STRI(result, (memsizetype) 0)) {
+      if (!ALLOC_STRI_SIZE_OK(result, (memsizetype) 0)) {
         raise_error(MEMORY_ERROR);
         return NULL;
       } /* if */
@@ -1871,11 +1896,16 @@ stritype replace;
     /* printf("main_size=%ld, searched_size=%ld, replace->size=%ld\n",
        main_size, searched_size, replace->size); */
     if (searched_size != 0 && replace->size > searched_size) {
-      guessed_result_size = (main_size / searched_size + 1) * replace->size;
+      if (main_size / searched_size + 1 > MAX_STRI_LEN / replace->size) {
+        raise_error(MEMORY_ERROR);
+        return NULL;
+      } else {
+        guessed_result_size = (main_size / searched_size + 1) * replace->size;
+      } /* if */
     } else {
       guessed_result_size = main_size;
     } /* if */
-    if (!ALLOC_STRI(result, guessed_result_size)) {
+    if (!ALLOC_STRI_SIZE_OK(result, guessed_result_size)) {
       raise_error(MEMORY_ERROR);
     } else {
       copy_start = main_stri->mem;
@@ -1910,7 +1940,7 @@ stritype replace;
       result_size = (memsizetype) (result_end - result->mem);
       /* printf("result=%lu, guessed_result_size=%ld, result_size=%ld\n",
          result, guessed_result_size, result_size); */
-      REALLOC_STRI(resized_result, result, guessed_result_size, result_size);
+      REALLOC_STRI_SIZE_OK(resized_result, result, guessed_result_size, result_size);
       if (resized_result == NULL) {
         FREE_STRI(result, guessed_result_size);
         raise_error(MEMORY_ERROR);
@@ -1937,35 +1967,34 @@ inttype pad_size;
 #endif
 
   {
-    memsizetype f_size;
     memsizetype length;
     stritype result;
 
   /* strRpad */
     length = stri->size;
     if (pad_size > 0 && (uinttype) pad_size > length) {
-      f_size = (uinttype) pad_size;
-      if (!ALLOC_STRI(result, f_size)) {
+      if ((uinttype) pad_size > MAX_STRI_LEN ||
+          !ALLOC_STRI_SIZE_OK(result, (memsizetype) pad_size)) {
         raise_error(MEMORY_ERROR);
+        result = NULL;
       } else {
-        result->size = f_size;
-        memcpy(result->mem, stri->mem,
-            length * sizeof(strelemtype));
+        result->size = (memsizetype) pad_size;
+        memcpy(result->mem, stri->mem, length * sizeof(strelemtype));
 #ifdef UTF32_STRINGS
         {
           strelemtype *elem = &result->mem[length];
-          memsizetype len = f_size - length;
+          memsizetype len = (memsizetype) pad_size - length;
 
           while (len--) {
             *elem++ = (strelemtype) ' ';
           } /* while */
         }
 #else
-        memset(&result->mem[length], ' ', f_size - length);
+        memset(&result->mem[length], ' ', (memsizetype) pad_size - length);
 #endif
       } /* if */
     } else {
-      if (!ALLOC_STRI(result, length)) {
+      if (!ALLOC_STRI_SIZE_OK(result, length)) {
         raise_error(MEMORY_ERROR);
         return NULL;
       } /* if */
@@ -2039,7 +2068,7 @@ stritype stri;
     while (length > 0 && stri->mem[length - 1] <= ' ') {
       length--;
     } /* while */
-    if (!ALLOC_STRI(result, length)) {
+    if (!ALLOC_STRI_SIZE_OK(result, length)) {
       raise_error(MEMORY_ERROR);
       return NULL;
     } else {
@@ -2272,11 +2301,11 @@ inttype len;
         start = 1;
       } /* if */
       if ((uinttype) start + (uinttype) len - 1 > length) {
-        result_size = length - (uinttype) start + 1;
+        result_size = length - (memsizetype) start + 1;
       } else {
-        result_size = (uinttype) len;
+        result_size = (memsizetype) len;
       } /* if */
-      if (!ALLOC_STRI(result, result_size)) {
+      if (!ALLOC_STRI_SIZE_OK(result, result_size)) {
         raise_error(MEMORY_ERROR);
         return NULL;
       } /* if */
@@ -2284,7 +2313,7 @@ inttype len;
           result_size * sizeof(strelemtype));
       result->size = result_size;
     } else {
-      if (!ALLOC_STRI(result, (memsizetype) 0)) {
+      if (!ALLOC_STRI_SIZE_OK(result, (memsizetype) 0)) {
         raise_error(MEMORY_ERROR);
         return NULL;
       } /* if */
@@ -2316,8 +2345,8 @@ inttype start;
       start = 1;
     } /* if */
     if ((uinttype) start <= length && length >= 1) {
-      result_size = length - (uinttype) start + 1;
-      if (!ALLOC_STRI(result, result_size)) {
+      result_size = length - (memsizetype) start + 1;
+      if (!ALLOC_STRI_SIZE_OK(result, result_size)) {
         raise_error(MEMORY_ERROR);
         return NULL;
       } /* if */
@@ -2331,7 +2360,7 @@ inttype start;
           result_size * sizeof(strelemtype));
       result->size = result_size;
     } else {
-      if (!ALLOC_STRI(result, (memsizetype) 0)) {
+      if (!ALLOC_STRI_SIZE_OK(result, (memsizetype) 0)) {
         raise_error(MEMORY_ERROR);
         return NULL;
       } /* if */
@@ -2360,8 +2389,10 @@ stritype stri;
     stritype result;
 
   /* strToUtf8 */
-    if (!ALLOC_STRI(result, compr_size(stri))) {
+    if (stri->size > MAX_STRI_LEN / MAX_UTF8_EXPANSION_FACTOR ||
+        !ALLOC_STRI_SIZE_OK(result, max_utf8_size(stri))) {
       raise_error(MEMORY_ERROR);
+      result = NULL;
     } else {
       dest = result->mem;
       source = stri->mem;
@@ -2397,14 +2428,14 @@ stritype stri;
         } /* if */
       } /* for */
       result_size = (memsizetype) (dest - result->mem);
-      REALLOC_STRI(resized_result, result, compr_size(stri), result_size);
+      REALLOC_STRI_SIZE_OK(resized_result, result, max_utf8_size(stri), result_size);
       if (resized_result == NULL) {
-        FREE_STRI(result, compr_size(stri));
+        FREE_STRI(result, max_utf8_size(stri));
         raise_error(MEMORY_ERROR);
         result = NULL;
       } else {
         result = resized_result;
-        COUNT3_STRI(compr_size(stri), result_size);
+        COUNT3_STRI(max_utf8_size(stri), result_size);
         result->size = result_size;
       } /* if */
     } /* if */
@@ -2439,7 +2470,7 @@ stritype stri;
       } /* while */
       length -= start;
     } /* if */
-    if (!ALLOC_STRI(result, length)) {
+    if (!ALLOC_STRI_SIZE_OK(result, length)) {
       raise_error(MEMORY_ERROR);
       return NULL;
     } else {
@@ -2468,7 +2499,7 @@ stritype stri;
 
   /* strUp */
     length = stri->size;
-    if (!ALLOC_STRI(result, length)) {
+    if (!ALLOC_STRI_SIZE_OK(result, length)) {
       raise_error(MEMORY_ERROR);
       return NULL;
     } else {
@@ -2536,7 +2567,7 @@ stritype stri8;
 
   /* strUtf8ToStri */
     length = stri8->size;
-    if (!ALLOC_STRI(result, length)) {
+    if (!ALLOC_STRI_SIZE_OK(result, length)) {
       raise_error(MEMORY_ERROR);
     } else {
       stri8ptr = &stri8->mem[0];
@@ -2601,7 +2632,7 @@ stritype stri8;
         } /* if */
       } /* for */
       if (okay) {
-        REALLOC_STRI(resized_result, result, stri8->size, pos);
+        REALLOC_STRI_SIZE_OK(resized_result, result, stri8->size, pos);
         if (resized_result == NULL) {
           FREE_STRI(result, stri8->size);
           raise_error(MEMORY_ERROR);

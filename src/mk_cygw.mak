@@ -61,7 +61,7 @@ EOBJ1 = exec.o doany.o memory.o
 AOBJ1 = act_comp.o prg_comp.o analyze.o syntax.o token.o parser.o name.o type.o
 AOBJ2 = expr.o atom.o object.o scanner.o literal.o numlit.o findid.o
 AOBJ3 = error.o infile.o symbol.o info.o stat.o fatal.o match.o
-GOBJ1 = syvarutl.o traceutl.o actutl.o arrutl.o executl.o blockutl.o
+GOBJ1 = syvarutl.o traceutl.o actutl.o executl.o blockutl.o
 GOBJ2 = entutl.o identutl.o chclsutl.o sigutl.o
 ROBJ1 = arr_rtl.o bln_rtl.o bst_rtl.o chr_rtl.o cmd_rtl.o dir_rtl.o drw_rtl.o fil_rtl.o flt_rtl.o
 ROBJ2 = hsh_rtl.o int_rtl.o kbd_rtl.o scr_rtl.o set_rtl.o soc_rtl.o str_rtl.o tim_rtl.o ut8_rtl.o
@@ -81,7 +81,7 @@ ESRC1 = exec.c doany.c memory.c
 ASRC1 = act_comp.c prg_comp.c analyze.c syntax.c token.c parser.c name.c type.c
 ASRC2 = expr.c atom.c object.c scanner.c literal.c numlit.c findid.c
 ASRC3 = error.c infile.c symbol.c info.c stat.c fatal.c match.c
-GSRC1 = syvarutl.c traceutl.c actutl.c arrutl.c executl.c blockutl.c
+GSRC1 = syvarutl.c traceutl.c actutl.c executl.c blockutl.c
 GSRC2 = entutl.c identutl.c chclsutl.c sigutl.c
 RSRC1 = arr_rtl.c bln_rtl.c bst_rtl.c chr_rtl.c cmd_rtl.c dir_rtl.c drw_rtl.c fil_rtl.c flt_rtl.c
 RSRC2 = hsh_rtl.c int_rtl.c kbd_rtl.c scr_rtl.c set_rtl.c soc_rtl.c str_rtl.c tim_rtl.c ut8_rtl.c
@@ -125,27 +125,30 @@ version.h:
 	echo "#define INCL_NCURSES_TERM" >> version.h
 	echo "#undef  INCL_CURSES_BEFORE_TERM" >> version.h
 	echo "#define _FILE_OFFSET_BITS 64" >> version.h
+	echo "#define os_off_t off_t" >> version.h
 	echo "#define USE_FSEEKO" >> version.h
 	echo "#define USE_SIGSETJMP" >> version.h
 	echo "#define $(BIGINT_LIB_DEFINE)" >> version.h
-	echo "#include \"stdio.h\"" > chkftell.c
-	echo "int main (int argc, char **argv)" >> chkftell.c
-	echo "{" >> chkftell.c
-	echo "FILE *aFile;" >> chkftell.c
-	echo "aFile = popen(\"dir\",\"r\");" >> chkftell.c
-	echo "if (ftell(aFile) != -1) {" >> chkftell.c
-	echo "puts(\"\043define FTELL_WRONG_FOR_PIPE\");" >> chkftell.c
-	echo "}" >> chkftell.c
-	echo "return 0;" >> chkftell.c
-	echo "}" >> chkftell.c
-	$(CC) chkftell.c -o chkftell
-	./chkftell >> version.h
-	rm chkftell.c
-	rm chkftell.exe
 	echo "#include \"stdio.h\"" > chkccomp.c
 	echo "int main (int argc, char **argv)" >> chkccomp.c
 	echo "{" >> chkccomp.c
+	echo "FILE *aFile;" >> chkccomp.c
 	echo "long number;" >> chkccomp.c
+	echo "aFile = popen(\"dir\",\"r\");" >> chkccomp.c
+	echo "if (ftell(aFile) != -1) {" >> chkccomp.c
+	echo "puts(\"\043define FTELL_WRONG_FOR_PIPE\");" >> chkccomp.c
+	echo "}" >> chkccomp.c
+	echo "if ((aFile = fopen(\"tmp_test_file\",\"w\")) != NULL) {" >> chkccomp.c
+	echo "fwrite(\"asdf\",1,4,aFile);" >> chkccomp.c
+	echo "fclose(aFile);" >> chkccomp.c
+	echo "if ((aFile = fopen(\"tmp_test_file\",\"r\")) != NULL) {" >> chkccomp.c
+	echo "if (fwrite(\"qwert\",1,5,aFile) != 0) {" >> chkccomp.c
+	echo "puts(\"\043define FWRITE_WRONG_FOR_READ_ONLY_FILES\");" >> chkccomp.c
+	echo "}" >> chkccomp.c
+	echo "fclose(aFile);" >> chkccomp.c
+	echo "}" >> chkccomp.c
+	echo "remove(\"tmp_test_file\");" >> chkccomp.c
+	echo "}" >> chkccomp.c
 	echo "printf(\"\043define POINTER_SIZE %d\", 8 * sizeof(char *));" >> chkccomp.c
 	echo "puts(\"\");" >> chkccomp.c
 	echo "printf(\"\043define FLOAT_SIZE %d\", 8 * sizeof(float));" >> chkccomp.c

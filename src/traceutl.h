@@ -50,7 +50,7 @@ void prot_cstri (const_cstritype);
 void prot_writeln (const_cstritype);
 void prot_int (inttype);
 void prot_bigint (const_biginttype);
-void prot_stri (stritype);
+void prot_stri (const_stritype);
 void prot_set (const_settype);
 void prot_heapsize (void);
 void printcategory (objectcategory);

@@ -36,7 +36,6 @@
 #include "heaputl.h"
 #include "flistutl.h"
 #include "syvarutl.h"
-#include "arrutl.h"
 #include "traceutl.h"
 #include "executl.h"
 #include "runerr.h"
@@ -45,6 +44,79 @@
 #undef EXTERN
 #define EXTERN
 #include "arrlib.h"
+
+
+
+#ifdef ANSI_C
+
+static void qsort_array (objecttype begin_sort, objecttype end_sort,
+    objecttype cmp_func)
+#else
+
+static void qsort_array (begin_sort, end_sort, cmp_func)
+objecttype begin_sort;
+objecttype end_sort;
+objecttype cmp_func;
+#endif
+
+  {
+    objectrecord compare_elem;
+    objectrecord help_element;
+    objecttype middle_elem;
+    objecttype less_elem;
+    objecttype greater_elem;
+    objecttype cmp_obj;
+    inttype cmp;
+
+  /* qsort_array */
+    if (end_sort - begin_sort < 8) {
+      for (middle_elem = begin_sort + 1; middle_elem <= end_sort; middle_elem++) {
+        memcpy(&compare_elem, middle_elem, sizeof(objectrecord));
+        less_elem = begin_sort - 1;
+        do {
+          less_elem++;
+          cmp_obj = param3_call(cmp_func, less_elem, &compare_elem, cmp_func);
+          isit_int2(cmp_obj);
+          cmp = take_int(cmp_obj);
+          FREE_OBJECT(cmp_obj);
+        } while (cmp < 0);
+        memmove(&less_elem[1], less_elem,
+            (memsizetype) (middle_elem - less_elem) * sizeof(objectrecord));
+        memcpy(less_elem, &compare_elem, sizeof(objectrecord));
+      } /* for */
+    } else {
+      middle_elem = &begin_sort[(end_sort - begin_sort) >> 1];
+      memcpy(&compare_elem, middle_elem, sizeof(objectrecord));
+      memcpy(middle_elem, end_sort, sizeof(objectrecord));
+      memcpy(end_sort, &compare_elem, sizeof(objectrecord));
+      less_elem = begin_sort - 1;
+      greater_elem = end_sort;
+      do {
+        do {
+          less_elem++;
+          cmp_obj = param3_call(cmp_func, less_elem, &compare_elem, cmp_func);
+          isit_int2(cmp_obj);
+          cmp = take_int(cmp_obj);
+          FREE_OBJECT(cmp_obj);
+        } while (cmp < 0);
+        do {
+          greater_elem--;
+          cmp_obj = param3_call(cmp_func, greater_elem, &compare_elem, cmp_func);
+          isit_int2(cmp_obj);
+          cmp = take_int(cmp_obj);
+          FREE_OBJECT(cmp_obj);
+        } while (cmp > 0 && greater_elem != begin_sort);
+        memcpy(&help_element, less_elem, sizeof(objectrecord));
+        memcpy(less_elem, greater_elem, sizeof(objectrecord));
+        memcpy(greater_elem, &help_element, sizeof(objectrecord));
+      } while (greater_elem > less_elem);
+      memcpy(greater_elem, less_elem, sizeof(objectrecord));
+      memcpy(less_elem, &compare_elem, sizeof(objectrecord));
+      memcpy(end_sort, &help_element, sizeof(objectrecord));
+      qsort_array(begin_sort, less_elem - 1, cmp_func);
+      qsort_array(less_elem + 1, end_sort, cmp_func);
+    } /* if */
+  } /* qsort_array */
 
 
 

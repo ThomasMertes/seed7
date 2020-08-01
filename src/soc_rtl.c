@@ -77,6 +77,8 @@ typedef socklen_t socklen_type;
 #endif
 
 #define MAX_ADDRESS_SIZE 1024
+#define READ_STRI_INIT_SIZE      256
+#define READ_STRI_SIZE_DELTA    2048
 
 
 
@@ -91,33 +93,35 @@ bstritype *address;
 #endif
 
   {
+    memsizetype old_address_size;
     bstritype resized_address;
     socklen_type addrlen;
     sockettype result;
 
   /* socAccept */
     /* printf("begin socAccept(%u, *)\n", sock); */
-    REALLOC_BSTRI(resized_address, *address, (*address)->size, MAX_ADDRESS_SIZE);
+    old_address_size = (*address)->size;
+    REALLOC_BSTRI_SIZE_OK(resized_address, *address, old_address_size, MAX_ADDRESS_SIZE);
     if (resized_address == NULL) {
       raise_error(MEMORY_ERROR);
       result = -1;
     } else {
       *address = resized_address;
-      COUNT3_BSTRI((*address)->size, MAX_ADDRESS_SIZE);
+      COUNT3_BSTRI(old_address_size, MAX_ADDRESS_SIZE);
       addrlen = MAX_ADDRESS_SIZE;
       result = accept(sock, (struct sockaddr *) (*address)->mem, &addrlen);
       if (result == -1 || addrlen < 0) {
-        REALLOC_BSTRI(resized_address, *address, MAX_ADDRESS_SIZE, (*address)->size);
+        REALLOC_BSTRI_SIZE_OK(resized_address, *address, MAX_ADDRESS_SIZE, old_address_size);
         if (resized_address == NULL) {
           (*address)->size = MAX_ADDRESS_SIZE;
         } else {
           *address = resized_address;
-          COUNT3_BSTRI(MAX_ADDRESS_SIZE, (*address)->size);
+          COUNT3_BSTRI(MAX_ADDRESS_SIZE, old_address_size);
         } /* if */
         /* printf("socAccept errno=%d\n", errno); */
         raise_error(RANGE_ERROR);
       } else {
-        REALLOC_BSTRI(resized_address, *address, MAX_ADDRESS_SIZE, (memsizetype) addrlen);
+        REALLOC_BSTRI_SIZE_OK(resized_address, *address, MAX_ADDRESS_SIZE, (memsizetype) addrlen);
         if (resized_address == NULL) {
           (*address)->size = MAX_ADDRESS_SIZE;
           raise_error(MEMORY_ERROR);
@@ -249,12 +253,12 @@ inttype length;
       raise_error(RANGE_ERROR);
       result = NULL;
     } else {
-      if ((uinttype) (length) > MAX_MEMSIZETYPE) {
+      if ((uinttype) length > MAX_MEMSIZETYPE) {
         bytes_requested = MAX_MEMSIZETYPE;
       } else {
         bytes_requested = (memsizetype) length;
       } /* if */
-      if (!ALLOC_STRI(result, bytes_requested)) {
+      if (!ALLOC_STRI_CHECK_SIZE(result, bytes_requested)) {
         raise_error(MEMORY_ERROR);
         return NULL;
       } /* if */
@@ -273,7 +277,7 @@ inttype length;
 #endif
       result->size = result_size;
       if (result_size < bytes_requested) {
-        REALLOC_STRI(resized_result, result, bytes_requested, result_size);
+        REALLOC_STRI_SIZE_OK(resized_result, result, bytes_requested, result_size);
         if (resized_result == NULL) {
           FREE_STRI(result, bytes_requested);
           raise_error(MEMORY_ERROR);
@@ -368,7 +372,7 @@ inttype port;
           */
           if (host_ent->h_addrtype == AF_INET &&
               host_ent->h_length == sizeof(inet_address->sin_addr.s_addr)) {
-            if (!ALLOC_BSTRI(result, sizeof(struct sockaddr_in))) {
+            if (!ALLOC_BSTRI_SIZE_OK(result, sizeof(struct sockaddr_in))) {
               raise_error(MEMORY_ERROR);
             } else {
               result->size = sizeof(struct sockaddr_in);
@@ -419,7 +423,7 @@ inttype port;
     if (port < 0 || port > 65535) {
       result = NULL;
       raise_error(RANGE_ERROR);
-    } else if (!ALLOC_BSTRI(result, sizeof(struct sockaddr_in))) {
+    } else if (!ALLOC_BSTRI_SIZE_OK(result, sizeof(struct sockaddr_in))) {
       raise_error(MEMORY_ERROR);
     } else {
       result->size = sizeof(struct sockaddr_in);
@@ -454,7 +458,7 @@ inttype port;
     if (port < 0 || port > 65535) {
       result = NULL;
       raise_error(RANGE_ERROR);
-    } else if (!ALLOC_BSTRI(result, sizeof(struct sockaddr_in))) {
+    } else if (!ALLOC_BSTRI_SIZE_OK(result, sizeof(struct sockaddr_in))) {
       raise_error(MEMORY_ERROR);
     } else {
       result->size = sizeof(struct sockaddr_in);
@@ -493,8 +497,8 @@ chartype *termination_char;
     stritype result;
 
   /* socLineRead */
-    memlength = 256;
-    if (!ALLOC_STRI(result, memlength)) {
+    memlength = READ_STRI_INIT_SIZE;
+    if (!ALLOC_STRI_SIZE_OK(result, memlength)) {
       raise_error(MEMORY_ERROR);
     } else {
       memory = result->mem;
@@ -502,8 +506,8 @@ chartype *termination_char;
       bytes_received = (memsizetype) recv(sock, cast_send_recv_data(&ch), 1, 0);
       while (bytes_received == 1 && ch != '\n') {
         if (position >= memlength) {
-          newmemlength = memlength + 2048;
-          REALLOC_STRI(resized_result, result, memlength, newmemlength);
+          newmemlength = memlength + READ_STRI_SIZE_DELTA;
+          REALLOC_STRI_CHECK_SIZE(resized_result, result, memlength, newmemlength);
           if (resized_result == NULL) {
             FREE_STRI(result, memlength);
             raise_error(MEMORY_ERROR);
@@ -521,7 +525,7 @@ chartype *termination_char;
           position != 0 && memory[position - 1] == '\r') {
         position--;
       } /* if */
-      REALLOC_STRI(resized_result, result, memlength, position);
+      REALLOC_STRI_SIZE_OK(resized_result, result, memlength, position);
       if (resized_result == NULL) {
         FREE_STRI(result, memlength);
         raise_error(MEMORY_ERROR);
@@ -581,10 +585,14 @@ inttype flags;
       raise_error(RANGE_ERROR);
       return 0;
     } else {
-      bytes_requested = (memsizetype) length;
+      if ((uinttype) length > MAX_MEMSIZETYPE) {
+        bytes_requested = MAX_MEMSIZETYPE;
+      } else {
+        bytes_requested = (memsizetype) length;
+      } /* if */
       old_stri_size = (*stri)->size;
       if (old_stri_size < bytes_requested) {
-        REALLOC_STRI(resized_stri, *stri, old_stri_size, bytes_requested);
+        REALLOC_STRI_CHECK_SIZE(resized_stri, *stri, old_stri_size, bytes_requested);
         if (resized_stri == NULL) {
           raise_error(MEMORY_ERROR);
           return 0;
@@ -608,7 +616,7 @@ inttype flags;
 #endif
       (*stri)->size = new_stri_size;
       if (new_stri_size < old_stri_size) {
-        REALLOC_STRI(resized_stri, *stri, old_stri_size, new_stri_size);
+        REALLOC_STRI_SIZE_OK(resized_stri, *stri, old_stri_size, new_stri_size);
         if (resized_stri == NULL) {
           raise_error(MEMORY_ERROR);
           return 0;
@@ -638,6 +646,7 @@ bstritype *address;
 
   {
     stritype resized_stri;
+    memsizetype old_address_size;
     bstritype resized_address;
     memsizetype bytes_requested;
     socklen_type fromlen;
@@ -648,18 +657,23 @@ bstritype *address;
       raise_error(RANGE_ERROR);
       return 0;
     } else {
-      bytes_requested = (memsizetype) length;
-      REALLOC_STRI(resized_stri, *stri, (*stri)->size, bytes_requested);
+      if ((uinttype) length > MAX_MEMSIZETYPE) {
+        bytes_requested = MAX_MEMSIZETYPE;
+      } else {
+        bytes_requested = (memsizetype) length;
+      } /* if */
+      REALLOC_STRI_CHECK_SIZE(resized_stri, *stri, (*stri)->size, bytes_requested);
       if (resized_stri == NULL) {
         raise_error(MEMORY_ERROR);
         return 0;
       } /* if */
       *stri = resized_stri;
       COUNT3_STRI((*stri)->size, bytes_requested);
-      REALLOC_BSTRI(resized_address, *address, (*address)->size, MAX_ADDRESS_SIZE);
+      old_address_size = (*address)->size;
+      REALLOC_BSTRI_SIZE_OK(resized_address, *address, old_address_size, MAX_ADDRESS_SIZE);
       if (resized_address == NULL) {
         stri_size = (*stri)->size;
-        REALLOC_STRI(resized_stri, *stri, bytes_requested, stri_size);
+        REALLOC_STRI_SIZE_OK(resized_stri, *stri, bytes_requested, stri_size);
         if (resized_stri == NULL) {
           (*stri)->size = bytes_requested;
         } else {
@@ -670,23 +684,23 @@ bstritype *address;
         return 0;
       } else {
         *address = resized_address;
-        COUNT3_BSTRI((*address)->size, MAX_ADDRESS_SIZE);
+        COUNT3_BSTRI(old_address_size, MAX_ADDRESS_SIZE);
         fromlen = MAX_ADDRESS_SIZE;
         stri_size = (memsizetype) recvfrom(sock, cast_send_recv_data((*stri)->mem),
             (size_t) bytes_requested, flags,
             (struct sockaddr *) (*address)->mem, &fromlen);
         if (stri_size == (memsizetype) -1 || fromlen < 0) {
-          REALLOC_BSTRI(resized_address, *address, MAX_ADDRESS_SIZE, (*address)->size);
+          REALLOC_BSTRI_SIZE_OK(resized_address, *address, MAX_ADDRESS_SIZE, old_address_size);
           if (resized_address == NULL) {
             (*address)->size = MAX_ADDRESS_SIZE;
           } else {
             *address = resized_address;
-            COUNT3_BSTRI(MAX_ADDRESS_SIZE, (*address)->size);
+            COUNT3_BSTRI(MAX_ADDRESS_SIZE, old_address_size);
           } /* if */
           /* printf("socRecvfrom errno=%d\n", errno); */
           raise_error(RANGE_ERROR);
         } else {
-          REALLOC_BSTRI(resized_address, *address, MAX_ADDRESS_SIZE, (memsizetype) fromlen);
+          REALLOC_BSTRI_SIZE_OK(resized_address, *address, MAX_ADDRESS_SIZE, (memsizetype) fromlen);
           if (resized_address == NULL) {
             (*address)->size = MAX_ADDRESS_SIZE;
             raise_error(MEMORY_ERROR);
@@ -711,7 +725,7 @@ bstritype *address;
 #endif
       (*stri)->size = stri_size;
       if (stri_size < bytes_requested) {
-        REALLOC_STRI(resized_stri, *stri, bytes_requested, stri_size);
+        REALLOC_STRI_SIZE_OK(resized_stri, *stri, bytes_requested, stri_size);
         if (resized_stri == NULL) {
           raise_error(MEMORY_ERROR);
           return 0;
@@ -862,8 +876,8 @@ chartype *termination_char;
     stritype result;
 
   /* socWordRead */
-    memlength = 256;
-    if (!ALLOC_STRI(result, memlength)) {
+    memlength = READ_STRI_INIT_SIZE;
+    if (!ALLOC_STRI_SIZE_OK(result, memlength)) {
       raise_error(MEMORY_ERROR);
     } else {
       memory = result->mem;
@@ -874,8 +888,8 @@ chartype *termination_char;
       while (bytes_received == 1 &&
           ch != ' ' && ch != '\t' && ch != '\n') {
         if (position >= memlength) {
-          newmemlength = memlength + 2048;
-          REALLOC_STRI(resized_result, result, memlength, newmemlength);
+          newmemlength = memlength + READ_STRI_SIZE_DELTA;
+          REALLOC_STRI_CHECK_SIZE(resized_result, result, memlength, newmemlength);
           if (resized_result == NULL) {
             FREE_STRI(result, memlength);
             raise_error(MEMORY_ERROR);
@@ -893,7 +907,7 @@ chartype *termination_char;
           position != 0 && memory[position - 1] == '\r') {
         position--;
       } /* if */
-      REALLOC_STRI(resized_result, result, memlength, position);
+      REALLOC_STRI_SIZE_OK(resized_result, result, memlength, position);
       if (resized_result == NULL) {
         FREE_STRI(result, memlength);
         raise_error(MEMORY_ERROR);

@@ -49,6 +49,7 @@
 #include "match.h"
 #include "name.h"
 #include "option.h"
+#include "prg_comp.h"
 
 #undef EXTERN
 #define EXTERN
@@ -299,21 +300,15 @@ listtype arguments;
 #endif
 
   {
-    stritype str1;
-    cstritype file_name;
+    stritype stri;
     progtype result;
 
   /* prg_fil_parse */
     isit_stri(arg_1(arguments));
-    str1 = take_stri(arg_1(arguments));
-    file_name = cp_to_cstri(str1);
-    if (file_name == NULL) {
-      return(raise_exception(SYS_MEM_EXCEPTION));
-    } else {
-      result = analyze((ustritype) file_name);
-      set_trace(option.exec_trace_level, -1, NULL);
-      return(bld_prog_temp(result));
-    } /* if */
+    stri = take_stri(arg_1(arguments));
+    result = prgFilParse(stri);
+    set_trace(option.exec_trace_level, -1, NULL);
+    return(bld_prog_temp(result));
   } /* prg_fil_parse */
 
 
@@ -482,10 +477,12 @@ listtype arguments;
     stritype result;
 
   /* prg_name */
-    result = cstri_to_stri(option.source_file_name);
-    if (result == NULL) {
+    if (!ALLOC_STRI_SIZE_OK(result, prog.source_file_name->size)) {
       return(raise_exception(SYS_MEM_EXCEPTION));
     } else {
+      result->size = prog.source_file_name->size;
+      memcpy(result->mem, prog.source_file_name->mem,
+          prog.source_file_name->size * sizeof(strelemtype));
       return(bld_stri_temp(result));
     } /* if */
   } /* prg_name */
@@ -539,13 +536,13 @@ listtype arguments;
 #endif
 
   {
-    stritype str1;
+    stritype stri;
     progtype result;
 
   /* prg_str_parse */
     isit_stri(arg_1(arguments));
-    str1 = take_stri(arg_1(arguments));
-    result = analyze_string(str1);
+    stri = take_stri(arg_1(arguments));
+    result = prgStrParse(stri);
     set_trace(option.exec_trace_level, -1, NULL);
     return(bld_prog_temp(result));
   } /* prg_str_parse */

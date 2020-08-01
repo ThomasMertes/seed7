@@ -465,7 +465,7 @@ listtype arguments;
       return(raise_exception(SYS_RNG_EXCEPTION));
     } else {
 #endif
-      if (!ALLOC_STRI(result, 1)) {
+      if (!ALLOC_STRI_SIZE_OK(result, 1)) {
         return(raise_exception(SYS_MEM_EXCEPTION));
       } else {
         result->size = 1;

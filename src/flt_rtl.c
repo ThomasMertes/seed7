@@ -345,7 +345,7 @@ stritype stri;
   /* fltParse */
     okay = TRUE;
 #ifdef USE_STRTOD
-    if (compr_size(stri) + 1 <= 150) {
+    if (stri->size < 150 / MAX_UTF8_EXPANSION_FACTOR) {
       stri_export((ustritype) buffer, stri);
 /*    result = (floattype) atof(buffer); */
       result = (floattype) strtod(buffer, &next_ch);
@@ -464,7 +464,7 @@ floattype number;
       len++;
     } /* if */
     len++;
-    if (!ALLOC_STRI(result, len)) {
+    if (!ALLOC_STRI_SIZE_OK(result, len)) {
       raise_error(MEMORY_ERROR);
       return NULL;
     } else {

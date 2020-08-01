@@ -1,3 +1,46 @@
+20100606:
+- An explaination of the difference between overloading and object orientation,
+  was added to the FAQ.
+- The function 'popen8', which opens an UTF-8 pipe, was added to the
+  "shell.s7i" library.
+- Checks for 'log2' were added to the "chkbig.sd7" program.
+- Checks for file exceptions were added to the "chkexc.sd7" program.
+- A check for the 'keys' function for hash tables was added to "chkhsh.sd7".
+- A definition of voidHtmlElements, a set containing HTML element names which
+  possibly have no closing tags, was added to the "html.s7i" library.
+- The experimental function 'readHtml' was added to the "xmldom.s7i" library.
+- Calls of 'rflNe' in the compiler "comp.sd7" were replaced with '!rflEq'.
+- Checks with MAX_UTF8_EXPANSION_FACTOR were added to functions in "actutl.c",
+  "cmd_rtl.c", "flt_rtl.c", "striutl.c", "str_rtl.c" and "syvarutl.c".
+- The function "parseFile" was improved to work with unicode file names and to
+  raise FILE_ERROR when the file is not found or RANGE_ERROR when a backslash
+  is used as path delimiter.
+- The files arrutl.c and arrutl.h were removed and the function "qsort_array"
+  was moved to "arrlib.c".
+- Macros with name endings _SIZE_OK and _CHECK_SIZE were introduced in
+  "heaputl.h" and used in various files.
+- Comparisons with MAX_STRI_LEN and MAX_BSTRI_LEN were added in various files
+  to make sure that there are no overflows when the size of a string or
+  bstring is computed.
+- Macros with name endings _SIZE_OK and _CHECK_SIZE were introduced and used
+  in "big_rtl.c".
+- The type 'offsettype' was renamed to 'os_off_t' in "fil_rtl.c" and the
+  makefiles were improved to write a definition of 'os_off_t' to "version.h".
+- When FTELL_WRONG_FOR_PIPE is defined it is assumed that fseek does also
+  not work correctly for pipes.
+- File read and write functions in "fil_rtl.c" and "ut8_rtl.c" are checked
+  for error conditions and FILE_ERROR is raised when an error happens.
+- The functions 'find_include_file' and 'init_lib_path' were improved and the
+  function 'free_lib_path' was introduced in the file "infile.h".
+- A comment was added to 'genPointList' in "graph.s7i" and the implementation
+  of 'drwGenPointList' in "drw_x11.c" and "drw_win.c" was fixed.
+- In several makefiles functionality was moved from the help program
+  'chkftell.c' to 'chkccomp.c'.
+- Parameter names were added to the prototypes in several header files.
+- Declarations of a variable named 'cmp' were changed from 'int' to 'inttype'
+  in the files "arrlib.c", "arr_rtl.c", "hshlib.c" and "hsh_rtl.c".
+- The function 'rflNe' was removed from the file "rfl_data.c".
+
 20100516:
 - Seed7 now supports the 64-bit versions of Linux and Mac OS X. Many thanks
   to "Mensanator" for his help to reach this goal.

@@ -47,6 +47,10 @@
 #include "kbd_rtl.h"
 
 
+#define READ_STRI_INIT_SIZE      256
+#define READ_STRI_SIZE_DELTA    2048
+
+
 
 #ifdef ANSI_C
 
@@ -67,8 +71,12 @@ inttype length;
       raise_error(RANGE_ERROR);
       return NULL;
     } else {
-      bytes_requested = (memsizetype) length;
-      if (!ALLOC_STRI(result, bytes_requested)) {
+      if ((uinttype) length > MAX_MEMSIZETYPE) {
+        bytes_requested = MAX_MEMSIZETYPE;
+      } else {
+        bytes_requested = (memsizetype) length;
+      } /* if */
+      if (!ALLOC_STRI_CHECK_SIZE(result, bytes_requested)) {
         raise_error(MEMORY_ERROR);
         return NULL;
       } else {
@@ -102,16 +110,16 @@ chartype *termination_char;
     stritype result;
 
   /* gkbLineRead */
-    memlength = 256;
-    if (!ALLOC_STRI(result, memlength)) {
+    memlength = READ_STRI_INIT_SIZE;
+    if (!ALLOC_STRI_SIZE_OK(result, memlength)) {
       raise_error(MEMORY_ERROR);
     } else {
       memory = result->mem;
       position = 0;
       while ((ch = gkbGetc()) != '\n' && ch != EOF) {
         if (position >= memlength) {
-          newmemlength = memlength + 2048;
-          REALLOC_STRI(resized_result, result, memlength, newmemlength);
+          newmemlength = memlength + READ_STRI_SIZE_DELTA;
+          REALLOC_STRI_CHECK_SIZE(resized_result, result, memlength, newmemlength);
           if (resized_result == NULL) {
             FREE_STRI(result, memlength);
             raise_error(MEMORY_ERROR);
@@ -127,7 +135,7 @@ chartype *termination_char;
       if (ch == '\n' && position != 0 && memory[position - 1] == '\r') {
         position--;
       } /* if */
-      REALLOC_STRI(resized_result, result, memlength, position);
+      REALLOC_STRI_SIZE_OK(resized_result, result, memlength, position);
       if (resized_result == NULL) {
         FREE_STRI(result, memlength);
         raise_error(MEMORY_ERROR);
@@ -163,8 +171,8 @@ chartype *termination_char;
     stritype result;
 
   /* gkbWordRead */
-    memlength = 256;
-    if (!ALLOC_STRI(result, memlength)) {
+    memlength = READ_STRI_INIT_SIZE;
+    if (!ALLOC_STRI_SIZE_OK(result, memlength)) {
       raise_error(MEMORY_ERROR);
     } else {
       memory = result->mem;
@@ -175,8 +183,8 @@ chartype *termination_char;
       while (ch != ' ' && ch != '\t' &&
           ch != '\n' && ch != EOF) {
         if (position >= memlength) {
-          newmemlength = memlength + 2048;
-          REALLOC_STRI(resized_result, result, memlength, newmemlength);
+          newmemlength = memlength + READ_STRI_SIZE_DELTA;
+          REALLOC_STRI_CHECK_SIZE(resized_result, result, memlength, newmemlength);
           if (resized_result == NULL) {
             FREE_STRI(result, memlength);
             raise_error(MEMORY_ERROR);
@@ -193,7 +201,7 @@ chartype *termination_char;
       if (ch == '\n' && position != 0 && memory[position - 1] == '\r') {
         position--;
       } /* if */
-      REALLOC_STRI(resized_result, result, memlength, position);
+      REALLOC_STRI_SIZE_OK(resized_result, result, memlength, position);
       if (resized_result == NULL) {
         FREE_STRI(result, memlength);
         raise_error(MEMORY_ERROR);
@@ -229,8 +237,12 @@ inttype length;
       raise_error(RANGE_ERROR);
       return NULL;
     } else {
-      bytes_requested = (memsizetype) length;
-      if (!ALLOC_STRI(result, bytes_requested)) {
+      if ((uinttype) length > MAX_MEMSIZETYPE) {
+        bytes_requested = MAX_MEMSIZETYPE;
+      } else {
+        bytes_requested = (memsizetype) length;
+      } /* if */
+      if (!ALLOC_STRI_CHECK_SIZE(result, bytes_requested)) {
         raise_error(MEMORY_ERROR);
         return NULL;
       } else {
@@ -264,16 +276,16 @@ chartype *termination_char;
     stritype result;
 
   /* kbdLineRead */
-    memlength = 256;
-    if (!ALLOC_STRI(result, memlength)) {
+    memlength = READ_STRI_INIT_SIZE;
+    if (!ALLOC_STRI_SIZE_OK(result, memlength)) {
       raise_error(MEMORY_ERROR);
     } else {
       memory = result->mem;
       position = 0;
       while ((ch = kbdGetc()) != '\n' && ch != EOF) {
         if (position >= memlength) {
-          newmemlength = memlength + 2048;
-          REALLOC_STRI(resized_result, result, memlength, newmemlength);
+          newmemlength = memlength + READ_STRI_SIZE_DELTA;
+          REALLOC_STRI_CHECK_SIZE(resized_result, result, memlength, newmemlength);
           if (resized_result == NULL) {
             FREE_STRI(result, memlength);
             raise_error(MEMORY_ERROR);
@@ -289,7 +301,7 @@ chartype *termination_char;
       if (ch == '\n' && position != 0 && memory[position - 1] == '\r') {
         position--;
       } /* if */
-      REALLOC_STRI(resized_result, result, memlength, position);
+      REALLOC_STRI_SIZE_OK(resized_result, result, memlength, position);
       if (resized_result == NULL) {
         FREE_STRI(result, memlength);
         raise_error(MEMORY_ERROR);
@@ -325,8 +337,8 @@ chartype *termination_char;
     stritype result;
 
   /* kbdWordRead */
-    memlength = 256;
-    if (!ALLOC_STRI(result, memlength)) {
+    memlength = READ_STRI_INIT_SIZE;
+    if (!ALLOC_STRI_SIZE_OK(result, memlength)) {
       raise_error(MEMORY_ERROR);
     } else {
       memory = result->mem;
@@ -337,8 +349,8 @@ chartype *termination_char;
       while (ch != ' ' && ch != '\t' &&
           ch != '\n' && ch != EOF) {
         if (position >= memlength) {
-          newmemlength = memlength + 2048;
-          REALLOC_STRI(resized_result, result, memlength, newmemlength);
+          newmemlength = memlength + READ_STRI_SIZE_DELTA;
+          REALLOC_STRI_CHECK_SIZE(resized_result, result, memlength, newmemlength);
           if (resized_result == NULL) {
             FREE_STRI(result, memlength);
             raise_error(MEMORY_ERROR);
@@ -355,7 +367,7 @@ chartype *termination_char;
       if (ch == '\n' && position != 0 && memory[position - 1] == '\r') {
         position--;
       } /* if */
-      REALLOC_STRI(resized_result, result, memlength, position);
+      REALLOC_STRI_SIZE_OK(resized_result, result, memlength, position);
       if (resized_result == NULL) {
         FREE_STRI(result, memlength);
         raise_error(MEMORY_ERROR);

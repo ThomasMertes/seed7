@@ -124,7 +124,7 @@ listtype list2;
       result = -1;
     } else if (list2 == NULL) {
       result = 1;
-    } else if ((rtlGenerictype) (list1) < (rtlGenerictype) (list2)) {
+    } else if ((memsizetype) (list1) < (memsizetype) (list2)) {
       result = -1;
     } else {
       result = 1;
@@ -479,35 +479,6 @@ objecttype elem;
     } /* if */
     return result;
   } /* rflMklist */
-
-
-
-#ifdef ANSI_C
-
-booltype rflNe (const_listtype list1, const_listtype list2)
-#else
-
-booltype rflNe (list1, list2)
-listtype list1;
-listtype list2;
-#endif
-
-  {
-    booltype result;
-
-  /* rflNe */
-    while (list1 != NULL && list2 != NULL &&
-        list1->obj == list2->obj) {
-      list1 = list1->next;
-      list2 = list2->next;
-    } /* while */
-    if (list1 != NULL || list2 != NULL) {
-      result = TRUE;
-    } else {
-      result = FALSE;
-    } /* if */
-    return result;
-  } /* rflNe */
 
 
 

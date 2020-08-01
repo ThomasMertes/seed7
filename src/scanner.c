@@ -48,7 +48,6 @@
 #include "error.h"
 #include "stat.h"
 #include "findid.h"
-#include "option.h"
 
 #undef EXTERN
 #define EXTERN

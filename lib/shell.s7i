@@ -26,6 +26,9 @@
 (********************************************************************)
 
 
+include "utf8.s7i";
+
+
 (**
  *  Executes a program using the shell of the operating system.
  *  The comand string must contain the program name and an optional
@@ -87,6 +90,42 @@ const func file: popen (in string: command, in string: access) is func
 
 
 const proc: close (ref popen_file: aFile) is func
+  begin
+    pclose(aFile.ext_file);
+  end func;
+
+
+const type: popen8_file is sub utf8_file struct
+  end struct;
+
+type_implements_interface(popen8_file, file);
+
+
+const func popen8_file: malloc (in popen8_file: aPipe) is func
+  result
+    var popen8_file: result is popen8_file.value;
+  begin
+    result := aPipe;
+  end func;
+
+
+const func file: popen8 (in string: command, in string: access) is func
+  result
+    var file: result is STD_NULL;
+  local
+    var PRIMITIVE_FILE: open_file is PRIMITIVE_NULL_FILE;
+    var popen8_file: new_file is popen8_file.value;
+  begin
+    open_file := PRIMITIVE_FILE_POPEN(command, access);
+    if open_file <> PRIMITIVE_NULL_FILE then
+      new_file.ext_file := open_file;
+      new_file.name := command;
+      result := malloc(new_file);
+    end if;
+  end func;
+
+
+const proc: close (ref popen8_file: aFile) is func
   begin
     pclose(aFile.ext_file);
   end func;

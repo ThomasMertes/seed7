@@ -26,7 +26,10 @@
 (********************************************************************)
 
 
+include "scanfile.s7i";
 include "xml_ent.s7i";
+include "html_ent.s7i";
+include "html.s7i";
 
 
 const type: attrHashType is hash [string] string;
@@ -39,6 +42,7 @@ const type: xmlNode is sub object interface;
 
 const func string: getAttrValue (in xmlNode: aNode, in string: attrName) is DYNAMIC;
 const func attrHashType: getAttributes (in xmlNode: aNode)               is DYNAMIC;
+const proc: writeXml (in xmlNode: aNode)                                 is DYNAMIC;
 const proc: writeXml (inout file: outFile, in xmlNode: aNode)            is DYNAMIC;
 const varfunc string:        (in xmlNode: aNode) . name                  is DYNAMIC;
 # const varfunc attrHashType: (in xmlNode: aNode) . attributes           is DYNAMIC;
@@ -54,9 +58,14 @@ const type: xmlBaseNode is new struct
 
 type_implements_interface(xmlBaseNode, xmlNode);
 
-const proc: writeXml (inout external_file: outFile, in xmlBaseNode: aBaseNode) is func
+const proc: writeXml (in xmlBaseNode: aBaseNode) is func
   begin
     writeln("xmlBaseNode");
+  end func;
+
+const proc: writeXml (inout external_file: outFile, in xmlBaseNode: aBaseNode) is func
+  begin
+    writeln(outFile, "xmlBaseNode");
   end func;
 
 
@@ -81,6 +90,11 @@ const func xmlText: malloc (ref xmlText: aText) is func
     result := aText;
   end func;
 
+const proc: writeXml (in xmlText: aText) is func
+  begin
+    writeln(aText.content);
+  end func;
+
 const proc: writeXml (inout external_file: outFile, in xmlText: aText) is func
   begin
     writeln(outFile, aText.content);
@@ -88,7 +102,7 @@ const proc: writeXml (inout external_file: outFile, in xmlText: aText) is func
 
 
 #
-# xmlElement 
+# xmlElement
 #
 
 const type: xmlElement is sub xmlBaseNode struct
@@ -110,6 +124,19 @@ const func string: getAttrValue (in xmlElement: anElement, in string: attrName) 
 
 const func attrHashType: getAttributes (in xmlElement: anElement) is
   return anElement.attributes;
+
+const proc: writeXml (in xmlElement: anElement) is func
+  local
+    var string: attributeName is "";
+    var string: attributeValue is "";
+  begin
+    write("<" <& anElement.name);
+    for attributeName range sort(keys(anElement.attributes)) do
+      attributeValue := anElement.attributes[attributeName];
+      write(" " <& attributeName <& "=" <& literal(attributeValue));
+    end for;
+    writeln("/>");
+  end func;
 
 const proc: writeXml (inout external_file: outFile, in xmlElement: anElement) is func
   local
@@ -142,6 +169,25 @@ const func xmlContainer: malloc (ref xmlContainer: aContainer) is func
     result := aContainer;
   end func;
 
+const proc: writeXml (in xmlContainer: aContainer) is func
+  local
+    var string: attributeName is "";
+    var string: attributeValue is "";
+    var xmlNode: subNode is xmlNode.value;
+  begin
+    write("<" <& aContainer.name);
+    for attributeName range sort(keys(aContainer.attributes)) do
+      attributeValue := aContainer.attributes[attributeName];
+      write(" " <& attributeName <& "=" <& literal(attributeValue));
+    end for;
+    writeln(">");
+    for subNode range aContainer.subNodes do
+      # TRACE_OBJ(subNode);
+      writeXml(subNode);
+    end for;
+    writeln("</" <& aContainer.name <& ">");
+  end func;
+
 const proc: writeXml (inout external_file: outFile, in xmlContainer: aContainer) is func
   local
     var string: attributeName is "";
@@ -163,7 +209,7 @@ const proc: writeXml (inout external_file: outFile, in xmlContainer: aContainer)
 
 
 #
-# Read functions
+# Read functions for XML
 #
 
 const func xmlNode: readXmlNode (inout file: inFile, inout string: symbol) is func
@@ -216,7 +262,7 @@ const func xmlNode: readXmlNode (inout file: inFile, inout string: symbol) is fu
         end if;
       end if;
     else
-      # writeln(literal(symbol));
+      # writeln("content=" <& literal(symbol));
       currentText.content := decodeXmlEntities(symbol, predeclaredXmlEntities);
       result := malloc(currentText);
     end if;
@@ -236,5 +282,86 @@ const func xmlNode: readXml (inout file: inFile) is func
       symbol := getXmlTagHeadOrContent(inFile);
     end while;
     result := readXmlNode(inFile, symbol);
+    # TRACE_OBJ(result); writeln;
+  end func;
+
+
+#
+# Read functions for HTML
+#
+
+const func xmlNode: readHtmlNode (inout file: inFile, inout string: symbol) is func
+  result
+    var xmlNode: result is xmlNode.value;
+  local
+    var xmlContainer: containerElement is xmlContainer.value;
+    var xmlElement: emptyElement is xmlElement.value;
+    var xmlText: currentText is xmlText.value;
+    var string: attributeName is "";
+    var string: attributeValue is "";
+    var string: endTagHead is "";
+  begin
+    # write(symbol);
+    if startsWith(symbol, "<") then
+      containerElement.name := symbol[2 ..];
+      # writeln("startTag = " <& literal("<" & containerElement.name));
+      getNextHtmlAttribute(inFile, attributeName, attributeValue);
+      while attributeName <> "" do
+        # write(" " <& attributeName <& "=" <& literal(attributeValue));
+        containerElement.attributes @:= [attributeName]
+            decodeHtmlEntities(attributeValue);
+        getNextHtmlAttribute(inFile, attributeName, attributeValue);
+      end while;
+      if attributeValue = "/" or containerElement.name in voidHtmlElements then
+        # The HTML tag ends with />
+        # writeln("/>");
+        emptyElement.name := containerElement.name;
+        emptyElement.attributes := containerElement.attributes;
+        result := malloc(emptyElement);
+      elsif attributeValue = "" then
+        # The HTML tag ends with >
+        # writeln(">");
+        endTagHead := "</" & containerElement.name;
+        symbol := getXmlTagHeadOrContent(inFile);
+        while symbol <> "" and symbol[.. 2] <> "</" do
+        # while symbol <> "" and symbol <> endTagHead do
+          containerElement.subNodes &:= [] (readHtmlNode(inFile, symbol));
+          symbol := getXmlTagHeadOrContent(inFile);
+        end while;
+        if symbol[.. 2] = "</" then
+        # if symbol = endTagHead then
+          skipXmlTag(inFile);
+          # writeln(symbol <& ">");
+        end if;
+        if length(containerElement.subNodes) = 0 then
+          # There are no subnodes: Create empty element
+          emptyElement.name := containerElement.name;
+          emptyElement.attributes := containerElement.attributes;
+          result := malloc(emptyElement);
+        else
+          result := malloc(containerElement);
+        end if;
+      end if;
+    else
+      # writeln("content=" <& literal(symbol));
+      currentText.content := decodeHtmlEntities(symbol);
+      result := malloc(currentText);
+    end if;
+    # TRACE_OBJ(result); writeln;
+  end func;
+
+
+const func xmlNode: readHtml (inout file: inFile) is func
+  result
+    var xmlNode: result is xmlNode.value;
+  local
+    var string: symbol is "";
+  begin
+    symbol := getXmlTagHeadOrContent(inFile);
+    while startsWith(symbol, "<?") do
+      skipXmlTag(inFile);
+      symbol := getXmlTagHeadOrContent(inFile);
+    end while;
+    result := readHtmlNode(inFile, symbol);
     # TRACE_OBJ(result); writeln;
   end func;

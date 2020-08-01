@@ -35,6 +35,8 @@
 #include "sigutl.h"
 #include "data.h"
 #include "infile.h"
+#include "heaputl.h"
+#include "striutl.h"
 #include "syvarutl.h"
 #include "identutl.h"
 #include "entutl.h"
@@ -79,6 +81,7 @@ char **argv;
 #endif
 
   {
+    stritype source_file_name;
     progtype currentProg;
 
   /* main */
@@ -104,7 +107,9 @@ char **argv;
       if (option.source_file_name == NULL) {
         printf("*** Sourcefile missing\n");
       } else {
-        currentProg = analyze((const_ustritype) option.source_file_name);
+        source_file_name = cstri8_or_cstri_to_stri(option.source_file_name);
+        currentProg = analyze(source_file_name);
+        FREE_STRI(source_file_name, source_file_name->size);
         if (!option.analyze_only && currentProg != NULL &&
             (currentProg->error_count == 0 || option.execute_always)) {
 /*        PRIME_OBJECTS(); */

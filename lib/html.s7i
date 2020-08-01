@@ -26,6 +26,14 @@
 (********************************************************************)
 
 
+include "scanstri.s7i";
+
+
+const set of string: voidHtmlElements is {
+    "area", "base", "br", "col", "command", "embed", "hr", "img",
+    "input", "keygen", "link", "meta", "param", "source", "wbr"};
+
+
 const func string: getValueOfHtmlAttribute (in var string: tag, in string: attribute) is func
   result
     var string: result is "";

@@ -139,6 +139,7 @@ const string: chkexc_output is "\n\
   \Floating point exceptions work correct.\n\
   \String exceptions work correct.\n\
   \Array exceptions work correct.\n\
+  \File exceptions work correct.\n\
   \seek(STD_IN, 0) raises RANGE_ERROR\n\
   \gets(STD_IN, -1) raises RANGE_ERROR\n\
   \test_func(1 div 0) raises NUMERIC_ERROR\n\

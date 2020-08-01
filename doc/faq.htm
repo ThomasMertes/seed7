@@ -87,6 +87,9 @@ Is Seed7 object oriented?
 <li><a href="#inherited_from_object"><b>
 Is everything inherited from object?
 </b></a></li>
+<li><a href="#difference_overloading_oo"><b>
+What is the difference between overloading and object orientation?
+</b></a></li>
 <li><a href="#multiple_dispatch"><b>
 What is multiple dispatch?
 </b></a></li>
@@ -824,6 +827,17 @@ oriented languages the class <tt>'<font color=red>object</font>'</tt> is used as
 Abstract data types provide a better and type safe solution for containers and
 other uses of the root class <tt>'<font color=red>object</font>'</tt>. Therefore a single rooted hierarchy is not
 needed.
+</p></p>
+
+<p><br><a name="difference_overloading_oo"><h3>What is the difference between overloading and object orientation?
+</h3></a><hr><!-- ================================================================== -->
+<p>
+Overloading is resolved at compile time while object orientation uses dynamic dispatch
+which decides at runtime which method should be called. Overloading resolution uses
+static types to decide. Dynamic dispatch uses the implementation type, which is only
+known at runtime, to decide. Besides this this difference overloading resolution and
+dynamic dispatch both use the same technic to do the work: The types and the access
+rights of all parameters are used in the decision process.
 </p></p>
 
 <p><br><a name="multiple_dispatch"><h3>What is multiple dispatch?

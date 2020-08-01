@@ -1925,6 +1925,7 @@ rtlArraytype xyArray;
 #endif
 
   {
+    uinttype num_elements;
     memsizetype len;
     POINT *points;
     memsizetype pos;
@@ -1932,17 +1933,26 @@ rtlArraytype xyArray;
 
   /* drwGenPointList */
     /* printf("drwGenPointList(%ld .. %ld)\n", xyArray->min_position, xyArray->max_position); */
-    len = (memsizetype) (((uinttype) (xyArray->max_position - xyArray->min_position)) >> 1);
-    if (!ALLOC_BSTRI(result, len * sizeof(POINT))) {
+    num_elements = (uinttype) (xyArray->max_position - xyArray->min_position) + 1;
+    if (num_elements & 1) {
+      raise_error(RANGE_ERROR);
+      result = NULL;
+    } else if (num_elements >> 1 > MAX_BSTRI_LEN / sizeof(POINT)) {
       raise_error(MEMORY_ERROR);
+      result = NULL;
     } else {
-      result->size = len * sizeof(POINT);
-      if (len > 0) {
-        points = (POINT *) result->mem;
-        for (pos = 0; pos < len; pos ++) {
-          points[pos].x = xyArray->arr[ pos << 1     ].value.intvalue;
-          points[pos].y = xyArray->arr[(pos << 1) + 1].value.intvalue;
-        } /* for */
+      len = (memsizetype) num_elements >> 1;
+      if (!ALLOC_BSTRI_SIZE_OK(result, len * sizeof(POINT))) {
+        raise_error(MEMORY_ERROR);
+      } else {
+        result->size = len * sizeof(POINT);
+        if (len > 0) {
+          points = (POINT *) result->mem;
+          for (pos = 0; pos < len; pos ++) {
+            points[pos].x = xyArray->arr[ pos << 1     ].value.intvalue;
+            points[pos].y = xyArray->arr[(pos << 1) + 1].value.intvalue;
+          } /* for */
+        } /* if */
       } /* if */
     } /* if */
     return(result);

@@ -38,7 +38,6 @@
 #include "syvarutl.h"
 #include "runerr.h"
 #include "memory.h"
-#include "option.h"
 #include "drw_rtl.h"
 #include "kbd_rtl.h"
 #include "drw_drv.h"

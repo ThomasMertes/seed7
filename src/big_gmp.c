@@ -269,7 +269,7 @@ biginttype big1;
         result_size += 5;
         count++;
       } /* if */
-      if (!ALLOC_STRI(result, result_size)) {
+      if (!ALLOC_STRI_CHECK_SIZE(result, result_size)) {
         raise_error(MEMORY_ERROR);
       } else {
         result->size = result_size;
@@ -1408,7 +1408,7 @@ biginttype big1;
           (sign < 0 && buffer[0] <= 127)) {
         result_size++;
       } /* if */
-      if (!ALLOC_BSTRI(result, result_size)) {
+      if (!ALLOC_BSTRI_CHECK_SIZE(result, result_size)) {
         raise_error(MEMORY_ERROR);
       } else {
         result->size = result_size;

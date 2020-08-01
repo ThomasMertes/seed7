@@ -149,7 +149,7 @@ typedef UINT64TYPE         uint64type;
 #elif defined INT64TYPE_FORMAT_CAPITAL_L
 #define INT64TYPE_FORMAT "%Ld"
 #elif defined INT64TYPE_FORMAT_I64
-#define INT64TYPE_FORMAT "%I64"
+#define INT64TYPE_FORMAT "%I64d"
 #else
 #define INT64TYPE_FORMAT "%d"
 #endif

@@ -37,7 +37,6 @@
 #include "flistutl.h"
 #include "syvarutl.h"
 #include "listutl.h"
-#include "arrutl.h"
 #include "traceutl.h"
 #include "executl.h"
 #include "exec.h"
@@ -696,9 +695,8 @@ listtype arguments;
     objecttype key;
     objecttype cmp_func;
     helemtype hashelem;
-    helemtype result_hashelem;
     objecttype cmp_obj;
-    int cmp;
+    inttype cmp;
     objecttype result;
 
   /* hsh_contains */
@@ -709,7 +707,7 @@ listtype arguments;
     key      =                arg_2(arguments);
     hashcode =       take_int(arg_3(arguments));
     cmp_func = take_reference(arg_4(arguments));
-    result_hashelem = NULL;
+    result = SYS_FALSE_OBJECT;
     hashelem = hash1->table[(unsigned int) hashcode & hash1->mask];
     while (hashelem != NULL) {
       cmp_obj = param3_call(cmp_func, &hashelem->key, key, cmp_func);
@@ -719,17 +717,12 @@ listtype arguments;
       if (cmp < 0) {
         hashelem = hashelem->next_less;
       } else if (cmp == 0) {
-        result_hashelem = hashelem;
+        result = SYS_TRUE_OBJECT;
         hashelem = NULL;
       } else {
         hashelem = hashelem->next_greater;
       } /* if */
     } /* while */
-    if (result_hashelem != NULL) {
-      result = SYS_TRUE_OBJECT;
-    } else {
-      result = SYS_FALSE_OBJECT;
-    } /* if */
     return(result);
   } /* hsh_contains */
 
@@ -951,7 +944,7 @@ listtype arguments;
     helemtype greater_hashelems;
     helemtype old_hashelem;
     objecttype cmp_obj;
-    int cmp;
+    inttype cmp;
 
   /* hsh_excl */
     isit_hash(arg_1(arguments));
@@ -1106,7 +1099,7 @@ listtype arguments;
     helemtype hashelem;
     helemtype result_hashelem;
     objecttype cmp_obj;
-    int cmp;
+    inttype cmp;
     objecttype result;
 
   /* hsh_idx */
@@ -1184,7 +1177,7 @@ listtype arguments;
     helemtype hashelem;
     helemtype result_hashelem;
     objecttype cmp_obj;
-    int cmp;
+    inttype cmp;
     errinfotype err_info = OKAY_NO_ERROR;
     objecttype result;
 
@@ -1268,7 +1261,7 @@ listtype arguments;
     objecttype data_copy_func;
     helemtype hashelem;
     objecttype cmp_obj;
-    int cmp;
+    inttype cmp;
     errinfotype err_info = OKAY_NO_ERROR;
 
   /* hsh_incl */
@@ -1390,7 +1383,7 @@ listtype arguments;
     helemtype hashelem;
     helemtype result_hashelem;
     objecttype cmp_obj;
-    int cmp;
+    inttype cmp;
     objecttype result;
 
   /* hsh_refidx */

@@ -63,22 +63,27 @@ bstritype bstri_from;
 
   /* bstAppend */
     bstri_dest = *bstri_to;
-    new_size = bstri_dest->size + bstri_from->size;
-    REALLOC_BSTRI(new_bstri, bstri_dest, bstri_dest->size, new_size);
-    if (new_bstri == NULL) {
+    if (bstri_dest->size > MAX_BSTRI_LEN - bstri_from->size) {
+      /* number of bytes does not fit into memsizetype */
       raise_error(MEMORY_ERROR);
     } else {
-      /* It is possible that bstri_dest == bstri_from holds. */
-      /* In this case 'bstri_from' must be corrected         */
-      /* after realloc() enlarged 'bstri_dest'.              */
-      if (bstri_dest == bstri_from) {
-        bstri_from = new_bstri;
+      new_size = bstri_dest->size + bstri_from->size;
+      REALLOC_BSTRI_SIZE_OK(new_bstri, bstri_dest, bstri_dest->size, new_size);
+      if (new_bstri == NULL) {
+        raise_error(MEMORY_ERROR);
+      } else {
+        if (bstri_dest == bstri_from) {
+          /* It is possible that bstri_dest == bstri_from holds. */
+          /* In this case 'bstri_from' must be corrected         */
+          /* after realloc() enlarged 'bstri_dest'.              */
+          bstri_from = new_bstri;
+        } /* if */
+        COUNT3_BSTRI(new_bstri->size, new_size);
+        memcpy(&new_bstri->mem[new_bstri->size], bstri_from->mem,
+            (size_t) bstri_from->size * sizeof(uchartype));
+        new_bstri->size = new_size;
+        *bstri_to = new_bstri     ;
       } /* if */
-      COUNT3_BSTRI(new_bstri->size, new_size);
-      memcpy(&new_bstri->mem[new_bstri->size], bstri_from->mem,
-          (size_t) bstri_from->size * sizeof(uchartype));
-      new_bstri->size = new_size;
-      *bstri_to = new_bstri     ;
     } /* if */
   } /* bstAppend */
 
@@ -99,18 +104,23 @@ bstritype bstri2;
     bstritype result;
 
   /* bstCat */
-    result_size = bstri1->size + bstri2->size;
-    if (!ALLOC_BSTRI(result, result_size)) {
+    if (bstri1->size > MAX_BSTRI_LEN - bstri2->size) {
+      /* number of bytes does not fit into memsizetype */
       raise_error(MEMORY_ERROR);
-      return NULL;
+      result = NULL;
     } else {
-      result->size = result_size;
-      memcpy(result->mem, bstri1->mem,
-          (size_t) bstri1->size * sizeof(uchartype));
-      memcpy(&result->mem[bstri1->size], bstri2->mem,
-          (size_t) bstri2->size * sizeof(uchartype));
-      return result;
+      result_size = bstri1->size + bstri2->size;
+      if (!ALLOC_BSTRI_SIZE_OK(result, result_size)) {
+        raise_error(MEMORY_ERROR);
+      } else {
+        result->size = result_size;
+        memcpy(result->mem, bstri1->mem,
+            bstri1->size * sizeof(uchartype));
+        memcpy(&result->mem[bstri1->size], bstri2->mem,
+            bstri2->size * sizeof(uchartype));
+      } /* if */
     } /* if */
+    return result;
   } /* bstCat */
 
 
@@ -194,7 +204,7 @@ bstritype bstri_from;
     bstri_dest = *bstri_to;
     new_size = bstri_from->size;
     if (bstri_dest->size != new_size) {
-      if (!ALLOC_BSTRI(bstri_dest, new_size)) {
+      if (!ALLOC_BSTRI_SIZE_OK(bstri_dest, new_size)) {
         raise_error(MEMORY_ERROR);
         return;
       } else {
@@ -228,7 +238,7 @@ bstritype bstri_from;
 
   /* bstCreate */
     new_size = bstri_from->size;
-    if (!ALLOC_BSTRI(result, new_size)) {
+    if (!ALLOC_BSTRI_SIZE_OK(result, new_size)) {
       raise_error(MEMORY_ERROR);
     } else {
       result->size = new_size;
@@ -319,7 +329,7 @@ stritype stri;
 
   /* bstParse */
     len = stri->size;
-    if (!ALLOC_BSTRI(result, len)) {
+    if (!ALLOC_BSTRI_CHECK_SIZE(result, len)) {
       raise_error(MEMORY_ERROR);
     } else {
       result->size = len;

@@ -73,7 +73,7 @@ inttype cmp_func (rtlGenerictype, rtlGenerictype);
     rtlObjecttype *middle_elem;
     rtlObjecttype *less_elem;
     rtlObjecttype *greater_elem;
-    int cmp;
+    inttype cmp;
 
   /* rtl_qsort_array */
     if (end_sort - begin_sort < 8) {

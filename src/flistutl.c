@@ -770,7 +770,7 @@ memsizetype len2;
     stritype result;
 
   /* resize_s */
-    ALLOC_STRI(result, len2);
+    ALLOC_STRI_CHECK_SIZE(result, len2);
 /*  printf("X"); */
     memcpy(result, stri, len2 > len1 ? SIZ_STRI(len1) : SIZ_STRI(len2));
     free_stri(stri, len1);

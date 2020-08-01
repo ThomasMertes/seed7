@@ -43,7 +43,6 @@ inttype rflIpos (listtype list_element, objecttype searched_object,
     const inttype from_index);
 inttype rflLng (const_listtype list);
 listtype rflMklist (objecttype elem);
-booltype rflNe (const_listtype list1, const_listtype list2);
 inttype rflPos (const_listtype list_element, const const_objecttype searched_object);
 listtype rflRange (const listtype list, inttype start, inttype stop);
 listtype rflTail (const listtype list, inttype start);
@@ -65,7 +64,6 @@ void rflIncl ();
 inttype rflIpos ();
 inttype rflLng ();
 listtype rflMklist ();
-booltype rflNe ();
 inttype rflPos ();
 listtype rflRange ();
 listtype rflTail ();

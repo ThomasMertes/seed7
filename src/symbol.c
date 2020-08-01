@@ -100,11 +100,11 @@ void extend_stri_length ()
 #endif
 
   { /* extend_stri_length */
-    if (symbol.stri_max > MAX_SYMB_LENGTH - INCR_SYMB_LENGTH) {
+    if (symbol.stri_max > MAX_STRI_LEN - INCR_SYMB_LENGTH) {
       fatal_memory_error(SOURCE_POSITION(2013));
     } /* if */
     symbol.stri_max += INCR_SYMB_LENGTH;
-    REALLOC_STRI(symbol.strivalue, symbol.strivalue,
+    REALLOC_STRI_SIZE_OK(symbol.strivalue, symbol.strivalue,
         symbol.stri_max - INCR_SYMB_LENGTH, symbol.stri_max);
     if (symbol.strivalue == NULL) {
       fatal_memory_error(SOURCE_POSITION(2014));
@@ -129,7 +129,7 @@ errinfotype *err_info;
       *err_info = MEMORY_ERROR;
     } else {
       COUNT_USTRI(symbol.name_length, count.symb, count.symb_bytes);
-      if (!ALLOC_STRI(symbol.strivalue, symbol.stri_max)) {
+      if (!ALLOC_STRI_CHECK_SIZE(symbol.strivalue, symbol.stri_max)) {
         *err_info = MEMORY_ERROR;
       } /* if */
     } /* if */

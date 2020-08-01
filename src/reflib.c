@@ -49,7 +49,6 @@
 #include "runerr.h"
 #include "memory.h"
 #include "name.h"
-#include "option.h"
 #include "infile.h"
 #include "ref_data.h"
 

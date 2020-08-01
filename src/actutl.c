@@ -203,7 +203,7 @@ acttype *action_found;
 #ifdef TRACE_ACTUTIL
     printf("BEGIN find_action\n");
 #endif
-    if (compr_size(action_name) + 1 > 250) {
+    if (action_name->size >= 250 / MAX_UTF8_EXPANSION_FACTOR) {
       if (act_table.primitive != NULL) {
         *action_found = act_table.primitive[0].action;
       } else {

@@ -566,8 +566,8 @@ comparetype cmp_func;
 #endif
 
   {
-    rtlHelemtype hashelem;
-    int cmp;
+    const_rtlHelemtype hashelem;
+    inttype cmp;
     booltype result;
 
   /* hshContains */
@@ -747,7 +747,7 @@ destrfunctype data_destr_func;
     rtlHelemtype hashelem;
     rtlHelemtype greater_hashelems;
     rtlHelemtype old_hashelem;
-    int cmp;
+    inttype cmp;
 
   /* hshExcl */
 #ifdef TRACE_HSH_RTL
@@ -812,7 +812,7 @@ comparetype cmp_func;
   {
     rtlHelemtype hashelem;
     rtlHelemtype result_hashelem;
-    int cmp;
+    inttype cmp;
     rtlGenerictype result;
 
   /* hshIdx */
@@ -866,7 +866,7 @@ comparetype cmp_func;
   {
     rtlHelemtype hashelem;
     rtlHelemtype result_hashelem;
-    int cmp;
+    inttype cmp;
     rtlObjecttype *result;
 
   /* hshIdxAddr */
@@ -928,7 +928,7 @@ createfunctype data_create_func;
   {
     rtlHelemtype hashelem;
     rtlHelemtype result_hashelem;
-    int cmp;
+    inttype cmp;
     errinfotype err_info = OKAY_NO_ERROR;
     rtlGenerictype result;
 
@@ -1005,7 +1005,7 @@ copyfunctype data_copy_func;
 
   {
     rtlHelemtype hashelem;
-    int cmp;
+    inttype cmp;
     errinfotype err_info = OKAY_NO_ERROR;
 
   /* hshIncl */

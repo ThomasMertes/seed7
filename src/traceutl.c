@@ -220,7 +220,7 @@ chartype cvalue;
 
 #ifdef ANSI_C
 
-void prot_stri (stritype out_mem)
+void prot_stri (const_stritype out_mem)
 #else
 
 void prot_stri (out_mem)
@@ -238,7 +238,7 @@ stritype out_mem;
       } /* if */
       prot_cstri("\"");
       {
-        strelemtype *str;
+        const strelemtype *str;
         memsizetype len;
         char buffer[51];
 
@@ -261,7 +261,7 @@ stritype out_mem;
           } /* if */
           prot_cstri(buffer);
           /* putc((int) *str, protfile); */
-        } /* while */
+        } /* for */
       }
       if (out_mem->size > 128) {
         prot_cstri("\\ *AND_SO_ON* SIZE=");
@@ -1466,7 +1466,7 @@ objecttype traceobject;
           if (traceobject->value.progvalue == NULL) {
             prot_cstri("NULL");
           } else {
-            prot_cstri((const_cstritype) traceobject->value.progvalue->source_file_name);
+            prot_stri(traceobject->value.progvalue->source_file_name);
           } /* if */
           break;
         case SYMBOLOBJECT:

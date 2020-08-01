@@ -149,6 +149,7 @@
 
 #ifdef ANSI_C
 
+int offsetSeek (filetype aFile, const os_off_t offset, const int origin);
 memsizetype remainingBytesInFile (filetype aFile);
 inttype getFileLengthUsingSeek (filetype aFile);
 biginttype getBigFileLengthUsingSeek (filetype aFile);
@@ -173,6 +174,7 @@ void filWrite (filetype aFile, stritype stri);
 
 #else
 
+int offsetSeek ();
 memsizetype remainingBytesInFile ();
 inttype getFileLengthUsingSeek ();
 biginttype getBigFileLengthUsingSeek ();

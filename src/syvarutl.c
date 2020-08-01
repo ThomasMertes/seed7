@@ -88,7 +88,7 @@ stritype stri;
 #ifdef TRACE_SYSVAR
     printf("BEGIN find_sysvar\n");
 #endif
-    if (compr_size(stri) + 1 > 151) {
+    if (stri->size >= 151 / MAX_UTF8_EXPANSION_FACTOR) {
       result = -1;
     } else {
       stri_export((ustritype) sysvar_name, stri);

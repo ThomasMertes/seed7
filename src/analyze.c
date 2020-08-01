@@ -90,7 +90,6 @@ static void init_analyze ()
   { /* init_analyze */
     if (!analyze_initialized) {
       set_trace(NULL, -1, NULL);
-      init_lib_path();
       init_chclass();
       init_primitiv();
       init_do_any();
@@ -167,7 +166,7 @@ static INLINE void include_file ()
 #endif
     scan_symbol();
     if (symbol.sycategory == STRILITERAL) {
-      if (!ALLOC_STRI(include_file_name, symbol.strivalue->size)) {
+      if (!ALLOC_STRI_SIZE_OK(include_file_name, symbol.strivalue->size)) {
         err_warning(OUT_OF_HEAP_SPACE);
       } else {
         include_file_name->size = symbol.strivalue->size;
@@ -177,7 +176,7 @@ static INLINE void include_file ()
         if (current_ident != prog.id_for.semicolon) {
           err_ident(EXPECTED_SYMBOL, prog.id_for.semicolon);
         } /* if */
-        if (stri_charpos(symbol.strivalue, '\\') != NULL) {
+        if (stri_charpos(include_file_name, '\\') != NULL) {
           err_stri(WRONG_PATH_DELIMITER, include_file_name);
           scan_symbol();
         } else {
@@ -278,7 +277,7 @@ static void process_pragma ()
 #ifdef WITH_COMPILATION_INFO
           if (option.compilation_info) {
             size_t number;
-            for (number = 1; number <= 7 + strlen((cstritype) in_file.name);
+            for (number = 1; number <= 7 + strlen((const_cstritype) in_file.name);
                 number++) {
               fputc(' ', stdout);
             } /* for */
@@ -400,15 +399,16 @@ nodetype objects;
 
 #ifdef ANSI_C
 
-static progtype analyze_prog (const_ustritype source_file_name, errinfotype *err_info)
+static progtype analyze_prog (const_stritype source_file_name, errinfotype *err_info)
 #else
 
 static progtype analyze_prog (source_file_name, err_info)
-ustritype source_file_name;
+stritype source_file_name;
 errinfotype *err_info;
 #endif
 
   {
+    stritype source_file_name_copy;
     progrecord prog_backup;
     progtype resultProg;
 
@@ -418,10 +418,18 @@ errinfotype *err_info;
 #endif
     if (!ALLOC_RECORD(resultProg, progrecord, count.prog)) {
       *err_info = MEMORY_ERROR;
+    } else if (!ALLOC_STRI_SIZE_OK(source_file_name_copy, source_file_name->size)) {
+      *err_info = MEMORY_ERROR;
+      FREE_RECORD(resultProg, progrecord, count.prog);
+      resultProg = NULL;
     } else {
+      source_file_name_copy->size = source_file_name->size;
+      memcpy(source_file_name_copy->mem, source_file_name->mem,
+          source_file_name->size * sizeof(strelemtype));
       resultProg->usage_count = 1;
       resultProg->main_object = NULL;
       memcpy(&prog_backup, &prog, sizeof(progrecord));
+      init_lib_path(source_file_name, err_info);
       init_idents(&prog, err_info);
       init_findid(err_info);
       init_entity(err_info);
@@ -475,7 +483,7 @@ errinfotype *err_info;
           write_idents();
         } /* if */
         clean_idents();
-        resultProg->source_file_name = source_file_name;
+        resultProg->source_file_name = source_file_name_copy;
         resultProg->error_count      = prog.error_count;
         memcpy(&resultProg->ident,    &prog.ident, sizeof(idroottype));
         memcpy(&resultProg->id_for,   &prog.id_for, sizeof(findidtype));
@@ -487,6 +495,7 @@ errinfotype *err_info;
         memcpy(&prog, &prog_backup, sizeof(progrecord));
         close_infile();
         close_symbol();
+        free_lib_path();
         if (option.compilation_info || option.linecount_info) {
           show_statistic();
           if (resultProg->error_count >= 1) {
@@ -496,6 +505,11 @@ errinfotype *err_info;
           } /* if */
         } /* if */
         /* trace_list(resultProg->stack_current->local_object_list); */
+      } else {
+        memcpy(&prog, &prog_backup, sizeof(progrecord));
+        FREE_RECORD(resultProg, progrecord, count.prog);
+        FREE_STRI(source_file_name_copy, source_file_name_copy->size);
+        resultProg = NULL;
       } /* if */
     } /* if */
 #ifdef TRACE_ANALYZE
@@ -508,76 +522,103 @@ errinfotype *err_info;
 
 #ifdef ANSI_C
 
-progtype analyze (const_ustritype source_file_name)
+progtype analyze_file (const_stritype source_file_name, errinfotype *err_info)
 #else
 
-progtype analyze (source_file_name)
-ustritype source_file_name;
+progtype analyze_file (source_file_name, err_info)
+stritype source_file_name;
+errinfotype *err_info;
 #endif
 
   {
-    unsigned int len;
     stritype source_name;
     unsigned int name_len;
     booltype add_extension;
     progtype resultProg;
+
+  /* analyze_file */
+#ifdef TRACE_ANALYZE
+    printf("BEGIN analyze_file\n");
+#endif
+    in_analyze = TRUE;
+    init_analyze();
+    resultProg = NULL;
+    if (source_file_name->size > 4 &&
+        source_file_name->mem[source_file_name->size - 4] == '.' &&
+        source_file_name->mem[source_file_name->size - 3] == 's' &&
+        source_file_name->mem[source_file_name->size - 2] == 'd' &&
+        source_file_name->mem[source_file_name->size - 1] == '7') {
+      name_len = source_file_name->size;
+      add_extension = FALSE;
+    } else {
+      name_len = source_file_name->size + 4;
+      add_extension = TRUE;
+    } /* if */
+    if (stri_charpos(source_file_name, '\\') != NULL) {
+      *err_info = RANGE_ERROR;
+    } else if (!ALLOC_STRI_CHECK_SIZE(source_name, name_len)) {
+      *err_info = MEMORY_ERROR;
+    } else if (*err_info == OKAY_NO_ERROR) {
+      source_name->size = name_len;
+      memcpy(source_name->mem, source_file_name->mem, source_file_name->size * sizeof(strelemtype));
+      if (add_extension) {
+        cstri_expand(&source_name->mem[source_file_name->size], ".sd7", 4);
+      } /* if */
+      open_infile(source_name, err_info);
+      if (*err_info == FILE_ERROR && add_extension) {
+        *err_info = OKAY_NO_ERROR;
+        source_name->size = name_len - 4;
+        open_infile(source_name, err_info);
+      } /* if */
+      if (*err_info == OKAY_NO_ERROR) {
+        scan_byte_order_mark();
+        resultProg = analyze_prog(source_file_name, err_info);
+      } /* if */
+      FREE_STRI(source_name, name_len);
+    } /* if */
+    in_analyze = FALSE;
+#ifdef TRACE_ANALYZE
+    printf("END analyze_file\n");
+#endif
+    return resultProg;
+  } /* analyze_file */
+
+
+
+#ifdef ANSI_C
+
+progtype analyze (stritype source_file_name)
+#else
+
+progtype analyze (source_file_name)
+stritype source_file_name;
+#endif
+
+  {
     errinfotype err_info = OKAY_NO_ERROR;
+    progtype resultProg;
 
   /* analyze */
 #ifdef TRACE_ANALYZE
     printf("BEGIN analyze\n");
 #endif
-    in_analyze = TRUE;
-    init_analyze();
-    resultProg = NULL;
-    len = strlen((const_cstritype) source_file_name);
-    if (len > 4 && strcmp((const_cstritype) &source_file_name[len - 4], ".sd7") == 0) {
-      name_len = len;
-      add_extension = FALSE;
-    } else {
-      name_len = len + 4;
-      add_extension = TRUE;
-    } /* if */
-    if (!ALLOC_STRI(source_name, name_len)) {
-      /* fatal_memory_error(SOURCE_POSITION(2113)); */
-      err_warning(OUT_OF_HEAP_SPACE);
-    } else {
-      source_name->size = name_len;
-      ustri_expand(source_name->mem, source_file_name, len);
 #if PATH_DELIMITER != '/'
-      {
-        unsigned int pos;
+    {
+      unsigned int pos;
 
-        for (pos = 0; pos < len; pos++) {
-          if (source_name->mem[pos] == PATH_DELIMITER) {
-            source_name->mem[pos] = (strelemtype) '/';
-          } /* if */
-        } /* for */
-      }
+      for (pos = 0; pos < source_file_name->size; pos++) {
+        if (source_file_name->mem[pos] == PATH_DELIMITER) {
+          source_file_name->mem[pos] = (strelemtype) '/';
+        } /* if */
+      } /* for */
+    }
 #endif
-      if (add_extension) {
-        cstri_expand(&source_name->mem[len], ".sd7", 4);
-      } /* if */
-      open_infile(source_name, &err_info);
-      if (err_info == FILE_ERROR && add_extension) {
-        err_info = OKAY_NO_ERROR;
-        source_name->size = name_len - 4;
-        open_infile(source_name, &err_info);
-      } /* if */
-      if (err_info == FILE_ERROR) {
-        err_message(NO_SOURCEFILE, source_name);
-        resultProg = NULL;
-      } else if (err_info == OKAY_NO_ERROR) {
-        scan_byte_order_mark();
-        resultProg = analyze_prog(source_file_name, &err_info);
-      } /* if */
-      if (err_info == MEMORY_ERROR) {
-        err_warning(OUT_OF_HEAP_SPACE);
-        resultProg = NULL;
-      } /* if */
-      FREE_STRI(source_name, name_len);
+    resultProg = analyze_file(source_file_name, &err_info);
+    if (err_info == MEMORY_ERROR) {
+      err_warning(OUT_OF_HEAP_SPACE);
+    } else if (err_info != OKAY_NO_ERROR) {
+      err_message(NO_SOURCEFILE, source_file_name);
     } /* if */
-    in_analyze = FALSE;
 #ifdef TRACE_ANALYZE
     printf("END analyze\n");
 #endif
@@ -588,16 +629,17 @@ ustritype source_file_name;
 
 #ifdef ANSI_C
 
-progtype analyze_string (stritype input_string)
+progtype analyze_string (const_stritype input_string, errinfotype *err_info)
 #else
 
-progtype analyze_string (input_string)
+progtype analyze_string (input_string, err_info)
 stritype input_string;
+errinfotype *err_info;
 #endif
 
   {
+    stritype source_file_name;
     bstritype input_bstri;
-    errinfotype err_info = OKAY_NO_ERROR;
     progtype resultProg;
 
   /* analyze_string */
@@ -607,17 +649,21 @@ stritype input_string;
     in_analyze = TRUE;
     init_analyze();
     resultProg = NULL;
-    input_bstri = stri_to_bstri8(input_string);
-    if (input_bstri != NULL) {
-      open_string(input_bstri, &err_info);
-      if (err_info == OKAY_NO_ERROR) {
-        resultProg = analyze_prog((const_ustritype) "STRING", &err_info);
-        if (err_info == MEMORY_ERROR) {
-          err_warning(OUT_OF_HEAP_SPACE);
-          resultProg = NULL;
+    source_file_name = cstri_to_stri("STRING");
+    if (source_file_name == NULL) {
+      *err_info = MEMORY_ERROR;
+    } else {
+      input_bstri = stri_to_bstri8(input_string);
+      if (input_bstri == NULL) {
+        *err_info = MEMORY_ERROR;
+      } else {
+        open_string(input_bstri, err_info);
+        if (*err_info == OKAY_NO_ERROR) {
+          resultProg = analyze_prog(source_file_name, err_info);
         } /* if */
+        FREE_BSTRI(input_bstri, input_bstri->size);
       } /* if */
-      FREE_BSTRI(input_bstri, input_bstri->size);
+      FREE_STRI(source_file_name, source_file_name->size);
     } /* if */
     in_analyze = FALSE;
 #ifdef TRACE_ANALYZE

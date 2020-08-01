@@ -433,7 +433,9 @@ stritype stri;
     cstritype cstri;
 
   /* cp_to_cstri */
-    if (ALLOC_CSTRI(cstri, compr_size(stri))) {
+    if (stri->size > MAX_CSTRI_LEN / MAX_UTF8_EXPANSION_FACTOR) {
+      cstri = NULL;
+    } else if (ALLOC_CSTRI(cstri, max_utf8_size(stri))) {
       stri_export((ustritype) cstri, stri);
     } /* if */
     return(cstri);
@@ -536,8 +538,10 @@ errinfotype *err_info;
     if (stri->size >= 2 && stri->mem[stri->size - 1] == '/') {
       *err_info = RANGE_ERROR;
       result = NULL;
-    } else if (!ALLOC_CSTRI(result, compr_size(stri))) {
+    } else if (stri->size > MAX_CSTRI_LEN / MAX_UTF8_EXPANSION_FACTOR ||
+        !ALLOC_CSTRI(result, max_utf8_size(stri))) {
       *err_info = MEMORY_ERROR;
+      result = NULL;
     } else {
       stri_export((ustritype) result, stri);
     } /* if */
@@ -567,14 +571,14 @@ stritype stri;
     bstritype bstri;
 
   /* stri_to_bstri */
-    if (ALLOC_BSTRI(bstri, stri->size)) {
+    if (ALLOC_BSTRI_CHECK_SIZE(bstri, stri->size)) {
       bstri->size = stri->size;
 #ifdef UTF32_STRINGS
       for (str = stri->mem, ustri = bstri->mem, len = stri->size;
           len > 0; str++, ustri++, len--) {
         if (*str >= 256) {
           bstri->size -= len;
-          REALLOC_BSTRI(resized_bstri, bstri, stri->size, bstri->size);
+          REALLOC_BSTRI_SIZE_OK(resized_bstri, bstri, stri->size, bstri->size);
           if (resized_bstri == NULL) {
             FREE_BSTRI(bstri, stri->size);
             bstri = NULL;
@@ -609,20 +613,22 @@ stritype stri;
     bstritype bstri;
 
   /* stri_to_bstri8 */
-    if (ALLOC_BSTRI(bstri, compr_size(stri))) {
+    if (stri->size > MAX_BSTRI_LEN / MAX_UTF8_EXPANSION_FACTOR) {
+      bstri = NULL;
+    } else if (ALLOC_BSTRI_SIZE_OK(bstri, max_utf8_size(stri))) {
 #ifdef UTF32_STRINGS
       bstri->size = stri_to_utf8(bstri->mem, stri);
 #else
       memcpy(bstri->mem, stri->mem, stri->size);
       bstri->size = stri->size;
 #endif
-      REALLOC_BSTRI(resized_bstri, bstri, compr_size(stri), bstri->size);
+      REALLOC_BSTRI_SIZE_OK(resized_bstri, bstri, max_utf8_size(stri), bstri->size);
       if (resized_bstri == NULL) {
-        FREE_BSTRI(bstri, compr_size(stri));
+        FREE_BSTRI(bstri, max_utf8_size(stri));
         bstri = NULL;
       } else {
         bstri = resized_bstri;
-        COUNT3_BSTRI(compr_size(stri), bstri->size);
+        COUNT3_BSTRI(max_utf8_size(stri), bstri->size);
       } /* if */
     } /* if */
     return(bstri);
@@ -645,7 +651,7 @@ cstritype cstri;
 
   /* cstri_to_stri */
     length = strlen(cstri);
-    if (ALLOC_STRI(result, length)) {
+    if (ALLOC_STRI_CHECK_SIZE(result, length)) {
       result->size = length;
       cstri_expand(result->mem, cstri, length);
     } /* if */
@@ -672,7 +678,7 @@ cstritype cstri;
 
   /* cstri_to_stri */
     length = strlen(cstri);
-    if (ALLOC_STRI(result, length)) {
+    if (ALLOC_STRI_CHECK_SIZE(result, length)) {
       result->size = length;
       stri = result->mem;
       ustri = (const_ustritype) cstri;
@@ -703,9 +709,9 @@ cstritype cstri;
 
   /* cstri8_to_stri */
     length = strlen(cstri);
-    if (ALLOC_STRI(stri, length)) {
+    if (ALLOC_STRI_CHECK_SIZE(stri, length)) {
       if (utf8_to_stri(stri->mem, &stri_size, (const_ustritype) cstri, length) == 0) {
-        REALLOC_STRI(resized_stri, stri, length, stri_size);
+        REALLOC_STRI_SIZE_OK(resized_stri, stri, length, stri_size);
         if (resized_stri == NULL) {
           FREE_STRI(stri, length);
           stri = NULL;
@@ -765,7 +771,7 @@ wstritype wstri;
     while (wstri[length] != 0) {
       length++;
     } /* while */
-    if (ALLOC_STRI(stri, length)) {
+    if (ALLOC_STRI_CHECK_SIZE(stri, length)) {
       stri->size = length;
       wstri_expand(stri->mem, wstri, (size_t) length);
     } /* if */
@@ -804,7 +810,7 @@ os_stritype os_stri;
 
 #ifdef ANSI_C
 
-strelemtype *stri_charpos (stritype stri, strelemtype ch)
+const strelemtype *stri_charpos (const_stritype stri, strelemtype ch)
 #else
 
 strelemtype *stri_charpos (stri, ch)
@@ -813,7 +819,7 @@ strelemtype ch;
 #endif
 
   {
-    strelemtype *mem;
+    const strelemtype *mem;
     size_t number;
 
   /* stri_charpos */
@@ -956,8 +962,10 @@ errinfotype *err_info;
     os_stritype cmd;
 
   /* cp_to_command */
-    if (!ALLOC_CSTRI(cmd, compr_size(stri))) {
+    if (stri->size > MAX_CSTRI_LEN / MAX_UTF8_EXPANSION_FACTOR ||
+        !ALLOC_CSTRI(cmd, max_utf8_size(stri))) {
       *err_info = MEMORY_ERROR;
+      cmd = NULL;
     } else {
       stri_export((ustritype) cmd, stri);
       quote_path = FALSE;

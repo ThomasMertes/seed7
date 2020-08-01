@@ -177,18 +177,18 @@ static INLINE stritype new_string ()
     {
       memsizetype stri_created_size = symbol.strivalue->size;
 
-      REALLOC_STRI(stri_created, symbol.strivalue,
+      REALLOC_STRI_SIZE_OK(stri_created, symbol.strivalue,
           symbol.stri_max, stri_created_size);
     }
     if (stri_created == NULL) {
       fatal_memory_error(SOURCE_POSITION(2055));
     } /* if */
     COUNT3_STRI(symbol.stri_max, stri_created->size);
-    if (!ALLOC_STRI(symbol.strivalue, symbol.stri_max)) {
+    if (!ALLOC_STRI_SIZE_OK(symbol.strivalue, symbol.stri_max)) {
       fatal_memory_error(SOURCE_POSITION(2056));
     } /* if */
 #else
-    if (!ALLOC_STRI(stri_created, symbol.strivalue->size)) {
+    if (!ALLOC_STRI_SIZE_OK(stri_created, symbol.strivalue->size)) {
       fatal_memory_error(SOURCE_POSITION(2057));
     } /* if */
     stri_created->size = symbol.strivalue->size;

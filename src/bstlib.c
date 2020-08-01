@@ -75,22 +75,27 @@ listtype arguments;
     bstr_from = take_bstri(arg_3(arguments));
     if (bstr_from->size != 0) {
       bstr_to_size = bstr_to->size;
-      new_size = bstr_to_size + bstr_from->size;
-      REALLOC_BSTRI(new_bstr, bstr_to, bstr_to_size, new_size);
-      if (new_bstr == NULL) {
+      if (bstr_to_size > MAX_BSTRI_LEN - bstr_from->size) {
+        /* number of bytes does not fit into memsizetype */
         return(raise_exception(SYS_MEM_EXCEPTION));
       } else {
-        /* It is possible that bstr_to == bstr_from holds. */
-        /* In this case 'bstr_from' must be corrected      */
-        /* after realloc() enlarged 'bstr_to'.             */
-        if (bstr_to == bstr_from) {
-          bstr_from = new_bstr;
+        new_size = bstr_to_size + bstr_from->size;
+        REALLOC_BSTRI_SIZE_OK(new_bstr, bstr_to, bstr_to_size, new_size);
+        if (new_bstr == NULL) {
+          return(raise_exception(SYS_MEM_EXCEPTION));
+        } else {
+          if (bstr_to == bstr_from) {
+            /* It is possible that bstr_to == bstr_from holds. */
+            /* In this case 'bstr_from' must be corrected      */
+            /* after realloc() enlarged 'bstr_to'.             */
+            bstr_from = new_bstr;
+          } /* if */
+          COUNT3_BSTRI(bstr_to_size, new_size);
+          memcpy(&new_bstr->mem[bstr_to_size], bstr_from->mem,
+              bstr_from->size * sizeof(uchartype));
+          new_bstr->size = new_size;
+          bstr_variable->value.bstrivalue = new_bstr;
         } /* if */
-        COUNT3_BSTRI(bstr_to_size, new_size);
-        memcpy(&new_bstr->mem[bstr_to_size], bstr_from->mem,
-            bstr_from->size * sizeof(uchartype));
-        new_bstr->size = new_size;
-        bstr_variable->value.bstrivalue = new_bstr;
       } /* if */
     } /* if */
     return(SYS_EMPTY_OBJECT);
@@ -120,28 +125,34 @@ listtype arguments;
     bstr1 = take_bstri(arg_1(arguments));
     bstr2 = take_bstri(arg_3(arguments));
     bstr1_size = bstr1->size;
-    result_size = bstr1_size + bstr2->size;
-    if (TEMP_OBJECT(arg_1(arguments))) {
-      REALLOC_BSTRI(result, bstr1, bstr1_size, result_size);
-      if (result == NULL) {
-        return(raise_exception(SYS_MEM_EXCEPTION));
-      } /* if */
-      COUNT3_STRI(bstr1_size, result_size);
-      result->size = result_size;
-      memcpy(&result->mem[bstr1_size], bstr2->mem,
-          (size_t) bstr2->size * sizeof(uchartype));
-      arg_1(arguments)->value.bstrivalue = NULL;
-      return(bld_bstri_temp(result));
+    if (bstr1_size > MAX_BSTRI_LEN - bstr2->size) {
+      /* number of bytes does not fit into memsizetype */
+      return(raise_exception(SYS_MEM_EXCEPTION));
     } else {
-      if (!ALLOC_BSTRI(result, result_size)) {
-        return(raise_exception(SYS_MEM_EXCEPTION));
+      result_size = bstr1_size + bstr2->size;
+      if (TEMP_OBJECT(arg_1(arguments))) {
+        REALLOC_BSTRI_SIZE_OK(result, bstr1, bstr1_size, result_size);
+        if (result == NULL) {
+          return(raise_exception(SYS_MEM_EXCEPTION));
+        } else {
+          COUNT3_STRI(bstr1_size, result_size);
+          result->size = result_size;
+          memcpy(&result->mem[bstr1_size], bstr2->mem,
+              bstr2->size * sizeof(uchartype));
+          arg_1(arguments)->value.bstrivalue = NULL;
+          return(bld_bstri_temp(result));
+        } /* if */
       } else {
-        result->size = result_size;
-        memcpy(result->mem, bstr1->mem,
-            (size_t) bstr1_size * sizeof(uchartype));
-        memcpy(&result->mem[bstr1_size], bstr2->mem,
-            (size_t) bstr2->size * sizeof(uchartype));
-        return(bld_bstri_temp(result));
+        if (!ALLOC_BSTRI_SIZE_OK(result, result_size)) {
+          return(raise_exception(SYS_MEM_EXCEPTION));
+        } else {
+          result->size = result_size;
+          memcpy(result->mem, bstr1->mem,
+              bstr1_size * sizeof(uchartype));
+          memcpy(&result->mem[bstr1_size], bstr2->mem,
+              bstr2->size * sizeof(uchartype));
+          return(bld_bstri_temp(result));
+        } /* if */
       } /* if */
     } /* if */
   } /* bst_cat */
@@ -221,16 +232,16 @@ listtype arguments;
     } else {
       new_size = take_bstri(bstri_from)->size;
       if (bstri_dest->size == new_size) {
-        /* It is possible that bstr_to == bstr_from holds. The */
-        /* behavior of memcpy() is undefined when source and   */
-        /* destination areas overlap (or are identical).       */
-        /* Therefore a check for this case is necessary.       */
         if (bstri_dest != take_bstri(bstri_from)) {
+          /* It is possible that bstr_to == bstr_from holds. The */
+          /* behavior of memcpy() is undefined when source and   */
+          /* destination areas overlap (or are identical).       */
+          /* Therefore a check for this case is necessary.       */
           memcpy(bstri_dest->mem, take_stri(bstri_from)->mem,
               new_size * sizeof(uchartype));
         } /* if */
       } else {
-        if (!ALLOC_BSTRI(bstri_dest, new_size)) {
+        if (!ALLOC_BSTRI_SIZE_OK(bstri_dest, new_size)) {
           return(raise_exception(SYS_MEM_EXCEPTION));
         } else {
           FREE_BSTRI(take_bstri(bstri_to), take_bstri(bstri_to)->size);
@@ -238,7 +249,7 @@ listtype arguments;
           bstri_dest->size = new_size;
         } /* if */
         memcpy(bstri_dest->mem, take_bstri(bstri_from)->mem,
-            (size_t) new_size * sizeof(uchartype));
+            new_size * sizeof(uchartype));
       } /* if */
     } /* if */
     return(SYS_EMPTY_OBJECT);
@@ -272,14 +283,14 @@ listtype arguments;
     } else {
 /*    printf("bstri_create %d !!!\n", in_file.line); */
       new_size = take_bstri(bstri_from)->size;
-      if (!ALLOC_BSTRI(new_bstri, new_size)) {
+      if (!ALLOC_BSTRI_SIZE_OK(new_bstri, new_size)) {
         bstri_to->value.bstrivalue = NULL;
         return(raise_exception(SYS_MEM_EXCEPTION));
       } /* if */
       bstri_to->value.bstrivalue = new_bstri;
       new_bstri->size = new_size;
       memcpy(new_bstri->mem, take_bstri(bstri_from)->mem,
-          (size_t) new_size * sizeof(uchartype));
+          new_size * sizeof(uchartype));
     } /* if */
     return(SYS_EMPTY_OBJECT);
   } /* bst_create */
@@ -323,7 +334,7 @@ listtype arguments;
     bstritype result;
 
   /* bst_empty */
-    if (!ALLOC_BSTRI(result, 0)) {
+    if (!ALLOC_BSTRI_SIZE_OK(result, 0)) {
       return(raise_exception(SYS_MEM_EXCEPTION));
     } else {
       result->size = 0;
@@ -471,7 +482,7 @@ listtype arguments;
       return(raise_exception(SYS_RNG_EXCEPTION));
     } else {
       str1 = take_bstri(obj_arg);
-      if (!ALLOC_BSTRI(result, str1->size)) {
+      if (!ALLOC_BSTRI_SIZE_OK(result, str1->size)) {
         return(raise_exception(SYS_MEM_EXCEPTION));
       } else {
         result->size = str1->size;

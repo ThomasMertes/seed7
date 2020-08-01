@@ -704,7 +704,12 @@ inttype pad_size;
     } while ((unsigned_number /= 10) != 0);
     length = (memsizetype) (&buffer_1[50] - buffer);
     if (pad_size > (inttype) length) {
-      result_size = (memsizetype) pad_size;
+      if ((uinttype) pad_size > MAX_STRI_LEN) {
+        raise_error(MEMORY_ERROR);
+        return NULL;
+      } else {
+        result_size = (memsizetype) pad_size;
+      } /* if */
     } else {
       if (negative) {
         result_size = length + 1;
@@ -712,7 +717,7 @@ inttype pad_size;
         result_size = length;
       } /* if */
     } /* if */
-    if (!ALLOC_STRI(result, result_size)) {
+    if (!ALLOC_STRI_SIZE_OK(result, result_size)) {
       raise_error(MEMORY_ERROR);
       return NULL;
     } else {
@@ -897,9 +902,8 @@ inttype number;
 #endif
 
   {
-    register unsigned long result;
-    register unsigned long res2;
-    uinttype unsigned_number;
+    register uinttype result;
+    register uinttype res2;
 
   /* intSqrt */
     if (number < 0) {
@@ -908,11 +912,10 @@ inttype number;
     } else if (number == 0) {
       return (inttype) 0;
     } else {
-      unsigned_number = (uinttype) number;
-      res2 = unsigned_number;
+      res2 = (uinttype) number;
       do {
         result = res2;
-        res2 = (result + unsigned_number / result) >> 1;
+        res2 = (result + (uinttype) number / result) >> 1;
       } while (result > res2);
       return (inttype) result;
     } /* if */
@@ -952,7 +955,7 @@ inttype number;
       *(--buffer) = (strelemtype) '-';
     } /* if */
     length = (memsizetype) (&buffer_1[50] - buffer);
-    if (!ALLOC_STRI(result, length)) {
+    if (!ALLOC_STRI_SIZE_OK(result, length)) {
       raise_error(MEMORY_ERROR);
       return NULL;
     } else {
@@ -1001,7 +1004,7 @@ inttype base;
         *(--buffer) = (strelemtype) '-';
       } /* if */
       length = (memsizetype) (&buffer_1[75] - buffer);
-      if (!ALLOC_STRI(result, length)) {
+      if (!ALLOC_STRI_SIZE_OK(result, length)) {
         raise_error(MEMORY_ERROR);
       } else {
         result->size = length;
@@ -1045,7 +1048,7 @@ inttype number;
       *(--buffer) = (strelemtype) '-';
     } /* if */
     length = (memsizetype) (&buffer_1[50] - buffer);
-    if (!ALLOC_STRI(result, length)) {
+    if (!ALLOC_STRI_SIZE_OK(result, length)) {
       raise_error(MEMORY_ERROR);
       return NULL;
     } else {

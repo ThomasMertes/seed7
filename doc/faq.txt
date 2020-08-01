@@ -688,6 +688,17 @@ other uses of the root class 'object'. Therefore a single rooted hierarchy is no
 needed.
 
 
+What is the difference between overloading and object orientation?
+==================================================================
+
+Overloading is resolved at compile time while object orientation uses dynamic dispatch
+which decides at runtime which method should be called. Overloading resolution uses
+static types to decide. Dynamic dispatch uses the implementation type, which is only
+known at runtime, to decide. Besides this this difference overloading resolution and
+dynamic dispatch both use the same technic to do the work: The types and the access
+rights of all parameters are used in the decision process.
+
+
 What is multiple dispatch?
 ==========================
 

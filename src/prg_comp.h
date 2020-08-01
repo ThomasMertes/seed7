@@ -33,10 +33,10 @@ void prgDestr (progtype old_prog);
 inttype prgErrorCount (progtype aProg);
 objecttype prgEval (progtype currentProg, objecttype object);
 void prgExec (progtype currentProg);
-progtype prgFilParse (stritype stri);
+progtype prgFilParse (const_stritype stri);
 objecttype prgMatch (progtype currentProg, listtype curr_expr);
 objecttype prgMatchExpr (progtype currentProg, listtype curr_expr);
-progtype prgStrParse (stritype stri);
+progtype prgStrParse (const_stritype stri);
 objecttype prgSyobject (progtype currentProg, stritype stri1);
 objecttype prgSysvar (progtype aProg, stritype sysvarName);
 

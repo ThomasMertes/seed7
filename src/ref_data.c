@@ -955,7 +955,7 @@ objecttype obj_arg;
       result = NULL;
     } else {
       str1 = take_bstri(obj_arg);
-      if (!ALLOC_BSTRI(result, str1->size)) {
+      if (!ALLOC_BSTRI_SIZE_OK(result, str1->size)) {
         raise_error(MEMORY_ERROR);
       } else {
         result->size = str1->size;
@@ -1215,7 +1215,7 @@ objecttype obj_arg;
       result = NULL;
     } else {
       str1 = take_stri(obj_arg);
-      if (!ALLOC_STRI(result, str1->size)) {
+      if (!ALLOC_STRI_SIZE_OK(result, str1->size)) {
         raise_error(MEMORY_ERROR);
       } else {
         result->size = str1->size;

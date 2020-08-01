@@ -71,7 +71,7 @@ memsizetype len;
       if (new_len < 8) {
         new_len = 8;
       } /* if */
-      /* printf("growStri(%lX, %lu) size=%u, capacity=%u, new_len=%u, siz_stri=%u sizeof=%u",
+      /* printf("growStri(%lX, %lu) size=%u, capacity=%u, new_len=%u, siz_stri=%u, sizeof=%u\n",
          stri, len, stri->size, stri->capacity, new_len, SIZ_STRI(new_len), sizeof(strirecord));
       fflush(stdout); */
       result = REALLOC_HEAP(stri, stritype, SIZ_STRI(new_len));
@@ -106,6 +106,9 @@ memsizetype len;
 
   /* shrinkStri */
     new_len = 2 * len;
+    /* printf("shrinkStri(%lX, %lu) size=%u, capacity=%u, new_len=%u, siz_stri=%u, sizeof=%u\n",
+         stri, len, stri->size, stri->capacity, new_len, SIZ_STRI(new_len), sizeof(strirecord));
+    fflush(stdout); */
     result = REALLOC_HEAP(stri, stritype, SIZ_STRI(new_len));
     result->capacity = new_len;
     return(result);

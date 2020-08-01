@@ -367,7 +367,7 @@ typedef struct {
 typedef struct progstruct {
     uinttype usage_count;
     objecttype main_object;
-    const_ustritype source_file_name;
+    const_stritype source_file_name;
     unsigned int error_count;
     idroottype ident;
     findidtype id_for;
@@ -380,11 +380,11 @@ typedef struct progstruct {
 
 typedef struct infilstruct {
     FILE *fil;
-    ustritype name;
+    const_ustritype name;
 #ifdef USE_ALTERNATE_NEXT_CHARACTER
     ustritype start;
-    ustritype nextch;
-    ustritype beyond;
+    const_ustritype nextch;
+    const_ustritype beyond;
     memsizetype buffer_size;
 #else
 #ifdef USE_INFILE_BUFFER

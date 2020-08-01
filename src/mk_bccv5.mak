@@ -61,7 +61,7 @@ EOBJ1 = exec.obj doany.obj memory.obj
 AOBJ1 = act_comp.obj prg_comp.obj analyze.obj syntax.obj token.obj parser.obj name.obj type.obj
 AOBJ2 = expr.obj atom.obj object.obj scanner.obj literal.obj numlit.obj findid.obj
 AOBJ3 = error.obj infile.obj symbol.obj info.obj stat.obj fatal.obj match.obj
-GOBJ1 = syvarutl.obj traceutl.obj actutl.obj arrutl.obj executl.obj blockutl.obj
+GOBJ1 = syvarutl.obj traceutl.obj actutl.obj executl.obj blockutl.obj
 GOBJ2 = entutl.obj identutl.obj chclsutl.obj sigutl.obj
 ROBJ1 = arr_rtl.obj bln_rtl.obj bst_rtl.obj chr_rtl.obj cmd_rtl.obj dir_rtl.obj drw_rtl.obj fil_rtl.obj flt_rtl.obj
 ROBJ2 = hsh_rtl.obj int_rtl.obj kbd_rtl.obj scr_rtl.obj set_rtl.obj soc_rtl.obj str_rtl.obj tim_rtl.obj ut8_rtl.obj
@@ -81,7 +81,7 @@ ESRC1 = exec.c doany.c memory.c
 ASRC1 = act_comp.c prg_comp.c analyze.c syntax.c token.c parser.c name.c type.c
 ASRC2 = expr.c atom.c object.c scanner.c literal.c numlit.c findid.c
 ASRC3 = error.c infile.c symbol.c info.c stat.c fatal.c match.c
-GSRC1 = syvarutl.c traceutl.c actutl.c arrutl.c executl.c blockutl.c
+GSRC1 = syvarutl.c traceutl.c actutl.c executl.c blockutl.c
 GSRC2 = entutl.c identutl.c chclsutl.c sigutl.c
 RSRC1 = arr_rtl.c bln_rtl.c bst_rtl.c chr_rtl.c cmd_rtl.c dir_rtl.c drw_rtl.c fil_rtl.c flt_rtl.c
 RSRC2 = hsh_rtl.c int_rtl.c kbd_rtl.c scr_rtl.c set_rtl.c soc_rtl.c str_rtl.c tim_rtl.c ut8_rtl.c
@@ -163,29 +163,30 @@ version.h:
 	cmd /S /C "echo #define os_pclose _pclose" >> version.h
 	cmd /S /C "echo #define os_popen _wpopen" >> version.h
 	cmd /S /C "echo #define wide_fopen _wfopen" >> version.h
+	cmd /S /C "echo #define os_off_t long" >> version.h
 	cmd /S /C "echo #define USE_WINSOCK" >> version.h
 	cmd /S /C "echo #define $(BIGINT_LIB_DEFINE)" >> version.h
 	cmd /S /C "echo bcc32.exe %*" > bcc32.bat
-	cmd /S /C "echo #include "stdio.h"" > chkftell.c
-	cmd /S /C "echo int main (int argc, char **argv)" >> chkftell.c
-	cmd /S /C "echo {" >> chkftell.c
-	cmd /S /C "echo FILE *aFile;" >> chkftell.c
-	cmd /S /C "echo aFile = _popen("dir","r");" >> chkftell.c
-	cmd /S /C "echo if (ftell(aFile) != -1) {" >> chkftell.c
-	cmd /S /C "echo puts("\043define FTELL_WRONG_FOR_PIPE");" >> chkftell.c
-	cmd /S /C "echo }" >> chkftell.c
-	cmd /S /C "echo return 0;" >> chkftell.c
-	cmd /S /C "echo }" >> chkftell.c
-	$(CC) chkftell.c
-	chkftell >> version.h
-	del chkftell.c
-	del chkftell.obj
-	del chkftell.tds
-	del chkftell.exe
 	cmd /S /C "echo #include "stdio.h"" > chkccomp.c
 	cmd /S /C "echo int main (int argc, char **argv)" >> chkccomp.c
 	cmd /S /C "echo {" >> chkccomp.c
+	cmd /S /C "echo FILE *aFile;" >> chkccomp.c
 	cmd /S /C "echo long number;" >> chkccomp.c
+	cmd /S /C "echo aFile = _popen("dir","r");" >> chkccomp.c
+	cmd /S /C "echo if (ftell(aFile) != -1) {" >> chkccomp.c
+	cmd /S /C "echo puts("\043define FTELL_WRONG_FOR_PIPE");" >> chkccomp.c
+	cmd /S /C "echo }" >> chkccomp.c
+	cmd /S /C "echo if ((aFile = fopen("tmp_test_file","w")) != NULL) {" >> chkccomp.c
+	cmd /S /C "echo fwrite("asdf",1,4,aFile);" >> chkccomp.c
+	cmd /S /C "echo fclose(aFile);" >> chkccomp.c
+	cmd /S /C "echo if ((aFile = fopen("tmp_test_file","r")) != NULL) {" >> chkccomp.c
+	cmd /S /C "echo if (fwrite("qwert",1,5,aFile) != 0) {" >> chkccomp.c
+	cmd /S /C "echo puts("\043define FWRITE_WRONG_FOR_READ_ONLY_FILES");" >> chkccomp.c
+	cmd /S /C "echo }" >> chkccomp.c
+	cmd /S /C "echo fclose(aFile);" >> chkccomp.c
+	cmd /S /C "echo }" >> chkccomp.c
+	cmd /S /C "echo remove("tmp_test_file");" >> chkccomp.c
+	cmd /S /C "echo }" >> chkccomp.c
 	cmd /S /C "echo printf("\043define POINTER_SIZE %d", 8 * sizeof(char *));" >> chkccomp.c
 	cmd /S /C "echo puts("");" >> chkccomp.c
 	cmd /S /C "echo printf("\043define FLOAT_SIZE %d", 8 * sizeof(float));" >> chkccomp.c
