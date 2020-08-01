@@ -401,7 +401,7 @@ const func bigInteger: sqrt (in var bigInteger: number) is func
       res2 := number;
       repeat
         result := res2;
-        res2 := (result + number div result) div 2_;
+        res2 := (result + number div result) mdiv 2_;
       until result <= res2;
     elsif number <> 0_ then
       raise NUMERIC_ERROR;

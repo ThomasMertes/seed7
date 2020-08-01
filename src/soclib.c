@@ -337,9 +337,9 @@ listtype arguments;
   { /* soc_has_next */
     isit_socket(arg_1(arguments));
     if (socHasNext(take_socket(arg_1(arguments)))) {
-      return(SYS_TRUE_OBJECT);
+      return SYS_TRUE_OBJECT;
     } else {
-      return(SYS_FALSE_OBJECT);
+      return SYS_FALSE_OBJECT;
     } /* if */
   } /* soc_has_next */
 

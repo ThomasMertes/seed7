@@ -606,7 +606,6 @@ chartype *eof_indicator;
         if (result_size == (memsizetype) (-1)) {
           result_size = 0;
         } /* if */
-#ifdef UTF32_STRINGS
         if (result_size > 0) {
           uchartype *from = &((uchartype *) result->mem)[result_size - 1];
           strelemtype *to = &result->mem[result_size - 1];
@@ -616,7 +615,6 @@ chartype *eof_indicator;
             *to = *from;
           } /* for */
         } /* if */
-#endif
         result->size = result_size;
         if (result_size < bytes_requested) {
           if (result_size == 0) {
@@ -790,7 +788,7 @@ inttype port;
                 EAI_AGAIN, EAI_BADFLAGS, EAI_FAIL, EAI_FAMILY, EAI_MEMORY);
             printf("EAI_NONAME=%d  EAI_SERVICE=%d  EAI_SOCKTYPE=%d\n",
                 EAI_NONAME, EAI_SERVICE, EAI_SOCKTYPE);
-	    */
+            */
             /* printf("EAI_SYSTEM=%d  EAI_OVERFLOW=%d\n",
                 EAI_SYSTEM, EAI_OVERFLOW); */
             /* printf("EAI_ADDRFAMILY=%d  EAI_NODATA=%d\n",
@@ -1071,9 +1069,9 @@ inttype micro_seconds;
     nfds = (int) sock + 1;
     timeout.tv_sec = seconds;
     timeout.tv_usec = micro_seconds;
-    printf("select(%d, %d)\n", nfds, sock);
+    /* printf("select(%d, %d)\n", nfds, sock); */
     select_result = select(nfds, &readfds, NULL, NULL, &timeout);
-    printf("select_result: %d\n", select_result);
+    /* printf("select_result: %d\n", select_result); */
     if (unlikely(select_result < 0)) {
       raise_error(FILE_ERROR);
       result = FALSE;
@@ -1223,7 +1221,6 @@ inttype flags;
       } /* if */
       new_stri_size = (memsizetype) recv(sock, cast_send_recv_data((*stri)->mem),
                                          cast_buffer_len(bytes_requested), flags);
-#ifdef UTF32_STRINGS
       if (new_stri_size > 0) {
         uchartype *from = &((uchartype *) (*stri)->mem)[new_stri_size - 1];
         strelemtype *to = &(*stri)->mem[new_stri_size - 1];
@@ -1233,7 +1230,6 @@ inttype flags;
           *to = *from;
         } /* for */
       } /* if */
-#endif
       (*stri)->size = new_stri_size;
       if (new_stri_size < old_stri_size) {
         REALLOC_STRI_SIZE_OK(resized_stri, *stri, old_stri_size, new_stri_size);
@@ -1332,7 +1328,6 @@ bstritype *address;
           } /* if */
         } /* if */
       } /* if */
-#ifdef UTF32_STRINGS
       if (stri_size > 0) {
         uchartype *from = &((uchartype *) (*stri)->mem)[stri_size - 1];
         strelemtype *to = &(*stri)->mem[stri_size - 1];
@@ -1342,7 +1337,6 @@ bstritype *address;
           *to = *from;
         } /* for */
       } /* if */
-#endif
       (*stri)->size = stri_size;
       if (stri_size < bytes_requested) {
         REALLOC_STRI_SIZE_OK(resized_stri, *stri, bytes_requested, stri_size);
@@ -1384,7 +1378,7 @@ rtlArraytype sockArray;
       array_size = (uinttype) (sockArray->max_position - sockArray->min_position) + 1;
       for (pos = 0; pos < array_size; pos++) {
         /* printf("FD_SET: pos=%ld, sock=%lu\n",
-	   pos, (unsigned long) sockArray->arr[pos].value.socketvalue); */
+           pos, (unsigned long) sockArray->arr[pos].value.socketvalue); */
         FD_SET(sockArray->arr[pos].value.socketvalue, &readfds);
         if ((int) sockArray->arr[pos].value.socketvalue >= nfds) {
           nfds = (int) sockArray->arr[pos].value.socketvalue + 1;
@@ -1402,7 +1396,7 @@ rtlArraytype sockArray;
           pos = (memsizetype) (number - sockArray->min_position);
           if (FD_ISSET(sockArray->arr[pos].value.socketvalue, &readfds)) {
             /* printf("setIncl: pos=%ld, number=%ld, sock=%lu\n",
-	       pos, number, (unsigned long) sockArray->arr[pos].value.socketvalue); */
+               pos, number, (unsigned long) sockArray->arr[pos].value.socketvalue); */
             setIncl(&result, number);
           } /* if */
         } /* for */

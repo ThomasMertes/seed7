@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
-/*  dir_drv.h     Prototypes of OS specific directory functions.    */
-/*  Copyright (C) 1989 - 2007  Thomas Mertes                        */
+/*  fil_unx.c     File functions which call the Unix API.           */
+/*  Copyright (C) 1989 - 2011  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */
@@ -23,56 +23,61 @@
 /*  Fifth Floor, Boston, MA  02110-1301, USA.                       */
 /*                                                                  */
 /*  Module: Seed7 Runtime Library                                   */
-/*  File: seed7/src/dir_drv.h                                       */
-/*  Changes: 1993, 1994, 2007  Thomas Mertes                        */
-/*  Content: Prototypes of OS specific directory functions.         */
+/*  File: seed7/src/fil_unx.c                                       */
+/*  Changes: 2011  Thomas Mertes                                    */
+/*  Content: File functions which call the Unix API.                */
 /*                                                                  */
 /********************************************************************/
 
-/* Note that only one of USE_DIRENT, USE_DIRECT, USE_DIRDOS or      */
-/* USE_DIRWIN is active.                                            */
+#include "version.h"
 
-#ifdef USE_DIRENT
-#include "sys/types.h"
-#include "sys/stat.h"
-#include "dirent.h"
+#include "stdlib.h"
+#include "stdio.h"
+#include "sys/select.h"
 
-#ifdef OUT_OF_ORDER
+#include "common.h"
+#include "rtl_err.h"
+
+
+
 #ifdef ANSI_C
-#ifdef C_PLUS_PLUS
-extern "C" int chdir (char *);
-extern "C" char* getcwd (char *, int);
-extern "C" int rmdir(char *);
+
+booltype filInputReady (filetype aFile)
 #else
-extern int chdir (char *);
-extern char* getcwd (char *, int);
-extern int rmdir(char *);
-#endif
-#else
-extern int chdir ();
-extern char* getcwd ();
-extern int rmdir();
-#endif
+
+booltype filInputReady (aFile)
+filetype aFile;
 #endif
 
-#endif
+  {
+    int file_no;
+    int nfds;
+    fd_set readfds;
+    struct timeval timeout;
+    int select_result;
+    booltype result;
 
-#ifdef USE_DIRECT
-#include "sys/types.h"
-#include "sys/stat.h"
-#include "direct.h"
-#endif
-
-#ifdef USE_DIRDOS
-#include "sys/types.h"
-#include "sys/stat.h"
-#include "direct.h"
-#include "dir_dos.h"
-#endif
-
-#ifdef USE_DIRWIN
-#include "sys/types.h"
-#include "sys/stat.h"
-#include "direct.h"
-#include "dir_win.h"
-#endif
+  /* filInputReady */
+    file_no = fileno(aFile);
+    if (file_no != -1) {
+      FD_ZERO(&readfds);
+      FD_SET(file_no, &readfds);
+      nfds = (int) file_no + 1;
+      timeout.tv_sec = 0;
+      timeout.tv_usec = 0;
+      /* printf("select(%d, %d)\n", nfds, file_no); */
+      select_result = select(nfds, &readfds, NULL, NULL, &timeout);
+      /* printf("select_result: %d\n", select_result); */
+      if (unlikely(select_result < 0)) {
+        raise_error(FILE_ERROR);
+        result = FALSE;
+      } else {
+        result = FD_ISSET(file_no, &readfds);
+      } /* if */
+    } else {
+      raise_error(FILE_ERROR);
+      result = FALSE;
+    } /* if */
+    /* printf("filInputReady --> %d\n", result); */
+    return result;
+  } /* filInputReady */

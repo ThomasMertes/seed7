@@ -200,15 +200,15 @@ $ syntax expr: .func.() is              <-  30;
 $ syntax expr: .varfunc.() is           <-  30;
 
 (* PROCEDURE BODY *)
-$ syntax expr: .func.local.().begin.(expr).end.func is                                -> 30;
-$ syntax expr: .func.begin.(expr).end.func is                                         -> 30;
-$ syntax expr: .func.result.var.(). : .(expr).is.().begin.(expr).end.func is          -> 30;
-$ syntax expr: .func.result.var.(). : .(expr).is.().local.().begin.(expr).end.func is -> 30;
-$ syntax expr: .varfunc.return.().().end.varfunc is                                   -> 30;
-$ syntax expr: .return.() is                                                          -> 30;
-$ syntax expr: .return.var.() is                                                      -> 30;
-$ syntax expr: .().return.() is                                                       -> 30;
-$ syntax expr: .().return.var.() is                                                   -> 30;
+$ syntax expr: .func.local.().begin.(expr).end.func is                                <- 30;
+$ syntax expr: .func.begin.(expr).end.func is                                         <- 30;
+$ syntax expr: .func.result.var.(). : .(expr).is.().begin.(expr).end.func is          <- 30;
+$ syntax expr: .func.result.var.(). : .(expr).is.().local.().begin.(expr).end.func is <- 30;
+$ syntax expr: .varfunc.return.().().end.varfunc is                                   <- 30;
+$ syntax expr: .return.() is                                                          <- 30;
+$ syntax expr: .return.var.() is                                                      <- 30;
+$ syntax expr: .().return.() is                                                       <- 30;
+$ syntax expr: .().return.var.() is                                                   <- 30;
 
 $ syntax expr: .action.() is                      -> 30;
 

@@ -99,7 +99,7 @@ int fill_buf ()
 #ifdef TRACE_INFILE
     printf("END fill_buf\n");
 #endif
-    return(result);
+    return result;
   } /* fill_buf */
 #endif
 
@@ -194,7 +194,7 @@ static INLINE booltype speedup ()
 #ifdef TRACE_INFILE
     printf("END speedup\n");
 #endif
-    return(okay);
+    return okay;
   } /* speedup */
 
 
@@ -463,7 +463,7 @@ int next_line ()
 #endif
     SKIP_CR_SP(character);
     INCR_LINE_COUNT(in_file.line);
-    return(character);
+    return character;
 #ifdef TRACE_INFILE
     printf("END next_line\n");
 #endif
@@ -507,7 +507,7 @@ filenumtype file_num;
 #ifdef TRACE_INFILE
     printf("END get_file_name\n");
 #endif
-    return(result);
+    return result;
   } /* get_file_name */
 
 
@@ -540,7 +540,7 @@ filenumtype file_num;
 #ifdef TRACE_INFILE
     printf("END get_file_name\n");
 #endif
-    return(result);
+    return result;
   } /* get_file_name_ustri */
 
 

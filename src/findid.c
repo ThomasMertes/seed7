@@ -76,7 +76,7 @@ unsigned int length;
 #ifdef TRACE_FINDID
     printf("END id_generation\n");
 #endif
-    return(created_ident);
+    return created_ident;
   } /* id_generation */
 
 
@@ -172,7 +172,7 @@ errinfotype *err_info;
 #ifdef TRACE_FINDID
     printf("END put_ident\n");
 #endif
-    return(ident_found);
+    return ident_found;
   } /* put_ident */
 
 

@@ -57,7 +57,6 @@ static const_cstritype stri_escape_sequence[] = {
 
 
 
-#ifdef UTF32_STRINGS
 #ifdef ANSI_C
 
 static INLINE int strelem_memcmp (const strelemtype *mem1,
@@ -104,15 +103,6 @@ size_t number;
     } /* for */
     return NULL;
   } /* search_strelem */
-
-
-
-#else
-
-#define strelem_memcmp(mem1,mem2,len) memcmp(mem1, mem2, (len) * sizeof(strelemtype))
-#define search_strelem (const strelemtype *) memchr
-
-#endif
 
 
 
@@ -1535,15 +1525,11 @@ stritype stri;
     } else {
       result->size = length;
       for (pos = 0; pos < length; pos++) {
-#ifdef UTF32_STRINGS
         if (stri->mem[pos] >= (strelemtype) 'A' && stri->mem[pos] <= (strelemtype) 'Z') {
           result->mem[pos] = stri->mem[pos] - (strelemtype) 'A' + (strelemtype) 'a';
         } else {
           result->mem[pos] = stri->mem[pos];
         } /* if */
-#else
-        result->mem[pos] = (strelemtype) tolower((int) stri->mem[pos]);
-#endif
       } /* for */
       return result;
     } /* if */
@@ -1565,13 +1551,9 @@ stritype stri;
 
   /* strLowTemp */
     for (pos = 0; pos < stri->size; pos++) {
-#ifdef UTF32_STRINGS
       if (stri->mem[pos] >= (strelemtype) 'A' && stri->mem[pos] <= (strelemtype) 'Z') {
         stri->mem[pos] = stri->mem[pos] - (strelemtype) 'A' + (strelemtype) 'a';
       } /* if */
-#else
-      stri->mem[pos] = (strelemtype) tolower((int) stri->mem[pos]);
-#endif
     } /* for */
     return stri;
   } /* strLowTemp */
@@ -1601,7 +1583,6 @@ inttype pad_size;
         result = NULL;
       } else {
         result->size = (memsizetype) pad_size;
-#ifdef UTF32_STRINGS
         {
           strelemtype *elem = result->mem;
           memsizetype len = (memsizetype) pad_size - length;
@@ -1610,9 +1591,6 @@ inttype pad_size;
             *elem++ = (strelemtype) ' ';
           } /* while */
         }
-#else
-        memset(result->mem, ' ', (memsizetype) pad_size - length);
-#endif
         memcpy(&result->mem[(memsizetype) pad_size - length], stri->mem,
             length * sizeof(strelemtype));
       } /* if */
@@ -1653,7 +1631,6 @@ inttype pad_size;
         result = NULL;
       } else {
         result->size = (memsizetype) pad_size;
-#ifdef UTF32_STRINGS
         {
           strelemtype *elem = result->mem;
           memsizetype len = (memsizetype) pad_size - length;
@@ -1662,9 +1639,6 @@ inttype pad_size;
             *elem++ = (strelemtype) ' ';
           } /* while */
         }
-#else
-        memset(result->mem, ' ', (memsizetype) pad_size - length);
-#endif
         memcpy(&result->mem[(memsizetype) pad_size - length], stri->mem,
             length * sizeof(strelemtype));
         FREE_STRI(stri, length);
@@ -1877,15 +1851,11 @@ inttype factor;
         } else {
           result->size = result_size;
           if (len == 1) {
-#ifdef UTF32_STRINGS
             ch = stri->mem[0];
             result_pointer = result->mem;
             for (number = factor; number > 0; number--) {
               *result_pointer++ = ch;
             } /* for */
-#else
-            memset(result->mem, (int) stri->mem[0], (uinttype) factor);
-#endif
           } else if (len != 0) {
             result_pointer = result->mem;
             for (number = factor; number > 0; number--) {
@@ -2019,39 +1989,30 @@ chartype extension;
     stritype stri_dest;
 
   /* strPush */
-#ifndef UTF32_STRINGS
-    if (unlikely(extension > (chartype) 255)) {
-      raise_error(RANGE_ERROR);
-      return NULL;
-    } else {
-#endif
-      stri_dest = *destination;
-      new_size = stri_dest->size + 1;
+    stri_dest = *destination;
+    new_size = stri_dest->size + 1;
 #ifdef WITH_STRI_CAPACITY
-      if (new_size > stri_dest->capacity) {
-        stri_dest = growStri(stri_dest, new_size);
-        if (unlikely(stri_dest == NULL)) {
-          raise_error(MEMORY_ERROR);
-          return;
-        } else {
-          *destination = stri_dest;
-        } /* if */
+    if (new_size > stri_dest->capacity) {
+      stri_dest = growStri(stri_dest, new_size);
+      if (unlikely(stri_dest == NULL)) {
+        raise_error(MEMORY_ERROR);
+        return;
+      } else {
+        *destination = stri_dest;
       } /* if */
+    } /* if */
+    COUNT3_STRI(stri_dest->size, new_size);
+    stri_dest->mem[stri_dest->size] = extension;
+    stri_dest->size = new_size;
+#else
+    GROW_STRI(stri_dest, stri_dest, stri_dest->size, new_size);
+    if (unlikely(stri_dest == NULL)) {
+      raise_error(MEMORY_ERROR);
+    } else {
       COUNT3_STRI(stri_dest->size, new_size);
       stri_dest->mem[stri_dest->size] = extension;
       stri_dest->size = new_size;
-#else
-      GROW_STRI(stri_dest, stri_dest, stri_dest->size, new_size);
-      if (unlikely(stri_dest == NULL)) {
-        raise_error(MEMORY_ERROR);
-      } else {
-        COUNT3_STRI(stri_dest->size, new_size);
-        stri_dest->mem[stri_dest->size] = extension;
-        stri_dest->size = new_size;
-        *destination = stri_dest;
-      } /* if */
-#endif
-#ifndef UTF32_STRINGS
+      *destination = stri_dest;
     } /* if */
 #endif
   } /* strPush */
@@ -2391,7 +2352,6 @@ inttype pad_size;
       } else {
         result->size = (memsizetype) pad_size;
         memcpy(result->mem, stri->mem, length * sizeof(strelemtype));
-#ifdef UTF32_STRINGS
         {
           strelemtype *elem = &result->mem[length];
           memsizetype len = (memsizetype) pad_size - length;
@@ -2400,9 +2360,6 @@ inttype pad_size;
             *elem++ = (strelemtype) ' ';
           } /* while */
         }
-#else
-        memset(&result->mem[length], ' ', (memsizetype) pad_size - length);
-#endif
       } /* if */
     } else {
       if (unlikely(!ALLOC_STRI_SIZE_OK(result, length))) {
@@ -2998,15 +2955,11 @@ stritype stri;
     } else {
       result->size = length;
       for (pos = 0; pos < length; pos++) {
-#ifdef UTF32_STRINGS
         if (stri->mem[pos] >= (strelemtype) 'a' && stri->mem[pos] <= (strelemtype) 'z') {
           result->mem[pos] = stri->mem[pos] - (strelemtype) 'a' + (strelemtype) 'A';
         } else {
           result->mem[pos] = stri->mem[pos];
         } /* if */
-#else
-        result->mem[pos] = (strelemtype) toupper((int) stri->mem[pos]);
-#endif
       } /* for */
       return result;
     } /* if */
@@ -3028,13 +2981,9 @@ stritype stri;
 
   /* strUpTemp */
     for (pos = 0; pos < stri->size; pos++) {
-#ifdef UTF32_STRINGS
       if (stri->mem[pos] >= (strelemtype) 'a' && stri->mem[pos] <= (strelemtype) 'z') {
         stri->mem[pos] = stri->mem[pos] - (strelemtype) 'a' + (strelemtype) 'A';
       } /* if */
-#else
-      stri->mem[pos] = (strelemtype) toupper((int) stri->mem[pos]);
-#endif
     } /* for */
     return stri;
   } /* strUpTemp */

@@ -301,7 +301,7 @@ char ch;
 #endif
 
   { /* outch */
-    return(putchar(ch));
+    return putchar(ch);
   } /* outch */
 
 
@@ -404,7 +404,7 @@ booltype kbdKeyPressed ()
       term_descr.c_cc[VTIME] = 0;
       tcsetattr(fileno(stdin), TCSANOW, &term_descr);
     } /* if */
-    return(result);
+    return result;
   } /* kbdKeyPressed */
 
 
@@ -433,7 +433,7 @@ chartype kbdGetc ()
     if (result == erase_ch) {
       result = '\b';
     } /* if */
-    return(result);
+    return result;
   } /* kbdGetc */
 
 
@@ -447,7 +447,7 @@ chartype kbdRawGetc ()
 #endif
 
   { /* kbdRawGetc */
-    return(kbdGetc());
+    return kbdGetc();
   } /* kbdRawGetc */
 
 
@@ -536,7 +536,7 @@ inttype textheight ()
 #endif
 
   { /* textheight */
-    return(1);
+    return 1;
   } /* textheight */
 
 
@@ -554,7 +554,7 @@ inttype stopcol;
 #endif
 
   { /* textwidth */
-    return(stopcol + 1 - startcol);
+    return stopcol + 1 - startcol;
   } /* textwidth */
 
 
@@ -588,7 +588,7 @@ int conHeight ()
 #endif
 
   { /* conHeight */
-    return(LI);
+    return LI;
   } /* conHeight */
 
 
@@ -602,7 +602,7 @@ int conWidth ()
 #endif
 
   { /* conWidth */
-    return(CO);
+    return CO;
   } /* conWidth */
 
 
@@ -1240,5 +1240,5 @@ int conOpen ()
       atexit(conShut);
       result = 1;
     } /* if */
-    return(result);
+    return result;
   } /* conOpen */

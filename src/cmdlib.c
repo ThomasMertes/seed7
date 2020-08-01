@@ -69,9 +69,9 @@ char *strg2;
 #endif
 
   { /* cmp_mem */
-    return(strCompare(
+    return strCompare(
         ((const_objecttype) strg1)->value.strivalue,
-        ((const_objecttype) strg2)->value.strivalue));
+        ((const_objecttype) strg2)->value.strivalue);
   } /* cmp_mem */
 
 
@@ -147,7 +147,7 @@ dirtype directory;
         dir_array = NULL;
       } /* if */
     } /* if */
-    return(dir_array);
+    return dir_array;
   } /* read_dir */
 
 
@@ -163,8 +163,8 @@ listtype arguments;
 
   { /* cmd_big_filesize */
     isit_stri(arg_1(arguments));
-    return(bld_bigint_temp(
-        cmdBigFileSize(take_stri(arg_1(arguments)))));
+    return bld_bigint_temp(
+        cmdBigFileSize(take_stri(arg_1(arguments))));
   } /* cmd_big_filesize */
 
 
@@ -181,7 +181,7 @@ listtype arguments;
   { /* cmd_chdir */
     isit_stri(arg_1(arguments));
     cmdChdir(take_stri(arg_1(arguments)));
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* cmd_chdir */
 
 
@@ -199,7 +199,7 @@ listtype arguments;
     isit_stri(arg_1(arguments));
     isit_stri(arg_2(arguments));
     cmdCloneFile(take_stri(arg_1(arguments)), take_stri(arg_2(arguments)));
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* cmd_clone_file */
 
 
@@ -215,7 +215,8 @@ listtype arguments;
 
   { /* cmd_config_value */
     isit_stri(arg_1(arguments));
-    return(bld_stri_temp(cmdConfigValue(take_stri(arg_1(arguments)))));
+    return bld_stri_temp(
+        cmdConfigValue(take_stri(arg_1(arguments))));
   } /* cmd_config_value */
 
 
@@ -233,7 +234,7 @@ listtype arguments;
     isit_stri(arg_1(arguments));
     isit_stri(arg_2(arguments));
     cmdCopyFile(take_stri(arg_1(arguments)), take_stri(arg_2(arguments)));
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* cmd_copy_file */
 
 
@@ -249,7 +250,8 @@ listtype arguments;
 
   { /* cmd_filemode */
     isit_stri(arg_1(arguments));
-    return(bld_set_temp(cmdFileMode(take_stri(arg_1(arguments)))));
+    return bld_set_temp(
+        cmdFileMode(take_stri(arg_1(arguments))));
   } /* cmd_filemode */
 
 
@@ -265,8 +267,8 @@ listtype arguments;
 
   { /* cmd_filesize */
     isit_stri(arg_1(arguments));
-    return(bld_int_temp(
-        cmdFileSize(take_stri(arg_1(arguments)))));
+    return bld_int_temp(
+        cmdFileSize(take_stri(arg_1(arguments))));
   } /* cmd_filesize */
 
 
@@ -282,8 +284,8 @@ listtype arguments;
 
   { /* cmd_filetype */
     isit_stri(arg_1(arguments));
-    return(bld_int_temp(
-        cmdFileType(take_stri(arg_1(arguments)))));
+    return bld_int_temp(
+        cmdFileType(take_stri(arg_1(arguments))));
   } /* cmd_filetype */
 
 
@@ -299,8 +301,8 @@ listtype arguments;
 
   { /* cmd_filetype_sl */
     isit_stri(arg_1(arguments));
-    return(bld_int_temp(
-        cmdFileTypeSL(take_stri(arg_1(arguments)))));
+    return bld_int_temp(
+        cmdFileTypeSL(take_stri(arg_1(arguments))));
   } /* cmd_filetype_sl */
 
 
@@ -315,7 +317,7 @@ listtype arguments;
 #endif
 
   { /* cmd_getcwd */
-    return(bld_stri_temp(cmdGetcwd()));
+    return bld_stri_temp(cmdGetcwd());
   } /* cmd_getcwd */
 
 
@@ -331,8 +333,8 @@ listtype arguments;
 
   { /* cmd_getenv */
     isit_stri(arg_1(arguments));
-    return(bld_stri_temp(cmdGetenv(
-        take_stri(arg_1(arguments)))));
+    return bld_stri_temp(
+        cmdGetenv(take_stri(arg_1(arguments))));
   } /* cmd_getenv */
 
 
@@ -375,7 +377,7 @@ listtype arguments;
     } else {
       arg_10(arguments)->value.objvalue = SYS_FALSE_OBJECT;
     } /* if */
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* cmd_get_atime */
 
 
@@ -418,7 +420,7 @@ listtype arguments;
     } else {
       arg_10(arguments)->value.objvalue = SYS_FALSE_OBJECT;
     } /* if */
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* cmd_get_ctime */
 
 
@@ -461,7 +463,7 @@ listtype arguments;
     } else {
       arg_10(arguments)->value.objvalue = SYS_FALSE_OBJECT;
     } /* if */
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* cmd_get_mtime */
 
 
@@ -487,15 +489,15 @@ listtype arguments;
       result = read_dir(directory);
       dirClose(directory);
       if (result == NULL) {
-        return(raise_with_arguments(SYS_MEM_EXCEPTION, arguments));
+        return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
       } else {
         qsort((void *) result->arr,
             (size_t) (result->max_position - result->min_position + 1),
             sizeof(objectrecord), &cmp_mem);
-        return(bld_array_temp(result));
+        return bld_array_temp(result);
       } /* if */
     } else {
-      return(raise_with_arguments(SYS_FIL_EXCEPTION, arguments));
+      return raise_with_arguments(SYS_FIL_EXCEPTION, arguments);
     } /* if */
   } /* cmd_ls */
 
@@ -513,7 +515,7 @@ listtype arguments;
   { /* cmd_mkdir */
     isit_stri(arg_1(arguments));
     cmdMkdir(take_stri(arg_1(arguments)));
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* cmd_mkdir */
 
 
@@ -531,7 +533,7 @@ listtype arguments;
     isit_stri(arg_1(arguments));
     isit_stri(arg_2(arguments));
     cmdMove(take_stri(arg_1(arguments)), take_stri(arg_2(arguments)));
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* cmd_move */
 
 
@@ -563,7 +565,7 @@ listtype arguments;
     isit_file(childStdout_variable);
     arraySize = (uinttype) (parameters->max_position - parameters->min_position + 1);
     if (!ALLOC_RTL_ARRAY(rtlParameters, arraySize)) {
-      return(raise_exception(SYS_MEM_EXCEPTION));
+      return raise_exception(SYS_MEM_EXCEPTION);
     } else {
       rtlParameters->min_position = parameters->min_position;
       rtlParameters->max_position = parameters->max_position;
@@ -575,7 +577,7 @@ listtype arguments;
                &childStdout_variable->value.filevalue);
       FREE_RTL_ARRAY(rtlParameters, arraySize);
     } /* if */
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* cmd_pipe2 */
 
 
@@ -591,8 +593,8 @@ listtype arguments;
 
   { /* cmd_readlink */
     isit_stri(arg_1(arguments));
-    return(bld_stri_temp(
-        cmdReadlink(take_stri(arg_1(arguments)))));
+    return bld_stri_temp(
+        cmdReadlink(take_stri(arg_1(arguments))));
   } /* cmd_readlink */
 
 
@@ -609,7 +611,7 @@ listtype arguments;
   { /* cmd_remove */
     isit_stri(arg_1(arguments));
     cmdRemove(take_stri(arg_1(arguments)));
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* cmd_remove */
 
 
@@ -626,7 +628,7 @@ listtype arguments;
   { /* cmd_remove_any_file */
     isit_stri(arg_1(arguments));
     cmdRemoveAnyFile(take_stri(arg_1(arguments)));
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* cmd_remove_any_file */
 
 
@@ -644,7 +646,7 @@ listtype arguments;
     isit_stri(arg_1(arguments));
     isit_stri(arg_2(arguments));
     cmdSetenv(take_stri(arg_1(arguments)), take_stri(arg_2(arguments)));
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* cmd_setenv */
 
 
@@ -677,7 +679,7 @@ listtype arguments;
                 take_int(arg_7(arguments)),
                 take_int(arg_8(arguments)),
                 take_int(arg_9(arguments)));
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* cmd_set_atime */
 
 
@@ -696,7 +698,7 @@ listtype arguments;
     isit_set(arg_2(arguments));
     cmdSetFileMode(take_stri(arg_1(arguments)),
                    take_set(arg_2(arguments)));
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* cmd_set_filemode */
 
 
@@ -729,7 +731,7 @@ listtype arguments;
                 take_int(arg_7(arguments)),
                 take_int(arg_8(arguments)),
                 take_int(arg_9(arguments)));
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* cmd_set_mtime */
 
 
@@ -746,9 +748,8 @@ listtype arguments;
   { /* cmd_shell */
     isit_stri(arg_1(arguments));
     isit_stri(arg_2(arguments));
-    return(bld_int_temp(
-        cmdShell(take_stri(arg_1(arguments)),
-                  take_stri(arg_2(arguments)))));
+    return bld_int_temp(
+        cmdShell(take_stri(arg_1(arguments)), take_stri(arg_2(arguments))));
   } /* cmd_shell */
 
 
@@ -766,7 +767,7 @@ listtype arguments;
     isit_stri(arg_1(arguments));
     isit_stri(arg_2(arguments));
     cmdSymlink(take_stri(arg_1(arguments)), take_stri(arg_2(arguments)));
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* cmd_symlink */
 
 
@@ -782,6 +783,6 @@ listtype arguments;
 
   { /* cmd_to_os_path */
     isit_stri(arg_1(arguments));
-    return(bld_stri_temp(
-        cmdToOsPath(take_stri(arg_1(arguments)))));
+    return bld_stri_temp(
+        cmdToOsPath(take_stri(arg_1(arguments))));
   } /* cmd_to_os_path */

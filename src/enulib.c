@@ -54,7 +54,7 @@ listtype arguments;
 
   { /* enu_conv */
     isit_enum(arg_3(arguments));
-    return(take_enum(arg_3(arguments)));
+    return take_enum(arg_3(arguments));
   } /* enu_conv */
 
 
@@ -77,7 +77,7 @@ listtype arguments;
     is_variable(enum_variable);
     isit_enum(arg_3(arguments));
     enum_variable->value.objvalue = take_enum(arg_3(arguments));
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* enu_cpy */
 
 
@@ -104,7 +104,7 @@ listtype arguments;
       SET_CATEGORY_OF_OBJ(enum_to, CONSTENUMOBJECT);
     } /* if */
     enum_to->value.objvalue = enum_from;
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* enu_create */
 
 
@@ -131,7 +131,7 @@ listtype arguments;
     } else {
       result = SYS_FALSE_OBJECT;
     } /* if */
-    return(result);
+    return result;
   } /* enu_eq */
 
 
@@ -152,7 +152,7 @@ listtype arguments;
     enum_to = arg_1(arguments);
     SET_CATEGORY_OF_OBJ(enum_to, ENUMLITERALOBJECT);
     enum_to->value.nodevalue = (nodetype) NULL;
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* enu_genlit */
 
 
@@ -192,7 +192,7 @@ listtype arguments;
     } else {
       result = raise_exception(SYS_RNG_EXCEPTION);
     } /* if */
-    return(result);
+    return result;
   } /* enu_iconv2 */
 
 
@@ -219,7 +219,7 @@ listtype arguments;
     } else {
       result = SYS_FALSE_OBJECT;
     } /* if */
-    return(result);
+    return result;
   } /* enu_ne */
 
 
@@ -254,7 +254,7 @@ listtype arguments;
     } else {
       result = raise_exception(SYS_RNG_EXCEPTION);
     } /* if */
-    return(result);
+    return result;
   } /* enu_ord2 */
 
 
@@ -275,7 +275,7 @@ listtype arguments;
   /* enu_size */
     modu = arg_1(arguments);
     size = sizeof(objectrecord);
-    return(bld_int_temp(size));
+    return bld_int_temp(size);
   } /* enu_size */
 
 
@@ -296,5 +296,5 @@ listtype arguments;
     isit_reference(arg_1(arguments));
     obj_arg = take_reference(arg_1(arguments));
     isit_enum(obj_arg);
-    return(take_enum(obj_arg));
+    return take_enum(obj_arg);
   } /* enu_value */

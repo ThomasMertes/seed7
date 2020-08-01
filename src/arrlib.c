@@ -152,7 +152,7 @@ listtype arguments;
       new_size = arr_to_size + arr_from_size;
       new_arr = REALLOC_ARRAY(arr_to, arr_to_size, new_size);
       if (new_arr == NULL) {
-        return(raise_exception(SYS_MEM_EXCEPTION));
+        return raise_exception(SYS_MEM_EXCEPTION);
       } else {
         COUNT3_ARRAY(arr_to_size, new_size);
         arr_variable->value.arrayvalue = new_arr;
@@ -173,11 +173,11 @@ listtype arguments;
               arr_from_size)) {
             arr_to = REALLOC_ARRAY(new_arr, new_size, arr_to_size);
             if (arr_to == NULL) {
-              return(raise_exception(SYS_MEM_EXCEPTION));
+              return raise_exception(SYS_MEM_EXCEPTION);
             } /* if */
             COUNT3_ARRAY(new_size, arr_to_size);
             arr_variable->value.arrayvalue = arr_to;
-            return(raise_with_arguments(SYS_MEM_EXCEPTION, arguments));
+            return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
           } else {
             new_arr->max_position += (inttype) arr_from_size;
           } /* if */
@@ -185,7 +185,7 @@ listtype arguments;
       } /* if */
     } /* if */
     /* printf("end   arr_append %lu\n", heapsize()); */
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* arr_append */
 
 
@@ -217,17 +217,17 @@ listtype arguments;
       arr1 = take_array(arr_arg);
       result_size = (uinttype) (arr1->max_position - arr1->min_position + 1);
       if (!ALLOC_ARRAY(result_array, result_size)) {
-        return(raise_exception(SYS_MEM_EXCEPTION));
+        return raise_exception(SYS_MEM_EXCEPTION);
       } /* if */
       result_array->min_position = 1;
       result_array->max_position = (inttype) result_size;
       if (!crea_array(result_array->arr, arr1->arr, result_size)) {
         FREE_ARRAY(result_array, result_size);
-        return(raise_with_arguments(SYS_MEM_EXCEPTION, arguments));
+        return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
       } /* if */
       result = bld_array_temp(result_array);
     } /* if */
-    return(result);
+    return result;
   } /* arr_arrlit */
 
 
@@ -266,17 +266,17 @@ listtype arguments;
       arr1 = take_array(arr_arg);
       result_size = (uinttype) (arr1->max_position - arr1->min_position + 1);
       if (!ALLOC_ARRAY(result_array, result_size)) {
-        return(raise_exception(SYS_MEM_EXCEPTION));
+        return raise_exception(SYS_MEM_EXCEPTION);
       } /* if */
       result_array->min_position = start_position;
       result_array->max_position = (inttype) ((memsizetype) start_position + result_size - 1);
       if (!crea_array(result_array->arr, arr1->arr, result_size)) {
         FREE_ARRAY(result_array, result_size);
-        return(raise_with_arguments(SYS_MEM_EXCEPTION, arguments));
+        return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
       } /* if */
       result = bld_array_temp(result_array);
     } /* if */
-    return(result);
+    return result;
   } /* arr_arrlit2 */
 
 
@@ -299,7 +299,7 @@ listtype arguments;
     element = arg_3(arguments);
     result_size = 1;
     if (!ALLOC_ARRAY(result, result_size)) {
-      return(raise_exception(SYS_MEM_EXCEPTION));
+      return raise_exception(SYS_MEM_EXCEPTION);
     } /* if */
     result->min_position = 1;
     result->max_position = 1;
@@ -312,10 +312,10 @@ listtype arguments;
     } else {
       if (!any_var_initialisation(&result->arr[0], element)) {
         FREE_ARRAY(result, result_size);
-        return(raise_with_arguments(SYS_MEM_EXCEPTION, arguments));
+        return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
       } /* if */
     } /* if */
-    return(bld_array_temp(result));
+    return bld_array_temp(result);
   } /* arr_baselit */
 
 
@@ -341,7 +341,7 @@ listtype arguments;
     element = arg_4(arguments);
     result_size = 1;
     if (!ALLOC_ARRAY(result, result_size)) {
-      return(raise_exception(SYS_MEM_EXCEPTION));
+      return raise_exception(SYS_MEM_EXCEPTION);
     } /* if */
     result->min_position = start_position;
     result->max_position = start_position;
@@ -354,10 +354,10 @@ listtype arguments;
     } else {
       if (!any_var_initialisation(&result->arr[0], element)) {
         FREE_ARRAY(result, result_size);
-        return(raise_with_arguments(SYS_MEM_EXCEPTION, arguments));
+        return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
       } /* if */
     } /* if */
-    return(bld_array_temp(result));
+    return bld_array_temp(result);
   } /* arr_baselit2 */
 
 
@@ -391,20 +391,20 @@ listtype arguments;
       result = arr1;
       result = REALLOC_ARRAY(result, arr1_size, result_size);
       if (result == NULL) {
-        return(raise_exception(SYS_MEM_EXCEPTION));
+        return raise_exception(SYS_MEM_EXCEPTION);
       } /* if */
       COUNT3_ARRAY(arr1_size, result_size);
       result->max_position += (inttype) arr2_size;
       arg_1(arguments)->value.arrayvalue = NULL;
     } else {
       if (!ALLOC_ARRAY(result, result_size)) {
-        return(raise_exception(SYS_MEM_EXCEPTION));
+        return raise_exception(SYS_MEM_EXCEPTION);
       } /* if */
       result->min_position = arr1->min_position;
       result->max_position = (inttype) ((memsizetype) arr1->max_position + arr2_size);
       if (!crea_array(result->arr, arr1->arr, arr1_size)) {
         FREE_ARRAY(result, result_size);
-        return(raise_with_arguments(SYS_MEM_EXCEPTION, arguments));
+        return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
       } /* if */
     } /* if */
     if (TEMP_OBJECT(arg_3(arguments))) {
@@ -417,10 +417,10 @@ listtype arguments;
           arr2_size)) {
         destr_array(result->arr, arr1_size);
         FREE_ARRAY(result, result_size);
-        return(raise_with_arguments(SYS_MEM_EXCEPTION, arguments));
+        return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
       } /* if */
     } /* if */
-    return(bld_array_temp(result));
+    return bld_array_temp(result);
   } /* arr_cat */
 
 
@@ -446,22 +446,22 @@ listtype arguments;
     if (TEMP_OBJECT(arr_arg)) {
       result = take_array(arr_arg);
       arr_arg->value.arrayvalue = NULL;
-      return(bld_array_temp(result));
+      return bld_array_temp(result);
     } else if (VAR_OBJECT(arr_arg)) {
-      return(arr_arg);
+      return arr_arg;
     } else {
       arr1 = take_array(arr_arg);
       result_size = (uinttype) (arr1->max_position - arr1->min_position + 1);
       if (!ALLOC_ARRAY(result, result_size)) {
-        return(raise_exception(SYS_MEM_EXCEPTION));
+        return raise_exception(SYS_MEM_EXCEPTION);
       } /* if */
       result->min_position = arr1->min_position;
       result->max_position = arr1->max_position;
       if (!crea_array(result->arr, arr1->arr, result_size)) {
         FREE_ARRAY(result, result_size);
-        return(raise_with_arguments(SYS_MEM_EXCEPTION, arguments));
+        return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
       } /* if */
-      return(bld_array_temp(result));
+      return bld_array_temp(result);
     } /* if */
   } /* arr_conv */
 
@@ -504,13 +504,13 @@ listtype arguments;
       if (arr_dest->min_position != arr_source->min_position ||
           arr_dest->max_position != arr_source->max_position) {
         if (!ALLOC_ARRAY(new_arr, arr_source_size)) {
-          return(raise_exception(SYS_MEM_EXCEPTION));
+          return raise_exception(SYS_MEM_EXCEPTION);
         } else {
           new_arr->min_position = arr_source->min_position;
           new_arr->max_position = arr_source->max_position;
           if (!crea_array(new_arr->arr, arr_source->arr, arr_source_size)) {
             FREE_ARRAY(new_arr, arr_source_size);
-            return(raise_with_arguments(SYS_MEM_EXCEPTION, arguments));
+            return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
           } /* if */
           arr_dest_size = (uinttype) (arr_dest->max_position - arr_dest->min_position + 1);
           destr_array(arr_dest->arr, arr_dest_size);
@@ -521,7 +521,7 @@ listtype arguments;
         cpy_array(arr_dest->arr, arr_source->arr, arr_source_size);
       } /* if */
     } /* if */
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* arr_cpy */
 
 
@@ -555,19 +555,19 @@ listtype arguments;
       new_size = (uinttype) (arr_source->max_position - arr_source->min_position + 1);
       if (!ALLOC_ARRAY(new_arr, new_size)) {
         arr_to->value.arrayvalue = NULL;
-        return(raise_exception(SYS_MEM_EXCEPTION));
+        return raise_exception(SYS_MEM_EXCEPTION);
       } else {
         new_arr->min_position = arr_source->min_position;
         new_arr->max_position = arr_source->max_position;
         if (!crea_array(new_arr->arr, arr_source->arr, new_size)) {
           FREE_ARRAY(new_arr, new_size);
           arr_to->value.arrayvalue = NULL;
-          return(raise_with_arguments(SYS_MEM_EXCEPTION, arguments));
+          return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
         } /* if */
         arr_to->value.arrayvalue = new_arr;
       } /* if */
     } /* if */
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* arr_create */
 
 
@@ -594,7 +594,7 @@ listtype arguments;
       FREE_ARRAY(old_arr, old_size);
       arg_1(arguments)->value.arrayvalue = NULL;
     } /* if */
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* arr_destr */
 
 
@@ -613,12 +613,12 @@ listtype arguments;
 
   /* arr_empty */
     if (!ALLOC_ARRAY(result, 0)) {
-      return(raise_exception(SYS_MEM_EXCEPTION));
+      return raise_exception(SYS_MEM_EXCEPTION);
     } else {
       result->min_position = 1;
       result->max_position = 0;
     } /* if */
-    return(bld_array_temp(result));
+    return bld_array_temp(result);
   } /* arr_empty */
 
 
@@ -649,20 +649,20 @@ listtype arguments;
       result = arr1;
       result = REALLOC_ARRAY(result, arr1_size, result_size);
       if (result == NULL) {
-        return(raise_exception(SYS_MEM_EXCEPTION));
+        return raise_exception(SYS_MEM_EXCEPTION);
       } /* if */
       COUNT3_ARRAY(arr1_size, result_size);
       result->max_position++;
       arg_1(arguments)->value.arrayvalue = NULL;
     } else {
       if (!ALLOC_ARRAY(result, result_size)) {
-        return(raise_exception(SYS_MEM_EXCEPTION));
+        return raise_exception(SYS_MEM_EXCEPTION);
       } /* if */
       result->min_position = arr1->min_position;
       result->max_position = arr1->max_position + 1;
       if (!crea_array(result->arr, arr1->arr, arr1_size)) {
         FREE_ARRAY(result, result_size);
-        return(raise_with_arguments(SYS_MEM_EXCEPTION, arguments));
+        return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
       } /* if */
     } /* if */
     if (TEMP_OBJECT(element)) {
@@ -675,10 +675,10 @@ listtype arguments;
       if (!any_var_initialisation(&result->arr[arr1_size], element)) {
         destr_array(result->arr, arr1_size);
         FREE_ARRAY(result, result_size);
-        return(raise_with_arguments(SYS_MEM_EXCEPTION, arguments));
+        return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
       } /* if */
     } /* if */
-    return(bld_array_temp(result));
+    return bld_array_temp(result);
   } /* arr_extend */
 
 
@@ -703,7 +703,7 @@ listtype arguments;
     element2 = arg_3(arguments);
     result_size = 2;
     if (!ALLOC_ARRAY(result, result_size)) {
-      return(raise_exception(SYS_MEM_EXCEPTION));
+      return raise_exception(SYS_MEM_EXCEPTION);
     } /* if */
     result->min_position = 1;
     result->max_position = 2;
@@ -716,7 +716,7 @@ listtype arguments;
     } else {
       if (!any_var_initialisation(&result->arr[0], element1)) {
         FREE_ARRAY(result, result_size);
-        return(raise_with_arguments(SYS_MEM_EXCEPTION, arguments));
+        return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
       } /* if */
     } /* if */
     if (TEMP_OBJECT(element2)) {
@@ -729,10 +729,10 @@ listtype arguments;
       if (!any_var_initialisation(&result->arr[1], element2)) {
         destr_array(result->arr, 1);
         FREE_ARRAY(result, result_size);
-        return(raise_with_arguments(SYS_MEM_EXCEPTION, arguments));
+        return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
       } /* if */
     } /* if */
-    return(bld_array_temp(result));
+    return bld_array_temp(result);
   } /* arr_gen */
 
 
@@ -773,30 +773,30 @@ listtype arguments;
         if (resized_result == NULL) {
           destr_array(result->arr, result_size);
           FREE_ARRAY(result, length);
-          return(raise_with_arguments(SYS_MEM_EXCEPTION, arguments));
+          return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
         } /* if */
         result = resized_result;
         COUNT3_ARRAY(length, result_size);
         result->max_position = stop;
       } else {
         if (!ALLOC_ARRAY(result, result_size)) {
-          return(raise_exception(SYS_MEM_EXCEPTION));
+          return raise_exception(SYS_MEM_EXCEPTION);
         } /* if */
         result->min_position = arr1->min_position;
         result->max_position = stop;
         if (!crea_array(result->arr, arr1->arr, result_size)) {
           FREE_ARRAY(result, result_size);
-          return(raise_with_arguments(SYS_MEM_EXCEPTION, arguments));
+          return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
         } /* if */
       } /* if */
     } else {
       if (!ALLOC_ARRAY(result, 0)) {
-        return(raise_exception(SYS_MEM_EXCEPTION));
+        return raise_exception(SYS_MEM_EXCEPTION);
       } /* if */
       result->min_position = arr1->min_position;
       result->max_position = arr1->min_position - 1;
     } /* if */
-    return(bld_array_temp(result));
+    return bld_array_temp(result);
   } /* arr_head */
 
 
@@ -851,7 +851,7 @@ listtype arguments;
     } else {
       result = raise_exception(SYS_RNG_EXCEPTION);
     } /* if */
-    return(result);
+    return result;
   } /* arr_idx */
 
 
@@ -871,7 +871,7 @@ listtype arguments;
   /* arr_lng */
     isit_array(arg_1(arguments));
     arr1 = take_array(arg_1(arguments));
-    return(bld_int_temp(arr1->max_position - arr1->min_position + 1));
+    return bld_int_temp(arr1->max_position - arr1->min_position + 1);
   } /* arr_lng */
 
 
@@ -891,7 +891,7 @@ listtype arguments;
   /* arr_maxidx */
     isit_array(arg_1(arguments));
     arr1 = take_array(arg_1(arguments));
-    return(bld_int_temp(arr1->max_position));
+    return bld_int_temp(arr1->max_position);
   } /* arr_maxidx */
 
 
@@ -911,7 +911,7 @@ listtype arguments;
   /* arr_minidx */
     isit_array(arg_1(arguments));
     arr1 = take_array(arg_1(arguments));
-    return(bld_int_temp(arr1->min_position));
+    return bld_int_temp(arr1->min_position);
   } /* arr_minidx */
 
 
@@ -944,7 +944,7 @@ listtype arguments;
     new_size = arr_to_size + 1;
     new_arr = REALLOC_ARRAY(arr_to, arr_to_size, new_size);
     if (new_arr == NULL) {
-      return(raise_exception(SYS_MEM_EXCEPTION));
+      return raise_exception(SYS_MEM_EXCEPTION);
     } else {
       COUNT3_ARRAY(arr_to_size, new_size);
       arr_variable->value.arrayvalue = new_arr;
@@ -959,18 +959,18 @@ listtype arguments;
         if (!any_var_initialisation(&new_arr->arr[arr_to_size], element)) {
           arr_to = REALLOC_ARRAY(new_arr, new_size, arr_to_size);
           if (arr_to == NULL) {
-            return(raise_exception(SYS_MEM_EXCEPTION));
+            return raise_exception(SYS_MEM_EXCEPTION);
           } /* if */
           COUNT3_ARRAY(new_size, arr_to_size);
           arr_variable->value.arrayvalue = arr_to;
-          return(raise_with_arguments(SYS_MEM_EXCEPTION, arguments));
+          return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
         } else {
           new_arr->max_position ++;
         } /* if */
       } /* if */
     } /* if */
     /* printf("end   arr_push %lu\n", heapsize()); */
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* arr_push */
 
 
@@ -1012,7 +1012,7 @@ listtype arguments;
       } /* if */
       result_size = (uinttype) (stop - start + 1);
       if (!ALLOC_ARRAY(result, result_size)) {
-        return(raise_exception(SYS_MEM_EXCEPTION));
+        return raise_exception(SYS_MEM_EXCEPTION);
       } /* if */
       result->min_position = arr1->min_position;
       result->max_position = (inttype) ((memsizetype) arr1->min_position + result_size - 1);
@@ -1029,17 +1029,17 @@ listtype arguments;
         if (!crea_array(result->arr, &arr1->arr[start_idx],
             result_size)) {
           FREE_ARRAY(result, result_size);
-          return(raise_with_arguments(SYS_MEM_EXCEPTION, arguments));
+          return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
         } /* if */
       } /* if */
     } else {
       if (!ALLOC_ARRAY(result, 0)) {
-        return(raise_exception(SYS_MEM_EXCEPTION));
+        return raise_exception(SYS_MEM_EXCEPTION);
       } /* if */
       result->min_position = arr1->min_position;
       result->max_position = arr1->min_position - 1;
     } /* if */
-    return(bld_array_temp(result));
+    return bld_array_temp(result);
   } /* arr_range */
 
 
@@ -1080,7 +1080,7 @@ listtype arguments;
         arr1_size = (uinttype) (arr1->max_position - arr1->min_position + 1);
         arr1 = REALLOC_ARRAY(arr1, arr1_size + 1, arr1_size);
         if (arr1 == NULL) {
-          return(raise_exception(SYS_MEM_EXCEPTION));
+          return raise_exception(SYS_MEM_EXCEPTION);
         } /* if */
         COUNT3_ARRAY(arr1_size + 1, arr1_size);
         arg_1(arguments)->value.arrayvalue = arr1;
@@ -1091,7 +1091,7 @@ listtype arguments;
     /* printf("arr_remove => ");
        trace1(result);
        printf("\n"); */
-    return(result);
+    return result;
   } /* arr_remove */
 
 
@@ -1123,19 +1123,19 @@ listtype arguments;
       arr1 = take_array(arr_arg);
       result_size = (uinttype) (arr1->max_position - arr1->min_position + 1);
       if (!ALLOC_ARRAY(result, result_size)) {
-        return(raise_exception(SYS_MEM_EXCEPTION));
+        return raise_exception(SYS_MEM_EXCEPTION);
       } /* if */
       result->min_position = arr1->min_position;
       result->max_position = arr1->max_position;
       if (!crea_array(result->arr, arr1->arr, result_size)) {
         FREE_ARRAY(result, result_size);
-        return(raise_with_arguments(SYS_MEM_EXCEPTION, arguments));
+        return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
       } /* if */
     } /* if */
     qsort_array(result->arr,
         &result->arr[result->max_position - result->min_position],
         data_cmp_func);
-    return(bld_array_temp(result));
+    return bld_array_temp(result);
   } /* arr_sort */
 
 
@@ -1168,7 +1168,7 @@ listtype arguments;
       } /* if */
       result_size = (uinttype) (arr1->max_position - start + 1);
       if (!ALLOC_ARRAY(result, result_size)) {
-        return(raise_exception(SYS_MEM_EXCEPTION));
+        return raise_exception(SYS_MEM_EXCEPTION);
       } /* if */
       result->min_position = arr1->min_position;
       result->max_position = (inttype) ((memsizetype) arr1->min_position + result_size - 1);
@@ -1184,17 +1184,17 @@ listtype arguments;
         if (!crea_array(result->arr, &arr1->arr[start - arr1->min_position],
             result_size)) {
           FREE_ARRAY(result, result_size);
-          return(raise_with_arguments(SYS_MEM_EXCEPTION, arguments));
+          return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
         } /* if */
       } /* if */
     } else {
       if (!ALLOC_ARRAY(result, 0)) {
-        return(raise_exception(SYS_MEM_EXCEPTION));
+        return raise_exception(SYS_MEM_EXCEPTION);
       } /* if */
       result->min_position = arr1->min_position;
       result->max_position = arr1->min_position - 1;
     } /* if */
-    return(bld_array_temp(result));
+    return bld_array_temp(result);
   } /* arr_tail */
 
 
@@ -1221,11 +1221,11 @@ listtype arguments;
     factor = take_int(arg_1(arguments));
     element = arg_3(arguments);
     if (factor < 0) {
-      return(raise_exception(SYS_RNG_EXCEPTION));
+      return raise_exception(SYS_RNG_EXCEPTION);
     } else {
       result_size = (memsizetype) factor;
       if (!ALLOC_ARRAY(result, result_size)) {
-        return(raise_exception(SYS_MEM_EXCEPTION));
+        return raise_exception(SYS_MEM_EXCEPTION);
       } else {
         result->min_position = 1;
         result->max_position = factor;
@@ -1243,7 +1243,7 @@ printf("\n"); */
           } else {
             if (!any_var_initialisation(elem_to, element)) {
               FREE_ARRAY(result, result_size);
-              return(raise_with_arguments(SYS_MEM_EXCEPTION, arguments));
+              return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
             } /* if */
           } /* if */
           position = 1;
@@ -1254,12 +1254,12 @@ printf("\n"); */
               /* the memory correct. */
               destr_array(elem_to, position);
               FREE_ARRAY(result, result_size);
-              return(raise_with_arguments(SYS_MEM_EXCEPTION, arguments));
+              return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
             } /* if */
             position++;
           } /* for */
         } /* if */
-        return(bld_array_temp(result));
+        return bld_array_temp(result);
       } /* if */
     } /* if */
   } /* arr_times */

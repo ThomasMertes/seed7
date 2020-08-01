@@ -31,6 +31,9 @@
 
 #ifdef ANSI_C
 
+void uint2_mult (uinttype a_high, uinttype a_low,
+                 uinttype b_high, uinttype b_low,
+                 uinttype *c_high, uinttype *c_low);
 uinttype uint_rand (void);
 int uint8MostSignificantBit (uint8type number);
 int uint16MostSignificantBit (uint16type number);
@@ -61,6 +64,7 @@ stritype intStrHex (inttype number);
 
 #else
 
+void uint2_mult ();
 uinttype uint_rand ();
 int uint8MostSignificantBit ();
 int uint16MostSignificantBit ();

@@ -70,7 +70,7 @@ GOBJ2 = entutl.obj identutl.obj chclsutl.obj sigutl.obj
 ROBJ1 = arr_rtl.obj bln_rtl.obj bst_rtl.obj chr_rtl.obj cmd_rtl.obj con_rtl.obj dir_rtl.obj drw_rtl.obj fil_rtl.obj
 ROBJ2 = flt_rtl.obj hsh_rtl.obj int_rtl.obj kbd_rtl.obj set_rtl.obj soc_rtl.obj str_rtl.obj tim_rtl.obj ut8_rtl.obj
 ROBJ3 = heaputl.obj striutl.obj
-DOBJ1 = $(BIGINT_LIB).obj $(CONSOLE_OBJ) tim_win.obj cmd_win.obj
+DOBJ1 = $(BIGINT_LIB).obj $(CONSOLE_OBJ) cmd_win.obj fil_win.obj tim_win.obj
 OBJ = $(MOBJ1)
 SEED7_LIB_OBJ = $(ROBJ1) $(ROBJ2) $(ROBJ3) $(DOBJ1)
 DRAW_LIB_OBJ = drw_win.obj
@@ -91,7 +91,7 @@ GSRC2 = entutl.c identutl.c chclsutl.c sigutl.c
 RSRC1 = arr_rtl.c bln_rtl.c bst_rtl.c chr_rtl.c cmd_rtl.c con_rtl.c dir_rtl.c drw_rtl.c fil_rtl.c
 RSRC2 = flt_rtl.c hsh_rtl.c int_rtl.c kbd_rtl.c set_rtl.c soc_rtl.c str_rtl.c tim_rtl.c ut8_rtl.c
 RSRC3 = heaputl.c striutl.c
-DSRC1 = $(BIGINT_LIB).c $(CONSOLE_SRC) tim_win.c cmd_win.c
+DSRC1 = $(BIGINT_LIB).c $(CONSOLE_SRC) cmd_win.c fil_win.c tim_win.c
 SRC = $(MSRC1)
 SEED7_LIB_SRC = $(RSRC1) $(RSRC2) $(RSRC3) $(DSRC1)
 DRAW_LIB_SRC =  drw_win.c
@@ -137,6 +137,7 @@ version.h:
 	echo ^#define ISNAN_WITH_UNDERLINE >> version.h
 	echo ^#define CHECK_INT_DIV_BY_ZERO >> version.h
 	echo ^#define USE_MYUNISTD_H >> version.h
+	echo ^#define CONSOLE_WCHAR >> version.h
 	echo ^#define OS_STRI_WCHAR >> version.h
 	echo ^#define OS_WIDE_DIR_INCLUDE_DIR_H >> version.h
 	echo ^#define OS_CHMOD_INCLUDE_IO_H >> version.h

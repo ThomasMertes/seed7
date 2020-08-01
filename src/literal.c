@@ -156,7 +156,7 @@ unsigned int position;
       character = next_character();
     } /* if */
     in_file.character = character;
-    return(position);
+    return position;
   } /* escape_sequence */
 
 
@@ -335,7 +335,7 @@ register int character;
       in_file.character = next_character();
       result = '?';
     } /* if */
-    return(result);
+    return result;
   } /* utf8_char */
 
 
@@ -367,7 +367,7 @@ static char lit_escapechar ()
       err_cchar(STRINGESCAPE, in_file.character);
       ch = ' ';
     } /* if */
-    return(ch);
+    return ch;
 #ifdef TRACE_LITERAL
   printf("END lit_escapechar\n");
 #endif
@@ -440,7 +440,7 @@ static char lit_escapechar ()
     if (read_next_character) {
       in_file.character = next_character();
     } /* if */
-    return(ch);
+    return ch;
 #ifdef TRACE_LITERAL
   printf("END lit_escapechar\n");
 #endif

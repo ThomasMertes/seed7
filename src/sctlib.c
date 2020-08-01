@@ -82,7 +82,7 @@ listtype arguments;
               take_struct(stru_from)->stru, new_size)) {
             FREE_OBJECT(result);
             FREE_STRUCT(new_stru, new_size);
-            return(raise_exception(SYS_MEM_EXCEPTION));
+            return raise_exception(SYS_MEM_EXCEPTION);
           } /* if */
           result->type_of = stru_from->type_of;
           result->descriptor.property = stru_from->descriptor.property;
@@ -90,13 +90,13 @@ listtype arguments;
           result->value.structvalue = new_stru;
         } else {
           FREE_OBJECT(result);
-          return(raise_exception(SYS_MEM_EXCEPTION));
+          return raise_exception(SYS_MEM_EXCEPTION);
         } /* if */
       } else {
-        return(raise_exception(SYS_MEM_EXCEPTION));
+        return raise_exception(SYS_MEM_EXCEPTION);
       } /* if */
     } /* if */
-    return(bld_reference_temp(result));
+    return bld_reference_temp(result);
   } /* sct_alloc */
 
 
@@ -127,19 +127,19 @@ listtype arguments;
     if (TEMP_OBJECT(arg_1(arguments))) {
       result = REALLOC_STRUCT(stru1, stru1_size, result_size);
       if (result == NULL) {
-        return(raise_exception(SYS_MEM_EXCEPTION));
+        return raise_exception(SYS_MEM_EXCEPTION);
       } /* if */
       COUNT3_STRUCT(stru1_size, result_size);
       result->size = result_size;
       arg_1(arguments)->value.structvalue = NULL;
     } else {
       if (!ALLOC_STRUCT(result, result_size)) {
-        return(raise_exception(SYS_MEM_EXCEPTION));
+        return raise_exception(SYS_MEM_EXCEPTION);
       } /* if */
       result->size = result_size;
       if (!crea_array(result->stru, stru1->stru, stru1->size)) {
         FREE_STRUCT(result, result_size);
-        return(raise_with_arguments(SYS_MEM_EXCEPTION, arguments));
+        return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
       } /* if */
     } /* if */
     if (TEMP_OBJECT(arg_3(arguments))) {
@@ -152,10 +152,10 @@ listtype arguments;
           stru2->size)) {
         destr_struct(result->stru, stru1->size);
         FREE_STRUCT(result, result_size);
-        return(raise_with_arguments(SYS_MEM_EXCEPTION, arguments));
+        return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
       } /* if */
     } /* if */
-    return(bld_struct_temp(result));
+    return bld_struct_temp(result);
   } /* sct_cat */
 
 
@@ -185,16 +185,16 @@ listtype arguments;
     } else {
       stru1 = take_struct(stru_arg);
       if (!ALLOC_STRUCT(result_struct, stru1->size)) {
-        return(raise_exception(SYS_MEM_EXCEPTION));
+        return raise_exception(SYS_MEM_EXCEPTION);
       } /* if */
       result_struct->size = stru1->size;
       if (!crea_array(result_struct->stru, stru1->stru, stru1->size)) {
         FREE_STRUCT(result_struct, stru1->size);
-        return(raise_with_arguments(SYS_MEM_EXCEPTION, arguments));
+        return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
       } /* if */
       result = bld_struct_temp(result_struct);
     } /* if */
-    return(result);
+    return result;
   } /* sct_conv */
 
 
@@ -230,13 +230,13 @@ listtype arguments;
       new_size = take_struct(stru_from)->size;
       if (new_stru->size != new_size) {
         if (!ALLOC_STRUCT(new_stru, new_size)) {
-          return(raise_exception(SYS_MEM_EXCEPTION));
+          return raise_exception(SYS_MEM_EXCEPTION);
         } else {
           new_stru->size = new_size;
           if (!crea_array(new_stru->stru,
               take_struct(stru_from)->stru, new_size)) {
             FREE_STRUCT(new_stru, new_size);
-            return(raise_with_arguments(SYS_MEM_EXCEPTION, arguments));
+            return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
           } /* if */
           destr_struct(take_struct(stru_to)->stru,
               take_struct(stru_to)->size);
@@ -249,7 +249,7 @@ listtype arguments;
             new_size);
       } /* if */
     } /* if */
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* sct_cpy */
 
 
@@ -284,7 +284,7 @@ printf("create: pointer assignment\n");
       new_size = take_struct(stru_from)->size;
       if (!ALLOC_STRUCT(new_stru, new_size)) {
         stru_to->value.structvalue = NULL;
-        return(raise_exception(SYS_MEM_EXCEPTION));
+        return raise_exception(SYS_MEM_EXCEPTION);
       } else {
         new_stru->size = new_size;
         stru_to->value.structvalue = new_stru;
@@ -292,11 +292,11 @@ printf("create: pointer assignment\n");
             take_struct(stru_from)->stru, new_size)) {
           FREE_STRUCT(new_stru, new_size);
           stru_to->value.structvalue = NULL;
-          return(raise_with_arguments(SYS_MEM_EXCEPTION, arguments));
+          return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
         } /* if */
       } /* if */
     } /* if */
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* sct_create */
 
 
@@ -322,7 +322,7 @@ listtype arguments;
       FREE_STRUCT(old_struct, old_struct->size);
       arg_1(arguments)->value.structvalue = NULL;
     } /* if */
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* sct_destr */
 
 
@@ -414,9 +414,9 @@ listtype arguments;
       shrink_stack();
     } /* if */
     if (err_info != OKAY_NO_ERROR) {
-      return(raise_exception(SYS_MEM_EXCEPTION));
+      return raise_exception(SYS_MEM_EXCEPTION);
     } else {
-      return(bld_struct_temp(result));
+      return bld_struct_temp(result);
     } /* if */
   } /* sct_elem */
 
@@ -436,10 +436,10 @@ listtype arguments;
 
   /* sct_empty */
     if (!ALLOC_STRUCT(result, 0)) {
-      return(raise_exception(SYS_MEM_EXCEPTION));
+      return raise_exception(SYS_MEM_EXCEPTION);
     } /* if */
     result->size = 0;
-    return(bld_struct_temp(result));
+    return bld_struct_temp(result);
   } /* sct_empty */
 
 
@@ -469,13 +469,13 @@ listtype arguments;
     stru_size = stru_to->size;
     stru_to = REALLOC_STRUCT(stru_to, stru_size, stru_size + 1);
     if (stru_to == NULL) {
-      return(raise_exception(SYS_MEM_EXCEPTION));
+      return raise_exception(SYS_MEM_EXCEPTION);
     } /* if */
     COUNT3_STRUCT(stru_size, stru_size + 1);
     stru_variable->value.structvalue = stru_to;
     memcpy(&stru_to->stru[stru_size], elem, sizeof(objectrecord));
     stru_to->size = stru_size + 1;
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* sct_incl */
 
 
@@ -491,7 +491,7 @@ listtype arguments;
 
   { /* sct_lng */
     isit_struct(arg_1(arguments));
-    return(bld_int_temp((inttype) take_struct(arg_1(arguments))->size));
+    return bld_int_temp((inttype) take_struct(arg_1(arguments))->size);
   } /* sct_lng */
 
 
@@ -522,7 +522,7 @@ listtype arguments;
     } else {
       result = raise_exception(SYS_RNG_EXCEPTION);
     } /* if */
-    return(result);
+    return result;
   } /* sct_refidx */
 
 
@@ -593,14 +593,14 @@ printf("\n");
               FREE_STRUCT(stru1, stru1->size);
               arg_1(arguments)->value.structvalue = NULL;
             } /* if */
-            return(result);
+            return result;
           } else {
-            return(struct_pointer);
+            return struct_pointer;
           } /* if */
         } /* if */
         position--;
         struct_pointer++;
       } /* while */
     } /* if */
-    return(raise_exception(SYS_RNG_EXCEPTION));
+    return raise_exception(SYS_RNG_EXCEPTION);
   } /* sct_select */

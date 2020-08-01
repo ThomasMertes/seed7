@@ -142,5 +142,5 @@ errinfotype *err_info;
     trace1(typeof_object);
     printf("\n");
 #endif
-    return(typeof_object);
+    return typeof_object;
   } /* decl_type */

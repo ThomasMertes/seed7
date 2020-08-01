@@ -144,7 +144,7 @@ register objecttype object;
     trace1(result);
     printf("\n");
 #endif
-    return(result);
+    return result;
   } /* exec_object */
 
 
@@ -444,7 +444,7 @@ objecttype *backup_block_result;
     printf("END res_init(%ld)\n",
         block_result->object ? ((inttype) block_result->object->value.objvalue) : 0);
 #endif
-    return(err_info == OKAY_NO_ERROR);
+    return err_info == OKAY_NO_ERROR;
   } /* res_init */
 
 
@@ -610,7 +610,7 @@ objecttype object;
 #ifdef TRACE_EXEC
     printf("END exec_lambda\n");
 #endif
-    return(result);
+    return result;
   } /* exec_lambda */
 
 
@@ -635,7 +635,7 @@ register listtype act_param_list;
       append_to_list(evaluated_insert_place, exec_object(act_param_list->obj), act_param_list);
       act_param_list = act_param_list->next;
     } /* while */
-    return(evaluated_act_params);
+    return evaluated_act_params;
   } /* eval_arg_list */
 
 
@@ -779,7 +779,7 @@ objecttype object;
 #ifdef TRACE_EXEC
     printf("END exec_action\n");
 #endif
-    return(result);
+    return result;
   } /* exec_action */
 
 
@@ -891,6 +891,7 @@ objecttype object;
       case TYPEOBJECT:
       case INTERFACEOBJECT:
       case PROGOBJECT:
+      case DECLAREDOBJECT:
 /*        printf("int/char/stri/array/file/type ");
         trace1(subroutine_object);
         printf(" params ");
@@ -928,7 +929,7 @@ objecttype object;
     trace1(result);
     printf("\n");
 #endif
-    return(result);
+    return result;
   } /* exec_call */
 
 
@@ -998,7 +999,7 @@ objecttype object;
     trace1(result);
     printf("\n");
 #endif
-    return(result);
+    return result;
   } /* evaluate */
 
 
@@ -1050,7 +1051,7 @@ objecttype object;
 #ifdef TRACE_EXEC
     printf("END eval_expression\n");
 #endif
-    return(result);
+    return result;
   } /* eval_expression */
 
 
@@ -1178,15 +1179,15 @@ printf("\n"); */
         } /* if */
 #endif
       } else {
-        return(raise_with_arguments(SYS_ACT_ILLEGAL_EXCEPTION, expr_list));
+        return raise_with_arguments(SYS_ACT_ILLEGAL_EXCEPTION, expr_list);
       } /* if */
     } else {
-      return(raise_with_arguments(SYS_MEM_EXCEPTION, expr_list));
+      return raise_with_arguments(SYS_MEM_EXCEPTION, expr_list);
     } /* if */
 #ifdef TRACE_EXEC
     printf("END exec_dynamic\n");
 #endif
-    return(result);
+    return result;
   } /* exec_dynamic */
 
 
@@ -1251,7 +1252,7 @@ errinfotype *err_info;
 #ifdef TRACE_EXEC
     printf("END exec_expr\n");
 #endif
-    return(result);
+    return result;
   } /* exec_expr */
 
 

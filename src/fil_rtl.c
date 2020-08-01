@@ -789,10 +789,56 @@ filetype aFile;
 
 
 
+#ifdef OUT_OF_ORDER
+#ifdef ANSI_C
+
+inttype filFileType (filetype aFile)
+#else
+
+inttype filFileType (aFile)
+filetype aFile;
+#endif
+
+  {
+    int file_no;
+    os_fstat_struct stat_buf;
+    errinfotype err_info = OKAY_NO_ERROR;
+    inttype result;
+
+  /* filFileType */
+    file_no = fileno(aFile);
+    if (file_no != -1 && os_fstat(file_no, &stat_buf) == 0) {
+      if (S_ISREG(stat_buf.st_mode)) {
+        result = 2;
+      } else if (S_ISDIR(stat_buf.st_mode)) {
+        result = 3;
+      } else if (S_ISCHR(stat_buf.st_mode)) {
+        result = 4;
+      } else if (S_ISBLK(stat_buf.st_mode)) {
+        result = 5;
+      } else if (S_ISFIFO(stat_buf.st_mode)) {
+        result = 6;
+      } else if (S_ISLNK(stat_buf.st_mode)) {
+        result = 7;
+      } else if (S_ISSOCK(stat_buf.st_mode)) {
+        result = 8;
+      } else {
+        result = 1;
+      } /* if */
+    } else {
+      result = 0;
+      raise_error(FILE_ERROR);
+    } /* if */
+    return result;
+  } /* filFileType */
+#endif
+
+
+
 /**
  *  Read a string with 'length' characters from 'aFile'.
  *  In order to work reasonable good for the common case (reading
- *  just some characters) memory for 'length' characters is requested
+ *  just some characters), memory for 'length' characters is requested
  *  with malloc(). After the data is read the result string is
  *  shrinked to the actual size (with realloc()). When 'length' is
  *  larger than GETS_DEFAULT_SIZE or the memory cannot be requested
@@ -863,15 +909,6 @@ inttype length;
         /* We have allocated a buffer for the requested number of char
            or for the number of bytes which are available in the file */
         result->size = allocated_size;
-#ifndef UTF32_STRINGS
-        /* printf("read_size=%ld\n", allocated_size); */
-        num_of_chars_read = (memsizetype) fread(result->mem, 1,
-            (size_t) allocated_size, aFile);
-        /* printf("num_of_chars_read=%lu\n", num_of_chars_read); */
-        if (num_of_chars_read == 0 && ferror(aFile)) {
-          err_info = FILE_ERROR;
-        } /* if */
-#else
         if (allocated_size <= BUFFER_SIZE) {
           /* printf("read_size=%ld\n", allocated_size); */
           num_of_chars_read = (memsizetype) fread(result->mem, 1,
@@ -894,7 +931,6 @@ inttype length;
         } else {
           num_of_chars_read = read_string(aFile, result, &err_info);
         } /* if */
-#endif
       } else {
         /* We do not know how many bytes are avaliable therefore
            result is resized with GETS_STRI_SIZE_DELTA until we
@@ -1247,7 +1283,7 @@ stritype mode;
         os_mode[0] = (os_chartype) mode->mem[0];
         os_mode[1] = '\0';
       } /* if */
-      /* The mode "rb" is not allowed under unix/linux */
+      /* The mode "rb" is not allowed under Unix/Linux */
       /* therefore get_mode(os_mode, mode); cannot be called */
       if (unlikely(os_mode[0] == '\0')) {
         raise_error(RANGE_ERROR);
@@ -1458,54 +1494,45 @@ filetype aFile;
 stritype stri;
 #endif
 
-  { /* filWrite */
+  {
+    register strelemtype *str;
+    memsizetype len;
+    register uchartype *ustri;
+    register uint16type buf_len;
+    uchartype buffer[BUFFER_SIZE];
+
+  /* filWrite */
 #ifdef FWRITE_WRONG_FOR_READ_ONLY_FILES
     if (unlikely(stri->size > 0 && (aFile->flags & _F_WRIT) == 0)) {
       raise_error(FILE_ERROR);
       return;
     } /* if */
 #endif
-#ifdef UTF32_STRINGS
-    {
-      register strelemtype *str;
-      memsizetype len;
-      register uchartype *ustri;
-      register uint16type buf_len;
-      uchartype buffer[BUFFER_SIZE];
-
-      for (str = stri->mem, len = stri->size;
-          len >= BUFFER_SIZE; len -= BUFFER_SIZE) {
-        for (ustri = buffer, buf_len = BUFFER_SIZE; buf_len > 0; buf_len--) {
-          if (unlikely(*str >= 256)) {
-            raise_error(RANGE_ERROR);
-            return;
-          } /* if */
-          *ustri++ = (uchartype) *str++;
-        } /* for */
-        if (unlikely(BUFFER_SIZE != fwrite(buffer, sizeof(uchartype), BUFFER_SIZE, aFile))) {
-          raise_error(FILE_ERROR);
+    for (str = stri->mem, len = stri->size;
+        len >= BUFFER_SIZE; len -= BUFFER_SIZE) {
+      for (ustri = buffer, buf_len = BUFFER_SIZE; buf_len > 0; buf_len--) {
+        if (unlikely(*str >= 256)) {
+          raise_error(RANGE_ERROR);
           return;
         } /* if */
+        *ustri++ = (uchartype) *str++;
       } /* for */
-      if (len > 0) {
-        for (ustri = buffer, buf_len = (uint16type) len; buf_len > 0; buf_len--) {
-          if (unlikely(*str >= 256)) {
-            raise_error(RANGE_ERROR);
-            return;
-          } /* if */
-          *ustri++ = (uchartype) *str++;
-        } /* for */
-        if (unlikely(len != fwrite(buffer, sizeof(uchartype), len, aFile))) {
-          raise_error(FILE_ERROR);
+      if (unlikely(BUFFER_SIZE != fwrite(buffer, sizeof(uchartype), BUFFER_SIZE, aFile))) {
+        raise_error(FILE_ERROR);
+        return;
+      } /* if */
+    } /* for */
+    if (len > 0) {
+      for (ustri = buffer, buf_len = (uint16type) len; buf_len > 0; buf_len--) {
+        if (unlikely(*str >= 256)) {
+          raise_error(RANGE_ERROR);
           return;
         } /* if */
+        *ustri++ = (uchartype) *str++;
+      } /* for */
+      if (unlikely(len != fwrite(buffer, sizeof(uchartype), len, aFile))) {
+        raise_error(FILE_ERROR);
+        return;
       } /* if */
-    }
-#else
-    if (unlikely(stri->size != fwrite(stri->mem, sizeof(strelemtype),
-                                      (size_t) stri->size, aFile))) {
-      raise_error(FILE_ERROR);
-      return;
     } /* if */
-#endif
   } /* filWrite */

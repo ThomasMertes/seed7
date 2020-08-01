@@ -103,7 +103,7 @@ progtype aProg;
     } else {
       result = NULL;
     } /* if */
-    return(result);
+    return result;
   } /* prgDeclObjects */
 
 
@@ -147,7 +147,7 @@ progtype aProg;
     } else {
       result = (inttype) aProg->error_count;
     } /* if */
-    return(result);
+    return result;
   } /* prgErrorCount */
 
 
@@ -172,7 +172,7 @@ objecttype object;
       raise_error(err_info);
       result = NULL;
     } /* if */
-    return(result);
+    return result;
   } /* prgEval */
 
 
@@ -213,7 +213,7 @@ stritype stri;
     if (err_info != OKAY_NO_ERROR) {
       raise_error(err_info);
     } /* if */
-    return(result);
+    return result;
   } /* prgFilParse */
 
 
@@ -257,7 +257,7 @@ listtype curr_expr;
     printf("\n");
     prot_list(curr_expr);
     printf("\n"); */
-    return(result);
+    return result;
   } /* prgMatch */
 
 
@@ -301,7 +301,7 @@ listtype curr_expr;
         printf("\n"); */
       } /* if */
     } /* if */
-    return(result);
+    return result;
   } /* prgMatchExpr */
 
 
@@ -324,7 +324,7 @@ stritype stri;
     if (err_info != OKAY_NO_ERROR) {
       raise_error(err_info);
     } /* if */
-    return(result);
+    return result;
   } /* prgStrParse */
 
 
@@ -363,7 +363,7 @@ stritype syobjectName;
       memcpy(&prog, &prog_backup, sizeof(progrecord));
       free_cstri(name, syobjectName);
     } /* if */
-    return(result);
+    return result;
   } /* prgSyobject */
 
 
@@ -389,5 +389,5 @@ stritype sysvarName;
     } else {
       result = NULL;
     } /* if */
-    return(result);
+    return result;
   } /* prgSysvar */

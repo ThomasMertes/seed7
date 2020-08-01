@@ -40,11 +40,41 @@
 #include "data_rtl.h"
 #include "heaputl.h"
 #include "striutl.h"
+#include "int_rtl.h"
 #include "rtl_err.h"
 
 #undef EXTERN
 #define EXTERN
 #include "big_drv.h"
+
+
+#define WITH_BIGINT_FREELIST
+#define BIG_FREELIST_LENGTH_LIMIT 20
+
+
+#define HEAP_ALLOC_BIG     malloc(sizeof(__mpz_struct))
+#define HEAP_FREE_BIG(var) free(var)
+
+#ifdef WITH_BIGINT_FREELIST
+
+static flisttype flist = NULL;
+static unsigned int flist_len = 0;
+
+#define POP_BIG_OK      flist_len != 0
+#define PUSH_BIG_OK     flist_len < BIG_FREELIST_LENGTH_LIMIT
+
+#define POP_BIG(var)    {var = (biginttype) flist; flist = flist->next; flist_len--; }
+#define PUSH_BIG(var)   {((flisttype) var)->next = flist; flist = (flisttype) var; flist_len++; }
+
+#define ALLOC_BIG(var)  if (POP_BIG_OK) POP_BIG(var) else var = HEAP_ALLOC_BIG;
+#define FREE_BIG(var)   if (PUSH_BIG_OK) PUSH_BIG(var) else HEAP_FREE_BIG(var);
+
+#else
+
+#define ALLOC_BIG(var)  var = HEAP_ALLOC_BIG
+#define FREE_BIG(var)   HEAP_FREE_BIG(var)
+
+#endif
 
 
 
@@ -150,7 +180,7 @@ biginttype big1;
     biginttype result;
 
   /* bigAbs */
-    result = malloc(sizeof(__mpz_struct));
+    ALLOC_BIG(result);
     mpz_init(result);
     mpz_abs(result, big1);
     return result;
@@ -175,7 +205,7 @@ biginttype summand2;
     biginttype result;
 
   /* bigAdd */
-    result = malloc(sizeof(__mpz_struct));
+    ALLOC_BIG(result);
     mpz_init(result);
     mpz_add(result, summand1, summand2);
     return result;
@@ -411,7 +441,7 @@ biginttype big_from;
     biginttype result;
 
   /* bigCreate */
-    result = malloc(sizeof(__mpz_struct));
+    ALLOC_BIG(result);
     mpz_init_set(result, big_from);
     return result;
   } /* bigCreate */
@@ -466,7 +496,7 @@ biginttype old_bigint;
   { /* bigDestr */
     if (old_bigint != NULL) {
       mpz_clear(old_bigint);
-      free(old_bigint);
+      FREE_BIG(old_bigint);
     } /* if */
   } /* bigDestr */
 
@@ -494,7 +524,7 @@ biginttype divisor;
       raise_error(NUMERIC_ERROR);
       result = NULL;
     } else {
-      result = malloc(sizeof(__mpz_struct));
+      ALLOC_BIG(result);
       mpz_init(result);
       mpz_tdiv_q(result, dividend, divisor);
     } /* if */
@@ -532,7 +562,7 @@ int32type number;
     biginttype result;
 
   /* bigFromInt32 */
-    result = malloc(sizeof(__mpz_struct));
+    ALLOC_BIG(result);
     mpz_init_set_si(result, number);
     return result;
   } /* bigFromInt32 */
@@ -554,7 +584,7 @@ int64type number;
     biginttype result;
 
   /* bigFromInt64 */
-    result = malloc(sizeof(__mpz_struct));
+    ALLOC_BIG(result);
     mpz_init_set_si(result, (int32type) ((number >> 32) && 0xFFFFFFFF));
     mpz_mul_2exp(result, result, 32);
     mpz_init_set_ui(help, (uint32type) (number && 0xFFFFFFFF));
@@ -578,7 +608,7 @@ uint32type number;
     biginttype result;
 
   /* bigFromUInt32 */
-    result = malloc(sizeof(__mpz_struct));
+    ALLOC_BIG(result);
     mpz_init_set_ui(result, number);
     return result;
   } /* bigFromUInt32 */
@@ -600,7 +630,7 @@ uint64type number;
     biginttype result;
 
   /* bigFromUInt64 */
-    result = malloc(sizeof(__mpz_struct));
+    ALLOC_BIG(result);
     mpz_init_set_ui(result, (uint32type) ((number >> 32) && 0xFFFFFFFF));
     mpz_mul_2exp(result, result, 32);
     mpz_init_set_ui(help, (uint32type) (number && 0xFFFFFFFF));
@@ -626,7 +656,7 @@ biginttype big2;
     biginttype result;
 
   /* bigGcd */
-    result = malloc(sizeof(__mpz_struct));
+    ALLOC_BIG(result);
     mpz_init(result);
     mpz_gcd(result, big1, big2);
     return result;
@@ -694,7 +724,7 @@ ustritype buffer;
     biginttype result;
 
   /* bigImport */
-    result = malloc(sizeof(__mpz_struct));
+    ALLOC_BIG(result);
     mpz_init(result);
     count = buffer[0] << 24 | buffer[1] << 16 | buffer[2] << 8 | buffer[3];
     if (buffer[4] >= 128) {
@@ -754,7 +784,7 @@ inttype exponent;
       raise_error(NUMERIC_ERROR);
       result = NULL;
     } else {
-      result = malloc(sizeof(__mpz_struct));
+      ALLOC_BIG(result);
       mpz_init(result);
       mpz_pow_ui(result, base, (uinttype) exponent);
     } /* if */
@@ -782,10 +812,10 @@ biginttype big1;
       raise_error(NUMERIC_ERROR);
       result = NULL;
     } else if (sign == 0) {
-      result = malloc(sizeof(__mpz_struct));
+      ALLOC_BIG(result);
       mpz_init_set_si(result, -1);
     } else {
-      result = malloc(sizeof(__mpz_struct));
+      ALLOC_BIG(result);
       mpz_init_set_ui(result, mpz_sizeinbase(big1, 2) - 1);
     } /* if */
     return result;
@@ -826,7 +856,7 @@ inttype lshift;
       raise_error(NUMERIC_ERROR);
       result = NULL;
     } else {
-      result = malloc(sizeof(__mpz_struct));
+      ALLOC_BIG(result);
       mpz_init(result);
       mpz_mul_2exp(result, big1, (uinttype) lshift);
     } /* if */
@@ -873,13 +903,51 @@ inttype lshift;
       raise_error(NUMERIC_ERROR);
       result = NULL;
     } else {
-      result = malloc(sizeof(__mpz_struct));
+      ALLOC_BIG(result);
       mpz_init(result);
       mpz_init_set_ui(one, 1);
       mpz_mul_2exp(result, one, (uinttype) lshift);
     } /* if */
     return result;
   } /* bigLShiftOne */
+
+
+
+#ifdef ANSI_C
+
+biginttype bigLog2BaseLShift (const inttype log2base, const inttype lshift)
+#else
+
+biginttype bigLog2BaseLShift (log2base, lshift)
+inttype log2base;
+inttype lshift;
+#endif
+
+  {
+    uinttype high_shift;
+    uinttype low_shift;
+    biginttype result;
+
+  /* bigLog2BaseLShift */
+    if (unlikely(lshift < 0)) {
+      raise_error(NUMERIC_ERROR);
+      result = NULL;
+    } else if (likely(log2base == 1)) {
+      result = bigLShiftOne(lshift);
+    } else if (log2base <= 10 && lshift <= 214748364) {
+      result = bigLShiftOne(log2base * lshift);
+    } else {
+      uint2_mult((uinttype) 0L, (uinttype) log2base, (uinttype) 0L, (uinttype) lshift,
+          &high_shift, &low_shift);
+      if (high_shift != 0 || (inttype) low_shift < 0) {
+        raise_error(MEMORY_ERROR);
+        result = NULL;
+      } else {
+        result = bigLShiftOne((inttype) low_shift);
+      } /* if */
+    } /* if */
+    return result;
+  } /* bigLog2BaseLShift */
 
 
 
@@ -905,7 +973,7 @@ biginttype divisor;
       raise_error(NUMERIC_ERROR);
       result = NULL;
     } else {
-      result = malloc(sizeof(__mpz_struct));
+      ALLOC_BIG(result);
       mpz_init(result);
       mpz_fdiv_q(result, dividend, divisor);
     } /* if */
@@ -927,7 +995,7 @@ biginttype big1;
     biginttype result;
 
   /* bigMinus */
-    result = malloc(sizeof(__mpz_struct));
+    ALLOC_BIG(result);
     mpz_init(result);
     mpz_neg(result, big1);
     return result;
@@ -957,7 +1025,7 @@ biginttype divisor;
       raise_error(NUMERIC_ERROR);
       result = NULL;
     } else {
-      result = malloc(sizeof(__mpz_struct));
+      ALLOC_BIG(result);
       mpz_init(result);
       mpz_fdiv_r(result, dividend, divisor);
     } /* if */
@@ -983,7 +1051,7 @@ biginttype factor2;
     biginttype result;
 
   /* bigMult */
-    result = malloc(sizeof(__mpz_struct));
+    ALLOC_BIG(result);
     mpz_init(result);
     mpz_mul(result, factor1, factor2);
     return result;
@@ -1021,7 +1089,7 @@ inttype number;
     biginttype result;
 
   /* bigMultSignedDigit */
-    result = malloc(sizeof(__mpz_struct));
+    ALLOC_BIG(result);
     mpz_init(result);
     mpz_mul_si(result, big1, number);
     return result;
@@ -1063,11 +1131,11 @@ stritype stri;
       raise_error(MEMORY_ERROR);
       result = NULL;
     } else {
-      result = malloc(sizeof(__mpz_struct));
+      ALLOC_BIG(result);
       if (mpz_init_set_str(result, cstri, 10) != 0) {
         free_cstri(cstri, stri);
         mpz_clear(result);
-        free(result);
+        FREE_BIG(result);
         raise_error(RANGE_ERROR);
         result = NULL;
       } else {
@@ -1092,7 +1160,7 @@ biginttype big1;
     biginttype result;
 
   /* bigPred */
-    result = malloc(sizeof(__mpz_struct));
+    ALLOC_BIG(result);
     mpz_init(result);
     mpz_sub_ui(result, big1, 1);
     return result;
@@ -1113,6 +1181,30 @@ biginttype big1;
     mpz_sub_ui(big1, big1, 1);
     return big1;
   } /* bigPredTemp */
+
+
+
+/**
+ *  Returns the square of a signed big integer.
+ */
+#ifdef ANSI_C
+
+biginttype bigSquare (const_biginttype big1)
+#else
+
+biginttype bigSquare (big1)
+biginttype big1;
+#endif
+
+  {
+    biginttype result;
+
+  /* bigSquare */
+    ALLOC_BIG(result);
+    mpz_init(result);
+    mpz_mul(result, big1, big1);
+    return result;
+  } /* bigSquare */
 
 
 
@@ -1145,7 +1237,7 @@ biginttype upper_limit;
       return 0;
     } else {
       mpz_add_ui(range_limit, range_limit, 1);
-      result = malloc(sizeof(__mpz_struct));
+      ALLOC_BIG(result);
       mpz_init(result);
       if (seed_necessary) {
         gmp_randinit_default(state);
@@ -1181,7 +1273,7 @@ biginttype divisor;
       raise_error(NUMERIC_ERROR);
       result = NULL;
     } else {
-      result = malloc(sizeof(__mpz_struct));
+      ALLOC_BIG(result);
       mpz_init(result);
       mpz_tdiv_r(result, dividend, divisor);
     } /* if */
@@ -1208,7 +1300,7 @@ inttype rshift;
       raise_error(NUMERIC_ERROR);
       result = NULL;
     } else {
-      result = malloc(sizeof(__mpz_struct));
+      ALLOC_BIG(result);
       mpz_init(result);
       mpz_fdiv_q_2exp(result, big1, (uinttype) rshift);
     } /* if */
@@ -1254,7 +1346,7 @@ biginttype subtrahend;
     biginttype result;
 
   /* bigSbtr */
-    result = malloc(sizeof(__mpz_struct));
+    ALLOC_BIG(result);
     mpz_init(result);
     mpz_sub(result, minuend, subtrahend);
     return result;
@@ -1340,7 +1432,7 @@ biginttype big1;
     biginttype result;
 
   /* bigSucc */
-    result = malloc(sizeof(__mpz_struct));
+    ALLOC_BIG(result);
     mpz_init(result);
     mpz_add_ui(result, big1, 1);
     return result;
@@ -1494,7 +1586,7 @@ biginttype bigZero ()
     biginttype result;
 
   /* bigZero */
-    result = malloc(sizeof(__mpz_struct));
+    ALLOC_BIG(result);
     mpz_init_set_ui(result, 0);
     return result;
   } /* bigZero */

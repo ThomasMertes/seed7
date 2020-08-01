@@ -2438,52 +2438,38 @@ inttype col;
 inttype bkcol;
 #endif
 
-  { /* drwText */
-#ifdef UTF32_STRINGS
-    {
-      wchar_t *stri_buffer;
-      wchar_t *wstri;
-      strelemtype *strelem;
-      memsizetype len;
+  {
+    wchar_t *stri_buffer;
+    wchar_t *wstri;
+    strelemtype *strelem;
+    memsizetype len;
 
-      stri_buffer = (wchar_t *) malloc(sizeof(wchar_t) * stri->size);
-      if (stri_buffer != NULL) {
-        wstri = stri_buffer;
-        strelem = stri->mem;
-        len = stri->size;
-        for (; len > 0; wstri++, strelem++, len--) {
-          if (*strelem >= 65536) {
-            raise_error(RANGE_ERROR);
-            return;
-          } /* if */
-          *wstri = (wchar_t) *strelem;
-        } /* for */
-
-        SetTextColor(to_hdc(actual_window), (COLORREF) col);
-        SetBkColor(to_hdc(actual_window), (COLORREF) bkcol);
-        SetTextAlign(to_hdc(actual_window), TA_BASELINE | TA_LEFT);
-        TextOutW(to_hdc(actual_window), x, y, stri_buffer, stri->size);
-        if (to_backup_hdc(actual_window) != 0) {
-          SetTextColor(to_backup_hdc(actual_window), (COLORREF) col);
-          SetBkColor(to_backup_hdc(actual_window), (COLORREF) bkcol);
-          SetTextAlign(to_backup_hdc(actual_window), TA_BASELINE | TA_LEFT);
-          TextOutW(to_backup_hdc(actual_window), x, y, stri_buffer, stri->size);
+  /* drwText */
+    stri_buffer = (wchar_t *) malloc(sizeof(wchar_t) * stri->size);
+    if (stri_buffer != NULL) {
+      wstri = stri_buffer;
+      strelem = stri->mem;
+      len = stri->size;
+      for (; len > 0; wstri++, strelem++, len--) {
+        if (*strelem >= 65536) {
+          raise_error(RANGE_ERROR);
+          return;
         } /* if */
-        free(stri_buffer);
+        *wstri = (wchar_t) *strelem;
+      } /* for */
+
+      SetTextColor(to_hdc(actual_window), (COLORREF) col);
+      SetBkColor(to_hdc(actual_window), (COLORREF) bkcol);
+      SetTextAlign(to_hdc(actual_window), TA_BASELINE | TA_LEFT);
+      TextOutW(to_hdc(actual_window), x, y, stri_buffer, stri->size);
+      if (to_backup_hdc(actual_window) != 0) {
+        SetTextColor(to_backup_hdc(actual_window), (COLORREF) col);
+        SetBkColor(to_backup_hdc(actual_window), (COLORREF) bkcol);
+        SetTextAlign(to_backup_hdc(actual_window), TA_BASELINE | TA_LEFT);
+        TextOutW(to_backup_hdc(actual_window), x, y, stri_buffer, stri->size);
       } /* if */
-    }
-#else
-    SetTextColor(to_hdc(actual_window), (COLORREF) col);
-    SetBkColor(to_hdc(actual_window), (COLORREF) bkcol);
-    SetTextAlign(to_hdc(actual_window), TA_BASELINE | TA_LEFT);
-    TextOut(to_hdc(actual_window), x, y, stri->mem, stri->size);
-    if (to_backup_hdc(actual_window) != 0) {
-      SetTextColor(to_backup_hdc(actual_window), (COLORREF) col);
-      SetBkColor(to_backup_hdc(actual_window), (COLORREF) bkcol);
-      SetTextAlign(to_backup_hdc(actual_window), TA_BASELINE | TA_LEFT);
-      TextOut(to_backup_hdc(actual_window), x, y, stri->mem, stri->size);
+      free(stri_buffer);
     } /* if */
-#endif
   } /* drwText */
 
 

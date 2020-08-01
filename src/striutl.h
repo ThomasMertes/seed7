@@ -39,9 +39,6 @@ extern const_cstritype cstri_escape_sequence[];
 
 
 #ifdef OS_STRI_WCHAR
-typedef wchar_t         *wstritype;
-typedef const wchar_t   *const_wstritype;
-
 typedef wchar_t          os_chartype;
 typedef uint16type       os_uchartype;
 typedef wstritype        os_stritype;
@@ -74,9 +71,21 @@ const strelemtype *stri_charpos (const_stritype stri, strelemtype ch);
 memsizetype utf8_to_stri (strelemtype *dest_stri, memsizetype *dest_len,
                           const_ustritype ustri, size_t len);
 memsizetype utf8_bytes_missing (const_ustritype ustri, size_t len);
+memsizetype stri_to_utf8 (ustritype out_stri, register const strelemtype *strelem,
+                          memsizetype len);
+void stri_export (ustritype out_stri, const_stritype in_stri);
+void ustri_expand (strelemtype *stri, const_ustritype ustri, size_t len);
+void stri_compress (ustritype ustri, const strelemtype *stri, size_t len);
+#ifdef OS_STRI_WCHAR
+memsizetype stri_to_wstri (wstritype out_wstri, register const strelemtype *strelem,
+                           memsizetype len, errinfotype *err_info);
+#endif
 cstritype cp_to_cstri (const_stritype stri);
 bstritype stri_to_bstri (const_stritype stri);
 bstritype stri_to_bstri8 (const_stritype stri);
+#ifdef CONSOLE_WCHAR
+bstritype stri_to_bstriw (const_stritype stri);
+#endif
 stritype cstri_to_stri (const_cstritype cstri);
 stritype cstri8_or_cstri_to_stri (const_cstritype cstri);
 os_stritype stri_to_os_stri (const_stritype stri, errinfotype *err_info);
@@ -96,9 +105,19 @@ stritype relativeToProgramPath (const const_stritype basePath,
 strelemtype *stri_charpos ();
 memsizetype utf8_to_stri ();
 memsizetype utf8_bytes_missing ();
+memsizetype stri_to_utf8 ();
+void stri_export ();
+void ustri_expand ();
+void stri_compress ();
+#ifdef OS_STRI_WCHAR
+memsizetype stri_to_wstri ();
+#endif
 cstritype cp_to_cstri ();
 bstritype stri_to_bstri ();
 bstritype stri_to_bstri8 ();
+#ifdef CONSOLE_WCHAR
+bstritype stri_to_bstriw ();
+#endif
 stritype cstri_to_stri ();
 stritype cstri8_or_cstri_to_stri ();
 stritype stri_to_standard_path ():
@@ -110,33 +129,5 @@ os_stritype cp_to_command ();
 #ifdef PATHS_RELATIVE_TO_EXECUTABLE
 stritype relativeToProgramPath ();
 #endif
-
-#endif
-
-
-#ifdef UTF32_STRINGS
-
-#ifdef ANSI_C
-
-memsizetype stri_to_utf8 (ustritype out_stri, register const strelemtype *stri,
-                          memsizetype len);
-void stri_export (ustritype out_stri, const_stritype in_stri);
-void ustri_expand (strelemtype *stri, const_ustritype ustri, size_t len);
-void stri_compress (ustritype ustri, const strelemtype *stri, size_t len);
-
-#else
-
-memsizetype stri_to_utf8 ();
-void stri_export ();
-void ustri_expand ();
-void stri_compress ();
-
-#endif
-
-#else
-
-#define stri_export(ustri,stri) memcpy((ustri), (stri)->mem, (stri)->size); (ustri)[(stri)->size] = '\0';
-#define ustri_expand(stri,ustri,len) memcpy((stri), (ustri), (len))
-#define stri_compress(ustri,stri,len) memcpy((ustri), (stri), (len))
 
 #endif

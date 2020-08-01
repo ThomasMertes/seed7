@@ -126,6 +126,9 @@ const func boolean: eof (in file: aFile)                     is DYNAMIC;
 const func boolean: hasNext (in file: aFile)                 is DYNAMIC;
 
 
+const func boolean: inputReady (in file: aFile)              is DYNAMIC;
+
+
 (**
  *  Obtain the length of a file.
  *  The file length is measured in bytes.

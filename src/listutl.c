@@ -86,10 +86,10 @@ errinfotype *err_info;
       help_element->next = NULL;
       help_element->obj = object;
       *list_insert_place = help_element;
-      return(&help_element->next);
+      return &help_element->next;
     } else {
       *err_info = MEMORY_ERROR;
-      return(NULL);
+      return NULL;
     } /* if */
   } /* append_element_to_list */
 
@@ -376,7 +376,7 @@ errinfotype *err_info;
 #ifdef TRACE_RUNLIST
     printf("END copy_list\n");
 #endif
-    return(list_to);
+    return list_to;
   } /* copy_list */
 
 
@@ -444,7 +444,7 @@ errinfotype *err_info;
 #ifdef TRACE_RUNLIST
     printf("END array_to_list\n");
 #endif
-    return(list_to);
+    return list_to;
   } /* array_to_list */
 
 
@@ -510,7 +510,7 @@ errinfotype *err_info;
 #ifdef TRACE_RUNLIST
     printf("END struct_to_list\n");
 #endif
-    return(list_to);
+    return list_to;
   } /* struct_to_list */
 
 
@@ -563,7 +563,7 @@ errinfotype *err_info;
         helem++;
       } /* while */
     } /* if */
-    return(result);
+    return result;
   } /* hash_data_to_list */
 
 
@@ -616,5 +616,5 @@ errinfotype *err_info;
         helem++;
       } /* while */
     } /* if */
-    return(result);
+    return result;
   } /* hash_key_to_list */

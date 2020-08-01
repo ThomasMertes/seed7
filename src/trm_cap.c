@@ -124,7 +124,7 @@ char *terminal_name;
       result = -1;
     } /* if */
     strcpy(capabilities, capbuf);
-    return(result);
+    return result;
   } /* my_tgetent */
 
 
@@ -154,7 +154,7 @@ char *code;
 #ifdef TRACE_CAPS
     printf("%s#%d\n", code, result);
 #endif
-    return(result);
+    return result;
   } /* my_tgetnum */
 
 
@@ -184,7 +184,7 @@ char *code;
 #ifdef TRACE_CAPS
     printf("%s:%d\n", code, result);
 #endif
-    return(result);
+    return result;
   } /* my_tgetflag */
 
 
@@ -265,7 +265,7 @@ char **area;
 #ifdef TRACE_CAPS
     printf("%s=\"%s\"\n", code, result);
 #endif
-    return(result);
+    return result;
   } /* my_tgetstr */
 #endif
 
@@ -416,7 +416,7 @@ printf("\"%s\"\n", capbuf);
       caps_initialized = TRUE;
     } /* if */
 /*  printf("%d <%s>\n", strlen(cursor_address), cursor_address); */
-    return(caps_initialized);
+    return caps_initialized;
   } /* getcaps */
 
 
@@ -431,7 +431,7 @@ char ch;
 #endif
 
   { /* outch */
-    return(putchar(ch));
+    return putchar(ch);
   } /* outch */
 
 

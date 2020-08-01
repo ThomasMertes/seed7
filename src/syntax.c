@@ -171,7 +171,7 @@ ustritype *name_of_last_sy_token;
 #ifdef TRACE_SYNTAX
     printf("END def_single_token\n");
 #endif
-    return(new_token);
+    return new_token;
   } /* def_single_token */
 
 
@@ -205,7 +205,7 @@ listtype statement_tokens;
 #ifdef TRACE_SYNTAX
     printf("END count_inner_tokens\n");
 #endif
-    return(number_of_inner_tokens);
+    return number_of_inner_tokens;
   } /* count_inner_tokens */
 
 
@@ -304,7 +304,7 @@ ustritype name_of_last_sy_token;
 #ifdef TRACE_SYNTAX
     printf("END def_token_list\n");
 #endif
-    return(token_list_end);
+    return token_list_end;
   } /* def_token_list */
 
 
@@ -367,7 +367,7 @@ assoctype statement_associativity;
 #ifdef TRACE_SYNTAX
     printf("END def_infix_syntax\n");
 #endif
-    return(token_list_end);
+    return token_list_end;
   } /* def_infix_syntax */
 
 
@@ -418,7 +418,7 @@ assoctype statement_associativity;
 #ifdef TRACE_SYNTAX
     printf("END def_prefix_syntax\n");
 #endif
-    return(token_list_end);
+    return token_list_end;
   } /* def_prefix_syntax */
 
 
@@ -493,7 +493,7 @@ assoctype statement_associativity;
 #ifdef TRACE_SYNTAX
     printf("END def_statement_syntax\n");
 #endif
-    return(token_list_end);
+    return token_list_end;
   } /* def_statement_syntax */
 
 

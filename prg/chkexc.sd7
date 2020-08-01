@@ -772,12 +772,336 @@ const proc: check_integer is func
   end func;
 
 
+const func bigInteger: bigIntExpr (in bigInteger: number) is
+  return number;
+
+
+const proc: check_bigInteger_exponentiation (inout boolean: okay) is func
+  local
+    var integer: number is 0;
+    var bigInteger: i_num is 0_;
+  begin
+    block
+      i_num := 0_ ** 0;
+      if i_num = 1_ then
+        incr(number);
+      else
+        writeln(" ***** 0_ ** 0 did not deliver 1_");
+        okay := FALSE;
+      end if;
+    exception
+      catch NUMERIC_ERROR:
+        writeln(" ***** 0_ ** 0 did raise NUMERIC_ERROR");
+        okay := FALSE;
+    end block;
+
+    block
+      i_num := 0_ ** (-2);
+      writeln(" ***** 0_ ** (-2) did not raise NUMERIC_ERROR");
+      okay := FALSE;
+    exception
+      catch NUMERIC_ERROR:
+        incr(number);
+    end block;
+
+    block
+      i_num := 0_ ** intExpr(0);
+      if i_num = 1_ then
+        incr(number);
+      else
+        writeln(" ***** 0_ ** intExpr(0) did not deliver 1_");
+        okay := FALSE;
+      end if;
+    exception
+      catch NUMERIC_ERROR:
+        writeln(" ***** 0_ ** intExpr(0) did raise NUMERIC_ERROR");
+        okay := FALSE;
+    end block;
+
+    block
+      i_num := 0_ ** intExpr(-2);
+      writeln(" ***** 0_ ** intExpr(-2) did not raise NUMERIC_ERROR");
+      okay := FALSE;
+    exception
+      catch NUMERIC_ERROR:
+        incr(number);
+    end block;
+
+    block
+      i_num := bigIntExpr(0_) ** 0;
+      if i_num = 1_ then
+        incr(number);
+      else
+        writeln(" ***** bigIntExpr(0_) ** 0 did not deliver 1");
+        okay := FALSE;
+      end if;
+    exception
+      catch NUMERIC_ERROR:
+        writeln(" ***** bigIntExpr(0_) ** 0 did raise NUMERIC_ERROR");
+        okay := FALSE;
+    end block;
+
+    block
+      i_num := bigIntExpr(0_) ** (-2);
+      writeln(" ***** bigIntExpr(0_) ** (-2) did not raise NUMERIC_ERROR");
+      okay := FALSE;
+    exception
+      catch NUMERIC_ERROR:
+        incr(number);
+    end block;
+
+    block
+      i_num := bigIntExpr(0_) ** intExpr(0);
+      if i_num = 1_ then
+        incr(number);
+      else
+        writeln(" ***** bigIntExpr(0_) ** intExpr(0) did not deliver 1");
+        okay := FALSE;
+      end if;
+    exception
+      catch NUMERIC_ERROR:
+        writeln(" ***** bigIntExpr(0_) ** intExpr(0) did raise NUMERIC_ERROR");
+        okay := FALSE;
+    end block;
+
+    block
+      i_num := bigIntExpr(0_) ** intExpr(-2);
+      writeln(" ***** bigIntExpr(0_) ** intExpr(-2) did not raise NUMERIC_ERROR");
+      okay := FALSE;
+    exception
+      catch NUMERIC_ERROR:
+        incr(number);
+    end block;
+
+    block
+      i_num := 1_ ** (-2);
+      writeln(" ***** 1_ ** (-2) did not raise NUMERIC_ERROR");
+      okay := FALSE;
+    exception
+      catch NUMERIC_ERROR:
+        incr(number);
+    end block;
+
+    block
+      i_num := 1_ ** intExpr(-2);
+      writeln(" ***** 1_ ** bigIntExpr(-2) did not raise NUMERIC_ERROR");
+      okay := FALSE;
+    exception
+      catch NUMERIC_ERROR:
+        incr(number);
+    end block;
+
+    block
+      i_num := bigIntExpr(1_) ** (-2);
+      writeln(" ***** bigIntExpr(1_) ** (-2) did not raise NUMERIC_ERROR");
+      okay := FALSE;
+    exception
+      catch NUMERIC_ERROR:
+        incr(number);
+    end block;
+
+    block
+      i_num := bigIntExpr(1_) ** intExpr(-2);
+      writeln(" ***** bigIntExpr(1_) ** intExpr(-2) did not raise NUMERIC_ERROR");
+      okay := FALSE;
+    exception
+      catch NUMERIC_ERROR:
+        incr(number);
+    end block;
+
+    block
+      i_num := 2_ ** (-2);
+      writeln(" ***** 2_ ** (-2) did not raise NUMERIC_ERROR");
+      okay := FALSE;
+    exception
+      catch NUMERIC_ERROR:
+        incr(number);
+    end block;
+
+    block
+      i_num := 2_ ** intExpr(-2);
+      writeln(" ***** 2_ ** intExpr(-2) did not raise NUMERIC_ERROR");
+      okay := FALSE;
+    exception
+      catch NUMERIC_ERROR:
+        incr(number);
+    end block;
+
+    block
+      i_num := bigIntExpr(2_) ** (-2);
+      writeln(" ***** bigIntExpr(2_) ** (-2) did not raise NUMERIC_ERROR");
+      okay := FALSE;
+    exception
+      catch NUMERIC_ERROR:
+        incr(number);
+    end block;
+
+    block
+      i_num := bigIntExpr(2_) ** intExpr(-2);
+      writeln(" ***** bigIntExpr(2_) ** intExpr(-2) did not raise NUMERIC_ERROR");
+      okay := FALSE;
+    exception
+      catch NUMERIC_ERROR:
+        incr(number);
+    end block;
+
+    block
+      i_num := 3_ ** (-2);
+      writeln(" ***** 3_ ** (-2) did not raise NUMERIC_ERROR");
+      okay := FALSE;
+    exception
+      catch NUMERIC_ERROR:
+        incr(number);
+    end block;
+
+    block
+      i_num := 3_ ** intExpr(-2);
+      writeln(" ***** 3_ ** intExpr(-2) did not raise NUMERIC_ERROR");
+      okay := FALSE;
+    exception
+      catch NUMERIC_ERROR:
+        incr(number);
+    end block;
+
+    block
+      i_num := bigIntExpr(3_) ** (-2);
+      writeln(" ***** bigIntExpr(3_) ** (-2) did not raise NUMERIC_ERROR");
+      okay := FALSE;
+    exception
+      catch NUMERIC_ERROR:
+        incr(number);
+    end block;
+
+    block
+      i_num := bigIntExpr(3_) ** intExpr(-2);
+      writeln(" ***** 3_ ** intExpr(-2) did not raise NUMERIC_ERROR");
+      okay := FALSE;
+    exception
+      catch NUMERIC_ERROR:
+        incr(number);
+    end block;
+
+    block
+      i_num := 4_ ** (-2);
+      writeln(" ***** 4_ ** (-2) did not raise NUMERIC_ERROR");
+      okay := FALSE;
+    exception
+      catch NUMERIC_ERROR:
+        incr(number);
+    end block;
+
+    block
+      i_num := 4_ ** intExpr(-2);
+      writeln(" ***** 4_ ** intExpr(-2) did not raise NUMERIC_ERROR");
+      okay := FALSE;
+    exception
+      catch NUMERIC_ERROR:
+        incr(number);
+    end block;
+
+    block
+      i_num := bigIntExpr(4_) ** (-2);
+      writeln(" ***** bigIntExpr(4_) ** (-2) did not raise NUMERIC_ERROR");
+      okay := FALSE;
+    exception
+      catch NUMERIC_ERROR:
+        incr(number);
+    end block;
+
+    block
+      i_num := bigIntExpr(4_) ** intExpr(-2);
+      writeln(" ***** bigIntExpr(4_) ** intExpr(-2) did not raise NUMERIC_ERROR");
+      okay := FALSE;
+    exception
+      catch NUMERIC_ERROR:
+        incr(number);
+    end block;
+
+    block
+      i_num := (-1_) ** (-2);
+      writeln(" ***** (-1_) ** (-2) did not raise NUMERIC_ERROR");
+      okay := FALSE;
+    exception
+      catch NUMERIC_ERROR:
+        incr(number);
+    end block;
+
+    block
+      i_num := (-1_) ** (-3);
+      writeln(" ***** (-1_) ** (-3) did not raise NUMERIC_ERROR");
+      okay := FALSE;
+    exception
+      catch NUMERIC_ERROR:
+        incr(number);
+    end block;
+
+    block
+      i_num := (-1_) ** intExpr(-2);
+      writeln(" ***** (-1_) ** intExpr(-2) did not raise NUMERIC_ERROR");
+      okay := FALSE;
+    exception
+      catch NUMERIC_ERROR:
+        incr(number);
+    end block;
+
+    block
+      i_num := (-1_) ** intExpr(-3);
+      writeln(" ***** (-1_) ** intExpr(-3) did not raise NUMERIC_ERROR");
+      okay := FALSE;
+    exception
+      catch NUMERIC_ERROR:
+        incr(number);
+    end block;
+
+    block
+      i_num := bigIntExpr(-1_) ** (-2);
+      writeln(" ***** (-1_) ** (-2) did not raise NUMERIC_ERROR");
+      okay := FALSE;
+    exception
+      catch NUMERIC_ERROR:
+        incr(number);
+    end block;
+
+    block
+      i_num := bigIntExpr(-1_) ** (-3);
+      writeln(" ***** (-1_) ** (-3) did not raise NUMERIC_ERROR");
+      okay := FALSE;
+    exception
+      catch NUMERIC_ERROR:
+        incr(number);
+    end block;
+
+    block
+      i_num := bigIntExpr(-1_) ** intExpr(-2);
+      writeln(" ***** (-1_) ** intExpr(-2) did not raise NUMERIC_ERROR");
+      okay := FALSE;
+    exception
+      catch NUMERIC_ERROR:
+        incr(number);
+    end block;
+
+    block
+      i_num := bigIntExpr(-1_) ** intExpr(-3);
+      writeln(" ***** (-1_) ** intExpr(-3) did not raise NUMERIC_ERROR");
+      okay := FALSE;
+    exception
+      catch NUMERIC_ERROR:
+        incr(number);
+    end block;
+
+    if okay and number <> 32 then
+      writeln(" ***** BigInteger exceptions for exponentiation do not work correct");
+      writeln;
+      okay := FALSE;
+    end if;
+  end func;
+
+
 const proc: check_bigInteger is func
   local
     var boolean: okay is TRUE;
     var integer: number is 0;
     var bigInteger: i_num is 0_;
-    const integer: int2m is -2;
   begin
     block
       i_num := 1_ div 0_;
@@ -827,56 +1151,6 @@ const proc: check_bigInteger is func
     block
       i_num := log2(-1_);
       writeln(" ***** log2(-1_) did not raise NUMERIC_ERROR");
-      okay := FALSE;
-    exception
-      catch NUMERIC_ERROR:
-        incr(number);
-    end block;
-
-    block
-      i_num := 0_ ** 0;
-      if i_num = 1_ then
-        incr(number);
-      else
-        writeln(" ***** 0_ ** 0 did not deliver 1");
-        okay := FALSE;
-      end if;
-    exception
-      catch NUMERIC_ERROR:
-        writeln(" ***** 0_ ** 0 did raise NUMERIC_ERROR");
-        okay := FALSE;
-    end block;
-
-    block
-      i_num := 0_ ** (-2);
-      writeln(" ***** 0_ ** (-2) did not raise NUMERIC_ERROR");
-      okay := FALSE;
-    exception
-      catch NUMERIC_ERROR:
-        incr(number);
-    end block;
-
-    block
-      i_num := 1_ ** (-2);
-      writeln(" ***** 1_ ** (-2) did not raise NUMERIC_ERROR");
-      okay := FALSE;
-    exception
-      catch NUMERIC_ERROR:
-        incr(number);
-    end block;
-
-    block
-      i_num := 0_ ** int2m;
-      writeln(" ***** 0_ ** (-2) did not raise NUMERIC_ERROR");
-      okay := FALSE;
-    exception
-      catch NUMERIC_ERROR:
-        incr(number);
-    end block;
-
-    block
-      i_num := 1_ ** int2m;
-      writeln(" ***** 1_ ** (-2) did not raise NUMERIC_ERROR");
       okay := FALSE;
     exception
       catch NUMERIC_ERROR:
@@ -938,7 +1212,9 @@ const proc: check_bigInteger is func
         incr(number);
     end block;
 
-    if okay and number = 15 then
+    check_bigInteger_exponentiation(okay);
+
+    if okay and number = 10 then
       writeln("BigInteger exceptions work correct.");
     else
       writeln(" ***** BigInteger exceptions do not work correct");

@@ -137,7 +137,7 @@ memsizetype start;
     } else {
       result = NULL;
     } /* if */
-    return(result);
+    return result;
   } /* copy_args */
 
 
@@ -156,9 +156,9 @@ listtype arguments;
       option.arg_v = copy_args((rtlArraytype) option.argv, option.argv_start);
     } /* if */
     if (option.arg_v == NULL) {
-      return(raise_with_arguments(SYS_MEM_EXCEPTION, arguments));
+      return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
     } else {
-      return(option.arg_v);
+      return option.arg_v;
     } /* if */
   } /* prc_args */
 
@@ -200,9 +200,9 @@ listtype arguments;
       err_type(PROC_EXPECTED, block_body->type_of);
     } /* if */
     if ((block = new_block(NULL, NULL, NULL, NULL, block_body)) == NULL) {
-      return(raise_with_arguments(SYS_MEM_EXCEPTION, arguments));
+      return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
     } else {
-      return(bld_block_temp(block));
+      return bld_block_temp(block);
     } /* if */
   } /* prc_begin */
 
@@ -251,7 +251,7 @@ listtype arguments;
         } /* if */
       } /* while */
     } /* if */
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* prc_block */
 
 
@@ -304,7 +304,7 @@ listtype arguments;
         evaluate(default_statement);
       } /* if */
     } /* if */
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* prc_block_def */
 
 
@@ -365,7 +365,7 @@ listtype arguments;
         } /* if */
       } /* if */
     } /* while */
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* prc_case */
 
 
@@ -431,7 +431,7 @@ listtype arguments;
       default_statement = arg_7(arguments);
       evaluate(default_statement);
     } /* if */
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* prc_case_def */
 
 
@@ -455,7 +455,7 @@ listtype arguments;
     isit_proc(arg_3(arguments));
     SET_CATEGORY_OF_OBJ(proc_variable, CATEGORY_OF_OBJ(arg_3(arguments)));
     proc_variable->value = arg_3(arguments)->value;
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* prc_cpy */
 
 
@@ -482,7 +482,7 @@ listtype arguments;
     if (TEMP_OBJECT(proc_from)) {
       proc_from->value.blockvalue = NULL;
     } /* if */
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* prc_create */
 
 
@@ -498,7 +498,7 @@ listtype arguments;
 
   { /* prc_decls */
     trace_nodes();
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* prc_decls */
 
 
@@ -517,7 +517,7 @@ listtype arguments;
 
   /* prc_dynamic */
     result = exec_dynamic(arguments);
-    return(result);
+    return result;
   } /* prc_dynamic */
 
 
@@ -535,7 +535,7 @@ listtype arguments;
     isit_int(arg_1(arguments));
     shut_drivers();
     exit(take_int(arg_1(arguments)));
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* prc_exit */
 
 
@@ -572,7 +572,7 @@ listtype arguments;
         evaluate(statement);
       } /* while */
     } /* if */
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* prc_for_downto */
 
 
@@ -609,7 +609,7 @@ listtype arguments;
         evaluate(statement);
       } /* while */
     } /* if */
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* prc_for_to */
 
 
@@ -629,7 +629,7 @@ listtype arguments;
 #else
     printf("heap statistic not supported - compile the hi interpreter with DO_HEAP_STATISTIC\n");
 #endif
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* prc_heapstat */
 
 
@@ -645,7 +645,7 @@ listtype arguments;
 
   { /* prc_hsize */
     /* heap_statistic(); */
-    return(bld_int_temp((inttype) heapsize()));
+    return bld_int_temp((inttype) heapsize());
   } /* prc_hsize */
 
 
@@ -668,7 +668,7 @@ listtype arguments;
     if (condition == SYS_TRUE_OBJECT) {
       evaluate(arg_4(arguments));
     } /* if */
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* prc_if */
 
 
@@ -693,7 +693,7 @@ listtype arguments;
     } else {
       evaluate(arg_5(arguments));
     } /* if */
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* prc_if_elsif */
 
 
@@ -728,7 +728,7 @@ listtype arguments;
         scan_symbol();
       } /* if */
     } /* if */
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* prc_include */
 
 
@@ -788,9 +788,9 @@ listtype arguments;
       err_type(PROC_EXPECTED, block_body->type_of);
     } /* if */
     if ((block = new_block(NULL, NULL, local_vars, local_consts, block_body)) == NULL) {
-      return(raise_with_arguments(SYS_MEM_EXCEPTION, arguments));
+      return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
     } else {
-      return(bld_block_temp(block));
+      return bld_block_temp(block);
     } /* if */
   } /* prc_local */
 
@@ -806,7 +806,7 @@ listtype arguments;
 #endif
 
   { /* prc_noop */
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* prc_noop */
 
 
@@ -822,7 +822,7 @@ listtype arguments;
 
   { /* prc_raise */
     isit_enum(arg_2(arguments));
-    return(raise_exception(take_enum(arg_2(arguments))));
+    return raise_exception(take_enum(arg_2(arguments)));
   } /* prc_raise */
 
 
@@ -858,7 +858,7 @@ listtype arguments;
         } /* if */
       } /* if */
     } while (!fail_flag && cond);
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* prc_repeat */
 
 
@@ -930,12 +930,12 @@ listtype arguments;
         err_type(PROC_EXPECTED, block_body->type_of);
       } /* if */
       if ((block = new_block(NULL, &result_var, NULL, NULL, block_body)) == NULL) {
-        return(raise_with_arguments(SYS_MEM_EXCEPTION, arguments));
+        return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
       } else {
-        return(bld_block_temp(block));
+        return bld_block_temp(block);
       } /* if */
     } /* if */
-    return(raise_with_arguments(SYS_MEM_EXCEPTION, arguments));
+    return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
   } /* prc_res_begin */
 
 
@@ -1010,12 +1010,12 @@ listtype arguments;
         err_type(PROC_EXPECTED, block_body->type_of);
       } /* if */
       if ((block = new_block(NULL, &result_var, local_vars, local_consts, block_body)) == NULL) {
-        return(raise_with_arguments(SYS_MEM_EXCEPTION, arguments));
+        return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
       } else {
-        return(bld_block_temp(block));
+        return bld_block_temp(block);
       } /* if */
     } /* if */
-    return(raise_with_arguments(SYS_MEM_EXCEPTION, arguments));
+    return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
   } /* prc_res_local */
 
 
@@ -1071,9 +1071,9 @@ listtype arguments;
 #endif
     get_return_var(&return_var, return_type, &err_info);
     if ((block = new_block(NULL, &return_var, NULL, NULL, block_body)) == NULL) {
-      return(raise_with_arguments(SYS_MEM_EXCEPTION, arguments));
+      return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
     } else {
-      return(bld_block_temp(block));
+      return bld_block_temp(block);
     } /* if */
   } /* prc_return */
 
@@ -1130,9 +1130,9 @@ listtype arguments;
 #endif
     get_return_var(&return_var, return_type, &err_info);
     if ((block = new_block(NULL, &return_var, NULL, NULL, block_body)) == NULL) {
-      return(raise_with_arguments(SYS_MEM_EXCEPTION, arguments));
+      return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
     } else {
-      return(bld_block_temp(block));
+      return bld_block_temp(block);
     } /* if */
   } /* prc_return2 */
 
@@ -1150,7 +1150,7 @@ listtype arguments;
   { /* prc_settrace */
     isit_stri(arg_1(arguments));
     set_trace2(take_stri(arg_1(arguments)));
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* prc_settrace */
 
 
@@ -1170,7 +1170,7 @@ listtype arguments;
       prot_nl();
       arguments = arguments->next;
     } /* while */
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* prc_trace */
 
 
@@ -1208,9 +1208,9 @@ listtype arguments;
     } /* if */
     pop_stack();
     if ((block = new_block(NULL, NULL, NULL, NULL, block_body)) == NULL) {
-      return(raise_with_arguments(SYS_MEM_EXCEPTION, arguments));
+      return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
     } else {
-      return(bld_block_temp(block));
+      return bld_block_temp(block);
     } /* if */
   } /* prc_varfunc */
 
@@ -1249,9 +1249,9 @@ listtype arguments;
     } /* if */
     pop_stack();
     if ((block = new_block(NULL, NULL, NULL, NULL, block_body)) == NULL) {
-      return(raise_with_arguments(SYS_MEM_EXCEPTION, arguments));
+      return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
     } else {
-      return(bld_block_temp(block));
+      return bld_block_temp(block);
     } /* if */
   } /* prc_varfunc2 */
 
@@ -1296,5 +1296,5 @@ listtype arguments;
         } /* if */
       } /* while */
     } /* if */
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* prc_while */

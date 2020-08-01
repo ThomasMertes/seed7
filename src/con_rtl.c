@@ -131,13 +131,17 @@ stritype stri;
   /* must be done with this function.                               */
 
   { /* conWrite */
-#ifdef UTF32_STRINGS
     if (stri->size <= 256) {
       memsizetype size;
 #ifdef CONSOLE_UTF8
       uchartype stri_buffer[MAX_UTF8_EXPANSION_FACTOR * 256];
 
       size = stri_to_utf8(stri_buffer, stri->mem, stri->size);
+#elif defined CONSOLE_WCHAR
+      wchar_t stri_buffer[2 * 256];
+      errinfotype err_info = OKAY_NO_ERROR;
+
+      size = stri_to_wstri(stri_buffer, stri->mem, stri->size, &err_info);
 #else
       uchartype stri_buffer[256];
 
@@ -150,18 +154,16 @@ stritype stri;
 
 #ifdef CONSOLE_UTF8
       bstri = stri_to_bstri8(stri);
+#elif defined CONSOLE_WCHAR
+      bstri = stri_to_bstriw(stri);
 #else
       bstri = stri_to_bstri(stri);
 #endif
       if (bstri != NULL) {
-        conText(cursor_line, cursor_column, bstri->mem, bstri->size);
+        conText(cursor_line, cursor_column, (console_stritype) bstri->mem, bstri->size);
         FREE_BSTRI(bstri, bstri->size);
       } /* if */
     } /* if */
-#else
-    conText(cursor_line, cursor_column,
-        stri->mem, stri->size);
-#endif
     cursor_column = cursor_column + stri->size;
     conSetCursor(cursor_line, cursor_column);
   } /* conWrite */

@@ -346,6 +346,7 @@ static primactrecord prim_act_table[] = {
     { "FIL_GETS",            fil_gets,            },
     { "FIL_HAS_NEXT",        fil_has_next,        },
     { "FIL_IN",              fil_in,              },
+    { "FIL_INPUT_READY",     fil_input_ready,     },
     { "FIL_LINE_READ",       fil_line_read,       },
     { "FIL_LIT",             fil_lit,             },
     { "FIL_LNG",             fil_lng,             },

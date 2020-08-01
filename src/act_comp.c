@@ -61,5 +61,5 @@ acttype anAction;
     if (result == NULL) {
       raise_error(MEMORY_ERROR);
     } /* if */
-    return(result);
+    return result;
   } /* actStr */

@@ -157,8 +157,8 @@ booltype kbdKeyPressed ()
     } else {
       result = FALSE;
     } /* if */
-/* printf("kbdKeyPressed ==> %d\n", result); */
-    return(result);
+    /* printf("kbdKeyPressed ==> %d\n", result); */
+    return result;
   } /* kbdKeyPressed */
 
 
@@ -512,7 +512,7 @@ chartype kbdGetc ()
     printf("key: \"%s\" %ld %lx %d\n",
         buffer, (long) mykey, (long) mykey, result);
 #endif
-    return(result);
+    return result;
   } /* kbdGetc */
 
 
@@ -526,7 +526,7 @@ chartype kbdRawGetc ()
 #endif
 
   { /* kbdRawGetc */
-    return(kbdGetc());
+    return kbdGetc();
   } /* kbdRawGetc */
 
 
@@ -613,7 +613,7 @@ int screen_scale;
     printf("END scale(%d, %d, %d) ==> %d\n",
         font_value, font_scale, screen_scale, result);
 #endif
-    return(result);
+    return result;
   } /* scale */
 
 
@@ -686,7 +686,7 @@ FILE *fontfile;
     } else {
       number = 0;
     } /* if */
-    return(number);
+    return number;
   } /* readnumber */
 
 
@@ -861,7 +861,7 @@ char *fontfilename;
     printf("END readfont(%s) ==> %s\n", fontfilename,
         result != NULL ? result->name : "NULL");
 #endif
-    return(result);
+    return result;
   } /* readfont */
 
 
@@ -989,7 +989,7 @@ booltype filled;
 #ifdef TRACE_FONT
     printf("END scalefont\n");
 #endif
-    return(result);
+    return result;
   } /* scalefont */
 
 
@@ -1045,7 +1045,7 @@ char *fontname;
     printf("END get_font(%s) ==> %s\n", fontname,
         result != NULL ? result->name : "NULL");
 #endif
-    return(result);
+    return result;
   } /* get_font */
 
 
@@ -1093,7 +1093,7 @@ int wanted_slant;
 #ifdef TRACE_FONT
     printf("END set_font_size(%s, %d)\n", basic_font->name, wanted_scale);
 #endif
-    return(result);
+    return result;
   } /* set_font_size */
 
 
@@ -1132,7 +1132,7 @@ char *fontname;
 #ifdef TRACE_FONT
     printf("END x11_setfont(%s)\n", fontname);
 #endif
-    return(result);
+    return result;
   } /* x11_setfont */
 
 
@@ -1368,7 +1368,7 @@ inttype textheight ()
 #endif
 
   { /* textheight */
-    return(actual_scaledfont->yDiff);
+    return actual_scaledfont->yDiff;
   } /* textheight */
 
 
@@ -1408,7 +1408,7 @@ inttype stopidx;
             (actual_scaledfont->characters[' '].xwidth + actual_scaledfont->xDist);
       } /* if */
     } /* if */
-    return(width);
+    return width;
   } /* txtwidth */
 
 
@@ -1426,7 +1426,7 @@ inttype stopcol;
 #endif
 
   { /* textwidth */
-    return(txtwidth(stri->mem, stri->size, startcol - 1, stopcol - 1));
+    return txtwidth(stri->mem, stri->size, startcol - 1, stopcol - 1);
   } /* textwidth */
 
 
@@ -1480,7 +1480,7 @@ int conHeight ()
 
   /* conHeight */
     XGetWindowAttributes(mydisplay, mywindow, &attribs);
-    return(attribs.height/actual_scaledfont->yDiff);
+    return attribs.height/actual_scaledfont->yDiff;
   } /* conHeight */
 
 
@@ -1498,7 +1498,7 @@ int conWidth ()
 
   /* conWidth */
     XGetWindowAttributes(mydisplay, mywindow, &attribs);
-    return(attribs.width);
+    return attribs.width;
   } /* conWidth */
 
 
@@ -2061,7 +2061,7 @@ int wide;
     printf("END do_x11_init\n");
     fflush(stdout);
 #endif
-    return(result);
+    return result;
   } /* do_x11_init */
 
 
@@ -2106,5 +2106,5 @@ int conOpen ()
     printf("END conOpen\n");
     fflush(stdout);
 #endif
-    return(result);
+    return result;
   } /* conOpen */

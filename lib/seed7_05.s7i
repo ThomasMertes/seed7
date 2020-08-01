@@ -113,11 +113,17 @@ const proc: BASIC_TYPE_DECLS (in type: aType) is func
     const proc: (ref varfunc aType param) ::= (ref ACTION param)         is action "ACT_CREATE";
     const proc: (ref func aType param) ::= (ref func aType param)        is action "PRC_CREATE";
     const proc: (ref varfunc aType param) ::= (ref varfunc aType param)  is action "PRC_CREATE";
+    const proc: destroy (ref func aType param)                           is action "PRC_NOOP";
+    const proc: destroy (ref varfunc aType param)                        is action "PRC_NOOP";
     const proc: (inout func aType param) := (ref func aType param)       is action "PRC_CPY";
     const proc: (inout varfunc aType param) := (ref varfunc aType param) is action "PRC_CPY";
     const type: typeof (ref aType param)                                 is aType;
     const proc: (ref func func aType param) ::= (ref ACTION param)       is action "ACT_CREATE";
     const proc: (ref func varfunc aType param) ::= (ref ACTION param)    is action "ACT_CREATE";
+    const proc: (ref func func aType param) ::= (ref func func aType param)        is action "PRC_CREATE";
+    const proc: (ref func varfunc aType param) ::= (ref func varfunc aType param)  is action "PRC_CREATE";
+    # const proc: destroy (ref func func aType param)                    is action "PRC_NOOP";
+    # const proc: destroy (ref func varfunc aType param)                 is action "PRC_NOOP";
 
     const func func aType: func
                            result
@@ -151,17 +157,26 @@ const proc: BASIC_TYPE_DECLS (in type: aType) is func
                              (ref expr param)
                            end func                                   is action "PRC_RES_BEGIN";
 
-    const func func aType: return (ref func aType param)              is action "PRC_RETURN";
     const func func aType: return (ref aType param)                   is action "PRC_RETURN";
-    const func varfunc aType: return var (ref varfunc aType param)    is action "PRC_VARFUNC";
+    const func func aType: return (ref func aType param)              is action "PRC_RETURN";
     const func varfunc aType: return var (inout aType param)          is action "PRC_VARFUNC";
+    const func varfunc aType: return var (ref varfunc aType param)    is action "PRC_VARFUNC";
 
-    const func func aType: (attr aType) return (ref func aType param)           is action "PRC_RETURN2";
     const func func aType: (attr aType) return (ref aType param)                is action "PRC_RETURN2";
-    const func varfunc aType: (attr aType) return var (ref varfunc aType param) is action "PRC_VARFUNC2";
+    const func func aType: (attr aType) return (ref func aType param)           is action "PRC_RETURN2";
     const func varfunc aType: (attr aType) return var (inout aType param)       is action "PRC_VARFUNC2";
+    const func varfunc aType: (attr aType) return var (ref varfunc aType param) is action "PRC_VARFUNC2";
 
     const func f_param: in (attr func aType) : (ref expr param)       is action "DCL_REF2";
+
+    const func func func aType: return (ref func func aType param)    is action "PRC_RETURN";
+    const func func func aType: func
+                                result
+                                  var (attr func aType) : (ref expr param) is (ref func func aType param)
+                                begin
+                                  (ref expr param)
+                                end func                              is action "PRC_RES_BEGIN";
+
   end func;
 
 BASIC_TYPE_DECLS(type);
@@ -324,7 +339,6 @@ const proc: destroy (ref integer param)     is noop;
 const proc: destroy (ref EXCEPTION param)   is noop;
 
 const proc: (ref ACTION param) ::= (in ACTION param)            is action "ACT_CREATE";
-const proc: destroy (ref func ACTION param)                     is noop;
 const proc: (inout ACTION param) := (in ACTION param)           is action "ACT_CPY";
 const proc: (ref ENUMERATION param) ::= (ref ENUMERATION param) is action "ENU_CREATE";
 const proc: (ref ENUMERATION param) ::= enumlit                 is action "ENU_GENLIT";
@@ -706,93 +720,7 @@ const func type: varptr (in type: baseType) is func
 
 (* FOR *)
 
-const proc: for (inout integer param) range (in integer param) to (in integer param) do
-              (in proc param)
-            end for is                                                      action "PRC_FOR_TO";
-const proc: for (inout integer param) range (in integer param) downto (in integer param) do
-              (in proc param)
-            end for is                                                      action "PRC_FOR_DOWNTO";
-
-const proc: FOR_STEP_DECLS (in type: aType) is func
-  begin
-    if getobj((inout aType param) +:= (in integer param)) <> NIL then
-
-      const proc: for (inout aType: variable) range (in aType: lower_limit) to (in aType: upper_limit)
-          step (in integer: incr_step) do
-          (in proc: statements) end for is func
-        begin
-          variable := lower_limit;
-          while variable <= upper_limit do
-            statements;
-            variable +:= incr_step;
-          end while;
-        end func;
-
-    end if;
-    if getobj((inout aType param) -:= (in integer param)) <> NIL then
-
-      const proc: for (inout aType: variable) range (in aType: upper_limit) downto (in aType: lower_limit)
-          step (in integer: decr_step) do
-          (in proc: statements) end for is func
-        begin
-          variable := upper_limit;
-          while variable >= lower_limit do
-            statements;
-            variable -:= decr_step;
-          end while;
-        end func;
-
-    end if;
-  end func;
-
-const proc: FOR_DECLS (in type: aType) is func
-  begin
-
-    const proc: for (inout aType: variable) range (in aType: lower_limit) to (in aType: upper_limit) do
-        (in proc: statements) end for is func
-      begin
-        variable := lower_limit;
-        if variable <= upper_limit then
-          statements;
-          while variable < upper_limit do
-            incr(variable);
-            statements;
-          end while;
-        end if;
-      end func;
-
-    const proc: for (inout aType: variable) range (in aType: upper_limit) downto (in aType: lower_limit) do
-        (in proc: statements) end for is func
-      begin
-        variable := upper_limit;
-        if variable >= lower_limit then
-          statements;
-          while variable > lower_limit do
-            decr(variable);
-            statements;
-          end while;
-        end if;
-      end func;
-
-    FOR_STEP_DECLS(aType);
-  end func;
-
-FOR_STEP_DECLS(integer);
-FOR_DECLS(char);
-FOR_DECLS(boolean);
-
-const proc: for (inout char: variable) range (in string: stri) do
-              (in proc: statements)
-            end for is func
-  local
-    var integer: number is 0;
-  begin
-    for number range 1 to length(stri) do
-      variable := stri[number];
-      statements;
-    end for;
-  end func;
-
+$ include "forloop.s7i";
 
 (* STRUCT *)
 
@@ -1138,14 +1066,14 @@ const func type: array (in type: baseType) is func
           result := [arrayIdxRange.minIdx] (tupleType conv result);
         end func;
 
-      const proc: for (inout baseType: variable) range (in arrayType: arr) do
+      const proc: for (inout baseType: forVar) range (in arrayType: arr) do
                     (in proc: statements)
                   end for is func
         local
           var integer: number is 0;
         begin
           for number range minIdx(arr) to maxIdx(arr) do
-            variable := arr[number];
+            forVar := arr[number];
             statements;
           end for;
         end func;
@@ -1155,6 +1083,16 @@ const func type: array (in type: baseType) is func
                   end for is func
         begin
           for keyVar range minIdx(arr) to maxIdx(arr) do
+            statements;
+          end for;
+        end func;
+
+      const proc: for (inout baseType: forVar) key (inout integer: keyVar) range (in arrayType: arr) do
+                    (in proc: statements)
+                  end for is func
+        begin
+          for keyVar range minIdx(arr) to maxIdx(arr) do
+            forVar := arr[keyVar];
             statements;
           end for;
         end func;
@@ -1314,13 +1252,14 @@ const func type: array [ (in type: indexType) ] (in type: baseType) is func
       const func indexType: maxIdx (in arrayType: arr) is
         return indexType conv maxIntIdx(arr);
 
-      const proc: for (inout baseType: variable) range (in arrayType: arr) do
-          (in proc: statements) end for is func
+      const proc: for (inout baseType: forVar) range (in arrayType: arr) do
+                    (in proc: statements)
+                  end for is func
         local
           var integer: number is 0;
         begin
           for number range minIntIdx(arr) to maxIntIdx(arr) do
-            variable := stdArrayType conv arr[number];
+            forVar := stdArrayType conv arr[number];
             statements;
           end for;
         end func;
@@ -1330,6 +1269,16 @@ const func type: array [ (in type: indexType) ] (in type: baseType) is func
                   end for is func
         begin
           for keyVar range minIdx(arr) to maxIdx(arr) do
+            statements;
+          end for;
+        end func;
+
+      const proc: for (inout baseType: forVar) key (inout indexType: keyVar) range (in arrayType: arr) do
+                    (in proc: statements)
+                  end for is func
+        begin
+          for keyVar range minIdx(arr) to maxIdx(arr) do
+            forVar := stdArrayType conv arr[ord(keyVar)];
             statements;
           end for;
         end func;
@@ -2717,6 +2666,7 @@ incl(INCLUDED_LIBRARY_LIST, "boolean.s7i");
 incl(INCLUDED_LIBRARY_LIST, "integer.s7i");
 incl(INCLUDED_LIBRARY_LIST, "char.s7i");
 incl(INCLUDED_LIBRARY_LIST, "string.s7i");
+incl(INCLUDED_LIBRARY_LIST, "forloop.s7i");
 
 (*
 const proc: var (ref expr: typeExpr) : (ref expr: nameExpr) is (ref expr: initExpr) is action "PRC_TRACE";

@@ -66,7 +66,7 @@ listtype arguments;
     is_variable(act_variable);
     isit_action(arg_3(arguments));
     act_variable->value.actvalue = take_action(arg_3(arguments));
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* act_cpy */
 
 
@@ -91,7 +91,7 @@ listtype arguments;
     disconnect_param_entities(act_to);
     SET_CATEGORY_OF_OBJ(act_to, ACTOBJECT);
     act_to->value.actvalue = take_action(act_from);
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* act_create */
 
 
@@ -113,9 +113,9 @@ listtype arguments;
     isit_stri(arg_2(arguments));
     stri = take_stri(arg_2(arguments));
     if (!find_action(stri, &result)) {
-      return(raise_exception(SYS_RNG_EXCEPTION));
+      return raise_exception(SYS_RNG_EXCEPTION);
     } else {
-      return(bld_action_temp(result));
+      return bld_action_temp(result);
     } /* if */
   } /* act_gen */
 
@@ -131,7 +131,7 @@ listtype arguments;
 #endif
 
   { /* act_illegal */
-    return(raise_exception(SYS_ACT_ILLEGAL_EXCEPTION));
+    return raise_exception(SYS_ACT_ILLEGAL_EXCEPTION);
   } /* act_illegal */
 
 
@@ -152,9 +152,9 @@ listtype arguments;
     isit_action(arg_1(arguments));
     result = cstri_to_stri(get_primact(take_action(arg_1(arguments)))->name);
     if (result == NULL) {
-      return(raise_exception(SYS_MEM_EXCEPTION));
+      return raise_exception(SYS_MEM_EXCEPTION);
     } else {
-      return(bld_stri_temp(result));
+      return bld_stri_temp(result);
     } /* if */
   } /* act_str */
 
@@ -176,8 +176,8 @@ listtype arguments;
     isit_reference(arg_1(arguments));
     obj_arg = take_reference(arg_1(arguments));
     if (obj_arg == NULL || CATEGORY_OF_OBJ(obj_arg) != ACTOBJECT) {
-      return(raise_exception(SYS_RNG_EXCEPTION));
+      return raise_exception(SYS_RNG_EXCEPTION);
     } else {
-      return(bld_action_temp(take_action(obj_arg)));
+      return bld_action_temp(take_action(obj_arg));
     } /* if */
   } /* act_value */

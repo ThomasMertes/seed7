@@ -73,7 +73,7 @@ listtype arguments;
     typ1 = take_type(arg_1(arguments));
     typ2 = take_type(arg_2(arguments));
     add_interface(typ1, typ2);
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* typ_addinterface */
 
 
@@ -104,7 +104,7 @@ listtype arguments;
     } else {
       result = 0;
     } /* if */
-    return(bld_int_temp(result));
+    return bld_int_temp(result);
   } /* typ_cmp */
 
 
@@ -127,7 +127,7 @@ listtype arguments;
     is_variable(type_variable);
     isit_type(arg_3(arguments));
     type_variable->value.typevalue = take_type(arg_3(arguments));
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* typ_cpy */
 
 
@@ -174,7 +174,7 @@ listtype arguments;
 #ifdef TRACE_TYPLIB
     printf("END typ_create\n");
 #endif
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* typ_create */
 
 
@@ -201,7 +201,7 @@ listtype arguments;
 #ifdef TRACE_TYPLIB
     printf("END typ_destr\n");
 #endif
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* typ_destr */
 
 
@@ -230,7 +230,7 @@ listtype arguments;
     } else {
       result = SYS_FALSE_OBJECT;
     } /* if */
-    return(result);
+    return result;
   } /* typ_eq */
 
 
@@ -255,7 +255,7 @@ listtype arguments;
     isit_type(arg_2(arguments));
     basic_type = take_type(arg_2(arguments));
     if ((result = get_func_type(NULL, basic_type)) == NULL) {
-      return(raise_exception(SYS_MEM_EXCEPTION));
+      return raise_exception(SYS_MEM_EXCEPTION);
     } /* if */
     /* printf("typ_func ");
     printobject(result);
@@ -265,7 +265,7 @@ listtype arguments;
 #ifdef TRACE_TYPLIB
     printf("END typ_func\n");
 #endif
-    return(bld_type_temp(result));
+    return bld_type_temp(result);
   } /* typ_func */
 
 
@@ -290,12 +290,12 @@ listtype arguments;
     isit_type(arg_1(arguments));
     meta_type = take_type(arg_1(arguments));
     if ((result = new_type(meta_type, NULL)) == NULL) {
-      return(raise_exception(SYS_MEM_EXCEPTION));
+      return raise_exception(SYS_MEM_EXCEPTION);
     } /* if */
 #ifdef TRACE_TYPLIB
     printf("END typ_gensub\n");
 #endif
-    return(bld_type_temp(result));
+    return bld_type_temp(result);
   } /* typ_gensub */
 
 
@@ -317,12 +317,12 @@ listtype arguments;
     printf("BEGIN typ_gentype\n");
 #endif
     if ((result = new_type(NULL, NULL)) == NULL) {
-      return(raise_exception(SYS_MEM_EXCEPTION));
+      return raise_exception(SYS_MEM_EXCEPTION);
     } /* if */
 #ifdef TRACE_TYPLIB
     printf("END typ_gentype\n");
 #endif
-    return(bld_type_temp(result));
+    return bld_type_temp(result);
   } /* typ_gentype */
 
 
@@ -344,7 +344,7 @@ listtype arguments;
     isit_type(arg_1(arguments));
     typ1 = take_type(arg_1(arguments));
     get_interfaces(typ1);
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* typ_getinterfaces */
 #endif
 
@@ -368,9 +368,9 @@ listtype arguments;
     ;
     get_create_call_obj(take_type(arg_1(arguments)), errinfotype *err_info)
     if ((result = new_type(NULL, NULL)) == NULL) {
-      return(raise_exception(SYS_MEM_EXCEPTION));
+      return raise_exception(SYS_MEM_EXCEPTION);
     } /* if */
-    return(bld_type_temp(result));
+    return bld_type_temp(result);
   } /* typ_getcreate */
 #endif
 
@@ -387,8 +387,8 @@ listtype arguments;
 
   { /* typ_hashcode */
     isit_type(arg_1(arguments));
-    return(bld_int_temp((inttype)
-        (((memsizetype) take_type(arg_1(arguments))) >> 6)));
+    return bld_int_temp((inttype)
+        (((memsizetype) take_type(arg_1(arguments))) >> 6));
   } /* typ_hashcode */
 
 
@@ -411,7 +411,7 @@ listtype arguments;
     } else {
       result = SYS_FALSE_OBJECT;
     } /* if */
-    return(result);
+    return result;
   } /* typ_isdeclared */
 
 
@@ -437,7 +437,7 @@ listtype arguments;
     } else {
       result = SYS_FALSE_OBJECT;
     } /* if */
-    return(result);
+    return result;
   } /* typ_isderived */
 
 
@@ -460,7 +460,7 @@ listtype arguments;
     } else {
       result = SYS_FALSE_OBJECT;
     } /* if */
-    return(result);
+    return result;
   } /* typ_isforward */
 
 
@@ -486,7 +486,7 @@ listtype arguments;
     } else {
       result = SYS_FALSE_OBJECT;
     } /* if */
-    return(result);
+    return result;
   } /* typ_isfunc */
 
 
@@ -512,7 +512,7 @@ listtype arguments;
     } else {
       result = SYS_FALSE_OBJECT;
     } /* if */
-    return(result);
+    return result;
   } /* typ_isvarfunc */
 
 
@@ -534,7 +534,7 @@ listtype arguments;
     isit_type(arg_1(arguments));
     actual_type = take_type(arg_1(arguments));
     result = actual_type->match_obj;
-    return(bld_reference_temp(result));
+    return bld_reference_temp(result);
   } /* typ_matchobj */
 
 
@@ -559,13 +559,13 @@ listtype arguments;
     isit_type(arg_1(arguments));
     any_type = take_type(arg_1(arguments));
     if (any_type->meta == NULL) {
-      return(raise_exception(SYS_RNG_EXCEPTION));
+      return raise_exception(SYS_RNG_EXCEPTION);
     } /* if */
     result = any_type->meta;
 #ifdef TRACE_TYPLIB
     printf("END typ_meta\n");
 #endif
-    return(bld_type_temp(result));
+    return bld_type_temp(result);
   } /* typ_meta */
 
 
@@ -594,7 +594,7 @@ listtype arguments;
     } else {
       result = SYS_FALSE_OBJECT;
     } /* if */
-    return(result);
+    return result;
   } /* typ_ne */
 
 
@@ -636,7 +636,7 @@ listtype arguments;
         if (type_table == NULL) {
           table_size = 0;
           table_used = 0;
-          return(raise_exception(SYS_MEM_EXCEPTION));
+          return raise_exception(SYS_MEM_EXCEPTION);
         } /* if */
         table_size = table_used + TYPE_TABLE_INCREMENT;
       } /* if */
@@ -652,7 +652,7 @@ listtype arguments;
       result++;
     } /* if */
     /* printf("typ_num: %lx %lx %lu\n", arg_1(arguments), actual_type, result); */
-    return(bld_int_temp((inttype) result));
+    return bld_int_temp((inttype) result);
   } /* typ_num */
 
 
@@ -677,13 +677,13 @@ listtype arguments;
     isit_type(arg_1(arguments));
     any_type = take_type(arg_1(arguments));
     if (any_type->result_type == NULL) {
-      return(raise_exception(SYS_RNG_EXCEPTION));
+      return raise_exception(SYS_RNG_EXCEPTION);
     } /* if */
     result = any_type->result_type;
 #ifdef TRACE_TYPLIB
     printf("END typ_result\n");
 #endif
-    return(bld_type_temp(result));
+    return bld_type_temp(result);
   } /* typ_result */
 
 
@@ -715,9 +715,9 @@ listtype arguments;
     } /* if */
     result = cstri_to_stri(stri);
     if (result == NULL) {
-      return(raise_exception(SYS_MEM_EXCEPTION));
+      return raise_exception(SYS_MEM_EXCEPTION);
     } else {
-      return(bld_stri_temp(result));
+      return bld_stri_temp(result);
     } /* if */
   } /* typ_str */
 
@@ -739,9 +739,9 @@ listtype arguments;
     isit_reference(arg_1(arguments));
     obj_arg = take_reference(arg_1(arguments));
     if (obj_arg == NULL || CATEGORY_OF_OBJ(obj_arg) != TYPEOBJECT) {
-      return(raise_exception(SYS_RNG_EXCEPTION));
+      return raise_exception(SYS_RNG_EXCEPTION);
     } else {
-      return(obj_arg);
+      return obj_arg;
     } /* if */
   } /* typ_value */
 
@@ -763,7 +763,7 @@ listtype arguments;
       trace1(arg_3(arguments));
       prot_nl();
     } /* if */
-    return(arg_3(arguments));
+    return arg_3(arguments);
   } /* typ_varconv */
 
 
@@ -788,7 +788,7 @@ listtype arguments;
     isit_type(arg_2(arguments));
     basic_type = take_type(arg_2(arguments));
     if ((result = get_varfunc_type(NULL, basic_type)) == NULL) {
-      return(raise_exception(SYS_MEM_EXCEPTION));
+      return raise_exception(SYS_MEM_EXCEPTION);
     } /* if */
     /* printf("typ_varfunc ");
     printobject(result);
@@ -798,5 +798,5 @@ listtype arguments;
 #ifdef TRACE_TYPLIB
     printf("END typ_varfunc\n");
 #endif
-    return(bld_type_temp(result));
+    return bld_type_temp(result);
   } /* typ_varfunc */

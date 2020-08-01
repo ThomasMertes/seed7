@@ -244,7 +244,7 @@ booltype kbdKeyPressed ()
         result = TRUE;
       } /* if */
     } /* if */
-    return(result);
+    return result;
   } /* kbdKeyPressed */
 
 
@@ -294,7 +294,7 @@ chartype kbdGetc ()
     if (result == 13) {
       result = 10;
     } /* if */
-    return(result);
+    return result;
   } /* kbdGetc */
 
 
@@ -311,7 +311,7 @@ chartype kbdRawGetc ()
     if (!keybd_initialized) {
       kbd_init();
     } /* if */
-    return(kbdGetc());
+    return kbdGetc();
   } /* kbdRawGetc */
 
 
@@ -391,7 +391,7 @@ char *fontname;
 #endif
 
   { /* cur_setfont */
-    return(1);
+    return 1;
   } /* cur_setfont */
 
 
@@ -406,7 +406,7 @@ inttype textheigth ()
 #endif
 
   { /* textheigth */
-    return(1);
+    return 1;
   } /* textheigth */
 
 
@@ -424,7 +424,7 @@ inttype stopcol;
 #endif
 
   { /* textwidth */
-    return(stopcol + 1 - startcol);
+    return stopcol + 1 - startcol;
   } /* textwidth */
 
 
@@ -458,7 +458,7 @@ int conHeight ()
 #endif
 
   { /* conHeight */
-    return(LINES);
+    return LINES;
   } /* conHeight */
 
 
@@ -472,7 +472,7 @@ int conWidth ()
 #endif
 
   { /* conWidth */
-    return(COLS);
+    return COLS;
   } /* conWidth */
 
 
@@ -859,5 +859,5 @@ int conOpen ()
       atexit(conShut);
       result = 1;
     } /* if */
-    return(result);
+    return result;
   } /* conOpen */

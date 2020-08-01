@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
-/*  cmd_drv.h     Driver functions for commands.                    */
-/*  Copyright (C) 1989 - 2010  Thomas Mertes                        */
+/*  cmd_drv.h     Prototypes of OS specific command functions.      */
+/*  Copyright (C) 1989 - 2011  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */
@@ -25,7 +25,7 @@
 /*  Module: Seed7 Runtime Library                                   */
 /*  File: seed7/src/cmd_drv.h                                       */
 /*  Changes: 2010  Thomas Mertes                                    */
-/*  Content: Driver functions for commands.                         */
+/*  Content: Prototypes of OS specific command functions.           */
 /*                                                                  */
 /********************************************************************/
 

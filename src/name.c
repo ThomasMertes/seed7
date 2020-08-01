@@ -178,7 +178,7 @@ errinfotype *err_info;
     trace1(defined_object);
     printf("\n");
 #endif
-    return(defined_object);
+    return defined_object;
   } /* get_object */
 
 
@@ -246,7 +246,7 @@ printf(" %lu\n", (long unsigned) name_elem->obj); */
 #ifdef TRACE_NAME
     printf("END create_parameter_list\n");
 #endif
-    return(parameter_list);
+    return parameter_list;
   } /* create_parameter_list */
 
 
@@ -293,7 +293,7 @@ errinfotype *err_info;
     /* prot_list(GET_ENTITY(defined_object)->params); */
     printf(")\n");
 #endif
-    return(defined_object);
+    return defined_object;
   } /* push_name */
 
 
@@ -650,7 +650,7 @@ listtype *get_local_object_insert_place ()
 #endif
 
   { /* get_local_object_insert_place */
-    return(prog.stack_current->object_list_insert_place);
+    return prog.stack_current->object_list_insert_place;
   } /* get_local_object_insert_place */
 
 
@@ -735,7 +735,7 @@ errinfotype *err_info;
 #ifdef TRACE_NAME
     printf("END eval_name_list\n");
 #endif
-    return(name_list);
+    return name_list;
   } /* eval_name_list */
 
 
@@ -773,7 +773,7 @@ errinfotype *err_info;
     trace1(defined_object);
     printf("\n");
 #endif
-    return(defined_object);
+    return defined_object;
   } /* inst_list */
 
 
@@ -811,7 +811,7 @@ errinfotype *err_info;
     trace1(defined_object);
     printf("\n");
 #endif
-    return(defined_object);
+    return defined_object;
   } /* inst_object */
 
 
@@ -872,7 +872,7 @@ errinfotype *err_info;
     trace1(defined_object);
     printf("\n");
 #endif
-    return(defined_object);
+    return defined_object;
   } /* inst_object_expr */
 
 
@@ -926,7 +926,7 @@ errinfotype *err_info;
     trace1(defined_object);
     printf("\n");
 #endif
-    return(defined_object);
+    return defined_object;
   } /* entername */
 
 
@@ -1005,7 +1005,7 @@ errinfotype *err_info;
     trace1(defined_object);
     printf("\n");
 #endif
-    return(defined_object);
+    return defined_object;
   } /* find_name */
 
 
@@ -1084,7 +1084,7 @@ errinfotype *err_info;
     trace1(defined_object);
     printf("\n");
 #endif
-    return(defined_object);
+    return defined_object;
   } /* search_name */
 
 
@@ -1136,7 +1136,7 @@ objecttype param_object;
     trace1(param_object);
     printf("\n");
 #endif
-    return(param_object);
+    return param_object;
   } /* dollar_parameter */
 
 
@@ -1176,7 +1176,7 @@ errinfotype *err_info;
 #ifdef TRACE_NAME
     printf("END dollar_inst_list\n");
 #endif
-    return(defined_object);
+    return defined_object;
   } /* dollar_inst_list */
 
 
@@ -1218,7 +1218,7 @@ errinfotype *err_info;
     trace1(defined_object);
     printf("\n");
 #endif
-    return(defined_object);
+    return defined_object;
   } /* dollar_entername */
 
 
@@ -1257,5 +1257,5 @@ errinfotype *err_info;
     trace1(defined_object);
     printf("\n");
 #endif
-    return(defined_object);
+    return defined_object;
   } /* enterFuncName */

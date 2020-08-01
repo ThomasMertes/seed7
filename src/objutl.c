@@ -144,9 +144,9 @@ acttype temp_action;
       result->descriptor.property = NULL;
       INIT_CATEGORY_OF_TEMP(result, ACTOBJECT);
       result->value.actvalue = temp_action;
-      return(result);
+      return result;
     } else {
-      return(raise_exception(SYS_MEM_EXCEPTION));
+      return raise_exception(SYS_MEM_EXCEPTION);
     } /* if */
   } /* bld_action_temp */
 
@@ -170,9 +170,9 @@ arraytype temp_array;
       result->descriptor.property = NULL;
       INIT_CATEGORY_OF_TEMP(result, ARRAYOBJECT);
       result->value.arrayvalue = temp_array;
-      return(result);
+      return result;
     } else {
-      return(raise_exception(SYS_MEM_EXCEPTION));
+      return raise_exception(SYS_MEM_EXCEPTION);
     } /* if */
   } /* bld_array_temp */
 
@@ -196,9 +196,9 @@ biginttype temp_bigint;
       result->descriptor.property = NULL;
       INIT_CATEGORY_OF_TEMP(result, BIGINTOBJECT);
       result->value.bigintvalue = temp_bigint;
-      return(result);
+      return result;
     } else {
-      return(raise_exception(SYS_MEM_EXCEPTION));
+      return raise_exception(SYS_MEM_EXCEPTION);
     } /* if */
   } /* bld_bigint_temp */
 
@@ -222,9 +222,9 @@ blocktype temp_block;
       result->descriptor.property = NULL;
       INIT_CATEGORY_OF_TEMP(result, BLOCKOBJECT);
       result->value.blockvalue = temp_block;
-      return(result);
+      return result;
     } else {
-      return(raise_exception(SYS_MEM_EXCEPTION));
+      return raise_exception(SYS_MEM_EXCEPTION);
     } /* if */
   } /* bld_block_temp */
 
@@ -248,9 +248,9 @@ bstritype temp_bstri;
       result->descriptor.property = NULL;
       INIT_CATEGORY_OF_TEMP(result, BSTRIOBJECT);
       result->value.bstrivalue = temp_bstri;
-      return(result);
+      return result;
     } else {
-      return(raise_exception(SYS_MEM_EXCEPTION));
+      return raise_exception(SYS_MEM_EXCEPTION);
     } /* if */
   } /* bld_bstri_temp */
 
@@ -274,9 +274,9 @@ chartype temp_char;
       result->descriptor.property = NULL;
       INIT_CATEGORY_OF_TEMP(result, CHAROBJECT);
       result->value.charvalue = temp_char;
-      return(result);
+      return result;
     } else {
-      return(raise_exception(SYS_MEM_EXCEPTION));
+      return raise_exception(SYS_MEM_EXCEPTION);
     } /* if */
   } /* bld_char_temp */
 
@@ -300,9 +300,9 @@ objecttype temp_interface;
       result->descriptor.property = NULL;
       INIT_CATEGORY_OF_TEMP(result, INTERFACEOBJECT);
       result->value.objvalue = temp_interface;
-      return(result);
+      return result;
     } else {
-      return(raise_exception(SYS_MEM_EXCEPTION));
+      return raise_exception(SYS_MEM_EXCEPTION);
     } /* if */
   } /* bld_interface_temp */
 
@@ -326,9 +326,9 @@ filetype temp_file;
       result->descriptor.property = NULL;
       INIT_CATEGORY_OF_TEMP(result, FILEOBJECT);
       result->value.filevalue = temp_file;
-      return(result);
+      return result;
     } else {
-      return(raise_exception(SYS_MEM_EXCEPTION));
+      return raise_exception(SYS_MEM_EXCEPTION);
     } /* if */
   } /* bld_file_temp */
 
@@ -352,9 +352,9 @@ double temp_float;
       result->descriptor.property = NULL;
       INIT_CATEGORY_OF_TEMP(result, FLOATOBJECT);
       result->value.floatvalue = temp_float;
-      return(result);
+      return result;
     } else {
-      return(raise_exception(SYS_MEM_EXCEPTION));
+      return raise_exception(SYS_MEM_EXCEPTION);
     } /* if */
   } /* bld_float_temp */
 
@@ -378,9 +378,9 @@ hashtype temp_hash;
       result->descriptor.property = NULL;
       INIT_CATEGORY_OF_TEMP(result, HASHOBJECT);
       result->value.hashvalue = temp_hash;
-      return(result);
+      return result;
     } else {
-      return(raise_exception(SYS_MEM_EXCEPTION));
+      return raise_exception(SYS_MEM_EXCEPTION);
     } /* if */
   } /* bld_hash_temp */
 
@@ -404,9 +404,9 @@ inttype temp_int;
       result->descriptor.property = NULL;
       INIT_CATEGORY_OF_TEMP(result, INTOBJECT);
       result->value.intvalue = temp_int;
-      return(result);
+      return result;
     } else {
-      return(raise_exception(SYS_MEM_EXCEPTION));
+      return raise_exception(SYS_MEM_EXCEPTION);
     } /* if */
   } /* bld_int_temp */
 
@@ -430,9 +430,9 @@ listtype temp_list;
       result->descriptor.property = NULL;
       INIT_CATEGORY_OF_TEMP(result, LISTOBJECT);
       result->value.listvalue = temp_list;
-      return(result);
+      return result;
     } else {
-      return(raise_exception(SYS_MEM_EXCEPTION));
+      return raise_exception(SYS_MEM_EXCEPTION);
     } /* if */
   } /* bld_list_temp */
 
@@ -456,9 +456,9 @@ objecttype temp_param;
       result->descriptor.property = NULL;
       INIT_CATEGORY_OF_TEMP(result, FORMPARAMOBJECT);
       result->value.objvalue = temp_param;
-      return(result);
+      return result;
     } else {
-      return(raise_exception(SYS_MEM_EXCEPTION));
+      return raise_exception(SYS_MEM_EXCEPTION);
     } /* if */
   } /* bld_param_temp */
 
@@ -482,9 +482,9 @@ progtype temp_prog;
       result->descriptor.property = NULL;
       INIT_CATEGORY_OF_TEMP(result, PROGOBJECT);
       result->value.progvalue = temp_prog;
-      return(result);
+      return result;
     } else {
-      return(raise_exception(SYS_MEM_EXCEPTION));
+      return raise_exception(SYS_MEM_EXCEPTION);
     } /* if */
   } /* bld_prog_temp */
 
@@ -508,9 +508,9 @@ objecttype temp_reference;
       result->descriptor.property = NULL;
       INIT_CATEGORY_OF_TEMP(result, REFOBJECT);
       result->value.objvalue = temp_reference;
-      return(result);
+      return result;
     } else {
-      return(raise_exception(SYS_MEM_EXCEPTION));
+      return raise_exception(SYS_MEM_EXCEPTION);
     } /* if */
   } /* bld_reference_temp */
 
@@ -534,9 +534,9 @@ listtype temp_reflist;
       result->descriptor.property = NULL;
       INIT_CATEGORY_OF_TEMP(result, REFLISTOBJECT);
       result->value.listvalue = temp_reflist;
-      return(result);
+      return result;
     } else {
-      return(raise_exception(SYS_MEM_EXCEPTION));
+      return raise_exception(SYS_MEM_EXCEPTION);
     } /* if */
   } /* bld_reflist_temp */
 
@@ -560,9 +560,9 @@ settype temp_set;
       result->descriptor.property = NULL;
       INIT_CATEGORY_OF_TEMP(result, SETOBJECT);
       result->value.setvalue = temp_set;
-      return(result);
+      return result;
     } else {
-      return(raise_exception(SYS_MEM_EXCEPTION));
+      return raise_exception(SYS_MEM_EXCEPTION);
     } /* if */
   } /* bld_set_temp */
 
@@ -586,9 +586,9 @@ sockettype temp_socket;
       result->descriptor.property = NULL;
       INIT_CATEGORY_OF_TEMP(result, SOCKETOBJECT);
       result->value.socketvalue = temp_socket;
-      return(result);
+      return result;
     } else {
-      return(raise_exception(SYS_MEM_EXCEPTION));
+      return raise_exception(SYS_MEM_EXCEPTION);
     } /* if */
   } /* bld_socket_temp */
 
@@ -612,9 +612,9 @@ stritype temp_stri;
       result->descriptor.property = NULL;
       INIT_CATEGORY_OF_TEMP(result, STRIOBJECT);
       result->value.strivalue = temp_stri;
-      return(result);
+      return result;
     } else {
-      return(raise_exception(SYS_MEM_EXCEPTION));
+      return raise_exception(SYS_MEM_EXCEPTION);
     } /* if */
   } /* bld_stri_temp */
 
@@ -638,9 +638,9 @@ structtype temp_struct;
       result->descriptor.property = NULL;
       INIT_CATEGORY_OF_TEMP(result, STRUCTOBJECT);
       result->value.structvalue = temp_struct;
-      return(result);
+      return result;
     } else {
-      return(raise_exception(SYS_MEM_EXCEPTION));
+      return raise_exception(SYS_MEM_EXCEPTION);
     } /* if */
   } /* bld_struct_temp */
 
@@ -660,7 +660,7 @@ typetype temp_type;
 
   /* bld_type_temp */
     result = temp_type->match_obj;
-    return(result);
+    return result;
   } /* bld_type_temp */
 
 
@@ -683,9 +683,9 @@ wintype temp_win;
       result->descriptor.property = NULL;
       INIT_CATEGORY_OF_TEMP(result, WINOBJECT);
       result->value.winvalue = temp_win;
-      return(result);
+      return result;
     } else {
-      return(raise_exception(SYS_MEM_EXCEPTION));
+      return raise_exception(SYS_MEM_EXCEPTION);
     } /* if */
   } /* bld_win_temp */
 

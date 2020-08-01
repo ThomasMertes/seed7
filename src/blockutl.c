@@ -180,7 +180,7 @@ objecttype block_body;
 #ifdef TRACE_BLOCK
     printf("END new_block\n");
 #endif
-    return(created_block);
+    return created_block;
   } /* new_block */
 
 
@@ -336,7 +336,7 @@ errinfotype *err_info;
 #ifdef TRACE_BLOCK
     printf("END get_param_list\n");
 #endif
-    return(params);
+    return params;
   } /* get_param_list */
 
 
@@ -391,7 +391,7 @@ errinfotype *err_info;
 #ifdef TRACE_BLOCK
     printf("END get_local_var_list\n");
 #endif
-    return(local_vars);
+    return local_vars;
   } /* get_local_var_list */
 
 
@@ -429,5 +429,5 @@ errinfotype *err_info;
 #ifdef TRACE_BLOCK
     printf("END get_local_const_list\n");
 #endif
-    return(local_consts);
+    return local_consts;
   } /* get_local_const_list */

@@ -160,12 +160,12 @@ static const char digits[] = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
 #ifdef ANSI_C
 
-static void uint2_mult (uinttype a_high, uinttype a_low,
+void uint2_mult (uinttype a_high, uinttype a_low,
     uinttype b_high, uinttype b_low,
     uinttype *c_high, uinttype *c_low)
 #else
 
-static void uint2_mult (a_high, a_low, b_high, b_low, c_high, c_low)
+void uint2_mult (a_high, a_low, b_high, b_low, c_high, c_low)
 uinttype a_high;
 uinttype a_low;
 uinttype b_high;
@@ -284,13 +284,19 @@ uinttype uint_rand ()
       /* printf("%10lo %010lo seed\n", (long unsigned) high_seed, (long unsigned) low_seed); */
       seed_necessary = FALSE;
     } /* if */
-    /* SEED = SEED * 1073741825 + 1234567891 */
-    uint2_mult(high_seed, low_seed, (uinttype) 0L, (uinttype) 1073741825L,
+#if INTTYPE_SIZE == 32
+    /* SEED = SEED * 1103515245 + 12345 */
+    uint2_mult(high_seed, low_seed, (uinttype) INT_SUFFIX(0), (uinttype) INT_SUFFIX(1103515245),
         &high_seed, &low_seed);
-    /* printf("%10lo %010lo\n", high_seed, low_seed); */
-    uint2_add(high_seed, low_seed, (uinttype) 0L, (uinttype) 1234567891L,
+    uint2_add(high_seed, low_seed, (uinttype) INT_SUFFIX(0), (uinttype) INT_SUFFIX(12345),
         &high_seed, &low_seed);
-    /* printf("%10lo %010lo\n", high_seed, low_seed); */
+#elif INTTYPE_SIZE == 64
+    /* SEED = SEED * 6364136223846793005 + 1442695040888963407 */
+    uint2_mult(high_seed, low_seed, (uinttype) INT_SUFFIX(0), (uinttype) INT_SUFFIX(6364136223846793005),
+        &high_seed, &low_seed);
+    uint2_add(high_seed, low_seed, (uinttype) INT_SUFFIX(0), (uinttype) INT_SUFFIX(1442695040888963407),
+        &high_seed, &low_seed);
+#endif
 #ifdef TRACE_RANDOM
     printf("END uint_rand ==> %08x\n", (unsigned int) high_seed);
 #endif
@@ -965,33 +971,32 @@ inttype upper_limit;
 
   {
     uinttype scale_limit;
-    uinttype low_factor;
-    uinttype high_factor;
-    uinttype low_rand;
-    uinttype high_rand;
+    uinttype rand_max;
+    uinttype rand_val;
     inttype result;
 
   /* intRand */
-    if (unlikely(lower_limit > upper_limit)) {
-      raise_error(RANGE_ERROR);
-      return 0;
+    if (unlikely(lower_limit >= upper_limit)) {
+      if (lower_limit == upper_limit) {
+        result = lower_limit;
+      } else {
+        raise_error(RANGE_ERROR);
+        result = 0;
+      } /* if */
     } else {
       scale_limit = (uinttype) (upper_limit - lower_limit);
-      if (scale_limit <= UINTTYPE_MAX - 2) {
-        high_factor = 0L;
+      if (scale_limit == UINTTYPE_MAX) {
+        rand_val = uint_rand();
       } else {
-        high_factor = 1L;
+        scale_limit++;
+        rand_max = UINTTYPE_MAX - (UINTTYPE_MAX % scale_limit);
+        do {
+          rand_val = uint_rand();
+        } while (rand_val > rand_max);
       } /* if */
-      low_factor = scale_limit + 2;
-      do {
-        /* RAND = (uint_rand() * FACTOR) >> INTTYPE_SIZE; */
-        uint2_mult((uinttype) 0L, uint_rand(),
-            high_factor, low_factor,
-            &high_rand, &low_rand);
-      } while (high_rand > scale_limit);
-      result = (inttype) ((uinttype) lower_limit + high_rand);
-      return result;
+      result = (inttype) ((uinttype) lower_limit + rand_val % scale_limit);
     } /* if */
+    return result;
   } /* intRand */
 
 

@@ -70,7 +70,7 @@ GOBJ2 = entutl.o identutl.o chclsutl.o sigutl.o
 ROBJ1 = arr_rtl.o bln_rtl.o bst_rtl.o chr_rtl.o cmd_rtl.o con_rtl.o dir_rtl.o drw_rtl.o fil_rtl.o
 ROBJ2 = flt_rtl.o hsh_rtl.o int_rtl.o kbd_rtl.o set_rtl.o soc_dos.o str_rtl.o tim_rtl.o ut8_rtl.o
 ROBJ3 = heaputl.o striutl.o
-DOBJ1 = $(BIGINT_LIB).o $(CONSOLE_OBJ) tim_dos.o cmd_unx.o
+DOBJ1 = $(BIGINT_LIB).o $(CONSOLE_OBJ) cmd_unx.o fil_dos.o tim_dos.o
 OBJ = $(MOBJ1)
 SEED7_LIB_OBJ = $(ROBJ1) $(ROBJ2) $(ROBJ3) $(DOBJ1)
 DRAW_LIB_OBJ = drw_dos.o
@@ -91,7 +91,7 @@ GSRC2 = entutl.c identutl.c chclsutl.c sigutl.c
 RSRC1 = arr_rtl.c bln_rtl.c bst_rtl.c chr_rtl.c cmd_rtl.c con_rtl.c dir_rtl.c drw_rtl.c fil_rtl.c
 RSRC2 = flt_rtl.c hsh_rtl.c int_rtl.c kbd_rtl.c set_rtl.c soc_dos.c str_rtl.c tim_rtl.c ut8_rtl.c
 RSRC3 = heaputl.c striutl.c
-DSRC1 = $(BIGINT_LIB).c $(CONSOLE_SRC) tim_dos.c cmd_unx.c
+DSRC1 = $(BIGINT_LIB).c $(CONSOLE_SRC) cmd_unx.c fil_dos.c tim_dos.c
 SRC = $(MSRC1)
 SEED7_LIB_SRC = $(RSRC1) $(RSRC2) $(RSRC3) $(DSRC1)
 DRAW_LIB_SRC = drw_dos.c
@@ -128,6 +128,9 @@ version.h:
 	echo #define AWAIT_WITH_SELECT >> version.h
 	echo #define OS_STRI_USES_CODEPAGE >> version.h
 	echo #define os_lstat stat >> version.h
+	echo #define os_fseek fseek >> version.h
+	echo #define os_ftell ftell >> version.h
+	echo #define OS_FSEEK_OFFSET_BITS 32 >> version.h
 	echo #define os_off_t off_t >> version.h
 	echo #define os_putenv putenv >> version.h
 	echo #define $(BIGINT_LIB_DEFINE) >> version.h

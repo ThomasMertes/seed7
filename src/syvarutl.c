@@ -101,7 +101,7 @@ stritype stri;
 #ifdef TRACE_SYSVAR
     printf("END find_sysvar\n");
 #endif
-    return(result);
+    return result;
   } /* find_sysvar */
 
 

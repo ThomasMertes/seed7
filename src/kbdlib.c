@@ -60,9 +60,9 @@ listtype arguments;
 
   { /* kbd_busy_getc */
     if (kbdKeyPressed()) {
-      return(bld_char_temp(kbdGetc()));
+      return bld_char_temp(kbdGetc());
     } else {
-      return(bld_char_temp((chartype) K_NONE));
+      return bld_char_temp((chartype) K_NONE);
     } /* if */
   } /* kbd_busy_getc */
 
@@ -78,7 +78,7 @@ listtype arguments;
 #endif
 
   { /* kbd_getc */
-    return(bld_char_temp(kbdGetc()));
+    return bld_char_temp(kbdGetc());
   } /* kbd_getc */
 
 
@@ -94,8 +94,8 @@ listtype arguments;
 
   { /* kbd_gets */
     isit_int(arg_2(arguments));
-    return(bld_stri_temp(
-        kbdGets(take_int(arg_2(arguments)))));
+    return bld_stri_temp(
+        kbdGets(take_int(arg_2(arguments))));
   } /* kbd_gets */
 
 
@@ -111,9 +111,9 @@ listtype arguments;
 
   { /* kbd_keypressed */
     if (kbdKeyPressed()) {
-      return(SYS_TRUE_OBJECT);
+      return SYS_TRUE_OBJECT;
     } else {
-      return(SYS_FALSE_OBJECT);
+      return SYS_FALSE_OBJECT;
     } /* if */
   } /* kbd_keypressed */
 
@@ -135,8 +135,8 @@ listtype arguments;
     ch_variable = arg_2(arguments);
     isit_char(ch_variable);
     is_variable(ch_variable);
-    return(bld_stri_temp(
-        kbdLineRead(&ch_variable->value.charvalue)));
+    return bld_stri_temp(
+        kbdLineRead(&ch_variable->value.charvalue));
   } /* kbd_line_read */
 
 
@@ -151,7 +151,7 @@ listtype arguments;
 #endif
 
   { /* kbd_raw_read */
-    return(bld_char_temp(kbdRawGetc()));
+    return bld_char_temp(kbdRawGetc());
   } /* kbd_raw_read */
 
 
@@ -172,6 +172,6 @@ listtype arguments;
     ch_variable = arg_2(arguments);
     isit_char(ch_variable);
     is_variable(ch_variable);
-    return(bld_stri_temp(
-        kbdWordRead(&ch_variable->value.charvalue)));
+    return bld_stri_temp(
+        kbdWordRead(&ch_variable->value.charvalue));
   } /* kbd_word_read */

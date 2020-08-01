@@ -81,7 +81,6 @@ typedef int booltype;
 #undef  DO_HEAP_STATISTIC
 #undef  DO_HEAP_CHECK
 #undef  DO_HEAP_LOG
-#define UTF32_STRINGS
 #define WITH_STRI_CAPACITY
 #define ALLOW_STRITYPE_SLICES
 #define WITH_STRI_FLIST
@@ -213,12 +212,7 @@ typedef float              floattype;
 
 typedef uint32type         chartype;
 typedef int32type          schartype;
-
-#ifdef UTF32_STRINGS
 typedef uint32type         strelemtype;
-#else
-typedef unsigned char      strelemtype;
-#endif
 
 #if POINTER_SIZE == 32
 typedef uint32type         memsizetype;
@@ -237,6 +231,11 @@ typedef unsigned char      uchartype;
 typedef char *             cstritype;
 typedef unsigned char *    ustritype;
 typedef FILE *             filetype;
+
+#ifdef OS_STRI_WCHAR
+typedef wchar_t           *wstritype;
+typedef const wchar_t     *const_wstritype;
+#endif
 
 #ifdef USE_WINSOCK
 typedef unsigned int       sockettype;
@@ -323,6 +322,10 @@ typedef struct winstruct {
     uinttype usage_count;
     /* The rest of the structure is only accessable for the driver */
   } winrecord;
+
+typedef struct fliststruct {
+    struct fliststruct *next;
+  } *flisttype;
 
 
 #ifdef USE_BIG_RTL_LIBRARY

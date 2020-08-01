@@ -73,7 +73,7 @@ listtype arguments;
     } else {
       result = copy_list(take_list(arg1), &err_info);
       if (err_info != OKAY_NO_ERROR) {
-        return(raise_exception(SYS_MEM_EXCEPTION));
+        return raise_exception(SYS_MEM_EXCEPTION);
       } /* if */
     } /* if */
     if (TEMP_OBJECT(arg2)) {
@@ -82,7 +82,7 @@ listtype arguments;
     } else {
       list2_start = copy_list(take_list(arg2), &err_info);
       if (err_info != OKAY_NO_ERROR) {
-        return(raise_exception(SYS_MEM_EXCEPTION));
+        return raise_exception(SYS_MEM_EXCEPTION);
       } /* if */
     } /* if */
     if (TEMP_OBJECT(arg1)) {
@@ -101,7 +101,7 @@ listtype arguments;
     } else {
       result = list2_start;
     } /* if */
-    return(bld_list_temp(result));
+    return bld_list_temp(result);
   } /* lst_cat */
 
 
@@ -135,14 +135,14 @@ listtype arguments;
       } else {
         help_list = copy_list(take_list(list_from), &err_info);
         if (err_info != OKAY_NO_ERROR) {
-          return(raise_exception(SYS_MEM_EXCEPTION));
+          return raise_exception(SYS_MEM_EXCEPTION);
         } else {
           emptylist(take_list(list_to));
           list_to->value.listvalue = help_list;
         } /* if */
       } /* if */
     } /* if */
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* lst_cpy */
 
 
@@ -173,10 +173,10 @@ listtype arguments;
       list_to->value.listvalue = copy_list(take_list(list_from), &err_info);
       if (err_info != OKAY_NO_ERROR) {
         list_to->value.listvalue = NULL;
-        return(raise_exception(SYS_MEM_EXCEPTION));
+        return raise_exception(SYS_MEM_EXCEPTION);
       } /* if */
     } /* if */
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* lst_create */
 
 
@@ -218,7 +218,7 @@ listtype arguments;
     emptylist(take_list(old_list));
 #endif
     old_list->value.listvalue = NULL;
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* lst_destr */
 
 
@@ -251,12 +251,12 @@ listtype arguments;
       list_element = list_element->next;
     } /* while */
     if (list_element != NULL) {
-      return(SYS_TRUE_OBJECT);
+      return SYS_TRUE_OBJECT;
     } else {
-      return(SYS_FALSE_OBJECT);
+      return SYS_FALSE_OBJECT;
     } /* if */
 #endif
-    return(raise_exception(SYS_ACT_ILLEGAL_EXCEPTION));
+    return raise_exception(SYS_ACT_ILLEGAL_EXCEPTION);
   } /* lst_elem */
 
 
@@ -271,7 +271,7 @@ listtype arguments;
 #endif
 
   { /* lst_empty */
-    return(bld_list_temp(NULL));
+    return bld_list_temp(NULL);
   } /* lst_empty */
 
 
@@ -289,7 +289,7 @@ listtype arguments;
     isit_list(arg_1(arguments));
     excl_list(&arg_1(arguments)->value.listvalue,
         arg_2(arguments));
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* lst_excl */
 
 
@@ -345,9 +345,9 @@ listtype arguments;
       result = NULL;
     } /* if */
     if (err_info != OKAY_NO_ERROR) {
-      return(raise_exception(SYS_MEM_EXCEPTION));
+      return raise_exception(SYS_MEM_EXCEPTION);
     } else {
-      return(bld_list_temp(result));
+      return bld_list_temp(result);
     } /* if */
   } /* lst_head */
 
@@ -387,7 +387,7 @@ listtype arguments;
     } else {
       result = raise_exception(SYS_RNG_EXCEPTION);
     } /* if */
-    return(result);
+    return result;
   } /* lst_idx */
 
 
@@ -414,9 +414,9 @@ listtype arguments;
     } /* if */
     incl_list(&arg_1(arguments)->value.listvalue, obj_arg, &err_info);
     if (err_info != OKAY_NO_ERROR) {
-      return(raise_exception(SYS_MEM_EXCEPTION));
+      return raise_exception(SYS_MEM_EXCEPTION);
     } else {
-      return(SYS_EMPTY_OBJECT);
+      return SYS_EMPTY_OBJECT;
     } /* if */
   } /* lst_incl */
 
@@ -443,7 +443,7 @@ listtype arguments;
       list_element = list_element->next;
       result++;
     } /* while */
-    return(bld_int_temp(result));
+    return bld_int_temp(result);
   } /* lst_lng */
 
 
@@ -507,9 +507,9 @@ listtype arguments;
       result = NULL;
     } /* if */
     if (err_info != OKAY_NO_ERROR) {
-      return(raise_exception(SYS_MEM_EXCEPTION));
+      return raise_exception(SYS_MEM_EXCEPTION);
     } else {
-      return(bld_list_temp(result));
+      return bld_list_temp(result);
     } /* if */
   } /* lst_range */
 
@@ -563,8 +563,8 @@ listtype arguments;
       } /* if */
     } /* if */
     if (err_info != OKAY_NO_ERROR) {
-      return(raise_exception(SYS_MEM_EXCEPTION));
+      return raise_exception(SYS_MEM_EXCEPTION);
     } else {
-      return(bld_list_temp(result));
+      return bld_list_temp(result);
     } /* if */
   } /* lst_tail */

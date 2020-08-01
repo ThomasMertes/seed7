@@ -1,0 +1,182 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  forloop.s7i   For-loop and templates to define for-loop         *)
+(*  Copyright (C) 1989 - 2011  Thomas Mertes                        *)
+(*                                                                  *)
+(*  This file is part of the Seed7 Runtime Library.                 *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is free software; you can             *)
+(*  redistribute it and/or modify it under the terms of the GNU     *)
+(*  Lesser General Public License as published by the Free Software *)
+(*  Foundation; either version 2.1 of the License, or (at your      *)
+(*  option) any later version.                                      *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is distributed in the hope that it    *)
+(*  will be useful, but WITHOUT ANY WARRANTY; without even the      *)
+(*  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR *)
+(*  PURPOSE.  See the GNU Lesser General Public License for more    *)
+(*  details.                                                        *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU Lesser General       *)
+(*  Public License along with this program; if not, write to the    *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+(**
+ *  Integer for-loop, looping from ''startValue'' upward to ''endValue''.
+ *  The variable ''aVar'' is initialized with ''startValue''. The
+ *  ''statements'' are executed repeatedly. After each repetition the
+ *  variable ''aVar'' is incremented. After the ''statements'' were
+ *  executed with ''endValue'' the for-loop is terminated. When
+ *  ''startValue'' is greater than ''endValue'' the ''statements'' are
+ *  not executed at all.
+ *)
+const proc: for (inout integer: aVar) range (in integer: startValue) to (in integer: endValue) do
+              (in proc: statements)
+            end for is                                                      action "PRC_FOR_TO";
+
+
+(**
+ *  Integer for-loop, looping from ''startValue'' downward to ''endValue''.
+ *  The variable ''aVar'' is initialized with ''startValue''. The
+ *  ''statements'' are executed repeatedly. After each repetition the
+ *  variable ''aVar'' is decremented. After the ''statements'' were
+ *  executed with ''endValue'' the for-loop is terminated. When
+ *  ''startValue'' is less than ''endValue'' the ''statements'' are
+ *  not executed at all.
+ *)
+const proc: for (inout integer: aVar) range (in integer: startValue) downto (in integer: endValue) do
+              (in proc: statements)
+            end for is                                                      action "PRC_FOR_DOWNTO";
+
+
+(**
+ *  Template function to define for-loops with step for ''aType''.
+ *  Defines an upward and a downward counting for-loop which
+ *  increments/decrements the loop variable with ''incr_step''
+ *  respectively ''decr_step''. The for-loops are only defined
+ *  when ''aType'' supports the +:= respectively -:= operator.
+ *)
+const proc: FOR_STEP_DECLS (in type: aType) is func
+  begin
+    if getobj((inout aType param) +:= (in integer param)) <> NIL then
+
+      const proc: for (inout aType: variable) range (in aType: lower_limit) to (in aType: upper_limit)
+          step (in integer: incr_step) do
+          (in proc: statements) end for is func
+        begin
+          variable := lower_limit;
+          while variable <= upper_limit do
+            statements;
+            variable +:= incr_step;
+          end while;
+        end func;
+
+    end if;
+    if getobj((inout aType param) -:= (in integer param)) <> NIL then
+
+      const proc: for (inout aType: variable) range (in aType: upper_limit) downto (in aType: lower_limit)
+          step (in integer: decr_step) do
+          (in proc: statements) end for is func
+        begin
+          variable := upper_limit;
+          while variable >= lower_limit do
+            statements;
+            variable -:= decr_step;
+          end while;
+        end func;
+
+    end if;
+  end func;
+
+
+(**
+ *  Template function to define all for-loops for ''aType''.
+ *  Defines upward and downward counting for-loops which
+ *  increment/decrement the loop variable with 1 or with a
+ *  given step value. The for-loops with step value are
+ *  defined with the ''FOR_STEP_DECLS'' template.
+ *)
+const proc: FOR_DECLS (in type: aType) is func
+  begin
+
+    const proc: for (inout aType: variable) range (in aType: lower_limit) to (in aType: upper_limit) do
+        (in proc: statements) end for is func
+      begin
+        variable := lower_limit;
+        if variable <= upper_limit then
+          statements;
+          while variable < upper_limit do
+            incr(variable);
+            statements;
+          end while;
+        end if;
+      end func;
+
+    const proc: for (inout aType: variable) range (in aType: upper_limit) downto (in aType: lower_limit) do
+        (in proc: statements) end for is func
+      begin
+        variable := upper_limit;
+        if variable >= lower_limit then
+          statements;
+          while variable > lower_limit do
+            decr(variable);
+            statements;
+          end while;
+        end if;
+      end func;
+
+    FOR_STEP_DECLS(aType);
+  end func;
+
+
+FOR_STEP_DECLS(integer);
+FOR_DECLS(char);
+FOR_DECLS(boolean);
+
+
+(**
+ *  For-loop which loops over the characters of a string.
+ *)
+const proc: for (inout char: variable) range (in string: stri) do
+              (in proc: statements)
+            end for is func
+  local
+    var integer: number is 0;
+  begin
+    for number range 1 to length(stri) do
+      variable := stri[number];
+      statements;
+    end for;
+  end func;
+
+
+(**
+ *  For-loop which loops over the keys (indices) of a string.
+ *)
+const proc: for key (inout integer: keyVar) range (in string: stri) do
+              (in proc: statements)
+            end for is func
+  begin
+    for keyVar range 1 to length(stri) do
+      statements;
+    end for;
+  end func;
+
+
+(**
+ *  For-loop which loops over characters and keys (indices) of a string.
+ *)
+const proc: for (inout char: variable) key (inout integer: keyVar) range (in string: stri) do
+              (in proc: statements)
+            end for is func
+  begin
+    for keyVar range 1 to length(stri) do
+      variable := stri[keyVar];
+      statements;
+    end for;
+  end func;

@@ -195,23 +195,14 @@ chartype ch;
     stritype result;
 
   /* chrStr */
-#ifndef UTF32_STRINGS
-    if (ch > (chartype) 255) {
-      raise_error(RANGE_ERROR);
+    if (!ALLOC_STRI_SIZE_OK(result, (memsizetype) 1)) {
+      raise_error(MEMORY_ERROR);
       return NULL;
     } else {
-#endif
-      if (!ALLOC_STRI_SIZE_OK(result, (memsizetype) 1)) {
-        raise_error(MEMORY_ERROR);
-        return NULL;
-      } else {
-        result->size = 1;
-        result->mem[0] = (strelemtype) ch;
-        return result;
-      } /* if */
-#ifndef UTF32_STRINGS
+      result->size = 1;
+      result->mem[0] = (strelemtype) ch;
+      return result;
     } /* if */
-#endif
   } /* chrStr */
 
 

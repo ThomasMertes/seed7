@@ -93,7 +93,7 @@ objecttype object;
 #ifdef TRACE_MATCH
     printf("END variable_obj\n");
 #endif
-    return(result);
+    return result;
   } /* variable_obj */
 
 
@@ -354,7 +354,7 @@ objecttype object;
 #ifdef TRACE_MATCH
     printf("END match_object\n");
 #endif
-    return(result);
+    return result;
   } /* match_object */
 
 
@@ -429,6 +429,7 @@ objecttype expr_object;
       default:
         printf("### match_object2 of ");
         trace1(object);
+        printf("\n");
         result = NULL;
         break;
     } /* switch */
@@ -442,7 +443,7 @@ objecttype expr_object;
 #ifdef TRACE_MATCH
     printf("END match_object2\n");
 #endif
-    return(result);
+    return result;
   } /* match_object2 */
 
 
@@ -497,7 +498,7 @@ booltype look_for_interfaces;
             rest_of_expression, check_access_right, look_for_interfaces);
       } /* if */
     } /* if */
-    return(matched_object);
+    return matched_object;
   } /* match_subexpr_var */
 
 
@@ -551,7 +552,7 @@ booltype look_for_interfaces;
             rest_of_expression, check_access_right, look_for_interfaces);
       } /* if */
     } /* if */
-    return(matched_object);
+    return matched_object;
   } /* match_subexpr_const */
 
 
@@ -681,7 +682,7 @@ booltype look_for_interfaces;
 #ifdef TRACE_MATCH
     printf("END match_subexpr_type\n");
 #endif
-    return(matched_object);
+    return matched_object;
   } /* match_subexpr_type */
 
 
@@ -731,7 +732,7 @@ booltype look_for_interfaces;
 #ifdef TRACE_MATCH
     printf("END match_subexpr_attr\n");
 #endif
-    return(matched_object);
+    return matched_object;
   } /* match_subexpr_attr */
 
 
@@ -797,7 +798,7 @@ booltype look_for_interfaces;
 #ifdef TRACE_MATCH
     printf("END match_subexpr_param_attr\n");
 #endif
-    return(matched_object);
+    return matched_object;
   } /* match_subexpr_param_attr */
 
 
@@ -964,7 +965,7 @@ booltype look_for_interfaces;
                       rest_of_expression, check_access_right, look_for_interfaces);
                 } /* if */
               } else {
-                return(NULL);
+                return NULL;
               } /* if */
             } /* if */
             if (matched_object == NULL) {
@@ -1052,7 +1053,7 @@ booltype look_for_interfaces;
 #ifdef TRACE_MATCH
     printf("END match_subexpr\n");
 #endif
-    return(matched_object);
+    return matched_object;
   } /* match_subexpr */
 
 
@@ -1113,7 +1114,7 @@ objecttype expr_object;
 #ifdef TRACE_MATCH
     printf("END match_expression\n");
 #endif
-    return(matched_object);
+    return matched_object;
   } /* match_expression */
 
 
@@ -1164,5 +1165,5 @@ objecttype expr_object;
 #ifdef TRACE_MATCH
     printf("END match_expression\n");
 #endif
-    return(matched_object);
+    return matched_object;
   } /* match_prog_expression */

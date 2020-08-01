@@ -89,7 +89,7 @@ static unsigned long object_flist_count ()
       help_obj = help_obj->value.objvalue;
       num_objects++;
     } /* while */
-    return(num_objects);
+    return num_objects;
   } /* object_flist_count */
 
 
@@ -113,7 +113,7 @@ static unsigned long list_elem_flist_count ()
       help_list = help_list->next;
       num_list_elems++;
     } /* while */
-    return(num_list_elems);
+    return num_list_elems;
   } /* list_elem_flist_count */
 
 
@@ -137,7 +137,7 @@ static unsigned long node_flist_count ()
       help_node = help_node->next1;
       num_nodes++;
     } /* while */
-    return(num_nodes);
+    return num_nodes;
   } /* node_flist_count */
 
 
@@ -161,7 +161,7 @@ static unsigned long infile_flist_count ()
       help_infile = help_infile->next;
       num_infiles++;
     } /* while */
-    return(num_infiles);
+    return num_infiles;
   } /* infile_flist_count */
 
 
@@ -558,7 +558,7 @@ static memsizetype compute_hs ()
 #ifdef TRACE_HEAPUTIL
     printf("END compute_hs\n");
 #endif
-    return(bytes_total);
+    return bytes_total;
   } /* compute_hs */
 #endif
 
@@ -641,7 +641,7 @@ memsizetype heapsize ()
 #else
     result = 0;
 #endif
-    return(result);
+    return result;
   } /* heapsize */
 
 
@@ -680,7 +680,7 @@ size_t size;
     } /* if */
     LOST_B += size_of_rec - size;
 /*  printf("flist_alloc(%d) ==> %lu\n", size, (long unsigned) result); */
-    return(result);
+    return result;
   } /* flist_alloc */
 #endif
 #endif
@@ -784,7 +784,7 @@ size_t size;
 #ifdef TRACE_HEAPUTIL
     printf("END heap_chunk\n");
 #endif
-    return(result);
+    return result;
   } /* heap_chunk */
 #endif
 

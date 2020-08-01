@@ -50,7 +50,6 @@
 
 
 
-#ifdef UTF32_STRINGS
 #ifdef ANSI_C
 
 static INLINE int strelem_memcmp (const strelemtype *mem1,
@@ -66,10 +65,10 @@ size_t number;
   { /* strelem_memcmp */
     for (; number > 0; mem1++, mem2++, number--) {
       if (*mem1 != *mem2) {
-        return(*mem1 < *mem2 ? -1 : 1);
+        return *mem1 < *mem2 ? -1 : 1;
       } /* if */
     } /* for */
-    return(0);
+    return 0;
   } /* strelem_memcmp */
 
 
@@ -89,20 +88,11 @@ size_t number;
   { /* search_strelem */
     for (; number > 0; mem++, number--) {
       if (*mem == ch) {
-        return(mem);
+        return mem;
       } /* if */
     } /* for */
-    return(NULL);
+    return NULL;
   } /* search_strelem */
-
-
-
-#else
-
-#define strelem_memcmp(mem1,mem2,len) memcmp(mem1, mem2, (len) * sizeof(strelemtype))
-#define search_strelem memchr
-
-#endif
 
 
 
@@ -161,7 +151,7 @@ inttype *used_max_position;
       FREE_ARRAY(work_array, (uinttype) work_array->max_position);
       work_array = NULL;
     } /* if */
-    return(work_array);
+    return work_array;
   } /* add_stri_to_array */
 
 
@@ -225,7 +215,7 @@ chartype delimiter;
     if (result_array == NULL) {
       raise_error(MEMORY_ERROR);
     } /* if */
-    return(result_array);
+    return result_array;
   } /* strChSplit */
 
 
@@ -306,7 +296,7 @@ stritype delimiter;
     if (result_array == NULL) {
       raise_error(MEMORY_ERROR);
     } /* if */
-    return(result_array);
+    return result_array;
   } /* strSplit */
 
 
@@ -331,7 +321,7 @@ stritype delimiter;
     } else {
       result = strSplit(main_stri, delimiter);
     } /* if */
-    return(result);
+    return result;
   } /* str1Split */
 #endif
 
@@ -365,12 +355,12 @@ listtype arguments;
       str_to_size = str_to->size;
       if (str_to_size > MAX_STRI_LEN - str_from->size) {
         /* number of bytes does not fit into memsizetype */
-        return(raise_exception(SYS_MEM_EXCEPTION));
+        return raise_exception(SYS_MEM_EXCEPTION);
       } else {
         new_size = str_to_size + str_from->size;
         GROW_STRI(new_str, str_to, str_to_size, new_size);
         if (new_str == NULL) {
-          return(raise_exception(SYS_MEM_EXCEPTION));
+          return raise_exception(SYS_MEM_EXCEPTION);
         } else {
           if (str_to == str_from) {
             /* It is possible that str_to == str_from holds. */
@@ -386,7 +376,7 @@ listtype arguments;
         } /* if */
       } /* if */
     } /* if */
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* str_append */
 
 
@@ -415,31 +405,31 @@ listtype arguments;
     stri1_size = stri1->size;
     if (stri1_size > MAX_STRI_LEN - stri2->size) {
       /* number of bytes does not fit into memsizetype */
-      return(raise_exception(SYS_MEM_EXCEPTION));
+      return raise_exception(SYS_MEM_EXCEPTION);
     } else {
       result_size = stri1_size + stri2->size;
       if (TEMP_OBJECT(arg_1(arguments))) {
         GROW_STRI(result, stri1, stri1_size, result_size);
         if (result == NULL) {
-          return(raise_exception(SYS_MEM_EXCEPTION));
+          return raise_exception(SYS_MEM_EXCEPTION);
         } else {
           COUNT3_STRI(stri1_size, result_size);
           result->size = result_size;
           memcpy(&result->mem[stri1_size], stri2->mem,
               stri2->size * sizeof(strelemtype));
           arg_1(arguments)->value.strivalue = NULL;
-          return(bld_stri_temp(result));
+          return bld_stri_temp(result);
         } /* if */
       } else {
         if (!ALLOC_STRI_SIZE_OK(result, result_size)) {
-          return(raise_exception(SYS_MEM_EXCEPTION));
+          return raise_exception(SYS_MEM_EXCEPTION);
         } else {
           result->size = result_size;
           memcpy(result->mem, stri1->mem,
               stri1_size * sizeof(strelemtype));
           memcpy(&result->mem[stri1_size], stri2->mem,
               stri2->size * sizeof(strelemtype));
-          return(bld_stri_temp(result));
+          return bld_stri_temp(result);
         } /* if */
       } /* if */
     } /* if */
@@ -460,9 +450,9 @@ listtype arguments;
     isit_stri(arg_1(arguments));
     isit_char(arg_2(arguments));
     isit_int(arg_3(arguments));
-    return(bld_int_temp(
+    return bld_int_temp(
         strChIPos(take_stri(arg_1(arguments)), take_char(arg_2(arguments)),
-                  take_int(arg_3(arguments)))));
+                  take_int(arg_3(arguments))));
   } /* str_chipos */
 
 
@@ -479,8 +469,8 @@ listtype arguments;
   { /* str_chpos */
     isit_stri(arg_1(arguments));
     isit_char(arg_2(arguments));
-    return(bld_int_temp(
-        strChPos(take_stri(arg_1(arguments)), take_char(arg_2(arguments)))));
+    return bld_int_temp(
+        strChPos(take_stri(arg_1(arguments)), take_char(arg_2(arguments))));
   } /* str_chpos */
 
 
@@ -497,8 +487,8 @@ listtype arguments;
   { /* str_chsplit */
     isit_stri(arg_1(arguments));
     isit_char(arg_2(arguments));
-    return(bld_array_temp(
-        strChSplit(take_stri(arg_1(arguments)), take_char(arg_2(arguments)))));
+    return bld_array_temp(
+        strChSplit(take_stri(arg_1(arguments)), take_char(arg_2(arguments))));
   } /* str_chsplit */
 
 
@@ -514,8 +504,8 @@ listtype arguments;
 
   { /* str_clit */
     isit_stri(arg_1(arguments));
-    return(bld_stri_temp(strCLit(
-        take_stri(arg_1(arguments)))));
+    return bld_stri_temp(
+        strCLit(take_stri(arg_1(arguments))));
   } /* str_clit */
 
 
@@ -559,7 +549,7 @@ listtype arguments;
         result = -1;
       } /* if */
     } /* if */
-    return(bld_int_temp(result));
+    return bld_int_temp(result);
   } /* str_cmp */
 
 
@@ -603,7 +593,7 @@ listtype arguments;
         } /* if */
       } else {
         if (!ALLOC_STRI_SIZE_OK(stri_dest, new_size)) {
-          return(raise_exception(SYS_MEM_EXCEPTION));
+          return raise_exception(SYS_MEM_EXCEPTION);
         } else {
           FREE_STRI(take_stri(str_to), take_stri(str_to)->size);
           str_to->value.strivalue = stri_dest;
@@ -613,7 +603,7 @@ listtype arguments;
             new_size * sizeof(strelemtype));
       } /* if */
     } /* if */
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* str_cpy */
 
 
@@ -646,14 +636,14 @@ listtype arguments;
       new_size = take_stri(str_from)->size;
       if (!ALLOC_STRI_SIZE_OK(new_str, new_size)) {
         str_to->value.strivalue = NULL;
-        return(raise_exception(SYS_MEM_EXCEPTION));
+        return raise_exception(SYS_MEM_EXCEPTION);
       } /* if */
       str_to->value.strivalue = new_str;
       new_str->size = new_size;
       memcpy(new_str->mem, take_stri(str_from)->mem,
           new_size * sizeof(strelemtype));
     } /* if */
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* str_create */
 
 
@@ -677,7 +667,7 @@ listtype arguments;
       FREE_STRI(old_string, old_string->size);
       arg_1(arguments)->value.strivalue = NULL;
     } /* if */
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* str_destr */
 
 
@@ -705,9 +695,9 @@ listtype arguments;
     if (position >= 1 && (uinttype) position <= stri->size) {
       stri->mem[position - 1] = (strelemtype) take_char(arg_6(arguments));
     } else {
-      return(raise_exception(SYS_RNG_EXCEPTION));
+      return raise_exception(SYS_RNG_EXCEPTION);
     } /* if */
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* str_elemcpy */
 
 
@@ -732,9 +722,9 @@ listtype arguments;
     stri2 = take_stri(arg_3(arguments));
     if (stri1->size == stri2->size && memcmp(stri1->mem, stri2->mem,
         stri1->size * sizeof(strelemtype)) == 0) {
-      return(SYS_TRUE_OBJECT);
+      return SYS_TRUE_OBJECT;
     } else {
-      return(SYS_FALSE_OBJECT);
+      return SYS_FALSE_OBJECT;
     } /* if */
   } /* str_eq */
 
@@ -772,7 +762,7 @@ listtype arguments;
         result = SYS_FALSE_OBJECT;
       } /* if */
     } /* if */
-    return(result);
+    return result;
   } /* str_ge */
 
 
@@ -809,7 +799,7 @@ listtype arguments;
         result = SYS_FALSE_OBJECT;
       } /* if */
     } /* if */
-    return(result);
+    return result;
   } /* str_gt */
 
 
@@ -835,7 +825,7 @@ listtype arguments;
     } else {
       result = (inttype) (stri->mem[0] << 5 ^ stri->size << 3 ^ stri->mem[stri->size - 1]);
     } /* if */
-    return(bld_int_temp(result));
+    return bld_int_temp(result);
   } /* str_hashcode */
 
 
@@ -871,14 +861,14 @@ listtype arguments;
       if (TEMP_OBJECT(arg_1(arguments))) {
         SHRINK_STRI(result, stri, length, result_size);
         if (result == NULL) {
-          return(raise_exception(SYS_MEM_EXCEPTION));
+          return raise_exception(SYS_MEM_EXCEPTION);
         } /* if */
         COUNT3_STRI(length, result_size);
         result->size = result_size;
         arg_1(arguments)->value.strivalue = NULL;
       } else {
         if (!ALLOC_STRI_SIZE_OK(result, result_size)) {
-          return(raise_exception(SYS_MEM_EXCEPTION));
+          return raise_exception(SYS_MEM_EXCEPTION);
         } /* if */
         result->size = result_size;
         memcpy(result->mem, stri->mem,
@@ -886,11 +876,11 @@ listtype arguments;
       } /* if */
     } else {
       if (!ALLOC_STRI_SIZE_OK(result, (memsizetype) 0)) {
-        return(raise_exception(SYS_MEM_EXCEPTION));
+        return raise_exception(SYS_MEM_EXCEPTION);
       } /* if */
       result->size = 0;
     } /* if */
-    return(bld_stri_temp(result));
+    return bld_stri_temp(result);
   } /* str_head */
 
 
@@ -914,9 +904,9 @@ listtype arguments;
     stri = take_stri(arg_1(arguments));
     position = take_int(arg_3(arguments));
     if (position >= 1 && (uinttype) position <= stri->size) {
-      return(bld_char_temp((chartype) stri->mem[position - 1]));
+      return bld_char_temp((chartype) stri->mem[position - 1]);
     } else {
-      return(raise_exception(SYS_RNG_EXCEPTION));
+      return raise_exception(SYS_RNG_EXCEPTION);
     } /* if */
   } /* str_idx */
 
@@ -935,9 +925,9 @@ listtype arguments;
     isit_stri(arg_1(arguments));
     isit_stri(arg_2(arguments));
     isit_int(arg_3(arguments));
-    return(bld_int_temp(
+    return bld_int_temp(
         strIPos(take_stri(arg_1(arguments)), take_stri(arg_2(arguments)),
-                take_int(arg_3(arguments)))));
+                take_int(arg_3(arguments))));
   } /* str_ipos */
 
 
@@ -974,7 +964,7 @@ listtype arguments;
         result = SYS_FALSE_OBJECT;
       } /* if */
     } /* if */
-    return(result);
+    return result;
   } /* str_le */
 
 
@@ -990,8 +980,8 @@ listtype arguments;
 
   { /* str_lit */
     isit_stri(arg_1(arguments));
-    return(bld_stri_temp(strLit(
-        take_stri(arg_1(arguments)))));
+    return bld_stri_temp(
+        strLit(take_stri(arg_1(arguments))));
   } /* str_lit */
 
 
@@ -1007,7 +997,7 @@ listtype arguments;
 
   { /* str_lng */
     isit_stri(arg_1(arguments));
-    return(bld_int_temp((inttype) take_stri(arg_1(arguments))->size));
+    return bld_int_temp((inttype) take_stri(arg_1(arguments))->size);
   } /* str_lng */
 
 
@@ -1032,21 +1022,17 @@ listtype arguments;
     stri = take_stri(arg_1(arguments));
     length = stri->size;
     if (!ALLOC_STRI_SIZE_OK(result, length)) {
-      return(raise_exception(SYS_MEM_EXCEPTION));
+      return raise_exception(SYS_MEM_EXCEPTION);
     } else {
       result->size = length;
       for (pos = 0; pos < length; pos++) {
-#ifdef UTF32_STRINGS
         if (stri->mem[pos] >= (strelemtype) 'A' && stri->mem[pos] <= (strelemtype) 'Z') {
           result->mem[pos] = stri->mem[pos] - (strelemtype) 'A' + (strelemtype) 'a';
         } else {
           result->mem[pos] = stri->mem[pos];
         } /* if */
-#else
-        result->mem[pos] = (strelemtype) tolower((int) stri->mem[pos]);
-#endif
       } /* for */
-      return(bld_stri_temp(result));
+      return bld_stri_temp(result);
     } /* if */
   } /* str_low */
 
@@ -1076,10 +1062,9 @@ listtype arguments;
     if (pad_size > 0 && (uinttype) pad_size > length) {
       if ((uinttype) pad_size > MAX_STRI_LEN ||
           !ALLOC_STRI_SIZE_OK(result, (memsizetype) pad_size)) {
-        return(raise_exception(SYS_MEM_EXCEPTION));
+        return raise_exception(SYS_MEM_EXCEPTION);
       } else {
         result->size = (memsizetype) pad_size;
-#ifdef UTF32_STRINGS
         {
           strelemtype *elem = result->mem;
           memsizetype len = (memsizetype) pad_size - length;
@@ -1088,9 +1073,6 @@ listtype arguments;
             *elem++ = (strelemtype) ' ';
           } /* while */
         }
-#else
-        memset(result->mem, ' ', (memsizetype) pad_size - length);
-#endif
         memcpy(&result->mem[(memsizetype) pad_size - length], stri->mem,
             length * sizeof(strelemtype));
       } /* if */
@@ -1100,14 +1082,14 @@ listtype arguments;
         arg_1(arguments)->value.strivalue = NULL;
       } else {
         if (!ALLOC_STRI_SIZE_OK(result, length)) {
-          return(raise_exception(SYS_MEM_EXCEPTION));
+          return raise_exception(SYS_MEM_EXCEPTION);
         } /* if */
         result->size = length;
         memcpy(result->mem, stri->mem,
             length * sizeof(strelemtype));
       } /* if */
     } /* if */
-    return(bld_stri_temp(result));
+    return bld_stri_temp(result);
   } /* str_lpad */
 
 
@@ -1139,7 +1121,7 @@ listtype arguments;
     if (pad_size > 0 && (uinttype) pad_size > length) {
       if ((uinttype) pad_size > MAX_STRI_LEN ||
           !ALLOC_STRI_SIZE_OK(result, (memsizetype) pad_size)) {
-        return(raise_exception(SYS_MEM_EXCEPTION));
+        return raise_exception(SYS_MEM_EXCEPTION);
       } else {
         result->size = (memsizetype) pad_size;
         sourceElem = stri->mem;
@@ -1161,14 +1143,14 @@ listtype arguments;
         arg_1(arguments)->value.strivalue = NULL;
       } else {
         if (!ALLOC_STRI_SIZE_OK(result, length)) {
-          return(raise_exception(SYS_MEM_EXCEPTION));
+          return raise_exception(SYS_MEM_EXCEPTION);
         } /* if */
         result->size = length;
         memcpy(result->mem, stri->mem,
             length * sizeof(strelemtype));
       } /* if */
     } /* if */
-    return(bld_stri_temp(result));
+    return bld_stri_temp(result);
   } /* str_lpad0 */
 
 
@@ -1205,7 +1187,7 @@ listtype arguments;
         result = SYS_FALSE_OBJECT;
       } /* if */
     } /* if */
-    return(result);
+    return result;
   } /* str_lt */
 
 
@@ -1237,12 +1219,12 @@ listtype arguments;
       length -= start;
     } /* if */
     if (!ALLOC_STRI_SIZE_OK(result, length)) {
-      return(raise_exception(SYS_MEM_EXCEPTION));
+      return raise_exception(SYS_MEM_EXCEPTION);
     } else {
       result->size = length;
       memcpy(result->mem, &stri->mem[start],
           length * sizeof(strelemtype));
-      return(bld_stri_temp(result));
+      return bld_stri_temp(result);
     } /* if */
   } /* str_ltrim */
 
@@ -1260,8 +1242,8 @@ listtype arguments;
   { /* str_mult */
     isit_stri(arg_1(arguments));
     isit_int(arg_3(arguments));
-    return(bld_stri_temp(strMult(
-        take_stri(arg_1(arguments)), take_int(arg_3(arguments)))));
+    return bld_stri_temp(
+        strMult(take_stri(arg_1(arguments)), take_int(arg_3(arguments))));
   } /* str_mult */
 
 
@@ -1286,9 +1268,9 @@ listtype arguments;
     stri2 = take_stri(arg_3(arguments));
     if (stri1->size != stri2->size || memcmp(stri1->mem, stri2->mem,
         stri1->size * sizeof(strelemtype)) != 0) {
-      return(SYS_TRUE_OBJECT);
+      return SYS_TRUE_OBJECT;
     } else {
-      return(SYS_FALSE_OBJECT);
+      return SYS_FALSE_OBJECT;
     } /* if */
   } /* str_ne */
 
@@ -1306,8 +1288,8 @@ listtype arguments;
   { /* str_pos */
     isit_stri(arg_1(arguments));
     isit_stri(arg_2(arguments));
-    return(bld_int_temp(
-        strPos(take_stri(arg_1(arguments)), take_stri(arg_2(arguments)))));
+    return bld_int_temp(
+        strPos(take_stri(arg_1(arguments)), take_stri(arg_2(arguments))));
   } /* str_pos */
 
 
@@ -1337,11 +1319,11 @@ listtype arguments;
     if (position >= 1 && destStri->size >= sourceStri->size &&
         (uinttype) position <= destStri->size - sourceStri->size + 1) {
       memcpy(&destStri->mem[position - 1], sourceStri->mem,
-	  sourceStri->size * sizeof(strelemtype));
+          sourceStri->size * sizeof(strelemtype));
     } else {
-      return(raise_exception(SYS_RNG_EXCEPTION));
+      return raise_exception(SYS_RNG_EXCEPTION);
     } /* if */
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* str_poscpy */
 
 
@@ -1368,26 +1350,17 @@ listtype arguments;
     str_to = take_stri(str_variable);
     isit_char(arg_3(arguments));
     char_from = take_char(arg_3(arguments));
-#ifndef UTF32_STRINGS
-    if (char_from > (chartype) 255) {
-      raise_error(RANGE_ERROR);
-      return(NULL);
+    new_size = str_to->size + 1;
+    GROW_STRI(str_to, str_to, str_to->size, new_size);
+    if (str_to == NULL) {
+      return raise_exception(SYS_MEM_EXCEPTION);
     } else {
-#endif
-      new_size = str_to->size + 1;
-      GROW_STRI(str_to, str_to, str_to->size, new_size);
-      if (str_to == NULL) {
-        return(raise_exception(SYS_MEM_EXCEPTION));
-      } else {
-        COUNT3_STRI(str_to->size, new_size);
-        str_to->mem[str_to->size] = char_from;
-        str_to->size = new_size;
-        str_variable->value.strivalue = str_to;
-      } /* if */
-#ifndef UTF32_STRINGS
+      COUNT3_STRI(str_to->size, new_size);
+      str_to->mem[str_to->size] = char_from;
+      str_to->size = new_size;
+      str_variable->value.strivalue = str_to;
     } /* if */
-#endif
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* str_push */
 
 
@@ -1428,7 +1401,7 @@ listtype arguments;
         result_size = (memsizetype) stop - (memsizetype) start + 1;
       } /* if */
       if (!ALLOC_STRI_SIZE_OK(result, result_size)) {
-        return(raise_exception(SYS_MEM_EXCEPTION));
+        return raise_exception(SYS_MEM_EXCEPTION);
       } /* if */
       /* Reversing the order of the following two statements    */
       /* causes an "Internal Compiler Error" with MSC 6.0       */
@@ -1441,11 +1414,11 @@ listtype arguments;
       result->size = result_size;
     } else {
       if (!ALLOC_STRI_SIZE_OK(result, (memsizetype) 0)) {
-        return(raise_exception(SYS_MEM_EXCEPTION));
+        return raise_exception(SYS_MEM_EXCEPTION);
       } /* if */
       result->size = 0;
     } /* if */
-    return(bld_stri_temp(result));
+    return bld_stri_temp(result);
   } /* str_range */
 
 
@@ -1463,9 +1436,9 @@ listtype arguments;
     isit_stri(arg_1(arguments));
     isit_char(arg_2(arguments));
     isit_int(arg_3(arguments));
-    return(bld_int_temp(
+    return bld_int_temp(
         strRChIPos(take_stri(arg_1(arguments)), take_char(arg_2(arguments)),
-                   take_int(arg_3(arguments)))));
+                   take_int(arg_3(arguments))));
   } /* str_rchipos */
 
 
@@ -1482,8 +1455,8 @@ listtype arguments;
   { /* str_rchpos */
     isit_stri(arg_1(arguments));
     isit_char(arg_2(arguments));
-    return(bld_int_temp(
-        strRChPos(take_stri(arg_1(arguments)), take_char(arg_2(arguments)))));
+    return bld_int_temp(
+        strRChPos(take_stri(arg_1(arguments)), take_char(arg_2(arguments))));
   } /* str_rchpos */
 
 
@@ -1501,10 +1474,9 @@ listtype arguments;
     isit_stri(arg_1(arguments));
     isit_stri(arg_2(arguments));
     isit_stri(arg_3(arguments));
-    return(bld_stri_temp(
-        strRepl(take_stri(arg_1(arguments)),
-                take_stri(arg_2(arguments)),
-                take_stri(arg_3(arguments)))));
+    return bld_stri_temp(
+        strRepl(take_stri(arg_1(arguments)), take_stri(arg_2(arguments)),
+                take_stri(arg_3(arguments))));
   } /* str_repl */
 
 
@@ -1522,9 +1494,9 @@ listtype arguments;
     isit_stri(arg_1(arguments));
     isit_stri(arg_2(arguments));
     isit_int(arg_3(arguments));
-    return(bld_int_temp(
+    return bld_int_temp(
         strRIPos(take_stri(arg_1(arguments)), take_stri(arg_2(arguments)),
-                 take_int(arg_3(arguments)))));
+                 take_int(arg_3(arguments))));
   } /* str_ripos */
 
 
@@ -1553,11 +1525,10 @@ listtype arguments;
     if (pad_size > 0 && (uinttype) pad_size > length) {
       if ((uinttype) pad_size > MAX_STRI_LEN ||
           !ALLOC_STRI_SIZE_OK(result, (memsizetype) pad_size)) {
-        return(raise_exception(SYS_MEM_EXCEPTION));
+        return raise_exception(SYS_MEM_EXCEPTION);
       } else {
         result->size = (memsizetype) pad_size;
         memcpy(result->mem, stri->mem, length * sizeof(strelemtype));
-#ifdef UTF32_STRINGS
         {
           strelemtype *elem = &result->mem[length];
           memsizetype len = (memsizetype) pad_size - length;
@@ -1566,9 +1537,6 @@ listtype arguments;
            *elem++ = (strelemtype) ' ';
           } /* while */
         }
-#else
-        memset(&result->mem[length], ' ', (memsizetype) pad_size - length);
-#endif
       } /* if */
     } else {
       if (TEMP_OBJECT(arg_1(arguments))) {
@@ -1576,14 +1544,14 @@ listtype arguments;
         arg_1(arguments)->value.strivalue = NULL;
       } else {
         if (!ALLOC_STRI_SIZE_OK(result, length)) {
-          return(raise_exception(SYS_MEM_EXCEPTION));
+          return raise_exception(SYS_MEM_EXCEPTION);
         } /* if */
         result->size = length;
         memcpy(result->mem, stri->mem,
             length * sizeof(strelemtype));
       } /* if */
     } /* if */
-    return(bld_stri_temp(result));
+    return bld_stri_temp(result);
   } /* str_rpad */
 
 
@@ -1600,8 +1568,8 @@ listtype arguments;
   { /* str_rpos */
     isit_stri(arg_1(arguments));
     isit_stri(arg_2(arguments));
-    return(bld_int_temp(
-        strRPos(take_stri(arg_1(arguments)), take_stri(arg_2(arguments)))));
+    return bld_int_temp(
+        strRPos(take_stri(arg_1(arguments)), take_stri(arg_2(arguments))));
   } /* str_rpos */
 
 
@@ -1628,12 +1596,12 @@ listtype arguments;
       length--;
     } /* while */
     if (!ALLOC_STRI_SIZE_OK(result, length)) {
-      return(raise_exception(SYS_MEM_EXCEPTION));
+      return raise_exception(SYS_MEM_EXCEPTION);
     } else {
       result->size = length;
       memcpy(result->mem, stri->mem,
           length * sizeof(strelemtype));
-      return(bld_stri_temp(result));
+      return bld_stri_temp(result);
     } /* if */
   } /* str_rtrim */
 
@@ -1651,8 +1619,8 @@ listtype arguments;
   { /* str_split */
     isit_stri(arg_1(arguments));
     isit_stri(arg_2(arguments));
-    return(bld_array_temp(
-        strSplit(take_stri(arg_1(arguments)), take_stri(arg_2(arguments)))));
+    return bld_array_temp(
+        strSplit(take_stri(arg_1(arguments)), take_stri(arg_2(arguments))));
   } /* str_split */
 
 
@@ -1676,15 +1644,15 @@ listtype arguments;
     if (TEMP_OBJECT(arg_1(arguments))) {
       result = stri;
       arg_1(arguments)->value.strivalue = NULL;
-      return(bld_stri_temp(result));
+      return bld_stri_temp(result);
     } else {
       if (!ALLOC_STRI_SIZE_OK(result, stri->size)) {
-        return(raise_exception(SYS_MEM_EXCEPTION));
+        return raise_exception(SYS_MEM_EXCEPTION);
       } else {
         result->size = stri->size;
         memcpy(result->mem, stri->mem,
             stri->size * sizeof(strelemtype));
-        return(bld_stri_temp(result));
+        return bld_stri_temp(result);
       } /* if */
     } /* if */
   } /* str_str */
@@ -1728,18 +1696,18 @@ listtype arguments;
         result_size = (memsizetype) len;
       } /* if */
       if (!ALLOC_STRI_SIZE_OK(result, result_size)) {
-        return(raise_exception(SYS_MEM_EXCEPTION));
+        return raise_exception(SYS_MEM_EXCEPTION);
       } /* if */
       memcpy(result->mem, &stri->mem[start - 1],
           result_size * sizeof(strelemtype));
       result->size = result_size;
     } else {
       if (!ALLOC_STRI_SIZE_OK(result, (memsizetype) 0)) {
-        return(raise_exception(SYS_MEM_EXCEPTION));
+        return raise_exception(SYS_MEM_EXCEPTION);
       } /* if */
       result->size = 0;
     } /* if */
-    return(bld_stri_temp(result));
+    return bld_stri_temp(result);
   } /* str_substr */
 
 
@@ -1772,7 +1740,7 @@ listtype arguments;
     if ((uinttype) start <= length && length >= 1) {
       result_size = length - (memsizetype) start + 1;
       if (!ALLOC_STRI_SIZE_OK(result, result_size)) {
-        return(raise_exception(SYS_MEM_EXCEPTION));
+        return raise_exception(SYS_MEM_EXCEPTION);
       } /* if */
       /* Reversing the order of the following two statements    */
       /* causes an "Internal Compiler Error" with MSC 6.0       */
@@ -1785,11 +1753,11 @@ listtype arguments;
       result->size = result_size;
     } else {
       if (!ALLOC_STRI_SIZE_OK(result, (memsizetype) 0)) {
-        return(raise_exception(SYS_MEM_EXCEPTION));
+        return raise_exception(SYS_MEM_EXCEPTION);
       } /* if */
       result->size = 0;
     } /* if */
-    return(bld_stri_temp(result));
+    return bld_stri_temp(result);
   } /* str_tail */
 
 
@@ -1805,8 +1773,8 @@ listtype arguments;
 
   { /* str_toutf8 */
     isit_stri(arg_1(arguments));
-    return(bld_stri_temp(
-        strToUtf8(take_stri(arg_1(arguments)))));
+    return bld_stri_temp(
+        strToUtf8(take_stri(arg_1(arguments))));
   } /* str_toutf8 */
 
 
@@ -1841,12 +1809,12 @@ listtype arguments;
       length -= start;
     } /* if */
     if (!ALLOC_STRI_SIZE_OK(result, length)) {
-      return(raise_exception(SYS_MEM_EXCEPTION));
+      return raise_exception(SYS_MEM_EXCEPTION);
     } else {
       result->size = length;
       memcpy(result->mem, &stri->mem[start],
           length * sizeof(strelemtype));
-      return(bld_stri_temp(result));
+      return bld_stri_temp(result);
     } /* if */
   } /* str_trim */
 
@@ -1872,21 +1840,17 @@ listtype arguments;
     stri = take_stri(arg_1(arguments));
     length = stri->size;
     if (!ALLOC_STRI_SIZE_OK(result, length)) {
-      return(raise_exception(SYS_MEM_EXCEPTION));
+      return raise_exception(SYS_MEM_EXCEPTION);
     } else {
       result->size = length;
       for (pos = 0; pos < length; pos++) {
-#ifdef UTF32_STRINGS
         if (stri->mem[pos] >= (strelemtype) 'a' && stri->mem[pos] <= (strelemtype) 'z') {
           result->mem[pos] = stri->mem[pos] - (strelemtype) 'a' + (strelemtype) 'A';
         } else {
           result->mem[pos] = stri->mem[pos];
         } /* if */
-#else
-        result->mem[pos] = (strelemtype) toupper((int) stri->mem[pos]);
-#endif
       } /* for */
-      return(bld_stri_temp(result));
+      return bld_stri_temp(result);
     } /* if */
   } /* str_up */
 
@@ -1903,8 +1867,8 @@ listtype arguments;
 
   { /* str_utf8tostri */
     isit_stri(arg_1(arguments));
-    return(bld_stri_temp(
-        strUtf8ToStri(take_stri(arg_1(arguments)))));
+    return bld_stri_temp(
+        strUtf8ToStri(take_stri(arg_1(arguments))));
   } /* str_utf8tostri */
 
 
@@ -1928,16 +1892,16 @@ listtype arguments;
     obj_arg = take_reference(arg_1(arguments));
     if (obj_arg == NULL || CATEGORY_OF_OBJ(obj_arg) != STRIOBJECT ||
         take_stri(obj_arg) == NULL) {
-      return(raise_exception(SYS_RNG_EXCEPTION));
+      return raise_exception(SYS_RNG_EXCEPTION);
     } else {
       stri = take_stri(obj_arg);
       if (!ALLOC_STRI_SIZE_OK(result, stri->size)) {
-        return(raise_exception(SYS_MEM_EXCEPTION));
+        return raise_exception(SYS_MEM_EXCEPTION);
       } else {
         result->size = stri->size;
         memcpy(result->mem, stri->mem,
             result->size * sizeof(strelemtype));
-        return(bld_stri_temp(result));
+        return bld_stri_temp(result);
       } /* if */
     } /* if */
   } /* str_value */

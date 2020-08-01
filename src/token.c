@@ -93,7 +93,7 @@ identtype identifier;
 #ifdef TRACE_TOKEN
     printf("END new_sy_token\n");
 #endif
-    return(created_token);
+    return created_token;
   } /* new_sy_token */
 
 
@@ -126,7 +126,7 @@ typetype type_of;
 #ifdef TRACE_TOKEN
     printf("END new_expr_token\n");
 #endif
-    return(created_token);
+    return created_token;
   } /* new_expr_token */
 
 
@@ -156,7 +156,7 @@ static tokentype new_syntax_description ()
 #ifdef TRACE_TOKEN
     printf("END new_syntax_description\n");
 #endif
-    return(created_token);
+    return created_token;
   } /* new_syntax_description */
 
 
@@ -205,7 +205,7 @@ identtype identifier;
 #ifdef TRACE_TOKEN
     printf("END get_sy_token\n");
 #endif
-    return(token_found);
+    return token_found;
   } /* get_sy_token */
 
 
@@ -265,7 +265,7 @@ typetype type_of;
 #ifdef TRACE_TOKEN
     printf("END get_expr_token\n");
 #endif
-    return(token_found);
+    return token_found;
   } /* get_expr_token */
 
 
@@ -303,5 +303,5 @@ tokentype *tokens;
 #ifdef TRACE_TOKEN
     printf("END get_syntax_description\n");
 #endif
-    return(token_found);
+    return token_found;
   } /* get_syntax_description */

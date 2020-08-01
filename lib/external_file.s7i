@@ -59,6 +59,7 @@ const proc: setbuf (ref PRIMITIVE_FILE param, ref integer param, ref integer par
 const proc: close (ref PRIMITIVE_FILE param)                              is action "FIL_CLOSE";
 const func boolean: eof (ref PRIMITIVE_FILE param)                        is action "FIL_EOF";
 const func boolean: hasNext (ref PRIMITIVE_FILE param)                    is action "FIL_HAS_NEXT";
+const func boolean: inputReady (ref PRIMITIVE_FILE param)                 is action "FIL_INPUT_READY";
 const proc: flush (ref PRIMITIVE_FILE param)                              is action "FIL_FLUSH";
 const func char: getc (ref PRIMITIVE_FILE param)                          is action "FIL_GETC";
 const func string: gets (ref PRIMITIVE_FILE param, ref integer param)     is action "FIL_GETS";
@@ -239,6 +240,10 @@ const func boolean: eof (in external_file: aFile) is
  *)
 const func boolean: hasNext (in external_file: aFile) is
   return hasNext(aFile.ext_file);
+
+
+const func boolean: inputReady (in external_file: aFile) is
+  return inputReady(aFile.ext_file);
 
 
 (**

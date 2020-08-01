@@ -53,7 +53,7 @@ chartype gkbGetc ()
 #endif
 
   { /* gkbGetc */
-    return((chartype) EOF);
+    return (chartype) EOF;
   } /* gkbGetc */
 
 
@@ -67,7 +67,7 @@ booltype gkbKeyPressed ()
 #endif
 
   { /* gkbKeyPressed */
-    return(FALSE);
+    return FALSE;
   } /* gkbKeyPressed */
 
 
@@ -82,7 +82,7 @@ chartype button;
 #endif
 
   { /* gkbButtonPressed */
-    return(FALSE);
+    return FALSE;
   } /* gkbButtonPressed */
 
 
@@ -96,7 +96,7 @@ chartype gkbRawGetc ()
 #endif
 
   { /* gkbRawGetc */
-    return(gkbGetc());
+    return gkbGetc();
   } /* gkbRawGetc */
 
 
@@ -110,7 +110,7 @@ wintype gkbWindow ()
 #endif
 
   { /* gkbWindow */
-    return(NULL);
+    return NULL;
   } /* gkbWindow */
 
 
@@ -124,7 +124,7 @@ inttype gkbButtonXpos ()
 #endif
 
   { /* gkbButtonXpos */
-    return(0);
+    return 0;
   } /* gkbButtonXpos */
 
 
@@ -138,7 +138,7 @@ inttype gkbButtonYpos ()
 #endif
 
   { /* gkbButtonYpos */
-    return(0);
+    return 0;
   } /* gkbButtonYpos */
 
 
@@ -153,7 +153,7 @@ wintype actual_window;
 #endif
 
   { /* drwPointerXpos */
-    return(0);
+    return 0;
   } /* drwPointerXpos */
 
 
@@ -168,7 +168,7 @@ wintype actual_window;
 #endif
 
   { /* drwPointerYpos */
-    return(0);
+    return 0;
   } /* drwPointerYpos */
 
 
@@ -474,7 +474,7 @@ inttype height;
 #endif
 
   { /* drwGet */
-    return(NULL);
+    return NULL;
   } /* drwGet */
 
 
@@ -505,7 +505,7 @@ wintype actual_window;
 #endif
 
   { /* drwHeight */
-    return(0);
+    return 0;
   } /* drwHeight */
 
 
@@ -524,7 +524,7 @@ inttype height;
 #endif
 
   { /* drwImage */
-    return(NULL);
+    return NULL;
   } /* drwImage */
 
 
@@ -573,7 +573,7 @@ inttype height;
 #endif
 
   { /* drwNewPixmap */
-    return(NULL);
+    return NULL;
   } /* drwNewPixmap */
 
 
@@ -594,7 +594,7 @@ stritype window_name;
 
   { /* drwOpen */
     raise_error(FILE_ERROR);
-    return(NULL);
+    return NULL;
   } /* drwOpen */
 
 
@@ -615,7 +615,7 @@ inttype height;
 
   { /* drwOpenSubWindow */
     raise_error(FILE_ERROR);
-    return(NULL);
+    return NULL;
   } /* drwOpenSubWindow */
 
 
@@ -661,7 +661,7 @@ rtlArraytype xyArray;
 #endif
 
   { /* drwGenPointList */
-    return(NULL);
+    return NULL;
   } /* drwGenPointList */
 
 
@@ -765,8 +765,28 @@ inttype blue_val;
 #endif
 
   { /* drwRgbColor */
-    return(0);
+    return 0;
   } /* drwRgbColor */
+
+
+
+#ifdef ANSI_C
+
+void drwPixelToRgb (inttype col, inttype *red_val, inttype *green_val, inttype *blue_val)
+#else
+
+void drwPixelToRgb (col, red_val, green_val, blue_val)
+inttype col;
+inttype *red_val;
+inttype *green_val;
+inttype *blue_val;
+#endif
+
+  { /* drwPixelToRgb */
+    *red_val   = 0;
+    *green_val = 0;
+    *blue_val  = 0;
+  } /* drwPixelToRgb */
 
 
 
@@ -900,7 +920,7 @@ wintype actual_window;
 #endif
 
   { /* drwWidth */
-    return(0);
+    return 0;
   } /* drwWidth */
 
 
@@ -915,7 +935,7 @@ wintype actual_window;
 #endif
 
   { /* drwXPos */
-    return(0);
+    return 0;
   } /* drwXPos */
 
 
@@ -930,5 +950,5 @@ wintype actual_window;
 #endif
 
   { /* drwYPos */
-    return(0);
+    return 0;
   } /* drwYPos */

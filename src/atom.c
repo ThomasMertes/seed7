@@ -109,7 +109,7 @@ static objecttype gen_object ()
     trace1(atomic_object);
     printf("\n");
 #endif
-    return(atomic_object);
+    return atomic_object;
   } /* gen_object */
 
 
@@ -150,7 +150,7 @@ objectcategory category;
     trace1(literal_object);
     printf("\n");
 #endif
-    return(literal_object);
+    return literal_object;
   } /* gen_literal_object */
 
 
@@ -198,7 +198,7 @@ static INLINE stritype new_string ()
 #ifdef TRACE_ATOM
     printf("END new_string\n");
 #endif
-    return(stri_created);
+    return stri_created;
   } /* new_string */
 
 
@@ -274,7 +274,7 @@ objecttype read_atom ()
     trace1(atomic_object);
     printf("\n");
 #endif
-    return(atomic_object);
+    return atomic_object;
   } /* read_atom */
 
 
@@ -306,5 +306,5 @@ objecttype read_name ()
 #ifdef TRACE_ATOM
     printf("END read_name\n");
 #endif
-    return(atomic_object);
+    return atomic_object;
   } /* read_name */

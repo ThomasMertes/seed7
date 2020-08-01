@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
-/*  cmd_win.c     Driver functions for commands.                    */
-/*  Copyright (C) 1989 - 2010  Thomas Mertes                        */
+/*  cmd_win.c     Command functions which call the Windows API.     */
+/*  Copyright (C) 1989 - 2011  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */
@@ -25,7 +25,7 @@
 /*  Module: Seed7 Runtime Library                                   */
 /*  File: seed7/src/cmd_win.c                                       */
 /*  Changes: 2010  Thomas Mertes                                    */
-/*  Content: Driver functions for commands.                         */
+/*  Content: Command functions which call the Windows API.          */
 /*                                                                  */
 /********************************************************************/
 

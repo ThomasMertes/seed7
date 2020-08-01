@@ -28,7 +28,7 @@
 /*  Content: Directory access using _findfirst and _findnext.       */
 /*                                                                  */
 /*  Implements opendir, readdir and closedir in the way it is       */
-/*  defined in unix.                                                */
+/*  defined in Unix.                                                */
 /*                                                                  */
 /********************************************************************/
 

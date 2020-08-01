@@ -362,7 +362,7 @@ if (CATEGORY_OF_OBJ(object_name) == EXPROBJECT) {
 #ifdef TRACE_PARSER
     printf("END decl_name\n");
 #endif
-    return(defined_object);
+    return defined_object;
   } /* decl_name */
 
 

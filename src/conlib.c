@@ -65,7 +65,7 @@ listtype arguments;
         take_int(arg_3(arguments)),
         take_int(arg_4(arguments)),
         take_int(arg_5(arguments)));
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* con_clear */
 
 
@@ -86,9 +86,9 @@ listtype arguments;
     } else if (take_bool(arg_2(arguments)) == SYS_FALSE_OBJECT) {
       conCursor(FALSE);
     } else {
-      return(raise_exception(SYS_RNG_EXCEPTION));
+      return raise_exception(SYS_RNG_EXCEPTION);
     } /* if */
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* con_cursor */
 
 
@@ -104,7 +104,7 @@ listtype arguments;
 
   { /* con_flush */
     conFlush();
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* con_flush */
 
 
@@ -119,7 +119,7 @@ listtype arguments;
 #endif
 
   { /* con_height */
-    return(bld_int_temp(conHeight()));
+    return bld_int_temp(conHeight());
   } /* con_height */
 
 
@@ -156,7 +156,7 @@ listtype arguments;
           take_int(arg_5(arguments)),
           -scroll_amount);
     } /* if */
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* con_h_scl */
 
 
@@ -172,7 +172,7 @@ listtype arguments;
 
   { /* con_open */
     conOpen();
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* con_open */
 
 
@@ -190,7 +190,7 @@ listtype arguments;
     isit_int(arg_2(arguments));
     isit_int(arg_3(arguments));
     conSetpos(take_int(arg_2(arguments)), take_int(arg_3(arguments)));
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* con_setpos */
 
 
@@ -227,7 +227,7 @@ listtype arguments;
           take_int(arg_5(arguments)),
           -scroll_amount);
     } /* if */
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* con_v_scl */
 
 
@@ -242,7 +242,7 @@ listtype arguments;
 #endif
 
   { /* con_width */
-    return(bld_int_temp(conWidth()));
+    return bld_int_temp(conWidth());
   } /* con_width */
 
 
@@ -259,5 +259,5 @@ listtype arguments;
   { /* con_write */
     isit_stri(arg_2(arguments));
     conWrite(take_stri(arg_2(arguments)));
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* con_write */

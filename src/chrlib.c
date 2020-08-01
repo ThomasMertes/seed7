@@ -63,12 +63,12 @@ listtype arguments;
     number = take_int(arg_1(arguments));
 #if INTTYPE_SIZE == 64
     if (number < INT32TYPE_MIN || number > INT32TYPE_MAX) {
-      return(raise_exception(SYS_RNG_EXCEPTION));
+      return raise_exception(SYS_RNG_EXCEPTION) ;
     } else {
-      return(bld_char_temp((chartype) number));
+      return bld_char_temp((chartype) number);
     } /* if */
 #else
-    return(bld_char_temp((chartype) number));
+    return bld_char_temp((chartype) number);
 #endif
   } /* chr_chr */
 
@@ -85,8 +85,8 @@ listtype arguments;
 
   { /* chr_clit */
     isit_char(arg_1(arguments));
-    return(bld_stri_temp(chrCLit(
-        take_char(arg_1(arguments)))));
+    return bld_stri_temp(
+        chrCLit(take_char(arg_1(arguments))));
   } /* chr_clit */
 
 
@@ -117,7 +117,7 @@ listtype arguments;
     } else {
       result = 0;
     } /* if */
-    return(bld_int_temp(result));
+    return bld_int_temp(result);
   } /* chr_cmp */
 
 
@@ -133,7 +133,7 @@ listtype arguments;
 
   { /* chr_conv */
     isit_char(arg_3(arguments));
-    return(bld_char_temp(take_char(arg_3(arguments))));
+    return bld_char_temp(take_char(arg_3(arguments)));
   } /* chr_conv */
 
 
@@ -156,7 +156,7 @@ listtype arguments;
     is_variable(ch_variable);
     isit_char(arg_3(arguments));
     ch_variable->value.charvalue = take_char(arg_3(arguments));
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* chr_cpy */
 
 
@@ -174,7 +174,7 @@ listtype arguments;
     isit_char(arg_3(arguments));
     SET_CATEGORY_OF_OBJ(arg_1(arguments), CHAROBJECT);
     arg_1(arguments)->value.charvalue = take_char(arg_3(arguments));
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* chr_create */
 
 
@@ -197,7 +197,7 @@ listtype arguments;
     is_variable(ch_variable);
     ch_variable->value.charvalue =
         (chartype) (((int) take_char(ch_variable)) - 1);
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* chr_decr */
 
 
@@ -216,9 +216,9 @@ listtype arguments;
     isit_char(arg_3(arguments));
     if (take_char(arg_1(arguments)) ==
         take_char(arg_3(arguments))) {
-      return(SYS_TRUE_OBJECT);
+      return SYS_TRUE_OBJECT;
     } else {
-      return(SYS_FALSE_OBJECT);
+      return SYS_FALSE_OBJECT;
     } /* if */
   } /* chr_eq */
 
@@ -238,9 +238,9 @@ listtype arguments;
     isit_char(arg_3(arguments));
     if (take_char(arg_1(arguments)) >=
         take_char(arg_3(arguments))) {
-      return(SYS_TRUE_OBJECT);
+      return SYS_TRUE_OBJECT;
     } else {
-      return(SYS_FALSE_OBJECT);
+      return SYS_FALSE_OBJECT;
     } /* if */
   } /* chr_ge */
 
@@ -260,9 +260,9 @@ listtype arguments;
     isit_char(arg_3(arguments));
     if (take_char(arg_1(arguments)) >
         take_char(arg_3(arguments))) {
-      return(SYS_TRUE_OBJECT);
+      return SYS_TRUE_OBJECT;
     } else {
-      return(SYS_FALSE_OBJECT);
+      return SYS_FALSE_OBJECT;
     } /* if */
   } /* chr_gt */
 
@@ -279,7 +279,8 @@ listtype arguments;
 
   { /* chr_hashcode */
     isit_char(arg_1(arguments));
-    return(bld_int_temp((inttype) ((schartype) take_char(arg_1(arguments)))));
+    return bld_int_temp((inttype)
+        ((schartype) take_char(arg_1(arguments))));
   } /* chr_hashcode */
 
 
@@ -295,7 +296,7 @@ listtype arguments;
 
   { /* chr_iconv */
     isit_int(arg_3(arguments));
-    return(bld_char_temp((chartype) take_int(arg_3(arguments))));
+    return bld_char_temp((chartype) take_int(arg_3(arguments)));
   } /* chr_iconv */
 
 
@@ -318,7 +319,7 @@ listtype arguments;
     is_variable(ch_variable);
     ch_variable->value.charvalue =
         (chartype) (((int) take_char(ch_variable)) + 1);
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* chr_incr */
 
 
@@ -337,9 +338,9 @@ listtype arguments;
     isit_char(arg_3(arguments));
     if (take_char(arg_1(arguments)) <=
         take_char(arg_3(arguments))) {
-      return(SYS_TRUE_OBJECT);
+      return SYS_TRUE_OBJECT;
     } else {
-      return(SYS_FALSE_OBJECT);
+      return SYS_FALSE_OBJECT;
     } /* if */
   } /* chr_le */
 
@@ -361,9 +362,9 @@ listtype arguments;
     isit_char(arg_1(arguments));
     ch = take_char(arg_1(arguments));
     if (ch <= (chartype) 255) {
-      return(bld_char_temp((chartype) tolower((int) ch)));
+      return bld_char_temp((chartype) tolower((int) ch));
     } else {
-      return(bld_char_temp(ch));
+      return bld_char_temp(ch);
     } /* if */
   } /* chr_low */
 
@@ -383,9 +384,9 @@ listtype arguments;
     isit_char(arg_3(arguments));
     if (take_char(arg_1(arguments)) <
         take_char(arg_3(arguments))) {
-      return(SYS_TRUE_OBJECT);
+      return SYS_TRUE_OBJECT;
     } else {
-      return(SYS_FALSE_OBJECT);
+      return SYS_FALSE_OBJECT;
     } /* if */
   } /* chr_lt */
 
@@ -405,9 +406,9 @@ listtype arguments;
     isit_char(arg_3(arguments));
     if (take_char(arg_1(arguments)) !=
         take_char(arg_3(arguments))) {
-      return(SYS_TRUE_OBJECT);
+      return SYS_TRUE_OBJECT;
     } else {
-      return(SYS_FALSE_OBJECT);
+      return SYS_FALSE_OBJECT;
     } /* if */
   } /* chr_ne */
 
@@ -424,7 +425,8 @@ listtype arguments;
 
   { /* chr_ord */
     isit_char(arg_1(arguments));
-    return(bld_int_temp((inttype) ((schartype) take_char(arg_1(arguments)))));
+    return bld_int_temp((inttype)
+        ((schartype) take_char(arg_1(arguments))));
   } /* chr_ord */
 
 
@@ -440,8 +442,8 @@ listtype arguments;
 
   { /* chr_pred */
     isit_char(arg_1(arguments));
-    return(bld_char_temp((chartype)
-        (((int) take_char(arg_1(arguments))) - 1)));
+    return bld_char_temp((chartype)
+        (((int) take_char(arg_1(arguments))) - 1));
   } /* chr_pred */
 
 
@@ -460,21 +462,13 @@ listtype arguments;
 
   /* chr_str */
     isit_char(arg_1(arguments));
-#ifndef UTF32_STRINGS
-    if (take_char(arg_1(arguments)) > (chartype) 255) {
-      return(raise_exception(SYS_RNG_EXCEPTION));
+    if (!ALLOC_STRI_SIZE_OK(result, 1)) {
+      return raise_exception(SYS_MEM_EXCEPTION);
     } else {
-#endif
-      if (!ALLOC_STRI_SIZE_OK(result, 1)) {
-        return(raise_exception(SYS_MEM_EXCEPTION));
-      } else {
-        result->size = 1;
-        result->mem[0] = (strelemtype) take_char(arg_1(arguments));
-        return(bld_stri_temp(result));
-      } /* if */
-#ifndef UTF32_STRINGS
+      result->size = 1;
+      result->mem[0] = (strelemtype) take_char(arg_1(arguments));
+      return bld_stri_temp(result);
     } /* if */
-#endif
   } /* chr_str */
 
 
@@ -490,8 +484,8 @@ listtype arguments;
 
   { /* chr_succ */
     isit_char(arg_1(arguments));
-    return(bld_char_temp((chartype)
-        (((int) take_char(arg_1(arguments))) + 1)));
+    return bld_char_temp((chartype)
+        (((int) take_char(arg_1(arguments))) + 1));
   } /* chr_succ */
 
 
@@ -512,9 +506,9 @@ listtype arguments;
     isit_char(arg_1(arguments));
     ch = take_char(arg_1(arguments));
     if (ch <= (chartype) 255) {
-      return(bld_char_temp((chartype) toupper((int) ch)));
+      return bld_char_temp((chartype) toupper((int) ch));
     } else {
-      return(bld_char_temp(ch));
+      return bld_char_temp(ch);
     } /* if */
   } /* chr_up */
 
@@ -536,8 +530,8 @@ listtype arguments;
     isit_reference(arg_1(arguments));
     obj_arg = take_reference(arg_1(arguments));
     if (obj_arg == NULL || CATEGORY_OF_OBJ(obj_arg) != CHAROBJECT) {
-      return(raise_exception(SYS_RNG_EXCEPTION));
+      return raise_exception(SYS_RNG_EXCEPTION);
     } else {
-      return(bld_char_temp(take_char(obj_arg)));
+      return bld_char_temp(take_char(obj_arg));
     } /* if */
   } /* chr_value */

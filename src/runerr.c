@@ -250,7 +250,7 @@ listtype list;
       fail_expression = copy_list(list, &err_info);
     } /* if */
     fail_flag = TRUE;
-    return(NULL);
+    return NULL;
   } /* raise_with_arguments */
 
 
@@ -265,7 +265,7 @@ objecttype exception;
 #endif
 
   { /* raise_exception */
-    return(raise_with_arguments(exception, curr_argument_list));
+    return raise_with_arguments(exception, curr_argument_list);
   } /* raise_exception */
 
 

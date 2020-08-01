@@ -487,7 +487,7 @@ objecttype anyobject;
 #ifdef TRACE_TRACE
     printf("END obj_ptr\n");
 #endif
-  return(out_buf);
+  return out_buf;
   } /* obj_ptr */
 
 
@@ -508,14 +508,13 @@ typetype anytype;
     if (anytype != NULL) {
       if (anytype->name != NULL) {
         prot_cstri(id_string(anytype->name));
-      } else if (anytype->result_type != NULL &&
-          anytype->result_type->name != NULL) {
+      } else if (anytype->result_type != NULL) {
         if (anytype->is_varfunc_type) {
           prot_cstri("varfunc ");
         } else {
           prot_cstri("func ");
         } /* if */
-        prot_cstri(id_string(anytype->result_type->name));
+        printtype(anytype->result_type);
       } else {
         prot_cstri(" *ANONYM_TYPE* ");
       } /* if */

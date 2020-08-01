@@ -98,7 +98,7 @@ memsizetype len;
     } /* if */
     /* printf(" => %lX\n", result);
     fflush(stdout); */
-    return(result);
+    return result;
   } /* growStri */
 
 
@@ -127,7 +127,7 @@ memsizetype len;
     result->mem = result->mem1;
 #endif
     result->capacity = new_len;
-    return(result);
+    return result;
   } /* shrinkStri */
 #endif
 

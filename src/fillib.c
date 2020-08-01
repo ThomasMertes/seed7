@@ -39,6 +39,7 @@
 #include "objutl.h"
 #include "runerr.h"
 #include "fil_rtl.h"
+#include "fil_drv.h"
 
 #undef EXTERN
 #define EXTERN
@@ -70,8 +71,8 @@ listtype arguments;
 
   { /* fil_big_lng */
     isit_file(arg_1(arguments));
-    return(bld_bigint_temp(
-        filBigLng(take_file(arg_1(arguments)))));
+    return bld_bigint_temp(
+        filBigLng(take_file(arg_1(arguments))));
   } /* fil_big_lng */
 
 
@@ -90,7 +91,7 @@ listtype arguments;
     isit_bigint(arg_2(arguments));
     filBigSeek(take_file(arg_1(arguments)),
         take_bigint(arg_2(arguments)));
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* fil_big_seek */
 
 
@@ -106,8 +107,8 @@ listtype arguments;
 
   { /* fil_big_tell */
     isit_file(arg_1(arguments));
-    return(bld_bigint_temp(
-        filBigTell(take_file(arg_1(arguments)))));
+    return bld_bigint_temp(
+        filBigTell(take_file(arg_1(arguments))));
   } /* fil_big_tell */
 
 
@@ -124,7 +125,7 @@ listtype arguments;
   { /* fil_close */
     isit_file(arg_1(arguments));
     filClose(take_file(arg_1(arguments)));
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* fil_close */
 
 
@@ -147,7 +148,7 @@ listtype arguments;
     is_variable(file_variable);
     isit_file(arg_3(arguments));
     file_variable->value.filevalue = take_file(arg_3(arguments));
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* fil_cpy */
 
 
@@ -165,7 +166,7 @@ listtype arguments;
     isit_file(arg_3(arguments));
     SET_CATEGORY_OF_OBJ(arg_1(arguments), FILEOBJECT);
     arg_1(arguments)->value.filevalue = take_file(arg_3(arguments));
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* fil_create */
 
 
@@ -180,7 +181,7 @@ listtype arguments;
 #endif
 
   { /* fil_empty */
-    return(bld_file_temp(NULL));
+    return bld_file_temp(NULL);
   } /* fil_empty */
 
 
@@ -197,9 +198,9 @@ listtype arguments;
   { /* fil_eof */
     isit_file(arg_1(arguments));
     if (feof(take_file(arg_1(arguments)))) {
-      return(SYS_TRUE_OBJECT);
+      return SYS_TRUE_OBJECT;
     } else {
-      return(SYS_FALSE_OBJECT);
+      return SYS_FALSE_OBJECT;
     } /* if */
   } /* fil_eof */
 
@@ -219,9 +220,9 @@ listtype arguments;
     isit_file(arg_3(arguments));
     if (take_file(arg_1(arguments)) ==
         take_file(arg_3(arguments))) {
-      return(SYS_TRUE_OBJECT);
+      return SYS_TRUE_OBJECT;
     } else {
-      return(SYS_FALSE_OBJECT);
+      return SYS_FALSE_OBJECT;
     } /* if */
   } /* fil_eq */
 
@@ -237,7 +238,7 @@ listtype arguments;
 #endif
 
   { /* fil_err */
-    return(bld_file_temp(stderr));
+    return bld_file_temp(stderr);
   } /* fil_err */
 
 
@@ -254,7 +255,7 @@ listtype arguments;
   { /* fil_flush */
     isit_file(arg_1(arguments));
     fflush(take_file(arg_1(arguments)));
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* fil_flush */
 
 
@@ -270,8 +271,8 @@ listtype arguments;
 
   { /* fil_getc */
     isit_file(arg_1(arguments));
-    return(bld_char_temp((chartype)
-        getc(take_file(arg_1(arguments)))));
+    return bld_char_temp((chartype)
+        getc(take_file(arg_1(arguments))));
   } /* fil_getc */
 
 
@@ -288,8 +289,8 @@ listtype arguments;
   { /* fil_gets */
     isit_file(arg_1(arguments));
     isit_int(arg_2(arguments));
-    return(bld_stri_temp(
-        filGets(take_file(arg_1(arguments)), take_int(arg_2(arguments)))));
+    return bld_stri_temp(
+        filGets(take_file(arg_1(arguments)), take_int(arg_2(arguments))));
   } /* fil_gets */
 
 
@@ -306,9 +307,9 @@ listtype arguments;
   { /* fil_has_next */
     isit_file(arg_1(arguments));
     if (filHasNext(take_file(arg_1(arguments)))) {
-      return(SYS_TRUE_OBJECT);
+      return SYS_TRUE_OBJECT;
     } else {
-      return(SYS_FALSE_OBJECT);
+      return SYS_FALSE_OBJECT;
     } /* if */
   } /* fil_has_next */
 
@@ -324,8 +325,28 @@ listtype arguments;
 #endif
 
   { /* fil_in */
-    return(bld_file_temp(stdin));
+    return bld_file_temp(stdin);
   } /* fil_in */
+
+
+
+#ifdef ANSI_C
+
+objecttype fil_input_ready (listtype arguments)
+#else
+
+objecttype fil_input_ready (arguments)
+listtype arguments;
+#endif
+
+  { /* fil_input_ready */
+    isit_file(arg_1(arguments));
+    if (filInputReady(take_file(arg_1(arguments)))) {
+      return SYS_TRUE_OBJECT;
+    } else {
+      return SYS_FALSE_OBJECT;
+    } /* if */
+  } /* fil_input_ready */
 
 
 
@@ -346,8 +367,8 @@ listtype arguments;
     ch_variable = arg_2(arguments);
     isit_char(ch_variable);
     is_variable(ch_variable);
-    return(bld_stri_temp(
-        filLineRead(take_file(arg_1(arguments)), &ch_variable->value.charvalue)));
+    return bld_stri_temp(
+        filLineRead(take_file(arg_1(arguments)), &ch_variable->value.charvalue));
   } /* fil_line_read */
 
 
@@ -363,8 +384,8 @@ listtype arguments;
 
   { /* fil_lit */
     isit_file(arg_1(arguments));
-    return(bld_stri_temp(
-        filLit(take_file(arg_1(arguments)))));
+    return bld_stri_temp(
+        filLit(take_file(arg_1(arguments))));
   } /* fil_lit */
 
 
@@ -380,8 +401,8 @@ listtype arguments;
 
   { /* fil_lng */
     isit_file(arg_1(arguments));
-    return(bld_int_temp(
-        filLng(take_file(arg_1(arguments)))));
+    return bld_int_temp(
+        filLng(take_file(arg_1(arguments))));
   } /* fil_lng */
 
 
@@ -400,9 +421,9 @@ listtype arguments;
     isit_file(arg_3(arguments));
     if (take_file(arg_1(arguments)) !=
         take_file(arg_3(arguments))) {
-      return(SYS_TRUE_OBJECT);
+      return SYS_TRUE_OBJECT;
     } else {
-      return(SYS_FALSE_OBJECT);
+      return SYS_FALSE_OBJECT;
     } /* if */
   } /* fil_ne */
 
@@ -420,8 +441,8 @@ listtype arguments;
   { /* fil_open */
     isit_stri(arg_1(arguments));
     isit_stri(arg_2(arguments));
-    return(bld_file_temp(
-        filOpen(take_stri(arg_1(arguments)), take_stri(arg_2(arguments)))));
+    return bld_file_temp(
+        filOpen(take_stri(arg_1(arguments)), take_stri(arg_2(arguments))));
   } /* fil_open */
 
 
@@ -436,7 +457,7 @@ listtype arguments;
 #endif
 
   { /* fil_out */
-    return(bld_file_temp(stdout));
+    return bld_file_temp(stdout);
   } /* fil_out */
 
 
@@ -453,7 +474,7 @@ listtype arguments;
   { /* fil_pclose */
     isit_file(arg_1(arguments));
     filPclose(take_file(arg_1(arguments)));
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* fil_pclose */
 
 
@@ -471,10 +492,9 @@ listtype arguments;
     isit_stri(arg_1(arguments));
     isit_stri(arg_2(arguments));
     isit_stri(arg_3(arguments));
-    return(bld_file_temp(
-        filPopen(take_stri(arg_1(arguments)),
-                 take_stri(arg_2(arguments)),
-                 take_stri(arg_3(arguments)))));
+    return bld_file_temp(
+        filPopen(take_stri(arg_1(arguments)), take_stri(arg_2(arguments)),
+                 take_stri(arg_3(arguments))));
   } /* fil_popen */
 
 
@@ -497,12 +517,12 @@ listtype arguments;
     stri = take_stri(arg_1(arguments));
     str1 = cp_to_cstri(stri);
     if (str1 == NULL) {
-      return(raise_exception(SYS_MEM_EXCEPTION));
+      return raise_exception(SYS_MEM_EXCEPTION);
     } else {
       fputs(str1, stdout);
       fflush(stdout);
       free_cstri(str1, stri);
-      return(SYS_EMPTY_OBJECT);
+      return SYS_EMPTY_OBJECT;
     } /* if */
   } /* fil_print */
 
@@ -522,7 +542,7 @@ listtype arguments;
     isit_int(arg_2(arguments));
     filSeek(take_file(arg_1(arguments)),
         take_int(arg_2(arguments)));
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* fil_seek */
 
 
@@ -542,7 +562,7 @@ listtype arguments;
     isit_int(arg_3(arguments));
     filSetbuf(take_file(arg_1(arguments)),
         take_int(arg_2(arguments)), take_int(arg_3(arguments)));
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* fil_setbuf */
 
 
@@ -558,8 +578,8 @@ listtype arguments;
 
   { /* fil_tell */
     isit_file(arg_1(arguments));
-    return(bld_int_temp(
-        filTell(take_file(arg_1(arguments)))));
+    return bld_int_temp(
+        filTell(take_file(arg_1(arguments))));
   } /* fil_tell */
 
 
@@ -580,9 +600,9 @@ listtype arguments;
     isit_reference(arg_1(arguments));
     obj_arg = take_reference(arg_1(arguments));
     if (obj_arg == NULL || CATEGORY_OF_OBJ(obj_arg) != FILEOBJECT) {
-      return(raise_exception(SYS_RNG_EXCEPTION));
+      return raise_exception(SYS_RNG_EXCEPTION);
     } else {
-      return(bld_file_temp(take_file(obj_arg)));
+      return bld_file_temp(take_file(obj_arg));
     } /* if */
   } /* fil_value */
 
@@ -605,8 +625,8 @@ listtype arguments;
     ch_variable = arg_2(arguments);
     isit_char(ch_variable);
     is_variable(ch_variable);
-    return(bld_stri_temp(
-        filWordRead(take_file(arg_1(arguments)), &ch_variable->value.charvalue)));
+    return bld_stri_temp(
+        filWordRead(take_file(arg_1(arguments)), &ch_variable->value.charvalue));
   } /* fil_word_read */
 
 
@@ -624,5 +644,5 @@ listtype arguments;
     isit_file(arg_1(arguments));
     isit_stri(arg_2(arguments));
     filWrite(take_file(arg_1(arguments)), take_stri(arg_2(arguments)));
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* fil_write */

@@ -48,8 +48,9 @@
 
 
 #define WITH_BIGINT_FREELIST
-#define BIG_FREELIST_LENGTH_LIMIT 10
+#define BIG_FREELIST_LENGTH_LIMIT 20
 #define KARATSUBA_THRESHOLD 32
+#define KARATSUBA_SQUARE_THRESHOLD 32
 
 
 /* Defines to describe a bigdigit:                                  */
@@ -132,7 +133,7 @@ size_t sizeof_bigintrecord = sizeof(bigintrecord);
 
 #define BIG_FREELIST_ARRAY_SIZE 32
 
-static biginttype flist[BIG_FREELIST_ARRAY_SIZE] = {
+static flisttype flist[BIG_FREELIST_ARRAY_SIZE] = {
     NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
@@ -144,8 +145,8 @@ static unsigned int flist_len[BIG_FREELIST_ARRAY_SIZE] = {
 #define POP_BIG_OK(len)    (len) < BIG_FREELIST_ARRAY_SIZE && flist_len[len] != 0
 #define PUSH_BIG_OK(var)   (var)->capacity < BIG_FREELIST_ARRAY_SIZE && flist_len[(var)->capacity] < BIG_FREELIST_LENGTH_LIMIT
 
-#define POP_BIG(var,len)   (var = flist[len], flist[len] = (biginttype) flist[len]->size, flist_len[len]--, TRUE)
-#define PUSH_BIG(var,len)  {((biginttype) var)->size = (memsizetype) flist[len]; flist[len] = (biginttype) var; flist_len[len]++; }
+#define POP_BIG(var,len)   (var = (biginttype) flist[len], flist[len] = flist[len]->next, flist_len[len]--, TRUE)
+#define PUSH_BIG(var,len)  {((flisttype) var)->next = flist[len]; flist[len] = (flisttype) var; flist_len[len]++; }
 
 #define ALLOC_BIG_SIZE_OK(var,len)    (POP_BIG_OK(len) ? POP_BIG(var, len) : HEAP_ALLOC_BIG(var, len))
 #define ALLOC_BIG_CHECK_SIZE(var,len) (POP_BIG_OK(len) ? POP_BIG(var, len) : ((len)<=MAX_BIG_LEN?HEAP_ALLOC_BIG(var, len):(var=NULL, FALSE)))
@@ -153,18 +154,18 @@ static unsigned int flist_len[BIG_FREELIST_ARRAY_SIZE] = {
 
 #else
 
-static biginttype flist = NULL;
+static flisttype flist = NULL;
 static unsigned int flist_len = 0;
 
 #define POP_BIG_OK(len)    (len) == 1 && flist_len != 0
-#define PUSH_BIG_OK(var)   (len) == 1 && flist_len < BIG_FREELIST_LENGTH_LIMIT
+#define PUSH_BIG_OK(len)   (len) == 1 && flist_len < BIG_FREELIST_LENGTH_LIMIT
 
-#define POP_BIG(var)       (var = flist, flist = (biginttype) flist->size, flist_len--, TRUE)
-#define PUSH_BIG(var)      {((biginttype) var)->size = (memsizetype) flist; flist = (biginttype) var; flist_len++; }
+#define POP_BIG(var)       (var = (biginttype) flist, flist = flist->next, flist_len--, TRUE)
+#define PUSH_BIG(var)      {((flisttype) var)->next = flist; flist = (flisttype) var; flist_len++; }
 
 #define ALLOC_BIG_SIZE_OK(var,len)    (POP_BIG_OK(len) ? POP_BIG(var) : HEAP_ALLOC_BIG(var, len))
 #define ALLOC_BIG_CHECK_SIZE(var,len) (POP_BIG_OK(len) ? POP_BIG(var) : ((len) <= MAX_BIG_LEN?HEAP_ALLOC_BIG(var, len):(var=NULL, FALSE)))
-#define FREE_BIG(var,len)  if (PUSH_BIG_OK(var)) PUSH_BIG(var) else HEAP_FREE_BIG(var, len);
+#define FREE_BIG(var,len)  if (PUSH_BIG_OK(len)) PUSH_BIG(var) else HEAP_FREE_BIG(var, len);
 
 #endif
 #else
@@ -709,7 +710,8 @@ biginttype big1;
 
 /**
  *  Decrements an unsigned big integer by 1. This function does
- *  overflow silently when big1 contains not enough digits.
+ *  overflow silently when big1 contains not enough digits. The
+ *  function works correctly when there are leading zereo digits.
  */
 #ifdef ANSI_C
 
@@ -726,16 +728,10 @@ biginttype big1;
   /* uBigDecr */
     pos = 0;
     if (big1->bigdigits[pos] == 0) {
-      if (big1->size == 1) {
+      do {
         big1->bigdigits[pos] = BIGDIGIT_MASK;
         pos++;
-      } else {
-        do {
-          big1->bigdigits[pos] = BIGDIGIT_MASK;
-          pos++;
-        } while (big1->bigdigits[pos] == 0);
-        /* memset(big1->bigdigits, 0xFF, pos * sizeof(bigdigittype)); */
-      } /* if */
+      } while (pos < big1->size && big1->bigdigits[pos] == 0);
     } /* if */
     if (pos < big1->size) {
       big1->bigdigits[pos]--;
@@ -1762,6 +1758,102 @@ bigdigittype *temp;
 
 #ifdef ANSI_C
 
+static void uBigDigitSquare (const bigdigittype *const big1,
+    const memsizetype size, bigdigittype *const result)
+#else
+
+static void uBigDigitSquare (big1, size, result)
+bigdigittype *big1;
+memsizetype size;
+bigdigittype *result;
+#endif
+
+  {
+    memsizetype pos1;
+    memsizetype pos2;
+    doublebigdigittype carry;
+    doublebigdigittype product;
+    bigdigittype digit;
+
+  /* uBigDigitSquare */
+    digit = big1[0];
+    carry = (doublebigdigittype) digit * digit;
+    result[0] = (bigdigittype) (carry & BIGDIGIT_MASK);
+    carry >>= BIGDIGIT_SIZE;
+    if (size == 1) {
+      result[1] = (bigdigittype) (carry);
+    } else {
+      for (pos2 = 1; pos2 < size; pos2++) {
+        product = (doublebigdigittype) digit * big1[pos2];
+        carry += (product << 1) & BIGDIGIT_MASK;
+        result[pos2] = (bigdigittype) (carry & BIGDIGIT_MASK);
+        carry >>= BIGDIGIT_SIZE;
+        carry += product >> (BIGDIGIT_SIZE - 1);
+      } /* for */
+      result[pos2] = (bigdigittype) (carry & BIGDIGIT_MASK);
+      result[pos2 + 1] = (bigdigittype) (carry >> BIGDIGIT_SIZE);
+      for (pos1 = 1; pos1 < size; pos1++) {
+        digit = big1[pos1];
+        carry = (doublebigdigittype) result[pos1 << 1] +
+            (doublebigdigittype) digit * digit;
+        result[pos1 << 1] = (bigdigittype) (carry & BIGDIGIT_MASK);
+        carry >>= BIGDIGIT_SIZE;
+        for (pos2 = pos1 + 1; pos2 < size; pos2++) {
+          product = (doublebigdigittype) digit * big1[pos2];
+          carry += (doublebigdigittype) result[pos1 + pos2] +
+              ((product << 1) & BIGDIGIT_MASK);
+          result[pos1 + pos2] = (bigdigittype) (carry & BIGDIGIT_MASK);
+          carry >>= BIGDIGIT_SIZE;
+          carry += product >> (BIGDIGIT_SIZE - 1);
+        } /* for */
+        carry += (doublebigdigittype) result[pos1 + pos2];
+        result[pos1 + pos2] = (bigdigittype) (carry & BIGDIGIT_MASK);
+        if (pos1 < size - 1) {
+          result[pos1 + pos2 + 1] = (bigdigittype) (carry >> BIGDIGIT_SIZE);
+        } /* if */
+      } /* for */
+    } /* if */
+  } /* uBigDigitSquare */
+
+
+
+#ifdef ANSI_C
+
+static void uBigKaratsubaSquare (const bigdigittype *const big1,
+    const memsizetype size, bigdigittype *const result, bigdigittype *const temp)
+#else
+
+static void uBigKaratsubaSquare (big1, size, result, temp)
+bigdigittype *big1;
+memsizetype size;
+bigdigittype *result;
+bigdigittype *temp;
+#endif
+
+  {
+    memsizetype sizeLo;
+    memsizetype sizeHi;
+
+  /* uBigKaratsubaSquare */
+    /* printf("uBigKaratsubaSquare: size=%lu\n", size); */
+    if (size < KARATSUBA_SQUARE_THRESHOLD) {
+      uBigDigitSquare(big1, size, result);
+    } else {
+      sizeHi = size >> 1;
+      sizeLo = size - sizeHi;
+      uBigDigitAdd(big1, sizeLo, &big1[sizeLo], sizeHi, result);
+      uBigKaratsubaSquare(result, sizeLo + 1, temp, &temp[(sizeLo + 1) << 1]);
+      uBigKaratsubaSquare(big1, sizeLo, result, &temp[(sizeLo + 1) << 1]);
+      uBigKaratsubaSquare(&big1[sizeLo], sizeHi, &result[sizeLo << 1], &temp[(sizeLo + 1) << 1]);
+      uBigDigitSbtrFrom(temp, (sizeLo + 1) << 1, result, sizeLo << 1);
+      uBigDigitSbtrFrom(temp, (sizeLo + 1) << 1, &result[sizeLo << 1], sizeHi << 1);
+      uBigDigitAddTo(&result[sizeLo], sizeLo + (sizeHi << 1), temp, (sizeLo + 1) << 1);
+    } /* if */
+  } /* uBigKaratsubaSquare */
+
+
+#ifdef ANSI_C
+
 static void uBigMultPositiveWithDigit (const const_biginttype big1, bigdigittype bigDigit,
     const biginttype result)
 #else
@@ -1811,7 +1903,7 @@ biginttype result;
   /* uBigMultNegativeWithDigit */
     negate_carry += ~big1->bigdigits[0] & BIGDIGIT_MASK;
     mult_carry = (negate_carry & BIGDIGIT_MASK) * bigDigit;
-    result_carry += ~(mult_carry & BIGDIGIT_MASK);
+    result_carry += ~mult_carry & BIGDIGIT_MASK;
     result->bigdigits[0] = (bigdigittype) (result_carry & BIGDIGIT_MASK);
     negate_carry >>= BIGDIGIT_SIZE;
     mult_carry >>= BIGDIGIT_SIZE;
@@ -1819,13 +1911,13 @@ biginttype result;
     for (pos = 1; pos < big1->size; pos++) {
       negate_carry += ~big1->bigdigits[pos] & BIGDIGIT_MASK;
       mult_carry += (negate_carry & BIGDIGIT_MASK) * bigDigit;
-      result_carry += ~(mult_carry & BIGDIGIT_MASK);
+      result_carry += ~mult_carry & BIGDIGIT_MASK;
       result->bigdigits[pos] = (bigdigittype) (result_carry & BIGDIGIT_MASK);
       negate_carry >>= BIGDIGIT_SIZE;
       mult_carry >>= BIGDIGIT_SIZE;
       result_carry >>= BIGDIGIT_SIZE;
     } /* for */
-    result_carry += ~(mult_carry & BIGDIGIT_MASK);
+    result_carry += ~mult_carry & BIGDIGIT_MASK;
     result->bigdigits[pos] = (bigdigittype) (result_carry & BIGDIGIT_MASK);
   } /* uBigMultNegativeWithDigit */
 
@@ -1850,18 +1942,18 @@ biginttype result;
 
   /* uBigMultPositiveWithNegatedDigit */
     mult_carry = (doublebigdigittype) big1->bigdigits[0] * bigDigit;
-    result_carry += ~(mult_carry & BIGDIGIT_MASK);
+    result_carry += ~mult_carry & BIGDIGIT_MASK;
     result->bigdigits[0] = (bigdigittype) (result_carry & BIGDIGIT_MASK);
     mult_carry >>= BIGDIGIT_SIZE;
     result_carry >>= BIGDIGIT_SIZE;
     for (pos = 1; pos < big1->size; pos++) {
       mult_carry += (doublebigdigittype) big1->bigdigits[pos] * bigDigit;
-      result_carry += ~(mult_carry & BIGDIGIT_MASK);
+      result_carry += ~mult_carry & BIGDIGIT_MASK;
       result->bigdigits[pos] = (bigdigittype) (result_carry & BIGDIGIT_MASK);
       mult_carry >>= BIGDIGIT_SIZE;
       result_carry >>= BIGDIGIT_SIZE;
     } /* for */
-    result_carry += ~(mult_carry & BIGDIGIT_MASK);
+    result_carry += ~mult_carry & BIGDIGIT_MASK;
     result->bigdigits[pos] = (bigdigittype) (result_carry & BIGDIGIT_MASK);
   } /* uBigMultPositiveWithNegatedDigit */
 
@@ -2192,6 +2284,48 @@ booltype negative;
 
 
 
+#ifdef ANSI_C
+
+static biginttype uBigSquareK (const_biginttype big1)
+#else
+
+static biginttype uBigSquareK (big1)
+biginttype big1;
+#endif
+
+  {
+    biginttype temp;
+    biginttype result;
+
+  /* uBigSquareK */
+    if (big1->size >= KARATSUBA_SQUARE_THRESHOLD) {
+      if (unlikely(!ALLOC_BIG(result, big1->size << 1))) {
+        raise_error(MEMORY_ERROR);
+      } else {
+        if (unlikely(!ALLOC_BIG(temp, big1->size << 2))) {
+          raise_error(MEMORY_ERROR);
+        } else {
+          uBigKaratsubaSquare(big1->bigdigits, big1->size,
+              result->bigdigits, temp->bigdigits);
+          result->size = big1->size << 1;
+          result = normalize(result);
+          FREE_BIG(temp, big1->size << 2);
+        } /* if */
+      } /* if */
+    } else {
+      if (unlikely(!ALLOC_BIG(result, big1->size + big1->size))) {
+        raise_error(MEMORY_ERROR);
+      } else {
+        result->size = big1->size + big1->size;
+        uBigDigitSquare(big1->bigdigits, big1->size, result->bigdigits);
+        result = normalize(result);
+      } /* if */
+    } /* if */
+    return result;
+  } /* uBigSquareK */
+
+
+
 /**
  *  Returns the product of big1 by big2 for nonnegative big integers.
  *  The result is written into big_help (which is a scratch variable
@@ -2515,6 +2649,7 @@ biginttype big1;
   {
     memsizetype pos;
     doublebigdigittype carry = 1;
+    memsizetype result_size;
     biginttype resized_result;
     biginttype result;
 
@@ -2533,8 +2668,8 @@ biginttype big1;
           pos++;
         } while (pos < big1->size);
         if (IS_NEGATIVE(result->bigdigits[pos - 1])) {
-          result->size++;
-          REALLOC_BIG_CHECK_SIZE(resized_result, result, big1->size, result->size);
+          result_size = result->size + 1;
+          REALLOC_BIG_CHECK_SIZE(resized_result, result, big1->size, result_size);
           if (unlikely(resized_result == NULL)) {
             FREE_BIG(result, big1->size);
             raise_error(MEMORY_ERROR);
@@ -2542,6 +2677,7 @@ biginttype big1;
           } else {
             result = resized_result;
             COUNT3_BIG(big1->size, result->size);
+            result->size = result_size;
             result->bigdigits[big1->size] = 0;
           } /* if */
         } /* if */
@@ -3487,6 +3623,7 @@ biginttype big2;
   {
     biginttype big1;
     memsizetype pos;
+    memsizetype big1_size;
     doublebigdigittype carry = 0;
     doublebigdigittype big1_sign;
     doublebigdigittype big2_sign;
@@ -3517,14 +3654,14 @@ biginttype big2;
           carry >>= BIGDIGIT_SIZE;
         } /* for */
       } /* if */
-      pos = big1->size;
+      big1_size = big1->size;
       carry += big1_sign;
       carry &= BIGDIGIT_MASK;
-      if ((carry != 0 || IS_NEGATIVE(big1->bigdigits[pos - 1])) &&
-          (carry != BIGDIGIT_MASK || !IS_NEGATIVE(big1->bigdigits[pos - 1]))) {
-        REALLOC_BIG_CHECK_SIZE(resized_big1, big1, big1->size, big1->size + 1);
+      if ((carry != 0 || IS_NEGATIVE(big1->bigdigits[big1_size - 1])) &&
+          (carry != BIGDIGIT_MASK || !IS_NEGATIVE(big1->bigdigits[big1_size - 1]))) {
+        REALLOC_BIG_CHECK_SIZE(resized_big1, big1, big1_size, big1_size + 1);
         if (unlikely(resized_big1 == NULL)) {
-          FREE_BIG(big1, big1->size);
+          FREE_BIG(big1, big1_size);
           *big_variable = NULL;
           raise_error(MEMORY_ERROR);
         } else {
@@ -3532,9 +3669,9 @@ biginttype big2;
           /* 'big2' is not used after realloc() enlarged   */
           /* 'big1' a correction of big2 is not necessary. */
           big1 = resized_big1;
-          COUNT3_BIG(big1->size, big1->size + 1);
+          COUNT3_BIG(big1_size, big1_size + 1);
           big1->size++;
-          big1->bigdigits[pos] = (bigdigittype) (carry & BIGDIGIT_MASK);
+          big1->bigdigits[big1_size] = (bigdigittype) (carry & BIGDIGIT_MASK);
           *big_variable = big1;
         } /* if */
       } else {
@@ -4213,13 +4350,12 @@ inttype lshift;
 
 
 
-#ifdef OUT_OF_ORDER
 #ifdef ANSI_C
 
-biginttype bigLShiftTwo (const inttype log2base, const inttype lshift)
+biginttype bigLog2BaseLShift (const inttype log2base, const inttype lshift)
 #else
 
-biginttype bigLShiftTwo (log2base, lshift)
+biginttype bigLog2BaseLShift (log2base, lshift)
 inttype log2base;
 inttype lshift;
 #endif
@@ -4227,59 +4363,28 @@ inttype lshift;
   {
     uinttype high_shift;
     uinttype low_shift;
-    memsizetype result_size;
-    int bit_pos;
     biginttype result;
 
-  /* bigLShiftTwo */
-    if (log2base <= 65535 && lshift <= 65535) {
-      low_shift = (uinttype) log2base * (uinttype) lshift;
-      result = bigLShiftOne(low_shift);
+  /* bigLog2BaseLShift */
+    if (unlikely(lshift < 0)) {
+      raise_error(NUMERIC_ERROR);
+      result = NULL;
+    } else if (likely(log2base == 1)) {
+      result = bigLShiftOne(lshift);
+    } else if (log2base <= 10 && lshift <= 214748364) {
+      result = bigLShiftOne(log2base * lshift);
     } else {
       uint2_mult((uinttype) 0L, (uinttype) log2base, (uinttype) 0L, (uinttype) lshift,
           &high_shift, &low_shift);
-      uint2_add(high_shift, low_shift, (uinttype) 0L, (uinttype) 1L,
-          &high_shift, &low_shift);
-      low_shift >>= BIGDIGIT_LOG2_SIZE;
-      low_shift |= (high_shift & BIGDIGIT_MASK) << (INTTYPE_SIZE - BIGDIGIT_LOG2_SIZE);
-      high_shift >>= BIGDIGIT_LOG2_SIZE;
-
-    (log2base * lshift + 1) >> BIGDIGIT_LOG2_SIZE
-    (log2base * lshift + 1) / (BIGDIGIT_SIZE_MASK + 1)
-    (log2base * lshift) / (BIGDIGIT_SIZE_MASK + 1) + 1 / (BIGDIGIT_SIZE_MASK + 1)
-    if (lshift < 2147483647 / log2base) {
-      result = bigLShiftOne(log2base * lshift);
-
-    if (unlikely(lshift < 0)) {
-      if (unlikely(!ALLOC_BIG_SIZE_OK(result, 1))) {
+      if (high_shift != 0 || (inttype) low_shift < 0) {
         raise_error(MEMORY_ERROR);
+        result = NULL;
       } else {
-        result->size = 1;
-        result->bigdigits[0] = 0;
-      } /* if */
-    } else if (unlikely((((uinttype) lshift + 1) >> BIGDIGIT_LOG2_SIZE) + 1 > MAX_BIG_LEN)) {
-      raise_error(MEMORY_ERROR);
-      result = NULL;
-    } else {
-      result_size = (memsizetype) (((uinttype) lshift + 1) >> BIGDIGIT_LOG2_SIZE) + 1;
-      if (unlikely(!ALLOC_BIG_SIZE_OK(result, result_size))) {
-        raise_error(MEMORY_ERROR);
-      } else {
-        result->size = result_size;
-        bit_pos = lshift & BIGDIGIT_SIZE_MASK;
-        if (bit_pos == BIGDIGIT_SIZE_MASK) {
-          memset(result->bigdigits, 0, (result_size - 2) * sizeof(bigdigittype));
-          result->bigdigits[result_size - 2] = ((bigdigittype) 1) << bit_pos;
-          result->bigdigits[result_size - 1] = 0;
-        } else {
-          memset(result->bigdigits, 0, (result_size - 1) * sizeof(bigdigittype));
-          result->bigdigits[result_size - 1] = ((bigdigittype) 1) << bit_pos;
-        } /* if */
+        result = bigLShiftOne((inttype) low_shift);
       } /* if */
     } /* if */
     return result;
-  } /* bigLShiftTwo */
-#endif
+  } /* bigLog2BaseLShift */
 
 
 
@@ -4730,15 +4835,16 @@ inttype number;
     biginttype result;
 
   /* bigMultSignedDigit */
+    /* printf("bigMultSignedDigit(big1->size=%lu, %ld)\n", big1->size, number); */
     if (unlikely(!ALLOC_BIG_CHECK_SIZE(result, big1->size + 1))) {
       raise_error(MEMORY_ERROR);
     } else {
       result->size = big1->size + 1;
       if (number < 0) {
         if (IS_NEGATIVE(big1->bigdigits[big1->size - 1])) {
-          uBigMultNegativeWithNegatedDigit(big1, (bigdigittype) -number, result);
+          uBigMultNegativeWithNegatedDigit(big1, (bigdigittype) -number & BIGDIGIT_MASK, result);
         } else {
-          uBigMultPositiveWithNegatedDigit(big1, (bigdigittype) -number, result);
+          uBigMultPositiveWithNegatedDigit(big1, (bigdigittype) -number & BIGDIGIT_MASK, result);
         } /* if */
       } else {
         if (IS_NEGATIVE(big1->bigdigits[big1->size - 1])) {
@@ -4876,7 +4982,7 @@ biginttype big1;
         pos++;
         memcpy(&result->bigdigits[pos], &big1->bigdigits[pos],
             (big1->size - pos) * sizeof(bigdigittype));
-	pos = big1->size;
+        pos = big1->size;
         /* while (pos < big1->size) {
           result->bigdigits[pos] = big1->bigdigits[pos];
           pos++;
@@ -5263,6 +5369,7 @@ inttype rshift;
     bigdigittype *dest_digits;
     biginttype resized_big1;
     memsizetype pos;
+    memsizetype big1_size;
 
   /* bigRShiftAssign */
     if (unlikely(rshift < 0)) {
@@ -5285,16 +5392,17 @@ inttype rshift;
         size_reduction = (memsizetype) ((uinttype) rshift >> BIGDIGIT_LOG2_SIZE);
         if ((rshift & BIGDIGIT_SIZE_MASK) == 0) {
           if (rshift != 0) {
+            big1_size = big1->size;
             memmove(big1->bigdigits, &big1->bigdigits[size_reduction],
-                (size_t) (big1->size - size_reduction) * sizeof(bigdigittype));
-            REALLOC_BIG_SIZE_OK(resized_big1, big1, big1->size, big1->size - size_reduction);
+                (size_t) (big1_size - size_reduction) * sizeof(bigdigittype));
+            REALLOC_BIG_SIZE_OK(resized_big1, big1, big1_size, big1_size - size_reduction);
             /* Avoid a MEMORY_ERROR in the strange case     */
             /* when a 'realloc' which shrinks memory fails. */
             if (likely(resized_big1 != NULL)) {
               big1 = resized_big1;
               *big_variable = big1;
             } /* if */
-            COUNT3_BIG(big1->size, big1->size - size_reduction);
+            COUNT3_BIG(big1_size, big1_size - size_reduction);
             big1->size -= size_reduction;
           } /* if */
         } else {
@@ -5355,14 +5463,15 @@ inttype rshift;
             } /* if */
           } /* if */
           if (size_reduction != 0) {
-            REALLOC_BIG_SIZE_OK(resized_big1, big1, big1->size, big1->size - size_reduction);
+            big1_size = big1->size;
+            REALLOC_BIG_SIZE_OK(resized_big1, big1, big1_size, big1_size - size_reduction);
             /* Avoid a MEMORY_ERROR in the strange case     */
             /* when a 'realloc' which shrinks memory fails. */
             if (likely(resized_big1 != NULL)) {
               big1 = resized_big1;
               *big_variable = big1;
             } /* if */
-            COUNT3_BIG(big1->size, big1->size - size_reduction);
+            COUNT3_BIG(big1_size, big1_size - size_reduction);
             big1->size -= size_reduction;
           } /* if */
         } /* if */
@@ -5496,6 +5605,7 @@ biginttype big2;
   {
     biginttype big1;
     memsizetype pos;
+    memsizetype big1_size;
     doublebigdigittype carry = 1;
     doublebigdigittype big1_sign;
     doublebigdigittype big2_sign;
@@ -5527,14 +5637,14 @@ biginttype big2;
         } /* for */
         carry += BIGDIGIT_MASK;
       } /* if */
-      pos = big1->size;
+      big1_size = big1->size;
       carry += big1_sign;
       carry &= BIGDIGIT_MASK;
-      if ((carry != 0 || IS_NEGATIVE(big1->bigdigits[pos - 1])) &&
-          (carry != BIGDIGIT_MASK || !IS_NEGATIVE(big1->bigdigits[pos - 1]))) {
-        REALLOC_BIG_CHECK_SIZE(resized_big1, big1, big1->size, big1->size + 1);
+      if ((carry != 0 || IS_NEGATIVE(big1->bigdigits[big1_size - 1])) &&
+          (carry != BIGDIGIT_MASK || !IS_NEGATIVE(big1->bigdigits[big1_size - 1]))) {
+        REALLOC_BIG_CHECK_SIZE(resized_big1, big1, big1_size, big1_size + 1);
         if (unlikely(resized_big1 == NULL)) {
-          FREE_BIG(big1, big1->size);
+          FREE_BIG(big1, big1_size);
           *big_variable = NULL;
           raise_error(MEMORY_ERROR);
         } else {
@@ -5542,9 +5652,9 @@ biginttype big2;
           /* 'big2' is not used after realloc() enlarged   */
           /* 'big1' a correction of big2 is not necessary. */
           big1 = resized_big1;
-          COUNT3_BIG(big1->size, big1->size + 1);
+          COUNT3_BIG(big1_size, big1_size + 1);
           big1->size++;
-          big1->bigdigits[pos] = (bigdigittype) (carry & BIGDIGIT_MASK);
+          big1->bigdigits[big1_size] = (bigdigittype) (carry & BIGDIGIT_MASK);
           *big_variable = big1;
         } /* if */
       } else {
@@ -5581,6 +5691,41 @@ biginttype big2;
       } /* if */
     } /* if */
   } /* bigShrink */
+
+
+
+/**
+ *  Returns the square of a signed big integer.
+ */
+#ifdef ANSI_C
+
+biginttype bigSquare (const_biginttype big1)
+#else
+
+biginttype bigSquare (big1)
+biginttype big1;
+#endif
+
+  {
+    biginttype big1_help = NULL;
+    biginttype result;
+
+  /* bigSquare */
+    if (IS_NEGATIVE(big1->bigdigits[big1->size - 1])) {
+      big1_help = alloc_positive_copy_of_negative_big(big1);
+      big1 = big1_help;
+      if (unlikely(big1_help == NULL)) {
+        raise_error(MEMORY_ERROR);
+        return NULL;
+      } /* if */
+    } /* if */
+    /* printf("bigSquare(%u)\n", big1->size); */
+    result = uBigSquareK(big1);
+    if (big1_help != NULL) {
+      FREE_BIG(big1_help, big1_help->size);
+    } /* if */
+    return result;
+  } /* bigSquare */
 
 
 
@@ -5649,6 +5794,7 @@ biginttype big1;
               } while (digit != 0);
             } /* if */
           } while (help_big->size > 1 || help_big->bigdigits[0] != 0);
+          FREE_BIG(help_big, big1->size + 1);
           pos++;
           if (IS_NEGATIVE(big1->bigdigits[big1->size - 1])) {
             result->size = result_size - pos + 1;
@@ -5709,7 +5855,7 @@ biginttype big1;
         pos++;
         memcpy(&result->bigdigits[pos], &big1->bigdigits[pos],
             (big1->size - pos) * sizeof(bigdigittype));
-	pos = big1->size;
+        pos = big1->size;
         /* while (pos < big1->size) {
           result->bigdigits[pos] = big1->bigdigits[pos];
           pos++;

@@ -198,7 +198,7 @@ booltype kbdKeyPressed ()
 #endif
 
   { /* kbdKeyPressed */
-    return((char) bdos(0xB, 0, 0) & 1);
+    return (char) bdos(0xB, 0, 0) & 1;
   } /* kbdKeyPressed */
 
 
@@ -227,7 +227,7 @@ chartype kbdGetc ()
     if (key == 13) {
       key = 10;
     } /* if */
-    return(key);
+    return key;
   } /* kbdGetc */
 
 
@@ -241,7 +241,7 @@ chartype kbdRawGetc ()
 #endif
 
   { /* kbdRawGetc */
-    return(kbdGetc());
+    return kbdGetc();
   } /* kbdRawGetc */
 
 
@@ -345,7 +345,7 @@ inttype stopcol;
 #endif
 
   { /* textwidth */
-    return(stopcol + 1 - startcol);
+    return stopcol + 1 - startcol;
   } /* textwidth */
 
 
@@ -379,7 +379,7 @@ int conHeight ()
 #endif
 
   { /* conHeight */
-    return(SCRHEIGHT);
+    return SCRHEIGHT;
   } /* conHeight */
 
 
@@ -393,7 +393,7 @@ int conWidth ()
 #endif
 
   { /* conWidth */
-    return(SCRWIDTH);
+    return SCRWIDTH;
   } /* conWidth */
 
 
@@ -736,5 +736,5 @@ int conOpen ()
     conCursor(FALSE);
     console_initialized = TRUE;
     atexit(conShut);
-    return(1);
+    return 1;
   } /* conOpen */

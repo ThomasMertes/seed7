@@ -92,7 +92,7 @@ typetype result_type;
 #ifdef TRACE_TYPEUTIL
   printf("END new_type\n");
 #endif
-    return(created_type);
+    return created_type;
   } /* new_type */
 
 
@@ -117,7 +117,7 @@ typetype basic_type;
       func_type = new_type(meta_type, basic_type);
       basic_type->func_type = func_type;
     } /* if */
-    return(func_type);
+    return func_type;
   } /* get_func_type */
 
 
@@ -143,7 +143,7 @@ typetype basic_type;
       varfunc_type->is_varfunc_type = TRUE;
       basic_type->varfunc_type = varfunc_type;
     } /* if */
-    return(varfunc_type);
+    return varfunc_type;
   } /* get_varfunc_type */
 
 
@@ -207,8 +207,8 @@ typetype basic_type;
     } /* while */
     if (err_info != OKAY_NO_ERROR) {
       emptylist(result);
-      return(raise_exception(SYS_MEM_EXCEPTION));
+      return raise_exception(SYS_MEM_EXCEPTION);
     } /* if */
-    return(bld_reflist_temp(result));
+    return bld_reflist_temp(result);
   } /* get_interfaces */
 #endif

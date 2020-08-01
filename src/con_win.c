@@ -139,7 +139,7 @@ booltype kbdKeyPressed ()
 #endif
 
   { /* kbdKeyPressed */
-    return(kbhit());
+    return kbhit();
   } /* kbdKeyPressed */
 
 
@@ -172,7 +172,7 @@ chartype kbdGetc ()
     if (result == 13) {
       result = 10;
     } /* if */
-    return(result);
+    return result;
   } /* kbdGetc */
 
 
@@ -186,7 +186,7 @@ chartype kbdRawGetc ()
 #endif
 
   { /* kbdRawGetc */
-    return(kbdGetc());
+    return kbdGetc();
   } /* kbdRawGetc */
 
 
@@ -290,7 +290,7 @@ inttype stopcol;
 #endif
 
   { /* textwidth */
-    return(stopcol + 1 - startcol);
+    return stopcol + 1 - startcol;
   } /* textwidth */
 
 
@@ -331,16 +331,16 @@ int conHeight ()
     hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
     if (hConsole != INVALID_HANDLE_VALUE) {
       if (GetConsoleScreenBufferInfo(hConsole, &con_info)) {
-        return(con_info.dwSize.Y);
+        return con_info.dwSize.Y;
       } else {
         /* printf("GetConsoleScreenBufferInfo(%d, & ) ==> Error %d\n",
             hConsole, GetLastError()); */
-        return(SCRHEIGHT);
+        return SCRHEIGHT;
       } /* if */
     } else {
       /* printf("GetStdHandle(STD_OUTPUT_HANDLE) ==> %d / Error %d\n",
           hConsole, GetLastError()); */
-      return(SCRHEIGHT);
+      return SCRHEIGHT;
     } /* if */
   } /* conHeight */
 
@@ -362,16 +362,16 @@ int conWidth ()
     hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
     if (hConsole != INVALID_HANDLE_VALUE) {
       if (GetConsoleScreenBufferInfo(hConsole, &con_info)) {
-        return(con_info.dwSize.X);
+        return con_info.dwSize.X;
       } else {
         /* printf("GetConsoleScreenBufferInfo(%d, & ) ==> Error %d\n",
             hConsole, GetLastError()); */
-        return(SCRWIDTH);
+        return SCRWIDTH;
       } /* if */
     } else {
       /* printf("GetStdHandle(STD_OUTPUT_HANDLE) ==> %d / Error %d\n",
           hConsole, GetLastError()); */
-      return(SCRWIDTH);
+      return SCRWIDTH;
     } /* if */
   } /* conWidth */
 
@@ -449,7 +449,7 @@ inttype col;
 
 #ifdef ANSI_C
 
-void conText (inttype lin, inttype col, ustritype stri,
+void conText (inttype lin, inttype col, wstritype stri,
 memsizetype length)
 #else
 
@@ -477,7 +477,7 @@ memsizetype length;
       position.X = col - 1;
       position.Y = lin - 1;
       if (SetConsoleCursorPosition(hConsole, position)) {
-        WriteConsole(hConsole, stri, length, &numchars, NULL);
+        WriteConsoleW(hConsole, stri, length, &numchars, NULL);
       } else {
         /* printf("SetConsoleCursorPosition(%d, (%d, %d)) ==> Error %d\n",
             hConsole, col - 1, lin - 1, GetLastError()); */
@@ -740,5 +740,5 @@ int conOpen ()
     conCursor(FALSE);
     console_initialized = TRUE;
     atexit(conShut);
-    return(1);
+    return 1;
   } /* conOpen */

@@ -99,7 +99,7 @@ errinfotype *err_info;
       } /* if */
     } /* if */
 
-    return(create_call_obj);
+    return create_call_obj;
   } /* get_create_call_obj */
 
 
@@ -148,7 +148,7 @@ errinfotype *err_info;
       } /* if */
     } /* if */
 
-    return(destroy_call_obj);
+    return destroy_call_obj;
   } /* get_destroy_call_obj */
 
 
@@ -786,7 +786,7 @@ errinfotype *err_info;
       result = 0;
       *err_info = IN_ERROR;
     } /* if */
-    return(result);
+    return result;
   } /* do_ord */
 
 
@@ -886,7 +886,7 @@ errinfotype *err_info;
       result = FALSE;
       *err_info = IN_ERROR;
     } /* if */
-    return(result);
+    return result;
   } /* do_in */
 
 
@@ -918,7 +918,7 @@ objecttype param1;
     call_list[1].obj = param1;
 
     call_result = exec_call(&call_object);
-    return(call_result);
+    return call_result;
   } /* param1_call */
 
 
@@ -954,7 +954,7 @@ objecttype param2;
     call_list[2].obj = param2;
 
     call_result = exec_call(&call_object);
-    return(call_result);
+    return call_result;
   } /* param2_call */
 
 
@@ -993,7 +993,7 @@ objecttype param3;
     call_list[3].obj = param3;
 
     call_result = exec_call(&call_object);
-    return(call_result);
+    return call_result;
   } /* param3_call */
 
 
@@ -1053,7 +1053,7 @@ errinfotype *err_info;
       fail_flag = FALSE;
       *err_info = MEMORY_ERROR;
     } /* if */
-    return(new_object);
+    return new_object;
   } /* create_return_object */
 
 
@@ -1225,7 +1225,7 @@ objecttype obj_from;
     INIT_CATEGORY_OF_VAR(obj_to, DECLAREDOBJECT);
     obj_to->type_of = obj_from->type_of;
     do_create(obj_to, obj_from, &err_info);
-    return(err_info == OKAY_NO_ERROR);
+    return err_info == OKAY_NO_ERROR;
   } /* any_var_initialisation */
 
 
@@ -1320,7 +1320,7 @@ memsizetype new_size;
         position++;
       } /* if */
     } /* for */
-    return(okay);
+    return okay;
   } /* crea_array */
 
 

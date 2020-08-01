@@ -56,8 +56,8 @@ listtype arguments;
 
   { /* big_abs */
     isit_bigint(arg_1(arguments));
-    return(bld_bigint_temp(
-        bigAbs(take_bigint(arg_1(arguments)))));
+    return bld_bigint_temp(
+        bigAbs(take_bigint(arg_1(arguments))));
   } /* big_abs */
 
 
@@ -74,8 +74,8 @@ listtype arguments;
   { /* big_add */
     isit_bigint(arg_1(arguments));
     isit_bigint(arg_3(arguments));
-    return(bld_bigint_temp(
-        bigAdd(take_bigint(arg_1(arguments)), take_bigint(arg_3(arguments)))));
+    return bld_bigint_temp(
+        bigAdd(take_bigint(arg_1(arguments)), take_bigint(arg_3(arguments))));
   } /* big_add */
 
 
@@ -91,8 +91,8 @@ listtype arguments;
 
   { /* big_bit_length */
     isit_bigint(arg_1(arguments));
-    return(bld_int_temp(
-        bigBitLength(take_bigint(arg_1(arguments)))));
+    return bld_int_temp(
+        bigBitLength(take_bigint(arg_1(arguments))));
   } /* big_bit_length */
 
 
@@ -108,8 +108,8 @@ listtype arguments;
 
   { /* big_clit */
     isit_bigint(arg_1(arguments));
-    return(bld_stri_temp(bigCLit(
-        take_bigint(arg_1(arguments)))));
+    return bld_stri_temp(
+        bigCLit(take_bigint(arg_1(arguments))));
   } /* big_clit */
 
 
@@ -126,9 +126,8 @@ listtype arguments;
   { /* big_cmp */
     isit_bigint(arg_1(arguments));
     isit_bigint(arg_2(arguments));
-    return(bld_int_temp(
-        bigCmp(take_bigint(arg_1(arguments)),
-               take_bigint(arg_2(arguments)))));
+    return bld_int_temp(
+        bigCmp(take_bigint(arg_1(arguments)), take_bigint(arg_2(arguments))));
   } /* big_cmp */
 
 
@@ -159,7 +158,7 @@ listtype arguments;
     } else {
       bigCpy(&big_to->value.bigintvalue, take_bigint(big_from));
     } /* if */
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* big_cpy */
 
 
@@ -188,7 +187,7 @@ listtype arguments;
     } else {
       big_to->value.bigintvalue = bigCreate(take_bigint(big_from));
     } /* if */
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* big_create */
 
 
@@ -210,7 +209,7 @@ listtype arguments;
     isit_bigint(big_variable);
     is_variable(big_variable);
     bigDecr(&take_bigint(big_variable));
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* big_decr */
 
 
@@ -228,7 +227,7 @@ listtype arguments;
     isit_bigint(arg_1(arguments));
     bigDestr(take_bigint(arg_1(arguments)));
     arg_1(arguments)->value.bigintvalue = NULL;
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* big_destr */
 
 
@@ -245,8 +244,8 @@ listtype arguments;
   { /* big_div */
     isit_bigint(arg_1(arguments));
     isit_bigint(arg_3(arguments));
-    return(bld_bigint_temp(
-        bigDiv(take_bigint(arg_1(arguments)), take_bigint(arg_3(arguments)))));
+    return bld_bigint_temp(
+        bigDiv(take_bigint(arg_1(arguments)), take_bigint(arg_3(arguments))));
   } /* big_div */
 
 
@@ -265,9 +264,9 @@ listtype arguments;
     isit_bigint(arg_3(arguments));
     if (bigEq(take_bigint(arg_1(arguments)),
         take_bigint(arg_3(arguments)))) {
-      return(SYS_TRUE_OBJECT);
+      return SYS_TRUE_OBJECT;
     } else {
-      return(SYS_FALSE_OBJECT);
+      return SYS_FALSE_OBJECT;
     } /* if */
   } /* big_eq */
 
@@ -285,8 +284,8 @@ listtype arguments;
   { /* big_gcd */
     isit_bigint(arg_1(arguments));
     isit_bigint(arg_2(arguments));
-    return(bld_bigint_temp(
-        bigGcd(take_bigint(arg_1(arguments)), take_bigint(arg_2(arguments)))));
+    return bld_bigint_temp(
+        bigGcd(take_bigint(arg_1(arguments)), take_bigint(arg_2(arguments))));
   } /* big_gcd */
 
 
@@ -305,9 +304,9 @@ listtype arguments;
     isit_bigint(arg_3(arguments));
     if (bigCmp(take_bigint(arg_1(arguments)),
                take_bigint(arg_3(arguments))) >= 0) {
-      return(SYS_TRUE_OBJECT);
+      return SYS_TRUE_OBJECT;
     } else {
-      return(SYS_FALSE_OBJECT);
+      return SYS_FALSE_OBJECT;
     } /* if */
   } /* big_ge */
 
@@ -327,7 +326,7 @@ listtype arguments;
     isit_bigint(arg_3(arguments));
     is_variable(arg_1(arguments));
     bigGrow(&take_bigint(arg_1(arguments)), take_bigint(arg_3(arguments)));
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* big_grow */
 
 
@@ -346,9 +345,9 @@ listtype arguments;
     isit_bigint(arg_3(arguments));
     if (bigCmp(take_bigint(arg_1(arguments)),
                take_bigint(arg_3(arguments))) > 0) {
-      return(SYS_TRUE_OBJECT);
+      return SYS_TRUE_OBJECT;
     } else {
-      return(SYS_FALSE_OBJECT);
+      return SYS_FALSE_OBJECT;
     } /* if */
   } /* big_gt */
 
@@ -365,8 +364,8 @@ listtype arguments;
 
   { /* big_hashcode */
     isit_bigint(arg_1(arguments));
-    return(bld_int_temp(bigHashCode(
-        take_bigint(arg_1(arguments)))));
+    return bld_int_temp(
+        bigHashCode(take_bigint(arg_1(arguments))));
   } /* big_hashcode */
 
 
@@ -382,8 +381,8 @@ listtype arguments;
 
   { /* big_iconv */
     isit_int(arg_3(arguments));
-    return(bld_bigint_temp(bigIConv(
-        take_int(arg_3(arguments)))));
+    return bld_bigint_temp(
+        bigIConv(take_int(arg_3(arguments))));
   } /* big_iconv */
 
 
@@ -405,7 +404,7 @@ listtype arguments;
     isit_bigint(big_variable);
     is_variable(big_variable);
     bigIncr(&take_bigint(big_variable));
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* big_incr */
 
 
@@ -422,8 +421,8 @@ listtype arguments;
   { /* big_ipow */
     isit_bigint(arg_1(arguments));
     isit_int(arg_3(arguments));
-    return(bld_bigint_temp(
-        bigIPow(take_bigint(arg_1(arguments)), take_int(arg_3(arguments)))));
+    return bld_bigint_temp(
+        bigIPow(take_bigint(arg_1(arguments)), take_int(arg_3(arguments))));
   } /* big_ipow */
 
 
@@ -442,9 +441,9 @@ listtype arguments;
     isit_bigint(arg_3(arguments));
     if (bigCmp(take_bigint(arg_1(arguments)),
                take_bigint(arg_3(arguments))) <= 0) {
-      return(SYS_TRUE_OBJECT);
+      return SYS_TRUE_OBJECT;
     } else {
-      return(SYS_FALSE_OBJECT);
+      return SYS_FALSE_OBJECT;
     } /* if */
   } /* big_le */
 
@@ -461,7 +460,8 @@ listtype arguments;
 
   { /* big_log2 */
     isit_bigint(arg_1(arguments));
-    return(bld_bigint_temp(bigLog2(take_bigint(arg_1(arguments)))));
+    return bld_bigint_temp(
+        bigLog2(take_bigint(arg_1(arguments))));
   } /* big_log2 */
 
 
@@ -477,8 +477,8 @@ listtype arguments;
 
   { /* big_lowest_set_bit */
     isit_bigint(arg_1(arguments));
-    return(bld_int_temp(
-        bigLowestSetBit(take_bigint(arg_1(arguments)))));
+    return bld_int_temp(
+        bigLowestSetBit(take_bigint(arg_1(arguments))));
   } /* big_lowest_set_bit */
 
 
@@ -495,8 +495,8 @@ listtype arguments;
   { /* big_lshift */
     isit_bigint(arg_1(arguments));
     isit_int(arg_3(arguments));
-    return(bld_bigint_temp(
-        bigLShift(take_bigint(arg_1(arguments)), take_int(arg_3(arguments)))));
+    return bld_bigint_temp(
+        bigLShift(take_bigint(arg_1(arguments)), take_int(arg_3(arguments))));
   } /* big_lshift */
 
 
@@ -515,7 +515,7 @@ listtype arguments;
     isit_int(arg_3(arguments));
     is_variable(arg_1(arguments));
     bigLShiftAssign(&take_bigint(arg_1(arguments)), take_int(arg_3(arguments)));
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* big_lshift_assign */
 
 
@@ -534,9 +534,9 @@ listtype arguments;
     isit_bigint(arg_3(arguments));
     if (bigCmp(take_bigint(arg_1(arguments)),
                take_bigint(arg_3(arguments))) < 0) {
-      return(SYS_TRUE_OBJECT);
+      return SYS_TRUE_OBJECT;
     } else {
-      return(SYS_FALSE_OBJECT);
+      return SYS_FALSE_OBJECT;
     } /* if */
   } /* big_lt */
 
@@ -554,8 +554,8 @@ listtype arguments;
   { /* big_mdiv */
     isit_bigint(arg_1(arguments));
     isit_bigint(arg_3(arguments));
-    return(bld_bigint_temp(
-        bigMDiv(take_bigint(arg_1(arguments)), take_bigint(arg_3(arguments)))));
+    return bld_bigint_temp(
+        bigMDiv(take_bigint(arg_1(arguments)), take_bigint(arg_3(arguments))));
   } /* big_mdiv */
 
 
@@ -571,8 +571,8 @@ listtype arguments;
 
   { /* big_minus */
     isit_bigint(arg_2(arguments));
-    return(bld_bigint_temp(
-        bigMinus(take_bigint(arg_2(arguments)))));
+    return bld_bigint_temp(
+        bigMinus(take_bigint(arg_2(arguments))));
   } /* big_minus */
 
 
@@ -589,8 +589,8 @@ listtype arguments;
   { /* big_mod */
     isit_bigint(arg_1(arguments));
     isit_bigint(arg_3(arguments));
-    return(bld_bigint_temp(
-        bigMod(take_bigint(arg_1(arguments)), take_bigint(arg_3(arguments)))));
+    return bld_bigint_temp(
+        bigMod(take_bigint(arg_1(arguments)), take_bigint(arg_3(arguments))));
   } /* big_mod */
 
 
@@ -607,8 +607,8 @@ listtype arguments;
   { /* big_mult */
     isit_bigint(arg_1(arguments));
     isit_bigint(arg_3(arguments));
-    return(bld_bigint_temp(
-        bigMult(take_bigint(arg_1(arguments)), take_bigint(arg_3(arguments)))));
+    return bld_bigint_temp(
+        bigMult(take_bigint(arg_1(arguments)), take_bigint(arg_3(arguments))));
   } /* big_mult */
 
 
@@ -627,7 +627,7 @@ listtype arguments;
     isit_bigint(arg_3(arguments));
     is_variable(arg_1(arguments));
     bigMultAssign(&take_bigint(arg_1(arguments)), take_bigint(arg_3(arguments)));
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* big_mult_assign */
 
 
@@ -646,9 +646,9 @@ listtype arguments;
     isit_bigint(arg_3(arguments));
     if (bigEq(take_bigint(arg_1(arguments)),
         take_bigint(arg_3(arguments)))) {
-      return(SYS_FALSE_OBJECT);
+      return SYS_FALSE_OBJECT;
     } else {
-      return(SYS_TRUE_OBJECT);
+      return SYS_TRUE_OBJECT;
     } /* if */
   } /* big_ne */
 
@@ -666,9 +666,9 @@ listtype arguments;
   { /* big_odd */
     isit_bigint(arg_1(arguments));
     if (bigOdd(take_bigint(arg_1(arguments)))) {
-      return(SYS_TRUE_OBJECT);
+      return SYS_TRUE_OBJECT;
     } else {
-      return(SYS_FALSE_OBJECT);
+      return SYS_FALSE_OBJECT;
     } /* if */
   } /* big_odd */
 
@@ -685,8 +685,8 @@ listtype arguments;
 
   { /* big_ord */
     isit_bigint(arg_1(arguments));
-    return(bld_int_temp(
-        bigOrd(take_bigint(arg_1(arguments)))));
+    return bld_int_temp(
+        bigOrd(take_bigint(arg_1(arguments))));
   } /* big_ord */
 
 
@@ -702,8 +702,8 @@ listtype arguments;
 
   { /* big_parse */
     isit_stri(arg_3(arguments));
-    return(bld_bigint_temp(bigParse(
-        take_stri(arg_3(arguments)))));
+    return bld_bigint_temp(
+        bigParse(take_stri(arg_3(arguments))));
   } /* big_parse */
 
 
@@ -728,7 +728,7 @@ listtype arguments;
     } else {
       result = bigCreate(take_bigint(arg_2(arguments)));
     } /* if */
-    return(bld_bigint_temp(result));
+    return bld_bigint_temp(result);
   } /* big_plus */
 
 
@@ -744,8 +744,8 @@ listtype arguments;
 
   { /* big_pred */
     isit_bigint(arg_1(arguments));
-    return(bld_bigint_temp(
-        bigPred(take_bigint(arg_1(arguments)))));
+    return bld_bigint_temp(
+        bigPred(take_bigint(arg_1(arguments))));
   } /* big_pred */
 
 
@@ -762,8 +762,8 @@ listtype arguments;
   { /* big_rand */
     isit_bigint(arg_1(arguments));
     isit_bigint(arg_2(arguments));
-    return(bld_bigint_temp(
-        bigRand(take_bigint(arg_1(arguments)), take_bigint(arg_2(arguments)))));
+    return bld_bigint_temp(
+        bigRand(take_bigint(arg_1(arguments)), take_bigint(arg_2(arguments))));
   } /* big_rand */
 
 
@@ -780,8 +780,8 @@ listtype arguments;
   { /* big_rem */
     isit_bigint(arg_1(arguments));
     isit_bigint(arg_3(arguments));
-    return(bld_bigint_temp(
-        bigRem(take_bigint(arg_1(arguments)), take_bigint(arg_3(arguments)))));
+    return bld_bigint_temp(
+        bigRem(take_bigint(arg_1(arguments)), take_bigint(arg_3(arguments))));
   } /* big_rem */
 
 
@@ -798,8 +798,8 @@ listtype arguments;
   { /* big_rshift */
     isit_bigint(arg_1(arguments));
     isit_int(arg_3(arguments));
-    return(bld_bigint_temp(
-        bigRShift(take_bigint(arg_1(arguments)), take_int(arg_3(arguments)))));
+    return bld_bigint_temp(
+        bigRShift(take_bigint(arg_1(arguments)), take_int(arg_3(arguments))));
   } /* big_rshift */
 
 
@@ -818,7 +818,7 @@ listtype arguments;
     isit_int(arg_3(arguments));
     is_variable(arg_1(arguments));
     bigRShiftAssign(&take_bigint(arg_1(arguments)), take_int(arg_3(arguments)));
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* big_rshift_assign */
 
 
@@ -835,8 +835,8 @@ listtype arguments;
   { /* big_sbtr */
     isit_bigint(arg_1(arguments));
     isit_bigint(arg_3(arguments));
-    return(bld_bigint_temp(
-        bigSbtr(take_bigint(arg_1(arguments)), take_bigint(arg_3(arguments)))));
+    return bld_bigint_temp(
+        bigSbtr(take_bigint(arg_1(arguments)), take_bigint(arg_3(arguments))));
   } /* big_sbtr */
 
 
@@ -855,7 +855,7 @@ listtype arguments;
     isit_bigint(arg_3(arguments));
     is_variable(arg_1(arguments));
     bigShrink(&take_bigint(arg_1(arguments)), take_bigint(arg_3(arguments)));
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* big_shrink */
 
 
@@ -871,8 +871,8 @@ listtype arguments;
 
   { /* big_str */
     isit_bigint(arg_1(arguments));
-    return(bld_stri_temp(bigStr(
-        take_bigint(arg_1(arguments)))));
+    return bld_stri_temp(
+        bigStr(take_bigint(arg_1(arguments))));
   } /* big_str */
 
 
@@ -888,8 +888,8 @@ listtype arguments;
 
   { /* big_succ */
     isit_bigint(arg_1(arguments));
-    return(bld_bigint_temp(
-        bigSucc(take_bigint(arg_1(arguments)))));
+    return bld_bigint_temp(
+        bigSucc(take_bigint(arg_1(arguments))));
   } /* big_succ */
 
 
@@ -910,8 +910,8 @@ listtype arguments;
     isit_reference(arg_1(arguments));
     obj_arg = take_reference(arg_1(arguments));
     if (obj_arg == NULL || CATEGORY_OF_OBJ(obj_arg) != BIGINTOBJECT) {
-      return(raise_exception(SYS_RNG_EXCEPTION));
+      return raise_exception(SYS_RNG_EXCEPTION);
     } else {
-      return(bld_bigint_temp(bigCreate(take_bigint(obj_arg))));
+      return bld_bigint_temp(bigCreate(take_bigint(obj_arg)));
     } /* if */
   } /* big_value */

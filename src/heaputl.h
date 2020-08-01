@@ -359,7 +359,7 @@ EXTERN memsizetype hs;
 #define STRI_FREELIST_ARRAY_SIZE 20
 
 #ifdef DO_INIT
-stritype sflist[STRI_FREELIST_ARRAY_SIZE] = {
+flisttype sflist[STRI_FREELIST_ARRAY_SIZE] = {
     NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, NULL, NULL};
@@ -367,15 +367,15 @@ unsigned int sflist_len[STRI_FREELIST_ARRAY_SIZE] = {
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0};
 #else
-EXTERN stritype sflist[STRI_FREELIST_ARRAY_SIZE];
+EXTERN flisttype sflist[STRI_FREELIST_ARRAY_SIZE];
 EXTERN unsigned int sflist_len[STRI_FREELIST_ARRAY_SIZE];
 #endif
 
 #define POP_STRI_OK(len)    (len) < STRI_FREELIST_ARRAY_SIZE && sflist_len[len] != 0
 #define PUSH_STRI_OK(var)   (var)->capacity < STRI_FREELIST_ARRAY_SIZE && sflist_len[(var)->capacity] < STRI_FREELIST_LENGTH_LIMIT
 
-#define POP_STRI(var,len)   (var = sflist[len], sflist[len] = (stritype) sflist[len]->size, sflist_len[len]--, TRUE)
-#define PUSH_STRI(var,len)  {((stritype) var)->size = (memsizetype) sflist[len]; sflist[len] = (stritype) var; sflist_len[len]++; }
+#define POP_STRI(var,len)   (var = (stritype) sflist[len], sflist[len] = sflist[len]->next, sflist_len[len]--, TRUE)
+#define PUSH_STRI(var,len)  {((flisttype) var)->next = sflist[len]; sflist[len] = (flisttype) var; sflist_len[len]++; }
 
 #define ALLOC_STRI_SIZE_OK(var,len)    (POP_STRI_OK(len) ? POP_STRI(var, len) : HEAP_ALLOC_STRI(var, len))
 #define ALLOC_STRI_CHECK_SIZE(var,len) (POP_STRI_OK(len) ? POP_STRI(var, len) : ((len)<=MAX_STRI_LEN?HEAP_ALLOC_STRI(var, len):(var=NULL, FALSE)))
@@ -384,18 +384,18 @@ EXTERN unsigned int sflist_len[STRI_FREELIST_ARRAY_SIZE];
 #else
 
 #ifdef DO_INIT
-stritype sflist = NULL;
+flisttype sflist = NULL;
 unsigned int sflist_len = 0;
 #else
-EXTERN stritype sflist;
+EXTERN flisttype sflist;
 EXTERN unsigned int sflist_len;
 #endif
 
 #define POP_STRI_OK(len)    (len) == 1 && sflist_len != 0
 #define PUSH_STRI_OK(var)   (len) == 1 && sflist_len < STRI_FREELIST_LENGTH_LIMIT
 
-#define POP_STRI(var)       (var = sflist, sflist = (stritype) sflist->size, sflist_len--, TRUE)
-#define PUSH_STRI(var)      {((stritype) var)->size = (memsizetype) sflist; sflist = (stritype) var; sflist_len++; }
+#define POP_STRI(var)       (var = (stritype) sflist, sflist = sflist->next, sflist_len--, TRUE)
+#define PUSH_STRI(var)      {((flisttype) var)->next = sflist; sflist = (flisttype) var; sflist_len++; }
 
 #define ALLOC_STRI_SIZE_OK(var,len)    (POP_STRI_OK(len) ? POP_STRI(var) : HEAP_ALLOC_STRI(var, len))
 #define ALLOC_STRI_CHECK_SIZE(var,len) (POP_STRI_OK(len) ? POP_STRI(var) : ((len)<=MAX_STRI_LEN?HEAP_ALLOC_STRI(var, len):(var=NULL, FALSE)))

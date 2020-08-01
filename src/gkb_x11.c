@@ -526,7 +526,7 @@ chartype gkbGetc ()
     printf("end gkbGetc key: \"%s\" %ld %lx %d\n",
         buffer, (long) currentKey, (long) currentKey, result);
 #endif
-    return(result);
+    return result;
   } /* gkbGetc */
 
 
@@ -624,7 +624,7 @@ booltype processEvents ()
 #ifdef TRACE_KBD
     printf("end processEvents ==> %d\n", result);
 #endif
-    return(result);
+    return result;
   } /* processEvents */
 
 
@@ -675,7 +675,7 @@ unsigned int button_mask;
        root, child, root_x, root_y, win_x, win_y, keys_buttons); */
     result = (keys_buttons & button_mask) != 0;
     /* printf("mouseButtonPressed(%d) ==> %d\n", button_mask, result); */
-    return(result);
+    return result;
   } /* mouseButtonPressed */
 
 
@@ -714,7 +714,7 @@ KeySym sym;
       */
       result = 1 & (key_vector[byteindex] >> bitindex);
     } /* if */
-    return(result);
+    return result;
   } /* keyboardButtonPressed */
 
 
@@ -855,7 +855,7 @@ chartype button;
         } /* if */
       } /* if */
     } /* if */
-    return(result);
+    return result;
   } /* gkbButtonPressed */
 
 
@@ -869,7 +869,7 @@ chartype gkbRawGetc ()
 #endif
 
   { /* gkbRawGetc */
-    return(gkbGetc());
+    return gkbGetc();
   } /* gkbRawGetc */
 
 
@@ -883,7 +883,7 @@ inttype gkbButtonXpos ()
 #endif
 
   { /* gkbButtonXpos */
-    return(button_x);
+    return button_x;
   } /* gkbButtonXpos */
 
 
@@ -897,7 +897,7 @@ inttype gkbButtonYpos ()
 #endif
 
   { /* gkbButtonYpos */
-    return(button_y);
+    return button_y;
   } /* gkbButtonYpos */
 
 

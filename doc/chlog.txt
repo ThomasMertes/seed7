@@ -1,3 +1,46 @@
+20110904:
+- Declarations were moved from "seed7_05.s7i" to the new library
+  "forloop.s7i".
+- For-loops, with traverse array elements and keys, were introduced
+  in "seed7_05.s7i".
+- Testcases for bigInteger exponentiation, when it raises an
+  exception, were added to "chkexc.sd7".
+- The recognition of constant expressions and their use to optimize
+  the program in the compiler ("comp.sd7"), was improved.
+- Compiler options, to control the optimization of constant
+  expressions, were introduced. Allowed options are -oc0 (no
+  optimisation), -oc1 (default), -oc2 and -oc3 (best optimisation).
+- The functions 'bigSquare' and 'bigLog2BaseLShift' were added to
+  "big_rtl.c" and "big_gmp.c" and used by the compiler.
+- The functions 'uBigDigitSquare', 'uBigKaratsubaSquare' and
+  'uBigSquareK' were added to "big_rtl.c".
+- The functions 'uBigDecr', 'uBigMultNegativeWithDigit',
+  'uBigMultPositiveWithNegatedDigit', 'bigAbs', 'bigGrow',
+  'bigMultSignedDigit', 'bigRShiftAssign' and 'bigShrink' in
+  "big_rtl.c" were improved.
+- A free list memory management for 'biginttype' (bigInteger) values
+  was introduced in "big_gmp.c".
+- All occurrances of the macro UTF32_STRINGS in *.c and *.h files
+  were removed. Strings will always use UTF-32 encoded characters.
+  Strings restricted to byte elements must use a different type.
+- The functions 'conWrite' (in "con_rtl.c") and 'conText' (in
+  "con_win.c") were improved to allow writing Unicode characters to
+  the console.
+- The random number generator (functions 'uint_rand' and 'intRand'
+  in "int_rtl.c") was improved.
+- The functions 'stri_to_wstri' and 'stri_to_bstriw' were added to
+  "striutl.c".
+- The experimental function 'inputReady' was added to "file.s7i",
+  "external_file.s7i", "comp.sd7", "fil_unx.c", "fil_win.c" and
+  "fil_drv.h". Because of buffering issues, 'inputReady' does
+  currently not work correctly for pipes.
+- Support for 'SOC_INPUT_READY' was added to the compiler (comp.sd7).
+- The experimental function pipe2 was added to "shell.s7i".
+- Testcases for bigInteger multiplication and squaring were added to
+  "chkbig.sd7".
+- The type 'flisttype' was introduced in "common.h" and used in
+  "heaputl.h", "big_rtl.c" and "big_gmp.c".
+
 20110816:
 - An explanation how the syntax of Seed7 is defined, was added to
   the FAQ.

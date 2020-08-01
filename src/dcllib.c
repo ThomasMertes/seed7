@@ -74,7 +74,7 @@ listtype arguments;
 /*    printf("decl attr ");
     trace1(attribute_type->match_obj);
     printf(":\n"); */
-    return(bld_param_temp(attribute_type->match_obj));
+    return bld_param_temp(attribute_type->match_obj);
   } /* dcl_attr */
 
 
@@ -191,9 +191,9 @@ listtype arguments;
     printf("\n");
 #endif
     if (err_info != OKAY_NO_ERROR) {
-      return(raise_exception(SYS_MEM_EXCEPTION));
+      return raise_exception(SYS_MEM_EXCEPTION);
     } else {
-      return(SYS_EMPTY_OBJECT);
+      return SYS_EMPTY_OBJECT;
     } /* if */
   } /* dcl_const */
 
@@ -233,9 +233,9 @@ listtype arguments;
     pop_stack();
     /* printf("after pop_stack\n"); */
     if (err_info != OKAY_NO_ERROR) {
-      return(raise_with_arguments(SYS_MEM_EXCEPTION, arguments));
+      return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
     } else {
-      return(bld_reflist_temp(element_list));
+      return bld_reflist_temp(element_list);
     } /* if */
   } /* dcl_elements */
 
@@ -284,9 +284,9 @@ listtype arguments;
     printf("\n");
 #endif
     if (err_info != OKAY_NO_ERROR) {
-      return(raise_exception(SYS_MEM_EXCEPTION));
+      return raise_exception(SYS_MEM_EXCEPTION);
     } else {
-      return(SYS_EMPTY_OBJECT);
+      return SYS_EMPTY_OBJECT;
     } /* if */
   } /* dcl_fwd */
 
@@ -335,9 +335,9 @@ listtype arguments;
     printf("\n");
 #endif
     if (err_info != OKAY_NO_ERROR) {
-      return(raise_exception(SYS_MEM_EXCEPTION));
+      return raise_exception(SYS_MEM_EXCEPTION);
     } else {
-      return(SYS_EMPTY_OBJECT);
+      return SYS_EMPTY_OBJECT;
     } /* if */
   } /* dcl_fwdvar */
 
@@ -377,9 +377,9 @@ listtype arguments;
     printf("\n");
 #endif
     if (err_info != OKAY_NO_ERROR) {
-      return(raise_exception(SYS_MEM_EXCEPTION));
+      return raise_exception(SYS_MEM_EXCEPTION);
     } else {
-      return(bld_reference_temp(object_found));
+      return bld_reference_temp(object_found);
     } /* if */
   } /* dcl_getfunc */
 
@@ -419,9 +419,9 @@ listtype arguments;
     printf("\n");
 #endif
     if (err_info != OKAY_NO_ERROR) {
-      return(raise_exception(SYS_MEM_EXCEPTION));
+      return raise_exception(SYS_MEM_EXCEPTION);
     } else {
-      return(bld_reference_temp(object_found));
+      return bld_reference_temp(object_found);
     } /* if */
   } /* dcl_getobj */
 
@@ -459,7 +459,7 @@ listtype arguments;
     } else {
       prog.stack_global->upward = stack_upward_backup;
     } /* if */
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* dcl_global */
 
 
@@ -488,9 +488,9 @@ listtype arguments;
       created_object->descriptor.property = NULL;
       INIT_CATEGORY_OF_VAR(created_object, VALUEPARAMOBJECT);
       created_object->value.objvalue = NULL;
-      return(bld_param_temp(created_object));
+      return bld_param_temp(created_object);
     } else {
-      return(raise_exception(SYS_MEM_EXCEPTION));
+      return raise_exception(SYS_MEM_EXCEPTION);
     } /* if */
   } /* dcl_in1var */
 
@@ -533,9 +533,9 @@ listtype arguments;
       shrink_stack();
     } /* if */
     if (err_info != OKAY_NO_ERROR) {
-      return(raise_exception(SYS_MEM_EXCEPTION));
+      return raise_exception(SYS_MEM_EXCEPTION);
     } else {
-      return(bld_param_temp(created_object));
+      return bld_param_temp(created_object);
     } /* if */
   } /* dcl_in2var */
 
@@ -565,9 +565,9 @@ listtype arguments;
       created_object->descriptor.property = NULL;
       INIT_CATEGORY_OF_VAR(created_object, REFPARAMOBJECT);
       created_object->value.objvalue = NULL;
-      return(bld_param_temp(created_object));
+      return bld_param_temp(created_object);
     } else {
-      return(raise_exception(SYS_MEM_EXCEPTION));
+      return raise_exception(SYS_MEM_EXCEPTION);
     } /* if */
   } /* dcl_inout1 */
 
@@ -610,9 +610,9 @@ listtype arguments;
       shrink_stack();
     } /* if */
     if (err_info != OKAY_NO_ERROR) {
-      return(raise_exception(SYS_MEM_EXCEPTION));
+      return raise_exception(SYS_MEM_EXCEPTION);
     } else {
-      return(bld_param_temp(created_object));
+      return bld_param_temp(created_object);
     } /* if */
   } /* dcl_inout2 */
 
@@ -655,7 +655,7 @@ listtype arguments;
         INIT_CATEGORY_OF_OBJ(result, FORMPARAMOBJECT);
         result->value.objvalue = param_object;
       } else {
-        return(raise_exception(SYS_MEM_EXCEPTION));
+        return raise_exception(SYS_MEM_EXCEPTION);
       } /* if */
       *f_param_prototype = result;
       f_param_object->value.objvalue = NULL;
@@ -667,7 +667,7 @@ listtype arguments;
        printf("dcl_param_attr => %lX\n", result);
        trace1(result);
        printf("\n"); */
-    return(bld_param_temp(result));
+    return bld_param_temp(result);
   } /* dcl_param_attr */
 
 
@@ -699,9 +699,9 @@ listtype arguments;
       /* printf("decl ref1 --> ");
          trace1(created_object);
          printf(";\n"); */
-      return(bld_param_temp(created_object));
+      return bld_param_temp(created_object);
     } else {
-      return(raise_exception(SYS_MEM_EXCEPTION));
+      return raise_exception(SYS_MEM_EXCEPTION);
     } /* if */
   } /* dcl_ref1 */
 
@@ -741,12 +741,12 @@ listtype arguments;
       shrink_stack();
     } /* if */
     if (err_info != OKAY_NO_ERROR) {
-      return(raise_exception(SYS_MEM_EXCEPTION));
+      return raise_exception(SYS_MEM_EXCEPTION);
     } else {
       /* printf("decl ref2 --> ");
          trace1(created_object);
          printf(";\n"); */
-      return(bld_param_temp(created_object));
+      return bld_param_temp(created_object);
     } /* if */
   } /* dcl_ref2 */
 
@@ -776,7 +776,7 @@ listtype arguments;
     /* printf("decl symb %lu ", (long unsigned) GET_ENTITY(symb_object));
     trace1(symb_object);
     printf(":\n"); */
-    return(bld_param_temp(symb_object));
+    return bld_param_temp(symb_object);
   } /* dcl_symb */
 
 
@@ -805,9 +805,9 @@ listtype arguments;
       created_object->descriptor.property = NULL;
       INIT_CATEGORY_OF_OBJ(created_object, VALUEPARAMOBJECT);
       created_object->value.objvalue = NULL;
-      return(bld_param_temp(created_object));
+      return bld_param_temp(created_object);
     } else {
-      return(raise_exception(SYS_MEM_EXCEPTION));
+      return raise_exception(SYS_MEM_EXCEPTION);
     } /* if */
   } /* dcl_val1 */
 
@@ -850,9 +850,9 @@ listtype arguments;
       shrink_stack();
     } /* if */
     if (err_info != OKAY_NO_ERROR) {
-      return(raise_exception(SYS_MEM_EXCEPTION));
+      return raise_exception(SYS_MEM_EXCEPTION);
     } else {
-      return(bld_param_temp(created_object));
+      return bld_param_temp(created_object);
     } /* if */
   } /* dcl_val2 */
 
@@ -947,8 +947,8 @@ listtype arguments;
       shrink_stack();
     } /* if */
     if (err_info != OKAY_NO_ERROR) {
-      return(raise_exception(SYS_MEM_EXCEPTION));
+      return raise_exception(SYS_MEM_EXCEPTION);
     } else {
-      return(SYS_EMPTY_OBJECT);
+      return SYS_EMPTY_OBJECT;
     } /* if */
   } /* dcl_var */

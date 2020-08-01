@@ -95,7 +95,7 @@ inttype position;
 #ifdef TRACE_SELECT
     printf("END select_element\n");
 #endif
-    return(result);
+    return result;
   } /* select_element */
 
 
@@ -170,7 +170,7 @@ booltype do_match_expr;
     trace1(expression);
     printf("\n");
 #endif
-    return(expression);
+    return expression;
   } /* read_call_expression */
 
 
@@ -224,7 +224,7 @@ booltype do_match_expr;
     trace1(expression);
     printf("\n");
 #endif
-    return(expression);
+    return expression;
   } /* read_dot_subexpression */
 
 
@@ -279,7 +279,7 @@ booltype do_match_expr;
     trace1(expression);
     printf("\n");
 #endif
-    return(expression);
+    return expression;
   } /* read_dot_expression */
 
 
@@ -374,7 +374,7 @@ listtype actual_parameter;
     trace1(expression);
     printf("\n");
 #endif
-    return(expression);
+    return expression;
   } /* pars_token */
 
 
@@ -454,5 +454,5 @@ booltype do_match_expr;
     trace1(expression);
     printf("\n");
 #endif
-    return(expression);
+    return expression;
   } /* pars_infix_expression */

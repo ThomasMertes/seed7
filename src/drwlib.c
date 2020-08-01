@@ -60,9 +60,9 @@ listtype arguments;
 
   { /* gkb_busy_getc */
     if (gkbKeyPressed()) {
-      return(bld_char_temp(gkbGetc()));
+      return bld_char_temp(gkbGetc());
     } else {
-      return(bld_char_temp((chartype) K_NONE));
+      return bld_char_temp((chartype) K_NONE);
     } /* if */
   } /* gkb_busy_getc */
 
@@ -80,9 +80,9 @@ listtype arguments;
   { /* gkb_button_pressed */
     isit_char(arg_2(arguments));
     if (gkbButtonPressed(take_char(arg_2(arguments)))) {
-      return(SYS_TRUE_OBJECT);
+      return SYS_TRUE_OBJECT;
     } else {
-      return(SYS_FALSE_OBJECT);
+      return SYS_FALSE_OBJECT;
     } /* if */
   } /* gkb_button_pressed */
 
@@ -98,7 +98,7 @@ listtype arguments;
 #endif
 
   { /* gkb_button_xpos */
-    return(bld_int_temp(gkbButtonXpos()));
+    return bld_int_temp(gkbButtonXpos());
   } /* gkb_button_xpos */
 
 
@@ -113,7 +113,7 @@ listtype arguments;
 #endif
 
   { /* gkb_button_ypos */
-    return(bld_int_temp(gkbButtonYpos()));
+    return bld_int_temp(gkbButtonYpos());
   } /* gkb_button_ypos */
 
 
@@ -128,7 +128,7 @@ listtype arguments;
 #endif
 
   { /* gkb_getc */
-    return(bld_char_temp(gkbGetc()));
+    return bld_char_temp(gkbGetc());
   } /* gkb_getc */
 
 
@@ -144,8 +144,8 @@ listtype arguments;
 
   { /* gkb_gets */
     isit_int(arg_2(arguments));
-    return(bld_stri_temp(
-        gkbGets(take_int(arg_2(arguments)))));
+    return bld_stri_temp(
+        gkbGets(take_int(arg_2(arguments))));
   } /* gkb_gets */
 
 
@@ -161,9 +161,9 @@ listtype arguments;
 
   { /* gkb_keypressed */
     if (gkbKeyPressed()) {
-      return(SYS_TRUE_OBJECT);
+      return SYS_TRUE_OBJECT;
     } else {
-      return(SYS_FALSE_OBJECT);
+      return SYS_FALSE_OBJECT;
     } /* if */
   } /* gkb_keypressed */
 
@@ -185,8 +185,8 @@ listtype arguments;
     ch_variable = arg_2(arguments);
     isit_char(ch_variable);
     is_variable(ch_variable);
-    return(bld_stri_temp(
-        gkbLineRead(&ch_variable->value.charvalue)));
+    return bld_stri_temp(
+        gkbLineRead(&ch_variable->value.charvalue));
   } /* gkb_line_read */
 
 
@@ -201,7 +201,7 @@ listtype arguments;
 #endif
 
   { /* gkb_raw_getc */
-    return(bld_char_temp(gkbRawGetc()));
+    return bld_char_temp(gkbRawGetc());
   } /* gkb_raw_getc */
 
 
@@ -216,7 +216,7 @@ listtype arguments;
 #endif
 
   { /* gkb_window */
-    return(bld_win_temp(gkbWindow()));
+    return bld_win_temp(gkbWindow());
   } /* gkb_window */
 
 
@@ -237,8 +237,8 @@ listtype arguments;
     ch_variable = arg_2(arguments);
     isit_char(ch_variable);
     is_variable(ch_variable);
-    return(bld_stri_temp(
-        gkbWordRead(&ch_variable->value.charvalue)));
+    return bld_stri_temp(
+        gkbWordRead(&ch_variable->value.charvalue));
   } /* gkb_word_read */
 
 
@@ -271,7 +271,7 @@ listtype arguments;
     ang1 = take_float(arg_5(arguments));
     ang2 = take_float(arg_6(arguments));
     drwArc(actual_window, x, y, radius, ang1, ang2);
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* drw_arc */
 
 
@@ -303,7 +303,7 @@ listtype arguments;
     y2 = take_int(arg_5(arguments));
     radius = take_int(arg_6(arguments));
     drwArc2(actual_window, x1, y1, x2, y2, radius);
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* drw_arc2 */
 
 
@@ -320,7 +320,7 @@ listtype arguments;
   { /* drw_background */
     isit_int(arg_1(arguments));
     drwBackground(take_int(arg_1(arguments)));
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* drw_background */
 
 
@@ -348,7 +348,7 @@ listtype arguments;
     y1 = take_int(arg_3(arguments));
     radius = take_int(arg_4(arguments));
     drwCircle(actual_window, x1, y1, radius);
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* drw_circle */
 
 
@@ -366,7 +366,7 @@ listtype arguments;
     isit_win(arg_1(arguments));
     isit_int(arg_2(arguments));
     drwClear(take_win(arg_1(arguments)), take_int(arg_2(arguments)));
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* drw_clear */
 
 
@@ -414,7 +414,7 @@ listtype arguments;
   { /* drw_color */
     isit_int(arg_1(arguments));
     drwColor(take_int(arg_1(arguments)));
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* drw_color */
 
 
@@ -441,7 +441,7 @@ listtype arguments;
                 take_int(arg_3(arguments)), take_int(arg_4(arguments)),
                 take_int(arg_5(arguments)), take_int(arg_6(arguments)),
                 take_int(arg_7(arguments)), take_int(arg_8(arguments)));
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* drw_copyarea */
 
 
@@ -482,7 +482,7 @@ listtype arguments;
         win_value->usage_count++;
       } /* if */
     } /* if */
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* drw_cpy */
 
 
@@ -513,7 +513,7 @@ listtype arguments;
         win_value->usage_count++;
       } /* if */
     } /* if */
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* drw_create */
 
 
@@ -540,7 +540,7 @@ listtype arguments;
       } /* if */
       arg_1(arguments)->value.winvalue = NULL;
     } /* if */
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* drw_destr */
 
 
@@ -555,7 +555,7 @@ listtype arguments;
 #endif
 
   { /* drw_empty */
-    return(bld_win_temp(NULL));
+    return bld_win_temp(NULL);
   } /* drw_empty */
 
 
@@ -574,9 +574,9 @@ listtype arguments;
     isit_win(arg_3(arguments));
     if (take_win(arg_1(arguments)) ==
         take_win(arg_3(arguments))) {
-      return(SYS_TRUE_OBJECT);
+      return SYS_TRUE_OBJECT;
     } else {
-      return(SYS_FALSE_OBJECT);
+      return SYS_FALSE_OBJECT;
     } /* if */
   } /* drw_eq */
 
@@ -610,7 +610,7 @@ listtype arguments;
     ang1 = take_float(arg_5(arguments));
     ang2 = take_float(arg_6(arguments));
     drwFArcChord(actual_window, x, y, radius, ang1, ang2);
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* drw_farcchord */
 
 
@@ -643,7 +643,7 @@ listtype arguments;
     ang1 = take_float(arg_5(arguments));
     ang2 = take_float(arg_6(arguments));
     drwFArcPieSlice(actual_window, x, y, radius, ang1, ang2);
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* drw_farcpieslice */
 
 
@@ -671,7 +671,7 @@ listtype arguments;
     y1 = take_int(arg_3(arguments));
     radius = take_int(arg_4(arguments));
     drwFCircle(actual_window, x1, y1, radius);
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* drw_fcircle */
 
 
@@ -702,7 +702,7 @@ listtype arguments;
     width = take_int(arg_4(arguments));
     height = take_int(arg_5(arguments));
     drwFEllipse(actual_window, x1, y1, width, height);
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* drw_fellipse */
 
 
@@ -718,7 +718,7 @@ listtype arguments;
 
   { /* drw_flush */
     drwFlush();
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* drw_flush */
 
 
@@ -749,7 +749,7 @@ listtype arguments;
     point_list = take_bstri(arg_4(arguments));
     col = take_int(arg_5(arguments));
     drwFPolyLine(actual_window, x, y, point_list, col);
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* drw_fpolyLine */
 
 
@@ -776,10 +776,10 @@ listtype arguments;
     points_array = take_array(arg_1(arguments));
     len = (uinttype) (points_array->max_position - points_array->min_position + 1);
     if (len == 0 || len & 1) {
-      return(raise_exception(SYS_RNG_EXCEPTION));
+      return raise_exception(SYS_RNG_EXCEPTION);
     } else {
       if (!ALLOC_RTL_ARRAY(xyArray, len)) {
-        return(raise_exception(SYS_MEM_EXCEPTION));
+        return raise_exception(SYS_MEM_EXCEPTION);
       } else {
         xyArray->min_position = 1;
         xyArray->max_position = (inttype) (len);
@@ -793,7 +793,7 @@ listtype arguments;
         FREE_RTL_ARRAY(xyArray, len);
       } /* if */
     } /* if */
-    return(bld_bstri_temp(result));
+    return bld_bstri_temp(result);
   } /* drw_genPointList */
 
 
@@ -825,8 +825,8 @@ listtype arguments;
     y1 = take_int(arg_3(arguments));
     width = take_int(arg_4(arguments));
     height = take_int(arg_5(arguments));
-    return(bld_win_temp(
-        drwGet(actual_window, x1, y1, width, height)));
+    return bld_win_temp(
+        drwGet(actual_window, x1, y1, width, height));
   } /* drw_get */
 
 
@@ -852,8 +852,8 @@ listtype arguments;
     actual_window = take_win(arg_1(arguments));
     x1 = take_int(arg_2(arguments));
     y1 = take_int(arg_3(arguments));
-    return(bld_int_temp(
-        drwGetPixel(actual_window, x1, y1)));
+    return bld_int_temp(
+        drwGetPixel(actual_window, x1, y1));
   } /* drw_getPixel */
 
 
@@ -886,7 +886,8 @@ listtype arguments;
 
   { /* drw_height */
     isit_win(arg_1(arguments));
-    return(bld_int_temp(drwHeight(take_win(arg_1(arguments)))));
+    return bld_int_temp(
+        drwHeight(take_win(arg_1(arguments))));
   } /* drw_height */
 
 
@@ -946,7 +947,7 @@ listtype arguments;
     } else {
       result = NULL;
     } /* if */
-    return(bld_win_temp(result));
+    return bld_win_temp(result);
   } /* drw_image */
 
 
@@ -976,7 +977,7 @@ listtype arguments;
     x2 = take_int(arg_4(arguments));
     y2 = take_int(arg_5(arguments));
     drwLine(actual_window, x1, y1, x2, y2);
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* drw_line */
 
 
@@ -995,9 +996,9 @@ listtype arguments;
     isit_win(arg_3(arguments));
     if (take_win(arg_1(arguments)) !=
         take_win(arg_3(arguments))) {
-      return(SYS_TRUE_OBJECT);
+      return SYS_TRUE_OBJECT;
     } else {
-      return(SYS_FALSE_OBJECT);
+      return SYS_FALSE_OBJECT;
     } /* if */
   } /* drw_ne */
 
@@ -1021,7 +1022,8 @@ listtype arguments;
     isit_int(arg_2(arguments));
     width = take_int(arg_1(arguments));
     height = take_int(arg_2(arguments));
-    return(bld_win_temp(drwNewPixmap(width, height)));
+    return bld_win_temp(
+        drwNewPixmap(width, height));
   } /* drw_new_pixmap */
 
 
@@ -1050,7 +1052,8 @@ listtype arguments;
     width = take_int(arg_3(arguments));
     height = take_int(arg_4(arguments));
     window_name = take_stri(arg_5(arguments));
-    return(bld_win_temp(drwOpen(xPos, yPos, width, height, window_name)));
+    return bld_win_temp(
+        drwOpen(xPos, yPos, width, height, window_name));
   } /* drw_open */
 
 
@@ -1079,7 +1082,8 @@ listtype arguments;
     yPos = take_int(arg_3(arguments));
     width = take_int(arg_4(arguments));
     height = take_int(arg_5(arguments));
-    return(bld_win_temp(drwOpenSubWindow(parent_window, xPos, yPos, width, height)));
+    return bld_win_temp(
+        drwOpenSubWindow(parent_window, xPos, yPos, width, height));
   } /* drw_open_sub_window */
 
 
@@ -1115,7 +1119,7 @@ listtype arguments;
     ang2 = take_float(arg_6(arguments));
     col = take_int(arg_7(arguments));
     drwPArc(actual_window, x, y, radius, ang1, ang2, col);
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* drw_parc */
 
 
@@ -1145,7 +1149,7 @@ listtype arguments;
     radius = take_int(arg_4(arguments));
     col = take_int(arg_5(arguments));
     drwPCircle(actual_window, x1, y1, radius, col);
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* drw_pcircle */
 
 
@@ -1181,7 +1185,7 @@ listtype arguments;
     ang2 = take_float(arg_6(arguments));
     col = take_int(arg_7(arguments));
     drwPFArcChord(actual_window, x, y, radius, ang1, ang2, col);
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* drw_pfarcchord */
 
 
@@ -1217,7 +1221,7 @@ listtype arguments;
     ang2 = take_float(arg_6(arguments));
     col = take_int(arg_7(arguments));
     drwPFArcPieSlice(actual_window, x, y, radius, ang1, ang2, col);
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* drw_pfarcpieslice */
 
 
@@ -1247,7 +1251,7 @@ listtype arguments;
     radius = take_int(arg_4(arguments));
     col = take_int(arg_5(arguments));
     drwPFCircle(actual_window, x1, y1, radius, col);
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* drw_pfcircle */
 
 
@@ -1280,7 +1284,7 @@ listtype arguments;
     height = take_int(arg_5(arguments));
     col = take_int(arg_6(arguments));
     drwPFEllipse(actual_window, x1, y1, width, height, col);
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* drw_pfellipse */
 
 
@@ -1314,7 +1318,7 @@ listtype arguments;
                   &red_variable->value.intvalue,
                   &green_variable->value.intvalue,
                   &blue_variable->value.intvalue);
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* drw_pixelToRgb */
 
 
@@ -1346,7 +1350,7 @@ listtype arguments;
     y2 = take_int(arg_5(arguments));
     col = take_int(arg_6(arguments));
     drwPLine(actual_window, x1, y1, x2, y2, col);
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* drw_pline */
 
 
@@ -1372,7 +1376,7 @@ listtype arguments;
     x = take_int(arg_2(arguments));
     y = take_int(arg_3(arguments));
     drwPoint(actual_window, x, y);
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* drw_point */
 
 
@@ -1388,7 +1392,8 @@ listtype arguments;
 
   { /* drw_pointer_xpos */
     isit_win(arg_1(arguments));
-    return(bld_int_temp(drwPointerXpos(take_win(arg_1(arguments)))));
+    return bld_int_temp(
+        drwPointerXpos(take_win(arg_1(arguments))));
   } /* drw_pointer_xpos */
 
 
@@ -1404,7 +1409,8 @@ listtype arguments;
 
   { /* drw_pointer_ypos */
     isit_win(arg_1(arguments));
-    return(bld_int_temp(drwPointerYpos(take_win(arg_1(arguments)))));
+    return bld_int_temp(
+        drwPointerYpos(take_win(arg_1(arguments))));
   } /* drw_pointer_ypos */
 
 
@@ -1435,7 +1441,7 @@ listtype arguments;
     point_list = take_bstri(arg_4(arguments));
     col = take_int(arg_5(arguments));
     drwPolyLine(actual_window, x, y, point_list, col);
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* drw_polyLine */
 
 
@@ -1463,7 +1469,7 @@ listtype arguments;
     y = take_int(arg_3(arguments));
     col = take_int(arg_4(arguments));
     drwPPoint(actual_window, x, y, col);
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* drw_ppoint */
 
 
@@ -1495,7 +1501,7 @@ listtype arguments;
     length_y = take_int(arg_5(arguments));
     col = take_int(arg_6(arguments));
     drwPRect(actual_window, x1, y1, length_x, length_y, col);
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* drw_prect */
 
 
@@ -1526,7 +1532,7 @@ listtype arguments;
     drwPut(actual_window, pixmap,
         take_int(arg_3(arguments)),
         take_int(arg_4(arguments)));
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* drw_put */
 
 
@@ -1556,7 +1562,7 @@ listtype arguments;
     length_x = take_int(arg_4(arguments));
     length_y = take_int(arg_5(arguments));
     drwRect(actual_window, x1, y1, length_x, length_y);
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* drw_rect */
 
 
@@ -1571,8 +1577,9 @@ listtype arguments;
 #endif
 
   { /* drw_rgbcol */
-    return(bld_int_temp(drwRgbColor(take_int(arg_1(arguments)),
-        take_int(arg_2(arguments)), take_int(arg_3(arguments)))));
+    return bld_int_temp(
+        drwRgbColor(take_int(arg_1(arguments)), take_int(arg_2(arguments)),
+                    take_int(arg_3(arguments))));
   } /* drw_rgbcol */
 
 
@@ -1587,7 +1594,7 @@ listtype arguments;
 #endif
 
   { /* drw_rot */
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* drw_rot */
 
 
@@ -1602,7 +1609,7 @@ listtype arguments;
 #endif
 
   { /* drw_scale */
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* drw_scale */
 
 
@@ -1620,7 +1627,7 @@ listtype arguments;
     isit_win(arg_1(arguments));
     isit_win(arg_2(arguments));
     drwSetContent(take_win(arg_1(arguments)), take_win(arg_2(arguments)));
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* drw_setContent */
 
 
@@ -1640,7 +1647,7 @@ listtype arguments;
     isit_int(arg_3(arguments));
     drwSetPos(take_win(arg_1(arguments)),
         take_int(arg_2(arguments)), take_int(arg_3(arguments)));
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* drw_setPos */
 
 
@@ -1659,7 +1666,7 @@ listtype arguments;
     isit_int(arg_2(arguments));
     drwSetTransparentColor(take_win(arg_1(arguments)),
         take_int(arg_2(arguments)));
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* drw_setTransparentColor */
 
 
@@ -1693,7 +1700,7 @@ listtype arguments;
     col = take_int(arg_5(arguments));
     bkcol = take_int(arg_6(arguments));
     drwText(actual_window, x, y, stri, col, bkcol);
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* drw_text */
 
 
@@ -1710,7 +1717,7 @@ listtype arguments;
   { /* drw_toBottom */
     isit_win(arg_1(arguments));
     drwToBottom(take_win(arg_1(arguments)));
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* drw_toBottom */
 
 
@@ -1727,7 +1734,7 @@ listtype arguments;
   { /* drw_toTop */
     isit_win(arg_1(arguments));
     drwToTop(take_win(arg_1(arguments)));
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* drw_toTop */
 
 
@@ -1743,7 +1750,8 @@ listtype arguments;
 
   { /* drw_width */
     isit_win(arg_1(arguments));
-    return(bld_int_temp(drwWidth(take_win(arg_1(arguments)))));
+    return bld_int_temp(
+        drwWidth(take_win(arg_1(arguments))));
   } /* drw_width */
 
 
@@ -1759,7 +1767,8 @@ listtype arguments;
 
   { /* drw_xpos */
     isit_win(arg_1(arguments));
-    return(bld_int_temp(drwXPos(take_win(arg_1(arguments)))));
+    return bld_int_temp(
+        drwXPos(take_win(arg_1(arguments))));
   } /* drw_xpos */
 
 
@@ -1775,5 +1784,6 @@ listtype arguments;
 
   { /* drw_ypos */
     isit_win(arg_1(arguments));
-    return(bld_int_temp(drwYPos(take_win(arg_1(arguments)))));
+    return bld_int_temp(
+        drwYPos(take_win(arg_1(arguments))));
   } /* drw_ypos */

@@ -244,9 +244,9 @@ char *cap_value;
       fprintf(stderr, "%s=%s:\n", cap_name, cap_value);
 #endif
       *cap_pointer = cap_value;
-      return(TRUE);
+      return TRUE;
     } else {
-      return(FALSE);
+      return FALSE;
     } /* if */
   } /* assign_cap */
 
@@ -413,7 +413,7 @@ int getcaps ()
 #ifdef TRACE_CAPS
     fprintf(stderr, "END getcaps ==> %d\n", caps_initialized);
 #endif
-    return(caps_initialized);
+    return caps_initialized;
   } /* getcaps */
 
 
@@ -428,7 +428,7 @@ char ch;
 #endif
 
   { /* outch */
-    return(putchar(ch));
+    return putchar(ch);
   } /* outch */
 
 

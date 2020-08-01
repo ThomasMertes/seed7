@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
-/*  dir_drv.h     Prototypes of OS specific directory functions.    */
-/*  Copyright (C) 1989 - 2007  Thomas Mertes                        */
+/*  fil_win.c     File functions which call the Windows API.        */
+/*  Copyright (C) 1989 - 2011  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */
@@ -23,56 +23,76 @@
 /*  Fifth Floor, Boston, MA  02110-1301, USA.                       */
 /*                                                                  */
 /*  Module: Seed7 Runtime Library                                   */
-/*  File: seed7/src/dir_drv.h                                       */
-/*  Changes: 1993, 1994, 2007  Thomas Mertes                        */
-/*  Content: Prototypes of OS specific directory functions.         */
+/*  File: seed7/src/fil_win.c                                       */
+/*  Changes: 2011  Thomas Mertes                                    */
+/*  Content: File functions which call the Windows API.             */
 /*                                                                  */
 /********************************************************************/
 
-/* Note that only one of USE_DIRENT, USE_DIRECT, USE_DIRDOS or      */
-/* USE_DIRWIN is active.                                            */
+#include "version.h"
 
-#ifdef USE_DIRENT
+#include "stdlib.h"
+#include "stdio.h"
+#include "windows.h"
 #include "sys/types.h"
 #include "sys/stat.h"
-#include "dirent.h"
 
-#ifdef OUT_OF_ORDER
+#ifdef USE_MYUNISTD_H
+#include "myunistd.h"
+#else
+#include "unistd.h"
+#endif
+
+#include "common.h"
+#include "os_decls.h"
+#include "fil_rtl.h"
+#include "rtl_err.h"
+
+
+
 #ifdef ANSI_C
-#ifdef C_PLUS_PLUS
-extern "C" int chdir (char *);
-extern "C" char* getcwd (char *, int);
-extern "C" int rmdir(char *);
+
+booltype filInputReady (filetype aFile)
 #else
-extern int chdir (char *);
-extern char* getcwd (char *, int);
-extern int rmdir(char *);
-#endif
-#else
-extern int chdir ();
-extern char* getcwd ();
-extern int rmdir();
-#endif
+
+booltype filInputReady (aFile)
+filetype aFile;
 #endif
 
-#endif
+  {
+    int file_no;
+    long pipeHandle;
+    os_fstat_struct stat_buf;
+    DWORD totalBytesAvail;
+    booltype result;
 
-#ifdef USE_DIRECT
-#include "sys/types.h"
-#include "sys/stat.h"
-#include "direct.h"
-#endif
-
-#ifdef USE_DIRDOS
-#include "sys/types.h"
-#include "sys/stat.h"
-#include "direct.h"
-#include "dir_dos.h"
-#endif
-
-#ifdef USE_DIRWIN
-#include "sys/types.h"
-#include "sys/stat.h"
-#include "direct.h"
-#include "dir_win.h"
-#endif
+  /* filInputReady */
+    file_no = fileno(aFile);
+    if (file_no != -1 && os_fstat(file_no, &stat_buf) == 0) {
+      if (S_ISREG(stat_buf.st_mode)) {
+        result = TRUE;
+      } else if (S_ISFIFO(stat_buf.st_mode)) {
+        pipeHandle = _get_osfhandle(file_no);
+        if (pipeHandle != -1) {
+          if (PeekNamedPipe((HANDLE) pipeHandle, NULL, 0, NULL, &totalBytesAvail, NULL) != 0) {
+            result = totalBytesAvail >= 1;
+          } else if (eof(aFile)) {
+            result = TRUE;
+          } else {
+            raise_error(FILE_ERROR);
+            result = FALSE;
+          } /* if */
+        } else {
+          raise_error(FILE_ERROR);
+          result = FALSE;
+        } /* if */
+      } else {
+        raise_error(FILE_ERROR);
+        result = FALSE;
+      } /* if */
+    } else {
+      raise_error(FILE_ERROR);
+      result = FALSE;
+    } /* if */
+    return result;
+  } /* filInputReady */

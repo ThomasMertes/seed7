@@ -115,7 +115,7 @@ ustritype digits;
       err_string(CARD_DECIMAL_TOO_BIG, digits);
       intvalue = 0;
     } /* if */
-    return(intvalue);
+    return intvalue;
   } /* decimal_value */
 
 
@@ -169,7 +169,7 @@ ustritype digits;
     if (!okay) {
       intvalue = 0;
     } /* if */
-    return(intvalue);
+    return intvalue;
   } /* based_value */
 
 
@@ -205,7 +205,7 @@ static INLINE booltype readbased ()
     } /* if */
     symbol.name[position] = '\0';
     in_file.character = character;
-    return(okay);
+    return okay;
   } /* readbased */
 
 
@@ -300,7 +300,7 @@ static INLINE inttype readinteger ()
     } else if (in_file.character == 'E' || in_file.character == 'e') {
       intexponent(&result);
     } /* if */
-    return(result);
+    return result;
   } /* readinteger */
 
 
@@ -330,7 +330,7 @@ static INLINE biginttype readbiginteger ()
     symbol.strivalue->size = pos;
     bigDestr(symbol.bigintvalue);
     result = bigParse(symbol.strivalue);
-    return(result);
+    return result;
   } /* readbiginteger */
 
 
@@ -414,7 +414,7 @@ static INLINE floattype readfloat ()
 #ifdef TRACE_LITERAL
     printf("END readfloat\n");
 #endif
-    return(result);
+    return result;
   } /* readfloat */
 
 

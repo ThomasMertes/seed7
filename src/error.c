@@ -867,7 +867,7 @@ objecttype curr_obj;
         list_elem = list_elem->next;
       } /* while */
     } /* if */
-    return(result);
+    return result;
   } /* contains_match_err_flag */
 
 

@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
-/*  dir_drv.h     Prototypes of OS specific directory functions.    */
-/*  Copyright (C) 1989 - 2007  Thomas Mertes                        */
+/*  fil_drv.h     Prototypes of OS specific file functions.         */
+/*  Copyright (C) 1989 - 2011  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */
@@ -23,56 +23,19 @@
 /*  Fifth Floor, Boston, MA  02110-1301, USA.                       */
 /*                                                                  */
 /*  Module: Seed7 Runtime Library                                   */
-/*  File: seed7/src/dir_drv.h                                       */
-/*  Changes: 1993, 1994, 2007  Thomas Mertes                        */
-/*  Content: Prototypes of OS specific directory functions.         */
+/*  File: seed7/src/fil_drv.h                                       */
+/*  Changes: 2011  Thomas Mertes                                    */
+/*  Content: Prototypes of OS specific file functions.              */
 /*                                                                  */
 /********************************************************************/
 
-/* Note that only one of USE_DIRENT, USE_DIRECT, USE_DIRDOS or      */
-/* USE_DIRWIN is active.                                            */
 
-#ifdef USE_DIRENT
-#include "sys/types.h"
-#include "sys/stat.h"
-#include "dirent.h"
-
-#ifdef OUT_OF_ORDER
 #ifdef ANSI_C
-#ifdef C_PLUS_PLUS
-extern "C" int chdir (char *);
-extern "C" char* getcwd (char *, int);
-extern "C" int rmdir(char *);
+
+booltype filInputReady (filetype aFile);
+
 #else
-extern int chdir (char *);
-extern char* getcwd (char *, int);
-extern int rmdir(char *);
-#endif
-#else
-extern int chdir ();
-extern char* getcwd ();
-extern int rmdir();
-#endif
-#endif
 
-#endif
+booltype filInputReady ();
 
-#ifdef USE_DIRECT
-#include "sys/types.h"
-#include "sys/stat.h"
-#include "direct.h"
-#endif
-
-#ifdef USE_DIRDOS
-#include "sys/types.h"
-#include "sys/stat.h"
-#include "direct.h"
-#include "dir_dos.h"
-#endif
-
-#ifdef USE_DIRWIN
-#include "sys/types.h"
-#include "sys/stat.h"
-#include "direct.h"
-#include "dir_win.h"
 #endif

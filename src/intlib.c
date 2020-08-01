@@ -75,7 +75,7 @@ listtype arguments;
     if (number < 0) {
       number = -number;
     } /* if */
-    return(bld_int_temp(number));
+    return bld_int_temp(number);
   } /* int_abs */
 
 
@@ -92,9 +92,8 @@ listtype arguments;
   { /* int_add */
     isit_int(arg_1(arguments));
     isit_int(arg_3(arguments));
-    return(bld_int_temp(
-        take_int(arg_1(arguments)) +
-        take_int(arg_3(arguments))));
+    return bld_int_temp(
+        take_int(arg_1(arguments)) + take_int(arg_3(arguments)));
   } /* int_add */
 
 
@@ -111,9 +110,8 @@ listtype arguments;
   { /* int_binom */
     isit_int(arg_1(arguments));
     isit_int(arg_3(arguments));
-    return(bld_int_temp(intBinom(
-        take_int(arg_1(arguments)),
-        take_int(arg_3(arguments)))));
+    return bld_int_temp(
+        intBinom(take_int(arg_1(arguments)), take_int(arg_3(arguments))));
   } /* int_binom */
 
 
@@ -129,7 +127,8 @@ listtype arguments;
 
   { /* int_bit_length */
     isit_int(arg_1(arguments));
-    return(bld_int_temp(intBitLength(take_int(arg_1(arguments)))));
+    return bld_int_temp(
+        intBitLength(take_int(arg_1(arguments))));
   } /* int_bit_length */
 
 
@@ -160,7 +159,7 @@ listtype arguments;
     } else {
       result = 0;
     } /* if */
-    return(bld_int_temp(result));
+    return bld_int_temp(result);
   } /* int_cmp */
 
 
@@ -176,7 +175,7 @@ listtype arguments;
 
   { /* int_conv */
     isit_int(arg_3(arguments));
-    return(bld_int_temp(take_int(arg_3(arguments))));
+    return bld_int_temp(take_int(arg_3(arguments)));
   } /* int_conv */
 
 
@@ -199,7 +198,7 @@ listtype arguments;
     is_variable(int_variable);
     isit_int(arg_3(arguments));
     int_variable->value.intvalue = take_int(arg_3(arguments));
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* int_cpy */
 
 
@@ -217,7 +216,7 @@ listtype arguments;
     isit_int(arg_3(arguments));
     SET_CATEGORY_OF_OBJ(arg_1(arguments), INTOBJECT);
     arg_1(arguments)->value.intvalue = take_int(arg_3(arguments));
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* int_create */
 
 
@@ -239,7 +238,7 @@ listtype arguments;
     isit_int(int_variable);
     is_variable(int_variable);
     int_variable->value.intvalue--;
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* int_decr */
 
 
@@ -261,10 +260,10 @@ listtype arguments;
     isit_int(arg_3(arguments));
     divisor = take_int(arg_3(arguments));
     if (divisor == 0) {
-      return(raise_exception(SYS_NUM_EXCEPTION));
+      return raise_exception(SYS_NUM_EXCEPTION);
     } else {
-      return(bld_int_temp(
-          take_int(arg_1(arguments)) / divisor));
+      return bld_int_temp(
+          take_int(arg_1(arguments)) / divisor);
     } /* if */
   } /* int_div */
 
@@ -284,9 +283,9 @@ listtype arguments;
     isit_int(arg_3(arguments));
     if (take_int(arg_1(arguments)) ==
         take_int(arg_3(arguments))) {
-      return(SYS_TRUE_OBJECT);
+      return SYS_TRUE_OBJECT;
     } else {
-      return(SYS_FALSE_OBJECT);
+      return SYS_FALSE_OBJECT;
     } /* if */
   } /* int_eq */
 
@@ -308,9 +307,9 @@ listtype arguments;
     isit_int(arg_2(arguments));
     number = (int) take_int(arg_2(arguments));
     if (number < 0 || (size_t) number >= sizeof(fact) / sizeof(inttype)) {
-      return(raise_exception(SYS_NUM_EXCEPTION));
+      return raise_exception(SYS_NUM_EXCEPTION);
     } else {
-      return(bld_int_temp(fact[number]));
+      return bld_int_temp(fact[number]);
     } /* if */
   } /* int_fact */
 
@@ -330,9 +329,9 @@ listtype arguments;
     isit_int(arg_3(arguments));
     if (take_int(arg_1(arguments)) >=
         take_int(arg_3(arguments))) {
-      return(SYS_TRUE_OBJECT);
+      return SYS_TRUE_OBJECT;
     } else {
-      return(SYS_FALSE_OBJECT);
+      return SYS_FALSE_OBJECT;
     } /* if */
   } /* int_ge */
 
@@ -356,7 +355,7 @@ listtype arguments;
     is_variable(int_variable);
     isit_int(arg_3(arguments));
     int_variable->value.intvalue += take_int(arg_3(arguments));
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* int_grow */
 
 
@@ -375,9 +374,9 @@ listtype arguments;
     isit_int(arg_3(arguments));
     if (take_int(arg_1(arguments)) >
         take_int(arg_3(arguments))) {
-      return(SYS_TRUE_OBJECT);
+      return SYS_TRUE_OBJECT;
     } else {
-      return(SYS_FALSE_OBJECT);
+      return SYS_FALSE_OBJECT;
     } /* if */
   } /* int_gt */
 
@@ -394,7 +393,7 @@ listtype arguments;
 
   { /* int_hashcode */
     isit_int(arg_1(arguments));
-    return(bld_int_temp(take_int(arg_1(arguments))));
+    return bld_int_temp(take_int(arg_1(arguments)));
   } /* int_hashcode */
 
 
@@ -416,7 +415,7 @@ listtype arguments;
     isit_int(int_variable);
     is_variable(int_variable);
     int_variable->value.intvalue++;
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* int_incr */
 
 
@@ -435,9 +434,9 @@ listtype arguments;
     isit_int(arg_3(arguments));
     if (take_int(arg_1(arguments)) <=
         take_int(arg_3(arguments))) {
-      return(SYS_TRUE_OBJECT);
+      return SYS_TRUE_OBJECT;
     } else {
-      return(SYS_FALSE_OBJECT);
+      return SYS_FALSE_OBJECT;
     } /* if */
   } /* int_le */
 
@@ -454,7 +453,8 @@ listtype arguments;
 
   { /* int_log2 */
     isit_int(arg_1(arguments));
-    return(bld_int_temp(intLog2(take_int(arg_1(arguments)))));
+    return bld_int_temp(
+        intLog2(take_int(arg_1(arguments))));
   } /* int_log2 */
 
 
@@ -470,7 +470,8 @@ listtype arguments;
 
   { /* int_lowest_set_bit */
     isit_int(arg_1(arguments));
-    return(bld_int_temp(intLowestSetBit(take_int(arg_1(arguments)))));
+    return bld_int_temp(
+        intLowestSetBit(take_int(arg_1(arguments))));
   } /* int_lowest_set_bit */
 
 
@@ -487,8 +488,8 @@ listtype arguments;
   { /* int_lpad0 */
     isit_int(arg_1(arguments));
     isit_int(arg_3(arguments));
-    return(bld_stri_temp(intLpad0(
-        take_int(arg_1(arguments)), take_int(arg_3(arguments)))));
+    return bld_stri_temp(
+        intLpad0(take_int(arg_1(arguments)), take_int(arg_3(arguments))));
   } /* int_lpad0 */
 
 
@@ -505,9 +506,8 @@ listtype arguments;
   { /* int_lshift */
     isit_int(arg_1(arguments));
     isit_int(arg_3(arguments));
-    return(bld_int_temp(
-        take_int(arg_1(arguments)) <<
-        take_int(arg_3(arguments))));
+    return bld_int_temp(
+        take_int(arg_1(arguments)) << take_int(arg_3(arguments)));
   } /* int_lshift */
 
 
@@ -530,7 +530,7 @@ listtype arguments;
     is_variable(int_variable);
     isit_int(arg_3(arguments));
     int_variable->value.intvalue <<= take_int(arg_3(arguments));
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* int_lshift_assign */
 
 
@@ -549,9 +549,9 @@ listtype arguments;
     isit_int(arg_3(arguments));
     if (take_int(arg_1(arguments)) <
         take_int(arg_3(arguments))) {
-      return(SYS_TRUE_OBJECT);
+      return SYS_TRUE_OBJECT;
     } else {
-      return(SYS_FALSE_OBJECT);
+      return SYS_FALSE_OBJECT;
     } /* if */
   } /* int_lt */
 
@@ -577,7 +577,7 @@ listtype arguments;
     numerator = take_int(arg_1(arguments));
     denominator = take_int(arg_3(arguments));
     if (denominator == 0) {
-      return(raise_exception(SYS_NUM_EXCEPTION));
+      return raise_exception(SYS_NUM_EXCEPTION);
     } else {
       if (numerator > 0 && denominator < 0) {
         result = (numerator - 1) / denominator - 1;
@@ -586,7 +586,7 @@ listtype arguments;
       } else {
         result = numerator / denominator;
       } /* if */
-      return(bld_int_temp(result));
+      return bld_int_temp(result);
     } /* if */
   } /* int_mdiv */
 
@@ -603,7 +603,8 @@ listtype arguments;
 
   { /* int_minus */
     isit_int(arg_2(arguments));
-    return(bld_int_temp( - take_int(arg_2(arguments))));
+    return bld_int_temp(
+        -take_int(arg_2(arguments)));
   } /* int_minus */
 
 
@@ -628,14 +629,14 @@ listtype arguments;
     numerator = take_int(arg_1(arguments));
     denominator = take_int(arg_3(arguments));
     if (denominator == 0) {
-      return(raise_exception(SYS_NUM_EXCEPTION));
+      return raise_exception(SYS_NUM_EXCEPTION);
     } else {
       result = numerator % denominator;
       if (((numerator > 0 && denominator < 0) ||
           (numerator < 0 && denominator > 0)) && result != 0) {
         result = result + denominator;
       } /* if */
-      return(bld_int_temp(result));
+      return bld_int_temp(result);
     } /* if */
   } /* int_mod */
 
@@ -653,9 +654,8 @@ listtype arguments;
   { /* int_mult */
     isit_int(arg_1(arguments));
     isit_int(arg_3(arguments));
-    return(bld_int_temp(
-        take_int(arg_1(arguments)) *
-        take_int(arg_3(arguments))));
+    return bld_int_temp(
+        take_int(arg_1(arguments)) * take_int(arg_3(arguments)));
   } /* int_mult */
 
 
@@ -678,7 +678,7 @@ listtype arguments;
     is_variable(int_variable);
     isit_int(arg_3(arguments));
     int_variable->value.intvalue *= take_int(arg_3(arguments));
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* int_mult_assign */
 
 
@@ -697,9 +697,9 @@ listtype arguments;
     isit_int(arg_3(arguments));
     if (take_int(arg_1(arguments)) !=
         take_int(arg_3(arguments))) {
-      return(SYS_TRUE_OBJECT);
+      return SYS_TRUE_OBJECT;
     } else {
-      return(SYS_FALSE_OBJECT);
+      return SYS_FALSE_OBJECT;
     } /* if */
   } /* int_ne */
 
@@ -717,9 +717,9 @@ listtype arguments;
   { /* int_odd */
     isit_int(arg_1(arguments));
     if (take_int(arg_1(arguments)) & 1) {
-      return(SYS_TRUE_OBJECT);
+      return SYS_TRUE_OBJECT;
     } else {
-      return(SYS_FALSE_OBJECT);
+      return SYS_FALSE_OBJECT;
     } /* if */
   } /* int_odd */
 
@@ -736,7 +736,7 @@ listtype arguments;
 
   { /* int_ord */
     isit_int(arg_1(arguments));
-    return(bld_int_temp(take_int(arg_1(arguments))));
+    return bld_int_temp(take_int(arg_1(arguments)));
   } /* int_ord */
 
 
@@ -752,8 +752,8 @@ listtype arguments;
 
   { /* int_parse */
     isit_stri(arg_3(arguments));
-    return(bld_int_temp(intParse(
-        take_stri(arg_3(arguments)))));
+    return bld_int_temp(
+        intParse(take_stri(arg_3(arguments))));
   } /* int_parse */
 
 
@@ -769,7 +769,7 @@ listtype arguments;
 
   { /* int_plus */
     isit_int(arg_2(arguments));
-    return(bld_int_temp(take_int(arg_2(arguments))));
+    return bld_int_temp(take_int(arg_2(arguments)));
   } /* int_plus */
 
 
@@ -786,9 +786,8 @@ listtype arguments;
   { /* int_pow */
     isit_int(arg_1(arguments));
     isit_int(arg_3(arguments));
-    return(bld_int_temp(intPow(
-        take_int(arg_1(arguments)),
-        take_int(arg_3(arguments)))));
+    return bld_int_temp(
+        intPow(take_int(arg_1(arguments)), take_int(arg_3(arguments))));
   } /* int_pow */
 
 
@@ -804,7 +803,7 @@ listtype arguments;
 
   { /* int_pred */
     isit_int(arg_1(arguments));
-    return(bld_int_temp(take_int(arg_1(arguments)) - 1));
+    return bld_int_temp(take_int(arg_1(arguments)) - 1);
   } /* int_pred */
 
 
@@ -821,9 +820,8 @@ listtype arguments;
   { /* int_rand */
     isit_int(arg_1(arguments));
     isit_int(arg_2(arguments));
-    return(bld_int_temp(intRand(
-        take_int(arg_1(arguments)),
-        take_int(arg_2(arguments)))));
+    return bld_int_temp(
+        intRand(take_int(arg_1(arguments)), take_int(arg_2(arguments))));
   } /* int_rand */
 
 
@@ -845,10 +843,10 @@ listtype arguments;
     isit_int(arg_3(arguments));
     divisor = take_int(arg_3(arguments));
     if (divisor == 0) {
-      return(raise_exception(SYS_NUM_EXCEPTION));
+      return raise_exception(SYS_NUM_EXCEPTION);
     } else {
-      return(bld_int_temp(
-          take_int(arg_1(arguments)) % divisor));
+      return bld_int_temp(
+          take_int(arg_1(arguments)) % divisor);
     } /* if */
   } /* int_rem */
 
@@ -867,18 +865,18 @@ listtype arguments;
     isit_int(arg_1(arguments));
     isit_int(arg_3(arguments));
 #ifdef RSHIFT_DOES_SIGN_EXTEND
-    return(bld_int_temp(
+    return bld_int_temp(
         take_int(arg_1(arguments)) >>
-        take_int(arg_3(arguments))));
+        take_int(arg_3(arguments)));
 #else
     if (take_int(arg_1(arguments)) < 0) {
-      return(bld_int_temp(
+      return bld_int_temp(
           ~(~take_int(arg_1(arguments)) >>
-          take_int(arg_3(arguments)))));
-    } else {
-      return(bld_int_temp(
-          take_int(arg_1(arguments)) >>
           take_int(arg_3(arguments))));
+    } else {
+      return bld_int_temp(
+          take_int(arg_1(arguments)) >>
+          take_int(arg_3(arguments)));
     } /* if */
 #endif
   } /* int_rshift */
@@ -912,7 +910,7 @@ listtype arguments;
       int_variable->value.intvalue >>= take_int(arg_3(arguments));
     } /* if */
 #endif
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* int_rshift_assign */
 
 
@@ -930,9 +928,9 @@ listtype arguments;
   { /* int_urshift */
     isit_int(arg_1(arguments));
     isit_int(arg_3(arguments));
-    return(bld_stri_temp((inttype)
+    return bld_stri_temp((inttype)
         (((uinttype) (take_int(arg_1(arguments)))) >>
-        take_int(arg_3(arguments)))));
+        take_int(arg_3(arguments))));
   } /* int_urshift */
 #endif
 
@@ -950,9 +948,8 @@ listtype arguments;
   { /* int_sbtr */
     isit_int(arg_1(arguments));
     isit_int(arg_3(arguments));
-    return(bld_int_temp(
-        take_int(arg_1(arguments)) -
-        take_int(arg_3(arguments))));
+    return bld_int_temp(
+        take_int(arg_1(arguments)) - take_int(arg_3(arguments)));
   } /* int_sbtr */
 
 
@@ -975,7 +972,7 @@ listtype arguments;
     is_variable(int_variable);
     isit_int(arg_3(arguments));
     int_variable->value.intvalue -= take_int(arg_3(arguments));
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* int_shrink */
 
 
@@ -991,8 +988,8 @@ listtype arguments;
 
   { /* int_sqrt */
     isit_int(arg_1(arguments));
-    return(bld_int_temp(intSqrt(
-        take_int(arg_1(arguments)))));
+    return bld_int_temp(
+        intSqrt(take_int(arg_1(arguments))));
   } /* int_sqrt */
 
 
@@ -1008,8 +1005,8 @@ listtype arguments;
 
   { /* int_str */
     isit_int(arg_1(arguments));
-    return(bld_stri_temp(intStr(
-        take_int(arg_1(arguments)))));
+    return bld_stri_temp(
+        intStr(take_int(arg_1(arguments))));
   } /* int_str */
 
 
@@ -1026,8 +1023,8 @@ listtype arguments;
   { /* int_str */
     isit_int(arg_1(arguments));
     isit_int(arg_2(arguments));
-    return(bld_stri_temp(intStrBased(
-        take_int(arg_1(arguments)), take_int(arg_2(arguments)))));
+    return bld_stri_temp(
+        intStrBased(take_int(arg_1(arguments)), take_int(arg_2(arguments))));
   } /* int_str */
 
 
@@ -1043,7 +1040,7 @@ listtype arguments;
 
   { /* int_succ */
     isit_int(arg_1(arguments));
-    return(bld_int_temp(take_int(arg_1(arguments)) + 1));
+    return bld_int_temp(take_int(arg_1(arguments)) + 1);
   } /* int_succ */
 
 
@@ -1064,8 +1061,8 @@ listtype arguments;
     isit_reference(arg_1(arguments));
     obj_arg = take_reference(arg_1(arguments));
     if (obj_arg == NULL || CATEGORY_OF_OBJ(obj_arg) != INTOBJECT) {
-      return(raise_exception(SYS_RNG_EXCEPTION));
+      return raise_exception(SYS_RNG_EXCEPTION);
     } else {
-      return(bld_int_temp(take_int(obj_arg)));
+      return bld_int_temp(take_int(obj_arg));
     } /* if */
   } /* int_value */

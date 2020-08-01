@@ -237,7 +237,6 @@ const proc: close (in popen8_file: aFile) is func
   end func;
 
 
-(*
 const proc: pipe2 (in string: command, in array string: parameters,
     inout PRIMITIVE_FILE: primitiveChildStdin,
     inout PRIMITIVE_FILE: primitiveChildStdout) is action "CMD_PIPE2";
@@ -261,4 +260,3 @@ const proc: pipe2 (in string: command, in array string: parameters,
       childStdout := malloc(new_ChildStdout);
     end if;
   end func;
-*)

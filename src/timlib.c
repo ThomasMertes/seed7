@@ -71,7 +71,7 @@ listtype arguments;
              take_int(arg_6(arguments)),
              take_int(arg_7(arguments)),
              take_int(arg_8(arguments)));
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* tim_await */
 
 
@@ -123,7 +123,7 @@ listtype arguments;
         arg_6(arguments)->value.intvalue,
         arg_7(arguments)->value.intvalue,
         arg_8(arguments)->value.intvalue); */
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* tim_from_timestamp */
 
 
@@ -172,7 +172,7 @@ listtype arguments;
         arg_5(arguments)->value.intvalue,
         arg_6(arguments)->value.intvalue,
         arg_7(arguments)->value.intvalue); */
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* tim_now */
 
 
@@ -220,5 +220,5 @@ listtype arguments;
         take_int(arg_6(arguments)),
         take_int(arg_7(arguments)),
         is_dst); */
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* tim_set_local_tz */

@@ -294,7 +294,7 @@ listtype arguments;
 
   { /* ref_cast */
     /* The reference value is taken as int on purpose */
-    return(bld_int_temp(take_int(arg_3(arguments))));
+    return bld_int_temp(take_int(arg_3(arguments)));
   } /* ref_cast */
 
 

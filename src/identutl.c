@@ -82,7 +82,7 @@ unsigned int length;
 #ifdef TRACE_IDENTUTL
     printf("END new_ident\n");
 #endif
-    return(created_ident);
+    return created_ident;
   } /* new_ident */
 
 
@@ -179,7 +179,7 @@ unsigned int length;
 #ifdef TRACE_IDENTUTL
     printf("END get_ident\n");
 #endif
-    return(ident_found);
+    return ident_found;
   } /* get_ident */
 
 

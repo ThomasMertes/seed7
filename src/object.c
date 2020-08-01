@@ -82,7 +82,7 @@ objecttype typeof_object;
     trace1(created_list);
     printf("\n");
 #endif
-    return(created_list);
+    return created_list;
   } /* new_empty_list_object */
 
 
@@ -129,7 +129,7 @@ objecttype typeof_object;
     trace1(created_list);
     printf("\n");
 #endif
-    return(created_list);
+    return created_list;
   } /* new_nonempty_expression_object */
 
 
@@ -176,7 +176,7 @@ typetype type_of;
     trace1(created_list);
     printf("\n");
 #endif
-    return(created_list);
+    return created_list;
   } /* new_type_of_expression_object */
 
 
@@ -218,7 +218,7 @@ listtype *list;
     trace1(created_list);
     printf("\n");
 #endif
-    return(created_list);
+    return created_list;
   } /* new_expression_object */
 
 
@@ -247,10 +247,10 @@ objecttype object;
       help_element->next = NULL;
       help_element->obj = object;
       list->next = help_element;
-      return(help_element);
+      return help_element;
     } else {
       fatal_memory_error(SOURCE_POSITION(2036));
-      return(NULL);
+      return NULL;
     } /* if */
 #ifdef TRACE_OBJECT
     printf("END add_element_to_list ");

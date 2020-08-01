@@ -58,13 +58,13 @@ listtype arguments;
   /* bln_and */
     isit_bool(arg_1(arguments));
     if (take_bool(arg_1(arguments)) == SYS_FALSE_OBJECT) {
-      return(SYS_FALSE_OBJECT);
+      return SYS_FALSE_OBJECT;
     } else {
       result = evaluate(arg_3(arguments));
       if (!fail_flag) {
         isit_bool(result);
       } /* if */
-      return(result);
+      return result ;
     } /* if */
   } /* bln_and */
 
@@ -88,7 +88,7 @@ listtype arguments;
     is_variable(bool_variable);
     isit_bool(arg_3(arguments));
     bool_variable->value.objvalue = take_bool(arg_3(arguments));
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* bln_cpy */
 
 
@@ -116,7 +116,7 @@ listtype arguments;
       SET_CATEGORY_OF_OBJ(bool_to, CONSTENUMOBJECT);
     } /* if */
     bool_to->value.objvalue = bool_from;
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* bln_create */
 
 
@@ -134,12 +134,12 @@ listtype arguments;
     isit_bool(arg_1(arguments));
     isit_bool(arg_3(arguments));
     if (take_bool(arg_1(arguments)) == SYS_TRUE_OBJECT) {
-      return(SYS_TRUE_OBJECT);
+      return SYS_TRUE_OBJECT;
     } else {
       if (take_bool(arg_3(arguments)) == SYS_TRUE_OBJECT) {
-        return(SYS_FALSE_OBJECT);
+        return SYS_FALSE_OBJECT;
       } else {
-        return(SYS_TRUE_OBJECT);
+        return SYS_TRUE_OBJECT;
       } /* if */
     } /* if */
   } /* bln_ge */
@@ -159,12 +159,12 @@ listtype arguments;
     isit_bool(arg_1(arguments));
     isit_bool(arg_3(arguments));
     if (take_bool(arg_1(arguments)) == SYS_FALSE_OBJECT) {
-      return(SYS_FALSE_OBJECT);
+      return SYS_FALSE_OBJECT;
     } else {
       if (take_bool(arg_3(arguments)) == SYS_TRUE_OBJECT) {
-        return(SYS_FALSE_OBJECT);
+        return SYS_FALSE_OBJECT;
       } else {
-        return(SYS_TRUE_OBJECT);
+        return SYS_TRUE_OBJECT;
       } /* if */
     } /* if */
   } /* bln_gt */
@@ -183,9 +183,9 @@ listtype arguments;
   { /* bln_iconv */
     isit_int(arg_3(arguments));
     if (take_int(arg_3(arguments)) & 1) {
-      return(SYS_TRUE_OBJECT);
+      return SYS_TRUE_OBJECT;
     } else {
-      return(SYS_FALSE_OBJECT);
+      return SYS_FALSE_OBJECT;
     } /* if */
   } /* bln_iconv */
 
@@ -204,9 +204,9 @@ listtype arguments;
     isit_bool(arg_1(arguments));
     isit_bool(arg_3(arguments));
     if (take_bool(arg_1(arguments)) == SYS_FALSE_OBJECT) {
-      return(SYS_TRUE_OBJECT);
+      return SYS_TRUE_OBJECT;
     } else {
-      return(take_bool(arg_3(arguments)));
+      return take_bool(arg_3(arguments));
     } /* if */
   } /* bln_le */
 
@@ -225,9 +225,9 @@ listtype arguments;
     isit_bool(arg_1(arguments));
     isit_bool(arg_3(arguments));
     if (take_bool(arg_1(arguments)) == SYS_TRUE_OBJECT) {
-      return(SYS_FALSE_OBJECT);
+      return SYS_FALSE_OBJECT;
     } else {
-      return(take_bool(arg_3(arguments)));
+      return take_bool(arg_3(arguments));
     } /* if */
   } /* bln_lt */
 
@@ -245,9 +245,9 @@ listtype arguments;
   { /* bln_not */
     isit_bool(arg_2(arguments));
     if (take_bool(arg_2(arguments)) == SYS_TRUE_OBJECT) {
-      return(SYS_FALSE_OBJECT);
+      return SYS_FALSE_OBJECT;
     } else {
-      return(SYS_TRUE_OBJECT);
+      return SYS_TRUE_OBJECT;
     } /* if */
   } /* bln_not */
 
@@ -268,13 +268,13 @@ listtype arguments;
   /* bln_or */
     isit_bool(arg_1(arguments));
     if (take_bool(arg_1(arguments)) == SYS_TRUE_OBJECT) {
-      return(SYS_TRUE_OBJECT);
+      return SYS_TRUE_OBJECT;
     } else {
       result = evaluate(arg_3(arguments));
       if (!fail_flag) {
         isit_bool(result);
       } /* if */
-      return(result);
+      return result;
     } /* if */
   } /* bln_or */
 
@@ -292,8 +292,8 @@ listtype arguments;
   { /* bln_ord */
     isit_bool(arg_1(arguments));
     if (take_bool(arg_1(arguments)) == SYS_TRUE_OBJECT) {
-      return(bld_int_temp(1));
+      return bld_int_temp(1);
     } else {
-      return(bld_int_temp(0));
+      return bld_int_temp(0);
     } /* if */
   } /* bln_ord */

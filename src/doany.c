@@ -126,7 +126,7 @@ listtype list;
 #ifdef TRACE_EXEC
     printf("END exec1\n");
 #endif
-    return(result);
+    return result;
   } /* exec1 */
 
 
@@ -154,7 +154,7 @@ objecttype outfile;
 #ifdef TRACE_DOANY
     printf("END do_flush\n");
 #endif
-    return(result);
+    return result;
   } /* do_flush */
 
 
@@ -182,7 +182,7 @@ objecttype outfile;
 #ifdef TRACE_DOANY
     printf("END do_wrnl\n");
 #endif
-    return(result);
+    return result;
   } /* do_wrnl */
 
 
@@ -218,7 +218,7 @@ stritype stri;
 #ifdef TRACE_DOANY
     printf("BEGIN do_wrstri\n");
 #endif
-    return(result);
+    return result;
   } /* do_wrstri */
 
 
@@ -250,7 +250,7 @@ cstritype stri;
 #ifdef TRACE_DOANY
     printf("END do_wrcstri\n");
 #endif
-    return(result);
+    return result;
   } /* do_wrcstri */
 
 

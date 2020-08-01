@@ -67,8 +67,9 @@ var option_hash: compiler_option is option_hash.value;
 var boolean: array_range_check     is TRUE;
 var boolean: source_debug_info     is TRUE;
 var boolean: trace_exception       is FALSE;
+var boolean: trace_signal          is TRUE;
 var boolean: signal_exception      is FALSE;
-var boolean: evaluate_const_expr   is FALSE;
+var integer: evaluate_const_expr   is 1;
 var boolean: declare_with_extern_c is FALSE;
 var boolean: generate_c_plus_plus  is FALSE;
 
@@ -2038,6 +2039,20 @@ const func boolean: isActionExpression (in reference: current_expression, in str
   end func;
 
 
+const func reference: getActionParameter (in reference: current_expression, in integer: number) is func
+
+  result
+    var reference: result is NIL;
+  local
+    var ref_list: params is ref_list.EMPTY;
+  begin
+    if category(current_expression) = CALLOBJECT then
+      params := getValue(current_expression, ref_list);
+      result := params[succ(number)];
+    end if;
+  end func;
+
+
 const set of category: constantExpressionCategories is {
     TYPEOBJECT, INTOBJECT, BIGINTOBJECT, CHAROBJECT,
     STRIOBJECT, BSTRIOBJECT, ARRAYOBJECT, HASHOBJECT, STRUCTOBJECT,
@@ -2279,6 +2294,33 @@ const func boolean: isConstantExpr (in reference: current_expression) is func
       if exprCategory = MATCHOBJECT or exprCategory = CALLOBJECT then
         result := isConstantCall(current_expression);
       end if;
+    end if;
+  end func;
+
+
+const func boolean: getConstant (in reference: currExpr, in category: exprCategory,
+    inout reference: evaluatedExpr) is func
+  result
+    var boolean: okay is FALSE;
+  begin
+    if evaluate_const_expr = 1 and category(currExpr) = exprCategory and not isVar(currExpr) then
+      evaluatedExpr := currExpr;
+      incr(countEvaluations);
+      okay := TRUE;
+    elsif evaluate_const_expr >= 2 and isConstant(currExpr) then
+      block
+        evaluatedExpr := evaluate(prog, currExpr);
+        if evaluatedExpr <> NIL then
+          if category(evaluatedExpr) = exprCategory then
+            incr(countEvaluations);
+            okay := TRUE;
+          end if;
+        end if;
+      exception
+        catch NUMERIC_ERROR: noop;
+        catch RANGE_ERROR:   noop;
+        catch FILE_ERROR:    noop;
+      end block;
     end if;
   end func;
 
@@ -3295,6 +3337,7 @@ const proc: process_const_arr_idx (in reference: function, in reference: anArray
     in reference: param3, inout expr_type: c_expr) is func
 
   local
+    var reference: evaluatedParam is NIL;
     var integer: index is 0;
     var string: index_name is "";
   begin
@@ -3302,8 +3345,8 @@ const proc: process_const_arr_idx (in reference: function, in reference: anArray
     if anArray not in const_table then
       const_table @:= [anArray] length(const_table);
     end if;
-    if category(param3) = INTOBJECT and not isVar(param3) then
-      index := getValue(param3, integer);
+    if getConstant(param3, INTOBJECT, evaluatedParam) then
+      index := getValue(evaluatedParam, integer);
       if index < array_min_index(anArray) or index > array_max_index(anArray) then
         process_raise_error("RANGE_ERROR", function, c_expr);
       else
@@ -3466,15 +3509,16 @@ const proc: process_arr_idx (in reference: function, in ref_list: params,
     inout expr_type: c_expr) is func
 
   local
+    var reference: evaluatedParam is NIL;
     var expr_type: c_param is expr_type.value;
     var string: array_name is "";
     var string: index_name is "";
     var string: result_name is "";
   begin
-    if category(params[1]) = ARRAYOBJECT and not isVar(params[1]) then
-      process_const_arr_idx(function, params[1], params[3], c_expr);
-    elsif category(params[3]) = INTOBJECT and not isVar(params[3]) then
-      process_const_arr_idx(function, params[1], getValue(params[3], integer), c_expr);
+    if getConstant(params[1], ARRAYOBJECT, evaluatedParam) then
+      process_const_arr_idx(function, evaluatedParam, params[3], c_expr);
+    elsif getConstant(params[3], INTOBJECT, evaluatedParam) then
+      process_const_arr_idx(function, params[1], getValue(evaluatedParam, integer), c_expr);
     else
       prepareAnyParamTemporarys(params[1], c_param, c_expr);
       if c_param.result_expr <> "" then
@@ -3589,17 +3633,19 @@ const proc: process_arr_idx (in reference: function, in ref_list: params,
 const proc: process_arr_lng (in ref_list: params, inout expr_type: c_expr) is func
 
   local
+    var reference: evaluatedParam is NIL;
     var string: array_name is "";
   begin
-    if category(params[1]) = ARRAYOBJECT and not isVar(params[1]) then
+    if getConstant(params[1], ARRAYOBJECT, evaluatedParam) then
       incr(countOptimizations);
-      if params[1] not in const_table then
-        const_table @:= [params[1]] length(const_table);
+      c_expr.expr &:= str(array_max_index(evaluatedParam) - array_min_index(evaluatedParam) + 1);
+      if evaluatedParam in const_table then
+        c_expr.expr &:= " /* length(arr[";
+        c_expr.expr &:= str(const_table[evaluatedParam]);
+        c_expr.expr &:= "]) */";
+      else
+        c_expr.expr &:= " /* length(array) */";
       end if;
-      c_expr.expr &:= str(array_max_index(params[1]) - array_min_index(params[1]) + 1);
-      c_expr.expr &:= " /* length(arr[";
-      c_expr.expr &:= str(const_table[params[1]]);
-      c_expr.expr &:= "]) */";
     else
       if isNormalVariable(params[1]) then
         array_name := normalVariable(params[1], c_expr);
@@ -3626,16 +3672,19 @@ const proc: process_arr_lng (in ref_list: params, inout expr_type: c_expr) is fu
 
 const proc: process_arr_maxidx (in ref_list: params, inout expr_type: c_expr) is func
 
+  local
+    var reference: evaluatedParam is NIL;
   begin
-    if category(params[1]) = ARRAYOBJECT and not isVar(params[1]) then
+    if getConstant(params[1], ARRAYOBJECT, evaluatedParam) then
       incr(countOptimizations);
-      if params[1] not in const_table then
-        const_table @:= [params[1]] length(const_table);
+      c_expr.expr &:= str(array_max_index(evaluatedParam));
+      if evaluatedParam in const_table then
+        c_expr.expr &:= " /* maxIdx(arr[";
+        c_expr.expr &:= str(const_table[evaluatedParam]);
+        c_expr.expr &:= "]) */";
+      else
+        c_expr.expr &:= " /* maxIdx(array) */";
       end if;
-      c_expr.expr &:= str(array_max_index(params[1]));
-      c_expr.expr &:= " /* maxIdx(arr[";
-      c_expr.expr &:= str(const_table[params[1]]);
-      c_expr.expr &:= "]) */";
     else
       c_expr.expr &:= "(";
       getAnyParamToExpr(params[1], c_expr);
@@ -3646,16 +3695,19 @@ const proc: process_arr_maxidx (in ref_list: params, inout expr_type: c_expr) is
 
 const proc: process_arr_minidx (in ref_list: params, inout expr_type: c_expr) is func
 
+  local
+    var reference: evaluatedParam is NIL;
   begin
-    if category(params[1]) = ARRAYOBJECT and not isVar(params[1]) then
+    if getConstant(params[1], ARRAYOBJECT, evaluatedParam) then
       incr(countOptimizations);
-      if params[1] not in const_table then
-        const_table @:= [params[1]] length(const_table);
+      c_expr.expr &:= str(array_min_index(evaluatedParam));
+      if evaluatedParam in const_table then
+        c_expr.expr &:= " /* minIdx(arr[";
+        c_expr.expr &:= str(const_table[evaluatedParam]);
+        c_expr.expr &:= "]) */";
+      else
+        c_expr.expr &:= " /* minIdx(array) */";
       end if;
-      c_expr.expr &:= str(array_min_index(params[1]));
-      c_expr.expr &:= " /* minIdx(arr[";
-      c_expr.expr &:= str(const_table[params[1]]);
-      c_expr.expr &:= "]) */";
     else
       c_expr.expr &:= "(";
       getAnyParamToExpr(params[1], c_expr);
@@ -3902,11 +3954,12 @@ const proc: process_const_big_add (in reference: param1, in bigInteger: number,
     inout expr_type: c_expr) is func
 
   local
+    var reference: evaluatedParam is NIL;
     var expr_type: c_param1 is expr_type.value;
   begin
-    if category(param1) = BIGINTOBJECT and not isVar(param1) then
+    if getConstant(param1, BIGINTOBJECT, evaluatedParam) then
       incr(countOptimizations);
-      c_expr.expr &:= bigIntegerLiteral(getValue(param1, bigInteger) + number);
+      c_expr.expr &:= bigIntegerLiteral(getValue(evaluatedParam, bigInteger) + number);
     elsif number = 0_ then
       incr(countOptimizations);
       process_expr(param1, c_expr);
@@ -3974,33 +4027,48 @@ const proc: process_const_big_add (in reference: param1, in bigInteger: number,
 const proc: process_big_add (in ref_list: params, inout expr_type: c_expr) is func
 
   local
+    var reference: evaluatedParam is NIL;
     var expr_type: c_param1 is expr_type.value;
     var expr_type: c_param3 is expr_type.value;
   begin
-    if category(params[3]) = BIGINTOBJECT and not isVar(params[3]) then
-      process_const_big_add(params[1], getValue(params[3], bigInteger), c_expr);
-    elsif category(params[1]) = BIGINTOBJECT and not isVar(params[1]) then
-      process_const_big_add(params[3], getValue(params[1], bigInteger), c_expr);
+    if getConstant(params[3], BIGINTOBJECT, evaluatedParam) then
+      process_const_big_add(params[1], getValue(evaluatedParam, bigInteger), c_expr);
+    elsif getConstant(params[1], BIGINTOBJECT, evaluatedParam) then
+      process_const_big_add(params[3], getValue(evaluatedParam, bigInteger), c_expr);
     else
       prepare_bigint_result(c_expr);
-      prepareAnyParamTemporarys(params[1], c_param1, c_expr);
-      if c_param1.result_expr <> "" then
-        c_expr.result_expr := "bigAddTemp(";
-        c_expr.result_expr &:= c_param1.result_expr;
-        c_expr.result_expr &:= ", ";
-        getAnyParamToResultExpr(params[3], c_expr);
-      else
+      if isActionExpression(params[1], "BIG_MINUS") then
+        incr(countOptimizations);
         prepareAnyParamTemporarys(params[3], c_param3, c_expr);
         if c_param3.result_expr <> "" then
-          c_expr.result_expr := "bigAddTemp(";
+          c_expr.result_expr := "bigSbtrTemp(";
           c_expr.result_expr &:= c_param3.result_expr;
-          c_expr.result_expr &:= ", ";
-          c_expr.result_expr &:= c_param1.expr;
         else
-          c_expr.result_expr := "bigAdd(";
-          c_expr.result_expr &:= c_param1.expr;
-          c_expr.result_expr &:= ", ";
+          c_expr.result_expr := "bigSbtr(";
           c_expr.result_expr &:= c_param3.expr;
+        end if;
+        c_expr.result_expr &:= ", ";
+        getAnyParamToResultExpr(getValue(params[1], ref_list)[3], c_expr);
+      else
+        prepareAnyParamTemporarys(params[1], c_param1, c_expr);
+        if c_param1.result_expr <> "" then
+          c_expr.result_expr := "bigAddTemp(";
+          c_expr.result_expr &:= c_param1.result_expr;
+          c_expr.result_expr &:= ", ";
+          getAnyParamToResultExpr(params[3], c_expr);
+        else
+          prepareAnyParamTemporarys(params[3], c_param3, c_expr);
+          if c_param3.result_expr <> "" then
+            c_expr.result_expr := "bigAddTemp(";
+            c_expr.result_expr &:= c_param3.result_expr;
+            c_expr.result_expr &:= ", ";
+            c_expr.result_expr &:= c_param1.expr;
+          else
+            c_expr.result_expr := "bigAdd(";
+            c_expr.result_expr &:= c_param1.expr;
+            c_expr.result_expr &:= ", ";
+            c_expr.result_expr &:= c_param3.expr;
+          end if;
         end if;
       end if;
       c_expr.result_expr &:= ")";
@@ -4030,10 +4098,12 @@ const proc: process_big_clit (in ref_list: params, inout expr_type: c_expr) is f
 const proc: process_const_big_cmp (in reference: param1, in bigInteger: number,
     inout expr_type: c_expr) is func
 
+  local
+    var reference: evaluatedParam is NIL;
   begin
-    if category(param1) = BIGINTOBJECT and not isVar(param1) then
+    if getConstant(param1, BIGINTOBJECT, evaluatedParam) then
       incr(countOptimizations);
-      c_expr.expr &:= str(compare(getValue(param1, bigInteger), number));
+      c_expr.expr &:= str(compare(getValue(evaluatedParam, bigInteger), number));
     elsif abs(number) <= 127_ then
       incr(countOptimizations);
       c_expr.expr &:= "bigCmpSignedDigit(";
@@ -4062,11 +4132,13 @@ const proc: process_const_big_cmp (in bigInteger: number, in reference: param2,
 
 const proc: process_big_cmp (in ref_list: params, inout expr_type: c_expr) is func
 
+  local
+    var reference: evaluatedParam is NIL;
   begin
-    if category(params[2]) = BIGINTOBJECT and not isVar(params[2]) then
-      process_const_big_cmp(params[1], getValue(params[2], bigInteger), c_expr);
-    elsif category(params[1]) = BIGINTOBJECT and not isVar(params[1]) then
-      process_const_big_cmp(getValue(params[1], bigInteger), params[2], c_expr);
+    if getConstant(params[2], BIGINTOBJECT, evaluatedParam) then
+      process_const_big_cmp(params[1], getValue(evaluatedParam, bigInteger), c_expr);
+    elsif getConstant(params[1], BIGINTOBJECT, evaluatedParam) then
+      process_const_big_cmp(getValue(evaluatedParam, bigInteger), params[2], c_expr);
     else
       c_expr.expr &:= "bigCmp(";
       getAnyParamToExpr(params[1], c_expr);
@@ -4180,11 +4252,13 @@ const proc: process_big_gcd (in ref_list: params, inout expr_type: c_expr) is fu
 
 const proc: process_big_ge (in ref_list: params, inout expr_type: c_expr) is func
 
+  local
+    var reference: evaluatedParam is NIL;
   begin
-    if category(params[3]) = BIGINTOBJECT and not isVar(params[3]) then
-      process_const_big_cmp(params[1], getValue(params[3], bigInteger), c_expr);
-    elsif category(params[1]) = BIGINTOBJECT and not isVar(params[1]) then
-      process_const_big_cmp(getValue(params[1], bigInteger), params[3], c_expr);
+    if getConstant(params[3], BIGINTOBJECT, evaluatedParam) then
+      process_const_big_cmp(params[1], getValue(evaluatedParam, bigInteger), c_expr);
+    elsif getConstant(params[1], BIGINTOBJECT, evaluatedParam) then
+      process_const_big_cmp(getValue(evaluatedParam, bigInteger), params[3], c_expr);
     else
       c_expr.expr &:= "bigCmp(";
       getAnyParamToExpr(params[1], c_expr);
@@ -4261,11 +4335,12 @@ const proc: process_const_big_grow (in reference: param1, in bigInteger: number,
 const proc: process_big_grow (in ref_list: params, inout expr_type: c_expr) is func
 
   local
+    var reference: evaluatedParam is NIL;
     var expr_type: c_param1 is expr_type.value;
     var expr_type: c_param3 is expr_type.value;
   begin
-    if category(params[3]) = BIGINTOBJECT and not isVar(params[3]) then
-      process_const_big_grow(params[1], getValue(params[3], bigInteger), c_expr);
+    if getConstant(params[3], BIGINTOBJECT, evaluatedParam) then
+      process_const_big_grow(params[1], getValue(evaluatedParam, bigInteger), c_expr);
     else
       process_expr(params[1], c_param1);
       c_param3.temp_num := c_param1.temp_num;
@@ -4302,11 +4377,13 @@ const proc: process_big_grow (in ref_list: params, inout expr_type: c_expr) is f
 
 const proc: process_big_gt (in ref_list: params, inout expr_type: c_expr) is func
 
+  local
+    var reference: evaluatedParam is NIL;
   begin
-    if category(params[3]) = BIGINTOBJECT and not isVar(params[3]) then
-      process_const_big_cmp(params[1], getValue(params[3], bigInteger), c_expr);
-    elsif category(params[1]) = BIGINTOBJECT and not isVar(params[1]) then
-      process_const_big_cmp(getValue(params[1], bigInteger), params[3], c_expr);
+    if getConstant(params[3], BIGINTOBJECT, evaluatedParam) then
+      process_const_big_cmp(params[1], getValue(evaluatedParam, bigInteger), c_expr);
+    elsif getConstant(params[1], BIGINTOBJECT, evaluatedParam) then
+      process_const_big_cmp(getValue(evaluatedParam, bigInteger), params[3], c_expr);
     else
       c_expr.expr &:= "bigCmp(";
       getAnyParamToExpr(params[1], c_expr);
@@ -4351,15 +4428,15 @@ const proc: process_const_big_ipow (in reference: param1, in integer: exponent,
     inout expr_type: c_expr) is func
 
   local
+    var reference: evaluatedParam is NIL;
     var bigInteger: bigNumber is 0_;
-    var string: bigint_name is "";
   begin
     if exponent < 0 then
       incr(countOptimizations);
       c_expr.expr &:= "(biginttype)(raise_error(NUMERIC_ERROR),NULL)";
-    elsif category(param1) = BIGINTOBJECT and not isVar(param1) then
+    elsif getConstant(param1, BIGINTOBJECT, evaluatedParam) then
       incr(countOptimizations);
-      bigNumber := getValue(param1, bigInteger) ** exponent;
+      bigNumber := getValue(evaluatedParam, bigInteger) ** exponent;
       c_expr.expr &:= bigIntegerLiteral(bigNumber);
     elsif exponent = 0 then
       incr(countOptimizations);
@@ -4369,21 +4446,10 @@ const proc: process_const_big_ipow (in reference: param1, in integer: exponent,
       process_expr(param1, c_expr);
     elsif exponent = 2 then
       incr(countOptimizations);
-      incr(c_expr.temp_num);
-      bigint_name := "tmp_" & str(c_expr.temp_num);
-      c_expr.temp_decls &:= "const_biginttype ";
-      c_expr.temp_decls &:= bigint_name;
-      c_expr.temp_decls &:= ";\n";
       prepare_bigint_result(c_expr);
-      c_expr.result_expr := "(";
-      c_expr.result_expr &:= bigint_name;
-      c_expr.result_expr &:= "=";
+      c_expr.result_expr := "bigSquare(";
       getAnyParamToResultExpr(param1, c_expr);
-      c_expr.result_expr &:= ",bigMult(";
-      c_expr.result_expr &:= bigint_name;
-      c_expr.result_expr &:= ",";
-      c_expr.result_expr &:= bigint_name;
-      c_expr.result_expr &:= "))";
+      c_expr.result_expr &:= ")";
     else
       prepare_bigint_result(c_expr);
       c_expr.result_expr := "bigIPow(";
@@ -4452,36 +4518,19 @@ const proc: process_const_big_ipow (in bigInteger: base, in reference: param3,
     elsif base = 2_ then
       incr(countOptimizations);
       prepare_bigint_result(c_expr);
-      c_expr.result_expr := "bigLShiftOne(";
+      c_expr.result_expr := "bigLog2BaseLShift(1, ";
       getStdParamToResultExpr(param3, c_expr);
       c_expr.result_expr &:= ")";
     elsif base > 0_ and log2(base) <= 2147483647_ and
         2_ ** ord(log2(base)) = base then
       incr(countOptimizations);
       log2base := ord(log2(base));
-      incr(c_expr.temp_num);
-      int_name := "tmp_" & str(c_expr.temp_num);
-      c_expr.temp_decls &:= "inttype ";
-      c_expr.temp_decls &:= int_name;
-      c_expr.temp_decls &:= ";\n";
       prepare_bigint_result(c_expr);
-      c_expr.result_expr := "(";
-      c_expr.result_expr &:= int_name;
-      c_expr.result_expr &:= "=";
-      getAnyParamToResultExpr(param3, c_expr);
-      c_expr.result_expr &:= ",";
-      c_expr.result_expr &:= int_name;
-      c_expr.result_expr &:= "<";
-      c_expr.result_expr &:= integerLiteral(2147483647 div log2base);
-      c_expr.result_expr &:= "?bigLShiftOne(";
-      c_expr.result_expr &:= str(log2base);
-      c_expr.result_expr &:= "*";
-      c_expr.result_expr &:= int_name;
-      c_expr.result_expr &:= "):bigIPow(";
-      c_expr.result_expr &:= bigIntegerLiteral(base);
-      c_expr.result_expr &:= ",";
-      c_expr.result_expr &:= int_name;
-      c_expr.result_expr &:= "))";
+      c_expr.result_expr := "bigLog2BaseLShift(";
+      c_expr.result_expr &:= integerLiteral(log2base);
+      c_expr.result_expr &:= ", ";
+      getStdParamToResultExpr(param3, c_expr);
+      c_expr.result_expr &:= ")";
     else
       prepare_bigint_result(c_expr);
       c_expr.result_expr := "bigIPow(";
@@ -4496,21 +4545,12 @@ const proc: process_const_big_ipow (in bigInteger: base, in reference: param3,
 const proc: process_big_ipow (in ref_list: params, inout expr_type: c_expr) is func
 
   local
-    var reference: evaluatedParam1 is NIL;
+    var reference: evaluatedParam is NIL;
   begin
-    if category(params[3]) = INTOBJECT and not isVar(params[3]) then
-      process_const_big_ipow(params[1], getValue(params[3], integer), c_expr);
-    elsif category(params[1]) = BIGINTOBJECT and not isVar(params[1]) then
-      process_const_big_ipow(getValue(params[1], bigInteger), params[3], c_expr);
-    elsif isConstant(params[1]) then
-      evaluatedParam1 := evaluate(prog, params[1]);
-      if category(evaluatedParam1) = BIGINTOBJECT then
-        process_const_big_ipow(getValue(evaluatedParam1, bigInteger), params[3], c_expr);
-      else
-        c_expr.expr &:= "/* bigIPow ";
-        c_expr.expr &:= str(category(evaluatedParam1));
-        c_expr.expr &:= " */";
-      end if;
+    if getConstant(params[3], INTOBJECT, evaluatedParam) then
+      process_const_big_ipow(params[1], getValue(evaluatedParam, integer), c_expr);
+    elsif getConstant(params[1], BIGINTOBJECT, evaluatedParam) then
+      process_const_big_ipow(getValue(evaluatedParam, bigInteger), params[3], c_expr);
     else
       prepare_bigint_result(c_expr);
       c_expr.result_expr := "bigIPow(";
@@ -4524,11 +4564,13 @@ const proc: process_big_ipow (in ref_list: params, inout expr_type: c_expr) is f
 
 const proc: process_big_le (in ref_list: params, inout expr_type: c_expr) is func
 
+  local
+    var reference: evaluatedParam is NIL;
   begin
-    if category(params[3]) = BIGINTOBJECT and not isVar(params[3]) then
-      process_const_big_cmp(params[1], getValue(params[3], bigInteger), c_expr);
-    elsif category(params[1]) = BIGINTOBJECT and not isVar(params[1]) then
-      process_const_big_cmp(getValue(params[1], bigInteger), params[3], c_expr);
+    if getConstant(params[3], BIGINTOBJECT, evaluatedParam) then
+      process_const_big_cmp(params[1], getValue(evaluatedParam, bigInteger), c_expr);
+    elsif getConstant(params[1], BIGINTOBJECT, evaluatedParam) then
+      process_const_big_cmp(getValue(evaluatedParam, bigInteger), params[3], c_expr);
     else
       c_expr.expr &:= "bigCmp(";
       getAnyParamToExpr(params[1], c_expr);
@@ -4592,9 +4634,11 @@ const proc: process_const_big_lshift (in bigInteger: number, in reference: param
 
 const proc: process_big_lshift (in ref_list: params, inout expr_type: c_expr) is func
 
+  local
+    var reference: evaluatedParam is NIL;
   begin
-    if category(params[1]) = BIGINTOBJECT and not isVar(params[1]) then
-      process_const_big_lshift(getValue(params[1], bigInteger), params[3], c_expr);
+    if getConstant(params[1], BIGINTOBJECT, evaluatedParam) then
+      process_const_big_lshift(getValue(evaluatedParam, bigInteger), params[3], c_expr);
     else
       prepare_bigint_result(c_expr);
       c_expr.result_expr := "bigLShift(";
@@ -4642,11 +4686,13 @@ const proc: process_big_lshift_assign (in ref_list: params, inout expr_type: c_e
 
 const proc: process_big_lt (in ref_list: params, inout expr_type: c_expr) is func
 
+  local
+    var reference: evaluatedParam is NIL;
   begin
-    if category(params[3]) = BIGINTOBJECT and not isVar(params[3]) then
-      process_const_big_cmp(params[1], getValue(params[3], bigInteger), c_expr);
-    elsif category(params[1]) = BIGINTOBJECT and not isVar(params[1]) then
-      process_const_big_cmp(getValue(params[1], bigInteger), params[3], c_expr);
+    if getConstant(params[3], BIGINTOBJECT, evaluatedParam) then
+      process_const_big_cmp(params[1], getValue(evaluatedParam, bigInteger), c_expr);
+    elsif getConstant(params[1], BIGINTOBJECT, evaluatedParam) then
+      process_const_big_cmp(getValue(evaluatedParam, bigInteger), params[3], c_expr);
     else
       c_expr.expr &:= "bigCmp(";
       getAnyParamToExpr(params[1], c_expr);
@@ -4662,14 +4708,17 @@ const proc: process_const_big_mdiv (in reference: param1, in bigInteger: divisor
     inout expr_type: c_expr) is func
 
   local
+    var reference: evaluatedParam is NIL;
     var bigInteger: bigNumber is 0_;
+    var string: bigint_name is "";
+    var expr_type: c_param1 is expr_type.value;
   begin
     if divisor = 0_ then
       incr(countOptimizations);
       c_expr.expr &:= "(biginttype)(raise_error(NUMERIC_ERROR),NULL)";
-    elsif category(param1) = BIGINTOBJECT and not isVar(param1) then
+    elsif getConstant(param1, BIGINTOBJECT, evaluatedParam) then
       incr(countOptimizations);
-      bigNumber := getValue(param1, bigInteger) mdiv divisor;
+      bigNumber := getValue(evaluatedParam, bigInteger) mdiv divisor;
       c_expr.expr &:= bigIntegerLiteral(bigNumber);
     elsif divisor = 1_ then
       incr(countOptimizations);
@@ -4686,10 +4735,29 @@ const proc: process_const_big_mdiv (in reference: param1, in bigInteger: divisor
         2_ ** ord(log2(divisor)) = divisor then
       incr(countOptimizations);
       prepare_bigint_result(c_expr);
-      c_expr.result_expr := "bigRShift(";
-      getAnyParamToResultExpr(param1, c_expr);
-      c_expr.result_expr &:= ", ";
-      c_expr.result_expr &:= integerLiteral(ord(log2(divisor)));
+      prepareAnyParamTemporarys(param1, c_param1, c_expr);
+      if c_param1.result_expr <> "" then
+        incr(c_expr.temp_num);
+        bigint_name := "tmp_" & str(c_expr.temp_num);
+        c_expr.temp_decls &:= "const_biginttype ";
+        c_expr.temp_decls &:= bigint_name;
+        c_expr.temp_decls &:= ";\n";
+        c_expr.result_expr := "(bigRShiftAssign((";
+        c_expr.result_expr &:= bigint_name;
+        c_expr.result_expr &:= "=";
+        c_expr.result_expr &:= c_param1.result_expr;
+        c_expr.result_expr &:= ", &";
+        c_expr.result_expr &:= bigint_name;
+        c_expr.result_expr &:= "), ";
+        c_expr.result_expr &:= integerLiteral(ord(log2(divisor)));
+        c_expr.result_expr &:= "), ";
+        c_expr.result_expr &:= bigint_name;
+      else
+        c_expr.result_expr := "bigRShift(";
+        c_expr.result_expr &:= c_param1.expr;
+        c_expr.result_expr &:= ", ";
+        c_expr.result_expr &:= integerLiteral(ord(log2(divisor)));
+      end if;
       c_expr.result_expr &:= ")";
     else
       prepare_bigint_result(c_expr);
@@ -4704,9 +4772,11 @@ const proc: process_const_big_mdiv (in reference: param1, in bigInteger: divisor
 
 const proc: process_big_mdiv (in ref_list: params, inout expr_type: c_expr) is func
 
+  local
+    var reference: evaluatedParam is NIL;
   begin
-    if category(params[3]) = BIGINTOBJECT and not isVar(params[3]) then
-      process_const_big_mdiv(params[1], getValue(params[3], bigInteger), c_expr);
+    if getConstant(params[3], BIGINTOBJECT, evaluatedParam) then
+      process_const_big_mdiv(params[1], getValue(evaluatedParam, bigInteger), c_expr);
     else
       prepare_bigint_result(c_expr);
       c_expr.result_expr := "bigMDiv(";
@@ -4721,11 +4791,12 @@ const proc: process_big_mdiv (in ref_list: params, inout expr_type: c_expr) is f
 const proc: process_big_minus (in ref_list: params, inout expr_type: c_expr) is func
 
   local
+    var reference: evaluatedParam is NIL;
     var bigInteger: bigNumber is 0_;
   begin
-    if category(params[2]) = BIGINTOBJECT and not isVar(params[2]) then
+    if getConstant(params[2], BIGINTOBJECT, evaluatedParam) then
       incr(countOptimizations);
-      bigNumber := -getValue(params[2], bigInteger);
+      bigNumber := -getValue(evaluatedParam, bigInteger);
       c_expr.expr &:= bigIntegerLiteral(bigNumber);
     else
       prepare_bigint_result(c_expr);
@@ -4752,12 +4823,13 @@ const proc: process_const_big_mult (in reference: param1, in bigInteger: number,
     inout expr_type: c_expr) is func
 
   local
+    var reference: evaluatedParam is NIL;
     var bigInteger: bigNumber is 0_;
     var integer: log2base is 0;
   begin
-    if category(param1) = BIGINTOBJECT and not isVar(param1) then
+    if getConstant(param1, BIGINTOBJECT, evaluatedParam) then
       incr(countOptimizations);
-      bigNumber := getValue(param1, bigInteger) * number;
+      bigNumber := getValue(evaluatedParam, bigInteger) * number;
       c_expr.expr &:= bigIntegerLiteral(bigNumber);
     elsif number = -1_ then
       incr(countOptimizations);
@@ -4802,11 +4874,13 @@ const proc: process_const_big_mult (in reference: param1, in bigInteger: number,
 
 const proc: process_big_mult (in ref_list: params, inout expr_type: c_expr) is func
 
+  local
+    var reference: evaluatedParam is NIL;
   begin
-    if category(params[3]) = BIGINTOBJECT and not isVar(params[3]) then
-      process_const_big_mult(params[1], getValue(params[3], bigInteger), c_expr);
-    elsif category(params[1]) = BIGINTOBJECT and not isVar(params[1]) then
-      process_const_big_mult(params[3], getValue(params[1], bigInteger), c_expr);
+    if getConstant(params[3], BIGINTOBJECT, evaluatedParam) then
+      process_const_big_mult(params[1], getValue(evaluatedParam, bigInteger), c_expr);
+    elsif getConstant(params[1], BIGINTOBJECT, evaluatedParam) then
+      process_const_big_mult(params[3], getValue(evaluatedParam, bigInteger), c_expr);
     else
       prepare_bigint_result(c_expr);
       c_expr.result_expr := "bigMult(";
@@ -4890,11 +4964,12 @@ const proc: process_const_big_mult_assign (in reference: param1, in bigInteger: 
 const proc: process_big_mult_assign (in ref_list: params, inout expr_type: c_expr) is func
 
   local
+    var reference: evaluatedParam is NIL;
     var expr_type: c_param1 is expr_type.value;
     var expr_type: c_param3 is expr_type.value;
   begin
-    if category(params[3]) = BIGINTOBJECT and not isVar(params[3]) then
-      process_const_big_mult_assign(params[1], getValue(params[3], bigInteger), c_expr);
+    if getConstant(params[3], BIGINTOBJECT, evaluatedParam) then
+      process_const_big_mult_assign(params[1], getValue(evaluatedParam, bigInteger), c_expr);
     else
       process_expr(params[1], c_param1);
       c_param3.temp_num := c_param1.temp_num;
@@ -5019,12 +5094,34 @@ const proc: process_big_rem (in ref_list: params, inout expr_type: c_expr) is fu
 
 const proc: process_big_rshift (in ref_list: params, inout expr_type: c_expr) is func
 
+  local
+    var string: bigint_name is "";
+    var expr_type: c_param1 is expr_type.value;
   begin
     prepare_bigint_result(c_expr);
-    c_expr.result_expr := "bigRShift(";
-    getAnyParamToResultExpr(params[1], c_expr);
-    c_expr.result_expr &:= ", ";
-    getStdParamToResultExpr(params[3], c_expr);
+    prepareAnyParamTemporarys(params[1], c_param1, c_expr);
+    if c_param1.result_expr <> "" then
+      incr(c_expr.temp_num);
+      bigint_name := "tmp_" & str(c_expr.temp_num);
+      c_expr.temp_decls &:= "const_biginttype ";
+      c_expr.temp_decls &:= bigint_name;
+      c_expr.temp_decls &:= ";\n";
+      c_expr.result_expr := "(bigRShiftAssign((";
+      c_expr.result_expr &:= bigint_name;
+      c_expr.result_expr &:= "=";
+      c_expr.result_expr &:= c_param1.result_expr;
+      c_expr.result_expr &:= ", &";
+      c_expr.result_expr &:= bigint_name;
+      c_expr.result_expr &:= "), ";
+      getStdParamToResultExpr(params[3], c_expr);
+      c_expr.result_expr &:= "), ";
+      c_expr.result_expr &:= bigint_name;
+    else
+      c_expr.result_expr := "bigRShift(";
+      c_expr.result_expr &:= c_param1.expr;
+      c_expr.result_expr &:= ", ";
+      getStdParamToResultExpr(params[3], c_expr);
+    end if;
     c_expr.result_expr &:= ")";
   end func;
 
@@ -5073,10 +5170,11 @@ const proc: process_big_rshift_assign (in ref_list: params, inout expr_type: c_e
 const proc: process_big_sbtr (in ref_list: params, inout expr_type: c_expr) is func
 
   local
+    var reference: evaluatedParam is NIL;
     var expr_type: c_param1 is expr_type.value;
   begin
-    if category(params[3]) = BIGINTOBJECT and not isVar(params[3]) then
-      process_const_big_add(params[1], -getValue(params[3], bigInteger), c_expr);
+    if getConstant(params[3], BIGINTOBJECT, evaluatedParam) then
+      process_const_big_add(params[1], -getValue(evaluatedParam, bigInteger), c_expr);
     else
       prepare_bigint_result(c_expr);
       prepareAnyParamTemporarys(params[1], c_param1, c_expr);
@@ -5159,11 +5257,12 @@ const proc: process_const_big_shrink (in reference: param1, in bigInteger: numbe
 const proc: process_big_shrink (in ref_list: params, inout expr_type: c_expr) is func
 
   local
+    var reference: evaluatedParam is NIL;
     var expr_type: c_param1 is expr_type.value;
     var expr_type: c_param3 is expr_type.value;
   begin
-    if category(params[3]) = BIGINTOBJECT and not isVar(params[3]) then
-      process_const_big_shrink(params[1], getValue(params[3], bigInteger), c_expr);
+    if getConstant(params[3], BIGINTOBJECT, evaluatedParam) then
+      process_const_big_shrink(params[1], getValue(evaluatedParam, bigInteger), c_expr);
     else
       process_expr(params[1], c_param1);
       c_param3.temp_num := c_param1.temp_num;
@@ -5553,12 +5652,13 @@ const proc: process_const_bst_idx (in reference: function, in bstring: bstri,
     in reference: param3, inout expr_type: c_expr) is func
 
   local
+    var reference: evaluatedParam is NIL;
     var integer: index is 0;
     var integer: temp_num is 0;
   begin
     incr(countOptimizations);
-    if category(param3) = INTOBJECT and not isVar(param3) then
-      index := getValue(param3, integer);
+    if getConstant(param3, INTOBJECT, evaluatedParam) then
+      index := getValue(evaluatedParam, integer);
       if index < 1 or index > length(bstri) then
         process_raise_error("RANGE_ERROR", function, c_expr);
       else
@@ -5652,12 +5752,13 @@ const proc: process_const_bst_idx (in reference: function, in reference: param1,
 const proc: process_bst_idx (in reference: function, in ref_list: params, inout expr_type: c_expr) is func
 
   local
+    var reference: evaluatedParam is NIL;
     var integer: temp_num is 0;
   begin
-    if category(params[1]) = BSTRIOBJECT and not isVar(params[1]) then
-      process_const_bst_idx(function, getValue(params[1], bstring), params[3], c_expr);
-    elsif category(params[3]) = INTOBJECT and not isVar(params[3]) then
-      process_const_bst_idx(function, params[1], getValue(params[3], integer), c_expr);
+    if getConstant(params[1], BSTRIOBJECT, evaluatedParam) then
+      process_const_bst_idx(function, getValue(evaluatedParam, bstring), params[3], c_expr);
+    elsif getConstant(params[3], INTOBJECT, evaluatedParam) then
+      process_const_bst_idx(function, params[1], getValue(evaluatedParam, integer), c_expr);
     elsif array_range_check then
       incr(c_expr.temp_num);
       temp_num := c_expr.temp_num;
@@ -5801,10 +5902,11 @@ const proc: process_const_chr_chr (in reference: function, in integer: number, i
 const proc: process_chr_chr (in reference: function, in ref_list: params, inout expr_type: c_expr) is func
 
   local
+    var reference: evaluatedParam is NIL;
     var integer: temp_num is 0;
   begin
-    if category(params[1]) = INTOBJECT and not isVar(params[1]) then
-      process_const_chr_chr(function, getValue(params[1], integer), c_expr);
+    if getConstant(params[1], INTOBJECT, evaluatedParam) then
+      process_const_chr_chr(function, getValue(evaluatedParam, integer), c_expr);
     elsif INTTYPE_SIZE = 64 then
       incr(c_expr.temp_num);
       temp_num := c_expr.temp_num;
@@ -6087,12 +6189,13 @@ const proc: process_chr_shrink (in ref_list: params, inout expr_type: c_expr) is
 const proc: process_chr_str (in ref_list: params, inout expr_type: c_expr) is func
 
   local
+    var reference: evaluatedParam is NIL;
     var integer: temp_num is 0;
   begin
-    if category(params[1]) = CHAROBJECT and not isVar(params[1]) then
+    if getConstant(params[1], CHAROBJECT, evaluatedParam) then
       incr(countOptimizations);
       c_expr.expr &:= "/*chrStr*/";
-      c_expr.expr &:= stringLiteral(str(getValue(params[1], char)));
+      c_expr.expr &:= stringLiteral(str(getValue(evaluatedParam, char)));
     else
       incr(c_expr.temp_num);
       temp_num := c_expr.temp_num;
@@ -7562,6 +7665,15 @@ const proc: process_fil_in (in ref_list: params, inout expr_type: c_expr) is fun
   end func;
 
 
+const proc: process_fil_input_ready (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "filInputReady(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
 const proc: process_fil_line_read (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
@@ -7895,13 +8007,14 @@ const proc: process_const_flt_div (in reference: param1, in float: divisor,
     inout expr_type: c_expr) is func
 
   local
+    var reference: evaluatedParam is NIL;
     var float: dividend is 0.0;
     var integer: temp_num is 0;
   begin
     incr(countOptimizations);
     if divisor = 0.0 and FLOAT_ZERO_DIV_ERROR then
-      if category(param1) = FLOATOBJECT and not isVar(param1) then
-        dividend := getValue(param1, float);
+      if getConstant(param1, FLOATOBJECT, evaluatedParam) then
+        dividend := getValue(evaluatedParam, float);
         if dividend < 0.0 then
           c_expr.expr &:= "f_const[2].floatvalue /* -1.0/0.0 */";
         elsif dividend > 0.0 then
@@ -7937,9 +8050,11 @@ const proc: process_const_flt_div (in reference: param1, in float: divisor,
 
 const proc: process_flt_div (in ref_list: params, inout expr_type: c_expr) is func
 
+  local
+    var reference: evaluatedParam is NIL;
   begin
-    if category(params[3]) = FLOATOBJECT and not isVar(params[3]) then
-      process_const_flt_div(params[1], getValue(params[3], float), c_expr);
+    if getConstant(params[3], FLOATOBJECT, evaluatedParam) then
+      process_const_flt_div(params[1], getValue(evaluatedParam, float), c_expr);
     else
       c_expr.expr &:= "(";
       process_expr(params[1], c_expr);
@@ -9047,13 +9162,15 @@ const proc: process_int_decr (in ref_list: params, inout expr_type: c_expr) is f
 const proc: process_const_int_div (in reference: param1, in integer: divisor,
     inout expr_type: c_expr) is func
 
+  local
+    var reference: evaluatedParam is NIL;
   begin
     if divisor = 0 then
       incr(countOptimizations);
       c_expr.expr &:= raiseError("NUMERIC_ERROR");
-    elsif category(param1) = INTOBJECT and not isVar(param1) then
+    elsif getConstant(param1, INTOBJECT, evaluatedParam) then
       incr(countOptimizations);
-      c_expr.expr &:= str(getValue(param1, integer) div divisor);
+      c_expr.expr &:= str(getValue(evaluatedParam, integer) div divisor);
     elsif divisor = 1 then
       incr(countOptimizations);
       c_expr.expr &:= "(";
@@ -9117,12 +9234,13 @@ const proc: process_const_int_div (in integer: dividend, in reference: param3,
 const proc: process_int_div (in ref_list: params, inout expr_type: c_expr) is func
 
   local
+    var reference: evaluatedParam is NIL;
     var integer: temp_num is 0;
   begin
-    if category(params[3]) = INTOBJECT and not isVar(params[3]) then
-      process_const_int_div(params[1], getValue(params[3], integer), c_expr);
-    elsif category(params[1]) = INTOBJECT and not isVar(params[1]) then
-      process_const_int_div(getValue(params[1], integer), params[3], c_expr);
+    if getConstant(params[3], INTOBJECT, evaluatedParam) then
+      process_const_int_div(params[1], getValue(evaluatedParam, integer), c_expr);
+    elsif getConstant(params[1], INTOBJECT, evaluatedParam) then
+      process_const_int_div(getValue(evaluatedParam, integer), params[3], c_expr);
     elsif CHECK_INT_DIV_BY_ZERO then
       incr(c_expr.temp_num);
       temp_num := c_expr.temp_num;
@@ -9322,9 +9440,11 @@ const proc: process_const_int_lshift (in reference: param1, in integer: number,
 
 const proc: process_int_lshift (in ref_list: params, inout expr_type: c_expr) is func
 
+  local
+    var reference: evaluatedParam is NIL;
   begin
-    if category(params[3]) = INTOBJECT and not isVar(params[3]) then
-      process_const_int_lshift(params[1], getValue(params[3], integer), c_expr);
+    if getConstant(params[3], INTOBJECT, evaluatedParam) then
+      process_const_int_lshift(params[1], getValue(evaluatedParam, integer), c_expr);
     else
       c_expr.expr &:= "(";
       process_expr(params[1], c_expr);
@@ -9383,13 +9503,14 @@ const proc: process_const_int_mdiv (in reference: param1, in integer: divisor,
     inout expr_type: c_expr) is func
 
   local
+    var reference: evaluatedParam is NIL;
     var integer: temp_num is 0;
   begin
     incr(countOptimizations);
     if divisor = 0 then
       c_expr.expr &:= raiseError("NUMERIC_ERROR");
-    elsif category(param1) = INTOBJECT and not isVar(param1) then
-      c_expr.expr &:= str(getValue(param1, integer) mdiv divisor);
+    elsif getConstant(param1, INTOBJECT, evaluatedParam) then
+      c_expr.expr &:= str(getValue(evaluatedParam, integer) mdiv divisor);
     elsif divisor = 1 then
       c_expr.expr &:= "(";
       process_expr(param1, c_expr);
@@ -9515,12 +9636,13 @@ const proc: process_const_int_mdiv (in integer: dividend, in reference: param3,
 const proc: process_int_mdiv (in ref_list: params, inout expr_type: c_expr) is func
 
   local
+    var reference: evaluatedParam is NIL;
     var integer: temp_num is 0;
   begin
-    if category(params[3]) = INTOBJECT and not isVar(params[3]) then
-      process_const_int_mdiv(params[1], getValue(params[3], integer), c_expr);
-    elsif category(params[1]) = INTOBJECT and not isVar(params[1]) then
-      process_const_int_mdiv(getValue(params[1], integer), params[3], c_expr);
+    if getConstant(params[3], INTOBJECT, evaluatedParam) then
+      process_const_int_mdiv(params[1], getValue(evaluatedParam, integer), c_expr);
+    elsif getConstant(params[1], INTOBJECT, evaluatedParam) then
+      process_const_int_mdiv(getValue(evaluatedParam, integer), params[3], c_expr);
     else
       incr(c_expr.temp_num);
       temp_num := c_expr.temp_num;
@@ -9585,13 +9707,14 @@ const proc: process_const_int_mod (in reference: param1, in integer: divisor,
     inout expr_type: c_expr) is func
 
   local
+    var reference: evaluatedParam is NIL;
     var integer: temp_num is 0;
   begin
     incr(countOptimizations);
     if divisor = 0 then
       c_expr.expr &:= raiseError("NUMERIC_ERROR");
-    elsif category(param1) = INTOBJECT and not isVar(param1) then
-      c_expr.expr &:= str(getValue(param1, integer) mod divisor);
+    elsif getConstant(param1, INTOBJECT, evaluatedParam) then
+      c_expr.expr &:= str(getValue(evaluatedParam, integer) mod divisor);
     elsif divisor = 1 or divisor = -1 then
       c_expr.expr &:= "0";
     elsif divisor > 0 and 2 ** log2(divisor) = divisor then
@@ -9710,12 +9833,13 @@ const proc: process_const_int_mod (in integer: dividend, in reference: param3,
 const proc: process_int_mod (in ref_list: params, inout expr_type: c_expr) is func
 
   local
+    var reference: evaluatedParam is NIL;
     var integer: temp_num is 0;
   begin
-    if category(params[3]) = INTOBJECT and not isVar(params[3]) then
-      process_const_int_mod(params[1], getValue(params[3], integer), c_expr);
-    elsif category(params[1]) = INTOBJECT and not isVar(params[1]) then
-      process_const_int_mod(getValue(params[1], integer), params[3], c_expr);
+    if getConstant(params[3], INTOBJECT, evaluatedParam) then
+      process_const_int_mod(params[1], getValue(evaluatedParam, integer), c_expr);
+    elsif getConstant(params[1], INTOBJECT, evaluatedParam) then
+      process_const_int_mod(getValue(evaluatedParam, integer), params[3], c_expr);
 (*
     elsif isActionExpression(params[3], "INT_LSHIFT") and
         category(getValue(params[3], ref_list)[2]) = INTOBJECT and
@@ -9876,14 +10000,15 @@ const proc: process_const_int_pow (in reference: param1, in integer: exponent,
     inout expr_type: c_expr) is func
 
   local
+    var reference: evaluatedParam is NIL;
     var integer: temp_num is 0;
   begin
     if exponent < 0 then
       incr(countOptimizations);
       c_expr.expr &:= raiseError("NUMERIC_ERROR");
-    elsif category(param1) = INTOBJECT and not isVar(param1) then
+    elsif getConstant(param1, INTOBJECT, evaluatedParam) then
       incr(countOptimizations);
-      c_expr.expr &:= str(getValue(param1, integer) ** exponent);
+      c_expr.expr &:= str(getValue(evaluatedParam, integer) ** exponent);
     elsif exponent = 0 then
       incr(countOptimizations);
       c_expr.expr &:= integerLiteral(1);
@@ -10026,21 +10151,12 @@ const proc: process_const_int_pow (in integer: base, in reference: param3,
 const proc: process_int_pow (in ref_list: params, inout expr_type: c_expr) is func
 
   local
-    var reference: evaluatedParam1 is NIL;
+    var reference: evaluatedParam is NIL;
   begin
-    if category(params[3]) = INTOBJECT and not isVar(params[3]) then
-      process_const_int_pow(params[1], getValue(params[3], integer), c_expr);
-    elsif category(params[1]) = INTOBJECT and not isVar(params[1]) then
-      process_const_int_pow(getValue(params[1], integer), params[3], c_expr);
-    elsif isConstant(params[1]) then
-      evaluatedParam1 := evaluate(prog, params[1]);
-      if category(evaluatedParam1) = INTOBJECT then
-        process_const_int_pow(getValue(evaluatedParam1, integer), params[3], c_expr);
-      else
-        c_expr.expr &:= "/* intPow ";
-        c_expr.expr &:= str(category(evaluatedParam1));
-        c_expr.expr &:= " */";
-      end if;
+    if getConstant(params[3], INTOBJECT, evaluatedParam) then
+      process_const_int_pow(params[1], getValue(evaluatedParam, integer), c_expr);
+    elsif getConstant(params[1], INTOBJECT, evaluatedParam) then
+      process_const_int_pow(getValue(evaluatedParam, integer), params[3], c_expr);
     else
       c_expr.expr &:= "intPow(";
       process_expr(params[1], c_expr);
@@ -10074,13 +10190,15 @@ const proc: process_int_rand (in ref_list: params, inout expr_type: c_expr) is f
 const proc: process_const_int_rem (in reference: param1, in integer: divisor,
     inout expr_type: c_expr) is func
 
+  local
+    var reference: evaluatedParam is NIL;
   begin
     if divisor = 0 then
       incr(countOptimizations);
       c_expr.expr &:= raiseError("NUMERIC_ERROR");
-    elsif category(param1) = INTOBJECT and not isVar(param1) then
+    elsif getConstant(param1, INTOBJECT, evaluatedParam) then
       incr(countOptimizations);
-      c_expr.expr &:= str(getValue(param1, integer) mod divisor);
+      c_expr.expr &:= str(getValue(evaluatedParam, integer) rem divisor);
     elsif divisor = 1 or divisor = -1 then
       incr(countOptimizations);
       c_expr.expr &:= "0";
@@ -10137,12 +10255,13 @@ const proc: process_const_int_rem (in integer: dividend, in reference: param3,
 const proc: process_int_rem (in ref_list: params, inout expr_type: c_expr) is func
 
   local
+    var reference: evaluatedParam is NIL;
     var integer: temp_num is 0;
   begin
-    if category(params[3]) = INTOBJECT and not isVar(params[3]) then
-      process_const_int_rem(params[1], getValue(params[3], integer), c_expr);
-    elsif category(params[1]) = INTOBJECT and not isVar(params[1]) then
-      process_const_int_rem(getValue(params[1], integer), params[3], c_expr);
+    if getConstant(params[3], INTOBJECT, evaluatedParam) then
+      process_const_int_rem(params[1], getValue(evaluatedParam, integer), c_expr);
+    elsif getConstant(params[1], INTOBJECT, evaluatedParam) then
+      process_const_int_rem(getValue(evaluatedParam, integer), params[3], c_expr);
     elsif CHECK_INT_DIV_BY_ZERO then
       incr(c_expr.temp_num);
       temp_num := c_expr.temp_num;
@@ -10222,10 +10341,11 @@ const proc: process_const_int_rshift (in reference: param1, in integer: number,
 const proc: process_int_rshift (in ref_list: params, inout expr_type: c_expr) is func
 
   local
+    var reference: evaluatedParam is NIL;
     var integer: temp_num is 0;
   begin
-    if category(params[3]) = INTOBJECT and not isVar(params[3]) then
-      process_const_int_rshift(params[1], getValue(params[3], integer), c_expr);
+    if getConstant(params[3], INTOBJECT, evaluatedParam) then
+      process_const_int_rshift(params[1], getValue(evaluatedParam, integer), c_expr);
     else
       if RSHIFT_DOES_SIGN_EXTEND then
         c_expr.expr &:= "(";
@@ -10414,9 +10534,11 @@ const proc: process_const_int_str_based (in reference: param1, in integer: base,
 
 const proc: process_int_str_based (in ref_list: params, inout expr_type: c_expr) is func
 
+  local
+    var reference: evaluatedParam is NIL;
   begin
-    if category(params[2]) = INTOBJECT and not isVar(params[2]) then
-      process_const_int_str_based(params[1], getValue(params[2], integer), c_expr);
+    if getConstant(params[2], INTOBJECT, evaluatedParam) then
+      process_const_int_str_based(params[1], getValue(evaluatedParam, integer), c_expr);
     else
       prepare_stri_result(c_expr);
       c_expr.result_expr := "intStrBased(";
@@ -12195,15 +12317,16 @@ const proc: process_const_set_elem (in reference: param1, in bitset: aBitset,
     inout expr_type: c_expr) is func
 
   local
+    var reference: evaluatedParam is NIL;
     var string: integer_name is "";
     var integer: number is 0;
     var boolean: first_element is TRUE;
   begin
-    if category(param1) = INTOBJECT and not isVar(param1) then
+    if getConstant(param1, INTOBJECT, evaluatedParam) then
       incr(countOptimizations);
-      c_expr.expr &:= str(ord(getValue(param1, integer) in aBitset));
+      c_expr.expr &:= str(ord(getValue(evaluatedParam, integer) in aBitset));
       c_expr.expr &:= "/*";
-      c_expr.expr &:= str(getValue(param1, integer) in aBitset);
+      c_expr.expr &:= str(getValue(evaluatedParam, integer) in aBitset);
       c_expr.expr &:= "*/";
     elsif card(aBitset) = 0 then
       incr(countOptimizations);
@@ -12254,19 +12377,10 @@ const proc: process_const_set_elem (in reference: param1, in bitset: aBitset,
 const proc: process_set_elem (in ref_list: params, inout expr_type: c_expr) is func
 
   local
-    var reference: evaluatedParam3 is NIL;
+    var reference: evaluatedParam is NIL;
   begin
-    if category(params[3]) = SETOBJECT and not isVar(params[3]) then
-      process_const_set_elem(params[1], getValue(params[3], bitset), c_expr);
-    elsif isConstant(params[3]) then
-      evaluatedParam3 := evaluate(prog, params[3]);
-      if category(evaluatedParam3) = SETOBJECT then
-        process_const_set_elem(params[1], getValue(evaluatedParam3, bitset), c_expr);
-      else
-        c_expr.expr &:= "/* setElem ";
-        c_expr.expr &:= str(category(evaluatedParam3));
-        c_expr.expr &:= " */";
-      end if;
+    if getConstant(params[3], SETOBJECT, evaluatedParam) then
+      process_const_set_elem(params[1], getValue(evaluatedParam, bitset), c_expr);
     else
       c_expr.expr &:= "setElem(";
       process_expr(params[1], c_expr);
@@ -12455,15 +12569,16 @@ const proc: process_const_set_not_elem (in reference: param1, in bitset: aBitset
     inout expr_type: c_expr) is func
 
   local
+    var reference: evaluatedParam is NIL;
     var string: integer_name is "";
     var integer: number is 0;
     var boolean: first_element is TRUE;
   begin
-    if category(param1) = INTOBJECT and not isVar(param1) then
+    if getConstant(param1, INTOBJECT, evaluatedParam) then
       incr(countOptimizations);
-      c_expr.expr &:= str(ord(getValue(param1, integer) not in aBitset));
+      c_expr.expr &:= str(ord(getValue(evaluatedParam, integer) not in aBitset));
       c_expr.expr &:= "/*";
-      c_expr.expr &:= str(getValue(param1, integer) not in aBitset);
+      c_expr.expr &:= str(getValue(evaluatedParam, integer) not in aBitset);
       c_expr.expr &:= "*/";
     elsif card(aBitset) = 0 then
       incr(countOptimizations);
@@ -12514,19 +12629,10 @@ const proc: process_const_set_not_elem (in reference: param1, in bitset: aBitset
 const proc: process_set_not_elem (in ref_list: params, inout expr_type: c_expr) is func
 
   local
-    var reference: evaluatedParam4 is NIL;
+    var reference: evaluatedParam is NIL;
   begin
-    if category(params[4]) = SETOBJECT and not isVar(params[4]) then
-      process_const_set_not_elem(params[1], getValue(params[4], bitset), c_expr);
-    elsif isConstant(params[4]) then
-      evaluatedParam4 := evaluate(prog, params[4]);
-      if category(evaluatedParam4) = SETOBJECT then
-        process_const_set_not_elem(params[1], getValue(evaluatedParam4, bitset), c_expr);
-      else
-        c_expr.expr &:= "/* setNotElem ";
-        c_expr.expr &:= str(category(evaluatedParam4));
-        c_expr.expr &:= " */";
-      end if;
+    if getConstant(params[4], SETOBJECT, evaluatedParam) then
+      process_const_set_not_elem(params[1], getValue(evaluatedParam, bitset), c_expr);
     else
       c_expr.expr &:= "setNotElem(";
       process_expr(params[1], c_expr);
@@ -12782,6 +12888,19 @@ const proc: process_soc_inet_serv_addr (in ref_list: params, inout expr_type: c_
   end func;
 
 
+const proc: process_soc_input_ready (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "socInputReady(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[2], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[3], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
 const proc: process_soc_line_read (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
@@ -12921,11 +13040,12 @@ const proc: process_const_str_append (in reference: param1, in string: stri,
 const proc: process_str_append (in ref_list: params, inout expr_type: c_expr) is func
 
   local
+    var reference: evaluatedParam is NIL;
     var expr_type: c_param1 is expr_type.value;
     var expr_type: c_param3 is expr_type.value;
   begin
-    if category(params[3]) = STRIOBJECT and not isVar(params[3]) then
-      process_const_str_append(params[1], getValue(params[3], string), c_expr);
+    if getConstant(params[3], STRIOBJECT, evaluatedParam) then
+      process_const_str_append(params[1], getValue(evaluatedParam, string), c_expr);
     else
       process_expr(params[1], c_param1);
       c_param3.temp_num := c_param1.temp_num;
@@ -13206,12 +13326,13 @@ const proc: process_const_str_elemcpy (in reference: function, in reference: par
 const proc: process_str_elemcpy (in reference: function, in ref_list: params, inout expr_type: c_expr) is func
 
   local
+    var reference: evaluatedParam is NIL;
     var expr_type: c_param1 is expr_type.value;
     var expr_type: c_param4 is expr_type.value;
     var expr_type: c_param6 is expr_type.value;
   begin
-    if category(params[4]) = INTOBJECT and not isVar(params[4]) then
-      process_const_str_elemcpy(function, params[1], getValue(params[4], integer), params[6], c_expr);
+    if getConstant(params[4], INTOBJECT, evaluatedParam) then
+      process_const_str_elemcpy(function, params[1], getValue(evaluatedParam, integer), params[6], c_expr);
     else
       process_expr(params[1], c_param1);
       c_param4.temp_num := c_param1.temp_num;
@@ -13280,16 +13401,17 @@ const proc: process_const_str_eq (in reference: param1, in string: stri_b,
     inout expr_type: c_expr) is func
 
   local
+    var reference: evaluatedParam is NIL;
     var string: stri_a_name is "";
   begin
     incr(countOptimizations);
-    if category(param1) = STRIOBJECT and not isVar(param1) then
+    if getConstant(param1, STRIOBJECT, evaluatedParam) then
       c_expr.expr &:= "/* ";
-      c_expr.expr &:= replace(literal(getValue(param1, string)), "*/", "*\\/");
+      c_expr.expr &:= replace(literal(getValue(evaluatedParam, string)), "*/", "*\\/");
       c_expr.expr &:= " == ";
       c_expr.expr &:= replace(literal(stri_b), "*/", "*\\/");
       c_expr.expr &:= " */ ";
-      if getValue(param1, string) = stri_b then
+      if getValue(evaluatedParam, string) = stri_b then
         c_expr.expr &:= "1";
       else
         c_expr.expr &:= "0";
@@ -13344,13 +13466,14 @@ const proc: process_const_str_eq (in reference: param1, in string: stri_b,
 const proc: process_str_eq (in ref_list: params, inout expr_type: c_expr) is func
 
   local
+    var reference: evaluatedParam is NIL;
     var string: stri_a_name is "";
     var string: stri_b_name is "";
   begin
-    if category(params[3]) = STRIOBJECT and not isVar(params[3]) then
-      process_const_str_eq(params[1], getValue(params[3], string), c_expr);
-    elsif category(params[1]) = STRIOBJECT and not isVar(params[1]) then
-      process_const_str_eq(params[3], getValue(params[1], string), c_expr);
+    if getConstant(params[3], STRIOBJECT, evaluatedParam) then
+      process_const_str_eq(params[1], getValue(evaluatedParam, string), c_expr);
+    elsif getConstant(params[1], STRIOBJECT, evaluatedParam) then
+      process_const_str_eq(params[3], getValue(evaluatedParam, string), c_expr);
     else
       c_expr.expr &:= "(";
       incr(c_expr.temp_num);
@@ -13429,12 +13552,13 @@ const proc: process_str_head (in reference: param1, in reference: param4,
     inout expr_type: c_expr) is func
 
   local
+    var reference: evaluatedParam is NIL;
     var expr_type: c_param1 is expr_type.value;
     var integer: temp_num is 0;
   begin
     prepareAnyParamTemporarys(param1, c_param1, c_expr);
-    if category(param4) = INTOBJECT and not isVar(param4) and
-        getValue(param4, integer) = 1 then
+    if getConstant(param4, INTOBJECT, evaluatedParam) and
+        getValue(evaluatedParam, integer) = 1 then
       incr(countOptimizations);
       incr(c_expr.temp_num);
       temp_num := c_expr.temp_num;
@@ -13499,12 +13623,13 @@ const proc: process_const_str_idx (in reference: function, in string: stri,
     in reference: param3, inout expr_type: c_expr) is func
 
   local
+    var reference: evaluatedParam is NIL;
     var integer: index is 0;
     var string: index_name is "";
   begin
     incr(countOptimizations);
-    if category(param3) = INTOBJECT and not isVar(param3) then
-      index := getValue(param3, integer);
+    if getConstant(param3, INTOBJECT, evaluatedParam) then
+      index := getValue(evaluatedParam, integer);
       if index < 1 or index > length(stri) then
         process_raise_error("RANGE_ERROR", function, c_expr);
       else
@@ -13606,13 +13731,14 @@ const proc: process_const_str_idx (in reference: function, in reference: param1,
 const proc: process_str_idx (in reference: function, in ref_list: params, inout expr_type: c_expr) is func
 
   local
+    var reference: evaluatedParam is NIL;
     var string: stri_name is "";
     var string: index_name is "";
   begin
-    if category(params[1]) = STRIOBJECT and not isVar(params[1]) then
-      process_const_str_idx(function, getValue(params[1], string), params[3], c_expr);
-    elsif category(params[3]) = INTOBJECT and not isVar(params[3]) then
-      process_const_str_idx(function, params[1], getValue(params[3], integer), c_expr);
+    if getConstant(params[1], STRIOBJECT, evaluatedParam) then
+      process_const_str_idx(function, getValue(evaluatedParam, string), params[3], c_expr);
+    elsif getConstant(params[3], INTOBJECT, evaluatedParam) then
+      process_const_str_idx(function, params[1], getValue(evaluatedParam, integer), c_expr);
     elsif array_range_check then
       incr(c_expr.temp_num);
       index_name := "idx_" & str(c_expr.temp_num);
@@ -13674,14 +13800,16 @@ const proc: process_str_idx (in reference: function, in ref_list: params, inout 
 
 const proc: process_str_ipos (in ref_list: params, inout expr_type: c_expr) is func
 
+  local
+    var reference: evaluatedParam is NIL;
   begin
-    if category(params[2]) = STRIOBJECT and not isVar(params[2]) and
-        length(getValue(params[2], string)) = 1 then
+    if getConstant(params[2], STRIOBJECT, evaluatedParam) and
+        length(getValue(evaluatedParam, string)) = 1 then
       incr(countOptimizations);
       c_expr.expr &:= "strChIPos(";
       getAnyParamToExpr(params[1], c_expr);
       c_expr.expr &:= ", ";
-      c_expr.expr &:= c_literal(getValue(params[2], string)[1]);
+      c_expr.expr &:= c_literal(getValue(evaluatedParam, string)[1]);
       c_expr.expr &:= ", ";
       process_expr(params[3], c_expr);
       c_expr.expr &:= ")";
@@ -13721,11 +13849,12 @@ const proc: process_str_lit (in ref_list: params, inout expr_type: c_expr) is fu
 const proc: process_str_lng (in ref_list: params, inout expr_type: c_expr) is func
 
   local
+    var reference: evaluatedParam is NIL;
     var string: stri is "";
   begin
-    if category(params[1]) = STRIOBJECT and not isVar(params[1]) then
+    if getConstant(params[1], STRIOBJECT, evaluatedParam) then
       incr(countOptimizations);
-      stri := getValue(params[1], string);
+      stri := getValue(evaluatedParam, string);
       c_expr.expr &:= str(length(stri));
       c_expr.expr &:= " /* length(";
       c_expr.expr &:= replace(literal(stri), "*/", "*\\/");
@@ -13844,16 +13973,17 @@ const proc: process_const_str_ne (in reference: param1, in string: stri_b,
     inout expr_type: c_expr) is func
 
   local
+    var reference: evaluatedParam is NIL;
     var string: stri_a_name is "";
   begin
     incr(countOptimizations);
-    if category(param1) = STRIOBJECT and not isVar(param1) then
+    if getConstant(param1, STRIOBJECT, evaluatedParam) then
       c_expr.expr &:= "/* ";
-      c_expr.expr &:= replace(literal(getValue(param1, string)), "*/", "*\\/");
+      c_expr.expr &:= replace(literal(getValue(evaluatedParam, string)), "*/", "*\\/");
       c_expr.expr &:= " != ";
       c_expr.expr &:= replace(literal(stri_b), "*/", "*\\/");
       c_expr.expr &:= " */ ";
-      if getValue(param1, string) <> stri_b then
+      if getValue(evaluatedParam, string) <> stri_b then
         c_expr.expr &:= "1";
       else
         c_expr.expr &:= "0";
@@ -13908,13 +14038,14 @@ const proc: process_const_str_ne (in reference: param1, in string: stri_b,
 const proc: process_str_ne (in ref_list: params, inout expr_type: c_expr) is func
 
   local
+    var reference: evaluatedParam is NIL;
     var string: stri_a_name is "";
     var string: stri_b_name is "";
   begin
-    if category(params[3]) = STRIOBJECT and not isVar(params[3]) then
-      process_const_str_ne(params[1], getValue(params[3], string), c_expr);
-    elsif category(params[1]) = STRIOBJECT and not isVar(params[1]) then
-      process_const_str_ne(params[3], getValue(params[1], string), c_expr);
+    if getConstant(params[3], STRIOBJECT, evaluatedParam) then
+      process_const_str_ne(params[1], getValue(evaluatedParam, string), c_expr);
+    elsif getConstant(params[1], STRIOBJECT, evaluatedParam) then
+      process_const_str_ne(params[3], getValue(evaluatedParam, string), c_expr);
     else
       c_expr.expr &:= "(";
       incr(c_expr.temp_num);
@@ -13960,14 +14091,16 @@ const proc: process_str_ne (in ref_list: params, inout expr_type: c_expr) is fun
 
 const proc: process_str_pos (in ref_list: params, inout expr_type: c_expr) is func
 
+  local
+    var reference: evaluatedParam is NIL;
   begin
-    if category(params[2]) = STRIOBJECT and not isVar(params[2]) and
-        length(getValue(params[2], string)) = 1 then
+    if getConstant(params[2], STRIOBJECT, evaluatedParam) and
+        length(getValue(evaluatedParam, string)) = 1 then
       incr(countOptimizations);
       c_expr.expr &:= "strChPos(";
       getAnyParamToExpr(params[1], c_expr);
       c_expr.expr &:= ", ";
-      c_expr.expr &:= c_literal(getValue(params[2], string)[1]);
+      c_expr.expr &:= c_literal(getValue(evaluatedParam, string)[1]);
       c_expr.expr &:= ")";
     else
       c_expr.expr &:= "strPos(";
@@ -14044,12 +14177,13 @@ const proc: process_const_str_poscpy (in reference: function, in reference: para
 const proc: process_str_poscpy (in reference: function, in ref_list: params, inout expr_type: c_expr) is func
 
   local
+    var reference: evaluatedParam is NIL;
     var expr_type: c_param1 is expr_type.value;
     var expr_type: c_param4 is expr_type.value;
     var expr_type: c_param6 is expr_type.value;
   begin
-    if category(params[4]) = INTOBJECT and not isVar(params[4]) then
-      process_const_str_poscpy(function, params[1], getValue(params[4], integer), params[6], c_expr);
+    if getConstant(params[4], INTOBJECT, evaluatedParam) then
+      process_const_str_poscpy(function, params[1], getValue(evaluatedParam, integer), params[6], c_expr);
     else
       process_expr(params[1], c_param1);
       c_param4.temp_num := c_param1.temp_num;
@@ -14149,10 +14283,11 @@ const proc: process_str_push (in ref_list: params, inout expr_type: c_expr) is f
 const proc: process_str_range (in ref_list: params, inout expr_type: c_expr) is func
 
   local
+    var reference: evaluatedParam is NIL;
     var integer: temp_num is 0;
   begin
-    if category(params[3]) = INTOBJECT and not isVar(params[3]) and
-        getValue(params[3], integer) = 1 then
+    if getConstant(params[3], INTOBJECT, evaluatedParam) and
+        getValue(evaluatedParam, integer) = 1 then
       incr(countOptimizations);
       process_str_head(params[1], params[5], c_expr);
     elsif ALLOW_STRITYPE_SLICES then
@@ -14223,14 +14358,16 @@ const proc: process_str_repl (in ref_list: params, inout expr_type: c_expr) is f
 
 const proc: process_str_ripos (in ref_list: params, inout expr_type: c_expr) is func
 
+  local
+    var reference: evaluatedParam is NIL;
   begin
-    if category(params[2]) = STRIOBJECT and not isVar(params[2]) and
-        length(getValue(params[2], string)) = 1 then
+    if getConstant(params[2], STRIOBJECT, evaluatedParam) and
+        length(getValue(evaluatedParam, string)) = 1 then
       incr(countOptimizations);
       c_expr.expr &:= "strRChIPos(";
       getAnyParamToExpr(params[1], c_expr);
       c_expr.expr &:= ", ";
-      c_expr.expr &:= c_literal(getValue(params[2], string)[1]);
+      c_expr.expr &:= c_literal(getValue(evaluatedParam, string)[1]);
       c_expr.expr &:= ", ";
       process_expr(params[3], c_expr);
       c_expr.expr &:= ")";
@@ -14260,14 +14397,16 @@ const proc: process_str_rpad (in ref_list: params, inout expr_type: c_expr) is f
 
 const proc: process_str_rpos (in ref_list: params, inout expr_type: c_expr) is func
 
+  local
+    var reference: evaluatedParam is NIL;
   begin
-    if category(params[2]) = STRIOBJECT and not isVar(params[2]) and
-        length(getValue(params[2], string)) = 1 then
+    if getConstant(params[2], STRIOBJECT, evaluatedParam) and
+        length(getValue(evaluatedParam, string)) = 1 then
       incr(countOptimizations);
       c_expr.expr &:= "strRChPos(";
       getAnyParamToExpr(params[1], c_expr);
       c_expr.expr &:= ", ";
-      c_expr.expr &:= c_literal(getValue(params[2], string)[1]);
+      c_expr.expr &:= c_literal(getValue(evaluatedParam, string)[1]);
       c_expr.expr &:= ")";
     else
       c_expr.expr &:= "strRPos(";
@@ -14281,15 +14420,17 @@ const proc: process_str_rpos (in ref_list: params, inout expr_type: c_expr) is f
 
 const proc: process_str_split (in ref_list: params, inout expr_type: c_expr) is func
 
+  local
+    var reference: evaluatedParam is NIL;
   begin
     prepare_array_result(array_type[getExprResultType(params[1])], c_expr);
-    if category(params[2]) = STRIOBJECT and not isVar(params[2]) and
-        length(getValue(params[2], string)) = 1 then
+    if getConstant(params[2], STRIOBJECT, evaluatedParam) and
+        length(getValue(evaluatedParam, string)) = 1 then
       incr(countOptimizations);
       c_expr.result_expr := "strChSplit(";
       getAnyParamToResultExpr(params[1], c_expr);
       c_expr.result_expr &:= ", ";
-      c_expr.result_expr &:= c_literal(getValue(params[2], string)[1]);
+      c_expr.result_expr &:= c_literal(getValue(evaluatedParam, string)[1]);
       c_expr.result_expr &:= ")";
     else
       c_expr.result_expr := "strSplit(";
@@ -14366,14 +14507,15 @@ const proc: process_str_substr1 (in reference: param1, in reference: param3,
 const proc: process_str_substr (in ref_list: params, inout expr_type: c_expr) is func
 
   local
+    var reference: evaluatedParam is NIL;
     var integer: temp_num is 0;
   begin
-    if category(params[3]) = INTOBJECT and not isVar(params[3]) and
-        getValue(params[3], integer) = 1 then
+    if getConstant(params[3], INTOBJECT, evaluatedParam) and
+        getValue(evaluatedParam, integer) = 1 then
       incr(countOptimizations);
       process_str_head(params[1], params[5], c_expr);
-    elsif category(params[5]) = INTOBJECT and not isVar(params[5]) and
-        getValue(params[5], integer) = 1 then
+    elsif getConstant(params[5], INTOBJECT, evaluatedParam) and
+        getValue(evaluatedParam, integer) = 1 then
       process_str_substr1(params[1], params[3], c_expr);
     elsif ALLOW_STRITYPE_SLICES then
       incr(c_expr.temp_num);
@@ -15336,6 +15478,8 @@ const proc: process_action (in reference: function, in ref_list: params,
         process_fil_has_next(params, c_expr);
       elsif action_name = "FIL_IN" then
         process_fil_in(params, c_expr);
+      elsif action_name = "FIL_INPUT_READY" then
+        process_fil_input_ready(params, c_expr);
       elsif action_name = "FIL_LINE_READ" then
         process_fil_line_read(params, c_expr);
       elsif action_name = "FIL_LIT" then
@@ -15985,6 +16129,8 @@ const proc: process_action (in reference: function, in ref_list: params,
         process_soc_inet_local_addr(params, c_expr);
       elsif action_name = "SOC_INET_SERV_ADDR" then
         process_soc_inet_serv_addr(params, c_expr);
+      elsif action_name = "SOC_INPUT_READY" then
+        process_soc_input_ready(params, c_expr);
       elsif action_name = "SOC_LINE_READ" then
         process_soc_line_read(params, c_expr);
       elsif action_name = "SOC_LISTEN" then
@@ -17514,7 +17660,7 @@ const proc: process_expr (in var reference: current_expression, inout expr_type:
     var category: exprCategory is category.value;
     var expr_type: c_body is expr_type.value;
   begin
-    if evaluate_const_expr and isConstantExpr(current_expression) then
+    if evaluate_const_expr = 3 and isConstantExpr(current_expression) then
       block
         evaluated_expression := evaluate(prog, current_expression);
         if evaluated_expression <> NIL then
@@ -20530,6 +20676,7 @@ const proc: write_prototypes is func
     declareExtern("biginttype  bigLShift (const const_biginttype, const inttype);");
     declareExtern("void        bigLShiftAssign (biginttype *const, inttype);");
     declareExtern("biginttype  bigLShiftOne (const inttype);");
+    declareExtern("biginttype  bigLog2BaseLShift (const inttype, const inttype);");
     declareExtern("biginttype  bigMDiv (const const_biginttype, const const_biginttype);");
     declareExtern("biginttype  bigMinus (const const_biginttype);");
     declareExtern("biginttype  bigMod (const const_biginttype, const const_biginttype);");
@@ -20554,6 +20701,7 @@ const proc: write_prototypes is func
     declareExtern("biginttype  bigSbtr (const const_biginttype, const const_biginttype);");
     declareExtern("biginttype  bigSbtrTemp (biginttype, const_biginttype);");
     declareExtern("void        bigShrink (biginttype *const, const const_biginttype);");
+    declareExtern("biginttype  bigSquare (const_biginttype);");
     declareExtern("stritype    bigStr (const const_biginttype);");
     declareExtern("biginttype  bigSucc (const const_biginttype);");
     declareExtern("biginttype  bigSuccTemp (biginttype);");
@@ -20669,6 +20817,7 @@ const proc: write_prototypes is func
     declareExtern("void        filClose (filetype);");
     declareExtern("stritype    filGets (filetype, inttype);");
     declareExtern("booltype    filHasNext (filetype);");
+    declareExtern("booltype    filInputReady (filetype);");
     declareExtern("stritype    filLineRead (filetype, chartype *);");
     declareExtern("stritype    filLit (filetype);");
     declareExtern("inttype     filLng (filetype);");
@@ -20851,6 +21000,7 @@ const proc: write_prototypes is func
     declareExtern("bstritype   socInetAddr (const const_stritype, inttype);");
     declareExtern("bstritype   socInetLocalAddr (inttype);");
     declareExtern("bstritype   socInetServAddr (inttype);");
+    declareExtern("booltype    socInputReady (sockettype, inttype, inttype);");
     declareExtern("stritype    socLineRead (sockettype, chartype *);");
     declareExtern("void        socListen (sockettype, inttype);");
     declareExtern("inttype     socRecv (sockettype, stritype *, inttype, inttype);");
@@ -20993,12 +21143,16 @@ const proc: write_signal_handlers is func
     writeln(c_prog, "      sig_name = buffer;");
     writeln(c_prog, "    } /* if */");
     writeln(c_prog, "    printf(\"\\n*** SIGNAL %s RAISED\\n\", sig_name);");
-    writeln(c_prog, "    printf(\"\\n*** (Type RETURN to continue or '*' to terminate)\\n\");");
-    writeln(c_prog, "    ch = fgetc(stdin);");
-    writeln(c_prog, "    if (ch == '*') {");
-    writeln(c_prog, "      exit(1);");
-    writeln(c_prog, "    } /* if */");
-    writeln(c_prog, "    activate_signal_handlers();");
+    if trace_signal then
+      writeln(c_prog, "    printf(\"\\n*** (Type RETURN to continue or '*' to terminate)\\n\");");
+      writeln(c_prog, "    ch = fgetc(stdin);");
+      writeln(c_prog, "    if (ch == '*') {");
+      writeln(c_prog, "      exit(1);");
+      writeln(c_prog, "    } /* if */");
+      writeln(c_prog, "    activate_signal_handlers();");
+    else
+      writeln(c_prog, "    exit(1);");
+    end if;
     writeln(c_prog, "  }");
     writeln(c_prog);
     writeln(c_prog);
@@ -22227,12 +22381,13 @@ const proc: pass_1 (in string: source, inout program: prog,
       end if;
       if "-t" in compiler_option then
         trace_exception := compiler_option["-t"] = "e";
+        trace_signal := compiler_option["-t"] = "s";
       end if;
       if "-e" in compiler_option then
         signal_exception := TRUE;
       end if;
-      if "-v" in compiler_option then
-        evaluate_const_expr := TRUE;
+      if "-o" in compiler_option and compiler_option["-o"] in {"c0", "c1", "c2", "c3"} then
+        evaluate_const_expr := integer parse (compiler_option["-o"][2 ..]);
       end if;
       if "-c" in compiler_option then
         generate_c_plus_plus := compiler_option["-c"] = "++";
@@ -22550,7 +22705,7 @@ const proc: main is func
       while number <= length(argv(PROGRAM)) do
         curr_arg := argv(PROGRAM)[number];
         if length(curr_arg) >= 2 and curr_arg[1] = '-' then
-          if curr_arg[.. 2] in {"-r", "-g", "-t", "-e", "-v", "-c", "-O"} then
+          if curr_arg[.. 2] in {"-r", "-g", "-t", "-e", "-o", "-c", "-O"} then
             compiler_option @:= [curr_arg[.. 2]] curr_arg[3 ..];
           else
             writeln("*** Ignore unsupported option: " <& curr_arg);

@@ -77,7 +77,7 @@ listtype arguments;
     } else {
       list2_start = copy_list(rfl_from, &err_info);
       if (err_info != OKAY_NO_ERROR) {
-        return(raise_exception(SYS_MEM_EXCEPTION));
+        return raise_exception(SYS_MEM_EXCEPTION);
       } /* if */
     } /* if */
     if (rfl_to != NULL) {
@@ -89,7 +89,7 @@ listtype arguments;
     } else {
       rfl_variable->value.listvalue = list2_start;
     } /* if */
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* rfl_append */
 
 
@@ -121,7 +121,7 @@ listtype arguments;
     } else {
       result = copy_list(take_reflist(arg1), &err_info);
       if (err_info != OKAY_NO_ERROR) {
-        return(raise_exception(SYS_MEM_EXCEPTION));
+        return raise_exception(SYS_MEM_EXCEPTION);
       } /* if */
     } /* if */
     if (TEMP_OBJECT(arg2)) {
@@ -130,7 +130,7 @@ listtype arguments;
     } else {
       list2_start = copy_list(take_reflist(arg2), &err_info);
       if (err_info != OKAY_NO_ERROR) {
-        return(raise_exception(SYS_MEM_EXCEPTION));
+        return raise_exception(SYS_MEM_EXCEPTION);
       } /* if */
     } /* if */
     if (TEMP_OBJECT(arg1)) {
@@ -149,7 +149,7 @@ listtype arguments;
     } else {
       result = list2_start;
     } /* if */
-    return(bld_reflist_temp(result));
+    return bld_reflist_temp(result);
   } /* rfl_cat */
 
 
@@ -183,14 +183,14 @@ listtype arguments;
       } else {
         help_list = copy_list(take_reflist(list_from), &err_info);
         if (err_info != OKAY_NO_ERROR) {
-          return(raise_exception(SYS_MEM_EXCEPTION));
+          return raise_exception(SYS_MEM_EXCEPTION);
         } else {
           emptylist(take_reflist(list_to));
           list_to->value.listvalue = help_list;
         } /* if */
       } /* if */
     } /* if */
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* rfl_cpy */
 
 
@@ -221,10 +221,10 @@ listtype arguments;
       list_to->value.listvalue = copy_list(take_reflist(list_from), &err_info);
       if (err_info != OKAY_NO_ERROR) {
         list_to->value.listvalue = NULL;
-        return(raise_exception(SYS_MEM_EXCEPTION));
+        return raise_exception(SYS_MEM_EXCEPTION);
       } /* if */
     } /* if */
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* rfl_create */
 
 
@@ -242,7 +242,7 @@ listtype arguments;
     isit_reflist(arg_1(arguments));
     emptylist(take_reflist(arg_1(arguments)));
     arg_1(arguments)->value.listvalue = NULL;
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* rfl_destr */
 
 
@@ -269,9 +269,9 @@ listtype arguments;
       list_element = list_element->next;
     } /* while */
     if (list_element != NULL) {
-      return(SYS_TRUE_OBJECT);
+      return SYS_TRUE_OBJECT;
     } else {
-      return(SYS_FALSE_OBJECT);
+      return SYS_FALSE_OBJECT;
     } /* if */
   } /* rfl_elem */
 
@@ -307,12 +307,12 @@ listtype arguments;
       if (list_element != NULL) {
         list_element->obj = take_reference(arg_6(arguments));
       } else {
-        return(raise_exception(SYS_RNG_EXCEPTION));
+        return raise_exception(SYS_RNG_EXCEPTION);
       } /* if */
     } else {
-      return(raise_exception(SYS_RNG_EXCEPTION));
+      return raise_exception(SYS_RNG_EXCEPTION);
     } /* if */
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* rfl_elemcpy */
 
 
@@ -327,7 +327,7 @@ listtype arguments;
 #endif
 
   { /* rfl_empty */
-    return(bld_reflist_temp(NULL));
+    return bld_reflist_temp(NULL);
   } /* rfl_empty */
 
 
@@ -361,7 +361,7 @@ listtype arguments;
     } else {
       result = SYS_FALSE_OBJECT;
     } /* if */
-    return(result);
+    return result;
   } /* rfl_eq */
 
 
@@ -380,7 +380,7 @@ listtype arguments;
     isit_reference(arg_2(arguments));
     excl_list(&arg_1(arguments)->value.listvalue,
         take_reference(arg_2(arguments)));
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* rfl_excl */
 
 
@@ -450,7 +450,7 @@ listtype arguments;
     /* printf("result: ");
     prot_list(result);
     printf("\n"); */
-    return(bld_reflist_temp(result));
+    return bld_reflist_temp(result);
   } /* rfl_expr */
 
 
@@ -482,7 +482,7 @@ listtype arguments;
     isit_reflist(elementlist);
     helplist = copy_list(take_list(elementlist), &err_info);
     if (err_info != OKAY_NO_ERROR) {
-      return(raise_exception(SYS_MEM_EXCEPTION));
+      return raise_exception(SYS_MEM_EXCEPTION);
     } else {
       listelement = helplist;
       result = SYS_EMPTY_OBJECT;
@@ -492,7 +492,7 @@ listtype arguments;
         listelement = listelement->next;
       } /* while */
       emptylist(helplist);
-      return(result);
+      return result;
     } /* if */
   } /* rfl_for */
 
@@ -528,7 +528,7 @@ listtype arguments;
     isit_reflist(elementlist);
     helplist = copy_list(take_list(elementlist), &err_info);
     if (err_info != OKAY_NO_ERROR) {
-      return(raise_exception(SYS_MEM_EXCEPTION));
+      return raise_exception(SYS_MEM_EXCEPTION);
     } else {
       listelement = helplist;
       if (listelement != NULL) {
@@ -560,7 +560,7 @@ listtype arguments;
         } /* if */
       } /* if */
       emptylist(helplist);
-      return(SYS_EMPTY_OBJECT);
+      return SYS_EMPTY_OBJECT;
     } /* if */
   } /* rfl_for_until */
 
@@ -617,9 +617,9 @@ listtype arguments;
       result = NULL;
     } /* if */
     if (err_info != OKAY_NO_ERROR) {
-      return(raise_exception(SYS_MEM_EXCEPTION));
+      return raise_exception(SYS_MEM_EXCEPTION);
     } else {
-      return(bld_reflist_temp(result));
+      return bld_reflist_temp(result);
     } /* if */
   } /* rfl_head */
 
@@ -659,7 +659,7 @@ listtype arguments;
     } else {
       result = raise_exception(SYS_RNG_EXCEPTION);
     } /* if */
-    return(result);
+    return result;
   } /* rfl_idx */
 
 
@@ -682,9 +682,9 @@ listtype arguments;
     incl_list(&arg_1(arguments)->value.listvalue,
         take_reference(arg_2(arguments)), &err_info);
     if (err_info != OKAY_NO_ERROR) {
-      return(raise_exception(SYS_MEM_EXCEPTION));
+      return raise_exception(SYS_MEM_EXCEPTION);
     } else {
-      return(SYS_EMPTY_OBJECT);
+      return SYS_EMPTY_OBJECT;
     } /* if */
   } /* rfl_incl */
 
@@ -723,7 +723,7 @@ listtype arguments;
     if (list_element == NULL) {
       result = 0;
     } /* if */
-    return(bld_int_temp(result));
+    return bld_int_temp(result);
   } /* rfl_ipos */
 
 
@@ -749,7 +749,7 @@ listtype arguments;
       list_element = list_element->next;
       result++;
     } /* while */
-    return(bld_int_temp(result));
+    return bld_int_temp(result);
   } /* rfl_lng */
 
 
@@ -771,9 +771,9 @@ listtype arguments;
     if (ALLOC_L_ELEM(result)) {
       result->next = NULL;
       result->obj = take_reference(arg_1(arguments));
-      return(bld_reflist_temp(result));
+      return bld_reflist_temp(result);
     } else {
-      return(raise_exception(SYS_MEM_EXCEPTION));
+      return raise_exception(SYS_MEM_EXCEPTION);
     } /* if */
   } /* rfl_mklist */
 
@@ -808,7 +808,7 @@ listtype arguments;
     } else {
       result = SYS_FALSE_OBJECT;
     } /* if */
-    return(result);
+    return result;
   } /* rfl_ne */
 
 
@@ -835,9 +835,9 @@ listtype arguments;
       list_element = list_element->next;
     } /* while */
     if (list_element == NULL) {
-      return(SYS_TRUE_OBJECT);
+      return SYS_TRUE_OBJECT;
     } else {
-      return(SYS_FALSE_OBJECT);
+      return SYS_FALSE_OBJECT;
     } /* if */
   } /* rfl_not_elem */
 
@@ -870,7 +870,7 @@ listtype arguments;
     if (list_element == NULL) {
       result = 0;
     } /* if */
-    return(bld_int_temp(result));
+    return bld_int_temp(result);
   } /* rfl_pos */
 
 
@@ -934,9 +934,9 @@ listtype arguments;
       result = NULL;
     } /* if */
     if (err_info != OKAY_NO_ERROR) {
-      return(raise_exception(SYS_MEM_EXCEPTION));
+      return raise_exception(SYS_MEM_EXCEPTION);
     } else {
-      return(bld_reflist_temp(result));
+      return bld_reflist_temp(result);
     } /* if */
   } /* rfl_range */
 
@@ -974,7 +974,7 @@ listtype arguments;
         } else {
           help_list = copy_list(take_reflist(list_from), &err_info);
           if (err_info != OKAY_NO_ERROR) {
-            return(raise_exception(SYS_MEM_EXCEPTION));
+            return raise_exception(SYS_MEM_EXCEPTION);
           } else {
             emptylist(take_reflist(list_to));
             list_to->value.listvalue = help_list;
@@ -984,7 +984,7 @@ listtype arguments;
     } else {
       run_error(REFLISTOBJECT, list_to);
     } /* if */
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* rfl_setvalue */
 
 
@@ -1037,9 +1037,9 @@ listtype arguments;
       } /* if */
     } /* if */
     if (err_info != OKAY_NO_ERROR) {
-      return(raise_exception(SYS_MEM_EXCEPTION));
+      return raise_exception(SYS_MEM_EXCEPTION);
     } else {
-      return(bld_reflist_temp(result));
+      return bld_reflist_temp(result);
     } /* if */
   } /* rfl_tail */
 
@@ -1057,7 +1057,7 @@ listtype arguments;
   { /* rfl_trace */
     isit_reflist(arg_1(arguments));
     prot_list(take_reflist(arg_1(arguments)));
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* rfl_trace */
 
 
@@ -1085,10 +1085,10 @@ listtype arguments;
          CATEGORY_OF_OBJ(obj_arg) == REFLISTOBJECT)) {
       result = copy_list(take_reflist(obj_arg), &err_info);
       if (err_info != OKAY_NO_ERROR) {
-        return(raise_exception(SYS_MEM_EXCEPTION));
+        return raise_exception(SYS_MEM_EXCEPTION);
       } /* if */
     } else {
-      return(raise_exception(SYS_RNG_EXCEPTION));
+      return raise_exception(SYS_RNG_EXCEPTION);
     } /* if */
-    return(bld_reflist_temp(result));
+    return bld_reflist_temp(result);
   } /* rfl_value */

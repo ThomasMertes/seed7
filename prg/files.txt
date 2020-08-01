@@ -115,6 +115,7 @@ field.s7i    Filter file which reads the input fieldwise
 file.s7i     Interface type describing sequential files
 float.s7i    Floating point support library
 font.s7i     Defines the font interface
+forloop.s7i  For-loop and templates to define for-loop
 ftp.s7i      Support for FTP (file transfer protocol)
 getf.s7i     Read and write whole files into and from strings
 gethttp.s7i  Support to get data with the HTTP protocol

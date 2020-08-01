@@ -2425,50 +2425,40 @@ inttype col;
 inttype bkcol;
 #endif
 
-  { /* drwText */
+  {
+    XChar2b *stri_buffer;
+    XChar2b *wstri;
+    const strelemtype *strelem;
+    memsizetype len;
+
+  /* drwText */
 #ifdef TRACE_X11
     printf("drwText(%lu, %ld, %ld, ...)\n", actual_window, x, y);
 #endif
-#ifdef UTF32_STRINGS
-    {
-      XChar2b *stri_buffer;
-      XChar2b *wstri;
-      const strelemtype *strelem;
-      memsizetype len;
-
-      stri_buffer = (XChar2b *) malloc(sizeof(XChar2b) * stri->size);
-      if (stri_buffer != NULL) {
-        wstri = stri_buffer;
-        strelem = stri->mem;
-        len = stri->size;
-        for (; len > 0; wstri++, strelem++, len--) {
-          if (*strelem >= 65536) {
-            raise_error(RANGE_ERROR);
-            return;
-          } /* if */
-          wstri->byte1 = (*strelem >> 8) & 0xFF;
-          wstri->byte2 = *strelem & 0xFF;
-        } /* for */
-
-        XSetForeground(mydisplay, mygc, (unsigned) col);
-        XSetBackground(mydisplay, mygc, (unsigned) bkcol);
-        XDrawImageString16(mydisplay, to_window(actual_window), mygc,
-            x, y, stri_buffer, (int) stri->size);
-        if (to_backup(actual_window) != 0) {
-          XDrawImageString16(mydisplay, to_backup(actual_window), mygc,
-              x, y, stri_buffer, (int) stri->size);
+    stri_buffer = (XChar2b *) malloc(sizeof(XChar2b) * stri->size);
+    if (stri_buffer != NULL) {
+      wstri = stri_buffer;
+      strelem = stri->mem;
+      len = stri->size;
+      for (; len > 0; wstri++, strelem++, len--) {
+        if (*strelem >= 65536) {
+          raise_error(RANGE_ERROR);
+          return;
         } /* if */
-        free(stri_buffer);
+        wstri->byte1 = (*strelem >> 8) & 0xFF;
+        wstri->byte2 = *strelem & 0xFF;
+      } /* for */
+
+      XSetForeground(mydisplay, mygc, (unsigned) col);
+      XSetBackground(mydisplay, mygc, (unsigned) bkcol);
+      XDrawImageString16(mydisplay, to_window(actual_window), mygc,
+          x, y, stri_buffer, (int) stri->size);
+      if (to_backup(actual_window) != 0) {
+        XDrawImageString16(mydisplay, to_backup(actual_window), mygc,
+            x, y, stri_buffer, (int) stri->size);
       } /* if */
-    }
-#else
-    XDrawImageString(mydisplay, to_window(actual_window), mygc,
-        x, y, stri->mem, (int) stri->size);
-    if (to_backup(actual_window) != 0) {
-      XDrawImageString(mydisplay, to_backup(actual_window), mygc,
-          x, y, stri->mem, (int) stri->size);
+      free(stri_buffer);
     } /* if */
-#endif
   } /* drwText */
 
 

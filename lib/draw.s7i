@@ -622,7 +622,7 @@ const proc: setTransparentColor (in PRIMITIVE_WINDOW: pixmap, in color: col) is 
  *  Retrieve the color at pixel position (''x'', ''y'') from ''aWindow''.
  *  @return the pixel color at position (''x'', ''y'').
  *)
-const func color: getPixelColor (inout PRIMITIVE_WINDOW: aWindow,
+const func color: getPixelColor (in PRIMITIVE_WINDOW: aWindow,
     in integer: x, in integer: y) is func
   result
     var color: col is color.value;

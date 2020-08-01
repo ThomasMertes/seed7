@@ -132,7 +132,7 @@ objecttype obj;
 #ifdef TRACE_ENTITY
     printf("END new_node\n");
 #endif
-    return(created_node);
+    return created_node;
   } /* new_node */
 
 
@@ -203,7 +203,7 @@ register objecttype object_searched;
     trace_node(node_found);
     printf("\n");
 #endif
-    return(node_found);
+    return node_found;
   } /* get_node */
 
 
@@ -259,7 +259,7 @@ register objecttype object_searched;
       printf("*NULL_NODE*\n");
     } /* if */
 #endif
-    return(node_found);
+    return node_found;
   } /* find_node */
 
 
@@ -328,7 +328,7 @@ register objecttype object_searched;
       printf("*NULL_NODE*\n");
     } /* if */
 #endif
-    return(node_found);
+    return node_found;
   } /* pop_node */
 
 
@@ -430,7 +430,7 @@ identtype id;
     prot_cstri(id_string(created_entity->ident));
     printf("\n");
 #endif
-    return(created_entity);
+    return created_entity;
   } /* new_entity */
 
 
@@ -514,7 +514,7 @@ printf("\n"); */
 #ifdef TRACE_ENTITY
     printf("END get_entity\n");
 #endif
-    return(entity_found);
+    return entity_found;
   } /* get_entity */
 
 
@@ -591,7 +591,7 @@ printf("\n"); */
 #ifdef TRACE_ENTITY
     printf("END find_entity\n");
 #endif
-    return(entity_found);
+    return entity_found;
   } /* find_entity */
 
 
@@ -691,7 +691,7 @@ printf("\n"); */
 #ifdef TRACE_ENTITY
     printf("END search_entity\n");
 #endif
-    return(entity_found);
+    return entity_found;
   } /* search_entity */
 
 

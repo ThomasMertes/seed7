@@ -372,7 +372,7 @@ char *fontname;
 #endif
 
   { /* inf_setfont */
-    return(1);
+    return 1;
   } /* inf_setfont */
 
 
@@ -386,7 +386,7 @@ inttype inf_textheight ()
 #endif
 
   { /* inf_textheight */
-    return(1);
+    return 1;
   } /* inf_textheight */
 
 
@@ -404,7 +404,7 @@ inttype stopcol;
 #endif
 
   { /* textwidth */
-    return(stopcol + 1 - startcol);
+    return stopcol + 1 - startcol;
   } /* textwidth */
 
 
@@ -438,7 +438,7 @@ int conHeight ()
 #endif
 
   { /* conHeight */
-    return(lines);
+    return lines;
   } /* conHeight */
 
 
@@ -452,7 +452,7 @@ int conWidth ()
 #endif
 
   { /* conWidth */
-    return(columns);
+    return columns;
   } /* conWidth */
 
 
@@ -1327,5 +1327,5 @@ int conOpen ()
     printf("END conOpen\n");
     fflush(stdout);
 #endif
-    return(result);
+    return result;
   } /* conOpen */

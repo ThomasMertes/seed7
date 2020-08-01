@@ -296,5 +296,5 @@ char **argv;
 #ifdef TRACE_HI
     printf("END HI\n");
 #endif
-    return(0);
+    return 0;
   } /* main */

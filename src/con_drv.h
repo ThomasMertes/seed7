@@ -37,6 +37,13 @@
 #define white 15
 
 
+#ifdef CONSOLE_WCHAR
+typedef wstritype console_stritype;
+#else
+typedef ustritype console_stritype;
+#endif
+
+
 #ifdef ANSI_C
 
 int conHeight (void);
@@ -44,7 +51,7 @@ int conWidth (void);
 void conFlush (void);
 void conCursor (booltype on);
 void conSetCursor (inttype lin, inttype col);
-void conText (inttype lin, inttype col, ustritype stri,
+void conText (inttype lin, inttype col, console_stritype stri,
     memsizetype length);
 void conClear (inttype startlin, inttype startcol,
     inttype stoplin, inttype stopcol);

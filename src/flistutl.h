@@ -30,12 +30,12 @@ typedef struct {
     listtype list_elems;
     nodetype nodes;
     infiltype infiles;
-  } flisttype;
+  } freelisttype;
 
 #ifdef DO_INIT
-flisttype flist = {NULL, NULL, NULL, NULL};
+freelisttype flist = {NULL, NULL, NULL, NULL};
 #else
-EXTERN flisttype flist;
+EXTERN freelisttype flist;
 #endif
 
 

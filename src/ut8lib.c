@@ -54,8 +54,8 @@ listtype arguments;
 
   { /* ut8_getc */
     isit_file(arg_1(arguments));
-    return(bld_char_temp(
-        ut8Getc(take_file(arg_1(arguments)))));
+    return bld_char_temp(
+        ut8Getc(take_file(arg_1(arguments))));
   } /* ut8_getc */
 
 
@@ -72,8 +72,8 @@ listtype arguments;
   { /* ut8_gets */
     isit_file(arg_1(arguments));
     isit_int(arg_2(arguments));
-    return(bld_stri_temp(
-        ut8Gets(take_file(arg_1(arguments)), take_int(arg_2(arguments)))));
+    return bld_stri_temp(
+        ut8Gets(take_file(arg_1(arguments)), take_int(arg_2(arguments))));
   } /* ut8_gets */
 
 
@@ -95,8 +95,8 @@ listtype arguments;
     ch_variable = arg_2(arguments);
     isit_char(ch_variable);
     is_variable(ch_variable);
-    return(bld_stri_temp(
-        ut8LineRead(take_file(arg_1(arguments)), &ch_variable->value.charvalue)));
+    return bld_stri_temp(
+        ut8LineRead(take_file(arg_1(arguments)), &ch_variable->value.charvalue));
   } /* ut8_line_read */
 
 
@@ -114,7 +114,7 @@ listtype arguments;
     isit_file(arg_1(arguments));
     isit_int(arg_2(arguments));
     ut8Seek(take_file(arg_1(arguments)), take_int(arg_2(arguments)));
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* ut8_seek */
 
 
@@ -136,8 +136,8 @@ listtype arguments;
     ch_variable = arg_2(arguments);
     isit_char(ch_variable);
     is_variable(ch_variable);
-    return(bld_stri_temp(
-        ut8WordRead(take_file(arg_1(arguments)), &ch_variable->value.charvalue)));
+    return bld_stri_temp(
+        ut8WordRead(take_file(arg_1(arguments)), &ch_variable->value.charvalue));
   } /* ut8_word_read */
 
 
@@ -155,5 +155,5 @@ listtype arguments;
     isit_file(arg_1(arguments));
     isit_stri(arg_2(arguments));
     ut8Write(take_file(arg_1(arguments)), take_stri(arg_2(arguments)));
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* ut8_write */

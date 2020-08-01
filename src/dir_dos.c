@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
-/*  dir_dos.c     Directory access using the dos capabilities.      */
-/*  Copyright (C) 1989 - 2007  Thomas Mertes                        */
+/*  dir_dos.c     Directory functions which call the Dos API.       */
+/*  Copyright (C) 1989 - 2011  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */
@@ -28,7 +28,7 @@
 /*  Content: Directory access using DOS findfirst and findnext.     */
 /*                                                                  */
 /*  Implements opendir, readdir and closedir in the way it is       */
-/*  defined in unix.                                                */
+/*  defined in Unix.                                                */
 /*                                                                  */
 /********************************************************************/
 
