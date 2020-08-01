@@ -47,13 +47,6 @@
 #define SCRHEIGHT 25
 #define SCRWIDTH 80
 
-#define black 0
-#define green 2
-#define lightgray 7
-#define darkgray 8
-#define yellow 14
-#define white 15
-
 static char currentattribute;
 static booltype screen_initialized = FALSE;
 static booltype cursor_on = FALSE;

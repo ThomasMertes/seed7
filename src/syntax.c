@@ -95,7 +95,7 @@ tokentype tokens;
 
 #ifdef ANSI_C
 
-static tokentype def_single_token (objecttype statement_token,
+static tokentype def_single_token (const_objecttype statement_token,
     prior_type token_priority, tokentype *formal_tokens,
     booltype *after_expr_token, ustritype *name_of_last_sy_token)
 #else
@@ -178,7 +178,7 @@ ustritype *name_of_last_sy_token;
 
 #ifdef ANSI_C
 
-static INLINE int count_inner_tokens (listtype statement_tokens)
+static INLINE int count_inner_tokens (const_listtype statement_tokens)
 #else
 
 static INLINE int count_inner_tokens (statement_tokens)
@@ -212,7 +212,7 @@ listtype statement_tokens;
 
 #ifdef ANSI_C
 
-static tokentype def_token_list (listtype statement_tokens,
+static tokentype def_token_list (const_listtype statement_tokens,
     prior_type right_token_priority, tokentype *formal_tokens,
     ustritype name_of_last_sy_token)
 #else
@@ -311,7 +311,7 @@ ustritype name_of_last_sy_token;
 
 #ifdef ANSI_C
 
-static INLINE tokentype def_infix_syntax (listtype statement_syntax,
+static INLINE tokentype def_infix_syntax (const_listtype statement_syntax,
     prior_type statement_priority, assoctype statement_associativity)
 #else
 
@@ -374,7 +374,7 @@ assoctype statement_associativity;
 
 #ifdef ANSI_C
 
-static INLINE tokentype def_prefix_syntax (listtype statement_syntax,
+static INLINE tokentype def_prefix_syntax (const_listtype statement_syntax,
     prior_type statement_priority, assoctype statement_associativity)
 #else
 

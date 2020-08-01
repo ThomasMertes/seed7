@@ -84,7 +84,6 @@ char **arg_v;
   /* read_args */
     max_array_size = 256;
     if (ALLOC_ARRAY(arg_array, max_array_size)) {
-      COUNT_ARRAY(max_array_size);
       used_array_size = 0;
       okay = TRUE;
       arg_idx = 0;

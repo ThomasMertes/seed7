@@ -588,7 +588,7 @@ printf("\n"); */
 
 #ifdef ANSI_C
 
-entitytype search_entity (nodetype start_node, listtype name_list)
+entitytype search_entity (const_nodetype start_node, const_listtype name_list)
 #else
 
 entitytype search_entity (start_node, name_list)
@@ -688,7 +688,7 @@ printf("\n"); */
 
 #ifdef ANSI_C
 
-void pop_entity (nodetype declaration_base, entitytype ent)
+void pop_entity (nodetype declaration_base, const_entitytype ent)
 #else
 
 void pop_entity (declaration_base, ent)

@@ -42,7 +42,6 @@
 #include "entutl.h"
 #include "executl.h"
 #include "findid.h"
-#include "listutl.h"
 #include "traceutl.h"
 #include "analyze.h"
 #include "exec.h"
@@ -774,10 +773,7 @@ listtype arguments;
       table_used++;
       if (table_used > table_size) {
         if (obj_table == NULL) {
-          if (ALLOC_TABLE(obj_table, objecttype,
-              table_used + TABLE_INCREMENT)) {
-            COUNT_TABLE(objecttype, table_used + TABLE_INCREMENT);
-          } /* if */
+          ALLOC_TABLE(obj_table, objecttype, table_used + TABLE_INCREMENT);
         } else {
           if (RESIZE_TABLE(obj_table, objecttype,
               table_size, table_used + TABLE_INCREMENT)) {

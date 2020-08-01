@@ -41,7 +41,6 @@
 #include "listutl.h"
 #include "entutl.h"
 #include "findid.h"
-#include "listutl.h"
 #include "traceutl.h"
 #include "analyze.h"
 #include "exec.h"

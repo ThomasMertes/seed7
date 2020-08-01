@@ -199,8 +199,8 @@
     <li><!-- -  -->Predefined constructs like arrays or for-loops are
       declared in the language itself.</li>
 
-    <li><!-- -  -->Object orientation is used where it brings advantages and
-      not in places where other solutions are more obvious.</li>
+    <li><!-- -  -->Object orientation is based on interfaces, supports
+      multiple dispatch and allows to connect methods to objects.</li>
 
     <li><!-- -  -->Strong typing</li>
 
@@ -2604,6 +2604,12 @@
                     Type of argument B: <font color=red>string</font>,
                     Type of result: <font color=red>file</font>,
                     Returns STD_NULL if open was not
+                    possible )
+      popen(A, B) Open a pipe to a process
+                  ( Type of argument A: <font color=red>string</font>,
+                    Type of argument B: <font color=red>string</font>,
+                    Type of result: <font color=red>file</font>,
+                    Returns STD_NULL if popen was not
                     possible )
       length(A) Length of file A
                   ( Type of result: <font color=red>integer</font> )

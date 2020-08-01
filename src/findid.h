@@ -41,7 +41,7 @@ EXTERN identtype current_ident;
 #ifdef ANSI_C
 
 void find_normal_ident (unsigned int);
-void check_list_of_syntax_elements (listtype);
+void check_list_of_syntax_elements (const_listtype);
 void clean_idents (void);
 void write_idents (void);
 void init_findid (errinfotype *);

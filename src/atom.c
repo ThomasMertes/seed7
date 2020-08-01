@@ -104,7 +104,8 @@ static objecttype gen_object ()
 
 #ifdef ANSI_C
 
-static objecttype gen_literal_object (objecttype typeof_object, objectclass class)
+static objecttype gen_literal_object (const_objecttype typeof_object,
+    objectclass class)
 #else
 
 static objecttype gen_literal_object (typeof_object, class)

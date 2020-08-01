@@ -211,7 +211,7 @@ errinfotype *err_info;
 
 #ifdef ANSI_C
 
-void excl_list (listtype *list, objecttype elementobject)
+void excl_list (listtype *list, const_objecttype elementobject)
 #else
 
 void excl_list (list, elementobject)
@@ -285,7 +285,7 @@ listtype *list;
 
 #ifdef ANSI_C
 
-void replace_list_elem (listtype list, objecttype elem1,
+void replace_list_elem (listtype list, const_objecttype elem1,
     objecttype elem2)
 #else
 
@@ -316,7 +316,7 @@ objecttype elem2;
 
 #ifdef ANSI_C
 
-void copy_list (listtype list_from, listtype *list_to,
+void copy_list (const_listtype list_from, listtype *list_to,
     errinfotype *err_info)
 #else
 

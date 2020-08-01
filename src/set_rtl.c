@@ -70,7 +70,7 @@ static int card_byte[] = {
 
 #ifdef ANSI_C
 
-settype setArrlit (rtlArraytype arr1)
+settype setArrlit (const_rtlArraytype arr1)
 #else
 
 settype setArrlit (arr1)
@@ -90,7 +90,6 @@ rtlArraytype arr1;
       raise_error(MEMORY_ERROR);
       return(NULL);
     } else {
-      COUNT_SET(1);
       if (length == 0) {
         result->min_position = 0;
         result->max_position = 0;
@@ -137,7 +136,6 @@ inttype number;
       raise_error(MEMORY_ERROR);
       return(NULL);
     } else {
-      COUNT_SET(1);
       position = number >> bitset_shift;
       result->min_position = position;
       result->max_position = position;
@@ -291,7 +289,6 @@ settype set_from;
           raise_error(MEMORY_ERROR);
           return;
         } else {
-          COUNT_SET(set_source_size);
           FREE_SET(*set_to, set_dest_size);
           *set_to = set_dest;
         } /* if */
@@ -323,7 +320,6 @@ settype set_from;
     if (!ALLOC_SET(result, new_size)) {
       raise_error(MEMORY_ERROR);
     } else {
-      COUNT_SET(new_size);
       result->min_position = set_from->min_position;
       result->max_position = set_from->max_position;
       memcpy(result->bitset, set_from->bitset,
@@ -372,7 +368,6 @@ settype set2;
       raise_error(MEMORY_ERROR);
       return(NULL);
     } else {
-      COUNT_SET(set1->max_position - set1->min_position + 1);
       result->min_position = set1->min_position;
       result->max_position = set1->max_position;
       if (set2->max_position >= set1->min_position ||
@@ -739,7 +734,6 @@ inttype number;
         raise_error(MEMORY_ERROR);
         return;
       } else {
-        COUNT_SET(new_size);
         *set_to = set_dest;
         set_dest->min_position = position;
         set_dest->max_position = old_set->max_position;
@@ -794,7 +788,6 @@ settype set2;
         raise_error(MEMORY_ERROR);
         return(NULL);
       } else {
-        COUNT_SET(1);
         result->min_position = 0;
         result->max_position = 0;
         memset(result->bitset, 0, sizeof(bitsettype));
@@ -805,7 +798,6 @@ settype set2;
         raise_error(MEMORY_ERROR);
         return(NULL);
       } else {
-        COUNT_SET(max_position - min_position + 1);
         result->min_position = min_position;
         result->max_position = max_position;
         for (position = min_position; position <= max_position; position++) {
@@ -1203,7 +1195,6 @@ settype set2;
       raise_error(MEMORY_ERROR);
       return(NULL);
     } else {
-      COUNT_SET(max_position - min_position + 1);
       result->min_position = min_position;
       result->max_position = max_position;
       for (position = set1->min_position; position < set2->min_position; position++) {
@@ -1305,7 +1296,6 @@ settype set2;
       raise_error(MEMORY_ERROR);
       return(NULL);
     } else {
-      COUNT_SET(max_position - min_position + 1);
       result->min_position = min_position;
       result->max_position = max_position;
       for (position = set1->min_position; position <= set1_stop; position++) {

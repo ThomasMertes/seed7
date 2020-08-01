@@ -622,10 +622,7 @@ listtype arguments;
       table_used++;
       if (table_used > table_size) {
         if (type_table == NULL) {
-          if (ALLOC_TABLE(type_table, typetype,
-              table_used + TYPE_TABLE_INCREMENT)) {
-            COUNT_TABLE(objecttype, table_used + TYPE_TABLE_INCREMENT);
-          } /* if */
+          ALLOC_TABLE(type_table, typetype, table_used + TYPE_TABLE_INCREMENT);
         } else {
           if (RESIZE_TABLE(type_table, typetype,
               table_size, table_used + TYPE_TABLE_INCREMENT)) {

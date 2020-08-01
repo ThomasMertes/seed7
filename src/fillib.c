@@ -171,6 +171,21 @@ listtype arguments;
 
 #ifdef ANSI_C
 
+objecttype fil_empty (listtype arguments)
+#else
+
+objecttype fil_empty (arguments)
+listtype arguments;
+#endif
+
+  { /* fil_empty */
+    return(bld_file_temp(NULL));
+  } /* fil_empty */
+
+
+
+#ifdef ANSI_C
+
 objecttype fil_eof (listtype arguments)
 #else
 
@@ -479,21 +494,6 @@ listtype arguments;
 
 #ifdef ANSI_C
 
-objecttype fil_nil (listtype arguments)
-#else
-
-objecttype fil_nil (arguments)
-listtype arguments;
-#endif
-
-  { /* fil_nil */
-    return(bld_file_temp(NULL));
-  } /* fil_nil */
-
-
-
-#ifdef ANSI_C
-
 objecttype fil_open (listtype arguments)
 #else
 
@@ -522,6 +522,24 @@ listtype arguments;
   { /* fil_out */
     return(bld_file_temp(stdout));
   } /* fil_out */
+
+
+
+#ifdef ANSI_C
+
+objecttype fil_popen (listtype arguments)
+#else
+
+objecttype fil_popen (arguments)
+listtype arguments;
+#endif
+
+  { /* fil_popen */
+    isit_stri(arg_1(arguments));
+    isit_stri(arg_2(arguments));
+    return(bld_file_temp(
+        filPopen(take_stri(arg_1(arguments)), take_stri(arg_2(arguments)))));
+  } /* fil_popen */
 
 
 

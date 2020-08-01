@@ -49,10 +49,10 @@ listtype *append_element_to_list (listtype *, objecttype, errinfotype *);
 void copy_expression (objecttype, objecttype *, errinfotype *);
 void concat_lists (listtype *, listtype);
 void incl_list (listtype *, objecttype, errinfotype *);
-void excl_list (listtype *, objecttype);
+void excl_list (listtype *, const_objecttype);
 void pop_list (listtype *);
-void replace_list_elem (listtype, objecttype, objecttype);
-void copy_list (listtype, listtype *, errinfotype *err_info);
+void replace_list_elem (listtype, const_objecttype, objecttype);
+void copy_list (const_listtype, listtype *, errinfotype *err_info);
 void array_to_list (arraytype, listtype *, errinfotype *);
 void struct_to_list (structtype, listtype *, errinfotype *);
 

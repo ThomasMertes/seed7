@@ -413,19 +413,59 @@ stritype stri;
 
 #ifdef ANSI_C
 
-bstritype cp_to_bstri (stritype stri)
+bstritype stri_to_bstri (stritype stri)
 #else
 
-bstritype cp_to_bstri (stri)
+bstritype stri_to_bstri (stri)
+stritype stri;
+#endif
+
+  {
+    register strelemtype *str;
+    register uchartype *ustri;
+    register memsizetype len;
+    bstritype bstri;
+
+  /* stri_to_bstri */
+    if (ALLOC_BSTRI(bstri, stri->size)) {
+      bstri->size = stri->size;
+#ifdef WIDE_CHAR_STRINGS
+      for (str = stri->mem, ustri = bstri->mem, len = stri->size;
+          len > 0; str++, ustri++, len--) {
+        if (*str >= 256) {
+          bstri->size -= len;
+          if (!RESIZE_BSTRI(bstri, stri->size, bstri->size)) {
+            bstri = NULL;
+          } else {
+            COUNT3_BSTRI(stri->size, bstri->size);
+          } /* if */
+          return(bstri);
+        } /* if */
+        *ustri = (uchartype) *str;
+      } /* for */
+#else
+      memcpy(bstri->mem, stri->mem, stri->size);
+#endif
+    } /* if */
+    return(bstri);
+  } /* stri_to_bstri */
+
+
+
+#ifdef ANSI_C
+
+bstritype stri_to_bstri8 (stritype stri)
+#else
+
+bstritype stri_to_bstri8 (stri)
 stritype stri;
 #endif
 
   {
     bstritype bstri;
 
-  /* cp_to_bstri */
+  /* stri_to_bstri8 */
     if (ALLOC_BSTRI(bstri, compr_size(stri))) {
-      COUNT_BSTRI(compr_size(stri));
 #ifdef WIDE_CHAR_STRINGS
       bstri->size = stri_to_utf8(bstri->mem, stri);
 #else
@@ -439,7 +479,7 @@ stritype stri;
       } /* if */
     } /* if */
     return(bstri);
-  } /* cp_to_bstri */
+  } /* stri_to_bstri8 */
 
 
 

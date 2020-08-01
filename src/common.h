@@ -112,6 +112,7 @@ typedef unsigned char      uchartype;
 typedef char *             cstritype;
 typedef unsigned char *    ustritype;
 typedef FILE *             filetype;
+typedef int                sockettype;
 
 #define MAX_INTEGER 2147483647
 

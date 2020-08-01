@@ -364,7 +364,6 @@ errinfotype *err_info;
         } /* if */
 #else
         if (ALLOC_BYTES(buffer, SIZE_NORMAL_BUFFER)) {
-          COUNT_BYTES(SIZE_NORMAL_BUFFER);
           buffer_size = SIZE_NORMAL_BUFFER;
         } else {
           buffer = reserve_buffer;
@@ -577,7 +576,6 @@ char *dir_name;
     if ((directory = opendir(dir_name)) != NULL) {
       max_array_size = 256;
       if (ALLOC_RTL_ARRAY(dir_array, max_array_size)) {
-        COUNT_RTL_ARRAY(max_array_size);
         used_array_size = 0;
         do {
           current_entry = readdir(directory);
@@ -633,8 +631,7 @@ char *dir_name;
       } /* if */
       closedir(directory);
     } else {
-      if (ALLOC_RTL_ARRAY(dir_array, (memsizetype) 0)) {
-        COUNT_RTL_ARRAY(0);
+      if (ALLOC_RTL_ARRAY(dir_array, 0)) {
         dir_array->min_position = 1;
         dir_array->max_position = 0;
       } /* if */

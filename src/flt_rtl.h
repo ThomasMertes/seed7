@@ -29,8 +29,18 @@
 /*                                                                  */
 /********************************************************************/
 
+/* The function fltCreate is used from hashtables where the keys    */
+/* and the data is stored in integer data elements. On some         */
+/* architectures (linux with gcc) functions with float results seem */
+/* to be returned in a different way (may be another register).     */
+/* Therefore fltCreate uses generictype instead of floattype.       */
+/* Here is the place to decide if fltCreate should use floattype    */
+/* or inttype.                                                      */
+typedef inttype generictype;
+
 #ifdef DEFINE_IEEE_754_STUFF
-#define isnan(x) ((x)!=(x))
+int _isnan( double x );
+#define isnan _isnan
 #endif
 
 
@@ -38,7 +48,7 @@
 
 inttype fltCmp (floattype, floattype);
 void fltCpy (floattype *, floattype);
-floattype fltCreate (floattype);
+generictype fltCreate (generictype);
 stritype fltDgts (floattype, inttype);
 floattype fltIPow (floattype, inttype);
 floattype fltParse (stritype);

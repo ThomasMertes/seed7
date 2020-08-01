@@ -392,7 +392,6 @@ chartype *termination_char;
       raise_error(MEMORY_ERROR);
       return(NULL);
     } else {
-      COUNT_BSTRI(memlength);
       memory = buffer->mem;
       position = 0;
       while ((ch = getc(fil1)) != '\n' && ch != EOF) {
@@ -494,7 +493,6 @@ chartype *termination_char;
       raise_error(MEMORY_ERROR);
       return(NULL);
     } else {
-      COUNT_BSTRI(memlength);
       memory = buffer->mem;
       position = 0;
       do {
@@ -560,7 +558,7 @@ stritype stri;
     bstritype out_bstri;
 
   /* ut8Write */
-    out_bstri = cp_to_bstri(stri);
+    out_bstri = stri_to_bstri8(stri);
     if (out_bstri != NULL) {
       fwrite(out_bstri->mem, sizeof(uchartype),
           (SIZE_TYPE) out_bstri->size, fil1);

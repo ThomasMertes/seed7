@@ -902,8 +902,8 @@ errinfotype *err_info;
 
 #ifdef ANSI_C
 
-objecttype search_name (nodetype declaration_base, const_objecttype object_name,
-    errinfotype *err_info)
+objecttype search_name (const_nodetype declaration_base,
+    const_objecttype object_name, errinfotype *err_info)
 #else
 
 objecttype search_name (declaration_base, object_name, err_info)

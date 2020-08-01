@@ -125,7 +125,7 @@ objecttype actual_param;
 
 #ifdef ANSI_C
 
-static void check_access_rights (objecttype object)
+static void check_access_rights (const_objecttype object)
 #else
 
 static void check_access_rights (object)

@@ -113,11 +113,11 @@ floattype source;
 
 #ifdef ANSI_C
 
-floattype fltCreate (floattype source)
+generictype fltCreate (generictype source)
 #else
 
-floattype fltCreate (source)
-floattype source;
+generictype fltCreate (source)
+generictype source;
 #endif
 
   { /* fltCreate */

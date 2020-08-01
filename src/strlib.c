@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  hi   Interpreter for Seed7 programs.                            */
-/*  Copyright (C) 1990 - 2000  Thomas Mertes                        */
+/*  Copyright (C) 1990 - 2007  Thomas Mertes                        */
 /*                                                                  */
 /*  This program is free software; you can redistribute it and/or   */
 /*  modify it under the terms of the GNU General Public License as  */
@@ -189,7 +189,6 @@ chartype delimiter;
 
   /* strChSplit */
     if (ALLOC_ARRAY(result_array, 256)) {
-      COUNT_ARRAY(256);
       result_array->min_position = 1;
       result_array->max_position = 256;
       used_max_position = 0;
@@ -255,7 +254,6 @@ stritype delimiter;
 
   /* strSplit */
     if (ALLOC_ARRAY(result_array, 256)) {
-      COUNT_ARRAY(256);
       result_array->min_position = 1;
       result_array->max_position = 256;
       used_max_position = 0;

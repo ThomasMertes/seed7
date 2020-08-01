@@ -167,7 +167,6 @@ errinfotype *err_info;
     if (!ALLOC_RTL_HASH(hash, TABLE_SIZE(bits))) {
       *err_info = MEMORY_ERROR;
     } else {
-      COUNT_RTL_HASH(TABLE_SIZE(bits));
       hash->bits = bits;
       hash->mask = TABLE_MASK(bits);
       hash->table_size = TABLE_SIZE(bits);
@@ -242,7 +241,6 @@ errinfotype *err_info;
     if (!ALLOC_RTL_HASH(dest_hash, new_size)) {
       *err_info = MEMORY_ERROR;
     } else {
-      COUNT_RTL_HASH(new_size);
       dest_hash->bits = source_hash->bits;
       dest_hash->mask = source_hash->mask;
       dest_hash->table_size = source_hash->table_size;
@@ -329,7 +327,6 @@ errinfotype *err_info;
     if (!ALLOC_RTL_ARRAY(key_array, ARRAY_SIZE_INCREMENT)) {
       *err_info = MEMORY_ERROR;
     } else {
-      COUNT_RTL_ARRAY(ARRAY_SIZE_INCREMENT);
       key_array->min_position = 1;
       key_array->max_position = ARRAY_SIZE_INCREMENT;
       arr_pos = 0;
@@ -432,7 +429,6 @@ errinfotype *err_info;
     if (!ALLOC_RTL_ARRAY(value_array, ARRAY_SIZE_INCREMENT)) {
       *err_info = MEMORY_ERROR;
     } else {
-      COUNT_RTL_ARRAY(ARRAY_SIZE_INCREMENT);
       value_array->min_position = 1;
       value_array->max_position = ARRAY_SIZE_INCREMENT;
       arr_pos = 0;
@@ -508,17 +504,17 @@ comparetype cmp_func;
 #ifdef ANSI_C
 
 void hshCpy (rtlHashtype *const hash_to, const const_rtlHashtype hash_from,
-    createfunctype key_create_func, createfunctype data_create_func,
-    destrfunctype key_destr_func, destrfunctype data_destr_func)
+    createfunctype key_create_func, destrfunctype key_destr_func,
+    createfunctype data_create_func, destrfunctype data_destr_func)
 #else
 
-void hshCpy (hash_to, hash_from, key_create_func, data_create_func,
-    key_destr_func, data_destr_func)
+void hshCpy (hash_to, hash_from, key_create_func, key_destr_func,
+    data_create_func, data_destr_func)
 rtlHashtype *hash_to;
 rtlHashtype hash_from;
 createfunctype key_create_func;
-createfunctype data_create_func;
 destrfunctype key_destr_func;
+createfunctype data_create_func;
 destrfunctype data_destr_func;
 #endif
 
@@ -542,16 +538,16 @@ destrfunctype data_destr_func;
 #ifdef ANSI_C
 
 rtlHashtype hshCreate (const const_rtlHashtype hash_from,
-    createfunctype key_create_func, createfunctype data_create_func,
-    destrfunctype key_destr_func, destrfunctype data_destr_func)
+    createfunctype key_create_func, destrfunctype key_destr_func,
+    createfunctype data_create_func, destrfunctype data_destr_func)
 #else
 
-rtlHashtype hshCreate (hash_from, key_create_func, data_create_func,
-    key_destr_func, data_destr_func)
+rtlHashtype hshCreate (hash_from, key_create_func, key_destr_func,
+    data_create_func, data_destr_func)
 rtlHashtype hash_from;
 createfunctype key_create_func;
-createfunctype data_create_func;
 destrfunctype key_destr_func;
+createfunctype data_create_func;
 destrfunctype data_destr_func;
 #endif
 

@@ -32,36 +32,38 @@ SCREEN_SRC = scr_inf.c kbd_inf.c trm_inf.c
 # SCREEN_SRC = scr_tcp.c
 
 MOBJ1 = hi.o option.o primitiv.o
-LOBJ1 = actlib.o arrlib.o biglib.o blnlib.o chrlib.o clslib.o cmdlib.o dcllib.o drwlib.o
-LOBJ2 = enulib.o fillib.o fltlib.o hshlib.o intlib.o kbdlib.o lstlib.o prclib.o prglib.o
-LOBJ3 = reflib.o rfllib.o scrlib.o sctlib.o setlib.o strlib.o timlib.o typlib.o ut8lib.o
+LOBJ1 = actlib.o arrlib.o biglib.o blnlib.o bstlib.o chrlib.o clslib.o cmdlib.o dcllib.o drwlib.o
+LOBJ2 = enulib.o fillib.o fltlib.o hshlib.o intlib.o kbdlib.o lstlib.o prclib.o prglib.o reflib.o
+LOBJ3 = rfllib.o scrlib.o sctlib.o setlib.o soclib.o strlib.o timlib.o typlib.o ut8lib.o
 EOBJ1 = exec.o doany.o memory.o runerr.o
 AOBJ1 = analyze.o syntax.o token.o parser.o name.o type.o
 AOBJ2 = expr.o atom.o object.o scanner.o literal.o numlit.o findid.o
 AOBJ3 = error.o infile.o symbol.o info.o stat.o fatal.o match.o
 GOBJ1 = syvarutl.o traceutl.o actutl.o listutl.o arrutl.o executl.o blockutl.o
 GOBJ2 = typeutl.o entutl.o identutl.o chclsutl.o flistutl.o sigutl.o
-ROBJ1 = arr_rtl.o big_rtl.o bln_rtl.o chr_rtl.o cmd_rtl.o drw_rtl.o fil_rtl.o flt_rtl.o hsh_rtl.o
-ROBJ2 = int_rtl.o kbd_rtl.o scr_rtl.o set_rtl.o str_rtl.o ut8_rtl.o heaputl.o striutl.o
+ROBJ1 = arr_rtl.o big_rtl.o bln_rtl.o bst_rtl.o chr_rtl.o cmd_rtl.o drw_rtl.o fil_rtl.o flt_rtl.o
+ROBJ2 = hsh_rtl.o int_rtl.o kbd_rtl.o scr_rtl.o set_rtl.o soc_rtl.o str_rtl.o ut8_rtl.o heaputl.o
+ROBJ3 = striutl.o
 DOBJ1 = $(SCREEN_OBJ) tim_unx.o drw_x11.o
 OBJ = $(MOBJ1) $(LOBJ1) $(LOBJ2) $(LOBJ3) $(EOBJ1) $(AOBJ1) $(AOBJ2) $(AOBJ3) $(GOBJ1) $(GOBJ2)
-A_OBJ = $(ROBJ1) $(ROBJ2) $(DOBJ1)
+A_OBJ = $(ROBJ1) $(ROBJ2) $(ROBJ3) $(DOBJ1)
 
 MSRC1 = hi.c option.c primitiv.c
-LSRC1 = actlib.c arrlib.c biglib.c blnlib.c chrlib.c clslib.c cmdlib.c dcllib.c drwlib.c
-LSRC2 = enulib.c fillib.c fltlib.c hshlib.c intlib.c kbdlib.c lstlib.c prclib.c prglib.c
-LSRC3 = reflib.c rfllib.c scrlib.c sctlib.c setlib.c strlib.c timlib.c typlib.c ut8lib.c
+LSRC1 = actlib.c arrlib.c biglib.c blnlib.c bstlib.c chrlib.c clslib.c cmdlib.c dcllib.c drwlib.c
+LSRC2 = enulib.c fillib.c fltlib.c hshlib.c intlib.c kbdlib.c lstlib.c prclib.c prglib.c reflib.c
+LSRC3 = rfllib.c scrlib.c sctlib.c setlib.c soclib.c strlib.c timlib.c typlib.c ut8lib.c
 ESRC1 = exec.c doany.c memory.c runerr.c
 ASRC1 = analyze.c syntax.c token.c parser.c name.c type.c
 ASRC2 = expr.c atom.c object.c scanner.c literal.c numlit.c findid.c
 ASRC3 = error.c infile.c symbol.c info.c stat.c fatal.c match.c
 GSRC1 = syvarutl.c traceutl.c actutl.c listutl.c arrutl.c executl.c blockutl.c
 GSRC2 = typeutl.c entutl.c identutl.c chclsutl.c flistutl.c sigutl.c
-RSRC1 = arr_rtl.c big_rtl.c bln_rtl.c chr_rtl.c cmd_rtl.c drw_rtl.c fil_rtl.c flt_rtl.c hsh_rtl.c
-RSRC2 = int_rtl.c kbd_rtl.c scr_rtl.c set_rtl.c str_rtl.c ut8_rtl.c heaputl.c striutl.c
+RSRC1 = arr_rtl.c big_rtl.c bln_rtl.c bst_rtl.c chr_rtl.c cmd_rtl.c drw_rtl.c fil_rtl.c flt_rtl.c
+RSRC2 = hsh_rtl.c int_rtl.c kbd_rtl.c scr_rtl.c set_rtl.c soc_rtl.c str_rtl.c ut8_rtl.c heaputl.c
+RSRC3 = striutl.c
 DSRC1 = $(SCREEN_SRC) tim_unx.c drw_x11.c
 SRC = $(MSRC1) $(LSRC1) $(LSRC2) $(LSRC3) $(ESRC1) $(ASRC1) $(ASRC2) $(ASRC3) $(GSRC1) $(GSRC2)
-A_SRC = $(RSRC1) $(RSRC2) $(DSRC1)
+A_SRC = $(RSRC1) $(RSRC2) $(RSRC3) $(DSRC1)
 
 hi: $(OBJ) $(SEED7_OBJ_LIB)
 	$(CC) $(LFLAGS) $(OBJ) $(SEED7_OBJ_LIB) $(LIBS) -o hi

@@ -210,7 +210,6 @@ objecttype element;
     if (!ALLOC_RTL_ARRAY(result, result_size)) {
       raise_error(MEMORY_ERROR);
     } else {
-      COUNT_RTL_ARRAY(result_size);
       result->min_position = 1;
       result->max_position = 1;
       result->arr[0] = element;
@@ -239,7 +238,6 @@ objecttype element;
     if (!ALLOC_RTL_ARRAY(result, result_size)) {
       raise_error(MEMORY_ERROR);
     } else {
-      COUNT_RTL_ARRAY(result_size);
       result->min_position = start_position;
       result->max_position = start_position;
       result->arr[0] = element;
@@ -272,7 +270,6 @@ rtlArraytype arr2;
     if (!ALLOC_RTL_ARRAY(result, result_size)) {
       raise_error(MEMORY_ERROR);
     } else {
-      COUNT_RTL_ARRAY(result_size);
       result->min_position = arr1->min_position;
       result->max_position = arr1->max_position + arr2_size;
       memcpy(result->arr, arr1->arr, arr1_size * sizeof(rtlObjecttype));
@@ -335,7 +332,6 @@ rtlObjecttype element2;
     if (!ALLOC_RTL_ARRAY(result, result_size)) {
       raise_error(MEMORY_ERROR);
     } else {
-      COUNT_RTL_ARRAY(result_size);
       result->min_position = 1;
       result->max_position = 2;
       result->arr[0] = element1;
@@ -373,7 +369,6 @@ inttype stop;
         raise_error(MEMORY_ERROR);
         return(NULL);
       } /* if */
-      COUNT_RTL_ARRAY(result_size);
       result->min_position = arr1->min_position;
       result->max_position = arr1->min_position + result_size - 1;
       stop_idx = stop - arr1->min_position;
@@ -392,7 +387,6 @@ inttype stop;
         raise_error(MEMORY_ERROR);
         return(NULL);
       } /* if */
-      COUNT_RTL_ARRAY(0);
       result->min_position = arr1->min_position;
       result->max_position = arr1->min_position - 1;
     } /* if */
@@ -434,7 +428,6 @@ inttype stop;
         raise_error(MEMORY_ERROR);
         return(NULL);
       } /* if */
-      COUNT_RTL_ARRAY(result_size);
       result->min_position = arr1->min_position;
       result->max_position = arr1->min_position + result_size - 1;
       start_idx = start - arr1->min_position;
@@ -454,7 +447,6 @@ inttype stop;
         raise_error(MEMORY_ERROR);
         return(NULL);
       } /* if */
-      COUNT_RTL_ARRAY(0);
       result->min_position = arr1->min_position;
       result->max_position = arr1->min_position - 1;
     } /* if */
@@ -508,7 +500,6 @@ inttype start;
         raise_error(MEMORY_ERROR);
         return(NULL);
       } /* if */
-      COUNT_RTL_ARRAY(result_size);
       result->min_position = arr1->min_position;
       result->max_position = arr1->min_position + result_size - 1;
       start_idx = start - arr1->min_position;
@@ -525,7 +516,6 @@ inttype start;
         raise_error(MEMORY_ERROR);
         return(NULL);
       } /* if */
-      COUNT_RTL_ARRAY(0);
       result->min_position = arr1->min_position;
       result->max_position = arr1->min_position - 1;
     } /* if */

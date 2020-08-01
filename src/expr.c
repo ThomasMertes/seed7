@@ -279,7 +279,7 @@ booltype do_match_expr;
 #ifdef ANSI_C
 
 static objecttype pars_token (objecttype expression,
-    tokentype formal_token, listtype actual_parameter)
+    const_tokentype formal_token, listtype actual_parameter)
 #else
 
 static objecttype pars_token (expression,

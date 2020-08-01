@@ -67,6 +67,69 @@ typedef long               offsettype;
 
 #ifdef ANSI_C
 
+static void get_mode (char mode[4], stritype file_mode)
+#else
+
+static void get_mode (mode)
+char mode[4];
+stritype file_mode;
+#endif
+
+  { /* get_mode */
+    mode[0] = '\0';
+    if (file_mode->size >= 1 &&
+        (file_mode->mem[0] == 'r' ||
+         file_mode->mem[0] == 'w' ||
+         file_mode->mem[0] == 'a')) {
+      if (file_mode->size == 1) {
+        /* Binary mode
+           r ... Open file for reading. 
+           w ... Truncate to zero length or create file for writing. 
+           a ... Append; open or create file for writing at end-of-file. 
+        */
+        mode[0] = file_mode->mem[0];
+        mode[1] = 'b';
+        mode[2] = '\0';
+      } else if (file_mode->size == 2) {
+        if (file_mode->mem[1] == '+') {
+          /* Binary mode
+             r+ ... Open file for update (reading and writing). 
+             w+ ... Truncate to zero length or create file for update. 
+             a+ ... Append; open or create file for update, writing at end-of-file. 
+          */
+          mode[0] = file_mode->mem[0];
+          mode[1] = 'b';
+          mode[2] = '+';
+          mode[3] = '\0';
+        } else if (file_mode->mem[1] == 't') {
+          /* Text mode
+             rt ... Open file for reading. 
+             wt ... Truncate to zero length or create file for writing. 
+             at ... Append; open or create file for writing at end-of-file. 
+          */
+          mode[0] = file_mode->mem[0];
+          mode[1] = '\0';
+        } /* if */
+      } else if (file_mode->size == 3) {
+        if (file_mode->mem[1] == 't' &&
+            file_mode->mem[2] == '+') {
+          /* Text mode
+             rt+ ... Open file for update (reading and writing). 
+             wt+ ... Truncate to zero length or create file for update. 
+             at+ ... Append; open or create file for update, writing at end-of-file. 
+          */
+          mode[0] = file_mode->mem[0];
+          mode[1] = '+';
+          mode[2] = '\0';
+        } /* if */
+      } /* if */
+    } /* if */
+  } /* get_mode */
+
+
+
+#ifdef ANSI_C
+
 biginttype filBigLng (filetype fil1)
 #else
 
@@ -603,54 +666,7 @@ stritype file_mode;
       raise_error(MEMORY_ERROR);
       result = NULL;
     } else {
-      mode[0] = '\0';
-      if (file_mode->size >= 1 &&
-          (file_mode->mem[0] == 'r' ||
-           file_mode->mem[0] == 'w' ||
-           file_mode->mem[0] == 'a')) {
-        if (file_mode->size == 1) {
-          /* Binary mode
-             r ... Open file for reading. 
-             w ... Truncate to zero length or create file for writing. 
-             a ... Append; open or create file for writing at end-of-file. 
-          */
-          mode[0] = file_mode->mem[0];
-          mode[1] = 'b';
-          mode[2] = '\0';
-        } else if (file_mode->size == 2) {
-          if (file_mode->mem[1] == '+') {
-            /* Binary mode
-               r+ ... Open file for update (reading and writing). 
-               w+ ... Truncate to zero length or create file for update. 
-               a+ ... Append; open or create file for update, writing at end-of-file. 
-            */
-            mode[0] = file_mode->mem[0];
-            mode[1] = 'b';
-            mode[2] = '+';
-            mode[3] = '\0';
-          } else if (file_mode->mem[1] == 't') {
-            /* Text mode
-               rt ... Open file for reading. 
-               wt ... Truncate to zero length or create file for writing. 
-               at ... Append; open or create file for writing at end-of-file. 
-            */
-            mode[0] = file_mode->mem[0];
-            mode[1] = '\0';
-          } /* if */
-        } else if (file_mode->size == 3) {
-          if (file_mode->mem[1] == 't' &&
-              file_mode->mem[2] == '+') {
-            /* Text mode
-               rt+ ... Open file for update (reading and writing). 
-               wt+ ... Truncate to zero length or create file for update. 
-               at+ ... Append; open or create file for update, writing at end-of-file. 
-            */
-            mode[0] = file_mode->mem[0];
-            mode[1] = '+';
-            mode[2] = '\0';
-          } /* if */
-        } /* if */
-      } /* if */
+      get_mode(mode, file_mode);
       if (mode[0] == '\0') {
         raise_error(RANGE_ERROR);
         result = NULL;
@@ -661,6 +677,41 @@ stritype file_mode;
     } /* if */
     return(result);
   } /* filOpen */
+
+
+
+#ifdef ANSI_C
+
+filetype filPopen (stritype command, stritype file_mode)
+#else
+
+filetype filPopen (command, file_mode)
+stritype command;
+stritype file_mode;
+#endif
+
+  {
+    cstritype cmd;
+    char mode[4];
+    filetype result;
+
+  /* filPopen */
+    cmd = cp_to_cstri(command);
+    if (cmd == NULL) {
+      raise_error(MEMORY_ERROR);
+      result = NULL;
+    } else {
+      get_mode(mode, file_mode);
+      if (mode[0] == '\0') {
+        raise_error(RANGE_ERROR);
+        result = NULL;
+      } else {
+        result = popen(cmd, mode);
+      } /* if */
+      free_cstri(cmd, command);
+    } /* if */
+    return(result);
+  } /* filPopen */
 
 
 

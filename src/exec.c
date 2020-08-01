@@ -272,7 +272,7 @@ listtype *evaluated_act_params;
 
 #ifdef ANSI_C
 
-static INLINE void par_restore (loclisttype form_param,
+static INLINE void par_restore (const_loclisttype form_param,
     const_listtype backup_form_params, const_listtype evaluated_act_params)
 #else
 
@@ -338,7 +338,7 @@ listtype evaluated_act_params;
 
 #ifdef ANSI_C
 
-static void loc_init (loclisttype loc_var, listtype *backup_loc_var,
+static void loc_init (const_loclisttype loc_var, listtype *backup_loc_var,
     listtype act_param_list)
 #else
 
@@ -373,7 +373,7 @@ listtype act_param_list;
 
 #ifdef ANSI_C
 
-static void loc_restore (loclisttype loc_var, const_listtype backup_loc_var)
+static void loc_restore (const_loclisttype loc_var, const_listtype backup_loc_var)
 #else
 
 static void loc_restore (loc_var, backup_loc_var)
@@ -408,7 +408,7 @@ listtype backup_loc_var;
 
 #ifdef ANSI_C
 
-static INLINE booltype res_init (locobjtype block_result,
+static INLINE booltype res_init (const_locobjtype block_result,
     objecttype *backup_block_result)
 #else
 
@@ -445,7 +445,7 @@ objecttype *backup_block_result;
 
 #ifdef ANSI_C
 
-static INLINE void res_restore (locobjtype block_result,
+static INLINE void res_restore (const_locobjtype block_result,
     objecttype backup_block_result, objecttype *result)
 #else
 
@@ -530,7 +530,7 @@ listtype act_param_list;
 
 #ifdef ANSI_C
 
-static objecttype exec_lambda (blocktype block,
+static objecttype exec_lambda (const_blocktype block,
     listtype actual_parameters, objecttype object)
 #else
 
@@ -845,11 +845,13 @@ objecttype object;
       case BIGINTOBJECT:
       case CHAROBJECT:
       case STRIOBJECT:
+      case BSTRIOBJECT:
       case ARRAYOBJECT:
       case HASHOBJECT:
       case STRUCTOBJECT:
       case SETOBJECT:
       case FILEOBJECT:
+      case SOCKETOBJECT:
       case LISTOBJECT:
 #ifdef WITH_FLOAT
       case FLOATOBJECT:

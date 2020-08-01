@@ -178,7 +178,7 @@ errinfotype *err_info;
 
 #ifdef ANSI_C
 
-void check_list_of_syntax_elements (listtype elem_list)
+void check_list_of_syntax_elements (const_listtype elem_list)
 #else
 
 void check_list_of_syntax_elements (elem_list)
@@ -272,7 +272,7 @@ void clean_idents ()
 
 #ifdef ANSI_C
 
-static void wri_binary_ident_tree (identtype actual_ident)
+static void wri_binary_ident_tree (const_identtype actual_ident)
 #else
 
 static void wri_binary_ident_tree (actual_ident)

@@ -79,6 +79,7 @@ static cstritype class_name[] = {
     "BIGINTOBJECT",      /* bigintvalue - bigInteger                */
     "CHAROBJECT",        /* charvalue -   char                      */
     "STRIOBJECT",        /* strivalue -   string                    */
+    "BSTRIOBJECT",       /* bstrivalue -  byte string               */
     "ARRAYOBJECT",       /* arrayvalue -  array                     */
     "HASHOBJECT",        /* hashvalue -   hash                      */
     "STRUCTOBJECT",      /* structvalue - struct                    */
@@ -86,6 +87,7 @@ static cstritype class_name[] = {
     "INTERFACEOBJECT",   /* objvalue -    Dynamic Object            */
     "SETOBJECT",         /* setvalue -    set                       */
     "FILEOBJECT",        /* filevalue -   file                      */
+    "SOCKETOBJECT",      /* socketvalue - socket                    */
     "LISTOBJECT",        /* listvalue -   list                      */
     "FLOATOBJECT",       /* floatvalue -  float                     */
     "WINOBJECT",         /* winvalue -    Window                    */
@@ -302,64 +304,98 @@ stritype out_mem;
 #endif
 
   {
-    memsizetype size_backup;
-    tracerecord trace_backup;
+    memsizetype size;
 
   /* prot_stri */
     if (out_mem != NULL) {
-      size_backup = out_mem->size;
+      size = out_mem->size;
+      if (size > 128) {
+        size = 128;
+      } /* if */
+      prot_cstri("\"");
+      {
+        strelemtype *str;
+        memsizetype len;
+        char buffer[51];
+
+        for (str = out_mem->mem, len = size;
+            len > 0; str++, len--) {
+          if (*str <= (chartype) 26) {
+            sprintf(buffer, "\\%c", ((int) *str) + '@');
+          } else if (*str <= (chartype) 31) {
+            sprintf(buffer, "\\%lu\\", *str);
+          } else if (*str <= (chartype) 127) {
+            sprintf(buffer, "%c", (int) *str);
+          } else if (*str == (chartype) -1) {
+            sprintf(buffer, "\\-1\\");
+          } else {
+            sprintf(buffer, "\\%lu\\", *str);
+          } /* if */
+          prot_cstri(buffer);
+          /* putc((int) *str, protfile); */
+        } /* while */
+      }
       if (out_mem->size > 128) {
-        out_mem->size = 128;
-      } /* if */
-      prot_cstri("\"");
-      if (internal_protocol) {
-        if (SYS_PROT_OUTFILE_OBJECT != NULL) {
-          memcpy(&trace_backup, &trace, sizeof(tracerecord));
-          set_trace("", 0, NULL);
-          do_wrstri(SYS_PROT_OUTFILE_OBJECT, out_mem);
-          memcpy(&trace, &trace_backup, sizeof(tracerecord));
-        } /* if */
-      } else {
-
-#ifdef WIDE_CHAR_STRINGS
-    {
-      strelemtype *str;
-      memsizetype len;
-      char buffer[51];
-
-      for (str = out_mem->mem, len = out_mem->size;
-          len > 0; str++, len--) {
-        if (*str <= (chartype) 26) {
-          sprintf(buffer, "\\%c", ((int) *str) + '@');
-        } else if (*str <= (chartype) 31) {
-          sprintf(buffer, "\\%lu\\", *str);
-        } else if (*str <= (chartype) 127) {
-          sprintf(buffer, "%c", (int) *str);
-        } else if (*str == (chartype) -1) {
-          sprintf(buffer, "\\-1\\");
-        } else {
-          sprintf(buffer, "\\%lu\\", *str);
-        } /* if */
-        prot_cstri(buffer);
-        /* putc((int) *str, protfile); */
-      } /* while */
-    }
-#else
-        fwrite(out_mem->mem, sizeof(strelemtype),
-            (SIZE_TYPE) out_mem->size, protfile);
-#endif
-
-      } /* if */
-      if (size_backup > 128) {
         prot_cstri("\\ *AND_SO_ON* SIZE=");
-        prot_int((inttype) size_backup);
+        prot_int((inttype) out_mem->size);
       } /* if */
       prot_cstri("\"");
-      out_mem->size = size_backup;
     } else {
       prot_cstri(" *NULL_STRING* ");
     } /* if */
   } /* prot_stri */
+
+
+
+#ifdef ANSI_C
+
+void prot_bstri (bstritype out_mem)
+#else
+
+void prot_bstri (out_mem)
+bstritype out_mem;
+#endif
+
+  {
+    memsizetype size;
+
+  /* prot_bstri */
+    if (out_mem != NULL) {
+      size = out_mem->size;
+      if (size > 128) {
+        size = 128;
+      } /* if */
+      prot_cstri("\"");
+      {
+        uchartype *str;
+        memsizetype len;
+        char buffer[51];
+
+        for (str = out_mem->mem, len = size;
+            len > 0; str++, len--) {
+          if (*str <= (uchartype) 26) {
+            sprintf(buffer, "\\%c", ((int) *str) + '@');
+          } else if (*str <= (uchartype) 31) {
+            sprintf(buffer, "\\%u\\", *str);
+          } else if (*str <= (uchartype) 127) {
+            sprintf(buffer, "%c", (int) *str);
+          } else if (*str == (uchartype) -1) {
+            sprintf(buffer, "\\-1\\");
+          } else {
+            sprintf(buffer, "\\%u\\", *str);
+          } /* if */
+          prot_cstri(buffer);
+        } /* while */
+      }
+      if (out_mem->size > 128) {
+        prot_cstri("\\ *AND_SO_ON* SIZE=");
+        prot_int((inttype) out_mem->size);
+      } /* if */
+      prot_cstri("\"");
+    } else {
+      prot_cstri(" *NULL_BYTE_STRING* ");
+    } /* if */
+  } /* prot_bstri */
 
 
 
@@ -570,6 +606,9 @@ objecttype anyobject;
       case STRIOBJECT:
         prot_stri(anyobject->value.strivalue);
         break;
+      case BSTRIOBJECT:
+        prot_bstri(anyobject->value.bstrivalue);
+        break;
       case FILEOBJECT:
         if (anyobject->value.filevalue == NULL) {
           prot_cstri(" *NULL_FILE* ");
@@ -583,6 +622,10 @@ objecttype anyobject;
           prot_cstri("file ");
           prot_int((inttype) fileno(anyobject->value.filevalue));
         } /* if */
+        break;
+      case SOCKETOBJECT:
+        prot_cstri("socket ");
+        prot_int((inttype) anyobject->value.socketvalue);
         break;
 #ifdef WITH_FLOAT
       case FLOATOBJECT:
@@ -733,7 +776,9 @@ objecttype anyobject;
         case BIGINTOBJECT:
         case CHAROBJECT:
         case STRIOBJECT:
+        case BSTRIOBJECT:
         case FILEOBJECT:
+        case SOCKETOBJECT:
         case FLOATOBJECT:
         case ARRAYOBJECT:
         case STRUCTOBJECT:
@@ -881,7 +926,9 @@ listtype list;
           case BIGINTOBJECT:
           case CHAROBJECT:
           case STRIOBJECT:
+          case BSTRIOBJECT:
           case FILEOBJECT:
+          case SOCKETOBJECT:
           case FLOATOBJECT:
           case ARRAYOBJECT:
           case STRUCTOBJECT:
@@ -1443,7 +1490,9 @@ objecttype traceobject;
         case BIGINTOBJECT:
         case CHAROBJECT:
         case STRIOBJECT:
+        case BSTRIOBJECT:
         case FILEOBJECT:
+        case SOCKETOBJECT:
         case FLOATOBJECT:
         case ARRAYOBJECT:
         case STRUCTOBJECT:

@@ -215,7 +215,6 @@ biginttype big1;
       raise_error(MEMORY_ERROR);
       return(NULL);
     } else {
-      COUNT_BIG(big1->size);
       pos = 0;
       do {
         carry += ~big1->bigdigits[pos] & BIGDIGIT_MASK;
@@ -559,7 +558,6 @@ bigdigittype digit;
         raise_error(MEMORY_ERROR);
         return(NULL);
       } else {
-        COUNT_BIG(big1->size + 1);
         result->size = big1->size + 1;
         if (IS_NEGATIVE(big1->bigdigits[big1->size - 1])) {
           negative = TRUE;
@@ -621,7 +619,6 @@ biginttype big2;
       raise_error(MEMORY_ERROR);
       return(NULL);
     } else {
-      COUNT_BIG(1);
       result->size = 1;
       if (big1->size + 1 == big2->size &&
           big1->bigdigits[big1->size - 1] == BIGDIGIT_SIGN &&
@@ -855,7 +852,6 @@ bigdigittype digit;
         raise_error(MEMORY_ERROR);
         return(NULL);
       } else {
-        COUNT_BIG(1);
         remainder->size = 1;
         if (IS_NEGATIVE(big1->bigdigits[big1->size - 1])) {
           negative = TRUE;
@@ -950,7 +946,6 @@ bigdigittype digit;
         raise_error(MEMORY_ERROR);
         return(NULL);
       } else {
-        COUNT_BIG(big1->size + 1);
         result->size = big1->size + 1;
         if (IS_NEGATIVE(big1->bigdigits[big1->size - 1])) {
           negative = TRUE;
@@ -1017,7 +1012,6 @@ biginttype big2;
       raise_error(MEMORY_ERROR);
       return(NULL);
     } else {
-      COUNT_BIG(1);
       result->size = 1;
       if (big1->size + 1 == big2->size &&
           big1->bigdigits[big1->size - 1] == BIGDIGIT_SIGN &&
@@ -1118,7 +1112,6 @@ biginttype big2;
       if (!ALLOC_BIG(remainder, 1)) {
         raise_error(MEMORY_ERROR);
       } else {
-        COUNT_BIG(1);
         remainder->size = 1;
         remainder->bigdigits[0] = 0;
       } /* if */
@@ -1126,7 +1119,6 @@ biginttype big2;
       if (!ALLOC_BIG(remainder, big1->size)) {
         raise_error(MEMORY_ERROR);
       } else {
-        COUNT_BIG(big1->size);
         remainder->size = big1->size;
         memcpy(remainder->bigdigits, big1->bigdigits,
             (SIZE_TYPE) big1->size * sizeof(bigdigittype));
@@ -1221,7 +1213,6 @@ biginttype big2;
       if (!ALLOC_BIG(modulo, 1)) {
         raise_error(MEMORY_ERROR);
       } else {
-        COUNT_BIG(1);
         modulo->size = 1;
         modulo->bigdigits[0] = 0;
       } /* if */
@@ -1231,7 +1222,6 @@ biginttype big2;
         if (!ALLOC_BIG(modulo, big2->size)) {
           raise_error(MEMORY_ERROR);
         } else {
-          COUNT_BIG(big2->size);
           modulo->size = big2->size;
           memcpy(modulo->bigdigits, big2->bigdigits,
               (SIZE_TYPE) big2->size * sizeof(bigdigittype));
@@ -1242,7 +1232,6 @@ biginttype big2;
         if (!ALLOC_BIG(modulo, big1->size)) {
           raise_error(MEMORY_ERROR);
         } else {
-          COUNT_BIG(big1->size);
           modulo->size = big1->size;
           memcpy(modulo->bigdigits, big1->bigdigits,
               (SIZE_TYPE) big1->size * sizeof(bigdigittype));
@@ -1811,7 +1800,6 @@ booltype negative;
           raise_error(MEMORY_ERROR);
           return(NULL);
         } else {
-          COUNT_BIG(big1->size - (big1->size >> 1));
           big2_help->size = big1->size - (big1->size >> 1);
           memcpy(big2_help->bigdigits, big2->bigdigits, 
               (SIZE_TYPE) big2->size * sizeof(bigdigittype));
@@ -1821,12 +1809,10 @@ booltype negative;
           if (!ALLOC_BIG(result, (big1->size >> 1) + (big2->size << 1))) {
             raise_error(MEMORY_ERROR);
           } else {
-            COUNT_BIG((big1->size >> 1) + (big2->size << 1));
             result->size = (big1->size >> 1) + (big2->size << 1);
             if (!ALLOC_BIG(temp, big1->size << 2)) {
               raise_error(MEMORY_ERROR);
             } else {
-              COUNT_BIG(big1->size << 2);
               uBigKaratsubaMult(big1->bigdigits, big2->bigdigits,
                   big1->size >> 1, result->bigdigits, temp->bigdigits);
               uBigKaratsubaMult(&big1->bigdigits[big1->size >> 1], big2->bigdigits,
@@ -1849,7 +1835,6 @@ booltype negative;
           raise_error(MEMORY_ERROR);
           return(NULL);
         } else {
-          COUNT_BIG(big1->size);
           big2_help->size = big1->size;
           memcpy(big2_help->bigdigits, big2->bigdigits, 
               (SIZE_TYPE) big2->size * sizeof(bigdigittype));
@@ -1859,11 +1844,9 @@ booltype negative;
           if (!ALLOC_BIG(result, big1->size << 1)) {
             raise_error(MEMORY_ERROR);
           } else {
-            COUNT_BIG(big1->size << 1);
             if (!ALLOC_BIG(temp, big1->size << 2)) {
               raise_error(MEMORY_ERROR);
             } else {
-              COUNT_BIG(big1->size << 2);
               uBigKaratsubaMult(big1->bigdigits, big2->bigdigits,
                   big1->size, result->bigdigits, temp->bigdigits);
               result->size = big1->size << 1;
@@ -1881,7 +1864,6 @@ booltype negative;
       if (!ALLOC_BIG(result, big1->size + big2->size)) {
         raise_error(MEMORY_ERROR);
       } else {
-        COUNT_BIG(big1->size + big2->size);
         uBigMult(big1, big2, result);
         result->size = big1->size + big2->size;
         if (negative) {
@@ -1991,7 +1973,6 @@ biginttype big1;
       raise_error(MEMORY_ERROR);
       return(NULL);
     } else {
-      COUNT_BIG(big1->size);
       result->size = big1->size;
       if (IS_NEGATIVE(big1->bigdigits[big1->size - 1])) {
         pos = 0;
@@ -2053,7 +2034,6 @@ biginttype big2;
       raise_error(MEMORY_ERROR);
       return(NULL);
     } else {
-      COUNT_BIG(big1->size + 1);
       pos = 0;
       do {
         carry += (doublebigdigittype) big1->bigdigits[pos] + big2->bigdigits[pos];
@@ -2261,7 +2241,6 @@ biginttype big_from;
         raise_error(MEMORY_ERROR);
         return;
       } else {
-        COUNT_BIG(new_size);
         FREE_BIG(*big_to, (*big_to)->size);
         big_dest->size = new_size;
         *big_to = big_dest;
@@ -2291,7 +2270,6 @@ biginttype big_from;
     if (!ALLOC_BIG(result, new_size)) {
       raise_error(MEMORY_ERROR);
     } else {
-      COUNT_BIG(new_size);
       result->size = new_size;
       memcpy(result->bigdigits, big_from->bigdigits,
           (SIZE_TYPE) new_size * sizeof(bigdigittype));
@@ -2410,7 +2388,6 @@ biginttype big2;
         raise_error(MEMORY_ERROR);
         return(NULL);
       } else {
-        COUNT_BIG(big1->size + 2);
         if (IS_NEGATIVE(big1->bigdigits[big1->size - 1])) {
           negative = TRUE;
           positive_copy_of_negative_big(big1_help, big1);
@@ -2427,7 +2404,6 @@ biginttype big2;
         raise_error(MEMORY_ERROR);
         return(NULL);
       } else {
-        COUNT_BIG(big2->size + 1);
         if (IS_NEGATIVE(big2->bigdigits[big2->size - 1])) {
           negative = !negative;
           positive_copy_of_negative_big(big2_help, big2);
@@ -2440,7 +2416,6 @@ biginttype big2;
       if (!ALLOC_BIG(result, big1_help->size - big2_help->size + 1)) {
         raise_error(MEMORY_ERROR);
       } else {
-        COUNT_BIG(big1_help->size - big2_help->size + 1);
         result->size = big1_help->size - big2_help->size + 1;
         result->bigdigits[result->size - 1] = 0;
         shift = most_significant_bit(big2_help->bigdigits[big2_help->size - 1]) + 1;
@@ -2627,7 +2602,6 @@ inttype number;
       raise_error(MEMORY_ERROR);
       return(NULL);
     } else {
-      COUNT_BIG(result_size);
       result->size = result_size;
       for (pos = 0; pos < result_size; pos++) {
         result->bigdigits[pos] = (bigdigittype) (number & BIGDIGIT_MASK);
@@ -2727,20 +2701,17 @@ inttype exponent;
         raise_error(MEMORY_ERROR);
         return(NULL);
       } else {
-        COUNT_BIG(help_size);
         if (!ALLOC_BIG(big_help, help_size)) {
           FREE_BIG(square,  help_size);
           raise_error(MEMORY_ERROR);
           return(NULL);
         } else {
-          COUNT_BIG(help_size);
           if (!ALLOC_BIG(result, help_size)) {
             FREE_BIG(square,  help_size);
             FREE_BIG(big_help,  help_size);
             raise_error(MEMORY_ERROR);
             return(NULL);
           } else {
-            COUNT_BIG(help_size);
             if (IS_NEGATIVE(base->bigdigits[base->size - 1])) {
               negative = TRUE;
               positive_copy_of_negative_big(square, base);
@@ -2805,7 +2776,6 @@ longtype number;
       raise_error(MEMORY_ERROR);
       return(NULL);
     } else {
-      COUNT_BIG(result_size);
       result->size = result_size;
       for (pos = 0; pos < result_size; pos++) {
         result->bigdigits[pos] = (bigdigittype) (number & BIGDIGIT_MASK);
@@ -2844,7 +2814,6 @@ biginttype big1;
       if (!ALLOC_BIG(result, result_size)) {
         raise_error(MEMORY_ERROR);
       } else {
-        COUNT_BIG(result_size);
         result->size = result_size;
         number = big1->size - 1;
         for (pos = 0; pos < result_size - 1; pos++) {
@@ -2944,7 +2913,6 @@ biginttype big2;
     if (!ALLOC_BIG(result, big1->size + big2->size)) {
       raise_error(MEMORY_ERROR);
     } else {
-      COUNT_BIG(big1->size + big2->size);
       pos2 = 0;
       do {
         carry += (doublebigdigittype) big1->bigdigits[0] * big2->bigdigits[pos2];
@@ -3024,7 +2992,6 @@ biginttype big2;
         raise_error(MEMORY_ERROR);
         return(NULL);
       } else {
-        COUNT_BIG(big1->size + 2);
         if (IS_NEGATIVE(big1->bigdigits[big1->size - 1])) {
           negative = TRUE;
           positive_copy_of_negative_big(big1_help, big1);
@@ -3041,7 +3008,6 @@ biginttype big2;
         raise_error(MEMORY_ERROR);
         return(NULL);
       } else {
-        COUNT_BIG(big2->size + 1);
         if (IS_NEGATIVE(big2->bigdigits[big2->size - 1])) {
           negative = !negative;
           positive_copy_of_negative_big(big2_help, big2);
@@ -3054,7 +3020,6 @@ biginttype big2;
       if (!ALLOC_BIG(result, big1_help->size - big2_help->size + 1)) {
         raise_error(MEMORY_ERROR);
       } else {
-        COUNT_BIG(big1_help->size - big2_help->size + 1);
         result->size = big1_help->size - big2_help->size + 1;
         result->bigdigits[result->size - 1] = 0;
         shift = most_significant_bit(big2_help->bigdigits[big2_help->size - 1]) + 1;
@@ -3104,7 +3069,6 @@ biginttype big1;
       raise_error(MEMORY_ERROR);
       return(NULL);
     } else {
-      COUNT_BIG(big1->size);
       result->size = big1->size;
       pos = 0;
       do {
@@ -3186,7 +3150,6 @@ biginttype big2;
         raise_error(MEMORY_ERROR);
         return(NULL);
       } else {
-        COUNT_BIG(big1->size + 2);
         if (IS_NEGATIVE(big1->bigdigits[big1->size - 1])) {
           negative1 = TRUE;
           positive_copy_of_negative_big(result, big1);
@@ -3203,7 +3166,6 @@ biginttype big2;
         raise_error(MEMORY_ERROR);
         return(NULL);
       } else {
-        COUNT_BIG(big2->size + 1);
         if (IS_NEGATIVE(big2->bigdigits[big2->size - 1])) {
           negative2 = TRUE;
           positive_copy_of_negative_big(big2_help, big2);
@@ -3295,7 +3257,6 @@ biginttype big2;
     if (!ALLOC_BIG(result, big1->size + big2->size)) {
       raise_error(MEMORY_ERROR);
     } else {
-      COUNT_BIG(big1->size + big2->size);
       uBigMult(big1, big2, result);
       result->size = big1->size + big2->size;
       if (negative) {
@@ -3397,7 +3358,6 @@ stritype stri;
       raise_error(MEMORY_ERROR);
       return(NULL);
     } else {
-      COUNT_BIG(result_size);
       result->size = 1;
       result->bigdigits[0] = 0;
       okay = TRUE;
@@ -3456,7 +3416,6 @@ biginttype big1;
       raise_error(MEMORY_ERROR);
       return(NULL);
     } else {
-      COUNT_BIG(big1->size);
       result->size = big1->size;
       pos = 0;
       do {
@@ -3532,7 +3491,6 @@ biginttype upper_limit;
         raise_error(MEMORY_ERROR);
         return(NULL);
       } else {
-        COUNT_BIG(result_size);
         memset(&result->bigdigits[scale_limit->size], 0,
             (SIZE_TYPE) (result_size - scale_limit->size) * sizeof(bigdigittype));
         result->size = scale_limit->size;
@@ -3603,7 +3561,6 @@ biginttype big2;
         raise_error(MEMORY_ERROR);
         return(NULL);
       } else {
-        COUNT_BIG(big1->size + 2);
         if (IS_NEGATIVE(big1->bigdigits[big1->size - 1])) {
           negative = TRUE;
           positive_copy_of_negative_big(result, big1);
@@ -3620,7 +3577,6 @@ biginttype big2;
         raise_error(MEMORY_ERROR);
         return(NULL);
       } else {
-        COUNT_BIG(big2->size + 1);
         if (IS_NEGATIVE(big2->bigdigits[big2->size - 1])) {
           positive_copy_of_negative_big(big2_help, big2);
         } else {
@@ -3680,7 +3636,6 @@ biginttype big2;
         raise_error(MEMORY_ERROR);
         return(NULL);
       } else {
-        COUNT_BIG(big1->size + 1);
         pos = 0;
         do {
           carry += (doublebigdigittype) big1->bigdigits[pos] +
@@ -3708,7 +3663,6 @@ biginttype big2;
         raise_error(MEMORY_ERROR);
         return(NULL);
       } else {
-        COUNT_BIG(big2->size + 1);
         pos = 0;
         do {
           carry += (doublebigdigittype) big1->bigdigits[pos] +
@@ -3867,7 +3821,6 @@ biginttype big1;
         raise_error(MEMORY_ERROR);
         return(NULL);
       } else {
-        COUNT_BIG(big1->size + 1);
         pos = 0;
         if (IS_NEGATIVE(big1->bigdigits[big1->size - 1])) {
           positive_copy_of_negative_big(help_big, big1);
@@ -3957,7 +3910,6 @@ biginttype big1;
       raise_error(MEMORY_ERROR);
       return(NULL);
     } else {
-      COUNT_BIG(big1->size);
       result->size = big1->size;
       pos = 0;
       do {
@@ -4013,7 +3965,6 @@ uinttype number;
       raise_error(MEMORY_ERROR);
       return(NULL);
     } else {
-      COUNT_BIG(result_size);
       result->size = result_size;
       for (pos = 0; pos < result->size; pos++) {
         result->bigdigits[pos] = (bigdigittype) (number & BIGDIGIT_MASK);
@@ -4047,7 +3998,6 @@ ulongtype number;
       raise_error(MEMORY_ERROR);
       return(NULL);
     } else {
-      COUNT_BIG(result_size);
       result->size = result_size;
       for (pos = 0; pos < result->size; pos++) {
         result->bigdigits[pos] = (bigdigittype) (number & BIGDIGIT_MASK);

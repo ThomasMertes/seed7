@@ -254,7 +254,7 @@
 - The makefile mk_msvc.mak was added to allow experimental compilation with nmake and cl.
 
 20070607:
-- An explanation of multiple_dispatch was added to the FAQ.
+- An explanation of multiple dispatch was added to the FAQ.
 - A bug in the 'str' function for 'complex' was fixed (found by Leejun).
 - The interpreter was improved to support startsWith, endsWith, array_min_position, heapstat
   and @:= (for ref_lists).
@@ -266,3 +266,14 @@
 - The concentration game was renamed to pairs.sd7
 - The functions drwCpy, drwCreate and drwDestr where moved to drw_rtl.c.
 - The heap management and the heap statistic was improved.
+
+20070624:
+- As suggested by several users a socket library (socket.s7i) was added.
+- Two example programs tst_srv.sd7 and tst_cli.sd7 to test socket functionality were added.
+- The popen function was added (suggested by leonardoce).
+- The compiler was improved to support hash tables with floats, various for loops over
+  hash tables and the new socket library.
+- The compiler now compiles the programs bas.sd7 and wordcnt.sd7.
+- The wator.sd7 example program was improved.
+- The heap management and the heap statistic was improved.
+- Several function prototypes were changed to use 'const' types.

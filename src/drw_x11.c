@@ -752,7 +752,7 @@ unsigned long number;
 
 #ifdef ANSI_C
 
-void drwArc (wintype actual_window, inttype x, inttype y,
+void drwArc (const_wintype actual_window, inttype x, inttype y,
     inttype radius, floattype ang1, floattype ang2)
 #else
 
@@ -792,7 +792,7 @@ floattype ang1, ang2;
 
 #ifdef ANSI_C
 
-void drwPArc (wintype actual_window, inttype x, inttype y,
+void drwPArc (const_wintype actual_window, inttype x, inttype y,
     inttype radius, floattype ang1, floattype ang2, inttype col)
 #else
 
@@ -834,7 +834,7 @@ inttype col;
 
 #ifdef ANSI_C
 
-void drwFArcChord (wintype actual_window, inttype x, inttype y,
+void drwFArcChord (const_wintype actual_window, inttype x, inttype y,
     inttype radius, floattype ang1, floattype ang2)
 #else
 
@@ -875,7 +875,7 @@ floattype ang1, ang2;
 
 #ifdef ANSI_C
 
-void drwPFArcChord (wintype actual_window, inttype x, inttype y,
+void drwPFArcChord (const_wintype actual_window, inttype x, inttype y,
     inttype radius, floattype ang1, floattype ang2, inttype col)
 #else
 
@@ -918,7 +918,7 @@ inttype col;
 
 #ifdef ANSI_C
 
-void drwFArcPieSlice (wintype actual_window, inttype x, inttype y,
+void drwFArcPieSlice (const_wintype actual_window, inttype x, inttype y,
     inttype radius, floattype ang1, floattype ang2)
 #else
 
@@ -946,7 +946,7 @@ floattype ang1, ang2;
 
 #ifdef ANSI_C
 
-void drwPFArcPieSlice (wintype actual_window, inttype x, inttype y,
+void drwPFArcPieSlice (const_wintype actual_window, inttype x, inttype y,
     inttype radius, floattype ang1, floattype ang2, inttype col)
 #else
 
@@ -976,7 +976,7 @@ inttype col;
 
 #ifdef ANSI_C
 
-void drwArc2 (wintype actual_window,
+void drwArc2 (const_wintype actual_window,
     inttype x1, inttype y1, inttype x2, inttype y2, inttype radius)
 #else
 
@@ -997,7 +997,7 @@ inttype x1, y1, x2, y2, radius;
 
 #ifdef ANSI_C
 
-void drwCircle (wintype actual_window,
+void drwCircle (const_wintype actual_window,
     inttype x, inttype y, inttype radius)
 #else
 
@@ -1024,7 +1024,7 @@ inttype x, y, radius;
 
 #ifdef ANSI_C
 
-void drwPCircle (wintype actual_window,
+void drwPCircle (const_wintype actual_window,
     inttype x, inttype y, inttype radius, inttype col)
 #else
 
@@ -1053,7 +1053,7 @@ inttype col;
 
 #ifdef ANSI_C
 
-void drwClear (wintype actual_window, inttype col)
+void drwClear (const_wintype actual_window, inttype col)
 #else
 
 void drwClear (actual_window, col)
@@ -1078,7 +1078,7 @@ inttype col;
 
 #ifdef ANSI_C
 
-void drwCopyArea (wintype src_window, wintype dest_window,
+void drwCopyArea (const_wintype src_window, const_wintype dest_window,
     inttype src_x, inttype src_y, inttype width, inttype height,
     inttype dest_x, inttype dest_y)
 #else
@@ -1121,7 +1121,7 @@ inttype dest_y;
 
 #ifdef ANSI_C
 
-void drwFCircle (wintype actual_window,
+void drwFCircle (const_wintype actual_window,
     inttype x, inttype y, inttype radius)
 #else
 
@@ -1148,7 +1148,7 @@ inttype x, y, radius;
 
 #ifdef ANSI_C
 
-void drwPFCircle (wintype actual_window,
+void drwPFCircle (const_wintype actual_window,
     inttype x, inttype y, inttype radius, inttype col)
 #else
 
@@ -1177,7 +1177,7 @@ inttype col;
 
 #ifdef ANSI_C
 
-void drwFEllipse (wintype actual_window,
+void drwFEllipse (const_wintype actual_window,
     inttype x, inttype y, inttype width, inttype height)
 #else
 
@@ -1202,7 +1202,7 @@ inttype x, y, width, height;
 
 #ifdef ANSI_C
 
-void drwPFEllipse (wintype actual_window,
+void drwPFEllipse (const_wintype actual_window,
     inttype x, inttype y, inttype width, inttype height, inttype col)
 #else
 
@@ -1303,7 +1303,7 @@ wintype old_window;
 
 #ifdef ANSI_C
 
-wintype drwGet (wintype actual_window, inttype left, inttype upper,
+wintype drwGet (const_wintype actual_window, inttype left, inttype upper,
     inttype width, inttype height)
 #else
 
@@ -1351,7 +1351,7 @@ inttype height;
 
 #ifdef ANSI_C
 
-inttype drwHeight (wintype actual_window)
+inttype drwHeight (const_wintype actual_window)
 #else
 
 inttype drwHeight (actual_window)
@@ -1377,7 +1377,7 @@ wintype actual_window;
 
 #ifdef ANSI_C
 
-wintype drwImage (wintype actual_window, inttype *image_data,
+wintype drwImage (const_wintype actual_window, inttype *image_data,
     inttype width, inttype height)
 #else
 
@@ -1424,7 +1424,7 @@ inttype height;
 
 #ifdef ANSI_C
 
-void drwLine (wintype actual_window,
+void drwLine (const_wintype actual_window,
     inttype x1, inttype y1, inttype x2, inttype y2)
 #else
 
@@ -1447,7 +1447,7 @@ inttype x1, y1, x2, y2;
 
 #ifdef ANSI_C
 
-void drwPLine (wintype actual_window,
+void drwPLine (const_wintype actual_window,
     inttype x1, inttype y1, inttype x2, inttype y2, inttype col)
 #else
 
@@ -1472,7 +1472,7 @@ inttype col;
 
 #ifdef ANSI_C
 
-wintype drwNewPixmap (wintype actual_window, inttype width, inttype height)
+wintype drwNewPixmap (const_wintype actual_window, inttype width, inttype height)
 #else
 
 wintype drwNewPixmap (actual_window, width, height)
@@ -1509,7 +1509,7 @@ inttype height;
 
 #ifdef ANSI_C
 
-wintype drwNewBitmap (wintype actual_window, inttype width, inttype height)
+wintype drwNewBitmap (const_wintype actual_window, inttype width, inttype height)
 #else
 
 wintype drwNewBitmap (actual_window, width, height)
@@ -1729,7 +1729,7 @@ stritype window_name;
 
 #ifdef ANSI_C
 
-void drwPoint (wintype actual_window, inttype x, inttype y)
+void drwPoint (const_wintype actual_window, inttype x, inttype y)
 #else
 
 void drwPoint (actual_window, x, y)
@@ -1751,7 +1751,7 @@ inttype x, y;
 
 #ifdef ANSI_C
 
-void drwPPoint (wintype actual_window, inttype x, inttype y, inttype col)
+void drwPPoint (const_wintype actual_window, inttype x, inttype y, inttype col)
 #else
 
 void drwPPoint (actual_window, x, y, col)
@@ -1775,7 +1775,7 @@ inttype col;
 
 #ifdef ANSI_C
 
-void drwPut (wintype actual_window, wintype pixmap,
+void drwPut (const_wintype actual_window, const_wintype pixmap,
     inttype x1, inttype y1)
 #else
 
@@ -1843,7 +1843,7 @@ inttype y1;
 
 #ifdef ANSI_C
 
-void drwRect (wintype actual_window,
+void drwRect (const_wintype actual_window,
     inttype x1, inttype y1, inttype length_x, inttype length_y)
 #else
 
@@ -1868,7 +1868,7 @@ inttype x1, y1, length_x, length_y;
 
 #ifdef ANSI_C
 
-void drwPRect (wintype actual_window,
+void drwPRect (const_wintype actual_window,
     inttype x1, inttype y1, inttype length_x, inttype length_y, inttype col)
 #else
 
@@ -2193,7 +2193,7 @@ inttype col;
 
 #ifdef ANSI_C
 
-void drwText (wintype actual_window, inttype x, inttype y, stritype stri,
+void drwText (const_wintype actual_window, inttype x, inttype y, stritype stri,
     inttype col, inttype bkcol)
 #else
 
@@ -2251,7 +2251,7 @@ inttype bkcol;
 
 #ifdef ANSI_C
 
-inttype drwWidth (wintype actual_window)
+inttype drwWidth (const_wintype actual_window)
 #else
 
 inttype drwWidth (actual_window)

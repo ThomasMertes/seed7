@@ -179,7 +179,6 @@ static INLINE booltype speedup ()
         in_file.buffer_size = 0;
       } else {
         if (ALLOC_BYTES(in_file.start, file_length)) {
-          COUNT_BYTES(file_length);
           if (fread(in_file.start, 1, file_length, in_file.fil) ==
               file_length) {
             in_file.nextch = in_file.start;
@@ -204,13 +203,11 @@ static INLINE booltype speedup ()
       in_file.buffer_size = 512;
     } /* if */
     if (ALLOC_BYTES(in_file.start, in_file.buffer_size)) {
-      COUNT_BYTES(in_file.buffer_size);
       in_file.nextch = in_file.start + in_file.buffer_size;
       in_file.beyond = in_file.start;
     } else {
       in_file.buffer_size = 512;
       if (ALLOC_BYTES(in_file.start, in_file.buffer_size)) {
-        COUNT_BYTES(in_file.buffer_size);
         in_file.nextch = in_file.start + in_file.buffer_size;
         in_file.beyond = in_file.start;
       } else {
@@ -222,7 +219,6 @@ static INLINE booltype speedup ()
 #ifdef USE_INFILE_BUFFER
     if (option.get_infile_buffer) {
       if (ALLOC_BYTES(in_file.buffer, SIZE_IN_BUFFER)) {
-        COUNT_BYTES(SIZE_IN_BUFFER);
         setvbuf(in_file.fil, in_file.buffer, _IOFBF,
             (SIZE_TYPE) SIZE_IN_BUFFER);
       } /* if */
@@ -671,7 +667,6 @@ void init_lib_path ()
     if (!ALLOC_ARRAY(lib_path, 0)) {
       fatal_memory_error(SOURCE_POSITION(2021));
     } else {
-      COUNT_ARRAY(0);
       lib_path->min_position = 1;
       lib_path->max_position = 0;
     } /* if */

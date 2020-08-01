@@ -167,7 +167,6 @@ errinfotype *err_info;
     if (!ALLOC_HASH(hash, TABLE_SIZE(bits))) {
       *err_info = MEMORY_ERROR;
     } else {
-      COUNT_HASH(TABLE_SIZE(bits));
       hash->bits = bits;
       hash->mask = TABLE_MASK(bits);
       hash->table_size = TABLE_SIZE(bits);
@@ -246,7 +245,6 @@ errinfotype *err_info;
     if (!ALLOC_HASH(dest_hash, new_size)) {
       *err_info = MEMORY_ERROR;
     } else {
-      COUNT_HASH(new_size);
       dest_hash->bits = source_hash->bits;
       dest_hash->mask = source_hash->mask;
       dest_hash->table_size = source_hash->table_size;
@@ -336,7 +334,6 @@ errinfotype *err_info;
     if (!ALLOC_ARRAY(key_array, ARRAY_SIZE_INCREMENT)) {
       *err_info = MEMORY_ERROR;
     } else {
-      COUNT_ARRAY(ARRAY_SIZE_INCREMENT);
       key_array->min_position = 1;
       key_array->max_position = ARRAY_SIZE_INCREMENT;
       arr_pos = 0;
@@ -442,7 +439,6 @@ errinfotype *err_info;
     if (!ALLOC_ARRAY(value_array, ARRAY_SIZE_INCREMENT)) {
       *err_info = MEMORY_ERROR;
     } else {
-      COUNT_ARRAY(ARRAY_SIZE_INCREMENT);
       value_array->min_position = 1;
       value_array->max_position = ARRAY_SIZE_INCREMENT;
       arr_pos = 0;
@@ -789,7 +785,6 @@ listtype arguments;
       if (!ALLOC_HASH(result_hash, result_size)) {
         return(raise_exception(SYS_MEM_EXCEPTION));
       } /* if */
-      COUNT_HASH(result_size);
       result_hash->min_position = arr1->min_position;
       result_hash->max_position = arr1->max_position;
       if (!crea_hash(result_hash->arr, arr1->arr, result_size)) {

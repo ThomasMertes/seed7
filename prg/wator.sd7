@@ -302,6 +302,8 @@ const proc: moveAllFish is func
     var integer: down_line    is 0;
     var integer: left_column  is 0;
     var integer: right_column is 0;
+    var integer: column_byond is 0;
+    var integer: column_step  is 0;
     var integer: nmoves is 0;
     var array integer: moveopts is 4 times 0;
   begin
@@ -316,7 +318,16 @@ const proc: moveAllFish is func
       else
         down_line := succ(line);
       end if;
-      for column range 1 to MAX_COLUMN do
+      if odd(line) then
+        column := 1;
+        column_byond := succ(MAX_COLUMN);
+        column_step := 1;
+      else
+        column := MAX_COLUMN;
+        column_byond := 0;
+        column_step := -1;
+      end if;
+      while column <> column_byond do
         (* Look through array for fish and check if already processed *)
         if field[line][column].content = FISH and not field[line][column].processed then
           if column = 1 then
@@ -368,7 +379,8 @@ const proc: moveAllFish is func
             end case;
           end if;
         end if;
-      end for;
+        column +:= column_step;
+      end while;
     end for;
   end func;
 

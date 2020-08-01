@@ -240,7 +240,7 @@ listtype arguments;
     structtype result_struct;
     objecttype result;
 
-  /* sct_conv */
+  /* cls_new */
     stru_arg = arg_1(arguments);
     isit_struct(stru_arg);
     if (TEMP_OBJECT(stru_arg)) {
@@ -252,7 +252,6 @@ listtype arguments;
       if (!ALLOC_STRUCT(result_struct, stru1->size)) {
         return(raise_exception(SYS_MEM_EXCEPTION));
       } /* if */
-      COUNT_STRUCT(stru1->size);
       result_struct->size = stru1->size;
       if (!crea_array(result_struct->stru, stru1->stru, stru1->size)) {
         FREE_STRUCT(result_struct, stru1->size);

@@ -136,7 +136,6 @@ listtype arguments;
       if (!ALLOC_ARRAY(result_array, result_size)) {
         return(raise_exception(SYS_MEM_EXCEPTION));
       } /* if */
-      COUNT_ARRAY(result_size);
       result_array->min_position = 1;
       result_array->max_position = result_size;
       if (!crea_array(result_array->arr, arr1->arr, result_size)) {
@@ -186,7 +185,6 @@ listtype arguments;
       if (!ALLOC_ARRAY(result_array, result_size)) {
         return(raise_exception(SYS_MEM_EXCEPTION));
       } /* if */
-      COUNT_ARRAY(result_size);
       result_array->min_position = start_position;
       result_array->max_position = start_position + result_size - 1;
       if (!crea_array(result_array->arr, arr1->arr, result_size)) {
@@ -220,7 +218,6 @@ listtype arguments;
     if (!ALLOC_ARRAY(result, result_size)) {
       return(raise_exception(SYS_MEM_EXCEPTION));
     } /* if */
-    COUNT_ARRAY(result_size);
     result->min_position = 1;
     result->max_position = 1;
     if (TEMP_OBJECT(element)) {
@@ -263,7 +260,6 @@ listtype arguments;
     if (!ALLOC_ARRAY(result, result_size)) {
       return(raise_exception(SYS_MEM_EXCEPTION));
     } /* if */
-    COUNT_ARRAY(result_size);
     result->min_position = start_position;
     result->max_position = start_position;
     if (TEMP_OBJECT(element)) {
@@ -320,7 +316,6 @@ listtype arguments;
       if (!ALLOC_ARRAY(result, result_size)) {
         return(raise_exception(SYS_MEM_EXCEPTION));
       } /* if */
-      COUNT_ARRAY(result_size);
       result->min_position = arr1->min_position;
       result->max_position = arr1->max_position + arr2_size;
       if (!crea_array(result->arr, arr1->arr, arr1_size)) {
@@ -376,7 +371,6 @@ listtype arguments;
       if (!ALLOC_ARRAY(result, result_size)) {
         return(raise_exception(SYS_MEM_EXCEPTION));
       } /* if */
-      COUNT_ARRAY(result_size);
       result->min_position = arr1->min_position;
       result->max_position = arr1->max_position;
       if (!crea_array(result->arr, arr1->arr, result_size)) {
@@ -428,7 +422,6 @@ listtype arguments;
         if (!ALLOC_ARRAY(new_arr, arr_source_size)) {
           return(raise_exception(SYS_MEM_EXCEPTION));
         } else {
-          COUNT_ARRAY(arr_source_size);
           new_arr->min_position = arr_source->min_position;
           new_arr->max_position = arr_source->max_position;
           if (!crea_array(new_arr->arr, arr_source->arr, arr_source_size)) {
@@ -480,7 +473,6 @@ listtype arguments;
         arr_to->value.arrayvalue = NULL;
         return(raise_exception(SYS_MEM_EXCEPTION));
       } else {
-        COUNT_ARRAY(new_size);
         new_arr->min_position = arr_source->min_position;
         new_arr->max_position = arr_source->max_position;
         if (!crea_array(new_arr->arr, arr_source->arr, new_size)) {
@@ -539,7 +531,6 @@ listtype arguments;
     if (!ALLOC_ARRAY(result, 0)) {
       return(raise_exception(SYS_MEM_EXCEPTION));
     } else {
-      COUNT_ARRAY(0);
       result->min_position = 1;
       result->max_position = 0;
     } /* if */
@@ -582,7 +573,6 @@ listtype arguments;
       if (!ALLOC_ARRAY(result, result_size)) {
         return(raise_exception(SYS_MEM_EXCEPTION));
       } /* if */
-      COUNT_ARRAY(result_size);
       result->min_position = arr1->min_position;
       result->max_position = arr1->max_position + 1;
       if (!crea_array(result->arr, arr1->arr, arr1_size)) {
@@ -630,7 +620,6 @@ listtype arguments;
     if (!ALLOC_ARRAY(result, result_size)) {
       return(raise_exception(SYS_MEM_EXCEPTION));
     } /* if */
-    COUNT_ARRAY(result_size);
     result->min_position = 1;
     result->max_position = 2;
     if (TEMP_OBJECT(element1)) {
@@ -705,7 +694,6 @@ listtype arguments;
         if (!ALLOC_ARRAY(result, result_size)) {
           return(raise_exception(SYS_MEM_EXCEPTION));
         } /* if */
-        COUNT_ARRAY(result_size);
         result->min_position = arr1->min_position;
         result->max_position = stop;
         if (!crea_array(result->arr, arr1->arr, result_size)) {
@@ -717,7 +705,6 @@ listtype arguments;
       if (!ALLOC_ARRAY(result, 0)) {
         return(raise_exception(SYS_MEM_EXCEPTION));
       } /* if */
-      COUNT_ARRAY(0);
       result->min_position = arr1->min_position;
       result->max_position = arr1->min_position - 1;
     } /* if */
@@ -838,7 +825,6 @@ listtype arguments;
       if (!ALLOC_ARRAY(result, result_size)) {
         return(raise_exception(SYS_MEM_EXCEPTION));
       } /* if */
-      COUNT_ARRAY(result_size);
       result->min_position = arr1->min_position;
       result->max_position = arr1->min_position + result_size - 1;
       if (TEMP_OBJECT(arg_1(arguments))) {
@@ -859,7 +845,6 @@ listtype arguments;
       if (!ALLOC_ARRAY(result, 0)) {
         return(raise_exception(SYS_MEM_EXCEPTION));
       } /* if */
-      COUNT_ARRAY(0);
       result->min_position = arr1->min_position;
       result->max_position = arr1->min_position - 1;
     } /* if */
@@ -945,7 +930,6 @@ listtype arguments;
       if (!ALLOC_ARRAY(result, result_size)) {
         return(raise_exception(SYS_MEM_EXCEPTION));
       } /* if */
-      COUNT_ARRAY(result_size);
       result->min_position = arr1->min_position;
       result->max_position = arr1->max_position;
       if (!crea_array(result->arr, arr1->arr, result_size)) {
@@ -991,7 +975,6 @@ listtype arguments;
       if (!ALLOC_ARRAY(result, result_size)) {
         return(raise_exception(SYS_MEM_EXCEPTION));
       } /* if */
-      COUNT_ARRAY(result_size);
       result->min_position = arr1->min_position;
       result->max_position = arr1->min_position + result_size - 1;
       if (TEMP_OBJECT(arg_1(arguments))) {
@@ -1013,7 +996,6 @@ listtype arguments;
       if (!ALLOC_ARRAY(result, 0)) {
         return(raise_exception(SYS_MEM_EXCEPTION));
       } /* if */
-      COUNT_ARRAY(0);
       result->min_position = arr1->min_position;
       result->max_position = arr1->min_position - 1;
     } /* if */
@@ -1050,7 +1032,6 @@ listtype arguments;
       if (!ALLOC_ARRAY(result, result_size)) {
         return(raise_exception(SYS_MEM_EXCEPTION));
       } else {
-        COUNT_ARRAY(result_size);
         result->min_position = 1;
         result->max_position = result_size;
         elem_to = result->arr;

@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  seed7_05.s7i  Standard Seed7 library                            *)
-(*  Copyright (C) 1989 - 2005  Thomas Mertes                        *)
+(*  Copyright (C) 1989 - 2007  Thomas Mertes                        *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)
 (*                                                                  *)
@@ -305,7 +305,6 @@ const func type: func (in type: baseType) is func
 *)
 
 
-const type: PRIMITIVE_FILE is newtype;
 const type: EXCEPTION is      newtype;
 const type: LEGAL is          newtype;
 
@@ -326,7 +325,6 @@ const proc: destroy (ref ENUMERATION param) is      noop;
 const proc: destroy (ref integer param) is          noop;
 const proc: destroy (ref char param) is             noop;
 const proc: destroy (ref EXCEPTION param) is        noop;
-const proc: destroy (ref PRIMITIVE_FILE param) is   noop;
 
 const proc: (ref ACTION param) ::= (in ACTION param) is            action "ACT_CREATE";
 const proc: destroy (ref func ACTION param) is                     noop;
@@ -337,7 +335,6 @@ const proc: (ref integer param) ::= (ref integer param) is         action "INT_C
 const proc: (ref char param) ::= (in char param) is                action "CHR_CREATE";
 const proc: (ref string param) ::= (in string param) is            action "STR_CREATE";
 const proc: (ref func object param) ::= (in ACTION param) is       action "ACT_CREATE";
-const proc: (ref PRIMITIVE_FILE param) ::= (ref PRIMITIVE_FILE param) is action "FIL_CREATE";
 const proc: (ref EXCEPTION param) ::= (ref EXCEPTION param) is     action "ENU_CREATE";
 const proc: (ref EXCEPTION param) ::= enumlit is                   action "ENU_GENLIT";
 
@@ -2715,17 +2712,28 @@ const proc: BLOCK_DECLS (in type: unusedType) is func
 BLOCK_DECLS(void);
 
 
-(* Set of operations for the PRIMITIVE_FILE *)
+(* PRIMITIVE_FILE *)
 
+const type: PRIMITIVE_FILE is newtype;
+IN_PARAM_IS_VALUE(PRIMITIVE_FILE);
+
+const proc: (ref PRIMITIVE_FILE param) ::= (ref PRIMITIVE_FILE param) is        action "FIL_CREATE";
+const proc: destroy (ref PRIMITIVE_FILE param) is                               noop;
 const proc: (inout PRIMITIVE_FILE param) := (ref PRIMITIVE_FILE param) is       action "FIL_CPY";
+
 const func boolean: (ref PRIMITIVE_FILE param) = (ref PRIMITIVE_FILE param) is  action "FIL_EQ";
 const func boolean: (ref PRIMITIVE_FILE param) <> (ref PRIMITIVE_FILE param) is action "FIL_NE";
+
+const func PRIMITIVE_FILE: _GENERATE_EMPTY_PRIMITIVE_FILE is                    action "FIL_EMPTY";
+const PRIMITIVE_FILE: (attr PRIMITIVE_FILE) . value is                          _GENERATE_EMPTY_PRIMITIVE_FILE;
+const PRIMITIVE_FILE: PRIMITIVE_NULL_FILE is                                    PRIMITIVE_FILE.value;
 
 const func PRIMITIVE_FILE: PRIMITIVE_INPUT is         action "FIL_IN";
 const func PRIMITIVE_FILE: PRIMITIVE_OUTPUT is        action "FIL_OUT";
 const func PRIMITIVE_FILE: PRIMITIVE_ERROR is         action "FIL_ERR";
-const func PRIMITIVE_FILE: PRIMITIVE_NULL_FILE is     action "FIL_NIL";
-const func PRIMITIVE_FILE: PRIMITIVE_FILE_OPEN (in string param, in string param) is action "FIL_OPEN";
+
+const func PRIMITIVE_FILE: PRIMITIVE_FILE_OPEN (in string param, in string param) is  action "FIL_OPEN";
+const func PRIMITIVE_FILE: PRIMITIVE_FILE_POPEN (in string param, in string param) is action "FIL_POPEN";
 const proc: close (ref PRIMITIVE_FILE param) is                              action "FIL_CLOSE";
 const func boolean: eof (ref PRIMITIVE_FILE param) is                        action "FIL_EOF";
 const proc: flush (ref PRIMITIVE_FILE param) is                              action "FIL_FLUSH";
@@ -2747,7 +2755,7 @@ const type: file is sub object interface;
 
 const proc: write (inout file param, in string param) is DYNAMIC;
 const proc: writeln (inout file param) is DYNAMIC;
-const proc: backSpace (ref file param) is DYNAMIC;
+const proc: backSpace (inout file param) is DYNAMIC;
 const proc: close (ref file param) is DYNAMIC;
 const proc: flush (ref file param) is DYNAMIC;
 const func char: getc (inout file param) is DYNAMIC;
@@ -2784,7 +2792,7 @@ const proc: (inout file: aFile) << NL is func
     writeln(aFile);
   end func;
 
-const proc: (in file: aFile) << BS is func
+const proc: (inout file: aFile) << BS is func
   begin
     backSpace(aFile);
   end func;
@@ -2915,6 +2923,21 @@ const func file: open (in string: file_name, in string: access) is func
     if open_file <> PRIMITIVE_NULL_FILE then
       new_file.ext_file := open_file;
       new_file.name := file_name;
+      result := malloc(new_file);
+    end if;
+  end func;
+
+const func file: popen (in string: command, in string: access) is func
+  result
+    var file: result is STD_NULL;
+  local
+    var PRIMITIVE_FILE: open_file is PRIMITIVE_NULL_FILE;
+    var external_file: new_file is external_file.value;
+  begin
+    open_file := PRIMITIVE_FILE_POPEN(command, access);
+    if open_file <> PRIMITIVE_NULL_FILE then
+      new_file.ext_file := open_file;
+      new_file.name := command;
       result := malloc(new_file);
     end if;
   end func;

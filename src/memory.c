@@ -230,6 +230,32 @@ blocktype temp_value;
 
 #ifdef ANSI_C
 
+objecttype bld_bstri_temp (bstritype temp_value)
+#else
+
+objecttype bld_bstri_temp (temp_value)
+bstritype temp_value;
+#endif
+
+  {
+    register objecttype result;
+
+  /* bld_bstri_temp */
+    if (ALLOC_OBJECT(result)) {
+      result->type_of = NULL;
+      result->descriptor.entity = NULL;
+      INIT_CLASS_OF_TEMP(result, BSTRIOBJECT);
+      result->value.bstrivalue = temp_value;
+      return(result);
+    } else {
+      return(raise_exception(SYS_MEM_EXCEPTION));
+    } /* if */
+  } /* bld_bstri_temp */
+
+
+
+#ifdef ANSI_C
+
 objecttype bld_char_temp (chartype temp_value)
 #else
 
@@ -542,6 +568,32 @@ settype temp_value;
 
 #ifdef ANSI_C
 
+objecttype bld_socket_temp (sockettype temp_value)
+#else
+
+objecttype bld_socket_temp (temp_value)
+sockettype temp_value;
+#endif
+
+  {
+    register objecttype result;
+
+  /* bld_socket_temp */
+    if (ALLOC_OBJECT(result)) {
+      result->type_of = NULL;
+      result->descriptor.entity = NULL;
+      INIT_CLASS_OF_TEMP(result, SOCKETOBJECT);
+      result->value.socketvalue = temp_value;
+      return(result);
+    } else {
+      return(raise_exception(SYS_MEM_EXCEPTION));
+    } /* if */
+  } /* bld_socket_temp */
+
+
+
+#ifdef ANSI_C
+
 objecttype bld_stri_temp (stritype temp_value)
 #else
 
@@ -670,6 +722,7 @@ objecttype object;
       case INTOBJECT:
       case CHAROBJECT:
       case FILEOBJECT:
+      case SOCKETOBJECT:
       case FLOATOBJECT:
       case REFOBJECT:
       case ACTOBJECT:
@@ -693,6 +746,12 @@ objecttype object;
       case STRIOBJECT:
         if (object->value.strivalue != NULL) {
           FREE_STRI(object->value.strivalue, object->value.strivalue->size);
+        } /* if */
+        FREE_OBJECT(object);
+        break;
+      case BSTRIOBJECT:
+        if (object->value.bstrivalue != NULL) {
+          FREE_BSTRI(object->value.bstrivalue, object->value.bstrivalue->size);
         } /* if */
         FREE_OBJECT(object);
         break;

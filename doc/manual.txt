@@ -199,8 +199,8 @@ CONTENTS
     - Predefined constructs like arrays or for-loops are
       declared in the language itself.
 
-    - Object orientation is used where it brings advantages and
-      not in places where other solutions are more obvious.
+    - Object orientation is based on interfaces, supports
+      multiple dispatch and allows to connect methods to objects.
 
     - Strong typing
 
@@ -2604,6 +2604,12 @@ CONTENTS
                     Type of argument B: string,
                     Type of result: file,
                     Returns STD_NULL if open was not
+                    possible )
+      popen(A, B) Open a pipe to a process
+                  ( Type of argument A: string,
+                    Type of argument B: string,
+                    Type of result: file,
+                    Returns STD_NULL if popen was not
                     possible )
       length(A) Length of file A
                   ( Type of result: integer )

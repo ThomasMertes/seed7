@@ -164,7 +164,6 @@ listtype arguments;
         if (!ALLOC_BIG(new_big, new_size)) {
           return(raise_exception(SYS_MEM_EXCEPTION));
         } else {
-          COUNT_BIG(new_size);
           FREE_BIG(take_bigint(big_to), take_bigint(big_to)->size);
           big_to->value.bigintvalue = new_big;
           new_big->size = new_size;
@@ -207,7 +206,6 @@ listtype arguments;
         big_to->value.bigintvalue = NULL;
         return(raise_exception(SYS_MEM_EXCEPTION));
       } /* if */
-      COUNT_BIG(new_size);
       big_to->value.bigintvalue = new_big;
       new_big->size = new_size;
       memcpy(new_big->bigdigits, take_bigint(big_from)->bigdigits,
@@ -710,7 +708,6 @@ listtype arguments;
       if (!ALLOC_BIG(result, big1->size)) {
         return(raise_exception(SYS_MEM_EXCEPTION));
       } else {
-        COUNT_BIG(big1->size);
         result->size = big1->size;
         memcpy(result->bigdigits, big1->bigdigits,
             (SIZE_TYPE) big1->size * sizeof(bigdigittype));
@@ -868,7 +865,6 @@ listtype arguments;
     if (!ALLOC_BIG(result, big1->size)) {
       return(raise_exception(SYS_MEM_EXCEPTION));
     } else {
-      COUNT_STRI(big1->size);
       result->size = big1->size;
       memcpy(result->bigdigits, big1->bigdigits,
           (SIZE_TYPE) (result->size * sizeof(bigdigittype)));

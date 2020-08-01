@@ -42,6 +42,7 @@
 #define take_array(arg)     (arg)->value.arrayvalue
 #define take_block(arg)     (arg)->value.blockvalue
 #define take_bool(arg)      (CLASS_OF_OBJ(arg) == CONSTENUMOBJECT || CLASS_OF_OBJ(arg) == VARENUMOBJECT ? (arg)->value.objvalue : (arg))
+#define take_bstri(arg)     (arg)->value.bstrivalue
 #define take_char(arg)      (arg)->value.charvalue
 #define take_enum(arg)      (CLASS_OF_OBJ(arg) == CONSTENUMOBJECT || CLASS_OF_OBJ(arg) == VARENUMOBJECT ? (arg)->value.objvalue : (arg))
 #define take_file(arg)      (arg)->value.filevalue
@@ -54,6 +55,7 @@
 #define take_reference(arg) (arg)->value.objvalue
 #define take_reflist(arg)   (arg)->value.listvalue
 #define take_set(arg)       (arg)->value.setvalue
+#define take_socket(arg)    (arg)->value.socketvalue
 #define take_stri(arg)      (arg)->value.strivalue
 #define take_struct(arg)    (arg)->value.structvalue
 #define take_type(arg)      (arg)->value.typevalue
@@ -66,6 +68,8 @@
 #define isit_bigint(arg)    if (CLASS_OF_OBJ(arg) != BIGINTOBJECT)  run_error(BIGINTOBJECT, arg)
 #define isit_block(arg)     if (CLASS_OF_OBJ(arg) != BLOCKOBJECT)   run_error(BLOCKOBJECT, arg)
 /*      isit_bool(arg)      */
+#define isit_bstri(arg)     if (CLASS_OF_OBJ(arg) != BSTRIOBJECT)   run_error(BSTRIOBJECT, arg); \
+                            if (take_bstri(arg) == NULL)            empty_value(arg)
 #define isit_call(arg)      if (CLASS_OF_OBJ(arg) != CALLOBJECT)    run_error(CALLOBJECT, arg)
 #define isit_char(arg)      if (CLASS_OF_OBJ(arg) != CHAROBJECT)    run_error(CHAROBJECT, arg)
 #define isit_class(arg)     if (CLASS_OF_OBJ(arg) != CLASSOBJECT)   run_error(CLASSOBJECT, arg); \
@@ -84,6 +88,7 @@
 #define isit_reflist(arg)   if (CLASS_OF_OBJ(arg) != REFLISTOBJECT) run_error(REFLISTOBJECT, arg)
 #define isit_set(arg)       if (CLASS_OF_OBJ(arg) != SETOBJECT)     run_error(SETOBJECT, arg); \
                             if (take_set(arg) == NULL)              empty_value(arg)
+#define isit_socket(arg)    if (CLASS_OF_OBJ(arg) != SOCKETOBJECT)  run_error(SOCKETOBJECT, arg)
 #define isit_stri(arg)      if (CLASS_OF_OBJ(arg) != STRIOBJECT)    run_error(STRIOBJECT, arg); \
                             if (take_stri(arg) == NULL)             empty_value(arg)
 #define isit_struct(arg)    if (CLASS_OF_OBJ(arg) != STRUCTOBJECT)  run_error(STRUCTOBJECT, arg); \
@@ -96,6 +101,7 @@
 #define isit_array(arg)
 #define isit_block(arg)
 #define isit_bool(arg)
+#define isit_bstri(arg)
 #define isit_call(arg)
 #define isit_char(arg)
 #define isit_class(arg)
@@ -110,6 +116,7 @@
 #define isit_reference(arg)
 #define isit_reflist(arg)
 #define isit_set(arg)
+#define isit_socket(arg)
 #define isit_stri(arg)
 #define isit_struct(arg)
 #define isit_type(arg)
@@ -125,6 +132,7 @@
 /* void isit_array (objecttype); */
 /* void isit_block (objecttype); */
 void isit_bool (objecttype);
+/* void isit_bstri (objecttype); */
 /* void isit_call (objecttype); */
 /* void isit_char (objecttype); */
 /* void isit_class (objecttype); */
@@ -141,6 +149,7 @@ void isit_list (objecttype);
 /* void isit_reference (objecttype); */
 /* void isit_reflist (objecttype); */
 /* void isit_set (objecttype); */
+/* void isit_socket (objecttype); */
 /* void isit_stri (objecttype); */
 /* void isit_struct (objecttype); */
 /* void isit_type (objecttype); */
@@ -150,6 +159,7 @@ objecttype bld_action_temp (acttype);
 objecttype bld_array_temp (arraytype);
 objecttype bld_bigint_temp (biginttype);
 objecttype bld_block_temp (blocktype);
+objecttype bld_bstri_temp (bstritype);
 objecttype bld_char_temp (chartype);
 objecttype bld_class_temp (objecttype);
 objecttype bld_file_temp (filetype);
@@ -162,6 +172,7 @@ objecttype bld_prog_temp (progtype);
 objecttype bld_reference_temp (objecttype);
 objecttype bld_reflist_temp (listtype);
 objecttype bld_set_temp (settype);
+objecttype bld_socket_temp (sockettype);
 objecttype bld_stri_temp (stritype);
 objecttype bld_struct_temp (structtype);
 objecttype bld_type_temp (typetype);
@@ -175,6 +186,7 @@ void dump_any_temp (objecttype);
 /* void isit_array (); */
 /* void isit_block (); */
 void isit_bool ();
+/* void isit_bstri (); */
 /* void isit_call (); */
 /* void isit_char (); */
 /* void isit_class (); */
@@ -191,6 +203,7 @@ void isit_list ();
 /* void isit_reference (); */
 /* void isit_reflist (); */
 /* void isit_set (); */
+/* void isit_socket (); */
 /* void isit_stri (); */
 /* void isit_struct (); */
 /* void isit_type (); */
@@ -200,6 +213,7 @@ objecttype bld_action_temp ();
 objecttype bld_array_temp ();
 objecttype bld_bigint_temp ();
 objecttype bld_block_temp ();
+objecttype bld_bstri_temp ();
 objecttype bld_char_temp ();
 objecttype bld_class_temp ();
 objecttype bld_file_temp ();
@@ -212,6 +226,7 @@ objecttype bld_prog_temp ();
 objecttype bld_reference_temp ();
 objecttype bld_reflist_temp ();
 objecttype bld_set_temp ();
+objecttype bld_socket_temp ();
 objecttype bld_stri_temp ();
 objecttype bld_struct_temp ();
 objecttype bld_type_temp ();

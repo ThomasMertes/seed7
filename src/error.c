@@ -69,7 +69,7 @@ linenumtype err_line;
   {
     long current_position;
     long buffer_start_position;
-    int table_size;
+    unsigned int table_size;
     long *nl_table;
     int table_start;
     int table_pos;
@@ -84,8 +84,7 @@ linenumtype err_line;
       /* printf("current_position=%lu in_file.character=%d\n",
          current_position, in_file.character); */
       table_size = in_file.line - err_line + 1;
-      if (ALLOC_HEAP(nl_table, long *, table_size * sizeof(long))) {
-        CNT1_BYT(table_size * sizeof(long));
+      if (ALLOC_TABLE(nl_table, long, table_size)) {
         if (in_file.character == EOF) {
           buffer_start_position = current_position;
         } else {
@@ -133,6 +132,7 @@ linenumtype err_line;
           } /*while */
           fputc('\n', stdout);
           fputc('\n', stdout);
+          FREE_TABLE(nl_table, long, table_size);
         } /* if */
       } /* if */
       IN_FILE_SEEK(current_position);
@@ -283,7 +283,7 @@ static void write_symbol ()
 
 #ifdef ANSI_C
 
-static void write_type (typetype anytype)
+static void write_type (const_typetype anytype)
 #else
 
 static void write_type (params)
@@ -309,7 +309,7 @@ typetype anytype;
 
 #ifdef ANSI_C
 
-static void write_name_list (listtype params)
+static void write_name_list (const_listtype params)
 #else
 
 static void write_name_list (params)
@@ -627,7 +627,7 @@ ustritype stri;
 
 #ifdef ANSI_C
 
-void err_ident (errortype err, identtype ident)
+void err_ident (errortype err, const_identtype ident)
 #else
 
 void err_ident (err, ident)
@@ -771,7 +771,7 @@ objecttype obj_found;
 
 #ifdef ANSI_C
 
-void err_type (errortype err, typetype type_found)
+void err_type (errortype err, const_typetype type_found)
 #else
 
 void err_type (err, type_found)
@@ -799,7 +799,8 @@ typetype type_found;
 
 #ifdef ANSI_C
 
-void err_expr_obj (errortype err, objecttype expr_object, objecttype obj_found)
+void err_expr_obj (errortype err, const_objecttype expr_object,
+    objecttype obj_found)
 #else
 
 void err_expr_obj (err, expr_object, obj_found)
@@ -843,7 +844,7 @@ objecttype obj_found;
 
 #ifdef ANSI_C
 
-void err_match (errortype err, objecttype obj_found)
+void err_match (errortype err, const_objecttype obj_found)
 #else
 
 void err_match (err, obj_found)

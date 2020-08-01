@@ -553,7 +553,7 @@ stritype input_string;
     printf("BEGIN analyze_string\n");
 #endif
     resultProg = NULL;
-    input_bstri = cp_to_bstri(input_string);
+    input_bstri = stri_to_bstri8(input_string);
     if (input_bstri != NULL) {
       open_string(input_bstri, &err_info);
       if (err_info == OKAY_NO_ERROR) {

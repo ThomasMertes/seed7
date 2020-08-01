@@ -56,7 +56,7 @@ const proc: writeln (inout tee_file: tee_fil) is func
   end func;
 
 
-const proc: backSpace (ref tee_file: tee_fil) is func
+const proc: backSpace (inout tee_file: tee_fil) is func
   begin
     backSpace(tee_fil.out_file1);
     backSpace(tee_fil.out_file2);

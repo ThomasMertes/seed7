@@ -50,6 +50,7 @@ typedef enum {
     BIGINTOBJECT,        /* bigintvalue - bigInteger                */
     CHAROBJECT,          /* charvalue -   char                      */
     STRIOBJECT,          /* strivalue -   string                    */
+    BSTRIOBJECT,         /* bstrivalue -  byte string               */
     ARRAYOBJECT,         /* arrayvalue -  array                     */
     HASHOBJECT,          /* hashvalue -   hash                      */
     STRUCTOBJECT,        /* structvalue - struct                    */
@@ -57,6 +58,7 @@ typedef enum {
     INTERFACEOBJECT,     /* objvalue -    Dynamic Object            */
     SETOBJECT,           /* setvalue -    set                       */
     FILEOBJECT,          /* filevalue -   file                      */
+    SOCKETOBJECT,        /* socketvalue - socket                    */
     LISTOBJECT,          /* listvalue -   list                      */
     FLOATOBJECT,         /* floatvalue -  float                     */
     WINOBJECT,           /* winvalue -    Window                    */
@@ -194,11 +196,13 @@ typedef union {
     biginttype bigintvalue;  /* BIGINTOBJECT */
     chartype   charvalue;    /* CHAROBJECT */
     stritype   strivalue;    /* STRIOBJECT */
+    bstritype  bstrivalue;   /* BSTRIOBJECT */
     arraytype  arrayvalue;   /* ARRAYOBJECT */
     hashtype   hashvalue;    /* HASHOBJECT */
     settype    setvalue;     /* SETOBJECT */
     structtype structvalue;  /* STRUCTOBJECT */
     filetype   filevalue;    /* FILEOBJECT */
+    sockettype socketvalue;  /* SOCKETOBJECT */
     listtype   listvalue;    /* LISTOBJECT, EXPROBJECT */
     wintype    winvalue;     /* WINOBJECT */
     objecttype objvalue;     /* ENUMLITERALOBJECT, CONSTENUMOBJECT */

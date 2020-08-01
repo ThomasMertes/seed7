@@ -91,7 +91,6 @@ listtype arguments;
     if (!ALLOC_SET(result, 1)) {
       return(raise_exception(SYS_MEM_EXCEPTION));
     } else {
-      COUNT_SET(1);
       if (length == 0) {
         result->min_position = 0;
         result->max_position = 0;
@@ -138,7 +137,6 @@ listtype arguments;
     if (!ALLOC_SET(result, 1)) {
       return(raise_exception(SYS_MEM_EXCEPTION));
     } else {
-      COUNT_SET(1);
       position = number >> bitset_shift;
       result->min_position = position;
       result->max_position = position;
@@ -277,7 +275,6 @@ listtype arguments;
           if (!ALLOC_SET(set_dest, set_source_size)) {
             return(raise_exception(SYS_MEM_EXCEPTION));
           } else {
-            COUNT_SET(set_source_size);
             FREE_SET(set_to->value.setvalue, set_dest_size);
             set_to->value.setvalue = set_dest;
           } /* if */
@@ -324,7 +321,6 @@ listtype arguments;
         set_to->value.setvalue = NULL;
         return(raise_exception(SYS_MEM_EXCEPTION));
       } else {
-        COUNT_SET(new_size);
         set_to->value.setvalue = new_set;
         new_set->min_position = set_source->min_position;
         new_set->max_position = set_source->max_position;
@@ -432,7 +428,6 @@ listtype arguments;
     if (!ALLOC_SET(result, 1)) {
       return(raise_exception(SYS_MEM_EXCEPTION));
     } else {
-      COUNT_SET(1);
       result->min_position = 0;
       result->max_position = 0;
       memset(result->bitset, 0, sizeof(bitsettype));
@@ -645,7 +640,6 @@ listtype arguments;
       if (!ALLOC_SET(set_dest, new_size)) {
         return(raise_exception(SYS_MEM_EXCEPTION));
       } else {
-        COUNT_SET(new_size);
         set_to->value.setvalue = set_dest;
         set_dest->min_position = position;
         set_dest->max_position = old_set->max_position;
@@ -892,7 +886,6 @@ listtype arguments;
     if (!ALLOC_SET(result, set_size)) {
       return(raise_exception(SYS_MEM_EXCEPTION));
     } else {
-      COUNT_SET(set_size);
       result->min_position = set1->min_position;
       result->max_position = set1->max_position;
       memcpy(result->bitset, set1->bitset, set_size * sizeof(bitsettype));

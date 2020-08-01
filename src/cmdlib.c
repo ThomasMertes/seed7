@@ -96,7 +96,6 @@ char *dir_name;
     if ((directory = opendir(dir_name)) != NULL) {
       max_array_size = 256;
       if (ALLOC_ARRAY(dir_array, max_array_size)) {
-        COUNT_ARRAY(max_array_size);
         used_array_size = 0;
         do {
           current_entry = readdir(directory);
@@ -156,8 +155,7 @@ char *dir_name;
       } /* if */
       closedir(directory);
     } else {
-      if (ALLOC_ARRAY(dir_array, (memsizetype) 0)) {
-        COUNT_ARRAY(0);
+      if (ALLOC_ARRAY(dir_array, 0)) {
         dir_array->min_position = 1;
         dir_array->max_position = 0;
       } /* if */
