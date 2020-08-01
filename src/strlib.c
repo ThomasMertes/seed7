@@ -1688,8 +1688,8 @@ listtype arguments;
     stritype result;
 
   /* str_value */
-    isit_reference(arg_3(arguments));
-    obj_arg = take_reference(arg_3(arguments));
+    isit_reference(arg_1(arguments));
+    obj_arg = take_reference(arg_1(arguments));
     isit_stri(obj_arg);
     str1 = take_stri(obj_arg);
 

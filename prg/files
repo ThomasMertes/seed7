@@ -32,6 +32,7 @@ hamu.sd7     Game to govern the ancient kingdom of sumeria.
 hanoi.sd7    Solve the tower of hanoi problem                  
 hello.sd7    Hello world                                       
 kbd.sd7      Keyboard test program                             
+mandelbr.sd7 Display the Mandelbrot set                        
 mind.sd7     Guess a four digit number game                    
 ms.sd7       Mine sweeper game                                 
 nicoma.sd7   Puzzle from arithmetica of Nicomachus (A.D. 90)!  

@@ -357,54 +357,6 @@ listtype arguments;
 
 #ifdef ANSI_C
 
-objecttype prg_getobj (listtype arguments)
-#else
-
-objecttype prg_getobj (arguments)
-listtype arguments;
-#endif
-
-  {
-    progtype currentProg;
-    stritype stri1;
-    ustritype name;
-    progrecord prog_backup;
-    identtype ident_found;
-    objecttype result;
-
-  /* prg_getobj */
-    isit_prog(arg_1(arguments));
-    isit_stri(arg_2(arguments));
-    currentProg = take_prog(arg_1(arguments));
-    stri1 = take_stri(arg_2(arguments));
-    name = (ustritype) cp_to_cstri(stri1);
-    if (name == NULL) {
-      result = raise_exception(SYS_MEM_EXCEPTION);
-    } else {
-      memcpy(&prog_backup, &prog, sizeof(progrecord));
-      memcpy(&prog, currentProg, sizeof(progrecord));
-      ident_found = get_ident(name, strlen(name));
-      if (ident_found == NULL ||
-          ident_found->entity == NULL ||
-          ident_found->entity->owner == NULL) {
-        result = raise_exception(SYS_MEM_EXCEPTION);
-      } else {
-        if (ident_found->entity->owner->obj != NULL) {
-          result = ident_found->entity->owner->obj;
-        } else {
-          result = ident_found->entity->syobject;
-        } /* if */
-      } /* if */
-      memcpy(&prog, &prog_backup, sizeof(progrecord));
-      free_cstri(name, stri1);
-    } /* if */
-    return(result);
-  } /* prg_getobj */
-
-
-
-#ifdef ANSI_C
-
 objecttype prg_match (listtype arguments)
 #else
 
@@ -513,6 +465,49 @@ listtype arguments;
 
 #ifdef ANSI_C
 
+objecttype prg_syobject (listtype arguments)
+#else
+
+objecttype prg_syobject (arguments)
+listtype arguments;
+#endif
+
+  {
+    progtype currentProg;
+    stritype stri1;
+    ustritype name;
+    progrecord prog_backup;
+    identtype ident_found;
+    objecttype result;
+
+  /* prg_syobject */
+    isit_prog(arg_1(arguments));
+    isit_stri(arg_2(arguments));
+    currentProg = take_prog(arg_1(arguments));
+    stri1 = take_stri(arg_2(arguments));
+    name = (ustritype) cp_to_cstri(stri1);
+    if (name == NULL) {
+      result = raise_exception(SYS_MEM_EXCEPTION);
+    } else {
+      memcpy(&prog_backup, &prog, sizeof(progrecord));
+      memcpy(&prog, currentProg, sizeof(progrecord));
+      ident_found = get_ident(name, strlen(name));
+      if (ident_found == NULL ||
+          ident_found->entity == NULL) {
+        result = NULL;
+      } else {
+        result = ident_found->entity->syobject;
+      } /* if */
+      memcpy(&prog, &prog_backup, sizeof(progrecord));
+      free_cstri(name, stri1);
+    } /* if */
+    return(bld_reference_temp(result));
+  } /* prg_syobject */
+
+
+
+#ifdef ANSI_C
+
 objecttype prg_sysvar (listtype arguments)
 #else
 
@@ -578,8 +573,8 @@ listtype arguments;
     objecttype obj_arg;
 
   /* prg_value */
-    isit_reference(arg_3(arguments));
-    obj_arg = take_reference(arg_3(arguments));
+    isit_reference(arg_1(arguments));
+    obj_arg = take_reference(arg_1(arguments));
     isit_prog(obj_arg);
     return(bld_prog_temp(take_prog(obj_arg)));
   } /* prg_value */

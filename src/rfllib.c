@@ -945,8 +945,8 @@ listtype arguments;
     listtype result;
 
   /* rfl_value */
-    isit_reference(arg_3(arguments));
-    obj_arg = take_reference(arg_3(arguments));
+    isit_reference(arg_1(arguments));
+    obj_arg = take_reference(arg_1(arguments));
     if (CATEGORY_OF_OBJ(obj_arg) == MATCHOBJECT ||
         CATEGORY_OF_OBJ(obj_arg) == CALLOBJECT ||
         CATEGORY_OF_OBJ(obj_arg) == REFLISTOBJECT) {

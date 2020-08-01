@@ -112,6 +112,20 @@ const proc: (inout complex: num1) -:= (in complex: num2) is func
   end func;
 
 
+const proc: (inout complex: num1) *:= (in complex: num2) is func
+  local
+    var float: help is 0.0;
+  begin
+    help := num1.re * num2.re - num1.im * num2.im;
+    num1.im := num1.re * num2.im + num1.im * num2.re;
+    num1.re := help;
+  end func;
+
+
+const func float: sqrAbs (in complex: num1) is
+  return num1.re * num1.re + num1.im * num1.im;
+
+
 const func float: abs (in complex: num1) is
   return sqrt(num1.re * num1.re + num1.im * num1.im);
 

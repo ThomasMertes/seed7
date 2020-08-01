@@ -592,8 +592,8 @@ listtype arguments;
     objecttype obj_arg;
 
   /* fil_value */
-    isit_reference(arg_3(arguments));
-    obj_arg = take_reference(arg_3(arguments));
+    isit_reference(arg_1(arguments));
+    obj_arg = take_reference(arg_1(arguments));
     isit_file(obj_arg);
     return(bld_file_temp(take_file(obj_arg)));
   } /* fil_value */

@@ -736,8 +736,8 @@ listtype arguments;
     objecttype obj_arg;
 
   /* typ_value */
-    isit_reference(arg_3(arguments));
-    obj_arg = take_reference(arg_3(arguments));
+    isit_reference(arg_1(arguments));
+    obj_arg = take_reference(arg_1(arguments));
     isit_type(obj_arg);
     return(obj_arg);
   } /* typ_value */

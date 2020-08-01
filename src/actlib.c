@@ -171,8 +171,8 @@ listtype arguments;
     objecttype obj_arg;
 
   /* act_value */
-    isit_reference(arg_3(arguments));
-    obj_arg = take_reference(arg_3(arguments));
+    isit_reference(arg_1(arguments));
+    obj_arg = take_reference(arg_1(arguments));
     isit_action(obj_arg);
     return(bld_action_temp(take_action(obj_arg)));
   } /* act_value */

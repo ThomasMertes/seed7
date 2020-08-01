@@ -924,8 +924,8 @@ listtype arguments;
     objecttype obj_arg;
 
   /* flt_value */
-    isit_reference(arg_3(arguments));
-    obj_arg = take_reference(arg_3(arguments));
+    isit_reference(arg_1(arguments));
+    obj_arg = take_reference(arg_1(arguments));
     isit_float(obj_arg);
     return(bld_float_temp(take_float(obj_arg)));
   } /* flt_value */

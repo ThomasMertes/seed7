@@ -857,8 +857,8 @@ listtype arguments;
     biginttype result;
 
   /* big_value */
-    isit_reference(arg_3(arguments));
-    obj_arg = take_reference(arg_3(arguments));
+    isit_reference(arg_1(arguments));
+    obj_arg = take_reference(arg_1(arguments));
     isit_bigint(obj_arg);
     big1 = take_bigint(obj_arg);
 

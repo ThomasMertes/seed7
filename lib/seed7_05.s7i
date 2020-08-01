@@ -811,7 +811,6 @@ const proc: destroy (ref reference param) is                            noop;
 const proc: (inout reference param) := (in reference param) is          action "REF_CPY";
 (* Deactivated since it allows 'reference' := anything which is aggainst type checking *)
 (* const proc: (inout reference param) := (in object param) is           action "REF_MKREF"; *)
-const func reference: (attr reference) value (in reference param) is    action "REF_VALUE";
 const func boolean: (in reference param) = (in reference param) is      action "REF_EQ";
 const func boolean: (in reference param) <> (in reference param) is     action "REF_NE";
 const func integer: compare (in reference param, in reference param) is action "REF_CMP";
@@ -826,7 +825,7 @@ const func type: getType (in reference param) is                        action "
 const proc: setType (in reference param, in type param) is              action "REF_SETTYPE";
 const func boolean: is_symb (in reference param) is                     action "REF_ISSYMB";
 const func f_param: symb (in reference param) is                        action "REF_SYMB";
-const func type: (attr type) value (in reference param) is              action "TYP_VALUE";
+const func type: getValue (in reference param, attr type) is            action "TYP_VALUE";
 const func reference: getfunc (in expr param) is                        action "DCL_GETFUNC";
 const func reference: getobj (in expr param) is                         action "DCL_GETOBJ";
 
@@ -835,7 +834,7 @@ const func type: get_type (in reference: type_ref) is func
     var type: result is void;
   begin
     if type_ref <> NIL and getType(type_ref) = type then
-      result := type value type_ref;
+      result := getValue(type_ref, type);
     end if;
   end func;
 
@@ -2559,14 +2558,16 @@ const func type: new enum (ref expr: elem_expr) end enum is func
     enumType := subtype ENUMERATION;
     IN_PARAM_IS_REFERENCE(enumType);
     elem_list := expr_to_list(elem_expr);
-    const proc: (ref enumType param) ::= (in enumType param) is        action "ENU_CREATE";
-    const proc: (ref enumType param) ::= enumlit is                    action "ENU_GENLIT";
-    const proc: destroy (ref enumType param) is                        noop;
-    const proc: (inout enumType param) := (in enumType param) is       action "ENU_CPY";
-    const func boolean: (in enumType param) = (in enumType param) is   action "ENU_EQ";
-    const func boolean: (in enumType param) <> (in enumType param) is  action "ENU_NE";
-    const func enumType: (attr enumType) value (in reference param) is action "ENU_VALUE";
-    const func integer: ord (in enumType param) is                     DYNAMIC;
+    const proc: (ref enumType param) ::= (in enumType param) is         action "ENU_CREATE";
+    const proc: (ref enumType param) ::= enumlit is                     action "ENU_GENLIT";
+    const proc: destroy (ref enumType param) is                         noop;
+    const proc: (inout enumType param) := (in enumType param) is        action "ENU_CPY";
+    const func boolean: (in enumType param) = (in enumType param) is    action "ENU_EQ";
+    const func boolean: (in enumType param) <> (in enumType param) is   action "ENU_NE";
+    const func enumType: getValue(in reference param, attr enumType) is action "ENU_VALUE";
+    const func enumType: ICONV2(in integer param, in ref_list param,
+                                attr enumType) is                       action "ENU_ICONV2";
+    const func integer: ord (in enumType param) is                      DYNAMIC;
     literal_list := ref_list.EMPTY;
     for number range 1 to length(elem_list) do
       elem_obj := elem_list[number];
@@ -2577,15 +2578,15 @@ const func type: new enum (ref expr: elem_expr) end enum is func
         literal_list := literal_list & make_list(elem_obj);
       end if;
     end for;
-    const ref_list: (attr enumType) . literal_list is                literal_list;
+    const ref_list: (attr enumType) . literal_list is                   literal_list;
     if length(literal_list) >= 1 then
-      const enumType: (attr enumType) . value is   enumType value (literal_list[1]);
-      const enumType: (attr enumType) . first is   enumType value (literal_list[1]);
-      const enumType: (attr enumType) . last is    enumType value (literal_list[length(literal_list)]);
+      const enumType: (attr enumType) . value is  getValue(literal_list[1], enumType);
+      const enumType: (attr enumType) . first is  getValue(literal_list[1], enumType);
+      const enumType: (attr enumType) . last is   getValue(literal_list[length(literal_list)], enumType);
     end if;
 
     const func enumType: (attr enumType) conv (in integer: number) is
-      return enumType value (enumType.literal_list[succ(number)]);
+      return ICONV2(number, enumType.literal_list, enumType);
 
     const func integer: (attr integer) conv (in enumType: enum_val) is
       return ord(enum_val);

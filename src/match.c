@@ -331,7 +331,7 @@ objecttype object;
 static objecttype match_object2 (objecttype object, const_objecttype expr_object)
 #else
 
-objecttype match_object2 (object, expr_object)
+static objecttype match_object2 (object, expr_object)
 objecttype object;
 objecttype expr_object;
 #endif

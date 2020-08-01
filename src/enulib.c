@@ -141,25 +141,43 @@ listtype arguments;
 
 
 
-#ifdef OUT_OF_ORDER
 #ifdef ANSI_C
 
-objecttype enu_iconv (listtype arguments)
+objecttype enu_iconv2 (listtype arguments)
 #else
 
-objecttype enu_iconv (arguments)
+objecttype enu_iconv2 (arguments)
 listtype arguments;
 #endif
 
   {
-    chartype result;
+    inttype ordinal;
+    inttype number;
+    listtype list_element;
+    objecttype result;
 
-  /* enu_iconv */
-    isit_int(arg_3(arguments));
-    result = take_int(arg_3(arguments));
-    return(bld_char_temp(result));
-  } /* enu_iconv */
-#endif
+  /* enu_iconv2 */
+    isit_int(arg_1(arguments));
+    isit_reflist(arg_2(arguments));
+    ordinal = take_int(arg_1(arguments));
+    list_element = take_reflist(arg_2(arguments));
+    if (ordinal >= 0) {
+      number = 0;
+      while (number < ordinal && list_element != NULL) {
+        number++;
+        list_element = list_element->next;
+      } /* while */
+      if (list_element != NULL) {
+        isit_enum(list_element->obj);
+        result = list_element->obj;
+      } else {
+        result = raise_exception(SYS_RNG_EXCEPTION);
+      } /* if */
+    } else {
+      result = raise_exception(SYS_RNG_EXCEPTION);
+    } /* if */
+    return(result);
+  } /* enu_iconv2 */
 
 
 
@@ -224,8 +242,8 @@ listtype arguments;
     objecttype obj_arg;
 
   /* enu_value */
-    isit_reference(arg_3(arguments));
-    obj_arg = take_reference(arg_3(arguments));
+    isit_reference(arg_1(arguments));
+    obj_arg = take_reference(arg_1(arguments));
     isit_enum(obj_arg);
     return(take_enum(obj_arg));
   } /* enu_value */

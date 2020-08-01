@@ -88,8 +88,6 @@ const func string: literal (ref float param) is                    action "FLT_S
 
 const func float: rand (ref float param, ref float param) is       action "FLT_RAND";
 
-const func float: (attr float) value (ref reference param) is      action "FLT_VALUE";
-
 const float: Infinity is 1.0 / 0.0;
 const float: NaN is 0.0 / 0.0;
 

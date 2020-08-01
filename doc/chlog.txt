@@ -287,3 +287,14 @@
 - Some setters (setCategory, setValue, setParams) were added to the reflection.
 - The classtype of the interpreter was renamed to categorytype since it has
   nothing to do with classes.
+
+20070723:
+- The compiler (comp.sd7) was improved to allow local functions.
+- The compiler now supports arrays with indices of any type (not just integer indices).
+- A new example program (mandelbr.sd7), to display fractals, was added.
+- The -O2 option was added to the compiler (advantageous when compiling mandelbr.sd7).
+- The compiler now generates static functions to allow more optimizations.
+- A *:= operator and the sqrAbs function were added for the type 'complex'.
+- The reflection was changed to use the 'getValue' function instead of the 'value' operator.
+- The compiler was improved to support the conversion of integers to an enumeration type.
+- The compiler now compiles the programs panic.sd7 and castle.sd7.

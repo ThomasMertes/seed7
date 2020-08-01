@@ -91,7 +91,5 @@ const func bigInteger: sqrt (in var bigInteger: number) is func
 const proc: incr (inout bigInteger param) is                               action "BIG_INCR";
 const proc: decr (inout bigInteger param) is                               action "BIG_DECR";
 
-const func bigInteger: (attr bigInteger) value (ref reference param) is    action "BIG_VALUE";
-
 enable_io(bigInteger);
 FOR_DECLS(bigInteger);

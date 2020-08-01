@@ -168,6 +168,35 @@ listtype arguments;
 
 #ifdef ANSI_C
 
+objecttype ref_alloc (listtype arguments)
+#else
+
+objecttype ref_alloc (arguments)
+listtype arguments;
+#endif
+
+  {
+    objecttype obj1;
+    objecttype created_object;
+
+  /* ref_alloc */
+    isit_reference(arg_1(arguments));
+    obj1 = take_reference(arg_1(arguments));
+    if (ALLOC_OBJECT(created_object)) {
+      created_object->type_of = obj1->type_of;
+      created_object->descriptor.entity = obj1->descriptor.entity;
+      INIT_CATEGORY_OF_OBJ(created_object, obj1->objcategory);
+      created_object->value.objvalue = NULL;
+      return(bld_reference_temp(created_object));
+    } else {
+      return(raise_exception(SYS_MEM_EXCEPTION));
+    } /* if */
+  } /* ref_alloc */
+
+
+
+#ifdef ANSI_C
+
 objecttype ref_arrminpos (listtype arguments)
 #else
 
@@ -766,35 +795,6 @@ listtype arguments;
       return(SYS_FALSE_OBJECT);
     } /* if */
   } /* ref_ne */
-
-
-
-#ifdef ANSI_C
-
-objecttype ref_new (listtype arguments)
-#else
-
-objecttype ref_new (arguments)
-listtype arguments;
-#endif
-
-  {
-    objecttype obj1;
-    objecttype created_object;
-
-  /* ref_new */
-    isit_reference(arg_1(arguments));
-    obj1 = take_reference(arg_1(arguments));
-    if (ALLOC_OBJECT(created_object)) {
-      created_object->type_of = obj1->type_of;
-      created_object->descriptor.entity = obj1->descriptor.entity;
-      INIT_CATEGORY_OF_OBJ(created_object, obj1->objcategory);
-      created_object->value.objvalue = NULL;
-      return(bld_reference_temp(created_object));
-    } else {
-      return(raise_exception(SYS_MEM_EXCEPTION));
-    } /* if */
-  } /* ref_new */
 
 
 
@@ -1402,8 +1402,8 @@ listtype arguments;
     objecttype obj_arg;
 
   /* ref_value */
-    isit_reference(arg_3(arguments));
-    obj_arg = take_reference(arg_3(arguments));
+    isit_reference(arg_1(arguments));
+    obj_arg = take_reference(arg_1(arguments));
     if (CATEGORY_OF_OBJ(obj_arg) == FWDREFOBJECT ||
         CATEGORY_OF_OBJ(obj_arg) == REFOBJECT ||
         CATEGORY_OF_OBJ(obj_arg) == REFPARAMOBJECT ||

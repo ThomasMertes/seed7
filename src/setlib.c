@@ -877,8 +877,8 @@ listtype arguments;
     settype result;
 
   /* set_value */
-    isit_reference(arg_3(arguments));
-    obj_arg = take_reference(arg_3(arguments));
+    isit_reference(arg_1(arguments));
+    obj_arg = take_reference(arg_1(arguments));
     isit_set(obj_arg);
     set1 = take_set(obj_arg);
 

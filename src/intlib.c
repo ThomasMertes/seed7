@@ -863,8 +863,8 @@ listtype arguments;
     objecttype obj_arg;
 
   /* int_value */
-    isit_reference(arg_3(arguments));
-    obj_arg = take_reference(arg_3(arguments));
+    isit_reference(arg_1(arguments));
+    obj_arg = take_reference(arg_1(arguments));
     isit_int(obj_arg);
     return(bld_int_temp(take_int(obj_arg)));
   } /* int_value */
