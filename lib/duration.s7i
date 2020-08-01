@@ -386,9 +386,10 @@ const func integer: compare (in duration: aDuration1, in duration: aDuration2) i
  *  @return the hash value.
  *)
 const func integer: hashCode (in duration: aDuration) is
-  return aDuration.year_365 + aDuration.year_366 +
-      aDuration.month_28 + aDuration.month_29 + aDuration.month_30 + aDuration.month_31 +
-      aDuration.day + aDuration.hour + aDuration.minute + aDuration.second +
+  return (aDuration.year_365 + aDuration.year_366) << 6 +
+      (aDuration.month_28 + aDuration.month_29 + aDuration.month_30 + aDuration.month_31) << 5 +
+      aDuration.day << 4 +
+      aDuration.hour << 3 + aDuration.minute << 2 + aDuration.second << 1 +
       aDuration.micro_second;
 
 

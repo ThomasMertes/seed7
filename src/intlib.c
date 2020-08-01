@@ -106,6 +106,10 @@ objecttype int_add (listtype arguments)
 
 
 
+/**
+ *  Compute a bitwise 'and' of two integer values.
+ *  @return the bitwise 'and' of the two values.
+ */
 objecttype int_and (listtype arguments)
 
   { /* int_and */
@@ -114,6 +118,25 @@ objecttype int_and (listtype arguments)
     return bld_int_temp(
         take_int(arg_1(arguments)) & take_int(arg_3(arguments)));
   } /* int_and */
+
+
+
+/**
+ *  Compute a bitwise 'and' and assign the result back.
+ */
+objecttype int_and_assign (listtype arguments)
+
+  {
+    objecttype int_variable;
+
+  /* int_and_assign */
+    int_variable = arg_1(arguments);
+    isit_int(int_variable);
+    is_variable(int_variable);
+    isit_int(arg_3(arguments));
+    int_variable->value.intvalue &= take_int(arg_3(arguments));
+    return SYS_EMPTY_OBJECT;
+  } /* int_and_assign */
 
 
 
@@ -667,6 +690,10 @@ objecttype int_odd (listtype arguments)
 
 
 
+/**
+ *  Compute a bitwise inclusive 'or' of two integer values.
+ *  @return the bitwise inclusive 'or' of the two values.
+ */
 objecttype int_or (listtype arguments)
 
   { /* int_or */
@@ -688,6 +715,25 @@ objecttype int_ord (listtype arguments)
     isit_int(arg_1(arguments));
     return bld_int_temp(take_int(arg_1(arguments)));
   } /* int_ord */
+
+
+
+/**
+ *  Compute a bitwise inclusive 'or' and assign the result back.
+ */
+objecttype int_or_assign (listtype arguments)
+
+  {
+    objecttype int_variable;
+
+  /* int_or_assign */
+    int_variable = arg_1(arguments);
+    isit_int(int_variable);
+    is_variable(int_variable);
+    isit_int(arg_3(arguments));
+    int_variable->value.intvalue |= take_int(arg_3(arguments));
+    return SYS_EMPTY_OBJECT;
+  } /* int_or_assign */
 
 
 

@@ -1,3 +1,22 @@
+20130805:
+- The functions hashCode in complex.s7i, duration.s7i, rational.s7i
+  and time.s7i have been improved to avoid an integer overflow.
+  Thanks to Pietro Cerutti, for reporting this problem.
+- The description of the Seed7 installation in doc/install.txt has
+  been improved.
+- The new library sha1.s7i, which defines a message digest with the
+  SHA-1 secure hash algorithm, has been added.
+- Definitions of the operators &:= and |:= have been added to
+  bin32.s7i.
+- The functions int64AsBytesBytesLe, int64AsEightBytesBe and
+  bytesBeAsInt have been added to bytedata.s7i.
+- Interpreter and compiler have been improved to support the actions
+  INT_AND_ASSIGN and INT_OR_ASSIGN.
+- A bug in the function conText (file con_win.c) has been fixed.
+- Debug code has been added to kbd_inf.c and kbd_poll.c.
+- The makefile mk_cygw.mak has been improved to avoid problems with
+  the console keyboard.
+
 20130722:
 - Spelling errors in chlog.txt, faq.htm and faq.txt have been fixed.
 - The function conText (in con_win.c) has been improved to work

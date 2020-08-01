@@ -424,7 +424,9 @@ memsizetype length)
       if (console_initialized) {
         position.X = col - 1;
         position.Y = lin - 1;
-        if (SetConsoleCursorPosition(hConsole, position)) {
+        if (!SetConsoleCursorPosition(hConsole, position)) {
+          /* printf("SetConsoleCursorPosition(%d, (%d, %d)) ==> Error %d\n",
+              hConsole, col - 1, lin - 1, GetLastError()); */
           doWrite = FALSE;
         } /* if */
       } /* if */

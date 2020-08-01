@@ -477,8 +477,9 @@ const func integer: compare (in time: aTime1, in time: aTime2) is func
  *  @return the hash value.
  *)
 const func integer: hashCode (in time: aTime) is
-  return aTime.year + aTime.month + aTime.day +
-      aTime.hour + aTime.minute + aTime.second + aTime.micro_second;
+  return aTime.year << 6 + aTime.month << 5 + aTime.day << 4 +
+         aTime.hour << 3 + aTime.minute << 2 + aTime.second << 1 +
+         aTime.micro_second;
 
 
 (**

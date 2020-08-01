@@ -54,6 +54,7 @@ const func string: getAsciiz (in string: stri, inout integer: currPos) is func
 
 (**
  *  Convert 16 lower bits of an integer into two little endian chars.
+ *  @return a string of length two with the little endian representation.
  *)
 const func string: int16AsTwoBytesLe (in integer: number) is
   return str(chr( number        mod 256)) &
@@ -62,6 +63,7 @@ const func string: int16AsTwoBytesLe (in integer: number) is
 
 (**
  *  Convert 32 lower bits of an integer into four little endian chars.
+ *  @return a string of length four with the little endian representation.
  *)
 const func string: int32AsFourBytesLe (in integer: number) is
   return str(chr( number        mod 256)) &
@@ -71,7 +73,23 @@ const func string: int32AsFourBytesLe (in integer: number) is
 
 
 (**
+ *  Convert 64 lower bits of an integer into eight little endian chars.
+ *  @return a string of length eight with the little endian representation.
+ *)
+const func string: int64AsBytesBytesLe (in integer: number) is
+  return str(chr( number        mod 256)) &
+         str(chr((number >>  8) mod 256)) &
+         str(chr((number >> 16) mod 256)) &
+         str(chr((number >> 24) mod 256)) &
+         str(chr((number >> 32) mod 256)) &
+         str(chr((number >> 40) mod 256)) &
+         str(chr((number >> 48) mod 256)) &
+         str(chr((number >> 56) mod 256));
+
+
+(**
  *  Convert 16 lower bits of an integer into two big endian chars.
+ *  @return a string of length two with the big endian representation.
  *)
 const func string: int16AsTwoBytesBe (in integer: number) is
   return str(chr((number >>  8) mod 256)) &
@@ -80,12 +98,49 @@ const func string: int16AsTwoBytesBe (in integer: number) is
 
 (**
  *  Convert 32 lower bits of an integer into four big endian chars.
+ *  @return a string of length four with the big endian representation.
  *)
 const func string: int32AsFourBytesBe (in integer: number) is
   return str(chr((number >> 24) mod 256)) &
          str(chr((number >> 16) mod 256)) &
          str(chr((number >>  8) mod 256)) &
          str(chr( number        mod 256));
+
+
+(**
+ *  Convert 64 lower bits of an integer into eight big endian chars.
+ *  @return a string of length eight with the big endian representation.
+ *)
+const func string: int64AsEightBytesBe (in integer: number) is
+  return str(chr((number >> 56) mod 256)) &
+         str(chr((number >> 48) mod 256)) &
+         str(chr((number >> 40) mod 256)) &
+         str(chr((number >> 32) mod 256)) &
+         str(chr((number >> 24) mod 256)) &
+         str(chr((number >> 16) mod 256)) &
+         str(chr((number >>  8) mod 256)) &
+         str(chr( number        mod 256));
+
+
+(**
+ *  Convert a string of bytes (interpreted as big-endian) to an integer.
+ *  @return an integer created from the big-endian bytes.
+ *  @exception RANGE_ERROR When characters beyond '\255\' are present.
+ *)
+const func integer: bytesBeAsInt (in string: byteStri) is func
+  result
+    var integer: number is 0;
+  local
+    var char: ch is ' ';
+  begin
+    for ch range byteStri do
+      number <<:= 8;
+      if ch > '\255\' then
+        raise RANGE_ERROR;
+      end if;
+      number +:= ord(ch);
+    end for;
+  end func;
 
 
 (**

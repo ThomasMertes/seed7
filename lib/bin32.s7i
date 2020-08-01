@@ -147,4 +147,16 @@ const proc: (inout bin32: binValue) <<:= (in integer: lshift)  is action "INT_LS
 const proc: (inout bin32: binValue) >>:= (in integer: rshift)  is action "INT_URSHIFT_ASSIGN";
 
 
+(**
+ *  Compute a bitwise ''and'' and assign the result back to ''binary1''.
+ *)
+const proc: (inout bin32: binary1) &:= (in bin32: binary2)     is action "INT_AND_ASSIGN";
+
+
+(**
+ *  Compute a bitwise ''or'' and assign the result back to ''binary1''.
+ *)
+const proc: (inout bin32: binary1) |:= (in bin32: binary2)     is action "INT_OR_ASSIGN";
+
+
 const type: _bin32Array is array bin32;

@@ -687,7 +687,23 @@ static void key_table_init (void)
     for (number = 0; number < SIZE_KEY_TABLE; number++) {
 #ifdef TRACE_FKEYS
       if (key_table[number] != NULL) {
-        fprintf(stderr, "key%d=\"%s\"\n", number, key_table[number]);
+        const_cstritype ch_ptr;
+
+        fprintf(stderr, "key%d=\"", number);
+        ch_ptr = key_table[number];
+        while (*ch_ptr != '\0') {
+          if (*ch_ptr <= 31) {
+            fprintf(stderr, "^%c", *ch_ptr + '@');
+          } else if (*ch_ptr == '^' || *ch_ptr == '\\') {
+            fprintf(stderr, "%c%c", *ch_ptr, *ch_ptr);
+          } else if (*ch_ptr <= 126) {
+            fprintf(stderr, "%c", *ch_ptr);
+          } else {
+            fprintf(stderr, "\\%3o", *ch_ptr);
+          } /* if */
+          ch_ptr++;
+        } /* while */
+        fprintf(stderr, "\"\n");
       } else {
         fprintf(stderr, "key%d=NULL\n", number);
       } /* if */

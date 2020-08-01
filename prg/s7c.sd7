@@ -10505,6 +10505,39 @@ const proc: process_int_and (in ref_list: params, inout expr_type: c_expr) is fu
   end func;
 
 
+const proc: process_int_and_assign (in ref_list: params, inout expr_type: c_expr) is func
+
+  local
+    var expr_type: c_param1 is expr_type.value;
+    var expr_type: c_param3 is expr_type.value;
+  begin
+    process_expr(params[1], c_param1);
+    c_param3.temp_num := c_param1.temp_num;
+    process_expr(params[3], c_param3);
+    if c_param3.temp_num <> 0 then
+      c_expr.expr &:= "{\n";
+      AppendWithDiagnostic(c_param1.temp_decls, c_expr);
+      AppendWithDiagnostic(c_param3.temp_decls, c_expr);
+      AppendWithDiagnostic(c_param1.temp_assigns, c_expr);
+      AppendWithDiagnostic(c_param3.temp_assigns, c_expr);
+    end if;
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= c_param1.expr;
+    c_expr.expr &:= "&=";
+    if c_param3.result_expr <> "" then
+      c_expr.expr &:= c_param3.result_expr;
+    else
+      c_expr.expr &:= c_param3.expr;
+    end if;
+    c_expr.expr &:= ";\n";
+    if c_param3.temp_num <> 0 then
+      AppendWithDiagnostic(c_param1.temp_frees, c_expr);
+      AppendWithDiagnostic(c_param3.temp_frees, c_expr);
+      c_expr.expr &:= "}\n";
+    end if;
+  end func;
+
+
 const proc: process_int_binom (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
@@ -11378,6 +11411,39 @@ const proc: process_int_ord (in ref_list: params, inout expr_type: c_expr) is fu
     c_expr.expr &:= "(";
     process_expr(params[1], c_expr);
     c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process_int_or_assign (in ref_list: params, inout expr_type: c_expr) is func
+
+  local
+    var expr_type: c_param1 is expr_type.value;
+    var expr_type: c_param3 is expr_type.value;
+  begin
+    process_expr(params[1], c_param1);
+    c_param3.temp_num := c_param1.temp_num;
+    process_expr(params[3], c_param3);
+    if c_param3.temp_num <> 0 then
+      c_expr.expr &:= "{\n";
+      AppendWithDiagnostic(c_param1.temp_decls, c_expr);
+      AppendWithDiagnostic(c_param3.temp_decls, c_expr);
+      AppendWithDiagnostic(c_param1.temp_assigns, c_expr);
+      AppendWithDiagnostic(c_param3.temp_assigns, c_expr);
+    end if;
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= c_param1.expr;
+    c_expr.expr &:= "|=";
+    if c_param3.result_expr <> "" then
+      c_expr.expr &:= c_param3.result_expr;
+    else
+      c_expr.expr &:= c_param3.expr;
+    end if;
+    c_expr.expr &:= ";\n";
+    if c_param3.temp_num <> 0 then
+      AppendWithDiagnostic(c_param1.temp_frees, c_expr);
+      AppendWithDiagnostic(c_param3.temp_frees, c_expr);
+      c_expr.expr &:= "}\n";
+    end if;
   end func;
 
 
@@ -18046,6 +18112,8 @@ const proc: process_action (in reference: function, in ref_list: params,
         process_int_add(params, c_expr);
       elsif action_name = "INT_AND" then
         process_int_and(params, c_expr);
+      elsif action_name = "INT_AND_ASSIGN" then
+        process_int_and_assign(params, c_expr);
       elsif action_name = "INT_BINOM" then
         process_int_binom(params, c_expr);
       elsif action_name = "INT_BIT_LENGTH" then
@@ -18106,6 +18174,8 @@ const proc: process_action (in reference: function, in ref_list: params,
         process_int_or(params, c_expr);
       elsif action_name = "INT_ORD" then
         process_int_ord(params, c_expr);
+      elsif action_name = "INT_OR_ASSIGN" then
+        process_int_or_assign(params, c_expr);
       elsif action_name = "INT_PARSE" then
         process_int_parse(params, c_expr);
       elsif action_name = "INT_PLUS" then

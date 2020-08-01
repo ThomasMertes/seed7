@@ -163,6 +163,7 @@ $ syntax expr: .(). /:= .()                  is <-> 20;
 $ syntax expr: .(). <<:= .()                 is <-> 20;
 $ syntax expr: .(). >>:= .()                 is <-> 20;
 $ syntax expr: .(). &:= .()                  is <-> 20;
+$ syntax expr: .(). |:= .()                  is <-> 20;
 $ syntax expr: .(). @:= . [ .(). ] .()       is <-> 20;
 $ syntax expr: .(). ::= .()                  is <-> 20;
 $ syntax expr: .(). :- .()                   is <-> 20;

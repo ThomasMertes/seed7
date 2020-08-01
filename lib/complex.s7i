@@ -324,7 +324,7 @@ const func integer: compare (in complex: number1, in complex: number2) is func
  *  @return the hash value.
  *)
 const func integer: hashCode (in complex: num) is
-  return hashCode(num.re) + hashCode(num.im);
+  return hashCode(num.re) mod 16#40000000 + hashCode(num.im) mod 16#40000000;
 
 
 (**

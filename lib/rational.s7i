@@ -372,7 +372,7 @@ const func integer: compare (in rational: number1, in rational: number2) is func
  *  @return the hash value.
  *)
 const func integer: hashCode (in rational: number) is
-  return number.numerator * number.denominator;
+  return number.numerator mod 16#40000000 + number.denominator mod 16#40000000;
 
 
 (**

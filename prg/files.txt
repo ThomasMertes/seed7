@@ -175,6 +175,7 @@ scanfile.s7i File scanner functions
 scanstri.s7i String scanner functions
 seed7_05.s7i Standard Seed7 library
 set.s7i      Support for sets of a base type
+sha1.s7i     SHA-1 secure hash algorithm support library
 shell.s7i    Support for shell commands
 sockbase.s7i Support for socket address and primitive socket
 socket.s7i   File implementation type for sockets

@@ -331,7 +331,7 @@ const func integer: compare (in bigRational: number1, in bigRational: number2) i
  *  @return the hash value.
  *)
 const func integer: hashCode (in bigRational: number) is
-  return hashCode(number.numerator) * hashCode(number.denominator);
+  return hashCode(number.numerator) mod 16#40000000 + hashCode(number.denominator) mod 16#40000000;
 
 
 (**
