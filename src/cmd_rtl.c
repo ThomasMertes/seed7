@@ -287,12 +287,12 @@ errinfotype *err_info;
     os_stat_struct file_stat;
     memsizetype file_length;
     ustritype file_content;
-#else
+    booltype classic_copy = TRUE;
+#endif
     char *buffer;
     size_t buffer_size;
     char reserve_buffer[SIZE_RESERVE_BUFFER];
     size_t bytes_read;
-#endif
 
   /* copy_file */
 #ifdef TRACE_CMD_RTL
@@ -307,30 +307,37 @@ errinfotype *err_info;
 #endif
 #ifdef USE_MMAP
         if (os_fstat(fileno(from_file), &file_stat) == 0) {
-          file_length = file_stat.st_size;
-          if ((file_content = (ustritype) mmap(NULL, file_length,
-              PROT_READ, MAP_PRIVATE, fileno(from_file),
-              0)) != (ustritype) -1) {
-            if (fwrite(file_content, 1, file_length, to_file) != file_length) {
-              *err_info = FILE_ERROR;
+          if (file_stat.st_size < MAX_MEMSIZETYPE) {
+            file_length = (memsizetype) file_stat.st_size;
+            if ((file_content = (ustritype) mmap(NULL, file_length,
+                PROT_READ, MAP_PRIVATE, fileno(from_file),
+                0)) != (ustritype) -1) {
+              if (fwrite(file_content, 1, file_length, to_file) != file_length) {
+                *err_info = FILE_ERROR;
+              } /* if */
+              munmap(file_content, file_length);
+              classic_copy = FALSE;
             } /* if */
           } /* if */
         } /* if */
-#else
-        if (ALLOC_BYTES(buffer, SIZE_NORMAL_BUFFER)) {
-          buffer_size = SIZE_NORMAL_BUFFER;
-        } else {
-          buffer = reserve_buffer;
-          buffer_size = SIZE_RESERVE_BUFFER;
-        } /* if */
-        while (*err_info == OKAY_NO_ERROR && (bytes_read =
-            fread(buffer, 1, buffer_size, from_file)) != 0) {
-          if (fwrite(buffer, 1, bytes_read, to_file) != bytes_read) {
-            *err_info = FILE_ERROR;
+        if (classic_copy) {
+#endif
+          if (ALLOC_BYTES(buffer, SIZE_NORMAL_BUFFER)) {
+            buffer_size = SIZE_NORMAL_BUFFER;
+          } else {
+            buffer = reserve_buffer;
+            buffer_size = SIZE_RESERVE_BUFFER;
           } /* if */
-        } /* while */
-        if (buffer != reserve_buffer) {
-          FREE_BYTES(buffer, SIZE_NORMAL_BUFFER);
+          while (*err_info == OKAY_NO_ERROR && (bytes_read =
+              fread(buffer, 1, buffer_size, from_file)) != 0) {
+            if (fwrite(buffer, 1, bytes_read, to_file) != bytes_read) {
+              *err_info = FILE_ERROR;
+            } /* if */
+          } /* while */
+          if (buffer != reserve_buffer) {
+            FREE_BYTES(buffer, SIZE_NORMAL_BUFFER);
+          } /* if */
+#ifdef USE_MMAP
         } /* if */
 #endif
         if (fclose(from_file) != 0) {
@@ -1129,6 +1136,9 @@ stritype file_name;
       } else {
         result = 0;
         if (errno != ENOENT || file_name->size == 0) {
+          /* printf("errno=%d\n", errno);
+          printf("EACCES=%d  EBUSY=%d  EEXIST=%d  ENOTEMPTY=%d  ENOENT=%d  ENOTDIR=%d  EROFS=%d\n",
+              EACCES, EBUSY, EEXIST, ENOTEMPTY, ENOENT, ENOTDIR, EROFS); */
           raise_error(FILE_ERROR);
         } /* if */
       } /* if */
@@ -1183,6 +1193,9 @@ stritype file_name;
       } else {
         result = 0;
         if (errno != ENOENT || file_name->size == 0) {
+          /* printf("errno=%d\n", errno);
+          printf("EACCES=%d  EBUSY=%d  EEXIST=%d  ENOTEMPTY=%d  ENOENT=%d  ENOTDIR=%d  EROFS=%d\n",
+              EACCES, EBUSY, EEXIST, ENOTEMPTY, ENOENT, ENOTDIR, EROFS); */
           raise_error(FILE_ERROR);
         } /* if */
       } /* if */
@@ -1587,13 +1600,18 @@ stritype file_name;
     os_file_name = cp_to_os_path(file_name, &err_info);
     if (os_file_name != NULL) {
 #ifdef REMOVE_FAILS_FOR_EMPTY_DIRS
-      if (S_ISDIR(file_stat.st_mode)) {
-        if (os_rmdir(os_file_name) != 0) {
-          err_info = FILE_ERROR;
-        } /* if */
+      if (os_lstat(os_file_name, &file_stat) != 0) {
+        /* File does not exist */
+        err_info = FILE_ERROR;
       } else {
-        if (os_remove(os_file_name) != 0) {
-          err_info = FILE_ERROR;
+        if (S_ISDIR(file_stat.st_mode)) {
+          if (os_rmdir(os_file_name) != 0) {
+            err_info = FILE_ERROR;
+          } /* if */
+        } else {
+          if (os_remove(os_file_name) != 0) {
+            err_info = FILE_ERROR;
+          } /* if */
         } /* if */
       } /* if */
 #else

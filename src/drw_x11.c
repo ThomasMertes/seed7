@@ -208,7 +208,7 @@ XExposeEvent *xexpose;
       expose_window = find_window(xexpose->window);
       if (expose_window != NULL && expose_window->backup != 0) {
         /* printf("XExposeEvent x=%d, y=%d, width=%d, height=%d\n",
-	    xexpose->x, xexpose->y, xexpose->width, xexpose->height); */
+            xexpose->x, xexpose->y, xexpose->width, xexpose->height); */
         XCopyArea(mydisplay, expose_window->backup,
             expose_window->window, mygc, 0, 0,
             to_width(expose_window), to_height(expose_window), 0, 0);
@@ -759,7 +759,7 @@ unsigned int button_mask;
   /* mouseButtonPressed */
     /* printf("mouseButtonPressed(%x)\n", button_mask); */
     XQueryPointer(mydisplay, DefaultRootWindow(mydisplay), &root, &child,
-		  &root_x, &root_y, &win_x, &win_y, &keys_buttons);
+                  &root_x, &root_y, &win_x, &win_y, &keys_buttons);
     /* printf("%lx, %lx, %d, %d, %d, %d, %x\n",
        root, child, root_x, root_y, win_x, win_y, keys_buttons); */
     result = (keys_buttons & button_mask) != 0;
@@ -904,7 +904,7 @@ chartype button;
       case '=':  case '>':  case '?':  case '@':  case '[':
       case '\\': case ']':  case '^':  case '_':  case '`':
       case '{':  case '|':  case '}':  case '~':
-	sym1 = (KeySym) button; break;
+        sym1 = (KeySym) button; break;
 
       /*
       case K_SCRLUP:
@@ -1060,7 +1060,7 @@ wintype actual_window;
 
   /* drwPointerXpos */
     XQueryPointer(mydisplay, to_window(actual_window), &root, &child,
-		  &root_x, &root_y, &win_x, &win_y, &keys_buttons);
+                  &root_x, &root_y, &win_x, &win_y, &keys_buttons);
     /* printf("%lx, %lx, %d, %d, %d, %d, %x\n",
        root, child, root_x, root_y, win_x, win_y, keys_buttons); */
     /* printf("drwPointerXpos ==> %ld\n", win_x); */
@@ -1087,7 +1087,7 @@ wintype actual_window;
 
   /* drwPointerYpos */
     XQueryPointer(mydisplay, to_window(actual_window), &root, &child,
-		  &root_x, &root_y, &win_x, &win_y, &keys_buttons);
+                  &root_x, &root_y, &win_x, &win_y, &keys_buttons);
     /* printf("%lx, %lx, %d, %d, %d, %d, %x\n",
        root, child, root_x, root_y, win_x, win_y, keys_buttons); */
     /* printf("drwPointerYpos ==> %ld\n", win_y); */

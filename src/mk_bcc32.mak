@@ -148,6 +148,7 @@ version.h:
 	cmd /S /C "echo #define ANSI_C" > version.h
 	cmd /S /C "echo #define USE_DIRENT" >> version.h
 	cmd /S /C "echo #define PATH_DELIMITER '\\'" >> version.h
+	cmd /S /C "echo #define ALLOW_DRIVE_LETTERS" >> version.h
 	cmd /S /C "echo #define NO_EMPTY_STRUCTS" >> version.h
 	cmd /S /C "echo #define CATCH_SIGNALS" >> version.h
 	cmd /S /C "echo #define USE_LOCALTIME_R" >> version.h

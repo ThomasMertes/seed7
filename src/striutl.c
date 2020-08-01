@@ -462,36 +462,48 @@ errinfotype *err_info;
 #ifdef TRACE_STRIUTL
     printf("BEGIN cp_to_os_path(%lx, %d)\n", stri, *err_info);
 #endif
-    result = (os_stritype) malloc(sizeof(os_chartype) * (stri->size * 2 + 1));
-    if (result == NULL) {
-      *err_info = MEMORY_ERROR;
+#ifdef ALLOW_DRIVE_LETTERS
+    if (stri->size >= 2 && stri->mem[stri->size - 1] == '/' &&
+        (stri->size != 3 || stri->mem[1] != ':' ||
+        ((stri->mem[0] < 'a' || stri->mem[0] > 'z') &&
+        (stri->mem[0] < 'A' || stri->mem[0] > 'Z')))) {
+#else
+    if (stri->size >= 2 && stri->mem[stri->size - 1] == '/') {
+#endif
+      *err_info = RANGE_ERROR;
+      result = NULL;
     } else {
-      wstri = result;
-      strelem = stri->mem;
-      len = stri->size;
-      for (; len > 0; wstri++, strelem++, len--) {
-        if (*strelem <= 0xFFFF) {
-          if (*strelem == (strelemtype) '\\') {
+      result = (os_stritype) malloc(sizeof(os_chartype) * (stri->size * 2 + 1));
+      if (result == NULL) {
+        *err_info = MEMORY_ERROR;
+      } else {
+        wstri = result;
+        strelem = stri->mem;
+        len = stri->size;
+        for (; len > 0; wstri++, strelem++, len--) {
+          if (*strelem <= 0xFFFF) {
+            if (*strelem == (strelemtype) '\\') {
+              *err_info = RANGE_ERROR;
+              len = 1;
+            } else {
+              *wstri = (os_chartype) *strelem;
+            } /* if */
+          } else if (*strelem <= 0x10FFFF) {
+            strelemtype currChar = *strelem - 0x10000;
+            *wstri = 0xD800 | (os_chartype) (currChar >> 10);
+            wstri++;
+            *wstri = 0xDC00 | (os_chartype) (currChar & 0x3FF);
+          } else {
             *err_info = RANGE_ERROR;
             len = 1;
-          } else {
-            *wstri = (os_chartype) *strelem;
           } /* if */
-        } else if (*strelem <= 0x10FFFF) {
-          strelemtype currChar = *strelem - 0x10000;
-          *wstri = 0xD800 | (os_chartype) (currChar >> 10);
-          wstri++;
-          *wstri = 0xDC00 | (os_chartype) (currChar & 0x3FF);
+        } /* for */
+        if (*err_info != OKAY_NO_ERROR) {
+          os_stri_free(result);
+          result = NULL;
         } else {
-          *err_info = RANGE_ERROR;
-          len = 1;
+          *wstri = 0;
         } /* if */
-      } /* for */
-      if (*err_info != OKAY_NO_ERROR) {
-        os_stri_free(result);
-        result = NULL;
-      } else {
-        *wstri = 0;
       } /* if */
     } /* if */
 #ifdef TRACE_STRIUTL

@@ -453,15 +453,12 @@ objecttype anyobject;
         case BLOCKOBJECT:
           if (VAR_OBJECT(anyobject)) {
             printf("variable ");
-         } else {
+          } else {
             printf("constant ");
           } /* if */
           write_type(anyobject->type_of);
-          if (HAS_ENTITY(anyobject)) {
-            printf(": %s", GET_ENTITY(anyobject)->ident->name);
-          } else {
-            printvalue(anyobject);
-          } /* if */
+          printf(": ");
+          printvalue(anyobject);
           break;
         case CALLOBJECT:
         case MATCHOBJECT:
@@ -475,7 +472,7 @@ objecttype anyobject;
           break;
         default:
           if (HAS_ENTITY(anyobject)) {
-            printf(id_string(GET_ENTITY(anyobject)->ident));
+            printf("%s", id_string(GET_ENTITY(anyobject)->ident));
           } else {
             printf("%d ", CATEGORY_OF_OBJ(anyobject));
             printf(" *NULL_ENTITY_OBJECT*");

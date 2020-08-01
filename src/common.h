@@ -147,7 +147,8 @@ typedef unsigned char      strelemtype;
 #endif
 
 typedef uint32type         memsizetype;
-#define MAX_MEM_INDEX 2147483647
+#define MAX_MEMSIZETYPE 0xFFFFFFFF
+#define MAX_MEM_INDEX   2147483647
 
 typedef int8type           smallpriortype;
 typedef int                prior_type;

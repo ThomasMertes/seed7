@@ -5,7 +5,7 @@
 (*  Copyright (C) 1989 - 2009  Thomas Mertes                        *)
 (*  All rights reserved.                                            *)
 (*                                                                  *)
-(*  Documentation:  --><p></p><hr><p align="center"><big><b>Manual for the Seed7 programming language</b></big></p><hr><!--         *)
+(*  Documentation:  --><p></p><hr><h1 align="center">Manual for the Seed7 programming language</h1><hr><!--         *)
 (*                                                                  *)
 (*  This file is distributed "AS IS" in the hope that it will be    *)
 (*  useful, but WITHOUT ANY WARRANTY; without even the implied      *)
@@ -15,7 +15,7 @@
 
 
 <p></p>
-<big><b>CONTENTS</b></big>
+<h2>CONTENTS</h2>
 <!-- ======== -->
 <p><ol>
 <li><!--   1.     --><a href="#INTRODUCTION"><big><b>INTRODUCTION</b></big></a><ol>
@@ -605,9 +605,8 @@
 
 <a name="Parameters"><h3>2.4 Parameters</h3></a>
 <p>
-    Most parameters are not changed inside a function. To
-  express this explicit Seed7 uses the <tt>'<font color=blue>in</font>'</tt> parameter as in the
-  following examples:
+    Most parameters are not changed inside a function. Seed7
+  uses <tt>'<font color=blue>in</font>'</tt> parameters to describe this situation:
 </p><pre>
     <font color=blue>const</font> <font color=red>func integer</font>: negate (<font color=blue>in</font> <font color=red>integer</font>: num1) <font color=blue>is</font>
       <font color=blue>return</font> -num1;
@@ -621,13 +620,23 @@
         <font color=blue>end if</font>;
       <font color=blue>end func</font>;
 </pre><p>
-  In both cases the formal parameter <tt>'num1'</tt> is used in the
-  function but no assignment is done to <tt>'num1'</tt>. Inside the
-  functions the parameter <tt>'num1'</tt> behaves like a constant.
-</p><p>
-  When a function should change the value of the actual
-  parameter we can use the <tt>'<font color=blue>inout</font>'</tt> parameter as in the
-  following example:
+  The functions above use <tt>'<font color=blue>in</font>'</tt> parameters named <tt>'num1'</tt>.
+  An assignment to <tt>'num1'</tt> is not allowed. A formal <tt>'<font color=blue>in</font>'</tt>
+  parameter like <tt>'num1'</tt> behaves like a constant. 
+  Trying to change a formal <tt>'<font color=blue>in</font>'</tt> parameter:
+</p><pre>
+    <font color=blue>const</font> <font color=red>proc</font>: wrong (<font color=blue>in</font> <font color=red>integer</font>: num2) <font color=blue>is func</font>
+      <font color=blue>begin</font>
+        num2 := 0;
+      <font color=blue>end func</font>;
+</pre><p>
+  results in a compile time error:
+</p><pre>
+    *** tst77.sd7(5):52: Variable expected in {num2 := 0 } found parameter (in integer: num2)
+        num2 := 0;
+</pre><p>
+  When a function wants to change the value of the actual
+  parameter it can use an <tt>'<font color=blue>inout</font>'</tt> parameter:
 </p><pre>
     <font color=blue>const</font> <font color=red>proc</font>: reset (<font color=blue>inout</font> <font color=red>integer</font>: num2) <font color=blue>is func</font>
       <font color=blue>begin</font>
@@ -636,12 +645,18 @@
 </pre><p>
   If you call this function with
 </p><pre>
-    reset(number)
+    reset(number);
 </pre><p>
-  the variable <tt>'number'</tt> has the value 0 afterwards. By the way,
-  writing <tt>'<font color=blue>in</font>'</tt> instead of <tt>'<font color=blue>inout</font>'</tt> would have been illegal in
-  the example above.
-</p><p>
+  the variable <tt>'number'</tt> has the value 0 afterwards. Calling
+  <tt>'reset'</tt> with a constant instead of a variable:
+</p><pre>
+    reset(8);
+</pre><p>
+  results in a compile time error
+</p><pre>
+    *** tst77.sd7(12):52: Variable expected in {8 reset } found constant integer: 8
+        reset(8);
+</pre><p>
   Sometimes an <tt>'<font color=blue>in</font>'</tt> parameter is needed, but you need to change
   the formal parameter in the function without affecting the
   actual parameter. In this case we use the <tt>'<font color=blue>in var</font>'</tt> parameter:
@@ -6376,16 +6391,22 @@ ont color=blue>is</font> <font color=maroon>""</font>;
   strongest priority is 0. Weaker priorities are described by larger
   numbers. What bind means is can be explained with an example:
 </p><pre>
-                                       =
-    A + B = C * D                    /   \
-                                    /     \
-    * priority  6                  +       *
-    + priority  7                /   \   /   \
-    = priority 12               A     B C     D
+                                      =
+    A = B + C * D                    / \
+                                    A   +
+    * priority  6                      / \
+    + priority  7                     B   *
+    = priority 12                        / \
+                                        C   D
 </pre><p>
-  First the * takes its parameters, then the + and at last the =
-  follows.
-</p><p>
+  The * operator has the strongest priority (6) of all operators
+  involved. Therefore the * takes its parameters first. Then
+  the + (with priority 7) and at last the = (with priority 12)
+  follows. This leads to the the following interpretation of
+  the expression:
+</p><pre>
+    A = (B + (C * D))
+</pre><p>
   The associativity describes, in which order constructs with equal
   priority bind their parameters. For example
 </p><pre>

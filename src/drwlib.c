@@ -1513,7 +1513,7 @@ listtype arguments;
     isit_int(arg_2(arguments));
     isit_int(arg_3(arguments));
     drwSetPos(take_win(arg_1(arguments)),
-	take_int(arg_2(arguments)), take_int(arg_3(arguments)));
+        take_int(arg_2(arguments)), take_int(arg_3(arguments)));
     return(SYS_EMPTY_OBJECT);
   } /* drw_setPos */
 

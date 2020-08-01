@@ -605,9 +605,8 @@ CONTENTS
 
 2.4 Parameters
 
-    Most parameters are not changed inside a function. To
-  express this explicit Seed7 uses the 'in' parameter as in the
-  following examples:
+    Most parameters are not changed inside a function. Seed7
+  uses 'in' parameters to describe this situation:
 
     const func integer: negate (in integer: num1) is
       return -num1;
@@ -621,13 +620,23 @@ CONTENTS
         end if;
       end func;
 
-  In both cases the formal parameter 'num1' is used in the
-  function but no assignment is done to 'num1'. Inside the
-  functions the parameter 'num1' behaves like a constant.
+  The functions above use 'in' parameters named 'num1'.
+  An assignment to 'num1' is not allowed. A formal 'in'
+  parameter like 'num1' behaves like a constant. 
+  Trying to change a formal 'in' parameter:
 
-  When a function should change the value of the actual
-  parameter we can use the 'inout' parameter as in the
-  following example:
+    const proc: wrong (in integer: num2) is func
+      begin
+        num2 := 0;
+      end func;
+
+  results in a compile time error:
+
+    *** tst77.sd7(5):52: Variable expected in {num2 := 0 } found parameter (in integer: num2)
+        num2 := 0;
+
+  When a function wants to change the value of the actual
+  parameter it can use an 'inout' parameter:
 
     const proc: reset (inout integer: num2) is func
       begin
@@ -636,11 +645,17 @@ CONTENTS
 
   If you call this function with
 
-    reset(number)
+    reset(number);
 
-  the variable 'number' has the value 0 afterwards. By the way,
-  writing 'in' instead of 'inout' would have been illegal in
-  the example above.
+  the variable 'number' has the value 0 afterwards. Calling
+  'reset' with a constant instead of a variable:
+
+    reset(8);
+
+  results in a compile time error
+
+    *** tst77.sd7(12):52: Variable expected in {8 reset } found constant integer: 8
+        reset(8);
 
   Sometimes an 'in' parameter is needed, but you need to change
   the formal parameter in the function without affecting the
@@ -6376,15 +6391,21 @@ ont color=blue>is "";
   strongest priority is 0. Weaker priorities are described by larger
   numbers. What bind means is can be explained with an example:
 
-                                       =
-    A + B = C * D                    /   \
-                                    /     \
-    * priority  6                  +       *
-    + priority  7                /   \   /   \
-    = priority 12               A     B C     D
+                                      =
+    A = B + C * D                    / \
+                                    A   +
+    * priority  6                      / \
+    + priority  7                     B   *
+    = priority 12                        / \
+                                        C   D
 
-  First the * takes its parameters, then the + and at last the =
-  follows.
+  The * operator has the strongest priority (6) of all operators
+  involved. Therefore the * takes its parameters first. Then
+  the + (with priority 7) and at last the = (with priority 12)
+  follows. This leads to the the following interpretation of
+  the expression:
+
+    A = (B + (C * D))
 
   The associativity describes, in which order constructs with equal
   priority bind their parameters. For example

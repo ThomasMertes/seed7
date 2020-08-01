@@ -1,3 +1,14 @@
+20091220:
+- The chapter explaining parameters in the tutorial of the manual was improved.
+- The chapter explaining priority and associativity in the manual was improved.
+- The function copy_file in "cmd_rtl.c" was improved to use mmap() only up to a
+  maximum size and to use munmap() to delete the mapped area.
+- The function cmdRemove in "cmd_rtl.c" was improved to work correctly when
+  remove() is not able to remove empty directories.
+- The function write_object in "error.c" was improved to write literals correctly.
+- The function cp_to_os_path in "striutl.c" was improved to forbid paths
+  ending with slash except for the root path ("/") and a device root ("C:/").
+
 20091206:
 - The chapters explaining operating system access, primitive actions and exceptions
   in the manual were improved.

@@ -4796,6 +4796,8 @@ const proc: exec_print (inout string: symbol, inout string: line) is func
     var float: num1 is 0.0;
     var integer: implicit_semicolon_pos is -1;
   begin
+    line_marker;
+    write(log, "PRINT ");
     if endOfStatement(symbol) then
       writeln(win);
     else
@@ -7246,9 +7248,9 @@ const func boolean: exec_cmd (inout string: symbol, inout string: line) is func
         if symbol = "#" then
           exec_print_to_file(symbol, line);
         else
-          line_marker;
-          write(log, "PRINT ");
           if symbol = "USING" then
+            line_marker;
+            write(log, "PRINT ");
             exec_print_using(win, symbol, line);
           else
             exec_print(symbol, line);
