@@ -175,7 +175,7 @@ rtlArraytype arr1;
   /* arrArrlit2 */
     result_size = (uinttype) (arr1->max_position - arr1->min_position + 1);
     arr1->min_position = start_position;
-    arr1->max_position = start_position + result_size - 1;
+    arr1->max_position = (inttype) ((memsizetype) start_position + result_size - 1);
     return(arr1);
   } /* arrArrlit2 */
 
@@ -587,7 +587,7 @@ inttype stop;
           result = NULL;
         } else {
           COUNT3_RTL_ARRAY(length, length - result_size);
-          resized_arr1->max_position -= result_size;
+          resized_arr1->max_position -= (inttype) result_size;
           *arr_temp = resized_arr1;
         } /* if */
       } /* if */

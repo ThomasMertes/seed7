@@ -576,7 +576,7 @@ comparetype cmp_func;
         (long unsigned) hash1, (long unsigned) key, (long unsigned) hashcode);
 #endif
     result = FALSE;
-    hashelem = hash1->table[hashcode & hash1->mask];
+    hashelem = hash1->table[(unsigned int) hashcode & hash1->mask];
     while (hashelem != NULL) {
 /*
 printf("sizeof(hashelem->key.value.genericvalue)=%lu\n", sizeof(hashelem->key.value.genericvalue));
@@ -755,8 +755,8 @@ destrfunctype data_destr_func;
         (unsigned long) hash1, (unsigned long) key,
         (unsigned long) hashcode, hash1->size);
 #endif
-    delete_pos = &hash1->table[hashcode & hash1->mask];
-    hashelem = hash1->table[hashcode & hash1->mask];
+    delete_pos = &hash1->table[(unsigned int) hashcode & hash1->mask];
+    hashelem = hash1->table[(unsigned int) hashcode & hash1->mask];
     while (hashelem != NULL) {
       cmp = cmp_func(hashelem->key.value.genericvalue, key);
       if (cmp < 0) {
@@ -821,7 +821,7 @@ comparetype cmp_func;
         (unsigned long) hash1, (unsigned long) key, (unsigned long) hashcode);
 #endif
     result_hashelem = NULL;
-    hashelem = hash1->table[hashcode & hash1->mask];
+    hashelem = hash1->table[(unsigned int) hashcode & hash1->mask];
     while (hashelem != NULL) {
       cmp = cmp_func(hashelem->key.value.genericvalue, key);
       if (cmp < 0) {
@@ -875,7 +875,7 @@ comparetype cmp_func;
         (unsigned long) hash1, (unsigned long) key, (unsigned long) hashcode);
 #endif
     result_hashelem = NULL;
-    hashelem = hash1->table[hashcode & hash1->mask];
+    hashelem = hash1->table[(unsigned int) hashcode & hash1->mask];
     while (hashelem != NULL) {
       cmp = cmp_func(hashelem->key.value.genericvalue, key);
       /* printf(". %llu %llu cmp=%d\n",
@@ -935,11 +935,11 @@ createfunctype data_create_func;
   /* hshIdxWithDefault */
     /* printf("hshIdxWithDefault(%lX, %llX, %lld, %llX, %lX, %lx, %lX)\n",
        hash1, key, data, hashcode, cmp_func, key_create_func, data_create_func); */
-    hashelem = hash1->table[hashcode & hash1->mask];
+    hashelem = hash1->table[(unsigned int) hashcode & hash1->mask];
     if (hashelem == NULL) {
       result_hashelem = new_helem(key, data,
           key_create_func, data_create_func, &err_info);
-      hash1->table[hashcode & hash1->mask] = result_hashelem;
+      hash1->table[(unsigned int) hashcode & hash1->mask] = result_hashelem;
       hash1->size++;
     } else {
       do {
@@ -1014,12 +1014,12 @@ copyfunctype data_copy_func;
         (unsigned long) hash1, (unsigned long long) key,
         (unsigned long) data, (unsigned long) hashcode, hash1->size);
 #endif
-    hashelem = hash1->table[hashcode & hash1->mask];
+    hashelem = hash1->table[(unsigned int) hashcode & hash1->mask];
     if (hashelem == NULL) {
-      hash1->table[hashcode & hash1->mask] = new_helem(key, data,
+      hash1->table[(unsigned int) hashcode & hash1->mask] = new_helem(key, data,
           key_create_func, data_create_func, &err_info);
       /*
-      hashelem = hash1->table[hashcode & hash1->mask];
+      hashelem = hash1->table[(unsigned int) hashcode & hash1->mask];
       printf("key=%llX\n", (unsigned long long) key);
       printf("new hashelem: key=%llX, data=%llX\n",
           hashelem->key.value.intvalue, hashelem->data.value.intvalue);

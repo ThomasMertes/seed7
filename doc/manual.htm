@@ -7601,7 +7601,8 @@ ont color=blue>is</font> <font color=maroon>""</font>;
       <dt>RANGE_ERROR</dt>
           <dd><tt>'filePath'</tt> is not representable in the system path type.</dd>
       <dt>RANGE_ERROR</dt>
-          <dd>The file size is not representable as <font color=red>integer</font>.</dd>
+          <dd>The file size is not representable as <font color=red>integer</font>
+          (this exception is not raised by <tt>'bigFileSize'</tt>).</dd>
       <dt>FILE_ERROR</dt>
           <dd>It was not possible to determine the file size.</dd>
       </dl></dd></dl></p>
@@ -7699,7 +7700,7 @@ ont color=blue>is</font> <font color=maroon>""</font>;
       <dl>
       <dt>MEMORY_ERROR</dt>
           <dd>Not enough memory to convert <tt>'filePath'</tt> to the system path type or not
-              enough memory to represent the result <tt>'<font color=red>string</font>'</tt>.</dd>
+          enough memory to represent the result <tt>'<font color=red>string</font>'</tt>.</dd>
       <dt>RANGE_ERROR</dt>
           <dd><tt>'filePath'</tt> is not representable in the system path type.</dd>
       <dt>FILE_ERROR</dt>
@@ -7725,7 +7726,7 @@ ont color=blue>is</font> <font color=maroon>""</font>;
       <dl>
       <dt>MEMORY_ERROR</dt>
           <dd>Not enough memory to convert <tt>'source'</tt> or <tt>'dest'</tt>
-              to the system path type.</dd>
+          to the system path type.</dd>
       <dt>RANGE_ERROR</dt>
           <dd><tt>'source'</tt> or <tt>'dest'</tt> is not representable in the
           system path type.</dd>
@@ -7781,20 +7782,20 @@ ont color=blue>is</font> <font color=maroon>""</font>;
     The timestamps of the destination file are set to the current time.
     Symbolic links in sourcePath are always followed.
     Therefore <tt>'copyFile'</tt> will never create a symbolic link.
-    Note that the cloneFile does not preserve hard
+    Note that <tt>'copyFile'</tt> does not preserve hard
     links (they are resolved to distinct files).
 </p>
     <p><dl><dt><p>Possible exceptions:</p></dt><dd>
       <dl>
       <dt>MEMORY_ERROR</dt>
           <dd>Not enough memory to convert <tt>'sourcePath'</tt> or <tt>'destPath'</tt>
-              to the system path type.</dd>
+          to the system path type.</dd>
       <dt>RANGE_ERROR</dt>
           <dd><tt>'sourcePath'</tt> or <tt>'destPath'</tt> is not representable in the
-              system path type.</dd>
+          system path type.</dd>
       <dt>FILE_ERROR</dt>
           <dd>Source file does not exist, destination file already exists or
-              a system function returns an error.</dd>
+          a system function returns an error.</dd>
       </dl></dd></dl></p>
 
 <a name="cloneFile"><h3>12.17 cloneFile</h3></a>
@@ -7806,19 +7807,19 @@ ont color=blue>is</font> <font color=maroon>""</font>;
 </pre><p>
     Permissions/mode, ownership and timestamps of the original are
     preserved. Symlinks are not followed. Instead the symlink
-    is copied. Note that the cloneFile does not preserve hard
+    is copied. Note that <tt>'cloneFile'</tt> does not preserve hard
     links (they are resolved to distinct files).</p>
     <p><dl><dt><p>Possible exceptions:</p></dt><dd>
       <dl>
       <dt>MEMORY_ERROR</dt>
           <dd>Not enough memory to convert <tt>'sourcePath'</tt> or <tt>'destPath'</tt>
-              to the system path type.</dd>
+          to the system path type.</dd>
       <dt>RANGE_ERROR</dt>
           <dd><tt>'sourcePath'</tt> or <tt>'destPath'</tt> is not representable in the
-              system path type.</dd>
+          system path type.</dd>
       <dt>FILE_ERROR</dt>
           <dd>Source file does not exist, destination file already exists or
-              a system function returns an error.</dd>
+          a system function returns an error.</dd>
       </dl></dd></dl></p>
 
 <a name="moveFile"><h3>12.18 moveFile</h3></a>
@@ -7842,13 +7843,13 @@ ont color=blue>is</font> <font color=maroon>""</font>;
       <dl>
       <dt>MEMORY_ERROR</dt>
           <dd>Not enough memory to convert <tt>'sourcePath'</tt> or <tt>'destPath'</tt>
-              to the system path type.</dd>
+          to the system path type.</dd>
       <dt>RANGE_ERROR</dt>
           <dd><tt>'sourcePath'</tt> or <tt>'destPath'</tt> is not representable in the
-              system path type.</dd>
+          system path type.</dd>
       <dt>FILE_ERROR</dt>
           <dd>Source file does not exist, destination file already exists or
-              a system function returns an error.</dd>
+          a system function returns an error.</dd>
       </dl></dd></dl></p>
 
 <a name="argv"><h3>12.19 argv</h3></a>

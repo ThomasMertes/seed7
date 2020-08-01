@@ -710,7 +710,7 @@ listtype arguments;
     hashcode =       take_int(arg_3(arguments));
     cmp_func = take_reference(arg_4(arguments));
     result_hashelem = NULL;
-    hashelem = hash1->table[hashcode & hash1->mask];
+    hashelem = hash1->table[(unsigned int) hashcode & hash1->mask];
     while (hashelem != NULL) {
       cmp_obj = param3_call(cmp_func, &hashelem->key, key, cmp_func);
       isit_int(cmp_obj);
@@ -963,8 +963,8 @@ listtype arguments;
     cmp_func        = take_reference(arg_4(arguments));
     key_destr_func  = take_reference(arg_5(arguments));
     data_destr_func = take_reference(arg_6(arguments));
-    delete_pos = &hash1->table[hashcode & hash1->mask];
-    hashelem = hash1->table[hashcode & hash1->mask];
+    delete_pos = &hash1->table[(unsigned int) hashcode & hash1->mask];
+    hashelem = hash1->table[(unsigned int) hashcode & hash1->mask];
     while (hashelem != NULL) {
       cmp_obj = param3_call(cmp_func, &hashelem->key, key, cmp_func);
       isit_int(cmp_obj);
@@ -1119,7 +1119,7 @@ listtype arguments;
     cmp_func = take_reference(arg_4(arguments));
     /* printf("hsh_idx(%lX, %lX, %lu, %lX)\n", hash1, key, hashcode, cmp_func); */
     result_hashelem = NULL;
-    hashelem = hash1->table[hashcode & hash1->mask];
+    hashelem = hash1->table[(unsigned int) hashcode & hash1->mask];
     while (hashelem != NULL) {
       cmp_obj = param3_call(cmp_func, &hashelem->key, key, cmp_func);
       isit_int(cmp_obj);
@@ -1200,7 +1200,7 @@ listtype arguments;
     key_create_func  = take_reference(arg_6(arguments));
     data_create_func = take_reference(arg_7(arguments));
     result_hashelem = NULL;
-    hashelem = hash1->table[hashcode & hash1->mask];
+    hashelem = hash1->table[(unsigned int) hashcode & hash1->mask];
     while (hashelem != NULL) {
       cmp_obj = param3_call(cmp_func, &hashelem->key, key, cmp_func);
       isit_int(cmp_obj);
@@ -1283,9 +1283,9 @@ listtype arguments;
     key_create_func  = take_reference(arg_6(arguments));
     data_create_func = take_reference(arg_7(arguments));
     data_copy_func   = take_reference(arg_8(arguments));
-    hashelem = hash1->table[hashcode & hash1->mask];
+    hashelem = hash1->table[(unsigned int) hashcode & hash1->mask];
     if (hashelem == NULL) {
-      hash1->table[hashcode & hash1->mask] = new_helem(key, data,
+      hash1->table[(unsigned int) hashcode & hash1->mask] = new_helem(key, data,
           key_create_func, data_create_func, &err_info);
       hash1->size++;
     } else {
@@ -1402,7 +1402,7 @@ listtype arguments;
     hashcode =       take_int(arg_3(arguments));
     cmp_func = take_reference(arg_4(arguments));
     result_hashelem = NULL;
-    hashelem = hash1->table[hashcode & hash1->mask];
+    hashelem = hash1->table[(unsigned int) hashcode & hash1->mask];
     while (hashelem != NULL) {
       cmp_obj = param3_call(cmp_func, &hashelem->key, key, cmp_func);
       isit_int(cmp_obj);

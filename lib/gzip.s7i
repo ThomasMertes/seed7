@@ -42,7 +42,7 @@ const func integer: getBits (in string: stri,
       if bitsInByte > bitsNeeded then
         bitsInByte := bitsNeeded;
       end if;
-      result +:= (ord(stri[bytePos]) >> bitPos) mod (1 << bitsInByte) << bitsInResult;
+      result +:= (ord(stri[bytePos]) >> bitPos) rem (1 << bitsInByte) << bitsInResult;
       bitPos +:= bitsInByte;
       if bitPos = 8 then
         bitPos := 0;

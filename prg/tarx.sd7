@@ -25,19 +25,22 @@
 $ include "seed7_05.s7i";
   include "time.s7i";
   include "getf.s7i";
+  include "gzip.s7i";
+  include "strifile.s7i";
 
 
 const string: TMAGIC is "ustar";
 
-const char: REGTYPE  is '0';   # Regular file (preferred code)
-const char: AREGTYPE is '\0\'; # Regular file (alternate code)
-const char: LNKTYPE  is '1';   # Hard link.
-const char: SYMTYPE  is '2';   # Symbolic link
-const char: CHRTYPE  is '3';   # Character special
-const char: BLKTYPE  is '4';   # Block special
-const char: DIRTYPE  is '5';   # Directory
-const char: FIFOTYPE is '6';   # Named pipe
-const char: CONTTYPE is '7';   # Contiguous file
+const char: REGTYPE      is '0';   # Regular file (preferred code)
+const char: AREGTYPE     is '\0\'; # Regular file (alternate code)
+const char: LNKTYPE      is '1';   # Hard link.
+const char: SYMTYPE      is '2';   # Symbolic link
+const char: CHRTYPE      is '3';   # Character special
+const char: BLKTYPE      is '4';   # Block special
+const char: DIRTYPE      is '5';   # Directory
+const char: FIFOTYPE     is '6';   # Named pipe
+const char: CONTTYPE     is '7';   # Contiguous file
+const char: LONGNAMETYPE is 'L';   # Long (untruncated) filename of the next file
 
 const type: header is new struct
     var string: name is "";
@@ -270,18 +273,36 @@ const proc: status (in string: basePath, in string: name,
   end func;
 
 
-const proc: tar_tell (in string: in_file_name, in boolean: do_view,
+const func file: openZipFile (in string: fileName) is func
+  result
+    var file: result is STD_NULL;
+  local
+    var string: stri is "";
+  begin
+    stri := getf(fileName);
+    if stri <> "" then
+      stri := gunzip(stri);
+      if stri <> "" then
+        result := openStrifile(stri);
+      end if;
+    end if;
+  end func;
+
+
+const proc: tar_tell (inout file: in_file, in boolean: do_view,
     in array string: arg_list) is func
   local
-    var file: in_file is STD_NULL;
-    var string: stri is "";
     var header: head is header.value;
     var time: modTime is time.value;
+    var string: fileName is "";
   begin
-    in_file := open(in_file_name, "r");
-    if in_file <> STD_NULL then
-      read(in_file, head);
-      while head.name <> "" and head.magic = TMAGIC do
+    read(in_file, head);
+    while head.name <> "" and head.magic = TMAGIC do
+      # check(STD_OUT, head);
+      if head.typeflag = LONGNAMETYPE and head.size <> 0 then
+        fileName := gets(in_file, head.size);
+        seek(in_file, tell(in_file) - head.size + succ(pred(head.size) div 512) * 512);
+      else
         if do_view then
           if head.typeflag = DIRTYPE then
             write("d");
@@ -310,14 +331,35 @@ const proc: tar_tell (in string: in_file_name, in boolean: do_view,
           write(" ");
           # write(strTimeZone(modTime) rpad 12);
         end if;
-        writeln(head.name);
+        if fileName <> "" then
+          writeln(fileName);
+          fileName := "";
+        else
+          writeln(head.name);
+        end if;
         (* check(OUT, head);
            readln; *)
         if head.size <> 0 then
           seek(in_file, tell(in_file) + succ(pred(head.size) div 512) * 512);
         end if;
-        read(in_file, head);
-      end while;
+      end if;
+      read(in_file, head);
+    end while;
+  end func;
+
+
+const proc: tar_tell (in string: in_file_name, in boolean: do_view,
+    in boolean: do_unzip, in array string: arg_list) is func
+  local
+    var file: in_file is STD_NULL;
+  begin
+    if do_unzip then
+      in_file := openZipFile(in_file_name);
+    else
+      in_file := open(in_file_name, "r");
+    end if;
+    if in_file <> STD_NULL then
+      tar_tell(in_file, do_view, arg_list);
     else
       write("tarx: Cannot open \"");
       write(in_file_name);
@@ -326,43 +368,70 @@ const proc: tar_tell (in string: in_file_name, in boolean: do_view,
   end func;
 
 
-const proc: tar_xtract (in string: in_file_name, in boolean: do_view,
+const proc: tar_xtract (inout file: in_file, in boolean: do_view,
     in array string: arg_list) is func
   local
-    var file: in_file is STD_NULL;
     var string: stri is "";
     var header: head is header.value;
     var time: modTime is time.value;
+    var string: fileName is "";
   begin
-    in_file := open(in_file_name, "r");
-    if in_file <> STD_NULL then
-      read(in_file, head);
-      while head.name <> "" and head.magic = TMAGIC do
+    read(in_file, head);
+    while head.name <> "" and head.magic = TMAGIC do
+      # check(STD_OUT, head);
+      if head.typeflag = LONGNAMETYPE and head.size <> 0 then
+        fileName := gets(in_file, head.size);
+        seek(in_file, tell(in_file) - head.size + succ(pred(head.size) div 512) * 512);
+      else
+        if fileName = "" then
+          fileName := head.name;
+        end if;
         if do_view then
           write("x ");
-          writeln(head.name);
+          writeln(fileName);
         end if;
-        if endsWith(head.name, "/") then
-          head.name := head.name[.. pred(length(head.name))];
+        if endsWith(fileName, "/") then
+          fileName := fileName[.. pred(length(fileName))];
         end if;
         if head.typeflag = DIRTYPE then
-          mkdir(head.name);
+          mkdir(fileName);
           modTime := timestamp1970ToTime(head.mtime);
           # writeln(modTime);
-          setMTime(head.name, modTime);
-          # writeln(getCTime(head.name));
-          # writeln(getATime(head.name));
-          # writeln(getMTime(head.name));
+          setMTime(fileName, modTime);
+          # writeln(getCTime(fileName));
+          # writeln(getATime(fileName));
+          # writeln(getMTime(fileName));
         elsif head.typeflag = REGTYPE or head.typeflag = AREGTYPE then
           if head.size <> 0 then
             stri := gets(in_file, succ(pred(head.size) div 512) * 512);
-            putf(head.name, stri[ .. head.size]);
+            putf(fileName, stri[ .. head.size]);
             modTime := timestamp1970ToTime(head.mtime);
-            setMTime(head.name, modTime);
+            setMTime(fileName, modTime);
           end if;
         end if;
-        read(in_file, head);
-      end while;
+        fileName := "";
+      end if;
+      read(in_file, head);
+    end while;
+  end func;
+
+
+const proc: tar_xtract (in string: in_file_name, in boolean: do_view,
+    in boolean: do_unzip, in array string: arg_list) is func
+  local
+    var file: in_file is STD_NULL;
+  begin
+    if do_unzip then
+      in_file := openZipFile(in_file_name);
+    else
+      in_file := open(in_file_name, "r");
+    end if;
+    if in_file <> STD_NULL then
+      tar_xtract(in_file, do_view, arg_list);
+    else
+      write("tarx: Cannot open \"");
+      write(in_file_name);
+      writeln("\".");
     end if;
   end func;
 
@@ -429,6 +498,7 @@ const proc: main is func
     var char: command is ' ';
     var string: file_name is "";
     var boolean: do_view is FALSE;
+    var boolean: do_zip_unzip is FALSE;
     var boolean: file_arg is FALSE;
     var array string: arg_list is 0 times "";
     var integer: number is 0;
@@ -445,6 +515,9 @@ const proc: main is func
         while option <> "" do
           if option[1] = 'v' then
             do_view := TRUE;
+          end if;
+          if option[1] = 'z' then
+            do_zip_unzip := TRUE;
           end if;
           if option[1] = 'f' then
             file_arg := TRUE;
@@ -465,9 +538,9 @@ const proc: main is func
         end if;
         case command of
           when {'t'}:
-            tar_tell(file_name, do_view, arg_list);
+            tar_tell(file_name, do_view, do_zip_unzip, arg_list);
           when {'x'}:
-            tar_xtract(file_name, do_view, arg_list);
+            tar_xtract(file_name, do_view, do_zip_unzip, arg_list);
           when {'c'}:
             tar_create(file_name, do_view, arg_list);
         end case;

@@ -7601,7 +7601,8 @@ ont color=blue>is "";
       RANGE_ERROR
           'filePath' is not representable in the system path type.
       RANGE_ERROR
-          The file size is not representable as integer.
+          The file size is not representable as integer
+          (this exception is not raised by 'bigFileSize').
       FILE_ERROR
           It was not possible to determine the file size.
       
@@ -7699,7 +7700,7 @@ ont color=blue>is "";
       
       MEMORY_ERROR
           Not enough memory to convert 'filePath' to the system path type or not
-              enough memory to represent the result 'string'.
+          enough memory to represent the result 'string'.
       RANGE_ERROR
           'filePath' is not representable in the system path type.
       FILE_ERROR
@@ -7725,7 +7726,7 @@ ont color=blue>is "";
       
       MEMORY_ERROR
           Not enough memory to convert 'source' or 'dest'
-              to the system path type.
+          to the system path type.
       RANGE_ERROR
           'source' or 'dest' is not representable in the
           system path type.
@@ -7781,20 +7782,20 @@ ont color=blue>is "";
     The timestamps of the destination file are set to the current time.
     Symbolic links in sourcePath are always followed.
     Therefore 'copyFile' will never create a symbolic link.
-    Note that the cloneFile does not preserve hard
+    Note that 'copyFile' does not preserve hard
     links (they are resolved to distinct files).
 
     Possible exceptions:
       
       MEMORY_ERROR
           Not enough memory to convert 'sourcePath' or 'destPath'
-              to the system path type.
+          to the system path type.
       RANGE_ERROR
           'sourcePath' or 'destPath' is not representable in the
-              system path type.
+          system path type.
       FILE_ERROR
           Source file does not exist, destination file already exists or
-              a system function returns an error.
+          a system function returns an error.
       
 
 12.17 cloneFile
@@ -7806,19 +7807,19 @@ ont color=blue>is "";
 
     Permissions/mode, ownership and timestamps of the original are
     preserved. Symlinks are not followed. Instead the symlink
-    is copied. Note that the cloneFile does not preserve hard
+    is copied. Note that 'cloneFile' does not preserve hard
     links (they are resolved to distinct files).
     Possible exceptions:
       
       MEMORY_ERROR
           Not enough memory to convert 'sourcePath' or 'destPath'
-              to the system path type.
+          to the system path type.
       RANGE_ERROR
           'sourcePath' or 'destPath' is not representable in the
-              system path type.
+          system path type.
       FILE_ERROR
           Source file does not exist, destination file already exists or
-              a system function returns an error.
+          a system function returns an error.
       
 
 12.18 moveFile
@@ -7842,13 +7843,13 @@ ont color=blue>is "";
       
       MEMORY_ERROR
           Not enough memory to convert 'sourcePath' or 'destPath'
-              to the system path type.
+          to the system path type.
       RANGE_ERROR
           'sourcePath' or 'destPath' is not representable in the
-              system path type.
+          system path type.
       FILE_ERROR
           Source file does not exist, destination file already exists or
-              a system function returns an error.
+          a system function returns an error.
       
 
 12.19 argv

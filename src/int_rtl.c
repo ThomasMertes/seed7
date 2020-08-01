@@ -465,8 +465,8 @@ inttype k_number;
       } else {
         unsigned_result = (uinttype) n_number;
         for (number = 2; number <= k_number; number++) {
-          unsigned_result *= (n_number - number + 1);
-          unsigned_result /= number;
+          unsigned_result *= (uinttype) (n_number - number + 1);
+          unsigned_result /= (uinttype) number;
         } /* for */
         result = (inttype) unsigned_result;
       } /* if */
@@ -938,8 +938,8 @@ inttype base;
       } /* if */
       buffer = &buffer_1[75];
       do {
-        *(--buffer) = (strelemtype) (digits[unsigned_number % base]);
-      } while ((unsigned_number /= base) != 0);
+        *(--buffer) = (strelemtype) (digits[unsigned_number % (uinttype) base]);
+      } while ((unsigned_number /= (uinttype) base) != 0);
       if (negative) {
         *(--buffer) = (strelemtype) '-';
       } /* if */
