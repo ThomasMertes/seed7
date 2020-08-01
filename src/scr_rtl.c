@@ -161,4 +161,5 @@ stritype stri;
         stri->mem, stri->size);
 #endif
     cursor_column = cursor_column + stri->size;
+    scrSetCursor(cursor_line, cursor_column);
   } /* scrWrite */

@@ -79,8 +79,8 @@ typedef int booltype;
 #undef  USE_MAXIMUM_MALLOC_CHECK
 #define DO_HEAPSIZE_COMPUTATION
 #undef  DO_HEAP_STATISTIC
-#undef  DO_HEAP_LOG
 #undef  DO_HEAP_CHECK
+#undef  DO_HEAP_LOG
 #define UTF32_STRINGS
 #define WITH_STRI_CAPACITY
 #define INTTYPE_SIZE 32
@@ -309,6 +309,14 @@ typedef int errinfotype;
 #endif
 #ifndef os_popen
 #define os_popen popen
+#endif
+
+
+#ifndef likely
+#define likely(x) (x)
+#endif
+#ifndef unlikely
+#define unlikely(x) (x)
 #endif
 
 

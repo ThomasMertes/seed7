@@ -1174,7 +1174,7 @@ inttype size;
 #endif
 
   { /* filSetbuf */
-    if (mode < 0 || mode > 2 || size < 0 || size > MAX_MEMSIZETYPE) {
+    if (mode < 0 || mode > 2 || size < 0 || (uinttype) size > MAX_MEMSIZETYPE) {
       raise_error(RANGE_ERROR);
     } else if (setvbuf(aFile, NULL, (int) mode, (memsizetype) size) != 0) {
       raise_error(FILE_ERROR);

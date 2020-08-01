@@ -73,7 +73,7 @@ static const_cstritype sys_name[NUMBER_OF_SYSVARS] = {
 
 #ifdef ANSI_C
 
-int find_sysvar (stritype stri)
+int find_sysvar (const_stritype stri)
 #else
 
 int find_sysvar (stri)

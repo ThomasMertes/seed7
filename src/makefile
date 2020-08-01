@@ -139,6 +139,8 @@ version.h:
 	echo "#define ESCAPE_SPACES_IN_COMMANDS" >> version.h
 	echo "#define USE_SIGSETJMP" >> version.h
 	echo "#define $(BIGINT_LIB_DEFINE)" >> version.h
+	echo "#define likely(x)   __builtin_expect((x),1)" >> version.h
+	echo "#define unlikely(x) __builtin_expect((x),0)" >> version.h
 	echo "#include \"stdio.h\"" > chkccomp.c
 	echo "int main (int argc, char **argv)" >> chkccomp.c
 	echo "{" >> chkccomp.c

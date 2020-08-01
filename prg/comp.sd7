@@ -59,6 +59,7 @@ var option_hash: compiler_option is option_hash.value;
 
 var boolean: array_range_check is TRUE;
 var boolean: source_debug_info is TRUE;
+var boolean: trace_exception is FALSE;
 var boolean: signal_exception is FALSE;
 
 var boolean: compilerLibraryUsed is FALSE;
@@ -672,7 +673,7 @@ const proc: process_arr_create_declaration (in type: object_type,
     c_expr.expr &:= "memsizetype size = (uinttype)(b->max_position - b->min_position + 1);\n";
     c_expr.expr &:= "a=(";
     c_expr.expr &:= type_name(object_type);
-    c_expr.expr &:= ")(malloc(sizeof(struct arraystruct) - sizeof(rtlObjecttype) +\n";
+    c_expr.expr &:= ")(malloc(sizeof(struct rtlArraystruct) - sizeof(rtlObjecttype) +\n";
     c_expr.expr &:= "  size * sizeof(rtlObjecttype)));\n";
     c_expr.expr &:= "if (a == NULL) {\n";
     c_expr.expr &:= "raise_error(MEMORY_ERROR);\n";
@@ -722,7 +723,7 @@ const proc: process_sct_create_declaration (in type: object_type,
     c_expr.expr &:= " a;\n";
     c_expr.expr &:= "a=(";
     c_expr.expr &:= type_name(object_type);
-    c_expr.expr &:= ")(malloc(sizeof(struct structstruct) - sizeof(rtlObjecttype) + \n  ";
+    c_expr.expr &:= ")(malloc(sizeof(struct rtlStructstruct) - sizeof(rtlObjecttype) + \n  ";
     c_expr.expr &:= str(length(elements));
     c_expr.expr &:= " * sizeof(rtlObjecttype)));\n";
     c_expr.expr &:= "if (a == NULL) {\n";
@@ -1075,7 +1076,7 @@ const proc: process_arr_cpy_declaration (in type: object_type,
     c_expr.expr &:= "if (size_a < size_b) {\n";
     c_expr.expr &:= "*a=(";
     c_expr.expr &:= type_name(object_type);
-    c_expr.expr &:= ")(realloc((void *)(*a), sizeof(struct arraystruct) - sizeof(rtlObjecttype) +\n";
+    c_expr.expr &:= ")(realloc((void *)(*a), sizeof(struct rtlArraystruct) - sizeof(rtlObjecttype) +\n";
     c_expr.expr &:= "  size_b * sizeof(rtlObjecttype)));\n";
     c_expr.expr &:= "if (*a == NULL) {\n";
     c_expr.expr &:= "raise_error(MEMORY_ERROR);\n";
@@ -1098,7 +1099,7 @@ const proc: process_arr_cpy_declaration (in type: object_type,
     c_expr.expr &:= "}\n";
     c_expr.expr &:= "*a=(";
     c_expr.expr &:= type_name(object_type);
-    c_expr.expr &:= ")(realloc((void *)(*a), sizeof(struct arraystruct) - sizeof(rtlObjecttype) +\n";
+    c_expr.expr &:= ")(realloc((void *)(*a), sizeof(struct rtlArraystruct) - sizeof(rtlObjecttype) +\n";
     c_expr.expr &:= "  size_b * sizeof(rtlObjecttype)));\n";
     c_expr.expr &:= "if (*a == NULL) {\n";
     c_expr.expr &:= "raise_error(MEMORY_ERROR);\n";
@@ -3099,7 +3100,9 @@ const proc: process_arr_remove (in reference: function, in ref_list: params,
       c_expr.result_expr &:= str(temp_num);
       c_expr.result_expr &:= ".genericvalue=";
     else
-      c_expr.result_expr := "";
+      c_expr.result_expr := "(";
+      c_expr.result_expr &:= type_name(result_type);
+      c_expr.result_expr &:= ")(";
     end if;
     c_expr.result_expr &:= "arrRemove(&(";
     getStdParamToResultExpr(params[1], c_expr);
@@ -3110,6 +3113,8 @@ const proc: process_arr_remove (in reference: function, in ref_list: params,
       c_expr.result_expr &:= ",tmp_";
       c_expr.result_expr &:= str(temp_num);
       c_expr.result_expr &:= ".floatvalue)";
+    else
+      c_expr.result_expr &:= ")";
     end if;
   end func;
 
@@ -5515,10 +5520,9 @@ const proc: process_cmd_set_mtime (in ref_list: params, inout expr_type: c_expr)
 const proc: process_cmd_shell (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    setDiagnosticLine(c_expr);
     c_expr.expr &:= "cmdShell(";
     getAnyParamToExpr(params[1], c_expr);
-    c_expr.expr &:= ");\n";
+    c_expr.expr &:= ")";
   end func;
 
 
@@ -10003,13 +10007,13 @@ const proc: process_ref_trace (in ref_list: params, inout expr_type: c_expr) is 
   begin
     traceParam := params[1];
     object_type := getExprResultType(traceParam);
-    process_expr(traceParam, param1);
     c_expr.expr &:= "printf(\"";
-    if isVar(traceParam) then
+    if isVar(traceParam) or is_varfunc(getType(traceParam)) then
       c_expr.expr &:= "var ";
     else
       c_expr.expr &:= "const ";
     end if;
+    process_expr(traceParam, param1);
     if param1.result_expr <> "" then
       c_expr.expr &:= "[TEMP] ";
       c_expr.temp_decls   &:= param1.result_decl;
@@ -10025,7 +10029,7 @@ const proc: process_ref_trace (in ref_list: params, inout expr_type: c_expr) is 
       param1.result_expr    := "";
       param1.result_finish  := "";
     end if;
-    c_expr.expr &:= " %s: %s is \", ";
+    c_expr.expr &:= "%s: %s is \", ";
     c_expr.expr &:= c_literal(str(object_type));
     c_expr.expr &:= ", ";
     c_expr.expr &:= c_literal(str(traceParam));
@@ -15404,6 +15408,17 @@ const proc: process_expr (in var reference: current_expression, inout expr_type:
       else
         c_expr.expr &:= bstriLiteral(getValue(current_expression, bstring));
       end if;
+    elsif exprCategory = SETOBJECT then
+      if isVar(current_expression) then
+        c_expr.expr &:= "o_";
+        create_name(current_expression, c_expr.expr);
+      else
+        c_expr.expr &:= "(";
+        c_expr.expr &:= type_name(getType(current_expression));
+        c_expr.expr &:= ")(";
+        c_expr.expr &:= bitsetLiteral(getValue(current_expression, bitset));
+        c_expr.expr &:= ")";
+      end if;
     elsif exprCategory = REFOBJECT then
       if isVar(current_expression) then
         c_expr.expr &:= "o_";
@@ -15421,28 +15436,53 @@ const proc: process_expr (in var reference: current_expression, inout expr_type:
       c_expr.expr &:= "o_";
       create_name(current_expression, c_expr.expr);
     elsif exprCategory = ARRAYOBJECT then
-      c_expr.expr &:= "o_";
-      create_name(current_expression, c_expr.expr);
-    elsif exprCategory = HASHOBJECT then
-      c_expr.expr &:= "o_";
-      create_name(current_expression, c_expr.expr);
-    elsif exprCategory = SETOBJECT then
       if isVar(current_expression) then
         c_expr.expr &:= "o_";
         create_name(current_expression, c_expr.expr);
       else
-        c_expr.expr &:= "(";
-        c_expr.expr &:= type_name(getType(current_expression));
-        c_expr.expr &:= ")(";
-        c_expr.expr &:= bitsetLiteral(getValue(current_expression, bitset));
-        c_expr.expr &:= ")";
+        if current_expression not in const_table then
+          const_table @:= [current_expression] length(const_table);
+        end if;
+        c_expr.expr &:= "arr[";
+        c_expr.expr &:= str(const_table[current_expression]);
+        c_expr.expr &:= "]";
       end if;
     elsif exprCategory = STRUCTOBJECT then
-      c_expr.expr &:= "o_";
-      create_name(current_expression, c_expr.expr);
+      if isVar(current_expression) then
+        c_expr.expr &:= "o_";
+        create_name(current_expression, c_expr.expr);
+      else
+        if current_expression not in const_table then
+          const_table @:= [current_expression] length(const_table);
+        end if;
+        c_expr.expr &:= "sct[";
+        c_expr.expr &:= str(const_table[current_expression]);
+        c_expr.expr &:= "]";
+      end if;
+    elsif exprCategory = HASHOBJECT then
+      if isVar(current_expression) then
+        c_expr.expr &:= "o_";
+        create_name(current_expression, c_expr.expr);
+      else
+        if current_expression not in const_table then
+          const_table @:= [current_expression] length(const_table);
+        end if;
+        c_expr.expr &:= "hsh[";
+        c_expr.expr &:= str(const_table[current_expression]);
+        c_expr.expr &:= "]";
+      end if;
     elsif exprCategory = INTERFACEOBJECT then
-      c_expr.expr &:= "o_";
-      create_name(current_expression, c_expr.expr);
+      if isVar(current_expression) then
+        c_expr.expr &:= "o_";
+        create_name(current_expression, c_expr.expr);
+      else
+        if current_expression not in const_table then
+          const_table @:= [current_expression] length(const_table);
+        end if;
+        c_expr.expr &:= "itf[";
+        c_expr.expr &:= str(const_table[current_expression]);
+        c_expr.expr &:= "]";
+      end if;
     elsif exprCategory = FILEOBJECT then
       c_expr.expr &:= "o_";
       create_name(current_expression, c_expr.expr);
@@ -15628,7 +15668,7 @@ const proc: process_return_value (in reference: function,
   end func;
 
 
-const proc: process_local_consts (in reference: current_object,
+const proc: process_local_consts (in reference: function,
     inout expr_type: c_expr) is forward;
 
 
@@ -16791,6 +16831,36 @@ const proc: process_dynamic_condition (in reference: current_object,
     else
       param_list := formal_params;
       matched_object := match(prog, param_list);
+      if matched_object = NIL then
+        c_expr.expr &:= "printf(\"NOT FOUND:\\n\");\n";
+        for formal_param range formal_params do
+          paramCategory := category(formal_param);
+          if paramCategory <> SYMBOLOBJECT then
+            param_type := getType(formal_param);
+            if param_type in implements then
+              c_expr.expr &:= "printf(\"type_num=%d\\n\", ";
+              if isPointerParam(formal_param) then
+                c_expr.expr &:= "((interfacetype) *o_";
+              else
+                c_expr.expr &:= "((interfacetype) o_";
+              end if;
+              create_name(formal_param, c_expr.expr);
+              c_expr.expr &:= ")->type_num);\n";
+            elsif param_type in enum_literal then
+              c_expr.expr &:= "printf(\"literal_num=%d\\n\", ";
+              if isPointerParam(formal_param) then
+                c_expr.expr &:= "*o_";
+              else
+                c_expr.expr &:= "o_";
+              end if;
+              create_name(formal_param, c_expr.expr);
+              c_expr.expr &:= ");\n";
+            else
+              c_expr.expr &:= "printf(\"other param_type\\n\");\n";
+            end if;
+          end if;
+        end for;
+      end if;
       process_dynamic_call(current_object, matched_object, formal_params, c_expr);
     end if;
   end func;
@@ -16893,6 +16963,7 @@ const proc: process_hashcode (in reference: current_object, inout expr_type: c_e
     var ref_list: param_list is ref_list.EMPTY;
     var reference: expression is NIL;
   begin
+    c_expr := expr_type.value;
     setVar(current_object, FALSE);
     param_list := make_list(current_object);
     param_list &:= make_list(syobject(prog, "hashCode"));
@@ -17062,7 +17133,7 @@ const proc: process_arr_times_declaration (in reference: current_object,
     process_raise_error("RANGE_ERROR", NIL, c_expr);
     c_expr.expr &:= ";\n";
     c_expr.expr &:= "} else {\n";
-    c_expr.expr &:= "a=(arraytype)(malloc(sizeof(struct arraystruct) - sizeof(rtlObjecttype) +\n";
+    c_expr.expr &:= "a=(arraytype)(malloc(sizeof(struct rtlArraystruct) - sizeof(rtlObjecttype) +\n";
     c_expr.expr &:= "  (memsizetype)(n) * sizeof(rtlObjecttype)));\n";
     c_expr.expr &:= "if (a == NULL) {\n";
     c_expr.expr &:= "raise_error(MEMORY_ERROR);\n";
@@ -17567,15 +17638,37 @@ const proc: processLocalFunctions (in reference: current_object) is func
   end func;
 
 
-const proc: process_local_consts (in reference: current_object,
+const proc: addTypeCategoryForLocalVars (in reference: function) is func
+
+  local
+    var ref_list: objects is ref_list.EMPTY;
+    var reference: obj is NIL;
+    var reference: object_value is NIL;
+    var type: objectType is void;
+    var category: valueCategory is category.value;
+  begin
+    objects := local_vars(function);
+    for obj range objects do
+      object_value := getValue(obj, reference);
+      valueCategory := category(object_value);
+      objectType := getType(obj);
+      if objectType = getType(object_value) and objectType not in typeCategory then
+        typeCategory @:= [objectType] valueCategory;
+      end if;
+    end for;
+  end func;
+
+
+const proc: process_local_consts (in reference: function,
     inout expr_type: c_expr) is func
 
   local
     var ref_list: objects is ref_list.EMPTY;
     var reference: obj is NIL;
   begin
-    processLocalFunctions(current_object);
-    objects := local_consts(current_object);
+    addTypeCategoryForLocalVars(function);
+    processLocalFunctions(function);
+    objects := local_consts(function);
     for obj range objects do
       if category(obj) <> FWDREFOBJECT then
         declare_type_if_necessary(getType(obj), global_c_expr);
@@ -17676,9 +17769,9 @@ const proc: write_file_head is func
     writeln(c_prog, "typedef struct progstruct {");
     writeln(c_prog, "  uinttype usage_count;");
     writeln(c_prog, "} *progtype;");
-    writeln(c_prog, "typedef struct arraystruct *arraytype;");
-    writeln(c_prog, "typedef struct hashstruct *hashtype;");
-    writeln(c_prog, "typedef struct structstruct *structtype;");
+    writeln(c_prog, "typedef struct rtlArraystruct *arraytype;");
+    writeln(c_prog, "typedef struct rtlHashstruct *hashtype;");
+    writeln(c_prog, "typedef struct rtlStructstruct *structtype;");
     writeln(c_prog, "typedef structtype interfacetype;");
     writeln(c_prog, "typedef struct objectstruct *objreftype;");
     writeln(c_prog, "typedef struct liststruct *listtype;");
@@ -17726,23 +17819,23 @@ const proc: write_file_head is func
     writeln(c_prog, "  listtype next;");
     writeln(c_prog, "  objreftype obj;");
     writeln(c_prog, "};");
-    writeln(c_prog, "struct arraystruct {");
+    writeln(c_prog, "struct rtlArraystruct {");
     writeln(c_prog, "  inttype min_position;");
     writeln(c_prog, "  inttype max_position;");
     writeln(c_prog, "  rtlObjecttype arr[1];");
     writeln(c_prog, "};");
-    writeln(c_prog, "struct structstruct {");
+    writeln(c_prog, "struct rtlStructstruct {");
     writeln(c_prog, "  uint32type type_num;");
     writeln(c_prog, "  rtlObjecttype stru[1];");
     writeln(c_prog, "};");
-    writeln(c_prog, "typedef struct helemstruct *helemtype;");
-    writeln(c_prog, "struct helemstruct {");
+    writeln(c_prog, "typedef struct rtlHelemstruct *helemtype;");
+    writeln(c_prog, "struct rtlHelemstruct {");
     writeln(c_prog, "  helemtype next_less;");
     writeln(c_prog, "  helemtype next_greater;");
     writeln(c_prog, "  rtlObjecttype key;");
     writeln(c_prog, "  rtlObjecttype data;");
     writeln(c_prog, "};");
-    writeln(c_prog, "struct hashstruct {");
+    writeln(c_prog, "struct rtlHashstruct {");
     writeln(c_prog, "  unsigned int bits;");
     writeln(c_prog, "  unsigned int mask;");
     writeln(c_prog, "  unsigned int table_size;");
@@ -18852,31 +18945,195 @@ const proc: init_type_constants (inout expr_type: c_expr) is func
   end func;
 
 
+const proc: init_array_constants (in reference: const_object, inout expr_type: c_expr) is func
+  local
+    var ref_list: array_list is ref_list.EMPTY;
+    var integer: number is 0;
+    var integer: elem_num is 0;
+    var reference: element is NIL;
+  begin
+    number := const_table[const_object];
+    array_list := array_to_list(const_object);
+    c_expr.expr &:= "arr[";
+    c_expr.expr &:= str(number);
+    c_expr.expr &:= "]=(arraytype)(malloc(sizeof(struct rtlArraystruct) - sizeof(rtlObjecttype) +\n  ";
+    c_expr.expr &:= str(length(array_list));
+    c_expr.expr &:= " * sizeof(rtlObjecttype)));\n";
+    c_expr.expr &:= "arr[";
+    c_expr.expr &:= str(number);
+    c_expr.expr &:= "]->min_position=";
+    c_expr.expr &:= str(array_min_index(const_object));
+    c_expr.expr &:= ";\n";
+    c_expr.expr &:= "arr[";
+    c_expr.expr &:= str(number);
+    c_expr.expr &:= "]->max_position=";
+    c_expr.expr &:= str(pred(array_min_index(const_object) + length(array_list)));
+    c_expr.expr &:= ";\n";
+    elem_num := 1;
+    for element range array_list do
+      c_expr.expr &:= "arr[";
+      c_expr.expr &:= str(number);
+      c_expr.expr &:= "]->arr[";
+      c_expr.expr &:= str(pred(elem_num));
+      c_expr.expr &:= "]";
+      init_const_value(element, c_expr);
+      c_expr.expr &:= ";\n";
+      incr(elem_num);
+    end for;
+  end func;
+
+
+const proc: init_struct_constants (in reference: const_object, inout expr_type: c_expr) is func
+  local
+    var ref_list: struct_list is ref_list.EMPTY;
+    var integer: number is 0;
+    var integer: elem_num is 0;
+    var reference: element is NIL;
+  begin
+    number := const_table[const_object];
+    struct_list := struct_to_list(const_object);
+    c_expr.expr &:= "sct[";
+    c_expr.expr &:= str(number);
+    c_expr.expr &:= "]=(structtype)(malloc(sizeof(struct rtlStructstruct) - sizeof(rtlObjecttype) +\n  ";
+    c_expr.expr &:= str(length(struct_list));
+    c_expr.expr &:= " * sizeof(rtlObjecttype)));\n";
+    c_expr.expr &:= "sct[";
+    c_expr.expr &:= str(number);
+    c_expr.expr &:= "]->type_num=";
+    c_expr.expr &:= str(type_number(getType(const_object)));
+    c_expr.expr &:= "/*";
+    c_expr.expr &:= str(getType(const_object));
+    c_expr.expr &:= "*/";
+    c_expr.expr &:= ";\n";
+    elem_num := 1;
+    for element range struct_list do
+      c_expr.expr &:= "sct[";
+      c_expr.expr &:= str(number);
+      c_expr.expr &:= "]->stru[";
+      c_expr.expr &:= str(pred(elem_num));
+      c_expr.expr &:= "]";
+      init_const_value(element, c_expr);
+      c_expr.expr &:= ";\n";
+      incr(elem_num);
+    end for;
+  end func;
+
+
+const proc: init_hash_constants (in reference: const_object, inout expr_type: c_expr) is func
+  local
+    var ref_list: hash_key_list is ref_list.EMPTY;
+    var ref_list: hash_data_list is ref_list.EMPTY;
+    var integer: number is 0;
+    var integer: elem_num is 0;
+    var reference: key_element is NIL;
+    var expr_type: hashcode_expr is expr_type.value;
+  begin
+    number := const_table[const_object];
+    hash_key_list := hash_key_to_list(const_object);
+    hash_data_list := hash_data_to_list(const_object);
+    c_expr.expr &:= "hsh[";
+    c_expr.expr &:= str(number);
+    c_expr.expr &:= "]=hshEmpty();\n";
+    if length(hash_key_list) <> 0 then
+      c_expr.expr &:= "{\n";
+      c_expr.expr &:= "rtlObjecttype hash_key;\n";
+      c_expr.expr &:= "rtlObjecttype hash_data;\n";
+      elem_num := 1;
+      for key_element range hash_key_list do
+        c_expr.expr &:= "hash_key";
+        init_const_value(key_element, c_expr);
+        c_expr.expr &:= ";\n";
+        c_expr.expr &:= "hash_data";
+        init_const_value(hash_data_list[elem_num], c_expr);
+        c_expr.expr &:= ";\n";
+        process_hashcode(key_element, hashcode_expr);
+        if hashcode_expr.temp_decls <> "" then
+          c_expr.expr &:= "{\n";
+          c_expr.expr &:= hashcode_expr.temp_decls;
+          c_expr.expr &:= hashcode_expr.temp_assigns;
+        end if;
+        c_expr.expr &:= "hshIncl(hsh[";
+        c_expr.expr &:= str(number);
+        c_expr.expr &:= "], hash_key.value.genericvalue, hash_data.value.genericvalue, ";
+        c_expr.expr &:= hashcode_expr.expr;
+        c_expr.expr &:= ", (comparetype)(";
+        object_address(keyCompareObj(getType(const_object)), c_expr);
+        c_expr.expr &:= "), (createfunctype)(";
+        object_address(keyCreateObj(getType(const_object)), c_expr);
+        c_expr.expr &:= "), (createfunctype)(";
+        object_address(dataCreateObj(getType(const_object)), c_expr);
+        c_expr.expr &:= "), (copyfunctype)(";
+        object_address(dataCopyObj(getType(const_object)), c_expr);
+        c_expr.expr &:= "));\n";
+        if hashcode_expr.temp_decls <> "" then
+          c_expr.expr &:= hashcode_expr.temp_frees;
+          c_expr.expr &:= "}\n";
+        end if;
+        incr(elem_num);
+      end for;
+      c_expr.expr &:= "}\n";
+    end if;
+  end func;
+
+
+const proc: init_interface_constants (in reference: const_object, inout expr_type: c_expr) is func
+  local
+    var reference: struct_of_interface is NIL;
+    var integer: number is 0;
+  begin
+    number := const_table[const_object];
+    struct_of_interface := interface_to_struct(const_object);
+    c_expr.expr &:= "itf[";
+    c_expr.expr &:= str(number);
+    c_expr.expr &:= "]";
+    if category(struct_of_interface) = STRUCTOBJECT then
+      c_expr.expr &:= "=";
+      c_expr.expr &:= "sct[";
+      c_expr.expr &:= str(const_table[struct_of_interface]);
+      c_expr.expr &:= "]";
+    else
+      c_expr.expr &:= " /* = ";
+      c_expr.expr &:= str(category(struct_of_interface));
+      c_expr.expr &:= " */";
+    end if;
+    c_expr.expr &:= ";\n";
+  end func;
+
+
 const proc: generate_main (in program: prog) is func
 
   local
     var expr_type: c_expr is expr_type.value;
     var stri_index_hash: stri_index is stri_index_hash.EMPTY_HASH;
     var const_index_hash: const_index is const_index_hash.EMPTY_HASH;
-    var reference: const_object is NIL;
     var reference: struct_of_interface is NIL;
+    var reference: const_object is NIL;
     var integer: number is 0;
-    var integer: elem_num is 0;
-    var ref_list: array_list is ref_list.EMPTY;
-    var ref_list: struct_list is ref_list.EMPTY;
-    var ref_list: hash_key_list is ref_list.EMPTY;
-    var ref_list: hash_data_list is ref_list.EMPTY;
     var ref_list: sorted_list is ref_list.EMPTY;
   begin
     if compilerLibraryUsed then
       writeln(c_prog, "extern booltype in_analyze;");
       writeln(c_prog, "void raise_error3 (int, const char *, int);");
     end if;
-    c_expr.expr &:= "void raise_error2 (int a, const char *file_name, int line_number)\n";
+    c_expr.expr &:= "void raise_error2 (int fail_value, const char *file_name, int line_number)\n";
     c_expr.expr &:= "{\n";
+    if trace_exception then
+      c_expr.expr &:= "  int ch;\n";
+      c_expr.expr &:= "  if (fail_value >= 0 && fail_value < sizeof(exception_name) / sizeof(char *)) {\n";
+      c_expr.expr &:= "    printf(\"*** EXCEPTION %s\", exception_name[fail_value]);\n";
+      c_expr.expr &:= "  } else {\n";
+      c_expr.expr &:= "    printf(\"*** EXCEPTION %d\", fail_value);\n";
+      c_expr.expr &:= "  }\n";
+      c_expr.expr &:= "  printf(\" raised at %s(%d)\\n\", file_name, line_number);\n";
+      c_expr.expr &:= "  printf(\"\\n*** (Type RETURN to continue or '*' to terminate)\\n\");\n";
+      c_expr.expr &:= "  ch = fgetc(stdin);\n";
+      c_expr.expr &:= "  if (ch == (int) '*') {\n";
+      c_expr.expr &:= "    exit(1);\n";
+      c_expr.expr &:= "  }\n";
+    end if;
     if compilerLibraryUsed then
       c_expr.expr &:= "if (in_analyze) {\n";
-      c_expr.expr &:= "  raise_error3(a, file_name, line_number);\n";
+      c_expr.expr &:= "  raise_error3(fail_value, file_name, line_number);\n";
       c_expr.expr &:= "} else {\n";
     end if;
     c_expr.expr &:= "  error_file = file_name;\n";
@@ -18886,7 +19143,7 @@ const proc: generate_main (in program: prog) is func
       c_expr.expr &:= "  signal(SIGFPE, SIG_DFL);\n";
 #     c_expr.expr &:= "  signal(SIGINT, SIG_DFL);\n";
 #     c_expr.expr &:= "  signal(SIGSEGV, SIG_DFL);\n";
-      c_expr.expr &:= "  flt2int.intvalue = a / (error_line - line_number);\n";
+      c_expr.expr &:= "  flt2int.intvalue = fail_value / (error_line - line_number);\n";
 #     c_expr.expr &:= "  raise(SIGTRAP);\n";
 #     c_expr.expr &:= "  raise(SIGFPE);\n";
 #     c_expr.expr &:= "  raise(SIGINT);\n";
@@ -18894,9 +19151,9 @@ const proc: generate_main (in program: prog) is func
       c_expr.expr &:= "  activate_signal_handlers();\n";
     end if;
     if USE_SIGSETJMP then
-      c_expr.expr &:= "  siglongjmp(catch_stack[catch_stack_pos], a);\n";
+      c_expr.expr &:= "  siglongjmp(catch_stack[catch_stack_pos], fail_value);\n";
     else
-      c_expr.expr &:= "  longjmp(catch_stack[catch_stack_pos], a);\n";
+      c_expr.expr &:= "  longjmp(catch_stack[catch_stack_pos], fail_value);\n";
     end if;
     if compilerLibraryUsed then
       c_expr.expr &:= "}\n";
@@ -18968,7 +19225,7 @@ const proc: generate_main (in program: prog) is func
     end if;
 
     c_expr.expr &:= "arg_0 = cstri8_or_cstri_to_stri(argv[0]);\n";
-    c_expr.expr &:= "arg_v = (arraytype)(malloc(sizeof(struct arraystruct) - sizeof(rtlObjecttype) +\n";
+    c_expr.expr &:= "arg_v = (arraytype)(malloc(sizeof(struct rtlArraystruct) - sizeof(rtlObjecttype) +\n";
     c_expr.expr &:= "  argc * sizeof(rtlObjecttype)));\n";
     c_expr.expr &:= "arg_v->min_position = 1;\n";
     c_expr.expr &:= "arg_v->max_position = argc - 1;\n";
@@ -18988,107 +19245,16 @@ const proc: generate_main (in program: prog) is func
     c_expr.expr &:= "hsh = (hashtype *)(arr);\n";
     c_expr.expr &:= "itf = (interfacetype *)(arr);\n";
     for const_object range sorted_list do
-      number := const_table[const_object];
       if category(const_object) = ARRAYOBJECT then
-        array_list := array_to_list(const_object);
-        c_expr.expr &:= "arr[";
-        c_expr.expr &:= str(number);
-        c_expr.expr &:= "]=(arraytype)(malloc(sizeof(struct arraystruct) - sizeof(rtlObjecttype) +\n  ";
-        c_expr.expr &:= str(length(array_list));
-        c_expr.expr &:= " * sizeof(rtlObjecttype)));\n";
-        c_expr.expr &:= "arr[";
-        c_expr.expr &:= str(number);
-        c_expr.expr &:= "]->min_position=";
-        c_expr.expr &:= str(array_min_index(const_object));
-        c_expr.expr &:= ";\n";
-        c_expr.expr &:= "arr[";
-        c_expr.expr &:= str(number);
-        c_expr.expr &:= "]->max_position=";
-        c_expr.expr &:= str(pred(array_min_index(const_object) + length(array_list)));
-        c_expr.expr &:= ";\n";
-        for elem_num range 1 to length(array_list) do
-          c_expr.expr &:= "arr[";
-          c_expr.expr &:= str(number);
-          c_expr.expr &:= "]->arr[";
-          c_expr.expr &:= str(pred(elem_num));
-          c_expr.expr &:= "]";
-          init_const_value(array_list[elem_num], c_expr);
-          c_expr.expr &:= ";\n";
-        end for;
+        init_array_constants(const_object, c_expr);
       elsif category(const_object) = STRUCTOBJECT then
-        struct_list := struct_to_list(const_object);
-        c_expr.expr &:= "sct[";
-        c_expr.expr &:= str(number);
-        c_expr.expr &:= "]=(structtype)(malloc(sizeof(struct structstruct) - sizeof(rtlObjecttype) +\n  ";
-        c_expr.expr &:= str(length(struct_list));
-        c_expr.expr &:= " * sizeof(rtlObjecttype)));\n";
-        c_expr.expr &:= "sct[";
-        c_expr.expr &:= str(number);
-        c_expr.expr &:= "]->type_num=";
-        c_expr.expr &:= str(type_number(getType(const_object)));
-        c_expr.expr &:= "/*";
-        c_expr.expr &:= str(getType(const_object));
-        c_expr.expr &:= "*/";
-        c_expr.expr &:= ";\n";
-        for elem_num range 1 to length(struct_list) do
-          c_expr.expr &:= "sct[";
-          c_expr.expr &:= str(number);
-          c_expr.expr &:= "]->stru[";
-          c_expr.expr &:= str(pred(elem_num));
-          c_expr.expr &:= "]";
-          init_const_value(struct_list[elem_num], c_expr);
-          c_expr.expr &:= ";\n";
-        end for;
+        init_struct_constants(const_object, c_expr);
       elsif category(const_object) = HASHOBJECT then
-        hash_key_list := hash_key_to_list(const_object);
-        hash_data_list := hash_data_to_list(const_object);
-        c_expr.expr &:= "hsh[";
-        c_expr.expr &:= str(number);
-        c_expr.expr &:= "]=hshEmpty();\n";
-        if length(hash_key_list) <> 0 then
-          c_expr.expr &:= "{\n";
-          c_expr.expr &:= "rtlObjecttype hash_key;\n";
-          c_expr.expr &:= "rtlObjecttype hash_data;\n";
-          for elem_num range 1 to length(hash_key_list) do
-            c_expr.expr &:= "hash_key";
-            init_const_value(hash_key_list[elem_num], c_expr);
-            c_expr.expr &:= ";\n";
-            c_expr.expr &:= "hash_data";
-            init_const_value(hash_data_list[elem_num], c_expr);
-            c_expr.expr &:= ";\n";
-            c_expr.expr &:= "hshIncl(hsh[";
-            c_expr.expr &:= str(number);
-            c_expr.expr &:= "], hash_key.value.genericvalue, hash_data.value.genericvalue, ";
-            process_hashcode(hash_key_list[elem_num], c_expr);
-            c_expr.expr &:= ", (comparetype)(";
-            object_address(keyCompareObj(getType(const_object)), c_expr);
-            c_expr.expr &:= "), (createfunctype)(";
-            object_address(keyCreateObj(getType(const_object)), c_expr);
-            c_expr.expr &:= "), (createfunctype)(";
-            object_address(dataCreateObj(getType(const_object)), c_expr);
-            c_expr.expr &:= "), (copyfunctype)(";
-            object_address(dataCopyObj(getType(const_object)), c_expr);
-            c_expr.expr &:= "));\n";
-          end for;
-          c_expr.expr &:= "}\n";
-        end if;
+        init_hash_constants(const_object, c_expr);
       elsif category(const_object) = INTERFACEOBJECT then
-        struct_of_interface := interface_to_struct(const_object);
-        c_expr.expr &:= "itf[";
-        c_expr.expr &:= str(number);
-        c_expr.expr &:= "]";
-        if category(struct_of_interface) = STRUCTOBJECT then
-          c_expr.expr &:= "=";
-          c_expr.expr &:= "sct[";
-          c_expr.expr &:= str(const_table[struct_of_interface]);
-          c_expr.expr &:= "]";
-        else
-          c_expr.expr &:= " /* = ";
-          c_expr.expr &:= str(category(struct_of_interface));
-          c_expr.expr &:= " */";
-        end if;
-        c_expr.expr &:= ";\n";
+        init_interface_constants(const_object, c_expr);
       else
+        number := const_table[const_object];
         c_expr.expr &:= "/* const ";
         c_expr.expr &:= str(category(const_object));
         c_expr.expr &:= " [";
@@ -19111,7 +19277,7 @@ const proc: generate_main (in program: prog) is func
     c_expr.expr &:= "    printf(\"\\n*** Uncaught EXCEPTION %s raised\",\n";
     c_expr.expr &:= "        exception_name[fail_value]);\n";
     c_expr.expr &:= "  } else {\n";
-    c_expr.expr &:= "    printf(\"\\n*** Uncaught EXCEPTION %d raised\\n\",\n";
+    c_expr.expr &:= "    printf(\"\\n*** Uncaught EXCEPTION %d raised\",\n";
     c_expr.expr &:= "        fail_value);\n";
     c_expr.expr &:= "  }\n";
     c_expr.expr &:= "  if (error_file != NULL) {\n";
@@ -19210,11 +19376,15 @@ const proc: pass_1 (in string: source, inout program: prog,
       if "-g" in compiler_option then
         source_debug_info := compiler_option["-g"] <> "-debug_c";
       end if;
+      if "-t" in compiler_option then
+        trace_exception := compiler_option["-t"] = "e";
+      end if;
       if "-e" in compiler_option then
         signal_exception := TRUE;
       end if;
       prog := parseFile(source);
       if prog = program.EMPTY then
+        writeln("*** File " <& literal(source & ".sd7") <& " not found");
         okay := FALSE;
       elsif error_count(prog) <> 0 then
         write(error_count(prog) <& " error");

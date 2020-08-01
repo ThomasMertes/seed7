@@ -141,25 +141,10 @@ objecttype prg_decl_objects (arguments)
 listtype arguments;
 #endif
 
-  {
-    progtype currentProg;
-    listtype object_list;
-    errinfotype err_info = OKAY_NO_ERROR;
-    objecttype result;
-
-  /* prg_decl_objects */
+  { /* prg_decl_objects */
     isit_prog(arg_1(arguments));
-    currentProg = take_prog(arg_1(arguments));
-    if (currentProg->stack_current != NULL) {
-      object_list = copy_list(currentProg->stack_current->local_object_list, &err_info);
-      if (err_info != OKAY_NO_ERROR) {
-        return(raise_exception(SYS_MEM_EXCEPTION));
-      } /* if */
-    } else {
-      object_list = NULL;
-    } /* if */
-    result = bld_reflist_temp(object_list);
-    return(result);
+    return(bld_reflist_temp(prgDeclObjects(
+        take_prog(arg_1(arguments)))));
   } /* prg_decl_objects */
 
 
@@ -220,8 +205,7 @@ listtype arguments;
   { /* prg_eq */
     isit_prog(arg_1(arguments));
     isit_prog(arg_3(arguments));
-    if (take_prog(arg_1(arguments)) ==
-        take_prog(arg_3(arguments))) {
+    if (take_prog(arg_1(arguments)) == take_prog(arg_3(arguments))) {
       return(SYS_TRUE_OBJECT);
     } else {
       return(SYS_FALSE_OBJECT);
@@ -241,7 +225,8 @@ listtype arguments;
 
   { /* prg_error_count */
     isit_prog(arg_1(arguments));
-    return(bld_int_temp((inttype) take_prog(arg_1(arguments))->error_count));
+    return(bld_int_temp(prgErrorCount(
+        take_prog(arg_1(arguments)))));
   } /* prg_error_count */
 
 
@@ -299,16 +284,10 @@ objecttype prg_fil_parse (arguments)
 listtype arguments;
 #endif
 
-  {
-    stritype stri;
-    progtype result;
-
-  /* prg_fil_parse */
+  { /* prg_fil_parse */
     isit_stri(arg_1(arguments));
-    stri = take_stri(arg_1(arguments));
-    result = prgFilParse(stri);
-    set_trace(option.exec_trace_level, -1, NULL);
-    return(bld_prog_temp(result));
+    return(bld_prog_temp(prgFilParse(
+        take_stri(arg_1(arguments)))));
   } /* prg_fil_parse */
 
 
@@ -350,7 +329,6 @@ listtype arguments;
 
 
 
-#ifdef OUT_OF_ORDER
 #ifdef ANSI_C
 
 objecttype prg_match (listtype arguments)
@@ -364,57 +342,7 @@ listtype arguments;
     isit_prog(arg_1(arguments));
     isit_reflist(arg_2(arguments));
     return(bld_reference_temp(prgMatch(
-        take_reflist(arg_2(arguments)),
-        take_prog(arg_1(arguments)))));
-  } /* prg_match */
-#endif
-
-
-
-#ifdef ANSI_C
-
-objecttype prg_match (listtype arguments)
-#else
-
-objecttype prg_match (arguments)
-listtype arguments;
-#endif
-
-  {
-    progtype currentProg;
-    objectrecord expr_object;
-    objecttype result;
-
-  /* prg_match */
-    isit_prog(arg_1(arguments));
-    isit_reflist(arg_2(arguments));
-    currentProg = take_prog(arg_1(arguments));
-
-    /* prot_list(take_reflist(arg_2(arguments)));
-    printf("\n"); */
-    expr_object.type_of = NULL;
-    expr_object.descriptor.property = NULL;
-    expr_object.value.listvalue = take_reflist(arg_2(arguments));
-    INIT_CATEGORY_OF_OBJ(&expr_object, EXPROBJECT);
-
-    result = match_prog_expression(currentProg->declaration_root, &expr_object);
-    if (result != NULL) {
-      if (CATEGORY_OF_OBJ(result) == MATCHOBJECT ||
-          CATEGORY_OF_OBJ(result) == CALLOBJECT) {
-        take_reflist(arg_2(arguments)) = expr_object.value.listvalue->next;
-        result = expr_object.value.listvalue->obj;
-        expr_object.value.listvalue->next = NULL;
-        emptylist(expr_object.value.listvalue);
-      } else {
-        run_error(MATCHOBJECT, result);
-      } /* if */
-    } /* if */
-    /* printf("result == %lx\n", result);
-    trace1(result);
-    printf("\n");
-    prot_list(take_reflist(arg_2(arguments)));
-    printf("\n"); */
-    return(bld_reference_temp(result));
+        take_prog(arg_1(arguments)), take_reflist(arg_2(arguments)))));
   } /* prg_match */
 
 
@@ -428,38 +356,11 @@ objecttype prg_match_expr (arguments)
 listtype arguments;
 #endif
 
-  {
-    progtype currentProg;
-    errinfotype err_info = OKAY_NO_ERROR;
-    objecttype result;
-
-  /* prg_match_expr */
+  { /* prg_match_expr */
     isit_prog(arg_1(arguments));
     isit_reflist(arg_2(arguments));
-    currentProg = take_prog(arg_1(arguments));
-    /* prot_list(take_reflist(arg_2(arguments)));
-    printf("\n"); */
-    if (!ALLOC_OBJECT(result)) {
-      return(raise_exception(SYS_MEM_EXCEPTION));
-    } else {
-      result->type_of = NULL;
-      result->descriptor.property = NULL;
-      INIT_CATEGORY_OF_OBJ(result, EXPROBJECT);
-      result->value.listvalue = copy_list(take_reflist(arg_2(arguments)), &err_info);
-      if (err_info != OKAY_NO_ERROR) {
-        return(raise_exception(SYS_MEM_EXCEPTION));
-      } else {
-        result = match_prog_expression(currentProg->declaration_root, result);
-        /* printf("result == %lx\n", result);
-        trace1(result);
-        printf("\n");
-        prot_list(take_reflist(arg_2(arguments)));
-        printf("\n");
-        prot_list(result->value.listvalue);
-        printf("\n"); */
-        return(bld_reference_temp(result));
-      } /* if */
-    } /* if */
+    return(bld_reference_temp(prgMatchExpr(
+        take_prog(arg_1(arguments)), take_reflist(arg_2(arguments)))));
   } /* prg_match_expr */
 
 
@@ -501,8 +402,7 @@ listtype arguments;
   { /* prg_ne */
     isit_prog(arg_1(arguments));
     isit_prog(arg_3(arguments));
-    if (take_prog(arg_1(arguments)) !=
-        take_prog(arg_3(arguments))) {
+    if (take_prog(arg_1(arguments)) != take_prog(arg_3(arguments))) {
       return(SYS_TRUE_OBJECT);
     } else {
       return(SYS_FALSE_OBJECT);
@@ -535,16 +435,10 @@ objecttype prg_str_parse (arguments)
 listtype arguments;
 #endif
 
-  {
-    stritype stri;
-    progtype result;
-
-  /* prg_str_parse */
+  { /* prg_str_parse */
     isit_stri(arg_1(arguments));
-    stri = take_stri(arg_1(arguments));
-    result = prgStrParse(stri);
-    set_trace(option.exec_trace_level, -1, NULL);
-    return(bld_prog_temp(result));
+    return(bld_prog_temp(prgStrParse(
+        take_stri(arg_1(arguments)))));
   } /* prg_str_parse */
 
 
@@ -558,36 +452,11 @@ objecttype prg_syobject (arguments)
 listtype arguments;
 #endif
 
-  {
-    progtype currentProg;
-    stritype stri1;
-    cstritype name;
-    progrecord prog_backup;
-    identtype ident_found;
-    objecttype result;
-
-  /* prg_syobject */
+  { /* prg_syobject */
     isit_prog(arg_1(arguments));
     isit_stri(arg_2(arguments));
-    currentProg = take_prog(arg_1(arguments));
-    stri1 = take_stri(arg_2(arguments));
-    name = cp_to_cstri(stri1);
-    if (name == NULL) {
-      result = raise_exception(SYS_MEM_EXCEPTION);
-    } else {
-      memcpy(&prog_backup, &prog, sizeof(progrecord));
-      memcpy(&prog, currentProg, sizeof(progrecord));
-      ident_found = get_ident((ustritype) name, strlen(name));
-      if (ident_found == NULL ||
-          ident_found->entity == NULL) {
-        result = NULL;
-      } else {
-        result = ident_found->entity->syobject;
-      } /* if */
-      memcpy(&prog, &prog_backup, sizeof(progrecord));
-      free_cstri(name, stri1);
-    } /* if */
-    return(bld_reference_temp(result));
+    return(bld_reference_temp(prgSyobject(
+        take_prog(arg_1(arguments)), take_stri(arg_2(arguments)))));
   } /* prg_syobject */
 
 
@@ -601,24 +470,11 @@ objecttype prg_sysvar (arguments)
 listtype arguments;
 #endif
 
-  {
-    progtype currentProg;
-    stritype name;
-    int index_found;
-    objecttype result;
-
-  /* prg_sysvar */
+  { /* prg_sysvar */
     isit_prog(arg_1(arguments));
     isit_stri(arg_2(arguments));
-    currentProg = take_prog(arg_1(arguments));
-    name = take_stri(arg_2(arguments));
-    index_found = find_sysvar(name);
-    if (index_found != -1) {
-      result = currentProg->sys_var[index_found];
-    } else {
-      result = NULL;
-    } /* if */
-    return(bld_reference_temp(result));
+    return(bld_reference_temp(prgSysvar(
+	take_prog(arg_1(arguments)), take_stri(arg_2(arguments)))));
   } /* prg_sysvar */
 
 

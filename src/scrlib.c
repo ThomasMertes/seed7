@@ -45,10 +45,6 @@
 #include "scrlib.h"
 
 
-static inttype current_line = 1;
-static inttype current_column = 1;
-
-
 
 #ifdef ANSI_C
 
@@ -106,7 +102,6 @@ listtype arguments;
 #endif
 
   { /* scr_flush */
-/*  scrSetCursor(current_line, current_column); */
     scrFlush();
     return(SYS_EMPTY_OBJECT);
   } /* scr_flush */
@@ -193,9 +188,7 @@ listtype arguments;
   { /* scr_setpos */
     isit_int(arg_2(arguments));
     isit_int(arg_3(arguments));
-    current_line = take_int(arg_2(arguments));
-    current_column = take_int(arg_3(arguments));
-    scrSetCursor(current_line, current_column);
+    scrSetpos(take_int(arg_2(arguments)), take_int(arg_3(arguments)));
     return(SYS_EMPTY_OBJECT);
   } /* scr_setpos */
 
@@ -262,42 +255,8 @@ objecttype scr_write (arguments)
 listtype arguments;
 #endif
 
-  {
-    stritype stri;
-
-  /* scr_write */
+  { /* scr_write */
     isit_stri(arg_2(arguments));
-    stri = take_stri(arg_2(arguments));
-#ifdef UTF32_STRINGS
-    if (stri->size <= 256) {
-      memsizetype size;
-      uchartype stri_buffer[6 * 256];
-
-#ifdef SCREEN_UTF8
-      size = stri_to_utf8(stri_buffer, stri);
-#else
-      stri_compress(stri_buffer, stri->mem, stri->size);
-      size = stri->size;
-#endif
-      scrText(current_line, current_column, stri_buffer, size);
-    } else {
-      bstritype bstri;
-
-#ifdef SCREEN_UTF8
-      bstri = stri_to_bstri8(stri);
-#else
-      bstri = stri_to_bstri(stri);
-#endif
-      if (bstri != NULL) {
-        scrText(current_line, current_column, bstri->mem, bstri->size);
-        FREE_BSTRI(bstri, bstri->size);
-      } /* if */
-    } /* if */
-#else
-    scrText(current_line, current_column,
-        stri->mem, stri->size);
-#endif
-    current_column += (inttype) stri->size;
-    scrSetCursor(current_line, current_column);
+    scrWrite(take_stri(arg_2(arguments)));
     return(SYS_EMPTY_OBJECT);
   } /* scr_write */

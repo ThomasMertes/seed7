@@ -87,7 +87,7 @@ destrfunctype data_destr_func;
       free_helem(old_helem->next_greater, key_destr_func,
           data_destr_func);
     } /* if */
-    FREE_RECORD(old_helem, rtlHelemrecord, count.helem);
+    FREE_RECORD(old_helem, rtlHelemrecord, count.rtl_helem);
   } /* free_helem */
 
 
@@ -146,7 +146,7 @@ errinfotype *err_info;
     /* printf("new_helem(%llX, %llX)\n",
         (unsigned long long) key,
         (unsigned long long) data); */
-    if (!ALLOC_RECORD(helem, rtlHelemrecord, count.helem)) {
+    if (!ALLOC_RECORD(helem, rtlHelemrecord, count.rtl_helem)) {
       *err_info = MEMORY_ERROR;
     } else {
       helem->key.value.genericvalue = key_create_func(key);
@@ -207,7 +207,7 @@ errinfotype *err_info;
     rtlHelemtype dest_helem;
 
   /* create_helem */
-    if (!ALLOC_RECORD(dest_helem, rtlHelemrecord, count.helem)) {
+    if (!ALLOC_RECORD(dest_helem, rtlHelemrecord, count.rtl_helem)) {
       *err_info = MEMORY_ERROR;
     } else {
       dest_helem->key.value.genericvalue = key_create_func(source_helem->key.value.genericvalue);

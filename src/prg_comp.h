@@ -27,24 +27,24 @@
 
 #ifdef ANSI_C
 
-void prgCpy (progtype *dest, progtype source);
-listtype prgDeclObjects (progtype aProg);
+void prgCpy (progtype *const dest, const progtype source);
+listtype prgDeclObjects (const const_progtype aProg);
 void prgDestr (progtype old_prog);
-inttype prgErrorCount (progtype aProg);
+inttype prgErrorCount (const const_progtype aProg);
 objecttype prgEval (progtype currentProg, objecttype object);
 void prgExec (progtype currentProg);
 progtype prgFilParse (const_stritype stri);
-objecttype prgMatch (progtype currentProg, listtype curr_expr);
-objecttype prgMatchExpr (progtype currentProg, listtype curr_expr);
+objecttype prgMatch (const const_progtype aProg, listtype curr_expr);
+objecttype prgMatchExpr (const const_progtype aProg, listtype curr_expr);
 progtype prgStrParse (const_stritype stri);
-objecttype prgSyobject (progtype currentProg, stritype stri1);
-objecttype prgSysvar (progtype aProg, stritype sysvarName);
+objecttype prgSyobject (const progtype aProg, const const_stritype syobjectName);
+objecttype prgSysvar (const const_progtype aProg, const const_stritype sysvarName);
 
 #else
 
 void prgCpy ();
 listtype prgDeclObjects ();
-void prgDestr (progtype old_prog);
+void prgDestr ();
 inttype prgErrorCount ();
 objecttype prgEval ();
 void prgExec ();

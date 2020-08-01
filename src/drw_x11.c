@@ -242,7 +242,9 @@ chartype gkbGetc ()
     printf("begin gkbGetc\n");
 #endif
     result = K_NONE;
-    XNextEvent(mydisplay, &myevent);
+    do {
+      XNextEvent(mydisplay, &myevent);
+    } while (myevent.type == KeyRelease);
     switch(myevent.type) {
       case Expose:
 #ifdef FLAG_EVENTS

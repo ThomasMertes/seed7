@@ -60,7 +60,7 @@ memsizetype len;
     stritype result;
 
   /* growStri */
-    if (len > MAX_STRI_LEN) {
+    if (unlikely(len > MAX_STRI_LEN)) {
       result = NULL;
     } else {
       if (2 * stri->capacity >= len) {
@@ -70,6 +70,8 @@ memsizetype len;
       } /* if */
       if (new_len < 8) {
         new_len = 8;
+      } else if (unlikely(new_len > MAX_STRI_LEN)) {
+        new_len = MAX_STRI_LEN;
       } /* if */
       /* printf("growStri(%lX, %lu) size=%u, capacity=%u, new_len=%u, siz_stri=%u, sizeof=%u\n",
          stri, len, stri->size, stri->capacity, new_len, SIZ_STRI(new_len), sizeof(strirecord));
@@ -166,12 +168,12 @@ void rtlHeapStatistic ()
           SIZ_RTL_ARR(0));
       bytes_used += count.array * SIZ_RTL_ARR(0);
     } /* if */
-    if (count.arr_elems != 0) {
+    if (count.rtl_arr_elems != 0) {
       printf("%9lu bytes in %8lu array elements of   %4d bytes\n",
-          count.arr_elems * SIZ_REC(rtlObjecttype),
-          count.arr_elems,
+          count.rtl_arr_elems * SIZ_REC(rtlObjecttype),
+          count.rtl_arr_elems,
           SIZ_REC(rtlObjecttype));
-      bytes_used += count.arr_elems * SIZ_REC(rtlObjecttype);
+      bytes_used += count.rtl_arr_elems * SIZ_REC(rtlObjecttype);
     } /* if */
     if (count.hash != 0) {
       printf("%9lu bytes in %8lu hashtables of       %4d bytes\n",
@@ -187,12 +189,12 @@ void rtlHeapStatistic ()
           SIZ_REC(rtlHelemtype));
       bytes_used += count.hsh_elems * SIZ_REC(rtlHelemtype);
     } /* if */
-    if (count.helem != 0) {
+    if (count.rtl_helem != 0) {
       printf("%9lu bytes in %8lu helems of           %4d bytes\n",
-          count.helem * SIZ_REC(rtlHelemrecord),
-          count.helem,
+          count.rtl_helem * SIZ_REC(rtlHelemrecord),
+          count.rtl_helem,
           SIZ_REC(rtlHelemrecord));
-      bytes_used += count.hsh_elems * SIZ_REC(rtlHelemrecord);
+      bytes_used += count.rtl_helem * SIZ_REC(rtlHelemrecord);
     } /* if */
     if (count.set != 0) {
       printf("%9lu bytes in %8lu sets of             %4d bytes\n",

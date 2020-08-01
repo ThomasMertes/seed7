@@ -42,8 +42,23 @@ const func char: busy_getc (ref keyboard_file param) is DYNAMIC;
  *)
 const func boolean: keypressed (ref keyboard_file param) is DYNAMIC;
 
+(**
+ *  Determine if a given button is currently pressed.
+ *)
 const func boolean: buttonPressed (ref keyboard_file param, ref char param) is DYNAMIC;
+
+(**
+ *  Return the X position of the mouse cursor at the time when
+ *  the last button was pressed. The functions getxpos and getypos
+ *  can be used to determine which position was "clicked".
+ *)
 const func integer: getxpos (ref keyboard_file param) is DYNAMIC;
+
+(**
+ *  Return the Y position of the mouse cursor at the time when
+ *  the last button was pressed. The functions getxpos and getypos
+ *  can be used to determine which position was "clicked".
+ *)
 const func integer: getypos (ref keyboard_file param) is DYNAMIC;
 
 
@@ -149,10 +164,29 @@ const func char: getc (ref graph_keybd_file param) is                           
 const func string: gets (ref graph_keybd_file param, ref integer param) is      action "GKB_GETS";
 
 
-const func char: raw_getc (ref graph_keybd_file param) is                       action "GKB_RAW_GETC";
+(**
+ *  Determine if a given button is currently pressed.
+ *)
 const func boolean: buttonPressed (ref graph_keybd_file param, ref char param) is  action "GKB_BUTTON_PRESSED";
+
+
+(**
+ *  Return the X position of the mouse cursor at the time when
+ *  the last button was pressed. The functions getxpos and getypos
+ *  can be used to determine which position was "clicked".
+ *)
 const func integer: getxpos (ref graph_keybd_file param) is                     action "GKB_BUTTON_XPOS";
+
+
+(**
+ *  Return the Y position of the mouse cursor at the time when
+ *  the last button was pressed. The functions getxpos and getypos
+ *  can be used to determine which position was "clicked".
+ *)
 const func integer: getypos (ref graph_keybd_file param) is                     action "GKB_BUTTON_YPOS";
+
+
+const func char: raw_getc (ref graph_keybd_file param) is                       action "GKB_RAW_GETC";
 const func string: line_read (ref graph_keybd_file param, inout char param) is  action "GKB_LINE_READ";
 const func string: word_read (ref graph_keybd_file param, inout char param) is  action "GKB_WORD_READ";
 

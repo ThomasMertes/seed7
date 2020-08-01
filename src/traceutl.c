@@ -586,6 +586,14 @@ objecttype anyobject;
           prot_int((inttype) anyobject->value.winvalue);
         } /* if */
         break;
+      case PROGOBJECT:
+        if (anyobject->value.progvalue == NULL) {
+          prot_cstri(" *NULL_PROG* ");
+        } else {
+          prot_cstri("prog ");
+          prot_int((inttype) anyobject->value.progvalue);
+        } /* if */
+        break;
       default:
         break;
     } /* switch */
@@ -693,6 +701,7 @@ objecttype anyobject;
         case STRUCTOBJECT:
         case SETOBJECT:
         case BLOCKOBJECT:
+        case PROGOBJECT:
           printvalue(anyobject);
           break;
         case ACTOBJECT:
@@ -738,6 +747,62 @@ objecttype anyobject;
     printf("END printobject\n");
 #endif
   } /* printobject */
+
+
+
+#ifdef ANSI_C
+
+static void printparam (const_objecttype aParam)
+#else
+
+static void printparam (aParam)
+objecttype aParam;
+#endif
+
+  { /* printparam */
+#ifdef TRACE_TRACE
+    printf("BEGIN printparam\n");
+#endif
+    if (aParam != NULL) {
+      prot_cstri("(");
+      switch (CATEGORY_OF_OBJ(aParam)) {
+        case VALUEPARAMOBJECT:
+          prot_cstri("in ");
+          printtype(aParam->type_of);
+          if (HAS_ENTITY(aParam)) {
+            prot_cstri(": ");
+            prot_cstri(id_string(GET_ENTITY(aParam)->ident));
+          } else {
+            prot_cstri(" param");
+          } /* if */
+          break;
+        case REFPARAMOBJECT:
+          prot_cstri("ref ");
+          printtype(aParam->type_of);
+          if (HAS_ENTITY(aParam)) {
+            prot_cstri(": ");
+            prot_cstri(id_string(GET_ENTITY(aParam)->ident));
+          } else {
+            prot_cstri(" param");
+          } /* if */
+          break;
+        case TYPEOBJECT:
+          prot_cstri("attr ");
+          printtype(aParam->type_of);
+          break;
+        default:
+          prot_cstri("unknown ");
+          printobject(aParam);
+          break;
+      } /* switch */
+      prot_cstri(")");
+    } else {
+      prot_cstri(" *NULL_PARAMETER* ");
+    } /* if */
+#ifdef TRACE_TRACE
+    printf("END printparam\n");
+#endif
+  } /* printparam */
 
 
 
@@ -795,42 +860,7 @@ listtype list;
             break;
 #endif
           case FORMPARAMOBJECT:
-            if (list->obj->value.objvalue != NULL) {
-              prot_cstri("(");
-              switch (CATEGORY_OF_OBJ(list->obj->value.objvalue)) {
-                case VALUEPARAMOBJECT:
-                  prot_cstri("in ");
-                  printtype(list->obj->value.objvalue->type_of);
-                  if (HAS_ENTITY(list->obj->value.objvalue)) {
-                    prot_cstri(": ");
-                    prot_cstri(id_string(GET_ENTITY(list->obj->value.objvalue)->ident));
-                  } else {
-                    prot_cstri(" param");
-                  } /* if */
-                  break;
-                case REFPARAMOBJECT:
-                  prot_cstri("ref ");
-                  printtype(list->obj->value.objvalue->type_of);
-                  if (HAS_ENTITY(list->obj->value.objvalue)) {
-                    prot_cstri(": ");
-                    prot_cstri(id_string(GET_ENTITY(list->obj->value.objvalue)->ident));
-                  } else {
-                    prot_cstri(" param");
-                  } /* if */
-                  break;
-                case TYPEOBJECT:
-                  prot_cstri("attr ");
-                  printtype(list->obj->value.objvalue->type_of);
-                  break;
-                default:
-                  prot_cstri("unknown ");
-                  printobject(list->obj->value.objvalue);
-                  break;
-              } /* switch */
-              prot_cstri(")");
-            } else {
-              prot_cstri(" *NULL_PARAMETER* ");
-            } /* if */
+            printparam(list->obj->value.objvalue);
             break;
           case INTOBJECT:
           case BIGINTOBJECT:
@@ -1351,42 +1381,7 @@ objecttype traceobject;
           trace1(traceobject->value.objvalue);
           break;
         case FORMPARAMOBJECT:
-          if (traceobject->value.objvalue != NULL) {
-            prot_cstri("(");
-            switch (CATEGORY_OF_OBJ(traceobject->value.objvalue)) {
-              case VALUEPARAMOBJECT:
-                prot_cstri("in ");
-                printtype(traceobject->value.objvalue->type_of);
-                if (HAS_ENTITY(traceobject->value.objvalue)) {
-                  prot_cstri(": ");
-                  prot_cstri(id_string(GET_ENTITY(traceobject->value.objvalue)->ident));
-                } else {
-                  prot_cstri(" param");
-                } /* if */
-                break;
-              case REFPARAMOBJECT:
-                prot_cstri("ref ");
-                printtype(traceobject->value.objvalue->type_of);
-                if (HAS_ENTITY(traceobject->value.objvalue)) {
-                  prot_cstri(": ");
-                  prot_cstri(id_string(GET_ENTITY(traceobject->value.objvalue)->ident));
-                } else {
-                  prot_cstri(" param");
-                } /* if */
-                break;
-              case TYPEOBJECT:
-                prot_cstri("attr ");
-                printtype(traceobject->value.objvalue->type_of);
-                break;
-              default:
-                prot_cstri("unknown ");
-                printobject(traceobject->value.objvalue);
-                break;
-            } /* switch */
-            prot_cstri(")");
-          } else {
-            prot_cstri(" *NULL_PARAMETER* ");
-          } /* if */
+          printparam(traceobject->value.objvalue);
           break;
 #ifdef OUT_OF_ORDER
         case MODULEOBJECT:

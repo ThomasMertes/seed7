@@ -466,6 +466,7 @@ void scrFlush ()
 #endif
 
   { /* scrFlush */
+    /* fprintf(stderr, "scrFlush\n"); */
     if (!cursor_on) {
       if (cursor_invisible == NULL) {
         putgoto(cursor_address, 0, 0); /* cursor motion */
@@ -495,6 +496,7 @@ booltype on;
 #endif
 
   { /* scrCursor */
+    /* fprintf(stderr, "scrCursor(%d)\n", on); */
     cursor_on = on;
     if (on) {
       putctl(cursor_normal); /* cursor normal */
@@ -521,6 +523,7 @@ inttype col;
   /* a dummy procedure.                                             */
 
   { /* scrSetCursor */
+    /* fprintf(stderr, "scrSetCursor(%d, %d)\n", lin, col); */
     if (cursor_line != lin || cursor_column != col) {
       cursor_position_okay = FALSE;
       cursor_line = lin;

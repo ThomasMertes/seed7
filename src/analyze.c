@@ -409,6 +409,7 @@ errinfotype *err_info;
 
   {
     stritype source_file_name_copy;
+    tracerecord trace_backup;
     progrecord prog_backup;
     progtype resultProg;
 
@@ -440,6 +441,7 @@ errinfotype *err_info;
       reset_statistic();
       prog.error_count = 0;
       if (*err_info == OKAY_NO_ERROR) {
+        memcpy(&trace_backup, &trace, sizeof(tracerecord));
         set_trace(option.comp_trace_level, -1, option.prot_file_name);
         decl_any(prog.declaration_root);
         if (SYS_MAIN_OBJECT == NULL) {
@@ -505,6 +507,7 @@ errinfotype *err_info;
           } /* if */
         } /* if */
         /* trace_list(resultProg->stack_current->local_object_list); */
+        memcpy(&trace, &trace_backup, sizeof(tracerecord));
       } else {
         memcpy(&prog, &prog_backup, sizeof(progrecord));
         FREE_RECORD(resultProg, progrecord, count.prog);
@@ -573,6 +576,8 @@ errinfotype *err_info;
       if (*err_info == OKAY_NO_ERROR) {
         scan_byte_order_mark();
         resultProg = analyze_prog(source_file_name, err_info);
+      } else if (*err_info == FILE_ERROR) {
+        *err_info = OKAY_NO_ERROR;
       } /* if */
       FREE_STRI(source_name, name_len);
     } /* if */
@@ -616,7 +621,7 @@ stritype source_file_name;
     resultProg = analyze_file(source_file_name, &err_info);
     if (err_info == MEMORY_ERROR) {
       err_warning(OUT_OF_HEAP_SPACE);
-    } else if (err_info != OKAY_NO_ERROR) {
+    } else if (resultProg == NULL || err_info != OKAY_NO_ERROR) {
       err_message(NO_SOURCEFILE, source_file_name);
     } /* if */
 #ifdef TRACE_ANALYZE

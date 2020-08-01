@@ -225,8 +225,8 @@ biginttype big1;
 
   /* bigHexCStri */
     if (big1 != NULL && big1->size > 0) {
-      if (big1->size > (MAX_CSTRI_LEN - 3) / 2 / (BIGDIGIT_SIZE >> 3) ||
-          !ALLOC_CSTRI(result, big1->size * (BIGDIGIT_SIZE >> 3) * 2 + 3)) {
+      if (unlikely(big1->size > (MAX_CSTRI_LEN - 3) / 2 / (BIGDIGIT_SIZE >> 3) ||
+          !ALLOC_CSTRI(result, big1->size * (BIGDIGIT_SIZE >> 3) * 2 + 3))) {
         raise_error(MEMORY_ERROR);
         return NULL;
       } else {
@@ -284,7 +284,7 @@ biginttype big1;
       } else {
         stri_ptr = " *ZERO_SIZE_BIGINT* ";
       } /* if */
-      if (!ALLOC_CSTRI(result, strlen(stri_ptr))) {
+      if (unlikely(!ALLOC_CSTRI(result, strlen(stri_ptr)))) {
         raise_error(MEMORY_ERROR);
         return NULL;
       } else {
@@ -341,15 +341,13 @@ biginttype big1;
         biginttype resized_big1;
 
         REALLOC_BIG_SIZE_OK(resized_big1, big1, big1->size, pos);
-        if (resized_big1 == NULL) {
-          FREE_BIG(big1, big1->size);
-          big1 = NULL;
-          raise_error(MEMORY_ERROR);
-        } else {
+        /* Avoid a MEMORY_ERROR in the strange case     */
+        /* when a 'realloc' which shrinks memory fails. */
+        if (likely(resized_big1 != NULL)) {
           big1 = resized_big1;
-          COUNT3_BIG(big1->size, pos);
-          big1->size = pos;
         } /* if */
+        COUNT3_BIG(big1->size, pos);
+        big1->size = pos;
       } /* if */
 #else
       big1->size = pos;
@@ -432,10 +430,7 @@ biginttype big1;
     biginttype result;
 
   /* alloc_positive_copy_of_negative_big */
-    if (!ALLOC_BIG_SIZE_OK(result, big1->size)) {
-      raise_error(MEMORY_ERROR);
-      return NULL;
-    } else {
+    if (likely(ALLOC_BIG_SIZE_OK(result, big1->size))) {
       pos = 0;
       do {
         carry += ~big1->bigdigits[pos] & BIGDIGIT_MASK;
@@ -444,8 +439,8 @@ biginttype big1;
         pos++;
       } while (pos < big1->size);
       result->size = pos;
-      return result;
     } /* if */
+    return result;
   } /* alloc_positive_copy_of_negative_big */
 
 
@@ -775,7 +770,7 @@ bigdigittype digit;
       raise_error(NUMERIC_ERROR);
       return NULL;
     } else {
-      if (!ALLOC_BIG_CHECK_SIZE(result, big1->size + 1)) {
+      if (unlikely(!ALLOC_BIG_CHECK_SIZE(result, big1->size + 1))) {
         raise_error(MEMORY_ERROR);
         return NULL;
       } else {
@@ -784,8 +779,9 @@ bigdigittype digit;
           negative = TRUE;
           big1_help = alloc_positive_copy_of_negative_big(big1);
           big1 = big1_help;
-          if (big1_help == NULL) {
+          if (unlikely(big1_help == NULL)) {
             FREE_BIG(result, result->size);
+            raise_error(MEMORY_ERROR);
             return NULL;
           } /* if */
         } /* if */
@@ -836,7 +832,7 @@ biginttype big2;
     biginttype result;
 
   /* bigDivSizeLess */
-    if (!ALLOC_BIG_SIZE_OK(result, 1)) {
+    if (unlikely(!ALLOC_BIG_SIZE_OK(result, 1))) {
       raise_error(MEMORY_ERROR);
       return NULL;
     } else {
@@ -1069,7 +1065,7 @@ bigdigittype digit;
       raise_error(NUMERIC_ERROR);
       return NULL;
     } else {
-      if (!ALLOC_BIG_SIZE_OK(remainder, 1)) {
+      if (unlikely(!ALLOC_BIG_SIZE_OK(remainder, 1))) {
         raise_error(MEMORY_ERROR);
         return NULL;
       } else {
@@ -1078,8 +1074,9 @@ bigdigittype digit;
           negative = TRUE;
           big1_help = alloc_positive_copy_of_negative_big(big1);
           big1 = big1_help;
-          if (big1_help == NULL) {
+          if (unlikely(big1_help == NULL)) {
             FREE_BIG(remainder, remainder->size);
+            raise_error(MEMORY_ERROR);
             return NULL;
           } /* if */
         } /* if */
@@ -1163,7 +1160,7 @@ bigdigittype digit;
       raise_error(NUMERIC_ERROR);
       return NULL;
     } else {
-      if (!ALLOC_BIG_CHECK_SIZE(result, big1->size + 1)) {
+      if (unlikely(!ALLOC_BIG_CHECK_SIZE(result, big1->size + 1))) {
         raise_error(MEMORY_ERROR);
         return NULL;
       } else {
@@ -1172,8 +1169,9 @@ bigdigittype digit;
           negative = TRUE;
           big1_help = alloc_positive_copy_of_negative_big(big1);
           big1 = big1_help;
-          if (big1_help == NULL) {
+          if (unlikely(big1_help == NULL)) {
             FREE_BIG(result, result->size);
+            raise_error(MEMORY_ERROR);
             return NULL;
           } /* if */
         } /* if */
@@ -1229,7 +1227,7 @@ biginttype big2;
     biginttype result;
 
   /* bigMDivSizeLess */
-    if (!ALLOC_BIG_SIZE_OK(result, 1)) {
+    if (unlikely(!ALLOC_BIG_SIZE_OK(result, 1))) {
       raise_error(MEMORY_ERROR);
       return NULL;
     } else {
@@ -1330,14 +1328,14 @@ biginttype big2;
       remainderIs0 = FALSE;
     } /* if */
     if (remainderIs0) {
-      if (!ALLOC_BIG_SIZE_OK(remainder, 1)) {
+      if (unlikely(!ALLOC_BIG_SIZE_OK(remainder, 1))) {
         raise_error(MEMORY_ERROR);
       } else {
         remainder->size = 1;
         remainder->bigdigits[0] = 0;
       } /* if */
     } else {
-      if (!ALLOC_BIG_SIZE_OK(remainder, big1->size)) {
+      if (unlikely(!ALLOC_BIG_SIZE_OK(remainder, big1->size))) {
         raise_error(MEMORY_ERROR);
       } else {
         remainder->size = big1->size;
@@ -1431,7 +1429,7 @@ biginttype big2;
       moduloIs0 = FALSE;
     } /* if */
     if (moduloIs0) {
-      if (!ALLOC_BIG_SIZE_OK(modulo, 1)) {
+      if (unlikely(!ALLOC_BIG_SIZE_OK(modulo, 1))) {
         raise_error(MEMORY_ERROR);
       } else {
         modulo->size = 1;
@@ -1440,7 +1438,7 @@ biginttype big2;
     } else {
       if (IS_NEGATIVE(big1->bigdigits[big1->size - 1]) !=
           IS_NEGATIVE(big2->bigdigits[big2->size - 1])) {
-        if (!ALLOC_BIG_SIZE_OK(modulo, big2->size)) {
+        if (unlikely(!ALLOC_BIG_SIZE_OK(modulo, big2->size))) {
           raise_error(MEMORY_ERROR);
         } else {
           modulo->size = big2->size;
@@ -1450,7 +1448,7 @@ biginttype big2;
           modulo = normalize(modulo);
         } /* if */
       } else {
-        if (!ALLOC_BIG_SIZE_OK(modulo, big1->size)) {
+        if (unlikely(!ALLOC_BIG_SIZE_OK(modulo, big1->size))) {
           raise_error(MEMORY_ERROR);
         } else {
           modulo->size = big1->size;
@@ -2073,7 +2071,7 @@ booltype negative;
         big2 = help_big;
       } /* if */
       if (big2->size << 1 <= big1->size) {
-        if (!ALLOC_BIG_SIZE_OK(big2_help, big1->size - (big1->size >> 1))) {
+        if (unlikely(!ALLOC_BIG_SIZE_OK(big2_help, big1->size - (big1->size >> 1)))) {
           raise_error(MEMORY_ERROR);
           return NULL;
         } else {
@@ -2083,11 +2081,11 @@ booltype negative;
           memset(&big2_help->bigdigits[big2->size], 0,
               (size_t) (big2_help->size - big2->size) * sizeof(bigdigittype));
           big2 = big2_help;
-          if (!ALLOC_BIG(result, (big1->size >> 1) + (big2->size << 1))) {
+          if (unlikely(!ALLOC_BIG(result, (big1->size >> 1) + (big2->size << 1)))) {
             raise_error(MEMORY_ERROR);
           } else {
             result->size = (big1->size >> 1) + (big2->size << 1);
-            if (!ALLOC_BIG(temp, big1->size << 2)) {
+            if (unlikely(!ALLOC_BIG(temp, big1->size << 2))) {
               raise_error(MEMORY_ERROR);
             } else {
               uBigKaratsubaMult(big1->bigdigits, big2->bigdigits,
@@ -2108,7 +2106,7 @@ booltype negative;
           FREE_BIG(big2_help, big1->size - (big1->size >> 1));
         } /* if */
       } else {
-        if (!ALLOC_BIG_SIZE_OK(big2_help, big1->size)) {
+        if (unlikely(!ALLOC_BIG_SIZE_OK(big2_help, big1->size))) {
           raise_error(MEMORY_ERROR);
           return NULL;
         } else {
@@ -2118,10 +2116,10 @@ booltype negative;
           memset(&big2_help->bigdigits[big2->size], 0,
               (size_t) (big2_help->size - big2->size) * sizeof(bigdigittype));
           big2 = big2_help;
-          if (!ALLOC_BIG(result, big1->size << 1)) {
+          if (unlikely(!ALLOC_BIG(result, big1->size << 1))) {
             raise_error(MEMORY_ERROR);
           } else {
-            if (!ALLOC_BIG(temp, big1->size << 2)) {
+            if (unlikely(!ALLOC_BIG(temp, big1->size << 2))) {
               raise_error(MEMORY_ERROR);
             } else {
               uBigKaratsubaMult(big1->bigdigits, big2->bigdigits,
@@ -2138,7 +2136,7 @@ booltype negative;
         } /* if */
       } /* if */
     } else {
-      if (!ALLOC_BIG(result, big1->size + big2->size)) {
+      if (unlikely(!ALLOC_BIG(result, big1->size + big2->size))) {
         raise_error(MEMORY_ERROR);
       } else {
         result->size = big1->size + big2->size;
@@ -2325,20 +2323,20 @@ unsigned int bit_size;
     /* printf("bigIPowN(%lu, %lu, %u)\n", base, exponent, bit_size); */
     /* help_size = (bit_size * ((uinttype) exponent) - 1) / BIGDIGIT_SIZE + 2; */
     /* printf("help_sizeA=%ld\n", help_size); */
-    if ((uinttype) exponent + 1 > MAX_BIG_LEN) {
+    if (unlikely((uinttype) exponent + 1 > MAX_BIG_LEN)) {
       raise_error(MEMORY_ERROR);
       result = NULL;
     } else {
       help_size = (memsizetype) ((uinttype) exponent + 1);
       /* printf("help_sizeB=%ld\n", help_size); */
-      if (!ALLOC_BIG_SIZE_OK(square, help_size)) {
+      if (unlikely(!ALLOC_BIG_SIZE_OK(square, help_size))) {
         raise_error(MEMORY_ERROR);
         result = NULL;
-      } else if (!ALLOC_BIG_SIZE_OK(big_help, help_size)) {
+      } else if (unlikely(!ALLOC_BIG_SIZE_OK(big_help, help_size))) {
         FREE_BIG(square,  help_size);
         raise_error(MEMORY_ERROR);
         result = NULL;
-      } else if (!ALLOC_BIG_SIZE_OK(result, help_size)) {
+      } else if (unlikely(!ALLOC_BIG_SIZE_OK(result, help_size))) {
         FREE_BIG(square,  help_size);
         FREE_BIG(big_help,  help_size);
         raise_error(MEMORY_ERROR);
@@ -2400,7 +2398,7 @@ inttype exponent;
   /* bigIPow1 */
     /* printf("bigIPow1(%ld, %lu)\n", base, exponent); */
     if (base == 0) {
-      if (!ALLOC_BIG_SIZE_OK(result, 1)) {
+      if (unlikely(!ALLOC_BIG_SIZE_OK(result, 1))) {
         raise_error(MEMORY_ERROR);
         result = NULL;
       } else {
@@ -2479,7 +2477,7 @@ biginttype big1;
     biginttype result;
 
   /* bigAbs */
-    if (!ALLOC_BIG_SIZE_OK(result, big1->size)) {
+    if (unlikely(!ALLOC_BIG_SIZE_OK(result, big1->size))) {
       raise_error(MEMORY_ERROR);
       return NULL;
     } else {
@@ -2495,7 +2493,7 @@ biginttype big1;
         if (IS_NEGATIVE(result->bigdigits[pos - 1])) {
           result->size++;
           REALLOC_BIG_CHECK_SIZE(resized_result, result, big1->size, result->size);
-          if (resized_result == NULL) {
+          if (unlikely(resized_result == NULL)) {
             FREE_BIG(result, big1->size);
             raise_error(MEMORY_ERROR);
             return NULL;
@@ -2544,7 +2542,7 @@ biginttype big2;
       big1 = big2;
       big2 = help_big;
     } /* if */
-    if (!ALLOC_BIG_CHECK_SIZE(result, big1->size + 1)) {
+    if (unlikely(!ALLOC_BIG_CHECK_SIZE(result, big1->size + 1))) {
       raise_error(MEMORY_ERROR);
       return NULL;
     } else {
@@ -2704,10 +2702,10 @@ biginttype big1;
         /* Not used afterwards: byteNum++; */
       } /* if */
     } /* if */
-    if (byteDigitCount > (MAX_STRI_LEN - 21) / 5 ||
-        byteDigitCount > 0xFFFFFFFF ||
-        (result_size = byteDigitCount * 5 + 21,
-        !ALLOC_STRI_SIZE_OK(result, result_size))) {
+    if (unlikely(byteDigitCount > (MAX_STRI_LEN - 21) / 5 ||
+                 byteDigitCount > 0xFFFFFFFF ||
+                 (result_size = byteDigitCount * 5 + 21,
+                 !ALLOC_STRI_SIZE_OK(result, result_size)))) {
       raise_error(MEMORY_ERROR);
       result = NULL;
     } else {
@@ -2880,7 +2878,7 @@ biginttype big_from;
     big_dest = *big_to;
     new_size = big_from->size;
     if (big_dest->size != new_size) {
-      if (!ALLOC_BIG_SIZE_OK(big_dest, new_size)) {
+      if (unlikely(!ALLOC_BIG_SIZE_OK(big_dest, new_size))) {
         raise_error(MEMORY_ERROR);
         return;
       } else {
@@ -2914,7 +2912,7 @@ biginttype big_from;
 
   /* bigCreate */
     new_size = big_from->size;
-    if (!ALLOC_BIG_SIZE_OK(result, new_size)) {
+    if (unlikely(!ALLOC_BIG_SIZE_OK(result, new_size))) {
       raise_error(MEMORY_ERROR);
     } else {
       result->size = new_size;
@@ -2947,6 +2945,13 @@ rtlGenerictype from_value;
 
 
 
+/**
+ *  Decrements *big_variable by 1. The operation is done in
+ *  place and *big_variable is only enlarged when necessary.
+ *  In case the enlarging fails the old content of *big_variable
+ *  is restored and the exception MEMORY_ERROR is raised.
+ *  This ensures that bigDecr works as a transaction.
+ */
 #ifdef ANSI_C
 
 void bigDecr (biginttype *const big_variable)
@@ -2977,9 +2982,20 @@ biginttype *big_variable;
     if (!IS_NEGATIVE(big1->bigdigits[pos - 1])) {
       if (negative) {
         REALLOC_BIG_CHECK_SIZE(resized_big1, big1, pos, pos + 1);
-        if (resized_big1 == NULL) {
-          FREE_BIG(big1, pos);
-          *big_variable = NULL;
+        if (unlikely(resized_big1 == NULL)) {
+          /* This error situation is very unlikely, but we need to */
+          /* make sure that 'big_variable' contains a legal value. */
+          /* We UNDO the change done for 'big_variable' by setting */
+          /* it to the old value: The highest bit is set to 1 and  */
+          /* the other bits are set to 0. Note that only values    */
+          /* with this pattern need an additional digit when they  */
+          /* are decremented.                                      */
+          pos--;
+          big1->bigdigits[pos] = BIGDIGIT_SIGN;
+          while (pos != 0) {
+            pos--;
+            big1->bigdigits[pos] = 0;
+          } /* while */
           raise_error(MEMORY_ERROR);
         } else {
           big1 = resized_big1;
@@ -2991,16 +3007,14 @@ biginttype *big_variable;
       } else if (big1->bigdigits[pos - 1] == 0 &&
           pos >= 2 && !IS_NEGATIVE(big1->bigdigits[pos - 2])) {
         REALLOC_BIG_SIZE_OK(resized_big1, big1, pos, pos - 1);
-        if (resized_big1 == NULL) {
-          FREE_BIG(big1, pos);
-          *big_variable = NULL;
-          raise_error(MEMORY_ERROR);
-        } else {
+        /* Avoid a MEMORY_ERROR in the strange case     */
+        /* when a 'realloc' which shrinks memory fails. */
+        if (likely(resized_big1 != NULL)) {
           big1 = resized_big1;
-          COUNT3_BIG(pos, pos - 1);
-          big1->size--;
           *big_variable = big1;
         } /* if */
+        COUNT3_BIG(pos, pos - 1);
+        big1->size--;
       } /* if */
     } /* if */
   } /* bigDecr */
@@ -3061,7 +3075,7 @@ biginttype big2;
       result = bigDivSizeLess(big1, big2);
       return result;
     } else {
-      if (!ALLOC_BIG_CHECK_SIZE(big1_help, big1->size + 2)) {
+      if (unlikely(!ALLOC_BIG_CHECK_SIZE(big1_help, big1->size + 2))) {
         raise_error(MEMORY_ERROR);
         return NULL;
       } else {
@@ -3076,7 +3090,7 @@ biginttype big2;
         big1_help->bigdigits[big1_help->size] = 0;
         big1_help->size++;
       } /* if */
-      if (!ALLOC_BIG_CHECK_SIZE(big2_help, big2->size + 1)) {
+      if (unlikely(!ALLOC_BIG_CHECK_SIZE(big2_help, big2->size + 1))) {
         FREE_BIG(big1_help,  big1->size + 2);
         raise_error(MEMORY_ERROR);
         return NULL;
@@ -3090,7 +3104,7 @@ biginttype big2;
               (size_t) big2->size * sizeof(bigdigittype));
         } /* if */
       } /* if */
-      if (!ALLOC_BIG_SIZE_OK(result, big1_help->size - big2_help->size + 1)) {
+      if (unlikely(!ALLOC_BIG_SIZE_OK(result, big1_help->size - big2_help->size + 1))) {
         raise_error(MEMORY_ERROR);
       } else {
         result->size = big1_help->size - big2_help->size + 1;
@@ -3165,7 +3179,7 @@ int32type number;
 #else
     result_size = 1;
 #endif
-    if (!ALLOC_BIG_SIZE_OK(result, result_size)) {
+    if (unlikely(!ALLOC_BIG_SIZE_OK(result, result_size))) {
       raise_error(MEMORY_ERROR);
     } else {
       result->size = result_size;
@@ -3212,7 +3226,7 @@ int64type number;
 
   /* bigFromInt64 */
     result_size = sizeof(int64type) / (BIGDIGIT_SIZE >> 3);
-    if (!ALLOC_BIG_SIZE_OK(result, result_size)) {
+    if (unlikely(!ALLOC_BIG_SIZE_OK(result, result_size))) {
       raise_error(MEMORY_ERROR);
       return NULL;
     } else {
@@ -3248,7 +3262,7 @@ uint32type number;
 #else
     result_size = 1;
 #endif
-    if (!ALLOC_BIG_SIZE_OK(result, result_size)) {
+    if (unlikely(!ALLOC_BIG_SIZE_OK(result, result_size))) {
       raise_error(MEMORY_ERROR);
     } else {
       result->size = result_size;
@@ -3288,7 +3302,7 @@ uint64type number;
 
   /* bigFromUInt64 */
     result_size = sizeof(uint64type) / (BIGDIGIT_SIZE >> 3) + 1;
-    if (!ALLOC_BIG_SIZE_OK(result, result_size)) {
+    if (unlikely(!ALLOC_BIG_SIZE_OK(result, result_size))) {
       raise_error(MEMORY_ERROR);
       return NULL;
     } else {
@@ -3443,7 +3457,7 @@ biginttype big2;
       if ((carry != 0 || IS_NEGATIVE(big1->bigdigits[pos - 1])) &&
           (carry != BIGDIGIT_MASK || !IS_NEGATIVE(big1->bigdigits[pos - 1]))) {
         REALLOC_BIG_CHECK_SIZE(resized_big1, big1, big1->size, big1->size + 1);
-        if (resized_big1 == NULL) {
+        if (unlikely(resized_big1 == NULL)) {
           FREE_BIG(big1, big1->size);
           *big_variable = NULL;
           raise_error(MEMORY_ERROR);
@@ -3462,7 +3476,7 @@ biginttype big2;
       } /* if */
     } else {
       REALLOC_BIG_CHECK_SIZE(resized_big1, big1, big1->size, big2->size + 1);
-      if (resized_big1 == NULL) {
+      if (unlikely(resized_big1 == NULL)) {
         FREE_BIG(big1, big1->size);
         *big_variable = NULL;
         raise_error(MEMORY_ERROR);
@@ -3536,7 +3550,7 @@ ustritype buffer;
                      ((memsizetype) buffer[2]) <<  8 |
                      ((memsizetype) buffer[3]);
     result_size = (byteDigitCount + (BIGDIGIT_SIZE >> 3) - 1) / (BIGDIGIT_SIZE >> 3);
-    if (!ALLOC_BIG(result, result_size)) {
+    if (unlikely(!ALLOC_BIG(result, result_size))) {
       raise_error(MEMORY_ERROR);
       return NULL;
     } else {
@@ -3562,6 +3576,13 @@ ustritype buffer;
 
 
 
+/**
+ *  Increments *big_variable by 1. The operation is done in
+ *  place and *big_variable is only enlarged when necessary.
+ *  In case the enlarging fails the old content of *big_variable
+ *  is restored and the exception MEMORY_ERROR is raised.
+ *  This ensures that bigIncr works as a transaction.
+ */
 #ifdef ANSI_C
 
 void bigIncr (biginttype *const big_variable)
@@ -3592,9 +3613,20 @@ biginttype *big_variable;
     if (IS_NEGATIVE(big1->bigdigits[pos - 1])) {
       if (!negative) {
         REALLOC_BIG_CHECK_SIZE(resized_big1, big1, pos, pos + 1);
-        if (resized_big1 == NULL) {
-          FREE_BIG(big1, pos);
-          *big_variable = NULL;
+        if (unlikely(resized_big1 == NULL)) {
+          /* This error situation is very unlikely, but we need to */
+          /* make sure that 'big_variable' contains a legal value. */
+          /* We UNDO the change done for 'big_variable' by setting */
+          /* it to the old value: The highest bit is set to 0 and  */
+          /* the other bits are set to 1. Note that only values    */
+          /* with this pattern need an additional digit when they  */
+          /* are incremented.                                      */
+          pos--;
+          big1->bigdigits[pos] = BIGDIGIT_MASK ^ BIGDIGIT_SIGN;
+          while (pos != 0) {
+            pos--;
+            big1->bigdigits[pos] = BIGDIGIT_MASK;
+          } /* while */
           raise_error(MEMORY_ERROR);
         } else {
           big1 = resized_big1;
@@ -3606,16 +3638,14 @@ biginttype *big_variable;
       } else if (big1->bigdigits[pos - 1] == BIGDIGIT_MASK &&
           pos >= 2 && IS_NEGATIVE(big1->bigdigits[pos - 2])) {
         REALLOC_BIG_SIZE_OK(resized_big1, big1, pos, pos - 1);
-        if (resized_big1 == NULL) {
-          FREE_BIG(big1, pos);
-          *big_variable = NULL;
-          raise_error(MEMORY_ERROR);
-        } else {
+        /* Avoid a MEMORY_ERROR in the strange case     */
+        /* when a 'realloc' which shrinks memory fails. */
+        if (likely(resized_big1 != NULL)) {
           big1 = resized_big1;
-          COUNT3_BIG(pos, pos - 1);
-          big1->size--;
           *big_variable = big1;
         } /* if */
+        COUNT3_BIG(pos, pos - 1);
+        big1->size--;
       } /* if */
     } /* if */
   } /* bigIncr */
@@ -3651,7 +3681,7 @@ inttype exponent;
   /* bigIPow */
     if (exponent <= 1) {
       if (exponent == 0) {
-        if (!ALLOC_BIG_SIZE_OK(result, 1)) {
+        if (unlikely(!ALLOC_BIG_SIZE_OK(result, 1))) {
           raise_error(MEMORY_ERROR);
         } else {
           result->size = 1;
@@ -3665,19 +3695,19 @@ inttype exponent;
       } /* if */
     } else if (base->size == 1) {
       result = bigIPow1(base->bigdigits[0], exponent);
-    } else if ((uinttype) exponent + 1 > MAX_BIG_LEN / base->size) {
+    } else if (unlikely((uinttype) exponent + 1 > MAX_BIG_LEN / base->size)) {
       raise_error(MEMORY_ERROR);
       result = NULL;
     } else {
       help_size = base->size * (memsizetype) ((uinttype) exponent + 1);
-      if (!ALLOC_BIG_SIZE_OK(square, help_size)) {
+      if (unlikely(!ALLOC_BIG_SIZE_OK(square, help_size))) {
         raise_error(MEMORY_ERROR);
         result = NULL;
-      } else if (!ALLOC_BIG_SIZE_OK(big_help, help_size)) {
+      } else if (unlikely(!ALLOC_BIG_SIZE_OK(big_help, help_size))) {
         FREE_BIG(square,  help_size);
         raise_error(MEMORY_ERROR);
         result = NULL;
-      } else if (!ALLOC_BIG_SIZE_OK(result, help_size)) {
+      } else if (unlikely(!ALLOC_BIG_SIZE_OK(result, help_size))) {
         FREE_BIG(square,  help_size);
         FREE_BIG(big_help,  help_size);
         raise_error(MEMORY_ERROR);
@@ -3747,7 +3777,7 @@ biginttype big1;
       /* The result_size is incremented by one to take the space  */
       /* needed for the shift by BIGDIGIT_LOG2_SIZE into account. */
       result_size = sizeof(memsizetype) / (BIGDIGIT_SIZE >> 3) + 1;
-      if (!ALLOC_BIG_SIZE_OK(result, result_size)) {
+      if (unlikely(!ALLOC_BIG_SIZE_OK(result, result_size))) {
         raise_error(MEMORY_ERROR);
       } else {
         result->size = result_size;
@@ -3843,19 +3873,19 @@ inttype lshift;
       raise_error(NUMERIC_ERROR);
       result = NULL;
     } else if (big1->size == 1 && big1->bigdigits[0] == 0) {
-      if (!ALLOC_BIG_SIZE_OK(result, 1)) {
+      if (unlikely(!ALLOC_BIG_SIZE_OK(result, 1))) {
         raise_error(MEMORY_ERROR);
       } else {
         result->size = 1;
         result->bigdigits[0] = 0;
       } /* if */
     } else if ((lshift & BIGDIGIT_SIZE_MASK) == 0) {
-      if ((uinttype) lshift >> BIGDIGIT_LOG2_SIZE > MAX_BIG_LEN - big1->size) {
+      if (unlikely((uinttype) lshift >> BIGDIGIT_LOG2_SIZE > MAX_BIG_LEN - big1->size)) {
         raise_error(MEMORY_ERROR);
         result = NULL;
       } else {
         result_size = big1->size + (memsizetype) ((uinttype) lshift >> BIGDIGIT_LOG2_SIZE);
-        if (!ALLOC_BIG_SIZE_OK(result, result_size)) {
+        if (unlikely(!ALLOC_BIG_SIZE_OK(result, result_size))) {
           raise_error(MEMORY_ERROR);
         } else {
           result->size = result_size;
@@ -3865,7 +3895,7 @@ inttype lshift;
               (memsizetype) ((uinttype) lshift >> BIGDIGIT_LOG2_SIZE) * sizeof(bigdigittype));
         } /* if */
       } /* if */
-    } else if (((uinttype) lshift >> BIGDIGIT_LOG2_SIZE) + 1 > MAX_BIG_LEN - big1->size) {
+    } else if (unlikely(((uinttype) lshift >> BIGDIGIT_LOG2_SIZE) + 1 > MAX_BIG_LEN - big1->size)) {
       raise_error(MEMORY_ERROR);
       result = NULL;
     } else {
@@ -3890,7 +3920,7 @@ inttype lshift;
           low_digit = 0;
         } /* if */
       } /* if */
-      if (!ALLOC_BIG_SIZE_OK(result, result_size)) {
+      if (unlikely(!ALLOC_BIG_SIZE_OK(result, result_size))) {
         raise_error(MEMORY_ERROR);
       } else {
         result->size = result_size;
@@ -3948,7 +3978,7 @@ inttype lshift;
     } else if (lshift != 0) {
       big1 = *big_variable;
       if (big1->size == 1 && big1->bigdigits[0] == 0) {
-        if (!ALLOC_BIG_SIZE_OK(result, 1)) {
+        if (unlikely(!ALLOC_BIG_SIZE_OK(result, 1))) {
           raise_error(MEMORY_ERROR);
         } else {
           result->size = 1;
@@ -3957,12 +3987,11 @@ inttype lshift;
           FREE_BIG(big1, big1->size);
         } /* if */
       } else if ((lshift & BIGDIGIT_SIZE_MASK) == 0) {
-        if ((uinttype) lshift >> BIGDIGIT_LOG2_SIZE > MAX_BIG_LEN - big1->size) {
+        if (unlikely((uinttype) lshift >> BIGDIGIT_LOG2_SIZE > MAX_BIG_LEN - big1->size)) {
           raise_error(MEMORY_ERROR);
-	  result = NULL;
         } else {
           result_size = big1->size + (memsizetype) ((uinttype) lshift >> BIGDIGIT_LOG2_SIZE);
-          if (!ALLOC_BIG_SIZE_OK(result, result_size)) {
+          if (unlikely(!ALLOC_BIG_SIZE_OK(result, result_size))) {
             raise_error(MEMORY_ERROR);
           } else {
             result->size = result_size;
@@ -3974,9 +4003,8 @@ inttype lshift;
             FREE_BIG(big1, big1->size);
           } /* if */
         } /* if */
-      } else if (((uinttype) lshift >> BIGDIGIT_LOG2_SIZE) + 1 > MAX_BIG_LEN - big1->size) {
+      } else if (unlikely(((uinttype) lshift >> BIGDIGIT_LOG2_SIZE) + 1 > MAX_BIG_LEN - big1->size)) {
         raise_error(MEMORY_ERROR);
-        result = NULL;
       } else {
         result_size = big1->size + (memsizetype) ((uinttype) lshift >> BIGDIGIT_LOG2_SIZE) + 1;
         digit_lshift = (uinttype) lshift & BIGDIGIT_SIZE_MASK;
@@ -4000,7 +4028,7 @@ inttype lshift;
           } /* if */
         } /* if */
         if (result_size != big1->size) {
-          if (!ALLOC_BIG_SIZE_OK(result, result_size)) {
+          if (unlikely(!ALLOC_BIG_SIZE_OK(result, result_size))) {
             raise_error(MEMORY_ERROR);
           } /* if */
         } else {
@@ -4054,12 +4082,12 @@ inttype rshift;
     if (lshift < 0) {
       raise_error(NUMERIC_ERROR);
       result = NULL;
-    } else if ((((uinttype) lshift + 1) >> BIGDIGIT_LOG2_SIZE) + 1 > MAX_BIG_LEN) {
+    } else if (unlikely((((uinttype) lshift + 1) >> BIGDIGIT_LOG2_SIZE) + 1 > MAX_BIG_LEN)) {
       raise_error(MEMORY_ERROR);
       result = NULL;
     } else {
       result_size = (memsizetype) (((uinttype) lshift + 1) >> BIGDIGIT_LOG2_SIZE) + 1;
-      if (!ALLOC_BIG_SIZE_OK(result, result_size)) {
+      if (unlikely(!ALLOC_BIG_SIZE_OK(result, result_size))) {
         raise_error(MEMORY_ERROR);
       } else {
         result->size = result_size;
@@ -4117,7 +4145,7 @@ biginttype big2;
       result = bigMDivSizeLess(big1, big2);
       return result;
     } else {
-      if (!ALLOC_BIG_CHECK_SIZE(big1_help, big1->size + 2)) {
+      if (unlikely(!ALLOC_BIG_CHECK_SIZE(big1_help, big1->size + 2))) {
         raise_error(MEMORY_ERROR);
         return NULL;
       } else {
@@ -4132,7 +4160,7 @@ biginttype big2;
         big1_help->bigdigits[big1_help->size] = 0;
         big1_help->size++;
       } /* if */
-      if (!ALLOC_BIG_CHECK_SIZE(big2_help, big2->size + 1)) {
+      if (unlikely(!ALLOC_BIG_CHECK_SIZE(big2_help, big2->size + 1))) {
         FREE_BIG(big1_help,  big1->size + 2);
         raise_error(MEMORY_ERROR);
         return NULL;
@@ -4146,7 +4174,7 @@ biginttype big2;
               (size_t) big2->size * sizeof(bigdigittype));
         } /* if */
       } /* if */
-      if (!ALLOC_BIG_SIZE_OK(result, big1_help->size - big2_help->size + 1)) {
+      if (unlikely(!ALLOC_BIG_SIZE_OK(result, big1_help->size - big2_help->size + 1))) {
         raise_error(MEMORY_ERROR);
       } else {
         result->size = big1_help->size - big2_help->size + 1;
@@ -4200,7 +4228,7 @@ biginttype big1;
     biginttype result;
 
   /* bigMinus */
-    if (!ALLOC_BIG_SIZE_OK(result, big1->size)) {
+    if (unlikely(!ALLOC_BIG_SIZE_OK(result, big1->size))) {
       raise_error(MEMORY_ERROR);
       return NULL;
     } else {
@@ -4215,7 +4243,7 @@ biginttype big1;
       if (IS_NEGATIVE(result->bigdigits[pos - 1])) {
         if (IS_NEGATIVE(big1->bigdigits[pos - 1])) {
           REALLOC_BIG_CHECK_SIZE(resized_result, result, pos, pos + 1);
-          if (resized_result == NULL) {
+          if (unlikely(resized_result == NULL)) {
             FREE_BIG(result, pos);
             raise_error(MEMORY_ERROR);
             return NULL;
@@ -4228,15 +4256,13 @@ biginttype big1;
         } else if (result->bigdigits[pos - 1] == BIGDIGIT_MASK &&
             pos >= 2 && IS_NEGATIVE(result->bigdigits[pos - 2])) {
           REALLOC_BIG_SIZE_OK(resized_result, result, pos, pos - 1);
-          if (resized_result == NULL) {
-            FREE_BIG(result, pos);
-            raise_error(MEMORY_ERROR);
-            return NULL;
-          } else {
+          /* Avoid a MEMORY_ERROR in the strange case     */
+          /* when a 'realloc' which shrinks memory fails. */
+          if (likely(resized_result != NULL)) {
             result = resized_result;
-            COUNT3_BIG(pos, pos - 1);
-            result->size--;
           } /* if */
+          COUNT3_BIG(pos, pos - 1);
+          result->size--;
         } /* if */
       } /* if */
       return result;
@@ -4287,7 +4313,7 @@ biginttype big2;
       result = bigModSizeLess(big1, big2);
       return result;
     } else {
-      if (!ALLOC_BIG_CHECK_SIZE(result, big1->size + 2)) {
+      if (unlikely(!ALLOC_BIG_CHECK_SIZE(result, big1->size + 2))) {
         raise_error(MEMORY_ERROR);
         return NULL;
       } else {
@@ -4302,7 +4328,7 @@ biginttype big2;
         result->bigdigits[result->size] = 0;
         result->size++;
       } /* if */
-      if (!ALLOC_BIG_CHECK_SIZE(big2_help, big2->size + 1)) {
+      if (unlikely(!ALLOC_BIG_CHECK_SIZE(big2_help, big2->size + 1))) {
         FREE_BIG(result,  big1->size + 2);
         raise_error(MEMORY_ERROR);
         return NULL;
@@ -4387,7 +4413,8 @@ biginttype big2;
       negative = TRUE;
       big1_help = alloc_positive_copy_of_negative_big(big1);
       big1 = big1_help;
-      if (big1_help == NULL) {
+      if (unlikely(big1_help == NULL)) {
+        raise_error(MEMORY_ERROR);
         return NULL;
       } /* if */
     } /* if */
@@ -4395,16 +4422,17 @@ biginttype big2;
       negative = !negative;
       big2_help = alloc_positive_copy_of_negative_big(big2);
       big2 = big2_help;
-      if (big2_help == NULL) {
+      if (unlikely(big2_help == NULL)) {
         if (big1_help != NULL) {
           FREE_BIG(big1_help, big1_help->size);
         } /* if */
+        raise_error(MEMORY_ERROR);
         return NULL;
       } /* if */
     } /* if */
     /* printf("bigMult(%u, %u)\n", big1->size, big2->size); */
 #if 0
-    if (!ALLOC_BIG(result, big1->size + big2->size)) {
+    if (unlikely(!ALLOC_BIG(result, big1->size + big2->size))) {
       raise_error(MEMORY_ERROR);
     } else {
       uBigMult(big1, big2, result);
@@ -4454,7 +4482,8 @@ biginttype big2;
       negative = TRUE;
       big1_help = alloc_positive_copy_of_negative_big(big1);
       big1 = big1_help;
-      if (big1_help == NULL) {
+      if (unlikely(big1_help == NULL)) {
+        raise_error(MEMORY_ERROR);
         return;
       } /* if */
     } /* if */
@@ -4462,14 +4491,15 @@ biginttype big2;
       negative = !negative;
       big2_help = alloc_positive_copy_of_negative_big(big2);
       big2 = big2_help;
-      if (big2_help == NULL) {
+      if (unlikely(big2_help == NULL)) {
         if (big1_help != NULL) {
           FREE_BIG(big1_help, big1_help->size);
         } /* if */
+        raise_error(MEMORY_ERROR);
         return;
       } /* if */
     } /* if */
-    if (!ALLOC_BIG(result, big1->size + big2->size)) {
+    if (unlikely(!ALLOC_BIG(result, big1->size + big2->size))) {
       raise_error(MEMORY_ERROR);
     } else {
       pos2 = 0;
@@ -4524,7 +4554,7 @@ inttype number;
     biginttype result;
 
   /* bigMultSignedDigit */
-    if (!ALLOC_BIG_CHECK_SIZE(result, big1->size + 1)) {
+    if (unlikely(!ALLOC_BIG_CHECK_SIZE(result, big1->size + 1))) {
       raise_error(MEMORY_ERROR);
     } else {
       result->size = big1->size + 1;
@@ -4586,7 +4616,7 @@ stritype stri;
     } else {
       result_size = (stri->size - 1) / DECIMAL_DIGITS_IN_BIGDIGIT + 1;
     } /* if */
-    if (!ALLOC_BIG(result, result_size)) {
+    if (unlikely(!ALLOC_BIG(result, result_size))) {
       raise_error(MEMORY_ERROR);
       return NULL;
     } else {
@@ -4648,7 +4678,7 @@ biginttype big1;
     biginttype result;
 
   /* bigPred */
-    if (!ALLOC_BIG_SIZE_OK(result, big1->size)) {
+    if (unlikely(!ALLOC_BIG_SIZE_OK(result, big1->size))) {
       raise_error(MEMORY_ERROR);
       return NULL;
     } else {
@@ -4663,7 +4693,7 @@ biginttype big1;
       if (!IS_NEGATIVE(result->bigdigits[pos - 1])) {
         if (IS_NEGATIVE(big1->bigdigits[pos - 1])) {
           REALLOC_BIG_CHECK_SIZE(resized_result, result, pos, pos + 1);
-          if (resized_result == NULL) {
+          if (unlikely(resized_result == NULL)) {
             FREE_BIG(result, pos);
             raise_error(MEMORY_ERROR);
             return NULL;
@@ -4676,15 +4706,13 @@ biginttype big1;
         } else if (result->bigdigits[pos - 1] == 0 &&
             pos >= 2 && !IS_NEGATIVE(result->bigdigits[pos - 2])) {
           REALLOC_BIG_SIZE_OK(resized_result, result, pos, pos - 1);
-          if (resized_result == NULL) {
-            FREE_BIG(result, pos);
-            raise_error(MEMORY_ERROR);
-            return NULL;
-          } else {
+          /* Avoid a MEMORY_ERROR in the strange case     */
+          /* when a 'realloc' which shrinks memory fails. */
+          if (likely(resized_result != NULL)) {
             result = resized_result;
-            COUNT3_BIG(pos, pos - 1);
-            result->size--;
           } /* if */
+          COUNT3_BIG(pos, pos - 1);
+          result->size--;
         } /* if */
       } /* if */
       return result;
@@ -4706,8 +4734,47 @@ biginttype bigPredTemp (big1)
 biginttype big1;
 #endif
 
-  { /* bigPredTemp */
-    bigDecr(&big1);
+  {
+    memsizetype pos;
+    doublebigdigittype carry;
+    bigdigittype negative;
+    biginttype resized_big1;
+
+  /* bigPredTemp */
+    negative = IS_NEGATIVE(big1->bigdigits[big1->size - 1]);
+    pos = 0;
+    do {
+      carry = (doublebigdigittype) big1->bigdigits[pos] + BIGDIGIT_MASK;
+      big1->bigdigits[pos] = (bigdigittype) (carry & BIGDIGIT_MASK);
+      carry >>= BIGDIGIT_SIZE;
+      pos++;
+    } while (carry == 0 && pos < big1->size);
+    pos = big1->size;
+    if (!IS_NEGATIVE(big1->bigdigits[pos - 1])) {
+      if (negative) {
+        REALLOC_BIG_CHECK_SIZE(resized_big1, big1, pos, pos + 1);
+        if (unlikely(resized_big1 == NULL)) {
+          FREE_BIG(big1, big1->size);
+          raise_error(MEMORY_ERROR);
+          big1 = NULL;
+        } else {
+          big1 = resized_big1;
+          COUNT3_BIG(pos, pos + 1);
+          big1->size++;
+          big1->bigdigits[pos] = BIGDIGIT_MASK;
+        } /* if */
+      } else if (big1->bigdigits[pos - 1] == 0 &&
+          pos >= 2 && !IS_NEGATIVE(big1->bigdigits[pos - 2])) {
+        REALLOC_BIG_SIZE_OK(resized_big1, big1, pos, pos - 1);
+        /* Avoid a MEMORY_ERROR in the strange case     */
+        /* when a 'realloc' which shrinks memory fails. */
+        if (likely(resized_big1 != NULL)) {
+          big1 = resized_big1;
+        } /* if */
+        COUNT3_BIG(pos, pos - 1);
+        big1->size--;
+      } /* if */
+    } /* if */
     return big1;
   } /* bigPredTemp */
 
@@ -4749,7 +4816,7 @@ biginttype upper_limit;
       } else {
         result_size = scale_limit->size + 1;
       } /* if */
-      if (!ALLOC_BIG(result, result_size)) {
+      if (unlikely(!ALLOC_BIG(result, result_size))) {
         raise_error(MEMORY_ERROR);
         return NULL;
       } else {
@@ -4819,7 +4886,7 @@ biginttype big2;
       result = bigRemSizeLess(big1, big2);
       return result;
     } else {
-      if (!ALLOC_BIG_CHECK_SIZE(result, big1->size + 2)) {
+      if (unlikely(!ALLOC_BIG_CHECK_SIZE(result, big1->size + 2))) {
         raise_error(MEMORY_ERROR);
         return NULL;
       } else {
@@ -4834,7 +4901,7 @@ biginttype big2;
         result->bigdigits[result->size] = 0;
         result->size++;
       } /* if */
-      if (!ALLOC_BIG_CHECK_SIZE(big2_help, big2->size + 1)) {
+      if (unlikely(!ALLOC_BIG_CHECK_SIZE(big2_help, big2->size + 1))) {
         FREE_BIG(result,  big1->size + 2);
         raise_error(MEMORY_ERROR);
         return NULL;
@@ -4909,7 +4976,7 @@ inttype rshift;
       raise_error(NUMERIC_ERROR);
       result = NULL;
     } else if (big1->size <= (uinttype) rshift >> BIGDIGIT_LOG2_SIZE) {
-      if (!ALLOC_BIG_SIZE_OK(result, 1)) {
+      if (unlikely(!ALLOC_BIG_SIZE_OK(result, 1))) {
         raise_error(MEMORY_ERROR);
       } else {
         result->size = 1;
@@ -4923,7 +4990,7 @@ inttype rshift;
       size_reduction = (memsizetype) ((uinttype) rshift >> BIGDIGIT_LOG2_SIZE);
       result_size = big1->size - size_reduction;
       if ((rshift & BIGDIGIT_SIZE_MASK) == 0) {
-        if (!ALLOC_BIG_SIZE_OK(result, result_size)) {
+        if (unlikely(!ALLOC_BIG_SIZE_OK(result, result_size))) {
           raise_error(MEMORY_ERROR);
         } else {
           result->size = result_size;
@@ -4948,7 +5015,7 @@ inttype rshift;
             } /* if */
           } /* if */
         } /* if */
-        if (!ALLOC_BIG_SIZE_OK(result, result_size)) {
+        if (unlikely(!ALLOC_BIG_SIZE_OK(result, result_size))) {
           raise_error(MEMORY_ERROR);
         } else {
           result->size = result_size;
@@ -5004,7 +5071,7 @@ inttype rshift;
     } else {
       big1 = *big_variable;
       if (big1->size <= (uinttype) rshift >> BIGDIGIT_LOG2_SIZE) {
-        if (!ALLOC_BIG_SIZE_OK(*big_variable, 1)) {
+        if (unlikely(!ALLOC_BIG_SIZE_OK(*big_variable, 1))) {
           raise_error(MEMORY_ERROR);
         } else {
           (*big_variable)->size = 1;
@@ -5022,16 +5089,14 @@ inttype rshift;
             memmove(big1->bigdigits, &big1->bigdigits[size_reduction],
                 (size_t) (big1->size - size_reduction) * sizeof(bigdigittype));
             REALLOC_BIG_SIZE_OK(resized_big1, big1, big1->size, big1->size - size_reduction);
-            if (resized_big1 == NULL) {
-              FREE_BIG(big1, big1->size);
-              *big_variable = NULL;
-              raise_error(MEMORY_ERROR);
-            } else {
+            /* Avoid a MEMORY_ERROR in the strange case     */
+            /* when a 'realloc' which shrinks memory fails. */
+            if (likely(resized_big1 != NULL)) {
               big1 = resized_big1;
-              COUNT3_BIG(big1->size, big1->size - size_reduction);
-              big1->size -= size_reduction;
               *big_variable = big1;
             } /* if */
+            COUNT3_BIG(big1->size, big1->size - size_reduction);
+            big1->size -= size_reduction;
           } /* if */
         } else {
           digit_rshift = (uinttype) rshift & BIGDIGIT_SIZE_MASK;
@@ -5056,16 +5121,14 @@ inttype rshift;
                   pos--;
                 } /* if */
                 REALLOC_BIG_SIZE_OK(resized_big1, big1, big1->size, pos);
-                if (resized_big1 == NULL) {
-                  FREE_BIG(big1, big1->size);
-                  *big_variable = NULL;
-                  raise_error(MEMORY_ERROR);
-                } else {
+                /* Avoid a MEMORY_ERROR in the strange case     */
+                /* when a 'realloc' which shrinks memory fails. */
+                if (likely(resized_big1 != NULL)) {
                   big1 = resized_big1;
-                  COUNT3_BIG(big1->size, pos);
-                  big1->size = pos;
                   *big_variable = big1;
                 } /* if */
+                COUNT3_BIG(big1->size, pos);
+                big1->size = pos;
                 size_reduction = 0;
               } /* if */
             } /* if */
@@ -5080,32 +5143,28 @@ inttype rshift;
                   pos--;
                 } /* if */
                 REALLOC_BIG_SIZE_OK(resized_big1, big1, big1->size, pos);
-                if (resized_big1 == NULL) {
-                  FREE_BIG(big1, big1->size);
-                  *big_variable = NULL;
-                  raise_error(MEMORY_ERROR);
-                } else {
+                /* Avoid a MEMORY_ERROR in the strange case     */
+                /* when a 'realloc' which shrinks memory fails. */
+                if (likely(resized_big1 != NULL)) {
                   big1 = resized_big1;
-                  COUNT3_BIG(big1->size, pos);
-                  big1->size = pos;
                   *big_variable = big1;
                 } /* if */
+                COUNT3_BIG(big1->size, pos);
+                big1->size = pos;
                 size_reduction = 0;
               } /* if */
             } /* if */
           } /* if */
           if (size_reduction != 0) {
             REALLOC_BIG_SIZE_OK(resized_big1, big1, big1->size, big1->size - size_reduction);
-            if (resized_big1 == NULL) {
-              FREE_BIG(big1, big1->size);
-              *big_variable = NULL;
-              raise_error(MEMORY_ERROR);
-            } else {
+            /* Avoid a MEMORY_ERROR in the strange case     */
+            /* when a 'realloc' which shrinks memory fails. */
+            if (likely(resized_big1 != NULL)) {
               big1 = resized_big1;
-              COUNT3_BIG(big1->size, big1->size - size_reduction);
-              big1->size -= size_reduction;
               *big_variable = big1;
             } /* if */
+            COUNT3_BIG(big1->size, big1->size - size_reduction);
+            big1->size -= size_reduction;
           } /* if */
         } /* if */
       } /* if */
@@ -5136,7 +5195,7 @@ biginttype big2;
 
   /* bigSbtr */
     if (big1->size >= big2->size) {
-      if (!ALLOC_BIG_CHECK_SIZE(result, big1->size + 1)) {
+      if (unlikely(!ALLOC_BIG_CHECK_SIZE(result, big1->size + 1))) {
         raise_error(MEMORY_ERROR);
         return NULL;
       } else {
@@ -5163,7 +5222,7 @@ biginttype big2;
         return result;
       } /* if */
     } else {
-      if (!ALLOC_BIG_CHECK_SIZE(result, big2->size + 1)) {
+      if (unlikely(!ALLOC_BIG_CHECK_SIZE(result, big2->size + 1))) {
         raise_error(MEMORY_ERROR);
         return NULL;
       } else {
@@ -5275,7 +5334,7 @@ biginttype big2;
       if ((carry != 0 || IS_NEGATIVE(big1->bigdigits[pos - 1])) &&
           (carry != BIGDIGIT_MASK || !IS_NEGATIVE(big1->bigdigits[pos - 1]))) {
         REALLOC_BIG_CHECK_SIZE(resized_big1, big1, big1->size, big1->size + 1);
-        if (resized_big1 == NULL) {
+        if (unlikely(resized_big1 == NULL)) {
           FREE_BIG(big1, big1->size);
           *big_variable = NULL;
           raise_error(MEMORY_ERROR);
@@ -5294,7 +5353,7 @@ biginttype big2;
       } /* if */
     } else {
       REALLOC_BIG_CHECK_SIZE(resized_big1, big1, big1->size, big2->size + 1);
-      if (resized_big1 == NULL) {
+      if (unlikely(resized_big1 == NULL)) {
         FREE_BIG(big1, big1->size);
         *big_variable = NULL;
         raise_error(MEMORY_ERROR);
@@ -5347,11 +5406,11 @@ biginttype big1;
 
   /* bigStr */
     result_size = 256;
-    if (!ALLOC_STRI_SIZE_OK(result, result_size)) {
+    if (unlikely(!ALLOC_STRI_SIZE_OK(result, result_size))) {
       raise_error(MEMORY_ERROR);
       return NULL;
     } else {
-      if (!ALLOC_BIG_CHECK_SIZE(help_big, big1->size + 1)) {
+      if (unlikely(!ALLOC_BIG_CHECK_SIZE(help_big, big1->size + 1))) {
         FREE_STRI(result, result_size);
         raise_error(MEMORY_ERROR);
         return NULL;
@@ -5369,7 +5428,7 @@ biginttype big1;
         do {
           if (pos + DECIMAL_DIGITS_IN_BIGDIGIT > result_size) {
             REALLOC_STRI_CHECK_SIZE(resized_result, result, result_size, result_size + 256);
-            if (resized_result == NULL) {
+            if (unlikely(resized_result == NULL)) {
               FREE_STRI(result, result_size);
               FREE_BIG(help_big, big1->size + 1);
               raise_error(MEMORY_ERROR);
@@ -5403,7 +5462,7 @@ biginttype big1;
         FREE_BIG(help_big, big1->size + 1);
         result->size = pos;
         REALLOC_STRI_SIZE_OK(resized_result, result, result_size, pos);
-        if (resized_result == NULL) {
+        if (unlikely(resized_result == NULL)) {
           FREE_STRI(result, result_size);
           raise_error(MEMORY_ERROR);
           return NULL;
@@ -5450,7 +5509,7 @@ biginttype big1;
     biginttype result;
 
   /* bigSucc */
-    if (!ALLOC_BIG_SIZE_OK(result, big1->size)) {
+    if (unlikely(!ALLOC_BIG_SIZE_OK(result, big1->size))) {
       raise_error(MEMORY_ERROR);
       return NULL;
     } else {
@@ -5465,7 +5524,7 @@ biginttype big1;
       if (IS_NEGATIVE(result->bigdigits[pos - 1])) {
         if (!IS_NEGATIVE(big1->bigdigits[pos - 1])) {
           REALLOC_BIG_CHECK_SIZE(resized_result, result, pos, pos + 1);
-          if (resized_result == NULL) {
+          if (unlikely(resized_result == NULL)) {
             FREE_BIG(result, pos);
             raise_error(MEMORY_ERROR);
             return NULL;
@@ -5477,16 +5536,14 @@ biginttype big1;
           } /* if */
         } else if (result->bigdigits[pos - 1] == BIGDIGIT_MASK &&
             pos >= 2 && IS_NEGATIVE(result->bigdigits[pos - 2])) {
+          /* Avoid a MEMORY_ERROR in the strange case     */
+          /* when a 'realloc' which shrinks memory fails. */
           REALLOC_BIG_SIZE_OK(resized_result, result, pos, pos - 1);
-          if (resized_result == NULL) {
-            FREE_BIG(result, pos);
-            raise_error(MEMORY_ERROR);
-            return NULL;
-          } else {
+          if (likely(resized_result != NULL)) {
             result = resized_result;
-            COUNT3_BIG(pos, pos - 1);
-            result->size--;
           } /* if */
+          COUNT3_BIG(pos, pos - 1);
+          result->size--;
         } /* if */
       } /* if */
       return result;
@@ -5508,8 +5565,47 @@ biginttype bigSuccTemp (big1)
 biginttype big1;
 #endif
 
-  { /* bigSuccTemp */
-    bigIncr(&big1);
+  {
+    memsizetype pos;
+    doublebigdigittype carry = 1;
+    bigdigittype negative;
+    biginttype resized_big1;
+
+  /* bigSuccTemp */
+    negative = IS_NEGATIVE(big1->bigdigits[big1->size - 1]);
+    pos = 0;
+    do {
+      carry += big1->bigdigits[pos];
+      big1->bigdigits[pos] = (bigdigittype) (carry & BIGDIGIT_MASK);
+      carry >>= BIGDIGIT_SIZE;
+      pos++;
+    } while (carry != 0 && pos < big1->size);
+    pos = big1->size;
+    if (IS_NEGATIVE(big1->bigdigits[pos - 1])) {
+      if (!negative) {
+        REALLOC_BIG_CHECK_SIZE(resized_big1, big1, pos, pos + 1);
+        if (unlikely(resized_big1 == NULL)) {
+          FREE_BIG(big1, big1->size);
+          raise_error(MEMORY_ERROR);
+          big1 = NULL;
+        } else {
+          big1 = resized_big1;
+          COUNT3_BIG(pos, pos + 1);
+          big1->size++;
+          big1->bigdigits[pos] = 0;
+        } /* if */
+      } else if (big1->bigdigits[pos - 1] == BIGDIGIT_MASK &&
+          pos >= 2 && IS_NEGATIVE(big1->bigdigits[pos - 2])) {
+        REALLOC_BIG_SIZE_OK(resized_big1, big1, pos, pos - 1);
+        /* Avoid a MEMORY_ERROR in the strange case     */
+        /* when a 'realloc' which shrinks memory fails. */
+        if (likely(resized_big1 != NULL)) {
+          big1 = resized_big1;
+        } /* if */
+        COUNT3_BIG(pos, pos - 1);
+        big1->size--;
+      } /* if */
+    } /* if */
     return big1;
   } /* bigSuccTemp */
 
@@ -5557,7 +5653,7 @@ biginttype big1;
         /* Not used afterwards: byteNum++; */
       } /* if */
     } /* if */
-    if (!ALLOC_BSTRI_CHECK_SIZE(result, result_size)) {
+    if (unlikely(!ALLOC_BSTRI_CHECK_SIZE(result, result_size))) {
       raise_error(MEMORY_ERROR);
     } else {
       result->size = result_size;
@@ -5659,7 +5755,7 @@ biginttype bigZero ()
     biginttype result;
 
   /* bigZero */
-    if (!ALLOC_BIG_SIZE_OK(result, 1)) {
+    if (unlikely(!ALLOC_BIG_SIZE_OK(result, 1))) {
       raise_error(MEMORY_ERROR);
     } else {
       result->size = 1;

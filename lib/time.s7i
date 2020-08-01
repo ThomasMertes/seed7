@@ -1513,6 +1513,9 @@ const func duration: (in duration: aDuration) * (in integer: number) is func
   end func;
 
 
+(**
+ *  Wait for a given duration.
+ *)
 const proc: wait (in duration: aDuration) is func
   begin
     await(time(NOW) + aDuration);

@@ -152,6 +152,8 @@ version.h:
 	echo "#define USE_FSEEKO64" >> version.h
 	echo "#define USE_WINSOCK" >> version.h
 	echo "#define $(BIGINT_LIB_DEFINE)" >> version.h
+	echo "#define likely(x)   __builtin_expect((x),1)" >> version.h
+	echo "#define unlikely(x) __builtin_expect((x),0)" >> version.h
 	echo "#include \"stdio.h\"" > chkccomp.c
 	echo "int main (int argc, char **argv)" >> chkccomp.c
 	echo "{" >> chkccomp.c

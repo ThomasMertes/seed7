@@ -165,7 +165,19 @@ const proc: SET_BACKGROUND (ref pixel param) is        action "DRW_BACKGROUND";
 const proc: DRAW_TEXT (inout PRIMITIVE_WINDOW param,
     ref integer param, ref integer param, in string param,
     ref pixel param, ref pixel param) is               action "DRW_TEXT";
+
+(**
+ *  Determine the actual X position of the mouse pointer.
+ *  The functions pointerXPos and pointerYPos can be used
+ *  to move something with the cursor (e.g.: drag and drop).
+ *)
 const func integer: pointerXPos (in PRIMITIVE_WINDOW param) is action "DRW_POINTER_XPOS";
+
+(**
+ *  Determine the actual Y position of the mouse pointer.
+ *  The functions pointerXPos and pointerYPos can be used
+ *  to move something with the cursor (e.g.: drag and drop).
+ *)
 const func integer: pointerYPos (in PRIMITIVE_WINDOW param) is action "DRW_POINTER_YPOS";
 
 

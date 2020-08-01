@@ -53,6 +53,7 @@
 #include "version.h"
 #include "common.h"
 #include "data.h"
+#include "data_rtl.h"
 #include "heaputl.h"
 
 #undef EXTERN
@@ -230,6 +231,13 @@ void heap_statistic ()
           SIZ_REC(objectrecord));
       bytes_used += count.arr_elems * SIZ_REC(objectrecord);
     } /* if */
+    if (count.rtl_arr_elems != 0) {
+      printf("%9lu bytes in %8lu rtl array elems of  %4u bytes\n",
+          count.rtl_arr_elems * SIZ_REC(rtlObjecttype),
+          count.rtl_arr_elems,
+          SIZ_REC(rtlObjecttype));
+      bytes_used += count.rtl_arr_elems * SIZ_REC(rtlObjecttype);
+    } /* if */
     if (count.hash != 0) {
       printf("%9lu bytes in %8lu hashtables of       %4u bytes\n",
           count.hash * SIZ_HSH(0),
@@ -250,6 +258,13 @@ void heap_statistic ()
           count.helem,
           SIZ_REC(helemrecord));
       bytes_used += count.helem * SIZ_REC(helemrecord);
+    } /* if */
+    if (count.rtl_helem != 0) {
+      printf("%9lu bytes in %8lu rtl helems of       %4u bytes\n",
+          count.rtl_helem * SIZ_REC(rtlHelemrecord),
+          count.rtl_helem,
+          SIZ_REC(rtlHelemrecord));
+      bytes_used += count.rtl_helem * SIZ_REC(rtlHelemrecord);
     } /* if */
     if (count.set != 0) {
       printf("%9lu bytes in %8lu sets of             %4u bytes\n",
@@ -478,7 +493,7 @@ void heap_statistic ()
         (memsizetype) (chunk.beyond - chunk.freemem) + chunk.lost_bytes);
 #endif
 #ifdef DO_HEAP_CHECK
-    check_heap(0, __FILE__, __LINE__);
+    /* check_heap(0, __FILE__, __LINE__); */
 #endif
 #ifdef TRACE_HEAPUTIL
     printf("END heap_statistic\n");
@@ -871,9 +886,11 @@ long sizediff;
         count.bstri_elems * sizeof(uchartype) +
         ((memsizetype) count.array) * SIZ_ARR(0) +
         count.arr_elems * SIZ_REC(objectrecord) +
+        count.rtl_arr_elems * SIZ_REC(rtlObjecttype) +
         ((memsizetype) count.hash) * SIZ_HSH(0) +
         count.hsh_elems * SIZ_REC(helemtype) +
         ((memsizetype) count.helem) * SIZ_REC(helemrecord) +
+        ((memsizetype) count.rtl_helem) * SIZ_REC(rtlHelemrecord) +
         ((memsizetype) count.set) * SIZ_SET(0) +
         count.set_elems * SIZ_REC(bitsettype) +
         ((memsizetype) count.stru) * SIZ_SCT(0) +
@@ -903,9 +920,13 @@ long sizediff;
     if (bytes_used != hs) {
       printf("*** %s(%u)\n%lu %lu %ld %ld \n",
           file_name, line_num, bytes_used, hs, bytes_used - hs, sizediff);
+/*    heap_statistic();
+      fflush(stdout);
+      printf("should not happen\n");
+      exit(1); */
 /*  } else {
-      printf("\n%lu %ld %d \n", hs, sizediff, in_file.line);
-*/  } /* if */
+      printf("\n%lu %ld %d \n", hs, sizediff, in_file.line); */
+    } /* if */
     /* if (sizediff > 0) {
       printf("\nalloc(%ld)\n", sizediff);
     } else {

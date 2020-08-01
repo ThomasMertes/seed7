@@ -54,7 +54,7 @@
 
 #ifdef ANSI_C
 
-void prgCpy (progtype *dest, progtype source)
+void prgCpy (progtype *const dest, const progtype source)
 #else
 
 void prgCpy (dest, source)
@@ -83,7 +83,7 @@ progtype source;
 
 #ifdef ANSI_C
 
-listtype prgDeclObjects (progtype aProg)
+listtype prgDeclObjects (const const_progtype aProg)
 #else
 
 listtype prgDeclObjects (aProg)
@@ -131,15 +131,24 @@ progtype old_prog;
 
 #ifdef ANSI_C
 
-inttype prgErrorCount (progtype aProg)
+inttype prgErrorCount (const const_progtype aProg)
 #else
 
 inttype prgErrorCount (aProg)
 progtype aProg;
 #endif
 
-  { /* prgErrorCount */
-    return(aProg->error_count);
+  {
+    inttype result;
+
+  /* prgErrorCount */
+    if (aProg->error_count > INTTYPE_MAX) {
+      raise_error(RANGE_ERROR);
+      result = 0;
+    } else {
+      result = (inttype) aProg->error_count;
+    } /* if */
+    return(result);
   } /* prgErrorCount */
 
 
@@ -203,7 +212,6 @@ stritype stri;
     if (err_info != OKAY_NO_ERROR) {
       raise_error(err_info);
     } /* if */
-    /* ?? set_trace(option.exec_trace_level, -1, NULL); */
     return(result);
   } /* prgFilParse */
 
@@ -211,11 +219,11 @@ stritype stri;
 
 #ifdef ANSI_C
 
-objecttype prgMatch (progtype currentProg, listtype curr_expr)
+objecttype prgMatch (const const_progtype aProg, listtype curr_expr)
 #else
 
-objecttype prgMatch (currentProg, curr_expr)
-progtype currentProg;
+objecttype prgMatch (aProg, curr_expr)
+progtype aProg;
 listtype curr_expr;
 #endif
 
@@ -231,7 +239,7 @@ listtype curr_expr;
     expr_object.value.listvalue = curr_expr;
     INIT_CATEGORY_OF_OBJ(&expr_object, EXPROBJECT);
 
-    result = match_prog_expression(currentProg->declaration_root, &expr_object);
+    result = match_prog_expression(aProg->declaration_root, &expr_object);
     if (result != NULL) {
       if (CATEGORY_OF_OBJ(result) == MATCHOBJECT ||
           CATEGORY_OF_OBJ(result) == CALLOBJECT) {
@@ -255,11 +263,11 @@ listtype curr_expr;
 
 #ifdef ANSI_C
 
-objecttype prgMatchExpr (progtype currentProg, listtype curr_expr)
+objecttype prgMatchExpr (const const_progtype aProg, listtype curr_expr)
 #else
 
-objecttype prgMatchExpr (currentProg, curr_expr)
-progtype currentProg;
+objecttype prgMatchExpr (aProg, curr_expr)
+progtype aProg;
 listtype curr_expr;
 #endif
 
@@ -282,7 +290,7 @@ listtype curr_expr;
         raise_error(MEMORY_ERROR);
         result = NULL;
       } else {
-        result = match_prog_expression(currentProg->declaration_root, result);
+        result = match_prog_expression(aProg->declaration_root, result);
         /* printf("result == %lx\n", result);
         trace1(result);
         printf("\n");
@@ -315,7 +323,6 @@ stritype stri;
     if (err_info != OKAY_NO_ERROR) {
       raise_error(err_info);
     } /* if */
-    /* ?? set_trace(option.exec_trace_level, -1, NULL); */
     return(result);
   } /* prgStrParse */
 
@@ -323,12 +330,12 @@ stritype stri;
 
 #ifdef ANSI_C
 
-objecttype prgSyobject (progtype currentProg, stritype stri1)
+objecttype prgSyobject (const progtype aProg, const const_stritype syobjectName)
 #else
 
-objecttype prgSyobject (currentProg, stri1)
-progtype currentProg;
-stritype stri1;
+objecttype prgSyobject (aProg, syobjectName)
+progtype aProg;
+stritype syobjectName;
 #endif
 
   {
@@ -338,13 +345,13 @@ stritype stri1;
     objecttype result;
 
   /* prgSyobject */
-    name = cp_to_cstri(stri1);
+    name = cp_to_cstri(syobjectName);
     if (name == NULL) {
       raise_error(MEMORY_ERROR);
       result = NULL;
     } else {
       memcpy(&prog_backup, &prog, sizeof(progrecord));
-      memcpy(&prog, currentProg, sizeof(progrecord));
+      memcpy(&prog, aProg, sizeof(progrecord));
       ident_found = get_ident((ustritype) name, strlen(name));
       if (ident_found == NULL ||
           ident_found->entity == NULL) {
@@ -353,7 +360,7 @@ stritype stri1;
         result = ident_found->entity->syobject;
       } /* if */
       memcpy(&prog, &prog_backup, sizeof(progrecord));
-      free_cstri(name, stri1);
+      free_cstri(name, syobjectName);
     } /* if */
     return(result);
   } /* prgSyobject */
@@ -362,7 +369,7 @@ stritype stri1;
 
 #ifdef ANSI_C
 
-objecttype prgSysvar (progtype aProg, stritype sysvarName)
+objecttype prgSysvar (const const_progtype aProg, const const_stritype sysvarName)
 #else
 
 objecttype prgSysvar (aProg, sysvarName)

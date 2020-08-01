@@ -38,9 +38,11 @@ typedef struct {
     memsizetype bstri_elems;
     unsigned long array;
     memsizetype arr_elems;
+    memsizetype rtl_arr_elems;
     unsigned long hash;
     memsizetype hsh_elems;
     unsigned long helem;
+    unsigned long rtl_helem;
     unsigned long set;
     memsizetype set_elems;
     unsigned long stru;
@@ -77,7 +79,8 @@ typedef struct {
 counttype count = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
                    0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
                    0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                   0, 0, 0, 0, 0, 0, 0, 0, 0};
+                   0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                   0};
 #else
 EXTERN counttype count;
 #endif
@@ -169,8 +172,8 @@ EXTERN memsizetype hs;
 #define BYT_SUB(size)          , count.byte -= (memsizetype) (size)
 #define RTL_L_ELEM_ADD
 #define RTL_L_ELEM_SUB
-#define RTL_ARR_ADD(len)       , count.array++, count.arr_elems += (memsizetype) (len)
-#define RTL_ARR_SUB(len)       , count.array--, count.arr_elems -= (memsizetype) (len)
+#define RTL_ARR_ADD(len)       , count.array++, count.rtl_arr_elems += (memsizetype) (len)
+#define RTL_ARR_SUB(len)       , count.array--, count.rtl_arr_elems -= (memsizetype) (len)
 #define RTL_HSH_ADD(len)       , count.hash++,  count.hsh_elems += (memsizetype) (len)
 #define RTL_HSH_SUB(len)       , count.hash--,  count.hsh_elems -= (memsizetype) (len)
 #else

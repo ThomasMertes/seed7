@@ -569,7 +569,7 @@ listtype arguments;
     if (upper_limit >= lower_limit) {
       for_variable->value.intvalue = upper_limit;
       evaluate(statement);
-      while (take_int(for_variable) > lower_limit) {
+      while (take_int(for_variable) > lower_limit && !fail_flag) {
         for_variable->value.intvalue--;
         evaluate(statement);
       } /* while */
@@ -606,7 +606,7 @@ listtype arguments;
     if (lower_limit <= upper_limit) {
       for_variable->value.intvalue = lower_limit;
       evaluate(statement);
-      while (take_int(for_variable) < upper_limit) {
+      while (take_int(for_variable) < upper_limit && !fail_flag) {
         for_variable->value.intvalue++;
         evaluate(statement);
       } /* while */

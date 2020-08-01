@@ -55,7 +55,7 @@
 
 #ifdef ANSI_C
 
-int find_sysvar (stritype);
+int find_sysvar (const_stritype stri);
 void init_sysvar (void);
 
 #else
