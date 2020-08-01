@@ -594,13 +594,6 @@ const proc: palette is func
   end func;
 
 
-const proc: sleep (in integer: seconds) is func
-  begin
-    DRAW_FLUSH;
-    CMD_SLEEP(seconds);
-  end func;
-
-
 const proc: sound (in integer: freq, in integer: dur) is func
   begin
     write("SOUND");

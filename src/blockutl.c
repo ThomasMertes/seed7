@@ -89,10 +89,10 @@ locobjtype locobj;
 
 #ifdef ANSI_C
 
-void free_loclist (loclisttype loclist)
+static void free_loclist (loclisttype loclist)
 #else
 
-void free_loclist (loclist)
+static void free_loclist (loclist)
 loclisttype loclist;
 #endif
 

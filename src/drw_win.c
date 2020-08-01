@@ -139,7 +139,6 @@ win_wintype curr_window;
       win_addr = &window->next;
       window = window->next;
     } /* while */
-    return(NULL);
   } /* remove_window */
 
 
@@ -148,7 +147,7 @@ LRESULT CALLBACK WndProc (HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
   {
     win_wintype paint_window;
     RECT rect;
-    MSG msg;
+    /* MSG msg; */
     LRESULT result;
 
   /* WndProc */
@@ -156,16 +155,16 @@ LRESULT CALLBACK WndProc (HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     switch (message) {
       case WM_PAINT:
         paint_window = find_window(hWnd);
-        printf("WM_PAINT %lu %lu\n", hWnd, paint_window);
+        /* printf("WM_PAINT %lu %lu\n", hWnd, paint_window); */
         if (paint_window != NULL && paint_window->backup_hdc != 0) {
-          printf("hdc=%lu\n", paint_window->hdc);
-          if (GetUpdateRect(paint_window->hdc, &rect, FALSE) != 0) {
-            printf("GetUpdateRect left=%ld, top=%ld, right=%ld, bottom=%ld\n",
-                rect.left, rect.top, rect.right, rect.bottom);
-            BitBlt(to_hdc(paint_window), 0, 0, to_width(paint_window), to_height(paint_window),
-                to_backup_hdc(paint_window), 0, 0, SRCCOPY);
+          if (GetUpdateRect(paint_window->hWnd, &rect, FALSE) != 0) {
+            /* printf("GetUpdateRect left=%ld, top=%ld, right=%ld, bottom=%ld\n",
+	       rect.left, rect.top, rect.right, rect.bottom); */
+            BitBlt(to_hdc(paint_window), rect.left, rect.top,
+                rect.right - rect.left, rect.bottom - rect.top,
+                to_backup_hdc(paint_window), rect.left, rect.top, SRCCOPY);
           } else {
-            printf("GetUpdateRect no update region\n");
+            /* printf("GetUpdateRect no update region\n"); */
             BitBlt(to_hdc(paint_window), 0, 0, to_width(paint_window), to_height(paint_window),
                 to_backup_hdc(paint_window), 0, 0, SRCCOPY);
           } /* if */
@@ -369,51 +368,61 @@ chartype gkbGetc ()
           } else if (msg.message == WM_SYSKEYDOWN) {
             /* printf("WM_SYSKEYDOWN %lu, %d, %u %d\n", msg.hwnd, msg.wParam, msg.lParam, msg.lParam & 0x20000000); */
             switch (msg.wParam) {
-                case 'A':    result = K_ALT_A;   break;
-                case 'B':    result = K_ALT_B;   break;
-                case 'C':    result = K_ALT_C;   break;
-                case 'D':    result = K_ALT_D;   break;
-                case 'E':    result = K_ALT_E;   break;
-                case 'F':    result = K_ALT_F;   break;
-                case 'G':    result = K_ALT_G;   break;
-                case 'H':    result = K_ALT_H;   break;
-                case 'I':    result = K_ALT_I;   break;
-                case 'J':    result = K_ALT_J;   break;
-                case 'K':    result = K_ALT_K;   break;
-                case 'L':    result = K_ALT_L;   break;
-                case 'M':    result = K_ALT_M;   break;
-                case 'N':    result = K_ALT_N;   break;
-                case 'O':    result = K_ALT_O;   break;
-                case 'P':    result = K_ALT_P;   break;
-                case 'Q':    result = K_ALT_Q;   break;
-                case 'R':    result = K_ALT_R;   break;
-                case 'S':    result = K_ALT_S;   break;
-                case 'T':    result = K_ALT_T;   break;
-                case 'U':    result = K_ALT_U;   break;
-                case 'V':    result = K_ALT_V;   break;
-                case 'W':    result = K_ALT_W;   break;
-                case 'X':    result = K_ALT_X;   break;
-                case 'Y':    result = K_ALT_Y;   break;
-                case 'Z':    result = K_ALT_Z;   break;
-                case '0':    result = K_ALT_0;   break;
-                case '1':    result = K_ALT_1;   break;
-                case '2':    result = K_ALT_2;   break;
-                case '3':    result = K_ALT_3;   break;
-                case '4':    result = K_ALT_4;   break;
-                case '5':    result = K_ALT_5;   break;
-                case '6':    result = K_ALT_6;   break;
-                case '7':    result = K_ALT_7;   break;
-                case '8':    result = K_ALT_8;   break;
-                case '9':    result = K_ALT_9;   break;
-                case VK_F1:  result = K_ALT_F1;  break;
-                case VK_F2:  result = K_ALT_F2;  break;
-                case VK_F3:  result = K_ALT_F3;  break;
-                case VK_F4:  result = K_ALT_F4;  break;
-                case VK_F5:  result = K_ALT_F5;  break;
-                case VK_F6:  result = K_ALT_F6;  break;
-                case VK_F7:  result = K_ALT_F7;  break;
-                case VK_F8:  result = K_ALT_F8;  break;
-                case VK_F9:  result = K_ALT_F9;  break;
+                case 'A':         result = K_ALT_A;   break;
+                case 'B':         result = K_ALT_B;   break;
+                case 'C':         result = K_ALT_C;   break;
+                case 'D':         result = K_ALT_D;   break;
+                case 'E':         result = K_ALT_E;   break;
+                case 'F':         result = K_ALT_F;   break;
+                case 'G':         result = K_ALT_G;   break;
+                case 'H':         result = K_ALT_H;   break;
+                case 'I':         result = K_ALT_I;   break;
+                case 'J':         result = K_ALT_J;   break;
+                case 'K':         result = K_ALT_K;   break;
+                case 'L':         result = K_ALT_L;   break;
+                case 'M':         result = K_ALT_M;   break;
+                case 'N':         result = K_ALT_N;   break;
+                case 'O':         result = K_ALT_O;   break;
+                case 'P':         result = K_ALT_P;   break;
+                case 'Q':         result = K_ALT_Q;   break;
+                case 'R':         result = K_ALT_R;   break;
+                case 'S':         result = K_ALT_S;   break;
+                case 'T':         result = K_ALT_T;   break;
+                case 'U':         result = K_ALT_U;   break;
+                case 'V':         result = K_ALT_V;   break;
+                case 'W':         result = K_ALT_W;   break;
+                case 'X':         result = K_ALT_X;   break;
+                case 'Y':         result = K_ALT_Y;   break;
+                case 'Z':         result = K_ALT_Z;   break;
+                case '0':         result = K_ALT_0;   break;
+                case '1':         result = K_ALT_1;   break;
+                case '2':         result = K_ALT_2;   break;
+                case '3':         result = K_ALT_3;   break;
+                case '4':         result = K_ALT_4;   break;
+                case '5':         result = K_ALT_5;   break;
+                case '6':         result = K_ALT_6;   break;
+                case '7':         result = K_ALT_7;   break;
+                case '8':         result = K_ALT_8;   break;
+                case '9':         result = K_ALT_9;   break;
+                case VK_NUMPAD0:  result = K_ALT_0;   break;
+                case VK_NUMPAD1:  result = K_ALT_1;   break;
+                case VK_NUMPAD2:  result = K_ALT_2;   break;
+                case VK_NUMPAD3:  result = K_ALT_3;   break;
+                case VK_NUMPAD4:  result = K_ALT_4;   break;
+                case VK_NUMPAD5:  result = K_ALT_5;   break;
+                case VK_NUMPAD6:  result = K_ALT_6;   break;
+                case VK_NUMPAD7:  result = K_ALT_7;   break;
+                case VK_NUMPAD8:  result = K_ALT_8;   break;
+                case VK_NUMPAD9:  result = K_ALT_9;   break;
+                case VK_F1:       result = K_ALT_F1;  break;
+                case VK_F2:       result = K_ALT_F2;  break;
+                case VK_F3:       result = K_ALT_F3;  break;
+                case VK_F4:       result = K_ALT_F4;  break;
+                case VK_F5:       result = K_ALT_F5;  break;
+                case VK_F6:       result = K_ALT_F6;  break;
+                case VK_F7:       result = K_ALT_F7;  break;
+                case VK_F8:       result = K_ALT_F8;  break;
+                case VK_F9:       result = K_ALT_F9;  break;
                 case VK_F10:
                   if (msg.lParam & 0x20000000) {
                     result = K_ALT_F10;
@@ -424,6 +433,10 @@ chartype gkbGetc ()
                   } else {
                     result = K_F10;
                   } /* if */
+                  break;
+	        default:
+                  /* printf("WM_SYSKEYDOWN %lu, %d %X\n", msg.hwnd, msg.wParam, msg.lParam); */
+                  result = K_UNDEF;
                   break;
             } /* switch */
           } else if (msg.message == WM_CHAR) {
@@ -499,18 +512,28 @@ booltype gkbKeyPressed ()
           result = TRUE;
           break;
         case WM_NCLBUTTONDOWN:
-          printf("gkbKeyPressed WM_NCLBUTTONDOWN\n");
+          /* printf("gkbKeyPressed WM_NCLBUTTONDOWN\n"); */
           bRet = GetMessage(&msg, NULL, 0, 0);
           if (bRet == 0) {
             printf("x GetMessage(&msg, NULL, 0, 0)=0\n");
           } else if (bRet == -1) {
             printf("x GetMessage(&msg, NULL, 0, 0)=-1\n");
           } else {
-            printf("x message=%d %lu, %d, %u\n", msg.message, msg.hwnd, msg.wParam, msg.lParam);
+            /* printf("x message=%d %lu, %d, %u\n", msg.message, msg.hwnd, msg.wParam, msg.lParam); */
             TranslateMessage(&msg);
-            printf("x translated message=%d %lu, %d %u\n", msg.message, msg.hwnd, msg.wParam, msg.lParam);
+            /* printf("x translated message=%d %lu, %d %u\n", msg.message, msg.hwnd, msg.wParam, msg.lParam); */
             DispatchMessage(&msg);
-            printf("x after DispatchMessage\n");
+            /* printf("x after DispatchMessage\n"); */
+          } /* if */
+          msg_present = PeekMessage(&msg, NULL, 0, 0, PM_NOREMOVE);
+          break;
+        case WM_SYSKEYUP:
+          /* printf("gkbKeyPressed WM_SYSKEYUP\n"); */
+          bRet = GetMessage(&msg, NULL, 0, 0);
+          if (bRet == 0) {
+            printf("y GetMessage(&msg, NULL, 0, 0)=0\n");
+          } else if (bRet == -1) {
+            printf("y GetMessage(&msg, NULL, 0, 0)=-1\n");
           } /* if */
           msg_present = PeekMessage(&msg, NULL, 0, 0, PM_NOREMOVE);
           break;

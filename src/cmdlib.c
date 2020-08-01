@@ -398,27 +398,6 @@ listtype arguments;
 
 #ifdef ANSI_C
 
-objecttype cmd_sleep (listtype arguments)
-#else
-
-objecttype cmd_sleep (arguments)
-listtype arguments;
-#endif
-
-  {
-    inttype seconds;
-
-  /* cmd_sleep */
-    isit_int(arg_1(arguments));
-    seconds = take_int(arg_1(arguments));
-    sleep(seconds);
-    return(SYS_EMPTY_OBJECT);
-  } /* cmd_sleep */
-
-
-
-#ifdef ANSI_C
-
 objecttype cmd_symlink (listtype arguments)
 #else
 

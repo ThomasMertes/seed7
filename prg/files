@@ -43,6 +43,7 @@ shisen.sd7   Shisen game
 sl.sd7       Game of Life                                      
 snake.sd7    Snake eats apple game                             
 startrek.sd7 Classical startrek game                           
+sudoku7.sd7  Sudoku program                                    
 tak.sd7      Little benchmark computing tak(18, 12, 6)         
 tarx.sd7     Simple tar program                                
 tch.sd7      The hitchhikers guide ...                         

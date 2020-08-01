@@ -68,6 +68,56 @@ static int card_byte[] = {
 
 #ifdef ANSI_C
 
+objecttype set_arrlit (listtype arguments)
+#else
+
+objecttype set_arrlit (arguments)
+listtype arguments;
+#endif
+
+  {
+    arraytype arr1;
+    memsizetype length;
+    inttype number;
+    inttype position;
+    unsigned int bit_index;
+    settype result;
+
+  /* set_arrlit */
+    isit_array(arg_2(arguments));
+    arr1 = take_array(arg_2(arguments));
+    length = arr1->max_position - arr1->min_position + 1;
+    if (!ALLOC_SET(result, 1)) {
+      return(raise_exception(SYS_MEM_EXCEPTION));
+    } else {
+      COUNT_SET(1);
+      if (length == 0) {
+        result->min_position = 0;
+        result->max_position = 0;
+        memset(result->bitset, 0, sizeof(bitsettype));
+      } else {
+        number = take_int(&arr1->arr[0]);
+        position = number >> bitset_shift;
+        result->min_position = position;
+        result->max_position = position;
+        bit_index = ((unsigned int) number) & bitset_mask;
+        result->bitset[0] = (1 << bit_index);
+        for (number = 1; number < length; number++) {
+          setIncl(&result, take_int(&arr1->arr[number]));
+          if (fail_flag) {
+            FREE_SET(result, result->max_position - result->min_position + 1);
+            return(fail_value);
+          } /* if */
+        } /* for */
+      } /* if */
+      return(bld_set_temp(result));
+    } /* if */
+  } /* set_arrlit */
+
+
+
+#ifdef ANSI_C
+
 objecttype set_baselit (listtype arguments)
 #else
 

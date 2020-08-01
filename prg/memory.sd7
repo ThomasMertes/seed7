@@ -2079,8 +2079,6 @@ const proc: main is func
     writeln(scr, "Memory is written in the Seed7 programming language");
     setPos(scr, 9, 46);
     writeln(scr, "Homepage:    http://seed7.sourceforge.net");
-    setPos(scr, 10, 46);
-    writeln(scr, "Wikipedia:   http://en.wikipedia.org/wiki/Seed7");
     KEYBOARD := GRAPH_KEYBOARD;
     digit_pixmap := [0](
       create_pixmap(zero,  2),

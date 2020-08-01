@@ -36,6 +36,11 @@
       raise_with_arguments(SYS_MEM_EXCEPTION, act_param_list); \
     } }
 
+#define to_empty_list(list_begin, list_end) { \
+    list_end->next = flist.list_elems;        \
+    flist.list_elems = list_begin;            \
+    }
+
 
 #ifdef ANSI_C
 

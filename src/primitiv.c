@@ -148,7 +148,6 @@ static primactrecord prim_act_table[] = {
     { "CMD_MOVE",          cmd_move,          },
     { "CMD_REMOVE",        cmd_remove,        },
     { "CMD_SH",            cmd_sh,            },
-    { "CMD_SLEEP",         cmd_sleep,         },
     { "CMD_SYMLINK",       cmd_symlink,       },
 
     { "DCL_ATTR",          dcl_attr,          },
@@ -509,6 +508,7 @@ static primactrecord prim_act_table[] = {
     { "SCT_REFIDX",        sct_refidx,        },
     { "SCT_SELECT",        sct_select,        },
 
+    { "SET_ARRLIT",        set_arrlit,        },
     { "SET_BASELIT",       set_baselit,       },
     { "SET_CARD",          set_card,          },
     { "SET_CMP",           set_cmp,           },

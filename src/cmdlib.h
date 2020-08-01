@@ -37,7 +37,6 @@ objecttype cmd_mkdir (listtype);
 objecttype cmd_move (listtype);
 objecttype cmd_remove (listtype);
 objecttype cmd_sh (listtype);
-objecttype cmd_sleep (listtype);
 objecttype cmd_symlink (listtype);
 
 #else
@@ -52,7 +51,6 @@ objecttype cmd_mkdir ();
 objecttype cmd_move ();
 objecttype cmd_remove ();
 objecttype cmd_sh ();
-objecttype cmd_sleep ();
 objecttype cmd_symlink ();
 
 #endif

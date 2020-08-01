@@ -40,6 +40,7 @@
 #include "entutl.h"
 #include "syvarutl.h"
 #include "actutl.h"
+#include "infile.h"
 #include "findid.h"
 #include "doany.h"
 

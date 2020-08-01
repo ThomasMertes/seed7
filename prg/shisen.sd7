@@ -1490,10 +1490,8 @@ const proc: main is func
     writeln(screen, "terms of the GNU General Public License");
     setPos(screen, 3, 85);
     writeln(screen, "Shisen is written in the Seed7 programming language");
-    setPos(screen, 4, 87);
+    setPos(screen, 4, 90);
     writeln(screen, "Homepage:    http://seed7.sourceforge.net");
-    setPos(screen, 5, 87);
-    writeln(screen, "Wikipedia:   http://en.wikipedia.org/wiki/Seed7");
     DRAW_FLUSH;
     digit_pixmap := [0](
       create_pixmap(zero,  2),

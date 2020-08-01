@@ -1261,24 +1261,41 @@ const proc: main is func
     writeln(scr, "This program is free software under the");
     setPos(scr, 11, 35);
     writeln(scr, "terms of the GNU General Public License");
-    setPos(scr, 13, 30);
+    setPos(scr, 13, 28);
     writeln(scr, "Dnafight is written in the Seed7 programming language");
-    setPos(scr, 14, 32);
-    writeln(scr, "Homepage:    http://seed7.sourceforge.net");
-    setPos(scr, 15, 32);
-    writeln(scr, "Wikipedia:   http://en.wikipedia.org/wiki/Seed7");
-    setPos(scr, 19, 1);
-    writeln(scr, " DNAFIGHT is a programming game in which bacterials fight \
-         \aggainst each other. Each bacterium is");
-    writeln(scr, " controlled by a DNA program written in Seed7. The different \
-         \types of bacteria are named with colors");
-    writeln(scr, " and have corresponding DNA programs for each color. There \
-         \are two ways to play this game:");
+    setPos(scr, 14, 35);
+    writeln(scr, "Homepage:  http://seed7.sourceforge.net");
+    setPos(scr, 17, 1);
+    writeln(scr, "   Dnafight is a programming game in which bacteria fight \
+        \against each other.");
     writeln(scr);
-    writeln(scr, "  1. Place some bacterials on the plate and let them fight \
-         \aggainst each other.");
-    writeln(scr, "  2. Write an DNA for a new bacterium and measure your \
-         \programming skills.");
+    writeln(scr, "   In Dnafight there are different types of bacteria named \
+        \with colors. Each bacterium is controlled by");
+    writeln(scr, "   a DNA program written in Seed7. The plate on which the bacteria \
+        \live is a rectangular grid of cells.");
+    writeln(scr, "   A cell can be empty or contain one bacterium. A cell can also \
+        \contain some food. In every turn a");
+    writeln(scr, "   bacterium can inspect its own cell and the eight neighbour cells. \
+        \Then the bacterium can decide");
+    writeln(scr, "   between eating, killing or splitting in one of the four cardinal \
+        \directions.");
+    writeln(scr);
+    writeln(scr, "     - Eating food includes moving and is also allowed when the \
+        \bacterium stays in place.");
+    writeln(scr, "     - Killing another bacterium is allowed when the other \
+        \bacterium is of the same size or smaller.");
+    writeln(scr, "     - Splitting a bacterium produces two half-sized bacteria. \
+        \The first stays in place while the");
+    writeln(scr, "       second moves to another place. Both new bacteria can eat food.");
+    writeln(scr);
+    writeln(scr, "   There are two ways to play this game:");
+    writeln(scr);
+    writeln(scr, "     1. Place some bacteria on the plate and let them fight \
+        \against each other.");
+    writeln(scr, "     2. Write a DNA program for a new bacterium and measure your \
+        \programming skills.");
+    setPos(scr, 36, 41);
+    writeln(scr, "Press any key to start game");
     if upper(getc(KEYBOARD)) <> 'Q' then
       clear(curr_win, white);
       setPos(scr, 1, 1);

@@ -596,7 +596,7 @@ void decl_syntax ()
   if (CLASS_OF_OBJ(expression) == EXPROBJECT) {
     emptylist(expression->value.listvalue);
     FREE_OBJECT(expression);
-/*  FREE_RECORD(expression, objectrecord, OBJT_COUNT); */
+/*  FREE_RECORD(expression, objectrecord, count.object); */
   } /* if */
 #ifdef TRACE_SYNTAX
     printf("END decl_syntax\n");

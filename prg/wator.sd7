@@ -89,10 +89,8 @@ const proc: introduction is func
     writeln(intro, "terms of the GNU General Public License");
     setPos(intro, 9, 18);
     writeln(intro, "Wator is written in the Seed7 programming language");
-    setPos(intro, 10, 20);
+    setPos(intro, 10, 22);
     writeln(intro, "Homepage:    http://seed7.sourceforge.net");
-    setPos(intro, 11, 20);
-    writeln(intro, "Wikipedia:   http://en.wikipedia.org/wiki/Seed7");
     setPos(intro, 14, 1);
     writeln(intro, "This program simulates the planet WATOR as described in Scientific American Computer");
     writeln(intro, "Recreations column, Dec 1984.  WATOR (or Wa-Tor) is a toroidal (donut-shaped) planet");
@@ -114,7 +112,7 @@ const proc: introduction is func
     writeln(intro, "displayed, press any key to start the simulation.  During the run, pressing any key");
     writeln(intro, "will stop the program.");
     writeln(intro);
-    writeln(intro, "Press any key now to continue.");
+    writeln(intro, "Press any key to continue.");
   end func;
 
 

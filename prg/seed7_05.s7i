@@ -1577,13 +1577,15 @@ const func integer: card (in bitset param) is                      action "SET_C
 const func integer: rand (in bitset param) is                      action "SET_RAND";
 const func integer: min (in bitset param) is                       action "SET_MIN";
 const func integer: max (in bitset param) is                       action "SET_MAX";
-const func bitset: { (in integer: value) } is                      action "SET_BASELIT";
+const func bitset: { (in integer param) } is                       action "SET_BASELIT";
+const func bitset: { (in tuple integer param) } is                 action "SET_ARRLIT";
 
 const func bitset: _GENERATE_EMPTY_SET is                          action "SET_EMPTY";
 const bitset: EMPTY_SET is                                         _GENERATE_EMPTY_SET;
 const bitset: (attr bitset) . EMPTY_SET is                         EMPTY_SET;
 const bitset: (attr bitset) . value is                             EMPTY_SET;
 
+(*
 const func bitset: { (in tuple integer: value) } is func
   result
     var bitset: result is EMPTY_SET;
@@ -1594,6 +1596,7 @@ const func bitset: { (in tuple integer: value) } is func
       incl(result, ([] value)[number]);
     end for;
   end func;
+*)
 
 const func bitset: { (in integer: lower_value) .. (in integer: upper_value) } is func
   result

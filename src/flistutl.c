@@ -583,17 +583,17 @@ void reuse_free_lists ()
     while (flist.objects != NULL) {
       help_obj = flist.objects;
       flist.objects = flist.objects->TYPEOF;
-      FREE_RECORD(help_obj, objectrecord, OBJT_COUNT);
+      FREE_RECORD(help_obj, objectrecord, count.object);
     } /* while */
     while (flist.list_elems != NULL) {
       help_list = flist.list_elems;
       flist.list_elems = flist.list_elems->next;
-      FREE_RECORD(help_list, listrecord, LIST_ELEMENT_COUNT);
+      FREE_RECORD(help_list, listrecord, count.list_elem);
     } /* while */
     while (flist.infiles != NULL) {
       help_infile = flist.infiles;
       flist.infiles = flist.infiles->next;
-      FREE_RECORD(help_infile, infilrecord, INFIL_COUNT);
+      FREE_RECORD(help_infile, infilrecord, count.infil);
     } /* while */
   } /* reuse_free_lists */
 #endif

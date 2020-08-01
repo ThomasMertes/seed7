@@ -27,6 +27,7 @@
 
 #ifdef ANSI_C
 
+objecttype set_arrlit (listtype);
 objecttype set_baselit (listtype);
 objecttype set_card (listtype);
 objecttype set_cmp (listtype);
@@ -57,6 +58,7 @@ objecttype set_value (listtype);
 
 #else
 
+objecttype set_arrlit ();
 objecttype set_baselit ();
 objecttype set_card ();
 objecttype set_cmp ();

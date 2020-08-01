@@ -608,14 +608,25 @@ static void dump_arg_list (evaluated_act_params)
 listtype evaluated_act_params;
 #endif
 
-  { /* dump_arg_list */
-    while (evaluated_act_params != NULL) {
-      if (evaluated_act_params->obj != NULL &&
-          TEMP_OBJECT(evaluated_act_params->obj)) {
-        dump_any_temp(evaluated_act_params->obj);
+  {
+    register listtype list_end;
+
+  /* dump_arg_list */
+    if (evaluated_act_params != NULL) {
+      list_end = evaluated_act_params;
+      while (list_end->next != NULL) {
+        if (list_end->obj != NULL &&
+            TEMP_OBJECT(list_end->obj)) {
+          dump_any_temp(list_end->obj);
+        } /* if */
+        list_end = list_end->next;
+      } /* while */
+      if (list_end->obj != NULL &&
+          TEMP_OBJECT(list_end->obj)) {
+        dump_any_temp(list_end->obj);
       } /* if */
-      evaluated_act_params = evaluated_act_params->next;
-    } /* while */
+      to_empty_list(evaluated_act_params, list_end);
+    } /* if */
   } /* dump_arg_list */
 
 
@@ -712,7 +723,7 @@ listtype act_param_list;
       } /* if */
 #endif
       dump_arg_list(evaluated_act_params);
-      emptylist(evaluated_act_params);
+      /* emptylist(evaluated_act_params); replaced by to_empty_list */
     } /* if */
 #ifdef TRACE_EXEC
     printf("END exec_action\n");

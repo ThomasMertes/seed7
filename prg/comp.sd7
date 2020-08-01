@@ -1972,15 +1972,6 @@ const proc: process_cmd_sh (in ref_list: params, inout expr_type: c_expr) is fun
   end func;
 
 
-const proc: process_cmd_sleep (in ref_list: params, inout expr_type: c_expr) is func
-
-  begin
-    c_expr.expr &:= "sleep(";
-    process_expr(params[1], c_expr);
-    c_expr.expr &:= ")";
-  end func;
-
-
 const proc: process_drw_arc (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
@@ -5574,8 +5565,6 @@ const proc: process_action (in reference: procedure, in ref_list: params,
       process_cmd_remove(params, c_expr);
     elsif action_name = "CMD_SH" then
       process_cmd_sh(params, c_expr);
-    elsif action_name = "CMD_SLEEP" then
-      process_cmd_sleep(params, c_expr);
     elsif action_name = "DRW_ARC" then
       process_drw_arc(params, c_expr);
     elsif action_name = "DRW_ARC2" then

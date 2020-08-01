@@ -2684,10 +2684,8 @@ const proc: main is func
     writeln(scr, "terms of the GNU General Public License");
     setPos(scr, 10, 24);
     writeln(scr, "Panic is written in the Seed7 programming language");
-    setPos(scr, 11, 26);
+    setPos(scr, 11, 28);
     writeln(scr, "Homepage:    http://seed7.sourceforge.net");
-    setPos(scr, 12, 26);
-    writeln(scr, "Wikipedia:   http://en.wikipedia.org/wiki/Seed7");
     setPos(scr, 16, 14);
     writeln(scr, "Dig holes and pound the apples through the holes");
     setPos(scr, 18, 14);

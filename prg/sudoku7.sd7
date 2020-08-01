@@ -1,0 +1,2691 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  sudoku7.sd7   Sudoku program                                    *)
+(*  Copyright (C) 2006  Thomas Mertes                               *)
+(*                                                                  *)
+(*  This program is free software; you can redistribute it and/or   *)
+(*  modify it under the terms of the GNU General Public License as  *)
+(*  published by the Free Software Foundation; either version 2 of  *)
+(*  the License, or (at your option) any later version.             *)
+(*                                                                  *)
+(*  This program is distributed in the hope that it will be useful, *)
+(*  but WITHOUT ANY WARRANTY; without even the implied warranty of  *)
+(*  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the   *)
+(*  GNU General Public License for more details.                    *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU General Public       *)
+(*  License along with this program; if not, write to the Free      *)
+(*  Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,  *)
+(*  MA 02111-1307 USA                                               *)
+(*                                                                  *)
+(********************************************************************)
+
+
+$ include "seed7_05.s7i";
+  include "window.s7i";
+  include "keybd.s7i";
+  include "float.s7i";
+  include "draw.s7i";
+  include "pic16.s7i";
+
+const integer: STRETCH_FACTOR    is 68;
+const integer: PIXMAP_SIZE       is 32;
+const integer: SMALL_PIXMAP_SIZE is 16;
+const integer: FIELD_XPOS        is  8;
+const integer: FIELD_YPOS        is 64;
+const integer: FIELD_BORDER      is  3;
+
+const integer: X_SHIFT        is FIELD_XPOS + FIELD_BORDER - STRETCH_FACTOR * 2;
+const integer: Y_SHIFT        is FIELD_YPOS + FIELD_BORDER - STRETCH_FACTOR * 2;
+
+const integer: CELL_SHIFT         is 5;
+const integer: CELL_SIZE          is STRETCH_FACTOR - 2 * CELL_SHIFT + 1;
+const integer: PIXMAP_SHIFT       is CELL_SHIFT + (CELL_SIZE - PIXMAP_SIZE) div 2;
+const integer: SMALL_PIXMAP_SHIFT is CELL_SHIFT + (CELL_SIZE - 3 * SMALL_PIXMAP_SIZE) div 2;
+
+const integer: TOP_BUTTON_Y       is 16;
+const integer: TOP_BUTTON_MIN_X   is 14;
+const integer: RIGHT_BUTTON_X     is X_SHIFT + STRETCH_FACTOR * 11 + 16;
+const integer: RIGHT_BUTTON_MIN_Y is Y_SHIFT + STRETCH_FACTOR * 2 + CELL_SHIFT;
+
+const integer: EXIT_BUTTON_X      is 850;
+
+const color: BACKGROUND is black;
+const color: FOREGROUND is white;
+
+var text: scr is STD_NULL;
+var text: info is STD_NULL;
+var array PRIMITIVE_WINDOW: blue_digits is 0 times PRIMITIVE_WINDOW.value;
+var array PRIMITIVE_WINDOW: red_digits is 0 times PRIMITIVE_WINDOW.value;
+var array PRIMITIVE_WINDOW: small_digits is 0 times PRIMITIVE_WINDOW.value;
+var PRIMITIVE_WINDOW: single_pixmap is PRIMITIVE_WINDOW.value;
+var PRIMITIVE_WINDOW: double_pixmap is PRIMITIVE_WINDOW.value;
+var PRIMITIVE_WINDOW: triple_pixmap is PRIMITIVE_WINDOW.value;
+var PRIMITIVE_WINDOW: exit_pixmap is PRIMITIVE_WINDOW.value;
+var PRIMITIVE_WINDOW: checkmark_pixmap is PRIMITIVE_WINDOW.value;
+
+var array array integer: field is 9 times 9 times 0;
+var array array bitset:  candidates is 9 times 9 times EMPTY_SET;
+var array array boolean: user_input is 9 times 9 times FALSE;
+var boolean: blue_changes is FALSE;
+var boolean: show_candidates is FALSE;
+var boolean: show_solution is FALSE;
+var boolean: lookForSingles is FALSE;
+var boolean: lookForHiddenSingles is FALSE;
+var boolean: lookForLockedCandidates is FALSE;
+var boolean: lookForNakedPairs is FALSE;
+var boolean: lookForNakedTriples is FALSE;
+var boolean: lookForNakedQuads is FALSE;
+var boolean: lookForHiddenPairs is FALSE;
+var boolean: lookForHiddenTriples is FALSE;
+var boolean: lookForHiddenQuads is FALSE;
+var boolean: lookForXWing is FALSE;
+var boolean: lookForSwordfish is FALSE;
+
+var boolean: quit is FALSE;
+
+
+const array string: blue_zero is [](
+  "                ",
+  "                ",
+  "   xBBBBBBBBBc  ",
+  "  xBBc     xBBc ",
+  "  xBc       xBc ",
+  "  xBc       xBc ",
+  "  xBc       xBc ",
+  "  xBc       xBc ",
+  "  xBc     xBBBc ",
+  "  xBc    xBBBBc ",
+  "  xBc    xBBBBc ",
+  "  xBc    xBBBBc ",
+  "  xBc    xBBBBc ",
+  "  xBBc   xBBBBc ",
+  "   xBBBBBBBBBc  ",
+  "                ");
+
+
+const array string: blue_one is [](
+  "                ",
+  "                ",
+  "     xBBBBc     ",
+  "        xBc     ",
+  "        xBc     ",
+  "        xBc     ",
+  "        xBc     ",
+  "        xBc     ",
+  "      xBBBc     ",
+  "     xBBBBc     ",
+  "     xBBBBc     ",
+  "     xBBBBc     ",
+  "     xBBBBc     ",
+  "     xBBBBc     ",
+  "  xBBBBBBBBBBc  ",
+  "                ");
+
+
+const array string: blue_two is [](
+  "                ",
+  "                ",
+  "   xBBBBBBBBBc  ",
+  "  xBBc     xBBc ",
+  "  xBc       xBc ",
+  "            xBc ",
+  "            xBc ",
+  "            xBc ",
+  "   xBBBBBBBBBc  ",
+  "  xBBBBc        ",
+  "  xBBBBc        ",
+  "  xBBBBc        ",
+  "  xBBBBc        ",
+  "  xBBBBc        ",
+  "  xBBBBBBBBBBBc ",
+  "                ");
+
+
+const array string: blue_three is [](
+  "                ",
+  "                ",
+  "   xBBBBBBBBBc  ",
+  "  xBBc     xBBc ",
+  "  xBc       xBc ",
+  "            xBc ",
+  "            xBc ",
+  "            xBc ",
+  "   xBBBBBBBBBc  ",
+  "         xBBBBc ",
+  "         xBBBBc ",
+  "         xBBBBc ",
+  "  xBc    xBBBBc ",
+  "  xBBc   xBBBBc ",
+  "   xBBBBBBBBBc  ",
+  "                ");
+
+
+const array string: blue_four is [](
+  "                ",
+  "                ",
+  "  xBc           ",
+  "  xBc           ",
+  "  xBc           ",
+  "  xBc           ",
+  "  xBc    xBc    ",
+  "  xBc    xBc    ",
+  "  xBBBBBBBBBBBc ",
+  "      xBBBBc    ",
+  "      xBBBBc    ",
+  "      xBBBBc    ",
+  "      xBBBBc    ",
+  "      xBBBBc    ",
+  "      xBBBBc    ",
+  "                ");
+
+const array string: blue_five is [](
+  "                ",
+  "                ",
+  "  xBBBBBBBBBBBc ",
+  "  xBc           ",
+  "  xBc           ",
+  "  xBc           ",
+  "  xBc           ",
+  "  xBc           ",
+  "  xBBBBBBBBBBc  ",
+  "         xBBBBc ",
+  "         xBBBBc ",
+  "         xBBBBc ",
+  "  xBc    xBBBBc ",
+  "  xBBc   xBBBBc ",
+  "   xBBBBBBBBBc  ",
+  "                ");
+
+
+const array string: blue_six is [](
+  "                ",
+  "                ",
+  "   xBBBBBBBBBc  ",
+  "  xBBc     xBBc ",
+  "  xBc       xBc ",
+  "  xBc           ",
+  "  xBc           ",
+  "  xBc           ",
+  "  xBBBBBBBBBBc  ",
+  "  xBc    xBBBBc ",
+  "  xBc    xBBBBc ",
+  "  xBc    xBBBBc ",
+  "  xBc    xBBBBc ",
+  "  xBBc   xBBBBc ",
+  "   xBBBBBBBBBc  ",
+  "                ");
+
+
+const array string: blue_seven is [](
+  "                ",
+  "                ",
+  "  xBBBBBBBBBBBc ",
+  "            xBc ",
+  "            xBc ",
+  "            xBc ",
+  "            xBc ",
+  "           xBBc ",
+  "      xBBBBBBc  ",
+  "     xBBBBc     ",
+  "     xBBBBc     ",
+  "     xBBBBc     ",
+  "     xBBBBc     ",
+  "     xBBBBc     ",
+  "     xBBBBc     ",
+  "                ");
+
+
+const array string: blue_eight is [](
+  "                ",
+  "                ",
+  "   xBBBBBBBBBc  ",
+  "  xBBc     xBBc ",
+  "  xBc       xBc ",
+  "  xBc       xBc ",
+  "  xBc       xBc ",
+  "  xBc       xBc ",
+  "   xBBBBBBBBBc  ",
+  "  xBc    xBBBBc ",
+  "  xBc    xBBBBc ",
+  "  xBc    xBBBBc ",
+  "  xBc    xBBBBc ",
+  "  xBBc   xBBBBc ",
+  "   xBBBBBBBBBc  ",
+  "                ");
+
+
+const array string: blue_nine is [](
+  "                ",
+  "                ",
+  "   xBBBBBBBBBc  ",
+  "  xBBc     xBBc ",
+  "  xBc       xBc ",
+  "  xBc       xBc ",
+  "  xBc       xBc ",
+  "  xBc       xBc ",
+  "   xBBBBBBBBBBc ",
+  "         xBBBBc ",
+  "         xBBBBc ",
+  "         xBBBBc ",
+  "  xBc    xBBBBc ",
+  "  xBBc   xBBBBc ",
+  "   xBBBBBBBBBc  ",
+  "                ");
+
+
+const array string: red_zero is [](
+  "                ",
+  "                ",
+  "   xRRRRRRRRRO  ",
+  "  xRRO     xRRO ",
+  "  xRO       xRO ",
+  "  xRO       xRO ",
+  "  xRO       xRO ",
+  "  xRO       xRO ",
+  "  xRO     xRRRO ",
+  "  xRO    xRRRRO ",
+  "  xRO    xRRRRO ",
+  "  xRO    xRRRRO ",
+  "  xRO    xRRRRO ",
+  "  xRRO   xRRRRO ",
+  "   xRRRRRRRRRO  ",
+  "                ");
+
+
+const array string: red_one is [](
+  "                ",
+  "                ",
+  "     xRRRRO     ",
+  "        xRO     ",
+  "        xRO     ",
+  "        xRO     ",
+  "        xRO     ",
+  "        xRO     ",
+  "      xRRRO     ",
+  "     xRRRRO     ",
+  "     xRRRRO     ",
+  "     xRRRRO     ",
+  "     xRRRRO     ",
+  "     xRRRRO     ",
+  "  xRRRRRRRRRRO  ",
+  "                ");
+
+
+const array string: red_two is [](
+  "                ",
+  "                ",
+  "   xRRRRRRRRRO  ",
+  "  xRRO     xRRO ",
+  "  xRO       xRO ",
+  "            xRO ",
+  "            xRO ",
+  "            xRO ",
+  "   xRRRRRRRRRO  ",
+  "  xRRRRO        ",
+  "  xRRRRO        ",
+  "  xRRRRO        ",
+  "  xRRRRO        ",
+  "  xRRRRO        ",
+  "  xRRRRRRRRRRRO ",
+  "                ");
+
+
+const array string: red_three is [](
+  "                ",
+  "                ",
+  "   xRRRRRRRRRO  ",
+  "  xRRO     xRRO ",
+  "  xRO       xRO ",
+  "            xRO ",
+  "            xRO ",
+  "            xRO ",
+  "   xRRRRRRRRRO  ",
+  "         xRRRRO ",
+  "         xRRRRO ",
+  "         xRRRRO ",
+  "  xRO    xRRRRO ",
+  "  xRRO   xRRRRO ",
+  "   xRRRRRRRRRO  ",
+  "                ");
+
+
+const array string: red_four is [](
+  "                ",
+  "                ",
+  "  xRO           ",
+  "  xRO           ",
+  "  xRO           ",
+  "  xRO           ",
+  "  xRO    xRO    ",
+  "  xRO    xRO    ",
+  "  xRRRRRRRRRRRO ",
+  "      xRRRRO    ",
+  "      xRRRRO    ",
+  "      xRRRRO    ",
+  "      xRRRRO    ",
+  "      xRRRRO    ",
+  "      xRRRRO    ",
+  "                ");
+
+const array string: red_five is [](
+  "                ",
+  "                ",
+  "  xRRRRRRRRRRRO ",
+  "  xRO           ",
+  "  xRO           ",
+  "  xRO           ",
+  "  xRO           ",
+  "  xRO           ",
+  "  xRRRRRRRRRRO  ",
+  "         xRRRRO ",
+  "         xRRRRO ",
+  "         xRRRRO ",
+  "  xRO    xRRRRO ",
+  "  xRRO   xRRRRO ",
+  "   xRRRRRRRRRO  ",
+  "                ");
+
+
+const array string: red_six is [](
+  "                ",
+  "                ",
+  "   xRRRRRRRRRO  ",
+  "  xRRO     xRRO ",
+  "  xRO       xRO ",
+  "  xRO           ",
+  "  xRO           ",
+  "  xRO           ",
+  "  xRRRRRRRRRRO  ",
+  "  xRO    xRRRRO ",
+  "  xRO    xRRRRO ",
+  "  xRO    xRRRRO ",
+  "  xRO    xRRRRO ",
+  "  xRRO   xRRRRO ",
+  "   xRRRRRRRRRO  ",
+  "                ");
+
+
+const array string: red_seven is [](
+  "                ",
+  "                ",
+  "  xRRRRRRRRRRRO ",
+  "            xRO ",
+  "            xRO ",
+  "            xRO ",
+  "            xRO ",
+  "           xRRO ",
+  "      xRRRRRRO  ",
+  "     xRRRRO     ",
+  "     xRRRRO     ",
+  "     xRRRRO     ",
+  "     xRRRRO     ",
+  "     xRRRRO     ",
+  "     xRRRRO     ",
+  "                ");
+
+
+const array string: red_eight is [](
+  "                ",
+  "                ",
+  "   xRRRRRRRRRO  ",
+  "  xRRO     xRRO ",
+  "  xRO       xRO ",
+  "  xRO       xRO ",
+  "  xRO       xRO ",
+  "  xRO       xRO ",
+  "   xRRRRRRRRRO  ",
+  "  xRO    xRRRRO ",
+  "  xRO    xRRRRO ",
+  "  xRO    xRRRRO ",
+  "  xRO    xRRRRO ",
+  "  xRRO   xRRRRO ",
+  "   xRRRRRRRRRO  ",
+  "                ");
+
+
+const array string: red_nine is [](
+  "                ",
+  "                ",
+  "   xRRRRRRRRRO  ",
+  "  xRRO     xRRO ",
+  "  xRO       xRO ",
+  "  xRO       xRO ",
+  "  xRO       xRO ",
+  "  xRO       xRO ",
+  "   xRRRRRRRRRRO ",
+  "         xRRRRO ",
+  "         xRRRRO ",
+  "         xRRRRO ",
+  "  xRO    xRRRRO ",
+  "  xRRO   xRRRRO ",
+  "   xRRRRRRRRRO  ",
+  "                ");
+
+
+const array string: blue_single is [](
+  "                ",
+  "                ",
+  "                ",
+  "                ",
+  "      xBBBc     ",
+  "     xBBBBBc    ",
+  "    xBBBBBBBc   ",
+  "    xBBBBBBBc   ",
+  "    xBBBBBBBc   ",
+  "     xBBBBBc    ",
+  "      xBBBc     ",
+  "                ",
+  "                ",
+  "                ",
+  "                ");
+
+
+const array string: blue_double is [](
+  "                ",
+  "  xBBBc         ",
+  " xBBBBBc        ",
+  " xBBBBBc        ",
+  " xBBBBBc        ",
+  "  xBBBc         ",
+  "                ",
+  "                ",
+  "                ",
+  "                ",
+  "                ",
+  "          xBBBc ",
+  "         xBBBBBc",
+  "         xBBBBBc",
+  "         xBBBBBc",
+  "          xBBBc ");
+
+
+const array string: blue_triple is [](
+  "                ",
+  "  xBc           ",
+  " xBBBc          ",
+  " xBBBc          ",
+  "  xBc           ",
+  "                ",
+  "       xBc      ",
+  "      xBBBc     ",
+  "      xBBBc     ",
+  "       xBc      ",
+  "                ",
+  "            xBc ",
+  "           xBBBc",
+  "           xBBBc",
+  "            xBc ");
+
+
+const array string: candidates_pic is [](
+  "                ",
+  " BB    BBB   BBB",
+  "  B      B     B",
+  "  B     B     BB",
+  " BBB   BBB   BBB",
+  "                ",
+  " B     BBB    BB",
+  " B B   B     B  ",
+  " BBB   BBB   BBB",
+  "   B   BB    BBB",
+  "                ",
+  " BBB   BBB   BBB",
+  "  B    BBB   BBB",
+  " B     BBB     B",
+  " B     BBB   BB ");
+
+
+const func color: charColor (in char: ch) is func
+  result
+    var color: result is black;
+  begin
+    case ch of
+      when {' '}: result := black;
+      when {'R'}: result := light_red;
+      when {'G'}: result := light_green;
+      when {'B'}: result := light_blue;
+      when {'Y'}: result := yellow;
+      when {'M'}: result := light_magenta;
+      when {'O'}: result := orange;
+      when {'r'}: result := dark_red;
+      when {'g'}: result := dark_green;
+      when {'c'}: result := light_cyan;
+      when {'X'}: result := white;
+      when {'x'}: result := light_gray;
+      when {'b'}: result := brown;
+      otherwise:  result := black;
+    end case;
+  end func;
+
+
+const func PRIMITIVE_WINDOW: create_pixmap (in array string: pattern,
+    in integer: scale) is func
+  result
+    var PRIMITIVE_WINDOW: result is PRIMITIVE_WINDOW.value;
+  local
+    var integer: height is 0;
+    var integer: width is 0;
+    var integer: line is 0;
+    var integer: column is 0;
+  begin
+    height := length(pattern);
+    width := length(pattern[1]);
+    result := newPixmap(width * scale, height * scale);
+    clear(result, BACKGROUND);
+    for line range 1 to height do
+      for column range 1 to width do
+        rect(result, pred(column) * scale, pred(line) * scale,
+            scale, scale, charColor(pattern[line][column]));
+      end for;
+    end for;
+  end func;
+
+
+const proc: initCandidates is func
+  local
+    var integer: row is 0;
+    var integer: column is 0;
+  begin
+    for row range 1 to 9 do
+      for column range 1 to 9 do
+        if user_input[row][column] then
+          candidates[row][column] := {field[row][column]};
+        else
+          field[row][column] := 0;
+          candidates[row][column] := {1 .. 9};
+          rect(X_SHIFT + STRETCH_FACTOR * succ(column) + CELL_SHIFT,
+               Y_SHIFT + STRETCH_FACTOR * succ(row) + CELL_SHIFT,
+               CELL_SIZE, CELL_SIZE, BACKGROUND);
+        end if;
+      end for;
+    end for;
+  end func;
+
+
+const proc: initGrid is func
+  local
+    var integer: row is 0;
+    var integer: column is 0;
+  begin
+    for row range 1 to 10 do
+      if row rem 3 = 1 then
+        rect(X_SHIFT + STRETCH_FACTOR * 2 - 1, Y_SHIFT + STRETCH_FACTOR * succ(row) - 1,
+            STRETCH_FACTOR * 9 + 3, 3, FOREGROUND);
+      else
+        line(X_SHIFT + STRETCH_FACTOR * 2, Y_SHIFT + STRETCH_FACTOR * succ(row),
+             STRETCH_FACTOR * 9, 0, FOREGROUND);
+      end if;
+    end for;
+    for column range 1 to 10 do
+      if column rem 3 = 1 then
+        rect(X_SHIFT + STRETCH_FACTOR * succ(column) - 1, Y_SHIFT + STRETCH_FACTOR * 2 - 1,
+             3, STRETCH_FACTOR * 9 + 3, FOREGROUND);
+      else
+        line(X_SHIFT + STRETCH_FACTOR * succ(column), Y_SHIFT + STRETCH_FACTOR * 2,
+             0, STRETCH_FACTOR * 9, FOREGROUND);
+      end if;
+    end for;
+  end func;
+
+
+const proc: clearField (in integer: row, in integer: column) is func
+  begin
+    rect(X_SHIFT + STRETCH_FACTOR * succ(column) + CELL_SHIFT + 1,
+         Y_SHIFT + STRETCH_FACTOR * succ(row) + CELL_SHIFT + 1,
+         CELL_SIZE - 2, CELL_SIZE - 2, BACKGROUND);
+  end func;
+
+
+const proc: markField (in integer: row, in integer: column) is func
+  begin
+    rect(X_SHIFT + STRETCH_FACTOR * succ(column) + CELL_SHIFT + 1,
+         Y_SHIFT + STRETCH_FACTOR * succ(row) + CELL_SHIFT + 1,
+         CELL_SIZE - 2, CELL_SIZE - 2, light_gray);
+  end func;
+
+
+const proc: clearDigit (in integer: row, in integer: column) is func
+  begin
+    field[row][column] := 0;
+    user_input[row][column] := FALSE;
+    initCandidates;
+    rect(X_SHIFT + STRETCH_FACTOR * succ(column) + PIXMAP_SHIFT,
+         Y_SHIFT + STRETCH_FACTOR * succ(row) + PIXMAP_SHIFT,
+         PIXMAP_SIZE, PIXMAP_SIZE, BACKGROUND);
+  end func;
+
+
+const proc: setRedDigit (in integer: row, in integer: column,
+    in integer: digit) is func
+  begin
+    field[row][column] := digit;
+    user_input[row][column] := TRUE;
+    candidates[row][column] := {digit};
+    clearField(row, column);
+    put(X_SHIFT + STRETCH_FACTOR * succ(column) + PIXMAP_SHIFT,
+        Y_SHIFT + STRETCH_FACTOR * succ(row) + PIXMAP_SHIFT,
+        red_digits[digit], PSET);
+  end func;
+
+
+const proc: setBlueDigit (in integer: row, in integer: column,
+    in integer: digit) is func
+  begin
+    field[row][column] := digit;
+    candidates[row][column] := {digit};
+    blue_changes := TRUE;
+    clearField(row, column);
+    put(X_SHIFT + STRETCH_FACTOR * succ(column) + PIXMAP_SHIFT,
+        Y_SHIFT + STRETCH_FACTOR * succ(row) + PIXMAP_SHIFT,
+        blue_digits[digit], PSET);
+  end func;
+
+
+const proc: writeSmallDigit (in integer: row, in integer: column,
+    in integer: digit) is func
+  begin
+    put(X_SHIFT + STRETCH_FACTOR * succ(column) + SMALL_PIXMAP_SHIFT +
+        (pred(digit) mod 3) * 16,
+        Y_SHIFT + STRETCH_FACTOR * succ(row) + SMALL_PIXMAP_SHIFT +
+        (pred(digit) div 3) * 16,
+        small_digits[digit], PSET);
+  end func;
+
+
+const proc: excludeInRow (in integer: row, in integer: digit) is func
+  local
+    var integer: column is 0;
+  begin
+    for column range 1 to 9 do
+      if field[row][column] = 0 then
+        excl(candidates[row][column], digit);
+      end if;
+    end for;
+  end func;
+
+
+const proc: excludeInColumn (in integer: column, in integer: digit) is func
+  local
+    var integer: row is 0;
+  begin
+    for row range 1 to 9 do
+      if field[row][column] = 0 then
+        excl(candidates[row][column], digit);
+      end if;
+    end for;
+  end func;
+
+
+const proc: excludeInBox (in integer: row, in integer: column, in integer: digit) is func
+  local
+    var integer: row1 is 0;
+    var integer: col1 is 0;
+  begin
+    for row1 range succ(pred(row) div 3 * 3) to succ(pred(row) div 3) * 3 do
+      for col1 range succ(pred(column) div 3 * 3) to succ(pred(column) div 3) * 3 do
+        if field[row1][col1] = 0 then
+          excl(candidates[row1][col1], digit);
+        end if;
+      end for;
+    end for;
+  end func;
+
+
+const proc: excludeDigit (in integer: row, in integer: column) is func
+  begin
+    excludeInRow(row, field[row][column]);
+    excludeInColumn(column, field[row][column]);
+    excludeInBox(row, column, field[row][column]);
+  end func;
+
+
+const proc: excludeFields is func
+  local
+    var integer: row is 0;
+    var integer: column is 0;
+  begin
+    for row range 1 to 9 do
+      for column range 1 to 9 do
+        if field[row][column] <> 0 then
+          excludeDigit(row, column);
+        end if;
+      end for;
+    end for;
+  end func;
+
+
+const proc: showAllCandidates is func
+
+  local
+    var integer: row is 1;
+    var integer: column is 1;
+    var integer: digit is 0;
+
+  begin
+    for row range 1 to 9 do
+      for column range 1 to 9 do
+        if field[row][column] = 0 then
+          clearField(row, column);
+          box(X_SHIFT + STRETCH_FACTOR * succ(column) + CELL_SHIFT,
+              Y_SHIFT + STRETCH_FACTOR * succ(row) + CELL_SHIFT,
+              CELL_SIZE, CELL_SIZE, light_green);
+          for digit range 1 to 9 do
+            if digit in candidates[row][column] then
+              writeSmallDigit(row, column, digit);
+            end if;
+          end for;
+        elsif not user_input[row][column] then
+          setBlueDigit(row, column, field[row][column]);
+        end if;
+      end for;
+    end for;
+    DRAW_FLUSH;
+  end func;
+
+
+const proc: checkSingles (inout boolean: changeDone) is func
+  local
+    var integer: row is 0;
+    var integer: column is 0;
+    var integer: digit is 0;
+  begin
+    for row range 1 to 9 do
+      for column range 1 to 9 do
+        if field[row][column] = 0 then
+          if card(candidates[row][column]) = 1 then
+            digit := min(candidates[row][column]);
+            field[row][column] := digit;
+            candidates[row][column] := {digit};
+            excludeDigit(row, column);
+            changeDone := TRUE;
+          end if;
+        end if;
+      end for;
+    end for;
+  end func;
+
+
+const proc: checkHiddenSinglesInRow (in integer: row,
+    inout boolean: changeDone) is func
+  local
+    var integer: digit is 0;
+    var integer: column is 0;
+    var integer: foundColumn is 0;
+    var integer: foundCount is 0;
+  begin
+    for digit range 1 to 9 do
+      foundCount := 0;
+      for column range 1 to 9 do
+        if digit in candidates[row][column] then
+          foundColumn := column;
+          incr(foundCount);
+        end if;
+      end for;
+      if foundCount = 1 and field[row][foundColumn] = 0 then
+        field[row][foundColumn] := digit;
+        candidates[row][foundColumn] := {digit};
+        excludeDigit(row, foundColumn);
+        changeDone := TRUE;
+      end if;
+    end for;
+  end func;
+
+
+const proc: checkHiddenSinglesInColumn (in integer: column,
+    inout boolean: changeDone) is func
+  local
+    var integer: digit is 0;
+    var integer: row is 0;
+    var integer: foundRow is 0;
+    var integer: foundCount is 0;
+  begin
+    for digit range 1 to 9 do
+      foundCount := 0;
+      for row range 1 to 9 do
+        if digit in candidates[row][column] then
+          foundRow := row;
+          incr(foundCount);
+        end if;
+      end for;
+      if foundCount = 1 and field[foundRow][column] = 0 then
+        field[foundRow][column] := digit;
+        candidates[foundRow][column] := {digit};
+        excludeDigit(foundRow, column);
+        changeDone := TRUE;
+      end if;
+    end for;
+  end func;
+
+
+const proc: checkHiddenSinglesInBox (in integer: startRow, in integer: startColumn,
+    inout boolean: changeDone) is func
+  local
+    var integer: digit is 0;
+    var integer: row is 0;
+    var integer: column is 0;
+    var integer: foundRow is 0;
+    var integer: foundColumn is 0;
+    var integer: foundCount is 0;
+  begin
+    for digit range 1 to 9 do
+      foundCount := 0;
+      for row range startRow to startRow + 2 do
+        for column range startColumn to startColumn + 2 do
+          if digit in candidates[row][column] then
+            foundRow := row;
+            foundColumn := column;
+            incr(foundCount);
+          end if;
+        end for;
+      end for;
+      if foundCount = 1 and field[foundRow][foundColumn] = 0 then
+        field[foundRow][foundColumn] := digit;
+        candidates[foundRow][foundColumn] := {digit};
+        excludeDigit(foundRow, foundColumn);
+        changeDone := TRUE;
+      end if;
+    end for;
+  end func;
+
+
+const proc: checkHiddenSingles (inout boolean: changeDone) is func
+  local
+    var integer: row is 0;
+    var integer: column is 0;
+  begin
+    for row range 1 to 9 do
+      checkHiddenSinglesInRow(row, changeDone);
+    end for;
+    for column range 1 to 9 do
+      checkHiddenSinglesInColumn(column, changeDone);
+    end for;
+    for row range 1 to 7 step 3 do
+      for column range 1 to 7 step 3 do
+        checkHiddenSinglesInBox(row, column, changeDone);
+      end for;
+    end for;
+  end func;
+
+
+const proc: checkLockedCandidatesInRow (in integer: row,
+    inout boolean: changeDone) is func
+  local
+    var integer: digit is 0;
+    var integer: column is 0;
+    var integer: foundColumn is 0;
+    var integer: row1 is 0;
+  begin
+    for digit range 1 to 9 do
+      foundColumn := 0;
+      for column range 1 to 9 do
+        if digit in candidates[row][column] then
+          if foundColumn = 0 then
+            foundColumn := succ((pred(column) div 3) * 3);
+          elsif column < foundColumn or column > foundColumn + 2 then
+            foundColumn := 10;
+          end if;
+        end if;
+      end for;
+      if foundColumn in {1 .. 9} then
+        for row1 range succ(pred(row) div 3 * 3) to succ(pred(row) div 3) * 3 do
+          if row1 <> row then
+            for column range foundColumn to foundColumn + 2 do
+              if digit in candidates[row1][column] then
+                excl(candidates[row1][column], digit);
+                changeDone := TRUE;
+              end if;
+            end for;
+          end if;
+        end for;
+      end if;
+    end for;
+  end func;
+
+
+const proc: checkLockedCandidatesInColumn (in integer: column,
+    inout boolean: changeDone) is func
+  local
+    var integer: digit is 0;
+    var integer: row is 0;
+    var integer: foundRow is 0;
+    var integer: col is 0;
+  begin
+    for digit range 1 to 9 do
+      foundRow := 0;
+      for row range 1 to 9 do
+        if digit in candidates[row][column] then
+          if foundRow = 0 then
+            foundRow := succ((pred(row) div 3) * 3);
+          elsif row < foundRow or row > foundRow + 2 then
+            foundRow := 10;
+          end if;
+        end if;
+      end for;
+      if foundRow in {1 .. 9} then
+        for col range succ(pred(column) div 3 * 3) to succ(pred(column) div 3) * 3 do
+          if col <> column then
+            for row range foundRow to foundRow + 2 do
+              if digit in candidates[row][col] then
+                excl(candidates[row][col], digit);
+                changeDone := TRUE;
+              end if;
+            end for;
+          end if;
+        end for;
+      end if;
+    end for;
+  end func;
+
+
+const proc: checkLockedCandidatesInBox (in integer: startRow, in integer: startColumn,
+    inout boolean: changeDone) is func
+  local
+    var integer: digit is 0;
+    var integer: row is 0;
+    var integer: column is 0;
+    var integer: foundRow is 0;
+    var integer: foundColumn is 0;
+  begin
+    for digit range 1 to 9 do
+      foundRow := 0;
+      foundColumn := 0;
+      for row range startRow to startRow + 2 do
+        for column range startColumn to startColumn + 2 do
+          if digit in candidates[row][column] then
+            if foundRow = 0 then
+              foundRow := row;
+            elsif foundRow <> row then
+              foundRow := 10;
+            end if;
+            if foundColumn = 0 then
+              foundColumn := column;
+            elsif foundColumn <> column then
+              foundColumn := 10;
+            end if;
+          end if;
+        end for;
+      end for;
+      if foundRow in {1 .. 9} then
+        for column range 1 to 9 do
+          if column < startColumn or column > startColumn + 2 then
+            if digit in candidates[foundRow][column] then
+              excl(candidates[foundRow][column], digit);
+              changeDone := TRUE;
+            end if;
+          end if;
+        end for;
+      end if;
+      if foundColumn in {1 .. 9} then
+        for row range 1 to 9 do
+          if row < startRow or row > startRow + 2 then
+            if digit in candidates[row][foundColumn] then
+              excl(candidates[row][foundColumn], digit);
+              changeDone := TRUE;
+            end if;
+          end if;
+        end for;
+      end if;
+    end for;
+  end func;
+
+
+const proc: checkLockedCandidates (inout boolean: changeDone) is func
+  local
+    var integer: row is 0;
+    var integer: column is 0;
+  begin
+    for row range 1 to 9 do
+      checkLockedCandidatesInRow(row, changeDone);
+    end for;
+    for column range 1 to 9 do
+      checkLockedCandidatesInColumn(column, changeDone);
+    end for;
+    for row range 1 to 7 step 3 do
+      for column range 1 to 7 step 3 do
+        checkLockedCandidatesInBox(row, column, changeDone);
+      end for;
+    end for;
+  end func;
+
+
+const proc: checkNakedPairsInRow (in integer: row,
+    inout boolean: changeDone) is func
+  local
+    var integer: col1 is 0;
+    var integer: col2 is 0;
+    var integer: column is 0;
+    var set of integer: pairSet is EMPTY_SET;
+  begin
+    for col1 range 1 to 8 do
+      if card(candidates[row][col1]) = 2 then
+        pairSet := candidates[row][col1];
+        for col2 range succ(col1) to 9 do
+          if candidates[row][col2] = pairSet then
+            for column range 1 to 9 do
+              if column <> col1 and column <> col2 and
+                  card(candidates[row][column] & pairSet) <> 0 then
+                candidates[row][column] := candidates[row][column] - pairSet;
+                changeDone := TRUE;
+              end if;
+            end for;
+          end if;
+        end for;
+      end if;
+    end for;
+  end func;
+
+
+const proc: checkNakedPairsInColumn (in integer: column,
+    inout boolean: changeDone) is func
+  local
+    var integer: row1 is 0;
+    var integer: row2 is 0;
+    var integer: row is 0;
+    var set of integer: pairSet is EMPTY_SET;
+  begin
+    for row1 range 1 to 8 do
+      if card(candidates[row1][column]) = 2 then
+        pairSet := candidates[row1][column];
+        for row2 range succ(row1) to 9 do
+          if candidates[row2][column] = pairSet then
+            for row range 1 to 9 do
+              if row <> row1 and row <> row2 and
+                  card(candidates[row][column] & pairSet) <> 0 then
+                candidates[row][column] := candidates[row][column] - pairSet;
+                changeDone := TRUE;
+              end if;
+            end for;
+          end if;
+        end for;
+      end if;
+    end for;
+  end func;
+
+
+const proc: checkNakedPairsInBox (in integer: startRow, in integer: startColumn,
+    inout boolean: changeDone) is func
+  local
+    var integer: row1 is 0;
+    var integer: row2 is 0;
+    var integer: col1 is 0;
+    var integer: col2 is 0;
+    var integer: row is 0;
+    var integer: column is 0;
+    var set of integer: pairSet is EMPTY_SET;
+  begin
+    for row1 range startRow to startRow + 2 do
+      for col1 range startColumn to startColumn + 2 do
+        if card(candidates[row1][col1]) = 2 then
+          pairSet := candidates[row1][col1];
+          for row2 range startRow to startRow + 2 do
+            for col2 range startColumn to startColumn + 2 do
+              if (row2 <> row1 or col2 <> col1) and
+                  candidates[row2][col2] = pairSet then
+                for row range startRow to startRow + 2 do
+                  for column range startColumn to startColumn + 2 do
+                    if (row <> row1 or column <> col1) and
+                        (row <> row2 or column <> col2) and
+                        card(candidates[row][column] & pairSet) <> 0 then
+                      candidates[row][column] := candidates[row][column] - pairSet;
+                      changeDone := TRUE;
+                    end if;
+                  end for;
+                end for;
+              end if;
+            end for;
+          end for;
+        end if;
+      end for;
+    end for;
+  end func;
+
+
+const proc: checkNakedPairs (inout boolean: changeDone) is func
+  local
+    var integer: row is 0;
+    var integer: column is 0;
+  begin
+    for row range 1 to 9 do
+      checkNakedPairsInRow(row, changeDone);
+    end for;
+    for column range 1 to 9 do
+      checkNakedPairsInColumn(column, changeDone);
+    end for;
+    for row range 1 to 7 step 3 do
+      for column range 1 to 7 step 3 do
+        checkNakedPairsInBox(row, column, changeDone);
+      end for;
+    end for;
+  end func;
+
+
+const proc: checkNakedTriplesInRow (in integer: row,
+    inout boolean: changeDone) is func
+  local
+    var integer: col1 is 0;
+    var integer: col2 is 0;
+    var integer: col3 is 0;
+    var integer: column is 0;
+    var set of integer: tripleSet is EMPTY_SET;
+  begin
+    for col1 range 1 to 7 do
+      if card(candidates[row][col1]) in {2, 3} then
+        for col2 range succ(col1) to 8 do
+          if card(candidates[row][col2]) >= 2 and
+              card(candidates[row][col1] | candidates[row][col2]) <= 3 then
+            for col3 range succ(col2) to 9 do
+              if card(candidates[row][col3]) >= 2 then
+                tripleSet := candidates[row][col1] | candidates[row][col2] |
+                    candidates[row][col3];
+                if card(tripleSet) = 3 then
+                  for column range 1 to 9 do
+                    if column <> col1 and column <> col2 and column <> col3 and
+                        card(candidates[row][column] & tripleSet) <> 0 then
+                      candidates[row][column] := candidates[row][column] - tripleSet;
+                      changeDone := TRUE;
+                    end if;
+                  end for;
+                end if;
+              end if;
+            end for;
+          end if;
+        end for;
+      end if;
+    end for;
+  end func;
+
+
+const proc: checkNakedTriplesInColumn (in integer: column,
+    inout boolean: changeDone) is func
+  local
+    var integer: row1 is 0;
+    var integer: row2 is 0;
+    var integer: row3 is 0;
+    var integer: row is 0;
+    var set of integer: tripleSet is EMPTY_SET;
+  begin
+    for row1 range 1 to 7 do
+      if card(candidates[row1][column]) in {2, 3} then
+        for row2 range succ(row1) to 8 do
+          if card(candidates[row2][column]) >= 2 and
+              card(candidates[row1][column] | candidates[row2][column]) <= 3 then
+            for row3 range succ(row2) to 9 do
+              if card(candidates[row3][column]) >= 2 then
+                tripleSet := candidates[row1][column] | candidates[row2][column] |
+                    candidates[row3][column];
+                if card(tripleSet) = 3 then
+                  for row range 1 to 9 do
+                    if row <> row1 and row <> row2 and row <> row3 and
+                        card(candidates[row][column] & tripleSet) <> 0 then
+                      candidates[row][column] := candidates[row][column] - tripleSet;
+                      changeDone := TRUE;
+                   end if;
+                  end for;
+                end if;
+              end if;
+            end for;
+          end if;
+        end for;
+      end if;
+    end for;
+  end func;
+
+
+const proc: checkNakedTriplesInBox (in integer: startRow, in integer: startColumn,
+    inout boolean: changeDone) is func
+  local
+    var integer: row1 is 0;
+    var integer: row2 is 0;
+    var integer: row3 is 0;
+    var integer: col1 is 0;
+    var integer: col2 is 0;
+    var integer: col3 is 0;
+    var integer: row is 0;
+    var integer: column is 0;
+    var set of integer: tripleSet is EMPTY_SET;
+  begin
+    for row1 range startRow to startRow + 2 do
+      for col1 range startColumn to startColumn + 2 do
+        if card(candidates[row1][col1]) in {2, 3} then
+          for row2 range startRow to startRow + 2 do
+            for col2 range startColumn to startColumn + 2 do
+              if (row2 <> row1 or col2 <> col1) and
+                  card(candidates[row2][col2]) >= 2 and
+                  card(candidates[row1][col1] | candidates[row2][col2]) <= 3 then
+                for row3 range startRow to startRow + 2 do
+                  for col3 range startColumn to startColumn + 2 do
+                    if (row3 <> row1 or col3 <> col1) and
+                        (row3 <> row2 or col3 <> col2) and
+                        card(candidates[row3][col3]) >= 2 then
+                      tripleSet := candidates[row1][col1] | candidates[row2][col2] |
+                          candidates[row3][col3];
+                      if card(tripleSet) = 3 then
+                        for row range startRow to startRow + 2 do
+                          for column range startColumn to startColumn + 2 do
+                            if (row <> row1 or column <> col1) and
+                                (row <> row2 or column <> col2) and
+                                (row <> row3 or column <> col3) and
+                                card(candidates[row][column] & tripleSet) <> 0 then
+                              candidates[row][column] := candidates[row][column] - tripleSet;
+                              changeDone := TRUE;
+                            end if;
+                          end for;
+                        end for;
+                      end if;
+                    end if;
+                  end for;
+                end for;
+              end if;
+            end for;
+          end for;
+        end if;
+      end for;
+    end for;
+  end func;
+
+
+const proc: checkNakedTriples (inout boolean: changeDone) is func
+  local
+    var integer: row is 0;
+    var integer: column is 0;
+  begin
+    for row range 1 to 9 do
+      checkNakedTriplesInRow(row, changeDone);
+    end for;
+    for column range 1 to 9 do
+      checkNakedTriplesInColumn(column, changeDone);
+    end for;
+    for row range 1 to 7 step 3 do
+      for column range 1 to 7 step 3 do
+        checkNakedTriplesInBox(row, column, changeDone);
+      end for;
+    end for;
+  end func;
+
+
+const proc: checkNakedQuadsInRow (in integer: row,
+    inout boolean: changeDone) is func
+  local
+    var integer: col1 is 0;
+    var integer: col2 is 0;
+    var integer: col3 is 0;
+    var integer: col4 is 0;
+    var integer: column is 0;
+    var set of integer: quadSet is EMPTY_SET;
+  begin
+    for col1 range 1 to 6 do
+      if card(candidates[row][col1]) in {2, 3, 4} then
+        for col2 range succ(col1) to 7 do
+          if card(candidates[row][col2]) >= 2 and
+              card(candidates[row][col1] | candidates[row][col2]) <= 4 then
+            for col3 range succ(col2) to 8 do
+              if card(candidates[row][col3]) >= 2 and
+                  card(candidates[row][col1] | candidates[row][col2] |
+                  candidates[row][col3]) <= 4 then
+                for col4 range succ(col3) to 9 do
+                  if card(candidates[row][col4]) >= 2 then
+                    quadSet := candidates[row][col1] | candidates[row][col2] |
+                        candidates[row][col3] | candidates[row][col4];
+                    if card(quadSet) = 4 then
+                      for column range 1 to 9 do
+                        if column <> col1 and column <> col2 and column <> col3 and column <> col4 and
+                            card(candidates[row][column] & quadSet) <> 0 then
+                          candidates[row][column] := candidates[row][column] - quadSet;
+                          changeDone := TRUE;
+                        end if;
+                      end for;
+                    end if;
+                  end if;
+                end for;
+              end if;
+            end for;
+          end if;
+        end for;
+      end if;
+    end for;
+  end func;
+
+
+const proc: checkNakedQuadsInColumn (in integer: column,
+    inout boolean: changeDone) is func
+  local
+    var integer: row1 is 0;
+    var integer: row2 is 0;
+    var integer: row3 is 0;
+    var integer: row4 is 0;
+    var integer: row is 0;
+    var set of integer: quadSet is EMPTY_SET;
+  begin
+    for row1 range 1 to 6 do
+      if card(candidates[row1][column]) in {2, 3, 4} then
+        for row2 range succ(row1) to 7 do
+          if card(candidates[row2][column]) >= 2 and
+              card(candidates[row1][column] | candidates[row2][column]) <= 4 then
+            for row3 range succ(row2) to 8 do
+              if card(candidates[row3][column]) >= 2 and
+                  card(candidates[row1][column] | candidates[row2][column] |
+                  candidates[row3][column]) <= 4 then
+                for row4 range succ(row3) to 9 do
+                  if card(candidates[row4][column]) >= 2 then
+                    quadSet := candidates[row1][column] | candidates[row2][column] |
+                        candidates[row3][column] | candidates[row4][column];
+                    if card(quadSet) = 4 then
+                      for row range 1 to 9 do
+                        if row <> row1 and row <> row2 and row <> row3 and row <> row4 and
+                            card(candidates[row][column] & quadSet) <> 0 then
+                          candidates[row][column] := candidates[row][column] - quadSet;
+                          changeDone := TRUE;
+                        end if;
+                      end for;
+                    end if;
+                  end if;
+                end for;
+              end if;
+            end for;
+          end if;
+        end for;
+      end if;
+    end for;
+  end func;
+
+
+const proc: checkNakedQuadsInBox (in integer: startRow, in integer: startColumn,
+    inout boolean: changeDone) is func
+  local
+    var integer: row1 is 0;
+    var integer: row2 is 0;
+    var integer: row3 is 0;
+    var integer: row4 is 0;
+    var integer: col1 is 0;
+    var integer: col2 is 0;
+    var integer: col3 is 0;
+    var integer: col4 is 0;
+    var integer: row is 0;
+    var integer: column is 0;
+    var set of integer: quadSet is EMPTY_SET;
+  begin
+    for row1 range startRow to startRow + 2 do
+      for col1 range startColumn to startColumn + 2 do
+        if card(candidates[row1][col1]) in {2, 3, 4} then
+          for row2 range startRow to startRow + 2 do
+            for col2 range startColumn to startColumn + 2 do
+              if (row2 <> row1 or col2 <> col1) and
+                  card(candidates[row2][col2]) >= 2 and
+                  card(candidates[row1][col1] | candidates[row2][col2]) <= 4 then
+                for row3 range startRow to startRow + 2 do
+                  for col3 range startColumn to startColumn + 2 do
+                    if (row3 <> row1 or col3 <> col1) and
+                        (row3 <> row2 or col3 <> col2) and
+                        card(candidates[row3][col3]) >= 2 and
+                        card(candidates[row1][col1] | candidates[row2][col2] |
+                        candidates[row3][col3]) <= 4 then
+                      for row4 range startRow to startRow + 2 do
+                        for col4 range startColumn to startColumn + 2 do
+                          if (row4 <> row1 or col4 <> col1) and
+                              (row4 <> row2 or col4 <> col2) and
+                              (row4 <> row3 or col4 <> col3) and
+                              card(candidates[row4][col4]) >= 2 then
+                            quadSet := candidates[row1][col1] | candidates[row2][col2] |
+                                candidates[row3][col3] | candidates[row4][col4];
+                            if card(quadSet) = 4 then
+                              for row range startRow to startRow + 2 do
+                                for column range startColumn to startColumn + 2 do
+                                  if (row <> row1 or column <> col1) and
+                                      (row <> row2 or column <> col2) and
+                                      (row <> row3 or column <> col3) and
+                                      (row <> row4 or column <> col4) and
+                                      card(candidates[row][column] & quadSet) <> 0 then
+                                    candidates[row][column] := candidates[row][column] - quadSet;
+                                    changeDone := TRUE;
+                                  end if;
+                                end for;
+                              end for;
+                            end if;
+                          end if;
+                        end for;
+                      end for;
+                    end if;
+                  end for;
+                end for;
+              end if;
+            end for;
+          end for;
+        end if;
+      end for;
+    end for;
+  end func;
+
+
+const proc: checkNakedQuads (inout boolean: changeDone) is func
+  local
+    var integer: row is 0;
+    var integer: column is 0;
+  begin
+    for row range 1 to 9 do
+      checkNakedQuadsInRow(row, changeDone);
+    end for;
+    for column range 1 to 9 do
+      checkNakedQuadsInColumn(column, changeDone);
+    end for;
+    for row range 1 to 7 step 3 do
+      for column range 1 to 7 step 3 do
+        checkNakedQuadsInBox(row, column, changeDone);
+      end for;
+    end for;
+  end func;
+
+
+const proc: checkHiddenPairsInRow (in integer: row,
+    inout boolean: changeDone) is func
+  local
+    var integer: column is 0;
+    var integer: digit1 is 0;
+    var integer: digit2 is 0;
+    var array set of integer: columnsWithDigit is 9 times EMPTY_SET;
+    var set of integer: pairColumns is EMPTY_SET;
+    var set of integer: pairSet is EMPTY_SET;
+  begin
+    for column range 1 to 9 do
+      for digit1 range candidates[row][column] do
+        incl(columnsWithDigit[digit1], column);
+      end for;
+    end for;
+    for digit1 range 1 to 8 do
+      if card(columnsWithDigit[digit1]) = 2 then
+        pairColumns := columnsWithDigit[digit1];
+        for digit2 range succ(digit1) to 9 do
+          if columnsWithDigit[digit2] = pairColumns then
+            pairSet := {digit1, digit2};
+            for column range pairColumns do
+              if card(candidates[row][column] - pairSet) <> 0 then
+                candidates[row][column] := pairSet;
+                changeDone := TRUE;
+              end if;
+            end for;
+          end if;
+        end for;
+      end if;
+    end for;
+  end func;
+
+
+const proc: checkHiddenPairsInColumn (in integer: column,
+    inout boolean: changeDone) is func
+  local
+    var integer: row is 0;
+    var integer: digit1 is 0;
+    var integer: digit2 is 0;
+    var array set of integer: rowsWithDigit is 9 times EMPTY_SET;
+    var set of integer: pairRows is EMPTY_SET;
+    var set of integer: pairSet is EMPTY_SET;
+  begin
+    for row range 1 to 9 do
+      for digit1 range candidates[row][column] do
+        incl(rowsWithDigit[digit1], row);
+      end for;
+    end for;
+    for digit1 range 1 to 8 do
+      if card(rowsWithDigit[digit1]) = 2 then
+        pairRows := rowsWithDigit[digit1];
+        for digit2 range succ(digit1) to 9 do
+          if rowsWithDigit[digit2] = pairRows then
+            pairSet := {digit1, digit2};
+            for row range pairRows do
+              if card(candidates[row][column] - pairSet) <> 0 then
+                candidates[row][column] := pairSet;
+                changeDone := TRUE;
+              end if;
+            end for;
+          end if;
+        end for;
+      end if;
+    end for;
+  end func;
+
+
+const proc: checkHiddenPairsInBox (in integer: startRow, in integer: startColumn,
+    inout boolean: changeDone) is func
+  local
+    var integer: row is 0;
+    var integer: column is 0;
+    var integer: digit1 is 0;
+    var integer: digit2 is 0;
+    var array set of integer: cellsWithDigit is 9 times EMPTY_SET;
+    var set of integer: pairCells is EMPTY_SET;
+    var set of integer: pairSet is EMPTY_SET;
+  begin
+    for row range startRow to startRow + 2 do
+      for column range startColumn to startColumn + 2 do
+        for digit1 range candidates[row][column] do
+          incl(cellsWithDigit[digit1], succ(pred(row) * 3 + pred(column)));
+        end for;
+      end for;
+    end for;
+    for digit1 range 1 to 8 do
+      if card(cellsWithDigit[digit1]) = 2 then
+        pairCells := cellsWithDigit[digit1];
+        for digit2 range succ(digit1) to 9 do
+          if cellsWithDigit[digit2] = pairCells then
+            pairSet := {digit1, digit2};
+            for row range startRow to startRow + 2 do
+              for column range startColumn to startColumn + 2 do
+                if succ(pred(row) * 3 + pred(column)) in pairCells then
+                  if card(candidates[row][column] - pairSet) <> 0 then
+                    candidates[row][column] := pairSet;
+                    changeDone := TRUE;
+                  end if;
+                end if;
+              end for;
+            end for;
+          end if;
+        end for;
+      end if;
+    end for;
+  end func;
+
+
+const proc: checkHiddenPairs (inout boolean: changeDone) is func
+  local
+    var integer: row is 0;
+    var integer: column is 0;
+  begin
+    for row range 1 to 9 do
+      checkHiddenPairsInRow(row, changeDone);
+    end for;
+    for column range 1 to 9 do
+      checkHiddenPairsInColumn(column, changeDone);
+    end for;
+    for row range 1 to 7 step 3 do
+      for column range 1 to 7 step 3 do
+        checkHiddenPairsInBox(row, column, changeDone);
+      end for;
+    end for;
+  end func;
+
+
+const proc: checkHiddenTriplesInRow (in integer: row,
+    inout boolean: changeDone) is func
+  local
+    var integer: column is 0;
+    var integer: digit1 is 0;
+    var integer: digit2 is 0;
+    var integer: digit3 is 0;
+    var array set of integer: columnsWithDigit is 9 times EMPTY_SET;
+    var set of integer: tripleColumns is EMPTY_SET;
+    var set of integer: tripleSet is EMPTY_SET;
+  begin
+    for column range 1 to 9 do
+      for digit1 range candidates[row][column] do
+        incl(columnsWithDigit[digit1], column);
+      end for;
+    end for;
+    for digit1 range 1 to 7 do
+      if card(columnsWithDigit[digit1]) in {2, 3} then
+        for digit2 range succ(digit1) to 8 do
+          if card(columnsWithDigit[digit2]) >= 2 and
+              card(columnsWithDigit[digit1] | columnsWithDigit[digit2]) <= 3 then
+            for digit3 range succ(digit2) to 9 do
+              if card(columnsWithDigit[digit3]) >= 2 then
+                tripleColumns := columnsWithDigit[digit1] | columnsWithDigit[digit2] |
+                    columnsWithDigit[digit3];
+                if card(tripleColumns) = 3 then
+			tripleSet := {digit1, digit2, digit3};
+                  for column range tripleColumns do
+                    if card(candidates[row][column] - tripleSet) <> 0 then
+                      candidates[row][column] := candidates[row][column] -
+                          (candidates[row][column] - tripleSet);
+                      changeDone := TRUE;
+                    end if;
+                  end for;
+                end if;
+              end if;
+            end for;
+          end if;
+        end for;
+      end if;
+    end for;
+  end func;
+
+
+const proc: checkHiddenTriplesInColumn (in integer: column,
+    inout boolean: changeDone) is func
+  local
+    var integer: row is 0;
+    var integer: digit1 is 0;
+    var integer: digit2 is 0;
+    var integer: digit3 is 0;
+    var array set of integer: rowsWithDigit is 9 times EMPTY_SET;
+    var set of integer: tripleRows is EMPTY_SET;
+    var set of integer: tripleSet is EMPTY_SET;
+  begin
+    for row range 1 to 9 do
+      for digit1 range candidates[row][column] do
+        incl(rowsWithDigit[digit1], row);
+      end for;
+    end for;
+    for digit1 range 1 to 7 do
+      if card(rowsWithDigit[digit1]) in {2, 3} then
+        for digit2 range succ(digit1) to 8 do
+          if card(rowsWithDigit[digit2]) >= 2 and
+              card(rowsWithDigit[digit1] | rowsWithDigit[digit2]) <= 3 then
+            for digit3 range succ(digit2) to 9 do
+              if card(rowsWithDigit[digit3]) >= 2 then
+                tripleRows := rowsWithDigit[digit1] | rowsWithDigit[digit2] |
+                    rowsWithDigit[digit3];
+                if card(tripleRows) = 3 then
+			tripleSet := {digit1, digit2, digit3};
+                  for row range tripleRows do
+                    if card(candidates[row][column] - tripleSet) <> 0 then
+                      candidates[row][column] := candidates[row][column] -
+                          (candidates[row][column] - tripleSet);
+                      changeDone := TRUE;
+                    end if;
+                  end for;
+                end if;
+              end if;
+            end for;
+          end if;
+        end for;
+      end if;
+    end for;
+  end func;
+
+
+const proc: checkHiddenTriplesInBox (in integer: startRow, in integer: startColumn,
+    inout boolean: changeDone) is func
+  local
+    var integer: row is 0;
+    var integer: column is 0;
+    var integer: digit1 is 0;
+    var integer: digit2 is 0;
+    var integer: digit3 is 0;
+    var array set of integer: cellsWithDigit is 9 times EMPTY_SET;
+    var set of integer: tripleCells is EMPTY_SET;
+    var set of integer: tripleSet is EMPTY_SET;
+  begin
+    for row range startRow to startRow + 2 do
+      for column range startColumn to startColumn + 2 do
+        for digit1 range candidates[row][column] do
+          incl(cellsWithDigit[digit1], succ(pred(row) * 3 + pred(column)));
+        end for;
+      end for;
+    end for;
+    for digit1 range 1 to 7 do
+      if card(cellsWithDigit[digit1]) in {2, 3} then
+        for digit2 range succ(digit1) to 8 do
+          if card(cellsWithDigit[digit2]) >= 2 and
+              card(cellsWithDigit[digit1] | cellsWithDigit[digit2]) <= 3 then
+            for digit3 range succ(digit2) to 9 do
+              if card(cellsWithDigit[digit3]) >= 2 then
+                tripleCells := cellsWithDigit[digit1] | cellsWithDigit[digit2] |
+                    cellsWithDigit[digit3];
+                if card(tripleCells) = 3 then
+			tripleSet := {digit1, digit2, digit3};
+                  for row range startRow to startRow + 2 do
+                    for column range startColumn to startColumn + 2 do
+                      if succ(pred(row) * 3 + pred(column)) in tripleCells then
+                        if card(candidates[row][column] - tripleSet) <> 0 then
+                          candidates[row][column] := candidates[row][column] -
+                              (candidates[row][column] - tripleSet);
+                          changeDone := TRUE;
+                        end if;
+                      end if;
+                    end for;
+                  end for;
+                end if;
+              end if;
+            end for;
+          end if;
+        end for;
+      end if;
+    end for;
+  end func;
+
+
+const proc: checkHiddenTriples (inout boolean: changeDone) is func
+  local
+    var integer: row is 0;
+    var integer: column is 0;
+  begin
+    for row range 1 to 9 do
+      checkHiddenTriplesInRow(row, changeDone);
+    end for;
+    for column range 1 to 9 do
+      checkHiddenTriplesInColumn(column, changeDone);
+    end for;
+    for row range 1 to 7 step 3 do
+      for column range 1 to 7 step 3 do
+        checkHiddenTriplesInBox(row, column, changeDone);
+      end for;
+    end for;
+  end func;
+
+
+const proc: checkHiddenQuadsInRow (in integer: row,
+    inout boolean: changeDone) is func
+  local
+    var integer: column is 0;
+    var integer: digit1 is 0;
+    var integer: digit2 is 0;
+    var integer: digit3 is 0;
+    var integer: digit4 is 0;
+    var array set of integer: columnsWithDigit is 9 times EMPTY_SET;
+    var set of integer: quadColumns is EMPTY_SET;
+    var set of integer: quadSet is EMPTY_SET;
+  begin
+    for column range 1 to 9 do
+      for digit1 range candidates[row][column] do
+        incl(columnsWithDigit[digit1], column);
+      end for;
+    end for;
+    for digit1 range 1 to 6 do
+      if card(columnsWithDigit[digit1]) in {2, 3, 4} then
+        for digit2 range succ(digit1) to 7 do
+          if card(columnsWithDigit[digit2]) >= 2 and
+              card(columnsWithDigit[digit1] | columnsWithDigit[digit2]) <= 4 then
+            for digit3 range succ(digit2) to 8 do
+              if card(columnsWithDigit[digit3]) >= 2 and
+                  card(columnsWithDigit[digit1] | columnsWithDigit[digit2] |
+                  columnsWithDigit[digit3]) <= 4 then
+                for digit4 range succ(digit3) to 9 do
+                  if card(columnsWithDigit[digit4]) >= 2 then
+                    quadColumns := columnsWithDigit[digit1] | columnsWithDigit[digit2] |
+                        columnsWithDigit[digit3] | columnsWithDigit[digit4];
+                    if card(quadColumns) = 4 then
+	                quadSet := {digit1, digit2, digit3, digit4};
+                      for column range quadColumns do
+                        if card(candidates[row][column] - quadSet) <> 0 then
+                          candidates[row][column] := candidates[row][column] -
+                              (candidates[row][column] - quadSet);
+                          changeDone := TRUE;
+                        end if;
+                      end for;
+                    end if;
+                  end if;
+                end for;
+              end if;
+            end for;
+          end if;
+        end for;
+      end if;
+    end for;
+  end func;
+
+
+const proc: checkHiddenQuadsInColumn (in integer: column,
+    inout boolean: changeDone) is func
+  local
+    var integer: row is 0;
+    var integer: digit1 is 0;
+    var integer: digit2 is 0;
+    var integer: digit3 is 0;
+    var integer: digit4 is 0;
+    var array set of integer: rowsWithDigit is 9 times EMPTY_SET;
+    var set of integer: quadRows is EMPTY_SET;
+    var set of integer: quadSet is EMPTY_SET;
+  begin
+    for row range 1 to 9 do
+      for digit1 range candidates[row][column] do
+        incl(rowsWithDigit[digit1], row);
+      end for;
+    end for;
+    for digit1 range 1 to 6 do
+      if card(rowsWithDigit[digit1]) in {2, 3, 4} then
+        for digit2 range succ(digit1) to 7 do
+          if card(rowsWithDigit[digit2]) >= 2 and
+              card(rowsWithDigit[digit1] | rowsWithDigit[digit2]) <= 4 then
+            for digit3 range succ(digit2) to 8 do
+              if card(rowsWithDigit[digit3]) >= 2 and
+                  card(rowsWithDigit[digit1] | rowsWithDigit[digit2] |
+                  rowsWithDigit[digit3]) <= 4 then
+                for digit4 range succ(digit3) to 9 do
+                  if card(rowsWithDigit[digit4]) >= 2 then
+                    quadRows := rowsWithDigit[digit1] | rowsWithDigit[digit2] |
+                        rowsWithDigit[digit3] | rowsWithDigit[digit4];
+                    if card(quadRows) = 4 then
+	                quadSet := {digit1, digit2, digit3, digit4};
+                      for row range quadRows do
+                        if card(candidates[row][column] - quadSet) <> 0 then
+                          candidates[row][column] := candidates[row][column] -
+                              (candidates[row][column] - quadSet);
+                          changeDone := TRUE;
+                        end if;
+                      end for;
+                    end if;
+                  end if;
+                end for;
+              end if;
+            end for;
+          end if;
+        end for;
+      end if;
+    end for;
+  end func;
+
+
+const proc: checkHiddenQuadsInBox (in integer: startRow, in integer: startColumn,
+    inout boolean: changeDone) is func
+  local
+    var integer: row is 0;
+    var integer: column is 0;
+    var integer: digit1 is 0;
+    var integer: digit2 is 0;
+    var integer: digit3 is 0;
+    var integer: digit4 is 0;
+    var array set of integer: cellsWithDigit is 9 times EMPTY_SET;
+    var set of integer: quadCells is EMPTY_SET;
+    var set of integer: quadSet is EMPTY_SET;
+  begin
+    for row range startRow to startRow + 2 do
+      for column range startColumn to startColumn + 2 do
+        for digit1 range candidates[row][column] do
+          incl(cellsWithDigit[digit1], succ(pred(row) * 3 + pred(column)));
+        end for;
+      end for;
+    end for;
+    for digit1 range 1 to 6 do
+      if card(cellsWithDigit[digit1]) in {2, 3, 4} then
+        for digit2 range succ(digit1) to 7 do
+          if card(cellsWithDigit[digit2]) >= 2 and
+              card(cellsWithDigit[digit1] | cellsWithDigit[digit2]) <= 4 then
+            for digit3 range succ(digit2) to 8 do
+              if card(cellsWithDigit[digit3]) >= 2 and
+                  card(cellsWithDigit[digit1] | cellsWithDigit[digit2] |
+                  cellsWithDigit[digit3]) <= 4 then
+                for digit4 range succ(digit3) to 9 do
+                  if card(cellsWithDigit[digit4]) >= 2 then
+                    quadCells := cellsWithDigit[digit1] | cellsWithDigit[digit2] |
+                        cellsWithDigit[digit3] | cellsWithDigit[digit4];
+                    if card(quadCells) = 4 then
+	              quadSet := {digit1, digit2, digit3, digit4};
+                      for row range startRow to startRow + 2 do
+                        for column range startColumn to startColumn + 2 do
+                          if succ(pred(row) * 3 + pred(column)) in quadCells then
+                            if card(candidates[row][column] - quadSet) <> 0 then
+                              candidates[row][column] := candidates[row][column] -
+                                  (candidates[row][column] - quadSet);
+                              changeDone := TRUE;
+                            end if;
+                          end if;
+                        end for;
+                      end for;
+                    end if;
+                  end if;
+                end for;
+              end if;
+            end for;
+          end if;
+        end for;
+      end if;
+    end for;
+  end func;
+
+
+const proc: checkHiddenQuads (inout boolean: changeDone) is func
+  local
+    var integer: row is 0;
+    var integer: column is 0;
+  begin
+    for row range 1 to 9 do
+      checkHiddenQuadsInRow(row, changeDone);
+    end for;
+    for column range 1 to 9 do
+      checkHiddenQuadsInColumn(column, changeDone);
+    end for;
+    for row range 1 to 7 step 3 do
+      for column range 1 to 7 step 3 do
+        checkHiddenQuadsInBox(row, column, changeDone);
+      end for;
+    end for;
+  end func;
+
+
+const proc: checkXWingForDigit (in integer: digit,
+    inout boolean: changeDone) is func
+  local
+    var integer: row is 0;
+    var integer: row1 is 0;
+    var integer: row2 is 0;
+    var integer: column is 0;
+    var integer: column1 is 0;
+    var integer: column2 is 0;
+    var array set of integer: rowsInColumn is 9 times EMPTY_SET;
+    var array set of integer: columnsInRow is 9 times EMPTY_SET;
+    var set of integer: xWingColumns is EMPTY_SET;
+    var set of integer: xWingRows is EMPTY_SET;
+  begin
+    for row1 range 1 to 9 do
+      for column1 range 1 to 9 do
+        if digit in candidates[row1][column1] then
+          incl(rowsInColumn[column1], row1);
+          incl(columnsInRow[row1], column1);
+        end if;
+      end for;
+    end for;
+    for row1 range 1 to 8 do
+      if card(columnsInRow[row1]) = 2 then
+        xWingColumns := columnsInRow[row1];
+        for row2 range succ(row1) to 9 do
+          if columnsInRow[row2] = xWingColumns then
+            for row range 1 to 9 do
+              if row <> row1 and row <> row2 then
+                if card(columnsInRow[row] & xWingColumns) <> 0 then
+                  for column range 1 to 9 do
+                    if column in xWingColumns then
+                      excl(candidates[row][column], digit);
+                    end if;
+                  end for;
+                  changeDone := TRUE;
+                end if;
+              end if;
+            end for;
+          end if;
+        end for;
+      end if;
+    end for;
+    for column1 range 1 to 8 do
+      if card(rowsInColumn[column1]) = 2 then
+        xWingRows := rowsInColumn[column1];
+        for column2 range succ(column1) to 9 do
+          if rowsInColumn[column2] = xWingRows then
+            for column range 1 to 9 do
+              if column <> column1 and column <> column2 then
+                if card(rowsInColumn[column] & xWingRows) <> 0 then
+                  for row range 1 to 9 do
+                    if row in xWingRows then
+                      excl(candidates[row][column], digit);
+                    end if;
+                  end for;
+                  changeDone := TRUE;
+                end if;
+              end if;
+            end for;
+          end if;
+        end for;
+      end if;
+    end for;
+  end func;
+
+
+const proc: checkXWing (inout boolean: changeDone) is func
+  local
+    var integer: digit is 0;
+  begin
+    for digit range 1 to 9 do
+      checkXWingForDigit(digit, changeDone);
+    end for;
+  end func;
+
+
+const proc: checkSwordfishForDigit (in integer: digit,
+    inout boolean: changeDone) is func
+  local
+    var integer: row is 0;
+    var integer: row1 is 0;
+    var integer: row2 is 0;
+    var integer: row3 is 0;
+    var integer: column is 0;
+    var integer: column1 is 0;
+    var integer: column2 is 0;
+    var integer: column3 is 0;
+    var array set of integer: rowsInColumn is 9 times EMPTY_SET;
+    var array set of integer: columnsInRow is 9 times EMPTY_SET;
+    var set of integer: swordfishColumns is EMPTY_SET;
+    var set of integer: swordfishRows is EMPTY_SET;
+  begin
+    for row1 range 1 to 9 do
+      for column1 range 1 to 9 do
+        if digit in candidates[row1][column1] then
+          incl(rowsInColumn[column1], row1);
+          incl(columnsInRow[row1], column1);
+        end if;
+      end for;
+    end for;
+    for row1 range 1 to 7 do
+      if card(columnsInRow[row1]) in {2, 3} then
+        for row2 range succ(row1) to 8 do
+          if card(columnsInRow[row2]) >= 2 and
+              card(columnsInRow[row1] | columnsInRow[row2]) <= 3 then
+            for row3 range succ(row2) to 9 do
+              if card(columnsInRow[row3]) >= 2 then
+                swordfishColumns := columnsInRow[row1] | columnsInRow[row2] |
+                    columnsInRow[row3];
+                if card(swordfishColumns) = 3 then
+                  for row range 1 to 9 do
+                    if row <> row1 and row <> row2 and row <> row3 then
+                      if card(columnsInRow[row] & swordfishColumns) <> 0 then
+                        for column range 1 to 9 do
+                          if column in swordfishColumns then
+                            excl(candidates[row][column], digit);
+                          end if;
+                        end for;
+                        changeDone := TRUE;
+                      end if;
+                    end if;
+                  end for;
+                end if;
+              end if;
+            end for;
+          end if;
+        end for;
+      end if;
+    end for;
+    for column1 range 1 to 7 do
+      if card(rowsInColumn[column1]) in {2, 3} then
+        for column2 range succ(column1) to 8 do
+          if card(rowsInColumn[column2]) >= 2 and
+              card(rowsInColumn[column1] | rowsInColumn[column2]) <= 3 then
+            for column3 range succ(column2) to 9 do
+              if card(rowsInColumn[column3]) >= 2 then
+                swordfishRows := rowsInColumn[column1] | rowsInColumn[column2] |
+                    rowsInColumn[column3];
+                if card(swordfishRows) = 3 then
+                  for column range 1 to 9 do
+                    if column <> column1 and column <> column2 and column <> column3 then
+                      if card(rowsInColumn[column] & swordfishRows) <> 0 then
+                        for row range 1 to 9 do
+                          if row in swordfishRows then
+                            excl(candidates[row][column], digit);
+                          end if;
+                        end for;
+                        changeDone := TRUE;
+                      end if;
+                    end if;
+                  end for;
+                end if;
+              end if;
+            end for;
+          end if;
+        end for;
+      end if;
+    end for;
+  end func;
+
+
+const proc: checkSwordfish (inout boolean: changeDone) is func
+  local
+    var integer: digit is 0;
+  begin
+    for digit range 1 to 9 do
+      checkSwordfishForDigit(digit, changeDone);
+    end for;
+  end func;
+
+
+const proc: solve is func
+  local
+    var boolean: changeDone is FALSE;
+  begin
+    repeat
+      changeDone := FALSE;
+      excludeFields;
+      if lookForSingles then
+        checkSingles(changeDone);
+      end if;
+      if lookForHiddenSingles then
+        checkHiddenSingles(changeDone);
+      end if;
+      if lookForLockedCandidates then
+        checkLockedCandidates(changeDone);
+      end if;
+      if lookForNakedPairs then
+        checkNakedPairs(changeDone);
+      end if;
+      if lookForNakedTriples then
+        checkNakedTriples(changeDone);
+      end if;
+      if lookForNakedQuads then
+        checkNakedQuads(changeDone);
+      end if;
+      if lookForHiddenPairs then
+        checkHiddenPairs(changeDone);
+      end if;
+      if lookForHiddenTriples then
+        checkHiddenTriples(changeDone);
+      end if;
+      if lookForHiddenQuads then
+        checkHiddenQuads(changeDone);
+      end if;
+      if lookForXWing then
+        checkXWing(changeDone);
+      end if;
+      if lookForSwordfish then
+        checkSwordfish(changeDone);
+      end if;
+    until not changeDone;
+  end func;
+
+
+const proc: blueChanges is func
+  begin
+    repeat
+      blue_changes := FALSE;
+      excludeFields;
+      DRAW_FLUSH;
+    until not blue_changes;
+  end func;
+
+
+const func char: readCommand (in integer: row, in integer: column) is func
+  result
+    var char: command is ' ';
+
+  begin
+    command := getc(KEYBOARD);
+    box(X_SHIFT + STRETCH_FACTOR * succ(column) + CELL_SHIFT,
+        Y_SHIFT + STRETCH_FACTOR * succ(row) + CELL_SHIFT,
+        CELL_SIZE, CELL_SIZE, BACKGROUND);
+  end func;
+
+
+const proc: showSolved is func
+
+  local
+    var integer: row is 1;
+    var integer: column is 1;
+
+  begin
+    for row range 1 to 9 do
+      for column range 1 to 9 do
+        if not user_input[row][column] and field[row][column] <> 0 then
+          clearField(row, column);
+          setBlueDigit(row, column, field[row][column]);
+        end if;
+      end for;
+    end for;
+  end func;
+
+
+const proc: showNumberOfCandidates (in integer: number) is func
+
+  local
+    var integer: row is 1;
+    var integer: column is 1;
+
+  begin
+    for row range 1 to 9 do
+      for column range 1 to 9 do
+        if field[row][column] = 0 then
+          clearField(row, column);
+          if card(candidates[row][column]) = number then
+            markField(row, column);
+          end if;
+        end if;
+      end for;
+    end for;
+  end func;
+
+
+const proc: showCandidatesDigit (in integer: number) is func
+
+  local
+    var integer: row is 1;
+    var integer: column is 1;
+
+  begin
+    for row range 1 to 9 do
+      for column range 1 to 9 do
+        if field[row][column] = 0 then
+          clearField(row, column);
+          if number in candidates[row][column] then
+            markField(row, column);
+          end if;
+        end if;
+      end for;
+    end for;
+  end func;
+
+
+const proc: showCandidates is func
+
+  local
+    var integer: row is 1;
+    var integer: column is 1;
+    var integer: digit is 0;
+
+  begin
+    for row range 1 to 9 do
+      for column range 1 to 9 do
+        if field[row][column] = 0 then
+          for digit range 1 to 9 do
+            if digit in candidates[row][column] then
+              writeSmallDigit(row, column, digit);
+            end if;
+          end for;
+        end if;
+      end for;
+    end for;
+  end func;
+
+
+const proc: showStrategyCheckboxes is func
+  local
+    var integer: number is 0;
+    var boolean: button_is_on is FALSE;
+  begin
+    rect(RIGHT_BUTTON_X, RIGHT_BUTTON_MIN_Y + 4 + 39 * 2, 250, 39 * 11, black);
+    for number range 3 to 13 do
+      box(RIGHT_BUTTON_X + 4, RIGHT_BUTTON_MIN_Y + 4 + 39 * pred(number), 24, 24, FOREGROUND);
+      setPos(info, 4 + number * 3, 45);
+      case number of
+        when {3}:
+          write(info, "singles");
+          button_is_on := lookForSingles;
+        when {4}:
+          write(info, "hidden singles");
+          button_is_on := lookForHiddenSingles;
+        when {5}:
+          write(info, "locked candidates");
+          button_is_on := lookForLockedCandidates;
+        when {6}:
+          write(info, "naked pairs");
+          button_is_on := lookForNakedPairs;
+        when {7}:
+          write(info, "naked triples");
+          button_is_on := lookForNakedTriples;
+        when {8}:
+          write(info, "naked quads");
+          button_is_on := lookForNakedQuads;
+        when {9}:
+          write(info, "hidden pairs");
+          button_is_on := lookForHiddenPairs;
+        when {10}:
+          write(info, "hidden triples");
+          button_is_on := lookForHiddenTriples;
+        when {11}:
+          write(info, "hidden quads");
+          button_is_on := lookForHiddenQuads;
+        when {12}:
+          write(info, "x-wing");
+          button_is_on := lookForXWing;
+        when {13}:
+          write(info, "swordfish");
+          button_is_on := lookForSwordfish;
+      end case;
+      if button_is_on then
+        put(RIGHT_BUTTON_X + 8, RIGHT_BUTTON_MIN_Y + 8 + 39 * pred(number),
+            checkmark_pixmap, PSET);
+      else
+        rect(RIGHT_BUTTON_X + 8, RIGHT_BUTTON_MIN_Y + 8 + 39 * pred(number),
+            16, 16, BACKGROUND);
+      end if;
+    end for;
+  end func;
+
+
+const proc: hideStrategyCheckboxes is func
+  begin
+    rect(RIGHT_BUTTON_X, RIGHT_BUTTON_MIN_Y + 4 + 39 * 2, 250, 39 * 11, black);
+  end func;
+
+
+const proc: showButtons is func
+  local
+    var integer: number is 0;
+  begin
+    for number range 0 to 12 do
+      box(TOP_BUTTON_MIN_X + 48 * number, TOP_BUTTON_Y, 32, 32, FOREGROUND);
+      case number of
+        when {1 .. 9}:
+          put(TOP_BUTTON_MIN_X + 8 + 48 * number, TOP_BUTTON_Y + 8,
+              small_digits[number], PSET);
+        when {10}:
+          put(TOP_BUTTON_MIN_X + 8 + 48 * number, TOP_BUTTON_Y + 8,
+              single_pixmap, PSET);
+        when {11}:
+          put(TOP_BUTTON_MIN_X + 8 + 48 * number, TOP_BUTTON_Y + 8,
+              double_pixmap, PSET);
+        when {12}:
+          put(TOP_BUTTON_MIN_X + 8 + 48 * number, TOP_BUTTON_Y + 8,
+              triple_pixmap, PSET);
+      end case;
+    end for;
+    put(EXIT_BUTTON_X, TOP_BUTTON_Y, exit_pixmap, PSET);
+    for number range 1 to 2 do
+      box(RIGHT_BUTTON_X + 4, RIGHT_BUTTON_MIN_Y + 4 + 39 * pred(number), 24, 24, FOREGROUND);
+      setPos(info, 4 + number * 3, 45);
+      case number of
+        when {1}:
+          write(info, "show candidates");
+        when {2}:
+          write(info, "show solution");
+      end case;
+    end for;
+  end func;
+
+
+const proc: loadField (in string: stri) is func
+  local
+    var integer: number is 0;
+    var integer: row is 0;
+    var integer: column is 0;
+    var integer: digit is 0;
+  begin
+    if length(stri) = 81 then
+      for number range 1 to 81 do
+        row := succ(pred(number) div 9);
+        column := succ(pred(number) rem 9);
+        if stri[number] in {'1' .. '9'} then
+          setRedDigit(row, column, ord(stri[number]) - ord('0'));
+        end if;
+      end for;
+    end if;
+  end func;
+  
+
+const proc: processCommand is func
+
+  local
+    var integer: x is 0;
+    var integer: y is 0;
+    var integer: row is 1;
+    var integer: column is 1;
+    var integer: candidate_digit is 0;
+    var integer: button_num is 0;
+    var boolean: button_is_on is FALSE;
+    var integer: digit is 0;
+    var char: command is ' ';
+
+  begin
+    # loadField("002090400050400000100005060000109000007000200000008070400060001001080300500200006");
+    # loadField("003406080006700100080000050002045000305000900070000300001230000004007000560000000");
+    # loadField("700000019460190000000682704090000007000300405006700000001000000200074000000200300");
+    # loadField("001080604037600000500000000000005000006010800000400000000000003000007520802090700");
+    # loadField("002090107038600000400000000000005000009010300000400000000000004000007920806030700");
+    # loadField("460001000002096000030000068000000037000607000510000000840000050000710900000300024");
+    showButtons;
+    repeat
+      box(X_SHIFT + STRETCH_FACTOR * succ(column) + CELL_SHIFT,
+          Y_SHIFT + STRETCH_FACTOR * succ(row) + CELL_SHIFT,
+          CELL_SIZE, CELL_SIZE, light_red);
+      DRAW_FLUSH;
+(*
+      if not keypressed(KEYBOARD) then
+        blueChanges;
+      end if;
+*)
+      if show_solution then
+        solve;
+        showSolved;
+      end if;
+      if candidate_digit >= 10 then
+        showNumberOfCandidates(candidate_digit - 9);
+      else
+        showCandidatesDigit(candidate_digit);
+      end if;
+      if show_candidates then
+        showCandidates;
+      end if;
+      repeat
+        command := readCommand(row, column);
+        case command of
+          when {KEY_DOWN}:
+            if row < 9 then
+              incr(row);
+            else
+              row := 1;
+            end if;
+          when {KEY_UP}:
+            if row > 1 then
+              decr(row);
+            else
+              row := 9;
+            end if;
+          when {KEY_RIGHT}:
+            if column < 9 then
+              incr(column);
+            else
+              column := 1;
+            end if;
+          when {KEY_LEFT}:
+            if column > 1 then
+              decr(column);
+            else
+              column := 9;
+            end if;
+          when {KEY_HOME}:
+            row := 1;
+          when {KEY_END}:
+            row := 9;
+          when {KEY_PGUP}:
+            column := 1;
+          when {KEY_PGDN}:
+            column := 9;
+          when {'q'}:
+            quit := TRUE;
+          when {'1' .. '9'}:
+            if field[row][column] <> 0 then
+              clearDigit(row, column);
+              blueChanges;
+            end if;
+            if ord(command) - ord('0') in candidates[row][column] then
+              setRedDigit(row, column, ord(command) - ord('0'));
+              blueChanges;
+              (* if column < 9 then
+                incr(column);
+              end if; *)
+            end if;
+          when {' '}:
+            clearDigit(row, column);
+            (* if column < 9 then
+              incr(column);
+            end if; *)
+          when {KEY_MOUSE1}:
+            x := getxpos(KEYBOARD);
+            y := getypos(KEYBOARD);
+            if x >= X_SHIFT + STRETCH_FACTOR * 2 + 1 and
+                x <= X_SHIFT + STRETCH_FACTOR * 11 and
+                y >= Y_SHIFT + STRETCH_FACTOR * 2 + 1 and
+                y <= Y_SHIFT + STRETCH_FACTOR * 11 then
+              row := pred(y - Y_SHIFT) div STRETCH_FACTOR - 1;
+              column := pred(x - X_SHIFT) div STRETCH_FACTOR - 1;
+            elsif y >= TOP_BUTTON_Y and y <= TOP_BUTTON_Y + 32 and
+                x >= TOP_BUTTON_MIN_X and x <= TOP_BUTTON_MIN_X + 32 + 48 * 12 and
+                (x - TOP_BUTTON_MIN_X) rem 48 <= 32 then
+              box(TOP_BUTTON_MIN_X + 4 + 48 * candidate_digit, TOP_BUTTON_Y + 4, 24, 24, BACKGROUND);
+              candidate_digit := (x - TOP_BUTTON_MIN_X) div 48;
+              box(TOP_BUTTON_MIN_X + 4 + 48 * candidate_digit, TOP_BUTTON_Y + 4, 24, 24, FOREGROUND);
+            elsif y >= TOP_BUTTON_Y and y <= TOP_BUTTON_Y + 32 and
+                x >= EXIT_BUTTON_X and x <= EXIT_BUTTON_X + 32 then
+              quit := TRUE;
+            elsif x >= RIGHT_BUTTON_X and x <= RIGHT_BUTTON_X + 32 and
+                y >= RIGHT_BUTTON_MIN_Y and y <= RIGHT_BUTTON_MIN_Y + 32 + 39 * 12 and
+                (y - RIGHT_BUTTON_MIN_Y) rem 39 <= 32 then
+              button_num := (y - RIGHT_BUTTON_MIN_Y) div 39;
+              case button_num of
+                when {0}:
+                  show_candidates := not show_candidates;
+                  button_is_on := show_candidates;
+                when {1}:
+                  show_solution := not show_solution;
+                  button_is_on := show_solution;
+                  if not show_solution then
+                    hideStrategyCheckboxes;
+                    initCandidates;
+                    blueChanges;
+                  else
+                    showStrategyCheckboxes;
+                  end if;
+              end case;
+              if show_solution then
+                case button_num of
+                  when {2}:
+                    lookForSingles := not lookForSingles;
+                    if not lookForSingles then
+                      initCandidates;
+                      blueChanges;
+                    end if;
+                    button_is_on := lookForSingles;
+                  when {3}:
+                    lookForHiddenSingles := not lookForHiddenSingles;
+                    if not lookForHiddenSingles then
+                      initCandidates;
+                      blueChanges;
+                    end if;
+                    button_is_on := lookForHiddenSingles;
+                  when {4}:
+                    lookForLockedCandidates := not lookForLockedCandidates;
+                    if not lookForLockedCandidates then
+                      initCandidates;
+                      blueChanges;
+                    end if;
+                    button_is_on := lookForLockedCandidates;
+                  when {5}:
+                    lookForNakedPairs := not lookForNakedPairs;
+                    if not lookForNakedPairs then
+                      initCandidates;
+                      blueChanges;
+                    end if;
+                    button_is_on := lookForNakedPairs;
+                  when {6}:
+                    lookForNakedTriples := not lookForNakedTriples;
+                    if not lookForNakedTriples then
+                      initCandidates;
+                      blueChanges;
+                    end if;
+                    button_is_on := lookForNakedTriples;
+                  when {7}:
+                    lookForNakedQuads := not lookForNakedQuads;
+                    if not lookForNakedQuads then
+                      initCandidates;
+                      blueChanges;
+                    end if;
+                    button_is_on := lookForNakedQuads;
+                  when {8}:
+                    lookForHiddenPairs := not lookForHiddenPairs;
+                    if not lookForHiddenPairs then
+                      initCandidates;
+                      blueChanges;
+                    end if;
+                    button_is_on := lookForHiddenPairs;
+                  when {9}:
+                    lookForHiddenTriples := not lookForHiddenTriples;
+                    if not lookForHiddenTriples then
+                      initCandidates;
+                      blueChanges;
+                    end if;
+                    button_is_on := lookForHiddenTriples;
+                  when {10}:
+                    lookForHiddenQuads := not lookForHiddenQuads;
+                    if not lookForHiddenQuads then
+                      initCandidates;
+                      blueChanges;
+                    end if;
+                    button_is_on := lookForHiddenQuads;
+                  when {11}:
+                    lookForXWing := not lookForXWing;
+                    if not lookForXWing then
+                      initCandidates;
+                      blueChanges;
+                    end if;
+                    button_is_on := lookForXWing;
+                  when {12}:
+                    lookForSwordfish := not lookForSwordfish;
+                    if not lookForSwordfish then
+                      initCandidates;
+                      blueChanges;
+                    end if;
+                    button_is_on := lookForSwordfish;
+                end case;
+              end if;
+              if show_solution or button_num <= 1 then
+                if button_is_on then
+                  put(RIGHT_BUTTON_X + 8, RIGHT_BUTTON_MIN_Y + 8 + 39 * button_num,
+                      checkmark_pixmap, PSET);
+                else
+                  rect(RIGHT_BUTTON_X + 8, RIGHT_BUTTON_MIN_Y + 8 + 39 * button_num,
+                      16, 16, BACKGROUND);
+                end if;
+              end if;
+            end if;
+          when {KEY_MOUSE3}:
+            x := getxpos(KEYBOARD);
+            y := getypos(KEYBOARD);
+            if x >= X_SHIFT + STRETCH_FACTOR * 2 + 1 and
+                x <= X_SHIFT + STRETCH_FACTOR * 11 and
+                y >= Y_SHIFT + STRETCH_FACTOR * 2 + 1 and
+                y <= Y_SHIFT + STRETCH_FACTOR * 11 then
+              row := pred(y - Y_SHIFT) div STRETCH_FACTOR - 1;
+              column := pred(x - X_SHIFT) div STRETCH_FACTOR - 1;
+              x -:= pred(column) * STRETCH_FACTOR + FIELD_XPOS + 12;
+              y -:= pred(row) * STRETCH_FACTOR + FIELD_YPOS + 12;
+              if x >= 0 and x < 48 and y >= 0 and y < 48 then
+                digit := 1 + x div 16 + 3 * (y div 16);
+                if digit in candidates[row][column] then
+                  excl(candidates[row][column], digit);
+                else
+                  incl(candidates[row][column], digit);
+                end if;
+              end if;
+            end if;
+        end case;
+      until not keypressed(KEYBOARD);
+    until quit;
+  end func;
+
+
+const proc: main is func
+  begin
+    screen(896, 704);
+    clear(BACKGROUND);
+    scr := open(curr_win);
+    info := open_window(scr, 1, 70, height(scr), width(scr) - 70);
+    KEYBOARD := GRAPH_KEYBOARD;
+    setPos(info, 20, 52);
+    writeln(info, "S U D O K U 7");
+    setPos(info, 23, 42);
+    writeln(info, "Copyright (C) 2006  Thomas Mertes");
+    setPos(info, 25, 39);
+    writeln(info, "This program is free software under the");
+    setPos(info, 26, 39);
+    writeln(info, "terms of the GNU General Public License");
+    setPos(info, 29, 46);
+    writeln(info, "Sudoku7 is written in the");
+    setPos(info, 30, 45);
+    writeln(info, "Seed7 programming language.");
+    setPos(info, 32, 39);
+    writeln(info, "Homepage:  http://seed7.sourceforge.net");
+    initGrid;
+    blue_digits := [0](
+      create_pixmap(blue_zero,  2),
+      create_pixmap(blue_one,   2),
+      create_pixmap(blue_two,   2),
+      create_pixmap(blue_three, 2),
+      create_pixmap(blue_four,  2),
+      create_pixmap(blue_five,  2),
+      create_pixmap(blue_six,   2),
+      create_pixmap(blue_seven, 2),
+      create_pixmap(blue_eight, 2),
+      create_pixmap(blue_nine,  2));
+    red_digits := [0](
+      create_pixmap(red_zero,  2),
+      create_pixmap(red_one,   2),
+      create_pixmap(red_two,   2),
+      create_pixmap(red_three, 2),
+      create_pixmap(red_four,  2),
+      create_pixmap(red_five,  2),
+      create_pixmap(red_six,   2),
+      create_pixmap(red_seven, 2),
+      create_pixmap(red_eight, 2),
+      create_pixmap(red_nine,  2));
+    small_digits := [0](
+      create_pixmap(blue_zero,  1),
+      create_pixmap(blue_one,   1),
+      create_pixmap(blue_two,   1),
+      create_pixmap(blue_three, 1),
+      create_pixmap(blue_four,  1),
+      create_pixmap(blue_five,  1),
+      create_pixmap(blue_six,   1),
+      create_pixmap(blue_seven, 1),
+      create_pixmap(blue_eight, 1),
+      create_pixmap(blue_nine,  1));
+    single_pixmap := create_pixmap(blue_single, 1);
+    double_pixmap := create_pixmap(blue_double, 1);
+    triple_pixmap := create_pixmap(blue_triple, 1);
+    exit_pixmap := create_pixmap(exit_pic, 2);
+    checkmark_pixmap := create_pixmap(checkmark_pic, 1);
+    initCandidates;
+    processCommand;
+  end func;
