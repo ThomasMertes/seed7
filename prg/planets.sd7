@@ -609,22 +609,22 @@ const proc: changeDateTime is func
     setPos(scr, 1, 1);
     case currTimeChange of
       when {1}:
-        write("Enter year: ");
+        write(scr, "Enter year: ");
         read(aTime.year);
       when {2}:
-        write("Enter month: ");
+        write(scr, "Enter month: ");
         read(aTime.month);
       when {3}:
-        write("Enter day: ");
+        write(scr, "Enter day: ");
         read(aTime.day);
       when {4}:
-        write("Enter hour: ");
+        write(scr, "Enter hour: ");
         read(aTime.hour);
       when {5}:
-        write("Enter minute: ");
+        write(scr, "Enter minute: ");
         read(aTime.minute);
       when {6}:
-        write("Enter second: ");
+        write(scr, "Enter second: ");
         read(aTime.second);
     end case;
     showMenu;
@@ -786,7 +786,6 @@ const proc: drawAllPlanets (in heliocentricPlanetType: earth) is func
 
 const proc: drawSun (in heliocentricPlanetType: earth) is func
   local
-    var integer: planetNumber is 0;
     var heliocentricPlanetType: sun is heliocentricPlanetType.value;
     var geocentricPlanetType: geocentricPos is geocentricPlanetType.value;
   begin
@@ -898,8 +897,8 @@ const proc: drawStars is func
     var equatorialCoordinateType: equatorialCoordinate is equatorialCoordinateType.value;
     var float: hourAngle is 0.0;
     var horizontalCoordinateType: horizontalCoordinate is horizontalCoordinateType.value;
-	var integer: xPos is 0;
-	var integer: yPos is 0;
+    var integer: xPos is 0;
+    var integer: yPos is 0;
   begin
     for index range length(stars) downto 1 do
       equatorialCoordinate.rightAscension := stars[index].rightAscension;
@@ -911,10 +910,10 @@ const proc: drawStars is func
         xPos := panoramaXPos(horizontalCoordinate.azimuth);
         yPos := panoramaYPos(horizontalCoordinate.altitude);
         writePoint(xPos, yPos, stars[index].magnitude);
-		if xPos + round(sizePanorama) < 1024 then
+        if xPos + round(sizePanorama) < 1024 then
           writePoint(xPos + round(sizePanorama), yPos, stars[index].magnitude);
         end if;
-		if xPos - round(sizePanorama) >= 0 then
+        if xPos - round(sizePanorama) >= 0 then
           writePoint(xPos - round(sizePanorama), yPos, stars[index].magnitude);
         end if;
       end if;
@@ -1139,6 +1138,124 @@ const proc: locatePlanet (in integer: planetNumber) is func
   end func; (* locatePlanet *)
 
 
+const proc: showName is func
+  local
+    var integer: mouseXPos is 0;
+    var integer: mouseYPos is 0;
+    var integer: index is 0;
+    var equatorialCoordinateType: equatorialCoordinate is equatorialCoordinateType.value;
+    var float: hourAngle is 0.0;
+    var horizontalCoordinateType: horizontalCoordinate is horizontalCoordinateType.value;
+    var heliocentricPlanetType: sun is heliocentricPlanetType.value;
+    var heliocentricPlanetType: earth is heliocentricPlanetType.value;
+    var heliocentricPlanetType: planet is heliocentricPlanetType.value;
+    var geocentricPlanetType: geocentricPos is geocentricPlanetType.value;
+    var integer: xPos is 0;
+    var integer: yPos is 0;
+    var integer: delta is 0;
+    var integer: minDelta is 0;
+    var integer: selectedStar is 0;
+    var integer: selectedPlanet is 0;
+    var string: name is "";
+  begin
+    mouseXPos := getxpos(KEYBOARD);
+    mouseYPos := getypos(KEYBOARD);
+    for index range 1 to length(stars) do
+      equatorialCoordinate.rightAscension := stars[index].rightAscension;
+      equatorialCoordinate.declination := stars[index].declination;
+      hourAngle := calculateHourAngle(equatorialCoordinate, localSiderealTime);
+      horizontalCoordinate := calculateHorizontalCoordinates(equatorialCoordinate,
+          posAtEarth, hourAngle);
+      if horizontalCoordinate.altitude >= 0.0 then
+        xPos := panoramaXPos(horizontalCoordinate.azimuth);
+        yPos := panoramaYPos(horizontalCoordinate.altitude);
+        delta := (mouseXPos - xPos) ** 2 + (mouseYPos - yPos) ** 2;
+        if selectedStar = 0 or delta < minDelta then
+          selectedStar := index;
+          minDelta := delta;
+        end if;
+        if xPos + round(sizePanorama) < 1024 then
+          delta := (mouseXPos - xPos - round(sizePanorama)) ** 2 + (mouseYPos - yPos) ** 2;
+          if selectedStar = 0 or delta < minDelta then
+            selectedStar := index;
+            minDelta := delta;
+          end if;
+        end if;
+        if xPos - round(sizePanorama) >= 0 then
+          delta := (mouseXPos - xPos + round(sizePanorama)) ** 2 + (mouseYPos - yPos) ** 2;
+          if selectedStar = 0 or delta < minDelta then
+            selectedStar := index;
+            minDelta := delta;
+          end if;
+        end if;
+      end if;
+    end for;
+    earth := locatePositionOfPlanetInItsOrbitalPlane(orbitDescr[3]);
+    for index range 1 to 9 do
+      if index <> 3 then
+        planet := locatePositionOfPlanetInItsOrbitalPlane(orbitDescr[index]);
+        ProjectPlanetOntoEclipticalPlane(planet, orbitDescr[index]);
+        geocentricPos := genGeocentricPos(planet, earth, localSiderealTime, posAtEarth);
+        if geocentricPos.horizontalCoordinate.altitude >= 0.0 then
+          xPos := panoramaXPos(geocentricPos.horizontalCoordinate.azimuth);
+          yPos := panoramaYPos(geocentricPos.horizontalCoordinate.altitude);
+          delta := (mouseXPos - xPos) ** 2 + (mouseYPos - yPos) ** 2;
+          if delta <= minDelta then
+            selectedStar := 0;
+            selectedPlanet := index;
+            minDelta := delta;
+          end if;
+        end if;
+      end if;
+    end for;
+    geocentricPos := genGeocentricPos(sun, earth, localSiderealTime, posAtEarth);
+    if geocentricPos.horizontalCoordinate.altitude >= 0.0 then
+      xPos := panoramaXPos(geocentricPos.horizontalCoordinate.azimuth);
+      yPos := panoramaYPos(geocentricPos.horizontalCoordinate.altitude);
+      delta := (mouseXPos - xPos) ** 2 + (mouseYPos - yPos) ** 2;
+      if delta <= minDelta then
+        selectedStar := 0;
+        selectedPlanet := 0;
+        minDelta := delta;
+      end if;
+    end if;
+    if selectedStar <> 0 then
+      equatorialCoordinate.rightAscension := stars[selectedStar].rightAscension;
+      equatorialCoordinate.declination := stars[selectedStar].declination;
+      hourAngle := calculateHourAngle(equatorialCoordinate, localSiderealTime);
+      horizontalCoordinate := calculateHorizontalCoordinates(equatorialCoordinate,
+          posAtEarth, hourAngle);
+      xPos := panoramaXPos(horizontalCoordinate.azimuth);
+      yPos := panoramaYPos(horizontalCoordinate.altitude);
+      name := stars[selectedStar].name;
+    elsif selectedPlanet <> 0 then
+      planet := locatePositionOfPlanetInItsOrbitalPlane(orbitDescr[selectedPlanet]);
+      ProjectPlanetOntoEclipticalPlane(planet, orbitDescr[selectedPlanet]);
+      geocentricPos := genGeocentricPos(planet, earth, localSiderealTime, posAtEarth);
+      xPos := panoramaXPos(geocentricPos.horizontalCoordinate.azimuth);
+      yPos := panoramaYPos(geocentricPos.horizontalCoordinate.altitude);
+      name := orbitDescr[selectedPlanet].name;
+    else
+      geocentricPos := genGeocentricPos(sun, earth, localSiderealTime, posAtEarth);
+      xPos := panoramaXPos(geocentricPos.horizontalCoordinate.azimuth);
+      yPos := panoramaYPos(geocentricPos.horizontalCoordinate.altitude);
+      name := "Sun";
+    end if;
+    if minDelta <= 900 then
+      setPosXY(scr, xPos + 4, yPos);
+      write(name);
+      if xPos + round(sizePanorama) < 1024 then
+        setPosXY(scr, xPos + round(sizePanorama) + 4, yPos);
+        write(name);
+      end if;
+      if xPos - round(sizePanorama) >= 0 then
+        setPosXY(scr, xPos - round(sizePanorama) + 4, yPos);
+        write(name);
+      end if;
+    end if;
+  end func;
+
+
 const proc: initOrbitDescr is func
   begin
     orbitDescr[1].name :="Mercury";
@@ -1338,6 +1455,11 @@ const proc: main is func
         when {'S', 's'}: setup;
         when {'1', '2', '3', '4', '5', '6', '7', '8', '9'}:
           locatePlanet(ord(command) - ord('0'));
+        when {KEY_MOUSE1}:
+          if old_command in {'1', '2', '3', '4', '5', '6', '7', '8', '9'} then
+            showName;
+          end if;
+          command := old_command;
         otherwise:
           command := old_command;
       end case;

@@ -93,6 +93,10 @@ int sig_num;
     } else if (sig_num == SIGALRM) {
       sig_name = "ALARM";
 #endif
+#ifdef SIGPIPE
+    } else if (sig_num == SIGPIPE) {
+      sig_name = "SIGPIPE";
+#endif
     } else {
       sprintf(buffer, "%d", sig_num);
       sig_name = buffer;
@@ -143,5 +147,8 @@ void activate_signal_handlers ()
     signal(SIGINT, handle_signals);
     signal(SIGSEGV, handle_signals);
     signal(SIGTERM, handle_term_signal);
+#ifdef SIGPIPE
+    signal(SIGPIPE, handle_signals);
+#endif
   } /* activate_signal_handlers */
 #endif

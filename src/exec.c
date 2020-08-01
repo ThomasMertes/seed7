@@ -566,10 +566,28 @@ objecttype object;
         if (res_init(&block->result, &backup_block_result)) {
           result = exec_call(block->body);
           if (fail_flag) {
-            errinfotype err_info;
+            errinfotype ignored_err_info;
 
-            /* err_info is not checked since an exception was already raised */
-            incl_list(&fail_stack, object, &err_info);
+#ifdef OUT_OF_ORDER
+            if (!HAS_POSINFO(object)) {
+              if (HAS_DESCRIPTOR_ENTITY(object)) {
+                printf("HAS_DESCRIPTOR_ENTITY\n");
+                if (object->descriptor.entity->ident != NULL) {
+                  printf("%s",
+                      id_string(object->descriptor.entity->ident));
+                } else if (object->descriptor.entity->name_list != NULL) {
+                  prot_list(object->descriptor.entity->name_list);
+                } /* if */
+                printf("\n");
+              } /* if */
+              printf("!HAS_POSINFO\n");
+              trace1(object);
+              prot_nl();
+            } /* if */
+#endif
+
+            /* ignored_err_info is not checked since an exception was already raised */
+            incl_list(&fail_stack, object, &ignored_err_info);
           } /* if */
           res_restore(&block->result, backup_block_result, &result);
         } else {
@@ -1027,6 +1045,7 @@ listtype expr_list;
 #endif
 
   {
+    objecttype dynamic_call_obj;
     objecttype match_expr;
     listtype actual_element;
     listtype *list_insert_place;
@@ -1051,6 +1070,7 @@ listtype expr_list;
       prot_nl();
     } /* if */
 #endif
+    dynamic_call_obj = curr_exec_object;
     if (ALLOC_OBJECT(match_expr)) {
       match_expr->type_of = take_type(SYS_EXPR_TYPE);
       match_expr->descriptor.entity = entity.literal;
@@ -1109,6 +1129,16 @@ printf("\n"); */
         } /* if */
 #endif
         result = exec_call(match_result);
+        if (fail_flag) {
+          errinfotype ignored_err_info;
+
+          if (fail_stack->obj == match_result) {
+            pop_list(&fail_stack);
+          } /* if */
+
+          /* ignored_err_info is not checked since an exception was already raised */
+          incl_list(&fail_stack, dynamic_call_obj, &ignored_err_info);
+        } /* if */
 
         if (match_result != match_expr) {
           FREE_OBJECT(match_result->value.listvalue->obj);

@@ -21,7 +21,7 @@ WHAT IS SEED7?
   (Chapter: Introduction).
 
 
-WHAT CONTAINS THIS PACKAGE?
+WHAT IS CONTAINED IN THIS PACKAGE?
 
     The Seed7 package contains the hi Interpreter in source besides
   documentation files, include files and program examples. The
@@ -32,7 +32,7 @@ WHAT CONTAINS THIS PACKAGE?
     lib    Include files
     doc    Documentation files
 
-  Using the extension several files can be destinguished:
+  Using the extension several files can be distinguished:
 
     *.txt  Documentation files
     *.sd7  Program example files

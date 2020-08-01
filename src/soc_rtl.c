@@ -605,8 +605,8 @@ inttype flags;
       raise_error(MEMORY_ERROR);
       result = 0;
     } else if (buf->size != stri->size) {
-      raise_error(RANGE_ERROR);
       FREE_BSTRI(buf, buf->size);
+      raise_error(RANGE_ERROR);
       result = 0;
     } else {
       result = send(sock, buf->mem, buf->size, flags);
@@ -640,8 +640,8 @@ bstritype address;
       raise_error(MEMORY_ERROR);
       result = 0;
     } else if (buf->size != stri->size) {
-      raise_error(RANGE_ERROR);
       FREE_BSTRI(buf, buf->size);
+      raise_error(RANGE_ERROR);
       result = 0;
     } else {
       result = sendto(sock, buf->mem, buf->size, flags,
@@ -784,8 +784,8 @@ stritype stri;
     if (buf == NULL) {
       raise_error(MEMORY_ERROR);
     } else if (buf->size != stri->size) {
-      raise_error(RANGE_ERROR);
       FREE_BSTRI(buf, buf->size);
+      raise_error(RANGE_ERROR);
     } else {
       if (send(sock, buf->mem, buf->size, 0) != buf->size) {
         FREE_BSTRI(buf, buf->size);

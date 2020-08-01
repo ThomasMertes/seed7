@@ -27,6 +27,7 @@ err.sd7      Test for almost all possible compile time errors
 fib.sd7      Compute fibonacci numbers                         
 gcd.sd7      Compute the greatest common divisor               
 gkbd.sd7     Keyboard test program for graphic keyboard        
+gtksvtst.sd7 Gtk-server connection test program                
 hal.sd7      HAL 9000 simulation program                       
 hamu.sd7     Game to govern the ancient kingdom of sumeria.    
 hanoi.sd7    Solve the tower of hanoi problem                  

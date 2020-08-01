@@ -1,3 +1,13 @@
+20070909:
+- A gtk-server connection library (gtkserver.s7i), a test program (gtksvtst.sd7) and
+  documentation (see doc/gtksvdoc.txt) were added (Patch from Leonardo Cecchi).
+- Some spelling corrections for read_me and a draft for a cygwin makefile (mk_cygw.mak)
+  were added (Patches from Terrence Brannon).
+- A Seed7 mailing list has been created under seed7-NOSPAMusers@lists.sourceforge.net
+  (Remove NOSPAM to get the email address).
+- The planets.sd7 program was improved to show the name of a star when clicking on it.
+- The stack trace of the hi interpreter for uncaught exceptions was improved.
+
 20070823:
 - The compiler was improved to support nested exceptions.
 - The planets.sd7 example program was improved to contain a panorama with stars and planets.

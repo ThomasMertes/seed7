@@ -34,6 +34,7 @@
 #include "syvarutl.h"
 #include "traceutl.h"
 #include "flistutl.h"
+#include "infile.h"
 #include "listutl.h"
 #include "scanner.h"
 #include "symbol.h"
@@ -293,6 +294,7 @@ listtype actual_parameter;
     booltype okay;
     objecttype actual_param;
     listtype helplist;
+    postype posinfo;
 
   /* pars_token */
 #ifdef TRACE_EXPR
@@ -326,12 +328,14 @@ listtype actual_parameter;
               actual_param = pars_infix_expression(
                   formal_token->token_value.expr_par.priority, FALSE);
             } else {
+              posinfo = CREATE_POSINFO(in_file.line, in_file.file_number);
               actual_param = pars_infix_expression(
                   formal_token->token_value.expr_par.priority, FALSE);
               if (CATEGORY_OF_OBJ(actual_param) != EXPROBJECT) {
                 actual_param = new_type_of_expression_object(
                     actual_param, &helplist,
                     formal_token->token_value.expr_par.type_of);
+                actual_param->descriptor.posinfo = posinfo;
               } /* if */
             } /* if */
             actual_parameter = add_element_to_list(actual_parameter, actual_param);
@@ -380,10 +384,10 @@ booltype do_match_expr;
 #endif
 
 {
-  objecttype expression;
-  prior_type expr_prior;
-  tokentype formal_token;
-  listtype helplist;
+    objecttype expression;
+    prior_type expr_prior;
+    tokentype formal_token;
+    listtype helplist;
 
   /* pars_infix_expression */
 #ifdef TRACE_EXPR

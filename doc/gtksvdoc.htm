@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+                      "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html  xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Style-Type" content="text/css" />
+<meta http-equiv="Content-type" content="text/html; charset=ISO-8859-1" />
+<link rel="stylesheet" href="./gtksvdoc.css" type="text/css" />
+<title>./doc/documentation</title>
+<!-- Source: ./ -->
+<!-- Generated with ROBODoc Version 4.99.32 (May 30 2007) -->
+</head>
+<body>
+<div id="logo">
+<a name="robo_top_of_doc">Gtk-Server Seed7 Interface</a>
+</div> <!-- logo -->
+<h3>TABLE OF CONTENTS</h3>
+<ul>
+<li><a href="#robo0">gtkserver/gtk</a></li>
+<li><a href="#robo1">gtkserver/gtk_exec</a></li>
+<li><a href="#robo2">gtkserver/gtk_start</a></li>
+<li><a href="#robo3">gtkserver/gtk_stop</a></li>
+<li><a href="#robo4">gtkserver/set_gtk_logging</a></li>
+</ul>
+<hr />
+<a name="gtkserver2fgtk">
+</a><a name="robo0"></a><h2>gtkserver/gtk [ Functions ]</h2>
+
+<p>[ <a href="#robo_top_of_doc">Top</a> ] [ Functions ]</p>
+<p class="item_name">NAME</p>
+<pre>   <strong>gtk</strong> -- Invoke a <strong>gtk</strong>-server command and return the result
+</pre>
+<p class="item_name">SYNOPSIS</p>
+<pre>   const func string: <strong>gtk</strong> (in string: cmd)
+</pre>
+<p class="item_name">FUNCTION</p>
+<pre>   Invoke a <strong>gtk</strong>-server command and return the result to the caller.
+   The connection must be already started.
+</pre>
+<p class="item_name">SEE ALSO</p>
+<pre>   <a href="#robo2">gtk_start</a>
+</pre>
+<p class="item_name">NOTES</p>
+<pre>   This function doesn't verify the command syntax so the <strong>gtk</strong>-server
+   command must be correct.
+</pre>
+<p class="item_name">EXAMPLE</p>
+<pre>   wptr:=<strong>gtk</strong>("gtk_window_new 0");
+   <a href="#robo1">gtk_exec</a>("gtk_window_set_title " &lt;&amp; wptr &lt;&amp; " \"Gtk-Server Example\"");
+   vbox:=<strong>gtk</strong>("gtk_vbox_new 1 1");
+   bt_one:=<strong>gtk</strong>("gtk_button_new_with_label \"First Button\"");
+   bt_two:=<strong>gtk</strong>("gtk_button_new_with_label \"Second Button\"");
+</pre>
+
+<hr />
+<a name="gtkserver2fgtk5fexec">
+</a><a name="robo1"></a><h2>gtkserver/gtk_exec [ Functions ]</h2>
+
+<p>[ <a href="#robo_top_of_doc">Top</a> ] [ Functions ]</p>
+<p class="item_name">NAME</p>
+<pre>   <a href="#robo0">gtk</a> -- Invoke a <a href="#robo0">gtk</a>-server command and discard the result
+</pre>
+<p class="item_name">SYNOPSIS</p>
+<pre>   const proc: <strong>gtk_exec</strong> (in string: cmd)
+</pre>
+<p class="item_name">FUNCTION</p>
+<pre>   Invoke a <a href="#robo0">gtk</a>-server command and discard the command result.
+   The connection must be already started.
+</pre>
+<p class="item_name">SEE ALSO</p>
+<pre>   <a href="#robo2">gtk_start</a>
+   <strong>gtk_exec</strong>
+   <a href="#robo0">gtk</a>
+</pre>
+<p class="item_name">NOTES</p>
+<pre>   This function doesn't verify the command syntax so the <a href="#robo0">gtk</a>-server
+   command must be correct.
+</pre>
+
+<hr />
+<a name="gtkserver2fgtk5fstart">
+</a><a name="robo2"></a><h2>gtkserver/gtk_start [ Functions ]</h2>
+
+<p>[ <a href="#robo_top_of_doc">Top</a> ] [ Functions ]</p>
+<p class="item_name">NAME</p>
+<pre>   <strong>gtk_start</strong> -- Start the connection with the Gtk-Server
+</pre>
+<p class="item_name">SYNOPSIS</p>
+<pre>   const proc: <strong>gtk_start</strong>(in integer: gtk_server_port)
+</pre>
+<p class="item_name">FUNCTION</p>
+<pre>   Activate the TCP connection with the <a href="#robo0">gtk</a>-server; the port to use must be specified.
+   Please note that the <a href="#robo0">gtk</a>-server must be already started and listening on that
+   TCP port.
+   The <a href="#robo0">gtk</a>-server is only connected and not initialized so you must call the
+   gtk_init <a href="#robo0">gtk</a>-server command before creating your gui.
+</pre>
+<p class="item_name">INPUTS</p>
+<pre>   port - The port to use in the <a href="#robo0">gtk</a>-server connection
+</pre>
+<p class="item_name">EXAMPLE</p>
+<pre>   <a href="#robo4">set_gtk_logging</a>(FALSE);
+   <strong>gtk_start</strong>(8765);
+   <a href="#robo1">gtk_exec</a>("gtk_init NULL NULL");
+   main_window();
+   <a href="#robo3">gtk_stop</a>();
+</pre>
+<p class="item_name">NOTES</p>
+<pre>   Please note that, before trying the previous example, you must start the <a href="#robo0">gtk</a>-server
+   with the following command:
+
+   <a href="#robo0">gtk</a>-server tcp=127.0.0.1:8765
+</pre>
+<p class="item_name">SEE ALSO</p>
+<pre>   <a href="#robo3">gtk_stop</a>
+</pre>
+
+<hr />
+<a name="gtkserver2fgtk5fstop">
+</a><a name="robo3"></a><h2>gtkserver/gtk_stop [ Functions ]</h2>
+
+<p>[ <a href="#robo_top_of_doc">Top</a> ] [ Functions ]</p>
+<p class="item_name">NAME</p>
+<pre>   <strong>gtk_stop</strong> -- Close the <a href="#robo0">gtk</a>-server connection
+</pre>
+<p class="item_name">SYNOPSIS</p>
+<pre>   const proc: <strong>gtk_stop</strong>
+</pre>
+<p class="item_name">FUNCTION</p>
+<pre>   Close the TCP connection with the <a href="#robo0">gtk</a>-server. 
+   The connection must be already started.
+</pre>
+<p class="item_name">SEE ALSO</p>
+<pre>   <a href="#robo2">gtk_start</a>
+</pre>
+
+<hr />
+<a name="gtkserver2fset5fgtk5flogging">
+</a><a name="robo4"></a><h2>gtkserver/set_gtk_logging [ Functions ]</h2>
+
+<p>[ <a href="#robo_top_of_doc">Top</a> ] [ Functions ]</p>
+<p class="item_name">NAME</p>
+<pre>   <strong>set_gtk_logging</strong> -- Activate or deactivate the <a href="#robo0">gtk</a>-server logging facility
+</pre>
+<p class="item_name">SYNOPSIS</p>
+<pre>   const proc: <strong>set_gtk_logging</strong> (in boolean: status)
+</pre>
+<p class="item_name">FUNCTION</p>
+<pre>   Activate or deactivate the <a href="#robo0">gtk</a>-server logging facility. If the <a href="#robo0">gtk</a>-server
+   logging facility is active you will see printed in the console the
+   <a href="#robo0">gtk</a>-server command that is currently invoked and the relative result
+</pre>
+<p class="item_name">INPUTS</p>
+<pre>   flag - A boolean flag. If it's true the <a href="#robo0">gtk</a>-server logging facility is
+          activated, otherwise is deactivated
+</pre>
+
+<div id="footer">
+<p>Generated from ./ with <a href="http://www.xs4all.nl/~rfsber/Robo/robodoc.html">ROBODoc</a> V4.99.32 on Fri Aug 24 2007 09:57:19
+</p>
+</div> <!-- footer -->
+</body>
+</html>

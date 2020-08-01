@@ -223,7 +223,7 @@ inttype ivalue;
 
 #ifdef ANSI_C
 
-void prot_bigint (biginttype bintvalue)
+void prot_bigint (const_biginttype bintvalue)
 #else
 
 void prot_bigint (bintvalue)
@@ -401,7 +401,7 @@ bstritype out_mem;
 
 #ifdef ANSI_C
 
-void prot_set (settype setValue)
+void prot_set (const_settype setValue)
 #else
 
 void prot_set (setValue)
@@ -565,7 +565,7 @@ objecttype anyobject;
 
 #ifdef ANSI_C
 
-void printtype (typetype anytype)
+void printtype (const_typetype anytype)
 #else
 
 void printtype (anytype)
@@ -605,7 +605,7 @@ typetype anytype;
 
 #ifdef ANSI_C
 
-static void print_real_value (objecttype anyobject)
+static void print_real_value (const_objecttype anyobject)
 #else
 
 static void print_real_value (anyobject)
@@ -713,7 +713,7 @@ objecttype anyobject;
 
 #ifdef ANSI_C
 
-void printvalue (objecttype anyobject)
+void printvalue (const_objecttype anyobject)
 #else
 
 void printvalue (anyobject)
@@ -740,7 +740,7 @@ objecttype anyobject;
 
 #ifdef ANSI_C
 
-void printobject (objecttype anyobject)
+void printobject (const_objecttype anyobject)
 #else
 
 void printobject (anyobject)
@@ -857,7 +857,7 @@ objecttype anyobject;
 
 #ifdef ANSI_C
 
-void prot_list (listtype list)
+void prot_list (const_listtype list)
 #else
 
 void prot_list (list)
@@ -1056,7 +1056,7 @@ listtype list;
 
 #ifdef ANSI_C
 
-static void prot_owner (ownertype owner)
+static void prot_owner (const_ownertype owner)
 #else
 
 static void prot_owner (owner)
@@ -1083,7 +1083,7 @@ ownertype owner;
 
 #ifdef ANSI_C
 
-static void list_ident_names (identtype anyident)
+static void list_ident_names (const_identtype anyident)
 #else
 
 static void list_ident_names (anyident)
@@ -1115,7 +1115,7 @@ identtype anyident;
 
 #ifdef ANSI_C
 
-void trace_node (nodetype anynode)
+void trace_node (const_nodetype anynode)
 #else
 
 void trace_node (anynode)
@@ -1159,7 +1159,7 @@ nodetype anynode;
 
 #ifdef ANSI_C
 
-static void list_match_object (objecttype anyobject, char *buffer)
+static void list_match_object (const_objecttype anyobject, char *buffer)
 #else
 
 static void list_match_object (anyobject, buffer)
@@ -1189,7 +1189,7 @@ char *buffer;
 
 #ifdef ANSI_C
 
-static void list_node_names (nodetype anynode, char *buffer)
+static void list_node_names (const_nodetype anynode, char *buffer)
 #else
 
 static void list_node_names (anynode, buffer)
@@ -1344,7 +1344,7 @@ void trace_nodes ()
 
 #ifdef ANSI_C
 
-void printnodes (nodetype anynode)
+void printnodes (const_nodetype anynode)
 #else
 
 void printnodes (anynode)
@@ -1580,7 +1580,7 @@ objecttype traceobject;
 
 #ifdef ANSI_C
 
-void trace_entity (entitytype anyentity)
+void trace_entity (const_entitytype anyentity)
 #else
 
 void trace_entity (anyentity)
@@ -1610,7 +1610,7 @@ entitytype anyentity;
 
 #ifdef ANSI_C
 
-void trace_list (listtype list)
+void trace_list (const_listtype list)
 #else
 
 void trace_list (list)

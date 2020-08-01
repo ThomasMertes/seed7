@@ -342,10 +342,10 @@ objecttype expr_object;
 
   /* match_object2 */
 #ifdef TRACE_MATCH
-    printf("BEGIN match_object\n");
+    printf("BEGIN match_object2\n");
 #endif
     if (trace.match) {
-      printf("\nbegin match_object ");
+      printf("\nbegin match_object2 ");
       trace1(object);
       printf("\n");
     } /* if */
@@ -394,20 +394,20 @@ objecttype expr_object;
         result = object;
         break;
       default:
-        printf("### match_object of ");
+        printf("### match_object2 of ");
         trace1(object);
         result = NULL;
         break;
     } /* switch */
     if (trace.match) {
-      printf("end match_object ");
+      printf("end match_object2 ");
       trace1(object);
       printf(" ==> ");
       trace1(result);
       printf("\n");
     } /* if */
 #ifdef TRACE_MATCH
-    printf("END match_object\n");
+    printf("END match_object2\n");
 #endif
     return(result);
   } /* match_object2 */

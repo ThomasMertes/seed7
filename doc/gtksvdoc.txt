@@ -1,0 +1,16 @@
+Leonardo Cecchi wrote a gtk-server connection component.
+It contains:
+
+1) The gtk-server component (lib/gtkserver.s7i). It uses a tcp
+socket communication.
+2) The robodoc generated documentation for the component
+(doc/gtksvdoc.htm and doc/gtksvdoc.css).
+3) A little test program. It's only a window with two buttons and some
+callbacks (prg/gtksvtst.sd7).
+4) The robodoc.rc file with the Seed7 configurations that he used to
+generate the documentation. It may be useful for others.
+
+If you try it, please start the gtk-server before running the
+test program with:
+
+gtk-server tcp=127.0.0.1:8765 &

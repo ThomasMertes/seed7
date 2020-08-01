@@ -64,6 +64,27 @@
 
 #ifdef ANSI_C
 
+static void fix_posinfo (objecttype block_body, objecttype block_body_list)
+#else
+
+static void fix_posinfo (arg_c, arg_v)
+objecttype block_body;
+objecttype block_body_list;
+#endif
+
+  { /* fix_posinfo */
+    if (block_body_list != NULL &&
+        CATEGORY_OF_OBJ(block_body) == CALLOBJECT &&
+        !HAS_POSINFO(block_body)) {
+      block_body->descriptor.posinfo = block_body_list->descriptor.posinfo;
+      SET_POSINFO_FLAG(block_body);
+    } /* if */
+  } /* fix_posinfo */
+
+
+
+#ifdef ANSI_C
+
 static INLINE arraytype read_args (int arg_c, char **arg_v)
 #else
 
@@ -169,6 +190,7 @@ listtype arguments;
 
   {
     objecttype block_body;
+    objecttype block_body_list = NULL;
     blocktype block;
 
   /* prc_begin */
@@ -176,6 +198,7 @@ listtype arguments;
     if (CATEGORY_OF_OBJ(block_body) == EXPROBJECT &&
         block_body->value.listvalue != NULL &&
         block_body->value.listvalue->next == NULL) {
+      block_body_list = block_body;
       block_body = block_body->value.listvalue->obj;
     } /* if */
     push_stack();
@@ -185,6 +208,7 @@ listtype arguments;
     } /* if */
     if (block_body != NULL) {
       block_body = match_object(block_body);
+      fix_posinfo(block_body, block_body_list);
     } /* if */
     pop_stack();
     if (block_body != NULL && block_body->type_of != take_type(SYS_PROC_TYPE)) {
@@ -767,6 +791,7 @@ listtype arguments;
   {
     objecttype local_decls;
     objecttype block_body;
+    objecttype block_body_list = NULL;
     listtype *local_object_insert_place;
     loclisttype local_vars;
     listtype local_consts;
@@ -780,6 +805,7 @@ listtype arguments;
     if (CATEGORY_OF_OBJ(block_body) == EXPROBJECT &&
         block_body->value.listvalue != NULL &&
         block_body->value.listvalue->next == NULL) {
+      block_body_list = block_body;
       block_body = block_body->value.listvalue->obj;
     } /* if */
     push_stack();
@@ -801,6 +827,7 @@ listtype arguments;
     } /* if */
     if (block_body != NULL) {
       block_body = match_object(block_body);
+      fix_posinfo(block_body, block_body_list);
     } /* if */
     pop_stack();
     if (block_body != NULL && block_body->type_of != take_type(SYS_PROC_TYPE)) {
@@ -926,6 +953,7 @@ listtype arguments;
     locobjrecord result_var;
     objecttype result_init;
     objecttype block_body;
+    objecttype block_body_list = NULL;
     errinfotype err_info = OKAY_NO_ERROR;
     blocktype block;
 
@@ -938,6 +966,7 @@ listtype arguments;
     if (CATEGORY_OF_OBJ(block_body) == EXPROBJECT &&
         block_body->value.listvalue != NULL &&
         block_body->value.listvalue->next == NULL) {
+      block_body_list = block_body;
       block_body = block_body->value.listvalue->obj;
     } /* if */
     push_stack();
@@ -969,6 +998,7 @@ listtype arguments;
       } /* if */
       if (block_body != NULL) {
         block_body = match_object(block_body);
+        fix_posinfo(block_body, block_body_list);
       } /* if */
       pop_stack();
       if (block_body != NULL && block_body->type_of != take_type(SYS_PROC_TYPE)) {
@@ -1001,6 +1031,7 @@ listtype arguments;
     objecttype result_init;
     objecttype local_decls;
     objecttype block_body;
+    objecttype block_body_list = NULL;
     listtype *local_object_insert_place;
     loclisttype local_vars;
     listtype local_consts;
@@ -1018,6 +1049,7 @@ listtype arguments;
     if (CATEGORY_OF_OBJ(block_body) == EXPROBJECT &&
         block_body->value.listvalue != NULL &&
         block_body->value.listvalue->next == NULL) {
+      block_body_list = block_body;
       block_body = block_body->value.listvalue->obj;
     } /* if */
     push_stack();
@@ -1046,6 +1078,7 @@ listtype arguments;
       } /* if */
       if (block_body != NULL) {
         block_body = match_object(block_body);
+        fix_posinfo(block_body, block_body_list);
       } /* if */
       pop_stack();
       if (block_body != NULL && block_body->type_of != take_type(SYS_PROC_TYPE)) {
@@ -1073,6 +1106,7 @@ listtype arguments;
 
   {
     objecttype block_body;
+    objecttype block_body_list = NULL;
     locobjrecord return_var;
     typetype return_type;
     errinfotype err_info = OKAY_NO_ERROR;
@@ -1083,6 +1117,7 @@ listtype arguments;
     if (CATEGORY_OF_OBJ(block_body) == EXPROBJECT &&
         block_body->value.listvalue != NULL &&
         block_body->value.listvalue->next == NULL) {
+      block_body_list = block_body;
       block_body = block_body->value.listvalue->obj;
     } /* if */
     push_stack();
@@ -1092,6 +1127,7 @@ listtype arguments;
     } /* if */
     if (block_body != NULL) {
       block_body = match_object(block_body);
+      fix_posinfo(block_body, block_body_list);
     } /* if */
     pop_stack();
 #ifdef OUT_OF_ORDER
@@ -1129,6 +1165,7 @@ listtype arguments;
 
   {
     objecttype block_body;
+    objecttype block_body_list = NULL;
     locobjrecord return_var;
     typetype return_type;
     errinfotype err_info = OKAY_NO_ERROR;
@@ -1139,6 +1176,7 @@ listtype arguments;
     if (CATEGORY_OF_OBJ(block_body) == EXPROBJECT &&
         block_body->value.listvalue != NULL &&
         block_body->value.listvalue->next == NULL) {
+      block_body_list = block_body;
       block_body = block_body->value.listvalue->obj;
     } /* if */
     push_stack();
@@ -1148,6 +1186,7 @@ listtype arguments;
     } /* if */
     if (block_body != NULL) {
       block_body = match_object(block_body);
+      fix_posinfo(block_body, block_body_list);
     } /* if */
     pop_stack();
 #ifdef OUT_OF_ORDER
@@ -1222,6 +1261,7 @@ listtype arguments;
 
   {
     objecttype block_body;
+    objecttype block_body_list = NULL;
     blocktype block;
 
   /* prc_varfunc */
@@ -1229,6 +1269,7 @@ listtype arguments;
     if (CATEGORY_OF_OBJ(block_body) == EXPROBJECT &&
         block_body->value.listvalue != NULL &&
         block_body->value.listvalue->next == NULL) {
+      block_body_list = block_body;
       block_body = block_body->value.listvalue->obj;
     } /* if */
     push_stack();
@@ -1238,6 +1279,7 @@ listtype arguments;
     } /* if */
     if (block_body != NULL) {
       block_body = match_object(block_body);
+      fix_posinfo(block_body, block_body_list);
     } /* if */
     pop_stack();
     if ((block = new_block(NULL, NULL, NULL, NULL, block_body)) == NULL) {
@@ -1260,6 +1302,7 @@ listtype arguments;
 
   {
     objecttype block_body;
+    objecttype block_body_list = NULL;
     blocktype block;
 
   /* prc_varfunc2 */
@@ -1267,6 +1310,7 @@ listtype arguments;
     if (CATEGORY_OF_OBJ(block_body) == EXPROBJECT &&
         block_body->value.listvalue != NULL &&
         block_body->value.listvalue->next == NULL) {
+      block_body_list = block_body;
       block_body = block_body->value.listvalue->obj;
     } /* if */
     push_stack();
@@ -1276,6 +1320,7 @@ listtype arguments;
     } /* if */
     if (block_body != NULL) {
       block_body = match_object(block_body);
+      fix_posinfo(block_body, block_body_list);
     } /* if */
     pop_stack();
     if ((block = new_block(NULL, NULL, NULL, NULL, block_body)) == NULL) {

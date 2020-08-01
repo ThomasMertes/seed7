@@ -395,6 +395,9 @@ extern progrecord prog;
 
 
 #define INIT_POS(O,L,F)     (O)->value.pos = ((postype) (L)) | (((postype) (F)) << 20)
+#define GET_POS_LINE_NUM(O) (linenumtype) ((O)->value.pos & 1048575L)
+#define GET_POS_FILE_NUM(O) (filenumtype) (((O)->value.pos & 2146435072L) >> 20)
+
 #define CREATE_POSINFO(L,F) (((postype) (L)) | (((postype) (F)) << 20))
 #define GET_LINE_NUM(O)     (linenumtype) (((long)(O)->descriptor.posinfo) & 1048575L)
 #define GET_FILE_NUM(O)     (filenumtype) ((((long)(O)->descriptor.posinfo) & 2146435072L) >> 20)
@@ -431,5 +434,6 @@ extern progrecord prog;
 #define SET_POSINFO_FLAG(O)             (O)->objcategory = (O)->objcategory | POSINFO_MASK
 #define CLEAR_POSINFO_FLAG(O)           (O)->objcategory = (O)->objcategory & ~POSINFO_MASK
 #define HAS_POSINFO(O)                  ((O)->objcategory & POSINFO_MASK)
+#define COPY_POSINFO_FLAG(O1,O2)        (O1)->objcategory = ((O1)->objcategory & ~POSINFO_MASK) | ((O2)->objcategory & POSINFO_MASK)
 
 #define HAS_DESCRIPTOR_ENTITY(O)        (!HAS_POSINFO(O) && (O)->descriptor.entity != NULL) 
