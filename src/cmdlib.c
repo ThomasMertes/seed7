@@ -25,6 +25,9 @@
 /*                                                                  */
 /********************************************************************/
 
+#define LOG_FUNCTIONS 0
+#define VERBOSE_EXCEPTIONS 0
+
 #include "version.h"
 
 #include "stdlib.h"
@@ -616,7 +619,12 @@ objectType cmd_ls (listType arguments)
   /* cmd_ls */
     isit_stri(arg_1(arguments));
     dirPath = take_stri(arg_1(arguments));
-    if ((directory = dirOpen(dirPath)) != NULL) {
+    logFunction(printf("cmd_ls(\"%s\")\n", striAsUnquotedCStri(dirPath)););
+    if (unlikely((directory = dirOpen(dirPath)) == NULL)) {
+      logError(printf("cmd_ls: dirOpen(\"%s\") failed.\n",
+                      striAsUnquotedCStri(dirPath)););
+      return raise_with_arguments(SYS_FIL_EXCEPTION, arguments);
+    } else {
       result = read_dir(directory);
       dirClose(directory);
       if (unlikely(result == NULL)) {
@@ -624,10 +632,10 @@ objectType cmd_ls (listType arguments)
       } else {
         qsort((void *) result->arr, (size_t) arraySize(result),
             sizeof(objectRecord), &cmp_mem);
+        logFunction(printf("cmdLs --> array[size = " FMT_U_MEM "]\n",
+                           arraySize(result)););
         return bld_array_temp(result);
       } /* if */
-    } else {
-      return raise_with_arguments(SYS_FIL_EXCEPTION, arguments);
     } /* if */
   } /* cmd_ls */
 

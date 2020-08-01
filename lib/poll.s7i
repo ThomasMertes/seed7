@@ -70,11 +70,16 @@ const proc: clear (inout pollData: pData)                                  is ac
 
 (**
  *  Add ''eventsToCheck'' for ''aSocket'' to ''pData''.
- *  The ''eventsToCheck'' are added to the checkedEvents field of
- *  ''pData''. ''EventsToCheck'' can have one of the following values:
- *  * POLLIN check if data can be read from the corresponding [[socket]].
+ *  ''EventsToCheck'' can have one of the following values:
+ *  * POLLIN check if data can be read from the corresponding socket.
  *  * POLLOUT check if data can be written to the corresponding socket.
  *  * POLLINOUT check if data can be read or written (POLLIN or POLLOUT).
+ *  @param pollData Poll data to which the event checks are added.
+ *  @param aSocket Socket for which the events should be checked.
+ *  @param eventsToCheck Events to be added to the checkedEvents
+ *         field of ''pData''.
+ *  @param fileObj File to be returned, when the iterator returns
+ *         files in ''pData''.
  *  @exception RANGE_ERROR Illegal value for ''eventsToCheck''.
  *  @exception MEMORY_ERROR An out of memory situation occurred.
  *  @exception FILE_ERROR A limit of the operating system was reached.
@@ -92,11 +97,14 @@ const proc: addCheck (inout pollData: pData, in socket: aSocket,
 
 (**
  *  Add ''eventsToCheck'' for ''aFile'' to ''pData''.
- *  The ''eventsToCheck'' are added to the checkedEvents field of
- *  ''pData''. ''EventsToCheck'' can have one of the following values:
+ *  ''EventsToCheck'' can have one of the following values:
  *  * POLLIN check if data can be read from the corresponding [[socket]].
  *  * POLLOUT check if data can be written to the corresponding socket.
  *  * POLLINOUT check if data can be read or written (POLLIN or POLLOUT).
+ *  @param pollData Poll data to which the event checks are added.
+ *  @param aFile File for which the events should be checked.
+ *  @param eventsToCheck Events to be added to the checkedEvents
+ *         field of ''pData''.
  *  @exception RANGE_ERROR Illegal value for ''eventsToCheck''.
  *  @exception MEMORY_ERROR An out of memory situation occurred.
  *  @exception FILE_ERROR A limit of the operating system was reached.
@@ -107,11 +115,14 @@ const proc: addCheck (inout pollData: pData, in file: aFile,
 
 (**
  *  Remove ''eventsToCheck'' for ''aSocket'' from ''pData''.
- *  The ''eventsToCheck'' are removed from the checkedEvents field of
- *  ''pData''. ''EventsToCheck'' can have one of the following values:
+ *  ''EventsToCheck'' can have one of the following values:
  *  * POLLIN check if data can be read from the corresponding [[socket]].
  *  * POLLOUT check if data can be written to the corresponding socket.
  *  * POLLINOUT check if data can be read or written (POLLIN or POLLOUT).
+ *  @param pollData Poll data from which the event checks are removed.
+ *  @param aSocket Socket for which the events should not be checked.
+ *  @param eventsToCheck Events to be removed from the checkedEvents
+ *         field of ''pData''.
  *  @exception RANGE_ERROR Illegal value for ''eventsToCheck''.
  *)
 const proc: removeCheck (inout pollData: pData, in PRIMITIVE_SOCKET: aSocket,
@@ -127,11 +138,14 @@ const proc: removeCheck (inout pollData: pData, in socket: aSocket,
 
 (**
  *  Remove ''eventsToCheck'' for ''aFile'' from ''pData''.
- *  The ''eventsToCheck'' are removed from the checkedEvents field of
- *  ''pData''. ''EventsToCheck'' can have one of the following values:
+ *  ''EventsToCheck'' can have one of the following values:
  *  * POLLIN check if data can be read from the corresponding [[socket]].
  *  * POLLOUT check if data can be written to the corresponding socket.
  *  * POLLINOUT check if data can be read or written (POLLIN or POLLOUT).
+ *  @param pollData Poll data from which the event checks are removed.
+ *  @param aFile File for which the events should not be checked.
+ *  @param eventsToCheck Events to be removed from the checkedEvents
+ *         field of ''pData''.
  *  @exception RANGE_ERROR Illegal value for ''eventsToCheck''.
  *)
 const proc: removeCheck (inout pollData: pData, in file: aFile,

@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  s7   Seed7 interpreter                                          */
-/*  Copyright (C) 1990 - 2000  Thomas Mertes                        */
+/*  Copyright (C) 1990 - 2016  Thomas Mertes                        */
 /*                                                                  */
 /*  This program is free software; you can redistribute it and/or   */
 /*  modify it under the terms of the GNU General Public License as  */
@@ -20,7 +20,7 @@
 /*                                                                  */
 /*  Module: General                                                 */
 /*  File: seed7/src/actutl.h                                        */
-/*  Changes: 1992, 1993, 1994  Thomas Mertes                        */
+/*  Changes: 1992, 1993, 1994, 2016  Thomas Mertes                  */
 /*  Content: Conversion of strings to ACTIONs and back.             */
 /*                                                                  */
 /********************************************************************/
@@ -28,22 +28,23 @@
 typedef struct {
     const_cstriType name;
     actType action;
-  } primActRecord;
+  } actEntryRecord;
 
-typedef primActRecord *primActType;
-typedef const primActRecord *const_primActType;
+typedef actEntryRecord *actEntryType;
+typedef const actEntryRecord *const_actEntryType;
 
 typedef struct {
     unsigned int size;
-    const_primActType primitive;
+    const_actEntryType table;
   } actTableType;
 
 #ifdef DO_INIT
-actTableType act_table = {0, NULL};
+actTableType actTable = {0, NULL};
 #else
-EXTERN actTableType act_table;
+EXTERN actTableType actTable;
 #endif
 
 
-boolType find_action (const const_striType action_name, actType *action_found);
-const_primActType get_primact (actType action_searched);
+actType findAction (const const_striType actionName);
+actType getActIllegal (void);
+const_actEntryType getActEntry (actType actionSearched);

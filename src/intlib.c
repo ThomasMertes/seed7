@@ -121,6 +121,8 @@ objectType int_add (listType arguments)
     isit_int(arg_3(arguments));
     summand1 = take_int(arg_1(arguments));
     summand2 = take_int(arg_3(arguments));
+    logFunction(printf("int_add(" FMT_D ", " FMT_D ")\n",
+                       summand1, summand2););
 #if CHECK_INT_OVERFLOW
     if (summand2 < 0) {
       if (unlikely(summand1 < INTTYPE_MIN - summand2)) {
@@ -136,6 +138,8 @@ objectType int_add (listType arguments)
       } /* if */
     } /* if */
 #endif
+    logFunction(printf("int_add --> " FMT_D "\n",
+                       summand1 + summand2););
     return bld_int_temp(summand1 + summand2);
   } /* int_add */
 
@@ -157,6 +161,8 @@ objectType int_add_assign (listType arguments)
     is_variable(int_variable);
     isit_int(arg_3(arguments));
     delta = take_int(arg_3(arguments));
+    logFunction(printf("int_add_assign(" FMT_D ", " FMT_D ")\n",
+                       take_int(int_variable), delta););
 #if CHECK_INT_OVERFLOW
     {
       intType number;
@@ -178,6 +184,8 @@ objectType int_add_assign (listType arguments)
     }
 #endif
     int_variable->value.intValue += delta;
+    logFunction(printf("int_add_assign --> " FMT_D "\n",
+                       take_int(int_variable)););
     return SYS_EMPTY_OBJECT;
   } /* int_add_assign */
 
@@ -936,6 +944,8 @@ objectType int_mult (listType arguments)
     isit_int(arg_3(arguments));
     factor1 = take_int(arg_1(arguments));
     factor2 = take_int(arg_3(arguments));
+    logFunction(printf("int_mult(" FMT_D ", " FMT_D ")\n",
+                       factor1, factor2););
 #if CHECK_INT_OVERFLOW
 #ifdef HAS_DOUBLE_INTTYPE
     {
@@ -958,6 +968,8 @@ objectType int_mult (listType arguments)
 #else
     product = factor1 * factor2;
 #endif
+    logFunction(printf("int_mult --> " FMT_D "\n",
+                       product););
     return bld_int_temp(product);
   } /* int_mult */
 
@@ -979,6 +991,8 @@ objectType int_mult_assign (listType arguments)
     is_variable(int_variable);
     isit_int(arg_3(arguments));
     factor = take_int(arg_3(arguments));
+    logFunction(printf("int_mult_assign(" FMT_D ", " FMT_D ")\n",
+                       take_int(int_variable), factor););
 #if CHECK_INT_OVERFLOW
     {
       intType number;
@@ -993,6 +1007,8 @@ objectType int_mult_assign (listType arguments)
 #else
     int_variable->value.intValue *= factor;
 #endif
+    logFunction(printf("int_mult_assign --> " FMT_D "\n",
+                       take_int(int_variable)););
     return SYS_EMPTY_OBJECT;
   } /* int_mult_assign */
 
@@ -1354,6 +1370,8 @@ objectType int_sbtr (listType arguments)
     isit_int(arg_3(arguments));
     minuend = take_int(arg_1(arguments));
     subtrahend = take_int(arg_3(arguments));
+    logFunction(printf("int_sbtr(" FMT_D ", " FMT_D ")\n",
+                       minuend, subtrahend););
 #if CHECK_INT_OVERFLOW
     if (subtrahend < 0) {
       if (unlikely(minuend > INTTYPE_MAX + subtrahend)) {
@@ -1369,6 +1387,8 @@ objectType int_sbtr (listType arguments)
       } /* if */
     } /* if */
 #endif
+    logFunction(printf("int_sbtr --> " FMT_D "\n",
+                       minuend - subtrahend););
     return bld_int_temp(minuend - subtrahend);
   } /* int_sbtr */
 
@@ -1390,6 +1410,8 @@ objectType int_sbtr_assign (listType arguments)
     is_variable(int_variable);
     isit_int(arg_3(arguments));
     delta = take_int(arg_3(arguments));
+    logFunction(printf("int_sbtr_assign(" FMT_D ", " FMT_D ")\n",
+                       take_int(int_variable), delta););
 #if CHECK_INT_OVERFLOW
     {
       intType number;
@@ -1411,6 +1433,8 @@ objectType int_sbtr_assign (listType arguments)
     }
 #endif
     int_variable->value.intValue -= delta;
+    logFunction(printf("int_sbtr_assign --> " FMT_D "\n",
+                       take_int(int_variable)););
     return SYS_EMPTY_OBJECT;
   } /* int_sbtr_assign */
 
@@ -1481,7 +1505,11 @@ objectType int_value (listType arguments)
   /* int_value */
     isit_reference(arg_1(arguments));
     obj_arg = take_reference(arg_1(arguments));
-    if (obj_arg == NULL || CATEGORY_OF_OBJ(obj_arg) != INTOBJECT) {
+    if (unlikely(obj_arg == NULL ||
+                 CATEGORY_OF_OBJ(obj_arg) != INTOBJECT)) {
+      logError(printf("int_value(");
+               trace1(obj_arg);
+               printf("): Category is not INTOBJECT.\n"););
       return raise_exception(SYS_RNG_EXCEPTION);
     } else {
       return bld_int_temp(take_int(obj_arg));

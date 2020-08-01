@@ -24,7 +24,7 @@
 /*                                                                  */
 /*  Module: Seed7 Runtime Library                                   */
 /*  File: seed7/src/hsh_rtl.c                                       */
-/*  Changes: 2005, 2006, 2007, 2013  Thomas Mertes                  */
+/*  Changes: 2005, 2006, 2007, 2013, 2016  Thomas Mertes            */
 /*  Content: Primitive actions for the hash map type.               */
 /*                                                                  */
 /*  The functions from this file should only be used in compiled    */

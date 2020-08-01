@@ -117,6 +117,8 @@
 #define xstr(s) str(s)
 #define str(s) #s
 
+#define BUFFER_SIZE 4096
+
 char c_compiler[1024];
 
 FILE *logFile;
@@ -233,7 +235,7 @@ void doRemove (const char *fileName)
         time_t start_time;
         char command[1024];
 
-        sprintf(command, "DEL %s 2>NUL:", fileName);
+        sprintf(command, "DEL %s > nul 2>&1", fileName);
         start_time = time(NULL);
         while (time(NULL) < start_time + 20 &&
                fileIsRegular(fileName)) {
@@ -359,6 +361,35 @@ int compileAndLinkWithOptionsOk (const char *content, const char *options,
 
 
 
+void showErrors (void)
+
+  {
+    FILE *errorFile;
+    int ch;
+
+  /* showErrors */
+    errorFile = fopen("ctest.cerrs", "r");
+    if (errorFile != NULL) {
+      fprintf(logFile, "\nCompiler errors:\n");
+      while ((ch = getc(errorFile)) != EOF) {
+        fputc(ch, logFile);
+      } /* while */
+      fclose(errorFile);
+      fprintf(logFile, "\n");
+    } /* if */
+    errorFile = fopen("ctest.lerrs", "r");
+    if (errorFile != NULL) {
+      fprintf(logFile, "\nLinker errors:\n");
+      while ((ch = getc(errorFile)) != EOF) {
+        fputc(ch, logFile);
+      } /* while */
+      fclose(errorFile);
+      fprintf(logFile, "\n");
+    } /* if */
+  } /* showErrors */
+
+
+
 int assertCompAndLnkWithOptions (const char *content, const char *options,
     const char *linkerOptions)
 
@@ -369,6 +400,7 @@ int assertCompAndLnkWithOptions (const char *content, const char *options,
     okay = compileAndLinkWithOptionsOk(content, options, linkerOptions);
     if (!okay) {
       fprintf(logFile, " **** Compile and link failed for:\n%s\n", content);
+      showErrors();
     } /* if */
     return okay;
   } /* assertCompAndLnkWithOptions */
@@ -392,6 +424,7 @@ int assertCompAndLnk (const char *content)
     okay = compileAndLinkOk(content);
     if (!okay) {
       fprintf(logFile, " **** Compile and link failed for:\n%s\n", content);
+      showErrors();
     } /* if */
     return okay;
   } /* assertCompAndLnk */
@@ -517,7 +550,7 @@ void checkSignal (FILE *versionFile)
 void writeMacroDefs (FILE *versionFile)
 
   {
-    char macroDefs[4096];
+    char macroDefs[BUFFER_SIZE];
 
   /* writeMacroDefs */
     if (compileAndLinkOk("static inline int test(int a){return 2*a;}\n"
@@ -571,7 +604,7 @@ void checkPopen (FILE *versionFile)
     char *popen = NULL;
     int binary_mode_supported;
     char *binary_mode = "";
-    char buffer[4096];
+    char buffer[BUFFER_SIZE];
 
   /* checkPopen */
     if (compileAndLinkOk("#include <stdio.h>\nint main(int argc, char *argv[])\n"
@@ -647,7 +680,7 @@ void checkPopen (FILE *versionFile)
 void checkMoveDirectory (const char *makeDirDefinition, FILE *versionFile)
 
   {
-    char buffer[4096];
+    char buffer[BUFFER_SIZE];
     FILE *aFile;
     char line[128];
     int okay = 1;
@@ -710,7 +743,7 @@ void checkMoveDirectory (const char *makeDirDefinition, FILE *versionFile)
 int getSizeof (const char *typeName)
 
   {
-    char buffer[4096];
+    char buffer[BUFFER_SIZE];
     int computedSize = -1;
 
   /* getSizeof */
@@ -737,7 +770,7 @@ int getSizeof (const char *typeName)
 int isSignedType (const char *typeName)
 
   {
-    char buffer[4096];
+    char buffer[BUFFER_SIZE];
     int isSigned = -1;
 
   /* isSignedType */
@@ -1080,7 +1113,7 @@ void checkIntDivisions (FILE *versionFile)
 const char *determine_os_isnan_definition (const char *computeValues, const char *os_isnan_definition)
 
   {
-    char buffer[4096];
+    char buffer[BUFFER_SIZE];
     const char *macro_definition = NULL;
 
   /* determine_os_isnan_definition */
@@ -1128,7 +1161,7 @@ void numericProperties (FILE *versionFile)
   {
     int testResult;
     char buffer[8192];
-    char computeValues[4096];
+    char computeValues[BUFFER_SIZE];
     const char *os_isnan_definition = NULL;
 
   /* numericProperties */
@@ -1233,14 +1266,14 @@ void numericProperties (FILE *versionFile)
                          "int main(int argc,char *argv[])\n"
                          "{printf(\"%d\\n\",FLT_DIG);return 0;}\n")) {
       testResult = doTest();
-      fprintf(versionFile, "#define FLOAT_STR_FORMAT \"%%1.%de\"\n", testResult - 1);
+      fprintf(versionFile, "#define FMT_E_FLT \"%%1.%de\"\n", testResult - 1);
       fprintf(versionFile, "#define FLOAT_STR_LARGE_NUMBER 1.0e%d\n", testResult);
     } /* if */
     if (assertCompAndLnk("#include<stdio.h>\n#include<float.h>\n"
                          "int main(int argc,char *argv[])\n"
                          "{printf(\"%d\\n\",DBL_DIG);return 0;}\n")) {
       testResult = doTest();
-      fprintf(versionFile, "#define DOUBLE_STR_FORMAT \"%%1.%de\"\n", testResult - 1);
+      fprintf(versionFile, "#define FMT_E_DBL \"%%1.%de\"\n", testResult - 1);
       fprintf(versionFile, "#define DOUBLE_STR_LARGE_NUMBER 1.0e%d\n", testResult);
     } /* if */
     if (!compileAndLinkOk("#include<stdio.h>\n"
@@ -1480,7 +1513,8 @@ void numericProperties (FILE *versionFile)
     fprintf(versionFile, "#define HAS_EXP10 %d\n",
         compileAndLinkWithOptionsOk(buffer, "", SYSTEM_LIBS) && doTest() == 1);
     sprintf(buffer,
-            "#include<stdio.h>\n#include<float.h>\n#include<math.h>\n"
+            "#include<stdio.h>\n#include<string.h>\n"
+            "#include<float.h>\n#include<math.h>\n"
             "%s\n"
             "int doubleCompare (double num1, double num2){\n"
             "return memcmp(&num1, &num2, sizeof(double));}\n"
@@ -1902,7 +1936,7 @@ const char *defineMakeDir (void)
 void checkRemoveDir (const char *makeDirDefinition, FILE *versionFile)
 
   {
-    char buffer[4096];
+    char buffer[BUFFER_SIZE];
 
   /* checkRemoveDir */
     sprintf(buffer, "#include <stdio.h>\n#include <unistd.h>\n%s"
@@ -1935,7 +1969,7 @@ void checkRemoveDir (const char *makeDirDefinition, FILE *versionFile)
 void determineEnvironDefines (FILE *versionFile)
 
   {
-    char buffer[4096];
+    char buffer[BUFFER_SIZE];
     int declare_os_environ = 0;
     int use_get_environment = 0;
     int initialize_os_environ = 0;
@@ -2042,7 +2076,7 @@ void determineOsDirAccess (FILE *versionFile)
   {
     char *dir_include = NULL;
     char *dir_define = NULL;
-    char buffer[4096];
+    char buffer[BUFFER_SIZE];
 
   /* determineOsDirAccess */
     if (compileAndLinkOk("#include <stdio.h>\n#include <dirent.h>\n"
@@ -2068,7 +2102,7 @@ void determineOsDirAccess (FILE *versionFile)
                    "#include <stdio.h>\n#include %s\n"
                    "int main(int argc,char *argv[])\n"
                    "{_WDIR *directory; struct _wdirent *dirEntry;\n"
-                   "printf(\"%%d\\n\", (directory = _wopendir(\".\")) != NULL &&\n"
+                   "printf(\"%%d\\n\", (directory = _wopendir(L\".\")) != NULL &&\n"
                    "(dirEntry = _wreaddir(directory)) != NULL &&\n"
                    "_wclosedir(directory) == 0);\n"
                    "return 0;}\n",
@@ -2083,7 +2117,7 @@ void determineOsDirAccess (FILE *versionFile)
                           "#include <stdio.h>\n#include %s\n"
                           "int main(int argc,char *argv[])\n"
                           "{wDIR *directory; struct wdirent *dirEntry;\n"
-                          "printf(\"%%d\\n\", (directory = wopendir(\".\")) != NULL &&\n"
+                          "printf(\"%%d\\n\", (directory = wopendir(L\".\")) != NULL &&\n"
                           "(dirEntry = wreaddir(directory)) != NULL &&\n"
                           "wclosedir(directory) == 0);\n"
                           "return 0;}\n",
@@ -2098,7 +2132,7 @@ void determineOsDirAccess (FILE *versionFile)
                           "#include <stdio.h>\n#include %s\n#include \"dir.h\"\n"
                           "int main(int argc,char *argv[])\n"
                           "{wDIR *directory; struct wdirent *dirEntry;\n"
-                          "printf(\"%%d\\n\", (directory = wopendir(\".\")) != NULL &&\n"
+                          "printf(\"%%d\\n\", (directory = wopendir(L\".\")) != NULL &&\n"
                           "(dirEntry = wreaddir(directory)) != NULL &&\n"
                           "wclosedir(directory) == 0);\n"
                           "return 0;}\n",
@@ -2133,7 +2167,7 @@ void determineOsUtime (FILE *versionFile)
     char *utime_include = NULL;
     char *os_utimbuf_struct_stri = NULL;
     char *os_utime_stri = NULL;
-    char buffer[4096];
+    char buffer[BUFFER_SIZE];
 
   /* determineOsUtime */
     if (compileAndLinkOk("#include <stdio.h>\n#include <utime.h>\n"
@@ -2421,11 +2455,11 @@ void determineMySqlDefines (FILE *versionFile,
     const char *programFilesX86 = NULL;
     const char *programFiles = NULL;
     const char *libName = NULL;
-    char dbHome[4096];
-    char includeOption[4096];
+    char dbHome[BUFFER_SIZE];
+    char includeOption[BUFFER_SIZE];
     const char *mySqlInclude;
-    char buffer[4096];
-    char linkerOptions[4096];
+    char buffer[BUFFER_SIZE];
+    char linkerOptions[BUFFER_SIZE];
     int dbHomeExists = 0;
     int writeDllList = 0;
     int idx;
@@ -2574,11 +2608,11 @@ void determineSqliteDefines (FILE *versionFile,
     const char *libNameList[] = {"sqlite3.lib"};
     const char *dllName = NULL;
     const char *libName = NULL;
-    char dbHome[4096];
-    char includeOption[4096];
+    char dbHome[BUFFER_SIZE];
+    char includeOption[BUFFER_SIZE];
     const char *sqliteInclude = NULL;
-    char buffer[4096];
-    char linkerOptions[4096];
+    char buffer[BUFFER_SIZE];
+    char linkerOptions[BUFFER_SIZE];
     int dbHomeExists = 0;
     int writeDllList = 0;
     int idx;
@@ -2716,7 +2750,7 @@ static void extractPostgresOid (const char* pgTypeFileName)
       "VOIDOID",        "XIDOID",          "XMLOID"};
     FILE *pgTypeFile;
     FILE *oidFile;
-    char buffer[4096];
+    char buffer[BUFFER_SIZE];
     char *line;
     int pos;
     int idx;
@@ -2779,8 +2813,8 @@ static int findPgTypeInclude (const char *includeOption, const char *pgTypeInclu
   {
     const char *optionPos;
     const char *optionEnd;
-    char includeDir[4096];
-    char pgTypeFileName[4096];
+    char includeDir[BUFFER_SIZE];
+    char pgTypeFileName[BUFFER_SIZE];
     int found = 0;
 
   /* findPgTypeInclude */
@@ -2841,13 +2875,13 @@ void determinePostgresDefines (FILE *versionFile,
     const char *programFiles = NULL;
     const char *dllName = NULL;
     const char *libName = NULL;
-    char dbHome[4096];
-    char includeOption[4096];
+    char dbHome[BUFFER_SIZE];
+    char includeOption[BUFFER_SIZE];
     const char *postgresqlInclude = NULL;
     const char *postgresInclude = NULL;
     const char *pgTypeInclude = NULL;
-    char buffer[4096];
-    char linkerOptions[4096];
+    char buffer[BUFFER_SIZE];
+    char linkerOptions[BUFFER_SIZE];
     int dbHomeExists = 0;
     int writeDllList = 0;
     int idx;
@@ -3039,11 +3073,11 @@ void determineOdbcDefines (FILE *versionFile,
 #else
     const char *dllNameList[] = {"odbc32.dll"};
 #endif
-    char includeOption[4096];
+    char includeOption[BUFFER_SIZE];
     int windowsOdbc = 0;
     const char *odbcInclude = NULL;
-    char buffer[4096];
-    char linkerOptions[4096];
+    char buffer[BUFFER_SIZE];
+    char linkerOptions[BUFFER_SIZE];
     int writeDllList = 0;
     int idx;
 
@@ -3132,12 +3166,12 @@ void determineOciDefines (FILE *versionFile,
 #else
     const char *dllNameList[] = {"oci.dll"};
 #endif
-    char incl_path[4096];
-    char dll_path[4096];
-    char includeOption[4096];
+    char incl_path[BUFFER_SIZE];
+    char dll_path[BUFFER_SIZE];
+    char includeOption[BUFFER_SIZE];
     const char *ociInclude = NULL;
-    char buffer[4096];
-    char linkerOptions[4096];
+    char buffer[BUFFER_SIZE];
+    char linkerOptions[BUFFER_SIZE];
     int writeDllList = 0;
     int incl_dir_idx;
     int dll_dir_idx;
@@ -3255,9 +3289,9 @@ void determineOciDefines (FILE *versionFile,
 void determineIncludesAndLibs (FILE *versionFile)
 
   {
-    char include_options[4096];
-    char system_db_libs[4096];
-    char buffer[4096];
+    char include_options[BUFFER_SIZE];
+    char system_db_libs[BUFFER_SIZE];
+    char buffer[BUFFER_SIZE];
 
   /* determineIncludesAndLibs */
     include_options[0] = '\0';
@@ -3288,7 +3322,9 @@ void writeReadBufferEmptyMacro (FILE *versionFile)
 
   {
     const char *define_read_buffer_empty;
-    char buffer[4096];
+    int offset_to_count;
+    char macro_buffer[BUFFER_SIZE];
+    char buffer[BUFFER_SIZE];
 
   /* writeReadBufferEmptyMacro */
     if (compileAndLinkOk("#include<stdio.h>\nint main(int argc,char *argv[])\n"
@@ -3310,6 +3346,18 @@ void writeReadBufferEmptyMacro (FILE *versionFile)
     } else if (compileAndLinkOk("#include<stdio.h>\nint main(int argc,char *argv[])\n"
                                 "{FILE*fp;fp->ptr >= fp->getend;return 0;}\n")) {
       define_read_buffer_empty = "#define read_buffer_empty(fp) ((fp)->ptr >= (fp)->getend)";
+    } else if (compileAndLinkOk("#include<stdio.h>\nint main(int argc,char *argv[])\n"
+                                "{FILE stru; FILE*fp=&stru;char**base;char**pointer;int*count;\n"
+                                "_get_stream_buffer_pointers(fp,&base,&pointer,&count);\n"
+                                "printf(\"%d\\n\",(int)((char *)count-(char *)fp)); return 0;}\n")) {
+      if ((offset_to_count = doTest()) != -1) {
+        sprintf(macro_buffer,
+                "#define read_buffer_empty(fp) (*((int *)&((char *)(fp))[%d])==0)",
+                offset_to_count);
+        define_read_buffer_empty = macro_buffer;
+      } else {
+        define_read_buffer_empty = NULL;
+      } /* if */
     } else {
       define_read_buffer_empty = NULL;
     } /* if */
@@ -3317,9 +3365,12 @@ void writeReadBufferEmptyMacro (FILE *versionFile)
       strcpy(buffer, "#include<stdio.h>\n");
       strcat(buffer, define_read_buffer_empty);
       strcat(buffer, "\nint main(int argc,char *argv[])\n"
-                     "{FILE*fp;fp=fopen(\"tst_vers.h\",\"r\");"
-                     "if(fp==NULL||!read_buffer_empty(fp))puts(0);else{"
-                     "getc(fp);printf(\"%d\\n\",read_buffer_empty(fp)?0:1);}return 0;}\n");
+                     "{FILE*fp;fp=fopen(\"tst_vers.h\",\"r\");\n"
+                     "if(fp==NULL)puts(0);else\n"
+                     "if(!read_buffer_empty(fp)){fclose(fp);puts(0);}else{"
+                     "getc(fp);printf(\"%d\\n\","
+                     "read_buffer_empty(fp)?0:1);fclose(fp);}\n"
+                     "return 0;}\n");
       if (!compileAndLinkOk(buffer) || doTest() != 1) {
         define_read_buffer_empty = NULL;
       } /* if */
@@ -3489,7 +3540,7 @@ int main (int argc, char **argv)
         compileAndLinkOk("#include <stdio.h>\n#include <direct.h>\n#include <ctype.h>\n"
                          "int main(int argc, char *argv[])\n"
                          "{char buffer[8192]; char *cwd;\n"
-                         "cwd = getcwd(buffer, 8192);\n"
+                         "cwd = _getcwd(buffer, 8192);\n"
                          "printf(\"%d\\n\", cwd!=NULL && isalpha(cwd[0]) && cwd[1]==':');\n"
                          "return 0;}\n")) {
       driveLetters = doTest() == 1;

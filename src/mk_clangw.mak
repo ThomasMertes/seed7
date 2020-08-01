@@ -20,11 +20,11 @@ CFLAGS = -O2 -g -ffunction-sections -fdata-sections $(INCLUDE_OPTIONS) -Wall -Ws
 # CFLAGS = -O2 -g -pg -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
 # CFLAGS = -O2 -fomit-frame-pointer -funroll-loops -Wall
 # CFLAGS = -O2 -funroll-loops -Wall -pg
-LDFLAGS = -Wl,--gc-sections,--stack,8388608
+LDFLAGS = -Wl,/STACK:8388608
 # LDFLAGS = -Wl,--gc-sections,--stack,8388608 -fsanitize=address,integer,undefined
 # LDFLAGS = -pg
 # LDFLAGS = -pg -lc_p
-SYSTEM_LIBS = -lm -lws2_32
+SYSTEM_LIBS = -luser32 -lshell32 -lws2_32
 # SYSTEM_LIBS = -lm -lws2_32 -lgmp
 SYSTEM_CONSOLE_LIBS =
 SYSTEM_DRAW_LIBS = -lgdi32
@@ -58,7 +58,7 @@ GOBJ = syvarutl.o traceutl.o actutl.o executl.o blockutl.o \
 ROBJ = arr_rtl.o bln_rtl.o bst_rtl.o chr_rtl.o cmd_rtl.o con_rtl.o dir_rtl.o drw_rtl.o fil_rtl.o \
        flt_rtl.o hsh_rtl.o int_rtl.o itf_rtl.o pcs_rtl.o set_rtl.o soc_rtl.o sql_rtl.o str_rtl.o \
        tim_rtl.o ut8_rtl.o heaputl.o numutl.o striutl.o sql_lite.o sql_my.o sql_oci.o sql_odbc.o sql_post.o
-DOBJ = $(BIGINT_LIB).o cmd_win.o dll_win.o fil_win.o pcs_win.o pol_sel.o tim_win.o
+DOBJ = $(BIGINT_LIB).o cmd_win.o dir_win.o dll_win.o fil_win.o pcs_win.o pol_sel.o tim_win.o
 OBJ = $(MOBJ)
 SEED7_LIB_OBJ = $(ROBJ) $(DOBJ)
 DRAW_LIB_OBJ = gkb_rtl.o drw_win.o gkb_win.o
@@ -81,7 +81,7 @@ GSRC = syvarutl.c traceutl.c actutl.c executl.c blockutl.c \
 RSRC = arr_rtl.c bln_rtl.c bst_rtl.c chr_rtl.c cmd_rtl.c con_rtl.c dir_rtl.c drw_rtl.c fil_rtl.c \
        flt_rtl.c hsh_rtl.c int_rtl.c itf_rtl.c pcs_rtl.c set_rtl.c soc_rtl.c sql_rtl.c str_rtl.c \
        tim_rtl.c ut8_rtl.c heaputl.c numutl.c striutl.c sql_lite.c sql_my.c sql_oci.c sql_odbc.c sql_post.c
-DSRC = $(BIGINT_LIB).c cmd_win.c dll_win.c fil_win.c pcs_win.c pol_sel.c tim_win.c
+DSRC = $(BIGINT_LIB).c cmd_win.c dir_win.c dll_win.c fil_win.c pcs_win.c pol_sel.c tim_win.c
 SRC = $(MSRC)
 SEED7_LIB_SRC = $(RSRC) $(DSRC)
 DRAW_LIB_SRC = gkb_rtl.c drw_win.c gkb_win.c
@@ -156,8 +156,8 @@ strip:
 
 chkccomp.h:
 	echo #include "direct.h" > chkccomp.h
-	echo #include "unistd.h" >> chkccomp.h
 	echo #define LIST_DIRECTORY_CONTENTS "dir" >> chkccomp.h
+	echo #define rmdir _rmdir >> chkccomp.h
 	echo #define MYSQL_DLL "libmariadb.dll", "libmysql.dll" >> chkccomp.h
 	echo #define MYSQL_USE_DLL >> chkccomp.h
 	echo #define SQLITE_DLL "sqlite3.dll" >> chkccomp.h
@@ -173,17 +173,19 @@ chkccomp.h:
 version.h: chkccomp.h
 	echo #define PATH_DELIMITER '\\' > version.h
 	echo #define SEARCH_PATH_DELIMITER ';' >> version.h
+	echo #define INT_DIV_BY_ZERO_POPUP >> version.h
 	echo #define CTRL_C_SENDS_EOF >> version.h
 	echo #define WITH_SQL >> version.h
 	echo #define CONSOLE_WCHAR >> version.h
 	echo #define OS_STRI_WCHAR >> version.h
+	echo #define RENAMED_POSIX_FUNCTIONS >> version.h
 	echo #define os_fstat _fstati64 >> version.h
 	echo #define os_lstat _wstati64 >> version.h
 	echo #define os_stat _wstati64 >> version.h
 	echo #define os_stat_struct struct _stati64 >> version.h
-	echo #define os_fseek fseeko64 >> version.h
-	echo #define os_ftell ftello64 >> version.h
-	echo #define os_off_t off64_t >> version.h
+	echo #define os_fseek fseeki64 >> version.h
+	echo #define os_ftell ftelli64 >> version.h
+	echo #define os_off_t __int64 >> version.h
 	echo #define os_environ _wenviron >> version.h
 	echo #define os_putenv _wputenv >> version.h
 	echo #define os_getch _getwch >> version.h
@@ -206,7 +208,7 @@ version.h: chkccomp.h
 	echo #define SYSTEM_CONSOLE_LIBS "$(SYSTEM_CONSOLE_LIBS)" >> version.h
 	echo #define SYSTEM_DRAW_LIBS "$(SYSTEM_DRAW_LIBS)" >> version.h
 	$(GET_CC_VERSION_INFO) cc_vers.txt
-	$(CC) -ftrapv chkccomp.c -lm -o chkccomp.exe
+	$(CC) -ftrapv -Wno-deprecated-declarations chkccomp.c -o chkccomp.exe
 	.\chkccomp.exe version.h
 	del chkccomp.exe
 	del cc_vers.txt
@@ -218,9 +220,9 @@ version.h: chkccomp.h
 	$(CC) -o setpaths.exe setpaths.c
 	.\setpaths.exe "S7_LIB_DIR=$(S7_LIB_DIR)" "SEED7_LIBRARY=$(SEED7_LIBRARY)" >> version.h
 	del setpaths.exe
-	$(CC) setwpath.c -o setwpath.exe
+	$(CC) -luser32 setwpath.c -o setwpath.exe
 	$(CC) wrdepend.c -o wrdepend.exe
-	$(CC) sudo.c -w -o sudo.exe
+	$(CC) -lshell32 sudo.c -w -o sudo.exe
 
 depend: version.h
 	.\wrdepend.exe $(CFLAGS) -M $(SRC) "> depend"
@@ -237,19 +239,19 @@ level.h:
 	..\bin\s7 -l ..\lib level
 
 ..\bin\$(SEED7_LIB): $(SEED7_LIB_OBJ)
-	ar r ..\bin\$(SEED7_LIB) $(SEED7_LIB_OBJ)
+	..\bin\call_lib /out:..\bin\$(SEED7_LIB) $(SEED7_LIB_OBJ)
 
 ..\bin\$(CONSOLE_LIB): $(CONSOLE_LIB_OBJ)
-	ar r ..\bin\$(CONSOLE_LIB) $(CONSOLE_LIB_OBJ)
+	..\bin\call_lib /out:..\bin\$(CONSOLE_LIB) $(CONSOLE_LIB_OBJ)
 
 ..\bin\$(DRAW_LIB): $(DRAW_LIB_OBJ)
-	ar r ..\bin\$(DRAW_LIB) $(DRAW_LIB_OBJ)
+	..\bin\call_lib /out:..\bin\$(DRAW_LIB) $(DRAW_LIB_OBJ)
 
 ..\bin\$(COMP_DATA_LIB): $(COMP_DATA_LIB_OBJ)
-	ar r ..\bin\$(COMP_DATA_LIB) $(COMP_DATA_LIB_OBJ)
+	..\bin\call_lib /out:..\bin\$(COMP_DATA_LIB) $(COMP_DATA_LIB_OBJ)
 
 ..\bin\$(COMPILER_LIB): $(COMPILER_LIB_OBJ)
-	ar r ..\bin\$(COMPILER_LIB) $(COMPILER_LIB_OBJ)
+	..\bin\call_lib /out:..\bin\$(COMPILER_LIB) $(COMPILER_LIB_OBJ)
 
 make7: ..\bin\make7.exe
 

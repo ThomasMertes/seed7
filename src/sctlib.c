@@ -25,6 +25,9 @@
 /*                                                                  */
 /********************************************************************/
 
+#define LOG_FUNCTIONS 0
+#define VERBOSE_EXCEPTIONS 0
+
 #include "version.h"
 
 #include "stdlib.h"
@@ -475,6 +478,9 @@ objectType sct_refidx (listType arguments)
     if (position >= 1 && ((memSizeType) position) <= stru1->size) {
       result = bld_reference_temp(&struct_pointer[position - 1]);
     } else {
+      logError(printf("sct_refidx(" FMT_U_MEM ", " FMT_D "): "
+                      "Index out of range.\n",
+                      (memSizeType) stru1, position););
       result = raise_exception(SYS_RNG_EXCEPTION);
     } /* if */
     return result;
@@ -551,5 +557,10 @@ printf("\n");
         struct_pointer++;
       } /* while */
     } /* if */
+    logError(printf("sct_select(");
+             trace1(arg_1(arguments));
+             printf(", ");
+             trace1(arg_3(arguments));
+             printf("): Selector not found.\n"););
     return raise_exception(SYS_RNG_EXCEPTION);
   } /* sct_select */

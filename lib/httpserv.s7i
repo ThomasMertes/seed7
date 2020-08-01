@@ -110,7 +110,7 @@ const func httpRequest: processHttpRequest (inout httpServerConnection: conn) is
           line := conn.buffer[conn.readPos .. pred(lfPos)];
         end if;
         conn.readPos := succ(lfPos);
-        # writeln(line);
+        # writeln("<- " <& line);
         if line = "" then
           if "Content-Length" in conn.request.properties then
             block
@@ -122,7 +122,6 @@ const func httpRequest: processHttpRequest (inout httpServerConnection: conn) is
           end if;
           conn.readingHeader := FALSE;
         elsif conn.request.method = "" then
-          # writeln(line);
           conn.request.method := getWord(line);
           requestPath := getWord(line);
           questionMarkPos := pos(requestPath, '?');
@@ -150,11 +149,13 @@ const func httpRequest: processHttpRequest (inout httpServerConnection: conn) is
     if not conn.readingHeader then
       if conn.contentToRead <> 0 then
         if length(conn.buffer) - conn.readPos + 1 <= conn.contentToRead then
-          conn.request.body := conn.buffer[conn.readPos len conn.contentToRead];
+          # writeln("<- " <& conn.buffer[conn.readPos len conn.contentToRead]);
+          conn.request.body &:= conn.buffer[conn.readPos len conn.contentToRead];
           conn.readPos +:= conn.contentToRead;
           conn.contentToRead := 0;
         else
-          conn.request.body := conn.buffer[conn.readPos ..];
+          # writeln("<- " <& conn.buffer[conn.readPos ..]);
+          conn.request.body &:= conn.buffer[conn.readPos ..];
           conn.contentToRead -:= length(conn.buffer) - conn.readPos + 1;
           conn.readPos := succ(length(conn.buffer));
         end if;

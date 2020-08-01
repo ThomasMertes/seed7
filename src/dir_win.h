@@ -40,10 +40,10 @@ struct dirent {
   };
 
 typedef struct {
-    HANDLE dir_handle;
-    WIN32_FIND_DATAA find_record;
-    int first_element;
-    struct dirent dir_entry;
+    HANDLE dirHandle;
+    WIN32_FIND_DATAA findData;
+    int firstElement;
+    struct dirent dirEntry;
   } DIR;
 
 struct wdirent {
@@ -51,10 +51,10 @@ struct wdirent {
   };
 
 typedef struct {
-    HANDLE dir_handle;
-    WIN32_FIND_DATAW find_record;
-    int first_element;
-    struct wdirent dir_entry;
+    HANDLE dirHandle;
+    WIN32_FIND_DATAW findData;
+    int firstElement;
+    struct wdirent dirEntry;
   } WDIR;
 
 

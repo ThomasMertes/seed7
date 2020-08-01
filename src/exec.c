@@ -596,7 +596,7 @@ static objectType exec_action (const_objectType act_object,
 
   /* exec_action */
     logFunction(printf("exec_action(%s)\n",
-                       get_primact(act_object->value.actValue)->name););
+                       getActEntry(act_object->value.actValue)->name););
 #ifdef CHECK_STACK
 #ifdef STACK_GROWS_UPWARD
     if ((char *) &evaluated_act_params - stack_base > max_stack_size) {
@@ -636,7 +636,7 @@ static objectType exec_action (const_objectType act_object,
     } /* if */
 #ifdef WITH_ACTION_CHECK
     if (trace.check_actions) {
-      if (get_primact(act_object->value.actValue) == &act_table.primitive[0]) {
+      if (unlikely(act_object->value.actValue == actTable.table[0].action)) {
         result = raise_with_arguments(SYS_ACT_ILLEGAL_EXCEPTION,
             evaluated_act_params);
       } /* if */
@@ -649,7 +649,7 @@ static objectType exec_action (const_objectType act_object,
         prot_heapsize();
         prot_cstri(" ");
       } /* if */
-      prot_cstri(get_primact(act_object->value.actValue)->name);
+      prot_cstri(getActEntry(act_object->value.actValue)->name);
       /* prot_cstri("(");
          prot_list(act_param_list);
          prot_cstri(") "); */
@@ -681,7 +681,7 @@ static objectType exec_action (const_objectType act_object,
             } /* if */
           } else {
             prot_cstri("** result == NULL for action ");
-            prot_cstri(get_primact(act_object->value.actValue)->name);
+            prot_cstri(getActEntry(act_object->value.actValue)->name);
           } /* if */
         } else {
           prot_cstri("** act_object->type_of->result_type == NULL ");

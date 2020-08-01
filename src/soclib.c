@@ -469,61 +469,6 @@ objectType soc_recvfrom (listType arguments)
 
 
 
-#ifdef OUT_OF_ORDER
-objectType soc_select (listType arguments)
-
-  {
-    arrayType sockArray;
-    memSizeType array_size;
-    memSizeType pos;
-    int nfds = 0;
-    fd_set readfds;
-    struct timeval timeout;
-    int select_result;
-    int fd;
-    arrayType result_array;
-    arrayType result;
-
-  /* soc_select */
-    isit_array(arg_1(arguments));
-    sockArray = take_array(arg_1(arguments));
-    FD_ZERO(&readfds);
-    if (sockArray->max_position >= sockArray->min_position) {
-      array_size = (uintType) (sockArray->max_position - sockArray->min_position) + 1;
-      for (pos = 0; pos < array_size; pos++) {
-        FD_SET(sockArray->arr[pos].value.socketValue, &readfds);
-        if (sockArray->arr[pos].value.socketValue >= nfds) {
-          nfds = sockArray->arr[pos].value.socketValue + 1;
-        } /* if */
-      } /* for */
-    } /* if */
-    select_result = select(nfds, &readfds, NULL, NULL, &timeout);
-    if (unlikely(select_result < 0)) {
-      raise_error(FILE_ERROR);
-      result = NULL;
-    } else {
-      if (unlikely(!ALLOC_ARRAY(result_array, select_result))) {
-        raise_error(MEMORY_ERROR);
-        result = NULL;
-      } else {
-        result_array->min_position = 1;
-        result_array->max_position = select_result;
-        pos = 0;
-        for (fd = 0; pos < nfds; fd++) {
-          if (FD_ISSET(fd, &readfds)) {
-            result_array->arr[pos].value.socketValue = fd;
-            pos++;
-          } /* if */
-        } /* for */
-        result = bld_array_temp(result_array);
-      } /* if */
-    } /* if */
-    return result;
-  } /* soc_select */
-#endif
-
-
-
 objectType soc_send (listType arguments)
 
   { /* soc_send */

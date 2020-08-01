@@ -25,6 +25,9 @@
 /*                                                                  */
 /********************************************************************/
 
+#define LOG_FUNCTIONS 0
+#define VERBOSE_EXCEPTIONS 0
+
 #include "version.h"
 
 #include "stdlib.h"
@@ -139,6 +142,9 @@ objectType set_card (listType arguments)
  *  sets or to use sets as key in a hash table. The functions
  *  setIsSubset and setIsProperSubset are used to check if a set is
  *  a (proper) subset or superset of another set.
+ *  @return -1, 0 or 1 if the first argument is considered to be
+ *          respectively less than, equal to, or greater than the
+ *          second.
  */
 objectType set_cmp (listType arguments)
 
@@ -824,8 +830,12 @@ objectType set_value (listType arguments)
   /* set_value */
     isit_reference(arg_1(arguments));
     obj_arg = take_reference(arg_1(arguments));
-    if (obj_arg == NULL || CATEGORY_OF_OBJ(obj_arg) != SETOBJECT ||
-        take_set(obj_arg) == NULL) {
+    if (unlikely(obj_arg == NULL ||
+                 CATEGORY_OF_OBJ(obj_arg) != SETOBJECT ||
+                 take_set(obj_arg) == NULL)) {
+      logError(printf("set_value(");
+               trace1(obj_arg);
+               printf("): Category is not SETOBJECT.\n"););
       return raise_exception(SYS_RNG_EXCEPTION);
     } else {
       aSet = take_set(obj_arg);

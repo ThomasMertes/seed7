@@ -50,52 +50,52 @@
 
 
 /**
- *  Opens a directory stream corresponding to the directory name.
+ *  Opens a directory stream corresponding to the directory dirName.
  *  The stream is positioned at the first entry in the directory.
- *  @param name Name of the directory to be opened.
+ *  @param dirName Name of the directory to be opened.
  *  @return a pointer to the directory stream or NULL if the
  *          directory stream could not be opened.
  */
-DIR *opendir (char *name)
+DIR *opendir (char *dirName)
 
   {
-    unsigned int name_len;
-    char dir_name[260];
-    DIR *result;
+    unsigned int nameLen;
+    char fileNamePattern[260];
+    DIR *directory;
 
   /* opendir */
-    logFunction(printf("opendir(%s);\n", name););
-    name_len = strlen(name);
-    if (name_len == 0 || name_len > sizeof(dir_name) - 5) {
+    logFunction(printf("opendir(%s);\n", dirName););
+    nameLen = strlen(dirName);
+    if (nameLen == 0 || nameLen > sizeof(fileNamePattern) - 5) {
       logError(printf("opendir(\"%s\"): Name too long "
                       "(length: " FMT_U_MEM ", max length: " FMT_U_MEM ")\n",
-                      name, name_len, sizeof(dir_name) - 5););
-      result = NULL;
-    } else if ((result = (DIR *) malloc(sizeof(DIR))) != NULL) {
-      memcpy(dir_name, name, name_len);
-      if (name[name_len - 1] != '/' &&
-          name[name_len - 1] != '\\') {
-        dir_name[name_len++] = '\\';
+                      dirName, nameLen, sizeof(fileNamePattern) - 5););
+      directory = NULL;
+    } else if ((directory = (DIR *) malloc(sizeof(DIR))) != NULL) {
+      memcpy(fileNamePattern, dirName, nameLen);
+      if (dirName[nameLen - 1] != '/' &&
+          dirName[nameLen - 1] != '\\') {
+        fileNamePattern[nameLen++] = '\\';
       } /* if */
-      strcpy(&dir_name[name_len], "*.*");
+      strcpy(&fileNamePattern[nameLen], "*.*");
 #ifdef DIR_WIN_DOS
-      result->dir_handle = _findfirst(dir_name, &result->find_record);
-      if (result->dir_handle != -1) {
+      directory->dirHandle = _findfirst(fileNamePattern, &directory->findData);
+      if (directory->dirHandle != -1) {
 #else
-      if ( _dos_findfirst(dir_name, _A_ARCH | _A_SUBDIR,
-          &result->find_record) == 0) {
+      if ( _dos_findfirst(fileNamePattern, _A_ARCH | _A_SUBDIR,
+          &directory->findData) == 0) {
 #endif
         /* printf("--> OK\n");
-        printf(">%s<\n", result->find_record.name); */
-        result->first_element = 1;
+        printf(">%s<\n", directory->findData.name); */
+        directory->firstElement = 1;
       } else {
         logError(printf("opendir(\"%s\"): findfirst() failed.\n",
-                        name););
-        free(result);
-        result = NULL;
+                        dirName););
+        free(directory);
+        directory = NULL;
       } /* if */
     } /* if */
-    return result;
+    return directory;
   } /* opendir */
 
 
@@ -105,65 +105,65 @@ DIR *opendir (char *name)
  *  The element d_name in the dirent structure gets the file name of
  *  the next directory entry. Besides d_name the dirent structure
  *  has no other elements.
- *  @param curr_dir Directory stream from which the directory entry
+ *  @param directory Directory stream from which the directory entry
  *         is read.
  *  @return a pointer to a dirent structure representing the next
  *          directory entry. It returns NULL on reaching the end of
  *          the directory stream or if an error occurred.
  */
-struct dirent *readdir (DIR *curr_dir)
+struct dirent *readdir (DIR *directory)
 
   {
-    unsigned int name_len;
-    struct dirent *result;
+    unsigned int nameLen;
+    struct dirent *dirEntry;
 
   /* readdir */
     logFunction(printf("readdir\n"););
-    result = &curr_dir->dir_entry;
-    if (curr_dir->first_element) {
+    dirEntry = &directory->dirEntry;
+    if (directory->firstElement) {
       /* printf("first\n"); */
-      curr_dir->first_element = 0;
-      name_len = strlen(curr_dir->find_record.name);
-      if (name_len >= sizeof(result->d_name)) {
-        name_len = sizeof(result->d_name) - 1;
+      directory->firstElement = 0;
+      nameLen = strlen(directory->findData.name);
+      if (nameLen >= sizeof(dirEntry->d_name)) {
+        nameLen = sizeof(dirEntry->d_name) - 1;
       } /* if */
-      memcpy(result->d_name, curr_dir->find_record.name, name_len);
-      result->d_name[name_len] = '\0';
-      /* printf(">%s<\n", result->d_name); */
+      memcpy(dirEntry->d_name, directory->findData.name, nameLen);
+      dirEntry->d_name[nameLen] = '\0';
+      /* printf(">%s<\n", dirEntry->d_name); */
     } else {
 #ifdef DIR_WIN_DOS
-      if (_findnext(curr_dir->dir_handle, &curr_dir->find_record) == 0) {
+      if (_findnext(directory->dirHandle, &directory->findData) == 0) {
 #else
-      if ( _dos_findnext(&curr_dir->find_record) == 0) {
+      if ( _dos_findnext(&directory->findData) == 0) {
 #endif
-        name_len = strlen(curr_dir->find_record.name);
-        if (name_len >= sizeof(result->d_name)) {
-          name_len = sizeof(result->d_name) - 1;
+        nameLen = strlen(directory->findData.name);
+        if (nameLen >= sizeof(dirEntry->d_name)) {
+          nameLen = sizeof(dirEntry->d_name) - 1;
         } /* if */
-        memcpy(result->d_name, curr_dir->find_record.name, name_len);
-        result->d_name[name_len] = '\0';
-        /* printf(">%s<\n", result->d_name); */
+        memcpy(dirEntry->d_name, directory->findData.name, nameLen);
+        dirEntry->d_name[nameLen] = '\0';
+        /* printf(">%s<\n", dirEntry->d_name); */
       } else {
         /* printf("end\n"); */
-        result = NULL;
+        dirEntry = NULL;
       } /* if */
     } /* if */
     logFunction(printf("readdir --> %s\n",
-                       result == NULL ? "NULL" : result->d_name););
-    return result;
+                       dirEntry == NULL ? "NULL" : dirEntry->d_name););
+    return dirEntry;
   } /* readdir */
 
 
 
 /**
  *  Closes the given directory stream.
- *  @param curr_dir The directory stream to be closed.
+ *  @param directory The directory stream to be closed.
  *  @return 0 on success.
  */
-int closedir (DIR *curr_dir)
+int closedir (DIR *directory)
 
   { /* closedir */
     logFunction(printf("closedir\n"););
-    free(curr_dir);
+    free(directory);
     return 0;
   } /* closedir */

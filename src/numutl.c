@@ -57,7 +57,7 @@
 #define MAX_DECIMAL_BUFFER_LENGTH 128
 #define AND_SO_ON_LIMIT           128
 
-/* DECIMAL_WITH_LIMIT provides parameters for the format string \"%*s%s\" */
+/* DECIMAL_WITH_LIMIT provides parameters for the format string \"%.*s%s\" */
 #define DECIMAL_WITH_LIMIT(decimal, limit) \
     (int) (length <= AND_SO_ON_LIMIT ? length : AND_SO_ON_LIMIT), \
     decimal, length > AND_SO_ON_LIMIT ? "\\ *AND_SO_ON* " : ""
@@ -234,7 +234,7 @@ bigIntType doubleToBigRat (const double doubleValue, bigIntType *denominator)
 striType doubleToStri (const double doubleValue, boolType roundDouble)
 
   {
-    char buffer[1024];
+    char buffer[DOUBLE_TO_CHAR_BUFFER_SIZE];
     memSizeType len;
     striType result;
 
@@ -243,10 +243,10 @@ striType doubleToStri (const double doubleValue, boolType roundDouble)
                        doubleValue, roundDouble););
     if (roundDouble) {
       len = doubleToCharBuffer(doubleValue, DOUBLE_STR_LARGE_NUMBER,
-                               DOUBLE_STR_FORMAT, buffer);
+                               FMT_E_DBL, buffer);
     } else {
       len = doubleToCharBuffer(doubleValue, FLOAT_STR_LARGE_NUMBER,
-                               FLOAT_STR_FORMAT, buffer);
+                               FMT_E_FLT, buffer);
     } /* if */
     result = cstri_buf_to_stri(buffer, len);
     if (unlikely(result == NULL)) {
@@ -329,7 +329,7 @@ intType getDecimalInt (const const_ustriType decimal, memSizeType length)
     intType intResult;
 
   /* getDecimalInt */
-    logFunction(printf("getDecimalInt(\"%*s%s\", " FMT_U_MEM ")\n",
+    logFunction(printf("getDecimalInt(\"%.*s%s\", " FMT_U_MEM ")\n",
                        DECIMAL_WITH_LIMIT(decimal, limit), length););
     if (likely(length != 0)) {
       if (decimal[0] == '-') {
@@ -402,7 +402,7 @@ bigIntType getDecimalBigInt (const const_ustriType decimal, memSizeType length)
     bigIntType bigIntValue;
 
   /* getDecimalBigInt */
-    logFunction(printf("getDecimalBigInt(\"%*s%s\", " FMT_U_MEM ")\n",
+    logFunction(printf("getDecimalBigInt(\"%.*s%s\", " FMT_U_MEM ")\n",
                        DECIMAL_WITH_LIMIT(decimal, limit), length););
     stri = cstri_buf_to_stri((const_cstriType) decimal, length);
     /* printf("getDecimalBigInt: stri: ");
@@ -437,7 +437,7 @@ bigIntType getDecimalBigRational (const const_ustriType decimal, memSizeType len
     bigIntType numerator;
 
   /* getDecimalBigRational */
-    logFunction(printf("getDecimalBigRational(\"%*s%s\", " FMT_U_MEM ")\n",
+    logFunction(printf("getDecimalBigRational(\"%.*s%s\", " FMT_U_MEM ")\n",
                        DECIMAL_WITH_LIMIT(decimal, limit), length););
     if (unlikely(!ALLOC_STRI_CHECK_SIZE(stri, length))) {
       *denominator = NULL;
@@ -509,7 +509,7 @@ floatType getDecimalFloat (const const_ustriType decimal, memSizeType length)
     double doubleValue;
 
   /* getDecimalFloat */
-    logFunction(printf("getDecimalFloat(\"%*s%s\", " FMT_U_MEM ")\n",
+    logFunction(printf("getDecimalFloat(\"%.*s%s\", " FMT_U_MEM ")\n",
                        DECIMAL_WITH_LIMIT(decimal, limit), length););
     if (length > MAX_DECIMAL_BUFFER_LENGTH) {
       charBuffer = (char *) malloc(length + 1);

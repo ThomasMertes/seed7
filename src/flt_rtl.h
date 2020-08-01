@@ -40,12 +40,14 @@ extern const rtlValueUnion f_const[];
 #define NEGATIVE_INFINITY (-1.0 / 0.0)
 #endif
 
+#define DOUBLE_TO_CHAR_BUFFER_SIZE 1024
+
 
 void setupFloat (void);
 int64Type getMantissaAndExponent (double doubleValue, int *binaryExponent);
 double setMantissaAndExponent (int64Type intMantissa, int binaryExponent);
-memSizeType doubleToCharBuffer (double doubleValue, double largeNumber,
-                                const char *format, char *buffer);
+memSizeType doubleToCharBuffer (const double doubleValue,
+    const double largeNumber, const char *format, char *buffer);
 intType fltCmp (floatType number1, floatType number2);
 striType fltDgts (floatType number, intType precision);
 #if !NAN_COMPARISON_OKAY

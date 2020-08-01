@@ -212,7 +212,7 @@ dirType dirOpen (const const_striType path)
 striType dirRead (dirType directory)
 
   {
-    os_dirent_struct *current_entry;
+    os_dirent_struct *dirEntry;
     errInfoType err_info = OKAY_NO_ERROR;
     striType fileName;
 
@@ -224,15 +224,15 @@ striType dirRead (dirType directory)
     } else {
 #endif
       do {
-        current_entry = os_readdir(directory);
-      } while (current_entry != NULL &&
-          (memcmp(current_entry->d_name, dot,    sizeof(os_charType) * 2) == 0 ||
-           memcmp(current_entry->d_name, dotdot, sizeof(os_charType) * 3) == 0));
-      if (current_entry == NULL) {
+        dirEntry = os_readdir(directory);
+      } while (dirEntry != NULL &&
+          (memcmp(dirEntry->d_name, dot,    sizeof(os_charType) * 2) == 0 ||
+           memcmp(dirEntry->d_name, dotdot, sizeof(os_charType) * 3) == 0));
+      if (dirEntry == NULL) {
         fileName = NULL;
       } else {
-        /* printf("os_readdir() -> \"" FMT_S_OS "\"\n", current_entry->d_name); */
-        fileName = os_stri_to_stri(current_entry->d_name, &err_info);
+        /* printf("os_readdir() -> \"" FMT_S_OS "\"\n", dirEntry->d_name); */
+        fileName = os_stri_to_stri(dirEntry->d_name, &err_info);
         if (unlikely(fileName == NULL)) {
           raise_error(err_info);
         } /* if */

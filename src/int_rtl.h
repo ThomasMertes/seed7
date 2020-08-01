@@ -29,7 +29,7 @@
 /*                                                                  */
 /********************************************************************/
 
-extern const const_cstriType digitTable[];
+extern const const_ustriType digitTable[];
 
 
 void setupRand (void);

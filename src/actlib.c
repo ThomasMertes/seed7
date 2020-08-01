@@ -25,6 +25,9 @@
 /*                                                                  */
 /********************************************************************/
 
+#define LOG_FUNCTIONS 0
+#define VERBOSE_EXCEPTIONS 0
+
 #include "version.h"
 
 #include "stdlib.h"
@@ -82,6 +85,11 @@ objectType act_create (listType arguments)
 
 
 
+/**
+ *  Check if two actions are equal.
+ *  @return TRUE if both actions are equal,
+ *          FALSE otherwise.
+ */
 objectType act_eq (listType arguments)
 
   {
@@ -107,21 +115,30 @@ objectType act_eq (listType arguments)
 objectType act_gen (listType arguments)
 
   {
-    striType stri;
-    actType result;
+    striType actionName;
+    actType action;
 
   /* act_gen */
     isit_stri(arg_2(arguments));
-    stri = take_stri(arg_2(arguments));
-    if (!find_action(stri, &result)) {
+    actionName = take_stri(arg_2(arguments));
+    action = findAction(actionName);
+    if (unlikely(action == NULL)) {
+      logError(printf("act_gen(\"%s\"): No such action exists.\n",
+                      striAsUnquotedCStri(actionName)););
       return raise_exception(SYS_RNG_EXCEPTION);
     } else {
-      return bld_action_temp(result);
+      return bld_action_temp(action);
     } /* if */
   } /* act_gen */
 
 
 
+/**
+ *  Convert an integer number to an action.
+ *  @param ordinal/arg_3 Number to be converted.
+ *  @return an action which corresponds to the given integer.
+ *  @exception RANGE_ERROR Number not in allowed range.
+ */
 objectType act_iconv (listType arguments)
 
   {
@@ -130,10 +147,12 @@ objectType act_iconv (listType arguments)
   /* act_iconv */
     isit_int(arg_3(arguments));
     ordinal = take_int(arg_3(arguments));
-    if (ordinal < 0 || (uintType) ordinal >= act_table.size) {
+    if (ordinal < 0 || (uintType) ordinal >= actTable.size) {
+      logError(printf("act_iconv(" FMT_D "): No such action exists.\n",
+                      ordinal););
       return raise_exception(SYS_RNG_EXCEPTION);
     } else {
-      return bld_action_temp(act_table.primitive[ordinal].action);
+      return bld_action_temp(actTable.table[ordinal].action);
     } /* if */
   } /* act_iconv */
 
@@ -147,6 +166,11 @@ objectType act_illegal (listType arguments)
 
 
 
+/**
+ *  Check if two actions are not equal.
+ *  @return FALSE if both actions are equal,
+ *          TRUE otherwise.
+ */
 objectType act_ne (listType arguments)
 
   {
@@ -169,21 +193,35 @@ objectType act_ne (listType arguments)
 
 
 
+/**
+ *  Get the ordinal number of an action.
+ *  The action ACT_ILLEGAL has the ordinal number 0.
+ *  @param anAction/arg_1 Action for which the ordinal number is determined.
+ *  @return the ordinal number of the action.
+ */
 objectType act_ord (listType arguments)
 
   {
-    const_primActType primact;
+    const_actEntryType actEntry;
     intType result;
 
   /* act_ord */
     isit_action(arg_1(arguments));
-    primact = get_primact(take_action(arg_1(arguments)));
-    result = primact - act_table.primitive;
+    actEntry = getActEntry(take_action(arg_1(arguments)));
+    result = actEntry - actTable.table;
     return bld_int_temp(result);
   } /* act_ord */
 
 
 
+/**
+ *  Convert an action to a string.
+ *  If the action is not found in the table of legal actions
+ *  the string "ACT_ILLEGAL" is returned.
+ *  @param anAction/arg_1 Action which is converted to a string..
+ *  @return the string result of the conversion.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ */
 objectType act_str (listType arguments)
 
   {
@@ -191,7 +229,7 @@ objectType act_str (listType arguments)
 
   /* act_str */
     isit_action(arg_1(arguments));
-    result = cstri_to_stri(get_primact(take_action(arg_1(arguments)))->name);
+    result = cstri_to_stri(getActEntry(take_action(arg_1(arguments)))->name);
     if (result == NULL) {
       return raise_exception(SYS_MEM_EXCEPTION);
     } else {
@@ -209,7 +247,11 @@ objectType act_value (listType arguments)
   /* act_value */
     isit_reference(arg_1(arguments));
     obj_arg = take_reference(arg_1(arguments));
-    if (obj_arg == NULL || CATEGORY_OF_OBJ(obj_arg) != ACTOBJECT) {
+    if (unlikely(obj_arg == NULL ||
+                 CATEGORY_OF_OBJ(obj_arg) != ACTOBJECT)) {
+      logError(printf("act_value(");
+               trace1(obj_arg);
+               printf("): Category is not ACTOBJECT.\n"););
       return raise_exception(SYS_RNG_EXCEPTION);
     } else {
       return bld_action_temp(take_action(obj_arg));

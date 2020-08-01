@@ -321,7 +321,11 @@ const proc: main is func
         server := openHttpServer(port, stdCertificate, useTls);
         writeln("To test comanche make sure that " <&
                 literal(htdocs & "/index.htm") <& " exists and");
-        writeln("open http://localhost:" <& port <& "/ in your browser. \
+        write("open http");
+        if useTls then
+          write("s");
+        end if;
+        writeln("://localhost:" <& port <& "/ in your browser. \
                 \To stop comanche press CTRL-C.");
         while TRUE do
           request := getRequest(server);

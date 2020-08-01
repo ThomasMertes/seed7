@@ -25,6 +25,9 @@
 /*                                                                  */
 /********************************************************************/
 
+#define LOG_FUNCTIONS 0
+#define VERBOSE_EXCEPTIONS 0
+
 #include "version.h"
 
 #include "stdlib.h"
@@ -544,6 +547,9 @@ objectType fil_value (listType arguments)
     obj_arg = take_reference(arg_1(arguments));
     if (unlikely(obj_arg == NULL ||
                  CATEGORY_OF_OBJ(obj_arg) != FILEOBJECT)) {
+      logError(printf("fil_value(");
+               trace1(obj_arg);
+               printf("): Category is not FILEOBJECT.\n"););
       return raise_exception(SYS_RNG_EXCEPTION);
     } else {
       return bld_file_temp(take_file(obj_arg));

@@ -54,6 +54,19 @@ typedef BOOLTYPE boolType;
 #define EXTERN          extern
 
 
+#ifdef RENAMED_POSIX_FUNCTIONS
+#ifndef fileno
+#define fileno   _fileno
+#endif
+#define kbhit    _kbhit
+#define setmode  _setmode
+#define fdopen   _fdopen
+#define isatty   _isatty
+#define fseeki64 _fseeki64
+#define ftelli64 _ftelli64
+#endif
+
+
 typedef INT8TYPE           int8Type;
 typedef UINT8TYPE          uint8Type;
 
@@ -313,7 +326,7 @@ typedef double             floatType;
 #endif
 #define FLOATTYPE_TO_INT_CONVERSION_LIMIT DOUBLE_MANTISSA_FACTOR
 #define FLOATTYPE_MANTISSA_FACTOR DOUBLE_MANTISSA_FACTOR
-#define FMT_E DOUBLE_STR_FORMAT
+#define FMT_E FMT_E_DBL
 #else
 typedef float              floatType;
 #define FLOATTYPE_SIZE FLOAT_SIZE
@@ -324,7 +337,7 @@ typedef float              floatType;
 #endif
 #define FLOATTYPE_TO_INT_CONVERSION_LIMIT FLOAT_MANTISSA_FACTOR
 #define FLOATTYPE_MANTISSA_FACTOR FLOAT_MANTISSA_FACTOR
-#define FMT_E FLOAT_STR_FORMAT
+#define FMT_E FMT_E_FLT
 #endif
 
 #define POW_FUNCTION_OKAY (POW_OF_NAN_OKAY && POW_OF_ZERO_OKAY && POW_OF_ONE_OKAY && POW_EXP_NAN_OKAY && POW_EXP_MINUS_INFINITY_OKAY)

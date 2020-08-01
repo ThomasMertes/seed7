@@ -25,6 +25,9 @@
 /*                                                                  */
 /********************************************************************/
 
+#define LOG_FUNCTIONS 0
+#define VERBOSE_EXCEPTIONS 0
+
 #include "version.h"
 
 #include "stdlib.h"
@@ -112,6 +115,22 @@ static void initPollOps (void)
 
 
 
+/**
+ *  Add eventsToCheck/arg_3 for aSocket/arg_2 to pollData/arg_1.
+ *  EventsToCheck/arg_3 can have one of the following values:
+ *  * POLLIN check if data can be read from the corresponding socket.
+ *  * POLLOUT check if data can be written to the corresponding socket.
+ *  * POLLINOUT check if data can be read or written (POLLIN or POLLOUT).
+ *  @param pollData/arg_1 Poll data to which the event checks are added.
+ *  @param aSocket/arg_2 Socket for which the events should be checked.
+ *  @param eventsToCheck/arg_3 Events to be added to the checkedEvents
+ *         field of pollData/arg_1.
+ *  @param fileObj/arg_4 File to be returned, when the iterator returns
+ *         files in pollData/arg_1.
+ *  @exception RANGE_ERROR Illegal value for eventsToCheck/arg_3.
+ *  @exception MEMORY_ERROR An out of memory situation occurred.
+ *  @exception FILE_ERROR A limit of the operating system was reached.
+ */
 objectType pol_addCheck (listType arguments)
 
   { /* pol_addCheck */
@@ -129,6 +148,11 @@ objectType pol_addCheck (listType arguments)
 
 
 
+/**
+ *  Clears pollData/arg_1.
+ *  All sockets and all events are removed from pollData/arg_1 and
+ *  the iterator is reset, such that pol_hasNext() returns FALSE.
+ */
 objectType pol_clear (listType arguments)
 
   { /* pol_clear */
@@ -316,6 +340,18 @@ objectType pol_poll (listType arguments)
 
 
 
+/**
+ *  Remove eventsToCheck/arg_3 for aSocket/arg_2 from pollData/arg_1.
+ *  EventsToCheck/arg_3 can have one of the following values:
+ *  * POLLIN check if data can be read from the corresponding socket.
+ *  * POLLOUT check if data can be written to the corresponding socket.
+ *  * POLLINOUT check if data can be read or written (POLLIN or POLLOUT).
+ *  @param pollData/arg_1 Poll data from which the event checks are removed.
+ *  @param aSocket/arg_2 Socket for which the events should not be checked.
+ *  @param eventsToCheck/arg_3 Events to be removed from the checkedEvents
+ *         field of pollData/arg_1.
+ *  @exception RANGE_ERROR Illegal value for eventsToCheck/arg_3.
+ */
 objectType pol_removeCheck (listType arguments)
 
   { /* pol_removeCheck */
@@ -338,7 +374,11 @@ objectType pol_value (listType arguments)
   /* pol_value */
     isit_reference(arg_1(arguments));
     obj_arg = take_reference(arg_1(arguments));
-    if (obj_arg == NULL || CATEGORY_OF_OBJ(obj_arg) != POLLOBJECT) {
+    if (unlikely(obj_arg == NULL ||
+                 CATEGORY_OF_OBJ(obj_arg) != POLLOBJECT)) {
+      logError(printf("pol_value(");
+               trace1(obj_arg);
+               printf("): Category is not POLLOBJECT.\n"););
       return raise_exception(SYS_RNG_EXCEPTION);
     } else {
       return bld_poll_temp(polCreate(take_poll(obj_arg)));

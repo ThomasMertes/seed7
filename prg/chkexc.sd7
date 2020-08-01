@@ -704,6 +704,24 @@ const proc: check_integer is func
     end block;
 
     block
+      i_num  := integer parse "";
+      writeln(" ***** integer parse \"\" did not raise RANGE_ERROR");
+      okay := FALSE;
+    exception
+      catch RANGE_ERROR:
+        incr(number);
+    end block;
+
+    block
+      i_num  := integer parse "123asdf";
+      writeln(" ***** integer parse \"123asdf\" did not raise RANGE_ERROR");
+      okay := FALSE;
+    exception
+      catch RANGE_ERROR:
+        incr(number);
+    end block;
+
+    block
       i_num  := integer parse "asdf";
       writeln(" ***** integer parse \"asdf\" did not raise RANGE_ERROR");
       okay := FALSE;
@@ -760,7 +778,7 @@ const proc: check_integer is func
 
     check_integer_exponentiation(okay);
 
-    if okay and number = 39 then
+    if okay and number = 41 then
       writeln("Integer exceptions work correct.");
     else
       writeln(" ***** Integer exceptions do not work correct");

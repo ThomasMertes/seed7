@@ -25,6 +25,9 @@
 /*                                                                  */
 /********************************************************************/
 
+#define LOG_FUNCTIONS 0
+#define VERBOSE_EXCEPTIONS 0
+
 #include "version.h"
 
 #include "stdlib.h"
@@ -369,6 +372,9 @@ objectType bst_idx (listType arguments)
     bstri = take_bstri(arg_1(arguments));
     position = take_int(arg_3(arguments));
     if (unlikely(position < 1 || (uintType) position > bstri->size)) {
+      logError(printf("bst_idx(\"%s\", " FMT_D "): Position %s.\n",
+                      bstriAsUnquotedCStri(bstri), position,
+                      position <= 0 ? "<= 0" : "> length(string)"););
       return raise_exception(SYS_RNG_EXCEPTION);
     } else {
       return bld_char_temp((charType) bstri->mem[position - 1]);
@@ -391,6 +397,8 @@ objectType bst_lng (listType arguments)
     bstri = take_bstri(arg_1(arguments));
 #if POINTER_SIZE > INTTYPE_SIZE
     if (unlikely(bstri->size > MAX_MEM_INDEX)) {
+      logError(printf("bst_lng(\"%s\"): Length does not fit into integer.\n",
+                      bstriAsUnquotedCStri(bstri)););
       return raise_exception(SYS_RNG_EXCEPTION);
     } /* if */
 #endif
@@ -467,8 +475,11 @@ objectType bst_value (listType arguments)
     isit_reference(arg_1(arguments));
     obj_arg = take_reference(arg_1(arguments));
     if (unlikely(obj_arg == NULL ||
-        CATEGORY_OF_OBJ(obj_arg) != BSTRIOBJECT ||
-        take_bstri(obj_arg) == NULL)) {
+                 CATEGORY_OF_OBJ(obj_arg) != BSTRIOBJECT ||
+                 take_bstri(obj_arg) == NULL)) {
+      logError(printf("bst_value(");
+               trace1(obj_arg);
+               printf("): Category is not BSTRIOBJECT.\n"););
       return raise_exception(SYS_RNG_EXCEPTION);
     } else {
       bstri = take_bstri(obj_arg);

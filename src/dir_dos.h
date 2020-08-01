@@ -41,10 +41,10 @@ struct dirent {
   };
 
 typedef struct {
-    long dir_handle;
-    struct _finddata_t find_record;
-    int first_element;
-    struct dirent dir_entry;
+    long dirHandle;
+    struct _finddata_t findData;
+    int firstElement;
+    struct dirent dirEntry;
   } DIR;
 
 #else
@@ -56,9 +56,9 @@ struct dirent {
   };
 
 typedef struct {
-    struct find_t find_record;
-    int first_element;
-    struct dirent dir_entry;
+    struct find_t findData;
+    int firstElement;
+    struct dirent dirEntry;
   } DIR;
 
 #endif

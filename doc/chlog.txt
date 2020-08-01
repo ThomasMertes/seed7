@@ -1,3 +1,30 @@
+20160430:
+- The makefile mk_clangw.mak has been improved, such that compilation
+  with newer versions of clang under windows works better.
+- Tests for integer parse have been added to chkexc.sd7.
+- The function doRemove in chkccomp.c has been improved to write
+  nothing to the console.
+- The function showErrors has been added to chkccomp.c.
+- In actutl.c the functions searchAction and findAction have been
+  improved to use fewer parameters and the function getActIllegal
+  has been added.
+- In chkccomp.c the function writeReadBufferEmptyMacro has been
+  improved to optionally use _get_stream_buffer_pointers() to define
+  the macro read_buffer_empty.
+- The operator 'char conv' has been improved to check if the integer
+  fits in a character.
+- Documentation comments have been improved in float.s7i, poll.s7i,
+  actlib.c actutl.c, big_gmp.c, big_rtl.c, bln_rtl.c, bst_rtl.c,
+  chr_rtl.c, cmd_rtl.c, dir_dos.c, dir_win.c, drw_rtl.c, fltlib.c,
+  flt_rtl.c, int_rtl.c, pcs_rtl.c, pollib.c, pol_sel.c, pol_unx.c,
+  prg_comp.c, rfl_data.c, setlib.c, set_rtl.c and str_rtl.c.
+- Calls of logFunction have been added to functions in cmdlib.c and
+  flt_rtl.c,.
+- Calls of logError have been added to functions in actlib.c,
+  biglib.c, bstlib.c, chrlib.c, cmdlib.c, drwlib.c, fillib.c,
+  fltlib.c, hshlib.c, intlib.c, pcslib.c, pollib.c, prglib.c,
+  rfl_data.c, rfllib.c, sctlib.c, setlib.c, strlib.c and typlib.c.
+
 20160330:
 - The makefile mk_clangw.mak has been added. This makefile supports
   compilation under Windows with the clang compiler.
@@ -19,9 +46,9 @@
 - In several files integer literals have been replaced by contants or
   #define macros.
 - The function __mulodi4 has been added to int_rtl.c. This function
-  is used by clang under Windows, but unfortunately is not part of the
-  runtime library. This situation is recognized by chkccomp.c and the
-  function __mulodi4 in int_rtl.c is used instead.
+  is used by clang under Windows, but unfortunately is not part of
+  the runtime library. This situation is recognized by chkccomp.c and
+  the function __mulodi4 in int_rtl.c is used instead.
 
 20160229:
 - The function fltCmp in flt_rtl.c has been improved to work correct

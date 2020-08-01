@@ -249,19 +249,29 @@ objectType rfl_elemcpy (listType arguments)
     is_variable(arg_1(arguments));
     list_element = take_reflist(arg_1(arguments));
     position = take_int(arg_4(arguments));
-    if (position >= 1) {
+    if (unlikely(position <= 0)) {
+      logError(printf("rfl_elemcpy(" FMT_U_MEM ", " FMT_D ", " FMT_U_MEM "): "
+                      "Index <= 0.\n",
+                      (memSizeType) take_reflist(arg_1(arguments)),
+                      position,
+                      (memSizeType) take_reference(arg_6(arguments))););
+      return raise_exception(SYS_RNG_EXCEPTION);
+    } else {
       position--;
       while (position != 0 && list_element != NULL) {
         position--;
         list_element = list_element->next;
       } /* while */
-      if (list_element != NULL) {
-        list_element->obj = take_reference(arg_6(arguments));
-      } else {
+      if (unlikely(list_element == NULL)) {
+        logError(printf("rfl_elemcpy(" FMT_U_MEM ", " FMT_D ", " FMT_U_MEM "): "
+                        "Index > length(destination).\n",
+                        (memSizeType) take_reflist(arg_1(arguments)),
+                        position,
+                        (memSizeType) take_reference(arg_6(arguments))););
         return raise_exception(SYS_RNG_EXCEPTION);
+      } else {
+        list_element->obj = take_reference(arg_6(arguments));
       } /* if */
-    } else {
-      return raise_exception(SYS_RNG_EXCEPTION);
     } /* if */
     return SYS_EMPTY_OBJECT;
   } /* rfl_elemcpy */
@@ -539,19 +549,27 @@ objectType rfl_idx (listType arguments)
     isit_int(arg_3(arguments));
     list_element = take_reflist(arg_1(arguments));
     position = take_int(arg_3(arguments));
-    if (position >= 1) {
+    if (unlikely(position <= 0)) {
+      logError(printf("rfl_idx(" FMT_U_MEM ", " FMT_D "): "
+                      "Index <= 0.\n",
+                      (memSizeType) take_reflist(arg_1(arguments)),
+                      position););
+      result = raise_exception(SYS_RNG_EXCEPTION);
+    } else {
       position--;
       while (position != 0 && list_element != NULL) {
         position--;
         list_element = list_element->next;
       } /* while */
-      if (list_element != NULL) {
-        result = bld_reference_temp(list_element->obj);
-      } else {
+      if (unlikely(list_element == NULL)) {
+        logError(printf("rfl_idx(" FMT_U_MEM ", " FMT_D "): "
+                        "Index > length(list).\n",
+                        (memSizeType) take_reflist(arg_1(arguments)),
+                        position););
         result = raise_exception(SYS_RNG_EXCEPTION);
+      } else {
+        result = bld_reference_temp(list_element->obj);
       } /* if */
-    } else {
-      result = raise_exception(SYS_RNG_EXCEPTION);
     } /* if */
     return result;
   } /* rfl_idx */
@@ -889,16 +907,19 @@ objectType rfl_value (listType arguments)
   /* rfl_value */
     isit_reference(arg_1(arguments));
     obj_arg = take_reference(arg_1(arguments));
-    if (obj_arg != NULL &&
-        (CATEGORY_OF_OBJ(obj_arg) == MATCHOBJECT ||
-         CATEGORY_OF_OBJ(obj_arg) == CALLOBJECT ||
-         CATEGORY_OF_OBJ(obj_arg) == REFLISTOBJECT)) {
+    if (unlikely(obj_arg == NULL ||
+                 (CATEGORY_OF_OBJ(obj_arg) != MATCHOBJECT &&
+                  CATEGORY_OF_OBJ(obj_arg) != CALLOBJECT &&
+                  CATEGORY_OF_OBJ(obj_arg) != REFLISTOBJECT))) {
+      logError(printf("rfl_value(");
+               trace1(obj_arg);
+               printf("): Category is not MATCH-, CALL- or REFLISTOBJECT.\n"););
+      return raise_exception(SYS_RNG_EXCEPTION);
+    } else {
       result = copy_list(take_reflist(obj_arg), &err_info);
       if (err_info != OKAY_NO_ERROR) {
         return raise_exception(SYS_MEM_EXCEPTION);
       } /* if */
-    } else {
-      return raise_exception(SYS_RNG_EXCEPTION);
     } /* if */
     return bld_reflist_temp(result);
   } /* rfl_value */

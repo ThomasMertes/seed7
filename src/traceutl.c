@@ -575,7 +575,7 @@ static void print_real_value (const_objectType anyobject)
         break;
       case ACTOBJECT:
         prot_cstri("action \"");
-        prot_cstri(get_primact(anyobject->value.actValue)->name);
+        prot_cstri(getActEntry(anyobject->value.actValue)->name);
         prot_cstri("\"");
         break;
       case BLOCKOBJECT:
@@ -830,7 +830,7 @@ void prot_list (const_listType list)
           case CALLOBJECT:
           case MATCHOBJECT:
             if (CATEGORY_OF_OBJ(list->obj->value.listValue->obj) == ACTOBJECT) {
-              prot_cstri(get_primact(list->obj->value.listValue->obj->value.actValue)->name);
+              prot_cstri(getActEntry(list->obj->value.listValue->obj->value.actValue)->name);
             } else if (HAS_ENTITY(list->obj->value.listValue->obj) &&
                 GET_ENTITY(list->obj->value.listValue->obj)->ident != NULL) {
               prot_cstri8(id_string(GET_ENTITY(list->obj->value.listValue->obj)->ident));
@@ -1444,7 +1444,7 @@ void trace1 (const_objectType traceobject)
             printcategory(CATEGORY_OF_OBJ(traceobject->value.listValue->obj));
             prot_cstri("> ");
             if (CATEGORY_OF_OBJ(traceobject->value.listValue->obj) == ACTOBJECT) {
-              prot_cstri(get_primact(traceobject->value.listValue->obj->value.actValue)->name);
+              prot_cstri(getActEntry(traceobject->value.listValue->obj->value.actValue)->name);
             } else if (HAS_ENTITY(traceobject->value.listValue->obj) &&
                 GET_ENTITY(traceobject->value.listValue->obj)->ident != NULL) {
               prot_cstri8(id_string(GET_ENTITY(traceobject->value.listValue->obj)->ident));

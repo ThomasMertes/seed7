@@ -997,7 +997,7 @@ static rtlArrayType getSearchPath (errInfoType *err_info)
 
 
 
-void setSearchPath (rtlArrayType searchPath, errInfoType *err_info)
+static void setSearchPath (rtlArrayType searchPath, errInfoType *err_info)
 
   {
     memSizeType numElements;
@@ -1356,26 +1356,33 @@ void cmdCloneFile (const const_striType sourcePath, const const_striType destPat
 
 
 
+/**
+ *  Get a built-in C compiler/runtime configuration value.
+ *  The makefile used to compile Seed7 and the program chkccomp.c
+ *  write the configuration values to version.h. The configuration
+ *  values are hard-coded in the Seed7 runtime library.
+ *  @param name Name of the configuration value to be retrieved.
+ *  @return the requested configuration value or "" when a value
+ *          with the name does not exist.
+ *  @exception MEMORY_ERROR Not enough memory to convert the
+ *             configuration value to a string.
+ */
 striType cmdConfigValue (const const_striType name)
 
   {
-    char opt_name[MAX_CSTRI_BUFFER_LEN + 1];
+    char opt_name[MAX_CSTRI_BUFFER_LEN + NULL_TERMINATION_LEN];
     const_cstriType opt;
     char buffer[4096];
     errInfoType err_info = OKAY_NO_ERROR;
-    striType result = NULL;
+    striType configValue = NULL;
 
   /* cmdConfigValue */
-    if (name->size > MAX_CSTRI_BUFFER_LEN) {
+    if (unlikely(name->size > MAX_CSTRI_BUFFER_LEN)) {
       opt = "";
     } else {
       conv_to_cstri(opt_name, name, &err_info);
       if (unlikely(err_info != OKAY_NO_ERROR)) {
-        logError(printf("cmdConfigValue: conv_to_cstri(*, \"%s\", *) failed:\n"
-                        "err_info=%d\n",
-                        striAsUnquotedCStri(name), err_info););
-        raise_error(err_info);
-        return NULL;
+        opt = "";
       } else if (strcmp(opt_name, "OBJECT_FILE_EXTENSION") == 0) {
         opt = OBJECT_FILE_EXTENSION;
       } else if (strcmp(opt_name, "LIBRARY_FILE_EXTENSION") == 0) {
@@ -1559,13 +1566,13 @@ striType cmdConfigValue (const const_striType name)
         opt = "";
       } /* if */
     } /* if */
-    if (opt != NULL && result == NULL) {
-      result = cstri8_or_cstri_to_stri(opt);
+    if (configValue == NULL) {
+      configValue = cstri8_or_cstri_to_stri(opt);
     } /* if */
-    if (unlikely(result == NULL)) {
+    if (unlikely(configValue == NULL)) {
       raise_error(MEMORY_ERROR);
     } /* if */
-    return result;
+    return configValue;
   } /* cmdConfigValue */
 
 

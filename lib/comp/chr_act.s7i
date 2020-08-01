@@ -94,7 +94,7 @@ const proc: process (CHR_CHR, in reference: function,
   begin
     if getConstant(params[1], INTOBJECT, evaluatedParam) then
       process_const_chr_chr(function, getValue(evaluatedParam, integer), c_expr);
-    elsif conversion_range_check and ccConf.INTTYPE_SIZE = 64 then
+    elsif conversion_range_check and ccConf.INTTYPE_SIZE > 32 then
       incr(countRangeChecks);
       c_expr.expr &:= "(";
       number_name := getParameterAsVariable("intType", "tmp_", params[1], c_expr);
@@ -107,7 +107,7 @@ const proc: process (CHR_CHR, in reference: function,
       c_expr.expr &:= number_name;
       c_expr.expr &:= ")";
     else
-      if ccConf.INTTYPE_SIZE = 64 then
+      if ccConf.INTTYPE_SIZE > 32 then
         incr(countNoRangeChecks);
       end if;
       c_expr.expr &:= "(charType)(";
@@ -242,10 +242,32 @@ const proc: process (CHR_HASHCODE, in reference: function,
 const proc: process (CHR_ICONV, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
+  local
+    var reference: evaluatedParam is NIL;
+    var string: number_name is "";
   begin
-    c_expr.expr &:= "(charType)(";
-    process_expr(params[3], c_expr);
-    c_expr.expr &:= ")";
+    if getConstant(params[3], INTOBJECT, evaluatedParam) then
+      process_const_chr_chr(function, getValue(evaluatedParam, integer), c_expr);
+    elsif conversion_range_check and ccConf.INTTYPE_SIZE > 32 then
+      incr(countRangeChecks);
+      c_expr.expr &:= "(";
+      number_name := getParameterAsVariable("intType", "tmp_", params[3], c_expr);
+      c_expr.expr &:= number_name;
+      c_expr.expr &:= "<INT32TYPE_MIN||";
+      c_expr.expr &:= number_name;
+      c_expr.expr &:= ">INT32TYPE_MAX?";
+      c_expr.expr &:= intRaiseError("RANGE_ERROR");
+      c_expr.expr &:= ":(charType)";
+      c_expr.expr &:= number_name;
+      c_expr.expr &:= ")";
+    else
+      if ccConf.INTTYPE_SIZE > 32 then
+        incr(countNoRangeChecks);
+      end if;
+      c_expr.expr &:= "(charType)(";
+      process_expr(params[3], c_expr);
+      c_expr.expr &:= ")";
+    end if;
   end func;
 
 

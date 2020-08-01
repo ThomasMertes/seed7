@@ -43,5 +43,5 @@ extern const char slash[];
 
 
 void dirClose (dirType directory);
-dirType dirOpen (const const_striType file_name);
+dirType dirOpen (const const_striType path);
 striType dirRead (dirType directory);

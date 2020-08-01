@@ -25,6 +25,9 @@
 /*                                                                  */
 /********************************************************************/
 
+#define LOG_FUNCTIONS 0
+#define VERBOSE_EXCEPTIONS 0
+
 #include "version.h"
 
 #include "stdlib.h"
@@ -996,6 +999,9 @@ objectType big_value (listType arguments)
     obj_arg = take_reference(arg_1(arguments));
     if (unlikely(obj_arg == NULL ||
                  CATEGORY_OF_OBJ(obj_arg) != BIGINTOBJECT)) {
+      logError(printf("big_value(");
+               trace1(obj_arg);
+               printf("): Category is not BIGINTOBJECT.\n"););
       return raise_exception(SYS_RNG_EXCEPTION);
     } else {
       return bld_bigint_temp(bigCreate(take_bigint(obj_arg)));

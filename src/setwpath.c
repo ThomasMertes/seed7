@@ -40,6 +40,9 @@
 
 #include "os_decls.h"
 
+#ifdef RENAMED_POSIX_FUNCTIONS
+#define chdir _chdir
+#endif
 
 #define BUFFER_LEN 4096
 

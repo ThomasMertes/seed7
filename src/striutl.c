@@ -100,7 +100,7 @@ const os_charType emulated_root[] = {'/', '\0'};
 
 /* UTF-16 encodes characters > 0xffff with surrogate pairs.   */
 /* When converting to UTF-16 it might be necessary to store   */
-/* every character with surrogate pairs (= two Utf-16 chars). */
+/* every character with surrogate pairs (= two UTF-16 chars). */
 #define SURROGATE_PAIR_FACTOR  2
 
 #ifdef OS_STRI_WCHAR

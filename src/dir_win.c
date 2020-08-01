@@ -52,47 +52,48 @@
 
 
 /**
- *  Opens a directory stream corresponding to the directory name.
+ *  Opens a directory stream corresponding to the directory dirName.
  *  The stream is positioned at the first entry in the directory.
- *  @param name Name of the directory to be opened.
+ *  @param dirName Name of the directory to be opened.
  *  @return a pointer to the directory stream or NULL if the
  *          directory stream could not be opened.
  */
-DIR *opendir (const char *name)
+DIR *opendir (const char *dirName)
 
   {
-    unsigned int name_len;
-    char dir_name[260];
-    DIR *result;
+    unsigned int nameLen;
+    char fileNamePattern[260];
+    DIR *directory;
 
   /* opendir */
-    logFunction(printf("opendir(%s);\n", name););
-    name_len = strlen(name);
-    if (name_len == 0 || name_len > sizeof(dir_name) - 5) {
+    logFunction(printf("opendir(%s);\n", dirName););
+    nameLen = strlen(dirName);
+    if (nameLen == 0 || nameLen > sizeof(fileNamePattern) - 5) {
       logError(printf("opendir(\"%s\"): Name too long "
                       "(length: " FMT_U_MEM ", max length: " FMT_U_MEM ")\n",
-                      name, name_len, sizeof(dir_name) - 5););
-      result = NULL;
-    } else if ((result = (DIR *) malloc(sizeof(DIR))) != NULL) {
-      memcpy(dir_name, name, name_len);
-      if (name[name_len - 1] != '/' &&
-          name[name_len - 1] != '\\') {
-        dir_name[name_len++] = '\\';
+                      dirName, nameLen, sizeof(fileNamePattern) - 5););
+      directory = NULL;
+    } else if ((directory = (DIR *) malloc(sizeof(DIR))) != NULL) {
+      memcpy(fileNamePattern, dirName, nameLen);
+      if (dirName[nameLen - 1] != '/' &&
+          dirName[nameLen - 1] != '\\') {
+        fileNamePattern[nameLen++] = '\\';
       } /* if */
-      strcpy(&dir_name[name_len], "*.*");
-      result->dir_handle = FindFirstFileA(dir_name, &result->find_record);
-      if (result->dir_handle != INVALID_HANDLE_VALUE) {
+      fileNamePattern[nameLen++] = '*';
+      fileNamePattern[nameLen] = '\0';
+      directory->dirHandle = FindFirstFileA(fileNamePattern, &directory->findData);
+      if (directory->dirHandle != INVALID_HANDLE_VALUE) {
         /* printf("--> OK\n");
-        printf(">%s<\n", result->find_record.cFileName); */
-        result->first_element = 1;
+        printf(">%s<\n", directory->findData.cFileName); */
+        directory->firstElement = 1;
       } else {
         logError(printf("opendir(\"%s\"): FindFirstFileA() failed.\n",
-                        name););
-        free(result);
-        result = NULL;
+                        dirName););
+        free(directory);
+        directory = NULL;
       } /* if */
     } /* if */
-    return result;
+    return directory;
   } /* opendir */
 
 
@@ -102,102 +103,100 @@ DIR *opendir (const char *name)
  *  The element d_name in the dirent structure gets the file name of
  *  the next directory entry. Besides d_name the dirent structure
  *  has no other elements.
- *  @param curr_dir Directory stream from which the directory entry
+ *  @param directory Directory stream from which the directory entry
  *         is read.
  *  @return a pointer to a dirent structure representing the next
  *          directory entry. It returns NULL on reaching the end of
  *          the directory stream or if an error occurred.
  */
-struct dirent *readdir (DIR *curr_dir)
+struct dirent *readdir (DIR *directory)
 
   {
-    struct dirent *result;
+    struct dirent *dirEntry;
 
   /* readdir */
     logFunction(printf("readdir\n"););
-    if (curr_dir->first_element) {
+    if (directory->firstElement) {
       /* printf("first\n"); */
-      curr_dir->first_element = 0;
-      curr_dir->dir_entry.d_name = (char *) curr_dir->find_record.cFileName;
-      result = &curr_dir->dir_entry;
-      /* printf(">%s<\n", result->d_name); */
-    } else if (FindNextFileA(curr_dir->dir_handle, &curr_dir->find_record) != 0) {
-      curr_dir->dir_entry.d_name = (char *) curr_dir->find_record.cFileName;
-      result = &curr_dir->dir_entry;
-      /* printf(">%s<\n", result->d_name); */
+      directory->firstElement = 0;
+      directory->dirEntry.d_name = (char *) directory->findData.cFileName;
+      dirEntry = &directory->dirEntry;
+      /* printf(">%s<\n", dirEntry->d_name); */
+    } else if (FindNextFileA(directory->dirHandle, &directory->findData) != 0) {
+      directory->dirEntry.d_name = (char *) directory->findData.cFileName;
+      dirEntry = &directory->dirEntry;
+      /* printf(">%s<\n", dirEntry->d_name); */
     } else {
       /* printf("end\n"); */
-      result = NULL;
+      dirEntry = NULL;
     } /* if */
     logFunction(printf("readdir --> %s\n",
-                       result == NULL ? "NULL" : result->d_name););
-    return result;
+                       dirEntry == NULL ? "NULL" : dirEntry->d_name););
+    return dirEntry;
   } /* readdir */
 
 
 
 /**
  *  Closes the given directory stream.
- *  @param curr_dir The directory stream to be closed.
+ *  @param directory The directory stream to be closed.
  *  @return 0 on success.
  */
-int closedir (DIR *curr_dir)
+int closedir (DIR *directory)
 
   { /* closedir */
     logFunction(printf("closedir\n"););
-    FindClose(curr_dir->dir_handle);
-    free(curr_dir);
+    FindClose(directory->dirHandle);
+    free(directory);
     return 0;
   } /* closedir */
 
 
 
 /**
- *  Opens a directory stream corresponding to the directory name.
+ *  Opens a directory stream corresponding to the directory dirName.
  *  The stream is positioned at the first entry in the directory.
- *  @param name Name of the directory to be opened.
+ *  @param dirName Name of the directory to be opened.
  *  @return a pointer to the directory stream or NULL if the
  *          directory stream could not be opened.
  */
-WDIR *wopendir (const wchar_t *name)
+WDIR *wopendir (const wchar_t *dirName)
 
   {
-    unsigned int name_len;
-    wchar_t dir_name[260];
-    WDIR *result;
+    unsigned int nameLen;
+    wchar_t fileNamePattern[260];
+    WDIR *directory;
 
   /* wopendir */
-    logFunction(printf("wopendir(%ls);\n", name););
-    name_len = wcslen(name);
-    if (name_len == 0 ||
-        name_len > sizeof(dir_name) / sizeof(wchar_t) - 5) {
+    logFunction(printf("wopendir(%ls);\n", dirName););
+    nameLen = wcslen(dirName);
+    if (nameLen == 0 ||
+        nameLen > sizeof(fileNamePattern) / sizeof(wchar_t) - 5) {
       logError(printf("wopendir(\"%ls\"): Name too long "
                       "(length: " FMT_U_MEM ", max length: " FMT_U_MEM ")\n",
-                      name, name_len, sizeof(dir_name) / sizeof(wchar_t) - 5););
-      result = NULL;
-    } else if ((result = (WDIR *) malloc(sizeof(WDIR))) != NULL) {
-      memcpy(dir_name, name, name_len * sizeof(wchar_t));
-      if (name[name_len - 1] != '/' &&
-          name[name_len - 1] != '\\') {
-        dir_name[name_len++] = '\\';
+                      dirName, nameLen, sizeof(fileNamePattern) / sizeof(wchar_t) - 5););
+      directory = NULL;
+    } else if ((directory = (WDIR *) malloc(sizeof(WDIR))) != NULL) {
+      memcpy(fileNamePattern, dirName, nameLen * sizeof(wchar_t));
+      if (dirName[nameLen - 1] != '/' &&
+          dirName[nameLen - 1] != '\\') {
+        fileNamePattern[nameLen++] = '\\';
       } /* if */
-      dir_name[name_len++] = '*';
-      dir_name[name_len++] = '.';
-      dir_name[name_len++] = '*';
-      dir_name[name_len] = '\0';
-      result->dir_handle = FindFirstFileW(dir_name, &result->find_record);
-      if (result->dir_handle != INVALID_HANDLE_VALUE) {
+      fileNamePattern[nameLen++] = '*';
+      fileNamePattern[nameLen] = '\0';
+      directory->dirHandle = FindFirstFileW(fileNamePattern, &directory->findData);
+      if (directory->dirHandle != INVALID_HANDLE_VALUE) {
         /* printf("--> OK\n");
-        printf(">%ls<\n", result->find_record.cFileName); */
-        result->first_element = 1;
+        printf(">%ls<\n", directory->findData.cFileName); */
+        directory->firstElement = 1;
       } else {
         logError(printf("wopendir(\"%ls\"): FindFirstFileW() failed.\n",
-                        name););
-        free(result);
-        result = NULL;
+                        dirName););
+        free(directory);
+        directory = NULL;
       } /* if */
     } /* if */
-    return result;
+    return directory;
   } /* wopendir */
 
 
@@ -207,50 +206,50 @@ WDIR *wopendir (const wchar_t *name)
  *  The element d_name in the wdirent structure gets the file name of
  *  the next directory entry. Besides d_name the wdirent structure
  *  has no other elements.
- *  @param curr_dir Directory stream from which the directory entry
+ *  @param directory Directory stream from which the directory entry
  *         is read.
  *  @return a pointer to a wdirent structure representing the next
  *          directory entry. It returns NULL on reaching the end of
  *          the directory stream or if an error occurred.
  */
-struct wdirent *wreaddir (WDIR *curr_dir)
+struct wdirent *wreaddir (WDIR *directory)
 
   {
-    struct wdirent *result;
+    struct wdirent *dirEntry;
 
   /* wreaddir */
     logFunction(printf("wreaddir\n"););
-    if (curr_dir->first_element) {
+    if (directory->firstElement) {
       /* printf("first\n"); */
-      curr_dir->first_element = 0;
-      curr_dir->dir_entry.d_name = (wchar_t *) curr_dir->find_record.cFileName;
-      result = &curr_dir->dir_entry;
-      /* printf(">%ls<\n", result->d_name); */
-    } else if (FindNextFileW(curr_dir->dir_handle, &curr_dir->find_record) != 0) {
-      curr_dir->dir_entry.d_name = (wchar_t *) curr_dir->find_record.cFileName;
-      result = &curr_dir->dir_entry;
-      /* printf(">%ls<\n", result->d_name); */
+      directory->firstElement = 0;
+      directory->dirEntry.d_name = (wchar_t *) directory->findData.cFileName;
+      dirEntry = &directory->dirEntry;
+      /* printf(">%ls<\n", dirEntry->d_name); */
+    } else if (FindNextFileW(directory->dirHandle, &directory->findData) != 0) {
+      directory->dirEntry.d_name = (wchar_t *) directory->findData.cFileName;
+      dirEntry = &directory->dirEntry;
+      /* printf(">%ls<\n", dirEntry->d_name); */
     } else {
       /* printf("end\n"); */
-      result = NULL;
+      dirEntry = NULL;
     } /* if */
     logFunction(printf("wreaddir --> %ls\n",
-                       result == NULL ? "NULL" : result->d_name););
-    return result;
+                       dirEntry == NULL ? "NULL" : dirEntry->d_name););
+    return dirEntry;
   } /* wreaddir */
 
 
 
 /**
  *  Closes the given directory stream.
- *  @param curr_dir The directory stream to be closed.
+ *  @param directory The directory stream to be closed.
  *  @return 0 on success.
  */
-int wclosedir (WDIR *curr_dir)
+int wclosedir (WDIR *directory)
 
   { /* wclosedir */
     logFunction(printf("wclosedir\n"););
-    FindClose(curr_dir->dir_handle);
-    free(curr_dir);
+    FindClose(directory->dirHandle);
+    free(directory);
     return 0;
   } /* wclosedir */

@@ -70,6 +70,10 @@
 #define os_charType char
 #endif
 
+#ifdef RENAMED_POSIX_FUNCTIONS
+#define chdir _chdir
+#endif
+
 #define BUFFER_LEN 4096
 
 #ifdef OS_STRI_USES_CODE_PAGE

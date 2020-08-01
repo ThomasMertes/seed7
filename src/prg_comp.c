@@ -296,14 +296,18 @@ intType prgErrorCount (const const_progType aProg)
 
 
 
-objectType prgEval (progType currentProg, objectType object)
+/**
+ *  Evaluate ''anExpression'' which is part of ''aProgram''.
+ *  @return the result of the evaluation.
+ */
+objectType prgEval (progType aProgram, objectType anExpression)
 
   {
     errInfoType err_info = OKAY_NO_ERROR;
     objectType result;
 
   /* prgEval */
-    result = exec_expr(currentProg, object, &err_info);
+    result = exec_expr(aProgram, anExpression, &err_info);
     if (err_info != OKAY_NO_ERROR) {
       raise_error(err_info);
       result = NULL;
@@ -313,7 +317,10 @@ objectType prgEval (progType currentProg, objectType object)
 
 
 
-void prgExec (const progType currentProg, const const_rtlArrayType argv,
+/**
+ *  Execute the program referred by ''aProgram''.
+ */
+void prgExec (const progType aProgram, const const_rtlArrayType parameters,
     const const_setType options, const const_striType protFileName)
 
   {
@@ -321,7 +328,7 @@ void prgExec (const progType currentProg, const const_rtlArrayType argv,
 
   /* prgExec */
     int_options = (uintType) setSConv(options);
-    interpret(currentProg, argv, 0, int_options, protFileName);
+    interpret(aProgram, parameters, 0, int_options, protFileName);
     set_fail_flag(FALSE);
     fail_value = NULL;
     fail_expression = NULL;
@@ -329,6 +336,18 @@ void prgExec (const progType currentProg, const const_rtlArrayType argv,
 
 
 
+/**
+ *  Parse the file with the name ''fileName''.
+ *  @param fileName File name of the file to be parsed.
+ *  @param options Options to be used when the file is parsed.
+ *  @param libraryDirs Search path for include/library files.
+ *  @param protFileName Name of the protocol file.
+ *  @return the parsed program.
+ *  @exception RANGE_ERROR ''fileName'' does not use the standard path
+ *             representation or ''fileName'' is not representable in
+ *             the system path type.
+ *  @exception MEMORY_ERROR An out of memory situation occurred.
+ */
 progType prgFilParse (const const_striType fileName, const const_setType options,
     const const_rtlArrayType libraryDirs, const const_striType protFileName)
 
@@ -353,15 +372,22 @@ progType prgFilParse (const const_striType fileName, const const_setType options
 
 
 
-listType prgGlobalObjects (const const_progType aProg)
+/**
+ *  Determine the list of global defined objects in ''aProgram''.
+ *  The returned list contains constant and variable objects
+ *  in the same order as the definitions of the source program.
+ *  Literal objects and local objects are not part of this list.
+ *  @return the list of global defined objects.
+ */
+listType prgGlobalObjects (const const_progType aProgram)
 
   {
     errInfoType err_info = OKAY_NO_ERROR;
     listType result;
 
   /* prgGlobalObjects */
-    if (aProg->stack_current != NULL) {
-      result = copy_list(aProg->stack_global->local_object_list, &err_info);
+    if (aProgram->stack_current != NULL) {
+      result = copy_list(aProgram->stack_global->local_object_list, &err_info);
       if (err_info != OKAY_NO_ERROR) {
         raise_error(MEMORY_ERROR);
         result = NULL;
@@ -462,6 +488,15 @@ const_striType prgPath (const const_progType aProg)
 
 
 
+/**
+ *  Parse the given ''string''.
+ *  @param stri ''String'' to be parsed.
+ *  @param options Options to be used when the file is parsed.
+ *  @param libraryDirs Search path for include/library files.
+ *  @param protFileName Name of the protocol file.
+ *  @return the parsed program.
+ *  @exception MEMORY_ERROR An out of memory situation occurred.
+ */
 progType prgStrParse (const const_striType stri, const const_setType options,
     const const_rtlArrayType libraryDirs, const const_striType protFileName)
 
@@ -485,7 +520,13 @@ progType prgStrParse (const const_striType stri, const const_setType options,
 
 
 
-objectType prgSyobject (const progType aProg, const const_striType syobjectName)
+/**
+ *  Determine object with ''syobjectName'' from program ''aProgram''.
+ *  @return a reference to the object or NIL when no object ''syobjectName'' exists.
+ *  @exception MEMORY_ERROR When ''syobjectName'' cannot be converted to
+ *             the internal representation.
+ */
+objectType prgSyobject (const progType aProgram, const const_striType syobjectName)
 
   {
     cstriType name;
@@ -499,7 +540,7 @@ objectType prgSyobject (const progType aProg, const const_striType syobjectName)
       raise_error(err_info);
       result = NULL;
     } else {
-      ident_found = get_ident(aProg, (const_ustriType) name);
+      ident_found = get_ident(aProgram, (const_ustriType) name);
       if (ident_found == NULL ||
           ident_found->entity == NULL) {
         result = NULL;

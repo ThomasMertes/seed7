@@ -410,6 +410,9 @@ objectType typ_meta (listType arguments)
     isit_type(arg_1(arguments));
     any_type = take_type(arg_1(arguments));
     if (any_type->meta == NULL) {
+      logError(printf("typ_meta(");
+               trace1(arg_1(arguments));
+               printf("): No meta type.\n"););
       return raise_exception(SYS_RNG_EXCEPTION);
     } /* if */
     result = any_type->meta;
@@ -462,8 +465,9 @@ objectType typ_result (listType arguments)
     isit_type(arg_1(arguments));
     any_type = take_type(arg_1(arguments));
     if (any_type->result_type == NULL) {
-      /* trace1(arg_1(arguments));
-      printf("\n"); */
+      logError(printf("typ_result(");
+               trace1(arg_1(arguments));
+               printf("): No result type.\n"););
       return raise_exception(SYS_RNG_EXCEPTION);
     } /* if */
     result = any_type->result_type;
@@ -491,7 +495,11 @@ objectType typ_value (listType arguments)
   /* typ_value */
     isit_reference(arg_1(arguments));
     obj_arg = take_reference(arg_1(arguments));
-    if (obj_arg == NULL || CATEGORY_OF_OBJ(obj_arg) != TYPEOBJECT) {
+    if (unlikely(obj_arg == NULL ||
+                 CATEGORY_OF_OBJ(obj_arg) != TYPEOBJECT)) {
+      logError(printf("typ_value(");
+               trace1(obj_arg);
+               printf("): Category is not TYPEOBJECT.\n"););
       return raise_exception(SYS_RNG_EXCEPTION);
     } else {
       return obj_arg;

@@ -4496,8 +4496,11 @@ const proc: check_string_substr is func
         "1234567890" [ intExpr(15) len intExpr( 0) ] <> "" or
         "1234567890" [ intExpr(15) len intExpr( 1) ] <> "" or
         "1234567890" [ intExpr(15) len intExpr( 2) ] <> "" or
-        "1234567890" [ intExpr(15) len intExpr(20) ] <> "" or
-        striExpr("") [ -5 len -9 ] <> "" or
+        "1234567890" [ intExpr(15) len intExpr(20) ] <> "" then
+      writeln(" ***** STRING [ START len LENGTH ] does not work correct.");
+      okay := FALSE;
+    end if;
+    if  striExpr("") [ -5 len -9 ] <> "" or
         striExpr("") [ -5 len -5 ] <> "" or
         striExpr("") [ -5 len  0 ] <> "" or
         striExpr("") [ -5 len  1 ] <> "" or

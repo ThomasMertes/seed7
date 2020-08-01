@@ -25,6 +25,9 @@
 /*                                                                  */
 /********************************************************************/
 
+#define LOG_FUNCTIONS 0
+#define VERBOSE_EXCEPTIONS 0
+
 #include "version.h"
 
 #include "stdlib.h"
@@ -1330,7 +1333,11 @@ objectType drw_value (listType arguments)
   /* drw_value */
     isit_reference(arg_1(arguments));
     obj_arg = take_reference(arg_1(arguments));
-    if (obj_arg == NULL || CATEGORY_OF_OBJ(obj_arg) != WINOBJECT) {
+    if (unlikely(obj_arg == NULL ||
+                 CATEGORY_OF_OBJ(obj_arg) != WINOBJECT)) {
+      logError(printf("drw_value(");
+               trace1(obj_arg);
+               printf("): Category is not WINOBJECT.\n"););
       return raise_exception(SYS_RNG_EXCEPTION);
     } else {
       win_value = take_win(obj_arg);

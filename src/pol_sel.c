@@ -672,8 +672,19 @@ static genericType nextFinding (testType *test,
 
 /**
  *  Add 'eventsToCheck' for 'aSocket' to 'pollData'.
- *  The parameter 'fileObj' determines, which file is returned,
- *  when the iterator returns files in 'pollData'.
+ *  'EventsToCheck' can have one of the following values:
+ *  * POLLIN check if data can be read from the corresponding socket.
+ *  * POLLOUT check if data can be written to the corresponding socket.
+ *  * POLLINOUT check if data can be read or written (POLLIN or POLLOUT).
+ *  @param pollData Poll data to which the event checks are added.
+ *  @param aSocket Socket for which the events should be checked.
+ *  @param eventsToCheck Events to be added to the checkedEvents
+ *         field of 'pollData'.
+ *  @param fileObj File to be returned, when the iterator returns
+ *         files in 'pollData'.
+ *  @exception RANGE_ERROR Illegal value for 'eventsToCheck'.
+ *  @exception MEMORY_ERROR An out of memory situation occurred.
+ *  @exception FILE_ERROR A limit of the operating system was reached.
  */
 void polAddCheck (const pollType pollData, const socketType aSocket,
     intType eventsToCheck, const genericType fileObj)
@@ -698,6 +709,11 @@ void polAddCheck (const pollType pollData, const socketType aSocket,
 
 
 
+/**
+ *  Clears 'pollData'.
+ *  All sockets and all events are removed from 'pollData' and
+ *  the iterator is reset, such that polHasNext() returns FALSE.
+ */
 void polClear (const pollType pollData)
 
   {
@@ -1254,8 +1270,17 @@ void polPoll (const pollType pollData)
 
 /**
  *  Remove 'eventsToCheck' for 'aSocket' from 'pollData'.
+ *  'EventsToCheck' can have one of the following values:
+ *  * POLLIN check if data can be read from the corresponding socket.
+ *  * POLLOUT check if data can be written to the corresponding socket.
+ *  * POLLINOUT check if data can be read or written (POLLIN or POLLOUT).
+ *  @param pData Poll data from which the event checks are removed.
+ *  @param aSocket Socket for which the events should not be checked.
+ *  @param eventsToCheck Events to be removed from the checkedEvents
+ *         field of 'pData'.
+ *  @exception RANGE_ERROR Illegal value for 'eventsToCheck'.
  */
-void polRemoveCheck (const pollType pollData, const socketType aSocket,
+ void polRemoveCheck (const pollType pollData, const socketType aSocket,
     intType eventsToCheck)
 
   { /* polRemoveCheck */

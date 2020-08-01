@@ -148,8 +148,10 @@ static inline void init_dollar (objectType declared_object,
       scan_symbol();
       if (symbol.sycategory == STRILITERAL) {
         SET_CATEGORY_OF_OBJ(declared_object, ACTOBJECT);
-        if (!find_action(symbol.striValue, &declared_object->value.actValue)) {
+        declared_object->value.actValue = findAction(symbol.striValue);
+        if (unlikely(declared_object->value.actValue == NULL)) {
           err_stri(WRONGACTION, symbol.striValue);
+          declared_object->value.actValue = getActIllegal();
         } /* if */
         scan_symbol();
       } else {

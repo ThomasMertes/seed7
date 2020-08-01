@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  s7   Seed7 interpreter                                          */
-/*  Copyright (C) 1990 - 2015  Thomas Mertes                        */
+/*  Copyright (C) 1990 - 2016  Thomas Mertes                        */
 /*                                                                  */
 /*  This program is free software; you can redistribute it and/or   */
 /*  modify it under the terms of the GNU General Public License as  */
@@ -20,7 +20,7 @@
 /*                                                                  */
 /*  Module: Main                                                    */
 /*  File: seed7/src/primitiv.c                                      */
-/*  Changes: 1992, 1993, 1994, 2004 - 2015  Thomas Mertes           */
+/*  Changes: 1992, 1993, 1994, 2004 - 2016  Thomas Mertes           */
 /*  Content: Table definitions for all primitive actions.           */
 /*                                                                  */
 /********************************************************************/
@@ -73,7 +73,7 @@
 #include "primitiv.h"
 
 
-static const primActRecord prim_act_table[] = {
+static const actEntryRecord actEntryTable[] = {
     { "ACT_ILLEGAL",             act_illegal,             },
 
     { "ACT_CPY",                 act_cpy,                 },
@@ -982,6 +982,6 @@ static const primActRecord prim_act_table[] = {
 void init_primitiv (void)
 
   { /* init_primitiv */
-    act_table.size = sizeof(prim_act_table) / sizeof(primActRecord);
-    act_table.primitive = prim_act_table;
+    actTable.size = sizeof(actEntryTable) / sizeof(actEntryRecord);
+    actTable.table = actEntryTable;
   } /* init_primitiv */

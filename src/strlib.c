@@ -1728,6 +1728,9 @@ objectType str_value (listType arguments)
     if (unlikely(obj_arg == NULL ||
                  CATEGORY_OF_OBJ(obj_arg) != STRIOBJECT ||
                  take_stri(obj_arg) == NULL)) {
+      logError(printf("str_value(");
+               trace1(obj_arg);
+               printf("): Category is not STRIOBJECT.\n"););
       return raise_exception(SYS_RNG_EXCEPTION);
     } else {
       stri = take_stri(obj_arg);

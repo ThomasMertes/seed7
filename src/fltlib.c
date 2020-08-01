@@ -587,8 +587,8 @@ objectType flt_isnan (listType arguments)
  *  This function is the only possibility to determine if a number
  *  is -0.0. The comparison operators (=, <>, <, >, <=, >=) and
  *  the function 'compare' treat 0.0 and -0.0 as equal. The
- *  'digits' operator and the 'str' function convert -0.0 to
- *  the string "0.0".
+ *  operators ''digits'' and ''sci'' and the function ''str''
+ *  return the same [[string]] for -0.0 and +0.0.
  *  @return TRUE if the number is -0.0,
  *          FALSE otherwise.
  */
@@ -1006,7 +1006,17 @@ objectType flt_sqrt (listType arguments)
 /**
  *  Convert a float number to a string.
  *  The number is converted to a string with decimal representation.
- *  The sign of negative zero (-0.0) is ignored.
+ *  The result string has the style [-]ddd.ddd where there is at least
+ *  one digit before and after the decimal point. The number of digits
+ *  after the decimal point is determined automatically. Except for the
+ *  case when there is only one zero digit after the decimal point
+ *  the last digit is never zero. Negative zero (-0.0) and positive
+ *  zero (+0.0) are both converted to "0.0".
+ *   str(16.125)    returns "16.125"
+ *   str(-0.0)      returns "0.0"
+ *   str(Infinity)  returns "Infinity"
+ *   str(-Infinity) returns "-Infinity"
+ *   str(NaN)       returns "NaN"
  *  @return the string result of the conversion.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  */
@@ -1087,7 +1097,11 @@ objectType flt_value (listType arguments)
   /* flt_value */
     isit_reference(arg_1(arguments));
     obj_arg = take_reference(arg_1(arguments));
-    if (unlikely(obj_arg == NULL || CATEGORY_OF_OBJ(obj_arg) != FLOATOBJECT)) {
+    if (unlikely(obj_arg == NULL ||
+                 CATEGORY_OF_OBJ(obj_arg) != FLOATOBJECT)) {
+      logError(printf("flt_value(");
+               trace1(obj_arg);
+               printf("): Category is not FLOATOBJECT.\n"););
       return raise_exception(SYS_RNG_EXCEPTION);
     } else {
       return bld_float_temp(take_float(obj_arg));

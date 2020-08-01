@@ -47,45 +47,65 @@
 
 
 
+/**
+ *  Convert an integer number to an action.
+ *  @param ordinal Number to be converted.
+ *  @return an action which corresponds to the given integer.
+ *  @exception RANGE_ERROR Number not in allowed range.
+ */
 actType actIConv (intType ordinal)
 
   {
     actType anAction;
 
   /* actIConv */
-    if (unlikely(ordinal < 0 || (uintType) ordinal >= act_table.size)) {
+    if (unlikely(ordinal < 0 || (uintType) ordinal >= actTable.size)) {
       logError(printf("actIConv(" FMT_D "): "
                       "Number not in allowed range of 0 .. %lu.\n",
-                      ordinal, (unsigned long) (act_table.size - 1)););
+                      ordinal, (unsigned long) (actTable.size - 1)););
       raise_error(RANGE_ERROR);
       anAction = NULL;
     } else {
-      anAction = act_table.primitive[ordinal].action;
+      anAction = actTable.table[ordinal].action;
     } /* if */
     return anAction;
   } /* actIConv */
 
 
 
+/**
+ *  Get the ordinal number of an action.
+ *  The action ACT_ILLEGAL has the ordinal number 0.
+ *  @param anAction Action for which the ordinal number is determined.
+ *  @return the ordinal number of the action.
+ */
 intType actOrd (actType anAction)
 
   {
     intType result;
 
   /* actOrd */
-    result = get_primact(anAction) - act_table.primitive;
+    result = getActEntry(anAction) - actTable.table;
     return result;
   } /* actOrd */
 
 
 
+/**
+ *  Convert an action to a string.
+ *  If the action is not found in the table of legal actions
+ *  the string "ACT_ILLEGAL" is returned.
+ *  @param anAction Action which is converted to a string..
+ *  @return the string result of the conversion.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ */
 striType actStr (actType anAction)
 
   {
     striType result;
 
   /* actStr */
-    result = cstri_to_stri(get_primact(anAction)->name);
+    result = cstri_to_stri(getActEntry(anAction)->name);
     if (unlikely(result == NULL)) {
       raise_error(MEMORY_ERROR);
     } /* if */

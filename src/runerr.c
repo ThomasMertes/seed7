@@ -242,7 +242,7 @@ static void write_curr_position (listType list)
       prot_nl();
       if (curr_action_object->value.actValue != NULL) {
         prot_cstri("*** ACTION \"");
-        prot_cstri(get_primact(curr_action_object->value.actValue)->name);
+        prot_cstri(getActEntry(curr_action_object->value.actValue)->name);
         prot_cstri("\"");
         prot_nl();
       } /* if */
@@ -335,7 +335,7 @@ void run_error (objectCategory required, objectType argument)
     } /* if */
     printf("\n*** ACTION $");
     if (curr_action_object->value.actValue != NULL) {
-      printf("%s", get_primact(curr_action_object->value.actValue)->name);
+      printf("%s", getActEntry(curr_action_object->value.actValue)->name);
     } else {
       printf("NULL");
     } /* if */
@@ -365,7 +365,7 @@ void empty_value (objectType argument)
     } /* if */
     printf("\n*** ACTION $");
     if (curr_action_object->value.actValue != NULL) {
-      printf("%s", get_primact(curr_action_object->value.actValue)->name);
+      printf("%s", getActEntry(curr_action_object->value.actValue)->name);
     } else {
       printf("NULL");
     } /* if */
@@ -389,7 +389,7 @@ void var_required (objectType argument)
     } /* if */
     printf("\n*** ACTION $");
     if (curr_action_object->value.actValue != NULL) {
-      printf("%s", get_primact(curr_action_object->value.actValue)->name);
+      printf("%s", getActEntry(curr_action_object->value.actValue)->name);
     } else {
       printf("NULL");
     } /* if */
