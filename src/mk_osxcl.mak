@@ -192,9 +192,7 @@ chkccomp.h:
 
 version.h: chkccomp.h
 	echo "#define PATH_DELIMITER '/'" > version.h
-	echo "#define USE_DIRENT" >> version.h
 	echo "#define SEARCH_PATH_DELIMITER ':'" >> version.h
-	echo "#define USE_MMAP" >> version.h
 	echo "#define AWAIT_WITH_SELECT" >> version.h
 	echo "#define WITH_SQL" >> version.h
 	echo "#define $(TERMINFO_OR_TERMCAP)" >> version.h
@@ -205,7 +203,6 @@ version.h: chkccomp.h
 	echo "#define os_fseek fseeko" >> version.h
 	echo "#define os_ftell ftello" >> version.h
 	echo "#define os_off_t off_t" >> version.h
-	echo "#define os_environ environ" >> version.h
 	echo "#define ESCAPE_SHELL_COMMANDS" >> version.h
 	echo "#define OBJECT_FILE_EXTENSION \".o\"" >> version.h
 	echo "#define LIBRARY_FILE_EXTENSION \".a\"" >> version.h

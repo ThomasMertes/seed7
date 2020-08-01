@@ -1930,18 +1930,13 @@ const proc: process_const_func_declaration (in reference: function,
       c_expr.expr &:= c_param_list.expr;
       c_expr.expr &:= ")\n";
       c_expr.expr &:= "{\n";
-      if trace_function then
-        c_expr.expr &:= "printf(\"-> ";
-        create_name(function, c_expr.expr);
-        c_expr.expr &:= "\\n\");\n";
-        c_expr.expr &:= "fflush(stdout);\n";
-      end if;
       if function_type <> proctype and result_object = NIL then
         if isFunctionCallingSpecialAction(function) then
           write_object_declaration := FALSE;
         end if;
         process_expr(body(function), c_func_body);
-        if c_param_list.temp_decls <> "" or c_func_body.temp_decls <> "" then
+        if c_param_list.temp_decls <> "" or c_func_body.temp_decls <> "" or
+            trace_function then
           c_expr.currentFile := file(body(function));
           c_expr.currentLine := line(body(function));
           setDiagnosticLine(c_expr);
@@ -1953,6 +1948,12 @@ const proc: process_const_func_declaration (in reference: function,
           end if;
           appendWithDiagnostic(c_param_list.temp_decls, c_expr);
           appendWithDiagnostic(c_func_body.temp_decls, c_expr);
+          if trace_function then
+            c_expr.expr &:= "printf(\"-> ";
+            create_name(function, c_expr.expr);
+            c_expr.expr &:= "\\n\");\n";
+            c_expr.expr &:= "fflush(stdout);\n";
+          end if;
           appendWithDiagnostic(c_param_list.temp_assigns, c_expr);
           appendWithDiagnostic(c_func_body.temp_assigns, c_expr);
           setDiagnosticLine(c_expr);
@@ -1975,12 +1976,6 @@ const proc: process_const_func_declaration (in reference: function,
           setDiagnosticLine(c_expr);
           c_expr.expr &:= "return result;\n";
         else
-          if trace_function then
-            c_expr.expr &:= "printf(\"<- ";
-            create_name(function, c_expr.expr);
-            c_expr.expr &:= "\\n\");\n";
-            c_expr.expr &:= "fflush(stdout);\n";
-          end if;
           c_expr.expr &:= diagnosticLine(body(function));
           c_expr.expr &:= "return (";
           c_expr.expr &:= type_name(result_type);
@@ -2002,6 +1997,12 @@ const proc: process_const_func_declaration (in reference: function,
         c_expr.expr &:= c_result.temp_decls;
         c_expr.expr &:= c_local_vars.temp_decls;
         appendWithDiagnostic(c_func_body.temp_decls, c_expr);
+        if trace_function then
+          c_expr.expr &:= "printf(\"-> ";
+          create_name(function, c_expr.expr);
+          c_expr.expr &:= "\\n\");\n";
+          c_expr.expr &:= "fflush(stdout);\n";
+        end if;
         appendWithDiagnostic(c_param_list.temp_assigns, c_expr);
         c_expr.expr &:= c_result.temp_assigns;
         c_expr.expr &:= c_local_vars.temp_assigns;
@@ -2089,6 +2090,10 @@ const proc: process_main_declaration (in reference: current_object,
     main_prolog &:= "int fail_value;\n";
     main_prolog &:= "catch_stack_pos = 0;\n";
     main_prolog &:= "max_catch_stack = 128;\n";
+    if trace_function then
+      main_prolog &:= "printf(\"-> main\\n\");\n";
+      main_prolog &:= "fflush(stdout);\n";
+    end if;
     main_prolog &:= "catch_stack = (catch_type *)(malloc(max_catch_stack * sizeof(catch_type)));\n";
     main_prolog &:= "if ((fail_value = do_setjmp(catch_stack[catch_stack_pos])) == 0) {\n";
     if ccConf.USE_WINMAIN then
@@ -2125,7 +2130,11 @@ const proc: process_main_declaration (in reference: current_object,
     c_expr.expr &:= "}\n";
     c_expr.expr &:= global_init.temp_frees;
 
-    main_epilog := "return 0;\n";
+    if trace_function then
+      main_epilog &:= "printf(\"<- main\\n\");\n";
+      main_epilog &:= "fflush(stdout);\n";
+    end if;
+    main_epilog &:= "return 0;\n";
     main_epilog &:= "} else {\n";
     main_epilog &:= "  printf(\"\\n*** Uncaught EXCEPTION \");\n";
     main_epilog &:= "  if (fail_value >= 0 && fail_value < sizeof(exception_name) / sizeof(char *)) {\n";
@@ -2512,10 +2521,6 @@ const proc: action_address (in reference: function, inout expr_type: c_expr) is 
     elsif action_name = "SQL_DESTR_STMT" then
       c_expr.expr &:= "&sqlDestrStmtGeneric";
     elsif action_name = "STR_CMP" then
-      # The functions  strCompare() and strCmpGeneric() do not have
-      # the same behaviour. This difference is not important,
-      # because strCmpGeneric() is only used for string comparisons
-      # of hash keys.
       c_expr.expr &:= "&strCmpGeneric";
     elsif action_name = "STR_CPY" then
       c_expr.expr &:= "&strCpyGeneric";

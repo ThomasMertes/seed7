@@ -1518,7 +1518,11 @@ MACROS WRITTEN TO VERSION.H BY CHKCCOMP.C
   HAS_FIFO_FILES: TRUE, when the operating system supports fifo
                   (first in first out) files.
 
-  HAS_POLL: Defined when the function poll() is available.
+  HAS_SELECT: TRUE, when the function select() is available.
+
+  HAS_POLL: TRUE, when the function poll() is available.
+
+  HAS_MMAP: TRUE, when the function mmap() is available.
 
   INT_DIV_BY_ZERO_POPUP: Defined when an integer division by zero
                          may trigger a popup window. Consequently
@@ -1572,13 +1576,22 @@ MACROS WRITTEN TO VERSION.H BY CHKCCOMP.C
                           is used to turn off such a behaviour.
 
   DEFINE_MATHERR_FUNCTION: Some C compilers/libraries call the
-                           _matherr() function for every floating
+                           matherr() function for every floating
                            point error and terminate the program
                            when the function is not present.
                            To get the Seed7 behaviour of using
                            the IEEE 754 values of Infinite and
                            NaN this function must be defined and
                            it must return 1.
+
+  DEFINE__MATHERR_FUNCTION: Some C compilers/libraries call the
+                            _matherr() function for every floating
+                            point error and terminate the program
+                            when the function is not present.
+                            To get the Seed7 behaviour of using
+                            the IEEE 754 values of Infinite and
+                            NaN this function must be defined and
+                            it must return 1.
 
   NAN_COMPARISON_OKAY: TRUE, when comparisons between NaN and any
                        other value return FALSE. Comparison refers
@@ -1645,8 +1658,27 @@ MACROS WRITTEN TO VERSION.H BY CHKCCOMP.C
                          _wenviron is NULL unless getenv() is
                          called.
 
-  LIMITED_CSTRI_LITERAL_LEN: Defined when the C compiler limits
-                             the length of string literals.
+  LIMITED_CSTRI_LITERAL_LEN: 0, when the C compiler does not limit
+                               the length of string literals and
+                               at run-time the string literal has
+                               the correct value.
+                             -1, when the compiler prohibits long
+                               string literals.
+                             -2, when at run-time the whole string
+                               literal is wrong.
+                             >0, when at run-time the string
+                               literal is correct up to a position.
+
+  LIMITED_ARRAY_LITERAL_LEN: 0, when the C compiler does not limit
+                               the length of array literals and
+                               at run-time the array literal has
+                               the correct value.
+                             -1, when the compiler prohibits long
+                               array literals.
+                             -2, when at run-time the whole array
+                               literal is wrong.
+                             >0, when at run-time the array
+                               literal is correct up to a position.
 
   C_COMPILER_VERSION: Contains a string describing the version of
                       the C compiler which compiled the Seed7

@@ -45,7 +45,9 @@
 #include "sys/socket.h"
 #include "netdb.h"
 #include "netinet/in.h"
+#if HAS_SELECT
 #include "sys/select.h"
+#endif
 #if HAS_POLL
 #include "poll.h"
 #endif

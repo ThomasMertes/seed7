@@ -80,7 +80,7 @@
 #include "stat_drv.h"
 #include "rtl_err.h"
 
-#ifdef USE_MMAP
+#if HAS_MMAP
 #include "sys/mman.h"
 #endif
 
@@ -297,7 +297,7 @@ static void copy_file (const const_os_striType from_name,
   {
     FILE *from_file;
     FILE *to_file;
-#ifdef USE_MMAP
+#if HAS_MMAP
     int file_no;
     os_fstat_struct file_stat;
     memSizeType file_length;
@@ -315,7 +315,7 @@ static void copy_file (const const_os_striType from_name,
                        from_name, to_name););
     if ((from_file = os_fopen(from_name, os_mode_rb)) != NULL) {
       if ((to_file = os_fopen(to_name, os_mode_wb)) != NULL) {
-#ifdef USE_MMAP
+#if HAS_MMAP
         file_no = fileno(from_file);
         if (file_no != -1 && os_fstat(file_no, &file_stat) == 0) {
           if (file_stat.st_size >= 0 &&
@@ -359,7 +359,7 @@ static void copy_file (const const_os_striType from_name,
           if (normal_buffer != NULL) {
             FREE_BYTES(normal_buffer, SIZE_NORMAL_BUFFER);
           } /* if */
-#ifdef USE_MMAP
+#if HAS_MMAP
         } /* if */
 #endif
         if (fclose(from_file) != 0) {
@@ -881,7 +881,9 @@ static void setEnvironmentVariable (const const_striType name, const const_striT
         FREE_STRI(stri, stri->size);
         if (likely(env_stri != NULL)) {
           putenv_result = os_putenv(env_stri);
+#if DELETE_PUTENV_STRING
           os_stri_free(env_stri);
+#endif
           if (unlikely(putenv_result != 0)) {
             logError(printf("setEnvironmentVariable: os_putenv(\"" FMT_S_OS "\") failed:\n"
                             "errno=%d\nerror: %s\n",
@@ -1140,6 +1142,7 @@ static os_striType getOsCwd (const os_striType buffer, memSizeType buffer_size,
   } /* getOsCwd */
 
 
+
 #if defined USE_EXTENDED_LENGTH_PATH && USE_EXTENDED_LENGTH_PATH
 void adjustCwdForShell (errInfoType *err_info)
 
@@ -1175,6 +1178,7 @@ void adjustCwdForShell (errInfoType *err_info)
     logFunction(printf("adjustCwdForShell(%d) -->\n", *err_info););
   } /* adjustCwdForShell */
 #endif
+
 
 
 #if EMULATE_ROOT_CWD

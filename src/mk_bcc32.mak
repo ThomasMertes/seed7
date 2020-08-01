@@ -162,25 +162,16 @@ version.h: chkccomp.h
 	echo ^#define USE_ALTERNATE_LOCALTIME_R >> version.h
 	echo ^#define UTIME_ORIG_BUGGY_FOR_FAT_FILES >> version.h
 	echo ^#define TURN_OFF_FP_EXCEPTIONS >> version.h
-	echo ^#define DEFINE_MATHERR_FUNCTION >> version.h
+	echo ^#define DEFINE__MATHERR_FUNCTION >> version.h
 	echo ^#define DO_SIGFPE_WITH_DIV_BY_ZERO 1 >> version.h
 	echo ^#define WITH_SQL >> version.h
 	echo ^#define CONSOLE_WCHAR >> version.h
 	echo ^#define OS_STRI_WCHAR >> version.h
-	echo ^#define os_fstat _fstati64 >> version.h
-	echo ^#define DEFINE_WSTATI64_EXT >> version.h
-	echo ^#define os_lstat wstati64Ext >> version.h
-	echo ^#define os_stat wstati64Ext >> version.h
-	echo ^#define os_stat_orig _wstati64 >> version.h
-	echo ^#define os_stat_struct struct stati64 >> version.h
 	echo ^#define DEFINE_FSEEKI64_PROTOTYPE >> version.h
 	echo ^#define os_fseek _fseeki64 >> version.h
 	echo ^#define DEFINE_FTELLI64_PROTOTYPE >> version.h
 	echo ^#define os_ftell _ftelli64 >> version.h
 	echo ^#define os_off_t __int64 >> version.h
-	echo ^#define os_environ _wenviron >> version.h
-	echo ^#define DEFINE_WSETENV >> version.h
-	echo ^#define os_setenv wsetenv >> version.h
 	echo ^#define os_getch getch >> version.h
 	echo ^#define OS_GETCH_READS_BYTES >> version.h
 	echo ^#define QUOTE_WHOLE_SHELL_COMMAND >> version.h

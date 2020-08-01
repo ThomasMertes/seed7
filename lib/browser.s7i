@@ -166,6 +166,9 @@ const func browserConnection: openBrowser is func
         browser.program := startProcess("/c/Program Files/Internet Explorer/iexplore.exe", [] ("http://localhost:" <& port));
       elsif fileType("/c/Program Files (x86)/Internet Explorer/iexplore.exe") <> FILE_ABSENT then
         browser.program := startProcess("/c/Program Files (x86)/Internet Explorer/iexplore.exe", [] ("http://localhost:" <& port));
+      elsif fileType("/Applications/Safari.app/Contents/MacOS/Safari") <> FILE_ABSENT and
+            fileType(commandPath("open")) <> FILE_ABSENT then
+        browser.program := startProcess(commandPath("open"), [] ("-a", "safari", "http://localhost:" <& port));
       end if;
       browser.sock := accept(browser.inetListener);
       # writeln("accept");

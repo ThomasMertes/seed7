@@ -598,8 +598,8 @@ bigIntType bigFromByteBufferBe (const memSizeType size,
     bigIntType result;
 
   /* bigFromByteBufferBe */
-    logFunction(printf("bigFromByteBufferBe(" FMT_U_MEM ", *, %d)\n",
-                       (memSizeType) size, isSigned););
+    logFunction(printf("bigFromByteBufferBe(" FMT_U_MEM ", 0x" FMT_X_MEM ", %d)\n",
+                       size, (memSizeType) buffer, isSigned););
     ALLOC_BIG(result);
     mpz_init(result);
     if (isSigned && size != 0 && buffer[0] > BYTE_MAX) {
@@ -618,6 +618,7 @@ bigIntType bigFromByteBufferBe (const memSizeType size,
     } else {
       mpz_import(result, (size_t) size, 1, 1, 0, 0, buffer);
     } /* if */
+    logFunction(printf("bigFromByteBufferBe --> %s\n", bigHexCStri(result)););
     return result;
   } /* bigFromByteBufferBe */
 
@@ -644,8 +645,8 @@ bigIntType bigFromByteBufferLe (const memSizeType size,
     bigIntType result;
 
   /* bigFromByteBufferLe */
-    logFunction(printf("bigFromByteBufferLe(" FMT_U_MEM ", *, %d)\n",
-                       (memSizeType) size, isSigned););
+    logFunction(printf("bigFromByteBufferLe(" FMT_U_MEM ", 0x" FMT_X_MEM ", %d)\n",
+                       size, (memSizeType) buffer, isSigned););
     ALLOC_BIG(result);
     mpz_init(result);
     if (isSigned && size != 0 && buffer[size - 1] > BYTE_MAX) {
@@ -664,6 +665,7 @@ bigIntType bigFromByteBufferLe (const memSizeType size,
     } else {
       mpz_import(result, (size_t) size, -1, 1, 0, 0, buffer);
     } /* if */
+    logFunction(printf("bigFromByteBufferLe --> %s\n", bigHexCStri(result)););
     return result;
   } /* bigFromByteBufferLe */
 
@@ -682,6 +684,8 @@ bigIntType bigFromByteBufferLe (const memSizeType size,
 bigIntType bigFromBStriBe (const const_bstriType bstri, const boolType isSigned)
 
   { /* bigFromBStriBe */
+    logFunction(printf("bigFromBStriBe(\"%s\", %d)\n",
+                       bstriAsUnquotedCStri(bstri), isSigned););
     return bigFromByteBufferBe(bstri->size, bstri->mem, isSigned);
   } /* bigFromBStriBe */
 
@@ -700,6 +704,8 @@ bigIntType bigFromBStriBe (const const_bstriType bstri, const boolType isSigned)
 bigIntType bigFromBStriLe (const const_bstriType bstri, const boolType isSigned)
 
   { /* bigFromBStriLe */
+    logFunction(printf("bigFromBStriLe(\"%s\", %d)\n",
+                       bstriAsUnquotedCStri(bstri), isSigned););
     return bigFromByteBufferLe(bstri->size, bstri->mem, isSigned);
   } /* bigFromBStriLe */
 

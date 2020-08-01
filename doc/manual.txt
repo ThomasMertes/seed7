@@ -3987,13 +3987,13 @@ CONTENTS
       str(A)    Conversion to string
                   ( Type of result: string )
       strDate(A)  Conversion of the date to string
-	             with ISO 8601 YYYY-MM-DD date format
+                    with ISO 8601 YYYY-MM-DD date format
                   ( Type of result: string )
       strTime(A)  Conversion of the daytime to string
-	             with ISO 8601 hh:mm:ss time format
+                    with ISO 8601 hh:mm:ss time format
                   ( Type of result: string )
       strDateTime(A)  Conversion of date and time to string
-	             with ISO 8601 YYYY-MM-DD hh:mm:ss format
+                    with ISO 8601 YYYY-MM-DD hh:mm:ss format
                   ( Type of result: string )
       strTimeZone(A)  Conversion of the time zone to string
                   ( Type of result: string )

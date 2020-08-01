@@ -587,7 +587,7 @@ listType rflTail (const_listType list, intType start)
 
   {
     errInfoType err_info = OKAY_NO_ERROR;
-    listType result;
+    listType tail;
 
   /* rflTail */
     logFunction(printf("rflTail(" FMT_U_MEM ", " FMT_D ")\n",
@@ -600,9 +600,9 @@ listType rflTail (const_listType list, intType start)
         list = list->next;
       } /* while */
     } /* if */
-    result = copy_list(list, &err_info);
+    tail = copy_list(list, &err_info);
     if (unlikely(err_info != OKAY_NO_ERROR)) {
       raise_error(MEMORY_ERROR);
     } /* if */
-    return result;
+    return tail;
   } /* rflTail */

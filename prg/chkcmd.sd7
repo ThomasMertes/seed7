@@ -586,6 +586,102 @@ const proc: check_moveFile is func
   end func;
 
 
+const func string: randomString (in integer: length) is func
+  result
+    var string: randomString is "";
+  local
+    var integer: pos is 0;
+  begin
+    for pos range 1 to length do
+      randomString &:= rand('A', 'Z');
+    end for;
+  end func;
+
+
+const func string: randomNameNotInEnvironment is func
+  result
+    var string: randomName is "";
+  local
+    var string: name is "";
+    var boolean: found is FALSE;
+  begin
+    repeat
+      randomName := randomString(10);
+      found := FALSE;
+      for name range environment until found do
+        if randomName = name then
+          found := TRUE;
+        end if;
+      end for;
+    until not found;
+  end func;
+
+
+const proc: check_environment is func
+  local
+    var string: name is "";
+    var string: value is "";
+    var string: randomName is "";
+    var string: randomValue is "";
+    var boolean: found is FALSE;
+    var boolean: okay is TRUE;
+  begin
+    # Get the values of all environment variables.
+    for name range environment do
+      if getenv(name) <> "" then
+        found := TRUE;
+      end if;
+    end for;
+    if length(environment) <> 0 and not found then
+      writeln(" ***** All environment variables have \"\" as value.");
+      okay := FALSE;
+    end if;
+
+    randomName := randomNameNotInEnvironment;
+    if getenv(randomName) <> "" then
+      writeln(" ***** getenv succeeds for non-existing environment variable.");
+      okay := FALSE;
+    end if;
+    for name range environment do
+      if randomName = name then
+        writeln(" ***** New environment variable exists already in the environment.");
+        okay := FALSE;
+      end if;
+    end for;
+
+    randomValue := randomString(10);
+    setenv(randomName, randomValue);
+    if getenv(randomName) <> randomValue then
+      writeln(" ***** Setting an environment variable does not work correct.");
+      okay := FALSE;
+    end if;
+    found := FALSE;
+    for name range environment do
+      if randomName = name then
+        found := TRUE;
+      end if;
+    end for;
+    if not found then
+      writeln(" ***** New environment variable does not exist in the environment after beeing set.");
+      okay := FALSE;
+    end if;
+
+    randomValue := randomString(10);
+    setenv(randomName, randomValue);
+    if getenv(randomName) <> randomValue then
+      writeln(" ***** Changing an environment variable does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if okay then
+      writeln("Getting and setting environment variables works correct.");
+    else
+      writeln(" ***** Getting and setting environment variables does not work correct.");
+      writeln;
+    end if;
+  end func;
+
+
 const proc: main is func
   begin
     writeln;
@@ -596,4 +692,5 @@ const proc: main is func
     check_removeTree;
     check_copyFile;
     check_moveFile;
+    check_environment;
   end func;

@@ -99,7 +99,7 @@ const proc: IN_PARAM_IS_REFERENCE (ref type: aType) is func
     const func f_param: in (attr aType) : (ref expr param)   is action "DCL_REF2";
   end func;
 
-IN_PARAM_IS_REFERENCE(type);
+IN_PARAM_IS_VALUE(type);
 IN_PARAM_IS_VALUE(void);
 IN_PARAM_IS_REFERENCE(proc);
 IN_PARAM_IS_REFERENCE(object);

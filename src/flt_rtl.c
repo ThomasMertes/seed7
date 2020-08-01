@@ -134,6 +134,17 @@ void setupFloat (void)
 
 
 #ifdef DEFINE_MATHERR_FUNCTION
+int matherr (struct _exception *a)
+
+  { /* matherr */
+    a->retval = a->retval;
+    return 1;
+  } /* matherr */
+#endif
+
+
+
+#ifdef DEFINE__MATHERR_FUNCTION
 int _matherr (struct _exception *a)
 
   { /* _matherr */

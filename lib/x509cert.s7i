@@ -252,6 +252,7 @@ const func nameType: getName (in string: stri, inout integer: pos) is func
   begin
     # writeln("in getName");
     dataElem := getAsn1DataElement(stri, pos);
+    # writeln("tag: " <& classTagName[ord(dataElem.tagCategory)]);
     if dataElem.tagCategory = tagSequence then
       posAfterwards := pos + dataElem.length;
       while pos < posAfterwards do
@@ -336,6 +337,20 @@ const func time: getTime_yymmddhhmmssZ (in string: stri) is func
   end func;
 
 
+const func time: getTime_yyyymmddhhmmssfffZ (in string: stri) is func
+  result
+    var time: aTime is time.value;
+  begin
+    aTime := time(integer parse (stri[.. 4]),      # year
+                  integer parse (stri[ 3 len 2]),  # month
+                  integer parse (stri[ 5 len 2]),  # day
+                  integer parse (stri[ 7 len 2]),  # hour
+                  integer parse (stri[ 9 len 2]),  # minute
+                  integer parse (stri[11 len 2])); # second
+    # writeln("getTime_yyyymmddhhmmssfffZ(" <& literal(stri) <& ") --> " <& aTime);
+  end func;
+
+
 const func validityType: validityType (in time: notBefore, in time: notAfter) is func
   result
     var validityType: validity is validityType.value;
@@ -351,15 +366,23 @@ const func validityType: getValidity (in string: stri, inout integer: pos) is fu
   local
     var asn1DataElement: dataElem is asn1DataElement.value;
   begin
+    # writeln("in getValidity");
     dataElem := getAsn1DataElement(stri, pos);
+    # writeln("tag: " <& classTagName[ord(dataElem.tagCategory)]);
     if dataElem.tagCategory = tagSequence then
       dataElem := getAsn1DataElement(stri, pos);
+      # writeln("tag: " <& classTagName[ord(dataElem.tagCategory)]);
       if dataElem.tagCategory = tagUTCTime then
         validity.notBefore := getTime_yymmddhhmmssZ(getData(stri, pos, dataElem));
+      elsif dataElem.tagCategory = tagGeneralizedTime then
+        validity.notBefore := getTime_yyyymmddhhmmssfffZ(getData(stri, pos, dataElem));
       end if;
       dataElem := getAsn1DataElement(stri, pos);
+      # writeln("tag: " <& classTagName[ord(dataElem.tagCategory)]);
       if dataElem.tagCategory = tagUTCTime then
         validity.notAfter := getTime_yymmddhhmmssZ(getData(stri, pos, dataElem));
+      elsif dataElem.tagCategory = tagGeneralizedTime then
+        validity.notAfter := getTime_yyyymmddhhmmssfffZ(getData(stri, pos, dataElem));
       end if;
     end if;
   end func;

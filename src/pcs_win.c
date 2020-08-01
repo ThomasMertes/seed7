@@ -41,6 +41,7 @@
 #include "io.h"
 #include "fcntl.h"
 #include "wchar.h"
+#include "ctype.h"
 #include "errno.h"
 
 #include "common.h"
@@ -112,8 +113,69 @@ static void printParameters (const const_rtlArrayType parameters)
 
 
 /**
+ *  Fill the contents of a quoted part to be used by prepareCommandLine.
+ *  This function does not create the surrounding quotations (").
+ *  A string with the backslash logic of Windows commandline parameters
+ *  is produced. 2 * N backslashes followed by a quotation (") means
+ *  N backslashes and the end of the parameter. Note that in this case
+ *  the quotation is written by prepareCommandLine. 2 * N + 1 backslashes
+ *  followed by a quotation (") means N backslashes and the quotation
+ *  is part of the parameter. N backslashes not followed by a quotation
+ *  means just N backslashes.
+ */
+static os_charType *copyQuotedPart (os_charType *sourceChar, os_charType *destChar,
+    os_charType *beyondDest)
+
+  {
+    memSizeType countBackslash;
+
+  /* copyQuotedPart */
+    for (; *sourceChar != '\0' && destChar < beyondDest;
+        sourceChar++, destChar++) {
+      if (*sourceChar == '"') {
+        if (&destChar[2] > beyondDest) {
+          destChar = beyondDest;
+        } else {
+          *(destChar++) = '\\';
+          *destChar = *sourceChar;
+        } /* if */
+      } else if (*sourceChar == '\\') {
+        sourceChar++;
+        countBackslash = 1;
+        while (*sourceChar == '\\') {
+          sourceChar++;
+          countBackslash++;
+        } /* while */
+        /* fprintf(stderr, "countBackslash=" FMT_U_MEM "\n", countBackslash);
+           fprintf(stderr, "sourceChar=%c\n", *sourceChar); */
+        if (*sourceChar == '"' || *sourceChar == '\0') {
+          countBackslash *= 2;
+        } /* if */
+        sourceChar--;
+        if (countBackslash > MAXIMUM_COMMAND_LINE_LENGTH ||
+            &destChar[countBackslash] > beyondDest) {
+          destChar = beyondDest;
+        } else {
+          do {
+            *(destChar++) = '\\';
+            countBackslash--;
+          } while (countBackslash != 0);
+          destChar--;
+        } /* if */
+      } else {
+        *destChar = *sourceChar;
+      } /* if */
+    } /* for */
+    return destChar;
+  } /* copyQuotedPart */
+
+
+
+/**
  *  Create a command line string that can be used by CreateProcessW().
- *  The command line string must be freed with os_stri_free().
+ *  All parameters that contain a space or a quotation (") or a control
+ *  character or a character byond ASCII are quoted. All other parameters
+ *  are not quoted. The command line string must be freed with os_stri_free().
  *  @param err_info Unchanged when the function succeeds or
  *                  MEMORY_ERROR when a memory allocation failed or
  *                  RANGE_ERROR when the conversion of a parameter failed.
@@ -132,7 +194,7 @@ static os_striType prepareCommandLine (const const_os_striType os_command_stri,
     os_charType *sourceChar;
     os_charType *destChar;
     os_charType *beyondDest;
-    memSizeType countBackslash;
+    boolType quoteArgument;
     os_striType command_line;
 
   /* prepareCommandLine */
@@ -179,52 +241,33 @@ static os_striType prepareCommandLine (const const_os_striType os_command_stri,
         argument = stri_to_os_stri(parameters->arr[pos].value.striValue, err_info);
         if (argument != NULL) {
           /* fprintf(stderr, "argument[%d]=%ls\n", pos + 1, argument); */
-          if (&destChar[2] > beyondDest) {
-            destChar = beyondDest;
-          } else {
-            *(destChar++) = ' ';
-            *(destChar++) = '"';
-          } /* if */
-          for (sourceChar = argument; *sourceChar != '\0' && destChar < beyondDest;
-              sourceChar++, destChar++) {
-            if (*sourceChar == '"') {
-              if (&destChar[2] > beyondDest) {
-                destChar = beyondDest;
-              } else {
-                *(destChar++) = '\\';
-                *destChar = *sourceChar;
-              } /* if */
-            } else if (*sourceChar == '\\') {
-              sourceChar++;
-              countBackslash = 1;
-              while (*sourceChar == '\\') {
-                sourceChar++;
-                countBackslash++;
-              } /* while */
-              /* fprintf(stderr, "countBackslash=" FMT_U_MEM "\n", countBackslash);
-                 fprintf(stderr, "sourceChar=%c\n", *sourceChar); */
-              if (*sourceChar == '"' || *sourceChar == '\0') {
-                countBackslash *= 2;
-              } /* if */
-              sourceChar--;
-              if (countBackslash > MAXIMUM_COMMAND_LINE_LENGTH ||
-                  &destChar[countBackslash] > beyondDest) {
-                destChar = beyondDest;
-              } else {
-                do {
-                  *(destChar++) = '\\';
-                  countBackslash--;
-                } while (countBackslash != 0);
-                destChar--;
-              } /* if */
-            } else {
-              *destChar = *sourceChar;
+          quoteArgument = FALSE;
+          for (sourceChar = argument; *sourceChar != '\0'; sourceChar++) {
+            if (*sourceChar <= ' ' || *sourceChar > '~' || *sourceChar == '"') {
+              quoteArgument = TRUE;
             } /* if */
           } /* for */
-          if (destChar >= beyondDest) {
-            *err_info = MEMORY_ERROR;
+          if (quoteArgument) {
+            if (&destChar[2] > beyondDest) {
+              destChar = beyondDest;
+            } else {
+              *(destChar++) = ' ';
+              *(destChar++) = '"';
+            } /* if */
+            destChar = copyQuotedPart(argument, destChar, beyondDest);
+            if (destChar >= beyondDest) {
+              *err_info = MEMORY_ERROR;
+            } else {
+              *(destChar++) = '"';
+            } /* if */
           } else {
-            *(destChar++) = '"';
+            if (destChar < beyondDest) {
+              *(destChar++) = ' ';
+            } /* if */
+            for (sourceChar = argument; *sourceChar != '\0' && destChar < beyondDest;
+                 sourceChar++, destChar++) {
+              *destChar = *sourceChar;
+            } /* for */
           } /* if */
           os_stri_free(argument);
         } /* if */

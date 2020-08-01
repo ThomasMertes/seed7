@@ -240,12 +240,12 @@ How many lines of code are in the Seed7 project?
 ================================================
 
 The Seed7 package contains more than 100000 lines of C and more
-than 200000 lines of Seed7. For version 2018-05-13 the number of lines is:
+than 200000 lines of Seed7. For version 2018-06-01 the number of lines is:
 
-  135830  C source files (*.c)
+  136360  C source files (*.c)
    10566  C header files (*.h)
-  145402  Seed7 source files (*.sd7)
-  141240  Seed7 library/include files (*.s7i)
+  145549  Seed7 source files (*.sd7)
+  141374  Seed7 library/include files (*.s7i)
 
 C code (*.c and *.h files) can be divided into the following areas:
 
@@ -636,7 +636,7 @@ Yes, Eclipse can be easily configured to work with Seed7:
   Create a C project (New => Project => C/C++ => C Project).
   Right click on the project in the Project Explorer and select Properties => C/C++ General => File Types.
        Check if the workspace settings are used. If not add *.sd7 as 'C Source File'
-	   and *.s7i as 'C Header File'.
+       and *.s7i as 'C Header File'.
   In a console window: Compile your Seed7 program with the option -g.
   In Eclipse: Create a Debug Configuration with: Run => Debug Configurations...
        Right click on C/C++ Application and select New.

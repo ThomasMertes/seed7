@@ -39,7 +39,7 @@
 #define FILE_SEEK(POS)    (fseek(in_file.fil, (POS), SEEK_SET), in_file.nextch = in_file.beyond)
 #define MEM_TELL()        ((long) (in_file.nextch - in_file.start))
 #define MEM_SEEK(POS)     (in_file.nextch = in_file.start + (POS))
-#ifdef USE_MMAP
+#if HAS_MMAP
 #define IN_FILE_TELL()    MEM_TELL()
 #define IN_FILE_SEEK(POS) MEM_SEEK(POS)
 #else

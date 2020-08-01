@@ -36,6 +36,8 @@
  *  TURN_OFF_FP_EXCEPTIONS
  *      Use the function _control87() to turn off floating point exceptions.
  *  DEFINE_MATHERR_FUNCTION
+ *      Define the function matherr() which handles floating point errors.
+ *  DEFINE__MATHERR_FUNCTION
  *      Define the function _matherr() which handles floating point errors.
  *  PATH_DELIMITER:
  *      Path delimiter character used by the command shell of the operating system.
@@ -119,6 +121,10 @@
 #define EXECUTABLE_FILE_EXTENSION ""
 #endif
 
+#ifndef CC_FLAGS
+#define CC_FLAGS ""
+#endif
+
 #ifndef S_ISREG
 #define S_ISREG(mode) (((mode) & S_IFMT) == S_IFREG)
 #endif
@@ -166,6 +172,17 @@ static const char *removeDirDefinition = NULL;
 
 
 #ifdef DEFINE_MATHERR_FUNCTION
+int matherr (struct _exception *a)
+
+  { /* matherr */
+    a->retval = a->retval;
+    return 1;
+  } /* matherr */
+#endif
+
+
+
+#ifdef DEFINE__MATHERR_FUNCTION
 int _matherr (struct _exception *a)
 
   { /* _matherr */
@@ -369,6 +386,30 @@ static void doRemove (const char *fileName)
 
 
 
+static void copyFile (const char *sourceName, const char *destName)
+
+  {
+    FILE *source;
+    FILE *dest;
+    char buffer[BUFFER_SIZE];
+    size_t len;
+
+  /* copyFile */
+    if (sourceName != NULL && destName != NULL) {
+      if ((source = fopen(sourceName, "r")) != NULL) {
+        if ((dest = fopen(destName, "w")) != NULL) {
+          while ((len = fread(buffer, 1, 1024, source)) != 0) {
+            fwrite(buffer, 1, len, dest);
+          } /* while */
+          fclose(dest);
+        } /* if */
+        fclose(source);
+      } /* if */
+    } /* if */
+  } /* copyFile */
+
+
+
 static void replaceNLBySpace (char *text)
 
   { /* replaceNLBySpace */
@@ -416,12 +457,12 @@ static int doCompileAndLink (const char *compilerOptions, const char *linkerOpti
   /* doCompileAndLink */
     fprintf(logFile, "*");
     fflush(logFile);
-#ifdef CC_FLAGS
+#ifdef LINKER
+    sprintf(command, "%s %s %s -c ctest%d.c",
+            c_compiler, compilerOptions, CC_FLAGS, testNumber);
+#else
     sprintf(command, "%s %s %s ctest%d.c %s",
             c_compiler, compilerOptions, CC_FLAGS, testNumber, linkerOptions);
-#else
-    sprintf(command, "%s %s ctest%d.c %s",
-            c_compiler, compilerOptions, testNumber, linkerOptions);
 #endif
     replaceNLBySpace(command);
 #if !defined LINKER && defined LINKER_OPT_OUTPUT_FILE && !defined CC_NO_OPT_OUTPUT_FILE
@@ -454,6 +495,7 @@ static int doCompileAndLink (const char *compilerOptions, const char *linkerOpti
       sprintf(command, "%s ctest%d%s %s %sctest%d%s",
               LINKER, testNumber, OBJECT_FILE_EXTENSION, linkerOptions,
               LINKER_OPT_OUTPUT_FILE, testNumber, EXECUTABLE_FILE_EXTENSION);
+      /* fprintf(logFile, "command: %s\n", command); */
       returncode = system(command);
     } /* if */
 #endif
@@ -2088,19 +2130,36 @@ static void checkForLimitedStringLiteralLength (FILE *versionFile)
 
   {
     const char *programStart = "#include <stdio.h>\n#include <string.h>\n"
-                               "int main(int argc, char *argv[]){\n"
+                               "int main(int argc, char *argv[]) {\n"
+                               "char ch = '1';\n"
+                               "char *chPtr;\n"
                                "char *stri =\n";
     const char *line = "\"12345678901234567890123456789012345678901234567890"
                        "12345678901234567890123456789012345678901234567890\"\n";
-    const char *programEnd = "; printf(\"%d\\n\", strlen(stri) != 0); return 0;}\n";
-    const int repeatCount = 1000; /* Corresponds to a string literal length of 100000. */
+    const char *programEnd = ";\n"
+                             "for (chPtr = stri; *chPtr != '\\0'; chPtr++) {\n"
+                             "  if (*chPtr != ch) {\n"
+                             "    printf(\"%u\\n\", (unsigned int) (chPtr - stri));\n"
+                             "    return 0;\n"
+                             "  }\n"
+                             "  ch = ch == '9' ? '0' : ch + 1;\n"
+                             "}\n"
+                             "printf(\"%u\\n\", strlen(stri));\n"
+                             "return 0;\n"
+                             "}\n";
+    /* The string literal length is repeatCount * charsInLine. */
+    /* The definitions below correspond to a string literal length of 100000. */
+    const int repeatCount = 1000;
+    const int charsInLine = 100;
     int lineLength;
     int totalLength;
     int count;
     char *buffer;
     char *bufPos;
+    int testResult;
 
   /* checkForLimitedStringLiteralLength */
+#ifndef LIMITED_CSTRI_LITERAL_LEN
     lineLength = strlen(line);
     totalLength = strlen(programStart) + lineLength * repeatCount + strlen(programEnd);
     buffer = (char *) malloc((totalLength + 1) * sizeof(char));
@@ -2111,15 +2170,106 @@ static void checkForLimitedStringLiteralLength (FILE *versionFile)
       bufPos += lineLength;
     } /* for */
     strcpy(bufPos, programEnd);
-    /* printf("%s\n", buffer); */
-    /* Some C compilers limit the maximum string literal length. */
-    /* There are limits of 2,048 bytes and 16,384 (16K) bytes.   */
-    /* When LIMITED_CSTRI_LITERAL_LEN is 1 a string literal of   */
-    /* size repeatCount * lineLength is not accepted.            */
-    fprintf(versionFile, "#define LIMITED_CSTRI_LITERAL_LEN %d\n",
-            !compileAndLinkOk(buffer));
+    /* printf("\n%s\n", buffer); */
+    /* Some C compilers limit the maximum string literal length.   */
+    /* There are limits of 2,048 bytes and 16,384 (16K) bytes.     */
+    /* Some C compilers accept long string literals, but at        */
+    /* run-time the string does not contain the correct data.      */
+    /* When LIMITED_CSTRI_LITERAL_LEN is 0 a string literal with   */
+    /* repeatCount * charsInLine characters is accepted and works. */
+    if (compileAndLinkOk(buffer)) {
+      testResult = doTest();
+      if (testResult == repeatCount * charsInLine) {
+        /* At run-time the string literal has the correct value. */
+        fputs("#define LIMITED_CSTRI_LITERAL_LEN 0\n", versionFile);
+      } else if (testResult != 0 ) {
+        /* At run-time the string literal is correct up to a position. */
+        fprintf(versionFile, "#define LIMITED_CSTRI_LITERAL_LEN %d\n",
+                testResult);
+      } else {
+        /* At run-time the whole string literal is wrong. */
+        fputs("#define LIMITED_CSTRI_LITERAL_LEN -2\n", versionFile);
+      } /* if */
+    } else {
+      /* when the compiler prohibits long string literals. */
+      fputs("#define LIMITED_CSTRI_LITERAL_LEN -1\n", versionFile);
+    } /* if */
     free(buffer);
+#endif
   } /* checkForLimitedStringLiteralLength */
+
+
+
+static void checkForLimitedArrayLiteralLength (FILE *versionFile)
+
+  {
+    const char *programStart = "#include <stdio.h>\n#include <string.h>\n"
+                               "char stri[] = {\n";
+    const char *line = "'1','2','3','4','5','6','7','8','9','0',"
+                       "'1','2','3','4','5','6','7','8','9','0',\n";
+    const char *programEnd = "};\n"
+                             "unsigned int doTest (char *stri) {\n"
+                             "char ch = '1';\n"
+                             "char *chPtr;\n"
+                             "for (chPtr = stri; *chPtr != '\\0'; chPtr++) {\n"
+                             "  if (*chPtr != ch) {\n"
+                             "    return (unsigned int) (chPtr - stri);\n"
+                             "  }\n"
+                             "  ch = ch == '9' ? '0' : ch + 1;\n"
+                             "}\n"
+                             "return (unsigned int) strlen(stri);\n"
+                             "}\n"
+                             "int main(int argc, char *argv[]) {\n"
+                             "printf(\"%u\\n\", doTest(stri));\n"
+                             "return 0;\n"
+                             "}\n";
+    /* The array literal length is repeatCount * elementsInLine. */
+    /* The definitions below correspond to a array literal length of 100000. */
+    const int repeatCount = 5000;
+    const int elementsInLine = 20;
+    int lineLength;
+    int totalLength;
+    int count;
+    char *buffer;
+    char *bufPos;
+    int testResult;
+
+  /* checkForLimitedArrayLiteralLength */
+#ifndef LIMITED_ARRAY_LITERAL_LEN
+    lineLength = strlen(line);
+    totalLength = strlen(programStart) + lineLength * repeatCount + strlen(programEnd);
+    buffer = (char *) malloc((totalLength + 1) * sizeof(char));
+    strcpy(buffer, programStart);
+    bufPos = &buffer[strlen(buffer)];
+    for (count = 1; count <= repeatCount; count++) {
+      strcpy(bufPos, line);
+      bufPos += lineLength;
+    } /* for */
+    strcpy(bufPos, programEnd);
+    /* printf("\n%s\n", buffer); */
+    /* Some C compilers limit the maximum array literal length.     */
+    /* When LIMITED_ARRAY_LITERAL_LEN is 0 an array literal with    */
+    /* repeatCount * elementsInLine elements is accepted and works. */
+    if (compileAndLinkOk(buffer)) {
+      testResult = doTest();
+      if (testResult == repeatCount * elementsInLine) {
+        /* At run-time the array literal has the correct value. */
+        fputs("#define LIMITED_ARRAY_LITERAL_LEN 0\n", versionFile);
+      } else if (testResult != 0 ) {
+        /* At run-time the array literal is correct up to a position. */
+        fprintf(versionFile, "#define LIMITED_ARRAY_LITERAL_LEN %d\n",
+                testResult);
+      } else {
+        /* At run-time the whole array literal is wrong. */
+        fputs("#define LIMITED_ARRAY_LITERAL_LEN -2\n", versionFile);
+      } /* if */
+    } else {
+      /* when the compiler prohibits long array literals. */
+      fputs("#define LIMITED_ARRAY_LITERAL_LEN -1\n", versionFile);
+    } /* if */
+    free(buffer);
+#endif
+  } /* checkForLimitedArrayLiteralLength */
 
 
 
@@ -2313,72 +2463,6 @@ static void checkRemoveDir (const char *makeDirDefinition, FILE *versionFile)
 
 
 
-/**
- *  Determine values for DEFINE_OS_ENVIRON, DECLARE_OS_ENVIRON and
- *  INITIALIZE_OS_ENVIRON.
- */
-static void determineEnvironDefines (FILE *versionFile)
-
-  {
-    char buffer[BUFFER_SIZE];
-    int declare_os_environ = 0;
-    int use_get_environment = 0;
-    int initialize_os_environ = 0;
-
-  /* determineEnvironDefines */
-    buffer[0] = '\0';
-    if (compileAndLinkOk("#include <stdio.h>\n#include <stdlib.h>\n#include \"tst_vers.h\"\n"
-                         "int main(int argc,char *argv[])\n"
-                         "{printf(\"%d\\n\", os_environ != NULL);return 0;}\n")) {
-      strcat(buffer, "#include <stdlib.h>\n");
-    } else if (compileAndLinkOk("#include <stdio.h>\n#include <unistd.h>\n#include \"tst_vers.h\"\n"
-                                "int main(int argc,char *argv[])\n"
-                                "{printf(\"%d\\n\", os_environ != NULL);return 0;}\n")) {
-      strcat(buffer, "#include <unistd.h>\n");
-#ifdef OS_STRI_WCHAR
-    } else if (compileAndLinkOk("#include <stdio.h>\n#include \"tst_vers.h\"\n"
-                                "int main(int argc,char *argv[])\n"
-                                "{extern wchar_t **os_environ;\n"
-                                "printf(\"%d\\n\", os_environ != NULL);return 0;}\n")) {
-      declare_os_environ = 1;
-#else
-    } else if (compileAndLinkOk("#include <stdio.h>\n#include \"tst_vers.h\"\n"
-                                "int main(int argc,char *argv[])\n"
-                                "{extern char **os_environ;\n"
-                                "printf(\"%d\\n\", os_environ != NULL);return 0;}\n")) {
-      declare_os_environ = 1;
-#endif
-    } else {
-      use_get_environment = 1;
-    } /* if */
-    fprintf(versionFile, "#define DECLARE_OS_ENVIRON %d\n", declare_os_environ);
-    fprintf(versionFile, "#define USE_GET_ENVIRONMENT %d\n", use_get_environment);
-    if (!use_get_environment) {
-      strcat(buffer, "#include <stdio.h>\n");
-      strcat(buffer, "#include \"tst_vers.h\"\n");
-#ifdef OS_STRI_WCHAR
-      strcat(buffer, "typedef wchar_t *os_striType;\n");
-#else
-      strcat(buffer, "typedef char *os_striType;\n");
-#endif
-      if (declare_os_environ) {
-        strcat(buffer, "extern os_striType *os_environ;\n");
-      } /* if */
-#ifdef USE_WMAIN
-      strcat(buffer, "int wmain(int argc,wchar_t *argv[])");
-#else
-      strcat(buffer, "int main(int argc,char *argv[])");
-#endif
-      strcat(buffer, "{printf(\"%d\\n\",os_environ==(os_striType *)0);return 0;}\n");
-      if (!compileAndLinkOk(buffer) || doTest() == 1) {
-        initialize_os_environ = 1;
-      } /* if */
-    } /* if */
-    fprintf(versionFile, "#define INITIALIZE_OS_ENVIRON %d\n", initialize_os_environ);
-  } /* determineEnvironDefines */
-
-
-
 static void determineGetaddrlimit (FILE *versionFile)
 
   {
@@ -2430,7 +2514,6 @@ static void determineSocketLib (FILE *versionFile)
                          "#include <sys/socket.h>\n"
                          "#include <netdb.h>\n"
                          "#include <netinet/in.h>\n"
-                         "#include <sys/select.h>\n"
                          "int main(int argc,char *argv[])\n"
                          "{int sock = socket(AF_INET, SOCK_STREAM, 0);\n"
                          "close(sock); return 0;}\n")) {
@@ -2527,6 +2610,235 @@ static void determineOsDirAccess (FILE *versionFile)
 
 
 
+/**
+ *  Determine values for DECLARE_OS_ENVIRON, USE_GET_ENVIRONMENT,
+ *  INITIALIZE_OS_ENVIRON, DEFINE_WGETENV, DEFINE_WSETENV, os_environ.
+ *  os_getenv, os_setenv os_putenv and DELETE_PUTENV_STRING.
+ */
+static void determineEnvironDefines (FILE *versionFile)
+
+  {
+    char buffer[BUFFER_SIZE];
+    char *os_environ = NULL;
+    int declare_os_environ = 0;
+    int use_get_environment = 0;
+    int initialize_os_environ = 0;
+    int define_os_getenv = 0;
+    char *os_getenv = NULL;
+    char *os_putenv = NULL;
+    char *os_setenv = NULL;
+
+  /* determineEnvironDefines */
+    buffer[0] = '\0';
+#ifdef OS_STRI_WCHAR
+    if (compileAndLinkOk("#include <stdio.h>\n#include <stdlib.h>\n"
+                         "int main(int argc,char *argv[])\n"
+                         "{printf(\"%d\\n\", _wenviron != NULL);return 0;}\n")) {
+      strcat(buffer, "#include <stdlib.h>\n");
+      os_environ = "_wenviron";
+    } else if (compileAndLinkOk("#include <stdio.h>\n#include <unistd.h>\n"
+                                "int main(int argc,char *argv[])\n"
+                                "{printf(\"%d\\n\", _wenviron != NULL);return 0;}\n")) {
+      strcat(buffer, "#include <unistd.h>\n");
+      os_environ = "_wenviron";
+    } else if (compileAndLinkOk("#include <stdio.h>\n"
+                                "int main(int argc,char *argv[])\n"
+                                "{extern wchar_t **_wenviron;\n"
+                                "printf(\"%d\\n\", _wenviron != NULL);return 0;}\n")) {
+      declare_os_environ = 1;
+      os_environ = "_wenviron";
+#else
+    if (compileAndLinkOk("#include <stdio.h>\n#include <stdlib.h>\n"
+                         "int main(int argc,char *argv[])\n"
+                         "{printf(\"%d\\n\", environ != NULL);return 0;}\n")) {
+      strcat(buffer, "#include <stdlib.h>\n");
+      os_environ = "environ";
+    } else if (compileAndLinkOk("#include <stdio.h>\n#include <unistd.h>\n"
+                                "int main(int argc,char *argv[])\n"
+                                "{printf(\"%d\\n\", environ != NULL);return 0;}\n")) {
+      strcat(buffer, "#include <unistd.h>\n");
+      os_environ = "environ";
+    } else if (compileAndLinkOk("#include <stdio.h>\n"
+                                "int main(int argc,char *argv[])\n"
+                                "{extern char **environ;\n"
+                                "printf(\"%d\\n\", environ != NULL);return 0;}\n")) {
+      declare_os_environ = 1;
+      os_environ = "environ";
+#endif
+    } else {
+      use_get_environment = 1;
+    } /* if */
+    if (os_environ != NULL) {
+      fprintf(versionFile, "#define os_environ %s\n", os_environ);
+    } /* if */
+    fprintf(versionFile, "#define DECLARE_OS_ENVIRON %d\n", declare_os_environ);
+    fprintf(versionFile, "#define USE_GET_ENVIRONMENT %d\n", use_get_environment);
+    if (!use_get_environment) {
+      strcat(buffer, "#include <stdio.h>\n");
+      strcat(buffer, "#include \"tst_vers.h\"\n");
+#ifdef OS_STRI_WCHAR
+      strcat(buffer, "typedef wchar_t *os_striType;\n");
+#else
+      strcat(buffer, "typedef char *os_striType;\n");
+#endif
+      if (declare_os_environ) {
+        strcat(buffer, "extern os_striType *");
+        strcat(buffer, os_environ);
+        strcat(buffer, ";\n");
+      } /* if */
+#ifdef USE_WMAIN
+      strcat(buffer, "int wmain(int argc,wchar_t *argv[])");
+#else
+      strcat(buffer, "int main(int argc,char *argv[])");
+#endif
+      strcat(buffer, "{printf(\"%d\\n\",");
+      strcat(buffer, os_environ);
+      strcat(buffer, "==(os_striType *)0);return 0;}\n");
+      if (!compileAndLinkOk(buffer) || doTest() == 1) {
+        initialize_os_environ = 1;
+      } /* if */
+    } /* if */
+    fprintf(versionFile, "#define INITIALIZE_OS_ENVIRON %d\n", initialize_os_environ);
+#ifdef OS_STRI_WCHAR
+    if (compileAndLinkOk("#include <stdio.h>\n#include <stdlib.h>\n"
+                         "int main(int argc,char *argv[])\n"
+                         "{printf(\"%d\\n\",\n"
+                         "  _wgetenv(L\"PATH\") != NULL ||\n"
+                         "  _wgetenv(L\"HOME\") != NULL ||\n"
+                         "  _wgetenv(L\"TERM\") != NULL ||\n"
+                         "  _wgetenv(L\"LOGNAME\") != NULL ||\n"
+                         "  _wgetenv(L\"PROMPT\") != NULL ||\n"
+                         "  _wgetenv(L\"HOMEPATH\") != NULL ||\n"
+                         "  _wgetenv(L\"USERNAME\") != NULL ||\n"
+                         "  _wgetenv(L\"TEMP\") != NULL ||\n"
+                         "  _wgetenv(L\"TMP\") != NULL ||\n"
+                         "  _wgetenv(L\"OS\") != NULL);\n"
+                         "return 0;}\n") && doTest() == 1) {
+      os_getenv = "_wgetenv";
+    } else if (compileAndLinkOk("#include <stdio.h>\n#include <stdlib.h>\n"
+                         "int main(int argc,char *argv[])\n"
+                         "{printf(\"%d\\n\",\n"
+                         "  wgetenv(L\"PATH\") != NULL ||\n"
+                         "  wgetenv(L\"HOME\") != NULL ||\n"
+                         "  wgetenv(L\"TERM\") != NULL ||\n"
+                         "  wgetenv(L\"LOGNAME\") != NULL ||\n"
+                         "  wgetenv(L\"PROMPT\") != NULL ||\n"
+                         "  wgetenv(L\"HOMEPATH\") != NULL ||\n"
+                         "  wgetenv(L\"USERNAME\") != NULL ||\n"
+                         "  wgetenv(L\"TEMP\") != NULL ||\n"
+                         "  wgetenv(L\"TMP\") != NULL ||\n"
+                         "  wgetenv(L\"OS\") != NULL);\n"
+                         "return 0;}\n") && doTest() == 1) {
+      os_getenv = "wgetenv";
+    } else {
+      define_os_getenv = 1;
+      fputs("#define DEFINE_WGETENV\n", versionFile);
+      os_getenv = "wgetenv";
+    } /* if */
+#else
+    if (compileAndLinkOk("#include <stdio.h>\n#include <stdlib.h>\n"
+                         "int main(int argc,char *argv[])\n"
+                         "{printf(\"%d\\n\",\n"
+                         "  getenv(\"PATH\") != NULL ||\n"
+                         "  getenv(\"HOME\") != NULL ||\n"
+                         "  getenv(\"TERM\") != NULL ||\n"
+                         "  getenv(\"LOGNAME\") != NULL ||\n"
+                         "  getenv(\"PROMPT\") != NULL ||\n"
+                         "  getenv(\"HOMEPATH\") != NULL ||\n"
+                         "  getenv(\"USERNAME\") != NULL ||\n"
+                         "  getenv(\"TEMP\") != NULL ||\n"
+                         "  getenv(\"TMP\") != NULL ||\n"
+                         "  getenv(\"OS\") != NULL);\n"
+                         "return 0;}\n") && doTest() == 1) {
+      os_getenv = "getenv";
+    } /* if */
+#endif
+    if (os_getenv != NULL) {
+      fprintf(versionFile, "#define os_getenv %s\n", os_getenv);
+    } else {
+      fprintf(logFile, "\n *** Cannot define os_getenv.\n");
+    } /* if */
+#ifdef OS_STRI_WCHAR
+    if (compileAndLinkOk("#include <stdio.h>\n#include <stdlib.h>\n"
+                         "int main(int argc,char *argv[])\n"
+                         "{printf(\"%d\\n\","
+                         "  _wsetenv(L\"ASDFGHJKL\", L\"asdfghjkl\", 1) == 0);\n"
+                         "return 0;}\n") && doTest() == 1) {
+      os_setenv = "_wsetenv";
+    } else if (compileAndLinkOk("#include <stdio.h>\n#include <stdlib.h>\n"
+                         "int main(int argc,char *argv[])\n"
+                         "{printf(\"%d\\n\","
+                         "  wsetenv(L\"ASDFGHJKL\", L\"asdfghjkl\", 1) == 0);\n"
+                         "return 0;}\n") && doTest() == 1) {
+      os_setenv = "wsetenv";
+    } else if (!define_os_getenv &&
+               compileAndLinkOk("#include <stdio.h>\n#include <stdlib.h>\n"
+                                "int main(int argc,char *argv[])\n"
+                                "{printf(\"%d\\n\","
+                                "  _wputenv(L\"ASDFGHJKL=asdfghjkl\") == 0);\n"
+                                "return 0;}\n") && doTest() == 1) {
+      os_putenv = "_wputenv";
+    } else if (!define_os_getenv &&
+               compileAndLinkOk("#include <stdio.h>\n#include <stdlib.h>\n"
+                                "int main(int argc,char *argv[])\n"
+                                "{printf(\"%d\\n\","
+                                "  wputenv(L\"ASDFGHJKL=asdfghjkl\") == 0);\n"
+                                "return 0;}\n") && doTest() == 1) {
+      os_putenv = "wputenv";
+    } else {
+      fputs("#define DEFINE_WSETENV\n", versionFile);
+      os_setenv = "wsetenv";
+    } /* if */
+#else
+    if (compileAndLinkOk("#include <stdio.h>\n#include <stdlib.h>\n"
+                         "int main(int argc,char *argv[])\n"
+                         "{printf(\"%d\\n\","
+                         "  setenv(\"ASDFGHJKL\", \"asdfghjkl\", 1) == 0);\n"
+                         "return 0;}\n") && doTest() == 1) {
+      os_setenv = "setenv";
+    } else if (compileAndLinkOk("#include <stdio.h>\n#include <stdlib.h>\n"
+                                "int main(int argc,char *argv[])\n"
+                                "{printf(\"%d\\n\","
+                                "  putenv(\"ASDFGHJKL=asdfghjkl\") == 0);\n"
+                                "return 0;}\n") && doTest() == 1) {
+      os_putenv = "putenv";
+    } /* if */
+#endif
+    if (os_setenv != NULL) {
+      fprintf(versionFile, "#define os_setenv %s\n", os_setenv);
+    } else if (os_putenv != NULL && os_getenv != NULL && !define_os_getenv) {
+      fprintf(versionFile, "#define os_putenv %s\n", os_putenv);
+      sprintf(buffer, "#include <stdio.h>\n"
+                      "#include <stdlib.h>\n"
+                      "#include <string.h>\n"
+                      "#include <wchar.h>\n"
+                      "int main(int argc,char *argv[]){\n"
+#ifdef OS_STRI_WCHAR
+                      "wchar_t *key_value = L\"ASDFGHJKL=asdfghjkl\";\n"
+                      "wchar_t *value;\n"
+                      "%s(key_value);\n"
+                      "value = %s(L\"ASDFGHJKL\");\n"
+                      "printf(\"%%d\\n\", value != NULL &&\n"
+                      "  wcschr(key_value, '=') + 1 != value);\n"
+#else
+                      "char *key_value = \"ASDFGHJKL=asdfghjkl\";\n"
+                      "char *value;\n"
+                      "%s(key_value);\n"
+                      "value = %s(\"ASDFGHJKL\");\n"
+                      "printf(\"%%d\\n\", value != NULL &&\n"
+                      "  strchr(key_value, '=') + 1 != value);\n"
+#endif
+                      "return 0;}\n", os_putenv, os_getenv);
+      if (assertCompAndLnk(buffer)) {
+        fprintf(versionFile, "#define DELETE_PUTENV_STRING %d\n", doTest());
+      } /* if */
+    } else {
+      fprintf(logFile, "\n *** Cannot define os_setenv or os_putenv.\n");
+    } /* if */
+  } /* determineEnvironDefines */
+
+
+
 static void determineOsUtime (FILE *versionFile)
 
   {
@@ -2610,9 +2922,181 @@ static void determineOsUtime (FILE *versionFile)
 
 
 #ifdef OS_STRI_WCHAR
+static void determineStatFunctions (FILE *versionFile)
+
+  {
+    char buffer[BUFFER_SIZE];
+    char *os_stat_struct = NULL;
+    char *os_fstat_struct = NULL;
+    int has_struct_stati64 = 0;
+
+  /* determineStatFunctions */
+#if !defined os_lstat || !defined os_stat
+    fputs("#define DEFINE_WSTATI64_EXT\n", versionFile);
+#endif
+#ifndef os_lstat
+    fputs("#define os_lstat wstati64Ext\n", versionFile);
+#endif
+#ifndef os_stat
+    fputs("#define os_stat wstati64Ext\n", versionFile);
+#endif
+#ifndef os_stat_struct
+    if (compileAndLinkWithOptionsOk("#include <sys/types.h>\n"
+                                    "#include <sys/stat.h>\n"
+                                    "int main(int argc,char *argv[])\n"
+                                    "{struct _stati64 statData;\n"
+                                    "return 0;}\n", "", SYSTEM_LIBS)) {
+      has_struct_stati64 = 1;
+      os_stat_struct = "struct _stati64";
+    } else if (compileAndLinkWithOptionsOk("#include <sys/types.h>\n"
+                                           "#include <sys/stat.h>\n"
+                                           "int main(int argc,char *argv[])\n"
+                                           "{struct stati64 statData;\n"
+                                           "return 0;}\n", "", SYSTEM_LIBS)) {
+      has_struct_stati64 = 1;
+      os_stat_struct = "struct stati64";
+    } else {
+      fputs("#define DEFINE_STRUCT_STATI64_EXT\n", versionFile);
+      os_stat_struct = "struct stati64Ext";
+    } /* if */
+    if (has_struct_stati64) {
+      sprintf(buffer, "#include <stdio.h>\n"
+                      "#include <sys/types.h>\n"
+                      "#include <sys/stat.h>\n"
+                      "int main(int argc,char *argv[])\n"
+                      "{%s statData;\n"
+                      "printf(\"%%d\\n\",\n"
+                      "    _wstati64(L\".\", &statData) == 0);\n"
+                      "return 0;}\n",
+                      os_stat_struct);
+      if (compileAndLinkWithOptionsOk(buffer, "", SYSTEM_LIBS)) {
+        fputs("#define os_stat_orig _wstati64\n", versionFile);
+      } else {
+        sprintf(buffer, "#include <stdio.h>\n"
+                        "#include <sys/types.h>\n"
+                        "#include <sys/stat.h>\n"
+                        "int main(int argc,char *argv[])\n"
+                        "{%s statData;\n"
+                        "printf(\"%%d\\n\",\n"
+                        "    wstati64(L\".\", &statData) == 0);\n"
+                        "return 0;}\n",
+                        os_stat_struct);
+        if (compileAndLinkWithOptionsOk(buffer, "", SYSTEM_LIBS)) {
+          fputs("#define os_stat_orig wstati64\n", versionFile);
+        } /* if */
+      } /* if */
+    } /* if */
+    fprintf(versionFile, "#define os_stat_struct %s\n", os_stat_struct);
+#endif
+#ifndef os_fstat
+    if (has_struct_stati64) {
+      sprintf(buffer, "#include <stdio.h>\n"
+                      "#include <sys/types.h>\n#include <sys/stat.h>\n"
+                      "int main(int argc,char *argv[])\n"
+                      "{%s statData;\n"
+                      "printf(\"%%d\\n\",\n"
+                      "    _fstati64(0, &statData) == 0);\n"
+                      "return 0;}\n",
+                      os_stat_struct);
+      if (compileAndLinkWithOptionsOk(buffer, "", SYSTEM_LIBS)) {
+        fputs("#define os_fstat _fstati64\n", versionFile);
+        os_fstat_struct = os_stat_struct;
+      } else {
+        sprintf(buffer, "#include <stdio.h>\n"
+                        "#include <sys/types.h>\n#include <sys/stat.h>\n"
+                        "int main(int argc,char *argv[])\n"
+                        "{%s statData;\n"
+                        "printf(\"%%d\\n\",\n"
+                        "    fstati64(0, &statData) == 0);\n"
+                        "return 0;}\n",
+                        os_stat_struct);
+        if (compileAndLinkWithOptionsOk(buffer, "", SYSTEM_LIBS)) {
+          fputs("#define os_fstat fstati64\n", versionFile);
+          os_fstat_struct = os_stat_struct;
+        } /* if */
+      } /* if */
+    } /* if */
+    if (os_fstat_struct == NULL) {
+      if (compileAndLinkWithOptionsOk("#include <stdio.h>\n"
+                                      "#include <sys/types.h>\n"
+                                      "#include <sys/stat.h>\n"
+                                      "int main(int argc,char *argv[])\n"
+                                      "{struct _stat statData;\n"
+                                      "printf(\"%d\\n\",\n"
+                                      "    _fstat(0, &statData) == 0);\n"
+                                      "return 0;}\n", "", SYSTEM_LIBS)) {
+        if (has_struct_stati64) {
+          fputs("#define os_fstat_orig _fstat\n", versionFile);
+          fputs("#define os_fstat_struct_orig struct _stat\n", versionFile);
+        } else {
+          fputs("#define os_fstat _fstat\n", versionFile);
+          os_fstat_struct = "struct _stat";
+        } /* if */
+      } else if (compileAndLinkWithOptionsOk("#include <stdio.h>\n"
+                                             "#include <sys/types.h>\n"
+                                             "#include <sys/stat.h>\n"
+                                             "int main(int argc,char *argv[])\n"
+                                             "{struct stat statData;\n"
+                                             "printf(\"%d\\n\",\n"
+                                             "    _fstat(0, &statData) == 0);\n"
+                                             "return 0;}\n", "", SYSTEM_LIBS)) {
+        if (has_struct_stati64) {
+          fputs("#define os_fstat_orig _fstat\n", versionFile);
+          fputs("#define os_fstat_struct_orig struct stat\n", versionFile);
+        } else {
+          fputs("#define os_fstat _fstat\n", versionFile);
+          os_fstat_struct = "struct stat";
+        } /* if */
+      } else if (compileAndLinkWithOptionsOk("#include <stdio.h>\n"
+                                             "#include <sys/types.h>\n"
+                                             "#include <sys/stat.h>\n"
+                                             "int main(int argc,char *argv[])\n"
+                                             "{struct _stat statData;\n"
+                                             "printf(\"%d\\n\",\n"
+                                             "    fstat(0, &statData) == 0);\n"
+                                             "return 0;}\n", "", SYSTEM_LIBS)) {
+        if (has_struct_stati64) {
+          fputs("#define os_fstat_orig fstat\n", versionFile);
+          fputs("#define os_fstat_struct_orig struct _stat\n", versionFile);
+        } else {
+          fputs("#define os_fstat fstat\n", versionFile);
+          os_fstat_struct = "struct _stat";
+        } /* if */
+      } else if (compileAndLinkWithOptionsOk("#include <stdio.h>\n"
+                                             "#include <sys/types.h>\n"
+                                             "#include <sys/stat.h>\n"
+                                             "int main(int argc,char *argv[])\n"
+                                             "{struct stat statData;\n"
+                                             "printf(\"%d\\n\",\n"
+                                             "    fstat(0, &statData) == 0);\n"
+                                             "return 0;}\n", "", SYSTEM_LIBS)) {
+        if (has_struct_stati64) {
+          fputs("#define os_fstat_orig fstat\n", versionFile);
+          fputs("#define os_fstat_struct_orig struct stat\n", versionFile);
+        } else {
+          fputs("#define os_fstat fstat\n", versionFile);
+          os_fstat_struct = "struct stat";
+        } /* if */
+      } /* if */
+    } /* if */
+    if (os_fstat_struct == NULL) {
+      os_fstat_struct = os_stat_struct;
+      fputs("#define DEFINE_FSTATI64_EXT\n", versionFile);
+      fputs("#define os_fstat fstati64Ext\n", versionFile);
+    } /* if */
+    if (os_stat_struct != NULL && os_fstat_struct != NULL &&
+        strcmp(os_stat_struct, os_fstat_struct) != 0) {
+      fprintf(versionFile, "#define os_fstat_struct %s\n", os_fstat_struct);
+    } /* if */
+#endif
+  } /* determineStatFunctions */
+
+
+
 static void determineOsWCharFunctions (FILE *versionFile)
 
   { /* determineOsWCharFunctions */
+    determineStatFunctions(versionFile);
 #ifndef os_chdir
     if (compileAndLinkWithOptionsOk("#include <stdio.h>\n#include <direct.h>\n"
                                     "int main(int argc,char *argv[])\n"
@@ -2767,20 +3251,6 @@ static void determineOsWCharFunctions (FILE *versionFile)
       showErrors();
     } /* if */
 #endif
-#ifndef os_getenv
-    if (compileAndLinkOk("#include <stdio.h>\n#include <stdlib.h>\n"
-                         "int main(int argc,char *argv[])\n"
-                         "{printf(\"%d\\n\", _wgetenv(L\"PATH\") != NULL);return 0;}\n")) {
-      fputs("#define os_getenv _wgetenv\n", versionFile);
-    } else if (compileAndLinkOk("#include <stdio.h>\n#include <stdlib.h>\n"
-                         "int main(int argc,char *argv[])\n"
-                         "{printf(\"%d\\n\", wgetenv(L\"PATH\") != NULL);return 0;}\n")) {
-      fputs("#define os_getenv wgetenv\n", versionFile);
-    } else {
-      fputs("#define DEFINE_WGETENV\n", versionFile);
-      fputs("#define os_getenv wgetenv\n", versionFile);
-    } /* if */
-#endif
   } /* determineOsWCharFunctions */
 #endif
 
@@ -2798,6 +3268,7 @@ static void determineOsFunctions (FILE *versionFile)
 #ifdef OS_STRI_WCHAR
     determineOsWCharFunctions(versionFile);
 #endif
+    determineEnvironDefines(versionFile);
     if (!compileAndLinkOk("#include <stdio.h>\n"
                           "int main(int argc,char *argv[]){\n"
                           "flockfile(stdin);\n"
@@ -2933,14 +3404,14 @@ static void escapeString (FILE *versionFile, const char *text)
 
 
 
-static void appendOption (char *include_options, const char *includeOption)
+static void appendOption (char *options, const char *optionToAppend)
 
   { /* appendOption */
-    if (strstr(include_options, includeOption) == NULL) {
-      if (include_options[0] != '\0' && includeOption != '\0') {
-        strcat(include_options, "\n");
+    if (strstr(options, optionToAppend) == NULL) {
+      if (options[0] != '\0' && optionToAppend[0] != '\0') {
+        strcat(options, "\n");
       } /* if */
-      strcat(include_options, includeOption);
+      strcat(options, optionToAppend);
     } /* if */
   } /* appendOption */
 
@@ -3890,6 +4361,9 @@ static void determineBigIntDefines (FILE *versionFile,
     gmpLinkerOption = "-lgmp";
 #endif
     linkerOptions[0] = '\0';
+#ifdef LINKER_OPT_STATIC_LINKING
+    appendOption(linkerOptions, LINKER_OPT_STATIC_LINKING);
+#endif
     appendOption(linkerOptions, gmpLinkerOption);
     if (compileAndLinkWithOptionsOk("#include<stdio.h>\n#include<stdlib.h>\n#include<gmp.h>\n"
                                     "int main(int argc,char *argv[]){\n"
@@ -4056,30 +4530,6 @@ static void closeVersionFile (FILE *versionFile)
       fclose(versionFile);
     } /* if */
   } /* closeVersionFile */
-
-
-
-static void copyFile (const char *sourceName, const char *destName)
-
-  {
-    FILE *source;
-    FILE *dest;
-    char buffer[BUFFER_SIZE];
-    size_t len;
-
-  /* copyFile */
-    if (sourceName != NULL && destName != NULL) {
-      if ((source = fopen(sourceName, "r")) != NULL) {
-        if ((dest = fopen(destName, "w")) != NULL) {
-          while ((len = fread(buffer, 1, 1024, source)) != 0) {
-            fwrite(buffer, 1, len, dest);
-          } /* while */
-          fclose(dest);
-        } /* if */
-        fclose(source);
-      } /* if */
-    } /* if */
-  } /* copyFile */
 
 
 
@@ -4280,6 +4730,7 @@ int main (int argc, char **argv)
                          "int main (int argc, char *argv<::>)\n"
                          "<%printf(\"1\\n\");return 0;%>\n"));
     checkForLimitedStringLiteralLength(versionFile);
+    checkForLimitedArrayLiteralLength(versionFile);
     checkForSwitchWithInt64Type(versionFile);
     determineStackDirection(versionFile);
 #ifndef STACK_SIZE
@@ -4295,7 +4746,6 @@ int main (int argc, char **argv)
     closeVersionFile(versionFile);
     copyFile(versionFileName, "tst_vers.h");
     versionFile = openVersionFile(versionFileName);
-    determineEnvironDefines(versionFile);
     determineGetaddrlimit(versionFile);
     fprintf(versionFile, "#define HAS_WMEMCMP %d\n",
         compileAndLinkOk("#include <stdio.h>\n#include <wchar.h>\n"
@@ -4360,9 +4810,28 @@ int main (int argc, char **argv)
                          "int ret_code;\n"
                          "ret_code=mkfifo(\"qwertzuiop\", 0);\n"
                          "return 0;}\n"));
+    fprintf(versionFile, "#define HAS_SELECT %d\n",
+        compileAndLinkOk("#include<sys/select.h>\n#include<stddef.h>\n"
+                         "int main(int argc,char *argv[])\n"
+                         "{fd_set readfds, writefds, exceptfds;\n"
+                         "select(15, &readfds, &writefds, &exceptfds, NULL);\n"
+                         "return 0;}\n") ||
+        compileAndLinkWithOptionsOk("#include<winsock2.h>\n#include<stddef.h>\n"
+                                    "int main(int argc,char *argv[])\n"
+                                    "{fd_set readfds, writefds, exceptfds;\n"
+                                    "select(15, &readfds, &writefds, &exceptfds, NULL);\n"
+                                    "return 0;}\n", "", SYSTEM_LIBS));
     fprintf(versionFile, "#define HAS_POLL %d\n",
-        compileAndLinkOk("#include<poll.h>\nint main(int argc,char *argv[])"
-                         "{struct pollfd pollFd[1];poll(pollFd, 1, 0);return 0;}\n"));
+        compileAndLinkOk("#include<poll.h>\n"
+                         "int main(int argc,char *argv[])\n"
+                         "{struct pollfd pollFd[1];\n"
+                         "poll(pollFd, 1, 0);\n"
+                         "return 0;}\n"));
+    fprintf(versionFile, "#define HAS_MMAP %d\n",
+        compileAndLinkOk("#include<stddef.h>\n#include<sys/mman.h>\n"
+                         "int main(int argc,char *argv[])\n"
+                         "{mmap(NULL, 12345, PROT_READ, MAP_PRIVATE, 3, 0);\n"
+                         "return 0;}\n"));
     fprintf(logFile, " determined\n");
     determineIncludesAndLibs(versionFile);
     writeReadBufferEmptyMacro(versionFile);

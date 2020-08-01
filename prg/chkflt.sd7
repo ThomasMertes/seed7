@@ -7489,9 +7489,6 @@ const proc: check_lshift is func
          1.234567890123456789e+123 <<     0 <>  1.234567890123456789e+123 or
          Infinity                  <<    10 <>  Infinity                  or
         -Infinity                  <<    10 <> -Infinity                  or
-        not isNaN(NaN              << -9999)                              or
-        not isNaN(NaN              <<    10)                              or
-        not isNaN(NaN              <<  9999)                              or
          2.221519243884861782e+284 <<  2995 <>  Infinity                  or
         -3.720881118398479847e+31  <<  1616 <> -Infinity                  or
          2.234972294855364778e-99  <<  -823 <>  0.0                       or
@@ -7563,9 +7560,6 @@ const proc: check_lshift is func
         floatExpr( 1.234567890123456789e+123) <<     0 <>  1.234567890123456789e+123 or
         floatExpr( Infinity                 ) <<    10 <>  Infinity                  or
         floatExpr(-Infinity                 ) <<    10 <> -Infinity                  or
-        not isNaN(floatExpr(NaN             ) << -9999)                              or
-        not isNaN(floatExpr(NaN             ) <<    10)                              or
-        not isNaN(floatExpr(NaN             ) <<  9999)                              or
         floatExpr( 2.221519243884861782e+284) <<  2995 <>  Infinity                  or
         floatExpr(-3.720881118398479847e+31 ) <<  1616 <> -Infinity                  or
         floatExpr( 2.234972294855364778e-99 ) <<  -823 <>  0.0                       or
@@ -7629,7 +7623,7 @@ const proc: check_lshift is func
         floatExpr(-2.225073858507200889e-308) << integer.last  <> -Infinity or
         floatExpr(-2.225073858507201383e-308) << integer.last  <> -Infinity or
         floatExpr(-1.797693134862315708e+308) << integer.last  <> -Infinity then
-      writeln(" ***** Shift left of float value does not work correct. (2)");
+      writeln(" ***** Shift left of float values does not work correct. (2)");
       okay := FALSE;
     end if;
 
@@ -7637,9 +7631,6 @@ const proc: check_lshift is func
          1.234567890123456789e+123 << intExpr(    0) <>  1.234567890123456789e+123 or
          Infinity                  << intExpr(   10) <>  Infinity                  or
         -Infinity                  << intExpr(   10) <> -Infinity                  or
-        not isNaN(NaN              << intExpr(-9999))                              or
-        not isNaN(NaN              << intExpr(   10))                              or
-        not isNaN(NaN              << intExpr( 9999))                              or
          2.221519243884861782e+284 << intExpr( 2995) <>  Infinity                  or
         -3.720881118398479847e+31  << intExpr( 1616) <> -Infinity                  or
          2.234972294855364778e-99  << intExpr( -823) <>  0.0                       or
@@ -7703,7 +7694,7 @@ const proc: check_lshift is func
         -2.225073858507200889e-308 << intExpr(integer.last ) <> -Infinity or
         -2.225073858507201383e-308 << intExpr(integer.last ) <> -Infinity or
         -1.797693134862315708e+308 << intExpr(integer.last ) <> -Infinity then
-      writeln(" ***** Shift left of float value does not work correct. (3)");
+      writeln(" ***** Shift left of float values does not work correct. (3)");
       okay := FALSE;
     end if;
 
@@ -7711,9 +7702,6 @@ const proc: check_lshift is func
         floatExpr( 1.234567890123456789e+123) << intExpr(    0) <>  1.234567890123456789e+123 or
         floatExpr( Infinity                 ) << intExpr(   10) <>  Infinity                  or
         floatExpr(-Infinity                 ) << intExpr(   10) <> -Infinity                  or
-        not isNaN(floatExpr(NaN             ) << intExpr(-9999))                              or
-        not isNaN(floatExpr(NaN             ) << intExpr(   10))                              or
-        not isNaN(floatExpr(NaN             ) << intExpr( 9999))                              or
         floatExpr( 2.221519243884861782e+284) << intExpr( 2995) <>  Infinity                  or
         floatExpr(-3.720881118398479847e+31 ) << intExpr( 1616) <> -Infinity                  or
         floatExpr( 2.234972294855364778e-99 ) << intExpr( -823) <>  0.0                       or
@@ -7777,7 +7765,23 @@ const proc: check_lshift is func
         floatExpr(-2.225073858507200889e-308) << intExpr(integer.last ) <> -Infinity or
         floatExpr(-2.225073858507201383e-308) << intExpr(integer.last ) <> -Infinity or
         floatExpr(-1.797693134862315708e+308) << intExpr(integer.last ) <> -Infinity then
-      writeln(" ***** Shift left of float value does not work correct. (4)");
+      writeln(" ***** Shift left of float values does not work correct. (4)");
+      okay := FALSE;
+    end if;
+
+    if  not isNaN(NaN              << -9999)                     or
+        not isNaN(NaN              <<    10)                     or
+        not isNaN(NaN              <<  9999)                     or
+        not isNaN(floatExpr(NaN             ) << -9999)          or
+        not isNaN(floatExpr(NaN             ) <<    10)          or
+        not isNaN(floatExpr(NaN             ) <<  9999)          or
+        not isNaN(NaN              << intExpr(-9999))            or
+        not isNaN(NaN              << intExpr(   10))            or
+        not isNaN(NaN              << intExpr( 9999))            or
+        not isNaN(floatExpr(NaN             ) << intExpr(-9999)) or
+        not isNaN(floatExpr(NaN             ) << intExpr(   10)) or
+        not isNaN(floatExpr(NaN             ) << intExpr( 9999)) then
+      writeln(" ***** Shift left of NaN does not work correct.");
       okay := FALSE;
     end if;
 
@@ -7795,9 +7799,6 @@ const proc: check_rshift is func
          1.234567890123456789e+123 >>     0 <>  1.234567890123456789e+123 or
          Infinity                  >>   -10 <>  Infinity                  or
         -Infinity                  >>   -10 <> -Infinity                  or
-        not isNaN(NaN              >> -9999)                              or
-        not isNaN(NaN              >>    10)                              or
-        not isNaN(NaN              >>  9999)                              or
          2.221519243884861782e+284 >> -2995 <>  Infinity                  or
         -3.720881118398479847e+31  >> -1616 <> -Infinity                  or
          2.234972294855364778e-99  >>   823 <>  0.0                       or
@@ -7869,9 +7870,6 @@ const proc: check_rshift is func
         floatExpr( 1.234567890123456789e+123) >>     0 <>  1.234567890123456789e+123 or
         floatExpr( Infinity                 ) >>   -10 <>  Infinity                  or
         floatExpr(-Infinity                 ) >>   -10 <> -Infinity                  or
-        not isNaN(floatExpr(NaN             ) >> -9999)                              or
-        not isNaN(floatExpr(NaN             ) >>    10)                              or
-        not isNaN(floatExpr(NaN             ) >>  9999)                              or
         floatExpr( 2.221519243884861782e+284) >> -2995 <>  Infinity                  or
         floatExpr(-3.720881118398479847e+31 ) >> -1616 <> -Infinity                  or
         floatExpr( 2.234972294855364778e-99 ) >>   823 <>  0.0                       or
@@ -7943,9 +7941,6 @@ const proc: check_rshift is func
          1.234567890123456789e+123 >> intExpr(    0) <>  1.234567890123456789e+123 or
          Infinity                  >> intExpr(  -10) <>  Infinity                  or
         -Infinity                  >> intExpr(  -10) <> -Infinity                  or
-        not isNaN(NaN              >> intExpr(-9999))                              or
-        not isNaN(NaN              >> intExpr(   10))                              or
-        not isNaN(NaN              >> intExpr( 9999))                              or
          2.221519243884861782e+284 >> intExpr(-2995) <>  Infinity                  or
         -3.720881118398479847e+31  >> intExpr(-1616) <> -Infinity                  or
          2.234972294855364778e-99  >> intExpr(  823) <>  0.0                       or
@@ -8017,9 +8012,6 @@ const proc: check_rshift is func
         floatExpr( 1.234567890123456789e+123) >> intExpr(    0) <>  1.234567890123456789e+123 or
         floatExpr( Infinity                 ) >> intExpr(  -10) <>  Infinity                  or
         floatExpr(-Infinity                 ) >> intExpr(  -10) <> -Infinity                  or
-        not isNaN(floatExpr(NaN             ) >> intExpr(-9999))                              or
-        not isNaN(floatExpr(NaN             ) >> intExpr(   10))                              or
-        not isNaN(floatExpr(NaN             ) >> intExpr( 9999))                              or
         floatExpr( 2.221519243884861782e+284) >> intExpr(-2995) <>  Infinity                  or
         floatExpr(-3.720881118398479847e+31 ) >> intExpr(-1616) <> -Infinity                  or
         floatExpr( 2.234972294855364778e-99 ) >> intExpr(  823) <>  0.0                       or
@@ -8084,6 +8076,22 @@ const proc: check_rshift is func
         floatExpr(-2.225073858507201383e-308) >> intExpr(integer.first) <> -Infinity or
         floatExpr(-1.797693134862315708e+308) >> intExpr(integer.first) <> -Infinity then
       writeln(" ***** Shift right of float values does not work correct. (4)");
+      okay := FALSE;
+    end if;
+
+    if  not isNaN(NaN              >> -9999)                     or
+        not isNaN(NaN              >>    10)                     or
+        not isNaN(NaN              >>  9999)                     or
+        not isNaN(floatExpr(NaN             ) >> -9999)          or
+        not isNaN(floatExpr(NaN             ) >>    10)          or
+        not isNaN(floatExpr(NaN             ) >>  9999)          or
+        not isNaN(NaN              >> intExpr(-9999))            or
+        not isNaN(NaN              >> intExpr(   10))            or
+        not isNaN(NaN              >> intExpr( 9999))            or
+        not isNaN(floatExpr(NaN             ) >> intExpr(-9999)) or
+        not isNaN(floatExpr(NaN             ) >> intExpr(   10)) or
+        not isNaN(floatExpr(NaN             ) >> intExpr( 9999)) then
+      writeln(" ***** Shift right of NaN does not work correct.");
       okay := FALSE;
     end if;
 

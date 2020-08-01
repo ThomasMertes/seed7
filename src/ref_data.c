@@ -1263,7 +1263,7 @@ listType rflValue (const const_objectType aReference)
                 CATEGORY_OF_OBJ(aReference) == CALLOBJECT ||
                 CATEGORY_OF_OBJ(aReference) == REFLISTOBJECT))) {
       result = copy_list(take_reflist(aReference), &err_info);
-      if (unlikely(err_info != OKAY_NO_ERROR)) {
+      if (unlikely(result == NULL && err_info != OKAY_NO_ERROR)) {
         raise_error(MEMORY_ERROR);
         result = NULL;
       } /* if */

@@ -5235,8 +5235,12 @@ const proc: check_binom is func
         not raisesOverflowError(( -6) !      16171) or
         not raisesOverflowError(( -5) !     121974) or
         not raisesOverflowError(( -4) !    3810777) or
-        not raisesOverflowError(( -3) ! 4294967295) or
-        not raisesOverflowError(intExpr(-99) !         16) or
+        not raisesOverflowError(( -3) ! 4294967295) then
+      writeln(" ***** Overflow not raised for binomial coefficient with negative n. (1)");
+      okay := FALSE;
+    end if;
+
+    if  not raisesOverflowError(intExpr(-99) !         16) or
         not raisesOverflowError(intExpr(-98) !         16) or
         not raisesOverflowError(intExpr(-97) !         16) or
         not raisesOverflowError(intExpr(-96) !         17) or
@@ -5332,8 +5336,12 @@ const proc: check_binom is func
         not raisesOverflowError(intExpr( -6) !      16171) or
         not raisesOverflowError(intExpr( -5) !     121974) or
         not raisesOverflowError(intExpr( -4) !    3810777) or
-        not raisesOverflowError(intExpr( -3) ! 4294967295) or
-        not raisesOverflowError((-99) ! intExpr(        16)) or
+        not raisesOverflowError(intExpr( -3) ! 4294967295) then
+      writeln(" ***** Overflow not raised for binomial coefficient with negative n. (2)");
+      okay := FALSE;
+    end if;
+
+    if  not raisesOverflowError((-99) ! intExpr(        16)) or
         not raisesOverflowError((-98) ! intExpr(        16)) or
         not raisesOverflowError((-97) ! intExpr(        16)) or
         not raisesOverflowError((-96) ! intExpr(        17)) or
@@ -5429,8 +5437,12 @@ const proc: check_binom is func
         not raisesOverflowError(( -6) ! intExpr(     16171)) or
         not raisesOverflowError(( -5) ! intExpr(    121974)) or
         not raisesOverflowError(( -4) ! intExpr(   3810777)) or
-        not raisesOverflowError(( -3) ! intExpr(4294967295)) or
-        not raisesOverflowError(intExpr(-99) ! intExpr(        16)) or
+        not raisesOverflowError(( -3) ! intExpr(4294967295)) then
+      writeln(" ***** Overflow not raised for binomial coefficient with negative n. (3)");
+      okay := FALSE;
+    end if;
+
+    if  not raisesOverflowError(intExpr(-99) ! intExpr(        16)) or
         not raisesOverflowError(intExpr(-98) ! intExpr(        16)) or
         not raisesOverflowError(intExpr(-97) ! intExpr(        16)) or
         not raisesOverflowError(intExpr(-96) ! intExpr(        17)) or
@@ -5527,7 +5539,7 @@ const proc: check_binom is func
         not raisesOverflowError(intExpr( -5) ! intExpr(    121974)) or
         not raisesOverflowError(intExpr( -4) ! intExpr(   3810777)) or
         not raisesOverflowError(intExpr( -3) ! intExpr(4294967295)) then
-      writeln(" ***** Overflow not raised for binomial coefficient with negative n.");
+      writeln(" ***** Overflow not raised for binomial coefficient with negative n. (4)");
       okay := FALSE;
     end if;
 
@@ -5628,8 +5640,12 @@ const proc: check_binom is func
         not raisesOverflowError(       113 ! 96) or
         not raisesOverflowError(       113 ! 97) or
         not raisesOverflowError(       114 ! 98) or
-        not raisesOverflowError(       115 ! 99) or
-        not raisesOverflowError(intExpr(4294967297) !  2) or
+        not raisesOverflowError(       115 ! 99) then
+      writeln(" ***** Overflow not raised for binomial coefficient with positive n. (1)");
+      okay := FALSE;
+    end if;
+
+    if  not raisesOverflowError(intExpr(4294967297) !  2) or
         not raisesOverflowError(intExpr(   3810780) !  3) or
         not raisesOverflowError(intExpr(    121978) !  4) or
         not raisesOverflowError(intExpr(     16176) !  5) or
@@ -5726,8 +5742,12 @@ const proc: check_binom is func
         not raisesOverflowError(intExpr(       113) ! 96) or
         not raisesOverflowError(intExpr(       113) ! 97) or
         not raisesOverflowError(intExpr(       114) ! 98) or
-        not raisesOverflowError(intExpr(       115) ! 99) or
-        not raisesOverflowError(4294967297 ! intExpr( 2)) or
+        not raisesOverflowError(intExpr(       115) ! 99) then
+      writeln(" ***** Overflow not raised for binomial coefficient with positive n. (2)");
+      okay := FALSE;
+    end if;
+
+    if  not raisesOverflowError(4294967297 ! intExpr( 2)) or
         not raisesOverflowError(   3810780 ! intExpr( 3)) or
         not raisesOverflowError(    121978 ! intExpr( 4)) or
         not raisesOverflowError(     16176 ! intExpr( 5)) or
@@ -5824,8 +5844,12 @@ const proc: check_binom is func
         not raisesOverflowError(       113 ! intExpr(96)) or
         not raisesOverflowError(       113 ! intExpr(97)) or
         not raisesOverflowError(       114 ! intExpr(98)) or
-        not raisesOverflowError(       115 ! intExpr(99)) or
-        not raisesOverflowError(intExpr(4294967297) ! intExpr( 2)) or
+        not raisesOverflowError(       115 ! intExpr(99)) then
+      writeln(" ***** Overflow not raised for binomial coefficient with positive n. (3)");
+      okay := FALSE;
+    end if;
+
+    if  not raisesOverflowError(intExpr(4294967297) ! intExpr( 2)) or
         not raisesOverflowError(intExpr(   3810780) ! intExpr( 3)) or
         not raisesOverflowError(intExpr(    121978) ! intExpr( 4)) or
         not raisesOverflowError(intExpr(     16176) ! intExpr( 5)) or
@@ -5923,7 +5947,7 @@ const proc: check_binom is func
         not raisesOverflowError(intExpr(       113) ! intExpr(97)) or
         not raisesOverflowError(intExpr(       114) ! intExpr(98)) or
         not raisesOverflowError(intExpr(       115) ! intExpr(99)) then
-      writeln(" ***** Overflow not raised for binomial coefficient with positive n.");
+      writeln(" ***** Overflow not raised for binomial coefficient with positive n. (4)");
       okay := FALSE;
     end if;
 

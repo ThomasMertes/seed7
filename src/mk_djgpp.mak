@@ -127,7 +127,6 @@ chkccomp.h:
 
 version.h: chkccomp.h
 	$(ECHO) "#define PATH_DELIMITER 92 /* backslash (ASCII) */" > version.h
-	$(ECHO) "#define USE_DIRENT" >> version.h
 	$(ECHO) "#define SEARCH_PATH_DELIMITER ';'" >> version.h
 	$(ECHO) "#define AWAIT_WITH_SELECT" >> version.h
 	$(ECHO) "#define IMPLEMENT_PTY_WITH_PIPE2" >> version.h
@@ -138,8 +137,6 @@ version.h: chkccomp.h
 	$(ECHO) "#define os_ftell ftell" >> version.h
 	$(ECHO) "#define OS_FSEEK_OFFSET_BITS 32" >> version.h
 	$(ECHO) "#define os_off_t off_t" >> version.h
-	$(ECHO) "#define os_environ environ" >> version.h
-	$(ECHO) "#define os_putenv putenv" >> version.h
 	$(ECHO) "#define OBJECT_FILE_EXTENSION \".o\"" >> version.h
 	$(ECHO) "#define LIBRARY_FILE_EXTENSION \".a\"" >> version.h
 	$(ECHO) "#define EXECUTABLE_FILE_EXTENSION \".exe\"" >> version.h

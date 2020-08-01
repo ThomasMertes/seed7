@@ -229,6 +229,11 @@ const proc: check_string_literal is func
 
 const proc: check_string_comparisons is func
   local
+    const array string: arr1 is [] ("a", "ab", "abc", "abcd", "b", "bb", "bbb", "bbbb");
+    var array string: arr2 is 0 times "";
+    var string: name is "";
+    var integer: index is 0;
+    var boolean: ok is TRUE;
     var boolean: okay is TRUE;
   begin
     okay := TRUE;
@@ -2327,6 +2332,14 @@ const proc: check_string_comparisons is func
         compare("222",    "123")    <>  1 or
         compare("2222",   "123")    <>  1 then
       writeln(" ***** compare(STRING, STRING) does not work correct.");
+      okay := FALSE;
+    end if;
+    arr2 := sort(arr1);
+    for name key index range arr2 do
+      ok := ok and name = arr1[index]
+    end for;
+    if not ok then
+      writeln(" ***** Sorting with compare(STRING, STRING) does not work correct.");
       okay := FALSE;
     end if;
     if okay then

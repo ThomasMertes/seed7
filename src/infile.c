@@ -43,7 +43,7 @@
 #include "info.h"
 #include "stat.h"
 
-#ifdef USE_MMAP
+#if HAS_MMAP
 #include "sys/types.h"
 #include "sys/stat.h"
 #include "sys/mman.h"
@@ -69,14 +69,14 @@ static fileNumType file_counter = 0;
 int fill_buf (void)
 
   {
-#ifndef USE_MMAP
+#if !HAS_MMAP
     memSizeType chars_read;
 #endif
     int result;
 
   /* fill_buf */
     logFunction(printf("fill_buf\n"););
-#ifdef USE_MMAP
+#if HAS_MMAP
     result = EOF;
 #else
     if (in_file.fil != NULL &&
@@ -100,7 +100,7 @@ static inline boolType speedup (void)
 
   {
     boolType okay;
-#ifdef USE_MMAP
+#if HAS_MMAP
     int file_no;
     os_fstat_struct file_stat;
     memSizeType file_length;
@@ -110,7 +110,7 @@ static inline boolType speedup (void)
     logFunction(printf("speedup\n"););
     okay = TRUE;
 #ifdef USE_ALTERNATE_NEXT_CHARACTER
-#ifdef USE_MMAP
+#if HAS_MMAP
     file_no = fileno(in_file.fil);
     if (file_no != -1 && os_fstat(file_no, &file_stat) == 0) {
       if (file_stat.st_size >= 0 && (unsigned_os_off_t) file_stat.st_size < MAX_MEMSIZETYPE) {
@@ -288,7 +288,7 @@ void close_infile (void)
 #ifdef USE_ALTERNATE_NEXT_CHARACTER
     if (in_file.start != NULL) {
       if (in_file.buffer_size == 0) {
-#ifdef USE_MMAP
+#if HAS_MMAP
         if (in_file.fil != NULL) {
           munmap(in_file.start, (size_t) (in_file.beyond - in_file.start));
         } /* if */

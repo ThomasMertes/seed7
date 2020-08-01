@@ -4297,8 +4297,8 @@ bigIntType bigFromByteBufferBe (const memSizeType size,
     bigIntType result;
 
   /* bigFromByteBufferBe */
-    logFunction(printf("bigFromByteBufferBe(" FMT_U_MEM ", *, %d)\n",
-                       size, isSigned););
+    logFunction(printf("bigFromByteBufferBe(" FMT_U_MEM ", 0x" FMT_X_MEM ", %d)\n",
+                       size, (memSizeType) buffer, isSigned););
     if (size == 0) {
       num_bigdigits = 0;
       result_size = 1;
@@ -4391,8 +4391,8 @@ bigIntType bigFromByteBufferLe (const memSizeType size,
     bigIntType result;
 
   /* bigFromByteBufferLe */
-    logFunction(printf("bigFromByteBufferLe(" FMT_U_MEM ", *, %d)\n",
-                       size, isSigned););
+    logFunction(printf("bigFromByteBufferLe(" FMT_U_MEM ", 0x" FMT_X_MEM ", %d)\n",
+                       size, (memSizeType) buffer, isSigned););
     if (size == 0) {
       num_bigdigits = 0;
       result_size = 1;
@@ -4474,6 +4474,8 @@ bigIntType bigFromByteBufferLe (const memSizeType size,
 bigIntType bigFromBStriBe (const const_bstriType bstri, const boolType isSigned)
 
   { /* bigFromBStriBe */
+    logFunction(printf("bigFromBStriBe(\"%s\", %d)\n",
+                       bstriAsUnquotedCStri(bstri), isSigned););
     return bigFromByteBufferBe(bstri->size, bstri->mem, isSigned);
   } /* bigFromBStriBe */
 
@@ -4492,6 +4494,8 @@ bigIntType bigFromBStriBe (const const_bstriType bstri, const boolType isSigned)
 bigIntType bigFromBStriLe (const const_bstriType bstri, const boolType isSigned)
 
   { /* bigFromBStriLe */
+    logFunction(printf("bigFromBStriLe(\"%s\", %d)\n",
+                       bstriAsUnquotedCStri(bstri), isSigned););
     return bigFromByteBufferLe(bstri->size, bstri->mem, isSigned);
   } /* bigFromBStriLe */
 

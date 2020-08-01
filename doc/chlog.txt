@@ -1,3 +1,57 @@
+20180601:
+- The library tls.s7i has been improved to support the server_name
+  extension and to process handshake messages, that extend over several
+  tls message records. Additionally TLS version 1.2 is used now.
+- The library x509cert.s7i has been improved to accept a validity with
+  times in GeneralizedTime data elements (additionally to times in
+  UTCTime data elements).
+- The library browser.s7i has been improved to support calling Safari
+  under Mac OS X.
+- Tests for the functions environment(), getenv() and setenv() have
+  been added to chkcmd.sd7.
+- A test that checks the sorting of an array of strings has been added
+  to chkstr.sd7. This checks the compare() function for strings.
+- The compiler s7c has been improved to create better code for the
+  option -tf (trace functions). Now the trace functions are added after
+  the declarations (such that older C compilers will accept this also).
+- In chkflt.sd7 tests for NaN have been grouped together.
+- In chkovf.sd7 tests for the binomial coefficient have been split into
+  groups.
+- The program chkccomp.c has been improved to define the macros
+  LIMITED_CSTRI_LITERAL_LEN, LIMITED_ARRAY_LITERAL_LEN,
+  DECLARE_OS_ENVIRON, USE_GET_ENVIRONMENT, INITIALIZE_OS_ENVIRON,
+  DEFINE_WGETENV, DEFINE_WSETENV, os_environ, os_getenv, os_setenv,
+  os_putenv, DELETE_PUTENV_STRING, DEFINE_WSTATI64_EXT,
+  DEFINE_STRUCT_STATI64_EXT, DEFINE_FSTATI64_EXT, os_lstat, os_stat,
+  os_fstat, os_stat_struct, os_fstat_struct, HAS_SELECT and HAS_MMAP.
+- In int_rtl.c the macro DECIMAL_DIGITS has been improved to work with
+  unsigned numbers.
+- In str_rtl.c the function strCmpGeneric() has been changed back to
+  the old behaviour. Now strCmpGeneric() and strCompare() have again
+  the same behaviour. It has turned out that sorting an array of
+  strings worked wrong, when the program was compiled.
+- In pcs_win.c the function prepareCommandLine has been improved and
+  the function copyQuotedPart has been added. Now the command line
+  created for CreateProcessW() has fewer quoted parameters. Now
+  parameters that contain a space or a quotation (") or a control
+  character or a character byond ASCII are quoted. All other parameters
+  are not quoted.
+- Definitions of USE_MMAP, os_environ, os_fstat, DEFINE_WSTATI64_EXT,
+  os_lstat, os_stat, os_stat_orig, os_stat_struct, os_fstat_struct,
+  DEFINE_WSETENV, os_setenv, os_putenv and USE_DIRENT have been removed
+  from the makefiles.
+- In several files usages of USE_MMAP have been replaced by usages of
+  HAS_MMAP.
+- The file read_me.txt has been updated.
+- In chkccomp.c the functions checkForLimitedArrayLiteralLength() and
+  determineStatFunctions() have been added and the functions
+  determineEnvironDefines() and determineBigIntDefines() have been
+  improved. Now the test for the GMP library enforces static linking.
+- The macros DEFINE_MATHERR_FUNCTION and DEFINE__MATHERR_FUNCTION have
+  been improved to define if matherr() or _matherr() should be defined.
+- Log functions have been improved in big_gmp.c, big_rtl.c and
+  int_rtl.c.
+
 20180513:
 - In the manual descriptions of the binomial coefficient and of several
   conversion functions have been improved.

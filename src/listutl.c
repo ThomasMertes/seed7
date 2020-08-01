@@ -349,7 +349,7 @@ void replace_list_elem (listType list, const_objectType elem1,
  *  @param list_from Possibly empty list to be copied.
  *  @param err_info Unchanged when the function succeeds or
  *                  MEMORY_ERROR when a memory allocation failed.
- *  @return the copied list.
+ *  @return the copied list or NULL, when an error occurred.
  */
 listType copy_list (const_listType list_from, errInfoType *err_info)
 

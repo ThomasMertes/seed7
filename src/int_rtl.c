@@ -73,61 +73,61 @@
 #define BYTE_BUFFER_SIZE sizeof(intType)
 
 #if   INTTYPE_SIZE == 32
-#define DECIMAL_DIGITS(num)                    \
-  (num < INT_SUFFIX(100000000) ?               \
-      (num < INT_SUFFIX(10000) ?               \
-        (num < INT_SUFFIX(100) ?               \
-          (num < INT_SUFFIX(10) ? 1 : 2)       \
-        :                                      \
-          (num < INT_SUFFIX(1000) ? 3 : 4)     \
-        )                                      \
-      :                                        \
-        (num < INT_SUFFIX(1000000) ?           \
-          (num < INT_SUFFIX(100000) ? 5 : 6)   \
-        :                                      \
-          (num < INT_SUFFIX(10000000) ? 7 : 8) \
-        )                                      \
-      )                                        \
-    :                                          \
-      (num < INT_SUFFIX(1000000000) ? 9 : 10)  \
+#define DECIMAL_DIGITS(num) \
+  (num < UINT_SUFFIX(100000000) ?               \
+      (num < UINT_SUFFIX(10000) ?               \
+        (num < UINT_SUFFIX(100) ?               \
+          (num < UINT_SUFFIX(10) ? 1 : 2)       \
+        :                                       \
+          (num < UINT_SUFFIX(1000) ? 3 : 4)     \
+        )                                       \
+      :                                         \
+        (num < UINT_SUFFIX(1000000) ?           \
+          (num < UINT_SUFFIX(100000) ? 5 : 6)   \
+        :                                       \
+          (num < UINT_SUFFIX(10000000) ? 7 : 8) \
+        )                                       \
+      )                                         \
+    :                                           \
+      (num < UINT_SUFFIX(1000000000) ? 9 : 10)  \
     )
 #elif INTTYPE_SIZE == 64
 #define DECIMAL_DIGITS(num) \
-    (num < INT_SUFFIX(10000000000000000) ?                  \
-      (num < INT_SUFFIX(100000000) ?                        \
-        (num < INT_SUFFIX(10000) ?                          \
-          (num < INT_SUFFIX(100) ?                          \
-            (num < INT_SUFFIX(10) ? 1 : 2)                  \
+    (num < UINT_SUFFIX(10000000000000000) ?                 \
+      (num < UINT_SUFFIX(100000000) ?                       \
+        (num < UINT_SUFFIX(10000) ?                         \
+          (num < UINT_SUFFIX(100) ?                         \
+            (num < UINT_SUFFIX(10) ? 1 : 2)                 \
           :                                                 \
-            (num < INT_SUFFIX(1000) ? 3 : 4)                \
+            (num < UINT_SUFFIX(1000) ? 3 : 4)               \
           )                                                 \
         :                                                   \
-          (num < INT_SUFFIX(1000000) ?                      \
-            (num < INT_SUFFIX(100000) ? 5 : 6)              \
+          (num < UINT_SUFFIX(1000000) ?                     \
+            (num < UINT_SUFFIX(100000) ? 5 : 6)             \
           :                                                 \
-            (num < INT_SUFFIX(10000000) ? 7 : 8)            \
+            (num < UINT_SUFFIX(10000000) ? 7 : 8)           \
           )                                                 \
         )                                                   \
       :                                                     \
-        (num < INT_SUFFIX(1000000000000) ?                  \
-          (num < INT_SUFFIX(10000000000) ?                  \
-            (num < INT_SUFFIX(1000000000) ? 9 : 10)         \
+        (num < UINT_SUFFIX(1000000000000) ?                 \
+          (num < UINT_SUFFIX(10000000000) ?                 \
+            (num < UINT_SUFFIX(1000000000) ? 9 : 10)        \
           :                                                 \
-            (num < INT_SUFFIX(100000000000) ? 11 : 12)      \
+            (num < UINT_SUFFIX(100000000000) ? 11 : 12)     \
           )                                                 \
         :                                                   \
-          (num < INT_SUFFIX(100000000000000) ?              \
-            (num < INT_SUFFIX(10000000000000) ? 13 : 14)    \
+          (num < UINT_SUFFIX(100000000000000) ?             \
+            (num < UINT_SUFFIX(10000000000000) ? 13 : 14)   \
           :                                                 \
-            (num < INT_SUFFIX(1000000000000000) ? 15 : 16)  \
+            (num < UINT_SUFFIX(1000000000000000) ? 15 : 16) \
           )                                                 \
         )                                                   \
       )                                                     \
     :                                                       \
-      (num < INT_SUFFIX(1000000000000000000) ?              \
-        (num < INT_SUFFIX(100000000000000000) ? 17 : 18)    \
+      (num < UINT_SUFFIX(1000000000000000000) ?             \
+        (num < UINT_SUFFIX(100000000000000000) ? 17 : 18)   \
       :                                                     \
-        (num < INT_SUFFIX(10000000000000000000U) ? 19 : 20) \
+        (num < UINT_SUFFIX(10000000000000000000) ? 19 : 20) \
       )                                                     \
     )
 #endif
@@ -1030,7 +1030,7 @@ intType intBinom (intType n_number, intType k_number)
 
   /* intBinom */
     logFunction(printf("intBinom(" FMT_D ", " FMT_D ")\n",
-                       k_number, n_number););
+                       n_number, k_number););
     if (n_number >= 0 && k_number > (intType) ((uintType) n_number >> 1)) {
       k_number = n_number - k_number;
     } /* if */
@@ -1097,18 +1097,27 @@ intType intBinom (intType n_number, intType k_number)
         } /* for */
       } /* if */
       if (negative) {
-        if (unlikely(unsigned_result > -(uintType) INTTYPE_MIN)) {
+        /* The value INTTYPE_MIN below is casted, to avoid a signed   */
+        /* integer overflow, when it is negated. A negated unsigned   */
+        /* value should still be unsigned. But lcc-win32 thinks, that */
+        /* negating an unsigned value results in a signed value.      */
+        /* Therefore an explicit cast of the negated value is done.   */
+        if (unlikely(unsigned_result > (uintType) -(uintType) INTTYPE_MIN)) {
           logError(printf("intBinom(" FMT_D ", " FMT_D "): "
-                   "Negative result too small.\n", n_number, k_number););
+                          "Negative result (-" FMT_U ") too small.\n",
+                          n_number, k_number, unsigned_result););
           raise_error(OVERFLOW_ERROR);
           result = 0;
         } else {
           result = (intType) -unsigned_result;
         } /* if */
       } else {
-        if (unlikely(unsigned_result > INTTYPE_MAX)) {
+        /* The cast below silences possible signed-unsigned comparison    */
+        /* warnings and prevents that lcc-win32 does a signed comparison. */
+        if (unlikely(unsigned_result > (uintType) INTTYPE_MAX)) {
           logError(printf("intBinom(" FMT_D ", " FMT_D "): "
-                   "Positive result too big.\n", n_number, k_number););
+                          "Positive result (" FMT_U ") too big.\n",
+                          n_number, k_number, unsigned_result););
           raise_error(OVERFLOW_ERROR);
           result = 0;
         } else {
@@ -1139,7 +1148,7 @@ uintType uintBinomNoChk (uintType n_number, intType k_number)
 
   /* uintBinomNoChk */
     logFunction(printf("uintBinomNoChk(" FMT_D ", " FMT_U ")\n",
-                       k_number, n_number););
+                       n_number, k_number););
     if (k_number > (intType) (n_number >> 1)) {
       k_number = (intType) n_number - k_number;
     } /* if */
