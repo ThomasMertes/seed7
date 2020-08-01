@@ -79,6 +79,7 @@ typedef union {
     settype       setvalue;     /* SETOBJECT */
     rtlStructtype structvalue;  /* STRUCTOBJECT */
     filetype      filevalue;    /* FILEOBJECT */
+    sockettype    socketvalue;  /* SOCKETOBJECT */
     rtlListtype   listvalue;    /* LISTOBJECT, EXPROBJECT */
     wintype       winvalue;     /* WINOBJECT */
 /*    rtlObjecttype objvalue;     ** ENUMLITERALOBJECT, CONSTENUMOBJECT */

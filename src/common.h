@@ -237,7 +237,12 @@ typedef unsigned char      uchartype;
 typedef char *             cstritype;
 typedef unsigned char *    ustritype;
 typedef FILE *             filetype;
+
+#ifdef USE_WINSOCK
+typedef unsigned int       sockettype;
+#else
 typedef int                sockettype;
+#endif
 
 typedef const char *           const_cstritype;
 typedef const unsigned char *  const_ustritype;

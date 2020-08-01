@@ -77,6 +77,40 @@ listtype arguments;
 
 #ifdef ANSI_C
 
+objecttype soc_addr_numeric (listtype arguments)
+#else
+
+objecttype soc_addr_numeric (arguments)
+listtype arguments;
+#endif
+
+  { /* soc_addr_numeric */
+    isit_bstri(arg_1(arguments));
+    return bld_stri_temp(
+        socAddrNumeric(take_bstri(arg_1(arguments))));
+  } /* soc_addr_numeric */
+
+
+
+#ifdef ANSI_C
+
+objecttype soc_addr_service (listtype arguments)
+#else
+
+objecttype soc_addr_service (arguments)
+listtype arguments;
+#endif
+
+  { /* soc_addr_service */
+    isit_bstri(arg_1(arguments));
+    return bld_stri_temp(
+        socAddrService(take_bstri(arg_1(arguments))));
+  } /* soc_addr_service */
+
+
+
+#ifdef ANSI_C
+
 objecttype soc_bind (listtype arguments)
 #else
 
@@ -243,6 +277,38 @@ listtype arguments;
 
 #ifdef ANSI_C
 
+objecttype soc_get_addr (listtype arguments)
+#else
+
+objecttype soc_get_addr (arguments)
+listtype arguments;
+#endif
+
+  { /* soc_get_addr */
+    isit_socket(arg_1(arguments));
+    return bld_bstri_temp(
+        socGetAddr(take_socket(arg_1(arguments))));
+  } /* soc_get_addr */
+
+
+
+#ifdef ANSI_C
+
+objecttype soc_get_hostname (listtype arguments)
+#else
+
+objecttype soc_get_hostname (arguments)
+listtype arguments;
+#endif
+
+  { /* soc_get_hostname */
+    return bld_stri_temp(socGetHostname());
+  } /* soc_get_hostname */
+
+
+
+#ifdef ANSI_C
+
 objecttype soc_inet_addr (listtype arguments)
 #else
 
@@ -291,6 +357,30 @@ listtype arguments;
     return bld_bstri_temp(
         socInetServAddr(take_int(arg_1(arguments))));
   } /* soc_inet_serv_addr */
+
+
+
+#ifdef ANSI_C
+
+objecttype soc_input_ready (listtype arguments)
+#else
+
+objecttype soc_input_ready (arguments)
+listtype arguments;
+#endif
+
+  { /* soc_input_ready */
+    isit_socket(arg_1(arguments));
+    isit_int(arg_2(arguments));
+    isit_int(arg_3(arguments));
+    if (socInputReady(take_socket(arg_1(arguments)),
+                      take_int(arg_2(arguments)),
+                      take_int(arg_3(arguments)))) {
+      return SYS_TRUE_OBJECT;
+    } else {
+      return SYS_FALSE_OBJECT;
+    } /* if */
+  } /* soc_input_ready */
 
 
 
@@ -405,6 +495,68 @@ listtype arguments;
                     take_int(arg_4(arguments)),
                    &take_bstri(arg_5(arguments))));
   } /* soc_recvfrom */
+
+
+
+#ifdef OUT_OF_ORDER
+#ifdef ANSI_C
+
+objecttype soc_select (listtype arguments)
+#else
+
+objecttype soc_select (arguments)
+listtype arguments;
+#endif
+
+  {
+    arraytype sockArray;
+    memsizetype array_size;
+    memsizetype pos;
+    int nfds = 0;
+    fd_set readfds;
+    struct timeval timeout;
+    int select_result;
+    int fd;
+    arraytype result_array;
+    arraytype result;
+
+  /* soc_select */
+    isit_array(arg_1(arguments));
+    sockArray = take_array(arg_1(arguments));
+    FD_ZERO(&readfds);
+    if (sockArray->max_position >= sockArray->min_position) {
+      array_size = (uinttype) (sockArray->max_position - sockArray->min_position) + 1;
+      for (pos = 0; pos < array_size; pos++) {
+        FD_SET(sockArray->arr[pos].value.socketvalue, &readfds);
+        if (sockArray->arr[pos].value.socketvalue >= nfds) {
+          nfds = sockArray->arr[pos].value.socketvalue + 1;
+        } /* if */
+      } /* for */
+    } /* if */
+    select_result = select(nfds, &readfds, NULL, NULL, &timeout);
+    if (unlikely(select_result < 0)) {
+      raise_error(FILE_ERROR);
+      result = NULL;
+    } else {
+      if (unlikely(!ALLOC_ARRAY(result_array, select_result))) {
+        raise_error(MEMORY_ERROR);
+        result = NULL;
+      } else {
+        result_array->min_position = 1;
+        result_array->max_position = select_result;
+        pos = 0;
+        for (fd = 0; pos < nfds; fd++) {
+          if (FD_ISSET(fd, &readfds)) {
+            result_array->arr[pos].value.socketvalue = fd;
+            pos++;
+          } /* if */
+        } /* for */
+        result = bld_array_temp(result_array);
+      } /* if */
+    } /* if */
+    return result;
+  } /* soc_select */
+#endif
 
 
 

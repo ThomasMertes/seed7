@@ -67,11 +67,11 @@
 
 #ifdef ANSI_C
 
-static INLINE void init_dollar_type (objecttype declared_object,
+static void init_dollar_type (objecttype declared_object,
     typetype meta_type, errinfotype *err_info)
 #else
 
-static INLINE void init_dollar_type (declared_object, meta_type, err_info)
+static void init_dollar_type (declared_object, meta_type, err_info)
 objecttype declared_object;
 typetype meta_type;
 errinfotype *err_info;

@@ -307,7 +307,7 @@ listtype arguments;
   /* int_fact */
     isit_int(arg_2(arguments));
     number = (int) take_int(arg_2(arguments));
-    if (number < 0 || number >= sizeof(fact) / sizeof(inttype)) {
+    if (number < 0 || (size_t) number >= sizeof(fact) / sizeof(inttype)) {
       return(raise_exception(SYS_NUM_EXCEPTION));
     } else {
       return(bld_int_temp(fact[number]));

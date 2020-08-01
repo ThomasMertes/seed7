@@ -87,6 +87,9 @@
 #undef TRACE_CMD_RTL
 
 
+#ifndef CPLUSPLUS_COMPILER
+#define CPLUSPLUS_COMPILER C_COMPILER
+#endif
 #ifndef EXECUTABLE_FILE_EXTENSION
 #define EXECUTABLE_FILE_EXTENSION ""
 #endif
@@ -936,6 +939,8 @@ stritype name;
         opt = EXECUTABLE_FILE_EXTENSION;
       } else if (strcmp(opt_name, "C_COMPILER") == 0) {
         opt = C_COMPILER;
+      } else if (strcmp(opt_name, "CPLUSPLUS_COMPILER") == 0) {
+        opt = CPLUSPLUS_COMPILER;
       } else if (strcmp(opt_name, "C_COMPILER_VERSION") == 0) {
         opt = C_COMPILER_VERSION;
       } else if (strcmp(opt_name, "GET_CC_VERSION_INFO") == 0) {

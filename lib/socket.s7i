@@ -40,18 +40,32 @@ const proc: (inout socketAddress param) := (ref socketAddress param)        is a
 const func socketAddress: _GENERATE_EMPTY_SOCKET_ADDRESS                    is action "BST_EMPTY";
 const socketAddress: (attr socketAddress) . value                           is _GENERATE_EMPTY_SOCKET_ADDRESS;
 const func integer: addrFamily (in socketAddress param)                     is action "SOC_ADDR_FAMILY";
+const func string: numericAddress (in socketAddress param)                  is action "SOC_ADDR_NUMERIC";
+const func string: service (in socketAddress param)                         is action "SOC_ADDR_SERVICE";
 
 (**
  *  Create an internet socket address of a port at a host.
+ *  The ''hostName'' is either a host name ("e.g.: "www.example.org"),
+ *  or an IPv4 address in standard dot notation (e.g.: "192.0.2.235").
+ *  Operating systems supporting IPv6 may also accept an IPv6 address
+ *  in colon notation.
  *  @return the internet socket address.
+ *  @exception FILE_ERROR A system function returns an error.
+ *  @exception RANGE_ERROR The port is not in the range 0 to 65535.
+ *  @exception MEMORY_ERROR Not enough memory to convert ''hostName''.
+ *             to the system representation or not enough memory to
+ *             represent the result.
  *)
-const func socketAddress: inetSocketAddress (in string: host_name,
+const func socketAddress: inetSocketAddress (in string: hostName,
                                              in integer: port)              is action "SOC_INET_ADDR";
 
 
 (**
  *  Create an internet socket address of a port at localhost.
  *  @return the internet socket address.
+ *  @exception FILE_ERROR A system function returns an error.
+ *  @exception RANGE_ERROR The port is not in the range 0 to 65535.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
  *)
 const func socketAddress: inetSocketAddress (in integer: port)              is action "SOC_INET_LOCAL_ADDR";
 
@@ -59,8 +73,14 @@ const func socketAddress: inetSocketAddress (in integer: port)              is a
 (**
  *  Create an internet listener socket address of a port at localhost.
  *  @return the internet listener socket address.
+ *  @exception FILE_ERROR A system function returns an error.
+ *  @exception RANGE_ERROR The port is not in the range 0 to 65535.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
  *)
 const func socketAddress: inetListenerAddress (in integer: port)            is action "SOC_INET_SERV_ADDR";
+
+
+const func string: getHostname                                              is action "SOC_GET_HOSTNAME";
 
 
 const type: PRIMITIVE_SOCKET is newtype;
@@ -78,6 +98,7 @@ const PRIMITIVE_SOCKET: (attr PRIMITIVE_SOCKET) . value                     is _
 const PRIMITIVE_SOCKET: PRIMITIVE_NULL_SOCKET                               is PRIMITIVE_SOCKET.value;
 
 const proc: close (in PRIMITIVE_SOCKET param)                               is action "SOC_CLOSE";
+# const func socketAddress: address (in PRIMITIVE_SOCKET param)               is action "SOC_GET_ADDR";
 const func char: getc (in PRIMITIVE_SOCKET param)                           is action "SOC_GETC";
 const func string: gets (in PRIMITIVE_SOCKET param, in integer param)       is action "SOC_GETS";
 const func string: word_read (in PRIMITIVE_SOCKET param, inout char param)  is action "SOC_WORD_READ";
@@ -101,6 +122,8 @@ const func PRIMITIVE_SOCKET: accept (in PRIMITIVE_SOCKET param,
 const proc: bind (in PRIMITIVE_SOCKET param, in socketAddress param)        is action "SOC_BIND";
 const proc: connect (in PRIMITIVE_SOCKET param, in socketAddress param)     is action "SOC_CONNECT";
 const proc: listen (in PRIMITIVE_SOCKET param, in integer param)            is action "SOC_LISTEN";
+const func boolean: inputReady (in PRIMITIVE_SOCKET param,
+                                in integer param, in integer param)         is action "SOC_INPUT_READY";
 
 
 const integer: SOCK_STREAM is 1;
@@ -119,10 +142,35 @@ const integer: SOCK_DGRAM is 2;
 const type: socket is sub null_file struct
     var PRIMITIVE_SOCKET: sock is PRIMITIVE_NULL_SOCKET;
     var socketAddress: addr is socketAddress.value;
+    var string: service is "";
   end struct;
 
 
 type_implements_interface(socket, file);
+
+
+const func string: service (in file param) is DYNAMIC;
+const func string: service (in socket: aSocket) is
+  return aSocket.service;
+
+# const func socketAddress: address (in file param) is DYNAMIC;
+# const func socketAddress: address (in socket: aSocket) is
+#   return address(aSocket.sock);
+
+const func integer: port (in file param) is DYNAMIC;
+const func integer: port (in socket: aSocket) is
+#  return integer parse (aSocket.service);
+  return integer parse service(aSocket.addr);
+
+(*
+const func boolean: inputReady (in file param, in duration param) is DYNAMIC;
+const func boolean: inputReady (in socket: aSocket, in duration: timeout) is func
+  result
+    var boolean: result is FALSE;
+  begin
+    result := inputReady(aSocket.sock, toSeconds(timeout), timeout.micro_seconds);
+  end func;
+*)
 
 
 const func socket: malloc (in socket: sock) is func
@@ -146,10 +194,16 @@ const func file: openSocket (in socketAddress: address) is func
   begin
     open_socket := PRIMITIVE_SOCKET(addrFamily(address), SOCK_STREAM, 0);
     if open_socket <> PRIMITIVE_NULL_SOCKET then
-      new_socket.addr := address;
-      connect(open_socket, new_socket.addr);
-      new_socket.sock := open_socket;
-      result := malloc(new_socket);
+      block
+        connect(open_socket, address);
+        new_socket.addr := address;
+        new_socket.service := service(address);
+        new_socket.sock := open_socket;
+        result := malloc(new_socket);
+      exception
+        catch FILE_ERROR:
+          close(open_socket);
+      end block;
     end if;
   end func;
 
@@ -157,6 +211,9 @@ const func file: openSocket (in socketAddress: address) is func
 (**
  *  Return a connected internet socket file at a port at localhost.
  *  @return the socket file opened, or STD_NULL if it could not be opened.
+ *  @exception FILE_ERROR A system function returns an error.
+ *  @exception RANGE_ERROR The port is not in the range 0 to 65535.
+ *  @exception MEMORY_ERROR An out of memory situation occurred.
  *)
 const func file: openInetSocket (in integer: portNumber) is
   return openSocket(inetSocketAddress(portNumber));
@@ -164,7 +221,14 @@ const func file: openInetSocket (in integer: portNumber) is
 
 (**
  *  Return a connected internet socket file at a port at ''hostName''.
+ *  Here ''hostName'' is either a host name ("e.g.: "www.example.org"),
+ *  or an IPv4 address in standard dot notation (e.g.: "192.0.2.235").
+ *  Operating systems supporting IPv6 may also accept an IPv6 address
+ *  in colon notation.
  *  @return the socket file opened, or STD_NULL if it could not be opened.
+ *  @exception FILE_ERROR A system function returns an error.
+ *  @exception RANGE_ERROR The port is not in the range 0 to 65535.
+ *  @exception MEMORY_ERROR An out of memory situation occurred.
  *)
 const func file: openInetSocket (in string: hostName, in integer: portNumber) is
   return openSocket(inetSocketAddress(hostName, portNumber));
@@ -280,12 +344,24 @@ const func boolean: hasNext (in socket: aSocket) is
 const type: listener is new struct
     var PRIMITIVE_SOCKET: sock is PRIMITIVE_NULL_SOCKET;
     var socketAddress: addr is socketAddress.value;
+    var string: service is "";
   end struct;
 
 
 (**
- *  Create a bound internet listener at a port at localhost.
+ *  Create a bound internet listener for a port at localhost.
+ *  Processing requests from port 1080 can be done with:
+ *   inetListener := openInetListener(1080);
+ *   listen(inetListener, 10);
+ *   while TRUE do
+ *     sock := accept(inetListener);
+ *     # Read and process the request from sock.
+ *     close(sock);
+ *   end while;
  *  @return the bound internet listener.
+ *  @exception FILE_ERROR A system function returns an error.
+ *  @exception RANGE_ERROR The port is not in the range 0 to 65535.
+ *  @exception MEMORY_ERROR An out of memory situation occurred.
  *)
 const func listener: openInetListener (in integer: portNumber) is func
   result
@@ -298,6 +374,7 @@ const func listener: openInetListener (in integer: portNumber) is func
     open_socket := PRIMITIVE_SOCKET(addrFamily(address), SOCK_STREAM, 0);
     if open_socket <> PRIMITIVE_NULL_SOCKET then
       result.addr := address;
+      result.service := service(address);
       bind(open_socket, result.addr);
       result.sock := open_socket;
     end if;
@@ -306,6 +383,9 @@ const func listener: openInetListener (in integer: portNumber) is func
 
 (**
  *  Listen for socket connections and limit the incoming queue.
+ *  The ''backlog'' argument defines the maximum length to which
+ *  the queue of pending connections for ''aListener'' may grow.
+ *  @exception FILE_ERROR A system function returns an error.
  *)
 const proc: listen (in listener: aListener, in integer: backlog) is func
   begin
@@ -313,9 +393,70 @@ const proc: listen (in listener: aListener, in integer: backlog) is func
   end func;
 
 
+(*
+const type: listenerArray is array listener;
+const array PRIMITIVE_SOCKET: select (in array PRIMITIVE_SOCKET: socks) is 0 times PRIMITIVE_NULL_SOCKET;
+
+
+const func listener: select (in array listener: listeners) is func
+  result
+    var listener: result is listener.value;
+  local
+    var array PRIMITIVE_SOCKET: socks is 0 times PRIMITIVE_NULL_SOCKET;
+    var integer: index is 0;
+  begin
+    if length(listeners) = 0 then
+      raise RANGE_ERROR;
+    else
+      socks := length(listeners) times PRIMITIVE_NULL_SOCKET;
+      for index range minIdx(listeners) to maxIdx(listeners) do
+        socks[index] := listeners[index].sock;
+      end for;
+      socks := select(socks);
+      for index range minIdx(listeners) to maxIdx(listeners) do
+        if socks[1] = listeners[index].sock then
+          result := listeners[index];
+        end if;
+      end for;
+    end if;
+  end func;
+
+
+const func integer: selectOne (in array listener: listeners) is func
+  result
+    var listener: result is listener.value;
+  local
+    var array PRIMITIVE_SOCKET: socks is 0 times PRIMITIVE_NULL_SOCKET;
+    var integer: index is 0;
+  begin
+    socks := length(listeners) times PRIMITIVE_NULL_SOCKET;
+    for index range minIdx(listeners) to maxIdx(listeners) do
+      socks[index] := listeners[index].sock;
+    end for;
+    result := selectOne(socks);
+  end func;
+*)
+
+
+(*
+const func boolean: requestPresent (in listener: aListener, in duration: timeout) is func
+  result
+    var boolean: result is FALSE;
+  begin
+    result := inputReady(aListener.sock, toSeconds(timeout), timeout.micro_seconds);
+  end func;
+*)
+
+
 (**
- *  Create a new accepted connection socket on a 'aListener'.
+ *  Create a new accepted connection socket for 'aListener'.
+ *  The function waits until at least one connection request is
+ *  in the listeners queue of pending connections. Then it extracts
+ *  the first connection request from the listeners queue. This
+ *  request is accepted and a connection socket is created for it.
  *  @return the accepted connection socket.
+ *  @exception FILE_ERROR A system function returns an error.
+ *  @exception MEMORY_ERROR An out of memory situation occurred.
  *)
 const func file: accept (in listener: aListener) is func
   result
@@ -326,7 +467,21 @@ const func file: accept (in listener: aListener) is func
   begin
     open_socket := accept(aListener.sock, new_socket.addr);
     if open_socket <> PRIMITIVE_NULL_SOCKET then
+      new_socket.service := aListener.service;
       new_socket.sock := open_socket;
       result := malloc(new_socket);
     end if;
   end func;
+
+
+(*
+const func file: accept (in array listener: listeners) is func
+  result
+    var file: result is STD_NULL;
+  local
+    var integer: index is 0;
+  begin
+    index := selectOne(listeners);
+    result := accept(listeners[index]);
+  end func;
+*)

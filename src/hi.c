@@ -187,7 +187,7 @@ rtlArraytype arg_v;
               break;
           } /* switch */
         } else {
-          option.source_file_name = stri_to_path(opt);
+          option.source_file_name = stri_to_standard_path(opt);
         } /* if */
       } else {
         if (option.argv == NULL) {

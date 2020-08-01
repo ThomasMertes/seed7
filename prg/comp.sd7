@@ -63,12 +63,13 @@ const type: option_hash is hash [string] string;
 
 var option_hash: compiler_option is option_hash.value;
 
-var boolean: array_range_check    is TRUE;
-var boolean: source_debug_info    is TRUE;
-var boolean: trace_exception      is FALSE;
-var boolean: signal_exception     is FALSE;
-var boolean: evaluate_const_expr  is FALSE;
-var boolean: generate_c_plus_plus is FALSE;
+var boolean: array_range_check     is TRUE;
+var boolean: source_debug_info     is TRUE;
+var boolean: trace_exception       is FALSE;
+var boolean: signal_exception      is FALSE;
+var boolean: evaluate_const_expr   is FALSE;
+var boolean: declare_with_extern_c is FALSE;
+var boolean: generate_c_plus_plus  is FALSE;
 
 var boolean: compilerLibraryUsed is FALSE;
 var boolean: compDataLibraryUsed is FALSE;
@@ -12481,6 +12482,26 @@ const proc: process_soc_addr_family (in ref_list: params, inout expr_type: c_exp
   end func;
 
 
+const proc: process_soc_addr_numeric (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    prepare_stri_result(c_expr);
+    c_expr.result_expr := "socAddrNumeric(";
+    getAnyParamToResultExpr(params[1], c_expr);
+    c_expr.result_expr &:= ")";
+  end func;
+
+
+const proc: process_soc_addr_service (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    prepare_stri_result(c_expr);
+    c_expr.result_expr := "socAddrService(";
+    getAnyParamToResultExpr(params[1], c_expr);
+    c_expr.result_expr &:= ")";
+  end func;
+
+
 const proc: process_soc_bind (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
@@ -12580,12 +12601,20 @@ const proc: process_soc_gets (in ref_list: params, inout expr_type: c_expr) is f
   end func;
 
 
+const proc: process_soc_get_hostname (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    prepare_stri_result(c_expr);
+    c_expr.result_expr := "socGetHostname()";
+  end func;
+
+
 const proc: process_soc_inet_addr (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
     prepare_bstri_result(c_expr);
     c_expr.result_expr := "socInetAddr(";
-    getStdParamToResultExpr(params[1], c_expr);
+    getAnyParamToResultExpr(params[1], c_expr);
     c_expr.result_expr &:= ", ";
     getStdParamToResultExpr(params[2], c_expr);
     c_expr.result_expr &:= ")";
@@ -15639,6 +15668,10 @@ const proc: process_action (in reference: function, in ref_list: params,
         process_soc_accept(params, c_expr);
       elsif action_name = "SOC_ADDR_FAMILY" then
         process_soc_addr_family(params, c_expr);
+      elsif action_name = "SOC_ADDR_NUMERIC" then
+        process_soc_addr_numeric(params, c_expr);
+      elsif action_name = "SOC_ADDR_SERVICE" then
+        process_soc_addr_service(params, c_expr);
       elsif action_name = "SOC_BIND" then
         process_soc_bind(params, c_expr);
       elsif action_name = "SOC_CLOSE" then
@@ -15653,6 +15686,8 @@ const proc: process_action (in reference: function, in ref_list: params,
         process_soc_getc(params, c_expr);
       elsif action_name = "SOC_GETS" then
         process_soc_gets(params, c_expr);
+      elsif action_name = "SOC_GET_HOSTNAME" then
+        process_soc_get_hostname(params, c_expr);
       elsif action_name = "SOC_INET_ADDR" then
         process_soc_inet_addr(params, c_expr);
       elsif action_name = "SOC_INET_LOCAL_ADDR" then
@@ -17927,6 +17962,7 @@ const proc: process_prototype_declaration (in reference: current_object,
       c_expr.expr &:= c_param_list.expr;
       c_expr.expr &:= ");\n\n";
     else
+      c_expr.expr &:= "extern ";
       c_expr.expr &:= type_name(current_type);
       c_expr.expr &:= " o_";
       create_name(current_object, c_expr.expr);
@@ -20133,7 +20169,7 @@ const proc: declareExtern (in string: prototype) is func
 
   begin
     write(c_prog, "extern ");
-    if generate_c_plus_plus then
+    if declare_with_extern_c then
       write(c_prog, "\"C\" ");
     end if;
     writeln(c_prog, prototype);
@@ -20504,11 +20540,14 @@ const proc: write_prototypes is func
     declareExtern("settype     setValue (objreftype);");
     declareExtern("sockettype  socAccept (sockettype, bstritype *);");
     declareExtern("inttype     socAddrFamily (const const_bstritype);");
+    declareExtern("stritype    socAddrNumeric (const const_bstritype);");
+    declareExtern("stritype    socAddrService (const const_bstritype);");
     declareExtern("void        socBind (sockettype, const_bstritype);");
     declareExtern("void        socClose (sockettype);");
     declareExtern("void        socConnect (sockettype, const_bstritype);");
     declareExtern("chartype    socGetc (sockettype);");
     declareExtern("stritype    socGets (sockettype, inttype);");
+    declareExtern("stritype    socGetHostname(void);");
     declareExtern("bstritype   socInetAddr (const const_stritype, inttype);");
     declareExtern("bstritype   socInetLocalAddr (inttype);");
     declareExtern("bstritype   socInetServAddr (inttype);");
@@ -21878,6 +21917,7 @@ const proc: pass_1 (in string: source, inout program: prog,
       end if;
       if "-c" in compiler_option then
         generate_c_plus_plus := compiler_option["-c"] = "++";
+        declare_with_extern_c := generate_c_plus_plus;
       end if;
       block
         prog := parseFile(source);
@@ -21972,6 +22012,7 @@ const proc: pass_3 (in string: source, in program: prog,
     const string: OBJECT_FILE_EXTENSION is     configValue("OBJECT_FILE_EXTENSION");
     const string: EXECUTABLE_FILE_EXTENSION is configValue("EXECUTABLE_FILE_EXTENSION");
     const string: C_COMPILER is                configValue("C_COMPILER");
+    const string: CPLUSPLUS_COMPILER is        configValue("CPLUSPLUS_COMPILER");
     const string: CC_OPT_DEBUG_INFO is         configValue("CC_OPT_DEBUG_INFO");
     const string: CC_OPT_NO_WARNINGS is        configValue("CC_OPT_NO_WARNINGS");
     const string: CC_FLAGS is                  configValue("CC_FLAGS");
@@ -22034,7 +22075,12 @@ const proc: pass_3 (in string: source, in program: prog,
       if CC_FLAGS <> "" then
         options &:= " " & CC_FLAGS;
       end if;
-      compile_cmd := C_COMPILER & options & " -c " &
+      if generate_c_plus_plus then
+        compile_cmd := CPLUSPLUS_COMPILER;
+      else
+        compile_cmd := C_COMPILER;
+      end if;
+      compile_cmd &:= options & " -c " &
           cSourceFile & " " &
           REDIRECT_C_ERRORS &
           cErrorFile;
@@ -22081,7 +22127,11 @@ const proc: pass_3 (in string: source, in program: prog,
           end if;
           if fileType(executableFile) = FILE_ABSENT then
             writeln("Calling the linker ...");
-            link_cmd := C_COMPILER;
+            if generate_c_plus_plus then
+              link_cmd := CPLUSPLUS_COMPILER;
+            else
+              link_cmd := C_COMPILER;
+            end if;
             if "-g" in compiler_option and LINKER_OPT_DEBUG_INFO <> "" then
               link_cmd &:= " " & LINKER_OPT_DEBUG_INFO;
             end if;
@@ -22147,15 +22197,21 @@ const proc: main is func
     OUT := STD_UTF8_OUT;
     writeln("SEED7 COMPILER Version 2.0  Copyright (c) 1990-2011 Thomas Mertes");
     if length(argv(PROGRAM)) = 0 then
-      writeln("usage: comp [options] sourcefile [parameters]");
+      writeln("usage: comp [options] source");
     else
       number := 1;
       while number <= length(argv(PROGRAM)) do
         curr_arg := argv(PROGRAM)[number];
         if length(curr_arg) >= 2 and curr_arg[1] = '-' then
-          compiler_option @:= [curr_arg[.. 2]] curr_arg[3 ..];
+          if curr_arg[.. 2] in {"-r", "-g", "-t", "-e", "-v", "-c", "-O"} then
+            compiler_option @:= [curr_arg[.. 2]] curr_arg[3 ..];
+          else
+            writeln("*** Ignore unsupported option: " <& curr_arg);
+          end if;
         elsif source = "" then
           source := curr_arg;
+        else
+          writeln("*** Ignore superfluous parameter: " <& curr_arg);
         end if;
         incr(number);
       end while;

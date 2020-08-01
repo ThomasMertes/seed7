@@ -110,7 +110,7 @@ objectcategory category;
     } else {
       result = "*UNKNOWN*";
     } /* if */
-    return(result);
+    return result;
   } /* category_cstri */
 
 
@@ -130,10 +130,10 @@ cstritype stri;
   /* category_value */
     for (number = SYMBOLOBJECT; number <= PROGOBJECT; number++) {
       if (strcmp(stri, category_name[number]) == 0) {
-        return((objectcategory) number);
+        return (objectcategory) number;
       } /* if */
     } /* for */
-    return((objectcategory) -1);
+    return (objectcategory) -1;
   } /* category_value */
 
 
@@ -162,5 +162,5 @@ identtype actual_ident;
     } else {
       result = (const_cstritype) actual_ident->name;
     } /* if */
-    return(result);
+    return result;
   } /* id_string */

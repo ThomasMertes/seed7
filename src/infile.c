@@ -758,7 +758,7 @@ errinfotype *err_info;
 #endif
 
       /* Add the hardcoded library of the interpreter to the lib_path. */
-      path = stri_to_path(cstri8_or_cstri_to_stri(SEED7_LIBRARY));
+      path = stri_to_standard_path(cstri8_or_cstri_to_stri(SEED7_LIBRARY));
       if (path == NULL) {
         *err_info = MEMORY_ERROR;
       } else {
@@ -769,7 +769,7 @@ errinfotype *err_info;
       /* Add the SEED7_LIBRARY environment variable to the lib_path */
       library_environment_variable = getenv("SEED7_LIBRARY");
       if (library_environment_variable != NULL) {
-        path = stri_to_path(cstri_to_stri(library_environment_variable));
+        path = stri_to_standard_path(cstri_to_stri(library_environment_variable));
         if (path == NULL) {
           *err_info = MEMORY_ERROR;
         } else {

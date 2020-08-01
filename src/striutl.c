@@ -742,17 +742,17 @@ os_stritype os_stri;
 
 #ifdef ANSI_C
 
-stritype stri_to_path (stritype stri)
+stritype stri_to_standard_path (stritype stri)
 #else
 
-stritype stri_to_path (stri)
+stritype stri_to_standard_path (stri)
 stritype stri;
 #endif
 
   {
     stritype result;
 
-  /* stri_to_path */
+  /* stri_to_standard_path */
     result = stri;
     if (result != NULL) {
 #if PATH_DELIMITER != '/'
@@ -781,7 +781,7 @@ stritype stri;
 #endif
     } /* if */
     return result;
-  } /* stri_to_path */
+  } /* stri_to_standard_path */
 
 
 
@@ -798,7 +798,7 @@ os_stritype os_stri;
     stritype result;
 
   /* cp_from_os_path */
-    result = stri_to_path(os_stri_to_stri(os_stri));
+    result = stri_to_standard_path(os_stri_to_stri(os_stri));
     return result;
   } /* cp_from_os_path */
 

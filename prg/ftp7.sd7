@@ -1,0 +1,172 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  ftp7.sd7      FTP internet file transfer program                *)
+(*  Copyright (C) 2011  Thomas Mertes                               *)
+(*                                                                  *)
+(*  This program is free software; you can redistribute it and/or   *)
+(*  modify it under the terms of the GNU General Public License as  *)
+(*  published by the Free Software Foundation; either version 2 of  *)
+(*  the License, or (at your option) any later version.             *)
+(*                                                                  *)
+(*  This program is distributed in the hope that it will be useful, *)
+(*  but WITHOUT ANY WARRANTY; without even the implied warranty of  *)
+(*  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the   *)
+(*  GNU General Public License for more details.                    *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU General Public       *)
+(*  License along with this program; if not, write to the           *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+$ include "seed7_05.s7i";
+  include "osfiles.s7i";
+  include "ftp.s7i";
+  include "keybd.s7i";
+  include "echo.s7i";
+  include "line.s7i";
+
+
+const proc: longFileListing (inout ftpConnection: ftp, in string: directory) is func
+  local
+    var array string: dir is 0 times "";
+    var string: name is "";
+    var boolean: continue is TRUE;
+  begin
+    if directory = "" then
+      dir := readDir(ftp, ".");
+    else
+      dir := readDir(ftp, directory);
+    end if;
+    for name range dir do
+      if busy_getc(KEYBOARD) = KEY_CTL_C then
+        writeln(" ***** Terminated.");
+        continue := FALSE;
+      end if;
+      if continue then
+        writeln(fileSize(ftp, name) lpad 10 <& " " <&
+                getMTime(ftp, name) rpad 32 <& " " <& name);
+      end if;
+    end for;
+  end func;
+
+
+const proc: fileListing (inout ftpConnection: ftp, in string: directory) is func
+  local
+    var array string: dir is 0 times "";
+    var string: name is "";
+    var boolean: continue is TRUE;
+  begin
+    if directory = "" then
+      dir := readDir(ftp, ".");
+    else
+      dir := readDir(ftp, directory);
+    end if;
+    for name range dir do
+      if busy_getc(KEYBOARD) = KEY_CTL_C then
+        writeln(" ***** Terminated.");
+        continue := FALSE;
+      end if;
+      if continue then
+        writeln(name);
+      end if;
+    end for;
+  end func;
+
+
+const proc: execute (inout ftpConnection: ftp, in string: command) is func
+  local
+    var array string: dir is 0 times "";
+    var string: name is "";
+    var boolean: continue is TRUE;
+  begin
+    # writeln(command);
+    if startsWith(command, "ls -l") then
+      longFileListing(ftp, trim(command[7 ..]));
+    elsif startsWith(command, "ls") then
+      fileListing(ftp, trim(command[7 ..]));
+    elsif startsWith(command, "cd ") then
+      chdir(ftp, trim(command[4 ..]));
+    elsif startsWith(command, "mkdir ") then
+      mkdir(ftp, trim(command[7 ..]));
+    elsif startsWith(command, "rmdir ") then
+      rmdir(ftp, trim(command[7 ..]));
+    elsif command = "pwd" then
+      writeln(getcwd(ftp));
+    elsif startsWith(command, "size ") then
+      writeln(fileSize(ftp, trim(command[6 ..])));
+    elsif startsWith(command, "modtime ") then
+      writeln(getMTime(ftp, trim(command[9 ..])));
+    elsif startsWith(command, "lcd ") then
+      chdir(trim(command[5 ..]));
+    elsif startsWith(command, "ascii") then
+      transferTypeAscii(ftp);
+    elsif startsWith(command, "binary") then
+      transferTypeBinary(ftp);
+    elsif startsWith(command, "get ") then
+      retrieve(ftp, trim(command[5 ..]), trim(command[5 ..]));
+    elsif startsWith(command, "put ") then
+      if fileType(trim(command[5 ..])) = FILE_REGULAR then
+        store(ftp, trim(command[5 ..]), trim(command[5 ..]));
+      else
+        writeln(" ***** No such file.");
+      end if;
+    else
+      writeln(" ***** Invalid command.");
+    end if;
+  end func;
+
+
+const proc: main is func
+  local
+    var string: command is "";
+    var integer: ftpControlPort is defaultFtpControlPort;
+    var ftpConnection: ftp is ftpConnection.value;
+  begin
+    writeln("Ftp7 Version 1.0 - FTP internet file transfer program");
+    writeln("Copyright (C) 2011 Thomas Mertes");
+    writeln("This is free software; see the source for copying conditions.  There is NO");
+    writeln("warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.");
+    writeln("Savehd7 is written in the Seed7 programming language");
+    writeln("Homepage: http://seed7.sourceforge.net");
+    writeln;
+    writeln("usage: ftp7 host [port]");
+    writeln;
+    writeln("Accepted commands:");
+    writeln("  ascii, binary, bye, cd, exit, get, lcd, ls, ls -l, mkdir, modtime, put,");
+    writeln("  pwd, quit, rmdir, size");
+    writeln;
+    IN := open_echo(KEYBOARD, OUT);
+    IN := open_line(IN);
+    if length(argv(PROGRAM)) >= 1 then
+      if length(argv(PROGRAM)) >= 2 and isDigitString(argv(PROGRAM)[2]) then
+        ftpControlPort := integer parse (argv(PROGRAM)[2]);
+      end if;
+      ftp := openFtp(argv(PROGRAM)[1], ftpControlPort);
+      # ftp.active := TRUE;
+      if ftp.control = STD_NULL then
+        writeln(" ***** Could not connect to " <& argv(PROGRAM)[1] <&
+                " at port " <& ftpControlPort <& ".");
+      else
+        writeln("Connected with: " <& argv(PROGRAM)[1] <&
+                " at port " <& ftpControlPort <& ".");
+        write("ftp7> ");
+        readln(command);
+        while command <> "exit" and command <> "bye" and command <> "quit" do
+          block
+            execute(ftp, command);
+          exception
+            catch FILE_ERROR: writeln(" ***** Command failed.");
+          end block;
+          write("ftp7> ");
+          readln(command);
+        end while;
+        close(ftp);
+      end if;
+    else
+      writeln(" ***** Host name missing.");
+    end if;
+  end func;

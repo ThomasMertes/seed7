@@ -76,7 +76,7 @@ stritype cstri_to_stri (const_cstritype cstri);
 stritype cstri8_or_cstri_to_stri (const_cstritype cstri);
 os_stritype stri_to_os_stri (const_stritype stri, errinfotype *err_info);
 stritype os_stri_to_stri (const_os_stritype os_stri);
-stritype stri_to_path (stritype stri);
+stritype stri_to_standard_path (stritype stri);
 stritype cp_from_os_path (const_os_stritype os_stri);
 os_stritype cp_to_os_path (const_stritype stri, errinfotype *err_info);
 const strelemtype *stri_charpos (const_stritype stri, strelemtype ch);
@@ -95,7 +95,7 @@ bstritype stri_to_bstri ();
 bstritype stri_to_bstri8 ();
 stritype cstri_to_stri ();
 stritype cstri8_or_cstri_to_stri ();
-stritype stri_to_path ():
+stritype stri_to_standard_path ():
 os_stritype stri_to_os_stri ();
 stritype os_stri_to_stri ();
 stritype cp_from_os_path ();

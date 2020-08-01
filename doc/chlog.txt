@@ -1,3 +1,26 @@
+20110619:
+- A new example program (ftp7.sd7), an FTP internet file transfer program,
+  was added.
+- The "ftp.s7i" library, which supports the FTP protocol, was added.
+- The functions 'numericAddress', 'service' and 'getHostname' were added to
+  the "socket.s7i" library.
+- Support for the actions SOC_ADDR_NUMERIC, SOC_ADDR_SERVICE and
+  SOC_GET_HOSTNAME were added to the compiler (comp.sd7).
+- The compiler was improved to recognize unsupported options and superfluous
+  parameters.
+- The functions 'socAddrNumeric', 'socAddrService', 'socGetAddr', 'socSelect',
+  'socSelectOne', 'socGetHostname' and 'socInputReady' were added to
+  "soc_rtl.c" (some were commented out).
+- The functions 'select_addrinfo' and 'dump_addrinfo' in "soc_rtl.c" were
+  improved.
+- The functions 'soc_addr_numeric', 'soc_addr_service', 'soc_get_addr',
+  'soc_get_hostname', 'soc_input_ready' and 'soc_select' were addet to
+  "soclib.c" (some were commented out).
+- The file "soc_rtl.c" was improved to reduce the number of compiler warnings.
+- Documentation comments were improved in the file "socket.s7i".
+- Compiler, runtime libraries and makefiles were improved to support
+  configuration macro CPLUSPLUS_COMPILER.
+
 20110605:
 - The new libraries "boolean.s7i", "integer.s7i" and "string.s7i" were
   added. The contents of this libraries were extracted from the "seed7_05.s7i"
