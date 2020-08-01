@@ -8377,7 +8377,7 @@ const proc: check_binom is func
     var boolean: overflow is FALSE;
   begin
     okay := TRUE;
-    for n range 0 to 12 do
+    for n range 0 to 20 do
       for k range 0 to n do
         if n ! k <> !n div (!(n - k) * !k) then
           write(" ***** ");
@@ -8388,7 +8388,9 @@ const proc: check_binom is func
           okay := FALSE;
         end if;
       end for;
-      for k range succ(n) to 20 do
+    end for;
+    for n range 1 to 66 do
+      for k range -100 to -1 do
         if n ! k <> 0 then
           write(" ***** ");
           write(n);
@@ -8398,8 +8400,6 @@ const proc: check_binom is func
           okay := FALSE;
         end if;
       end for;
-    end for;
-    for n range 1 to 30 do
       for k range 0 to n do
         if n ! k <> pred(n) ! pred(k) + pred(n) ! k then
           write(" ***** ");
@@ -8417,7 +8417,7 @@ const proc: check_binom is func
           okay := FALSE;
         end if;
       end for;
-      for k range succ(n) to 40 do
+      for k range succ(n) to 100 do
         if n ! k <> 0 then
           write(" ***** ");
           write(n);
@@ -8428,12 +8428,12 @@ const proc: check_binom is func
         end if;
       end for;
     end for;
-    for n range -1 downto -30 do
-      for k range 0 to 40 do
+    for n range -1 downto -62 do
+      for k range 0 to 62 + n do
         binom_result := 1;
         overflow := FALSE;
         for j range 1 to k do
-          if abs(n + 1 - j) > 2147483647 div abs(binom_result) then
+          if abs(n + 1 - j) > integer.last div abs(binom_result) then
             # writeln(" *** overflow: " <& n <& "!" <& k);
             overflow := TRUE;
             j := k;
@@ -8455,8 +8455,1625 @@ const proc: check_binom is func
         end if;
       end for;
     end for;
+
+    if         (-1) !         INT64_MIN  <>  0 or
+               (-1) !            (-1234) <>  0 or
+               (-1) !               (-2) <>  0 or
+               (-1) !               (-1) <>  0 or
+               (-1) !                 0  <>  1 or
+               (-1) !                 1  <> -1 or
+               (-1) !                 2  <>  1 or
+               (-1) !            123456  <>  1 or
+               (-1) !            654321  <> -1 or
+               (-1) !         INT64_MAX  <> -1 or
+                 0  !         INT64_MIN  <>  0 or
+                 0  !            (-1234) <>  0 or
+                 0  !               (-2) <>  0 or
+                 0  !               (-1) <>  0 or
+                 0  !                 0  <>  1 or
+                 0  !                 1  <>  0 or
+                 0  !                 2  <>  0 or
+                 0  !            123456  <>  0 or
+                 0  !            654321  <>  0 or
+                 0  !         INT64_MAX  <>  0 or
+                 1  !         INT64_MIN  <>  0 or
+                 1  !            (-1234) <>  0 or
+                 1  !               (-2) <>  0 or
+                 1  !               (-1) <>  0 or
+                 1  !                 0  <>  1 or
+                 1  !                 1  <>  1 or
+                 1  !                 2  <>  0 or
+                 1  !            123456  <>  0 or
+                 1  !            654321  <>  0 or
+                 1  !         INT64_MAX  <>  0 or
+        intExpr(-1) !         INT64_MIN  <>  0 or
+        intExpr(-1) !            (-1234) <>  0 or
+        intExpr(-1) !               (-2) <>  0 or
+        intExpr(-1) !               (-1) <>  0 or
+        intExpr(-1) !                 0  <>  1 or
+        intExpr(-1) !                 1  <> -1 or
+        intExpr(-1) !                 2  <>  1 or
+        intExpr(-1) !            123456  <>  1 or
+        intExpr(-1) !            654321  <> -1 or
+        intExpr(-1) !         INT64_MAX  <> -1 or
+        intExpr( 0) !         INT64_MIN  <>  0 or
+        intExpr( 0) !            (-1234) <>  0 or
+        intExpr( 0) !               (-2) <>  0 or
+        intExpr( 0) !               (-1) <>  0 or
+        intExpr( 0) !                 0  <>  1 or
+        intExpr( 0) !                 1  <>  0 or
+        intExpr( 0) !                 2  <>  0 or
+        intExpr( 0) !            123456  <>  0 or
+        intExpr( 0) !            654321  <>  0 or
+        intExpr( 0) !         INT64_MAX  <>  0 or
+        intExpr( 1) !         INT64_MIN  <>  0 or
+        intExpr( 1) !            (-1234) <>  0 or
+        intExpr( 1) !               (-2) <>  0 or
+        intExpr( 1) !               (-1) <>  0 or
+        intExpr( 1) !                 0  <>  1 or
+        intExpr( 1) !                 1  <>  1 or
+        intExpr( 1) !                 2  <>  0 or
+        intExpr( 1) !            123456  <>  0 or
+        intExpr( 1) !            654321  <>  0 or
+        intExpr( 1) !         INT64_MAX  <>  0 or
+               (-1) ! intExpr(INT64_MIN) <>  0 or
+               (-1) ! intExpr(    -1234) <>  0 or
+               (-1) ! intExpr(       -2) <>  0 or
+               (-1) ! intExpr(       -1) <>  0 or
+               (-1) ! intExpr(        0) <>  1 or
+               (-1) ! intExpr(        1) <> -1 or
+               (-1) ! intExpr(        2) <>  1 or
+               (-1) ! intExpr(   123456) <>  1 or
+               (-1) ! intExpr(   654321) <> -1 or
+               (-1) ! intExpr(INT64_MAX) <> -1 or
+                 0  ! intExpr(INT64_MIN) <>  0 or
+                 0  ! intExpr(    -1234) <>  0 or
+                 0  ! intExpr(       -2) <>  0 or
+                 0  ! intExpr(       -1) <>  0 or
+                 0  ! intExpr(        0) <>  1 or
+                 0  ! intExpr(        1) <>  0 or
+                 0  ! intExpr(        2) <>  0 or
+                 0  ! intExpr(   123456) <>  0 or
+                 0  ! intExpr(   654321) <>  0 or
+                 0  ! intExpr(INT64_MAX) <>  0 or
+                 1  ! intExpr(INT64_MIN) <>  0 or
+                 1  ! intExpr(    -1234) <>  0 or
+                 1  ! intExpr(       -2) <>  0 or
+                 1  ! intExpr(       -1) <>  0 or
+                 1  ! intExpr(        0) <>  1 or
+                 1  ! intExpr(        1) <>  1 or
+                 1  ! intExpr(        2) <>  0 or
+                 1  ! intExpr(   123456) <>  0 or
+                 1  ! intExpr(   654321) <>  0 or
+                 1  ! intExpr(INT64_MAX) <>  0 or
+        intExpr(-1) ! intExpr(INT64_MIN) <>  0 or
+        intExpr(-1) ! intExpr(    -1234) <>  0 or
+        intExpr(-1) ! intExpr(       -2) <>  0 or
+        intExpr(-1) ! intExpr(       -1) <>  0 or
+        intExpr(-1) ! intExpr(        0) <>  1 or
+        intExpr(-1) ! intExpr(        1) <> -1 or
+        intExpr(-1) ! intExpr(        2) <>  1 or
+        intExpr(-1) ! intExpr(   123456) <>  1 or
+        intExpr(-1) ! intExpr(   654321) <> -1 or
+        intExpr(-1) ! intExpr(INT64_MAX) <> -1 or
+        intExpr( 0) ! intExpr(INT64_MIN) <>  0 or
+        intExpr( 0) ! intExpr(    -1234) <>  0 or
+        intExpr( 0) ! intExpr(       -2) <>  0 or
+        intExpr( 0) ! intExpr(       -1) <>  0 or
+        intExpr( 0) ! intExpr(        0) <>  1 or
+        intExpr( 0) ! intExpr(        1) <>  0 or
+        intExpr( 0) ! intExpr(        2) <>  0 or
+        intExpr( 0) ! intExpr(   123456) <>  0 or
+        intExpr( 0) ! intExpr(   654321) <>  0 or
+        intExpr( 0) ! intExpr(INT64_MAX) <>  0 or
+        intExpr( 1) ! intExpr(INT64_MIN) <>  0 or
+        intExpr( 1) ! intExpr(    -1234) <>  0 or
+        intExpr( 1) ! intExpr(       -2) <>  0 or
+        intExpr( 1) ! intExpr(       -1) <>  0 or
+        intExpr( 1) ! intExpr(        0) <>  1 or
+        intExpr( 1) ! intExpr(        1) <>  1 or
+        intExpr( 1) ! intExpr(        2) <>  0 or
+        intExpr( 1) ! intExpr(   123456) <>  0 or
+        intExpr( 1) ! intExpr(   654321) <>  0 or
+        intExpr( 1) ! intExpr(INT64_MAX) <>  0 then
+      writeln(" ***** Computing binomial coefficient with small constants does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if          30  !         INT64_MIN  <>                   0 or
+                30  !            (-1234) <>                   0 or
+                30  !               (-2) <>                   0 or
+                30  !               (-1) <>                   0 or
+                30  !                 0  <>                   1 or
+                30  !                 1  <>                  30 or
+                30  !                 2  <>                 435 or
+                30  !                 5  <>              142506 or
+                30  !                10  <>            30045015 or
+                30  !                15  <>           155117520 or
+                30  !                20  <>            30045015 or
+                30  !                25  <>              142506 or
+                30  !                28  <>                 435 or
+                30  !                29  <>                  30 or
+                30  !                30  <>                   1 or
+                30  !                31  <>                   0 or
+                30  !            123456  <>                   0 or
+                30  !            654321  <>                   0 or
+                30  !         INT64_MAX  <>                   0 or
+                31  !         INT64_MIN  <>                   0 or
+                31  !            (-1234) <>                   0 or
+                31  !               (-2) <>                   0 or
+                31  !               (-1) <>                   0 or
+                31  !                 0  <>                   1 or
+                31  !                 1  <>                  31 or
+                31  !                 2  <>                 465 or
+                31  !                 5  <>              169911 or
+                31  !                10  <>            44352165 or
+                31  !                15  <>           300540195 or
+                31  !                16  <>           300540195 or
+                31  !                20  <>            84672315 or
+                31  !                25  <>              736281 or
+                31  !                29  <>                 465 or
+                31  !                30  <>                  31 or
+                31  !                31  <>                   1 or
+                31  !                32  <>                   0 or
+                31  !            123456  <>                   0 or
+                31  !            654321  <>                   0 or
+                31  !         INT64_MAX  <>                   0 or
+                45  !         INT64_MIN  <>                   0 or
+                45  !            (-1234) <>                   0 or
+                45  !               (-2) <>                   0 or
+                45  !               (-1) <>                   0 or
+                45  !                 0  <>                   1 or
+                45  !                 1  <>                  45 or
+                45  !                 2  <>                 990 or
+                45  !                 5  <>             1221759 or
+                45  !                10  <>          3190187286 or
+                45  !                15  <>        344867425584 or
+                45  !                20  <>       3169870830126 or
+                45  !                22  <>       4116715363800 or
+                45  !                23  <>       4116715363800 or
+                45  !                25  <>       3169870830126 or
+                45  !                30  <>        344867425584 or
+                45  !                35  <>          3190187286 or
+                45  !                40  <>             1221759 or
+                45  !                43  <>                 990 or
+                45  !                44  <>                  45 or
+                45  !                45  <>                   1 or
+                45  !                46  <>                   0 or
+                45  !            123456  <>                   0 or
+                45  !            654321  <>                   0 or
+                45  !         INT64_MAX  <>                   0 or
+                62  !         INT64_MIN  <>                   0 or
+                62  !            (-1234) <>                   0 or
+                62  !               (-2) <>                   0 or
+                62  !               (-1) <>                   0 or
+                62  !                 0  <>                   1 or
+                62  !                 1  <>                  62 or
+                62  !                 2  <>                1891 or
+                62  !                 5  <>             6471002 or
+                62  !                10  <>        107518933731 or
+                62  !                15  <>      93052749919920 or
+                62  !                20  <>    9206478467454345 or
+                62  !                25  <>  147405545359541742 or
+                62  !                30  <>  450883717216034179 or
+                62  !                31  <>  465428353255261088 or
+                62  !                32  <>  450883717216034179 or
+                62  !                35  <>  279692573246309972 or
+                62  !                40  <>   34315056105966195 or
+                62  !                45  <>     739632519584070 or
+                62  !                50  <>       2160153123141 or
+                62  !                55  <>           491796152 or
+                62  !                60  <>                1891 or
+                62  !                61  <>                  62 or
+                62  !                62  <>                   1 or
+                62  !                63  <>                   0 or
+                62  !            123456  <>                   0 or
+                62  !            654321  <>                   0 or
+                62  !         INT64_MAX  <>                   0 or
+                63  !         INT64_MIN  <>                   0 or
+                63  !            (-1234) <>                   0 or
+                63  !               (-2) <>                   0 or
+                63  !               (-1) <>                   0 or
+                63  !                 0  <>                   1 or
+                63  !                 1  <>                  63 or
+                63  !                 2  <>                1953 or
+                63  !                 5  <>             7028847 or
+                63  !                10  <>        127805525001 or
+                63  !                15  <>     122131734269895 or
+                63  !                20  <>   13488561475572645 or
+                63  !                25  <>  244382877832924467 or
+                63  !                30  <>  860778005594247069 or
+                63  !                31  <>  916312070471295267 or
+                63  !                32  <>  916312070471295267 or
+                63  !                35  <>  629308289804197437 or
+                63  !                40  <>   93993414551124795 or
+                63  !                45  <>    2588713818544245 or
+                63  !                50  <>      10468434365991 or
+                63  !                55  <>          3872894697 or
+                63  !                60  <>               39711 or
+                63  !                61  <>                1953 or
+                63  !                62  <>                  63 or
+                63  !                63  <>                   1 or
+                63  !                64  <>                   0 or
+                63  !            123456  <>                   0 or
+                63  !            654321  <>                   0 or
+                63  !         INT64_MAX  <>                   0 or
+                66  !         INT64_MIN  <>                   0 or
+                66  !            (-1234) <>                   0 or
+                66  !               (-2) <>                   0 or
+                66  !               (-1) <>                   0 or
+                66  !                 0  <>                   1 or
+                66  !                 1  <>                  66 or
+                66  !                 2  <>                2145 or
+                66  !                 5  <>             8936928 or
+                66  !                10  <>        210980549208 or
+                66  !                15  <>     268367258592576 or
+                66  !                20  <>   40661170824914640 or
+                66  !                25  <> 1049058207282797712 or
+                66  !                30  <> 5516694892996182896 or
+                66  !                31  <> 6406484391866534976 or
+                66  !                32  <> 7007092303604022630 or
+                66  !                33  <> 7219428434016265740 or
+                66  !                34  <> 7007092303604022630 or
+                66  !                35  <> 6406484391866534976 or
+                66  !                40  <> 1654284096099796392 or
+                66  !                45  <>   89067326568860640 or
+                66  !                50  <>     855420636763836 or
+                66  !                55  <>       1074082795968 or
+                66  !                60  <>            90858768 or
+                66  !                64  <>                2145 or
+                66  !                65  <>                  66 or
+                66  !                66  <>                   1 or
+                66  !                67  <>                   0 or
+                66  !            123456  <>                   0 or
+                66  !            654321  <>                   0 or
+                66  !         INT64_MAX  <>                   0 or
+                67  !         INT64_MIN  <>                   0 or
+                67  !            (-1234) <>                   0 or
+                67  !               (-2) <>                   0 or
+                67  !               (-1) <>                   0 or
+                67  !                 0  <>                   1 or
+                67  !                 1  <>                  67 or
+                67  !                 2  <>                2211 or
+                67  !                 5  <>             9657648 or
+                67  !                10  <>        247994680648 or
+                67  !                15  <>     345780890878896 or
+                67  !                20  <>   57963796707857040 or
+                67  !                25  <> 1673497616379701112 or
+                67  !                29  <> 7886597962249166160 or
+                # The values 67 ! 30 to 67 ! 37 raise OVERFLOW_ERROR
+                67  !                38  <> 7886597962249166160 or
+                67  !                40  <> 4105075349580976232 or
+                67  !                45  <>  271250494550621040 or
+                67  !                50  <>    3371363686069236 or
+                67  !                55  <>       5996962277488 or
+                67  !                60  <>           869648208 or
+                67  !                65  <>                2211 or
+                67  !                66  <>                  67 or
+                67  !                67  <>                   1 or
+                67  !                68  <>                   0 or
+                67  !            123456  <>                   0 or
+                67  !            654321  <>                   0 or
+                67  !         INT64_MAX  <>                   0 or
+        intExpr(30) !         INT64_MIN  <>                   0 or
+        intExpr(30) !            (-1234) <>                   0 or
+        intExpr(30) !               (-2) <>                   0 or
+        intExpr(30) !               (-1) <>                   0 or
+        intExpr(30) !                 0  <>                   1 or
+        intExpr(30) !                 1  <>                  30 or
+        intExpr(30) !                 2  <>                 435 or
+        intExpr(30) !                 5  <>              142506 or
+        intExpr(30) !                10  <>            30045015 or
+        intExpr(30) !                15  <>           155117520 or
+        intExpr(30) !                20  <>            30045015 or
+        intExpr(30) !                25  <>              142506 or
+        intExpr(30) !                28  <>                 435 or
+        intExpr(30) !                29  <>                  30 or
+        intExpr(30) !                30  <>                   1 or
+        intExpr(30) !                31  <>                   0 or
+        intExpr(30) !            123456  <>                   0 or
+        intExpr(30) !            654321  <>                   0 or
+        intExpr(30) !         INT64_MAX  <>                   0 or
+        intExpr(31) !         INT64_MIN  <>                   0 or
+        intExpr(31) !            (-1234) <>                   0 or
+        intExpr(31) !               (-2) <>                   0 or
+        intExpr(31) !               (-1) <>                   0 or
+        intExpr(31) !                 0  <>                   1 or
+        intExpr(31) !                 1  <>                  31 or
+        intExpr(31) !                 2  <>                 465 or
+        intExpr(31) !                 5  <>              169911 or
+        intExpr(31) !                10  <>            44352165 or
+        intExpr(31) !                15  <>           300540195 or
+        intExpr(31) !                16  <>           300540195 or
+        intExpr(31) !                20  <>            84672315 or
+        intExpr(31) !                25  <>              736281 or
+        intExpr(31) !                29  <>                 465 or
+        intExpr(31) !                30  <>                  31 or
+        intExpr(31) !                31  <>                   1 or
+        intExpr(31) !                32  <>                   0 or
+        intExpr(31) !            123456  <>                   0 or
+        intExpr(31) !            654321  <>                   0 or
+        intExpr(31) !         INT64_MAX  <>                   0 or
+        intExpr(45) !         INT64_MIN  <>                   0 or
+        intExpr(45) !            (-1234) <>                   0 or
+        intExpr(45) !               (-2) <>                   0 or
+        intExpr(45) !               (-1) <>                   0 or
+        intExpr(45) !                 0  <>                   1 or
+        intExpr(45) !                 1  <>                  45 or
+        intExpr(45) !                 2  <>                 990 or
+        intExpr(45) !                 5  <>             1221759 or
+        intExpr(45) !                10  <>          3190187286 or
+        intExpr(45) !                15  <>        344867425584 or
+        intExpr(45) !                20  <>       3169870830126 or
+        intExpr(45) !                22  <>       4116715363800 or
+        intExpr(45) !                23  <>       4116715363800 or
+        intExpr(45) !                25  <>       3169870830126 or
+        intExpr(45) !                30  <>        344867425584 or
+        intExpr(45) !                35  <>          3190187286 or
+        intExpr(45) !                40  <>             1221759 or
+        intExpr(45) !                43  <>                 990 or
+        intExpr(45) !                44  <>                  45 or
+        intExpr(45) !                45  <>                   1 or
+        intExpr(45) !                46  <>                   0 or
+        intExpr(45) !            123456  <>                   0 or
+        intExpr(45) !            654321  <>                   0 or
+        intExpr(45) !         INT64_MAX  <>                   0 or
+        intExpr(62) !         INT64_MIN  <>                   0 or
+        intExpr(62) !            (-1234) <>                   0 or
+        intExpr(62) !               (-2) <>                   0 or
+        intExpr(62) !               (-1) <>                   0 or
+        intExpr(62) !                 0  <>                   1 or
+        intExpr(62) !                 1  <>                  62 or
+        intExpr(62) !                 2  <>                1891 or
+        intExpr(62) !                 5  <>             6471002 or
+        intExpr(62) !                10  <>        107518933731 or
+        intExpr(62) !                15  <>      93052749919920 or
+        intExpr(62) !                20  <>    9206478467454345 or
+        intExpr(62) !                25  <>  147405545359541742 or
+        intExpr(62) !                30  <>  450883717216034179 or
+        intExpr(62) !                31  <>  465428353255261088 or
+        intExpr(62) !                32  <>  450883717216034179 or
+        intExpr(62) !                35  <>  279692573246309972 or
+        intExpr(62) !                40  <>   34315056105966195 or
+        intExpr(62) !                45  <>     739632519584070 or
+        intExpr(62) !                50  <>       2160153123141 or
+        intExpr(62) !                55  <>           491796152 or
+        intExpr(62) !                60  <>                1891 or
+        intExpr(62) !                61  <>                  62 or
+        intExpr(62) !                62  <>                   1 or
+        intExpr(62) !                63  <>                   0 or
+        intExpr(62) !            123456  <>                   0 or
+        intExpr(62) !            654321  <>                   0 or
+        intExpr(62) !         INT64_MAX  <>                   0 or
+        intExpr(63) !         INT64_MIN  <>                   0 or
+        intExpr(63) !            (-1234) <>                   0 or
+        intExpr(63) !               (-2) <>                   0 or
+        intExpr(63) !               (-1) <>                   0 or
+        intExpr(63) !                 0  <>                   1 or
+        intExpr(63) !                 1  <>                  63 or
+        intExpr(63) !                 2  <>                1953 or
+        intExpr(63) !                 5  <>             7028847 or
+        intExpr(63) !                10  <>        127805525001 or
+        intExpr(63) !                15  <>     122131734269895 or
+        intExpr(63) !                20  <>   13488561475572645 or
+        intExpr(63) !                25  <>  244382877832924467 or
+        intExpr(63) !                30  <>  860778005594247069 or
+        intExpr(63) !                31  <>  916312070471295267 or
+        intExpr(63) !                32  <>  916312070471295267 or
+        intExpr(63) !                35  <>  629308289804197437 or
+        intExpr(63) !                40  <>   93993414551124795 or
+        intExpr(63) !                45  <>    2588713818544245 or
+        intExpr(63) !                50  <>      10468434365991 or
+        intExpr(63) !                55  <>          3872894697 or
+        intExpr(63) !                60  <>               39711 or
+        intExpr(63) !                61  <>                1953 or
+        intExpr(63) !                62  <>                  63 or
+        intExpr(63) !                63  <>                   1 or
+        intExpr(63) !                64  <>                   0 or
+        intExpr(63) !            123456  <>                   0 or
+        intExpr(63) !            654321  <>                   0 or
+        intExpr(63) !         INT64_MAX  <>                   0 or
+        intExpr(66) !         INT64_MIN  <>                   0 or
+        intExpr(66) !            (-1234) <>                   0 or
+        intExpr(66) !               (-2) <>                   0 or
+        intExpr(66) !               (-1) <>                   0 or
+        intExpr(66) !                 0  <>                   1 or
+        intExpr(66) !                 1  <>                  66 or
+        intExpr(66) !                 2  <>                2145 or
+        intExpr(66) !                 5  <>             8936928 or
+        intExpr(66) !                10  <>        210980549208 or
+        intExpr(66) !                15  <>     268367258592576 or
+        intExpr(66) !                20  <>   40661170824914640 or
+        intExpr(66) !                25  <> 1049058207282797712 or
+        intExpr(66) !                30  <> 5516694892996182896 or
+        intExpr(66) !                31  <> 6406484391866534976 or
+        intExpr(66) !                32  <> 7007092303604022630 or
+        intExpr(66) !                33  <> 7219428434016265740 or
+        intExpr(66) !                34  <> 7007092303604022630 or
+        intExpr(66) !                35  <> 6406484391866534976 or
+        intExpr(66) !                40  <> 1654284096099796392 or
+        intExpr(66) !                45  <>   89067326568860640 or
+        intExpr(66) !                50  <>     855420636763836 or
+        intExpr(66) !                55  <>       1074082795968 or
+        intExpr(66) !                60  <>            90858768 or
+        intExpr(66) !                64  <>                2145 or
+        intExpr(66) !                65  <>                  66 or
+        intExpr(66) !                66  <>                   1 or
+        intExpr(66) !                67  <>                   0 or
+        intExpr(66) !            123456  <>                   0 or
+        intExpr(66) !            654321  <>                   0 or
+        intExpr(66) !         INT64_MAX  <>                   0 or
+        intExpr(67) !         INT64_MIN  <>                   0 or
+        intExpr(67) !            (-1234) <>                   0 or
+        intExpr(67) !               (-2) <>                   0 or
+        intExpr(67) !               (-1) <>                   0 or
+        intExpr(67) !                 0  <>                   1 or
+        intExpr(67) !                 1  <>                  67 or
+        intExpr(67) !                 2  <>                2211 or
+        intExpr(67) !                 5  <>             9657648 or
+        intExpr(67) !                10  <>        247994680648 or
+        intExpr(67) !                15  <>     345780890878896 or
+        intExpr(67) !                20  <>   57963796707857040 or
+        intExpr(67) !                25  <> 1673497616379701112 or
+        intExpr(67) !                29  <> 7886597962249166160 or
+                # The values 67 ! 30 to 67 ! 37 raise OVERFLOW_ERROR
+        intExpr(67) !                38  <> 7886597962249166160 or
+        intExpr(67) !                40  <> 4105075349580976232 or
+        intExpr(67) !                45  <>  271250494550621040 or
+        intExpr(67) !                50  <>    3371363686069236 or
+        intExpr(67) !                55  <>       5996962277488 or
+        intExpr(67) !                60  <>           869648208 or
+        intExpr(67) !                65  <>                2211 or
+        intExpr(67) !                66  <>                  67 or
+        intExpr(67) !                67  <>                   1 or
+        intExpr(67) !                68  <>                   0 or
+        intExpr(67) !            123456  <>                   0 or
+        intExpr(67) !            654321  <>                   0 or
+        intExpr(67) !         INT64_MAX  <>                   0 or
+                30  ! intExpr(INT64_MIN) <>                   0 or
+                30  ! intExpr(    -1234) <>                   0 or
+                30  ! intExpr(       -2) <>                   0 or
+                30  ! intExpr(       -1) <>                   0 or
+                30  ! intExpr(        0) <>                   1 or
+                30  ! intExpr(        1) <>                  30 or
+                30  ! intExpr(        2) <>                 435 or
+                30  ! intExpr(        5) <>              142506 or
+                30  ! intExpr(       10) <>            30045015 or
+                30  ! intExpr(       15) <>           155117520 or
+                30  ! intExpr(       20) <>            30045015 or
+                30  ! intExpr(       25) <>              142506 or
+                30  ! intExpr(       28) <>                 435 or
+                30  ! intExpr(       29) <>                  30 or
+                30  ! intExpr(       30) <>                   1 or
+                30  ! intExpr(       31) <>                   0 or
+                30  ! intExpr(   123456) <>                   0 or
+                30  ! intExpr(   654321) <>                   0 or
+                30  ! intExpr(INT64_MAX) <>                   0 or
+                31  ! intExpr(INT64_MIN) <>                   0 or
+                31  ! intExpr(    -1234) <>                   0 or
+                31  ! intExpr(       -2) <>                   0 or
+                31  ! intExpr(       -1) <>                   0 or
+                31  ! intExpr(        0) <>                   1 or
+                31  ! intExpr(        1) <>                  31 or
+                31  ! intExpr(        2) <>                 465 or
+                31  ! intExpr(        5) <>              169911 or
+                31  ! intExpr(       10) <>            44352165 or
+                31  ! intExpr(       15) <>           300540195 or
+                31  ! intExpr(       16) <>           300540195 or
+                31  ! intExpr(       20) <>            84672315 or
+                31  ! intExpr(       25) <>              736281 or
+                31  ! intExpr(       29) <>                 465 or
+                31  ! intExpr(       30) <>                  31 or
+                31  ! intExpr(       31) <>                   1 or
+                31  ! intExpr(       32) <>                   0 or
+                31  ! intExpr(   123456) <>                   0 or
+                31  ! intExpr(   654321) <>                   0 or
+                31  ! intExpr(INT64_MAX) <>                   0 or
+                45  ! intExpr(INT64_MIN) <>                   0 or
+                45  ! intExpr(    -1234) <>                   0 or
+                45  ! intExpr(       -2) <>                   0 or
+                45  ! intExpr(       -1) <>                   0 or
+                45  ! intExpr(        0) <>                   1 or
+                45  ! intExpr(        1) <>                  45 or
+                45  ! intExpr(        2) <>                 990 or
+                45  ! intExpr(        5) <>             1221759 or
+                45  ! intExpr(       10) <>          3190187286 or
+                45  ! intExpr(       15) <>        344867425584 or
+                45  ! intExpr(       20) <>       3169870830126 or
+                45  ! intExpr(       22) <>       4116715363800 or
+                45  ! intExpr(       23) <>       4116715363800 or
+                45  ! intExpr(       25) <>       3169870830126 or
+                45  ! intExpr(       30) <>        344867425584 or
+                45  ! intExpr(       35) <>          3190187286 or
+                45  ! intExpr(       40) <>             1221759 or
+                45  ! intExpr(       43) <>                 990 or
+                45  ! intExpr(       44) <>                  45 or
+                45  ! intExpr(       45) <>                   1 or
+                45  ! intExpr(       46) <>                   0 or
+                45  ! intExpr(   123456) <>                   0 or
+                45  ! intExpr(   654321) <>                   0 or
+                45  ! intExpr(INT64_MAX) <>                   0 or
+                62  ! intExpr(INT64_MIN) <>                   0 or
+                62  ! intExpr(    -1234) <>                   0 or
+                62  ! intExpr(       -2) <>                   0 or
+                62  ! intExpr(       -1) <>                   0 or
+                62  ! intExpr(        0) <>                   1 or
+                62  ! intExpr(        1) <>                  62 or
+                62  ! intExpr(        2) <>                1891 or
+                62  ! intExpr(        5) <>             6471002 or
+                62  ! intExpr(       10) <>        107518933731 or
+                62  ! intExpr(       15) <>      93052749919920 or
+                62  ! intExpr(       20) <>    9206478467454345 or
+                62  ! intExpr(       25) <>  147405545359541742 or
+                62  ! intExpr(       30) <>  450883717216034179 or
+                62  ! intExpr(       31) <>  465428353255261088 or
+                62  ! intExpr(       32) <>  450883717216034179 or
+                62  ! intExpr(       35) <>  279692573246309972 or
+                62  ! intExpr(       40) <>   34315056105966195 or
+                62  ! intExpr(       45) <>     739632519584070 or
+                62  ! intExpr(       50) <>       2160153123141 or
+                62  ! intExpr(       55) <>           491796152 or
+                62  ! intExpr(       60) <>                1891 or
+                62  ! intExpr(       61) <>                  62 or
+                62  ! intExpr(       62) <>                   1 or
+                62  ! intExpr(       63) <>                   0 or
+                62  ! intExpr(   123456) <>                   0 or
+                62  ! intExpr(   654321) <>                   0 or
+                62  ! intExpr(INT64_MAX) <>                   0 or
+                63  ! intExpr(INT64_MIN) <>                   0 or
+                63  ! intExpr(    -1234) <>                   0 or
+                63  ! intExpr(       -2) <>                   0 or
+                63  ! intExpr(       -1) <>                   0 or
+                63  ! intExpr(        0) <>                   1 or
+                63  ! intExpr(        1) <>                  63 or
+                63  ! intExpr(        2) <>                1953 or
+                63  ! intExpr(        5) <>             7028847 or
+                63  ! intExpr(       10) <>        127805525001 or
+                63  ! intExpr(       15) <>     122131734269895 or
+                63  ! intExpr(       20) <>   13488561475572645 or
+                63  ! intExpr(       25) <>  244382877832924467 or
+                63  ! intExpr(       30) <>  860778005594247069 or
+                63  ! intExpr(       31) <>  916312070471295267 or
+                63  ! intExpr(       32) <>  916312070471295267 or
+                63  ! intExpr(       35) <>  629308289804197437 or
+                63  ! intExpr(       40) <>   93993414551124795 or
+                63  ! intExpr(       45) <>    2588713818544245 or
+                63  ! intExpr(       50) <>      10468434365991 or
+                63  ! intExpr(       55) <>          3872894697 or
+                63  ! intExpr(       60) <>               39711 or
+                63  ! intExpr(       61) <>                1953 or
+                63  ! intExpr(       62) <>                  63 or
+                63  ! intExpr(       63) <>                   1 or
+                63  ! intExpr(       64) <>                   0 or
+                63  ! intExpr(   123456) <>                   0 or
+                63  ! intExpr(   654321) <>                   0 or
+                63  ! intExpr(INT64_MAX) <>                   0 or
+                66  ! intExpr(INT64_MIN) <>                   0 or
+                66  ! intExpr(    -1234) <>                   0 or
+                66  ! intExpr(       -2) <>                   0 or
+                66  ! intExpr(       -1) <>                   0 or
+                66  ! intExpr(        0) <>                   1 or
+                66  ! intExpr(        1) <>                  66 or
+                66  ! intExpr(        2) <>                2145 or
+                66  ! intExpr(        5) <>             8936928 or
+                66  ! intExpr(       10) <>        210980549208 or
+                66  ! intExpr(       15) <>     268367258592576 or
+                66  ! intExpr(       20) <>   40661170824914640 or
+                66  ! intExpr(       25) <> 1049058207282797712 or
+                66  ! intExpr(       30) <> 5516694892996182896 or
+                66  ! intExpr(       31) <> 6406484391866534976 or
+                66  ! intExpr(       32) <> 7007092303604022630 or
+                66  ! intExpr(       33) <> 7219428434016265740 or
+                66  ! intExpr(       34) <> 7007092303604022630 or
+                66  ! intExpr(       35) <> 6406484391866534976 or
+                66  ! intExpr(       40) <> 1654284096099796392 or
+                66  ! intExpr(       45) <>   89067326568860640 or
+                66  ! intExpr(       50) <>     855420636763836 or
+                66  ! intExpr(       55) <>       1074082795968 or
+                66  ! intExpr(       60) <>            90858768 or
+                66  ! intExpr(       64) <>                2145 or
+                66  ! intExpr(       65) <>                  66 or
+                66  ! intExpr(       66) <>                   1 or
+                66  ! intExpr(       67) <>                   0 or
+                66  ! intExpr(   123456) <>                   0 or
+                66  ! intExpr(   654321) <>                   0 or
+                66  ! intExpr(INT64_MAX) <>                   0 or
+                67  ! intExpr(INT64_MIN) <>                   0 or
+                67  ! intExpr(    -1234) <>                   0 or
+                67  ! intExpr(       -2) <>                   0 or
+                67  ! intExpr(       -1) <>                   0 or
+                67  ! intExpr(        0) <>                   1 or
+                67  ! intExpr(        1) <>                  67 or
+                67  ! intExpr(        2) <>                2211 or
+                67  ! intExpr(        5) <>             9657648 or
+                67  ! intExpr(       10) <>        247994680648 or
+                67  ! intExpr(       15) <>     345780890878896 or
+                67  ! intExpr(       20) <>   57963796707857040 or
+                67  ! intExpr(       25) <> 1673497616379701112 or
+                67  ! intExpr(       29) <> 7886597962249166160 or
+                # The values 67 ! 30 to 67 ! 37 raise OVERFLOW_ERROR
+                67  ! intExpr(       38) <> 7886597962249166160 or
+                67  ! intExpr(       40) <> 4105075349580976232 or
+                67  ! intExpr(       45) <>  271250494550621040 or
+                67  ! intExpr(       50) <>    3371363686069236 or
+                67  ! intExpr(       55) <>       5996962277488 or
+                67  ! intExpr(       60) <>           869648208 or
+                67  ! intExpr(       65) <>                2211 or
+                67  ! intExpr(       66) <>                  67 or
+                67  ! intExpr(       67) <>                   1 or
+                67  ! intExpr(       68) <>                   0 or
+                67  ! intExpr(   123456) <>                   0 or
+                67  ! intExpr(   654321) <>                   0 or
+                67  ! intExpr(INT64_MAX) <>                   0 or
+        intExpr(30) ! intExpr(INT64_MIN) <>                   0 or
+        intExpr(30) ! intExpr(    -1234) <>                   0 or
+        intExpr(30) ! intExpr(       -2) <>                   0 or
+        intExpr(30) ! intExpr(       -1) <>                   0 or
+        intExpr(30) ! intExpr(        0) <>                   1 or
+        intExpr(30) ! intExpr(        1) <>                  30 or
+        intExpr(30) ! intExpr(        2) <>                 435 or
+        intExpr(30) ! intExpr(        5) <>              142506 or
+        intExpr(30) ! intExpr(       10) <>            30045015 or
+        intExpr(30) ! intExpr(       15) <>           155117520 or
+        intExpr(30) ! intExpr(       20) <>            30045015 or
+        intExpr(30) ! intExpr(       25) <>              142506 or
+        intExpr(30) ! intExpr(       28) <>                 435 or
+        intExpr(30) ! intExpr(       29) <>                  30 or
+        intExpr(30) ! intExpr(       30) <>                   1 or
+        intExpr(30) ! intExpr(       31) <>                   0 or
+        intExpr(30) ! intExpr(   123456) <>                   0 or
+        intExpr(30) ! intExpr(   654321) <>                   0 or
+        intExpr(30) ! intExpr(INT64_MAX) <>                   0 or
+        intExpr(31) ! intExpr(INT64_MIN) <>                   0 or
+        intExpr(31) ! intExpr(    -1234) <>                   0 or
+        intExpr(31) ! intExpr(       -2) <>                   0 or
+        intExpr(31) ! intExpr(       -1) <>                   0 or
+        intExpr(31) ! intExpr(        0) <>                   1 or
+        intExpr(31) ! intExpr(        1) <>                  31 or
+        intExpr(31) ! intExpr(        2) <>                 465 or
+        intExpr(31) ! intExpr(        5) <>              169911 or
+        intExpr(31) ! intExpr(       10) <>            44352165 or
+        intExpr(31) ! intExpr(       15) <>           300540195 or
+        intExpr(31) ! intExpr(       16) <>           300540195 or
+        intExpr(31) ! intExpr(       20) <>            84672315 or
+        intExpr(31) ! intExpr(       25) <>              736281 or
+        intExpr(31) ! intExpr(       29) <>                 465 or
+        intExpr(31) ! intExpr(       30) <>                  31 or
+        intExpr(31) ! intExpr(       31) <>                   1 or
+        intExpr(31) ! intExpr(       32) <>                   0 or
+        intExpr(31) ! intExpr(   123456) <>                   0 or
+        intExpr(31) ! intExpr(   654321) <>                   0 or
+        intExpr(31) ! intExpr(INT64_MAX) <>                   0 or
+        intExpr(45) ! intExpr(INT64_MIN) <>                   0 or
+        intExpr(45) ! intExpr(    -1234) <>                   0 or
+        intExpr(45) ! intExpr(       -2) <>                   0 or
+        intExpr(45) ! intExpr(       -1) <>                   0 or
+        intExpr(45) ! intExpr(        0) <>                   1 or
+        intExpr(45) ! intExpr(        1) <>                  45 or
+        intExpr(45) ! intExpr(        2) <>                 990 or
+        intExpr(45) ! intExpr(        5) <>             1221759 or
+        intExpr(45) ! intExpr(       10) <>          3190187286 or
+        intExpr(45) ! intExpr(       15) <>        344867425584 or
+        intExpr(45) ! intExpr(       20) <>       3169870830126 or
+        intExpr(45) ! intExpr(       22) <>       4116715363800 or
+        intExpr(45) ! intExpr(       23) <>       4116715363800 or
+        intExpr(45) ! intExpr(       25) <>       3169870830126 or
+        intExpr(45) ! intExpr(       30) <>        344867425584 or
+        intExpr(45) ! intExpr(       35) <>          3190187286 or
+        intExpr(45) ! intExpr(       40) <>             1221759 or
+        intExpr(45) ! intExpr(       43) <>                 990 or
+        intExpr(45) ! intExpr(       44) <>                  45 or
+        intExpr(45) ! intExpr(       45) <>                   1 or
+        intExpr(45) ! intExpr(       46) <>                   0 or
+        intExpr(45) ! intExpr(   123456) <>                   0 or
+        intExpr(45) ! intExpr(   654321) <>                   0 or
+        intExpr(45) ! intExpr(INT64_MAX) <>                   0 or
+        intExpr(62) ! intExpr(INT64_MIN) <>                   0 or
+        intExpr(62) ! intExpr(    -1234) <>                   0 or
+        intExpr(62) ! intExpr(       -2) <>                   0 or
+        intExpr(62) ! intExpr(       -1) <>                   0 or
+        intExpr(62) ! intExpr(        0) <>                   1 or
+        intExpr(62) ! intExpr(        1) <>                  62 or
+        intExpr(62) ! intExpr(        2) <>                1891 or
+        intExpr(62) ! intExpr(        5) <>             6471002 or
+        intExpr(62) ! intExpr(       10) <>        107518933731 or
+        intExpr(62) ! intExpr(       15) <>      93052749919920 or
+        intExpr(62) ! intExpr(       20) <>    9206478467454345 or
+        intExpr(62) ! intExpr(       25) <>  147405545359541742 or
+        intExpr(62) ! intExpr(       30) <>  450883717216034179 or
+        intExpr(62) ! intExpr(       31) <>  465428353255261088 or
+        intExpr(62) ! intExpr(       32) <>  450883717216034179 or
+        intExpr(62) ! intExpr(       35) <>  279692573246309972 or
+        intExpr(62) ! intExpr(       40) <>   34315056105966195 or
+        intExpr(62) ! intExpr(       45) <>     739632519584070 or
+        intExpr(62) ! intExpr(       50) <>       2160153123141 or
+        intExpr(62) ! intExpr(       55) <>           491796152 or
+        intExpr(62) ! intExpr(       60) <>                1891 or
+        intExpr(62) ! intExpr(       61) <>                  62 or
+        intExpr(62) ! intExpr(       62) <>                   1 or
+        intExpr(62) ! intExpr(       63) <>                   0 or
+        intExpr(62) ! intExpr(   123456) <>                   0 or
+        intExpr(62) ! intExpr(   654321) <>                   0 or
+        intExpr(62) ! intExpr(INT64_MAX) <>                   0 or
+        intExpr(63) ! intExpr(INT64_MIN) <>                   0 or
+        intExpr(63) ! intExpr(    -1234) <>                   0 or
+        intExpr(63) ! intExpr(       -2) <>                   0 or
+        intExpr(63) ! intExpr(       -1) <>                   0 or
+        intExpr(63) ! intExpr(        0) <>                   1 or
+        intExpr(63) ! intExpr(        1) <>                  63 or
+        intExpr(63) ! intExpr(        2) <>                1953 or
+        intExpr(63) ! intExpr(        5) <>             7028847 or
+        intExpr(63) ! intExpr(       10) <>        127805525001 or
+        intExpr(63) ! intExpr(       15) <>     122131734269895 or
+        intExpr(63) ! intExpr(       20) <>   13488561475572645 or
+        intExpr(63) ! intExpr(       25) <>  244382877832924467 or
+        intExpr(63) ! intExpr(       30) <>  860778005594247069 or
+        intExpr(63) ! intExpr(       31) <>  916312070471295267 or
+        intExpr(63) ! intExpr(       32) <>  916312070471295267 or
+        intExpr(63) ! intExpr(       35) <>  629308289804197437 or
+        intExpr(63) ! intExpr(       40) <>   93993414551124795 or
+        intExpr(63) ! intExpr(       45) <>    2588713818544245 or
+        intExpr(63) ! intExpr(       50) <>      10468434365991 or
+        intExpr(63) ! intExpr(       55) <>          3872894697 or
+        intExpr(63) ! intExpr(       60) <>               39711 or
+        intExpr(63) ! intExpr(       61) <>                1953 or
+        intExpr(63) ! intExpr(       62) <>                  63 or
+        intExpr(63) ! intExpr(       63) <>                   1 or
+        intExpr(63) ! intExpr(       64) <>                   0 or
+        intExpr(63) ! intExpr(   123456) <>                   0 or
+        intExpr(63) ! intExpr(   654321) <>                   0 or
+        intExpr(63) ! intExpr(INT64_MAX) <>                   0 or
+        intExpr(66) ! intExpr(INT64_MIN) <>                   0 or
+        intExpr(66) ! intExpr(    -1234) <>                   0 or
+        intExpr(66) ! intExpr(       -2) <>                   0 or
+        intExpr(66) ! intExpr(       -1) <>                   0 or
+        intExpr(66) ! intExpr(        0) <>                   1 or
+        intExpr(66) ! intExpr(        1) <>                  66 or
+        intExpr(66) ! intExpr(        2) <>                2145 or
+        intExpr(66) ! intExpr(        5) <>             8936928 or
+        intExpr(66) ! intExpr(       10) <>        210980549208 or
+        intExpr(66) ! intExpr(       15) <>     268367258592576 or
+        intExpr(66) ! intExpr(       20) <>   40661170824914640 or
+        intExpr(66) ! intExpr(       25) <> 1049058207282797712 or
+        intExpr(66) ! intExpr(       30) <> 5516694892996182896 or
+        intExpr(66) ! intExpr(       31) <> 6406484391866534976 or
+        intExpr(66) ! intExpr(       32) <> 7007092303604022630 or
+        intExpr(66) ! intExpr(       33) <> 7219428434016265740 or
+        intExpr(66) ! intExpr(       34) <> 7007092303604022630 or
+        intExpr(66) ! intExpr(       35) <> 6406484391866534976 or
+        intExpr(66) ! intExpr(       40) <> 1654284096099796392 or
+        intExpr(66) ! intExpr(       45) <>   89067326568860640 or
+        intExpr(66) ! intExpr(       50) <>     855420636763836 or
+        intExpr(66) ! intExpr(       55) <>       1074082795968 or
+        intExpr(66) ! intExpr(       60) <>            90858768 or
+        intExpr(66) ! intExpr(       64) <>                2145 or
+        intExpr(66) ! intExpr(       65) <>                  66 or
+        intExpr(66) ! intExpr(       66) <>                   1 or
+        intExpr(66) ! intExpr(       67) <>                   0 or
+        intExpr(66) ! intExpr(   123456) <>                   0 or
+        intExpr(66) ! intExpr(   654321) <>                   0 or
+        intExpr(66) ! intExpr(INT64_MAX) <>                   0 or
+        intExpr(67) ! intExpr(INT64_MIN) <>                   0 or
+        intExpr(67) ! intExpr(    -1234) <>                   0 or
+        intExpr(67) ! intExpr(       -2) <>                   0 or
+        intExpr(67) ! intExpr(       -1) <>                   0 or
+        intExpr(67) ! intExpr(        0) <>                   1 or
+        intExpr(67) ! intExpr(        1) <>                  67 or
+        intExpr(67) ! intExpr(        2) <>                2211 or
+        intExpr(67) ! intExpr(        5) <>             9657648 or
+        intExpr(67) ! intExpr(       10) <>        247994680648 or
+        intExpr(67) ! intExpr(       15) <>     345780890878896 or
+        intExpr(67) ! intExpr(       20) <>   57963796707857040 or
+        intExpr(67) ! intExpr(       25) <> 1673497616379701112 or
+        intExpr(67) ! intExpr(       29) <> 7886597962249166160 or
+                # The values 67 ! 30 to 67 ! 37 raise OVERFLOW_ERROR
+        intExpr(67) ! intExpr(       38) <> 7886597962249166160 or
+        intExpr(67) ! intExpr(       40) <> 4105075349580976232 or
+        intExpr(67) ! intExpr(       45) <>  271250494550621040 or
+        intExpr(67) ! intExpr(       50) <>    3371363686069236 or
+        intExpr(67) ! intExpr(       55) <>       5996962277488 or
+        intExpr(67) ! intExpr(       60) <>           869648208 or
+        intExpr(67) ! intExpr(       65) <>                2211 or
+        intExpr(67) ! intExpr(       66) <>                  67 or
+        intExpr(67) ! intExpr(       67) <>                   1 or
+        intExpr(67) ! intExpr(       68) <>                   0 or
+        intExpr(67) ! intExpr(   123456) <>                   0 or
+        intExpr(67) ! intExpr(   654321) <>                   0 or
+        intExpr(67) ! intExpr(INT64_MAX) <>                   0 then
+      writeln(" ***** Computing binomial coefficient with constants does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if  (-99) !         15 <> -1809960172844903640 or
+        (-98) !         15 <> -1569699972909739440 or
+        (-97) !         15 <> -1359472297966470765 or
+        (-96) !         16 <>  8156833787798824590 or
+        (-95) !         16 <>  6981073962530525550 or
+        (-94) !         16 <>  5965645022526085470 or
+        (-93) !         16 <>  5089954010045192190 or
+        (-92) !         16 <>  4335886749297756310 or
+        (-91) !         16 <>  3687529852206503030 or
+        (-90) !         16 <>  3130921572628162950 or
+        (-89) !         16 <>  2653828761561014310 or
+        (-88) !         16 <>  2245547413628550570 or
+        (-87) !         16 <>  1896724514424115530 or
+        (-86) !         16 <>  1599199100396803290 or
+        (-85) !         17 <> -7995995501984016450 or
+        (-84) !         17 <> -6650134872937201800 or
+        (-83) !         17 <> -5519611944537877494 or
+        (-82) !         17 <> -4571799792445514692 or
+        (-81) !         17 <> -3778732481511088674 or
+        (-80) !         17 <> -3116480397122547360 or
+        (-79) !         17 <> -2564603660132096265 or
+        (-78) !         17 <> -2105674584108457986 or
+        (-77) !         18 <>  9007607943130625829 or
+        (-76) !         18 <>  7282746847637527266 or
+        (-75) !         18 <>  5873182941643167150 or
+        (-74) !         18 <>  4724081931321677925 or
+        (-73) !         18 <>  3789648142708598775 or
+        (-72) !         18 <>  3031718514166879020 or
+        (-71) !         18 <>  2418561960739869780 or
+        (-70) !         19 <> -8910491434304783400 or
+        (-69) !         19 <> -6986635329170796075 or
+        (-68) !         19 <> -5460818418202461300 or
+        (-67) !         19 <> -4254358535111219850 or
+        (-66) !         19 <> -3303384274321653060 or
+        (-65) !         19 <> -2556190212272707725 or
+        (-64) !         20 <>  8179808679272664720 or
+        (-63) !         20 <>  6208770443303347920 or
+        (-62) !         20 <>  4694436188839116720 or
+        (-61) !         20 <>  3535316142212174320 or
+        (-60) !         20 <>  2651487106659130740 or
+        (-59) !         21 <> -7449416156804224460 or
+        (-58) !         21 <> -5469191608792974920 or
+        (-57) !         21 <> -3996716944887173980 or
+        (-56) !         21 <> -2906703232645217440 or
+        (-55) !         22 <>  7266758081613043600 or
+        (-54) !         22 <>  5163222847461899400 or
+        (-53) !         22 <>  3648677478873075576 or
+        (-52) !         23 <> -8249183865278257824 or
+        (-51) !         23 <> -5685248339583664176 or
+        (-50) !         23 <> -3894005712043605600 or
+        (-49) !         24 <>  7950261662089028100 or
+        (-48) !         24 <>  5300174441392685400 or
+        (-47) !         24 <>  3508566179513467800 or
+        (-46) !         25 <> -6455761770304780752 or
+        (-45) !         25 <> -4150132566624501912 or
+        (-44) !         26 <>  7023301266595310928 or
+        (-43) !         26 <>  4376839919762295216 or
+        (-42) !         27 <> -6808417652963570336 or
+        (-41) !         27 <> -4105075349580976232 or
+        (-40) !         28 <>  5864393356544251760 or
+        (-39) !         29 <> -7886597962249166160 or
+        (-38) !         29 <> -4472995859186094240 or
+        (-37) !         30 <>  5516694892996182896 or
+        (-36) !         31 <> -6406484391866534976 or
+        (-35) !         32 <>  7007092303604022630 or
+        (-34) !         33 <> -7219428434016265740 or
+        (-33) !         34 <>  7007092303604022630 or
+        (-32) !         35 <> -6406484391866534976 or
+        (-31) !         36 <>  5516694892996182896 or
+        (-30) !         38 <>  7886597962249166160 or
+        (-29) !         39 <> -5864393356544251760 or
+        (-28) !         41 <> -6808417652963570336 or
+        (-27) !         43 <> -7023301266595310928 or
+        (-26) !         45 <> -6455761770304780752 or
+        (-25) !         48 <>  7950261662089028100 or
+        (-24) !         51 <> -8249183865278257824 or
+        (-23) !         54 <>  7266758081613043600 or
+        (-22) !         58 <>  7449416156804224460 or
+        (-21) !         63 <> -8179808679272664720 or
+        (-20) !         69 <> -8910491434304783400 or
+        (-19) !         76 <>  9007607943130625829 or
+        (-18) !         84 <>  7995995501984016450 or
+        (-17) !         95 <> -8156833787798824590 or
+        (-16) !        110 <>  9064807833193439800 or
+        (-15) !        129 <> -8887821571512103935 or
+        (-14) !        156 <>  9176358300744339432 or
+        (-13) !        194 <>  8795548359217331075 or
+        (-12) !        254 <>  9187507719876570240 or
+        (-11) !        351 <> -9134638038697149616 or
+        (-10) !        525 <> -9092292741062601356 or
+        ( -9) !        879 <> -9207044098280898870 or
+        ( -8) !       1726 <>  9202167919706100768 or
+        ( -7) !       4331 <> -9210884681005865704 or
+        ( -6) !      16170 <>  9220865312154653235 or
+        ( -5) !     121973 <> -9223148185681446450 or
+        ( -4) !    3810776 <>  9223371416043870029 or
+        ( -3) ! 4294967294 <>  9223372034707292160 or
+        intExpr(-99) !         15 <> -1809960172844903640 or
+        intExpr(-98) !         15 <> -1569699972909739440 or
+        intExpr(-97) !         15 <> -1359472297966470765 or
+        intExpr(-96) !         16 <>  8156833787798824590 or
+        intExpr(-95) !         16 <>  6981073962530525550 or
+        intExpr(-94) !         16 <>  5965645022526085470 or
+        intExpr(-93) !         16 <>  5089954010045192190 or
+        intExpr(-92) !         16 <>  4335886749297756310 or
+        intExpr(-91) !         16 <>  3687529852206503030 or
+        intExpr(-90) !         16 <>  3130921572628162950 or
+        intExpr(-89) !         16 <>  2653828761561014310 or
+        intExpr(-88) !         16 <>  2245547413628550570 or
+        intExpr(-87) !         16 <>  1896724514424115530 or
+        intExpr(-86) !         16 <>  1599199100396803290 or
+        intExpr(-85) !         17 <> -7995995501984016450 or
+        intExpr(-84) !         17 <> -6650134872937201800 or
+        intExpr(-83) !         17 <> -5519611944537877494 or
+        intExpr(-82) !         17 <> -4571799792445514692 or
+        intExpr(-81) !         17 <> -3778732481511088674 or
+        intExpr(-80) !         17 <> -3116480397122547360 or
+        intExpr(-79) !         17 <> -2564603660132096265 or
+        intExpr(-78) !         17 <> -2105674584108457986 or
+        intExpr(-77) !         18 <>  9007607943130625829 or
+        intExpr(-76) !         18 <>  7282746847637527266 or
+        intExpr(-75) !         18 <>  5873182941643167150 or
+        intExpr(-74) !         18 <>  4724081931321677925 or
+        intExpr(-73) !         18 <>  3789648142708598775 or
+        intExpr(-72) !         18 <>  3031718514166879020 or
+        intExpr(-71) !         18 <>  2418561960739869780 or
+        intExpr(-70) !         19 <> -8910491434304783400 or
+        intExpr(-69) !         19 <> -6986635329170796075 or
+        intExpr(-68) !         19 <> -5460818418202461300 or
+        intExpr(-67) !         19 <> -4254358535111219850 or
+        intExpr(-66) !         19 <> -3303384274321653060 or
+        intExpr(-65) !         19 <> -2556190212272707725 or
+        intExpr(-64) !         20 <>  8179808679272664720 or
+        intExpr(-63) !         20 <>  6208770443303347920 or
+        intExpr(-62) !         20 <>  4694436188839116720 or
+        intExpr(-61) !         20 <>  3535316142212174320 or
+        intExpr(-60) !         20 <>  2651487106659130740 or
+        intExpr(-59) !         21 <> -7449416156804224460 or
+        intExpr(-58) !         21 <> -5469191608792974920 or
+        intExpr(-57) !         21 <> -3996716944887173980 or
+        intExpr(-56) !         21 <> -2906703232645217440 or
+        intExpr(-55) !         22 <>  7266758081613043600 or
+        intExpr(-54) !         22 <>  5163222847461899400 or
+        intExpr(-53) !         22 <>  3648677478873075576 or
+        intExpr(-52) !         23 <> -8249183865278257824 or
+        intExpr(-51) !         23 <> -5685248339583664176 or
+        intExpr(-50) !         23 <> -3894005712043605600 or
+        intExpr(-49) !         24 <>  7950261662089028100 or
+        intExpr(-48) !         24 <>  5300174441392685400 or
+        intExpr(-47) !         24 <>  3508566179513467800 or
+        intExpr(-46) !         25 <> -6455761770304780752 or
+        intExpr(-45) !         25 <> -4150132566624501912 or
+        intExpr(-44) !         26 <>  7023301266595310928 or
+        intExpr(-43) !         26 <>  4376839919762295216 or
+        intExpr(-42) !         27 <> -6808417652963570336 or
+        intExpr(-41) !         27 <> -4105075349580976232 or
+        intExpr(-40) !         28 <>  5864393356544251760 or
+        intExpr(-39) !         29 <> -7886597962249166160 or
+        intExpr(-38) !         29 <> -4472995859186094240 or
+        intExpr(-37) !         30 <>  5516694892996182896 or
+        intExpr(-36) !         31 <> -6406484391866534976 or
+        intExpr(-35) !         32 <>  7007092303604022630 or
+        intExpr(-34) !         33 <> -7219428434016265740 or
+        intExpr(-33) !         34 <>  7007092303604022630 or
+        intExpr(-32) !         35 <> -6406484391866534976 or
+        intExpr(-31) !         36 <>  5516694892996182896 or
+        intExpr(-30) !         38 <>  7886597962249166160 or
+        intExpr(-29) !         39 <> -5864393356544251760 or
+        intExpr(-28) !         41 <> -6808417652963570336 or
+        intExpr(-27) !         43 <> -7023301266595310928 or
+        intExpr(-26) !         45 <> -6455761770304780752 or
+        intExpr(-25) !         48 <>  7950261662089028100 or
+        intExpr(-24) !         51 <> -8249183865278257824 or
+        intExpr(-23) !         54 <>  7266758081613043600 or
+        intExpr(-22) !         58 <>  7449416156804224460 or
+        intExpr(-21) !         63 <> -8179808679272664720 or
+        intExpr(-20) !         69 <> -8910491434304783400 or
+        intExpr(-19) !         76 <>  9007607943130625829 or
+        intExpr(-18) !         84 <>  7995995501984016450 or
+        intExpr(-17) !         95 <> -8156833787798824590 or
+        intExpr(-16) !        110 <>  9064807833193439800 or
+        intExpr(-15) !        129 <> -8887821571512103935 or
+        intExpr(-14) !        156 <>  9176358300744339432 or
+        intExpr(-13) !        194 <>  8795548359217331075 or
+        intExpr(-12) !        254 <>  9187507719876570240 or
+        intExpr(-11) !        351 <> -9134638038697149616 or
+        intExpr(-10) !        525 <> -9092292741062601356 or
+        intExpr( -9) !        879 <> -9207044098280898870 or
+        intExpr( -8) !       1726 <>  9202167919706100768 or
+        intExpr( -7) !       4331 <> -9210884681005865704 or
+        intExpr( -6) !      16170 <>  9220865312154653235 or
+        intExpr( -5) !     121973 <> -9223148185681446450 or
+        intExpr( -4) !    3810776 <>  9223371416043870029 or
+        intExpr( -3) ! 4294967294 <>  9223372034707292160 or
+        (-99) ! intExpr(        15) <> -1809960172844903640 or
+        (-98) ! intExpr(        15) <> -1569699972909739440 or
+        (-97) ! intExpr(        15) <> -1359472297966470765 or
+        (-96) ! intExpr(        16) <>  8156833787798824590 or
+        (-95) ! intExpr(        16) <>  6981073962530525550 or
+        (-94) ! intExpr(        16) <>  5965645022526085470 or
+        (-93) ! intExpr(        16) <>  5089954010045192190 or
+        (-92) ! intExpr(        16) <>  4335886749297756310 or
+        (-91) ! intExpr(        16) <>  3687529852206503030 or
+        (-90) ! intExpr(        16) <>  3130921572628162950 or
+        (-89) ! intExpr(        16) <>  2653828761561014310 or
+        (-88) ! intExpr(        16) <>  2245547413628550570 or
+        (-87) ! intExpr(        16) <>  1896724514424115530 or
+        (-86) ! intExpr(        16) <>  1599199100396803290 or
+        (-85) ! intExpr(        17) <> -7995995501984016450 or
+        (-84) ! intExpr(        17) <> -6650134872937201800 or
+        (-83) ! intExpr(        17) <> -5519611944537877494 or
+        (-82) ! intExpr(        17) <> -4571799792445514692 or
+        (-81) ! intExpr(        17) <> -3778732481511088674 or
+        (-80) ! intExpr(        17) <> -3116480397122547360 or
+        (-79) ! intExpr(        17) <> -2564603660132096265 or
+        (-78) ! intExpr(        17) <> -2105674584108457986 or
+        (-77) ! intExpr(        18) <>  9007607943130625829 or
+        (-76) ! intExpr(        18) <>  7282746847637527266 or
+        (-75) ! intExpr(        18) <>  5873182941643167150 or
+        (-74) ! intExpr(        18) <>  4724081931321677925 or
+        (-73) ! intExpr(        18) <>  3789648142708598775 or
+        (-72) ! intExpr(        18) <>  3031718514166879020 or
+        (-71) ! intExpr(        18) <>  2418561960739869780 or
+        (-70) ! intExpr(        19) <> -8910491434304783400 or
+        (-69) ! intExpr(        19) <> -6986635329170796075 or
+        (-68) ! intExpr(        19) <> -5460818418202461300 or
+        (-67) ! intExpr(        19) <> -4254358535111219850 or
+        (-66) ! intExpr(        19) <> -3303384274321653060 or
+        (-65) ! intExpr(        19) <> -2556190212272707725 or
+        (-64) ! intExpr(        20) <>  8179808679272664720 or
+        (-63) ! intExpr(        20) <>  6208770443303347920 or
+        (-62) ! intExpr(        20) <>  4694436188839116720 or
+        (-61) ! intExpr(        20) <>  3535316142212174320 or
+        (-60) ! intExpr(        20) <>  2651487106659130740 or
+        (-59) ! intExpr(        21) <> -7449416156804224460 or
+        (-58) ! intExpr(        21) <> -5469191608792974920 or
+        (-57) ! intExpr(        21) <> -3996716944887173980 or
+        (-56) ! intExpr(        21) <> -2906703232645217440 or
+        (-55) ! intExpr(        22) <>  7266758081613043600 or
+        (-54) ! intExpr(        22) <>  5163222847461899400 or
+        (-53) ! intExpr(        22) <>  3648677478873075576 or
+        (-52) ! intExpr(        23) <> -8249183865278257824 or
+        (-51) ! intExpr(        23) <> -5685248339583664176 or
+        (-50) ! intExpr(        23) <> -3894005712043605600 or
+        (-49) ! intExpr(        24) <>  7950261662089028100 or
+        (-48) ! intExpr(        24) <>  5300174441392685400 or
+        (-47) ! intExpr(        24) <>  3508566179513467800 or
+        (-46) ! intExpr(        25) <> -6455761770304780752 or
+        (-45) ! intExpr(        25) <> -4150132566624501912 or
+        (-44) ! intExpr(        26) <>  7023301266595310928 or
+        (-43) ! intExpr(        26) <>  4376839919762295216 or
+        (-42) ! intExpr(        27) <> -6808417652963570336 or
+        (-41) ! intExpr(        27) <> -4105075349580976232 or
+        (-40) ! intExpr(        28) <>  5864393356544251760 or
+        (-39) ! intExpr(        29) <> -7886597962249166160 or
+        (-38) ! intExpr(        29) <> -4472995859186094240 or
+        (-37) ! intExpr(        30) <>  5516694892996182896 or
+        (-36) ! intExpr(        31) <> -6406484391866534976 or
+        (-35) ! intExpr(        32) <>  7007092303604022630 or
+        (-34) ! intExpr(        33) <> -7219428434016265740 or
+        (-33) ! intExpr(        34) <>  7007092303604022630 or
+        (-32) ! intExpr(        35) <> -6406484391866534976 or
+        (-31) ! intExpr(        36) <>  5516694892996182896 or
+        (-30) ! intExpr(        38) <>  7886597962249166160 or
+        (-29) ! intExpr(        39) <> -5864393356544251760 or
+        (-28) ! intExpr(        41) <> -6808417652963570336 or
+        (-27) ! intExpr(        43) <> -7023301266595310928 or
+        (-26) ! intExpr(        45) <> -6455761770304780752 or
+        (-25) ! intExpr(        48) <>  7950261662089028100 or
+        (-24) ! intExpr(        51) <> -8249183865278257824 or
+        (-23) ! intExpr(        54) <>  7266758081613043600 or
+        (-22) ! intExpr(        58) <>  7449416156804224460 or
+        (-21) ! intExpr(        63) <> -8179808679272664720 or
+        (-20) ! intExpr(        69) <> -8910491434304783400 or
+        (-19) ! intExpr(        76) <>  9007607943130625829 or
+        (-18) ! intExpr(        84) <>  7995995501984016450 or
+        (-17) ! intExpr(        95) <> -8156833787798824590 or
+        (-16) ! intExpr(       110) <>  9064807833193439800 or
+        (-15) ! intExpr(       129) <> -8887821571512103935 or
+        (-14) ! intExpr(       156) <>  9176358300744339432 or
+        (-13) ! intExpr(       194) <>  8795548359217331075 or
+        (-12) ! intExpr(       254) <>  9187507719876570240 or
+        (-11) ! intExpr(       351) <> -9134638038697149616 or
+        (-10) ! intExpr(       525) <> -9092292741062601356 or
+        ( -9) ! intExpr(       879) <> -9207044098280898870 or
+        ( -8) ! intExpr(      1726) <>  9202167919706100768 or
+        ( -7) ! intExpr(      4331) <> -9210884681005865704 or
+        ( -6) ! intExpr(     16170) <>  9220865312154653235 or
+        ( -5) ! intExpr(    121973) <> -9223148185681446450 or
+        ( -4) ! intExpr(   3810776) <>  9223371416043870029 or
+        ( -3) ! intExpr(4294967294) <>  9223372034707292160 or
+        intExpr(-99) ! intExpr(        15) <> -1809960172844903640 or
+        intExpr(-98) ! intExpr(        15) <> -1569699972909739440 or
+        intExpr(-97) ! intExpr(        15) <> -1359472297966470765 or
+        intExpr(-96) ! intExpr(        16) <>  8156833787798824590 or
+        intExpr(-95) ! intExpr(        16) <>  6981073962530525550 or
+        intExpr(-94) ! intExpr(        16) <>  5965645022526085470 or
+        intExpr(-93) ! intExpr(        16) <>  5089954010045192190 or
+        intExpr(-92) ! intExpr(        16) <>  4335886749297756310 or
+        intExpr(-91) ! intExpr(        16) <>  3687529852206503030 or
+        intExpr(-90) ! intExpr(        16) <>  3130921572628162950 or
+        intExpr(-89) ! intExpr(        16) <>  2653828761561014310 or
+        intExpr(-88) ! intExpr(        16) <>  2245547413628550570 or
+        intExpr(-87) ! intExpr(        16) <>  1896724514424115530 or
+        intExpr(-86) ! intExpr(        16) <>  1599199100396803290 or
+        intExpr(-85) ! intExpr(        17) <> -7995995501984016450 or
+        intExpr(-84) ! intExpr(        17) <> -6650134872937201800 or
+        intExpr(-83) ! intExpr(        17) <> -5519611944537877494 or
+        intExpr(-82) ! intExpr(        17) <> -4571799792445514692 or
+        intExpr(-81) ! intExpr(        17) <> -3778732481511088674 or
+        intExpr(-80) ! intExpr(        17) <> -3116480397122547360 or
+        intExpr(-79) ! intExpr(        17) <> -2564603660132096265 or
+        intExpr(-78) ! intExpr(        17) <> -2105674584108457986 or
+        intExpr(-77) ! intExpr(        18) <>  9007607943130625829 or
+        intExpr(-76) ! intExpr(        18) <>  7282746847637527266 or
+        intExpr(-75) ! intExpr(        18) <>  5873182941643167150 or
+        intExpr(-74) ! intExpr(        18) <>  4724081931321677925 or
+        intExpr(-73) ! intExpr(        18) <>  3789648142708598775 or
+        intExpr(-72) ! intExpr(        18) <>  3031718514166879020 or
+        intExpr(-71) ! intExpr(        18) <>  2418561960739869780 or
+        intExpr(-70) ! intExpr(        19) <> -8910491434304783400 or
+        intExpr(-69) ! intExpr(        19) <> -6986635329170796075 or
+        intExpr(-68) ! intExpr(        19) <> -5460818418202461300 or
+        intExpr(-67) ! intExpr(        19) <> -4254358535111219850 or
+        intExpr(-66) ! intExpr(        19) <> -3303384274321653060 or
+        intExpr(-65) ! intExpr(        19) <> -2556190212272707725 or
+        intExpr(-64) ! intExpr(        20) <>  8179808679272664720 or
+        intExpr(-63) ! intExpr(        20) <>  6208770443303347920 or
+        intExpr(-62) ! intExpr(        20) <>  4694436188839116720 or
+        intExpr(-61) ! intExpr(        20) <>  3535316142212174320 or
+        intExpr(-60) ! intExpr(        20) <>  2651487106659130740 or
+        intExpr(-59) ! intExpr(        21) <> -7449416156804224460 or
+        intExpr(-58) ! intExpr(        21) <> -5469191608792974920 or
+        intExpr(-57) ! intExpr(        21) <> -3996716944887173980 or
+        intExpr(-56) ! intExpr(        21) <> -2906703232645217440 or
+        intExpr(-55) ! intExpr(        22) <>  7266758081613043600 or
+        intExpr(-54) ! intExpr(        22) <>  5163222847461899400 or
+        intExpr(-53) ! intExpr(        22) <>  3648677478873075576 or
+        intExpr(-52) ! intExpr(        23) <> -8249183865278257824 or
+        intExpr(-51) ! intExpr(        23) <> -5685248339583664176 or
+        intExpr(-50) ! intExpr(        23) <> -3894005712043605600 or
+        intExpr(-49) ! intExpr(        24) <>  7950261662089028100 or
+        intExpr(-48) ! intExpr(        24) <>  5300174441392685400 or
+        intExpr(-47) ! intExpr(        24) <>  3508566179513467800 or
+        intExpr(-46) ! intExpr(        25) <> -6455761770304780752 or
+        intExpr(-45) ! intExpr(        25) <> -4150132566624501912 or
+        intExpr(-44) ! intExpr(        26) <>  7023301266595310928 or
+        intExpr(-43) ! intExpr(        26) <>  4376839919762295216 or
+        intExpr(-42) ! intExpr(        27) <> -6808417652963570336 or
+        intExpr(-41) ! intExpr(        27) <> -4105075349580976232 or
+        intExpr(-40) ! intExpr(        28) <>  5864393356544251760 or
+        intExpr(-39) ! intExpr(        29) <> -7886597962249166160 or
+        intExpr(-38) ! intExpr(        29) <> -4472995859186094240 or
+        intExpr(-37) ! intExpr(        30) <>  5516694892996182896 or
+        intExpr(-36) ! intExpr(        31) <> -6406484391866534976 or
+        intExpr(-35) ! intExpr(        32) <>  7007092303604022630 or
+        intExpr(-34) ! intExpr(        33) <> -7219428434016265740 or
+        intExpr(-33) ! intExpr(        34) <>  7007092303604022630 or
+        intExpr(-32) ! intExpr(        35) <> -6406484391866534976 or
+        intExpr(-31) ! intExpr(        36) <>  5516694892996182896 or
+        intExpr(-30) ! intExpr(        38) <>  7886597962249166160 or
+        intExpr(-29) ! intExpr(        39) <> -5864393356544251760 or
+        intExpr(-28) ! intExpr(        41) <> -6808417652963570336 or
+        intExpr(-27) ! intExpr(        43) <> -7023301266595310928 or
+        intExpr(-26) ! intExpr(        45) <> -6455761770304780752 or
+        intExpr(-25) ! intExpr(        48) <>  7950261662089028100 or
+        intExpr(-24) ! intExpr(        51) <> -8249183865278257824 or
+        intExpr(-23) ! intExpr(        54) <>  7266758081613043600 or
+        intExpr(-22) ! intExpr(        58) <>  7449416156804224460 or
+        intExpr(-21) ! intExpr(        63) <> -8179808679272664720 or
+        intExpr(-20) ! intExpr(        69) <> -8910491434304783400 or
+        intExpr(-19) ! intExpr(        76) <>  9007607943130625829 or
+        intExpr(-18) ! intExpr(        84) <>  7995995501984016450 or
+        intExpr(-17) ! intExpr(        95) <> -8156833787798824590 or
+        intExpr(-16) ! intExpr(       110) <>  9064807833193439800 or
+        intExpr(-15) ! intExpr(       129) <> -8887821571512103935 or
+        intExpr(-14) ! intExpr(       156) <>  9176358300744339432 or
+        intExpr(-13) ! intExpr(       194) <>  8795548359217331075 or
+        intExpr(-12) ! intExpr(       254) <>  9187507719876570240 or
+        intExpr(-11) ! intExpr(       351) <> -9134638038697149616 or
+        intExpr(-10) ! intExpr(       525) <> -9092292741062601356 or
+        intExpr( -9) ! intExpr(       879) <> -9207044098280898870 or
+        intExpr( -8) ! intExpr(      1726) <>  9202167919706100768 or
+        intExpr( -7) ! intExpr(      4331) <> -9210884681005865704 or
+        intExpr( -6) ! intExpr(     16170) <>  9220865312154653235 or
+        intExpr( -5) ! intExpr(    121973) <> -9223148185681446450 or
+        intExpr( -4) ! intExpr(   3810776) <>  9223371416043870029 or
+        intExpr( -3) ! intExpr(4294967294) <>  9223372034707292160 then
+      writeln(" ***** Binomial coefficient with negative n not correct for big values.");
+      okay := FALSE;
+    end if;
+
+    if 4294967296 !  2 <> 9223372034707292160 or
+          3810779 !  3 <> 9223371416043870029 or
+           121977 !  4 <> 9223148185681446450 or
+            16175 !  5 <> 9220865312154653235 or
+             4337 !  6 <> 9210884681005865704 or
+             1733 !  7 <> 9202167919706100768 or
+              887 !  8 <> 9207044098280898870 or
+              534 !  9 <> 9092292741062601356 or
+              361 ! 10 <> 9134638038697149616 or
+              265 ! 11 <> 9187507719876570240 or
+              206 ! 12 <> 8795548359217331075 or
+              169 ! 13 <> 9176358300744339432 or
+              143 ! 14 <> 8887821571512103935 or
+              125 ! 15 <> 9064807833193439800 or
+              111 ! 16 <> 8156833787798824590 or
+              101 ! 17 <> 7995995501984016450 or
+               94 ! 18 <> 9007607943130625829 or
+               88 ! 19 <> 8910491434304783400 or
+               83 ! 20 <> 8179808679272664720 or
+               79 ! 21 <> 7449416156804224460 or
+               76 ! 22 <> 7266758081613043600 or
+               74 ! 23 <> 8249183865278257824 or
+               72 ! 24 <> 7950261662089028100 or
+               70 ! 25 <> 6455761770304780752 or
+               69 ! 26 <> 7023301266595310928 or
+               68 ! 27 <> 6808417652963570336 or
+               67 ! 28 <> 5864393356544251760 or
+               67 ! 29 <> 7886597962249166160 or
+               66 ! 30 <> 5516694892996182896 or
+               66 ! 31 <> 6406484391866534976 or
+               66 ! 32 <> 7007092303604022630 or
+               66 ! 33 <> 7219428434016265740 or
+               66 ! 34 <> 7007092303604022630 or
+               66 ! 35 <> 6406484391866534976 or
+               66 ! 36 <> 5516694892996182896 or
+               66 ! 37 <> 4472995859186094240 or
+               67 ! 38 <> 7886597962249166160 or
+               67 ! 39 <> 5864393356544251760 or
+               67 ! 40 <> 4105075349580976232 or
+               68 ! 41 <> 6808417652963570336 or
+               68 ! 42 <> 4376839919762295216 or
+               69 ! 43 <> 7023301266595310928 or
+               69 ! 44 <> 4150132566624501912 or
+               70 ! 45 <> 6455761770304780752 or
+               70 ! 46 <> 3508566179513467800 or
+               71 ! 47 <> 5300174441392685400 or
+               72 ! 48 <> 7950261662089028100 or
+               72 ! 49 <> 3894005712043605600 or
+               73 ! 50 <> 5685248339583664176 or
+               74 ! 51 <> 8249183865278257824 or
+               74 ! 52 <> 3648677478873075576 or
+               75 ! 53 <> 5163222847461899400 or
+               76 ! 54 <> 7266758081613043600 or
+               76 ! 55 <> 2906703232645217440 or
+               77 ! 56 <> 3996716944887173980 or
+               78 ! 57 <> 5469191608792974920 or
+               79 ! 58 <> 7449416156804224460 or
+               79 ! 59 <> 2651487106659130740 or
+               80 ! 60 <> 3535316142212174320 or
+               81 ! 61 <> 4694436188839116720 or
+               82 ! 62 <> 6208770443303347920 or
+               83 ! 63 <> 8179808679272664720 or
+               83 ! 64 <> 2556190212272707725 or
+               84 ! 65 <> 3303384274321653060 or
+               85 ! 66 <> 4254358535111219850 or
+               86 ! 67 <> 5460818418202461300 or
+               87 ! 68 <> 6986635329170796075 or
+               88 ! 69 <> 8910491434304783400 or
+               88 ! 70 <> 2418561960739869780 or
+               89 ! 71 <> 3031718514166879020 or
+               90 ! 72 <> 3789648142708598775 or
+               91 ! 73 <> 4724081931321677925 or
+               92 ! 74 <> 5873182941643167150 or
+               93 ! 75 <> 7282746847637527266 or
+               94 ! 76 <> 9007607943130625829 or
+               94 ! 77 <> 2105674584108457986 or
+               95 ! 78 <> 2564603660132096265 or
+               96 ! 79 <> 3116480397122547360 or
+               97 ! 80 <> 3778732481511088674 or
+               98 ! 81 <> 4571799792445514692 or
+               99 ! 82 <> 5519611944537877494 or
+              100 ! 83 <> 6650134872937201800 or
+              101 ! 84 <> 7995995501984016450 or
+              101 ! 85 <> 1599199100396803290 or
+              102 ! 86 <> 1896724514424115530 or
+              103 ! 87 <> 2245547413628550570 or
+              104 ! 88 <> 2653828761561014310 or
+              105 ! 89 <> 3130921572628162950 or
+              106 ! 90 <> 3687529852206503030 or
+              107 ! 91 <> 4335886749297756310 or
+              108 ! 92 <> 5089954010045192190 or
+              109 ! 93 <> 5965645022526085470 or
+              110 ! 94 <> 6981073962530525550 or
+              111 ! 95 <> 8156833787798824590 or
+              111 ! 96 <> 1359472297966470765 or
+              112 ! 97 <> 1569699972909739440 or
+              113 ! 98 <> 1809960172844903640 or
+              114 ! 99 <> 2084196562669889040 or
+        intExpr(4294967296) !  2 <> 9223372034707292160 or
+        intExpr(   3810779) !  3 <> 9223371416043870029 or
+        intExpr(    121977) !  4 <> 9223148185681446450 or
+        intExpr(     16175) !  5 <> 9220865312154653235 or
+        intExpr(      4337) !  6 <> 9210884681005865704 or
+        intExpr(      1733) !  7 <> 9202167919706100768 or
+        intExpr(       887) !  8 <> 9207044098280898870 or
+        intExpr(       534) !  9 <> 9092292741062601356 or
+        intExpr(       361) ! 10 <> 9134638038697149616 or
+        intExpr(       265) ! 11 <> 9187507719876570240 or
+        intExpr(       206) ! 12 <> 8795548359217331075 or
+        intExpr(       169) ! 13 <> 9176358300744339432 or
+        intExpr(       143) ! 14 <> 8887821571512103935 or
+        intExpr(       125) ! 15 <> 9064807833193439800 or
+        intExpr(       111) ! 16 <> 8156833787798824590 or
+        intExpr(       101) ! 17 <> 7995995501984016450 or
+        intExpr(        94) ! 18 <> 9007607943130625829 or
+        intExpr(        88) ! 19 <> 8910491434304783400 or
+        intExpr(        83) ! 20 <> 8179808679272664720 or
+        intExpr(        79) ! 21 <> 7449416156804224460 or
+        intExpr(        76) ! 22 <> 7266758081613043600 or
+        intExpr(        74) ! 23 <> 8249183865278257824 or
+        intExpr(        72) ! 24 <> 7950261662089028100 or
+        intExpr(        70) ! 25 <> 6455761770304780752 or
+        intExpr(        69) ! 26 <> 7023301266595310928 or
+        intExpr(        68) ! 27 <> 6808417652963570336 or
+        intExpr(        67) ! 28 <> 5864393356544251760 or
+        intExpr(        67) ! 29 <> 7886597962249166160 or
+        intExpr(        66) ! 30 <> 5516694892996182896 or
+        intExpr(        66) ! 31 <> 6406484391866534976 or
+        intExpr(        66) ! 32 <> 7007092303604022630 or
+        intExpr(        66) ! 33 <> 7219428434016265740 or
+        intExpr(        66) ! 34 <> 7007092303604022630 or
+        intExpr(        66) ! 35 <> 6406484391866534976 or
+        intExpr(        66) ! 36 <> 5516694892996182896 or
+        intExpr(        66) ! 37 <> 4472995859186094240 or
+        intExpr(        67) ! 38 <> 7886597962249166160 or
+        intExpr(        67) ! 39 <> 5864393356544251760 or
+        intExpr(        67) ! 40 <> 4105075349580976232 or
+        intExpr(        68) ! 41 <> 6808417652963570336 or
+        intExpr(        68) ! 42 <> 4376839919762295216 or
+        intExpr(        69) ! 43 <> 7023301266595310928 or
+        intExpr(        69) ! 44 <> 4150132566624501912 or
+        intExpr(        70) ! 45 <> 6455761770304780752 or
+        intExpr(        70) ! 46 <> 3508566179513467800 or
+        intExpr(        71) ! 47 <> 5300174441392685400 or
+        intExpr(        72) ! 48 <> 7950261662089028100 or
+        intExpr(        72) ! 49 <> 3894005712043605600 or
+        intExpr(        73) ! 50 <> 5685248339583664176 or
+        intExpr(        74) ! 51 <> 8249183865278257824 or
+        intExpr(        74) ! 52 <> 3648677478873075576 or
+        intExpr(        75) ! 53 <> 5163222847461899400 or
+        intExpr(        76) ! 54 <> 7266758081613043600 or
+        intExpr(        76) ! 55 <> 2906703232645217440 or
+        intExpr(        77) ! 56 <> 3996716944887173980 or
+        intExpr(        78) ! 57 <> 5469191608792974920 or
+        intExpr(        79) ! 58 <> 7449416156804224460 or
+        intExpr(        79) ! 59 <> 2651487106659130740 or
+        intExpr(        80) ! 60 <> 3535316142212174320 or
+        intExpr(        81) ! 61 <> 4694436188839116720 or
+        intExpr(        82) ! 62 <> 6208770443303347920 or
+        intExpr(        83) ! 63 <> 8179808679272664720 or
+        intExpr(        83) ! 64 <> 2556190212272707725 or
+        intExpr(        84) ! 65 <> 3303384274321653060 or
+        intExpr(        85) ! 66 <> 4254358535111219850 or
+        intExpr(        86) ! 67 <> 5460818418202461300 or
+        intExpr(        87) ! 68 <> 6986635329170796075 or
+        intExpr(        88) ! 69 <> 8910491434304783400 or
+        intExpr(        88) ! 70 <> 2418561960739869780 or
+        intExpr(        89) ! 71 <> 3031718514166879020 or
+        intExpr(        90) ! 72 <> 3789648142708598775 or
+        intExpr(        91) ! 73 <> 4724081931321677925 or
+        intExpr(        92) ! 74 <> 5873182941643167150 or
+        intExpr(        93) ! 75 <> 7282746847637527266 or
+        intExpr(        94) ! 76 <> 9007607943130625829 or
+        intExpr(        94) ! 77 <> 2105674584108457986 or
+        intExpr(        95) ! 78 <> 2564603660132096265 or
+        intExpr(        96) ! 79 <> 3116480397122547360 or
+        intExpr(        97) ! 80 <> 3778732481511088674 or
+        intExpr(        98) ! 81 <> 4571799792445514692 or
+        intExpr(        99) ! 82 <> 5519611944537877494 or
+        intExpr(       100) ! 83 <> 6650134872937201800 or
+        intExpr(       101) ! 84 <> 7995995501984016450 or
+        intExpr(       101) ! 85 <> 1599199100396803290 or
+        intExpr(       102) ! 86 <> 1896724514424115530 or
+        intExpr(       103) ! 87 <> 2245547413628550570 or
+        intExpr(       104) ! 88 <> 2653828761561014310 or
+        intExpr(       105) ! 89 <> 3130921572628162950 or
+        intExpr(       106) ! 90 <> 3687529852206503030 or
+        intExpr(       107) ! 91 <> 4335886749297756310 or
+        intExpr(       108) ! 92 <> 5089954010045192190 or
+        intExpr(       109) ! 93 <> 5965645022526085470 or
+        intExpr(       110) ! 94 <> 6981073962530525550 or
+        intExpr(       111) ! 95 <> 8156833787798824590 or
+        intExpr(       111) ! 96 <> 1359472297966470765 or
+        intExpr(       112) ! 97 <> 1569699972909739440 or
+        intExpr(       113) ! 98 <> 1809960172844903640 or
+        intExpr(       114) ! 99 <> 2084196562669889040 or
+        4294967296 ! intExpr( 2) <> 9223372034707292160 or
+           3810779 ! intExpr( 3) <> 9223371416043870029 or
+            121977 ! intExpr( 4) <> 9223148185681446450 or
+             16175 ! intExpr( 5) <> 9220865312154653235 or
+              4337 ! intExpr( 6) <> 9210884681005865704 or
+              1733 ! intExpr( 7) <> 9202167919706100768 or
+               887 ! intExpr( 8) <> 9207044098280898870 or
+               534 ! intExpr( 9) <> 9092292741062601356 or
+               361 ! intExpr(10) <> 9134638038697149616 or
+               265 ! intExpr(11) <> 9187507719876570240 or
+               206 ! intExpr(12) <> 8795548359217331075 or
+               169 ! intExpr(13) <> 9176358300744339432 or
+               143 ! intExpr(14) <> 8887821571512103935 or
+               125 ! intExpr(15) <> 9064807833193439800 or
+               111 ! intExpr(16) <> 8156833787798824590 or
+               101 ! intExpr(17) <> 7995995501984016450 or
+                94 ! intExpr(18) <> 9007607943130625829 or
+                88 ! intExpr(19) <> 8910491434304783400 or
+                83 ! intExpr(20) <> 8179808679272664720 or
+                79 ! intExpr(21) <> 7449416156804224460 or
+                76 ! intExpr(22) <> 7266758081613043600 or
+                74 ! intExpr(23) <> 8249183865278257824 or
+                72 ! intExpr(24) <> 7950261662089028100 or
+                70 ! intExpr(25) <> 6455761770304780752 or
+                69 ! intExpr(26) <> 7023301266595310928 or
+                68 ! intExpr(27) <> 6808417652963570336 or
+                67 ! intExpr(28) <> 5864393356544251760 or
+                67 ! intExpr(29) <> 7886597962249166160 or
+                66 ! intExpr(30) <> 5516694892996182896 or
+                66 ! intExpr(31) <> 6406484391866534976 or
+                66 ! intExpr(32) <> 7007092303604022630 or
+                66 ! intExpr(33) <> 7219428434016265740 or
+                66 ! intExpr(34) <> 7007092303604022630 or
+                66 ! intExpr(35) <> 6406484391866534976 or
+                66 ! intExpr(36) <> 5516694892996182896 or
+                66 ! intExpr(37) <> 4472995859186094240 or
+                67 ! intExpr(38) <> 7886597962249166160 or
+                67 ! intExpr(39) <> 5864393356544251760 or
+                67 ! intExpr(40) <> 4105075349580976232 or
+                68 ! intExpr(41) <> 6808417652963570336 or
+                68 ! intExpr(42) <> 4376839919762295216 or
+                69 ! intExpr(43) <> 7023301266595310928 or
+                69 ! intExpr(44) <> 4150132566624501912 or
+                70 ! intExpr(45) <> 6455761770304780752 or
+                70 ! intExpr(46) <> 3508566179513467800 or
+                71 ! intExpr(47) <> 5300174441392685400 or
+                72 ! intExpr(48) <> 7950261662089028100 or
+                72 ! intExpr(49) <> 3894005712043605600 or
+                73 ! intExpr(50) <> 5685248339583664176 or
+                74 ! intExpr(51) <> 8249183865278257824 or
+                74 ! intExpr(52) <> 3648677478873075576 or
+                75 ! intExpr(53) <> 5163222847461899400 or
+                76 ! intExpr(54) <> 7266758081613043600 or
+                76 ! intExpr(55) <> 2906703232645217440 or
+                77 ! intExpr(56) <> 3996716944887173980 or
+                78 ! intExpr(57) <> 5469191608792974920 or
+                79 ! intExpr(58) <> 7449416156804224460 or
+                79 ! intExpr(59) <> 2651487106659130740 or
+                80 ! intExpr(60) <> 3535316142212174320 or
+                81 ! intExpr(61) <> 4694436188839116720 or
+                82 ! intExpr(62) <> 6208770443303347920 or
+                83 ! intExpr(63) <> 8179808679272664720 or
+                83 ! intExpr(64) <> 2556190212272707725 or
+                84 ! intExpr(65) <> 3303384274321653060 or
+                85 ! intExpr(66) <> 4254358535111219850 or
+                86 ! intExpr(67) <> 5460818418202461300 or
+                87 ! intExpr(68) <> 6986635329170796075 or
+                88 ! intExpr(69) <> 8910491434304783400 or
+                88 ! intExpr(70) <> 2418561960739869780 or
+                89 ! intExpr(71) <> 3031718514166879020 or
+                90 ! intExpr(72) <> 3789648142708598775 or
+                91 ! intExpr(73) <> 4724081931321677925 or
+                92 ! intExpr(74) <> 5873182941643167150 or
+                93 ! intExpr(75) <> 7282746847637527266 or
+                94 ! intExpr(76) <> 9007607943130625829 or
+                94 ! intExpr(77) <> 2105674584108457986 or
+                95 ! intExpr(78) <> 2564603660132096265 or
+                96 ! intExpr(79) <> 3116480397122547360 or
+                97 ! intExpr(80) <> 3778732481511088674 or
+                98 ! intExpr(81) <> 4571799792445514692 or
+                99 ! intExpr(82) <> 5519611944537877494 or
+               100 ! intExpr(83) <> 6650134872937201800 or
+               101 ! intExpr(84) <> 7995995501984016450 or
+               101 ! intExpr(85) <> 1599199100396803290 or
+               102 ! intExpr(86) <> 1896724514424115530 or
+               103 ! intExpr(87) <> 2245547413628550570 or
+               104 ! intExpr(88) <> 2653828761561014310 or
+               105 ! intExpr(89) <> 3130921572628162950 or
+               106 ! intExpr(90) <> 3687529852206503030 or
+               107 ! intExpr(91) <> 4335886749297756310 or
+               108 ! intExpr(92) <> 5089954010045192190 or
+               109 ! intExpr(93) <> 5965645022526085470 or
+               110 ! intExpr(94) <> 6981073962530525550 or
+               111 ! intExpr(95) <> 8156833787798824590 or
+               111 ! intExpr(96) <> 1359472297966470765 or
+               112 ! intExpr(97) <> 1569699972909739440 or
+               113 ! intExpr(98) <> 1809960172844903640 or
+               114 ! intExpr(99) <> 2084196562669889040 or
+        intExpr(4294967296) ! intExpr( 2) <> 9223372034707292160 or
+        intExpr(   3810779) ! intExpr( 3) <> 9223371416043870029 or
+        intExpr(    121977) ! intExpr( 4) <> 9223148185681446450 or
+        intExpr(     16175) ! intExpr( 5) <> 9220865312154653235 or
+        intExpr(      4337) ! intExpr( 6) <> 9210884681005865704 or
+        intExpr(      1733) ! intExpr( 7) <> 9202167919706100768 or
+        intExpr(       887) ! intExpr( 8) <> 9207044098280898870 or
+        intExpr(       534) ! intExpr( 9) <> 9092292741062601356 or
+        intExpr(       361) ! intExpr(10) <> 9134638038697149616 or
+        intExpr(       265) ! intExpr(11) <> 9187507719876570240 or
+        intExpr(       206) ! intExpr(12) <> 8795548359217331075 or
+        intExpr(       169) ! intExpr(13) <> 9176358300744339432 or
+        intExpr(       143) ! intExpr(14) <> 8887821571512103935 or
+        intExpr(       125) ! intExpr(15) <> 9064807833193439800 or
+        intExpr(       111) ! intExpr(16) <> 8156833787798824590 or
+        intExpr(       101) ! intExpr(17) <> 7995995501984016450 or
+        intExpr(        94) ! intExpr(18) <> 9007607943130625829 or
+        intExpr(        88) ! intExpr(19) <> 8910491434304783400 or
+        intExpr(        83) ! intExpr(20) <> 8179808679272664720 or
+        intExpr(        79) ! intExpr(21) <> 7449416156804224460 or
+        intExpr(        76) ! intExpr(22) <> 7266758081613043600 or
+        intExpr(        74) ! intExpr(23) <> 8249183865278257824 or
+        intExpr(        72) ! intExpr(24) <> 7950261662089028100 or
+        intExpr(        70) ! intExpr(25) <> 6455761770304780752 or
+        intExpr(        69) ! intExpr(26) <> 7023301266595310928 or
+        intExpr(        68) ! intExpr(27) <> 6808417652963570336 or
+        intExpr(        67) ! intExpr(28) <> 5864393356544251760 or
+        intExpr(        67) ! intExpr(29) <> 7886597962249166160 or
+        intExpr(        66) ! intExpr(30) <> 5516694892996182896 or
+        intExpr(        66) ! intExpr(31) <> 6406484391866534976 or
+        intExpr(        66) ! intExpr(32) <> 7007092303604022630 or
+        intExpr(        66) ! intExpr(33) <> 7219428434016265740 or
+        intExpr(        66) ! intExpr(34) <> 7007092303604022630 or
+        intExpr(        66) ! intExpr(35) <> 6406484391866534976 or
+        intExpr(        66) ! intExpr(36) <> 5516694892996182896 or
+        intExpr(        66) ! intExpr(37) <> 4472995859186094240 or
+        intExpr(        67) ! intExpr(38) <> 7886597962249166160 or
+        intExpr(        67) ! intExpr(39) <> 5864393356544251760 or
+        intExpr(        67) ! intExpr(40) <> 4105075349580976232 or
+        intExpr(        68) ! intExpr(41) <> 6808417652963570336 or
+        intExpr(        68) ! intExpr(42) <> 4376839919762295216 or
+        intExpr(        69) ! intExpr(43) <> 7023301266595310928 or
+        intExpr(        69) ! intExpr(44) <> 4150132566624501912 or
+        intExpr(        70) ! intExpr(45) <> 6455761770304780752 or
+        intExpr(        70) ! intExpr(46) <> 3508566179513467800 or
+        intExpr(        71) ! intExpr(47) <> 5300174441392685400 or
+        intExpr(        72) ! intExpr(48) <> 7950261662089028100 or
+        intExpr(        72) ! intExpr(49) <> 3894005712043605600 or
+        intExpr(        73) ! intExpr(50) <> 5685248339583664176 or
+        intExpr(        74) ! intExpr(51) <> 8249183865278257824 or
+        intExpr(        74) ! intExpr(52) <> 3648677478873075576 or
+        intExpr(        75) ! intExpr(53) <> 5163222847461899400 or
+        intExpr(        76) ! intExpr(54) <> 7266758081613043600 or
+        intExpr(        76) ! intExpr(55) <> 2906703232645217440 or
+        intExpr(        77) ! intExpr(56) <> 3996716944887173980 or
+        intExpr(        78) ! intExpr(57) <> 5469191608792974920 or
+        intExpr(        79) ! intExpr(58) <> 7449416156804224460 or
+        intExpr(        79) ! intExpr(59) <> 2651487106659130740 or
+        intExpr(        80) ! intExpr(60) <> 3535316142212174320 or
+        intExpr(        81) ! intExpr(61) <> 4694436188839116720 or
+        intExpr(        82) ! intExpr(62) <> 6208770443303347920 or
+        intExpr(        83) ! intExpr(63) <> 8179808679272664720 or
+        intExpr(        83) ! intExpr(64) <> 2556190212272707725 or
+        intExpr(        84) ! intExpr(65) <> 3303384274321653060 or
+        intExpr(        85) ! intExpr(66) <> 4254358535111219850 or
+        intExpr(        86) ! intExpr(67) <> 5460818418202461300 or
+        intExpr(        87) ! intExpr(68) <> 6986635329170796075 or
+        intExpr(        88) ! intExpr(69) <> 8910491434304783400 or
+        intExpr(        88) ! intExpr(70) <> 2418561960739869780 or
+        intExpr(        89) ! intExpr(71) <> 3031718514166879020 or
+        intExpr(        90) ! intExpr(72) <> 3789648142708598775 or
+        intExpr(        91) ! intExpr(73) <> 4724081931321677925 or
+        intExpr(        92) ! intExpr(74) <> 5873182941643167150 or
+        intExpr(        93) ! intExpr(75) <> 7282746847637527266 or
+        intExpr(        94) ! intExpr(76) <> 9007607943130625829 or
+        intExpr(        94) ! intExpr(77) <> 2105674584108457986 or
+        intExpr(        95) ! intExpr(78) <> 2564603660132096265 or
+        intExpr(        96) ! intExpr(79) <> 3116480397122547360 or
+        intExpr(        97) ! intExpr(80) <> 3778732481511088674 or
+        intExpr(        98) ! intExpr(81) <> 4571799792445514692 or
+        intExpr(        99) ! intExpr(82) <> 5519611944537877494 or
+        intExpr(       100) ! intExpr(83) <> 6650134872937201800 or
+        intExpr(       101) ! intExpr(84) <> 7995995501984016450 or
+        intExpr(       101) ! intExpr(85) <> 1599199100396803290 or
+        intExpr(       102) ! intExpr(86) <> 1896724514424115530 or
+        intExpr(       103) ! intExpr(87) <> 2245547413628550570 or
+        intExpr(       104) ! intExpr(88) <> 2653828761561014310 or
+        intExpr(       105) ! intExpr(89) <> 3130921572628162950 or
+        intExpr(       106) ! intExpr(90) <> 3687529852206503030 or
+        intExpr(       107) ! intExpr(91) <> 4335886749297756310 or
+        intExpr(       108) ! intExpr(92) <> 5089954010045192190 or
+        intExpr(       109) ! intExpr(93) <> 5965645022526085470 or
+        intExpr(       110) ! intExpr(94) <> 6981073962530525550 or
+        intExpr(       111) ! intExpr(95) <> 8156833787798824590 or
+        intExpr(       111) ! intExpr(96) <> 1359472297966470765 or
+        intExpr(       112) ! intExpr(97) <> 1569699972909739440 or
+        intExpr(       113) ! intExpr(98) <> 1809960172844903640 or
+        intExpr(       114) ! intExpr(99) <> 2084196562669889040 then
+      writeln(" ***** Binomial coefficient with positive n not correct for big values.");
+      okay := FALSE;
+    end if;
+
     if okay then
-      writeln("n ! k is correct for n <= 30.");
+      writeln("The binomial coefficient (n ! k) works correct for selected values.");
     end if;
   end func;
 
@@ -9873,6 +11490,84 @@ const proc: check_abs is func
       writeln("The integer abs function works correct.");
     else
       writeln(" ***** The integer abs function does not work correct.");
+      writeln;
+    end if;
+  end func;
+
+
+const proc: check_rand is func
+  local
+    var boolean: okay is TRUE;
+    var integer: number is 0;
+    var integer: random is 0;
+  begin
+    okay := TRUE;
+    for number range 0 to 1000 do
+      random := rand(0, 0);
+      okay := okay and random = 0;
+      random := rand(0, 1);
+      okay := okay and random >= 0 and random <= 1;
+      random := rand(0, 2);
+      okay := okay and random >= 0 and random <= 2;
+      random := rand(0, 3);
+      okay := okay and random >= 0 and random <= 3;
+      random := rand(0, 4);
+      okay := okay and random >= 0 and random <= 4;
+      random := rand(0, 5);
+      okay := okay and random >= 0 and random <= 5;
+      random := rand(0, 6);
+      okay := okay and random >= 0 and random <= 6;
+      random := rand(0, 7);
+      okay := okay and random >= 0 and random <= 7;
+      random := rand(1, 1);
+      okay := okay and random = 1;
+      random := rand(2, 3);
+      okay := okay and random >= 2 and random <= 3;
+      random := rand(3, 5);
+      okay := okay and random >= 3 and random <= 5;
+      random := rand(4, 7);
+      okay := okay and random >= 4 and random <= 7;
+      random := rand(5, 9);
+      okay := okay and random >= 5 and random <= 9;
+      random := rand(6, 11);
+      okay := okay and random >= 6 and random <= 11;
+      random := rand(7, 13);
+      okay := okay and random >= 7 and random <= 13;
+      random := rand(8, 15);
+      okay := okay and random >= 8 and random <= 15;
+    end for;
+    random := rand(-576460752303423487, 576460752303423487);
+    okay := okay and random >= -576460752303423487 and random <= 576460752303423487;
+    random := rand(-576460752303423488, 576460752303423487);
+    okay := okay and random >= -576460752303423488 and random <= 576460752303423487;
+    random := rand(-576460752303423488, 576460752303423488);
+    okay := okay and random >= -576460752303423488 and random <= 576460752303423488;
+    random := rand(-1152921504606846975, 1152921504606846975);
+    okay := okay and random >= -1152921504606846975 and random <= 1152921504606846975;
+    random := rand(-1152921504606846976, 1152921504606846975);
+    okay := okay and random >= -1152921504606846976 and random <= 1152921504606846975;
+    random := rand(-1152921504606846976, 1152921504606846976);
+    okay := okay and random >= -1152921504606846976 and random <= 1152921504606846976;
+    random := rand(-2305843009213693951, 2305843009213693951);
+    okay := okay and random >= -2305843009213693951 and random <= 2305843009213693951;
+    random := rand(-2305843009213693952, 2305843009213693951);
+    okay := okay and random >= -2305843009213693952 and random <= 2305843009213693951;
+    random := rand(-2305843009213693952, 2305843009213693952);
+    okay := okay and random >= -2305843009213693952 and random <= 2305843009213693952;
+    random := rand(-4611686018427387903, 4611686018427387903);
+    okay := okay and random >= -4611686018427387903 and random <= 4611686018427387903;
+    random := rand(-4611686018427387904, 4611686018427387903);
+    okay := okay and random >= -4611686018427387904 and random <= 4611686018427387903;
+    random := rand(-4611686018427387904, 4611686018427387904);
+    okay := okay and random >= -4611686018427387904 and random <= 4611686018427387904;
+    random := rand(-9223372036854775807, 9223372036854775807);
+    okay := okay and random >= -9223372036854775807 and random <= 9223372036854775807;
+    random := rand(-9223372036854775807 - 1, 9223372036854775807);
+    okay := okay and random >= integer.first and random <= 9223372036854775807;
+    if okay then
+      writeln("Integer rand is correct for selected values.");
+    else
+      writeln(" ***** The integer rand function does not work correct.");
       writeln;
     end if;
   end func;
@@ -12565,6 +14260,7 @@ const proc: main is func
     check_binom;
     check_power;
     check_abs;
+    check_rand;
     check_sqrt;
     check_log2;
     check_log10;

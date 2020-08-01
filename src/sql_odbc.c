@@ -41,7 +41,9 @@
 #include "windows.h"
 #endif
 #include ODBC_INCLUDE
+#ifdef ODBC_INCLUDE_SQLEXT
 #include "sqlext.h"
+#endif
 
 #include "common.h"
 #include "data_rtl.h"
@@ -127,72 +129,102 @@ static sqlFuncType sqlFunc = NULL;
 
 
 #ifdef ODBC_DLL
-SQLRETURN SQL_API (*ptr_SQLAllocHandle) (SQLSMALLINT HandleType,
-                                         SQLHANDLE InputHandle, SQLHANDLE *OutputHandle);
-SQLRETURN SQL_API (*ptr_SQLBindCol) (SQLHSTMT StatementHandle,
-                                     SQLUSMALLINT ColumnNumber, SQLSMALLINT TargetType,
-                                     SQLPOINTER TargetValue, SQLLEN BufferLength,
-                                     SQLLEN *StrLen_or_Ind);
-SQLRETURN SQL_API (*ptr_SQLBindParameter) (SQLHSTMT hstmt,
-                                           SQLUSMALLINT ipar,
-                                           SQLSMALLINT  fParamType,
-                                           SQLSMALLINT  fCType,
-                                           SQLSMALLINT  fSqlType,
-                                           SQLULEN      cbColDef,
-                                           SQLSMALLINT  ibScale,
-                                           SQLPOINTER   rgbValue,
-                                           SQLLEN       cbValueMax,
-                                           SQLLEN      *pcbValue);
-SQLRETURN SQL_API (*ptr_SQLColAttribute) (SQLHSTMT StatementHandle,
-                                          SQLUSMALLINT ColumnNumber, SQLUSMALLINT FieldIdentifier,
-                                          SQLPOINTER CharacterAttribute, SQLSMALLINT BufferLength,
-                                          SQLSMALLINT *StringLength, SQLLEN *NumericAttribute);
-SQLRETURN SQL_API (*ptr_SQLColAttributeW) (SQLHSTMT hstmt,
-                                           SQLUSMALLINT iCol,
-                                           SQLUSMALLINT iField,
-                                           SQLPOINTER  pCharAttr,
-                                           SQLSMALLINT  cbCharAttrMax,
-                                           SQLSMALLINT *pcbCharAttr,
-                                           SQLLEN  *pNumAttr);
-SQLRETURN SQL_API (*ptr_SQLConnectW) (SQLHDBC ConnectionHandle,
-                                     SQLWCHAR *ServerName, SQLSMALLINT NameLength1,
-                                     SQLWCHAR *UserName, SQLSMALLINT NameLength2,
-                                     SQLWCHAR *Authentication, SQLSMALLINT NameLength3);
-SQLRETURN SQL_API (*ptr_SQLDataSources) (SQLHENV EnvironmentHandle,
-                                         SQLUSMALLINT Direction, SQLCHAR *ServerName,
-                                         SQLSMALLINT BufferLength1, SQLSMALLINT *NameLength1,
-                                         SQLCHAR *Description, SQLSMALLINT BufferLength2,
-                                         SQLSMALLINT *NameLength2);
-SQLRETURN SQL_API (*ptr_SQLDisconnect) (SQLHDBC ConnectionHandle);
-SQLRETURN SQL_API (*ptr_SQLDrivers) (SQLHENV      henv,
-                                     SQLUSMALLINT fDirection,
-                                     SQLCHAR     *szDriverDesc,
-                                     SQLSMALLINT  cbDriverDescMax,
-                                     SQLSMALLINT *pcbDriverDesc,
-                                     SQLCHAR     *szDriverAttributes,
-                                     SQLSMALLINT  cbDrvrAttrMax,
-                                     SQLSMALLINT *pcbDrvrAttr);
-SQLRETURN SQL_API (*ptr_SQLExecute) (SQLHSTMT StatementHandle);
-SQLRETURN SQL_API (*ptr_SQLFetch) (SQLHSTMT StatementHandle);
-SQLRETURN SQL_API (*ptr_SQLFreeHandle) (SQLSMALLINT HandleType, SQLHANDLE Handle);
-SQLRETURN SQL_API (*ptr_SQLGetDiagRec) (SQLSMALLINT HandleType, SQLHANDLE Handle,
-                                        SQLSMALLINT RecNumber, SQLCHAR *Sqlstate,
-                                        SQLINTEGER *NativeError, SQLCHAR *MessageText,
-                                        SQLSMALLINT BufferLength, SQLSMALLINT *TextLength);
-SQLRETURN SQL_API (*ptr_SQLGetStmtAttr) (SQLHSTMT StatementHandle,
-                                         SQLINTEGER Attribute, SQLPOINTER Value,
-                                         SQLINTEGER BufferLength, SQLINTEGER *StringLength);
-SQLRETURN SQL_API (*ptr_SQLNumResultCols) (SQLHSTMT StatementHandle,
-                                           SQLSMALLINT *ColumnCount);
-SQLRETURN SQL_API (*ptr_SQLPrepareW) (SQLHSTMT   hstmt,
-                                      SQLWCHAR  *szSqlStr,
-                                      SQLINTEGER cbSqlStr);
-SQLRETURN SQL_API (*ptr_SQLSetDescField) (SQLHDESC DescriptorHandle,
-                                          SQLSMALLINT RecNumber, SQLSMALLINT FieldIdentifier,
-                                          SQLPOINTER Value, SQLINTEGER BufferLength);
-SQLRETURN SQL_API (*ptr_SQLSetEnvAttr) (SQLHENV EnvironmentHandle,
-                                        SQLINTEGER Attribute, SQLPOINTER Value,
-                                        SQLINTEGER StringLength);
+
+#ifndef STDCALL
+#if defined(_WIN32)
+#define STDCALL __stdcall
+#else
+#define STDCALL
+#endif
+#endif
+
+typedef SQLRETURN (STDCALL *tp_SQLAllocHandle) (SQLSMALLINT HandleType,
+                                                SQLHANDLE InputHandle, SQLHANDLE *OutputHandle);
+typedef SQLRETURN (STDCALL *tp_SQLBindCol) (SQLHSTMT StatementHandle,
+                                            SQLUSMALLINT ColumnNumber, SQLSMALLINT TargetType,
+                                            SQLPOINTER TargetValue, SQLLEN BufferLength,
+                                            SQLLEN *StrLen_or_Ind);
+typedef SQLRETURN (STDCALL *tp_SQLBindParameter) (SQLHSTMT hstmt,
+                                                  SQLUSMALLINT ipar,
+                                                  SQLSMALLINT  fParamType,
+                                                  SQLSMALLINT  fCType,
+                                                  SQLSMALLINT  fSqlType,
+                                                  SQLULEN      cbColDef,
+                                                  SQLSMALLINT  ibScale,
+                                                  SQLPOINTER   rgbValue,
+                                                  SQLLEN       cbValueMax,
+                                                  SQLLEN      *pcbValue);
+typedef SQLRETURN (STDCALL *tp_SQLColAttribute) (SQLHSTMT StatementHandle,
+                                                 SQLUSMALLINT ColumnNumber, SQLUSMALLINT FieldIdentifier,
+                                                 SQLPOINTER CharacterAttribute, SQLSMALLINT BufferLength,
+                                                 SQLSMALLINT *StringLength, SQLLEN *NumericAttribute);
+typedef SQLRETURN (STDCALL *tp_SQLColAttributeW) (SQLHSTMT hstmt,
+                                                  SQLUSMALLINT iCol,
+                                                  SQLUSMALLINT iField,
+                                                  SQLPOINTER  pCharAttr,
+                                                  SQLSMALLINT  cbCharAttrMax,
+                                                  SQLSMALLINT *pcbCharAttr,
+                                                  SQLLEN  *pNumAttr);
+typedef SQLRETURN (STDCALL *tp_SQLConnectW) (SQLHDBC ConnectionHandle,
+                                             SQLWCHAR *ServerName, SQLSMALLINT NameLength1,
+                                             SQLWCHAR *UserName, SQLSMALLINT NameLength2,
+                                             SQLWCHAR *Authentication, SQLSMALLINT NameLength3);
+typedef SQLRETURN (STDCALL *tp_SQLDataSources) (SQLHENV EnvironmentHandle,
+                                                SQLUSMALLINT Direction, SQLCHAR *ServerName,
+                                                SQLSMALLINT BufferLength1, SQLSMALLINT *NameLength1,
+                                                SQLCHAR *Description, SQLSMALLINT BufferLength2,
+                                                SQLSMALLINT *NameLength2);
+typedef SQLRETURN (STDCALL *tp_SQLDisconnect) (SQLHDBC ConnectionHandle);
+typedef SQLRETURN (STDCALL *tp_SQLDrivers) (SQLHENV      henv,
+                                            SQLUSMALLINT fDirection,
+                                            SQLCHAR     *szDriverDesc,
+                                            SQLSMALLINT  cbDriverDescMax,
+                                            SQLSMALLINT *pcbDriverDesc,
+                                            SQLCHAR     *szDriverAttributes,
+                                            SQLSMALLINT  cbDrvrAttrMax,
+                                            SQLSMALLINT *pcbDrvrAttr);
+typedef SQLRETURN (STDCALL *tp_SQLExecute) (SQLHSTMT StatementHandle);
+typedef SQLRETURN (STDCALL *tp_SQLFetch) (SQLHSTMT StatementHandle);
+typedef SQLRETURN (STDCALL *tp_SQLFreeHandle) (SQLSMALLINT HandleType, SQLHANDLE Handle);
+typedef SQLRETURN (STDCALL *tp_SQLFreeStmt) (SQLHSTMT StatementHandle, SQLUSMALLINT Option);
+typedef SQLRETURN (STDCALL *tp_SQLGetDiagRec) (SQLSMALLINT HandleType, SQLHANDLE Handle,
+                                               SQLSMALLINT RecNumber, SQLCHAR *Sqlstate,
+                                               SQLINTEGER *NativeError, SQLCHAR *MessageText,
+                                               SQLSMALLINT BufferLength, SQLSMALLINT *TextLength);
+typedef SQLRETURN (STDCALL *tp_SQLGetStmtAttr) (SQLHSTMT StatementHandle,
+                                                SQLINTEGER Attribute, SQLPOINTER Value,
+                                                SQLINTEGER BufferLength, SQLINTEGER *StringLength);
+typedef SQLRETURN (STDCALL *tp_SQLNumResultCols) (SQLHSTMT StatementHandle,
+                                                  SQLSMALLINT *ColumnCount);
+typedef SQLRETURN (STDCALL *tp_SQLPrepareW) (SQLHSTMT   hstmt,
+                                             SQLWCHAR  *szSqlStr,
+                                             SQLINTEGER cbSqlStr);
+typedef SQLRETURN (STDCALL *tp_SQLSetDescField) (SQLHDESC DescriptorHandle,
+                                                 SQLSMALLINT RecNumber, SQLSMALLINT FieldIdentifier,
+                                                 SQLPOINTER Value, SQLINTEGER BufferLength);
+typedef SQLRETURN (STDCALL *tp_SQLSetEnvAttr) (SQLHENV EnvironmentHandle,
+                                               SQLINTEGER Attribute, SQLPOINTER Value,
+                                               SQLINTEGER StringLength);
+
+tp_SQLAllocHandle   ptr_SQLAllocHandle;
+tp_SQLBindCol       ptr_SQLBindCol;
+tp_SQLBindParameter ptr_SQLBindParameter;
+tp_SQLColAttribute  ptr_SQLColAttribute;
+tp_SQLColAttributeW ptr_SQLColAttributeW;
+tp_SQLConnectW      ptr_SQLConnectW;
+tp_SQLDataSources   ptr_SQLDataSources;
+tp_SQLDisconnect    ptr_SQLDisconnect;
+tp_SQLDrivers       ptr_SQLDrivers;
+tp_SQLExecute       ptr_SQLExecute;
+tp_SQLFetch         ptr_SQLFetch;
+tp_SQLFreeHandle    ptr_SQLFreeHandle;
+tp_SQLFreeStmt      ptr_SQLFreeStmt;
+tp_SQLGetDiagRec    ptr_SQLGetDiagRec;
+tp_SQLGetStmtAttr   ptr_SQLGetStmtAttr;
+tp_SQLNumResultCols ptr_SQLNumResultCols;
+tp_SQLPrepareW      ptr_SQLPrepareW;
+tp_SQLSetDescField  ptr_SQLSetDescField;
+tp_SQLSetEnvAttr    ptr_SQLSetEnvAttr;
 
 #define SQLAllocHandle   ptr_SQLAllocHandle
 #define SQLBindCol       ptr_SQLBindCol
@@ -206,6 +238,7 @@ SQLRETURN SQL_API (*ptr_SQLSetEnvAttr) (SQLHENV EnvironmentHandle,
 #define SQLExecute       ptr_SQLExecute
 #define SQLFetch         ptr_SQLFetch
 #define SQLFreeHandle    ptr_SQLFreeHandle
+#define SQLFreeStmt      ptr_SQLFreeStmt
 #define SQLGetDiagRec    ptr_SQLGetDiagRec
 #define SQLGetStmtAttr   ptr_SQLGetStmtAttr
 #define SQLNumResultCols ptr_SQLNumResultCols
@@ -225,22 +258,23 @@ static boolType setupDll (const char *dllName)
     if (dbDll == NULL) {
       dbDll = dllOpen(dllName);
       if (dbDll != NULL) {
-        if ((ptr_SQLAllocHandle   = dllSym(dbDll, "SQLAllocHandle"))   == NULL ||
-            (ptr_SQLBindCol       = dllSym(dbDll, "SQLBindCol"))       == NULL ||
-            (ptr_SQLBindParameter = dllSym(dbDll, "SQLBindParameter")) == NULL ||
-            (ptr_SQLColAttribute  = dllSym(dbDll, "SQLColAttribute"))  == NULL ||
-            (ptr_SQLColAttributeW = dllSym(dbDll, "SQLColAttributeW")) == NULL ||
-            (ptr_SQLConnectW      = dllSym(dbDll, "SQLConnectW"))      == NULL ||
-            (ptr_SQLDisconnect    = dllSym(dbDll, "SQLDisconnect"))    == NULL ||
-            (ptr_SQLExecute       = dllSym(dbDll, "SQLExecute"))       == NULL ||
-            (ptr_SQLFetch         = dllSym(dbDll, "SQLFetch"))         == NULL ||
-            (ptr_SQLFreeHandle    = dllSym(dbDll, "SQLFreeHandle"))    == NULL ||
-            (ptr_SQLGetDiagRec    = dllSym(dbDll, "SQLGetDiagRec"))    == NULL ||
-            (ptr_SQLGetStmtAttr   = dllSym(dbDll, "SQLGetStmtAttr"))   == NULL ||
-            (ptr_SQLNumResultCols = dllSym(dbDll, "SQLNumResultCols")) == NULL ||
-            (ptr_SQLPrepareW      = dllSym(dbDll, "SQLPrepareW"))      == NULL ||
-            (ptr_SQLSetDescField  = dllSym(dbDll, "SQLSetDescField"))  == NULL ||
-            (ptr_SQLSetEnvAttr    = dllSym(dbDll, "SQLSetEnvAttr"))    == NULL) {
+        if ((SQLAllocHandle   = (tp_SQLAllocHandle)   dllSym(dbDll, "SQLAllocHandle"))   == NULL ||
+            (SQLBindCol       = (tp_SQLBindCol)       dllSym(dbDll, "SQLBindCol"))       == NULL ||
+            (SQLBindParameter = (tp_SQLBindParameter) dllSym(dbDll, "SQLBindParameter")) == NULL ||
+            (SQLColAttribute  = (tp_SQLColAttribute)  dllSym(dbDll, "SQLColAttribute"))  == NULL ||
+            (SQLColAttributeW = (tp_SQLColAttributeW) dllSym(dbDll, "SQLColAttributeW")) == NULL ||
+            (SQLConnectW      = (tp_SQLConnectW)      dllSym(dbDll, "SQLConnectW"))      == NULL ||
+            (SQLDisconnect    = (tp_SQLDisconnect)    dllSym(dbDll, "SQLDisconnect"))    == NULL ||
+            (SQLExecute       = (tp_SQLExecute)       dllSym(dbDll, "SQLExecute"))       == NULL ||
+            (SQLFetch         = (tp_SQLFetch)         dllSym(dbDll, "SQLFetch"))         == NULL ||
+            (SQLFreeHandle    = (tp_SQLFreeHandle)    dllSym(dbDll, "SQLFreeHandle"))    == NULL ||
+            (SQLFreeStmt      = (tp_SQLFreeStmt)      dllSym(dbDll, "SQLFreeStmt"))      == NULL ||
+            (SQLGetDiagRec    = (tp_SQLGetDiagRec)    dllSym(dbDll, "SQLGetDiagRec"))    == NULL ||
+            (SQLGetStmtAttr   = (tp_SQLGetStmtAttr)   dllSym(dbDll, "SQLGetStmtAttr"))   == NULL ||
+            (SQLNumResultCols = (tp_SQLNumResultCols) dllSym(dbDll, "SQLNumResultCols")) == NULL ||
+            (SQLPrepareW      = (tp_SQLPrepareW)      dllSym(dbDll, "SQLPrepareW"))      == NULL ||
+            (SQLSetDescField  = (tp_SQLSetDescField)  dllSym(dbDll, "SQLSetDescField"))  == NULL ||
+            (SQLSetEnvAttr    = (tp_SQLSetEnvAttr)    dllSym(dbDll, "SQLSetEnvAttr"))    == NULL) {
           dbDll = NULL;
         } /* if */
       } /* if */
@@ -435,7 +469,7 @@ static const char *nameOfCType (int buffer_type)
 
   {
     static char buffer[50];
-    char *typeName;
+    const char *typeName;
 
   /* nameOfCType */
     switch (buffer_type) {
@@ -557,7 +591,7 @@ static void setupResultColumn (preparedStmtType preparedStmt,
             logError(printf("setupResultColumn: DataLength negative: %ld\n",
                             dataLength););
             *err_info = FILE_ERROR;
-          } else if (dataLength > (MAX_MEMSIZETYPE / 2) - 1) {
+          } else if ((SQLULEN) dataLength > (MAX_MEMSIZETYPE / 2) - 1) {
             logError(printf("setupResultColumn: DataLength too big: %ld\n",
                             dataLength););
             *err_info = MEMORY_ERROR;
@@ -592,7 +626,7 @@ static void setupResultColumn (preparedStmtType preparedStmt,
             logError(printf("setupResultColumn: OctetLength negative: %ld\n",
                             octetLength););
             *err_info = FILE_ERROR;
-          } else if (dataLength > MAX_MEMSIZETYPE - 1) {
+          } else if ((SQLULEN) octetLength > MAX_MEMSIZETYPE - 1) {
             logError(printf("setupResultColumn: OctetLength too big: %ld\n",
                             octetLength););
             *err_info = MEMORY_ERROR;
@@ -805,7 +839,7 @@ static void setupResultColumn (preparedStmtType preparedStmt,
             logError(printf("setupResultColumn: DataLength negative: %ld\n",
                             dataLength););
             *err_info = FILE_ERROR;
-          } else if (dataLength > MAX_MEMSIZETYPE) {
+          } else if ((SQLULEN) dataLength > MAX_MEMSIZETYPE) {
             logError(printf("setupResultColumn: DataLength too big: %ld\n",
                             dataLength););
             *err_info = MEMORY_ERROR;

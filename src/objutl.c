@@ -50,6 +50,7 @@
 #include "typ_data.h"
 #include "big_drv.h"
 #include "drw_drv.h"
+#include "pcs_drv.h"
 #include "pol_drv.h"
 #ifdef WITH_SQL
 #include "sql_rtl.h"

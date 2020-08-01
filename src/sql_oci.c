@@ -144,112 +144,156 @@ static sqlFuncType sqlFunc = NULL;
 
 
 #ifdef OCI_DLL
-sword (*ptr_OCIAttrGet) (const void  *trgthndlp, ub4 trghndltyp,
-                         void  *attributep, ub4 *sizep, ub4 attrtype,
-                         OCIError *errhp);
-sword (*ptr_OCIAttrSet) (void  *trgthndlp, ub4 trghndltyp, void  *attributep,
-                         ub4 size, ub4 attrtype, OCIError *errhp);
-sword (*ptr_OCIBindByPos) (OCIStmt *stmtp, OCIBind **bindp, OCIError *errhp,
-                           ub4 position, void  *valuep, sb4 value_sz,
-                           ub2 dty, void  *indp, ub2 *alenp, ub2 *rcodep,
-                           ub4 maxarr_len, ub4 *curelep, ub4 mode);
-sword (*ptr_OCIDateTimeConstruct) (void *hndl,OCIError *err,OCIDateTime *datetime,
-                                   sb2 yr,ub1 mnth,ub1 dy,ub1 hr,ub1 mm,ub1 ss,ub4 fsec,
-                                   OraText *timezone,size_t timezone_length);
-sword (*ptr_OCIDateTimeGetDate) (void  *hndl, OCIError *err,  const OCIDateTime *date,
-                                 sb2 *yr, ub1 *mnth, ub1 *dy);
-sword (*ptr_OCIDateTimeGetTime) (void  *hndl, OCIError *err, OCIDateTime *datetime,
-                                 ub1 *hr, ub1 *mm, ub1 *ss, ub4 *fsec);
-sword (*ptr_OCIDefineByPos) (OCIStmt *stmtp, OCIDefine **defnp, OCIError *errhp,
-                             ub4 position, void  *valuep, sb4 value_sz, ub2 dty,
-                             void  *indp, ub2 *rlenp, ub2 *rcodep, ub4 mode);
-sword (*ptr_OCIDefineDynamic) (OCIDefine *defnp, OCIError *errhp, void  *octxp,
-                               OCICallbackDefine ocbfp);
-sword (*ptr_OCIDefineObject) (OCIDefine *defnp, OCIError *errhp,
-                              const OCIType *type, void  **pgvpp,
-                              ub4 *pvszsp, void  **indpp, ub4 *indszp);
-sword (*ptr_OCIDescriptorAlloc) (const void  *parenth, void  **descpp,
-                                 const ub4 type, const size_t xtramem_sz,
-                                 void  **usrmempp);
-sword (*ptr_OCIDescriptorFree) (void  *descp, const ub4 type);
-sword (*ptr_OCIEnvCreate) (OCIEnv **envp, ub4 mode, void  *ctxp,
-                           void  *(*malocfp)(void  *ctxp, size_t size),
-                           void  *(*ralocfp)(void  *ctxp, void  *memptr, size_t newsize),
-                           void   (*mfreefp)(void  *ctxp, void  *memptr),
-                           size_t xtramem_sz, void  **usrmempp);
-sword (*ptr_OCIEnvNlsCreate) (OCIEnv **envp, ub4 mode, void  *ctxp,
-                              void  *(*malocfp)(void  *ctxp, size_t size),
-                              void  *(*ralocfp)(void  *ctxp, void  *memptr, size_t newsize),
-                              void   (*mfreefp)(void  *ctxp, void  *memptr),
-                              size_t xtramem_sz, void  **usrmempp,
-                              ub2 charset, ub2 ncharset);
-sword (*ptr_OCIErrorGet) (void  *hndlp, ub4 recordno, OraText *sqlstate,
-                          sb4 *errcodep, OraText *bufp, ub4 bufsiz, ub4 type);
-sword (*ptr_OCIHandleAlloc) (const void  *parenth, void  **hndlpp, const ub4 type,
-                             const size_t xtramem_sz, void  **usrmempp);
-sword (*ptr_OCIHandleFree) (void  *hndlp, const ub4 type);
-sword (*ptr_OCIIntervalSetDaySecond) (void  *hndl, OCIError *err, sb4 dy, sb4 hr,
-                                      sb4 mm, sb4 ss, sb4 fsec, OCIInterval *result);
-sword (*ptr_OCIIntervalSetYearMonth) (void  *hndl, OCIError *err, sb4 yr, sb4 mnth,
-                                      OCIInterval *result);
-sword (*ptr_OCIIntervalGetDaySecond) (void  *hndl, OCIError *err, sb4 *dy, sb4 *hr,
-                                      sb4 *mm, sb4 *ss, sb4 *fsec, const OCIInterval *result);
-sword (*ptr_OCIIntervalGetYearMonth) (void  *hndl, OCIError *err, sb4 *yr, sb4 *mnth,
-                                      const OCIInterval *result);
-sword (*ptr_OCILobCreateTemporary) (OCISvcCtx *svchp,
-                                    OCIError *errhp,
-                                    OCILobLocator *locp,
-                                    ub2 csid,
-                                    ub1 csfrm,
-                                    ub1 lobtype,
-                                    boolean cache,
-                                    OCIDuration duration);
-sword (*ptr_OCILobFreeTemporary) (OCISvcCtx *svchp,
-                                  OCIError *errhp,
-                                  OCILobLocator *locp);
-sword (*ptr_OCILobGetLength2) (OCISvcCtx *svchp, OCIError *errhp,
-                               OCILobLocator *locp, oraub8 *lenp);
-sword (*ptr_OCILobIsTemporary) (OCIEnv *envp,
-                                OCIError *errhp,
-                                OCILobLocator *locp,
-                                boolean *is_temporary);
-sword (*ptr_OCILobRead2) (OCISvcCtx *svchp, OCIError *errhp, OCILobLocator *locp,
-                          oraub8 *byte_amtp, oraub8 *char_amtp, oraub8 offset,
-                          void  *bufp, oraub8 bufl, ub1 piece, void  *ctxp,
-                          OCICallbackLobRead2 cbfp, ub2 csid, ub1 csfrm);
-sword (*ptr_OCILobTrim2) (OCISvcCtx *svchp, OCIError *errhp, OCILobLocator *locp,
-                          oraub8 newlen);
-sword (*ptr_OCILobWrite2) (OCISvcCtx *svchp, OCIError *errhp, OCILobLocator *locp,
-                           oraub8 *byte_amtp, oraub8 *char_amtp, oraub8 offset,
-                           void  *bufp, oraub8 buflen, ub1 piece, void  *ctxp,
-                           OCICallbackLobWrite2 cbfp, ub2 csid, ub1 csfrm);
-ub2 (*ptr_OCINlsCharSetNameToId) (void  *envhp, const oratext *name);
-sword (*ptr_OCINumberToReal) (OCIError *err, const OCINumber *number,
-                              uword rsl_length, void  *rsl);
-sword (*ptr_OCIParamGet) (const void  *hndlp, ub4 htype, OCIError *errhp,
-                          void  **parmdpp, ub4 pos);
-ub4 (*ptr_OCIRefHexSize) (OCIEnv *env, const OCIRef *ref);
-sword (*ptr_OCIRefToHex) (OCIEnv *env, OCIError *err, const OCIRef *ref,
-                          oratext *hex, ub4 *hex_length);
-sword (*ptr_OCIRowidToChar) (OCIRowid *rowidDesc, OraText *outbfp, ub2 *outbflp,
-                             OCIError *errhp);
-sword (*ptr_OCIServerAttach) (OCIServer *srvhp, OCIError *errhp,
-                              const OraText *dblink, sb4 dblink_len, ub4 mode);
-sword (*ptr_OCIServerDetach) (OCIServer *srvhp, OCIError *errhp, ub4 mode);
-sword (*ptr_OCISessionBegin) (OCISvcCtx *svchp, OCIError *errhp, OCISession *usrhp,
-                              ub4 credt, ub4 mode);
-sword (*ptr_OCISessionEnd) (OCISvcCtx *svchp, OCIError *errhp, OCISession *usrhp,
-                            ub4 mode);
-sword (*ptr_OCIStmtExecute) (OCISvcCtx *svchp, OCIStmt *stmtp, OCIError *errhp,
-                             ub4 iters, ub4 rowoff, const OCISnapshot *snap_in,
-                             OCISnapshot *snap_out, ub4 mode);
-sword (*ptr_OCIStmtFetch2) (OCIStmt *stmtp, OCIError *errhp, ub4 nrows,
-                            ub2 orientation, sb4 scrollOffset, ub4 mode);
-sword (*ptr_OCIStmtPrepare) (OCIStmt *stmtp, OCIError *errhp, const OraText *stmt,
-                             ub4 stmt_len, ub4 language, ub4 mode);
-oratext *(*ptr_OCIStringPtr) (OCIEnv *env, const OCIString *vs);
-ub4 (*ptr_OCIStringSize) (OCIEnv *env, const OCIString *vs);
-sword (*ptr_OCITransCommit) (OCISvcCtx *svchp, OCIError *errhp, ub4 flags);
+typedef sword (*tp_OCIAttrGet) (const void  *trgthndlp, ub4 trghndltyp,
+                                void  *attributep, ub4 *sizep, ub4 attrtype,
+                                OCIError *errhp);
+typedef sword (*tp_OCIAttrSet) (void  *trgthndlp, ub4 trghndltyp, void  *attributep,
+                                ub4 size, ub4 attrtype, OCIError *errhp);
+typedef sword (*tp_OCIBindByPos) (OCIStmt *stmtp, OCIBind **bindp, OCIError *errhp,
+                                  ub4 position, void  *valuep, sb4 value_sz,
+                                  ub2 dty, void  *indp, ub2 *alenp, ub2 *rcodep,
+                                  ub4 maxarr_len, ub4 *curelep, ub4 mode);
+typedef sword (*tp_OCIDateTimeConstruct) (void *hndl,OCIError *err,OCIDateTime *datetime,
+                                          sb2 yr,ub1 mnth,ub1 dy,ub1 hr,ub1 mm,ub1 ss,ub4 fsec,
+                                          OraText *timezone,size_t timezone_length);
+typedef sword (*tp_OCIDateTimeGetDate) (void  *hndl, OCIError *err,  const OCIDateTime *date,
+                                        sb2 *yr, ub1 *mnth, ub1 *dy);
+typedef sword (*tp_OCIDateTimeGetTime) (void  *hndl, OCIError *err, OCIDateTime *datetime,
+                                        ub1 *hr, ub1 *mm, ub1 *ss, ub4 *fsec);
+typedef sword (*tp_OCIDefineByPos) (OCIStmt *stmtp, OCIDefine **defnp, OCIError *errhp,
+                                    ub4 position, void  *valuep, sb4 value_sz, ub2 dty,
+                                    void  *indp, ub2 *rlenp, ub2 *rcodep, ub4 mode);
+typedef sword (*tp_OCIDefineDynamic) (OCIDefine *defnp, OCIError *errhp, void  *octxp,
+                                      OCICallbackDefine ocbfp);
+typedef sword (*tp_OCIDefineObject) (OCIDefine *defnp, OCIError *errhp,
+                                     const OCIType *type, void  **pgvpp,
+                                     ub4 *pvszsp, void  **indpp, ub4 *indszp);
+typedef sword (*tp_OCIDescriptorAlloc) (const void  *parenth, void  **descpp,
+                                        const ub4 type, const size_t xtramem_sz,
+                                        void  **usrmempp);
+typedef sword (*tp_OCIDescriptorFree) (void  *descp, const ub4 type);
+typedef sword (*tp_OCIEnvCreate) (OCIEnv **envp, ub4 mode, void  *ctxp,
+                                  void  *(*malocfp)(void  *ctxp, size_t size),
+                                  void  *(*ralocfp)(void  *ctxp, void  *memptr, size_t newsize),
+                                  void   (*mfreefp)(void  *ctxp, void  *memptr),
+                                  size_t xtramem_sz, void  **usrmempp);
+typedef sword (*tp_OCIEnvNlsCreate) (OCIEnv **envp, ub4 mode, void  *ctxp,
+                                     void  *(*malocfp)(void  *ctxp, size_t size),
+                                     void  *(*ralocfp)(void  *ctxp, void  *memptr, size_t newsize),
+                                     void   (*mfreefp)(void  *ctxp, void  *memptr),
+                                     size_t xtramem_sz, void  **usrmempp,
+                                     ub2 charset, ub2 ncharset);
+typedef sword (*tp_OCIErrorGet) (void  *hndlp, ub4 recordno, OraText *sqlstate,
+                                 sb4 *errcodep, OraText *bufp, ub4 bufsiz, ub4 type);
+typedef sword (*tp_OCIHandleAlloc) (const void  *parenth, void  **hndlpp, const ub4 type,
+                                    const size_t xtramem_sz, void  **usrmempp);
+typedef sword (*tp_OCIHandleFree) (void  *hndlp, const ub4 type);
+typedef sword (*tp_OCIIntervalSetDaySecond) (void  *hndl, OCIError *err, sb4 dy, sb4 hr,
+                                             sb4 mm, sb4 ss, sb4 fsec, OCIInterval *result);
+typedef sword (*tp_OCIIntervalSetYearMonth) (void  *hndl, OCIError *err, sb4 yr, sb4 mnth,
+                                             OCIInterval *result);
+typedef sword (*tp_OCIIntervalGetDaySecond) (void  *hndl, OCIError *err, sb4 *dy, sb4 *hr,
+                                             sb4 *mm, sb4 *ss, sb4 *fsec, const OCIInterval *result);
+typedef sword (*tp_OCIIntervalGetYearMonth) (void  *hndl, OCIError *err, sb4 *yr, sb4 *mnth,
+                                             const OCIInterval *result);
+typedef sword (*tp_OCILobCreateTemporary) (OCISvcCtx *svchp,
+                                           OCIError *errhp,
+                                           OCILobLocator *locp,
+                                           ub2 csid,
+                                           ub1 csfrm,
+                                           ub1 lobtype,
+                                           boolean cache,
+                                           OCIDuration duration);
+typedef sword (*tp_OCILobFreeTemporary) (OCISvcCtx *svchp,
+                                         OCIError *errhp,
+                                         OCILobLocator *locp);
+typedef sword (*tp_OCILobGetLength2) (OCISvcCtx *svchp, OCIError *errhp,
+                                      OCILobLocator *locp, oraub8 *lenp);
+typedef sword (*tp_OCILobIsTemporary) (OCIEnv *envp,
+                                       OCIError *errhp,
+                                       OCILobLocator *locp,
+                                       boolean *is_temporary);
+typedef sword (*tp_OCILobRead2) (OCISvcCtx *svchp, OCIError *errhp, OCILobLocator *locp,
+                                 oraub8 *byte_amtp, oraub8 *char_amtp, oraub8 offset,
+                                 void  *bufp, oraub8 bufl, ub1 piece, void  *ctxp,
+                                 OCICallbackLobRead2 cbfp, ub2 csid, ub1 csfrm);
+typedef sword (*tp_OCILobTrim2) (OCISvcCtx *svchp, OCIError *errhp, OCILobLocator *locp,
+                                 oraub8 newlen);
+typedef sword (*tp_OCILobWrite2) (OCISvcCtx *svchp, OCIError *errhp, OCILobLocator *locp,
+                                  oraub8 *byte_amtp, oraub8 *char_amtp, oraub8 offset,
+                                  void  *bufp, oraub8 buflen, ub1 piece, void  *ctxp,
+                                  OCICallbackLobWrite2 cbfp, ub2 csid, ub1 csfrm);
+typedef ub2 (*tp_OCINlsCharSetNameToId) (void  *envhp, const oratext *name);
+typedef sword (*tp_OCINumberToReal) (OCIError *err, const OCINumber *number,
+                                     uword rsl_length, void  *rsl);
+typedef sword (*tp_OCIParamGet) (const void  *hndlp, ub4 htype, OCIError *errhp,
+                                 void  **parmdpp, ub4 pos);
+typedef ub4 (*tp_OCIRefHexSize) (OCIEnv *env, const OCIRef *ref);
+typedef sword (*tp_OCIRefToHex) (OCIEnv *env, OCIError *err, const OCIRef *ref,
+                                 oratext *hex, ub4 *hex_length);
+typedef sword (*tp_OCIRowidToChar) (OCIRowid *rowidDesc, OraText *outbfp, ub2 *outbflp,
+                                    OCIError *errhp);
+typedef sword (*tp_OCIServerAttach) (OCIServer *srvhp, OCIError *errhp,
+                                     const OraText *dblink, sb4 dblink_len, ub4 mode);
+typedef sword (*tp_OCIServerDetach) (OCIServer *srvhp, OCIError *errhp, ub4 mode);
+typedef sword (*tp_OCISessionBegin) (OCISvcCtx *svchp, OCIError *errhp, OCISession *usrhp,
+                                     ub4 credt, ub4 mode);
+typedef sword (*tp_OCISessionEnd) (OCISvcCtx *svchp, OCIError *errhp, OCISession *usrhp,
+                                   ub4 mode);
+typedef sword (*tp_OCIStmtExecute) (OCISvcCtx *svchp, OCIStmt *stmtp, OCIError *errhp,
+                                    ub4 iters, ub4 rowoff, const OCISnapshot *snap_in,
+                                    OCISnapshot *snap_out, ub4 mode);
+typedef sword (*tp_OCIStmtFetch2) (OCIStmt *stmtp, OCIError *errhp, ub4 nrows,
+                                   ub2 orientation, sb4 scrollOffset, ub4 mode);
+typedef sword (*tp_OCIStmtPrepare) (OCIStmt *stmtp, OCIError *errhp, const OraText *stmt,
+                                    ub4 stmt_len, ub4 language, ub4 mode);
+typedef oratext *(*tp_OCIStringPtr) (OCIEnv *env, const OCIString *vs);
+typedef ub4 (*tp_OCIStringSize) (OCIEnv *env, const OCIString *vs);
+typedef sword (*tp_OCITransCommit) (OCISvcCtx *svchp, OCIError *errhp, ub4 flags);
+
+tp_OCIAttrGet              ptr_OCIAttrGet;
+tp_OCIAttrSet              ptr_OCIAttrSet;
+tp_OCIBindByPos            ptr_OCIBindByPos;
+tp_OCIDateTimeConstruct    ptr_OCIDateTimeConstruct;
+tp_OCIDateTimeGetDate      ptr_OCIDateTimeGetDate;
+tp_OCIDateTimeGetTime      ptr_OCIDateTimeGetTime;
+tp_OCIDefineByPos          ptr_OCIDefineByPos;
+tp_OCIDefineDynamic        ptr_OCIDefineDynamic;
+tp_OCIDefineObject         ptr_OCIDefineObject;
+tp_OCIDescriptorAlloc      ptr_OCIDescriptorAlloc;
+tp_OCIDescriptorFree       ptr_OCIDescriptorFree;
+tp_OCIEnvCreate            ptr_OCIEnvCreate;
+tp_OCIEnvNlsCreate         ptr_OCIEnvNlsCreate;
+tp_OCIErrorGet             ptr_OCIErrorGet;
+tp_OCIHandleAlloc          ptr_OCIHandleAlloc;
+tp_OCIHandleFree           ptr_OCIHandleFree;
+tp_OCIIntervalSetDaySecond ptr_OCIIntervalSetDaySecond;
+tp_OCIIntervalSetYearMonth ptr_OCIIntervalSetYearMonth;
+tp_OCIIntervalGetDaySecond ptr_OCIIntervalGetDaySecond;
+tp_OCIIntervalGetYearMonth ptr_OCIIntervalGetYearMonth;
+tp_OCILobCreateTemporary   ptr_OCILobCreateTemporary;
+tp_OCILobFreeTemporary     ptr_OCILobFreeTemporary;
+tp_OCILobGetLength2        ptr_OCILobGetLength2;
+tp_OCILobIsTemporary       ptr_OCILobIsTemporary;
+tp_OCILobRead2             ptr_OCILobRead2;
+tp_OCILobTrim2             ptr_OCILobTrim2;
+tp_OCILobWrite2            ptr_OCILobWrite2;
+tp_OCINlsCharSetNameToId   ptr_OCINlsCharSetNameToId;
+tp_OCINumberToReal         ptr_OCINumberToReal;
+tp_OCIParamGet             ptr_OCIParamGet;
+tp_OCIRefHexSize           ptr_OCIRefHexSize;
+tp_OCIRefToHex             ptr_OCIRefToHex;
+tp_OCIRowidToChar          ptr_OCIRowidToChar;
+tp_OCIServerAttach         ptr_OCIServerAttach;
+tp_OCIServerDetach         ptr_OCIServerDetach;
+tp_OCISessionBegin         ptr_OCISessionBegin;
+tp_OCISessionEnd           ptr_OCISessionEnd;
+tp_OCIStmtExecute          ptr_OCIStmtExecute;
+tp_OCIStmtFetch2           ptr_OCIStmtFetch2;
+tp_OCIStmtPrepare          ptr_OCIStmtPrepare;
+tp_OCIStringPtr            ptr_OCIStringPtr;
+tp_OCIStringSize           ptr_OCIStringSize;
+tp_OCITransCommit          ptr_OCITransCommit;
 
 #define OCIAttrGet              ptr_OCIAttrGet
 #define OCIAttrSet              ptr_OCIAttrSet
@@ -307,49 +351,49 @@ static boolType setupDll (const char *dllName)
     if (dbDll == NULL) {
       dbDll = dllOpen(dllName);
       if (dbDll != NULL) {
-        if ((ptr_OCIAttrGet              = dllSym(dbDll, "OCIAttrGet"))              == NULL ||
-            (ptr_OCIAttrSet              = dllSym(dbDll, "OCIAttrSet"))              == NULL ||
-            (ptr_OCIBindByPos            = dllSym(dbDll, "OCIBindByPos"))            == NULL ||
-            (ptr_OCIDateTimeConstruct    = dllSym(dbDll, "OCIDateTimeConstruct"))    == NULL ||
-            (ptr_OCIDateTimeGetDate      = dllSym(dbDll, "OCIDateTimeGetDate"))      == NULL ||
-            (ptr_OCIDateTimeGetTime      = dllSym(dbDll, "OCIDateTimeGetTime"))      == NULL ||
-            (ptr_OCIDefineByPos          = dllSym(dbDll, "OCIDefineByPos"))          == NULL ||
-            (ptr_OCIDefineDynamic        = dllSym(dbDll, "OCIDefineDynamic"))        == NULL ||
-            (ptr_OCIDefineObject         = dllSym(dbDll, "OCIDefineObject"))         == NULL ||
-            (ptr_OCIDescriptorAlloc      = dllSym(dbDll, "OCIDescriptorAlloc"))      == NULL ||
-            (ptr_OCIDescriptorFree       = dllSym(dbDll, "OCIDescriptorFree"))       == NULL ||
-            (ptr_OCIEnvCreate            = dllSym(dbDll, "OCIEnvCreate"))            == NULL ||
-            (ptr_OCIEnvNlsCreate         = dllSym(dbDll, "OCIEnvNlsCreate"))         == NULL ||
-            (ptr_OCIErrorGet             = dllSym(dbDll, "OCIErrorGet"))             == NULL ||
-            (ptr_OCIHandleAlloc          = dllSym(dbDll, "OCIHandleAlloc"))          == NULL ||
-            (ptr_OCIHandleFree           = dllSym(dbDll, "OCIHandleFree"))           == NULL ||
-            (ptr_OCIIntervalSetDaySecond = dllSym(dbDll, "OCIIntervalSetDaySecond")) == NULL ||
-            (ptr_OCIIntervalSetYearMonth = dllSym(dbDll, "OCIIntervalSetYearMonth")) == NULL ||
-            (ptr_OCIIntervalGetDaySecond = dllSym(dbDll, "OCIIntervalGetDaySecond")) == NULL ||
-            (ptr_OCIIntervalGetYearMonth = dllSym(dbDll, "OCIIntervalGetYearMonth")) == NULL ||
-            (ptr_OCILobCreateTemporary   = dllSym(dbDll, "OCILobCreateTemporary"))   == NULL ||
-            (ptr_OCILobFreeTemporary     = dllSym(dbDll, "OCILobFreeTemporary"))     == NULL ||
-            (ptr_OCILobGetLength2        = dllSym(dbDll, "OCILobGetLength2"))        == NULL ||
-            (ptr_OCILobIsTemporary       = dllSym(dbDll, "OCILobIsTemporary"))       == NULL ||
-            (ptr_OCILobRead2             = dllSym(dbDll, "OCILobRead2"))             == NULL ||
-            (ptr_OCILobTrim2             = dllSym(dbDll, "OCILobTrim2"))             == NULL ||
-            (ptr_OCILobWrite2            = dllSym(dbDll, "OCILobWrite2"))            == NULL ||
-            (ptr_OCINlsCharSetNameToId   = dllSym(dbDll, "OCINlsCharSetNameToId"))   == NULL ||
-            (ptr_OCINumberToReal         = dllSym(dbDll, "OCINumberToReal"))         == NULL ||
-            (ptr_OCIParamGet             = dllSym(dbDll, "OCIParamGet"))             == NULL ||
-            (ptr_OCIRefHexSize           = dllSym(dbDll, "OCIRefHexSize"))           == NULL ||
-            (ptr_OCIRefToHex             = dllSym(dbDll, "OCIRefToHex"))             == NULL ||
-            (ptr_OCIRowidToChar          = dllSym(dbDll, "OCIRowidToChar"))          == NULL ||
-            (ptr_OCIServerAttach         = dllSym(dbDll, "OCIServerAttach"))         == NULL ||
-            (ptr_OCIServerDetach         = dllSym(dbDll, "OCIServerDetach"))         == NULL ||
-            (ptr_OCISessionBegin         = dllSym(dbDll, "OCISessionBegin"))         == NULL ||
-            (ptr_OCISessionEnd           = dllSym(dbDll, "OCISessionEnd"))           == NULL ||
-            (ptr_OCIStmtExecute          = dllSym(dbDll, "OCIStmtExecute"))          == NULL ||
-            (ptr_OCIStmtFetch2           = dllSym(dbDll, "OCIStmtFetch2"))           == NULL ||
-            (ptr_OCIStmtPrepare          = dllSym(dbDll, "OCIStmtPrepare"))          == NULL ||
-            (ptr_OCIStringPtr            = dllSym(dbDll, "OCIStringPtr"))            == NULL ||
-            (ptr_OCIStringSize           = dllSym(dbDll, "OCIStringSize"))           == NULL ||
-            (ptr_OCITransCommit          = dllSym(dbDll, "OCITransCommit"))          == NULL) {
+        if ((OCIAttrGet              = (tp_OCIAttrGet)              dllSym(dbDll, "OCIAttrGet"))              == NULL ||
+            (OCIAttrSet              = (tp_OCIAttrSet)              dllSym(dbDll, "OCIAttrSet"))              == NULL ||
+            (OCIBindByPos            = (tp_OCIBindByPos)            dllSym(dbDll, "OCIBindByPos"))            == NULL ||
+            (OCIDateTimeConstruct    = (tp_OCIDateTimeConstruct)    dllSym(dbDll, "OCIDateTimeConstruct"))    == NULL ||
+            (OCIDateTimeGetDate      = (tp_OCIDateTimeGetDate)      dllSym(dbDll, "OCIDateTimeGetDate"))      == NULL ||
+            (OCIDateTimeGetTime      = (tp_OCIDateTimeGetTime)      dllSym(dbDll, "OCIDateTimeGetTime"))      == NULL ||
+            (OCIDefineByPos          = (tp_OCIDefineByPos)          dllSym(dbDll, "OCIDefineByPos"))          == NULL ||
+            (OCIDefineDynamic        = (tp_OCIDefineDynamic)        dllSym(dbDll, "OCIDefineDynamic"))        == NULL ||
+            (OCIDefineObject         = (tp_OCIDefineObject)         dllSym(dbDll, "OCIDefineObject"))         == NULL ||
+            (OCIDescriptorAlloc      = (tp_OCIDescriptorAlloc)      dllSym(dbDll, "OCIDescriptorAlloc"))      == NULL ||
+            (OCIDescriptorFree       = (tp_OCIDescriptorFree)       dllSym(dbDll, "OCIDescriptorFree"))       == NULL ||
+            (OCIEnvCreate            = (tp_OCIEnvCreate)            dllSym(dbDll, "OCIEnvCreate"))            == NULL ||
+            (OCIEnvNlsCreate         = (tp_OCIEnvNlsCreate)         dllSym(dbDll, "OCIEnvNlsCreate"))         == NULL ||
+            (OCIErrorGet             = (tp_OCIErrorGet)             dllSym(dbDll, "OCIErrorGet"))             == NULL ||
+            (OCIHandleAlloc          = (tp_OCIHandleAlloc)          dllSym(dbDll, "OCIHandleAlloc"))          == NULL ||
+            (OCIHandleFree           = (tp_OCIHandleFree)           dllSym(dbDll, "OCIHandleFree"))           == NULL ||
+            (OCIIntervalSetDaySecond = (tp_OCIIntervalSetDaySecond) dllSym(dbDll, "OCIIntervalSetDaySecond")) == NULL ||
+            (OCIIntervalSetYearMonth = (tp_OCIIntervalSetYearMonth) dllSym(dbDll, "OCIIntervalSetYearMonth")) == NULL ||
+            (OCIIntervalGetDaySecond = (tp_OCIIntervalGetDaySecond) dllSym(dbDll, "OCIIntervalGetDaySecond")) == NULL ||
+            (OCIIntervalGetYearMonth = (tp_OCIIntervalGetYearMonth) dllSym(dbDll, "OCIIntervalGetYearMonth")) == NULL ||
+            (OCILobCreateTemporary   = (tp_OCILobCreateTemporary)   dllSym(dbDll, "OCILobCreateTemporary"))   == NULL ||
+            (OCILobFreeTemporary     = (tp_OCILobFreeTemporary)     dllSym(dbDll, "OCILobFreeTemporary"))     == NULL ||
+            (OCILobGetLength2        = (tp_OCILobGetLength2)        dllSym(dbDll, "OCILobGetLength2"))        == NULL ||
+            (OCILobIsTemporary       = (tp_OCILobIsTemporary)       dllSym(dbDll, "OCILobIsTemporary"))       == NULL ||
+            (OCILobRead2             = (tp_OCILobRead2)             dllSym(dbDll, "OCILobRead2"))             == NULL ||
+            (OCILobTrim2             = (tp_OCILobTrim2)             dllSym(dbDll, "OCILobTrim2"))             == NULL ||
+            (OCILobWrite2            = (tp_OCILobWrite2)            dllSym(dbDll, "OCILobWrite2"))            == NULL ||
+            (OCINlsCharSetNameToId   = (tp_OCINlsCharSetNameToId)   dllSym(dbDll, "OCINlsCharSetNameToId"))   == NULL ||
+            (OCINumberToReal         = (tp_OCINumberToReal)         dllSym(dbDll, "OCINumberToReal"))         == NULL ||
+            (OCIParamGet             = (tp_OCIParamGet)             dllSym(dbDll, "OCIParamGet"))             == NULL ||
+            (OCIRefHexSize           = (tp_OCIRefHexSize)           dllSym(dbDll, "OCIRefHexSize"))           == NULL ||
+            (OCIRefToHex             = (tp_OCIRefToHex)             dllSym(dbDll, "OCIRefToHex"))             == NULL ||
+            (OCIRowidToChar          = (tp_OCIRowidToChar)          dllSym(dbDll, "OCIRowidToChar"))          == NULL ||
+            (OCIServerAttach         = (tp_OCIServerAttach)         dllSym(dbDll, "OCIServerAttach"))         == NULL ||
+            (OCIServerDetach         = (tp_OCIServerDetach)         dllSym(dbDll, "OCIServerDetach"))         == NULL ||
+            (OCISessionBegin         = (tp_OCISessionBegin)         dllSym(dbDll, "OCISessionBegin"))         == NULL ||
+            (OCISessionEnd           = (tp_OCISessionEnd)           dllSym(dbDll, "OCISessionEnd"))           == NULL ||
+            (OCIStmtExecute          = (tp_OCIStmtExecute)          dllSym(dbDll, "OCIStmtExecute"))          == NULL ||
+            (OCIStmtFetch2           = (tp_OCIStmtFetch2)           dllSym(dbDll, "OCIStmtFetch2"))           == NULL ||
+            (OCIStmtPrepare          = (tp_OCIStmtPrepare)          dllSym(dbDll, "OCIStmtPrepare"))          == NULL ||
+            (OCIStringPtr            = (tp_OCIStringPtr)            dllSym(dbDll, "OCIStringPtr"))            == NULL ||
+            (OCIStringSize           = (tp_OCIStringSize)           dllSym(dbDll, "OCIStringSize"))           == NULL ||
+            (OCITransCommit          = (tp_OCITransCommit)          dllSym(dbDll, "OCITransCommit"))          == NULL) {
           dbDll = NULL;
         } /* if */
       } /* if */
@@ -948,7 +992,7 @@ static void ociNumberFromDecimalInt (OCINumber *ociNumber, const const_striType 
 static void dumpSqltNumber (memSizeType dataLen, const uint8Type *ociNumberData)
 
   {
-    int pos;
+    memSizeType pos;
 
   /* dumpSqltNumber */
     printf("dataLen: %lu, \"", dataLen);
@@ -986,6 +1030,7 @@ static void dumpSqltNumber (memSizeType dataLen, const uint8Type *ociNumberData)
 
 
 
+#ifdef SHOW_DETAILS
 static void printSqltNumber (memSizeType dataLen, const uint8Type *ociNumberData)
 
   {
@@ -1023,6 +1068,49 @@ static void printSqltNumber (memSizeType dataLen, const uint8Type *ociNumberData
       } /* if */
     } /* if */
   } /* printSqltNumber */
+
+
+
+static void printBuffer (uint16Type buffer_type, memSizeType length, void *buffer)
+
+  { /* printBuffer */
+    switch (buffer_type) {
+      case SQLT_INT:
+        switch (length) {
+          case 1:
+            printf("%d", *(int8Type *) buffer);
+            break;
+          case 2:
+            printf("%d", *(int16Type *) buffer);
+            break;
+          case 4:
+            printf(FMT_D32, *(int32Type *) buffer);
+            break;
+          case 8:
+            printf(FMT_D64, *(int64Type *) buffer);
+            break;
+        } /* switch */
+        break;
+      case SQLT_FLT:
+        switch (length) {
+          case FLOAT_SIZE / 8:
+            printf("%f", *(float *) buffer);
+            break;
+          case DOUBLE_SIZE / 8:
+            printf("%f", *(double *) buffer);
+            break;
+        } /* switch */
+        break;
+      case SQLT_CHR:
+      case SQLT_AFC:
+        fwrite(buffer, length, 1, stdout);
+        break;
+      case SQLT_NUM:
+        printSqltNumber(length, (uint8Type *) buffer);
+        break;
+    } /* switch */
+  } /* printBuffer */
+#endif
 
 
 
@@ -1073,48 +1161,6 @@ static const char *nameOfBufferType (uint16Type buffer_type)
         return buffer;
       } /* if */
   } /* nameOfBufferType */
-
-
-
-static void printBuffer (uint16Type buffer_type, memSizeType length, void *buffer)
-
-  { /* printBuffer */
-    switch (buffer_type) {
-      case SQLT_INT:
-        switch (length) {
-          case 1:
-            printf("%d", *(int8Type *) buffer);
-            break;
-          case 2:
-            printf("%d", *(int16Type *) buffer);
-            break;
-          case 4:
-            printf(FMT_D32, *(int32Type *) buffer);
-            break;
-          case 8:
-            printf(FMT_D64, *(int64Type *) buffer);
-            break;
-        } /* switch */
-        break;
-      case SQLT_FLT:
-        switch (length) {
-          case FLOAT_SIZE / 8:
-            printf("%f", *(float *) buffer);
-            break;
-          case DOUBLE_SIZE / 8:
-            printf("%f", *(double *) buffer);
-            break;
-        } /* switch */
-        break;
-      case SQLT_CHR:
-      case SQLT_AFC:
-        fwrite(buffer, length, 1, stdout);
-        break;
-      case SQLT_NUM:
-        printSqltNumber(length, (uint8Type *) buffer);
-        break;
-    } /* switch */
-  } /* printBuffer */
 
 
 
@@ -1587,6 +1633,7 @@ static void resizeBindArray (preparedStmtType preparedStmt, memSizeType pos)
 
 
 
+#ifdef SHOW_DETAILS
 static void showBindVars (preparedStmtType preparedStmt)
 
   {
@@ -1656,6 +1703,7 @@ static void showResultVars (preparedStmtType preparedStmt)
       printf("\n");
     } /* for */
   } /* showResultVars */
+#endif
 
 
 
@@ -2003,7 +2051,7 @@ static striType getClob (preparedStmtType preparedStmt,
          printf("SQLCS_IMPLICIT: %u\n", SQLCS_IMPLICIT);
          printf("lobLength: %lu\n", lobLength); */
       buffer_size = (memSizeType) lobLength * MAX_UTF8_EXPANSION_FACTOR;
-      if (unlikely((buffer = malloc(buffer_size)) == NULL)) {
+      if (unlikely((buffer = (char *) malloc(buffer_size)) == NULL)) {
         *err_info = MEMORY_ERROR;
         stri = NULL;
       } else {
@@ -2030,7 +2078,7 @@ static striType getClob (preparedStmtType preparedStmt,
              printf("byte_amount: %lu\n", byte_amount); */
           if (lobLength > 1048576) {
             /* Reduce memory pressure. */
-            resized_buffer = realloc(buffer, (memSizeType) byte_amount);
+            resized_buffer = (char *) realloc(buffer, (memSizeType) byte_amount);
             if (resized_buffer != NULL) {
               buffer = resized_buffer;
             } /* if */
@@ -3510,7 +3558,7 @@ static striType sqlColumnStri (sqlStmtType sqlStatement, intType column)
           case SQLT_AVC: /* CHARZ */
             stri8 = (cstriType) preparedStmt->result_array[column - 1].buffer;
             length = preparedStmt->result_array[column - 1].length;
-            zeroPos = memchr(stri8, '\0', length);
+            zeroPos = (const_cstriType) memchr(stri8, '\0', length);
             if (zeroPos != NULL) {
               length = (memSizeType) (zeroPos - stri8);
             } /* if */

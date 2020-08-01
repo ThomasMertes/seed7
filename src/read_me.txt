@@ -26,7 +26,8 @@ THE MAKEFILES
   mk_bcc32.mak | Windows (bcc32) | make         | bcc32      | cmd.exe
   mk_bccv5.mak | Windows (bcc32) | make         | bcc32 V5.5 | cmd.exe
   mk_djgpp.mak | DOS             | (g)make      | gcc        | cmd.exe
-  mk_osx.mak   | Mac OS X (Xcode)| (g)make      | gcc        | sh
+  mk_osx.mak   | Mac OS X        | make         | gcc        | sh
+  mk_osxcl.mak | Mac OS X        | make         | clang      | sh
   mk_freebsd.mk| FreeBSD         | make         | clang/gcc  | sh
 
   In the optimal case you just copy one of this files to
@@ -49,6 +50,10 @@ THE MAKEFILES
   use the command:
 
     make test
+
+  Finally Seed7 can be installed with:
+
+    sudo make install
 
   To do several compilation attempts in succession you need to
   execute the command
@@ -230,12 +235,27 @@ COMPILING UNDER DOS WITH DJGPP
 
 COMPILING UNTER MAC OS X
 
-    To compile under Mac OS X make sure that Xcode is installed.
-  The Xcode package contains a C compiler (gcc) and a 'make'
-  utility. To compile Seed7 start a command shell, go to the
-  'seed7/src' directory and type:
+    To compile under Mac OS X make sure that the command line
+  tools for OS X are installed. They can be obtained from Xcode
+  (Xcode Menu: Xcode->Preferences->Downloads). Alternatively
+  the command line tools can be downloaded directly. The tools
+  contain the C compilers clang and gcc. They also provide a
+  'make' utility. Depending on the version of OS X it might be
+  necessary to install also XQuartz (the X11 support of OS X).
+  In newer versions of OS X gcc is based on clang. You can use
+  this gcc, but it is not the original gcc. To obtain the
+  original gcc you have to download it from a repository like
+  Homebrew. To compile Seed7 with gcc (the clang based gcc or
+  the original gcc) start a terminal, go to the 'seed7/src'
+  directory and type:
 
     cp mk_osx.mak makefile
+    make depend
+    make
+
+  To compile Seed7 with clang use the following commands:
+
+    cp mk_osxcl.mak makefile
     make depend
     make
 

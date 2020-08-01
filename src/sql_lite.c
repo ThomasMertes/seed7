@@ -1,6 +1,6 @@
 /********************************************************************/
 /*                                                                  */
-/*  sql_ite.c     Database access functions for SQLite.             */
+/*  sql_lite.c    Database access functions for SQLite.             */
 /*  Copyright (C) 1989 - 2014  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
@@ -23,7 +23,7 @@
 /*  Fifth Floor, Boston, MA  02110-1301, USA.                       */
 /*                                                                  */
 /*  Module: Seed7 Runtime Library                                   */
-/*  File: seed7/src/sql_ite.c                                       */
+/*  File: seed7/src/sql_lite.c                                      */
 /*  Changes: 2013, 2014  Thomas Mertes                              */
 /*  Content: Database access functions for SQLite.                  */
 /*                                                                  */
@@ -84,39 +84,61 @@ static sqlFuncType sqlFunc = NULL;
 
 
 #ifdef SQLITE_DLL
-int (*ptr_sqlite3_bind_blob) (sqlite3_stmt *pStmt,
-                              int index,
-                              const void *value,
-                              int n,
-                              void (*destruct) (void*));
-int (*ptr_sqlite3_bind_double) (sqlite3_stmt *pStmt, int index, double value);
-int (*ptr_sqlite3_bind_int) (sqlite3_stmt *pStmt, int index, int value);
-int (*ptr_sqlite3_bind_int64) (sqlite3_stmt *pStmt, int index, sqlite3_int64 value);
-int (*ptr_sqlite3_bind_null) (sqlite3_stmt *pStmt, int index);
-int (*ptr_sqlite3_bind_text) (sqlite3_stmt *pStmt,
-                              int index,
-                              const char *value,
-                              int n,
-                              void (*destruct) (void*));
-int (*ptr_sqlite3_close) (sqlite3 *db);
-const void *(*ptr_sqlite3_column_blob) (sqlite3_stmt *pStmt, int iCol);
-int (*ptr_sqlite3_column_bytes) (sqlite3_stmt *pStmt, int iCol);
-int (*ptr_sqlite3_column_count) (sqlite3_stmt *pStmt);
-double (*ptr_sqlite3_column_double) (sqlite3_stmt *pStmt, int iCol);
-int (*ptr_sqlite3_column_int) (sqlite3_stmt *pStmt, int iCol);
-sqlite3_int64 (*ptr_sqlite3_column_int64) (sqlite3_stmt *pStmt, int iCol);
-const char *(*ptr_sqlite3_column_name) (sqlite3_stmt *pStmt, int N);
-const unsigned char *(*ptr_sqlite3_column_text) (sqlite3_stmt *pStmt, int iCol);
-int (*ptr_sqlite3_column_type) (sqlite3_stmt *pStmt, int iCol);
-int (*ptr_sqlite3_finalize) (sqlite3_stmt *pStmt);
-int (*ptr_sqlite3_open) (const char *filename, sqlite3 **ppDb);
-int (*ptr_sqlite3_prepare) (sqlite3 *db,
-                            const char *zSql,
-                            int nByte,
-                            sqlite3_stmt **ppStmt,
-                            const char **pzTail);
-int (*ptr_sqlite3_reset) (sqlite3_stmt *pStmt);
-int (*ptr_sqlite3_step) (sqlite3_stmt *pStmt);
+typedef int (*tp_sqlite3_bind_blob) (sqlite3_stmt *pStmt,
+                                     int index,
+                                     const void *value,
+                                     int n,
+                                     void (*destruct) (void*));
+typedef int (*tp_sqlite3_bind_double) (sqlite3_stmt *pStmt, int index, double value);
+typedef int (*tp_sqlite3_bind_int) (sqlite3_stmt *pStmt, int index, int value);
+typedef int (*tp_sqlite3_bind_int64) (sqlite3_stmt *pStmt, int index, sqlite3_int64 value);
+typedef int (*tp_sqlite3_bind_null) (sqlite3_stmt *pStmt, int index);
+typedef int (*tp_sqlite3_bind_text) (sqlite3_stmt *pStmt,
+                                     int index,
+                                     const char *value,
+                                     int n,
+                                     void (*destruct) (void*));
+typedef int (*tp_sqlite3_close) (sqlite3 *db);
+typedef const void *(*tp_sqlite3_column_blob) (sqlite3_stmt *pStmt, int iCol);
+typedef int (*tp_sqlite3_column_bytes) (sqlite3_stmt *pStmt, int iCol);
+typedef int (*tp_sqlite3_column_count) (sqlite3_stmt *pStmt);
+typedef double (*tp_sqlite3_column_double) (sqlite3_stmt *pStmt, int iCol);
+typedef int (*tp_sqlite3_column_int) (sqlite3_stmt *pStmt, int iCol);
+typedef sqlite3_int64 (*tp_sqlite3_column_int64) (sqlite3_stmt *pStmt, int iCol);
+typedef const char *(*tp_sqlite3_column_name) (sqlite3_stmt *pStmt, int N);
+typedef const unsigned char *(*tp_sqlite3_column_text) (sqlite3_stmt *pStmt, int iCol);
+typedef int (*tp_sqlite3_column_type) (sqlite3_stmt *pStmt, int iCol);
+typedef int (*tp_sqlite3_finalize) (sqlite3_stmt *pStmt);
+typedef int (*tp_sqlite3_open) (const char *filename, sqlite3 **ppDb);
+typedef int (*tp_sqlite3_prepare) (sqlite3 *db,
+                                   const char *zSql,
+                                   int nByte,
+                                   sqlite3_stmt **ppStmt,
+                                   const char **pzTail);
+typedef int (*tp_sqlite3_reset) (sqlite3_stmt *pStmt);
+typedef int (*tp_sqlite3_step) (sqlite3_stmt *pStmt);
+
+tp_sqlite3_bind_blob     ptr_sqlite3_bind_blob;
+tp_sqlite3_bind_double   ptr_sqlite3_bind_double;
+tp_sqlite3_bind_int      ptr_sqlite3_bind_int;
+tp_sqlite3_bind_int64    ptr_sqlite3_bind_int64;
+tp_sqlite3_bind_null     ptr_sqlite3_bind_null;
+tp_sqlite3_bind_text     ptr_sqlite3_bind_text;
+tp_sqlite3_close         ptr_sqlite3_close;
+tp_sqlite3_column_blob   ptr_sqlite3_column_blob;
+tp_sqlite3_column_bytes  ptr_sqlite3_column_bytes;
+tp_sqlite3_column_count  ptr_sqlite3_column_count;
+tp_sqlite3_column_double ptr_sqlite3_column_double;
+tp_sqlite3_column_int    ptr_sqlite3_column_int;
+tp_sqlite3_column_int64  ptr_sqlite3_column_int64;
+tp_sqlite3_column_name   ptr_sqlite3_column_name;
+tp_sqlite3_column_text   ptr_sqlite3_column_text;
+tp_sqlite3_column_type   ptr_sqlite3_column_type;
+tp_sqlite3_finalize      ptr_sqlite3_finalize;
+tp_sqlite3_open          ptr_sqlite3_open;
+tp_sqlite3_prepare       ptr_sqlite3_prepare;
+tp_sqlite3_reset         ptr_sqlite3_reset;
+tp_sqlite3_step          ptr_sqlite3_step;
 
 #define sqlite3_bind_blob     ptr_sqlite3_bind_blob
 #define sqlite3_bind_double   ptr_sqlite3_bind_double
@@ -152,27 +174,27 @@ static boolType setupDll (const char *dllName)
     if (dbDll == NULL) {
       dbDll = dllOpen(dllName);
       if (dbDll != NULL) {
-        if ((ptr_sqlite3_bind_blob     = dllSym(dbDll, "sqlite3_bind_blob"))     == NULL ||
-            (ptr_sqlite3_bind_double   = dllSym(dbDll, "sqlite3_bind_double"))   == NULL ||
-            (ptr_sqlite3_bind_int      = dllSym(dbDll, "sqlite3_bind_int"))      == NULL ||
-            (ptr_sqlite3_bind_int64    = dllSym(dbDll, "sqlite3_bind_int64"))    == NULL ||
-            (ptr_sqlite3_bind_null     = dllSym(dbDll, "sqlite3_bind_null"))     == NULL ||
-            (ptr_sqlite3_bind_text     = dllSym(dbDll, "sqlite3_bind_text"))     == NULL ||
-            (ptr_sqlite3_close         = dllSym(dbDll, "sqlite3_close"))         == NULL ||
-            (ptr_sqlite3_column_blob   = dllSym(dbDll, "sqlite3_column_blob"))   == NULL ||
-            (ptr_sqlite3_column_bytes  = dllSym(dbDll, "sqlite3_column_bytes"))  == NULL ||
-            (ptr_sqlite3_column_count  = dllSym(dbDll, "sqlite3_column_count"))  == NULL ||
-            (ptr_sqlite3_column_double = dllSym(dbDll, "sqlite3_column_double")) == NULL ||
-            (ptr_sqlite3_column_int    = dllSym(dbDll, "sqlite3_column_int"))    == NULL ||
-            (ptr_sqlite3_column_int64  = dllSym(dbDll, "sqlite3_column_int64"))  == NULL ||
-            (ptr_sqlite3_column_name   = dllSym(dbDll, "sqlite3_column_name"))   == NULL ||
-            (ptr_sqlite3_column_text   = dllSym(dbDll, "sqlite3_column_text"))   == NULL ||
-            (ptr_sqlite3_column_type   = dllSym(dbDll, "sqlite3_column_type"))   == NULL ||
-            (ptr_sqlite3_finalize      = dllSym(dbDll, "sqlite3_finalize"))      == NULL ||
-            (ptr_sqlite3_open          = dllSym(dbDll, "sqlite3_open"))          == NULL ||
-            (ptr_sqlite3_prepare       = dllSym(dbDll, "sqlite3_prepare"))       == NULL ||
-            (ptr_sqlite3_reset         = dllSym(dbDll, "sqlite3_reset"))         == NULL ||
-            (ptr_sqlite3_step          = dllSym(dbDll, "sqlite3_step"))          == NULL) {
+        if ((sqlite3_bind_blob     = (tp_sqlite3_bind_blob)     dllSym(dbDll, "sqlite3_bind_blob"))     == NULL ||
+            (sqlite3_bind_double   = (tp_sqlite3_bind_double)   dllSym(dbDll, "sqlite3_bind_double"))   == NULL ||
+            (sqlite3_bind_int      = (tp_sqlite3_bind_int)      dllSym(dbDll, "sqlite3_bind_int"))      == NULL ||
+            (sqlite3_bind_int64    = (tp_sqlite3_bind_int64)    dllSym(dbDll, "sqlite3_bind_int64"))    == NULL ||
+            (sqlite3_bind_null     = (tp_sqlite3_bind_null)     dllSym(dbDll, "sqlite3_bind_null"))     == NULL ||
+            (sqlite3_bind_text     = (tp_sqlite3_bind_text)     dllSym(dbDll, "sqlite3_bind_text"))     == NULL ||
+            (sqlite3_close         = (tp_sqlite3_close)         dllSym(dbDll, "sqlite3_close"))         == NULL ||
+            (sqlite3_column_blob   = (tp_sqlite3_column_blob)   dllSym(dbDll, "sqlite3_column_blob"))   == NULL ||
+            (sqlite3_column_bytes  = (tp_sqlite3_column_bytes)  dllSym(dbDll, "sqlite3_column_bytes"))  == NULL ||
+            (sqlite3_column_count  = (tp_sqlite3_column_count)  dllSym(dbDll, "sqlite3_column_count"))  == NULL ||
+            (sqlite3_column_double = (tp_sqlite3_column_double) dllSym(dbDll, "sqlite3_column_double")) == NULL ||
+            (sqlite3_column_int    = (tp_sqlite3_column_int)    dllSym(dbDll, "sqlite3_column_int"))    == NULL ||
+            (sqlite3_column_int64  = (tp_sqlite3_column_int64)  dllSym(dbDll, "sqlite3_column_int64"))  == NULL ||
+            (sqlite3_column_name   = (tp_sqlite3_column_name)   dllSym(dbDll, "sqlite3_column_name"))   == NULL ||
+            (sqlite3_column_text   = (tp_sqlite3_column_text)   dllSym(dbDll, "sqlite3_column_text"))   == NULL ||
+            (sqlite3_column_type   = (tp_sqlite3_column_type)   dllSym(dbDll, "sqlite3_column_type"))   == NULL ||
+            (sqlite3_finalize      = (tp_sqlite3_finalize)      dllSym(dbDll, "sqlite3_finalize"))      == NULL ||
+            (sqlite3_open          = (tp_sqlite3_open)          dllSym(dbDll, "sqlite3_open"))          == NULL ||
+            (sqlite3_prepare       = (tp_sqlite3_prepare)       dllSym(dbDll, "sqlite3_prepare"))       == NULL ||
+            (sqlite3_reset         = (tp_sqlite3_reset)         dllSym(dbDll, "sqlite3_reset"))         == NULL ||
+            (sqlite3_step          = (tp_sqlite3_step)          dllSym(dbDll, "sqlite3_step"))          == NULL) {
           dbDll = NULL;
         } /* if */
       } /* if */
@@ -588,7 +610,7 @@ static void sqlBindDuration (sqlStmtType sqlStatement, intType pos,
       } /* if */
       if (sqlite3_bind_text(preparedStmt->ppStmt,
                             (int) pos,
-                            (const void *) isoDate,
+                            isoDate,
                             length,
                             &freeText) != SQLITE_OK) {
         logError(printf("sqlBindDuration: sqlite3_bind_text error: %s\n",
@@ -760,7 +782,7 @@ static void sqlBindStri (sqlStmtType sqlStatement, intType pos, striType stri)
         } /* if */
         if (sqlite3_bind_text(preparedStmt->ppStmt,
                               (int) pos,
-                              (const void *) stri8,
+                              stri8,
                               (int) length,
                               &freeText) != SQLITE_OK) {
           logError(printf("sqlBindStri: sqlite3_bind_text error: %s\n",
@@ -833,7 +855,7 @@ static void sqlBindTime (sqlStmtType sqlStatement, intType pos,
       } /* if */
       if (sqlite3_bind_text(preparedStmt->ppStmt,
                             (int) pos,
-                            (const void *) isoDate,
+                            isoDate,
                             length,
                             &freeText) != SQLITE_OK) {
         logError(printf("sqlBindTime: sqlite3_bind_text error: %s\n",
@@ -1067,7 +1089,7 @@ static bstriType sqlColumnBStri (sqlStmtType sqlStatement, intType column)
           } /* if */
           break;
         case SQLITE_BLOB:
-          blob = sqlite3_column_blob(preparedStmt->ppStmt, (int) column - 1);
+          blob = (const_ustriType) sqlite3_column_blob(preparedStmt->ppStmt, (int) column - 1);
           length = sqlite3_column_bytes(preparedStmt->ppStmt, (int) column - 1);
           if (length < 0) {
             raise_error(FILE_ERROR);
@@ -1161,7 +1183,8 @@ static void sqlColumnDuration (sqlStmtType sqlStatement, intType column,
         switch (strlen((cstriType) isoDate)) {
           case 23:
             okay = sscanf((const_cstriType) isoDate,
-                          "%04ld-%02lu-%02lu %02lu:%02lu:%02lu.%03lu",
+                          F_D(04) "-" F_U(02) "-" F_U(02) " "
+                          F_U(02) ":" F_U(02) ":" F_U(02) "." F_U(03),
                           year, month, day, hour, minute, second,
                           micro_second) == 7;
             if (okay) {
@@ -1170,13 +1193,14 @@ static void sqlColumnDuration (sqlStmtType sqlStatement, intType column,
             break;
           case 19:
             okay = sscanf((const_cstriType) isoDate,
-                          "%04ld-%02lu-%02lu %02lu:%02lu:%02lu",
+                          F_D(04) "-" F_U(02) "-" F_U(02) " "
+                          F_U(02) ":" F_U(02) ":" F_U(02),
                           year, month, day, hour, minute, second) == 6;
             *micro_second = 0;
             break;
           case 10:
             okay = sscanf((const_cstriType) isoDate,
-                          "%04ld-%02lu-%02lu",
+                          F_D(04) "-" F_U(02) "-" F_U(02),
                           year, month, day) == 3;
             *hour         = 0;
             *minute       = 0;
@@ -1185,7 +1209,7 @@ static void sqlColumnDuration (sqlStmtType sqlStatement, intType column,
             break;
           case 8:
             okay = sscanf((const_cstriType) isoDate,
-                          "%02lu:%02lu:%02lu",
+                          F_U(02) ":" F_U(02) ":" F_U(02),
                           hour, minute, second) == 3;
             *year         = 0;
             *month        = 0;
@@ -1236,7 +1260,7 @@ static floatType sqlColumnFloat (sqlStmtType sqlStatement, intType column)
           columnValue = sqlite3_column_double(preparedStmt->ppStmt, (int) column - 1);
           break;
         case SQLITE_BLOB:
-          blob = sqlite3_column_blob(preparedStmt->ppStmt, (int) column - 1);
+          blob = (const_ustriType) sqlite3_column_blob(preparedStmt->ppStmt, (int) column - 1);
           length = sqlite3_column_bytes(preparedStmt->ppStmt, (int) column - 1);
           if (blob == NULL || length < 0) {
             raise_error(FILE_ERROR);
@@ -1353,7 +1377,7 @@ static striType sqlColumnStri (sqlStmtType sqlStatement, intType column)
           } /* if */
           break;
         case SQLITE_BLOB:
-          blob = sqlite3_column_blob(preparedStmt->ppStmt, (int) column - 1);
+          blob = (const_ustriType) sqlite3_column_blob(preparedStmt->ppStmt, (int) column - 1);
           if (blob == NULL) {
             stri = strEmpty();
           } else {
@@ -1425,7 +1449,8 @@ static void sqlColumnTime (sqlStmtType sqlStatement, intType column,
         switch (strlen((cstriType) isoDate)) {
           case 23:
             okay = sscanf((const_cstriType) isoDate,
-                          "%04ld-%02lu-%02lu %02lu:%02lu:%02lu.%03lu",
+                          F_D(04) "-" F_U(02) "-" F_U(02) " "
+                          F_U(02) ":" F_U(02) ":" F_U(02) "." F_U(03),
                           year, month, day, hour, minute, second,
                           micro_second) == 7;
             if (okay) {
@@ -1434,13 +1459,14 @@ static void sqlColumnTime (sqlStmtType sqlStatement, intType column,
             break;
           case 19:
             okay = sscanf((const_cstriType) isoDate,
-                          "%04ld-%02lu-%02lu %02lu:%02lu:%02lu",
+                          F_D(04) "-" F_U(02) "-" F_U(02) " "
+                          F_U(02) ":" F_U(02) ":" F_U(02),
                           year, month, day, hour, minute, second) == 6;
             *micro_second = 0;
             break;
           case 10:
             okay = sscanf((const_cstriType) isoDate,
-                          "%04ld-%02lu-%02lu",
+                          F_D(04) "-" F_U(02) "-" F_U(02),
                           year, month, day) == 3;
             *hour         = 0;
             *minute       = 0;
@@ -1449,7 +1475,7 @@ static void sqlColumnTime (sqlStmtType sqlStatement, intType column,
             break;
           case 8:
             okay = sscanf((const_cstriType) isoDate,
-                          "%02lu:%02lu:%02lu",
+                          F_U(02) ":" F_U(02) ":" F_U(02),
                           hour, minute, second) == 3;
             *year         = 2000;
             *month        = 1;
@@ -1732,8 +1758,8 @@ databaseType sqlOpenLite (const const_striType dbName,
 
   {
     striType fileName;
-    cstriType fileName8;
-    const cstriType fileNameMemory = ":memory:";
+    const_cstriType fileName8;
+    const const_cstriType fileNameMemory = ":memory:";
     const strElemType dbExtension[] = {'.', 'd', 'b'};
     striType dbNameWithExtension = NULL;
     sqlite3 *connection;

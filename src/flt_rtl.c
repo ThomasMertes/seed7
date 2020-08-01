@@ -443,7 +443,11 @@ floatType fltIPow (floatType base, intType exponent)
 #ifdef IPOW_EXPONENTIATION_BY_SQUARING
     if (base == 0.0) {
       if (exponent < 0) {
-        power = POSITIVE_INFINITY;
+        if (fltIsNegativeZero(base)) {
+          power = NEGATIVE_INFINITY;
+        } else {
+          power = POSITIVE_INFINITY;
+        } /* if */
       } else if (exponent == 0) {
         power = 1.0;
       } else {
@@ -472,7 +476,19 @@ floatType fltIPow (floatType base, intType exponent)
         unsignedExponent >>= 1;
       } /* while */
       if (neg_exp) {
+#ifdef CHECK_FLOAT_DIV_BY_ZERO
+        if (power == 0.0) {
+          if (fltIsNegativeZero(power)) {
+            power = NEGATIVE_INFINITY;
+          } else {
+            power = POSITIVE_INFINITY;
+          } /* if */
+        } else {
+          power = 1.0 / power;
+        } /* if */
+#else
         power = 1.0 / power;
+#endif
       } /* if */
     } /* if */
 #else
@@ -484,7 +500,11 @@ floatType fltIPow (floatType base, intType exponent)
       } /* if */
     } else if (base == 0.0) {
       if (exponent < 0) {
-        power = POSITIVE_INFINITY;
+        if (fltIsNegativeZero(base)) {
+          power = NEGATIVE_INFINITY;
+        } else {
+          power = POSITIVE_INFINITY;
+        } /* if */
       } else if (exponent == 0) {
         power = 1.0;
       } else {
@@ -707,11 +727,11 @@ floatType fltRand (floatType low, floatType high)
       factor = high - low;
       if (factor == POSITIVE_INFINITY) {
         do {
-          result = (floatType) uint_rand();
+          result = (floatType) uintRand();
         } while (result < low || result > high);
       } else {
         do {
-          result = ((floatType) uint_rand()) / ((floatType) UINTTYPE_MAX);
+          result = ((floatType) uintRand()) / ((floatType) UINTTYPE_MAX);
           result = low + factor * result;
         } while (result < low || result > high);
       } /* if */

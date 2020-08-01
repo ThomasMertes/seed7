@@ -2268,7 +2268,7 @@ os_striType temp_name_in_dir (const const_os_striType path)
     /* printf("temp_length: %lu\n", temp_length); */
     if (likely(os_stri_alloc(temp_name, temp_length))) {
       memcpy(temp_name, path, pos * sizeof(os_charType));
-      random_value = uint_rand();
+      random_value = uintRand();
       for (; pos < temp_length; pos++) {
         digit = (unsigned int) (random_value % 36);
         random_value /= 36;

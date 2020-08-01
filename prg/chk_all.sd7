@@ -65,9 +65,10 @@ const string: chkint_output is "\n\
   \Mod works correct for selected values.\n\
   \odd(i) works correct in the range -20 to 20.\n\
   \!i works correct for i in the range 0 to 12.\n\
-  \n ! k is correct for n <= 30.\n\
+  \The binomial coefficient (n ! k) works correct for selected values.\n\
   \Power works correct for selected values.\n\
   \The integer abs function works correct.\n\
+  \Integer rand is correct for selected values.\n\
   \Integer sqrt is correct for values between 0 and 1000.\n\
   \Integer sqrt is correct for 11000 random values.\n\
   \The integer log2 function works correct.\n\
@@ -105,6 +106,7 @@ const string: chkovf_output is "\n\
   \Overflow checking of unsigned right shift works correct.\n\
   \Overflow checking of unsigned right shift assignment works correct.\n\
   \Overflow checking of power works correct.\n\
+  \Overflow checking of binomial coefficient works correct.\n\
   \Overflow checking of abs works correct.\n";
 
 const string: chkflt_output is "\n\

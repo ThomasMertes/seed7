@@ -263,7 +263,6 @@ static unsigned int flist_allowed = 100;
 void bigGrow (bigIntType *const big_variable, const const_bigIntType delta);
 intType bigLowestSetBit (const const_bigIntType big1);
 void bigLShiftAssign (bigIntType *const big_variable, intType lshift);
-bigIntType bigLShiftOne (const intType lshift);
 bigIntType bigRem (const const_bigIntType dividend, const const_bigIntType divisor);
 bigIntType bigRShift (const const_bigIntType big1, const intType rshift);
 void bigRShiftAssign (bigIntType *const big_variable, intType rshift);
@@ -2863,7 +2862,7 @@ static bigIntType bigIPowN (const bigDigitType base, intType exponent, unsigned 
         FREE_BIG(big_help, help_size);
       } /* if */
     } /* if */
-    /* printf("bigIPowN() => power->size=%lu\n", power->size); */
+    /* printf("bigIPowN() => power->size=%lu\n", power != NULL ? power->size : 0); */
     return power;
   } /* bigIPowN */
 
@@ -2873,7 +2872,7 @@ static bigIntType bigIPowN (const bigDigitType base, intType exponent, unsigned 
  *  Computes base to the power of exponent for signed big integers.
  *  It is assumed that the exponent is >= 1.
  *  The function recognizes the special case of base with a value
- *  of a power of two. In this case the function bigLShiftOne is
+ *  of a power of two. In this case the function bigLog2BaseIPow is
  *  used.
  */
 static bigIntType bigIPow1 (bigDigitType base, intType exponent)
@@ -2904,7 +2903,7 @@ static bigIntType bigIPow1 (bigDigitType base, intType exponent)
       } /* if */
       bit_size = (unsigned int) (digitMostSignificantBit(base) + 1);
       if (base == (bigDigitType) (1 << (bit_size - 1))) {
-        power = bigLShiftOne((intType) (bit_size - 1) * exponent);
+        power = bigLog2BaseIPow((intType) (bit_size - 1), exponent);
         if (power != NULL) {
           if (negative) {
             negate_positive_big(power);
@@ -2921,7 +2920,7 @@ static bigIntType bigIPow1 (bigDigitType base, intType exponent)
         } /* if */
       } /* if */
     } /* if */
-    /* printf("bigIPow1 => power->size=%lu\n", power->size); */
+    /* printf("bigIPow1 => power->size=%lu\n", power != NULL ? power->size : 0); */
     return power;
   } /* bigIPow1 */
 
@@ -4266,6 +4265,7 @@ bigIntType bigIPow (const const_bigIntType base, intType exponent)
     bigIntType power;
 
   /* bigIPow */
+    /* printf("bigIPow(%s, " FMT_D ")\n", bigHexCStri(base), exponent); */
     if (exponent <= 1) {
       if (exponent == 0) {
         if (unlikely(!ALLOC_BIG_SIZE_OK(power, 1))) {
@@ -4335,6 +4335,7 @@ bigIntType bigIPow (const const_bigIntType base, intType exponent)
         FREE_BIG(big_help, help_size);
       } /* if */
     } /* if */
+    /* printf("bigIPow => power->size=%lu\n", power != NULL ? power->size : 0); */
     return power;
   } /* bigIPow */
 
@@ -5942,7 +5943,7 @@ bigIntType bigRand (const const_bigIntType low,
           pos = 0;
           do {
             if (random_number == 0) {
-              random_number = uint_rand();
+              random_number = uintRand();
             } /* if */
             result->bigdigits[pos] = (bigDigitType) (random_number & BIGDIGIT_MASK);
             random_number >>= BIGDIGIT_SIZE;

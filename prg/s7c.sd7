@@ -2427,6 +2427,7 @@ const proc: process_main_declaration (in reference: current_object,
       main_prolog &:= "arg_v = getArgv(argc, argv, &arg_0, &programName, &programPath);\n";
     end if;
     main_prolog &:= "setupStack();\n";
+    main_prolog &:= "setupRand();\n";
     main_prolog &:= "setupFloat();\n";
     main_prolog &:= "init_values();\n";
     main_prolog &:= "activate_signal_handlers();\n";

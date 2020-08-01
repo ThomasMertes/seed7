@@ -296,7 +296,7 @@ bstriType sqlColumnBStri (sqlStmtType sqlStatement, intType column)
         ((preparedStmtType) sqlStatement)->sqlFunc == NULL ||
         ((preparedStmtType) sqlStatement)->sqlFunc->sqlColumnBStri == NULL) {
       raise_error(RANGE_ERROR);
-      return FALSE;
+      return NULL;
     } else {
       return ((preparedStmtType) sqlStatement)->sqlFunc->sqlColumnBStri(sqlStatement, column);
     } /* if */

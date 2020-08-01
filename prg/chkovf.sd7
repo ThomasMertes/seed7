@@ -5135,6 +5135,807 @@ const proc: check_power is func
   end func;
 
 
+const proc: check_binom is func
+  local
+    var boolean: okay is TRUE;
+  begin
+    if  not raisesOverflowError((-99) !         16) or
+        not raisesOverflowError((-98) !         16) or
+        not raisesOverflowError((-97) !         16) or
+        not raisesOverflowError((-96) !         17) or
+        not raisesOverflowError((-95) !         17) or
+        not raisesOverflowError((-94) !         17) or
+        not raisesOverflowError((-93) !         17) or
+        not raisesOverflowError((-92) !         17) or
+        not raisesOverflowError((-91) !         17) or
+        not raisesOverflowError((-90) !         17) or
+        not raisesOverflowError((-89) !         17) or
+        not raisesOverflowError((-88) !         17) or
+        not raisesOverflowError((-87) !         17) or
+        not raisesOverflowError((-86) !         17) or
+        not raisesOverflowError((-85) !         18) or
+        not raisesOverflowError((-84) !         18) or
+        not raisesOverflowError((-83) !         18) or
+        not raisesOverflowError((-82) !         18) or
+        not raisesOverflowError((-81) !         18) or
+        not raisesOverflowError((-80) !         18) or
+        not raisesOverflowError((-79) !         18) or
+        not raisesOverflowError((-78) !         18) or
+        not raisesOverflowError((-77) !         19) or
+        not raisesOverflowError((-76) !         19) or
+        not raisesOverflowError((-75) !         19) or
+        not raisesOverflowError((-74) !         19) or
+        not raisesOverflowError((-73) !         19) or
+        not raisesOverflowError((-72) !         19) or
+        not raisesOverflowError((-71) !         19) or
+        not raisesOverflowError((-70) !         20) or
+        not raisesOverflowError((-69) !         20) or
+        not raisesOverflowError((-68) !         20) or
+        not raisesOverflowError((-67) !         20) or
+        not raisesOverflowError((-66) !         20) or
+        not raisesOverflowError((-65) !         20) or
+        not raisesOverflowError((-64) !         21) or
+        not raisesOverflowError((-63) !         21) or
+        not raisesOverflowError((-62) !         21) or
+        not raisesOverflowError((-61) !         21) or
+        not raisesOverflowError((-60) !         21) or
+        not raisesOverflowError((-59) !         22) or
+        not raisesOverflowError((-58) !         22) or
+        not raisesOverflowError((-57) !         22) or
+        not raisesOverflowError((-56) !         22) or
+        not raisesOverflowError((-55) !         23) or
+        not raisesOverflowError((-54) !         23) or
+        not raisesOverflowError((-53) !         23) or
+        not raisesOverflowError((-52) !         24) or
+        not raisesOverflowError((-51) !         24) or
+        not raisesOverflowError((-50) !         24) or
+        not raisesOverflowError((-49) !         25) or
+        not raisesOverflowError((-48) !         25) or
+        not raisesOverflowError((-47) !         25) or
+        not raisesOverflowError((-46) !         26) or
+        not raisesOverflowError((-45) !         26) or
+        not raisesOverflowError((-44) !         27) or
+        not raisesOverflowError((-43) !         27) or
+        not raisesOverflowError((-42) !         28) or
+        not raisesOverflowError((-41) !         28) or
+        not raisesOverflowError((-40) !         29) or
+        not raisesOverflowError((-39) !         30) or
+        not raisesOverflowError((-38) !         30) or
+        not raisesOverflowError((-37) !         31) or
+        not raisesOverflowError((-36) !         32) or
+        not raisesOverflowError((-35) !         33) or
+        not raisesOverflowError((-34) !         34) or
+        not raisesOverflowError((-33) !         35) or
+        not raisesOverflowError((-32) !         36) or
+        not raisesOverflowError((-31) !         37) or
+        not raisesOverflowError((-30) !         39) or
+        not raisesOverflowError((-29) !         40) or
+        not raisesOverflowError((-28) !         42) or
+        not raisesOverflowError((-27) !         44) or
+        not raisesOverflowError((-26) !         46) or
+        not raisesOverflowError((-25) !         49) or
+        not raisesOverflowError((-24) !         52) or
+        not raisesOverflowError((-23) !         55) or
+        not raisesOverflowError((-22) !         59) or
+        not raisesOverflowError((-21) !         64) or
+        not raisesOverflowError((-20) !         70) or
+        not raisesOverflowError((-19) !         77) or
+        not raisesOverflowError((-18) !         85) or
+        not raisesOverflowError((-17) !         96) or
+        not raisesOverflowError((-16) !        111) or
+        not raisesOverflowError((-15) !        130) or
+        not raisesOverflowError((-14) !        157) or
+        not raisesOverflowError((-13) !        195) or
+        not raisesOverflowError((-12) !        255) or
+        not raisesOverflowError((-11) !        352) or
+        not raisesOverflowError((-10) !        526) or
+        not raisesOverflowError(( -9) !        880) or
+        not raisesOverflowError(( -8) !       1727) or
+        not raisesOverflowError(( -7) !       4332) or
+        not raisesOverflowError(( -6) !      16171) or
+        not raisesOverflowError(( -5) !     121974) or
+        not raisesOverflowError(( -4) !    3810777) or
+        not raisesOverflowError(( -3) ! 4294967295) or
+        not raisesOverflowError(intExpr(-99) !         16) or
+        not raisesOverflowError(intExpr(-98) !         16) or
+        not raisesOverflowError(intExpr(-97) !         16) or
+        not raisesOverflowError(intExpr(-96) !         17) or
+        not raisesOverflowError(intExpr(-95) !         17) or
+        not raisesOverflowError(intExpr(-94) !         17) or
+        not raisesOverflowError(intExpr(-93) !         17) or
+        not raisesOverflowError(intExpr(-92) !         17) or
+        not raisesOverflowError(intExpr(-91) !         17) or
+        not raisesOverflowError(intExpr(-90) !         17) or
+        not raisesOverflowError(intExpr(-89) !         17) or
+        not raisesOverflowError(intExpr(-88) !         17) or
+        not raisesOverflowError(intExpr(-87) !         17) or
+        not raisesOverflowError(intExpr(-86) !         17) or
+        not raisesOverflowError(intExpr(-85) !         18) or
+        not raisesOverflowError(intExpr(-84) !         18) or
+        not raisesOverflowError(intExpr(-83) !         18) or
+        not raisesOverflowError(intExpr(-82) !         18) or
+        not raisesOverflowError(intExpr(-81) !         18) or
+        not raisesOverflowError(intExpr(-80) !         18) or
+        not raisesOverflowError(intExpr(-79) !         18) or
+        not raisesOverflowError(intExpr(-78) !         18) or
+        not raisesOverflowError(intExpr(-77) !         19) or
+        not raisesOverflowError(intExpr(-76) !         19) or
+        not raisesOverflowError(intExpr(-75) !         19) or
+        not raisesOverflowError(intExpr(-74) !         19) or
+        not raisesOverflowError(intExpr(-73) !         19) or
+        not raisesOverflowError(intExpr(-72) !         19) or
+        not raisesOverflowError(intExpr(-71) !         19) or
+        not raisesOverflowError(intExpr(-70) !         20) or
+        not raisesOverflowError(intExpr(-69) !         20) or
+        not raisesOverflowError(intExpr(-68) !         20) or
+        not raisesOverflowError(intExpr(-67) !         20) or
+        not raisesOverflowError(intExpr(-66) !         20) or
+        not raisesOverflowError(intExpr(-65) !         20) or
+        not raisesOverflowError(intExpr(-64) !         21) or
+        not raisesOverflowError(intExpr(-63) !         21) or
+        not raisesOverflowError(intExpr(-62) !         21) or
+        not raisesOverflowError(intExpr(-61) !         21) or
+        not raisesOverflowError(intExpr(-60) !         21) or
+        not raisesOverflowError(intExpr(-59) !         22) or
+        not raisesOverflowError(intExpr(-58) !         22) or
+        not raisesOverflowError(intExpr(-57) !         22) or
+        not raisesOverflowError(intExpr(-56) !         22) or
+        not raisesOverflowError(intExpr(-55) !         23) or
+        not raisesOverflowError(intExpr(-54) !         23) or
+        not raisesOverflowError(intExpr(-53) !         23) or
+        not raisesOverflowError(intExpr(-52) !         24) or
+        not raisesOverflowError(intExpr(-51) !         24) or
+        not raisesOverflowError(intExpr(-50) !         24) or
+        not raisesOverflowError(intExpr(-49) !         25) or
+        not raisesOverflowError(intExpr(-48) !         25) or
+        not raisesOverflowError(intExpr(-47) !         25) or
+        not raisesOverflowError(intExpr(-46) !         26) or
+        not raisesOverflowError(intExpr(-45) !         26) or
+        not raisesOverflowError(intExpr(-44) !         27) or
+        not raisesOverflowError(intExpr(-43) !         27) or
+        not raisesOverflowError(intExpr(-42) !         28) or
+        not raisesOverflowError(intExpr(-41) !         28) or
+        not raisesOverflowError(intExpr(-40) !         29) or
+        not raisesOverflowError(intExpr(-39) !         30) or
+        not raisesOverflowError(intExpr(-38) !         30) or
+        not raisesOverflowError(intExpr(-37) !         31) or
+        not raisesOverflowError(intExpr(-36) !         32) or
+        not raisesOverflowError(intExpr(-35) !         33) or
+        not raisesOverflowError(intExpr(-34) !         34) or
+        not raisesOverflowError(intExpr(-33) !         35) or
+        not raisesOverflowError(intExpr(-32) !         36) or
+        not raisesOverflowError(intExpr(-31) !         37) or
+        not raisesOverflowError(intExpr(-30) !         39) or
+        not raisesOverflowError(intExpr(-29) !         40) or
+        not raisesOverflowError(intExpr(-28) !         42) or
+        not raisesOverflowError(intExpr(-27) !         44) or
+        not raisesOverflowError(intExpr(-26) !         46) or
+        not raisesOverflowError(intExpr(-25) !         49) or
+        not raisesOverflowError(intExpr(-24) !         52) or
+        not raisesOverflowError(intExpr(-23) !         55) or
+        not raisesOverflowError(intExpr(-22) !         59) or
+        not raisesOverflowError(intExpr(-21) !         64) or
+        not raisesOverflowError(intExpr(-20) !         70) or
+        not raisesOverflowError(intExpr(-19) !         77) or
+        not raisesOverflowError(intExpr(-18) !         85) or
+        not raisesOverflowError(intExpr(-17) !         96) or
+        not raisesOverflowError(intExpr(-16) !        111) or
+        not raisesOverflowError(intExpr(-15) !        130) or
+        not raisesOverflowError(intExpr(-14) !        157) or
+        not raisesOverflowError(intExpr(-13) !        195) or
+        not raisesOverflowError(intExpr(-12) !        255) or
+        not raisesOverflowError(intExpr(-11) !        352) or
+        not raisesOverflowError(intExpr(-10) !        526) or
+        not raisesOverflowError(intExpr( -9) !        880) or
+        not raisesOverflowError(intExpr( -8) !       1727) or
+        not raisesOverflowError(intExpr( -7) !       4332) or
+        not raisesOverflowError(intExpr( -6) !      16171) or
+        not raisesOverflowError(intExpr( -5) !     121974) or
+        not raisesOverflowError(intExpr( -4) !    3810777) or
+        not raisesOverflowError(intExpr( -3) ! 4294967295) or
+        not raisesOverflowError((-99) ! intExpr(        16)) or
+        not raisesOverflowError((-98) ! intExpr(        16)) or
+        not raisesOverflowError((-97) ! intExpr(        16)) or
+        not raisesOverflowError((-96) ! intExpr(        17)) or
+        not raisesOverflowError((-95) ! intExpr(        17)) or
+        not raisesOverflowError((-94) ! intExpr(        17)) or
+        not raisesOverflowError((-93) ! intExpr(        17)) or
+        not raisesOverflowError((-92) ! intExpr(        17)) or
+        not raisesOverflowError((-91) ! intExpr(        17)) or
+        not raisesOverflowError((-90) ! intExpr(        17)) or
+        not raisesOverflowError((-89) ! intExpr(        17)) or
+        not raisesOverflowError((-88) ! intExpr(        17)) or
+        not raisesOverflowError((-87) ! intExpr(        17)) or
+        not raisesOverflowError((-86) ! intExpr(        17)) or
+        not raisesOverflowError((-85) ! intExpr(        18)) or
+        not raisesOverflowError((-84) ! intExpr(        18)) or
+        not raisesOverflowError((-83) ! intExpr(        18)) or
+        not raisesOverflowError((-82) ! intExpr(        18)) or
+        not raisesOverflowError((-81) ! intExpr(        18)) or
+        not raisesOverflowError((-80) ! intExpr(        18)) or
+        not raisesOverflowError((-79) ! intExpr(        18)) or
+        not raisesOverflowError((-78) ! intExpr(        18)) or
+        not raisesOverflowError((-77) ! intExpr(        19)) or
+        not raisesOverflowError((-76) ! intExpr(        19)) or
+        not raisesOverflowError((-75) ! intExpr(        19)) or
+        not raisesOverflowError((-74) ! intExpr(        19)) or
+        not raisesOverflowError((-73) ! intExpr(        19)) or
+        not raisesOverflowError((-72) ! intExpr(        19)) or
+        not raisesOverflowError((-71) ! intExpr(        19)) or
+        not raisesOverflowError((-70) ! intExpr(        20)) or
+        not raisesOverflowError((-69) ! intExpr(        20)) or
+        not raisesOverflowError((-68) ! intExpr(        20)) or
+        not raisesOverflowError((-67) ! intExpr(        20)) or
+        not raisesOverflowError((-66) ! intExpr(        20)) or
+        not raisesOverflowError((-65) ! intExpr(        20)) or
+        not raisesOverflowError((-64) ! intExpr(        21)) or
+        not raisesOverflowError((-63) ! intExpr(        21)) or
+        not raisesOverflowError((-62) ! intExpr(        21)) or
+        not raisesOverflowError((-61) ! intExpr(        21)) or
+        not raisesOverflowError((-60) ! intExpr(        21)) or
+        not raisesOverflowError((-59) ! intExpr(        22)) or
+        not raisesOverflowError((-58) ! intExpr(        22)) or
+        not raisesOverflowError((-57) ! intExpr(        22)) or
+        not raisesOverflowError((-56) ! intExpr(        22)) or
+        not raisesOverflowError((-55) ! intExpr(        23)) or
+        not raisesOverflowError((-54) ! intExpr(        23)) or
+        not raisesOverflowError((-53) ! intExpr(        23)) or
+        not raisesOverflowError((-52) ! intExpr(        24)) or
+        not raisesOverflowError((-51) ! intExpr(        24)) or
+        not raisesOverflowError((-50) ! intExpr(        24)) or
+        not raisesOverflowError((-49) ! intExpr(        25)) or
+        not raisesOverflowError((-48) ! intExpr(        25)) or
+        not raisesOverflowError((-47) ! intExpr(        25)) or
+        not raisesOverflowError((-46) ! intExpr(        26)) or
+        not raisesOverflowError((-45) ! intExpr(        26)) or
+        not raisesOverflowError((-44) ! intExpr(        27)) or
+        not raisesOverflowError((-43) ! intExpr(        27)) or
+        not raisesOverflowError((-42) ! intExpr(        28)) or
+        not raisesOverflowError((-41) ! intExpr(        28)) or
+        not raisesOverflowError((-40) ! intExpr(        29)) or
+        not raisesOverflowError((-39) ! intExpr(        30)) or
+        not raisesOverflowError((-38) ! intExpr(        30)) or
+        not raisesOverflowError((-37) ! intExpr(        31)) or
+        not raisesOverflowError((-36) ! intExpr(        32)) or
+        not raisesOverflowError((-35) ! intExpr(        33)) or
+        not raisesOverflowError((-34) ! intExpr(        34)) or
+        not raisesOverflowError((-33) ! intExpr(        35)) or
+        not raisesOverflowError((-32) ! intExpr(        36)) or
+        not raisesOverflowError((-31) ! intExpr(        37)) or
+        not raisesOverflowError((-30) ! intExpr(        39)) or
+        not raisesOverflowError((-29) ! intExpr(        40)) or
+        not raisesOverflowError((-28) ! intExpr(        42)) or
+        not raisesOverflowError((-27) ! intExpr(        44)) or
+        not raisesOverflowError((-26) ! intExpr(        46)) or
+        not raisesOverflowError((-25) ! intExpr(        49)) or
+        not raisesOverflowError((-24) ! intExpr(        52)) or
+        not raisesOverflowError((-23) ! intExpr(        55)) or
+        not raisesOverflowError((-22) ! intExpr(        59)) or
+        not raisesOverflowError((-21) ! intExpr(        64)) or
+        not raisesOverflowError((-20) ! intExpr(        70)) or
+        not raisesOverflowError((-19) ! intExpr(        77)) or
+        not raisesOverflowError((-18) ! intExpr(        85)) or
+        not raisesOverflowError((-17) ! intExpr(        96)) or
+        not raisesOverflowError((-16) ! intExpr(       111)) or
+        not raisesOverflowError((-15) ! intExpr(       130)) or
+        not raisesOverflowError((-14) ! intExpr(       157)) or
+        not raisesOverflowError((-13) ! intExpr(       195)) or
+        not raisesOverflowError((-12) ! intExpr(       255)) or
+        not raisesOverflowError((-11) ! intExpr(       352)) or
+        not raisesOverflowError((-10) ! intExpr(       526)) or
+        not raisesOverflowError(( -9) ! intExpr(       880)) or
+        not raisesOverflowError(( -8) ! intExpr(      1727)) or
+        not raisesOverflowError(( -7) ! intExpr(      4332)) or
+        not raisesOverflowError(( -6) ! intExpr(     16171)) or
+        not raisesOverflowError(( -5) ! intExpr(    121974)) or
+        not raisesOverflowError(( -4) ! intExpr(   3810777)) or
+        not raisesOverflowError(( -3) ! intExpr(4294967295)) or
+        not raisesOverflowError(intExpr(-99) ! intExpr(        16)) or
+        not raisesOverflowError(intExpr(-98) ! intExpr(        16)) or
+        not raisesOverflowError(intExpr(-97) ! intExpr(        16)) or
+        not raisesOverflowError(intExpr(-96) ! intExpr(        17)) or
+        not raisesOverflowError(intExpr(-95) ! intExpr(        17)) or
+        not raisesOverflowError(intExpr(-94) ! intExpr(        17)) or
+        not raisesOverflowError(intExpr(-93) ! intExpr(        17)) or
+        not raisesOverflowError(intExpr(-92) ! intExpr(        17)) or
+        not raisesOverflowError(intExpr(-91) ! intExpr(        17)) or
+        not raisesOverflowError(intExpr(-90) ! intExpr(        17)) or
+        not raisesOverflowError(intExpr(-89) ! intExpr(        17)) or
+        not raisesOverflowError(intExpr(-88) ! intExpr(        17)) or
+        not raisesOverflowError(intExpr(-87) ! intExpr(        17)) or
+        not raisesOverflowError(intExpr(-86) ! intExpr(        17)) or
+        not raisesOverflowError(intExpr(-85) ! intExpr(        18)) or
+        not raisesOverflowError(intExpr(-84) ! intExpr(        18)) or
+        not raisesOverflowError(intExpr(-83) ! intExpr(        18)) or
+        not raisesOverflowError(intExpr(-82) ! intExpr(        18)) or
+        not raisesOverflowError(intExpr(-81) ! intExpr(        18)) or
+        not raisesOverflowError(intExpr(-80) ! intExpr(        18)) or
+        not raisesOverflowError(intExpr(-79) ! intExpr(        18)) or
+        not raisesOverflowError(intExpr(-78) ! intExpr(        18)) or
+        not raisesOverflowError(intExpr(-77) ! intExpr(        19)) or
+        not raisesOverflowError(intExpr(-76) ! intExpr(        19)) or
+        not raisesOverflowError(intExpr(-75) ! intExpr(        19)) or
+        not raisesOverflowError(intExpr(-74) ! intExpr(        19)) or
+        not raisesOverflowError(intExpr(-73) ! intExpr(        19)) or
+        not raisesOverflowError(intExpr(-72) ! intExpr(        19)) or
+        not raisesOverflowError(intExpr(-71) ! intExpr(        19)) or
+        not raisesOverflowError(intExpr(-70) ! intExpr(        20)) or
+        not raisesOverflowError(intExpr(-69) ! intExpr(        20)) or
+        not raisesOverflowError(intExpr(-68) ! intExpr(        20)) or
+        not raisesOverflowError(intExpr(-67) ! intExpr(        20)) or
+        not raisesOverflowError(intExpr(-66) ! intExpr(        20)) or
+        not raisesOverflowError(intExpr(-65) ! intExpr(        20)) or
+        not raisesOverflowError(intExpr(-64) ! intExpr(        21)) or
+        not raisesOverflowError(intExpr(-63) ! intExpr(        21)) or
+        not raisesOverflowError(intExpr(-62) ! intExpr(        21)) or
+        not raisesOverflowError(intExpr(-61) ! intExpr(        21)) or
+        not raisesOverflowError(intExpr(-60) ! intExpr(        21)) or
+        not raisesOverflowError(intExpr(-59) ! intExpr(        22)) or
+        not raisesOverflowError(intExpr(-58) ! intExpr(        22)) or
+        not raisesOverflowError(intExpr(-57) ! intExpr(        22)) or
+        not raisesOverflowError(intExpr(-56) ! intExpr(        22)) or
+        not raisesOverflowError(intExpr(-55) ! intExpr(        23)) or
+        not raisesOverflowError(intExpr(-54) ! intExpr(        23)) or
+        not raisesOverflowError(intExpr(-53) ! intExpr(        23)) or
+        not raisesOverflowError(intExpr(-52) ! intExpr(        24)) or
+        not raisesOverflowError(intExpr(-51) ! intExpr(        24)) or
+        not raisesOverflowError(intExpr(-50) ! intExpr(        24)) or
+        not raisesOverflowError(intExpr(-49) ! intExpr(        25)) or
+        not raisesOverflowError(intExpr(-48) ! intExpr(        25)) or
+        not raisesOverflowError(intExpr(-47) ! intExpr(        25)) or
+        not raisesOverflowError(intExpr(-46) ! intExpr(        26)) or
+        not raisesOverflowError(intExpr(-45) ! intExpr(        26)) or
+        not raisesOverflowError(intExpr(-44) ! intExpr(        27)) or
+        not raisesOverflowError(intExpr(-43) ! intExpr(        27)) or
+        not raisesOverflowError(intExpr(-42) ! intExpr(        28)) or
+        not raisesOverflowError(intExpr(-41) ! intExpr(        28)) or
+        not raisesOverflowError(intExpr(-40) ! intExpr(        29)) or
+        not raisesOverflowError(intExpr(-39) ! intExpr(        30)) or
+        not raisesOverflowError(intExpr(-38) ! intExpr(        30)) or
+        not raisesOverflowError(intExpr(-37) ! intExpr(        31)) or
+        not raisesOverflowError(intExpr(-36) ! intExpr(        32)) or
+        not raisesOverflowError(intExpr(-35) ! intExpr(        33)) or
+        not raisesOverflowError(intExpr(-34) ! intExpr(        34)) or
+        not raisesOverflowError(intExpr(-33) ! intExpr(        35)) or
+        not raisesOverflowError(intExpr(-32) ! intExpr(        36)) or
+        not raisesOverflowError(intExpr(-31) ! intExpr(        37)) or
+        not raisesOverflowError(intExpr(-30) ! intExpr(        39)) or
+        not raisesOverflowError(intExpr(-29) ! intExpr(        40)) or
+        not raisesOverflowError(intExpr(-28) ! intExpr(        42)) or
+        not raisesOverflowError(intExpr(-27) ! intExpr(        44)) or
+        not raisesOverflowError(intExpr(-26) ! intExpr(        46)) or
+        not raisesOverflowError(intExpr(-25) ! intExpr(        49)) or
+        not raisesOverflowError(intExpr(-24) ! intExpr(        52)) or
+        not raisesOverflowError(intExpr(-23) ! intExpr(        55)) or
+        not raisesOverflowError(intExpr(-22) ! intExpr(        59)) or
+        not raisesOverflowError(intExpr(-21) ! intExpr(        64)) or
+        not raisesOverflowError(intExpr(-20) ! intExpr(        70)) or
+        not raisesOverflowError(intExpr(-19) ! intExpr(        77)) or
+        not raisesOverflowError(intExpr(-18) ! intExpr(        85)) or
+        not raisesOverflowError(intExpr(-17) ! intExpr(        96)) or
+        not raisesOverflowError(intExpr(-16) ! intExpr(       111)) or
+        not raisesOverflowError(intExpr(-15) ! intExpr(       130)) or
+        not raisesOverflowError(intExpr(-14) ! intExpr(       157)) or
+        not raisesOverflowError(intExpr(-13) ! intExpr(       195)) or
+        not raisesOverflowError(intExpr(-12) ! intExpr(       255)) or
+        not raisesOverflowError(intExpr(-11) ! intExpr(       352)) or
+        not raisesOverflowError(intExpr(-10) ! intExpr(       526)) or
+        not raisesOverflowError(intExpr( -9) ! intExpr(       880)) or
+        not raisesOverflowError(intExpr( -8) ! intExpr(      1727)) or
+        not raisesOverflowError(intExpr( -7) ! intExpr(      4332)) or
+        not raisesOverflowError(intExpr( -6) ! intExpr(     16171)) or
+        not raisesOverflowError(intExpr( -5) ! intExpr(    121974)) or
+        not raisesOverflowError(intExpr( -4) ! intExpr(   3810777)) or
+        not raisesOverflowError(intExpr( -3) ! intExpr(4294967295)) then
+      writeln(" ***** Overflow not raised for binomial coefficient with negative n.");
+      okay := FALSE;
+    end if;
+
+    if  not raisesOverflowError(4294967297 !  2) or
+        not raisesOverflowError(   3810780 !  3) or
+        not raisesOverflowError(    121978 !  4) or
+        not raisesOverflowError(     16176 !  5) or
+        not raisesOverflowError(      4338 !  6) or
+        not raisesOverflowError(      1734 !  7) or
+        not raisesOverflowError(       888 !  8) or
+        not raisesOverflowError(       535 !  9) or
+        not raisesOverflowError(       362 ! 10) or
+        not raisesOverflowError(       266 ! 11) or
+        not raisesOverflowError(       207 ! 12) or
+        not raisesOverflowError(       170 ! 13) or
+        not raisesOverflowError(       144 ! 14) or
+        not raisesOverflowError(       126 ! 15) or
+        not raisesOverflowError(       112 ! 16) or
+        not raisesOverflowError(       102 ! 17) or
+        not raisesOverflowError(        95 ! 18) or
+        not raisesOverflowError(        89 ! 19) or
+        not raisesOverflowError(        84 ! 20) or
+        not raisesOverflowError(        80 ! 21) or
+        not raisesOverflowError(        77 ! 22) or
+        not raisesOverflowError(        75 ! 23) or
+        not raisesOverflowError(        73 ! 24) or
+        not raisesOverflowError(        71 ! 25) or
+        not raisesOverflowError(        70 ! 26) or
+        not raisesOverflowError(        69 ! 27) or
+        not raisesOverflowError(        68 ! 28) or
+        not raisesOverflowError(        68 ! 29) or
+        not raisesOverflowError(        67 ! 30) or
+        not raisesOverflowError(        67 ! 31) or
+        not raisesOverflowError(        67 ! 32) or
+        not raisesOverflowError(        67 ! 33) or
+        not raisesOverflowError(        67 ! 34) or
+        not raisesOverflowError(        67 ! 35) or
+        not raisesOverflowError(        67 ! 36) or
+        not raisesOverflowError(        67 ! 37) or
+        not raisesOverflowError(        68 ! 38) or
+        not raisesOverflowError(        68 ! 39) or
+        not raisesOverflowError(        68 ! 40) or
+        not raisesOverflowError(        69 ! 41) or
+        not raisesOverflowError(        69 ! 42) or
+        not raisesOverflowError(        70 ! 43) or
+        not raisesOverflowError(        70 ! 44) or
+        not raisesOverflowError(        71 ! 45) or
+        not raisesOverflowError(        71 ! 46) or
+        not raisesOverflowError(        72 ! 47) or
+        not raisesOverflowError(        73 ! 48) or
+        not raisesOverflowError(        73 ! 49) or
+        not raisesOverflowError(        74 ! 50) or
+        not raisesOverflowError(        75 ! 51) or
+        not raisesOverflowError(        75 ! 52) or
+        not raisesOverflowError(        76 ! 53) or
+        not raisesOverflowError(        77 ! 54) or
+        not raisesOverflowError(        77 ! 55) or
+        not raisesOverflowError(        78 ! 56) or
+        not raisesOverflowError(        79 ! 57) or
+        not raisesOverflowError(        80 ! 58) or
+        not raisesOverflowError(        80 ! 59) or
+        not raisesOverflowError(        81 ! 60) or
+        not raisesOverflowError(        82 ! 61) or
+        not raisesOverflowError(        83 ! 62) or
+        not raisesOverflowError(        84 ! 63) or
+        not raisesOverflowError(        84 ! 64) or
+        not raisesOverflowError(        85 ! 65) or
+        not raisesOverflowError(        86 ! 66) or
+        not raisesOverflowError(        87 ! 67) or
+        not raisesOverflowError(        88 ! 68) or
+        not raisesOverflowError(        89 ! 69) or
+        not raisesOverflowError(        89 ! 70) or
+        not raisesOverflowError(        90 ! 71) or
+        not raisesOverflowError(        91 ! 72) or
+        not raisesOverflowError(        92 ! 73) or
+        not raisesOverflowError(        93 ! 74) or
+        not raisesOverflowError(        94 ! 75) or
+        not raisesOverflowError(        95 ! 76) or
+        not raisesOverflowError(        95 ! 77) or
+        not raisesOverflowError(        96 ! 78) or
+        not raisesOverflowError(        97 ! 79) or
+        not raisesOverflowError(        98 ! 80) or
+        not raisesOverflowError(        99 ! 81) or
+        not raisesOverflowError(       100 ! 82) or
+        not raisesOverflowError(       101 ! 83) or
+        not raisesOverflowError(       102 ! 84) or
+        not raisesOverflowError(       102 ! 85) or
+        not raisesOverflowError(       103 ! 86) or
+        not raisesOverflowError(       104 ! 87) or
+        not raisesOverflowError(       105 ! 88) or
+        not raisesOverflowError(       106 ! 89) or
+        not raisesOverflowError(       107 ! 90) or
+        not raisesOverflowError(       108 ! 91) or
+        not raisesOverflowError(       109 ! 92) or
+        not raisesOverflowError(       110 ! 93) or
+        not raisesOverflowError(       111 ! 94) or
+        not raisesOverflowError(       112 ! 95) or
+        not raisesOverflowError(       113 ! 96) or
+        not raisesOverflowError(       113 ! 97) or
+        not raisesOverflowError(       114 ! 98) or
+        not raisesOverflowError(       115 ! 99) or
+        not raisesOverflowError(intExpr(4294967297) !  2) or
+        not raisesOverflowError(intExpr(   3810780) !  3) or
+        not raisesOverflowError(intExpr(    121978) !  4) or
+        not raisesOverflowError(intExpr(     16176) !  5) or
+        not raisesOverflowError(intExpr(      4338) !  6) or
+        not raisesOverflowError(intExpr(      1734) !  7) or
+        not raisesOverflowError(intExpr(       888) !  8) or
+        not raisesOverflowError(intExpr(       535) !  9) or
+        not raisesOverflowError(intExpr(       362) ! 10) or
+        not raisesOverflowError(intExpr(       266) ! 11) or
+        not raisesOverflowError(intExpr(       207) ! 12) or
+        not raisesOverflowError(intExpr(       170) ! 13) or
+        not raisesOverflowError(intExpr(       144) ! 14) or
+        not raisesOverflowError(intExpr(       126) ! 15) or
+        not raisesOverflowError(intExpr(       112) ! 16) or
+        not raisesOverflowError(intExpr(       102) ! 17) or
+        not raisesOverflowError(intExpr(        95) ! 18) or
+        not raisesOverflowError(intExpr(        89) ! 19) or
+        not raisesOverflowError(intExpr(        84) ! 20) or
+        not raisesOverflowError(intExpr(        80) ! 21) or
+        not raisesOverflowError(intExpr(        77) ! 22) or
+        not raisesOverflowError(intExpr(        75) ! 23) or
+        not raisesOverflowError(intExpr(        73) ! 24) or
+        not raisesOverflowError(intExpr(        71) ! 25) or
+        not raisesOverflowError(intExpr(        70) ! 26) or
+        not raisesOverflowError(intExpr(        69) ! 27) or
+        not raisesOverflowError(intExpr(        68) ! 28) or
+        not raisesOverflowError(intExpr(        68) ! 29) or
+        not raisesOverflowError(intExpr(        67) ! 30) or
+        not raisesOverflowError(intExpr(        67) ! 31) or
+        not raisesOverflowError(intExpr(        67) ! 32) or
+        not raisesOverflowError(intExpr(        67) ! 33) or
+        not raisesOverflowError(intExpr(        67) ! 34) or
+        not raisesOverflowError(intExpr(        67) ! 35) or
+        not raisesOverflowError(intExpr(        67) ! 36) or
+        not raisesOverflowError(intExpr(        67) ! 37) or
+        not raisesOverflowError(intExpr(        68) ! 38) or
+        not raisesOverflowError(intExpr(        68) ! 39) or
+        not raisesOverflowError(intExpr(        68) ! 40) or
+        not raisesOverflowError(intExpr(        69) ! 41) or
+        not raisesOverflowError(intExpr(        69) ! 42) or
+        not raisesOverflowError(intExpr(        70) ! 43) or
+        not raisesOverflowError(intExpr(        70) ! 44) or
+        not raisesOverflowError(intExpr(        71) ! 45) or
+        not raisesOverflowError(intExpr(        71) ! 46) or
+        not raisesOverflowError(intExpr(        72) ! 47) or
+        not raisesOverflowError(intExpr(        73) ! 48) or
+        not raisesOverflowError(intExpr(        73) ! 49) or
+        not raisesOverflowError(intExpr(        74) ! 50) or
+        not raisesOverflowError(intExpr(        75) ! 51) or
+        not raisesOverflowError(intExpr(        75) ! 52) or
+        not raisesOverflowError(intExpr(        76) ! 53) or
+        not raisesOverflowError(intExpr(        77) ! 54) or
+        not raisesOverflowError(intExpr(        77) ! 55) or
+        not raisesOverflowError(intExpr(        78) ! 56) or
+        not raisesOverflowError(intExpr(        79) ! 57) or
+        not raisesOverflowError(intExpr(        80) ! 58) or
+        not raisesOverflowError(intExpr(        80) ! 59) or
+        not raisesOverflowError(intExpr(        81) ! 60) or
+        not raisesOverflowError(intExpr(        82) ! 61) or
+        not raisesOverflowError(intExpr(        83) ! 62) or
+        not raisesOverflowError(intExpr(        84) ! 63) or
+        not raisesOverflowError(intExpr(        84) ! 64) or
+        not raisesOverflowError(intExpr(        85) ! 65) or
+        not raisesOverflowError(intExpr(        86) ! 66) or
+        not raisesOverflowError(intExpr(        87) ! 67) or
+        not raisesOverflowError(intExpr(        88) ! 68) or
+        not raisesOverflowError(intExpr(        89) ! 69) or
+        not raisesOverflowError(intExpr(        89) ! 70) or
+        not raisesOverflowError(intExpr(        90) ! 71) or
+        not raisesOverflowError(intExpr(        91) ! 72) or
+        not raisesOverflowError(intExpr(        92) ! 73) or
+        not raisesOverflowError(intExpr(        93) ! 74) or
+        not raisesOverflowError(intExpr(        94) ! 75) or
+        not raisesOverflowError(intExpr(        95) ! 76) or
+        not raisesOverflowError(intExpr(        95) ! 77) or
+        not raisesOverflowError(intExpr(        96) ! 78) or
+        not raisesOverflowError(intExpr(        97) ! 79) or
+        not raisesOverflowError(intExpr(        98) ! 80) or
+        not raisesOverflowError(intExpr(        99) ! 81) or
+        not raisesOverflowError(intExpr(       100) ! 82) or
+        not raisesOverflowError(intExpr(       101) ! 83) or
+        not raisesOverflowError(intExpr(       102) ! 84) or
+        not raisesOverflowError(intExpr(       102) ! 85) or
+        not raisesOverflowError(intExpr(       103) ! 86) or
+        not raisesOverflowError(intExpr(       104) ! 87) or
+        not raisesOverflowError(intExpr(       105) ! 88) or
+        not raisesOverflowError(intExpr(       106) ! 89) or
+        not raisesOverflowError(intExpr(       107) ! 90) or
+        not raisesOverflowError(intExpr(       108) ! 91) or
+        not raisesOverflowError(intExpr(       109) ! 92) or
+        not raisesOverflowError(intExpr(       110) ! 93) or
+        not raisesOverflowError(intExpr(       111) ! 94) or
+        not raisesOverflowError(intExpr(       112) ! 95) or
+        not raisesOverflowError(intExpr(       113) ! 96) or
+        not raisesOverflowError(intExpr(       113) ! 97) or
+        not raisesOverflowError(intExpr(       114) ! 98) or
+        not raisesOverflowError(intExpr(       115) ! 99) or
+        not raisesOverflowError(4294967297 ! intExpr( 2)) or
+        not raisesOverflowError(   3810780 ! intExpr( 3)) or
+        not raisesOverflowError(    121978 ! intExpr( 4)) or
+        not raisesOverflowError(     16176 ! intExpr( 5)) or
+        not raisesOverflowError(      4338 ! intExpr( 6)) or
+        not raisesOverflowError(      1734 ! intExpr( 7)) or
+        not raisesOverflowError(       888 ! intExpr( 8)) or
+        not raisesOverflowError(       535 ! intExpr( 9)) or
+        not raisesOverflowError(       362 ! intExpr(10)) or
+        not raisesOverflowError(       266 ! intExpr(11)) or
+        not raisesOverflowError(       207 ! intExpr(12)) or
+        not raisesOverflowError(       170 ! intExpr(13)) or
+        not raisesOverflowError(       144 ! intExpr(14)) or
+        not raisesOverflowError(       126 ! intExpr(15)) or
+        not raisesOverflowError(       112 ! intExpr(16)) or
+        not raisesOverflowError(       102 ! intExpr(17)) or
+        not raisesOverflowError(        95 ! intExpr(18)) or
+        not raisesOverflowError(        89 ! intExpr(19)) or
+        not raisesOverflowError(        84 ! intExpr(20)) or
+        not raisesOverflowError(        80 ! intExpr(21)) or
+        not raisesOverflowError(        77 ! intExpr(22)) or
+        not raisesOverflowError(        75 ! intExpr(23)) or
+        not raisesOverflowError(        73 ! intExpr(24)) or
+        not raisesOverflowError(        71 ! intExpr(25)) or
+        not raisesOverflowError(        70 ! intExpr(26)) or
+        not raisesOverflowError(        69 ! intExpr(27)) or
+        not raisesOverflowError(        68 ! intExpr(28)) or
+        not raisesOverflowError(        68 ! intExpr(29)) or
+        not raisesOverflowError(        67 ! intExpr(30)) or
+        not raisesOverflowError(        67 ! intExpr(31)) or
+        not raisesOverflowError(        67 ! intExpr(32)) or
+        not raisesOverflowError(        67 ! intExpr(33)) or
+        not raisesOverflowError(        67 ! intExpr(34)) or
+        not raisesOverflowError(        67 ! intExpr(35)) or
+        not raisesOverflowError(        67 ! intExpr(36)) or
+        not raisesOverflowError(        67 ! intExpr(37)) or
+        not raisesOverflowError(        68 ! intExpr(38)) or
+        not raisesOverflowError(        68 ! intExpr(39)) or
+        not raisesOverflowError(        68 ! intExpr(40)) or
+        not raisesOverflowError(        69 ! intExpr(41)) or
+        not raisesOverflowError(        69 ! intExpr(42)) or
+        not raisesOverflowError(        70 ! intExpr(43)) or
+        not raisesOverflowError(        70 ! intExpr(44)) or
+        not raisesOverflowError(        71 ! intExpr(45)) or
+        not raisesOverflowError(        71 ! intExpr(46)) or
+        not raisesOverflowError(        72 ! intExpr(47)) or
+        not raisesOverflowError(        73 ! intExpr(48)) or
+        not raisesOverflowError(        73 ! intExpr(49)) or
+        not raisesOverflowError(        74 ! intExpr(50)) or
+        not raisesOverflowError(        75 ! intExpr(51)) or
+        not raisesOverflowError(        75 ! intExpr(52)) or
+        not raisesOverflowError(        76 ! intExpr(53)) or
+        not raisesOverflowError(        77 ! intExpr(54)) or
+        not raisesOverflowError(        77 ! intExpr(55)) or
+        not raisesOverflowError(        78 ! intExpr(56)) or
+        not raisesOverflowError(        79 ! intExpr(57)) or
+        not raisesOverflowError(        80 ! intExpr(58)) or
+        not raisesOverflowError(        80 ! intExpr(59)) or
+        not raisesOverflowError(        81 ! intExpr(60)) or
+        not raisesOverflowError(        82 ! intExpr(61)) or
+        not raisesOverflowError(        83 ! intExpr(62)) or
+        not raisesOverflowError(        84 ! intExpr(63)) or
+        not raisesOverflowError(        84 ! intExpr(64)) or
+        not raisesOverflowError(        85 ! intExpr(65)) or
+        not raisesOverflowError(        86 ! intExpr(66)) or
+        not raisesOverflowError(        87 ! intExpr(67)) or
+        not raisesOverflowError(        88 ! intExpr(68)) or
+        not raisesOverflowError(        89 ! intExpr(69)) or
+        not raisesOverflowError(        89 ! intExpr(70)) or
+        not raisesOverflowError(        90 ! intExpr(71)) or
+        not raisesOverflowError(        91 ! intExpr(72)) or
+        not raisesOverflowError(        92 ! intExpr(73)) or
+        not raisesOverflowError(        93 ! intExpr(74)) or
+        not raisesOverflowError(        94 ! intExpr(75)) or
+        not raisesOverflowError(        95 ! intExpr(76)) or
+        not raisesOverflowError(        95 ! intExpr(77)) or
+        not raisesOverflowError(        96 ! intExpr(78)) or
+        not raisesOverflowError(        97 ! intExpr(79)) or
+        not raisesOverflowError(        98 ! intExpr(80)) or
+        not raisesOverflowError(        99 ! intExpr(81)) or
+        not raisesOverflowError(       100 ! intExpr(82)) or
+        not raisesOverflowError(       101 ! intExpr(83)) or
+        not raisesOverflowError(       102 ! intExpr(84)) or
+        not raisesOverflowError(       102 ! intExpr(85)) or
+        not raisesOverflowError(       103 ! intExpr(86)) or
+        not raisesOverflowError(       104 ! intExpr(87)) or
+        not raisesOverflowError(       105 ! intExpr(88)) or
+        not raisesOverflowError(       106 ! intExpr(89)) or
+        not raisesOverflowError(       107 ! intExpr(90)) or
+        not raisesOverflowError(       108 ! intExpr(91)) or
+        not raisesOverflowError(       109 ! intExpr(92)) or
+        not raisesOverflowError(       110 ! intExpr(93)) or
+        not raisesOverflowError(       111 ! intExpr(94)) or
+        not raisesOverflowError(       112 ! intExpr(95)) or
+        not raisesOverflowError(       113 ! intExpr(96)) or
+        not raisesOverflowError(       113 ! intExpr(97)) or
+        not raisesOverflowError(       114 ! intExpr(98)) or
+        not raisesOverflowError(       115 ! intExpr(99)) or
+        not raisesOverflowError(intExpr(4294967297) ! intExpr( 2)) or
+        not raisesOverflowError(intExpr(   3810780) ! intExpr( 3)) or
+        not raisesOverflowError(intExpr(    121978) ! intExpr( 4)) or
+        not raisesOverflowError(intExpr(     16176) ! intExpr( 5)) or
+        not raisesOverflowError(intExpr(      4338) ! intExpr( 6)) or
+        not raisesOverflowError(intExpr(      1734) ! intExpr( 7)) or
+        not raisesOverflowError(intExpr(       888) ! intExpr( 8)) or
+        not raisesOverflowError(intExpr(       535) ! intExpr( 9)) or
+        not raisesOverflowError(intExpr(       362) ! intExpr(10)) or
+        not raisesOverflowError(intExpr(       266) ! intExpr(11)) or
+        not raisesOverflowError(intExpr(       207) ! intExpr(12)) or
+        not raisesOverflowError(intExpr(       170) ! intExpr(13)) or
+        not raisesOverflowError(intExpr(       144) ! intExpr(14)) or
+        not raisesOverflowError(intExpr(       126) ! intExpr(15)) or
+        not raisesOverflowError(intExpr(       112) ! intExpr(16)) or
+        not raisesOverflowError(intExpr(       102) ! intExpr(17)) or
+        not raisesOverflowError(intExpr(        95) ! intExpr(18)) or
+        not raisesOverflowError(intExpr(        89) ! intExpr(19)) or
+        not raisesOverflowError(intExpr(        84) ! intExpr(20)) or
+        not raisesOverflowError(intExpr(        80) ! intExpr(21)) or
+        not raisesOverflowError(intExpr(        77) ! intExpr(22)) or
+        not raisesOverflowError(intExpr(        75) ! intExpr(23)) or
+        not raisesOverflowError(intExpr(        73) ! intExpr(24)) or
+        not raisesOverflowError(intExpr(        71) ! intExpr(25)) or
+        not raisesOverflowError(intExpr(        70) ! intExpr(26)) or
+        not raisesOverflowError(intExpr(        69) ! intExpr(27)) or
+        not raisesOverflowError(intExpr(        68) ! intExpr(28)) or
+        not raisesOverflowError(intExpr(        68) ! intExpr(29)) or
+        not raisesOverflowError(intExpr(        67) ! intExpr(30)) or
+        not raisesOverflowError(intExpr(        67) ! intExpr(31)) or
+        not raisesOverflowError(intExpr(        67) ! intExpr(32)) or
+        not raisesOverflowError(intExpr(        67) ! intExpr(33)) or
+        not raisesOverflowError(intExpr(        67) ! intExpr(34)) or
+        not raisesOverflowError(intExpr(        67) ! intExpr(35)) or
+        not raisesOverflowError(intExpr(        67) ! intExpr(36)) or
+        not raisesOverflowError(intExpr(        67) ! intExpr(37)) or
+        not raisesOverflowError(intExpr(        68) ! intExpr(38)) or
+        not raisesOverflowError(intExpr(        68) ! intExpr(39)) or
+        not raisesOverflowError(intExpr(        68) ! intExpr(40)) or
+        not raisesOverflowError(intExpr(        69) ! intExpr(41)) or
+        not raisesOverflowError(intExpr(        69) ! intExpr(42)) or
+        not raisesOverflowError(intExpr(        70) ! intExpr(43)) or
+        not raisesOverflowError(intExpr(        70) ! intExpr(44)) or
+        not raisesOverflowError(intExpr(        71) ! intExpr(45)) or
+        not raisesOverflowError(intExpr(        71) ! intExpr(46)) or
+        not raisesOverflowError(intExpr(        72) ! intExpr(47)) or
+        not raisesOverflowError(intExpr(        73) ! intExpr(48)) or
+        not raisesOverflowError(intExpr(        73) ! intExpr(49)) or
+        not raisesOverflowError(intExpr(        74) ! intExpr(50)) or
+        not raisesOverflowError(intExpr(        75) ! intExpr(51)) or
+        not raisesOverflowError(intExpr(        75) ! intExpr(52)) or
+        not raisesOverflowError(intExpr(        76) ! intExpr(53)) or
+        not raisesOverflowError(intExpr(        77) ! intExpr(54)) or
+        not raisesOverflowError(intExpr(        77) ! intExpr(55)) or
+        not raisesOverflowError(intExpr(        78) ! intExpr(56)) or
+        not raisesOverflowError(intExpr(        79) ! intExpr(57)) or
+        not raisesOverflowError(intExpr(        80) ! intExpr(58)) or
+        not raisesOverflowError(intExpr(        80) ! intExpr(59)) or
+        not raisesOverflowError(intExpr(        81) ! intExpr(60)) or
+        not raisesOverflowError(intExpr(        82) ! intExpr(61)) or
+        not raisesOverflowError(intExpr(        83) ! intExpr(62)) or
+        not raisesOverflowError(intExpr(        84) ! intExpr(63)) or
+        not raisesOverflowError(intExpr(        84) ! intExpr(64)) or
+        not raisesOverflowError(intExpr(        85) ! intExpr(65)) or
+        not raisesOverflowError(intExpr(        86) ! intExpr(66)) or
+        not raisesOverflowError(intExpr(        87) ! intExpr(67)) or
+        not raisesOverflowError(intExpr(        88) ! intExpr(68)) or
+        not raisesOverflowError(intExpr(        89) ! intExpr(69)) or
+        not raisesOverflowError(intExpr(        89) ! intExpr(70)) or
+        not raisesOverflowError(intExpr(        90) ! intExpr(71)) or
+        not raisesOverflowError(intExpr(        91) ! intExpr(72)) or
+        not raisesOverflowError(intExpr(        92) ! intExpr(73)) or
+        not raisesOverflowError(intExpr(        93) ! intExpr(74)) or
+        not raisesOverflowError(intExpr(        94) ! intExpr(75)) or
+        not raisesOverflowError(intExpr(        95) ! intExpr(76)) or
+        not raisesOverflowError(intExpr(        95) ! intExpr(77)) or
+        not raisesOverflowError(intExpr(        96) ! intExpr(78)) or
+        not raisesOverflowError(intExpr(        97) ! intExpr(79)) or
+        not raisesOverflowError(intExpr(        98) ! intExpr(80)) or
+        not raisesOverflowError(intExpr(        99) ! intExpr(81)) or
+        not raisesOverflowError(intExpr(       100) ! intExpr(82)) or
+        not raisesOverflowError(intExpr(       101) ! intExpr(83)) or
+        not raisesOverflowError(intExpr(       102) ! intExpr(84)) or
+        not raisesOverflowError(intExpr(       102) ! intExpr(85)) or
+        not raisesOverflowError(intExpr(       103) ! intExpr(86)) or
+        not raisesOverflowError(intExpr(       104) ! intExpr(87)) or
+        not raisesOverflowError(intExpr(       105) ! intExpr(88)) or
+        not raisesOverflowError(intExpr(       106) ! intExpr(89)) or
+        not raisesOverflowError(intExpr(       107) ! intExpr(90)) or
+        not raisesOverflowError(intExpr(       108) ! intExpr(91)) or
+        not raisesOverflowError(intExpr(       109) ! intExpr(92)) or
+        not raisesOverflowError(intExpr(       110) ! intExpr(93)) or
+        not raisesOverflowError(intExpr(       111) ! intExpr(94)) or
+        not raisesOverflowError(intExpr(       112) ! intExpr(95)) or
+        not raisesOverflowError(intExpr(       113) ! intExpr(96)) or
+        not raisesOverflowError(intExpr(       113) ! intExpr(97)) or
+        not raisesOverflowError(intExpr(       114) ! intExpr(98)) or
+        not raisesOverflowError(intExpr(       115) ! intExpr(99)) then
+      writeln(" ***** Overflow not raised for binomial coefficient with positive n.");
+      okay := FALSE;
+    end if;
+
+    if okay then
+      writeln("Overflow checking of binomial coefficient works correct.");
+    else
+      writeln(" ***** Overflow checking of binomial coefficient does not work correct.");
+      writeln;
+    end if;
+  end func;
+
+
 const proc: check_abs is func
   local
     var boolean: okay is TRUE;
@@ -5184,5 +5985,6 @@ const proc: main is func
     check_urShift;
     check_urShift_assign;
     check_power;
+    check_binom;
     check_abs;
   end func;

@@ -2526,6 +2526,11 @@ const proc: check_ipower is func
        (-0.5) **   0  = 1.0 and
        (-0.5) **   1  = -0.5 and
        (-0.5) **   2  = 0.25 and
+       (-0.0) ** (-2) = -Infinity and
+       (-0.0) ** (-1) = -Infinity and
+       (-0.0) **   0  = 1.0 and
+       (-0.0) **   1  = 0.0 and
+       (-0.0) **   2  = 0.0 and
          0.0  ** (-2) = Infinity and
          0.0  ** (-1) = Infinity and
          0.0  **   0  = 1.0 and

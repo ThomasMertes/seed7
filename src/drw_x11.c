@@ -327,6 +327,7 @@ static void dra_init (void)
     /* deadlocked. Be careful to avoid this situation.             */
     mydisplay = XOpenDisplay("");
     /* printf("mydisplay = %lu\n", (long unsigned) mydisplay); */
+    /* printf("DISPLAY=%s\n", getenv("DISPLAY")); */
     if (mydisplay != NULL) {
       myscreen = DefaultScreen(mydisplay);
       /* printf("myscreen = %lu\n", (long unsigned) myscreen); */

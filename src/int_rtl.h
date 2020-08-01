@@ -34,8 +34,10 @@ extern const char ucDigits[];
 extern const const_cstriType digitTable[];
 
 
+void setupRand (void);
 uintType uint_mult (uintType factor1, uintType factor2, uintType *product_high);
-uintType uint_rand (void);
+uintType uintRand (void);
+uintType uintRandLimited (uintType rand_max);
 int uint8MostSignificantBit (uint8Type number);
 int uint16MostSignificantBit (uint16Type number);
 int uint32MostSignificantBit (uint32Type number);
@@ -49,6 +51,7 @@ int uint32LeastSignificantBit (uint32Type number);
 int uint64LeastSignificantBit (uint64Type number);
 #endif
 intType intBinom (intType n_number, intType k_number);
+uintType uintBinomNoChk (uintType n_number, intType k_number);
 intType intBitLength (intType number);
 striType intBytesBe (intType number, boolType isSigned);
 intType intBytesBe2Int (const const_striType byteStri, boolType isSigned);
@@ -65,7 +68,7 @@ intType intPowOvfChk (intType base, intType exponent);
 striType intRadix (intType number, intType base, boolType upperCase);
 striType intRadixPow2 (intType number, int shift, int mask, boolType upperCase);
 intType intRand (intType low, intType high);
-intType intSafeMult (intType factor1, intType factor2);
+intType intMultOvfChk (intType factor1, intType factor2);
 intType intSqrt (intType number);
 striType intStr (intType number);
 #ifdef ALLOW_STRITYPE_SLICES

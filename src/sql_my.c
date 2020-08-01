@@ -40,6 +40,7 @@
 #include MYSQL_INCLUDE
 
 #include "common.h"
+#include "data_rtl.h"
 #include "striutl.h"
 #include "heaputl.h"
 #include "str_rtl.h"
@@ -104,31 +105,60 @@ static sqlFuncType sqlFunc = NULL;
 
 
 #ifdef MYSQL_DLL
-void STDCALL (*ptr_mysql_close) (MYSQL *sock);
-my_bool STDCALL (*ptr_mysql_commit) (MYSQL * mysql);
-const char * STDCALL (*ptr_mysql_error) (MYSQL *mysql);
-MYSQL_FIELD *STDCALL (*ptr_mysql_fetch_field_direct) (MYSQL_RES *res, unsigned int fieldnr);
-void STDCALL (*ptr_mysql_free_result) (MYSQL_RES *result);
-MYSQL *STDCALL (*ptr_mysql_init) (MYSQL *mysql);
-unsigned int STDCALL (*ptr_mysql_num_fields) (MYSQL_RES *res);
-int STDCALL (*ptr_mysql_options) (MYSQL *mysql,enum mysql_option option, const void *arg);
-MYSQL *STDCALL (*ptr_mysql_real_connect) (MYSQL *mysql, const char *host,
-                                        const char *user,
-                                        const char *passwd,
-                                        const char *db,
-                                        unsigned int port,
-                                        const char *unix_socket,
-                                        unsigned long clientflag);
-int STDCALL (*ptr_mysql_set_character_set) (MYSQL *mysql, const char *csname);
-my_bool STDCALL (*ptr_mysql_stmt_bind_param) (MYSQL_STMT * stmt, MYSQL_BIND * bnd);
-my_bool STDCALL (*ptr_mysql_stmt_bind_result) (MYSQL_STMT * stmt, MYSQL_BIND * bnd);
-my_bool STDCALL (*ptr_mysql_stmt_close) (MYSQL_STMT * stmt);
-const char *STDCALL (*ptr_mysql_stmt_error) (MYSQL_STMT * stmt);
-int STDCALL (*ptr_mysql_stmt_execute) (MYSQL_STMT *stmt);
-int STDCALL (*ptr_mysql_stmt_fetch) (MYSQL_STMT *stmt);
-MYSQL_STMT * STDCALL (*ptr_mysql_stmt_init) (MYSQL *mysql);
-int STDCALL (*ptr_mysql_stmt_prepare) (MYSQL_STMT *stmt, const char *query, unsigned long length);
-MYSQL_RES *STDCALL (*ptr_mysql_stmt_result_metadata) (MYSQL_STMT *stmt);
+
+#ifndef STDCALL
+#if defined(_WIN32)
+#define STDCALL __stdcall
+#else
+#define STDCALL
+#endif
+#endif
+
+typedef void (STDCALL *tp_mysql_close) (MYSQL *sock);
+typedef my_bool (STDCALL *tp_mysql_commit) (MYSQL *mysql);
+typedef const char *(STDCALL *tp_mysql_error) (MYSQL *mysql);
+typedef MYSQL_FIELD *(STDCALL *tp_mysql_fetch_field_direct) (MYSQL_RES *res, unsigned int fieldnr);
+typedef void (STDCALL *tp_mysql_free_result) (MYSQL_RES *result);
+typedef MYSQL *(STDCALL *tp_mysql_init) (MYSQL *mysql);
+typedef unsigned int (STDCALL *tp_mysql_num_fields) (MYSQL_RES *res);
+typedef int (STDCALL *tp_mysql_options) (MYSQL *mysql,enum mysql_option option, const void *arg);
+typedef MYSQL *(STDCALL *tp_mysql_real_connect) (MYSQL *mysql, const char *host,
+                                                 const char *user,
+                                                 const char *passwd,
+                                                 const char *db,
+                                                 unsigned int port,
+                                                 const char *unix_socket,
+                                                 unsigned long clientflag);
+typedef int (STDCALL *tp_mysql_set_character_set) (MYSQL *mysql, const char *csname);
+typedef my_bool (STDCALL *tp_mysql_stmt_bind_param) (MYSQL_STMT *stmt, MYSQL_BIND *bnd);
+typedef my_bool (STDCALL *tp_mysql_stmt_bind_result) (MYSQL_STMT *stmt, MYSQL_BIND *bnd);
+typedef my_bool (STDCALL *tp_mysql_stmt_close) (MYSQL_STMT *stmt);
+typedef const char *(STDCALL *tp_mysql_stmt_error) (MYSQL_STMT *stmt);
+typedef int (STDCALL *tp_mysql_stmt_execute) (MYSQL_STMT *stmt);
+typedef int (STDCALL *tp_mysql_stmt_fetch) (MYSQL_STMT *stmt);
+typedef MYSQL_STMT *(STDCALL *tp_mysql_stmt_init) (MYSQL *mysql);
+typedef int (STDCALL *tp_mysql_stmt_prepare) (MYSQL_STMT *stmt, const char *query, unsigned long length);
+typedef MYSQL_RES *(STDCALL *tp_mysql_stmt_result_metadata) (MYSQL_STMT *stmt);
+
+tp_mysql_close                ptr_mysql_close;
+tp_mysql_commit               ptr_mysql_commit;
+tp_mysql_error                ptr_mysql_error;
+tp_mysql_fetch_field_direct   ptr_mysql_fetch_field_direct;
+tp_mysql_free_result          ptr_mysql_free_result;
+tp_mysql_init                 ptr_mysql_init;
+tp_mysql_num_fields           ptr_mysql_num_fields;
+tp_mysql_options              ptr_mysql_options;
+tp_mysql_real_connect         ptr_mysql_real_connect;
+tp_mysql_set_character_set    ptr_mysql_set_character_set;
+tp_mysql_stmt_bind_param      ptr_mysql_stmt_bind_param;
+tp_mysql_stmt_bind_result     ptr_mysql_stmt_bind_result;
+tp_mysql_stmt_close           ptr_mysql_stmt_close;
+tp_mysql_stmt_error           ptr_mysql_stmt_error;
+tp_mysql_stmt_execute         ptr_mysql_stmt_execute;
+tp_mysql_stmt_fetch           ptr_mysql_stmt_fetch;
+tp_mysql_stmt_init            ptr_mysql_stmt_init;
+tp_mysql_stmt_prepare         ptr_mysql_stmt_prepare;
+tp_mysql_stmt_result_metadata ptr_mysql_stmt_result_metadata;
 
 #define mysql_close                ptr_mysql_close
 #define mysql_commit               ptr_mysql_commit
@@ -162,25 +192,25 @@ static boolType setupDll (const char *dllName)
     if (dbDll == NULL) {
       dbDll = dllOpen(dllName);
       if (dbDll != NULL) {
-        if ((ptr_mysql_close                = dllSym(dbDll, "mysql_close"))                == NULL ||
-            (ptr_mysql_commit               = dllSym(dbDll, "mysql_commit"))               == NULL ||
-            (ptr_mysql_error                = dllSym(dbDll, "mysql_error"))                == NULL ||
-            (ptr_mysql_fetch_field_direct   = dllSym(dbDll, "mysql_fetch_field_direct"))   == NULL ||
-            (ptr_mysql_free_result          = dllSym(dbDll, "mysql_free_result"))          == NULL ||
-            (ptr_mysql_init                 = dllSym(dbDll, "mysql_init"))                 == NULL ||
-            (ptr_mysql_num_fields           = dllSym(dbDll, "mysql_num_fields"))           == NULL ||
-            (ptr_mysql_options              = dllSym(dbDll, "mysql_options"))              == NULL ||
-            (ptr_mysql_real_connect         = dllSym(dbDll, "mysql_real_connect"))         == NULL ||
-            (ptr_mysql_set_character_set    = dllSym(dbDll, "mysql_set_character_set"))    == NULL ||
-            (ptr_mysql_stmt_bind_param      = dllSym(dbDll, "mysql_stmt_bind_param"))      == NULL ||
-            (ptr_mysql_stmt_bind_result     = dllSym(dbDll, "mysql_stmt_bind_result"))     == NULL ||
-            (ptr_mysql_stmt_close           = dllSym(dbDll, "mysql_stmt_close"))           == NULL ||
-            (ptr_mysql_stmt_error           = dllSym(dbDll, "mysql_stmt_error"))           == NULL ||
-            (ptr_mysql_stmt_execute         = dllSym(dbDll, "mysql_stmt_execute"))         == NULL ||
-            (ptr_mysql_stmt_fetch           = dllSym(dbDll, "mysql_stmt_fetch"))           == NULL ||
-            (ptr_mysql_stmt_init            = dllSym(dbDll, "mysql_stmt_init"))            == NULL ||
-            (ptr_mysql_stmt_prepare         = dllSym(dbDll, "mysql_stmt_prepare"))         == NULL ||
-            (ptr_mysql_stmt_result_metadata = dllSym(dbDll, "mysql_stmt_result_metadata")) == NULL) {
+        if ((mysql_close                = (tp_mysql_close)                dllSym(dbDll, "mysql_close"))                == NULL ||
+            (mysql_commit               = (tp_mysql_commit)               dllSym(dbDll, "mysql_commit"))               == NULL ||
+            (mysql_error                = (tp_mysql_error)                dllSym(dbDll, "mysql_error"))                == NULL ||
+            (mysql_fetch_field_direct   = (tp_mysql_fetch_field_direct)   dllSym(dbDll, "mysql_fetch_field_direct"))   == NULL ||
+            (mysql_free_result          = (tp_mysql_free_result)          dllSym(dbDll, "mysql_free_result"))          == NULL ||
+            (mysql_init                 = (tp_mysql_init)                 dllSym(dbDll, "mysql_init"))                 == NULL ||
+            (mysql_num_fields           = (tp_mysql_num_fields)           dllSym(dbDll, "mysql_num_fields"))           == NULL ||
+            (mysql_options              = (tp_mysql_options)              dllSym(dbDll, "mysql_options"))              == NULL ||
+            (mysql_real_connect         = (tp_mysql_real_connect)         dllSym(dbDll, "mysql_real_connect"))         == NULL ||
+            (mysql_set_character_set    = (tp_mysql_set_character_set)    dllSym(dbDll, "mysql_set_character_set"))    == NULL ||
+            (mysql_stmt_bind_param      = (tp_mysql_stmt_bind_param)      dllSym(dbDll, "mysql_stmt_bind_param"))      == NULL ||
+            (mysql_stmt_bind_result     = (tp_mysql_stmt_bind_result)     dllSym(dbDll, "mysql_stmt_bind_result"))     == NULL ||
+            (mysql_stmt_close           = (tp_mysql_stmt_close)           dllSym(dbDll, "mysql_stmt_close"))           == NULL ||
+            (mysql_stmt_error           = (tp_mysql_stmt_error)           dllSym(dbDll, "mysql_stmt_error"))           == NULL ||
+            (mysql_stmt_execute         = (tp_mysql_stmt_execute)         dllSym(dbDll, "mysql_stmt_execute"))         == NULL ||
+            (mysql_stmt_fetch           = (tp_mysql_stmt_fetch)           dllSym(dbDll, "mysql_stmt_fetch"))           == NULL ||
+            (mysql_stmt_init            = (tp_mysql_stmt_init)            dllSym(dbDll, "mysql_stmt_init"))            == NULL ||
+            (mysql_stmt_prepare         = (tp_mysql_stmt_prepare)         dllSym(dbDll, "mysql_stmt_prepare"))         == NULL ||
+            (mysql_stmt_result_metadata = (tp_mysql_stmt_result_metadata) dllSym(dbDll, "mysql_stmt_result_metadata")) == NULL) {
           dbDll = NULL;
         } /* if */
       } /* if */

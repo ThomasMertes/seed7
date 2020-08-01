@@ -46,7 +46,9 @@
 #include POSTGRESQL_POSTGRES_H
 #endif
 #include POSTGRESQL_INCLUDE
+#ifdef POSTGRESQL_PG_TYPE_H
 #include POSTGRESQL_PG_TYPE_H
+#endif
 
 #include "common.h"
 #include "data_rtl.h"
@@ -134,40 +136,64 @@ static sqlFuncType sqlFunc = NULL;
 
 
 #ifdef POSTGRESQL_DLL
-void (*ptr_PQclear) (PGresult *res);
-PGresult *(*ptr_PQdescribePrepared) (PGconn *conn, const char *stmt);
-char *(*ptr_PQerrorMessage) (const PGconn *conn);
-PGresult *(*ptr_PQexec) (PGconn *conn, const char *query);
-PGresult *(*ptr_PQexecPrepared) (PGconn *conn,
-                                 const char *stmtName,
-                                 int nParams,
-                                 const char *const * paramValues,
-                                 const int *paramLengths,
-                                 const int *paramFormats,
-                                 int resultFormat);
-void (*ptr_PQfinish) (PGconn *conn);
-char *(*ptr_PQfname) (const PGresult *res, int field_num);
-Oid (*ptr_PQftype) (const PGresult *res, int field_num);
-int (*ptr_PQgetisnull) (const PGresult *res, int tup_num, int field_num);
-int (*ptr_PQgetlength) (const PGresult *res, int tup_num, int field_num);
-char *(*ptr_PQgetvalue) (const PGresult *res, int tup_num, int field_num);
-int (*ptr_PQnfields) (const PGresult *res);
-int (*ptr_PQnparams) (const PGresult *res);
-int (*ptr_PQntuples) (const PGresult *res);
-const char *(*ptr_PQparameterStatus) (const PGconn *conn, const char *paramName);
-Oid (*ptr_PQparamtype) (const PGresult *res, int param_num);
-PGresult *(*ptr_PQprepare) (PGconn *conn, const char *stmtName,
-                            const char *query, int nParams,
-                            const Oid *paramTypes);
-char *(*ptr_PQresStatus) (ExecStatusType status);
-char *(*ptr_PQresultErrorMessage) (const PGresult *res);
-ExecStatusType (*ptr_PQresultStatus) (const PGresult *res);
-int (*ptr_PQsetClientEncoding) (PGconn *conn, const char *encoding);
-PGconn *(*ptr_PQsetdbLogin) (const char *pghost, const char *pgport,
-                             const char *pgoptions, const char *pgtty,
-                             const char *dbName,
-                             const char *login, const char *pwd);
-ConnStatusType (*ptr_PQstatus) (const PGconn *conn);
+typedef void (*tp_PQclear) (PGresult *res);
+typedef PGresult *(*tp_PQdescribePrepared) (PGconn *conn, const char *stmt);
+typedef char *(*tp_PQerrorMessage) (const PGconn *conn);
+typedef PGresult *(*tp_PQexec) (PGconn *conn, const char *query);
+typedef PGresult *(*tp_PQexecPrepared) (PGconn *conn,
+                                        const char *stmtName,
+                                        int nParams,
+                                        const char *const * paramValues,
+                                        const int *paramLengths,
+                                        const int *paramFormats,
+                                        int resultFormat);
+typedef void (*tp_PQfinish) (PGconn *conn);
+typedef char *(*tp_PQfname) (const PGresult *res, int field_num);
+typedef Oid (*tp_PQftype) (const PGresult *res, int field_num);
+typedef int (*tp_PQgetisnull) (const PGresult *res, int tup_num, int field_num);
+typedef int (*tp_PQgetlength) (const PGresult *res, int tup_num, int field_num);
+typedef char *(*tp_PQgetvalue) (const PGresult *res, int tup_num, int field_num);
+typedef int (*tp_PQnfields) (const PGresult *res);
+typedef int (*tp_PQnparams) (const PGresult *res);
+typedef int (*tp_PQntuples) (const PGresult *res);
+typedef const char *(*tp_PQparameterStatus) (const PGconn *conn, const char *paramName);
+typedef Oid (*tp_PQparamtype) (const PGresult *res, int param_num);
+typedef PGresult *(*tp_PQprepare) (PGconn *conn, const char *stmtName,
+                                   const char *query, int nParams,
+                                   const Oid *paramTypes);
+typedef char *(*tp_PQresStatus) (ExecStatusType status);
+typedef char *(*tp_PQresultErrorMessage) (const PGresult *res);
+typedef ExecStatusType (*tp_PQresultStatus) (const PGresult *res);
+typedef int (*tp_PQsetClientEncoding) (PGconn *conn, const char *encoding);
+typedef PGconn *(*tp_PQsetdbLogin) (const char *pghost, const char *pgport,
+                                    const char *pgoptions, const char *pgtty,
+                                    const char *dbName,
+                                    const char *login, const char *pwd);
+typedef ConnStatusType (*tp_PQstatus) (const PGconn *conn);
+
+tp_PQclear              ptr_PQclear;
+tp_PQdescribePrepared   ptr_PQdescribePrepared;
+tp_PQerrorMessage       ptr_PQerrorMessage;
+tp_PQexec               ptr_PQexec;
+tp_PQexecPrepared       ptr_PQexecPrepared;
+tp_PQfinish             ptr_PQfinish;
+tp_PQfname              ptr_PQfname;
+tp_PQftype              ptr_PQftype;
+tp_PQgetisnull          ptr_PQgetisnull;
+tp_PQgetlength          ptr_PQgetlength;
+tp_PQgetvalue           ptr_PQgetvalue;
+tp_PQnfields            ptr_PQnfields;
+tp_PQnparams            ptr_PQnparams;
+tp_PQntuples            ptr_PQntuples;
+tp_PQparameterStatus    ptr_PQparameterStatus;
+tp_PQparamtype          ptr_PQparamtype;
+tp_PQprepare            ptr_PQprepare;
+tp_PQresStatus          ptr_PQresStatus;
+tp_PQresultErrorMessage ptr_PQresultErrorMessage;
+tp_PQresultStatus       ptr_PQresultStatus;
+tp_PQsetClientEncoding  ptr_PQsetClientEncoding;
+tp_PQsetdbLogin         ptr_PQsetdbLogin;
+tp_PQstatus             ptr_PQstatus;
 
 #define PQclear              ptr_PQclear
 #define PQdescribePrepared   ptr_PQdescribePrepared
@@ -211,29 +237,29 @@ static boolType setupDll (const char *dllName)
       dbDll = dllOpen(dllName);
 #endif
       if (dbDll != NULL) {
-        if ((ptr_PQclear              = dllSym(dbDll, "PQclear"))              == NULL ||
-            (ptr_PQdescribePrepared   = dllSym(dbDll, "PQdescribePrepared"))   == NULL ||
-            (ptr_PQerrorMessage       = dllSym(dbDll, "PQerrorMessage"))       == NULL ||
-            (ptr_PQexec               = dllSym(dbDll, "PQexec"))               == NULL ||
-            (ptr_PQexecPrepared       = dllSym(dbDll, "PQexecPrepared"))       == NULL ||
-            (ptr_PQfinish             = dllSym(dbDll, "PQfinish"))             == NULL ||
-            (ptr_PQfname              = dllSym(dbDll, "PQfname"))              == NULL ||
-            (ptr_PQftype              = dllSym(dbDll, "PQftype"))              == NULL ||
-            (ptr_PQgetisnull          = dllSym(dbDll, "PQgetisnull"))          == NULL ||
-            (ptr_PQgetlength          = dllSym(dbDll, "PQgetlength"))          == NULL ||
-            (ptr_PQgetvalue           = dllSym(dbDll, "PQgetvalue"))           == NULL ||
-            (ptr_PQnfields            = dllSym(dbDll, "PQnfields"))            == NULL ||
-            (ptr_PQnparams            = dllSym(dbDll, "PQnparams"))            == NULL ||
-            (ptr_PQntuples            = dllSym(dbDll, "PQntuples"))            == NULL ||
-            (ptr_PQparameterStatus    = dllSym(dbDll, "PQparameterStatus"))    == NULL ||
-            (ptr_PQparamtype          = dllSym(dbDll, "PQparamtype"))          == NULL ||
-            (ptr_PQprepare            = dllSym(dbDll, "PQprepare"))            == NULL ||
-            (ptr_PQresStatus          = dllSym(dbDll, "PQresStatus"))          == NULL ||
-            (ptr_PQresultErrorMessage = dllSym(dbDll, "PQresultErrorMessage")) == NULL ||
-            (ptr_PQresultStatus       = dllSym(dbDll, "PQresultStatus"))       == NULL ||
-            (ptr_PQsetClientEncoding  = dllSym(dbDll, "PQsetClientEncoding"))  == NULL ||
-            (ptr_PQsetdbLogin         = dllSym(dbDll, "PQsetdbLogin"))         == NULL ||
-            (ptr_PQstatus             = dllSym(dbDll, "PQstatus"))             == NULL) {
+        if ((PQclear              = (tp_PQclear)              dllSym(dbDll, "PQclear"))              == NULL ||
+            (PQdescribePrepared   = (tp_PQdescribePrepared)   dllSym(dbDll, "PQdescribePrepared"))   == NULL ||
+            (PQerrorMessage       = (tp_PQerrorMessage)       dllSym(dbDll, "PQerrorMessage"))       == NULL ||
+            (PQexec               = (tp_PQexec)               dllSym(dbDll, "PQexec"))               == NULL ||
+            (PQexecPrepared       = (tp_PQexecPrepared)       dllSym(dbDll, "PQexecPrepared"))       == NULL ||
+            (PQfinish             = (tp_PQfinish)             dllSym(dbDll, "PQfinish"))             == NULL ||
+            (PQfname              = (tp_PQfname)              dllSym(dbDll, "PQfname"))              == NULL ||
+            (PQftype              = (tp_PQftype)              dllSym(dbDll, "PQftype"))              == NULL ||
+            (PQgetisnull          = (tp_PQgetisnull)          dllSym(dbDll, "PQgetisnull"))          == NULL ||
+            (PQgetlength          = (tp_PQgetlength)          dllSym(dbDll, "PQgetlength"))          == NULL ||
+            (PQgetvalue           = (tp_PQgetvalue)           dllSym(dbDll, "PQgetvalue"))           == NULL ||
+            (PQnfields            = (tp_PQnfields)            dllSym(dbDll, "PQnfields"))            == NULL ||
+            (PQnparams            = (tp_PQnparams)            dllSym(dbDll, "PQnparams"))            == NULL ||
+            (PQntuples            = (tp_PQntuples)            dllSym(dbDll, "PQntuples"))            == NULL ||
+            (PQparameterStatus    = (tp_PQparameterStatus)    dllSym(dbDll, "PQparameterStatus"))    == NULL ||
+            (PQparamtype          = (tp_PQparamtype)          dllSym(dbDll, "PQparamtype"))          == NULL ||
+            (PQprepare            = (tp_PQprepare)            dllSym(dbDll, "PQprepare"))            == NULL ||
+            (PQresStatus          = (tp_PQresStatus)          dllSym(dbDll, "PQresStatus"))          == NULL ||
+            (PQresultErrorMessage = (tp_PQresultErrorMessage) dllSym(dbDll, "PQresultErrorMessage")) == NULL ||
+            (PQresultStatus       = (tp_PQresultStatus)       dllSym(dbDll, "PQresultStatus"))       == NULL ||
+            (PQsetClientEncoding  = (tp_PQsetClientEncoding)  dllSym(dbDll, "PQsetClientEncoding"))  == NULL ||
+            (PQsetdbLogin         = (tp_PQsetdbLogin)         dllSym(dbDll, "PQsetdbLogin"))         == NULL ||
+            (PQstatus             = (tp_PQstatus)             dllSym(dbDll, "PQstatus"))             == NULL) {
           dbDll = NULL;
         } /* if */
       } /* if */
@@ -324,7 +350,7 @@ static PGresult *PQdeallocate (PGconn *conn, const char *stmtName)
   /* PQdeallocate */
     /* printf("PQdeallocate(%lx, %s)\n", conn, stmtName); */
     length = strlen(deallocateCommand) + strlen(stmtName) + 1;
-    command = malloc(length);
+    command = (char *) malloc(length);
     if (command == NULL) {
       deallocate_result = NULL;
     } else {
@@ -890,7 +916,7 @@ static void sqlBindBigInt (sqlStmtType sqlStatement, intType pos,
       switch (preparedStmt->paramTypes[pos - 1]) {
         case INT2OID:
           free(preparedStmt->paramValues[pos - 1]);
-          preparedStmt->paramValues[pos - 1] = malloc(sizeof(int16Type));
+          preparedStmt->paramValues[pos - 1] = (cstriType) malloc(sizeof(int16Type));
           *(int16Type *) preparedStmt->paramValues[pos - 1] =
               (int16Type) htons((uint16Type) bigToInt16(value));
           preparedStmt->paramLengths[pos - 1] = sizeof(int16Type);
@@ -898,7 +924,7 @@ static void sqlBindBigInt (sqlStmtType sqlStatement, intType pos,
           break;
         case INT4OID:
           free(preparedStmt->paramValues[pos - 1]);
-          preparedStmt->paramValues[pos - 1] = malloc(sizeof(int32Type));
+          preparedStmt->paramValues[pos - 1] = (cstriType) malloc(sizeof(int32Type));
           *(int32Type *) preparedStmt->paramValues[pos - 1] =
               (int32Type) htonl((uint32Type) bigToInt32(value));
           preparedStmt->paramLengths[pos - 1] = sizeof(int32Type);
@@ -906,7 +932,7 @@ static void sqlBindBigInt (sqlStmtType sqlStatement, intType pos,
           break;
         case INT8OID:
           free(preparedStmt->paramValues[pos - 1]);
-          preparedStmt->paramValues[pos - 1] = malloc(sizeof(int64Type));
+          preparedStmt->paramValues[pos - 1] = (cstriType) malloc(sizeof(int64Type));
           *(int64Type *) preparedStmt->paramValues[pos - 1] =
               (int64Type) htonll((uint64Type) bigToInt64(value));
           preparedStmt->paramLengths[pos - 1] = sizeof(int64Type);
@@ -914,7 +940,7 @@ static void sqlBindBigInt (sqlStmtType sqlStatement, intType pos,
           break;
         case FLOAT4OID:
           free(preparedStmt->paramValues[pos - 1]);
-          preparedStmt->paramValues[pos - 1] = malloc(sizeof(float));
+          preparedStmt->paramValues[pos - 1] = (cstriType) malloc(sizeof(float));
           *(float *) preparedStmt->paramValues[pos - 1] =
               htonf((float) bigIntToDouble(value));
           preparedStmt->paramLengths[pos - 1] = sizeof(float);
@@ -922,7 +948,7 @@ static void sqlBindBigInt (sqlStmtType sqlStatement, intType pos,
           break;
         case FLOAT8OID:
           free(preparedStmt->paramValues[pos - 1]);
-          preparedStmt->paramValues[pos - 1] = malloc(sizeof(double));
+          preparedStmt->paramValues[pos - 1] = (cstriType) malloc(sizeof(double));
           *(double *) preparedStmt->paramValues[pos - 1] =
               htond(bigIntToDouble(value));
           preparedStmt->paramLengths[pos - 1] = sizeof(double);
@@ -979,7 +1005,7 @@ static void sqlBindBigRat (sqlStmtType sqlStatement, intType pos,
       switch (preparedStmt->paramTypes[pos - 1]) {
         case FLOAT4OID:
           free(preparedStmt->paramValues[pos - 1]);
-          preparedStmt->paramValues[pos - 1] = malloc(sizeof(float));
+          preparedStmt->paramValues[pos - 1] = (cstriType) malloc(sizeof(float));
           *(float *) preparedStmt->paramValues[pos - 1] =
               htonf((float) bigRatToDouble(numerator, denominator));
           preparedStmt->paramLengths[pos - 1] = sizeof(float);
@@ -987,7 +1013,7 @@ static void sqlBindBigRat (sqlStmtType sqlStatement, intType pos,
           break;
         case FLOAT8OID:
           free(preparedStmt->paramValues[pos - 1]);
-          preparedStmt->paramValues[pos - 1] = malloc(sizeof(double));
+          preparedStmt->paramValues[pos - 1] = (cstriType) malloc(sizeof(double));
           *(double *) preparedStmt->paramValues[pos - 1] =
               htond(bigRatToDouble(numerator, denominator));
           preparedStmt->paramLengths[pos - 1] = sizeof(double);
@@ -1036,7 +1062,7 @@ static void sqlBindBool (sqlStmtType sqlStatement, intType pos, boolType value)
       switch (preparedStmt->paramTypes[pos - 1]) {
         case INT2OID:
           free(preparedStmt->paramValues[pos - 1]);
-          preparedStmt->paramValues[pos - 1] = malloc(sizeof(int16Type));
+          preparedStmt->paramValues[pos - 1] = (cstriType) malloc(sizeof(int16Type));
           *(int16Type *) preparedStmt->paramValues[pos - 1] =
               (int16Type) htons((uint16Type) value);
           preparedStmt->paramLengths[pos - 1] = sizeof(int16Type);
@@ -1044,7 +1070,7 @@ static void sqlBindBool (sqlStmtType sqlStatement, intType pos, boolType value)
           break;
         case INT4OID:
           free(preparedStmt->paramValues[pos - 1]);
-          preparedStmt->paramValues[pos - 1] = malloc(sizeof(int32Type));
+          preparedStmt->paramValues[pos - 1] = (cstriType) malloc(sizeof(int32Type));
           *(int32Type *) preparedStmt->paramValues[pos - 1] =
               (int32Type) htonl((uint32Type) value);
           preparedStmt->paramLengths[pos - 1] = sizeof(int32Type);
@@ -1052,7 +1078,7 @@ static void sqlBindBool (sqlStmtType sqlStatement, intType pos, boolType value)
           break;
         case INT8OID:
           free(preparedStmt->paramValues[pos - 1]);
-          preparedStmt->paramValues[pos - 1] = malloc(sizeof(int64Type));
+          preparedStmt->paramValues[pos - 1] = (cstriType) malloc(sizeof(int64Type));
           *(int64Type *) preparedStmt->paramValues[pos - 1] =
               (int64Type) htonll((uint64Type) value);
           preparedStmt->paramLengths[pos - 1] = sizeof(int64Type);
@@ -1062,7 +1088,7 @@ static void sqlBindBool (sqlStmtType sqlStatement, intType pos, boolType value)
         case BPCHAROID:
         case VARCHAROID:
           free(preparedStmt->paramValues[pos - 1]);
-          preparedStmt->paramValues[pos - 1] = malloc(2);
+          preparedStmt->paramValues[pos - 1] = (cstriType) malloc(2);
           ((char *) preparedStmt->paramValues[pos - 1])[0] = (char) ('0' + value);
           ((char *) preparedStmt->paramValues[pos - 1])[1] = '\0';
           preparedStmt->paramLengths[pos - 1] = 1;
@@ -1107,7 +1133,7 @@ static void sqlBindBStri (sqlStmtType sqlStatement, intType pos, bstriType bstri
             raise_error(MEMORY_ERROR);
           } else {
             free(preparedStmt->paramValues[pos - 1]);
-            if ((preparedStmt->paramValues[pos - 1] = malloc(bstri->size + 1)) == NULL) {
+            if ((preparedStmt->paramValues[pos - 1] = (cstriType) malloc(bstri->size + 1)) == NULL) {
               raise_error(MEMORY_ERROR);
             } else {
               memcpy(preparedStmt->paramValues[pos - 1], bstri->mem, bstri->size);
@@ -1206,14 +1232,14 @@ static void sqlBindFloat (sqlStmtType sqlStatement, intType pos, floatType value
       switch (preparedStmt->paramTypes[pos - 1]) {
         case FLOAT4OID:
           free(preparedStmt->paramValues[pos - 1]);
-          preparedStmt->paramValues[pos - 1] = malloc(sizeof(float));
+          preparedStmt->paramValues[pos - 1] = (cstriType) malloc(sizeof(float));
           *(float *) preparedStmt->paramValues[pos - 1] = htonf((float) value);
           preparedStmt->paramLengths[pos - 1] = sizeof(float);
           preparedStmt->paramFormats[pos - 1] = 1;
           break;
         case FLOAT8OID:
           free(preparedStmt->paramValues[pos - 1]);
-          preparedStmt->paramValues[pos - 1] = malloc(sizeof(double));
+          preparedStmt->paramValues[pos - 1] = (cstriType) malloc(sizeof(double));
           *(double *) preparedStmt->paramValues[pos - 1] = htond(value);
           preparedStmt->paramLengths[pos - 1] = sizeof(double);
           preparedStmt->paramFormats[pos - 1] = 1;
@@ -1253,7 +1279,7 @@ static void sqlBindInt (sqlStmtType sqlStatement, intType pos, intType value)
             raise_error(RANGE_ERROR);
           } else {
             free(preparedStmt->paramValues[pos - 1]);
-            preparedStmt->paramValues[pos - 1] = malloc(sizeof(int16Type));
+            preparedStmt->paramValues[pos - 1] = (cstriType) malloc(sizeof(int16Type));
             *(int16Type *) preparedStmt->paramValues[pos - 1] =
                 (int16Type) htons((uint16Type) value);
             preparedStmt->paramLengths[pos - 1] = sizeof(int16Type);
@@ -1265,7 +1291,7 @@ static void sqlBindInt (sqlStmtType sqlStatement, intType pos, intType value)
             raise_error(RANGE_ERROR);
           } else {
             free(preparedStmt->paramValues[pos - 1]);
-            preparedStmt->paramValues[pos - 1] = malloc(sizeof(int32Type));
+            preparedStmt->paramValues[pos - 1] = (cstriType) malloc(sizeof(int32Type));
             *(int32Type *) preparedStmt->paramValues[pos - 1] =
                 (int32Type) htonl((uint32Type) value);
             preparedStmt->paramLengths[pos - 1] = sizeof(int32Type);
@@ -1274,7 +1300,7 @@ static void sqlBindInt (sqlStmtType sqlStatement, intType pos, intType value)
           break;
         case INT8OID:
           free(preparedStmt->paramValues[pos - 1]);
-          preparedStmt->paramValues[pos - 1] = malloc(sizeof(int64Type));
+          preparedStmt->paramValues[pos - 1] = (cstriType) malloc(sizeof(int64Type));
           *(int64Type *) preparedStmt->paramValues[pos - 1] =
               (int64Type) htonll((uint64Type) value);
           preparedStmt->paramLengths[pos - 1] = sizeof(int64Type);
@@ -1282,14 +1308,14 @@ static void sqlBindInt (sqlStmtType sqlStatement, intType pos, intType value)
           break;
         case FLOAT4OID:
           free(preparedStmt->paramValues[pos - 1]);
-          preparedStmt->paramValues[pos - 1] = malloc(sizeof(float));
+          preparedStmt->paramValues[pos - 1] = (cstriType) malloc(sizeof(float));
           *(float *) preparedStmt->paramValues[pos - 1] = htonf((float) value);
           preparedStmt->paramLengths[pos - 1] = sizeof(float);
           preparedStmt->paramFormats[pos - 1] = 1;
           break;
         case FLOAT8OID:
           free(preparedStmt->paramValues[pos - 1]);
-          preparedStmt->paramValues[pos - 1] = malloc(sizeof(double));
+          preparedStmt->paramValues[pos - 1] = (cstriType) malloc(sizeof(double));
           *(double *) preparedStmt->paramValues[pos - 1] = htond((double) value);
           preparedStmt->paramLengths[pos - 1] = sizeof(double);
           preparedStmt->paramFormats[pos - 1] = 1;
@@ -1298,7 +1324,7 @@ static void sqlBindInt (sqlStmtType sqlStatement, intType pos, intType value)
         case BPCHAROID:
         case VARCHAROID:
           free(preparedStmt->paramValues[pos - 1]);
-          preparedStmt->paramValues[pos - 1] = malloc(INTTYPE_DECIMAL_SIZE + 1);
+          preparedStmt->paramValues[pos - 1] = (cstriType) malloc(INTTYPE_DECIMAL_SIZE + 1);
           sprintf(preparedStmt->paramValues[pos - 1], FMT_D, value);
           preparedStmt->paramLengths[pos - 1] = (int) strlen(preparedStmt->paramValues[pos - 1]);
           preparedStmt->paramFormats[pos - 1] = 0;
@@ -2544,9 +2570,9 @@ databaseType sqlOpenPost (const const_striType dbName,
 
   {
     cstriType dbName8;
-    cstriType user8;
-    cstriType password8;
-    cstriType host;
+    const_cstriType user8;
+    const_cstriType password8;
+    const_cstriType host;
     cstriType databaseName;
     dbRecord db;
     const_cstriType setting;

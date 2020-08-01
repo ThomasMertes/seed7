@@ -53,8 +53,8 @@ typedef int boolType;
 
 #define EXTERN          extern
 
-typedef signed char        int8Type;
-typedef unsigned char      uint8Type;
+typedef INT8TYPE           int8Type;
+typedef UINT8TYPE          uint8Type;
 
 #define INT8TYPE_MAX        127
 #define INT8TYPE_MIN      (-128)
@@ -67,8 +67,8 @@ typedef unsigned char      uint8Type;
 #define FMT_X8  "%hhx"
 
 
-typedef short int          int16Type;
-typedef unsigned short int uint16Type;
+typedef INT16TYPE          int16Type;
+typedef UINT16TYPE         uint16Type;
 
 #define INT16TYPE_MAX     32767
 #define INT16TYPE_MIN   (-32768)

@@ -1,8 +1,8 @@
-# Makefile for linux/bsd/unix and gcc. Commands executed by: bash
+# Makefile for Mac OS X with clang from Xcode. Commands executed by: bash
 # To compile use a command shell and call:
-#   make depend
-#   make
-# If you are under windows you should use MinGW with mk_mingw.mak, mk_nmake.mak or mk_msys.mak instead.
+#   make -f mk_osxcl.mak depend
+#   make -f mk_osxcl.mak
+# If you are not using Mac OS X with Xcode look into the file read_me.txt for the makefile to use.
 
 # CFLAGS =
 # CFLAGS = -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
@@ -11,17 +11,18 @@
 # CFLAGS = -O2 -g -x c++ -Wall -Wextra -Wswitch-default -Wswitch-enum -Wcast-qual -Waggregate-return -Wwrite-strings -Winline -Wconversion -Wshadow -Wpointer-arith -Wmissing-noreturn -Wno-multichar
 # CFLAGS = -O2 -fomit-frame-pointer -Wall -Wextra -Wswitch-default -Wcast-qual -Waggregate-return -Wwrite-strings -Winline -Wconversion -Wshadow -Wpointer-arith -Wmissing-noreturn -Wno-multichar
 # CFLAGS = -O2 -g -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith -ftrapv
-# CFLAGS = -O2 -g -x c++ -Wall -Winline -Wconversion -Wshadow -Wpointer-arith
-# CFLAGS = -O2 -g -ffunction-sections -fdata-sections -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith -ftrapv
-CFLAGS = -O2 -g -ffunction-sections -fdata-sections $(INCLUDE_OPTIONS) -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
-# CFLAGS = -O2 -g -ffunction-sections -fdata-sections $(INCLUDE_OPTIONS) -Wall -Winline -Wconversion -Wshadow -Wpointer-arith
-# CFLAGS = -O2 -g -std=c99 -D_POSIX_SOURCE -ffunction-sections -fdata-sections -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
+# CFLAGS = -O2 -g -x c++ $(INCLUDE_OPTIONS) -Wall -Winline -Wconversion -Wshadow -Wpointer-arith
+# CFLAGS = -O2 -g $(INCLUDE_OPTIONS) -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
+CFLAGS = -O2 -g -ffunction-sections -fdata-sections $(INCLUDE_OPTIONS) -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith -ftrapv
+# CFLAGS = -O2 -g -ffunction-sections -fdata-sections $(INCLUDE_OPTIONS) -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith -ftrapv -fsanitize=address,integer,undefined -fno-sanitize=unsigned-integer-overflow
+# CFLAGS = -O2 -g -std=c99 -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
 # CFLAGS = -O2 -g -Wall -Winline -Wconversion -Wshadow -Wpointer-arith
 # CFLAGS = -O2 -g -Wall
 # CFLAGS = -O2 -g -pg -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
 # CFLAGS = -O2 -fomit-frame-pointer -funroll-loops -Wall
 # CFLAGS = -O2 -funroll-loops -Wall -pg
-LDFLAGS = -Wl,--gc-sections
+LDFLAGS = -Wl,-L/usr/X11R6/lib
+# LDFLAGS = -Wl,-L/usr/X11R6/lib -fsanitize=address,integer,undefined -fno-sanitize=unsigned-integer-overflow
 # LDFLAGS = -pg
 # LDFLAGS = -pg -lc_p
 SYSTEM_LIBS = -lm -ldl
@@ -40,7 +41,7 @@ COMP_DATA_LIB = s7_data.a
 COMPILER_LIB = s7_comp.a
 ALL_S7_LIBS = ../bin/$(COMPILER_LIB) ../bin/$(COMP_DATA_LIB) ../bin/$(DRAW_LIB) ../bin/$(CONSOLE_LIB) ../bin/$(SEED7_LIB)
 # CC = g++
-CC = gcc
+CC = clang
 GET_CC_VERSION_INFO = $(CC) --version >
 
 BIGINT_LIB_DEFINE = USE_BIG_RTL_LIBRARY
@@ -157,6 +158,7 @@ test:
 	@echo
 
 install:
+	mkdir -p /usr/local/bin
 	cd ../bin; ln -s `pwd`/s7 /usr/local/bin
 	cd ../bin; ln -s `pwd`/s7c /usr/local/bin
 
@@ -175,19 +177,19 @@ chkccomp.h:
 	echo "#include \"unistd.h\"" >> chkccomp.h
 	echo "#define LIST_DIRECTORY_CONTENTS \"ls\"" >> chkccomp.h
 	echo "#define MYSQL_LIBS \"-lmysqlclient\"" >> chkccomp.h
-	echo "#define MYSQL_DLL \"libmysqlclient.so\"" >> chkccomp.h
+	echo "#define MYSQL_DLL \"libmysqlclient.dylib\"" >> chkccomp.h
 	echo "#define MYSQL_USE_LIB" >> chkccomp.h
 	echo "#define SQLITE_LIBS \"-lsqlite3\"" >> chkccomp.h
-	echo "#define SQLITE_DLL \"libsqlite3.so\"" >> chkccomp.h
+	echo "#define SQLITE_DLL \"libsqlite3.dylib\"" >> chkccomp.h
 	echo "#define SQLITE_USE_LIB" >> chkccomp.h
 	echo "#define POSTGRESQL_LIBS \"-lpq\"" >> chkccomp.h
-	echo "#define POSTGRESQL_DLL \"libpq.so\"" >> chkccomp.h
+	echo "#define POSTGRESQL_DLL \"libpq.dylib\"" >> chkccomp.h
 	echo "#define POSTGRESQL_USE_LIB" >> chkccomp.h
-	echo "#define ODBC_LIBS \"-lodbc\"" >> chkccomp.h
-	echo "#define ODBC_DLL \"libodbc.so\"" >> chkccomp.h
+	echo "#define ODBC_LIBS \"-liodbc\"" >> chkccomp.h
+	echo "#define ODBC_DLL \"libiodbc.dylib\"" >> chkccomp.h
 	echo "#define ODBC_USE_LIB" >> chkccomp.h
 	echo "#define OCI_LIBS \"-lclntsh\"" >> chkccomp.h
-	echo "#define OCI_DLL \"libclntsh.so\"" >> chkccomp.h
+	echo "#define OCI_DLL \"libclntsh.dylib\"" >> chkccomp.h
 	echo "#define OCI_USE_DLL" >> chkccomp.h
 
 version.h: chkccomp.h
@@ -195,6 +197,7 @@ version.h: chkccomp.h
 	echo "#define USE_DIRENT" >> version.h
 	echo "#define SEARCH_PATH_DELIMITER ':'" >> version.h
 	echo "#define CATCH_SIGNALS" >> version.h
+	echo "#define OVERFLOW_SIGNAL \"SIGILL\"" >> version.h
 	echo "#define USE_MMAP" >> version.h
 	echo "#define AWAIT_WITH_SELECT" >> version.h
 	echo "#define WITH_SQL" >> version.h
@@ -213,18 +216,17 @@ version.h: chkccomp.h
 	echo "#define OBJECT_FILE_EXTENSION \".o\"" >> version.h
 	echo "#define LIBRARY_FILE_EXTENSION \".a\"" >> version.h
 	echo "#define C_COMPILER \"$(CC)\"" >> version.h
-	echo "#define CPLUSPLUS_COMPILER \"g++\"" >> version.h
+	echo "#define CPLUSPLUS_COMPILER \"$(CC) -x c++\"" >> version.h
 	echo "#define GET_CC_VERSION_INFO \"$(GET_CC_VERSION_INFO)\"" >> version.h
 	echo "#define CC_SOURCE_UTF8" >> version.h
 	echo "#define CC_OPT_DEBUG_INFO \"-g\"" >> version.h
 	echo "#define CC_OPT_NO_WARNINGS \"-w\"" >> version.h
-	echo "#define CC_FLAGS \"-ffunction-sections -fdata-sections\"" >> version.h
+	echo "#define CC_FLAGS \"-ffunction-sections -fdata-sections -ftrapv\"" >> version.h
 	echo "#define REDIRECT_C_ERRORS \"2>\"" >> version.h
-	echo "#define LINKER_OPT_NO_DEBUG_INFO \"-Wl,--strip-debug\"" >> version.h
 	echo "#define LINKER_OPT_OUTPUT_FILE \"-o \"" >> version.h
 	echo "#define LINKER_FLAGS \"$(LDFLAGS)\"" >> version.h
 	$(GET_CC_VERSION_INFO) cc_vers.txt
-	$(CC) chkccomp.c -lm -o chkccomp
+	$(CC) -ftrapv chkccomp.c -lm -o chkccomp
 	./chkccomp version.h
 	rm chkccomp
 	rm cc_vers.txt
@@ -295,9 +297,6 @@ lint: $(SRC)
 
 lint2: $(SRC)
 	lint -Zn2048 $(SRC) $(SYSTEM_DRAW_LIBS) $(SYSTEM_CONSOLE_LIBS) $(SYSTEM_LIBS) $(SYSTEM_DB_LIBS)
-
-cppcheck: $(SRC) $(SEED7_LIB_SRC) $(DRAW_LIB_SRC) $(COMP_DATA_LIB_SRC) $(COMPILER_LIB_SRC)
-	cppcheck --force --enable=all $(SRC) $(SEED7_LIB_SRC) $(DRAW_LIB_SRC) $(COMP_DATA_LIB_SRC) $(COMPILER_LIB_SRC)
 
 ifeq (depend,$(wildcard depend))
 include depend

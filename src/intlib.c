@@ -889,7 +889,7 @@ objectType int_mult (listType arguments)
     if (inHalfIntTypeRange(factor1) && inHalfIntTypeRange(factor2)) {
       product = factor1 * factor2;
     } else {
-      product = intSafeMult(factor1, factor2);
+      product = intMultOvfChk(factor1, factor2);
     } /* if */
 #endif
 #else
@@ -924,7 +924,7 @@ objectType int_mult_assign (listType arguments)
       if (inHalfIntTypeRange(number) && inHalfIntTypeRange(factor)) {
         int_variable->value.intValue *= factor;
       } else {
-        int_variable->value.intValue = intSafeMult(number, factor);
+        int_variable->value.intValue = intMultOvfChk(number, factor);
       } /* if */
     }
 #else

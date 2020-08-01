@@ -74,80 +74,64 @@ static void readDecimal (register sySizeType position)
 
 
 
-static intType decimalValue (ustriType digits)
+static intType decimalValue (const const_ustriType digits)
 
   {
-    intType intValue;
-    unsigned int position;
-    intType digitval;
-    boolType okay;
+    boolType tooBig = FALSE;
+    unsigned int position = 0;
+    uintType digitval;
+    uintType uintValue = 0;
 
   /* decimalValue */
-    okay = TRUE;
-    intValue = 0;
-    position = 0;
     while (digits[position] != '\0') {
-      digitval = ((intType) digits[position]) - ((intType) '0');
-      if (intValue < MAX_DIV_10 ||
-          (intValue == MAX_DIV_10 &&
-          digitval <= MAX_REM_10)) {
-        intValue = ((intType) 10) * intValue + digitval;
+      digitval = ((uintType) digits[position]) - ((uintType) '0');
+      if (unlikely(uintValue > MAX_DIV_10)) {
+        tooBig = TRUE;
       } else {
-        okay = FALSE;
+        uintValue = ((uintType) 10) * uintValue + digitval;
       } /* if */
       position++;
     } /* while */
-    if (!okay) {
+    if (unlikely(tooBig || uintValue > (uintType) INTTYPE_MAX)) {
       err_string(CARD_DECIMAL_TOO_BIG, digits);
-      intValue = 0;
+      uintValue = 0;
     } /* if */
-    return intValue;
+    return (intType) uintValue;
   } /* decimalValue */
 
 
 
-static inline intType basedValue (intType base, ustriType digits)
+static inline intType basedValue (const uintType base, const const_ustriType digits)
 
   {
-    intType intValue;
-    unsigned int position;
-    intType div_base;
-    intType mod_base;
-    intType digitval;
-    boolType okay;
+    boolType illegalDigit = FALSE;
+    boolType tooBig = FALSE;
+    uintType max_div_base;
+    unsigned int position = 0;
+    uintType digitval;
+    uintType uintValue = 0;
 
   /* basedValue */
-    okay = TRUE;
-    intValue = 0;
-    div_base = (intType) (INTTYPE_MAX / base);
-    mod_base = (intType) (INTTYPE_MAX % base);
-    position = 0;
+    max_div_base = (uintType) INTTYPE_MAX / base;
     while (digits[position] != '\0') {
-      digitval = digit_value[(int) digits[position]];
-      if (digitval >= base) {
-        if (okay) {
-          err_num_stri(ILLEGALBASEDDIGIT,
-              (int) digits[position], (int) base, digits);
-          okay = FALSE;
-        } /* if */
-      } /* if */
-      if (intValue < div_base ||
-          (intValue == div_base &&
-          digitval <= mod_base)) {
-        intValue = base * intValue + digitval;
+      digitval = (uintType) digit_value[(int) digits[position]];
+      if (unlikely(digitval >= base)) {
+        illegalDigit = TRUE;
+      } else if (unlikely(uintValue > max_div_base)) {
+        tooBig = TRUE;
       } else {
-        if (okay) {
-          err_num_stri(CARD_BASED_TOO_BIG,
-              0, (int) base, digits);
-          okay = FALSE;
-        } /* if */
+        uintValue = base * uintValue + digitval;
       } /* if */
       position++;
     } /* while */
-    if (!okay) {
-      intValue = 0;
+    if (unlikely(illegalDigit)) {
+      err_num_stri(ILLEGALBASEDDIGIT, (int) digits[position], (int) base, digits);
+      uintValue = 0;
+    } else if (unlikely(tooBig || uintValue > (uintType) INTTYPE_MAX)) {
+      err_num_stri(CARD_BASED_TOO_BIG, 0, (int) base, digits);
+      uintValue = 0;
     } /* if */
-    return intValue;
+    return (intType) uintValue;
   } /* basedValue */
 
 
@@ -232,7 +216,7 @@ static inline void basedInteger (intType intValue)
         symbol.bigIntValue = readBigBased(intValue);
         symbol.sycategory = BIGINTLITERAL;
       } else {
-        symbol.intValue = basedValue(intValue, symbol.name);
+        symbol.intValue = basedValue((uintType) intValue, symbol.name);
         symbol.sycategory = INTLITERAL;
       } /* if */
     } else {

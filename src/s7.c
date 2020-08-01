@@ -50,6 +50,7 @@
 #include "option.h"
 #include "runerr.h"
 #include "level.h"
+#include "int_rtl.h"
 #include "flt_rtl.h"
 #include "arr_rtl.h"
 #include "cmd_rtl.h"
@@ -359,6 +360,7 @@ int main (int argc, char **argv)
         } else if (option.write_help) {
           writeHelp();
         } else {
+          setupRand();
           setupFloat();
           /* printf("source_file_argument: \"");
              prot_stri(option.source_file_argument);

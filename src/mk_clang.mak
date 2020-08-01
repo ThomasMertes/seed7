@@ -13,7 +13,7 @@
 # CFLAGS = -O2 -g -ffunction-sections -fdata-sections -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith -ftrapv -fsanitize=address,integer,undefined,dataflow,alignment,bool,bounds,enum,shift,integer-divide-by-zero
 # CFLAGS = -O2 -g -ffunction-sections -fdata-sections -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith -ftrapv -fsanitize=address,integer,undefined -fno-sanitize=unsigned-integer-overflow
 CFLAGS = -O2 -g -ffunction-sections -fdata-sections $(INCLUDE_OPTIONS) -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith -ftrapv
-# CFLAGS = -O2 -g -x c++ -Wall -Winline -Wconversion -Wshadow -Wpointer-arith -ftrapv
+# CFLAGS = -O2 -g -x c++ -ffunction-sections -fdata-sections $(INCLUDE_OPTIONS) -Wall -Winline -Wconversion -Wshadow -Wpointer-arith -ftrapv
 # CFLAGS = -O2 -g -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
 # CFLAGS = -O2 -g -Wall -Winline -Wconversion -Wshadow -Wpointer-arith
 # CFLAGS = -O2 -g -Wall
@@ -86,7 +86,7 @@ GOBJ = syvarutl.o traceutl.o actutl.o executl.o blockutl.o \
        entutl.o identutl.o chclsutl.o sigutl.o arrutl.o
 ROBJ = arr_rtl.o bln_rtl.o bst_rtl.o chr_rtl.o cmd_rtl.o con_rtl.o dir_rtl.o drw_rtl.o fil_rtl.o \
        flt_rtl.o hsh_rtl.o int_rtl.o itf_rtl.o pcs_rtl.o set_rtl.o soc_rtl.o sql_rtl.o str_rtl.o \
-       tim_rtl.o ut8_rtl.o heaputl.o striutl.o sql_ite.o sql_my.o sql_oci.o sql_odbc.o sql_post.o sql_util.o
+       tim_rtl.o ut8_rtl.o heaputl.o striutl.o sql_lite.o sql_my.o sql_oci.o sql_odbc.o sql_post.o sql_util.o
 DOBJ = $(BIGINT_LIB).o cmd_unx.o dll_unx.o fil_unx.o pcs_unx.o pol_unx.o tim_unx.o
 OBJ = $(MOBJ)
 SEED7_LIB_OBJ = $(ROBJ) $(DOBJ)
@@ -108,7 +108,7 @@ GSRC = syvarutl.c traceutl.c actutl.c executl.c blockutl.c \
        entutl.c identutl.c chclsutl.c sigutl.c arrutl.c
 RSRC = arr_rtl.c bln_rtl.c bst_rtl.c chr_rtl.c cmd_rtl.c con_rtl.c dir_rtl.c drw_rtl.c fil_rtl.c \
        flt_rtl.c hsh_rtl.c int_rtl.c itf_rtl.c pcs_rtl.c set_rtl.c soc_rtl.c sql_rtl.c str_rtl.c \
-       tim_rtl.c ut8_rtl.c heaputl.c striutl.c sql_ite.c sql_my.c sql_oci.c sql_odbc.c sql_post.c sql_util.c
+       tim_rtl.c ut8_rtl.c heaputl.c striutl.c sql_lite.c sql_my.c sql_oci.c sql_odbc.c sql_post.c sql_util.c
 DSRC = $(BIGINT_LIB).c cmd_unx.c dll_unx.c fil_unx.c pcs_unx.c pol_unx.c tim_unx.c
 SRC = $(MSRC)
 SEED7_LIB_SRC = $(RSRC) $(DSRC)
@@ -175,12 +175,20 @@ chkccomp.h:
 	echo "#include \"unistd.h\"" >> chkccomp.h
 	echo "#define LIST_DIRECTORY_CONTENTS \"ls\"" >> chkccomp.h
 	echo "#define MYSQL_LIBS \"-lmysqlclient\"" >> chkccomp.h
+	echo "#define MYSQL_DLL \"libmysqlclient.so\"" >> chkccomp.h
+	echo "#define MYSQL_USE_LIB" >> chkccomp.h
 	echo "#define SQLITE_LIBS \"-lsqlite3\"" >> chkccomp.h
+	echo "#define SQLITE_DLL \"libsqlite3.so\"" >> chkccomp.h
+	echo "#define SQLITE_USE_LIB" >> chkccomp.h
 	echo "#define POSTGRESQL_LIBS \"-lpq\"" >> chkccomp.h
+	echo "#define POSTGRESQL_DLL \"libpq.so\"" >> chkccomp.h
+	echo "#define POSTGRESQL_USE_LIB" >> chkccomp.h
 	echo "#define ODBC_LIBS \"-lodbc\"" >> chkccomp.h
-	echo "/* #define MYSQL_DLL \"libmysqlclient.so\" */" >> chkccomp.h
+	echo "#define ODBC_DLL \"libodbc.so\"" >> chkccomp.h
+	echo "#define ODBC_USE_LIB" >> chkccomp.h
+	echo "#define OCI_LIBS \"-lclntsh\"" >> chkccomp.h
 	echo "#define OCI_DLL \"libclntsh.so\"" >> chkccomp.h
-	echo "/* #define ODBC_DLL \"libodbc.so\" */" >> chkccomp.h
+	echo "#define OCI_USE_DLL" >> chkccomp.h
 
 version.h: chkccomp.h
 	echo "#define PATH_DELIMITER '/'" > version.h

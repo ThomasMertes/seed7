@@ -189,11 +189,58 @@ const char lcDigits[] = "0123456789abcdefghijklmnopqrstuvwxyz";
 const char ucDigits[] = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 const const_cstriType digitTable[] = {lcDigits, ucDigits};
 
+#if INTTYPE_SIZE == 32
+#define RAND_MULTIPLIER           1103515245
+#define RAND_INCREMENT                 12345
+#elif INTTYPE_SIZE == 64
+#define RAND_MULTIPLIER  6364136223846793005
+#define RAND_INCREMENT   1442695040888963407
+#endif
+
+#ifdef HAS_DOUBLE_INTTYPE
+static doubleUintType seed;
+#else
+static uintType low_seed;
+static uintType high_seed;
+#endif
+
 #ifdef VERBOSE_EXCEPTIONS
 #define logError(logStatements) logStatements
 #else
 #define logError(logStatements)
 #endif
+
+
+
+void setupRand (void)
+
+  {
+    uintType micro_sec;
+#ifdef HAS_DOUBLE_INTTYPE
+    uintType low_seed;
+    uintType high_seed;
+#endif
+
+  /* setupRand */
+    micro_sec = (uintType) timMicroSec();
+    high_seed = (uintType) time(NULL);
+    high_seed = high_seed ^ (high_seed << 16);
+    low_seed = (uintType) clock();
+    low_seed = (low_seed ^ (low_seed << 16)) ^ high_seed;
+    /* printf("%10lo %010lo seed\n", (long unsigned) high_seed, (long unsigned) low_seed); */
+    high_seed ^= micro_sec ^ micro_sec << 8 ^ micro_sec << 16 ^ micro_sec << 24;
+#if INTTYPE_SIZE >= 64
+    high_seed ^= micro_sec << 32 ^ micro_sec << 40 ^ micro_sec << 48 ^ micro_sec << 56;
+#endif
+    low_seed ^= micro_sec ^ micro_sec << 8 ^ micro_sec << 16 ^ micro_sec << 24;
+#if INTTYPE_SIZE >= 64
+    low_seed ^= micro_sec << 32 ^ micro_sec << 40 ^ micro_sec << 48 ^ micro_sec << 56;
+#endif
+    /* printf("%10lo %010lo seed\n", (long unsigned) high_seed, (long unsigned) low_seed); */
+#ifdef HAS_DOUBLE_INTTYPE
+    seed = (doubleUintType) high_seed << INTTYPE_SIZE | (doubleUintType) low_seed;
+#endif
+  } /* setupRand */
 
 
 
@@ -448,48 +495,18 @@ static inline uintType uint2_add (uintType summand1_high, uintType summand1_low,
  *  of the generated sequence have a short period.
  *  @return the random number.
  */
-uintType uint_rand (void)
+uintType uintRand (void)
 
-  {
-    static boolType seed_necessary = TRUE;
-    static doubleUintType seed;
-    uintType low_seed;
-    uintType high_seed;
-
-  /* uint_rand */
+  { /* uintRand */
 #ifdef TRACE_RANDOM
-    printf("BEGIN uint_rand\n");
+    printf("BEGIN uintRand\n");
 #endif
-    if (unlikely(seed_necessary)) {
-      uintType micro_sec = (uintType) timMicroSec();
-
-      high_seed = (uintType) time(NULL);
-      high_seed = high_seed ^ (high_seed << 16);
-      low_seed = (uintType) clock();
-      low_seed = (low_seed ^ (low_seed << 16)) ^ high_seed;
-      /* printf("%10lo %010lo seed\n", (long unsigned) high_seed, (long unsigned) low_seed); */
-      high_seed ^= micro_sec ^ micro_sec << 8 ^ micro_sec << 16 ^ micro_sec << 24;
-#if INTTYPE_SIZE >= 64
-      high_seed ^= micro_sec << 32 ^ micro_sec << 40 ^ micro_sec << 48 ^ micro_sec << 56;
-#endif
-      low_seed ^= micro_sec ^ micro_sec << 8 ^ micro_sec << 16 ^ micro_sec << 24;
-#if INTTYPE_SIZE >= 64
-      low_seed ^= micro_sec << 32 ^ micro_sec << 40 ^ micro_sec << 48 ^ micro_sec << 56;
-#endif
-      /* printf("%10lo %010lo seed\n", (long unsigned) high_seed, (long unsigned) low_seed); */
-      seed = (doubleUintType) high_seed << INTTYPE_SIZE | (doubleUintType) low_seed;
-      seed_necessary = FALSE;
-    } /* if */
-#if INTTYPE_SIZE == 32
-    seed = seed * 1103515245 + 12345;
-#elif INTTYPE_SIZE == 64
-    seed = seed * 6364136223846793005 + 1442695040888963407;
-#endif
+    seed = seed * RAND_MULTIPLIER + RAND_INCREMENT;
 #ifdef TRACE_RANDOM
-    printf("END uint_rand ==> " F_X(08) "\n", (uintType) (seed >> INTTYPE_SIZE));
+    printf("END uintRand ==> " F_X(08) "\n", (uintType) (seed >> INTTYPE_SIZE));
 #endif
     return (uintType) (seed >> INTTYPE_SIZE);
-  } /* uint_rand */
+  } /* uintRand */
 
 #else
 
@@ -504,55 +521,58 @@ uintType uint_rand (void)
  *  of the generated sequence have a short period.
  *  @return the random number.
  */
-uintType uint_rand (void)
+uintType uintRand (void)
 
-  {
-    static boolType seed_necessary = TRUE;
-    static uintType low_seed;
-    static uintType high_seed;
-
-  /* uint_rand */
+  { /* uintRand */
 #ifdef TRACE_RANDOM
-    printf("BEGIN uint_rand\n");
+    printf("BEGIN uintRand\n");
 #endif
-    if (unlikely(seed_necessary)) {
-      uintType micro_sec = (uintType) timMicroSec();
-
-      high_seed = (uintType) time(NULL);
-      high_seed = high_seed ^ (high_seed << 16);
-      low_seed = (uintType) clock();
-      low_seed = (low_seed ^ (low_seed << 16)) ^ high_seed;
-      /* printf("%10lo %010lo seed\n", (long unsigned) high_seed, (long unsigned) low_seed); */
-      high_seed ^= micro_sec ^ micro_sec << 8 ^ micro_sec << 16 ^ micro_sec << 24;
-#if INTTYPE_SIZE >= 64
-      high_seed ^= micro_sec << 32 ^ micro_sec << 40 ^ micro_sec << 48 ^ micro_sec << 56;
-#endif
-      low_seed ^= micro_sec ^ micro_sec << 8 ^ micro_sec << 16 ^ micro_sec << 24;
-#if INTTYPE_SIZE >= 64
-      low_seed ^= micro_sec << 32 ^ micro_sec << 40 ^ micro_sec << 48 ^ micro_sec << 56;
-#endif
-      /* printf("%10lo %010lo seed\n", (long unsigned) high_seed, (long unsigned) low_seed); */
-      seed_necessary = FALSE;
-    } /* if */
-#if INTTYPE_SIZE == 32
-    /* SEED = SEED * 1103515245 + 12345 */
-    low_seed = uint2_mult(high_seed, low_seed, (uintType) INT_SUFFIX(0), (uintType) INT_SUFFIX(1103515245),
+    /* SEED = SEED * RAND_MULTIPLIER + RAND_INCREMENT */
+    low_seed = uint2_mult(high_seed, low_seed, (uintType) INT_SUFFIX(0), (uintType) INT_SUFFIX(RAND_MULTIPLIER),
         &high_seed);
-    low_seed = uint2_add(high_seed, low_seed, (uintType) INT_SUFFIX(0), (uintType) INT_SUFFIX(12345),
+    low_seed = uint2_add(high_seed, low_seed, (uintType) INT_SUFFIX(0), (uintType) INT_SUFFIX(RAND_INCREMENT),
         &high_seed);
-#elif INTTYPE_SIZE == 64
-    /* SEED = SEED * 6364136223846793005 + 1442695040888963407 */
-    low_seed = uint2_mult(high_seed, low_seed, (uintType) INT_SUFFIX(0), (uintType) INT_SUFFIX(6364136223846793005),
-        &high_seed);
-    low_seed = uint2_add(high_seed, low_seed, (uintType) INT_SUFFIX(0), (uintType) INT_SUFFIX(1442695040888963407),
-        &high_seed);
-#endif
 #ifdef TRACE_RANDOM
-    printf("END uint_rand ==> " F_X(08) "\n", high_seed);
+    printf("END uintRand ==> " F_X(08) "\n", high_seed);
 #endif
     return high_seed;
-  } /* uint_rand */
+  } /* uintRand */
 #endif
+
+
+
+uintType uintRandLimited (uintType rand_max)
+
+  {
+    uintType rand_val;
+
+  /* uintRandLimited */
+    do {
+      rand_val = uintRand();
+    } while (rand_val > rand_max);
+    return rand_val;
+  } /* uintRandLimited */
+
+
+
+static uintType uintGcd (uintType number1, uintType number2)
+
+  {
+    uintType temp;
+
+  /* uintGcd */
+    if (number2 < number1) {
+      temp = number1;
+      number1 = number2;
+      number2 = temp;
+    } /* if */
+    while (number2 > 0) {
+      temp = number2;
+      number2 = number1 % number2;
+      number1 = temp;
+    } /* while */
+    return number1;
+  } /* uintGcd */
 
 
 
@@ -855,52 +875,168 @@ genericType ptrCreateGeneric (const genericType from_value)
 /**
  *  Binomial coefficient
  *  This is equivalent to n! / k! / (n - k)!
+ *  This function checks for overflow, otherwise it could not
+ *  provide the correct result in all situations. This keeps
+ *  a design principle of Seed7 intact: All overflow situations,
+ *  where OVERFLOW_ERROR is raised correspond to C situations,
+ *  which have undefined behaviour (wrong results). In other
+ *  words: Wrong results without overflow checking are only
+ *  acceptable when overflow checking would raise OVERFLOW_ERROR.
  *  @return n over k
+ *  @exception OVERFLOW_ERROR When an integer overflow occurs.
  */
 intType intBinom (intType n_number, intType k_number)
 
   {
-    intType number;
+    uintType numerator;
+    uintType denominator;
+    boolType negative;
     uintType unsigned_result;
+    uintType gcd;
+    uintType reducedNumerator;
+    uintType reducedDenominator;
     intType result;
 
   /* intBinom */
 #ifdef TRACE_INT_RTL
     printf("intBinom(" FMT_D ", " FMT_D ")\n", k_number, n_number);
 #endif
-    if (n_number > 0 && 2 * k_number > n_number) {
+    if (n_number >= 0 && k_number > (intType) ((uintType) n_number >> 1)) {
       k_number = n_number - k_number;
     } /* if */
-    if (k_number < 0) {
-      result = 0;
-    } else if (k_number == 0) {
-      result = 1;
-    } else /* if (n_number <= 30 || k_number <= 7)  */{
-      if (n_number < 0) {
+    if (unlikely(k_number <= 1)) {
+      if (k_number < 0) {
+        result = 0;
+      } else if (k_number == 0) {
+        result = 1;
+      } else {
         result = n_number;
-        for (number = 2; number <= k_number; number++) {
-          result *= (n_number - number + 1);
-          result /= number;
+      } /* if */
+    } else if (unlikely(n_number == -1)) {
+      if (k_number & 1) {
+        result = -1;
+      } else {
+        result = 1;
+      } /* if */
+    } else {
+      if (n_number < 0) {
+        negative = k_number & 1;
+        numerator = -(uintType) n_number + (uintType) k_number - 1;
+        if ((uintType) k_number > numerator >> 1) {
+          k_number = (intType) (numerator - (uintType) k_number);
+        } /* if */
+      } else {
+        negative = FALSE;
+        numerator = (uintType) n_number;
+      } /* if */
+      unsigned_result = numerator;
+      numerator--;
+#if   INTTYPE_SIZE == 32
+      if (numerator <= 29) {
+#elif INTTYPE_SIZE == 64
+      if (numerator <= 61) {
+#endif
+        for (denominator = 2; denominator <= (uintType) k_number; denominator++, numerator--) {
+          unsigned_result *= numerator;
+          unsigned_result /= denominator;
         } /* for */
       } else {
-        unsigned_result = (uintType) n_number;
-        for (number = 2; number <= k_number; number++) {
-          unsigned_result *= (uintType) (n_number - number + 1);
-          unsigned_result /= (uintType) number;
+        for (denominator = 2; denominator <= (uintType) k_number; denominator++, numerator--) {
+          if (unsigned_result > UINTTYPE_MAX / numerator) {
+            /* Possible overflow */
+            gcd = uintGcd(numerator, denominator);
+            reducedNumerator = numerator / gcd;
+            reducedDenominator = denominator / gcd;
+            gcd = uintGcd(unsigned_result, reducedDenominator);
+            unsigned_result = unsigned_result / gcd;
+            reducedDenominator = reducedDenominator / gcd;
+            if (unsigned_result > UINTTYPE_MAX / reducedNumerator) {
+              /* Unavoidable overflow */
+              logError(printf(" *** intBinom(" FMT_D ", " FMT_D "): "
+                       "Unavoidable overflow.\n", n_number, k_number););
+              raise_error(OVERFLOW_ERROR);
+              return 0;
+            } else {
+              unsigned_result *= reducedNumerator;
+              unsigned_result /= reducedDenominator;
+            } /* if */
+          } else {
+            unsigned_result *= numerator;
+            unsigned_result /= denominator;
+          } /* if */
         } /* for */
-        result = (intType) unsigned_result;
       } /* if */
-/*
-    } else {
-      result = binom(n_number - 1, k_number - 1) +
-          binom(n_number - 1, k_number);
-*/
+      if (negative) {
+        if (unsigned_result > -(uintType) INTTYPE_MIN) {
+          logError(printf(" *** intBinom(" FMT_D ", " FMT_D "): "
+                   "Negative result too small.\n", n_number, k_number););
+          raise_error(OVERFLOW_ERROR);
+          result = 0;
+        } else {
+          result = (intType) -unsigned_result;
+        } /* if */
+      } else {
+        if (unsigned_result > INTTYPE_MAX) {
+          logError(printf(" *** intBinom(" FMT_D ", " FMT_D "): "
+                   "Positive result too big.\n", n_number, k_number););
+          raise_error(OVERFLOW_ERROR);
+          result = 0;
+        } else {
+          result = (intType) unsigned_result;
+        } /* if */
+      } /* if */
     } /* if */
 #ifdef TRACE_INT_RTL
     printf("intBinom --> " FMT_D "\n", result);
 #endif
     return result;
   } /* intBinom */
+
+
+
+/**
+ *  Binomial coefficient
+ *  This is equivalent to n! / k! / (n - k)!
+ *  This is a special case function that provides the correct
+ *  result when n_number is less than a limit.
+ *  For 32-bit integers the limit is 30 (n_number <= 30 must hold).
+ *  For 64-bit integers the limit is 62 (n_number <= 62 must hold).
+ *  @return n over k
+ */
+uintType uintBinomNoChk (uintType n_number, intType k_number)
+
+  {
+    uintType denominator;
+    uintType result;
+
+  /* uintBinomNoChk */
+#ifdef TRACE_INT_RTL
+    printf("uintBinomNoChk(" FMT_D ", " FMT_U ")\n", k_number, n_number);
+#endif
+    if (k_number > (intType) (n_number >> 1)) {
+      k_number = (intType) n_number - k_number;
+    } /* if */
+    if (unlikely(k_number <= 1)) {
+      if (k_number < 0) {
+        result = 0;
+      } else if (k_number == 0) {
+        result = 1;
+      } else {
+        result = n_number;
+      } /* if */
+    } else {
+      result = n_number;
+      n_number--;
+      for (denominator = 2; denominator <= (uintType) k_number; denominator++, n_number--) {
+        result *= n_number;
+        result /= denominator;
+      } /* for */
+    } /* if */
+#ifdef TRACE_INT_RTL
+    printf("uintBinomNoChk --> " FMT_U "\n", result);
+#endif
+    return result;
+  } /* uintBinomNoChk */
 
 
 
@@ -1437,12 +1573,12 @@ intType intParse (const const_striType stri)
     } /* if */
     if (likely(okay)) {
       if (negative) {
-        if (uint_value > (uintType) INT64TYPE_MAX + 1) {
+        if (uint_value > (uintType) INTTYPE_MAX + 1) {
           okay = FALSE;
         } else {
           int_value = (intType) -uint_value;
         } /* if */
-      } else if (uint_value > (uintType) INT64TYPE_MAX) {
+      } else if (uint_value > (uintType) INTTYPE_MAX) {
         okay = FALSE;
       } else {
         int_value = (intType) uint_value;
@@ -1524,7 +1660,7 @@ intType intPowOvfChk (intType base, intType exponent)
       raise_error(NUMERIC_ERROR);
       power = 0;
     } else {
-      if (exponent < sizeof(minBaseOfExponent) / sizeof(intType)) {
+      if ((uintType) exponent < sizeof(minBaseOfExponent) / sizeof(intType)) {
         if (unlikely(base < minBaseOfExponent[exponent] ||
                      base > maxBaseOfExponent[exponent])) {
           logError(printf(" *** intPowOvfChk(" FMT_D ", " FMT_D "): "
@@ -1734,15 +1870,17 @@ intType intRand (intType low, intType high)
     } else {
       scale_limit = (uintType) high - (uintType) low;
       if (scale_limit == UINTTYPE_MAX) {
-        rand_val = uint_rand();
+        /* low must be INTTYPE_MIN and high must be INTTYPE_MAX. */
+        randomNumber = (intType) uintRand();
       } else {
         scale_limit++;
-        rand_max = UINTTYPE_MAX - (UINTTYPE_MAX % scale_limit);
+        /* scale_limit <= UINTTYPE_MAX holds. */
+        rand_max = UINTTYPE_MAX - ((UINTTYPE_MAX - scale_limit + 1) % scale_limit);
         do {
-          rand_val = uint_rand();
+          rand_val = uintRand();
         } while (rand_val > rand_max);
+        randomNumber = (intType) ((uintType) low + rand_val % scale_limit);
       } /* if */
-      randomNumber = (intType) ((uintType) low + rand_val % scale_limit);
     } /* if */
 #ifdef TRACE_INT_RTL
     printf("intRand --> " FMT_D "\n", randomNumber);
@@ -1757,20 +1895,26 @@ intType intRand (intType low, intType high)
  *  @return the product of the two numbers.
  *  @exception OVERFLOW_ERROR When an integer overflow occurs.
  */
-intType intSafeMult (intType factor1, intType factor2)
+intType intMultOvfChk (intType factor1, intType factor2)
 
   {
     intType product;
 
-  /* intSafeMult */
+  /* intMultOvfChk */
     if (factor1 < 0) {
       if (factor2 < 0) {
         if (unlikely(factor1 < INTTYPE_MAX / factor2)) {
+          logError(printf(" *** intMultOvfChk(" FMT_D ", " FMT_D "): "
+                   "factor1 < " FMT_D "\n",
+                   factor1, factor2, INTTYPE_MAX / factor2););
           raise_error(OVERFLOW_ERROR);
           return 0;
         } /* if */
       } else if (factor2 != 0) {
         if (unlikely(factor1 < INTTYPE_MIN / factor2)) {
+          logError(printf(" *** intMultOvfChk(" FMT_D ", " FMT_D "): "
+                   "factor1 < " FMT_D "\n",
+                   factor1, factor2, INTTYPE_MIN / factor2););
           raise_error(OVERFLOW_ERROR);
           return 0;
         } /* if */
@@ -1778,11 +1922,17 @@ intType intSafeMult (intType factor1, intType factor2)
     } else if (factor1 != 0) {
       if (factor2 < 0) {
         if (unlikely(factor2 < INTTYPE_MIN / factor1)) {
+          logError(printf(" *** intMultOvfChk(" FMT_D ", " FMT_D "): "
+                   "factor2 < " FMT_D "\n",
+                   factor1, factor2, INTTYPE_MIN / factor1););
           raise_error(OVERFLOW_ERROR);
           return 0;
         } /* if */
       } else if (factor2 != 0) {
         if (unlikely(factor2 > INTTYPE_MAX / factor1)) {
+          logError(printf(" *** intMultOvfChk(" FMT_D ", " FMT_D "): "
+                   "factor2 > " FMT_D "\n",
+                   factor1, factor2, INTTYPE_MAX / factor1););
           raise_error(OVERFLOW_ERROR);
           return 0;
         } /* if */
@@ -1790,7 +1940,7 @@ intType intSafeMult (intType factor1, intType factor2)
     } /* if */
     product = factor1 * factor2;
     return product;
-  } /* intSafeMult */
+  } /* intMultOvfChk */
 
 
 

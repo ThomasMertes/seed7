@@ -1,3 +1,62 @@
+20141207:
+- The paragraph in src/read_me.txt, that desribes the compilation
+  under Mac OS X, has been improved.
+- The function bigIPow1 in big_rtl.c has been changed to call
+  bigLog2BaseIPow instead of bigLShiftOne when the base is a power of
+  two. This avoids an integer overflow when the shift count is
+  computed.
+- The function fltIPow in flt_rtl.c has been changed to avoid a
+  division by zero when CHECK_FLOAT_DIV_BY_ZERO has been defined.
+- The function fltIPow in flt_rtl.c has been improved to return
+  -Infinity for (-0.0) ** n when n is negative.
+- The function uint_rand (in int_rtl.c) has been renamed to uintRand
+  and changed to ommit the initialisation of the random seed.
+- The function setupRand has been added to int_rtl.c. This function
+  initializes the random seed of uintRand.
+- The function uintRandLimited has been added to int_rtl.c.
+- The runtime of the integer random number generator has been reduced
+  to 45%.
+- The compiler has been improved to generate optimized code for
+  special cases of the action INT_RAND. For special cases the
+  functions uintRand and uintRandLimited are used instead of intRand.
+- The compiler has been improved to optimize the binomial coefficient
+  operator (infix operator symbol: ! ).
+- Tests for the binomial coefficient (infix operator symbol: ! ) have
+  been added to chkint.sd7 and chkovf.st7
+- Tests for the integer random number generator have been added to
+  chkint.sd7.
+- Tests for powers of negative zero have been added to chkflt.s7i.
+- The database interface headers db_lite.h, db_my.h, db_oci.h,
+  db_odbc.h and db_post.h have been added. This include files are
+  used when the original database include files are not available.
+- The functions decimalValue and basedValue in numlit.c have been
+  improved to use an unsigned integer value and a simplified test for
+  the maximum value of a literal. The change reduces the runtime of
+  decimalValue by 6% (measured with gcc and valgrind).
+- The function intBinom (in int_rtl.c) has been improved to work
+  correctly as long as the result is representable in an integer of
+  type intType. When the result is not representable in an integer
+  the exception OVERFLOW_ERROR is raised.
+- The function uintBinomNoChk has been added to int_rtl.c. This
+  special case function is used by the compiler, when n_number is
+  less than a limit.
+- The function intSafeMult has been renamed to intMultOvfChk.
+- The makefile mk_osxcl.mak has been added. This makefile supports
+  compilation under Mac OS X with the clang compiler.
+- The file sql_ite.c has been renamed to sql_lite.c.
+- The makefiles have been improved to write additional macros to
+  chkccomp.h. This macros are used by chkccomp.c to do the database
+  investigation.
+- The database drivers sql_lite.c, sql_my.c, sql_oci.c, sql_odbc.c
+  and sql_post.c have been improved.
+- The configuration program chkccomp.c has been improved:
+  - Now it writes definitions of INT8TYPE and INT16TYPE to version.h.
+  - Now it adds /opt/X11/include to the include path, when
+    /usr/include/X11 does not exist. This is required for Mac OS X.
+  - The functions that write define macros for databases have been
+    improved to take the new database interface headers (db_*.h) into
+    account.
+
 20141116:
 - The type process has been added to the library process.s7i. The
   type process is used to manage child processes.

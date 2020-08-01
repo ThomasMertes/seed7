@@ -757,8 +757,8 @@ winType drwGet (const_winType actual_window, intType left, intType upper,
 bstriType drwGetImage (const_winType actual_window)
 
   {
-    intType xPos;
-    intType yPos;
+    unsigned int xPos;
+    unsigned int yPos;
     memSizeType result_size;
     int32Type *image_data;
     bstriType result;

@@ -226,7 +226,7 @@ void cleanUpCompilation (void)
 
 
 
-int doCompileAndLink (const char *options)
+int doCompileAndLink (const char *options, const char *linkerOptions)
 
   {
     char command[1024];
@@ -237,9 +237,11 @@ int doCompileAndLink (const char *options)
 
   /* doCompileAndLink */
 #ifdef CC_FLAGS
-    sprintf(command, "%s %s %s ctest.c", c_compiler, options, CC_FLAGS);
+    sprintf(command, "%s %s %s ctest.c %s",
+            c_compiler, options, CC_FLAGS, linkerOptions);
 #else
-    sprintf(command, "%s %s ctest.c", c_compiler, options);
+    sprintf(command, "%s %s ctest.c %s",
+            c_compiler, options, linkerOptions);
 #endif
 #if defined LINKER_OPT_OUTPUT_FILE && !defined CC_NO_OPT_OUTPUT_FILE
     sprintf(&command[strlen(command)], " %sctest%s",
@@ -277,7 +279,8 @@ int doCompileAndLink (const char *options)
 
 
 
-int compileAndLinkWithOptionsOk (const char *content, const char *options)
+int compileAndLinkWithOptionsOk (const char *content, const char *options,
+    const char *linkerOptions)
 
   {
     FILE *testFile;
@@ -290,7 +293,7 @@ int compileAndLinkWithOptionsOk (const char *content, const char *options)
     if (testFile != NULL) {
       fprintf(testFile, "%s", content);
       fclose(testFile);
-      result = doCompileAndLink(options);
+      result = doCompileAndLink(options, linkerOptions);
     } /* if */
 #ifdef DEBUG_CHKCCOMP
     printf("content: %s\n", content);
@@ -303,7 +306,7 @@ int compileAndLinkWithOptionsOk (const char *content, const char *options)
 int compileAndLinkOk (const char *content)
 
   { /* compileAndLinkOk */
-    return compileAndLinkWithOptionsOk(content, "");
+    return compileAndLinkWithOptionsOk(content, "", "");
   } /* compileAndLinkOk */
 
 
@@ -337,11 +340,11 @@ void determineEnvironDefines (FILE *versionFile)
 
   /* determineEnvironDefines */
     buffer[0] = '\0';
-    if (compileAndLinkOk("#include <stdlib.h>\n#include \"version.h\"\n"
+    if (compileAndLinkOk("#include <stdlib.h>\n#include \"tst_vers.h\"\n"
                          "int main(int argc,char *argv[])"
                          "{os_environ;return 0;}\n")) {
       strcat(buffer, "#include <stdlib.h>\n");
-    } else if (compileAndLinkOk("#include <unistd.h>\n#include \"version.h\"\n"
+    } else if (compileAndLinkOk("#include <unistd.h>\n#include \"tst_vers.h\"\n"
                                 "int main(int argc,char *argv[])"
                                 "{os_environ;return 0;}\n")) {
       strcat(buffer, "#include <unistd.h>\n");
@@ -350,7 +353,7 @@ void determineEnvironDefines (FILE *versionFile)
       define_os_environ = 1;
     } /* if */
     strcat(buffer, "#include <stdio.h>\n");
-    strcat(buffer, "#include \"version.h\"\n");
+    strcat(buffer, "#include \"tst_vers.h\"\n");
 #ifdef OS_STRI_WCHAR
     strcat(buffer, "typedef wchar_t *os_striType;\n");
 #else
@@ -401,6 +404,23 @@ void numericSizes (FILE *versionFile)
     } /* if */
     if ((size_t) -1 < 0) {
       fputs("#define SIZE_T_SIGNED\n", versionFile);
+    } /* if */
+    if (sizeof(char) == 1) {
+      fputs("#define INT8TYPE signed char\n", versionFile);
+      fputs("#define INT8TYPE_STRI \"signed char\"\n", versionFile);
+      fputs("#define UINT8TYPE unsigned char\n", versionFile);
+      fputs("#define UINT8TYPE_STRI \"unsigned char\"\n", versionFile);
+    } /* if */
+    if (sizeof(short int) == 2) {
+      fputs("#define INT16TYPE short int\n", versionFile);
+      fputs("#define INT16TYPE_STRI \"short int\"\n", versionFile);
+      fputs("#define UINT16TYPE unsigned short int\n", versionFile);
+      fputs("#define UINT16TYPE_STRI \"unsigned short int\"\n", versionFile);
+    } else if (sizeof(int) == 4) {
+      fputs("#define INT16TYPE int\n", versionFile);
+      fputs("#define INT16TYPE_STRI \"int\"\n", versionFile);
+      fputs("#define UINT16TYPE unsigned int\n", versionFile);
+      fputs("#define UINT16TYPE_STRI \"unsigned int\"\n", versionFile);
     } /* if */
     if (sizeof(int) == 4) {
       fputs("#define INT32TYPE int\n", versionFile);
@@ -950,6 +970,17 @@ void appendOption (char *include_options, const char *includeOption)
 
 
 
+void determineX11Includes (FILE *versionFile, char *include_options)
+
+  { /* determineX11Includes */
+    if (!fileIsDir("/usr/include/X11") &&
+        fileIsDir("/opt/X11/include/X11")) {
+      appendOption(include_options, "-I/opt/X11/include");
+    } /* if */
+  } /* determineX11Includes */
+
+
+
 #ifdef WITH_SQL
 void detemineMySqlDefines (FILE *versionFile,
     char *include_options, char *system_db_libs)
@@ -966,8 +997,9 @@ void detemineMySqlDefines (FILE *versionFile,
     const char *libName = NULL;
     char dbHome[4096];
     char includeOption[4096];
-    char *mySqlInclude;
+    const char *mySqlInclude;
     char buffer[4096];
+    char linkerOptions[4096];
     int dbHomeExists = 0;
     int idx;
 
@@ -979,74 +1011,106 @@ void detemineMySqlDefines (FILE *versionFile,
     includeOption[0] = '\0';
     mySqlInclude = "mysql/mysql.h";
 #endif
-    sprintf(buffer, "#include <%s>\n"
-                    "int main(int argc,char *argv[]){return 0;}\n", mySqlInclude);
-    if (compileAndLinkWithOptionsOk(buffer, includeOption)) {
-      printf("MySql/MariaDb found at: %s\n", mySqlInclude);
+    programFilesX86 = getenv("ProgramFiles(x86)");
+    /* printf("programFilesX86: %s\n", programFilesX86); */
+    programFiles = getenv("ProgramFiles");
+    /* printf("programFiles: %s\n", programFiles); */
+    if (programFiles != NULL) {
+      if (sizeof(char *) == 4 && programFilesX86 != NULL) {
+        programFiles = programFilesX86;
+      } /* if */
+      for (idx = 0; !dbHomeExists && idx < sizeof(dbHomeSys) / sizeof(char *); idx++) {
+        sprintf(dbHome, "%s/%s", programFiles, dbHomeSys[idx]);
+        if (fileIsDir(dbHome)) {
+          dbHomeExists = 1;
+        } /* if */
+      } /* for */
+    } /* if */
+    if (dbHomeExists) {
+      /* printf("dbHome=%s\n", dbHome); */
+      sprintf(includeOption, "-I\"%s/include\"", dbHome);
+      /* printf("includeOption=%s\n", includeOption); */
+      if (compileAndLinkWithOptionsOk("#include \"stdlib.h\"\n#include \"mysql.h\"\n"
+                                      "int main(int argc,char *argv[]){return 0;}\n",
+                                      includeOption, "")) {
+        mySqlInclude = "mysql.h";
+        printf("MySql/MariaDb: %s found at: %s/include\n", mySqlInclude, dbHome);
+        appendOption(include_options, includeOption);
+      } else {
+        mySqlInclude = NULL;
+      } /* if */
+    } else {
+      sprintf(buffer, "#include <%s>\n"
+                      "int main(int argc,char *argv[]){return 0;}\n", mySqlInclude);
+      if (compileAndLinkWithOptionsOk(buffer, includeOption, "")) {
+        printf("MySql/MariaDb found at: %s\n", mySqlInclude);
+        appendOption(include_options, includeOption);
+      } else if (compileAndLinkWithOptionsOk("#include \"db_my.h\"\n"
+                                             "int main(int argc,char *argv[]){return 0;}\n",
+                                             includeOption, "")) {
+        mySqlInclude = "db_my.h";
+        printf("MySql/MariaDb found at: %s\n", mySqlInclude);
+      } /* if */
+    } /* if */
+    if (mySqlInclude != NULL) {
       fprintf(versionFile, "#define MYSQL_INCLUDE \"%s\"\n", mySqlInclude);
-      appendOption(include_options, includeOption);
-#ifdef MYSQL_DLL
-      fprintf(versionFile, "#define MYSQL_DLL \"%s\"\n", MYSQL_DLL);
-#elif defined MYSQL_LIBS
-#ifdef MYSQL_LIBRARY_PATH
-      appendOption(system_db_libs, MYSQL_LIBRARY_PATH);
-#endif
-      appendOption(system_db_libs, MYSQL_LIBS);
+    } /* if */
+    /* Handle libraries: */
+    if (dbHomeExists) {
+#ifdef MYSQL_USE_LIB
+      for (idx = 0; libName == NULL && idx < sizeof(libNameList) / sizeof(char *); idx++) {
+        sprintf(buffer, "%s/lib/%s", dbHome, libNameList[idx]);
+        if (fileIsRegular(buffer)) {
+          libName = libNameList[idx];
+        } /* if */
+      } /* for */
+      if (libName != NULL) {
+        sprintf(buffer, "\"%s/lib/%s\"", dbHome, libName);
+        appendOption(system_db_libs, buffer);
+      } /* if */
+#else
+      for (idx = 0; dllName == NULL && idx < sizeof(dllNameList) / sizeof(char *); idx++) {
+        sprintf(buffer, "%s/lib/%s", dbHome, dllNameList[idx]);
+        if (fileIsRegular(buffer)) {
+          dllName = dllNameList[idx];
+        } /* if */
+      } /* for */
+      if (dllName != NULL) {
+        printf("MySql/MariaDb: %s found at: %s\n", dllName, buffer);
+        fprintf(versionFile, "#define MYSQL_DLL_PATH \"");
+        escapeString(versionFile, buffer);
+        fprintf(versionFile, "\"\n");
+        fprintf(versionFile, "#define MYSQL_DLL \"%s\"\n", dllName);
+      } /* if */
 #endif
     } else {
-      programFilesX86 = getenv("ProgramFiles(x86)");
-      /* printf("programFilesX86: %s\n", programFilesX86); */
-      programFiles = getenv("ProgramFiles");
-      /* printf("programFiles: %s\n", programFiles); */
-      if (programFiles != NULL) {
-        if (sizeof(char *) == 4 && programFilesX86 != NULL) {
-          programFiles = programFilesX86;
-        } /* if */
-        for (idx = 0; !dbHomeExists && idx < sizeof(dbHomeSys) / sizeof(char *); idx++) {
-          sprintf(dbHome, "%s/%s", programFiles, dbHomeSys[idx]);
-          if (fileIsDir(dbHome)) {
-            dbHomeExists = 1;
-          } /* if */
-        } /* for */
-      } /* if */
-      if (dbHomeExists) {
-        /* printf("dbHome=%s\n", dbHome); */
-        sprintf(includeOption, "-I\"%s/include\"", dbHome);
-        /* printf("includeOption=%s\n", includeOption); */
-        if (compileAndLinkWithOptionsOk("#include \"mysql.h\"\n"
-                                        "int main(int argc,char *argv[]){return 0;}\n",
-                                        includeOption)) {
-          printf("MySql/MariaDb found at: %s\n", dbHome);
-          fputs("#define MYSQL_INCLUDE \"mysql.h\"\n", versionFile);
-          appendOption(include_options, includeOption);
-#ifdef MYSQL_DLL
-          for (idx = 0; dllName == NULL && idx < sizeof(dllNameList) / sizeof(char *); idx++) {
-            sprintf(buffer, "%s/lib/%s", dbHome, dllNameList[idx]);
-            if (fileIsRegular(buffer)) {
-              dllName = dllNameList[idx];
-            } /* if */
-          } /* for */
-          if (dllName != NULL) {
-            printf("MySql/MariaDb: %s found at: %s\n", dllName, buffer);
-            fprintf(versionFile, "#define MYSQL_DLL_PATH \"");
-            escapeString(versionFile, buffer);
-            fprintf(versionFile, "\"\n");
-            fprintf(versionFile, "#define MYSQL_DLL \"%s\"\n", dllName);
-          } /* if */
-#else
-          for (idx = 0; libName == NULL && idx < sizeof(libNameList) / sizeof(char *); idx++) {
-            sprintf(buffer, "%s/lib/%s", dbHome, libNameList[idx]);
-            if (fileIsRegular(buffer)) {
-              libName = libNameList[idx];
-            } /* if */
-          } /* for */
-          if (libName != NULL) {
-            sprintf(buffer, "\"%s/lib/%s\"", dbHome, libName);
-            appendOption(system_db_libs, buffer);
-          } /* if */
+#if defined MYSQL_USE_LIB && defined MYSQL_LIBS
+      sprintf(buffer, "#include \"stdlib.h\"\n#include \"%s\"\n"
+                      "int main(int argc,char *argv[]){\n"
+                      "MYSQL *conn;\n"
+                      "conn = mysql_init(NULL);\n"
+                      "if (conn != NULL) {\n"
+                      "mysql_real_connect(conn, \"\", \"\", \"\", \"\", 0, NULL, 0);\n"
+                      "mysql_close(conn);\n"
+                      "}\nreturn 0;\n}\n", mySqlInclude);
+      linkerOptions[0] = '\0';
+#ifdef MYSQL_LIBRARY_PATH
+      appendOption(linkerOptions, MYSQL_LIBRARY_PATH);
 #endif
-        } /* if */
+      appendOption(linkerOptions, MYSQL_LIBS);
+      if (compileAndLinkWithOptionsOk(buffer, includeOption, linkerOptions)) {
+#ifdef MYSQL_LIBRARY_PATH
+        appendOption(system_db_libs, MYSQL_LIBRARY_PATH);
+#endif
+        appendOption(system_db_libs, MYSQL_LIBS);
+      } else {
+#ifdef MYSQL_DLL
+        fprintf(versionFile, "#define MYSQL_DLL \"%s\"\n", MYSQL_DLL);
+#endif
       } /* if */
+#elif defined MYSQL_DLL
+      fprintf(versionFile, "#define MYSQL_DLL \"%s\"\n", MYSQL_DLL);
+#endif
     } /* if */
   } /* detemineMySqlDefines */
 
@@ -1063,7 +1127,9 @@ void detemineSqliteDefines (FILE *versionFile,
     const char *libName = NULL;
     char dbHome[4096];
     char includeOption[4096];
+    const char *sqliteInclude = NULL;
     char buffer[4096];
+    char linkerOptions[4096];
     int dbHomeExists = 0;
     int idx;
 
@@ -1073,66 +1139,93 @@ void detemineSqliteDefines (FILE *versionFile,
 #else
     includeOption[0] = '\0';
 #endif
-    if (compileAndLinkWithOptionsOk("#include <sqlite3.h>\n"
-                                    "int main(int argc,char *argv[]){return 0;}\n",
-                                    includeOption)) {
-      printf("SQLite found at: %s\n", "sqlite3.h");
-      fputs("#define SQLITE_INCLUDE \"sqlite3.h\"\n", versionFile);
+    for (idx = 0; !dbHomeExists && idx < sizeof(dbHomeDirs) / sizeof(char *); idx++) {
+      strcpy(dbHome, dbHomeDirs[idx]);
+      if (fileIsDir(dbHome)) {
+        dbHomeExists = 1;
+      } /* if */
+    } /* for */
+    if (dbHomeExists) {
+      /* printf("dbHome=%s\n", dbHome); */
+      sprintf(includeOption, "-I\"%s\"", dbHome);
+      /* printf("includeOption=%s\n", includeOption); */
+      if (compileAndLinkWithOptionsOk("#include <sqlite3.h>\n"
+                                      "int main(int argc,char *argv[]){return 0;}\n",
+                                      includeOption, "")) {
+        sqliteInclude = "sqlite3.h";
+        printf("SQLite: %s found at: %s\n", sqliteInclude, dbHome);
+        appendOption(include_options, includeOption);
+      } /* if */
+    } else if (compileAndLinkWithOptionsOk("#include <sqlite3.h>\n"
+                                           "int main(int argc,char *argv[]){return 0;}\n",
+                                           includeOption, "")) {
+      sqliteInclude = "sqlite3.h";
+      printf("SQLite found at: %s\n", sqliteInclude);
       appendOption(include_options, includeOption);
-#ifdef SQLITE_DLL
-      fprintf(versionFile, "#define SQLITE_DLL \"%s\"\n", SQLITE_DLL);
-#elif defined SQLITE_LIBS
-#ifdef SQLITE_LIBRARY_PATH
-      appendOption(system_db_libs, SQLITE_LIBRARY_PATH);
-#endif
-      appendOption(system_db_libs, SQLITE_LIBS);
-#endif
-    } else {
-      for (idx = 0; !dbHomeExists && idx < sizeof(dbHomeDirs) / sizeof(char *); idx++) {
-        strcpy(dbHome, dbHomeDirs[idx]);
-        if (fileIsDir(dbHome)) {
-          dbHomeExists = 1;
+    } else if (compileAndLinkWithOptionsOk("#include \"tst_vers.h\"\n#include \"db_lite.h\"\n"
+                                           "int main(int argc,char *argv[]){return 0;}\n",
+                                           includeOption, "")) {
+      sqliteInclude = "db_lite.h";
+      printf("SQLite found at: %s\n", sqliteInclude);
+      appendOption(include_options, includeOption);
+    } /* if */
+    if (sqliteInclude != NULL) {
+      fprintf(versionFile, "#define SQLITE_INCLUDE \"%s\"\n", sqliteInclude);
+    } /* if */
+    /* Handle libraries: */
+    if (dbHomeExists) {
+#ifdef SQLITE_USE_LIB
+      for (idx = 0; libName == NULL && idx < sizeof(libNameList) / sizeof(char *); idx++) {
+        sprintf(buffer, "%s/%s", dbHome, libNameList[idx]);
+        if (fileIsRegular(buffer)) {
+          libName = libNameList[idx];
         } /* if */
       } /* for */
-      if (dbHomeExists) {
-        /* printf("dbHome=%s\n", dbHome); */
-        sprintf(includeOption, "-I\"%s\"", dbHome);
-        /* printf("includeOption=%s\n", includeOption); */
-        if (compileAndLinkWithOptionsOk("#include <sqlite3.h>\n"
-                                        "int main(int argc,char *argv[]){return 0;}\n",
-                                        includeOption)) {
-          printf("SQLite found at: %s\n", dbHome);
-
-          fputs("#define SQLITE_INCLUDE \"sqlite3.h\"\n", versionFile);
-          appendOption(include_options, includeOption);
-#ifdef SQLITE_DLL
-          for (idx = 0; dllName == NULL && idx < sizeof(dllNameList) / sizeof(char *); idx++) {
-            sprintf(buffer, "%s/%s", dbHome, dllNameList[idx]);
-            if (fileIsRegular(buffer)) {
-              dllName = dllNameList[idx];
-            } /* if */
-          } /* for */
-          if (dllName != NULL) {
-            printf("SQLite: %s found at: %s\n", dllName, buffer);
-            fprintf(versionFile, "#define SQLITE_DLL_PATH \"");
-            escapeString(versionFile, buffer);
-            fprintf(versionFile, "\"\n");
-            fprintf(versionFile, "#define SQLITE_DLL \"%s\"\n", dllName);
-          } /* if */
-#else
-          for (idx = 0; libName == NULL && idx < sizeof(libNameList) / sizeof(char *); idx++) {
-            sprintf(buffer, "%s/%s", dbHome, libNameList[idx]);
-            if (fileIsRegular(buffer)) {
-              libName = libNameList[idx];
-            } /* if */
-          } /* for */
-          if (libName != NULL) {
-            sprintf(buffer, "\"%s/%s\"", dbHome, libName);
-            appendOption(system_db_libs, buffer);
-          } /* if */
-#endif
-        } /* if */
+      if (libName != NULL) {
+        sprintf(buffer, "\"%s/%s\"", dbHome, libName);
+        appendOption(system_db_libs, buffer);
       } /* if */
+#else
+      for (idx = 0; dllName == NULL && idx < sizeof(dllNameList) / sizeof(char *); idx++) {
+        sprintf(buffer, "%s/%s", dbHome, dllNameList[idx]);
+        if (fileIsRegular(buffer)) {
+          dllName = dllNameList[idx];
+        } /* if */
+      } /* for */
+      if (dllName != NULL) {
+        printf("SQLite: %s found at: %s\n", dllName, buffer);
+        fprintf(versionFile, "#define SQLITE_DLL_PATH \"");
+        escapeString(versionFile, buffer);
+        fprintf(versionFile, "\"\n");
+        fprintf(versionFile, "#define SQLITE_DLL \"%s\"\n", dllName);
+      } /* if */
+#endif
+    } else {
+#if defined SQLITE_USE_LIB && defined SQLITE_LIBS
+      sprintf(buffer, "#include \"tst_vers.h\"\n#include \"%s\"\n"
+                      "int main(int argc,char *argv[]){\n"
+                      "sqlite3 *conn;\n"
+                      "sqlite3_open(\"\", &conn);\n"
+                      "sqlite3_close(conn);\n"
+                      "return 0;\n}\n", sqliteInclude);
+      linkerOptions[0] = '\0';
+#ifdef SQLITE_LIBRARY_PATH
+      appendOption(linkerOptions, SQLITE_LIBRARY_PATH);
+#endif
+      appendOption(linkerOptions, SQLITE_LIBS);
+      if (compileAndLinkWithOptionsOk(buffer, includeOption, linkerOptions)) {
+#ifdef SQLITE_LIBRARY_PATH
+        appendOption(system_db_libs, SQLITE_LIBRARY_PATH);
+#endif
+        appendOption(system_db_libs, SQLITE_LIBS);
+      } else {
+#ifdef SQLITE_DLL
+        fprintf(versionFile, "#define SQLITE_DLL \"%s\"\n", SQLITE_DLL);
+#endif
+      } /* if */
+#elif defined SQLITE_DLL
+      fprintf(versionFile, "#define SQLITE_DLL \"%s\"\n", SQLITE_DLL);
+#endif
     } /* if */
   } /* detemineSqliteDefines */
 
@@ -1227,14 +1320,16 @@ void deteminePostgresDefines (FILE *versionFile,
     const char *dllNameList[] = {"libpq.dll"};
     const char *libNameList[] = {"libpq.lib"};
     const char *libIntlDllList[] = {"libintl.dll", "libintl-8.dll"};
-	const char *serverIncludeOption = "-I/usr/include/postgresql/server";
+    const char *serverIncludeOption = "-I/usr/include/postgresql/server";
     const char *programFilesX86 = NULL;
     const char *programFiles = NULL;
     const char *dllName = NULL;
     const char *libName = NULL;
     char dbHome[4096];
     char includeOption[4096];
+    const char *postgresqlInclude = NULL;
     char buffer[4096];
+    char linkerOptions[4096];
     int dbHomeExists = 0;
     int idx;
 
@@ -1244,22 +1339,57 @@ void deteminePostgresDefines (FILE *versionFile,
 #else
     strcpy(includeOption, "-I/usr/include/postgresql");
 #endif
-    if (compileAndLinkWithOptionsOk("#include <libpq-fe.h>\n"
+    programFilesX86 = getenv("ProgramFiles(x86)");
+    /* printf("programFilesX86: %s\n", programFilesX86); */
+    programFiles = getenv("ProgramFiles");
+    /* printf("programFiles: %s\n", programFiles); */
+    if (programFiles != NULL) {
+      if (sizeof(char *) == 4 && programFilesX86 != NULL) {
+        programFiles = programFilesX86;
+      } /* if */
+      for (idx = 0; !dbHomeExists && idx < sizeof(dbHomeSys) / sizeof(char *); idx++) {
+        sprintf(dbHome, "%s/%s", programFiles, dbHomeSys[idx]);
+        if (fileIsDir(dbHome)) {
+          dbHomeExists = 1;
+        } /* if */
+      } /* for */
+    } /* if */
+    if (dbHomeExists) {
+      /* printf("dbHome=%s\n", dbHome); */
+      sprintf(includeOption, "-I\"%s/include\"", dbHome);
+      /* printf("includeOption=%s\n", includeOption); */
+      if (compileAndLinkWithOptionsOk("#include \"libpq-fe.h\"\n"
+                                      "int main(int argc,char *argv[]){return 0;}\n",
+                                      includeOption, "")) {
+        postgresqlInclude = "libpq-fe.h";
+        printf("PostgreSQL: %s found at: %s/include\n", postgresqlInclude, dbHome);
+        appendOption(include_options, includeOption);
+        sprintf(buffer, "%s/include/server", dbHome);
+        if (fileIsDir(buffer)) {
+          sprintf(buffer, "%s/include/server/catalog/pg_type.h", dbHome);
+          extractPostgresOid(buffer);
+        } else {
+          sprintf(buffer, "%s/include/catalog/pg_type.h", dbHome);
+          extractPostgresOid(buffer);
+        } /* if */
+        fputs("#define POSTGRESQL_PG_TYPE_H \"pg_type.h\"\n", versionFile);
+      } /* if */
+    } else if (compileAndLinkWithOptionsOk("#include <libpq-fe.h>\n"
                                     "int main(int argc,char *argv[]){return 0;}\n",
-                                    includeOption)) {
-      printf("PostgreSQL found at: %s\n", "libpq-fe.h");
-      fputs("#define POSTGRESQL_INCLUDE \"libpq-fe.h\"\n", versionFile);
+                                    includeOption, "")) {
+      postgresqlInclude = "libpq-fe.h";
+      printf("PostgreSQL found at: %s\n", postgresqlInclude);
       appendOption(include_options, includeOption);
       if (compileAndLinkWithOptionsOk("#include <server/postgres.h>\n"
                                       "int main(int argc,char *argv[]){return 0;}\n",
-                                      includeOption)) {
+                                      includeOption, "")) {
         fputs("#define POSTGRESQL_POSTGRES_H \"server/postgres.h\"\n", versionFile);
         fputs("#define POSTGRESQL_PG_TYPE_H \"server/catalog/pg_type.h\"\n", versionFile);
       } else {
-	    appendOption(includeOption, serverIncludeOption);
-	    if (compileAndLinkWithOptionsOk("#include <server/postgres.h>\n"
+        appendOption(includeOption, serverIncludeOption);
+        if (compileAndLinkWithOptionsOk("#include <server/postgres.h>\n"
                                         "int main(int argc,char *argv[]){return 0;}\n",
-                                        includeOption)) {
+                                        includeOption, "")) {
           appendOption(include_options, serverIncludeOption);
           fputs("#define POSTGRESQL_POSTGRES_H \"server/postgres.h\"\n", versionFile);
           fputs("#define POSTGRESQL_PG_TYPE_H \"server/catalog/pg_type.h\"\n", versionFile);
@@ -1268,91 +1398,83 @@ void deteminePostgresDefines (FILE *versionFile,
           fputs("#define POSTGRESQL_PG_TYPE_H \"catalog/pg_type.h\"\n", versionFile);
         } /* if */
       } /* if */
-#ifdef POSTGRESQL_DLL
-      fprintf(versionFile, "#define POSTGRESQL_DLL \"%s\"\n", POSTGRESQL_DLL);
-#elif defined POSTGRESQL_LIBS
-#ifdef POSTGRESQL_LIBRARY_PATH
-      appendOption(system_db_libs, POSTGRESQL_LIBRARY_PATH);
-#endif
-      appendOption(system_db_libs, POSTGRESQL_LIBS);
+    } else if (compileAndLinkWithOptionsOk("#include \"db_post.h\"\n"
+                                           "int main(int argc,char *argv[]){return 0;}\n",
+                                           "", "")) {
+      postgresqlInclude = "db_post.h";
+      printf("PostgreSQL found at: %s\n", postgresqlInclude);
+    } /* if */
+    if (postgresqlInclude != NULL) {
+      fprintf(versionFile, "#define POSTGRESQL_INCLUDE \"%s\"\n", postgresqlInclude);
+    } /* if */
+    /* Handle libraries: */
+    if (dbHomeExists) {
+#ifdef POSTGRESQL_USE_LIB
+      for (idx = 0; libName == NULL && idx < sizeof(libNameList) / sizeof(char *); idx++) {
+        sprintf(buffer, "%s/lib/%s", dbHome, libNameList[idx]);
+        if (fileIsRegular(buffer)) {
+          libName = libNameList[idx];
+        } /* if */
+      } /* for */
+      if (libName != NULL) {
+        sprintf(buffer, "\"%s/lib/%s\"", dbHome, libName);
+        appendOption(system_db_libs, buffer);
+      } /* if */
+#else
+      for (idx = 0; dllName == NULL && idx < sizeof(dllNameList) / sizeof(char *); idx++) {
+        sprintf(buffer, "%s/lib/%s", dbHome, dllNameList[idx]);
+        if (fileIsRegular(buffer)) {
+          dllName = dllNameList[idx];
+        } /* if */
+      } /* for */
+      if (dllName != NULL) {
+        printf("PostgreSQL: %s found at: %s\n", dllName, buffer);
+        fprintf(versionFile, "#define POSTGRESQL_DLL_PATH \"");
+        escapeString(versionFile, buffer);
+        fprintf(versionFile, "\"\n");
+        fprintf(versionFile, "#define POSTGRESQL_DLL \"%s\"\n", dllName);
+      } /* if */
+      dllName = NULL;
+      for (idx = 0; dllName == NULL && idx < sizeof(libIntlDllList) / sizeof(char *); idx++) {
+        sprintf(buffer, "%s/bin/%s", dbHome, libIntlDllList[idx]);
+        if (fileIsRegular(buffer)) {
+          dllName = libIntlDllList[idx];
+        } /* if */
+      } /* for */
+      if (dllName != NULL) {
+        printf("PostgreSQL: %s found at: %s\n", dllName, buffer);
+        fprintf(versionFile, "#define LIBINTL_DLL_PATH \"");
+        escapeString(versionFile, buffer);
+        fprintf(versionFile, "\"\n");
+        fprintf(versionFile, "#define LIBINTL_DLL \"%s\"\n", dllName);
+      } /* if */
 #endif
     } else {
-      programFilesX86 = getenv("ProgramFiles(x86)");
-      /* printf("programFilesX86: %s\n", programFilesX86); */
-      programFiles = getenv("ProgramFiles");
-      /* printf("programFiles: %s\n", programFiles); */
-      if (programFiles != NULL) {
-        if (sizeof(char *) == 4 && programFilesX86 != NULL) {
-          programFiles = programFilesX86;
-        } /* if */
-        for (idx = 0; !dbHomeExists && idx < sizeof(dbHomeSys) / sizeof(char *); idx++) {
-          sprintf(dbHome, "%s/%s", programFiles, dbHomeSys[idx]);
-          if (fileIsDir(dbHome)) {
-            dbHomeExists = 1;
-          } /* if */
-        } /* for */
-      } /* if */
-      if (dbHomeExists) {
-        /* printf("dbHome=%s\n", dbHome); */
-        sprintf(includeOption, "-I\"%s/include\"", dbHome);
-        /* printf("includeOption=%s\n", includeOption); */
-        if (compileAndLinkWithOptionsOk("#include \"libpq-fe.h\"\n"
-                                        "int main(int argc,char *argv[]){return 0;}\n",
-                                        includeOption)) {
-          printf("PostgreSQL found at: %s\n", dbHome);
-          fputs("#define POSTGRESQL_INCLUDE \"libpq-fe.h\"\n", versionFile);
-          appendOption(include_options, includeOption);
-          sprintf(buffer, "%s/include/server", dbHome);
-          if (fileIsDir(buffer)) {
-            sprintf(buffer, "%s/include/server/catalog/pg_type.h", dbHome);
-            extractPostgresOid(buffer);
-          } else {
-            sprintf(buffer, "%s/include/catalog/pg_type.h", dbHome);
-            extractPostgresOid(buffer);
-          } /* if */
-          fputs("#define POSTGRESQL_PG_TYPE_H \"pg_type.h\"\n", versionFile);
-#ifdef POSTGRESQL_DLL
-          for (idx = 0; dllName == NULL && idx < sizeof(dllNameList) / sizeof(char *); idx++) {
-            sprintf(buffer, "%s/lib/%s", dbHome, dllNameList[idx]);
-            if (fileIsRegular(buffer)) {
-              dllName = dllNameList[idx];
-            } /* if */
-          } /* for */
-          if (dllName != NULL) {
-            printf("PostgreSQL: %s found at: %s\n", dllName, buffer);
-            fprintf(versionFile, "#define POSTGRESQL_DLL_PATH \"");
-            escapeString(versionFile, buffer);
-            fprintf(versionFile, "\"\n");
-            fprintf(versionFile, "#define POSTGRESQL_DLL \"%s\"\n", dllName);
-          } /* if */
-          dllName = NULL;
-          for (idx = 0; dllName == NULL && idx < sizeof(libIntlDllList) / sizeof(char *); idx++) {
-            sprintf(buffer, "%s/bin/%s", dbHome, libIntlDllList[idx]);
-            if (fileIsRegular(buffer)) {
-              dllName = libIntlDllList[idx];
-            } /* if */
-          } /* for */
-          if (dllName != NULL) {
-            printf("PostgreSQL: %s found at: %s\n", dllName, buffer);
-            fprintf(versionFile, "#define LIBINTL_DLL_PATH \"");
-            escapeString(versionFile, buffer);
-            fprintf(versionFile, "\"\n");
-            fprintf(versionFile, "#define LIBINTL_DLL \"%s\"\n", dllName);
-          } /* if */
-#else
-          for (idx = 0; libName == NULL && idx < sizeof(libNameList) / sizeof(char *); idx++) {
-            sprintf(buffer, "%s/lib/%s", dbHome, libNameList[idx]);
-            if (fileIsRegular(buffer)) {
-              libName = libNameList[idx];
-            } /* if */
-          } /* for */
-          if (libName != NULL) {
-            sprintf(buffer, "\"%s/lib/%s\"", dbHome, libName);
-            appendOption(system_db_libs, buffer);
-          } /* if */
+#if defined POSTGRESQL_USE_LIB && defined POSTGRESQL_LIBS
+      sprintf(buffer, "#include \"stdlib.h\"\n#include \"%s\"\n"
+                      "int main(int argc,char *argv[]){\n"
+                      "PGconn *conn;\n"
+                      "conn = PQsetdbLogin(\"\", NULL, NULL, NULL, \"\", \"\", \"\");\n"
+                      "PQfinish(conn);\n"
+                      "return 0;\n}\n", postgresqlInclude);
+      linkerOptions[0] = '\0';
+#ifdef POSTGRESQL_LIBRARY_PATH
+      appendOption(linkerOptions, POSTGRESQL_LIBRARY_PATH);
 #endif
-        } /* if */
+      appendOption(linkerOptions, POSTGRESQL_LIBS);
+      if (compileAndLinkWithOptionsOk(buffer, includeOption, linkerOptions)) {
+#ifdef POSTGRESQL_LIBRARY_PATH
+        appendOption(system_db_libs, POSTGRESQL_LIBRARY_PATH);
+#endif
+        appendOption(system_db_libs, POSTGRESQL_LIBS);
+      } else {
+#ifdef POSTGRESQL_DLL
+        fprintf(versionFile, "#define POSTGRESQL_DLL \"%s\"\n", POSTGRESQL_DLL);
+#endif
       } /* if */
+#elif defined POSTGRESQL_DLL
+      fprintf(versionFile, "#define POSTGRESQL_DLL \"%s\"\n", POSTGRESQL_DLL);
+#endif
     } /* if */
   } /* deteminePostgresDefines */
 
@@ -1363,36 +1485,64 @@ void detemineOdbcDefines (FILE *versionFile,
 
   {
     char includeOption[4096];
-    int odbc_present = 0;
+    const char *odbcInclude = NULL;
+    char buffer[4096];
+    char linkerOptions[4096];
 
   /* detemineOdbcDefines */
-#ifdef SQLITE_INCLUDE_OPTIONS
-    strcpy(includeOption, SQLITE_INCLUDE_OPTIONS);
+#ifdef ODBC_INCLUDE_OPTIONS
+    strcpy(includeOption, ODBC_INCLUDE_OPTIONS);
 #else
     includeOption[0] = '\0';
 #endif
     if (compileAndLinkWithOptionsOk("#include <windows.h>\n#include <sql.h>\n"
                                     "int main(int argc,char *argv[]){return 0;}\n",
-                                    includeOption)) {
+                                    includeOption, "")) {
       fputs("#define WINDOWS_ODBC\n", versionFile);
-      odbc_present = 1;
+      fputs("#define ODBC_INCLUDE_SQLEXT\n", versionFile);
+      odbcInclude = "sql.h";
     } else if (compileAndLinkWithOptionsOk("#include <sql.h>\n"
                                            "int main(int argc,char *argv[]){return 0;}\n",
-                                           includeOption)) {
-      odbc_present = 1;
+                                           includeOption, "")) {
+      fputs("#define ODBC_INCLUDE_SQLEXT\n", versionFile);
+      odbcInclude = "sql.h";
+    } else if (compileAndLinkWithOptionsOk("#include \"tst_vers.h\"\n#include \"db_odbc.h\"\n"
+                                           "int main(int argc,char *argv[]){return 0;}\n",
+                                           "", "")) {
+      odbcInclude = "db_odbc.h";
+      includeOption[0] = '\0';
     } /* if */
-    if (odbc_present) {
-      printf("Odbc found at: %s\n", "sql.h");
-      fputs("#define ODBC_INCLUDE \"sql.h\"\n", versionFile);
-#ifdef ODBC_DLL
-      fprintf(versionFile, "#define ODBC_DLL \"%s\"\n", ODBC_DLL);
-#elif defined ODBC_LIBS
+    if (odbcInclude != NULL) {
+      printf("Odbc found at: %s\n", odbcInclude);
+      fprintf(versionFile, "#define ODBC_INCLUDE \"%s\"\n", odbcInclude);
+      appendOption(include_options, includeOption);
+    } /* if */
+    /* Handle libraries: */
+#if defined ODBC_USE_LIB && defined ODBC_LIBS
+    sprintf(buffer, "#include \"tst_vers.h\"\n#include \"%s\"\n"
+                    "int main(int argc,char *argv[]){\n"
+                    "SQLHENV sql_env;\n"
+                    "SQLAllocHandle(SQL_HANDLE_ENV, SQL_NULL_HANDLE, &sql_env);\n"
+                    "SQLFreeHandle(SQL_HANDLE_ENV, sql_env);\n"
+                    "return 0;\n}\n", odbcInclude);
+    linkerOptions[0] = '\0';
+#ifdef ODBC_LIBRARY_PATH
+    appendOption(linkerOptions, ODBC_LIBRARY_PATH);
+#endif
+    appendOption(linkerOptions, ODBC_LIBS);
+    if (compileAndLinkWithOptionsOk(buffer, includeOption, linkerOptions)) {
 #ifdef ODBC_LIBRARY_PATH
       appendOption(system_db_libs, ODBC_LIBRARY_PATH);
 #endif
       appendOption(system_db_libs, ODBC_LIBS);
+    } else {
+#ifdef ODBC_DLL
+      fprintf(versionFile, "#define ODBC_DLL \"%s\"\n", ODBC_DLL);
 #endif
     } /* if */
+#elif defined ODBC_DLL
+    fprintf(versionFile, "#define ODBC_DLL \"%s\"\n", ODBC_DLL);
+#endif
   } /* detemineOdbcDefines */
 
 
@@ -1407,7 +1557,9 @@ void detemineOciDefines (FILE *versionFile,
     char incl_path[4096];
     char dll_path[4096];
     char includeOption[4096];
+    const char *ociInclude = NULL;
     char buffer[4096];
+    char linkerOptions[4096];
     int incl_idx;
     int dll_idx;
     int opt_idx;
@@ -1416,68 +1568,108 @@ void detemineOciDefines (FILE *versionFile,
   /* detemineOciDefines */
 #ifdef OCI_INCLUDE_OPTIONS
     strcpy(includeOption, OCI_INCLUDE_OPTIONS);
-    if (compileAndLinkWithOptionsOk("#include \"oci.h\"\n"
-                                    "int main(int argc,char *argv[]){return 0;}\n",
-                                    includeOption)) {
-      printf("Oracle found at: %s\n", oracle_home);
-      fputs("#define OCI_INCLUDE \"oci.h\"\n", versionFile);
-      appendOption(include_options, includeOption);
-#ifdef OCI_DLL
-      fprintf(versionFile, "#define OCI_DLL \"%s\"\n", OCI_DLL);
-#elif defined OCI_LIBS
-#ifdef OCI_LIBRARY_PATH
-      appendOption(system_db_libs, OCI_LIBRARY_PATH);
-#endif
-      appendOption(system_db_libs, OCI_LIBS);
-#endif
 #else
-    if ((oracle_home = getenv("ORACLE_HOME")) != NULL) {
+    includeOption[0] = '\0';
+#endif
+    oracle_home = getenv("ORACLE_HOME");
+    if (oracle_home != NULL) {
       /* printf("ORACLE_HOME=%s\n", oracle_home); */
-      for (incl_idx = 0; !found && incl_idx < sizeof(oci_incl_dir) / sizeof(char *); incl_idx++) {
+      for (incl_idx = 0;
+           ociInclude == NULL && incl_idx < sizeof(oci_incl_dir) / sizeof(char *);
+           incl_idx++) {
         sprintf(incl_path, "%s%s/oci.h", oracle_home, oci_incl_dir[incl_idx]);
         if (fileIsRegular(incl_path)) {
           sprintf(includeOption, "-I%s%s", oracle_home, oci_incl_dir[incl_idx]);
           if (compileAndLinkWithOptionsOk("#include \"oci.h\"\n"
                                           "int main(int argc,char *argv[]){return 0;}\n",
-                                          includeOption)) {
-            printf("Oracle found at: %s\n", oracle_home);
-            fputs("#define OCI_INCLUDE \"oci.h\"\n", versionFile);
+                                          includeOption, "")) {
+            ociInclude = "oci.h";
+            printf("Oracle: %s found at: %s%s\n", ociInclude, oracle_home, oci_incl_dir[incl_idx]);
             appendOption(include_options, includeOption);
-#ifdef OCI_DLL
-            fprintf(versionFile, "#define OCI_DLL \"%s\"\n", OCI_DLL);
-            for (dll_idx = 0; !found && dll_idx < sizeof(oci_dll_dir) / sizeof(char *); dll_idx++) {
-              sprintf(dll_path, "%s%s", oracle_home, oci_dll_dir[dll_idx]);
-              if (fileIsDir(dll_path)) {
-                sprintf(buffer, "%s%s/%s", oracle_home, oci_dll_dir[dll_idx], OCI_DLL);
-                if (fileIsRegular(buffer)) {
-                  sprintf(buffer, "-Wl,-rpath=%s%s", oracle_home, oci_dll_dir[dll_idx]);
-                  appendOption(system_db_libs, buffer);
-                  found = 1;
-                } /* if */
-              } /* if */
-            } /* for */
+          } /* if */
+        } /* if */
+      } /* for */
+    } else if (compileAndLinkWithOptionsOk("#include \"oci.h\"\n"
+                                           "int main(int argc,char *argv[]){return 0;}\n",
+                                           includeOption, "")) {
+      ociInclude = "oci.h";
+      printf("Oracle found at: %s\n", ociInclude);
+      appendOption(include_options, includeOption);
+    } else if (compileAndLinkWithOptionsOk("#include \"tst_vers.h\"\n#include \"stdlib.h\"\n"
+                                           "#include \"db_oci.h\"\n"
+                                           "int main(int argc,char *argv[]){return 0;}\n",
+                                           includeOption, "")) {
+      ociInclude = "db_oci.h";
+      printf("Oracle found at: %s\n", ociInclude);
+      appendOption(include_options, includeOption);
+    } /* if */
+    if (ociInclude != NULL) {
+      fprintf(versionFile, "#define OCI_INCLUDE \"%s\"\n", ociInclude);
+    } /* if */
+    /* Handle libraries: */
+    if (oracle_home != NULL) {
+#if defined OCI_USE_LIB && defined OCI_LIBS
+#ifdef OCI_LIBRARY_PATH
+      appendOption(system_db_libs, OCI_LIBRARY_PATH);
 #endif
+      appendOption(system_db_libs, OCI_LIBS);
+#else
+      fprintf(versionFile, "#define OCI_DLL \"%s\"\n", OCI_DLL);
+      for (dll_idx = 0; !found && dll_idx < sizeof(oci_dll_dir) / sizeof(char *); dll_idx++) {
+        sprintf(dll_path, "%s%s", oracle_home, oci_dll_dir[dll_idx]);
+        if (fileIsDir(dll_path)) {
+          sprintf(buffer, "%s%s/%s", oracle_home, oci_dll_dir[dll_idx], OCI_DLL);
+          if (fileIsRegular(buffer)) {
+            sprintf(buffer, "-Wl,-rpath=%s%s", oracle_home, oci_dll_dir[dll_idx]);
+            appendOption(system_db_libs, buffer);
             found = 1;
           } /* if */
         } /* if */
       } /* for */
-    } /* if */
 #endif
+    } else {
+#if defined OCI_USE_LIB && defined OCI_LIBS
+      sprintf(buffer, "#include \"tst_vers.h\"\n#include \"stdlib.h\"\n#include \"%s\"\n"
+                      "int main(int argc,char *argv[]){\n"
+                      "OCIEnv *oci_env;\n"
+                      "OCIEnvCreate(&oci_env, OCI_DEFAULT, NULL, NULL, NULL, NULL, 0, NULL);\n"
+                      "OCIHandleFree(oci_env, OCI_HTYPE_ENV);\n"
+                      "return 0;\n}\n", ociInclude);
+      linkerOptions[0] = '\0';
+#ifdef OCI_LIBRARY_PATH
+      appendOption(linkerOptions, OCI_LIBRARY_PATH);
+#endif
+      appendOption(linkerOptions, OCI_LIBS);
+      if (compileAndLinkWithOptionsOk(buffer, includeOption, linkerOptions)) {
+#ifdef OCI_LIBRARY_PATH
+        appendOption(system_db_libs, OCI_LIBRARY_PATH);
+#endif
+        appendOption(system_db_libs, OCI_LIBS);
+      } else {
+#ifdef OCI_DLL
+        fprintf(versionFile, "#define OCI_DLL \"%s\"\n", OCI_DLL);
+#endif
+      } /* if */
+#elif defined OCI_DLL
+      fprintf(versionFile, "#define OCI_DLL \"%s\"\n", OCI_DLL);
+#endif
+    } /* if */
   } /* detemineOciDefines */
 #endif
 
 
 
-void detemineDatabaseDefines (FILE *versionFile)
+void detemineIncludesAndLibs (FILE *versionFile)
 
   {
     char include_options[4096];
     char system_db_libs[4096];
     char buffer[4096];
 
-  /* detemineDatabaseDefines */
+  /* detemineIncludesAndLibs */
     include_options[0] = '\0';
     system_db_libs[0] = '\0';
+    determineX11Includes(versionFile, include_options);
 #ifdef WITH_SQL
     detemineMySqlDefines(versionFile, include_options, system_db_libs);
     detemineSqliteDefines(versionFile, include_options, system_db_libs);
@@ -1495,7 +1687,58 @@ void detemineDatabaseDefines (FILE *versionFile)
     fprintf(versionFile, "#define SYSTEM_DB_LIBS \"");
     escapeString(versionFile, system_db_libs);
     fprintf(versionFile, "\"\n");
-  } /* detemineDatabaseDefines */
+  } /* detemineIncludesAndLibs */
+
+
+
+static FILE *openVersionFile (const char *versionFileName)
+
+  {
+    FILE *versionFile = NULL;
+
+  /* openVersionFile */
+    if (versionFileName != NULL) {
+      versionFile = fopen(versionFileName, "a");
+    } /* if */
+    if (versionFile == NULL) {
+      versionFile = stdout;
+    } /* if */
+    return versionFile;
+  } /* openVersionFile */
+
+
+
+static void closeVersionFile (FILE *versionFile)
+
+  { /* closeVersionFile */
+    if (versionFile != NULL && versionFile != stdout) {
+      fclose(versionFile);
+    } /* if */
+  } /* closeVersionFile */
+
+
+
+static void copyFile (const char *sourceName, const char *destName)
+
+  {
+    FILE *source;
+    FILE *dest;
+    char buffer[1024];
+    size_t len;
+
+  /* copyFile */
+    if (sourceName != NULL && destName != NULL) {
+      if ((source = fopen(sourceName, "r")) != NULL) {
+        if ((dest = fopen(destName, "w")) != NULL) {
+          while ((len = fread(buffer, 1, 1024, source)) != 0) {
+            fwrite(buffer, 1, len, dest);
+          } /* while */
+          fclose(dest);
+        } /* if */
+        fclose(source);
+      } /* if */
+    } /* if */
+  } /* copyFile */
 
 
 
@@ -1505,6 +1748,7 @@ void detemineDatabaseDefines (FILE *versionFile)
 int main (int argc, char **argv)
 
   {
+    char *versionFileName = NULL;
     FILE *versionFile = NULL;
     char aVariable;
     FILE *aFile;
@@ -1521,11 +1765,9 @@ int main (int argc, char **argv)
 
   /* main */
     if (argc >= 1) {
-      versionFile = fopen(argv[1], "a");
+      versionFileName = argv[1];
     } /* if */
-    if (versionFile == NULL) {
-      versionFile = stdout;
-    } /* if */
+    versionFile = openVersionFile(versionFileName);
     prepareCompileCommand();
 #ifdef WRITE_CC_VERSION_INFO
     WRITE_CC_VERSION_INFO
@@ -1751,6 +1993,10 @@ int main (int argc, char **argv)
       } /* if */
     } /* if */
 #endif
+    /* Make sure that the file version.h up to this position is copied to tst_vers.h. */
+    closeVersionFile(versionFile);
+    copyFile(versionFileName, "tst_vers.h");
+    versionFile = openVersionFile(versionFileName);
     determineEnvironDefines(versionFile);
 #ifdef OS_PATH_HAS_DRIVE_LETTERS
     if (getenv("USERPROFILE") != NULL) {
@@ -1834,7 +2080,7 @@ int main (int argc, char **argv)
                          "{struct pollfd pollFd[1];poll(pollFd, 1, 0);return 0;}\n")) {
       fputs("#define HAS_POLL\n", versionFile);
     } /* if */
-    detemineDatabaseDefines(versionFile);
+    detemineIncludesAndLibs(versionFile);
     if (compileAndLinkOk("#include<stdio.h>\nint main(int argc,char *argv[]){FILE*fp;fp->_IO_read_ptr>=fp->_IO_read_end;return 0;}\n")) {
       define_read_buffer_empty = "#define read_buffer_empty(fp) ((fp)->_IO_read_ptr >= (fp)->_IO_read_end)";
     } else if (compileAndLinkOk("#include<stdio.h>\nint main(int argc,char *argv[]){FILE*fp;fp->_cnt <= 0;return 0;}\n")) {
@@ -1852,7 +2098,7 @@ int main (int argc, char **argv)
       strcpy(buffer, "#include<stdio.h>\n");
       strcat(buffer, define_read_buffer_empty);
       strcat(buffer, "\nint main(int argc,char *argv[])\n"
-                     "{FILE*fp;fp=fopen(\"version.h\",\"r\");"
+                     "{FILE*fp;fp=fopen(\"tst_vers.h\",\"r\");"
                      "if(fp==NULL||!read_buffer_empty(fp))puts(0);else{"
                      "getc(fp);printf(\"%d\\n\",read_buffer_empty(fp)?0:1);}return 0;}\n");
       if (!compileAndLinkOk(buffer) || doTest() != 1) {
@@ -1863,5 +2109,9 @@ int main (int argc, char **argv)
       fprintf(versionFile, "%s\n", define_read_buffer_empty);
     } /* if */
     cleanUpCompilation();
+    closeVersionFile(versionFile);
+    if (fileIsRegular("tst_vers.h")) {
+      remove("tst_vers.h");
+    } /* if */
     return 0;
   } /* main */
