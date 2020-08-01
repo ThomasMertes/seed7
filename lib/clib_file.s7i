@@ -77,10 +77,6 @@ const func clib_file: CLIB_INPUT  is action "FIL_IN";
 const func clib_file: CLIB_OUTPUT is action "FIL_OUT";
 const func clib_file: CLIB_ERROR  is action "FIL_ERR";
 
-const integer: IO_FULL_BUFFERING is 0;
-const integer: IO_LINE_BUFFERING is 1;
-const integer: IO_NO_BUFFERING   is 2;
-
 
 (**
  *  Opens a clib_file with the specified ''path'' and ''mode''.
@@ -119,7 +115,6 @@ const func clib_file: openClibFile (in string: path, in string: mode) is action 
 
 const func clib_file: openNullDeviceClibFile is action "FIL_OPEN_NULL_DEVICE";
 const proc: pipe (inout clib_file: inFile, inout clib_file: outFile) is action "FIL_PIPE";
-const proc: setbuf (in clib_file: aFile, in integer: mode, in integer: size) is action "FIL_SETBUF";
 
 
 (**

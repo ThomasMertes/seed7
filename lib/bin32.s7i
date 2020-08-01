@@ -286,14 +286,6 @@ const func bin32: rotRight (in bin32: x, in integer: shiftCount) is
   return (x >> shiftCount | x << (32 - shiftCount)) & bin32(16#ffffffff);
 
 
-# The function float2Bits() is deprecated. Use bin32() instead.
-const func bin32: float2Bits (in float: number, SINGLE)      is action "FLT_SINGLE2BITS";
-
-
-# The function bits2Float() is deprecated. Use float() instead.
-const func float: bits2Float (in bin32: bits)                is action "FLT_BITS2SINGLE";
-
-
 (**
  *  Get bits in MBF single-precision representation from a float.
  *  Microsoft Binary Format (MBF) is a format for floating point numbers.

@@ -106,123 +106,123 @@ static char type_item[] = {isc_info_sql_stmt_type};
 
 #ifdef FIRE_DLL
 
-#ifndef ISC_EXPORT
-#if defined(_WIN32)
-#define ISC_EXPORT __stdcall
+#ifndef STDCALL
+#if defined(_WIN32) && HAS_STDCALL
+#define STDCALL __stdcall
 #else
-#define ISC_EXPORT
+#define STDCALL
 #endif
 #endif
 
-typedef ISC_STATUS (ISC_EXPORT *tp_isc_attach_database) (ISC_STATUS *status_vector,
-                                                         short db_name_length,
-                                                         char *db_name,
-                                                         isc_db_handle *db_handle,
-                                                         short parm_buffer_length,
-                                                         char *parm_buffer);
-typedef ISC_STATUS (ISC_EXPORT *tp_isc_blob_info) (ISC_STATUS *status_vector,
-                                                   isc_blob_handle *blob_handle,
-                                                   short item_list_buffer_length,
-                                                   char *item_list_buffer,
-                                                   short result_buffer_length,
-                                                   char *result_buffer);
-typedef ISC_STATUS (ISC_EXPORT *tp_isc_close_blob) (ISC_STATUS *status_vector,
-                                                    isc_blob_handle *blob_handle);
-typedef ISC_STATUS (ISC_EXPORT *tp_isc_commit_transaction) (ISC_STATUS *status_vector,
-                                                            isc_tr_handle *trans_handle);
-typedef ISC_STATUS (ISC_EXPORT *tp_isc_create_blob2) (ISC_STATUS *status_vector,
+typedef ISC_STATUS (STDCALL *tp_isc_attach_database) (ISC_STATUS *status_vector,
+                                                      short db_name_length,
+                                                      char *db_name,
                                                       isc_db_handle *db_handle,
-                                                      isc_tr_handle *trans_handle,
-                                                      isc_blob_handle *blob_handle,
-                                                      ISC_QUAD *blob_id,
-                                                      short bpb_length,
-                                                      char *bpb_address);
-typedef ISC_STATUS (ISC_EXPORT *tp_isc_create_database) (ISC_STATUS *status_vector,
-                                                         short db_name_length,
-                                                         char *db_name,
-                                                         isc_db_handle *db_handle,
-                                                         short parm_buffer_length,
-                                                         char *parm_buffer,
-                                                         short db_type);
-typedef void (ISC_EXPORT *tp_isc_decode_sql_date) (ISC_DATE *ib_date,
-                                                   void *tm_date);
-typedef void (ISC_EXPORT *tp_isc_decode_sql_time) (ISC_TIME *ib_time,
-                                                   void *tm_date);
-typedef void (ISC_EXPORT *tp_isc_decode_timestamp) (ISC_TIMESTAMP *ib_date,
-                                                    void *tm_date);
-typedef ISC_STATUS (ISC_EXPORT *tp_isc_detach_database) (ISC_STATUS *status_vector,
-                                                         isc_db_handle *db_handle);
-typedef ISC_STATUS (ISC_EXPORT *tp_isc_dsql_allocate_statement) (ISC_STATUS *status_vector,
-                                                                 isc_db_handle *db_handle,
-                                                                 isc_stmt_handle *stmt_handle);
-typedef ISC_STATUS (ISC_EXPORT *tp_isc_dsql_describe) (ISC_STATUS *status_vector,
-                                                       isc_stmt_handle *stmt_handle,
-                                                       unsigned short da_version,
-                                                       XSQLDA *xsqlda);
-typedef ISC_STATUS (ISC_EXPORT *tp_isc_dsql_describe_bind) (ISC_STATUS *status_vector,
-                                                            isc_stmt_handle *stmt_handle,
-                                                            unsigned short da_version,
-                                                            XSQLDA *xsqlda);
-typedef ISC_STATUS (ISC_EXPORT *tp_isc_dsql_execute2) (ISC_STATUS *status_vector,
-                                                       isc_tr_handle *trans_handle,
-                                                       isc_stmt_handle *stmt_handle,
-                                                       unsigned short da_version,
-                                                       XSQLDA *in_xsqlda,
-                                                       XSQLDA *out_xsqlda);
-typedef ISC_STATUS (ISC_EXPORT *tp_isc_dsql_fetch) (ISC_STATUS *status_vector,
+                                                      short parm_buffer_length,
+                                                      char *parm_buffer);
+typedef ISC_STATUS (STDCALL *tp_isc_blob_info) (ISC_STATUS *status_vector,
+                                                isc_blob_handle *blob_handle,
+                                                short item_list_buffer_length,
+                                                char *item_list_buffer,
+                                                short result_buffer_length,
+                                                char *result_buffer);
+typedef ISC_STATUS (STDCALL *tp_isc_close_blob) (ISC_STATUS *status_vector,
+                                                 isc_blob_handle *blob_handle);
+typedef ISC_STATUS (STDCALL *tp_isc_commit_transaction) (ISC_STATUS *status_vector,
+                                                         isc_tr_handle *trans_handle);
+typedef ISC_STATUS (STDCALL *tp_isc_create_blob2) (ISC_STATUS *status_vector,
+                                                   isc_db_handle *db_handle,
+                                                   isc_tr_handle *trans_handle,
+                                                   isc_blob_handle *blob_handle,
+                                                   ISC_QUAD *blob_id,
+                                                   short bpb_length,
+                                                   char *bpb_address);
+typedef ISC_STATUS (STDCALL *tp_isc_create_database) (ISC_STATUS *status_vector,
+                                                      short db_name_length,
+                                                      char *db_name,
+                                                      isc_db_handle *db_handle,
+                                                      short parm_buffer_length,
+                                                      char *parm_buffer,
+                                                      short db_type);
+typedef void (STDCALL *tp_isc_decode_sql_date) (ISC_DATE *ib_date,
+                                                void *tm_date);
+typedef void (STDCALL *tp_isc_decode_sql_time) (ISC_TIME *ib_time,
+                                                void *tm_date);
+typedef void (STDCALL *tp_isc_decode_timestamp) (ISC_TIMESTAMP *ib_date,
+                                                 void *tm_date);
+typedef ISC_STATUS (STDCALL *tp_isc_detach_database) (ISC_STATUS *status_vector,
+                                                      isc_db_handle *db_handle);
+typedef ISC_STATUS (STDCALL *tp_isc_dsql_allocate_statement) (ISC_STATUS *status_vector,
+                                                              isc_db_handle *db_handle,
+                                                              isc_stmt_handle *stmt_handle);
+typedef ISC_STATUS (STDCALL *tp_isc_dsql_describe) (ISC_STATUS *status_vector,
                                                     isc_stmt_handle *stmt_handle,
                                                     unsigned short da_version,
                                                     XSQLDA *xsqlda);
-typedef ISC_STATUS (ISC_EXPORT *tp_isc_dsql_free_statement) (ISC_STATUS *status_vector,
-                                                             isc_stmt_handle *stmt_handle,
-                                                             unsigned short option);
-typedef ISC_STATUS (ISC_EXPORT *tp_isc_dsql_prepare) (ISC_STATUS *status_vector,
-                                                      isc_tr_handle *trans_handle,
-                                                      isc_stmt_handle *stmt_handle,
-                                                      unsigned short length,
-                                                      char *statement,
-                                                      unsigned short dialect,
-                                                      XSQLDA *xsqlda);
-typedef ISC_STATUS (ISC_EXPORT *tp_isc_dsql_sql_info) (ISC_STATUS *status_vector,
-                                                       isc_stmt_handle *stmt_handle,
-                                                       unsigned short item_length,
-                                                       char *items,
-                                                       unsigned short buffer_length,
-                                                       char *buffer);
-typedef void (ISC_EXPORT *tp_isc_encode_sql_date) (void *tm_date,
-                                                   ISC_DATE *ib_date);
-typedef void (ISC_EXPORT *tp_isc_encode_sql_time) (void *tm_date,
-                                                   ISC_TIME *ib_time);
-typedef void (ISC_EXPORT *tp_isc_encode_timestamp) (void *tm_date,
-                                                    ISC_TIMESTAMP *ib_timestamp);
-typedef ISC_STATUS (ISC_EXPORT *tp_isc_get_segment) (ISC_STATUS *status_vector,
-                                                     isc_blob_handle *blob_handle,
-                                                     unsigned short *actual_seg_length,
-                                                     unsigned short seg_buffer_length,
-                                                     char *seg_buffer);
-typedef ISC_STATUS (ISC_EXPORT *tp_isc_interprete) (char *buffer, ISC_STATUS **status_vector);
-typedef ISC_STATUS (ISC_EXPORT *tp_isc_open_blob2) (ISC_STATUS *status_vector,
-                                                    isc_db_handle *db_handle,
+typedef ISC_STATUS (STDCALL *tp_isc_dsql_describe_bind) (ISC_STATUS *status_vector,
+                                                         isc_stmt_handle *stmt_handle,
+                                                         unsigned short da_version,
+                                                         XSQLDA *xsqlda);
+typedef ISC_STATUS (STDCALL *tp_isc_dsql_execute2) (ISC_STATUS *status_vector,
                                                     isc_tr_handle *trans_handle,
-                                                    isc_blob_handle *blob_handle,
-                                                    ISC_QUAD *blob_id,
-                                                    short bpb_length,
-                                                    char *bpb_address);
-typedef ISC_INT64 (ISC_EXPORT *tp_isc_portable_integer) (char *buffer,
-                                                         short length);
-typedef ISC_STATUS (ISC_EXPORT *tp_isc_print_status) (ISC_STATUS *status_vector);
-typedef ISC_STATUS (ISC_EXPORT *tp_isc_put_segment) (ISC_STATUS *status_vector,
-                                                     isc_blob_handle *blob_handle,
-                                                     unsigned short seg_buffer_length,
-                                                     char *seg_buffer);
-typedef ISC_STATUS (ISC_EXPORT *tp_isc_rollback_transaction) (ISC_STATUS *status_vector,
-                                                              isc_tr_handle *trans_handle);
-typedef ISC_STATUS (ISC_EXPORT *tp_isc_start_transaction) (ISC_STATUS *status_vector,
-                                                           isc_tr_handle *trans_handle,
-                                                           short db_handle_count,
-                                                           isc_db_handle *db_handle,
-                                                           unsigned short tpb_length,
-                                                           char *tpb_address);
+                                                    isc_stmt_handle *stmt_handle,
+                                                    unsigned short da_version,
+                                                    XSQLDA *in_xsqlda,
+                                                    XSQLDA *out_xsqlda);
+typedef ISC_STATUS (STDCALL *tp_isc_dsql_fetch) (ISC_STATUS *status_vector,
+                                                 isc_stmt_handle *stmt_handle,
+                                                 unsigned short da_version,
+                                                 XSQLDA *xsqlda);
+typedef ISC_STATUS (STDCALL *tp_isc_dsql_free_statement) (ISC_STATUS *status_vector,
+                                                          isc_stmt_handle *stmt_handle,
+                                                          unsigned short option);
+typedef ISC_STATUS (STDCALL *tp_isc_dsql_prepare) (ISC_STATUS *status_vector,
+                                                   isc_tr_handle *trans_handle,
+                                                   isc_stmt_handle *stmt_handle,
+                                                   unsigned short length,
+                                                   char *statement,
+                                                   unsigned short dialect,
+                                                   XSQLDA *xsqlda);
+typedef ISC_STATUS (STDCALL *tp_isc_dsql_sql_info) (ISC_STATUS *status_vector,
+                                                    isc_stmt_handle *stmt_handle,
+                                                    unsigned short item_length,
+                                                    char *items,
+                                                    unsigned short buffer_length,
+                                                    char *buffer);
+typedef void (STDCALL *tp_isc_encode_sql_date) (void *tm_date,
+                                                ISC_DATE *ib_date);
+typedef void (STDCALL *tp_isc_encode_sql_time) (void *tm_date,
+                                                ISC_TIME *ib_time);
+typedef void (STDCALL *tp_isc_encode_timestamp) (void *tm_date,
+                                                 ISC_TIMESTAMP *ib_timestamp);
+typedef ISC_STATUS (STDCALL *tp_isc_get_segment) (ISC_STATUS *status_vector,
+                                                  isc_blob_handle *blob_handle,
+                                                  unsigned short *actual_seg_length,
+                                                  unsigned short seg_buffer_length,
+                                                  char *seg_buffer);
+typedef ISC_STATUS (STDCALL *tp_isc_interprete) (char *buffer, ISC_STATUS **status_vector);
+typedef ISC_STATUS (STDCALL *tp_isc_open_blob2) (ISC_STATUS *status_vector,
+                                                 isc_db_handle *db_handle,
+                                                 isc_tr_handle *trans_handle,
+                                                 isc_blob_handle *blob_handle,
+                                                 ISC_QUAD *blob_id,
+                                                 short bpb_length,
+                                                 char *bpb_address);
+typedef ISC_INT64 (STDCALL *tp_isc_portable_integer) (char *buffer,
+                                                      short length);
+typedef ISC_STATUS (STDCALL *tp_isc_print_status) (ISC_STATUS *status_vector);
+typedef ISC_STATUS (STDCALL *tp_isc_put_segment) (ISC_STATUS *status_vector,
+                                                  isc_blob_handle *blob_handle,
+                                                  unsigned short seg_buffer_length,
+                                                  char *seg_buffer);
+typedef ISC_STATUS (STDCALL *tp_isc_rollback_transaction) (ISC_STATUS *status_vector,
+                                                           isc_tr_handle *trans_handle);
+typedef ISC_STATUS (STDCALL *tp_isc_start_transaction) (ISC_STATUS *status_vector,
+                                                        isc_tr_handle *trans_handle,
+                                                        short db_handle_count,
+                                                        isc_db_handle *db_handle,
+                                                        unsigned short tpb_length,
+                                                        char *tpb_address);
 
 static tp_isc_attach_database         ptr_isc_attach_database;
 static tp_isc_blob_info               ptr_isc_blob_info;
@@ -1184,6 +1184,68 @@ static striType getBlobAsStri (preparedStmtType preparedStmt,
 
 
 
+static striType getClob (preparedStmtType preparedStmt,
+    ISC_QUAD *blob_id, errInfoType *err_info)
+
+  {
+    ISC_STATUS status_vector[20];
+    isc_blob_handle blob_handle = 0;
+    memSizeType blobLength;
+    memSizeType actualBlobLength;
+    cstriType utf8_stri;
+    striType stri;
+
+  /* getClob */
+    logFunction(printf("getClob(" FMT_U_MEM ", " FMT_X64 ", *)\n",
+                       (memSizeType) preparedStmt, *(uint64Type *) blob_id););
+    /* Blob_handle must be zero when isc_open_blob2 is called. */
+    if (unlikely((isc_open_blob2(status_vector,
+                                 &preparedStmt->db->connection,
+                                 &preparedStmt->db->trans_handle,
+                                 &blob_handle,
+                                 blob_id,
+                                 0,
+                                 NULL),
+                  status_vector[0] == 1 && status_vector[1] != 0))) {
+      setDbErrorMsg("getClob", "isc_open_blob2",
+                    status_vector);
+      logError(printf("getClob: isc_open_blob2() error:\n%s\n",
+                      dbError.message););
+      *err_info = DATABASE_ERROR;
+      stri = NULL;
+    } else {
+      blobLength = getBlobLength(blob_handle, err_info);
+      if (likely(*err_info == OKAY_NO_ERROR)) {
+        if (unlikely(blobLength > MAX_MEMSIZETYPE ||
+                     !ALLOC_BYTES(utf8_stri, blobLength))) {
+          *err_info = MEMORY_ERROR;
+          stri = NULL;
+        } else {
+          actualBlobLength = copyBlobContents(blob_handle, blobLength, (ustriType) utf8_stri);
+          stri = cstri8_buf_to_stri(utf8_stri, actualBlobLength, err_info);
+          FREE_BYTES(utf8_stri, blobLength);
+        } /* if */
+      } else {
+        stri = NULL;
+      } /* if */
+      isc_close_blob(status_vector, &blob_handle);
+      if (unlikely(status_vector[0] == 1 && status_vector[1] != 0)) {
+        setDbErrorMsg("getClob", "isc_close_blob",
+                      status_vector);
+        logError(printf("getClob: isc_close_blob() error:\n%s\n",
+                        dbError.message););
+        *err_info = DATABASE_ERROR;
+        FREE_STRI(stri, blobLength);
+        stri = NULL;
+      } /* if */
+    } /* if */
+    logFunction(printf("getClob --> \"%s\"\n",
+                       striAsUnquotedCStri(stri)););
+    return stri;
+  } /* getClob */
+
+
+
 static errInfoType putBlob (preparedStmtType preparedStmt, bstriType bstri,
     XSQLVAR *sqlvar)
 
@@ -1957,6 +2019,7 @@ static void sqlBindStri (sqlStmtType sqlStatement, intType pos, striType stri)
     XSQLVAR *sqlvar;
     cstriType stri8;
     memSizeType length;
+    bstriType bstri;
     errInfoType err_info = OKAY_NO_ERROR;
 
   /* sqlBindStri */
@@ -2023,6 +2086,22 @@ static void sqlBindStri (sqlStmtType sqlStatement, intType pos, striType stri)
                        (memSizeType) sqlvar->sqllen - length);
               } /* if */
               free(stri8);
+            } /* if */
+            break;
+          case SQL_BLOB:
+            if (sqlvar->sqlsubtype == 1) {
+              /* BLOB SUB_TYPE 1 means essentially: textual Blob. */
+              bstri = stri_to_bstri8(stri);
+              if (unlikely(bstri == NULL)) {
+                err_info = MEMORY_ERROR;
+              } else {
+                err_info = putBlob(preparedStmt, bstri, sqlvar);
+                FREE_BSTRI(bstri, bstri->size);
+              } /* if */
+            } else {
+              /* BLOB SUB_TYPE 0 is a binary Blob. */
+              logError(printf("sqlBindStri: Parameter " FMT_D " is a BLOB column.\n", pos););
+              err_info = RANGE_ERROR;
             } /* if */
             break;
           default:
@@ -2541,11 +2620,20 @@ static bstriType sqlColumnBStri (sqlStmtType sqlStatement, intType column)
             } /* if */
             break;
           case SQL_BLOB:
-            columnValue = getBlob(preparedStmt,
-                                  (ISC_QUAD *) sqlvar->sqldata,
-                                  &err_info);
-            if (unlikely(columnValue == NULL)) {
-              raise_error(err_info);
+            if (sqlvar->sqlsubtype == 1) {
+              /* BLOB SUB_TYPE 1 means essentially: textual Blob. */
+              logError(printf("sqlColumnBStri: Column " FMT_D " is a CLOB.\n",
+                              column););
+              raise_error(RANGE_ERROR);
+              columnValue = NULL;
+            } else {
+              /* BLOB SUB_TYPE 0 is a binary Blob. */
+              columnValue = getBlob(preparedStmt,
+                                    (ISC_QUAD *) sqlvar->sqldata,
+                                    &err_info);
+              if (unlikely(columnValue == NULL)) {
+                raise_error(err_info);
+              } /* if */
             } /* if */
             break;
           default:
@@ -2889,9 +2977,17 @@ static striType sqlColumnStri (sqlStmtType sqlStatement, intType column)
             } /* if */
             break;
           case SQL_BLOB:
-            columnValue = getBlobAsStri(preparedStmt,
-                                        (ISC_QUAD *) sqlvar->sqldata,
-                                        &err_info);
+            if (sqlvar->sqlsubtype == 1) {
+              /* BLOB SUB_TYPE 1 means essentially: textual Blob. */
+              columnValue = getClob(preparedStmt,
+                                    (ISC_QUAD *) sqlvar->sqldata,
+                                    &err_info);
+            } else {
+              /* BLOB SUB_TYPE 0 is a binary Blob. */
+              columnValue = getBlobAsStri(preparedStmt,
+                                          (ISC_QUAD *) sqlvar->sqldata,
+                                          &err_info);
+            } /* if */
             if (unlikely(columnValue == NULL)) {
               raise_error(err_info);
             } /* if */
@@ -3380,6 +3476,7 @@ static striType sqlStmtColumnName (sqlStmtType sqlStatement, intType column)
   {
     preparedStmtType preparedStmt;
     XSQLVAR *sqlvar;
+    errInfoType err_info = OKAY_NO_ERROR;
     striType name;
 
   /* sqlStmtColumnName */
@@ -3403,10 +3500,10 @@ static striType sqlStmtColumnName (sqlStmtType sqlStatement, intType column)
         raise_error(DATABASE_ERROR);
         name = NULL;
       } else {
-        name = cstri_buf_to_stri(sqlvar->sqlname,
-            (memSizeType) sqlvar->sqlname_length);
+        name = cstri8_buf_to_stri(sqlvar->sqlname,
+            (memSizeType) sqlvar->sqlname_length, &err_info);
         if (unlikely(name == NULL)) {
-          raise_error(MEMORY_ERROR);
+          raise_error(err_info);
         } /* if */
       } /* if */
     } /* if */

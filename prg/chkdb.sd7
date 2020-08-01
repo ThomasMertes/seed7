@@ -479,11 +479,12 @@ const func string: clobType (in dbCategory: databaseKind) is func
     var string: clobType is "";
   begin
     case databaseKind of
-      when {DB_MYSQL}:      clobType := "TEXT";
+      when {DB_MYSQL}:      clobType := "LONGTEXT";
       when {DB_SQLITE}:     clobType := "BLOB";
       when {DB_POSTGRESQL}: clobType := "TEXT";
       when {DB_OCI}:        clobType := "CLOB";
       when {DB_ODBC}:       clobType := "VARCHAR(MAX)";
+      when {DB_FIRE}:       clobType := "BLOB SUB_TYPE TEXT";
     end case;
   end func;
 
@@ -745,6 +746,43 @@ const proc: insert (in database: testDb, inout testState: state,
   end func;
 
 
+const proc: create (in database: testDb, inout testState: state,
+    in string: fieldDeclarationName, in string: fieldName) is func
+  begin
+    if succeeds(state.statement :=
+          prepare(testDb, "CREATE TABLE " & state.tableName &
+                  " (" & fieldDeclarationName & " CHAR)")) and
+        succeeds(execute(state.statement)) then
+      block
+        state.statement := prepare(testDb, "SELECT * FROM " & state.tableName);
+        execute(state.statement);
+        if columnName(state.statement, 1) <> fieldName then
+          state.okay := FALSE;
+          writeln(" *** Column name expected: " <& fieldName <& " found: " <&
+                  columnName(state.statement, 1));
+        end if;
+      exception
+        catch RANGE_ERROR:
+          state.okay := FALSE;
+          writeln(" *** RANGE_ERROR was raised");
+        catch FILE_ERROR:
+          state.okay := FALSE;
+          writeln(" *** FILE_ERROR was raised");
+        catch DATABASE_ERROR:
+          state.okay := FALSE;
+          writeln(" *** DATABASE_ERROR was raised");
+      end block;
+      state.statement := prepare(testDb, "DROP TABLE " & state.tableName);
+      execute(state.statement);
+    else
+      state.okay := FALSE;
+      if state.details then
+        writeln(" *** Cannot create table with field " <& literal(fieldName));
+      end if;
+    end if;
+  end func;
+
+
 const proc: testPrepareAndExecute (in database: testDb, in dbCategory: databaseKind) is func
   local
     var testState: state is testState("testTable", "charField", FALSE);
@@ -974,10 +1012,19 @@ const proc: testPrepareAndExecute (in database: testDb, in dbCategory: databaseK
 
       if raisesDatabaseError(
           state.statement := prepare(testDb, "SELECT * FROM " & state.tableName &
-                                     " WHERE " & state.fieldName & " = /*'*/'\\'/*'*/")) then
+                                     " WHERE " & state.fieldName & " = /*'*/'x'/*'*/")) then
         state.okay := FALSE;
         if state.details then
           writeln(" *** Prepare: Quotation characters in comments are interpreted as literal. (2)");
+        end if;
+      end if;
+
+      if raisesDatabaseError(
+          state.statement := prepare(testDb, "SELECT * FROM " & state.tableName &
+                                     " WHERE " & state.fieldName & " = /*'*/'\\'/*'*/")) then
+        state.okay := FALSE;
+        if state.details then
+          writeln(" *** Prepare: Quotation characters in comments are interpreted as literal. (3)");
         end if;
       end if;
 
@@ -1015,6 +1062,84 @@ const proc: testPrepareAndExecute (in database: testDb, in dbCategory: databaseK
       writeln("Preparing and executing prepared statements works okay.");
     else
       writeln(" *** Preparing and executing prepared statements does not work okay.");
+    end if;
+  end func;
+
+
+const proc: testFieldNames (in database: testDb, in dbCategory: databaseKind) is func
+  local
+    var testState: state is testState("testTable", "unused", FALSE);
+    var database: emptyDb is database.value;
+  begin
+    if state.details then
+      writeln("testPrepareAndExecute");
+    end if;
+    create(testDb, state, "\"ch a\"",    "ch a");   # Space in name
+    create(testDb, state, "\"ch\"\"a\"", "ch\"a");  # Double quote in name
+    create(testDb, state, "\"ch'a\"",    "ch'a");   # Single quote in name
+    create(testDb, state, "\"ch`a\"",    "ch`a");   # Backtick in name
+    create(testDb, state, "\"ch\\a\"",   "ch\\a");  # Backslash in name
+    create(testDb, state, "\"ch\ta\"",   "ch\ta");
+    create(testDb, state, "\"ch\na\"",   "ch\na");
+    create(testDb, state, "\"ch€a\"",    "ch€a");
+    create(testDb, state, "\"chµa\"",    "chµa");
+
+    # create(testDb, state, "\"\0;\"",         "\0;");  # Fails with all databases.
+    create(testDb, state, "\"\1;\"",         "\1;");
+    create(testDb, state, "\"\2;\"",         "\2;");
+    create(testDb, state, "\"\3;\"",         "\3;");
+    create(testDb, state, "\"\4;\"",         "\4;");
+    create(testDb, state, "\"\5;\"",         "\5;");
+    create(testDb, state, "\"\6;\"",         "\6;");
+    create(testDb, state, "\"\7;\"",         "\7;");
+    create(testDb, state, "\"\8;\"",         "\8;");
+    create(testDb, state, "\"\9;\"",         "\9;");
+    create(testDb, state, "\"\10;\"",        "\10;");
+    create(testDb, state, "\"\1;\2;\3;\4;\5;\6;\7;\8;\9;\10;\"",
+                            "\1;\2;\3;\4;\5;\6;\7;\8;\9;\10;");
+    create(testDb, state, "\"\11;\12;\13;\14;\15;\16;\17;\18;\19;\20;\"",
+                            "\11;\12;\13;\14;\15;\16;\17;\18;\19;\20;");
+    create(testDb, state, "\"\21;\22;\23;\24;\25;\26;\27;\28;\29;\30;\31;\"",
+                            "\21;\22;\23;\24;\25;\26;\27;\28;\29;\30;\31;");
+
+    create(testDb, state, "\" \"",                   " ");
+    create(testDb, state, "\"!\"\"#$%&'()*+,-./\"",  "!\"#$%&'()*+,-./");
+    create(testDb, state, "\"0123456789\"",          "0123456789");
+    create(testDb, state, "\":;<=>?@\"",             ":;<=>?@");
+    create(testDb, state, "\"ABCDEFGHIJKLMNOPQRSTUVWXYZ\"",
+                            "ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+    create(testDb, state, "\"[\\^_`\"",              "[\\^_`");
+    create(testDb, state, "\"abcdefghijklmnopqrstuvwxyz\"",
+                            "abcdefghijklmnopqrstuvwxyz");
+    create(testDb, state, "\"{|}~\"",                "{|}~");
+    create(testDb, state, "\"\127;\"",               "\127;");
+
+    create(testDb, state, "\"\128;\129;\130;\131;\132;\133;\134;\135;\"",
+                            "\128;\129;\130;\131;\132;\133;\134;\135;");
+    create(testDb, state, "\"\136;\137;\138;\139;\140;\141;\142;\143;\"",
+                            "\136;\137;\138;\139;\140;\141;\142;\143;");
+    create(testDb, state, "\"\144;\145;\146;\147;\148;\149;\150;\151;\"",
+                            "\144;\145;\146;\147;\148;\149;\150;\151;");
+    create(testDb, state, "\"\152;\153;\154;\155;\156;\157;\158;\159;\"",
+                            "\152;\153;\154;\155;\156;\157;\158;\159;");
+    create(testDb, state, "\"\160;\"",               "\160;");
+
+    create(testDb, state, "\"¡¢£¤¥¦§¨©ª«¬­®¯\"",     "¡¢£¤¥¦§¨©ª«¬­®¯");
+    create(testDb, state, "\"°±²³´µ¶·\"",            "°±²³´µ¶·");
+    create(testDb, state, "\"¸¹º»¼½¾¿\"",            "¸¹º»¼½¾¿");
+    create(testDb, state, "\"ÀÁÂÃÄÅÆÇ\"",            "ÀÁÂÃÄÅÆÇ");
+    create(testDb, state, "\"ÈÉÊËÌÍÎÏ\"",            "ÈÉÊËÌÍÎÏ");
+    create(testDb, state, "\"ÐÑÒÓÔÕÖ×\"",            "ÐÑÒÓÔÕÖ×");
+    create(testDb, state, "\"ØÙÚÛÜÝÞß\"",            "ØÙÚÛÜÝÞß");
+    create(testDb, state, "\"àáâãäåæç\"",            "àáâãäåæç");
+    create(testDb, state, "\"èéêëìíîï\"",            "èéêëìíîï");
+    create(testDb, state, "\"ðñòóôõö÷\"",            "ðñòóôõö÷");
+    create(testDb, state, "\"øùúûüýþÿ\"",            "øùúûüýþÿ");
+
+    if state.okay then
+      writeln("Creating tables with arbitrary characters in field names works okay.");
+    else
+      writeln(" *** Creating tables with arbitrary characters in field names does not work okay.");
     end if;
   end func;
 
@@ -4668,6 +4793,113 @@ const proc: testBlobField (in database: testDb, in dbCategory: databaseKind) is 
   end func;
 
 
+const proc: testClobField (in database: testDb, in dbCategory: databaseKind) is func
+  local
+    var testState: state is testState("clobTest", "clobField", FALSE);
+    var array string: expect is 0 times "";
+    var string: stringColumn is "";
+    var integer: row is 1;
+  begin
+    if state.details then
+      writeln("testClobField: " <& databaseKind);
+    end if;
+    block
+      state.statement := prepare(testDb, "CREATE TABLE " & state.tableName &
+                         " (" & state.fieldName & " " & clobType(databaseKind) & ")");
+      execute(state.statement);
+      state.statement := prepare(testDb, "INSERT INTO " & state.tableName &
+                           " (" & state.fieldName & ") VALUES (?)");
+      insert(state, NULL,         expect &:= "");
+      insert(state, "",           expect &:= "");
+      insert(state, "X",          expect &:= "X");
+      insert(state, "Ab2",        expect &:= "Ab2");
+      insert(state, "abcdefghij", expect &:= "abcdefghij");
+      insert(state, "ÄäÖöÜüß",    expect &:= "ÄäÖöÜüß");
+      insert(state, "€µ¹²³¼½«»¬", expect &:= "€µ¹²³¼½«»¬");
+      # Chars that are defined with differend ordinal in code page 1252:
+      insert(state, "€‚ƒ„…†‡ˆ‰",  expect &:= "€‚ƒ„…†‡ˆ‰");
+      insert(state, "Š‹ŒŽ‘’“”•",  expect &:= "Š‹ŒŽ‘’“”•");
+      insert(state, "–—˜™š›œžŸ",  expect &:= "–—˜™š›œžŸ");
+      insert(state, "x" mult 32,  expect &:= "x" mult 32);
+      insert(state, "A B",        expect &:= "A B");
+      insert(state, "x" mult 65535,   expect &:= "x" mult 65535);
+      insert(state, "y" mult 1000000, expect &:= "y" mult 1000000);
+      if nullAllowedInString(databaseKind) then
+        insert(state, "A\0;B",    expect &:= "A\0;B");
+      end if;
+      insert(state, "\1;\2;\3;\4;\5;\6;\7;\8;\9;\
+                    \\10;\11;\12;\13;\14;\15;\16;\17;\18;\19;\20;\
+                    \\21;\22;\23;\24;\25;\26;\27;\28;\29;\30;\31;\127;",
+         expect &:= "\1;\2;\3;\4;\5;\6;\7;\8;\9;\
+                    \\10;\11;\12;\13;\14;\15;\16;\17;\18;\19;\20;\
+                    \\21;\22;\23;\24;\25;\26;\27;\28;\29;\30;\31;\127;");
+      insert(state, " !\"#$%&'()*+,-./",          expect &:= " !\"#$%&'()*+,-./");
+      insert(state, "0123456789:;<=>?@",          expect &:= "0123456789:;<=>?@");
+      insert(state, "ABCDEFGHIJKLMNOPQRSTUVWXYZ", expect &:= "ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+      insert(state, "[\\]^_`{|}~\127;",           expect &:= "[\\]^_`{|}~\127;");
+      insert(state, "abcdefghijklmnopqrstuvwxyz", expect &:= "abcdefghijklmnopqrstuvwxyz");
+      insert(state, "\160;¡¢£¤¥¦§¨©ª«¬­®¯",       expect &:= "\160;¡¢£¤¥¦§¨©ª«¬­®¯");
+      insert(state, "°±²³´µ¶·¸¹º»¼½¾¿",           expect &:= "°±²³´µ¶·¸¹º»¼½¾¿");
+      insert(state, "ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏ",           expect &:= "ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏ");
+      insert(state, "ÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞß",           expect &:= "ÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞß");
+      insert(state, "àáâãäåæçèéêëìíîï",           expect &:= "àáâãäåæçèéêëìíîï");
+      insert(state, "ðñòóôõö÷øùúûüýþÿ",           expect &:= "ðñòóôõö÷øùúûüýþÿ");
+      state.statement := prepare(testDb, "SELECT * FROM " & state.tableName);
+      execute(state.statement);
+      while fetch(state.statement) do
+        stringColumn := column(state.statement, 1, string);
+        if stringColumn <> expect[row] then
+          state.okay := FALSE;
+          if state.details then
+            if length(expect[row]) <= 1000 and length(stringColumn) <= 1000 then
+              writeln(" *** testClobField: Row: " <& row <&
+                      " Expected " <& literal(expect[row]) <&
+                      " found string " <& literal(str(stringColumn)));
+            else
+              writeln(" *** testClobField: Row: " <& row <&
+                      " Expected length: " <& length(expect[row]) <&
+                      " string length found: " <& length(stringColumn));
+            end if;
+          end if;
+        end if;
+        if row = 1 and not isNull(state.statement, 1) then
+          state.okay := FALSE;
+          if state.details then
+            writeln(" *** testClobField: Row: " <& row <&
+                    " Expected NULL found " <& stringColumn);
+          end if;
+        end if;
+        if length(expect[row]) <> 0 and isNull(state.statement, 1) then
+          state.okay := FALSE;
+          if state.details then
+            writeln(" *** testClobField: Row: " <& row <&
+                    " Expected " <& literal(str(expect[row])) <& " found NULL");
+          end if;
+        end if;
+        incr(row);
+      end while;
+    exception
+      catch RANGE_ERROR:
+        state.okay := FALSE;
+        writeln(" *** RANGE_ERROR was raised");
+      catch FILE_ERROR:
+        state.okay := FALSE;
+        writeln(" *** FILE_ERROR was raised");
+      catch DATABASE_ERROR:
+        state.okay := FALSE;
+        writeln(" *** DATABASE_ERROR was raised");
+    end block;
+    state.statement := prepare(testDb, "DROP TABLE " & state.tableName);
+    execute(state.statement);
+
+    if state.okay then
+      writeln("Inserting and fetching clob fields works okay.");
+    else
+      writeln(" *** Inserting and fetching clob fields does not work okay.");
+    end if;
+  end func;
+
+
 const proc: testTimeField (in database: testDb, in dbCategory: databaseKind) is func
   local
     var testState: state is testState("timeTest", "timeField", FALSE);
@@ -4938,11 +5170,12 @@ const proc: testBlobField2 (in database: testDb, in dbCategory: databaseKind) is
       # statement := prepare(testDb, "INSERT INTO " & tableName & " (blobField) VALUES (0xfedcba9876543210)");
       # statement := prepare(testDb, "INSERT INTO " & tableName & " (blobField) VALUES ('some text')");
       # statement := prepare(testDb, "INSERT INTO " & tableName & " (blobField) VALUES (?)"); bind(statement, 1, bstring(""));
+      # statement := prepare(testDb, "INSERT INTO " & tableName & " (blobField) VALUES (?)"); bind(statement, 1, bstring(getf("data.txt")));
       # statement := prepare(testDb, "INSERT INTO " & tableName & " (blobField) VALUES (?)"); bind(statement, 1, bstring("\16#fe;\16#dc;\16#ba;\16#98;\16#76;\16#54;\16#32;\16#10;"));
       # statement := prepare(testDb, "INSERT INTO " & tableName & " (blobField) VALUES (?)"); bind(statement, 1, bstring("abcdefgh" mult 1024 * 1024 * 16));
       # statement := prepare(testDb, "INSERT INTO " & tableName & " (blobField) VALUES (?)"); bind(statement, 1, "abcdefgh" mult 1024 * 1024);
       # statement := prepare(testDb, "INSERT INTO " & tableName & " (int32Field, blobField, varcharField) VALUES (123, 0xfedcba9876543210, 'some text')");
-       statement := prepare(testDb, "INSERT INTO " & tableName & " (int32Field, blobField, numericField) VALUES (123, 0xfedcba9876543210, 0.123456789)");
+      # statement := prepare(testDb, "INSERT INTO " & tableName & " (int32Field, blobField, numericField) VALUES (123, 0xfedcba9876543210, 0.123456789)");
       # statement := prepare(testDb, "INSERT INTO " & tableName & " (int32Field, numericField) VALUES (123, 0.123456789)");
       execute(statement);
       statement := prepare(testDb, "SELECT * FROM " & tableName);
@@ -4950,13 +5183,14 @@ const proc: testBlobField2 (in database: testDb, in dbCategory: databaseKind) is
       while fetch(statement) do
         # writeln(column(statement, 1, bstring));
         # writeln(column(statement, 1, string));
-         writeln(column(statement, 1, integer));
-         writeln(column(statement, 2, bstring));
+        # writeln(column(statement, 1, integer));
+        # writeln(column(statement, 2, bstring));
         # writeln(column(statement, 2, bigRational));
         # writeln(column(statement, 3, string));
-         writeln(column(statement, 3, bigRational));
+        # writeln(column(statement, 3, bigRational));
         # writeln(length(column(statement, 1, bstring)));
         # writeln(length(column(statement, 1, string)));
+        # putf("data2.txt", str(column(statement, 1, bstring)));
        incr(row);
       end while;
     exception
@@ -5226,6 +5460,7 @@ const proc: testVarcharField2 (in database: testDb, in dbCategory: databaseKind)
 const proc: testDb (in database: testDb, in dbCategory: databaseKind) is func
   begin
     testPrepareAndExecute(testDb, databaseKind);
+    testFieldNames(testDb, databaseKind);
     testBooleanField(testDb, databaseKind);
     testInt8Field(testDb, databaseKind);
     testInt16Field(testDb, databaseKind);
@@ -5247,6 +5482,7 @@ const proc: testDb (in database: testDb, in dbCategory: databaseKind) is func
     testCharField(testDb, databaseKind);
     testVarcharField(testDb, databaseKind);
     testBlobField(testDb, databaseKind);
+    testClobField(testDb, databaseKind);
     testTimeField(testDb, databaseKind);
     testDurationField(testDb, databaseKind);
 

@@ -25,6 +25,9 @@
 /*                                                                  */
 /********************************************************************/
 
+#define LOG_FUNCTIONS 0
+#define VERBOSE_EXCEPTIONS 0
+
 #include "version.h"
 
 #include "stdlib.h"
@@ -62,6 +65,17 @@ objectType tim_await (listType arguments)
     isit_int(arg_6(arguments));
     isit_int(arg_7(arguments));
     isit_int(arg_8(arguments));
+    logFunction(printf("tim_await(" F_D(04) "-" F_D(02) "-" F_D(02) " "
+                                    F_D(02) ":" F_D(02) ":" F_D(02) "."
+                                    F_D(06) ", " FMT_D ")\n",
+                       take_int(arg_1(arguments)),
+                       take_int(arg_2(arguments)),
+                       take_int(arg_3(arguments)),
+                       take_int(arg_4(arguments)),
+                       take_int(arg_5(arguments)),
+                       take_int(arg_6(arguments)),
+                       take_int(arg_7(arguments)),
+                       take_int(arg_8(arguments))););
     timAwait(take_int(arg_1(arguments)),
              take_int(arg_2(arguments)),
              take_int(arg_3(arguments)),
@@ -70,6 +84,7 @@ objectType tim_await (listType arguments)
              take_int(arg_6(arguments)),
              take_int(arg_7(arguments)),
              take_int(arg_8(arguments)));
+    logFunction(printf("tim_await -->\n"););
     return SYS_EMPTY_OBJECT;
   } /* tim_await */
 

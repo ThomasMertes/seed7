@@ -79,7 +79,7 @@ const func string: processHttpRequest (inout browserConnection: browser, inout p
       elsif startsWith(line, "Content-Length") then
         contentLengthStri := trim(line[succ(pos(line, ":")) ..]);
         block
-          contentLength := integer parse contentLengthStri;
+          contentLength := integer(contentLengthStri);
         exception
           catch RANGE_ERROR:
             contentLength := -1;

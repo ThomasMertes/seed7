@@ -114,6 +114,29 @@ const func string: getComment (inout file: inFile) is func
 
 
 (**
+ *  Skips a classic C comment from a [[file]].
+ *  The comment starts with /* and ends with */ . In a classic
+ *  C comment no nesting of comments is allowed. When the function
+ *  is called it is assumed that inFile.bufferChar contains the '*'
+ *  of the comment start. When the function is left the character
+ *  after '/' is in inFile.bufferChar.
+ *)
+const proc: skipClassicComment (inout file: inFile) is func
+  local
+    var char: character is ' ';
+  begin
+    character := getc(inFile);
+    repeat
+      while character <> '*' and character <> EOF do
+        character := getc(inFile);
+      end while;
+      character := getc(inFile);
+    until character = '/' or character = EOF;
+    inFile.bufferChar := getc(inFile);
+  end func;
+
+
+(**
  *  Skips a line comment from a [[file]].
  *  A line comment starts with an introducing character (like '#')
  *  and ends with the end of the line. When the function is called
@@ -343,6 +366,48 @@ const func string: getQuotedText (inout file: inFile) is func
       symbol &:= character;
       character := getc(inFile);
     end while;
+    inFile.bufferChar := character;
+  end func;
+
+
+(**
+ *  Read a simple [[string]] literal from a [[file]].
+ *  A simple string literal is enclosed in delimiter characters
+ *  (e.g. " or ' ). Delimiter characters within the simple string
+ *  literal must be doubled. A simple string literal does not
+ *  support an escape character. All characters, including control
+ *  characters (e.g. linefeed) are allowed inside a simple string
+ *  literal. When the function is called it is assumed that
+ *  inFile.bufferChar contains the introducing delimiter character.
+ *  When the function is left the character after the closing
+ *  delimiter character is in inFile.bufferChar.
+ *  @return the string literal including the introducing and
+ *          closing delimiter character. Double delimiter chars in
+ *          the literal are converted to single delimiter chars.
+ *)
+const func string: getSimpleStringLiteral (inout file: inFile) is func
+  result
+    var string: symbol is "";
+  local
+    var char: delimiter is ' ';
+    var char: character is ' ';
+  begin
+    delimiter := inFile.bufferChar;
+    symbol := str(delimiter);
+    repeat
+      character := getc(inFile);
+      while character <> delimiter and character <> EOF do
+        symbol &:= character;
+        character := getc(inFile);
+      end while;
+      if character = delimiter then
+        character := getc(inFile);
+        if character = delimiter then
+          symbol &:= character;
+        end if;
+      end if;
+    until character <> delimiter;
+    symbol &:= delimiter;
     inFile.bufferChar := character;
   end func;
 
@@ -1053,7 +1118,7 @@ const func string: getXmlCharacterReference (inout file: inFile) is func
           symbol &:= inFile.bufferChar;
           inFile.bufferChar := getc(inFile);
         end while;
-        symbol := str(chr(integer parse symbol));
+        symbol := str(chr(integer(symbol)));
       end if;
     else
       while inFile.bufferChar <> ';' and inFile.bufferChar <> EOF do

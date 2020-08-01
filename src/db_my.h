@@ -135,7 +135,7 @@ typedef struct {
 #define MYSQL_DATA_TRUNCATED 101
 
 #ifndef STDCALL
-#if defined(_WIN32)
+#if defined(_WIN32) && HAS_STDCALL
 #define STDCALL __stdcall
 #else
 #define STDCALL

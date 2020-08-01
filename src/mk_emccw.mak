@@ -1,12 +1,12 @@
 # Makefile for mingw32-make (or make7), emcc from Emscripten and gcc from MinGW. Commands executed by: cmd.exe
 # To compile use a Windows console and call:
-#   mingw32-make -f mk_emcc.mak depend
-#   mingw32-make -f mk_emcc.mak
+#   mingw32-make -f mk_emccw.mak depend
+#   mingw32-make -f mk_emccw.mak
 
 # CFLAGS = -O2 -fomit-frame-pointer -funroll-loops -Wall
 # CFLAGS = -O2 -fomit-frame-pointer -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
-CFLAGS = -O2 -g -ffunction-sections -fdata-sections $(INCLUDE_OPTIONS) -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
-# CFLAGS = -O2 -g -ffunction-sections -fdata-sections $(INCLUDE_OPTIONS) -Wall -Winline -Wconversion -Wshadow -Wpointer-arith
+CFLAGS = -O2 -g -ffunction-sections -fdata-sections -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
+# CFLAGS = -O2 -g -ffunction-sections -fdata-sections -Wall -Winline -Wconversion -Wshadow -Wpointer-arith
 # CFLAGS = -O2 -g -pg -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
 # CFLAGS = -O2 -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
 # CFLAGS = -O2 -pg -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
@@ -95,15 +95,20 @@ s7c: ..\bin\s7c.js ..\prg\s7c.js
 
 ..\prg\s7.js: ..\bin\s7.js
 	copy ..\bin\s7.js ..\prg /Y
+	copy ..\bin\s7.wasm ..\prg /Y
 
 ..\bin\s7c.js: ..\prg\s7c.js
 	copy ..\prg\s7c.js ..\bin /Y
+	copy ..\prg\s7c.wasm ..\bin /Y
 
 ..\prg\s7c.js: ..\prg\s7c.sd7 $(ALL_S7_LIBS)
 	node ..\bin\s7.js -l ..\lib ..\prg\s7c -l ..\lib -b ..\bin -O2 ..\prg\s7c
 
-%.bc: %.c
-    $(CC) -c $(CPPFLAGS) $(CFLAGS) $< -o $@
+sql_%.o: sql_%.c
+	$(CC) -c $(CPPFLAGS) $(CFLAGS) $(INCLUDE_OPTIONS) $< -o $@
+
+big_%.o: big_%.c
+	$(CC) -c $(CPPFLAGS) $(CFLAGS) $(INCLUDE_OPTIONS) $< -o $@
 
 clear: clean
 
@@ -111,9 +116,13 @@ clean:
 	del *.o
 	del ..\bin\*.a
 	del ..\bin\s7.js
+	del ..\bin\s7.wasm
 	del ..\bin\s7c.js
+	del ..\bin\s7c.wasm
 	del ..\prg\s7.js
+	del ..\prg\s7.wasm
 	del ..\prg\s7c.js
+	del ..\prg\s7c.wasm
 	del depend
 	del macros
 	del chkccomp.h
@@ -129,9 +138,9 @@ distclean: clean
 	copy level_bk.h level.h /Y
 
 test:
-	..\bin\s7 -l ..\lib ..\prg\chk_all build
+	node ..\bin\s7.js -l ..\lib ..\prg\chk_all build
 	@echo.
-	@echo Use 'sudo make install' (with your make command) to install Seed7."
+	@echo Use 'sudo make install' (with your make command) to install Seed7.
 	@echo Or open a console as administrator, go to the directory seed7/src
 	@echo and use 'make install' (with your make command) to install Seed7.
 	@echo.
@@ -195,6 +204,7 @@ version.h: chkccomp.h
 	.\chkccomp.exe version.h
 	del chkccomp.exe
 	del cc_vers.txt
+	del ctest*.wasm
 	echo #define SEED7_LIB "$(SEED7_LIB)" >> version.h
 	echo #define CONSOLE_LIB "$(CONSOLE_LIB)" >> version.h
 	echo #define DRAW_LIB "$(DRAW_LIB)" >> version.h
@@ -236,53 +246,113 @@ level.h:
 ..\bin\$(COMPILER_LIB): $(COMPILER_LIB_OBJ)
 	ar r ..\bin\$(COMPILER_LIB) $(COMPILER_LIB_OBJ)
 
-make7: ..\bin\make7.exe
+..\bin\bas7.js: ..\prg\bas7.sd7 ..\bin\s7c.js
+	node ..\bin\s7c.js -l ..\lib -b ..\bin -O2 ..\prg\bas7
+	copy ..\prg\bas7.js ..\bin /Y
+	del ..\prg\bas7.js
 
-..\bin\make7.exe: ..\prg\make7.sd7 ..\bin\s7c.exe
-	..\bin\s7c.exe -l ..\lib -b ..\bin -O2 ..\prg\make7
-	copy ..\prg\make7.exe ..\bin /Y
-	del ..\prg\make7.exe
+..\bin\calc7.js: ..\prg\calc7.sd7 ..\bin\s7c.js
+	node ..\bin\s7c.js -l ..\lib -b ..\bin -O2 ..\prg\calc7
+	copy ..\prg\calc7.js ..\bin /Y
+	del ..\prg\calc7.js
 
-calc7: ..\bin\calc7.exe
+..\bin\cat.js: ..\prg\cat.sd7 ..\bin\s7c.js
+	node ..\bin\s7c.js -l ..\lib -b ..\bin -O2 ..\prg\cat
+	copy ..\prg\cat.js ..\bin /Y
+	del ..\prg\cat.js
 
-..\bin\calc7.exe: ..\prg\calc7.sd7 ..\bin\s7c.exe
-	..\bin\s7c.exe -l ..\lib -b ..\bin -O2 ..\prg\calc7
-	copy ..\prg\calc7.exe ..\bin /Y
-	del ..\prg\calc7.exe
+..\bin\comanche.js: ..\prg\comanche.sd7 ..\bin\s7c.js
+	node ..\bin\s7c.js -l ..\lib -b ..\bin -O2 ..\prg\comanche
+	copy ..\prg\comanche.js ..\bin /Y
+	del ..\prg\comanche.js
 
-tar7: ..\bin\tar7.exe
+..\bin\diff7.js: ..\prg\diff7.sd7 ..\bin\s7c.js
+	node ..\bin\s7c.js -l ..\lib -b ..\bin -O2 ..\prg\diff7
+	copy ..\prg\diff7.js ..\bin /Y
+	del ..\prg\diff7.js
 
-..\bin\tar7.exe: ..\prg\tar7.sd7 ..\bin\s7c.exe
-	..\bin\s7c.exe -l ..\lib -b ..\bin -O2 ..\prg\tar7
-	copy ..\prg\tar7.exe ..\bin /Y
-	del ..\prg\tar7.exe
+..\bin\find7.js: ..\prg\find7.sd7 ..\bin\s7c.js
+	node ..\bin\s7c.js -l ..\lib -b ..\bin -O2 ..\prg\find7
+	copy ..\prg\find7.js ..\bin /Y
+	del ..\prg\find7.js
 
-ftp7: ..\bin\ftp7.exe
+..\bin\ftp7.js: ..\prg\ftp7.sd7 ..\bin\s7c.js
+	node ..\bin\s7c.js -l ..\lib -b ..\bin -O2 ..\prg\ftp7
+	copy ..\prg\ftp7.js ..\bin /Y
+	del ..\prg\ftp7.js
 
-..\bin\ftp7.exe: ..\prg\ftp7.sd7 ..\bin\s7c.exe
-	..\bin\s7c.exe -l ..\lib -b ..\bin -O2 ..\prg\ftp7
-	copy ..\prg\ftp7.exe ..\bin /Y
-	del ..\prg\ftp7.exe
+..\bin\ftpserv.js: ..\prg\ftpserv.sd7 ..\bin\s7c.js
+	node ..\bin\s7c.js -l ..\lib -b ..\bin -O2 ..\prg\ftpserv
+	copy ..\prg\ftpserv.js ..\bin /Y
+	del ..\prg\ftpserv.js
 
-ftpserv: ..\bin\ftpserv.exe
+..\bin\hd.js: ..\prg\hd.sd7 ..\bin\s7c.js
+	node ..\bin\s7c.js -l ..\lib -b ..\bin -O2 ..\prg\hd
+	copy ..\prg\hd.js ..\bin /Y
+	del ..\prg\hd.js
 
-..\bin\ftpserv.exe: ..\prg\ftpserv.sd7 ..\bin\s7c.exe
-	..\bin\s7c.exe -l ..\lib -b ..\bin -O2 ..\prg\ftpserv
-	copy ..\prg\ftpserv.exe ..\bin /Y
-	del ..\prg\ftpserv.exe
+..\bin\make7.js: ..\prg\make7.sd7 ..\bin\s7c.js
+	node ..\bin\s7c.js -l ..\lib -b ..\bin -O2 ..\prg\make7
+	copy ..\prg\make7.js ..\bin /Y
+	del ..\prg\make7.js
+
+..\bin\sql7.js: ..\prg\sql7.sd7 ..\bin\s7c.js
+	node ..\bin\s7c.js -l ..\lib -b ..\bin -O2 ..\prg\sql7
+	copy ..\prg\sql7.js ..\bin /Y
+	del ..\prg\sql7.js
+
+..\bin\sydir7.js: ..\prg\sydir7.sd7 ..\bin\s7c.js
+	node ..\bin\s7c.js -l ..\lib -b ..\bin -O2 ..\prg\sydir7
+	copy ..\prg\sydir7.js ..\bin /Y
+	del ..\prg\sydir7.js
+
+..\bin\tar7.js: ..\prg\tar7.sd7 ..\bin\s7c.js
+	node ..\bin\s7c.js -l ..\lib -b ..\bin -O2 ..\prg\tar7
+	copy ..\prg\tar7.js ..\bin /Y
+	del ..\prg\tar7.js
+
+..\bin\toutf8.js: ..\prg\toutf8.sd7 ..\bin\s7c.js
+	node ..\bin\s7c.js -l ..\lib -b ..\bin -O2 ..\prg\toutf8
+	copy ..\prg\toutf8.js ..\bin /Y
+	del ..\prg\toutf8.js
+
+..\bin\which.js: ..\prg\which.sd7 ..\bin\s7c.js
+	node ..\bin\s7c.js -l ..\lib -b ..\bin -O2 ..\prg\which
+	copy ..\prg\which.js ..\bin /Y
+	del ..\prg\which.js
+
+bas7: ..\bin\bas7.js
+calc7: ..\bin\calc7.js
+cat: ..\bin\cat.js
+comanche: ..\bin\comanche.js
+diff7: ..\bin\diff7.js
+find7: ..\bin\find7.js
+ftp7: ..\bin\ftp7.js
+ftpserv: ..\bin\ftpserv.js
+hd: ..\bin\hd.js
+make7: ..\bin\make7.js
+sql7: ..\bin\sql7.js
+sydir7: ..\bin\sydir7.js
+tar7: ..\bin\tar7.js
+toutf8: ..\bin\toutf8.js
+which: ..\bin\which.js
+
+utils: ..\bin\bas7.js ..\bin\calc7.js ..\bin\cat.js ..\bin\comanche.js ..\bin\diff7.js \
+       ..\bin\find7.js ..\bin\ftp7.js ..\bin\ftpserv.js ..\bin\hd.js ..\bin\make7.js \
+       ..\bin\sql7.js ..\bin\sydir7.js ..\bin\tar7.js ..\bin\toutf8.js ..\bin\which.js
 
 wc: $(SRC)
-	echo SRC:
+	@echo SRC:
 	wc $(SRC)
-	echo SEED7_LIB_SRC:
+	@echo SEED7_LIB_SRC:
 	wc $(SEED7_LIB_SRC)
-	echo CONSOLE_LIB_SRC:
+	@echo CONSOLE_LIB_SRC:
 	wc $(CONSOLE_LIB_SRC)
-	echo DRAW_LIB_SRC:
+	@echo DRAW_LIB_SRC:
 	wc $(DRAW_LIB_SRC)
-	echo COMP_DATA_LIB_SRC:
+	@echo COMP_DATA_LIB_SRC:
 	wc $(COMP_DATA_LIB_SRC)
-	echo COMPILER_LIB_SRC:
+	@echo COMPILER_LIB_SRC:
 	wc $(COMPILER_LIB_SRC)
 
 lint: $(SRC)

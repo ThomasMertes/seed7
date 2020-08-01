@@ -15676,229 +15676,592 @@ const proc: check_parse is func
   local
     var boolean: okay is TRUE;
   begin
-    if  integer parse "-2147483648" <>   INT32_MIN or
-        integer parse "-2147483647" <> -2147483647 or
-        integer parse "-1073741825" <> -1073741825 or
-        integer parse "-1073741824" <> -1073741824 or
-        integer parse "-1000000000" <> -1000000000 or
-        integer parse  "-100000000" <>  -100000000 or
-        integer parse   "-10000000" <>   -10000000 or
-        integer parse    "-1000000" <>    -1000000 or
-        integer parse     "-100000" <>     -100000 or
-        integer parse      "-65537" <>      -65537 or
-        integer parse      "-65536" <>      -65536 or
-        integer parse      "-32769" <>      -32769 or
-        integer parse      "-32768" <>      -32768 or
-        integer parse      "-10001" <>      -10001 or
-        integer parse      "-10000" <>      -10000 or
-        integer parse       "-9999" <>       -9999 or
-        integer parse       "-2000" <>       -2000 or
-        integer parse       "-1001" <>       -1001 or
-        integer parse       "-1000" <>       -1000 or
-        integer parse        "-999" <>        -999 or
-        integer parse        "-200" <>        -200 or
-        integer parse        "-101" <>        -101 or
-        integer parse        "-100" <>        -100 or
-        integer parse         "-99" <>         -99 or
-        integer parse         "-20" <>         -20 or
-        integer parse         "-11" <>         -11 or
-        integer parse         "-10" <>         -10 or
-        integer parse          "-9" <>          -9 or
-        integer parse          "-2" <>          -2 or
-        integer parse          "-1" <>          -1 or
-        integer parse           "0" <>           0 or
-        integer parse           "1" <>           1 or
-        integer parse           "2" <>           2 or
-        integer parse           "9" <>           9 or
-        integer parse          "10" <>          10 or
-        integer parse          "11" <>          11 or
-        integer parse          "20" <>          20 or
-        integer parse          "99" <>          99 or
-        integer parse         "100" <>         100 or
-        integer parse         "101" <>         101 or
-        integer parse         "200" <>         200 or
-        integer parse         "999" <>         999 or
-        integer parse        "1000" <>        1000 or
-        integer parse        "1001" <>        1001 or
-        integer parse        "2000" <>        2000 or
-        integer parse        "9999" <>        9999 or
-        integer parse       "10000" <>       10000 or
-        integer parse       "10001" <>       10001 or
-        integer parse       "32768" <>       32768 or
-        integer parse       "32769" <>       32769 or
-        integer parse       "65536" <>       65536 or
-        integer parse       "65537" <>       65537 or
-        integer parse      "100000" <>      100000 or
-        integer parse     "1000000" <>     1000000 or
-        integer parse    "10000000" <>    10000000 or
-        integer parse   "100000000" <>   100000000 or
-        integer parse  "1000000000" <>  1000000000 or
-        integer parse  "1073741823" <>  1073741823 or
-        integer parse  "1073741824" <>  1073741824 or
-        integer parse  "2147483647" <>  2147483647 then
-      writeln(" ***** Integer parse with literals does not work correct.");
+    if  integer("-9223372036854775808") <>            INT64_MIN or
+        integer("-9223372036854775807") <> -9223372036854775807 or
+        integer("-1000000000000000000") <> -1000000000000000000 or
+        integer( "-100000000000000000") <>  -100000000000000000 or
+        integer(  "-10000000000000000") <>   -10000000000000000 or
+        integer(   "-1000000000000000") <>    -1000000000000000 or
+        integer(    "-100000000000000") <>     -100000000000000 or
+        integer(     "-10000000000000") <>      -10000000000000 or
+        integer(      "-1000000000000") <>       -1000000000000 or
+        integer(       "-100000000000") <>        -100000000000 or
+        integer(        "-10000000000") <>         -10000000000 or
+        integer(         "-2147483649") <>          -2147483649 or
+        integer(         "-2147483648") <>          -2147483648 or
+        integer(         "-2147483647") <>          -2147483647 or
+        integer(         "-1073741825") <>          -1073741825 or
+        integer(         "-1073741824") <>          -1073741824 or
+        integer(         "-1000000000") <>          -1000000000 or
+        integer(          "-100000000") <>           -100000000 or
+        integer(           "-10000000") <>            -10000000 or
+        integer(            "-1000000") <>             -1000000 or
+        integer(             "-100000") <>              -100000 or
+        integer(              "-65537") <>               -65537 or
+        integer(              "-65536") <>               -65536 or
+        integer(              "-32769") <>               -32769 or
+        integer(              "-32768") <>               -32768 or
+        integer(              "-10001") <>               -10001 or
+        integer(              "-10000") <>               -10000 or
+        integer(               "-9999") <>                -9999 or
+        integer(               "-2000") <>                -2000 or
+        integer(               "-1001") <>                -1001 or
+        integer(               "-1000") <>                -1000 or
+        integer(                "-999") <>                 -999 or
+        integer(                "-200") <>                 -200 or
+        integer(                "-101") <>                 -101 or
+        integer(                "-100") <>                 -100 or
+        integer(                 "-99") <>                  -99 or
+        integer(                 "-20") <>                  -20 or
+        integer(                 "-11") <>                  -11 or
+        integer(                 "-10") <>                  -10 or
+        integer(                  "-9") <>                   -9 or
+        integer(                  "-2") <>                   -2 or
+        integer(                  "-1") <>                   -1 or
+        integer(                   "0") <>                    0 or
+        integer(                   "1") <>                    1 or
+        integer(                   "2") <>                    2 or
+        integer(                   "9") <>                    9 or
+        integer(                  "10") <>                   10 or
+        integer(                  "11") <>                   11 or
+        integer(                  "20") <>                   20 or
+        integer(                  "99") <>                   99 or
+        integer(                 "100") <>                  100 or
+        integer(                 "101") <>                  101 or
+        integer(                 "200") <>                  200 or
+        integer(                 "999") <>                  999 or
+        integer(                "1000") <>                 1000 or
+        integer(                "1001") <>                 1001 or
+        integer(                "2000") <>                 2000 or
+        integer(                "9999") <>                 9999 or
+        integer(               "10000") <>                10000 or
+        integer(               "10001") <>                10001 or
+        integer(               "32768") <>                32768 or
+        integer(               "32769") <>                32769 or
+        integer(               "65536") <>                65536 or
+        integer(               "65537") <>                65537 or
+        integer(              "100000") <>               100000 or
+        integer(             "1000000") <>              1000000 or
+        integer(            "10000000") <>             10000000 or
+        integer(           "100000000") <>            100000000 or
+        integer(          "1000000000") <>           1000000000 or
+        integer(          "1073741823") <>           1073741823 or
+        integer(          "1073741824") <>           1073741824 or
+        integer(          "2147483647") <>           2147483647 or
+        integer(          "2147483648") <>           2147483648 or
+        integer(         "10000000000") <>          10000000000 or
+        integer(        "100000000000") <>         100000000000 or
+        integer(       "1000000000000") <>        1000000000000 or
+        integer(      "10000000000000") <>       10000000000000 or
+        integer(     "100000000000000") <>      100000000000000 or
+        integer(    "1000000000000000") <>     1000000000000000 or
+        integer(   "10000000000000000") <>    10000000000000000 or
+        integer(  "100000000000000000") <>   100000000000000000 or
+        integer( "1000000000000000000") <>  1000000000000000000 or
+        integer( "9223372036854775806") <>  9223372036854775806 or
+        integer( "9223372036854775807") <>  9223372036854775807 or
+        integer(                  "+0") <>                    0 or
+        integer(                  "+1") <>                    1 or
+        integer(                  "+2") <>                    2 or
+        integer(                  "+9") <>                    9 or
+        integer(                 "+10") <>                   10 or
+        integer(                 "+11") <>                   11 or
+        integer(                 "+20") <>                   20 or
+        integer(                 "+99") <>                   99 or
+        integer(                "+100") <>                  100 or
+        integer(                "+101") <>                  101 or
+        integer(                "+200") <>                  200 or
+        integer(                "+999") <>                  999 or
+        integer(               "+1000") <>                 1000 or
+        integer(               "+1001") <>                 1001 or
+        integer(               "+2000") <>                 2000 or
+        integer(               "+9999") <>                 9999 or
+        integer(              "+10000") <>                10000 or
+        integer(              "+10001") <>                10001 or
+        integer(              "+32768") <>                32768 or
+        integer(              "+32769") <>                32769 or
+        integer(              "+65536") <>                65536 or
+        integer(              "+65537") <>                65537 or
+        integer(             "+100000") <>               100000 or
+        integer(            "+1000000") <>              1000000 or
+        integer(           "+10000000") <>             10000000 or
+        integer(          "+100000000") <>            100000000 or
+        integer(         "+1000000000") <>           1000000000 or
+        integer(         "+1073741823") <>           1073741823 or
+        integer(         "+1073741824") <>           1073741824 or
+        integer(         "+2147483647") <>           2147483647 or
+        integer(         "+2147483648") <>           2147483648 or
+        integer(        "+10000000000") <>          10000000000 or
+        integer(       "+100000000000") <>         100000000000 or
+        integer(      "+1000000000000") <>        1000000000000 or
+        integer(     "+10000000000000") <>       10000000000000 or
+        integer(    "+100000000000000") <>      100000000000000 or
+        integer(   "+1000000000000000") <>     1000000000000000 or
+        integer(  "+10000000000000000") <>    10000000000000000 or
+        integer( "+100000000000000000") <>   100000000000000000 or
+        integer("+1000000000000000000") <>  1000000000000000000 or
+        integer("+9223372036854775806") <>  9223372036854775806 or
+        integer("+9223372036854775807") <>  9223372036854775807 then
+      writeln(" ***** Integer parse with literals does not work correct. (1)");
       okay := FALSE;
     end if;
-    if  integer parse striExpr("-2147483648") <>   INT32_MIN or
-        integer parse striExpr("-2147483647") <> -2147483647 or
-        integer parse striExpr("-1073741825") <> -1073741825 or
-        integer parse striExpr("-1073741824") <> -1073741824 or
-        integer parse striExpr("-1000000000") <> -1000000000 or
-        integer parse striExpr( "-100000000") <>  -100000000 or
-        integer parse striExpr(  "-10000000") <>   -10000000 or
-        integer parse striExpr(   "-1000000") <>    -1000000 or
-        integer parse striExpr(    "-100000") <>     -100000 or
-        integer parse striExpr(     "-65537") <>      -65537 or
-        integer parse striExpr(     "-65536") <>      -65536 or
-        integer parse striExpr(     "-32769") <>      -32769 or
-        integer parse striExpr(     "-32768") <>      -32768 or
-        integer parse striExpr(     "-10001") <>      -10001 or
-        integer parse striExpr(     "-10000") <>      -10000 or
-        integer parse striExpr(      "-9999") <>       -9999 or
-        integer parse striExpr(      "-2000") <>       -2000 or
-        integer parse striExpr(      "-1001") <>       -1001 or
-        integer parse striExpr(      "-1000") <>       -1000 or
-        integer parse striExpr(       "-999") <>        -999 or
-        integer parse striExpr(       "-200") <>        -200 or
-        integer parse striExpr(       "-101") <>        -101 or
-        integer parse striExpr(       "-100") <>        -100 or
-        integer parse striExpr(        "-99") <>         -99 or
-        integer parse striExpr(        "-20") <>         -20 or
-        integer parse striExpr(        "-11") <>         -11 or
-        integer parse striExpr(        "-10") <>         -10 or
-        integer parse striExpr(         "-9") <>          -9 or
-        integer parse striExpr(         "-2") <>          -2 or
-        integer parse striExpr(         "-1") <>          -1 or
-        integer parse striExpr(          "0") <>           0 or
-        integer parse striExpr(          "1") <>           1 or
-        integer parse striExpr(          "2") <>           2 or
-        integer parse striExpr(          "9") <>           9 or
-        integer parse striExpr(         "10") <>          10 or
-        integer parse striExpr(         "11") <>          11 or
-        integer parse striExpr(         "20") <>          20 or
-        integer parse striExpr(         "99") <>          99 or
-        integer parse striExpr(        "100") <>         100 or
-        integer parse striExpr(        "101") <>         101 or
-        integer parse striExpr(        "200") <>         200 or
-        integer parse striExpr(        "999") <>         999 or
-        integer parse striExpr(       "1000") <>        1000 or
-        integer parse striExpr(       "1001") <>        1001 or
-        integer parse striExpr(       "2000") <>        2000 or
-        integer parse striExpr(       "9999") <>        9999 or
-        integer parse striExpr(      "10000") <>       10000 or
-        integer parse striExpr(      "10001") <>       10001 or
-        integer parse striExpr(      "32768") <>       32768 or
-        integer parse striExpr(      "32769") <>       32769 or
-        integer parse striExpr(      "65536") <>       65536 or
-        integer parse striExpr(      "65537") <>       65537 or
-        integer parse striExpr(     "100000") <>      100000 or
-        integer parse striExpr(    "1000000") <>     1000000 or
-        integer parse striExpr(   "10000000") <>    10000000 or
-        integer parse striExpr(  "100000000") <>   100000000 or
-        integer parse striExpr( "1000000000") <>  1000000000 or
-        integer parse striExpr( "1073741823") <>  1073741823 or
-        integer parse striExpr( "1073741824") <>  1073741824 or
-        integer parse striExpr( "2147483647") <>  2147483647 then
-      writeln(" ***** Integer parse with expressions does not work correct.");
+
+    if  integer(striExpr("-9223372036854775808")) <>            INT64_MIN or
+        integer(striExpr("-9223372036854775807")) <> -9223372036854775807 or
+        integer(striExpr("-1000000000000000000")) <> -1000000000000000000 or
+        integer(striExpr( "-100000000000000000")) <>  -100000000000000000 or
+        integer(striExpr(  "-10000000000000000")) <>   -10000000000000000 or
+        integer(striExpr(   "-1000000000000000")) <>    -1000000000000000 or
+        integer(striExpr(    "-100000000000000")) <>     -100000000000000 or
+        integer(striExpr(     "-10000000000000")) <>      -10000000000000 or
+        integer(striExpr(      "-1000000000000")) <>       -1000000000000 or
+        integer(striExpr(       "-100000000000")) <>        -100000000000 or
+        integer(striExpr(        "-10000000000")) <>         -10000000000 or
+        integer(striExpr(         "-2147483649")) <>          -2147483649 or
+        integer(striExpr(         "-2147483648")) <>          -2147483648 or
+        integer(striExpr(         "-2147483647")) <>          -2147483647 or
+        integer(striExpr(         "-1073741825")) <>          -1073741825 or
+        integer(striExpr(         "-1073741824")) <>          -1073741824 or
+        integer(striExpr(         "-1000000000")) <>          -1000000000 or
+        integer(striExpr(          "-100000000")) <>           -100000000 or
+        integer(striExpr(           "-10000000")) <>            -10000000 or
+        integer(striExpr(            "-1000000")) <>             -1000000 or
+        integer(striExpr(             "-100000")) <>              -100000 or
+        integer(striExpr(              "-65537")) <>               -65537 or
+        integer(striExpr(              "-65536")) <>               -65536 or
+        integer(striExpr(              "-32769")) <>               -32769 or
+        integer(striExpr(              "-32768")) <>               -32768 or
+        integer(striExpr(              "-10001")) <>               -10001 or
+        integer(striExpr(              "-10000")) <>               -10000 or
+        integer(striExpr(               "-9999")) <>                -9999 or
+        integer(striExpr(               "-2000")) <>                -2000 or
+        integer(striExpr(               "-1001")) <>                -1001 or
+        integer(striExpr(               "-1000")) <>                -1000 or
+        integer(striExpr(                "-999")) <>                 -999 or
+        integer(striExpr(                "-200")) <>                 -200 or
+        integer(striExpr(                "-101")) <>                 -101 or
+        integer(striExpr(                "-100")) <>                 -100 or
+        integer(striExpr(                 "-99")) <>                  -99 or
+        integer(striExpr(                 "-20")) <>                  -20 or
+        integer(striExpr(                 "-11")) <>                  -11 or
+        integer(striExpr(                 "-10")) <>                  -10 or
+        integer(striExpr(                  "-9")) <>                   -9 or
+        integer(striExpr(                  "-2")) <>                   -2 or
+        integer(striExpr(                  "-1")) <>                   -1 or
+        integer(striExpr(                   "0")) <>                    0 or
+        integer(striExpr(                   "1")) <>                    1 or
+        integer(striExpr(                   "2")) <>                    2 or
+        integer(striExpr(                   "9")) <>                    9 or
+        integer(striExpr(                  "10")) <>                   10 or
+        integer(striExpr(                  "11")) <>                   11 or
+        integer(striExpr(                  "20")) <>                   20 or
+        integer(striExpr(                  "99")) <>                   99 or
+        integer(striExpr(                 "100")) <>                  100 or
+        integer(striExpr(                 "101")) <>                  101 or
+        integer(striExpr(                 "200")) <>                  200 or
+        integer(striExpr(                 "999")) <>                  999 or
+        integer(striExpr(                "1000")) <>                 1000 or
+        integer(striExpr(                "1001")) <>                 1001 or
+        integer(striExpr(                "2000")) <>                 2000 or
+        integer(striExpr(                "9999")) <>                 9999 or
+        integer(striExpr(               "10000")) <>                10000 or
+        integer(striExpr(               "10001")) <>                10001 or
+        integer(striExpr(               "32768")) <>                32768 or
+        integer(striExpr(               "32769")) <>                32769 or
+        integer(striExpr(               "65536")) <>                65536 or
+        integer(striExpr(               "65537")) <>                65537 or
+        integer(striExpr(              "100000")) <>               100000 or
+        integer(striExpr(             "1000000")) <>              1000000 or
+        integer(striExpr(            "10000000")) <>             10000000 or
+        integer(striExpr(           "100000000")) <>            100000000 or
+        integer(striExpr(          "1000000000")) <>           1000000000 or
+        integer(striExpr(          "1073741823")) <>           1073741823 or
+        integer(striExpr(          "1073741824")) <>           1073741824 or
+        integer(striExpr(          "2147483647")) <>           2147483647 or
+        integer(striExpr(          "2147483648")) <>           2147483648 or
+        integer(striExpr(         "10000000000")) <>          10000000000 or
+        integer(striExpr(        "100000000000")) <>         100000000000 or
+        integer(striExpr(       "1000000000000")) <>        1000000000000 or
+        integer(striExpr(      "10000000000000")) <>       10000000000000 or
+        integer(striExpr(     "100000000000000")) <>      100000000000000 or
+        integer(striExpr(    "1000000000000000")) <>     1000000000000000 or
+        integer(striExpr(   "10000000000000000")) <>    10000000000000000 or
+        integer(striExpr(  "100000000000000000")) <>   100000000000000000 or
+        integer(striExpr( "1000000000000000000")) <>  1000000000000000000 or
+        integer(striExpr( "9223372036854775806")) <>  9223372036854775806 or
+        integer(striExpr( "9223372036854775807")) <>  9223372036854775807 or
+        integer(striExpr(                  "+0")) <>                    0 or
+        integer(striExpr(                  "+1")) <>                    1 or
+        integer(striExpr(                  "+2")) <>                    2 or
+        integer(striExpr(                  "+9")) <>                    9 or
+        integer(striExpr(                 "+10")) <>                   10 or
+        integer(striExpr(                 "+11")) <>                   11 or
+        integer(striExpr(                 "+20")) <>                   20 or
+        integer(striExpr(                 "+99")) <>                   99 or
+        integer(striExpr(                "+100")) <>                  100 or
+        integer(striExpr(                "+101")) <>                  101 or
+        integer(striExpr(                "+200")) <>                  200 or
+        integer(striExpr(                "+999")) <>                  999 or
+        integer(striExpr(               "+1000")) <>                 1000 or
+        integer(striExpr(               "+1001")) <>                 1001 or
+        integer(striExpr(               "+2000")) <>                 2000 or
+        integer(striExpr(               "+9999")) <>                 9999 or
+        integer(striExpr(              "+10000")) <>                10000 or
+        integer(striExpr(              "+10001")) <>                10001 or
+        integer(striExpr(              "+32768")) <>                32768 or
+        integer(striExpr(              "+32769")) <>                32769 or
+        integer(striExpr(              "+65536")) <>                65536 or
+        integer(striExpr(              "+65537")) <>                65537 or
+        integer(striExpr(             "+100000")) <>               100000 or
+        integer(striExpr(            "+1000000")) <>              1000000 or
+        integer(striExpr(           "+10000000")) <>             10000000 or
+        integer(striExpr(          "+100000000")) <>            100000000 or
+        integer(striExpr(         "+1000000000")) <>           1000000000 or
+        integer(striExpr(         "+1073741823")) <>           1073741823 or
+        integer(striExpr(         "+1073741824")) <>           1073741824 or
+        integer(striExpr(         "+2147483647")) <>           2147483647 or
+        integer(striExpr(         "+2147483648")) <>           2147483648 or
+        integer(striExpr(        "+10000000000")) <>          10000000000 or
+        integer(striExpr(       "+100000000000")) <>         100000000000 or
+        integer(striExpr(      "+1000000000000")) <>        1000000000000 or
+        integer(striExpr(     "+10000000000000")) <>       10000000000000 or
+        integer(striExpr(    "+100000000000000")) <>      100000000000000 or
+        integer(striExpr(   "+1000000000000000")) <>     1000000000000000 or
+        integer(striExpr(  "+10000000000000000")) <>    10000000000000000 or
+        integer(striExpr( "+100000000000000000")) <>   100000000000000000 or
+        integer(striExpr("+1000000000000000000")) <>  1000000000000000000 or
+        integer(striExpr("+9223372036854775806")) <>  9223372036854775806 or
+        integer(striExpr("+9223372036854775807")) <>  9223372036854775807 then
+      writeln(" ***** Integer parse with expressions does not work correct. (1)");
       okay := FALSE;
     end if;
-    if  integer parse          "+0" <>           0 or
-        integer parse          "+1" <>           1 or
-        integer parse          "+2" <>           2 or
-        integer parse          "+9" <>           9 or
-        integer parse         "+10" <>          10 or
-        integer parse         "+11" <>          11 or
-        integer parse         "+20" <>          20 or
-        integer parse         "+99" <>          99 or
-        integer parse        "+100" <>         100 or
-        integer parse        "+101" <>         101 or
-        integer parse        "+200" <>         200 or
-        integer parse        "+999" <>         999 or
-        integer parse       "+1000" <>        1000 or
-        integer parse       "+1001" <>        1001 or
-        integer parse       "+2000" <>        2000 or
-        integer parse       "+9999" <>        9999 or
-        integer parse      "+10000" <>       10000 or
-        integer parse      "+10001" <>       10001 or
-        integer parse      "+32768" <>       32768 or
-        integer parse      "+32769" <>       32769 or
-        integer parse      "+65536" <>       65536 or
-        integer parse      "+65537" <>       65537 or
-        integer parse     "+100000" <>      100000 or
-        integer parse    "+1000000" <>     1000000 or
-        integer parse   "+10000000" <>    10000000 or
-        integer parse  "+100000000" <>   100000000 or
-        integer parse "+1000000000" <>  1000000000 or
-        integer parse "+1073741823" <>  1073741823 or
-        integer parse "+1073741824" <>  1073741824 or
-        integer parse "+2147483647" <>  2147483647 then
-      writeln(" ***** Integer parse with plus sign does not work correct.");
+
+    if  integer parse "-9223372036854775808" <>            INT64_MIN or
+        integer parse "-9223372036854775807" <> -9223372036854775807 or
+        integer parse "-1000000000000000000" <> -1000000000000000000 or
+        integer parse  "-100000000000000000" <>  -100000000000000000 or
+        integer parse   "-10000000000000000" <>   -10000000000000000 or
+        integer parse    "-1000000000000000" <>    -1000000000000000 or
+        integer parse     "-100000000000000" <>     -100000000000000 or
+        integer parse      "-10000000000000" <>      -10000000000000 or
+        integer parse       "-1000000000000" <>       -1000000000000 or
+        integer parse        "-100000000000" <>        -100000000000 or
+        integer parse         "-10000000000" <>         -10000000000 or
+        integer parse          "-2147483649" <>          -2147483649 or
+        integer parse          "-2147483648" <>          -2147483648 or
+        integer parse          "-2147483647" <>          -2147483647 or
+        integer parse          "-1073741825" <>          -1073741825 or
+        integer parse          "-1073741824" <>          -1073741824 or
+        integer parse          "-1000000000" <>          -1000000000 or
+        integer parse           "-100000000" <>           -100000000 or
+        integer parse            "-10000000" <>            -10000000 or
+        integer parse             "-1000000" <>             -1000000 or
+        integer parse              "-100000" <>              -100000 or
+        integer parse               "-65537" <>               -65537 or
+        integer parse               "-65536" <>               -65536 or
+        integer parse               "-32769" <>               -32769 or
+        integer parse               "-32768" <>               -32768 or
+        integer parse               "-10001" <>               -10001 or
+        integer parse               "-10000" <>               -10000 or
+        integer parse                "-9999" <>                -9999 or
+        integer parse                "-2000" <>                -2000 or
+        integer parse                "-1001" <>                -1001 or
+        integer parse                "-1000" <>                -1000 or
+        integer parse                 "-999" <>                 -999 or
+        integer parse                 "-200" <>                 -200 or
+        integer parse                 "-101" <>                 -101 or
+        integer parse                 "-100" <>                 -100 or
+        integer parse                  "-99" <>                  -99 or
+        integer parse                  "-20" <>                  -20 or
+        integer parse                  "-11" <>                  -11 or
+        integer parse                  "-10" <>                  -10 or
+        integer parse                   "-9" <>                   -9 or
+        integer parse                   "-2" <>                   -2 or
+        integer parse                   "-1" <>                   -1 or
+        integer parse                    "0" <>                    0 or
+        integer parse                    "1" <>                    1 or
+        integer parse                    "2" <>                    2 or
+        integer parse                    "9" <>                    9 or
+        integer parse                   "10" <>                   10 or
+        integer parse                   "11" <>                   11 or
+        integer parse                   "20" <>                   20 or
+        integer parse                   "99" <>                   99 or
+        integer parse                  "100" <>                  100 or
+        integer parse                  "101" <>                  101 or
+        integer parse                  "200" <>                  200 or
+        integer parse                  "999" <>                  999 or
+        integer parse                 "1000" <>                 1000 or
+        integer parse                 "1001" <>                 1001 or
+        integer parse                 "2000" <>                 2000 or
+        integer parse                 "9999" <>                 9999 or
+        integer parse                "10000" <>                10000 or
+        integer parse                "10001" <>                10001 or
+        integer parse                "32768" <>                32768 or
+        integer parse                "32769" <>                32769 or
+        integer parse                "65536" <>                65536 or
+        integer parse                "65537" <>                65537 or
+        integer parse               "100000" <>               100000 or
+        integer parse              "1000000" <>              1000000 or
+        integer parse             "10000000" <>             10000000 or
+        integer parse            "100000000" <>            100000000 or
+        integer parse           "1000000000" <>           1000000000 or
+        integer parse           "1073741823" <>           1073741823 or
+        integer parse           "1073741824" <>           1073741824 or
+        integer parse           "2147483647" <>           2147483647 or
+        integer parse           "2147483648" <>           2147483648 or
+        integer parse          "10000000000" <>          10000000000 or
+        integer parse         "100000000000" <>         100000000000 or
+        integer parse        "1000000000000" <>        1000000000000 or
+        integer parse       "10000000000000" <>       10000000000000 or
+        integer parse      "100000000000000" <>      100000000000000 or
+        integer parse     "1000000000000000" <>     1000000000000000 or
+        integer parse    "10000000000000000" <>    10000000000000000 or
+        integer parse   "100000000000000000" <>   100000000000000000 or
+        integer parse  "1000000000000000000" <>  1000000000000000000 or
+        integer parse  "9223372036854775806" <>  9223372036854775806 or
+        integer parse  "9223372036854775807" <>  9223372036854775807 or
+        integer parse                   "+0" <>                    0 or
+        integer parse                   "+1" <>                    1 or
+        integer parse                   "+2" <>                    2 or
+        integer parse                   "+9" <>                    9 or
+        integer parse                  "+10" <>                   10 or
+        integer parse                  "+11" <>                   11 or
+        integer parse                  "+20" <>                   20 or
+        integer parse                  "+99" <>                   99 or
+        integer parse                 "+100" <>                  100 or
+        integer parse                 "+101" <>                  101 or
+        integer parse                 "+200" <>                  200 or
+        integer parse                 "+999" <>                  999 or
+        integer parse                "+1000" <>                 1000 or
+        integer parse                "+1001" <>                 1001 or
+        integer parse                "+2000" <>                 2000 or
+        integer parse                "+9999" <>                 9999 or
+        integer parse               "+10000" <>                10000 or
+        integer parse               "+10001" <>                10001 or
+        integer parse               "+32768" <>                32768 or
+        integer parse               "+32769" <>                32769 or
+        integer parse               "+65536" <>                65536 or
+        integer parse               "+65537" <>                65537 or
+        integer parse              "+100000" <>               100000 or
+        integer parse             "+1000000" <>              1000000 or
+        integer parse            "+10000000" <>             10000000 or
+        integer parse           "+100000000" <>            100000000 or
+        integer parse          "+1000000000" <>           1000000000 or
+        integer parse          "+1073741823" <>           1073741823 or
+        integer parse          "+1073741824" <>           1073741824 or
+        integer parse          "+2147483647" <>           2147483647 or
+        integer parse          "+2147483648" <>           2147483648 or
+        integer parse         "+10000000000" <>          10000000000 or
+        integer parse        "+100000000000" <>         100000000000 or
+        integer parse       "+1000000000000" <>        1000000000000 or
+        integer parse      "+10000000000000" <>       10000000000000 or
+        integer parse     "+100000000000000" <>      100000000000000 or
+        integer parse    "+1000000000000000" <>     1000000000000000 or
+        integer parse   "+10000000000000000" <>    10000000000000000 or
+        integer parse  "+100000000000000000" <>   100000000000000000 or
+        integer parse "+1000000000000000000" <>  1000000000000000000 or
+        integer parse "+9223372036854775806" <>  9223372036854775806 or
+        integer parse "+9223372036854775807" <>  9223372036854775807 then
+      writeln(" ***** Integer parse with literals does not work correct. (2)");
       okay := FALSE;
     end if;
-    if  integer parse          "0123"  <> 123 or
-        integer parse striExpr("0123") <> 123 then
+
+    if  integer parse striExpr("-9223372036854775808") <>            INT64_MIN or
+        integer parse striExpr("-9223372036854775807") <> -9223372036854775807 or
+        integer parse striExpr("-1000000000000000000") <> -1000000000000000000 or
+        integer parse striExpr( "-100000000000000000") <>  -100000000000000000 or
+        integer parse striExpr(  "-10000000000000000") <>   -10000000000000000 or
+        integer parse striExpr(   "-1000000000000000") <>    -1000000000000000 or
+        integer parse striExpr(    "-100000000000000") <>     -100000000000000 or
+        integer parse striExpr(     "-10000000000000") <>      -10000000000000 or
+        integer parse striExpr(      "-1000000000000") <>       -1000000000000 or
+        integer parse striExpr(       "-100000000000") <>        -100000000000 or
+        integer parse striExpr(        "-10000000000") <>         -10000000000 or
+        integer parse striExpr(         "-2147483649") <>          -2147483649 or
+        integer parse striExpr(         "-2147483648") <>          -2147483648 or
+        integer parse striExpr(         "-2147483647") <>          -2147483647 or
+        integer parse striExpr(         "-1073741825") <>          -1073741825 or
+        integer parse striExpr(         "-1073741824") <>          -1073741824 or
+        integer parse striExpr(         "-1000000000") <>          -1000000000 or
+        integer parse striExpr(          "-100000000") <>           -100000000 or
+        integer parse striExpr(           "-10000000") <>            -10000000 or
+        integer parse striExpr(            "-1000000") <>             -1000000 or
+        integer parse striExpr(             "-100000") <>              -100000 or
+        integer parse striExpr(              "-65537") <>               -65537 or
+        integer parse striExpr(              "-65536") <>               -65536 or
+        integer parse striExpr(              "-32769") <>               -32769 or
+        integer parse striExpr(              "-32768") <>               -32768 or
+        integer parse striExpr(              "-10001") <>               -10001 or
+        integer parse striExpr(              "-10000") <>               -10000 or
+        integer parse striExpr(               "-9999") <>                -9999 or
+        integer parse striExpr(               "-2000") <>                -2000 or
+        integer parse striExpr(               "-1001") <>                -1001 or
+        integer parse striExpr(               "-1000") <>                -1000 or
+        integer parse striExpr(                "-999") <>                 -999 or
+        integer parse striExpr(                "-200") <>                 -200 or
+        integer parse striExpr(                "-101") <>                 -101 or
+        integer parse striExpr(                "-100") <>                 -100 or
+        integer parse striExpr(                 "-99") <>                  -99 or
+        integer parse striExpr(                 "-20") <>                  -20 or
+        integer parse striExpr(                 "-11") <>                  -11 or
+        integer parse striExpr(                 "-10") <>                  -10 or
+        integer parse striExpr(                  "-9") <>                   -9 or
+        integer parse striExpr(                  "-2") <>                   -2 or
+        integer parse striExpr(                  "-1") <>                   -1 or
+        integer parse striExpr(                   "0") <>                    0 or
+        integer parse striExpr(                   "1") <>                    1 or
+        integer parse striExpr(                   "2") <>                    2 or
+        integer parse striExpr(                   "9") <>                    9 or
+        integer parse striExpr(                  "10") <>                   10 or
+        integer parse striExpr(                  "11") <>                   11 or
+        integer parse striExpr(                  "20") <>                   20 or
+        integer parse striExpr(                  "99") <>                   99 or
+        integer parse striExpr(                 "100") <>                  100 or
+        integer parse striExpr(                 "101") <>                  101 or
+        integer parse striExpr(                 "200") <>                  200 or
+        integer parse striExpr(                 "999") <>                  999 or
+        integer parse striExpr(                "1000") <>                 1000 or
+        integer parse striExpr(                "1001") <>                 1001 or
+        integer parse striExpr(                "2000") <>                 2000 or
+        integer parse striExpr(                "9999") <>                 9999 or
+        integer parse striExpr(               "10000") <>                10000 or
+        integer parse striExpr(               "10001") <>                10001 or
+        integer parse striExpr(               "32768") <>                32768 or
+        integer parse striExpr(               "32769") <>                32769 or
+        integer parse striExpr(               "65536") <>                65536 or
+        integer parse striExpr(               "65537") <>                65537 or
+        integer parse striExpr(              "100000") <>               100000 or
+        integer parse striExpr(             "1000000") <>              1000000 or
+        integer parse striExpr(            "10000000") <>             10000000 or
+        integer parse striExpr(           "100000000") <>            100000000 or
+        integer parse striExpr(          "1000000000") <>           1000000000 or
+        integer parse striExpr(          "1073741823") <>           1073741823 or
+        integer parse striExpr(          "1073741824") <>           1073741824 or
+        integer parse striExpr(          "2147483647") <>           2147483647 or
+        integer parse striExpr(          "2147483648") <>           2147483648 or
+        integer parse striExpr(         "10000000000") <>          10000000000 or
+        integer parse striExpr(        "100000000000") <>         100000000000 or
+        integer parse striExpr(       "1000000000000") <>        1000000000000 or
+        integer parse striExpr(      "10000000000000") <>       10000000000000 or
+        integer parse striExpr(     "100000000000000") <>      100000000000000 or
+        integer parse striExpr(    "1000000000000000") <>     1000000000000000 or
+        integer parse striExpr(   "10000000000000000") <>    10000000000000000 or
+        integer parse striExpr(  "100000000000000000") <>   100000000000000000 or
+        integer parse striExpr( "1000000000000000000") <>  1000000000000000000 or
+        integer parse striExpr( "9223372036854775806") <>  9223372036854775806 or
+        integer parse striExpr( "9223372036854775807") <>  9223372036854775807 or
+        integer parse striExpr(                  "+0") <>                    0 or
+        integer parse striExpr(                  "+1") <>                    1 or
+        integer parse striExpr(                  "+2") <>                    2 or
+        integer parse striExpr(                  "+9") <>                    9 or
+        integer parse striExpr(                 "+10") <>                   10 or
+        integer parse striExpr(                 "+11") <>                   11 or
+        integer parse striExpr(                 "+20") <>                   20 or
+        integer parse striExpr(                 "+99") <>                   99 or
+        integer parse striExpr(                "+100") <>                  100 or
+        integer parse striExpr(                "+101") <>                  101 or
+        integer parse striExpr(                "+200") <>                  200 or
+        integer parse striExpr(                "+999") <>                  999 or
+        integer parse striExpr(               "+1000") <>                 1000 or
+        integer parse striExpr(               "+1001") <>                 1001 or
+        integer parse striExpr(               "+2000") <>                 2000 or
+        integer parse striExpr(               "+9999") <>                 9999 or
+        integer parse striExpr(              "+10000") <>                10000 or
+        integer parse striExpr(              "+10001") <>                10001 or
+        integer parse striExpr(              "+32768") <>                32768 or
+        integer parse striExpr(              "+32769") <>                32769 or
+        integer parse striExpr(              "+65536") <>                65536 or
+        integer parse striExpr(              "+65537") <>                65537 or
+        integer parse striExpr(             "+100000") <>               100000 or
+        integer parse striExpr(            "+1000000") <>              1000000 or
+        integer parse striExpr(           "+10000000") <>             10000000 or
+        integer parse striExpr(          "+100000000") <>            100000000 or
+        integer parse striExpr(         "+1000000000") <>           1000000000 or
+        integer parse striExpr(         "+1073741823") <>           1073741823 or
+        integer parse striExpr(         "+1073741824") <>           1073741824 or
+        integer parse striExpr(         "+2147483647") <>           2147483647 or
+        integer parse striExpr(         "+2147483648") <>           2147483648 or
+        integer parse striExpr(        "+10000000000") <>          10000000000 or
+        integer parse striExpr(       "+100000000000") <>         100000000000 or
+        integer parse striExpr(      "+1000000000000") <>        1000000000000 or
+        integer parse striExpr(     "+10000000000000") <>       10000000000000 or
+        integer parse striExpr(    "+100000000000000") <>      100000000000000 or
+        integer parse striExpr(   "+1000000000000000") <>     1000000000000000 or
+        integer parse striExpr(  "+10000000000000000") <>    10000000000000000 or
+        integer parse striExpr( "+100000000000000000") <>   100000000000000000 or
+        integer parse striExpr("+1000000000000000000") <>  1000000000000000000 or
+        integer parse striExpr("+9223372036854775806") <>  9223372036854775806 or
+        integer parse striExpr("+9223372036854775807") <>  9223372036854775807 then
+      writeln(" ***** Integer parse with expressions does not work correct. (2)");
+      okay := FALSE;
+    end if;
+
+    if  integer(               "0123")  <> 123 or
+        integer(      striExpr("0123")) <> 123 or
+        integer parse          "0123"   <> 123 or
+        integer parse striExpr("0123")  <> 123 then
       writeln(" ***** Integer parse with leading zeros does not work correct.");
       okay := FALSE;
     end if;
 
-    if  not raisesRangeError(integer parse "-9223372036854775890") or
-        not raisesRangeError(integer parse "-9223372036854775820") or
-        not raisesRangeError(integer parse "-9223372036854775819") or
-        not raisesRangeError(integer parse "-9223372036854775811") or
-        not raisesRangeError(integer parse "-9223372036854775810") or
-        not raisesRangeError(integer parse "-9223372036854775809") or
-        not raisesRangeError(integer parse                    "@") or
-        not raisesRangeError(integer parse                    "+") or
-        not raisesRangeError(integer parse                   "++") or
-        not raisesRangeError(integer parse                   "+-") or
-        not raisesRangeError(integer parse                  "++1") or
-        not raisesRangeError(integer parse                  "+-1") or
-        not raisesRangeError(integer parse                    "-") or
-        not raisesRangeError(integer parse                   "--") or
-        not raisesRangeError(integer parse                   "-+") or
-        not raisesRangeError(integer parse                  "--1") or
-        not raisesRangeError(integer parse                  "-+1") or
-        not raisesRangeError(integer parse                     "") or
-        not raisesRangeError(integer parse                 " 123") or
-        not raisesRangeError(integer parse                 "123 ") or
-        not raisesRangeError(integer parse                 "123@") or
-        not raisesRangeError(integer parse              "123@456") or
-        not raisesRangeError(integer parse  "9223372036854775808") or
-        not raisesRangeError(integer parse  "9223372036854775809") or
-        not raisesRangeError(integer parse  "9223372036854775810") or
-        not raisesRangeError(integer parse  "9223372036854775811") or
-        not raisesRangeError(integer parse  "9223372036854775819") or
-        not raisesRangeError(integer parse  "9223372036854775820") or
-        not raisesRangeError(integer parse  "9223372036854775890") or
-        not raisesRangeError(integer parse striExpr("-9223372036854775890")) or
-        not raisesRangeError(integer parse striExpr("-9223372036854775820")) or
-        not raisesRangeError(integer parse striExpr("-9223372036854775819")) or
-        not raisesRangeError(integer parse striExpr("-9223372036854775811")) or
-        not raisesRangeError(integer parse striExpr("-9223372036854775810")) or
-        not raisesRangeError(integer parse striExpr("-9223372036854775809")) or
-        not raisesRangeError(integer parse striExpr(                   "@")) or
-        not raisesRangeError(integer parse striExpr(                   "+")) or
-        not raisesRangeError(integer parse striExpr(                  "++")) or
-        not raisesRangeError(integer parse striExpr(                  "+-")) or
-        not raisesRangeError(integer parse striExpr(                 "++1")) or
-        not raisesRangeError(integer parse striExpr(                 "+-1")) or
-        not raisesRangeError(integer parse striExpr(                   "-")) or
-        not raisesRangeError(integer parse striExpr(                  "--")) or
-        not raisesRangeError(integer parse striExpr(                  "-+")) or
-        not raisesRangeError(integer parse striExpr(                 "--1")) or
-        not raisesRangeError(integer parse striExpr(                 "-+1")) or
-        not raisesRangeError(integer parse striExpr(                    "")) or
-        not raisesRangeError(integer parse striExpr(                " 123")) or
-        not raisesRangeError(integer parse striExpr(                "123 ")) or
-        not raisesRangeError(integer parse striExpr(                "123@")) or
-        not raisesRangeError(integer parse striExpr(             "123@456")) or
-        not raisesRangeError(integer parse striExpr( "9223372036854775808")) or
-        not raisesRangeError(integer parse striExpr( "9223372036854775809")) or
-        not raisesRangeError(integer parse striExpr( "9223372036854775810")) or
-        not raisesRangeError(integer parse striExpr( "9223372036854775811")) or
-        not raisesRangeError(integer parse striExpr( "9223372036854775819")) or
-        not raisesRangeError(integer parse striExpr( "9223372036854775820")) or
-        not raisesRangeError(integer parse striExpr( "9223372036854775890")) then
+    if  not raisesRangeError(integer("-9223372036854775890")) or
+        not raisesRangeError(integer("-9223372036854775820")) or
+        not raisesRangeError(integer("-9223372036854775819")) or
+        not raisesRangeError(integer("-9223372036854775811")) or
+        not raisesRangeError(integer("-9223372036854775810")) or
+        not raisesRangeError(integer("-9223372036854775809")) or
+        not raisesRangeError(integer(                   "@")) or
+        not raisesRangeError(integer(                   "+")) or
+        not raisesRangeError(integer(                  "++")) or
+        not raisesRangeError(integer(                  "+-")) or
+        not raisesRangeError(integer(                 "++1")) or
+        not raisesRangeError(integer(                 "+-1")) or
+        not raisesRangeError(integer(                   "-")) or
+        not raisesRangeError(integer(                  "--")) or
+        not raisesRangeError(integer(                  "-+")) or
+        not raisesRangeError(integer(                 "--1")) or
+        not raisesRangeError(integer(                 "-+1")) or
+        not raisesRangeError(integer(                    "")) or
+        not raisesRangeError(integer(                " 123")) or
+        not raisesRangeError(integer(                "123 ")) or
+        not raisesRangeError(integer(                "123@")) or
+        not raisesRangeError(integer(             "123@456")) or
+        not raisesRangeError(integer( "9223372036854775808")) or
+        not raisesRangeError(integer( "9223372036854775809")) or
+        not raisesRangeError(integer( "9223372036854775810")) or
+        not raisesRangeError(integer( "9223372036854775811")) or
+        not raisesRangeError(integer( "9223372036854775819")) or
+        not raisesRangeError(integer( "9223372036854775820")) or
+        not raisesRangeError(integer( "9223372036854775890")) or
+        not raisesRangeError(integer(striExpr("-9223372036854775890"))) or
+        not raisesRangeError(integer(striExpr("-9223372036854775820"))) or
+        not raisesRangeError(integer(striExpr("-9223372036854775819"))) or
+        not raisesRangeError(integer(striExpr("-9223372036854775811"))) or
+        not raisesRangeError(integer(striExpr("-9223372036854775810"))) or
+        not raisesRangeError(integer(striExpr("-9223372036854775809"))) or
+        not raisesRangeError(integer(striExpr(                   "@"))) or
+        not raisesRangeError(integer(striExpr(                   "+"))) or
+        not raisesRangeError(integer(striExpr(                  "++"))) or
+        not raisesRangeError(integer(striExpr(                  "+-"))) or
+        not raisesRangeError(integer(striExpr(                 "++1"))) or
+        not raisesRangeError(integer(striExpr(                 "+-1"))) or
+        not raisesRangeError(integer(striExpr(                   "-"))) or
+        not raisesRangeError(integer(striExpr(                  "--"))) or
+        not raisesRangeError(integer(striExpr(                  "-+"))) or
+        not raisesRangeError(integer(striExpr(                 "--1"))) or
+        not raisesRangeError(integer(striExpr(                 "-+1"))) or
+        not raisesRangeError(integer(striExpr(                    ""))) or
+        not raisesRangeError(integer(striExpr(                " 123"))) or
+        not raisesRangeError(integer(striExpr(                "123 "))) or
+        not raisesRangeError(integer(striExpr(                "123@"))) or
+        not raisesRangeError(integer(striExpr(             "123@456"))) or
+        not raisesRangeError(integer(striExpr( "9223372036854775808"))) or
+        not raisesRangeError(integer(striExpr( "9223372036854775809"))) or
+        not raisesRangeError(integer(striExpr( "9223372036854775810"))) or
+        not raisesRangeError(integer(striExpr( "9223372036854775811"))) or
+        not raisesRangeError(integer(striExpr( "9223372036854775819"))) or
+        not raisesRangeError(integer(striExpr( "9223372036854775820"))) or
+        not raisesRangeError(integer(striExpr( "9223372036854775890"))) then
       writeln(" ***** Integer parse with illegal literal does not raise RANGE_ERROR.");
       okay := FALSE;
     end if;

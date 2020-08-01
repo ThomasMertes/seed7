@@ -417,7 +417,7 @@ const func string: str (in bitset: aSet) is func
  *  @exception RANGE_ERROR When the string is empty or
  *             cannot be converted to a ''bitset''.
  *)
-const func bitset: (attr bitset) parse (in var string: stri) is func
+const func bitset: bitset (in var string: stri) is func
   result
     var bitset: aBitset is EMPTY_SET;
   begin
@@ -427,7 +427,7 @@ const func bitset: (attr bitset) parse (in var string: stri) is func
           stri := stri[2 ..];
         until stri[1] <> ' ';
         if stri[1] >= '0' and stri[1] <= '9' then
-          incl(aBitset, integer parse getint(stri));
+          incl(aBitset, integer(getint(stri)));
         elsif stri[1] <> '}' then
           raise RANGE_ERROR;
         end if;
@@ -439,6 +439,16 @@ const func bitset: (attr bitset) parse (in var string: stri) is func
       raise RANGE_ERROR;
     end if;
   end func;
+
+
+(**
+ *  Convert a [[string]] to a ''bitset''.
+ *  @return the integer result of the conversion.
+ *  @exception RANGE_ERROR When the string is empty or
+ *             cannot be converted to a ''bitset''.
+ *)
+const func bitset: (attr bitset) parse (in string: stri) is
+    return bitset(stri);
 
 
 (**

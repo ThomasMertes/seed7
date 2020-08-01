@@ -50,7 +50,7 @@ const proc: human_move (in integer: max_step, inout integer: sum) is func
         quit := TRUE;
       else
         block
-          human_step := integer parse answer;
+          human_step := integer(answer);
           if human_step < 1 then
             writeln(human_step <& " is less than 1.");
           elsif human_step > max_step then
@@ -141,7 +141,7 @@ const proc: main is func
         write("What should be the goal number (between 50 and 200)? ");
         readln(answer);
         block
-          goal := integer parse answer;
+          goal := integer(answer);
         exception
           catch RANGE_ERROR:
             quit := upper(answer) = "Q";
@@ -154,7 +154,7 @@ const proc: main is func
           write("What should be the maximum number to be added (between 7 and 15)? ");
           readln(answer);
           block
-            max_step := integer parse answer;
+            max_step := integer(answer);
           exception
             catch RANGE_ERROR:
               quit := upper(answer) = "Q";

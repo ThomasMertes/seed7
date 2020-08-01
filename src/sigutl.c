@@ -48,8 +48,8 @@ typedef void (*signalHandlerType) (int signalNum);
 
 #if HAS_SIGACTION || HAS_SIGNAL
 static const int normalSignals[] = {SIGABRT, SIGILL, SIGINT, SIGFPE};
-volatile static suspendInterprType suspendInterpreter;
 #endif
+volatile static suspendInterprType suspendInterpreter;
 
 
 
@@ -376,6 +376,7 @@ void setupSignalHandlers (boolType handleSignals,
     logFunction(printf("setupSignalHandlers -->\n"););
   } /* setupSignalHandlers */
 
+#endif
 #else
 
 
@@ -390,7 +391,6 @@ void setupSignalHandlers (boolType handleSignals,
                        fpeNumericError, (memSizeType) suspendInterpr););
     logFunction(printf("setupSignalHandlers -->\n"););
   } /* setupSignalHandlers */
-#endif
 #endif
 
 
@@ -437,9 +437,12 @@ boolType callSignalHandler (int signalNum)
   /* callSignalHandler */
     logFunction(printf("callSignalHandler(%d)\n", signalNum););
     currentHandler = getCurrentSignalHandler(signalNum);
+#if HAS_SIGACTION || HAS_SIGNAL
     if (currentHandler == handleTracedSignals) {
       resume = signalDecision(signalNum, FALSE);
-    } else if (currentHandler == SIG_DFL) {
+    } else
+#endif
+    if (currentHandler == SIG_DFL) {
       raise(signalNum);
     } else if (currentHandler != SIG_IGN && currentHandler != SIG_ERR) {
       currentHandler(signalNum);

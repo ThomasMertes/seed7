@@ -179,7 +179,7 @@ chkccomp.h:
 	echo "#define SQLITE_DLL \"libsqlite3.so\"" >> chkccomp.h
 	echo "#define SQLITE_USE_LIB" >> chkccomp.h
 	echo "#define POSTGRESQL_LIBS \"-lpq\"" >> chkccomp.h
-	echo "#define POSTGRESQL_DLL \"libpq.so\"" >> chkccomp.h
+	echo "#define POSTGRESQL_DLL \"libpq.so\",\"libpq.so.5\"" >> chkccomp.h
 	echo "#define POSTGRESQL_USE_LIB" >> chkccomp.h
 	echo "#define ODBC_LIBS \"-lodbc\"" >> chkccomp.h
 	echo "#define ODBC_DLL \"libodbc.so\"" >> chkccomp.h

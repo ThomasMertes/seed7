@@ -308,7 +308,7 @@ const func time: getTime_yymmddhhmmssZ (in string: stri) is func
     var integer: diffToYear3 is 0;
     var integer: year is 0;
   begin
-    yearInCentury := integer parse (stri[.. 2]);
+    yearInCentury := integer(stri[.. 2]);
     referenceYear := time(NOW).year;
     referenceCentury := referenceYear mdiv 100;
     possibleYear1 := pred(referenceCentury) * 100 + yearInCentury;
@@ -328,11 +328,11 @@ const func time: getTime_yymmddhhmmssZ (in string: stri) is func
       year := possibleYear2;
     end if;
     aTime := time(year,
-                  integer parse (stri[ 3 len 2]),  # month
-                  integer parse (stri[ 5 len 2]),  # day
-                  integer parse (stri[ 7 len 2]),  # hour
-                  integer parse (stri[ 9 len 2]),  # minute
-                  integer parse (stri[11 len 2])); # second
+                  integer(stri[ 3 len 2]),  # month
+                  integer(stri[ 5 len 2]),  # day
+                  integer(stri[ 7 len 2]),  # hour
+                  integer(stri[ 9 len 2]),  # minute
+                  integer(stri[11 len 2])); # second
     # writeln("getTime_yymmddhhmmssZ(" <& literal(stri) <& ") --> " <& aTime);
   end func;
 
@@ -341,12 +341,12 @@ const func time: getTime_yyyymmddhhmmssfffZ (in string: stri) is func
   result
     var time: aTime is time.value;
   begin
-    aTime := time(integer parse (stri[.. 4]),      # year
-                  integer parse (stri[ 3 len 2]),  # month
-                  integer parse (stri[ 5 len 2]),  # day
-                  integer parse (stri[ 7 len 2]),  # hour
-                  integer parse (stri[ 9 len 2]),  # minute
-                  integer parse (stri[11 len 2])); # second
+    aTime := time(integer(stri[.. 4]),      # year
+                  integer(stri[ 3 len 2]),  # month
+                  integer(stri[ 5 len 2]),  # day
+                  integer(stri[ 7 len 2]),  # hour
+                  integer(stri[ 9 len 2]),  # minute
+                  integer(stri[11 len 2])); # second
     # writeln("getTime_yyyymmddhhmmssfffZ(" <& literal(stri) <& ") --> " <& aTime);
   end func;
 

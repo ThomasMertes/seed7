@@ -612,10 +612,10 @@ Seed7 can be used in various application areas:
 The Seed7 package contains more than 100000 lines of C and more
 than 200000 lines of Seed7. For version 2019-03-03 the number of lines is:
 </p><dl><dd><table border="0" cellspacing="0">
-  <tr><td align="right">145391</td> <td width="20"></td> <td>C source files (*.c)</td></tr>
-  <tr><td align="right"> 11058</td> <td width="20"></td> <td>C header files (*.h)</td></tr>
-  <tr><td align="right">157007</td> <td width="20"></td> <td>Seed7 source files (*.sd7)</td></tr>
-  <tr><td align="right">142174</td> <td width="20"></td> <td>Seed7 library/include files (*.s7i)</td></tr>
+  <tr><td align="right">146213</td> <td width="20"></td> <td>C source files (*.c)</td></tr>
+  <tr><td align="right"> 11070</td> <td width="20"></td> <td>C header files (*.h)</td></tr>
+  <tr><td align="right">158019</td> <td width="20"></td> <td>Seed7 source files (*.sd7)</td></tr>
+  <tr><td align="right">142977</td> <td width="20"></td> <td>Seed7 library/include files (*.s7i)</td></tr>
 </table></dd></dl><p>
 C code (*.c and *.h files) can be divided into the following areas:
 </p><dl><dd><table border="0" cellspacing="0">
@@ -638,14 +638,17 @@ Seed7 runs on the following operating systems:
 <li>Linux is supported with the following compilers:<ul>
 <li>gcc (the development is done using gcc under Linux)</li>
 <li>clang</li>
-<li>icc</li></ul></li>
+<li>icc</li>
+<li>tcc</li></ul></li>
 <li>Unix (I used Seed7 also under various Unix variants, so it is probably
    easy to port Seed7 to a Unix variant)</li>
 <li>BSD (there is a <span class="link">FreeBSD port</span> and an <span class="link">OpenBSD port</span>)</li>
 <li>Windows is supported with the following compilers:<ul>
 <li>MinGW GCC (the binary Windows release of Seed7 uses MinGW)</li>
 <li>Cygwin GCC (the X11 graphics needs Cygwin/X)</li>
+<li>clang</li>
 <li>MSVC cl.exe (cl.exe is the stand-alone compiler of MSVC)</li>
+<li>tcc</li>
 <li>BDS bcc32.exe (bcc32.exe is the stand-alone compiler of the BDS)</li></ul></li>
 <li>DOS (uses DJGPP. Sockets, graphics, processes and databases are currently not supported)</li>
 <li>Mac OS X is supported with the following compilers:<ul>
@@ -687,11 +690,13 @@ available at: <span class="link">www.7-zip.org</span>.
 <div><br /><a name="faq_compile_interpreter"><h3>How do I compile the Seed7 interpreter?
 </h3></a><hr />
 <p>
-The way to compile the interpreter is dependent on the operating system and the
+The way to compile the interpreter depends on the operating system and the
 development tools used. You need a stand-alone C compiler and a make utility to
-compile the interpreter. A C compiler which is only usable from an IDE is not so
+compile the interpreter. A C compiler, which is only usable from an IDE, is not so
 useful, since some Seed7 programs (e.g. The Seed7 compiler <tt><span class="prog">s7c</span></tt>) need to call the
-C compiler as well. To compile the interpreter under Linux just go to the <nobr><span class="lib">src</span></nobr>
+C compiler as well. In case a make utility is missing under Windows the program
+<tt><span class="prog">make7</span></tt> can be used instead.
+To compile the interpreter under Linux just go to the <nobr><span class="lib">src</span></nobr>
 directory and type:
 </p><pre class="indent">
 make depend
@@ -713,10 +718,14 @@ operating system, make utility, C compiler and shell:
   <tr><td>mk_msvc.mak  </td><td> Windows (MSVC)  </td><td> nmake        </td><td> cl         </td><td> cmd.exe</td></tr>
   <tr><td>mk_bcc32.mak </td><td> Windows (bcc32) </td><td> make         </td><td> bcc32      </td><td> cmd.exe</td></tr>
   <tr><td>mk_bccv5.mak </td><td> Windows (bcc32) </td><td> make         </td><td> bcc32 V5.5 </td><td> cmd.exe</td></tr>
+  <tr><td>mk_clangw.mak</td><td> Windows (clang) </td><td> (g)make      </td><td> clang      </td><td> cmd.exe</td></tr>
+  <tr><td>mk_tcc_w.mak </td><td> Windows (tcc)   </td><td> (g)make      </td><td> tcc        </td><td> cmd.exe</td></tr>
   <tr><td>mk_djgpp.mak </td><td> DOS             </td><td> (g)make      </td><td> gcc        </td><td> cmd.exe</td></tr>
   <tr><td>mk_osx.mak   </td><td> Mac OS X        </td><td> make         </td><td> gcc        </td><td> sh</td></tr>
   <tr><td>mk_osxcl.mak </td><td> Mac OS X        </td><td> make         </td><td> clang      </td><td> sh</td></tr>
   <tr><td>mk_freebsd.mk</td><td> FreeBSD         </td><td> make         </td><td> clang/gcc  </td><td> sh</td></tr>
+  <tr><td>mk_emccl.mak </td><td> Linux/Unix/BSD  </td><td> make         </td><td> emcc + gcc </td><td> sh</td></tr>
+  <tr><td>mk_emccw.mak </td><td> Windows (emcc)  </td><td> mingw32-make </td><td> emcc + gcc </td><td> cmd.exe</td></tr>
 </table></dd></dl><p>
 In the optimal case you just copy one of this files to 'makefile' and do (with
 the make program from the table above):

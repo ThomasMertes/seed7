@@ -288,9 +288,9 @@ objectType ref_category (listType arguments)
 objectType ref_cat_parse (listType arguments)
 
   { /* ref_cat_parse */
-    isit_stri(arg_3(arguments));
+    isit_stri(arg_1(arguments));
     return bld_int_temp(refCatParse(
-        take_stri(arg_3(arguments))));
+        take_stri(arg_1(arguments))));
   } /* ref_cat_parse */
 
 

@@ -1,3 +1,109 @@
+20190407:
+- The program db7.sd7 (Database Inspector) has been improved to use a
+  scrollable list of tables instead of radio buttons for the selection
+  of a table.
+- The example program findchar.sd7 has been added. Findchar is an
+  utility program to search for specific characters in files.
+- The new library iobuffer.s7i has been added. This library supports
+  buffering of files.
+- The new library mixarith.s7i has been added. This library supports
+  mixing of arithmethic operations between numeric types.
+- The file type fileInTar has been added to the library tar.s7i. This
+  file type allows that a specific file from a tar archive can be
+  opened. The functions open, getc, gets, eof, hasNext, length, seek,
+  tell, and openFileInTar have been added to support the file type
+  fileInTar.
+- The functions skipClassicComment and getSimpleStringLiteral have been
+  added to the libraries scanfile.s7i and scanstri.s7i.
+- The makefile mk_emccl.mak has been added. This makefile supports
+  compiling with the emcc C compiler from Emscripten under Linux. The
+  support of Emscripten is experimental (see also src/read_me.txt).
+- The deprecated functions float2Bits and bits2Float have been removed
+  from bin32.s7i and bin64.s7i. The functions bin32(), bin64() and
+  float() can be used instead, to convert between float and bits in
+  IEEE 754 representation.
+- In the programs chkbig.sd7, chkovf.sd7, chkset.sd7 and chkstr.sd7
+  large functions have been split into smaller functions. This avoids
+  Stack errors with Emscripten.
+- Tests for allowed field names and CLOB fields have been added to
+  chkdb.sd7. The functions create, testFieldNames and testClobField
+  have been added to chkdb.sd7.
+- The primitive actions BIG_PARSE, BST_PARSE, FLT_PARSE and INT_PARSE
+  have been renamed to BIG_PARSE1, BST_PARSE1, FLT_PARSE1 and
+  INT_PARSE1 respectively. This actions parse the first argument
+  instead of the third argument. The libraries bigint.s7i, bstring.s7i,
+  float.s7i and integer.s7i have been improved to use the new actions.
+- In several libraries the 'parse' operator has been changed to call
+  a function with the name of the type.
+- In fil.unx.c the function setupFiles has been improved to correctly
+  mount the file system root for emscripten and node.js.
+- In sql_fire.c, sql_my.c the support for BLOB and CLOB fields has been
+  improved.
+- In sql_oci.c, sql_odbc.c and sql_post.c the function
+  processStatementStri() has been improved to accept strings enclosed
+  in single quotes (') and double quotes (").
+- The files db_fire.h and sql_fire.c have been changed to define the
+  database client functions with the calling convention __stdcall.
+- The files db_post.h, db_lite.h, sql_post and sql_lite.c have been
+  changed to define the database client functions with the calling
+  convention __cdecl.
+- The database driver sql_fire.c has been improved:
+  - The function getClob() has been added. This function is used by
+    sqlColumnStri() to get a CLOB.
+  - The function sqlBindStri() has been improved to work for CLOBs
+    and to raise RANGE_ERROR for BLOBs.
+  - The function sqlColumnStri() has been improved to work for BLOBs
+    and CLOBs.
+  - The function sqlColumnBStri() has been improved to work for BLOBs
+    and to raise RANGE_ERROR for CLOBs.
+  - The function sqlStmtColumnName() has been improved to assume that
+    the name of a column is encoded with UTF-8.
+- The database driver sql_my.c has been improved:
+  - The function processStatementStri() has been improved. In strings
+    delimited with single quotes (') backslashes (\) are optionaly
+    replaced with double backslashes (\\). Strings delimited with
+    double quotes (") are converted into strings, that are delimited
+    with a backtick (`).
+  - The function setupResultColumn() has been improved to distinguish a
+    BLOB from a CLOB.
+  - The function sqlColumnStri() has been improved to work for BLOBs
+    and CLOBs.
+  - The function sqlColumnBStri() has been improved to work for BLOBs
+    and to raise RANGE_ERROR for CLOBs.
+  - The function determineIfBackslashEscapes has been introduced. This
+    function determines, if a backslash is used as escape character in
+    string literals. In this case processStatementStri() will double
+    escaping backslashes in string literals.
+- The database driver sql_odbc.c has been improved:
+  - The management of buffer memory in bind functions has been improved
+    for the data types SQL_DECIMAL, SQL_NUMERIC, SQL_CHAR, SQL_VARCHAR,
+    SQL_LONGVARCHAR, SQL_WCHAR, SQL_WVARCHAR, SQL_WLONGVARCHAR,
+    SQL_BINARY, SQL_VARBINARY and SQL_LONGVARBINARY.
+- The database driver sql_post.c has been improved:
+  - The function setupDll has been improved to open the dll
+    libeay32.dll, when necessary.
+  - In the function sqlBindStri() the binding of a field with the type
+    BYTEAOID (used for BLOB data) has been improved, to work correct,  
+    when the string contains a zero byte ('\0;').
+  - The function sqlColumnBigRat() has been improved to process fields
+    with the type FLOAT8OID as double instead of float.
+- The program chkccomp.c has been improved. Now the C compiler used to
+  compile chkccomp.c can be different from the C compiler checked by
+  chkccomp.c. E.g.: For Emscripten chkccomp.c is compiled with gcc,
+  but the checked C compiler is emcc.
+- In chkccomp.c the function determineFseekFunctions has been improved
+  to check fseek() and ftell() without access to the local files.
+- In chkccomp.c the functions to configure access to PostgreSql,
+  Oracle and Firebird databases has been improved.
+- In chkccomp.c code to determine NULL_DEVICE, HAS_CDECL, HAS_STDCALL,
+  INTPTR_T_DEFINED, PRINTF_ROUNDING, LINE_DIRECTIVE_ACCEPTS_UTF8,
+  HAS_SETJMP and HAS_SIGSETJMP has been added or improved.
+- The file sigutl.c has been improved to work correct, when neither
+  signal() nor sigaction() are present.
+- Log functions have been added or improved in con_emc.c, con_inf.c,
+  sql_my.c, sql_post.c and timlib.c.
+- Exprerimental code has been added to con_emc.c.
+
 20190303:
 - The makefile mk_tcc_l.mak has been added. This makefile supports
   compiling with the tcc C compiler under Linux.

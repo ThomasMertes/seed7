@@ -1235,6 +1235,7 @@ static striType processStatementStri (const const_striType sqlStatementStri,
   {
     memSizeType pos = 0;
     strElemType ch;
+    strElemType delimiter;
     memSizeType destPos = 0;
     unsigned int varNum = MIN_BIND_VAR_NUM;
     striType processed;
@@ -1263,15 +1264,17 @@ static striType processStatementStri (const const_striType sqlStatementStri,
             varNum++;
           } /* if */
           pos++;
-        } else if (ch == '\'') {
-          processed->mem[destPos++] = '\'';
+        } else if (ch == '\'' || ch == '"') {
+          delimiter = ch;
+          processed->mem[destPos++] = delimiter;
           pos++;
-          while (pos < sqlStatementStri->size && (ch = sqlStatementStri->mem[pos]) != '\'') {
+          while (pos < sqlStatementStri->size &&
+              (ch = sqlStatementStri->mem[pos]) != delimiter) {
             processed->mem[destPos++] = ch;
             pos++;
           } /* while */
           if (pos < sqlStatementStri->size) {
-            processed->mem[destPos++] = '\'';
+            processed->mem[destPos++] = delimiter;
             pos++;
           } /* if */
         } else if (ch == '/') {

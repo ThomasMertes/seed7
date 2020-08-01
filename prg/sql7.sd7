@@ -159,7 +159,7 @@ const proc: main is func
       writeln("usage: sql7 driver dbName user [password]");
     else
       driverName := argv(PROGRAM)[1];
-      driver := dbCategory parse driverName;
+      driver := dbCategory(driverName);
       if driver = NO_DB then
         writeln("*** " <& literal(driverName) <& " is not a valid database driver.");
       else
@@ -188,6 +188,7 @@ const proc: main is func
             write("Sql7? ");
             readln(command);
           end while;
+          close(currDb);
         end if;
       end if;
     end if;

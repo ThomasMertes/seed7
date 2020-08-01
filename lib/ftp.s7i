@@ -313,7 +313,7 @@ const proc: openPassiveFtpData (inout ftpConnection: ftp) is func
       if leftParenPos <> 0 and rightParenPos <> 0 then
         addrAndPort := split(ftp.response[succ(leftParenPos) .. pred(rightParenPos)], ",");
         if length(addrAndPort) = 6 then
-          dataPort := integer parse (addrAndPort[5]) * 256 + integer parse (addrAndPort[6]);
+          dataPort := integer(addrAndPort[5]) * 256 + integer(addrAndPort[6]);
           # writeln(dataPort);
           ftp.data := openInetSocket(join(addrAndPort[ .. 4], "."), dataPort);
           ftp.openDataSucceeded := ftp.data <> STD_NULL;
@@ -574,7 +574,7 @@ const func integer: fileSize (inout ftpConnection: ftp, in string: fileName) is 
     ftpCommand(ftp, "SIZE " <& striToUtf8(fileName));
     ftpResponse(ftp);
     if startsWith(ftp.response, "213") then
-      size := integer parse trim(ftp.response[4 ..]);
+      size := integer(trim(ftp.response[4 ..]));
     end if;
   end func;
 
@@ -591,7 +591,7 @@ const func bigInteger: bigFileSize (inout ftpConnection: ftp, in string: fileNam
     ftpCommand(ftp, "SIZE " <& striToUtf8(fileName));
     ftpResponse(ftp);
     if startsWith(ftp.response, "213") then
-      size := bigInteger parse trim(ftp.response[4 ..]);
+      size := bigInteger(trim(ftp.response[4 ..]));
     end if;
   end func;
 
@@ -609,12 +609,12 @@ const func time: getMTime (inout ftpConnection: ftp, in string: fileName) is fun
     ftpCommand(ftp, "MDTM " <& striToUtf8(fileName));
     ftpResponse(ftp);
     if startsWith(ftp.response, "213") and isDigitString(ftp.response[5 len 14]) then
-      modificationTime.year   := integer parse trim(ftp.response[ 5 len 4]);
-      modificationTime.month  := integer parse trim(ftp.response[ 9 len 2]);
-      modificationTime.day    := integer parse trim(ftp.response[11 len 2]);
-      modificationTime.hour   := integer parse trim(ftp.response[13 len 2]);
-      modificationTime.minute := integer parse trim(ftp.response[15 len 2]);
-      modificationTime.second := integer parse trim(ftp.response[17 len 2]);
+      modificationTime.year   := integer(trim(ftp.response[ 5 len 4]));
+      modificationTime.month  := integer(trim(ftp.response[ 9 len 2]));
+      modificationTime.day    := integer(trim(ftp.response[11 len 2]));
+      modificationTime.hour   := integer(trim(ftp.response[13 len 2]));
+      modificationTime.minute := integer(trim(ftp.response[15 len 2]));
+      modificationTime.second := integer(trim(ftp.response[17 len 2]));
       modificationTime.micro_second := 0;
       if modificationTime.month < 1 or modificationTime.month > 12 or
           modificationTime.day < 1 or modificationTime.day >
@@ -923,7 +923,7 @@ const proc: splitFtpLocation (in string: location, inout string: connectStri,
     end if;
     colonPos := pos(connectStri, ":");
     if colonPos <> 0 and isDigitString(connectStri[succ(colonPos) ..]) then
-      portNumber := integer parse (connectStri[succ(colonPos) ..]);
+      portNumber := integer(connectStri[succ(colonPos) ..]);
       connectStri := connectStri[.. pred(colonPos)];
     else
       portNumber := defaultFtpControlPort;

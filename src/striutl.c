@@ -1863,8 +1863,8 @@ wstriType stri_to_wstri_buf (const const_striType stri, memSizeType *length,
     wstriType wstri;
 
   /* stri_to_wstri_buf */
-    if (unlikely(stri->size > MAX_WSTRI_LEN / 2 ||
-                 !ALLOC_WSTRI(wstri, 2 * stri->size))) {
+    if (unlikely(stri->size > MAX_WSTRI_LEN / SURROGATE_PAIR_FACTOR ||
+                 !ALLOC_WSTRI(wstri, SURROGATE_PAIR_FACTOR * stri->size))) {
       *err_info = MEMORY_ERROR;
       wstri = NULL;
     } else {

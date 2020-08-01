@@ -57,7 +57,7 @@ const proc: read_number (in string: prompt, in integer: low, in integer: up,
         quit := TRUE;
       else
         block
-          number := integer parse stri;
+          number := integer(stri);
           if number < low or number > up then
             writeln("This number is not between " <& low <& " and " <& up <& ".");
             okay := FALSE;

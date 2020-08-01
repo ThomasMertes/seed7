@@ -710,16 +710,16 @@ const func string: (in bigRational: number) sci (in integer: precision) is func
  *  with a slash (/). A decimal number can have repeating decimals,
  *  which are enclosed in parentheses ("e.g.: "0.(3)"). The repeating
  *  decimals are not allowed to start before the decimal point.
- *   bigRational parse "3/5"         returns   3_ /   5_
- *   bigRational parse "1.25"        returns   5_ /   4_
- *   bigRational parse "0.(3)"       returns   1_ /   3_
- *   bigRational parse "1.23(45)"    returns 679_ / 550_
- *   bigRational parse "3.(142857)"  returns  22_ /   7_
- *   bigRational parse "0.(846153)"  returns  11_ /  13_
+ *   bigRational("3/5")         returns   3_ /   5_
+ *   bigRational("1.25")        returns   5_ /   4_
+ *   bigRational("0.(3)")       returns   1_ /   3_
+ *   bigRational("1.23(45)")    returns 679_ / 550_
+ *   bigRational("3.(142857)")  returns  22_ /   7_
+ *   bigRational("0.(846153)")  returns  11_ /  13_
  *  @return the ''bigRational'' result of the conversion.
  *  @exception RANGE_ERROR When stri contains not a valid ''bigRational'' value.
  *)
-const func bigRational: (attr bigRational) parse (in var string: stri) is func
+const func bigRational: bigRational (in var string: stri) is func
   result
     var bigRational: aRational is bigRational.value;
   local
@@ -734,10 +734,10 @@ const func bigRational: (attr bigRational) parse (in var string: stri) is func
       elsif stri[1] = '+' then
         stri := stri[2 ..];
       end if;
-      aRational.numerator := bigInteger parse getint(stri);
+      aRational.numerator := bigInteger(getint(stri));
       if stri[1] = '/' then
         stri := stri[2 ..];
-        aRational.denominator := bigInteger parse getint(stri);
+        aRational.denominator := bigInteger(getint(stri));
         reduce(aRational);
       elsif stri[1] = '.' then
         stri := stri[2 ..];
@@ -745,7 +745,7 @@ const func bigRational: (attr bigRational) parse (in var string: stri) is func
           stri := stri[2 ..];
           period := getint(stri);
           aRational.denominator := 1_;
-          aRational +:= bigInteger parse period / pred(10_ ** length(period));
+          aRational +:= bigInteger(period) / pred(10_ ** length(period));
           if stri[1] = ')' then
             stri := stri[2 ..];
           end if;
@@ -753,11 +753,11 @@ const func bigRational: (attr bigRational) parse (in var string: stri) is func
           fraction := getint(stri);
           aRational.denominator := 10_ ** length(fraction);
           aRational.numerator *:= aRational.denominator;
-          aRational.numerator +:= bigInteger parse fraction;
+          aRational.numerator +:= bigInteger(fraction);
           if startsWith(stri, "(") then
             stri := stri[2 ..];
             period := getint(stri);
-            aRational +:= bigInteger parse period / (pred(10_ ** length(period)) * aRational.denominator);
+            aRational +:= bigInteger(period) / (pred(10_ ** length(period)) * aRational.denominator);
             if stri[1] = ')' then
               stri := stri[2 ..];
             end if;
@@ -792,8 +792,8 @@ const func bigRational: (attr bigRational) parse (in var string: stri) is func
  *  @return the ''bigRational'' result of the conversion.
  *  @exception RANGE_ERROR When stri contains not a valid ''bigRational'' value.
  *)
-const func bigRational: bigRational (in string: stri) is
-    return bigRational parse stri;
+const func bigRational: (attr bigRational) parse (in string: stri) is
+    return bigRational(stri);
 
 
 enable_io(bigRational);

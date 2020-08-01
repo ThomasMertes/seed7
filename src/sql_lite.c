@@ -91,43 +91,52 @@ static sqlFuncType sqlFunc = NULL;
 
 
 #ifdef SQLITE_DLL
-typedef int (*tp_sqlite3_bind_blob) (sqlite3_stmt *pStmt,
-                                     int index,
-                                     const void *value,
-                                     int n,
-                                     void (*destruct) (void*));
-typedef int (*tp_sqlite3_bind_double) (sqlite3_stmt *pStmt, int index, double value);
-typedef int (*tp_sqlite3_bind_int) (sqlite3_stmt *pStmt, int index, int value);
-typedef int (*tp_sqlite3_bind_int64) (sqlite3_stmt *pStmt, int index, sqlite3_int64 value);
-typedef int (*tp_sqlite3_bind_null) (sqlite3_stmt *pStmt, int index);
-typedef int (*tp_sqlite3_bind_parameter_count) (sqlite3_stmt *pStmt);
-typedef int (*tp_sqlite3_bind_text) (sqlite3_stmt *pStmt,
-                                     int index,
-                                     const char *value,
-                                     int n,
-                                     void (*destruct) (void*));
-typedef int (*tp_sqlite3_close) (sqlite3 *db);
-typedef const void *(*tp_sqlite3_column_blob) (sqlite3_stmt *pStmt, int iCol);
-typedef int (*tp_sqlite3_column_bytes) (sqlite3_stmt *pStmt, int iCol);
-typedef int (*tp_sqlite3_column_count) (sqlite3_stmt *pStmt);
-typedef double (*tp_sqlite3_column_double) (sqlite3_stmt *pStmt, int iCol);
-typedef int (*tp_sqlite3_column_int) (sqlite3_stmt *pStmt, int iCol);
-typedef sqlite3_int64 (*tp_sqlite3_column_int64) (sqlite3_stmt *pStmt, int iCol);
-typedef const char *(*tp_sqlite3_column_name) (sqlite3_stmt *pStmt, int N);
-typedef const unsigned char *(*tp_sqlite3_column_text) (sqlite3_stmt *pStmt, int iCol);
-typedef int (*tp_sqlite3_column_type) (sqlite3_stmt *pStmt, int iCol);
-typedef sqlite3 *(*tp_sqlite3_db_handle) (sqlite3_stmt *pStmt);
-typedef int (*tp_sqlite3_errcode) (sqlite3 *db);
-typedef const char *(*tp_sqlite3_errmsg) (sqlite3 *db);
-typedef int (*tp_sqlite3_finalize) (sqlite3_stmt *pStmt);
-typedef int (*tp_sqlite3_open) (const char *filename, sqlite3 **ppDb);
-typedef int (*tp_sqlite3_prepare) (sqlite3 *db,
-                                   const char *zSql,
-                                   int nByte,
-                                   sqlite3_stmt **ppStmt,
-                                   const char **pzTail);
-typedef int (*tp_sqlite3_reset) (sqlite3_stmt *pStmt);
-typedef int (*tp_sqlite3_step) (sqlite3_stmt *pStmt);
+
+#ifndef CDECL
+#if defined(_WIN32) && HAS_CDECL
+#define CDECL __cdecl
+#else
+#define CDECL
+#endif
+#endif
+
+typedef int (CDECL *tp_sqlite3_bind_blob) (sqlite3_stmt *pStmt,
+                                           int index,
+                                           const void *value,
+                                           int n,
+                                           void (*destruct) (void*));
+typedef int (CDECL *tp_sqlite3_bind_double) (sqlite3_stmt *pStmt, int index, double value);
+typedef int (CDECL *tp_sqlite3_bind_int) (sqlite3_stmt *pStmt, int index, int value);
+typedef int (CDECL *tp_sqlite3_bind_int64) (sqlite3_stmt *pStmt, int index, sqlite3_int64 value);
+typedef int (CDECL *tp_sqlite3_bind_null) (sqlite3_stmt *pStmt, int index);
+typedef int (CDECL *tp_sqlite3_bind_parameter_count) (sqlite3_stmt *pStmt);
+typedef int (CDECL *tp_sqlite3_bind_text) (sqlite3_stmt *pStmt,
+                                           int index,
+                                           const char *value,
+                                           int n,
+                                           void (*destruct) (void*));
+typedef int (CDECL *tp_sqlite3_close) (sqlite3 *db);
+typedef const void *(CDECL *tp_sqlite3_column_blob) (sqlite3_stmt *pStmt, int iCol);
+typedef int (CDECL *tp_sqlite3_column_bytes) (sqlite3_stmt *pStmt, int iCol);
+typedef int (CDECL *tp_sqlite3_column_count) (sqlite3_stmt *pStmt);
+typedef double (CDECL *tp_sqlite3_column_double) (sqlite3_stmt *pStmt, int iCol);
+typedef int (CDECL *tp_sqlite3_column_int) (sqlite3_stmt *pStmt, int iCol);
+typedef sqlite3_int64 (CDECL *tp_sqlite3_column_int64) (sqlite3_stmt *pStmt, int iCol);
+typedef const char *(CDECL *tp_sqlite3_column_name) (sqlite3_stmt *pStmt, int N);
+typedef const unsigned char *(CDECL *tp_sqlite3_column_text) (sqlite3_stmt *pStmt, int iCol);
+typedef int (CDECL *tp_sqlite3_column_type) (sqlite3_stmt *pStmt, int iCol);
+typedef sqlite3 *(CDECL *tp_sqlite3_db_handle) (sqlite3_stmt *pStmt);
+typedef int (CDECL *tp_sqlite3_errcode) (sqlite3 *db);
+typedef const char *(CDECL *tp_sqlite3_errmsg) (sqlite3 *db);
+typedef int (CDECL *tp_sqlite3_finalize) (sqlite3_stmt *pStmt);
+typedef int (CDECL *tp_sqlite3_open) (const char *filename, sqlite3 **ppDb);
+typedef int (CDECL *tp_sqlite3_prepare) (sqlite3 *db,
+                                         const char *zSql,
+                                         int nByte,
+                                         sqlite3_stmt **ppStmt,
+                                         const char **pzTail);
+typedef int (CDECL *tp_sqlite3_reset) (sqlite3_stmt *pStmt);
+typedef int (CDECL *tp_sqlite3_step) (sqlite3_stmt *pStmt);
 
 static tp_sqlite3_bind_blob            ptr_sqlite3_bind_blob;
 static tp_sqlite3_bind_double          ptr_sqlite3_bind_double;

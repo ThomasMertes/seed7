@@ -136,37 +136,45 @@ typedef enum {
 #define ANYENUMOID          3500
 #define FDW_HANDLEROID      3115
 
-extern void PQclear (PGresult *res);
-extern PGresult *PQdescribePrepared (PGconn *conn, const char *stmt);
-extern char *PQerrorMessage (const PGconn *conn);
-extern PGresult *PQexec (PGconn *conn, const char *query);
-extern PGresult *PQexecPrepared (PGconn *conn,
-                                 const char *stmtName,
-                                 int nParams,
-                                 const char *const * paramValues,
-                                 const int *paramLengths,
-                                 const int *paramFormats,
-                                 int resultFormat);
-extern void PQfinish (PGconn *conn);
-extern char *PQfname (const PGresult *res, int field_num);
-extern Oid PQftype (const PGresult *res, int field_num);
-extern int PQgetisnull (const PGresult *res, int tup_num, int field_num);
-extern int PQgetlength (const PGresult *res, int tup_num, int field_num);
-extern char *PQgetvalue (const PGresult *res, int tup_num, int field_num);
-extern int PQnfields (const PGresult *res);
-extern int PQnparams (const PGresult *res);
-extern int PQntuples (const PGresult *res);
-extern const char *PQparameterStatus (const PGconn *conn, const char *paramName);
-extern Oid PQparamtype (const PGresult *res, int param_num);
-extern PGresult *PQprepare (PGconn *conn, const char *stmtName,
-                            const char *query, int nParams,
-                            const Oid *paramTypes);
-extern char *PQresStatus (ExecStatusType status);
-extern char *PQresultErrorMessage (const PGresult *res);
-extern ExecStatusType PQresultStatus (const PGresult *res);
-extern int PQsetClientEncoding (PGconn *conn, const char *encoding);
-extern PGconn *PQsetdbLogin (const char *pghost, const char *pgport,
-                             const char *pgoptions, const char *pgtty,
-                             const char *dbName,
-                             const char *login, const char *pwd);
-extern ConnStatusType PQstatus (const PGconn *conn);
+#ifndef CDECL
+#if defined(_WIN32) && HAS_CDECL
+#define CDECL __cdecl
+#else
+#define CDECL
+#endif
+#endif
+
+extern void CDECL PQclear (PGresult *res);
+extern PGresult *CDECL PQdescribePrepared (PGconn *conn, const char *stmt);
+extern char *CDECL PQerrorMessage (const PGconn *conn);
+extern PGresult *CDECL PQexec (PGconn *conn, const char *query);
+extern PGresult *CDECL PQexecPrepared (PGconn *conn,
+                                       const char *stmtName,
+                                       int nParams,
+                                       const char *const * paramValues,
+                                       const int *paramLengths,
+                                       const int *paramFormats,
+                                       int resultFormat);
+extern void CDECL PQfinish (PGconn *conn);
+extern char *CDECL PQfname (const PGresult *res, int field_num);
+extern Oid CDECL PQftype (const PGresult *res, int field_num);
+extern int CDECL PQgetisnull (const PGresult *res, int tup_num, int field_num);
+extern int CDECL PQgetlength (const PGresult *res, int tup_num, int field_num);
+extern char *CDECL PQgetvalue (const PGresult *res, int tup_num, int field_num);
+extern int CDECL PQnfields (const PGresult *res);
+extern int CDECL PQnparams (const PGresult *res);
+extern int CDECL PQntuples (const PGresult *res);
+extern const char *CDECL PQparameterStatus (const PGconn *conn, const char *paramName);
+extern Oid CDECL PQparamtype (const PGresult *res, int param_num);
+extern PGresult *CDECL PQprepare (PGconn *conn, const char *stmtName,
+                                  const char *query, int nParams,
+                                  const Oid *paramTypes);
+extern char *CDECL PQresStatus (ExecStatusType status);
+extern char *CDECL PQresultErrorMessage (const PGresult *res);
+extern ExecStatusType CDECL PQresultStatus (const PGresult *res);
+extern int CDECL PQsetClientEncoding (PGconn *conn, const char *encoding);
+extern PGconn *CDECL PQsetdbLogin (const char *pghost, const char *pgport,
+                                   const char *pgoptions, const char *pgtty,
+                                   const char *dbName,
+                                   const char *login, const char *pwd);
+extern ConnStatusType CDECL PQstatus (const PGconn *conn);

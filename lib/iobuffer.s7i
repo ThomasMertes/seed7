@@ -1,0 +1,231 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  iobuffer.s7i  Implementation type for a buffered file.          *)
+(*  Copyright (C) 2019  Thomas Mertes                               *)
+(*                                                                  *)
+(*  This file is part of the Seed7 Runtime Library.                 *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is free software; you can             *)
+(*  redistribute it and/or modify it under the terms of the GNU     *)
+(*  Lesser General Public License as published by the Free Software *)
+(*  Foundation; either version 2.1 of the License, or (at your      *)
+(*  option) any later version.                                      *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is distributed in the hope that it    *)
+(*  will be useful, but WITHOUT ANY WARRANTY; without even the      *)
+(*  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR *)
+(*  PURPOSE.  See the GNU Lesser General Public License for more    *)
+(*  details.                                                        *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU Lesser General       *)
+(*  Public License along with this program; if not, write to the    *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+const type: bufferModeType is new enum
+    IO_FULL_BUFFERING, IO_LINE_BUFFERING, IO_NO_BUFFERING
+  end enum;
+
+
+const proc: setbuf (ref file: aFile, in bufferModeType: mode, in integer: size) is DYNAMIC;
+
+const proc: setbuf (in null_file: aFile, in bufferModeType: mode, in integer: size) is noop;
+
+const proc: setbuf (in clib_file: aFile, in integer: mode, in integer: size) is action "FIL_SETBUF";
+
+const proc: setbuf (in external_file: aFile, in bufferModeType: mode, in integer: size) is func
+  begin
+    setbuf(aFile.ext_file, ord(mode), size);
+  end func;
+
+
+(**
+ *  [[file|File]] implementation type for buffered files.
+ *)
+const type: bufferFile is sub null_file struct
+    var file: baseFile is STD_NULL;
+    var bufferModeType: bufferMode is IO_LINE_BUFFERING;
+    var integer: bufferSize is 2**16;
+    var string: buffer is "";
+    var integer: position is 1;
+  end struct;
+
+type_implements_interface(bufferFile, file);
+
+
+(**
+ *  Open a ''bufferFile'' based on the given ''baseFile''.
+ *  @return the file opened.
+ *)
+const func file: openBufferFile (in file: baseFile) is func
+  result
+    var file: newFile is STD_NULL;
+  local
+    var bufferFile: new_bufferFile is bufferFile.value;
+  begin
+    if baseFile <> STD_NULL then
+      new_bufferFile.baseFile := baseFile;
+      newFile := toInterface(new_bufferFile);
+    end if;
+  end func;
+
+
+const proc: setbuf (inout bufferFile: aBufferFile, in bufferModeType: mode, in integer: size) is func
+  begin
+    aBufferFile.bufferMode := mode;
+    aBufferFile.bufferSize := size;
+  end func;
+
+
+(**
+ *  Write the [[string]] ''stri'' to ''outBufferFile''.
+ *)
+const proc: write (inout bufferFile: outBufferFile, in string: stri) is func
+  local
+    var integer: nlPos is 0;
+  begin
+    if outBufferFile.bufferMode = IO_NO_BUFFERING then
+      write(outBufferFile.baseFile, stri);
+    else
+      outBufferFile.buffer &:= stri;
+      if outBufferFile.bufferMode = IO_LINE_BUFFERING then
+        nlPos := rpos(outBufferFile.buffer, '\n');
+        if nlPos <> 0 then
+          writeln(outBufferFile.baseFile, outBufferFile.buffer[.. pred(nlPos)]);
+          outBufferFile.buffer := outBufferFile.buffer[succ(nlPos) ..];
+        end if;
+      else
+        if length(outBufferFile.buffer) > outBufferFile.bufferSize then
+          write(outBufferFile.baseFile, outBufferFile.buffer);
+          outBufferFile.buffer := "";
+        end if;
+      end if;
+    end if;
+  end func;
+
+
+const proc: moveLeft (inout bufferFile: outBufferFile) is func
+  begin
+    if outBufferFile.position > 1 then
+      decr(outBufferFile.position);
+    end if;
+  end func;
+
+
+(**
+ *  Read a character from ''inBufferFile''.
+ *  @return the character read, or [[char#EOF|EOF]] at the end of the file.
+ *)
+const func char: getc (inout bufferFile: inBufferFile) is func
+  result
+    var char: charRead is EOF;
+  begin
+    if inBufferFile.position > length(inBufferFile.buffer) then
+      inBufferFile.buffer := gets(inBufferFile.baseFile, inBufferFile.bufferSize);
+      if inBufferFile.buffer <> "" then
+        charRead := inBufferFile.buffer[1];
+        inBufferFile.position := 2;
+      end if;
+    else
+      charRead := inBufferFile.buffer[inBufferFile.position];
+      incr(inBufferFile.position);
+    end if;
+  end func;
+
+
+(**
+ *  Read a [[string]] with maximum length from ''inBufferFile''.
+ *  @return the string read.
+ *)
+const func string: gets (inout bufferFile: inBufferFile, in var integer: maxLength) is func
+  result
+    var string: striRead is "";
+  local
+    var integer: missing is 0;
+  begin
+    if maxLength <= 0 then
+      if maxLength <> 0 then
+        raise RANGE_ERROR;
+      end if;
+    else
+      if pred(inBufferFile.position + maxLength) <= length(inBufferFile.buffer) then
+        striRead := inBufferFile.buffer[inBufferFile.position len maxLength];
+        inBufferFile.position +:= maxLength;
+      else
+        missing :=  maxLength - length(inBufferFile.buffer) + inBufferFile.position - 1;
+        if missing < inBufferFile.bufferSize then
+          striRead := inBufferFile.buffer[inBufferFile.position ..];
+          inBufferFile.buffer := gets(inBufferFile.baseFile, inBufferFile.bufferSize);
+          striRead &:= inBufferFile.buffer[.. missing];
+          if length(inBufferFile.buffer) >= missing then
+            inBufferFile.position := succ(missing);
+          else
+            inBufferFile.position := succ(length(inBufferFile.buffer));
+          end if;
+        else
+          striRead := inBufferFile.buffer[inBufferFile.position ..] &
+                      gets(inBufferFile.baseFile, missing);
+          inBufferFile.buffer := "";
+          inBufferFile.position := 1;
+        end if;
+      end if;
+    end if;
+  end func;
+
+
+(**
+ *  Determine the end-of-file indicator.
+ *  The end-of-file indicator is set when at least one request to read
+ *  from the file failed.
+ *  @return TRUE if the end-of-file indicator is set, FALSE otherwise.
+ *)
+const func boolean: eof (in bufferFile: inBufferFile) is
+  return inBufferFile.position > length(inBufferFile.buffer) and
+         eof(inBufferFile.baseFile);
+
+
+(**
+ *  Determine if at least one character can be read successfully.
+ *  This function allows a file to be handled like an iterator.
+ *  @return FALSE if ''getc'' would return [[char#EOF|EOF]],
+ *          TRUE otherwise.
+ *)
+const func boolean: hasNext (in bufferFile: inBufferFile) is
+  return inBufferFile.position <= length(inBufferFile.buffer) or
+         hasNext(inBufferFile.baseFile);
+
+
+(**
+ *  Obtain the length of a ''aBufferFile''.
+ *  The file length is measured in characters.
+ *  @return the length of a file.
+ *)
+const func integer: length (in bufferFile: aBufferFile) is
+  return length(aBufferFile.baseFile);
+
+
+(**
+ *  Set the current file position.
+ *  The file position is measured in characters from the start of the file.
+ *  The first character in the file has the position 1.
+ *)
+const proc: seek (inout bufferFile: aBufferFile, in integer: position) is func
+  begin
+    seek(aBufferFile.baseFile, position);
+    aBufferFile.buffer := "";
+    aBufferFile.position := position;
+  end func;
+
+
+(**
+ *  Obtain the current file position of ''aBufferFile''.
+ *  The file position is measured in characters from the start of the file.
+ *  The first character in the file has the position 1.
+ *  @return the current file position.
+ *)
+const func integer: tell (in bufferFile: aBufferFile) is
+  return pred(tell(aBufferFile.baseFile) + aBufferFile.position);

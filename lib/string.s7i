@@ -547,8 +547,10 @@ const func string: rtrim (in string: stri)                     is action "STR_RT
 
 (**
  *  Trim a string such that it can be converted to ''aType''.
+ *  Removes leading and trailing spaces from ''stri''.
  *  This function is overloaded for types where removing leading
  *  or trailing whitespace whould change the value.
+ *   integer(trimValue(integer, " 1 "))        returns 1
  *   integer parse trimValue(integer, " 1 ")   returns 1
  *  @return the trimmed string.
  *)
@@ -559,6 +561,7 @@ const func string: trimValue (in type: aType, in string: stri) is
 (**
  *  Trim a string such that it can be converted to ''string''.
  *  Leaves ''stri'' unchanged, since that would change the value.
+ *   string(trimValue(string, " 1 "))        returns " 1 "
  *   string parse trimValue(string, " 1 ")   returns " 1 "
  *  @return the unchanged string.
  *)
@@ -600,6 +603,14 @@ const func string: gets (inout string: stri, in integer: leng) is func
     striRead := stri[.. leng];
     stri := stri[succ(leng) ..];
   end func;
+
+
+(**
+ *  Convert to a string.
+ *  @return its parameter unchanged.
+ *)
+const func string: string (in string: stri) is
+  return stri;
 
 
 (**

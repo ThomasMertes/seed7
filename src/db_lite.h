@@ -44,46 +44,48 @@ typedef INT64TYPE sqlite3_int64;
 #define SQLITE_ROW    100
 #define SQLITE_DONE   101
 
-#if defined(__WIN__)
-#define SQLITE_API __stdcall
+#ifndef CDECL
+#if defined(_WIN32) && HAS_CDECL
+#define CDECL __cdecl
 #else
-#define SQLITE_API
+#define CDECL
+#endif
 #endif
 
-SQLITE_API int sqlite3_bind_blob (sqlite3_stmt *pStmt,
-                                  int index,
-                                  const void *value,
-                                  int n,
-                                  void (*destruct) (void*));
-SQLITE_API int sqlite3_bind_double (sqlite3_stmt *pStmt, int index, double value);
-SQLITE_API int sqlite3_bind_int (sqlite3_stmt *pStmt, int index, int value);
-SQLITE_API int sqlite3_bind_int64 (sqlite3_stmt *pStmt, int index, sqlite3_int64 value);
-SQLITE_API int sqlite3_bind_null (sqlite3_stmt *pStmt, int index);
-SQLITE_API int sqlite3_bind_parameter_count(sqlite3_stmt *pStmt);
-SQLITE_API int sqlite3_bind_text (sqlite3_stmt *pStmt,
-                                  int index,
-                                  const char *value,
-                                  int n,
-                                  void (*destruct) (void*));
-SQLITE_API int sqlite3_close (sqlite3 *db);
-SQLITE_API const void *sqlite3_column_blob (sqlite3_stmt *pStmt, int iCol);
-SQLITE_API int sqlite3_column_bytes (sqlite3_stmt *pStmt, int iCol);
-SQLITE_API int sqlite3_column_count (sqlite3_stmt *pStmt);
-SQLITE_API double sqlite3_column_double (sqlite3_stmt *pStmt, int iCol);
-SQLITE_API int sqlite3_column_int (sqlite3_stmt *pStmt, int iCol);
-SQLITE_API sqlite3_int64 sqlite3_column_int64 (sqlite3_stmt *pStmt, int iCol);
-SQLITE_API const char *sqlite3_column_name (sqlite3_stmt *pStmt, int N);
-SQLITE_API const unsigned char *sqlite3_column_text (sqlite3_stmt *pStmt, int iCol);
-SQLITE_API int sqlite3_column_type (sqlite3_stmt *pStmt, int iCol);
-SQLITE_API sqlite3 *sqlite3_db_handle (sqlite3_stmt *pStmt);
-SQLITE_API int sqlite3_errcode (sqlite3 *db);
-SQLITE_API const char *sqlite3_errmsg (sqlite3 *db);
-SQLITE_API int sqlite3_finalize (sqlite3_stmt *pStmt);
-SQLITE_API int sqlite3_open (const char *filename, sqlite3 **ppDb);
-SQLITE_API int sqlite3_prepare (sqlite3 *db,
-                                const char *zSql,
-                                int nByte,
-                                sqlite3_stmt **ppStmt,
-                                const char **pzTail);
-SQLITE_API int sqlite3_reset (sqlite3_stmt *pStmt);
-SQLITE_API int sqlite3_step (sqlite3_stmt *pStmt);
+int CDECL sqlite3_bind_blob (sqlite3_stmt *pStmt,
+                             int index,
+                             const void *value,
+                             int n,
+                             void (*destruct) (void*));
+int CDECL sqlite3_bind_double (sqlite3_stmt *pStmt, int index, double value);
+int CDECL sqlite3_bind_int (sqlite3_stmt *pStmt, int index, int value);
+int CDECL sqlite3_bind_int64 (sqlite3_stmt *pStmt, int index, sqlite3_int64 value);
+int CDECL sqlite3_bind_null (sqlite3_stmt *pStmt, int index);
+int CDECL sqlite3_bind_parameter_count(sqlite3_stmt *pStmt);
+int CDECL sqlite3_bind_text (sqlite3_stmt *pStmt,
+                             int index,
+                             const char *value,
+                             int n,
+                             void (*destruct) (void*));
+int CDECL sqlite3_close (sqlite3 *db);
+const void *CDECL sqlite3_column_blob (sqlite3_stmt *pStmt, int iCol);
+int CDECL sqlite3_column_bytes (sqlite3_stmt *pStmt, int iCol);
+int CDECL sqlite3_column_count (sqlite3_stmt *pStmt);
+double CDECL sqlite3_column_double (sqlite3_stmt *pStmt, int iCol);
+int CDECL sqlite3_column_int (sqlite3_stmt *pStmt, int iCol);
+sqlite3_int64 CDECL sqlite3_column_int64 (sqlite3_stmt *pStmt, int iCol);
+const char *CDECL sqlite3_column_name (sqlite3_stmt *pStmt, int N);
+const unsigned char *CDECL sqlite3_column_text (sqlite3_stmt *pStmt, int iCol);
+int CDECL sqlite3_column_type (sqlite3_stmt *pStmt, int iCol);
+sqlite3 *CDECL sqlite3_db_handle (sqlite3_stmt *pStmt);
+int CDECL sqlite3_errcode (sqlite3 *db);
+const char *CDECL sqlite3_errmsg (sqlite3 *db);
+int CDECL sqlite3_finalize (sqlite3_stmt *pStmt);
+int CDECL sqlite3_open (const char *filename, sqlite3 **ppDb);
+int CDECL sqlite3_prepare (sqlite3 *db,
+                           const char *zSql,
+                           int nByte,
+                           sqlite3_stmt **ppStmt,
+                           const char **pzTail);
+int CDECL sqlite3_reset (sqlite3_stmt *pStmt);
+int CDECL sqlite3_step (sqlite3_stmt *pStmt);

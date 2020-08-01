@@ -1185,7 +1185,7 @@ const proc: readNumber (inout integer: number, inout boolean: okay, inout boolea
         quit := TRUE;
       else
         block
-          number := integer parse stri;
+          number := integer(stri);
         exception
           catch RANGE_ERROR:
             okay := FALSE;

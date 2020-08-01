@@ -147,118 +147,120 @@ typedef struct {
 
 #define XSQLDA_LENGTH(n)  (sizeof(XSQLDA) + (n - 1) * sizeof(XSQLVAR))
 
-#if defined(_WIN32)
-#define ISC_EXPORT __stdcall
+#ifndef STDCALL
+#if defined(_WIN32) && HAS_STDCALL
+#define STDCALL __stdcall
 #else
-#define ISC_EXPORT
+#define STDCALL
+#endif
 #endif
 
-ISC_STATUS ISC_EXPORT isc_attach_database (ISC_STATUS *status_vector,
-                                           short db_name_length,
-                                           char *db_name,
-                                           isc_db_handle *db_handle,
-                                           short parm_buffer_length,
-                                           char *parm_buffer);
-ISC_STATUS ISC_EXPORT isc_blob_info (ISC_STATUS *status_vector,
-                                     isc_blob_handle *blob_handle,
-                                     short item_list_buffer_length,
-                                     char *item_list_buffer,
-                                     short result_buffer_length,
-                                     char *result_buffer);
-ISC_STATUS ISC_EXPORT isc_close_blob (ISC_STATUS *status_vector,
-                                      isc_blob_handle *blob_handle);
-ISC_STATUS ISC_EXPORT isc_commit_transaction (ISC_STATUS *status_vector,
-                                              isc_tr_handle *trans_handle);
-ISC_STATUS ISC_EXPORT isc_create_blob2 (ISC_STATUS *status_vector,
+ISC_STATUS STDCALL isc_attach_database (ISC_STATUS *status_vector,
+                                        short db_name_length,
+                                        char *db_name,
                                         isc_db_handle *db_handle,
-                                        isc_tr_handle *trans_handle,
-                                        isc_blob_handle *blob_handle,
-                                        ISC_QUAD *blob_id,
-                                        short bpb_length,
-                                        char *bpb_address);
-ISC_STATUS ISC_EXPORT isc_create_database (ISC_STATUS *status_vector,
-                                           short db_name_length,
-                                           char *db_name,
-                                           isc_db_handle *db_handle,
-                                           short parm_buffer_length,
-                                           char *parm_buffer,
-                                           short db_type);
-void ISC_EXPORT isc_decode_sql_date (ISC_DATE *ib_date,
-                                     void *tm_date);
-void ISC_EXPORT isc_decode_sql_time (ISC_TIME *ib_time,
-                                     void *tm_date);
-void ISC_EXPORT isc_decode_timestamp (ISC_TIMESTAMP *ib_date,
-                                      void *tm_date);
-ISC_STATUS ISC_EXPORT isc_detach_database (ISC_STATUS *status_vector,
-                                           isc_db_handle *db_handle);
-ISC_STATUS ISC_EXPORT isc_dsql_allocate_statement (ISC_STATUS *status_vector,
-                                                  isc_db_handle *db_handle,
-                                                  isc_stmt_handle *stmt_handle);
-ISC_STATUS ISC_EXPORT isc_dsql_describe (ISC_STATUS *status_vector,
-                                         isc_stmt_handle *stmt_handle,
-                                         unsigned short da_version,
-                                         XSQLDA *xsqlda);
-ISC_STATUS ISC_EXPORT isc_dsql_describe_bind (ISC_STATUS *status_vector,
-                                              isc_stmt_handle *stmt_handle,
-                                              unsigned short da_version,
-                                              XSQLDA *xsqlda);
-ISC_STATUS ISC_EXPORT isc_dsql_execute2 (ISC_STATUS *status_vector,
-                                         isc_tr_handle *trans_handle,
-                                         isc_stmt_handle *stmt_handle,
-                                         unsigned short da_version,
-                                         XSQLDA *in_xsqlda,
-                                         XSQLDA *out_xsqlda);
-ISC_STATUS ISC_EXPORT isc_dsql_fetch (ISC_STATUS *status_vector,
+                                        short parm_buffer_length,
+                                        char *parm_buffer);
+ISC_STATUS STDCALL isc_blob_info (ISC_STATUS *status_vector,
+                                  isc_blob_handle *blob_handle,
+                                  short item_list_buffer_length,
+                                  char *item_list_buffer,
+                                  short result_buffer_length,
+                                  char *result_buffer);
+ISC_STATUS STDCALL isc_close_blob (ISC_STATUS *status_vector,
+                                   isc_blob_handle *blob_handle);
+ISC_STATUS STDCALL isc_commit_transaction (ISC_STATUS *status_vector,
+                                           isc_tr_handle *trans_handle);
+ISC_STATUS STDCALL isc_create_blob2 (ISC_STATUS *status_vector,
+                                     isc_db_handle *db_handle,
+                                     isc_tr_handle *trans_handle,
+                                     isc_blob_handle *blob_handle,
+                                     ISC_QUAD *blob_id,
+                                     short bpb_length,
+                                     char *bpb_address);
+ISC_STATUS STDCALL isc_create_database (ISC_STATUS *status_vector,
+                                        short db_name_length,
+                                        char *db_name,
+                                        isc_db_handle *db_handle,
+                                        short parm_buffer_length,
+                                        char *parm_buffer,
+                                        short db_type);
+void STDCALL isc_decode_sql_date (ISC_DATE *ib_date,
+                                  void *tm_date);
+void STDCALL isc_decode_sql_time (ISC_TIME *ib_time,
+                                  void *tm_date);
+void STDCALL isc_decode_timestamp (ISC_TIMESTAMP *ib_date,
+                                   void *tm_date);
+ISC_STATUS STDCALL isc_detach_database (ISC_STATUS *status_vector,
+                                        isc_db_handle *db_handle);
+ISC_STATUS STDCALL isc_dsql_allocate_statement (ISC_STATUS *status_vector,
+                                               isc_db_handle *db_handle,
+                                               isc_stmt_handle *stmt_handle);
+ISC_STATUS STDCALL isc_dsql_describe (ISC_STATUS *status_vector,
                                       isc_stmt_handle *stmt_handle,
                                       unsigned short da_version,
                                       XSQLDA *xsqlda);
-ISC_STATUS ISC_EXPORT isc_dsql_free_statement (ISC_STATUS *status_vector,
-                                               isc_stmt_handle *stmt_handle,
-                                               unsigned short option);
-ISC_STATUS ISC_EXPORT isc_dsql_prepare (ISC_STATUS *status_vector,
-                                        isc_tr_handle *trans_handle,
-                                        isc_stmt_handle *stmt_handle,
-                                        unsigned short length,
-                                        char *statement,
-                                        unsigned short dialect,
-                                        XSQLDA *xsqlda);
-ISC_STATUS ISC_EXPORT isc_dsql_sql_info (ISC_STATUS *status_vector,
-                                         isc_stmt_handle *stmt_handle,
-                                         unsigned short item_length,
-                                         char *items,
-                                         unsigned short buffer_length,
-                                         char *buffer);
-void ISC_EXPORT isc_encode_sql_date (void *tm_date,
-                                     ISC_DATE *ib_date);
-void ISC_EXPORT isc_encode_sql_time (void *tm_date,
-                                     ISC_TIME *ib_time);
-void ISC_EXPORT isc_encode_timestamp (void *tm_date,
-                                      ISC_TIMESTAMP *ib_timestamp);
-ISC_STATUS ISC_EXPORT isc_get_segment (ISC_STATUS *status_vector,
-                                       isc_blob_handle *blob_handle,
-                                       unsigned short *actual_seg_length,
-                                       unsigned short seg_buffer_length,
-                                       char *seg_buffer);
-ISC_STATUS ISC_EXPORT isc_interprete (char *buffer, ISC_STATUS **status_vector);
-ISC_STATUS ISC_EXPORT isc_open_blob2 (ISC_STATUS *status_vector,
-                                      isc_db_handle *db_handle,
+ISC_STATUS STDCALL isc_dsql_describe_bind (ISC_STATUS *status_vector,
+                                           isc_stmt_handle *stmt_handle,
+                                           unsigned short da_version,
+                                           XSQLDA *xsqlda);
+ISC_STATUS STDCALL isc_dsql_execute2 (ISC_STATUS *status_vector,
                                       isc_tr_handle *trans_handle,
-                                      isc_blob_handle *blob_handle,
-                                      ISC_QUAD *blob_id,
-                                      short bpb_length,
-                                      char *bpb_address);
-ISC_INT64 ISC_EXPORT isc_portable_integer (char *buffer,
-                                           short length);
-ISC_STATUS ISC_EXPORT isc_print_status (ISC_STATUS *status_vector);
-ISC_STATUS ISC_EXPORT isc_put_segment (ISC_STATUS *status_vector,
-                                       isc_blob_handle *blob_handle,
-                                       unsigned short seg_buffer_length,
-                                       char *seg_buffer);
-ISC_STATUS ISC_EXPORT isc_rollback_transaction (ISC_STATUS *status_vector,
-                                                isc_tr_handle *trans_handle);
-ISC_STATUS ISC_EXPORT isc_start_transaction (ISC_STATUS *status_vector,
-                                             isc_tr_handle *trans_handle,
-                                             short db_handle_count,
-                                             isc_db_handle *db_handle,
-                                             unsigned short tpb_length,
-                                             char *tpb_address);
+                                      isc_stmt_handle *stmt_handle,
+                                      unsigned short da_version,
+                                      XSQLDA *in_xsqlda,
+                                      XSQLDA *out_xsqlda);
+ISC_STATUS STDCALL isc_dsql_fetch (ISC_STATUS *status_vector,
+                                   isc_stmt_handle *stmt_handle,
+                                   unsigned short da_version,
+                                   XSQLDA *xsqlda);
+ISC_STATUS STDCALL isc_dsql_free_statement (ISC_STATUS *status_vector,
+                                            isc_stmt_handle *stmt_handle,
+                                            unsigned short option);
+ISC_STATUS STDCALL isc_dsql_prepare (ISC_STATUS *status_vector,
+                                     isc_tr_handle *trans_handle,
+                                     isc_stmt_handle *stmt_handle,
+                                     unsigned short length,
+                                     char *statement,
+                                     unsigned short dialect,
+                                     XSQLDA *xsqlda);
+ISC_STATUS STDCALL isc_dsql_sql_info (ISC_STATUS *status_vector,
+                                      isc_stmt_handle *stmt_handle,
+                                      unsigned short item_length,
+                                      char *items,
+                                      unsigned short buffer_length,
+                                      char *buffer);
+void STDCALL isc_encode_sql_date (void *tm_date,
+                                  ISC_DATE *ib_date);
+void STDCALL isc_encode_sql_time (void *tm_date,
+                                  ISC_TIME *ib_time);
+void STDCALL isc_encode_timestamp (void *tm_date,
+                                   ISC_TIMESTAMP *ib_timestamp);
+ISC_STATUS STDCALL isc_get_segment (ISC_STATUS *status_vector,
+                                    isc_blob_handle *blob_handle,
+                                    unsigned short *actual_seg_length,
+                                    unsigned short seg_buffer_length,
+                                    char *seg_buffer);
+ISC_STATUS STDCALL isc_interprete (char *buffer, ISC_STATUS **status_vector);
+ISC_STATUS STDCALL isc_open_blob2 (ISC_STATUS *status_vector,
+                                   isc_db_handle *db_handle,
+                                   isc_tr_handle *trans_handle,
+                                   isc_blob_handle *blob_handle,
+                                   ISC_QUAD *blob_id,
+                                   short bpb_length,
+                                   char *bpb_address);
+ISC_INT64 STDCALL isc_portable_integer (char *buffer,
+                                        short length);
+ISC_STATUS STDCALL isc_print_status (ISC_STATUS *status_vector);
+ISC_STATUS STDCALL isc_put_segment (ISC_STATUS *status_vector,
+                                    isc_blob_handle *blob_handle,
+                                    unsigned short seg_buffer_length,
+                                    char *seg_buffer);
+ISC_STATUS STDCALL isc_rollback_transaction (ISC_STATUS *status_vector,
+                                             isc_tr_handle *trans_handle);
+ISC_STATUS STDCALL isc_start_transaction (ISC_STATUS *status_vector,
+                                          isc_tr_handle *trans_handle,
+                                          short db_handle_count,
+                                          isc_db_handle *db_handle,
+                                          unsigned short tpb_length,
+                                          char *tpb_address);

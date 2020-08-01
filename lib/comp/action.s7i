@@ -236,8 +236,8 @@ const proc: process_action (in reference: function, in ref_list: params,
         process(BIG_ODD, function, params, c_expr);
       when {"BIG_ORD"}:
         process(BIG_ORD, function, params, c_expr);
-      when {"BIG_PARSE"}:
-        process(BIG_PARSE, function, params, c_expr);
+      when {"BIG_PARSE1"}:
+        process(BIG_PARSE1, function, params, c_expr);
       when {"BIG_PARSE_BASED"}:
         process(BIG_PARSE_BASED, function, params, c_expr);
       when {"BIG_PLUS"}:
@@ -350,8 +350,8 @@ const proc: process_action (in reference: function, in ref_list: params,
         process(BST_LNG, function, params, c_expr);
       when {"BST_NE"}:
         process(BST_NE, function, params, c_expr);
-      when {"BST_PARSE"}:
-        process(BST_PARSE, function, params, c_expr);
+      when {"BST_PARSE1"}:
+        process(BST_PARSE1, function, params, c_expr);
       when {"BST_STR"}:
         process(BST_STR, function, params, c_expr);
       when {"BST_VALUE"}:
@@ -839,8 +839,8 @@ const proc: process_action (in reference: function, in ref_list: params,
         process(FLT_NE, function, params, c_expr);
       when {"FLT_NEGATE"}:
         process(FLT_NEGATE, function, params, c_expr);
-      when {"FLT_PARSE"}:
-        process(FLT_PARSE, function, params, c_expr);
+      when {"FLT_PARSE1"}:
+        process(FLT_PARSE1, function, params, c_expr);
       when {"FLT_PLUS"}:
         process(FLT_PLUS, function, params, c_expr);
       when {"FLT_POW"}:
@@ -1020,8 +1020,8 @@ const proc: process_action (in reference: function, in ref_list: params,
         process(INT_NEGATE, function, params, c_expr);
       when {"INT_ODD"}:
         process(INT_ODD, function, params, c_expr);
-      when {"INT_PARSE"}:
-        process(INT_PARSE, function, params, c_expr);
+      when {"INT_PARSE1"}:
+        process(INT_PARSE1, function, params, c_expr);
       when {"INT_PLUS"}:
         process(INT_PLUS, function, params, c_expr);
       when {"INT_POW"}:

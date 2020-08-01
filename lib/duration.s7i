@@ -178,7 +178,7 @@ const func string: literal (in duration: aDuration) is
  *  @return the ''duration'' result of the conversion.
  *  @exception RANGE_ERROR When stri contains not a valid duration value.
  *)
-const func duration: (attr duration) parse (in var string: stri) is func
+const func duration: duration (in var string: stri) is func
   result
     var duration: aDuration is duration.value;
   local
@@ -226,7 +226,7 @@ const func duration: (attr duration) parse (in var string: stri) is func
                 aDuration.second := seconds;
                 numStri := numStri[.. 6];
                 numStri &:= "0" mult (6 - length(numStri));
-                aDuration.micro_second := integer parse numStri;
+                aDuration.micro_second := integer(numStri);
                 if negativeSeconds then
                   aDuration.micro_second := -aDuration.micro_second;
                 end if;
@@ -264,17 +264,17 @@ const func duration: (attr duration) parse (in var string: stri) is func
   end func;
 
 
-enable_io(duration);
-
-
 (**
  *  Convert a string to a ''duration''.
  *  @param stri A duration in the format P[nY][nM][nD][T[nH][nM][n[.n]S]]
  *  @return the ''duration'' result of the conversion.
  *  @exception RANGE_ERROR When stri contains not a valid duration value.
  *)
-const func duration: duration (in string: stri) is
-    return duration parse stri;
+const func duration: (attr duration) parse (in string: stri) is
+    return duration(stri);
+
+
+enable_io(duration);
 
 
 (**

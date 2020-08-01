@@ -345,7 +345,7 @@ objectType sct_elem (listType arguments)
     objectType value;
     objectType current_object;
     errInfoType err_info = OKAY_NO_ERROR;
-    structType result;
+    structType newStruct;
 
   /* sct_elem */
     isit_type(arg_2(arguments));
@@ -405,22 +405,19 @@ objectType sct_elem (listType arguments)
             prot_list(arguments);
           } /* if */
         } /* if */
-        if (!ALLOC_STRUCT(result, 1)) {
+        if (!ALLOC_STRUCT(newStruct, 1)) {
           err_info = MEMORY_ERROR;
         } else {
-          result->usage_count = 1;
-          result->size = 1;
-          memcpy(&result->stru[0], current_object, sizeof(objectRecord));
+          newStruct->usage_count = 1;
+          newStruct->size = 1;
+          memcpy(&newStruct->stru[0], current_object, sizeof(objectRecord));
+          return bld_struct_temp(newStruct);
         } /* if */
       } /* if */
       shrink_stack();
       shrink_stack();
     } /* if */
-    if (err_info != OKAY_NO_ERROR) {
-      return raise_exception(SYS_MEM_EXCEPTION);
-    } else {
-      return bld_struct_temp(result);
-    } /* if */
+    return raise_exception(SYS_MEM_EXCEPTION);
   } /* sct_elem */
 
 

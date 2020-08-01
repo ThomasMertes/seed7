@@ -311,7 +311,7 @@ const func string: str (in float: number)                      is action "FLT_ST
  *  @return the float result of the conversion.
  *  @exception RANGE_ERROR When the string contains not a float literal.
  *)
-const func float: (attr float) parse (in string: stri)         is action "FLT_PARSE";
+const func float: float (in string: stri)                      is action "FLT_PARSE1";
 
 
 (**
@@ -319,8 +319,8 @@ const func float: (attr float) parse (in string: stri)         is action "FLT_PA
  *  @return the float result of the conversion.
  *  @exception RANGE_ERROR When the string contains not a float literal.
  *)
-const func float: float (in string: stri) is
-    return float parse stri;
+const func float: (attr float) parse (in string: stri) is
+    return float(stri);
 
 
 (**

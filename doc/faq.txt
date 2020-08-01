@@ -242,10 +242,10 @@ How many lines of code are in the Seed7 project?
 The Seed7 package contains more than 100000 lines of C and more
 than 200000 lines of Seed7. For version 2019-03-03 the number of lines is:
 
-  145391  C source files (*.c)
-   11058  C header files (*.h)
-  157007  Seed7 source files (*.sd7)
-  142174  Seed7 library/include files (*.s7i)
+  146213  C source files (*.c)
+   11070  C header files (*.h)
+  158019  Seed7 source files (*.sd7)
+  142977  Seed7 library/include files (*.s7i)
 
 C code (*.c and *.h files) can be divided into the following areas:
 
@@ -269,13 +269,16 @@ Seed7 runs on the following operating systems:
     - gcc (the development is done using gcc under Linux)
     - clang
     - icc
+    - tcc
  - Unix (I used Seed7 also under various Unix variants, so it is probably
    easy to port Seed7 to a Unix variant)
  - BSD (there is a FreeBSD port and an OpenBSD port)
  - Windows is supported with the following compilers:
     - MinGW GCC (the binary Windows release of Seed7 uses MinGW)
     - Cygwin GCC (the X11 graphics needs Cygwin/X)
+    - clang
     - MSVC cl.exe (cl.exe is the stand-alone compiler of MSVC)
+    - tcc
     - BDS bcc32.exe (bcc32.exe is the stand-alone compiler of the BDS)
  - DOS (uses DJGPP. Sockets, graphics, processes and databases are currently not supported)
  - Mac OS X is supported with the following compilers:
@@ -317,11 +320,13 @@ available at: www.7-zip.org.
 How do I compile the Seed7 interpreter?
 =======================================
 
-The way to compile the interpreter is dependent on the operating system and the
+The way to compile the interpreter depends on the operating system and the
 development tools used. You need a stand-alone C compiler and a make utility to
-compile the interpreter. A C compiler which is only usable from an IDE is not so
+compile the interpreter. A C compiler, which is only usable from an IDE, is not so
 useful, since some Seed7 programs (e.g. The Seed7 compiler s7c) need to call the
-C compiler as well. To compile the interpreter under Linux just go to the 'src'
+C compiler as well. In case a make utility is missing under Windows the program
+make7 can be used instead.
+To compile the interpreter under Linux just go to the 'src'
 directory and type:
 
   make depend
@@ -343,10 +348,14 @@ operating system, make utility, C compiler and shell:
   mk_msvc.mak  | Windows (MSVC)  | nmake        | cl         | cmd.exe
   mk_bcc32.mak | Windows (bcc32) | make         | bcc32      | cmd.exe
   mk_bccv5.mak | Windows (bcc32) | make         | bcc32 V5.5 | cmd.exe
+  mk_clangw.mak| Windows (clang) | (g)make      | clang      | cmd.exe
+  mk_tcc_w.mak | Windows (tcc)   | (g)make      | tcc        | cmd.exe
   mk_djgpp.mak | DOS             | (g)make      | gcc        | cmd.exe
   mk_osx.mak   | Mac OS X        | make         | gcc        | sh
   mk_osxcl.mak | Mac OS X        | make         | clang      | sh
   mk_freebsd.mk| FreeBSD         | make         | clang/gcc  | sh
+  mk_emccl.mak | Linux/Unix/BSD  | make         | emcc + gcc | sh
+  mk_emccw.mak | Windows (emcc)  | mingw32-make | emcc + gcc | cmd.exe
 
 In the optimal case you just copy one of this files to 'makefile' and do (with
 the make program from the table above):

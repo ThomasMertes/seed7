@@ -58,7 +58,7 @@ const proc: main is func
         writeHelp := TRUE;
       elsif args[index] = "-p" and index < length(args) then
         block
-          port := integer parse (args[succ(index)]);
+          port := integer(args[succ(index)]);
         exception
           catch RANGE_ERROR:
             writeln(" ***** Port not numeric. Port " <& port <& " used instead.");

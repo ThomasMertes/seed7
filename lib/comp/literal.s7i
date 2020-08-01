@@ -204,7 +204,7 @@ const func string: floatLiteral (in float: aFloat) is func
     var integer: pos is 0;
   begin
     if isNaN(aFloat) then
-      bits := float2Bits(aFloat, DOUBLE);
+      bits := bin64(aFloat);
       if bits not in nan_const_table then
         nan_const_table @:= [bits] length(nan_const_table);
       end if;
@@ -220,7 +220,7 @@ const func string: floatLiteral (in float: aFloat) is func
     else
       expr := str(aFloat);
       # Make sure that the literal is parsed to the same value.
-      if float parse expr <> aFloat or length(expr) >= 100 then
+      if float(expr) <> aFloat or length(expr) >= 100 then
         expr := aFloat sci 100;
         exponentPos := pos(expr, 'e');
         pos := pred(exponentPos);

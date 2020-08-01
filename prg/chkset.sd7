@@ -3369,13 +3369,12 @@ const proc: check_union is func
   end func;
 
 
-const proc: check_union_assign is func
+const func boolean: check_union_assign_1 is func
+  result
+    var boolean: ok is TRUE;
   local
     var bitset: set1 is EMPTY_SET;
-    var boolean: okay is TRUE;
-    var boolean: ok is TRUE;
   begin
-    okay := TRUE;
     set1 := EMPTY_SET;          set1 |:= EMPTY_SET;          ok := ok and set1 = EMPTY_SET;
     set1 := EMPTY_SET;          set1 |:= {-900};             ok := ok and set1 = {-900};
     set1 := EMPTY_SET;          set1 |:= {-2};               ok := ok and set1 = {-2};
@@ -3573,10 +3572,16 @@ const proc: check_union_assign is func
     set1 := {900};              set1 |:= {-900, -1, 0, 900}; ok := ok and set1 = {-900, -1, 0, 900};
     if not ok then
       writeln("Union assignment does not work correct. (1)");
-      okay := FALSE;
-      ok := TRUE;
     end if;
+  end func;
 
+
+const func boolean: check_union_assign_2 is func
+  result
+    var boolean: ok is TRUE;
+  local
+    var bitset: set1 is EMPTY_SET;
+  begin
     set1 := {-900, -1};         set1 |:= EMPTY_SET;          ok := ok and set1 = {-900, -1};
     set1 := {-900, -1};         set1 |:= {-900};             ok := ok and set1 = {-900, -1};
     set1 := {-900, -1};         set1 |:= {-2};               ok := ok and set1 = {-900, -1, -2};
@@ -3887,10 +3892,16 @@ const proc: check_union_assign is func
     set1 := {0, 900};           set1 |:= {-900, -1, 0, 900}; ok := ok and set1 = {-900, -1, 0, 900};
     if not ok then
       writeln("Union assignment does not work correct. (2)");
-      okay := FALSE;
-      ok := TRUE;
     end if;
+  end func;
 
+
+const func boolean: check_union_assign_3 is func
+  result
+    var boolean: ok is TRUE;
+  local
+    var bitset: set1 is EMPTY_SET;
+  begin
     set1 := {-900, -1, 0};      set1 |:= EMPTY_SET;          ok := ok and set1 = {-900, -1, 0};
     set1 := {-900, -1, 0};      set1 |:= {-900};             ok := ok and set1 = {-900, -1, 0};
     set1 := {-900, -1, 0};      set1 |:= {-2};               ok := ok and set1 = {-900, -2, -1, 0};
@@ -4144,10 +4155,15 @@ const proc: check_union_assign is func
     set1 := {-900, -1, 0, 900}; set1 |:= {-900, -1, 0, 900}; ok := ok and set1 = {-900, -1, 0, 900};
     if not ok then
       writeln("Union assignment does not work correct. (3)");
-      okay := FALSE;
     end if;
+  end func;
 
-    if okay then
+
+const proc: check_union_assign is func
+  begin
+    if  check_union_assign_1 and
+        check_union_assign_2 and
+        check_union_assign_3 then
       writeln("set union assignment works correct.");
     else
       writeln(" ***** set union assignment does not work correct");
@@ -5708,13 +5724,12 @@ const proc: check_intersection is func
   end func;
 
 
-const proc: check_intersection_assign is func
+const func boolean: check_intersection_assign_1 is func
+  result
+    var boolean: ok is TRUE;
   local
     var bitset: set1 is EMPTY_SET;
-    var boolean: okay is TRUE;
-    var boolean: ok is TRUE;
   begin
-    okay := TRUE;
     set1 := EMPTY_SET;          set1 &:= EMPTY_SET;          ok := ok and set1 = EMPTY_SET;
     set1 := EMPTY_SET;          set1 &:= {-900};             ok := ok and set1 = EMPTY_SET;
     set1 := EMPTY_SET;          set1 &:= {-2};               ok := ok and set1 = EMPTY_SET;
@@ -5912,10 +5927,16 @@ const proc: check_intersection_assign is func
     set1 := {900};              set1 &:= {-900, -1, 0, 900}; ok := ok and set1 = {900};
     if not ok then
       writeln("Intersection assignment does not work correct. (1)");
-      okay := FALSE;
-      ok := TRUE;
     end if;
+  end func;
 
+
+const func boolean: check_intersection_assign_2 is func
+  result
+    var boolean: ok is TRUE;
+  local
+    var bitset: set1 is EMPTY_SET;
+  begin
     set1 := {-900, -1};         set1 &:= EMPTY_SET;          ok := ok and set1 = EMPTY_SET;
     set1 := {-900, -1};         set1 &:= {-900};             ok := ok and set1 = {-900};
     set1 := {-900, -1};         set1 &:= {-2};               ok := ok and set1 = EMPTY_SET;
@@ -6225,10 +6246,16 @@ const proc: check_intersection_assign is func
     set1 := {0, 900};           set1 &:= {-900, -1, 0, 900}; ok := ok and set1 = {0, 900};
     if not ok then
       writeln("Intersection assignment does not work correct. (2)");
-      okay := FALSE;
-      ok := TRUE;
     end if;
+  end func;
 
+
+const func boolean: check_intersection_assign_3 is func
+  result
+    var boolean: ok is TRUE;
+  local
+    var bitset: set1 is EMPTY_SET;
+  begin
     set1 := {-900, -1, 0};      set1 &:= EMPTY_SET;          ok := ok and set1 = EMPTY_SET;
     set1 := {-900, -1, 0};      set1 &:= {-900};             ok := ok and set1 = {-900};
     set1 := {-900, -1, 0};      set1 &:= {-2};               ok := ok and set1 = EMPTY_SET;
@@ -6482,10 +6509,15 @@ const proc: check_intersection_assign is func
     set1 := {-900, -1, 0, 900}; set1 &:= {-900, -1, 0, 900}; ok := ok and set1 = {-900, -1, 0, 900};
     if not ok then
       writeln("Intersection assignment does not work correct. (3)");
-      okay := FALSE;
     end if;
+  end func;
 
-    if okay then
+
+const proc: check_intersection_assign is func
+  begin
+    if  check_intersection_assign_1 and
+        check_intersection_assign_2 and
+        check_intersection_assign_3 then
       writeln("set intersection assignment works correct.");
     else
       writeln(" ***** set intersection assignment does not work correct");

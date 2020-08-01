@@ -126,40 +126,49 @@ static sqlFuncType sqlFunc = NULL;
 
 
 #ifdef POSTGRESQL_DLL
-typedef void (*tp_PQclear) (PGresult *res);
-typedef PGresult *(*tp_PQdescribePrepared) (PGconn *conn, const char *stmt);
-typedef char *(*tp_PQerrorMessage) (const PGconn *conn);
-typedef PGresult *(*tp_PQexec) (PGconn *conn, const char *query);
-typedef PGresult *(*tp_PQexecPrepared) (PGconn *conn,
-                                        const char *stmtName,
-                                        int nParams,
-                                        const char *const * paramValues,
-                                        const int *paramLengths,
-                                        const int *paramFormats,
-                                        int resultFormat);
-typedef void (*tp_PQfinish) (PGconn *conn);
-typedef char *(*tp_PQfname) (const PGresult *res, int field_num);
-typedef Oid (*tp_PQftype) (const PGresult *res, int field_num);
-typedef int (*tp_PQgetisnull) (const PGresult *res, int tup_num, int field_num);
-typedef int (*tp_PQgetlength) (const PGresult *res, int tup_num, int field_num);
-typedef char *(*tp_PQgetvalue) (const PGresult *res, int tup_num, int field_num);
-typedef int (*tp_PQnfields) (const PGresult *res);
-typedef int (*tp_PQnparams) (const PGresult *res);
-typedef int (*tp_PQntuples) (const PGresult *res);
-typedef const char *(*tp_PQparameterStatus) (const PGconn *conn, const char *paramName);
-typedef Oid (*tp_PQparamtype) (const PGresult *res, int param_num);
-typedef PGresult *(*tp_PQprepare) (PGconn *conn, const char *stmtName,
-                                   const char *query, int nParams,
-                                   const Oid *paramTypes);
-typedef char *(*tp_PQresStatus) (ExecStatusType status);
-typedef char *(*tp_PQresultErrorMessage) (const PGresult *res);
-typedef ExecStatusType (*tp_PQresultStatus) (const PGresult *res);
-typedef int (*tp_PQsetClientEncoding) (PGconn *conn, const char *encoding);
-typedef PGconn *(*tp_PQsetdbLogin) (const char *pghost, const char *pgport,
-                                    const char *pgoptions, const char *pgtty,
-                                    const char *dbName,
-                                    const char *login, const char *pwd);
-typedef ConnStatusType (*tp_PQstatus) (const PGconn *conn);
+
+#ifndef CDECL
+#if defined(_WIN32) && HAS_CDECL
+#define CDECL __cdecl
+#else
+#define CDECL
+#endif
+#endif
+
+typedef void (CDECL *tp_PQclear) (PGresult *res);
+typedef PGresult *(CDECL *tp_PQdescribePrepared) (PGconn *conn, const char *stmt);
+typedef char *(CDECL *tp_PQerrorMessage) (const PGconn *conn);
+typedef PGresult *(CDECL *tp_PQexec) (PGconn *conn, const char *query);
+typedef PGresult *(CDECL *tp_PQexecPrepared) (PGconn *conn,
+                                              const char *stmtName,
+                                              int nParams,
+                                              const char *const * paramValues,
+                                              const int *paramLengths,
+                                              const int *paramFormats,
+                                              int resultFormat);
+typedef void (CDECL *tp_PQfinish) (PGconn *conn);
+typedef char *(CDECL *tp_PQfname) (const PGresult *res, int field_num);
+typedef Oid (CDECL *tp_PQftype) (const PGresult *res, int field_num);
+typedef int (CDECL *tp_PQgetisnull) (const PGresult *res, int tup_num, int field_num);
+typedef int (CDECL *tp_PQgetlength) (const PGresult *res, int tup_num, int field_num);
+typedef char *(CDECL *tp_PQgetvalue) (const PGresult *res, int tup_num, int field_num);
+typedef int (CDECL *tp_PQnfields) (const PGresult *res);
+typedef int (CDECL *tp_PQnparams) (const PGresult *res);
+typedef int (CDECL *tp_PQntuples) (const PGresult *res);
+typedef const char *(CDECL *tp_PQparameterStatus) (const PGconn *conn, const char *paramName);
+typedef Oid (CDECL *tp_PQparamtype) (const PGresult *res, int param_num);
+typedef PGresult *(CDECL *tp_PQprepare) (PGconn *conn, const char *stmtName,
+                                         const char *query, int nParams,
+                                         const Oid *paramTypes);
+typedef char *(CDECL *tp_PQresStatus) (ExecStatusType status);
+typedef char *(CDECL *tp_PQresultErrorMessage) (const PGresult *res);
+typedef ExecStatusType (CDECL *tp_PQresultStatus) (const PGresult *res);
+typedef int (CDECL *tp_PQsetClientEncoding) (PGconn *conn, const char *encoding);
+typedef PGconn *(CDECL *tp_PQsetdbLogin) (const char *pghost, const char *pgport,
+                                          const char *pgoptions, const char *pgtty,
+                                          const char *dbName,
+                                          const char *login, const char *pwd);
+typedef ConnStatusType (CDECL *tp_PQstatus) (const PGconn *conn);
 
 static tp_PQclear              ptr_PQclear;
 static tp_PQdescribePrepared   ptr_PQdescribePrepared;
@@ -219,8 +228,15 @@ static boolType setupDll (const char *dllName)
   /* setupDll */
     logFunction(printf("setupDll(\"%s\")\n", dllName););
     if (dbDll == NULL) {
+#if defined LIBINTL_DLL || defined LIBEAY32_DLL
+      if (TRUE
 #ifdef LIBINTL_DLL
-      if (dllOpen(LIBINTL_DLL_PATH) != NULL || dllOpen(LIBINTL_DLL) != NULL) {
+          && (dllOpen(LIBINTL_DLL_PATH) != NULL || dllOpen(LIBINTL_DLL) != NULL)
+#endif
+#ifdef LIBEAY32_DLL
+          && (dllOpen(LIBEAY32_DLL_PATH) != NULL || dllOpen(LIBEAY32_DLL) != NULL)
+#endif
+      ) {
         dbDll = dllOpen(dllName);
       } /* if */
 #else
@@ -580,6 +596,7 @@ static striType processStatementStri (const const_striType sqlStatementStri,
   {
     memSizeType pos = 0;
     strElemType ch;
+    strElemType delimiter;
     memSizeType destPos = 0;
     unsigned int varNum = MIN_BIND_VAR_NUM;
     striType processed;
@@ -615,15 +632,17 @@ static striType processStatementStri (const const_striType sqlStatementStri,
             varNum++;
           } /* if */
           pos++;
-        } else if (ch == '\'') {
-          processed->mem[destPos++] = '\'';
+        } else if (ch == '\'' || ch == '"') {
+          delimiter = ch;
+          processed->mem[destPos++] = delimiter;
           pos++;
-          while (pos < sqlStatementStri->size && (ch = sqlStatementStri->mem[pos]) != '\'') {
+          while (pos < sqlStatementStri->size &&
+              (ch = sqlStatementStri->mem[pos]) != delimiter) {
             processed->mem[destPos++] = ch;
             pos++;
           } /* while */
           if (pos < sqlStatementStri->size) {
-            processed->mem[destPos++] = '\'';
+            processed->mem[destPos++] = delimiter;
             pos++;
           } /* if */
         } else if (ch == '/') {
@@ -1257,6 +1276,7 @@ static int64Type getTimestamp1970 (int64Type timestamp, intType *micro_second)
         raise_error(RANGE_ERROR);
       } /* if */
     } /* if */
+    logFunction(printf("getTimestamp1970 --> " FMT_D64 "\n", timestamp););
     return timestamp;
   } /* getTimestamp1970 */
 
@@ -1783,6 +1803,7 @@ static void sqlBindStri (sqlStmtType sqlStatement, intType pos, striType stri)
     cstriType stri8;
     cstriType resized_stri8;
     memSizeType length;
+    cstriType cstri;
     errInfoType err_info = OKAY_NO_ERROR;
 
   /* sqlBindStri */
@@ -1800,6 +1821,7 @@ static void sqlBindStri (sqlStmtType sqlStatement, intType pos, striType stri)
       switch (preparedStmt->paramTypes[pos - 1]) {
         case BPCHAROID:
         case VARCHAROID:
+        case TEXTOID:
           /* PostgreSQL doesn't support storing Null characters     */
           /* ('\0;') in text fields. PQexecPrepared() returns a     */
           /* status of PGRES_FATAL_ERROR, because 0x00 and 0xc080   */
@@ -1827,16 +1849,19 @@ static void sqlBindStri (sqlStmtType sqlStatement, intType pos, striType stri)
           } /* if */
           break;
         case BYTEAOID:
-          if (unlikely(stri->size > INT_MAX)) {
+          if (unlikely(stri->size > INT_MAX ||
+                       (cstri = (cstriType) malloc(stri->size)) == NULL)) {
             err_info = MEMORY_ERROR;
+          } else if (unlikely(memcpy_from_strelem((ustriType) cstri,
+                                                  stri->mem, stri->size))) {
+            free(cstri);
+            err_info = RANGE_ERROR;
           } else {
             free(param->buffer);
-            if (likely((param->buffer =
-                            stri_to_cstri(stri, &err_info)) != NULL)) {
-              preparedStmt->paramValues[pos - 1] = param->buffer;
-              preparedStmt->paramLengths[pos - 1] = (int) stri->size;
-              preparedStmt->paramFormats[pos - 1] = 1;
-            } /* if */
+            param->buffer = cstri;
+            preparedStmt->paramValues[pos - 1] = cstri;
+            preparedStmt->paramLengths[pos - 1] = (int) stri->size;
+            preparedStmt->paramFormats[pos - 1] = 1;
           } /* if */
           break;
         default:
@@ -2162,7 +2187,7 @@ static void sqlColumnBigRat (sqlStmtType sqlStatement, intType column,
               *numerator = roundDoubleToBigRat(ntohf(*(float *) buffer), FALSE, denominator);
               break;
             case FLOAT8OID:
-              *numerator = roundDoubleToBigRat(ntohd(*(double *) buffer), FALSE, denominator);
+              *numerator = roundDoubleToBigRat(ntohd(*(double *) buffer), TRUE, denominator);
               break;
             case NUMERICOID:
               *numerator = getNumericAsBigRat((const_ustriType) buffer, denominator);

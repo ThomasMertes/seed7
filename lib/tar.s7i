@@ -31,6 +31,7 @@ include "stdio.s7i";
 include "time.s7i";
 include "filesys.s7i";
 include "unicode.s7i";
+include "iobuffer.s7i";
 
 
 const string: TMAGIC is "ustar";
@@ -1173,3 +1174,146 @@ const proc: for (inout string: filePath) range (inout tarArchive: tar) do
       statements;
     end for;
   end func;
+
+
+const type: fileInTar is sub null_file struct
+    var file: tarFile is STD_NULL;
+    var integer: dataStartPos is 0;
+    var integer: size is 0;
+    var integer: position is 1;
+  end struct;
+
+type_implements_interface(fileInTar, file);
+
+
+const func file: openFileInTar (inout tarArchive: tar, in string: filePath,
+    in string: mode) is func
+  result
+    var file: newFile is STD_NULL;
+  local
+    var tarHeader: header is tarHeader.value;
+    var boolean: okay is TRUE;
+    var fileInTar: new_fileInTar is fileInTar.value;
+  begin
+    if mode = "r" then
+      if filePath <> "/" and endsWith(filePath, "/") then
+        raise RANGE_ERROR;
+      elsif filePath in tar.catalog then
+        header := tar.catalog[filePath];
+      elsif filePath in tar.register then
+        header := addToCatalog(tar, filePath);
+      elsif implizitDir(tar, filePath) then
+        header := addImplizitDir(tar, filePath);
+      else
+        okay := FALSE;
+      end if;
+      if okay and (header.typeflag = REGTYPE or
+                   header.typeflag = AREGTYPE) then
+        new_fileInTar.tarFile := tar.tarFile;
+        new_fileInTar.dataStartPos := header.dataStartPos;
+        new_fileInTar.size := header.size;
+        newFile := toInterface(new_fileInTar);
+      end if;
+    end if;
+  end func;
+
+
+(**
+ *  Open a file with ''filePath'' and ''mode'' in in a TAR archive.
+ *)
+const func file: open (inout tarArchive: tar, in string: filePath,
+    in string: mode) is
+  return openBufferFile(openFileInTar(tar, filePath, mode));
+
+
+(**
+ *  Read a character from ''inFileInTar''.
+ *  @return the character read, or [[char#EOF|EOF]] at the end of the file.
+ *)
+const func char: getc (inout fileInTar: inFileInTar) is func
+  result
+    var char: charRead is ' ';
+  begin
+    if inFileInTar.position <= inFileInTar.size then
+      seek(inFileInTar.tarFile, pred(inFileInTar.dataStartPos + inFileInTar.position));
+      charRead := getc(inFileInTar.tarFile);
+      incr(inFileInTar.position);
+    else
+      charRead := EOF;
+    end if;
+  end func;
+
+
+(**
+ *  Read a [[string]] with maximum length from ''inFileInTar''.
+ *  @return the string read.
+ *)
+const func string: gets (inout fileInTar: inFileInTar, in integer: maxLength) is func
+  result
+    var string: striRead is "";
+  begin
+    if inFileInTar.position <= inFileInTar.size then
+      seek(inFileInTar.tarFile, pred(inFileInTar.dataStartPos + inFileInTar.position));
+      if pred(inFileInTar.position + maxLength) <= inFileInTar.size then
+        striRead := gets(inFileInTar.tarFile, maxLength);
+        inFileInTar.position +:= maxLength;
+      else
+        striRead := gets(inFileInTar.tarFile, succ(inFileInTar.size - inFileInTar.position));
+        inFileInTar.position := succ(inFileInTar.size);
+      end if;
+    end if;
+  end func;
+
+
+(**
+ *  Determine the end-of-file indicator.
+ *  The end-of-file indicator is set when at least one request to read
+ *  from the file failed.
+ *  @return TRUE if the end-of-file indicator is set, FALSE otherwise.
+ *)
+const func boolean: eof (in fileInTar: inFileInTar) is
+  return inFileInTar.position > inFileInTar.size;
+
+
+(**
+ *  Determine if at least one character can be read successfully.
+ *  This function allows a file to be handled like an iterator.
+ *  @return FALSE if ''getc'' would return [[char#EOF|EOF]],
+ *          TRUE otherwise.
+ *)
+const func boolean: hasNext (in fileInTar: inFileInTar) is
+  return inFileInTar.position <= inFileInTar.size;
+
+
+(**
+ *  Obtain the length of a ''aFileInTar''.
+ *  The file length is measured in characters.
+ *  @return the length of a file.
+ *)
+const func integer: length (in fileInTar: aFileInTar) is
+  return aFileInTar.size;
+
+
+(**
+ *  Set the current file position.
+ *  The file position is measured in characters from the start of the file.
+ *  The first character in the file has the position 1.
+ *)
+const proc: seek (inout fileInTar: aFileInTar, in integer: position) is func
+  begin
+    if position <= 0 then
+      raise RANGE_ERROR;
+    else
+      aFileInTar.position := position;
+    end if;
+  end func;
+
+
+(**
+ *  Obtain the current file position of ''aFileInTar''.
+ *  The file position is measured in characters from the start of the file.
+ *  The first character in the file has the position 1.
+ *  @return the current file position.
+ *)
+const func integer: tell (in fileInTar: aFileInTar) is
+  return aFileInTar.position;

@@ -32,7 +32,7 @@ const ACTION: BST_HASHCODE  is action "BST_HASHCODE";
 const ACTION: BST_IDX       is action "BST_IDX";
 const ACTION: BST_LNG       is action "BST_LNG";
 const ACTION: BST_NE        is action "BST_NE";
-const ACTION: BST_PARSE     is action "BST_PARSE";
+const ACTION: BST_PARSE1    is action "BST_PARSE1";
 const ACTION: BST_STR       is action "BST_STR";
 const ACTION: BST_VALUE     is action "BST_VALUE";
 
@@ -398,13 +398,13 @@ const proc: process (BST_NE, in reference: function,
   end func;
 
 
-const proc: process (BST_PARSE, in reference: function,
+const proc: process (BST_PARSE1, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   begin
     prepare_bstri_result(c_expr);
     c_expr.result_expr := "bstParse(";
-    getAnyParamToResultExpr(params[3], c_expr);
+    getAnyParamToResultExpr(params[1], c_expr);
     c_expr.result_expr &:= ")";
   end func;
 

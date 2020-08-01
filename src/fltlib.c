@@ -976,13 +976,13 @@ objectType flt_negate (listType arguments)
  *  @return the float result of the conversion.
  *  @exception RANGE_ERROR When the string contains not a float literal.
  */
-objectType flt_parse (listType arguments)
+objectType flt_parse1 (listType arguments)
 
-  { /* flt_parse */
-    isit_stri(arg_3(arguments));
+  { /* flt_parse1 */
+    isit_stri(arg_1(arguments));
     return bld_float_temp(
-        fltParse(take_stri(arg_3(arguments))));
-  } /* flt_parse */
+        fltParse(take_stri(arg_1(arguments))));
+  } /* flt_parse1 */
 
 
 

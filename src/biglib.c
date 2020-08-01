@@ -761,13 +761,13 @@ objectType big_ord (listType arguments)
  *             an integer literal.
  *  @exception MEMORY_ERROR  Not enough memory to represent the result.
  */
-objectType big_parse (listType arguments)
+objectType big_parse1 (listType arguments)
 
-  { /* big_parse */
-    isit_stri(arg_3(arguments));
+  { /* big_parse1 */
+    isit_stri(arg_1(arguments));
     return bld_bigint_temp(
-        bigParse(take_stri(arg_3(arguments))));
-  } /* big_parse */
+        bigParse(take_stri(arg_1(arguments))));
+  } /* big_parse1 */
 
 
 

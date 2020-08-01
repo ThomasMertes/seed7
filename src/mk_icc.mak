@@ -81,7 +81,7 @@ GOBJ = syvarutl.o traceutl.o actutl.o executl.o blockutl.o \
        entutl.o identutl.o chclsutl.o arrutl.o
 ROBJ = arr_rtl.o bln_rtl.o bst_rtl.o chr_rtl.o cmd_rtl.o con_rtl.o dir_rtl.o drw_rtl.o fil_rtl.o \
        flt_rtl.o hsh_rtl.o int_rtl.o itf_rtl.o pcs_rtl.o set_rtl.o soc_rtl.o sql_rtl.o str_rtl.o \
-       tim_rtl.o ut8_rtl.o heaputl.o numutl.o sigutl.o striutl.o 
+       tim_rtl.o ut8_rtl.o heaputl.o numutl.o sigutl.o striutl.o
 DOBJ = big_rtl.o big_gmp.o cmd_unx.o dir_win.o dll_unx.o fil_unx.o pcs_unx.o pol_unx.o soc_none.o \
        sql_base.o sql_fire.o sql_lite.o sql_my.o sql_oci.o sql_odbc.o sql_post.o tim_unx.o
 OBJ = $(MOBJ)
@@ -179,7 +179,7 @@ chkccomp.h:
 	echo "#define SQLITE_DLL \"libsqlite3.so\"" >> chkccomp.h
 	echo "#define SQLITE_USE_LIB" >> chkccomp.h
 	echo "#define POSTGRESQL_LIBS \"-lpq\"" >> chkccomp.h
-	echo "#define POSTGRESQL_DLL \"libpq.so\"" >> chkccomp.h
+	echo "#define POSTGRESQL_DLL \"libpq.so\",\"libpq.so.5\"" >> chkccomp.h
 	echo "#define POSTGRESQL_USE_LIB" >> chkccomp.h
 	echo "#define ODBC_LIBS \"-lodbc\"" >> chkccomp.h
 	echo "#define ODBC_DLL \"libodbc.so\"" >> chkccomp.h

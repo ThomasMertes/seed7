@@ -291,7 +291,7 @@ const proc: main is func
 		info_sheet := openPixmapFontFile(curr_win, 3, AREA_LENGTH + 1);
 		setFont(info_sheet, stdFont9);
     if length(argv(PROGRAM)) = 1 then
-      num_blocks := integer parse (argv(PROGRAM)[1]);
+      num_blocks := integer(argv(PROGRAM)[1]);
     end if;
 		initVirtualGrid(grid, num_blocks);
 

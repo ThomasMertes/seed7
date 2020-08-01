@@ -64,7 +64,7 @@ const ACTION: INT_MULT_ASSIGN       is action "INT_MULT_ASSIGN";
 const ACTION: INT_NE                is action "INT_NE";
 const ACTION: INT_NEGATE            is action "INT_NEGATE";
 const ACTION: INT_ODD               is action "INT_ODD";
-const ACTION: INT_PARSE             is action "INT_PARSE";
+const ACTION: INT_PARSE1            is action "INT_PARSE1";
 const ACTION: INT_PLUS              is action "INT_PLUS";
 const ACTION: INT_POW               is action "INT_POW";
 const ACTION: INT_PRED              is action "INT_PRED";
@@ -2767,12 +2767,12 @@ const proc: process (INT_ODD, in reference: function,
   end func;
 
 
-const proc: process (INT_PARSE, in reference: function,
+const proc: process (INT_PARSE1, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   begin
     c_expr.expr &:= "intParse(";
-    getAnyParamToExpr(params[3], c_expr);
+    getAnyParamToExpr(params[1], c_expr);
     c_expr.expr &:= ")";
   end func;
 

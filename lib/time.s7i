@@ -283,7 +283,7 @@ const func string: literal (in time: aTime) is
  *  @return the time result of the conversion.
  *  @exception RANGE_ERROR When stri contains not a valid time value.
  *)
-const func time: (attr time) parse (in var string: stri) is func
+const func time: time (in var string: stri) is func
   result
     var time: aTime is time.value;
   begin
@@ -348,9 +348,6 @@ const func time: (attr time) parse (in var string: stri) is func
   end func;
 
 
-enable_io(time);
-
-
 (**
  *  Convert a string in the ISO 8601 date format to a time.
  *  The accepted ISO 8601 date formats are YYYY-MM, YYYY-MM-DD,
@@ -361,8 +358,11 @@ enable_io(time);
  *  @return the time result of the conversion.
  *  @exception RANGE_ERROR When stri contains not a valid time value.
  *)
-const func time: time (in string: stri) is
-    return time parse stri;
+const func time: (attr time) parse (in string: stri) is
+    return time(stri);
+
+
+enable_io(time);
 
 
 (**

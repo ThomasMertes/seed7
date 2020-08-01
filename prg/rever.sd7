@@ -777,7 +777,7 @@ const proc: start is func
           writeln;
         else
           block
-            level := integer parse levelAnswer;
+            level := integer(levelAnswer);
             if level <= 0 or level > MAX_LEVEL then
               writeln("   Level must be between 1 and " <& MAX_LEVEL <& ".");
             end if;

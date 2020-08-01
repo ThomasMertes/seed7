@@ -75,7 +75,16 @@
 #include "con_drv.h"
 
 
-/* #define atexit(x) */
+#ifdef DEFINE_DSO_HANDLE
+/* The following definition is necessary for tcc. */
+/* The include file term.h, used by con_inf.c */
+/* and kbd_poll.c, declares __dso_handle. */
+/* The definition below avoids the linking error: */
+/* tcc: error: undefined symbol '__dso_handle' */
+/* Note that __dso_handle is used to identify dynamic */
+/* shared objects during global destruction. */
+void *__dso_handle;
+#endif
 
 
 #ifdef OUT_OF_ORDER
@@ -1307,10 +1316,7 @@ int conOpen (void)
     int result = 0;
 
   /* conOpen */
-#ifdef TRACE_INIT
-    printf("BEGIN conOpen\n");
-    fflush(stdout);
-#endif
+    logFunction(printf("conOpen\n"););
     if (getcaps()) {
 /*    printf("lines: %d  columns: %d\n", lines, columns); */
       if (lines < 0) {
@@ -1353,9 +1359,6 @@ int conOpen (void)
         result = 1;
       } /* if */
     } /* if */
-#ifdef TRACE_INIT
-    printf("END conOpen\n");
-    fflush(stdout);
-#endif
+    logFunction(printf("conOpen --> %d\n", result););
     return result;
   } /* conOpen */

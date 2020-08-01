@@ -95,19 +95,19 @@ const type: ccConfigType is new struct
     var boolean: SQRT_FUNCTION_OKAY          is FALSE;
 
     (**
-     *  TRUE, when log() works okay for zero, a negative values and NaN .
+     *  TRUE, when log() works okay for zero, a negative values and NaN.
      *  If it is FALSE fltLog() should be used instead of log().
      *)
     var boolean: LOG_FUNCTION_OKAY           is FALSE;
 
     (**
-     *  TRUE, when log10() works okay for zero, a negative values and NaN .
+     *  TRUE, when log10() works okay for zero, a negative values and NaN.
      *  If it is FALSE fltLog10() should be used instead of log10().
      *)
     var boolean: LOG10_FUNCTION_OKAY         is FALSE;
 
     (**
-     *  TRUE, when log2() works okay for zero, a negative values and NaN .
+     *  TRUE, when log2() works okay for zero, a negative values and NaN.
      *  If it is FALSE fltLog2() should be used instead of log2().
      *)
     var boolean: LOG2_FUNCTION_OKAY          is FALSE;
@@ -579,41 +579,41 @@ const func ccConfigType: getBuiltInConfig is func
   local
     var string: configValue is "";
   begin
-    conf.WITH_STRI_CAPACITY         := boolean parse configValue("WITH_STRI_CAPACITY");
-    conf.ALLOW_STRITYPE_SLICES      := boolean parse configValue("ALLOW_STRITYPE_SLICES");
-    conf.ALLOW_BSTRITYPE_SLICES     := boolean parse configValue("ALLOW_BSTRITYPE_SLICES");
-    conf.RSHIFT_DOES_SIGN_EXTEND    := boolean parse configValue("RSHIFT_DOES_SIGN_EXTEND");
-    conf.TWOS_COMPLEMENT_INTTYPE    := boolean parse configValue("TWOS_COMPLEMENT_INTTYPE");
-    conf.LITTLE_ENDIAN_INTTYPE      := boolean parse configValue("LITTLE_ENDIAN_INTTYPE");
-    conf.NAN_COMPARISON_OKAY        := boolean parse configValue("NAN_COMPARISON_OKAY");
-    conf.POW_FUNCTION_OKAY          := boolean parse configValue("POW_FUNCTION_OKAY");
-    conf.SQRT_FUNCTION_OKAY         := boolean parse configValue("SQRT_FUNCTION_OKAY");
-    conf.LOG_FUNCTION_OKAY          := boolean parse configValue("LOG_FUNCTION_OKAY");
-    conf.LOG10_FUNCTION_OKAY        := boolean parse configValue("LOG10_FUNCTION_OKAY");
-    conf.LOG2_FUNCTION_OKAY         := boolean parse configValue("LOG2_FUNCTION_OKAY");
-    conf.FREXP_INFINITY_NAN_OKAY    := boolean parse configValue("FREXP_INFINITY_NAN_OKAY");
-    conf.HAS_SIGSETJMP              := boolean parse configValue("HAS_SIGSETJMP");
-    conf.FLOAT_ZERO_DIV_ERROR       := boolean parse configValue("FLOAT_ZERO_DIV_ERROR");
-    conf.CHECK_INT_DIV_BY_ZERO      := boolean parse configValue("CHECK_INT_DIV_BY_ZERO");
-    conf.CHECK_INT_REM_BY_ZERO      := boolean parse configValue("CHECK_INT_REM_BY_ZERO");
-    conf.CHECK_INT_REM_ZERO_BY_ZERO := boolean parse configValue("CHECK_INT_REM_ZERO_BY_ZERO");
-    conf.HAS_EXP2                   := boolean parse configValue("HAS_EXP2");
-    conf.HAS_EXP10                  := boolean parse configValue("HAS_EXP10");
-    conf.HAS_CBRT                   := boolean parse configValue("HAS_CBRT");
-    conf.CHECK_FLOAT_DIV_BY_ZERO    := boolean parse configValue("CHECK_FLOAT_DIV_BY_ZERO");
-    conf.LIMITED_CSTRI_LITERAL_LEN  := boolean parse configValue("LIMITED_CSTRI_LITERAL_LEN");
-    conf.SWITCH_WORKS_FOR_INT64TYPE := boolean parse configValue("SWITCH_WORKS_FOR_INT64TYPE");
-    conf.CC_SOURCE_UTF8             := boolean parse configValue("CC_SOURCE_UTF8");
-    conf.USE_WMAIN                  := boolean parse configValue("USE_WMAIN");
-    conf.USE_WINMAIN                := boolean parse configValue("USE_WINMAIN");
-    conf.FLOATTYPE_DOUBLE           := boolean parse configValue("FLOATTYPE_DOUBLE");
-    conf.INTTYPE_SIZE               := integer parse configValue("INTTYPE_SIZE");
-    conf.FLOATTYPE_SIZE             := integer parse configValue("FLOATTYPE_SIZE");
-    conf.POINTER_SIZE               := integer parse configValue("POINTER_SIZE");
+    conf.WITH_STRI_CAPACITY         := boolean(configValue("WITH_STRI_CAPACITY"));
+    conf.ALLOW_STRITYPE_SLICES      := boolean(configValue("ALLOW_STRITYPE_SLICES"));
+    conf.ALLOW_BSTRITYPE_SLICES     := boolean(configValue("ALLOW_BSTRITYPE_SLICES"));
+    conf.RSHIFT_DOES_SIGN_EXTEND    := boolean(configValue("RSHIFT_DOES_SIGN_EXTEND"));
+    conf.TWOS_COMPLEMENT_INTTYPE    := boolean(configValue("TWOS_COMPLEMENT_INTTYPE"));
+    conf.LITTLE_ENDIAN_INTTYPE      := boolean(configValue("LITTLE_ENDIAN_INTTYPE"));
+    conf.NAN_COMPARISON_OKAY        := boolean(configValue("NAN_COMPARISON_OKAY"));
+    conf.POW_FUNCTION_OKAY          := boolean(configValue("POW_FUNCTION_OKAY"));
+    conf.SQRT_FUNCTION_OKAY         := boolean(configValue("SQRT_FUNCTION_OKAY"));
+    conf.LOG_FUNCTION_OKAY          := boolean(configValue("LOG_FUNCTION_OKAY"));
+    conf.LOG10_FUNCTION_OKAY        := boolean(configValue("LOG10_FUNCTION_OKAY"));
+    conf.LOG2_FUNCTION_OKAY         := boolean(configValue("LOG2_FUNCTION_OKAY"));
+    conf.FREXP_INFINITY_NAN_OKAY    := boolean(configValue("FREXP_INFINITY_NAN_OKAY"));
+    conf.HAS_SIGSETJMP              := boolean(configValue("HAS_SIGSETJMP"));
+    conf.FLOAT_ZERO_DIV_ERROR       := boolean(configValue("FLOAT_ZERO_DIV_ERROR"));
+    conf.CHECK_INT_DIV_BY_ZERO      := boolean(configValue("CHECK_INT_DIV_BY_ZERO"));
+    conf.CHECK_INT_REM_BY_ZERO      := boolean(configValue("CHECK_INT_REM_BY_ZERO"));
+    conf.CHECK_INT_REM_ZERO_BY_ZERO := boolean(configValue("CHECK_INT_REM_ZERO_BY_ZERO"));
+    conf.HAS_EXP2                   := boolean(configValue("HAS_EXP2"));
+    conf.HAS_EXP10                  := boolean(configValue("HAS_EXP10"));
+    conf.HAS_CBRT                   := boolean(configValue("HAS_CBRT"));
+    conf.CHECK_FLOAT_DIV_BY_ZERO    := boolean(configValue("CHECK_FLOAT_DIV_BY_ZERO"));
+    conf.LIMITED_CSTRI_LITERAL_LEN  := boolean(configValue("LIMITED_CSTRI_LITERAL_LEN"));
+    conf.SWITCH_WORKS_FOR_INT64TYPE := boolean(configValue("SWITCH_WORKS_FOR_INT64TYPE"));
+    conf.CC_SOURCE_UTF8             := boolean(configValue("CC_SOURCE_UTF8"));
+    conf.USE_WMAIN                  := boolean(configValue("USE_WMAIN"));
+    conf.USE_WINMAIN                := boolean(configValue("USE_WINMAIN"));
+    conf.FLOATTYPE_DOUBLE           := boolean(configValue("FLOATTYPE_DOUBLE"));
+    conf.INTTYPE_SIZE               := integer(configValue("INTTYPE_SIZE"));
+    conf.FLOATTYPE_SIZE             := integer(configValue("FLOATTYPE_SIZE"));
+    conf.POINTER_SIZE               := integer(configValue("POINTER_SIZE"));
     conf.GENERIC_SIZE               := max({conf.INTTYPE_SIZE, conf.FLOATTYPE_SIZE, conf.POINTER_SIZE});
-    conf.INT_SIZE                   := integer parse configValue("INT_SIZE");
-    conf.LONG_SIZE                  := integer parse configValue("LONG_SIZE");
-    conf.INT_RANGE_IN_FLOATTYPE_MAX := integer parse configValue("INT_RANGE_IN_FLOATTYPE_MAX");
+    conf.INT_SIZE                   := integer(configValue("INT_SIZE"));
+    conf.LONG_SIZE                  := integer(configValue("LONG_SIZE"));
+    conf.INT_RANGE_IN_FLOATTYPE_MAX := integer(configValue("INT_RANGE_IN_FLOATTYPE_MAX"));
     conf.BOOLTYPE                   := configValue("BOOLTYPE");
     conf.INT32TYPE                  := configValue("INT32TYPE");
     conf.UINT32TYPE                 := configValue("UINT32TYPE");
@@ -630,7 +630,7 @@ const func ccConfigType: getBuiltInConfig is func
     conf.EXECUTABLE_FILE_EXTENSION  := configValue("EXECUTABLE_FILE_EXTENSION");
     conf.C_COMPILER                 := configValue("C_COMPILER");
     conf.CPLUSPLUS_COMPILER         := configValue("CPLUSPLUS_COMPILER");
-    conf.CALL_C_COMPILER_FROM_SHELL := boolean parse configValue("CALL_C_COMPILER_FROM_SHELL");
+    conf.CALL_C_COMPILER_FROM_SHELL := boolean(configValue("CALL_C_COMPILER_FROM_SHELL"));
     conf.C_COMPILER_VERSION         := configValue("C_COMPILER_VERSION");
     conf.GET_CC_VERSION_INFO        := configValue("GET_CC_VERSION_INFO");
     conf.CC_OPT_DEBUG_INFO          := noEmptyStrings(split(configValue("CC_OPT_DEBUG_INFO"), ' '));
@@ -639,7 +639,7 @@ const func ccConfigType: getBuiltInConfig is func
     conf.CC_OPT_OPTIMIZE_2          := noEmptyStrings(split(configValue("CC_OPT_OPTIMIZE_2"), ' '));
     conf.CC_OPT_OPTIMIZE_3          := noEmptyStrings(split(configValue("CC_OPT_OPTIMIZE_3"), ' '));
     conf.CC_FLAGS                   := noEmptyStrings(split(configValue("CC_FLAGS"), ' '));
-    conf.CC_ERROR_FILDES            := integer parse configValue("CC_ERROR_FILDES");
+    conf.CC_ERROR_FILDES            := integer(configValue("CC_ERROR_FILDES"));
     conf.LINKER_OPT_DEBUG_INFO      := configValue("LINKER_OPT_DEBUG_INFO");
     conf.LINKER_OPT_NO_DEBUG_INFO   := configValue("LINKER_OPT_NO_DEBUG_INFO");
     conf.LINKER_OPT_OUTPUT_FILE     := configValue("LINKER_OPT_OUTPUT_FILE");

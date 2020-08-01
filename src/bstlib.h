@@ -37,6 +37,6 @@ objectType bst_hashcode (listType arguments);
 objectType bst_idx      (listType arguments);
 objectType bst_lng      (listType arguments);
 objectType bst_ne       (listType arguments);
-objectType bst_parse    (listType arguments);
+objectType bst_parse1   (listType arguments);
 objectType bst_str      (listType arguments);
 objectType bst_value    (listType arguments);

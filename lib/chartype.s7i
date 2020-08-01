@@ -42,6 +42,9 @@ const set of char: special_html_char is special_char - left_angle_bracket;
 const set of char: single_quotation_char is {'''};
 const set of char: double_quotation_char is {'"'};
 const set of char: sharp_char is {'#'};
+const set of char: hyphen_char is {'-'};
+const set of char: slash_char is {'/'};
+const set of char: special_sql_char is special_char - hyphen_char - slash_char;
 const set of char: paren_char is {'(', ')', '[', ']', '{', '}'};
 const set of char: left_paren_char is {'('};
 const set of char: other_paren_char is {')', '[', ']', '{', '}'};
@@ -93,3 +96,23 @@ const array string: esc_tab is [](
     (* h *) " ",  (* i *) " ",  (* j *) " ",  (* k *) " ",  (* l *) " ",
     (* m *) " ",  (* n *) "\n", (* o *) " ",  (* p *) " ",  (* q *) " ",
     (* r *) "\r", (* s *) " ",  (* t *) "\t", (* u *) " ",  (* v *) "\v");
+
+
+(**
+ *  Determine leftmost position of a char from ''chSet'' in ''stri''.
+ *  @return the position of a char from ''chSet'' or 0 when ''stri''
+ *          does not contain any character from ''chSet''.
+ *)
+const func integer: pos (in string: stri, in set of char: chSet) is func
+  result
+    var integer: pos is 0;
+  local
+    var char: ch is ' ';
+    var integer: index is 0;
+  begin
+    for ch key index range stri until pos <> 0 do
+      if ch in chSet then
+        pos := index;
+      end if;
+    end for;
+  end func;

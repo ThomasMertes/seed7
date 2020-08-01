@@ -570,7 +570,7 @@ const proc: warp_engines is func
       readln(command);
       if command <> "" then
         block
-          course := float parse command;
+          course := float(command);
           if course < 1.0 or course > 9.0 then
             raise RANGE_ERROR;
           end if;
@@ -591,7 +591,7 @@ const proc: warp_engines is func
         readln(command);
         if command <> "" then
           block
-            warp_factor := float parse command;
+            warp_factor := float(command);
             if warp_factor > 12.0 then
               writeln("   Chief engineer Scott: 'The engines won't take " <& command <& "!'");
             elsif warp_factor > 0.2 and damage[WARP_ENGINES] > 0 then
@@ -713,7 +713,7 @@ const proc: phasers is func
         readln(command);
         if command <> "" then
           block
-            phaser_energy := float parse command;
+            phaser_energy := float(command);
             if phaser_energy < 0.0 then
               raise RANGE_ERROR;
             end if;
@@ -833,7 +833,7 @@ const proc: photon_torpedoes is func
           readln(command);
           if command <> "" then
             block
-              course := float parse command;
+              course := float(command);
               if course < 1.0 or course > 9.0 then
                 raise RANGE_ERROR;
               end if;

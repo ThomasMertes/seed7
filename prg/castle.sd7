@@ -64,7 +64,7 @@ const func string: str (in directionType: direction) is
   return str(ord(direction));
 
 const func directionType: (attr directionType) parse (in string: stri) is
-  return directionType conv (integer parse stri);
+  return directionType conv (integer(stri));
 
 enable_io(directionType);
 
@@ -147,7 +147,7 @@ const func string: str (in itemSet: aSet) is
   return str(bitset conv aSet);
 
 const func itemSet: (attr itemSet) parse (in string: stri) is
-  return itemSet conv (bitset parse stri);
+  return itemSet conv (bitset(stri));
 
 enable_io(itemSet);
 

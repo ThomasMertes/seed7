@@ -47,7 +47,7 @@ const proc: longFileListing (inout fileSys: aFileSys, in var string: directory) 
     var string: filePath is "";
     var boolean: continue is TRUE;
     var string: line is "";
-    var fileType: aFileType is FILE_ABSENT; 
+    var fileType: aFileType is FILE_ABSENT;
     var time: modificationTime is time.value;
     const string: fileTypeIndicator is " ?-dcbfls";
     const array string: monthName is [1] (
@@ -262,7 +262,7 @@ const proc: main is func
       IN := openEditLine(KEYBOARD, OUT);
       if length(argv(PROGRAM)) >= 2 and isDigitString(argv(PROGRAM)[2]) then
         block
-          ftpControlPort := integer parse (argv(PROGRAM)[2]);
+          ftpControlPort := integer(argv(PROGRAM)[2]);
         exception
           catch RANGE_ERROR: writeln(" ***** Port number too big. Port " <&
               defaultFtpControlPort <& " used instead.");

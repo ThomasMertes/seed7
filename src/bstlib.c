@@ -445,13 +445,13 @@ objectType bst_ne (listType arguments)
  *  @exception RANGE_ERROR When characters beyond '\255;' are present.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  */
-objectType bst_parse (listType arguments)
+objectType bst_parse1 (listType arguments)
 
-  { /* bst_parse */
-    isit_stri(arg_3(arguments));
+  { /* bst_parse1 */
+    isit_stri(arg_1(arguments));
     return bld_bstri_temp(
-        bstParse(take_stri(arg_3(arguments))));
-  } /* bst_parse */
+        bstParse(take_stri(arg_1(arguments))));
+  } /* bst_parse1 */
 
 
 

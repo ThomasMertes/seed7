@@ -717,16 +717,16 @@ const func string: (in rational: number) sci (in integer: precision) is func
  *  with a slash (/). A decimal number can have repeating decimals,
  *  which are enclosed in parentheses ("e.g.: "0.(3)"). The repeating
  *  decimals are not allowed to start before the decimal point.
- *   rational parse "3/5"         returns   3 /   5
- *   rational parse "1.25"        returns   5 /   4
- *   rational parse "0.(3)"       returns   1 /   3
- *   rational parse "1.23(45)"    returns 679 / 550
- *   rational parse "3.(142857)"  returns  22 /   7
- *   rational parse "0.(846153)"  returns  11 /  13
+ *   rational("3/5")         returns   3 /   5
+ *   rational("1.25")        returns   5 /   4
+ *   rational("0.(3)")       returns   1 /   3
+ *   rational("1.23(45)")    returns 679 / 550
+ *   rational("3.(142857)")  returns  22 /   7
+ *   rational("0.(846153)")  returns  11 /  13
  *  @return the ''rational'' result of the conversion.
  *  @exception RANGE_ERROR When stri contains not a valid ''rational'' value.
  *)
-const func rational: (attr rational) parse (in var string: stri) is func
+const func rational: rational (in var string: stri) is func
   result
     var rational: aRational is rational.value;
   local
@@ -741,10 +741,10 @@ const func rational: (attr rational) parse (in var string: stri) is func
       elsif stri[1] = '+' then
         stri := stri[2 ..];
       end if;
-      aRational.numerator := integer parse getint(stri);
+      aRational.numerator := integer(getint(stri));
       if stri[1] = '/' then
         stri := stri[2 ..];
-        aRational.denominator := integer parse getint(stri);
+        aRational.denominator := integer(getint(stri));
         reduce(aRational);
       elsif stri[1] = '.' then
         stri := stri[2 ..];
@@ -752,7 +752,7 @@ const func rational: (attr rational) parse (in var string: stri) is func
           stri := stri[2 ..];
           period := getint(stri);
           aRational.denominator := 1;
-          aRational +:= integer parse period / pred(10 ** length(period));
+          aRational +:= integer(period) / pred(10 ** length(period));
           if stri[1] = ')' then
             stri := stri[2 ..];
           end if;
@@ -760,11 +760,11 @@ const func rational: (attr rational) parse (in var string: stri) is func
           fraction := getint(stri);
           aRational.denominator := 10 ** length(fraction);
           aRational.numerator *:= aRational.denominator;
-          aRational.numerator +:= integer parse fraction;
+          aRational.numerator +:= integer(fraction);
           if startsWith(stri, "(") then
             stri := stri[2 ..];
             period := getint(stri);
-            aRational +:= integer parse period / (pred(10 ** length(period)) * aRational.denominator);
+            aRational +:= integer(period) / (pred(10 ** length(period)) * aRational.denominator);
             if stri[1] = ')' then
               stri := stri[2 ..];
             end if;
@@ -799,8 +799,8 @@ const func rational: (attr rational) parse (in var string: stri) is func
  *  @return the ''rational'' result of the conversion.
  *  @exception RANGE_ERROR When stri contains not a valid ''rational'' value.
  *)
-const func rational: rational (in string: stri) is
-    return rational parse stri;
+const func rational: (attr rational) parse (in string: stri) is
+    return rational(stri);
 
 
 enable_io(rational);

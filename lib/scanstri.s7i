@@ -108,6 +108,30 @@ const func string: getComment (inout string: stri) is func
 
 
 (**
+ *  Skips a classic C comment from a [[string]].
+ *  The comment starts with /* and ends with */ . In a classic
+ *  C comment no nesting of comments is allowed. When the function
+ *  is called it is assumed that stri[1] contains the '*'
+ *  of the comment start.  When the function is left ''stri''
+ *  is empty or stri[1] contains the character after the '/'.
+ *)
+const proc: skipClassicComment (inout string: stri) is func
+  local
+    var integer: leng is 0;
+    var integer: pos is 2;
+  begin
+    leng := length(stri);
+    repeat
+      while pos <= leng and stri[pos] <> '*' do
+        incr(pos);
+      end while;
+      incr(pos);
+    until pos > leng or stri[pos] = '/';
+    stri := stri[succ(pos) ..];
+  end func;
+
+
+(**
  *  Skips a line comment from a [[string]].
  *  A line comment starts with an introducing character (like '#')
  *  and ends with the end of the line. When the function is called
@@ -381,6 +405,50 @@ const func string: getCommandLineWord (inout string: stri) is func
       end if;
     end while;
     stri := stri[succ(pos) ..];
+  end func;
+
+
+(**
+ *  Read a simple [[string]] literal from a [[string]].
+ *  A simple string literal is enclosed in delimiter characters
+ *  (e.g. " or ' ). Delimiter characters within the simple string
+ *  literal must be doubled. A simple string literal does not
+ *  support an escape character. All characters, including control
+ *  characters (e.g. linefeed) are allowed inside a simple string
+ *  literal. When the function is called it is assumed that
+ *  stri[1] contains the introducing delimiter character.
+ *  When the function is left ''stri'' is empty or stri[1]
+ *  contains the character after the closing delimiter.
+ *  @return the string literal including the introducing and
+ *          closing delimiter character. Double delimiter chars in
+ *          the literal are converted to single delimiter chars.
+ *)
+const func string: getSimpleStringLiteral (inout string: stri) is func
+  result
+    var string: symbol is "";
+  local
+    var char: delimiter is ' ';
+    var integer: leng is 0;
+    var integer: pos is 1;
+  begin
+    leng := length(stri);
+    delimiter := stri[1];
+    symbol := str(delimiter);
+    repeat
+      incr(pos);
+      while pos <= leng and stri[pos] <> delimiter do
+        symbol &:= stri[pos];
+        incr(pos);
+      end while;
+      if pos <= leng then
+        incr(pos);
+        if pos <= leng and stri[pos] = delimiter then
+          symbol &:= delimiter;
+        end if;
+      end if;
+    until pos > leng or stri[pos] <> delimiter;
+    symbol &:= delimiter;
+    stri := stri[pos ..];
   end func;
 
 

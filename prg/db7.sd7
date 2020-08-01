@@ -219,7 +219,7 @@ const proc: doExecute (inout browserConnection: browser, in database: currDb,
 const proc: doCatalog (inout browserConnection: browser, in database: currDb) is func
   local
     var array string: tableNames is 0 times "";
-    var radioButton: tableRadioButton is radioButton.value;
+    var selection: tableList is selection.value;
     var textField: numOfLines is textField("", 10);
     var textField: maxColumnWidth is textField("", 10);
     var integer: numLines is 10;
@@ -230,7 +230,7 @@ const proc: doCatalog (inout browserConnection: browser, in database: currDb) is
     var webPage: catalogWebPage is webPage.value;
   begin
     tableNames := sort(getTableNames(currDb, driver(currDb)));
-    tableRadioButton := radioButton(tableNames);
+    tableList := selection(min(20, length(tableNames)), tableNames);
     catalogWebPage := webForm("DB7",
         dialogColumn(
           image(readBmp("header3.bmp")) &
@@ -239,21 +239,24 @@ const proc: doCatalog (inout browserConnection: browser, in database: currDb) is
           vspace(20) &
           dialogSequence(execute & returnButton & reset & logout & exit) &
           vspace(20) &
-          dialogSequence(label("Number of rows:") & numOfLines) &
-          vspace(20) &
-          dialogSequence(label("Maximum column width:") & maxColumnWidth) &
-          vspace(20) &
-          tableRadioButton
+          dialogRow(tableList &
+                    space(10) &
+                    dialogColumn(dialogSequence(label("Number of rows:") & numOfLines) &
+                                 vspace(20) &
+                                 dialogSequence(label("Maximum column width:") & maxColumnWidth) &
+                                 vspace(160)
+                                )
+                   )
         ));
     repeat
       numOfLines.content := str(numLines);
       maxColumnWidth.content := str(maxWidth);
       display(browser, catalogWebPage);
-      if not succeeds(numLines := integer parse (numOfLines.content)) then
+      if not succeeds(numLines := integer(numOfLines.content)) then
         displayMessage(browser, "Error", "Number of rows is not a number.");
         execute.activated := FALSE;
       end if;
-      if not succeeds(maxWidth := integer parse (maxColumnWidth.content)) then
+      if not succeeds(maxWidth := integer(maxColumnWidth.content)) then
         displayMessage(browser, "Error", "Maximum column width is not a number.");
         execute.activated := FALSE;
       end if;
@@ -262,7 +265,7 @@ const proc: doCatalog (inout browserConnection: browser, in database: currDb) is
       elsif maxWidth <= 0 then
         displayMessage(browser, "Error", "Maximum column width is less than or equal 0.");
       elsif execute.activated then
-        doExecute(browser, currDb, "SELECT * FROM " & tableRadioButton.selected, numLines, maxWidth);
+        doExecute(browser, currDb, "SELECT * FROM " & tableList.selected, numLines, maxWidth);
       end if;
     until returnButton.activated or logout.activated or exit.activated;
   end func;
@@ -297,11 +300,11 @@ const proc: doStatements (inout browserConnection: browser, in database: currDb)
       numOfLines.content := str(numLines);
       maxColumnWidth.content := str(maxWidth);
       display(browser, selectWebPage);
-      if not succeeds(numLines := integer parse (numOfLines.content)) then
+      if not succeeds(numLines := integer(numOfLines.content)) then
         displayMessage(browser, "Error", "Number of rows is not a number.");
         execute.activated := FALSE;
       end if;
-      if not succeeds(maxWidth := integer parse (maxColumnWidth.content)) then
+      if not succeeds(maxWidth := integer(maxColumnWidth.content)) then
         displayMessage(browser, "Error", "Maximum column width is not a number.");
         execute.activated := FALSE;
       end if;
@@ -356,7 +359,7 @@ const func database: doLogin (inout browserConnection: browser) is func
           ));
       display(browser, loginWebPage);
       if login.activated then
-        driver := dbCategory parse (driverRadioButton.selected);
+        driver := dbCategory(driverRadioButton.selected);
         if driver = NO_DB then
           displayMessage(browser, "Driver Error",
                          "No database type selected.");

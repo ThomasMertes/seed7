@@ -351,8 +351,8 @@ static void copy_file (const const_os_striType from_name,
               logError(printf("copy_file(\"" FMT_S_OS "\", \"" FMT_S_OS "\"): "
                               "fwrite(*, 1, " FMT_U_MEM ", %d) failed:\n"
                               "errno=%d\nerror: %s\n",
-                              from_name, to_name, bytes_read, safe_fileno(to_file),
-                              errno, strerror(errno)););
+                              from_name, to_name, (memSizeType) bytes_read,
+                              safe_fileno(to_file), errno, strerror(errno)););
               *err_info = FILE_ERROR;
             } /* if */
           } /* while */

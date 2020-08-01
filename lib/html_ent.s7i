@@ -360,7 +360,7 @@ const func string: decodeHtmlEntities (in string: stri) is func
         entityName := stri[succ(new_pos) .. pred(semicol_pos)];
         if length(entityName) >= 2 and entityName[1] = '#' and
             isDigitString(entityName[2 ..]) then
-          charValue := chr(integer parse (entityName[2 ..]));
+          charValue := chr(integer(entityName[2 ..]));
           decoded &:= stri[old_pos .. pred(new_pos)];
           decoded &:= str(charValue);
           old_pos := succ(semicol_pos);

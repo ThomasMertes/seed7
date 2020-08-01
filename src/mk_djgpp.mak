@@ -81,10 +81,14 @@ COMPILER_LIB_SRC = $(PSRC) $(LSRC) $(ESRC) $(ASRC) $(GSRC)
 
 s7: ..\bin\s7.exe ..\prg\s7.exe
 	..\bin\s7 -l ..\lib level
-	$(ECHO) "  Use 'make s7c' (with your make command) to create the compiler."
+	@$(ECHO)
+	@$(ECHO) "  Use 'make s7c' (with your make command) to create the compiler."
+	@$(ECHO)
 
 s7c: ..\bin\s7c.exe ..\prg\s7c.exe
-	$(ECHO) "  Use 'make test' (with your make command) to check Seed7."
+	@$(ECHO)
+	@$(ECHO) "  Use 'make test' (with your make command) to check Seed7."
+	@$(ECHO)
 
 ..\bin\s7.exe: $(OBJ) $(ALL_S7_LIBS)
 	$(CC) $(LDFLAGS) $(OBJ) $(ALL_S7_LIBS) $(SYSTEM_DRAW_LIBS) $(SYSTEM_CONSOLE_LIBS) $(SYSTEM_LIBS) -o ..\bin\s7.exe
@@ -110,7 +114,9 @@ clean:
 	del depend
 	del chkccomp.h
 	del version.h
-	$(ECHO) "  Use 'make depend' (with your make command) to create the dependencies."
+	@$(ECHO)
+	@$(ECHO) "  Use 'make depend' (with your make command) to create the dependencies."
+	@$(ECHO)
 
 distclean: clean
 	copy level_bk.h level.h /Y
@@ -150,7 +156,8 @@ version.h: chkccomp.h
 	$(ECHO) "#define SYSTEM_CONSOLE_LIBS \"$(SYSTEM_CONSOLE_LIBS)\"" >> version.h
 	$(ECHO) "#define SYSTEM_DRAW_LIBS \"$(SYSTEM_DRAW_LIBS)\"" >> version.h
 	$(CC) chkccomp.c -o chkccomp.exe
-	$(ECHO) "The following C compiler errors can be safely ignored"
+	@$(ECHO)
+	@$(ECHO) "The following C compiler errors can be safely ignored"
 	.\chkccomp.exe version.h
 	del chkccomp.exe
 	del cc_vers.txt
@@ -165,8 +172,10 @@ version.h: chkccomp.h
 	del setpaths.exe
 
 depend: version.h
-	$(ECHO) "Working without C header dependency checks."
-	$(ECHO) "  Use 'make' (with your make command) to create the interpreter."
+	@$(ECHO) "Working without C header dependency checks."
+	@$(ECHO)
+	@$(ECHO) "  Use 'make' (with your make command) to create the interpreter."
+	@$(ECHO)
 
 level.h:
 	..\bin\s7 -l ..\lib level
@@ -194,17 +203,17 @@ make7: ..\bin\make7.exe
 	del ..\prg\make7.exe
 
 wc: $(SRC)
-	$(ECHO) SRC:
+	@$(ECHO) SRC:
 	wc $(SRC)
-	$(ECHO) SEED7_LIB_SRC:
+	@$(ECHO) SEED7_LIB_SRC:
 	wc $(SEED7_LIB_SRC)
-	$(ECHO) CONSOLE_LIB_SRC:
+	@$(ECHO) CONSOLE_LIB_SRC:
 	wc $(CONSOLE_LIB_SRC)
-	$(ECHO) DRAW_LIB_SRC:
+	@$(ECHO) DRAW_LIB_SRC:
 	wc $(DRAW_LIB_SRC)
-	$(ECHO) COMP_DATA_LIB_SRC:
+	@$(ECHO) COMP_DATA_LIB_SRC:
 	wc $(COMP_DATA_LIB_SRC)
-	$(ECHO) COMPILER_LIB_SRC:
+	@$(ECHO) COMPILER_LIB_SRC:
 	wc $(COMPILER_LIB_SRC)
 
 lint: $(SRC)

@@ -57,7 +57,7 @@ const proc: read_number (in string: prompt, inout integer: number, inout boolean
         okay := TRUE;
       else
         block
-          number := integer parse stri;
+          number := integer(stri);
           okay := TRUE;
         exception
           catch RANGE_ERROR:

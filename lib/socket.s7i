@@ -111,7 +111,7 @@ const func string: service (in socket: aSocket) is
 
 const func integer: port (in file: aFile) is DYNAMIC;
 const func integer: port (in socket: aSocket) is
-  return integer parse service(aSocket.addr);
+  return integer(service(aSocket.addr));
 
 const func integer: ord (in file: aFile) is DYNAMIC;
 const func integer: ord (in socket: aSocket) is

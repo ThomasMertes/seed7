@@ -63,6 +63,7 @@ typedef struct {
     sqlFuncType  sqlFunc;
     intType      driver;
     MYSQL       *connection;
+    boolType     backslashEscapes;
   } dbRecord, *dbType;
 
 typedef struct {
@@ -72,6 +73,7 @@ typedef struct {
 
 typedef struct {
     char         *name;
+    boolType      binary;
   } resultDataRecord, *resultDataType;
 
 typedef struct {
@@ -109,7 +111,7 @@ static sqlFuncType sqlFunc = NULL;
 #ifdef MYSQL_DLL
 
 #ifndef STDCALL
-#if defined(_WIN32)
+#if defined(_WIN32) && HAS_STDCALL
 #define STDCALL __stdcall
 #else
 #define STDCALL
@@ -404,48 +406,88 @@ static const char *nameOfBufferType (int buffer_type)
 
 
 /**
- *  Replace backslashes (\) by double backslashes (\\) in strings.
- *  The strings are delimited by single quotes (') or double quotes (").
- *  This way a backslash in a SQL statement has no special meaning
- *  (like it is common practice in all other SQL databases).
+ *  Process strings delimited by single quotes (') and double quotes (").
+ *  Depending on the parameter backslashEscapes backslashes (\) are
+ *  replaced with double backslashes (\\) in strings, that are delimited
+ *  by single quotes ('). This way a backslash in a SQL statement has no
+ *  special meaning (like it is common practice in other SQL databases).
+ *  Strings delimited with double quotes (") are converted into
+ *  strings, that are delimited with a backtick (`). This way
+ *  identifiers in a SQL statement can be enclosed in double
+ *  quotes (") (like it is common proctice in other SQL databases).
  *  The function processes (and removes) also comments, to avoid that
  *  a quote (') inside a comment is misinterpreted as literal.
  *  This processing does not prohibit any form of SQL injection.
  *  It is strongly recommended that string literals in SQL statements
  *  are constant and never be constructed with data from outside.
  */
-static striType processStatementStri (const const_striType sqlStatementStri)
+static striType processStatementStri (const const_striType sqlStatementStri,
+    boolType backslashEscapes)
 
   {
     memSizeType pos = 0;
     strElemType ch;
-    strElemType delimiter;
     memSizeType destPos = 0;
     striType processed;
 
   /* processStatementStri */
-    logFunction(printf("processStatementStri(\"%s\")\n",
-                       striAsUnquotedCStri(sqlStatementStri)););
+    logFunction(printf("processStatementStri(\"%s\", %d)\n",
+                       striAsUnquotedCStri(sqlStatementStri), backslashEscapes););
     if (unlikely(sqlStatementStri->size > MAX_STRI_LEN / 2 ||
                  !ALLOC_STRI_SIZE_OK(processed, sqlStatementStri->size * 2))) {
       processed = NULL;
     } else {
       while (pos < sqlStatementStri->size) {
         ch = sqlStatementStri->mem[pos];
-        if (ch == '\'' || ch == '"') {
-          delimiter = ch;
-          processed->mem[destPos++] = delimiter;
+        if (ch == '\'') {
+          processed->mem[destPos++] = '\'';
           pos++;
           while (pos < sqlStatementStri->size &&
-              (ch = sqlStatementStri->mem[pos]) != delimiter) {
-            if (ch == '\\') {
+              (ch = sqlStatementStri->mem[pos]) != '\'') {
+            if (ch == '\\' && backslashEscapes) {
               processed->mem[destPos++] = ch;
             } /* if */
             processed->mem[destPos++] = ch;
             pos++;
           } /* while */
           if (pos < sqlStatementStri->size) {
-            processed->mem[destPos++] = delimiter;
+            processed->mem[destPos++] = '\'';
+            pos++;
+          } /* if */
+        } else if (ch == '"') {
+          processed->mem[destPos++] = '`';
+          pos++;
+          do {
+            while (pos < sqlStatementStri->size &&
+                (ch = sqlStatementStri->mem[pos]) != '"') {
+              if (ch == '`') {
+                processed->mem[destPos++] = ch;
+              } /* if */
+              processed->mem[destPos++] = ch;
+              pos++;
+            } /* while */
+            if (pos < sqlStatementStri->size) {
+              pos++;
+              if (pos < sqlStatementStri->size &&
+                  (ch = sqlStatementStri->mem[pos]) == '"') {
+                processed->mem[destPos++] = '"';
+                pos++;
+              } /* if */
+            } /* if */
+          } while (pos < sqlStatementStri->size && ch == '"');
+          if (pos < sqlStatementStri->size) {
+            processed->mem[destPos++] = '`';
+          } /* if */
+        } else if (ch == '`') {
+          processed->mem[destPos++] = '`';
+          pos++;
+          while (pos < sqlStatementStri->size &&
+              (ch = sqlStatementStri->mem[pos]) != '`') {
+            processed->mem[destPos++] = ch;
+            pos++;
+          } /* while */
+          if (pos < sqlStatementStri->size) {
+            processed->mem[destPos++] = '`';
             pos++;
           } /* if */
         } else if (ch == '/') {
@@ -532,6 +574,7 @@ static errInfoType setupResultColumn (preparedStmtType preparedStmt,
   /* setupResultColumn */
     column = mysql_fetch_field_direct(result_metadata, column_num - 1);
     /* printf("column[%u]->type: %s\n", column_num, nameOfBufferType(column->type)); */
+    /* printf("charsetnr: %u\n", column->charsetnr); */
     switch (column->type) {
       case MYSQL_TYPE_TINY:
         buffer_length = 1;
@@ -614,10 +657,14 @@ static errInfoType setupResultColumn (preparedStmtType preparedStmt,
           resultData->is_null = &resultData->is_null_value;
           resultData->is_null_value = 0;
           preparedStmt->result_data_array[column_num - 1].name = column->name;
+          /* A charsetnr value of 63 indicates that the          */
+          /* character set is binary. This allows to distinguish */
+          /* BINARY from CHAR, and VARBINARY from VARCHAR.       */
+          preparedStmt->result_data_array[column_num - 1].binary = column->charsetnr == 63;
         } /* if */
       } else {
         /* This triggers that mysql_stmt_fetch() returns MYSQL_DATA_TRUNCATED. */
-        /* Only BLOBs will have a buffer of NULL. */
+        /* Only BLOBs and CLOBs will have a buffer of NULL. */
         resultData->buffer = NULL;
         resultData->buffer_type   = column->type;
         resultData->buffer_length = 0;
@@ -625,6 +672,10 @@ static errInfoType setupResultColumn (preparedStmtType preparedStmt,
         resultData->is_null = &resultData->is_null_value;
         resultData->is_null_value = 0;
         preparedStmt->result_data_array[column_num - 1].name = column->name;
+        /* A charsetnr value of 63 indicates that the */
+        /* character set is binary. This allows to    */
+        /* distinguish BLOB types from TEXT types.    */
+        preparedStmt->result_data_array[column_num - 1].binary = column->charsetnr == 63;
       } /* if */
     } /* if */
     return err_info;
@@ -1692,45 +1743,52 @@ static bstriType sqlColumnBStri (sqlStmtType sqlStatement, intType column)
           case MYSQL_TYPE_BLOB:
           case MYSQL_TYPE_MEDIUM_BLOB:
           case MYSQL_TYPE_LONG_BLOB:
-            length = columnData->length_value;
-            /* printf("length: %lu\n", length); */
-            if (length > 0) {
-              if (unlikely(!ALLOC_BSTRI_CHECK_SIZE(columnValue, length))) {
-                raise_error(MEMORY_ERROR);
-                columnValue = NULL;
-              } else {
-                columnData->buffer = columnValue->mem;
-                columnData->buffer_length = length;
-                if (unlikely(mysql_stmt_fetch_column(preparedStmt->ppStmt,
-                                                     preparedStmt->result_array,
-                                                     (unsigned int) column - 1,
-                                                     0) != 0)) {
-                  setDbErrorMsg("sqlColumnBStri", "mysql_stmt_fetch_column",
-                                mysql_stmt_errno(preparedStmt->ppStmt),
-                                mysql_stmt_error(preparedStmt->ppStmt));
-                  logError(printf("sqlColumnBStri: mysql_stmt_fetch_column error: %s\n",
-                                  mysql_stmt_error(preparedStmt->ppStmt)););
-                  columnData->buffer = NULL;
-                  columnData->buffer_length = 0;
-                  FREE_BSTRI(columnValue, length);
-                  raise_error(DATABASE_ERROR);
+            if (!preparedStmt->result_data_array[column - 1].binary) {
+              logError(printf("sqlColumnBStri: Column " FMT_D " is a CLOB.\n",
+                              column););
+              raise_error(RANGE_ERROR);
+              columnValue = NULL;
+            } else {
+              length = columnData->length_value;
+              /* printf("length: %lu\n", length); */
+              if (length > 0) {
+                if (unlikely(!ALLOC_BSTRI_CHECK_SIZE(columnValue, length))) {
+                  raise_error(MEMORY_ERROR);
                   columnValue = NULL;
                 } else {
-                  columnValue->size = length;
-                  /* Restore the state that no buffer is provided.  */
-                  /* This way mysql_stmt_fetch() will not fetch     */
-                  /* data. Instead mysql_stmt_fetch() returns       */
-                  /* MYSQL_DATA_TRUNCATED, which is ignored by      */
-                  /* sqlFetch().                                    */
-                  columnData->buffer = NULL;
-                  columnData->buffer_length = 0;
+                  columnData->buffer = columnValue->mem;
+                  columnData->buffer_length = length;
+                  if (unlikely(mysql_stmt_fetch_column(preparedStmt->ppStmt,
+                                                       preparedStmt->result_array,
+                                                       (unsigned int) column - 1,
+                                                       0) != 0)) {
+                    setDbErrorMsg("sqlColumnBStri", "mysql_stmt_fetch_column",
+                                  mysql_stmt_errno(preparedStmt->ppStmt),
+                                  mysql_stmt_error(preparedStmt->ppStmt));
+                    logError(printf("sqlColumnBStri: mysql_stmt_fetch_column error: %s\n",
+                                    mysql_stmt_error(preparedStmt->ppStmt)););
+                    columnData->buffer = NULL;
+                    columnData->buffer_length = 0;
+                    FREE_BSTRI(columnValue, length);
+                    raise_error(DATABASE_ERROR);
+                    columnValue = NULL;
+                  } else {
+                    columnValue->size = length;
+                    /* Restore the state that no buffer is provided.  */
+                    /* This way mysql_stmt_fetch() will not fetch     */
+                    /* data. Instead mysql_stmt_fetch() returns       */
+                    /* MYSQL_DATA_TRUNCATED, which is ignored by      */
+                    /* sqlFetch().                                    */
+                    columnData->buffer = NULL;
+                    columnData->buffer_length = 0;
+                  } /* if */
                 } /* if */
-              } /* if */
-            } else {
-              if (unlikely(!ALLOC_BSTRI_SIZE_OK(columnValue, 0))) {
-                raise_error(MEMORY_ERROR);
               } else {
-                columnValue->size = 0;
+                if (unlikely(!ALLOC_BSTRI_SIZE_OK(columnValue, 0))) {
+                  raise_error(MEMORY_ERROR);
+                } else {
+                  columnValue->size = 0;
+                } /* if */
               } /* if */
             } /* if */
             break;
@@ -1995,7 +2053,7 @@ static striType sqlColumnStri (sqlStmtType sqlStatement, intType column)
   {
     preparedStmtType preparedStmt;
     MYSQL_BIND *columnData;
-    const_cstriType utf8_stri;
+    cstriType utf8_stri;
     memSizeType length;
     errInfoType err_info = OKAY_NO_ERROR;
     striType columnValue;
@@ -2023,7 +2081,7 @@ static striType sqlColumnStri (sqlStmtType sqlStatement, intType column)
         switch (columnData->buffer_type) {
           case MYSQL_TYPE_VAR_STRING:
           case MYSQL_TYPE_STRING:
-            utf8_stri = (const_cstriType) columnData->buffer;
+            utf8_stri = (cstriType) columnData->buffer;
             length = columnData->length_value;
             if (utf8_stri == NULL) {
               columnValue = strEmpty();
@@ -2041,38 +2099,64 @@ static striType sqlColumnStri (sqlStmtType sqlStatement, intType column)
             length = columnData->length_value;
             /* printf("length: %lu\n", length); */
             if (length > 0) {
-              if (unlikely(!ALLOC_STRI_CHECK_SIZE(columnValue, length))) {
-                raise_error(MEMORY_ERROR);
-                columnValue = NULL;
+              if (preparedStmt->result_data_array[column - 1].binary) {
+                if (unlikely(!ALLOC_STRI_CHECK_SIZE(columnValue, length))) {
+                  err_info = MEMORY_ERROR;
+                } else {
+                  columnData->buffer = columnValue->mem;
+                  columnData->buffer_length = length;
+                  if (unlikely(mysql_stmt_fetch_column(preparedStmt->ppStmt,
+                                                       preparedStmt->result_array,
+                                                       (unsigned int) column - 1,
+                                                       0) != 0)) {
+                    setDbErrorMsg("sqlColumnStri", "mysql_stmt_fetch_column",
+                                  mysql_stmt_errno(preparedStmt->ppStmt),
+                                  mysql_stmt_error(preparedStmt->ppStmt));
+                    logError(printf("sqlColumnStri: mysql_stmt_fetch_column error: %s\n",
+                                    mysql_stmt_error(preparedStmt->ppStmt)););
+                    FREE_STRI(columnValue, length);
+                    err_info = DATABASE_ERROR;
+                  } else {
+                    columnValue->size = length;
+                    memcpy_to_strelem(columnValue->mem,
+                        (ustriType) columnValue->mem, length);
+                  } /* if */
+                } /* if */
               } else {
-                columnData->buffer = columnValue->mem;
-                columnData->buffer_length = length;
-                if (unlikely(mysql_stmt_fetch_column(preparedStmt->ppStmt,
-                                                     preparedStmt->result_array,
-                                                     (unsigned int) column - 1,
-                                                     0) != 0)) {
-                  setDbErrorMsg("sqlColumnStri", "mysql_stmt_fetch_column",
-                                mysql_stmt_errno(preparedStmt->ppStmt),
-                                mysql_stmt_error(preparedStmt->ppStmt));
-                  logError(printf("sqlColumnStri: mysql_stmt_fetch_column error: %s\n",
-                                  mysql_stmt_error(preparedStmt->ppStmt)););
-                  columnData->buffer = NULL;
-                  columnData->buffer_length = 0;
-                  FREE_STRI(columnValue, length);
-                  raise_error(DATABASE_ERROR);
+                if (unlikely(!ALLOC_BYTES(utf8_stri, length))) {
+                  err_info = MEMORY_ERROR;
                   columnValue = NULL;
                 } else {
-                  columnValue->size = length;
-                  memcpy_to_strelem(columnValue->mem,
-                      (ustriType) columnValue->mem, length);
-                  /* Restore the state that no buffer is provided.  */
-                  /* This way mysql_stmt_fetch() will not fetch     */
-                  /* data. Instead mysql_stmt_fetch() returns       */
-                  /* MYSQL_DATA_TRUNCATED, which is ignored by      */
-                  /* sqlFetch().                                    */
-                  columnData->buffer = NULL;
-                  columnData->buffer_length = 0;
+                  columnData->buffer = utf8_stri;
+                  columnData->buffer_length = length;
+                  if (unlikely(mysql_stmt_fetch_column(preparedStmt->ppStmt,
+                                                       preparedStmt->result_array,
+                                                       (unsigned int) column - 1,
+                                                       0) != 0)) {
+                    setDbErrorMsg("sqlColumnStri", "mysql_stmt_fetch_column",
+                                  mysql_stmt_errno(preparedStmt->ppStmt),
+                                  mysql_stmt_error(preparedStmt->ppStmt));
+                    logError(printf("sqlColumnStri: mysql_stmt_fetch_column error: %s\n",
+                                    mysql_stmt_error(preparedStmt->ppStmt)););
+                    FREE_BYTES(utf8_stri, length);
+                    err_info = DATABASE_ERROR;
+                    columnValue = NULL;
+                  } else {
+                    columnValue = cstri8_buf_to_stri(utf8_stri, length, &err_info);
+                    FREE_BYTES(utf8_stri, length);
+                  } /* if */
                 } /* if */
+              } /* if */
+              /* Restore the state that no buffer is provided.  */
+              /* This way mysql_stmt_fetch() will not fetch     */
+              /* data. Instead mysql_stmt_fetch() returns       */
+              /* MYSQL_DATA_TRUNCATED, which is ignored by      */
+              /* sqlFetch().                                    */
+              columnData->buffer = NULL;
+              columnData->buffer_length = 0;
+              if (unlikely(err_info != OKAY_NO_ERROR)) {
+                raise_error(err_info);
+                columnValue = NULL;
               } /* if */
             } else {
               columnValue = strEmpty();
@@ -2363,7 +2447,7 @@ static sqlStmtType sqlPrepare (databaseType database, striType sqlStatementStri)
       err_info = RANGE_ERROR;
       preparedStmt = NULL;
     } else {
-      statementStri = processStatementStri(sqlStatementStri);
+      statementStri = processStatementStri(sqlStatementStri, db->backslashEscapes);
       if (unlikely(statementStri == NULL)) {
         err_info = MEMORY_ERROR;
         preparedStmt = NULL;
@@ -2507,6 +2591,85 @@ static striType sqlStmtColumnName (sqlStmtType sqlStatement, intType column)
 
 
 
+#if 0
+static rtlTypeType sqlStmtColumnType (sqlStmtType sqlStatement, intType column)
+
+  {
+    preparedStmtType preparedStmt;
+    const_cstriType col_name;
+    errInfoType err_info = OKAY_NO_ERROR;
+    rtlTypeType columnType;
+
+  /* sqlStmtColumnType */
+    logFunction(printf("sqlStmtColumnType(" FMT_U_MEM ", " FMT_D ")\n",
+                       (memSizeType) sqlStatement, column); */
+    preparedStmt = (preparedStmtType) sqlStatement;
+    if (unlikely(column < 1 ||
+                 (uintType) column > preparedStmt->result_array_size)) {
+      logError(printf("sqlStmtColumnType: column: " FMT_D
+                      ", max column: " FMT_U_MEM ".\n",
+                      column, preparedStmt->result_array_size););
+      raise_error(RANGE_ERROR);
+      columnType = SYS_VOID_TYPE;
+    } else {
+      columnData = &preparedStmt->result_array[column - 1];
+      switch (columnData->buffer_type) {
+        case MYSQL_TYPE_TINY:
+        case MYSQL_TYPE_SHORT:
+        case MYSQL_TYPE_INT24:
+        case MYSQL_TYPE_LONG:
+        case MYSQL_TYPE_LONGLONG:
+          columnType = SYS_INT_TYPE;
+          break;
+        case MYSQL_TYPE_FLOAT:
+        case MYSQL_TYPE_DOUBLE:
+          columnType = SYS_FLOAT_TYPE;
+          break;
+        case MYSQL_TYPE_DECIMAL:
+        case MYSQL_TYPE_NEWDECIMAL:
+          columnType = SYS_BIGINT_TYPE;
+          break;
+        case MYSQL_TYPE_TIME:
+        case MYSQL_TYPE_DATE:
+        case MYSQL_TYPE_NEWDATE:
+        case MYSQL_TYPE_DATETIME:
+        case MYSQL_TYPE_TIMESTAMP:
+          columnType = SYS_VOID_TYPE;
+          break;
+        case MYSQL_TYPE_VARCHAR:
+        case MYSQL_TYPE_STRING:
+        case MYSQL_TYPE_VAR_STRING:
+          columnType = SYS_STRI_TYPE;
+          break;
+        case MYSQL_TYPE_TINY_BLOB:
+        case MYSQL_TYPE_BLOB:
+        case MYSQL_TYPE_MEDIUM_BLOB:
+        case MYSQL_TYPE_LONG_BLOB:
+          columnType = SYS_BSTRI_TYPE;
+          break;
+        case MYSQL_TYPE_BIT:
+        case MYSQL_TYPE_YEAR:
+        case MYSQL_TYPE_SET:
+        case MYSQL_TYPE_ENUM:
+        case MYSQL_TYPE_GEOMETRY:
+        case MYSQL_TYPE_NULL:
+          columnType = SYS_VOID_TYPE;
+          break;
+        default:
+          logError(printf("sqlStmtColumnType: Column " FMT_D " has the unknown type %s.\n",
+                          column, nameOfBufferType(
+                          columnData->buffer_type)););
+          raise_error(RANGE_ERROR);
+          columnType = SYS_VOID_TYPE;
+          break;
+      } /* switch */
+    } /* if */
+    return columnType;
+  } /* sqlStmtColumnType */
+#endif
+
+
+
 static boolType setupFuncTable (void)
 
   { /* setupFuncTable */
@@ -2546,6 +2709,38 @@ static boolType setupFuncTable (void)
     } /* if */
     return sqlFunc != NULL;
   } /* setupFuncTable */
+
+
+
+static void determineIfBackslashEscapes (dbType database)
+
+  {
+    striType statementStri;
+    sqlStmtType preparedStmt;
+    striType data;
+
+  /* determineIfBackslashEscapes */
+    database->backslashEscapes = FALSE;
+    statementStri = cstri_to_stri("SELECT '\\\\'");
+    if (likely(statementStri != NULL)) {
+      preparedStmt = sqlPrepare((databaseType) database, statementStri);
+      if (likely(preparedStmt != NULL)) {
+        sqlExecute(preparedStmt);
+        if (likely(sqlFetch(preparedStmt))) {
+          data = sqlColumnStri(preparedStmt, 1);
+          if (data->size == 1 && data->mem[0] == '\\') {
+            /* A select for two backslashes returns just one backslash. */
+            /* This happens, when the database uses backslash as escape char. */
+            database->backslashEscapes = TRUE;
+          } /* if */
+          FREE_STRI(data, data->size);
+        } /* if */
+        freePreparedStmt(preparedStmt);
+      } /* if */
+      FREE_STRI(statementStri, statementStri->size);
+    } /* if */
+    /* printf("backslashEscapes: %d\n", database->backslashEscapes); */
+  } /* determineIfBackslashEscapes */
 
 
 
@@ -2640,6 +2835,7 @@ databaseType sqlOpenMy (const const_striType dbName,
                   database->usage_count = 1;
                   database->sqlFunc = sqlFunc;
                   database->connection = connection;
+                  determineIfBackslashEscapes(database);
                 } /* if */
               } /* if */
             } /* if */

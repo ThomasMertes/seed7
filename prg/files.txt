@@ -45,6 +45,7 @@ err.sd7      Test for almost all possible compile time errors
 fannkuch.sd7 Fannkuch-redux benchmark program
 fib.sd7      Compute fibonacci numbers
 find7.sd7    Utility to search for files and file contents.
+findchar.sd7 Utility to search for specific chars in files.
 fractree.sd7 Draw a fractal tree
 ftp7.sd7     FTP internet file transfer program
 ftpserv.sd7  FTP (file transfer protocol) server
@@ -185,6 +186,7 @@ inflate.s7i  Inflate uncompression algorithm
 inflatefile.s7i Uncompress data from a file with Inflate
 inifile.s7i  Read key value pairs from an INI file
 integer.s7i  Integer support library
+iobuffer.s7i Implementation type for a buffered file.
 keybd.s7i    Read from keyboard without buffering and echo
 keydescr.s7i Descriptive text for function keys
 line.s7i     Filter file which reads the input linewise
@@ -196,6 +198,7 @@ mahjng32.s7i Pictures of mahjong tiles in the size 32 x 24
 make.s7i     Make library to manage the compilation process
 makedata.s7i Function and data structure to read makefiles
 math.s7i     Mathematical functions and constants
+mixarith.s7i Support to mix arithmethic between numeric types.
 modern27.s7i Modern vector font with capHeight 27.
 more.s7i     Filter file which shows another file screenwise
 msgdigest.s7i Message digest and secure hash algorithms.

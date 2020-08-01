@@ -1,12 +1,18 @@
 COMPILING THE INTERPRETER
 =========================
 
-    The way to compile the interpreter is dependent on the
-  operating system and the development tools used. You need a
-  stand alone C compiler and a make utility to compile the
-  interpreter. A C compiler which is only usable from an IDE
-  is not so useful, since some Seed7 programs (e.g. The
-  Seed7 compiler s7c) need to call the C compiler as well.
+    The way to compile the interpreter depends on the operating
+  system and the development tools used. You need a stand-alone
+  C compiler and a make utility to compile the interpreter.
+  A C compiler, which is only usable from an IDE, is not so
+  useful, since some Seed7 programs (e.g. The Seed7 compiler
+  s7c) need to call the C compiler as well. In case a make
+  utility is missing under Windows the program make7.exe can
+  be downloaded from
+
+    https://sourceforge.net/projects/seed7/files/bin/
+
+  In this directory is also a Seed7 installer for Windows.
 
 
 THE MAKEFILES
@@ -28,11 +34,13 @@ THE MAKEFILES
   mk_bcc32.mak | Windows (bcc32) | make         | bcc32      | cmd.exe
   mk_bccv5.mak | Windows (bcc32) | make         | bcc32 V5.5 | cmd.exe
   mk_clangw.mak| Windows (clang) | (g)make      | clang      | cmd.exe
-  mk_emccw.mak | Windows (emcc)  | mingw32-make | emcc + gcc | cmd.exe
+  mk_tcc_w.mak | Windows (tcc)   | (g)make      | tcc        | cmd.exe
   mk_djgpp.mak | DOS             | (g)make      | gcc        | cmd.exe
   mk_osx.mak   | Mac OS X        | make         | gcc        | sh
   mk_osxcl.mak | Mac OS X        | make         | clang      | sh
   mk_freebsd.mk| FreeBSD         | make         | clang/gcc  | sh
+  mk_emccl.mak | Linux/Unix/BSD  | make         | emcc + gcc | sh
+  mk_emccw.mak | Windows (emcc)  | mingw32-make | emcc + gcc | cmd.exe
 
   In the optimal case you just copy one of this files to
   'makefile' and do (with the make program from the table above):
@@ -67,7 +75,7 @@ THE MAKEFILES
   before you do 'make depend' again.
 
 
-COMPILING UNTER LINUX
+COMPILING UNDER LINUX
 
     For Linux the compilation process is the simplest. The
   file 'makefile' is (almost) identical to 'mk_linux.mak' and
@@ -183,7 +191,7 @@ COMPILING UNDER WINDOWS WITH TCC
   ARCHIVER defines the archiver utility to be used. For the ar
   utility from MinGW (ar should be in the search path) use the
   following lines (this is the default):
-  
+
     ARCHIVER = ar -r
     # ARCHIVER = tiny_libmaker
 
@@ -191,12 +199,12 @@ COMPILING UNDER WINDOWS WITH TCC
   Note that tiny_libmaker supports only 32-bit executables.
   You might need to copy tiny_libmaker.exe to the directory
   tcc. You need to change mk_tcc_w.mak also. Use the lines:
-  
+
     # ARCHIVER = ar -r
     ARCHIVER = tiny_libmaker
 
   Additionally you need some things:
-  
+
     - The include file winsock2.h (copy it to tcc\include)
 
   Then use a console, go to the 'seed7\src' directory and type:
@@ -209,7 +217,7 @@ COMPILING UNDER WINDOWS WITH TCC
   in the 'bin' directory and it is also copied to prg/s7.exe.
   Note that tcc for Windows has some bugs. The program chk_all.sd7
   shows this bugs. Therefore Seed7 does not support the
-  compilation with tcc under windows officially. 
+  compilation with tcc under windows officially.
 
 
 COMPILING UNDER WINDOWS WITH CYGWIN
@@ -262,43 +270,74 @@ COMPILING UNDER WINDOWS WITH CYGWIN
 
 COMPILING WITH EMCC FROM EMSCRIPTEN
 
-    The makefile mk_emccw.mak is provided for compiling with
-  emcc under Windows. Besides emcc it needs also gcc from MinGW
-  and node.js. When you download emsdk you get also a version
-  of node.js. It is necessary to raise the allowed stack size
-  of node.js. This is done with the command editbin (from
-  Visual-C). The stack is increased (in the directory of
-  node.exe) with:
+    The makefiles mk_emccl.mak and mk_emccw.mak are provided
+  for compiling with emcc under Linux and Windows. Besides emcc
+  you need also gcc (under Windows use gcc from MinGW) and
+  node.js. When you download emsdk you get also a version of
+  node.js.
 
-    editbin /stack:33554432 node.exe
+  To compile Seed7 under Linux use a terminal window and
+  activate the PATH and other environment variables for emcc
+  (with 'source ./emsdk_env.sh' in the emsdk directory).
+  Afterwards go to the directory 'seed7/src' (with cd) and
+  type:
 
-  The file .emscripten in your home directory must be also
-  adjusted. Change the NODE_JS entry to:
+    make -f mk_emccl.mak depend
+    make -f mk_emccl.mak
 
-    NODE_JS = ['node', '--stack_size=8192']
-
-  Use the command line, go to the 'seed7\src'
-  directory and type:
+  To compile Seed7 under Windows use a console window and
+  activate the PATH and other environment variables for emcc
+  (with 'emsdk_env.bat' in the emsdk directory). Afterwards
+  go to the directory 'seed7\src' (with cd) and type:
 
     mingw32-make -f mk_emccw.mak depend
     mingw32-make -f mk_emccw.mak
 
-  The Seed7 interpreter (s7.js) can be started with:
+  After compilation of Seed7 the Seed7 interpreter (s7.js) can
+  be started (in the directory 'seed7/prg') with:
 
     node s7.js hello
-
-  Programs with bigger stack requirements must be started with:
-
-    node --stack_size=8192 s7.js chkstr
 
   Note that the Emscripten version of Seed7 is experimental.
   Due to limitations of Emscripten and missing Seed7 driver
   libraries several things do not work as they should:
 
-    - Currently only files with relative paths can be opened.
-    - When s7.js is executed with node.js reading from stdin
-      is not possible (EOF is reached immediately).
+    - Under Windows only files with relative paths can be
+      opened.
+    - Reading from stdin is not possible (EOF is reached
+      immediately).
+    - When executing with node.js the environment variables
+      of the computer are not available (Only a fake
+      environment is present).
+    - Processes cannot be started.
+    - Sockets cannot be used.
     - Graphics is currently not supported.
+
+  When you execute
+
+    node s7.js aS7Program
+
+  you might get an error like:
+
+    exception thrown: RangeError: Maximum call stack size exceeded
+
+  In this case you can raise the allowed stack size. Execute
+  node.js as follows (chose a sufficient stack_size):
+
+    node --stack_size=8192 s7.js chkstr
+
+  You can also raise the allowed stack size of node.js
+  permanently. Under Windows this is done with the command
+  editbin (from Visual-C). The stack is increased (in the
+  directory of node.exe) with:
+
+    editbin /stack:33554432 node.exe
+
+  If the stack problems are triggered by emscripten the file
+  .emscripten in your home directory must be also adjusted.
+  Change the NODE_JS entry to:
+
+    NODE_JS = ['node', '--stack_size=8192']
 
 
 COMPILING UNDER DOS WITH DJGPP
@@ -338,7 +377,7 @@ COMPILING UNDER DOS WITH DJGPP
   graphics, sockets, processes and databases.
 
 
-COMPILING UNTER MAC OS X
+COMPILING UNDER MAC OS X
 
     To compile under Mac OS X make sure that the command line
   tools for OS X are installed. They can be obtained from Xcode
@@ -379,6 +418,32 @@ COMPILING UNTER MAC OS X
   'mk_linux.mak' and 'makefile'. When the X11 library is in a
   different directory you need to change the LDFLAGS value to
   that directory.
+
+
+PACKAGES FOR DATABASES UNDER LINUX
+
+    Seed7 supports database access. Therefore the client library
+  packages of the databases must be installed. On my computer
+  the names of the client library packages are:
+
+  - MariaDb:     mariadb-client
+  - Sqlite:      sqlite3
+  - PostgreSql:  postgresql
+  - ODBC:        unixODBC
+  - Firebird     firebird
+
+  The client libraries are sufficient for Seed7 to access the
+  databases. Seed7 provides replacements for the C header files
+  used by the database client libraries. To use the original
+  header files under Linux database client development packages
+  must be installed. On my computer the names of the client
+  development packages are:
+
+  - MariaDb:     libmariadb-devel
+  - Sqlite:      sqlite3-devel
+  - PostgreSql:  postgresql-devel
+  - ODBC:        unixODBC-devel
+  - Firebird     libfbclient-devel
 
 
 WHAT TO DO WHEN ERRORS HAPPEN DURING THE COMPILATION?
@@ -531,13 +596,40 @@ WHAT TO DO WHEN ERRORS HAPPEN DURING THE COMPILATION?
 
     LDFLAGS = -L/usr/X11R6/lib
 
+ --- When using icc an error like
+
+   .../compiler/include/math.h(1216):
+   error: identifier "_LIB_VERSION_TYPE" is undefined
+     _LIBIMF_EXT _LIB_VERSIONIMF_TYPE _LIBIMF_PUBVAR _LIB_VERSIONIMF;
+
+  indicates, that the math.h include file of icc uses
+  _LIB_VERSION_TYPE. Recently the support for_LIB_VERSION_TYPE
+  has been removed from glibc. Fortunately there is a definition
+  of _LIB_VERSION_TYPE in math.h just a few lines above in
+  a part deactivated by an #if. The #if line starts with:
+
+    #if (!defined(__linux__) || !defined(__USE_MISC)) && ...
+
+  I added a condition and the line now starts with:
+
+    #if (1 || !defined(__linux__) || !defined(__USE_MISC)) && ...
+
+  This fixed the error.
+
  --- Other errors
 
-  When you got other errors I would like to know about. Please
-  send a mail with detailed information (name and version) of
-  your operating system, distribution, compiler, the version of
-  Seed7 you wanted to compile and the complete log of error
-  messages to seed7-users@lists.sourceforge.net .
+  When you got other errors I would like to know about.
+  Please send an mail with detailed information to
+  seed7-users@lists.sourceforge.net or to my mail address,
+  which can be found at the Seed7 Homepage (look for Links).
+  The detailed information should include:
+
+    - Operating system
+    - Distribution used
+    - C compiler
+    - The version of Seed7 you wanted to compile.
+    - The complete log of error messages
+    - The file src/version.h
 
 
 WHAT ABOUT THE WARNINGS THAT HAPPEN DURING THE COMPILATION?
@@ -575,6 +667,23 @@ WHAT ABOUT THE WARNINGS THAT HAPPEN DURING THE COMPILATION?
      critical paths of the program. At places that are not
      performance critical I do some of this "unnecessary"
      initializations just to avoid such warnings.
+
+
+WHAT TO DO WITH ERRORS TRIGGERED BY SEED7 PROGRAMS?
+
+    Sometimes errors are triggered, when a Seed7 program runs.
+  This can happen because of reasons unrelated to Seed7.
+
+ --- A run-time error like
+
+    error while loading shared libraries: libtinfo.so.5:
+    cannot open shared object file: No such file or directory
+
+  indicates that the library libtinfo.so.5 is missing. This
+  happened, when starting a program that was dynamically linked
+  to ncurses. Obviously the dependency of the ncurses package
+  was set wrong. I fixed this by downloading libtinfo.so.5 and
+  copiing it to the directory /lib64.
 
 
 HOW TO VERIFY THAT THE INTERPRETER WORKS CORRECT?
@@ -918,7 +1027,7 @@ COMPILER DATA LIBRARY
 PROGRAMS USED BY THE MAKEFILES
 
     The makefiles use programs to write definitions to
-  version.h . This are stand alone programs that are not
+  version.h . This are stand-alone programs that are not
   linked to the interpreter or to the runtime library.
 
     chkccomp.c  Check properties of C compiler and runtime.

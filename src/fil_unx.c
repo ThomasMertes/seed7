@@ -329,55 +329,39 @@ void setupFiles (void)
   { /* setupFiles */
     logFunction(printf("setupFiles\n"););
 #ifdef MOUNT_NODEFS
-#ifdef _WIN32
     EM_ASM(
-      var fs = require('fs');
-      /* FS.unmount('/'); */
-      /* FS.mount(NODEFS, { root: 'c:/' }, '/root'); */
-      var workDir = process.cwd().replace(new RegExp("\\\\", "g"), '/');
-      var mountPoint = '.';
-      if (workDir.charAt(1) == ':' && workDir.charAt(2) == '/') {
-        workDir = '/' + workDir.charAt(0).toLowerCase() + workDir.substring(2);
-        count = (workDir.match(new RegExp("/", "g")) || []).length;
-        mountPoint = new Array(count).join('/..').substring(1);
+      if (typeof require === "function") {
+        var fs;
+        try {
+          fs = require('fs');
+        } catch (e) {
+          fs = null;
+        }
+        if (fs !== null) {
+          var bslash = String.fromCharCode(92);
+          var workDir = process.cwd().replace(new RegExp(bslash + bslash, "g"), '/');
+          if (workDir.charAt(1) == ':' && workDir.charAt(2) == '/') {
+            workDir = '/' + workDir.charAt(0).toLowerCase() + workDir.substring(2);
+          }
+          // console.log('workDir: ' + workDir);
+          var workPath = workDir.split("/");
+          var goUp = workPath.length - 2;
+          var mountDir = workPath.slice(0, workPath.length - goUp).join('/');
+          // console.log('mountDir: ' + mountDir);
+          var mountPath = mountDir.split("/");
+          var mountPoint = new Array(1 + goUp).join('/..').substring(1);
+          // console.log('mountPoint: ' + mountPoint);
+          var aDir;
+          var i;
+          for (i = 2; i <= mountPath.length; i++) {
+            aDir = mountPath.slice(0, i).join('/');
+            FS.mkdir(aDir);
+          }
+          FS.mount(NODEFS, { root: mountPoint }, mountDir);
+          FS.chdir(workDir);
+        }
       }
-      process.stdout.write(workDir);
-      process.stdout.write(count.toString());
-      process.stdout.write(mountPoint);
-      FS.mkdir('/root');
-      FS.mount(NODEFS, { root: '..' }, '/root');
-      FS.chdir('/root/prg');
     );
-#else
-    EM_ASM(
-      var fs = require('fs');
-      var mountPoint = '.';
-      var rootDir = '/';
-      var workDir = process.cwd();
-      // process.stdout.write(workDir);
-      // process.stdout.write('\n');
-      workDir = workDir.replace(new RegExp("\\\\", "g"), '/');
-      // process.stdout.write(workDir);
-      // process.stdout.write('\n');
-      if (workDir.charAt(1) == ':' && workDir.charAt(2) == '/') {
-        mountPoint = workDir.substring(0, 3);
-        rootDir = '/' + workDir.charAt(0).toLowerCase();
-        workDir = rootDir + workDir.substring(2);
-      }
-      // process.stdout.write('workDir: ' + workDir);
-      // process.stdout.write('\n');
-      // process.stdout.write('mountPoint: ' + mountPoint);
-      // process.stdout.write('\n');
-      // process.stdout.write('rootDir: ' + rootDir);
-      // process.stdout.write('\n');
-      FS.mkdir(rootDir);
-      FS.mount(NODEFS, { root: mountPoint }, rootDir);
-      // Note: Chdir fails for unsufficient permission. E.g. with /c/Users
-      // process.stdout.write('before chdir');
-      FS.chdir(workDir);
-      // process.stdout.write('after chdir');
-    );
-#endif
 #endif
     logFunction(printf("setupFiles -->\n"););
   } /* setupFiles */

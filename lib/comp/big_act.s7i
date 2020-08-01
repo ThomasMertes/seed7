@@ -60,7 +60,7 @@ const ACTION: BIG_NE              is action "BIG_NE";
 const ACTION: BIG_NEGATE          is action "BIG_NEGATE";
 const ACTION: BIG_ODD             is action "BIG_ODD";
 const ACTION: BIG_ORD             is action "BIG_ORD";
-const ACTION: BIG_PARSE           is action "BIG_PARSE";
+const ACTION: BIG_PARSE1          is action "BIG_PARSE1";
 const ACTION: BIG_PARSE_BASED     is action "BIG_PARSE_BASED";
 const ACTION: BIG_PLUS            is action "BIG_PLUS";
 const ACTION: BIG_PRED            is action "BIG_PRED";
@@ -1673,13 +1673,13 @@ const proc: process (BIG_ORD, in reference: function,
   end func;
 
 
-const proc: process (BIG_PARSE, in reference: function,
+const proc: process (BIG_PARSE1, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   begin
     prepare_bigint_result(c_expr);
     c_expr.result_expr := "bigParse(";
-    getAnyParamToResultExpr(params[3], c_expr);
+    getAnyParamToResultExpr(params[1], c_expr);
     c_expr.result_expr &:= ")";
   end func;
 

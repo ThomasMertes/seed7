@@ -6859,7 +6859,7 @@ const proc: pass_1 (in string: source, inout program: prog,
         signal_exception := TRUE;
       end if;
       if "-o" in compiler_option and compiler_option["-o"] in {"c0", "c1", "c2", "c3"} then
-        evaluate_const_expr := integer parse (compiler_option["-o"][2 ..]);
+        evaluate_const_expr := integer(compiler_option["-o"][2 ..]);
       end if;
       if "-s" in compiler_option then
         if pos(compiler_option["-s"], 'r') <> 0 then

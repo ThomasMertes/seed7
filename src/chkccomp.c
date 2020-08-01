@@ -32,10 +32,6 @@
  *
  *  TURN_OFF_FP_EXCEPTIONS
  *      Use the function _control87() to turn off floating point exceptions.
- *  DEFINE_MATHERR_FUNCTION
- *      Define the function matherr() which handles floating point errors.
- *  DEFINE__MATHERR_FUNCTION
- *      Define the function _matherr() which handles floating point errors.
  *  PATH_DELIMITER:
  *      Path delimiter character used by the command shell of the operating system.
  *  OS_STRI_WCHAR:
@@ -84,8 +80,6 @@
 #include "stddef.h"
 #include "time.h"
 #include "ctype.h"
-#include "float.h"
-#include "math.h"
 #include "sys/types.h"
 #include "sys/stat.h"
 #include "errno.h"
@@ -168,28 +162,6 @@ static const char *removeDirDefinition = NULL;
 
 
 
-#ifdef DEFINE_MATHERR_FUNCTION
-int matherr (struct _exception *a)
-
-  { /* matherr */
-    a->retval = a->retval;
-    return 1;
-  } /* matherr */
-#endif
-
-
-
-#ifdef DEFINE__MATHERR_FUNCTION
-int _matherr (struct _exception *a)
-
-  { /* _matherr */
-    a->retval = a->retval;
-    return 1;
-  } /* _matherr */
-#endif
-
-
-
 static void prepareCompileCommand (void)
 
   {
@@ -235,75 +207,6 @@ static void prepareCompileCommand (void)
       c_compiler[len + 2] = '\0';
     } /* if */
   } /* prepareCompileCommand */
-
-
-
-static int isNullDevice (char *fileName, int eofChar)
-
-  {
-    FILE *aFile;
-    int fileIsEmpty;
-    int fileIsNullDevice = 0;
-
-  /* isNullDevice */
-    aFile = fopen(fileName, "r");
-    if (aFile != NULL) {
-      /* The file exists. Now check if the file is empty. */
-      fileIsEmpty = getc(aFile) == eofChar;
-      fclose(aFile);
-      if (fileIsEmpty) {
-        /* Reading from a null device returns always EOF. */
-        aFile = fopen(fileName, "r+");
-        if (aFile != NULL) {
-          /* Writing of 'X' to a null device should be ignored. */
-          putc('X', aFile);
-          fclose(aFile);
-          aFile = fopen(fileName, "r");
-          if (aFile != NULL) {
-            /* Check if the file is still empty. */
-            fileIsEmpty = getc(aFile) == eofChar;
-            fclose(aFile);
-            if (fileIsEmpty) {
-              /* Everything written to the null device is ignored. */
-              fileIsNullDevice = 1;
-            } else {
-              /* The file is not empty, so it is not a null device. */
-              aFile = fopen(fileName, "w");
-              if (aFile != NULL) {
-                /* Make sure that the file is empty, as it was before. */
-                fclose(aFile);
-              } /* if */
-            } /* if */
-          } /* if */
-        } /* if */
-      } /* if */
-    } /* if */
-    return fileIsNullDevice;
-  } /* isNullDevice */
-
-
-
-static void initializeNullDevice (FILE *versionFile)
-
-  { /* initializeNullDevice */
-    if (isNullDevice("/dev/null", EOF)) {
-      nullDevice = "/dev/null";
-    } else if (isNullDevice("NUL:", EOF)) {
-      nullDevice = "NUL:";
-    } else if (isNullDevice("NUL", EOF)) {
-      nullDevice = "NUL";
-    } else if (isNullDevice("NUL:", 0)) {
-      nullDevice = "NUL:";
-    } else if (isNullDevice("NUL", 0)) {
-      nullDevice = "NUL";
-    } /* if */
-    if (nullDevice != NULL) {
-      fprintf(versionFile, "#define NULL_DEVICE \"%s\"\n", nullDevice);
-    } else {
-      fputs("\n **** Unable to determine a null device.\n", logFile);
-      nullDevice = "null_device";
-    } /* if */
-  } /* initializeNullDevice */
 
 
 
@@ -718,6 +621,175 @@ static void testOutputToVersionFile (FILE *versionFile)
     fprintf(logFile, "\b");
     fflush(logFile);
   } /* testOutputToVersionFile */
+
+
+
+static int isNullDevice (char *fileName, int eofChar)
+
+  {
+    FILE *aFile;
+    int fileIsEmpty;
+    int fileIsNullDevice = 0;
+
+  /* isNullDevice */
+    aFile = fopen(fileName, "r");
+    if (aFile != NULL) {
+      /* The file exists. Now check if the file is empty. */
+      fileIsEmpty = getc(aFile) == eofChar;
+      fclose(aFile);
+      if (fileIsEmpty) {
+        /* Reading from a null device returns always EOF. */
+        aFile = fopen(fileName, "r+");
+        if (aFile != NULL) {
+          /* Writing of 'X' to a null device should be ignored. */
+          putc('X', aFile);
+          fclose(aFile);
+          aFile = fopen(fileName, "r");
+          if (aFile != NULL) {
+            /* Check if the file is still empty. */
+            fileIsEmpty = getc(aFile) == eofChar;
+            fclose(aFile);
+            if (fileIsEmpty) {
+              /* Everything written to the null device is ignored. */
+              fileIsNullDevice = 1;
+            } else {
+              /* The file is not empty, so it is not a null device. */
+              aFile = fopen(fileName, "w");
+              if (aFile != NULL) {
+                /* Make sure that the file is empty, as it was before. */
+                fclose(aFile);
+              } /* if */
+            } /* if */
+          } /* if */
+        } /* if */
+      } /* if */
+    } /* if */
+    return fileIsNullDevice;
+  } /* isNullDevice */
+
+
+
+static void initializeNullDevice (void)
+
+  { /* initializeNullDevice */
+    if (isNullDevice("/dev/null", EOF)) {
+      nullDevice = "/dev/null";
+    } else if (isNullDevice("NUL:", EOF)) {
+      nullDevice = "NUL:";
+    } else if (isNullDevice("NUL", EOF)) {
+      nullDevice = "NUL";
+    } else if (isNullDevice("NUL:", 0)) {
+      nullDevice = "NUL:";
+    } else if (isNullDevice("NUL", 0)) {
+      nullDevice = "NUL";
+    } /* if */
+    if (nullDevice == NULL) {
+      fputs("\n **** Unable to determine a null device for chkccomp.\n", logFile);
+      nullDevice = "null_device";
+    } /* if */
+  } /* initializeNullDevice */
+
+
+
+static int checkIfNullDevice (char *fileName, int eofChar)
+
+  {
+    char buffer[BUFFER_SIZE];
+    int fileIsNullDevice = 0;
+
+  /* checkIfNullDevice */
+    sprintf(buffer,
+            "#include <stdio.h>\n"
+            "int main(int argc, char *argv[]) {\n"
+            "FILE *aFile;\n"
+            "int fileIsEmpty;\n"
+            "char *fileName = \"%s\";\n"
+            "int eofChar = %d;\n"
+            "int fileIsNullDevice = 0;\n"
+            "aFile = fopen(fileName, \"r\");\n"
+            "if (aFile != NULL) {\n"
+            "  fileIsEmpty = getc(aFile) == eofChar;\n"
+            "  fclose(aFile);\n"
+            "  if (fileIsEmpty) {\n"
+            "    aFile = fopen(fileName, \"r+\");\n"
+            "    if (aFile != NULL) {\n"
+            "      putc('X', aFile);\n"
+            "      fclose(aFile);\n"
+            "      aFile = fopen(fileName, \"r\");\n"
+            "      if (aFile != NULL) {\n"
+            "        fileIsEmpty = getc(aFile) == eofChar;\n"
+            "        fclose(aFile);\n"
+            "        if (fileIsEmpty) {\n"
+            "          fileIsNullDevice = 1;\n"
+            "        } else {\n"
+            "          aFile = fopen(fileName, \"w\");\n"
+            "          if (aFile != NULL) {\n"
+            "            fclose(aFile);\n"
+            "          }\n"
+            "        }\n"
+            "      }\n"
+            "    }\n"
+            "  }\n"
+            "}\n"
+            "printf(\"%%d\\n\", fileIsNullDevice);\n"
+            "return 0;}",
+            fileName, eofChar);
+    if (assertCompAndLnk(buffer)) {
+      fileIsNullDevice = doTest() == 1;
+    } /* if */
+    return fileIsNullDevice;
+  } /* checkIfNullDevice */
+
+
+
+static void determineNullDevice (FILE *versionFile)
+
+  {
+    char *nullDevice = NULL;
+
+  /* determineNullDevice */
+    if (checkIfNullDevice("/dev/null", EOF)) {
+      nullDevice = "/dev/null";
+    } else if (checkIfNullDevice("NUL:", EOF)) {
+      nullDevice = "NUL:";
+    } else if (checkIfNullDevice("NUL", EOF)) {
+      nullDevice = "NUL";
+    } else if (checkIfNullDevice("NUL:", 0)) {
+      nullDevice = "NUL:";
+    } else if (checkIfNullDevice("NUL", 0)) {
+      nullDevice = "NUL";
+    } /* if */
+    if (nullDevice == NULL) {
+      fputs("\n **** Unable to determine a null device.\n", logFile);
+      nullDevice = "null_device";
+    } /* if */
+    fprintf(versionFile, "#define NULL_DEVICE \"%s\"\n", nullDevice);
+  } /* determineNullDevice */
+
+
+
+static void determineCallingConventions (FILE *versionFile)
+
+  {
+    int has_cdecl;
+    int has_stdcall;
+
+  /* determineCallingConventions */
+    has_cdecl = compileAndLinkOk("#include <stdio.h>\n"
+                                 "int __cdecl aFunction (void) { return 1; }\n"
+                                 "int main (int argc, char *argv[]) {\n"
+                                 "printf(\"%d\\n\", aFunction());\n"
+                                 "return 0; }\n") &&
+                doTest() == 1;
+    has_stdcall = compileAndLinkOk("#include <stdio.h>\n"
+                                   "int __stdcall aFunction (void) { return 1; }\n"
+                                   "int main (int argc, char *argv[]) {\n"
+                                   "printf(\"%d\\n\", aFunction());\n"
+                                   "return 0; }\n") &&
+                  doTest() == 1;
+    fprintf(versionFile, "#define HAS_CDECL %d\n", has_cdecl);
+    fprintf(versionFile, "#define HAS_STDCALL %d\n", has_stdcall);
+  } /* determineCallingConventions */
 
 
 
@@ -1268,7 +1340,7 @@ static void numericSizes (FILE *versionFile)
             doTest() == 1);
     fprintf(versionFile, "#define INTPTR_T_DEFINED %d\n",
             compileAndLinkOk("#include <stdint.h>\nint main(int argc, char *argv[])"
-                             "{intptr_t intptr = &argc;return 0;}\n"));
+                             "{intptr_t intptr = (intptr_t) &argc;return 0;}\n"));
     fprintf(logFile, " determined\n");
   } /* numericSizes */
 
@@ -1517,19 +1589,50 @@ static void numericProperties (FILE *versionFile)
       fputs("#define OVERFLOW_SIGNAL 0\n", versionFile);
       fputs("#define OVERFLOW_SIGNAL_STR \"\"\n", versionFile);
     } /* if */
-#ifdef TURN_OFF_FP_EXCEPTIONS
-    _control87(MCW_EM, MCW_EM);
-#endif
-    sprintf(buffer, "%1.0f %1.0f %1.0f %1.1f %1.1f %1.2f %1.2f %1.0f %1.0f %1.0f %1.1f %1.1f %1.2f %1.2f",
-            0.5, 1.5, 2.5, 1.25, 1.75, 0.125, 0.375, -0.5, -1.5, -2.5, -1.25, -1.75, -0.125, -0.375);
-    if (strcmp(buffer, "0 2 2 1.2 1.8 0.12 0.38 0 -2 -2 -1.2 -1.8 -0.12 -0.38") == 0 ||
-        strcmp(buffer, "0 2 2 1.2 1.8 0.12 0.38 -0 -2 -2 -1.2 -1.8 -0.12 -0.38") == 0) {
-      fputs("#define ROUND_HALF_TO_EVEN\n", versionFile);
-    } else if (strcmp(buffer, "1 2 3 1.3 1.8 0.13 0.38 -1 -2 -3 -1.3 -1.8 -0.13 -0.38") == 0) {
-      fputs("#define ROUND_HALF_AWAY_FROM_ZERO\n", versionFile);
-    } else if (strcmp(buffer, "1 2 3 1.3 1.8 0.13 0.38 0 -1 -2 -1.2 -1.7 -0.12 -0.37") == 0 ||
-               strcmp(buffer, "1 2 3 1.3 1.8 0.13 0.38 -0 -1 -2 -1.2 -1.7 -0.12 -0.37") == 0) {
-      fputs("#define ROUND_HALF_UP\n", versionFile);
+    if (assertCompAndLnk("#include<stdio.h>\n#include<string.h>\n"
+                         "int main(int argc,char *argv[]){\n"
+                         "char buffer[1024];\n"
+                         "int rounding = 0;\n"
+                         "sprintf(buffer,\n"
+                         "    \"%1.0f %1.0f %1.0f %1.1f %1.1f %1.2f %1.2f\"\n"
+                         "    \" %1.0f %1.0f %1.0f %1.1f %1.1f %1.2f %1.2f\",\n"
+                         "    0.5, 1.5, 2.5, 1.25, 1.75, 0.125, 0.375,\n"
+                         "    -0.5, -1.5, -2.5, -1.25, -1.75, -0.125, -0.375);\n"
+                         "if (strcmp(buffer, \"0 2 2 1.2 1.8 0.12 0.38\"\n"
+                         "           \" 0 -2 -2 -1.2 -1.8 -0.12 -0.38\") == 0 ||\n"
+                         "    strcmp(buffer, \"0 2 2 1.2 1.8 0.12 0.38\"\n"
+                         "           \" -0 -2 -2 -1.2 -1.8 -0.12 -0.38\") == 0) {\n"
+                         "  rounding = 1;\n"
+                         "} else if (strcmp(buffer, \"1 2 3 1.3 1.8 0.13 0.38\"\n"
+                         "                  \" -1 -2 -3 -1.3 -1.8 -0.13 -0.38\") == 0) {\n"
+                         "  rounding = 2;\n"
+                         "} else if (strcmp(buffer, \"1 2 3 1.3 1.8 0.13 0.38\"\n"
+                         "                  \" 0 -1 -2 -1.2 -1.7 -0.12 -0.37\") == 0 ||\n"
+                         "           strcmp(buffer, \"1 2 3 1.3 1.8 0.13 0.38\"\n"
+                         "                  \" -0 -1 -2 -1.2 -1.7 -0.12 -0.37\") == 0) {\n"
+                         "  rounding = 3;\n"
+                         "}\n"
+                         "printf(\"%d\\n\", rounding);\n"
+                         "return 0;}\n")) {
+      switch (doTest()) {
+        case 1:
+          fputs("#define ROUND_HALF_TO_EVEN 1\n", versionFile);
+          fputs("#define PRINTF_ROUNDING ROUND_HALF_TO_EVEN\n", versionFile);
+          break;
+        case 2:
+          fputs("#define ROUND_HALF_AWAY_FROM_ZERO 2\n", versionFile);
+          fputs("#define PRINTF_ROUNDING ROUND_HALF_AWAY_FROM_ZERO\n", versionFile);
+          break;
+        case 3:
+          fputs("#define ROUND_HALF_UP 3\n", versionFile);
+          fputs("#define PRINTF_ROUNDING ROUND_HALF_UP\n", versionFile);
+          break;
+        default:
+          fputs("#define ROUND_HALF_NOT_RECOGNIZED -1\n", versionFile);
+          fputs("#define PRINTF_ROUNDING ROUND_HALF_NOT_RECOGNIZED\n", versionFile);
+          fprintf(logFile, "\n *** Rounding of half values not recognized.\n");
+          break;
+      } /* switch */
     } /* if */
     if (assertCompAndLnk("#include<stdio.h>\n#include<string.h>\n#include<float.h>\n"
                          "int main(int argc,char *argv[])\n"
@@ -3045,7 +3148,12 @@ static void determineFseekFunctions (FILE *versionFile, const char *fileno)
                          "long ftell_result = -1;\n"
                          "char buffer1[10];\n"
                          "char buffer2[10];\n"
-                         "aFile = fopen(\"tst_vers.h\", \"rb\");\n"
+                         "aFile = fopen(\"ctstfile.txt\", \"wb\");\n"
+                         "if (aFile != NULL) {\n"
+                         "  fputs(\"abcdefghijklmnopqrstuvwxyz\\n\", aFile);\n"
+                         "  fclose(aFile);\n"
+                         "}\n"
+                         "aFile = fopen(\"ctstfile.txt\", \"rb\");\n"
                          "if (aFile != NULL) {\n"
                          "  fread(buffer1, 1, 10, aFile);\n"
                          "  fseek_result = fseek(aFile, (long) 0, SEEK_SET);\n"
@@ -3099,6 +3207,7 @@ static void determineFseekFunctions (FILE *versionFile, const char *fileno)
     } else {
       fprintf(logFile, "\n *** Cannot define os_fseek and os_ftell.\n");
     } /* if */
+    doRemove("ctstfile.txt");
 #else
       fprintf(versionFile, "#define OS_OFF_T_SIZE %d\n", 8 * getSizeof("os_off_t"));
 #endif
@@ -3871,24 +3980,26 @@ static void determineOsFunctions (FILE *versionFile)
     if (compileAndLinkOk("#include <stdio.h>\n#include <windows.h>\n"
                          "int main(int argc,char *argv[])\n"
                          "{SetErrorMode(SEM_NOGPFAULTERRORBOX);\n"
-                         "printf(\"%d\\n\", fopen(\"tst_vers.h\", \"re\") != NULL);\n"
+                         "printf(\"%d\\n\", fopen(\"ctstfile.txt\", \"we\") != NULL);\n"
                          "return 0;}\n")) {
       fprintf(versionFile, "#define FOPEN_SUPPORTS_CLOEXEC_MODE %d\n", doTest() == 1);
     } else if (assertCompAndLnk("#include <stdio.h>\n"
                                 "int main(int argc,char *argv[])\n"
-                                "{printf(\"%d\\n\", fopen(\"tst_vers.h\", \"re\") != NULL);"
+                                "{printf(\"%d\\n\", fopen(\"ctstfile.txt\", \"we\") != NULL);"
                                 "return 0;}\n")) {
       fprintf(versionFile, "#define FOPEN_SUPPORTS_CLOEXEC_MODE %d\n", doTest() == 1);
     } /* if */
+    doRemove("ctstfile.txt");
     sprintf(buffer, "#include <stdio.h>\n#include <unistd.h>\n"
                     "#include <fcntl.h>\n"
                     "int main(int argc,char *argv[])\n"
                     "{FILE *aFile;int fd;\n"
                     "printf(\"%%d\\n\",\n"
-                    "(aFile = fopen(\"tst_vers.h\", \"r\")) != NULL &&\n"
+                    "(aFile = fopen(\"ctstfile.txt\", \"w\")) != NULL &&\n"
                     "(fd = %s(aFile)) != -1 &&\n"
                     "fcntl(fd,F_SETFD,FD_CLOEXEC) == 0);\n"
                     "return 0;}\n", fileno);
+    doRemove("ctstfile.txt");
     fprintf(versionFile, "#define HAS_FCNTL_SETFD_CLOEXEC %d\n",
             compileAndLinkOk(buffer) && doTest() == 1);
     fprintf(versionFile,
@@ -4213,7 +4324,10 @@ static void determineSqliteDefines (FILE *versionFile,
       sqliteInclude = "sqlite3.h";
       fprintf(logFile, "\rSQLite: %s found in system include directory.\n", sqliteInclude);
       appendOption(include_options, includeOption);
-    } else if (compileAndLinkWithOptionsOk("#include \"tst_vers.h\"\n#include \"db_lite.h\"\n"
+    } else if (compileAndLinkWithOptionsOk("#include \"tst_vers.h\"\n"
+                                           /* Tcc needs to include stdio.h to make __cdecl work. */
+                                           "#include \"stdio.h\"\n"
+                                           "#include \"db_lite.h\"\n"
                                            "int main(int argc,char *argv[]){return 0;}\n",
                                            includeOption, "")) {
       sqliteInclude = "db_lite.h";
@@ -4296,7 +4410,7 @@ static void determineSqliteDefines (FILE *versionFile,
 
 
 
-static void extractPostgresOid (const char* pgTypeFileName)
+static int extractPostgresOid (const char* pgTypeFileName)
   {
     const char *oidNames[] = {
       "ABSTIMEOID",     "ACLITEMOID",      "ANYARRAYOID",     "ANYELEMENTOID",    "ANYENUMOID",
@@ -4322,6 +4436,7 @@ static void extractPostgresOid (const char* pgTypeFileName)
     int pos;
     int idx;
     int spaces;
+    int anOidWasFound = 0;
 
   /* extractPostgresOid */
     fprintf(logFile, "\rExtracting OIDs from: %s\n", pgTypeFileName);
@@ -4350,6 +4465,7 @@ static void extractPostgresOid (const char* pgTypeFileName)
               } /* if */
               for (idx = 0; idx < sizeof(oidNames) / sizeof(char *); idx++) {
                 if (strncmp(&line[pos], oidNames[idx], strlen(oidNames[idx])) == 0) {
+                  anOidWasFound = 1;
                   fprintf(oidFile, "#define %s ", oidNames[idx]);
                   pos += strlen(oidNames[idx]);
                   while (line[pos] == ' ' || line[pos] == '\t') {
@@ -4368,9 +4484,14 @@ static void extractPostgresOid (const char* pgTypeFileName)
           } /* if */
         } /* while */
         fclose(oidFile);
+        if (!anOidWasFound) {
+          fprintf(logFile, "\rExtracting OIDs failed.\n");
+          doRemove("pg_type.h");
+        } /* if */
       } /* if */
       fclose(pgTypeFile);
     } /* if */
+    return anOidWasFound;
   } /* extractPostgresOid */
 
 
@@ -4413,9 +4534,10 @@ static int findPgTypeInclude (const char *includeOption, const char *pgTypeInclu
       if (includeDir[0] != '\0'  && fileIsDir(includeDir)) {
         sprintf(pgTypeFileName, "%s/%s", includeDir, pgTypeInclude);
         if (fileIsRegular(pgTypeFileName)) {
-          extractPostgresOid(pgTypeFileName);
-          includeOption = NULL;
-          found = 1;
+          if (extractPostgresOid(pgTypeFileName)) {
+            includeOption = NULL;
+            found = 1;
+          } /* if */
         } /* if */
       } /* if */
     } /* while */
@@ -4436,14 +4558,15 @@ static void determinePostgresDefines (FILE *versionFile,
     const char *dllNameList[] = {"libpq.dll"};
 #endif
     const char *libNameList[] = {"libpq.lib"};
-    const char *libIntlDllList[] = {"libintl.dll", "libintl-8.dll"};
-    const char *serverIncludeOption = "-I/usr/include/postgresql/server";
+    const char *libIntlDllList[] = {"libintl.dll", "libintl-8.dll", "libintl-9.dll"};
+    const char *libeay32DllList[] = {"libeay32.dll"};
     const char *programFilesX86 = NULL;
     const char *programFiles = NULL;
     const char *dllName = NULL;
     const char *libName = NULL;
     char dbHome[BUFFER_SIZE];
     char includeOption[BUFFER_SIZE];
+    char serverIncludeOption[BUFFER_SIZE];
     const char *postgresqlInclude = NULL;
     const char *postgresInclude = NULL;
     const char *pgTypeInclude = NULL;
@@ -4457,8 +4580,21 @@ static void determinePostgresDefines (FILE *versionFile,
 #ifdef POSTGRESQL_INCLUDE_OPTIONS
     strcpy(includeOption, POSTGRESQL_INCLUDE_OPTIONS);
 #else
-    strcpy(includeOption, "-I/usr/include/postgresql");
+    if (fileIsDir("/usr/include/postgresql")) {
+      strcpy(includeOption, "-I/usr/include/postgresql");
+    } else if (fileIsDir("/usr/include/pgsql")) {
+      strcpy(includeOption, "-I/usr/include/pgsql");
+    } else {
+      includeOption[0] = '\0';
+    } /* if */
 #endif
+    if (fileIsDir("/usr/include/postgresql/server")) {
+      strcpy(serverIncludeOption, "-I/usr/include/postgresql/server");
+    } else if (fileIsDir("/usr/include/pgsql/server")) {
+      strcpy(serverIncludeOption, "-I/usr/include/pgsql/server");
+    } else {
+      serverIncludeOption[0] = '\0';
+    } /* if */
     programFilesX86 = getenv("ProgramFiles(x86)");
     /* fprintf(logFile, "programFilesX86: %s\n", programFilesX86); */
     programFiles = getenv("ProgramFiles");
@@ -4484,16 +4620,16 @@ static void determinePostgresDefines (FILE *versionFile,
                                       includeOption, "")) {
         postgresqlInclude = "libpq-fe.h";
         fprintf(logFile, "\rPostgreSQL: %s found in %s/include\n", postgresqlInclude, dbHome);
-        appendOption(include_options, includeOption);
         sprintf(buffer, "%s/include/server", dbHome);
         if (fileIsDir(buffer)) {
           sprintf(buffer, "%s/include/server/catalog/pg_type.h", dbHome);
         } else {
           sprintf(buffer, "%s/include/catalog/pg_type.h", dbHome);
         } /* if */
-        extractPostgresOid(buffer);
-        pgTypeInclude = "pg_type.h";
-        fprintf(logFile, "\rPostgreSQL: %s found in Seed7 directory.\n", pgTypeInclude);
+        if (extractPostgresOid(buffer)) {
+          pgTypeInclude = "pg_type.h";
+          fprintf(logFile, "\rPostgreSQL: %s found in Seed7 directory.\n", pgTypeInclude);
+        } /* if */
       } else {
         sprintf(buffer, "%s/include/libpq-fe.h", dbHome);
         if (fileIsRegular(buffer)) {
@@ -4509,7 +4645,6 @@ static void determinePostgresDefines (FILE *versionFile,
                                     includeOption, "")) {
       postgresqlInclude = "libpq-fe.h";
       fprintf(logFile, "\rPostgreSQL: %s found in system include directory.\n", postgresqlInclude);
-      appendOption(include_options, includeOption);
       if (compileAndLinkWithOptionsOk("#include <server/postgres.h>\n"
                                       "int main(int argc,char *argv[]){"
                                       "return 0;}\n",
@@ -4522,7 +4657,6 @@ static void determinePostgresDefines (FILE *versionFile,
                                         "int main(int argc,char *argv[]){"
                                         "return 0;}\n",
                                         includeOption, "")) {
-          appendOption(include_options, serverIncludeOption);
           postgresInclude = "server/postgres.h";
           pgTypeInclude = "server/catalog/pg_type.h";
         } else {
@@ -4555,14 +4689,21 @@ static void determinePostgresDefines (FILE *versionFile,
       } /* if */
     } /* if */
     if ((postgresqlInclude == NULL || postgresInclude == NULL || pgTypeInclude == NULL) &&
-        compileAndLinkWithOptionsOk("#include \"db_post.h\"\n"
+        compileAndLinkWithOptionsOk("#include \"tst_vers.h\"\n"
+                                    /* Tcc needs to include stdio.h to make __cdecl work. */
+                                    "#include \"stdio.h\"\n"
+                                    "#include \"db_post.h\"\n"
                                     "int main(int argc,char *argv[]){"
                                     "PGconn *connection; return 0;}\n",
                                     "", "")) {
       postgresqlInclude = "db_post.h";
       fprintf(logFile, "\rPostgreSQL: %s found in Seed7 include directory.\n", postgresqlInclude);
+      includeOption[0] = '\0';
     } /* if */
     if (postgresqlInclude != NULL) {
+      if (includeOption[0] != '\0') {
+        appendOption(include_options, includeOption);
+      } /* if */
       fprintf(versionFile, "#define POSTGRESQL_INCLUDE \"%s\"\n", postgresqlInclude);
     } /* if */
     if (postgresInclude != NULL) {
@@ -4618,6 +4759,20 @@ static void determinePostgresDefines (FILE *versionFile,
           escapeString(versionFile, buffer);
           fprintf(versionFile, "\"\n");
           fprintf(versionFile, "#define LIBINTL_DLL \"%s\"\n", dllName);
+        } /* if */
+        dllName = NULL;
+        for (idx = 0; dllName == NULL && idx < sizeof(libeay32DllList) / sizeof(char *); idx++) {
+          sprintf(buffer, "%s/bin/%s", dbHome, libeay32DllList[idx]);
+          if (fileIsRegular(buffer)) {
+            dllName = libeay32DllList[idx];
+          } /* if */
+        } /* for */
+        if (dllName != NULL) {
+          fprintf(logFile, "\rPostgreSQL: %s found at: %s\n", dllName, buffer);
+          fprintf(versionFile, "#define LIBEAY32_DLL_PATH \"");
+          escapeString(versionFile, buffer);
+          fprintf(versionFile, "\"\n");
+          fprintf(versionFile, "#define LIBEAY32_DLL \"%s\"\n", dllName);
         } /* if */
       } /* if */
     } else {
@@ -4827,12 +4982,14 @@ static void determineOciDefines (FILE *versionFile,
       ociInclude = "oci.h";
       fprintf(logFile, "\rOracle: %s found in system include directory.\n", ociInclude);
       appendOption(include_options, includeOption);
-    } else if (compileAndLinkWithOptionsOk("#include \"tst_vers.h\"\n"
-                                           "#include \"stdlib.h\"\n"
-                                           "#include \"db_oci.h\"\n"
-                                           "int main(int argc,char *argv[]){"
-                                           "OCIEnv *oci_environment; return 0;}\n",
-                                           includeOption, "")) {
+    } /* if */
+    if (ociInclude == NULL &&
+        compileAndLinkWithOptionsOk("#include \"tst_vers.h\"\n"
+                                    "#include \"stdlib.h\"\n"
+                                    "#include \"db_oci.h\"\n"
+                                    "int main(int argc,char *argv[]){"
+                                    "OCIEnv *oci_environment; return 0;}\n",
+                                    includeOption, "")) {
       ociInclude = "db_oci.h";
       fprintf(logFile, "\rOracle: %s found in Seed7 include directory.\n", ociInclude);
       appendOption(include_options, includeOption);
@@ -4937,7 +5094,19 @@ static void determineFireDefines (FILE *versionFile,
                                     "return 0;}\n",
                                     includeOption, "")) {
       fireInclude = "ibase.h";
-      fprintf(logFile, "\rFire: %s found in system include directory.\n",
+      fprintf(logFile, "\rFirebird: %s found in system include directory.\n",
+              fireInclude);
+    } else if (compileAndLinkWithOptionsOk("#include <firebird/ibase.h>\n"
+                                           "int main(int argc,char *argv[]){\n"
+                                           "isc_db_handle conn;\n"
+                                           "isc_stmt_handle stmt;\n"
+                                           "ISC_STATUS status_vector[20];\n"
+                                           "char name = isc_dpb_user_name;\n"
+                                           "char passwd = isc_dpb_password;\n"
+                                           "return 0;}\n",
+                                           includeOption, "")) {
+      fireInclude = "firebird/ibase.h";
+      fprintf(logFile, "\rFirebird: %s found in system include directory.\n",
               fireInclude);
     } else if (compileAndLinkWithOptionsOk("#include \"tst_vers.h\"\n"
                                            "#include \"db_fire.h\"\n"
@@ -4950,7 +5119,7 @@ static void determineFireDefines (FILE *versionFile,
                                            "return 0;}\n",
                                            "", "")) {
       fireInclude = "db_fire.h";
-      fprintf(logFile, "\rFire: %s found in Seed7 include directory.\n",
+      fprintf(logFile, "\rFirebird: %s found in Seed7 include directory.\n",
               fireInclude);
       includeOption[0] = '\0';
     } /* if */
@@ -4978,7 +5147,7 @@ static void determineFireDefines (FILE *versionFile,
 #ifdef FIRE_LIBRARY_PATH
       appendOption(additional_system_libs, FIRE_LIBRARY_PATH);
 #endif
-      fprintf(logFile, "\rFire: Linker option: %s\n", FIRE_LIBS);
+      fprintf(logFile, "\rFirebird: Linker option: %s\n", FIRE_LIBS);
       appendOption(additional_system_libs, FIRE_LIBS);
     } else {
       writeDllList = 1;
@@ -4989,7 +5158,7 @@ static void determineFireDefines (FILE *versionFile,
     if (writeDllList) {
       fprintf(versionFile, "#define FIRE_DLL");
       for (idx = 0; idx < sizeof(dllNameList) / sizeof(char *); idx++) {
-        fprintf(logFile, "\rFire: DLL / Shared library: %s\n", dllNameList[idx]);
+        fprintf(logFile, "\rFirebird: DLL / Shared library: %s\n", dllNameList[idx]);
         fprintf(versionFile, " \"%s\",", dllNameList[idx]);
       } /* for */
       fprintf(versionFile, "\n");
@@ -5115,8 +5284,8 @@ static void writeReadBufferEmptyMacro (FILE *versionFile)
       } else {
         define_read_buffer_empty = NULL;
       } /* if */
-    } else {
 #if defined FILE_STRUCT_READ_PTR_OFFSET && defined FILE_STRUCT_READ_END_OFFSET
+    } else {
       sprintf(macro_buffer,
               "#define read_buffer_empty(fp) "
               "(*((int **)&((char *)(fp))[%d]) >= *((int **)&((char *)(fp))[%d]))",
@@ -5124,24 +5293,46 @@ static void writeReadBufferEmptyMacro (FILE *versionFile)
       define_read_buffer_empty = macro_buffer;
       printf("%s\n", define_read_buffer_empty);
 #else
+    } else if (compileAndLinkOk("#include<stdio.h>\n"
+                                "typedef struct {unsigned flags; unsigned char *rpos, *rend;} MY_FILE;\n"
+                                "int main(int argc,char *argv[])\n"
+                                "{FILE*fp;((MY_FILE*)(fp))->rpos>=((MY_FILE*)(fp))->rend;return 0;}\n")) {
+      define_read_buffer_empty = "typedef struct {unsigned flags; unsigned char *rpos, *rend;} MY_FILE;\n"
+                                 "#define read_buffer_empty(fp)"
+                                 " (((MY_FILE*)(fp))->rpos>=((MY_FILE*)(fp))->rend)";
+    } else {
       define_read_buffer_empty = NULL;
 #endif
     } /* if */
     if (define_read_buffer_empty != NULL) {
-      strcpy(buffer, "#include<stdio.h>\n");
-      strcat(buffer, define_read_buffer_empty);
-      strcat(buffer, "\nint main(int argc,char *argv[])\n"
-                     "{FILE*fp;fp=fopen(\"tst_vers.h\",\"r\");\n"
-                     "if(fp==NULL)puts(0);else\n"
-                     "if(!read_buffer_empty(fp)){fclose(fp);puts(0);}else{"
-                     "getc(fp);printf(\"%d\\n\","
-                     "read_buffer_empty(fp)?0:1);fclose(fp);}\n"
-                     "return 0;}\n");
+      sprintf(buffer,
+              "#include<stdio.h>\n"
+              "%s\n"
+              "int main(int argc,char *argv[]){\n"
+              "FILE *aFile;\n"
+              "aFile = fopen(\"ctstfile.txt\", \"w\");\n"
+              "if (aFile != NULL) {\n"
+              "  fputs(\"abcdefghijklmnopqrstuvwxyz\\n\", aFile);\n"
+              "  fclose(aFile);\n"
+              "}\n"
+              "aFile = fopen(\"ctstfile.txt\", \"r\");\n"
+              "if (aFile == NULL) {\n"
+              "  puts(\"0\");\n"
+              "} else if (!read_buffer_empty(aFile)) {\n"
+              "  fclose(aFile);\n"
+              "  puts(\"0\");\n"
+              "} else {\n"
+              "  getc(aFile);\n"
+              "  printf(\"%%d\\n\", read_buffer_empty(aFile)?0:1);\n"
+              "  fclose(aFile);\n"
+              "}\n"
+              "return 0;}\n", define_read_buffer_empty);
       if (!compileAndLinkOk(buffer) || doTest() != 1) {
         fprintf(logFile, "\n *** %s does not work.\n",
                 define_read_buffer_empty);
         define_read_buffer_empty = NULL;
       } /* if */
+      doRemove("ctstfile.txt");
     } else {
       fprintf(logFile, "\n *** Could not define macro read_buffer_empty.\n");
     } /* if */
@@ -5228,10 +5419,20 @@ int main (int argc, char **argv)
       fputs("\"\n", versionFile);
       fclose(aFile);
     } /* if */
-    initializeNullDevice(versionFile);
+    initializeNullDevice();
     fprintf(logFile, "done\n");
+    fprintf(logFile, "Chkccomp uses %s as null device.\n", nullDevice);
     numericSizes(versionFile);
     fprintf(logFile, "General settings: ");
+    determineNullDevice(versionFile);
+    determineCallingConventions(versionFile);
+    fprintf(versionFile, "#define LINE_DIRECTIVE_ACCEPTS_UTF8 %d\n",
+            compileAndLinkOk("#include <stdio.h>\n#include <string.h>\n"
+                             "int main (int argc, char *argv[]) {\n"
+                             "#line 1 \"\303\244\303\266\303\274.c\"\n"
+                             "printf(\"%d\\n\", strcmp(__FILE__,\n"
+                             "    \"\\303\\244\\303\\266\\303\\274.c\") == 0);\n"
+                             "return 0; }\n") && doTest() == 1);
     fprintf(versionFile, "#define UNISTD_H_PRESENT %d\n",
             compileAndLinkOk("#include <unistd.h>\n"
                              "int main(int argc,char *argv[]){return 0;}\n"));
@@ -5450,17 +5651,17 @@ int main (int argc, char **argv)
     fprintf(versionFile, "#define HAS_SETJMP %d\n",
         compileAndLinkOk("#include <stdio.h>\n#include <setjmp.h>\n"
                          "int main(int argc, char *argv[]){\n"
-                         "jmp_buf env; int ret_code; int count = 2;\n"
+                         "jmp_buf env; int ret_code = 4; int count = 2;\n"
                          "if ((ret_code=setjmp(env)) == 0) {\n"
-                         "count--; longjmp(env, count);\n"
+                         "count--; longjmp(env, count); printf(\"3\\n\");\n"
                          "} else printf(\"%d\\n\", ret_code);\n"
                          "return 0;}\n") && doTest() == 1);
     fprintf(versionFile, "#define HAS_SIGSETJMP %d\n",
         compileAndLinkOk("#include <stdio.h>\n#include <setjmp.h>\n"
                          "int main(int argc, char *argv[]){\n"
-                         "sigjmp_buf env; int ret_code; int count = 2;\n"
+                         "sigjmp_buf env; int ret_code = 4; int count = 2;\n"
                          "if ((ret_code=sigsetjmp(env, 1)) == 0) {\n"
-                         "count--; siglongjmp(env, count);\n"
+                         "count--; siglongjmp(env, count); printf(\"3\\n\");\n"
                          "} else printf(\"%d\\n\", ret_code);\n"
                          "return 0;}\n") && doTest() == 1);
     fprintf(versionFile, "#define HAS_SYMBOLIC_LINKS %d\n",

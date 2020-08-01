@@ -301,8 +301,8 @@ const proc: listProg (inout file: listFile, in integer: fromLine, in integer: to
     doList := fromLine = 0;
     for number range 1 to length(prg) do
       if prg[number].linenum <> "" then
-        doList := integer parse (prg[number].linenum) >= fromLine and
-                  integer parse (prg[number].linenum) <= toLine;
+        doList := integer(prg[number].linenum) >= fromLine and
+                  integer(prg[number].linenum) <= toLine;
       end if;
       if doList and (prg[number].line <> "" or prg[number].linenum <> "" or
           prg[number].label <> "") then
@@ -316,8 +316,8 @@ const proc: listProg (inout file: listFile, in integer: fromLine, in integer: to
         writeln(listFile, prg[number].line);
       end if;
       if prg[number].linenum <> "" then
-        doList := integer parse (prg[number].linenum) >= fromLine and
-                  integer parse (prg[number].linenum) < toLine;
+        doList := integer(prg[number].linenum) >= fromLine and
+                  integer(prg[number].linenum) < toLine;
       end if;
     end for;
   end func;
@@ -876,10 +876,10 @@ const proc: goto_label_or_linenum (in string: new_label) is func
       statement_label := new_label;
       file_line_number := pred(label[statement_label]);
     elsif new_label <> "" and new_label[1] in digit_char then
-      searched_linenum := integer parse new_label;
+      searched_linenum := integer(new_label);
       for number range 1 to length(prg) do
         if prg[number].linenum <> "" then
-          linenum := integer parse (prg[number].linenum);
+          linenum := integer(prg[number].linenum);
           if linenum >= searched_linenum and
               linenum < matched_linenum then
             matched_linenum := linenum;
@@ -1262,7 +1262,7 @@ const proc: assign_input_number (in string: variable_name, in string: param1) is
     var float: num1 is 0.0;
   begin
     block
-      num1 := float parse param1;
+      num1 := float(param1);
       setNumericVar(variable_name, num1);
       line_marker;
       writeln(log, "INPUT " <& variable_name <& " <- " <& num1);
@@ -1350,7 +1350,7 @@ const proc: getBoundsFromIndexPart (in var string: indexPart, in integer: dimens
     if indexPart <> "" and (indexPart[1] = '[' or indexPart[1] = '(') then
       repeat
         indexPart := indexPart[2 ..];
-        anIndex := integer parse getDigits(indexPart);
+        anIndex := integer(getDigits(indexPart));
         incr(indexDimension);
       until indexDimension = dimension;
       if first then
@@ -1440,7 +1440,7 @@ const func integer: getFirstIndex (in string: array_name,
           indexString := array_name[succ(parenPos) .. pred(paren2Pos)];
         end if;
       end if;
-      lbound := integer parse indexString;
+      lbound := integer(indexString);
     end if;
   end func;
 
@@ -2419,7 +2419,7 @@ const func float: exec_primary (inout string: symbol, inout string: line) is fun
       when {"ERL"}:
         symbol := get_symbol(line);
         if error_linenum <> "" and error_linenum[1] in digit_char then
-          exprResult := flt(integer parse error_linenum);
+          exprResult := flt(integer(error_linenum));
         else
           exprResult := 0.0;
         end if;
@@ -2754,7 +2754,7 @@ const func float: exec_primary (inout string: symbol, inout string: line) is fun
           stri2 := get_symbol(stri1);
         end if;
         block
-          exprResult := float parse stri2;
+          exprResult := float(stri2);
         exception
           catch RANGE_ERROR:
             exprResult := 0.0;
@@ -2790,7 +2790,7 @@ const func float: exec_primary (inout string: symbol, inout string: line) is fun
             symbol := symbol[.. pred(length(symbol))];
           end if;
           block
-            exprResult := float parse symbol;
+            exprResult := float(symbol);
           exception
             catch RANGE_ERROR:
               error_marker;
@@ -5382,7 +5382,7 @@ const proc: exec_read (inout string: symbol, inout string: line) is func
               param1 := get_symbol(data_elem);
             end if;
             block
-              num1 := float parse param1;
+              num1 := float(param1);
               setNumericVar(variable_name, num1);
               line_marker;
               write(log, "READ " <& variable_name <& " " <& num1 <& " IN DATA LINE ");
@@ -5445,7 +5445,7 @@ const proc: exec_input_from_file (inout string: symbol, inout string: line) is f
           variable_name := get_name(symbol, line);
           param1 := read_input_number(aFile);
           block
-            num1 := float parse param1;
+            num1 := float(param1);
             setNumericVar(variable_name, num1);
             line_marker;
             writeln(log, "INPUT #" <& file_number <& ", " <& variable_name <&
@@ -7421,7 +7421,7 @@ const proc: exec_draw (inout string: symbol, inout string: line) is func
         when {'U'}:
           param1 := getDigits(cmdStri);
           if param1 <> "" then
-            yPos -:= scale_factor * integer parse param1;
+            yPos -:= scale_factor * integer(param1);
             if pen_down then
               lineTo(xOld, yOld, xPos, yPos, color_num(foreground_color));
             end if;
@@ -7429,7 +7429,7 @@ const proc: exec_draw (inout string: symbol, inout string: line) is func
         when {'D'}:
           param1 := getDigits(cmdStri);
           if param1 <> "" then
-            yPos +:= scale_factor * integer parse param1;
+            yPos +:= scale_factor * integer(param1);
             if pen_down then
               lineTo(xOld, yOld, xPos, yPos, color_num(foreground_color));
             end if;
@@ -7437,7 +7437,7 @@ const proc: exec_draw (inout string: symbol, inout string: line) is func
         when {'L'}:
           param1 := getDigits(cmdStri);
           if param1 <> "" then
-            xPos -:= scale_factor * integer parse param1;
+            xPos -:= scale_factor * integer(param1);
             if pen_down then
               lineTo(xOld, yOld, xPos, yPos, color_num(foreground_color));
             end if;
@@ -7445,7 +7445,7 @@ const proc: exec_draw (inout string: symbol, inout string: line) is func
         when {'R'}:
           param1 := getDigits(cmdStri);
           if param1 <> "" then
-            xPos +:= scale_factor * integer parse param1;
+            xPos +:= scale_factor * integer(param1);
             if pen_down then
               lineTo(xOld, yOld, xPos, yPos, color_num(foreground_color));
             end if;
@@ -7453,7 +7453,7 @@ const proc: exec_draw (inout string: symbol, inout string: line) is func
         when {'E'}:
           param1 := getDigits(cmdStri);
           if param1 <> "" then
-            num1 := integer parse param1;
+            num1 := integer(param1);
             xPos +:= scale_factor * num1;
             yPos -:= scale_factor * num1;
             if pen_down then
@@ -7463,7 +7463,7 @@ const proc: exec_draw (inout string: symbol, inout string: line) is func
         when {'F'}:
           param1 := getDigits(cmdStri);
           if param1 <> "" then
-            num1 := integer parse param1;
+            num1 := integer(param1);
             xPos +:= scale_factor * num1;
             yPos +:= scale_factor * num1;
             if pen_down then
@@ -7473,7 +7473,7 @@ const proc: exec_draw (inout string: symbol, inout string: line) is func
         when {'G'}:
           param1 := getDigits(cmdStri);
           if param1 <> "" then
-            num1 := integer parse param1;
+            num1 := integer(param1);
             xPos -:= scale_factor * num1;
             yPos +:= scale_factor * num1;
             if pen_down then
@@ -7483,7 +7483,7 @@ const proc: exec_draw (inout string: symbol, inout string: line) is func
         when {'H'}:
           param1 := getDigits(cmdStri);
           if param1 <> "" then
-            num1 := integer parse param1;
+            num1 := integer(param1);
             xPos -:= scale_factor * num1;
             yPos -:= scale_factor * num1;
             if pen_down then
@@ -7495,7 +7495,7 @@ const proc: exec_draw (inout string: symbol, inout string: line) is func
           sign := getSign(cmdStri);
           param1 := getDigits(cmdStri);
           if param1 <> "" then
-            num1 := integer parse param1;
+            num1 := integer(param1);
             if sign = "" then
               xPos := scale_factor * num1;
             else
@@ -7508,7 +7508,7 @@ const proc: exec_draw (inout string: symbol, inout string: line) is func
               sign := getSign(cmdStri);
               param1 := getDigits(cmdStri);
               if param1 <> "" then
-                num2 := integer parse param1;
+                num2 := integer(param1);
                 if sign = "" then
                   yPos := scale_factor * num2;
                 else
@@ -7524,13 +7524,13 @@ const proc: exec_draw (inout string: symbol, inout string: line) is func
         when {'C'}:
           param1 := getDigits(cmdStri);
           if param1 <> "" then
-            foreground_color := integer parse param1;
+            foreground_color := integer(param1);
             writeln(log, "COLOR " <& foreground_color);
           end if;
         when {'S'}:
           param1 := getDigits(cmdStri);
           if param1 <> "" then
-            scale_factor := integer parse param1;
+            scale_factor := integer(param1);
             writeln(log, "SCALE " <& scale_factor);
           end if;
         when {'T'}:
@@ -7538,7 +7538,7 @@ const proc: exec_draw (inout string: symbol, inout string: line) is func
           if currCmd = 'A' then
             param1 := getDigits(cmdStri);
             if param1 <> "" then
-              turn_factor := integer parse param1;
+              turn_factor := integer(param1);
               writeln(log, "TURN ANGLE " <& turn_factor);
             end if;
           end if;
@@ -8465,12 +8465,12 @@ const func boolean: execCmd (inout string: symbol, inout string: line) is func
         when {"LIST"}:
           symbol := get_symbol(line);
           if symbol <> "" and symbol[1] in digit_char then
-            index1 := integer parse symbol;
+            index1 := integer(symbol);
             symbol := get_symbol(line);
             if symbol = "-" then
               symbol := get_symbol(line);
               if symbol <> "" and symbol[1] in digit_char then
-                index2 := integer parse symbol;
+                index2 := integer(symbol);
                 symbol := get_symbol(line);
               else
                 index2 := MAX_LINENUM;
@@ -8483,7 +8483,7 @@ const func boolean: execCmd (inout string: symbol, inout string: line) is func
             if symbol = "-" then
               symbol := get_symbol(line);
               if symbol <> "" and symbol[1] in digit_char then
-                index2 := integer parse symbol;
+                index2 := integer(symbol);
                 symbol := get_symbol(line);
               else
                 index2 := MAX_LINENUM;

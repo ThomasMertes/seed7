@@ -175,7 +175,7 @@ chkccomp.h:
 	echo "#define SQLITE_DLL \"libsqlite3.so\"" >> chkccomp.h
 	echo "#define SQLITE_USE_LIB" >> chkccomp.h
 	echo "#define POSTGRESQL_LIBS \"-lpq\"" >> chkccomp.h
-	echo "#define POSTGRESQL_DLL \"libpq.so\"" >> chkccomp.h
+	echo "#define POSTGRESQL_DLL \"libpq.so\",\"libpq.so.5\"" >> chkccomp.h
 	echo "#define POSTGRESQL_USE_LIB" >> chkccomp.h
 	echo "#define ODBC_LIBS \"-lodbc\"" >> chkccomp.h
 	echo "#define ODBC_DLL \"libodbc.so\"" >> chkccomp.h
@@ -192,6 +192,7 @@ version.h: chkccomp.h
 	echo "#define SEARCH_PATH_DELIMITER ':'" >> version.h
 	echo "#define AWAIT_WITH_SELECT" >> version.h
 	echo "#define $(TERMINFO_OR_TERMCAP)" >> version.h
+	echo "#define DEFINE_DSO_HANDLE" >> version.h
 	echo "#define SIGNAL_HANDLER_CAN_DO_IO" >> version.h
 	echo "#define CONSOLE_UTF8" >> version.h
 	echo "#define OS_STRI_UTF8" >> version.h

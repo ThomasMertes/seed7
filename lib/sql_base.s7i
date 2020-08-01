@@ -54,37 +54,40 @@ const func string: str (in dbCategory: driver) is
              "DB_OCI", "DB_ODBC", "DB_FIRE") [succ(ord(driver))];
 
 
-const func dbCategory: (attr dbCategory) parse (in string: name) is func
+const func dbCategory: dbCategory (in string: name) is func
   result
     var dbCategory: driver is NO_DB;
+  local
+    var string: ucName is "";
   begin
-    if  upper(name) = "MYSQL" or
-        upper(name) = "MY" then
+    ucName := upper(name);
+    if  ucName = "MYSQL" or
+        ucName = "MY" then
       driver := DB_MYSQL;
-    elsif upper(name) = "SQLITE" or
-          upper(name) = "LITE" then
+    elsif ucName = "SQLITE" or
+          ucName = "LITE" then
       driver := DB_SQLITE;
-    elsif upper(name) = "POSTGRESQL" or
-          upper(name) = "POST" then
+    elsif ucName = "POSTGRESQL" or
+          ucName = "POST" then
       driver := DB_POSTGRESQL;
-    elsif upper(name) = "ORACLE" or
-          upper(name) = "OCI" then
+    elsif ucName = "ORACLE" or
+          ucName = "OCI" then
       driver := DB_OCI;
-    elsif upper(name) = "ODBC" then
+    elsif ucName = "ODBC" then
       driver := DB_ODBC;
-    elsif upper(name) = "FIRE" or
-          upper(name) = "FIREBIRD" or
-          upper(name) = "INTERBASE" then
+    elsif ucName = "FIRE" or
+          ucName = "FIREBIRD" or
+          ucName = "INTERBASE" then
       driver := DB_FIRE;
     end if;
   end func;
 
 
+const func dbCategory: (attr dbCategory) parse (in string: name) is
+  return dbCategory(name);
+
+
 enable_io(dbCategory);
-
-
-const func dbCategory: dbCategory(in string: name) is
-  return dbCategory parse name;
 
 
 (**

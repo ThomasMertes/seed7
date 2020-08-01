@@ -69,7 +69,7 @@ const func file: openActiveData (in string: parameter) is func
   begin
     addrAndPort := split(parameter, ",");
     if length(addrAndPort) = 6 then
-      dataPort := integer parse (addrAndPort[5]) * 256 + integer parse (addrAndPort[6]);
+      dataPort := integer(addrAndPort[5]) * 256 + integer(addrAndPort[6]);
       # writeln(dataPort);
       data := openInetSocket(join(addrAndPort[ .. 4], "."), dataPort);
       # writeln(data <> STD_NULL);

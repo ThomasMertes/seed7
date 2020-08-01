@@ -63,7 +63,7 @@ objectType big_ne             (listType arguments);
 objectType big_negate         (listType arguments);
 objectType big_odd            (listType arguments);
 objectType big_ord            (listType arguments);
-objectType big_parse          (listType arguments);
+objectType big_parse1         (listType arguments);
 objectType big_parse_based    (listType arguments);
 objectType big_plus           (listType arguments);
 objectType big_pred           (listType arguments);

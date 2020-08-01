@@ -253,7 +253,7 @@ typedef SQLHANDLE SQLHWND;
 #define SQL_MAX_CONCURRENT_ACTIVITIES        1
 
 #ifndef STDCALL
-#if defined(_WIN32)
+#if defined(_WIN32) && HAS_STDCALL
 #define STDCALL __stdcall
 #else
 #define STDCALL

@@ -231,7 +231,7 @@ const proc: process (REF_CAT_PARSE, in reference: function,
   begin
     compDataLibraryUsed := TRUE;
     c_expr.expr &:= "refCatParse(";
-    getAnyParamToExpr(params[3], c_expr);
+    getAnyParamToExpr(params[1], c_expr);
     c_expr.expr &:= ")";
   end func;
 

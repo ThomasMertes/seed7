@@ -353,16 +353,16 @@ const func integer: bytes2Int (in string: byteStri,
 
 
 const func bigInteger: bytes2BigInt (in string: byteStri, UNSIGNED, BE) is
-  return bStriBe2BigInt(bstring parse byteStri, FALSE);
+  return bStriBe2BigInt(bstring(byteStri), FALSE);
 
 const func bigInteger: bytes2BigInt (in string: byteStri, UNSIGNED, LE) is
-  return bStriLe2BigInt(bstring parse byteStri, FALSE);
+  return bStriLe2BigInt(bstring(byteStri), FALSE);
 
 const func bigInteger: bytes2BigInt (in string: byteStri, SIGNED, BE) is
-  return bStriBe2BigInt(bstring parse byteStri, TRUE);
+  return bStriBe2BigInt(bstring(byteStri), TRUE);
 
 const func bigInteger: bytes2BigInt (in string: byteStri, SIGNED, LE) is
-  return bStriLe2BigInt(bstring parse byteStri, TRUE);
+  return bStriLe2BigInt(bstring(byteStri), TRUE);
 
 
 (**

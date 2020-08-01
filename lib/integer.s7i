@@ -522,7 +522,7 @@ const func integer: lowestSetBit (in integer: number)            is action "INT_
  *             an integer literal or when the integer literal is too big
  *             or too small to be represented as ''integer'' value.
  *)
-const func integer: (attr integer) parse (in string: stri)       is action "INT_PARSE";
+const func integer: integer (in string: stri)                    is action "INT_PARSE1";
 
 
 (**
@@ -536,8 +536,8 @@ const func integer: (attr integer) parse (in string: stri)       is action "INT_
  *             an integer literal or when the integer literal is too big
  *             or too small to be represented as ''integer'' value.
  *)
-const func integer: integer (in string: stri) is
-    return integer parse stri;
+const func integer: (attr integer) parse (in string: stri) is
+    return integer(stri);
 
 
 (**

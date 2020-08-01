@@ -1116,13 +1116,13 @@ objectType int_odd (listType arguments)
  *             an integer literal or when the integer literal is too big
  *             or too small to be represented as integer value.
  */
-objectType int_parse (listType arguments)
+objectType int_parse1 (listType arguments)
 
-  { /* int_parse */
-    isit_stri(arg_3(arguments));
+  { /* int_parse1 */
+    isit_stri(arg_1(arguments));
     return bld_int_temp(
-        intParse(take_stri(arg_3(arguments))));
-  } /* int_parse */
+        intParse(take_stri(arg_1(arguments))));
+  } /* int_parse1 */
 
 
 

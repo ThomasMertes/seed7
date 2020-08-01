@@ -387,16 +387,16 @@ static inline boolType res_init (const_locObjType block_result,
     trace1(block_result->init_value);
     printf("\n"); */
     if (block_result->object != NULL) {
-      /* Backup_block_result is initialized in res_init and used   */
-      /* res_restore. Backup_block_result is initialized and used  */
-      /* conditionally. In both cases (initialisation and use) the */
-      /* same condition is used. Possible compiler warnings that   */
-      /* "it may be used uninitialized" can be ignored.            */
+      /* Backup_block_result is initialized in res_init and used in */
+      /* res_restore. Backup_block_result is initialized and used   */
+      /* conditionally. In both cases (initialisation and use) the  */
+      /* same condition is used. Possible compiler warnings that    */
+      /* "it may be used uninitialized" can be ignored.             */
       *backup_block_result = block_result->object->value.objValue;
       create_local_object(block_result, block_result->init_value, &err_info);
     } /* if */
     logFunction(printf("res_init(" FMT_U_MEM ") -->\n",
-                       block_result->object ?
+                       block_result->object != NULL ?
                            ((memSizeType) block_result->object->value.objValue) : 0););
     return err_info == OKAY_NO_ERROR;
   } /* res_init */
@@ -417,11 +417,11 @@ static inline void res_restore (const_locObjType block_result,
         /* CLEAR_VAR_FLAG(*result); */
         SET_TEMP_FLAG(*result);
       } /* if */
-      /* Backup_block_result is initialized in res_init and used   */
-      /* res_restore. Backup_block_result is initialized and used  */
-      /* conditionally. In both cases (initialisation and use) the */
-      /* same condition is used. Possible compiler warnings that   */
-      /* "it may be used uninitialized" can be ignored.            */
+      /* Backup_block_result is initialized in res_init and used in */
+      /* res_restore. Backup_block_result is initialized and used   */
+      /* conditionally. In both cases (initialisation and use) the  */
+      /* same condition is used. Possible compiler warnings that    */
+      /* "it may be used uninitialized" can be ignored.             */
       block_result->object->value.objValue = backup_block_result;
     } else if (*result != NULL && !TEMP_OBJECT(*result) &&
         CATEGORY_OF_OBJ(*result) != ENUMLITERALOBJECT) {

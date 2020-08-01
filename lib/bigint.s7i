@@ -464,7 +464,7 @@ const func string: (in var bigInteger: number) RADIX (in integer: base)  is acti
  *             an integer literal.
  *  @exception MEMORY_ERROR  Not enough memory to represent the result.
  *)
-const func bigInteger: (attr bigInteger) parse (in string: stri)         is action "BIG_PARSE";
+const func bigInteger: bigInteger (in string: stri)                      is action "BIG_PARSE1";
 
 
 (**
@@ -478,8 +478,8 @@ const func bigInteger: (attr bigInteger) parse (in string: stri)         is acti
  *             an integer literal.
  *  @exception MEMORY_ERROR  Not enough memory to represent the result.
  *)
-const func bigInteger: bigInteger (in string: stri) is
-    return bigInteger parse stri;
+const func bigInteger: (attr bigInteger) parse (in string: stri) is
+    return bigInteger(stri);
 
 
 (**
@@ -533,7 +533,7 @@ const func integer: bitLength (in bigInteger: number)                    is acti
 const func integer: lowestSetBit (in bigInteger: number)                 is action "BIG_LOWEST_SET_BIT";
 
 
-const bigInteger: (attr bigInteger) . value                              is bigInteger parse "0";
+const bigInteger: (attr bigInteger) . value                              is 0_;
 
 
 (**

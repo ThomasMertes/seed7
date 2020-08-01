@@ -68,7 +68,7 @@ objectType flt_mult           (listType arguments);
 objectType flt_mult_assign    (listType arguments);
 objectType flt_ne             (listType arguments);
 objectType flt_negate         (listType arguments);
-objectType flt_parse          (listType arguments);
+objectType flt_parse1         (listType arguments);
 objectType flt_plus           (listType arguments);
 objectType flt_pow            (listType arguments);
 objectType flt_rand           (listType arguments);

@@ -3699,15 +3699,9 @@ const proc: check_string_tail is func
   end func;
 
 
-const func string: rangeFunction (in string: stri, in integer: start, in integer: stop) is
-  return stri[start .. stop];
-
-
-const proc: check_string_range is func
-  local
+const func boolean: check_string_range_expr is func
+  result
     var boolean: okay is TRUE;
-    var boolean: ok is TRUE;
-    var string: stri is "";
   begin
     if  "" [ -5 .. -9 ] <> "" or
         "" [ -5 .. -6 ] <> "" or
@@ -4548,7 +4542,15 @@ const proc: check_string_range is func
       writeln(" ***** STRING [ START .. STOP ] does not work correct. (2)");
       okay := FALSE;
     end if;
+  end func;
 
+
+const func boolean: check_string_range_assign_1 is func
+  result
+    var boolean: ok is TRUE;
+  local
+    var string: stri is "";
+  begin
     stri := "" [ -5 .. -9 ]; ok := ok and stri = "";
     stri := "" [ -5 .. -6 ]; ok := ok and stri = "";
     stri := "" [ -5 .. -5 ]; ok := ok and stri = "";
@@ -4967,10 +4969,16 @@ const proc: check_string_range is func
     stri := "1234567890" [ intExpr(15) .. intExpr(20) ]; ok := ok and stri = "";
     if not ok then
       writeln(" ***** stri := STRING [ START .. STOP ] does not work correct. (1)");
-      okay := FALSE;
     end if;
+  end func;
 
-    ok := TRUE;
+
+const func boolean: check_string_range_assign_2 is func
+  result
+    var boolean: ok is TRUE;
+  local
+    var string: stri is "";
+  begin
     stri := striExpr("") [ -5 .. -9 ]; ok := ok and stri = "";
     stri := striExpr("") [ -5 .. -6 ]; ok := ok and stri = "";
     stri := striExpr("") [ -5 .. -5 ]; ok := ok and stri = "";
@@ -5389,9 +5397,18 @@ const proc: check_string_range is func
     stri := striExpr("1234567890") [ intExpr(15) .. intExpr(20) ]; ok := ok and stri = "";
     if not ok then
       writeln(" ***** string := STRING [ START .. STOP ] does not work correct. (2)");
-      okay := FALSE;
     end if;
+  end func;
 
+
+const func string: rangeFunction (in string: stri, in integer: start, in integer: stop) is
+  return stri[start .. stop];
+
+
+const func boolean: check_string_range_func is func
+  result
+    var boolean: okay is TRUE;
+  begin
     if  rangeFunction("", -5, -9) <> "" or
         rangeFunction("", -5, -6) <> "" or
         rangeFunction("", -5, -5) <> "" or
@@ -6231,6 +6248,28 @@ const proc: check_string_range is func
       writeln(" ***** STRING [ START .. STOP ] via a function does not work correct. (2)");
       okay := FALSE;
     end if;
+  end func;
+
+
+const proc: check_string_range is func
+  local
+    var boolean: okay is TRUE;
+  begin
+    if not check_string_range_expr then
+      okay := FALSE;
+    end if;
+
+    if not check_string_range_assign_1 then
+      okay := FALSE;
+    end if;
+
+    if not check_string_range_assign_2 then
+      okay := FALSE;
+    end if;
+
+    if not check_string_range_func then
+      okay := FALSE;
+    end if;
 
     if  "" [-2147483643 .. pred(-2147483647)] <> "" or
         "" [-2147483644 .. pred(-2147483647)] <> "" or
@@ -6350,19 +6389,9 @@ const proc: check_string_range is func
   end func;
 
 
-const func string: substrFunction (in string: stri, in integer: start) is
-  return stri[start len 1];
-
-
-const func string: substrFunction (in string: stri, in integer: start, in integer: length) is
-  return stri[start len length];
-
-
-const proc: check_string_substr is func
-  local
+const func boolean: check_string_substr_expr is func
+  result
     var boolean: okay is TRUE;
-    var boolean: ok is TRUE;
-    var string: stri is "";
   begin
     if  "" [ -5 len -9 ] <> "" or
         "" [ -5 len -5 ] <> "" or
@@ -7419,7 +7448,15 @@ const proc: check_string_substr is func
       writeln(" ***** STRING [ START len LENGTH ] does not work correct. (2)");
       okay := FALSE;
     end if;
+  end func;
 
+
+const func boolean: check_string_substr_assign_1 is func
+  result
+    var boolean: ok is TRUE;
+  local
+    var string: stri is "";
+  begin
     stri := "" [ -5 len -9 ]; ok := ok and stri = "";
     stri := "" [ -5 len -5 ]; ok := ok and stri = "";
     stri := "" [ -5 len  0 ]; ok := ok and stri = "";
@@ -7946,9 +7983,16 @@ const proc: check_string_substr is func
     stri := "1234567890" [ intExpr(15) len intExpr(20) ]; ok := ok and stri = "";
     if not ok then
       writeln(" ***** stri := STRING [ START len LENGTH ] does not work correct. (1)");
-      okay := FALSE;
     end if;
+  end func;
 
+
+const func boolean: check_string_substr_assign_2 is func
+  result
+    var boolean: ok is TRUE;
+  local
+    var string: stri is "";
+  begin
     stri := striExpr("") [ -5 len -9 ]; ok := ok and stri = "";
     stri := striExpr("") [ -5 len -5 ]; ok := ok and stri = "";
     stri := striExpr("") [ -5 len  0 ]; ok := ok and stri = "";
@@ -8475,9 +8519,22 @@ const proc: check_string_substr is func
     stri := striExpr("1234567890") [ intExpr(15) len intExpr(20) ]; ok := ok and stri = "";
     if not ok then
       writeln(" ***** stri := STRING [ START len LENGTH ] does not work correct. (2)");
-      okay := FALSE;
     end if;
+  end func;
 
+
+const func string: substrFunction (in string: stri, in integer: start) is
+  return stri[start len 1];
+
+
+const func string: substrFunction (in string: stri, in integer: start, in integer: length) is
+  return stri[start len length];
+
+
+const func boolean: check_string_substr_func is func
+  result
+    var boolean: okay is TRUE;
+  begin
     if  substrFunction("", -5) <> "" or
         substrFunction("",  0) <> "" or
         substrFunction("",  1) <> "" or
@@ -9611,6 +9668,28 @@ const proc: check_string_substr is func
         substrFunction(striExpr("1234567890"), intExpr(15), intExpr( 2)) <> "" or
         substrFunction(striExpr("1234567890"), intExpr(15), intExpr(20)) <> "" then
       writeln(" ***** STRING [ START len LENGTH ] via a function does not work correct. (2)");
+      okay := FALSE;
+    end if;
+  end func;
+
+
+const proc: check_string_substr is func
+  local
+    var boolean: okay is TRUE;
+  begin
+    if not check_string_substr_expr then
+      okay := FALSE;
+    end if;
+
+    if not check_string_substr_assign_1 then
+      okay := FALSE;
+    end if;
+
+    if not check_string_substr_assign_2 then
+      okay := FALSE;
+    end if;
+
+    if not check_string_substr_func then
       okay := FALSE;
     end if;
 

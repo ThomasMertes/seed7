@@ -153,7 +153,7 @@ static sqlFuncType sqlFunc = NULL;
 #define SQLLEN_MAX (SQLLEN) (((SQLULEN) 1 << (8 * sizeof(SQLLEN) - 1)) - 1)
 #define SQLINTEGER_MAX (SQLINTEGER) (((SQLUINTEGER) 1 << (8 * sizeof(SQLINTEGER) - 1)) - 1)
 #define SQLSMALLINT_MAX (SQLSMALLINT) (((SQLUSMALLINT) 1 << (8 * sizeof(SQLSMALLINT) - 1)) - 1)
-#define ERROR_MESSAGE_BUFFER_SIZE 1024
+#define ERROR_MESSAGE_BUFFER_SIZE 960
 #define MAX_DATETIME2_LENGTH 27
 #define MAX_DURATION_LENGTH 32
 
@@ -161,7 +161,7 @@ static sqlFuncType sqlFunc = NULL;
 #ifdef ODBC_DLL
 
 #ifndef STDCALL
-#if defined(_WIN32)
+#if defined(_WIN32) && HAS_STDCALL
 #define STDCALL __stdcall
 #else
 #define STDCALL
@@ -710,6 +710,7 @@ static striType processStatementStri (const const_striType sqlStatementStri,
   {
     memSizeType pos = 0;
     strElemType ch;
+    strElemType delimiter;
     memSizeType destPos = 0;
     striType processed;
 
@@ -723,15 +724,17 @@ static striType processStatementStri (const const_striType sqlStatementStri,
     } else {
       while (pos < sqlStatementStri->size && *err_info == OKAY_NO_ERROR) {
         ch = sqlStatementStri->mem[pos];
-        if (ch == '\'') {
-          processed->mem[destPos++] = '\'';
+        if (ch == '\'' || ch == '"') {
+          delimiter = ch;
+          processed->mem[destPos++] = delimiter;
           pos++;
-          while (pos < sqlStatementStri->size && (ch = sqlStatementStri->mem[pos]) != '\'') {
+          while (pos < sqlStatementStri->size &&
+              (ch = sqlStatementStri->mem[pos]) != delimiter) {
             processed->mem[destPos++] = ch;
             pos++;
           } /* while */
           if (pos < sqlStatementStri->size) {
-            processed->mem[destPos++] = '\'';
+            processed->mem[destPos++] = delimiter;
             pos++;
           } /* if */
         } else if (ch == '/') {
@@ -935,6 +938,23 @@ static errInfoType setupParameterColumn (preparedStmtType preparedStmt,
         case SQL_DATETIME:
         case SQL_TYPE_TIMESTAMP:
           param->buffer_length = sizeof(SQL_TIMESTAMP_STRUCT);
+          break;
+        case SQL_DECIMAL:
+        case SQL_NUMERIC:
+        case SQL_CHAR:
+        case SQL_VARCHAR:
+        case SQL_LONGVARCHAR:
+        case SQL_WCHAR:
+        case SQL_WVARCHAR:
+        case SQL_WLONGVARCHAR:
+        case SQL_BINARY:
+        case SQL_VARBINARY:
+        case SQL_LONGVARBINARY:
+          /* For this data types no buffer is reserved. Therefore   */
+          /* param->buffer is NULL and param->buffer_capacity is 0. */
+          /* All bind functions dealing with this data types check  */
+          /* the buffer_capacity and (re)allocate the buffer, when  */
+          /* necessary.                                             */
           break;
       } /* switch */
       if (param->buffer_length != 0) {
@@ -1919,19 +1939,16 @@ static memSizeType setNumericBigInt (void **buffer, memSizeType *buffer_capacity
   /* setNumericBigInt */
     logFunction(printf("setNumericBigInt(*, *, %s, *)\n",
                        bigHexCStri(bigIntValue)););
-    if (*buffer == NULL) {
-      if ((*buffer = malloc(sizeof(SQL_NUMERIC_STRUCT))) != NULL) {
-        *buffer_capacity = sizeof(SQL_NUMERIC_STRUCT);
-      } /* if */
-    } else if (*buffer_capacity < sizeof(SQL_NUMERIC_STRUCT)) {
+    if (*buffer_capacity < sizeof(SQL_NUMERIC_STRUCT)) {
       free(*buffer);
-      if ((*buffer = malloc(sizeof(SQL_NUMERIC_STRUCT))) != NULL) {
+      if (unlikely((*buffer = malloc(sizeof(SQL_NUMERIC_STRUCT))) == NULL)) {
+        *buffer_capacity = 0;
+        *err_info = MEMORY_ERROR;
+      } else {
         *buffer_capacity = sizeof(SQL_NUMERIC_STRUCT);
       } /* if */
     } /* if */
-    if (unlikely(*buffer == NULL)) {
-      *err_info = MEMORY_ERROR;
-    } else {
+    if (likely(*err_info == OKAY_NO_ERROR)) {
       negative = bigCmpSignedDigit(bigIntValue, 0) < 0;
       if (negative) {
         absoluteValue = bigAbs(bigIntValue);
@@ -2084,19 +2101,17 @@ static memSizeType setDecimalBigInt (void **buffer, memSizeType *buffer_capacity
     } else {
       /* prot_stri(stri);
          printf("\n"); */
-      if (*buffer == NULL) {
-        if ((*buffer = malloc(stri->size + NULL_TERMINATION_LEN)) != NULL) {
-          *buffer_capacity = stri->size + NULL_TERMINATION_LEN;
-        } /* if */
-      } else if (*buffer_capacity < stri->size + NULL_TERMINATION_LEN) {
+      if (*buffer_capacity < stri->size + NULL_TERMINATION_LEN) {
         free(*buffer);
-        if ((*buffer = malloc(stri->size + NULL_TERMINATION_LEN)) != NULL) {
+        *buffer = malloc(stri->size + NULL_TERMINATION_LEN);
+        if (unlikely(*buffer == NULL)) {
+          *buffer_capacity = 0;
+          *err_info = MEMORY_ERROR;
+        } else {
           *buffer_capacity = stri->size + NULL_TERMINATION_LEN;
         } /* if */
       } /* if */
-      if (unlikely(*buffer == NULL)) {
-        *err_info = MEMORY_ERROR;
-      } else {
+      if (likely(*err_info == OKAY_NO_ERROR)) {
         decimal = (unsigned char *) *buffer;
         for (srcIndex = 0; srcIndex < stri->size; srcIndex++) {
           decimal[destIndex] = (unsigned char) stri->mem[srcIndex];
@@ -2159,18 +2174,24 @@ static memSizeType setBigInt (void **buffer, memSizeType *buffer_capacity,
 
 
 
-static memSizeType setBigRat (void **buffer,
+static memSizeType setBigRat (void **buffer, memSizeType *buffer_capacity,
     const const_bigIntType numerator, const const_bigIntType denominator,
     SQLSMALLINT decimalDigits, errInfoType *err_info)
 
-  { /* setBigRat */
+  {
+    memSizeType length;
+
+  /* setBigRat */
 #if ENCODE_NUMERIC_STRUCT
-    return setNumericBigRat(buffer, numerator, denominator, decimalDigits,
+    length = setNumericBigRat(buffer, numerator, denominator, decimalDigits,
         err_info);
+    *buffer_capacity = length;
 #else
-    return setDecimalBigRat(buffer, numerator, denominator, decimalDigits,
+    length = setDecimalBigRat(buffer, numerator, denominator, decimalDigits,
         err_info);
+    *buffer_capacity = length + NULL_TERMINATION_LEN;
 #endif
+    return length;
   } /* setBigRat */
 
 
@@ -2855,7 +2876,8 @@ static void sqlBindBigRat (sqlStmtType sqlStatement, intType pos,
             c_type = SQL_C_CHAR,
 #endif
             param->buffer_length =
-                setBigRat(&param->buffer, numerator, denominator,
+                setBigRat(&param->buffer, &param->buffer_capacity,
+                          numerator, denominator,
                           param->decimalDigits, &err_info);
             break;
           case SQL_REAL:
@@ -2955,7 +2977,7 @@ static void sqlBindBool (sqlStmtType sqlStatement, intType pos, boolType value)
             break;
           case SQL_BIGINT:
             c_type = SQL_C_SBIGINT;
-            *(int64Type *) param->buffer = value;
+            *(int64Type *) param->buffer = (int64Type) value;
             break;
           case SQL_REAL:
             c_type = SQL_C_FLOAT;
@@ -2971,14 +2993,19 @@ static void sqlBindBool (sqlStmtType sqlStatement, intType pos, boolType value)
           case SQL_CHAR:
           case SQL_VARCHAR:
           case SQL_LONGVARCHAR:
-            c_type = SQL_C_SBIGINT;
-            free(param->buffer);
-            param->buffer_length = sizeof(int64Type);
-            param->buffer = malloc(sizeof(int64Type));
-            if (unlikely(param->buffer == NULL)) {
-              err_info = MEMORY_ERROR;
-            } else {
-              *(int64Type *) param->buffer = value;
+            c_type = SQL_C_SLONG;
+            if (param->buffer_capacity < sizeof(int32Type)) {
+              free(param->buffer);
+              if (unlikely((param->buffer = malloc(sizeof(int32Type))) == NULL)) {
+                param->buffer_capacity = 0;
+                err_info = MEMORY_ERROR;
+              } else {
+                param->buffer_capacity = sizeof(int32Type);
+              } /* if */
+            } /* if */
+            if (likely(err_info == OKAY_NO_ERROR)) {
+              param->buffer_length = sizeof(int32Type);
+              *(int32Type *) param->buffer = (int32Type) value;
             } /* if */
             break;
           default:
@@ -3061,7 +3088,7 @@ static void sqlBindBStri (sqlStmtType sqlStatement, intType pos, bstriType bstri
               err_info = MEMORY_ERROR;
             } else {
               /* Use a buffer size with at least one byte. */
-              minimum_size = bstri->size == 0 ? 1  : bstri->size;
+              minimum_size = bstri->size == 0 ? 1 : bstri->size;
               if (param->buffer_capacity < minimum_size) {
                 free(param->buffer);
                 if (unlikely((param->buffer = malloc(minimum_size)) == NULL)) {
@@ -3270,12 +3297,17 @@ static void sqlBindFloat (sqlStmtType sqlStatement, intType pos, floatType value
           case SQL_VARCHAR:
           case SQL_LONGVARCHAR:
             c_type = SQL_C_DOUBLE;
-            free(param->buffer);
-            param->buffer_length = sizeof(double);
-            param->buffer = malloc(sizeof(double));
-            if (unlikely(param->buffer == NULL)) {
-              err_info = MEMORY_ERROR;
-            } else {
+            if (param->buffer_capacity < sizeof(double)) {
+              free(param->buffer);
+              if (unlikely((param->buffer = malloc(sizeof(double))) == NULL)) {
+                param->buffer_capacity = 0;
+                err_info = MEMORY_ERROR;
+              } else {
+                param->buffer_capacity = sizeof(double);
+              } /* if */
+            } /* if */
+            if (likely(err_info == OKAY_NO_ERROR)) {
+              param->buffer_length = sizeof(double);
               *(double *) param->buffer = (double) value;
             } /* if */
             break;
@@ -3422,12 +3454,17 @@ static void sqlBindInt (sqlStmtType sqlStatement, intType pos, intType value)
           case SQL_VARCHAR:
           case SQL_LONGVARCHAR:
             c_type = SQL_C_SBIGINT;
-            free(param->buffer);
-            param->buffer_length = sizeof(int64Type);
-            param->buffer = malloc(sizeof(int64Type));
-            if (unlikely(param->buffer == NULL)) {
-              err_info = MEMORY_ERROR;
-            } else {
+            if (param->buffer_capacity < sizeof(int64Type)) {
+              free(param->buffer);
+              if (unlikely((param->buffer = malloc(sizeof(int64Type))) == NULL)) {
+                param->buffer_capacity = 0;
+                err_info = MEMORY_ERROR;
+              } else {
+                param->buffer_capacity = sizeof(int64Type);
+              } /* if */
+            } /* if */
+            if (likely(err_info == OKAY_NO_ERROR)) {
+              param->buffer_length = sizeof(int64Type);
               *(int64Type *) param->buffer = value;
             } /* if */
             break;
@@ -3564,17 +3601,35 @@ static void sqlBindStri (sqlStmtType sqlStatement, intType pos, striType stri)
           case SQL_WVARCHAR:
           case SQL_WLONGVARCHAR:
             c_type = SQL_C_WCHAR;
-            wstri = stri_to_wstri_buf(stri, &length, &err_info);
-            if (likely(err_info == OKAY_NO_ERROR)) {
-              if (unlikely(length > SQLLEN_MAX >> 1)) {
-                /* It is not possible to cast length << 1 to SQLLEN. */
-                free_wstri(wstri, stri);
-                err_info = MEMORY_ERROR;
-              } else {
+            if (unlikely(stri->size > MAX_WSTRI_LEN / SURROGATE_PAIR_FACTOR)) {
+              /* It is not possible to compute the memory size. */
+              err_info = MEMORY_ERROR;
+            } else {
+              if (param->buffer_capacity < SIZ_WSTRI(SURROGATE_PAIR_FACTOR * stri->size)) {
                 free(param->buffer);
-                param->buffer = wstri;
-                param->buffer_length = length << 1;
-                param->length = (SQLLEN) (length << 1);
+                if (unlikely(!ALLOC_WSTRI(param->buffer, SURROGATE_PAIR_FACTOR * stri->size))) {
+                  param->buffer_capacity = 0;
+                  err_info = MEMORY_ERROR;
+                } else {
+                  param->buffer_capacity = SIZ_WSTRI(SURROGATE_PAIR_FACTOR * stri->size);
+                } /* if */
+              } /* if */
+              if (likely(err_info == OKAY_NO_ERROR)) {
+                wstri = (wstriType) param->buffer;
+                length = stri_to_utf16(wstri, stri->mem, stri->size, &err_info);
+                wstri[length] = '\0';
+                if (likely(err_info == OKAY_NO_ERROR)) {
+                  if (unlikely(length > SQLLEN_MAX >> 1)) {
+                    /* It is not possible to cast length << 1 to SQLLEN. */
+                    free_wstri(wstri, stri);
+                    param->buffer = NULL;
+                    param->buffer_capacity = 0;
+                    err_info = MEMORY_ERROR;
+                  } else {
+                    param->buffer_length = length << 1;
+                    param->length = (SQLLEN) (length << 1);
+                  } /* if */
+                } /* if */
               } /* if */
             } /* if */
             break;

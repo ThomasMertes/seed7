@@ -66,7 +66,7 @@ const ACTION: FLT_MULT            is action "FLT_MULT";
 const ACTION: FLT_MULT_ASSIGN     is action "FLT_MULT_ASSIGN";
 const ACTION: FLT_NE              is action "FLT_NE";
 const ACTION: FLT_NEGATE          is action "FLT_NEGATE";
-const ACTION: FLT_PARSE           is action "FLT_PARSE";
+const ACTION: FLT_PARSE1          is action "FLT_PARSE1";
 const ACTION: FLT_PLUS            is action "FLT_PLUS";
 const ACTION: FLT_POW             is action "FLT_POW";
 const ACTION: FLT_RAND            is action "FLT_RAND";
@@ -1654,12 +1654,12 @@ const proc: process (FLT_NEGATE, in reference: function,
   end func;
 
 
-const proc: process (FLT_PARSE, in reference: function,
+const proc: process (FLT_PARSE1, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   begin
     c_expr.expr &:= "fltParse(";
-    getAnyParamToExpr(params[3], c_expr);
+    getAnyParamToExpr(params[1], c_expr);
     c_expr.expr &:= ")";
   end func;
 

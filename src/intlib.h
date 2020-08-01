@@ -67,7 +67,7 @@ objectType int_mult_assign       (listType arguments);
 objectType int_ne                (listType arguments);
 objectType int_negate            (listType arguments);
 objectType int_odd               (listType arguments);
-objectType int_parse             (listType arguments);
+objectType int_parse1            (listType arguments);
 objectType int_plus              (listType arguments);
 objectType int_pow               (listType arguments);
 objectType int_pred              (listType arguments);

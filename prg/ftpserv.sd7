@@ -45,7 +45,7 @@ const proc: main is func
       parameter := argv(PROGRAM)[1];
       if length(argv(PROGRAM)) >= 2 and isDigitString(argv(PROGRAM)[2]) then
         block
-          ftpServ.ftpControlPort := integer parse (argv(PROGRAM)[2]);
+          ftpServ.ftpControlPort := integer(argv(PROGRAM)[2]);
         exception
           catch RANGE_ERROR: writeln(" ***** Port number too big. Port " <&
               ftpServ.ftpControlPort <& " used instead.");

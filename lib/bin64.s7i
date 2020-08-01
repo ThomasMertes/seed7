@@ -314,14 +314,6 @@ const func bin64: getBinary (in bitset: set1,
                              in integer: lowestBitNum) is action "BIN_GET_BINARY_FROM_SET";
 
 
-# The function float2Bits() is deprecated. Use bin64() instead.
-const func bin64: float2Bits (in float: number, DOUBLE)        is action "FLT_DOUBLE2BITS";
-
-
-# The function bits2Float() is deprecated. Use float() instead.
-const func float: bits2Float (in bin64: bits)                  is action "FLT_BITS2DOUBLE";
-
-
 (**
  *  Get bits in MBF double-precision representation from a float.
  *  Microsoft Binary Format (MBF) is a format for floating point numbers.

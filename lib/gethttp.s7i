@@ -98,14 +98,14 @@ const func httpLocation: getHttpLocation (in string: location, in integer: defau
     bracketPos := pos(locationData.hostName, "]:");
     if bracketPos <> 0 and startsWith(locationData.hostName, "[") and
         isDigitString(locationData.hostName[bracketPos + 2 ..]) then
-      locationData.portNumber := integer parse (locationData.hostName[bracketPos + 2 ..]);
+      locationData.portNumber := integer(locationData.hostName[bracketPos + 2 ..]);
       locationData.hostName := locationData.hostName[2 .. pred(bracketPos)];
     else
       colonPos := pos(locationData.hostName, ":");
       if colonPos <> 0 and
           not isDigitString(locationData.hostName[.. pred(colonPos)]) and
           isDigitString(locationData.hostName[succ(colonPos) ..]) then
-        locationData.portNumber := integer parse (locationData.hostName[succ(colonPos) ..]);
+        locationData.portNumber := integer(locationData.hostName[succ(colonPos) ..]);
         locationData.hostName := locationData.hostName[.. pred(colonPos)];
       else
         locationData.portNumber := defaultPortNumber;
@@ -233,7 +233,7 @@ const func string: getHttp (inout file: sock) is func
       elsif startsWith(lowerCaseLine, "content-length") then
         contentLengthStri := trim(lowerCaseLine[succ(pos(lowerCaseLine, ":")) ..]);
         block
-          contentLength := integer parse contentLengthStri;
+          contentLength := integer(contentLengthStri);
         exception
           catch RANGE_ERROR:
             contentLength := -1;
