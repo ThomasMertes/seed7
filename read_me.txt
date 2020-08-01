@@ -25,7 +25,7 @@ WHAT IS CONTAINED IN THIS PACKAGE?
 
     The Seed7 package contains the Seed7 interpreter in source
   besides documentation files, include files and program
-  examples. The following subdirectorys exist:
+  examples. The following subdirectories exist:
 
     src    The source of the interpreter
     prg    Program examples
@@ -100,7 +100,7 @@ HOW TO SEND A PATCH?
     diff -urN oldseed7dir/ newseed7dir/ > patch.diff
 
   If you send a patch, it is assumed that this patch is released
-  under the GPL (or LGPL for librarys) license.
+  under the GPL (or LGPL for libraries) license.
 
 
 Greetings Thomas Mertes

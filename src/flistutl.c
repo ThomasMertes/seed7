@@ -21,7 +21,7 @@
 /*  Module: General                                                 */
 /*  File: seed7/src/flistutl.c                                      */
 /*  Changes: 1993, 1994  Thomas Mertes                              */
-/*  Content: Procedures for free memory list maintainance.          */
+/*  Content: Procedures for free memory list maintenance.           */
 /*                                                                  */
 /*  This file contains the heapsize procedure which calculates      */
 /*  the size of the currently used heap memory. This is done by     */
@@ -747,7 +747,7 @@ void *heap_chunk (size_t size)
     index = 0;
     result = NULL;
     while (chunk_size[index] >= size && chunk_size[index] != 0 &&
-        (result = (char *) MALLOC(chunk_size[index])) == NULL) {
+        (result = (void *) MALLOC(chunk_size[index])) == NULL) {
       index++;
     } /* while */
     if (result == NULL) {

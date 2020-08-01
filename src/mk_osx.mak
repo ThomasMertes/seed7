@@ -160,8 +160,6 @@ version.h: chkccomp.h
 	echo "#define USE_DIRENT" >> version.h
 	echo "#define SEARCH_PATH_DELIMITER ':'" >> version.h
 	echo "#define CATCH_SIGNALS" >> version.h
-	echo "#define HAS_SYMLINKS" >> version.h
-	echo "#define HAS_FIFO_FILES" >> version.h
 	echo "#define USE_MMAP" >> version.h
 	echo "#define AWAIT_WITH_SIGACTION" >> version.h
 	echo "#define IMPLEMENT_PTY_WITH_PIPE2" >> version.h

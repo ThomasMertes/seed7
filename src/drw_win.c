@@ -734,6 +734,37 @@ wintype drwGet (const_wintype actual_window, inttype left, inttype upper,
 
 
 
+bstritype drwGetImage (const_wintype actual_window)
+
+  {
+    inttype xPos;
+    inttype yPos;
+    memsizetype result_size;
+    int32type *image_data;
+    bstritype result;
+
+  /* drwGetImage */
+#ifdef TRACE_WIN
+    printf("drwGetImage(%lu)\n", actual_window);
+#endif
+    result_size = to_width(actual_window) * to_height(actual_window) * sizeof(int32type);
+    if (unlikely(!ALLOC_BSTRI_SIZE_OK(result, result_size))) {
+      raise_error(RANGE_ERROR);
+    } else {
+      result->size = result_size;
+      image_data = (int32type *) result->mem;
+      for (yPos = 0; yPos < to_height(actual_window); yPos++) {
+        for (xPos = 0; xPos < to_width(actual_window); xPos++) {
+          image_data[yPos * to_width(actual_window) + xPos] =
+              (int32type) GetPixel(to_hdc(actual_window), xPos, yPos);
+        } /* for */
+      } /* for */
+    } /* if */
+    return result;
+  } /* drwGetImage */
+
+
+
 inttype drwGetPixel (const_wintype actual_window, inttype x, inttype y)
 
   { /* drwGetPixel */

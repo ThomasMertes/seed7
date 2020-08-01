@@ -307,6 +307,8 @@ static primactrecord prim_act_table[] = {
     { "DRW_FPOLYLINE",           drw_fpolyLine,           },
     { "DRW_GENPOINTLIST",        drw_genPointList,        },
     { "DRW_GET",                 drw_get,                 },
+    { "DRW_GETIMAGE",            drw_getImage,            },
+    { "DRW_GETIMAGEPIXEL",       drw_getImagePixel,       },
     { "DRW_GETPIXEL",            drw_getPixel,            },
     { "DRW_HASHCODE",            drw_hashcode,            },
     { "DRW_HEIGHT",              drw_height,              },

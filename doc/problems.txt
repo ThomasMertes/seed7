@@ -20,7 +20,7 @@ There are a lot of minor problems ...
     The documentation files are correct but some minor changes
     in the programming language might not be documented or
     might be documented wrong.
-    Normaly this does not hurt. When you see differences in the
+    Normally this does not hurt. When you see differences in the
     actual behaviour look at the programming examples.
 
   - Rational literals are not implemented.

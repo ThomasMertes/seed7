@@ -254,90 +254,90 @@ var PRIMITIVE_WINDOW: exit_pixmap is PRIMITIVE_WINDOW.value;
 
 
 const array string: query_pic is [](
-  "  XXXX  ",
-  " X    X ",
-  " X    X ",
-  "    XX  ",
-  "   XX   ",
-  "   XX   ",
+  "  WWWW  ",
+  " W    W ",
+  " W    W ",
+  "    WW  ",
+  "   WW   ",
+  "   WW   ",
   "        ",
-  "   XX   ");
+  "   WW   ");
 
 
 const array string: wall_pic is [](
-  "XBBBBBBBXBBBBBBB",
-  "XBBBBBBBXBBBBBBB",
-  "XBBBBBBBXBBBBBBB",
-  "XXXXXXXXXXXXXXXX",
-  "RRRRXRRRRRRRXRRR",
-  "RRRRXRRRRRRRXRRR",
-  "RRRRXRRRRRRRXRRR",
-  "XXXXXXXXXXXXXXXX",
-  "XBBBBBBBXBBBBBBB",
-  "XBBBBBBBXBBBBBBB",
-  "XBBBBBBBXBBBBBBB",
-  "XXXXXXXXXXXXXXXX",
-  "RRRRXRRRRRRRXRRR",
-  "RRRRXRRRRRRRXRRR",
-  "RRRRXRRRRRRRXRRR",
-  "XXXXXXXXXXXXXXXX");
+  "WBBBBBBBWBBBBBBB",
+  "WBBBBBBBWBBBBBBB",
+  "WBBBBBBBWBBBBBBB",
+  "WWWWWWWWWWWWWWWW",
+  "RRRRWRRRRRRRWRRR",
+  "RRRRWRRRRRRRWRRR",
+  "RRRRWRRRRRRRWRRR",
+  "WWWWWWWWWWWWWWWW",
+  "WBBBBBBBWBBBBBBB",
+  "WBBBBBBBWBBBBBBB",
+  "WBBBBBBBWBBBBBBB",
+  "WWWWWWWWWWWWWWWW",
+  "RRRRWRRRRRRRWRRR",
+  "RRRRWRRRRRRRWRRR",
+  "RRRRWRRRRRRRWRRR",
+  "WWWWWWWWWWWWWWWW");
 
 
 const array string: colored_wall1_pic is [](
-  "XGGGGGGGXMMMMMMM",
-  "XGGGGGGGXMMMMMMM",
-  "XGGGGGGGXMMMMMMM",
-  "XXXXXXXXXXXXXXXX",
-  "RRRRXPPPPPPPXBBB",
-  "RRRRXPPPPPPPXBBB",
-  "RRRRXPPPPPPPXBBB",
-  "XXXXXXXXXXXXXXXX",
-  "XgggggggXOOOOOOO",
-  "XgggggggXOOOOOOO",
-  "XgggggggXOOOOOOO",
-  "XXXXXXXXXXXXXXXX",
-  "YYYYXbbbbbbbXBBB",
-  "YYYYXbbbbbbbXBBB",
-  "YYYYXbbbbbbbXBBB",
-  "XXXXXXXXXXXXXXXX");
+  "WGGGGGGGWMMMMMMM",
+  "WGGGGGGGWMMMMMMM",
+  "WGGGGGGGWMMMMMMM",
+  "WWWWWWWWWWWWWWWW",
+  "RRRRWmmmmmmmWBBB",
+  "RRRRWmmmmmmmWBBB",
+  "RRRRWmmmmmmmWBBB",
+  "WWWWWWWWWWWWWWWW",
+  "WgggggggWOOOOOOO",
+  "WgggggggWOOOOOOO",
+  "WgggggggWOOOOOOO",
+  "WWWWWWWWWWWWWWWW",
+  "YYYYWbbbbbbbWBBB",
+  "YYYYWbbbbbbbWBBB",
+  "YYYYWbbbbbbbWBBB",
+  "WWWWWWWWWWWWWWWW");
 
 
 const array string: colored_wall2_pic is [](
-  "XgggggggXOOOOOOO",
-  "XgggggggXOOOOOOO",
-  "XgggggggXOOOOOOO",
-  "XXXXXXXXXXXXXXXX",
-  "BBBBXbbbbbbbXRRR",
-  "BBBBXbbbbbbbXRRR",
-  "BBBBXbbbbbbbXRRR",
-  "XXXXXXXXXXXXXXXX",
-  "XGGGGGGGXMMMMMMM",
-  "XGGGGGGGXMMMMMMM",
-  "XGGGGGGGXMMMMMMM",
-  "XXXXXXXXXXXXXXXX",
-  "BBBBXrrrrrrrXYYY",
-  "BBBBXrrrrrrrXYYY",
-  "BBBBXrrrrrrrXYYY",
-  "XXXXXXXXXXXXXXXX");
+  "WgggggggWOOOOOOO",
+  "WgggggggWOOOOOOO",
+  "WgggggggWOOOOOOO",
+  "WWWWWWWWWWWWWWWW",
+  "BBBBWbbbbbbbWRRR",
+  "BBBBWbbbbbbbWRRR",
+  "BBBBWbbbbbbbWRRR",
+  "WWWWWWWWWWWWWWWW",
+  "WGGGGGGGWMMMMMMM",
+  "WGGGGGGGWMMMMMMM",
+  "WGGGGGGGWMMMMMMM",
+  "WWWWWWWWWWWWWWWW",
+  "BBBBWrrrrrrrWYYY",
+  "BBBBWrrrrrrrWYYY",
+  "BBBBWrrrrrrrWYYY",
+  "WWWWWWWWWWWWWWWW");
 
 
 const array string: vertical_pic is [](
-  "       XX       ",
-  "       XX       ",
-  "       XX       ",
-  "       XX       ",
-  "       XX       ",
-  "       XX       ",
-  "       XX       ",
-  "       XX       ",
-  "       XX       ",
-  "       XX       ",
-  "       XX       ",
-  "       XX       ",
-  "       XX       ",
-  "       XX       ",
-  "       XX       ",
-  "       XX       ");
+  "       WW       ",
+  "       WW       ",
+  "       WW       ",
+  "       WW       ",
+  "       WW       ",
+  "       WW       ",
+  "       WW       ",
+  "       WW       ",
+  "       WW       ",
+  "       WW       ",
+  "       WW       ",
+  "       WW       ",
+  "       WW       ",
+  "       WW       ",
+  "       WW       ",
+  "       WW       ");
 
 
 const array string: horizontal_pic is [](
@@ -348,8 +348,8 @@ const array string: horizontal_pic is [](
   "                ",
   "                ",
   "                ",
-  "XXXXXXXXXXXXXXXX",
-  "XXXXXXXXXXXXXXXX",
+  "WWWWWWWWWWWWWWWW",
+  "WWWWWWWWWWWWWWWW",
   "                ",
   "                ",
   "                ",
@@ -367,15 +367,15 @@ const array string: left_upper_pic is [](
   "                ",
   "                ",
   "                ",
-  "       XXXXXXXXX",
-  "       XXXXXXXXX",
-  "       XX       ",
-  "       XX       ",
-  "       XX       ",
-  "       XX       ",
-  "       XX       ",
-  "       XX       ",
-  "       XX       ");
+  "       WWWWWWWWW",
+  "       WWWWWWWWW",
+  "       WW       ",
+  "       WW       ",
+  "       WW       ",
+  "       WW       ",
+  "       WW       ",
+  "       WW       ",
+  "       WW       ");
 
 
 const array string: right_upper_pic is [](
@@ -386,27 +386,27 @@ const array string: right_upper_pic is [](
   "                ",
   "                ",
   "                ",
-  "XXXXXXXXX       ",
-  "XXXXXXXXX       ",
-  "       XX       ",
-  "       XX       ",
-  "       XX       ",
-  "       XX       ",
-  "       XX       ",
-  "       XX       ",
-  "       XX       ");
+  "WWWWWWWWW       ",
+  "WWWWWWWWW       ",
+  "       WW       ",
+  "       WW       ",
+  "       WW       ",
+  "       WW       ",
+  "       WW       ",
+  "       WW       ",
+  "       WW       ");
 
 
 const array string: left_lower_pic is [](
-  "       XX       ",
-  "       XX       ",
-  "       XX       ",
-  "       XX       ",
-  "       XX       ",
-  "       XX       ",
-  "       XX       ",
-  "       XXXXXXXXX",
-  "       XXXXXXXXX",
+  "       WW       ",
+  "       WW       ",
+  "       WW       ",
+  "       WW       ",
+  "       WW       ",
+  "       WW       ",
+  "       WW       ",
+  "       WWWWWWWWW",
+  "       WWWWWWWWW",
   "                ",
   "                ",
   "                ",
@@ -417,15 +417,15 @@ const array string: left_lower_pic is [](
 
 
 const array string: right_lower_pic is [](
-  "       XX       ",
-  "       XX       ",
-  "       XX       ",
-  "       XX       ",
-  "       XX       ",
-  "       XX       ",
-  "       XX       ",
-  "XXXXXXXXX       ",
-  "XXXXXXXXX       ",
+  "       WW       ",
+  "       WW       ",
+  "       WW       ",
+  "       WW       ",
+  "       WW       ",
+  "       WW       ",
+  "       WW       ",
+  "WWWWWWWWW       ",
+  "WWWWWWWWW       ",
   "                ",
   "                ",
   "                ",
@@ -436,22 +436,22 @@ const array string: right_lower_pic is [](
 
 
 const array string: railing_pic is [](
-  "       XX       ",
-  "       XX       ",
-  "       XX       ",
-  "       XX       ",
-  "       XX       ",
-  "       XX       ",
-  "       XX       ",
-  "       XXXXXXXXX",
-  "       XXXXXXXXX",
-  "       XX       ",
-  "       XX       ",
-  "       XX       ",
-  "       XX       ",
-  "       XX       ",
-  "       XX       ",
-  "       XX       ");
+  "       WW       ",
+  "       WW       ",
+  "       WW       ",
+  "       WW       ",
+  "       WW       ",
+  "       WW       ",
+  "       WW       ",
+  "       WWWWWWWWW",
+  "       WWWWWWWWW",
+  "       WW       ",
+  "       WW       ",
+  "       WW       ",
+  "       WW       ",
+  "       WW       ",
+  "       WW       ",
+  "       WW       ");
 
 
 const array string: gate_pic is [](
@@ -531,22 +531,22 @@ const array string: wood_pic is [](
 
 
 const array string: stone_pic is [](
-  "xxxxxxxxxXxxxxxx",
-  "xxxxxxxxxXxxxxxx",
-  "xxxxxxxxxXxxxxxx",
-  "xxxxxxxxxXxxxxxx",
-  "XXXXXXXXXXXXXXXX",
-  "xxxXxxxxxxxxxxxx",
-  "xxxXxxxxxxxxxxxx",
-  "xxxXxxxxxxxxxxxx",
-  "xxxXxxxxxxxxxxxx",
-  "xxxXxxxxxxxxxxxx",
-  "XXXXXXXXXXXXXXXX",
-  "xxxxxxxxxxxxXxxx",
-  "xxxxxxxxxxxxXxxx",
-  "xxxxxxxxxxxxXxxx",
-  "xxxxxxxxxxxxXxxx",
-  "XXXXXXXXXXXXXXXX");
+  "xxxxxxxxxWxxxxxx",
+  "xxxxxxxxxWxxxxxx",
+  "xxxxxxxxxWxxxxxx",
+  "xxxxxxxxxWxxxxxx",
+  "WWWWWWWWWWWWWWWW",
+  "xxxWxxxxxxxxxxxx",
+  "xxxWxxxxxxxxxxxx",
+  "xxxWxxxxxxxxxxxx",
+  "xxxWxxxxxxxxxxxx",
+  "xxxWxxxxxxxxxxxx",
+  "WWWWWWWWWWWWWWWW",
+  "xxxxxxxxxxxxWxxx",
+  "xxxxxxxxxxxxWxxx",
+  "xxxxxxxxxxxxWxxx",
+  "xxxxxxxxxxxxWxxx",
+  "WWWWWWWWWWWWWWWW");
 
 
 const array string: gray_pic is [](
@@ -664,22 +664,22 @@ const array string: bed_bottom_pic is [](
 
 
 const array string: bed_white_middle_pic is [](
-  "XXXXXXXXXXXXXXXX",
-  "XXXXXXXXXXXXXXXX",
-  "XXXXXXXXXXXXXXXX",
-  "XXXXXXXXXXXXXXXX",
-  "XXXXXXXXXXXXXXXX",
-  "XXXXXXXXXXXXXXXX",
-  "XXXXXXXXXXXXXXXX",
-  "XXXXXXXXXXXXXXXX",
-  "XXXXXXXXXXXXXXXX",
-  "XXXXXXXXXXXXXXXX",
-  "XXXXXXXXXXXXXXXX",
-  "XXXXXXXXXXXXXXXX",
-  "XXXXXXXXXXXXXXXX",
-  "XXXXXXXXXXXXXXXX",
-  "XXXXXXXXXXXXXXXX",
-  "XXXXXXXXXXXXXXXX");
+  "WWWWWWWWWWWWWWWW",
+  "WWWWWWWWWWWWWWWW",
+  "WWWWWWWWWWWWWWWW",
+  "WWWWWWWWWWWWWWWW",
+  "WWWWWWWWWWWWWWWW",
+  "WWWWWWWWWWWWWWWW",
+  "WWWWWWWWWWWWWWWW",
+  "WWWWWWWWWWWWWWWW",
+  "WWWWWWWWWWWWWWWW",
+  "WWWWWWWWWWWWWWWW",
+  "WWWWWWWWWWWWWWWW",
+  "WWWWWWWWWWWWWWWW",
+  "WWWWWWWWWWWWWWWW",
+  "WWWWWWWWWWWWWWWW",
+  "WWWWWWWWWWWWWWWW",
+  "WWWWWWWWWWWWWWWW");
 
 
 const array string: bed_red_middle_pic is [](
@@ -721,22 +721,22 @@ const array string: bed_blue_middle_pic is [](
 
 
 const array string: bed_purple_middle_pic is [](
-  "PPPPPPPPPPPPPPPP",
-  "PPPPPPPPPPPPPPPP",
-  "PPPPPPPPPPPPPPPP",
-  "PPPPPPPPPPPPPPPP",
-  "PPPPPPPPPPPPPPPP",
-  "PPPPPPPPPPPPPPPP",
-  "PPPPPPPPPPPPPPPP",
-  "PPPPPPPPPPPPPPPP",
-  "PPPPPPPPPPPPPPPP",
-  "PPPPPPPPPPPPPPPP",
-  "PPPPPPPPPPPPPPPP",
-  "PPPPPPPPPPPPPPPP",
-  "PPPPPPPPPPPPPPPP",
-  "PPPPPPPPPPPPPPPP",
-  "PPPPPPPPPPPPPPPP",
-  "PPPPPPPPPPPPPPPP");
+  "mmmmmmmmmmmmmmmm",
+  "mmmmmmmmmmmmmmmm",
+  "mmmmmmmmmmmmmmmm",
+  "mmmmmmmmmmmmmmmm",
+  "mmmmmmmmmmmmmmmm",
+  "mmmmmmmmmmmmmmmm",
+  "mmmmmmmmmmmmmmmm",
+  "mmmmmmmmmmmmmmmm",
+  "mmmmmmmmmmmmmmmm",
+  "mmmmmmmmmmmmmmmm",
+  "mmmmmmmmmmmmmmmm",
+  "mmmmmmmmmmmmmmmm",
+  "mmmmmmmmmmmmmmmm",
+  "mmmmmmmmmmmmmmmm",
+  "mmmmmmmmmmmmmmmm",
+  "mmmmmmmmmmmmmmmm");
 
 
 const array string: bed_yellow_middle_pic is [](
@@ -778,95 +778,95 @@ const array string: chain_pic is [](
 
 
 const array string: k_pic is [](
-  " XX     ",
-  "  X     ",
-  "  X     ",
-  "  X  XX ",
-  "  X XX  ",
-  "  XXX   ",
-  "  X XX  ",
-  " XX  XX ");
+  " WW     ",
+  "  W     ",
+  "  W     ",
+  "  W  WW ",
+  "  W WW  ",
+  "  WWW   ",
+  "  W WW  ",
+  " WW  WW ");
 
 
 const array string: b_pic is [](
-  " XX     ",
-  "  X     ",
-  "  X     ",
-  "  XXXX  ",
-  "  X   X ",
-  "  X   X ",
-  "  X   X ",
-  " X XXX  ");
+  " WW     ",
+  "  W     ",
+  "  W     ",
+  "  WWWW  ",
+  "  W   W ",
+  "  W   W ",
+  "  W   W ",
+  " W WWW  ");
 
 
 const array string: up_pic is [](
-  "                  XddX          ",
-  "                  XdddX         ",
-  "                  XddddX        ",
-  "            XXXXXXXdddddX       ",
-  "            XX     XdddddX      ",
-  "            XdX     XdddddX     ",
-  "            XddX     XdddddX    ",
-  "            XdddX     XdddddXXXX",
-  "            XddddX     XddddX   ",
-  "      XXXXXXXdddddX     XdddX   ",
-  "      XX     XdddddX     XddX   ",
-  "      XdX     XdddddX     XdX   ",
-  "      XddX     XdddddX     XX   ",
-  "      XdddX     XdddddXXXXXXX   ",
-  "      XddddX     XddddX         ",
-  "XXXXXXXdddddX     XdddX        X",
-  "XX     XdddddX     XddX       X ",
-  "XdX     XdddddX     XdX      X  ",
-  "XddX     XdddddX     XX     X   ",
-  "XdddX     XdddddXXXXXXX    X    ",
-  "XddddX     XddddX         X     ",
-  "XdddddX     XdddX        X      ",
-  " XdddddX     XddX       X       ",
-  "  XdddddX     XdX      X        ",
-  "   XdddddX     XX     X         ",
-  "    XdddddXXXXXXX    X          ",
-  "     XddddX         X           ",
-  "      XdddX        X            ",
-  "       XddX       X             ",
-  "        XdX      X              ",
-  "         XX     X               ",
-  "          XXXXXX                ");
+  "                  WddW          ",
+  "                  WdddW         ",
+  "                  WddddW        ",
+  "            WWWWWWWdddddW       ",
+  "            WW     WdddddW      ",
+  "            WdW     WdddddW     ",
+  "            WddW     WdddddW    ",
+  "            WdddW     WdddddWWWW",
+  "            WddddW     WddddW   ",
+  "      WWWWWWWdddddW     WdddW   ",
+  "      WW     WdddddW     WddW   ",
+  "      WdW     WdddddW     WdW   ",
+  "      WddW     WdddddW     WW   ",
+  "      WdddW     WdddddWWWWWWW   ",
+  "      WddddW     WddddW         ",
+  "WWWWWWWdddddW     WdddW        W",
+  "WW     WdddddW     WddW       W ",
+  "WdW     WdddddW     WdW      W  ",
+  "WddW     WdddddW     WW     W   ",
+  "WdddW     WdddddWWWWWWW    W    ",
+  "WddddW     WddddW         W     ",
+  "WdddddW     WdddW        W      ",
+  " WdddddW     WddW       W       ",
+  "  WdddddW     WdW      W        ",
+  "   WdddddW     WW     W         ",
+  "    WdddddWWWWWWW    W          ",
+  "     WddddW         W           ",
+  "      WdddW        W            ",
+  "       WddW       W             ",
+  "        WdW      W              ",
+  "         WW     W               ",
+  "          WWWWWW                ");
 
 
 const array string: down_pic is [](
-    "           XXXXXXXXXXXXXXXXXXXXX",
-    "          XX                    ",
-    "         XdX                    ",
-    "        XddX                    ",
-    "       XdddX           X        ",
-    "      XddddX            X       ",
-    "     XdddddXXXXXXX       X      ",
-    "    XdddddX     XX        X   X ",
-    "   XdddddX     XdX         X  X ",
-    "  XdddddX     XddX          X X ",
-    " XdddddX     XdddX           XX ",
-    "XdddddX     XddddX        XXXXX ",
-    "XddddX     XdddddXXXXXXX        ",
-    "XdddX     XdddddX     XX        ",
-    "XddX     XdddddX     XdX        ",
-    "XdX     XdddddX     XddX        ",
-    "XX     XdddddX     XdddX        ",
-    "XXXXXXXdddddX     XddddX        ",
-    "      XddddX     XdddddXXXXXXX  ",
-    "      XdddX     XdddddX     XX  ",
-    "      XddX     XdddddX     XdX  ",
-    "      XdX     XdddddX     XddX  ",
-    "      XX     XdddddX     XdddX  ",
-    "      XXXXXXXdddddX     XddddX  ",
-    "            XddddX     XdddddXXX",
-    "            XdddX     XdddddX   ",
-    "            XddX     XdddddX    ",
-    "            XdX     XdddddX     ",
-    "            XX     XdddddX      ",
-    "            XXXXXXXdddddX       ",
-    "                  XddddX        ",
-    "                  XdddX         ");
+    "           WWWWWWWWWWWWWWWWWWWWW",
+    "          WW                    ",
+    "         WdW                    ",
+    "        WddW                    ",
+    "       WdddW           W        ",
+    "      WddddW            W       ",
+    "     WdddddWWWWWWW       W      ",
+    "    WdddddW     WW        W   W ",
+    "   WdddddW     WdW         W  W ",
+    "  WdddddW     WddW          W W ",
+    " WdddddW     WdddW           WW ",
+    "WdddddW     WddddW        WWWWW ",
+    "WddddW     WdddddWWWWWWW        ",
+    "WdddW     WdddddW     WW        ",
+    "WddW     WdddddW     WdW        ",
+    "WdW     WdddddW     WddW        ",
+    "WW     WdddddW     WdddW        ",
+    "WWWWWWWdddddW     WddddW        ",
+    "      WddddW     WdddddWWWWWWW  ",
+    "      WdddW     WdddddW     WW  ",
+    "      WddW     WdddddW     WdW  ",
+    "      WdW     WdddddW     WddW  ",
+    "      WW     WdddddW     WdddW  ",
+    "      WWWWWWWdddddW     WddddW  ",
+    "            WddddW     WdddddWWW",
+    "            WdddW     WdddddW   ",
+    "            WddW     WdddddW    ",
+    "            WdW     WdddddW     ",
+    "            WW     WdddddW      ",
+    "            WWWWWWWdddddW       ",
+    "                  WddddW        ",
+    "                  WdddW         ");
 
 
 const array string: big_spider_pic is [](
@@ -876,10 +876,10 @@ const array string: big_spider_pic is [](
   "    B      B    ",
   "     B    B     ",
   "BBB   B  B   BBB",
-  "   BBBXXXXBBB   ",
-  "     XXXXXX     ",
-  "     XXXXXX     ",
-  "   BBBXXXXBBB   ",
+  "   BBBWWWWBBB   ",
+  "     WWWWWW     ",
+  "     WWWWWW     ",
+  "   BBBWWWWBBB   ",
   "BBB   B  B   BBB",
   "     B    B     ",
   "    B      B    ",
@@ -895,9 +895,9 @@ const array string: small_spider_pic is [](
   "    B      B    ",
   "     B    B     ",
   " BBB  B  B  BBB ",
-  "    BBBXXBBB    ",
-  "      XXXX      ",
-  "    BBBXXBBB    ",
+  "    BBBWWBBB    ",
+  "      WWWW      ",
+  "    BBBWWBBB    ",
   " BBB  B  B  BBB ",
   "     B    B     ",
   "    B      B    ",
@@ -910,36 +910,36 @@ const array string: small_spider_pic is [](
 const array string: fairy_pic is [](
   "  xxxx        YYYYY        xxxx ",
   " xxccxx      YYYYYYY      xxccxx",
-  " xccccxx    YYXXXXXYY    xxccccx",
-  " xcccccxx   YYXBXBXYY   xxcccccx",
-  " xxcccccxx  YYXXXXXYY  xxcccccxx",
-  "  xccccccxx YYXOXOXYY xxccccccx ",
-  " xxccBcBccxx  XXOXX  xxcccccccxx",
-  " xcccccccccxx  XXX  xxcccccccccx",
-  " xccBcXcBcccXXXXXXXXXccccccccccx",
-  " xxcccRccccXXRRXXXRRXXccccccccxx",
-  "  xccBRBccXXRRRRXRRRRXXcccccccx ",
-  " xxcccRccXXXRRRRXRRRRXXXccccccxx",
-  " xccccRcXXXcxRRXXXRRxcXXXccccccx",
-  " xccccRXXXcxx XXXXX xxcXXXXccccx",
-  " xxccXXXXcxx  XXYXX  xxcXXXXccxx",
-  "  xccXXXcxx  XXXXXXX  xxcXXXccx ",
-  " xxcccccxx  RRRRRRRRR  xxcccccxx",
-  " xcccccxx   XXRRRRRXX   xxcccccx",
-  " xccccxx    XXXRRRXXX    xxccccx",
-  " xxccxx     XXXXRXXXX     xxccxx",
-  "  xxxx       XXX XXX       xxxx ",
-  "             XXX XXX            ",
-  "             XXX XXX            ",
-  "             XXX XXX            ",
-  "              XX XX             ",
-  "              XX XX             ",
-  "              XX XX             ",
-  "              XX XX             ",
-  "              XX XX             ",
-  "              XX XX             ",
-  "              XX XX             ",
-  "             XXX XXX            ");
+  " xccccxx    YYWWWWWYY    xxccccx",
+  " xcccccxx   YYWBWBWYY   xxcccccx",
+  " xxcccccxx  YYWWWWWYY  xxcccccxx",
+  "  xccccccxx YYWOWOWYY xxccccccx ",
+  " xxccBcBccxx XWWOWWX xxcccccccxx",
+  " xcccccccccxxXXWWWXXxxcccccccccx",
+  " xccBcWcBcccWWWWWWWWWccccccccccx",
+  " xxcccRccccWWRRWWWRRWWccccccccxx",
+  "  xccBRBccWWRRRRWRRRRWWcccccccx ",
+  " xxcccRccWWWRRRRWRRRRWWWccccccxx",
+  " xccccRcWWWcxRRWWWRRxcWWWccccccx",
+  " xccccRWWWcxxXWWWWWXxxcWWWWccccx",
+  " xxccWWWWcxx XWWYWWX xxcWWWWccxx",
+  "  xccWWWcxx XWWWWWWWX xxcWWWccx ",
+  " xxcccccxx XRRRRRRRRRX xxcccccxx",
+  " xcccccxx  XWWRRRRRWWX  xxcccccx",
+  " xccccxx   XWWWRRRWWWX   xxccccx",
+  " xxccxx    XWWWWRWWWWX    xxccxx",
+  "  xxxx      XWWWXWWWX      xxxx ",
+  "            XWWWXWWWX           ",
+  "            XWWWXWWWX           ",
+  "            XWWWXWWWX           ",
+  "             XWWXWWX            ",
+  "             XWWXWWX            ",
+  "             XWWXWWX            ",
+  "             XWWXWWX            ",
+  "             XWWXWWX            ",
+  "             XWWXWWX            ",
+  "             XWWXWWX            ",
+  "            XWWWXWWWX           ");
 
 
 const array string: large_gem_pic is [](
@@ -977,7 +977,7 @@ const array string: player_pic is [](
   "     bbbbbb     ",
   "     bBOOBb     ",
   "     OOOOOO     ",
-  "     OXXXXO     ",
+  "     OWWWWO     ",
   "      OOOO      ",
   "   xbbbbbbbbx   ",
   "  xxbbbbbbbbxx  ",
@@ -991,52 +991,8 @@ const array string: player_pic is [](
   "   rrrr  rrrr   ");
 
 
-const func PRIMITIVE_WINDOW: create_pixmap (in array string: pattern,
-    in integer: scale) is func
-  result
-    var PRIMITIVE_WINDOW: pixmap is PRIMITIVE_WINDOW.value;
-  local
-    var integer: height is 0;
-    var integer: width is 0;
-    var integer: line is 0;
-    var integer: column is 0;
-    var color: col is black;
-  begin
-    height := length(pattern);
-    width := length(pattern[1]);
-    pixmap := newPixmap(width * scale, height * scale);
-    clear(pixmap, black);
-    for line range 1 to height do
-      for column range 1 to width do
-        case pattern[line][column] of
-          when {' '}: col := black;
-          when {'R'}: col := light_red;
-          when {'G'}: col := light_green;
-          when {'B'}: col := light_blue;
-          when {'Y'}: col := yellow;
-          when {'M'}: col := light_magenta;
-          when {'O'}: col := orange;
-          when {'r'}: col := dark_red;
-          when {'g'}: col := dark_green;
-          when {'c'}: col := light_cyan;
-          when {'P'}: col := dark_magenta;
-          when {'X'}: col := white;
-          when {'x'}: col := light_gray;
-          when {'d'}: col := dark_gray;
-          when {'b'}: col := brown;
-          otherwise:  col := black;
-        end case;
-        rect(pixmap,
-            pred(column) * scale,
-            pred(line) * scale,
-            scale, scale, col);
-      end for;
-    end for;
-  end func;
-
-
-const func PRIMITIVE_WINDOW: create_pixmap (in array string: pattern) is
-  return create_pixmap(pattern, PIXMAP_SIZE div length(pattern));
+const func PRIMITIVE_WINDOW: createPixmap (in array string: pattern) is
+  return createPixmap(pattern, PIXMAP_SIZE div length(pattern), black);
 
 
 const proc: initRoomData is func
@@ -1175,7 +1131,7 @@ const proc: initItemData is func
 
 const proc: initPlayerData is func
   begin
-    player.pixmap := create_pixmap(player_pic);
+    player.pixmap := createPixmap(player_pic);
     player.xPos := 13 * PIXMAP_SIZE;
     player.yPos := 14 * PIXMAP_SIZE;
     player.saved_pixmap := PRIMITIVE_WINDOW.value;
@@ -1221,50 +1177,50 @@ const proc: saveHighScore is func
 
 const proc: initGame is func
   begin
-    query_pixmap := create_pixmap(query_pic);
-    wall_pixmap := create_pixmap(wall_pic);
-    colored_wall1_pixmap := create_pixmap(colored_wall1_pic);
-    colored_wall2_pixmap := create_pixmap(colored_wall2_pic);
-    vertical_pixmap := create_pixmap(vertical_pic);
-    horizontal_pixmap := create_pixmap(horizontal_pic);
-    left_upper_pixmap := create_pixmap(left_upper_pic);
-    right_upper_pixmap := create_pixmap(right_upper_pic);
-    left_lower_pixmap := create_pixmap(left_lower_pic);
-    right_lower_pixmap := create_pixmap(right_lower_pic);
-    railing_pixmap := create_pixmap(railing_pic);
-    gate_pixmap := create_pixmap(gate_pic);
-    small_bush_pixmap := create_pixmap(small_bush_pic);
-    big_bush_pixmap := create_pixmap(big_bush_pic);
-    statue_pixmap := create_pixmap(statue_pic);
-    fountain_pixmap := create_pixmap(fountain_pic);
-    wood_pixmap := create_pixmap(wood_pic);
-    stone_pixmap := create_pixmap(stone_pic);
-    gray_pixmap := create_pixmap(gray_pic);
-    water_pixmap := create_pixmap(water_pic);
-    bed_left_pixmap := create_pixmap(bed_left_pic);
-    bed_right_pixmap := create_pixmap(bed_right_pic);
-    bed_top_pixmap := create_pixmap(bed_top_pic);
-    bed_bottom_pixmap := create_pixmap(bed_bottom_pic);
-    bed_white_middle_pixmap := create_pixmap(bed_white_middle_pic);
-    bed_red_middle_pixmap := create_pixmap(bed_red_middle_pic);
-    bed_blue_middle_pixmap := create_pixmap(bed_blue_middle_pic);
-    bed_purple_middle_pixmap := create_pixmap(bed_purple_middle_pic);
-    bed_yellow_middle_pixmap := create_pixmap(bed_yellow_middle_pic);
-    chain_pixmap := create_pixmap(chain_pic);
-    k_pixmap := create_pixmap(k_pic);
-    b_pixmap := create_pixmap(b_pic);
-    floor_pixmap := create_pixmap(floor_pic);
-    eye_pixmap := create_pixmap(eye_pic);
-    hand_pixmap := create_pixmap(hand_pic);
-    take_pixmap := create_pixmap(take_pic);
-    drop_pixmap := create_pixmap(drop_pic);
-    load_pixmap := create_pixmap(load_pic);
-    save_pixmap := create_pixmap(save_pic);
-    exit_pixmap := create_pixmap(exit_pic);
+    query_pixmap := createPixmap(query_pic);
+    wall_pixmap := createPixmap(wall_pic);
+    colored_wall1_pixmap := createPixmap(colored_wall1_pic);
+    colored_wall2_pixmap := createPixmap(colored_wall2_pic);
+    vertical_pixmap := createPixmap(vertical_pic);
+    horizontal_pixmap := createPixmap(horizontal_pic);
+    left_upper_pixmap := createPixmap(left_upper_pic);
+    right_upper_pixmap := createPixmap(right_upper_pic);
+    left_lower_pixmap := createPixmap(left_lower_pic);
+    right_lower_pixmap := createPixmap(right_lower_pic);
+    railing_pixmap := createPixmap(railing_pic);
+    gate_pixmap := createPixmap(gate_pic);
+    small_bush_pixmap := createPixmap(small_bush_pic);
+    big_bush_pixmap := createPixmap(big_bush_pic);
+    statue_pixmap := createPixmap(statue_pic);
+    fountain_pixmap := createPixmap(fountain_pic);
+    wood_pixmap := createPixmap(wood_pic);
+    stone_pixmap := createPixmap(stone_pic);
+    gray_pixmap := createPixmap(gray_pic);
+    water_pixmap := createPixmap(water_pic);
+    bed_left_pixmap := createPixmap(bed_left_pic);
+    bed_right_pixmap := createPixmap(bed_right_pic);
+    bed_top_pixmap := createPixmap(bed_top_pic);
+    bed_bottom_pixmap := createPixmap(bed_bottom_pic);
+    bed_white_middle_pixmap := createPixmap(bed_white_middle_pic);
+    bed_red_middle_pixmap := createPixmap(bed_red_middle_pic);
+    bed_blue_middle_pixmap := createPixmap(bed_blue_middle_pic);
+    bed_purple_middle_pixmap := createPixmap(bed_purple_middle_pic);
+    bed_yellow_middle_pixmap := createPixmap(bed_yellow_middle_pic);
+    chain_pixmap := createPixmap(chain_pic);
+    k_pixmap := createPixmap(k_pic);
+    b_pixmap := createPixmap(b_pic);
+    floor_pixmap := createPixmap(floor_pic);
+    eye_pixmap := createPixmap(eye_pic);
+    hand_pixmap := createPixmap(hand_pic);
+    take_pixmap := createPixmap(take_pic);
+    drop_pixmap := createPixmap(drop_pic);
+    load_pixmap := createPixmap(load_pic);
+    save_pixmap := createPixmap(save_pic);
+    exit_pixmap := createPixmap(exit_pic);
 
-    stair_up.pixmap := create_pixmap(up_pic);
+    stair_up.pixmap := createPixmap(up_pic);
     stair_up.name := "Stairs up";
-    stair_down.pixmap := create_pixmap(down_pic);
+    stair_down.pixmap := createPixmap(down_pic);
     stair_down.name := "Stairs down";
 
     message := 0 times "";
@@ -1300,8 +1256,8 @@ const func PRIMITIVE_WINDOW: getPixmap (inout graphObj: currObject) is func
     var PRIMITIVE_WINDOW: pixmap is PRIMITIVE_WINDOW.value;
   begin
     if currObject.pixmap = PRIMITIVE_WINDOW.value then
-      currObject.pixmap := create_pixmap(currObject.picture,
-          PIXMAP_SIZE div length(currObject.picture));
+      currObject.pixmap := createPixmap(currObject.picture,
+          PIXMAP_SIZE div length(currObject.picture), black);
     end if;
     pixmap := currObject.pixmap;
   end func;

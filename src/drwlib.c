@@ -609,6 +609,46 @@ objecttype drw_get (listtype arguments)
 
 
 
+objecttype drw_getImage (listtype arguments)
+
+  {
+    wintype actual_window;
+
+  /* drw_getImage */
+    isit_win(arg_1(arguments));
+    actual_window = take_win(arg_1(arguments));
+    return bld_bstri_temp(
+        drwGetImage(actual_window));
+  } /* drw_getImage */
+
+
+
+objecttype drw_getImagePixel (listtype arguments)
+
+  {
+    bstritype image;
+    inttype width;
+    inttype height;
+    inttype x;
+    inttype y;
+
+  /* drw_getImagePixel */
+    isit_bstri(arg_1(arguments));
+    isit_int(arg_2(arguments));
+    isit_int(arg_3(arguments));
+    isit_int(arg_4(arguments));
+    isit_int(arg_5(arguments));
+    image = take_bstri(arg_1(arguments));
+    width = take_int(arg_2(arguments));
+    height = take_int(arg_3(arguments));
+    x = take_int(arg_4(arguments));
+    y = take_int(arg_5(arguments));
+    return bld_int_temp(
+        drwGetImagePixel(image, width, height, x, y));
+  } /* drw_getImagePixel */
+
+
+
 objecttype drw_getPixel (listtype arguments)
 
   {

@@ -153,6 +153,10 @@ extern os_stritype *os_environ;
 
 extern stritype programPath; /* defined in s7.c or in the executable of a program */
 
+#ifdef FILE_UNKNOWN
+#undef FILE_UNKNOWN
+#endif
+
 #define FILE_ABSENT   0 /* A component of path does not exist */
 #define FILE_UNKNOWN  1 /* File exists but has an unknown type */
 #define FILE_REGULAR  2

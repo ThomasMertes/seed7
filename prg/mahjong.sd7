@@ -30,6 +30,7 @@ $ include "seed7_05.s7i";
   include "time.s7i";
   include "mahjng32.s7i";
   include "duration.s7i";
+  include "text.s7i";
   include "vecfont10.s7i";
   include "pixmap_file.s7i";
 
@@ -551,100 +552,6 @@ var array tileType: tiles is [](
   );
 
 
-const func color: charColor (in char: ch) is func
-  result
-    var color: col is black;
-  begin
-    case ch of
-      when {' '}: col := white;
-      when {'R'}: col := light_red;
-      when {'G'}: col := light_green;
-      when {'B'}: col := light_blue;
-      when {'Y'}: col := yellow;
-      when {'M'}: col := light_magenta;
-      when {'O'}: col := orange;
-      when {'r'}: col := dark_red;
-      when {'g'}: col := dark_green;
-      when {'n'}: col := dark_blue;
-      when {'m'}: col := dark_magenta;
-      when {'c'}: col := light_cyan;
-      when {'X'}: col := black;
-      when {'x'}: col := light_gray;
-      when {'y'}: col := middle_gray;
-      when {'d'}: col := dark_gray;
-      when {'b'}: col := brown;
-      when {'p'}: col := pink;
-      otherwise:  col := black;
-    end case;
-  end func;
-
-
-const func PRIMITIVE_WINDOW: create_pixmap (in array string: pattern,
-    in integer: scale) is func
-  result
-    var PRIMITIVE_WINDOW: pixmap is PRIMITIVE_WINDOW.value;
-  local
-    var integer: height is 0;
-    var integer: width is 0;
-    var integer: line is 0;
-    var integer: column is 0;
-  begin
-    height := length(pattern);
-    width := length(pattern[1]);
-    pixmap := newPixmap(width * scale, height * scale);
-    clear(pixmap, black);
-    for line range 1 to height do
-      for column range 1 to width do
-        rect(pixmap, pred(column) * scale, pred(line) * scale,
-            scale, scale, charColor(pattern[line][column]));
-      end for;
-    end for;
-  end func;
-
-
-(**
- *  Draws a scaled pattern to a position at a window.
- *  The upper left corner of the pattern is drawn to (xPos, yPos).
- *  The pattern is drawn in horizontal lines from the middle upward
- *  and downward. This is done for better appearance at slow
- *  computers.
- *)
-const proc: draw (inout PRIMITIVE_WINDOW: win, in integer: xPos, in integer: yPos,
-    in array string: pattern, in integer: scale) is func
-  local
-    var integer: height is 0;
-    var integer: width is 0;
-    var integer: lin is 0;
-    var integer: col is 0;
-    var integer: xPosition is 0;
-    var integer: yPosition1 is 0;
-    var integer: yPosition2 is 0;
-    var integer: line1 is 0;
-    var integer: line2 is 0;
-  begin
-    height := length(pattern);
-    width := length(pattern[1]);
-    for lin range 1 to height div 2 do
-      xPosition := xPos;
-      yPosition1 := yPos + (height div 2 - lin) * scale;
-      yPosition2 := yPos + pred(height div 2 + lin) * scale;
-      line1 := succ(height div 2 - lin);
-      line2 := height div 2 + lin;
-      for col range 1 to width do
-        rect(win, xPosition,
-            yPosition1,
-            scale, scale,
-            charColor(pattern[line1][col]));
-        rect(win, xPosition,
-            yPosition2,
-            scale, scale,
-            charColor(pattern[line2][col]));
-        xPosition +:= scale;
-      end for;
-    end for;
-  end func;
-
-
 (**
  *  Draws the symbols of a tile.
  *  The symbols of a tile are stored in a pixmap. When the pixmap
@@ -655,7 +562,7 @@ const proc: draw (inout PRIMITIVE_WINDOW: win, in integer: xPos, in integer: yPo
   begin
     if aTile.pixmap = PRIMITIVE_WINDOW.value then
       rect(win, xPos, yPos, PIXMAP_WIDTH, PIXMAP_HEIGHT, BACKGROUND);
-      draw(win, xPos, yPos, aTile.pattern, PIXMAP_HEIGHT div length(aTile.pattern));
+      drawPattern(win, xPos, yPos, aTile.pattern, PIXMAP_HEIGHT div length(aTile.pattern), white);
       aTile.pixmap := getPixmap(win, xPos, yPos, PIXMAP_WIDTH, PIXMAP_HEIGHT);
     else
       put(win, xPos, yPos, aTile.pixmap, PSET);
@@ -1892,16 +1799,16 @@ const proc: main is func
     writeCentered(screen, 374, "Homepage:   http://seed7.sourceforge.net");
     DRAW_FLUSH;
     digit_pixmap := [0](
-      create_pixmap(zero,  2),
-      create_pixmap(one,   2),
-      create_pixmap(two,   2),
-      create_pixmap(three, 2),
-      create_pixmap(four,  2),
-      create_pixmap(five,  2),
-      create_pixmap(six,   2),
-      create_pixmap(seven, 2),
-      create_pixmap(eight, 2),
-      create_pixmap(nine,  2));
+      createPixmap(zero,  2, white),
+      createPixmap(one,   2, white),
+      createPixmap(two,   2, white),
+      createPixmap(three, 2, white),
+      createPixmap(four,  2, white),
+      createPixmap(five,  2, white),
+      createPixmap(six,   2, white),
+      createPixmap(seven, 2, white),
+      createPixmap(eight, 2, white),
+      createPixmap(nine,  2, white));
     dealTiles2;
     drawBoardWithFlush;
     writeCentered(screen, 700, "Press any key to start game");

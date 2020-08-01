@@ -26,6 +26,7 @@ $ include "seed7_05.s7i";
   include "float.s7i";
   include "text.s7i";
   include "draw.s7i";
+  include "pic_util.s7i";
   include "stdfont9.s7i";
   include "pixmap_file.s7i";
   include "keybd.s7i";
@@ -90,21 +91,21 @@ var integer: moveNumber is 0;
 const array string: player_pic is [](
   "bbbbbbbbbbbbbbYYYYYbbbbbbbbbbbbb",
   "bbbbbbbbbbbbbYYYYYYYbbbbbbbbbbbb",
-  "bbbbbbbbbbbbYYXXXXXYYbbbbbbbbbbb",
-  "bbbbbbbbbbbbYYXBXBXYYbbbbbbbbbbb",
-  "bbbbbbbbbbbbYYXXXXXYYbbbbbbbbbbb",
-  "bbbbbbbbbbbbYYXOXOXYYbbbbbbbbbbb",
-  "bbbbbbbbbbbbbbXXOXXbbbbbbbbbbbbb",
-  "bbbbbbbbbbbbbbbXXXbbbbbbbbbbbbbb",
-  "bbbbbbbbbbbbOOOXXXOOObbbbbbbbbbb",
+  "bbbbbbbbbbbbYYWWWWWYYbbbbbbbbbbb",
+  "bbbbbbbbbbbbYYWBWBWYYbbbbbbbbbbb",
+  "bbbbbbbbbbbbYYWWWWWYYbbbbbbbbbbb",
+  "bbbbbbbbbbbbYYWOWOWYYbbbbbbbbbbb",
+  "bbbbbbbbbbbbbbWWOWWbbbbbbbbbbbbb",
+  "bbbbbbbbbbbbbbbWWWbbbbbbbbbbbbbb",
+  "bbbbbbbbbbbbOOOWWWOOObbbbbbbbbbb",
   "bbbbbbbbbbbOOOOOOOOOOObbbbbbbbbb",
   "bbbbbbbbbbOOOOOOOOOOOOObbbbbbbbb",
   "bbbbbbbbbOOOMOOMOMOOMOOObbbbbbbb",
-  "bbbbbbbbXXObbMMOOOMMbbOXXbbbbbbb",
-  "bbbbbbXXXXbbbbOOOOObbbbXXXXbbbbb",
-  "bbbbbXXXXbbbbbOOOOObbbbbXXXXbbbb",
-  "bbbbbXXXbbbbbOOOOOOObbbbbXXXbbbb",
-  "bbbbbbbbbbbb         bbbbbbbbbbb",
+  "bbbbbbbbWWObbMMOOOMMbbOWWbbbbbbb",
+  "bbbbbbWWWWbbbbOOOOObbbbWWWWbbbbb",
+  "bbbbbWWWWbbbbbOOOOObbbbbWWWWbbbb",
+  "bbbbbWWWbbbbbOOOOOOObbbbbWWWbbbb",
+  "bbbbbbbbbbbbXXXXXXXXXbbbbbbbbbbb",
   "bbbbbbbbbbbbBBBBBBBBBbbbbbbbbbbb",
   "bbbbbbbbbbbbBBBBBBBBBbbbbbbbbbbb",
   "bbbbbbbbbbbbBBBBBBBBBbbbbbbbbbbb",
@@ -119,7 +120,7 @@ const array string: player_pic is [](
   "bbbbbbbbbbbbbbBBbBBbbbbbbbbbbbbb",
   "bbbbbbbbbbbbbbBBbBBbbbbbbbbbbbbb",
   "bbbbbbbbbbbbbbBBbBBbbbbbbbbbbbbb",
-  "bbbbbbbbbbbbbXXXbXXXbbbbbbbbbbbb");
+  "bbbbbbbbbbbbbWWWbWWWbbbbbbbbbbbb");
 
 
 const array string: goal_pic is [](
@@ -158,70 +159,70 @@ const array string: goal_pic is [](
 
 
 const array string: wall_pic is [](
-  "xxxxXxxxxxxxXxxxxxxxxxXxxxxxxxxx",
-  "xxxxXxxxxxxxXxxxxxxxxxXxxxxxxxxx",
-  "xxxxXXXXXXXXXXXXXXXXXXXxxxxxxxxx",
-  "xxxxXxxxxxxxxxxxXxxxxxXxxxxxxxxx",
-  "XXXXXxxxxxxxxxxxXxxxxxXXXXXXXXXX",
-  "xxxxXxxxxxxxxxxxXxxxxxXxxxxxxxxx",
-  "xxxxXxxxxxxxxxxxXxxxxxXxxxxxxxxx",
-  "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
-  "xxxxxxxxxXxxxxxxxxxXxxxxxxxXxxxx",
-  "xxxxxxxxxXxxxxxxxxxXxxxxxxxXxxxx",
-  "xxxxxxxxxXxxxxxxxxxXxxxxxxxXxxxx",
-  "XXXXXXXXXXxxxxxxxxxXXXXXXXXXXXXX",
-  "xxxXxxxxxXXXXXXXXXXXxxxxxxxxxxxx",
-  "xxxXxxxxxXxxxxxxxxxXxxxxxxxxxxxx",
-  "xxxXxxxxxXxxxxxxxxxXxxxxxxxxxxxx",
-  "xxxXxxxxxXxxxxxxxxxXxxxxxxxxxxxx",
-  "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
-  "xxxxxXxxxxxxxxXxxxxxxxxxxxXxxxxx",
-  "xxxxxXxxxxxxxxXxxxxxxxxxxxXxxxxx",
-  "xxxxxXxxxxxxxxXxxxxxxxxxxxXxxxxx",
-  "xxxxxXXXXXXXXXXXXXXXXXXXXXXxxxxx",
-  "xxxxxXxxxxxxxxxxxXxxxxxxxxXxxxxx",
-  "xxxxxXxxxxxxxxxxxXxxxxxxxxXxxxxx",
-  "xxxxxXxxxxxxxxxxxXxxxxxxxxXxxxxx",
-  "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
-  "xxxxxxxxxxxxXxxxxxxxxxXxxxxxXxxx",
-  "xxxxxxxxxxxxXxxxxxxxxxXxxxxxXxxx",
-  "xxxxxxxxxxxxXxxxxxxxxxXxxxxxXxxx",
-  "xxxxxxxxxxxxXXXXXXXXXXXxxxxxXxxx",
-  "XXXXXXXXXXXXXxxxxxxxxxXXXXXXXXXX",
-  "xxxxXxxxxxxxXxxxxxxxxxXxxxxxxxxx",
-  "xxxxXxxxxxxxXxxxxxxxxxXxxxxxxxxx");
+  "xxxxWxxxxxxxWxxxxxxxxxWxxxxxxxxx",
+  "xxxxWxxxxxxxWxxxxxxxxxWxxxxxxxxx",
+  "xxxxWWWWWWWWWWWWWWWWWWWxxxxxxxxx",
+  "xxxxWxxxxxxxxxxxWxxxxxWxxxxxxxxx",
+  "WWWWWxxxxxxxxxxxWxxxxxWWWWWWWWWW",
+  "xxxxWxxxxxxxxxxxWxxxxxWxxxxxxxxx",
+  "xxxxWxxxxxxxxxxxWxxxxxWxxxxxxxxx",
+  "WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW",
+  "xxxxxxxxxWxxxxxxxxxWxxxxxxxWxxxx",
+  "xxxxxxxxxWxxxxxxxxxWxxxxxxxWxxxx",
+  "xxxxxxxxxWxxxxxxxxxWxxxxxxxWxxxx",
+  "WWWWWWWWWWxxxxxxxxxWWWWWWWWWWWWW",
+  "xxxWxxxxxWWWWWWWWWWWxxxxxxxxxxxx",
+  "xxxWxxxxxWxxxxxxxxxWxxxxxxxxxxxx",
+  "xxxWxxxxxWxxxxxxxxxWxxxxxxxxxxxx",
+  "xxxWxxxxxWxxxxxxxxxWxxxxxxxxxxxx",
+  "WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW",
+  "xxxxxWxxxxxxxxWxxxxxxxxxxxWxxxxx",
+  "xxxxxWxxxxxxxxWxxxxxxxxxxxWxxxxx",
+  "xxxxxWxxxxxxxxWxxxxxxxxxxxWxxxxx",
+  "xxxxxWWWWWWWWWWWWWWWWWWWWWWxxxxx",
+  "xxxxxWxxxxxxxxxxxWxxxxxxxxWxxxxx",
+  "xxxxxWxxxxxxxxxxxWxxxxxxxxWxxxxx",
+  "xxxxxWxxxxxxxxxxxWxxxxxxxxWxxxxx",
+  "WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW",
+  "xxxxxxxxxxxxWxxxxxxxxxWxxxxxWxxx",
+  "xxxxxxxxxxxxWxxxxxxxxxWxxxxxWxxx",
+  "xxxxxxxxxxxxWxxxxxxxxxWxxxxxWxxx",
+  "xxxxxxxxxxxxWWWWWWWWWWWxxxxxWxxx",
+  "WWWWWWWWWWWWWxxxxxxxxxWWWWWWWWWW",
+  "xxxxWxxxxxxxWxxxxxxxxxWxxxxxxxxx",
+  "xxxxWxxxxxxxWxxxxxxxxxWxxxxxxxxx");
 
 
 const array string: packet_pic is [](
   "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
   "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
-  "bbbbbbbbbbbb         bbbbbbbbbbb",
-  "bbbbbbbbbb   XXXXXXX   bbbbbbbbb",
-  "bbbbbbbb   XXXXXXXXXXX   bbbbbbb",
-  "bbbbbbb  XXXXRRRRRRRXXXX  bbbbbb",
-  "bbbbbb  XXXRRRRRRRRRRRXXX  bbbbb",
-  "bbbbb  XXRRRRRRYYYYRRRRRXX  bbbb",
-  "bbbbb XXRRRRRRRRRYYYYRRRRXX bbbb",
-  "bbbb  XXRRRRRRRRRRRYYYRRRXX  bbb",
-  "bbbb XXRRRRRRRRRRRRRYYYRRRXX bbb",
-  "bbbb XXRRRRRRRRRRRRRRYYYRRXX bbb",
-  "bbb XXRRRRRRRRRRRRRRRRYYRRRXX bb",
-  "bbb XXRRRRRRRRRRRRRRRRRYRRRXX bb",
-  "bbb XXRRRRRRRRRRRRRRRRRYRRRXX bb",
-  "bbb XXRRRRRRRRRRRRRRRRRRRRRXX bb",
-  "bbb XXRRRBRRRRRRRRRRRRRRRRRXX bb",
-  "bbb XXRRRBRRRRRRRRRRRRRRRRRXX bb",
-  "bbb XXRRRBBRRRRRRRRRRRRRRRRXX bb",
-  "bbb  XXRRBBBRRRRRRRRRRRRRRXX  bb",
-  "bbbb XXRRRBBBRRRRRRRRRRRRRXX bbb",
-  "bbbb  XXRRRBBBRRRRRRRRRRRXX  bbb",
-  "bbbbb XXRRRRBBBBRRRRRRRRRXX bbbb",
-  "bbbbb  XXRRRRRBBBBRRRRRRXX  bbbb",
-  "bbbbbb  XXXRRRRRRRRRRRXXX  bbbbb",
-  "bbbbbbb  XXXXRRRRRRRXXXX  bbbbbb",
-  "bbbbbbbb   XXXXXXXXXXX   bbbbbbb",
-  "bbbbbbbbbb   XXXXXXX   bbbbbbbbb",
-  "bbbbbbbbbbbb         bbbbbbbbbbb",
+  "bbbbbbbbbbbbXXXXXXXXXbbbbbbbbbbb",
+  "bbbbbbbbbbXXXWWWWWWWXXXbbbbbbbbb",
+  "bbbbbbbbXXXWWWWWWWWWWWXXXbbbbbbb",
+  "bbbbbbbXXWWWWRRRRRRRWWWWXXbbbbbb",
+  "bbbbbbXXWWWRRRRRRRRRRRWWWXXbbbbb",
+  "bbbbbXXWWRRRRRRYYYYRRRRRWWXXbbbb",
+  "bbbbbXWWRRRRRRRRRYYYYRRRRWWXbbbb",
+  "bbbbXXWWRRRRRRRRRRRYYYRRRWWXXbbb",
+  "bbbbXWWRRRRRRRRRRRRRYYYRRRWWXbbb",
+  "bbbbXWWRRRRRRRRRRRRRRYYYRRWWXbbb",
+  "bbbXWWRRRRRRRRRRRRRRRRYYRRRWWXbb",
+  "bbbXWWRRRRRRRRRRRRRRRRRYRRRWWXbb",
+  "bbbXWWRRRRRRRRRRRRRRRRRYRRRWWXbb",
+  "bbbXWWRRRRRRRRRRRRRRRRRRRRRWWXbb",
+  "bbbXWWRRRBRRRRRRRRRRRRRRRRRWWXbb",
+  "bbbXWWRRRBRRRRRRRRRRRRRRRRRWWXbb",
+  "bbbXWWRRRBBRRRRRRRRRRRRRRRRWWXbb",
+  "bbbXXWWRRBBBRRRRRRRRRRRRRRWWXXbb",
+  "bbbbXWWRRRBBBRRRRRRRRRRRRRWWXbbb",
+  "bbbbXXWWRRRBBBRRRRRRRRRRRWWXXbbb",
+  "bbbbbXWWRRRRBBBBRRRRRRRRRWWXbbbb",
+  "bbbbbXXWWRRRRRBBBBRRRRRRWWXXbbbb",
+  "bbbbbbXXWWWRRRRRRRRRRRWWWXXbbbbb",
+  "bbbbbbbXXWWWWRRRRRRRWWWWXXbbbbbb",
+  "bbbbbbbbXXXWWWWWWWWWWWXXXbbbbbbb",
+  "bbbbbbbbbbXXXWWWWWWWXXXbbbbbbbbb",
+  "bbbbbbbbbbbbXXXXXXXXXbbbbbbbbbbb",
   "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
   "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
   "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb");
@@ -230,21 +231,21 @@ const array string: packet_pic is [](
 const array string: player_at_goal_pic is [](
   "              YYYYY             ",
   "  MMMMM MMMMMYYYYYYYMMMMM MMMMM ",
-  " M MMM M MMMYYXXXXXYYMMM M MMM  ",
-  " MM M MMM M YYXBXBXYY M MMM M M ",
-  " MMM MMMMM MYYXXXXXYYM MMMMM MM ",
-  " MM M MMM M YYXOXOXYY M MMM M M ",
-  " M MMM M MMM MXXOXXM MMM M MMM  ",
-  "  MMMMM MMMMM MXXXM MMMMM MMMMM ",
-  " M MMM M MMMOOOXXXOOOMMM M MMM  ",
+  " M MMM M MMMYYWWWWWYYMMM M MMM  ",
+  " MM M MMM M YYWBWBWYY M MMM M M ",
+  " MMM MMMMM MYYWWWWWYYM MMMMM MM ",
+  " MM M MMM M YYWOWOWYY M MMM M M ",
+  " M MMM M MMM MWWOWWM MMM M MMM  ",
+  "  MMMMM MMMMM MWWWM MMMMM MMMMM ",
+  " M MMM M MMMOOOWWWOOOMMM M MMM  ",
   " MM M MMM MOOOOOOOOOOOM MMM M M ",
   " MMM MMMMMOOOOOOOOOOOOOMMMMM MM ",
   " MM M MMMOOOMOOMOMOOMOOOMMM M M ",
-  " M MMM MXXOM MMOOOMM MOXXM MMM  ",
-  "  MMMMXXXXMMM OOOOO MMMXXXXMMMM ",
-  " M MMXXXXMMM MOOOOOM MMMXXXXMM  ",
-  " MM MXXXM M MOOOOOOOM M MXXXM M ",
-  " MMM MMMMM M         M MMMMM MM ",
+  " M MMM MWWOM MMOOOMM MOWWM MMM  ",
+  "  MMMMWWWWMMM OOOOO MMMWWWWMMMM ",
+  " M MMWWWWMMM MOOOOOM MMMWWWWMM  ",
+  " MM MWWWM M MOOOOOOOM M MWWWM M ",
+  " MMM MMMMM MXXXXXXXXXM MMMMM MM ",
   " MM M MMM M BBBBBBBBB M MMM M M ",
   " M MMM M MMMBBBBBBBBBMMM M MMM  ",
   "  MMMMM MMMMBBBBBBBBBMMMM MMMMM ",
@@ -259,86 +260,42 @@ const array string: player_at_goal_pic is [](
   " MMM MMMMM MMMBB BBMMM MMMMM MM ",
   " MM M MMM M MMBBMBBMM M MMM M M ",
   " M MMM M MMMSMBBMBBM MMM M MMM  ",
-  "             XXX XXX            ");
+  "             WWW WWW            ");
 
 
 const array string: packet_at_goal_pic is [](
   "                                ",
   "  MMMMM MMMMM MMMMM MMMMM MMMMM ",
   " M MMM M MMM M MMM M MMM M MMM  ",
-  " MM M MMM M MXXXXXXXM M MMM M M ",
-  " MMM MMMMMXXXXXXXXXXXXXMMMMM MM ",
-  " MM M MMMXXXXBBB    XXXXMMM M M ",
-  " M MMM MXXXBBBBBB   BBBXXM MMM  ",
-  "  MMMMMXX  BBBBBYYYY BBBXXMMMMM ",
-  " M MMMXXB   BBB   YYYYBBBXXMMM  ",
-  " MM MXXXBB   B   BBBYYYB XXXM M ",
-  " MMM XXBBBB     BBBBBYYY  XX MM ",
-  " MM MXXBBBBB   BBBBBBBYY BXXM M ",
-  " M MXXBBBBB     BBBBB  Y  BXXM  ",
-  "  MMXX BBB   B   BBB   Y   XXMM ",
-  " M MXX  B   BBB   B   BBB  XXM  ",
-  " MM XX     BBBBB     BBBBB XX M ",
-  " MMMXXB  OBBBBBBB   BBBBBBBXXMM ",
-  " MM XX   O BBBBB     BBBBB XX M ",
-  " M MXX  BOO BBB   B   BBB  XXM  ",
-  "  MMMXXBBOOO B   BBB   B  XXMMM ",
-  " M MMXXBBBOOO   BBBBB     XXMM  ",
-  " MM MXXXBBBOOO BBBBBBB   XXXM M ",
-  " MMM MXXBBB OOOOBBBBB   BXXM MM ",
-  " MM M MXXB   BOOOOBB   BXXM M M ",
-  " M MMM MXXXXBBB   B   XXXM MMM  ",
-  "  MMMMM MXXXXBBB    XXXXM MMMMM ",
-  " M MMM M MMXXXXXXXXXXXMM M MMM  ",
-  " MM M MMM M MXXXXXXXM M MMM M M ",
+  " MM M MMM M MWWWWWWWM M MMM M M ",
+  " MMM MMMMMWWWWWWWWWWWWWMMMMM MM ",
+  " MM M MMMWWWWBBB    WWWWMMM M M ",
+  " M MMM MWWWBBBBBB   BBBWWM MMM  ",
+  "  MMMMMWW  BBBBBYYYY BBBWWMMMMM ",
+  " M MMMWWB   BBB   YYYYBBBWWMMM  ",
+  " MM MWWWBB   B   BBBYYYB WWWM M ",
+  " MMM WWBBBB     BBBBBYYY  WW MM ",
+  " MM MWWBBBBB   BBBBBBBYY BWWM M ",
+  " M MWWBBBBB     BBBBB  Y  BWWM  ",
+  "  MMWW BBB   B   BBB   Y   WWMM ",
+  " M MWW  B   BBB   B   BBB  WWM  ",
+  " MM WW     BBBBB     BBBBB WW M ",
+  " MMMWWB  OBBBBBBB   BBBBBBBWWMM ",
+  " MM WW   O BBBBB     BBBBB WW M ",
+  " M MWW  BOO BBB   B   BBB  WWM  ",
+  "  MMMWWBBOOO B   BBB   B  WWMMM ",
+  " M MMWWBBBOOO   BBBBB     WWMM  ",
+  " MM MWWWBBBOOO BBBBBBB   WWWM M ",
+  " MMM MWWBBB OOOOBBBBB   BWWM MM ",
+  " MM M MWWB   BOOOOBB   BWWM M M ",
+  " M MMM MWWWWBBB   B   WWWM MMM  ",
+  "  MMMMM MWWWWBBB    WWWWM MMMMM ",
+  " M MMM M MMWWWWWWWWWWWMM M MMM  ",
+  " MM M MMM M MWWWWWWWM M MMM M M ",
   " MMM MMMMM MMMMM MMMMM MMMMM MM ",
   " MM M MMM M MMM M MMM M MMM M M ",
   " M MMM M MMM M MMM M MMM M MMM  ",
   "                                ");
-
-
-const func PRIMITIVE_WINDOW: create_pixmap (in array string: pattern,
-    in integer: scale) is func
-  result
-    var PRIMITIVE_WINDOW: pixmap is PRIMITIVE_WINDOW.value;
-  local
-    var integer: height is 0;
-    var integer: width is 0;
-    var integer: line is 0;
-    var integer: column is 0;
-    var color: col is black;
-  begin
-    height := length(pattern);
-    width := length(pattern[1]);
-    pixmap := newPixmap(width * scale, height * scale);
-    clear(pixmap, black);
-    for line range 1 to height do
-      for column range 1 to width do
-        case pattern[line][column] of
-          when {' '}: col := black;
-          when {'R'}: col := light_red;
-          when {'G'}: col := light_green;
-          when {'B'}: col := light_blue;
-          when {'Y'}: col := yellow;
-          when {'M'}: col := light_magenta;
-          when {'O'}: col := orange;
-          when {'r'}: col := dark_red;
-          when {'g'}: col := dark_green;
-          when {'c'}: col := light_cyan;
-          when {'P'}: col := dark_magenta;
-          when {'X'}: col := white;
-          when {'x'}: col := light_gray;
-          when {'d'}: col := dark_gray;
-          when {'b'}: col := brown;
-          otherwise:  col := black;
-        end case;
-        rect(pixmap,
-            pred(column) * scale,
-            pred(line) * scale,
-            scale, scale, col);
-      end for;
-    end for;
-  end func;
 
 
 const proc: introduction is func
@@ -370,12 +327,12 @@ const proc: introduction is func
 
 const proc: loadPixmaps is func
   begin
-    player_pixmap := create_pixmap(player_pic, 1);
-    goal_pixmap := create_pixmap(goal_pic, 1);
-    wall_pixmap := create_pixmap(wall_pic, 1);
-    packet_pixmap := create_pixmap(packet_pic, 1);
-    player_at_goal_pixmap := create_pixmap(player_at_goal_pic, 1);
-    packet_at_goal_pixmap := create_pixmap(packet_at_goal_pic, 1);
+    player_pixmap := createPixmap(player_pic, 1, black);
+    goal_pixmap := createPixmap(goal_pic, 1, black);
+    wall_pixmap := createPixmap(wall_pic, 1, black);
+    packet_pixmap := createPixmap(packet_pic, 1, black);
+    player_at_goal_pixmap := createPixmap(player_at_goal_pic, 1, black);
+    packet_at_goal_pixmap := createPixmap(packet_at_goal_pic, 1, black);
   end func;
 
 
@@ -695,7 +652,7 @@ const proc: playLevel is func
   begin
     playerMoves := 0 times  moveType.value;
     moveNumber := 0;
-    clear;
+    clear(black);
     introduction;
     writeStatus;
     drawMap;
@@ -807,7 +764,7 @@ const proc: main is func
     color(win, white, black);
     IN := openEditLine(KEYBOARD, win);
     loadPixmaps;
-    clear;
+    clear(black);
     repeat
       readLevelMap(levelNumber);
       playLevel;

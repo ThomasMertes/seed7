@@ -489,7 +489,7 @@ const proc: showMenu is func
   local
     var integer: num is 0;
   begin
-    clear;
+    clear(black);
     showTime;
     setPos(scr, 2, 1);
     writeln(scr, " P L A N E T S   Display information about the planets");

@@ -47,7 +47,7 @@
 2. USING INTERPRETER AND COMPILER FROM OTHER DIRECTORIES
 ========================================================
 
-    It is desireable to allow calls of the interpreter (s7)
+    It is desirable to allow calls of the interpreter (s7)
   and the compiler (s7c) from any directory. E.g.:
 
     s7 myprog
@@ -105,7 +105,7 @@
      In this example the paths are"/usr/local/src/seed7/lib"
      and "/usr/local/src/seed7/bin".
 
-  c) Add the direcory with the interpreter and compiler
+  c) Add the directory with the interpreter and compiler
      executables to the search path. Alternatively you can
      create a link to the interpreter (seed7/bin/s7) and to the
      compiler (seed7/bin/s7c) in a directory, which is in the
@@ -160,7 +160,7 @@
     s7 s7c -O2 s7c
 
   It is also possible to compile the Seed7 compiler in the build directory.
-  In this case it is necessary to specify the direcories SEED7_LIBRARY
+  In this case it is necessary to specify the directories SEED7_LIBRARY
   and S7_LIB_DIR with the options -l and -b:
 
     ./s7 -l ../lib s7c -l ../lib -b ../bin -O2 s7c

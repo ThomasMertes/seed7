@@ -29,6 +29,7 @@
 
 #include "stdlib.h"
 #include "stdio.h"
+#include "signal.h"
 
 #include "common.h"
 #include "data.h"
@@ -65,7 +66,11 @@ void continue_question (void)
       exit(1);
     } else if (ch == (int) '/') {
       position = 0;
+#ifdef DO_SIGFPE_WITH_DIV_BY_ZERO
       printf("%d", 1 / position); /* trigger SIGFPE on purpose */
+#else
+      raise(SIGFPE);
+#endif
     } /* if */
     position = 0;
     while (ch >= (int) ' ' && ch <= (int) '~' && position < 9) {

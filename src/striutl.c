@@ -1135,7 +1135,7 @@ stritype cstri8_or_cstri_to_stri (const_cstritype cstri)
  *  wide char strings. The encoding can be Latin-1, UTF-8, UTF-16 or
  *  it can use a code page.
  *  @param stri Seed7 UTF-32 string to be converted.
- *  @param err_info Unchanged when the function succceeds or
+ *  @param err_info Unchanged when the function succeeds or
  *                  MEMORY_ERROR when the memory allocation failed or
  *                  RANGE_ERROR when the conversion failed.
  *  @return a null terminated os_stritype value used by system calls or
@@ -1176,7 +1176,7 @@ os_stritype stri_to_os_stri (const_stritype stri, errinfotype *err_info)
  *  operating system os_stritype can describe byte or wide char strings.
  *  The encoding can be Latin-1, UTF-8, UTF-16 or it can use a code page.
  *  @param os_stri null terminated os_stritype string to be converted.
- *  @param err_info Unchanged when the function succceeds or
+ *  @param err_info Unchanged when the function succeeds or
  *                  MEMORY_ERROR when the memory allocation failed.
  *  @return a Seed7 UTF-32 string or
  *          NULL, when an error occurred.
@@ -1244,7 +1244,7 @@ stritype stri_to_standard_path (stritype stri)
  *  mapping from drive letters might take place on some operating
  *  systems.
  *  @param os_path null terminated os_stritype path to be converted.
- *  @param err_info Unchanged when the function succceeds or
+ *  @param err_info Unchanged when the function succeeds or
  *                  MEMORY_ERROR when the memory allocation failed.
  *  @return an UTF-32 encoded Seed7 standard path or
  *          NULL, when the memory allocation failed.
@@ -1474,10 +1474,10 @@ static os_stritype map_to_drive_letter (const strelemtype *const pathChars,
  *  it can use a code page. Beyond the conversion to os_stritype a
  *  mapping to drive letters might take place on some operating systems.
  *  @param std_path UTF-32 encoded Seed7 standard path to be converted.
- *  @param path_info Unchanged when the function succceeds or
+ *  @param path_info Unchanged when the function succeeds or
  *                   PATH_IS_EMULATED_ROOT when the path is "/".
  *                   PATH_NOT_MAPPED when the path cannot be mapped.
- *  @param err_info Unchanged when the function succceeds or
+ *  @param err_info Unchanged when the function succeeds or
  *                  MEMORY_ERROR when the memory allocation failed or
  *                  RANGE_ERROR when the path is not a standard path.
  *  @return a null terminated os_stritype path used by system calls or
@@ -1578,10 +1578,10 @@ os_stritype cp_to_os_path (const_stritype std_path, int *path_info,
  *  it can use a code page. Beyond the conversion to os_stritype a
  *  mapping to drive letters might take place on some operating systems.
  *  @param std_path UTF-32 encoded Seed7 standard path to be converted.
- *  @param path_info Unchanged when the function succceeds or
+ *  @param path_info Unchanged when the function succeeds or
  *                   PATH_IS_EMULATED_ROOT when the path is "/".
  *                   PATH_NOT_MAPPED when the path cannot be mapped.
- *  @param err_info Unchanged when the function succceeds or
+ *  @param err_info Unchanged when the function succeeds or
  *                  MEMORY_ERROR when the memory allocation failed or
  *                  RANGE_ERROR when the path is not a standard path.
  *  @return a null terminated os_stritype path used by system calls or

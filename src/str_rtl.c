@@ -1279,8 +1279,6 @@ stritype strCLit (const const_stritype stri)
     register memsizetype position;
     memsizetype striSize;
     memsizetype pos;
-    size_t len;
-    char buffer[25];
     stritype resized_result;
     stritype result;
 
@@ -1294,58 +1292,74 @@ stritype strCLit (const const_stritype stri)
     if (unlikely(striSize > (MAX_STRI_LEN - 2) / 4 ||
                  !ALLOC_STRI_SIZE_OK(result, 4 * striSize + 2))) {
       raise_error(MEMORY_ERROR);
-      return NULL;
-    } /* if */
-    result->mem[0] = (strelemtype) '"';
-    pos = 1;
-    for (position = 0; position < striSize; position++) {
-      character = stri->mem[position];
-      /* The following comparisons use int literals like 255      */
-      /* instead of char literals like '\377'. When char literals */
-      /* are signed (this is C implementation dependent) the      */
-      /* integral promotion (conversion to int) triggers a sign   */
-      /* extension. In this case the sign extension of '\377'     */
-      /* leads to the int value -1 instead of the desired 255.    */
-      if (character < ' ') {
-        len = strlen(cstri_escape_sequence[character]);
-        cstri_expand(&result->mem[pos],
-            cstri_escape_sequence[character], len);
-        pos += len;
-#ifdef TRIGRAPH_SEQUENCES_ARE_REPLACED
-      } else if (character == '\\' || character == '\"' ||
-                 character == '?') {
-#else
-      } else if (character == '\\' || character == '\"') {
-#endif
-        result->mem[pos] = (strelemtype) '\\';
-        result->mem[pos + 1] = (strelemtype) character;
-        pos += 2;
-      } else if (character < 127) {
-        result->mem[pos] = (strelemtype) character;
-        pos++;
-      } else if (character < 256) {
-        sprintf(buffer, "\\%o", (int) character);
-        len = strlen(buffer);
-        cstri_expand(&result->mem[pos], buffer, len);
-        pos += len;
-      } else {
-        FREE_STRI(result, 4 * striSize + 2);
-        raise_error(RANGE_ERROR);
-        return NULL;
-      } /* if */
-    } /* for */
-    result->mem[pos] = (strelemtype) '"';
-    result->size = pos + 1;
-    REALLOC_STRI_SIZE_SMALLER(resized_result, result, 4 * striSize + 2, pos + 1);
-    if (unlikely(resized_result == NULL)) {
-      FREE_STRI(result, 4 * striSize + 2);
-      raise_error(MEMORY_ERROR);
-      return NULL;
+      result = NULL;
     } else {
-      result = resized_result;
-      COUNT3_STRI(4 * striSize + 2, pos + 1);
-      return result;
+      result->mem[0] = (strelemtype) '"';
+      pos = 1;
+      for (position = 0; position < striSize; position++) {
+        character = stri->mem[position];
+        /* The following comparisons use int literals like 255      */
+        /* instead of char literals like '\377'. When char literals */
+        /* are signed (this is C implementation dependent) the      */
+        /* integral promotion (conversion to int) triggers a sign   */
+        /* extension. In this case the sign extension of '\377'     */
+        /* leads to the int value -1 instead of the desired 255.    */
+        if (character < 127) {
+          if (character < ' ') {
+            result->mem[pos] = (strelemtype) '\\';
+            if (cstri_escape_sequence[character][1] == '0') {
+              /* Always write three octal digits to avoid errors when */
+              /* the octal representation is followed by a digit.     */
+              result->mem[pos + 1] = (strelemtype) '0';
+              /* Write the character as two octal digits. */
+              /* This code is much faster than sprintf(). */
+              result->mem[pos + 2] = (strelemtype) ((character >> 3 & 0x7) + '0');
+              result->mem[pos + 3] = (strelemtype) ((character      & 0x7) + '0');
+              pos += 4;
+            } else {
+              result->mem[pos + 1] = (strelemtype) cstri_escape_sequence[character][1];
+              pos += 2;
+            } /* if */
+#ifdef TRIGRAPH_SEQUENCES_ARE_REPLACED
+          } else if (character == '\\' || character == '\"' ||
+              (character == '?' && position >= 1 && stri->mem[position - 1] == '?')) {
+#else
+          } else if (character == '\\' || character == '\"') {
+#endif
+            result->mem[pos]     = (strelemtype) '\\';
+            result->mem[pos + 1] = (strelemtype) character;
+            pos += 2;
+          } else {
+            result->mem[pos]     = (strelemtype) character;
+            pos++;
+          } /* if */
+        } else if (character < 256) {
+          result->mem[pos]     = (strelemtype) '\\';
+          /* Write the character as three octal digits. */
+          /* This code is much faster than sprintf().   */
+          result->mem[pos + 1] = (strelemtype) ((character >> 6 & 0x7) + '0');
+          result->mem[pos + 2] = (strelemtype) ((character >> 3 & 0x7) + '0');
+          result->mem[pos + 3] = (strelemtype) ((character      & 0x7) + '0');
+          pos += 4;
+        } else {
+          FREE_STRI(result, 4 * striSize + 2);
+          raise_error(RANGE_ERROR);
+          return NULL;
+        } /* if */
+      } /* for */
+      result->mem[pos] = (strelemtype) '"';
+      result->size = pos + 1;
+      REALLOC_STRI_SIZE_SMALLER(resized_result, result, 4 * striSize + 2, pos + 1);
+      if (unlikely(resized_result == NULL)) {
+        FREE_STRI(result, 4 * striSize + 2);
+        raise_error(MEMORY_ERROR);
+        result = NULL;
+      } else {
+        result = resized_result;
+        COUNT3_STRI(4 * striSize + 2, pos + 1);
+      } /* if */
     } /* if */
+    return result;
   } /* strCLit */
 
 

@@ -28,6 +28,7 @@ $ include "seed7_05.s7i";
   include "float.s7i";
   include "keybd.s7i";
   include "draw.s7i";
+  include "pic_util.s7i";
   include "dialog.s7i";
   include "stdfont9.s7i";
   include "pixmap_file.s7i";
@@ -209,211 +210,211 @@ var text: scr is STD_NULL;
 
 
 const array string: player_right_1 is [](
-  "    XXXXX     ",
-  "    XX XXX    ",
-  "    XXXXX   XX",
-  "     XXX    XX",
-  "      X    XX ",
-  "  XXXXXXXXXX  ",
-  " XX  XXX      ",
-  "XX   XXX      ",
-  "XX   XXX      ",
-  "    XXXXXXXX  ",
-  "    XX    XX  ",
-  "    XX    XX  ",
-  "    XX    XX  ",
-  "    XX    XXX ",
-  "    XX        ",
-  "    XXX       ");
+  "    WWWWW     ",
+  "    WW WWW    ",
+  "    WWWWW   WW",
+  "     WWW    WW",
+  "      W    WW ",
+  "  WWWWWWWWWW  ",
+  " WW  WWW      ",
+  "WW   WWW      ",
+  "WW   WWW      ",
+  "    WWWWWWWW  ",
+  "    WW    WW  ",
+  "    WW    WW  ",
+  "    WW    WW  ",
+  "    WW    WWW ",
+  "    WW        ",
+  "    WWW       ");
 
 
 const array string: player_right_2 is [](
-  "    XXXXX     ",
-  "    XX XXX    ",
-  "    XXXXX     ",
-  "     XXX      ",
-  "      X       ",
-  "   XXXXXXX  XX",
-  "  XX XXX XX XX",
-  " XX  XXX  XXX ",
-  "  XX XXX      ",
-  "    XXXXXX    ",
-  "    XX  XX    ",
-  "    XX  XX    ",
-  "XXXXXX  XX    ",
-  "X       XX    ",
-  "        XX    ",
-  "        XXX   ");
+  "    WWWWW     ",
+  "    WW WWW    ",
+  "    WWWWW     ",
+  "     WWW      ",
+  "      W       ",
+  "   WWWWWWW  WW",
+  "  WW WWW WW WW",
+  " WW  WWW  WWW ",
+  "  WW WWW      ",
+  "    WWWWWW    ",
+  "    WW  WW    ",
+  "    WW  WW    ",
+  "WWWWWW  WW    ",
+  "W       WW    ",
+  "        WW    ",
+  "        WWW   ");
 
 
 const array string: player_left_1 is [](
-  "     XXXXX    ",
-  "    XXX XX    ",
-  "XX   XXXXX    ",
-  "XX    XXX     ",
-  " XX    X      ",
-  "  XXXXXXXXXX  ",
-  "      XXX  XX ",
-  "      XXX   XX",
-  "      XXX   XX",
-  "  XXXXXXXX    ",
-  "  XX    XX    ",
-  "  XX    XX    ",
-  "  XX    XX    ",
-  " XXX    XX    ",
-  "        XX    ",
-  "       XXX    ");
+  "     WWWWW    ",
+  "    WWW WW    ",
+  "WW   WWWWW    ",
+  "WW    WWW     ",
+  " WW    W      ",
+  "  WWWWWWWWWW  ",
+  "      WWW  WW ",
+  "      WWW   WW",
+  "      WWW   WW",
+  "  WWWWWWWW    ",
+  "  WW    WW    ",
+  "  WW    WW    ",
+  "  WW    WW    ",
+  " WWW    WW    ",
+  "        WW    ",
+  "       WWW    ");
 
 
 const array string: player_left_2 is [](
-  "     XXXXX    ",
-  "    XXX XX    ",
-  "     XXXXX    ",
-  "      XXX     ",
-  "       X      ",
-  "XX  XXXXXXX   ",
-  "XX XX XXX XX  ",
-  " XXX  XXX  XX ",
-  "      XXX XX  ",
-  "    XXXXXX    ",
-  "    XX  XX    ",
-  "    XX  XX    ",
-  "    XX  XXXXXX",
-  "    XX       X",
-  "    XX        ",
-  "   XXX        ");
+  "     WWWWW    ",
+  "    WWW WW    ",
+  "     WWWWW    ",
+  "      WWW     ",
+  "       W      ",
+  "WW  WWWWWWW   ",
+  "WW WW WWW WW  ",
+  " WWW  WWW  WW ",
+  "      WWW WW  ",
+  "    WWWWWW    ",
+  "    WW  WW    ",
+  "    WW  WW    ",
+  "    WW  WWWWWW",
+  "    WW       W",
+  "    WW        ",
+  "   WWW        ");
 
 
 const array string: player_falling is [](
-  " XX  XXX    ",
-  " XX XXXXX   ",
-  " XX XXXXX   ",
-  " XX  XXX    ",
-  "  XX  X     ",
-  "   XXXXXXXX ",
-  "     XXX  XX",
-  "     XXX  XX",
-  "     XXX  XX",
-  " XXXXXXXX XX",
-  " XX    XX   ",
-  " XX    XX   ",
-  " XX    XX   ",
-  "       XX   ",
-  "       XX   ",
-  "       XX   ");
+  " WW  WWW    ",
+  " WW WWWWW   ",
+  " WW WWWWW   ",
+  " WW  WWW    ",
+  "  WW  W     ",
+  "   WWWWWWWW ",
+  "     WWW  WW",
+  "     WWW  WW",
+  "     WWW  WW",
+  " WWWWWWWW WW",
+  " WW    WW   ",
+  " WW    WW   ",
+  " WW    WW   ",
+  "       WW   ",
+  "       WW   ",
+  "       WW   ");
 
 
 const array string: player_dig_right_1 is [](
-  " XXXXX       ",
-  " XX XXX      ",
-  " XXXXX       ",
-  "  XXX        ",
-  "   X         ",
-  " XXXXXX      ",
-  " XXXX XX     ",
-  "  XXXX XX    ",
-  "  XXXXXXX    ",
-  "  XXX  XX    ",
-  " XX XX  XX   ",
-  " XX XX   XX  ",
-  " XX XX    XXX",
-  " XX XX    XXX",
-  " XX XX     XX",
-  "XXX XXX     X");
+  " WWWWW       ",
+  " WW WWW      ",
+  " WWWWW       ",
+  "  WWW        ",
+  "   W         ",
+  " WWWWWW      ",
+  " WWWW WW     ",
+  "  WWWW WW    ",
+  "  WWWWWWW    ",
+  "  WWW  WW    ",
+  " WW WW  WW   ",
+  " WW WW   WW  ",
+  " WW WW    WWW",
+  " WW WW    WWW",
+  " WW WW     WW",
+  "WWW WWW     W");
 
 
 const array string: player_dig_right_2 is [](
-  " XXXXX     XX",
-  " XX XXX   XXX",
-  " XXXXX   XXXX",
-  "  XXX   XX   ",
-  "   X   XX    ",
-  "  XXXXXXX    ",
-  "  XXX  XX    ",
-  "  XXXXXX     ",
-  "  XXX        ",
-  "  XXX        ",
-  " XX XX       ",
-  " XX XX       ",
-  " XX XX       ",
-  " XX XX       ",
-  " XX XX       ",
-  "XXX XXX      ");
+  " WWWWW     WW",
+  " WW WWW   WWW",
+  " WWWWW   WWWW",
+  "  WWW   WW   ",
+  "   W   WW    ",
+  "  WWWWWWW    ",
+  "  WWW  WW    ",
+  "  WWWWWW     ",
+  "  WWW        ",
+  "  WWW        ",
+  " WW WW       ",
+  " WW WW       ",
+  " WW WW       ",
+  " WW WW       ",
+  " WW WW       ",
+  "WWW WWW      ");
 
 
 const array string: player_dig_left_1 is [](
-  "       XXXXX ",
-  "      XXX XX ",
-  "       XXXXX ",
-  "        XXX  ",
-  "         X   ",
-  "      XXXXXX ",
-  "     XX XXXX ",
-  "    XX XXXX  ",
-  "    XXXXXXX  ",
-  "    XX  XXX  ",
-  "   XX  XX XX ",
-  "  XX   XX XX ",
-  "XXX    XX XX ",
-  "XXX    XX XX ",
-  "XX     XX XX ",
-  "X     XXX XXX");
+  "       WWWWW ",
+  "      WWW WW ",
+  "       WWWWW ",
+  "        WWW  ",
+  "         W   ",
+  "      WWWWWW ",
+  "     WW WWWW ",
+  "    WW WWWW  ",
+  "    WWWWWWW  ",
+  "    WW  WWW  ",
+  "   WW  WW WW ",
+  "  WW   WW WW ",
+  "WWW    WW WW ",
+  "WWW    WW WW ",
+  "WW     WW WW ",
+  "W     WWW WWW");
 
 
 const array string: player_dig_left_2 is [](
-  "XX     XXXXX ",
-  "XXX   XXX XX ",
-  "XXXX   XXXXX ",
-  "   XX   XXX  ",
-  "    XX   X   ",
-  "    XXXXXXX  ",
-  "    XX  XXX  ",
-  "     XXXXXX  ",
-  "        XXX  ",
-  "        XXX  ",
-  "       XX XX ",
-  "       XX XX ",
-  "       XX XX ",
-  "       XX XX ",
-  "       XX XX ",
-  "      XXX XXX");
+  "WW     WWWWW ",
+  "WWW   WWW WW ",
+  "WWWW   WWWWW ",
+  "   WW   WWW  ",
+  "    WW   W   ",
+  "    WWWWWWW  ",
+  "    WW  WWW  ",
+  "     WWWWWW  ",
+  "        WWW  ",
+  "        WWW  ",
+  "       WW WW ",
+  "       WW WW ",
+  "       WW WW ",
+  "       WW WW ",
+  "       WW WW ",
+  "      WWW WWW");
 
 const array string: player_up_down_1 is [](
-  "    XXXXX XXX",
-  "    XXXXX XXX",
-  "    XXXXX XXX",
-  "     XXX  XXX",
-  "      X XXX  ",
-  "  XXXXXXXXX  ",
-  "XXX  XXX     ",
-  "XXX  XXX     ",
-  "XXX XXXXX    ",
-  "XXX XXXXXXXXX",
-  "    XX    XXX",
-  "    XX    XXX",
-  "    XXX   XXX",
-  "    XXX      ",
-  "    XX       ",
-  "    XX       ");
+  "    WWWWW WWW",
+  "    WWWWW WWW",
+  "    WWWWW WWW",
+  "     WWW  WWW",
+  "      W WWW  ",
+  "  WWWWWWWWW  ",
+  "WWW  WWW     ",
+  "WWW  WWW     ",
+  "WWW WWWWW    ",
+  "WWW WWWWWWWWW",
+  "    WW    WWW",
+  "    WW    WWW",
+  "    WWW   WWW",
+  "    WWW      ",
+  "    WW       ",
+  "    WW       ");
 
 
 const array string: player_up_down_2 is [](
-  "XXX  XXX     ",
-  "XXX XXXXX    ",
-  "XXX XXXXX    ",
-  "XXX XXXXX    ",
-  "  XX  X      ",
-  "   XXXXXXXX  ",
-  "    XXXXX XXX",
-  "    XXXXX XXX",
-  "     XXX  XXX",
-  "XXXXXXXXX XXX",
-  "XXX   XXX    ",
-  "XXX   XXX    ",
-  "XXX    XX    ",
-  "       XX    ",
-  "      XXX    ",
-  "      XXX    ");
+  "WWW  WWW     ",
+  "WWW WWWWW    ",
+  "WWW WWWWW    ",
+  "WWW WWWWW    ",
+  "  WW  W      ",
+  "   WWWWWWWW  ",
+  "    WWWWW WWW",
+  "    WWWWW WWW",
+  "     WWW  WWW",
+  "WWWWWWWWW WWW",
+  "WWW   WWW    ",
+  "WWW   WWW    ",
+  "WWW    WW    ",
+  "       WW    ",
+  "      WWW    ",
+  "      WWW    ");
 
 
 const array string: monster1_1 is [](
@@ -534,118 +535,118 @@ const array string: monster3_2 is [](
 
 
 const array string: player_reserve is [](
-  "  XXX  ",
-  "  XXX  ",
-  "X  X  X",
-  " XXXXX ",
-  "   X   ",
-  "  XXX  ",
-  " X   X ",
-  "X     X");
+  "  WWW  ",
+  "  WWW  ",
+  "W  W  W",
+  " WWWWW ",
+  "   W   ",
+  "  WWW  ",
+  " W   W ",
+  "W     W");
 
 
 const array string: score_text is [](
-  " XXX    XXX        ",
+  " WWW    WWW        ",
   "G   G  M   M       ",
   "G      M           ",
-  " XXX   M      XXXXX",
+  " WWW   M      WWWWW",
   "    G  M           ",
   "G   G  M   M       ",
-  " XXX    XXX        ");
+  " WWW    WWW        ");
 
 
 const array string: bonus_text is [](
-  "XXXX    XXX   M   M  G   G   XXX        ",
+  "WWWW    WWW   M   M  G   G   WWW        ",
   "M   M  G   G  M   M  G   G  M   M       ",
-  "M   M  G   G  XX  M  G   G  M           ",
-  "XXXX   G   G  MMMMM  G   G   XXX   XXXXX",
-  "M   M  G   G  M  XX  G   G      M       ",
+  "M   M  G   G  WW  M  G   G  M           ",
+  "WWWW   G   G  MMMMM  G   G   WWW   WWWWW",
+  "M   M  G   G  M  WW  G   G      M       ",
   "M   M  G   G  M   M  G   G  M   M       ",
-  "XXXX    XXX   M   M   XXX    XXX        ");
+  "WWWW    WWW   M   M   WWW    WWW        ");
 
 
 const array string: hiscore_text is [](
-  "M   M   XXX        ",
+  "M   M   WWW        ",
   "M   M    G         ",
   "M   M    G         ",
-  "XXXXX    G    XXXXX",
+  "WWWWW    G    WWWWW",
   "M   M    G         ",
   "M   M    G         ",
-  "M   M   XXX        ");
+  "M   M   WWW        ");
 
 
 const array string: zero is [](
   "     ",
-  " XXX ",
+  " WWW ",
   "M   M",
   "M   M",
   "M   M",
   "M   M",
-  " XXX ");
+  " WWW ");
 
 
 const array string: one is [](
-  "  XX ",
+  "  WW ",
   " MMM ",
   "   M ",
   "   M ",
   "   M ",
   "   M ",
-  "  XXX");
+  "  WWW");
 
 
 const array string: two is [](
-  " XXX ",
+  " WWW ",
   "G   G",
   "    G",
   "   M ",
-  " XX  ",
+  " WW  ",
   "G    ",
-  "XXXXX");
+  "WWWWW");
 
 
 const array string: three is [](
-  " XXX ",
+  " WWW ",
   "M   M",
   "    M",
-  "  XX ",
+  "  WW ",
   "    M",
   "M   M",
-  " XXX ");
+  " WWW ");
 
 
 const array string: four is [](
   "G    ",
   "G    ",
   "G  M ",
-  "XXXXX",
+  "WWWWW",
   "   M ",
   "   M ",
   "   M ");
 
 
 const array string: five is [](
-  "XXXX ",
+  "WWWW ",
   "M    ",
   "M    ",
-  "XXXX ",
+  "WWWW ",
   "    M",
   "    M",
-  "XXXX ");
+  "WWWW ");
 
 
 const array string: six is [](
-  " XXX ",
+  " WWW ",
   "G   G",
   "G    ",
-  "XXXX ",
+  "WWWW ",
   "G   G",
   "G   G",
-  " XXX ");
+  " WWW ");
 
 
 const array string: seven is [](
-  "XXXXX",
+  "WWWWW",
   "M   M",
   "    M",
   "   G ",
@@ -655,128 +656,90 @@ const array string: seven is [](
 
 
 const array string: eight is [](
-  " XXX ",
+  " WWW ",
   "G   G",
   "G   G",
-  " XXX ",
+  " WWW ",
   "G   G",
   "G   G",
-  " XXX ");
+  " WWW ");
 
 
 const array string: nine is [](
-  " XXX ",
+  " WWW ",
   "M   M",
   "M   M",
-  " XXXX",
+  " WWWW",
   "    M",
   "M   M",
-  " XXX ");
+  " WWW ");
 
 
-const func PRIMITIVE_WINDOW: create_pixmap (in array string: pattern,
-    in integer: scale) is func
-  result
-    var PRIMITIVE_WINDOW: pixmap is PRIMITIVE_WINDOW.value;
-  local
-    var integer: height is 0;
-    var integer: width is 0;
-    var integer: line is 0;
-    var integer: column is 0;
-    var color: col is black;
-  begin
-    height := length(pattern);
-    width := length(pattern[1]);
-    pixmap := newPixmap(width * scale, height * scale);
-    clear(pixmap, black);
-    for line range 1 to height do
-      for column range 1 to width do
-        case pattern[line][column] of
-          when {' '}: col := black;
-          when {'R'}: col := light_red;
-          when {'G'}: col := light_green;
-          when {'B'}: col := light_blue;
-          when {'Y'}: col := yellow;
-          when {'M'}: col := light_magenta;
-          when {'O'}: col := orange;
-          when {'r'}: col := dark_red;
-          when {'g'}: col := dark_green;
-          when {'c'}: col := light_cyan;
-          when {'X'}: col := white;
-          when {'x'}: col := light_gray;
-          when {'b'}: col := brown;
-          otherwise:  col := black;
-        end case;
-        rect(pixmap,
-            pred(column) * scale,
-            pred(line) * scale,
-            scale, scale, col);
-      end for;
-    end for;
-  end func;
+const func PRIMITIVE_WINDOW: createPixmap (in array string: pattern) is
+  return createPixmap(pattern, PICTURE_SCALE, black);
 
 
 const proc: init_pictures is func
   begin
     monster_pixmap[1] := 8 times PRIMITIVE_WINDOW.value;
-    monster_pixmap[1][1] := create_pixmap(monster1_1, PICTURE_SCALE);
+    monster_pixmap[1][1] := createPixmap(monster1_1);
     monster_pixmap[1][2] := monster_pixmap[1][1];
     monster_pixmap[1][3] := monster_pixmap[1][1];
     monster_pixmap[1][4] := monster_pixmap[1][1];
-    monster_pixmap[1][5] := create_pixmap(monster1_5, PICTURE_SCALE);
+    monster_pixmap[1][5] := createPixmap(monster1_5);
     monster_pixmap[1][6] := monster_pixmap[1][5];
     monster_pixmap[1][7] := monster_pixmap[1][5];
     monster_pixmap[1][8] := monster_pixmap[1][5];
     monster_pixmap[2] := 8 times PRIMITIVE_WINDOW.value;
-    monster_pixmap[2][1] := create_pixmap(monster2_1, PICTURE_SCALE);
+    monster_pixmap[2][1] := createPixmap(monster2_1);
     monster_pixmap[2][2] := monster_pixmap[2][1];
     monster_pixmap[2][3] := monster_pixmap[2][1];
     monster_pixmap[2][4] := monster_pixmap[2][1];
-    monster_pixmap[2][5] := create_pixmap(monster2_2, PICTURE_SCALE);
+    monster_pixmap[2][5] := createPixmap(monster2_2);
     monster_pixmap[2][6] := monster_pixmap[2][5];
     monster_pixmap[2][7] := monster_pixmap[2][5];
     monster_pixmap[2][8] := monster_pixmap[2][5];
     monster_pixmap[3] := 8 times PRIMITIVE_WINDOW.value;
-    monster_pixmap[3][1] := create_pixmap(monster3_1, PICTURE_SCALE);
+    monster_pixmap[3][1] := createPixmap(monster3_1);
     monster_pixmap[3][2] := monster_pixmap[3][1];
     monster_pixmap[3][3] := monster_pixmap[3][1];
     monster_pixmap[3][4] := monster_pixmap[3][1];
-    monster_pixmap[3][5] := create_pixmap(monster3_2, PICTURE_SCALE);
+    monster_pixmap[3][5] := createPixmap(monster3_2);
     monster_pixmap[3][6] := monster_pixmap[3][5];
     monster_pixmap[3][7] := monster_pixmap[3][5];
     monster_pixmap[3][8] := monster_pixmap[3][5];
     player_right_pixmap := 6 times PRIMITIVE_WINDOW.value;
-    player_right_pixmap[1] := create_pixmap(player_right_1, PICTURE_SCALE);
+    player_right_pixmap[1] := createPixmap(player_right_1);
     player_right_pixmap[2] := player_right_pixmap[1];
     player_right_pixmap[3] := player_right_pixmap[1];
-    player_right_pixmap[4] := create_pixmap(player_right_2, PICTURE_SCALE);
+    player_right_pixmap[4] := createPixmap(player_right_2);
     player_right_pixmap[5] := player_right_pixmap[4];
     player_right_pixmap[6] := player_right_pixmap[4];
     player_left_pixmap := 6 times PRIMITIVE_WINDOW.value;
-    player_left_pixmap[1] := create_pixmap(player_left_1, PICTURE_SCALE);
+    player_left_pixmap[1] := createPixmap(player_left_1);
     player_left_pixmap[2] := player_left_pixmap[1];
     player_left_pixmap[3] := player_left_pixmap[1];
-    player_left_pixmap[4] := create_pixmap(player_left_2, PICTURE_SCALE);
+    player_left_pixmap[4] := createPixmap(player_left_2);
     player_left_pixmap[5] := player_left_pixmap[4];
     player_left_pixmap[6] := player_left_pixmap[4];
     player_up_pixmap := 6 times PRIMITIVE_WINDOW.value;
-    player_up_pixmap[1] := create_pixmap(player_up_down_1, PICTURE_SCALE);
+    player_up_pixmap[1] := createPixmap(player_up_down_1);
     player_up_pixmap[2] := player_up_pixmap[1];
     player_up_pixmap[3] := player_up_pixmap[1];
-    player_up_pixmap[4] := create_pixmap(player_up_down_2, PICTURE_SCALE);
+    player_up_pixmap[4] := createPixmap(player_up_down_2);
     player_up_pixmap[5] := player_up_pixmap[4];
     player_up_pixmap[6] := player_up_pixmap[4];
     player_down_pixmap := 6 times PRIMITIVE_WINDOW.value;
-    player_down_pixmap[1] := create_pixmap(player_up_down_1, PICTURE_SCALE);
+    player_down_pixmap[1] := createPixmap(player_up_down_1);
     player_down_pixmap[2] := player_down_pixmap[1];
     player_down_pixmap[3] := player_down_pixmap[1];
-    player_down_pixmap[4] := create_pixmap(player_up_down_2, PICTURE_SCALE);
+    player_down_pixmap[4] := createPixmap(player_up_down_2);
     player_down_pixmap[5] := player_down_pixmap[4];
     player_down_pixmap[6] := player_down_pixmap[4];
     player_falling_pixmap := 1 times PRIMITIVE_WINDOW.value;
-    player_falling_pixmap[1] := create_pixmap(player_falling, PICTURE_SCALE);
+    player_falling_pixmap[1] := createPixmap(player_falling);
     player_dig_right_pixmap := 22 times PRIMITIVE_WINDOW.value;
-    player_dig_right_pixmap[1] := create_pixmap(player_dig_right_1, PICTURE_SCALE);
+    player_dig_right_pixmap[1] := createPixmap(player_dig_right_1);
     player_dig_right_pixmap[2] := player_dig_right_pixmap[1];
     player_dig_right_pixmap[3] := player_dig_right_pixmap[1];
     player_dig_right_pixmap[4] := player_dig_right_pixmap[1];
@@ -787,7 +750,7 @@ const proc: init_pictures is func
     player_dig_right_pixmap[9] := player_dig_right_pixmap[1];
     player_dig_right_pixmap[10] := player_dig_right_pixmap[1];
     player_dig_right_pixmap[11] := player_dig_right_pixmap[1];
-    player_dig_right_pixmap[12] := create_pixmap(player_dig_right_2, PICTURE_SCALE);
+    player_dig_right_pixmap[12] := createPixmap(player_dig_right_2);
     player_dig_right_pixmap[13] := player_dig_right_pixmap[12];
     player_dig_right_pixmap[14] := player_dig_right_pixmap[12];
     player_dig_right_pixmap[15] := player_dig_right_pixmap[12];
@@ -799,7 +762,7 @@ const proc: init_pictures is func
     player_dig_right_pixmap[21] := player_dig_right_pixmap[12];
     player_dig_right_pixmap[22] := player_dig_right_pixmap[12];
     player_dig_left_pixmap := 22 times PRIMITIVE_WINDOW.value;
-    player_dig_left_pixmap[1] := create_pixmap(player_dig_left_1, PICTURE_SCALE);
+    player_dig_left_pixmap[1] := createPixmap(player_dig_left_1);
     player_dig_left_pixmap[2] := player_dig_left_pixmap[1];
     player_dig_left_pixmap[3] := player_dig_left_pixmap[1];
     player_dig_left_pixmap[4] := player_dig_left_pixmap[1];
@@ -810,7 +773,7 @@ const proc: init_pictures is func
     player_dig_left_pixmap[9] := player_dig_left_pixmap[1];
     player_dig_left_pixmap[10] := player_dig_left_pixmap[1];
     player_dig_left_pixmap[11] := player_dig_left_pixmap[1];
-    player_dig_left_pixmap[12] := create_pixmap(player_dig_left_2, PICTURE_SCALE);
+    player_dig_left_pixmap[12] := createPixmap(player_dig_left_2);
     player_dig_left_pixmap[13] := player_dig_left_pixmap[12];
     player_dig_left_pixmap[14] := player_dig_left_pixmap[12];
     player_dig_left_pixmap[15] := player_dig_left_pixmap[12];
@@ -822,20 +785,20 @@ const proc: init_pictures is func
     player_dig_left_pixmap[21] := player_dig_left_pixmap[12];
     player_dig_left_pixmap[22] := player_dig_left_pixmap[12];
     digit_pixmap := [0](
-      create_pixmap(zero,  PICTURE_SCALE),
-      create_pixmap(one,   PICTURE_SCALE),
-      create_pixmap(two,   PICTURE_SCALE),
-      create_pixmap(three, PICTURE_SCALE),
-      create_pixmap(four,  PICTURE_SCALE),
-      create_pixmap(five,  PICTURE_SCALE),
-      create_pixmap(six,   PICTURE_SCALE),
-      create_pixmap(seven, PICTURE_SCALE),
-      create_pixmap(eight, PICTURE_SCALE),
-      create_pixmap(nine,  PICTURE_SCALE));
-    player_reserve_pixmap := create_pixmap(player_reserve, PICTURE_SCALE);
-    score_text_pixmap := create_pixmap(score_text, PICTURE_SCALE);
-    bonus_text_pixmap := create_pixmap(bonus_text, PICTURE_SCALE);
-    hiscore_text_pixmap := create_pixmap(hiscore_text, PICTURE_SCALE);
+      createPixmap(zero),
+      createPixmap(one),
+      createPixmap(two),
+      createPixmap(three),
+      createPixmap(four),
+      createPixmap(five),
+      createPixmap(six),
+      createPixmap(seven),
+      createPixmap(eight),
+      createPixmap(nine));
+    player_reserve_pixmap := createPixmap(player_reserve);
+    score_text_pixmap := createPixmap(score_text);
+    bonus_text_pixmap := createPixmap(bonus_text);
+    hiscore_text_pixmap := createPixmap(hiscore_text);
   end func;
 
 

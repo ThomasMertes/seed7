@@ -32,4 +32,6 @@
 void drwCpy (wintype *const win_to, const wintype win_from);
 wintype drwCreate (const wintype win_from);
 void drwDestr (const wintype old_win);
+inttype drwGetImagePixel (const_bstritype image, inttype width,
+    inttype height, inttype x, inttype y);
 wintype drwRtlImage (const const_rtlArraytype image);

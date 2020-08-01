@@ -170,6 +170,7 @@ null_file.s7i Base implementation type for all files
 osfiles.s7i  Functions to handle operating system files
 pic16.s7i    Pictures in the size 16 x 16
 pic32.s7i    Pictures in the size 32 x 32
+pic_util.s7i Picture utility functions
 pixmap_file.s7i Text implementation type to use a pixmap font
 pixmapfont.s7i Defines pixmapFontType and the font cache
 pkcs1.s7i    RSA public-key cryptography standard #1 support.

@@ -72,20 +72,20 @@ const type: ccConfigType is new struct
      *  Comparison refers to comparisons with  ==  <  >  <=  or  >= .
      *  If it is TRUE fltEq(), fltGe(), fltGt(), fltLe() and fltLt()
      *  should be used to do comparisons of float values.
-     *) 
+     *)
     var boolean: NAN_COMPARISON_WRONG       is FALSE;
 
     (**
      *  TRUE, when pow() works wrong for a zero base and a negative exponent.
      *  If it is TRUE fltPow() should be used instead of pow().
-     *) 
+     *)
     var boolean: POWER_OF_ZERO_WRONG        is FALSE;
 
     (**
      *  TRUE, when the functions sigsetjmp() and siglongjmp() are available.
      *  When it is FALSE the functions setjmp() and longjmp() must
      *  be used instead.
-     *) 
+     *)
     var boolean: HAS_SIGSETJMP              is FALSE;
 
     (**

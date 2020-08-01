@@ -285,10 +285,12 @@ void determineEnvironDefines (void)
 
   /* determineEnvironDefines */
     buffer[0] = '\0';
-    if (compilationOkay("#include <stdlib.h>\n#include \"version.h\"\nint main(int argc,char *argv[])"
+    if (compilationOkay("#include <stdlib.h>\n#include \"version.h\"\n"
+                        "int main(int argc,char *argv[])"
                         "{os_environ;return 0;}\n")) {
       strcat(buffer, "#include <stdlib.h>\n");
-    } else if (compilationOkay("#include <unistd.h>\n#include \"version.h\"\nint main(int argc,char *argv[])"
+    } else if (compilationOkay("#include <unistd.h>\n#include \"version.h\"\n"
+                               "int main(int argc,char *argv[])"
                                "{os_environ;return 0;}\n")) {
       strcat(buffer, "#include <unistd.h>\n");
     } else {
@@ -560,7 +562,8 @@ int main (int argc, char **argv)
       puts("#define INT64TYPE_STRI \"long long\"");
       puts("#define UINT64TYPE unsigned long long");
       puts("#define UINT64TYPE_STRI \"unsigned long long\"");
-      if (compilationOkay("#include <stdio.h>\nint main(int argc, char *argv[]){long long n=12345678LL;return 0;}\n")) {
+      if (compilationOkay("#include <stdio.h>\nint main(int argc, char *argv[])"
+                          "{long long n=12345678LL;return 0;}\n")) {
         puts("#define INT64TYPE_SUFFIX_LL");
       } /* if */
       if (compilationOkay("#include <stdio.h>\nint main(int argc, char *argv[])\n"
@@ -583,7 +586,8 @@ int main (int argc, char **argv)
       puts("#define INT64TYPE_STRI \"__int64\"");
       puts("#define UINT64TYPE unsigned __int64");
       puts("#define UINT64TYPE_STRI \"unsigned __int64\"");
-      if (compilationOkay("#include <stdio.h>\nint main(int argc, char *argv[]){__int64 n=12345678LL;return 0;}\n")) {
+      if (compilationOkay("#include <stdio.h>\nint main(int argc, char *argv[])"
+                          "{__int64 n=12345678LL;return 0;}\n")) {
         puts("#define INT64TYPE_SUFFIX_LL");
       } /* if */
       if (compilationOkay("#include <stdio.h>\nint main(int argc, char *argv[])\n"
@@ -642,6 +646,12 @@ int main (int argc, char **argv)
     if (testUnion.charvalue != (char) testUnion.genericvalue) {
       puts("#define CASTING_DOES_NOT_GET_A_UNION_ELEMENT");
     } /* if */
+    if (!compilationOkay("#include <stdio.h>\n"
+                         "typedef struct emptystruct { } emptyrecord;\n"
+                         "int main(int argc, char *argv[]){\n"
+                         "return 0;}\n")) {
+      puts("#define NO_EMPTY_STRUCTS");
+    } /* if */
     if (compilationOkay("#include <stdio.h>\n#include <string.h>\n"
                         "int main(int argc, char *argv[]){\n"
                         "printf(\"%d\\n\", strcmp(\"\?\?(\", \"[\") == 0);\n"
@@ -657,26 +667,12 @@ int main (int argc, char **argv)
       puts("#define STACK_SIZE 0x1000000"); /* 16777216 bytes */
     } /* if */
 #endif
-    if (compilationOkay("#include <stdio.h>\n#include <sys/resource.h>\n"
-                        "int main(int argc, char *argv[]){\n"
-                        "struct rlimit rlim;\n"
-                        "printf(\"%d\\n\", getrlimit(RLIMIT_STACK, &rlim) == 0);\n"
-                        "return 0;}\n") && doTest() == 1) {
-      puts("#define HAS_GETRLIMIT");
-    } /* if */
-    if (compilationOkay("#include <stdio.h>\n#include <setjmp.h>\n"
-                        "int main(int argc, char *argv[]){\n"
-                        "sigjmp_buf env; int ret_code; int count = 2;\n"
-                        "if ((ret_code =sigsetjmp(env, 1)) == 0) {\n"
-                        "count--; siglongjmp(env, count);\n"
-                        "} else printf(\"%d\\n\", ret_code);\n"
-                        "return 0;}\n") && doTest() == 1) {
-      puts("#define HAS_SIGSETJMP");
-    } /* if */
 #ifdef INT_DIV_BY_ZERO_POPUP
     puts("#define CHECK_INT_DIV_BY_ZERO");
 #else
-    if (!compilationOkay("#include<stdio.h>\nint main(int argc,char *argv[]){printf(\"%d\\n\", 1/0);return 0;}\n")) {
+    if (!compilationOkay("#include<stdio.h>\n"
+                         "int main(int argc,char *argv[]){"
+                         "printf(\"%d\\n\", 1/0);return 0;}\n")) {
       puts("#define CHECK_INT_DIV_BY_ZERO");
     } else if (compilationOkay("#include<stdlib.h>\n#include<stdio.h>\n#include<signal.h>\n"
                                "void handleSig(int sig){puts(\"2\");exit(0);}\n"
@@ -711,7 +707,9 @@ int main (int argc, char **argv)
                strcmp(buffer, "1 2 3 1.3 1.8 0.13 0.38 -0 -1 -2 -1.2 -1.7 -0.12 -0.37") == 0) {
       puts("#define ROUND_HALF_UP");
     } /* if */
-    if (!compilationOkay("#include<stdio.h>\nint main(int argc,char *argv[]){printf(\"%f\", 1.0/0.0);return 0;}\n") ||
+    if (!compilationOkay("#include<stdio.h>\n"
+                         "int main(int argc,char *argv[]){"
+                         "printf(\"%f\", 1.0/0.0);return 0;}\n") ||
         !compilationOkay("#include<stdlib.h>\n#include<stdio.h>\n#include<float.h>\n#include<signal.h>\n"
                          "void handleSig(int sig){puts(\"2\");exit(0);}\n"
                          "int main(int argc,char *argv[]){\n"
@@ -836,6 +834,37 @@ int main (int argc, char **argv)
 #else
     puts("#define HOME_DIR_ENV_VAR {'H', 'O', 'M', 'E', 0}");
 #endif
+    if (compilationOkay("#include <stdio.h>\n#include <sys/resource.h>\n"
+                        "int main(int argc, char *argv[]){\n"
+                        "struct rlimit rlim;\n"
+                        "printf(\"%d\\n\", getrlimit(RLIMIT_STACK, &rlim) == 0);\n"
+                        "return 0;}\n") && doTest() == 1) {
+      puts("#define HAS_GETRLIMIT");
+    } /* if */
+    if (compilationOkay("#include <stdio.h>\n#include <setjmp.h>\n"
+                        "int main(int argc, char *argv[]){\n"
+                        "sigjmp_buf env; int ret_code; int count = 2;\n"
+                        "if ((ret_code=sigsetjmp(env, 1)) == 0) {\n"
+                        "count--; siglongjmp(env, count);\n"
+                        "} else printf(\"%d\\n\", ret_code);\n"
+                        "return 0;}\n") && doTest() == 1) {
+      puts("#define HAS_SIGSETJMP");
+    } /* if */
+    if (compilationOkay("#include <unistd.h>\n"
+                        "int main(int argc, char *argv[]){\n"
+                        "char buf[256]; ssize_t link_len; int ret_code;\n"
+                        "link_len=readlink(\"qwertzuiop\", buf, 256);\n"
+                        "ret_code=symlink(\"qwertzuiop\", \"asdfghjkl\");\n"
+                        "return 0;}\n")) {
+      puts("#define HAS_SYMLINKS");
+    } /* if */
+    if (compilationOkay("#include <sys/types.h>\n#include <sys/stat.h>\n"
+                        "int main(int argc, char *argv[]){\n"
+                        "int ret_code;\n"
+                        "ret_code=mkfifo(\"qwertzuiop\", 0);\n"
+                        "return 0;}\n")) {
+      puts("#define HAS_FIFO_FILES");
+    } /* if */
     if (compilationOkay("#include<poll.h>\nint main(int argc,char *argv[])"
                         "{struct pollfd pollFd[1];poll(pollFd, 1, 0);return 0;}\n")) {
       puts("#define HAS_POLL");

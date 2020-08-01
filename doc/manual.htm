@@ -2499,7 +2499,7 @@ CASE_DECLS(<a class="type" href="#types_char">char</a>);
       <a class="type" href="#types_bigRational">bigRational</a> <span class="op">parse</span> A   Conversion of <a class="type" href="#types_string">string</a> to <a class="type" href="#types_bigRational">bigRational</a>
                   ( Type of argument A: <a class="type" href="#types_string">string</a> )
     Relations:
-      <a class="op" href="#..s/libraries/bigrat_(in_bigRational)=(in_bigRational)">=</a>, <span class="op">&lt;></span>, <span class="op">&lt;</span>, <span class="op">&lt;=</span>, <span class="op">></span>, <span class="op">>=</span>
+      <span class="op">=</span>, <span class="op">&lt;></span>, <span class="op">&lt;</span>, <span class="op">&lt;=</span>, <span class="op">></span>, <span class="op">>=</span>
     Functions:
       <span class="func">abs</span>(A)    Absolute value
       <span class="func">rat</span>(A)    Conversion of <a class="type" href="#types_bigInteger">bigInteger</a> to <a class="type" href="#types_bigRational">bigRational</a>
@@ -5162,7 +5162,7 @@ create(10, <span class="type">circle</span>)
   of a type such as its default <tt>'value'</tt>.
   Programming languages such as Seed7 which support function
   definitions outside a class can also use normal functions
-  instead of class methods. It is a matter of tast if a
+  instead of class methods. It is a matter of taste if a
   function should be grouped to a type or if it should
   exist stand alone and is called with:
 </p><pre class="indent">
@@ -5621,7 +5621,7 @@ writeln(0.375 <span class="keywd">sci</span> 1);
 1.2e-1
 3.8e-1
 </pre><p>
-  The operator <tt><span class="keywd">exp</span></tt> is used to specifie the number of exponent digits.  The statements
+  The operator <tt><span class="keywd">exp</span></tt> is used to specify the number of exponent digits.  The statements
 </p><pre class="indent">
 writeln(0.012345 <span class="keywd">sci</span> 4 <span class="keywd">exp</span> 2);
 writeln(1.2468e15 <span class="keywd">sci</span> 2 <span class="keywd">exp</span> 1);
@@ -5645,7 +5645,7 @@ writeln(0.375 <span class="keywd">sci</span> 1 <span class="keywd">exp</span> 2)
   I/O methods are assigned to the type of the file-value and
   not to the type of the file-variable. This allows a file
   variable to point to any file-value. The file-variables
-  have the type <tt><a class="type" href="#types_file">file</a></tt>, which is the interface type for sequencial
+  have the type <tt><a class="type" href="#types_file">file</a></tt>, which is the interface type for sequential
   files. For the operating system files and for each user
   defined file a file-type must be declared which has the
   I/O methods defined. These file-types are derived (direct
@@ -5731,7 +5731,7 @@ writeln(0.375 <span class="keywd">sci</span> 1 <span class="keywd">exp</span> 2)
   <tt><span class="func">getln</span></tt> do not.
   When <tt><span class="func">getc</span></tt>, <tt><span class="func">getwd</span></tt> or <tt><span class="func">getln</span></tt> is not defined for a new user defined
   file type the declarations from the <tt><span class="type">null_file</span></tt> are used instead.
-  These declarations are based on the method <tt><a class="func" href="#..libraries/file_gets(inout_file,in_integer)">gets</a></tt> which must be
+  These declarations are based on the method <tt><span class="func">gets</span></tt> which must be
   defined for every new user defined file-type.
 </p><p>
   Note that there is an assignment to the variable <tt>'bufferChar'</tt>.
@@ -7969,7 +7969,7 @@ NUMBER  integer  const  if  UPPER_LIMIT  LowerLimit  x5  _end
 <a name="tokens_Float_literals"><h4>10.3.3 Float literals</h4></a>
 <p>
     A float literal consists of two decimal integer literals
-  seperated by a decimal point. The basic float literal may be
+  separated by a decimal point. The basic float literal may be
   followed by the letter E or e an optional + or - sign and a
   decimal exponent.
 </p><dl><dt>
@@ -10551,7 +10551,7 @@ SYSTEM_LIBS = -lm <b>superlib.a</b>
 </p></dd>
       <dd><dl><dt><b>Parameters:</b></dt>
         <dd><tt>stri</tt> - Seed7 UTF-32 string to be converted.</dd>
-        <dd><tt>err_info</tt> - unchanged when the function succceeds or
+        <dd><tt>err_info</tt> - unchanged when the function succeeds or
                    <a class="exception" href="#errors_MEMORY_ERROR">MEMORY_ERROR</a> when the memory allocation failed or
                    <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a> when the conversion failed.</dd>
 </dl></dd>
@@ -10573,7 +10573,7 @@ SYSTEM_LIBS = -lm <b>superlib.a</b>
 </p></dd>
       <dd><dl><dt><b>Parameters:</b></dt>
         <dd><tt>os_stri</tt> - null terminated os_stritype string to be converted.</dd>
-        <dd><tt>err_info</tt> - unchanged when the function succceeds or
+        <dd><tt>err_info</tt> - unchanged when the function succeeds or
                    <a class="exception" href="#errors_MEMORY_ERROR">MEMORY_ERROR</a> when the memory allocation failed.</dd>
 </dl></dd>
       <dd><dl><dt><b>Returns:</b></dt>
@@ -10597,10 +10597,10 @@ SYSTEM_LIBS = -lm <b>superlib.a</b>
 </p></dd>
     <dd><dl><dt><b>Parameters:</b></dt>
         <dd><tt>std_path</tt> - UTF-32 encoded Seed7 standard path to be converted.</dd>
-        <dd><tt>path_info</tt> - unchanged when the function succceeds or
+        <dd><tt>path_info</tt> - unchanged when the function succeeds or
                     PATH_IS_EMULATED_ROOT when the path is "/".
                     PATH_NOT_MAPPED when the path cannot be mapped.</dd>
-        <dd><tt>err_info</tt> - unchanged when the function succceeds or
+        <dd><tt>err_info</tt> - unchanged when the function succeeds or
                    <a class="exception" href="#errors_MEMORY_ERROR">MEMORY_ERROR</a> when the memory allocation failed or
                    <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a> when the path is not a standard path.</dd>
 </dl></dd>
@@ -10624,7 +10624,7 @@ SYSTEM_LIBS = -lm <b>superlib.a</b>
 </p></dd>
       <dd><dl><dt><b>Parameters:</b></dt>
         <dd><tt>os_path</tt> - null terminated os_stritype path to be converted.</dd>
-        <dd><tt>err_info</tt> - unchanged when the function succceeds or
+        <dd><tt>err_info</tt> - unchanged when the function succeeds or
                    <a class="exception" href="#errors_MEMORY_ERROR">MEMORY_ERROR</a> when the memory allocation failed.</dd>
 </dl></dd>
       <dd><dl><dt><b>Returns:</b></dt>
@@ -10656,7 +10656,7 @@ SYSTEM_LIBS = -lm <b>superlib.a</b>
       </table></td></tr>
 
     <tr><td align="right" valign="top"><a class="type" href="#ffi_objecttype">objecttype</a></td><td><table border="0" cellspacing="0" cellpadding="0"> <tr><td colspan="2"><b><a name="ffi_arg_12">arg_12</a></b> (<a class="type" href="#ffi_listtype">listtype</a> arguments)</td></tr>
-      <tr><td width="30"></td><td>Take the twelveth object from the list.</td></tr></table></td></tr>
+      <tr><td width="30"></td><td>Take the twelfth object from the list.</td></tr></table></td></tr>
 </table></div><p>
   An object value contains a specific C implementation type. Macros like
   <tt><a class="func" href="#ffi_isit_char">isit_char</a></tt> and <tt><a class="func" href="#ffi_isit_set">isit_set</a></tt> check if an object has the requested type.

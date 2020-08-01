@@ -1,3 +1,44 @@
+20131124:
+- The new library pic_util.s7i has been added. It contains utility
+  functions for pictures. A picture is a simple way to describe
+  graphic images as readable text. A picture is an array of strings,
+  where every character describes the color of a pixel.
+- The programs castle.sd7, mahjong.sd7, pairs.sd7, panic.sd7,
+  shisen.sd7, sokoban.sd7 and sudoku7.sd7 have been adjusted to use
+  pic_util.s7i.
+- The pictures in pic16.s7i and pic32.s7i have been adjusted to be
+  useable by pic_util.s7i.
+- The pictures cancel_pic, folder_pic and reset_pic have been added
+  to pic16.s7i and pic32.s7i.
+- A function to convert a pixmap image to BMP format has been added
+  to draw.s7i.
+- The function getPixelColor has been added to draw.s7i.
+- In the example programs all usages of the function clear without
+  parameters have been replaced with clear(black). The function
+  clear without parameters is deprecated.
+- Interpreter and compiler have been improved to support the actions
+  DRW_GETIMAGE and DRW_GETIMAGEPIXEL.
+- The performance of the function strCLit in str_rtl.c has been
+  improved by a factor of 10.
+- The function init_bstri_constants in s7c.sd7 has been improved to
+  use the function c_literal instead of cCharLiteral. This way it
+  cannot happen that a sequence like ??( is interpreted as trigraph
+  sequence. As a side effect the performance has been improved also.
+- The function init_win_constants in s7c.sd7 has been improved to
+  call getImage instead of getPixel. This improves the performance
+  dramatically.
+- The functions prc_return and prc_return2 in prclib.c have been
+  improved to avoid using block_body when it is NULL.
+- Spelling errors in chlog.txt, faq.htm, faq.txt, install.txt,
+  manual.htm, manual.txt, problems.txt read_me.txt, src/read_me.txt,
+  flistutl.c, flistutl.h, heaputl.c, heaputl.h and striutl.c have
+  been fixed.
+- The function drwGetImage has been added to drw_x11.c and
+  drw_win.c.
+- The function drwGetImagePixel has been added to drw_rtl.c.
+- The program chkccomp.c has been improved to write defines for
+  NO_EMPTY_STRUCTS, HAS_SYMLINKS and HAS_FIFO_FILES to version.h.
+
 20131110:
 - Compiler and runtime library have been improved to work on Sparc
   64-bit machines under OpenBSD. Thanks go to Brian Callahan, for
@@ -296,7 +337,7 @@
 - A compilation problem with DJGPP in fil_rtl.c has been fixed
   (thanks to "Rugxulo" for pointing it out).
 - The keyboard read function getc(KEYBOARD) has been improved to
-  accept all Unicode characters also under Linux/Unix/BSD. Up do now
+  accept all Unicode characters also under Linux/Unix/BSD. Up to now
   the function did only accept Latin-1 characters.
 - The keyboard read function getc(KEYBOARD) has been improved to
   accept usages of the mouse wheel also under Windows.
@@ -1457,7 +1498,7 @@
 20120219:
 - A call of clearerr(stdin) was added to the function
   kbdKeyPressed() in the file "kbd_inf.c". This fixes a bug, which
-  happend under FreeBSD (thanks to Pietro Cerutti for pointing out
+  happen under FreeBSD (thanks to Pietro Cerutti for pointing out
   the error and for suggesting this fix).
 - The FAQ answer, which explains the portability of Seed7, was
   improved.
@@ -1843,7 +1884,7 @@
 - The performance of 'uBigIncr', 'uBigDecr', 'bigDecr', 'bigIncr',
   'bigPred', 'bigPredTemp', 'bigSucc' and 'bigSuccTemp' in
   "big_rtl.c", was further improved.
-- The performace of 'bigImport' and 'bigCLit' in "big_rtl.c", was
+- The performance of 'bigImport' and 'bigCLit' in "big_rtl.c", was
   improved.
 - The handling of the action "ARR_IDX" in the compiler (comp.sd7)
   was improved.
@@ -2375,7 +2416,7 @@
 20101107:
 - The chapter explaining exception handling in the manual was improved.
 - The support for bitmap fonts was improved to use fontProperties as base type.
-- The '-' function, which computes the differance of two 'time' values (with a
+- The '-' function, which computes the difference of two 'time' values (with a
   'duration' result) in "time.s7i", was improved.
 - The function cmdConfigValue in "cmd_rtl.c" was improved to support the config
   values C_COMPILER_VERSION and GET_CC_VERSION_INFO.
@@ -2635,7 +2676,7 @@
 - The "shell.s7i" library was improved such that 'popen' behaves correctly
   when the created pipe is closed with 'close'.
 - The compiler and the runtime library were improved to use the correct
-  exeption handling function in compiled and interpreted code (When the
+  exception handling function in compiled and interpreted code (When the
   compiled compiler analyzes a source program the interpreter will execute
   some expressions).
 - The macro processing of the compiler was improved to work better for
@@ -2923,7 +2964,7 @@
 - The compiler was improved to make sure that generated C programs always define
   the create_... and destr_... functions.
 - The handling of the HSH_IDX action in the compiler was improved.
-- An error in the compiler concerning forwad declarations of function pointers was
+- An error in the compiler concerning forward declarations of function pointers was
   fixed.
 - The function bigCpy in "big_rtl.c" was improved to work correctly when source and
   destination are identical.
@@ -3857,7 +3898,7 @@
 - The functions filBigLng, filBigSeek, filBigTell and filLng were improved to use _fseeki64
   when available.
 - The mandelbr.sd7, chkstr.sd7, chkexc.sd7 and wiz.sd7 example programs were improved.
-- A protection aggainst a buffer overflow in scrWrite was added.
+- A protection against a buffer overflow in scrWrite was added.
 - Several function prototypes were changed to use 'const' types.
 
 20070909:
@@ -3884,7 +3925,7 @@
 - The function 'option' (to get compile time defines) was renamed to 'configValue'.
 - The compiler was improved to support the 'configValue' function.
 - The 'ord' function for enumerations was changed to work without DYNAMIC.
-- The changelog was reversed (sorted now from newest to oldest), and old entrys were added.
+- The changelog was reversed (sorted now from newest to oldest), and old entries were added.
 - The address of the FSF was changed in various files.
 
 20070723:
@@ -4009,7 +4050,7 @@
 - The matching of functions was changed such that interface functions are
   preferred over non interface functions.
 - The error message which flags wrong access rights of actual parameters was improved.
-- The sorting of directory entrys for cmd_ls was improved.
+- The sorting of directory entries for cmd_ls was improved.
 - The Unicode support for prc_getenv and prc_option was improved.
 - The -v (verbose) option was added to the interpreter.
 - A small bug in the startrek.sd7 example program was fixed.

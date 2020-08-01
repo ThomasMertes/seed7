@@ -541,52 +541,6 @@ const array string: candidates_pic is [](
   " B     BBB   BB ");
 
 
-const func color: charColor (in char: ch) is func
-  result
-    var color: col is black;
-  begin
-    case ch of
-      when {' '}: col := black;
-      when {'R'}: col := light_red;
-      when {'G'}: col := light_green;
-      when {'B'}: col := light_blue;
-      when {'Y'}: col := yellow;
-      when {'M'}: col := light_magenta;
-      when {'O'}: col := orange;
-      when {'r'}: col := dark_red;
-      when {'g'}: col := dark_green;
-      when {'c'}: col := light_cyan;
-      when {'X'}: col := white;
-      when {'x'}: col := light_gray;
-      when {'b'}: col := brown;
-      otherwise:  col := black;
-    end case;
-  end func;
-
-
-const func PRIMITIVE_WINDOW: create_pixmap (in array string: pattern,
-    in integer: scale) is func
-  result
-    var PRIMITIVE_WINDOW: pixmap is PRIMITIVE_WINDOW.value;
-  local
-    var integer: height is 0;
-    var integer: width is 0;
-    var integer: line is 0;
-    var integer: column is 0;
-  begin
-    height := length(pattern);
-    width := length(pattern[1]);
-    pixmap := newPixmap(width * scale, height * scale);
-    clear(pixmap, BACKGROUND);
-    for line range 1 to height do
-      for column range 1 to width do
-        rect(pixmap, pred(column) * scale, pred(line) * scale,
-            scale, scale, charColor(pattern[line][column]));
-      end for;
-    end for;
-  end func;
-
-
 const proc: initCandidates is func
   local
     var integer: row is 0;
@@ -2658,43 +2612,43 @@ const proc: main is func
     writeCentered(info, 440, "Homepage:  http://seed7.sourceforge.net");
     initGrid;
     blue_digits := [0](
-      create_pixmap(blue_zero,  2),
-      create_pixmap(blue_one,   2),
-      create_pixmap(blue_two,   2),
-      create_pixmap(blue_three, 2),
-      create_pixmap(blue_four,  2),
-      create_pixmap(blue_five,  2),
-      create_pixmap(blue_six,   2),
-      create_pixmap(blue_seven, 2),
-      create_pixmap(blue_eight, 2),
-      create_pixmap(blue_nine,  2));
+      createPixmap(blue_zero,  2, BACKGROUND),
+      createPixmap(blue_one,   2, BACKGROUND),
+      createPixmap(blue_two,   2, BACKGROUND),
+      createPixmap(blue_three, 2, BACKGROUND),
+      createPixmap(blue_four,  2, BACKGROUND),
+      createPixmap(blue_five,  2, BACKGROUND),
+      createPixmap(blue_six,   2, BACKGROUND),
+      createPixmap(blue_seven, 2, BACKGROUND),
+      createPixmap(blue_eight, 2, BACKGROUND),
+      createPixmap(blue_nine,  2, BACKGROUND));
     red_digits := [0](
-      create_pixmap(red_zero,  2),
-      create_pixmap(red_one,   2),
-      create_pixmap(red_two,   2),
-      create_pixmap(red_three, 2),
-      create_pixmap(red_four,  2),
-      create_pixmap(red_five,  2),
-      create_pixmap(red_six,   2),
-      create_pixmap(red_seven, 2),
-      create_pixmap(red_eight, 2),
-      create_pixmap(red_nine,  2));
+      createPixmap(red_zero,  2, BACKGROUND),
+      createPixmap(red_one,   2, BACKGROUND),
+      createPixmap(red_two,   2, BACKGROUND),
+      createPixmap(red_three, 2, BACKGROUND),
+      createPixmap(red_four,  2, BACKGROUND),
+      createPixmap(red_five,  2, BACKGROUND),
+      createPixmap(red_six,   2, BACKGROUND),
+      createPixmap(red_seven, 2, BACKGROUND),
+      createPixmap(red_eight, 2, BACKGROUND),
+      createPixmap(red_nine,  2, BACKGROUND));
     small_digits := [0](
-      create_pixmap(blue_zero,  1),
-      create_pixmap(blue_one,   1),
-      create_pixmap(blue_two,   1),
-      create_pixmap(blue_three, 1),
-      create_pixmap(blue_four,  1),
-      create_pixmap(blue_five,  1),
-      create_pixmap(blue_six,   1),
-      create_pixmap(blue_seven, 1),
-      create_pixmap(blue_eight, 1),
-      create_pixmap(blue_nine,  1));
-    single_pixmap := create_pixmap(blue_single, 1);
-    double_pixmap := create_pixmap(blue_double, 1);
-    triple_pixmap := create_pixmap(blue_triple, 1);
-    exit_pixmap := create_pixmap(exit_pic, 2);
-    checkmark_pixmap := create_pixmap(checkmark_pic, 1);
+      createPixmap(blue_zero,  1, BACKGROUND),
+      createPixmap(blue_one,   1, BACKGROUND),
+      createPixmap(blue_two,   1, BACKGROUND),
+      createPixmap(blue_three, 1, BACKGROUND),
+      createPixmap(blue_four,  1, BACKGROUND),
+      createPixmap(blue_five,  1, BACKGROUND),
+      createPixmap(blue_six,   1, BACKGROUND),
+      createPixmap(blue_seven, 1, BACKGROUND),
+      createPixmap(blue_eight, 1, BACKGROUND),
+      createPixmap(blue_nine,  1, BACKGROUND));
+    single_pixmap := createPixmap(blue_single, 1, BACKGROUND);
+    double_pixmap := createPixmap(blue_double, 1, BACKGROUND);
+    triple_pixmap := createPixmap(blue_triple, 1, BACKGROUND);
+    exit_pixmap := createPixmap(exit_pic, 2, BACKGROUND);
+    checkmark_pixmap := createPixmap(checkmark_pic, 1, BACKGROUND);
     initCandidates;
     processCommand;
   end func;

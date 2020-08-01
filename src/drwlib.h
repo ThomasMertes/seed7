@@ -57,6 +57,8 @@ objecttype drw_flush               (listtype arguments);
 objecttype drw_fpolyLine           (listtype arguments);
 objecttype drw_genPointList        (listtype arguments);
 objecttype drw_get                 (listtype arguments);
+objecttype drw_getImage            (listtype arguments);
+objecttype drw_getImagePixel       (listtype arguments);
 objecttype drw_getPixel            (listtype arguments);
 objecttype drw_hashcode            (listtype arguments);
 objecttype drw_height              (listtype arguments);

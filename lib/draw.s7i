@@ -470,15 +470,6 @@ const proc: clear (in color: col) is func
 
 
 (**
- *  Clears the current window 'curr_win' with black.
- *)
-const proc: clear is func
-  begin
-    DRAW_CLEAR(curr_win, colorPixel(black));
-  end func;
-
-
-(**
  *  Draws lines with the color 'col' to the window 'win'.
  *  The lines connect the 'points' and are drawn at the position (x, y).
  *)
@@ -621,10 +612,22 @@ const func color: getPixelColor (in PRIMITIVE_WINDOW: aWindow,
   end func;
 
 
+const func color: getPixelColor (in bstring: bImage, in integer: width,
+    in integer: height, in integer: x, in integer: y) is func
+  result
+    var color: col is color.value;
+  local
+    var pixel: pix is pixel.value;
+  begin
+    pix := getPixel(bImage, width, height, x, y);
+    DRAW_PIXEL_TO_RGB(pix, col.red_part, col.green_part, col.blue_part);
+  end func;
+
+
 (**
  *  Reads a bitmap file (extension bmp) into a pixmap.
  *)
-const func PRIMITIVE_WINDOW: read_bmp (in string: file_name) is func
+const func PRIMITIVE_WINDOW: readBmp (in string: file_name) is func
   result
     var PRIMITIVE_WINDOW: image is PRIMITIVE_WINDOW.value;
   local
@@ -667,6 +670,60 @@ const func PRIMITIVE_WINDOW: read_bmp (in string: file_name) is func
       end if;
       close(bmp_file);
     end if;
+  end func;
+
+
+const func PRIMITIVE_WINDOW: read_bmp (in string: file_name) is
+  return readBmp(file_name);
+
+
+(**
+ *  Converts an image into a string in BMP format.
+ *)
+const func string: str (in PRIMITIVE_WINDOW: image, BMP) is func
+  result
+    var string: stri is "BM";
+  local
+    var integer: width is 0;
+    var integer: height is 0;
+    var integer: padding is 0;
+    var integer: rawDataSize is 0;
+    var integer: line is 0;
+    var integer: column is 0;
+    var bstring: bImage is bstring.value;
+    var integer: index is 1;
+    var color: col is color.value;
+  begin
+    width := width(image);
+    height := height(image);
+    padding := -(3 * width) mod 4;
+    rawDataSize := height * (3 * width + padding);
+    stri := "BM";
+    stri &:= int32AsFourBytesLe(rawDataSize + 54);
+    stri &:= "\0\" mult 4;               # reserved1, reserved2
+    stri &:= int32AsFourBytesLe(54);     # offset to pixel array
+    stri &:= int32AsFourBytesLe(40);     # header size
+    stri &:= int32AsFourBytesLe(width);
+    stri &:= int32AsFourBytesLe(height);
+    stri &:= int16AsTwoBytesLe(1);       # color planes
+    stri &:= int16AsTwoBytesLe(24);      # bits per pixel
+    stri &:= int32AsFourBytesLe(0);      # compression
+    stri &:= int32AsFourBytesLe(rawDataSize);
+    stri &:= int32AsFourBytesLe(2835);   # horizontal resolution
+    stri &:= int32AsFourBytesLe(2835);   # vertical resolution
+    stri &:= int32AsFourBytesLe(0);      # palette colors
+    stri &:= int32AsFourBytesLe(0);      # important colors (0 means all colors are important)
+    bImage := getImage(image);
+    for line range pred(height) downto 0 do
+      for column range 0 to pred(width) do
+        col := getPixelColor(bImage, width, height, column, line);
+        stri &:= chr(col.blue_part  div 256);
+        stri &:= chr(col.green_part div 256);
+        stri &:= chr(col.red_part   div 256);
+        incr(index);
+      end for;
+      stri &:= "\0\" mult padding;
+    end for;
   end func;
 
 

@@ -1,4 +1,5 @@
 
+
 Frequently asked questions
 ==========================
 
@@ -61,11 +62,14 @@ The design and development of Seed7 is based on independent research,
 which was done without knowing that the historic extensible
 programming language movement existed. Although Seed7 has different
 roots it reaches many of the original extensible programming language
-goals. Seed7 differentiates between syntactic and semantic extensions.
+goals. Contrary to the historic movement Seed7 does not have a
+meta-language. In Seed7 a language extension is formulated in Seed7
+itself. Seed7 differentiates between syntactic and semantic extensions.
 Syntactic extensions are described in Chapter 9 (Structured syntax
 definition) of the manual. The semantic extensions of Seed7 are done
-by declaring statements and operators as functions. To do this
-statically typed call-by-name parameters are used.
+by declaring statements and operators as functions. For the body of
+loops and similar needs statically typed call-by-name parameters are
+used.
 
 
 Are Seed7 programs portable?
@@ -209,12 +213,12 @@ How many lines of code are in the Seed7 project?
 ================================================
 
 The Seed7 package contains more than 100000 lines of C and more
-than 200000 lines of Seed7. For version 2013-11-10 the number of lines is:
+than 200000 lines of Seed7. For version 2013-11-24 the number of lines is:
 
-   95097  C source files (*.c)
-    8159  C header files (*.h)
-  116380  Seed7 source files (*.sd7)
-   95527  Seed7 library/include files (*.s7i)
+   95304  C source files (*.c)
+    8164  C header files (*.h)
+  115960  Seed7 source files (*.sd7)
+   95898  Seed7 library/include files (*.s7i)
 
 C code (*.c and *.h files) can be divided into the following areas:
 
@@ -927,7 +931,7 @@ to convert between different Unicode encodings are also available.
 
 Conversions to upper and to lower case use the default Unicode case mapping,
 where each character is considered in isolation. Characters without case
-mapping are left unchanged. The mapping is independend from the locale.
+mapping are left unchanged. The mapping is independent from the locale.
 Individual character case mappings cannot be reversed, because some
 characters have multiple characters that map to them.
 
@@ -1748,7 +1752,7 @@ compilation of s7c is done with:
   s7 s7c -O2 s7c
 
 It is also possible to compile the Seed7 compiler in the build directory.
-In this case it is necessary to specify the direcories SEED7_LIBRARY
+In this case it is necessary to specify the directories SEED7_LIBRARY
 and S7_LIB_DIR with the options -l and -b:
 
   ./s7 -l ../lib s7c -l ../lib -b ../bin -O2 s7c
@@ -1877,5 +1881,4 @@ in different branches.
 The capability to boot a language can be used to allow slightly different
 future versions of Seed7 to coexist with the current version. This is also the
 reason why the file seed7_05.s7i contains a version number (05).
-
 

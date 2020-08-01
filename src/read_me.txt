@@ -98,7 +98,7 @@ COMPILING UNDER WINDOWS WITH GCC FROM MINGW
     mingw32-make
 
   When gmake uses Unix shell commands even when started from
-  a Windows console, you can use gmake totether with
+  a Windows console, you can use gmake together with
   mk_msys.mak from a Windows console also.
 
   To compile with gcc from MinGW and nmake from Windows use
@@ -163,7 +163,7 @@ COMPILING UNDER WINDOWS WITH CYGWIN
   needed: binutils, gcc-core, libncurses-devel and make. From
   category X11 the package libX11-devel is needed. To use graphic
   programs it is necessary to install Cygwin/X. Instructions to
-  install Cygwin/X can be found in the internet. To test the
+  install Cygwin/X can be found in the Internet. To test the
   installation start a Cygwin window and do:
 
     make --version
@@ -404,7 +404,7 @@ WHAT TO DO WHEN ERRORS HAPPEN DURING THE COMPILATION?
 WHAT ABOUT THE WARNINGS THAT HAPPEN DURING THE COMPILATION?
 
     The warnings can usually be ignored. Seed7 is compiled with
-  the higest warning level (-Wall). Additionally there are also
+  the highest warning level (-Wall). Additionally there are also
   some warnings requested (such as -Wstrict-prototypes) which are
   not part of -Wall. The warnings can be classified to the
   following cases:
@@ -529,7 +529,7 @@ HOW TO USE THE GMP LIBRARY?
 SOURCE FILES
 ============
 
-    The C code of Seed7 can be grouped into several categorys:
+    The C code of Seed7 can be grouped into several categories:
   Interpreter main, Parser, Interpreter core, Primitive action functions,
   General helper functions, Runtime library, Drivers and Compiler data
   library.
@@ -680,7 +680,7 @@ RUNTIME LIBRARY
     str_rtl.c  Primitive actions for the string type.
     tim_rtl.c  Time access using the C capabilities.
     ut8_rtl.c  Primitive actions for the UTF-8 file type.
-    heaputl.c  Procedures for heap allocation and maintainance.
+    heaputl.c  Procedures for heap allocation and maintenance.
     striutl.c  Procedures to work with wide char strings.
 
   The runtime library is licensed under the LGPL.
@@ -742,7 +742,7 @@ COMPILER DATA LIBRARY
     rfl_data.c Primitive actions for the ref_list type.
     ref_data.c Primitive actions for the reference type.
     listutl.c  Procedures to maintain objects of type listtype.
-    flistutl.c Procedures for free memory list maintainance.
+    flistutl.c Procedures for free memory list maintenance.
     typeutl.c  Procedures to maintain objects of type typetype.
     datautl.c  Procedures to maintain objects of type identtype.
 
@@ -1109,6 +1109,9 @@ THE VERSION.H FILE
                                 from unaligned memory positions.
                                 This macro is currently not used.
 
+  NO_EMPTY_STRUCTS: Defined when the C compiler considers an empty
+                    struct as syntax error.
+
   HAS_GETRLIMIT: Defined when the functions getrlimit() and
                  setrlimit() are available.
 
@@ -1290,7 +1293,7 @@ THE VERSION.H FILE
   LINKER_OPT_OUTPUT_FILE: Contains the linker option to provide the
                           output filename (e.g.: "-o "). When no
                           such option exists the definition of
-                          LINKER_OPT_OUTPUT_FILE should be ommited.
+                          LINKER_OPT_OUTPUT_FILE should be omitted.
 
   LINKER_FLAGS: Contains options for the stand-alone linker to link
                 a compiled Seed7 program.

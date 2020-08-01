@@ -903,7 +903,7 @@ const proc: setup is func
     end if;
     musicindex := 0;
     soundstep := 0;
-    clear;
+    clear(black);
     color(screen, light_cyan, black);
     init_display;
 
@@ -1089,7 +1089,7 @@ const proc: setupAdvancedLander is func
     var integer: number is 0;
     var integer: level is 0;
   begin (* setupAdvancedLander *)
-    clear;
+    clear(black);
 (*  doBeep; *)
     setPos(screen, 1, 1);
     writeln(screen, "ADVANCED LANDER");
@@ -1234,7 +1234,7 @@ const proc: anounceAdvancedLander is func
     var char: ch is ' ';
   begin (* anounceAdvancedLander *)
     color(screen, black, dark_green);
-    clear;
+    clear(black);
     setPos(screen, 5, 9);
     write(screen, "YOUR SCORE IS NOW : ");
     writeln(screen, score);

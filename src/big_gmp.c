@@ -120,18 +120,18 @@ cstritype bigHexCStri (const const_biginttype big1)
           raise_error(MEMORY_ERROR);
         } else {
           if (sign == 0) {
-            sprintf(result, "16#00");
+            strcpy(result, "16#00");
           } else {
-            sprintf(result, "16#");
+            strcpy(result, "16#");
             charIndex = 3;
             if (sign < 0) {
               if (buffer[0] <= 127) {
-                sprintf(&result[charIndex], "ff");
+                strcpy(&result[charIndex], "ff");
                 charIndex += 2;
               } /* if */
             } else {
               if (buffer[0] >= 128) {
-                sprintf(&result[charIndex], "00");
+                strcpy(&result[charIndex], "00");
                 charIndex += 2;
               } /* if */
             } /* for */

@@ -72,6 +72,7 @@ void drwFlush (void);
 void drwFree (wintype old_window);
 wintype drwGet (const_wintype actual_window, inttype left, inttype upper,
     inttype width, inttype height);
+bstritype drwGetImage (const_wintype actual_window);
 inttype drwGetPixel (const_wintype actual_window, inttype x, inttype y);
 void drwPixelToRgb (inttype col, inttype *red_val, inttype *green_val, inttype *blue_val);
 inttype drwHeight (const_wintype actual_window);

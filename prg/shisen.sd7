@@ -26,6 +26,7 @@ $ include "seed7_05.s7i";
   include "float.s7i";
   include "text.s7i";
   include "draw.s7i";
+  include "pic_util.s7i";
   include "keybd.s7i";
   include "time.s7i";
   include "duration.s7i";
@@ -147,91 +148,91 @@ const array string: fairy_pic is [](
   "    xxxcccxxx               YYYYYYYY               xxxcccxxx    ",
   "   xxcccccccxx             YYYYYYYYYY             xxcccccccxx   ",
   "  xxcccccccccxx           YYYYYYYYYYYY           xxcccccccccxx  ",
-  "  xcccccccccccxx          YYYXXXXXXYYY          xxcccccccccccx  ",
-  "  xccccccccccccxx        YYYXXXXXXXXYYY        xxccccccccccccx  ",
-  "  xxccccccccccccxx       YYYXBBXXBBXYYY       xxccccccccccccxx  ",
-  "   xcccccccccccccxx      YYYXXXXXXXXYYY      xxcccccccccccccx   ",
-  "   xxcccccccccccccxx     YYYXXXXXXXXYYY     xxcccccccccccccxx   ",
-  "    xxxccccccccccccxx    YYYXXOXXOXXYYY    xxccccccccccccxxx    ",
-  "   xxcccccBccccBccccxx   YYYXXXOOXXXYYY   xxcccccccccccccccxx   ",
-  "   xcccccccBccBccccccxx      XXXXXX      xxcccccccccccccccccx   ",
-  "  xxccccccccccccccccccxx      XXXX      xxccccccccccccccccccxx  ",
-  "  xccccccBBcXXcBBccccccxx     XXXX     xxccccccccccccccccccccx  ",
-  "  xcccccccccXXccccccccccxXXXXXXXXXXXXXXxcccccccccccccccccccccx  ",
-  "  xxccccccBcRRcBcccccccXXXXXXXXXXXXXXXXXXcccccccccccccccccccxx  ",
-  "   xcccccBccRRccBcccccXXXXXXXXXXXXXXXXXXXXccccccccccccccccccx   ",
-  "   xxcccccccRRcccccccXXXXXRRRXXXXXXRRRXXXXXccccccccccccccccxx   ",
-  "    xxxcccccRRccccccXXXXXRRRRRXXXXRRRRRXXXXXcccccccccccccxxx    ",
-  "   xxcccccccRRcccccXXXXXRRRRRRRXXRRRRRRRXXXXXccccccccccccccxx   ",
-  "   xccccccccRRccccXXXXXcRRRRRRRXXRRRRRRRcXXXXXccccccccccccccx   ",
-  "  xxccccccccRRcccXXXXXccRRRRRRRXXRRRRRRRccXXXXXcccccccccccccxx  ",
-  "  xcccccccccRRccXXXXXcccxRRRRRXXXXRRRRRxcccXXXXXcccccccccccccx  ",
-  "  xcccccccccRRcXXXXXcccxxcRRRXXXXXXRRRcxxcccXXXXXccccccccccccx  ",
-  "  xxccccccccRRXXXXXcccxx   XXXXXXXXXX   xxcccXXXXXccccccccccxx  ",
-  "   xcccccccXXXXXXXcccxx    XXXXXXXXXX    xxcccXXXXXXXXccccccx   ",
-  "   xxcccccXXXXXXXcccxx     XXXXXXXXXX     xxcccXXXXXXccccccxx   ",
-  "    xxxcccXXXXXXcccxx      XXXXYYXXXX      xxcccXXXXXXcccxxx    ",
-  "   xxcccccXXXXXcccxx      XXXXXYYXXXXX      xxccXXXXXXXccccxx   ",
-  "   xcccccccXXXcccxx       XXXXXXXXXXXX       xxccXXXXXccccccx   ",
-  "  xxccccccccccccxx       XXXXXXXXXXXXXX       xxccXXccccccccxx  ",
-  "  xccccccccccccxx       RRRRRRRRRRRRRRRR       xxccccccccccccx  ",
-  "  xcccccccccccxx        XXRRRRRRRRRRRRXX        xxcccccccccccx  ",
-  "  xxcccccccccxx        XXXXXRRRRRRRRXXXXX        xxcccccccccxx  ",
-  "   xxcccccccxx         XXXXXXRRRRRRXXXXXX         xxcccccccxx   ",
-  "    xxxcccxxx          XXXXXXXRRRRXXXXXXX          xxxcccxxx    ",
-  "      xxxxx            XXXXXXXRRRRXXXXXXX            xxxxx      ",
-  "                       XXXXXXXXRRXXXXXXXX                       ",
-  "                        XXXXXXXRRXXXXXXX                        ",
-  "                        XXXXXXX  XXXXXXX                        ",
-  "                         XXXXXX  XXXXXX                         ",
-  "                         XXXXXX  XXXXXX                         ",
-  "                         XXXXXX  XXXXXX                         ",
-  "                         XXXXXX  XXXXXX                         ",
-  "                          XXXXX  XXXXX                          ",
-  "                          XXXXX  XXXXX                          ",
-  "                          XXXXX  XXXXX                          ",
-  "                          XXXXX  XXXXX                          ",
-  "                          XXXXX  XXXXX                          ",
-  "                          XXXXX  XXXXX                          ",
-  "                           XXXX  XXXX                           ",
-  "                           XXXX  XXXX                           ",
-  "                           XXXX  XXXX                           ",
-  "                           XXXX  XXXX                           ",
-  "                           XXXX  XXXX                           ",
-  "                           XXXX  XXXX                           ",
-  "                           XXXX  XXXX                           ",
-  "                           XXXX  XXXX                           ",
-  "                           XXXX  XXXX                           ",
-  "                           XXXX  XXXX                           ",
-  "                           XXXX  XXXX                           ",
-  "                          XXXXX  XXXXX                          ",
-  "                         XXXXXX  XXXXXX                         ",
-  "                         XXXXXX  XXXXXX                         ");
+  "  xcccccccccccxx          YYYWWWWWWYYY          xxcccccccccccx  ",
+  "  xccccccccccccxx        YYYWWWWWWWWYYY        xxccccccccccccx  ",
+  "  xxccccccccccccxx       YYYWBBWWBBWYYY       xxccccccccccccxx  ",
+  "   xcccccccccccccxx      YYYWWWWWWWWYYY      xxcccccccccccccx   ",
+  "   xxcccccccccccccxx     YYYWWWWWWWWYYY     xxcccccccccccccxx   ",
+  "    xxxccccccccccccxx    YYYWWOWWOWWYYY    xxccccccccccccxxx    ",
+  "   xxcccccBccccBccccxx   YYYWWWOOWWWYYY   xxcccccccccccccccxx   ",
+  "   xcccccccBccBccccccxx     XWWWWWWX     xxcccccccccccccccccx   ",
+  "  xxccccccccccccccccccxx     XWWWWX     xxccccccccccccccccccxx  ",
+  "  xccccccBBcWWcBBccccccxxXXXXXWWWWXXXXXxxccccccccccccccccccccx  ",
+  "  xcccccccccWWccccccccccxWWWWWWWWWWWWWWxcccccccccccccccccccccx  ",
+  "  xxccccccBcRRcBcccccccWWWWWWWWWWWWWWWWWWcccccccccccccccccccxx  ",
+  "   xcccccBccRRccBcccccWWWWWWWWWWWWWWWWWWWWccccccccccccccccccx   ",
+  "   xxcccccccRRcccccccWWWWWRRRWWWWWWRRRWWWWWccccccccccccccccxx   ",
+  "    xxxcccccRRccccccWWWWWRRRRRWWWWRRRRRWWWWWcccccccccccccxxx    ",
+  "   xxcccccccRRcccccWWWWWRRRRRRRWWRRRRRRRWWWWWccccccccccccccxx   ",
+  "   xccccccccRRccccWWWWWcRRRRRRRWWRRRRRRRcWWWWWccccccccccccccx   ",
+  "  xxccccccccRRcccWWWWWccRRRRRRRWWRRRRRRRccWWWWWcccccccccccccxx  ",
+  "  xcccccccccRRccWWWWWcccxRRRRRWWWWRRRRRxcccWWWWWcccccccccccccx  ",
+  "  xcccccccccRRcWWWWWcccxxcRRRWWWWWWRRRcxxcccWWWWWccccccccccccx  ",
+  "  xxccccccccRRWWWWWcccxx  XWWWWWWWWWWX  xxcccWWWWWccccccccccxx  ",
+  "   xcccccccWWWWWWWcccxx   XWWWWWWWWWWX   xxcccWWWWWWWWccccccx   ",
+  "   xxcccccWWWWWWWcccxx    XWWWWWWWWWWX    xxcccWWWWWWccccccxx   ",
+  "    xxxcccWWWWWWcccxx     XWWWWYYWWWWX     xxcccWWWWWWcccxxx    ",
+  "   xxcccccWWWWWcccxx     XWWWWWYYWWWWWX     xxccWWWWWWWccccxx   ",
+  "   xcccccccWWWcccxx      XWWWWWWWWWWWWX      xxccWWWWWccccccx   ",
+  "  xxccccccccccccxx      XWWWWWWWWWWWWWWX      xxccWWccccccccxx  ",
+  "  xccccccccccccxx      XRRRRRRRRRRRRRRRRX      xxccccccccccccx  ",
+  "  xcccccccccccxx       XWWRRRRRRRRRRRRWWX       xxcccccccccccx  ",
+  "  xxcccccccccxx       XWWWWWRRRRRRRRWWWWWX       xxcccccccccxx  ",
+  "   xxcccccccxx        XWWWWWWRRRRRRWWWWWWX        xxcccccccxx   ",
+  "    xxxcccxxx         XWWWWWWWRRRRWWWWWWWX         xxxcccxxx    ",
+  "      xxxxx           XWWWWWWWRRRRWWWWWWWX           xxxxx      ",
+  "                      XWWWWWWWWRRWWWWWWWWX                      ",
+  "                       XWWWWWWWRRWWWWWWWX                       ",
+  "                       XWWWWWWWXXWWWWWWWX                       ",
+  "                        XWWWWWWXXWWWWWWX                        ",
+  "                        XWWWWWWXXWWWWWWX                        ",
+  "                        XWWWWWWXXWWWWWWX                        ",
+  "                        XWWWWWWXXWWWWWWX                        ",
+  "                         XWWWWWXXWWWWWX                         ",
+  "                         XWWWWWXXWWWWWX                         ",
+  "                         XWWWWWXXWWWWWX                         ",
+  "                         XWWWWWXXWWWWWX                         ",
+  "                         XWWWWWXXWWWWWX                         ",
+  "                         XWWWWWXXWWWWWX                         ",
+  "                          XWWWWXXWWWWX                          ",
+  "                          XWWWWXXWWWWX                          ",
+  "                          XWWWWXXWWWWX                          ",
+  "                          XWWWWXXWWWWX                          ",
+  "                          XWWWWXXWWWWX                          ",
+  "                          XWWWWXXWWWWX                          ",
+  "                          XWWWWXXWWWWX                          ",
+  "                          XWWWWXXWWWWX                          ",
+  "                          XWWWWXXWWWWX                          ",
+  "                          XWWWWXXWWWWX                          ",
+  "                          XWWWWXXWWWWX                          ",
+  "                         XWWWWWXXWWWWWX                         ",
+  "                        XWWWWWWXXWWWWWWX                        ",
+  "                        XWWWWWWX WWWWWWX                        ");
 
 
 const array string: computer_pic is [](
   "ccccccccccccccccccc                                 YYYYY       ",
   "ccccccccccccccccccc                                YYYYYYY      ",
   "cc               cc                               YYYYYYYY      ",
-  "cc XXX  R R  XXX cc                               YYYYYYYYY     ",
-  "cc  X  RRRRR XXX cc                               YYYYYYYYY     ",
-  "cc  X  RRRRR  X  cc                                XXXYYYYY     ",
-  "cc  X   RRR  XXX cc                                cXXYYYYY     ",
-  "cc  X   RRR   X  cc                               XXXXYYYYY     ",
-  "cc XXX   R   X X cc                               XXXXRYYYY     ",
-  "cc               cc                                XXXYYYYY     ",
-  "cc ccccccccccc   cc                                OXXYYYYY     ",
-  "cc XXXXXXXXXXX   cc                                XXXXX        ",
-  "cc X         X   cc                                 XXX         ",
-  "cc X XXXX XX X   cc                                 XXX         ",
-  "cc X         X   cc                                RRRRR  GGG   ",
-  "cc X   ccccccccc cc                                RRRRR GGGG   ",
-  "cc X X XXXXXXXXX cc                                RRRRRRGGGG   ",
-  "cc X   X       X cc                               RRRRRRRGGGG cc",
-  "cc XXXXX  RRGG X cc                              RRRRRRRRGGGG cc",
-  "cc     X RRRR  X cc                             RRRRRRRRRGGGGccc",
-  "cc     X  RR   X cc                             RRRRRRRRRGGGGccc",
-  "cc     XXXXXXXXX cc                             RRRRRRRRRGGGGccc",
+  "cc WWW  R R  WWW cc                               YYYYYYYYY     ",
+  "cc  W  RRRRR WWW cc                               YYYYYYYYY     ",
+  "cc  W  RRRRR  W  cc                               XWWWYYYYY     ",
+  "cc  W   RRR  WWW cc                                cWWYYYYY     ",
+  "cc  W   RRR   W  cc                              XWWWWYYYYY     ",
+  "cc WWW   R   W W cc                              XWWWWRYYYY     ",
+  "cc               cc                               XWWWYYYYY     ",
+  "cc ccccccccccc   cc                                OWWYYYYY     ",
+  "cc WWWWWWWWWWW   cc                               XWWWWWX       ",
+  "cc W         W   cc                                XWWWX        ",
+  "cc W WWWW WW W   cc                                XWWWX        ",
+  "cc W         W   cc                                RRRRR  GGG   ",
+  "cc W   ccccccccc cc                                RRRRR GGGG   ",
+  "cc W W WWWWWWWWW cc                                RRRRRRGGGG   ",
+  "cc W   W       W cc                               RRRRRRRGGGG cc",
+  "cc WWWWW  RRGG W cc                              RRRRRRRRGGGG cc",
+  "cc     W RRRR  W cc                             RRRRRRRRRGGGGccc",
+  "cc     W  RR   W cc                             RRRRRRRRRGGGGccc",
+  "cc     WWWWWWWWW cc                             RRRRRRRRRGGGGccc",
   "cc               cc                              RRRRRRRRGGGGccc",
   "ccccccccccccccccccc                               RRRRRRRGGGG cc",
   "ccccccccccccccccccc                               RRRRRRRGGGG cc",
@@ -239,10 +240,10 @@ const array string: computer_pic is [](
   "       xxxxx       R  G R                        RRRRRRRRGGGG cc",
   "       xxxxx        R GR                        RRRRRRRRR GGG cc",
   "xxxxxxxxxxxxxxxxxxx BBBB                     RRRRRRRRRRRR     cc",
-  "xxxxxxxxxxxXXXXXXxx BBBB                  RRRRRRRRRRRRRRR     cc",
-  "xxXXxxxxxxxxxxxxxxx BBBB  cccc  XXXXX  RRRRRRRRRR  RRRRRR     cc",
-  "xxXXxxxxxxxXXXXXXxx BBBB  cccccccXXXXXXRRRRRRR     RRRRRR     cc",
-  "xxxxxxxxxxxxxxxxxxx BBBB  cccccccccXXXXRRRR        GGGGGG     cc",
+  "xxxxxxxxxxxWWWWWWxx BBBB        XXXXX     RRRRRRRRRRRRRRR     cc",
+  "xxWWxxxxxxxxxxxxxxx BBBB  cccc XWWWWWXXRRRRRRRRRR  RRRRRR     cc",
+  "xxWWxxxxxxxWWWWWWxx BBBB  cccccccWWWWWWRRRRRRR     RRRRRR     cc",
+  "xxxxxxxxxxxxxxxxxxx BBBB  cccccccccWWWWRRRR        GGGGGG     cc",
   "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb        GGGGGG     cc",
   "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb        BBBBBBB    cc",
   "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb       BBBBBBBB    cc",
@@ -255,24 +256,24 @@ const array string: computer_pic is [](
   "  bbbb                  bbbb     BBBBBBBBBBBBBBBBBBBBBBBB     cc",
   "  bbbb                  bbbb     BBBBBBBBBBBBBBBBBBBBBB       cc",
   "  bbbb                  bbbb     BBBBBBGGGGGGGGGGGGGGGGGGGGG  cc",
-  "  bbbb                  bbbb     BBBBBGGGGGGGGGGGGGGGGGGGGGGG cc",
   "  bbbb            X     bbbb     BBBBBGGGGGGGGGGGGGGGGGGGGGGG cc",
-  "  bbbb      X    XX     bbbb     BBBBBGGGGGGGGGGGGGGGGGGGGGGG cc",
-  "  bbbb      XX  XXX     bbbb     BBBBB          ccc  cccccc  ccc",
-  "  bbbb     XXX XXXX     bbbb     BBBBB          ccc ccccccccccc ",
+  "  bbbb      X    XWX    bbbb     BBBBBGGGGGGGGGGGGGGGGGGGGGGG cc",
+  "  bbbb     XWX  XWWX    bbbb     BBBBBGGGGGGGGGGGGGGGGGGGGGGG cc",
+  "  bbbb     XWWXXWWWX    bbbb     BBBBB          ccc  cccccc  ccc",
+  "  bbbb    XWWWXWWWWX    bbbb     BBBBB          ccc ccccccccccc ",
   "  bbbb    xxxxxxxxxx    bbbb     BBBBB          ccc cccccccccc  ",
-  "  bbbb    XxXxXxXxXx    bbbb     BBBBB          ccc             ",
-  "  bbbb    xxxXxxxXxx    bbbb     BBBBB          ccc             ",
-  "  bbbb    XxXxXxXxXx    bbbb     BBBBB          ccc             ",
-  "  bbbb    xXxxxXxxxX    bbbb     BBBBB          ccc             ",
-  "  bbbb    XxXxXxXxXx    bbbb     BBBBB          ccc             ",
-  "  bbbb    xxxXxxxXxx    bbbb     BBBBB          ccc             ",
-  "  bbbb    XxXxXxXxXx    bbbb     BBBBB          ccc             ",
-  "  bbbb    xXxxxXxxxX    bbbb     BBBBB   ccccccccccccccccc      ",
-  "  bbbb    XxXxXxXxXx    bbbb     BBBBB ccccccccccccccccccccc    ",
-  "  bbbb    xxxXxxxXxx    bbbb     BBBBB ccccccccccccccccccccc    ",
-  "  bbbb    XxXxXxXxXx    bbbb  RRRRRRRR bbb      bbb      bbb    ",
-  "  bbbb    xXxxxXxxxX    bbbb RRRRRRRRR bbb      bbb      bbb    ",
+  "  bbbb    WxWxWxWxWx    bbbb     BBBBB          ccc             ",
+  "  bbbb    xxxWxxxWxx    bbbb     BBBBB          ccc             ",
+  "  bbbb    WxWxWxWxWx    bbbb     BBBBB          ccc             ",
+  "  bbbb    xWxxxWxxxW    bbbb     BBBBB          ccc             ",
+  "  bbbb    WxWxWxWxWx    bbbb     BBBBB          ccc             ",
+  "  bbbb    xxxWxxxWxx    bbbb     BBBBB          ccc             ",
+  "  bbbb    WxWxWxWxWx    bbbb     BBBBB          ccc             ",
+  "  bbbb    xWxxxWxxxW    bbbb     BBBBB   ccccccccccccccccc      ",
+  "  bbbb    WxWxWxWxWx    bbbb     BBBBB ccccccccccccccccccccc    ",
+  "  bbbb    xxxWxxxWxx    bbbb     BBBBB ccccccccccccccccccccc    ",
+  "  bbbb    WxWxWxWxWx    bbbb  RRRRRRRR bbb      bbb      bbb    ",
+  "  bbbb    xWxxxWxxxW    bbbb RRRRRRRRR bbb      bbb      bbb    ",
   "  bbbb    xxxxxxxxxx    bbbb RRRRRRRRR bbb      bbb      bbb    ");
 
 
@@ -314,7 +315,7 @@ const array string: sea_pic is [](
   "BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB",
   "BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB",
   "BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB",
-  "BXXBBXXBBXXBBXXBBXXBBXXBBXXBBXXBBXXBBXXBBXXBBXXBBXXBBXXBBXXBBXXB",
+  "BWWBBWWBBWWBBWWBBWWBBWWBBWWBBWWBBWWBBWWBBWWBBWWBBWWBBWWBBWWBBWWB",
   "BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB",
   "YYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY",
   "YYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY",
@@ -323,20 +324,20 @@ const array string: sea_pic is [](
   "YYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY",
   "YYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY",
   "YYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYRRRRRYYYYYYYYYYYYYYYYYYYYYYYYYYY",
-  "YYYYYbbbbbbYYYYYYYYYYYYYYYYYYYXRRRRXXXXYYYYYYYYYYYYYYYYYYYYYYYYY",
-  "YYbbbbbbbbbYYYYYYYYYYYYYYYYYYXXRRRXXXXXXXYYYYYYYYYYYYYYYYYYYYYYY",
-  "YbbbbXXXXXXYYYYYXXXRXXXXXXXXXXXRRXXXXXXXXXXYYYYYYYYYYYYYYYYYYYYY",
-  "YbbbXXBXXXXXYYXXXXxRXXXXXXXXXXXRXXXXXXXXXXXXXYYYYYYYYYYYYYXXXYYY",
-  "bbbbXXBXXOXXXXXXXXXXxxXXXXXXXXXRXXXXXXXXXXXXXXXYYYYYYXXXXXXXXXYY",
-  "bbbbXXXXXXOXXXXXXXXXXXxxXXXXXXXRXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXY",
-  "bbbbXXBXXOXXXXXXXXXXXXXXxxXXXXXRXXXXXXXXXXXXXXXXXXXXXXXXYYYYXXXY",
-  "YbbbXXBXXXXXYYXXXRRRXXXXXXxxXXXRRXXXXXXXXXXXXXXXXXXXYYYYYYYYYXXX",
-  "YbbbbXXXXXXYYYYYRRRRRXXXXXXXYYYYYYYYYYYYYYYYYYXXXXYYYYYYYYYYYYRX",
-  "YGbbbbbbbbbGGGGGGRRRRRGGXXXXXXGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGY",
-  "GGGGGGGGGGGGGGGGGGGGGGGGGGXXXXXXGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG",
-  "GGGGGGGGGGGGGGGGGGXXXXXXXXXXXXXXGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG",
-  "GGGGGGGGGGGGGGGXXXXXXXXXXXXXXXXXGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG",
-  "GGGGGGGGGGGXXXXXXXXXXXXXXXXXXXXGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG",
+  "YYYYYbbbbbbYYYYYYYYYYYYYYYYYYYWRRRRWWWWYYYYYYYYYYYYYYYYYYYYYYYYY",
+  "YYbbbbbbbbbYYYYYYYYYYYYYYYYYYWWRRRWWWWWWWYYYYYYYYYYYYYYYYYYYYYYY",
+  "YbbbbWWWWWWYYYYYWWWRWWWWWWWWWWWRRWWWWWWWWWWYYYYYYYYYYYYYYYYYYYYY",
+  "YbbbWWBWWWWWYYWWWWxRWWWWWWWWWWWRWWWWWWWWWWWWWYYYYYYYYYYYYYWWWYYY",
+  "bbbbWWBWWOWWWWWWWWWWxxWWWWWWWWWRWWWWWWWWWWWWWWWYYYYYYWWWWWWWWWYY",
+  "bbbbWWWWWWOWWWWWWWWWWWxxWWWWWWWRWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWY",
+  "bbbbWWBWWOWWWWWWWWWWWWWWxxWWWWWRWWWWWWWWWWWWWWWWWWWWWWWWYYYYWWWY",
+  "YbbbWWBWWWWWYYWWWRRRWWWWWWxxWWWRRWWWWWWWWWWWWWWWWWWWYYYYYYYYYWWW",
+  "YbbbbWWWWWWYYYYYRRRRRWWWWWWWYYYYYYYYYYYYYYYYYYWWWWYYYYYYYYYYYYRW",
+  "YGbbbbbbbbbGGGGGGRRRRRGGWWWWWWGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGY",
+  "GGGGGGGGGGGGGGGGGGGGGGGGGGWWWWWWGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG",
+  "GGGGGGGGGGGGGGGGGGWWWWWWWWWWWWWWGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG",
+  "GGGGGGGGGGGGGGGWWWWWWWWWWWWWWWWWGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG",
+  "GGGGGGGGGGGWWWWWWWWWWWWWWWWWWWWGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG",
   "YYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY",
   "YYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY",
   "YYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY",
@@ -570,94 +571,12 @@ var array cardType: cards is [](
 var array array fieldType: field is 0 times 0 times fieldType.value;
 
 
-const func color: charColor (in char: ch) is func
-  result
-    var color: col is black;
-  begin
-    case ch of
-      when {' '}: col := black;
-      when {'R'}: col := light_red;
-      when {'G'}: col := light_green;
-      when {'B'}: col := light_blue;
-      when {'Y'}: col := yellow;
-      when {'M'}: col := light_magenta;
-      when {'O'}: col := orange;
-      when {'r'}: col := dark_red;
-      when {'g'}: col := dark_green;
-      when {'c'}: col := light_cyan;
-      when {'X'}: col := white;
-      when {'x'}: col := light_gray;
-      when {'b'}: col := brown;
-      otherwise:  col := black;
-    end case;
-  end func;
-
-
-const func PRIMITIVE_WINDOW: create_pixmap (in array string: pattern,
-    in integer: scale) is func
-  result
-    var PRIMITIVE_WINDOW: pixmap is PRIMITIVE_WINDOW.value;
-  local
-    var integer: height is 0;
-    var integer: width is 0;
-    var integer: line is 0;
-    var integer: column is 0;
-  begin
-    height := length(pattern);
-    width := length(pattern[1]);
-    pixmap := newPixmap(width * scale, height * scale);
-    clear(pixmap, black);
-    for line range 1 to height do
-      for column range 1 to width do
-        rect(pixmap, pred(column) * scale, pred(line) * scale,
-            scale, scale, charColor(pattern[line][column]));
-      end for;
-    end for;
-  end func;
-
-
-const proc: draw (in integer: xPos, in integer: yPos,
-    in array string: pattern, in integer: scale) is func
-  local
-    var integer: height is 0;
-    var integer: width is 0;
-    var integer: lin is 0;
-    var integer: col is 0;
-    var integer: xPosition is 0;
-    var integer: yPosition1 is 0;
-    var integer: yPosition2 is 0;
-    var integer: line1 is 0;
-    var integer: line2 is 0;
-  begin
-    height := length(pattern);
-    width := length(pattern[1]);
-    for lin range 1 to height div 2 do
-      xPosition := xPos;
-      yPosition1 := yPos + (height div 2 - lin) * scale;
-      yPosition2 := yPos + pred(height div 2 + lin) * scale;
-      line1 := succ(height div 2 - lin);
-      line2 := height div 2 + lin;
-      for col range 1 to width do
-        rect(xPosition,
-            yPosition1,
-            scale, scale,
-            charColor(pattern[line1][col]));
-        rect(xPosition,
-            yPosition2,
-            scale, scale,
-            charColor(pattern[line2][col]));
-        xPosition +:= scale;
-      end for;
-    end for;
-  end func;
-
-
 const proc: draw (in integer: xPos, in integer: yPos,
     inout cardType: aCard) is func
   begin
     if aCard.pixmap = PRIMITIVE_WINDOW.value then
       rect(xPos, yPos, CARD_SIZE, CARD_SIZE, white);
-      draw(xPos, yPos, aCard.picture, CARD_SIZE div length(aCard.picture));
+      drawPattern(curr_win, xPos, yPos, aCard.picture, CARD_SIZE div length(aCard.picture), black);
       aCard.pixmap := getPixmap(xPos, yPos, CARD_SIZE, CARD_SIZE);
     else
       put(xPos, yPos, aCard.pixmap, PSET);
@@ -1434,16 +1353,16 @@ const proc: main is func
     writeCentered(screen, 668, "Homepage:    http://seed7.sourceforge.net");
     DRAW_FLUSH;
     digit_pixmap := [0](
-      create_pixmap(zero,  2),
-      create_pixmap(one,   2),
-      create_pixmap(two,   2),
-      create_pixmap(three, 2),
-      create_pixmap(four,  2),
-      create_pixmap(five,  2),
-      create_pixmap(six,   2),
-      create_pixmap(seven, 2),
-      create_pixmap(eight, 2),
-      create_pixmap(nine,  2));
+      createPixmap(zero,  2, black),
+      createPixmap(one,   2, black),
+      createPixmap(two,   2, black),
+      createPixmap(three, 2, black),
+      createPixmap(four,  2, black),
+      createPixmap(five,  2, black),
+      createPixmap(six,   2, black),
+      createPixmap(seven, 2, black),
+      createPixmap(eight, 2, black),
+      createPixmap(nine,  2, black));
 
     dealCards;
     writeCentered(screen, 696, "Press any key to start game");

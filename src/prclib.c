@@ -851,9 +851,13 @@ objecttype prc_return (listtype arguments)
     trace1(block_body);
     printf("\n");
 #endif
-    return_type = block_body->type_of;
-    if (return_type->result_type != NULL) {
-      return_type = return_type->result_type;
+    if (block_body != NULL) {
+      return_type = block_body->type_of;
+      if (return_type->result_type != NULL) {
+        return_type = return_type->result_type;
+      } /* if */
+    } else {
+      return_type = NULL;
     } /* if */
 #ifdef OUT_OF_ORDER
     printf("return_type=");
@@ -905,9 +909,13 @@ objecttype prc_return2 (listtype arguments)
     trace1(block_body);
     printf("\n");
 #endif
-    return_type = block_body->type_of;
-    if (return_type->result_type != NULL) {
-      return_type = return_type->result_type;
+    if (block_body != NULL) {
+      return_type = block_body->type_of;
+      if (return_type->result_type != NULL) {
+        return_type = return_type->result_type;
+      } /* if */
+    } else {
+      return_type = NULL;
     } /* if */
 #ifdef OUT_OF_ORDER
     printf("return_type=");

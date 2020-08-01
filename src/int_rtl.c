@@ -174,7 +174,7 @@ void uint_mult (uinttype a, uinttype b, uinttype *c_high, uinttype *c_low)
 
   /* uint_mult */
 #ifdef TRACE_RANDOM
-    printf("BEGIN uint_mult(%08x, %08x%08x)\n",
+    printf("BEGIN uint_mult(%08x, %08x)\n",
         (unsigned int) a, (unsigned int) b);
 #endif
     a1 = LOWER_HALVE_OF_UINT(a);
@@ -1001,7 +1001,7 @@ stritype intRadixPow2 (inttype number, int shift, int mask, booltype upperCase)
     } else {
       unsigned_number = (uinttype) number;
     } /* if */
-      digits = digitTable[upperCase];
+    digits = digitTable[upperCase];
     buffer = &buffer_1[50];
     do {
       *(--buffer) = (strelemtype) (digits[unsigned_number & (uinttype) mask]);

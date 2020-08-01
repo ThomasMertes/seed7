@@ -5040,7 +5040,7 @@ CONTENTS
   of a type such as its default 'value'.
   Programming languages such as Seed7 which support function
   definitions outside a class can also use normal functions
-  instead of class methods. It is a matter of tast if a
+  instead of class methods. It is a matter of taste if a
   function should be grouped to a type or if it should
   exist stand alone and is called with:
 
@@ -5499,7 +5499,7 @@ CONTENTS
     1.2e-1
     3.8e-1
 
-  The operator 'exp' is used to specifie the number of exponent digits.  The statements
+  The operator 'exp' is used to specify the number of exponent digits.  The statements
 
     writeln(0.012345 sci 4 exp 2);
     writeln(1.2468e15 sci 2 exp 1);
@@ -5523,7 +5523,7 @@ CONTENTS
   I/O methods are assigned to the type of the file-value and
   not to the type of the file-variable. This allows a file
   variable to point to any file-value. The file-variables
-  have the type 'file', which is the interface type for sequencial
+  have the type 'file', which is the interface type for sequential
   files. For the operating system files and for each user
   defined file a file-type must be declared which has the
   I/O methods defined. These file-types are derived (direct
@@ -7847,7 +7847,7 @@ CONTENTS
 10.3.3 Float literals
 
     A float literal consists of two decimal integer literals
-  seperated by a decimal point. The basic float literal may be
+  separated by a decimal point. The basic float literal may be
   followed by the letter E or e an optional + or - sign and a
   decimal exponent.
 
@@ -10429,7 +10429,7 @@ CONTENTS
 
       Parameters:
         stri - Seed7 UTF-32 string to be converted.
-        err_info - unchanged when the function succceeds or
+        err_info - unchanged when the function succeeds or
                    MEMORY_ERROR when the memory allocation failed or
                    RANGE_ERROR when the conversion failed.
 
@@ -10451,7 +10451,7 @@ CONTENTS
 
       Parameters:
         os_stri - null terminated os_stritype string to be converted.
-        err_info - unchanged when the function succceeds or
+        err_info - unchanged when the function succeeds or
                    MEMORY_ERROR when the memory allocation failed.
 
       Returns:
@@ -10475,10 +10475,10 @@ CONTENTS
 
     Parameters:
         std_path - UTF-32 encoded Seed7 standard path to be converted.
-        path_info - unchanged when the function succceeds or
+        path_info - unchanged when the function succeeds or
                     PATH_IS_EMULATED_ROOT when the path is "/".
                     PATH_NOT_MAPPED when the path cannot be mapped.
-        err_info - unchanged when the function succceeds or
+        err_info - unchanged when the function succeeds or
                    MEMORY_ERROR when the memory allocation failed or
                    RANGE_ERROR when the path is not a standard path.
 
@@ -10502,7 +10502,7 @@ CONTENTS
 
       Parameters:
         os_path - null terminated os_stritype path to be converted.
-        err_info - unchanged when the function succceeds or
+        err_info - unchanged when the function succeeds or
                    MEMORY_ERROR when the memory allocation failed.
 
       Returns:
@@ -10534,7 +10534,7 @@ CONTENTS
 
 
     objecttype arg_12 (listtype arguments)
-      Take the twelveth object from the list.
+      Take the twelfth object from the list.
 
   An object value contains a specific C implementation type. Macros like
   'isit_char' and 'isit_set' check if an object has the requested type.

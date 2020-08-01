@@ -918,6 +918,48 @@ wintype drwGet (const_wintype actual_window, inttype left, inttype upper,
 
 
 
+bstritype drwGetImage (const_wintype actual_window)
+
+  {
+    XImage *image;
+    inttype xPos;
+    inttype yPos;
+    memsizetype result_size;
+    int32type *image_data;
+    bstritype result;
+
+  /* drwGetImage */
+#ifdef TRACE_X11
+    printf("drwGetImage(%lu)\n", actual_window);
+#endif
+    if (to_backup(actual_window) != 0) {
+      image = XGetImage(mydisplay, to_backup(actual_window),
+                        0, 0, to_width(actual_window), to_height(actual_window),
+                        (unsigned long) -1, ZPixmap);
+    } else {
+      image = XGetImage(mydisplay, to_window(actual_window),
+                        0, 0, to_width(actual_window), to_height(actual_window),
+                        (unsigned long) -1, ZPixmap);
+    } /* if */
+    result_size = to_width(actual_window) * to_height(actual_window) * sizeof(int32type);
+    if (unlikely(!ALLOC_BSTRI_SIZE_OK(result, result_size))) {
+      raise_error(RANGE_ERROR);
+    } else {
+      result->size = result_size;
+      image_data = (int32type *) result->mem;
+      for (yPos = 0; yPos < to_height(actual_window); yPos++) {
+        for (xPos = 0; xPos < to_width(actual_window); xPos++) {
+          image_data[yPos * to_width(actual_window) + xPos] =
+              (int32type) XGetPixel(image, xPos, yPos);
+        } /* for */
+      } /* for */
+    } /* if */
+    XDestroyImage(image);
+    return result;
+  } /* drwGetImage */
+
+
+
 inttype drwGetPixel (const_wintype actual_window, inttype x, inttype y)
 
   {

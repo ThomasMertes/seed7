@@ -27,6 +27,7 @@
 
 
 include "float.s7i";
+include "bstring.s7i";
 
 
 const type: PRIMITIVE_WINDOW is newtype;
@@ -133,9 +134,15 @@ const func PRIMITIVE_WINDOW: DRAW_GET (
     in PRIMITIVE_WINDOW: aWindow,
     ref integer: left, ref integer: upper,
     ref integer: width, ref integer: height)        is action "DRW_GET";
+const func bstring: getImage (
+    in PRIMITIVE_WINDOW: aWindow)                   is action "DRW_GETIMAGE";
 const func pixel: getPixel (
     in PRIMITIVE_WINDOW: aWindow,
     ref integer: x, ref integer: y)                 is action "DRW_GETPIXEL";
+const func pixel: getPixel (
+    in bstring: bImage, in integer: width,
+    in integer: height, in integer: x,
+    in integer: y)                                  is action "DRW_GETIMAGEPIXEL";
 const proc: DRAW_PUT (
     inout PRIMITIVE_WINDOW: aWindow, in PRIMITIVE_WINDOW: pixmap,
     ref integer: x, ref integer: y)                 is action "DRW_PUT";

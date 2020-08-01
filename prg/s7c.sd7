@@ -7663,6 +7663,33 @@ const proc: process_drw_get (in ref_list: params, inout expr_type: c_expr) is fu
   end func;
 
 
+const proc: process_drw_getimage (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    prepare_bstri_result(c_expr);
+    c_expr.result_expr := "drwGetImage(";
+    getAnyParamToResultExpr(params[1], c_expr);
+    c_expr.result_expr &:= ")";
+  end func;
+
+
+const proc: process_drw_getimagepixel (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "drwGetImagePixel(";
+    getAnyParamToExpr(params[1], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[2], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[3], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[4], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[5], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
 const proc: process_drw_getpixel (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
@@ -17360,6 +17387,10 @@ const proc: process_action (in reference: function, in ref_list: params,
         process_drw_genpointlist(params, c_expr);
       elsif action_name = "DRW_GET" then
         process_drw_get(params, c_expr);
+      elsif action_name = "DRW_GETIMAGE" then
+        process_drw_getimage(params, c_expr);
+      elsif action_name = "DRW_GETIMAGEPIXEL" then
+        process_drw_getimagepixel(params, c_expr);
       elsif action_name = "DRW_GETPIXEL" then
         process_drw_getpixel(params, c_expr);
       elsif action_name = "DRW_HASHCODE" then
@@ -23196,6 +23227,8 @@ const proc: write_prototypes is func
     declareExtern("void        drwFlush (void);");
     declareExtern("bstritype   drwGenPointList (const const_arraytype);");
     declareExtern("wintype     drwGet (const_wintype, inttype, inttype, inttype, inttype);");
+    declareExtern("bstritype   drwGetImage (const_wintype);");
+    declareExtern("inttype     drwGetImagePixel (const_bstritype, inttype, inttype, inttype, inttype);");
     declareExtern("inttype     drwGetPixel (const_wintype, inttype, inttype);");
     declareExtern("inttype     drwHeight (const_wintype);");
     declareExtern("wintype     drwImage (int32type *, memsizetype, memsizetype);");
@@ -24109,7 +24142,6 @@ const proc: init_win_constants (inout expr_type: c_expr) is func
 
   local
     var win_index_hash: win_index is win_index_hash.EMPTY_HASH;
-    var PRIMITIVE_WINDOW: win1 is PRIMITIVE_WINDOW.value;
     var integer: number is 0;
     var integer: line is 0;
     var integer: column is 0;
@@ -24119,14 +24151,7 @@ const proc: init_win_constants (inout expr_type: c_expr) is func
   begin
     win_index := flip(win_const_table);
     for number range sort(keys(win_index)) do
-      win1 := win_index[number][1];
-      image := "";
-      for line range 0 to pred(height(win1)) do
-        for column range 0 to pred(width(win1)) do
-          image &:= int32AsFourBytes(ord(getPixel(win1, column, line)));
-        end for;
-      end for;
-      bImage := bstring parse image;
+      bImage := getImage(win_index[number][1]);
       if bImage not in bstri_const_table then
         bstri_const_table @:= [bImage] length(bstri_const_table);
       end if;
@@ -24333,20 +24358,6 @@ const proc: init_string_constants (inout expr_type: c_expr) is func
   end func;
 
 
-const proc: cCharLiteral (in char: ch, inout string: c_stri) is func
-  begin
-    if ch <= '\31\' or ch >= '\127\' then
-      c_stri &:= "\\" <& ord(ch) radix 8 lpad0 3;
-    elsif ch = '"' then
-      c_stri &:= "\\\"";
-    elsif ch = '\\' then
-      c_stri &:= "\\\\";
-    else
-      c_stri &:= ch;
-    end if;
-  end func;
-
-
 const proc: init_bstri_constants (inout expr_type: c_expr) is func
 
   local
@@ -24354,6 +24365,7 @@ const proc: init_bstri_constants (inout expr_type: c_expr) is func
     var bstring: bstri is bstring.value;
     var integer: number is 0;
     var string: lengthAsChars is "";
+    var string: stri is "";
     var integer: countChars is 0;
     var char: ch is ' ';
   begin
@@ -24388,22 +24400,16 @@ const proc: init_bstri_constants (inout expr_type: c_expr) is func
         end for;
         c_expr.expr &:= "};\n";
       else
-        c_expr.expr &:= "[]=\"";
-        for ch range lengthAsChars do
-          cCharLiteral(ch, c_expr.expr);
-        end for;
+        c_expr.expr &:= "[]=";
+        c_expr.expr &:= c_literal(lengthAsChars);
         if length(bstri) <> 0 then
-          c_expr.expr &:= "\"\n\"";
-          for ch range bstri do
-            cCharLiteral(ch, c_expr.expr);
-            incr(countChars);
-            if countChars = 40 then
-              c_expr.expr &:= "\"\n\"";
-              countChars := 0;
-            end if;
+          stri := str(bstri);
+          for countChars range 1 to length(stri) step 40 do
+            c_expr.expr &:= "\n";
+            c_expr.expr &:= c_literal(stri[countChars len 40]);
           end for;
         end if;
-        c_expr.expr &:= "\";\n";
+        c_expr.expr &:= ";\n";
       end if;
     end for;
     c_expr.expr &:= "bstritype bst[]={\n";

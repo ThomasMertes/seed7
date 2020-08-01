@@ -1,0 +1,136 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  pic_util.s7i  Picture utility functions                         *)
+(*  Copyright (C) 2013  Thomas Mertes                               *)
+(*                                                                  *)
+(*  This file is part of the Seed7 Runtime Library.                 *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is free software; you can             *)
+(*  redistribute it and/or modify it under the terms of the GNU     *)
+(*  Lesser General Public License as published by the Free Software *)
+(*  Foundation; either version 2.1 of the License, or (at your      *)
+(*  option) any later version.                                      *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is distributed in the hope that it    *)
+(*  will be useful, but WITHOUT ANY WARRANTY; without even the      *)
+(*  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR *)
+(*  PURPOSE.  See the GNU Lesser General Public License for more    *)
+(*  details.                                                        *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU Lesser General       *)
+(*  Public License along with this program; if not, write to the    *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+(**
+ *  Map a character to a pixel color.
+ *  This is used for picture patterns, a simple way to describe graphic
+ *  images as readable text.
+ *  @return the color that corresponds to the given character ch.
+ *)
+const func color: charColor (in char: ch, in color: background) is func
+  result
+    var color: col is black;
+  begin
+    case ch of
+      when {' '}: col := background;
+      when {'R'}: col := light_red;
+      when {'G'}: col := light_green;
+      when {'B'}: col := light_blue;
+      when {'Y'}: col := yellow;
+      when {'M'}: col := light_magenta;
+      when {'O'}: col := orange;
+      when {'r'}: col := dark_red;
+      when {'g'}: col := dark_green;
+      when {'n'}: col := dark_blue;
+      when {'m'}: col := dark_magenta;
+      when {'c'}: col := light_cyan;
+      when {'W'}: col := white;
+      when {'X'}: col := black;
+      when {'x'}: col := light_gray;
+      when {'y'}: col := middle_gray;
+      when {'d'}: col := dark_gray;
+      when {'b'}: col := brown;
+      when {'p'}: col := pink;
+      when {'f'}: col := forestgreen;
+      otherwise:  col := black;
+    end case;
+  end func;
+
+
+(**
+ *  Convert a picture pattern into a pixmap.
+ *  A picture pattern is a simple way to describe graphic images as
+ *  readable text. It is an array of strings,  where every character
+ *  describes the color of a pixel.
+ *  @return the result of the conversion.
+ *)
+const func PRIMITIVE_WINDOW: createPixmap (in array string: pattern,
+    in integer: scale, in color: background) is func
+  result
+    var PRIMITIVE_WINDOW: pixmap is PRIMITIVE_WINDOW.value;
+  local
+    var integer: height is 0;
+    var integer: width is 0;
+    var integer: line is 0;
+    var integer: column is 0;
+  begin
+    height := length(pattern);
+    width := length(pattern[1]);
+    pixmap := newPixmap(width * scale, height * scale);
+    clear(pixmap, background);
+    for line range 1 to height do
+      for column range 1 to width do
+        rect(pixmap, pred(column) * scale, pred(line) * scale,
+            scale, scale, charColor(pattern[line][column], background));
+      end for;
+    end for;
+  end func;
+
+
+(**
+ *  Draws a scaled pattern to a position at a window.
+ *  The upper left corner of the pattern is drawn to (xPos, yPos).
+ *  The pattern is drawn in horizontal lines from the middle upward
+ *  and downward. This is done for better appearance at slow
+ *  computers.
+ *)
+const proc: drawPattern (inout PRIMITIVE_WINDOW: win, in integer: xPos,
+    in integer: yPos, in array string: pattern, in integer: scale,
+    in color: background) is func
+  local
+    var integer: height is 0;
+    var integer: width is 0;
+    var integer: lin is 0;
+    var integer: col is 0;
+    var integer: xPosition is 0;
+    var integer: yPosition1 is 0;
+    var integer: yPosition2 is 0;
+    var integer: line1 is 0;
+    var integer: line2 is 0;
+  begin
+    height := length(pattern);
+    width := length(pattern[1]);
+    for lin range 1 to height div 2 do
+      xPosition := xPos;
+      yPosition1 := yPos + (height div 2 - lin) * scale;
+      yPosition2 := yPos + pred(height div 2 + lin) * scale;
+      line1 := succ(height div 2 - lin);
+      line2 := height div 2 + lin;
+      for col range 1 to width do
+        rect(win, xPosition,
+            yPosition1,
+            scale, scale,
+            charColor(pattern[line1][col], background));
+        rect(win, xPosition,
+            yPosition2,
+            scale, scale,
+            charColor(pattern[line2][col], background));
+        xPosition +:= scale;
+      end for;
+    end for;
+  end func;

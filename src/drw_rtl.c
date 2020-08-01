@@ -132,6 +132,38 @@ void drwDestrGeneric (const generictype old_value)
 
 
 
+inttype drwGetImagePixel (const_bstritype image, inttype width,
+    inttype height, inttype x, inttype y)
+
+  {
+    memsizetype idx;
+    int32type *image_data;
+    inttype pixel;
+
+  /* drwGetImagePixel */
+#ifdef TRACE_DRW
+    printf("drwGetImagePixel(%lu, %ld, %ld, %ld, %ld)\n",
+        image, width, height, x, y);
+#endif
+    if (unlikely(width  < 0 || x < 0 || x >= width ||
+                 height < 0 || y < 0 || y >= height)) {
+      raise_error(RANGE_ERROR);
+      pixel = 0;
+    } else {
+      idx = y * width + x;
+      if (unlikely(idx < 0 || idx >= image->size / sizeof(int32type))) {
+        raise_error(RANGE_ERROR);
+        pixel = 0;
+      } else {
+        image_data = (int32type *) image->mem;
+        pixel = image_data[idx];
+      } /* if */
+    } /* if */
+    return pixel;
+  } /* drwGetImagePixel */
+
+
+
 wintype drwRtlImage (const const_rtlArraytype image)
 
   {
