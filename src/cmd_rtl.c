@@ -757,7 +757,16 @@ stritype file_name;
   /* cmdBigFileSize */
     os_path = cp_to_os_path(file_name, &err_info);
     if (os_path == NULL) {
-      result = NULL;
+#ifdef MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
+      if (file_name->size != 1 || file_name->mem[0] != '/') {
+#endif
+        raise_error(err_info);
+        result = NULL;
+#ifdef MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
+      } else {
+        result = bigIConv(0);
+      } /* if */
+#endif
     } else {
       stat_result = os_stat(os_path, &stat_buf);
       if (stat_result == 0 && S_ISREG(stat_buf.st_mode)) {
@@ -783,9 +792,9 @@ stritype file_name;
         } /* if */
       } /* if */
       os_stri_free(os_path);
-    } /* if */
-    if (err_info != OKAY_NO_ERROR) {
-      raise_error(err_info);
+      if (err_info != OKAY_NO_ERROR) {
+        raise_error(err_info);
+      } /* if */
     } /* if */
     return result;
   } /* cmdBigFileSize */
@@ -1132,6 +1141,13 @@ stritype file_name;
   /* cmdFileSize */
     os_path = cp_to_os_path(file_name, &err_info);
     if (os_path == NULL) {
+#ifdef MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
+      if (file_name->size != 1 || file_name->mem[0] != '/') {
+#endif
+        raise_error(err_info);
+#ifdef MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
+      } /* if */
+#endif
       result = 0;
     } else {
       stat_result = os_stat(os_path, &stat_buf);
@@ -1159,9 +1175,9 @@ stritype file_name;
         } /* if */
       } /* if */
       os_stri_free(os_path);
-    } /* if */
-    if (err_info != OKAY_NO_ERROR) {
-      raise_error(err_info);
+      if (err_info != OKAY_NO_ERROR) {
+        raise_error(err_info);
+      } /* if */
     } /* if */
     return result;
   } /* cmdFileSize */
@@ -1187,8 +1203,16 @@ stritype file_name;
   /* cmdFileType */
     os_path = cp_to_os_path(file_name, &err_info);
     if (os_path == NULL) {
-      raise_error(err_info);
-      result = 0;
+#ifdef MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
+      if (file_name->size == 1 && file_name->mem[0] == '/') {
+        result = 3;
+      } else {
+#endif
+        raise_error(err_info);
+        result = 0;
+#ifdef MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
+      } /* if */
+#endif
     } else {
       stat_result = os_stat(os_path, &stat_buf);
       os_stri_free(os_path);
@@ -1249,8 +1273,16 @@ stritype file_name;
   /* cmdFileTypeSL */
     os_path = cp_to_os_path(file_name, &err_info);
     if (os_path == NULL) {
-      raise_error(err_info);
-      result = 0;
+#ifdef MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
+      if (file_name->size == 1 && file_name->mem[0] == '/') {
+        result = 3;
+      } else {
+#endif
+        raise_error(err_info);
+        result = 0;
+#ifdef MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
+      } /* if */
+#endif
     } else {
       stat_result = os_lstat(os_path, &stat_buf);
       os_stri_free(os_path);
@@ -1305,19 +1337,9 @@ stritype cmdGetcwd ()
       raise_error(MEMORY_ERROR);
       result = NULL;
     } else {
-      result = os_stri_to_stri(cwd);
+      result = cp_from_os_path(cwd);
       if (result == NULL) {
         raise_error(MEMORY_ERROR);
-#if PATH_DELIMITER != '/'
-      } else {
-        unsigned int pos;
-
-        for (pos = 0; pos < result->size; pos++) {
-          if (result->mem[pos] == PATH_DELIMITER) {
-            result->mem[pos] = (strelemtype) '/';
-          } /* if */
-        } /* for */
-#endif
       } /* if */
     } /* if */
     return result;
@@ -1623,19 +1645,9 @@ stritype link_name;
                                        (size_t) link_stat.st_size);
             if (readlink_result != -1) {
               link_destination[readlink_result] = '\0';
-              result = os_stri_to_stri(link_destination);
+              result = cp_from_os_path(link_destination);
               if (result == NULL) {
                 err_info = MEMORY_ERROR;
-#if PATH_DELIMITER != '/'
-              } else {
-                unsigned int pos;
-
-                for (pos = 0; pos < result->size; pos++) {
-                  if (result->mem[pos] == PATH_DELIMITER) {
-                    result->mem[pos] = (strelemtype) '/';
-                  } /* if */
-                } /* for */
-#endif
               } /* if */
             } else {
               err_info = FILE_ERROR;
@@ -1784,6 +1796,9 @@ inttype time_zone;
         if (utime_buf.actime == (time_t) -1) {
           err_info = RANGE_ERROR;
         } else if (os_utime(os_path, &utime_buf) != 0) {
+          /* printf("errno=%d\n", errno);
+          printf("EPERM=%d, EACCES=%d  EBUSY=%d  EEXIST=%d  ENOTEMPTY=%d  ENOENT=%d  ENOTDIR=%d  EROFS=%d\n",
+	      EPERM, EACCES, EBUSY, EEXIST, ENOTEMPTY, ENOENT, ENOTDIR, EROFS); */
           err_info = FILE_ERROR;
         } /* if */
       } else {
@@ -1889,6 +1904,9 @@ inttype time_zone;
         if (utime_buf.actime == (time_t) -1) {
           err_info = RANGE_ERROR;
         } else if (os_utime(os_path, &utime_buf) != 0) {
+          /* printf("errno=%d\n", errno);
+          printf("EPERM=%d, EACCES=%d  EBUSY=%d  EEXIST=%d  ENOTEMPTY=%d  ENOENT=%d  ENOTDIR=%d  EROFS=%d\n",
+	      EPERM, EACCES, EBUSY, EEXIST, ENOTEMPTY, ENOENT, ENOTDIR, EROFS); */
           err_info = FILE_ERROR;
         } /* if */
       } else {

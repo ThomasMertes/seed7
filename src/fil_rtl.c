@@ -1039,7 +1039,13 @@ stritype mode;
     } else {
       os_path = cp_to_os_path(path, &err_info);
       if (unlikely(os_path == NULL)) {
-        raise_error(err_info);
+#ifdef MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
+        if (path->size != 1 || path->mem[0] != '/') {
+#endif
+          raise_error(err_info);
+#ifdef MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
+        } /* if */
+#endif
         result = NULL;
       } else {
 #ifdef OS_PATH_WCHAR
@@ -1227,7 +1233,7 @@ filetype aFile;
       raise_error(FILE_ERROR);
       result = 0;
     } else if (unlikely(current_file_position >= INTTYPE_MAX ||
-			current_file_position < (os_off_t) 0)) {
+                        current_file_position < (os_off_t) 0)) {
       raise_error(RANGE_ERROR);
       result = 0;
     } else {
@@ -1366,7 +1372,7 @@ stritype stri;
     }
 #else
     if (unlikely(stri->size != fwrite(stri->mem, sizeof(strelemtype),
-				      (size_t) stri->size, aFile))) {
+                                      (size_t) stri->size, aFile))) {
       raise_error(FILE_ERROR);
       return;
     } /* if */

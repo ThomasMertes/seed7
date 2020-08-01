@@ -1008,7 +1008,9 @@ inttype number;
   /* intStr */
     negative = (number < 0);
     if (negative) {
-      unsigned_number = (uinttype) -number;
+      /* The unsigned value is negated to avoid a signed integer */
+      /* overflow when the smallest signed integer is negated.   */
+      unsigned_number = -(uinttype) number;
     } else {
       unsigned_number = (uinttype) number;
     } /* if */

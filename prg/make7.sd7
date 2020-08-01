@@ -525,17 +525,14 @@ const proc: doRm (in string: commandName, inout string: command, in boolean: doL
     end if;
     skipWhiteSpace(command);
     while command <> "" do
-      parameter := getWord(command);
+      parameter := getCommandParameter(command);
+      if doLog then
+        write(" " <& parameter);
+      end if;
       if parameter = "-f" then
         force := TRUE;
       else
-        parameter := replace(parameter, "\\", "/");
-        while pos(parameter, "//") <> 0 do
-          parameter := replace(parameter, "//", "/");
-        end while;
-        while parameter <> "/" and endsWith(parameter, "/") do
-          parameter := parameter[.. pred(length(parameter))];
-        end while;
+        parameter := convDosPath(parameter);
         if pos(parameter, "*") <> 0 or pos(parameter, "?") <> 0 then
           for fileName range findMatchingFiles(parameter) do
             removeFile(fileName);
@@ -545,9 +542,6 @@ const proc: doRm (in string: commandName, inout string: command, in boolean: doL
             removeFile(parameter);
           end if;
         end if;
-      end if;
-      if doLog then
-        write(" " <& parameter);
       end if;
       skipWhiteSpace(command);
     end while;
@@ -570,19 +564,16 @@ const proc: doCp (inout string: command, in boolean: cpCommand, in boolean: doLo
     overwriteExisting := cpCommand;
     skipWhiteSpace(command);
     while command <> "" do
-      parameter := getWord(command);
+      parameter := getCommandParameter(command);
+      if doLog then
+        write(" " <& parameter);
+      end if;
       if parameter = "/Y" then
         overwriteExisting := TRUE;
       elsif parameter = "-n" then
         overwriteExisting := FALSE;
       else
-        parameter := replace(parameter, "\\", "/");
-        while pos(parameter, "//") <> 0 do
-          parameter := replace(parameter, "//", "/");
-        end while;
-        while parameter <> "/" and endsWith(parameter, "/") do
-          parameter := parameter[.. pred(length(parameter))];
-        end while;
+        parameter := convDosPath(parameter);
         if pos(parameter, "*") <> 0 or pos(parameter, "?") <> 0 then
           for fileName range findMatchingFiles(parameter) do
             fileList &:= [] (fileName);
@@ -590,9 +581,6 @@ const proc: doCp (inout string: command, in boolean: cpCommand, in boolean: doLo
         else
           fileList &:= [] (parameter);
         end if;
-      end if;
-      if doLog then
-        write(" " <& parameter);
       end if;
       skipWhiteSpace(command);
     end while;
@@ -696,10 +684,11 @@ const proc: doCd (inout string: command, in boolean: doLog) is func
   begin
     skipWhiteSpace(command);
     if command <> "" then
-      parameter := replace(getCommandParameter(command), "\\", "/");
+      parameter := getCommandParameter(command)
       if doLog then
         write("cd " <& parameter);
       end if;
+      parameter := convDosPath(parameter);
       if fileType(parameter) = FILE_DIR then
         chdir(parameter);
       else
@@ -805,10 +794,11 @@ const func boolean: doCommands (inout string: command, in boolean: doLog) is fun
         redirect := getWord(command);
         if redirect = ">" then
           skipWhiteSpace(command);
-          fileName := getWord(command);
+          fileName := getCommandParameter(command);
           if doLog then
             writeln(" > " <& fileName);
           end if;
+          fileName := convDosPath(fileName);
           putf(fileName, commandOutput & "\n");
         elsif redirect = ">>" then
           skipWhiteSpace(command);
@@ -816,6 +806,7 @@ const func boolean: doCommands (inout string: command, in boolean: doLog) is fun
           if doLog then
             writeln(" >> " <& fileName);
           end if;
+          fileName := convDosPath(fileName);
           appendToFile(fileName, commandOutput & "\n");
         elsif commandOutput <> "" then
           writeln(commandOutput);
@@ -880,7 +871,7 @@ const func integer: processCommand (in var string: command, in boolean: doLog) i
           writeln(fullCommand);
           flush(STD_OUT);
         end if;
-        fullCommand := replace(fullCommand, "\\", "/");
+        fullCommand := convDosPath(fullCommand, "\\", "/");
         commandStatus := shell(fullCommand);
       end if;
     end if;
@@ -994,13 +985,13 @@ const proc: processRule (inout ruleType: rule) is func
       processRule(dependency);
     end for;
     if executeCommands or not rule.commandsDone then
-      ruleFile := replace(rule.name, "\\", "/");
+      ruleFile := convDosPath(rule.name);
       if fileType(ruleFile) = FILE_ABSENT then
         processCommands(rule);
       else
         targetTime := getMTime(ruleFile);
         for dependency range rule.dependencies do
-          dependencyFile := replace(dependency, "\\", "/");
+          dependencyFile := convDosPath(dependency);
           if not executeCommands then
             commandsNecessary := TRUE;
           elsif fileType(dependencyFile) = FILE_ABSENT then

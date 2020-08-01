@@ -65,7 +65,7 @@ GOBJ2 = entutl.obj identutl.obj chclsutl.obj sigutl.obj
 ROBJ1 = arr_rtl.obj bln_rtl.obj bst_rtl.obj chr_rtl.obj cmd_rtl.obj dir_rtl.obj drw_rtl.obj fil_rtl.obj flt_rtl.obj
 ROBJ2 = hsh_rtl.obj int_rtl.obj kbd_rtl.obj scr_rtl.obj set_rtl.obj soc_rtl.obj str_rtl.obj tim_rtl.obj ut8_rtl.obj
 ROBJ3 = heaputl.obj striutl.obj
-DOBJ1 = $(BIGINT_LIB).obj $(SCREEN_OBJ) tim_win.obj drw_win.obj dir_win.obj
+DOBJ1 = $(BIGINT_LIB).obj $(SCREEN_OBJ) tim_win.obj drw_win.obj cmd_win.obj dir_win.obj
 OBJ = $(MOBJ1)
 SEED7_LIB_OBJ = $(ROBJ1) $(ROBJ2) $(ROBJ3) $(DOBJ1)
 COMP_DATA_LIB_OBJ = typ_data.obj rfl_data.obj ref_data.obj listutl.obj flistutl.obj typeutl.obj datautl.obj
@@ -85,7 +85,7 @@ GSRC2 = entutl.c identutl.c chclsutl.c sigutl.c
 RSRC1 = arr_rtl.c bln_rtl.c bst_rtl.c chr_rtl.c cmd_rtl.c dir_rtl.c drw_rtl.c fil_rtl.c flt_rtl.c
 RSRC2 = hsh_rtl.c int_rtl.c kbd_rtl.c scr_rtl.c set_rtl.c soc_rtl.c str_rtl.c tim_rtl.c ut8_rtl.c
 RSRC3 = heaputl.c striutl.c
-DSRC1 = $(BIGINT_LIB).c $(SCREEN_SRC) tim_win.c drw_win.c dir_win.c
+DSRC1 = $(BIGINT_LIB).c $(SCREEN_SRC) tim_win.c drw_win.c cmd_win.c dir_win.c
 SRC = $(MSRC1)
 SEED7_LIB_SRC = $(RSRC1) $(RSRC2) $(RSRC3) $(DSRC1)
 COMP_DATA_LIB_SRC = typ_data.c rfl_data.c ref_data.c listutl.c flistutl.c typeutl.c datautl.c
@@ -114,6 +114,7 @@ version.h:
 	echo #define USE_DIRWIN >> version.h
 	echo #define PATH_DELIMITER '\\' >> version.h
 	echo #define ALLOW_DRIVE_LETTERS >> version.h
+	echo #define MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS >> version.h
 	echo #define NO_EMPTY_STRUCTS >> version.h
 	echo #define CATCH_SIGNALS >> version.h
 	echo #define USE_ALTERNATE_UTIME >> version.h
@@ -150,6 +151,7 @@ version.h:
 	echo #define os_fseek _fseeki64 >> version.h
 	echo #define os_ftell _ftelli64 >> version.h
 	echo #define os_off_t __int64 >> version.h
+	echo #define os_getenv _wgetenv >> version.h
 	echo #define USE_WINSOCK >> version.h
 	echo #define $(BIGINT_LIB_DEFINE) >> version.h
 	$(GET_CC_VERSION_INFO) cc_version

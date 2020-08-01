@@ -49,6 +49,8 @@
 #include "match.h"
 #include "name.h"
 #include "option.h"
+#include "str_rtl.h"
+#include "cmd_rtl.h"
 #include "prg_comp.h"
 
 #undef EXTERN
@@ -96,7 +98,7 @@ listtype arguments;
         prog_value->usage_count++;
       } /* if */
     } /* if */
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* prg_cpy */
 
 
@@ -127,7 +129,7 @@ listtype arguments;
         prog_value->usage_count++;
       } /* if */
     } /* if */
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* prg_create */
 
 
@@ -143,8 +145,8 @@ listtype arguments;
 
   { /* prg_decl_objects */
     isit_prog(arg_1(arguments));
-    return(bld_reflist_temp(prgDeclObjects(
-        take_prog(arg_1(arguments)))));
+    return bld_reflist_temp(prgDeclObjects(
+        take_prog(arg_1(arguments))));
   } /* prg_decl_objects */
 
 
@@ -173,7 +175,7 @@ listtype arguments;
       } /* if */
       arg_1(arguments)->value.progvalue = NULL;
     } /* if */
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* prg_destr */
 
 
@@ -188,7 +190,7 @@ listtype arguments;
 #endif
 
   { /* prg_empty */
-    return(bld_prog_temp(NULL));
+    return bld_prog_temp(NULL);
   } /* prg_empty */
 
 
@@ -206,9 +208,9 @@ listtype arguments;
     isit_prog(arg_1(arguments));
     isit_prog(arg_3(arguments));
     if (take_prog(arg_1(arguments)) == take_prog(arg_3(arguments))) {
-      return(SYS_TRUE_OBJECT);
+      return SYS_TRUE_OBJECT;
     } else {
-      return(SYS_FALSE_OBJECT);
+      return SYS_FALSE_OBJECT;
     } /* if */
   } /* prg_eq */
 
@@ -225,8 +227,8 @@ listtype arguments;
 
   { /* prg_error_count */
     isit_prog(arg_1(arguments));
-    return(bld_int_temp(prgErrorCount(
-        take_prog(arg_1(arguments)))));
+    return bld_int_temp(prgErrorCount(
+        take_prog(arg_1(arguments))));
   } /* prg_error_count */
 
 
@@ -250,7 +252,7 @@ listtype arguments;
     fail_flag = FALSE;
     fail_value = (objecttype) NULL;
     fail_expression = (listtype) NULL;
-    return(bld_reference_temp(result));
+    return bld_reference_temp(result);
   } /* prg_eval */
 
 
@@ -270,7 +272,7 @@ listtype arguments;
     fail_flag = FALSE;
     fail_value = (objecttype) NULL;
     fail_expression = (listtype) NULL;
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* prg_exec */
 
 
@@ -286,8 +288,8 @@ listtype arguments;
 
   { /* prg_fil_parse */
     isit_stri(arg_1(arguments));
-    return(bld_prog_temp(prgFilParse(
-        take_stri(arg_1(arguments)))));
+    return bld_prog_temp(prgFilParse(
+        take_stri(arg_1(arguments))));
   } /* prg_fil_parse */
 
 
@@ -324,7 +326,7 @@ listtype arguments;
 #else
     result = NULL;
 #endif
-    return(bld_reference_temp(result));
+    return bld_reference_temp(result);
   } /* prg_find */
 
 
@@ -341,8 +343,8 @@ listtype arguments;
   { /* prg_match */
     isit_prog(arg_1(arguments));
     isit_reflist(arg_2(arguments));
-    return(bld_reference_temp(prgMatch(
-        take_prog(arg_1(arguments)), take_reflist(arg_2(arguments)))));
+    return bld_reference_temp(prgMatch(
+        take_prog(arg_1(arguments)), take_reflist(arg_2(arguments))));
   } /* prg_match */
 
 
@@ -359,8 +361,8 @@ listtype arguments;
   { /* prg_match_expr */
     isit_prog(arg_1(arguments));
     isit_reflist(arg_2(arguments));
-    return(bld_reference_temp(prgMatchExpr(
-        take_prog(arg_1(arguments)), take_reflist(arg_2(arguments)))));
+    return bld_reference_temp(prgMatchExpr(
+        take_prog(arg_1(arguments)), take_reflist(arg_2(arguments))));
   } /* prg_match_expr */
 
 
@@ -374,18 +376,8 @@ objecttype prg_name (arguments)
 listtype arguments;
 #endif
 
-  {
-    stritype result;
-
-  /* prg_name */
-    if (!ALLOC_STRI_SIZE_OK(result, prog.source_file_name->size)) {
-      return(raise_exception(SYS_MEM_EXCEPTION));
-    } else {
-      result->size = prog.source_file_name->size;
-      memcpy(result->mem, prog.source_file_name->mem,
-          prog.source_file_name->size * sizeof(strelemtype));
-      return(bld_stri_temp(result));
-    } /* if */
+  { /* prg_name */
+    return bld_stri_temp(strCreate(prog.source_file_name));
   } /* prg_name */
 
 
@@ -403,11 +395,48 @@ listtype arguments;
     isit_prog(arg_1(arguments));
     isit_prog(arg_3(arguments));
     if (take_prog(arg_1(arguments)) != take_prog(arg_3(arguments))) {
-      return(SYS_TRUE_OBJECT);
+      return SYS_TRUE_OBJECT;
     } else {
-      return(SYS_FALSE_OBJECT);
+      return SYS_FALSE_OBJECT;
     } /* if */
   } /* prg_ne */
+
+
+
+#ifdef ANSI_C
+
+objecttype prg_path (listtype arguments)
+#else
+
+objecttype prg_path (arguments)
+listtype arguments;
+#endif
+
+  {
+    stritype cwd;
+    stritype result;
+
+  /* prg_path */
+    if (prog.source_file_name->size >= 1 &&
+        prog.source_file_name->mem[0] == (chartype) '/') {
+      result = strCreate(prog.source_file_name);
+    } else {
+      cwd = cmdGetcwd();
+      result = concat_path(cwd, prog.source_file_name);
+      FREE_STRI(cwd, cwd->size);
+    } /* if */
+    if (result->size <= 4 ||
+        result->mem[result->size - 4] != '.' ||
+        result->mem[result->size - 3] != 's' ||
+        result->mem[result->size - 2] != 'd' ||
+        result->mem[result->size - 1] != '7') {
+      strPush(&result, (chartype) '.');
+      strPush(&result, (chartype) 's');
+      strPush(&result, (chartype) 'd');
+      strPush(&result, (chartype) '7');
+    } /* if */
+    return bld_stri_temp(result);
+  } /* prg_path */
 
 
 
@@ -421,7 +450,7 @@ listtype arguments;
 #endif
 
   { /* prg_prog */
-    return(bld_prog_temp(NULL));
+    return bld_prog_temp(NULL);
   } /* prg_prog */
 
 
@@ -437,8 +466,8 @@ listtype arguments;
 
   { /* prg_str_parse */
     isit_stri(arg_1(arguments));
-    return(bld_prog_temp(prgStrParse(
-        take_stri(arg_1(arguments)))));
+    return bld_prog_temp(prgStrParse(
+        take_stri(arg_1(arguments))));
   } /* prg_str_parse */
 
 
@@ -455,8 +484,8 @@ listtype arguments;
   { /* prg_syobject */
     isit_prog(arg_1(arguments));
     isit_stri(arg_2(arguments));
-    return(bld_reference_temp(prgSyobject(
-        take_prog(arg_1(arguments)), take_stri(arg_2(arguments)))));
+    return bld_reference_temp(prgSyobject(
+        take_prog(arg_1(arguments)), take_stri(arg_2(arguments))));
   } /* prg_syobject */
 
 
@@ -473,8 +502,8 @@ listtype arguments;
   { /* prg_sysvar */
     isit_prog(arg_1(arguments));
     isit_stri(arg_2(arguments));
-    return(bld_reference_temp(prgSysvar(
-        take_prog(arg_1(arguments)), take_stri(arg_2(arguments)))));
+    return bld_reference_temp(prgSysvar(
+        take_prog(arg_1(arguments)), take_stri(arg_2(arguments))));
   } /* prg_sysvar */
 
 
@@ -495,8 +524,8 @@ listtype arguments;
     isit_reference(arg_1(arguments));
     obj_arg = take_reference(arg_1(arguments));
     if (obj_arg == NULL || CATEGORY_OF_OBJ(obj_arg) != PROGOBJECT) {
-      return(raise_exception(SYS_RNG_EXCEPTION));
+      return raise_exception(SYS_RNG_EXCEPTION);
     } else {
-      return(bld_prog_temp(take_prog(obj_arg)));
+      return bld_prog_temp(take_prog(obj_arg));
     } /* if */
   } /* prg_value */

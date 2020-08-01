@@ -36,7 +36,6 @@ extern const_cstritype cstri_escape_sequence[];
 #define free_cstri(cstri,stri) UNALLOC_CSTRI(cstri, max_utf8_size(stri));
 #define free_wstri(wstri,stri) free(wstri);
 #define cstri_expand(stri,cstri,size) ustri_expand(stri, (const_ustritype) cstri, size)
-#define cstri0_expand(stri,cstri) ustri0_expand(stri, (const_ustritype) cstri)
 
 #ifdef OS_PATH_WCHAR
 typedef wchar_t          os_chartype;
@@ -66,14 +65,16 @@ typedef const_cstritype  const_os_stritype;
 memsizetype utf8_to_stri (strelemtype *dest_stri, memsizetype *dest_len,
                           const_ustritype ustri, size_t len);
 memsizetype utf8_bytes_missing (const_ustritype ustri, size_t len);
-void ustri0_expand (strelemtype *stri, const_ustritype ustri);
 cstritype cp_to_cstri (const_stritype stri);
-os_stritype cp_to_os_path (const_stritype stri, errinfotype *err_info);
 bstritype stri_to_bstri (const_stritype stri);
 bstritype stri_to_bstri8 (const_stritype stri);
 stritype cstri_to_stri (const_cstritype cstri);
 stritype cstri8_or_cstri_to_stri (const_cstritype cstri);
+os_stritype stri_to_os_stri (const_stritype stri, errinfotype *err_info);
 stritype os_stri_to_stri (const_os_stritype os_stri);
+stritype stri_to_path (stritype stri);
+stritype cp_from_os_path (const_os_stritype os_stri);
+os_stritype cp_to_os_path (const_stritype stri, errinfotype *err_info);
 const strelemtype *stri_charpos (const_stritype stri, strelemtype ch);
 os_stritype cp_to_command (const_stritype stri, errinfotype *err_info);
 
@@ -81,14 +82,16 @@ os_stritype cp_to_command (const_stritype stri, errinfotype *err_info);
 
 memsizetype utf8_to_stri ();
 memsizetype utf8_bytes_missing ();
-void ustri0_expand ();
 cstritype cp_to_cstri ();
-os_stritype cp_to_os_path ();
 bstritype stri_to_bstri ();
 bstritype stri_to_bstri8 ();
 stritype cstri_to_stri ();
 stritype cstri8_or_cstri_to_stri ();
+stritype stri_to_path ():
+os_stritype stri_to_os_stri ();
 stritype os_stri_to_stri ();
+stritype cp_from_os_path ();
+os_stritype cp_to_os_path ();
 strelemtype *stri_charpos ();
 os_stritype cp_to_command ();
 

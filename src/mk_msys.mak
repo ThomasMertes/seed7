@@ -115,6 +115,7 @@ version.h:
 	echo "#define USE_DIRENT" >> version.h
 	echo "#define PATH_DELIMITER '\\\\'" >> version.h
 	echo "#define ALLOW_DRIVE_LETTERS" >> version.h
+	echo "#define MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS" >> version.h
 	echo "#define CATCH_SIGNALS" >> version.h
 	echo "#define USE_ALTERNATE_UTIME" >> version.h
 	echo "#define OS_PATH_WCHAR" >> version.h
@@ -145,6 +146,7 @@ version.h:
 	echo "#define os_fseek fseeko64" >> version.h
 	echo "#define os_ftell ftello64" >> version.h
 	echo "#define os_off_t off64_t" >> version.h
+	echo "#define os_getenv _wgetenv" >> version.h
 	echo "#define USE_WINSOCK" >> version.h
 	echo "#define $(BIGINT_LIB_DEFINE)" >> version.h
 	echo "#define likely(x)   __builtin_expect((x),1)" >> version.h

@@ -31,6 +31,7 @@
 
 #ifdef ANSI_C
 
+stritype concat_path (const_stritype stri1, const_stritype stri2);
 void strAppend (stritype *const stri_to, const_stritype stri_from);
 void strAppendTemp (stritype *const stri_to, const stritype stri_from);
 inttype strChIpos (const const_stritype main_stri, const chartype searched,
@@ -104,6 +105,7 @@ stritype strUtf8ToStri (const_stritype stri8);
 
 #else
 
+stritype concat_path ();
 void strAppend ();
 void strAppendTemp ();
 void strChAppend ();

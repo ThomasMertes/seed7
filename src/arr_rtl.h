@@ -32,10 +32,13 @@
 #ifdef ANSI_C
 
 #ifdef USE_WMAIN
-rtlArraytype getArgv (const int argc, const wstritype *argv, stritype *arg_0);
+rtlArraytype getArgv (const int argc, const wstritype *argv, stritype *arg_0,
+    stritype *exePath);
 #else
-rtlArraytype getArgv (const int argc, const cstritype *argv, stritype *arg_0);
+rtlArraytype getArgv (const int argc, const cstritype *argv, stritype *arg_0,
+    stritype *exePath);
 #endif
+stritype examineSearchPath (const const_stritype fileName);
 void arrAppend (rtlArraytype *arr_variable, rtlArraytype arr_from);
 rtlArraytype arrArrlit2 (inttype start_position, rtlArraytype arr1);
 rtlArraytype arrBaselit (const rtlGenerictype element);
@@ -61,6 +64,7 @@ rtlArraytype getArgv ();
 #else
 rtlArraytype getArgv ();
 #endif
+stritype examineSearchPath ();
 void arrAppend ();
 rtlArraytype arrArrlit2 ();
 rtlArraytype arrBaselit ();

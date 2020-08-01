@@ -29,14 +29,37 @@
 /*                                                                  */
 /********************************************************************/
 
+#ifdef MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
+typedef struct {
+    uint32type magicValue;
+    uint32type driveBitmask;
+    int currentDrive;
+  } volumeListType;
+
+#define IS_VOLUME_LIST(ptr) (ptr != NULL && ((volumeListType *) (ptr))->magicValue == UINT32TYPE_MAX)
+#endif
+
+
 #ifdef ANSI_C
 
 os_stritype *getUtf16Argv (int *w_argc);
 void freeUtf16Argv (os_stritype *w_argv);
+stritype getExecutablePath (const const_stritype arg_0);
+#ifdef MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
+volumeListType *openVolumeList (void);
+stritype readVolumeName (volumeListType *volumeList);
+void closeVolumeList (volumeListType *volumeList);
+#endif
 
 #else
 
 os_stritype *getUtf16Argv ();
 void freeUtf16Argv ();
+stritype getExecutablePath ();
+#ifdef MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
+volumeListType *openVolumeList ();
+stritype readVolumeName ();
+void closeVolumeList ();
+#endif
 
 #endif

@@ -149,7 +149,6 @@ version.h:
 	rm chkccomp
 	rm cc_version
 	echo "#define OBJECT_FILE_EXTENSION \".o\"" >> version.h
-	echo "#define EXECUTABLE_FILE_EXTENSION \"\"" >> version.h
 	echo "#define C_COMPILER \"$(CC)\"" >> version.h
 	echo "#define GET_CC_VERSION_INFO \"$(GET_CC_VERSION_INFO)\"" >> version.h
 	echo "#define CC_OPT_DEBUG_INFO \"-g\"" >> version.h

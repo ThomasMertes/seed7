@@ -1,3 +1,23 @@
+20110102:
+- The function convDosPath was added to the "seed7_05.s7i" library. It
+  converts a path with backslashes and drive letters to the standard path
+  representation. E.g.: "C:\seed7" is converted to "/c/seed7". When a path
+  is already in the standard path representation it is left unchanged.
+- Functions with path parameters or path result were improved to accept
+  and return file paths with the standard path representation. The standard
+  path representation uses a slash as path separator. Under Windows a
+  standard path like "/c" is mapped to the drive letter "C:". Reading the
+  directory "/" unter Windows returns a list of available drives.
+- The function path(PROGRAM), which returns the absolute path of the program,
+  was added to the "seed7_05.s7i" library.
+- The function dir(PROGRAM), which returns the directory containing the
+  program, was added to the "seed7_05.s7i" library. The dir(PROGRAM) function
+  allows placing configuration data in the directory of the program.
+- The function getenv was improved to work with Unicode environment
+  variables.
+- The "bas7.sd7" Basic interpreter was improved to interpret RND() as RND
+  and MID statements as equivalent to MID$ statements.
+
 20101219:
 - The handling of closures in the compiler ("comp.sd7") was improved. When
   possible closures are implemented with code inlining. When this is not

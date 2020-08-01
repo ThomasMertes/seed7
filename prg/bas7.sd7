@@ -2199,9 +2199,14 @@ const func float: exec_primary (inout string: symbol, inout string: line) is fun
       symbol := get_symbol(line);
       if symbol = "(" then
         symbol := get_symbol(line);
-        num1 := exec_expr(symbol, line);
-        expect(")", symbol, line);
-        if num1 <> 0.0 then
+        if symbol <> ")" then
+          num1 := exec_expr(symbol, line);
+          expect(")", symbol, line);
+          if num1 <> 0.0 then
+            lastRandomNumber := rand(0.0, 1.0);
+          end if;
+        else
+          expect(")", symbol, line);
           lastRandomNumber := rand(0.0, 1.0);
         end if;
       else
@@ -2736,6 +2741,9 @@ const func float: exec_comparison (inout string: symbol, inout string: line) is 
         elsif op = ">=" then
            result := flt(-ord(stri1 >= stri2));
         end if;
+      else
+        error_marker;
+        writeln(err, "COMPARISON EXPECTED - FOUND " <& literal(symbol) <& ".");
       end if;
     else
       result := exec_addsub(symbol, line);
@@ -5416,7 +5424,7 @@ const func file: basicOpen (in var string: filePath, in string: access) is func
   begin
     # writeln("basicOpen(\"" <& filePath <& "\")");
     if filePath <> "" then
-      filePath := replace(filePath, "\\", "/");
+      filePath := convDosPath(filePath);
       pathElems := split(filePath, '/');
       if length(pathElems) >= 1 and pathElems[1] = "" then
         # absolute path
@@ -8152,6 +8160,10 @@ const func boolean: exec_cmd (inout string: symbol, inout string: line) is func
           writeln(err, "RESUME " <& symbol <& " - UNDEFINED RESUME.");
         end if;
       elsif symbol = "MID$" then
+        exec_mid_statement(symbol, line);
+      elsif symbol = "MID" then
+        line_marker;
+        writeln(log, "ASSUMING A MID$ STATEMENT");
         exec_mid_statement(symbol, line);
       elsif symbol = "LSET" then
         symbol := get_symbol(line);

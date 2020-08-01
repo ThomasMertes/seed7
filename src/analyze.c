@@ -592,7 +592,7 @@ errinfotype *err_info;
 
 #ifdef ANSI_C
 
-progtype analyze (stritype source_file_name)
+progtype analyze (const_stritype source_file_name)
 #else
 
 progtype analyze (source_file_name)
@@ -606,17 +606,6 @@ stritype source_file_name;
   /* analyze */
 #ifdef TRACE_ANALYZE
     printf("BEGIN analyze\n");
-#endif
-#if PATH_DELIMITER != '/'
-    {
-      unsigned int pos;
-
-      for (pos = 0; pos < source_file_name->size; pos++) {
-        if (source_file_name->mem[pos] == PATH_DELIMITER) {
-          source_file_name->mem[pos] = (strelemtype) '/';
-        } /* if */
-      } /* for */
-    }
 #endif
     resultProg = analyze_file(source_file_name, &err_info);
     if (err_info == MEMORY_ERROR) {

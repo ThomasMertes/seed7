@@ -34,6 +34,7 @@
 #include "stdlib.h"
 #include "stdio.h"
 #include "string.h"
+#include "ctype.h"
 
 #include "common.h"
 #include "heaputl.h"
@@ -138,11 +139,11 @@ size_t len;
       } else {
         /* ustri[0] not in range 0xC0 to 0xFF (192 to 255) */
         *dest_len = (memsizetype) (stri - dest_stri);
-        return(len);
+        return len;
       } /* if */
     } /* for */
     *dest_len = (memsizetype) (stri - dest_stri);
-    return(0);
+    return 0;
   } /* utf8_to_stri */
 
 
@@ -225,7 +226,7 @@ size_t len;
         } /* if */
       } /* if */
     } /* if */
-    return(result);
+    return result;
   } /* utf8_bytes_missing */
 
 
@@ -278,7 +279,7 @@ memsizetype len;
         *ustri++ = (uchartype) (0x80 |( *stri        & 0x3F));
       } /* if */
     } /* for */
-    return((memsizetype) (ustri - out_stri));
+    return (memsizetype) (ustri - out_stri);
   } /* stri_to_utf8 */
 
 
@@ -299,25 +300,6 @@ size_t len;
       *stri = (strelemtype) *ustri;
     } /* while */
   } /* ustri_expand */
-
-
-
-#ifdef ANSI_C
-
-static void wstri_expand (strelemtype *stri, const_wstritype wstri, size_t len)
-#else
-
-static void wstri_expand (stri, wstri, len)
-strelemtype *stri;
-wstritype wstri;
-size_t len;
-#endif
-
-  { /* wstri_expand */
-    for (; len > 0; stri++, wstri++, len--) {
-      *stri = (strelemtype) *wstri;
-    } /* while */
-  } /* wstri_expand */
 
 
 
@@ -357,36 +339,65 @@ stritype in_stri;
     len = stri_to_utf8(out_stri, in_stri->mem, in_stri->size);
     out_stri[len] = '\0';
   } /* stri_export */
+
 #endif
-
-
-
-#ifdef ANSI_C
-
-void ustri0_expand (strelemtype *stri, const_ustritype ustri)
-#else
-
-void ustri0_expand (stri, ustri)
-strelemtype *stri;
-ustritype ustri;
-#endif
-
-  { /* ustri0_expand */
-    for (; *ustri != '\0'; stri++, ustri++) {
-      *stri = (strelemtype) *ustri;
-    } /* while */
-  } /* ustri0_expand */
 
 
 
 #ifdef OS_PATH_WCHAR
 #ifdef ANSI_C
 
-static void stri_to_utf16 (wstritype wstri, const_stritype stri,
+static void wstri_expand (strelemtype *stri, const_wstritype wstri, size_t len)
+#else
+
+static void wstri_expand (stri, wstri, len)
+strelemtype *stri;
+wstritype wstri;
+size_t len;
+#endif
+
+  { /* wstri_expand */
+    for (; len > 0; stri++, wstri++, len--) {
+      *stri = (strelemtype) *wstri;
+    } /* while */
+  } /* wstri_expand */
+
+
+
+#ifdef ANSI_C
+
+static stritype wstri_to_stri (const_wstritype wstri)
+#else
+
+static stritype wstri_to_stri (wstri)
+wstritype wstri;
+#endif
+
+  {
+    memsizetype length;
+    stritype stri;
+
+  /* wstri_to_stri */
+    length = 0;
+    while (wstri[length] != 0) {
+      length++;
+    } /* while */
+    if (ALLOC_STRI_CHECK_SIZE(stri, length)) {
+      stri->size = length;
+      wstri_expand(stri->mem, wstri, (size_t) length);
+    } /* if */
+    return stri;
+  } /* wstri_to_stri */
+
+
+
+#ifdef ANSI_C
+
+static void stri_to_wstri (wstritype wstri, const_stritype stri,
     errinfotype *err_info)
 #else
 
-static void stri_to_utf16 (wstri, stri, err_info)
+static void stri_to_wstri (wstri, stri, err_info)
 wstritype wstri;
 stritype stri;
 errinfotype *err_info;
@@ -396,11 +407,11 @@ errinfotype *err_info;
     const strelemtype *strelem;
     memsizetype len;
 
-  /* stri_to_utf16 */
+  /* stri_to_wstri */
     strelem = stri->mem;
     len = stri->size;
     for (; len > 0; wstri++, strelem++, len--) {
-      if (*strelem <= 0xFFFF) {
+      if (likely(*strelem <= 0xFFFF)) {
         *wstri = (uint16type) *strelem;
       } else if (*strelem <= 0x10FFFF) {
         strelemtype currChar = *strelem - 0x10000;
@@ -413,7 +424,70 @@ errinfotype *err_info;
       } /* if */
     } /* for */
     *wstri = 0;
-  } /* stri_to_utf16 */
+  } /* stri_to_wstri */
+
+
+
+#ifdef ANSI_C
+
+os_stritype stri_to_os_stri (const_stritype stri, errinfotype *err_info)
+#else
+
+os_stritype stri_to_os_stri (stri, err_info)
+const_stritype stri;
+errinfotype *err_info;
+#endif
+
+  {
+    os_stritype result;
+
+  /* stri_to_os_stri */
+    if (unlikely(stri->size > ((MAX_MEMSIZETYPE / sizeof(os_chartype)) - 1) / 2)) {
+      *err_info = MEMORY_ERROR;
+      result = NULL;
+    } else {
+      result = (os_stritype) malloc(sizeof(os_chartype) * (stri->size * 2 + 1));
+      if (unlikely(result == NULL)) {
+        *err_info = MEMORY_ERROR;
+      } else {
+        stri_to_wstri(result, stri, err_info);
+        if (unlikely(*err_info != OKAY_NO_ERROR)) {
+          os_stri_free(result);
+          result = NULL;
+        } /* if */
+      } /* if */
+    } /* if */
+    return result;
+  } /* stri_to_os_stri */
+
+#else
+
+
+
+#ifdef ANSI_C
+
+os_stritype stri_to_os_stri (const_stritype stri, errinfotype *err_info)
+#else
+
+os_stritype stri_to_os_stri (stri, err_info)
+const_stritype stri;
+errinfotype *err_info;
+#endif
+
+  {
+    os_stritype result;
+
+  /* stri_to_os_stri */
+    if (unlikely(stri->size > MAX_CSTRI_LEN / MAX_UTF8_EXPANSION_FACTOR ||
+                 !ALLOC_CSTRI(result, max_utf8_size(stri)))) {
+      *err_info = MEMORY_ERROR;
+      result = NULL;
+    } else {
+      stri_export((ustritype) result, stri);
+    } /* if */
+    return result;
+  } /* stri_to_os_stri */
+
 #endif
 
 
@@ -436,119 +510,8 @@ stritype stri;
     } else if (ALLOC_CSTRI(cstri, max_utf8_size(stri))) {
       stri_export((ustritype) cstri, stri);
     } /* if */
-    return(cstri);
+    return cstri;
   } /* cp_to_cstri */
-
-
-
-#ifdef OS_PATH_WCHAR
-#ifdef ANSI_C
-
-os_stritype cp_to_os_path (const_stritype stri, errinfotype *err_info)
-#else
-
-os_stritype cp_to_os_path (stri, err_info)
-stritype stri;
-errinfotype *err_info;
-#endif
-
-  {
-    os_stritype wstri;
-    const strelemtype *strelem;
-    memsizetype len;
-    os_stritype result;
-
-  /* cp_to_os_path */
-#ifdef TRACE_STRIUTL
-    printf("BEGIN cp_to_os_path(%lx, %d)\n", stri, *err_info);
-#endif
-#ifdef ALLOW_DRIVE_LETTERS
-    if (stri->size >= 2 && stri->mem[stri->size - 1] == '/' &&
-        (stri->size != 3 || stri->mem[1] != ':' ||
-        ((stri->mem[0] < 'a' || stri->mem[0] > 'z') &&
-        (stri->mem[0] < 'A' || stri->mem[0] > 'Z')))) {
-#else
-    if (stri->size >= 2 && stri->mem[stri->size - 1] == '/') {
-#endif
-      *err_info = RANGE_ERROR;
-      result = NULL;
-    } else {
-      result = (os_stritype) malloc(sizeof(os_chartype) * (stri->size * 2 + 1));
-      if (result == NULL) {
-        *err_info = MEMORY_ERROR;
-      } else {
-        wstri = result;
-        strelem = stri->mem;
-        len = stri->size;
-        for (; len > 0; wstri++, strelem++, len--) {
-          if (*strelem <= 0xFFFF) {
-            if (*strelem == (strelemtype) '\\') {
-              *err_info = RANGE_ERROR;
-              len = 1;
-            } else {
-              *wstri = (os_chartype) *strelem;
-            } /* if */
-          } else if (*strelem <= 0x10FFFF) {
-            strelemtype currChar = *strelem - 0x10000;
-            *wstri = (os_chartype) (0xD800 | (currChar >> 10));
-            wstri++;
-            *wstri = (os_chartype) (0xDC00 | (currChar & 0x3FF));
-          } else {
-            *err_info = RANGE_ERROR;
-            len = 1;
-          } /* if */
-        } /* for */
-        if (*err_info != OKAY_NO_ERROR) {
-          os_stri_free(result);
-          result = NULL;
-        } else {
-          *wstri = 0;
-        } /* if */
-      } /* if */
-    } /* if */
-#ifdef TRACE_STRIUTL
-    printf("END cp_to_os_path(%lx, %d) ==> %lx\n", stri, *err_info, result);
-#endif
-    return(result);
-  } /* cp_to_os_path */
-
-
-#else
-
-
-#ifdef ANSI_C
-
-os_stritype cp_to_os_path (const_stritype stri, errinfotype *err_info)
-#else
-
-os_stritype cp_to_os_path (stri, err_info)
-stritype stri;
-errinfotype *err_info;
-#endif
-
-  {
-    os_stritype result;
-
-  /* cp_to_os_path */
-#ifdef TRACE_STRIUTL
-    printf("BEGIN cp_to_os_path(%lx, %d)\n", stri, *err_info);
-#endif
-    if (stri->size >= 2 && stri->mem[stri->size - 1] == '/') {
-      *err_info = RANGE_ERROR;
-      result = NULL;
-    } else if (stri->size > MAX_CSTRI_LEN / MAX_UTF8_EXPANSION_FACTOR ||
-        !ALLOC_CSTRI(result, max_utf8_size(stri))) {
-      *err_info = MEMORY_ERROR;
-      result = NULL;
-    } else {
-      stri_export((ustritype) result, stri);
-    } /* if */
-#ifdef TRACE_STRIUTL
-    printf("END cp_to_os_path(%lx, %d) ==> %lx\n", stri, *err_info, result);
-#endif
-    return(result);
-  } /* cp_to_os_path */
-#endif
 
 
 
@@ -584,7 +547,7 @@ stritype stri;
             bstri = resized_bstri;
             COUNT3_BSTRI(stri->size, bstri->size);
           } /* if */
-          return(bstri);
+          return bstri;
         } /* if */
         *ustri = (uchartype) *str;
       } /* for */
@@ -592,7 +555,7 @@ stritype stri;
       memcpy(bstri->mem, stri->mem, stri->size);
 #endif
     } /* if */
-    return(bstri);
+    return bstri;
   } /* stri_to_bstri */
 
 
@@ -629,7 +592,7 @@ stritype stri;
         COUNT3_BSTRI(max_utf8_size(stri), bstri->size);
       } /* if */
     } /* if */
-    return(bstri);
+    return bstri;
   } /* stri_to_bstri8 */
 
 
@@ -653,7 +616,7 @@ cstritype cstri;
       result->size = length;
       cstri_expand(result->mem, cstri, length);
     } /* if */
-    return(result);
+    return result;
   } /* cstri_to_stri */
 
 
@@ -684,7 +647,7 @@ cstritype cstri;
         *stri = (strelemtype) *ustri;
       } /* while */
     } /* if */
-    return(result);
+    return result;
   } /* cstri_to_stri */
 #endif
 
@@ -723,7 +686,7 @@ cstritype cstri;
         stri = NULL;
       } /* if */
     } /* if */
-    return(stri);
+    return stri;
   } /* cstri8_to_stri */
 
 
@@ -745,37 +708,8 @@ cstritype cstri;
     if (stri == NULL) {
       stri = cstri_to_stri(cstri);
     } /* if */
-    return(stri);
+    return stri;
   } /* cstri8_or_cstri_to_stri */
-
-
-
-#ifdef OS_PATH_WCHAR
-#ifdef ANSI_C
-
-static stritype wstri_to_stri (const_wstritype wstri)
-#else
-
-static stritype wstri_to_stri (wstri)
-wstritype wstri;
-#endif
-
-  {
-    memsizetype length;
-    stritype stri;
-
-  /* wstri_to_stri */
-    length = 0;
-    while (wstri[length] != 0) {
-      length++;
-    } /* while */
-    if (ALLOC_STRI_CHECK_SIZE(stri, length)) {
-      stri->size = length;
-      wstri_expand(stri->mem, wstri, (size_t) length);
-    } /* if */
-    return(stri);
-  } /* wstri_to_stri */
-#endif
 
 
 
@@ -801,8 +735,244 @@ os_stritype os_stri;
     stri = cstri_to_stri(os_stri);
 #endif
 #endif
-    return(stri);
+    return stri;
   } /* os_stri_to_stri */
+
+
+
+#ifdef ANSI_C
+
+stritype stri_to_path (stritype stri)
+#else
+
+stritype stri_to_path (stri)
+stritype stri;
+#endif
+
+  {
+    stritype result;
+
+  /* stri_to_path */
+    result = stri;
+    if (result != NULL) {
+#if PATH_DELIMITER != '/'
+      {
+        unsigned int pos;
+
+        for (pos = 0; pos < result->size; pos++) {
+          if (result->mem[pos] == PATH_DELIMITER) {
+            result->mem[pos] = (strelemtype) '/';
+          } /* if */
+        } /* for */
+      }
+#endif
+#ifdef MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
+      if (result->size >= 2 && result->mem[1] == ':' &&
+          ((result->mem[0] >= 'a' && result->mem[0] <= 'z') ||
+           (result->mem[0] >= 'A' && result->mem[0] <= 'Z'))) {
+        if (result->size >= 3 && result->mem[2] == '/') {
+          result->mem[1] = (strelemtype) tolower((int) result->mem[0]);
+          result->mem[0] = (strelemtype) '/';
+          if (result->size == 3) {
+            result->size = 2;
+          } /* if */
+        } /* if */
+      } /* if */
+#endif
+    } /* if */
+    return result;
+  } /* stri_to_path */
+
+
+
+#ifdef ANSI_C
+
+stritype cp_from_os_path (const_os_stritype os_stri)
+#else
+
+stritype cp_from_os_path (os_stri)
+os_stritype os_stri;
+#endif
+
+  {
+    stritype result;
+
+  /* cp_from_os_path */
+    result = stri_to_path(os_stri_to_stri(os_stri));
+    return result;
+  } /* cp_from_os_path */
+
+
+
+#ifdef OS_PATH_WCHAR
+#ifdef ANSI_C
+
+static void path_to_wstri (wstritype wstri, const strelemtype *strelem,
+    memsizetype len, errinfotype *err_info)
+#else
+
+static void path_to_wstri (wstri, strelem, len, err_info)
+wstritype wstri;
+strelemtype *strelem;
+memsizetype len;
+errinfotype *err_info;
+#endif
+
+  { /* path_to_wstri */
+    for (; len > 0; wstri++, strelem++, len--) {
+      if (likely(*strelem <= 0xFFFF)) {
+        if (unlikely(*strelem == (strelemtype) '\\')) {
+          *err_info = RANGE_ERROR;
+          len = 1;
+        } else {
+          *wstri = (os_chartype) *strelem;
+        } /* if */
+      } else if (*strelem <= 0x10FFFF) {
+        strelemtype currChar = *strelem - 0x10000;
+        *wstri = (os_chartype) (0xD800 | (currChar >> 10));
+        wstri++;
+        *wstri = (os_chartype) (0xDC00 | (currChar & 0x3FF));
+      } else {
+        *err_info = RANGE_ERROR;
+        len = 1;
+      } /* if */
+    } /* for */
+    *wstri = 0;
+  } /* path_to_wstri */
+
+
+
+#ifdef ANSI_C
+
+os_stritype cp_to_os_path (const_stritype stri, errinfotype *err_info)
+#else
+
+os_stritype cp_to_os_path (stri, err_info)
+stritype stri;
+errinfotype *err_info;
+#endif
+
+  {
+    os_stritype result;
+
+  /* cp_to_os_path */
+#ifdef TRACE_STRIUTL
+    printf("BEGIN cp_to_os_path(%lx, %d)\n", stri, *err_info);
+#endif
+#ifdef ALLOW_DRIVE_LETTERS
+    if (unlikely(stri->size >= 2 && stri->mem[stri->size - 1] == '/' &&
+                 (stri->size != 3 || stri->mem[1] != ':' ||
+                 ((stri->mem[0] < 'a' || stri->mem[0] > 'z') &&
+                  (stri->mem[0] < 'A' || stri->mem[0] > 'Z'))))) {
+#else
+    if (unlikely(stri->size >= 2 && (stri->mem[stri->size - 1] == '/' ||
+                 (stri->mem[1] == ':' &&
+                 ((stri->mem[0] >= 'a' && stri->mem[0] <= 'z') ||
+                  (stri->mem[0] >= 'A' && stri->mem[0] <= 'Z')))))) {
+#endif
+      *err_info = RANGE_ERROR;
+      result = NULL;
+    } else {
+#ifdef MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
+      if (stri->size >= 1 && stri->mem[0] == '/') {
+        /* Absolute path: Try to map the path to a drive letter */
+        if (unlikely(stri->size == 1)) {
+          /* "/"    cannot be mapped to a drive letter */
+          *err_info = RANGE_ERROR;
+          result = NULL;
+        } else if (stri->mem[1] >= 'a' && stri->mem[1] <= 'z') {
+          if (stri->size == 2) {
+            /* "/c"   is mapped to "c:\"  */
+            result = (os_stritype) malloc(sizeof(os_chartype) * 4);
+            if (unlikely(result == NULL)) {
+              *err_info = MEMORY_ERROR;
+            } else {
+              result[0] = (os_chartype) stri->mem[1];
+              result[1] = ':';
+              result[2] = '\\';
+              result[3] = '\0';
+            } /* if */
+          } else if (unlikely(stri->mem[2] != '/')) {
+            /* "/cd"  cannot be mapped to a drive letter */
+            *err_info = RANGE_ERROR;
+            result = NULL;
+          } else {
+            /* "/c/d" is mapped to "c:\d" */
+            result = (os_stritype) malloc(sizeof(os_chartype) * ((stri->size - 3) * 2 + 4));
+            if (unlikely(result == NULL)) {
+              *err_info = MEMORY_ERROR;
+            } else {
+              result[0] = (os_chartype) stri->mem[1];
+              result[1] = ':';
+              result[2] = '\\';
+              path_to_wstri(&result[3], &stri->mem[3], stri->size - 3, err_info);
+            } /* if */
+          } /* if */
+        } else {
+          /* "/C"  cannot be mapped to a drive letter */
+          *err_info = RANGE_ERROR;
+          result = NULL;
+        } /* if */
+      } else {
+#endif
+        result = (os_stritype) malloc(sizeof(os_chartype) * (stri->size * 2 + 1));
+        if (unlikely(result == NULL)) {
+          *err_info = MEMORY_ERROR;
+        } else {
+          path_to_wstri(result, stri->mem, stri->size, err_info);
+        } /* if */
+#ifdef MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
+      } /* if */
+#endif
+      if (result != NULL && *err_info != OKAY_NO_ERROR) {
+        os_stri_free(result);
+        result = NULL;
+      } /* if */
+    } /* if */
+#ifdef TRACE_STRIUTL
+    printf("END cp_to_os_path(%lx, %d) ==> %lx\n", stri, *err_info, result);
+#endif
+    return result;
+  } /* cp_to_os_path */
+
+#else
+
+
+
+#ifdef ANSI_C
+
+os_stritype cp_to_os_path (const_stritype stri, errinfotype *err_info)
+#else
+
+os_stritype cp_to_os_path (stri, err_info)
+stritype stri;
+errinfotype *err_info;
+#endif
+
+  {
+    os_stritype result;
+
+  /* cp_to_os_path */
+#ifdef TRACE_STRIUTL
+    printf("BEGIN cp_to_os_path(%lx, %d)\n", stri, *err_info);
+#endif
+    if (unlikely(stri->size >= 2 && stri->mem[stri->size - 1] == '/')) {
+      *err_info = RANGE_ERROR;
+      result = NULL;
+    } else if (unlikely(stri->size > MAX_CSTRI_LEN / MAX_UTF8_EXPANSION_FACTOR ||
+                        !ALLOC_CSTRI(result, max_utf8_size(stri)))) {
+      *err_info = MEMORY_ERROR;
+      result = NULL;
+    } else {
+      stri_export((ustritype) result, stri);
+    } /* if */
+#ifdef TRACE_STRIUTL
+    printf("END cp_to_os_path(%lx, %d) ==> %lx\n", stri, *err_info, result);
+#endif
+    return result;
+  } /* cp_to_os_path */
+
+#endif
 
 
 
@@ -825,18 +995,17 @@ strelemtype ch;
     number = stri->size;
     for (; number > 0; mem++, number--) {
       if (*mem == ch) {
-        return(mem);
+        return mem;
       } /* if */
     } /* for */
-    return(NULL);
+    return NULL;
   } /* stri_charpos */
 
 
 
-#ifdef OS_PATH_WCHAR
 /**
  *  Returns a command string suitable for the operating system shell.
- *  The string 'stri' is converted to UTF-16. The command part of
+ *  The string 'stri' is converted to os_stritype. The command part of
  *  'stri' (which extends from the beginning up to the first blank)
  *  is treated special: All occurances of slash ( / ) are replaced
  *  by PATH_DELIMITER (which is defined as the path delimiter used
@@ -868,109 +1037,25 @@ errinfotype *err_info;
     os_stritype cmd;
 
   /* cp_to_command */
-    cmd = (os_stritype) malloc(sizeof(os_chartype) * (stri->size * 2 + 1));
-    if (cmd == NULL) {
-      *err_info = MEMORY_ERROR;
-    } else {
-      stri_to_utf16(cmd, stri, err_info);
-      if (*err_info != OKAY_NO_ERROR) {
-        os_stri_free(cmd);
-        cmd = NULL;
-      } else {
-        quote_path = FALSE;
-        /* replace "/" by PATH_DELIMITER in cmd */
-        for (inPos = 0, outPos = 0; cmd[inPos] != ' ' && cmd[inPos] != '\0'; inPos++, outPos++) {
-          if (cmd[inPos] == '/') {
-            cmd[outPos] = PATH_DELIMITER;
-          } else if (cmd[inPos] == '\\') {
-            inPos++;
-            if (cmd[inPos] == ' ') {
-#ifdef ESCAPE_SPACES_IN_COMMANDS
-                cmd[outPos] = '\\';
-                outPos++;
-#else
-                quote_path = TRUE;
-#endif
-              cmd[outPos] = ' ';
-            } else {
-              cmd[outPos] = '\\';
-              if (cmd[inPos] != '\0') {
-                outPos++;
-                cmd[outPos] = cmd[inPos];
-              } /* if */
-            } /* if */
-          } else {
-            cmd[outPos] = cmd[inPos];
-          } /* if */
-        } /* for */
-        if (quote_path) {
-          memmove(&cmd[outPos + 2], &cmd[inPos], sizeof(os_chartype) * (wcslen(&cmd[inPos]) + 1));
-          memmove(&cmd[1], cmd, sizeof(os_chartype) * outPos);
-          cmd[0] = '"';
-          cmd[outPos + 1] = '"';
-        } /* if */
-#ifdef TRACE_CP_TO_COMMAND
-        for (inPos = 0; cmd[inPos] != '\0'; inPos++) {
-          printf("%c", cmd[inPos]);
-        } /* for */
-        printf("\n");
-#endif
-      } /* if */
-    } /* if */
-    return(cmd);
-  } /* cp_to_command */
-
-
-
-#else
-
-
-
-/**
- *  Returns a command string suitable for the operating system shell.
- *  The string 'stri' is converted to UTF-8. The command part of
- *  'stri' (which extends from the beginning up to the first blank)
- *  is treated special: All occurances of slash ( / ) are replaced
- *  by PATH_DELIMITER (which is defined as the path delimiter used
- *  by the operating system shell). Note that some operating systems
- *  accept / in paths used by C system calls but insist on \ in paths
- *  used by the system shell. Additionally the command part is also
- *  searched for the sequence "\ " which is treated special (Note
- *  that Seed7 string literals need a double backslash to represend
- "  one backslash. E.g.: "usr/home/tm/My\\ Dir/myCommand"). The
- *  sequence "\ " is used to allow space characters in the command
- *  path. Depending on the operating system the sequence "\ " is left
- *  as is or forces the command path to be surrounded by double
- *  quotes (in that case "\ " is replaced by " ").
- */
-#ifdef ANSI_C
-
-os_stritype cp_to_command (const_stritype stri, errinfotype *err_info)
-#else
-
-os_stritype cp_to_command (stri, err_info)
-stritype stri;
-errinfotype *err_info;
-#endif
-
-  {
-    memsizetype inPos;
-    memsizetype outPos;
-    booltype quote_path;
-    os_stritype cmd;
-
-  /* cp_to_command */
-    if (stri->size > MAX_CSTRI_LEN / MAX_UTF8_EXPANSION_FACTOR ||
-        !ALLOC_CSTRI(cmd, max_utf8_size(stri))) {
-      *err_info = MEMORY_ERROR;
-      cmd = NULL;
-    } else {
-      stri_export((ustritype) cmd, stri);
+    cmd = stri_to_os_stri(stri, err_info);
+    if (*err_info == OKAY_NO_ERROR) {
       quote_path = FALSE;
       /* replace "/" by PATH_DELIMITER in cmd */
       for (inPos = 0, outPos = 0; cmd[inPos] != ' ' && cmd[inPos] != '\0'; inPos++, outPos++) {
         if (cmd[inPos] == '/') {
-          cmd[outPos] = PATH_DELIMITER;
+#ifdef MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
+          if (inPos == 0 && cmd[1] >= 'a' && cmd[1] <= 'z' && cmd[2] == '/') {
+            /* Absolute path: Try to map the path to a drive letter */
+            inPos++;
+            cmd[outPos] = cmd[inPos];
+            outPos++;
+            cmd[outPos] = ':';
+          } else {
+#endif
+            cmd[outPos] = PATH_DELIMITER;
+#ifdef MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
+          } /* if */
+#endif
         } else if (cmd[inPos] == '\\') {
           inPos++;
           if (cmd[inPos] == ' ') {
@@ -993,8 +1078,13 @@ errinfotype *err_info;
         } /* if */
       } /* for */
       if (quote_path) {
+#ifdef OS_PATH_WCHAR
+        memmove(&cmd[outPos + 2], &cmd[inPos], sizeof(os_chartype) * (wcslen(&cmd[inPos]) + 1));
+        memmove(&cmd[1], cmd, sizeof(os_chartype) * outPos);
+#else
         memmove(&cmd[outPos + 2], &cmd[inPos], strlen(&cmd[inPos]) + 1);
         memmove(&cmd[1], cmd, outPos);
+#endif
         cmd[0] = '"';
         cmd[outPos + 1] = '"';
       } /* if */
@@ -1005,7 +1095,5 @@ errinfotype *err_info;
       printf("\n");
 #endif
     } /* if */
-    return(cmd);
+    return cmd;
   } /* cp_to_command */
-#endif
-

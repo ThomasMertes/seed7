@@ -40,6 +40,7 @@
 #include "common.h"
 #include "striutl.h"
 #include "heaputl.h"
+#include "cmd_drv.h"
 #include "rtl_err.h"
 
 #undef EXTERN
@@ -69,7 +70,15 @@ dirtype directory;
 #endif
 
   { /* dirClose */
-    os_closedir(directory);
+#ifdef MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
+    if (IS_VOLUME_LIST(directory)) {
+      closeVolumeList((volumeListType *) directory);
+    } else {
+#endif
+      os_closedir(directory);
+#ifdef MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
+    } /* if */
+#endif
   } /* dirClose */
 
 
@@ -91,8 +100,16 @@ stritype file_name;
   /* dirOpen */
     name = cp_to_os_path(file_name, &err_info);
     if (name == NULL) {
-      raise_error(err_info);
-      result = NULL;
+#ifdef MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
+      if (file_name->size == 1 && file_name->mem[0] == '/') {
+        result = (dirtype) openVolumeList();
+      } else {
+#endif
+        raise_error(err_info);
+        result = NULL;
+#ifdef MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
+      } /* if */
+#endif
     } else {
       result = os_opendir(name);
       os_stri_free(name);
@@ -116,18 +133,26 @@ dirtype directory;
     stritype result;
 
   /* dirRead */
-    do {
-      current_entry = os_readdir(directory);
-    } while (current_entry != NULL &&
-        (memcmp(current_entry->d_name, dot,    sizeof(os_chartype) * 2) == 0 ||
-         memcmp(current_entry->d_name, dotdot, sizeof(os_chartype) * 3) == 0));
-    if (current_entry == NULL) {
-      result = NULL;
+#ifdef MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
+    if (IS_VOLUME_LIST(directory)) {
+      result = readVolumeName((volumeListType *) directory);
     } else {
-      result = os_stri_to_stri(current_entry->d_name);
-      if (result == NULL) {
-        raise_error(MEMORY_ERROR);
+#endif
+      do {
+        current_entry = os_readdir(directory);
+      } while (current_entry != NULL &&
+          (memcmp(current_entry->d_name, dot,    sizeof(os_chartype) * 2) == 0 ||
+           memcmp(current_entry->d_name, dotdot, sizeof(os_chartype) * 3) == 0));
+      if (current_entry == NULL) {
+        result = NULL;
+      } else {
+        result = os_stri_to_stri(current_entry->d_name);
+        if (result == NULL) {
+          raise_error(MEMORY_ERROR);
+        } /* if */
       } /* if */
+#ifdef MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
     } /* if */
+#endif
     return result;
   } /* dirRead */

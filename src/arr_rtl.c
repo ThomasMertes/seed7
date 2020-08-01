@@ -48,11 +48,17 @@
 #include "data_rtl.h"
 #include "heaputl.h"
 #include "striutl.h"
+#include "str_rtl.h"
+#include "cmd_rtl.h"
+#include "cmd_drv.h"
 #include "rtl_err.h"
 
 #undef EXTERN
 #define EXTERN
 #include "arr_rtl.h"
+
+
+rtlArraytype strChSplit (const const_stritype main_stri, const chartype delimiter);
 
 
 
@@ -171,23 +177,35 @@ os_stritype *argv;
 #ifdef USE_WMAIN
 #ifdef ANSI_C
 
-rtlArraytype getArgv (const int argc, const wstritype *argv, stritype *arg_0)
+rtlArraytype getArgv (const int argc, const wstritype *argv, stritype *arg_0,
+    stritype *exePath)
 #else
 
-rtlArraytype getArgv (argc, argv, arg_0)
+rtlArraytype getArgv (argc, argv, arg_0, exePath)
 int argc;
 os_stritype *argv;
 stritype *arg_0;
+stritype *exePath;
 #endif
 
   {
+    errinfotype err_info = OKAY_NO_ERROR;
     rtlArraytype arg_v;
 
   /* getArgv */
     if (arg_0 != NULL) {
-      *arg_0 = os_stri_to_stri(argv[0]);
+      *arg_0 = cp_from_os_path(argv[0]);
+      if (*arg_0 == NULL) {
+        err_info = MEMORY_ERROR;
+      } /* if */
     } /* if */
-    if (arg_0 == NULL || *arg_0 != NULL) {
+    if (exePath != NULL && arg_0 != NULL && *arg_0 != NULL) {
+      *exePath = getExecutablePath(*arg_0);
+      if (*exePath == NULL) {
+        err_info = MEMORY_ERROR;
+      } /* if */
+    } /* if */
+    if (err_info == OKAY_NO_ERROR) {
       arg_v = copyArgv(argc - 1, &argv[1]);
     } else {
       raise_error(MEMORY_ERROR);
@@ -202,13 +220,15 @@ stritype *arg_0;
 
 #ifdef ANSI_C
 
-rtlArraytype getArgv (const int argc, const cstritype *argv, stritype *arg_0)
+rtlArraytype getArgv (const int argc, const cstritype *argv, stritype *arg_0,
+    stritype *exePath)
 #else
 
-rtlArraytype getArgv (argc, argv, arg_0)
+rtlArraytype getArgv (argc, argv, arg_0, exePath)
 int argc;
 char **argv;
 stritype *arg_0;
+stritype *exePath;
 #endif
 
   {
@@ -216,6 +236,7 @@ stritype *arg_0;
     int w_argc;
     os_stritype *w_argv;
 #endif
+    errinfotype err_info = OKAY_NO_ERROR;
     rtlArraytype arg_v;
 
   /* getArgv */
@@ -226,24 +247,42 @@ stritype *arg_0;
       arg_v = NULL;
     } else {
       if (arg_0 != NULL) {
-        *arg_0 = os_stri_to_stri(w_argv[0]);
+        *arg_0 = cp_from_os_path(w_argv[0]);
+        if (*arg_0 == NULL) {
+          err_info = MEMORY_ERROR;
+        } /* if */
       } /* if */
-      if (arg_0 == NULL || *arg_0 != NULL) {
+      if (exePath != NULL && arg_0 != NULL && *arg_0 != NULL) {
+        *exePath = getExecutablePath(*arg_0);
+        if (*exePath == NULL) {
+          err_info = MEMORY_ERROR;
+        } /* if */
+      } /* if */
+      if (err_info == OKAY_NO_ERROR) {
         arg_v = copyArgv(w_argc - 1, &w_argv[1]);
       } else {
-        raise_error(MEMORY_ERROR);
+        raise_error(err_info);
         arg_v = NULL;
       } /* if */
       freeUtf16Argv(w_argv);
     } /* if */
 #else
     if (arg_0 != NULL) {
-      *arg_0 = os_stri_to_stri(argv[0]);
+      *arg_0 = cp_from_os_path(argv[0]);
+      if (*arg_0 == NULL) {
+        err_info = MEMORY_ERROR;
+      } /* if */
     } /* if */
-    if (arg_0 == NULL || *arg_0 != NULL) {
+    if (exePath != NULL && arg_0 != NULL && *arg_0 != NULL) {
+      *exePath = getExecutablePath(*arg_0);
+      if (*exePath == NULL) {
+        err_info = MEMORY_ERROR;
+      } /* if */
+    } /* if */
+    if (err_info == OKAY_NO_ERROR) {
       arg_v = copyArgv(argc - 1, &argv[1]);
     } else {
-      raise_error(MEMORY_ERROR);
+      raise_error(err_info);
       arg_v = NULL;
     } /* if */
 #endif
@@ -251,6 +290,55 @@ stritype *arg_0;
   } /* getArgv */
 
 #endif
+
+
+
+#ifdef ANSI_C
+
+stritype examineSearchPath (const const_stritype fileName)
+#else
+
+stritype examineSearchPath (fileName)
+stritype fileName;
+#endif
+
+  {
+    os_stritype env_value;
+    stritype pathStri;
+    rtlArraytype searchPath;
+    memsizetype arraySize;
+    memsizetype pos;
+    stritype path;
+    stritype result;
+
+  /* examineSearchPath */
+    result = NULL;
+    env_value = getenv("PATH");
+    if (env_value != NULL) {
+      pathStri = os_stri_to_stri(env_value);
+      searchPath = strChSplit(pathStri, (chartype) ':');
+      if (searchPath != NULL) {
+        arraySize = (uinttype) (searchPath->max_position - searchPath->min_position + 1);
+        for (pos = 0; result == NULL && pos < arraySize; pos++) {
+          path = searchPath->arr[pos].value.strivalue;
+          while (path->size > 1 && path->mem[path->size - 1] == (chartype) '/') {
+            path->size--;
+          } /* while */
+          if (path->size != 0 && path->mem[path->size - 1] != (chartype) '/') {
+            strPush(&path, (chartype) '/');
+          } /* if */
+          strAppend(&path, fileName);
+          if (cmdFileType(path) == 2) {
+            result = path;
+          } else {
+            FREE_STRI(path, path->size);
+          } /* if */
+        } /* for */
+        FREE_RTL_ARRAY(searchPath, arraySize);
+      } /* if */
+    } /* if */
+    return result;
+  } /* examineSearchPath */
 
 
 

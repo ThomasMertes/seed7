@@ -340,6 +340,9 @@ typedef int errinfotype;
 #ifndef os_popen
 #define os_popen popen
 #endif
+#ifndef os_getenv
+#define os_getenv getenv
+#endif
 
 
 #ifndef likely

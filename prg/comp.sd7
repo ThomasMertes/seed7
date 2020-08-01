@@ -10304,6 +10304,13 @@ const proc: process_prg_ne (in ref_list: params, inout expr_type: c_expr) is fun
   end func;
 
 
+const proc: process_prg_path (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "exePath";
+  end func;
+
+
 const proc: process_prg_str_parse (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
@@ -14945,6 +14952,8 @@ const proc: process_action (in reference: function, in ref_list: params,
         process_prg_name(params, c_expr);
       elsif action_name = "PRG_NE" then
         process_prg_ne(params, c_expr);
+      elsif action_name = "PRG_PATH" then
+        process_prg_path(params, c_expr);
       elsif action_name = "PRG_STR_PARSE" then
         process_prg_str_parse(params, c_expr);
       elsif action_name = "PRG_SYOBJECT" then
@@ -17221,7 +17230,7 @@ const proc: process_main_declaration (in reference: function,
     else
       main_prolog &:= "if ((fail_value = setjmp(catch_stack[catch_stack_pos])) == 0) {\n";
     end if;
-    main_prolog &:= "arg_v = getArgv(argc, argv, &arg_0);\n";
+    main_prolog &:= "arg_v = getArgv(argc, argv, &arg_0, &exePath);\n";
     main_prolog &:= "setupFloat();\n";
     main_prolog &:= "init_values();\n";
     if not signal_exception then
@@ -19417,6 +19426,7 @@ const proc: write_file_head is func
     writeln(c_prog, "typedef void (*destrfunctype) (generictype);");
     writeln(c_prog, "typedef void (*copyfunctype) (generictype *, generictype);");
     writeln(c_prog, "stritype       arg_0;");
+    writeln(c_prog, "stritype       exePath;");
     writeln(c_prog, "arraytype      arg_v;");
     writeln(c_prog, "biginttype    *big;");
     writeln(c_prog, "stritype       str[];");
@@ -19946,9 +19956,9 @@ const proc: write_prototypes is func
     writeln(c_prog, "stritype    ut8WordRead (filetype, chartype *);");
     writeln(c_prog, "void        ut8Write (filetype, stritype);");
     if USE_WMAIN then
-      writeln(c_prog, "arraytype   getArgv (int, wchar_t **, stritype *);");
+      writeln(c_prog, "arraytype   getArgv (int, wchar_t **, stritype *, stritype *);");
     else
-      writeln(c_prog, "arraytype   getArgv (int, char **, stritype *);");
+      writeln(c_prog, "arraytype   getArgv (int, char **, stritype *, stritype *);");
     end if;
     writeln(c_prog, "void        setupFloat (void);");
     writeln(c_prog, "void        init_values (void);");

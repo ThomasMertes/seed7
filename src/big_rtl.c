@@ -805,7 +805,9 @@ bigdigittype digit;
         result->bigdigits[result->size - 1] = 0;
         if (IS_NEGATIVE(digit)) {
           negative = !negative;
-          digit = (bigdigittype) -(signedbigdigittype) digit;
+          /* The unsigned value is negated to avoid a signed integer */
+          /* overflow when the smallest signed integer is negated.   */
+          digit = -digit;
         } /* if */
         uBigDiv1(big1, digit, result);
         if (negative) {
@@ -1098,7 +1100,9 @@ bigdigittype digit;
           } /* if */
         } /* if */
         if (IS_NEGATIVE(digit)) {
-          digit = (bigdigittype) -(signedbigdigittype) digit;
+          /* The unsigned value is negated to avoid a signed integer */
+          /* overflow when the smallest signed integer is negated.   */
+          digit = -digit;
         } /* if */
         remainder->bigdigits[0] = uBigRem1(big1, digit);
         if (negative) {
@@ -1195,7 +1199,9 @@ bigdigittype digit;
         result->bigdigits[result->size - 1] = 0;
         if (IS_NEGATIVE(digit)) {
           negative = !negative;
-          digit = (bigdigittype) -(signedbigdigittype) digit;
+          /* The unsigned value is negated to avoid a signed integer */
+          /* overflow when the smallest signed integer is negated.   */
+          digit = -digit;
         } /* if */
         remainder = uBigMDiv1(big1, digit, result);
         if (negative) {
@@ -2424,7 +2430,9 @@ inttype exponent;
       } /* if */
     } else {
       if (IS_NEGATIVE(base)) {
-        base = (bigdigittype) -(signedbigdigittype) base;
+        /* The unsigned value is negated to avoid a signed integer */
+        /* overflow when the smallest signed integer is negated.   */
+        base = -base;
         negative = exponent & 1;
       } else {
         negative = FALSE;

@@ -100,18 +100,11 @@ const proc: processHttpRequest (inout file: sock) is func
     end while;
     if requestCommand = "GET" then
       # writeln(requestPath);
-      filePath := requestPath;
-      filePath := replace(filePath, "\\", "/");   # Path delimiter is slash
-      while pos(filePath, "//") <> 0 do           # Remove double slashes
-        filePath := replace(filePath, "//", "/");
-      end while;
+      filePath := convDosPath(requestPath);
       if not startsWith(filePath, "/") then
         filePath := "/" & filePath;
       end if;
       filePath := htdocs & filePath;
-      while endsWith(filePath, "/") do
-        filePath := filePath[.. pred(length(filePath))];
-      end while;
       # writeln(literal(filePath));
       if fileType(filePath) = FILE_ABSENT then
         if fileType(filePath & ".html") <> FILE_ABSENT then

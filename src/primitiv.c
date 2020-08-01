@@ -557,6 +557,7 @@ static primactrecord prim_act_table[] = {
     { "PRG_MATCH_EXPR",      prg_match_expr,      },
     { "PRG_NAME",            prg_name,            },
     { "PRG_NE",              prg_ne,              },
+    { "PRG_PATH",            prg_path,            },
     { "PRG_PROG",            prg_prog,            },
     { "PRG_STR_PARSE",       prg_str_parse,       },
     { "PRG_SYOBJECT",        prg_syobject,        },

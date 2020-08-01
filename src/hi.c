@@ -51,7 +51,6 @@
 #include "level.h"
 #include "flt_rtl.h"
 #include "arr_rtl.h"
-#include "cmd_drv.h"
 #include "scr_drv.h"
 
 
@@ -180,7 +179,7 @@ rtlArraytype arg_v;
               break;
           } /* switch */
         } else {
-          option.source_file_name = opt;
+          option.source_file_name = stri_to_path(opt);
         } /* if */
       } else {
         if (option.argv == NULL) {
@@ -232,7 +231,7 @@ char **argv;
     printf("BEGIN HI\n");
 #endif
     set_trace(NULL, -1, NULL);
-    arg_v = getArgv(argc, argv, NULL);
+    arg_v = getArgv(argc, argv, NULL, NULL);
     if (arg_v == NULL) {
       printf("\n*** No more memory. Program terminated.\n");
     } else {

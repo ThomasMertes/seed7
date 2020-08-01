@@ -121,6 +121,7 @@ version.h:
 	echo ^#define USE_DIRENT >> version.h
 	echo ^#define PATH_DELIMITER '\\' >> version.h
 	echo ^#define ALLOW_DRIVE_LETTERS >> version.h
+	echo ^#define MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS >> version.h
 	echo ^#define NO_EMPTY_STRUCTS >> version.h
 	echo ^#define CATCH_SIGNALS >> version.h
 	echo ^#define USE_LOCALTIME_R >> version.h
@@ -163,6 +164,7 @@ version.h:
 	echo ^#define os_fseek _fseeki64 >> version.h
 	echo ^#define os_ftell _ftelli64 >> version.h
 	echo ^#define os_off_t __int64 >> version.h
+	echo ^#define os_getenv _wgetenv >> version.h
 	echo ^#define USE_WINSOCK >> version.h
 	echo ^#define $(BIGINT_LIB_DEFINE) >> version.h
 	echo bcc32.exe %* > bcc32.bat

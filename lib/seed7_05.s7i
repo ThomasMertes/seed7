@@ -3544,7 +3544,21 @@ const proc: clear_box (ref text param) is DYNAMIC;
 
 const func array string: argv (PROGRAM) is     action "PRC_ARGS";
 const func string: name (PROGRAM) is           action "PRG_NAME";
+const func string: path (PROGRAM) is           action "PRG_PATH";
 const func string: getenv (in string param) is action "STR_GETENV";
+
+const func string: dir (PROGRAM) is func
+  result
+    var string: result is "";
+  local
+    var integer: slashPos is 0;
+  begin
+    result := path(PROGRAM);
+    slashPos := rpos(result, '/');
+    if slashPos > 1 then
+      result := result[.. pred(slashPos)];
+    end if;
+  end func;
 
 (* DIRECTORY *)
 
@@ -3614,6 +3628,31 @@ const proc: moveFile (in string param, in string param) is      action "CMD_MOVE
 const func string: readlink (in string param) is                action "CMD_READLINK";
 const proc: symlink (in string param, in string param) is       action "CMD_SYMLINK";
 const func string: configValue (in string param) is             action "CMD_CONFIG_VALUE";
+
+const func string: convDosPath (in string: path) is func
+  result
+    var string: result is "";
+  local
+    var integer: length is 0;
+  begin
+    # Path delimiter is slash
+    result := replace(path, "\\", "/");
+    # Convert drive letters to standard path
+    if (length(result) = 2 or (length(result) >= 3 and result[3] = '/')) and
+        result[2] = ':' and lower(result[1]) >= 'a' and lower(result[1]) <= 'z' then
+      result @:= [2] result[1];
+      result @:= [1] '/';
+    end if;
+    # Remove double slashes
+    repeat
+      length := length(result);
+      result := replace(result, "//", "/");
+    until length(result) = length;
+    # Remove slash at end of path
+    while result <> "/" and endsWith(result, "/") do
+      result := result[.. pred(length(result))];
+    end while;
+  end func;
 
 const func boolean: fileExists (in string: file_name) is func
   result

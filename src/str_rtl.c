@@ -196,6 +196,66 @@ inttype *used_max_position;
 
 
 
+#ifdef ANSI_C
+
+stritype concat_path (const_stritype stri1, const_stritype stri2)
+#else
+
+stritype concat_path (stri, stri2)
+stritype stri1;
+stritype stri2;
+#endif
+
+  {
+    memsizetype endPos1;
+    memsizetype startPos2;
+    inttype slashPos;
+    memsizetype result_size;
+    stritype result;
+
+  /* concat_path */
+    endPos1 = stri1->size;
+    startPos2 = 0;
+    while (stri2->size >= startPos2 + 3 &&
+           stri2->mem[startPos2    ] == (chartype) '.' &&
+           stri2->mem[startPos2 + 1] == (chartype) '.' &&
+           stri2->mem[startPos2 + 2] == (chartype) '/') {
+      slashPos = strRChIpos(stri1, (chartype) '/', (inttype) endPos1);
+      if (slashPos > 1) {
+        endPos1 = (memsizetype) slashPos - 1;
+      } else {
+        raise_error(FILE_ERROR);
+        return NULL;
+      } /* if */
+      startPos2 += 3;
+    } /* while */
+    while (stri2->size >= startPos2 + 2 &&
+           stri2->mem[startPos2    ] == (chartype) '.' &&
+           stri2->mem[startPos2 + 1] == (chartype) '/') {
+      startPos2 += 2;
+    } /* while */
+    if (unlikely(stri2->size - startPos2 > MAX_STRI_LEN - endPos1 - 1)) {
+      /* number of bytes does not fit into memsizetype */
+      raise_error(MEMORY_ERROR);
+      result = NULL;
+    } else {
+      result_size = endPos1 + stri2->size - startPos2 + 1;
+      if (unlikely(!ALLOC_STRI_SIZE_OK(result, result_size))) {
+        raise_error(MEMORY_ERROR);
+      } else {
+        result->size = result_size;
+        memcpy(result->mem, stri1->mem, endPos1 * sizeof(strelemtype));
+        result->mem[endPos1] = (chartype) '/';
+        endPos1++;
+        memcpy(&result->mem[endPos1], &stri2->mem[startPos2],
+	    (stri2->size - startPos2) * sizeof(strelemtype));
+      } /* if */
+    } /* if */
+    return result;
+  } /* concat_path */
+
+
+
 #ifdef ALLOW_STRITYPE_SLICES
 #ifdef ANSI_C
 
@@ -1129,22 +1189,28 @@ stritype stri;
 #endif
 
   {
-    char env_name[250];
-    const_cstritype environment;
+    os_stritype env_name;
+    errinfotype err_info = OKAY_NO_ERROR;
+    os_stritype env_value;
+    static os_chartype null_char = (os_chartype) '\0';
     stritype result;
 
   /* strGetenv */
-    if (stri->size >= 250 / MAX_UTF8_EXPANSION_FACTOR) {
-      environment = "";
+    env_name = stri_to_os_stri(stri, &err_info);
+    if (unlikely(err_info != OKAY_NO_ERROR)) {
+      raise_error(err_info);
+      result = NULL;
     } else {
-      stri_export((ustritype) env_name, stri);
-      if ((environment = getenv(env_name)) == NULL) {
-        environment = "";
+      env_value = os_getenv(env_name);
+      os_stri_free(env_name);
+      if (env_value == NULL) {
+        result = os_stri_to_stri(&null_char);
+      } else {
+        result = os_stri_to_stri(env_value);
       } /* if */
-    } /* if */
-    result = cstri_to_stri(environment);
-    if (unlikely(result == NULL)) {
-      raise_error(MEMORY_ERROR);
+      if (unlikely(result == NULL)) {
+        raise_error(MEMORY_ERROR);
+      } /* if */
     } /* if */
     return result;
   } /* strGetenv */
