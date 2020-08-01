@@ -38,6 +38,8 @@ const boolean: USE_SIGSETJMP           is boolean parse configValue("USE_SIGSETJ
 const boolean: TWOS_COMPLEMENT_INTTYPE is boolean parse configValue("TWOS_COMPLEMENT_INTTYPE");
 const boolean: FLOAT_ZERO_DIV_ERROR    is boolean parse configValue("FLOAT_ZERO_DIV_ERROR");
 const boolean: INTTYPE_64BIT           is boolean parse configValue("INTTYPE_64BIT");
+const boolean: ISNAN_WITH_UNDERLINE    is boolean parse configValue("ISNAN_WITH_UNDERLINE");
+const boolean: CHECK_INT_DIV_BY_ZERO   is boolean parse configValue("CHECK_INT_DIV_BY_ZERO");
 const string:  INTTYPE_LITERAL_SUFFIX  is configValue("INTTYPE_LITERAL_SUFFIX");
 
 const type: option_hash is hash [string] string;
@@ -1112,7 +1114,8 @@ const proc: prepare_typed_result (in type: aType, inout expr_type: c_expr) is fu
 
   begin
     incr(c_expr.temp_num);
-    c_expr.result_decl := "generictype tmp_";
+    c_expr.result_decl := type_name(aType);
+    c_expr.result_decl &:= " tmp_";
     c_expr.result_decl &:= str(c_expr.temp_num);
     c_expr.result_decl &:= " = NULL;\n";
     process_destr_declaration(aType, global_c_expr);
@@ -1208,6 +1211,18 @@ const proc: process_cast_from_float_expr (in reference: current_expression,
   end func;
 
 
+const proc: select_value_from_rtlObjectstruct (in type: typeWanted, inout expr_type: c_expr) is func
+  begin
+    if typeWanted = floattype then
+      c_expr.expr &:= ".value.floatvalue";
+    elsif typeWanted = stritype then
+      c_expr.expr &:= ".value.strivalue";
+    else
+      c_expr.expr &:= ".value.intvalue";
+    end if;
+  end func;
+
+
 const proc: getTemporaryToResultExpr (in reference: aParam, inout expr_type: c_expr) is func
 
   local
@@ -1292,6 +1307,22 @@ const proc: ref_list_value (in ref_list: current_value,
         c_expr.expr &:= ")";
       end for;
       c_expr.expr &:= "}";
+    end if;
+  end func;
+
+
+const func boolean: isActionExpression (in reference: current_expression, in string: actionName) is func
+
+  result
+    var boolean: result is FALSE;
+  local
+    var ref_list: params is ref_list.EMPTY;
+  begin
+    if category(current_expression) = CALLOBJECT then
+      params := getValue(current_expression, ref_list);
+      if category(params[1]) = ACTOBJECT and str(getValue(params[1], ACTION)) = actionName then
+        result := TRUE;
+      end if;
     end if;
   end func;
 
@@ -2004,9 +2035,9 @@ const proc: process_arr_cpy (in ref_list: params, inout expr_type: c_expr) is fu
       c_expr.expr &:= c_param1.expr;
       c_expr.expr &:= ");\n";
       c_expr.expr &:= "arraytype old_array=*array_ptr;\n";
-      c_expr.expr &:= "*array_ptr=";
+      c_expr.expr &:= "*array_ptr=(arraytype)(";
       c_expr.expr &:= c_param3.result_expr;
-      c_expr.expr &:= ";\n";
+      c_expr.expr &:= ");\n";
       process_destr_declaration(getExprResultType(params[1]), global_c_expr);
       process_destr_call(getExprResultType(params[1]),
           "old_array", c_expr.expr);
@@ -2110,11 +2141,7 @@ const proc: process_const_arr_idx (in reference: function, in reference: anArray
         c_expr.expr &:= "]->arr[";
         c_expr.expr &:= str(index - array_min_index(anArray));
         c_expr.expr &:= "]";
-        if result_type(getType(function)) = floattype then
-          c_expr.expr &:= ".value.floatvalue";
-        else
-          c_expr.expr &:= ".value.intvalue";
-        end if;
+        select_value_from_rtlObjectstruct(result_type(getType(function)), c_expr);
       end if;
     else
       c_expr.expr &:= "arr[";
@@ -2154,11 +2181,7 @@ const proc: process_const_arr_idx (in reference: function, in reference: anArray
         c_expr.expr &:= str(array_min_index(anArray));
       end if;
       c_expr.expr &:= "]";
-      if result_type(getType(function)) = floattype then
-        c_expr.expr &:= ".value.floatvalue";
-      else
-        c_expr.expr &:= ".value.intvalue";
-      end if;
+      select_value_from_rtlObjectstruct(result_type(getType(function)), c_expr);
     end if;
   end func;
 
@@ -2203,11 +2226,7 @@ const proc: process_const_arr_idx (in reference: function, in reference: param1,
       c_expr.expr &:= "->min_position";
     end if;
     c_expr.expr &:= "]";
-    if result_type(getType(function)) = floattype then
-      c_expr.expr &:= ".value.floatvalue";
-    else
-      c_expr.expr &:= ".value.intvalue";
-    end if;
+    select_value_from_rtlObjectstruct(result_type(getType(function)), c_expr);
     c_expr.expr &:= "))";
   end func;
 
@@ -2267,11 +2286,7 @@ const proc: process_arr_idx (in reference: function, in ref_list: params,
         c_expr.expr &:= "->min_position";
       end if;
       c_expr.expr &:= "]";
-      if result_type(getType(function)) = floattype then
-        c_expr.expr &:= ".value.floatvalue";
-      else
-        c_expr.expr &:= ".value.intvalue";
-      end if;
+      select_value_from_rtlObjectstruct(result_type(getType(function)), c_expr);
       c_expr.expr &:= "))";
     end if;
   end func;
@@ -3012,7 +3027,7 @@ const proc: process_big_lt (in ref_list: params, inout expr_type: c_expr) is fun
   end func;
 
 
-const proc: process_const_big_mdiv (in reference: param1, in bigInteger: number,
+const proc: process_const_big_mdiv (in reference: param1, in bigInteger: divisor,
     inout expr_type: c_expr) is func
 
   local
@@ -3020,10 +3035,10 @@ const proc: process_const_big_mdiv (in reference: param1, in bigInteger: number,
     var integer: temp_num is 0;
   begin
     incr(countOptimizations);
-    if number = 0_ then
+    if divisor = 0_ then
       c_expr.expr &:= "(raise_error(NUMERIC_ERROR),0)";
     elsif category(param1) = BIGINTOBJECT and not isVar(param1) then
-      bigNumber := getValue(param1, bigInteger) mdiv number;
+      bigNumber := getValue(param1, bigInteger) mdiv divisor;
       if bigNumber not in bigint_const_table then
         bigint_const_table @:= [bigNumber] length(bigint_const_table);
       end if;
@@ -3032,22 +3047,22 @@ const proc: process_const_big_mdiv (in reference: param1, in bigInteger: number,
       c_expr.expr &:= "] /* ";
       c_expr.expr &:= str(bigNumber);
       c_expr.expr &:= " */";
-    elsif number = 1_ then
+    elsif divisor = 1_ then
       c_expr.expr &:= "(";
       process_expr(param1, c_expr);
       c_expr.expr &:= ")";
-    elsif number = -1_ then
+    elsif divisor = -1_ then
       prepare_bigint_result(c_expr);
       c_expr.result_expr := "bigMinus(";
       getAnyParamToResultExpr(param1, c_expr);
       c_expr.result_expr &:= ")";
-    elsif number > 0_ and log2(number) <= 2147483647_ and
-        2_ ** ord(log2(number)) = number then
+    elsif divisor > 0_ and log2(divisor) <= 2147483647_ and
+        2_ ** ord(log2(divisor)) = divisor then
       prepare_bigint_result(c_expr);
       c_expr.result_expr := "bigRShift(";
       getAnyParamToResultExpr(param1, c_expr);
       c_expr.result_expr &:= ", ";
-      c_expr.result_expr &:= str(log2(number));
+      c_expr.result_expr &:= str(log2(divisor));
       c_expr.result_expr &:= INTTYPE_LITERAL_SUFFIX;
       c_expr.result_expr &:= ")";
     else
@@ -3055,13 +3070,13 @@ const proc: process_const_big_mdiv (in reference: param1, in bigInteger: number,
       c_expr.result_expr := "bigMDiv(";
       getAnyParamToResultExpr(param1, c_expr);
       c_expr.result_expr &:= ", ";
-      if number not in bigint_const_table then
-        bigint_const_table @:= [number] length(bigint_const_table);
+      if divisor not in bigint_const_table then
+        bigint_const_table @:= [divisor] length(bigint_const_table);
       end if;
       c_expr.result_expr &:= "big[";
-      c_expr.result_expr &:= str(bigint_const_table[number]);
+      c_expr.result_expr &:= str(bigint_const_table[divisor]);
       c_expr.result_expr &:= "] /* ";
-      c_expr.result_expr &:= str(number);
+      c_expr.result_expr &:= str(divisor);
       c_expr.result_expr &:= " */";
       c_expr.result_expr &:= ")";
     end if;
@@ -3441,9 +3456,14 @@ const proc: process_big_value (in ref_list: params, inout expr_type: c_expr) is 
 const proc: process_bln_and (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    c_expr.expr &:= "(";
-    process_expr(params[1], c_expr);
-    c_expr.expr &:= ") &&\n(";
+    if isActionExpression(params[1], "BLN_AND") then
+      process_expr(params[1], c_expr);
+    else
+      c_expr.expr &:= "(";
+      process_expr(params[1], c_expr);
+      c_expr.expr &:= ")";
+    end if;
+    c_expr.expr &:= " &&\n(";
     process_expr(params[3], c_expr);
     c_expr.expr &:= ")";
   end func;
@@ -3568,9 +3588,14 @@ const proc: process_bln_not (in ref_list: params, inout expr_type: c_expr) is fu
 const proc: process_bln_or (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    c_expr.expr &:= "(";
-    process_expr(params[1], c_expr);
-    c_expr.expr &:= ") ||\n(";
+    if isActionExpression(params[1], "BLN_OR") then
+      process_expr(params[1], c_expr);
+    else
+      c_expr.expr &:= "(";
+      process_expr(params[1], c_expr);
+      c_expr.expr &:= ")";
+    end if;
+    c_expr.expr &:= " ||\n(";
     process_expr(params[3], c_expr);
     c_expr.expr &:= ")";
   end func;
@@ -4864,20 +4889,20 @@ const proc: process_fil_cpy (in ref_list: params, inout expr_type: c_expr) is fu
 const proc: process_fil_eof (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    c_expr.expr &:= "feof((FILE *)";
+    c_expr.expr &:= "feof((filetype)(";
     process_expr(params[1], c_expr);
-    c_expr.expr &:= ")";
+    c_expr.expr &:= "))";
   end func;
 
 
 const proc: process_fil_eq (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    c_expr.expr &:= "(";
+    c_expr.expr &:= "((filetype)(";
     process_expr(params[1], c_expr);
-    c_expr.expr &:= ") == (";
+    c_expr.expr &:= ")) == ((filetype)(";
     process_expr(params[3], c_expr);
-    c_expr.expr &:= ")";
+    c_expr.expr &:= "))";
   end func;
 
 
@@ -4967,11 +4992,11 @@ const proc: process_fil_lng (in ref_list: params, inout expr_type: c_expr) is fu
 const proc: process_fil_ne (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    c_expr.expr &:= "(";
+    c_expr.expr &:= "((filetype)(";
     process_expr(params[1], c_expr);
-    c_expr.expr &:= ") != (";
+    c_expr.expr &:= ")) != ((filetype)(";
     process_expr(params[3], c_expr);
-    c_expr.expr &:= ")";
+    c_expr.expr &:= "))";
   end func;
 
 
@@ -5482,7 +5507,11 @@ const proc: process_flt_ipow (in ref_list: params, inout expr_type: c_expr) is f
 const proc: process_flt_isnan (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    c_expr.expr &:= "isnan(";
+    if ISNAN_WITH_UNDERLINE then
+      c_expr.expr &:= "_isnan(";
+    else
+      c_expr.expr &:= "isnan(";
+    end if;
     process_expr(params[1], c_expr);
     c_expr.expr &:= ")";
   end func;
@@ -6310,14 +6339,63 @@ const proc: process_int_decr (in ref_list: params, inout expr_type: c_expr) is f
   end func;
 
 
-const proc: process_int_div (in ref_list: params, inout expr_type: c_expr) is func
+const proc: process_const_int_div (in reference: param1, in integer: divisor,
+    inout expr_type: c_expr) is func
 
   begin
-    c_expr.expr &:= "(";
-    process_expr(params[1], c_expr);
-    c_expr.expr &:= ") / (";
-    process_expr(params[3], c_expr);
-    c_expr.expr &:= ")";
+    incr(countOptimizations);
+    if divisor = 0 then
+      c_expr.expr &:= "(raise_error(NUMERIC_ERROR),0)";
+    elsif category(param1) = INTOBJECT and not isVar(param1) then
+      c_expr.expr &:= str(getValue(param1, integer) div divisor);
+    elsif divisor = 1 then
+      c_expr.expr &:= "(";
+      process_expr(param1, c_expr);
+      c_expr.expr &:= ")";
+    elsif divisor = -1 then
+      c_expr.expr &:= "-(";
+      process_expr(param1, c_expr);
+      c_expr.expr &:= ")";
+    else
+      c_expr.expr &:= "(";
+      process_expr(param1, c_expr);
+      c_expr.expr &:= ") / ";
+      c_expr.expr &:= str(divisor);
+    end if;
+  end func;
+
+
+const proc: process_int_div (in ref_list: params, inout expr_type: c_expr) is func
+
+  local
+    var integer: temp_num is 0;
+  begin
+    if category(params[3]) = INTOBJECT and not isVar(params[3]) then
+      process_const_int_div(params[1], getValue(params[3], integer), c_expr);
+    elsif CHECK_INT_DIV_BY_ZERO then
+      incr(c_expr.temp_num);
+      temp_num := c_expr.temp_num;
+      c_expr.temp_decls &:= "inttype tmp_b_";
+      c_expr.temp_decls &:= str(temp_num);
+      c_expr.temp_decls &:= ";\n";
+      c_expr.expr &:= "(tmp_b_";
+      c_expr.expr &:= str(temp_num);
+      c_expr.expr &:= "=(";
+      process_expr(params[3], c_expr);
+      c_expr.expr &:= "),tmp_b_";
+      c_expr.expr &:= str(temp_num);
+      c_expr.expr &:= "==0?(raise_error(NUMERIC_ERROR),0):(";
+      process_expr(params[1], c_expr);
+      c_expr.expr &:= ") / tmp_b_";
+      c_expr.expr &:= str(temp_num);
+      c_expr.expr &:= ")";
+    else
+      c_expr.expr &:= "(";
+      process_expr(params[1], c_expr);
+      c_expr.expr &:= ") / (";
+      process_expr(params[3], c_expr);
+      c_expr.expr &:= ")";
+    end if;
   end func;
 
 
@@ -6542,31 +6620,31 @@ const proc: process_int_lt (in ref_list: params, inout expr_type: c_expr) is fun
   end func;
 
 
-const proc: process_const_int_mdiv (in reference: param1, in integer: number,
+const proc: process_const_int_mdiv (in reference: param1, in integer: divisor,
     inout expr_type: c_expr) is func
 
   local
     var integer: temp_num is 0;
   begin
     incr(countOptimizations);
-    if number = 0 then
+    if divisor = 0 then
       c_expr.expr &:= "(raise_error(NUMERIC_ERROR),0)";
     elsif category(param1) = INTOBJECT and not isVar(param1) then
-      c_expr.expr &:= str(getValue(param1, integer) mdiv number);
-    elsif number = 1 then
+      c_expr.expr &:= str(getValue(param1, integer) mdiv divisor);
+    elsif divisor = 1 then
       c_expr.expr &:= "(";
       process_expr(param1, c_expr);
       c_expr.expr &:= ")";
-    elsif number = -1 then
+    elsif divisor = -1 then
       c_expr.expr &:= "-(";
       process_expr(param1, c_expr);
       c_expr.expr &:= ")";
-    elsif number > 0 and 2 ** log2(number) = number then
+    elsif divisor > 0 and 2 ** log2(divisor) = divisor then
       if RSHIFT_DOES_SIGN_EXTEND then
         c_expr.expr &:= "(";
         process_expr(param1, c_expr);
         c_expr.expr &:= ") >> ";
-        c_expr.expr &:= str(log2(number));
+        c_expr.expr &:= str(log2(divisor));
       else
         incr(c_expr.temp_num);
         temp_num := c_expr.temp_num;
@@ -6583,11 +6661,11 @@ const proc: process_const_int_mdiv (in reference: param1, in integer: number,
         c_expr.expr &:= "<0?~(~tmp_a_";
         c_expr.expr &:= str(temp_num);
         c_expr.expr &:= " >> ";
-        c_expr.expr &:= str(log2(number));
+        c_expr.expr &:= str(log2(divisor));
         c_expr.expr &:= "):tmp_a_";
         c_expr.expr &:= str(temp_num);
         c_expr.expr &:= " >> ";
-        c_expr.expr &:= str(log2(number));
+        c_expr.expr &:= str(log2(divisor));
         c_expr.expr &:= ")";
       end if;
     else
@@ -6603,38 +6681,38 @@ const proc: process_const_int_mdiv (in reference: param1, in integer: number,
       c_expr.expr &:= "),";
       c_expr.expr &:= "tmp_a_";
       c_expr.expr &:= str(temp_num);
-      if number > 0 then
+      if divisor > 0 then
         (* Formula used: a<0?(a+1)/b-1:a/b *)
         c_expr.expr &:= "<0?(tmp_a_";
         c_expr.expr &:= str(temp_num);
         c_expr.expr &:= "+1)/";
-      else # number < 0
+      else # divisor < 0
         (* Formula used: a>0?(a-1)/b-1:a/b *)
         c_expr.expr &:= ">0?(tmp_a_";
         c_expr.expr &:= str(temp_num);
         c_expr.expr &:= "-1)/";
       end if;
-      c_expr.expr &:= str(number);
+      c_expr.expr &:= str(divisor);
       c_expr.expr &:= "-1:tmp_a_";
       c_expr.expr &:= str(temp_num);
       c_expr.expr &:= "/";
-      c_expr.expr &:= str(number);
+      c_expr.expr &:= str(divisor);
       c_expr.expr &:= ")";
     end if;
   end func;
 
 
-const proc: process_const_int_mdiv (in integer: number, in reference: param3,
+const proc: process_const_int_mdiv (in integer: dividend, in reference: param3,
     inout expr_type: c_expr) is func
 
   local
     var integer: temp_num is 0;
   begin
     incr(countOptimizations);
-    if number = 0 then
-      c_expr.expr &:= "(0/(";
+    if dividend = 0 then
+      c_expr.expr &:= "((";
       process_expr(param3, c_expr);
-      c_expr.expr &:= "))";
+      c_expr.expr &:= ")==0?(raise_error(NUMERIC_ERROR),0):0)";
     else
       incr(c_expr.temp_num);
       temp_num := c_expr.temp_num;
@@ -6647,19 +6725,24 @@ const proc: process_const_int_mdiv (in integer: number, in reference: param3,
       process_expr(param3, c_expr);
       c_expr.expr &:= "),tmp_b_";
       c_expr.expr &:= str(temp_num);
-      if number > 0 then
+      if dividend > 0 then
         (* Formula used: b<0?(a-1)/b-1:a/b *)
         c_expr.expr &:= "<0?";
-        c_expr.expr &:= str(pred(number));
-      else # number < 0
+        c_expr.expr &:= str(pred(dividend));
+      else # dividend < 0
         (* Formula used: b>0?(a+1)/b-1:a/b *)
         c_expr.expr &:= ">0?";
-        c_expr.expr &:= str(succ(number));
+        c_expr.expr &:= str(succ(dividend));
       end if;
       c_expr.expr &:= "/tmp_b_";
       c_expr.expr &:= str(temp_num);
       c_expr.expr &:= "-1:";
-      c_expr.expr &:= str(number);
+      if CHECK_INT_DIV_BY_ZERO then
+        c_expr.expr &:= "tmp_b_";
+        c_expr.expr &:= str(temp_num);
+        c_expr.expr &:= "==0?(raise_error(NUMERIC_ERROR),0):";
+      end if;
+      c_expr.expr &:= str(dividend);
       c_expr.expr &:= "/tmp_b_";
       c_expr.expr &:= str(temp_num);
       c_expr.expr &:= ")";
@@ -6694,7 +6777,8 @@ const proc: process_int_mdiv (in ref_list: params, inout expr_type: c_expr) is f
       c_expr.expr &:= str(temp_num);
       c_expr.expr &:= "=(";
       process_expr(params[3], c_expr);
-      c_expr.expr &:= "),tmp_a_";
+      c_expr.expr &:= "),";
+      c_expr.expr &:= "tmp_a_";
       c_expr.expr &:= str(temp_num);
       c_expr.expr &:= ">0&&tmp_b_";
       c_expr.expr &:= str(temp_num);
@@ -6710,7 +6794,13 @@ const proc: process_int_mdiv (in ref_list: params, inout expr_type: c_expr) is f
       c_expr.expr &:= str(temp_num);
       c_expr.expr &:= "+1)/tmp_b_";
       c_expr.expr &:= str(temp_num);
-      c_expr.expr &:= "-1:tmp_a_";
+      c_expr.expr &:= "-1:";
+      if CHECK_INT_DIV_BY_ZERO then
+        c_expr.expr &:= "tmp_b_";
+        c_expr.expr &:= str(temp_num);
+        c_expr.expr &:= "==0?(raise_error(NUMERIC_ERROR),0):";
+      end if;
+      c_expr.expr &:= "tmp_a_";
       c_expr.expr &:= str(temp_num);
       c_expr.expr &:= "/tmp_b_";
       c_expr.expr &:= str(temp_num);
@@ -6728,24 +6818,24 @@ const proc: process_int_minus (in ref_list: params, inout expr_type: c_expr) is 
   end func;
 
 
-const proc: process_const_int_mod (in reference: param1, in integer: number,
+const proc: process_const_int_mod (in reference: param1, in integer: divisor,
     inout expr_type: c_expr) is func
 
   local
     var integer: temp_num is 0;
   begin
     incr(countOptimizations);
-    if number = 0 then
+    if divisor = 0 then
       c_expr.expr &:= "(raise_error(NUMERIC_ERROR),0)";
     elsif category(param1) = INTOBJECT and not isVar(param1) then
-      c_expr.expr &:= str(getValue(param1, integer) mod number);
-    elsif number = 1 or number = -1 then
+      c_expr.expr &:= str(getValue(param1, integer) mod divisor);
+    elsif divisor = 1 or divisor = -1 then
       c_expr.expr &:= "0";
-    elsif number > 0 and 2 ** log2(number) = number then
+    elsif divisor > 0 and 2 ** log2(divisor) = divisor then
       c_expr.expr &:= "(";
       process_expr(param1, c_expr);
       c_expr.expr &:= ")&";
-      c_expr.expr &:= str(pred(number));
+      c_expr.expr &:= str(pred(divisor));
     else
       incr(c_expr.temp_num);
       temp_num := c_expr.temp_num;
@@ -6765,13 +6855,13 @@ const proc: process_const_int_mod (in reference: param1, in integer: number,
       c_expr.expr &:= "=tmp_a_";
       c_expr.expr &:= str(temp_num);
       c_expr.expr &:= "%";
-      c_expr.expr &:= str(number);
+      c_expr.expr &:= str(divisor);
       c_expr.expr &:= ",tmp_a_";
       c_expr.expr &:= str(temp_num);
-      if number > 0 then
+      if divisor > 0 then
         (* Formula used: c=a%b,a<0&&c!=0?c+b:c *)
         c_expr.expr &:= "<0";
-      else # number < 0
+      else # divisor < 0
         (* Formula used: c=a%b,a>0&&c!=0?c+b:c *)
         c_expr.expr &:= ">0";
       end if;
@@ -6780,9 +6870,71 @@ const proc: process_const_int_mod (in reference: param1, in integer: number,
       c_expr.expr &:= "!=0?tmp_c_";
       c_expr.expr &:= str(temp_num);
       c_expr.expr &:= "+";
-      c_expr.expr &:= str(number);
+      c_expr.expr &:= str(divisor);
       c_expr.expr &:= ":tmp_c_";
       c_expr.expr &:= str(temp_num);
+      c_expr.expr &:= ")";
+    end if;
+  end func;
+
+
+const proc: process_const_int_mod (in integer: dividend, in reference: param3,
+    inout expr_type: c_expr) is func
+
+  local
+    var integer: temp_num is 0;
+  begin
+    incr(countOptimizations);
+    if dividend = 0 then
+      c_expr.expr &:= "((";
+      process_expr(param3, c_expr);
+      c_expr.expr &:= ")==0?(raise_error(NUMERIC_ERROR),0):0)";
+    else
+      incr(c_expr.temp_num);
+      temp_num := c_expr.temp_num;
+      c_expr.temp_decls &:= "inttype tmp_b_";
+      c_expr.temp_decls &:= str(temp_num);
+      c_expr.temp_decls &:= ";\n";
+      c_expr.temp_decls &:= "inttype tmp_c_";
+      c_expr.temp_decls &:= str(temp_num);
+      c_expr.temp_decls &:= ";\n";
+      (* Formula used: c=a%b,((a>0&&b<0)||(a<0&&b>0))&&c!=0?c+b:c *)
+      c_expr.expr &:= "(tmp_b_";
+      c_expr.expr &:= str(temp_num);
+      c_expr.expr &:= "=(";
+      process_expr(param3, c_expr);
+      c_expr.expr &:= "),";
+      if CHECK_INT_DIV_BY_ZERO then
+        c_expr.expr &:= "tmp_b_";
+        c_expr.expr &:= str(temp_num);
+        c_expr.expr &:= "==0?(raise_error(NUMERIC_ERROR),0):(";
+      end if;
+      c_expr.expr &:= "tmp_c_";
+      c_expr.expr &:= str(temp_num);
+      c_expr.expr &:= "=";
+      c_expr.expr &:= str(dividend);
+      c_expr.expr &:= "%tmp_b_";
+      c_expr.expr &:= str(temp_num);
+      c_expr.expr &:= ",tmp_b_";
+      c_expr.expr &:= str(temp_num);
+      if dividend > 0 then
+        (* Formula used: c=a%b,b<0&&c!=0?c+b:c *)
+        c_expr.expr &:= "<0";
+      else # dividend < 0 then
+        (* Formula used: c=a%b,b>0&&c!=0?c+b:c *)
+        c_expr.expr &:= ">0";
+      end if;
+      c_expr.expr &:= "&&tmp_c_";
+      c_expr.expr &:= str(temp_num);
+      c_expr.expr &:= "!=0?tmp_c_";
+      c_expr.expr &:= str(temp_num);
+      c_expr.expr &:= "+tmp_b_";
+      c_expr.expr &:= str(temp_num);
+      c_expr.expr &:= ":tmp_c_";
+      c_expr.expr &:= str(temp_num);
+      if CHECK_INT_DIV_BY_ZERO then
+        c_expr.expr &:= ")";
+      end if;
       c_expr.expr &:= ")";
     end if;
   end func;
@@ -6795,6 +6947,8 @@ const proc: process_int_mod (in ref_list: params, inout expr_type: c_expr) is fu
   begin
     if category(params[3]) = INTOBJECT and not isVar(params[3]) then
       process_const_int_mod(params[1], getValue(params[3], integer), c_expr);
+    elsif category(params[1]) = INTOBJECT and not isVar(params[1]) then
+      process_const_int_mod(getValue(params[1], integer), params[3], c_expr);
     else
       incr(c_expr.temp_num);
       temp_num := c_expr.temp_num;
@@ -6816,7 +6970,13 @@ const proc: process_int_mod (in ref_list: params, inout expr_type: c_expr) is fu
       c_expr.expr &:= str(temp_num);
       c_expr.expr &:= "=(";
       process_expr(params[3], c_expr);
-      c_expr.expr &:= "),tmp_c_";
+      c_expr.expr &:= "),";
+      if CHECK_INT_DIV_BY_ZERO then
+        c_expr.expr &:= "tmp_b_";
+        c_expr.expr &:= str(temp_num);
+        c_expr.expr &:= "==0?(raise_error(NUMERIC_ERROR),0):(";
+      end if;
+      c_expr.expr &:= "tmp_c_";
       c_expr.expr &:= str(temp_num);
       c_expr.expr &:= "=tmp_a_";
       c_expr.expr &:= str(temp_num);
@@ -6838,6 +6998,9 @@ const proc: process_int_mod (in ref_list: params, inout expr_type: c_expr) is fu
       c_expr.expr &:= str(temp_num);
       c_expr.expr &:= ":tmp_c_";
       c_expr.expr &:= str(temp_num);
+      if CHECK_INT_DIV_BY_ZERO then
+        c_expr.expr &:= ")";
+      end if;
       c_expr.expr &:= ")";
     end if;
   end func;
@@ -7040,14 +7203,98 @@ const proc: process_int_rand (in ref_list: params, inout expr_type: c_expr) is f
   end func;
 
 
+const proc: process_const_int_rem (in reference: param1, in integer: divisor,
+    inout expr_type: c_expr) is func
+
+  local
+    var integer: temp_num is 0;
+  begin
+    incr(countOptimizations);
+    if divisor = 0 then
+      c_expr.expr &:= "(raise_error(NUMERIC_ERROR),0)";
+    elsif category(param1) = INTOBJECT and not isVar(param1) then
+      c_expr.expr &:= str(getValue(param1, integer) mod divisor);
+    elsif divisor = 1 or divisor = -1 then
+      c_expr.expr &:= "0";
+    else
+      c_expr.expr &:= "(";
+      process_expr(param1, c_expr);
+      c_expr.expr &:= ") % ";
+      c_expr.expr &:= str(divisor);
+    end if;
+  end func;
+
+
+const proc: process_const_int_rem (in integer: dividend, in reference: param3,
+    inout expr_type: c_expr) is func
+
+  local
+    var integer: temp_num is 0;
+  begin
+    incr(countOptimizations);
+    if dividend = 0 then
+      c_expr.expr &:= "((";
+      process_expr(param3, c_expr);
+      c_expr.expr &:= ")==0?(raise_error(NUMERIC_ERROR),0):0)";
+    elsif CHECK_INT_DIV_BY_ZERO then
+      incr(c_expr.temp_num);
+      temp_num := c_expr.temp_num;
+      c_expr.temp_decls &:= "inttype tmp_b_";
+      c_expr.temp_decls &:= str(temp_num);
+      c_expr.temp_decls &:= ";\n";
+      c_expr.expr &:= "(tmp_b_";
+      c_expr.expr &:= str(temp_num);
+      c_expr.expr &:= "=(";
+      process_expr(param3, c_expr);
+      c_expr.expr &:= "),tmp_b_";
+      c_expr.expr &:= str(temp_num);
+      c_expr.expr &:= "==0?(raise_error(NUMERIC_ERROR),0):";
+      c_expr.expr &:= str(dividend);
+      c_expr.expr &:= " % tmp_b_";
+      c_expr.expr &:= str(temp_num);
+      c_expr.expr &:= ")";
+    else
+      c_expr.expr &:= str(dividend);
+      c_expr.expr &:= " % (";
+      process_expr(param3, c_expr);
+      c_expr.expr &:= ")";
+    end if;
+  end func;
+
+
 const proc: process_int_rem (in ref_list: params, inout expr_type: c_expr) is func
 
+  local
+    var integer: temp_num is 0;
   begin
-    c_expr.expr &:= "(";
-    process_expr(params[1], c_expr);
-    c_expr.expr &:= ") % (";
-    process_expr(params[3], c_expr);
-    c_expr.expr &:= ")";
+    if category(params[3]) = INTOBJECT and not isVar(params[3]) then
+      process_const_int_rem(params[1], getValue(params[3], integer), c_expr);
+    elsif category(params[1]) = INTOBJECT and not isVar(params[1]) then
+      process_const_int_rem(getValue(params[1], integer), params[3], c_expr);
+    elsif CHECK_INT_DIV_BY_ZERO then
+      incr(c_expr.temp_num);
+      temp_num := c_expr.temp_num;
+      c_expr.temp_decls &:= "inttype tmp_b_";
+      c_expr.temp_decls &:= str(temp_num);
+      c_expr.temp_decls &:= ";\n";
+      c_expr.expr &:= "(tmp_b_";
+      c_expr.expr &:= str(temp_num);
+      c_expr.expr &:= "=(";
+      process_expr(params[3], c_expr);
+      c_expr.expr &:= "),tmp_b_";
+      c_expr.expr &:= str(temp_num);
+      c_expr.expr &:= "==0?(raise_error(NUMERIC_ERROR),0):(";
+      process_expr(params[1], c_expr);
+      c_expr.expr &:= ") % tmp_b_";
+      c_expr.expr &:= str(temp_num);
+      c_expr.expr &:= ")";
+    else
+      c_expr.expr &:= "(";
+      process_expr(params[1], c_expr);
+      c_expr.expr &:= ") % (";
+      process_expr(params[3], c_expr);
+      c_expr.expr &:= ")";
+    end if;
   end func;
 
 
@@ -7402,22 +7649,22 @@ const proc: process_itf_cpy2 (in ref_list: params, inout expr_type: c_expr) is f
 const proc: process_itf_eq (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    c_expr.expr &:= "(";
+    c_expr.expr &:= "((generictype)(";
     getAnyParamToExpr(params[1], c_expr);
-    c_expr.expr &:= ") == (";
+    c_expr.expr &:= ")) == ((generictype)(";
     getAnyParamToExpr(params[3], c_expr);
-    c_expr.expr &:= ")";
+    c_expr.expr &:= "))";
   end func;
 
 
 const proc: process_itf_ne (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    c_expr.expr &:= "(";
+    c_expr.expr &:= "((generictype)(";
     getAnyParamToExpr(params[1], c_expr);
-    c_expr.expr &:= ") != (";
+    c_expr.expr &:= ")) != ((generictype)(";
     getAnyParamToExpr(params[3], c_expr);
-    c_expr.expr &:= ")";
+    c_expr.expr &:= "))";
   end func;
 
 
@@ -7986,11 +8233,7 @@ const proc: process_ref_select (in reference: function, in ref_list: params,
       c_expr.expr &:= ")))->stru[";
       c_expr.expr &:= str(struct_elements[object_type][params[3]]);
       c_expr.expr &:= "]";
-      if result_type(getType(function)) = floattype then
-        c_expr.expr &:= ".value.floatvalue";
-      else
-        c_expr.expr &:= ".value.intvalue";
-      end if;
+      select_value_from_rtlObjectstruct(result_type(getType(function)), c_expr);
       c_expr.expr &:= "/*->o_";
       create_name2(params[3], c_expr.expr);
       c_expr.expr &:= "*/";
@@ -8718,11 +8961,7 @@ const proc: process_sct_select (in reference: function, in ref_list: params,
       c_expr.expr &:= "))->stru[";
       c_expr.expr &:= str(struct_elements[object_type][params[3]]);
       c_expr.expr &:= "]";
-      if result_type(getType(function)) = floattype then
-        c_expr.expr &:= ".value.floatvalue";
-      else
-        c_expr.expr &:= ".value.intvalue";
-      end if;
+      select_value_from_rtlObjectstruct(result_type(getType(function)), c_expr);
       c_expr.expr &:= "/*->o_";
       create_name2(params[3], c_expr.expr);
       c_expr.expr &:= "*/";
@@ -8800,9 +9039,9 @@ const proc: process_set_cpy (in ref_list: params, inout expr_type: c_expr) is fu
       c_expr.expr &:= c_param1.expr;
       c_expr.expr &:= ");\n";
       c_expr.expr &:= "settype old_set=*set_ptr;\n";
-      c_expr.expr &:= "*set_ptr=";
+      c_expr.expr &:= "*set_ptr=(settype)(";
       c_expr.expr &:= c_param3.result_expr;
-      c_expr.expr &:= ";\n";
+      c_expr.expr &:= ");\n";
       c_expr.expr &:= "setDestr(old_set);\n";
       c_expr.expr &:= "}\n";
     else
@@ -12332,7 +12571,8 @@ const proc: push_macro_param (in reference: formal_param,
           else
             incr(c_expr.temp_num);
             temp_num := c_expr.temp_num;
-            c_expr.temp_decls &:= "generictype tmp_";
+            c_expr.temp_decls &:= type_name(getExprResultType(actual_param));
+            c_expr.temp_decls &:= " tmp_";
             c_expr.temp_decls &:= str(temp_num);
             c_expr.temp_decls &:= ";\n";
             c_expr.expr &:= "(tmp_";
@@ -12498,7 +12738,8 @@ const proc: call_params (in ref_list: formal_params,
               c_expr.expr &:= " */";
               incr(c_expr.temp_num);
               temp_num := c_expr.temp_num;
-              c_expr.temp_decls &:= "generictype tmp_";
+              c_expr.temp_decls &:= type_name(getExprResultType(actual_param));
+              c_expr.temp_decls &:= " tmp_";
               c_expr.temp_decls &:= str(temp_num);
               c_expr.temp_decls &:= ";\n";
               c_expr.expr &:= "(tmp_";
@@ -15268,6 +15509,7 @@ const proc: write_file_head is func
     writeln(c_prog, "#include <stdlib.h>");
     writeln(c_prog, "#include <stdio.h>");
     writeln(c_prog, "#include <string.h>");
+    writeln(c_prog, "#include <math.h>");
     writeln(c_prog, "#include <setjmp.h>");
     writeln(c_prog, "#include <signal.h>");
 (*
@@ -15294,11 +15536,19 @@ const proc: write_file_head is func
     writeln(c_prog, "typedef uinttype bitsettype;");
     writeln(c_prog, "typedef unsigned long int memsizetype;");
 #!    writeln(c_prog, "#include \"../src/heaputl.h\""); #!
+    writeln(c_prog, "typedef struct stri {");
+    writeln(c_prog, "  memsizetype size;");
+    if WITH_STRI_CAPACITY then
+      writeln(c_prog, "  memsizetype capacity;");
+    end if;
+    writeln(c_prog, "  strelemtype mem[1];");
+    writeln(c_prog, "} *stritype;");
     writeln(c_prog, "typedef inttype generictype;");
     writeln(c_prog, "typedef union {");
     writeln(c_prog, "  generictype genericvalue;");
     writeln(c_prog, "  inttype     intvalue;");
     writeln(c_prog, "  floattype   floatvalue;");
+    writeln(c_prog, "  stritype    strivalue;");
     writeln(c_prog, "} valueunion;");
     writeln(c_prog, "typedef struct rtlObjectstruct {");
     writeln(c_prog, "  valueunion value;");
@@ -15312,13 +15562,6 @@ const proc: write_file_head is func
     writeln(c_prog, "typedef struct {");
     writeln(c_prog, "  int dummy;");
     writeln(c_prog, "} *biginttype;");
-    writeln(c_prog, "typedef struct stri {");
-    writeln(c_prog, "  memsizetype size;");
-    if WITH_STRI_CAPACITY then
-      writeln(c_prog, "  memsizetype capacity;");
-    end if;
-    writeln(c_prog, "  strelemtype mem[1];");
-    writeln(c_prog, "} *stritype;");
     writeln(c_prog, "typedef struct bstri {");
     writeln(c_prog, "  memsizetype size;");
     writeln(c_prog, "  unsigned char mem[1];");
@@ -16522,6 +16765,7 @@ const proc: pass_3 (in string: source, in program: prog,
     const string: C_COMPILER is                configValue("C_COMPILER");
     const string: INHIBIT_C_WARNINGS is        configValue("INHIBIT_C_WARNINGS");
     const string: REDIRECT_C_ERRORS is         configValue("REDIRECT_C_ERRORS");
+    const string: LINKER_FLAGS is              configValue("LINKER_FLAGS");
     const string: SYSTEM_LIBS is               configValue("SYSTEM_LIBS");
     const string: SEED7_LIB is                 configValue("SEED7_LIB");
     const string: COMP_DATA_LIB is             configValue("COMP_DATA_LIB");
@@ -16554,8 +16798,11 @@ const proc: pass_3 (in string: source, in program: prog,
         remove(temp_name(source) & ".cerrs");
         remove(source & EXECUTABLE_FILE_EXTENSION);
         writeln("Calling the linker ...");
-        link_cmd := C_COMPILER & " " &
-            temp_name(source) & OBJECT_FILE_EXTENSION;
+        link_cmd := C_COMPILER;
+        if LINKER_FLAGS <> "" then
+          link_cmd &:= " " & LINKER_FLAGS;
+        end if;
+        link_cmd &:= " " & temp_name(source) & OBJECT_FILE_EXTENSION;
         if compilerLibraryUsed then
           link_cmd &:= " " & literal(COMPILER_LIB);
           link_cmd &:= " " & literal(COMP_DATA_LIB);

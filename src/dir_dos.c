@@ -24,7 +24,7 @@
 /*                                                                  */
 /*  Module: Seed7 Runtime Library                                   */
 /*  File: seed7/src/dir_dos.c                                       */
-/*  Changes: 1993, 1994  Thomas Mertes                              */
+/*  Changes: 1993, 1994, 2008  Thomas Mertes                        */
 /*  Content: Directory access using DOS findfirst and findnext.     */
 /*                                                                  */
 /*  Implements opendir, readdir and closedir in the way it is       */
@@ -61,11 +61,14 @@ char *name;
     DIR *result;
 
   /* opendir */
-    if ((result = (DIR *)
-        malloc(sizeof(DIR))) != NULL) {
+    if ((result = (DIR *) malloc(sizeof(DIR))) != NULL) {
 /*    printf("opendir(%s);\n", name); */
-      strcpy(dir_name, name);
       name_len = strlen(name);
+      if (name_len >= sizeof(dir_name) - 4) {
+        name_len = sizeof(dir_name) - 5;
+      } /* if */
+      memcpy(dir_name, name, name_len);
+      dir_name[name_len] = '\0';
       if (name_len > 0) {
         if (name[name_len - 1] != '/' &&
             name[name_len - 1] != '\\') {
@@ -73,8 +76,13 @@ char *name;
         } /* if */
         strcat(dir_name, "*.*");
       } /* if */
+#ifdef DIR_WIN_DOS
+      result->dir_handle = _findfirst(dir_name, &result->find_record);
+      if (result->dir_handle != -1) {
+#else
       if ( _dos_findfirst(dir_name, _A_ARCH | _A_SUBDIR,
           &result->find_record) == 0) {
+#endif
 /*      printf("==> OK\n");
         printf(">%s<\n", result->find_record.name); */
         result->first_element = TRUE;
@@ -99,6 +107,7 @@ DIR *curr_dir;
 #endif
 
   {
+    unsigned int name_len;
     struct dirent *result;
 
   /* readdir */
@@ -107,11 +116,25 @@ DIR *curr_dir;
     if (curr_dir->first_element) {
 /*    printf("first\n"); */
       curr_dir->first_element = FALSE;
-      strcpy(result->d_name, curr_dir->find_record.name);
+      name_len = strlen(curr_dir->find_record.name);
+      if (name_len >= sizeof(result->d_name)) {
+        name_len = sizeof(result->d_name) - 1;
+      } /* if */
+      memcpy(result->d_name, curr_dir->find_record.name, name_len);
+      result->d_name[name_len] = '\0';
 /*    printf(">%s<\n", result->d_name); */
     } else {
+#ifdef DIR_WIN_DOS
+      if (_findnext(curr_dir->dir_handle, &curr_dir->find_record) == 0) {
+#else
       if ( _dos_findnext(&curr_dir->find_record) == 0) {
-        strcpy(result->d_name, curr_dir->find_record.name);
+#endif
+        name_len = strlen(curr_dir->find_record.name);
+        if (name_len >= sizeof(result->d_name)) {
+          name_len = sizeof(result->d_name) - 1;
+        } /* if */
+        memcpy(result->d_name, curr_dir->find_record.name, name_len);
+        result->d_name[name_len] = '\0';
 /*      printf(">%s<\n", result->d_name); */
       } else {
 /*      printf("end\n"); */

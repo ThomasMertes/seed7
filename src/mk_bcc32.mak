@@ -13,7 +13,7 @@ CFLAGS = -O2 -v
 # CFLAGS = -O2 -g -pg -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
 # CFLAGS = -O2 -fomit-frame-pointer -funroll-loops -Wall
 # CFLAGS = -O2 -funroll-loops -Wall -pg
-LFLAGS =
+LFLAGS = -lS:0x400000
 # LFLAGS = -pg
 LIBS = user32.lib gdi32.lib ws2_32.lib
 # LIBS = user32.lib gdi32.lib ws2_32.lib gmp.lib
@@ -53,10 +53,10 @@ AOBJ2 = expr.obj atom.obj object.obj scanner.obj literal.obj numlit.obj findid.o
 AOBJ3 = error.obj infile.obj symbol.obj info.obj stat.obj fatal.obj match.obj
 GOBJ1 = syvarutl.obj traceutl.obj actutl.obj arrutl.obj executl.obj blockutl.obj
 GOBJ2 = entutl.obj identutl.obj chclsutl.obj sigutl.obj
-ROBJ1 = arr_rtl.obj bln_rtl.obj bst_rtl.obj chr_rtl.obj cmd_rtl.obj drw_rtl.obj fil_rtl.obj flt_rtl.obj hsh_rtl.obj
-ROBJ2 = int_rtl.obj kbd_rtl.obj scr_rtl.obj set_rtl.obj soc_rtl.obj str_rtl.obj ut8_rtl.obj heaputl.obj
+ROBJ1 = arr_rtl.obj bln_rtl.obj bst_rtl.obj chr_rtl.obj cmd_rtl.obj dir_rtl.obj drw_rtl.obj fil_rtl.obj flt_rtl.obj
+ROBJ2 = hsh_rtl.obj int_rtl.obj kbd_rtl.obj scr_rtl.obj set_rtl.obj soc_rtl.obj str_rtl.obj ut8_rtl.obj heaputl.obj
 ROBJ3 = striutl.obj
-DOBJ1 = $(BIGINT_LIB).obj $(SCREEN_OBJ) tim_win.obj drw_win.obj dir_win.obj
+DOBJ1 = $(BIGINT_LIB).obj $(SCREEN_OBJ) tim_win.obj drw_win.obj
 OBJ = $(MOBJ1)
 SEED7_LIB_OBJ = $(ROBJ1) $(ROBJ2) $(ROBJ3) $(DOBJ1)
 COMP_DATA_LIB_OBJ = typ_data.obj rfl_data.obj ref_data.obj listutl.obj flistutl.obj typeutl.obj datautl.obj
@@ -73,10 +73,10 @@ ASRC2 = expr.c atom.c object.c scanner.c literal.c numlit.c findid.c
 ASRC3 = error.c infile.c symbol.c info.c stat.c fatal.c match.c
 GSRC1 = syvarutl.c traceutl.c actutl.c arrutl.c executl.c blockutl.c
 GSRC2 = entutl.c identutl.c chclsutl.c sigutl.c
-RSRC1 = arr_rtl.c bln_rtl.c bst_rtl.c chr_rtl.c cmd_rtl.c drw_rtl.c fil_rtl.c flt_rtl.c hsh_rtl.c
-RSRC2 = int_rtl.c kbd_rtl.c scr_rtl.c set_rtl.c soc_rtl.c str_rtl.c ut8_rtl.c heaputl.c
+RSRC1 = arr_rtl.c bln_rtl.c bst_rtl.c chr_rtl.c cmd_rtl.c dir_rtl.c drw_rtl.c fil_rtl.c flt_rtl.c
+RSRC2 = hsh_rtl.c int_rtl.c kbd_rtl.c scr_rtl.c set_rtl.c soc_rtl.c str_rtl.c ut8_rtl.c heaputl.c
 RSRC3 = striutl.c
-DSRC1 = $(BIGINT_LIB).c $(SCREEN_SRC) tim_win.c drw_win.c dir_win.c
+DSRC1 = $(BIGINT_LIB).c $(SCREEN_SRC) tim_win.c drw_win.c
 SRC = $(MSRC1)
 SEED7_LIB_SRC = $(RSRC1) $(RSRC2) $(RSRC3) $(DSRC1)
 COMP_DATA_LIB_SRC = typ_data.c rfl_data.c ref_data.c listutl.c flistutl.c typeutl.c datautl.c
@@ -142,7 +142,7 @@ strip:
 
 version.h:
 	cmd /S /C "echo #define ANSI_C" > version.h
-	cmd /S /C "echo #define USE_DIRWIN" >> version.h
+	cmd /S /C "echo #define USE_DIRENT" >> version.h
 	cmd /S /C "echo #define PATH_DELIMITER '\\'" >> version.h
 	cmd /S /C "echo #define NO_EMPTY_STRUCTS" >> version.h
 	cmd /S /C "echo #define CATCH_SIGNALS" >> version.h
@@ -154,11 +154,13 @@ version.h:
 	cmd /S /C "echo #undef  CHMOD_MISSING" >> version.h
 	cmd /S /C "echo #define TURN_OFF_FP_EXCEPTIONS" >> version.h
 	cmd /S /C "echo #define DEFINE_MATHERR_FUNCTION" >> version.h
-	cmd /S /C "echo #define DEFINE_IEEE_754_STUFF" >> version.h
+	cmd /S /C "echo #define ISNAN_WITH_UNDERLINE" >> version.h
 	cmd /S /C "echo #define USE_MYUNISTD_H" >> version.h
 	cmd /S /C "echo #define HAS_INT64TYPE" >> version.h
 	cmd /S /C "echo #define INT64TYPE_IS_INT64" >> version.h
 	cmd /S /C "echo #define USE_WFOPEN" >> version.h
+	cmd /S /C "echo #define USE_WOPENDIR" >> version.h
+	cmd /S /C "echo #define WDIR wDIR" >> version.h
 	cmd /S /C "echo #define USE_WINSOCK" >> version.h
 	cmd /S /C "echo #define popen _popen" >> version.h
 	cmd /S /C "echo #$(USE_BIG_RTL_LIBRARY) USE_BIG_RTL_LIBRARY" >> version.h
@@ -202,6 +204,7 @@ version.h:
 	cmd /S /C "echo #define C_COMPILER "$(CC)"" >> version.h
 	cmd /S /C "echo #define INHIBIT_C_WARNINGS "-w-"" >> version.h
 	cmd /S /C "echo #define REDIRECT_C_ERRORS "\076"" >> version.h
+	cmd /S /C "echo #define LINKER_FLAGS "$(LFLAGS)"" >> version.h
 	cmd /S /C "echo #define SYSTEM_LIBS "$(LIBS)"" >> version.h
 	cmd /S /C "echo #include "stdio.h"" > setpaths.c
 	cmd /S /C "echo #include "stddef.h"" >> setpaths.c

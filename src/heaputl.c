@@ -65,8 +65,9 @@ memsizetype len;
     } else {
       new_len = 2 * len;
     } /* if */
-    /* printf("growStri(%lX, %lu) size=%u, capacity=%u, new_len=%u, siz_stri=%u sizeof=%u\n",
-       stri, len, stri->size, stri->capacity, new_len, SIZ_STRI(new_len), sizeof(strirecord)); */
+    /* printf("growStri(%lX, %lu) size=%u, capacity=%u, new_len=%u, siz_stri=%u sizeof=%u",
+       stri, len, stri->size, stri->capacity, new_len, SIZ_STRI(new_len), sizeof(strirecord));
+    fflush(stdout); */
     result = REALLOC_HEAP(stri, stritype, SIZ_STRI(new_len));
     if (result == NULL) {
       new_len = len;
@@ -75,6 +76,8 @@ memsizetype len;
     if (result != NULL) {
       result->capacity = new_len;
     } /* if */
+    /* printf(" => %lX\n", result);
+    fflush(stdout); */
     return(result);
   } /* growStri */
 

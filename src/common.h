@@ -114,11 +114,13 @@ typedef int                prior_type;
 typedef unsigned char      uchartype;
 typedef char *             cstritype;
 typedef unsigned char *    ustritype;
+typedef uint16type *       wstritype;
 typedef FILE *             filetype;
 typedef int                sockettype;
 
 typedef const char *           const_cstritype;
 typedef const unsigned char *  const_ustritype;
+typedef const uint16type *     const_wstritype;
 
 #define MAX_INTEGER 2147483647
 

@@ -44,8 +44,8 @@
 #include "heaputl.h"
 #include "striutl.h"
 #include "str_rtl.h"
+#include "dir_rtl.h"
 #include "rtl_err.h"
-#include "dir_drv.h"
 
 #ifdef USE_MYUNISTD_H
 #include "myunistd.h"
@@ -558,11 +558,11 @@ errinfotype *err_info;
 
 #ifdef ANSI_C
 
-static rtlArraytype read_dir (char *dir_name, errinfotype *err_info)
+static rtlArraytype read_dir (stritype dir_name, errinfotype *err_info)
 #else
 
 static rtlArraytype read_dir (dir_name, err_info)
-char *dir_name;
+stritype dir_name;
 errinfotype *err_info;
 #endif
 
@@ -572,25 +572,20 @@ errinfotype *err_info;
     memsizetype max_array_size;
     memsizetype used_array_size;
     memsizetype position;
-    DIR *directory;
-    struct dirent *current_entry;
-    stritype str1;
+    dirtype directory;
+    stritype stri1;
 
   /* read_dir */
-/*  printf("opendir(%s);\n", dir_name);
+/*  printf("opendir(");
+    prot_stri(dir_name);
+    printf(");\n");
     fflush(stdout); */
-    if ((directory = opendir(dir_name)) != NULL) {
+    if ((directory = dirOpen(dir_name)) != NULL) {
       max_array_size = 256;
       if (ALLOC_RTL_ARRAY(dir_array, max_array_size)) {
         used_array_size = 0;
-        do {
-          current_entry = readdir(directory);
-/*        printf("$%ld$\n", (long) current_entry);
-          fflush(stdout); */
-        } while (current_entry != NULL &&
-            (strcmp(current_entry->d_name, ".") == 0 ||
-            strcmp(current_entry->d_name, "..") == 0));
-        while (*err_info == OKAY_NO_ERROR && current_entry != NULL) {
+        stri1 = dirRead(directory);
+        while (*err_info == OKAY_NO_ERROR && stri1 != NULL) {
           if (used_array_size >= max_array_size) {
             resized_dir_array = REALLOC_RTL_ARRAY(dir_array,
                 max_array_size, max_array_size + 256);
@@ -599,29 +594,13 @@ errinfotype *err_info;
             } else {
               dir_array = resized_dir_array;
               COUNT3_RTL_ARRAY(max_array_size, max_array_size + 256);
-              max_array_size = max_array_size + 256;
+              max_array_size += 256;
             } /* if */
           } /* if */
           if (*err_info == OKAY_NO_ERROR) {
-#ifdef READDIR_UTF8
-            str1 = cstri8_to_stri(current_entry->d_name);
-            if (str1 == NULL) {
-              str1 = cstri_to_stri(current_entry->d_name);
-            } /* if */
-#else
-            str1 = cstri_to_stri(current_entry->d_name);
-#endif
-            if (str1 == NULL) {
-              *err_info = MEMORY_ERROR;
-            } else {
-              dir_array->arr[(int) used_array_size].value.strivalue = str1;
-              used_array_size++;
-              do {
-                current_entry = readdir(directory);
-              } while (current_entry != NULL &&
-                  (strcmp(current_entry->d_name, ".") == 0 ||
-                  strcmp(current_entry->d_name, "..") == 0));
-            } /* if */
+            dir_array->arr[(int) used_array_size].value.strivalue = stri1;
+            used_array_size++;
+            stri1 = dirRead(directory);
           } /* if */
         } /* while */
         if (*err_info == OKAY_NO_ERROR) {
@@ -714,6 +693,8 @@ stritype name;
         opt = INHIBIT_C_WARNINGS;
       } else if (strcmp(opt_name, "REDIRECT_C_ERRORS") == 0) {
         opt = REDIRECT_C_ERRORS;
+      } else if (strcmp(opt_name, "LINKER_FLAGS") == 0) {
+        opt = LINKER_FLAGS;
       } else if (strcmp(opt_name, "SYSTEM_LIBS") == 0) {
         opt = SYSTEM_LIBS;
       } else if (strcmp(opt_name, "SEED7_LIB") == 0) {
@@ -726,6 +707,18 @@ stritype name;
         opt = INTTYPE_LITERAL_SUFFIX;
       } else if (strcmp(opt_name, "USE_SIGSETJMP") == 0) {
 #ifdef USE_SIGSETJMP
+        opt = "TRUE";
+#else
+        opt = "FALSE";
+#endif
+      } else if (strcmp(opt_name, "ISNAN_WITH_UNDERLINE") == 0) {
+#ifdef ISNAN_WITH_UNDERLINE
+        opt = "TRUE";
+#else
+        opt = "FALSE";
+#endif
+      } else if (strcmp(opt_name, "CHECK_INT_DIV_BY_ZERO") == 0) {
+#ifdef CHECK_INT_DIV_BY_ZERO
         opt = "TRUE";
 #else
         opt = "FALSE";
@@ -967,25 +960,17 @@ stritype dir_name;
 #endif
 
   {
-    cstritype os_dir_name;
     errinfotype err_info = OKAY_NO_ERROR;
     rtlArraytype result;
 
   /* cmdLs */
-    os_dir_name = cp_to_cstri(dir_name);
-    if (os_dir_name == NULL) {
-      raise_error(MEMORY_ERROR);
-      result = NULL;
+    result = read_dir(dir_name, &err_info);
+    if (result == NULL) {
+      raise_error(err_info);
     } else {
-      result = read_dir(os_dir_name, &err_info);
-      if (result == NULL) {
-        raise_error(err_info);
-      } else {
-        free_cstri(os_dir_name, dir_name);
-        qsort((void *) result->arr,
-            (size_t) (result->max_position - result->min_position + 1),
-            sizeof(rtlObjecttype), &cmp_mem);
-      } /* if */
+      qsort((void *) result->arr,
+          (size_t) (result->max_position - result->min_position + 1),
+          sizeof(rtlObjecttype), &cmp_mem);
     } /* if */
     return(result);
   } /* cmdLs */

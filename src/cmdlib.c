@@ -39,7 +39,7 @@
 #include "striutl.h"
 #include "runerr.h"
 #include "memory.h"
-#include "dir_drv.h"
+#include "dir_rtl.h"
 #include "str_rtl.h"
 #include "cmd_rtl.h"
 
@@ -73,11 +73,11 @@ char *strg2;
 
 #ifdef ANSI_C
 
-static arraytype read_dir (DIR *directory)
+static arraytype read_dir (dirtype directory)
 #else
 
 static arraytype read_dir (directory)
-DIR *directory;
+dirtype directory;
 #endif
 
   {
@@ -86,23 +86,16 @@ DIR *directory;
     memsizetype max_array_size;
     memsizetype used_array_size;
     memsizetype position;
-    struct dirent *current_entry;
-    stritype str1;
+    stritype stri1;
     booltype okay;
 
   /* read_dir */
     max_array_size = 256;
     if (ALLOC_ARRAY(dir_array, max_array_size)) {
       used_array_size = 0;
-      do {
-        current_entry = readdir(directory);
-/*      printf("$%ld$\n", (long) current_entry);
-        fflush(stdout); */
-      } while (current_entry != NULL &&
-          (strcmp(current_entry->d_name, ".") == 0 ||
-          strcmp(current_entry->d_name, "..") == 0));
+      stri1 = dirRead(directory);
       okay = TRUE;
-      while (okay && current_entry != NULL) {
+      while (okay && stri1 != NULL) {
         if (used_array_size >= max_array_size) {
           resized_dir_array = REALLOC_ARRAY(dir_array,
               max_array_size, max_array_size + 256);
@@ -111,33 +104,17 @@ DIR *directory;
           } else {
             dir_array = resized_dir_array;
             COUNT3_ARRAY(max_array_size, max_array_size + 256);
-            max_array_size = max_array_size + 256;
+            max_array_size += 256;
           } /* if */
         } /* if */
         if (okay) {
-#ifdef READDIR_UTF8
-          str1 = cstri8_to_stri(current_entry->d_name);
-          if (str1 == NULL) {
-            str1 = cstri_to_stri(current_entry->d_name);
-          } /* if */
-#else
-          str1 = cstri_to_stri(current_entry->d_name);
-#endif
-          if (str1 == NULL) {
-            okay = FALSE;
-          } else {
-            dir_array->arr[(int) used_array_size].type_of = take_type(SYS_STRI_TYPE);
-            dir_array->arr[(int) used_array_size].descriptor.property = NULL;
-            dir_array->arr[(int) used_array_size].value.strivalue = str1;
-            INIT_CATEGORY_OF_VAR(&dir_array->arr[(int) used_array_size],
-                STRIOBJECT);
-            used_array_size++;
-            do {
-              current_entry = readdir(directory);
-            } while (current_entry != NULL &&
-                (strcmp(current_entry->d_name, ".") == 0 ||
-                strcmp(current_entry->d_name, "..") == 0));
-          } /* if */
+          dir_array->arr[(int) used_array_size].type_of = take_type(SYS_STRI_TYPE);
+          dir_array->arr[(int) used_array_size].descriptor.property = NULL;
+          dir_array->arr[(int) used_array_size].value.strivalue = stri1;
+          INIT_CATEGORY_OF_VAR(&dir_array->arr[(int) used_array_size],
+              STRIOBJECT);
+          used_array_size++;
+          stri1 = dirRead(directory);
         } /* if */
       } /* while */
       if (okay) {
@@ -276,34 +253,26 @@ listtype arguments;
 #endif
 
   {
-    stritype str1;
-    cstritype dir_name;
-    DIR *directory;
+    stritype dir_name;
+    dirtype directory;
     arraytype result;
 
   /* cmd_ls */
     isit_stri(arg_1(arguments));
-    str1 = take_stri(arg_1(arguments));
-    dir_name = cp_to_cstri(str1);
-    if (dir_name == NULL) {
-      return(raise_exception(SYS_MEM_EXCEPTION));
-    } else {
-      if ((directory = opendir(dir_name)) != NULL) {
-        result = read_dir(directory);
-        closedir(directory);
-        free_cstri(dir_name, str1);
-        if (result == NULL) {
-          return(raise_with_arguments(SYS_MEM_EXCEPTION, arguments));
-        } else {
-          qsort((void *) result->arr,
-              (size_t) (result->max_position - result->min_position + 1),
-              sizeof(objectrecord), &cmp_mem);
-          return(bld_array_temp(result));
-        } /* if */
+    dir_name = take_stri(arg_1(arguments));
+    if ((directory = dirOpen(dir_name)) != NULL) {
+      result = read_dir(directory);
+      dirClose(directory);
+      if (result == NULL) {
+        return(raise_with_arguments(SYS_MEM_EXCEPTION, arguments));
       } else {
-        free_cstri(dir_name, str1);
-        return(raise_with_arguments(SYS_FIL_EXCEPTION, arguments));
+        qsort((void *) result->arr,
+            (size_t) (result->max_position - result->min_position + 1),
+            sizeof(objectrecord), &cmp_mem);
+        return(bld_array_temp(result));
       } /* if */
+    } else {
+      return(raise_with_arguments(SYS_FIL_EXCEPTION, arguments));
     } /* if */
   } /* cmd_ls */
 

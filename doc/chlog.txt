@@ -1,3 +1,25 @@
+20081019:
+- The support for compilation with the cl C compiler from msvc was improved such that
+  the chk_all.sd7 check program succeeds.
+- The chkexc.sd7 and chkflt.sd7 example programs were improved to check for more cases
+  of division by zero.
+- The compiler (comp.sd7) was improved to take the config values ISNAN_WITH_UNDERLINE,
+  CHECK_INT_DIV_BY_ZERO and LINKER_FLAGS into account.
+- The compiler was improved to avoid boolean expressions with too much parenthesis levels.
+- The functions opendir and readdir in the files dir_dos.c and dir_win.c were improved to
+  make buffer overflows impossible.
+- The files dir_rtl.c and dir_rtl.h were introduced to support reading directorys based
+  on opendir(), readdir() and closedir() and optionally on the wide char functions
+  wopendir(), wreaddir() and wclosedir().
+- An implementation of the functions wopendir(), wreaddir() and wclosedir() based on
+  the functions FindFirstFile() and FindNextFile() was added to dir_win.c .
+- The documentation file src/read_me.txt was improved to explain compilation with bcc32.
+- The makefiles mk_mingw.mak, mk_msys.mak, mk_nmake.mak, mk_msvc.mak and mk_bcc32.mak
+  were improved to support the new wide character directory read functions.
+- The demo mode of the mahjong.sd7 example program was improved.
+- The file scr_win.c was improved to support the keypad cursor keys better.
+- The functions wstri_expand and wstri_to_stri were added to the file striutl.c .
+
 20081005:
 - The chapter about primitive actions in the manual was improved.
 - The definition of STD_NULL in the seed7_05.s7i library was improved to support

@@ -208,15 +208,25 @@ const proc: check_ipower is func
 
 
 const proc: check_inf is func
+  local
+    var float: zero is 0.0;
   begin
     if  1.0 / 0.0     =  Infinity and
        -1.0 / 0.0     = -Infinity and
+        1.0 / zero    =  Infinity and
+       -1.0 / zero    = -Infinity and
         0.0 ** (-2.0) =  Infinity and
         0.0 ** (-1.5) =  Infinity and
         0.0 ** (-1.0) =  Infinity and
         0.0 ** (-0.5) =  Infinity and
+       zero ** (-2.0) =  Infinity and
+       zero ** (-1.5) =  Infinity and
+       zero ** (-1.0) =  Infinity and
+       zero ** (-0.5) =  Infinity and
        log(0.0)       = -Infinity and
-       log10(0.0)     = -Infinity then
+       log10(0.0)     = -Infinity and
+       log(zero)      = -Infinity and
+       log10(zero)    = -Infinity then
 
       writeln("Infinity works correct for selected values");
     else
@@ -226,8 +236,11 @@ const proc: check_inf is func
 
 
 const proc: check_nan is func
+  local
+    var float: zero is 0.0;
   begin
     if  isnan(0.0 / 0.0)   and
+        isnan(zero / zero) and
         isnan(asin(2.0))   and
         isnan(acos(2.0))   and
         isnan(sqrt(-1.0))  and

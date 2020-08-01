@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
-/*  dir_win.h     Directory access using the windows capabilitys.   */
-/*  Copyright (C) 1989 - 2007  Thomas Mertes                        */
+/*  dir_rtl.h     Primitive actions for the directory type.         */
+/*  Copyright (C) 1989 - 2008  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */
@@ -23,57 +23,31 @@
 /*  Fifth Floor, Boston, MA  02110-1301, USA.                       */
 /*                                                                  */
 /*  Module: Seed7 Runtime Library                                   */
-/*  File: seed7/src/dir_win.h                                       */
-/*  Changes: 1993, 1994, 2007  Thomas Mertes                        */
-/*  Content: Directory access using _findfirst and _findnext.       */
-/*                                                                  */
-/*  Implements opendir, readdir and closedir in the way it is       */
-/*  defined in unix.                                                */
+/*  File: seed7/src/dir_rtl.h                                       */
+/*  Changes: 2008  Thomas Mertes                                    */
+/*  Content: Primitive actions for the directory type.              */
 /*                                                                  */
 /********************************************************************/
 
-#include "windows.h"
+#include "dir_drv.h"
 
-
-struct dirent {
-    char *d_name;
-  };
-
-typedef struct {
-    HANDLE dir_handle;
-    WIN32_FIND_DATAA find_record;
-    booltype first_element;
-    struct dirent dir_entry;
-  } DIR;
-
-struct wdirent {
-    wchar_t *d_name;
-  };
-
-typedef struct {
-    HANDLE dir_handle;
-    WIN32_FIND_DATAW find_record;
-    booltype first_element;
-    struct wdirent dir_entry;
-  } WDIR;
+#ifdef USE_WOPENDIR
+typedef WDIR *dirtype;
+#else
+typedef DIR *dirtype;
+#endif
 
 
 #ifdef ANSI_C
 
-DIR *opendir (char *);
-struct dirent *readdir (DIR *);
-int closedir (DIR *);
-WDIR *wopendir (wchar_t *);
-struct wdirent *wreaddir (WDIR *);
-int wclosedir (WDIR *);
+void dirClose (dirtype directory);
+dirtype dirOpen (stritype file_name);
+stritype dirRead (dirtype directory);
 
 #else
 
-DIR *opendir ();
-struct dirent *readdir ();
-int closedir ();
-WDIR *wopendir ();
-struct wdirent *wreaddir ();
-int wclosedir ();
+void dirClose ();
+dirtype dirOpen ();
+stritype dirRead ();
 
 #endif

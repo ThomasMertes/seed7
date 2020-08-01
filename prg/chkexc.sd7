@@ -64,12 +64,77 @@ const proc: check_integer is func
   local
     var boolean: okay is TRUE;
     var integer: number is 0;
+    var integer: zero is 0;
+    var integer: one is 0;
     var integer: i_num is 0;
     const integer: int2m is -2;
   begin
     block
       i_num := 1 div 0;
       writeln(" ***** 1 div 0 did not raise NUMERIC_ERROR");
+      okay := FALSE;
+    exception
+      catch NUMERIC_ERROR:
+        incr(number);
+    end block;
+
+    block
+      i_num := 1 div zero;
+      writeln(" ***** 1 div zero did not raise NUMERIC_ERROR");
+      okay := FALSE;
+    exception
+      catch NUMERIC_ERROR:
+        incr(number);
+    end block;
+
+    block
+      i_num := one div 0;
+      writeln(" ***** one div 0 did not raise NUMERIC_ERROR");
+      okay := FALSE;
+    exception
+      catch NUMERIC_ERROR:
+        incr(number);
+    end block;
+
+    block
+      i_num := one div zero;
+      writeln(" ***** one div zero did not raise NUMERIC_ERROR");
+      okay := FALSE;
+    exception
+      catch NUMERIC_ERROR:
+        incr(number);
+    end block;
+
+    block
+      i_num := 0 div 0;
+      writeln(" ***** 0 div 0 did not raise NUMERIC_ERROR");
+      okay := FALSE;
+    exception
+      catch NUMERIC_ERROR:
+        incr(number);
+    end block;
+
+    block
+      i_num := 0 div zero;
+      writeln(" ***** 0 div zero did not raise NUMERIC_ERROR");
+      okay := FALSE;
+    exception
+      catch NUMERIC_ERROR:
+        incr(number);
+    end block;
+
+    block
+      i_num := zero div 0;
+      writeln(" ***** zero div 0 did not raise NUMERIC_ERROR");
+      okay := FALSE;
+    exception
+      catch NUMERIC_ERROR:
+        incr(number);
+    end block;
+
+    block
+      i_num := zero div zero;
+      writeln(" ***** zero div zero did not raise NUMERIC_ERROR");
       okay := FALSE;
     exception
       catch NUMERIC_ERROR:
@@ -86,6 +151,69 @@ const proc: check_integer is func
     end block;
 
     block
+      i_num := 1 rem zero;
+      writeln(" ***** 1 rem zero did not raise NUMERIC_ERROR");
+      okay := FALSE;
+    exception
+      catch NUMERIC_ERROR:
+        incr(number);
+    end block;
+
+    block
+      i_num := one rem 0;
+      writeln(" ***** one rem 0 did not raise NUMERIC_ERROR");
+      okay := FALSE;
+    exception
+      catch NUMERIC_ERROR:
+        incr(number);
+    end block;
+
+    block
+      i_num := one rem zero;
+      writeln(" ***** one rem zero did not raise NUMERIC_ERROR");
+      okay := FALSE;
+    exception
+      catch NUMERIC_ERROR:
+        incr(number);
+    end block;
+
+    block
+      i_num := 0 rem 0;
+      writeln(" ***** 0 rem 0 did not raise NUMERIC_ERROR");
+      okay := FALSE;
+    exception
+      catch NUMERIC_ERROR:
+        incr(number);
+    end block;
+
+    block
+      i_num := 0 rem zero;
+      writeln(" ***** 0 rem zero did not raise NUMERIC_ERROR");
+      okay := FALSE;
+    exception
+      catch NUMERIC_ERROR:
+        incr(number);
+    end block;
+
+    block
+      i_num := zero rem 0;
+      writeln(" ***** zero rem 0 did not raise NUMERIC_ERROR");
+      okay := FALSE;
+    exception
+      catch NUMERIC_ERROR:
+        incr(number);
+    end block;
+
+    block
+      i_num := zero rem zero;
+      writeln(" ***** zero rem zero did not raise NUMERIC_ERROR");
+      okay := FALSE;
+    exception
+      catch NUMERIC_ERROR:
+        incr(number);
+    end block;
+
+    block
       i_num := 1 mdiv 0;
       writeln(" ***** 1 mdiv 0 did not raise NUMERIC_ERROR");
       okay := FALSE;
@@ -95,8 +223,134 @@ const proc: check_integer is func
     end block;
 
     block
+      i_num := 1 mdiv zero;
+      writeln(" ***** 1 mdiv zero did not raise NUMERIC_ERROR");
+      okay := FALSE;
+    exception
+      catch NUMERIC_ERROR:
+        incr(number);
+    end block;
+
+    block
+      i_num := one mdiv 0;
+      writeln(" ***** one mdiv 0 did not raise NUMERIC_ERROR");
+      okay := FALSE;
+    exception
+      catch NUMERIC_ERROR:
+        incr(number);
+    end block;
+
+    block
+      i_num := one mdiv zero;
+      writeln(" ***** one mdiv zero did not raise NUMERIC_ERROR");
+      okay := FALSE;
+    exception
+      catch NUMERIC_ERROR:
+        incr(number);
+    end block;
+
+    block
+      i_num := 0 mdiv 0;
+      writeln(" ***** 0 mdiv 0 did not raise NUMERIC_ERROR");
+      okay := FALSE;
+    exception
+      catch NUMERIC_ERROR:
+        incr(number);
+    end block;
+
+    block
+      i_num := 0 mdiv zero;
+      writeln(" ***** 0 mdiv zero did not raise NUMERIC_ERROR");
+      okay := FALSE;
+    exception
+      catch NUMERIC_ERROR:
+        incr(number);
+    end block;
+
+    block
+      i_num := zero mdiv 0;
+      writeln(" ***** zero mdiv 0 did not raise NUMERIC_ERROR");
+      okay := FALSE;
+    exception
+      catch NUMERIC_ERROR:
+        incr(number);
+    end block;
+
+    block
+      i_num := zero mdiv zero;
+      writeln(" ***** zero mdiv zero did not raise NUMERIC_ERROR");
+      okay := FALSE;
+    exception
+      catch NUMERIC_ERROR:
+        incr(number);
+    end block;
+
+    block
       i_num := 1 mod 0;
       writeln(" ***** 1 mod 0 did not raise NUMERIC_ERROR");
+      okay := FALSE;
+    exception
+      catch NUMERIC_ERROR:
+        incr(number);
+    end block;
+
+    block
+      i_num := 1 mod zero;
+      writeln(" ***** 1 mod zero did not raise NUMERIC_ERROR");
+      okay := FALSE;
+    exception
+      catch NUMERIC_ERROR:
+        incr(number);
+    end block;
+
+    block
+      i_num := one mod 0;
+      writeln(" ***** one mod 0 did not raise NUMERIC_ERROR");
+      okay := FALSE;
+    exception
+      catch NUMERIC_ERROR:
+        incr(number);
+    end block;
+
+    block
+      i_num := one mod zero;
+      writeln(" ***** one mod zero did not raise NUMERIC_ERROR");
+      okay := FALSE;
+    exception
+      catch NUMERIC_ERROR:
+        incr(number);
+    end block;
+
+    block
+      i_num := 0 mod 0;
+      writeln(" ***** 0 mod 0 did not raise NUMERIC_ERROR");
+      okay := FALSE;
+    exception
+      catch NUMERIC_ERROR:
+        incr(number);
+    end block;
+
+    block
+      i_num := 0 mod zero;
+      writeln(" ***** 0 mod zero did not raise NUMERIC_ERROR");
+      okay := FALSE;
+    exception
+      catch NUMERIC_ERROR:
+        incr(number);
+    end block;
+
+    block
+      i_num := zero mod 0;
+      writeln(" ***** zero mod 0 did not raise NUMERIC_ERROR");
+      okay := FALSE;
+    exception
+      catch NUMERIC_ERROR:
+        incr(number);
+    end block;
+
+    block
+      i_num := zero mod zero;
+      writeln(" ***** zero mod zero did not raise NUMERIC_ERROR");
       okay := FALSE;
     exception
       catch NUMERIC_ERROR:
@@ -226,7 +480,7 @@ const proc: check_integer is func
         incr(number);
     end block;
 
-    if okay and number = 16 then
+    if okay and number = 44 then
       writeln("Integer exceptions work correct.");
     else
       writeln(" ***** Integer exceptions do not work correct");

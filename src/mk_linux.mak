@@ -52,8 +52,8 @@ AOBJ2 = expr.o atom.o object.o scanner.o literal.o numlit.o findid.o
 AOBJ3 = error.o infile.o symbol.o info.o stat.o fatal.o match.o
 GOBJ1 = syvarutl.o traceutl.o actutl.o arrutl.o executl.o blockutl.o
 GOBJ2 = entutl.o identutl.o chclsutl.o sigutl.o
-ROBJ1 = arr_rtl.o bln_rtl.o bst_rtl.o chr_rtl.o cmd_rtl.o drw_rtl.o fil_rtl.o flt_rtl.o hsh_rtl.o
-ROBJ2 = int_rtl.o kbd_rtl.o scr_rtl.o set_rtl.o soc_rtl.o str_rtl.o ut8_rtl.o heaputl.o
+ROBJ1 = arr_rtl.o bln_rtl.o bst_rtl.o chr_rtl.o cmd_rtl.o dir_rtl.o drw_rtl.o fil_rtl.o flt_rtl.o
+ROBJ2 = hsh_rtl.o int_rtl.o kbd_rtl.o scr_rtl.o set_rtl.o soc_rtl.o str_rtl.o ut8_rtl.o heaputl.o
 ROBJ3 = striutl.o
 DOBJ1 = $(BIGINT_LIB).o $(SCREEN_OBJ) tim_unx.o drw_x11.o
 OBJ = $(MOBJ1)
@@ -72,8 +72,8 @@ ASRC2 = expr.c atom.c object.c scanner.c literal.c numlit.c findid.c
 ASRC3 = error.c infile.c symbol.c info.c stat.c fatal.c match.c
 GSRC1 = syvarutl.c traceutl.c actutl.c arrutl.c executl.c blockutl.c
 GSRC2 = entutl.c identutl.c chclsutl.c sigutl.c
-RSRC1 = arr_rtl.c bln_rtl.c bst_rtl.c chr_rtl.c cmd_rtl.c drw_rtl.c fil_rtl.c flt_rtl.c hsh_rtl.c
-RSRC2 = int_rtl.c kbd_rtl.c scr_rtl.c set_rtl.c soc_rtl.c str_rtl.c ut8_rtl.c heaputl.c
+RSRC1 = arr_rtl.c bln_rtl.c bst_rtl.c chr_rtl.c cmd_rtl.c dir_rtl.c drw_rtl.c fil_rtl.c flt_rtl.c
+RSRC2 = hsh_rtl.c int_rtl.c kbd_rtl.c scr_rtl.c set_rtl.c soc_rtl.c str_rtl.c ut8_rtl.c heaputl.c
 RSRC3 = striutl.c
 DSRC1 = $(BIGINT_LIB).c $(SCREEN_SRC) tim_unx.c drw_x11.c
 SRC = $(MSRC1)
@@ -176,6 +176,7 @@ version.h:
 	echo "#define C_COMPILER \"$(CC)\"" >> version.h
 	echo "#define INHIBIT_C_WARNINGS \"-w\"" >> version.h
 	echo "#define REDIRECT_C_ERRORS \"2>\"" >> version.h
+	echo "#define LINKER_FLAGS \"$(LFLAGS)\"" >> version.h
 	echo "#define SYSTEM_LIBS \"$(LIBS)\"" >> version.h
 	echo "#define SEED7_LIB \"`pwd`/$(SEED7_LIB)\"" >> version.h
 	echo "#define COMP_DATA_LIB \"`pwd`/$(COMP_DATA_LIB)\"" >> version.h

@@ -1237,6 +1237,8 @@ const proc: showDemo is func
     var integer: line is 0;
     var integer: column is 0;
     var moveType: move is moveType.value;
+    var char: command is ' ';
+    var boolean: continueDemo is TRUE;
   begin
     backupField := field;
     for level range 1 to length(field) do
@@ -1250,16 +1252,21 @@ const proc: showDemo is func
     end for;
     drawBoard;
     number := 1;
-    while not keypressed(KEYBOARD) and number <= length(demoMoves) do
-      wait(200000 . MYCRO_SECONDS);
-      remove(demoMoves[number].pos1);
-      remove(demoMoves[number].pos2);
-      DRAW_FLUSH;
-      incr(number);
+    while continueDemo and number <= length(demoMoves) do
+      if keypressed(KEYBOARD) then
+        command := getc(KEYBOARD);
+        if command = KEY_ESC then
+          bossMode(doQuit);
+        end if;
+        continueDemo := FALSE;
+      else
+        wait(200000 . MYCRO_SECONDS);
+        remove(demoMoves[number].pos1);
+        remove(demoMoves[number].pos2);
+        DRAW_FLUSH;
+        incr(number);
+      end if;
     end while;
-    if keypressed(KEYBOARD) then
-      ignore(getc(KEYBOARD));
-    end if;
     field := backupField;
     drawBoard;
     writeButtons;
@@ -1425,6 +1432,10 @@ const proc: playerTurn (inout char: command) is func
       elsif upper(command) = 'D' then
         unmarkAll;
         showDemo;
+        if doQuit then
+          onTurn := FALSE;
+          command := 'Q';
+        end if;
       elsif command <> KEY_MOUSE1 then
         unmarkAll;
         onTurn := FALSE;

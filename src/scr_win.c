@@ -112,7 +112,7 @@ static chartype MAP_CHAR[] = {
 /* 250 */ 0267, 0271, 0263, 0262, '?',  0240};
 
 
-static int MAP_KEY[] = {
+static chartype MAP_KEY[] = {
 /*   0 */ K_UNDEF,  K_UNDEF,   K_UNDEF,  K_NULCHAR,  K_UNDEF, K_UNDEF, K_UNDEF, K_UNDEF,
 /*   8 */ K_UNDEF,  K_UNDEF,   K_UNDEF,  K_UNDEF,    K_UNDEF, K_UNDEF, K_UNDEF, K_BACKTAB,
 /*  16 */ K_ALT_Q,  K_ALT_W,   K_ALT_E,  K_ALT_R,    K_ALT_T, K_ALT_Y, K_ALT_U, K_ALT_I,
@@ -129,9 +129,9 @@ static int MAP_KEY[] = {
 /* 104 */ K_ALT_F1, K_ALT_F2,  K_ALT_F3, K_ALT_F4,   K_ALT_F5, K_ALT_F6, K_ALT_F7, K_ALT_F8,
 /* 112 */ K_ALT_F9, K_ALT_F10, K_UNDEF,  K_CTL_LEFT, K_CTL_RIGHT, K_CTL_END, K_CTL_PGDN, K_CTL_HOME,
 /* 120 */ K_ALT_1,  K_ALT_2,   K_ALT_3,  K_ALT_4,    K_ALT_5, K_ALT_6, K_ALT_7, K_ALT_8,
-/* 128 */ K_ALT_9,  K_ALT_0,   K_UNDEF,  K_UNDEF,    K_CTL_PGUP, K_UNDEF, K_UNDEF, K_UNDEF,
-/* 136 */ K_UNDEF,  K_UNDEF,   K_UNDEF,  K_UNDEF,    K_UNDEF, K_UNDEF, K_UNDEF, K_UNDEF,
-/* 144 */ K_UNDEF,  K_UNDEF,   K_UNDEF,  K_UNDEF,    K_UNDEF, K_UNDEF, K_UNDEF, K_UNDEF,
+/* 128 */ K_ALT_9,  K_ALT_0,   K_UNDEF,  K_UNDEF,    K_CTL_PGUP, K_UNDEF, K_CTL_PGUP, K_UNDEF,
+/* 136 */ K_UNDEF,  K_UNDEF,   K_UNDEF,  K_UNDEF,    K_UNDEF, K_CTL_UP, K_UNDEF, K_UNDEF,
+/* 144 */ K_UNDEF,  K_CTL_DOWN, K_CTL_INS, K_CTL_DEL, K_UNDEF, K_UNDEF, K_UNDEF, K_UNDEF,
 /* 152 */ K_UNDEF,  K_UNDEF,   K_UNDEF,  K_UNDEF,    K_UNDEF, K_UNDEF, K_UNDEF, K_UNDEF,
 /* 160 */ K_UNDEF,  K_UNDEF,   K_UNDEF,  K_UNDEF,    K_UNDEF, K_CTL_INS, K_CTL_DEL, K_UNDEF,
 /* 168 */ K_UNDEF,  K_UNDEF,   K_UNDEF,  K_UNDEF,    K_UNDEF, K_UNDEF, K_UNDEF, K_UNDEF,
@@ -184,23 +184,26 @@ chartype kbdGetc ()
 #endif
 
   {
-    chartype key;
+    int key;
+    chartype result;
 
   /* kbdGetc */
     key = getch();
     if (key == 0) {
       key = getch();
-      key = MAP_KEY[key];
+      result = MAP_KEY[key];
     } else if (key == 224) {
       key = getch();
-      key = MAP_KEY[key];
+      result = MAP_KEY[key];
+    } else if (key >= 0 && key <= 255) {
+      result = MAP_CHAR[key];
     } else {
-      key = MAP_CHAR[key];
+      result = MAP_CHAR[key & 0xFF];
     } /* if */
-    if (key == 13) {
-      key = 10;
+    if (result == 13) {
+      result = 10;
     } /* if */
-    return(key);
+    return(result);
   } /* kbdGetc */
 
 

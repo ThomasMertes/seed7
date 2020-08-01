@@ -17,12 +17,13 @@ THE MAKEFILES
 
   makefile name|operating system |make prog|compiler|shell
   -------------+-----------------+---------+--------+--------
-  mk_cygw.mak  | windows (Cygwin)| (g)make | gcc    | sh
   mk_linux.mak | linux/unix/bsd  | (g)make | gcc    | sh
+  mk_cygw.mak  | windows (Cygwin)| (g)make | gcc    | sh
+  mk_msys.mak  | windows (MinGW) | (g)make | gcc    | sh
   mk_mingw.mak | windows (MinGW) | (g)make | gcc    | cmd.exe
-  mk_msvc.mak  | windows (MinGW) | nmake   | cl     | cmd.exe
-  mk_msys.mak  | windows (MSVC)  | (g)make | gcc    | sh
   mk_nmake.mak | windows (MinGW) | nmake   | gcc    | cmd.exe
+  mk_msvc.mak  | windows (MSVC)  | nmake   | cl     | cmd.exe
+  mk_bcc32.mak | windows (bcc32) | make    | bcc32  | cmd.exe
 
   In the optimal case you just copy one of this files to
   'makefile' and do:
@@ -62,7 +63,7 @@ COMPILING UNDER BSD AND UNIX
   I can include it in the release.
 
 
-COMPILING UNDER WINDOWS
+COMPILING UNDER WINDOWS WITH GCC
 
     You need gcc and gmake from MinGW. Use a console and
   change the PATH variable to contain the MinGW tools. Then
@@ -94,13 +95,31 @@ COMPILING UNDER WINDOWS
     nmake depend
     nmake
 
-  To utilize the experimental compilation with nmake and cl
-  (the command line compiler of a big big software company)
-  use a console, go to the 'src' directory and type:
+  After the compilation the interpreter is copied to prg/hi.exe.
+
+
+COMPILING UNDER WINDOWS WITH CL FROM MSVC
+
+    To utilize compilation with nmake and cl (the command line
+  compiler of a big big software company) use a console, go
+  to the 'src' directory and type:
 
     copy mk_msvc.mak makefile
     nmake depend
     nmake
+
+  After the compilation the interpreter is copied to prg/hi.exe.
+
+
+COMPILING UNDER WINDOWS WITH BCC32
+
+    To utilize compilation with make and bcc32 (the make utility
+  and the command line compiler of a smaller software company)
+  use a console, go to the 'src' directory and type:
+
+    copy mk_bcc32.mak makefile
+    make depend
+    make
 
   After the compilation the interpreter is copied to prg/hi.exe.
 

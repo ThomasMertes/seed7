@@ -352,6 +352,25 @@ SIZE_TYPE len;
 
 #ifdef ANSI_C
 
+static void wstri_expand (strelemtype *stri, const_wstritype wstri, SIZE_TYPE len)
+#else
+
+static void wstri_expand (stri, wstri, len)
+strelemtype *stri;
+wstritype wstri;
+SIZE_TYPE len;
+#endif
+
+  { /* wstri_expand */
+    for (; len > 0; stri++, wstri++, len--) {
+      *stri = (strelemtype) *wstri;
+    } /* while */
+  } /* wstri_expand */
+
+
+
+#ifdef ANSI_C
+
 void stri_compress (ustritype ustri, const strelemtype *stri, SIZE_TYPE len)
 #else
 
@@ -530,7 +549,7 @@ stritype cstri_to_stri (const_cstritype cstri)
 #else
 
 stritype cstri_to_stri (cstri)
-cstritype stri;
+cstritype cstri;
 #endif
 
   {
@@ -580,6 +599,33 @@ cstritype cstri;
     } /* if */
     return(stri);
   } /* cstri8_to_stri */
+
+
+
+#ifdef ANSI_C
+
+stritype wstri_to_stri (const_wstritype wstri)
+#else
+
+stritype wstri_to_stri (wstri)
+wstritype wstri;
+#endif
+
+  {
+    memsizetype length;
+    stritype stri;
+
+  /* wstri_to_stri */
+    length = 0;
+    while (wstri[length] != 0) {
+      length++;
+    } /* while */
+    if (ALLOC_STRI(stri, length)) {
+      stri->size = length;
+      wstri_expand(stri->mem, wstri, (SIZE_TYPE) length);
+    } /* if */
+    return(stri);
+  } /* wstri_to_stri */
 
 
 

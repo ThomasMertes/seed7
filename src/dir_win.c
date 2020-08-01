@@ -24,7 +24,7 @@
 /*                                                                  */
 /*  Module: Seed7 Runtime Library                                   */
 /*  File: seed7/src/dir_win.c                                       */
-/*  Changes: 1993, 1994, 2007  Thomas Mertes                        */
+/*  Changes: 1993, 1994, 2007, 2008  Thomas Mertes                  */
 /*  Content: Directory access using _findfirst and _findnext.       */
 /*                                                                  */
 /*  Implements opendir, readdir and closedir in the way it is       */
@@ -61,11 +61,14 @@ char *name;
     DIR *result;
 
   /* opendir */
-    if ((result = (DIR *)
-        malloc(sizeof(DIR))) != NULL) {
+    if ((result = (DIR *) malloc(sizeof(DIR))) != NULL) {
 /*    printf("opendir(%s);\n", name); */
-      strcpy(dir_name, name);
       name_len = strlen(name);
+      if (name_len > sizeof(dir_name) - 5) {
+        name_len = sizeof(dir_name) - 5;
+      } /* if */
+      memcpy(dir_name, name, name_len);
+      dir_name[name_len] = '\0';
       if (name_len > 0) {
         if (name[name_len - 1] != '/' &&
             name[name_len - 1] != '\\') {
@@ -73,8 +76,8 @@ char *name;
         } /* if */
         strcat(dir_name, "*.*");
       } /* if */
-      result->dir_handle = _findfirst(dir_name, &result->find_record);
-      if (result->dir_handle != -1) {
+      result->dir_handle = FindFirstFileA(dir_name, &result->find_record);
+      if (result->dir_handle != INVALID_HANDLE_VALUE) {
 /*      printf("==> OK\n");
         printf(">%s<\n", result->find_record.name); */
         result->first_element = TRUE;
@@ -103,20 +106,19 @@ DIR *curr_dir;
 
   /* readdir */
 /*  printf("readdir();\n"); */
-    result = &curr_dir->dir_entry;
     if (curr_dir->first_element) {
 /*    printf("first\n"); */
       curr_dir->first_element = FALSE;
-      strcpy(result->d_name, curr_dir->find_record.name);
+      curr_dir->dir_entry.d_name = (char *) curr_dir->find_record.cFileName;
+      result = &curr_dir->dir_entry;
+/*    printf(">%s<\n", result->d_name); */
+    } else if (FindNextFileA(curr_dir->dir_handle, &curr_dir->find_record) != 0) {
+      curr_dir->dir_entry.d_name = (char *) curr_dir->find_record.cFileName;
+      result = &curr_dir->dir_entry;
 /*    printf(">%s<\n", result->d_name); */
     } else {
-      if (_findnext(curr_dir->dir_handle, &curr_dir->find_record) == 0) {
-        strcpy(result->d_name, curr_dir->find_record.name);
-/*      printf(">%s<\n", result->d_name); */
-      } else {
-/*      printf("end\n"); */
-        result = NULL;
-      } /* if */
+/*    printf("end\n"); */
+      result = NULL;
     } /* if */
     return(result);
   } /* readdir */
@@ -136,3 +138,102 @@ DIR *curr_dir;
     free(curr_dir);
     return(0);
   } /* closedir */
+
+
+
+#ifdef ANSI_C
+
+WDIR *wopendir (wchar_t *name)
+#else
+
+WDIR *wopendir (name)
+wchar_t *name;
+#endif
+
+  {
+    unsigned int name_len;
+    wchar_t dir_name[250];
+    WDIR *result;
+
+  /* wopendir */
+    if ((result = (WDIR *) malloc(sizeof(WDIR))) != NULL) {
+      name_len = 0;
+      while (name[name_len] != 0) {
+        name_len++;
+      } /* while */
+      if (name_len > sizeof(dir_name) / sizeof(wchar_t) - 5) {
+        name_len = sizeof(dir_name) / sizeof(wchar_t) - 5;
+      } /* if */
+      memcpy(dir_name, name, name_len * sizeof(wchar_t));
+      if (name_len > 0) {
+        if (name[name_len - 1] != '/' &&
+            name[name_len - 1] != '\\') {
+          dir_name[name_len++] = '\\';
+        } /* if */
+        dir_name[name_len++] = '*';
+        dir_name[name_len++] = '.';
+        dir_name[name_len++] = '*';
+      } /* if */
+      dir_name[name_len] = '\0';
+      result->dir_handle = FindFirstFileW(dir_name, &result->find_record);
+      if (result->dir_handle != INVALID_HANDLE_VALUE) {
+/*      printf("==> OK\n");
+        printf(">%s<\n", result->find_record.name); */
+        result->first_element = TRUE;
+      } else {
+/*      printf("==> ERROR\n"); */
+        free(result);
+        result = NULL;
+      } /* if */
+    } /* if */
+    return(result);
+  } /* wopendir */
+
+
+
+#ifdef ANSI_C
+
+struct wdirent *wreaddir (WDIR *curr_dir)
+#else
+
+struct wdirent *wreaddir (curr_dir)
+WDIR *curr_dir;
+#endif
+
+  {
+    struct wdirent *result;
+
+  /* wreaddir */
+/*  printf("wreaddir();\n"); */
+    if (curr_dir->first_element) {
+/*    printf("first\n"); */
+      curr_dir->first_element = FALSE;
+      curr_dir->dir_entry.d_name = (wchar_t *) curr_dir->find_record.cFileName;
+      result = &curr_dir->dir_entry;
+/*    printf(">%s<\n", result->d_name); */
+    } else if (FindNextFileW(curr_dir->dir_handle, &curr_dir->find_record) != 0) {
+      curr_dir->dir_entry.d_name = (wchar_t *) curr_dir->find_record.cFileName;
+      result = &curr_dir->dir_entry;
+/*    printf(">%s<\n", result->d_name); */
+    } else {
+/*    printf("end\n"); */
+      result = NULL;
+    } /* if */
+    return(result);
+  } /* wreaddir */
+
+
+
+#ifdef ANSI_C
+
+int wclosedir (WDIR *curr_dir)
+#else
+
+int wclosedir (curr_dir)
+WDIR *curr_dir;
+#endif
+
+  { /* wclosedir */
+    free(curr_dir);
+    return(0);
+  } /* wclosedir */

@@ -31,6 +31,7 @@
 
 #define compr_size(stri) (6 * (stri)->size)
 #define free_cstri(cstri,stri) UNALLOC_CSTRI(cstri, compr_size(stri));
+#define free_wstri(wstri,stri) free(wstri);
 #define cstri_expand(stri,cstri,size) ustri_expand(stri, (const_ustritype) cstri, size)
 
 #ifdef ANSI_C
@@ -44,8 +45,9 @@ wchar_t *cp_to_wstri (stritype);
 #endif
 bstritype stri_to_bstri (stritype);
 bstritype stri_to_bstri8 (const_stritype);
-stritype cstri_to_stri (const_cstritype);
-stritype cstri8_to_stri (const_cstritype);
+stritype cstri_to_stri (const_cstritype cstri);
+stritype cstri8_to_stri (const_cstritype cstri);
+stritype wstri_to_stri (const_wstritype wstri);
 strelemtype *stri_charpos (stritype, strelemtype);
 cstritype cp_to_command (stritype);
 
@@ -62,6 +64,7 @@ bstritype stri_to_bstri ();
 bstritype stri_to_bstri8 ();
 stritype cstri_to_stri ();
 stritype cstri8_to_stri ();
+stritype wstri_to_stri ();
 strelemtype *stri_charpos ();
 cstritype cp_to_command ();
 

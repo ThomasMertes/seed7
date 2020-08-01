@@ -601,7 +601,7 @@ objecttype obj_arg;
         } /* if */
       } /* if */
     } /* if */
-    /* printf("refNum => %lld\n", result); */
+    /* printf("refNum => %ld\n", result); */
     return(result);
   } /* refNum */
 

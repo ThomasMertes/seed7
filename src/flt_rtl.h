@@ -38,7 +38,7 @@
 /* or inttype.                                                      */
 typedef inttype generictype;
 
-#ifdef DEFINE_IEEE_754_STUFF
+#ifdef ISNAN_WITH_UNDERLINE
 int _isnan( double x );
 #define isnan _isnan
 #endif

@@ -651,13 +651,13 @@ stritype file_mode;
 #else
     name = cp_to_cstri(file_name);
 #endif
-    if (name == NULL) {
-      raise_error(MEMORY_ERROR);
+    get_mode(mode, file_mode);
+    if (mode[0] == '\0') {
+      raise_error(RANGE_ERROR);
       result = NULL;
     } else {
-      get_mode(mode, file_mode);
-      if (mode[0] == '\0') {
-        raise_error(RANGE_ERROR);
+      if (name == NULL) {
+        raise_error(MEMORY_ERROR);
         result = NULL;
       } else {
 #ifdef USE_WFOPEN
@@ -666,11 +666,12 @@ stritype file_mode;
         wide_mode[2] = mode[2];
         wide_mode[3] = mode[3];
         result = _wfopen(name, wide_mode);
+        free_wstri(name, file_name);
 #else
         result = fopen(name, mode);
+        free_cstri(name, file_name);
 #endif
       } /* if */
-      free_cstri(name, file_name);
     } /* if */
     return(result);
   } /* filOpen */

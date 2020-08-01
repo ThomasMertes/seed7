@@ -32,10 +32,27 @@
 /*                                                                  */
 /********************************************************************/
 
+#ifdef DIR_WIN_DOS
+
+#include "io.h"
+
+struct dirent {
+    char d_name[260];
+  };
+
+typedef struct {
+    long dir_handle;
+    struct _finddata_t find_record;
+    booltype first_element;
+    struct dirent dir_entry;
+  } DIR;
+
+#else
+
 #include "dos.h"
 
 struct dirent {
-    char d_name[13];
+    char d_name[260];
   };
 
 typedef struct {
@@ -44,6 +61,7 @@ typedef struct {
     struct dirent dir_entry;
   } DIR;
 
+#endif
 
 
 #ifdef ANSI_C
