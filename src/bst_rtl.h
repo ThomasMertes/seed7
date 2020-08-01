@@ -39,6 +39,7 @@ bstritype bstCreate (const const_bstritype bstri_from);
 void bstDestr (const bstritype old_bstring);
 inttype bstHashCode (const const_bstritype bstri);
 bstritype bstParse (const const_stritype stri);
+stritype bstStr (const const_bstritype bstri);
 
 #else
 
@@ -50,5 +51,6 @@ bstritype bstCreate ();
 void bstDestr ();
 inttype bstHashCode ();
 bstritype bstParse ();
+stritype bstStr ();
 
 #endif

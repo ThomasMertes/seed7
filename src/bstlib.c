@@ -489,6 +489,23 @@ listtype arguments;
 
 #ifdef ANSI_C
 
+objecttype bst_str (listtype arguments)
+#else
+
+objecttype bst_str (arguments)
+listtype arguments;
+#endif
+
+  { /* bst_str */
+    isit_bstri(arg_1(arguments));
+    return(bld_stri_temp(bstStr(
+        take_bstri(arg_1(arguments)))));
+  } /* bst_str */
+
+
+
+#ifdef ANSI_C
+
 objecttype bst_value (listtype arguments)
 #else
 

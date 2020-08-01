@@ -92,16 +92,12 @@ SEED7_LIB_SRC = $(RSRC1) $(RSRC2) $(RSRC3) $(DSRC1)
 COMP_DATA_LIB_SRC = typ_data.c rfl_data.c ref_data.c listutl.c flistutl.c typeutl.c datautl.c
 COMPILER_LIB_SRC = $(PSRC1) $(LSRC1) $(LSRC2) $(LSRC3) $(ESRC1) $(ASRC1) $(ASRC2) $(ASRC3) $(GSRC1) $(GSRC2)
 
-hi.exe: $(OBJ) $(COMPILER_LIB) $(COMP_DATA_LIB) $(SEED7_LIB)
-	$(CC) $(LDFLAGS) $(OBJ) $(COMPILER_LIB) $(COMP_DATA_LIB) $(SEED7_LIB) $(LIBS) -o hi
-	copy hi.exe ..\prg /Y
-	.\hi level
+..\bin\hi.exe: $(OBJ) ..\bin\$(COMPILER_LIB) ..\bin\$(COMP_DATA_LIB) ..\bin\$(SEED7_LIB)
+	$(CC) $(LDFLAGS) $(OBJ) ..\bin\$(COMPILER_LIB) ..\bin\$(COMP_DATA_LIB) ..\bin\$(SEED7_LIB) $(LIBS) -o ..\bin\hi
+	copy ..\bin\hi.exe ..\prg /Y
+	..\bin\hi level
 
-hi: hi.exe
-
-hi.gp: $(OBJ)
-	$(CC) $(LDFLAGS) $(OBJ) $(LIBS) -o /usr/local/bin/hi.gp
-	hi level
+hi: ..\bin\hi.exe
 
 clear: clean
 
@@ -112,12 +108,12 @@ clean:
 	del b_depend
 	del c_depend
 	del *.o
-	del *.a
+	del ..\bin\*.a
 
 dep: depend
 
 strip:
-	strip /usr/local/bin/hi
+	strip ..\bin\hi.exe
 
 version.h:
 	echo #define ANSI_C > version.h
@@ -187,6 +183,7 @@ version.h:
 	echo { >> setpaths.c
 	echo char buffer[4096]; >> setpaths.c
 	echo int position; >> setpaths.c
+	echo chdir("../bin"); >> setpaths.c
 	echo getcwd(buffer, sizeof(buffer)); >> setpaths.c
 	echo printf("\043define SEED7_LIB \042"); >> setpaths.c
 	echo for (position = 0; buffer[position] != '\0'; position++) { >> setpaths.c
@@ -235,16 +232,16 @@ c_depend: version.h
 	$(CC) $(CFLAGS) -M $(COMPILER_LIB_SRC) > c_depend
 
 level.h:
-	hi level
+	..\bin\hi level
 
-$(SEED7_LIB): $(SEED7_LIB_OBJ)
-	ar r $(SEED7_LIB) $(SEED7_LIB_OBJ)
+..\bin\$(SEED7_LIB): $(SEED7_LIB_OBJ)
+	ar r ..\bin\$(SEED7_LIB) $(SEED7_LIB_OBJ)
 
-$(COMP_DATA_LIB): $(COMP_DATA_LIB_OBJ)
-	ar r $(COMP_DATA_LIB) $(COMP_DATA_LIB_OBJ)
+..\bin\$(COMP_DATA_LIB): $(COMP_DATA_LIB_OBJ)
+	ar r ..\bin\$(COMP_DATA_LIB) $(COMP_DATA_LIB_OBJ)
 
-$(COMPILER_LIB): $(COMPILER_LIB_OBJ)
-	ar r $(COMPILER_LIB) $(COMPILER_LIB_OBJ)
+..\bin\$(COMPILER_LIB): $(COMPILER_LIB_OBJ)
+	ar r ..\bin\$(COMPILER_LIB) $(COMPILER_LIB_OBJ)
 
 wc: $(SRC)
 	echo SRC:

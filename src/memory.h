@@ -87,6 +87,7 @@
 /*      isit_list(arg)      */
 #define isit_param(arg)     if (CATEGORY_OF_OBJ(arg) != FORMPARAMOBJECT) run_exception(FORMPARAMOBJECT, arg)
 #define isit_proc(arg)      if (CATEGORY_OF_OBJ(arg) != BLOCKOBJECT && \
+                                CATEGORY_OF_OBJ(arg) != MATCHOBJECT && \
                                 CATEGORY_OF_OBJ(arg) != ACTOBJECT)       run_exception(BLOCKOBJECT, arg)
 #define isit_prog(arg)      if (CATEGORY_OF_OBJ(arg) != PROGOBJECT)      run_exception(PROGOBJECT, arg)
 #define isit_reference(arg) if (CATEGORY_OF_OBJ(arg) != REFOBJECT)       run_exception(REFOBJECT, arg)

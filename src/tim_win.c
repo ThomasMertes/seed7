@@ -282,7 +282,7 @@ struct tm *tm_result;
     if (unlikely(FileTimeToSystemTime(&utc_time.filetime, &utc_time_struct) == 0)) {
       return NULL;
     } else if (unlikely(SystemTimeToTzSpecificLocalTime(
-	NULL, &utc_time_struct, &local_time_struct) == 0)) {
+        NULL, &utc_time_struct, &local_time_struct) == 0)) {
       return NULL;
     } else {
       tm_result->tm_year  = local_time_struct.wYear - 1900;

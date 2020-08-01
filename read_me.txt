@@ -31,6 +31,7 @@ WHAT IS CONTAINED IN THIS PACKAGE?
     prg    Program examples
     lib    Include files
     doc    Documentation files
+    bin    Executables and runtime libraries
 
   Using the extension several files can be distinguished:
 

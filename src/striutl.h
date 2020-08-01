@@ -99,7 +99,8 @@ os_stritype cp_to_command ();
 
 #ifdef ANSI_C
 
-memsizetype stri_to_utf8 (ustritype, const_stritype);
+memsizetype stri_to_utf8 (ustritype out_stri, register const strelemtype *stri,
+			  memsizetype len);
 void stri_export (ustritype out_stri, const_stritype in_stri);
 void ustri_expand (strelemtype *stri, const_ustritype ustri, size_t len);
 void stri_compress (ustritype ustri, const strelemtype *stri, size_t len);

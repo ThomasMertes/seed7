@@ -1,3 +1,29 @@
+20101219:
+- The handling of closures in the compiler ("comp.sd7") was improved. When
+  possible closures are implemented with code inlining. When this is not
+  possible closures are implemented with C functions and a corresponding
+  data structure to hold the environment data.
+- A new example program (make7.sd7), a make utility which can be used to
+  manage the compilation process, was added. Make7 is capable to compile
+  the Seed7 release with every mk_*.mak makefile released with Seed7.
+- Code was moved from the "tar7.sd7" example program to the new library
+  "tar.s7i". The "tar.s7i" library allows programs to deal with tar files
+  without the need to call external programs.
+- The directory seed7/bin was introduced as place for executables and
+  runtime libraries. This should allow installing Seed7 by adding the
+  seed7/bin directory to the PATH. Additionally the environment variable
+  SEED7_LIBRARY can be defined to contain a path the the seed7/lib directory.
+- The performance of the str function (conversion to string), for integer and
+  bigInteger values, was improved.
+- The standard bitmap fonts were improved to reduce the spacing between
+  characters.
+- The FAQ answers explaining portability and debugging were improved.
+- The chapters explaining string functions and stack traces in the manual
+  were improved.
+- Tests for the 'lpad0' operator were added to the "chkint.sd7" program.
+- Compiler and interpreter were improved to support the action BST_STR, which
+  converts a byte string to an UTF-32 string.
+
 20101205:
 - The chapter explaining the file open function in the manual was improved.
 - The file open function was improved to return STD_NULL on an attempt to
@@ -46,7 +72,7 @@
 - The function 'drwFlush' in "drw_x11.c" now proceeds until no expose events
   are present.
 - The function 'find_window' in "drw_x11.c" now manages the windows with a
-  hash table instead of linked list.
+  hash table instead of a linked list.
 - The new function 'processEvents' in "drw_x11.c" looks for expose events and
   processes them.
 - Documentation comments were added to the function 'filOpen' in the file
@@ -1112,7 +1138,7 @@
 - The compiler was improved to avoid boolean expressions with too much parenthesis levels.
 - The functions opendir and readdir in the files dir_dos.c and dir_win.c were improved to
   make buffer overflows impossible.
-- The files dir_rtl.c and dir_rtl.h were introduced to support reading directorys based
+- The files dir_rtl.c and dir_rtl.h were introduced to support reading directories based
   on opendir(), readdir() and closedir() and optionally on the wide char functions
   wopendir(), wreaddir() and wclosedir().
 - An implementation of the functions wopendir(), wreaddir() and wclosedir() based on

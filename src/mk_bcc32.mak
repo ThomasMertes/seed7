@@ -93,16 +93,12 @@ SEED7_LIB_SRC = $(RSRC1) $(RSRC2) $(RSRC3) $(DSRC1)
 COMP_DATA_LIB_SRC = typ_data.c rfl_data.c ref_data.c listutl.c flistutl.c typeutl.c datautl.c
 COMPILER_LIB_SRC = $(PSRC1) $(LSRC1) $(LSRC2) $(LSRC3) $(ESRC1) $(ASRC1) $(ASRC2) $(ASRC3) $(GSRC1) $(GSRC2)
 
-hi.exe: $(OBJ) $(COMPILER_LIB) $(COMP_DATA_LIB) $(SEED7_LIB)
-	$(CC) $(LDFLAGS) -o hi.exe $(OBJ) $(COMPILER_LIB) $(COMP_DATA_LIB) $(SEED7_LIB) $(LIBS)
-	copy hi.exe ..\prg /Y
-	.\hi level
+..\bin\hi.exe: $(OBJ) ..\bin\$(COMPILER_LIB) ..\bin\$(COMP_DATA_LIB) ..\bin\$(SEED7_LIB)
+	$(CC) $(LDFLAGS) -o ..\bin\hi.exe $(OBJ) ..\bin\$(COMPILER_LIB) ..\bin\$(COMP_DATA_LIB) ..\bin\$(SEED7_LIB) $(LIBS)
+	copy ..\bin\hi.exe ..\prg /Y
+	..\bin\hi level
 
-hi: hi.exe
-
-hi.gp: $(OBJ)
-	$(CC) $(LDFLAGS) $(OBJ) $(LIBS) -o /usr/local/bin/hi.gp
-	hi level
+hi: ..\bin\hi.exe
 
 clear: clean
 
@@ -114,14 +110,11 @@ clean:
 	del c_depend
 	del depend
 	del *.obj
-	del *.lib
+	del ..\bin\*.lib
 	del *.tds
 	del *.d
 
 dep: depend
-
-strip:
-	strip /usr/local/bin/hi
 
 version.h:
 	echo ^#define ANSI_C > version.h
@@ -207,29 +200,30 @@ version.h:
 	echo { >> setpaths.c
 	echo char buffer[4096]; >> setpaths.c
 	echo int position; >> setpaths.c
+	echo chdir("../bin"); >> setpaths.c
 	echo getcwd(buffer, sizeof(buffer)); >> setpaths.c
 	echo printf("\043define SEED7_LIB \042"); >> setpaths.c
 	echo for (position = 0; buffer[position] != '\0'; position++) { >> setpaths.c
-	echo   putchar(buffer[position] == '\\' ? '/' : buffer[position]); >> setpaths.c
+	echo putchar(buffer[position] == '\\' ? '/' : buffer[position]); >> setpaths.c
 	echo } >> setpaths.c
 	echo printf("/$(SEED7_LIB)\042\n"); >> setpaths.c
 	echo getcwd(buffer, sizeof(buffer)); >> setpaths.c
 	echo printf("\043define COMP_DATA_LIB \042"); >> setpaths.c
 	echo for (position = 0; buffer[position] != '\0'; position++) { >> setpaths.c
-	echo   putchar(buffer[position] == '\\' ? '/' : buffer[position]); >> setpaths.c
+	echo putchar(buffer[position] == '\\' ? '/' : buffer[position]); >> setpaths.c
 	echo } >> setpaths.c
 	echo printf("/$(COMP_DATA_LIB)\042\n"); >> setpaths.c
 	echo getcwd(buffer, sizeof(buffer)); >> setpaths.c
 	echo printf("\043define COMPILER_LIB \042"); >> setpaths.c
 	echo for (position = 0; buffer[position] != '\0'; position++) { >> setpaths.c
-	echo   putchar(buffer[position] == '\\' ? '/' : buffer[position]); >> setpaths.c
+	echo putchar(buffer[position] == '\\' ? '/' : buffer[position]); >> setpaths.c
 	echo } >> setpaths.c
 	echo printf("/$(COMPILER_LIB)\042\n"); >> setpaths.c
 	echo chdir("../lib"); >> setpaths.c
 	echo getcwd(buffer, sizeof(buffer)); >> setpaths.c
 	echo printf("\043define SEED7_LIBRARY \042"); >> setpaths.c
 	echo for (position = 0; buffer[position] != '\0'; position++) { >> setpaths.c
-	echo   putchar(buffer[position] == '\\' ? '/' : buffer[position]); >> setpaths.c
+	echo putchar(buffer[position] == '\\' ? '/' : buffer[position]); >> setpaths.c
 	echo } >> setpaths.c
 	echo printf("\042\n"); >> setpaths.c
 	echo return 0; >> setpaths.c
@@ -290,16 +284,16 @@ c_depend: version.h
 	del $(COMPILER_LIB_OBJ)
 
 level.h:
-	hi level
+	..\bin\hi level
 
-$(SEED7_LIB): $(SEED7_LIB_OBJ)
-	calltlib $(SEED7_LIB) $(SEED7_LIB_OBJ)
+..\bin\$(SEED7_LIB): $(SEED7_LIB_OBJ)
+	calltlib ..\bin\$(SEED7_LIB) $(SEED7_LIB_OBJ)
 
-$(COMP_DATA_LIB): $(COMP_DATA_LIB_OBJ)
-	calltlib $(COMP_DATA_LIB) $(COMP_DATA_LIB_OBJ)
+..\bin\$(COMP_DATA_LIB): $(COMP_DATA_LIB_OBJ)
+	calltlib ..\bin\$(COMP_DATA_LIB) $(COMP_DATA_LIB_OBJ)
 
-$(COMPILER_LIB): $(COMPILER_LIB_OBJ)
-	calltlib $(COMPILER_LIB) $(COMPILER_LIB_OBJ)
+..\bin\$(COMPILER_LIB): $(COMPILER_LIB_OBJ)
+	calltlib ..\bin\$(COMPILER_LIB) $(COMPILER_LIB_OBJ)
 
 wc: $(SRC)
 	echo SRC:

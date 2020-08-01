@@ -62,6 +62,7 @@ chartype character;
     stritype result;
 
   /* chrCLit */
+    /* printf("chrCLit(%lu)\n", character); */
     if (character < 127) {
       if (character < ' ') {
         len = strlen(cstri_escape_sequence[character]);

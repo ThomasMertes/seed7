@@ -93,26 +93,22 @@ SEED7_LIB_SRC = $(RSRC1) $(RSRC2) $(RSRC3) $(DSRC1)
 COMP_DATA_LIB_SRC = typ_data.c rfl_data.c ref_data.c listutl.c flistutl.c typeutl.c datautl.c
 COMPILER_LIB_SRC = $(PSRC1) $(LSRC1) $(LSRC2) $(LSRC3) $(ESRC1) $(ASRC1) $(ASRC2) $(ASRC3) $(GSRC1) $(GSRC2)
 
-hi.exe: $(OBJ) $(COMPILER_LIB) $(COMP_DATA_LIB) $(SEED7_LIB)
-	$(CC) $(LDFLAGS) $(OBJ) $(COMPILER_LIB) $(COMP_DATA_LIB) $(SEED7_LIB) $(LIBS) -o hi
-	cp hi.exe ../prg
-	./hi.exe level
+../bin/hi.exe: $(OBJ) ../bin/$(COMPILER_LIB) ../bin/$(COMP_DATA_LIB) ../bin/$(SEED7_LIB)
+	$(CC) $(LDFLAGS) $(OBJ) ../bin/$(COMPILER_LIB) ../bin/$(COMP_DATA_LIB) ../bin/$(SEED7_LIB) $(LIBS) -o ../bin/hi
+	cp ../bin/hi.exe ../prg
+	../bin/hi.exe level
 
-hi: hi.exe
-
-hi.gp: $(OBJ)
-	$(CC) $(LDFLAGS) $(OBJ) $(LIBS) -o /usr/local/bin/hi.gp
-	hi level
+hi: ../bin/hi.exe
 
 clear: clean
 
 clean:
-	rm -f *.o *.a depend a_depend b_depend c_depend version.h
+	rm -f *.o ../bin/*.a depend a_depend b_depend c_depend version.h
 
 dep: depend
 
 strip:
-	strip /usr/local/bin/hi
+	strip ../bin/hi.exe
 
 version.h:
 	echo "#define ANSI_C" > version.h
@@ -174,9 +170,9 @@ version.h:
 	echo "#define LINKER_OPT_OUTPUT_FILE \"-o \"" >> version.h
 	echo "#define LINKER_FLAGS \"$(LDFLAGS)\"" >> version.h
 	echo "#define SYSTEM_LIBS \"$(LIBS)\"" >> version.h
-	echo "#define SEED7_LIB \"`pwd -W`/$(SEED7_LIB)\"" >> version.h
-	echo "#define COMP_DATA_LIB \"`pwd -W`/$(COMP_DATA_LIB)\"" >> version.h
-	echo "#define COMPILER_LIB \"`pwd -W`/$(COMPILER_LIB)\"" >> version.h
+	cd ../bin; echo "#define SEED7_LIB \"`pwd -W`/$(SEED7_LIB)\"" >> ../src/version.h; cd ../src
+	cd ../bin; echo "#define COMP_DATA_LIB \"`pwd -W`/$(COMP_DATA_LIB)\"" >> ../src/version.h; cd ../src
+	cd ../bin; echo "#define COMPILER_LIB \"`pwd -W`/$(COMPILER_LIB)\"" >> ../src/version.h; cd ../src
 	cd ../lib; echo "#define SEED7_LIBRARY \"`pwd -W`\"" >> ../src/version.h; cd ../src
 
 depend: a_depend b_depend c_depend version.h
@@ -192,26 +188,26 @@ c_depend: version.h
 	$(CC) $(CFLAGS) -M $(COMPILER_LIB_SRC) > c_depend
 
 level.h:
-	hi level
+	../bin/hi.exe level
 
-$(SEED7_LIB): $(SEED7_LIB_OBJ)
-	ar r $(SEED7_LIB) $(SEED7_LIB_OBJ)
+../bin/$(SEED7_LIB): $(SEED7_LIB_OBJ)
+	ar r ../bin/$(SEED7_LIB) $(SEED7_LIB_OBJ)
 
-$(COMP_DATA_LIB): $(COMP_DATA_LIB_OBJ)
-	ar r $(COMP_DATA_LIB) $(COMP_DATA_LIB_OBJ)
+../bin/$(COMP_DATA_LIB): $(COMP_DATA_LIB_OBJ)
+	ar r ../bin/$(COMP_DATA_LIB) $(COMP_DATA_LIB_OBJ)
 
-$(COMPILER_LIB): $(COMPILER_LIB_OBJ)
-	ar r $(COMPILER_LIB) $(COMPILER_LIB_OBJ)
+../bin/$(COMPILER_LIB): $(COMPILER_LIB_OBJ)
+	ar r ../bin/$(COMPILER_LIB) $(COMPILER_LIB_OBJ)
 
 wc: $(SRC)
-	wc $(GSRC1) $(GSRC2)
-	wc $(ASRC1) $(ASRC2) $(ASRC3)
-	wc $(RSRC1) $(RSRC2) $(RSRC3)
-	wc $(ESRC1)
-	wc $(LSRC1) $(LSRC2) $(LSRC3)
-	wc $(DSRC1)
-	wc $(MSRC1)
+	echo SRC:
 	wc $(SRC)
+	echo SEED7_LIB_SRC:
+	wc $(SEED7_LIB_SRC)
+	echo COMP_DATA_LIB_SRC:
+	wc $(COMP_DATA_LIB_SRC)
+	echo COMPILER_LIB_SRC:
+	wc $(COMPILER_LIB_SRC)
 
 lint: $(SRC)
 	lint -p $(SRC) $(LIBS)

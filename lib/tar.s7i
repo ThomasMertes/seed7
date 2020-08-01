@@ -1,0 +1,543 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  tar.s7i       Tar archive library                               *)
+(*  Copyright (C) 1994, 2004, 2005, 2010  Thomas Mertes             *)
+(*                                                                  *)
+(*  This file is part of the Seed7 Runtime Library.                 *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is free software; you can             *)
+(*  redistribute it and/or modify it under the terms of the GNU     *)
+(*  Lesser General Public License as published by the Free Software *)
+(*  Foundation; either version 2.1 of the License, or (at your      *)
+(*  option) any later version.                                      *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is distributed in the hope that it    *)
+(*  will be useful, but WITHOUT ANY WARRANTY; without even the      *)
+(*  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR *)
+(*  PURPOSE.  See the GNU Lesser General Public License for more    *)
+(*  details.                                                        *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU Lesser General       *)
+(*  Public License along with this program; if not, write to the    *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+include "time.s7i";
+include "getf.s7i";
+include "gzip.s7i";
+
+
+const string: TMAGIC is "ustar";
+
+const char: REGTYPE      is '0';   # Regular file (preferred code)
+const char: AREGTYPE     is '\0\'; # Regular file (alternate code)
+const char: LNKTYPE      is '1';   # Hard link.
+const char: SYMTYPE      is '2';   # Symbolic link
+const char: CHRTYPE      is '3';   # Character special
+const char: BLKTYPE      is '4';   # Block special
+const char: DIRTYPE      is '5';   # Directory
+const char: FIFOTYPE     is '6';   # Named pipe
+const char: CONTTYPE     is '7';   # Contiguous file
+const char: LONGNAMETYPE is 'L';   # Long (untruncated) filename of the next file
+
+const type: header is new struct
+    var string: name is "";
+    var fileMode: mode is fileMode.value;
+    var integer: uid is 0;
+    var integer: gid is 0;
+    var integer: size is 0;
+    var integer: mtime is 0;
+    var integer: chksum is 0;
+    var char: typeflag is REGTYPE;
+    var string: linkname is "";
+    var string: magic is "";
+    var string: version is "";
+    var string: uname is "";
+    var string: gname is "";
+    var integer: devmajor is 0;
+    var integer: devminor is 0;
+    var string: prefix is "";
+  end struct;
+
+
+const proc: check (ref file: outFile, ref header: head) is func
+  local
+    var string: stri is "";
+  begin
+    write("name: ");
+    writeln(head.name);
+    write("mode: ");
+    writeln(head.mode);
+    write("uid: ");
+    writeln(head.uid);
+    write("gid: ");
+    writeln(head.gid);
+    write("size: ");
+    writeln(head.size);
+    write("mtime: ");
+    writeln(head.mtime);
+    write("chksum: ");
+    writeln(head.chksum);
+    write("typeflag: ");
+    writeln(literal(head.typeflag));
+    write("linkname: ");
+    writeln(head.linkname);
+    write("magic: ");
+    writeln(head.magic);
+    write("version: ");
+    writeln(literal(head.version));
+    write("uname: ");
+    writeln(head.uname);
+    write("gname: ");
+    writeln(head.gname);
+    write("devmajor: ");
+    writeln(head.devmajor);
+    write("devminor: ");
+    writeln(head.devminor);
+    write("prefix: ");
+    writeln(head.prefix);
+  end func;
+
+
+const func string: gets0 (inout file: inFile, in integer: leng) is func
+  result
+    var string: stri is "";
+  local
+    var integer: zeroBytePos is 0;
+  begin
+    stri := gets(inFile, leng);
+    zeroBytePos := pos(stri, "\0\");
+    if zeroBytePos <> 0 then
+      stri := stri[ .. pred(zeroBytePos)];
+    end if;
+  end func;
+
+
+const func string: gets0spc (inout file: inFile, in integer: leng) is func
+  result
+    var string: stri is "";
+  local
+    var integer: zeroBytePos is 0;
+    var integer: spacePos is 0;
+  begin
+    stri := gets(inFile, leng);
+    zeroBytePos := pos(stri, "\0\");
+    if zeroBytePos <> 0 then
+      stri := stri[ .. pred(zeroBytePos)];
+    end if;
+    spacePos := pos(stri, " ");
+    if spacePos <> 0 then
+      stri := stri[ .. pred(spacePos)];
+    end if;
+  end func;
+
+
+const func integer: getoct (inout file: inFile, in integer: leng) is func
+  result
+    var integer: result is 0;
+  local
+    var string: stri is "";
+  begin
+    stri := gets(inFile, leng);
+    while stri[1 .. 1] = " " do
+      stri := stri[2 .. ];
+    end while;
+    if stri <> "" and stri[1] >= '0' and stri[1] <= '9' then
+      result := ord(stri[1]) - ord('0');
+      stri := stri[2 .. ];
+      while stri <> "" and stri[1] >= '0' and stri[1] <= '9' do
+        result := 8 * result + ord(stri[1]) - ord('0');
+        stri := stri[2 .. ];
+      end while;
+    end if;
+  end func;
+
+
+const proc: puts0 (inout string: out_stri, in string: stri, in integer: leng) is func
+  begin
+    out_stri &:= stri[ .. leng];
+    if length(stri) < leng then
+      out_stri &:= "\0\" mult leng - length(stri);
+    end if;
+  end func;
+
+
+const proc: putspc (inout string: out_stri, in string: stri, in integer: leng) is func
+  begin
+    out_stri &:= stri[ .. leng];
+    if length(stri) < leng then
+      out_stri &:= " " mult leng - length(stri);
+    end if;
+  end func;
+
+
+const proc: putoct (inout string: out_stri, in var integer: number, in integer: leng) is func
+  local
+    var string: stri is "";
+  begin
+    while number <> 0 do
+      stri := str(number mod 8) & stri;
+      number := number mdiv 8;
+    end while;
+    out_stri &:= "0" mult pred(leng - length(stri)) <& stri <& "\0\";
+  end func;
+
+
+const func integer: chksum (in string: stri) is func
+  result
+    var integer: result is 0;
+  local
+    var char: ch is ' ';
+  begin
+    for ch range stri do
+      result +:= ord(ch);
+    end for;
+    result := result mod 2 ** 16;
+  end func;
+
+
+const proc: readHeadBlock (inout file: inFile, inout header: head) is func
+  local
+    var string: stri is "";
+  begin
+    head := header.value;
+    head.name :=        gets0(inFile,  100);
+    head.mode := fileMode conv getoct(inFile,    8);
+    head.uid :=        getoct(inFile,    8);
+    head.gid :=        getoct(inFile,    8);
+    head.size :=       getoct(inFile,   12);
+    head.mtime :=      getoct(inFile,   12);
+    head.chksum :=     getoct(inFile,    8);
+    head.typeflag :=     getc(inFile);
+    head.linkname :=    gets0(inFile,  100);
+    head.magic :=    gets0spc(inFile,    6);
+    head.version :=      gets(inFile,    2);
+    head.uname :=       gets0(inFile,   32);
+    head.gname :=       gets0(inFile,   32);
+    head.devmajor :=   getoct(inFile,    8);
+    head.devminor :=   getoct(inFile,    8);
+    head.prefix :=      gets0(inFile,  155);
+    stri :=              gets(inFile,   12);
+  end func;
+
+
+const proc: readHead (inout file: inFile, inout header: head) is func
+  local
+    var string: fileName is "";
+  begin
+    readHeadBlock(inFile, head);
+    # check(STD_OUT, head);
+    if head.name <> "" and head.magic = TMAGIC and
+        head.typeflag = LONGNAMETYPE and head.size <> 0 then
+      fileName := gets0(inFile, head.size);
+      seek(inFile, tell(inFile) - head.size + succ(pred(head.size) mdiv 512) * 512);
+      readHeadBlock(inFile, head);
+      # check(STD_OUT, head);
+      head.name := fileName;
+    end if;
+  end func;
+
+
+const proc: writeHeadBlock (inout file: outFile, ref header: head) is func
+  local
+    var string: out_stri is "";
+    var string: chksum is "";
+  begin
+    puts0  (out_stri, head.name,      100);
+    putoct (out_stri, integer conv (head.mode), 8);
+    putoct (out_stri, head.uid,         8);
+    putoct (out_stri, head.gid,         8);
+    putoct (out_stri, head.size,       12);
+    putoct (out_stri, head.mtime,      12);
+    putspc (out_stri, "",               8);
+    out_stri &:=      head.typeflag; (* 1*)
+    puts0  (out_stri, head.linkname,  100);
+    puts0  (out_stri, head.magic,       6);
+    putspc (out_stri, head.version,     2);
+    puts0  (out_stri, head.uname,      32);
+    puts0  (out_stri, head.gname,      32);
+    putoct (out_stri, head.devmajor,    8);
+    putoct (out_stri, head.devminor,    8);
+    puts0  (out_stri, head.prefix,    155);
+    puts0  (out_stri, "",              12);
+    putoct (chksum,   chksum(out_stri), 8);
+    out_stri := out_stri[ .. 148] & chksum & out_stri[157 .. ];
+    write(outFile, out_stri);
+  end func;
+
+
+const proc: writeHead (inout file: outFile, ref header: head) is func
+  local
+    var header: longNameHead is header.value;
+  begin
+    if length(head.name) > 100 then
+      longNameHead.name     := "././@LongLink";
+      longNameHead.mode     := fileMode.value;
+      longNameHead.uid      := 0;
+      longNameHead.gid      := 0;
+      longNameHead.size     := length(head.name);
+      longNameHead.mtime    := 0;
+      longNameHead.typeflag := LONGNAMETYPE;
+      longNameHead.linkname := "";
+      longNameHead.magic    := TMAGIC;
+      longNameHead.version  := "  ";
+      longNameHead.uname    := "root";
+      longNameHead.gname    := "root";
+      longNameHead.devmajor := 0;
+      longNameHead.devminor := 0;
+      longNameHead.prefix   := "";
+      writeHeadBlock(outFile, longNameHead);
+      write(outFile, head.name);
+      write(outFile, "\0\" mult succ(pred(longNameHead.size) mdiv 512) * 512 - longNameHead.size);
+    end if;
+    writeHeadBlock(outFile, head);
+  end func;
+
+
+const proc: setUpHead (in string: basePath, in string: name,
+    in string: fileTypeMarker, inout header: head) is func
+  begin
+    head.name     := name & fileTypeMarker;
+    head.mode     := fileMode(basePath & name);
+    head.uid      := 100;
+    head.gid      := 100;
+    head.size     := fileSize(basePath & name);
+    head.mtime    := timestamp1970(getMTime(basePath & name));
+    head.chksum   := 0;
+    head.typeflag := REGTYPE;
+    head.linkname := "";
+    head.magic    := TMAGIC;
+    head.version  := "  ";
+    head.uname    := "";
+    head.gname    := "";
+    head.devmajor := 0;
+    head.devminor := 0;
+    head.prefix   := "";
+  end func;
+
+
+const proc: tarTell (inout file: inFile, in array string: arg_list,
+    in boolean: do_view) is func
+  local
+    var header: head is header.value;
+    var time: modTime is time.value;
+  begin
+    readHead(inFile, head);
+    while head.name <> "" and head.magic = TMAGIC do
+      if do_view then
+        if head.typeflag = DIRTYPE then
+          write("d");
+        else
+          write("-");
+        end if;
+        write(head.mode);
+        write(" ");
+        if head.uname <> "" then
+          write(head.uname);
+        else
+          write(head.uid);
+        end if;
+        write("/");
+        if head.gname <> "" then
+          write(head.gname);
+        else
+          write(head.gid);
+        end if;
+        write(head.size lpad 14);
+        write(" ");
+        modTime := timestamp1970ToTime(head.mtime);
+        write(strDate(modTime));
+        write(" ");
+        write(str_hh_mm(modTime, ":"));
+        write(" ");
+        # write(strTimeZone(modTime) rpad 12);
+      end if;
+      writeln(head.name);
+      if head.size <> 0 then
+        seek(inFile, tell(inFile) + succ(pred(head.size) mdiv 512) * 512);
+      end if;
+      readHead(inFile, head);
+    end while;
+  end func;
+
+
+const proc: tarTell (in string: inFileName, in array string: arg_list,
+    in boolean: do_view, in boolean: do_unzip) is func
+  local
+    var file: inFile is STD_NULL;
+    var string: magicBytes is "";
+  begin
+    inFile := open(inFileName, "r");
+    if inFile <> STD_NULL then
+      magicBytes := gets(inFile, 2);
+      seek(inFile, 1);
+      if magicBytes = "\31\\139\" then
+        inFile := gunzip(inFile);
+      elsif do_unzip then
+        write("tar7: File \"");
+        write(inFileName);
+        writeln("\" not in gzip format.");
+      end if;
+    end if;
+    if inFile <> STD_NULL then
+      tarTell(inFile, arg_list, do_view);
+    else
+      write("tar7: Cannot open \"");
+      write(inFileName);
+      writeln("\".");
+    end if;
+  end func;
+
+
+const proc: tarXtract (inout file: inFile, in array string: arg_list,
+    in boolean: do_view) is func
+  local
+    var string: stri is "";
+    var header: head is header.value;
+    var time: modTime is time.value;
+    var array header: dirHeaderList is 0 times header.value;
+    var integer: index is 0;
+    var boolean: okay is TRUE;
+  begin
+    readHead(inFile, head);
+    while head.name <> "" and head.magic = TMAGIC and okay do
+      if do_view then
+        write("x ");
+        writeln(head.name);
+      end if;
+      if endsWith(head.name, "/") then
+        head.name := head.name[.. pred(length(head.name))];
+      end if;
+      if head.typeflag = DIRTYPE then
+        if fileType(head.name) = FILE_DIR then
+          dirHeaderList &:= [] (head);
+        elsif fileType(head.name) = FILE_ABSENT then
+          mkdir(head.name);
+          dirHeaderList &:= [] (head);
+        else
+          writeln("*** The file " <& literal(head.name) <& " exists, but is not a directory");
+          okay := FALSE;
+        end if;
+      elsif head.typeflag = REGTYPE or head.typeflag = AREGTYPE then
+        if head.size <> 0 then
+          stri := gets(inFile, succ(pred(head.size) mdiv 512) * 512);
+          if fileType(head.name) = FILE_REGULAR then
+            removeFile(head.name);
+          end if;
+          if fileType(head.name) = FILE_ABSENT then
+            putf(head.name, stri[ .. head.size]);
+            modTime := timestamp1970ToTime(head.mtime);
+            setMTime(head.name, modTime);
+          else
+            writeln("*** The file " <& literal(head.name) <& " exists, but is not a regular file");
+            okay := FALSE;
+          end if;
+        end if;
+      end if;
+      readHead(inFile, head);
+    end while;
+    for index range length(dirHeaderList) downto 1 do
+      modTime := timestamp1970ToTime(dirHeaderList[index].mtime);
+      setMTime(dirHeaderList[index].name, modTime);
+    end for;
+  end func;
+
+
+const proc: tarXtract (in string: inFileName, in array string: arg_list,
+    in boolean: do_view, in boolean: do_unzip) is func
+  local
+    var file: inFile is STD_NULL;
+    var string: magicBytes is "";
+  begin
+    inFile := open(inFileName, "r");
+    if inFile <> STD_NULL then
+      magicBytes := gets(inFile, 2);
+      seek(inFile, 1);
+      if magicBytes = "\31\\139\" then
+        inFile := gunzip(inFile);
+      elsif do_unzip then
+        write("tar7: File \"");
+        write(inFileName);
+        writeln("\" not in gzip format.");
+      end if;
+    end if;
+    if inFile <> STD_NULL then
+      tarXtract(inFile, arg_list, do_view);
+    else
+      write("tar7: Cannot open \"");
+      write(inFileName);
+      writeln("\".");
+    end if;
+  end func;
+
+
+const proc: tarXtract (in string: inFileName) is func
+  begin
+    tarXtract(inFileName, 0 times "", FALSE, FALSE);
+  end func;
+
+
+const proc: tarXtract (in string: inFileName, in boolean: do_view) is func
+  begin
+    tarXtract(inFileName, 0 times "", do_view, FALSE);
+  end func;
+
+
+const proc: tarCreate (inout file: outFile, in string: basePath, in string: pathFromBase,
+    in array string: arg_list, in boolean: do_view) is func
+  local
+    var string: name is "";
+    var array string: dir_content is 0 times "";
+    var string: stri is "";
+    var header: head is header.value;
+  begin
+    for name range arg_list do
+      name := pathFromBase & name;
+      if do_view then
+        write("c ");
+        writeln(name);
+      end if;
+      if fileType(basePath & name) = FILE_DIR then
+        dir_content := read_dir(basePath & name);
+        setUpHead(basePath, name, "/", head);
+        head.typeflag := DIRTYPE;
+        head.size :=     0;
+        writeHead(outFile, head);
+        tarCreate(outFile, basePath, name & "/", dir_content, do_view);
+      else
+        stri := getf(basePath & name);
+        setUpHead(basePath, name, "", head);
+        writeHead(outFile, head);
+        write(outFile, stri);
+        if (succ(pred(head.size) mdiv 512) * 512) - length(stri) >= 0 then
+          write(outFile, "\0\" mult (succ(pred(head.size) mdiv 512) * 512) - length(stri));
+        end if;
+      end if;
+    end for;
+  end func;
+
+
+const proc: tarCreate (in string: outFileName, in array string: arg_list,
+    in boolean: do_view) is func
+  local
+    var file: outFile is STD_NULL;
+    var string: name is "";
+    var integer: lastSlashPos is 0;
+  begin
+    outFile := open(outFileName, "w");
+    if outFile <> STD_NULL then
+      for name range arg_list do
+        lastSlashPos := rpos(name, "/");
+        if lastSlashPos = 0 then
+          tarCreate(outFile, "", "", [] name, do_view);
+        else
+          tarCreate(outFile, name[ .. lastSlashPos],
+              "", [] (name[succ(lastSlashPos) ..]), do_view);
+        end if;
+      end for;
+    end if;
+  end func;

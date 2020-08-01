@@ -233,23 +233,21 @@ size_t len;
 #ifdef UTF32_STRINGS
 #ifdef ANSI_C
 
-memsizetype stri_to_utf8 (ustritype out_stri, const_stritype in_stri)
+memsizetype stri_to_utf8 (ustritype out_stri, register const strelemtype *stri,
+    memsizetype len)
 #else
 
-memsizetype stri_to_utf8 (out_stri, in_stri)
+memsizetype stri_to_utf8 (out_stri, stri, len)
 ustritype out_stri;
-stritype in_stri;
+strelemtype *stri;
+memsizetype len;
 #endif
 
   {
     register ustritype ustri;
-    register const strelemtype *stri;
-    memsizetype len;
 
   /* stri_to_utf8 */
     ustri = out_stri;
-    stri = in_stri->mem;
-    len = in_stri->size;
     for (; len > 0; stri++, len--) {
       if (*stri <= 0x7F) {
         *ustri++ = (uchartype) *stri;
@@ -356,7 +354,7 @@ stritype in_stri;
     memsizetype len;
 
   /* stri_export */
-    len = stri_to_utf8(out_stri, in_stri);
+    len = stri_to_utf8(out_stri, in_stri->mem, in_stri->size);
     out_stri[len] = '\0';
   } /* stri_export */
 #endif
@@ -617,7 +615,7 @@ stritype stri;
       bstri = NULL;
     } else if (ALLOC_BSTRI_SIZE_OK(bstri, max_utf8_size(stri))) {
 #ifdef UTF32_STRINGS
-      bstri->size = stri_to_utf8(bstri->mem, stri);
+      bstri->size = stri_to_utf8(bstri->mem, stri->mem, stri->size);
 #else
       memcpy(bstri->mem, stri->mem, stri->size);
       bstri->size = stri->size;

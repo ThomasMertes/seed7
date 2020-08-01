@@ -1,0 +1,1168 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  make7.sd7     Make utility to manage the compilation process    *)
+(*  Copyright (C) 2010  Thomas Mertes                               *)
+(*                                                                  *)
+(*  This program is free software; you can redistribute it and/or   *)
+(*  modify it under the terms of the GNU General Public License as  *)
+(*  published by the Free Software Foundation; either version 2 of  *)
+(*  the License, or (at your option) any later version.             *)
+(*                                                                  *)
+(*  This program is distributed in the hope that it will be useful, *)
+(*  but WITHOUT ANY WARRANTY; without even the implied warranty of  *)
+(*  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the   *)
+(*  GNU General Public License for more details.                    *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU General Public       *)
+(*  License along with this program; if not, write to the           *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+$ include "seed7_05.s7i";
+  include "scanfile.s7i";
+  include "scanstri.s7i";
+  include "time.s7i";
+  include "getf.s7i";
+  include "shell.s7i";
+
+
+const set of char: target_name_char is {'!' .. '~'} - {':', '='};
+const set of char: macro_name_char is {'!' .. '~'} - {')', '='};
+const set of char: parameter_char is {'!' .. '~'} - {'<', '>', '|', ';'};
+const set of char: no_dos_escape_char is {' ' .. '~'} - {'&', '<', '>', '|', '^'};
+
+const type: string_hash is hash [string] string;
+
+var string_hash: make_option is string_hash.value;
+var string_hash: macros is string_hash.value;
+
+const type: ruleType is new struct
+    var string: name is "";
+    var array string: dependencies is 0 times "";
+    var array string: commands is 0 times "";
+    var boolean: commandsDone is FALSE;
+  end struct;
+
+const type: rule_hash is hash [string] ruleType;
+
+var rule_hash: rules is rule_hash.value;
+var rule_hash: patternRules is rule_hash.value;
+var string: nameOfFirstRule is "";
+var boolean: executeCommands is TRUE;
+var boolean: silentMode is FALSE;
+
+
+const func string: getCommandParameter (inout string: stri) is func
+  result
+    var string: symbol is "";
+  local
+    var integer: leng is 0;
+    var integer: pos is 1;
+  begin
+    leng := length(stri);
+    if pos <= leng then
+      incr(pos);
+      while pos <= leng and stri[pos] in parameter_char do
+        incr(pos);
+      end while;
+      symbol := stri[.. pred(pos)];
+      stri := stri[pos ..];
+    end if;
+  end func;
+
+
+const func string: getTargetName (inout file: makefile) is func
+  result
+    var string: symbol is "";
+  begin
+    symbol := str(makefile.bufferChar);
+    makefile.bufferChar := getc(makefile);
+    while makefile.bufferChar in target_name_char do
+      symbol &:= makefile.bufferChar;
+      makefile.bufferChar := getc(makefile);
+    end while;
+  end func;
+
+
+const func string: getTargetName (inout string: stri) is func
+  result
+    var string: symbol is "";
+  local
+    var integer: leng is 0;
+    var integer: pos is 1;
+  begin
+    leng := length(stri);
+    if pos <= leng then
+      incr(pos);
+      while pos <= leng and stri[pos] in target_name_char do
+        incr(pos);
+      end while;
+      symbol := stri[.. pred(pos)];
+      stri := stri[pos ..];
+    end if;
+  end func;
+
+
+const func string: getMacroName (inout file: makefile) is func
+  result
+    var string: symbol is "";
+  begin
+    symbol := str(makefile.bufferChar);
+    makefile.bufferChar := getc(makefile);
+    while makefile.bufferChar in macro_name_char do
+      symbol &:= makefile.bufferChar;
+      makefile.bufferChar := getc(makefile);
+    end while;
+  end func;
+
+
+(**
+ *  Reads an unquoted dos string from a 'string'.
+ *  When the function is called it is assumed that stri[1] contains
+ *  the first character of the string. When the function is left
+ *  'stri' is empty or stri[1] contains the character after the
+ *  dos string.
+ *  @return the text of the unquoted dos string.
+ *)
+const func string: getDosString (inout string: stri) is func
+  result
+    var string: symbol is "";
+  local
+    var integer: leng is 0;
+    var integer: startPos is 1;
+    var integer: pos is 1;
+    var boolean: reading_string is TRUE;
+  begin
+    leng := length(stri);
+    repeat
+      startPos := pos;
+      while pos <= leng and stri[pos] in no_dos_escape_char do
+        incr(pos);
+      end while;
+      symbol &:= stri[startPos  .. pred(pos)];
+      if pos > leng or stri[pos] = '\n' or stri[pos] = '\r' then
+        reading_string := FALSE;
+      elsif stri[pos] = '^' then
+        incr(pos);
+        if pos <= leng then
+          symbol &:= str(stri[pos]);
+          incr(pos);
+        else
+          symbol &:= "^";
+        end if;
+      else
+        reading_string := FALSE;
+      end if;
+    until not reading_string;
+    stri := stri[pos ..];
+  end func;
+
+
+(**
+ *  Reads the text of a quoted unix string literal from a 'string'.
+ *  When the function is called it is assumed that stri[1] contains
+ *  the introducing " . When the function is left 'stri' is empty or
+ *  stri[1] contains the character after the closing " .
+ *  @return the text of the string literal without introducing or
+ *          closing " .
+ *)
+const func string: getUnixString (inout string: stri) is func
+  result
+    var string: symbol is "";
+  local
+    var integer: leng is 0;
+    var integer: startPos is 2;
+    var integer: pos is 2;
+    var boolean: reading_string is TRUE;
+  begin
+    leng := length(stri);
+    repeat
+      startPos := pos;
+      while pos <= leng and stri[pos] in no_escape_char do
+        incr(pos);
+      end while;
+      symbol &:= stri[startPos .. pred(pos)];
+      if pos > leng or stri[pos] = '\n' or stri[pos] = '\r' then
+        reading_string := FALSE;
+      elsif stri[pos] = '\"' then
+        incr(pos);
+        if pos <= leng and stri[pos] = '\"' then
+          incr(pos);
+        else
+          reading_string := FALSE;
+        end if;
+      elsif stri[pos] = '\\' then
+        incr(pos);
+        if pos <= leng and stri[pos] = '\\' or stri[pos] = '"' then
+          symbol &:= str(stri[pos]);
+          incr(pos);
+        else
+          symbol &:= "\\";
+        end if;
+      else
+        repeat
+          symbol &:= str(stri[pos]);
+          incr(pos);
+        until pos > leng or stri[pos] >= ' ' or stri[pos] <= '~';
+      end if;
+    until not reading_string;
+    stri := stri[pos ..];
+  end func;
+
+
+const func string: applyMacros (in string: stri) is func
+  result
+    var string: result is "";
+  local
+    var integer: dollarPos is 0;
+    var integer: closeParenPos is 0;
+    var string: name is "";
+  begin
+    result := stri;
+    dollarPos := pos(result, '$');
+    while dollarPos <> 0 do
+      if dollarPos < length(result) then
+        if result[succ(dollarPos)] = '(' then
+          closeParenPos := pos(result, ')', dollarPos + 2);
+          if closeParenPos <> 0 then
+            name := result[dollarPos + 2 .. pred(closeParenPos)];
+            if name in macros then
+              result := result[.. pred(dollarPos)] & macros[name] & result[succ(closeParenPos) ..];
+            end if;
+          end if;
+        elsif result[succ(dollarPos)] = '$' then
+          incr(dollarPos);
+        end if;
+      end if;
+      dollarPos := pos(result, '$', succ(dollarPos));
+    end while;
+  end func;
+
+
+const func string: getMacro (inout file: makefile) is func
+  result
+    var string: result is "";
+  local
+    var string: name is "";
+  begin
+    makefile.bufferChar := getc(makefile);
+    if makefile.bufferChar = '(' then
+      makefile.bufferChar := getc(makefile);
+      name := getMacroName(makefile);
+      if makefile.bufferChar = ')' then
+        makefile.bufferChar := getc(makefile);
+        if name in macros then
+          result := macros[name];
+        else
+          result := "$(" & name & ")";
+        end if;
+      end if;
+    else
+      result := "$";
+    end if;
+  end func;
+
+
+const func string: getLineWithMacrosApplied (inout file: makefile) is func
+  result
+    var string: data is "";
+  begin
+    data := "";
+    while makefile.bufferChar <> '\n' and makefile.bufferChar <> EOF do
+      if makefile.bufferChar = '\r' then
+        makefile.bufferChar := getc(makefile);
+        if makefile.bufferChar <> '\n' then
+          data &:= '\r';
+        end if;
+      elsif makefile.bufferChar = '\\' then
+        makefile.bufferChar := getc(makefile);
+        if makefile.bufferChar = '\r' then
+          makefile.bufferChar := getc(makefile);
+          if makefile.bufferChar = '\n' then
+            makefile.bufferChar := getc(makefile);
+          else
+            data &:= "\\\r";
+          end if;
+        elsif makefile.bufferChar = '\n' then
+          makefile.bufferChar := getc(makefile);
+        else
+          data &:= '\\';
+        end if;
+      elsif makefile.bufferChar = '$' then
+        data &:= getMacro(makefile);
+      else
+        data &:= makefile.bufferChar;
+        makefile.bufferChar := getc(makefile);
+      end if;
+    end while;
+  end func;
+
+
+const proc: readRule (inout file: makefile, in string: name) is func
+  local
+    var string: dependencies is "";
+    var string: dependency is "";
+    var string: command is "";
+    var ruleType: rule is ruleType.value;
+  begin
+    rule.name := name;
+    makefile.bufferChar := getc(makefile);
+    skipSpace(makefile);
+    dependencies := getLineWithMacrosApplied(makefile);
+    # write(name <& ":");
+    while dependencies <> "" do
+      dependency := getTargetName(dependencies);
+      rule.dependencies &:= [] (dependency);
+      skipSpace(dependencies);
+      # write(" " <& dependency);
+    end while;
+    # writeln;
+    makefile.bufferChar := getc(makefile);
+    while makefile.bufferChar = '\t' or makefile.bufferChar = ' ' do
+      skipSpaceOrTab(makefile);
+      if makefile.bufferChar = '\r' then
+        makefile.bufferChar := getc(makefile);
+      end if;
+      if makefile.bufferChar <> '\n' then
+        command := getLineWithMacrosApplied(makefile);
+        rule.commands &:= [] (command);
+        makefile.bufferChar := getc(makefile);
+        # writeln("\t" <& command);
+      end if;
+    end while;
+    if length(rules) = 0 then
+      nameOfFirstRule := name;
+    end if;
+    if pos(name, '%') <> 0 then
+      patternRules @:= [name] rule;
+    else
+      rules @:= [name] rule;
+    end if;
+  end func;
+
+
+const proc: readMakefile (in string: fileName) is func
+  local
+    var file: makefile is STD_NULL;
+    var string: name is "";
+    var array string: alternateTargets is 0 times "";
+    var string: data is "";
+  begin
+    makefile := open(fileName, "r");
+    if makefile <> STD_NULL then
+      makefile.bufferChar := getc(makefile);
+      while makefile.bufferChar <> EOF do
+        skipWhiteSpace(makefile);
+        # writeln(literal(makefile.bufferChar));
+        if makefile.bufferChar = '#' then
+          skipLineComment(makefile);
+          makefile.bufferChar := getc(makefile);
+        elsif makefile.bufferChar = '!' then
+          # nmake commands like if, include, endif, ...
+          # currently ignored
+          skipLineComment(makefile);
+          makefile.bufferChar := getc(makefile);
+        elsif makefile.bufferChar in target_name_char then
+          name := getTargetName(makefile);
+          if name = "ifeq" or name = "include" or name = "endif" then
+            skipLine(makefile);
+            makefile.bufferChar := getc(makefile);
+          elsif name = ".SILENT" then
+            silentMode := TRUE;
+            skipLine(makefile);
+            makefile.bufferChar := getc(makefile);
+          else
+            skipSpace(makefile);
+            if makefile.bufferChar = '=' then
+              makefile.bufferChar := getc(makefile);
+              skipSpace(makefile);
+              data := getLineWithMacrosApplied(makefile);
+              macros @:= [name] data;
+              # writeln(name <& " = " <& data);
+              makefile.bufferChar := getc(makefile);
+            else
+              name := applyMacros(name);
+              alternateTargets := 0 times "";
+              while makefile.bufferChar in target_name_char do
+                alternateTargets &:= getTargetName(makefile);
+                skipSpace(makefile);
+              end while;
+              if makefile.bufferChar = ':' then
+                readRule(makefile, name);
+              else
+                writeln(" *** Illegal character " <& literal(makefile.bufferChar) <& ", ignored");
+                makefile.bufferChar := getc(makefile);
+              end if;
+            end if;
+          end if;
+        else
+          writeln(" *** Illegal character " <& literal(makefile.bufferChar) <& ", ignored");
+          makefile.bufferChar := getc(makefile);
+        end if;
+      end while;
+      close(makefile);
+    end if;
+  end func;
+
+
+const func boolean: doOneCommand (inout string: command,
+    inout string: commandOutput, in boolean: doLog) is forward;
+
+
+const func string: execBacktickCommands (in string: stri) is func
+  result
+    var string: result is "";
+  local
+    var integer: backtickPos is 0;
+    var integer: closingBacktickPos is 0;
+    var string: command is "";
+    var file: commandFile is STD_NULL;
+    var string: commandOutput is "";
+  begin
+    result := stri;
+    backtickPos := pos(result, '`');
+    while backtickPos <> 0 do
+      closingBacktickPos := pos(result, '`', succ(backtickPos));
+      if closingBacktickPos <> 0 then
+        command := result[succ(backtickPos) .. pred(closingBacktickPos)];
+        if not doOneCommand(command, commandOutput, FALSE) then
+          commandFile := popen(command, "r");
+          if commandFile <> STD_NULL then
+            commandOutput := gets(commandFile, 999999999);
+            while endsWith(commandOutput, "\r\n") do
+              commandOutput := commandOutput[.. length(commandOutput) - 2];
+            end while;
+            while endsWith(commandOutput, "\n") do
+              commandOutput := commandOutput[.. pred(length(commandOutput))];
+            end while;
+          else
+            commandOutput := "";
+          end if;
+        end if;
+        result := result[.. pred(backtickPos)] & commandOutput & result[succ(closingBacktickPos) ..];
+      end if;
+      backtickPos := pos(result, '`', succ(backtickPos));
+    end while;
+  end func;
+
+
+const func boolean: wildcard_match (in string: main_stri, in string: pattern) is func
+  result
+    var boolean: result is FALSE;
+  local
+    var integer: main_length is 0;
+    var integer: main_index is 1;
+    var string: pattern_tail is "";
+  begin
+    if pattern = "" then
+      result := main_stri = "";
+    else
+      case pattern[1] of
+        when {'*'}:
+          if pattern = "*" then
+            result := TRUE;
+          else
+            main_length := length(main_stri);
+            pattern_tail := pattern[2 .. ];
+            while main_index <= main_length and not result do
+              result := wildcard_match(main_stri[main_index .. ], pattern_tail);
+              incr(main_index);
+            end while;
+          end if;
+        when {'?'}:
+          if main_stri <> "" then
+            result := wildcard_match(main_stri[2 .. ], pattern[2 .. ]);
+          end if;
+        otherwise:
+          if main_stri <> "" and main_stri[1] = pattern[1] then
+            result := wildcard_match(main_stri[2 .. ], pattern[2 .. ]);
+          end if;
+      end case;
+    end if;
+  end func;
+
+
+const func array string: findMatchingFiles (in string: pattern) is func
+  result
+    var array string: result is 0 times "";
+  local
+    var integer: slashPos is 0;
+    var string: path is "";
+    var array string: dirContent is 0 times "";
+    var string: filePattern is "";
+    var string: fileName is "";
+  begin
+    slashPos := rpos(pattern, '/');
+    if slashPos <> 0 then
+      path := pattern[.. pred(slashPos)];
+      filePattern := pattern[succ(slashPos) ..];
+      dirContent := read_dir(path);
+      path &:= "/";
+    else
+      filePattern := pattern;
+      dirContent := read_dir(".");
+    end if;
+    for fileName range dirContent do
+      if wildcard_match(fileName, filePattern) then
+        result &:= [] (path & fileName);
+      end if;
+    end for;
+  end func;
+
+
+const proc: doRm (in string: commandName, inout string: command, in boolean: doLog) is func
+  local
+    var string: parameter is "";
+    var boolean: force is FALSE;
+    var string: fileName is "";
+  begin
+    if doLog then
+      write(commandName);
+    end if;
+    skipWhiteSpace(command);
+    while command <> "" do
+      parameter := getWord(command);
+      if parameter = "-f" then
+        force := TRUE;
+      else
+        parameter := replace(parameter, "\\", "/");
+        while pos(parameter, "//") <> 0 do
+          parameter := replace(parameter, "//", "/");
+        end while;
+        while parameter <> "/" and endsWith(parameter, "/") do
+          parameter := parameter[.. pred(length(parameter))];
+        end while;
+        if pos(parameter, "*") <> 0 or pos(parameter, "?") <> 0 then
+          for fileName range findMatchingFiles(parameter) do
+            removeFile(fileName);
+          end for;
+        else
+          if fileType(parameter) <> FILE_ABSENT then
+            removeFile(parameter);
+          end if;
+        end if;
+      end if;
+      if doLog then
+        write(" " <& parameter);
+      end if;
+      skipWhiteSpace(command);
+    end while;
+  end func;
+
+
+const proc: doCp (inout string: command, in boolean: cpCommand, in boolean: doLog) is func
+  local
+    var string: parameter is "";
+    var boolean: overwriteExisting is FALSE;
+    var string: fileName is "";
+    var array string: fileList is 0 times "";
+    var string: destination is "";
+    var string: destFileName is "";
+    var integer: slashPos is 0;
+  begin
+    if doLog then
+      write([]("copy", "cp")[ord(cpCommand)]);
+    end if;
+    overwriteExisting := cpCommand;
+    skipWhiteSpace(command);
+    while command <> "" do
+      parameter := getWord(command);
+      if parameter = "/Y" then
+        overwriteExisting := TRUE;
+      elsif parameter = "-n" then
+        overwriteExisting := FALSE;
+      else
+        parameter := replace(parameter, "\\", "/");
+        while pos(parameter, "//") <> 0 do
+          parameter := replace(parameter, "//", "/");
+        end while;
+        while parameter <> "/" and endsWith(parameter, "/") do
+          parameter := parameter[.. pred(length(parameter))];
+        end while;
+        if pos(parameter, "*") <> 0 or pos(parameter, "?") <> 0 then
+          for fileName range findMatchingFiles(parameter) do
+            fileList &:= [] (fileName);
+          end for;
+        else
+          fileList &:= [] (parameter);
+        end if;
+      end if;
+      if doLog then
+        write(" " <& parameter);
+      end if;
+      skipWhiteSpace(command);
+    end while;
+    if length(fileList) >= 2 then
+      destination := fileList[length(fileList)];
+      fileList := fileList[.. pred(length(fileList))];
+      if fileType(destination) = FILE_DIR then
+        for fileName range fileList do
+          if fileType(fileName) = FILE_REGULAR or fileType(fileName) = FILE_DIR then
+            slashPos := rpos(fileName, "/");
+            if slashPos = 0 then
+              destFileName := destination & "/" & fileName;
+            else
+              destFileName := destination & "/" & fileName[succ(slashPos) ..];
+            end if;
+            if fileType(destFileName) = FILE_REGULAR and overwriteExisting then
+              block
+                removeFile(destFileName);
+              exception
+                catch FILE_ERROR:
+                  writeln(" *** Cannot remove " <& destFileName);
+              end block;
+            end if;
+            if fileType(destFileName) = FILE_ABSENT then
+              # write("copyFile " <& fileName <& " " <& destination);
+              copyFile(fileName, destFileName);
+            end if;
+          end if;
+        end for;
+      elsif length(fileList) = 1 then
+        fileName := fileList[1];
+        if fileType(fileName) = FILE_REGULAR or fileType(fileName) = FILE_DIR then
+          if fileType(destination) = FILE_REGULAR and overwriteExisting then
+            block
+              removeFile(destination);
+            exception
+              catch FILE_ERROR:
+                writeln(" *** Cannot remove " <& destFileName);
+            end block;
+          end if;
+          if fileType(destination) = FILE_ABSENT then
+            # write("copyFile " <& fileName <& " " <& destination);
+            copyFile(fileName, destination);
+          end if;
+        end if;
+      end if;
+    end if;
+  end func;
+
+
+const func string: doPwd (inout string: command, in boolean: doLog) is func
+  result
+    var string: result is "";
+  begin
+    if doLog then
+      write("pwd");
+    end if;
+    skipWhiteSpace(command);
+    if startsWith(command, "-W") then
+      if doLog then
+        write(" -W");
+      end if;
+      command := command[3 ..];
+      skipWhiteSpace(command);
+    end if;
+    result := getcwd;
+  end func;
+
+
+const func string: doEcho (inout string: command, in boolean: doLog) is func
+  result
+    var string: result is "";
+  local
+    var string: whiteSpace is "";
+    var string: parameter is "";
+  begin
+    whiteSpace := getWhiteSpace(command);
+    while command <> "" and command[1] in parameter_char do
+      if result <> "" then
+        result &:= whiteSpace;
+      end if;
+      if command <> "" and command[1] = '"' then
+        parameter := getUnixString(command);
+        result &:= execBacktickCommands(parameter);
+      else
+        result &:= getDosString(command);
+      end if;
+      whiteSpace := getWhiteSpace(command);
+    end while;
+    if doLog then
+      write("echo " <& result);
+    end if;
+  end func;
+
+
+const proc: doCd (inout string: command, in boolean: doLog) is func
+  local
+    var string: parameter is "";
+    var boolean: force is FALSE;
+    var string: fileName is "";
+  begin
+    skipWhiteSpace(command);
+    if command <> "" then
+      parameter := replace(getCommandParameter(command), "\\", "/");
+      if doLog then
+        write("cd " <& parameter);
+      end if;
+      if fileType(parameter) = FILE_DIR then
+        chdir(parameter);
+      else
+        writeln(" *** cd " <& parameter <& " - No such file or directory");
+        writeln(fileType(parameter));
+      end if;
+    end if;
+  end func;
+
+
+const proc: processRule (in string: targetName) is forward;
+
+
+const proc: doMake (inout string: command, in boolean: doLog) is func
+  local
+    var string: parameter is "";
+    var boolean: force is FALSE;
+    var string: fileName is "";
+  begin
+    skipWhiteSpace(command);
+    if command <> "" then
+      parameter := getCommandParameter(command);
+      if doLog then
+        writeln("make " <& parameter);
+      end if;
+      processRule(parameter);
+    end if;
+  end func;
+
+
+const func boolean: doOneCommand (inout string: command,
+    inout string: commandOutput, in boolean: doLog) is func
+  result
+    var boolean: result is TRUE;
+  local
+    var string: commandName is "";
+  begin
+    if command <> "" and command[1] = '#' then
+      command := "";
+      commandOutput := "";
+    else
+      commandName := lower(getWord(command));
+      if commandName = "rm" or commandName = "del" then
+        doRm(commandName, command, doLog);
+        commandOutput := "";
+      elsif commandName = "cp" then
+        doCp(command, TRUE, doLog);
+        commandOutput := "";
+      elsif commandName = "copy" then
+        doCp(command, FALSE, doLog);
+        commandOutput := "";
+      elsif commandName = "pwd" then
+        commandOutput := doPwd(command, doLog);
+      elsif commandName = "echo" then
+        commandOutput := doEcho(command, doLog);
+      elsif commandName = "cd" then
+        doCd(command, doLog);
+        commandOutput := "";
+      elsif commandName = "make" or commandName = "$(make)" then
+        doMake(command, doLog);
+        commandOutput := "";
+      else
+        result := FALSE;
+        commandOutput := "";
+      end if;
+    end if;
+  end func;
+
+
+const proc: appendToFile (in string: file_name, in string: stri) is func
+  local
+    var file: work_file is STD_NULL;
+  begin
+    if stri <> "" then
+      work_file := open(file_name, "a");
+      if work_file <> STD_NULL then
+        write(work_file, stri);
+        close(work_file);
+      end if;
+    end if;
+  end func;
+
+
+const func boolean: doCommands (inout string: command, in boolean: doLog) is func
+  result
+    var boolean: result is TRUE;
+  local
+    var integer: quotePos is 0;
+    var string: commandOutput is ""; 
+    var string: redirect is "";
+    var string: fileName is "";
+  begin
+    if startsWith(command, "\"") then
+      quotePos := rpos(command, "\"");
+      if quotePos <> 0 and quotePos <> 1 then
+        command := command[2 .. pred(quotePos)] & command[succ(quotePos) ..];
+      end if;
+    end if;
+    repeat
+      result := doOneCommand(command, commandOutput, doLog);
+      if result then
+        skipWhiteSpace(command);
+        redirect := getWord(command);
+        if redirect = ">" then
+          skipWhiteSpace(command);
+          fileName := getWord(command);
+          if doLog then
+            writeln(" > " <& fileName);
+          end if;
+          putf(fileName, commandOutput & "\n");
+        elsif redirect = ">>" then
+          skipWhiteSpace(command);
+          fileName := getCommandParameter(command);
+          if doLog then
+            writeln(" >> " <& fileName);
+          end if;
+          appendToFile(fileName, commandOutput & "\n");
+        elsif commandOutput <> "" then
+          writeln(commandOutput);
+        end if;
+        skipWhiteSpace(command);
+        if command <> "" and command[1] = ';' then
+          command := command[2 ..];
+          skipWhiteSpace(command);
+        end if;
+      end if;
+    until command = "" or not result;
+  end func;
+
+
+const func integer: processCommand (in var string: command, in boolean: doLog) is func
+  result
+    var integer: commandStatus is 0;
+  local
+    var string: fullCommand is "";
+    var integer: gtPos is 0;
+    var boolean: doRedirect is FALSE;
+    var boolean: doAppend is FALSE;
+    var string: fileName is "";
+    var file: aFile is STD_NULL;
+    var string: commandOutput is "";
+  begin
+    fullCommand := command;
+    if not doCommands(command, doLog) then
+      gtPos := rpos(fullCommand, ">");
+      if gtPos >= 2 then
+        fileName := fullCommand[succ(gtPos) ..];
+        skipSpace(fileName);
+        if fullCommand[pred(gtPos)] = '>' and gtPos >= 3 and
+            fullCommand[gtPos - 2] not in {'\\', '^'} then
+          doAppend := TRUE;
+          fullCommand := fullCommand[.. gtPos - 2];
+        elsif fullCommand[pred(gtPos)] not in {'\\', '^', '2'} then
+          doRedirect := TRUE;
+          fullCommand := fullCommand[.. pred(gtPos)];
+        end if;
+      end if;
+      if doRedirect or doAppend then
+        if doLog then
+          write(fullCommand);
+          if doAppend then
+            write(">");
+          end if;
+          writeln("> " & fileName);
+        end if;
+        aFile := popen(fullCommand, "r");
+        if aFile <> STD_NULL then
+          commandOutput := gets(aFile, 999999999);
+          close(aFile);
+          if doAppend then
+            appendToFile(fileName, commandOutput);
+          else
+            putf(fileName, commandOutput);
+          end if;
+        end if;
+      else
+        if doLog then
+          writeln(fullCommand);
+          flush(STD_OUT);
+        end if;
+        fullCommand := replace(fullCommand, "\\", "/");
+        commandStatus := shell(fullCommand);
+      end if;
+    end if;
+  end func;
+
+
+const func string: applyInternalMacros (in ruleType: rule, in string: stri) is func
+  result
+    var string: result is "";
+  local
+    var integer: dollarPos is 0;
+    var integer: closeParenPos is 0;
+    var string: dependency is "";
+    var set of string: dependencySet is (set of string).value;
+    var array string: strictDependencies is 0 times "";
+  begin
+    for dependency range rule.dependencies do
+      if dependency not in dependencySet then
+        strictDependencies &:= dependency;
+        incl(dependencySet, dependency);
+      end if;
+    end for;
+    result := stri;
+    dollarPos := pos(result, '$');
+    while dollarPos <> 0 do
+      if dollarPos < length(result) then
+        if result[succ(dollarPos)] = '@' then
+          result := result[.. pred(dollarPos)] & rule.name & result[dollarPos + 2 ..];
+        elsif result[succ(dollarPos)] = '<' then
+          if length(rule.dependencies) <> 0 then
+            result := result[.. pred(dollarPos)] & rule.dependencies[1] & result[dollarPos + 2 ..];
+          end if;
+        elsif result[succ(dollarPos)] = '?' then
+            result := result[.. pred(dollarPos)] & join(strictDependencies, " ") & result[dollarPos + 2 ..];
+        elsif result[succ(dollarPos)] = '^' then
+            result := result[.. pred(dollarPos)] & join(strictDependencies, " ") & result[dollarPos + 2 ..];
+        elsif result[succ(dollarPos)] = '+' then
+            result := result[.. pred(dollarPos)] & join(rule.dependencies, " ") & result[dollarPos + 2 ..];
+        elsif result[succ(dollarPos)] = '$' then
+          result := result[.. pred(dollarPos)] & result[succ(dollarPos) ..];
+        end if;
+      end if;
+      dollarPos := pos(result, '$', succ(dollarPos));
+    end while;
+  end func;
+
+
+const proc: processCommands (inout ruleType: rule) is func
+  local
+    var string: command is "";
+    var integer: commandStatus is 0;
+    var boolean: printCommand is TRUE;
+    var boolean: ignoreError is FALSE;
+  begin
+    for command range rule.commands do
+      command := applyInternalMacros(rule, command);
+      if startsWith(command, "@-") or startsWith(command, "-@")then
+        printCommand := FALSE;
+        ignoreError := TRUE;
+        command := command[3 ..];
+      elsif startsWith(command, "@") then
+        printCommand := FALSE;
+        command := command[2 ..];
+      elsif startsWith(command, "-") then
+        ignoreError := TRUE;
+        command := command[2 ..];
+      end if;
+      if printCommand and not silentMode then
+        writeln(command);
+        flush(STD_OUT);
+      end if;
+      if executeCommands then
+        commandStatus := processCommand(command, FALSE);
+        if commandStatus <> 0 then
+          writeln(" *** [" <& rule.name <& "] Error " <& commandStatus);
+          exit(PROGRAM);
+        end if;
+      end if;
+    end for;
+    rule.commandsDone := TRUE;
+  end func;
+
+
+const func string: pattern_match (in string: main_stri, in string: pattern) is func
+  result
+    var string: stem is "";
+  local
+    var integer: percentPos is 0;
+    var integer: main_index is 2;
+    var string: pattern_tail is "";
+  begin
+    percentPos := pos(pattern, '%');
+    if percentPos = rpos(pattern, '%') then
+      if  startsWith(main_stri, pattern[.. pred(percentPos)]) and
+          endsWith(main_stri, pattern[succ(percentPos) ..]) then
+        stem := main_stri[percentPos .. length(main_stri) - length(pattern) + percentPos];
+      end if;
+    end if;
+  end func;
+
+
+const proc: processRule (inout ruleType: rule) is func
+  local
+    var string: dependency is "";
+    var string: dependencyFile is "";
+    var string: ruleFile is "";
+    var time: targetTime is time.value;
+    var boolean: commandsNecessary is FALSE;
+  begin
+    for dependency range rule.dependencies do
+      processRule(dependency);
+    end for;
+    if executeCommands or not rule.commandsDone then
+      ruleFile := replace(rule.name, "\\", "/");
+      if fileType(ruleFile) = FILE_ABSENT then
+        processCommands(rule);
+      else
+        targetTime := getMTime(ruleFile);
+        for dependency range rule.dependencies do
+          dependencyFile := replace(dependency, "\\", "/");
+          if not executeCommands then
+            commandsNecessary := TRUE;
+          elsif fileType(dependencyFile) = FILE_ABSENT then
+            writeln(" *** File " <& dependencyFile <& " missing");
+          elsif getMTime(dependencyFile) > targetTime then
+            commandsNecessary := TRUE;
+          end if;
+        end for;
+        if commandsNecessary then
+          processCommands(rule);
+        end if;
+      end if;
+    end if;
+  end func;
+
+
+const proc: processPatternRule (in string: targetName) is func
+  local
+    var string: ruleName is "";
+    var boolean: finished is FALSE;
+    var string: stem is "";
+    var ruleType: patternRule is ruleType.value;
+    var ruleType: actualRule is ruleType.value;
+    var string: dependency is "";
+  begin
+    for key ruleName range patternRules do
+      if not finished then
+        stem := pattern_match(targetName, ruleName);
+        if stem <> "" then
+          patternRule := patternRules[ruleName];
+          actualRule.name := targetName;
+          for dependency range patternRule.dependencies do
+            actualRule.dependencies &:= [] (replace(dependency, "%", stem));
+          end for;
+          actualRule.commands := patternRule.commands;
+          processRule(actualRule);
+          finished := TRUE;
+        end if;
+      end if;
+    end for;
+  end func;
+
+
+const proc: processRule (in string: targetName) is func
+  local
+    var ruleType: rule is ruleType.value;
+  begin
+    # writeln("process rule: " <& targetName);
+    if targetName in rules then
+      processRule(rules[targetName]);
+    else
+      processPatternRule(targetName);
+    end if;
+  end func;
+
+
+const proc: make (in string: makefile, in string: target) is func
+  local
+    var ruleType: rule is ruleType.value;
+  begin
+    writeln("make -f " <& makefile <& " " <& target);
+    macros @:= ["CPPFLAGS"] "";
+    macros @:= ["CFLAGS"] "";
+    macros @:= ["CC"] "cc";
+    readMakefile(makefile);
+    if ".c.o" in rules and "%.o" not in patternRules then
+      rule.name := "%.o";
+      rule.dependencies := [] ("%.c");
+      rule.commands := rules[".c.o"].commands;
+      patternRules @:= [rule.name] rule;
+      excl(rules, ".c.o");
+    elsif "%.o" not in patternRules then
+      rule.name := "%.o";
+      rule.dependencies := [] ("%.c");
+      rule.commands := [] (applyMacros("$(CC) -c $(CPPFLAGS) $(CFLAGS) $< -o $@"));
+      patternRules @:= [rule.name] rule;
+    end if;
+    if ".c.obj" in rules and "%.obj" not in patternRules then
+      rule.name := "%.obj";
+      rule.dependencies := [] ("%.c");
+      rule.commands := rules[".c.obj"].commands;
+      patternRules @:= [rule.name] rule;
+      excl(rules, ".c.obj");
+    elsif "%.obj" not in patternRules then
+      rule.name := "%.obj";
+      rule.dependencies := [] ("%.c");
+      rule.commands := [] (applyMacros("$(CC) -c $(CPPFLAGS) $(CFLAGS) $< -o $@"));
+      patternRules @:= [rule.name] rule;
+    end if;
+    if target = "" then
+      processRule(nameOfFirstRule);
+    else
+      processRule(target);
+    end if;
+  end func;
+
+
+const proc: main is func
+  local
+    var integer: number is 0;
+    var string: curr_arg is "";
+    var string: target is "";
+    var string: makefile is "";
+    var boolean: okay is TRUE;
+  begin
+    number := 1;
+    while number <= length(argv(PROGRAM)) do
+      curr_arg := argv(PROGRAM)[number];
+      if length(curr_arg) >= 2 and curr_arg[1] = '-' then
+        if curr_arg = "-f" and number < length(argv(PROGRAM)) then
+          incr(number);
+          make_option @:= [curr_arg[.. 2]] argv(PROGRAM)[number]
+        else
+          make_option @:= [curr_arg[.. 2]] curr_arg[3 ..];
+        end if;
+      elsif target = "" then
+        target := curr_arg;
+      end if;
+      incr(number);
+    end while;
+    if "-v" in make_option or "-h" in make_option or "-?" in make_option then
+      writeln("Make7 Version 1.0 - Make utility to manage the compilation process");
+      writeln("Copyright (C) 2010 Thomas Mertes");
+      writeln("This is free software; see the source for copying conditions.  There is NO");
+      writeln("warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.");
+      writeln("Make7 is written in the Seed7 programming language");
+      writeln("Homepage: http://seed7.sourceforge.net");
+      writeln;
+      writeln("usage: make7 [options] target");
+      writeln;
+      writeln("Options:");
+      writeln("  -f file");
+      writeln("     Use file as a makefile.");
+      writeln("  -n");
+      writeln("     Print the commands that would be executed, but do not execute them.");
+      writeln("  -s");
+      writeln("     Silent operation. Do not print the commands as they are executed.");
+      writeln;
+    else
+      if "-f" in make_option then
+        makefile := make_option["-f"];
+      elsif fileType("makefile") = FILE_REGULAR then
+        makefile := "makefile";
+      elsif fileType("Makefile") = FILE_REGULAR then
+        makefile := "Makefile";
+      else
+        okay := FALSE;
+        if target = "" then
+          writeln(" *** Target missing and no makefile found.");
+        else
+          writeln(" *** No makefile found.");
+        end if;
+        writeln("Use  make7 -?  to get information about make7.");
+      end if;
+      if "-n" in make_option then
+        executeCommands := FALSE;
+      end if;
+      if "-s" in make_option then
+        silentMode := TRUE;
+      end if;
+      if okay then
+        make(makefile, target);
+      end if;
+    end if;
+  end func;

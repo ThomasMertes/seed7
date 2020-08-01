@@ -447,7 +447,7 @@ chartype escape;
     rtlArraytype result_array;
 
   /* strChEscSplit */
-    if (delimiter == escape) {
+    if (unlikely(delimiter == escape)) {
       raise_error(RANGE_ERROR);
     } else {
       if (ALLOC_RTL_ARRAY(result_array, 256)) {
@@ -526,7 +526,7 @@ inttype from_index;
     const strelemtype *found_pos;
 
   /* strChIpos */
-    if (from_index <= 0) {
+    if (unlikely(from_index <= 0)) {
       raise_error(RANGE_ERROR);
     } else {
       if ((uinttype) from_index <= main_stri->size) {
@@ -1361,7 +1361,7 @@ inttype from_index;
     const strelemtype *search_end;
 
   /* strIpos */
-    if (from_index <= 0) {
+    if (unlikely(from_index <= 0)) {
       raise_error(RANGE_ERROR);
     } else {
       main_size = main_stri->size;
@@ -1832,7 +1832,7 @@ inttype factor;
 
   /* strMult */
     /* printf("strMult(stri->size=%lu, %ld)\n", stri->size, factor); */
-    if (factor < 0) {
+    if (unlikely(factor < 0)) {
       raise_error(RANGE_ERROR);
       result = NULL;
     } else {
@@ -1931,7 +1931,7 @@ chartype char_from;
 
   /* strPush */
 #ifndef UTF32_STRINGS
-    if (char_from > (chartype) 255) {
+    if (unlikely(char_from > (chartype) 255)) {
       raise_error(RANGE_ERROR);
       return NULL;
     } else {
@@ -2084,7 +2084,7 @@ inttype from_index;
     const strelemtype *found_pos;
 
   /* strRChIpos */
-    if (from_index <= 0) {
+    if (unlikely(from_index <= 0)) {
       raise_error(RANGE_ERROR);
     } else {
       if (main_stri->size >= 1) {
@@ -2984,7 +2984,7 @@ stritype stri8;
           length = 0;
         } /* if */
       } /* for */
-      if (okay) {
+      if (likely(okay)) {
         REALLOC_STRI_SIZE_OK(resized_result, result, stri8->size, pos);
         if (unlikely(resized_result == NULL)) {
           FREE_STRI(result, stri8->size);

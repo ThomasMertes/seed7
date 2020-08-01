@@ -55,6 +55,67 @@
 #define UPPER_HALVE_OF_UINT(A)           (((A) >> (INTTYPE_SIZE >> 1)) & UINT_LOWER_HALVE_BITS_SET)
 
 
+#if   INTTYPE_SIZE == 32
+#define DECIMAL_DIGITS(num)                    \
+  (num < INT_SUFFIX(100000000) ?               \
+      (num < INT_SUFFIX(10000) ?               \
+        (num < INT_SUFFIX(100) ?               \
+          (num < INT_SUFFIX(10) ? 1 : 2)       \
+        :                                      \
+          (num < INT_SUFFIX(1000) ? 3 : 4)     \
+        )                                      \
+      :                                        \
+        (num < INT_SUFFIX(1000000) ?           \
+          (num < INT_SUFFIX(100000) ? 5 : 6)   \
+        :                                      \
+          (num < INT_SUFFIX(10000000) ? 7 : 8) \
+        )                                      \
+      )                                        \
+    :                                          \
+      (num < INT_SUFFIX(1000000000) ? 9 : 10)  \
+    )
+#elif INTTYPE_SIZE == 64
+#define DECIMAL_DIGITS(num) \
+    (num < INT_SUFFIX(10000000000000000) ?                 \
+      (num < INT_SUFFIX(100000000) ?                       \
+        (num < INT_SUFFIX(10000) ?                         \
+          (num < INT_SUFFIX(100) ?                         \
+            (num < INT_SUFFIX(10) ? 1 : 2)                 \
+          :                                                \
+            (num < INT_SUFFIX(1000) ? 3 : 4)               \
+          )                                                \
+        :                                                  \
+          (num < INT_SUFFIX(1000000) ?                     \
+            (num < INT_SUFFIX(100000) ? 5 : 6)             \
+          :                                                \
+            (num < INT_SUFFIX(10000000) ? 7 : 8)           \
+          )                                                \
+        )                                                  \
+      :                                                    \
+        (num < INT_SUFFIX(1000000000000) ?                 \
+          (num < INT_SUFFIX(10000000000) ?                 \
+            (num < INT_SUFFIX(1000000000) ? 9 : 10)        \
+          :                                                \
+            (num < INT_SUFFIX(100000000000) ? 11 : 12)     \
+          )                                                \
+        :                                                  \
+          (num < INT_SUFFIX(100000000000000) ?             \
+            (num < INT_SUFFIX(10000000000000) ? 13 : 14)   \
+          :                                                \
+            (num < INT_SUFFIX(1000000000000000) ? 15 : 16) \
+          )                                                \
+        )                                                  \
+      )                                                    \
+    :                                                      \
+      (num < INT_SUFFIX(1000000000000000000) ?             \
+        (num < INT_SUFFIX(100000000000000000) ? 17 : 18)   \
+      :                                                    \
+        (num < INT_SUFFIX(10000000000000000000) ? 19 : 20) \
+      )                                                    \
+    )
+#endif
+
+
 static const int most_significant[] = {
    -1, 0, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3,
     4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4,
@@ -653,7 +714,7 @@ inttype number;
     int result;
 
   /* intLog2 */
-    if (number < 0) {
+    if (unlikely(number < 0)) {
       raise_error(NUMERIC_ERROR);
       result = 0;
     } else {
@@ -705,7 +766,6 @@ inttype pad_size;
   {
     uinttype unsigned_number;
     booltype negative;
-    strelemtype buffer_1[50];
     strelemtype *buffer;
     memsizetype length;
     memsizetype result_size;
@@ -718,53 +778,39 @@ inttype pad_size;
     } else {
       unsigned_number = (uinttype) number;
     } /* if */
-    buffer = &buffer_1[50];
-    do {
-      *(--buffer) = (strelemtype) (unsigned_number % 10 + '0');
-    } while ((unsigned_number /= 10) != 0);
-    length = (memsizetype) (&buffer_1[50] - buffer);
+    length = DECIMAL_DIGITS(unsigned_number);
+    if (negative) {
+      length++;
+    } /* if */
     if (pad_size > (inttype) length) {
-      if ((uinttype) pad_size > MAX_STRI_LEN) {
+      if (unlikely((uinttype) pad_size > MAX_STRI_LEN)) {
         raise_error(MEMORY_ERROR);
         return NULL;
       } else {
         result_size = (memsizetype) pad_size;
       } /* if */
     } else {
-      if (negative) {
-        result_size = length + 1;
-      } else {
-        result_size = length;
-      } /* if */
+      result_size = length;
     } /* if */
-    if (!ALLOC_STRI_SIZE_OK(result, result_size)) {
+    if (unlikely(!ALLOC_STRI_SIZE_OK(result, result_size))) {
       raise_error(MEMORY_ERROR);
       return NULL;
     } else {
       result->size = result_size;
-#ifdef UTF32_STRINGS
-      {
-        strelemtype *elem = result->mem;
-        memsizetype len0 = result_size - length;
-
-        if (negative) {
-          len0--;
-          *elem++ = (strelemtype) '-';
-        } /* if */
-        while (len0--) {
-          *elem++ = (strelemtype) '0';
+      buffer = &result->mem[result_size];
+      do {
+        *(--buffer) = (strelemtype) (unsigned_number % 10 + '0');
+      } while ((unsigned_number /= 10) != 0);
+      if (buffer != result->mem) {
+        while (buffer != &result->mem[1]) {
+          *(--buffer) = (strelemtype) '0';
         } /* while */
-      }
-#else
-     if (negative) {
-       result->mem[0] = (strelemtype) '-';
-       memset(&result->mem[1], '0', (size_t) (result_size - length - 1));
-     } else {
-       memset(result->mem, '0', (size_t) (result_size - length));
-     } /* if */
-#endif
-      memcpy(&result->mem[result_size - length], buffer,
-          (size_t) length * sizeof(strelemtype));
+        if (negative) {
+          result->mem[0] = (strelemtype) '-';
+        } else {
+          result->mem[0] = (strelemtype) '0';
+        } /* if */
+      } /* if */
       return result;
     } /* if */
   } /* intLpad0 */
@@ -818,7 +864,7 @@ stritype stri;
     if (position == 0 || position < stri->size) {
       okay = FALSE;
     } /* if */
-    if (okay) {
+    if (likely(okay)) {
       if (negative) {
         return -integer_value;
       } else {
@@ -846,7 +892,7 @@ inttype exponent;
     inttype result;
 
   /* intPow */
-    if (exponent < 0) {
+    if (unlikely(exponent < 0)) {
       raise_error(NUMERIC_ERROR);
       result = 0;
     } else {
@@ -888,7 +934,7 @@ inttype upper_limit;
     inttype result;
 
   /* intRand */
-    if (lower_limit > upper_limit) {
+    if (unlikely(lower_limit > upper_limit)) {
       raise_error(RANGE_ERROR);
       return 0;
     } else {
@@ -926,7 +972,7 @@ inttype number;
     register uinttype res2;
 
   /* intSqrt */
-    if (number < 0) {
+    if (unlikely(number < 0)) {
       raise_error(NUMERIC_ERROR);
       return 0;
     } else if (number == 0) {
@@ -955,7 +1001,6 @@ inttype number;
   {
     register uinttype unsigned_number;
     booltype negative;
-    strelemtype buffer_1[50];
     strelemtype *buffer;
     memsizetype length;
     stritype result;
@@ -967,20 +1012,22 @@ inttype number;
     } else {
       unsigned_number = (uinttype) number;
     } /* if */
-    buffer = &buffer_1[50];
-    do {
-      *(--buffer) = (strelemtype) (unsigned_number % 10 + '0');
-    } while ((unsigned_number /= 10) != 0);
+    length = DECIMAL_DIGITS(unsigned_number);
     if (negative) {
-      *(--buffer) = (strelemtype) '-';
+      length++;
     } /* if */
-    length = (memsizetype) (&buffer_1[50] - buffer);
-    if (!ALLOC_STRI_SIZE_OK(result, length)) {
+    if (unlikely(!ALLOC_STRI_SIZE_OK(result, length))) {
       raise_error(MEMORY_ERROR);
       return NULL;
     } else {
       result->size = length;
-      memcpy(result->mem, buffer, (size_t) (length * sizeof(strelemtype)));
+      buffer = &result->mem[length];
+      do {
+        *(--buffer) = (strelemtype) (unsigned_number % 10 + '0');
+      } while ((unsigned_number /= 10) != 0);
+      if (negative) {
+        result->mem[0] = (strelemtype) '-';
+      } /* if */
       return result;
     } /* if */
   } /* intStr */
@@ -1006,7 +1053,7 @@ inttype base;
     stritype result;
 
   /* intStrBased */
-    if (base < 2 || base > 36) {
+    if (unlikely(base < 2 || base > 36)) {
       raise_error(RANGE_ERROR);
       result = NULL;
     } else {
@@ -1024,7 +1071,7 @@ inttype base;
         *(--buffer) = (strelemtype) '-';
       } /* if */
       length = (memsizetype) (&buffer_1[75] - buffer);
-      if (!ALLOC_STRI_SIZE_OK(result, length)) {
+      if (unlikely(!ALLOC_STRI_SIZE_OK(result, length))) {
         raise_error(MEMORY_ERROR);
       } else {
         result->size = length;
@@ -1068,7 +1115,7 @@ inttype number;
       *(--buffer) = (strelemtype) '-';
     } /* if */
     length = (memsizetype) (&buffer_1[50] - buffer);
-    if (!ALLOC_STRI_SIZE_OK(result, length)) {
+    if (unlikely(!ALLOC_STRI_SIZE_OK(result, length))) {
       raise_error(MEMORY_ERROR);
       return NULL;
     } else {

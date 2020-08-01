@@ -752,7 +752,10 @@ stritype stri;
 #endif
 
   {
-    bstritype out_bstri;
+    strelemtype *str;
+    memsizetype len;
+    memsizetype size;
+    uchartype stri_buffer[MAX_UTF8_EXPANSION_FACTOR * 512];
 
   /* ut8Write */
 #ifdef FWRITE_WRONG_FOR_READ_ONLY_FILES
@@ -761,14 +764,18 @@ stritype stri;
       return;
     } /* if */
 #endif
-    out_bstri = stri_to_bstri8(stri);
-    if (out_bstri != NULL) {
-      if (out_bstri->size != fwrite(out_bstri->mem, sizeof(uchartype),
-          (size_t) out_bstri->size, aFile)) {
-        FREE_BSTRI(out_bstri, out_bstri->size);
+    for (str = stri->mem, len = stri->size; len >= 512; str += 512, len -= 512) {
+      size = stri_to_utf8(stri_buffer, str, 512);
+      if (size != fwrite(stri_buffer, sizeof(uchartype), (size_t) size, aFile)) {
         raise_error(FILE_ERROR);
-      } else {
-        FREE_BSTRI(out_bstri, out_bstri->size);
+        return;
+      } /* if */
+    } /* for */
+    if (len > 0) {
+      size = stri_to_utf8(stri_buffer, str, len);
+      if (size != fwrite(stri_buffer, sizeof(uchartype), (size_t) size, aFile)) {
+        raise_error(FILE_ERROR);
+        return;
       } /* if */
     } /* if */
   } /* ut8Write */

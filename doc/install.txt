@@ -19,14 +19,15 @@ INSTALLATION
 
     The Seed7 package consists of a lot of files. There are two
   ways to install them. In a simple installation just use the seed7
-  directorys 'src', 'prg', 'lib'  and 'doc' from the tar file.
-  To compile the interpreter just go to the 'src' directory and type:
+  directories 'src', 'prg', 'lib'  and 'doc' from the tar file.
+  To compile the interpreter just go to the 'seed7/src' directory
+  and type:
 
     make depend
     make
 
-  When the interpreter is compiled just go to the 'prg' directory
-  and start a program like hello.sd7 with:
+  When the interpreter is compiled just go to the 'seed7/prg'
+  directory and start a program like hello.sd7 with:
 
     hi hello
 
@@ -40,6 +41,12 @@ INSTALLATION
 
   This installation can be used for playing a little bit with
   the example programs.
+
+  When you want to use the Seed7 interpreter also from other
+  directories you need to add the path of 'seed7/bin' to the
+  PATH variable. E.g.: When your Seed7 directory is at
+  /home/tm/seed7 you need to add /home/tm/seed7/bin to your
+  PATH variable.
 
     In a professional installation Seed7 programs can be executed
   direct with their name from any directory and from any user.
@@ -70,13 +77,13 @@ INSTALLATION
        possible to use the SEED7_LIBRARY environment variable
        as path to a library directory.
 
-    3. Put a link to the interpreter (seed7/src/hi) in a directory
+    3. Put a link to the interpreter (seed7/bin/hi) in a directory
        with public access which is in the search path. In our
        example we chose /usr/local/bin:
 
          cd /usr/local/bin
          su
-         ln -s /usr/local/src/seed7/src/hi .
+         ln -s /usr/local/src/seed7/bin/hi .
          exit
 
        The advantage of being in the search path is that direct
@@ -92,12 +99,12 @@ INSTALLATION
 
        The first line informs the (unix like) operating system
        to start the 'env' program which itself searches for 'hi'
-       in the directorys of the PATH variable. Then the 'hi'
+       in the directories of the PATH variable. Then the 'hi'
        interpreter is started to execute the desired program.
        To avoid a search in the PATH variable the path to the
        'hi' interpreter can also be hardcoded as first line:
 
-         #! /usr/local/src/seed7/src/hi
+         #! /usr/local/src/seed7/bin/hi
 
        To suppress the compiling information it is possible to
        add as second line:
@@ -107,7 +114,7 @@ INSTALLATION
        This is not necessary but we can assume that the program
        is tested and the compiling information is not wanted in
        a production program. If the program wants to search for
-       include files at additional directorys it is possible to
+       include files at additional directories it is possible to
        add lines like the following one:
 
          $ library "../mylib";

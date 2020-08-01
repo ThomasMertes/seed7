@@ -112,7 +112,7 @@ memsizetype start;
       arg_idx = 0;
       while (arg_idx < argc) {
         /* printf("arg_idx = %d\n", arg_idx);
-	   printf("argv[%d] = ", start + arg_idx);
+           printf("argv[%d] = ", start + arg_idx);
            prot_stri(argv->arr[start + arg_idx].value.strivalue);
            printf("\n"); */
         arg_array->arr[arg_idx].type_of = take_type(SYS_STRI_TYPE);

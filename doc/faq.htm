@@ -231,7 +231,7 @@ statically typed closure parameters are used.
 <p>
 Yes. Seed7 spares no effort to support portable programming.
 Several driver librarys assure that the access to operating system
-resources such as files, directorys, network, clock, keyboard,
+resources such as files, directories, network, clock, keyboard,
 console and graphics are done in a portable way. Many functions
 are defined to avoid the need to use shell (and cmd.exe) commands.
 </p><ul>
@@ -249,10 +249,13 @@ are defined to avoid the need to use shell (and cmd.exe) commands.
 <li><!--  -  -->Reading keys and key combinations such as ctrl-F1 from a text
    console or a graphic window under different operating systems
    always delivers the same character code.</li>
-<li><!--  -  -->Alternate code paths are provided to hide weaknesses of operating
-   systems (E.g.: The windows utime() function does not work on
-   directorys, but Seed7 allows to modify directory access and
-   modification times also under windows).</li>
+<li><!--  -  -->A portable graphics library allows drawing, image operations,
+   windows manipulation and bitmap fonts. Events to redraw a window
+   and other annoyances are managed in the graphics library.</li>
+<li><!--  -  -->Weaknesses of operating systems are hidden (E.g.: The windows
+   function utime() does not work on directories, but Seed7 allows
+   to modify directory access and modification times also under
+   windows).</li>
 </ul></p>
 
 <p><br><a name="license"><h3>Which license does Seed7 use?
@@ -951,7 +954,7 @@ needed.
 Overloading is resolved at compile time while object orientation uses dynamic dispatch
 which decides at runtime which method should be called. Overloading resolution uses
 static types to decide. Dynamic dispatch uses the implementation type, which is only
-known at runtime, to decide. Besides this this difference overloading resolution and
+known at runtime, to decide. Besides this difference overloading resolution and
 dynamic dispatch both use the same technic to do the work: The types and the access
 rights of all parameters are used in the decision process.
 </p></p>
@@ -1290,7 +1293,7 @@ interpreter writes a stack trace:
   {integer: <SYMBOLOBJECT> *NULL_ENTITY_OBJECT* div fuel_max }
 
   Stack:
-  in {(val integer param) div (val integer param) } at seed7_05.s7i(555)
+  in {(val integer param) div (val integer param) } at seed7_05.s7i(557)
   in init_display at lander.sd7(838)
   in setup at lander.sd7(907)
   in main at lander.sd7(1539)
@@ -1302,18 +1305,27 @@ A short examination in <tt><font color=maroon>"lander.sd7"</font></tt> shows tha
 </p><p>
   A compiled program creates a much shorter crash message:
 </p><pre>
-  *** Uncaught EXCEPTION NUMERIC_ERROR raised at tmp_lander.c(678)
+  *** Uncaught EXCEPTION NUMERIC_ERROR raised at tmp_lander.c(698)
 </pre><p>
 In this case the mentioned file name and line number refers to
 the temporary C file or the Seed7 runtime library. To get useful
 information there are two possibilities:
 </p><ol>
 <li><!--  1.  -->Start the program in the interpreter instead.</li>
-<li><!--  2.  -->Compile the program with the option <tt><b>-g</b></tt> and start it from a debugger.</li>
-</ol>
+<li><!--  2.  -->Compile the program with the options <tt><b>-g</b></tt> <tt><b>-e</b></tt> and start it from a debugger.</li>
+</ol><p>
+The option <tt><b>-g</b></tt> instructs the C compiler to include
+debugging information. This way a debugger like gdb can
+run the program and provide information. The option <tt><b>-e</b></tt>
+tells the compiler to generate code which sends a signal
+when an uncaught exception occurs. This option allows
+debuggers to handle uncaught Seed7 exceptions. Note that
+<tt><b>-e</b></tt> sends the signal SIGFPE. This is done even when the
+exception is not related to floating point operations.
+</p><p>
 <a href="manual/errors.htm#Stack_trace">Chapter 14.4 (Stack trace)</a> of the manual contains a detailed
 description how to debug compiled Seed7 programs.
-</p>
+</p></p>
 
 <p><br><a name="bytecode"><h3>Does the interpreter use bytecode?
 </h3></a><hr><!-- ================================== -->

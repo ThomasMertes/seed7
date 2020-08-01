@@ -34,11 +34,12 @@ THE MAKEFILES
     make
 
   When the interpreter is compiled successfully the executable
-  is placed in the 'src' directory. Additionally a symbolic link
-  to the executable is placed in the 'prg' directory (Under
-  Windows symbolic links are not supported, so a copy of the
-  executable is placed in the 'prg' directory). If you do several
-  compilation attempts in succession you need to do
+  and the libraries are placed in the 'bin' directory.
+  Additionally a symbolic link to the executable is placed in
+  the 'prg' directory (Under Windows symbolic links are not
+  supported, so a copy of the executable is placed in the 'prg'
+  directory). If you do several compilation attempts in
+  succession you need to do
 
     make clean
 

@@ -40,6 +40,7 @@ objecttype bst_idx      (listtype arguments);
 objecttype bst_lng      (listtype arguments);
 objecttype bst_ne       (listtype arguments);
 objecttype bst_parse    (listtype arguments);
+objecttype bst_str      (listtype arguments);
 objecttype bst_value    (listtype arguments);
 
 #else
@@ -57,6 +58,7 @@ objecttype bst_idx ();
 objecttype bst_lng ();
 objecttype bst_ne ();
 objecttype bst_parse ();
+objecttype bst_str ();
 objecttype bst_value ();
 
 #endif

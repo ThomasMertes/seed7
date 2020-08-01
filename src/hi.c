@@ -96,8 +96,8 @@ rtlArraytype arg_v;
     for (position = 0; position < arg_v->max_position; position++) {
       if (option.source_file_name == NULL) {
         opt = arg_v->arr[position].value.strivalue;
-	/* prot_stri(opt);
-	   printf("\n"); */
+        /* prot_stri(opt);
+           printf("\n"); */
         if (opt->size >= 2 && opt->mem[0] == '-') {
           switch (opt->mem[1]) {
             case 'a':

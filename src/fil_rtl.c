@@ -360,10 +360,11 @@ filetype aFile;
 
   /* getFileLengthUsingSeek */
     file_length = seekFileLength(aFile);
-    if (file_length == (os_off_t) -1) {
+    if (unlikely(file_length == (os_off_t) -1)) {
       raise_error(FILE_ERROR);
       result = 0;
-    } else if (file_length > INTTYPE_MAX || file_length < (os_off_t) 0) {
+    } else if (unlikely(file_length > INTTYPE_MAX ||
+                        file_length < (os_off_t) 0)) {
       raise_error(RANGE_ERROR);
       result = 0;
     } else {
@@ -389,7 +390,7 @@ filetype aFile;
 
   /* getBigFileLengthUsingSeek */
     file_length = seekFileLength(aFile);
-    if (file_length == (os_off_t) -1) {
+    if (unlikely(file_length == (os_off_t) -1)) {
       raise_error(FILE_ERROR);
       result = NULL;
     } else if (sizeof(os_off_t) == 8) {
@@ -625,9 +626,9 @@ biginttype big_position;
     } else {
       raise_error(RANGE_ERROR);
     } /* if */
-    if (file_position <= 0) {
+    if (unlikely(file_position <= 0)) {
       raise_error(RANGE_ERROR);
-    } else if (offsetSeek(aFile, file_position - 1, SEEK_SET) != 0) {
+    } else if (unlikely(offsetSeek(aFile, file_position - 1, SEEK_SET) != 0)) {
       raise_error(FILE_ERROR);
     } /* if */
   } /* filBigSeek */
@@ -648,7 +649,7 @@ filetype aFile;
 
   /* filBigTell */
     current_file_position = offsetTell(aFile);
-    if (current_file_position == (os_off_t) -1) {
+    if (unlikely(current_file_position == (os_off_t) -1)) {
       raise_error(FILE_ERROR);
       return NULL;
     } else if (sizeof(os_off_t) == 8) {
@@ -673,7 +674,7 @@ filetype aFile;
 #endif
 
   { /* filClose */
-    if (fclose(aFile) != 0) {
+    if (unlikely(fclose(aFile) != 0)) {
       raise_error(FILE_ERROR);
     } /* if */
   } /* filClose */
@@ -714,7 +715,7 @@ inttype length;
 
   /* filGets */
     /* printf("filGets(%d, %d)\n", fileno(aFile), length); */
-    if (length < 0) {
+    if (unlikely(length < 0)) {
       raise_error(RANGE_ERROR);
       result = NULL;
     } else {
@@ -741,7 +742,7 @@ inttype length;
             allocated_size = bytes_there;
           } /* if */
           /* printf("allocated_size=%lu\n", allocated_size); */
-          if (!ALLOC_STRI_CHECK_SIZE(result, allocated_size)) {
+          if (unlikely(!ALLOC_STRI_CHECK_SIZE(result, allocated_size))) {
             /* printf("MAX_STRI_LEN=%lu, SIZ_STRI(MAX_STRI_LEN)=%lu\n",
                 MAX_STRI_LEN, SIZ_STRI(MAX_STRI_LEN)); */
             raise_error(MEMORY_ERROR);
@@ -791,7 +792,7 @@ inttype length;
            have read enough or we reach EOF */
         result = read_and_alloc_stri(aFile, chars_requested, &num_of_chars_read, &err_info);
       } /* if */
-      if (err_info != OKAY_NO_ERROR) {
+      if (unlikely(err_info != OKAY_NO_ERROR)) {
         if (result != NULL) {
           FREE_STRI(result, result->size);
         } /* if */
@@ -799,7 +800,7 @@ inttype length;
         result = NULL;
       } else if (num_of_chars_read < result->size) {
         REALLOC_STRI_SIZE_OK(resized_result, result, result->size, num_of_chars_read);
-        if (resized_result == NULL) {
+        if (unlikely(resized_result == NULL)) {
           FREE_STRI(result, result->size);
           raise_error(MEMORY_ERROR);
           result = NULL;
@@ -837,7 +838,7 @@ filetype aFile;
     } else {
       next_char = getc(aFile);
       if (next_char != EOF) {
-        if (ungetc(next_char, aFile) != next_char) {
+        if (unlikely(ungetc(next_char, aFile) != next_char)) {
           raise_error(FILE_ERROR);
           result = FALSE;
         } else {
@@ -874,7 +875,7 @@ chartype *termination_char;
 
   /* filLineRead */
     memlength = READ_STRI_INIT_SIZE;
-    if (!ALLOC_STRI_SIZE_OK(result, memlength)) {
+    if (unlikely(!ALLOC_STRI_SIZE_OK(result, memlength))) {
       raise_error(MEMORY_ERROR);
     } else {
       memory = result->mem;
@@ -883,7 +884,7 @@ chartype *termination_char;
         if (position >= memlength) {
           newmemlength = memlength + READ_STRI_SIZE_DELTA;
           REALLOC_STRI_CHECK_SIZE(resized_result, result, memlength, newmemlength);
-          if (resized_result == NULL) {
+          if (unlikely(resized_result == NULL)) {
             FREE_STRI(result, memlength);
             raise_error(MEMORY_ERROR);
             return NULL;
@@ -898,13 +899,13 @@ chartype *termination_char;
       if (ch == (int) '\n' && position != 0 && memory[position - 1] == '\r') {
         position--;
       } /* if */
-      if (ch == EOF && position == 0 && ferror(aFile)) {
+      if (unlikely(ch == EOF && position == 0 && ferror(aFile))) {
         FREE_STRI(result, memlength);
         raise_error(FILE_ERROR);
         result = NULL;
       } else {
         REALLOC_STRI_SIZE_OK(resized_result, result, memlength, position);
-        if (resized_result == NULL) {
+        if (unlikely(resized_result == NULL)) {
           FREE_STRI(result, memlength);
           raise_error(MEMORY_ERROR);
           result = NULL;
@@ -947,7 +948,7 @@ filetype aFile;
       file_name = "file";
     } /* if */
     result = cstri_to_stri(file_name);
-    if (result == NULL) {
+    if (unlikely(result == NULL)) {
       raise_error(MEMORY_ERROR);
     } /* if */
     return result;
@@ -973,7 +974,8 @@ filetype aFile;
     file_no = fileno(aFile);
     if (file_no != -1 && os_fstat(file_no, &stat_buf) == 0 &&
         S_ISREG(stat_buf.st_mode)) {
-      if (stat_buf.st_size > INTTYPE_MAX || stat_buf.st_size < 0) {
+      if (unlikely(stat_buf.st_size > INTTYPE_MAX ||
+                   stat_buf.st_size < 0)) {
         raise_error(RANGE_ERROR);
         result = 0;
       } else {
@@ -1031,12 +1033,12 @@ stritype mode;
   /* filOpen */
     /* printf("BEGIN filOpen(%lX, %lX)\n", path, mode); */
     get_mode(os_mode, mode);
-    if (os_mode[0] == '\0') {
+    if (unlikely(os_mode[0] == '\0')) {
       raise_error(RANGE_ERROR);
       result = NULL;
     } else {
       os_path = cp_to_os_path(path, &err_info);
-      if (os_path == NULL) {
+      if (unlikely(os_path == NULL)) {
         raise_error(err_info);
         result = NULL;
       } else {
@@ -1088,7 +1090,7 @@ filetype aFile;
 #endif
 
   { /* filPclose */
-    if (os_pclose(aFile) == -1) {
+    if (unlikely(os_pclose(aFile) == -1)) {
       raise_error(FILE_ERROR);
     } /* if */
   } /* filPclose */
@@ -1113,7 +1115,7 @@ stritype mode;
 
   /* filPopen */
     cmd = cp_to_command(command, &err_info);
-    if (cmd == NULL) {
+    if (unlikely(cmd == NULL)) {
       raise_error(err_info);
       result = NULL;
     } else {
@@ -1126,7 +1128,7 @@ stritype mode;
       } /* if */
       /* The mode "rb" is not allowed under unix/linux */
       /* therefore get_mode(os_mode, mode); cannot be called */
-      if (os_mode[0] == '\0') {
+      if (unlikely(os_mode[0] == '\0')) {
         raise_error(RANGE_ERROR);
         result = NULL;
       } else {
@@ -1153,7 +1155,7 @@ stritype stri;
 
   /* filPrint */
     str1 = cp_to_cstri(stri);
-    if (str1 == NULL) {
+    if (unlikely(str1 == NULL)) {
       raise_error(MEMORY_ERROR);
     } else {
       fputs(str1, stdout);
@@ -1176,9 +1178,9 @@ inttype file_position;
 
   { /* filSeek */
     /* printf("filSeek(%ld, %ld)\n", aFile, file_position); */
-    if (file_position <= 0) {
+    if (unlikely(file_position <= 0)) {
       raise_error(RANGE_ERROR);
-    } else if (offsetSeek(aFile, (os_off_t) (file_position - 1), SEEK_SET) != 0) {
+    } else if (unlikely(offsetSeek(aFile, (os_off_t) (file_position - 1), SEEK_SET) != 0)) {
       raise_error(FILE_ERROR);
     } /* if */
   } /* filSeek */
@@ -1197,9 +1199,9 @@ inttype size;
 #endif
 
   { /* filSetbuf */
-    if (mode < 0 || mode > 2 || size < 0 || (uinttype) size > MAX_MEMSIZETYPE) {
+    if (unlikely(mode < 0 || mode > 2 || size < 0 || (uinttype) size > MAX_MEMSIZETYPE)) {
       raise_error(RANGE_ERROR);
-    } else if (setvbuf(aFile, NULL, (int) mode, (memsizetype) size) != 0) {
+    } else if (unlikely(setvbuf(aFile, NULL, (int) mode, (memsizetype) size) != 0)) {
       raise_error(FILE_ERROR);
     } /* if */
   } /* filSetbuf */
@@ -1221,11 +1223,11 @@ filetype aFile;
 
   /* filTell */
     current_file_position = offsetTell(aFile);
-    if (current_file_position == (os_off_t) -1) {
+    if (unlikely(current_file_position == (os_off_t) -1)) {
       raise_error(FILE_ERROR);
       result = 0;
-    } else if (current_file_position >= INTTYPE_MAX ||
-        current_file_position < (os_off_t) 0) {
+    } else if (unlikely(current_file_position >= INTTYPE_MAX ||
+			current_file_position < (os_off_t) 0)) {
       raise_error(RANGE_ERROR);
       result = 0;
     } else {
@@ -1257,7 +1259,7 @@ chartype *termination_char;
 
   /* filWordRead */
     memlength = READ_STRI_INIT_SIZE;
-    if (!ALLOC_STRI_SIZE_OK(result, memlength)) {
+    if (unlikely(!ALLOC_STRI_SIZE_OK(result, memlength))) {
       raise_error(MEMORY_ERROR);
     } else {
       memory = result->mem;
@@ -1270,7 +1272,7 @@ chartype *termination_char;
         if (position >= memlength) {
           newmemlength = memlength + READ_STRI_SIZE_DELTA;
           REALLOC_STRI_CHECK_SIZE(resized_result, result, memlength, newmemlength);
-          if (resized_result == NULL) {
+          if (unlikely(resized_result == NULL)) {
             FREE_STRI(result, memlength);
             raise_error(MEMORY_ERROR);
             return NULL;
@@ -1286,13 +1288,13 @@ chartype *termination_char;
       if (ch == (int) '\n' && position != 0 && memory[position - 1] == '\r') {
         position--;
       } /* if */
-      if (ch == EOF && position == 0 && ferror(aFile)) {
+      if (unlikely(ch == EOF && position == 0 && ferror(aFile))) {
         FREE_STRI(result, memlength);
         raise_error(FILE_ERROR);
         result = NULL;
       } else {
         REALLOC_STRI_SIZE_OK(resized_result, result, memlength, position);
-        if (resized_result == NULL) {
+        if (unlikely(resized_result == NULL)) {
           FREE_STRI(result, memlength);
           raise_error(MEMORY_ERROR);
           result = NULL;
@@ -1321,7 +1323,7 @@ stritype stri;
 
   { /* filWrite */
 #ifdef FWRITE_WRONG_FOR_READ_ONLY_FILES
-    if (stri->size > 0 && (aFile->flags & _F_WRIT) == 0) {
+    if (unlikely(stri->size > 0 && (aFile->flags & _F_WRIT) == 0)) {
       raise_error(FILE_ERROR);
       return;
     } /* if */
@@ -1337,34 +1339,34 @@ stritype stri;
       for (str = stri->mem, len = stri->size;
           len >= BUFFER_SIZE; len -= BUFFER_SIZE) {
         for (ustri = buffer, buf_len = BUFFER_SIZE; buf_len > 0; buf_len--) {
-          if (*str >= 256) {
+          if (unlikely(*str >= 256)) {
             raise_error(RANGE_ERROR);
             return;
           } /* if */
           *ustri++ = (uchartype) *str++;
         } /* for */
-        if (BUFFER_SIZE != fwrite(buffer, sizeof(uchartype), BUFFER_SIZE, aFile)) {
+        if (unlikely(BUFFER_SIZE != fwrite(buffer, sizeof(uchartype), BUFFER_SIZE, aFile))) {
           raise_error(FILE_ERROR);
           return;
         } /* if */
       } /* for */
       if (len > 0) {
         for (ustri = buffer, buf_len = (uint16type) len; buf_len > 0; buf_len--) {
-          if (*str >= 256) {
+          if (unlikely(*str >= 256)) {
             raise_error(RANGE_ERROR);
             return;
           } /* if */
           *ustri++ = (uchartype) *str++;
         } /* for */
-        if (len != fwrite(buffer, sizeof(uchartype), len, aFile)) {
+        if (unlikely(len != fwrite(buffer, sizeof(uchartype), len, aFile))) {
           raise_error(FILE_ERROR);
           return;
         } /* if */
       } /* if */
     }
 #else
-    if (stri->size != fwrite(stri->mem, sizeof(strelemtype),
-        (size_t) stri->size, aFile)) {
+    if (unlikely(stri->size != fwrite(stri->mem, sizeof(strelemtype),
+				      (size_t) stri->size, aFile))) {
       raise_error(FILE_ERROR);
       return;
     } /* if */

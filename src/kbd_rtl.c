@@ -347,7 +347,7 @@ chartype *termination_char;
         ch = kbdGetc();
       } while (ch == ' ' || ch == '\t');
       while (ch != ' ' && ch != '\t' &&
-	     ch != '\n' && ch != (chartype) ((schartype) EOF)) {
+             ch != '\n' && ch != (chartype) ((schartype) EOF)) {
         if (position >= memlength) {
           newmemlength = memlength + READ_STRI_SIZE_DELTA;
           REALLOC_STRI_CHECK_SIZE(resized_result, result, memlength, newmemlength);

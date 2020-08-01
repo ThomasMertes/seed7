@@ -100,6 +100,7 @@ typedef INT32TYPE          int32type;
 typedef UINT32TYPE         uint32type;
 
 #ifdef INT32TYPE_SUFFIX_L
+#define INT32_SUFFIX(num) num ## L
 #define INT32TYPE_LITERAL_SUFFIX "L"
 #ifdef TWOS_COMPLEMENT_INTTYPE
 #define INT32TYPE_MIN  ((int32type) -2147483648L)
@@ -109,6 +110,7 @@ typedef UINT32TYPE         uint32type;
 #define INT32TYPE_MAX                2147483647L
 #define UINT32TYPE_MAX ((uint32type) 0xFFFFFFFFL)
 #else
+#define INT32_SUFFIX(num) num
 #define INT32TYPE_LITERAL_SUFFIX ""
 #ifdef TWOS_COMPLEMENT_INTTYPE
 #define INT32TYPE_MIN  ((int32type) -2147483648)
@@ -131,14 +133,17 @@ typedef INT64TYPE          int64type;
 typedef UINT64TYPE         uint64type;
 
 #if   defined INT64TYPE_SUFFIX_LL
+#define INT64_SUFFIX(num) num ## LL
 #define INT64TYPE_LITERAL_SUFFIX "LL"
 #define INT64TYPE_MAX                 9223372036854775807LL
 #define UINT64TYPE_MAX ((uint64type) 18446744073709551615LL)
 #elif defined INT64TYPE_SUFFIX_L
+#define INT64_SUFFIX(num) num ## L
 #define INT64TYPE_LITERAL_SUFFIX "L"
 #define INT64TYPE_MAX                 9223372036854775807L
 #define UINT64TYPE_MAX ((uint64type) 18446744073709551615L)
 #else
+#define INT64_SUFFIX(num) num
 #define INT64TYPE_LITERAL_SUFFIX ""
 #define INT64TYPE_MAX                 9223372036854775807
 #define UINT64TYPE_MAX ((uint64type) 18446744073709551615)
@@ -161,6 +166,11 @@ typedef UINT64TYPE         uint64type;
 #if   INTTYPE_SIZE == 32
 typedef int32type               inttype;
 typedef uint32type              uinttype;
+#ifdef ANSI_C
+#define INT_SUFFIX(num)         INT32_SUFFIX(num)
+#else
+#define INT_SUFFIX(num)         num
+#endif
 #define INTTYPE_LITERAL_SUFFIX  INT32TYPE_LITERAL_SUFFIX
 #define INTTYPE_MAX             INT32TYPE_MAX
 #define UINTTYPE_MAX            UINT32TYPE_MAX
@@ -170,6 +180,11 @@ typedef uint32type              uinttype;
 #elif INTTYPE_SIZE == 64
 typedef int64type               inttype;
 typedef uint64type              uinttype;
+#ifdef ANSI_C
+#define INT_SUFFIX(num)         INT64_SUFFIX(num)
+#else
+#define INT_SUFFIX(num)         num
+#endif
 #define INTTYPE_LITERAL_SUFFIX  INT64TYPE_LITERAL_SUFFIX
 #define INTTYPE_MAX             INT64TYPE_MAX
 #define UINTTYPE_MAX            UINT64TYPE_MAX

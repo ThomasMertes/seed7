@@ -89,6 +89,9 @@
 #ifndef EXECUTABLE_FILE_EXTENSION
 #define EXECUTABLE_FILE_EXTENSION ""
 #endif
+#ifndef CC_FLAGS
+#define CC_FLAGS ""
+#endif
 #ifndef LINKER_OPT_DEBUG_INFO
 #define LINKER_OPT_DEBUG_INFO ""
 #endif
@@ -890,6 +893,8 @@ stritype name;
         opt = CC_OPT_DEBUG_INFO;
       } else if (strcmp(opt_name, "CC_OPT_NO_WARNINGS") == 0) {
         opt = CC_OPT_NO_WARNINGS;
+      } else if (strcmp(opt_name, "CC_FLAGS") == 0) {
+        opt = CC_FLAGS;
       } else if (strcmp(opt_name, "REDIRECT_C_ERRORS") == 0) {
         opt = REDIRECT_C_ERRORS;
       } else if (strcmp(opt_name, "LINKER_OPT_DEBUG_INFO") == 0) {

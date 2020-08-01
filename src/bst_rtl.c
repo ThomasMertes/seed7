@@ -38,6 +38,7 @@
 #include "common.h"
 #include "data_rtl.h"
 #include "heaputl.h"
+#include "striutl.h"
 #include "rtl_err.h"
 
 #undef EXTERN
@@ -347,3 +348,27 @@ stritype stri;
     } /* if */
     return result;
   } /* bstParse */
+
+
+
+#ifdef ANSI_C
+
+stritype bstStr (const const_bstritype bstri)
+#else
+
+stritype bstStr (bstri)
+bstritype bstri;
+#endif
+
+  {
+    stritype result;
+
+  /* bstStr */
+    if (!ALLOC_STRI_CHECK_SIZE(result, bstri->size)) {
+      raise_error(MEMORY_ERROR);
+    } else {
+      result->size = bstri->size;
+      ustri_expand(result->mem, bstri->mem, bstri->size);
+    } /* if */
+    return result;
+  } /* bstStr */

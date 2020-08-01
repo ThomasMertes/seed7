@@ -495,6 +495,7 @@ biginttype big1;
   {
     memsizetype pos;
     doublebigdigittype carry = 0;
+    bigdigittype bigdigit;
 
   /* uBigDivideByPowerOf10 */
     pos = big1->size;
@@ -502,11 +503,27 @@ biginttype big1;
       pos--;
       carry <<= BIGDIGIT_SIZE;
       carry += big1->bigdigits[pos];
-      big1->bigdigits[pos] = (bigdigittype)
-          ((carry / POWER_OF_10_IN_BIGDIGIT) & BIGDIGIT_MASK);
+      bigdigit = (bigdigittype) (carry / POWER_OF_10_IN_BIGDIGIT);
+#if POINTER_SIZE <= BIGDIGIT_SIZE
+      /* There is probably no machine instruction for division    */
+      /* and remainder of doublebigdigittype values available.    */
+      /* To compute the remainder fast the % operator is avoided  */
+      /* and the remainder is computed with a multiplication and  */
+      /* a subtraction. The overflow in the multiplication can be */
+      /* ignored, since the result of the subtraction fits in the */
+      /* lower bigdigit of carry. The wrong bits in the higher    */
+      /* bigdigit of carry are masked away.                       */
+      carry = (carry - bigdigit * POWER_OF_10_IN_BIGDIGIT) & BIGDIGIT_MASK;
+#else
+      /* There is probably a machine instruction for division     */
+      /* and remainder of doublebigdigittype values available.    */
+      /* In the optimal case quotient and remainder can be        */
+      /* computed with one instruction.                           */
       carry %= POWER_OF_10_IN_BIGDIGIT;
+#endif
+      big1->bigdigits[pos] = bigdigit;
     } while (pos > 0);
-    return (bigdigittype) (carry & BIGDIGIT_MASK);
+    return (bigdigittype) (carry);
   } /* uBigDivideByPowerOf10 */
 
 
@@ -5399,88 +5416,67 @@ biginttype big1;
     memsizetype pos;
     bigdigittype digit;
     int digit_pos;
-    strelemtype digit_ch;
     memsizetype result_size;
-    stritype resized_result;
     stritype result;
 
   /* bigStr */
-    result_size = 256;
-    if (unlikely(!ALLOC_STRI_SIZE_OK(result, result_size))) {
+    if (unlikely((MAX_STRI_LEN <= (MAX_MEMSIZETYPE - 1) / 3 + 2 &&
+        big1->size > ((MAX_STRI_LEN - 2) * 3 + 1) / BIGDIGIT_SIZE) ||
+        big1->size > MAX_MEMSIZETYPE / BIGDIGIT_SIZE)) {
       raise_error(MEMORY_ERROR);
       return NULL;
     } else {
-      if (unlikely(!ALLOC_BIG_CHECK_SIZE(help_big, big1->size + 1))) {
-        FREE_STRI(result, result_size);
+      /* The size of the result is estimated by computing the */
+      /* number of octal digits plus one digit for the sign.  */
+      result_size = (big1->size * BIGDIGIT_SIZE - 1) / 3 + 2;
+      if (unlikely(!ALLOC_STRI_SIZE_OK(result, result_size))) {
         raise_error(MEMORY_ERROR);
         return NULL;
       } else {
-        pos = 0;
-        if (IS_NEGATIVE(big1->bigdigits[big1->size - 1])) {
-          positive_copy_of_negative_big(help_big, big1);
-          result->mem[pos] = '-';
-          pos++;
-        } else {
-          help_big->size = big1->size;
-          memcpy(help_big->bigdigits, big1->bigdigits,
-              (size_t) big1->size * sizeof(bigdigittype));
-        } /* if */
-        do {
-          if (pos + DECIMAL_DIGITS_IN_BIGDIGIT > result_size) {
-            REALLOC_STRI_CHECK_SIZE(resized_result, result, result_size, result_size + 256);
-            if (unlikely(resized_result == NULL)) {
-              FREE_STRI(result, result_size);
-              FREE_BIG(help_big, big1->size + 1);
-              raise_error(MEMORY_ERROR);
-              return NULL;
-            } else {
-              result = resized_result;
-              COUNT3_STRI(result_size, result_size + 256);
-              result_size += 256;
-            } /* if */
-          } /* if */
-          digit = uBigDivideByPowerOf10(help_big);
-          /* printf("help_big->size=%lu, digit=%lu\n", help_big->size, digit); */
-          if (help_big->bigdigits[help_big->size - 1] == 0) {
-            help_big->size--;
-          } /* if */
-          if (help_big->size > 1 || help_big->bigdigits[0] != 0) {
-            for (digit_pos = DECIMAL_DIGITS_IN_BIGDIGIT;
-                digit_pos != 0; digit_pos--) {
-              result->mem[pos] = '0' + digit % 10;
-              digit /= 10;
-              pos++;
-            } /* for */
-          } else {
-            do {
-              result->mem[pos] = '0' + digit % 10;
-              digit /= 10;
-              pos++;
-            } while (digit != 0);
-          } /* if */
-        } while (help_big->size > 1 || help_big->bigdigits[0] != 0);
-        FREE_BIG(help_big, big1->size + 1);
-        result->size = pos;
-        REALLOC_STRI_SIZE_OK(resized_result, result, result_size, pos);
-        if (unlikely(resized_result == NULL)) {
+        if (unlikely(!ALLOC_BIG_CHECK_SIZE(help_big, big1->size + 1))) {
           FREE_STRI(result, result_size);
           raise_error(MEMORY_ERROR);
           return NULL;
         } else {
-          result = resized_result;
-          COUNT3_STRI(result_size, pos);
           if (IS_NEGATIVE(big1->bigdigits[big1->size - 1])) {
-            for (pos = 1; pos <= result->size >> 1; pos++) {
-              digit_ch = result->mem[pos];
-              result->mem[pos] = result->mem[result->size - pos];
-              result->mem[result->size - pos] = digit_ch;
-            } /* for */
+            positive_copy_of_negative_big(help_big, big1);
           } else {
-            for (pos = 0; pos < result->size >> 1; pos++) {
-              digit_ch = result->mem[pos];
-              result->mem[pos] = result->mem[result->size - pos - 1];
-              result->mem[result->size - pos - 1] = digit_ch;
-            } /* for */
+            help_big->size = big1->size;
+            memcpy(help_big->bigdigits, big1->bigdigits,
+                (size_t) big1->size * sizeof(bigdigittype));
+          } /* if */
+          pos = result_size - 1;
+          do {
+            digit = uBigDivideByPowerOf10(help_big);
+            /* printf("help_big->size=%lu, digit=%lu\n", help_big->size, digit); */
+            if (help_big->bigdigits[help_big->size - 1] == 0) {
+              help_big->size--;
+            } /* if */
+            if (help_big->size > 1 || help_big->bigdigits[0] != 0) {
+              for (digit_pos = DECIMAL_DIGITS_IN_BIGDIGIT;
+                  digit_pos != 0; digit_pos--) {
+                result->mem[pos] = '0' + digit % 10;
+                digit /= 10;
+                pos--;
+              } /* for */
+            } else {
+              do {
+                result->mem[pos] = '0' + digit % 10;
+                digit /= 10;
+                pos--;
+              } while (digit != 0);
+            } /* if */
+          } while (help_big->size > 1 || help_big->bigdigits[0] != 0);
+          pos++;
+          if (IS_NEGATIVE(big1->bigdigits[big1->size - 1])) {
+            result->size = result_size - pos + 1;
+            result->mem[0] = '-';
+            memmove(&result->mem[1], &result->mem[pos],
+                (result_size - pos) * sizeof(strelemtype));
+          } else {
+            result->size = result_size - pos;
+            memmove(&result->mem[0], &result->mem[pos],
+                (result_size - pos) * sizeof(strelemtype));
           } /* if */
           return result;
         } /* if */
