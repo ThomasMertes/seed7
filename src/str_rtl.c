@@ -156,6 +156,78 @@ stritype stri_from;
 
 
 
+#ifdef OUT_OF_ORDER
+#ifdef ANSI_C
+
+stritype strClit (stritype str1)
+#else
+
+stritype strClit (str1)
+stritype str1;
+#endif
+
+  {
+    register strelemtype character;
+    register memsizetype position;
+    memsizetype length;
+    memsizetype pos;
+    SIZE_TYPE len;
+    stritype result;
+
+  /* strClit */
+    length = str1->size;
+    if (!ALLOC_STRI(result, (memsizetype) (4 * length + 2))) {
+      raise_error(MEMORY_ERROR);
+      return(NULL);
+    } /* if */
+    COUNT_STRI(4 * length + 2);
+    result->mem[0] = (strelemtype) '"';
+    pos = 1;
+    for (position = 0; position < length; position++) {
+      character = (int) str1->mem[position];
+      /* The following comparison uses 255 instead of '\377',       */
+      /* because chars might be signed and this can produce wrong   */
+      /* code when '\377' is sign extended.                         */
+      if (character > 255) {
+        result->mem[pos] = (strelemtype) '?';
+        pos++;
+      } else if (no_escape_char(character)) {
+        result->mem[pos] = (strelemtype) character;
+        pos++;
+      } else if (character < ' ') {
+        len = strlen(cstri_escape_sequence[character]);
+        stri_expand(&result->mem[pos],
+            cstri_escape_sequence[character], len);
+        pos = pos + len;
+      } else if (character <= '~') {
+        result->mem[pos] = (strelemtype) '\\';
+        result->mem[pos + 1] = (strelemtype) character;
+        pos = pos + 2;
+      } else if (character == '\177') {
+        stri_expand(&result->mem[pos],
+            "\\177", (SIZE_TYPE) 4);
+        pos = pos + 4;
+      } else {
+        result->mem[pos] = (strelemtype) character;
+        pos++;
+      } /* if */
+    } /* for */
+    result->mem[pos] = (strelemtype) '"';
+    result->size = pos + 1;
+    if (!RESIZE_STRI(result, (memsizetype) (4 * length + 2),
+        (memsizetype) (pos + 1))) {
+      FREE_STRI(result, (memsizetype) (4 * length + 2));
+      raise_error(MEMORY_ERROR);
+      return(NULL);
+    } else {
+      COUNT3_STRI(4 * length + 2, pos + 1);
+      return(result);
+    } /* if */
+  } /* strClit */
+#endif
+
+
+
 #ifdef ANSI_C
 
 inttype strCompare (stritype stri1, stritype stri2)

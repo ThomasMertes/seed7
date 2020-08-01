@@ -32,6 +32,8 @@
 #include "stdlib.h"
 #include "stdio.h"
 #include "string.h"
+#include "limits.h"
+#include "unistd.h"
 #include "sys/types.h"
 #include "sys/stat.h"
 #include "errno.h"
@@ -57,18 +59,26 @@
 
 #ifndef S_ISLNK
 #ifdef S_IFLNK
-#define S_ISLNK(MODE) (((MODE) & S_IFMT) == S_IFLNK)
+#define S_ISLNK(mode) (((mode) & S_IFMT) == S_IFLNK)
 #else
-#define S_ISLNK(MODE) FALSE
+#define S_ISLNK(mode) FALSE
+#endif
+#endif
+
+#ifndef S_ISSOCK
+#ifdef S_IFSOCK
+#define S_ISSOCK(mode) (((mode) & S_IFMT) == S_IFSOCK)
+#else
+#define S_ISSOCK(mode) FALSE
 #endif
 #endif
 
 #ifndef S_ISDIR
-#define S_ISDIR(MODE) (((MODE) & S_IFMT) == S_IFDIR)
+#define S_ISDIR(mode) (((mode) & S_IFMT) == S_IFDIR)
 #endif
 
 #ifndef S_ISREG
-#define S_ISREG(MODE) (((MODE) & S_IFMT) == S_IFREG)
+#define S_ISREG(mode) (((mode) & S_IFMT) == S_IFREG)
 #endif
 
 #ifndef S_IRUSR
@@ -648,6 +658,54 @@ stritype dest_name;
 
 #ifdef ANSI_C
 
+inttype cmdFileType (stritype file_name)
+#else
+
+inttype cmdFileType (file_name)
+stritype file_name;
+#endif
+
+  {
+    cstritype os_file_name;
+    struct stat stat_buf;
+    inttype result;
+
+  /* cmdFileType */
+    os_file_name = cp_to_cstri(file_name);
+    if (os_file_name == NULL) {
+      raise_error(MEMORY_ERROR);
+      return(0);
+    } else {
+      if (stat(os_file_name, &stat_buf) == 0) {
+        if (S_ISREG(stat_buf.st_mode)) {
+          result = 1;
+        } else if (S_ISDIR(stat_buf.st_mode)) {
+          result = 2;
+        } else if (S_ISCHR(stat_buf.st_mode)) {
+          result = 3;
+        } else if (S_ISBLK(stat_buf.st_mode)) {
+          result = 4;
+        } else if (S_ISFIFO(stat_buf.st_mode)) {
+          result = 5;
+        } else if (S_ISLNK(stat_buf.st_mode)) {
+          result = 6;
+        } else if (S_ISSOCK(stat_buf.st_mode)) {
+          result = 7;
+        } else {
+          result = 0;
+        } /* if */
+      } else {
+        result = 0;
+      } /* if */
+      free_cstri(os_file_name, file_name);
+    } /* if */
+    return(result);
+  } /* cmdFileType */
+
+
+
+#ifdef ANSI_C
+
 stritype cmdGetcwd (void)
 #else
 
@@ -655,12 +713,12 @@ stritype cmdGetcwd ()
 #endif
 
   {
-    char buffer[2000];
+    char buffer[PATH_MAX + 1];
     char *cwd;
     stritype result;
 
   /* cmdGetcwd */
-    if ((cwd = getcwd(buffer, 2000)) == NULL) {
+    if ((cwd = getcwd(buffer, PATH_MAX)) == NULL) {
       raise_error(MEMORY_ERROR);
       return(NULL);
     } else {
@@ -780,6 +838,51 @@ stritype dest_name;
 
 
 
+#ifdef OUT_OF_ORDER
+#ifdef ANSI_C
+
+stritype cmdReadlink (stritype link_name)
+#else
+
+stritype cmdReadlink (link_name)
+stritype link_name;
+#endif
+
+  {
+    cstritype os_link_name;
+    char link_dest[PATH_MAX + 1];
+    int readlink_value;
+    errinfotype err_info = OKAY_NO_ERROR;
+    stritype result;
+
+  /* cmdReadlink */
+    os_link_name = cp_to_cstri(link_name);
+    if (os_link_name == NULL) {
+      err_info = MEMORY_ERROR;
+      result = NULL;
+    } else {
+      readlink_value = readlink(os_link_name, link_dest, PATH_MAX);
+      if (readlink_value != -1 && readlink_value <= PATH_MAX) {
+        link_dest[readlink_value] = '\0';
+        result = cp_to_stri(link_dest);
+        if (result == NULL) {
+          err_info = MEMORY_ERROR;
+        } /* if */
+      } else {
+        err_info = FILE_ERROR;
+        result = NULL;
+      } /* if */
+      free_cstri(os_link_name, link_name);
+    } /* if */
+    if (err_info != OKAY_NO_ERROR) {
+      raise_error(err_info);
+    } /* if */
+    return(result);
+  } /* cmdReadlink */
+#endif
+
+
+
 #ifdef ANSI_C
 
 void cmdRemove (stritype file_name)
@@ -825,3 +928,43 @@ stritype command_stri;
       free_cstri(os_command_stri, command_stri);
     } /* if */
   } /* cmdSh */
+
+
+
+#ifdef ANSI_C
+
+void cmdSymlink (stritype source_name, stritype dest_name)
+#else
+
+void cmdSymlink (source_name, dest_name)
+stritype source_name;
+stritype dest_name;
+#endif
+
+  {
+    cstritype os_source_name;
+    cstritype os_dest_name;
+    errinfotype err_info = OKAY_NO_ERROR;
+
+  /* cmdSymlink */
+    os_source_name = cp_to_cstri(source_name);
+    if (os_source_name == NULL) {
+      err_info = MEMORY_ERROR;
+    } else {
+      os_dest_name = cp_to_cstri(dest_name);
+      if (os_dest_name == NULL) {
+	err_info = MEMORY_ERROR;
+      } else {
+#ifdef OUT_OF_ORDER
+        if (symlink(os_source_name, os_dest_name) != 0) {
+          err_info = FILE_ERROR;
+        } /* if */
+#endif
+        free_cstri(os_dest_name, dest_name);
+      } /* if */
+      free_cstri(os_source_name, source_name);
+    } /* if */
+    if (err_info != OKAY_NO_ERROR) {
+      raise_error(err_info);
+    } /* if */
+  } /* cmdSymlink */

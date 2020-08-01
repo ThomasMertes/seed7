@@ -45,6 +45,7 @@ typedef enum {OUT_OF_HEAP_SPACE,
     APOSTROPHEXPECTED,
     CHAREXCEEDS,
     WRONG_QUOTATION_REPRESENTATION,
+    WRONG_PATH_DELIMITER,
     STRINGESCAPE,
     WRONGNUMERICALESCAPE,
     BACKSLASHEXPECTED,
@@ -97,7 +98,8 @@ void err_match (errortype, objecttype);
 void err_string (errortype, ustritype);
 void err_stri (errortype, stritype);
 void err_integer (errortype, inttype);
-void err_character (errortype, int);
+void err_cchar (errortype, int);
+void err_char (errortype, chartype);
 void err_at_line (errortype, linenumtype);
 void err_undeclared (errortype, filenumtype, linenumtype, ustritype);
 void err_message (errortype, stritype);
@@ -115,7 +117,8 @@ void err_match ();
 void err_string ();
 void err_stri ();
 void err_integer ();
-void err_character ();
+void err_cchar ();
+void err_char ();
 void err_at_line ();
 void err_undeclared ();
 void err_message ();

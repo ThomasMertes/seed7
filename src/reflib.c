@@ -1181,7 +1181,8 @@ listtype arguments;
   /* ref_value */
     isit_reference(arg_3(arguments));
     obj_arg = take_reference(arg_3(arguments));
-    if (CLASS_OF_OBJ(obj_arg) == REFOBJECT ||
+    if (CLASS_OF_OBJ(obj_arg) == FWDREFOBJECT ||
+        CLASS_OF_OBJ(obj_arg) == REFOBJECT ||
         CLASS_OF_OBJ(obj_arg) == REFPARAMOBJECT ||
         CLASS_OF_OBJ(obj_arg) == RESULTOBJECT ||
         CLASS_OF_OBJ(obj_arg) == LOCALVOBJECT ||

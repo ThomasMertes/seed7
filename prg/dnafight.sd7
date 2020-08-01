@@ -1232,6 +1232,7 @@ const proc: generation is func
         execute(animates[index]);
         incr(index);
       end if;
+      DRAW_FLUSH;
     end while;
     animates := children & animates;
   end func; (* generation *)

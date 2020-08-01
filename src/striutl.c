@@ -464,3 +464,30 @@ ustritype stri;
     } /* if */
     return(stri);
   } /* cp_to_stri */
+
+
+
+#ifdef ANSI_C
+
+strelemtype *stri_charpos (stritype stri, strelemtype ch)
+#else
+
+strelemtype *stri_charpos (stri, ch)
+stritype stri;
+strelemtype ch;
+#endif
+
+  {
+    strelemtype *mem;
+    SIZE_TYPE number;
+
+  /* stri_charpos */
+    mem = stri->mem;
+    number = stri->size;
+    for (; number > 0; mem++, number--) {
+      if (*mem == ch) {
+        return(mem);
+      } /* if */
+    } /* for */
+    return(NULL);
+  } /* stri_charpos */

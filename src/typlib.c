@@ -55,6 +55,35 @@
 
 #ifdef ANSI_C
 
+objecttype typ_cmp (listtype arguments)
+#else
+
+objecttype typ_cmp (arguments)
+listtype arguments;
+#endif
+
+  {
+    uinttype typ1;
+    uinttype typ2;
+
+  /* typ_cmp */
+    isit_type(arg_1(arguments));
+    isit_type(arg_2(arguments));
+    typ1 = (uinttype) take_type(arg_1(arguments));
+    typ2 = (uinttype) take_type(arg_2(arguments));
+    if (typ1 < typ2) {
+      return(bld_int_temp(-1));
+    } else if (typ1 > typ2) {
+      return(bld_int_temp(1));
+    } else {
+      return(bld_int_temp(0));
+    } /* if */
+  } /* typ_cmp */
+
+
+
+#ifdef ANSI_C
+
 objecttype typ_cpy (listtype arguments)
 #else
 
@@ -268,6 +297,22 @@ listtype arguments;
 #endif
     return(bld_type_temp(result));
   } /* typ_gentype */
+
+
+
+#ifdef ANSI_C
+
+objecttype typ_hashcode (listtype arguments)
+#else
+
+objecttype typ_hashcode (arguments)
+listtype arguments;
+#endif
+
+  { /* typ_hashcode */
+    isit_type(arg_1(arguments));
+    return(bld_int_temp((inttype) take_type(arg_1(arguments))));
+  } /* typ_hashcode */
 
 
 

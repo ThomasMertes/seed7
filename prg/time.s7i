@@ -355,6 +355,18 @@ const func time: truncToYear (in time: tim) is func
   end func;
     
 
+const func integer: dayOfYear (in time: tim) is func
+  result
+    var integer: result is 0;
+  begin
+    if leap_year(tim.year) then
+      result := [](0, 31, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335)[tim.month] + tim.day;
+    else
+      result := [](0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334)[tim.month] + tim.day;
+    end if;
+  end func;
+
+
 const proc: NORMALIZE (inout time: tim) is func
   local
     var integer: month_length is 0;
@@ -394,15 +406,26 @@ const proc: NORMALIZE (inout time: tim) is func
   end func;
 
 
+const func time: toGMT (in time: tim) is func
+  result
+    var time: result is time.value;
+  begin
+    result := tim;
+    result.minute +:= tim.timezone;
+    result.timezone := 0;
+    NORMALIZE(result);
+  end func;
+
+  
 const func time: time (NOW) is func
   result
-    var time: TIME_VAL is time.value;
+    var time: result is time.value;
   begin
     (* writeln("before get_time"); *)
-    GET_TIME(TIME_VAL.year, TIME_VAL.month, TIME_VAL.day,
-        TIME_VAL.hour, TIME_VAL.minute, TIME_VAL.second,
-        TIME_VAL.mycro_second, TIME_VAL.timezone);
-    TIME_VAL.is_daylight_saving_time := FALSE;
+    GET_TIME(result.year, result.month, result.day,
+        result.hour, result.minute, result.second,
+        result.mycro_second, result.timezone);
+    result.is_daylight_saving_time := FALSE;
   end func;
 
 
@@ -778,6 +801,19 @@ const proc: (inout time: tim) +:= (in duration: DUR) is func
     tim.minute +:= DUR.minute;
     tim.second +:= DUR.second;
     tim.mycro_second +:= DUR.mycro_second;
+    NORMALIZE(tim);
+  end func;
+
+
+const proc: (inout time: tim) -:= (in duration: DUR) is func
+  begin
+    tim.year -:= year(DUR);
+    tim.month -:= month(DUR);
+    tim.day -:= DUR.day;
+    tim.hour -:= DUR.hour;
+    tim.minute -:= DUR.minute;
+    tim.second -:= DUR.second;
+    tim.mycro_second -:= DUR.mycro_second;
     NORMALIZE(tim);
   end func;
 

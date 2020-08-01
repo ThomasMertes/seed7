@@ -733,25 +733,6 @@ const array string: door_pic is [](
   "BBBBBBBBBBBBBBBB");
 
 
-const array string: jade_figurine_pic is [](
-  "       GGG      ",
-  "      GGGGG     ",
-  "      GGGGG     ",
-  "       GGG      ",
-  "     GGGGGGG    ",
-  "    GGGGGGGGG   ",
-  "   GG GGGGG GG  ",
-  "  GG  GGGGG  GG ",
-  "  G  GGGGGGG  G ",
-  "     GGGGGGG    ",
-  "     GGG GGG    ",
-  "      GG GG     ",
-  "      GG GG     ",
-  "       G G      ",
-  "       G G      ",
-  "     GGG GGG    ");
-
-
 const array string: large_gem_pic is [](
   "                                ",
   "                                ",

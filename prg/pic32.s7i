@@ -551,6 +551,41 @@ const array string: hourglass_pic is [](
   " bbbbbbbbbbbbbbbbbbbbbbbbbbbbbb ");
 
 
+const array string: jade_figurine_pic is [](
+  "               GGG              ",
+  "              GGGGG             ",
+  "             GGGGGGG            ",
+  "             GGGGGGG            ",
+  "             GGGGGGG            ",
+  "              GGGGG             ",
+  "               GGG              ",
+  "             GGGGGGG            ",
+  "           GGGGGGGGGGG          ",
+  "          GGGGGGGGGGGGG         ",
+  "         GGGGGGGGGGGGGGG        ",
+  "        GGG GGGGGGGGG GGG       ",
+  "       GGG   GGGGGGG   GGG      ",
+  "      GGG    GGGGGGG    GGG     ",
+  "     GGG     GGGGGGG     GGG    ",
+  "     GG     GGGGGGGGG     GG    ",
+  "           GGGGGGGGGGG          ",
+  "           GGGGGGGGGGG          ",
+  "           GGGGGGGGGGG          ",
+  "           GGGGG GGGGG          ",
+  "            GGGG GGGG           ",
+  "            GGGG GGGG           ",
+  "            GGGG GGGG           ",
+  "             GGG GGG            ",
+  "             GGG GGG            ",
+  "             GGG GGG            ",
+  "              GG GG             ",
+  "              GG GG             ",
+  "              GG GG             ",
+  "              GG GG             ",
+  "            GGGG GGGG           ",
+  "           GGGGG GGGGG          ");
+
+
 const array string: key_pic is [](
   "                    RRRRRR      ",
   "                  RRRRRRRRRR    ",

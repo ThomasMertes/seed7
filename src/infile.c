@@ -36,7 +36,6 @@
 #include "flistutl.h"
 #include "striutl.h"
 #include "fatal.h"
-#include "error.h"
 #include "info.h"
 #include "stat.h"
 #include "option.h"

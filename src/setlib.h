@@ -29,6 +29,7 @@
 
 objecttype set_baselit (listtype);
 objecttype set_card (listtype);
+objecttype set_cmp (listtype);
 objecttype set_conv (listtype);
 objecttype set_cpy (listtype);
 objecttype set_create (listtype);
@@ -40,6 +41,7 @@ objecttype set_eq (listtype);
 objecttype set_excl (listtype);
 objecttype set_ge (listtype);
 objecttype set_gt (listtype);
+objecttype set_hashcode (listtype);
 objecttype set_incl (listtype);
 objecttype set_intersect (listtype);
 objecttype set_le (listtype);
@@ -57,6 +59,7 @@ objecttype set_value (listtype);
 
 objecttype set_baselit ();
 objecttype set_card ();
+objecttype set_cmp ();
 objecttype set_conv ();
 objecttype set_cpy ();
 objecttype set_create ();
@@ -68,6 +71,7 @@ objecttype set_eq ();
 objecttype set_excl ();
 objecttype set_ge ();
 objecttype set_gt ();
+objecttype set_hashcode ();
 objecttype set_in ();
 objecttype set_incl ();
 objecttype set_intersect ();

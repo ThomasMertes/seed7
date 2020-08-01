@@ -42,6 +42,8 @@ void drwFArcPieSlice (wintype, inttype, inttype, inttype, floattype, floattype);
 void drwArc2 (wintype, inttype, inttype, inttype, inttype, inttype);
 void drwCircle (wintype, inttype, inttype, inttype);
 void drwClear (wintype, inttype);
+void drwCopyArea (wintype, wintype, inttype, inttype, inttype, inttype,
+		  inttype, inttype);
 void drwCpy (wintype *, wintype);
 void drwFCircle (wintype, inttype, inttype, inttype);
 void drwPFCircle (wintype, inttype, inttype, inttype, inttype);
@@ -80,6 +82,7 @@ void drwFArcPieSlice ();
 void drwArc2 ();
 void drwCircle ();
 void drwClear ();
+void drwCopyArea ();
 void drwCpy ();
 void drwFCircle ();
 void drwPFCircle ();

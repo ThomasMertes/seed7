@@ -429,32 +429,11 @@ objecttype fil_open (arguments)
 listtype arguments;
 #endif
 
-  {
-    stritype str1;
-    stritype str2;
-    cstritype file_name;
-    cstritype file_mode;
-    objecttype result;
-
-  /* fil_open */
+  { /* fil_open */
     isit_stri(arg_1(arguments));
     isit_stri(arg_2(arguments));
-    str1 = take_stri(arg_1(arguments));
-    str2 = take_stri(arg_2(arguments));
-    file_name = cp_to_cstri(str1);
-    if (file_name == NULL) {
-      result = raise_exception(SYS_MEM_EXCEPTION);
-    } else {
-      file_mode = cp_to_cstri(str2);
-      if (file_mode == NULL) {
-        result = raise_exception(SYS_MEM_EXCEPTION);
-      } else {
-        result = bld_file_temp(fopen(file_name, file_mode));
-        free_cstri(file_mode, str2);
-      } /* if */
-      free_cstri(file_name, str1);
-    } /* if */
-    return(result);
+    return(bld_file_temp(
+        filOpen(take_stri(arg_1(arguments)), take_stri(arg_2(arguments)))));
   } /* fil_open */
 
 

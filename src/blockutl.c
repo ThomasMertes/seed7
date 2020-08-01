@@ -271,6 +271,7 @@ errinfotype *err_info;
     printf("BEGIN get_return_var\n");
 #endif
     return_object.type_of = return_type;
+    return_object.entity = NULL;
     INIT_CLASS_OF_VAR(&return_object, RESULTOBJECT);
     return_object.value.objvalue = NULL;
     return_var->object = NULL;

@@ -166,6 +166,42 @@ filetype fil1;
 
 #ifdef ANSI_C
 
+filetype filOpen (stritype str1, stritype str2)
+#else
+
+filetype filOpen (str1, str2)
+stritype str1;
+stritype str2;
+#endif
+
+  {
+    cstritype file_name;
+    cstritype file_mode;
+    filetype result;
+
+  /* filOpen */
+    file_name = cp_to_cstri(str1);
+    if (file_name == NULL) {
+      raise_error(MEMORY_ERROR);
+      result = NULL;
+    } else {
+      file_mode = cp_to_cstri(str2);
+      if (file_mode == NULL) {
+        raise_error(MEMORY_ERROR);
+        result = NULL;
+      } else {
+        result = fopen(file_name, file_mode);
+        free_cstri(file_mode, str2);
+      } /* if */
+      free_cstri(file_name, str1);
+    } /* if */
+    return(result);
+  } /* filOpen */
+
+
+
+#ifdef ANSI_C
+
 stritype filStriRead (filetype fil1, inttype length)
 #else
 

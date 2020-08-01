@@ -198,7 +198,7 @@ static INLINE booltype readbased ()
           char_class(character) == LETTERCHAR);
       okay = TRUE;
     } else {
-      err_character(EXTDIGITEXPECTED, character);
+      err_cchar(EXTDIGITEXPECTED, character);
       okay = FALSE;
     } /* if */
     symbol.name[position] = '\0';
@@ -272,7 +272,7 @@ inttype *ivalue;
         } /* while */
       } /* if */
     } else {
-      err_character(DIGITEXPECTED, in_file.character);
+      err_cchar(DIGITEXPECTED, in_file.character);
       intvalue = 0;
     } /* if */
     *ivalue = intvalue;
@@ -338,7 +338,7 @@ static INLINE floattype readfloat ()
         if (char_class(in_file.character) == DIGITCHAR) {
           readdecimal(position);
         } else {
-          err_character(DIGITEXPECTED, in_file.character);
+          err_cchar(DIGITEXPECTED, in_file.character);
         } /* if */
       } /* if */
       result = (floattype) atof((cstritype) symbol.name);
@@ -348,7 +348,7 @@ static INLINE floattype readfloat ()
         if (char_class(in_file.character) == DIGITCHAR) {
           readdecimal(position);
         } else {
-          err_character(DIGITEXPECTED, in_file.character);
+          err_cchar(DIGITEXPECTED, in_file.character);
         } /* if */
       } /* if */
     } else {
@@ -359,10 +359,10 @@ static INLINE floattype readfloat ()
         if (char_class(in_file.character) == DIGITCHAR) {
           readdecimal(position);
         } else {
-          err_character(DIGITEXPECTED, in_file.character);
+          err_cchar(DIGITEXPECTED, in_file.character);
         } /* if */
       } else {
-        err_character(DIGITEXPECTED, in_file.character);
+        err_cchar(DIGITEXPECTED, in_file.character);
       } /* if */
     } /* if */
     if (in_file.character == '~') {
@@ -376,7 +376,7 @@ static INLINE floattype readfloat ()
       if (char_class(in_file.character) == DIGITCHAR) {
         readdecimal(position);
       } else {
-        err_character(DIGITEXPECTED, in_file.character);
+        err_cchar(DIGITEXPECTED, in_file.character);
       } /* if */
     } /* if */
 #ifdef TRACE_LITERAL

@@ -94,7 +94,7 @@ unsigned int position;
       if (character == '\\') {
         character = next_character();
       } else {
-        err_character(BACKSLASHEXPECTED, character);
+        err_cchar(BACKSLASHEXPECTED, character);
       } /* if */
     } else if (character == ' ' || character == '\t' ||
         character == '\r') {
@@ -113,7 +113,7 @@ unsigned int position;
       if (character == '\\') {
         character = next_character();
       } else {
-        err_character(BACKSLASHEXPECTED, character);
+        err_cchar(BACKSLASHEXPECTED, character);
       } /* if */
     } else if (char_class(character) == DIGITCHAR) {
       in_file.character = character;
@@ -126,7 +126,7 @@ unsigned int position;
       } /* if */
       if (in_file.character != '\\') {
         character = in_file.character;
-        err_character(WRONGNUMERICALESCAPE, character);
+        err_cchar(WRONGNUMERICALESCAPE, character);
       } else {
         character = next_character();
       } /* if */
@@ -136,10 +136,10 @@ unsigned int position;
       if (character >= '\"' && character <= 'v') {
         symbol.charvalue = (chartype) esc_tab[character - '\"'];
         if (symbol.charvalue == ' ') {
-          err_character(STRINGESCAPE, character);
+          err_cchar(STRINGESCAPE, character);
         } /* if */
       } else {
-        err_character(STRINGESCAPE, character);
+        err_cchar(STRINGESCAPE, character);
         symbol.charvalue = ' ';
       } /* if */
       check_stri_length(position);
@@ -152,14 +152,12 @@ unsigned int position;
 
 
 
-#ifdef OUT_OF_ORDER
 #ifdef ANSI_C
 
-void utf8_char (unsigned int position, register int character)
+chartype utf8_char (register int character)
 #else
 
-void utf8_char (position, character)
-unsigned int position;
+chartype utf8_char (character)
 register int character;
 #endif
 
@@ -167,22 +165,18 @@ register int character;
     chartype result;
 
   /* utf8_char */
-    symbol.charvalue = ' ';
     if ((character & 0xE0) == 0xC0) {
       result = (character & 0x1F) << 6;
       character = next_character();
       if ((character & 0xC0) == 0x80) {
         result |= character & 0x3F;
         if (result <= 0x7F) {
-          err_character(CHAR_ILLEGAL, result);
-        } else {
-          symbol.charvalue = result;
-          check_stri_length(position);
-          symbol.strivalue->mem[position++] = (strelemtype) result;
+          err_char(CHAR_ILLEGAL, result);
         } /* if */
         in_file.character = next_character();
       } else {
-        err_character(CHAR_ILLEGAL, character);
+        result = 0xC0 | result >> 6; /* Restore 8 bit char */
+        err_char(CHAR_ILLEGAL, result);
         in_file.character = character;
       } /* if */
     } else if ((character & 0xF0) == 0xE0) {
@@ -194,19 +188,17 @@ register int character;
         if ((character & 0xC0) == 0x80) {
           result |= character & 0x3F;
           if (result <= 0x7FF || (result >= 0xD800 && result <= 0xDFFF)) {
-            err_character(CHAR_ILLEGAL, result);
-          } else {
-            symbol.charvalue = result;
-            check_stri_length(position);
-            symbol.strivalue->mem[position++] = (strelemtype) result;
+            err_char(CHAR_ILLEGAL, result);
           } /* if */
           in_file.character = next_character();
         } else {
-          err_character(CHAR_ILLEGAL, character);
+          err_cchar(CHAR_ILLEGAL, character);
           in_file.character = character;
+          result = '?';
         } /* if */
       } else {
-        err_character(CHAR_ILLEGAL, character);
+        result = 0xE0 | result >> 12; /* Restore 8 bit char */
+        err_char(CHAR_ILLEGAL, result);
         in_file.character = character;
       } /* if */
     } else if ((character & 0xF8) == 0xF0) {
@@ -221,23 +213,22 @@ register int character;
           if ((character & 0xC0) == 0x80) {
             result |= character & 0x3F;
             if (result <= 0xFFFF) {
-              err_character(CHAR_ILLEGAL, result);
-            } else {
-              symbol.charvalue = result;
-              check_stri_length(position);
-              symbol.strivalue->mem[position++] = (strelemtype) result;
+              err_char(CHAR_ILLEGAL, result);
             } /* if */
             in_file.character = next_character();
           } else {
-            err_character(CHAR_ILLEGAL, character);
+            err_cchar(CHAR_ILLEGAL, character);
             in_file.character = character;
+            result = '?';
           } /* if */
         } else {
-          err_character(CHAR_ILLEGAL, character);
+          err_cchar(CHAR_ILLEGAL, character);
           in_file.character = character;
+          result = '?';
         } /* if */
       } else {
-        err_character(CHAR_ILLEGAL, character);
+        result = 0xF0 | result >> 18; /* Restore 8 bit char */
+        err_char(CHAR_ILLEGAL, result);
         in_file.character = character;
       } /* if */
     } else if ((character & 0xFC) == 0xF8) {
@@ -255,27 +246,27 @@ register int character;
             if ((character & 0xC0) == 0x80) {
               result |= character & 0x3F;
               if (result <= 0x1FFFFF) {
-                err_character(CHAR_ILLEGAL, result);
-              } else {
-                symbol.charvalue = result;
-                check_stri_length(position);
-                symbol.strivalue->mem[position++] = (strelemtype) result;
+                err_char(CHAR_ILLEGAL, result);
               } /* if */
               in_file.character = next_character();
             } else {
-              err_character(CHAR_ILLEGAL, character);
+              err_cchar(CHAR_ILLEGAL, character);
               in_file.character = character;
+              result = '?';
             } /* if */
           } else {
-            err_character(CHAR_ILLEGAL, character);
+            err_cchar(CHAR_ILLEGAL, character);
             in_file.character = character;
+            result = '?';
           } /* if */
         } else {
-          err_character(CHAR_ILLEGAL, character);
+          err_cchar(CHAR_ILLEGAL, character);
           in_file.character = character;
+          result = '?';
         } /* if */
       } else {
-        err_character(CHAR_ILLEGAL, character);
+        result = 0xF8 | result >> 24; /* Restore 8 bit char */
+        err_char(CHAR_ILLEGAL, result);
         in_file.character = character;
       } /* if */
     } else if ((character & 0xFC) == 0xFC) {
@@ -296,36 +287,39 @@ register int character;
               if ((character & 0xC0) == 0x80) {
                 result |= character & 0x3F;
                 if (result <= 0x3FFFFFF) {
-                  err_character(CHAR_ILLEGAL, result);
-                } else {
-                  symbol.charvalue = result;
-                  check_stri_length(position);
-                  symbol.strivalue->mem[position++] = (strelemtype) result;
+                  err_char(CHAR_ILLEGAL, result);
                 } /* if */
                 in_file.character = next_character();
               } else {
-                err_character(CHAR_ILLEGAL, character);
+                err_cchar(CHAR_ILLEGAL, character);
                 in_file.character = character;
+                result = '?';
               } /* if */
             } else {
-              err_character(CHAR_ILLEGAL, character);
+              err_cchar(CHAR_ILLEGAL, character);
               in_file.character = character;
+              result = '?';
             } /* if */
           } else {
-            err_character(CHAR_ILLEGAL, character);
+            err_cchar(CHAR_ILLEGAL, character);
             in_file.character = character;
+            result = '?';
           } /* if */
         } else {
-          err_character(CHAR_ILLEGAL, character);
+          err_cchar(CHAR_ILLEGAL, character);
           in_file.character = character;
+          result = '?';
         } /* if */
       } else {
-        err_character(CHAR_ILLEGAL, character);
+        result = 0xFC | result >> 30; /* Restore 8 bit char */
+        err_char(CHAR_ILLEGAL, result);
         in_file.character = character;
       } /* if */
+    } else {
+      result = '?';
     } /* if */
+    return(result);
   } /* utf8_char */
-#endif
 
 
 
@@ -350,10 +344,10 @@ static char lit_escapechar ()
       if (ch != ' ') {
         in_file.character = next_character();
       } else {
-        err_character(STRINGESCAPE, in_file.character);
+        err_cchar(STRINGESCAPE, in_file.character);
       } /* if */
     } else {
-      err_character(STRINGESCAPE, in_file.character);
+      err_cchar(STRINGESCAPE, in_file.character);
       ch = ' ';
     } /* if */
     return(ch);
@@ -421,7 +415,7 @@ static char lit_escapechar ()
       case 'Y':  ch = '\031'; break; /* EM  */
       case 'Z':  ch = '\032'; break; /* SUB */
       default:
-        err_character(STRINGESCAPE, in_file.character);
+        err_cchar(STRINGESCAPE, in_file.character);
         ch = ' ';
         read_next_character = FALSE;
         break;
@@ -463,20 +457,27 @@ void lit_char ()
         do {
           position = escape_sequence(0);
         } while (position == 0 && in_file.character == '\\');
-        if (position == 0) {
+      } else {
+        position = 0;
+      } /* if */
+      if (position == 0) {
+        if (in_file.character >= ' ' && in_file.character <= '~') {
           symbol.charvalue = (chartype) in_file.character;
           in_file.character = next_character();
+        } else if ((in_file.character & 0xC0) == 0xC0) {
+          symbol.charvalue = utf8_char(in_file.character);
+        } else {
+          err_cchar(CHAR_ILLEGAL, in_file.character);
+          symbol.charvalue = ' ';
+          in_file.character = next_character();
         } /* if */
-      } else {
-        symbol.charvalue = (chartype) in_file.character;
-        in_file.character = next_character();
       } /* if */
       if (in_file.character != '\'') {
         if (in_file.character == '\n' || in_file.character == '\r' ||
             in_file.character == EOF) {
           err_warning(CHAREXCEEDS);
         } else {
-          err_character(APOSTROPHEXPECTED, in_file.character);
+          err_cchar(APOSTROPHEXPECTED, in_file.character);
           do {
             in_file.character = next_character();
           } while (in_file.character != '\'' &&
@@ -561,8 +562,12 @@ void lit_string ()
           character == EOF) {
         err_warning(STRINGEXCEEDS);
         reading_string = FALSE;
+      } else if ((character & 0xC0) == 0xC0) {
+        check_stri_length(position);
+        symbol.strivalue->mem[position++] = utf8_char(character);
+        character = in_file.character;
       } else {
-        err_character(CHAR_ILLEGAL, character);
+        err_cchar(CHAR_ILLEGAL, character);
         do {
           check_stri_length(position);
           symbol.strivalue->mem[position++] = (strelemtype) character;

@@ -861,7 +861,7 @@ inttype col;
 
   { /* drwClear */
 #ifdef TRACE_X11
-    printf("clear(%lu)\n", actual_window);
+    printf("drwClear(%lu, %lx)\n", actual_window, col);
 #endif
     XSetForeground(mydisplay, mygc, (unsigned) col);
     XFillRectangle(mydisplay, to_window(actual_window), mygc, 0, 0,
@@ -876,6 +876,49 @@ inttype col;
 
 #ifdef ANSI_C
 
+void drwCopyArea (wintype src_window, wintype dest_window,
+    inttype src_x, inttype src_y, inttype width, inttype height,
+    inttype dest_x, inttype dest_y)
+#else
+
+void drwCopyArea (src_window, dest_window, src_x, src_y, width, height,
+    dest_x, dest_y)
+wintype src_window;
+wintype dest_window;
+inttype src_x;
+inttype src_y;
+inttype width;
+inttype height;
+inttype dest_x;
+inttype dest_y;
+#endif
+
+  { /* drwCopyArea */
+#ifdef TRACE_X11
+    printf("XCopyArea(%lu, %lu, %lu, %ld, %ld, %ld, %ld, %ld)\n",
+        src_window, dest_window, src_x, src_y, width, height, dest_x, dest_y);
+#endif
+    if (to_backup(src_window) != 0) {
+      XCopyArea(mydisplay, to_backup(src_window), to_window(dest_window),
+          mygc, src_x, src_y, width, height, dest_x, dest_y);
+      if (to_backup(dest_window) != 0) {
+        XCopyArea(mydisplay, to_backup(src_window), to_backup(dest_window),
+            mygc, src_x, src_y, width, height, dest_x, dest_y);
+      } /* if */
+    } else {
+      XCopyArea(mydisplay, to_window(src_window), to_window(dest_window),
+          mygc, src_x, src_y, width, height, dest_x, dest_y);
+      if (to_backup(dest_window) != 0) {
+        XCopyArea(mydisplay, to_window(src_window), to_backup(dest_window),
+            mygc, src_x, src_y, width, height, dest_x, dest_y);
+      } /* if */
+    } /* if */
+  } /* drwCopyArea */
+
+
+
+#ifdef ANSI_C
+
 void drwCpy (wintype *win_to, wintype win_from)
 #else
 
@@ -885,6 +928,9 @@ wintype win_from;
 #endif
 
   { /* drwCpy */
+#ifdef TRACE_X11
+    printf("drwCpy(%lu, %ld)\n", win_to, win_from);
+#endif
     if (*win_to != NULL) {
       (*win_to)->usage_count--;
       if ((*win_to)->usage_count == 0) {
@@ -1207,7 +1253,7 @@ inttype col;
 
   { /* drwPLine */
 #ifdef TRACE_X11
-    printf("pline(%lu, %ld, %ld, %ld, %ld, %lu)\n", actual_window, x1, y1, x2, y2, col);
+    printf("drwPLine(%lu, %ld, %ld, %ld, %ld, %lx)\n", actual_window, x1, y1, x2, y2, col);
 #endif
     XSetForeground(mydisplay, mygc, (unsigned) col);
     XDrawLine(mydisplay, to_window(actual_window), mygc, x1, y1, x2, y2);
@@ -1465,7 +1511,7 @@ stritype window_name;
     } /* if */
     /* printf("result=%lu\n", (long unsigned) result); */
 #ifdef TRACE_X11
-    printf("END drwOpen\n");
+    printf("END drwOpen ==> %lu\n", (long unsigned) result);
 #endif
     return((wintype) result);
   } /* drwOpen */
@@ -1507,7 +1553,7 @@ inttype col;
 
   { /* drwPPoint */
 #ifdef TRACE_X11
-    printf("ppoint(%lu, %ld, %ld, %lu)\n", actual_window, x, y, col); 
+    printf("drwPPoint(%lu, %ld, %ld, %lx)\n", actual_window, x, y, col); 
 #endif
     XSetForeground(mydisplay, mygc, (unsigned) col);
     XDrawPoint(mydisplay, to_window(actual_window), mygc, x, y);
@@ -1624,7 +1670,7 @@ inttype col;
 
   { /* drwPRect */
 #ifdef TRACE_X11
-    printf("prect(%lu, %ld, %ld, %ld, %ld, %lu)\n", actual_window, x1, y1, length_x, length_y, col);
+    printf("drwPRect(%lu, %ld, %ld, %ld, %ld, %lx)\n", actual_window, x1, y1, length_x, length_y, col);
 #endif
     XSetForeground(mydisplay, mygc, (unsigned) col);
     XFillRectangle(mydisplay, to_window(actual_window), mygc, x1, y1,
@@ -1666,6 +1712,9 @@ inttype blue_val;
     int okay;
 
   /* drwRgbColor */
+#ifdef TRACE_X11
+    printf("drwRgbColor(%lu, %ld, %ld)\n", red_val, green_val, blue_val);
+#endif
 /*    printf("search [%ld, %ld, %ld]\n",
         red_val, green_val, blue_val); */
     if (default_visual->class == TrueColor) {

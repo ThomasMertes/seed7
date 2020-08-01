@@ -5,7 +5,8 @@ CFLAGS = -O2 -fomit-frame-pointer -Wall -Wstrict-prototypes -Winline -Wconversio
 # CFLAGS = -O2 -funroll-loops -Wall -pg
 LFLAGS = -O2
 # LFLAGS = -O2 -pg
-LIBS = /usr/X11R6/lib/libX11.so -lncurses -lm
+# LIBS = /usr/Xlib/libX11.so -lncurses -lm
+LIBS = -lX11 -lncurses -lm
 CC = gcc
 
 # SCREEN_OBJ = scr_x11.o

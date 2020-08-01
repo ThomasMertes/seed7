@@ -708,13 +708,17 @@ listtype arguments;
   /* prc_include */
     isit_stri(arg_2(arguments));
     include_file_name = take_stri(arg_2(arguments));
-    find_include_file(include_file_name, &err_info);
-    if (err_info == FILE_ERROR) {
-      err_stri(FILENOTFOUND, include_file_name);
-    } else if (err_info != OKAY_NO_ERROR) {
-      err_warning(OUT_OF_HEAP_SPACE);
+    if (stri_charpos(include_file_name, '\\') != NULL) {
+      err_warning(WRONG_PATH_DELIMITER);
     } else {
-      scan_symbol();
+      find_include_file(include_file_name, &err_info);
+      if (err_info == FILE_ERROR) {
+        err_stri(FILENOTFOUND, include_file_name);
+      } else if (err_info != OKAY_NO_ERROR) {
+        err_warning(OUT_OF_HEAP_SPACE);
+      } else {
+	scan_symbol();
+      } /* if */
     } /* if */
     return(SYS_EMPTY_OBJECT);
   } /* prc_include */

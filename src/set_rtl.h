@@ -37,13 +37,17 @@
 #ifdef ANSI_C
 
 inttype setCard (settype);
+inttype setCmp (settype, settype);
 void setCpy (settype *, settype);
+void setCreate (settype *, settype);
+void setDestr (settype);
 settype setDiff (settype, settype);
 booltype setElem (inttype, settype);
 booltype setEq (settype, settype);
 void setExcl (settype *, inttype);
 booltype setGe (settype, settype);
 booltype setGt (settype, settype);
+inttype setHashCode (settype);
 void setIncl (settype *, inttype);
 settype setIntersect (settype, settype);
 booltype setLe (settype, settype);
@@ -53,18 +57,23 @@ inttype setMin (settype);
 booltype setNe (settype, settype);
 booltype setNotElem (inttype, settype);
 inttype setRand (settype);
+settype setSymdiff (settype, settype);
 settype setUnion (settype, settype);
 
 #else
 
 inttype setCard ();
+inttype setCmp ();
 void setCpy ();
+void setCreate ();
+void setDestr ();
 settype setDiff ();
 booltype setElem ();
 booltype setEq ();
 void setExcl ();
 booltype setGe ();
 booltype setGt ();
+inttype setHashCode ();
 void setIncl ();
 settype setIntersect ();
 booltype setLe ();
@@ -74,6 +83,7 @@ inttype setMin ();
 booltype setNe ();
 booltype setNotElem ();
 inttype setRand ();
+settype setSymdiff ();
 settype setUnion ();
 
 #endif

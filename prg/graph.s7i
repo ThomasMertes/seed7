@@ -122,6 +122,11 @@ const func PRIMITIVE_WINDOW: DRAW_IMAGE (in PRIMITIVE_WINDOW param,
 const proc: DRAW_PUT (
     inout PRIMITIVE_WINDOW param, in PRIMITIVE_WINDOW param,
     ref integer param, ref integer param) is           action "DRW_PUT";
+const proc: copyArea(in PRIMITIVE_WINDOW param,
+    inout PRIMITIVE_WINDOW param,
+    ref integer param, ref integer param,
+    ref integer param, ref integer param,
+    ref integer param, ref integer param) is           action "DRW_COPYAREA";
 const func integer: height (in PRIMITIVE_WINDOW param) is    action "DRW_HEIGHT";
 const func integer: width (in PRIMITIVE_WINDOW param) is     action "DRW_WIDTH";
 const func pixel: rgbPixel (ref integer param,

@@ -34,6 +34,7 @@
 stritype filLineRead (filetype, chartype *);
 stritype filLit (filetype);
 inttype filLng (filetype);
+filetype filOpen (stritype, stritype);
 stritype filStriRead (filetype, inttype);
 stritype filWordRead (filetype, chartype *);
 void filWrite (filetype, stritype);
@@ -43,6 +44,7 @@ void filWrite (filetype, stritype);
 stritype filLineRead ();
 stritype filLit ();
 inttype filLng ();
+filetype filOpen ();
 stritype filStriRead ();
 stritype filWordRead ();
 void filWrite ();

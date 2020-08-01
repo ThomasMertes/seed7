@@ -392,11 +392,11 @@ const func boolean: (in boolean param) or (in varfunc boolean param) is  action 
 const func boolean: (in boolean param) or (in boolean param) is          action "BLN_OR";
 
 const func boolean: (in boolean param) = (in boolean param) is           action "ENU_EQ";
-const func boolean: (in boolean param) <> (in boolean param) is          action "ENU_NE";
 const func boolean: (in boolean param) < (in boolean param) is           action "BLN_LT";
-const func boolean: (in boolean param) <= (in boolean param) is          action "BLN_LE";
 const func boolean: (in boolean param) > (in boolean param) is           action "BLN_GT";
+const func boolean: (in boolean param) <= (in boolean param) is          action "BLN_LE";
 const func boolean: (in boolean param) >= (in boolean param) is          action "BLN_GE";
+const func boolean: (in boolean param) <> (in boolean param) is          action "ENU_NE";
 
 const func integer: ord (in boolean param) is                            action "BLN_ORD";
 const func boolean: (attr boolean) conv (in integer param) is            action "BLN_ICONV";
@@ -463,11 +463,13 @@ const func boolean: pred (attr TRUE) is  FALSE;
 const string: str (attr TRUE) is         "TRUE";
 *)
 
-const func boolean: (in type param) = (in type param) is    action "TYP_EQ";
-const func boolean: (in type param) <> (in type param) is   action "TYP_NE";
-const func boolean: is_func (in type param) is              action "TYP_ISFUNC";
-const func boolean: is_varfunc (in type param) is           action "TYP_ISVARFUNC";
-const func type: result_type (in type param) is             action "TYP_RESULT";
+const func boolean: (in type param) = (in type param) is      action "TYP_EQ";
+const func boolean: (in type param) <> (in type param) is     action "TYP_NE";
+const func integer: compare (in type param, in type param) is action "TYP_CMP";
+const func integer: hashCode (in type param) is               action "TYP_HASHCODE";
+const func boolean: is_func (in type param) is                action "TYP_ISFUNC";
+const func boolean: is_varfunc (in type param) is             action "TYP_ISVARFUNC";
+const func type: result_type (in type param) is               action "TYP_RESULT";
 
 
 (* IF *)
@@ -1559,11 +1561,13 @@ const func bitset: (in bitset param) >< (in bitset param) is       action "SET_S
 const func bitset: (in bitset param) & (in bitset param) is        action "SET_INTERSECT";
 const func bitset: (in bitset param) - (in bitset param) is        action "SET_DIFF";
 const func boolean: (in bitset param) = (in bitset param) is       action "SET_EQ";
-const func boolean: (in bitset param) <> (in bitset param) is      action "SET_NE";
 const func boolean: (in bitset param) < (in bitset param) is       action "SET_LT";
-const func boolean: (in bitset param) <= (in bitset param) is      action "SET_LE";
 const func boolean: (in bitset param) > (in bitset param) is       action "SET_GT";
+const func boolean: (in bitset param) <= (in bitset param) is      action "SET_LE";
 const func boolean: (in bitset param) >= (in bitset param) is      action "SET_GE";
+const func boolean: (in bitset param) <> (in bitset param) is      action "SET_NE";
+const func integer: compare (in bitset param, in bitset param) is  action "SET_CMP";
+const func integer: hashCode (in bitset param) is                  action "SET_HASHCODE";
 const func boolean: (in integer param) in (in bitset param) is     action "SET_ELEM";
 const func boolean: (in integer param) not in (in bitset param) is action "SET_NOT_ELEM";
 const proc: incl (inout bitset param, in integer param) is         action "SET_INCL";
@@ -1577,6 +1581,7 @@ const func bitset: { (in integer: value) } is                      action "SET_B
 const func bitset: _GENERATE_EMPTY_SET is                          action "SET_EMPTY";
 const bitset: EMPTY_SET is                                         _GENERATE_EMPTY_SET;
 const bitset: (attr bitset) . EMPTY_SET is                         EMPTY_SET;
+const bitset: (attr bitset) . value is                             EMPTY_SET;
 
 const func bitset: { (in tuple integer: value) } is func
   result
@@ -1627,11 +1632,11 @@ const func type: set of (in type: baseType) is func
       const func setType: (in setType param) & (in setType param) is        action "SET_INTERSECT";
       const func setType: (in setType param) - (in setType param) is        action "SET_DIFF";
       const func boolean: (in setType param) = (in setType param) is        action "SET_EQ";
-      const func boolean: (in setType param) <> (in setType param) is       action "SET_NE";
       const func boolean: (in setType param) < (in setType param) is        action "SET_LT";
-      const func boolean: (in setType param) <= (in setType param) is       action "SET_LE";
       const func boolean: (in setType param) > (in setType param) is        action "SET_GT";
+      const func boolean: (in setType param) <= (in setType param) is       action "SET_LE";
       const func boolean: (in setType param) >= (in setType param) is       action "SET_GE";
+      const func boolean: (in setType param) <> (in setType param) is       action "SET_NE";
       const func integer: card (in setType param) is                        action "SET_CARD";
       const func bitset: (attr bitset) conv (in setType param) is           action "SET_CONV";
       const varfunc bitset: (attr bitset) var_conv (inout setType param) is action "TYP_VARCONV";
@@ -2919,17 +2924,28 @@ const func string: getenv (in string param) is action "PRC_ENV";
 
 (* DIRECTORY *)
 
-const proc: chdir (in string param) is                   action "CMD_CHDIR";
-const proc: mkdir (in string param) is                   action "CMD_MKDIR";
-const func string: getcwd is                             action "CMD_GETCWD";
-const func integer: file_size (in string param) is       action "CMD_LNG";
-const func array string: read_dir (in string param) is   action "CMD_LS";
-const proc: remove (in string param) is                  action "CMD_REMOVE";
-const proc: rename (in string param, in string param) is action "CMD_MOVE";
-const proc: copy (in string param, in string param) is   action "CMD_COPY";
+const integer: FILE_UNKNOWN is 0;
+const integer: FILE_REG     is 1;
+const integer: FILE_DIR     is 2;
+const integer: FILE_CHR     is 3;
+const integer: FILE_BLK     is 4;
+const integer: FILE_FIFO    is 5;
+const integer: FILE_LNK     is 6;
+const integer: FILE_SOCK    is 7;
 
-const func integer: heapsize (PROGRAM) is                action "INT_HSIZE";
-const proc: include (in string param) is                 action "PRC_INCLUDE";
+const proc: chdir (in string param) is                    action "CMD_CHDIR";
+const proc: mkdir (in string param) is                    action "CMD_MKDIR";
+const func string: getcwd is                              action "CMD_GETCWD";
+const func integer: file_size (in string param) is        action "CMD_LNG";
+const func integer: file_type (in string param) is        action "CMD_FILETYPE";
+const func array string: read_dir (in string param) is    action "CMD_LS";
+const proc: remove (in string param) is                   action "CMD_REMOVE";
+const proc: rename (in string param, in string param) is  action "CMD_MOVE";
+const proc: copy (in string param, in string param) is    action "CMD_COPY";
+const proc: symlink (in string param, in string param) is action "CMD_SYMLINK";
+
+const func integer: heapsize (PROGRAM) is                 action "INT_HSIZE";
+const proc: include (in string param) is                  action "PRC_INCLUDE";
 
 (*
 const proc: var (ref expr: typeExpr) : (ref expr: nameExpr) is (ref expr: initExpr) is action "PRC_TRACE";

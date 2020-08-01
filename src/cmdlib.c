@@ -234,6 +234,23 @@ listtype arguments;
 
 #ifdef ANSI_C
 
+objecttype cmd_filetype (listtype arguments)
+#else
+
+objecttype cmd_filetype (arguments)
+listtype arguments;
+#endif
+
+  { /* cmd_filetype */
+    isit_stri(arg_1(arguments));
+    return(bld_int_temp(
+        cmdFileType(take_stri(arg_1(arguments)))));
+  } /* cmd_filetype */
+
+
+
+#ifdef ANSI_C
+
 objecttype cmd_getcwd (listtype arguments)
 #else
 
@@ -397,3 +414,21 @@ listtype arguments;
     sleep(seconds);
     return(SYS_EMPTY_OBJECT);
   } /* cmd_sleep */
+
+
+
+#ifdef ANSI_C
+
+objecttype cmd_symlink (listtype arguments)
+#else
+
+objecttype cmd_symlink (arguments)
+listtype arguments;
+#endif
+
+  { /* cmd_symlink */
+    isit_stri(arg_1(arguments));
+    isit_stri(arg_2(arguments));
+    cmdSymlink(take_stri(arg_1(arguments)), take_stri(arg_2(arguments)));
+    return(SYS_EMPTY_OBJECT);
+  } /* cmd_symlink */

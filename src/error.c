@@ -512,6 +512,9 @@ errortype err;
       case WRONG_QUOTATION_REPRESENTATION:
         printf("Use \\\" instead of \"\" to represent \" in a string\n");
         break;
+      case WRONG_PATH_DELIMITER:
+        printf("Use / instead of \\ as path delimiter\n");
+        break;
       case NAMEEXPECTED:
         printf("Name expected found"); write_symbol();
         break;
@@ -934,15 +937,15 @@ inttype number;
 
 #ifdef ANSI_C
 
-void err_character (errortype err, int character)
+void err_cchar (errortype err, int character)
 #else
 
-void err_character (err, character)
+void err_cchar (err, character)
 errortype err;
 int character;
 #endif
 
-  { /* err_character */
+  { /* err_cchar */
     place_of_error(err);
     switch (err) {
       case CHAR_ILLEGAL:
@@ -977,7 +980,38 @@ int character;
     } /* if */
     print_error_line();
     display_compilation_info();
-  } /* err_character */
+  } /* err_cchar */
+
+
+
+#ifdef ANSI_C
+
+void err_char (errortype err, chartype character)
+#else
+
+void err_char (err, character)
+errortype err;
+chartype character;
+#endif
+
+  { /* err_char */
+    place_of_error(err);
+    switch (err) {
+      case CHAR_ILLEGAL:
+        printf("Illegal character in text \"");
+        break;
+      default:
+        undef_err();
+        break;
+    } /* switch */
+    if (character >= ' ' && character <= '~') {
+      printf("%c\"\n", (int) character);
+    } else {
+      printf("\\%lu\\\"\n", character);
+    } /* if */
+    print_error_line();
+    display_compilation_info();
+  } /* err_char */
 
 
 

@@ -651,6 +651,9 @@ inttype col;
     HBRUSH current_brush;
 
   /* drwClear */
+#ifdef TRACE_WIN
+    printf("drwClear(%lu, %lx)\n", actual_window, col);
+#endif
     current_pen = CreatePen(PS_SOLID, 1, (COLORREF) col);
     current_brush = CreateSolidBrush((COLORREF) col);
     old_pen = SelectObject(to_hdc(actual_window), current_pen);
@@ -675,6 +678,49 @@ inttype col;
 
 #ifdef ANSI_C
 
+void drwCopyArea (wintype src_window, wintype dest_window,
+    inttype src_x, inttype src_y, inttype width, inttype height,
+    inttype dest_x, inttype dest_y)
+#else
+
+void drwCopyArea (src_window, dest_window, src_x, src_y, width, height,
+    dest_x, dest_y)
+wintype src_window;
+wintype dest_window;
+inttype src_x;
+inttype src_y;
+inttype width;
+inttype height;
+inttype dest_x;
+inttype dest_y;
+#endif
+
+  { /* drwCopyArea */
+#ifdef TRACE_WIN
+    printf("XCopyArea(%lu, %lu, %lu, %ld, %ld, %ld, %ld, %ld)\n",
+        src_window, dest_window, src_x, src_y, width, height, dest_x, dest_y);
+#endif
+    if (to_backup_hdc(src_window) != 0) {
+      BitBlt(to_hdc(dest_window), dest_x, dest_y, width, height,
+          to_backup_hdc(src_window), src_x, src_y, SRCCOPY);
+      if (to_backup_hdc(dest_window) != 0) {
+        BitBlt(to_backup_hdc(dest_window), dest_x, dest_y, width, height,
+            to_backup_hdc(src_window), src_x, src_y, SRCCOPY);
+      } /* if */
+    } else {
+      BitBlt(to_hdc(dest_window), dest_x, dest_y, width, height,
+          to_hdc(src_window), src_x, src_y, SRCCOPY);
+      if (to_backup_hdc(dest_window) != 0) {
+        BitBlt(to_backup_hdc(dest_window), dest_x, dest_y, width, height,
+            to_hdc(src_window), src_x, src_y, SRCCOPY);
+      } /* if */
+    } /* if */
+  } /* drwCopyArea */
+
+
+
+#ifdef ANSI_C
+
 void drwCpy (wintype *win_to, wintype win_from)
 #else
 
@@ -684,6 +730,9 @@ wintype win_from;
 #endif
 
   { /* drwCpy */
+#ifdef TRACE_WIN
+    printf("drwCpy(%lu, %ld)\n", win_to, win_from);
+#endif
     if (*win_to != NULL) {
       (*win_to)->usage_count--;
       if ((*win_to)->usage_count == 0) {
@@ -737,10 +786,10 @@ inttype col;
     current_pen = CreatePen(PS_SOLID, 1, (COLORREF) col);
     current_brush = CreateSolidBrush((COLORREF) col);
     if (current_pen == NULL) {
-      printf("drwPFCircle pen with color %ul is NULL\n", col);
+      printf("drwPFCircle pen with color %lx is NULL\n", col);
     } /* if */
     if (current_brush == NULL) {
-      printf("drwPRect brush with color %ul is NULL\n", col);
+      printf("drwPRect brush with color %lx is NULL\n", col);
     } /* if */
     old_pen = SelectObject(to_hdc(actual_window), current_pen);
     old_brush = SelectObject(to_hdc(actual_window), current_brush);
@@ -916,10 +965,13 @@ inttype col;
     HPEN current_pen;
 
   /* drwPLine */
+#ifdef TRACE_WIN
+    printf("drwPLine(%lu, %ld, %ld, %ld, %ld, %lx)\n", actual_window, x1, y1, x2, y2, col);
+#endif
     /* SetDCPenColor(to_hdc(actual_window), (COLORREF) col); */
     current_pen = CreatePen(PS_SOLID, 1, (COLORREF) col);
     if (current_pen == NULL) {
-      printf("drwPLine pen with color %ul is NULL\n", col);
+      printf("drwPLine pen with color %lx is NULL\n", col);
     } /* if */
     old_pen = SelectObject(to_hdc(actual_window), current_pen);
     MoveToEx(to_hdc(actual_window), x1, y1, NULL);
@@ -1030,7 +1082,7 @@ stritype window_name;
     win_wintype result;
 
   /* drwOpen */
-#ifdef TRACE_X11
+#ifdef TRACE_WIN
     printf("BEGIN drwOpen(%ld, %ld, %ld, %ld)\n",
         xPos, yPos, width, height);
 #endif
@@ -1084,8 +1136,8 @@ stritype window_name;
         free_cstri(win_name, window_name);
       } /* if */
     } /* if */
-#ifdef TRACE_X11
-    printf("END drwOpen\n");
+#ifdef TRACE_WIN
+    printf("END drwOpen ==> %lu\n", (long unsigned) result);
 #endif
     return((wintype) result);
   } /* drwOpen */
@@ -1129,10 +1181,13 @@ inttype col;
     HPEN current_pen;
 
   /* drwPPoint */
+#ifdef TRACE_WIN
+    printf("drwPPoint(%lu, %ld, %ld, %lx)\n", actual_window, x, y, col); 
+#endif
     /* SetDCPenColor(to_hdc(actual_window), (COLORREF) col); */
     current_pen = CreatePen(PS_SOLID, 1, (COLORREF) col);
     if (current_pen == NULL) {
-      printf("drwPPoint pen with color %ul is NULL\n", col);
+      printf("drwPPoint pen with color %lx is NULL\n", col);
     } /* if */
     old_pen = SelectObject(to_hdc(actual_window), current_pen);
     MoveToEx(to_hdc(actual_window), x, y, NULL);
@@ -1168,6 +1223,9 @@ inttype col;
     HBRUSH current_brush;
 
   /* drwPRect */
+#ifdef TRACE_WIN
+    printf("drwPRect(%lu, %ld, %ld, %ld, %ld, %lx)\n", actual_window, x1, y1, length_x, length_y, col);
+#endif
     /* SetDCPenColor(to_hdc(actual_window), (COLORREF) col); */
 #ifdef OUT_OF_ORDER
     if (length_x == 0 && length_y == 0) {
@@ -1180,10 +1238,10 @@ inttype col;
     current_pen = CreatePen(PS_SOLID, 1, (COLORREF) col);
     current_brush = CreateSolidBrush((COLORREF) col);
     if (current_pen == NULL) {
-      printf("drwPRect pen with color %ul is NULL\n", col);
+      printf("drwPRect pen with color %lx is NULL\n", col);
     } /* if */
     if (current_brush == NULL) {
-      printf("drwPRect brush with color %ul is NULL\n", col);
+      printf("drwPRect brush with color %lx is NULL\n", col);
     } /* if */
     old_pen = SelectObject(to_hdc(actual_window), current_pen);
     old_brush = SelectObject(to_hdc(actual_window), current_brush);
@@ -1271,6 +1329,9 @@ inttype blue_val;
 #endif
 
   { /* drwRgbColor */
+#ifdef TRACE_WIN
+    printf("drwRgbColor(%lu, %ld, %ld)\n", red_val, green_val, blue_val);
+#endif
     return(RGB(((uinttype) red_val) >> 8,
                ((uinttype) green_val) >> 8,
                ((uinttype) blue_val) >> 8));

@@ -207,6 +207,12 @@ trace1(param_obj);
 printf(" %lu\n", (long unsigned) param_obj); */
           list_insert_place = append_element_to_list(list_insert_place,
               param_obj, err_info);
+        } else {
+/* printf("create symbol param ");
+trace1(param_obj);
+printf("\n"); */
+          list_insert_place = append_element_to_list(list_insert_place,
+              param_obj, err_info);
         } /* if */
       } else {
 /* printf("create symbol param ");

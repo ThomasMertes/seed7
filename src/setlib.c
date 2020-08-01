@@ -144,6 +144,24 @@ listtype arguments;
 
 #ifdef ANSI_C
 
+objecttype set_cmp (listtype arguments)
+#else
+
+objecttype set_cmp (arguments)
+listtype arguments;
+#endif
+
+  { /* set_cmp */
+    isit_set(arg_1(arguments));
+    isit_set(arg_2(arguments));
+    return(bld_int_temp(
+        setCmp(take_set(arg_1(arguments)), take_set(arg_2(arguments)))));
+  } /* set_cmp */
+
+
+
+#ifdef ANSI_C
+
 objecttype set_conv (listtype arguments)
 #else
 
@@ -301,50 +319,11 @@ objecttype set_diff (arguments)
 listtype arguments;
 #endif
 
-  {
-    settype set1;
-    settype set2;
-    memsizetype start_index;
-    memsizetype stop_index;
-    memsizetype bitset_index;
-    settype result;
-
-  /* set_diff */
+  { /* set_diff */
     isit_set(arg_1(arguments));
     isit_set(arg_3(arguments));
-    set1 = take_set(arg_1(arguments));
-    set2 = take_set(arg_3(arguments));
-    if (!ALLOC_SET(result, set1->max_position - set1->min_position + 1)) {
-      return(raise_exception(SYS_MEM_EXCEPTION));
-    } else {
-      COUNT_SET(set1->max_position - set1->min_position + 1);
-      result->min_position = set1->min_position;
-      result->max_position = set1->max_position;
-      if (set2->max_position >= set1->min_position ||
-          set2->min_position <= set1->max_position) {
-        if (set2->min_position > set1->min_position) {
-          start_index = set2->min_position - set1->min_position;
-          memcpy(result->bitset, set1->bitset, start_index * sizeof(bitsettype));
-        } else {
-          start_index = 0;
-        } /* if */
-        if (set1->max_position > set2->max_position) {
-          stop_index = set2->max_position - set1->min_position;
-          memcpy(&result->bitset[stop_index + 1], &set1->bitset[stop_index + 1],
-              (set1->max_position - set2->max_position) * sizeof(bitsettype));
-        } else {
-          stop_index = set1->max_position - set1->min_position;
-        } /* if */
-        for (bitset_index = start_index; bitset_index <= stop_index; bitset_index++) {
-          result->bitset[bitset_index] = set1->bitset[bitset_index] &
-              ~ set2->bitset[bitset_index + set1->min_position - set2->min_position];
-        } /* for */
-      } else {
-        memcpy(result->bitset, set1->bitset,
-            (set1->max_position - set1->min_position + 1) * sizeof(bitsettype));
-      } /* if */
-      return(bld_set_temp(result));
-    } /* if */
+    return(bld_set_temp(
+        setDiff(take_set(arg_1(arguments)), take_set(arg_3(arguments)))));
   } /* set_diff */
 
 
@@ -512,6 +491,23 @@ listtype arguments;
       return(SYS_FALSE_OBJECT);
     } /* if */
   } /* set_gt */
+
+
+
+#ifdef ANSI_C
+
+objecttype set_hashcode (listtype arguments)
+#else
+
+objecttype set_hashcode (arguments)
+listtype arguments;
+#endif
+
+  { /* set_hashcode */
+    isit_set(arg_1(arguments));
+    return(bld_int_temp(
+        setHashCode(take_set(arg_1(arguments)))));
+  } /* set_hashcode */
 
 
 
@@ -793,63 +789,11 @@ objecttype set_symdiff (arguments)
 listtype arguments;
 #endif
 
-  {
-    settype set1;
-    settype set2;
-    inttype position;
-    inttype min_position;
-    inttype max_position;
-    inttype start_position;
-    inttype stop_position;
-    settype result;
-
-  /* set_symdiff */
+  { /* set_symdiff */
     isit_set(arg_1(arguments));
     isit_set(arg_3(arguments));
-    set1 = take_set(arg_1(arguments));
-    set2 = take_set(arg_3(arguments));
-    if (set1->min_position < set2->min_position) {
-      min_position = set1->min_position;
-      start_position = set2->min_position;
-    } else {
-      min_position = set2->min_position;
-      start_position = set1->min_position;
-    } /* if */
-    if (set1->max_position > set2->max_position) {
-      max_position = set1->max_position;
-      stop_position = set2->max_position;
-    } else {
-      max_position = set2->max_position;
-      stop_position = set1->max_position;
-    } /* if */
-    if (!ALLOC_SET(result, max_position - min_position + 1)) {
-      return(raise_exception(SYS_MEM_EXCEPTION));
-    } else {
-      COUNT_SET(max_position - min_position + 1);
-      result->min_position = min_position;
-      result->max_position = max_position;
-      for (position = set1->min_position; position < set2->min_position; position++) {
-        result->bitset[position - min_position] = set1->bitset[position - set1->min_position];
-      } /* for */
-      for (position = set2->min_position; position < set1->min_position; position++) {
-        result->bitset[position - min_position] = set2->bitset[position - set2->min_position];
-      } /* for */
-      for (position = start_position; position <= stop_position; position++) {
-        result->bitset[position - min_position] =
-            set1->bitset[position - set1->min_position] ^
-            set2->bitset[position - set2->min_position];
-      } /* for */
-      for (position = stop_position + 1; position < start_position; position++) {
-        result->bitset[position - min_position] = 0;
-      } /* for */
-      for (position = set1->max_position; position < set2->max_position; position++) {
-        result->bitset[position - min_position] = set1->bitset[position - set1->min_position];
-      } /* for */
-      for (position = set2->max_position; position < set1->max_position; position++) {
-        result->bitset[position - min_position] = set2->bitset[position - set2->min_position];
-      } /* for */
-      return(bld_set_temp(result));
-    } /* if */
+    return(bld_set_temp(
+        setSymdiff(take_set(arg_1(arguments)), take_set(arg_3(arguments)))));
   } /* set_symdiff */
 
 

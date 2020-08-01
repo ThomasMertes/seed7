@@ -144,14 +144,19 @@ static INLINE void include_file ()
         if (current_ident != prog.id_for.semicolon) {
           err_ident(EXPECTED_SYMBOL, prog.id_for.semicolon);
         } /* if */
-        find_include_file(include_file_name, &err_info);
-        if (err_info == FILE_ERROR) {
-          err_stri(FILENOTFOUND, include_file_name);
-        } else if (err_info != OKAY_NO_ERROR) {
-          err_warning(OUT_OF_HEAP_SPACE);
+        if (stri_charpos(symbol.strivalue, '\\') != NULL) {
+          err_warning(WRONG_PATH_DELIMITER);
+          scan_symbol();
+        } else {
+          find_include_file(include_file_name, &err_info);
+          if (err_info == FILE_ERROR) {
+            err_stri(FILENOTFOUND, include_file_name);
+          } else if (err_info != OKAY_NO_ERROR) {
+            err_warning(OUT_OF_HEAP_SPACE);
+          } /* if */
+          scan_symbol();
         } /* if */
         FREE_STRI(include_file_name, include_file_name->size);
-        scan_symbol();
       } /* if */
     } else {
       err_warning(STRI_EXPECTED);

@@ -411,6 +411,33 @@ listtype arguments;
 
 #ifdef ANSI_C
 
+objecttype drw_copyarea (listtype arguments)
+#else
+
+objecttype drw_copyarea (arguments)
+listtype arguments;
+#endif
+
+  { /* drw_copyarea */
+    isit_win(arg_1(arguments));
+    isit_win(arg_2(arguments));
+    isit_int(arg_3(arguments));
+    isit_int(arg_4(arguments));
+    isit_int(arg_5(arguments));
+    isit_int(arg_6(arguments));
+    isit_int(arg_7(arguments));
+    isit_int(arg_8(arguments));
+    drwCopyArea(take_win(arg_1(arguments)), take_win(arg_2(arguments)),
+                take_int(arg_3(arguments)), take_int(arg_4(arguments)),
+                take_int(arg_5(arguments)), take_int(arg_6(arguments)),
+                take_int(arg_7(arguments)), take_int(arg_8(arguments)));
+    return(SYS_EMPTY_OBJECT);
+  } /* drw_copyarea */
+
+
+
+#ifdef ANSI_C
+
 objecttype drw_cpy (listtype arguments)
 #else
 

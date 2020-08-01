@@ -33,20 +33,26 @@
 
 void cmdChdir (stritype);
 void cmdCopy (stritype, stritype);
+inttype cmdFileType (stritype);
 stritype cmdGetcwd (void);
 inttype cmdLng (stritype);
 void cmdMove (stritype, stritype);
+stritype cmdReadlink (stritype);
 void cmdRemove (stritype);
 void cmdSh (stritype);
+void cmdSymlink (stritype, stritype);
 
 #else
 
 void cmdChdir ();
 void cmdCopy ();
+inttype cmdFileType ();
 stritype cmdGetcwd ();
 inttype cmdLng ();
 void cmdMove ();
+stritype cmdReadlink ();
 void cmdRemove ();
 void cmdSh ();
+void cmdSymlink ();
 
 #endif

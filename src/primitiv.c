@@ -140,6 +140,7 @@ static primactrecord prim_act_table[] = {
 
     { "CMD_CHDIR",         cmd_chdir,         },
     { "CMD_COPY",          cmd_copy,          },
+    { "CMD_FILETYPE",      cmd_filetype,      },
     { "CMD_GETCWD",        cmd_getcwd,        },
     { "CMD_LNG",           cmd_lng,           },
     { "CMD_LS",            cmd_ls,            },
@@ -148,6 +149,7 @@ static primactrecord prim_act_table[] = {
     { "CMD_REMOVE",        cmd_remove,        },
     { "CMD_SH",            cmd_sh,            },
     { "CMD_SLEEP",         cmd_sleep,         },
+    { "CMD_SYMLINK",       cmd_symlink,       },
 
     { "DCL_ATTR",          dcl_attr,          },
     { "DCL_CONST",         dcl_const,         },
@@ -174,6 +176,7 @@ static primactrecord prim_act_table[] = {
     { "DRW_CIRCLE",        drw_circle,        },
     { "DRW_CLEAR",         drw_clear,         },
     { "DRW_COLOR",         drw_color,         },
+    { "DRW_COPYAREA",      drw_copyarea,      },
     { "DRW_CPY",           drw_cpy,           },
     { "DRW_CREATE",        drw_create,        },
     { "DRW_DESTR",         drw_destr,         },
@@ -508,6 +511,7 @@ static primactrecord prim_act_table[] = {
 
     { "SET_BASELIT",       set_baselit,       },
     { "SET_CARD",          set_card,          },
+    { "SET_CMP",           set_cmp,           },
     { "SET_CONV",          set_conv,          },
     { "SET_CPY",           set_cpy,           },
     { "SET_CREATE",        set_create,        },
@@ -519,6 +523,7 @@ static primactrecord prim_act_table[] = {
     { "SET_EXCL",          set_excl,          },
     { "SET_GE",            set_ge,            },
     { "SET_GT",            set_gt,            },
+    { "SET_HASHCODE",      set_hashcode,      },
     { "SET_INCL",          set_incl,          },
     { "SET_INTERSECT",     set_intersect,     },
     { "SET_LE",            set_le,            },
@@ -570,6 +575,7 @@ static primactrecord prim_act_table[] = {
     { "TIM_AWAIT",         tim_await,         },
     { "TIM_NOW",           tim_now,           },
 
+    { "TYP_CMP",           typ_cmp,           },
     { "TYP_CPY",           typ_cpy,           },
     { "TYP_CREATE",        typ_create,        },
     { "TYP_DESTR",         typ_destr,         },
@@ -577,6 +583,7 @@ static primactrecord prim_act_table[] = {
     { "TYP_FUNC",          typ_func,          },
     { "TYP_GENSUB",        typ_gensub,        },
     { "TYP_GENTYPE",       typ_gentype,       },
+    { "TYP_HASHCODE",      typ_hashcode,      },
     { "TYP_ISDECLARED",    typ_isdeclared,    },
     { "TYP_ISFORWARD",     typ_isforward,     },
     { "TYP_ISFUNC",        typ_isfunc,        },

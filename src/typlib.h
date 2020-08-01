@@ -27,6 +27,7 @@
 
 #ifdef ANSI_C
 
+objecttype typ_cmp (listtype);
 objecttype typ_cpy (listtype);
 objecttype typ_create (listtype);
 objecttype typ_destr (listtype);
@@ -34,6 +35,7 @@ objecttype typ_eq (listtype);
 objecttype typ_func (listtype);
 objecttype typ_gensub (listtype);
 objecttype typ_gentype (listtype);
+objecttype typ_hashcode (listtype);
 objecttype typ_isdeclared (listtype);
 objecttype typ_isforward (listtype);
 objecttype typ_isfunc (listtype);
@@ -49,6 +51,7 @@ objecttype typ_varfunc (listtype);
 
 #else
 
+objecttype typ_cmp ();
 objecttype typ_cpy ();
 objecttype typ_create ();
 objecttype typ_destr ();
@@ -56,6 +59,7 @@ objecttype typ_eq ();
 objecttype typ_func ();
 objecttype typ_gensub ();
 objecttype typ_gentype ();
+objecttype typ_hashcode ();
 objecttype typ_isdeclared ();
 objecttype typ_isforward ();
 objecttype typ_isfunc ();

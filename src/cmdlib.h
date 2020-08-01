@@ -30,6 +30,7 @@
 objecttype cmd_chdir (listtype);
 objecttype cmd_copy (listtype);
 objecttype cmd_getcwd (listtype);
+objecttype cmd_filetype (listtype);
 objecttype cmd_lng (listtype);
 objecttype cmd_ls (listtype);
 objecttype cmd_mkdir (listtype);
@@ -37,11 +38,13 @@ objecttype cmd_move (listtype);
 objecttype cmd_remove (listtype);
 objecttype cmd_sh (listtype);
 objecttype cmd_sleep (listtype);
+objecttype cmd_symlink (listtype);
 
 #else
 
 objecttype cmd_chdir ();
 objecttype cmd_copy ();
+objecttype cmd_filetype ();
 objecttype cmd_getcwd ();
 objecttype cmd_lng ();
 objecttype cmd_ls ();
@@ -50,5 +53,6 @@ objecttype cmd_move ();
 objecttype cmd_remove ();
 objecttype cmd_sh ();
 objecttype cmd_sleep ();
+objecttype cmd_symlink ();
 
 #endif

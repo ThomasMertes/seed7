@@ -754,20 +754,18 @@ const proc: clear (in graph_file: graphFile) is func
 const proc: cursor (ref graph_file: graphFile, ref boolean: active) is noop;
 
 
-const proc: v_scroll (ref graph_file: graphFile,
+const proc: v_scroll (inout graph_file: graphFile,
     in integer: upper, in integer: left, in integer: lower, in integer: right,
     in integer: count) is func
-  local
-    var PRIMITIVE_WINDOW: helpArea is PRIMITIVE_WINDOW.value;
   begin
     if count > 0 then
-      helpArea := getPixmap(graphFile.column_delta * pred(left),
+      copyArea(graphFile.win, graphFile.win,
+          graphFile.column_delta * pred(left),
           graphFile.line_delta * pred(upper + count),
           graphFile.column_delta * succ(right - left),
-          graphFile.line_delta * succ(lower - upper - count));
-      put(graphFile.column_delta * pred(left),
-          graphFile.line_delta * pred(upper),
-          helpArea, PSET);
+          graphFile.line_delta * succ(lower - upper - count),
+          graphFile.column_delta * pred(left),
+          graphFile.line_delta * pred(upper));
       rect(graphFile.column_delta * pred(left),
           graphFile.line_delta * (lower - count),
           graphFile.column_delta * succ(right - left),
@@ -782,13 +780,13 @@ const proc: v_scroll (ref graph_file: graphFile,
           light_red);
 *)
     elsif count < 0 then
-      helpArea := getPixmap(graphFile.column_delta * pred(left),
+      copyArea(graphFile.win, graphFile.win,
+          graphFile.column_delta * pred(left),
           graphFile.line_delta * pred(upper),
           graphFile.column_delta * succ(right - left),
-          graphFile.line_delta * succ(lower - upper + count));
-      put(graphFile.column_delta * pred(left),
-          graphFile.line_delta * pred(upper - count),
-          helpArea, PSET);
+          graphFile.line_delta * succ(lower - upper + count),
+          graphFile.column_delta * pred(left),
+          graphFile.line_delta * pred(upper - count));
 (*
       line(graphFile.column_delta * pred(left),
           graphFile.line_delta * pred(upper),

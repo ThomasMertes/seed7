@@ -161,7 +161,7 @@ static INLINE void scan_illegal ()
 #ifdef TRACE_SCANNER
     printf("BEGIN scan_illegal\n");
 #endif
-    err_character(CHAR_ILLEGAL, in_file.character);
+    err_cchar(CHAR_ILLEGAL, in_file.character);
     do {
       in_file.character = next_character();
     } while (char_class(in_file.character) == ILLEGALCHAR);
