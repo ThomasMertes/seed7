@@ -1,3 +1,8 @@
+20091004:
+- The function isDigitString in the seed7_05.s7i library was improved.
+- The bas7.sd7 (basic interpreter) example program was improved.
+- The functions fltIPow and fltRand in the file flt_rtl.c were improved.
+
 20090920:
 - A FAQ about extensible programming languages and the portability of Seed7 programs,
   was added.

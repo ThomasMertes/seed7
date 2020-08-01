@@ -261,6 +261,11 @@ inttype exponent;
       if (exponent < 0) {
         exponent = -exponent;
         if (exponent < 0) {
+          /* In the twos complement representation the most */
+          /* negative number is the only one where both the */
+          /* number and its negation are negative. When the */
+          /* exponent is proven to be to the most negative  */
+          /* number fltIPow returns 0.0 .                   */
           return(0.0);
         } /* if */
         neg_exp = TRUE;
@@ -268,7 +273,7 @@ inttype exponent;
       if (exponent & 1) {
         result = base;
       } else {
-        result = 1;
+        result = 1.0;
       } /* if */
       exponent >>= 1;
       while (exponent != 0) {
@@ -391,7 +396,7 @@ floattype upper_limit;
 #endif
 
   {
-    floattype factor;
+    double factor;
     floattype result;
 
   /* fltRand */
@@ -401,10 +406,16 @@ floattype upper_limit;
       return(0.0);
     } else {
       factor = upper_limit - lower_limit;
-      do {
-        result = ((floattype) rand_32()) / ((floattype) ULONG_MAX);
-        result = lower_limit + factor * result;
-      } while (result < lower_limit || result > upper_limit);
+      if (factor == POSITIVE_INFINITY) {
+        do {
+          result = (floattype) rand_32();
+        } while (result < lower_limit || result > upper_limit);
+      } else {
+        do {
+          result = ((floattype) rand_32()) / ((floattype) ULONG_MAX);
+          result = lower_limit + factor * result;
+        } while (result < lower_limit || result > upper_limit);
+      } /* if */
       return(result);
     } /* if */
   } /* fltRand */

@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  bas7.sd7      Basic interpreter                                 *)
-(*  Copyright (C) 1994, 2001, 2004 - 2008  Thomas Mertes            *)
+(*  Copyright (C) 1994, 2001, 2004 - 2009  Thomas Mertes            *)
 (*                                                                  *)
 (*  This program is free software; you can redistribute it and/or   *)
 (*  modify it under the terms of the GNU General Public License as  *)
@@ -177,6 +177,13 @@ const type: gosubReturnDescrType is new struct
   end struct;
 
 var array gosubReturnDescrType: gosubReturn is 0 times gosubReturnDescrType.value;
+
+const type: boundsType is new struct
+    var integer: lbound is 0;
+    var integer: ubound is 0;
+  end struct;
+
+const type: dimensionType is array boundsType;
 
 var integer: screenMode is 0;
 var integer: currX is 0;
@@ -615,6 +622,28 @@ const func string: getStringVar (in string: varName) is func
 const proc: setStringVar (in string: varName, in string: stri) is func
   begin
     string_var @:= [varName] stri;
+  end func;
+
+
+const func integer: varptr (in string: variable_name) is func
+  result
+    var integer: result is 0;
+  begin
+    if variable_name not in varptr_value then
+      varptr_value @:= [variable_name] succ(length(varptr_value));
+    end if;
+    result := varptr_value[variable_name];
+    varname_value @:= [result] variable_name;
+  end func;
+
+
+const func string: varname (in integer: address) is func
+  result
+    var string: result is "";
+  begin
+    if address in varname_value then
+      result := varname_value[address];
+    end if;
   end func;
 
 
@@ -1381,6 +1410,50 @@ const func string: get_name (inout string: symbol, inout string: line) is func
     name := symbol;
     symbol := get_symbol(line);
     append_index(name, symbol, line);
+  end func;
+
+
+const proc: skip_parenthesized_stri (inout string: symbol, inout string: line) is func
+  local
+    var string: close_symbol is "";
+  begin
+    if symbol = "(" then
+      close_symbol := ")";
+    elsif symbol = "[" then
+      close_symbol := "]";
+    end if;
+    symbol := get_symbol(line);
+    while symbol <> close_symbol and symbol <> "" do
+      if symbol = "(" or symbol = "[" then
+        skip_parenthesized_stri(symbol, line);
+      end if;
+      symbol := get_symbol(line);
+    end while;
+    if symbol <> close_symbol then
+      error_expect(close_symbol, symbol);
+    else
+      symbol := get_symbol(line);
+    end if;
+  end func;
+
+
+const func boolean: is_let_statement (in string: line) is func
+  result
+    var boolean: result is FALSE;
+  local
+    var string: symbol is "";
+    var string: help_line is "";
+  begin
+    help_line := line;
+    symbol := get_symbol(help_line);
+    if symbol = "(" or symbol = "[" then
+      skip_parenthesized_stri(symbol, help_line);
+    end if;
+    if symbol = "." then
+      symbol := get_symbol(help_line);
+      symbol := get_symbol(help_line);
+    end if;
+    result := symbol = "=";
   end func;
 
 
@@ -2452,12 +2525,7 @@ const func float: exec_primary (inout string: symbol, inout string: line) is fun
       expect("(", symbol, line);
       variable_name := get_name(symbol, line);
       expect(")", symbol, line);
-      if variable_name not in varptr_value then
-        varptr_value @:= [variable_name] succ(length(varptr_value));
-      end if;
-      index1 := varptr_value[variable_name];
-      varname_value @:= [index1] variable_name;
-      result := flt(index1);
+      result := flt(varptr(variable_name));
       writeln(log, "VARPTR(" <& variable_name <& ") -> " <& result);
     elsif symbol = "ERR" then
       symbol := get_symbol(line);
@@ -5778,6 +5846,94 @@ const proc: exec_seek (inout string: symbol, inout string: line) is func
   end func;
 
 
+const proc: initArray (in var string: arrayName, in boolean: isStringVar,
+    in integer: dimension, in dimensionType: dimensionBounds) is func
+  local
+    var integer: index is 0;
+  begin
+    if dimension <= length(dimensionBounds) then
+      if dimension = 1 then
+        arrayName &:= "(";
+      else
+        arrayName &:= ",";
+      end if;
+      for index range dimensionBounds[dimension].lbound to dimensionBounds[dimension].ubound do
+        if dimension = length(dimensionBounds) then
+          if isStringVar then
+            setStringVar(arrayName & str(index) & ")", "");
+          else
+            setNumericVar(arrayName & str(index) & ")", 0.0);
+          end if;
+        else
+          initArray(arrayName & str(index), isStringVar, succ(dimension), dimensionBounds);
+        end if;
+      end for;
+    end if;
+  end func;
+
+
+const proc: exec_dim (inout string: symbol, inout string: line) is func
+  local
+    var string: arrayName is "";
+    var dimensionType: dimensionBounds is 0 times boundsType.value;
+    var boundsType: bounds is boundsType.value;
+    var integer: dimension is 0;
+    var boolean: finished is FALSE;
+  begin
+    symbol := get_symbol(line);
+    if symbol = "SHARED" then
+      symbol := get_symbol(line);
+    end if;
+    repeat
+      if symbol[1] >= 'A' and symbol[1] <= 'Z' then
+        arrayName := symbol;
+        symbol := get_symbol(line);
+        if symbol = "(" or symbol = "[" then
+          dimensionBounds := 0 times boundsType.value;
+          repeat
+            symbol := get_symbol(line);
+            bounds.ubound := round(exec_expr(symbol, line));
+            if symbol = "TO" then
+              symbol := get_symbol(line);
+              bounds.lbound := bounds.ubound;
+              bounds.ubound := round(exec_expr(symbol, line));
+            else
+              bounds.lbound := 0;
+            end if;
+            dimensionBounds &:= [] (bounds);
+          until symbol <> ",";
+          if symbol =")" or symbol = "]" then
+            symbol := get_symbol(line);
+            initArray(arrayName, isStringVar(arrayName), 1, dimensionBounds);
+            # writeln(log, "addr=" <& varptr(arrayName) <& " name=" <& arrayName);
+            ignore(varptr(arrayName));
+            line_marker;
+            write(log, "DIM " <& arrayName <& "(");
+            for dimension range 1 to length(dimensionBounds) do
+              if dimension <> 1 then
+                write(log, ",");
+              end if;
+              write(log, dimensionBounds[dimension].lbound <& " TO " <&
+                  dimensionBounds[dimension].ubound);
+            end for;
+            writeln(log, ")");
+          end if;
+        end if;
+      end if;
+      if symbol = "AS" then
+        repeat
+          symbol := get_symbol(line);
+        until symbol = "," or endOfStatement(symbol);
+      end if;
+      if symbol = "," then
+        symbol := get_symbol(line);
+      else
+        finished := TRUE;
+      end if;
+    until finished;
+  end func;
+
+
 const proc: exec_defType_numeric (inout string: symbol, inout string: line) is func
   local
     var string: statement is "";
@@ -5903,75 +6059,224 @@ const proc: exec_type (inout string: symbol, inout string: line) is func
   end func;
 
 
+const func string: readVarNameFromBloadFile (inout file: aFile, inout integer: byteIndex) is func
+  result
+    var string: result is "";
+  local
+    var integer: twoTimes is 0;
+    var integer: number is 0;
+    var integer: count is 0;
+    var char: ch is ' ';
+  begin
+    for twoTimes range 1 to 2 do
+      number := ord(getc(aFile));
+      for count range 1 to number do
+        ch := getc(aFile);
+        incr(byteIndex);
+        if ch >= '\128\' then
+          ch := chr(ord(ch) - 128);
+        end if;
+        result &:= str(ch);
+      end for;
+    end for;
+  end func;
+
+
 const proc: exec_bload (inout string: symbol, inout string: line) is func
   local
-    var string: variable_name is "";
+    var string: unused_name is "";
     var string: file_name is "";
-    var string: varptr_variable is "";
-    var integer: index1 is 0;
+    var string: variable_name is "";
+    var string: arrayName is "";
+    var string: bloadName is "";
+    var integer: address is 0;
     var file: aFile is STD_NULL;
     var integer: sizeInBytes is 0;
     var integer: byteIndex is 0;
     var string: name_start is "";
     var string: name_end is "";
+    var integer: lbound is 0;
+    var integer: ubound is 0;
     var integer: intIndex is 0;
     var integer: number is 0;
   begin
     symbol := get_symbol(line);
-    file_name := exec_str_expr(symbol, line, variable_name);
+    file_name := exec_str_expr(symbol, line, unused_name);
     if symbol = "," then
       symbol := get_symbol(line);
-      if symbol = "VARPTR" then
-        symbol := get_symbol(line);
-        expect("(", symbol, line);
-        varptr_variable := get_name(symbol, line);
-        expect(")", symbol, line);
+      address := round(exec_expr(symbol, line));
+      variable_name := varname(address);
+    end if;
+    if variable_name = "" then
+      variable_name := varseg_variable;
+    end if;
+    if variable_name <> "" then
+      lbound := getFirstIndex(variable_name, name_start, name_end);
+      if name_start = "" then
+        arrayName := variable_name;
+        lbound := exec_lbound(arrayName, 1);
+        ubound := exec_ubound(arrayName, 1);
+        name_start := arrayName & "(";
+        name_end := ")";
       else
-        index1 := round(exec_expr(symbol, line));
-        if index1 in varname_value then
-          varptr_variable := varname_value[index1];
+        arrayName := name_start[ .. pred(length(name_start))];
+        ubound := exec_ubound(arrayName, 1);
+      end if;
+      intIndex := lbound;
+      # writeln(log, "arrayName=" <& arrayName);
+      # writeln(log, "lbound=" <& lbound);
+      # writeln(log, "ubound=" <& ubound);
+      # writeln(log, "name_start=" <& name_start);
+      # writeln(log, "name_end=" <& name_end);
+      aFile := basicOpen(file_name, "r");
+      if aFile <> STD_NULL then
+        if getc(aFile) = '\16#FD\' then
+          ignore(gets(aFile, 4));
+          sizeInBytes := ord(getc(aFile)) + 256 * ord(getc(aFile));
+          writeln(log, "sizeInBytes=" <& sizeInBytes);
+          for byteIndex range 0 to pred(sizeInBytes) step 2 do
+            if intIndex > ubound then
+              # writeln(log, "varptr(arrayName)=" <& varptr(arrayName));
+              arrayName := varname(succ(varptr(arrayName)));
+              lbound := exec_lbound(arrayName, 1);
+              ubound := exec_ubound(arrayName, 1);
+              name_start := arrayName & "(";
+              name_end := ")";
+              intIndex := lbound;
+              # writeln(log, "arrayName=" <& arrayName);
+              # writeln(log, "lbound=" <& lbound);
+              # writeln(log, "ubound=" <& ubound);
+              # writeln(log, "name_start=" <& name_start);
+              # writeln(log, "name_end=" <& name_end);
+              # writeln(log, "byteIndex=" <& byteIndex);
+              bloadName := readVarNameFromBloadFile(aFile, byteIndex);
+              # writeln(log, literal(gets(aFile, 5)));
+              ignore(literal(gets(aFile, 5)));
+              byteIndex +:= 5;
+              if bloadName <> arrayName then
+                byteIndex := sizeInBytes;
+              end if;
+            end if;
+            number := ord(getc(aFile)) + 256 * ord(getc(aFile));
+            setNumericVar(name_start & str(intIndex) & name_end, flt(number));
+            # writeln(log, name_start & str(intIndex) & name_end <& "=" <& flt(number));
+            incr(intIndex);
+          end for;
+        end if;
+        close(aFile);
+      else
+        if on_error_label <> "" then
+          error_code := 53; # File not found
+          line_marker;
+          write(log, error_code <& " FILE NOT FOUND " <& literal(file_name));
+          writeln(log, " - ON ERROR GOTO " <& on_error_label);
+          goto_on_error(on_error_label, line);
+          symbol := "";
+          line := "";
+        else
+          error_marker;
+          writeln(err, "FILE NOT FOUND " <& literal(file_name));
         end if;
       end if;
     end if;
-    if varptr_variable <> "" then
-      intIndex := getFirstIndex(varptr_variable, name_start, name_end);
-    else
-      intIndex := getFirstIndex(varseg_variable, name_start, name_end);
-    end if;
-    aFile := basicOpen(file_name, "r");
-    if aFile <> STD_NULL then
-      if getc(aFile) = '\16#FD\' then
-        ignore(gets(aFile, 4));
-        sizeInBytes := ord(getc(aFile)) + 256 * ord(getc(aFile));
-        # writeln(log, "sizeInBytes=" <& sizeInBytes);
-        for byteIndex range 0 to sizeInBytes div 2 do
-          number := ord(getc(aFile)) + 256 * ord(getc(aFile));
-          setNumericVar(name_start & str(intIndex) & name_end, flt(number));
-          # writeln(log, name_start & str(intIndex) & name_end <& "=" <& flt(number));
-          incr(intIndex);
-        end for;
-      end if;
-      close(aFile);
-    else
-      if on_error_label <> "" then
-        error_code := 53; # File not found
-        line_marker;
-        write(log, error_code <& " FILE NOT FOUND " <& literal(file_name));
-        writeln(log, " - ON ERROR GOTO " <& on_error_label);
-        goto_on_error(on_error_label, line);
-        symbol := "";
-        line := "";
-      else
-        error_marker;
-        writeln(err, "FILE NOT FOUND " <& literal(file_name));
-      end if;
-    end if;
     line_marker;
-    writeln(log, "BLOAD " <& literal(file_name) <& ", VARPTR(" <& varptr_variable <& ")");
+    writeln(log, "BLOAD " <& literal(file_name) <& ", VARPTR(" <& variable_name <& ")");
   end func;
 
 
-const func PRIMITIVE_WINDOW: getCgaImageFromArray (in string: name_start,
+const func PRIMITIVE_WINDOW: getCga2ImageFromArray (in string: name_start,
+    in string: name_end, in integer: lbound, in integer: ubound) is func
+  result
+    var PRIMITIVE_WINDOW: image is PRIMITIVE_WINDOW.value;
+  local
+    var integer: width is 0;
+    var integer: height is 0;
+    var integer: bytesPerLine is 0;
+    var integer: lineStartByte is 0;
+    var integer: xPos is 0;
+    var integer: yPos is 0;
+    var integer: byteIndex is 0;
+    var integer: imageWord is 0;
+    var integer: imageByte is 0;
+    var integer: colorNum is 0;
+  begin
+    if ubound - lbound >= 1 then
+      width := round(getNumericVar(name_start & str(lbound) & name_end));
+      height := round(getNumericVar(name_start & str(succ(lbound)) & name_end));
+      writeln(log, "width=" <& width <& " height=" <& height);
+      image := newPixmap(width, height);
+      bytesPerLine := pred(width) mdiv 8 + 1;
+      for yPos range 0 to pred(height) do
+        lineStartByte := yPos * bytesPerLine;
+        for xPos range 0 to pred(width) do
+          colorNum := 0;
+          byteIndex := lineStartByte + xPos mdiv 8;
+          imageWord := round(getNumericVar(name_start & str(lbound + 2 + byteIndex div 2) & name_end));
+          # writeln(log, name_start <& str(lbound + 2 + byteIndex div 2) <& name_end <& "=" <& imageWord);
+          if odd(byteIndex) then
+            imageByte := (imageWord >> 8) mod 16#100;
+          else
+            imageByte := imageWord mod 16#100;
+          end if;
+          if (imageByte >> (7 - xPos mod 8)) mod 2 = 1 then
+            point(image, xPos, yPos, white);
+            write(log, " ");
+          else
+            point(image, xPos, yPos, black);
+          end if;
+        end for;
+      end for;
+    end if;
+  end func;
+
+
+const func PRIMITIVE_WINDOW: getCga4ImageFromArray (in string: name_start,
+    in string: name_end, in integer: lbound, in integer: ubound) is func
+  result
+    var PRIMITIVE_WINDOW: image is PRIMITIVE_WINDOW.value;
+  local
+    var integer: width is 0;
+    var integer: height is 0;
+    var integer: bytesPerLine is 0;
+    var integer: lineStartByte is 0;
+    var integer: xPos is 0;
+    var integer: yPos is 0;
+    var integer: maxPixelNum is 0;
+    var integer: pixelNum is 0;
+    var integer: byteIndex is 0;
+    var integer: imageWord is 0;
+    var integer: imageByte is 0;
+    var integer: colorNum is 0;
+    const array color: palette1 is [] (black, light_green, light_red, brown);
+  begin
+    if ubound - lbound >= 1 then
+      width := round(getNumericVar(name_start & str(lbound) & name_end));
+      height := round(getNumericVar(name_start & str(succ(lbound)) & name_end));
+      writeln(log, "width=" <& width <& " height=" <& height);
+      width := width div 2;
+      image := newPixmap(width, height);
+      bytesPerLine := pred(width) mdiv 4 + 1;
+      for yPos range 0 to pred(height) do
+        lineStartByte := yPos * bytesPerLine;
+        for xPos range 0 to pred(width) do
+          colorNum := 0;
+          byteIndex := lineStartByte + xPos mdiv 4;
+          imageWord := round(getNumericVar(name_start & str(lbound + 2 + byteIndex div 2) & name_end));
+          # writeln(log, name_start <& str(lbound + 2 + byteIndex div 2) <& name_end <& "=" <& imageWord);
+          if odd(byteIndex) then
+            imageByte := (imageWord >> 8) mod 16#100;
+          else
+            imageByte := imageWord mod 16#100;
+          end if;
+          colorNum := (imageByte >> (6 - xPos mod 4 * 2)) mod 4;
+          point(image, xPos, yPos, palette1[succ(colorNum)]);
+        end for;
+      end for;
+    end if;
+  end func;
+
+
+const func PRIMITIVE_WINDOW: getEgaImageFromArray (in string: name_start,
     in string: name_end, in integer: lbound, in integer: ubound) is func
   result
     var PRIMITIVE_WINDOW: image is PRIMITIVE_WINDOW.value;
@@ -6001,6 +6306,7 @@ const func PRIMITIVE_WINDOW: getCgaImageFromArray (in string: name_start,
           for colorBitNum range 0 to 3 do
             byteIndex := lineStartByte + colorBitNum * bytesPerLine + xPos mdiv 8;
             imageWord := round(getNumericVar(name_start & str(lbound + 2 + byteIndex div 2) & name_end));
+            # writeln(log, name_start <& str(lbound + 2 + byteIndex div 2) <& name_end <& "=" <& imageWord);
             if odd(byteIndex) then
               imageByte := (imageWord >> 8) mod 16#100;
             else
@@ -6060,10 +6366,14 @@ const func PRIMITIVE_WINDOW: getImageFromArray (in string: name_start,
   begin
     # writeln(log, screenMode);
     case screenMode of
+      when {1}:
+        image := getCga4ImageFromArray(name_start, name_end, lbound, ubound);
+      when {2, 3}:
+        image := getCga2ImageFromArray(name_start, name_end, lbound, ubound);
+      when {4, 7, 8}:
+        image := getEgaImageFromArray(name_start, name_end, lbound, ubound);
       when {13}:
         image := getVgaImageFromArray(name_start, name_end, lbound, ubound);
-      otherwise:
-        image := getCgaImageFromArray(name_start, name_end, lbound, ubound);
     end case;
   end func;
 
@@ -6693,6 +7003,93 @@ const proc: exec_draw (inout string: symbol, inout string: line) is func
   end func;
 
 
+const proc: exec_let (inout string: symbol, inout string: line,
+    inout boolean: process_next) is func
+  local
+    var boolean: is_let_statement is TRUE;
+    var string: variable_name is "";
+    var string: unused_name is "";
+    var string: param1 is "";
+    var float: num1 is 0.0;
+  begin
+    if symbol = "LET" then
+      symbol := get_symbol(line);
+    elsif not is_let_statement(line) then
+      # When no "=" follows it is probably a statement
+      # which is not separated with a space
+      is_let_statement := FALSE;
+      if startsWith(symbol, "REM") then
+        line_marker;
+        writeln(log, "REM " <& symbol <& line);
+        symbol := "";
+      elsif startsWith(symbol, "IF") then
+        line := symbol[3 ..] & line;
+        exec_if(symbol, line, process_next);
+      elsif startsWith(symbol, "GOTO") then
+        line := symbol[5 ..] & line;
+        exec_goto(symbol, line);
+      elsif startsWith(symbol, "GOSUB") then
+        line := symbol[6 ..] & line;
+        exec_gosub(symbol, line);
+      elsif startsWith(symbol, "NEXT") then
+        line := symbol[5 ..] & line;
+        exec_next(symbol, line);
+      elsif startsWith(symbol, "ON") then
+        line := symbol[3 ..] & line;
+        exec_on(symbol, line);
+      elsif startsWith(symbol, "PRINT") then
+        line := symbol[6 ..] & line;
+        symbol := get_symbol(line);
+        exec_print(symbol, line);
+      else
+        is_let_statement := TRUE;
+      end if;
+    end if;
+    if is_let_statement then
+      if isStringVar(symbol) then
+        variable_name := get_name(symbol, line);
+        if symbol = "=" then
+          symbol := get_symbol(line);
+          param1 := exec_str_expr(symbol, line, unused_name);
+          if startsWith(variable_name, "IF") and startsWith(symbol, "THEN") then
+            line := variable_name[3 ..] & "=\"" & param1 & "\"" & symbol & line;
+            exec_if(symbol, line, process_next);
+          else
+            setStringVar(variable_name, param1);
+            line_marker;
+            writeln(log, "LET " <& variable_name <& "=" <& literal(param1));
+          end if;
+        else
+          error_marker;
+          write(err, "\"=\" EXPECTED AFTER " <& literal(variable_name));
+          writeln(err, " - FOUND " <& literal(symbol) <& ".");
+        end if;
+      else
+        variable_name := get_name(symbol, line);
+        if symbol = "=" then
+          symbol := get_symbol(line);
+          num1 := exec_expr(symbol, line);
+          if startsWith(variable_name, "IF") and startsWith(symbol, "THEN") then
+            line := variable_name[3 ..] & "=" & str(num1) & symbol & line;
+            exec_if(symbol, line, process_next);
+          elsif startsWith(variable_name, "FOR") and startsWith(symbol, "TO") then
+            line := variable_name[4 ..] & "=" & str(num1) & symbol & line;
+            exec_for(symbol, line);
+          else
+            setNumericVar(variable_name, num1);
+            line_marker;
+            writeln(log, "LET " <& variable_name <& "=" <& num1);
+          end if;
+        else
+          error_marker;
+          write(err, "\"=\" EXPECTED AFTER " <& literal(variable_name));
+          writeln(err, " - FOUND " <& literal(symbol) <& ".");
+        end if;
+      end if;
+    end if;
+  end func;
+
+
 const func boolean: chain_prog (in string: name) is forward;
 const func boolean: load_prog (in string: name) is forward;
 
@@ -7194,11 +7591,7 @@ const func boolean: exec_cmd (inout string: symbol, inout string: line) is func
         line_marker;
         writeln(log, "CLS");
       elsif symbol = "DIM" then
-        line_marker;
-        writeln(log, "DIM " <& line);
-        repeat
-          symbol := get_symbol(line);
-        until endOfStatement(symbol);
+        exec_dim(symbol, line);
       elsif symbol = "REDIM" then
         line_marker;
         writeln(log, "REDIM " <& line);
@@ -7800,76 +8193,7 @@ const func boolean: exec_cmd (inout string: symbol, inout string: line) is func
         error_marker;
         writeln(err, "UNEXPECTED \":\" - IGNORED.");
       elsif symbol <> "" then
-        if symbol = "LET" then
-          symbol := get_symbol(line);
-        end if;
-        if isStringVar(symbol) then
-          variable_name := get_name(symbol, line);
-          if symbol = "=" then
-            symbol := get_symbol(line);
-            param3 := exec_str_expr(symbol, line, unused_name);
-            setStringVar(variable_name, param3);
-            line_marker;
-            writeln(log, "LET " <& variable_name <& "=" <& literal(param3));
-          elsif startsWith(variable_name, "IF") then
-            line := variable_name[3 ..] & symbol & line;
-            exec_if(symbol, line, process_next);
-          elsif startsWith(variable_name, "PRINT") then
-            line := variable_name[6 ..] & symbol & line;
-            symbol := get_symbol(line);
-            exec_print(symbol, line);
-          else
-            error_marker;
-            write(err, "\"=\" EXPECTED AFTER " <& literal(variable_name));
-            writeln(err, " - FOUND " <& literal(symbol) <& ".");
-          end if;
-        else
-          variable_name := get_name(symbol, line);
-          if symbol = "=" then
-            symbol := get_symbol(line);
-            num1 := exec_expr(symbol, line);
-            if startsWith(variable_name, "IF") and startsWith(symbol, "THEN") then
-              line := variable_name[3 ..] & "=" & str(num1) & symbol & line;
-              exec_if(symbol, line, process_next);
-            elsif startsWith(variable_name, "FOR") and startsWith(symbol, "TO") then
-              line := variable_name[4 ..] & "=" & str(num1) & symbol & line;
-              exec_for(symbol, line);
-            else
-              setNumericVar(variable_name, num1);
-              line_marker;
-              writeln(log, "LET " <& variable_name <& "=" <& num1);
-            end if;
-          elsif startsWith(variable_name, "REM") then
-            (* When a name is starting with REM and is      *)
-            (* not followed by "=" it is treated as remark. *)
-            line_marker;
-            writeln(log, "REM " <& variable_name <& " " <& symbol <& line);
-            symbol := "";
-          elsif startsWith(variable_name, "IF") then
-            line := variable_name[3 ..] & symbol & line;
-            exec_if(symbol, line, process_next);
-          elsif startsWith(variable_name, "GOTO") then
-            line := variable_name[5 ..] & symbol & line;
-            exec_goto(symbol, line);
-          elsif startsWith(variable_name, "GOSUB") then
-            line := variable_name[6 ..] & symbol & line;
-            exec_gosub(symbol, line);
-          elsif startsWith(variable_name, "NEXT") then
-            line := variable_name[5 ..] & symbol & line;
-            exec_next(symbol, line);
-          elsif startsWith(variable_name, "ON") then
-            line := variable_name[3 ..] & symbol & line;
-            exec_on(symbol, line);
-          elsif startsWith(variable_name, "PRINT") then
-            line := variable_name[6 ..] & symbol & line;
-            symbol := get_symbol(line);
-            exec_print(symbol, line);
-          else
-            error_marker;
-            write(err, "\"=\" EXPECTED AFTER " <& literal(variable_name));
-            writeln(err, " - FOUND " <& literal(symbol) <& ".");
-          end if;
-        end if;
+        exec_let(symbol, line, process_next);
       end if;
       if symbol = ":" then
         symbol := get_symbol(line);
@@ -8162,6 +8486,12 @@ const proc: load_prog (in string: name, inout file: infile) is func
 *)
         elsif symbol = "" or symbol in not_allowed_as_label or
             symbol in sub_declared then
+          line_label := "";
+        elsif startsWith(symbol, "NEXT") and length(symbol) = 5 and
+            symbol[5] in letter_char then
+          line_label := "";
+        elsif startsWith(symbol, "GOTO") and isDigitString(symbol[5 ..]) or
+            startsWith(symbol, "GOSUB") and isDigitString(symbol[6 ..]) then
           line_label := "";
         else
           line_label := symbol;
