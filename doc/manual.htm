@@ -7264,8 +7264,8 @@ ont color=blue>is</font> <font color=maroon>""</font>;
 
 <a name="String_literals"><h4>10.3.2 String literals</h4></a>
 <p>
-    A string literal is a sequence of characters surrounded by
-  double quotes. For example:
+    A string literal is a sequence of UTF-8 encoded UNICODE
+  characters surrounded by double quotes. For example:
 </p><pre>
     <font color=maroon>""</font>   <font color=maroon>" "</font>   <font color=maroon>"\""</font>   <font color=maroon>"'"</font>   <font color=maroon>"\'"</font>   <font color=maroon>"String"</font>   <font color=maroon>"ch=\" "</font>   <font color=maroon>"\n\n"</font>
 </pre><p>
@@ -7296,6 +7296,10 @@ ont color=blue>is</font> <font color=maroon>""</font>;
       Note that the integer literal is interpreted decimal unless
       it is written as based integer.</li>
 </ul><p>
+  Strings are implemented with length field and UTF-32 encoding.
+  Strings are not '\0\' terminated and therefore can also contain
+  binary data.
+</p><p>
   Syntax:
 </p><pre>
     string_literal ::=
@@ -7312,8 +7316,8 @@ ont color=blue>is</font> <font color=maroon>""</font>;
 
 <a name="Character_literals"><h4>10.3.3 Character literals</h4></a>
 <p>
-    A character literal is a character enclosed in single
-  quotes. For example:
+    A character literal is an UTF-8 encoded UNICODE character
+  enclosed in single quotes. For example:
 </p><pre>
     <font color=maroon>'a'</font>   <font color=maroon>' '</font>   <font color=maroon>'\n'</font>   <font color=maroon>'!'</font>   <font color=maroon>'\\'</font>   <font color=maroon>'2'</font>   <font color=maroon>'"' </font>  <font color=maroon>'\"'</font>   <font color=maroon>'\''</font>
 </pre><p>
@@ -9168,7 +9172,11 @@ ont color=blue>is</font> <font color=maroon>""</font>;
       the hi interpreter is compiled with <tt>'#define WITH_ACTION_CHECK'</tt>.
       The ILLEGAL_ACTION exception is also raised when the primitive
       action ACT_ILLEGAL is executed.</dd><dt>
-</dl><p></p>
+</dl><p>
+  A program can raise an exception with the <tt>'<font color=blue>raise</font>'</tt> statement. For example:
+</p><pre>
+    <font color=blue>raise</font> RANGE_ERROR;
+</pre></p>
 
 <a name="Handlers"><h3>14.3 Handlers</h3></a>
 <p>
@@ -9191,33 +9199,33 @@ ont color=blue>is</font> <font color=maroon>""</font>;
     {integer: <SYMBOLOBJECT> *NULL_ENTITY_OBJECT* div fuel_max }
 
     Stack:
-    in {(in integer param) div (in integer param) } at seed7_05.s7i(554)
-    in init_display at lander.sd7(839)
-    in setup at lander.sd7(908)
-    in main at lander.sd7(1543)
+    in {(val integer param) div (val integer param) } at seed7_05.s7i(555)
+    in init_display at lander.sd7(838)
+    in setup at lander.sd7(907)
+    in main at lander.sd7(1539)
 </pre><p>
   The stack trace shows that a <tt>'NUMERIC_ERROR'</tt> was raised by the <tt>'<font color=blue>div</font>'</tt> operation.
-  This operation is defined in line 554 of <tt><font color=maroon>"seed7_05.s7i"</font></tt>. More interesting is that
+  This operation is defined in line 555 of <tt><font color=maroon>"seed7_05.s7i"</font></tt>. More interesting is that
   <tt>'<font color=blue>div</font>'</tt> was called from the function <tt><font color=maroon>"init_display"</font></tt> in
-  line 839 of <tt><font color=maroon>"lander.sd7"</font></tt>. A <tt>'NUMERIC_ERROR'</tt> with <tt>'<font color=blue>div</font>'</tt> is
+  line 838 of <tt><font color=maroon>"lander.sd7"</font></tt>. A <tt>'NUMERIC_ERROR'</tt> with <tt>'<font color=blue>div</font>'</tt> is
   probably caused by a zero division. A short examination in <tt><font color=maroon>"lander.sd7"</font></tt> shows that an assignment to
   <tt>'fuel_max'</tt> was commented out to show how stack traces work.
 </p><p>
   A compiled program creates a much shorter crash message:
 </p><pre>
-    *** Uncaught EXCEPTION NUMERIC_ERROR raised at tmp_lander.c(601)
+    *** Uncaught EXCEPTION NUMERIC_ERROR raised at tmp_lander.c(678)
 </pre><p>
   To get more information there are two possibilities:
 </p><ul>
     <li><!--  -  -->Start the program in the interpreter instead.</li>
-    <li><!--  -  -->Compile the program with the option <tt>-g</tt> and start it from a debugger.</li>
+    <li><!--  -  -->Compile the program with the option <tt><b>-g</b></tt> and start it from a debugger.</li>
 </ul><p>
-  The option <tt>-g</tt> instructs the C compiler to include
+  The option <tt><b>-g</b></tt> instructs the C compiler to include
   debugging information. This way a debugger like gdb can
   run the program and provide information.
 </p><pre>
-  ./hi comp -g lander
-  gdb lander
+    ./hi comp -g lander
+    gdb ./lander
 </pre><p>
   Then the debugger should be able to run the program and to
   write a backtrace when a crash occours:
@@ -9226,14 +9234,41 @@ ont color=blue>is</font> <font color=maroon>""</font>;
     Starting program: /home/tm/seed7_5/prg/lander 
 
     Program received signal SIGFPE, Arithmetic exception.
-    0x0806b263 in o_2818_init_display () at lander.sd7:839
-    839	    fuel_gauge := 40 * rocket.fuel div fuel_max;
+    0x0806b0f9 in o_2816_init_display () at lander.sd7:838
+    838	    fuel_gauge := 40 * rocket.fuel div fuel_max;
     (gdb) bt
-    #0  0x0806b263 in o_2818_init_display () at lander.sd7:839
-    #1  0x0806b9b9 in o_2823_setup () at lander.sd7:908
-    #2  0x0806f069 in o_1261_main () at lander.sd7:1543
-    #3  0x0808a057 in main (argc=1, argv=0xbffff4c4) at <stdin>:6414
-</pre><p></p>
+    #0  0x0806b0f9 in o_2816_init_display () at lander.sd7:838
+    #1  0x0806b84a in o_2821_setup () at lander.sd7:907
+    #2  0x0806f01c in o_1259_main () at lander.sd7:1539
+    #3  0x0808a884 in main (argc=1, argv=0xbffff484) at lander.sd7:1524
+</pre><p>
+  Sometimes it is helpful to debug the generated C program instead of
+  the Seed7 source. The option <tt><b>-g-debug_c</b></tt> creates debug
+  information which refers to the C program generated by the Seed7 compiler:
+</p><pre>
+    ./hi comp -g-debug_c lander
+    gdb ./lander
+</pre><p>
+  Now the debugger refers to the temporary file <tt><font color=maroon>"tmp_lander.c"</font></tt>:  
+</p><pre>
+    (gdb) run
+    Starting program: /home/tm/seed7_5/prg/lander 
+
+    Program received signal SIGFPE, Arithmetic exception.
+    0x0806b0f9 in o_2816_init_display () at tmp_lander.c:19040
+    19040	o_2706_fuel_gauge=((40) * (((structtype)(o_2619_rocket))->stru[10].value.intvalue/*->o_2617_fuel*/)) / (o_2709_fuel_max);
+    (gdb) bt
+    #0  0x0806b0f9 in o_2816_init_display () at tmp_lander.c:19040
+    #1  0x0806b84a in o_2821_setup () at tmp_lander.c:19203
+    #2  0x0806f01c in o_1259_main () at tmp_lander.c:20474
+    #3  0x0808a884 in main (argc=1, argv=0xbffff484) at tmp_lander.c:29094
+</pre><p>
+  Some Seed7 exceptions do not send signals. This hinders the debugger
+  to recognize that an uncaught exception occured. The compiler option <tt>-e</tt>
+  can help in this situation. It instructs the compiler to generate
+  code which sends a signal when an uncaught exception occurs. This
+  allows the debugger to show a backtrace for uncaught Seed7 exceptions.
+</p>
 
 <a name="Other_errors_and_warnings"><h3>14.5 Other errors and warnings</h3></a>
 <p><dl><dt>

@@ -4560,6 +4560,158 @@ const proc: check_str is func
       writeln(" ***** Integer str with expressions does not work correct.");
       okay := FALSE;
     end if;
+    if  str(1000000,  2) <> "11110100001001000000" or
+        str(1000000,  3) <> "1212210202001" or
+        str(1000000,  4) <> "3310021000" or
+        str(1000000,  5) <> "224000000" or
+        str(1000000,  6) <> "33233344" or
+        str(1000000,  7) <> "11333311" or
+        str(1000000,  8) <> "3641100" or
+        str(1000000,  9) <> "1783661" or
+        str(1000000, 10) <> "1000000" or
+        str(1000000, 11) <> "623351" or
+        str(1000000, 12) <> "402854" or
+        str(1000000, 13) <> "290221" or
+        str(1000000, 14) <> "1C0608" or
+        str(1000000, 15) <> "14B46A" or
+        str(1000000, 16) <> "F4240" or
+        str(1000000, 17) <> "BG939" or
+        str(1000000, 18) <> "9987A" or
+        str(1000000, 19) <> "7CF1B" or
+        str(1000000, 20) <> "65000" or
+        str(1000000, 21) <> "52KC1" or
+        str(1000000, 22) <> "45K2C" or
+        str(1000000, 23) <> "3D486" or
+        str(1000000, 24) <> "3082G" or
+        str(1000000, 25) <> "2E000" or
+        str(1000000, 26) <> "24N7E" or
+        str(1000000, 27) <> "1NLK1" or
+        str(1000000, 28) <> "1HFE8" or
+        str(1000000, 29) <> "1C01M" or
+        str(1000000, 30) <> "1713A" or
+        str(1000000, 31) <> "12HI2" or
+        str(1000000, 32) <> "UGI0" or
+        str(1000000, 33) <> "RR91" or
+        str(1000000, 34) <> "PF1Q" or
+        str(1000000, 35) <> "NBBF" or
+        str(1000000, 36) <> "LFLS" then
+      writeln(" ***** Integer str with base does not work correct.");
+      okay := FALSE;
+    end if;
+    if  str(intExpr(1000000),  2) <> "11110100001001000000" or
+        str(intExpr(1000000),  3) <> "1212210202001" or
+        str(intExpr(1000000),  4) <> "3310021000" or
+        str(intExpr(1000000),  5) <> "224000000" or
+        str(intExpr(1000000),  6) <> "33233344" or
+        str(intExpr(1000000),  7) <> "11333311" or
+        str(intExpr(1000000),  8) <> "3641100" or
+        str(intExpr(1000000),  9) <> "1783661" or
+        str(intExpr(1000000), 10) <> "1000000" or
+        str(intExpr(1000000), 11) <> "623351" or
+        str(intExpr(1000000), 12) <> "402854" or
+        str(intExpr(1000000), 13) <> "290221" or
+        str(intExpr(1000000), 14) <> "1C0608" or
+        str(intExpr(1000000), 15) <> "14B46A" or
+        str(intExpr(1000000), 16) <> "F4240" or
+        str(intExpr(1000000), 17) <> "BG939" or
+        str(intExpr(1000000), 18) <> "9987A" or
+        str(intExpr(1000000), 19) <> "7CF1B" or
+        str(intExpr(1000000), 20) <> "65000" or
+        str(intExpr(1000000), 21) <> "52KC1" or
+        str(intExpr(1000000), 22) <> "45K2C" or
+        str(intExpr(1000000), 23) <> "3D486" or
+        str(intExpr(1000000), 24) <> "3082G" or
+        str(intExpr(1000000), 25) <> "2E000" or
+        str(intExpr(1000000), 26) <> "24N7E" or
+        str(intExpr(1000000), 27) <> "1NLK1" or
+        str(intExpr(1000000), 28) <> "1HFE8" or
+        str(intExpr(1000000), 29) <> "1C01M" or
+        str(intExpr(1000000), 30) <> "1713A" or
+        str(intExpr(1000000), 31) <> "12HI2" or
+        str(intExpr(1000000), 32) <> "UGI0" or
+        str(intExpr(1000000), 33) <> "RR91" or
+        str(intExpr(1000000), 34) <> "PF1Q" or
+        str(intExpr(1000000), 35) <> "NBBF" or
+        str(intExpr(1000000), 36) <> "LFLS" then
+      writeln(" ***** Integer str with base does not work correct.");
+      okay := FALSE;
+    end if;
+    if  str(1000000, intExpr( 2)) <> "11110100001001000000" or
+        str(1000000, intExpr( 3)) <> "1212210202001" or
+        str(1000000, intExpr( 4)) <> "3310021000" or
+        str(1000000, intExpr( 5)) <> "224000000" or
+        str(1000000, intExpr( 6)) <> "33233344" or
+        str(1000000, intExpr( 7)) <> "11333311" or
+        str(1000000, intExpr( 8)) <> "3641100" or
+        str(1000000, intExpr( 9)) <> "1783661" or
+        str(1000000, intExpr(10)) <> "1000000" or
+        str(1000000, intExpr(11)) <> "623351" or
+        str(1000000, intExpr(12)) <> "402854" or
+        str(1000000, intExpr(13)) <> "290221" or
+        str(1000000, intExpr(14)) <> "1C0608" or
+        str(1000000, intExpr(15)) <> "14B46A" or
+        str(1000000, intExpr(16)) <> "F4240" or
+        str(1000000, intExpr(17)) <> "BG939" or
+        str(1000000, intExpr(18)) <> "9987A" or
+        str(1000000, intExpr(19)) <> "7CF1B" or
+        str(1000000, intExpr(20)) <> "65000" or
+        str(1000000, intExpr(21)) <> "52KC1" or
+        str(1000000, intExpr(22)) <> "45K2C" or
+        str(1000000, intExpr(23)) <> "3D486" or
+        str(1000000, intExpr(24)) <> "3082G" or
+        str(1000000, intExpr(25)) <> "2E000" or
+        str(1000000, intExpr(26)) <> "24N7E" or
+        str(1000000, intExpr(27)) <> "1NLK1" or
+        str(1000000, intExpr(28)) <> "1HFE8" or
+        str(1000000, intExpr(29)) <> "1C01M" or
+        str(1000000, intExpr(30)) <> "1713A" or
+        str(1000000, intExpr(31)) <> "12HI2" or
+        str(1000000, intExpr(32)) <> "UGI0" or
+        str(1000000, intExpr(33)) <> "RR91" or
+        str(1000000, intExpr(34)) <> "PF1Q" or
+        str(1000000, intExpr(35)) <> "NBBF" or
+        str(1000000, intExpr(36)) <> "LFLS" then
+      writeln(" ***** Integer str with base does not work correct.");
+      okay := FALSE;
+    end if;
+    if  str(intExpr(1000000), intExpr( 2)) <> "11110100001001000000" or
+        str(intExpr(1000000), intExpr( 3)) <> "1212210202001" or
+        str(intExpr(1000000), intExpr( 4)) <> "3310021000" or
+        str(intExpr(1000000), intExpr( 5)) <> "224000000" or
+        str(intExpr(1000000), intExpr( 6)) <> "33233344" or
+        str(intExpr(1000000), intExpr( 7)) <> "11333311" or
+        str(intExpr(1000000), intExpr( 8)) <> "3641100" or
+        str(intExpr(1000000), intExpr( 9)) <> "1783661" or
+        str(intExpr(1000000), intExpr(10)) <> "1000000" or
+        str(intExpr(1000000), intExpr(11)) <> "623351" or
+        str(intExpr(1000000), intExpr(12)) <> "402854" or
+        str(intExpr(1000000), intExpr(13)) <> "290221" or
+        str(intExpr(1000000), intExpr(14)) <> "1C0608" or
+        str(intExpr(1000000), intExpr(15)) <> "14B46A" or
+        str(intExpr(1000000), intExpr(16)) <> "F4240" or
+        str(intExpr(1000000), intExpr(17)) <> "BG939" or
+        str(intExpr(1000000), intExpr(18)) <> "9987A" or
+        str(intExpr(1000000), intExpr(19)) <> "7CF1B" or
+        str(intExpr(1000000), intExpr(20)) <> "65000" or
+        str(intExpr(1000000), intExpr(21)) <> "52KC1" or
+        str(intExpr(1000000), intExpr(22)) <> "45K2C" or
+        str(intExpr(1000000), intExpr(23)) <> "3D486" or
+        str(intExpr(1000000), intExpr(24)) <> "3082G" or
+        str(intExpr(1000000), intExpr(25)) <> "2E000" or
+        str(intExpr(1000000), intExpr(26)) <> "24N7E" or
+        str(intExpr(1000000), intExpr(27)) <> "1NLK1" or
+        str(intExpr(1000000), intExpr(28)) <> "1HFE8" or
+        str(intExpr(1000000), intExpr(29)) <> "1C01M" or
+        str(intExpr(1000000), intExpr(30)) <> "1713A" or
+        str(intExpr(1000000), intExpr(31)) <> "12HI2" or
+        str(intExpr(1000000), intExpr(32)) <> "UGI0" or
+        str(intExpr(1000000), intExpr(33)) <> "RR91" or
+        str(intExpr(1000000), intExpr(34)) <> "PF1Q" or
+        str(intExpr(1000000), intExpr(35)) <> "NBBF" or
+        str(intExpr(1000000), intExpr(36)) <> "LFLS" then
+      writeln(" ***** Integer str with base does not work correct.");
+      okay := FALSE;
+    end if;
 
     if okay then
       writeln("Integer str does work correct.");

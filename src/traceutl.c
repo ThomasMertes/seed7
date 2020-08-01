@@ -1037,7 +1037,8 @@ listtype list;
       } /* while */
       if (CATEGORY_OF_OBJ(list_end->obj) == SYMBOLOBJECT &&
           HAS_ENTITY(list_end->obj) &&
-          GET_ENTITY(list_end->obj)->ident != NULL) {
+          GET_ENTITY(list_end->obj)->ident != NULL &&
+		  GET_ENTITY(list_end->obj)->ident->infix_priority == 0) {
         prot_cstri(id_string(GET_ENTITY(list_end->obj)->ident));
         prot_cstri(" (");
         while (list->next != NULL) {

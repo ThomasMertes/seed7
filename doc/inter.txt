@@ -64,10 +64,10 @@ THE HI INTERPRETER
 
     -x   Execute even when the program contains errors.
 
-  The parameters can be accessed via the argv(PROGRAM) procedure.
-  argv(PROGRAM) delivers an array of strings. length(argv(PROGRAM))
-  is the number of parameters while argv(PROGRAM)[1] is the first
-  parameter.
+  In the program the 'parameters' can be accessed via 'argv(PROGRAM)'.
+  The 'argv(PROGRAM)' function delivers an array of strings. The number
+  of parameters is 'length(argv(PROGRAM))' and 'argv(PROGRAM)[1]'
+  returns the first parameter.
 
   The environment can be accessed via the getenv(string) function.
   getenv(string) delivers a string containing the value of the environment

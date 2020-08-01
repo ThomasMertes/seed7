@@ -1,3 +1,20 @@
+20100801:
+- The FAQ was improved to contain three main sections.
+- An explanation how to verify that the interpreter works correct, how to
+  use the Seed7 interpreter and about how static type checking works when
+  types are first-class objects, was added to the FAQ.
+- The FAQ explaining how to compile the Seed7 interpreter and how to compile
+  Seed7 programs, was improved.
+- References to the manual were added to several FAQ answers.
+- The chapters explaining string literals, character literals, exceptions and
+  stack traces in the manual were improved.
+- Tests for the 'str' function with base parameter were added to "chkint.sd7".
+- The compiler (comp.sd7) was improved to generate code which raises an
+  exception when at runtime no adequate function is found, which implements an
+  interface (dynamic) function.
+- A definition of 'ACTION_ERROR' was added to "common.h" and "comp.sd7".
+- The file "src/read_me.txt" was improved.
+
 20100718:
 - The first steps towards support of variable functions and closures in the
   compiler ("comp.sd7") were done.

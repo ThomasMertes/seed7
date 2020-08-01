@@ -489,7 +489,7 @@ void push_stack ()
       prog.stack_current = prog.stack_current->upward;
       depth++;
     } else {
-      printf("cannot go up");
+      /* printf("cannot go up\n"); */
     } /* if */
 #ifdef TRACE_NAME
     printf("END push_stack %d\n", depth);
@@ -513,20 +513,20 @@ void pop_stack ()
 #ifdef TRACE_NAME
     printf("BEGIN pop_stack %d\n", depth);
 #endif
-    list_element = prog.stack_current->local_object_list;
-    while (list_element != NULL) {
-      pop_object(list_element->obj);
-      list_element = list_element->next;
-    } /* while */
-    emptylist(prog.stack_current->local_object_list);
-    prog.stack_current->local_object_list = NULL;
-    prog.stack_current->object_list_insert_place =
-        &prog.stack_current->local_object_list;
     if (prog.stack_current->downward != NULL) {
+      list_element = prog.stack_current->local_object_list;
+      while (list_element != NULL) {
+        pop_object(list_element->obj);
+        list_element = list_element->next;
+      } /* while */
+      emptylist(prog.stack_current->local_object_list);
+      prog.stack_current->local_object_list = NULL;
+      prog.stack_current->object_list_insert_place =
+          &prog.stack_current->local_object_list;
       prog.stack_current = prog.stack_current->downward;
       depth--;
     } else {
-      printf("cannot go down");
+      /* printf("cannot go down\n"); */
     } /* if */
 #ifdef TRACE_NAME
     printf("END pop_stack %d\n", depth);

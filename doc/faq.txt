@@ -15,23 +15,22 @@ programming languages:
  - Declaration constructs for constant-, variable-, function-,
    parameter-, and other declarations are described in Seed7 (The user
    can change existing declaration constructs or invent new ones).
- - Templates use no special syntax. They are just functions
-   with type parameters or a type result.
- - Seed7 has abstract data types. For example the types
-   array, hash, struct and set. They are not hard coded in the compiler,
-   but are templates written in Seed7. User defined abstract datatypes
-   are also possible.
- - The object orientation of Seed7 allows multiple
-   dispatch. That means that a function or method is connected to more
-   than one type.
- - Seed7 is a syntactically and semantically extensible
-   language: Almost all of the Seed7 language (statements, operators,
+ - Templates use no special syntax. They are just functions with
+   type parameters or a type result.
+ - Seed7 has abstract data types. For example the types array, hash,
+   struct and set. They are not hard coded in the compiler, but are
+   templates written in Seed7. User defined abstract datatypes are
+   also possible.
+ - The object orientation of Seed7 allows multiple dispatch. That
+   means that a function or method is connected to more than one type.
+ - Seed7 is a syntactically and semantically extensible language:
+   Almost all of the Seed7 language (statements, operators,
    declaration constructs, and more) is defined in Seed7 in an include
    file (seed7_05.s7i).
- - The application program contains an include statement and
-   the hi interpreter is booted with the language description when it
-   starts. This way it is possible to define language variants or a
-   totally different language.
+ - The application program contains an include statement and the hi
+   interpreter is booted with the language description when it starts.
+   This way it is possible to define language variants or a totally
+   different language.
 
 
 What is an extensible programming language?
@@ -74,25 +73,24 @@ resources such as files, directorys, network, clock, keyboard,
 console and graphics are done in a portable way. Many functions
 are defined to avoid the need to use shell (and cmd.exe) commands.
 
- - Different ways to encode unicode strings (e.g.: UTF-8 or
-   UTF-16) in system calls (e.g. fopen()/wopen()) are hidden from the
+ - Different ways to encode unicode strings (e.g.: UTF-8 or UTF-16)
+   in system calls (e.g. fopen()/wopen()) are hidden from the
    programmer.
- - Seed7 defines portable funtions to copy, move and remove
-   files, directory trees and files with other types.
- - The propertys of files such as size, type, time and mode
-   can be obtained and changed with portable functions.
- - A forward slash is used as path delimiter on all
-   operating systems and an attempt to use a backslash as path delimiter
-   is an error.
- - Differences between UNIX sockets and winsockets
-   are hidden and Seed7 sockets are files (as in UNIX).
- - Reading keys and key combinations such as ctrl-F1 from
-   a text console or a graphic window under different operating systems
+ - Seed7 defines portable funtions to copy, move and remove files,
+   directory trees and files with other types.
+ - The propertys of files such as size, type, time and mode can be
+   obtained and changed with portable functions.
+ - A forward slash is used as path delimiter on all operating systems
+   and an attempt to use a backslash as path delimiter is an error.
+ - Differences between UNIX sockets and winsockets are hidden and
+   Seed7 sockets are files (as in UNIX).
+ - Reading keys and key combinations such as ctrl-F1 from a text
+   console or a graphic window under different operating systems
    always delivers the same character code.
- - Alternate code paths are provided to hide weaknesses
-   of operating systems (E.g.: The windows utime() function does
-   not work on directorys, but Seed7 allows to modify directory access
-   and modification times also under windows).
+ - Alternate code paths are provided to hide weaknesses of operating
+   systems (E.g.: The windows utime() function does not work on
+   directorys, but Seed7 allows to modify directory access and
+   modification times also under windows).
 
 
 Which license does Seed7 use?
@@ -179,8 +177,8 @@ Seed7 to C compiler comp.sd7) need to call the C compiler
 as well. To compile the interpreter under Linux just go to
 the 'src' directory and type:
 
-    make depend
-    make
+  make depend
+  make
 
 For other cases several makefiles are prepared for various
 combinations of operating system, make utility, C compiler
@@ -198,19 +196,23 @@ and shell:
   mk_bccv5.mak | windows (bcc32) | make    | bcc32 V5.5 | cmd.exe
   mk_osx.mak   | Mac OS X (Xcode)| make    | gcc        | sh
 
-  In the optimal case you just copy one of this files to
-  'makefile' and do:
+In the optimal case you just copy one of this files to 'makefile'
+and do (with the make program from the table above):
 
-    make depend
-    make
+  make depend
+  make
 
-  If you try different makefiles in succession you need to do
+When the interpreter is compiled successfully the executable
+is placed in the 'src' directory. Additionally a symbolic link
+to the executable is placed in the 'prg' directory (Under
+windows symbolic links are not supported, so a copy of the
+executable is placed in the 'prg' directory). If you do several
+compilation attempts in succession you need to do
 
-    make clean
+  make clean
 
-  before you start a new attempt. More details about the
-  compilation process can be found in the file
-  'seed7/src/read_me.txt'.
+before you start a new attempt. More details about the compilation
+process can be found in the file 'seed7/src/read_me.txt'.
 
 
 I got errors when compiling Seed7. What should I do?
@@ -278,23 +280,83 @@ Seed7 you wanted to compile and the complete log of error
 messages to seed7-users@lists.sourceforge.net .
 
 
-Does the interpreter use bytecode?
-==================================
-
-No, the analyze phase of the Seed7 interpreter produces call-code which consists
-of values and function calls. This call-code is just handled in memory and
-never written to a file. After the analyze phase the call-code is interpreted.
-
-
-How does the analyze phase of the interpreter work?
+How do I verify that the interpreter works correct?
 ===================================================
 
-The analyzer reads successive expressions according to the syntax definitions.
-For each expression the analyzer searches the internal database of declared
-objects (this search process is called matching) and generates call-code for
-this expression. Then the call code for this expression is executed. Normally
-this expressions are declaration statements. In that case new declared objects
-are added to the internal database.
+A comprehensive test of the 'hi' interpreter can be done in
+the 'prg' directory with the command:
+
+  ./hi chk_all
+
+Under windows using ./ might not work. Just omit the ./ and
+type:
+
+  hi chk_all
+
+The 'chk_all' program uses several check programs to do its
+work. First a check program is interpreted and the output
+is compared to a reference. Then the program is compiled and
+executed and this output is also checked. Finally the C code
+generated by the compiled compiler is checked against the C
+code generated by the interpreted compiler. If everything
+works correct the output is (after the usual information from
+the interpreter):
+
+  compiling the compiler - okay
+  chkint - okay
+  chkstr - okay
+  chkprc - okay
+  chkbig - okay
+  chkbool - okay
+  chkset - okay
+  chkexc - okay
+
+This verifies that interpreter and compiler work correct.
+
+
+How can I use the Seed7 interpreter?
+====================================
+
+The hi Interpreter is called with the command
+
+  hi [options] sourcefile [parameters]
+
+Note that the 'options' must be written before the 'sourcefile'.
+If the 'sourcefile' is not found .sd7 is appended to the 'sourcefile'
+and searched for that file.
+
+The following options are recognized by hi:
+
+  -a   Analyze only and suppress the execution phase.
+  -dx  Set compiletime trace level to x. Where x is a string consisting
+         of the following characters:
+           a Trace primitive actions
+           c Do action check
+           d Trace dynamic calls
+           e Trace exceptions and handlers
+           h Trace heapsize (in combination with 'a')
+  -d   Equivalent to -da
+  -i   Show the identifier table after the analyzing phase.
+  -m   Use less memory during the analyzing phase.
+         If there is a "No more memory" error you can try this
+         option.
+  -q   Compile quiet. Line and file information and compilation
+         statistics are suppressed.
+  -tx  Set runtime trace level to x. Where x is a string consisting
+         of the following characters:
+           a Trace primitive actions
+           c Do action check
+           d Trace dynamic calls
+           e Trace exceptions and handlers
+           h Trace heapsize (in combination with 'a')
+  -t   Equivalent to -ta
+  -v   Compile verbose. Write line numbers while analyzing.
+  -x   Execute even when the program contains errors.
+
+  In the program the 'parameters' can be accessed via 'argv(PROGRAM)'.
+  The 'argv(PROGRAM)' function delivers an array of strings. The number
+  of parameters is 'length(argv(PROGRAM))' and 'argv(PROGRAM)[1]'
+  returns the first parameter.
 
 
 Is it possible to compile Seed7 programs?
@@ -303,8 +365,24 @@ Is it possible to compile Seed7 programs?
 Generally Seed7 is designed to allow the compilation from Seed7 to C. The Seed7
 compiler (written in Seed7) uses the analyze phase of the interpreter to convert
 a program to call-code and then generates a corresponding C program. This C
-program is compiled and linked afterwards.
-(Note that the compiler is currently not finished)
+program is compiled and linked afterwards. The Seed7 compiler can be called with:
+
+  hi comp [ options ] source
+
+Possible options are
+
+  -O and -O2 tell the C compiler to optimize.
+  -g tells the C compiler to generate an executable with debug information.
+                This way the debuger will refer to Seed7 source files and line numbers.
+                To generate debug information which refers to the temporary C program
+                the option -g-debug_c can be used.
+  -te generates code to trace exceptions. This option works in the same way
+                 as the interpreter option -te: Every exception will write a
+                 message to stdout and the user will be ask to continue (with enter) or
+                 to terminate (with * ).
+  -r suppresses the generation of range checks for strings and arrays.
+  -e generates code which sends a signal when an uncaught exception occurs.
+                This option allows debuggers to handle uncaught Seed7 exceptions.
 
 
 What are the reserved words of Seed7?
@@ -527,6 +605,22 @@ declarations, but this time must be paid back with massive interest rates to do
 the debugging.
 
 
+How can static type checking work when types are first-class objects?
+=====================================================================
+
+This question refers to something which seems paradox: When Seed7 types are
+created at runtime how can they be checked at compile time. The simple answer
+is that a type created at runtime cannot be used to define something in
+the program that is currently running.
+
+Seed7 declarations are not executed at runtime. Functions with type parameters
+and type result are executed at compile-time. This is done in templates and
+abstract datatypes (both are executed at compile-time) .It is possible to have
+type variables and type expressions at runtime but is not possible to declare
+objects with such a variable type for the program which currently runs. Such
+type variables and type expressions are used in the Seed7 compiler.
+
+
 Why does Seed7 not use type inference?
 ======================================
 
@@ -557,7 +651,7 @@ Although this means that you have to convert types explicit (for example from in
 to float) it has more advantages than disadvantages:
 
  1. The overloading rules are much simpler.
- 2. An expression can be understood without it's calling context.
+ 2. An expression can be understood without its calling context.
  3. Errors caused by unplanned automatic type conversions cannot happen.
  4. Since you have to do type conversions explicit you are more aware of the
     run time overhead.
@@ -1018,7 +1112,9 @@ what it is going on. This way the program is easier to read.
 Are there exceptions?
 =====================
 
-Yes, Seed7 has exceptions which are similar to the Ada and Java exceptions.
+Yes, Seed7 has exceptions which are similar to Ada exceptions.
+Chapter 14.2 (Exceptions) of the manual contains a detailed
+description of the Seed7 exceptions.
 
 
 What happens when an exception is not catched?
@@ -1031,19 +1127,19 @@ interpreter writes a stack trace:
   {integer: <SYMBOLOBJECT> *NULL_ENTITY_OBJECT* div fuel_max }
 
   Stack:
-  in {(in integer param) div (in integer param) } at seed7_05.s7i(554)
-  in init_display at lander.sd7(839)
-  in setup at lander.sd7(908)
-  in main at lander.sd7(1543)
+  in {(val integer param) div (val integer param) } at seed7_05.s7i(555)
+  in init_display at lander.sd7(838)
+  in setup at lander.sd7(907)
+  in main at lander.sd7(1539)
 
 This stack trace shows that a 'div' operation causes a 'NUMERIC_ERROR'
-(probably a division by zero) in line 839 of the file "lander.sd7".
+(probably a division by zero) in line 838 of the file "lander.sd7".
 A short examination in "lander.sd7" shows that an assignment to
 'fuel_max' was commented out to show how stack traces work.
 
   A compiled program creates a much shorter crash message:
 
-  *** Uncaught EXCEPTION NUMERIC_ERROR raised at tmp_lander.c(601)
+  *** Uncaught EXCEPTION NUMERIC_ERROR raised at tmp_lander.c(678)
 
 In this case the mentioned file name and line number refers to
 the temporary C file or the Seed7 runtime library. To get useful
@@ -1051,6 +1147,28 @@ information there are two possibilities:
 
  1. Start the program in the interpreter instead.
  2. Compile the program with the option -g and start it from a debugger.
+
+Chapter 14.4 (Stack trace) of the manual contains a detailed
+description how to debug compiled Seed7 programs.
+
+
+Does the interpreter use bytecode?
+==================================
+
+No, the analyze phase of the Seed7 interpreter produces call-code which consists
+of values and function calls. This call-code is just handled in memory and
+never written to a file. After the analyze phase the call-code is interpreted.
+
+
+How does the analyze phase of the interpreter work?
+===================================================
+
+The analyzer reads successive expressions according to the syntax definitions.
+For each expression the analyzer searches the internal database of declared
+objects (this search process is called matching) and generates call-code for
+this expression. Then the call code for this expression is executed. Normally
+this expressions are declaration statements. In that case new declared objects
+are added to the internal database.
 
 
 What does action "XYZ_SOMETHING" mean?
@@ -1062,9 +1180,10 @@ For example:
 The action "INT_ADD" corresponds to the function 'int_add' in the file
 seed7/src/intlib.c .
 
-In the interpreter all action functions get the parameters as list.
-The action functions take the parameters they need from the list, perform
-the action and deliver a result.
+Chapter 13 (Primitive actions) of the manual contains a detailed description
+of the primitive actions. In the interpreter all action functions get the
+parameters as list. The action functions take the parameters they need from the
+list, perform the action and deliver a result.
 
 
 Why are there dollar signs at some places?

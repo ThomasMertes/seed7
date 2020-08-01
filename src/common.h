@@ -238,10 +238,11 @@ typedef int errinfotype;
 #define NUMERIC_ERROR 2
 #define RANGE_ERROR   3
 #define FILE_ERROR    4
-#define CREATE_ERROR  5
-#define DESTROY_ERROR 6
-#define COPY_ERROR    7
-#define IN_ERROR      8
+#define ACTION_ERROR  5
+#define CREATE_ERROR  6
+#define DESTROY_ERROR 7
+#define COPY_ERROR    8
+#define IN_ERROR      9
 
 
 #ifndef os_chdir
