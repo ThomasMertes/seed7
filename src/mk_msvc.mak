@@ -1,4 +1,4 @@
-# Makefile for nmake from windows and msvc.
+# Makefile for nmake from windows and cl from msvc. Commands executed by: cmd.exe
 # To compile use a windows console and call:
 #   nmake /f mk_msvc.mak depend
 #   nmake /f mk_msvc.mak
@@ -153,7 +153,7 @@ version.h:
 	echo int main (int argc, char **argv) >> chkftell.c
 	echo { >> chkftell.c
 	echo FILE *aFile; >> chkftell.c
-	echo aFile = popen("dir","r"); >> chkftell.c
+	echo aFile = _popen("dir","r"); >> chkftell.c
 	echo if (ftell(aFile) != -1) { >> chkftell.c
 	echo printf("\043define FTELL_WRONG_FOR_PIPE\n"); >> chkftell.c
 	echo } >> chkftell.c

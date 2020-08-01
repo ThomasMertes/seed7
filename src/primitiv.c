@@ -150,6 +150,8 @@ static primactrecord prim_act_table[] = {
     { "BLN_OR",              bln_or,              },
     { "BLN_ORD",             bln_ord,             },
 
+    { "BST_APPEND",          bst_append,          },
+    { "BST_CAT",             bst_cat,             },
     { "BST_CPY",             bst_cpy,             },
     { "BST_CREATE",          bst_create,          },
     { "BST_DESTR",           bst_destr,           },

@@ -1,3 +1,18 @@
+20080319:
+- The functions getEscapeSequence, getCharLiteral, getStringLiteral, getSymbolOrComment and
+  getSymbol were added to the scanstri.s7i library.
+- The file read_me.txt, which explains the compilation of the interpreter, was added to
+  the src directory.
+- The actions act_value, big_value, chr_value, fil_value, flt_value, int_value, prg_value,
+  rfl_value, set_value, str_value and typ_value were improved to raise an exception for
+  references which are NIL or refer to an object with the wrong category.
+- The support for the primitive actions itf_eq and itf_ne in the compiler (comp.sd7) was
+  improved.
+- The handling of bitsets with negative elements in the compiler (comp.sd7) was improved.
+- The bas7.sd7 (basic interpreter) example program was improved to support the -p
+  option which asks for a prompt at the end of the program.
+- Support for the actions bst_append and bst_cat was added to the interpreter.
+
 20080302:
 - A new chapter about compile errors was added to faq and to the read_me.
 - The functions skipComment, getComment, skipLineComment, getLineComment and getNumber were

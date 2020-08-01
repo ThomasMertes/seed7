@@ -1,4 +1,4 @@
-# Makefile for nmake from windows and gcc from MinGW.
+# Makefile for nmake from windows and gcc from MinGW. Commands executed by: cmd.exe
 # To compile use a windows console and call:
 #   nmake /f mk_nmake.mak depend
 #   nmake /f mk_nmake.mak

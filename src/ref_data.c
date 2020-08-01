@@ -828,33 +828,13 @@ objecttype obj_arg;
 #endif
 
   { /* actValue */
-    if (CATEGORY_OF_OBJ(obj_arg) != ACTOBJECT) {
+    if (obj_arg == NULL || CATEGORY_OF_OBJ(obj_arg) != ACTOBJECT) {
       raise_error(RANGE_ERROR);
       return(NULL);
     } else {
       return(take_action(obj_arg));
     } /* if */
   } /* actValue */
-
-
-
-#ifdef ANSI_C
-
-chartype chrValue (objecttype obj_arg)
-#else
-
-chartype chrValue (obj_arg)
-objecttype obj_arg;
-#endif
-
-  { /* chrValue */
-    if (CATEGORY_OF_OBJ(obj_arg) != CHAROBJECT) {
-      raise_error(RANGE_ERROR);
-      return('\0');
-    } else {
-      return(take_char(obj_arg));
-    } /* if */
-  } /* chrValue */
 
 
 
@@ -872,9 +852,9 @@ objecttype obj_arg;
     biginttype result;
 
   /* bigValue */
-    if (CATEGORY_OF_OBJ(obj_arg) != BIGINTOBJECT) {
+    if (obj_arg == NULL || CATEGORY_OF_OBJ(obj_arg) != BIGINTOBJECT) {
       raise_error(RANGE_ERROR);
-      return(NULL);
+      result = NULL;
     } else {
       big1 = take_bigint(obj_arg);
       if (!ALLOC_BIG(result, big1->size)) {
@@ -884,9 +864,29 @@ objecttype obj_arg;
         memcpy(result->bigdigits, big1->bigdigits,
             (SIZE_TYPE) (result->size * sizeof(bigdigittype)));
       } /* if */
-      return(result);
     } /* if */
+    return(result);
   } /* bigValue */
+
+
+
+#ifdef ANSI_C
+
+chartype chrValue (objecttype obj_arg)
+#else
+
+chartype chrValue (obj_arg)
+objecttype obj_arg;
+#endif
+
+  { /* chrValue */
+    if (obj_arg == NULL || CATEGORY_OF_OBJ(obj_arg) != CHAROBJECT) {
+      raise_error(RANGE_ERROR);
+      return('\0');
+    } else {
+      return(take_char(obj_arg));
+    } /* if */
+  } /* chrValue */
 
 
 
@@ -900,7 +900,7 @@ objecttype obj_arg;
 #endif
 
   { /* filValue */
-    if (CATEGORY_OF_OBJ(obj_arg) != FILEOBJECT) {
+    if (obj_arg == NULL || CATEGORY_OF_OBJ(obj_arg) != FILEOBJECT) {
       raise_error(RANGE_ERROR);
       return(NULL);
     } else {
@@ -920,7 +920,7 @@ objecttype obj_arg;
 #endif
 
   { /* fltValue */
-    if (CATEGORY_OF_OBJ(obj_arg) != FLOATOBJECT) {
+    if (obj_arg == NULL || CATEGORY_OF_OBJ(obj_arg) != FLOATOBJECT) {
       raise_error(RANGE_ERROR);
       return(0.0);
     } else {
@@ -940,7 +940,7 @@ objecttype obj_arg;
 #endif
 
   { /* intValue */
-    if (CATEGORY_OF_OBJ(obj_arg) != INTOBJECT) {
+    if (obj_arg == NULL || CATEGORY_OF_OBJ(obj_arg) != INTOBJECT) {
       raise_error(RANGE_ERROR);
       return(0);
     } else {
@@ -960,7 +960,7 @@ objecttype obj_arg;
 #endif
 
   { /* prgValue */
-    if (CATEGORY_OF_OBJ(obj_arg) != PROGOBJECT) {
+    if (obj_arg == NULL || CATEGORY_OF_OBJ(obj_arg) != PROGOBJECT) {
       raise_error(RANGE_ERROR);
       return(NULL);
     } else {
@@ -980,14 +980,15 @@ objecttype obj_arg;
 #endif
 
   { /* refValue */
-    if (CATEGORY_OF_OBJ(obj_arg) == FWDREFOBJECT ||
-        CATEGORY_OF_OBJ(obj_arg) == REFOBJECT ||
-        CATEGORY_OF_OBJ(obj_arg) == REFPARAMOBJECT ||
-        CATEGORY_OF_OBJ(obj_arg) == RESULTOBJECT ||
-        CATEGORY_OF_OBJ(obj_arg) == LOCALVOBJECT ||
-        CATEGORY_OF_OBJ(obj_arg) == ENUMLITERALOBJECT ||
-        CATEGORY_OF_OBJ(obj_arg) == CONSTENUMOBJECT ||
-        CATEGORY_OF_OBJ(obj_arg) == VARENUMOBJECT) {
+    if (obj_arg != NULL &&
+        (CATEGORY_OF_OBJ(obj_arg) == FWDREFOBJECT ||
+         CATEGORY_OF_OBJ(obj_arg) == REFOBJECT ||
+         CATEGORY_OF_OBJ(obj_arg) == REFPARAMOBJECT ||
+         CATEGORY_OF_OBJ(obj_arg) == RESULTOBJECT ||
+         CATEGORY_OF_OBJ(obj_arg) == LOCALVOBJECT ||
+         CATEGORY_OF_OBJ(obj_arg) == ENUMLITERALOBJECT ||
+         CATEGORY_OF_OBJ(obj_arg) == CONSTENUMOBJECT ||
+         CATEGORY_OF_OBJ(obj_arg) == VARENUMOBJECT)) {
       return(take_reference(obj_arg));
     } else {
       raise_error(RANGE_ERROR);
@@ -1076,9 +1077,10 @@ objecttype obj_arg;
     settype result;
 
   /* setValue */
-    if (CATEGORY_OF_OBJ(obj_arg) != SETOBJECT) {
+    if (obj_arg == NULL || CATEGORY_OF_OBJ(obj_arg) != SETOBJECT ||
+        take_set(obj_arg) == NULL) {
       raise_error(RANGE_ERROR);
-      return(NULL);
+      result = NULL;
     } else {
       set1 = take_set(obj_arg);
       set_size = set1->max_position - set1->min_position + 1;
@@ -1089,8 +1091,8 @@ objecttype obj_arg;
         result->max_position = set1->max_position;
         memcpy(result->bitset, set1->bitset, set_size * sizeof(bitsettype));
       } /* if */
-      return(result);
     } /* if */
+    return(result);
   } /* setValue */
 
 
@@ -1109,9 +1111,10 @@ objecttype obj_arg;
     stritype result;
 
   /* strValue */
-    if (CATEGORY_OF_OBJ(obj_arg) != STRIOBJECT) {
+    if (obj_arg == NULL || CATEGORY_OF_OBJ(obj_arg) != STRIOBJECT ||
+        take_stri(obj_arg) == NULL) {
       raise_error(RANGE_ERROR);
-      return(NULL);
+      result = NULL;
     } else {
       str1 = take_stri(obj_arg);
       if (!ALLOC_STRI(result, str1->size)) {
@@ -1121,8 +1124,8 @@ objecttype obj_arg;
         memcpy(result->mem, str1->mem,
             (SIZE_TYPE) (result->size * sizeof(strelemtype)));
       } /* if */
-      return(result);
     } /* if */
+    return(result);
   } /* strValue */
 
 
@@ -1137,7 +1140,7 @@ objecttype obj_arg;
 #endif
 
   { /* typValue */
-    if (CATEGORY_OF_OBJ(obj_arg) != TYPEOBJECT) {
+    if (obj_arg == NULL || CATEGORY_OF_OBJ(obj_arg) != TYPEOBJECT) {
       raise_error(RANGE_ERROR);
       return(NULL);
     } else {

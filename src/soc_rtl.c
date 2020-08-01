@@ -76,7 +76,7 @@ bstritype *address;
     sockettype result;
 
   /* socAccept */
-    resized_address = REALLOC_BSTRI(*address, (*address)->size, MAX_ADDRESS_SIZE);
+    REALLOC_BSTRI(resized_address, *address, (*address)->size, MAX_ADDRESS_SIZE);
     if (resized_address == NULL) {
       raise_error(MEMORY_ERROR);
       result = -1;
@@ -86,7 +86,7 @@ bstritype *address;
       address_size = MAX_ADDRESS_SIZE;
       result = accept(sock, (struct sockaddr *) (*address)->mem, &address_size);
       if (result == -1) {
-        resized_address = REALLOC_BSTRI(*address, MAX_ADDRESS_SIZE, (*address)->size);
+        REALLOC_BSTRI(resized_address, *address, MAX_ADDRESS_SIZE, (*address)->size);
         if (resized_address == NULL) {
           (*address)->size = MAX_ADDRESS_SIZE;
         } else {
@@ -96,7 +96,7 @@ bstritype *address;
         /* printf("socAccept errno=%d\n", errno); */
         raise_error(RANGE_ERROR);
       } else {
-        resized_address = REALLOC_BSTRI(*address, MAX_ADDRESS_SIZE, address_size);
+        REALLOC_BSTRI(resized_address, *address, MAX_ADDRESS_SIZE, address_size);
         if (resized_address == NULL) {
           (*address)->size = MAX_ADDRESS_SIZE;
           raise_error(MEMORY_ERROR);
@@ -569,7 +569,7 @@ bstritype *address;
       } /* if */
       *stri = resized_stri;
       COUNT3_STRI((*stri)->size, bytes_requested);
-      resized_address = REALLOC_BSTRI(*address, (*address)->size, MAX_ADDRESS_SIZE);
+      REALLOC_BSTRI(resized_address, *address, (*address)->size, MAX_ADDRESS_SIZE);
       if (resized_address == NULL) {
         REALLOC_STRI(resized_stri, *stri, bytes_requested, (*stri)->size);
         if (resized_stri == NULL) {
@@ -588,7 +588,7 @@ bstritype *address;
             (SIZE_TYPE) bytes_requested, flags,
             (struct sockaddr *) (*address)->mem, &address_size);
         if (stri_size == -1) {
-          resized_address = REALLOC_BSTRI(*address, MAX_ADDRESS_SIZE, (*address)->size);
+          REALLOC_BSTRI(resized_address, *address, MAX_ADDRESS_SIZE, (*address)->size);
           if (resized_address == NULL) {
             (*address)->size = MAX_ADDRESS_SIZE;
           } else {
@@ -598,7 +598,7 @@ bstritype *address;
           /* printf("socRecvfrom errno=%d\n", errno); */
           raise_error(RANGE_ERROR);
         } else {
-          resized_address = REALLOC_BSTRI(*address, MAX_ADDRESS_SIZE, address_size);
+          REALLOC_BSTRI(resized_address, *address, MAX_ADDRESS_SIZE, address_size);
           if (resized_address == NULL) {
             (*address)->size = MAX_ADDRESS_SIZE;
             raise_error(MEMORY_ERROR);

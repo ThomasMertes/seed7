@@ -1688,15 +1688,18 @@ listtype arguments;
   /* str_value */
     isit_reference(arg_1(arguments));
     obj_arg = take_reference(arg_1(arguments));
-    isit_stri(obj_arg);
-    str1 = take_stri(obj_arg);
-
-    if (!ALLOC_STRI(result, str1->size)) {
-      return(raise_exception(SYS_MEM_EXCEPTION));
+    if (obj_arg == NULL || CATEGORY_OF_OBJ(obj_arg) != STRIOBJECT ||
+        take_stri(obj_arg) == NULL) {
+      return(raise_exception(SYS_RNG_EXCEPTION));
     } else {
-      result->size = str1->size;
-      memcpy(result->mem, str1->mem,
-          (SIZE_TYPE) (result->size * sizeof(strelemtype)));
-      return(bld_stri_temp(result));
+      str1 = take_stri(obj_arg);
+      if (!ALLOC_STRI(result, str1->size)) {
+        return(raise_exception(SYS_MEM_EXCEPTION));
+      } else {
+        result->size = str1->size;
+        memcpy(result->mem, str1->mem,
+            (SIZE_TYPE) (result->size * sizeof(strelemtype)));
+        return(bld_stri_temp(result));
+      } /* if */
     } /* if */
   } /* str_value */

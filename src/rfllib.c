@@ -977,20 +977,16 @@ listtype arguments;
   /* rfl_value */
     isit_reference(arg_1(arguments));
     obj_arg = take_reference(arg_1(arguments));
-    if (obj_arg != NULL) {
-      if (CATEGORY_OF_OBJ(obj_arg) == MATCHOBJECT ||
-          CATEGORY_OF_OBJ(obj_arg) == CALLOBJECT ||
-          CATEGORY_OF_OBJ(obj_arg) == REFLISTOBJECT) {
-        result = copy_list(take_reflist(obj_arg), &err_info);
-      } else {
-        run_error(REFLISTOBJECT, obj_arg);
-        result = NULL;
+    if (obj_arg != NULL &&
+        (CATEGORY_OF_OBJ(obj_arg) == MATCHOBJECT ||
+         CATEGORY_OF_OBJ(obj_arg) == CALLOBJECT ||
+         CATEGORY_OF_OBJ(obj_arg) == REFLISTOBJECT)) {
+      result = copy_list(take_reflist(obj_arg), &err_info);
+      if (err_info != OKAY_NO_ERROR) {
+        return(raise_exception(SYS_MEM_EXCEPTION));
       } /* if */
     } else {
       return(raise_exception(SYS_RNG_EXCEPTION));
-    } /* if */
-    if (err_info != OKAY_NO_ERROR) {
-      return(raise_exception(SYS_MEM_EXCEPTION));
     } /* if */
     return(bld_reflist_temp(result));
   } /* rfl_value */

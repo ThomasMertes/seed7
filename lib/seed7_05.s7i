@@ -2420,6 +2420,7 @@ const func integer: length (ref LIST param) is                  action "LST_LNG"
 
 const func LIST: _GENERATE_EMPTY_LIST is                        action "LST_EMPTY";
 const LIST: (attr LIST) . EMPTY is                              _GENERATE_EMPTY_LIST;
+const LIST: (attr LIST) . value is                              _GENERATE_EMPTY_LIST;
 
 (* const proc: object in (ref LIST param) is        action "LST_ELEM"; *)
 const proc: incl(ref LIST param, ref object param) is    action "LST_INCL";

@@ -883,6 +883,9 @@ listtype arguments;
   /* int_value */
     isit_reference(arg_1(arguments));
     obj_arg = take_reference(arg_1(arguments));
-    isit_int(obj_arg);
-    return(bld_int_temp(take_int(obj_arg)));
+    if (obj_arg == NULL || CATEGORY_OF_OBJ(obj_arg) != INTOBJECT) {
+      return(raise_exception(SYS_RNG_EXCEPTION));
+    } else {
+      return(bld_int_temp(take_int(obj_arg)));
+    } /* if */
   } /* int_value */

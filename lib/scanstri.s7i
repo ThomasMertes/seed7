@@ -90,7 +90,7 @@ const func string: getComment (inout string: stri) is func
         if pos <= leng and stri[pos] = '(' then
           incr(pos);
           if pos <= leng and stri[pos] = '*' then
-            symbol &:= stri[.. pred(pos)];
+            symbol &:= stri[.. pos - 2];
             stri := stri[pos ..];
             symbol &:= getComment(stri);
             leng := length(stri);
@@ -138,7 +138,7 @@ const proc: skipLineComment (inout string: stri) is func
  *)
 const func string: getLineComment (inout string: stri) is func
   result
-    var string: symbol is "#";
+    var string: symbol is "";
   local
     var integer: leng is 0;
     var integer: pos is 1;
@@ -147,7 +147,7 @@ const func string: getLineComment (inout string: stri) is func
     repeat
       incr(pos);
     until pos > leng or stri[pos] = '\n';
-    symbol &:= stri[.. pred(pos)];
+    symbol := stri[.. pred(pos)];
     stri := stri[pos ..];
   end func; # getLineComment
 
@@ -178,9 +178,10 @@ const func string: getDigits (inout string: stri) is func
 
 (**
  *  Reads a numeric literal from 'stri'.
- *  When the function is called it is assumed that the introducing
- *  digit is in inFile.bufferChar. When the function is left the
- *  character after the literal is in inFile.bufferChar.
+ *  When the function is called it is assumed that 'stri' is empty or
+ *  stri[1] contains the introducing digit. When the function is left
+ *  'stri' is empty or stri[1] contains the character after the
+ *  literal.
  *  @return The function returns the numeric literal.
  *)
 const func string: getNumber (inout string: stri) is func
@@ -200,7 +201,7 @@ const func string: getNumber (inout string: stri) is func
       while pos <= leng and stri[pos] in digit_char do
         incr(pos);
       end while;
-      if pos <= leng and stri[pos] = 'E' or stri[pos] = 'e' then
+      if pos <= leng and (stri[pos] = 'E' or stri[pos] = 'e') then
         incr(pos);
         if pos <= leng and stri[pos] = '+' then
           incr(pos);
@@ -217,7 +218,7 @@ const func string: getNumber (inout string: stri) is func
       while pos <= leng and stri[pos] in alphanum_char do
         incr(pos);
       end while;
-    elsif pos <= leng and stri[pos] = 'E' or stri[pos] = 'e' then
+    elsif pos <= leng and (stri[pos] = 'E' or stri[pos] = 'e') then
       # integer literal with exponent
       incr(pos);
       if pos <= leng and stri[pos] = '+' then
@@ -238,6 +239,148 @@ const func string: getNumber (inout string: stri) is func
 
 
 (**
+ *  Reads an escape sequence from 'stri' and appends it to 'symbol'.
+ *  The function accepts escape sequences from character end string
+ *  literals. When the function is called it is assumed that stri[1]
+ *  contains the introducing \ . When the function is left stri[1]
+ *  contains the character after the escape sequence. The complete
+ *  escape sequence including the introducing \ is appended to
+ *  'symbol'.
+ *)
+const proc: getEscapeSequence (in string: stri, inout integer: pos, inout string: symbol) is func
+  local
+    var integer: leng is 0;
+    var integer: backslashPos is 0;
+    var string: numberStri is "";
+  begin
+    leng := length(stri);
+    symbol &:= "\\";
+    incr(pos);
+    if pos <= leng then
+      if stri[pos] = '\n' or stri[pos] = ' ' or stri[pos] = '\t' or stri[pos] = '\r' then
+        repeat
+          symbol &:= str(stri[pos]);
+          incr(pos);
+        until pos > leng or
+            stri[pos] <> '\n' and stri[pos] <> ' ' and stri[pos] <> '\t' and stri[pos] <> '\r';
+        if pos <= leng and stri[pos] = '\\' then
+          symbol &:= str(stri[pos]);
+          incr(pos);
+        end if;
+      elsif stri[pos] in digit_char then
+        backslashPos := pos(stri, '\\', succ(pos));
+        numberStri := stri[pos .. pred(backslashPos)];
+        symbol &:= getNumber(numberStri);
+        if numberStri = "" then
+          symbol &:= "\\";
+          pos := succ(backslashPos);
+        else
+          pos := backslashPos - length(numberStri);
+        end if;
+      else
+        symbol &:= str(stri[pos]);
+        incr(pos);
+      end if;
+    end if;
+  end func;
+
+
+(**
+ *  Reads a character literal from 'stri'.
+ *  When the function is called it is assumed that stri[1] contains
+ *  the introducing ' . When the function is left 'stri' is empty or
+ *  stri[1] contains the character after the closing ' .
+ *  @return the character literal including the introducing ' and
+ *          the closing ' .
+ *)
+const func string: getCharLiteral (inout string: stri) is func
+  result
+    var string: symbol is "'";
+  local
+    var integer: leng is 0;
+    var integer: pos is 2;
+  begin
+    leng := length(stri);
+    if pos <= leng and stri[pos] <> '\n' and stri[pos] <> '\r' then
+      if stri[pos] = '\\' then
+        repeat
+          getEscapeSequence(stri, pos, symbol);
+        until stri[pos] <> '\\';
+      else
+        symbol &:= str(stri[pos]);
+        incr(pos);
+      end if;
+      if pos > leng or stri[pos] <> '\'' then
+        if stri[pos] <> '\n' and stri[pos] <> '\r' and stri[pos] <> EOF then
+          repeat
+            symbol &:= str(stri[pos]);
+            incr(pos);
+          until pos > leng or
+              stri[pos] = '\'' or
+              stri[pos] = '\n' or
+              stri[pos] = '\r';
+          if pos <= leng and stri[pos] = '\'' then
+            symbol &:= str(stri[pos]);
+            incr(pos);
+          end if;
+        end if;
+      else
+        symbol &:= str(stri[pos]);
+        incr(pos);
+      end if;
+    end if;
+    stri := stri[pos ..];
+  end func;
+
+
+(**
+ *  Reads a string literal from 'stri'.
+ *  When the function is called it is assumed that stri[1] contains
+ *  the introducing " . When the function is left 'stri' is empty or
+ *  stri[1] contains the character after the closing " .
+ *  @return the string literal including the introducing " and the
+ *          closing " .
+ *)
+const func string: getStringLiteral (inout string: stri) is func
+  result
+    var string: symbol is "\"";
+  local
+    var integer: leng is 0;
+    var integer: pos is 1;
+    var boolean: reading_string is TRUE;
+  begin
+    leng := length(stri);
+    incr(pos);
+    repeat
+      while pos <= leng and stri[pos] in no_escape_char do
+        symbol &:= str(stri[pos]);
+        incr(pos);
+      end while;
+      if pos > leng or stri[pos] = '\n' or stri[pos] = '\r' then
+        reading_string := FALSE;
+      elsif stri[pos] = '\"' then
+        symbol &:= str(stri[pos]);
+        incr(pos);
+        if pos <= leng and stri[pos] = '\"' then
+          symbol &:= str(stri[pos]);
+          incr(pos);
+        else
+          reading_string := FALSE;
+        end if;
+      elsif stri[pos] = '\\' then
+        getEscapeSequence(stri, pos, symbol);
+      else
+        repeat
+          symbol &:= str(stri[pos]);
+          incr(pos);
+        until pos > leng or stri[pos] >= ' ' or stri[pos] <= '~';
+      end if;
+    until not reading_string;
+    stri := stri[pos ..];
+  end func;
+
+
+(**
  *  Reads an alphanumeric name from 'stri'.
  *  A name consists of a letter or underscore followed by letters,
  *  digits or underscores. When the function is called it is assumed
@@ -252,7 +395,6 @@ const func string: getName (inout string: stri) is func
   local
     var integer: leng is 0;
     var integer: pos is 1;
-    var char: character is ' ';
   begin
     leng := length(stri);
     if pos <= leng and stri[pos] in name_start_char then
@@ -279,10 +421,12 @@ const proc: skipSpace (inout string: stri) is func
     var integer: pos is 1;
   begin
     leng := length(stri);
-    while pos <= leng and stri[pos] = ' ' do
-      incr(pos);
-    end while;
-    stri := stri[pos ..];
+    if pos <= leng and stri[pos] = ' ' then
+      repeat
+        incr(pos);
+      until pos > leng or stri[pos] <> ' ';
+      stri := stri[pos ..];
+    end if;
   end func;
 
 
@@ -299,10 +443,12 @@ const proc: skipWhiteSpace (inout string: stri) is func
     var integer: pos is 1;
   begin
     leng := length(stri);
-    while pos <= leng and stri[pos] in white_space_char do
-      incr(pos);
-    end while;
-    stri := stri[pos ..];
+    if pos <= leng and stri[pos] in white_space_char then
+      repeat
+        incr(pos);
+      until pos > leng or stri[pos] not in white_space_char;
+      stri := stri[pos ..];
+    end if;
   end func;
 
 
@@ -323,9 +469,147 @@ const func string: getWhiteSpace (inout string: stri) is func
     var integer: pos is 1;
   begin
     leng := length(stri);
+    if pos <= leng and stri[pos] in white_space_char then
+      repeat
+        incr(pos);
+      until pos > leng or stri[pos] not in white_space_char;
+      symbol := stri[.. pred(pos)];
+      stri := stri[pos ..];
+    end if;
+  end func;
+
+
+(**
+ *  Reads a symbol or a comment from 'stri'.
+ *  Before reading the symbol or comment it skips whitespace
+ *  characters. A symbol can be a literal (numeric, character or
+ *  string), a name, a special symbol (sequence of special characters)
+ *  or a parenthesis. A comment can be a normal comment or a line
+ *  comment. When the function is called it is assumed that 'stri' is
+ *  empty or stri[1] contains a whitespace character or the first
+ *  character of a symbol or comment. When the function is left 'stri'
+ *  is empty or stri[1] contains the character after the symbol or
+ *  comment.
+ *  @return the symbol, comment or "" when EOF was reached.
+ *)
+const func string: getSymbolOrComment (inout string: stri) is func
+  result
+    var string: symbol is "";
+  local
+    var integer: leng is 0;
+    var integer: pos is 1;
+  begin
+    leng := length(stri);
     while pos <= leng and stri[pos] in white_space_char do
       incr(pos);
     end while;
-    symbol := stri[.. pred(pos)];
-    stri := stri[pos ..];
+    if pos <= leng then
+      case stri[pos] of
+        when name_start_char:
+          incr(pos);
+          while pos <= leng and stri[pos] in name_char do
+            incr(pos);
+          end while;
+          symbol := stri[.. pred(pos)];
+          stri := stri[pos ..];
+        when special_char:
+          incr(pos);
+          while pos <= leng and stri[pos] in special_char do
+            incr(pos);
+          end while;
+          symbol := stri[.. pred(pos)];
+          stri := stri[pos ..];
+        when left_paren_char:
+          decr(leng);
+          stri := stri[succ(pos) ..];
+          if pos <= leng and stri[pos] = '*' then
+            symbol := getComment(stri);
+          else
+            symbol := "(";
+          end if;
+        when other_paren_char:
+          symbol := stri[.. pos];
+          stri := stri[succ(pos) ..];
+        when digit_char:
+          symbol := getNumber(stri);
+        when apostrophe_char:
+          symbol := getCharLiteral(stri);
+        when quotation_char:
+          symbol := getStringLiteral(stri);
+        when sharp_char:
+          symbol := getLineComment(stri);
+        otherwise:
+          incr(pos);
+          symbol := stri[.. pred(pos)];
+          stri := stri[pos ..];
+      end case;
+    end if;
+  end func;
+
+
+(**
+ *  Reads a symbol from 'stri'.
+ *  Before reading the symbol it skips whitespace characters and
+ *  comments (normal comments and line comments). A symbol can be a
+ *  literal (numeric, character or string), a name, a special symbol
+ *  (sequence of special characters) or a parenthesis. When the
+ *  function is called it is assumed that 'stri' is empty or stri[1]
+ *  contains a whitespace character or the first character of a symbol
+ *  or comment. When the function is left 'stri' is empty or stri[1]
+ *  contains the character after the symbol.
+ *  @return the symbol or "" when EOF was reached.
+ *)
+const func string: getSymbol (inout string: stri) is func
+  result
+    var string: symbol is "";
+  local
+    var integer: leng is 0;
+    var integer: pos is 1;
+  begin
+    leng := length(stri);
+    while pos <= leng and stri[pos] in white_space_char do
+      incr(pos);
+    end while;
+    if pos <= leng then
+      case stri[pos] of
+        when name_start_char:
+          incr(pos);
+          while pos <= leng and stri[pos] in name_char do
+            incr(pos);
+          end while;
+          symbol := stri[.. pred(pos)];
+          stri := stri[pos ..];
+        when special_char:
+          incr(pos);
+          while pos <= leng and stri[pos] in special_char do
+            incr(pos);
+          end while;
+          symbol := stri[.. pred(pos)];
+          stri := stri[pos ..];
+        when left_paren_char:
+          decr(leng);
+          stri := stri[succ(pos) ..];
+          if pos <= leng and stri[pos] = '*' then
+            skipComment(stri);
+            symbol := getSymbol(stri);
+          else
+            symbol := "(";
+          end if;
+        when other_paren_char:
+          symbol := stri[.. pos];
+          stri := stri[succ(pos) ..];
+        when digit_char:
+          symbol := getNumber(stri);
+        when apostrophe_char:
+          symbol := getCharLiteral(stri);
+        when quotation_char:
+          symbol := getStringLiteral(stri);
+        when sharp_char:
+          symbol := getLineComment(stri);
+        otherwise:
+          incr(pos);
+          symbol := stri[.. pred(pos)];
+          stri := stri[pos ..];
+      end case;
+    end if;
   end func;

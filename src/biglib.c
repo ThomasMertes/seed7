@@ -859,15 +859,17 @@ listtype arguments;
   /* big_value */
     isit_reference(arg_1(arguments));
     obj_arg = take_reference(arg_1(arguments));
-    isit_bigint(obj_arg);
-    big1 = take_bigint(obj_arg);
-
-    if (!ALLOC_BIG(result, big1->size)) {
-      return(raise_exception(SYS_MEM_EXCEPTION));
+    if (obj_arg == NULL || CATEGORY_OF_OBJ(obj_arg) != BIGINTOBJECT) {
+      return(raise_exception(SYS_RNG_EXCEPTION));
     } else {
-      result->size = big1->size;
-      memcpy(result->bigdigits, big1->bigdigits,
-          (SIZE_TYPE) (result->size * sizeof(bigdigittype)));
-      return(bld_bigint_temp(result));
+      big1 = take_bigint(obj_arg);
+      if (!ALLOC_BIG(result, big1->size)) {
+        return(raise_exception(SYS_MEM_EXCEPTION));
+      } else {
+        result->size = big1->size;
+        memcpy(result->bigdigits, big1->bigdigits,
+            (SIZE_TYPE) (result->size * sizeof(bigdigittype)));
+        return(bld_bigint_temp(result));
+      } /* if */
     } /* if */
   } /* big_value */

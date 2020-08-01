@@ -503,6 +503,9 @@ listtype arguments;
   /* chr_value */
     isit_reference(arg_1(arguments));
     obj_arg = take_reference(arg_1(arguments));
-    isit_char(obj_arg);
-    return(bld_char_temp(take_char(obj_arg)));
+    if (obj_arg == NULL || CATEGORY_OF_OBJ(obj_arg) != CHAROBJECT) {
+      return(raise_exception(SYS_RNG_EXCEPTION));
+    } else {
+      return(bld_char_temp(take_char(obj_arg)));
+    } /* if */
   } /* chr_value */

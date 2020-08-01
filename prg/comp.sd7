@@ -5939,9 +5939,9 @@ const proc: process_itf_eq (in ref_list: params, inout expr_type: c_expr) is fun
 
   begin
     c_expr.expr &:= "(";
-    process_expr(params[1], c_expr);
+    getAnyParamToExpr(params[1], c_expr);
     c_expr.expr &:= ") == (";
-    process_expr(params[3], c_expr);
+    getAnyParamToExpr(params[3], c_expr);
     c_expr.expr &:= ")";
   end func;
 
@@ -5950,9 +5950,9 @@ const proc: process_itf_ne (in ref_list: params, inout expr_type: c_expr) is fun
 
   begin
     c_expr.expr &:= "(";
-    process_expr(params[1], c_expr);
+    getAnyParamToExpr(params[1], c_expr);
     c_expr.expr &:= ") != (";
-    process_expr(params[3], c_expr);
+    getAnyParamToExpr(params[3], c_expr);
     c_expr.expr &:= ")";
   end func;
 
@@ -11061,9 +11061,11 @@ const proc: process_param_declaration (in reference: formal_param, inout expr_ty
       c_expr.temp_assigns &:= "o_";
       c_expr.temp_assigns &:= param_name;
       c_expr.temp_assigns &:= "=";
+      process_create_declaration(getType(formal_param), global_c_expr);
       process_create_call(getType(formal_param),
           "value_o_" & param_name, c_expr.temp_assigns);
       c_expr.temp_assigns &:= ";\n";
+      process_destr_declaration(getType(formal_param), global_c_expr);
       process_destr_call(getType(formal_param),
           "o_" & param_name, c_expr.temp_frees);
     else
@@ -12243,9 +12245,13 @@ const proc: process_dynamic_decision (in reference: current_object,
         c_expr.expr &:= "{\n";
         process_dynamic_condition(current_object,
             param_list, 0, c_proc_body);
+        c_expr.expr &:= c_param_list.temp_decls;
         c_expr.expr &:= c_proc_body.temp_decls;
+        c_expr.expr &:= c_param_list.temp_assigns;
         c_expr.expr &:= c_proc_body.temp_assigns;
         c_expr.expr &:= c_proc_body.expr;
+        c_expr.expr &:= c_param_list.temp_frees;
+        c_expr.expr &:= c_proc_body.temp_frees;
         c_expr.expr &:= "}\n\n";
       end if;
     end if;
@@ -13915,8 +13921,8 @@ const proc: init_set_constants (inout expr_type: c_expr) is func
       if set1 = EMPTY_SET then
         c_expr.expr &:= "0,0,0,";
       else
-        min_position := min(set1) div 32;
-        max_position := max(set1) div 32;
+        min_position := min(set1) mdiv 32;
+        max_position := max(set1) mdiv 32;
         c_expr.expr &:= str(min_position);
         c_expr.expr &:= ",";
         c_expr.expr &:= str(max_position);

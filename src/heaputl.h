@@ -328,11 +328,11 @@ EXTERN memsizetype hs;
 #ifdef MMAP_ABLE_BSTRI
 #define ALLOC_BSTRI(var,len)       (ALLOC_HEAP(var, bstritype, SIZ_BSTRI(len))?(var->mem = var->mem1, CNT1_BSTRI(len, SIZ_BSTRI(len)), TRUE):FALSE)
 #define FREE_BSTRI(var,len)        (var->mem == var->mem1 ? (CNT2_BSTRI(len, SIZ_BSTRI(len)) FREE_HEAP(var, SIZ_BSTRI(len))) : void)
-#define REALLOC_BSTRI(var,ln1,ln2) (REALLOC_HEAP(var, bstritype, SIZ_BSTRI(ln2)) ? (var->mem = var->mem1, TRUE) : FALSE)
+#define REALLOC_BSTRI(v1,v2,l1,l2) ((v1=REALLOC_HEAP(v2, bstritype, SIZ_BSTRI(l2)))?(v1)->mem=(v1)->mem1:0)
 #else
 #define ALLOC_BSTRI(var,len)       (ALLOC_HEAP(var, bstritype, SIZ_BSTRI(len))?CNT1_BSTRI(len, SIZ_BSTRI(len)), TRUE:FALSE)
 #define FREE_BSTRI(var,len)        (CNT2_BSTRI(len, SIZ_BSTRI(len)) FREE_HEAP(var, SIZ_BSTRI(len)))
-#define REALLOC_BSTRI(var,ln1,ln2) REALLOC_HEAP(var, bstritype, SIZ_BSTRI(ln2))
+#define REALLOC_BSTRI(v1,v2,l1,l2) v1=REALLOC_HEAP(v2, bstritype, SIZ_BSTRI(l2))
 #endif
 #define COUNT3_BSTRI(len1,len2)    CNT3(CNT2_BSTRI(len1, SIZ_BSTRI(len1)) CNT1_BSTRI(len2, SIZ_BSTRI(len2)))
 

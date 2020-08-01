@@ -31,12 +31,16 @@
 
 #ifdef ANSI_C
 
+void bstAppend (bstritype *const, const const_bstritype);
+bstritype bstCat (const const_bstritype, const const_bstritype);
 void bstCpy (bstritype *const, const const_bstritype);
 bstritype bstCreate (const const_bstritype);
 void bstDestr (const const_bstritype);
 
 #else
 
+void bstAppend ();
+bstritype bstCat ();
 void bstCpy ();
 bstritype bstCreate ();
 void bstDestr ();

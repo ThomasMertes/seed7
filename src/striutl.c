@@ -466,7 +466,7 @@ stritype stri;
           len > 0; str++, ustri++, len--) {
         if (*str >= 256) {
           bstri->size -= len;
-          resized_bstri = REALLOC_BSTRI(bstri, stri->size, bstri->size);
+          REALLOC_BSTRI(resized_bstri, bstri, stri->size, bstri->size);
           if (resized_bstri == NULL) {
             FREE_BSTRI(bstri, stri->size);
             bstri = NULL;
@@ -508,7 +508,7 @@ stritype stri;
       memcpy(bstri->mem, stri->mem, stri->size);
       bstri->size = stri->size;
 #endif
-      resized_bstri = REALLOC_BSTRI(bstri, compr_size(stri), bstri->size);
+      REALLOC_BSTRI(resized_bstri, bstri, compr_size(stri), bstri->size);
       if (resized_bstri == NULL) {
         FREE_BSTRI(bstri, compr_size(stri));
         bstri = NULL;

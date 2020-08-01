@@ -1,4 +1,4 @@
-# Makefile for gmake (for older gmake versions) and gcc from MinGW.
+# Makefile for gmake and gcc from MinGW. Commands executed by: cmd.exe
 # To compile use a windows console and call:
 #   gmake -f mk_mingw.mak depend
 #   gmake -f mk_mingw.mak

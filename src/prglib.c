@@ -575,6 +575,9 @@ listtype arguments;
   /* prg_value */
     isit_reference(arg_1(arguments));
     obj_arg = take_reference(arg_1(arguments));
-    isit_prog(obj_arg);
-    return(bld_prog_temp(take_prog(obj_arg)));
+    if (obj_arg == NULL || CATEGORY_OF_OBJ(obj_arg) != PROGOBJECT) {
+      return(raise_exception(SYS_RNG_EXCEPTION));
+    } else {
+      return(bld_prog_temp(take_prog(obj_arg)));
+    } /* if */
   } /* prg_value */

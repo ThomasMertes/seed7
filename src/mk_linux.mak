@@ -1,4 +1,4 @@
-# Makefile for linux/bsd/unix and gcc.
+# Makefile for linux/bsd/unix and gcc. Commands executed by: bash
 # To compile use a command shell and call:
 #   make -f mk_linux.mak depend
 #   make -f mk_linux.mak

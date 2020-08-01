@@ -739,8 +739,11 @@ listtype arguments;
   /* typ_value */
     isit_reference(arg_1(arguments));
     obj_arg = take_reference(arg_1(arguments));
-    isit_type(obj_arg);
-    return(obj_arg);
+    if (obj_arg == NULL || CATEGORY_OF_OBJ(obj_arg) != TYPEOBJECT) {
+      return(raise_exception(SYS_RNG_EXCEPTION));
+    } else {
+      return(obj_arg);
+    } /* if */
   } /* typ_value */
 
 

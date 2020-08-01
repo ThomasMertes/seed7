@@ -24,6 +24,7 @@
 
 $ include "seed7_05.s7i";
   include "scanfile.s7i";
+  include "scanstri.s7i";
   include "getf.s7i";
 
 
@@ -40,9 +41,10 @@ const proc: main is func
     directoryContent := read_dir(".");
     for fileName range directoryContent do
       if endsWith(fileName, ".sd7") then
+        write(literal(fileName) <& " ");
+        flush(OUT);
         inFile := open(fileName, "r");
         if inFile <> STD_NULL then
-          write(literal(fileName));
           processedFile := getWhiteSpace(inFile)[2 ..];
           currSymbol := getSymbolOrComment(inFile);
           while currSymbol <> "" do
@@ -56,6 +58,8 @@ const proc: main is func
             write(" *** Differ");
             putf(fileName & ".xxx", processedFile);
           end if;
+          write(".");
+          flush(OUT);
 
           seek(inFile, 1);
           processedFile := "";
@@ -79,9 +83,29 @@ const proc: main is func
             write(" ### Differ");
             putf(fileName & ".yyy", processedFile);
           end if;
-
-          writeln;
+          write(".");
+          flush(OUT);
+          close(inFile);
         end if;
+(*
+        originalFile := getf(fileName);
+        processedFile := getWhiteSpace(originalFile);
+        currSymbol := getSymbolOrComment(originalFile);
+        while currSymbol <> "" do
+          # writeln(literal(currSymbol));
+          processedFile &:= currSymbol;
+          processedFile &:= getWhiteSpace(originalFile);
+          currSymbol := getSymbolOrComment(originalFile);
+        end while;
+        originalFile := getf(fileName);
+        if processedFile <> originalFile then
+          write(" %%% Differ");
+          putf(fileName & ".zzz", processedFile);
+        end if;
+        write(".");
+        flush(OUT);
+*)
+        writeln;
       end if;
     end for;
   end func;

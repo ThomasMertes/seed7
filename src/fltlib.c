@@ -926,6 +926,9 @@ listtype arguments;
   /* flt_value */
     isit_reference(arg_1(arguments));
     obj_arg = take_reference(arg_1(arguments));
-    isit_float(obj_arg);
-    return(bld_float_temp(take_float(obj_arg)));
+    if (obj_arg == NULL || CATEGORY_OF_OBJ(obj_arg) != FLOATOBJECT) {
+      return(raise_exception(SYS_RNG_EXCEPTION));
+    } else {
+      return(bld_float_temp(take_float(obj_arg)));
+    } /* if */
   } /* flt_value */

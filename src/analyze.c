@@ -433,8 +433,10 @@ errinfotype *err_info;
         set_trace(option.comp_trace_level, -1, option.prot_file_name);
         decl_any(prog.declaration_root);
         if (SYS_MAIN_OBJECT == NULL) {
+          prog.error_count++;
           printf("*** System declaration for main missing\n");
         } else if (CATEGORY_OF_OBJ(SYS_MAIN_OBJECT) == FORWARDOBJECT) {
+          prog.error_count++;
           printf("*** Declaration for main missing\n");
         } else {
 /*          printf("main defined as: ");
@@ -449,16 +451,20 @@ errinfotype *err_info;
                   trace1(resultProg->main_object);
                   printf("\n"); */
                 } else {
+                  prog.error_count++;
                   printf("*** Main not callobject\n");
                 } /* if */
               } else {
-                printf("GET_ENTITY(SYS_MAIN_OBJECT)->objects->obj == NULL\n");
+                prog.error_count++;
+                printf("*** GET_ENTITY(SYS_MAIN_OBJECT)->objects->obj == NULL\n");
               } /* if */
             } else {
-              printf("GET_ENTITY(SYS_MAIN_OBJECT)->objects == NULL\n");
+              prog.error_count++;
+              printf("*** GET_ENTITY(SYS_MAIN_OBJECT)->objects == NULL\n");
             } /* if */
           } else {
-            printf("GET_ENTITY(SYS_MAIN_OBJECT) == NULL\n");
+            prog.error_count++;
+            printf("*** GET_ENTITY(SYS_MAIN_OBJECT) == NULL\n");
           } /* if */
         } /* if */
         /* close_stack(&prog); * can be used when no matching is done during the runtime */

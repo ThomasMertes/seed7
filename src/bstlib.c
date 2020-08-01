@@ -51,6 +51,111 @@
 
 #ifdef ANSI_C
 
+objecttype bst_append (listtype arguments)
+#else
+
+objecttype bst_append (arguments)
+listtype arguments;
+#endif
+
+  {
+    objecttype bstr_variable;
+    bstritype bstr_to;
+    bstritype bstr_from;
+    memsizetype new_size;
+
+  /* bst_append */
+    bstr_variable = arg_1(arguments);
+    isit_bstri(bstr_variable);
+    is_variable(bstr_variable);
+    bstr_to = take_bstri(bstr_variable);
+    isit_bstri(arg_3(arguments));
+    bstr_from = take_bstri(arg_3(arguments));
+/*
+    printf("bstr_to (%lx) %d = ", bstr_to, bstr_to->size);
+    prot_stri(bstr_to);
+    printf("\n");
+    printf("bstr_from (%lx) %d = ", bstr_from, bstr_from->size);
+    prot_stri(bstr_from);
+    printf("\n");
+*/
+    if (bstr_from->size != 0) {
+      new_size = bstr_to->size + bstr_from->size;
+      REALLOC_BSTRI(bstr_to, bstr_to, bstr_to->size, new_size);
+      if (bstr_to == NULL) {
+        return(raise_exception(SYS_MEM_EXCEPTION));
+      } /* if */
+      COUNT3_BSTRI(bstr_to->size, new_size);
+      bstr_variable->value.bstrivalue = bstr_to;
+      memcpy(&bstr_to->mem[bstr_to->size], bstr_from->mem,
+          (SIZE_TYPE) bstr_from->size * sizeof(uchartype));
+      bstr_to->size = new_size;
+/*
+      printf("new bstr_to (%lx) %d = ", bstr_to, bstr_to->size);
+      prot_stri(bstr_to);
+      printf("\n");
+      printf("new bstr_variable (%lx): ", take_stri(bstr_variable));
+      trace1(bstr_variable);
+      printf("\n");
+*/
+    } /* if */
+    return(SYS_EMPTY_OBJECT);
+  } /* bst_append */
+
+
+
+#ifdef ANSI_C
+
+objecttype bst_cat (listtype arguments)
+#else
+
+objecttype bst_cat (arguments)
+listtype arguments;
+#endif
+
+  {
+    bstritype bstr1;
+    bstritype bstr2;
+    memsizetype bstr1_size;
+    memsizetype result_size;
+    bstritype result;
+
+  /* bst_cat */
+    isit_bstri(arg_1(arguments));
+    isit_bstri(arg_3(arguments));
+    bstr1 = take_bstri(arg_1(arguments));
+    bstr2 = take_bstri(arg_3(arguments));
+    bstr1_size = bstr1->size;
+    result_size = bstr1_size + bstr2->size;
+    if (TEMP_OBJECT(arg_1(arguments))) {
+      REALLOC_BSTRI(result, bstr1, bstr1_size, result_size);
+      if (result == NULL) {
+        return(raise_exception(SYS_MEM_EXCEPTION));
+      } /* if */
+      COUNT3_STRI(bstr1_size, result_size);
+      result->size = result_size;
+      memcpy(&result->mem[bstr1_size], bstr2->mem,
+          (SIZE_TYPE) bstr2->size * sizeof(uchartype));
+      arg_1(arguments)->value.bstrivalue = NULL;
+      return(bld_bstri_temp(result));
+    } else {
+      if (!ALLOC_BSTRI(result, result_size)) {
+        return(raise_exception(SYS_MEM_EXCEPTION));
+      } else {
+        result->size = result_size;
+        memcpy(result->mem, bstr1->mem,
+            (SIZE_TYPE) bstr1_size * sizeof(uchartype));
+        memcpy(&result->mem[bstr1_size], bstr2->mem,
+            (SIZE_TYPE) bstr2->size * sizeof(uchartype));
+        return(bld_bstri_temp(result));
+      } /* if */
+    } /* if */
+  } /* bst_cat */
+
+
+
+#ifdef ANSI_C
+
 objecttype bst_cpy (listtype arguments)
 #else
 

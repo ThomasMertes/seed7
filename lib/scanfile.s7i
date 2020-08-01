@@ -380,7 +380,7 @@ const func string: getStringLiteral (inout file: inFile) is func
         repeat
           symbol &:= str(character);
           character := getc(inFile);
-        until character < ' ' or character > '~' or character = EOF;
+        until character >= ' ' or character <= '~' or character = EOF;
       end if;
     until not reading_string;
     inFile.bufferChar := character;

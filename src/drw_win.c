@@ -1592,6 +1592,34 @@ inttype col;
 
 #ifdef ANSI_C
 
+void drwConvPointList (bstritype pointList, inttype *xy)
+#else
+
+void drwConvPointList (pointList, xy)
+     bstritype pointList;
+inttype *xy;
+#endif
+
+  {
+    memsizetype len;
+    POINT *points;
+    memsizetype pos;
+
+  /* drwConvPointList */
+    len = pointList->size / sizeof(POINT);
+    if (len > 0) {
+      points = (POINT *) pointList->mem;
+      for (pos = 0; pos < len; pos ++) {
+        xy[pos << 1]       = points[pos].x;
+        xy[(pos << 1) + 1] = points[pos].y;
+      } /* for */
+    } /* if */
+  } /* drwConvPointList */
+
+
+
+#ifdef ANSI_C
+
 bstritype drwGenPointList (inttype *xy, inttype length)
 #else
 
@@ -1623,6 +1651,21 @@ inttype length;
     } /* if */
     return(result);
   } /* drwGenPointList */
+
+
+
+#ifdef ANSI_C
+
+inttype drwLngPointList (bstritype point_list)
+#else
+
+inttype drwLngPointList (point_list)
+bstritype point_list;
+#endif
+
+  { /* drwLngPointList */
+    return(point_list->size / sizeof(POINT));
+  } /* drwLngPointList */
 
 
 

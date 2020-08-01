@@ -880,16 +880,19 @@ listtype arguments;
   /* set_value */
     isit_reference(arg_1(arguments));
     obj_arg = take_reference(arg_1(arguments));
-    isit_set(obj_arg);
-    set1 = take_set(obj_arg);
-
-    set_size = set1->max_position - set1->min_position + 1;
-    if (!ALLOC_SET(result, set_size)) {
-      return(raise_exception(SYS_MEM_EXCEPTION));
+    if (obj_arg == NULL || CATEGORY_OF_OBJ(obj_arg) != SETOBJECT ||
+        take_set(obj_arg) == NULL) {
+      return(raise_exception(SYS_RNG_EXCEPTION));
     } else {
-      result->min_position = set1->min_position;
-      result->max_position = set1->max_position;
-      memcpy(result->bitset, set1->bitset, set_size * sizeof(bitsettype));
-      return(bld_set_temp(result));
+      set1 = take_set(obj_arg);
+      set_size = set1->max_position - set1->min_position + 1;
+      if (!ALLOC_SET(result, set_size)) {
+        return(raise_exception(SYS_MEM_EXCEPTION));
+      } else {
+        result->min_position = set1->min_position;
+        result->max_position = set1->max_position;
+        memcpy(result->bitset, set1->bitset, set_size * sizeof(bitsettype));
+        return(bld_set_temp(result));
+      } /* if */
     } /* if */
   } /* set_value */

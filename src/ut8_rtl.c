@@ -387,7 +387,7 @@ chartype *termination_char;
       while ((ch = getc(fil1)) != '\n' && ch != EOF) {
         if (position >= memlength) {
           newmemlength = memlength + 2048;
-          resized_buffer = REALLOC_BSTRI(buffer, memlength, newmemlength);
+          REALLOC_BSTRI(resized_buffer, buffer, memlength, newmemlength);
           if (resized_buffer == NULL) {
             FREE_BSTRI(buffer, memlength);
             raise_error(MEMORY_ERROR);
@@ -498,7 +498,7 @@ chartype *termination_char;
           ch != '\n' && ch != EOF) {
         if (position >= memlength) {
           newmemlength = memlength + 2048;
-          resized_buffer = REALLOC_BSTRI(buffer, memlength, newmemlength);
+          REALLOC_BSTRI(resized_buffer, buffer, memlength, newmemlength);
           if (resized_buffer == NULL) {
             FREE_BSTRI(buffer, memlength);
             raise_error(MEMORY_ERROR);

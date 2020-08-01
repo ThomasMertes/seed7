@@ -27,6 +27,8 @@
 
 #ifdef ANSI_C
 
+objecttype bst_append (listtype);
+objecttype bst_cat (listtype);
 objecttype bst_cpy (listtype);
 objecttype bst_create (listtype);
 objecttype bst_destr (listtype);
@@ -34,6 +36,8 @@ objecttype bst_empty (listtype);
 
 #else
 
+objecttype bst_append ();
+objecttype bst_cat ();
 objecttype bst_cpy ();
 objecttype bst_create ();
 objecttype bst_destr ();

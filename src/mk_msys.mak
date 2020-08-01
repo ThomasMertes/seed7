@@ -1,7 +1,8 @@
-# Makefile for gmake and gcc from MSYS (with MinGW).
+# Makefile for gmake and gcc from MinGW. Commands executed by: bash
 # To compile use a MSYS console and call:
 #   gmake -f mk_msys.mak depend
 #   gmake -f mk_msys.mak
+# It might also be possible to use this makefile from a windows console instead of the MSYS console.
 # If you do not have a MSYS console you could use a windows console together with mk_mingw.mak or mk_nmake.mak.
 
 # CFLAGS = -O2 -fomit-frame-pointer -funroll-loops -Wall

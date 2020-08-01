@@ -1,4 +1,4 @@
-# Makefile for gmake and gcc from Cygwin.
+# Makefile for gmake and gcc from Cygwin. Commands executed by: bash
 # To compile use a Cygwin console and call:
 #   gmake -f mk_cygw.mak depend
 #   gmake -f mk_cygw.mak

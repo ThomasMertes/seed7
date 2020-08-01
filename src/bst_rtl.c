@@ -47,6 +47,70 @@
 
 #ifdef ANSI_C
 
+void bstAppend (bstritype *const bstri_to, const const_bstritype bstri_from)
+#else
+
+void bstAppend (bstri_to, bstri_from)
+bstritype *bstri_to;
+bstritype bstri_from;
+#endif
+
+  {
+    memsizetype new_size;
+    bstritype bstri_dest;
+
+  /* bstAppend */
+    if (bstri_from->size != 0) {
+      bstri_dest = *bstri_to;
+      new_size = bstri_dest->size + bstri_from->size;
+      REALLOC_BSTRI(bstri_dest, bstri_dest, bstri_dest->size, new_size);
+      if (bstri_dest == NULL) {
+        raise_error(MEMORY_ERROR);
+        return;
+      } /* if */
+      COUNT3_BSTRI(bstri_dest->size, new_size);
+      memcpy(&bstri_dest->mem[bstri_dest->size], bstri_from->mem,
+          (SIZE_TYPE) bstri_from->size * sizeof(uchartype));
+      bstri_dest->size = new_size;
+      *bstri_to = bstri_dest;
+    } /* if */
+  } /* bstAppend */
+
+
+
+#ifdef ANSI_C
+
+bstritype bstCat (const const_bstritype bstri1, const const_bstritype bstri2)
+#else
+
+bstritype bstCat (stri1, stri2)
+bstritype stri1;
+bstritype stri2;
+#endif
+
+  {
+    memsizetype result_size;
+    bstritype result;
+
+  /* bstCat */
+    result_size = bstri1->size + bstri2->size;
+    if (!ALLOC_BSTRI(result, result_size)) {
+      raise_error(MEMORY_ERROR);
+      return(NULL);
+    } else {
+      result->size = result_size;
+      memcpy(result->mem, bstri1->mem,
+          (SIZE_TYPE) bstri1->size * sizeof(uchartype));
+      memcpy(&result->mem[bstri1->size], bstri2->mem,
+          (SIZE_TYPE) bstri2->size * sizeof(uchartype));
+      return(result);
+    } /* if */
+  } /* bstCat */
+
+
+
+#ifdef ANSI_C
+
 void bstCpy (bstritype *const bstri_to, const const_bstritype bstri_from)
 #else
 

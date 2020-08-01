@@ -24,22 +24,22 @@
 (*                                                                  *)
 (*  ABS, ASC, ATN, **BEEP, **CALL, CASE, CDBL, CHAIN, CHR$, CINT,   *)
 (*  **CIRCLE, CLEAR, CLOSE, CLS, **COLOR, **COMMON, CONST, COS,     *)
-(*  CSNG, CSRLIN, DATA, DATE$, **DECLARE, DECR, DEF FN, **DEF SEG,  *)
-(*  **DEFDBL, **DEFINT, **DEFSNG, DEFSTR, DIM, DO, DO UNTIL,        *)
-(*  DO WHILE, **DRAW, ELSE, ELSEIF, END, EOF, **ERASE, ERR, ERROR,  *)
-(*  EXIT DO, EXIT FOR, EXP, FIX, FOR, FREEFILE, GET, **GET#, GOSUB, *)
-(*  GOSUB OF, GOTO, GOTO OF, HEX$, IF, INCR, INKEY$, **INP, INPUT,  *)
-(*  INPUT#, INPUT$, INSTR, INT, **KEY, LCASE$, LEFT$, LEN, LET,     *)
-(*  LINE INPUT, LINE INPUT#, LOCATE, LOF, LOG, LOOP, LOOP UNTIL,    *)
-(*  LOOP WHILE, LTRIM$, MID$, NEXT, OCT$, ON ERROR, ON GOSUB,       *)
-(*  ON GOTO, **ON KEY, **ON TIMER, OPEN, OPTION BASE, **OUT,        *)
-(*  **PAINT, **PALETTE, **PEEK, **PLAY, **POINT, **POKE, POS,       *)
-(*  PRESET, PRINT, PRINT#, PRINT USING, PSET, PUT, **PUT#,          *)
-(*  RANDOMIZE, READ, REDIM, REM, RESET, RESTORE, RESUME, RETURN,    *)
-(*  RIGHT$, RND, RTRIM$, SCREEN, SEEK#, SELECT, SGN, SIN, SLEEP,    *)
-(*  **SOUND, SPACE$, SPC, SQR, STOP, STR$, **STRIG, STRING$, **SUB, *)
-(*  SWAP, SYSTEM, TAB, TAN, TIME$, TIMER, UCASE$, VAL, WEND, WHILE, *)
-(*  **WIDTH, WRITE, WRITE#                                          *)
+(*  CSNG, CSRLIN, CVI, DATA, DATE$, **DECLARE, DECR, DEF FN,        *)
+(*  **DEF SEG, **DEFDBL, **DEFINT, **DEFSNG, DEFSTR, DIM, DO,       *)
+(*  DO UNTIL, DO WHILE, **DRAW, ELSE, ELSEIF, END, EOF, **ERASE,    *)
+(*  ERR, ERROR, EXIT DO, EXIT FOR, EXP, FIX, FOR, FREEFILE, GET,    *)
+(*  GET#, GOSUB, GOSUB OF, GOTO, GOTO OF, HEX$, IF, INCR, INKEY$,   *)
+(*  **INP, INPUT, INPUT#, INPUT$, INSTR, INT, **KEY, LCASE$, LEFT$, *)
+(*  LEN, LET, LINE INPUT, LINE INPUT#, LOCATE, LOF, LOG, LOOP,      *)
+(*  LOOP UNTIL, LOOP WHILE, LSET, LTRIM$, MID$, MKI$, NEXT, OCT$,   *)
+(*  ON ERROR, ON GOSUB, ON GOTO, **ON KEY, **ON TIMER, OPEN,        *)
+(*  OPTION BASE, **OUT, **PAINT, **PALETTE, **PEEK, **PLAY,         *)
+(*  **POINT, **POKE, POS, PRESET, PRINT, PRINT#, PRINT USING, PSET, *)
+(*  PUT, PUT#, RANDOMIZE, READ, REDIM, REM, RESET, RESTORE, RESUME, *)
+(*  RETURN, RIGHT$, RND, RSET, RTRIM$, SCREEN, SEEK#, SELECT, SGN,  *)
+(*  SIN, SLEEP, **SOUND, SPACE$, SPC, SQR, STOP, STR$, **STRIG,     *)
+(*  STRING$, **SUB, SWAP, SYSTEM, TAB, TAN, TIME$, TIMER, UCASE$,   *)
+(*  VAL, WEND, WHILE, WRITE, WRITE#                                 *)
 (*                                                                  *)
 (********************************************************************)
 
@@ -121,6 +121,13 @@ var image_hash: image_var is image_hash.EMPTY_HASH;
 
 const type: file_array is array file;
 var file_array: file_value is 256 times STD_NULL;
+
+const type: reclen_array is array integer;
+var reclen_array: reclen_value is 256 times 0;
+
+const type: field_type is array string;
+const type: field_array is array field_type;
+var field_array: field_value is 256 times 0 times "";
 
 const type: forLoopDescrType is new struct
     var string: varName is "";
@@ -918,6 +925,7 @@ const proc: define_function (in var string: variable_name,
   local
     var string: param1 is "";
     var string: param2 is "";
+    var integer: func_end_pos is 0;
   begin
     symbol := get_symbol(line);
     if variable_name = "FN" and symbol[1] >= 'A' and symbol[1] <= 'Z' then
@@ -940,14 +948,11 @@ const proc: define_function (in var string: variable_name,
     end if;
     if symbol = "=" then
       param2 := line;
-      while symbol <> ":" and symbol <> "" do
+      repeat
+        func_end_pos := length(line);
         symbol := get_symbol(line);
-      end while;
-      if symbol = ":" then
-        param2 := param2[ .. length(param2) - length(line) - 1];
-      else
-        param2 := param2[ .. length(param2) - length(line)];
-      end if;
+      until endOfStatement(symbol);
+      param2 := param2[ .. length(param2) - func_end_pos];
       set_function(variable_name, param1, param2);
       if doLog then
         line_marker;
@@ -1575,6 +1580,18 @@ const func string: exec_str_primary (
       log << literal(result);
       log << NL;
       flush(log);
+    elsif symbol = "MKI$" then
+      symbol := get_symbol(line);
+      expect("(", symbol, line);
+      index1 := round(exec_expr(symbol, line));
+      expect(")", symbol, line);
+      result := str(chr(index1 mod 256)) & str(chr(index1 mdiv 256 mod 256));
+      log << "MKI$(";
+      log << index1;
+      log << ") -> ";
+      log << literal(result);
+      log << NL;
+      flush(log);
     elsif symbol[1] >= 'A' and symbol[1] <= 'Z' then
       if symbol not in def_fn_list then
         variable_name := get_name(symbol, line);
@@ -1959,7 +1976,8 @@ const func float: exec_primary (inout string: symbol, inout string: line) is fun
       result := flt(length(file_value[index1]));
       log << "LOF(";
       log << index1;
-      log << ")";
+      log << ") -> ";
+      log << result;
       log << NL;
       flush(log);
     elsif symbol = "POS" then
@@ -2121,6 +2139,31 @@ const func float: exec_primary (inout string: symbol, inout string: line) is fun
       log << result;
       log << NL;
       flush(log);
+    elsif symbol = "CVI" then
+      symbol := get_symbol(line);
+      expect("(", symbol, line);
+      stri1 := exec_str_expr(symbol, line, unused_name);
+      expect(")", symbol, line);
+      if length(stri1) = 2 then
+        if ord(stri1[2]) >= 128 then
+          result := flt(ord(stri1[1]) + ord(stri1[2]) * 256 - 65536); #  32768;
+        else
+          result := flt(ord(stri1[1]) + ord(stri1[2]) * 256);
+        end if;
+        log << "CVI(";
+        log << literal(stri1);
+        log << ") -> ";
+        log << result;
+        log << NL;
+        flush(log);
+      else
+        error_marker;
+        err << "CVI(";
+        err << literal(stri1);
+        err << ") IS ILLEGAL.";
+        err << NL;
+        result := 0.0;
+      end if;
     elsif symbol = "FREEFILE" then
       symbol := get_symbol(line);
       index1 := 1;
@@ -2299,7 +2342,7 @@ const func float: exec_comparison (inout string: symbol, inout string: line) is 
         symbol <> "TIMER"  and symbol <> "CDBL"   and symbol <> "CSNG"   and
         symbol <> "PEEK"   and symbol <> "INP"    and symbol <> "SCREEN" and
         symbol <> "POINT"  and symbol <> "ERR"    and symbol <> "STRIG"  and
-        symbol <> "FREEFILE" then
+        symbol <> "CVI"    and symbol <> "FREEFILE" then
       stri1 := exec_str_expr(symbol, line, unused_name);
       if symbol = "=" or symbol = "<>" or
           symbol = "<" or symbol = ">" or
@@ -3213,6 +3256,8 @@ const proc: exec_mid_statement (inout string: symbol, inout string: line) is fun
     var string: stri is "";
     var integer: position is 0;
     var integer: length is 0;
+    var integer: requested_length is 0;
+    var boolean: with_length is FALSE;
   begin
     symbol := get_symbol(line);
     expect("(", symbol, line);
@@ -3220,15 +3265,11 @@ const proc: exec_mid_statement (inout string: symbol, inout string: line) is fun
       variable_name := get_name(symbol, line);
       expect(",", symbol, line);
       position := round(exec_expr(symbol, line));
-      log << "MID$(";
-      log << variable_name;
-      log << ", ";
-      log << position;
       if symbol = "," then
+        with_length := TRUE;
         symbol := get_symbol(line);
-        length := round(exec_expr(symbol, line));
-        log << ", ";
-        log << length;
+        requested_length := round(exec_expr(symbol, line));
+        length := requested_length;
         expect(")", symbol, line);
         expect("=", symbol, line);
         stri := exec_str_expr(symbol, line, unused_name);
@@ -3249,8 +3290,18 @@ const proc: exec_mid_statement (inout string: symbol, inout string: line) is fun
         var_value := var_value[ .. pred(position)] & stri[ .. length] &
             var_value[position + length ..];
         setStringVar(variable_name, var_value);
+        log << "MID$(";
+        log << variable_name;
+        log << ", ";
+        log << position;
+        if with_length then
+          log << ", ";
+          log << requested_length;
+        end if;
         log << ")=";
         log << literal(stri);
+        log << NL;
+        flush(log);
       else
         error_marker;
         err << "MID$ POSITION ";
@@ -4587,6 +4638,8 @@ const func file: basicOpen (in var string: filePath, in string: access) is func
         if foundElement <> "" and not foundTwice and
             file_type(path & "/" & foundElement) <> FILE_UNKNOWN then
           path &:= "/" & foundElement;
+        elsif access[1 len 1] <> "r" then
+          path &:= "/" & pathElems[number];
         else
           path_okay := FALSE;
         end if;
@@ -4605,6 +4658,8 @@ const proc: exec_open (inout string: symbol, inout string: line) is func
     var string: unused_name is "";
     var string: param1 is "";
     var string: param2 is "";
+    var string: param_for is "";
+    var string: param_access is "";
     var string: mode is "";
     var string: file_name is "";
     var integer: index1 is 0;
@@ -4613,32 +4668,39 @@ const proc: exec_open (inout string: symbol, inout string: line) is func
     symbol := get_symbol(line);
     param1 := exec_str_expr(symbol, line, unused_name);
     if symbol = "FOR" then
-      param2 := get_symbol(line);
-      if param2 = "INPUT" then
+      param_for := get_symbol(line);
+      if param_for = "INPUT" then
         mode := "r";
-      elsif param2 = "OUTPUT" then
+      elsif param_for = "OUTPUT" then
         mode := "w";
-      elsif param2 = "APPEND" then
+      elsif param_for = "APPEND" then
         mode := "a";
-      elsif param2 = "RANDOM" then
+      elsif param_for = "RANDOM" then
         mode := "r+";
-      elsif param2 = "BINARY" then
+      elsif param_for = "BINARY" then
         mode := "r+";
       else
         mode := "r";
         error_marker;
         err << "ILLEGAL - OPEN FOR ";
-        err << param2;
+        err << param_for;
         err << NL;
       end if;
       symbol := get_symbol(line);
+    else
+      mode := "r+";
     end if;
     if symbol = "ACCESS" then
       symbol := get_symbol(line);
       if symbol = "READ" then
+        param_access := symbol;
         symbol := get_symbol(line);
       end if;
       if symbol = "WRITE" then
+        if param_access <> "" then
+          param_access &:= " ";
+        end if;
+        param_access &:= symbol;
         symbol := get_symbol(line);
       end if;
     end if;
@@ -4666,14 +4728,32 @@ const proc: exec_open (inout string: symbol, inout string: line) is func
       if symbol = "LEN" then
         symbol := get_symbol(line);
         index2 := round(exec_expr(symbol, line));
+        reclen_value[index1] := index2;
+      else
+        reclen_value[index1] := 0;
       end if;
       file_name := param1;
       file_value[index1] := basicOpen(file_name, mode);
+      if file_value[index1] = STD_NULL and param_access = "" and
+          (param_for = "" or param_for = "RANDOM" or param_for = "BINARY") then
+        mode := "w";
+        file_value[index1] := basicOpen(file_name, mode);
+        if file_value[index1] = STD_NULL then
+          mode := "r";
+          file_value[index1] := basicOpen(file_name, mode);
+        end if;
+      end if;
       line_marker;
       log << "OPEN ";
       log << param1;
-      log << " FOR ";
-      log << param2;
+      if param_for <> "" then
+        log << " FOR ";
+        log << param_for;
+      end if;
+      if param_access <> "" then
+        log << " ACCESS ";
+        log << param_access;
+      end if;
       log << " AS #";
       log << index1;
       log << " - open(";
@@ -4750,6 +4830,292 @@ const proc: exec_open (inout string: symbol, inout string: line) is func
         err << NL;
       end if;
     end if;
+  end func;
+
+
+const proc: exec_file_put (inout string: symbol, inout string: line) is func
+  local
+    var integer: file_number is 0;
+    var integer: position is 0;
+    var boolean: with_position is FALSE;
+    var string: variable_name is "";
+    var string: field is "";
+  begin
+    if symbol = "#" then
+      symbol := get_symbol(line);
+    end if;
+    file_number := round(exec_expr(symbol, line));
+    if file_value[file_number] <> STD_NULL then
+      if symbol = "," then
+        symbol := get_symbol(line);
+        if symbol = "," then
+          symbol := get_symbol(line);
+          if symbol <> "," and not endOfStatement(symbol) then
+            position := round(exec_expr(symbol, line));
+            with_position := TRUE;
+          end if;
+          if symbol = "," then
+            symbol := get_symbol(line);
+            if isStringVar(symbol) then
+              variable_name := get_name(symbol, line);
+            end if;
+          end if;
+        end if;
+      end if;
+      if with_position then
+        if reclen_value[file_number] <> 0 then
+          seek(file_value[file_number], position * reclen_value[file_number]);
+        else
+          error_marker;
+          err << "FILE #";
+          err << file_number;
+          err << " HAS NO RECORD LENGTH SPECIFIED.";
+          err << NL;
+        end if;
+      end if;
+      if variable_name = "" then
+        for field range field_value[file_number] do
+          write(file_value[file_number], getStringVar(field));
+        end for;
+      else
+        write(file_value[file_number], getStringVar(variable_name));
+      end if;
+      line_marker;
+      log << "PUT #";
+      log << file_number;
+      log << ", ";
+      if with_position then
+        log << position;
+      end if;
+      if variable_name = "" then
+        for field range field_value[file_number] do
+          log << ", ";
+          log << field;
+          log << "=";
+          log << literal(getStringVar(field));
+        end for;
+      else
+        log << ", ";
+        log << variable_name;
+        log << "=";
+        log << literal(getStringVar(variable_name));
+      end if;
+      log << NL;
+      while not endOfStatement(symbol) do
+        symbol := get_symbol(line);
+      end while
+    else
+      error_marker;
+      err << "FILE #";
+      err << file_number;
+      err << " NOT OPEN IN PUT.";
+      err << NL;
+    end if;
+  end func;
+
+
+const proc: exec_file_get (inout string: symbol, inout string: line) is func
+  local
+    var integer: file_number is 0;
+    var integer: position is 0;
+    var boolean: with_position is FALSE;
+    var string: variable_name is "";
+    var string: field is "";
+  begin
+    if symbol = "#" then
+      symbol := get_symbol(line);
+    end if;
+    file_number := round(exec_expr(symbol, line));
+    if file_value[file_number] <> STD_NULL then
+      if symbol = "," then
+        symbol := get_symbol(line);
+        if symbol = "," then
+          symbol := get_symbol(line);
+          if symbol <> "," and not endOfStatement(symbol) then
+            position := round(exec_expr(symbol, line));
+            with_position := TRUE;
+          end if;
+          if symbol = "," then
+            symbol := get_symbol(line);
+            if isStringVar(symbol) then
+              variable_name := get_name(symbol, line);
+            end if;
+          end if;
+        end if;
+      end if;
+      if with_position then
+        if reclen_value[file_number] <> 0 then
+          seek(file_value[file_number], position * reclen_value[file_number]);
+        else
+          error_marker;
+          err << "FILE #";
+          err << file_number;
+          err << " HAS NO RECORD LENGTH SPECIFIED.";
+          err << NL;
+        end if;
+      end if;
+      if variable_name = "" then
+        for field range field_value[file_number] do
+          setStringVar(field, gets(file_value[file_number], length(getStringVar(field))));
+        end for;
+      else
+        setStringVar(variable_name, gets(file_value[file_number], length(getStringVar(variable_name))));
+      end if;
+      line_marker;
+      log << "GET #";
+      log << file_number;
+      log << ", ";
+      if with_position then
+        log << position;
+      end if;
+      if variable_name = "" then
+        for field range field_value[file_number] do
+          log << ", ";
+          log << field;
+          log << "=";
+          log << literal(getStringVar(field));
+        end for;
+      else
+        log << ", ";
+        log << variable_name;
+        log << "=";
+        log << literal(getStringVar(variable_name));
+      end if;
+      log << NL;
+      while not endOfStatement(symbol) do
+        symbol := get_symbol(line);
+      end while
+    else
+      error_marker;
+      err << "FILE #";
+      err << file_number;
+      err << " NOT OPEN IN GET.";
+      err << NL;
+    end if;
+  end func;
+
+
+const proc: exec_defint (inout string: symbol, inout string: line) is func
+  local
+    var string: param1 is "";
+    var string: param2 is "";
+    var char: ch1 is ' ';
+    var boolean: okay is FALSE;
+  begin
+    symbol := get_symbol(line);
+    okay := FALSE;
+    repeat
+      if length(symbol) = 1 and symbol >= "A" and symbol <= "Z" then
+        param1 := symbol;
+        symbol := get_symbol(line);
+        if symbol = "-" then
+          symbol := get_symbol(line);
+          if length(symbol) = 1 and symbol >= param1 and symbol <= "Z" then
+            param2 := symbol;
+            symbol := get_symbol(line);
+            for ch1 range param1[1] to param2[1] do
+              excl(defstr_any, ch1);
+              excl(defstr_var, ch1);
+            end for;
+            line_marker;
+            log << "DEFINT ";
+            log << param1;
+            log << "-";
+            log << param2;
+            log << NL;
+            flush(log);
+          else
+            error_marker;
+            err << "ILLEGAL DEFINT ";
+            err << param1;
+            err << "-";
+            err << symbol;
+            err << NL;
+          end if;
+        else
+          excl(defstr_any, param1[1]);
+          excl(defstr_var, param1[1]);
+          line_marker;
+          log << "DEFINT ";
+          log << param1;
+          log << NL;
+          flush(log);
+        end if;
+      else
+        error_marker;
+        err << "ILLEGAL DEFINT ";
+        err << symbol;
+        err << NL;
+      end if;
+      if symbol = "," then
+        symbol := get_symbol(line);
+      else
+        okay := TRUE;
+      end if;
+    until okay;
+  end func;
+
+
+const proc: exec_defstr (inout string: symbol, inout string: line) is func
+  local
+    var string: param1 is "";
+    var string: param2 is "";
+    var char: ch1 is ' ';
+    var boolean: okay is FALSE;
+  begin
+    symbol := get_symbol(line);
+    defstr_any := {'\"'};
+    defstr_var := (set of char).EMPTY_SET;
+    okay := FALSE;
+    repeat
+      if length(symbol) = 1 and symbol >= "A" and symbol <= "Z" then
+        param1 := symbol;
+        symbol := get_symbol(line);
+        if symbol = "-" then
+          symbol := get_symbol(line);
+          if length(symbol) = 1 and symbol >= param1 and symbol <= "Z" then
+            param2 := symbol;
+            symbol := get_symbol(line);
+            for ch1 range param1[1] to param2[1] do
+              incl(defstr_any, ch1);
+              incl(defstr_var, ch1);
+            end for;
+            line_marker;
+            log << "DEFSTR ";
+            log << param1;
+            log << "-";
+            log << param2;
+            log << NL;
+            flush(log);
+          else
+            error_marker;
+            err << "ILLEGAL DEFSTR ";
+            err << param1;
+            err << "-";
+            err << symbol;
+            err << NL;
+          end if;
+        else
+          incl(defstr_any, param1[1]);
+          incl(defstr_var, param1[1]);
+          line_marker;
+          log << "DEFSTR ";
+          log << param1;
+          log << NL;
+          flush(log);
+        end if;
+      else
+        error_marker;
+        err << "ILLEGAL DEFSTR ";
+        err << symbol;
+        err << NL;
+      end if;
+      if symbol = "," then
+        symbol := get_symbol(line);
+      else
+        okay := TRUE;
+      end if;
+    until okay;
   end func;
 
 
@@ -4939,6 +5305,7 @@ const proc: exec_line (inout string: symbol, inout string: line) is func
     var integer: x1 is 0;
     var integer: y1 is 0;
     var integer: col is 0;
+    var integer: style is 0;
   begin
     if symbol = "STEP" then
       symbol := get_symbol(line);
@@ -4980,6 +5347,10 @@ const proc: exec_line (inout string: symbol, inout string: line) is func
       if symbol = "," then
         param1 := get_symbol(line);
         symbol := get_symbol(line);
+      end if;
+      if symbol = "," then
+        symbol := get_symbol(line);
+        style := round(exec_expr(symbol, line));
       end if;
     end if;
     if param1 = "BF" then
@@ -5381,7 +5752,6 @@ const func boolean: exec_cmd (inout string: symbol, inout string: line) is func
     var integer: index2 is 0;
     var boolean: okay is FALSE;
     var boolean: process_next is FALSE;
-    var char: ch1 is ' ';
   begin
     # log << literal(symbol) <& '\n';
     repeat
@@ -6175,28 +6545,10 @@ const func boolean: exec_cmd (inout string: symbol, inout string: line) is func
         else
           symbol := get_symbol(line);
         end if;
-        if symbol = "#" then
-          symbol := get_symbol(line);
-          index1 := round(exec_expr(symbol, line));
-          if file_value[index1] <> STD_NULL then
-            line_marker;
-            log << "**PUT ";
-            log << symbol;
-            log << ",";
-            log << line;
-            log << NL;
-            while not endOfStatement(symbol) do
-              symbol := get_symbol(line);
-            end while
-          else
-            error_marker;
-            err << "FILE #";
-            err << index1;
-            err << " NOT OPEN IN PUT.";
-            err << NL;
-          end if;
-        else
+        if symbol = "(" or symbol = "STEP" then
           exec_put(symbol, line);
+        else
+          exec_file_put(symbol, line);
         end if;
       elsif symbol = "GET" or symbol = "GET#" then
         if symbol = "GET#" then
@@ -6204,29 +6556,45 @@ const func boolean: exec_cmd (inout string: symbol, inout string: line) is func
         else
           symbol := get_symbol(line);
         end if;
-        if symbol = "#" then
+        if symbol = "(" or symbol = "STEP" then
+          exec_get(symbol, line);
+        else
+          exec_file_get(symbol, line);
+        end if;
+      elsif symbol = "FIELD" or symbol = "FIELD#" then
+        if symbol = "FIELD#" then
           symbol := get_symbol(line);
-          index1 := round(exec_expr(symbol, line));
-          if file_value[index1] <> STD_NULL then
-            line_marker;
-            log << "**GET ";
-            log << symbol;
-            log << ",";
-            log << line;
+        else
+          symbol := get_symbol(line);
+          if symbol = "#" then
+            symbol := get_symbol(line);
+          end if;
+        end if;
+        index1 := round(exec_expr(symbol, line));
+        field_value[index1] := 0 times "";
+        while symbol = "," do
+          symbol := get_symbol(line);
+          index2 := round(exec_expr(symbol, line));
+          expect("AS", symbol, line);
+          if isStringVar(symbol) then
+            variable_name := get_name(symbol, line);
+            setStringVar(variable_name, "" lpad index2);
+            field_value[index1] &:= [] (variable_name);
+            log << "FIELD #";
+            log << index1;
+            log << ", ";
+            log << index2;
+            log << " AS ";
+            log << variable_name;
             log << NL;
-            while not endOfStatement(symbol) do
-              symbol := get_symbol(line);
-            end while
           else
             error_marker;
-            err << "FILE #";
-            err << index1;
-            err << " NOT OPEN IN GET.";
+            err << "STRING VARIABLE EXPECTED AS FIELD - FOUND";
+            err << literal(symbol);
+            err << ".";
             err << NL;
           end if;
-        else
-          exec_get(symbol, line);
-        end if;
+        end while;
       elsif symbol = "SEEK" or symbol = "SEEK#" then
         if symbol = "SEEK#" then
           symbol := get_symbol(line);
@@ -6454,14 +6822,7 @@ const func boolean: exec_cmd (inout string: symbol, inout string: line) is func
         log << NL;
         flush(log);
       elsif symbol = "DEFINT" then
-        line_marker;
-        log << "**DEFINT ";
-        log << line;
-        log << NL;
-        flush(log);
-        repeat
-          symbol := get_symbol(line);
-        until endOfStatement(symbol);
+        exec_defint(symbol, line);
       elsif symbol = "DEFDBL" then
         line_marker;
         log << "**DEFDBL ";
@@ -6481,59 +6842,7 @@ const func boolean: exec_cmd (inout string: symbol, inout string: line) is func
           symbol := get_symbol(line);
         until endOfStatement(symbol);
       elsif symbol = "DEFSTR" then
-        symbol := get_symbol(line);
-        defstr_any := {'\"'};
-        defstr_var := (set of char).EMPTY_SET;
-        okay := FALSE;
-        repeat
-          if length(symbol) = 1 and symbol >= "A" and symbol <= "Z" then
-            param1 := symbol;
-            symbol := get_symbol(line);
-            if symbol = "-" then
-              symbol := get_symbol(line);
-              if length(symbol) = 1 and symbol >= param1 and symbol <= "Z" then
-                param2 := symbol;
-                symbol := get_symbol(line);
-                for ch1 range param1[1] to param2[1] do
-                  incl(defstr_any, ch1);
-                  incl(defstr_var, ch1);
-                end for;
-                line_marker;
-                log << "DEFSTR ";
-                log << param1;
-                log << "-";
-                log << param2;
-                log << NL;
-                flush(log);
-              else
-                error_marker;
-                err << "ILLEGAL DEFSTR ";
-                err << param1;
-                err << "-";
-                err << symbol;
-                err << NL;
-              end if;
-            else
-              incl(defstr_any, param1[1]);
-              incl(defstr_var, param1[1]);
-              line_marker;
-              log << "DEFSTR ";
-              log << param1;
-              log << NL;
-              flush(log);
-            end if;
-          else
-            error_marker;
-            err << "ILLEGAL DEFSTR ";
-            err << symbol;
-            err << NL;
-          end if;
-          if symbol = "," then
-            symbol := get_symbol(line);
-          else
-            okay := TRUE;
-          end if;
-        until okay;
+        exec_defstr(symbol, line);
       elsif symbol = "OPEN" then
         exec_open(symbol, line);
       elsif symbol = "CLOSE" or symbol = "CLOSE#" then
@@ -6973,6 +7282,80 @@ const func boolean: exec_cmd (inout string: symbol, inout string: line) is func
         end if;
       elsif symbol = "MID$" then
         exec_mid_statement(symbol, line);
+      elsif symbol = "LSET" then
+        symbol := get_symbol(line);
+        if isStringVar(symbol) then
+          variable_name := get_name(symbol, line);
+          if symbol = "=" then
+            symbol := get_symbol(line);
+            param3 := exec_str_expr(symbol, line, unused_name);
+            index1 := length(getStringVar(variable_name));
+            if length(param3) <= index1 then
+              param3 := param3 rpad index1;
+            else
+              param3 := param3[.. index1];
+            end if;
+            setStringVar(variable_name, param3);
+            line_marker;
+            log << "LSET ";
+            log << variable_name;
+            log << "=";
+            log << literal(param3);
+            log << NL;
+            flush(log);
+          else
+            error_marker;
+            err << "\"=\" EXPECTED AFTER \"LSET ";
+            err << variable_name;
+            err << "\" - FOUND ";
+            err << literal(symbol);
+            err << ".";
+            err << NL;
+          end if;
+        else
+          error_marker;
+          err << "STRING VARIABLE EXPECTED AFTER LSET - FOUND";
+          err << literal(symbol);
+          err << ".";
+          err << NL;
+        end if;
+      elsif symbol = "RSET" then
+        symbol := get_symbol(line);
+        if isStringVar(symbol) then
+          variable_name := get_name(symbol, line);
+          if symbol = "=" then
+            symbol := get_symbol(line);
+            param3 := exec_str_expr(symbol, line, unused_name);
+            index1 := length(getStringVar(variable_name));
+            if length(param3) <= index1 then
+              param3 := param3 lpad index1;
+            else
+              param3 := param3[.. index1];
+            end if;
+            setStringVar(variable_name, param3);
+            line_marker;
+            log << "RSET ";
+            log << variable_name;
+            log << "=";
+            log << literal(param3);
+            log << NL;
+            flush(log);
+          else
+            error_marker;
+            err << "\"=\" EXPECTED AFTER \"RSET ";
+            err << variable_name;
+            err << "\" - FOUND ";
+            err << literal(symbol);
+            err << ".";
+            err << NL;
+          end if;
+        else
+          error_marker;
+          err << "STRING VARIABLE EXPECTED AFTER RSET - FOUND";
+          err << literal(symbol);
+          err << ".";
+          err << NL;
+        end if;
       elsif symbol = "INCR" then
         symbol := get_symbol(line);
         if symbol = "=" or symbol = "("  or symbol = "[" then
@@ -7458,29 +7841,48 @@ const func boolean: load_prog (in string: name) is func
 
 
 const proc: main is func
+  local
+    var array string: arg_v is 0 times "";
+    var integer: fileNameIndex is 1;
+    var boolean: doPauseAtEnd is FALSE;
   begin
-    if length(argv(PROGRAM)) >= 1 then
-      log := open("bas7.log", "w");
-      if log = STD_NULL then
-        writeln(" ***** Could not open log file.");
+    arg_v := argv(PROGRAM);
+    if length(arg_v) >= 1 then
+      if arg_v[1] = "-p" then
+        doPauseAtEnd := TRUE;
+        incr(fileNameIndex);
       end if;
-      err := log;
-      if load_prog(argv(PROGRAM)[1]) then
-        log << "load_prog finished";
-        log << NL;
-        # list_prog;
-        scr := open(SCREEN);
-        cursor(scr, TRUE);
-        win := open_window(scr, 1, 1, 35, 150);
-        OUT := win;
-        IN := KEYBOARD;
-        IN := open_echo(IN, OUT);
-        IN := open_line(IN);
-        run_prog;
-      else
-        write(" ***** FILE ");
-        write(literal(argv(PROGRAM)[1]));
-        writeln(" NOT FOUND.");
+      if length(arg_v) >= fileNameIndex then
+        log := open("bas7.log", "w");
+        if log = STD_NULL then
+          writeln(" ***** Could not open log file.");
+        end if;
+        err := log;
+        if load_prog(arg_v[fileNameIndex]) then
+          log << "load_prog finished";
+          log << NL;
+          # list_prog;
+          scr := open(SCREEN);
+          cursor(scr, TRUE);
+          win := open_window(scr, 1, 1, 35, 150);
+          OUT := win;
+          IN := KEYBOARD;
+          IN := open_echo(IN, OUT);
+          IN := open_line(IN);
+          run_prog;
+          if doPauseAtEnd then
+            writeln("=== Program finished ===");
+            write("Press return to continue ");
+            readln(KEYBOARD);
+          end if;
+        else
+          write(" ***** FILE ");
+          write(literal(arg_v[fileNameIndex]));
+          writeln(" NOT FOUND.");
+        end if;
       end if;
+    else
+      writeln("usage: bas7 [options] basic_program");
+      writeln("options: -p  Ask for a prompt at the end of the program");
     end if;
   end func;
