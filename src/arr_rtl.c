@@ -38,6 +38,9 @@
 /*                                                                  */
 /********************************************************************/
 
+#define LOG_FUNCTIONS 0
+#define VERBOSE_EXCEPTIONS 0
+
 #include "version.h"
 
 #include "stdlib.h"
@@ -129,6 +132,9 @@ static striType getProgramName (const const_striType arg_0)
     striType program_name;
 
   /* getProgramName */
+    logFunction(printf("getProgramName(\"%s\")",
+                       striAsUnquotedCStri(arg_0));
+                fflush(stdout););
     name_len = arg_0->size;
 #ifdef EXECUTABLE_FILE_EXTENSION
     exeExtension = cstri8_or_cstri_to_stri(EXECUTABLE_FILE_EXTENSION);
@@ -146,6 +152,8 @@ static striType getProgramName (const const_striType arg_0)
       memcpy(program_name->mem, &arg_0->mem[lastSlashPos],
           name_len * sizeof(strElemType));
     } /* if */
+    logFunction(printf(" --> \"%s\"\n",
+                       striAsUnquotedCStri(program_name)););
     return program_name;
   } /* getProgramName */
 
@@ -165,8 +173,10 @@ static rtlArrayType copyArgv (const int argc, const os_striType *const argv)
     striType stri;
 
   /* copyArgv */
-    /* printf("copyArgv(%d)\n", argc); */
+    logFunction(printf("copyArgv(%d, ...)\n", argc););
     if (unlikely(argc < 0)) {
+      logError(printf("copyArgv(%d, ...): Argc is negative.\n",
+                      argc););
       raise_error(RANGE_ERROR);
       arg_v = NULL;
     } else {
@@ -187,6 +197,10 @@ static rtlArrayType copyArgv (const int argc, const os_striType *const argv)
               FREE_STRI(stri, stri->size);
             } /* while */
             FREE_RTL_ARRAY(arg_v, arg_c);
+            logError(printf("copyArgv(%d, ...): "
+                            "os_stri_to_stri(\"" FMT_S_OS "\", *) failed:\n"
+                            "err_info=%d\n",
+                            argc, argv[number], err_info););
             raise_error(err_info);
             arg_v = NULL;
             number = arg_c; /* leave for-loop */
@@ -224,12 +238,20 @@ rtlArrayType getArgv (const int argc, const wstriType *const argv,
 #ifdef EMULATE_ROOT_CWD
     initEmulatedCwd(&err_info);
     if (err_info != OKAY_NO_ERROR) {
+      logError(printf("getArgv(%d, ...): initEmulatedCwd(*) failed:\n"
+                      "err_info=%d\n",
+                      argc, err_info););
       raise_error(err_info);
       arg_v = NULL;
     } else {
 #endif
       arg_0_temp = cp_from_os_path(argv[0], &err_info);
-      if (arg_0_temp != NULL) {
+      if (arg_0_temp == NULL) {
+        logError(printf("getArgv(%d, ...): "
+                        "cp_from_os_path(\"%ls\", *) failed:\n"
+                        "err_info=%d\n",
+                        argc, argv[0], err_info););
+      } else { 
         if (exePath != NULL) {
           *exePath = getExecutablePath(arg_0_temp);
           if (*exePath == NULL) {
@@ -278,6 +300,9 @@ rtlArrayType getArgv (const int argc, const cstriType *const argv,
 #ifdef EMULATE_ROOT_CWD
     initEmulatedCwd(&err_info);
     if (err_info != OKAY_NO_ERROR) {
+      logError(printf("getArgv(%d, ...): initEmulatedCwd(*) failed:\n"
+                      "err_info=%d\n",
+                      argc, err_info););
       raise_error(err_info);
       arg_v = NULL;
     } else {
@@ -288,7 +313,12 @@ rtlArrayType getArgv (const int argc, const cstriType *const argv,
         arg_v = NULL;
       } else {
         arg_0_temp = cp_from_os_path(w_argv[0], &err_info);
-        if (arg_0_temp != NULL) {
+        if (arg_0_temp == NULL) {
+          logError(printf("getArgv(%d, ...): "
+                          "cp_from_os_path(\"" FMT_S_OS "\", *) failed:\n"
+                          "err_info=%d\n",
+                          argc, w_argv[0], err_info););
+        } else {
           if (exePath != NULL) {
             *exePath = getExecutablePath(arg_0_temp);
             if (*exePath == NULL) {
@@ -337,12 +367,20 @@ rtlArrayType getArgv (const int argc, const cstriType *const argv,
 #ifdef EMULATE_ROOT_CWD
     initEmulatedCwd(&err_info);
     if (err_info != OKAY_NO_ERROR) {
+      logError(printf("getArgv(%d, ...): initEmulatedCwd(*) failed:\n"
+                      "err_info=%d\n",
+                      argc, err_info););
       raise_error(err_info);
       arg_v = NULL;
     } else {
 #endif
       arg_0_temp = cp_from_os_path(argv[0], &err_info);
-      if (arg_0_temp != NULL) {
+      if (arg_0_temp == NULL) {
+        logError(printf("getArgv(%d, ...): "
+                        "cp_from_os_path(\"%s\", *) failed:\n"
+                        "err_info=%d\n",
+                        argc, argv[0], err_info););
+      } else {
         if (exePath != NULL) {
           *exePath = getExecutablePath(arg_0_temp);
           if (*exePath == NULL) {
@@ -388,7 +426,7 @@ striType examineSearchPath (const const_striType fileName)
     striType result;
 
   /* examineSearchPath */
-    /* printf("examineSearchPath\n"); */
+    logFunction(printf("examineSearchPath\n"););
     result = NULL;
     searchPath = cmdGetSearchPath();
     if (searchPath != NULL) {
@@ -411,9 +449,8 @@ striType examineSearchPath (const const_striType fileName)
       } /* for */
       FREE_RTL_ARRAY(searchPath, searchPathSize);
     } /* if */
-    /* printf("examineSearchPath --> ");
-       prot_stri(result);
-       printf("\n"); */
+    logFunction(printf("examineSearchPath --> \"%s\"\n",
+                       striAsUnquotedCStri(result)););
     return result;
   } /* examineSearchPath */
 #endif
@@ -470,6 +507,9 @@ rtlArrayType arrArrlit2 (intType start_position, rtlArrayType arr1)
     if (start_position < MIN_MEM_INDEX || start_position > MAX_MEM_INDEX ||
         (result_size != 0 && start_position > (intType) (MAX_MEM_INDEX - result_size + 1)) ||
         (result_size == 0 && start_position == MIN_MEM_INDEX)) {
+      logError(printf("arrArrlit2(" FMT_D ", arr1 (size=" FMT_U_MEM ")): "
+                      "Minimal or maximal index out of range.\n",
+                      start_position, result_size););
       raise_error(RANGE_ERROR);
       arr1 = NULL;
     } else {
@@ -649,6 +689,9 @@ rtlArrayType arrHead (const const_rtlArrayType arr1, intType stop)
             (size_t) (result_size * sizeof(rtlObjectType)));
       } /* if */
     } else if (arr1->min_position == MIN_MEM_INDEX) {
+      logError(printf("arrHead(arr1 (size=" FMT_U_MEM "), " FMT_D "): "
+                      "Cannot create empty array with minimal index.\n",
+                      length, stop););
       raise_error(RANGE_ERROR);
       result = NULL;
     } else {
@@ -709,6 +752,9 @@ rtlArrayType arrHeadTemp (rtlArrayType *arr_temp, intType stop)
         } /* if */
       } /* if */
     } else if (arr1->min_position == MIN_MEM_INDEX) {
+      logError(printf("arrHeadTemp(arr1 (size=" FMT_U_MEM "), " FMT_D "): "
+                      "Cannot create empty array with minimal index.\n",
+                      length, stop););
       raise_error(RANGE_ERROR);
       result = NULL;
     } else {
@@ -759,6 +805,9 @@ genericType arrIdxTemp (rtlArrayType *arr_temp, intType position)
         *arr_temp = resized_arr1;
       } /* if */
     } else {
+      logError(printf("arrIdxTemp(arr1, " FMT_D "): "
+                      "Index out of range (" FMT_D " .. " FMT_D ").\n",
+                      position, arr1->min_position, arr1->max_position););
       raise_error(RANGE_ERROR);
       result = 0;
     } /* if */
@@ -863,6 +912,9 @@ rtlArrayType arrRange (const const_rtlArrayType arr1, intType start, intType sto
             (size_t) (result_size * sizeof(rtlObjectType)));
       } /* if */
     } else if (arr1->min_position == MIN_MEM_INDEX) {
+      logError(printf("arrRange(arr1 (size=" FMT_U_MEM "), " FMT_D ", " FMT_D "): "
+                      "Cannot create empty array with minimal index.\n",
+                      length, start, stop););
       raise_error(RANGE_ERROR);
       result = NULL;
     } else {
@@ -938,6 +990,9 @@ rtlArrayType arrRangeTemp (rtlArrayType *arr_temp, intType start, intType stop)
         } /* if */
       } /* if */
     } else if (arr1->min_position == MIN_MEM_INDEX) {
+      logError(printf("arrRangeTemp(arr1 (size=" FMT_U_MEM "), " FMT_D ", " FMT_D "): "
+                      "Cannot create empty array with minimal index.\n",
+                      length, start, stop););
       raise_error(RANGE_ERROR);
       result = NULL;
     } else {
@@ -1016,6 +1071,9 @@ genericType arrRemove (rtlArrayType *arr_to, intType position)
         *arr_to = arr1;
       } /* if */
     } else {
+      logError(printf("arrRemove(arr1, " FMT_D "): "
+                      "Index out of range (" FMT_D " .. " FMT_D ").\n",
+                      position, arr1->min_position, arr1->max_position););
       raise_error(RANGE_ERROR);
       result = 0;
     } /* if */
@@ -1070,6 +1128,9 @@ rtlArrayType arrSubarr (const const_rtlArrayType arr1, intType start, intType le
             (size_t) (result_size * sizeof(rtlObjectType)));
       } /* if */
     } else if (arr1->min_position == MIN_MEM_INDEX) {
+      logError(printf("arrSubarr(arr1 (size=" FMT_U_MEM "), " FMT_D ", " FMT_D "): "
+                      "Cannot create empty array with minimal index.\n",
+                      length, start, len););
       raise_error(RANGE_ERROR);
       result = NULL;
     } else {
@@ -1147,6 +1208,9 @@ rtlArrayType arrSubarrTemp (rtlArrayType *arr_temp, intType start, intType len)
         } /* if */
       } /* if */
     } else if (arr1->min_position == MIN_MEM_INDEX) {
+      logError(printf("arrSubarrTemp(arr1 (size=" FMT_U_MEM "), " FMT_D ", " FMT_D "): "
+                      "Cannot create empty array with minimal index.\n",
+                      length, start, len););
       raise_error(RANGE_ERROR);
       result = NULL;
     } else {
@@ -1192,6 +1256,9 @@ rtlArrayType arrTail (const const_rtlArrayType arr1, intType start)
             (size_t) (result_size * sizeof(rtlObjectType)));
       } /* if */
     } else if (arr1->min_position == MIN_MEM_INDEX) {
+      logError(printf("arrTail(arr1 (size=" FMT_U_MEM "), " FMT_D "): "
+                      "Cannot create empty array with minimal index.\n",
+                      length, start););
       raise_error(RANGE_ERROR);
       result = NULL;
     } else {
@@ -1254,6 +1321,9 @@ rtlArrayType arrTailTemp (rtlArrayType *arr_temp, intType start)
         } /* if */
       } /* if */
     } else if (arr1->min_position == MIN_MEM_INDEX) {
+      logError(printf("arrTailTemp(arr1 (size=" FMT_U_MEM "), " FMT_D "): "
+                      "Cannot create empty array with minimal index.\n",
+                      length, start););
       raise_error(RANGE_ERROR);
       result = NULL;
     } else {

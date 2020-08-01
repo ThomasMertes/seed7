@@ -31,7 +31,11 @@
 
 #include "version.h"
 
+#include "stdio.h"
 #include "dlfcn.h"
+
+#include "common.h"
+#include "dll_drv.h"
 
 
 
@@ -42,8 +46,9 @@ void *dllOpen (const char *dllName)
   } /* dllOpen */
 
 
-void *dllSym (void *dll, const char *symbol)
 
-  { /* dllSym */
-    return dlsym(dll, symbol);
-  } /* dllSym */
+funcPtrType dllFunc (void *dll, const char *symbol)
+
+  { /* dllFunc*/
+    return (funcPtrType) dlsym(dll, symbol);
+  } /* dllFunc */

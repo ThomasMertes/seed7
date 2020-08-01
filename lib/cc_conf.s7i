@@ -105,11 +105,6 @@ const type: ccConfigType is new struct
     var boolean: FLOAT_ZERO_DIV_ERROR       is FALSE;
 
     (**
-     *  TRUE, when _isnan() is defined in the header file instead of isnan().
-     *)
-    var boolean: ISNAN_WITH_UNDERLINE       is FALSE;
-
-    (**
      *  TRUE, when SIGFPE should be raised with an integer division by zero.
      *  An integer division by zero should be done instead of just calling
      *  raise(SIGFPE). Under Windows it is necessary to trigger SIGFPE
@@ -470,7 +465,6 @@ const func ccConfigType: getBuiltInConfig is func
     conf.POWER_OF_ZERO_WRONG        := boolean parse configValue("POWER_OF_ZERO_WRONG");
     conf.HAS_SIGSETJMP              := boolean parse configValue("HAS_SIGSETJMP");
     conf.FLOAT_ZERO_DIV_ERROR       := boolean parse configValue("FLOAT_ZERO_DIV_ERROR");
-    conf.ISNAN_WITH_UNDERLINE       := boolean parse configValue("ISNAN_WITH_UNDERLINE");
     conf.DO_SIGFPE_WITH_DIV_BY_ZERO := boolean parse configValue("DO_SIGFPE_WITH_DIV_BY_ZERO");
     conf.CHECK_INT_DIV_BY_ZERO      := boolean parse configValue("CHECK_INT_DIV_BY_ZERO");
     conf.CHECK_INT_REM_BY_ZERO      := boolean parse configValue("CHECK_INT_REM_BY_ZERO");

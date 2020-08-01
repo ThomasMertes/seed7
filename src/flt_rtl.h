@@ -29,9 +29,6 @@
 /*                                                                  */
 /********************************************************************/
 
-#ifdef ISNAN_WITH_UNDERLINE
-#define isnan _isnan
-#endif
 #ifdef FLOAT_ZERO_DIV_ERROR
 extern const rtlValueUnion f_const[];
 #define NOT_A_NUMBER      f_const[0].floatValue

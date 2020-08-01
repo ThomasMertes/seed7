@@ -54,6 +54,10 @@ extern C int __cdecl os_stat (const_os_striType path, os_stat_struct *buffer);
 os_striType *getUtf16Argv (int *w_argc);
 void freeUtf16Argv (os_striType *w_argv);
 striType getExecutablePath (const const_striType arg_0);
+#if USE_GET_ENVIRONMENT
+os_striType *getEnvironment (void);
+void freeEnvironment (os_striType *environment);
+#endif
 #ifdef DEFINE_WGETENV
 os_striType wgetenv (const const_os_striType name);
 #endif

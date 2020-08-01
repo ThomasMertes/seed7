@@ -242,7 +242,7 @@ CONTENTS
   defined in a way to be easy readable and understandable. This
   practical approach can be summarized as:
 
-    <font color="orange"> Programming should be fun
+     Programming should be fun
 
   Seed7 programs can be interpreted or compiled. Therefore Seed7
   can be used for scripting and for "real" programs.

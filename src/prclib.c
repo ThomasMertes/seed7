@@ -68,7 +68,7 @@
 static void fix_posinfo (objectType block_body, const const_objectType block_body_list)
 
   { /* fix_posinfo */
-    if (block_body_list != NULL &&
+    if (block_body != NULL && block_body_list != NULL &&
         CATEGORY_OF_OBJ(block_body) == CALLOBJECT &&
         !HAS_POSINFO(block_body)) {
       block_body->descriptor.posinfo = block_body_list->descriptor.posinfo;

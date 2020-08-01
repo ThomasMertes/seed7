@@ -75,7 +75,7 @@
 striType getExecutablePath (const const_striType arg_0)
 
   {
-#if HAS_SYMLINKS
+#if HAS_SYMBOLIC_LINKS
     os_charType buffer[PATH_MAX];
     ssize_t readlink_result;
     errInfoType err_info = OKAY_NO_ERROR;
@@ -87,7 +87,7 @@ striType getExecutablePath (const const_striType arg_0)
     striType result;
 
   /* getExecutablePath */
-#if HAS_SYMLINKS
+#if HAS_SYMBOLIC_LINKS
     readlink_result = readlink("/proc/self/exe", buffer, sizeof(buffer) - 1);
     if (readlink_result != -1) {
       buffer[readlink_result] = '\0';
@@ -115,12 +115,12 @@ striType getExecutablePath (const const_striType arg_0)
       } /* if */
       if (result == NULL) {
         raise_error(MEMORY_ERROR);
-#if HAS_SYMLINKS
+#if HAS_SYMBOLIC_LINKS
       } else {
         result = followLink(result);
 #endif
       } /* if */
-#if HAS_SYMLINKS
+#if HAS_SYMBOLIC_LINKS
     } /* if */
 #endif
     /* printf("getExecutablePath --> ");

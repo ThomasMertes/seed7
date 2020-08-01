@@ -66,6 +66,7 @@
 
 #if defined OS_STRI_WCHAR && !defined USE_WMAIN
 #ifdef DEFINE_COMMAND_LINE_TO_ARGV_W
+#define CommandLineToArgvW MyCommandLineToArgvW
 /**
  *  Special handling of backslash characters for CommandLineToArgvW.
  *  CommandLineToArgvW reads arguments in two modes. Inside and
@@ -313,6 +314,69 @@ striType getExecutablePath (const const_striType arg_0)
     } /* if */
     return result;
   } /* getExecutablePath */
+
+
+
+#if USE_GET_ENVIRONMENT
+os_striType *getEnvironment (void)
+
+  {
+    os_striType envBuffer;
+    os_striType currPos;
+    memSizeType length;
+    memSizeType numElems = 0;
+    memSizeType currIdx = 0;
+    os_striType *env;
+
+  /* getEnvironment */
+    envBuffer = GetEnvironmentStringsW();
+    if (envBuffer == NULL) {
+      env = NULL;
+    } else {
+      currPos = envBuffer;
+      do {
+        length = os_stri_strlen(currPos);
+        currPos = &currPos[length + 1];
+        numElems++;
+      } while (length != 0);
+      env = (os_striType *) malloc(numElems * sizeof(os_striType));
+      if (env != NULL) {
+        currPos = envBuffer;
+        do {
+          env[currIdx] = currPos;
+          length = os_stri_strlen(currPos);
+          currPos = &currPos[length + 1];
+          currIdx++;
+        } while (length != 0);
+        env[currIdx - 1] = NULL;
+        /* for (currIdx = 0; env[currIdx] != NULL; currIdx++) {
+          printf("env[" FMT_U_MEM "]: \"" FMT_S_OS "\"\n", currIdx, env[currIdx]);
+        } */
+      } /* if */
+      if (env == NULL || env[0] == NULL) {
+        if (FreeEnvironmentStringsW(envBuffer) == 0) {
+          logError(printf("getEnvironment: FreeEnvironmentStrings() failed.\n"););
+        } /* if */
+      } /* if */
+    } /* if */
+    return env;
+  }  /* getEnvironment */
+
+
+
+void freeEnvironment (os_striType *environment)
+
+  { /* freeEnvironment */
+    if (environment != NULL) {
+      if (environment[0] != NULL) {
+        if (FreeEnvironmentStringsW(environment[0]) == 0) {
+          logError(printf("getEnvironment: FreeEnvironmentStrings() failed.\n"););
+        } /* if */
+      } /* if */
+      free(environment);
+    } /* if */
+  } /* freeEnvironment */
+#endif
 
 
 

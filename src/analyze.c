@@ -604,7 +604,7 @@ progType analyze_file (const const_striType source_file_argument, uintType optio
                     (options & WRITE_LIBRARY_NAMES) != 0,
                     (options & WRITE_LINE_NUMBERS) != 0, err_info);
       } /* if */
-#if HAS_SYMLINKS
+#if HAS_SYMBOLIC_LINKS
       source_name = followLink(source_name);
 #endif
       if (*err_info == OKAY_NO_ERROR) {

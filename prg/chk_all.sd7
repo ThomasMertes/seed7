@@ -172,11 +172,11 @@ const string: chkbig_output is "\n\
   \Increment of bigInteger works correct.\n\
   \Decrement of bigInteger works correct.\n\
   \Addition of bigInteger works correct.\n\
-  \Grow of bigInteger works correct.\n\
+  \Addition assignment of bigInteger works correct.\n\
   \Subtraction of bigInteger works correct.\n\
-  \Shrink of bigInteger works correct.\n\
+  \Subtraction assignment of bigInteger works correct.\n\
   \Multiplication of bigInteger works correct.\n\
-  \Multiplicating copy for bigInteger works correct.\n\
+  \Multiplication assignment of bigInteger works correct.\n\
   \Division of bigInteger works correct.\n\
   \Remainder of bigInteger division works correct.\n\
   \Modulo division of bigInteger works correct.\n\

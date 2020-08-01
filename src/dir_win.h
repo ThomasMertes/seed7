@@ -58,9 +58,9 @@ typedef struct {
   } WDIR;
 
 
-DIR *opendir (char *name);
+DIR *opendir (const char *name);
 struct dirent *readdir (DIR *curr_dir);
 int closedir (DIR *curr_dir);
-WDIR *wopendir (wchar_t *name);
+WDIR *wopendir (const wchar_t *name);
 struct wdirent *wreaddir (WDIR *curr_dir);
 int wclosedir (WDIR *curr_dir);

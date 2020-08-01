@@ -153,7 +153,7 @@
 #define INITAL_ARRAY_SIZE  256
 #define ARRAY_SIZE_DELTA   256
 
-#ifdef DEFINE_OS_ENVIRON
+#if DECLARE_OS_ENVIRON
 extern os_striType *os_environ;
 #endif
 
@@ -209,9 +209,10 @@ static void remove_dir (const const_os_striType dir_name, errInfoType *err_info)
 
   /* remove_dir */
     logFunction(printf("remove_dir(\"" FMT_S_OS "\")\n", dir_name););
-/*  printf("opendir(" FMT_S_OS ");\n", dir_name);
-    fflush(stdout); */
     if ((directory = os_opendir(dir_name)) == NULL) {
+      logError(printf("remove_dir: os_opendir(\"" FMT_S_OS "\") failed:\n"
+                      "errno=%d\nerror: %s\n",
+                      dir_name, errno, strerror(errno)););
       *err_info = FILE_ERROR;
     } else {
       do {
@@ -282,8 +283,9 @@ static void remove_any_file (const const_os_striType file_name, errInfoType *err
   /* remove_any_file */
     logFunction(printf("remove_any_file(\"" FMT_S_OS "\")\n", file_name););
     if (os_lstat(file_name, &file_stat) != 0) {
-      logError(printf("remove_any_file: File " FMT_S_OS " does not exist.\n",
-                      file_name););
+      logError(printf("remove_any_file: os_lstat(" FMT_S_OS ", *) failed:\n"
+                      "errno=%d\nerror: %s\n",
+                      file_name, errno, strerror(errno)););
       *err_info = FILE_ERROR;
     } else {
       if (S_ISDIR(file_stat.st_mode)) {
@@ -335,6 +337,11 @@ static void copy_file (const const_os_striType from_name,
             if ((file_content = (ustriType) mmap(NULL, file_length,
                 PROT_READ, MAP_PRIVATE, file_no, 0)) != (ustriType) -1) {
               if (fwrite(file_content, 1, file_length, to_file) != file_length) {
+                logError(printf("copy_file(\"" FMT_S_OS "\", \"" FMT_S_OS "\"): "
+                                "fwrite(*, 1, " FMT_U_MEM ", %d) failed:\n"
+                                "errno=%d\nerror: %s\n",
+                                from_name, to_name, file_length, safe_fileno(to_file),
+                                errno, strerror(errno)););
                 *err_info = FILE_ERROR;
               } /* if */
               munmap(file_content, file_length);
@@ -354,6 +361,11 @@ static void copy_file (const const_os_striType from_name,
           while (*err_info == OKAY_NO_ERROR && (bytes_read =
               fread(buffer, 1, buffer_size, from_file)) != 0) {
             if (fwrite(buffer, 1, bytes_read, to_file) != bytes_read) {
+              logError(printf("copy_file(\"" FMT_S_OS "\", \"" FMT_S_OS "\"): "
+                              "fwrite(*, 1, " FMT_U_MEM ", %d) failed:\n"
+                              "errno=%d\nerror: %s\n",
+                              from_name, to_name, bytes_read, safe_fileno(to_file),
+                              errno, strerror(errno)););
               *err_info = FILE_ERROR;
             } /* if */
           } /* while */
@@ -364,9 +376,19 @@ static void copy_file (const const_os_striType from_name,
         } /* if */
 #endif
         if (fclose(from_file) != 0) {
+          logError(printf("copy_file(\"" FMT_S_OS "\", \"" FMT_S_OS "\"): "
+                          "fclose(%d) failed:\n"
+                          "errno=%d\nerror: %s\n",
+                          from_name, to_name, safe_fileno(from_file),
+                          errno, strerror(errno)););
           *err_info = FILE_ERROR;
         } /* if */
         if (fclose(to_file) != 0) {
+          logError(printf("copy_file(\"" FMT_S_OS "\", \"" FMT_S_OS "\"): "
+                          "fclose(%d) failed:\n"
+                          "errno=%d\nerror: %s\n",
+                          from_name, to_name, safe_fileno(to_file),
+                          errno, strerror(errno)););
           *err_info = FILE_ERROR;
         } /* if */
         if (*err_info != OKAY_NO_ERROR) {
@@ -411,12 +433,16 @@ static void copy_dir (const const_os_striType from_name,
   /* copy_dir */
     logFunction(printf("copy_dir(\"" FMT_S_OS "\", \"" FMT_S_OS "\")\n",
                        from_name, to_name););
-    /* printf("opendir(" FMT_S_OS ");\n", from_name);
-       fflush(stdout); */
     if ((directory = os_opendir(from_name)) == NULL) {
+      logError(printf("copy_dir: os_opendir(\"" FMT_S_OS "\") failed:\n"
+                      "errno=%d\nerror: %s\n",
+                      from_name, errno, strerror(errno)););
       *err_info = FILE_ERROR;
     } else {
       if (os_mkdir(to_name, (S_IRWXU | S_IRWXG | S_IRWXO)) != 0) {
+        logError(printf("copy_dir: os_mkdir(\"" FMT_S_OS "\", rwxrwxrwx) failed:\n"
+                        "errno=%d\nerror: %s\n",
+                        to_name, errno, strerror(errno)););
         *err_info = FILE_ERROR;
       } else {
         do {
@@ -500,7 +526,7 @@ static void copy_any_file (const const_os_striType from_name,
   {
     os_stat_struct from_stat;
     int from_stat_result;
-#if HAS_SYMLINKS
+#if HAS_SYMBOLIC_LINKS
     os_striType link_destination;
     ssize_t readlink_result;
 #endif
@@ -516,10 +542,14 @@ static void copy_any_file (const const_os_striType from_name,
     } /* if */
     if (from_stat_result != 0) {
       /* Source file does not exist */
+      logError(printf("copy_any_file: os_%sstat(\"" FMT_S_OS "\", *) failed:\n"
+                      "errno=%d\nerror: %s\n",
+                      flags & PRESERVE_SYMLINKS ? "l" : "",
+                      from_name, errno, strerror(errno)););
       *err_info = FILE_ERROR;
     } else {
       if (S_ISLNK(from_stat.st_mode)) {
-#if HAS_SYMLINKS
+#if HAS_SYMBOLIC_LINKS
         /* printf("link size=%lu\n", from_stat.st_size); */
         if (from_stat.st_size < 0 ||
             (unsigned_os_off_t) from_stat.st_size > MAX_OS_STRI_LEN) {
@@ -653,7 +683,8 @@ static boolType devices_differ (const const_os_striType from_name,
         } /* if */
       } /* if */
     } /* if */
-    /* printf("devices_differ --> %d\n", differs); */
+    logFunction(printf("devices_differ(" FMT_S_OS ", " FMT_S_OS ") --> %d\n",
+                       from_name, to_name, differs););
     return differs;
   } /* devices_differ */
 #endif
@@ -670,8 +701,9 @@ static void move_any_file (const const_os_striType from_name,
     logFunction(printf("move_any_file(\"" FMT_S_OS "\", \"" FMT_S_OS "\")\n",
                        from_name, to_name););
     if (os_stat(to_name, &to_stat) == 0) {
-      logError(printf("move_any_file: Destination " FMT_S_OS
-                      " exists already.\n", to_name););
+      logError(printf("move_any_file: "
+                      "Destination " FMT_S_OS " exists already.\n",
+                      to_name););
       *err_info = FILE_ERROR;
     } else {
       if (os_rename(from_name, to_name) != 0) {
@@ -716,7 +748,7 @@ static rtlArrayType add_stri_to_array (const striType stri,
     rtlArrayType resized_work_array;
 
   /* add_stri_to_array */
-    /* printf("add_stri_to_array\n"); */
+    logFunction(printf("add_stri_to_array\n"););
     if (*used_max_position >= work_array->max_position) {
       if (work_array->max_position >= MAX_MEM_INDEX - ARRAY_SIZE_DELTA) {
         resized_work_array = NULL;
@@ -784,12 +816,10 @@ static rtlArrayType read_dir (const const_striType dir_name, errInfoType *err_in
     rtlArrayType dir_array;
 
   /* read_dir */
-/*  printf("read_dir(");
-    prot_stri(dir_name);
-    printf(");\n");
-    fflush(stdout); */
-    if ((directory = dirOpen(dir_name)) != NULL) {
-      if (ALLOC_RTL_ARRAY(dir_array, INITAL_ARRAY_SIZE)) {
+    logFunction(printf("read_dir(\"%s\", *)\n",
+                       striAsUnquotedCStri(dir_name)););
+    if (likely((directory = dirOpen(dir_name)) != NULL)) {
+      if (likely(ALLOC_RTL_ARRAY(dir_array, INITAL_ARRAY_SIZE))) {
         dir_array->min_position = 1;
         dir_array->max_position = INITAL_ARRAY_SIZE;
         used_max_position = 0;
@@ -911,7 +941,7 @@ static rtlArrayType getSearchPath (errInfoType *err_info)
     rtlArrayType path_array;
 
   /* getSearchPath */
-    /* printf("getSearchPath\n"); */
+    logFunction(printf("getSearchPath(*)\n"););
     if (ALLOC_RTL_ARRAY(path_array, INITAL_ARRAY_SIZE)) {
       path_array->min_position = 1;
       path_array->max_position = INITAL_ARRAY_SIZE;
@@ -1007,7 +1037,7 @@ void setSearchPath (rtlArrayType searchPath, errInfoType *err_info)
 
 
 
-#if HAS_SYMLINKS
+#if HAS_SYMBOLIC_LINKS
 striType followLink (striType path)
 
   {
@@ -1016,10 +1046,9 @@ striType followLink (striType path)
     int number_of_links_followed = 5;
 
   /* followLink */
+    logFunction(printf("followLink(\"%s\")", striAsUnquotedCStri(path));
+                fflush(stdout););
     if (cmdFileTypeSL(path) == 7) {
-      /* printf("symbolic link: ");
-         prot_stri(path);
-         printf("\n"); */
       startPath = path;
       path = cmdReadlink(startPath);
       while (cmdFileTypeSL(path) == 7 && number_of_links_followed != 0) {
@@ -1035,6 +1064,7 @@ striType followLink (striType path)
         FREE_STRI(startPath, startPath->size);
       } /* if */
     } /* if */
+    logFunction(printf(" --> \"%s\"\n", striAsUnquotedCStri(path)););
     return path;
   } /* followLink */
 #endif
@@ -1080,46 +1110,52 @@ bigIntType cmdBigFileSize (const const_striType filePath)
     fileType aFile;
     int path_info = PATH_IS_NORMAL;
     errInfoType err_info = OKAY_NO_ERROR;
-    bigIntType result;
+    bigIntType size_of_file;
 
   /* cmdBigFileSize */
+    logFunction(printf("cmdBigFileSize(\"%s\")", striAsUnquotedCStri(filePath));
+                fflush(stdout););
     os_path = cp_to_os_path(filePath, &path_info, &err_info);
     if (unlikely(err_info != OKAY_NO_ERROR)) {
 #ifdef MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
       if (path_info == PATH_IS_EMULATED_ROOT) {
-        result = bigIConv(0);
-      } else {
-        raise_error(err_info);
-        result = NULL;
-      } /* if */
-#else
-      raise_error(err_info);
-      result = NULL;
+        size_of_file = bigIConv(0);
+      } else
 #endif
+      {
+        logError(printf("cmdBigFileSize: cp_to_os_path(\"%s\", *, *) failed:\n"
+                        "path_info=%d, err_info=%d\n",
+                        striAsUnquotedCStri(filePath), path_info, err_info););
+        raise_error(err_info);
+        size_of_file = NULL;
+      }
     } else {
       stat_result = os_stat(os_path, &stat_buf);
       if (stat_result == 0 && S_ISREG(stat_buf.st_mode)) {
 #if OS_OFF_T_SIZE == 32
-        result = bigFromUInt32((uint32Type) stat_buf.st_size);
+        size_of_file = bigFromUInt32((uint32Type) stat_buf.st_size);
 #elif OS_OFF_T_SIZE == 64
-        result = bigFromUInt64((uint64Type) stat_buf.st_size);
+        size_of_file = bigFromUInt64((uint64Type) stat_buf.st_size);
 #else
 #error "sizeof(os_off_t) is neither 4 nor 8."
 #endif
       } else if (stat_result == 0 && S_ISDIR(stat_buf.st_mode)) {
-        result = bigIConv(0);
+        size_of_file = bigIConv(0);
       } else {
         aFile = os_fopen(os_path, os_mode_rb);
         if (aFile == NULL) {
+          logError(printf("cmdBigFileSize: os_fopen(\"" FMT_S_OS "\", \"" FMT_S_OS "\") failed:\n"
+                          "errno=%d\nerror: %s\n",
+                          os_path, os_mode_rb, errno, strerror(errno)););
           /* if (stat_result == 0) {
             printf("stat_buf.st_blksize=%lu\n", stat_buf.st_blksize);
             printf("stat_buf.st_blocks=%llu\n", stat_buf.st_blocks);
             printf("stat_buf.st_size=%llu\n", stat_buf.st_size);
           } */
           err_info = FILE_ERROR;
-          result = NULL;
+          size_of_file = NULL;
         } else {
-          result = getBigFileLengthUsingSeek(aFile);
+          size_of_file = getBigFileLengthUsingSeek(aFile);
           fclose(aFile);
         } /* if */
       } /* if */
@@ -1128,7 +1164,7 @@ bigIntType cmdBigFileSize (const const_striType filePath)
         raise_error(err_info);
       } /* if */
     } /* if */
-    return result;
+    return size_of_file;
   } /* cmdBigFileSize */
 
 
@@ -1157,11 +1193,17 @@ void cmdChdir (const const_striType dirPath)
       if (path_info == PATH_IS_EMULATED_ROOT) {
         setEmulatedCwd(emulated_root, &err_info);
       } else {
+        logError(printf("cmdChdir: cp_to_os_path(\"%s\", *, *) failed:\n"
+                        "path_info=%d, err_info=%d\n",
+                        striAsUnquotedCStri(dirPath), path_info, err_info););
         raise_error(err_info);
       } /* if */
     } else {
       chdir_result = os_chdir(os_path);
       if (unlikely(chdir_result != 0)) {
+        logError(printf("cmdChdir: os_chdir(\"" FMT_S_OS "\") failed:\n"
+                        "errno=%d\nerror: %s\n",
+                        os_path, errno, strerror(errno)););
         err_info = FILE_ERROR;
       } else {
         if (dirPath->size >= 1 && dirPath->mem[0] == '/') {
@@ -1173,10 +1215,16 @@ void cmdChdir (const const_striType dirPath)
         } /* if */
       } /* if */
 #else
+      logError(printf("cmdChdir: cp_to_os_path(\"%s\", *, *) failed:\n"
+                      "path_info=%d, err_info=%d\n",
+                      striAsUnquotedCStri(dirPath), path_info, err_info););
       raise_error(err_info);
     } else {
       chdir_result = os_chdir(os_path);
       if (unlikely(chdir_result != 0)) {
+        logError(printf("cmdChdir: os_chdir(\"" FMT_S_OS "\") failed:\n"
+                        "errno=%d\nerror: %s\n",
+                        os_path, errno, strerror(errno)););
         err_info = FILE_ERROR;
       } /* if */
 #endif
@@ -1216,12 +1264,21 @@ void cmdCloneFile (const const_striType sourcePath, const const_striType destPat
     logFunction(printf("cmdCloneFile(\"%s\", ", striAsUnquotedCStri(sourcePath));
                 printf("\"%s\")\n", striAsUnquotedCStri(destPath)););
     os_sourcePath = cp_to_os_path(sourcePath, &path_info, &err_info);
-    if (likely(err_info == OKAY_NO_ERROR)) {
+    if (unlikely(err_info != OKAY_NO_ERROR)) {
+      logError(printf("cmdCloneFile: cp_to_os_path(\"%s\", *, *) failed:\n"
+                      "path_info=%d, err_info=%d\n",
+                      striAsUnquotedCStri(sourcePath), path_info, err_info););
+    } else {
       os_destPath = cp_to_os_path(destPath, &path_info, &err_info);
-      if (likely(err_info == OKAY_NO_ERROR)) {
+      if (unlikely(err_info != OKAY_NO_ERROR)) {
+        logError(printf("cmdCloneFile: cp_to_os_path(\"%s\", *, *) failed:\n"
+                        "path_info=%d, err_info=%d\n",
+                        striAsUnquotedCStri(destPath), path_info, err_info););
+      } else {
         if (os_stat(os_destPath, &to_stat) == 0) {
-          logError(printf("cmdCloneFile: Destination " FMT_S_OS
-                          " exists already.\n", os_destPath););
+          logError(printf("cmdCloneFile: "
+                          "Destination " FMT_S_OS " exists already.\n",
+                          os_destPath););
           err_info = FILE_ERROR;
         } else {
           copy_any_file(os_sourcePath, os_destPath, PRESERVE_ALL, &err_info);
@@ -1252,6 +1309,9 @@ striType cmdConfigValue (const const_striType name)
     } else {
       conv_to_cstri(opt_name, name, &err_info);
       if (unlikely(err_info != OKAY_NO_ERROR)) {
+        logError(printf("cmdConfigValue: conv_to_cstri(*, \"%s\", *) failed:\n"
+                        "err_info=%d\n",
+                        striAsUnquotedCStri(name), err_info););
         raise_error(err_info);
         return NULL;
       } else if (strcmp(opt_name, "OBJECT_FILE_EXTENSION") == 0) {
@@ -1359,12 +1419,6 @@ striType cmdConfigValue (const const_striType name)
 #endif
       } else if (strcmp(opt_name, "HAS_SIGSETJMP") == 0) {
         opt = HAS_SIGSETJMP ? "TRUE" : "FALSE";
-      } else if (strcmp(opt_name, "ISNAN_WITH_UNDERLINE") == 0) {
-#ifdef ISNAN_WITH_UNDERLINE
-        opt = "TRUE";
-#else
-        opt = "FALSE";
-#endif
       } else if (strcmp(opt_name, "DO_SIGFPE_WITH_DIV_BY_ZERO") == 0) {
 #ifdef DO_SIGFPE_WITH_DIV_BY_ZERO
         opt = "TRUE";
@@ -1504,12 +1558,21 @@ void cmdCopyFile (const const_striType sourcePath, const const_striType destPath
     logFunction(printf("cmdCopyFile(\"%s\", ", striAsUnquotedCStri(sourcePath));
                 printf("\"%s\")\n", striAsUnquotedCStri(destPath)););
     os_sourcePath = cp_to_os_path(sourcePath, &path_info, &err_info);
-    if (likely(err_info == OKAY_NO_ERROR)) {
+    if (unlikely(err_info != OKAY_NO_ERROR)) {
+      logError(printf("cmdCopyFile: cp_to_os_path(\"%s\", *, *) failed:\n"
+                      "path_info=%d, err_info=%d\n",
+                      striAsUnquotedCStri(sourcePath), path_info, err_info););
+    } else {
       os_destPath = cp_to_os_path(destPath, &path_info, &err_info);
-      if (likely(err_info == OKAY_NO_ERROR)) {
+      if (unlikely(err_info != OKAY_NO_ERROR)) {
+        logError(printf("cmdCopyFile: cp_to_os_path(\"%s\", *, *) failed:\n"
+                        "path_info=%d, err_info=%d\n",
+                        striAsUnquotedCStri(destPath), path_info, err_info););
+      } else {
         if (os_stat(os_destPath, &to_stat) == 0) {
-          logError(printf("cmdCopyFile: Destination " FMT_S_OS
-                          " exists already.\n", os_destPath););
+          logError(printf("cmdCopyFile: "
+                          "Destination " FMT_S_OS " exists already.\n",
+                          os_destPath););
           err_info = FILE_ERROR;
         } else {
           copy_any_file(os_sourcePath, os_destPath, PRESERVE_NOTHING, &err_info);
@@ -1533,7 +1596,9 @@ void cmdCopyFile (const const_striType sourcePath, const const_striType destPath
 rtlArrayType cmdEnvironment (void)
 
   {
-#ifdef INITIALIZE_OS_ENVIRON
+#if USE_GET_ENVIRONMENT
+    os_striType *os_environ;
+#elif INITIALIZE_OS_ENVIRON
     static const os_charType empty_os_stri[] = {0};
 #endif
     intType used_max_position;
@@ -1544,7 +1609,9 @@ rtlArrayType cmdEnvironment (void)
     rtlArrayType environment_array;
 
   /* cmdEnvironment */
-#ifdef INITIALIZE_OS_ENVIRON
+#if USE_GET_ENVIRONMENT
+    os_environ = getEnvironment();
+#elif INITIALIZE_OS_ENVIRON
     if (os_environ == NULL) {
       (void) os_getenv(empty_os_stri);
     } /* if */
@@ -1553,23 +1620,25 @@ rtlArrayType cmdEnvironment (void)
       environment_array->min_position = 1;
       environment_array->max_position = INITAL_ARRAY_SIZE;
       used_max_position = 0;
-      for (nameStartPos = os_environ; *nameStartPos != NULL; ++nameStartPos) {
-        if ((*nameStartPos)[0] != '=' && (*nameStartPos)[0] != '\0') {
-          nameEndPos = os_stri_strchr(*nameStartPos, '=');
-          if (nameEndPos != NULL) {
-            variableName = conv_from_os_stri(*nameStartPos, (memSizeType) (nameEndPos - *nameStartPos));
-            if (unlikely(variableName == NULL)) {
-              err_info = MEMORY_ERROR;
+      if (os_environ != NULL) {
+        for (nameStartPos = os_environ; *nameStartPos != NULL; ++nameStartPos) {
+          if ((*nameStartPos)[0] != '=' && (*nameStartPos)[0] != '\0') {
+            nameEndPos = os_stri_strchr(*nameStartPos, '=');
+            if (nameEndPos != NULL) {
+              variableName = conv_from_os_stri(*nameStartPos, (memSizeType) (nameEndPos - *nameStartPos));
+              if (unlikely(variableName == NULL)) {
+                err_info = MEMORY_ERROR;
+              } /* if */
+            } else {
+              variableName = os_stri_to_stri(*nameStartPos, &err_info);
             } /* if */
-          } else {
-            variableName = os_stri_to_stri(*nameStartPos, &err_info);
+            if (err_info == OKAY_NO_ERROR) {
+              environment_array = add_stri_to_array(variableName, environment_array,
+                  &used_max_position, &err_info);
+            } /* if */
           } /* if */
-          if (err_info == OKAY_NO_ERROR) {
-            environment_array = add_stri_to_array(variableName, environment_array,
-                &used_max_position, &err_info);
-          } /* if */
-        } /* if */
-      } /* for */
+        } /* for */
+      } /* if */
       environment_array = complete_stri_array(environment_array, used_max_position, &err_info);
       if (err_info != OKAY_NO_ERROR) {
         raise_error(err_info);
@@ -1578,6 +1647,9 @@ rtlArrayType cmdEnvironment (void)
     } else {
       raise_error(MEMORY_ERROR);
     } /* if */
+#if USE_GET_ENVIRONMENT
+    freeEnvironment(os_environ);
+#endif
     return environment_array;
   } /* cmdEnvironment */
 
@@ -1610,14 +1682,15 @@ setType cmdFileMode (const const_striType filePath)
 #ifdef MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
       if (path_info == PATH_IS_EMULATED_ROOT) {
         result = setIConv(0444);
-      } else {
+      } else
+#endif
+      {
+        logError(printf("cmdFileMode: cp_to_os_path(\"%s\", *, *) failed:\n"
+                        "path_info=%d, err_info=%d\n",
+                        striAsUnquotedCStri(filePath), path_info, err_info););
         raise_error(err_info);
         result = NULL;
-      } /* if */
-#else
-      raise_error(err_info);
-      result = NULL;
-#endif
+      }
     } else {
       stat_result = os_stat(os_path, &stat_buf);
       os_stri_free(os_path);
@@ -1673,42 +1746,52 @@ intType cmdFileSize (const const_striType filePath)
     fileType aFile;
     int path_info = PATH_IS_NORMAL;
     errInfoType err_info = OKAY_NO_ERROR;
-    intType result;
+    intType size_of_file;
 
   /* cmdFileSize */
+    logFunction(printf("cmdFileSize(\"%s\")", striAsUnquotedCStri(filePath));
+                fflush(stdout););
     os_path = cp_to_os_path(filePath, &path_info, &err_info);
     if (unlikely(err_info != OKAY_NO_ERROR)) {
 #ifdef MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
-      if (path_info != PATH_IS_EMULATED_ROOT) {
-        raise_error(err_info);
-      } /* if */
-#else
-      raise_error(err_info);
+      if (path_info != PATH_IS_EMULATED_ROOT)
 #endif
-      result = 0;
+      {
+        logError(printf("cmdFileSize: cp_to_os_path(\"%s\", *, *) failed:\n"
+                        "path_info=%d, err_info=%d\n",
+                        striAsUnquotedCStri(filePath), path_info, err_info););
+        raise_error(err_info);
+      }
+      size_of_file = 0;
     } else {
       stat_result = os_stat(os_path, &stat_buf);
       if (stat_result == 0 && S_ISREG(stat_buf.st_mode)) {
         if (stat_buf.st_size > INTTYPE_MAX || stat_buf.st_size < 0) {
+          logError(printf("cmdFileSize(\"%s\"): "
+                          "File size not representable as integer.\n",
+                          striAsUnquotedCStri(filePath)););
           err_info = RANGE_ERROR;
-          result = 0;
+          size_of_file = 0;
         } else {
-          result = (intType) stat_buf.st_size;
+          size_of_file = (intType) stat_buf.st_size;
         } /* if */
       } else if (stat_result == 0 && S_ISDIR(stat_buf.st_mode)) {
-        result = 0;
+        size_of_file = 0;
       } else {
         aFile = os_fopen(os_path, os_mode_rb);
         if (aFile == NULL) {
+          logError(printf("cmdFileSize: os_fopen(\"" FMT_S_OS "\", \"" FMT_S_OS "\") failed:\n"
+                          "errno=%d\nerror: %s\n",
+                          os_path, os_mode_rb, errno, strerror(errno)););
           /* if (stat_result == 0) {
             printf("stat_buf.st_blksize=%lu\n", stat_buf.st_blksize);
             printf("stat_buf.st_blocks=%llu\n", stat_buf.st_blocks);
             printf("stat_buf.st_size=%llu\n", stat_buf.st_size);
           } */
           err_info = FILE_ERROR;
-          result = 0;
+          size_of_file = 0;
         } else {
-          result = getFileLengthUsingSeek(aFile);
+          size_of_file = getFileLengthUsingSeek(aFile);
           fclose(aFile);
         } /* if */
       } /* if */
@@ -1717,7 +1800,8 @@ intType cmdFileSize (const const_striType filePath)
         raise_error(err_info);
       } /* if */
     } /* if */
-    return result;
+    logFunction(printf(" --> " FMT_D "\n", size_of_file););
+    return size_of_file;
   } /* cmdFileSize */
 
 
@@ -1746,53 +1830,59 @@ intType cmdFileType (const const_striType filePath)
     int path_info = PATH_IS_NORMAL;
     errInfoType err_info = OKAY_NO_ERROR;
     int saved_errno;
-    intType result;
+    intType type_of_file;
 
   /* cmdFileType */
+    logFunction(printf("cmdFileType(\"%s\")", striAsUnquotedCStri(filePath));
+                fflush(stdout););
     os_path = cp_to_os_path(filePath, &path_info, &err_info);
     if (unlikely(err_info != OKAY_NO_ERROR)) {
 #ifdef MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
       if (path_info == PATH_IS_EMULATED_ROOT) {
-        result = FILE_DIR;
+        type_of_file = FILE_DIR;
       } else if (path_info == PATH_NOT_MAPPED) {
-        result = FILE_ABSENT;
-      } else {
-        raise_error(err_info);
-        result = FILE_ABSENT;
-      } /* if */
-#else
-      raise_error(err_info);
-      result = FILE_ABSENT;
+        type_of_file = FILE_ABSENT;
+      } else
 #endif
+      {
+        logError(printf("cmdFileType: cp_to_os_path(\"%s\", *, *) failed:\n"
+                        "path_info=%d, err_info=%d\n",
+                        striAsUnquotedCStri(filePath), path_info, err_info););
+        raise_error(err_info);
+        type_of_file = FILE_ABSENT;
+      }
     } else {
       stat_result = os_stat(os_path, &stat_buf);
       saved_errno = errno;
       os_stri_free(os_path);
       if (stat_result == 0) {
         if (S_ISREG(stat_buf.st_mode)) {
-          result = FILE_REGULAR;
+          type_of_file = FILE_REGULAR;
         } else if (S_ISDIR(stat_buf.st_mode)) {
-          result = FILE_DIR;
+          type_of_file = FILE_DIR;
         } else if (S_ISCHR(stat_buf.st_mode)) {
-          result = FILE_CHAR;
+          type_of_file = FILE_CHAR;
         } else if (S_ISBLK(stat_buf.st_mode)) {
-          result = FILE_BLOCK;
+          type_of_file = FILE_BLOCK;
         } else if (S_ISFIFO(stat_buf.st_mode)) {
-          result = FILE_FIFO;
+          type_of_file = FILE_FIFO;
         } else if (S_ISLNK(stat_buf.st_mode)) {
-          result = FILE_SYMLINK;
+          type_of_file = FILE_SYMLINK;
+          logError(printf("cmdFileType: os_stat(\"" FMT_S_OS "\", *) "
+                          "returns a mode of S_IFLNK.\n",
+                          os_path););
           raise_error(FILE_ERROR);
         } else if (S_ISSOCK(stat_buf.st_mode)) {
-          result = FILE_SOCKET;
+          type_of_file = FILE_SOCKET;
         } else {
-          result = FILE_UNKNOWN;
+          type_of_file = FILE_UNKNOWN;
         } /* if */
 #ifdef ELOOP
       } else if (unlikely(saved_errno == ELOOP)) {
-        result = FILE_SYMLINK;
+        type_of_file = FILE_SYMLINK;
 #endif
       } else {
-        result = FILE_ABSENT;
+        type_of_file = FILE_ABSENT;
         if (unlikely(filePath->size != 0 && saved_errno != ENOENT &&
             saved_errno != ENOTDIR && saved_errno != ENAMETOOLONG)) {
           logError(printf("cmdFileType: os_stat(\"" FMT_S_OS "\") failed:\n"
@@ -1804,7 +1894,8 @@ intType cmdFileType (const const_striType filePath)
         } /* if */
       } /* if */
     } /* if */
-    return result;
+    logFunction(printf(" --> " FMT_D "\n", type_of_file););
+    return type_of_file;
   } /* cmdFileType */
 
 
@@ -1832,48 +1923,51 @@ intType cmdFileTypeSL (const const_striType filePath)
     int path_info = PATH_IS_NORMAL;
     errInfoType err_info = OKAY_NO_ERROR;
     int saved_errno;
-    intType result;
+    intType type_of_file;
 
   /* cmdFileTypeSL */
+    logFunction(printf("cmdFileTypeSL(\"%s\")", striAsUnquotedCStri(filePath));
+                fflush(stdout););
     os_path = cp_to_os_path(filePath, &path_info, &err_info);
     if (unlikely(err_info != OKAY_NO_ERROR)) {
 #ifdef MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
       if (path_info == PATH_IS_EMULATED_ROOT) {
-        result = FILE_DIR;
+        type_of_file = FILE_DIR;
       } else if (path_info == PATH_NOT_MAPPED) {
-        result = FILE_ABSENT;
-      } else {
-        raise_error(err_info);
-        result = FILE_ABSENT;
-      } /* if */
-#else
-      raise_error(err_info);
-      result = FILE_ABSENT;
+        type_of_file = FILE_ABSENT;
+      } else
 #endif
+      {
+        logError(printf("cmdFileTypeSL: cp_to_os_path(\"%s\", *, *) failed:\n"
+                        "path_info=%d, err_info=%d\n",
+                        striAsUnquotedCStri(filePath), path_info, err_info););
+        raise_error(err_info);
+        type_of_file = FILE_ABSENT;
+      }
     } else {
       stat_result = os_lstat(os_path, &stat_buf);
       saved_errno = errno;
       os_stri_free(os_path);
       if (stat_result == 0) {
         if (S_ISREG(stat_buf.st_mode)) {
-          result = FILE_REGULAR;
+          type_of_file = FILE_REGULAR;
         } else if (S_ISDIR(stat_buf.st_mode)) {
-          result = FILE_DIR;
+          type_of_file = FILE_DIR;
         } else if (S_ISCHR(stat_buf.st_mode)) {
-          result = FILE_CHAR;
+          type_of_file = FILE_CHAR;
         } else if (S_ISBLK(stat_buf.st_mode)) {
-          result = FILE_BLOCK;
+          type_of_file = FILE_BLOCK;
         } else if (S_ISFIFO(stat_buf.st_mode)) {
-          result = FILE_FIFO;
+          type_of_file = FILE_FIFO;
         } else if (S_ISLNK(stat_buf.st_mode)) {
-          result = FILE_SYMLINK;
+          type_of_file = FILE_SYMLINK;
         } else if (S_ISSOCK(stat_buf.st_mode)) {
-          result = FILE_SOCKET;
+          type_of_file = FILE_SOCKET;
         } else {
-          result = FILE_UNKNOWN;
+          type_of_file = FILE_UNKNOWN;
         } /* if */
       } else {
-        result = FILE_ABSENT;
+        type_of_file = FILE_ABSENT;
         if (unlikely(filePath->size != 0 && saved_errno != ENOENT &&
             saved_errno != ENOTDIR && saved_errno != ENAMETOOLONG)) {
           logError(printf("cmdFileTypeSL: os_stat(\"" FMT_S_OS "\") failed:\n"
@@ -1885,7 +1979,8 @@ intType cmdFileTypeSL (const const_striType filePath)
         } /* if */
       } /* if */
     } /* if */
-    return result;
+    logFunction(printf(" --> " FMT_D "\n", type_of_file););
+    return type_of_file;
   } /* cmdFileTypeSL */
 
 
@@ -1901,32 +1996,46 @@ striType cmdGetcwd (void)
 
   {
     os_charType buffer[PATH_MAX + 1];
-    os_striType cwd;
+    os_striType os_cwd;
     errInfoType err_info = OKAY_NO_ERROR;
-    striType result;
+    striType cwd;
 
   /* cmdGetcwd */
+    logFunction(printf("cmdGetcwd");
+                fflush(stdout););
 #ifdef EMULATE_ROOT_CWD
     if (IS_EMULATED_ROOT(current_emulated_cwd)) {
-      result = cp_from_os_path(current_emulated_cwd, &err_info);
+      cwd = cp_from_os_path(current_emulated_cwd, &err_info);
       if (unlikely(err_info != OKAY_NO_ERROR)) {
+        logError(printf("cmdGetcwd: "
+                        "cp_from_os_path(\"" FMT_S_OS "\", *) failed:\n"
+                        "err_info=%d\n",
+                        current_emulated_cwd, err_info););
         raise_error(err_info);
       } /* if */
     } else {
 #endif
-      if (unlikely((cwd = os_getcwd(buffer, PATH_MAX)) == NULL)) {
+      if (unlikely((os_cwd = os_getcwd(buffer, PATH_MAX)) == NULL)) {
+        logError(printf("cmdGetcwd: os_getcwd(*, %d) failed:\n"
+                        "errno=%d\nerror: %s\n",
+                        PATH_MAX, errno, strerror(errno)););
         raise_error(FILE_ERROR);
-        result = NULL;
+        cwd = NULL;
       } else {
-        result = cp_from_os_path(cwd, &err_info);
+        cwd = cp_from_os_path(os_cwd, &err_info);
         if (unlikely(err_info != OKAY_NO_ERROR)) {
+          logError(printf("cmdGetcwd: "
+                          "cp_from_os_path(\"" FMT_S_OS "\", *) failed:\n"
+                          "err_info=%d\n",
+                          os_cwd, err_info););
           raise_error(err_info);
         } /* if */
       } /* if */
 #ifdef EMULATE_ROOT_CWD
     } /* if */
 #endif
-    return result;
+    logFunction(printf(" --> \"%s\"\n", striAsUnquotedCStri(cwd)););
+    return cwd;
   } /* cmdGetcwd */
 
 
@@ -1951,8 +2060,13 @@ striType cmdGetenv (const const_striType name)
     striType result;
 
   /* cmdGetenv */
+    logFunction(printf("cmdGetenv(\"%s\")", striAsUnquotedCStri(name));
+                fflush(stdout););
     env_name = stri_to_os_stri(name, &err_info);
     if (unlikely(err_info != OKAY_NO_ERROR)) {
+      logError(printf("cmdGetenv: stri_to_os_stri(\"%s\", *, *) failed:\n"
+                      "err_info=%d\n",
+                      striAsUnquotedCStri(name), err_info););
       raise_error(err_info);
       result = NULL;
     } else {
@@ -1971,6 +2085,7 @@ striType cmdGetenv (const const_striType name)
         raise_error(err_info);
       } /* if */
     } /* if */
+    logFunction(printf(" --> \"%s\"\n", striAsUnquotedCStri(result)););
     return result;
   } /* cmdGetenv */
 
@@ -2007,12 +2122,14 @@ void cmdGetATime (const const_striType filePath,
         timFromTimestamp(0,
             year, month, day, hour,
             min, sec, micro_sec, time_zone, is_dst);
-      } else {
-        raise_error(err_info);
-      } /*if */
-#else
-      raise_error(err_info);
+      } else
 #endif
+      {
+        logError(printf("cmdGetATime: cp_to_os_path(\"%s\", *, *) failed:\n"
+                        "path_info=%d, err_info=%d\n",
+                        striAsUnquotedCStri(filePath), path_info, err_info););
+        raise_error(err_info);
+      }
     } else {
       stat_result = os_stat(os_path, &stat_buf);
       os_stri_free(os_path);
@@ -2067,12 +2184,14 @@ void cmdGetCTime (const const_striType filePath,
         timFromTimestamp(0,
             year, month, day, hour,
             min, sec, micro_sec, time_zone, is_dst);
-      } else {
-        raise_error(err_info);
-      } /*if */
-#else
-      raise_error(err_info);
+      } else
 #endif
+      {
+        logError(printf("cmdGetCTime: cp_to_os_path(\"%s\", *, *) failed:\n"
+                        "path_info=%d, err_info=%d\n",
+                        striAsUnquotedCStri(filePath), path_info, err_info););
+        raise_error(err_info);
+      }
     } else {
       stat_result = os_stat(os_path, &stat_buf);
       os_stri_free(os_path);
@@ -2127,12 +2246,14 @@ void cmdGetMTime (const const_striType filePath,
         timFromTimestamp(0,
             year, month, day, hour,
             min, sec, micro_sec, time_zone, is_dst);
-      } else {
-        raise_error(err_info);
-      } /*if */
-#else
-      raise_error(err_info);
+      } else
 #endif
+      {
+        logError(printf("cmdGetMTime: cp_to_os_path(\"%s\", *, *) failed:\n"
+                        "path_info=%d, err_info=%d\n",
+                        striAsUnquotedCStri(filePath), path_info, err_info););
+        raise_error(err_info);
+      }
     } else {
       stat_result = os_stat(os_path, &stat_buf);
       os_stri_free(os_path);
@@ -2170,6 +2291,9 @@ rtlArrayType cmdGetSearchPath (void)
   /* cmdGetSearchPath */
     result = getSearchPath(&err_info);
     if (unlikely(result == NULL)) {
+      logError(printf("cmdGetSearchPath: getSearchPath(*) failed:\n"
+                      "err_info=%d\n",
+                      err_info););
       raise_error(err_info);
     } /* if */
     return result;
@@ -2241,14 +2365,24 @@ rtlArrayType cmdLs (const const_striType dirPath)
     rtlArrayType result;
 
   /* cmdLs */
+    logFunction(printf("cmdLs(\"%s\")\n", striAsUnquotedCStri(dirPath)););
     result = read_dir(dirPath, &err_info);
     if (unlikely(result == NULL)) {
+      logError(printf("cmdLs: read_dir(\"%s\", *) failed:\n"
+                      "err_info=%d\n",
+                      striAsUnquotedCStri(dirPath), err_info););
       raise_error(err_info);
     } else {
       qsort((void *) result->arr,
           (size_t) (result->max_position - result->min_position + 1),
           sizeof(rtlObjectType), &cmp_mem);
     } /* if */
+    logFunction(if (result == NULL) {
+                  printf("cmdLs --> NULL\n");
+                } else {
+                  printf("cmdLs --> array[size = " FMT_U_MEM "]\n",
+                         arraySize(result));
+                });
     return result;
   } /* cmdLs */
 
@@ -2321,9 +2455,17 @@ void cmdMove (const const_striType sourcePath, const const_striType destPath)
     logFunction(printf("cmdMove(\"%s\", ", striAsUnquotedCStri(sourcePath));
                 printf("\"%s\")\n", striAsUnquotedCStri(destPath)););
     os_sourcePath = cp_to_os_path(sourcePath, &path_info, &err_info);
-    if (likely(err_info == OKAY_NO_ERROR)) {
+    if (unlikely(err_info != OKAY_NO_ERROR)) {
+      logError(printf("cmdMove: cp_to_os_path(\"%s\", *, *) failed:\n"
+                      "path_info=%d, err_info=%d\n",
+                      striAsUnquotedCStri(sourcePath), path_info, err_info););
+    } else {
       os_destPath = cp_to_os_path(destPath, &path_info, &err_info);
-      if (likely(err_info == OKAY_NO_ERROR)) {
+      if (unlikely(err_info != OKAY_NO_ERROR)) {
+        logError(printf("cmdMove: cp_to_os_path(\"%s\", *, *) failed:\n"
+                        "path_info=%d, err_info=%d\n",
+                        striAsUnquotedCStri(destPath), path_info, err_info););
+      } else {
         move_any_file(os_sourcePath, os_destPath, &err_info);
         os_stri_free(os_destPath);
       } /* if */
@@ -2351,7 +2493,7 @@ void cmdMove (const const_striType sourcePath, const const_striType destPath)
 striType cmdReadlink (const const_striType filePath)
 
   {
-#if HAS_SYMLINKS
+#if HAS_READLINK
     os_striType os_filePath;
     os_stat_struct link_stat;
     os_striType link_destination;
@@ -2362,27 +2504,52 @@ striType cmdReadlink (const const_striType filePath)
     striType result = NULL;
 
   /* cmdReadlink */
-#if HAS_SYMLINKS
+    logFunction(printf("cmdReadlink(\"%s\")\n",
+                       striAsUnquotedCStri(filePath)););
+#if HAS_READLINK
     os_filePath = cp_to_os_path(filePath, &path_info, &err_info);
-    if (likely(err_info == OKAY_NO_ERROR)) {
-      if (os_lstat(os_filePath, &link_stat) != 0 || !S_ISLNK(link_stat.st_mode)) {
+    if (unlikely(err_info != OKAY_NO_ERROR)) {
+      logError(printf("cmdReadlink: cp_to_os_path(\"%s\", *, *) failed:\n"
+                      "path_info=%d, err_info=%d\n",
+                      striAsUnquotedCStri(filePath), path_info, err_info););
+    } else {
+      if (unlikely(os_lstat(os_filePath, &link_stat) != 0)) {
+        logError(printf("cmdReadlink: os_lstat(" FMT_S_OS ", *) failed:\n"
+                        "errno=%d\nerror: %s\n",
+                        os_filePath, errno, strerror(errno)););
+        err_info = FILE_ERROR;
+      } else if (unlikely(!S_ISLNK(link_stat.st_mode))) {
+        logError(printf("cmdReadlink: "
+                        "The file " FMT_S_OS " is not a symbolic link.\n",
+                        os_filePath););
         err_info = FILE_ERROR;
       } else {
         /* printf("link size=%lu\n", link_stat.st_size); */
-        if (link_stat.st_size < 0 ||
-            (unsigned_os_off_t) link_stat.st_size > MAX_OS_STRI_LEN) {
+        if (unlikely(link_stat.st_size < 0 ||
+                     (unsigned_os_off_t) link_stat.st_size > MAX_OS_STRI_LEN)) {
           err_info = RANGE_ERROR;
         } else {
-          if (!os_stri_alloc(link_destination, (memSizeType) link_stat.st_size)) {
+          if (unlikely(!os_stri_alloc(link_destination, (memSizeType) link_stat.st_size))) {
             err_info = MEMORY_ERROR;
           } else {
             readlink_result = readlink(os_filePath, link_destination,
                                        (size_t) link_stat.st_size);
-            if (readlink_result != -1) {
+            if (unlikely(readlink_result == -1)) {
+              logError(printf("cmdReadlink: "
+                              "readlink(\"" FMT_S_OS "\", *, " FMT_U_MEM ") failed:\n"
+                              "errno=%d\nerror: %s\n",
+                              os_filePath, (memSizeType) link_stat.st_size,
+                              errno, strerror(errno)););
+              err_info = FILE_ERROR;
+            } else {
               link_destination[readlink_result] = '\0';
               result = cp_from_os_path(link_destination, &err_info);
-            } else {
-              err_info = FILE_ERROR;
+              if (unlikely(err_info != OKAY_NO_ERROR)) {
+                logError(printf("cmdReadlink: "
+                                "cp_from_os_path(\"" FMT_S_OS "\", *) failed:\n"
+                                "err_info=%d\n",
+                                link_destination, err_info););
+              } /* if */
             } /* if */
             os_stri_free(link_destination);
           } /* if */
@@ -2396,6 +2563,8 @@ striType cmdReadlink (const const_striType filePath)
     if (unlikely(err_info != OKAY_NO_ERROR)) {
       raise_error(err_info);
     } /* if */
+    logFunction(printf("cmdReadlink --> \"%s\"\n",
+                       striAsUnquotedCStri(result)););
     return result;
   } /* cmdReadlink */
 
@@ -3098,7 +3267,7 @@ striType cmdShellEscape (const const_striType stri)
 void cmdSymlink (const const_striType sourcePath, const const_striType destPath)
 
   {
-#if HAS_SYMLINKS
+#if HAS_SYMBOLIC_LINKS
     os_striType os_sourcePath;
     os_striType os_destPath;
     int path_info;
@@ -3106,7 +3275,7 @@ void cmdSymlink (const const_striType sourcePath, const const_striType destPath)
     errInfoType err_info = OKAY_NO_ERROR;
 
   /* cmdSymlink */
-#if HAS_SYMLINKS
+#if HAS_SYMBOLIC_LINKS
     os_sourcePath = cp_to_os_path(sourcePath, &path_info, &err_info);
     if (likely(err_info == OKAY_NO_ERROR)) {
       os_destPath = cp_to_os_path(destPath, &path_info, &err_info);

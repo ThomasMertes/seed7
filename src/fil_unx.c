@@ -29,19 +29,23 @@
 /*                                                                  */
 /********************************************************************/
 
+#define LOG_FUNCTIONS 0
+#define VERBOSE_EXCEPTIONS 0
+
 #include "version.h"
 
 #include "stdlib.h"
 #include "stdio.h"
+#include "string.h"
 #ifdef read_buffer_empty
 #include "poll.h"
 #else
 #include "fcntl.h"
-#include "errno.h"
 #endif
 #ifdef MOUNT_NODEFS
 #include "emscripten.h"
 #endif
+#include "errno.h"
 
 #include "common.h"
 #include "os_decls.h"
@@ -59,7 +63,7 @@ boolType filInputReady (fileType aFile)
     boolType result;
 
   /* filInputReady */
-    /* printf("filInputReady(%lx)\n", aFile); */
+    logFunction(printf("filInputReady(%d)\n", safe_fileno(aFile)););
     if (!read_buffer_empty(aFile)) {
       result = TRUE;
     } else {
@@ -70,6 +74,10 @@ boolType filInputReady (fileType aFile)
         pollFd[0].events = POLLIN;
         poll_result = os_poll(pollFd, 1, 0);
         if (unlikely(poll_result < 0)) {
+          logError(printf("filInputReady(%d): poll([%d, POLLIN], 1, 0) failed:\n"
+                          "errno=%d\nerror: %s\n",
+                          safe_fileno(aFile), safe_fileno(aFile),
+                          errno, strerror(errno)););
           raise_error(FILE_ERROR);
           result = FALSE;
         } else {
@@ -79,11 +87,16 @@ boolType filInputReady (fileType aFile)
           result = poll_result == 1 && (pollFd[0].revents & (POLLIN | POLLHUP));
         } /* if */
       } else {
+        logError(printf("filInputReady(%d): fileno(%d) failed:\n"
+                        "errno=%d\nerror: %s\n",
+                        safe_fileno(aFile), safe_fileno(aFile),
+                        errno, strerror(errno)););
         raise_error(FILE_ERROR);
         result = FALSE;
       } /* if */
     } /* if */
-    /* printf("filInputReady(%lx) --> %d\n", aFile, result); */
+    logFunction(printf("filInputReady(%d) --> %d\n",
+                       safe_fileno(aFile), result););
     return result;
   } /* filInputReady */
 
@@ -101,7 +114,7 @@ boolType filInputReady (fileType aFile)
     boolType result;
 
   /* filInputReady */
-    /* printf("filInputReady(%lx)\n", aFile); */
+    logFunction(printf("filInputReady(%d)\n", safe_fileno(aFile)););
     file_no = fileno(aFile);
     if (file_no != -1) {
       /* printf("file_no=%d\n", file_no); */
@@ -125,10 +138,15 @@ boolType filInputReady (fileType aFile)
       } /* if */
       fcntl(file_no, F_SETFL, flags);
     } else {
+      logError(printf("filInputReady(%d): fileno(%d) failed:\n"
+                      "errno=%d\nerror: %s\n",
+                      safe_fileno(aFile), safe_fileno(aFile),
+                      errno, strerror(errno)););
       raise_error(FILE_ERROR);
       result = FALSE;
     } /* if */
-    /* printf("filInputReady(%lx) --> %d\n", aFile, result); */
+    logFunction(printf("filInputReady(%d) --> %d\n",
+                       safe_fileno(aFile), result););
     return result;
   } /* filInputReady */
 #endif
@@ -147,6 +165,7 @@ boolType filInputReady (fileType aFile)
     boolType result;
 
   /* filInputReady */
+    logFunction(printf("filInputReady(%d)\n", safe_fileno(aFile)););
     file_no = fileno(aFile);
     if (file_no != -1) {
       FD_ZERO(&readfds);
@@ -158,16 +177,26 @@ boolType filInputReady (fileType aFile)
       select_result = select(nfds, &readfds, NULL, NULL, &timeout);
       /* printf("select_result: %d\n", select_result); */
       if (unlikely(select_result < 0)) {
+        logError(printf("filInputReady(%d): "
+                        "select(%d, [%d], NULL, NULL, [0, 0]) failed:\n"
+                        "errno=%d\nerror: %s\n",
+                        safe_fileno(aFile), nfds, sock,
+                        errno, strerror(errno)););
         raise_error(FILE_ERROR);
         result = FALSE;
       } else {
         result = FD_ISSET(file_no, &readfds);
       } /* if */
     } else {
+      logError(printf("filInputReady(%d): fileno(%d) failed:\n"
+                      "errno=%d\nerror: %s\n",
+                      safe_fileno(aFile), safe_fileno(aFile),
+                      errno, strerror(errno)););
       raise_error(FILE_ERROR);
       result = FALSE;
     } /* if */
-    /* printf("filInputReady --> %d\n", result); */
+    logFunction(printf("filInputReady(%d) --> %d\n",
+                       safe_fileno(aFile), result););
     return result;
   } /* filInputReady */
 #endif
@@ -177,25 +206,57 @@ boolType filInputReady (fileType aFile)
 void setupFiles (void)
 
   { /* setupFiles */
+    logFunction(printf("setupFiles\n"););
 #ifdef MOUNT_NODEFS
 #ifdef _WIN32
     EM_ASM(
       var fs = require('fs');
       /* FS.unmount('/'); */
       /* FS.mount(NODEFS, { root: 'c:/' }, '/root'); */
+      var workDir = process.cwd().replace(/\\\\/g, '/');
+      var mountPoint = '.';
+      if (workDir.charAt(1) == ':' && workDir.charAt(2) == '/') {
+        workDir = '/' + workDir.charAt(0).toLowerCase() + workDir.substring(2);
+        count = (workDir.match(new RegExp("/", "g")) || []).length;
+        mountPoint = new Array(count).join('/..').substring(1);
+      }
+      process.stdout.write(workDir);
+      process.stdout.write(count.toString());
+      process.stdout.write(mountPoint);
       FS.mkdir('/root');
-      FS.mount(NODEFS, { root: '.' }, '/root');
-      FS.chdir('/root');
+      FS.mount(NODEFS, { root: '..' }, '/root');
+      FS.chdir('/root/prg');
     );
 #else
     EM_ASM(
       var fs = require('fs');
-      /* FS.unmount('/'); */
-      /* FS.mount(NODEFS, { root: '/' }, '/root'); */
-      FS.mkdir('/root');
-      FS.mount(NODEFS, { root: '.' }, '/root');
-      FS.chdir('/root');
+      var mountPoint = '.';
+      var rootDir = '/';
+      var workDir = process.cwd();
+      // process.stdout.write(workDir);
+      // process.stdout.write('\n');
+      workDir = workDir.replace(/\\\\/g, '/');
+      // process.stdout.write(workDir);
+      // process.stdout.write('\n');
+      if (workDir.charAt(1) == ':' && workDir.charAt(2) == '/') {
+        mountPoint = workDir.substring(0, 3);
+        rootDir = '/' + workDir.charAt(0).toLowerCase();
+        workDir = rootDir + workDir.substring(2);
+      }
+      // process.stdout.write('workDir: ' + workDir);
+      // process.stdout.write('\n');
+      // process.stdout.write('mountPoint: ' + mountPoint);
+      // process.stdout.write('\n');
+      // process.stdout.write('rootDir: ' + rootDir);
+      // process.stdout.write('\n');
+      FS.mkdir(rootDir);
+      FS.mount(NODEFS, { root: mountPoint }, rootDir);
+      // Note: Chdir fails for unsufficient permission. E.g. with /c/Users
+      // process.stdout.write('before chdir');
+      FS.chdir(workDir);
+      // process.stdout.write('after chdir');
     );
 #endif
 #endif
+    logFunction(printf("setupFiles -->\n"););
   } /* setupFiles */

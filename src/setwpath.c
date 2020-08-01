@@ -29,6 +29,7 @@
 
 #include "stdio.h"
 #include "string.h"
+#include "wchar.h"
 #include "direct.h"
 #include "windows.h"
 

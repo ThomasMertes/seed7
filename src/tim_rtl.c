@@ -67,7 +67,7 @@
 #endif
 #endif
 
-static time_t month_days[2][12] = {
+static int month_days[2][12] = {
     {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31},
     {31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31}};
 
@@ -184,9 +184,10 @@ void timFromTimestamp (time_t timestamp,
       *time_zone = (intType) (unchecked_mkutc(local_time) - timestamp) / 60;
       *is_dst    = local_time->tm_isdst > 0;
     } /* if */
-    logFunction(printf("timFromTimestamp(%ld, %04ld-%02ld-%02ld %02ld:%02ld:%02ld.%06ld %ld %d)\n",
-                       timestamp, *year, *month, *day, *hour, *min, *sec,
-                       *micro_sec, *time_zone, *is_dst););
+    logFunction(printf("timFromTimestamp(%ld," F_D(04) "-" F_D(02) "-" F_D(02),
+                       timestamp, *year, *month, *day);
+                printf(" " F_D(02) ":" F_D(02) ":" F_D(02) "." F_D(06) " " FMT_D " %d) -->\n",
+                       *hour, *min, *sec, *micro_sec, *time_zone, *is_dst););
   } /* timFromTimestamp */
 
 
@@ -215,8 +216,10 @@ time_t timToTimestamp (intType year, intType month, intType day, intType hour,
     time_t result;
 
   /* timToTimestamp */
-    logFunction(printf("timToTimestamp(%04ld-%02ld-%02ld %02ld:%02ld:%02ld.%06ld %ld)\n",
-                       year, month, day, hour, min, sec, micro_sec, time_zone););
+    logFunction(printf("timToTimestamp(" F_D(04) "-" F_D(02) "-" F_D(02),
+                       year, month, day);
+                printf(" " F_D(02) ":" F_D(02) ":" F_D(02) "." F_D(06) " " FMT_D ") -->\n",
+                       hour, min, sec, micro_sec, time_zone););
     tm_time.tm_year  = (int) year - 1900;
     tm_time.tm_mon   = (int) month - 1;
     tm_time.tm_mday  = (int) day;

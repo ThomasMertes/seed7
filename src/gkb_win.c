@@ -34,6 +34,7 @@
 
 #include "version.h"
 
+#include "stdlib.h"
 #include "stdio.h"
 #include "windows.h"
 
@@ -673,7 +674,7 @@ winType gkbWindow (void)
     if (result != NULL) {
       result->usage_count++;
     } /* if */
-    logFunction(printf("gkbWindow -> %lu\n", result););
+    logFunction(printf("gkbWindow -> " FMT_U_MEM "\n", (memSizeType) result););
     return result;
   } /* gkbWindow */
 

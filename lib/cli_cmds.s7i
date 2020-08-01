@@ -138,15 +138,15 @@ const proc: doCopyCmd (in var array string: fileList,
               removeFile(destination);
             exception
               catch FILE_ERROR:
-                writeln(" *** Cannot remove " <& destFileName);
+                writeln(" *** Cannot remove " <& destination);
             end block;
           end if;
           if fileType(destination) = FILE_ABSENT then
             # write("copyFile " <& fileName <& " " <& destination);
             if archive then
-              cloneFile(fileName, destFileName);
+              cloneFile(fileName, destination);
             else
-              copyFile(fileName, destFileName);
+              copyFile(fileName, destination);
             end if;
           end if;
         elsif fileType(fileName) = FILE_ABSENT then
@@ -221,12 +221,12 @@ const proc: doMoveCmd (in var array string: fileList,
               removeFile(destination);
             exception
               catch FILE_ERROR:
-                writeln(" *** Cannot remove " <& destFileName);
+                writeln(" *** Cannot remove " <& destination);
             end block;
           end if;
           if fileType(destination) = FILE_ABSENT then
             # write("moveFile " <& fileName <& " " <& destination);
-            moveFile(fileName, destFileName);
+            moveFile(fileName, destination);
           end if;
         elsif fileType(fileName) = FILE_ABSENT then
           writeln("Cannot move non-existent file " <& fileName);

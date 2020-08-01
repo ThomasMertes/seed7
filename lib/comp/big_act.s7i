@@ -965,11 +965,7 @@ const proc: process_const_big_lshift (in reference: param1, in integer: lshift,
     prepare_bigint_result(c_expr);
     prepareAnyParamTemporarys(param1, c_param1, c_expr);
     if c_param1.result_expr <> "" then
-      incr(c_expr.temp_num);
-      bigint_name := "tmp_" & str(c_expr.temp_num);
-      c_expr.temp_decls &:= "bigIntType ";
-      c_expr.temp_decls &:= bigint_name;
-      c_expr.temp_decls &:= ";\n";
+      bigint_name := defineTempVariable("bigIntType", "tmp_", c_expr);
       c_expr.result_expr &:= "(bigLShiftAssign((";
       c_expr.result_expr &:= bigint_name;
       c_expr.result_expr &:= "=";
@@ -1004,11 +1000,7 @@ const proc: process (BIG_LSHIFT, in reference: function,
       prepare_bigint_result(c_expr);
       prepareAnyParamTemporarys(params[1], c_param1, c_expr);
       if c_param1.result_expr <> "" then
-        incr(c_expr.temp_num);
-        bigint_name := "tmp_" & str(c_expr.temp_num);
-        c_expr.temp_decls &:= "bigIntType ";
-        c_expr.temp_decls &:= bigint_name;
-        c_expr.temp_decls &:= ";\n";
+        bigint_name := defineTempVariable("bigIntType", "tmp_", c_expr);
         c_expr.result_expr := "(bigLShiftAssign((";
         c_expr.result_expr &:= bigint_name;
         c_expr.result_expr &:= "=";
@@ -1076,11 +1068,7 @@ const proc: process_const_big_rshift (in reference: param1, in integer: rshift,
     prepare_bigint_result(c_expr);
     prepareAnyParamTemporarys(param1, c_param1, c_expr);
     if c_param1.result_expr <> "" then
-      incr(c_expr.temp_num);
-      bigint_name := "tmp_" & str(c_expr.temp_num);
-      c_expr.temp_decls &:= "bigIntType ";
-      c_expr.temp_decls &:= bigint_name;
-      c_expr.temp_decls &:= ";\n";
+      bigint_name := defineTempVariable("bigIntType", "tmp_", c_expr);
       c_expr.result_expr := "(bigRShiftAssign((";
       c_expr.result_expr &:= bigint_name;
       c_expr.result_expr &:= "=";
@@ -1141,11 +1129,7 @@ const proc: process_const_big_mdiv (in reference: dividend, in bigInteger: divis
         2_ ** ord(log2(-divisor)) = -divisor then
       incr(countOptimizations);
       prepare_bigint_result(c_expr);
-      incr(c_expr.temp_num);
-      bigint_name := "tmp_" & str(c_expr.temp_num);
-      c_expr.temp_decls &:= "bigIntType ";
-      c_expr.temp_decls &:= bigint_name;
-      c_expr.temp_decls &:= ";\n";
+      bigint_name := defineTempVariable("bigIntType", "tmp_", c_expr);
       c_expr.result_expr := "(bigRShiftAssign((";
       c_expr.result_expr &:= bigint_name;
       c_expr.result_expr &:= "=";
@@ -1628,11 +1612,7 @@ const proc: process (BIG_RSHIFT, in reference: function,
     prepare_bigint_result(c_expr);
     prepareAnyParamTemporarys(params[1], c_param1, c_expr);
     if c_param1.result_expr <> "" then
-      incr(c_expr.temp_num);
-      bigint_name := "tmp_" & str(c_expr.temp_num);
-      c_expr.temp_decls &:= "bigIntType ";
-      c_expr.temp_decls &:= bigint_name;
-      c_expr.temp_decls &:= ";\n";
+      bigint_name := defineTempVariable("bigIntType", "tmp_", c_expr);
       c_expr.result_expr := "(bigRShiftAssign((";
       c_expr.result_expr &:= bigint_name;
       c_expr.result_expr &:= "=";

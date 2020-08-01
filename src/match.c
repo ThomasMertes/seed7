@@ -41,6 +41,7 @@
 #include "traceutl.h"
 #include "executl.h"
 #include "objutl.h"
+#include "name.h"
 #include "error.h"
 #include "prclib.h"
 #include "dcllib.h"
@@ -281,6 +282,32 @@ void update_owner (const_objectType expr_object)
 
 
 
+static objectType match_symbol (objectType object)
+
+  {
+    objectType obj_found;
+    errInfoType err_info = OKAY_NO_ERROR;
+    objectType result;
+
+  /* match_symbol */
+    if (!HAS_ENTITY(object) ||
+        GET_ENTITY(object)->syobject == NULL) {
+      err_match(EXPR_EXPECTED, object);
+      result = NULL;
+    } else {
+      obj_found = find_name(prog.declaration_root, GET_ENTITY(object)->syobject, &err_info);
+      if (obj_found == NULL) {
+        err_match(EXPR_EXPECTED, object);
+        result = NULL;
+      } else {
+        result = match_object(obj_found);
+      } /* if */
+    } /* if */
+    return result;
+  } /* match_symbol */
+
+
+
 objectType match_object (objectType object)
 
   {
@@ -335,6 +362,9 @@ objectType match_object (objectType object)
         break;
       case CALLOBJECT:
         result = object;
+        break;
+      case SYMBOLOBJECT:
+        result = match_symbol(object);
         break;
       default:
         printf("### match_object of ");

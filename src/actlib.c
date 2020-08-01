@@ -130,7 +130,7 @@ objectType act_iconv (listType arguments)
   /* act_iconv */
     isit_int(arg_3(arguments));
     ordinal = take_int(arg_3(arguments));
-    if (ordinal < 0 || ordinal >= act_table.size) {
+    if (ordinal < 0 || (uintType) ordinal >= act_table.size) {
       return raise_exception(SYS_RNG_EXCEPTION);
     } else {
       return bld_action_temp(act_table.primitive[ordinal].action);

@@ -128,6 +128,7 @@ strip:
 chkccomp.h:
 	echo #include "direct.h" > chkccomp.h
 	echo #include "unistd.h" >> chkccomp.h
+	echo #define mkdir(path,mode) mkdir(path) >> chkccomp.h
 	echo #define LIST_DIRECTORY_CONTENTS "dir" >> chkccomp.h
 
 version.h: chkccomp.h
@@ -139,6 +140,7 @@ version.h: chkccomp.h
 	echo #define AWAIT_WITH_SELECT >> version.h
 	echo #define IMPLEMENT_PTY_WITH_PIPE2 >> version.h
 	echo #define OS_STRI_USES_CODE_PAGE >> version.h
+	echo #define os_utimbuf_struct struct _utimbuf >> version.h
 	echo #define os_lstat stat >> version.h
 	echo #define os_fseek fseek >> version.h
 	echo #define os_ftell ftell >> version.h

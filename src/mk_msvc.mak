@@ -48,7 +48,7 @@ GOBJ = syvarutl.obj traceutl.obj actutl.obj executl.obj blockutl.obj \
 ROBJ = arr_rtl.obj bln_rtl.obj bst_rtl.obj chr_rtl.obj cmd_rtl.obj con_rtl.obj dir_rtl.obj drw_rtl.obj fil_rtl.obj \
        flt_rtl.obj hsh_rtl.obj int_rtl.obj itf_rtl.obj pcs_rtl.obj set_rtl.obj soc_rtl.obj sql_rtl.obj str_rtl.obj \
        tim_rtl.obj ut8_rtl.obj heaputl.obj striutl.obj sql_lite.obj sql_my.obj sql_oci.obj sql_odbc.obj sql_post.obj sql_util.obj
-DOBJ = $(BIGINT_LIB).obj cmd_win.obj dll_win.obj dir_win.obj fil_win.obj pcs_win.obj pol_sel.obj tim_win.obj
+DOBJ = $(BIGINT_LIB).obj cmd_win.obj dir_win.obj dll_win.obj fil_win.obj pcs_win.obj pol_sel.obj tim_win.obj
 OBJ = $(MOBJ)
 SEED7_LIB_OBJ = $(ROBJ) $(DOBJ)
 DRAW_LIB_OBJ = gkb_rtl.obj drw_win.obj gkb_win.obj
@@ -71,7 +71,7 @@ GSRC = syvarutl.c traceutl.c actutl.c executl.c blockutl.c \
 RSRC = arr_rtl.c bln_rtl.c bst_rtl.c chr_rtl.c cmd_rtl.c con_rtl.c dir_rtl.c drw_rtl.c fil_rtl.c \
        flt_rtl.c hsh_rtl.c int_rtl.c itf_rtl.c pcs_rtl.c set_rtl.c soc_rtl.c sql_rtl.c str_rtl.c \
        tim_rtl.c ut8_rtl.c heaputl.c striutl.c sql_lite.c sql_my.c sql_oci.c sql_odbc.c sql_post.c sql_util.c
-DSRC = $(BIGINT_LIB).c cmd_win.c dll_win.c dir_win.c fil_win.c pcs_win.c pol_sel.c tim_win.c
+DSRC = $(BIGINT_LIB).c cmd_win.c dir_win.c dll_win.c fil_win.c pcs_win.c pol_sel.c tim_win.c
 SRC = $(MSRC)
 SEED7_LIB_SRC = $(RSRC) $(DSRC)
 DRAW_LIB_SRC = gkb_rtl.c drw_win.c gkb_win.c

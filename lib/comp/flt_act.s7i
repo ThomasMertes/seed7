@@ -192,11 +192,7 @@ const proc: process (FLT_CAST, in reference: function,
   local
     var string: temp_name is "";
   begin
-    incr(c_expr.temp_num);
-    temp_name := "tmp_" & str(c_expr.temp_num);
-    c_expr.temp_decls &:= "rtlValueUnion ";
-    c_expr.temp_decls &:= temp_name;
-    c_expr.temp_decls &:= ";\n";
+    temp_name := defineTempVariable("rtlValueUnion", "tmp_", c_expr);
     c_expr.expr &:= "(";
     c_expr.expr &:= temp_name;
     c_expr.expr &:= ".floatValue=";
@@ -293,7 +289,7 @@ const proc: process_const_flt_div (in reference: dividend, in float: divisor,
         c_expr.expr &:= "(";
         dividend_name := getParameterAsVariable("floatType", "tmp_", dividend, c_expr);
         c_expr.expr &:= dividend_name;
-        c_expr.expr &:= "==0.0 || isnan(";
+        c_expr.expr &:= "==0.0 || os_isnan(";
         c_expr.expr &:= dividend_name;
         c_expr.expr &:= ") ? NOT_A_NUMBER : (";
         c_expr.expr &:= dividend_name;
@@ -338,7 +334,7 @@ const proc: process (FLT_DIV, in reference: function,
       c_expr.expr &:= divisor;
       c_expr.expr &:= "==0.0 ? (";
       c_expr.expr &:= dividend;
-      c_expr.expr &:= "==0.0 || isnan(";
+      c_expr.expr &:= "==0.0 || os_isnan(";
       c_expr.expr &:= dividend;
       c_expr.expr &:= ") ? NOT_A_NUMBER : ((";
       c_expr.expr &:= dividend;
@@ -386,7 +382,7 @@ const proc: process_const_flt_div_assign (in reference: param1, in float: diviso
       statement.expr &:= dividend;
       statement.expr &:= "=(";
       statement.expr &:= dividend;
-      statement.expr &:= "==0.0 || isnan(";
+      statement.expr &:= "==0.0 || os_isnan(";
       statement.expr &:= dividend;
       statement.expr &:= ") ? NOT_A_NUMBER : (";
       statement.expr &:= dividend;
@@ -454,7 +450,7 @@ const proc: process (FLT_DIV_ASSIGN, in reference: function,
       statement.expr &:= divisor;
       statement.expr &:= "==0.0 ? (";
       statement.expr &:= dividend;
-      statement.expr &:= "==0.0 || isnan(";
+      statement.expr &:= "==0.0 || os_isnan(";
       statement.expr &:= dividend;
       statement.expr &:= ") ? NOT_A_NUMBER : ((";
       statement.expr &:= dividend;
@@ -673,11 +669,7 @@ const proc: process (FLT_HASHCODE, in reference: function,
   local
     var string: temp_name is "";
   begin
-    incr(c_expr.temp_num);
-    temp_name := "tmp_" & str(c_expr.temp_num);
-    c_expr.temp_decls &:= "rtlValueUnion ";
-    c_expr.temp_decls &:= temp_name;
-    c_expr.temp_decls &:= ";\n";
+    temp_name := defineTempVariable("rtlValueUnion", "tmp_", c_expr);
     c_expr.expr &:= "(";
     c_expr.expr &:= temp_name;
     c_expr.expr &:= ".floatValue=";
@@ -694,11 +686,7 @@ const proc: process (FLT_ICAST, in reference: function,
   local
     var string: temp_name is "";
   begin
-    incr(c_expr.temp_num);
-    temp_name := "tmp_" & str(c_expr.temp_num);
-    c_expr.temp_decls &:= "rtlValueUnion ";
-    c_expr.temp_decls &:= temp_name;
-    c_expr.temp_decls &:= ";\n";
+    temp_name := defineTempVariable("rtlValueUnion", "tmp_", c_expr);
     c_expr.expr &:= "(";
     c_expr.expr &:= temp_name;
     c_expr.expr &:= ".intValue=";
@@ -745,7 +733,7 @@ const proc: process (FLT_ISNAN, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    c_expr.expr &:= "isnan(";
+    c_expr.expr &:= "os_isnan(";
     process_expr(params[1], c_expr);
     c_expr.expr &:= ")";
   end func;

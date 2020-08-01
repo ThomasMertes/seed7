@@ -314,7 +314,7 @@ objectType flt_div (listType arguments)
     divisor = take_float(arg_3(arguments));
 #if CHECK_FLOAT_DIV_BY_ZERO
     if (divisor == 0.0) {
-      if (dividend == 0.0 || isnan(dividend)) {
+      if (dividend == 0.0 || os_isnan(dividend)) {
         return bld_float_temp(NOT_A_NUMBER);
       } else if ((dividend < 0.0) == fltIsNegativeZero(divisor)) {
         return bld_float_temp(POSITIVE_INFINITY);
@@ -349,7 +349,7 @@ objectType flt_div_assign (listType arguments)
 #if CHECK_FLOAT_DIV_BY_ZERO
     if (divisor == 0.0) {
       dividend = take_float(flt_variable);
-      if (dividend == 0.0 || isnan(dividend)) {
+      if (dividend == 0.0 || os_isnan(dividend)) {
         flt_variable->value.floatValue = NOT_A_NUMBER;
       } else if ((dividend < 0.0) == fltIsNegativeZero(divisor)) {
         flt_variable->value.floatValue = POSITIVE_INFINITY;
@@ -557,7 +557,7 @@ objectType flt_isnan (listType arguments)
 
   { /* flt_isnan */
     isit_float(arg_1(arguments));
-    if (isnan(take_float(arg_1(arguments)))) {
+    if (os_isnan(take_float(arg_1(arguments)))) {
       return SYS_TRUE_OBJECT;
     } else {
       return SYS_FALSE_OBJECT;
@@ -746,7 +746,7 @@ objectType flt_negate (listType arguments)
   { /* flt_negate */
     isit_float(arg_2(arguments));
     return bld_float_temp(
-        -(double) take_float(arg_2(arguments)));
+        -take_float(arg_2(arguments)));
   } /* flt_negate */
 
 

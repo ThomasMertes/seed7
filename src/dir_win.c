@@ -54,7 +54,7 @@
  *  @return a pointer to the directory stream or NULL if the
  *          directory stream could not be opened.
  */
-DIR *opendir (char *name)
+DIR *opendir (const char *name)
 
   {
     unsigned int name_len;
@@ -150,7 +150,7 @@ int closedir (DIR *curr_dir)
  *  @return a pointer to the directory stream or NULL if the
  *          directory stream could not be opened.
  */
-WDIR *wopendir (wchar_t *name)
+WDIR *wopendir (const wchar_t *name)
 
   {
     unsigned int name_len;

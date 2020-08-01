@@ -175,29 +175,29 @@ static boolType setupDll (const char *dllName)
     if (dbDll == NULL) {
       dbDll = dllOpen(dllName);
       if (dbDll != NULL) {
-        if ((sqlite3_bind_blob     = (tp_sqlite3_bind_blob)     dllSym(dbDll, "sqlite3_bind_blob"))     == NULL ||
-            (sqlite3_bind_double   = (tp_sqlite3_bind_double)   dllSym(dbDll, "sqlite3_bind_double"))   == NULL ||
-            (sqlite3_bind_int      = (tp_sqlite3_bind_int)      dllSym(dbDll, "sqlite3_bind_int"))      == NULL ||
-            (sqlite3_bind_int64    = (tp_sqlite3_bind_int64)    dllSym(dbDll, "sqlite3_bind_int64"))    == NULL ||
-            (sqlite3_bind_null     = (tp_sqlite3_bind_null)     dllSym(dbDll, "sqlite3_bind_null"))     == NULL ||
-            (sqlite3_bind_text     = (tp_sqlite3_bind_text)     dllSym(dbDll, "sqlite3_bind_text"))     == NULL ||
-            (sqlite3_close         = (tp_sqlite3_close)         dllSym(dbDll, "sqlite3_close"))         == NULL ||
-            (sqlite3_column_blob   = (tp_sqlite3_column_blob)   dllSym(dbDll, "sqlite3_column_blob"))   == NULL ||
-            (sqlite3_column_bytes  = (tp_sqlite3_column_bytes)  dllSym(dbDll, "sqlite3_column_bytes"))  == NULL ||
-            (sqlite3_column_count  = (tp_sqlite3_column_count)  dllSym(dbDll, "sqlite3_column_count"))  == NULL ||
-            (sqlite3_column_double = (tp_sqlite3_column_double) dllSym(dbDll, "sqlite3_column_double")) == NULL ||
-            (sqlite3_column_int    = (tp_sqlite3_column_int)    dllSym(dbDll, "sqlite3_column_int"))    == NULL ||
-            (sqlite3_column_int64  = (tp_sqlite3_column_int64)  dllSym(dbDll, "sqlite3_column_int64"))  == NULL ||
-            (sqlite3_column_name   = (tp_sqlite3_column_name)   dllSym(dbDll, "sqlite3_column_name"))   == NULL ||
-            (sqlite3_column_text   = (tp_sqlite3_column_text)   dllSym(dbDll, "sqlite3_column_text"))   == NULL ||
-            (sqlite3_column_type   = (tp_sqlite3_column_type)   dllSym(dbDll, "sqlite3_column_type"))   == NULL ||
-            (sqlite3_db_handle     = (tp_sqlite3_db_handle)     dllSym(dbDll, "sqlite3_db_handle"))     == NULL ||
-            (sqlite3_errmsg        = (tp_sqlite3_errmsg)        dllSym(dbDll, "sqlite3_errmsg"))        == NULL ||
-            (sqlite3_finalize      = (tp_sqlite3_finalize)      dllSym(dbDll, "sqlite3_finalize"))      == NULL ||
-            (sqlite3_open          = (tp_sqlite3_open)          dllSym(dbDll, "sqlite3_open"))          == NULL ||
-            (sqlite3_prepare       = (tp_sqlite3_prepare)       dllSym(dbDll, "sqlite3_prepare"))       == NULL ||
-            (sqlite3_reset         = (tp_sqlite3_reset)         dllSym(dbDll, "sqlite3_reset"))         == NULL ||
-            (sqlite3_step          = (tp_sqlite3_step)          dllSym(dbDll, "sqlite3_step"))          == NULL) {
+        if ((sqlite3_bind_blob     = (tp_sqlite3_bind_blob)     dllFunc(dbDll, "sqlite3_bind_blob"))     == NULL ||
+            (sqlite3_bind_double   = (tp_sqlite3_bind_double)   dllFunc(dbDll, "sqlite3_bind_double"))   == NULL ||
+            (sqlite3_bind_int      = (tp_sqlite3_bind_int)      dllFunc(dbDll, "sqlite3_bind_int"))      == NULL ||
+            (sqlite3_bind_int64    = (tp_sqlite3_bind_int64)    dllFunc(dbDll, "sqlite3_bind_int64"))    == NULL ||
+            (sqlite3_bind_null     = (tp_sqlite3_bind_null)     dllFunc(dbDll, "sqlite3_bind_null"))     == NULL ||
+            (sqlite3_bind_text     = (tp_sqlite3_bind_text)     dllFunc(dbDll, "sqlite3_bind_text"))     == NULL ||
+            (sqlite3_close         = (tp_sqlite3_close)         dllFunc(dbDll, "sqlite3_close"))         == NULL ||
+            (sqlite3_column_blob   = (tp_sqlite3_column_blob)   dllFunc(dbDll, "sqlite3_column_blob"))   == NULL ||
+            (sqlite3_column_bytes  = (tp_sqlite3_column_bytes)  dllFunc(dbDll, "sqlite3_column_bytes"))  == NULL ||
+            (sqlite3_column_count  = (tp_sqlite3_column_count)  dllFunc(dbDll, "sqlite3_column_count"))  == NULL ||
+            (sqlite3_column_double = (tp_sqlite3_column_double) dllFunc(dbDll, "sqlite3_column_double")) == NULL ||
+            (sqlite3_column_int    = (tp_sqlite3_column_int)    dllFunc(dbDll, "sqlite3_column_int"))    == NULL ||
+            (sqlite3_column_int64  = (tp_sqlite3_column_int64)  dllFunc(dbDll, "sqlite3_column_int64"))  == NULL ||
+            (sqlite3_column_name   = (tp_sqlite3_column_name)   dllFunc(dbDll, "sqlite3_column_name"))   == NULL ||
+            (sqlite3_column_text   = (tp_sqlite3_column_text)   dllFunc(dbDll, "sqlite3_column_text"))   == NULL ||
+            (sqlite3_column_type   = (tp_sqlite3_column_type)   dllFunc(dbDll, "sqlite3_column_type"))   == NULL ||
+            (sqlite3_db_handle     = (tp_sqlite3_db_handle)     dllFunc(dbDll, "sqlite3_db_handle"))     == NULL ||
+            (sqlite3_errmsg        = (tp_sqlite3_errmsg)        dllFunc(dbDll, "sqlite3_errmsg"))        == NULL ||
+            (sqlite3_finalize      = (tp_sqlite3_finalize)      dllFunc(dbDll, "sqlite3_finalize"))      == NULL ||
+            (sqlite3_open          = (tp_sqlite3_open)          dllFunc(dbDll, "sqlite3_open"))          == NULL ||
+            (sqlite3_prepare       = (tp_sqlite3_prepare)       dllFunc(dbDll, "sqlite3_prepare"))       == NULL ||
+            (sqlite3_reset         = (tp_sqlite3_reset)         dllFunc(dbDll, "sqlite3_reset"))         == NULL ||
+            (sqlite3_step          = (tp_sqlite3_step)          dllFunc(dbDll, "sqlite3_step"))          == NULL) {
           dbDll = NULL;
         } /* if */
       } /* if */

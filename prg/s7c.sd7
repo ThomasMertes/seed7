@@ -5092,9 +5092,6 @@ const proc: write_file_head is func
       writeln(c_prog, "#define POSITIVE_INFINITY ( 1.0 / 0.0)");
       writeln(c_prog, "#define NEGATIVE_INFINITY (-1.0 / 0.0)");
     end if;
-    if ccConf.ISNAN_WITH_UNDERLINE then
-      writeln(c_prog, "#define isnan(number) _isnan(number)");
-    end if;
     writeln(c_prog, "extern const floatType negativeZero;");
     writeln(c_prog, "#define OKAY_NO_ERROR   0");
     writeln(c_prog, "#define MEMORY_ERROR    1");

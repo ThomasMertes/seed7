@@ -24,7 +24,7 @@
 /*                                                                  */
 /*  Module: Seed7 Runtime Library                                   */
 /*  File: seed7/src/flt_rtl.c                                       */
-/*  Changes: 1993, 1994, 2005, 2010  Thomas Mertes                  */
+/*  Changes: 1993, 1994, 2005, 2010 - 2015  Thomas Mertes           */
 /*  Content: Primitive actions for the float type.                  */
 /*                                                                  */
 /********************************************************************/
@@ -41,6 +41,7 @@
 #include "math.h"
 #include "float.h"
 #include "ctype.h"
+#include "errno.h"
 
 #include "common.h"
 #include "data_rtl.h"
@@ -61,7 +62,7 @@
 /* The 4 additional chars below are for: -1 . and \0. */
 #define FLT_DGTS_LEN DOUBLE_MAX_EXP10 + 4
 /* The 6 additional chars below are for: -1. e+ and \0. */
-#define FLT_SCI_LEN DOUBLE_MAX_EXP10_DIGITS + 6
+#define FLT_SCI_LEN MAX_PRINTED_EXPONENT_DIGITS + 6
 
 #ifdef FLOAT_ZERO_DIV_ERROR
 const rtlValueUnion f_const[] =
@@ -183,7 +184,7 @@ memSizeType doubleToCharBuffer (double doubleValue, double largeNumber,
     } else {
       sprintf(buffer, format, doubleValue);
       /* printf("buffer: \"%s\"\n", buffer); */
-      len = strlen(buffer) - DOUBLE_MIN_EXP10_DIGITS - 2;
+      len = strlen(buffer) - MIN_PRINTED_EXPONENT_DIGITS - 2;
       while (buffer[len] != 'e') {
         len--;
       } /* while */
@@ -239,13 +240,13 @@ intType fltCmp (floatType number1, floatType number2)
 
   { /* fltCmp */
 #ifdef NAN_COMPARISON_WRONG
-    if (isnan(number1)) {
-      if (isnan(number2)) {
+    if (os_isnan(number1)) {
+      if (os_isnan(number2)) {
         return 0;
       } else {
         return 1;
       } /* if */
-    } else if (isnan(number2)) {
+    } else if (os_isnan(number2)) {
       return -1;
     } else if (number1 < number2) {
       return -1;
@@ -259,13 +260,13 @@ intType fltCmp (floatType number1, floatType number2)
       return -1;
     } else if (number1 > number2) {
       return 1;
-    } else if (isnan(number1)) {
-      if (isnan(number2)) {
+    } else if (os_isnan(number1)) {
+      if (os_isnan(number2)) {
         return 0;
       } else {
         return 1;
       } /* if */
-    } else if (isnan(number2)) {
+    } else if (os_isnan(number2)) {
       return -1;
     } else {
       return 0;
@@ -336,7 +337,7 @@ striType fltDgts (floatType number, intType precision)
       raise_error(MEMORY_ERROR);
       result = NULL;
     } else {
-      if (isnan(number)) {
+      if (os_isnan(number)) {
         buffer_ptr = "NaN";
       } else if (number == POSITIVE_INFINITY) {
         buffer_ptr = "Infinity";
@@ -408,7 +409,7 @@ striType fltDgts (floatType number, intType precision)
 boolType fltEq (floatType number1, floatType number2)
 
   { /* fltEq */
-    if (isnan(number1) || isnan(number2)) {
+    if (os_isnan(number1) || os_isnan(number2)) {
       return FALSE;
     } else {
       return number1 == number2;
@@ -431,7 +432,7 @@ boolType fltEq (floatType number1, floatType number2)
 boolType fltGe (floatType number1, floatType number2)
 
   { /* fltGe */
-    if (isnan(number1) || isnan(number2)) {
+    if (os_isnan(number1) || os_isnan(number2)) {
       return FALSE;
     } else {
       return number1 >= number2;
@@ -454,7 +455,7 @@ boolType fltGe (floatType number1, floatType number2)
 boolType fltGt (floatType number1, floatType number2)
 
   { /* fltGt */
-    if (isnan(number1) || isnan(number2)) {
+    if (os_isnan(number1) || os_isnan(number2)) {
       return FALSE;
     } else {
       return number1 > number2;
@@ -569,10 +570,14 @@ floatType fltIPow (floatType base, intType exponent)
  */
 boolType fltIsNegativeZero (floatType number)
 
-  { /* fltIsNegativeZero */
-    /* printf("fltIsNegativeZero %f %08x %08x\n",
-        number, *(int32Type *) &number, *(int32Type *) &negativeZero); */
-    return memcmp(&number, &negativeZero, sizeof(floatType)) == 0;
+  {
+    boolType isNegativeZero;
+
+  /* fltIsNegativeZero */
+    isNegativeZero = memcmp(&number, &negativeZero, sizeof(floatType)) == 0;
+    logFunction(printf("fltIsNegativeZero(" FMT_E ") --> %d\n",
+                       number, isNegativeZero););
+    return isNegativeZero;
   } /* fltIsNegativeZero */
 
 
@@ -590,7 +595,7 @@ boolType fltIsNegativeZero (floatType number)
 boolType fltLe (floatType number1, floatType number2)
 
   { /* fltLe */
-    if (isnan(number1) || isnan(number2)) {
+    if (os_isnan(number1) || os_isnan(number2)) {
       return FALSE;
     } else {
       return number1 <= number2;
@@ -613,7 +618,7 @@ boolType fltLe (floatType number1, floatType number2)
 boolType fltLt (floatType number1, floatType number2)
 
   { /* fltLt */
-    if (isnan(number1) || isnan(number2)) {
+    if (os_isnan(number1) || os_isnan(number2)) {
       return FALSE;
     } else {
       return number1 < number2;
@@ -656,10 +661,11 @@ floatType fltParse (const const_striType stri)
     } /* if */
     if (likely(err_info == OKAY_NO_ERROR)) {
       if (isspace(buffer_ptr[0])) {
+        logError(printf("fltParse(\"%s\"): String starts with whitespace.\n",
+                        striAsUnquotedCStri(stri)););
         err_info = RANGE_ERROR;
         result = 0.0;
       } else {
-/*      result = (floatType) atof(buffer_ptr); */
         result = (floatType) strtod(buffer_ptr, &next_ch);
         if (next_ch == buffer_ptr) {
           if (strcmp(buffer_ptr, "NaN") == 0) {
@@ -669,10 +675,27 @@ floatType fltParse (const const_striType stri)
           } else if (strcmp(buffer_ptr, "-Infinity") == 0) {
             result = NEGATIVE_INFINITY;
           } else {
+            logError(printf("fltParse(\"%s\"): No digit or sign found.\n",
+                            striAsUnquotedCStri(stri)););
             err_info = RANGE_ERROR;
           } /* if */
         } else if (next_ch != &buffer_ptr[stri->size]) {
+          logError(printf("fltParse(\"%s\"): Superfluous characters after float literal.\n",
+                          striAsUnquotedCStri(stri)););
           err_info = RANGE_ERROR;
+#if STRTOD_ACCEPTS_HEX_NUMBERS
+        } else if (buffer_ptr[0] != '\0' &&
+                   (buffer_ptr[1] == 'x' || buffer_ptr[1] == 'X' ||
+                    (buffer_ptr[1] == '0' &&
+                     (buffer_ptr[2] == 'x' || buffer_ptr[2] == 'X')))) {
+          logError(printf("fltParse(\"%s\"): Hex float literals are not supported.\n",
+                          striAsUnquotedCStri(stri)););
+          err_info = RANGE_ERROR;
+#endif
+#if !STRTOD_ACCEPTS_DENORMAL_NUMBERS && ATOF_ACCEPTS_DENORMAL_NUMBERS
+        } else if (result == 0.0 && errno == ERANGE) {
+          result = (floatType) atof(buffer_ptr);
+#endif
         } /* if */
       } /* if */
       if (cstri != NULL) {
@@ -751,7 +774,7 @@ floatType fltRand (floatType low, floatType high)
 
   {
     double factor;
-    floatType result;
+    floatType randomNumber;
 
   /* fltRand */
     logFunction(printf("fltRand(" FMT_E ", " FMT_E ")\n", low, high););
@@ -760,21 +783,22 @@ floatType fltRand (floatType low, floatType high)
                       "The range is empty (low > high holds).\n",
                       low, high););
       raise_error(RANGE_ERROR);
-      return 0.0;
+      randomNumber = 0.0;
     } else {
       factor = high - low;
       if (factor == POSITIVE_INFINITY) {
         do {
-          result = (floatType) uintRand();
-        } while (result < low || result > high);
+          randomNumber = (floatType) uintRand();
+        } while (randomNumber < low || randomNumber > high);
       } else {
         do {
-          result = ((floatType) uintRand()) / ((floatType) UINTTYPE_MAX);
-          result = low + factor * result;
-        } while (result < low || result > high);
+          randomNumber = ((floatType) uintRand()) / ((floatType) UINTTYPE_MAX);
+          randomNumber = low + factor * randomNumber;
+        } while (randomNumber < low || randomNumber > high);
       } /* if */
-      return result;
     } /* if */
+    logFunction(printf("fltRand --> " FMT_E "\n", randomNumber););
+    return randomNumber;
   } /* fltRand */
 
 
@@ -820,7 +844,7 @@ striType fltSci (floatType number, intType precision)
       raise_error(MEMORY_ERROR);
       result = NULL;
     } else {
-      if (isnan(number)) {
+      if (os_isnan(number)) {
         buffer_ptr = "NaN";
       } else if (number == POSITIVE_INFINITY) {
         buffer_ptr = "Infinity";
@@ -928,7 +952,7 @@ striType fltStr (floatType number)
 
   /* fltStr */
     logFunction(printf("fltStr(" FMT_E ")\n", number););
-    if (isnan(number)) {
+    if (os_isnan(number)) {
       strcpy(buffer, "NaN");
       len = 3;
     } else if (number == POSITIVE_INFINITY) {

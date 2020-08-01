@@ -236,7 +236,7 @@ void prot_float (floatType floatValue)
     char buffer[51];
 
   /* prot_float */
-    sprintf(buffer, "%e", floatValue);
+    sprintf(buffer, FMT_E, floatValue);
     prot_cstri(buffer);
   } /* prot_float */
 #endif

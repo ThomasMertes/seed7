@@ -148,10 +148,12 @@ cstriType wsaErrorMessage (void)
     static char buffer[1024];
 
   /* wsaErrorMessage */
-    FormatMessageA(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, 
-                   NULL, WSAGetLastError(),
-                   MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-                   buffer, 1024, NULL);
+    if (FormatMessageA(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, 
+                       NULL, WSAGetLastError(),
+                       MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+                       buffer, 1024, NULL) == 0) {
+      strcpy(buffer, "Unable to get error message.");
+    } /* if */
     return buffer;
   } /* wsaErrorMessage */
 #endif
@@ -279,7 +281,7 @@ static void dump_addrinfo (struct addrinfo *addrinfo_list)
 
 /**
  *  Read a string, when we do not know how many bytes are avaliable.
- *  This function reads the data is read into a list of buffers,
+ *  This function reads data into a list of buffers. This is done
  *  until enough characters are read or EOF has been reached.
  *  Afterwards the string is allocated, the data is copied from the
  *  buffers and the list of buffers is freed.

@@ -74,8 +74,8 @@ extern C int __cdecl _fseeki64(FILE *, __int64, int);
 extern C __int64 __cdecl _ftelli64(FILE *);
 #endif
 
-#ifdef DEFINE_WPOPEN_PROTOTYPE
-extern C FILE *_wpopen (const wchar_t *, const wchar_t *);
+#ifdef DEFINE_WPOPEN
+DEFINE_WPOPEN
 #endif
 
 long_jump_position intr_jump_pos;
@@ -264,7 +264,7 @@ static os_off_t seekFileLength (fileType aFile)
       } /* if */
     }
 #endif
-    logFunction(printf("seekFileLength --> " FMT_D "\n", file_length););
+    logFunction(printf("seekFileLength --> " FMT_D_OFF "\n", file_length););
     return file_length;
   } /* seekFileLength */
 
@@ -335,7 +335,7 @@ static os_off_t offsetTell (fileType aFile)
       } /* if */
     }
 #endif
-    logFunction(printf("offsetTell --> " FMT_D "\n", current_file_position););
+    logFunction(printf("offsetTell --> " FMT_D_OFF "\n", current_file_position););
     return current_file_position;
   } /* offsetTell */
 
@@ -591,7 +591,7 @@ static memSizeType read_string (fileType inFile, striType stri, errInfoType *err
 
 /**
  *  Read a string, when we do not know how many bytes are avaliable.
- *  This function reads the data is read into a list of buffers,
+ *  This function reads data into a list of buffers. This is done
  *  until enough characters are read or EOF has been reached.
  *  Afterwards the string is allocated, the data is copied from the
  *  buffers and the list of buffers is freed.
@@ -1698,8 +1698,8 @@ fileType filOpen (const const_striType path, const const_striType mode)
     fileType result;
 
   /* filOpen */
-    logFunction(printf("filOpen(%s, ", striAsUnquotedCStri(path));
-                printf(", %s)\n", striAsUnquotedCStri(mode)););
+    logFunction(printf("filOpen(\"%s\", ", striAsUnquotedCStri(path));
+                printf("\"%s\")\n", striAsUnquotedCStri(mode)););
     get_mode(os_mode, mode);
     if (unlikely(os_mode[0] == '\0')) {
       logError(printf("filOpen: Illegal mode: \"%s\".\n",
@@ -1710,18 +1710,24 @@ fileType filOpen (const const_striType path, const const_striType mode)
       os_path = cp_to_os_path(path, &path_info, &err_info);
       if (unlikely(err_info != OKAY_NO_ERROR)) {
 #ifdef MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
-        if (path_info == PATH_IS_NORMAL) {
-          raise_error(err_info);
-        } /* if */
-#else
-        raise_error(err_info);
+        if (path_info == PATH_IS_NORMAL)
 #endif
+        {
+          logError(printf("filOpen: cp_to_os_path(\"%s\", *, *) failed:\n"
+                          "path_info=%d, err_info=%d\n",
+                          striAsUnquotedCStri(path), path_info, err_info););
+          raise_error(err_info);
+        }
         result = NULL;
       } else {
         result = os_fopen(os_path, os_mode);
-        os_stri_free(os_path);
+        if (unlikely(result == NULL)) {
+          logError(printf("filOpen: "
+                          "fopen(\"" FMT_S_OS "\", \"" FMT_S_OS "\") failed:\n"
+                          "errno=%d\nerror: %s\n",
+                          os_path, os_mode, errno, strerror(errno)););
+        } else {
 #if FOPEN_OPENS_DIRECTORIES
-        if (result != NULL) {
           file_no = fileno(result);
           if (file_no != -1 && os_fstat(file_no, &stat_buf) == 0 &&
               S_ISDIR(stat_buf.st_mode)) {
@@ -1740,14 +1746,19 @@ fileType filOpen (const const_striType path, const const_striType mode)
             /* dirRead() and dirClose() provide a portable way   */
             /* to open, read and close a directory.              */
             fclose(result);
+            logError(printf("filOpen: "
+                            "fopen(\"" FMT_S_OS "\", \"" FMT_S_OS "\") "
+                            "opened a directory. Close it and return NULL.\n",
+                            os_path, os_mode););
             result = NULL;
           } /* if */
-        } /* if */
 #endif
+        } /* if */
+        os_stri_free(os_path);
       } /* if */
     } /* if */
-    logFunction(printf("filOpen(%s, ", striAsUnquotedCStri(path));
-                printf(", %s) --> %d\n",
+    logFunction(printf("filOpen(\"%s\", ", striAsUnquotedCStri(path));
+                printf("\"%s\") --> %d\n",
                        striAsUnquotedCStri(mode), safe_fileno(result)););
     return result;
   } /* filOpen */
@@ -1801,6 +1812,11 @@ fileType filPopen (const const_striType command,
   /* filPopen */
     os_command = cp_to_command(command, parameters, &err_info);
     if (unlikely(os_command == NULL)) {
+      logError(printf("filPopen: cp_to_command(\"%s\", ",
+                      striAsUnquotedCStri(command));
+               printf("\"%s\", *) failed:\n"
+                      "err_info=%d\n",
+                      striAsUnquotedCStri(parameters), err_info););
       raise_error(err_info);
       result = NULL;
     } else {

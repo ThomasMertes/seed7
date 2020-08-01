@@ -160,7 +160,7 @@ void sqlBindFloat (sqlStmtType sqlStatement, intType pos, floatType value)
       raise_error(RANGE_ERROR);
 #endif
 #ifndef ENCODE_NAN
-    } else if (isnan(value)) {
+    } else if (os_isnan(value)) {
       raise_error(RANGE_ERROR);
 #endif
     } else {

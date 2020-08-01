@@ -328,8 +328,11 @@ static inline floatType readFloat (void)
           err_cchar(DIGITEXPECTED, in_file.character);
         } /* if */
       } /* if */
+#if ATOF_ACCEPTS_DENORMAL_NUMBERS
       result = (floatType) atof((cstriType) symbol.name);
-/*    result = (floatType) strtod((cstriType) symbol.name, NULL); */
+#else
+      result = (floatType) strtod((cstriType) symbol.name, NULL);
+#endif
       if (in_file.character == '\'') {
         in_file.character = next_character();
         if (char_class(in_file.character) == DIGITCHAR) {
@@ -339,8 +342,11 @@ static inline floatType readFloat (void)
         } /* if */
       } /* if */
     } else {
+#if ATOF_ACCEPTS_DENORMAL_NUMBERS
       result = (floatType) atof((cstriType) symbol.name);
-/*    result = (floatType) strtod((cstriType) symbol.name, NULL); */
+#else
+      result = (floatType) strtod((cstriType) symbol.name, NULL);
+#endif
       if (in_file.character == '\'') {
         in_file.character = next_character();
         if (char_class(in_file.character) == DIGITCHAR) {

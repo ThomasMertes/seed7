@@ -692,6 +692,9 @@ genericType hshIdx (const const_rtlHashType aHashMap, const genericType aKey,
     if (result_hashelem != NULL) {
       result = result_hashelem->data.value.genericValue;
     } else {
+      logError(printf("hshIdx(" FMT_X_MEM ", " FMT_U_GEN ", " FMT_U "): "
+                      "Hashmap does not have an element with the key.\n",
+                      (memSizeType) aHashMap, aKey, hashcode););
       raise_error(RANGE_ERROR);
       result = 0;
     } /* if */
@@ -740,6 +743,9 @@ rtlObjectType *hshIdxAddr (const const_rtlHashType aHashMap,
     if (result_hashelem != NULL) {
       result = &result_hashelem->data;
     } else {
+      logError(printf("hshIdxAddr(" FMT_X_MEM ", " FMT_U_GEN ", " FMT_U "): "
+                      "Hashmap does not have an element with the key.\n",
+                      (memSizeType) aHashMap, aKey, hashcode););
       raise_error(RANGE_ERROR);
       result = NULL;
     } /* if */

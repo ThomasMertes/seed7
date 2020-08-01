@@ -1099,6 +1099,12 @@ void err_match (errorType err, objectType obj_found)
           prot_cstri(" failed");
           prot_nl();
           break;
+        case EXPR_EXPECTED:
+          prot_cstri("Expression expected found \"");
+          prot_ustri(GET_ENTITY(obj_found)->ident->name);
+          prot_cstri("\"");
+          prot_nl();
+          break;
         default:
           undef_err();
           break;

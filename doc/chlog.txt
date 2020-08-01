@@ -1,3 +1,64 @@
+20150601:
+- Interpreter and compiler have been improved to work correctly, when
+  the function body (the part between 'begin' and 'end') consists of
+  one symbol (e.g.: begin test end; ).
+- The parse operator for float values has been improved to work like
+  the corresponding function that reads literals in a Seed7 program.
+- The parse operator for float values has been changed to forbid
+  hex literals (that the underlying C function might allow).
+- In cli_cmds.s7i the copy and move commands have been fixed to work
+  correctly, when the target file is specified.
+- Checks for division by zero (with div, mdiv, mod and rem) have been
+  added to chkbig.sd7 and chkint.sd7.
+- Checks for log2 and log10 with negative argument have been added to
+  chkbig.sd7 and chkint.sd7.
+- Checks if RANGE_ERROR is raised by the operators parse, digits, and
+  sci have been added to chkflt.sd7
+- Checks for the sci operator have been added to chkflt.sd7.
+- Checks for factorial with negative numbers have been added to
+  chkint.sd7.
+- Checks if RANGE_ERROR is raised by the parse operator have been
+  added to chkint.sd7
+- In chkbig.sd7 the functions chkGrow, chkShrink and chkMultCopy have
+  been renamed to chkAddAssign, chkSubtractAssign and chkMultAssign
+  respectively.
+- The function defineTempVariable has been added to
+  lib/comp/expr_util.s7i and used in several compiler files.
+- Changes to avoid signed unsigned mismatches in comparisons have
+  been done in actIConv (act_comp.c), act_iconv (actlib.c) and
+  bigParseBased2To36 (big_rtl.c)
+- Explicit casts to void (document that a function result is ignored)
+  have been added to chrCLitToBuffer (chr_rtl.c) and bigLog10 
+  (big_rtl.c).
+- The functions getEnvironment and freeEnvironment have been added to
+  cmd_win.c.
+- The file con_emc.c has been added. This file contains a (dummy)
+  driver for emcc (JavaScript) console access.
+- The file stat_win.c has been added. This file defines the functions
+  wstati64() and fstati64().
+- The program chkccomp.c has been improved to write definitions of
+  os_isnan, os_isinf, DOUBLE_MIN_EXP10, MIN_PRINTED_EXPONENT_DIGITS,
+  MAX_PRINTED_EXPONENT_DIGITS, STRTOD_ACCEPTS_HEX_NUMBERS,
+  ATOF_ACCEPTS_HEX_NUMBERS, STRTOD_ACCEPTS_DENORMAL_NUMBERS,
+  ATOF_ACCEPTS_DENORMAL_NUMBERS, HAS_SYMBOLIC_LINKS and HAS_READLINK.
+- The config value ISNAN_WITH_UNDERLINE has been removed. Instead the
+  macro os_isnan has been defined.
+- The macro HAS_SYMLINKS has been renamed to HAS_SYMBOLIC_LINKS.
+- In match.c the function match_symbol() has been added and used in
+  match_object().
+- The function dllSym has been renamed to dllFunc. The function
+  dllFunc returns a function pointer instead of a void pointer.
+  This silences warnings issued by some C compilers.
+  The sql_*.c drivers have been changed to use dllFunc.
+- Calls of logError have been added or improved in act_comp.c,
+  arr_rtl.c, big_gmp.c, big_rtl.c, bst_rtl.c, cmd_rtl.c, cmd_win.c,
+  dir_rtl.c, fil_rtl.c, fil_unx.c, fil_win.c, flt_rtl.c, hsh_rtl.c,
+  intlib.c, pcs_unx.c, set_rtl.c and stat_win.c.
+- Calls of logFunction have been added or improved in arr_rtl.c,
+  big_rtl.c, chr_rtl.c, cmd_rtl.c, dir_rtl.c, fil_rtl.c, fil_unx.c,
+  fil_win.c, flt_rtl.c, gkb_win.c, int_rtl.c, s7.c, set_rtl.c,
+  stat_win.c, tim_rtl.c
+
 20150517:
 - Error messages in cli_cmds.s7i have been improved.
 - The function getHttp with a httpLocation parameter has been added

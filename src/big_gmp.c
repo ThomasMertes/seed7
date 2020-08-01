@@ -1226,6 +1226,9 @@ bigIntType bigParse (const const_striType stri)
   /* bigParse */
     cstri = stri_to_cstri(stri, &err_info);
     if (unlikely(cstri == NULL)) {
+      logError(printf("bigParse: stri_to_cstri(\"%s\", *) failed:\n"
+                      "err_info=%d\n",
+                      striAsUnquotedCStri(stri), err_info););
       raise_error(err_info);
       result = NULL;
     } else {
@@ -1239,6 +1242,8 @@ bigIntType bigParse (const const_striType stri)
       if (mpz_result != 0) {
         mpz_clear(result);
         FREE_BIG(result);
+        logError(printf("bigParse: mpz_init_set_str(*, \"%s\", 10) failed.\n",
+                        cstri[0] == '+' && cstri[1] != '-' ? &cstri[1] : cstri););
         raise_error(RANGE_ERROR);
         result = NULL;
       } /* if */
@@ -1273,6 +1278,9 @@ bigIntType bigParseBased (const const_striType stri, intType base)
 
   /* bigParseBased */
     if (unlikely(stri->size == 0 || base < 2 || base > 36)) {
+      logError(printf("bigParseBased(\"%s\", " FMT_D "): "
+                      "String empty or base not in allowed range.\n",
+                      striAsUnquotedCStri(stri), base););
       raise_error(RANGE_ERROR);
       result = NULL;
     } else {
@@ -1291,6 +1299,10 @@ bigIntType bigParseBased (const const_striType stri, intType base)
         if (mpz_result != 0) {
           mpz_clear(result);
           FREE_BIG(result);
+          logError(printf("bigParseBased: "
+                          "mpz_init_set_str(*, \"%s\", " FMT_D ") failed.\n",
+                          cstri[0] == '+' && cstri[1] != '-' ? &cstri[1] : cstri,
+                          base););
           raise_error(RANGE_ERROR);
           result = NULL;
         } /* if */
@@ -1352,6 +1364,9 @@ striType bigRadix (const const_bigIntType big1, intType base,
 
   /* bigRadix */
     if (unlikely(base < 2 || base > 36)) {
+      logError(printf("bigRadix(%s, " FMT_D ", %d): "
+                      "Base not in allowed range.\n",
+                      bigHexCStri(big1), base, upperCase););
       raise_error(RANGE_ERROR);
       result = NULL;
     } else {
@@ -1391,6 +1406,9 @@ bigIntType bigRand (const const_bigIntType low,
     mpz_init(range_limit);
     mpz_sub(range_limit, high, low);
     if (mpz_sgn(range_limit) < 0) {
+      logError(printf("bigRand(%s, %s): "
+                      "The range is empty (low > high holds).\n",
+                      bigHexCStri(low), bigHexCStri(high)););
       raise_error(RANGE_ERROR);
       result = 0;
     } else {
@@ -1653,6 +1671,9 @@ bstriType bigToBStriBe (const const_bigIntType big1, const boolType isSigned)
         } /* if */
       } else {
         if (unlikely(sign < 0)) {
+          logError(printf("bigToBStriBe(%s, %d): "
+                          "Number is negative and 'isSigned' is FALSE.\n",
+                          bigHexCStri(big1), isSigned););
           raise_error(RANGE_ERROR);
           free(buffer);
           return NULL;
@@ -1743,6 +1764,9 @@ bstriType bigToBStriLe (const const_bigIntType big1, const boolType isSigned)
         } /* if */
       } else {
         if (unlikely(sign < 0)) {
+          logError(printf("bigToBStriLe(%s, %d): "
+                          "Number is negative and 'isSigned' is FALSE.\n",
+                          bigHexCStri(big1), isSigned););
           raise_error(RANGE_ERROR);
           free(buffer);
           return NULL;

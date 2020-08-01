@@ -140,6 +140,7 @@ int _matherr (struct _exception *a)
 void prepareCompileCommand (void)
 
   {
+    int mapAbsolutePathToDriveLetters = 0;
     int pos;
     int quote_command = 0;
     int len;
@@ -147,11 +148,23 @@ void prepareCompileCommand (void)
   /* prepareCompileCommand */
     strcpy(c_compiler, C_COMPILER);
 #ifdef MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
-    if (c_compiler[0] == '/') {
-      c_compiler[0] = c_compiler[1];
-      c_compiler[1] = ':';
-    } /* if */
+    mapAbsolutePathToDriveLetters = 1;
+#else
+    {
+      char *searchPath;
+      searchPath = getenv("PATH");
+      if (searchPath != NULL &&
+          isalpha(searchPath[0]) && searchPath[1] == ':') {
+        mapAbsolutePathToDriveLetters = 1;
+      } /* if */
+    }
 #endif
+    if (mapAbsolutePathToDriveLetters) {
+      if (c_compiler[0] == '/') {
+        c_compiler[0] = c_compiler[1];
+        c_compiler[1] = ':';
+      } /* if */
+    } /* if */
     for (pos = 0; c_compiler[pos] != '\0'; pos++) {
       if (c_compiler[pos] == '/') {
         c_compiler[pos] = PATH_DELIMITER;
@@ -287,8 +300,10 @@ int doCompileAndLink (const char *options, const char *linkerOptions)
       if (returncode == 0) {
         okay = 1;
       } else {
-        /* fprintf(logFile, " *** The compiler %s fails, but creates an executable.", c_compiler); */
+        /* fprintf(logFile, " *** The compiler %s fails, but creates an executable.\n", c_compiler); */
       } /* if */
+    } else {
+      /* fprintf(logFile, " *** The compiler %s produces no executable: %s\n", c_compiler, fileName); */
     } /* if */
 #ifdef DEBUG_CHKCCOMP
     fprintf(logFile, "command: %s\n", command);
@@ -538,6 +553,15 @@ void writeMacroDefs (FILE *versionFile)
     } else {
       strcat(macroDefs, "#define NORETURN\\n");
     } /* if */
+    if (compileAndLinkOk("#include<float.h>\n#include<math.h>\nint main(int argc,char *argv[])"
+                          "{float f=0.0; isnan(f); return 0;}\n")) {
+      fputs("#define os_isnan isnan\n", versionFile);
+      strcat(macroDefs, "#define os_isnan isnan\\n");
+    } else if (compileAndLinkOk("#include<float.h>\n#include<math.h>\nint main(int argc,char *argv[])"
+                         "{float f=0.0; _isnan(f); return 0;}\n")) {
+      fputs("#define os_isnan _isnan\n", versionFile);
+      strcat(macroDefs, "#define os_isnan _isnan\\n");
+    } /* if */
     fprintf(versionFile, "#define MACRO_DEFS \"%s\"\n", macroDefs);
   } /* writeMacroDefs */
 
@@ -625,7 +649,6 @@ void checkPopen (FILE *versionFile)
 void checkMoveDirectory (FILE *versionFile)
 
   {
-    int pos;
     FILE *aFile;
     char *buffer[1024];
     int okay = 1;
@@ -1072,11 +1095,26 @@ void numericProperties (FILE *versionFile)
     } /* if */
     if (assertCompAndLnk("#include<stdio.h>\n#include<string.h>\n#include<float.h>\n"
                          "int main(int argc,char *argv[])\n"
+                         "{int minExp10;char buffer[128];\n"
+                         "sprintf(buffer, \"%1.10e\", DBL_MIN);\n"
+                         "sscanf(strchr(buffer,'e') + 1, \"%d\", &minExp10);\n"
+                         "printf(\"%d\\n\",minExp10);return 0;}\n")) {
+      fprintf(versionFile, "#define DOUBLE_MIN_EXP10 %d\n", doTest());
+    } /* if */
+    if (assertCompAndLnk("#include<stdio.h>\n#include<string.h>\n#include<float.h>\n"
+                         "int main(int argc,char *argv[])\n"
                          "{int maxExp10;char buffer[128];\n"
                          "sprintf(buffer, \"%1.10e\", DBL_MAX);\n"
                          "sscanf(strchr(buffer,'e') + 1, \"%d\", &maxExp10);\n"
                          "printf(\"%d\\n\",maxExp10);return 0;}\n")) {
       fprintf(versionFile, "#define DOUBLE_MAX_EXP10 %d\n", doTest());
+    } /* if */
+    if (assertCompAndLnk("#include<stdio.h>\n#include<string.h>\n"
+                         "int main(int argc,char *argv[])\n"
+                         "{char buffer[128];\n"
+                         "sprintf(buffer, \"%1.14e\", 1.12345678901234);\n"
+                         "printf(\"%d\\n\",(int)strlen(buffer)-18);return 0;}\n")) {
+      fprintf(versionFile, "#define MIN_PRINTED_EXPONENT_DIGITS %u\n", doTest());
     } /* if */
     if (assertCompAndLnk("#include<stdio.h>\n#include<string.h>\n#include<float.h>\n"
                          "int main(int argc,char *argv[])\n"
@@ -1085,14 +1123,7 @@ void numericProperties (FILE *versionFile)
                          "sscanf(strchr(buffer,'e') + 1, \"%d\", &maxExp10);\n"
                          "sprintf(buffer, \"%d\", maxExp10);\n"
                          "printf(\"%d\\n\",(int)strlen(buffer));return 0;}\n")) {
-      fprintf(versionFile, "#define DOUBLE_MAX_EXP10_DIGITS %u\n", doTest());
-    } /* if */
-    if (assertCompAndLnk("#include<stdio.h>\n#include<string.h>\n"
-                         "int main(int argc,char *argv[])\n"
-                         "{char buffer[128];\n"
-                         "sprintf(buffer, \"%1.14e\", 1.12345678901234);\n"
-                         "printf(\"%d\\n\",(int)strlen(buffer)-18);return 0;}\n")) {
-      fprintf(versionFile, "#define DOUBLE_MIN_EXP10_DIGITS %u\n", doTest());
+      fprintf(versionFile, "#define MAX_PRINTED_EXPONENT_DIGITS %u\n", doTest());
     } /* if */
     if (assertCompAndLnk("#include<stdio.h>\n#include<float.h>\n"
                          "int main(int argc,char *argv[])\n"
@@ -1192,7 +1223,8 @@ void numericProperties (FILE *versionFile)
               "float minusZero;\n"
               "%s"
               "printf(\"#define CHECK_FLOAT_DIV_BY_ZERO %%d\\n\",\n"
-              "    plusInf == minusInf || -1.0 / zero != minusInf);\n"
+              "    plusInf == minusInf ||\n"
+              "    -1.0 / zero != minusInf || 1.0 / negativeZero != minusInf);\n"
               "minusZero = -zero;\n"
               "printf(\"#define USE_NEGATIVE_ZERO_BITPATTERN %%d\\n\",\n"
               "    memcmp(&negativeZero, &minusZero, sizeof(float)) != 0);\n"
@@ -1221,17 +1253,13 @@ void numericProperties (FILE *versionFile)
     if (assertCompAndLnkWithOptions(buffer, "", SYSTEM_LIBS)) {
       testOutputToVersionFile(versionFile);
     } /* if */
-    if (!compileAndLinkOk("#include<float.h>\n#include<math.h>\nint main(int argc,char *argv[])"
-                          "{float f=0.0; isnan(f); return 0;}\n") &&
-        compileAndLinkOk("#include<float.h>\n#include<math.h>\nint main(int argc,char *argv[])"
-                         "{float f=0.0; _isnan(f); return 0;}\n")) {
-      fputs("#define ISNAN_WITH_UNDERLINE\n", versionFile);
-    } /* if */
-    if (!compileAndLinkOk("#include<float.h>\n#include<math.h>\nint main(int argc,char *argv[])"
+    if (compileAndLinkOk("#include<float.h>\n#include<math.h>\nint main(int argc,char *argv[])"
                           "{float f=0.0; isinf(f); return 0;}\n")) {
+      fputs("#define os_isinf isinf\n", versionFile);
+    } else {
       if (compileAndLinkOk("#include<float.h>\n#include<math.h>\nint main(int argc,char *argv[])"
                            "{float f=0.0; _isinf(f); return 0;}\n")) {
-        fputs("#define isinf _isinf\n", versionFile);
+        fputs("#define os_isinf _isinf\n", versionFile);
       } else {
         sprintf(buffer,
                 "#include<stdio.h>\n#include<float.h>\n#include<math.h>\n"
@@ -1241,7 +1269,7 @@ void numericProperties (FILE *versionFile)
                 "return 0;}\n", computeValues);
         if (assertCompAndLnk(buffer)) {
           if (doTest() == 1) {
-            fputs("#define isinf(x) (fabs(x) > DBL_MAX)\n", versionFile);
+            fputs("#define os_isinf(x) (fabs(x) > DBL_MAX)\n", versionFile);
           } /* if */
         } /* if */
       } /* if */
@@ -1267,7 +1295,11 @@ void numericProperties (FILE *versionFile)
         fprintf(versionFile, "#define FLOAT_TO_INT_OVERFLOW_GARBAGE %d\n", testResult);
       } /* if */
     } /* if */
-    if (assertCompAndLnkWithOptions("#include<stdio.h>\n#include<float.h>\n"
+    if (assertCompAndLnk("#include<stdio.h>\n#include<float.h>\n"
+                         "double dblPower(double base, int exponent){\n"
+                         "double power;\n"
+                         "for(power=1.0;exponent>0;exponent--)power*=base;\n"
+                         "return power;}\n"
                          "int main(int argc,char *argv[]){\n"
                          "int floatRadixFactor;\n"
 #ifdef TURN_OFF_FP_EXCEPTIONS
@@ -1277,11 +1309,11 @@ void numericProperties (FILE *versionFile)
                          "else if (FLT_RADIX == 4) floatRadixFactor = 2;\n"
                          "else if (FLT_RADIX == 8) floatRadixFactor = 3;\n"
                          "else if (FLT_RADIX == 16) floatRadixFactor = 4;\n"
-                         "printf(\"#define FLOAT_MANTISSA_FACTOR %0.1f\\n\", pow((double) FLT_RADIX, (double) FLT_MANT_DIG));\n"
+                         "printf(\"#define FLOAT_MANTISSA_FACTOR %0.1f\\n\", dblPower((double) FLT_RADIX, FLT_MANT_DIG));\n"
                          "printf(\"#define FLOAT_MANTISSA_SHIFT %u\\n\", FLT_MANT_DIG * floatRadixFactor);\n"
-                         "printf(\"#define DOUBLE_MANTISSA_FACTOR %0.1f\\n\", pow((double) FLT_RADIX, (double) DBL_MANT_DIG));\n"
+                         "printf(\"#define DOUBLE_MANTISSA_FACTOR %0.1f\\n\", dblPower((double) FLT_RADIX, DBL_MANT_DIG));\n"
                          "printf(\"#define DOUBLE_MANTISSA_SHIFT %u\\n\", DBL_MANT_DIG * floatRadixFactor);\n"
-				    "return 0;}\n", "", SYSTEM_LIBS)) {
+                         "return 0;}\n")) {
       testOutputToVersionFile(versionFile);
     } /* if */
     if (assertCompAndLnk("#include<stdio.h>\n#include<string.h>\n"
@@ -1305,6 +1337,34 @@ void numericProperties (FILE *versionFile)
       if (testResult >= 2 && testResult < 100002) {
         fprintf(versionFile, "#define PRINTF_FMT_F_MAXIMUM_FLOAT_PRECISION %d\n", testResult - 2);
       } /* if */
+    } /* if */
+    if (assertCompAndLnk("#include<stdio.h>\n#include<stdlib.h>\n"
+                         "int main(int argc,char *argv[]){\n"
+                         "printf(\"%d\\n\", strtod(\"0x123\", NULL) != 0.0);\n"
+                         "return 0;}\n")) {
+      fprintf(versionFile, "#define STRTOD_ACCEPTS_HEX_NUMBERS %d\n", doTest());
+    } /* if */
+    if (assertCompAndLnk("#include<stdio.h>\n#include<stdlib.h>\n"
+                         "int main(int argc,char *argv[]){\n"
+                         "printf(\"%d\\n\", atof(\"0x123\") != 0.0);\n"
+                         "return 0;}\n")) {
+      fprintf(versionFile, "#define ATOF_ACCEPTS_HEX_NUMBERS %d\n", doTest());
+    } /* if */
+     if (assertCompAndLnk("#include<stdio.h>\n#include<stdlib.h>\n#include <float.h>\n"
+                         "int main(int argc,char *argv[]){\n"
+                         "double num = DBL_MIN; char buffer[1024];\n"
+                         "sprintf(buffer, \"%1.20e\", num / 2.0);\n"
+                         "printf(\"%d\\n\", strtod(buffer, NULL) != 0.0);\n"
+                         "return 0;}\n")) {
+      fprintf(versionFile, "#define STRTOD_ACCEPTS_DENORMAL_NUMBERS %d\n", doTest());
+    } /* if */
+   if (assertCompAndLnk("#include<stdio.h>\n#include<stdlib.h>\n#include <float.h>\n"
+                         "int main(int argc,char *argv[]){\n"
+                         "double num = DBL_MIN; char buffer[1024];\n"
+                         "sprintf(buffer, \"%1.20e\", num / 2.0);\n"
+                         "printf(\"%d\\n\", atof(buffer) != 0.0);\n"
+                         "return 0;}\n")) {
+      fprintf(versionFile, "#define ATOF_ACCEPTS_DENORMAL_NUMBERS %d\n", doTest());
     } /* if */
     fprintf(logFile, " determined\n");
   } /* numericProperties */
@@ -1420,26 +1480,30 @@ void localtimeProperties (FILE *versionFile)
     fputs("#define USE_LOCALTIME_R\n", versionFile);
     fprintf(versionFile, "#define LOCALTIME_WORKS_SIGNED %d\n", isSignedType("time_t"));
 #else
-    if (compileAndLinkOk("#include<time.h>\nint main(int argc,char *argv[])"
-                         "{time_t ts;struct tm res;struct tm*lt;lt=localtime_r(&ts,&res);return 0;}\n")) {
+    if (compileAndLinkOk("#include<time.h>\nint main(int argc,char *argv[])\n"
+                         "{time_t ts;struct tm res;struct tm*lt;\n"
+                         "lt=localtime_r(&ts,&res);return 0;}\n")) {
       fputs("#define USE_LOCALTIME_R\n", versionFile);
-      if (assertCompAndLnk("#include <stdio.h>\n#include<time.h>\n"
+      if (assertCompAndLnk("#include<stdio.h>\n#include<time.h>\n"
                            "int main(int argc,char *argv[])"
                            "{time_t ts=-2147483647-1;struct tm res;struct tm*lt;\n"
                            "lt=localtime_r(&ts,&res);\n"
                            "printf(\"%d\\n\",lt!=NULL&&lt->tm_year==1);return 0;}\n")) {
         fprintf(versionFile, "#define LOCALTIME_WORKS_SIGNED %d\n", doTest() == 1);
       } /* if */
-    } else if (compileAndLinkOk("#include<time.h>\nint main(int argc,char *argv[])"
-                                "{time_t ts;struct tm res;localtime_s(&res,&ts);return 0;}\n")) {
+    } else if (compileAndLinkOk("#include<stdio.h>\n#include<time.h>\n"
+                                "int main(int argc,char *argv[])\n"
+                                "{time_t ts=0;struct tm res;int retval;\n"
+                                "retval=localtime_s(&res,&ts);\n"
+                                "printf(\"%d\\n\",retval==0);return 0;}\n") && doTest() == 1) {
       fputs("#define USE_LOCALTIME_S\n", versionFile);
-      if (assertCompAndLnk("#include <stdio.h>\n#include<time.h>\n"
+      if (assertCompAndLnk("#include<stdio.h>\n#include<time.h>\n"
                            "int main(int argc,char *argv[])"
                            "{time_t ts=-2147483647-1;struct tm res;\n"
                            "printf(\"%d\\n\",localtime_s(&res,&ts)==0&&res.tm_year==1);return 0;}\n")) {
         fprintf(versionFile, "#define LOCALTIME_WORKS_SIGNED %d\n", doTest() == 1);
       } /* if */
-    } else if (assertCompAndLnk("#include <stdio.h>\n#include<time.h>\n"
+    } else if (assertCompAndLnk("#include<stdio.h>\n#include<time.h>\n"
                                 "int main(int argc,char *argv[])"
                                 "{time_t ts=-2147483647-1;struct tm*lt;\n"
                                 "lt = localtime(&ts);\n"
@@ -1452,47 +1516,67 @@ void localtimeProperties (FILE *versionFile)
 
 
 /**
- *  Determine if DEFINE_OS_ENVIRON or INITIALIZE_OS_ENVIRON must be defined.
+ *  Determine values for DEFINE_OS_ENVIRON, DECLARE_OS_ENVIRON and
+ *  INITIALIZE_OS_ENVIRON.
  */
 void determineEnvironDefines (FILE *versionFile)
 
   {
     char buffer[4096];
-    int define_os_environ = 0;
+    int declare_os_environ = 0;
+    int use_get_environment = 0;
+    int initialize_os_environ = 0;
 
   /* determineEnvironDefines */
     buffer[0] = '\0';
-    if (compileAndLinkOk("#include <stdlib.h>\n#include \"tst_vers.h\"\n"
-                         "int main(int argc,char *argv[])"
-                         "{os_environ;return 0;}\n")) {
+    if (compileAndLinkOk("#include <stdio.h>\n#include <stdlib.h>\n#include \"tst_vers.h\"\n"
+                         "int main(int argc,char *argv[])\n"
+                         "{printf(\"%d\\n\", os_environ != NULL);return 0;}\n")) {
       strcat(buffer, "#include <stdlib.h>\n");
-    } else if (compileAndLinkOk("#include <unistd.h>\n#include \"tst_vers.h\"\n"
-                                "int main(int argc,char *argv[])"
-                                "{os_environ;return 0;}\n")) {
+    } else if (compileAndLinkOk("#include <stdio.h>\n#include <unistd.h>\n#include \"tst_vers.h\"\n"
+                                "int main(int argc,char *argv[])\n"
+                                "{printf(\"%d\\n\", os_environ != NULL);return 0;}\n")) {
       strcat(buffer, "#include <unistd.h>\n");
-    } else {
-      fprintf(versionFile, "#define DEFINE_OS_ENVIRON\n");
-      define_os_environ = 1;
-    } /* if */
-    strcat(buffer, "#include <stdio.h>\n");
-    strcat(buffer, "#include \"tst_vers.h\"\n");
 #ifdef OS_STRI_WCHAR
-    strcat(buffer, "typedef wchar_t *os_striType;\n");
+    } else if (compileAndLinkOk("#include <stdio.h>\n#include \"tst_vers.h\"\n"
+                                "int main(int argc,char *argv[])\n"
+                                "{extern wchar_t **os_environ;\n"
+                                "printf(\"%d\\n\", os_environ != NULL);return 0;}\n")) {
+      declare_os_environ = 1;
 #else
-    strcat(buffer, "typedef char *os_striType;\n");
+    } else if (compileAndLinkOk("#include <stdio.h>\n#include \"tst_vers.h\"\n"
+                                "int main(int argc,char *argv[])\n"
+                                "{extern char **os_environ;\n"
+                                "printf(\"%d\\n\", os_environ != NULL);return 0;}\n")) {
+      declare_os_environ = 1;
 #endif
-    if (define_os_environ) {
-      strcat(buffer, "extern os_striType *os_environ;\n");
+    } else {
+      use_get_environment = 1;
     } /* if */
+    fprintf(versionFile, "#define DECLARE_OS_ENVIRON %d\n", declare_os_environ);
+    fprintf(versionFile, "#define USE_GET_ENVIRONMENT %d\n", use_get_environment);
+    if (!use_get_environment) {
+      strcat(buffer, "#include <stdio.h>\n");
+      strcat(buffer, "#include \"tst_vers.h\"\n");
+#ifdef OS_STRI_WCHAR
+      strcat(buffer, "typedef wchar_t *os_striType;\n");
+#else
+      strcat(buffer, "typedef char *os_striType;\n");
+#endif
+      if (declare_os_environ) {
+        strcat(buffer, "extern os_striType *os_environ;\n");
+      } /* if */
 #ifdef USE_WMAIN
-    strcat(buffer, "int wmain(int argc,wchar_t *argv[])");
+      strcat(buffer, "int wmain(int argc,wchar_t *argv[])");
 #else
-    strcat(buffer, "int main(int argc,char *argv[])");
+      strcat(buffer, "int main(int argc,char *argv[])");
 #endif
-    strcat(buffer, "{printf(\"%d\\n\",os_environ==(os_striType *)0);return 0;}\n");
-    if (!compileAndLinkOk(buffer) || doTest() == 1) {
-      fputs("#define INITIALIZE_OS_ENVIRON\n", versionFile);
+      strcat(buffer, "{printf(\"%d\\n\",os_environ==(os_striType *)0);return 0;}\n");
+      if (!compileAndLinkOk(buffer) || doTest() == 1) {
+        initialize_os_environ = 1;
+      } /* if */
     } /* if */
+    fprintf(versionFile, "#define INITIALIZE_OS_ENVIRON %d\n", initialize_os_environ);
   } /* determineEnvironDefines */
 
 
@@ -1659,6 +1743,10 @@ void detemineMySqlDefines (FILE *versionFile,
         fprintf(logFile, "MySql/MariaDb: %s found in system include directory.\n", mySqlInclude);
         appendOption(include_options, includeOption);
       } else if (compileAndLinkWithOptionsOk("#include \"db_my.h\"\n"
+                                             "int main(int argc,char *argv[]){return 0;}\n",
+                                             includeOption, "") ||
+                 compileAndLinkWithOptionsOk("#define STDCALL\n"
+                                             "#include \"db_my.h\"\n"
                                              "int main(int argc,char *argv[]){return 0;}\n",
                                              includeOption, "")) {
         mySqlInclude = "db_my.h";
@@ -2249,7 +2337,11 @@ void detemineOdbcDefines (FILE *versionFile,
       fprintf(logFile, "Odbc: %s found in system include directory.\n", odbcInclude);
     } else if (compileAndLinkWithOptionsOk("#include \"tst_vers.h\"\n#include \"db_odbc.h\"\n"
                                            "int main(int argc,char *argv[]){return 0;}\n",
-                                           "", "")) {
+                                           includeOption, "") ||
+               compileAndLinkWithOptionsOk("#define STDCALL\n"
+                                           "#include \"tst_vers.h\"\n#include \"db_odbc.h\"\n"
+                                           "int main(int argc,char *argv[]){return 0;}\n",
+                                           includeOption, "")) {
       odbcInclude = "db_odbc.h";
       fprintf(logFile, "Odbc: %s found in Seed7 include directory.\n", odbcInclude);
       includeOption[0] = '\0';
@@ -2635,15 +2727,17 @@ int main (int argc, char **argv)
       driveLetters = doTest() == 1;
       fprintf(versionFile, "#define OS_PATH_HAS_DRIVE_LETTERS %d\n", driveLetters);
       if (driveLetters) {
-        if (compileAndLinkOk("#include <stdio.h>\n#include <stdlib.h>\n"
+        /* The check for HOME and USERPROFILE is done with a program,        */
+        /* because some compilers (e.g.: emcc) provide their own evironment. */
+        if (assertCompAndLnk("#include <stdio.h>\n#include <stdlib.h>\n"
                              "int main(int argc, char *argv[])\n"
-                             "printf(\"%d\\n\", getenv(\"USERPROFILE\") != NULL);\n"
+                             "{printf(\"%d\\n\", getenv(\"USERPROFILE\") != NULL);\n"
                              "return 0;}\n") && doTest() == 1) {
           /* When USERPROFILE is defined then it is used, even when HOME is defined. */
           fputs("#define HOME_DIR_ENV_VAR {'U', 'S', 'E', 'R', 'P', 'R', 'O', 'F', 'I', 'L', 'E', 0}\n", versionFile);
-        } else if (compileAndLinkOk("#include <stdio.h>\n#include <stdlib.h>\n"
+        } else if (assertCompAndLnk("#include <stdio.h>\n#include <stdlib.h>\n"
                                     "int main(int argc, char *argv[])\n"
-                                    "printf(\"%d\\n\", getenv(\"HOME\") != NULL);\n"
+                                    "{printf(\"%d\\n\", getenv(\"HOME\") != NULL);\n"
                                     "return 0;}\n") && doTest() == 1) {
           fputs("#define HOME_DIR_ENV_VAR {'H', 'O', 'M', 'E', 0}\n", versionFile);
         } else {
@@ -2777,8 +2871,8 @@ int main (int argc, char **argv)
                          "count--; siglongjmp(env, count);\n"
                          "} else printf(\"%d\\n\", ret_code);\n"
                          "return 0;}\n") && doTest() == 1);
-    fprintf(versionFile, "#define HAS_SYMLINKS %d\n",
-        compileAndLinkOk("#include <unistd.h>\n#include <string.h>\n"
+    fprintf(versionFile, "#define HAS_SYMBOLIC_LINKS %d\n",
+        compileAndLinkOk("#include <stdio.h>\n#include <unistd.h>\n#include <string.h>\n"
                          "int main(int argc, char *argv[]){\n"
                          "char buf[256]; ssize_t link_len; int okay=0;\n"
                          "if (symlink(\"qwertzuiop\",\"test_symlink\") == 0){;\n"
@@ -2786,6 +2880,14 @@ int main (int argc, char **argv)
                          "okay = link_len == 10 && memcmp(buf,\"qwertzuiop\",10) == 0;\n"
                          "remove(\"test_symlink\");}\n"
                          "printf(\"%d\\n\", okay);\n"
+                         "return 0;}\n") && doTest() == 1);
+    fprintf(versionFile, "#define HAS_READLINK %d\n",
+        compileAndLinkOk("#include <stdio.h>\n#include <unistd.h>\n"
+                         "#include <string.h>\n#include <errno.h>\n"
+                         "int main(int argc, char *argv[]){\n"
+                         "char buf[256]; ssize_t link_len;\n"
+                         "link_len = readlink(\" does_not_exist \", buf, 256);\n"
+                         "printf(\"%d\\n\", link_len == -1);\n"
                          "return 0;}\n") && doTest() == 1);
     fprintf(versionFile, "#define HAS_FIFO_FILES %d\n",
         compileAndLinkOk("#include <sys/types.h>\n#include <sys/stat.h>\n"
@@ -2808,6 +2910,8 @@ int main (int argc, char **argv)
       define_read_buffer_empty = "#define read_buffer_empty(fp) ((fp)->level <= 0)";
     } else if (compileAndLinkOk("#include<stdio.h>\nint main(int argc,char *argv[]){FILE*fp;fp->_r <= 0;return 0;}\n")) {
       define_read_buffer_empty = "#define read_buffer_empty(fp) ((fp)->_r <= 0)";
+    } else if (compileAndLinkOk("#include<stdio.h>\nint main(int argc,char *argv[]){FILE*fp;fp->ptr >= fp->getend;return 0;}\n")) {
+      define_read_buffer_empty = "#define read_buffer_empty(fp) ((fp)->ptr >= (fp)->getend)";
     } else {
       define_read_buffer_empty = NULL;
     } /* if */

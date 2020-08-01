@@ -25,6 +25,9 @@
 /*                                                                  */
 /********************************************************************/
 
+#define LOG_FUNCTIONS 0
+#define VERBOSE_EXCEPTIONS 0
+
 #include "version.h"
 
 #include "stdlib.h"
@@ -135,9 +138,7 @@ static void processOptions (rtlArrayType arg_v)
     boolType error = FALSE;
 
   /* processOptions */
-#ifdef TRACE_OPTION
-    printf("BEGIN processOptions\n");
-#endif
+    logFunction(printf("processOptions\n"););
     option.source_file_argument = NULL;
     option.analyze_only = FALSE;
     if (ALLOC_RTL_ARRAY(seed7_libraries, 0)) {
@@ -293,9 +294,7 @@ static void processOptions (rtlArrayType arg_v)
       option.parser_options |= HANDLE_SIGNALS;
       option.exec_options   |= HANDLE_SIGNALS;
     } /* if */
-#ifdef TRACE_OPTION
-    printf("END processOptions\n");
-#endif
+    logFunction(printf("processOptions -->\n"););
   } /* processOptions */
 
 
@@ -332,9 +331,7 @@ int main (int argc, char **argv)
     progType currentProg;
 
   /* main */
-#ifdef TRACE_S7
-    printf("BEGIN S7\n");
-#endif
+    logFunction(printf("main\n"););
 #ifdef CHECK_STACK
     stack_base = (char *) &arg_v;
 #endif
@@ -414,8 +411,6 @@ int main (int argc, char **argv)
 #ifdef CHECK_STACK
     printf("max_stack_size: %lu (0x%lx)\n", max_stack_size, max_stack_size);
 #endif
-#ifdef TRACE_S7
-    printf("END S7\n");
-#endif
+    logFunction(printf("main --> 0\n"););
     return 0;
   } /* main */

@@ -137,7 +137,7 @@ static os_striType *genArgVector (const const_striType command,
         for (pos = 0; pos < arraySize && *err_info == OKAY_NO_ERROR; pos++) {
           argv[pos + 1] = stri_to_os_stri(parameters->arr[pos].value.striValue, err_info);
           if (unlikely(*err_info != OKAY_NO_ERROR)) {
-            logError(printf("genArgVector: stri_to_os_stri(\"%s\", *, *) failed:\n"
+            logError(printf("genArgVector: stri_to_os_stri(\"%s\", *) failed:\n"
                             "err_info=%d\n",
                             striAsUnquotedCStri(parameters->arr[pos].value.striValue),
                             *err_info););

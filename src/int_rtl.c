@@ -2002,7 +2002,7 @@ intType intMultOvfChk (intType factor1, intType factor2)
     intType product;
 
   /* intMultOvfChk */
-    logFunction(printf(" *** intMultOvfChk(" FMT_D ", " FMT_D ")\n",
+    logFunction(printf("intMultOvfChk(" FMT_D ", " FMT_D ")\n",
                        factor1, factor2););
     if (factor1 < 0) {
       if (factor2 < 0) {

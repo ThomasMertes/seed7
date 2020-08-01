@@ -5099,6 +5099,30 @@ const proc: check_div is func
       okay := FALSE;
     end if;
 
+    if  not raisesNumericError(          INT64_MIN  div         0 ) or
+        not raisesNumericError(        -2147483648  div         0 ) or
+        not raisesNumericError(                  0  div         0 ) or
+        not raisesNumericError(         2147483647  div         0 ) or
+        not raisesNumericError(          INT64_MAX  div         0 ) or
+        not raisesNumericError(intExpr(  INT64_MIN) div         0 ) or
+        not raisesNumericError(intExpr(-2147483648) div         0 ) or
+        not raisesNumericError(intExpr(          0) div         0 ) or
+        not raisesNumericError(intExpr( 2147483647) div         0 ) or
+        not raisesNumericError(intExpr(  INT64_MAX) div         0 ) or
+        not raisesNumericError(          INT64_MIN  div intExpr(0)) or
+        not raisesNumericError(        -2147483648  div intExpr(0)) or
+        not raisesNumericError(                  0  div intExpr(0)) or
+        not raisesNumericError(         2147483647  div intExpr(0)) or
+        not raisesNumericError(          INT64_MAX  div intExpr(0)) or
+        not raisesNumericError(intExpr(  INT64_MIN) div intExpr(0)) or
+        not raisesNumericError(intExpr(-2147483648) div intExpr(0)) or
+        not raisesNumericError(intExpr(          0) div intExpr(0)) or
+        not raisesNumericError(intExpr( 2147483647) div intExpr(0)) or
+        not raisesNumericError(intExpr(  INT64_MAX) div intExpr(0)) then
+      writeln(" ***** Division by zero with the div operator does not raise NUMERIC_ERROR.");
+      okay := FALSE;
+    end if;
+
     if okay then
       writeln("Div works correct for selected values.");
     else
@@ -6001,6 +6025,30 @@ const proc: check_rem is func
        intExpr(INT64_MAX) rem intExpr(INT32_MAX) <>                   1 or
        intExpr(INT64_MAX) rem intExpr(INT64_MAX) <>                   0 then
       writeln(" ***** rem with maximum values does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if  not raisesNumericError(          INT64_MIN  rem         0 ) or
+        not raisesNumericError(        -2147483648  rem         0 ) or
+        not raisesNumericError(                  0  rem         0 ) or
+        not raisesNumericError(         2147483647  rem         0 ) or
+        not raisesNumericError(          INT64_MAX  rem         0 ) or
+        not raisesNumericError(intExpr(  INT64_MIN) rem         0 ) or
+        not raisesNumericError(intExpr(-2147483648) rem         0 ) or
+        not raisesNumericError(intExpr(          0) rem         0 ) or
+        not raisesNumericError(intExpr( 2147483647) rem         0 ) or
+        not raisesNumericError(intExpr(  INT64_MAX) rem         0 ) or
+        not raisesNumericError(          INT64_MIN  rem intExpr(0)) or
+        not raisesNumericError(        -2147483648  rem intExpr(0)) or
+        not raisesNumericError(                  0  rem intExpr(0)) or
+        not raisesNumericError(         2147483647  rem intExpr(0)) or
+        not raisesNumericError(          INT64_MAX  rem intExpr(0)) or
+        not raisesNumericError(intExpr(  INT64_MIN) rem intExpr(0)) or
+        not raisesNumericError(intExpr(-2147483648) rem intExpr(0)) or
+        not raisesNumericError(intExpr(          0) rem intExpr(0)) or
+        not raisesNumericError(intExpr( 2147483647) rem intExpr(0)) or
+        not raisesNumericError(intExpr(  INT64_MAX) rem intExpr(0)) then
+      writeln(" ***** Division by zero with the rem operator does not raise NUMERIC_ERROR.");
       okay := FALSE;
     end if;
 
@@ -7157,6 +7205,30 @@ const proc: check_mdiv is func
       okay := FALSE;
     end if;
 
+    if  not raisesNumericError(          INT64_MIN  mdiv         0 ) or
+        not raisesNumericError(        -2147483648  mdiv         0 ) or
+        not raisesNumericError(                  0  mdiv         0 ) or
+        not raisesNumericError(         2147483647  mdiv         0 ) or
+        not raisesNumericError(          INT64_MAX  mdiv         0 ) or
+        not raisesNumericError(intExpr(  INT64_MIN) mdiv         0 ) or
+        not raisesNumericError(intExpr(-2147483648) mdiv         0 ) or
+        not raisesNumericError(intExpr(          0) mdiv         0 ) or
+        not raisesNumericError(intExpr( 2147483647) mdiv         0 ) or
+        not raisesNumericError(intExpr(  INT64_MAX) mdiv         0 ) or
+        not raisesNumericError(          INT64_MIN  mdiv intExpr(0)) or
+        not raisesNumericError(        -2147483648  mdiv intExpr(0)) or
+        not raisesNumericError(                  0  mdiv intExpr(0)) or
+        not raisesNumericError(         2147483647  mdiv intExpr(0)) or
+        not raisesNumericError(          INT64_MAX  mdiv intExpr(0)) or
+        not raisesNumericError(intExpr(  INT64_MIN) mdiv intExpr(0)) or
+        not raisesNumericError(intExpr(-2147483648) mdiv intExpr(0)) or
+        not raisesNumericError(intExpr(          0) mdiv intExpr(0)) or
+        not raisesNumericError(intExpr( 2147483647) mdiv intExpr(0)) or
+        not raisesNumericError(intExpr(  INT64_MAX) mdiv intExpr(0)) then
+      writeln(" ***** Division by zero with the mdiv operator does not raise NUMERIC_ERROR.");
+      okay := FALSE;
+    end if;
+
     if okay then
       writeln("Mdiv works correct for selected values.");
     else
@@ -8310,6 +8382,30 @@ const proc: check_mod is func
       okay := FALSE;
     end if;
 
+    if  not raisesNumericError(          INT64_MIN  mod         0 ) or
+        not raisesNumericError(        -2147483648  mod         0 ) or
+        not raisesNumericError(                  0  mod         0 ) or
+        not raisesNumericError(         2147483647  mod         0 ) or
+        not raisesNumericError(          INT64_MAX  mod         0 ) or
+        not raisesNumericError(intExpr(  INT64_MIN) mod         0 ) or
+        not raisesNumericError(intExpr(-2147483648) mod         0 ) or
+        not raisesNumericError(intExpr(          0) mod         0 ) or
+        not raisesNumericError(intExpr( 2147483647) mod         0 ) or
+        not raisesNumericError(intExpr(  INT64_MAX) mod         0 ) or
+        not raisesNumericError(          INT64_MIN  mod intExpr(0)) or
+        not raisesNumericError(        -2147483648  mod intExpr(0)) or
+        not raisesNumericError(                  0  mod intExpr(0)) or
+        not raisesNumericError(         2147483647  mod intExpr(0)) or
+        not raisesNumericError(          INT64_MAX  mod intExpr(0)) or
+        not raisesNumericError(intExpr(  INT64_MIN) mod intExpr(0)) or
+        not raisesNumericError(intExpr(-2147483648) mod intExpr(0)) or
+        not raisesNumericError(intExpr(          0) mod intExpr(0)) or
+        not raisesNumericError(intExpr( 2147483647) mod intExpr(0)) or
+        not raisesNumericError(intExpr(  INT64_MAX) mod intExpr(0)) then
+      writeln(" ***** Division by zero with the mod operator does not raise NUMERIC_ERROR.");
+      okay := FALSE;
+    end if;
+
     if okay then
       writeln("Mod works correct for selected values.");
     else
@@ -8361,6 +8457,23 @@ const proc: check_fact is func
         end if;
       end for;
     end if;
+
+    if  not raisesNumericError(!        (         -1)) or
+        not raisesNumericError(!        (-2147483647)) or
+        not raisesNumericError(!        (-2147483648)) or
+        not raisesNumericError(!        (-4294967295)) or
+        not raisesNumericError(!        (-4294967296)) or
+        not raisesNumericError(!        (  INT64_MIN)) or
+        not raisesNumericError(! intExpr(         -1)) or
+        not raisesNumericError(! intExpr(-2147483647)) or
+        not raisesNumericError(! intExpr(-2147483648)) or
+        not raisesNumericError(! intExpr(-4294967295)) or
+        not raisesNumericError(! intExpr(-4294967296)) or
+        not raisesNumericError(! intExpr(  INT64_MIN)) then
+      writeln(" ***** Factorial of negative number does not raise NUMERIC_ERROR.");
+      okay := FALSE;
+    end if;
+
     if okay then
       writeln("!i works correct for i in the range 0 to 12.");
     end if;
@@ -11855,6 +11968,40 @@ const proc: check_log2 is func
       okay := FALSE;
     end if;
 
+    if  not raisesNumericError(log2(                    INT64_MIN )) or
+        not raisesNumericError(log2(         -9223372036854775807 )) or
+        not raisesNumericError(log2(                  -4294967296 )) or
+        not raisesNumericError(log2(                  -4294967295 )) or
+        not raisesNumericError(log2(                  -2147483648 )) or
+        not raisesNumericError(log2(                  -2147483647 )) or
+        not raisesNumericError(log2(                       -65536 )) or
+        not raisesNumericError(log2(                       -65535 )) or
+        not raisesNumericError(log2(                       -32768 )) or
+        not raisesNumericError(log2(                       -32767 )) or
+        not raisesNumericError(log2(                         -256 )) or
+        not raisesNumericError(log2(                         -255 )) or
+        not raisesNumericError(log2(                         -128 )) or
+        not raisesNumericError(log2(                         -127 )) or
+        not raisesNumericError(log2(                           -1 )) or
+        not raisesNumericError(log2(intExpr(            INT64_MIN))) or
+        not raisesNumericError(log2(intExpr( -9223372036854775807))) or
+        not raisesNumericError(log2(intExpr(          -4294967296))) or
+        not raisesNumericError(log2(intExpr(          -4294967295))) or
+        not raisesNumericError(log2(intExpr(          -2147483648))) or
+        not raisesNumericError(log2(intExpr(          -2147483647))) or
+        not raisesNumericError(log2(intExpr(               -65536))) or
+        not raisesNumericError(log2(intExpr(               -65535))) or
+        not raisesNumericError(log2(intExpr(               -32768))) or
+        not raisesNumericError(log2(intExpr(               -32767))) or
+        not raisesNumericError(log2(intExpr(                 -256))) or
+        not raisesNumericError(log2(intExpr(                 -255))) or
+        not raisesNumericError(log2(intExpr(                 -128))) or
+        not raisesNumericError(log2(intExpr(                 -127))) or
+        not raisesNumericError(log2(intExpr(                   -1))) then
+      writeln(" ***** The integer log2 of negative number does not raise NUMERIC_ERROR.");
+      okay := FALSE;
+    end if;
+
     if okay then
       writeln("The integer log2 function works correct.");
     else
@@ -11908,6 +12055,40 @@ const proc: check_log10 is func
         log10(1000000000000000000) <> 18 or
         log10(9223372036854775807) <> 18 then
       writeln("The integer log10 function does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if  not raisesNumericError(log10(                    INT64_MIN )) or
+        not raisesNumericError(log10(         -9223372036854775807 )) or
+        not raisesNumericError(log10(                  -4294967296 )) or
+        not raisesNumericError(log10(                  -4294967295 )) or
+        not raisesNumericError(log10(                  -2147483648 )) or
+        not raisesNumericError(log10(                  -2147483647 )) or
+        not raisesNumericError(log10(                       -65536 )) or
+        not raisesNumericError(log10(                       -65535 )) or
+        not raisesNumericError(log10(                       -32768 )) or
+        not raisesNumericError(log10(                       -32767 )) or
+        not raisesNumericError(log10(                         -256 )) or
+        not raisesNumericError(log10(                         -255 )) or
+        not raisesNumericError(log10(                         -128 )) or
+        not raisesNumericError(log10(                         -127 )) or
+        not raisesNumericError(log10(                           -1 )) or
+        not raisesNumericError(log10(intExpr(            INT64_MIN))) or
+        not raisesNumericError(log10(intExpr( -9223372036854775807))) or
+        not raisesNumericError(log10(intExpr(          -4294967296))) or
+        not raisesNumericError(log10(intExpr(          -4294967295))) or
+        not raisesNumericError(log10(intExpr(          -2147483648))) or
+        not raisesNumericError(log10(intExpr(          -2147483647))) or
+        not raisesNumericError(log10(intExpr(               -65536))) or
+        not raisesNumericError(log10(intExpr(               -65535))) or
+        not raisesNumericError(log10(intExpr(               -32768))) or
+        not raisesNumericError(log10(intExpr(               -32767))) or
+        not raisesNumericError(log10(intExpr(                 -256))) or
+        not raisesNumericError(log10(intExpr(                 -255))) or
+        not raisesNumericError(log10(intExpr(                 -128))) or
+        not raisesNumericError(log10(intExpr(                 -127))) or
+        not raisesNumericError(log10(intExpr(                   -1))) then
+      writeln(" ***** The integer log10 of negative number does not raise NUMERIC_ERROR.");
       okay := FALSE;
     end if;
 
@@ -14198,6 +14379,48 @@ const proc: check_parse is func
     if  integer parse          "0123"  <> 123 or
         integer parse striExpr("0123") <> 123 then
       writeln(" ***** Integer parse with leading zeros does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if  not raisesRangeError(integer parse "-9223372036854775890") or
+        not raisesRangeError(integer parse "-9223372036854775820") or
+        not raisesRangeError(integer parse "-9223372036854775819") or
+        not raisesRangeError(integer parse "-9223372036854775811") or
+        not raisesRangeError(integer parse "-9223372036854775810") or
+        not raisesRangeError(integer parse "-9223372036854775809") or
+        not raisesRangeError(integer parse                    "@") or
+        not raisesRangeError(integer parse                     "") or
+        not raisesRangeError(integer parse                 " 123") or
+        not raisesRangeError(integer parse                 "123 ") or
+        not raisesRangeError(integer parse                 "123@") or
+        not raisesRangeError(integer parse              "123@456") or
+        not raisesRangeError(integer parse  "9223372036854775808") or
+        not raisesRangeError(integer parse  "9223372036854775809") or
+        not raisesRangeError(integer parse  "9223372036854775810") or
+        not raisesRangeError(integer parse  "9223372036854775811") or
+        not raisesRangeError(integer parse  "9223372036854775819") or
+        not raisesRangeError(integer parse  "9223372036854775820") or
+        not raisesRangeError(integer parse  "9223372036854775890") or
+        not raisesRangeError(integer parse striExpr("-9223372036854775890")) or
+        not raisesRangeError(integer parse striExpr("-9223372036854775820")) or
+        not raisesRangeError(integer parse striExpr("-9223372036854775819")) or
+        not raisesRangeError(integer parse striExpr("-9223372036854775811")) or
+        not raisesRangeError(integer parse striExpr("-9223372036854775810")) or
+        not raisesRangeError(integer parse striExpr("-9223372036854775809")) or
+        not raisesRangeError(integer parse striExpr(                   "@")) or
+        not raisesRangeError(integer parse striExpr(                    "")) or
+        not raisesRangeError(integer parse striExpr(                " 123")) or
+        not raisesRangeError(integer parse striExpr(                "123 ")) or
+        not raisesRangeError(integer parse striExpr(                "123@")) or
+        not raisesRangeError(integer parse striExpr(             "123@456")) or
+        not raisesRangeError(integer parse striExpr( "9223372036854775808")) or
+        not raisesRangeError(integer parse striExpr( "9223372036854775809")) or
+        not raisesRangeError(integer parse striExpr( "9223372036854775810")) or
+        not raisesRangeError(integer parse striExpr( "9223372036854775811")) or
+        not raisesRangeError(integer parse striExpr( "9223372036854775819")) or
+        not raisesRangeError(integer parse striExpr( "9223372036854775820")) or
+        not raisesRangeError(integer parse striExpr( "9223372036854775890")) then
+      writeln(" ***** Integer parse with illegal literal does not raise RANGE_ERROR.");
       okay := FALSE;
     end if;
 

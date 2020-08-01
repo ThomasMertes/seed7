@@ -34,6 +34,9 @@
 #include "stdio.h"
 #include "windows.h"
 
+#include "common.h"
+#include "dll_drv.h"
+
 
 
 void *dllOpen (const char *dllName)
@@ -44,8 +47,8 @@ void *dllOpen (const char *dllName)
 
 
 
-void *dllSym (void *dll, const char *symbol)
+funcPtrType dllFunc (void *dll, const char *symbol)
 
-  { /* dllSym */
-    return (void *) GetProcAddress((HMODULE) dll, symbol);
-  } /* dllSym */
+  { /* dllFunc */
+    return (funcPtrType) GetProcAddress((HMODULE) dll, symbol);
+  } /* dllFunc */

@@ -29,6 +29,9 @@
 /*                                                                  */
 /********************************************************************/
 
+#define LOG_FUNCTIONS 0
+#define VERBOSE_EXCEPTIONS 0
+
 #include "version.h"
 
 #include "stdlib.h"
@@ -100,7 +103,7 @@ static inline uintType bitsetPopulation (bitSetType bitset)
  *  This function uses loop unrolling inspired by Duff's device.
  *  @return a pointer to the non-zero bitSet or NULL if there was none.
  */
-static inline const bitSetType *bitsetNonZero (const register bitSetType *bitset,
+static inline const bitSetType *bitsetNonZero (register const bitSetType *bitset,
     const memSizeType len)
 
   {
@@ -240,12 +243,13 @@ intType setCard (const const_setType aSet)
       card += bitsetPopulation(bitset);
     } /* for */
     if (card > INTTYPE_MAX) {
+      logError(printf("setCard(): Result does not fit into an integer.\n"););
       raise_error(RANGE_ERROR);
       cardinality = 0;
     } else {
       cardinality = (intType) card;
     } /* if */
-    /* printf(" = %d\n", cardinality); */
+    logFunction(printf("setCard --> " FMT_D "\n", cardinality););
     return cardinality;
   } /* setCard */
 
@@ -264,7 +268,7 @@ intType setCard (const const_setType aSet)
     const unsigned char *byte;
     memSizeType byteCount;
     uintType card = 0;
-    intType result;
+    intType cardinality;
 
   /* setCard */
     byte = (const unsigned char *) aSet->bitset;
@@ -273,13 +277,14 @@ intType setCard (const const_setType aSet)
       card += (uintType) card_byte[(int) *byte];
     } /* for */
     if (card > INTTYPE_MAX) {
+      logError(printf("setCard(): Result does not fit into an integer.\n"););
       raise_error(RANGE_ERROR);
-      result = 0;
+      cardinality = 0;
     } else {
-      result = (intType) card;
+      cardinality = (intType) card;
     } /* if */
-    /* printf(" = %d\n", result); */
-    return result;
+    logFunction(printf("setCard --> " FMT_D "\n", cardinality););
+    return cardinality;
   } /* setCard */
 #endif
 
@@ -526,13 +531,11 @@ setType setDiff (const const_setType set1, const const_setType set2)
     setType result;
 
   /* setDiff */
-#ifdef OUT_OF_ORDER
-    printf("setDiff(");
-    prot_set(set1);
-    printf(", ");
-    prot_set(set2);
-    printf(")\n");
-#endif
+    logFunction(printf("setDiff(");
+                prot_set(set1);
+                printf(", ");
+                prot_set(set2);
+                printf(")\n"););
     if (unlikely(!ALLOC_SET(result, bitsetSize(set1)))) {
       raise_error(MEMORY_ERROR);
     } else {
@@ -563,6 +566,9 @@ setType setDiff (const const_setType set1, const const_setType set2)
         } /* for */
       } /* if */
     } /* if */
+    logFunction(printf("setDiff --> ");
+                prot_set(result);
+                printf("\n"););
     return result;
   } /* setDiff */
 
@@ -875,13 +881,11 @@ setType setIntersect (const const_setType set1, const const_setType set2)
     setType result;
 
   /* setIntersect */
-#ifdef OUT_OF_ORDER
-    printf("setIntersect(\n");
-    prot_set(set1);
-    printf(",\n");
-    prot_set(set2);
-    printf(")\n");
-#endif
+    logFunction(printf("setIntersect(\n");
+                prot_set(set1);
+                printf(",\n");
+                prot_set(set2);
+                printf(")\n"););
     if (set1->min_position > set2->min_position) {
       min_position = set1->min_position;
     } else {
@@ -913,6 +917,9 @@ setType setIntersect (const const_setType set1, const const_setType set2)
         } /* for */
       } /* if */
     } /* if */
+    logFunction(printf("setIntersect --> ");
+                prot_set(result);
+                printf("\n"););
     return result;
   } /* setIntersect */
 
@@ -955,13 +962,11 @@ boolType setIsProperSubset (const const_setType set1, const const_setType set2)
     boolType equal;
 
   /* setIsProperSubset */
-#ifdef OUT_OF_ORDER
-    printf("setIsProperSubset(");
-    prot_set(set1);
-    printf(", ");
-    prot_set(set2);
-    printf(")\n");
-#endif
+    logFunction(printf("setIsProperSubset(");
+                prot_set(set1);
+                printf(", ");
+                prot_set(set2);
+                printf(")\n"););
     equal = TRUE;
     if (set1->min_position < set2->min_position) {
       if (set1->max_position < set2->min_position) {
@@ -1062,13 +1067,11 @@ boolType setIsSubset (const const_setType set1, const const_setType set2)
     const bitSetType *bitset2;
 
   /* setIsSubset */
-#ifdef OUT_OF_ORDER
-    printf("setIsSubset(");
-    prot_set(set1);
-    printf(", ");
-    prot_set(set2);
-    printf(")\n");
-#endif
+    logFunction(printf("setIsSubset(");
+                prot_set(set1);
+                printf(", ");
+                prot_set(set2);
+                printf(")\n"););
     if (set1->min_position < set2->min_position) {
       if (set1->max_position < set2->min_position) {
         size = 0;
@@ -1154,6 +1157,7 @@ intType setMax (const const_setType aSet)
         return result;
       } /* if */
     } /* while */
+    logError(printf("setMax(): Set is empty.\n"););
     raise_error(RANGE_ERROR);
     return 0;
   } /* setMax */
@@ -1188,6 +1192,7 @@ intType setMin (const const_setType aSet)
       } /* if */
       bitset_index++;
     } /* while */
+    logError(printf("setMin(): Set is empty.\n"););
     raise_error(RANGE_ERROR);
     return 0;
   } /* setMin */
@@ -1233,6 +1238,9 @@ intType setNext (const const_setType set1, const intType number)
         return result;
       } /* if */
     } /* if */
+    logError(printf("setNext(set1, " FMT_D "): "
+                    "The maximal element of a set has no next element.\n",
+                    number););
     raise_error(RANGE_ERROR);
     return 0;
   } /* setNext */
@@ -1257,6 +1265,7 @@ intType setRand (const const_setType aSet)
   /* setRand */
     num_elements = setCard(aSet);
     if (unlikely(num_elements == 0)) {
+      logError(printf("setRand(): Set is empty.\n"););
       raise_error(RANGE_ERROR);
       return 0;
     } else {
@@ -1298,7 +1307,8 @@ setType setRangelit (const intType lowerValue, const intType upperValue)
     setType result;
 
   /* setRangelit */
-    /* printf("setRangelit(" FMT_D ", " FMT_D ")\n", lowerValue, upperValue); */
+    logFunction(printf("setRangelit(" FMT_D ", " FMT_D ")\n",
+                       lowerValue, upperValue););
     min_position = bitset_pos(lowerValue);
     max_position = bitset_pos(upperValue);
     if (min_position > max_position) {
@@ -1328,6 +1338,9 @@ setType setRangelit (const intType lowerValue, const intType upperValue)
         result->bitset[bitset_size - 1] = ~(~(bitSetType) 1 << bit_index);
       } /* if */
     } /* if */
+    logFunction(printf("setRangelit --> ");
+                prot_set(result);
+                printf("\n"););
     return result;
   } /* setRangelit */
 
@@ -1345,6 +1358,8 @@ intType setSConv (const const_setType aSet)
     if (likely(aSet->min_position == 0 && aSet->max_position == 0)) {
       return (intType) aSet->bitset[0];
     } else {
+      logError(printf("setSConv(): "
+                      "Set contains negative values or does not fit into an integer.\n"););
       raise_error(RANGE_ERROR);
       return 0;
     } /* if */
@@ -1473,13 +1488,11 @@ setType setUnion (const const_setType set1, const const_setType set2)
     setType result;
 
   /* setUnion */
-#ifdef OUT_OF_ORDER
-    printf("set_union(\n");
-    prot_set(set1);
-    printf(",\n");
-    prot_set(set2);
-    printf(")\n");
-#endif
+    logFunction(printf("set_union(\n");
+                prot_set(set1);
+                printf(",\n");
+                prot_set(set2);
+                printf(")\n"););
     if (set1->min_position < set2->min_position) {
       min_position = set1->min_position;
       start_position = set2->min_position;
@@ -1532,11 +1545,9 @@ setType setUnion (const const_setType set1, const const_setType set2)
               set2->bitset[position - set2->min_position];
         } /* for */
       } /* if */
-#ifdef OUT_OF_ORDER
-      printf("setUnion ==> ");
-      prot_set(result);
-      printf("\n");
-#endif
     } /* if */
+    logFunction(printf("setUnion --> ");
+                prot_set(result);
+                printf("\n"););
     return result;
   } /* setUnion */

@@ -232,29 +232,29 @@ static boolType setupDll (const char *dllName)
       dbDll = dllOpen(dllName);
 #endif
       if (dbDll != NULL) {
-        if ((PQclear              = (tp_PQclear)              dllSym(dbDll, "PQclear"))              == NULL ||
-            (PQdescribePrepared   = (tp_PQdescribePrepared)   dllSym(dbDll, "PQdescribePrepared"))   == NULL ||
-            (PQerrorMessage       = (tp_PQerrorMessage)       dllSym(dbDll, "PQerrorMessage"))       == NULL ||
-            (PQexec               = (tp_PQexec)               dllSym(dbDll, "PQexec"))               == NULL ||
-            (PQexecPrepared       = (tp_PQexecPrepared)       dllSym(dbDll, "PQexecPrepared"))       == NULL ||
-            (PQfinish             = (tp_PQfinish)             dllSym(dbDll, "PQfinish"))             == NULL ||
-            (PQfname              = (tp_PQfname)              dllSym(dbDll, "PQfname"))              == NULL ||
-            (PQftype              = (tp_PQftype)              dllSym(dbDll, "PQftype"))              == NULL ||
-            (PQgetisnull          = (tp_PQgetisnull)          dllSym(dbDll, "PQgetisnull"))          == NULL ||
-            (PQgetlength          = (tp_PQgetlength)          dllSym(dbDll, "PQgetlength"))          == NULL ||
-            (PQgetvalue           = (tp_PQgetvalue)           dllSym(dbDll, "PQgetvalue"))           == NULL ||
-            (PQnfields            = (tp_PQnfields)            dllSym(dbDll, "PQnfields"))            == NULL ||
-            (PQnparams            = (tp_PQnparams)            dllSym(dbDll, "PQnparams"))            == NULL ||
-            (PQntuples            = (tp_PQntuples)            dllSym(dbDll, "PQntuples"))            == NULL ||
-            (PQparameterStatus    = (tp_PQparameterStatus)    dllSym(dbDll, "PQparameterStatus"))    == NULL ||
-            (PQparamtype          = (tp_PQparamtype)          dllSym(dbDll, "PQparamtype"))          == NULL ||
-            (PQprepare            = (tp_PQprepare)            dllSym(dbDll, "PQprepare"))            == NULL ||
-            (PQresStatus          = (tp_PQresStatus)          dllSym(dbDll, "PQresStatus"))          == NULL ||
-            (PQresultErrorMessage = (tp_PQresultErrorMessage) dllSym(dbDll, "PQresultErrorMessage")) == NULL ||
-            (PQresultStatus       = (tp_PQresultStatus)       dllSym(dbDll, "PQresultStatus"))       == NULL ||
-            (PQsetClientEncoding  = (tp_PQsetClientEncoding)  dllSym(dbDll, "PQsetClientEncoding"))  == NULL ||
-            (PQsetdbLogin         = (tp_PQsetdbLogin)         dllSym(dbDll, "PQsetdbLogin"))         == NULL ||
-            (PQstatus             = (tp_PQstatus)             dllSym(dbDll, "PQstatus"))             == NULL) {
+        if ((PQclear              = (tp_PQclear)              dllFunc(dbDll, "PQclear"))              == NULL ||
+            (PQdescribePrepared   = (tp_PQdescribePrepared)   dllFunc(dbDll, "PQdescribePrepared"))   == NULL ||
+            (PQerrorMessage       = (tp_PQerrorMessage)       dllFunc(dbDll, "PQerrorMessage"))       == NULL ||
+            (PQexec               = (tp_PQexec)               dllFunc(dbDll, "PQexec"))               == NULL ||
+            (PQexecPrepared       = (tp_PQexecPrepared)       dllFunc(dbDll, "PQexecPrepared"))       == NULL ||
+            (PQfinish             = (tp_PQfinish)             dllFunc(dbDll, "PQfinish"))             == NULL ||
+            (PQfname              = (tp_PQfname)              dllFunc(dbDll, "PQfname"))              == NULL ||
+            (PQftype              = (tp_PQftype)              dllFunc(dbDll, "PQftype"))              == NULL ||
+            (PQgetisnull          = (tp_PQgetisnull)          dllFunc(dbDll, "PQgetisnull"))          == NULL ||
+            (PQgetlength          = (tp_PQgetlength)          dllFunc(dbDll, "PQgetlength"))          == NULL ||
+            (PQgetvalue           = (tp_PQgetvalue)           dllFunc(dbDll, "PQgetvalue"))           == NULL ||
+            (PQnfields            = (tp_PQnfields)            dllFunc(dbDll, "PQnfields"))            == NULL ||
+            (PQnparams            = (tp_PQnparams)            dllFunc(dbDll, "PQnparams"))            == NULL ||
+            (PQntuples            = (tp_PQntuples)            dllFunc(dbDll, "PQntuples"))            == NULL ||
+            (PQparameterStatus    = (tp_PQparameterStatus)    dllFunc(dbDll, "PQparameterStatus"))    == NULL ||
+            (PQparamtype          = (tp_PQparamtype)          dllFunc(dbDll, "PQparamtype"))          == NULL ||
+            (PQprepare            = (tp_PQprepare)            dllFunc(dbDll, "PQprepare"))            == NULL ||
+            (PQresStatus          = (tp_PQresStatus)          dllFunc(dbDll, "PQresStatus"))          == NULL ||
+            (PQresultErrorMessage = (tp_PQresultErrorMessage) dllFunc(dbDll, "PQresultErrorMessage")) == NULL ||
+            (PQresultStatus       = (tp_PQresultStatus)       dllFunc(dbDll, "PQresultStatus"))       == NULL ||
+            (PQsetClientEncoding  = (tp_PQsetClientEncoding)  dllFunc(dbDll, "PQsetClientEncoding"))  == NULL ||
+            (PQsetdbLogin         = (tp_PQsetdbLogin)         dllFunc(dbDll, "PQsetdbLogin"))         == NULL ||
+            (PQstatus             = (tp_PQstatus)             dllFunc(dbDll, "PQstatus"))             == NULL) {
           dbDll = NULL;
         } /* if */
       } /* if */

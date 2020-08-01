@@ -1849,8 +1849,8 @@ striType wstri_buf_to_stri (const_wstriType wstri, memSizeType length,
       if (stri_size != length) {
         REALLOC_STRI_SIZE_SMALLER(resized_stri, stri, length, stri_size);
         if (resized_stri == NULL) {
-          *err_info = MEMORY_ERROR;
           FREE_STRI(stri, length);
+          *err_info = MEMORY_ERROR;
           stri = NULL;
         } else {
           stri = resized_stri;

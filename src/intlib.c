@@ -25,6 +25,9 @@
 /*                                                                  */
 /********************************************************************/
 
+#define LOG_FUNCTIONS 0
+#define VERBOSE_EXCEPTIONS 0
+
 #include "version.h"
 
 #include "stdlib.h"
@@ -90,6 +93,8 @@ objectType int_abs (listType arguments)
       if (unlikely(number == INTTYPE_MIN)) {
         /* Changing the sign of the most negative number in twos */
         /* complement arithmetic triggers an overflow.           */
+        logError(printf("int_abs(" FMT_D "): No corresponding positive number.\n",
+                        INTTYPE_MIN););
         return raise_exception(SYS_OVF_EXCEPTION);
       } /* if */
 #endif
@@ -119,10 +124,14 @@ objectType int_add (listType arguments)
 #ifdef CHECK_INT_OVERFLOW
     if (summand2 < 0) {
       if (unlikely(summand1 < INTTYPE_MIN - summand2)) {
+        logError(printf("int_add(" FMT_D ", " FMT_D "): Sum too small.\n",
+                        summand1, summand2););
         return raise_exception(SYS_OVF_EXCEPTION);
       } /* if */
     } else {
       if (unlikely(summand1 > INTTYPE_MAX - summand2)) {
+        logError(printf("int_add(" FMT_D ", " FMT_D "): Sum too big.\n",
+                        summand1, summand2););
         return raise_exception(SYS_OVF_EXCEPTION);
       } /* if */
     } /* if */
@@ -155,10 +164,14 @@ objectType int_add_assign (listType arguments)
       number = take_int(int_variable);
       if (delta < 0) {
         if (unlikely(number < INTTYPE_MIN - delta)) {
+          logError(printf("int_add_assign(" FMT_D ", " FMT_D "): Sum too small.\n",
+                          number, delta););
           return raise_exception(SYS_OVF_EXCEPTION);
         } /* if */
       } else {
         if (unlikely(number > INTTYPE_MAX - delta)) {
+          logError(printf("int_add_assign(" FMT_D ", " FMT_D "): Sum too big.\n",
+                          number, delta););
           return raise_exception(SYS_OVF_EXCEPTION);
         } /* if */
       } /* if */
@@ -437,6 +450,8 @@ objectType int_decr (listType arguments)
     is_variable(int_variable);
 #ifdef CHECK_INT_OVERFLOW
     if (unlikely(take_int(int_variable) == INTTYPE_MIN)) {
+      logError(printf("int_decr(" FMT_D "): Cannot decrement minimum value.\n",
+                      INTTYPE_MIN););
       return raise_exception(SYS_OVF_EXCEPTION);
     } /* if */
 #endif
@@ -468,12 +483,16 @@ objectType int_div (listType arguments)
     dividend = take_int(arg_1(arguments));
     divisor = take_int(arg_3(arguments));
     if (unlikely(divisor == 0)) {
+      logError(printf("int_div(" FMT_D ", 0): Division by zero.\n",
+                      dividend););
       return raise_exception(SYS_NUM_EXCEPTION);
 #if defined CHECK_INT_OVERFLOW && defined TWOS_COMPLEMENT_INTTYPE
     } else if (unlikely(divisor == -1 && dividend == INTTYPE_MIN)) {
       /* A division of the most negative number by -1 is equivalent */
       /* to changing the sign of the most negative number. In twos  */
       /* complement arithmetic this triggers an overflow.           */
+      logError(printf("int_div(" FMT_D ", -1): No corresponding positive number.\n",
+                      INTTYPE_MIN););
       return raise_exception(SYS_OVF_EXCEPTION);
 #endif
     } /* if */
@@ -511,12 +530,15 @@ objectType int_eq (listType arguments)
 objectType int_fact (listType arguments)
 
   {
-    int number;
+    intType number;
 
   /* int_fact */
     isit_int(arg_2(arguments));
-    number = (int) take_int(arg_2(arguments));
-    if (number < 0 || (size_t) number >= sizeof(fact) / sizeof(intType)) {
+    number = take_int(arg_2(arguments));
+    if (number < 0 || (uintType) number >= sizeof(fact) / sizeof(intType)) {
+      logError(printf("int_fact(" FMT_D "): "
+                      "Number is negative or factorial does not fit into an integer.\n",
+                      number););
       return raise_exception(SYS_NUM_EXCEPTION);
     } /* if */
     return bld_int_temp(fact[number]);
@@ -593,6 +615,8 @@ objectType int_incr (listType arguments)
     is_variable(int_variable);
 #ifdef CHECK_INT_OVERFLOW
     if (unlikely(take_int(int_variable) == INTTYPE_MAX)) {
+      logError(printf("int_incr(" FMT_D "): Cannot increment maximum value.\n",
+                      INTTYPE_MAX););
       return raise_exception(SYS_OVF_EXCEPTION);
     } /* if */
 #endif
@@ -701,6 +725,9 @@ objectType int_lshift (listType arguments)
     lshift = take_int(arg_3(arguments));
 #ifdef CHECK_INT_OVERFLOW
     if (unlikely(lshift < 0 || lshift >= INTTYPE_SIZE)) {
+      logError(printf("int_lshift(" FMT_D ", " FMT_D "): "
+                      "Shift count negative or greater equal %d.\n",
+                      number, lshift, INTTYPE_SIZE););
       return raise_exception(SYS_OVF_EXCEPTION);
     } /* if */
     if (number < 0) {
@@ -709,10 +736,16 @@ objectType int_lshift (listType arguments)
 #else
       if (unlikely(number < ~(~INTTYPE_MIN >> lshift))) {
 #endif
+        logError(printf("int_lshift(" FMT_D ", " FMT_D "): "
+                        "Shift result too small.\n",
+                        number, lshift););
         return raise_exception(SYS_OVF_EXCEPTION);
       } /* if */
     } else {
       if (unlikely(number > INTTYPE_MAX >> lshift)) {
+        logError(printf("int_lshift(" FMT_D ", " FMT_D "): "
+                        "Shift result too big.\n",
+                        number, lshift););
         return raise_exception(SYS_OVF_EXCEPTION);
       } /* if */
     } /* if */
@@ -742,6 +775,9 @@ objectType int_lshift_assign (listType arguments)
     lshift = take_int(arg_3(arguments));
 #ifdef CHECK_INT_OVERFLOW
     if (unlikely(lshift < 0 || lshift >= INTTYPE_SIZE)) {
+      logError(printf("int_lshift_assign(" FMT_D ", " FMT_D "): "
+                      "Shift count negative or greater equal %d.\n",
+                      take_int(int_variable), lshift, INTTYPE_SIZE););
       return raise_exception(SYS_OVF_EXCEPTION);
     } /* if */
     {
@@ -754,10 +790,16 @@ objectType int_lshift_assign (listType arguments)
 #else
         if (unlikely(number < ~(~INTTYPE_MIN >> lshift))) {
 #endif
+          logError(printf("int_lshift_assign(" FMT_D ", " FMT_D "): "
+                          "Shift result too small.\n",
+                          number, lshift););
           return raise_exception(SYS_OVF_EXCEPTION);
         } /* if */
       } else {
         if (unlikely(number > INTTYPE_MAX >> lshift)) {
+          logError(printf("int_lshift_assign(" FMT_D ", " FMT_D "): "
+                          "Shift result too big.\n",
+                          number, lshift););
           return raise_exception(SYS_OVF_EXCEPTION);
         } /* if */
       } /* if */
@@ -810,12 +852,16 @@ objectType int_mdiv (listType arguments)
     dividend = take_int(arg_1(arguments));
     divisor = take_int(arg_3(arguments));
     if (unlikely(divisor == 0)) {
+      logError(printf("int_mdiv(" FMT_D ", 0): Division by zero.\n",
+                      dividend););
       return raise_exception(SYS_NUM_EXCEPTION);
 #if defined CHECK_INT_OVERFLOW && defined TWOS_COMPLEMENT_INTTYPE
     } else if (unlikely(divisor == -1 && dividend == INTTYPE_MIN)) {
       /* A division of the most negative number by -1 is equivalent */
       /* to changing the sign of the most negative number. In twos  */
       /* complement arithmetic this triggers an overflow.           */
+      logError(printf("int_mdiv(" FMT_D ", -1): No corresponding positive number.\n",
+                      INTTYPE_MIN););
       return raise_exception(SYS_OVF_EXCEPTION);
 #endif
     } /* if */
@@ -851,6 +897,8 @@ objectType int_mod (listType arguments)
     dividend = take_int(arg_1(arguments));
     divisor = take_int(arg_3(arguments));
     if (unlikely(divisor == 0)) {
+      logError(printf("int_mod(" FMT_D ", 0): Division by zero.\n",
+                      dividend););
       return raise_exception(SYS_NUM_EXCEPTION);
 #if defined CHECK_INT_OVERFLOW && defined TWOS_COMPLEMENT_INTTYPE
     } else if (unlikely(divisor == -1 && dividend == INTTYPE_MIN)) {
@@ -858,6 +906,8 @@ objectType int_mod (listType arguments)
       /* by -1. A division by -1 is equivalent to changing the      */
       /* sign. For the most negative number changing the sign       */
       /* triggers an overflow.                                      */
+      logError(printf("int_mod(" FMT_D ", -1): Division triggers overflow.\n",
+                      INTTYPE_MIN););
       return raise_exception(SYS_OVF_EXCEPTION);
 #endif
     } else {
@@ -894,6 +944,9 @@ objectType int_mult (listType arguments)
       doubleIntType doubleProduct = (doubleIntType) factor1 * (doubleIntType) factor2;
       product = (intType) doubleProduct;
       if ((doubleIntType) product != doubleProduct) {
+        logError(printf("int_mult(" FMT_D ", " FMT_D "): "
+                        "Product does not fit into an integer.\n",
+                        factor1, factor2););
         return raise_exception(SYS_OVF_EXCEPTION);
       } /* if */
     }
@@ -984,6 +1037,8 @@ objectType int_negate (listType arguments)
     if (unlikely(number == INTTYPE_MIN)) {
       /* Changing the sign of the most negative number in twos */
       /* complement arithmetic triggers an overflow.           */
+      logError(printf("int_negate(" FMT_D "): No corresponding positive number.\n",
+                      INTTYPE_MIN););
       return raise_exception(SYS_OVF_EXCEPTION);
     } /* if */
 #endif
@@ -1093,6 +1148,8 @@ objectType int_pred (listType arguments)
     number = take_int(arg_1(arguments));
 #ifdef CHECK_INT_OVERFLOW
     if (unlikely(number == INTTYPE_MIN)) {
+      logError(printf("int_pred(" FMT_D "): Minimum value has no predecessor.\n",
+                      INTTYPE_MIN););
       return raise_exception(SYS_OVF_EXCEPTION);
     } /* if */
 #endif
@@ -1181,6 +1238,8 @@ objectType int_rem (listType arguments)
     dividend = take_int(arg_1(arguments));
     divisor = take_int(arg_3(arguments));
     if (unlikely(divisor == 0)) {
+      logError(printf("int_rem(" FMT_D ", 0): Division by zero.\n",
+                      dividend););
       return raise_exception(SYS_NUM_EXCEPTION);
 #if defined CHECK_INT_OVERFLOW && defined TWOS_COMPLEMENT_INTTYPE
     } else if (unlikely(divisor == -1 && dividend == INTTYPE_MIN)) {
@@ -1188,6 +1247,8 @@ objectType int_rem (listType arguments)
       /* by -1. A division by -1 is equivalent to changing the      */
       /* sign. For the most negative number changing the sign       */
       /* triggers an overflow.                                      */
+      logError(printf("int_rem(" FMT_D ", -1): Division triggers overflow.\n",
+                      INTTYPE_MIN););
       return raise_exception(SYS_OVF_EXCEPTION);
 #endif
     } else {
@@ -1219,6 +1280,9 @@ objectType int_rshift (listType arguments)
     rshift = take_int(arg_3(arguments));
 #ifdef CHECK_INT_OVERFLOW
     if (unlikely(rshift < 0 || rshift >= INTTYPE_SIZE)) {
+      logError(printf("int_rshift(" FMT_D ", " FMT_D "): "
+                      "Shift count negative or greater equal %d.\n",
+                      number, rshift, INTTYPE_SIZE););
       return raise_exception(SYS_OVF_EXCEPTION);
     } /* if */
 #endif
@@ -1255,13 +1319,16 @@ objectType int_rshift_assign (listType arguments)
     rshift = take_int(arg_3(arguments));
 #ifdef CHECK_INT_OVERFLOW
     if (unlikely(rshift < 0 || rshift >= INTTYPE_SIZE)) {
+      logError(printf("int_rshift_assign(" FMT_D ", " FMT_D "): "
+                      "Shift count negative or greater equal %d.\n",
+                      take_int(int_variable), rshift, INTTYPE_SIZE););
       return raise_exception(SYS_OVF_EXCEPTION);
     } /* if */
 #endif
 #ifdef RSHIFT_DOES_SIGN_EXTEND
     int_variable->value.intValue >>= rshift;
 #else
-    if (take_int(arg_1(arguments)) < 0) {
+    if (take_int(int_variable) < 0) {
       int_variable->value.intValue =
          ~(~int_variable->value.intValue >> rshift);
     } else {
@@ -1292,10 +1359,14 @@ objectType int_sbtr (listType arguments)
 #ifdef CHECK_INT_OVERFLOW
     if (subtrahend < 0) {
       if (unlikely(minuend > INTTYPE_MAX + subtrahend)) {
+        logError(printf("int_sbtr(" FMT_D ", " FMT_D "): Difference too big.\n",
+                        minuend, subtrahend););
         return raise_exception(SYS_OVF_EXCEPTION);
       } /* if */
     } else {
       if (unlikely(minuend < INTTYPE_MIN + subtrahend)) {
+        logError(printf("int_sbtr(" FMT_D ", " FMT_D "): Difference too small.\n",
+                        minuend, subtrahend););
         return raise_exception(SYS_OVF_EXCEPTION);
       } /* if */
     } /* if */
@@ -1328,10 +1399,14 @@ objectType int_sbtr_assign (listType arguments)
       number = take_int(int_variable);
       if (delta < 0) {
         if (unlikely(number > INTTYPE_MAX + delta)) {
+          logError(printf("int_sbtr(" FMT_D ", " FMT_D "): Difference too big.\n",
+                          number, delta););
           return raise_exception(SYS_OVF_EXCEPTION);
         } /* if */
       } else {
         if (unlikely(number < INTTYPE_MIN + delta)) {
+          logError(printf("int_sbtr(" FMT_D ", " FMT_D "): Difference too small.\n",
+                          number, delta););
           return raise_exception(SYS_OVF_EXCEPTION);
         } /* if */
       } /* if */
@@ -1390,6 +1465,8 @@ objectType int_succ (listType arguments)
     number = take_int(arg_1(arguments));
 #ifdef CHECK_INT_OVERFLOW
     if (unlikely(number == INTTYPE_MAX)) {
+      logError(printf("int_pred(" FMT_D "): Maximum value has no successor.\n",
+                      INTTYPE_MAX););
       return raise_exception(SYS_OVF_EXCEPTION);
     } /* if */
 #endif

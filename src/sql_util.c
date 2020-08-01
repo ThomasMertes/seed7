@@ -34,8 +34,8 @@
 #include "stdlib.h"
 #include "stdio.h"
 #include "string.h"
-#include "math.h"
 #include "float.h"
+#include "math.h"
 
 #include "common.h"
 #include "data_rtl.h"
@@ -189,10 +189,10 @@ bigIntType doubleToBigRat (const double doubleValue, bigIntType *denominator)
 
   /* doubleToBigRat */
     /* printf("doubleToBigRat(%f)\n", doubleValue); */
-    if (isnan(doubleValue)) {
+    if (os_isnan(doubleValue)) {
       numerator = bigFromInt32(0);
       *denominator = bigFromInt32(0);
-    } else if (isinf(doubleValue)) {
+    } else if (os_isinf(doubleValue)) {
       if (doubleValue < 0.0) {
         numerator = bigFromInt32(-1);
       } else {
@@ -260,10 +260,10 @@ bigIntType roundDoubleToBigRat (const double doubleValue, boolType roundDouble,
 
   /* roundDoubleToBigRat */
     /* printf("roundDoubleToBigRat(%f, %d)\n", doubleValue, roundDouble); */
-    if (isnan(doubleValue)) {
+    if (os_isnan(doubleValue)) {
       numerator = bigFromInt32(0);
       *denominator = bigFromInt32(0);
-    } else if (isinf(doubleValue)) {
+    } else if (os_isinf(doubleValue)) {
       if (doubleValue < 0.0) {
         numerator = bigFromInt32(-1);
       } else {
@@ -537,68 +537,69 @@ ustriType bigRatToDecimal (const const_bigIntType numerator,
       } /* if */
       if (unlikely(mantissaValue == NULL)) {
         decimal = NULL;
-      } else if (bigEqSignedDigit(mantissaValue, 0)) {
-        if (unlikely(!ALLOC_USTRI(decimal, 3))) {
-          *err_info = MEMORY_ERROR;
-        } else {
-          strcpy((char *) decimal, "0.0");
-          *length = 3;
-        } /* if */
       } else {
-        stri = bigStr(mantissaValue);
-        if (stri == NULL) {
-          *err_info = MEMORY_ERROR;
-          decimal = NULL;
-        } else {
-          /* prot_stri(stri);
-             printf("\n"); */
-          striSizeUsed = stri->size;
-          while (scale >= 2 && stri->mem[striSizeUsed - 1] == '0') {
-            scale--;
-            striSizeUsed--;
-          } /* while */
-          decimalSize = striSizeUsed;
-          if (decimalSize - (stri->mem[0] == '-') > scale) {
-            /* Add one character for the decimal point. */
-            decimalSize += 1;
-          } else {
-            /* Add space for sign, zero and decimal point. */
-            decimalSize = (stri->mem[0] == '-') + scale + 2;
-          } /* if */
-          if (unlikely(!ALLOC_USTRI(decimal, decimalSize))) {
-            FREE_STRI(stri, stri->size);
+        if (bigEqSignedDigit(mantissaValue, 0)) {
+          if (unlikely(!ALLOC_USTRI(decimal, 3))) {
             *err_info = MEMORY_ERROR;
           } else {
-            srcIndex = 0;
-            destIndex = 0;
-            if (stri->mem[0] == '-') {
-              decimal[0] = '-';
-              srcIndex++;
-              destIndex++;
+            strcpy((char *) decimal, "0.0");
+            *length = 3;
+          } /* if */
+        } else {
+          stri = bigStr(mantissaValue);
+          if (stri == NULL) {
+            *err_info = MEMORY_ERROR;
+            decimal = NULL;
+          } else {
+            /* prot_stri(stri);
+               printf("\n"); */
+            striSizeUsed = stri->size;
+            while (scale >= 2 && stri->mem[striSizeUsed - 1] == '0') {
+              scale--;
+              striSizeUsed--;
+            } /* while */
+            decimalSize = striSizeUsed;
+            if (decimalSize - (stri->mem[0] == '-') > scale) {
+              /* Add one character for the decimal point. */
+              decimalSize += 1;
+            } else {
+              /* Add space for sign, zero and decimal point. */
+              decimalSize = (stri->mem[0] == '-') + scale + 2;
             } /* if */
-            if (striSizeUsed - srcIndex > scale) {
-              for (; srcIndex < striSizeUsed - scale; srcIndex++) {
+            if (unlikely(!ALLOC_USTRI(decimal, decimalSize))) {
+              *err_info = MEMORY_ERROR;
+            } else {
+              srcIndex = 0;
+              destIndex = 0;
+              if (stri->mem[0] == '-') {
+                decimal[0] = '-';
+                srcIndex++;
+                destIndex++;
+              } /* if */
+              if (striSizeUsed - srcIndex > scale) {
+                for (; srcIndex < striSizeUsed - scale; srcIndex++) {
+                  decimal[destIndex] = (unsigned char) stri->mem[srcIndex];
+                  destIndex++;
+                } /* for */
+                decimal[destIndex] = '.';
+                destIndex++;
+              } else {
+                decimal[destIndex] = '0';
+                destIndex++;
+                decimal[destIndex] = '.';
+                destIndex++;
+                memset(&decimal[destIndex], '0', scale - striSizeUsed + srcIndex);
+                destIndex += scale - striSizeUsed + srcIndex;
+              } /* if */
+              for (; srcIndex < striSizeUsed; srcIndex++) {
                 decimal[destIndex] = (unsigned char) stri->mem[srcIndex];
                 destIndex++;
               } /* for */
-              decimal[destIndex] = '.';
-              destIndex++;
-            } else {
-              decimal[destIndex] = '0';
-              destIndex++;
-              decimal[destIndex] = '.';
-              destIndex++;
-              memset(&decimal[destIndex], '0', scale - striSizeUsed + srcIndex);
-              destIndex += scale - striSizeUsed + srcIndex;
+              decimal[destIndex] = '\0';
+              *length = destIndex;
             } /* if */
-            for (; srcIndex < striSizeUsed; srcIndex++) {
-              decimal[destIndex] = (unsigned char) stri->mem[srcIndex];
-              destIndex++;
-            } /* for */
-            decimal[destIndex] = '\0';
-            *length = destIndex;
+            FREE_STRI(stri, stri->size);
           } /* if */
-          FREE_STRI(stri, stri->size);
         } /* if */
         bigDestr(mantissaValue);
       } /* if */

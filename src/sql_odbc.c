@@ -253,23 +253,23 @@ static boolType setupDll (const char *dllName)
     if (dbDll == NULL) {
       dbDll = dllOpen(dllName);
       if (dbDll != NULL) {
-        if ((SQLAllocHandle   = (tp_SQLAllocHandle)   dllSym(dbDll, "SQLAllocHandle"))   == NULL ||
-            (SQLBindCol       = (tp_SQLBindCol)       dllSym(dbDll, "SQLBindCol"))       == NULL ||
-            (SQLBindParameter = (tp_SQLBindParameter) dllSym(dbDll, "SQLBindParameter")) == NULL ||
-            (SQLColAttribute  = (tp_SQLColAttribute)  dllSym(dbDll, "SQLColAttribute"))  == NULL ||
-            (SQLColAttributeW = (tp_SQLColAttributeW) dllSym(dbDll, "SQLColAttributeW")) == NULL ||
-            (SQLConnectW      = (tp_SQLConnectW)      dllSym(dbDll, "SQLConnectW"))      == NULL ||
-            (SQLDisconnect    = (tp_SQLDisconnect)    dllSym(dbDll, "SQLDisconnect"))    == NULL ||
-            (SQLExecute       = (tp_SQLExecute)       dllSym(dbDll, "SQLExecute"))       == NULL ||
-            (SQLFetch         = (tp_SQLFetch)         dllSym(dbDll, "SQLFetch"))         == NULL ||
-            (SQLFreeHandle    = (tp_SQLFreeHandle)    dllSym(dbDll, "SQLFreeHandle"))    == NULL ||
-            (SQLFreeStmt      = (tp_SQLFreeStmt)      dllSym(dbDll, "SQLFreeStmt"))      == NULL ||
-            (SQLGetDiagRec    = (tp_SQLGetDiagRec)    dllSym(dbDll, "SQLGetDiagRec"))    == NULL ||
-            (SQLGetStmtAttr   = (tp_SQLGetStmtAttr)   dllSym(dbDll, "SQLGetStmtAttr"))   == NULL ||
-            (SQLNumResultCols = (tp_SQLNumResultCols) dllSym(dbDll, "SQLNumResultCols")) == NULL ||
-            (SQLPrepareW      = (tp_SQLPrepareW)      dllSym(dbDll, "SQLPrepareW"))      == NULL ||
-            (SQLSetDescField  = (tp_SQLSetDescField)  dllSym(dbDll, "SQLSetDescField"))  == NULL ||
-            (SQLSetEnvAttr    = (tp_SQLSetEnvAttr)    dllSym(dbDll, "SQLSetEnvAttr"))    == NULL) {
+        if ((SQLAllocHandle   = (tp_SQLAllocHandle)   dllFunc(dbDll, "SQLAllocHandle"))   == NULL ||
+            (SQLBindCol       = (tp_SQLBindCol)       dllFunc(dbDll, "SQLBindCol"))       == NULL ||
+            (SQLBindParameter = (tp_SQLBindParameter) dllFunc(dbDll, "SQLBindParameter")) == NULL ||
+            (SQLColAttribute  = (tp_SQLColAttribute)  dllFunc(dbDll, "SQLColAttribute"))  == NULL ||
+            (SQLColAttributeW = (tp_SQLColAttributeW) dllFunc(dbDll, "SQLColAttributeW")) == NULL ||
+            (SQLConnectW      = (tp_SQLConnectW)      dllFunc(dbDll, "SQLConnectW"))      == NULL ||
+            (SQLDisconnect    = (tp_SQLDisconnect)    dllFunc(dbDll, "SQLDisconnect"))    == NULL ||
+            (SQLExecute       = (tp_SQLExecute)       dllFunc(dbDll, "SQLExecute"))       == NULL ||
+            (SQLFetch         = (tp_SQLFetch)         dllFunc(dbDll, "SQLFetch"))         == NULL ||
+            (SQLFreeHandle    = (tp_SQLFreeHandle)    dllFunc(dbDll, "SQLFreeHandle"))    == NULL ||
+            (SQLFreeStmt      = (tp_SQLFreeStmt)      dllFunc(dbDll, "SQLFreeStmt"))      == NULL ||
+            (SQLGetDiagRec    = (tp_SQLGetDiagRec)    dllFunc(dbDll, "SQLGetDiagRec"))    == NULL ||
+            (SQLGetStmtAttr   = (tp_SQLGetStmtAttr)   dllFunc(dbDll, "SQLGetStmtAttr"))   == NULL ||
+            (SQLNumResultCols = (tp_SQLNumResultCols) dllFunc(dbDll, "SQLNumResultCols")) == NULL ||
+            (SQLPrepareW      = (tp_SQLPrepareW)      dllFunc(dbDll, "SQLPrepareW"))      == NULL ||
+            (SQLSetDescField  = (tp_SQLSetDescField)  dllFunc(dbDll, "SQLSetDescField"))  == NULL ||
+            (SQLSetEnvAttr    = (tp_SQLSetEnvAttr)    dllFunc(dbDll, "SQLSetEnvAttr"))    == NULL) {
           dbDll = NULL;
         } /* if */
       } /* if */

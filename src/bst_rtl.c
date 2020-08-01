@@ -29,6 +29,9 @@
 /*                                                                  */
 /********************************************************************/
 
+#define LOG_FUNCTIONS 0
+#define VERBOSE_EXCEPTIONS 0
+
 #include "version.h"
 
 #include "stdlib.h"
@@ -301,6 +304,8 @@ bstriType bstParse (const const_striType stri)
       result->size = stri->size;
       if (unlikely(memcpy_from_strelem(result->mem, stri->mem, stri->size))) {
         FREE_BSTRI(result, result->size);
+        logError(printf("bstParse(\"%s\"): Character beyond '\255;' present.\n",
+                        striAsUnquotedCStri(stri)););
         raise_error(RANGE_ERROR);
         return NULL;
       } /* if */

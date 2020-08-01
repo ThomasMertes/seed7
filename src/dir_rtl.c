@@ -29,6 +29,9 @@
 /*                                                                  */
 /********************************************************************/
 
+#define LOG_FUNCTIONS 0
+#define VERBOSE_EXCEPTIONS 0
+
 #include "version.h"
 
 #include "stdlib.h"
@@ -44,6 +47,7 @@
 #include "heaputl.h"
 #include "cmd_drv.h"
 #include "rtl_err.h"
+#include "errno.h"
 
 #undef EXTERN
 #define EXTERN
@@ -123,6 +127,7 @@ static void closeVolumeList (volumeListType *volumeList)
 void dirClose (dirType directory)
 
   { /* dirClose */
+    logFunction(printf("dirClose(" FMT_U_MEM ")\n", (memSizeType) directory););
 #ifdef MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
     if (IS_VOLUME_LIST(directory)) {
       closeVolumeList((volumeListType *) directory);
@@ -132,6 +137,7 @@ void dirClose (dirType directory)
 #ifdef MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
     } /* if */
 #endif
+    logFunction(printf("dirClose -->\n"););
   } /* dirClose */
 
 
@@ -159,22 +165,32 @@ dirType dirOpen (const const_striType path)
     dirType directory;
 
   /* dirOpen */
+    logFunction(printf("dirOpen(\"%s\")\n", striAsUnquotedCStri(path)););
     os_path = cp_to_os_path(path, &path_info, &err_info);
     if (unlikely(err_info != OKAY_NO_ERROR)) {
 #ifdef MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
       if (path_info == PATH_IS_EMULATED_ROOT) {
         directory = (dirType) openVolumeList();
-      } else {
+      } else
 #endif
+      {
+        logError(printf("dirOpen: cp_to_os_path(\"%s\", *, *) failed:\n"
+                        "path_info=%d, err_info=%d\n",
+                        striAsUnquotedCStri(path), path_info, err_info););
         raise_error(err_info);
         directory = NULL;
-#ifdef MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
-      } /* if */
-#endif
+      }
     } else {
       directory = os_opendir(os_path);
+      if (unlikely(directory == NULL)) {
+        logError(printf("dirOpen: os_opendir(\"" FMT_S_OS "\") failed:\n"
+                        "errno=%d\nerror: %s\n",
+                        os_path, errno, strerror(errno)););
+      } /* if */
       os_stri_free(os_path);
     } /* if */
+    logFunction(printf("dirOpen --> " FMT_U_MEM "\n",
+                       (memSizeType) directory););
     return directory;
   } /* dirOpen */
 
@@ -201,6 +217,7 @@ striType dirRead (dirType directory)
     striType fileName;
 
   /* dirRead */
+    logFunction(printf("dirRead(" FMT_U_MEM ")\n", (memSizeType) directory););
 #ifdef MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
     if (IS_VOLUME_LIST(directory)) {
       fileName = readVolumeName((volumeListType *) directory);
@@ -223,5 +240,7 @@ striType dirRead (dirType directory)
 #ifdef MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
     } /* if */
 #endif
+    logFunction(printf("dirRead --> \"%s\"\n",
+                striAsUnquotedCStri(fileName)););
     return fileName;
   } /* dirRead */

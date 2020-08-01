@@ -25,6 +25,9 @@
 /*                                                                  */
 /********************************************************************/
 
+#define LOG_FUNCTIONS 0
+#define VERBOSE_EXCEPTIONS 0
+
 #include "version.h"
 
 #include "stdlib.h"
@@ -50,7 +53,10 @@ actType actIConv (intType ordinal)
     actType anAction;
 
   /* actIConv */
-    if (ordinal < 0 || ordinal >= act_table.size) {
+    if (ordinal < 0 || (uintType) ordinal >= act_table.size) {
+      logError(printf("actIConv(" FMT_D "): "
+                      "Number not in allowed range of 0 .. %lu.\n",
+                      ordinal, (unsigned long) (act_table.size - 1)););
       raise_error(RANGE_ERROR);
       anAction = NULL;
     } else {

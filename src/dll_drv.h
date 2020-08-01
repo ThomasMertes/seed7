@@ -29,5 +29,7 @@
 /*                                                                  */
 /********************************************************************/
 
+typedef void (*funcPtrType) (void);
+
 void *dllOpen (const char *dllName);
-void *dllSym (void *dll, const char *symbol);
+funcPtrType dllFunc (void *dll, const char *symbol);

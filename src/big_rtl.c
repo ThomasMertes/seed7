@@ -809,7 +809,7 @@ static bigIntType bigParseBasedPow2 (const const_striType stri, unsigned int shi
  *             literal with the specified base.
  *  @exception MEMORY_ERROR  Not enough memory to represent the result.
  */
-static bigIntType bigParseBased2To36 (const const_striType stri, intType base)
+static bigIntType bigParseBased2To36 (const const_striType stri, unsigned int base)
 
   {
     boolType okay;
@@ -826,7 +826,7 @@ static bigIntType bigParseBased2To36 (const const_striType stri, intType base)
     bigIntType result;
 
   /* bigParseBased2To36 */
-    logFunction(printf("bigParseBased2To36(\"%s\", " FMT_D ")\n",
+    logFunction(printf("bigParseBased2To36(\"%s\", %u)\n",
                        striAsUnquotedCStri(stri), base););
     position = 0;
     if (likely(stri->size != 0)) {
@@ -842,7 +842,7 @@ static bigIntType bigParseBased2To36 (const const_striType stri, intType base)
     } /* if */
     /* printf("position: %lu\n", position); */
     if (unlikely(position >= stri->size)) {
-      logError(printf("bigParseBased2To36(\"%s\", " FMT_D "): "
+      logError(printf("bigParseBased2To36(\"%s\", %u): "
                       "Digit missing.\n",
                       striAsUnquotedCStri(stri), base););
       raise_error(RANGE_ERROR);
@@ -894,7 +894,7 @@ static bigIntType bigParseBased2To36 (const const_striType stri, intType base)
           result = normalize(result);
         } else {
           FREE_BIG(result, result_size);
-          logError(printf("bigParseBased2To36(\"%s\", " FMT_D "): "
+          logError(printf("bigParseBased2To36(\"%s\", %u): "
                           "Illegal digit.\n",
                           striAsUnquotedCStri(stri), base););
           raise_error(RANGE_ERROR);
@@ -4494,7 +4494,7 @@ bigIntType bigLog10 (const const_bigIntType big1)
         } /* while */
         while (unsigned_big->size > 1 ||
                unsigned_big->bigdigits[0] >= POWER_OF_10_IN_BIGDIGIT) {
-          uBigDivideByPowerOf10(unsigned_big);
+          (void) uBigDivideByPowerOf10(unsigned_big);
           /* printf("unsigned_big->size=%lu, digit=" FMT_U_DIG "\n",
              unsigned_big->size, digit); */
           if (unsigned_big->bigdigits[unsigned_big->size - 1] == 0) {
@@ -5807,7 +5807,7 @@ bigIntType bigParseBased (const const_striType stri, intType base)
           raise_error(RANGE_ERROR);
           result = NULL;
         } else {
-          result = bigParseBased2To36(stri, base);
+          result = bigParseBased2To36(stri, (unsigned int) base);
         } /* if */
         break;
     } /* switch */

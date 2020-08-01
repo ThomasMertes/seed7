@@ -30,6 +30,9 @@
 /*                                                                  */
 /********************************************************************/
 
+#define LOG_FUNCTIONS 0
+#define VERBOSE_EXCEPTIONS 0
+
 #include "version.h"
 
 #include "stdlib.h"
@@ -348,7 +351,7 @@ striType chrCLit (charType character)
     striType result;
 
   /* chrCLit */
-    /* printf("chrCLit(%lu)\n", character); */
+    logFunction(printf("chrCLit('\\" FMT_U32 ";')\n", character););
     if (character < 127) {
       if (character < ' ') {
         len = strlen(cstri_escape_sequence[character]);
@@ -393,7 +396,7 @@ striType chrCLit (charType character)
 striType chrCLitToBuffer (charType character, striType buffer)
 
   { /* chrCLitToBuffer */
-    /* printf("chrCLitToBuffer(%lu)\n", (unsigned long) character); */
+    logFunction(printf("chrCLitToBuffer('\\" FMT_U32 ";')\n", character););
     if (character < 127) {
       buffer->mem = buffer->mem1;
       buffer->mem1[0] = (strElemType) '\'';
@@ -424,7 +427,7 @@ striType chrCLitToBuffer (charType character, striType buffer)
         buffer->size = 3;
       } /* if */
     } else {
-      intStrToBuffer((intType) character, buffer);
+      (void) intStrToBuffer((intType) character, buffer);
     } /* if */
     return buffer;
   } /* chrCLitToBuffer */

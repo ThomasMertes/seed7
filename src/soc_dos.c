@@ -125,6 +125,22 @@ striType socGetHostname (void)
 
 
 
+bstriType socGetLocalAddr (socketType sock)
+
+  { /* socGetLocalAddr */
+    return NULL;
+  } /* socGetLocalAddr */
+
+
+
+bstriType socGetPeerAddr (socketType sock)
+
+  { /* socGetPeerAddr */
+    return NULL;
+  } /* socGetPeerAddr */
+
+
+
 boolType socHasNext (socketType sock)
 
   { /* socHasNext */

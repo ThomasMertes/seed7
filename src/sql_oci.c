@@ -346,49 +346,49 @@ static boolType setupDll (const char *dllName)
     if (dbDll == NULL) {
       dbDll = dllOpen(dllName);
       if (dbDll != NULL) {
-        if ((OCIAttrGet              = (tp_OCIAttrGet)              dllSym(dbDll, "OCIAttrGet"))              == NULL ||
-            (OCIAttrSet              = (tp_OCIAttrSet)              dllSym(dbDll, "OCIAttrSet"))              == NULL ||
-            (OCIBindByPos            = (tp_OCIBindByPos)            dllSym(dbDll, "OCIBindByPos"))            == NULL ||
-            (OCIDateTimeConstruct    = (tp_OCIDateTimeConstruct)    dllSym(dbDll, "OCIDateTimeConstruct"))    == NULL ||
-            (OCIDateTimeGetDate      = (tp_OCIDateTimeGetDate)      dllSym(dbDll, "OCIDateTimeGetDate"))      == NULL ||
-            (OCIDateTimeGetTime      = (tp_OCIDateTimeGetTime)      dllSym(dbDll, "OCIDateTimeGetTime"))      == NULL ||
-            (OCIDefineByPos          = (tp_OCIDefineByPos)          dllSym(dbDll, "OCIDefineByPos"))          == NULL ||
-            (OCIDefineDynamic        = (tp_OCIDefineDynamic)        dllSym(dbDll, "OCIDefineDynamic"))        == NULL ||
-            (OCIDefineObject         = (tp_OCIDefineObject)         dllSym(dbDll, "OCIDefineObject"))         == NULL ||
-            (OCIDescriptorAlloc      = (tp_OCIDescriptorAlloc)      dllSym(dbDll, "OCIDescriptorAlloc"))      == NULL ||
-            (OCIDescriptorFree       = (tp_OCIDescriptorFree)       dllSym(dbDll, "OCIDescriptorFree"))       == NULL ||
-            (OCIEnvCreate            = (tp_OCIEnvCreate)            dllSym(dbDll, "OCIEnvCreate"))            == NULL ||
-            (OCIEnvNlsCreate         = (tp_OCIEnvNlsCreate)         dllSym(dbDll, "OCIEnvNlsCreate"))         == NULL ||
-            (OCIErrorGet             = (tp_OCIErrorGet)             dllSym(dbDll, "OCIErrorGet"))             == NULL ||
-            (OCIHandleAlloc          = (tp_OCIHandleAlloc)          dllSym(dbDll, "OCIHandleAlloc"))          == NULL ||
-            (OCIHandleFree           = (tp_OCIHandleFree)           dllSym(dbDll, "OCIHandleFree"))           == NULL ||
-            (OCIIntervalSetDaySecond = (tp_OCIIntervalSetDaySecond) dllSym(dbDll, "OCIIntervalSetDaySecond")) == NULL ||
-            (OCIIntervalSetYearMonth = (tp_OCIIntervalSetYearMonth) dllSym(dbDll, "OCIIntervalSetYearMonth")) == NULL ||
-            (OCIIntervalGetDaySecond = (tp_OCIIntervalGetDaySecond) dllSym(dbDll, "OCIIntervalGetDaySecond")) == NULL ||
-            (OCIIntervalGetYearMonth = (tp_OCIIntervalGetYearMonth) dllSym(dbDll, "OCIIntervalGetYearMonth")) == NULL ||
-            (OCILobCreateTemporary   = (tp_OCILobCreateTemporary)   dllSym(dbDll, "OCILobCreateTemporary"))   == NULL ||
-            (OCILobFreeTemporary     = (tp_OCILobFreeTemporary)     dllSym(dbDll, "OCILobFreeTemporary"))     == NULL ||
-            (OCILobGetLength2        = (tp_OCILobGetLength2)        dllSym(dbDll, "OCILobGetLength2"))        == NULL ||
-            (OCILobIsTemporary       = (tp_OCILobIsTemporary)       dllSym(dbDll, "OCILobIsTemporary"))       == NULL ||
-            (OCILobRead2             = (tp_OCILobRead2)             dllSym(dbDll, "OCILobRead2"))             == NULL ||
-            (OCILobTrim2             = (tp_OCILobTrim2)             dllSym(dbDll, "OCILobTrim2"))             == NULL ||
-            (OCILobWrite2            = (tp_OCILobWrite2)            dllSym(dbDll, "OCILobWrite2"))            == NULL ||
-            (OCINlsCharSetNameToId   = (tp_OCINlsCharSetNameToId)   dllSym(dbDll, "OCINlsCharSetNameToId"))   == NULL ||
-            (OCINumberToReal         = (tp_OCINumberToReal)         dllSym(dbDll, "OCINumberToReal"))         == NULL ||
-            (OCIParamGet             = (tp_OCIParamGet)             dllSym(dbDll, "OCIParamGet"))             == NULL ||
-            (OCIRefHexSize           = (tp_OCIRefHexSize)           dllSym(dbDll, "OCIRefHexSize"))           == NULL ||
-            (OCIRefToHex             = (tp_OCIRefToHex)             dllSym(dbDll, "OCIRefToHex"))             == NULL ||
-            (OCIRowidToChar          = (tp_OCIRowidToChar)          dllSym(dbDll, "OCIRowidToChar"))          == NULL ||
-            (OCIServerAttach         = (tp_OCIServerAttach)         dllSym(dbDll, "OCIServerAttach"))         == NULL ||
-            (OCIServerDetach         = (tp_OCIServerDetach)         dllSym(dbDll, "OCIServerDetach"))         == NULL ||
-            (OCISessionBegin         = (tp_OCISessionBegin)         dllSym(dbDll, "OCISessionBegin"))         == NULL ||
-            (OCISessionEnd           = (tp_OCISessionEnd)           dllSym(dbDll, "OCISessionEnd"))           == NULL ||
-            (OCIStmtExecute          = (tp_OCIStmtExecute)          dllSym(dbDll, "OCIStmtExecute"))          == NULL ||
-            (OCIStmtFetch2           = (tp_OCIStmtFetch2)           dllSym(dbDll, "OCIStmtFetch2"))           == NULL ||
-            (OCIStmtPrepare          = (tp_OCIStmtPrepare)          dllSym(dbDll, "OCIStmtPrepare"))          == NULL ||
-            (OCIStringPtr            = (tp_OCIStringPtr)            dllSym(dbDll, "OCIStringPtr"))            == NULL ||
-            (OCIStringSize           = (tp_OCIStringSize)           dllSym(dbDll, "OCIStringSize"))           == NULL ||
-            (OCITransCommit          = (tp_OCITransCommit)          dllSym(dbDll, "OCITransCommit"))          == NULL) {
+        if ((OCIAttrGet              = (tp_OCIAttrGet)              dllFunc(dbDll, "OCIAttrGet"))              == NULL ||
+            (OCIAttrSet              = (tp_OCIAttrSet)              dllFunc(dbDll, "OCIAttrSet"))              == NULL ||
+            (OCIBindByPos            = (tp_OCIBindByPos)            dllFunc(dbDll, "OCIBindByPos"))            == NULL ||
+            (OCIDateTimeConstruct    = (tp_OCIDateTimeConstruct)    dllFunc(dbDll, "OCIDateTimeConstruct"))    == NULL ||
+            (OCIDateTimeGetDate      = (tp_OCIDateTimeGetDate)      dllFunc(dbDll, "OCIDateTimeGetDate"))      == NULL ||
+            (OCIDateTimeGetTime      = (tp_OCIDateTimeGetTime)      dllFunc(dbDll, "OCIDateTimeGetTime"))      == NULL ||
+            (OCIDefineByPos          = (tp_OCIDefineByPos)          dllFunc(dbDll, "OCIDefineByPos"))          == NULL ||
+            (OCIDefineDynamic        = (tp_OCIDefineDynamic)        dllFunc(dbDll, "OCIDefineDynamic"))        == NULL ||
+            (OCIDefineObject         = (tp_OCIDefineObject)         dllFunc(dbDll, "OCIDefineObject"))         == NULL ||
+            (OCIDescriptorAlloc      = (tp_OCIDescriptorAlloc)      dllFunc(dbDll, "OCIDescriptorAlloc"))      == NULL ||
+            (OCIDescriptorFree       = (tp_OCIDescriptorFree)       dllFunc(dbDll, "OCIDescriptorFree"))       == NULL ||
+            (OCIEnvCreate            = (tp_OCIEnvCreate)            dllFunc(dbDll, "OCIEnvCreate"))            == NULL ||
+            (OCIEnvNlsCreate         = (tp_OCIEnvNlsCreate)         dllFunc(dbDll, "OCIEnvNlsCreate"))         == NULL ||
+            (OCIErrorGet             = (tp_OCIErrorGet)             dllFunc(dbDll, "OCIErrorGet"))             == NULL ||
+            (OCIHandleAlloc          = (tp_OCIHandleAlloc)          dllFunc(dbDll, "OCIHandleAlloc"))          == NULL ||
+            (OCIHandleFree           = (tp_OCIHandleFree)           dllFunc(dbDll, "OCIHandleFree"))           == NULL ||
+            (OCIIntervalSetDaySecond = (tp_OCIIntervalSetDaySecond) dllFunc(dbDll, "OCIIntervalSetDaySecond")) == NULL ||
+            (OCIIntervalSetYearMonth = (tp_OCIIntervalSetYearMonth) dllFunc(dbDll, "OCIIntervalSetYearMonth")) == NULL ||
+            (OCIIntervalGetDaySecond = (tp_OCIIntervalGetDaySecond) dllFunc(dbDll, "OCIIntervalGetDaySecond")) == NULL ||
+            (OCIIntervalGetYearMonth = (tp_OCIIntervalGetYearMonth) dllFunc(dbDll, "OCIIntervalGetYearMonth")) == NULL ||
+            (OCILobCreateTemporary   = (tp_OCILobCreateTemporary)   dllFunc(dbDll, "OCILobCreateTemporary"))   == NULL ||
+            (OCILobFreeTemporary     = (tp_OCILobFreeTemporary)     dllFunc(dbDll, "OCILobFreeTemporary"))     == NULL ||
+            (OCILobGetLength2        = (tp_OCILobGetLength2)        dllFunc(dbDll, "OCILobGetLength2"))        == NULL ||
+            (OCILobIsTemporary       = (tp_OCILobIsTemporary)       dllFunc(dbDll, "OCILobIsTemporary"))       == NULL ||
+            (OCILobRead2             = (tp_OCILobRead2)             dllFunc(dbDll, "OCILobRead2"))             == NULL ||
+            (OCILobTrim2             = (tp_OCILobTrim2)             dllFunc(dbDll, "OCILobTrim2"))             == NULL ||
+            (OCILobWrite2            = (tp_OCILobWrite2)            dllFunc(dbDll, "OCILobWrite2"))            == NULL ||
+            (OCINlsCharSetNameToId   = (tp_OCINlsCharSetNameToId)   dllFunc(dbDll, "OCINlsCharSetNameToId"))   == NULL ||
+            (OCINumberToReal         = (tp_OCINumberToReal)         dllFunc(dbDll, "OCINumberToReal"))         == NULL ||
+            (OCIParamGet             = (tp_OCIParamGet)             dllFunc(dbDll, "OCIParamGet"))             == NULL ||
+            (OCIRefHexSize           = (tp_OCIRefHexSize)           dllFunc(dbDll, "OCIRefHexSize"))           == NULL ||
+            (OCIRefToHex             = (tp_OCIRefToHex)             dllFunc(dbDll, "OCIRefToHex"))             == NULL ||
+            (OCIRowidToChar          = (tp_OCIRowidToChar)          dllFunc(dbDll, "OCIRowidToChar"))          == NULL ||
+            (OCIServerAttach         = (tp_OCIServerAttach)         dllFunc(dbDll, "OCIServerAttach"))         == NULL ||
+            (OCIServerDetach         = (tp_OCIServerDetach)         dllFunc(dbDll, "OCIServerDetach"))         == NULL ||
+            (OCISessionBegin         = (tp_OCISessionBegin)         dllFunc(dbDll, "OCISessionBegin"))         == NULL ||
+            (OCISessionEnd           = (tp_OCISessionEnd)           dllFunc(dbDll, "OCISessionEnd"))           == NULL ||
+            (OCIStmtExecute          = (tp_OCIStmtExecute)          dllFunc(dbDll, "OCIStmtExecute"))          == NULL ||
+            (OCIStmtFetch2           = (tp_OCIStmtFetch2)           dllFunc(dbDll, "OCIStmtFetch2"))           == NULL ||
+            (OCIStmtPrepare          = (tp_OCIStmtPrepare)          dllFunc(dbDll, "OCIStmtPrepare"))          == NULL ||
+            (OCIStringPtr            = (tp_OCIStringPtr)            dllFunc(dbDll, "OCIStringPtr"))            == NULL ||
+            (OCIStringSize           = (tp_OCIStringSize)           dllFunc(dbDll, "OCIStringSize"))           == NULL ||
+            (OCITransCommit          = (tp_OCITransCommit)          dllFunc(dbDll, "OCITransCommit"))          == NULL) {
           dbDll = NULL;
         } /* if */
       } /* if */
@@ -2110,7 +2110,7 @@ static striType getClob (preparedStmtType preparedStmt,
 
 
 
-static int setBigInt (const void *buffer, const const_bigIntType bigIntValue,
+static int setBigInt (void *const buffer, const const_bigIntType bigIntValue,
     errInfoType *err_info)
 
   {
@@ -2133,7 +2133,7 @@ static int setBigInt (const void *buffer, const const_bigIntType bigIntValue,
 
 
 
-static int setBigRat (const void *buffer, const const_bigIntType numerator,
+static int setBigRat (void *const buffer, const const_bigIntType numerator,
     const const_bigIntType denominator, errInfoType *err_info)
 
   {
@@ -2223,7 +2223,7 @@ static boolType setBlob (preparedStmtType preparedStmt,
 
 
 #ifndef SQLT_BFLOAT
-static int setFloat (const void *buffer, const floatType floatValue,
+static int setFloat (void *const buffer, const floatType floatValue,
     errInfoType *err_info)
 
   {
@@ -2235,11 +2235,11 @@ static int setFloat (const void *buffer, const floatType floatValue,
 
   /* setFloat */
     /* printf("setFloat(%f)\n", floatValue); */
-    if (isnan(floatValue)) {
+    if (os_isnan(floatValue)) {
       /* Not a Number (NaN), defined by this driver. */
       /* printf("NaN\n"); */
       SET_NUMBER_TO_NAN(buffer, length);
-    } else if (isinf(floatValue)) {
+    } else if (os_isinf(floatValue)) {
       if (floatValue < 0.0) {
         /* printf("Negative infinity\n"); */
         SET_NUMBER_TO_NEGATIVE_INFINITY(buffer, length);
