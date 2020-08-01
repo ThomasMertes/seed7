@@ -563,32 +563,32 @@ const proc: check_sqrt is func
   end func;
 
 
-const proc: check_ld is func
+const proc: check_log2 is func
   local
     var boolean: okay is TRUE;
     var integer: number is 0;
     var integer: power_of_two is 0;
     var integer: counter is 0;
-    var integer: ld_arg is 0;
-    var integer: ld_num is 0;
+    var integer: log2_arg is 0;
+    var integer: log2_num is 0;
   begin
     okay := TRUE;
-    if ld(0) <> -1 then
-      write("ld(0) = ");
-      write(ld(0));
+    if log2(0) <> -1 then
+      write("log2(0) = ");
+      write(log2(0));
       writeln(" instead of -1");
       okay := FALSE;
     end if;
     power_of_two := 1;
     for number range 0 to 30 do
       for counter range 1 to 200 do
-        ld_arg := power_of_two + rand(0, power_of_two div 2);
-        ld_num := ld(ld_arg);
-        if ld_num <> number then
-          write("ld(");
-          write(ld_arg);
+        log2_arg := power_of_two + rand(0, power_of_two div 2);
+        log2_num := log2(log2_arg);
+        if log2_num <> number then
+          write("log2(");
+          write(log2_arg);
           write(") = ");
-          write(ld_num);
+          write(log2_num);
           write(" instead of ");
           writeln(number);
           okay := FALSE;
@@ -597,7 +597,7 @@ const proc: check_ld is func
       power_of_two := power_of_two * 2;
     end for;
     if okay then
-      writeln("ld is correct for results between 0 and 30");
+      writeln("log2 is correct for results between 0 and 30");
     end if;
   end func;
 
@@ -647,5 +647,5 @@ const proc: main is func
     check_binom();
     check_power();
     check_sqrt();
-    check_ld();
+    check_log2();
   end func;

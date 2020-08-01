@@ -32,6 +32,7 @@
 #ifdef ANSI_C
 
 void strAppend (stritype *, stritype);
+/* rtlArraytype strChSplit (stritype, chartype); */
 inttype strCompare (stritype, stritype);
 stritype strConcat (stritype, stritype);
 void strCopy (stritype *, stritype);
@@ -53,6 +54,7 @@ stritype strRange (stritype, inttype, inttype);
 stritype strRepl (stritype, stritype, stritype);
 stritype strRpad (stritype, inttype);
 inttype strRpos (stritype, stritype);
+/* rtlArraytype strSplit (stritype, stritype); */
 stritype strSubstr (stritype, inttype, inttype);
 stritype strTail (stritype, inttype);
 stritype strTrim (stritype);
@@ -61,6 +63,7 @@ stritype strUp (stritype);
 #else
 
 void strAppend ();
+/* rtlArraytype strChSplit (); */
 inttype strCompare ();
 stritype strConcat ();
 void strCopy ();
@@ -82,6 +85,7 @@ stritype strRange ();
 stritype strRepl ();
 stritype strRpad ();
 inttype strRpos ();
+/* rtlArraytype strSplit (); */
 stritype strSubstr ();
 stritype strTail ();
 stritype strTrim ();

@@ -1,0 +1,14 @@
+#define ANSI_C
+#define USE_DIRWIN
+#define PATH_DELIMITER '/'
+#define CATCH_SIGNALS
+#undef  USE_MMAP
+#undef  INCL_NCURSES_TERM
+#undef  INCL_CURSES_BEFORE_TERM
+#define MKDIR_WITH_ONE_PARAMETER
+#define CHOWN_MISSING
+#undef  CHMOD_MISSING
+#define DEFINE_IEEE_754_STUFF
+#define FLOAT_ZERO_DIV_ERROR
+#undef  USE_FSEEKO64
+#define LINKER_LIBS "-lm -lgdi32"

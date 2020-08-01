@@ -33,16 +33,25 @@ const type: bigRational is new object struct
 
 
 const proc: normalize (inout bigRational: rat) is func
-  local
-    var bigInteger: a is 0_;
-    var bigInteger: b is 0_;
-    var bigInteger: help is 0_;
   begin
     if rat.denominator < 0_ then
       rat.numerator := -rat.numerator;
       rat.denominator := -rat.denominator;
     end if;
-    a := rat.numerator;
+  end func;
+
+
+const proc: reduce (inout bigRational: rat) is func
+  local
+    var bigInteger: a is 0_;
+    var bigInteger: b is 0_;
+    var bigInteger: help is 0_;
+  begin
+    if rat.numerator >= 0_ then
+      a := rat.numerator;
+    else
+      a := -rat.numerator;
+    end if;
     b := rat.denominator;
     while a <> 0_ do
       help := b rem a;
@@ -51,6 +60,42 @@ const proc: normalize (inout bigRational: rat) is func
     end while;
     rat.numerator := rat.numerator div b;
     rat.denominator := rat.denominator div b;
+  end func;
+
+
+const func bigInteger: gcd1 (in var bigInteger: a, in var bigInteger: b) is func
+  result
+    var bigInteger: result is 0_;
+  local
+    var bigInteger: help is 0_;
+  begin
+    while a <> 0_ do
+      help := b rem a;
+      b := a;
+      a := help;
+    end while;
+    result := b;
+  end func;
+
+
+const func bigInteger: gcd2 (in bigInteger: numerator, in bigInteger: denominator) is func
+  result
+    var bigInteger: b is 0_;
+  local
+    var bigInteger: a is 0_;
+    var bigInteger: help is 0_;
+  begin
+    if numerator >= 0_ then
+      a := numerator;
+    else
+      a := -numerator;
+    end if;
+    b := denominator;
+    while a <> 0_ do
+      help := b rem a;
+      b := a;
+      a := help;
+    end while;
   end func;
 
 
@@ -75,32 +120,40 @@ const func bigRational: - (in bigRational: rat) is func
 const func bigRational: (in bigRational: rat1) + (in bigRational: rat2) is func
   result
     var bigRational: rat_val is bigRational.value;
+  local
+    var bigInteger: gcd_denominator is 0_;
   begin
-    rat_val.numerator := rat1.numerator * rat2.denominator +
-        rat2.numerator * rat1.denominator;
-    rat_val.denominator := rat1.denominator * rat2.denominator;
-    normalize(rat_val);
+    gcd_denominator := gcd1(rat1.denominator, rat2.denominator);
+    rat_val.numerator := (rat1.numerator * rat2.denominator +
+        rat2.numerator * rat1.denominator) div gcd_denominator;
+    rat_val.denominator := rat1.denominator div gcd_denominator * rat2.denominator;
   end func;
 
 
 const func bigRational: (in bigRational: rat1) - (in bigRational: rat2) is func
   result
     var bigRational: rat_val is bigRational.value;
+  local
+    var bigInteger: gcd_denominator is 0_;
   begin
-    rat_val.numerator := rat1.numerator * rat2.denominator -
-        rat2.numerator * rat1.denominator;
-    rat_val.denominator := rat1.denominator * rat2.denominator;
-    normalize(rat_val);
+    gcd_denominator := gcd1(rat1.denominator, rat2.denominator);
+    rat_val.numerator := (rat1.numerator * rat2.denominator -
+        rat2.numerator * rat1.denominator) div gcd_denominator;
+    rat_val.denominator := rat1.denominator div gcd_denominator * rat2.denominator;
   end func;
 
 
-const func bigRational: (in bigRational: rat1) * (in bigRational: rat2) is func
+const func bigRational: (in var bigRational: rat1) * (in var bigRational: rat2) is func
   result
     var bigRational: rat_val is bigRational.value;
+  local
+    var bigInteger: gcd1 is 0_;
+    var bigInteger: gcd2 is 0_;
   begin
-    rat_val.numerator := rat1.numerator * rat2.numerator;
-    rat_val.denominator := rat1.denominator * rat2.denominator;
-    normalize(rat_val);
+    gcd1 := gcd2(rat1.numerator, rat2.denominator);
+    gcd2 := gcd2(rat2.numerator, rat1.denominator);
+    rat_val.numerator := (rat1.numerator div gcd1) * (rat2.numerator div gcd2);
+    rat_val.denominator := (rat1.denominator div gcd2) * (rat2.denominator div gcd1);
   end func;
 
 
@@ -111,24 +164,29 @@ const func bigRational: (in bigRational: rat1) / (in bigRational: rat2) is func
     rat_val.numerator := rat1.numerator * rat2.denominator;
     rat_val.denominator := rat1.denominator * rat2.numerator;
     normalize(rat_val);
+    reduce(rat_val);
   end func;
 
 
 const proc: (inout bigRational: rat1) +:= (in bigRational: rat2) is func
+  local
+    var bigInteger: gcd_denominator is 0_;
   begin
-    rat1.numerator := rat1.numerator * rat2.denominator +
-        rat2.numerator * rat1.denominator;
-    rat1.denominator := rat1.denominator * rat2.denominator;
-    normalize(rat1);
+    gcd_denominator := gcd1(rat1.denominator, rat2.denominator);
+    rat1.numerator := (rat1.numerator * rat2.denominator +
+        rat2.numerator * rat1.denominator) div gcd_denominator;
+    rat1.denominator *:= rat2.denominator div gcd_denominator;
   end func;
 
 
 const proc: (inout bigRational: rat1) -:= (in bigRational: rat2) is func
+  local
+    var bigInteger: gcd_denominator is 0_;
   begin
-    rat1.numerator := rat1.numerator * rat2.denominator -
-        rat2.numerator * rat1.denominator;
-    rat1.denominator := rat1.denominator * rat2.denominator;
-    normalize(rat1);
+    gcd_denominator := gcd1(rat1.denominator, rat2.denominator);
+    rat1.numerator := (rat1.numerator * rat2.denominator -
+        rat2.numerator * rat1.denominator) div gcd_denominator;
+    rat1.denominator *:= rat2.denominator div gcd_denominator;
   end func;
 
 
@@ -136,7 +194,7 @@ const proc: (inout bigRational: rat1) *:= (in bigRational: rat2) is func
   begin
     rat1.numerator *:= rat2.numerator;
     rat1.denominator *:= rat2.denominator;
-    normalize(rat1);
+    reduce(rat1);
   end func;
 
 
@@ -147,6 +205,7 @@ const func bigRational: (in bigInteger: int1) / (in bigInteger: int2) is func
     rat_val.numerator := int1;
     rat_val.denominator := int2;
     normalize(rat_val);
+    reduce(rat_val);
   end func;
 
 
@@ -158,10 +217,10 @@ const func bigRational: (in bigRational: rat1) ** (in integer: int2) is func
       rat_val.numerator := rat1.numerator ** int2;
       rat_val.denominator := rat1.denominator ** int2;
     else
-      rat_val.numerator := rat1.denominator ** int2;
-      rat_val.denominator := rat1.numerator ** int2;
+      rat_val.numerator := rat1.denominator ** (-int2);
+      rat_val.denominator := rat1.numerator ** (-int2);
+      normalize(rat_val);
     end if;
-    normalize(rat_val);
   end func;
 
 

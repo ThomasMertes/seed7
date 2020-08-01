@@ -1443,6 +1443,15 @@ const proc: process_prc_print (in ref_list: params, inout expr_type: c_expr) is 
   end func;
 
 
+const proc: process_prc_raise (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "raise_error(";
+    process_arg(params[2], c_expr);
+    c_expr.expr &:= "+1);\n";
+  end func;
+
+
 const proc: process_act_cpy (in ref_list: params, inout expr_type: c_expr) is func
 
   local
@@ -2027,6 +2036,15 @@ const proc: process_big_le (in ref_list: params, inout expr_type: c_expr) is fun
     c_expr.expr &:= ", ";
     process_arg(params[3], c_expr);
     c_expr.expr &:= ") <= 0)";
+  end func;
+
+
+const proc: process_big_log2 (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "bigLog2(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ")";
   end func;
 
 
@@ -4679,10 +4697,10 @@ const proc: process_int_incr (in ref_list: params, inout expr_type: c_expr) is f
   end func;
 
 
-const proc: process_int_ld (in ref_list: params, inout expr_type: c_expr) is func
+const proc: process_int_log2 (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    c_expr.expr &:= "intLd(";
+    c_expr.expr &:= "intLog2(";
     process_expr(params[1], c_expr);
     c_expr.expr &:= ")";
   end func;
@@ -6524,6 +6542,18 @@ const proc: process_str_rpos (in ref_list: params, inout expr_type: c_expr) is f
   end func;
 
 
+const proc: process_str_split (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    prepare_array_result(array_type[getType(params[1])], c_expr);
+    c_expr.result_expr := "strSplit(";
+    get_result_arg(params[1], c_expr);
+    c_expr.result_expr &:= ", ";
+    get_result_arg(params[2], c_expr);
+    c_expr.result_expr &:= ")";
+  end func;
+
+
 const proc: process_str_str (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
@@ -6953,6 +6983,8 @@ const proc: process_action (in reference: procedure, in ref_list: params,
         process_big_ipow(params, c_expr);
       elsif action_name = "BIG_LE" then
         process_big_le(params, c_expr);
+      elsif action_name = "BIG_LOG2" then
+        process_big_log2(params, c_expr);
       elsif action_name = "BIG_LT" then
         process_big_lt(params, c_expr);
       elsif action_name = "BIG_MCPY" then
@@ -7413,8 +7445,8 @@ const proc: process_action (in reference: procedure, in ref_list: params,
         process_int_hsize(params, c_expr);
       elsif action_name = "INT_INCR" then
         process_int_incr(params, c_expr);
-      elsif action_name = "INT_LD" then
-        process_int_ld(params, c_expr);
+      elsif action_name = "INT_LOG2" then
+        process_int_log2(params, c_expr);
       elsif action_name = "INT_LE" then
         process_int_le(params, c_expr);
       elsif action_name = "INT_LT" then
@@ -7505,6 +7537,8 @@ const proc: process_action (in reference: procedure, in ref_list: params,
         process_prc_option(params, c_expr);
       elsif action_name = "PRC_PRINT" then
         process_prc_print(params, c_expr);
+      elsif action_name = "PRC_RAISE" then
+        process_prc_raise(params, c_expr);
       elsif action_name = "PRC_REPEAT" then
         process_prc_repeat(params, c_expr);
       elsif action_name = "PRC_WHILE" then
@@ -7743,6 +7777,8 @@ const proc: process_action (in reference: procedure, in ref_list: params,
         process_str_rpad(params, c_expr);
       elsif action_name = "STR_RPOS" then
         process_str_rpos(params, c_expr);
+      elsif action_name = "STR_SPLIT" then
+        process_str_split(params, c_expr);
       elsif action_name = "STR_STR" then
         process_str_str(params, c_expr);
       elsif action_name = "STR_SUBSTR" then
@@ -10624,6 +10660,7 @@ const proc: write_file_head is func
     c_prog << "settype    setSymdiff (settype, settype);\n";
     c_prog << "settype    setUnion (settype, settype);\n";
     c_prog << "void       strAppend (stritype *, stritype);\n";
+    c_prog << "arraytype  strChSplit (stritype, chartype);\n";
     c_prog << "inttype    strCompare (stritype, stritype);\n";
     c_prog << "stritype   strConcat (stritype, stritype);\n";
     c_prog << "stritype   str_clit (stritype a)                         {printf(\"str_clit\\n\");}\n";
@@ -10646,11 +10683,12 @@ const proc: write_file_head is func
     c_prog << "stritype   strRepl (stritype, stritype, stritype);\n";
     c_prog << "stritype   strRpad (stritype, inttype);\n";
     c_prog << "inttype    strRpos (stritype, stritype);\n";
+    c_prog << "arraytype  strSplit (stritype, stritype);\n";
     c_prog << "stritype   strSubstr (stritype, inttype, inttype);\n";
     c_prog << "stritype   strTail (stritype, inttype);\n";
     c_prog << "stritype   strTrim (stritype);\n";
     c_prog << "stritype   strUp (stritype);\n";
-    c_prog << "stritype   cstri_to_stri (cstritype);\n";
+    c_prog << "stritype   cstri_to_stri (char *);\n";
     c_prog << "char *     str_to_cstri (stritype a)                     {printf(\"str_to_cstri\\n\");}\n";
     c_prog << "void       timAwait (inttype, inttype, inttype, inttype, inttype, inttype, inttype, inttype);\n";
     c_prog << "void       timNow (inttype, inttype, inttype, inttype, inttype, inttype, inttype, inttype);\n";

@@ -57,6 +57,7 @@
 
 #define BIGDIGIT_MASK                    0xFF
 #define BIGDIGIT_SIGN                    0x80
+#define BIGDIGIT_LOG2_SIZE                  3
 #define POWER_OF_10_IN_BIGDIGIT           100
 #define DECIMAL_DIGITS_IN_BIGDIGIT          2
 
@@ -64,6 +65,7 @@
 
 #define BIGDIGIT_MASK                  0xFFFF
 #define BIGDIGIT_SIGN                  0x8000
+#define BIGDIGIT_LOG2_SIZE                  4
 #define POWER_OF_10_IN_BIGDIGIT         10000
 #define DECIMAL_DIGITS_IN_BIGDIGIT          4
 
@@ -71,6 +73,7 @@
 
 #define BIGDIGIT_MASK              0xFFFFFFFF
 #define BIGDIGIT_SIGN              0x80000000
+#define BIGDIGIT_LOG2_SIZE                  5
 #define POWER_OF_10_IN_BIGDIGIT    1000000000
 #define DECIMAL_DIGITS_IN_BIGDIGIT          9
 
@@ -246,7 +249,7 @@ doublebigdigittype carry;
     pos = 0;
     do {
       carry += (doublebigdigittype) big1->bigdigits[pos] * 10;
-      big1->bigdigits[pos] = (bigdigittype) carry;
+      big1->bigdigits[pos] = (bigdigittype) (carry & BIGDIGIT_MASK);
       carry >>= 8 * sizeof(bigdigittype);
       pos++;
     } while (pos < big1->size);
@@ -281,7 +284,8 @@ biginttype big1;
       pos--;
       carry <<= 8 * sizeof(bigdigittype);
       carry += big1->bigdigits[pos];
-      big1->bigdigits[pos] = (bigdigittype) (carry / POWER_OF_10_IN_BIGDIGIT);
+      big1->bigdigits[pos] = (bigdigittype)
+          ((carry / POWER_OF_10_IN_BIGDIGIT) & BIGDIGIT_MASK);
       carry %= POWER_OF_10_IN_BIGDIGIT;
     } while (pos > 0);
     return(carry);
@@ -292,7 +296,8 @@ biginttype big1;
 /**
  *  Shifts the big integer big1 to the left by lshift bits.
  *  Bits which are shifted out at the left of big1 are lost.
- *  At the right of big1 zero bits are shifted in.
+ *  At the right of big1 zero bits are shifted in. The function
+ *  is called for 0 < rshift < 8 * sizeof(bigdigittype).
  */
 #ifdef ANSI_C
 
@@ -305,8 +310,8 @@ unsigned int lshift;
 #endif
 
   {
-    memsizetype pos;
     doublebigdigittype carry = 0;
+    memsizetype pos;
 
   /* uBigLShift */
     pos = 0;
@@ -320,10 +325,83 @@ unsigned int lshift;
 
 
 
+#ifdef OUT_OF_ORDER
+/**
+ *  Shifts the big integer big1 to the left by lshift bits.
+ *  Bits which are shifted out at the left of big1 are lost.
+ *  At the right of big1 zero bits are shifted in. The function
+ *  is called for 0 < rshift < 8 * sizeof(bigdigittype).
+ */
+#ifdef ANSI_C
+
+static void uBigLShift (biginttype big1, unsigned int lshift)
+#else
+
+static void uBigLShift (big1, lshift)
+biginttype big1;
+unsigned int lshift;
+#endif
+
+  {
+    unsigned int rshift = 8 * sizeof(bigdigittype) - lshift;
+    bigdigittype low_digit;
+    bigdigittype high_digit;
+    memsizetype pos;
+
+  /* uBigLShift */
+      low_digit = big1->bigdigits[0];
+      big1->bigdigits[0] = (bigdigittype) ((low_digit << lshift) & BIGDIGIT_MASK);
+      for (pos = 1; pos < big1->size; pos++) {
+        high_digit = big1->bigdigits[pos];
+        big1->bigdigits[pos] = (bigdigittype)
+            (((low_digit >> rshift) | (high_digit << lshift)) & BIGDIGIT_MASK);
+        low_digit = high_digit;
+      } /* for */
+  } /* uBigLShift */
+#endif
+
+
+
+#ifdef OUT_OF_ORDER
 /**
  *  Shifts the big integer big1 to the right by rshift bits.
  *  Bits which are shifted out at the right of big1 are lost.
- *  At the left of big1 zero bits are shifted in.
+ *  At the left of big1 zero bits are shifted in. The function
+ *  is called for 0 < rshift < 8 * sizeof(bigdigittype).
+ */
+#ifdef ANSI_C
+
+static void uBigRShift (biginttype big1, unsigned int rshift)
+#else
+
+static void uBigRShift (big1, rshift)
+biginttype big1;
+unsigned int rshift;
+#endif
+
+  {
+    unsigned int lshift = 8 * sizeof(bigdigittype) - rshift;
+    doublebigdigittype carry = 0;
+    memsizetype pos;
+
+  /* uBigRShift */
+    pos = big1->size;
+    do {
+      carry <<= 8 * sizeof(bigdigittype);
+      carry |= ((doublebigdigittype) big1->bigdigits[pos]) << lshift;
+      big1->bigdigits[pos] = (bigdigittype) (carry & BIGDIGIT_MASK);
+      pos--;
+    } while (pos > 0);
+  } /* uBigRShift */
+#endif
+
+
+
+/**
+ *  Shifts the big integer big1 to the right by rshift bits.
+ *  Bits which are shifted out at the right of big1 are lost.
+ *  At the left of big1 zero bits are shifted in. The function
+ *  is called for 0 < rshift < 8 * sizeof(bigdigittype).
  */
 #ifdef ANSI_C
 
@@ -342,21 +420,16 @@ unsigned int rshift;
     memsizetype pos;
 
   /* uBigRShift */
-    if (lshift == 0) {
-      for (pos = 1; pos < big1->size; pos++) {
-        big1->bigdigits[pos - 1] = big1->bigdigits[pos];
+      high_digit = 0;
+      for (pos = big1->size - 1; pos != 0; pos--) {
+        low_digit = big1->bigdigits[pos];
+        big1->bigdigits[pos] = (bigdigittype)
+            (((low_digit >> rshift) | (high_digit << lshift)) & BIGDIGIT_MASK);
+        high_digit = low_digit;
       } /* for */
-      big1->bigdigits[pos - 1] = 0;
-    } else if (rshift != 0) {
       low_digit = big1->bigdigits[0];
-      for (pos = 1; pos < big1->size; pos++) {
-        high_digit = big1->bigdigits[pos];
-        big1->bigdigits[pos - 1] = (bigdigittype)
-            ((low_digit >> rshift) | (high_digit << lshift));
-        low_digit = high_digit;
-      } /* for */
-      big1->bigdigits[pos - 1] = (bigdigittype) (low_digit >> rshift);
-    } /* if */
+      big1->bigdigits[0] = (bigdigittype)
+          (((low_digit >> rshift) | (high_digit << lshift)) & BIGDIGIT_MASK);
   } /* uBigRShift */
 
 
@@ -391,6 +464,35 @@ biginttype big1;
 
 
 /**
+ *  Decrements an unsigned big integer by 1. This function does
+ *  overflow silently when big1 contains not enough digits.
+ */
+#ifdef ANSI_C
+
+static void uBigDecr (biginttype big1)
+#else
+
+static void uBigDecr (big1)
+biginttype big1;
+#endif
+
+  {
+    memsizetype pos;
+    doublebigdigittype carry = 0;
+
+  /* uBigDecr */
+    pos = 0;
+    do {
+      carry += (doublebigdigittype) big1->bigdigits[pos] + BIGDIGIT_MASK;
+      big1->bigdigits[pos] = (bigdigittype) (carry & BIGDIGIT_MASK);
+      carry >>= 8 * sizeof(bigdigittype);
+      pos++;
+    } while (carry == 0 && pos < big1->size);
+  } /* uBigDecr */
+
+
+
+/**
  *  Computes an integer division of big1 by one digit for
  *  nonnegative big integers. The digit must not be zero.
  */
@@ -415,7 +517,7 @@ biginttype result;
       pos--;
       carry <<= 8 * sizeof(bigdigittype);
       carry += big1->bigdigits[pos];
-      result->bigdigits[pos] = (bigdigittype) (carry / digit);
+      result->bigdigits[pos] = (bigdigittype) ((carry / digit) & BIGDIGIT_MASK);
       carry %= digit;
     } while (pos > 0);
   } /* uBigDiv1 */
@@ -582,7 +684,7 @@ memsizetype pos1;
 /**
  *  Adds big2 to big1 at the digit position pos1. Big1 and big2
  *  are nonnegative big integer values. The size of big1 must be
- *  greater or equal the size of big2.
+ *  greater or equal the size of big2. The final carry is ignored.
  */
 #ifdef ANSI_C
 
@@ -602,14 +704,14 @@ memsizetype pos1;
   /* uBigAddTo */
     pos = 0;
     do {
-      carry += (doublebigdigittype) big1->bigdigits[pos + pos1] + big2->bigdigits[pos];
-      big1->bigdigits[pos + pos1] = (bigdigittype) (carry & BIGDIGIT_MASK);
+      carry += (doublebigdigittype) big1->bigdigits[pos1 + pos] + big2->bigdigits[pos];
+      big1->bigdigits[pos1 + pos] = (bigdigittype) (carry & BIGDIGIT_MASK);
       carry >>= 8 * sizeof(bigdigittype);
       pos++;
     } while (pos < big2->size);
-    for (; pos < big1->size; pos++) {
-      carry += big1->bigdigits[pos + pos1];
-      big1->bigdigits[pos + pos1] = (bigdigittype) (carry & BIGDIGIT_MASK);
+    for (; pos1 + pos < big1->size; pos++) {
+      carry += big1->bigdigits[pos1 + pos];
+      big1->bigdigits[pos1 + pos] = (bigdigittype) (carry & BIGDIGIT_MASK);
       carry >>= 8 * sizeof(bigdigittype);
     } /* for */
   } /* uBigAddTo */
@@ -620,7 +722,8 @@ memsizetype pos1;
  *  Computes an integer division of big1 by big2 for nonnegative big
  *  integers. The remainder is delivered in big1. There are several
  *  preconditions. Big2 must have at least 2 digits and big1 must have
- *  at least one digit more than big2. The most significant bit of big2
+ *  at least one digit more than big2. If big1 and big2 have the same
+ *  length in digits nothing is done. The most significant bit of big2
  *  must be set. The most significant digit of big1 must be less than
  *  the most significant digit of big2. The computations to meet this
  *  predonditions are done outside this function. The special cases
@@ -792,7 +895,7 @@ biginttype result;
       pos--;
       carry <<= 8 * sizeof(bigdigittype);
       carry += big1->bigdigits[pos];
-      result->bigdigits[pos] = (bigdigittype) (carry / digit);
+      result->bigdigits[pos] = (bigdigittype) ((carry / digit) & BIGDIGIT_MASK);
       carry %= digit;
     } while (pos > 0);
     return(carry);
@@ -1138,7 +1241,8 @@ biginttype big2;
  *  for nonnegative big integers. The remainder is delivered in
  *  big1. There are several preconditions for this function. Big2
  *  must have at least 2 digits and big1 must have at least one
- *  digit more than big2. The most significant bit of big2 must be
+ *  digit more than big2. If big1 and big2 have the same length in
+ *  digits nothing is done. The most significant bit of big2 must be
  *  set. The most significant digit of big1 must be less than the
  *  most significant digit of big2. The computations to meet this
  *  predonditions are done outside this function. The special cases
@@ -1469,12 +1573,36 @@ biginttype big2;
       if (IS_NEGATIVE(big1->bigdigits[pos - 1])) {
         big2_sign--;
       } /* if */
-      result->bigdigits[pos] = (bigdigittype) (carry + big2_sign);
+      result->bigdigits[pos] = (bigdigittype) ((carry + big2_sign) & BIGDIGIT_MASK);
       result->size = pos + 1;
       normalize(result);
       return(result);
     } /* if */
   } /* bigAdd */
+
+
+
+#ifdef ANSI_C
+
+inttype bigBitLength (biginttype big1)
+#else
+
+inttype bigBitLength (big1)
+biginttype big1;
+#endif
+
+  {
+    inttype result;
+
+  /* bigBitLength */
+    result = (big1->size - 1) * 8 * sizeof(bigdigittype);
+    if (IS_NEGATIVE(big1->bigdigits[big1->size - 1])) {
+      result += most_significant_bit(~big1->bigdigits[big1->size - 1]) + 1;
+    } else {
+      result += most_significant_bit(big1->bigdigits[big1->size - 1]) + 1;
+    } /* if */
+    return(result);
+  } /* bigBitLength */
 
 
 
@@ -1782,11 +1910,18 @@ biginttype big2;
         COUNT_BIG(big1_help->size - big2_help->size + 1);
         result->size = big1_help->size - big2_help->size + 1;
         result->bigdigits[result->size - 1] = 0;
-        shift = 8 * sizeof(bigdigittype) -
-            most_significant_bit(big2_help->bigdigits[big2_help->size - 1]) - 1;
-        uBigLShift(big1_help, shift);
-        uBigLShift(big2_help, shift);
-        uBigDiv(big1_help, big2_help, result);
+        shift = most_significant_bit(big2_help->bigdigits[big2_help->size - 1]) + 1;
+        if (shift == 0) {
+          /* The most significant digit is 0. Just ignore it */
+          big1_help->size--;
+          big2_help->size--;
+          uBigDiv(big1_help, big2_help, result);
+        } else {
+          shift = 8 * sizeof(bigdigittype) - shift;
+          uBigLShift(big1_help, shift);
+          uBigLShift(big2_help, shift);
+          uBigDiv(big1_help, big2_help, result);
+        } /* if */
         if (negative) {
           negate_positive_big(result);
         } /* if */
@@ -1866,7 +2001,7 @@ biginttype big2;
         } else {
           COUNT3_BIG(big1->size, big1->size + 1);
           big1->size++;
-          big1->bigdigits[pos] = (bigdigittype) carry;
+          big1->bigdigits[pos] = (bigdigittype) (carry & BIGDIGIT_MASK);
           *big_variable = big1;
         } /* if */
       } else {
@@ -2135,30 +2270,51 @@ longtype number;
 
 
 
-#ifdef OUT_OF_ORDER
 #ifdef ANSI_C
 
-inttype bigLd (biginttype big1)
+biginttype bigLog2 (biginttype big1)
 #else
 
-inttype bigLd (big1)
+biginttype bigLog2 (big1)
 biginttype big1;
 #endif
 
   {
-    inttype result;
+    memsizetype result_size;
+    inttype number;
+    memsizetype pos;
+    inttype bigdigit_log2;
+    biginttype result;
 
-  /* bigLd */
+  /* bigLog2 */
     if (IS_NEGATIVE(big1->bigdigits[big1->size - 1])) {
       raise_error(NUMERIC_ERROR);
-      return(0);
+      result = 0;
     } else {
-      result = (big1->size - 1) * 8 * sizeof(bigdigittype);
-      result += most_significant_bit(big1->bigdigits[big1->size - 1]);
-      return(result);
+      result_size = sizeof(inttype) / sizeof(bigdigittype) + 1;
+      if (!ALLOC_BIG(result, result_size)) {
+        raise_error(MEMORY_ERROR);
+      } else {
+        COUNT_BIG(result_size);
+        result->size = result_size;
+        number = big1->size - 1;
+        for (pos = 0; pos < result_size - 1; pos++) {
+          result->bigdigits[pos] = (bigdigittype) (number & BIGDIGIT_MASK);
+          number >>= 8 * sizeof(bigdigittype);
+        } /* for */
+        result->bigdigits[pos] = 0;
+        uBigLShift(result, BIGDIGIT_LOG2_SIZE);
+        bigdigit_log2 = most_significant_bit(big1->bigdigits[big1->size - 1]);
+        if (bigdigit_log2 == -1) {
+          uBigDecr(result);
+        } else {
+          result->bigdigits[0] |= bigdigit_log2;
+        } /* if */
+        normalize(result);
+      } /* if */
     } /* if */
-  } /* bigLd */
-#endif
+    return(result);
+  } /* bigLog2 */
 
 
 
@@ -2352,11 +2508,20 @@ biginttype big2;
         COUNT_BIG(big1_help->size - big2_help->size + 1);
         result->size = big1_help->size - big2_help->size + 1;
         result->bigdigits[result->size - 1] = 0;
-        shift = 8 * sizeof(bigdigittype) -
-            most_significant_bit(big2_help->bigdigits[big2_help->size - 1]) - 1;
-        uBigLShift(big1_help, shift);
-        uBigLShift(big2_help, shift);
-        uBigDiv(big1_help, big2_help, result);
+        shift = most_significant_bit(big2_help->bigdigits[big2_help->size - 1]) + 1;
+        if (shift == 0) {
+          /* The most significant digit is 0. Just ignore it */
+          big1_help->size--;
+          big2_help->size--;
+          uBigDiv(big1_help, big2_help, result);
+          big1_help->size++;
+          big2_help->size++;
+        } else {
+          shift = 8 * sizeof(bigdigittype) - shift;
+          uBigLShift(big1_help, shift);
+          uBigLShift(big2_help, shift);
+          uBigDiv(big1_help, big2_help, result);
+        } /* if */
         if (negative) {
           if (uBigIsNot0(big1_help)) {
             uBigIncr(result);
@@ -2501,12 +2666,21 @@ biginttype big2;
               (SIZE_TYPE) big2->size * sizeof(bigdigittype));
         } /* if */
       } /* if */
-      shift = 8 * sizeof(bigdigittype) -
-          most_significant_bit(big2_help->bigdigits[big2_help->size - 1]) - 1;
-      uBigLShift(result, shift);
-      uBigLShift(big2_help, shift);
-      uBigRem(result, big2_help);
-      uBigRShift(result, shift);
+      shift = most_significant_bit(big2_help->bigdigits[big2_help->size - 1]) + 1;
+      if (shift == 0) {
+        /* The most significant digit is 0. Just ignore it */
+        result->size--;
+        big2_help->size--;
+        uBigRem(result, big2_help);
+        result->bigdigits[result->size] = 0;
+        big2_help->size++;
+      } else {
+        shift = 8 * sizeof(bigdigittype) - shift;
+        uBigLShift(result, shift);
+        uBigLShift(big2_help, shift);
+        uBigRem(result, big2_help);
+        uBigRShift(result, shift);
+      } /* if */
       result->bigdigits[big1->size + 1] = 0;
       result->size = big1->size + 2;
       if (negative1) {
@@ -2924,12 +3098,21 @@ biginttype big2;
               (SIZE_TYPE) big2->size * sizeof(bigdigittype));
         } /* if */
       } /* if */
-      shift = 8 * sizeof(bigdigittype) -
-          most_significant_bit(big2_help->bigdigits[big2_help->size - 1]) - 1;
-      uBigLShift(result, shift);
-      uBigLShift(big2_help, shift);
-      uBigRem(result, big2_help);
-      uBigRShift(result, shift);
+      shift = most_significant_bit(big2_help->bigdigits[big2_help->size - 1]) + 1;
+      if (shift == 0) {
+        /* The most significant digit is 0. Just ignore it */
+        result->size--;
+        big2_help->size--;
+        uBigRem(result, big2_help);
+        result->bigdigits[result->size] = 0;
+        big2_help->size++;
+      } else {
+        shift = 8 * sizeof(bigdigittype) - shift;
+        uBigLShift(result, shift);
+        uBigLShift(big2_help, shift);
+        uBigRem(result, big2_help);
+        uBigRShift(result, shift);
+      } /* if */
       result->bigdigits[big1->size + 1] = 0;
       result->size = big1->size + 2;
       if (negative) {
@@ -2984,7 +3167,7 @@ biginttype big2;
         if (IS_NEGATIVE(big1->bigdigits[pos - 1])) {
           big2_sign--;
         } /* if */
-        result->bigdigits[pos] = (bigdigittype) (carry + big2_sign);
+        result->bigdigits[pos] = (bigdigittype) ((carry + big2_sign) & BIGDIGIT_MASK);
         result->size = pos + 1;
         normalize(result);
         return(result);
@@ -3013,7 +3196,7 @@ biginttype big2;
         if (IS_NEGATIVE(big1->bigdigits[big1->size - 1])) {
           big2_sign--;
         } /* if */
-        result->bigdigits[pos] = (bigdigittype) (carry + big2_sign);
+        result->bigdigits[pos] = (bigdigittype) ((carry + big2_sign) & BIGDIGIT_MASK);
         result->size = pos + 1;
         normalize(result);
         return(result);
@@ -3068,7 +3251,7 @@ biginttype big2;
         } else {
           COUNT3_BIG(big1->size, big1->size + 1);
           big1->size++;
-          big1->bigdigits[pos] = (bigdigittype) carry;
+          big1->bigdigits[pos] = (bigdigittype) (carry & BIGDIGIT_MASK);
           *big_variable = big1;
         } /* if */
       } else {

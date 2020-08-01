@@ -1593,7 +1593,13 @@ CONTENTS
       sqrt(A)   Integer square root
                   ( sqrt(A) is okay for A >= 0
                     sqrt(A) => trunc(sqrt(flt(A))),
-                    sqrt(-1.0) => EXCEPTION NUMERIC_ERROR )
+                    sqrt(-1) => EXCEPTION NUMERIC_ERROR )
+      log2(A)   Truncated base 2 logarithm
+                  ( log2(A) returns the position of the
+                    highest bit set. It is defined for A >= 0
+                    log2(0) => -1,
+                    log2(1) => 0,
+                    log2(-1) => EXCEPTION NUMERIC_ERROR )
       rand(A, B) Random number in the range [A, B]
                   ( rand(A, B) returns a random number such that
                     A <= rand(A, B) and rand(A, B) <= B holds.
@@ -1609,6 +1615,8 @@ CONTENTS
                   ( A +:= B => A := A + B )
       A -:= B   Decrement A by B
                   ( A -:= B => A := A - B )
+      A *:= B   Multiplying copy
+                  ( A *:= B => A := A * B )
       incr(A)   Increment with 1
                   ( incr(A) => A +:= 1 )
       decr(A)   Decrement with 1
@@ -1730,6 +1738,8 @@ CONTENTS
                   ( A +:= B => A := A + B )
       A -:= B   Decrement A by B
                   ( A -:= B => A := A - B )
+      A *:= B   Multiplying copy
+                  ( A *:= B => A := A * B )
 
   All calculations with 'rational' numbers are done exact.
   (Without any rounding)
@@ -1852,6 +1862,8 @@ CONTENTS
                   ( A +:= B => A := A + B )
       A -:= B   Decrement A by B
                   ( A -:= B => A := A - B )
+      A *:= B   Multiplying copy
+                  ( A *:= B => A := A * B )
 
 
 5.5 char
@@ -1953,7 +1965,7 @@ CONTENTS
                     "HELLO" lpad  4 => "HELLO",
                     "HELLO" lpad  0 => "HELLO",
                     "HELLO" lpad -8 => "HELLO" )
-      rpad      Left padding with spaces
+      rpad      Right padding with spaces
                   ( Type of right operand: integer,
                     "HELLO" rpad  8 => "HELLO   ",
                     "HELLO" rpad  6 => "HELLO ",
@@ -1991,9 +2003,9 @@ CONTENTS
                  The search starts at position C of string A
                   ( Type of argument C: integer,
                     Type of result: integer,
-                    pos("ABCDE ABCDE" color=maroon>"BC", 3)=>8,
-                    pos("XYZXYZ" color=maroon>"ZXY", 4)=>0,
-                    pos("123456789" color=maroon>"", 2)=>0 )
+                    pos("ABCDE ABCDE","BC", 3)=>8,
+                    pos("XYZXYZ","ZXY", 4)=>0,
+                    pos("123456789","", 2)=>0 )
       rpos(A,B) Last position of string B in string A
                   ( Type of result: integer,
                     rpos("ABCDE ABCDE","BC")=>8,
@@ -2003,6 +2015,26 @@ CONTENTS
                 string A by string C
                   ( replace("old gold", "old", "one")=>
                     "one gone" )
+      split(A,B) Split A into strings delimited by B
+                  ( Type of argument B: char,
+                    Type of result: array string,
+                    split("", ':') => [](""),
+                    split(":", ':') => []("", ""),
+                    split("15:30", ':') => []("15", "30") )
+      split(A,B) Split A into strings delimited by B
+                  ( Type of result: array string,
+                    split("", "") => [](""),
+                    split("ABC", "") => []("ABC"),
+                    split("", "; ") => [](""),
+                    split("writeln; readln;", "; ") => []("writeln", "readln;") )
+      join(A,B) Join the elements of A together with B's between them
+                  ( Type of argument A: array string,
+                    Type of argument B: char,
+                    join([]("This", "is", "a", "test"), ' ') => "This is a test" )
+      join(A,B) Join the elements of A together with B's between them
+                  ( Type of argument A: array string,
+                    Type of argument B: string,
+                    join([]("pro", "gram"), "") => "program" )
       trim(A)   Removes leading and trailing spaces and control chars
                   ( trim(" /n xyz /r") = "xyz" )
       str(A)    Conversion to string

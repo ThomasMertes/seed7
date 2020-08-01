@@ -564,7 +564,7 @@ const func integer: succ (in integer param) is                      action "INT_
 const func integer: pred (in integer param) is                      action "INT_PRED";
 const func integer: abs (in integer param) is                       action "INT_ABS";
 const func integer: sqrt (in integer param) is                      action "INT_SQRT";
-const func integer: ld (in integer param) is                        action "INT_LD";
+const func integer: log2 (in integer param) is                      action "INT_LOG2";
 const func boolean: odd (in integer param) is                       action "INT_ODD";
 const func integer: ord (in integer param) is                       action "INT_ORD";
 const func integer: (attr integer) conv (in integer param) is       action "INT_CONV";
@@ -1006,13 +1006,24 @@ const proc: FOR_STEP_DECLS (in type: aType) is func
           (in proc: statements) end for is func
         begin
           variable := lower_limit;
-          if variable <= upper_limit then
+          while variable <= upper_limit do
             statements;
-            while variable < upper_limit do
-              variable +:= incr_step;
-              statements;
-            end while;
-          end if;
+            variable +:= incr_step;
+          end while;
+        end func;
+
+    end if;
+    if getobj((inout aType param) -:= (in integer param)) <> NIL then
+
+      const proc: for (inout aType: variable) range (in aType: upper_limit) downto (in aType: lower_limit)
+          step (in integer: decr_step) do
+          (in proc: statements) end for is func
+        begin
+          variable := upper_limit;
+          while variable >= lower_limit do
+            statements;
+            variable -:= decr_step;
+          end while;
         end func;
 
     end if;

@@ -50,6 +50,17 @@
 #define USE_STRTOD
 #define IPOW_EXPONENTIATION_BY_SQUARING
 
+#ifdef FLOAT_ZERO_DIV_ERROR
+union { unsigned long l_val; float f_val; } f_const[] = {0xffc00000, 0x7f800000, 0xff800000};
+#define NOT_A_NUMBER      f_const[0].f_val
+#define POSITIVE_INFINITY f_const[1].f_val
+#define NEGATIVE_INFINITY f_const[2].f_val
+#else
+#define NOT_A_NUMBER      ( 0.0 / 0.0)
+#define POSITIVE_INFINITY ( 1.0 / 0.0)
+#define NEGATIVE_INFINITY (-1.0 / 0.0)
+#endif
+
 #ifndef USE_VARIABLE_FORMATS
 #define MAX_FORM 28
 
@@ -142,9 +153,9 @@ inttype digits_precision;
     } /* if */
     if (isnan(number)) {
       strcpy(buffer, "NaN");
-    } else if (number == 1.0 / 0.0) {
+    } else if (number == POSITIVE_INFINITY) {
       strcpy(buffer, "Infinity");
-    } else if (number == -1.0 / 0.0) {
+    } else if (number == NEGATIVE_INFINITY) {
       strcpy(buffer, "-Infinity");
     } else {
 #ifdef USE_VARIABLE_FORMATS
@@ -190,7 +201,7 @@ inttype exponent;
 #ifdef IPOW_EXPONENTIATION_BY_SQUARING
     if (base == 0.0) {
       if (exponent < 0) {
-        return(1.0 / 0.0);
+        return(POSITIVE_INFINITY);
       } else if (exponent == 0) {
         return(1.0);
       } else {
@@ -232,7 +243,7 @@ inttype exponent;
       } /* if */
     } else if (base == 0.0) {
       if (exponent < 0) {
-        return(1.0 / 0.0);
+        return(POSITIVE_INFINITY);
       } else if (exponent == 0) {
         return(1.0);
       } else {
@@ -275,11 +286,11 @@ stritype stri;
       result = (floattype) strtod(buffer, &next_ch);
       if (next_ch == buffer) {
         if (strcmp(buffer, "NaN") == 0) {
-          result = 0.0 / 0.0;
+          result = NOT_A_NUMBER;
         } else if (strcmp(buffer, "Infinity") == 0) {
-          result = 1.0 / 0.0;
+          result = POSITIVE_INFINITY;
         } else if (strcmp(buffer, "-Infinity") == 0) {
-          result = -1.0 / 0.0;
+          result = NEGATIVE_INFINITY;
         } else {
           okay = FALSE;
         } /* if */
@@ -364,9 +375,9 @@ floattype number;
   /* fltStr */
     if (isnan(number)) {
       strcpy(buffer, "NaN");
-    } else if (number == 1.0 / 0.0) {
+    } else if (number == POSITIVE_INFINITY) {
       strcpy(buffer, "Infinity");
-    } else if (number == -1.0 / 0.0) {
+    } else if (number == NEGATIVE_INFINITY) {
       strcpy(buffer, "-Infinity");
     } else {
       sprintf(buffer, "%1.25f", number);

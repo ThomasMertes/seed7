@@ -367,17 +367,17 @@ inttype source;
 
 #ifdef ANSI_C
 
-inttype intLd (inttype number)
+inttype intLog2 (inttype number)
 #else
 
-inttype intLd (number)
+inttype intLog2 (number)
 inttype number;
 #endif
 
   {
     int result;
 
-  /* intLd */
+  /* intLog2 */
     if (number < 0) {
       raise_error(NUMERIC_ERROR);
       return(0);
@@ -394,7 +394,7 @@ inttype number;
       result += most_significant[number];
       return(result);
     } /* if */
-  } /* intLd */
+  } /* intLog2 */
 
 
 

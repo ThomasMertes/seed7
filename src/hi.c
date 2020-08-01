@@ -92,7 +92,8 @@ char **argv;
         init_do_any();
         memset(&prog, 0, sizeof(progrecord)); /* not used, saved in analyze and interpr */
         currentProg = analyze((ustritype) option.source_file_name);
-        if (!option.analyze_only && (currentProg->error_count == 0 || option.execute_always)) {
+        if (!option.analyze_only && currentProg != NULL &&
+            (currentProg->error_count == 0 || option.execute_always)) {
 /*        PRIME_OBJECTS(); */
 /*        printf("%d%d\n",
               trace.actions,

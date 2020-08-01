@@ -416,22 +416,6 @@ listtype arguments;
 
 #ifdef ANSI_C
 
-objecttype int_ld (listtype arguments)
-#else
-
-objecttype int_ld (arguments)
-listtype arguments;
-#endif
-
-  { /* int_ld */
-    isit_int(arg_1(arguments));
-    return(bld_int_temp(intLd(take_int(arg_1(arguments)))));
-  } /* int_ld */
-
-
-
-#ifdef ANSI_C
-
 objecttype int_le (listtype arguments)
 #else
 
@@ -449,6 +433,22 @@ listtype arguments;
       return(SYS_FALSE_OBJECT);
     } /* if */
   } /* int_le */
+
+
+
+#ifdef ANSI_C
+
+objecttype int_log2 (listtype arguments)
+#else
+
+objecttype int_log2 (arguments)
+listtype arguments;
+#endif
+
+  { /* int_log2 */
+    isit_int(arg_1(arguments));
+    return(bld_int_temp(intLog2(take_int(arg_1(arguments)))));
+  } /* int_log2 */
 
 
 

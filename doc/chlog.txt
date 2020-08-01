@@ -215,3 +215,14 @@
 - The compiler was improved to support the *:= operator and the arr_cat action.
 - Several improvements for compile time error messages were done.
 - The err.sd7 example program, which checks compile time error messages, was improved.
+
+20070404:
+- The support and documentation for the functions split, join, log2, bitLength and
+  the operator *:= were improved.
+- The compiler support for the functions raise, log2 and split was improved.
+- The bas (basic interpreter) example program was improved to support print using statements.
+- The support of the for-step loop in the seed7_05.s7i include file was improved.
+- Some improvements for the bigRational and bigInteger library were done.
+- A bug in uBigAddTo which could cause an error in bigDiv, bigRem, bigMDiv, bigMod was fixed.
+- The chkbig.sd7 program was improved to check the log2 function for bigInteger.
+- The chkstr.sd7 program was improved to have more checks for the split function.

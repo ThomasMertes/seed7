@@ -76,6 +76,30 @@
 #endif
 #endif
 
+#ifndef S_ISCHR
+#ifdef S_IFCHR
+#define S_ISCHR(mode) (((mode) & S_IFMT) == S_IFCHR)
+#else
+#define S_ISCHR(mode) FALSE
+#endif
+#endif
+
+#ifndef S_ISBLK
+#ifdef S_IFBLK
+#define S_ISBLK(mode) (((mode) & S_IFMT) == S_IFBLK)
+#else
+#define S_ISBLK(mode) FALSE
+#endif
+#endif
+
+#ifndef S_ISFIFO
+#ifdef S_IFFIFO
+#define S_ISFIFO(mode) (((mode) & S_IFMT) == S_IFFIFO)
+#else
+#define S_ISFIFO(mode) FALSE
+#endif
+#endif
+
 #ifndef S_ISDIR
 #define S_ISDIR(mode) (((mode) & S_IFMT) == S_IFDIR)
 #endif

@@ -2098,7 +2098,273 @@ const proc: check_string_split is func
         split("A+BCDEF", '+') <> [] ("A", "BCDEF") or
         split("+ABCDEF", '+') <> [] ("", "ABCDEF") or
         split("ABCDEFG", '+') <> [] ("ABCDEFG") then
-      writeln(" ***** split(string) does not work correct");
+      writeln(" ***** split(string, char) does not work correct");
+      okay := FALSE;
+    end if;
+    if  split("", "") <> [] ("") or
+        split("", "+") <> [] ("") or
+        split("A", "") <> [] ("A") or
+        split("+", "+") <> [] ("", "") or
+        split("A", "+") <> [] ("A") or
+        split("AB", "") <> [] ("AB") or
+        split("++", "+") <> [] ("", "", "") or
+        split("+A", "+") <> [] ("", "A") or
+        split("A+", "+") <> [] ("A", "") or
+        split("AB", "+") <> [] ("AB") or
+        split("ABC", "") <> [] ("ABC") or
+        split("+++", "+") <> [] ("", "", "", "") or
+        split("A++", "+") <> [] ("A", "", "") or
+        split("+A+", "+") <> [] ("", "A", "") or
+        split("++A", "+") <> [] ("", "", "A") or
+        split("AB+", "+") <> [] ("AB", "") or
+        split("A+B", "+") <> [] ("A", "B") or
+        split("+AB", "+") <> [] ("", "AB") or
+        split("ABC", "+") <> [] ("ABC") or
+        split("ABCD", "") <> [] ("ABCD") or
+        split("++++", "+") <> [] ("", "", "", "", "") or
+        split("A+++", "+") <> [] ("A", "", "", "") or
+        split("+A++", "+") <> [] ("", "A", "", "") or
+        split("++A+", "+") <> [] ("", "", "A", "") or
+        split("+++A", "+") <> [] ("", "", "", "A") or
+        split("AB++", "+") <> [] ("AB", "", "") or
+        split("A+B+", "+") <> [] ("A", "B", "") or
+        split("A++B", "+") <> [] ("A", "", "B") or
+        split("+AB+", "+") <> [] ("", "AB", "") or
+        split("+A+B", "+") <> [] ("", "A", "B") or
+        split("++AB", "+") <> [] ("", "", "AB") or
+        split("ABC+", "+") <> [] ("ABC", "") or
+        split("AB+C", "+") <> [] ("AB", "C") or
+        split("A+BC", "+") <> [] ("A", "BC") or
+        split("+ABC", "+") <> [] ("", "ABC") or
+        split("ABCD", "+") <> [] ("ABCD") or
+        split("ABCDE", "") <> [] ("ABCDE") or
+        split("+++++", "+") <> [] ("", "", "", "", "", "") or
+        split("A++++", "+") <> [] ("A", "", "", "", "") or
+        split("+A+++", "+") <> [] ("", "A", "", "", "") or
+        split("++A++", "+") <> [] ("", "", "A", "", "") or
+        split("+++A+", "+") <> [] ("", "", "", "A", "") or
+        split("++++A", "+") <> [] ("", "", "", "", "A") or
+        split("AB+++", "+") <> [] ("AB", "", "", "") or
+        split("A+B++", "+") <> [] ("A", "B", "", "") or
+        split("A++B+", "+") <> [] ("A", "", "B", "") or
+        split("A+++B", "+") <> [] ("A", "", "", "B") or
+        split("+AB++", "+") <> [] ("", "AB", "", "") or
+        split("+A+B+", "+") <> [] ("", "A", "B", "") or
+        split("+A++B", "+") <> [] ("", "A", "", "B") or
+        split("++AB+", "+") <> [] ("", "", "AB", "") or
+        split("++A+B", "+") <> [] ("", "", "A", "B") or
+        split("+++AB", "+") <> [] ("", "", "", "AB") or
+        split("ABC++", "+") <> [] ("ABC", "", "") or
+        split("AB+C+", "+") <> [] ("AB", "C", "") or
+        split("AB++C", "+") <> [] ("AB", "", "C") or
+        split("A+BC+", "+") <> [] ("A", "BC", "") or
+        split("A+B+C", "+") <> [] ("A", "B", "C") or
+        split("A++BC", "+") <> [] ("A", "", "BC") or
+        split("+ABC+", "+") <> [] ("", "ABC", "") or
+        split("+AB+C", "+") <> [] ("", "AB", "C") or
+        split("+A+BC", "+") <> [] ("", "A", "BC") or
+        split("++ABC", "+") <> [] ("", "", "ABC") or
+        split("ABCD+", "+") <> [] ("ABCD", "") or
+        split("ABC+D", "+") <> [] ("ABC", "D") or
+        split("AB+CD", "+") <> [] ("AB", "CD") or
+        split("A+BCD", "+") <> [] ("A", "BCD") or
+        split("+ABCD", "+") <> [] ("", "ABCD") or
+        split("ABCDE", "+") <> [] ("ABCDE") or
+        split("ABCDEF", "") <> [] ("ABCDEF") or
+        split("++++++", "+") <> [] ("", "", "", "", "", "", "") or
+        split("A+++++", "+") <> [] ("A", "", "", "", "", "") or
+        split("+A++++", "+") <> [] ("", "A", "", "", "", "") or
+        split("++A+++", "+") <> [] ("", "", "A", "", "", "") or
+        split("+++A++", "+") <> [] ("", "", "", "A", "", "") or
+        split("++++A+", "+") <> [] ("", "", "", "", "A", "") or
+        split("+++++A", "+") <> [] ("", "", "", "", "", "A") or
+        split("AB++++", "+") <> [] ("AB", "", "", "", "") or
+        split("A+B+++", "+") <> [] ("A", "B", "", "", "") or
+        split("A++B++", "+") <> [] ("A", "", "B", "", "") or
+        split("A+++B+", "+") <> [] ("A", "", "", "B", "") or
+        split("A++++B", "+") <> [] ("A", "", "", "", "B") or
+        split("+AB+++", "+") <> [] ("", "AB", "", "", "") or
+        split("+A+B++", "+") <> [] ("", "A", "B", "", "") or
+        split("+A++B+", "+") <> [] ("", "A", "", "B", "") or
+        split("+A+++B", "+") <> [] ("", "A", "", "", "B") or
+        split("++AB++", "+") <> [] ("", "", "AB", "", "") or
+        split("++A+B+", "+") <> [] ("", "", "A", "B", "") or
+        split("++A++B", "+") <> [] ("", "", "A", "", "B") or
+        split("+++AB+", "+") <> [] ("", "", "", "AB", "") or
+        split("+++A+B", "+") <> [] ("", "", "", "A", "B") or
+        split("++++AB", "+") <> [] ("", "", "", "", "AB") or
+        split("ABC+++", "+") <> [] ("ABC", "", "", "") or
+        split("AB+C++", "+") <> [] ("AB", "C", "", "") or
+        split("AB++C+", "+") <> [] ("AB", "", "C", "") or
+        split("AB+++C", "+") <> [] ("AB", "", "", "C") or
+        split("A+BC++", "+") <> [] ("A", "BC", "", "") or
+        split("A+B+C+", "+") <> [] ("A", "B", "C", "") or
+        split("A+B++C", "+") <> [] ("A", "B", "", "C") or
+        split("A++BC+", "+") <> [] ("A", "", "BC", "") or
+        split("A++B+C", "+") <> [] ("A", "", "B", "C") or
+        split("A+++BC", "+") <> [] ("A", "", "", "BC") or
+        split("+ABC++", "+") <> [] ("", "ABC", "", "") or
+        split("+AB+C+", "+") <> [] ("", "AB", "C", "") or
+        split("+AB++C", "+") <> [] ("", "AB", "", "C") or
+        split("+A+BC+", "+") <> [] ("", "A", "BC", "") or
+        split("+A+B+C", "+") <> [] ("", "A", "B", "C") or
+        split("+A++BC", "+") <> [] ("", "A", "", "BC") or
+        split("++ABC+", "+") <> [] ("", "", "ABC", "") or
+        split("++AB+C", "+") <> [] ("", "", "AB", "C") or
+        split("++A+BC", "+") <> [] ("", "", "A", "BC") or
+        split("+++ABC", "+") <> [] ("", "", "", "ABC") or
+        split("ABCD++", "+") <> [] ("ABCD", "", "") or
+        split("ABC+D+", "+") <> [] ("ABC", "D", "") or
+        split("ABC++D", "+") <> [] ("ABC", "", "D") or
+        split("AB+CD+", "+") <> [] ("AB", "CD", "") or
+        split("AB+C+D", "+") <> [] ("AB", "C", "D") or
+        split("AB++CD", "+") <> [] ("AB", "", "CD") or
+        split("A+BCD+", "+") <> [] ("A", "BCD", "") or
+        split("A+BC+D", "+") <> [] ("A", "BC", "D") or
+        split("A+B+CD", "+") <> [] ("A", "B", "CD") or
+        split("A++BCD", "+") <> [] ("A", "", "BCD") or
+        split("+ABCD+", "+") <> [] ("", "ABCD", "") or
+        split("+ABC+D", "+") <> [] ("", "ABC", "D") or
+        split("+AB+CD", "+") <> [] ("", "AB", "CD") or
+        split("+A+BCD", "+") <> [] ("", "A", "BCD") or
+        split("++ABCD", "+") <> [] ("", "", "ABCD") or
+        split("ABCDE+", "+") <> [] ("ABCDE", "") or
+        split("ABCD+E", "+") <> [] ("ABCD", "E") or
+        split("ABC+DE", "+") <> [] ("ABC", "DE") or
+        split("AB+CDE", "+") <> [] ("AB", "CDE") or
+        split("A+BCDE", "+") <> [] ("A", "BCDE") or
+        split("+ABCDE", "+") <> [] ("", "ABCDE") or
+        split("ABCDEF", "+") <> [] ("ABCDEF") or
+        split("ABCDEFG", "") <> [] ("ABCDEFG") or
+        split("+++++++", "+") <> [] ("", "", "", "", "", "", "", "") or
+        split("A++++++", "+") <> [] ("A", "", "", "", "", "", "") or
+        split("+A+++++", "+") <> [] ("", "A", "", "", "", "", "") or
+        split("++A++++", "+") <> [] ("", "", "A", "", "", "", "") or
+        split("+++A+++", "+") <> [] ("", "", "", "A", "", "", "") or
+        split("++++A++", "+") <> [] ("", "", "", "", "A", "", "") or
+        split("+++++A+", "+") <> [] ("", "", "", "", "", "A", "") or
+        split("++++++A", "+") <> [] ("", "", "", "", "", "", "A") or
+        split("AB+++++", "+") <> [] ("AB", "", "", "", "", "") or
+        split("A+B++++", "+") <> [] ("A", "B", "", "", "", "") or
+        split("A++B+++", "+") <> [] ("A", "", "B", "", "", "") or
+        split("A+++B++", "+") <> [] ("A", "", "", "B", "", "") or
+        split("A++++B+", "+") <> [] ("A", "", "", "", "B", "") or
+        split("A+++++B", "+") <> [] ("A", "", "", "", "", "B") or
+        split("+AB++++", "+") <> [] ("", "AB", "", "", "", "") or
+        split("+A+B+++", "+") <> [] ("", "A", "B", "", "", "") or
+        split("+A++B++", "+") <> [] ("", "A", "", "B", "", "") or
+        split("+A+++B+", "+") <> [] ("", "A", "", "", "B", "") or
+        split("+A++++B", "+") <> [] ("", "A", "", "", "", "B") or
+        split("++AB+++", "+") <> [] ("", "", "AB", "", "", "") or
+        split("++A+B++", "+") <> [] ("", "", "A", "B", "", "") or
+        split("++A++B+", "+") <> [] ("", "", "A", "", "B", "") or
+        split("++A+++B", "+") <> [] ("", "", "A", "", "", "B") or
+        split("+++AB++", "+") <> [] ("", "", "", "AB", "", "") or
+        split("+++A+B+", "+") <> [] ("", "", "", "A", "B", "") or
+        split("+++A++B", "+") <> [] ("", "", "", "A", "", "B") or
+        split("++++AB+", "+") <> [] ("", "", "", "", "AB", "") or
+        split("++++A+B", "+") <> [] ("", "", "", "", "A", "B") or
+        split("+++++AB", "+") <> [] ("", "", "", "", "", "AB") or
+        split("ABC++++", "+") <> [] ("ABC", "", "", "", "") or
+        split("AB+C+++", "+") <> [] ("AB", "C", "", "", "") or
+        split("AB++C++", "+") <> [] ("AB", "", "C", "", "") or
+        split("AB+++C+", "+") <> [] ("AB", "", "", "C", "") or
+        split("AB++++C", "+") <> [] ("AB", "", "", "", "C") or
+        split("A+BC+++", "+") <> [] ("A", "BC", "", "", "") or
+        split("A+B+C++", "+") <> [] ("A", "B", "C", "", "") or
+        split("A+B++C+", "+") <> [] ("A", "B", "", "C", "") or
+        split("A+B+++C", "+") <> [] ("A", "B", "", "", "C") or
+        split("A++BC++", "+") <> [] ("A", "", "BC", "", "") or
+        split("A++B+C+", "+") <> [] ("A", "", "B", "C", "") or
+        split("A++B++C", "+") <> [] ("A", "", "B", "", "C") or
+        split("A+++BC+", "+") <> [] ("A", "", "", "BC", "") or
+        split("A+++B+C", "+") <> [] ("A", "", "", "B", "C") or
+        split("A++++BC", "+") <> [] ("A", "", "", "", "BC") or
+        split("+ABC+++", "+") <> [] ("", "ABC", "", "", "") or
+        split("+AB+C++", "+") <> [] ("", "AB", "C", "", "") or
+        split("+AB++C+", "+") <> [] ("", "AB", "", "C", "") or
+        split("+AB+++C", "+") <> [] ("", "AB", "", "", "C") or
+        split("+A+BC++", "+") <> [] ("", "A", "BC", "", "") or
+        split("+A+B+C+", "+") <> [] ("", "A", "B", "C", "") or
+        split("+A+B++C", "+") <> [] ("", "A", "B", "", "C") or
+        split("+A++BC+", "+") <> [] ("", "A", "", "BC", "") or
+        split("+A++B+C", "+") <> [] ("", "A", "", "B", "C") or
+        split("+A+++BC", "+") <> [] ("", "A", "", "", "BC") or
+        split("++ABC++", "+") <> [] ("", "", "ABC", "", "") or
+        split("++AB+C+", "+") <> [] ("", "", "AB", "C", "") or
+        split("++AB++C", "+") <> [] ("", "", "AB", "", "C") or
+        split("++A+BC+", "+") <> [] ("", "", "A", "BC", "") or
+        split("++A+B+C", "+") <> [] ("", "", "A", "B", "C") or
+        split("++A++BC", "+") <> [] ("", "", "A", "", "BC") or
+        split("+++ABC+", "+") <> [] ("", "", "", "ABC", "") or
+        split("+++AB+C", "+") <> [] ("", "", "", "AB", "C") or
+        split("+++A+BC", "+") <> [] ("", "", "", "A", "BC") or
+        split("++++ABC", "+") <> [] ("", "", "", "", "ABC") or
+        split("ABCD+++", "+") <> [] ("ABCD", "", "", "") or
+        split("ABC+D++", "+") <> [] ("ABC", "D", "", "") or
+        split("ABC++D+", "+") <> [] ("ABC", "", "D", "") or
+        split("ABC+++D", "+") <> [] ("ABC", "", "", "D") or
+        split("AB+CD++", "+") <> [] ("AB", "CD", "", "") or
+        split("AB+C+D+", "+") <> [] ("AB", "C", "D", "") or
+        split("AB+C++D", "+") <> [] ("AB", "C", "", "D") or
+        split("AB++CD+", "+") <> [] ("AB", "", "CD", "") or
+        split("AB++C+D", "+") <> [] ("AB", "", "C", "D") or
+        split("AB+++CD", "+") <> [] ("AB", "", "", "CD") or
+        split("A+BCD++", "+") <> [] ("A", "BCD", "", "") or
+        split("A+BC+D+", "+") <> [] ("A", "BC", "D", "") or
+        split("A+BC++D", "+") <> [] ("A", "BC", "", "D") or
+        split("A+B+CD+", "+") <> [] ("A", "B", "CD", "") or
+        split("A+B+C+D", "+") <> [] ("A", "B", "C", "D") or
+        split("A+B++CD", "+") <> [] ("A", "B", "", "CD") or
+        split("A++BCD+", "+") <> [] ("A", "", "BCD", "") or
+        split("A++BC+D", "+") <> [] ("A", "", "BC", "D") or
+        split("A++B+CD", "+") <> [] ("A", "", "B", "CD") or
+        split("A+++BCD", "+") <> [] ("A", "", "", "BCD") or
+        split("+ABCD++", "+") <> [] ("", "ABCD", "", "") or
+        split("+ABC+D+", "+") <> [] ("", "ABC", "D", "") or
+        split("+ABC++D", "+") <> [] ("", "ABC", "", "D") or
+        split("+AB+CD+", "+") <> [] ("", "AB", "CD", "") or
+        split("+AB+C+D", "+") <> [] ("", "AB", "C", "D") or
+        split("+AB++CD", "+") <> [] ("", "AB", "", "CD") or
+        split("+A+BCD+", "+") <> [] ("", "A", "BCD", "") or
+        split("+A+BC+D", "+") <> [] ("", "A", "BC", "D") or
+        split("+A+B+CD", "+") <> [] ("", "A", "B", "CD") or
+        split("+A++BCD", "+") <> [] ("", "A", "", "BCD") or
+        split("++ABCD+", "+") <> [] ("", "", "ABCD", "") or
+        split("++ABC+D", "+") <> [] ("", "", "ABC", "D") or
+        split("++AB+CD", "+") <> [] ("", "", "AB", "CD") or
+        split("++A+BCD", "+") <> [] ("", "", "A", "BCD") or
+        split("+++ABCD", "+") <> [] ("", "", "", "ABCD") or
+        split("ABCDE++", "+") <> [] ("ABCDE", "", "") or
+        split("ABCD+E+", "+") <> [] ("ABCD", "E", "") or
+        split("ABCD++E", "+") <> [] ("ABCD", "", "E") or
+        split("ABC+DE+", "+") <> [] ("ABC", "DE", "") or
+        split("ABC+D+E", "+") <> [] ("ABC", "D", "E") or
+        split("ABC++DE", "+") <> [] ("ABC", "", "DE") or
+        split("AB+CDE+", "+") <> [] ("AB", "CDE", "") or
+        split("AB+CD+E", "+") <> [] ("AB", "CD", "E") or
+        split("AB+C+DE", "+") <> [] ("AB", "C", "DE") or
+        split("AB++CDE", "+") <> [] ("AB", "", "CDE") or
+        split("A+BCDE+", "+") <> [] ("A", "BCDE", "") or
+        split("A+BCD+E", "+") <> [] ("A", "BCD", "E") or
+        split("A+BC+DE", "+") <> [] ("A", "BC", "DE") or
+        split("A+B+CDE", "+") <> [] ("A", "B", "CDE") or
+        split("A++BCDE", "+") <> [] ("A", "", "BCDE") or
+        split("+ABCDE+", "+") <> [] ("", "ABCDE", "") or
+        split("+ABCD+E", "+") <> [] ("", "ABCD", "E") or
+        split("+ABC+DE", "+") <> [] ("", "ABC", "DE") or
+        split("+AB+CDE", "+") <> [] ("", "AB", "CDE") or
+        split("+A+BCDE", "+") <> [] ("", "A", "BCDE") or
+        split("++ABCDE", "+") <> [] ("", "", "ABCDE") or
+        split("ABCDEF+", "+") <> [] ("ABCDEF", "") or
+        split("ABCDE+F", "+") <> [] ("ABCDE", "F") or
+        split("ABCD+EF", "+") <> [] ("ABCD", "EF") or
+        split("ABC+DEF", "+") <> [] ("ABC", "DEF") or
+        split("AB+CDEF", "+") <> [] ("AB", "CDEF") or
+        split("A+BCDEF", "+") <> [] ("A", "BCDEF") or
+        split("+ABCDEF", "+") <> [] ("", "ABCDEF") or
+        split("ABCDEFG", "+") <> [] ("ABCDEFG") then
+      writeln(" ***** split(string, string) does not work correct");
       okay := FALSE;
     end if;
     if okay then

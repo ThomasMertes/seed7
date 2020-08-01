@@ -29,6 +29,11 @@
 /*                                                                  */
 /********************************************************************/
 
+#ifdef DEFINE_IEEE_754_STUFF
+#define isnan(x) ((x)!=(x))
+#endif
+
+
 #ifdef ANSI_C
 
 inttype fltCmp (floattype, floattype);

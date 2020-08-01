@@ -82,6 +82,23 @@ listtype arguments;
 
 #ifdef ANSI_C
 
+objecttype big_bit_length (listtype arguments)
+#else
+
+objecttype big_bit_length (arguments)
+listtype arguments;
+#endif
+
+  { /* big_bit_length */
+    isit_bigint(arg_1(arguments));
+    return(bld_int_temp(
+        bigBitLength(take_bigint(arg_1(arguments)))));
+  } /* big_bit_length */
+
+
+
+#ifdef ANSI_C
+
 objecttype big_clit (listtype arguments)
 #else
 
@@ -455,6 +472,22 @@ listtype arguments;
       return(SYS_FALSE_OBJECT);
     } /* if */
   } /* big_le */
+
+
+
+#ifdef ANSI_C
+
+objecttype big_log2 (listtype arguments)
+#else
+
+objecttype big_log2 (arguments)
+listtype arguments;
+#endif
+
+  { /* big_log2 */
+    isit_bigint(arg_1(arguments));
+    return(bld_bigint_temp(bigLog2(take_bigint(arg_1(arguments)))));
+  } /* big_log2 */
 
 
 

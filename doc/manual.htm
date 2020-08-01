@@ -1593,7 +1593,13 @@
       sqrt(A)   Integer square root
                   ( sqrt(A) is okay for A >= 0
                     sqrt(A) => trunc(sqrt(flt(A))),
-                    sqrt(-1.0) => EXCEPTION NUMERIC_ERROR )
+                    sqrt(-1) => EXCEPTION NUMERIC_ERROR )
+      log2(A)   Truncated base 2 logarithm
+                  ( log2(A) returns the position of the
+                    highest bit set. It is defined for A >= 0
+                    log2(0) => -1,
+                    log2(1) => 0,
+                    log2(-1) => EXCEPTION NUMERIC_ERROR )
       rand(A, B) Random number in the range [A, B]
                   ( rand(A, B) returns a random number such that
                     A &lt;= rand(A, B) <font color=blue>and</font> rand(A, B) &lt;= B holds.
@@ -1609,6 +1615,8 @@
                   ( A +:= B => A := A + B )
       A -:= B   Decrement A by B
                   ( A -:= B => A := A - B )
+      A *:= B   Multiplying copy
+                  ( A *:= B => A := A * B )
       incr(A)   Increment with 1
                   ( incr(A) => A +:= 1 )
       decr(A)   Decrement with 1
@@ -1730,6 +1738,8 @@
                   ( A +:= B => A := A + B )
       A -:= B   Decrement A by B
                   ( A -:= B => A := A - B )
+      A *:= B   Multiplying copy
+                  ( A *:= B => A := A * B )
 </pre><p>
   All calculations with <tt>'<font color=red>rational</font>'</tt> numbers are done exact.
   (Without any rounding)
@@ -1852,6 +1862,8 @@
                   ( A +:= B => A := A + B )
       A -:= B   Decrement A by B
                   ( A -:= B => A := A - B )
+      A *:= B   Multiplying copy
+                  ( A *:= B => A := A * B )
 </pre><p></p>
 
 <a name="char"><b>5.5 char</b></a>
@@ -1953,7 +1965,7 @@
                     <font color=maroon>"HELLO"</font> <font color=blue>lpad</font>  4 => <font color=maroon>"HELLO"</font>,
                     <font color=maroon>"HELLO"</font> <font color=blue>lpad</font>  0 => <font color=maroon>"HELLO"</font>,
                     <font color=maroon>"HELLO"</font> <font color=blue>lpad</font> -8 => <font color=maroon>"HELLO"</font> )
-      <font color=blue>rpad</font>      Left padding with spaces
+      <font color=blue>rpad</font>      Right padding with spaces
                   ( Type of right operand: <font color=red>integer</font>,
                     <font color=maroon>"HELLO"</font> <font color=blue>rpad</font>  8 => <font color=maroon>"HELLO   "</font>,
                     <font color=maroon>"HELLO"</font> <font color=blue>rpad</font>  6 => <font color=maroon>"HELLO "</font>,
@@ -1991,9 +2003,9 @@
                  The search starts at position C of <font color=red>string</font> A
                   ( Type of argument C: <font color=red>integer</font>,
                     Type of result: <font color=red>integer</font>,
-                    pos(<font color=maroon>"ABCDE ABCDE"</font> color=maroon>"BC"</font>, 3)=>8,
-                    pos(<font color=maroon>"XYZXYZ"</font> color=maroon>"ZXY"</font>, 4)=>0,
-                    pos(<font color=maroon>"123456789"</font> color=maroon>""</font>, 2)=>0 )
+                    pos(<font color=maroon>"ABCDE ABCDE"</font>,<font color=maroon>"BC"</font>, 3)=>8,
+                    pos(<font color=maroon>"XYZXYZ"</font>,<font color=maroon>"ZXY"</font>, 4)=>0,
+                    pos(<font color=maroon>"123456789"</font>,<font color=maroon>""</font>, 2)=>0 )
       rpos(A,B) Last position of <font color=red>string</font> B in <font color=red>string</font> A
                   ( Type of result: <font color=red>integer</font>,
                     rpos(<font color=maroon>"ABCDE ABCDE"</font>,<font color=maroon>"BC"</font>)=>8,
@@ -2003,6 +2015,26 @@
                 <font color=red>string</font> A by <font color=red>string</font> C
                   ( replace(<font color=maroon>"old gold"</font>, <font color=maroon>"old"</font>, <font color=maroon>"one"</font>)=>
                     <font color=maroon>"one gone"</font> )
+      split(A,B) Split A into strings delimited by B
+                  ( Type of argument B: <font color=red>char</font>,
+                    Type of result: <font color=red>array string</font>,
+                    split(<font color=maroon>""</font>, <font color=maroon>':'</font>) => [](<font color=maroon>""</font>),
+                    split(<font color=maroon>":"</font>, <font color=maroon>':'</font>) => [](<font color=maroon>""</font>, <font color=maroon>""</font>),
+                    split(<font color=maroon>"15:30"</font>, <font color=maroon>':'</font>) => [](<font color=maroon>"15"</font>, <font color=maroon>"30"</font>) )
+      split(A,B) Split A into strings delimited by B
+                  ( Type of result: <font color=red>array string</font>,
+                    split(<font color=maroon>""</font>, <font color=maroon>""</font>) => [](<font color=maroon>""</font>),
+                    split(<font color=maroon>"ABC"</font>, <font color=maroon>""</font>) => [](<font color=maroon>"ABC"</font>),
+                    split(<font color=maroon>""</font>, <font color=maroon>"; "</font>) => [](<font color=maroon>""</font>),
+                    split(<font color=maroon>"writeln; readln;"</font>, <font color=maroon>"; "</font>) => [](<font color=maroon>"writeln"</font>, <font color=maroon>"readln;"</font>) )
+      join(A,B) Join the elements of A together with B's between them
+                  ( Type of argument A: <font color=red>array string</font>,
+                    Type of argument B: <font color=red>char</font>,
+                    join([](<font color=maroon>"This"</font>, <font color=maroon>"is"</font>, <font color=maroon>"a"</font>, <font color=maroon>"test"</font>), <font color=maroon>' '</font>) => <font color=maroon>"This is a test"</font> )
+      join(A,B) Join the elements of A together with B's between them
+                  ( Type of argument A: <font color=red>array string</font>,
+                    Type of argument B: <font color=red>string</font>,
+                    join([](<font color=maroon>"pro"</font>, <font color=maroon>"gram"</font>), <font color=maroon>""</font>) => <font color=maroon>"program"</font> )
       trim(A)   Removes leading and trailing spaces and control chars
                   ( trim(<font color=maroon>" /n xyz /r"</font>) = <font color=maroon>"xyz"</font> )
       str(A)    Conversion to <font color=red>string</font>

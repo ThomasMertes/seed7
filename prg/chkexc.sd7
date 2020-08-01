@@ -110,8 +110,8 @@ const proc: check_integer is func
     end block;
 
     block
-      i_num := ld(-1);
-      writeln(" ***** ld(-1) did not raise NUMERIC_ERROR");
+      i_num := log2(-1);
+      writeln(" ***** log2(-1) did not raise NUMERIC_ERROR");
       okay := FALSE;
     exception
       catch NUMERIC_ERROR:

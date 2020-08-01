@@ -29,10 +29,17 @@
 /*                                                                  */
 /********************************************************************/
 
+#ifndef HAS_LONGTYPE_64
+#define bigULConv(x) 0
+#define bigLOrd(x) 0
+#endif
+
+
 #ifdef ANSI_C
 
 biginttype bigAbs (biginttype);
 biginttype bigAdd (biginttype, biginttype);
+inttype bigBitLength (biginttype);
 stritype bigCLit (biginttype);
 inttype bigCmp (biginttype, biginttype);
 void bigCpy (biginttype *, biginttype);
@@ -49,6 +56,7 @@ biginttype bigIPow (biginttype, inttype);
 #ifdef HAS_LONGTYPE_64
   biginttype bigLConv (longtype);
 #endif
+biginttype bigLog2 (biginttype);
 #ifdef HAS_LONGTYPE_64
   longtype bigLOrd (biginttype);
 #endif
@@ -76,6 +84,7 @@ biginttype bigUIConv (uinttype);
 
 biginttype bigAbs ();
 biginttype bigAdd ();
+inttype bigBitLength ();
 stritype bigCLit ();
 inttype bigCmp ();
 void bigCpy ();
@@ -92,6 +101,7 @@ biginttype bigIPow ();
 #ifdef HAS_LONGTYPE_64
   biginttype bigLConv ();
 #endif
+biginttype bigLog2 ();
 #ifdef HAS_LONGTYPE_64
   longtype bigLOrd ();
 #endif

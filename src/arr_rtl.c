@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  arr_rtl.c     Primitive actions for the array type.             */
-/*  Copyright (C) 1989 - 2006  Thomas Mertes                        */
+/*  Copyright (C) 1989 - 2007  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */
@@ -26,6 +26,15 @@
 /*  File: seed7/src/arr_rtl.c                                       */
 /*  Changes: 1991, 1992, 1993, 1994, 2005, 2006  Thomas Mertes      */
 /*  Content: Primitive actions for the array type.                  */
+/*                                                                  */
+/*  The functions from this file should only be used in compiled    */
+/*  Seed7 programs. The interpreter should not use functions of     */
+/*  this file.                                                      */
+/*                                                                  */
+/*  The functions in this file use type declarations from the       */
+/*  include file data_rtl.h instead of data.h. Therefore the types  */
+/*  rtlArraytype and rtlObjecttype are declared different than the  */
+/*  types arraytype and objecttype in the interpreter.              */
 /*                                                                  */
 /********************************************************************/
 

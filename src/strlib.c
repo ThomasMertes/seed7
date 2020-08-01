@@ -188,10 +188,7 @@ chartype delimiter;
     arraytype result_array;
 
   /* strChSplit */
-    if (!ALLOC_ARRAY(result_array, 256)) {
-      raise_error(MEMORY_ERROR);
-      return(NULL);
-    } else {
+    if (ALLOC_ARRAY(result_array, 256)) {
       COUNT_ARRAY(256);
       result_array->min_position = 1;
       result_array->max_position = 256;
@@ -225,8 +222,11 @@ chartype delimiter;
           } /* if */
         } /* if */
       } /* if */
-      return(result_array);
     } /* if */
+    if (result_array == NULL) {
+      raise_error(MEMORY_ERROR);
+    } /* if */
+    return(result_array);
   } /* strChSplit */
 
 
@@ -254,10 +254,7 @@ stritype delimiter;
     arraytype result_array;
 
   /* strSplit */
-    if (!ALLOC_ARRAY(result_array, 256)) {
-      raise_error(MEMORY_ERROR);
-      return(NULL);
-    } else {
+    if (ALLOC_ARRAY(result_array, 256)) {
       COUNT_ARRAY(256);
       result_array->min_position = 1;
       result_array->max_position = 256;
@@ -267,7 +264,7 @@ stritype delimiter;
       ch_1 = delimiter_mem[0];
       search_start = main_stri->mem;
       segment_start = search_start;
-      if (main_stri->size >= delimiter_size) {
+      if (delimiter_size != 0 && main_stri->size >= delimiter_size) {
         search_end = &main_stri->mem[main_stri->size - delimiter_size + 1];
         while ((found_pos = (strelemtype *) search_strelem(search_start,
             ch_1, (SIZE_TYPE) (search_end - search_start))) != NULL &&
@@ -303,8 +300,11 @@ stritype delimiter;
           } /* if */
         } /* if */
       } /* if */
-      return(result_array);
     } /* if */
+    if (result_array == NULL) {
+      raise_error(MEMORY_ERROR);
+    } /* if */
+    return(result_array);
   } /* strSplit */
 
 

@@ -29,6 +29,7 @@
 
 objecttype big_abs (listtype);
 objecttype big_add (listtype);
+objecttype big_bit_length (listtype);
 objecttype big_clit (listtype);
 objecttype big_cmp (listtype);
 objecttype big_cpy (listtype);
@@ -45,6 +46,7 @@ objecttype big_iconv (listtype);
 objecttype big_incr (listtype);
 objecttype big_ipow (listtype);
 objecttype big_le (listtype);
+objecttype big_log2 (listtype);
 objecttype big_lt (listtype);
 objecttype big_mcpy (listtype);
 objecttype big_mdiv (listtype);
@@ -69,6 +71,7 @@ objecttype big_value (listtype);
 
 objecttype big_abs ();
 objecttype big_add ();
+objecttype big_bit_length ();
 objecttype big_clit ();
 objecttype big_cmp ();
 objecttype big_cpy ();
@@ -85,6 +88,7 @@ objecttype big_iconv ();
 objecttype big_incr ();
 objecttype big_ipow ();
 objecttype big_le ();
+objecttype big_log2 ();
 objecttype big_lt ();
 objecttype big_mcpy ();
 objecttype big_mdiv ();

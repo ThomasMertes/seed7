@@ -879,8 +879,8 @@ const proc: check_max is func
 const proc: main is func
 
   begin
-(*
     writeln;
+(*
     writeln(min(EMPTY_SET));
 *)
     check_card;

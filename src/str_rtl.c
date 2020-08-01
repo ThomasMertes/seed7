@@ -238,10 +238,7 @@ chartype delimiter;
     rtlArraytype result_array;
 
   /* strChSplit */
-    if (!ALLOC_RTL_ARRAY(result_array, 256)) {
-      raise_error(MEMORY_ERROR);
-      return(NULL);
-    } else {
+    if (ALLOC_RTL_ARRAY(result_array, 256)) {
       COUNT_RTL_ARRAY(256);
       result_array->min_position = 1;
       result_array->max_position = 256;
@@ -275,8 +272,11 @@ chartype delimiter;
           } /* if */
         } /* if */
       } /* if */
-      return(result_array);
     } /* if */
+    if (result_array == NULL) {
+      raise_error(MEMORY_ERROR);
+    } /* if */
+    return(result_array);
   } /* strChSplit */
 
 
@@ -742,14 +742,15 @@ stritype stri;
     result->mem[0] = (strelemtype) '"';
     pos = 1;
     for (position = 0; position < length; position++) {
-      character = (int) stri->mem[position];
+      character = (strelemtype) stri->mem[position];
       if (character < ' ') {
         len = strlen(stri_escape_sequence[character]);
         stri_expand(&result->mem[pos],
             stri_escape_sequence[character], len);
         pos = pos + len;
-      } else if (character >= '\177' && character < '\237') {
-        sprintf(buffer, "\\%d\\", (int) character);
+      } else if ((character >= 128 && character < 159) ||
+          character >= 255) {
+        sprintf(buffer, "\\%lu\\", character);
         len = strlen(buffer);
         stri_expand(&result->mem[pos], buffer, len);
         pos = pos + len;
@@ -1346,6 +1347,84 @@ stritype delimiter;
     } /* if */
   } /* strSplit */
 #endif
+
+
+
+#ifdef ANSI_C
+
+rtlArraytype strSplit (stritype main_stri, stritype delimiter)
+#else
+
+rtlArraytype strSplit (main_stri, delimiter)
+stritype main_stri;
+stritype delimiter;
+#endif
+
+  {
+    memsizetype delimiter_size;
+    strelemtype *delimiter_mem;
+    strelemtype ch_1;
+    memsizetype used_max_position;
+    strelemtype *search_start;
+    strelemtype *segment_start;
+    strelemtype *search_end;
+    strelemtype *found_pos;
+    memsizetype pos;
+    rtlArraytype result_array;
+
+  /* strSplit */
+    if (ALLOC_RTL_ARRAY(result_array, 256)) {
+      COUNT_RTL_ARRAY(256);
+      result_array->min_position = 1;
+      result_array->max_position = 256;
+      used_max_position = 0;
+      delimiter_size = delimiter->size;
+      delimiter_mem = delimiter->mem;
+      ch_1 = delimiter_mem[0];
+      search_start = main_stri->mem;
+      segment_start = search_start;
+      if (delimiter_size != 0 && main_stri->size >= delimiter_size) {
+        search_end = &main_stri->mem[main_stri->size - delimiter_size + 1];
+        while ((found_pos = (strelemtype *) search_strelem(search_start,
+            ch_1, (SIZE_TYPE) (search_end - search_start))) != NULL &&
+            result_array != NULL) {
+          if (memcmp(found_pos, delimiter_mem,
+              (SIZE_TYPE) delimiter_size * sizeof(strelemtype)) == 0) {
+            result_array = add_stri_to_array(segment_start,
+                (memsizetype) (found_pos - segment_start), result_array,
+                &used_max_position);
+            search_start = found_pos + delimiter_size;
+            segment_start = search_start;
+          } else {
+            search_start = found_pos + 1;
+          } /* if */
+        } /* while */
+      } /* if */
+      if (result_array != NULL) {
+        result_array = add_stri_to_array(segment_start,
+            (memsizetype) (&main_stri->mem[main_stri->size] - segment_start), result_array,
+            &used_max_position);
+        if (result_array != NULL) {
+          if (!RESIZE_RTL_ARRAY(result_array, result_array->max_position,
+              used_max_position)) {
+            for (pos = 0; pos < used_max_position; pos++) {
+              FREE_STRI(result_array->arr[pos].value.strivalue,
+                  result_array->arr[pos].value.strivalue->size);
+            } /* for */
+            FREE_RTL_ARRAY(result_array, result_array->max_position);
+            result_array = NULL;
+          } else {
+            COUNT3_RTL_ARRAY(result_array->max_position, used_max_position);
+            result_array->max_position = used_max_position;
+          } /* if */
+        } /* if */
+      } /* if */
+    } /* if */
+    if (result_array == NULL) {
+      raise_error(MEMORY_ERROR);
+    } /* if */
+    return(result_array);
+  } /* strSplit */
 
 
 

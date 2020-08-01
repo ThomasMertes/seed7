@@ -61,12 +61,14 @@ const func integer: hashCode (in bigInteger param) is                      actio
 const func bigInteger: succ (in bigInteger param) is                       action "BIG_SUCC";
 const func bigInteger: pred (in bigInteger param) is                       action "BIG_PRED";
 const func bigInteger: abs (in bigInteger param) is                        action "BIG_ABS";
+const func bigInteger: log2 (in bigInteger param) is                       action "BIG_LOG2";
 const func boolean: odd (in bigInteger param) is                           action "BIG_ODD";
 const func integer: ord (in bigInteger param) is                           action "BIG_ORD";
 const func bigInteger: (attr bigInteger) conv (in integer param) is        action "BIG_ICONV";
 const func string: str (ref bigInteger param) is                           action "BIG_STR";
 const func string: c_literal (in bigInteger param) is                      action "BIG_CLIT";
 const func bigInteger: rand (in bigInteger param, in bigInteger param) is  action "BIG_RAND";
+const func integer: bitLength (in bigInteger param) is                     action "BIG_BIT_LENGTH";
 const func bigInteger: (attr bigInteger) parse (in string param) is        action "BIG_PARSE";
 
 const bigInteger: (attr bigInteger) . value is bigInteger parse "0";

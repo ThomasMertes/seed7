@@ -1,6 +1,6 @@
 /********************************************************************/
 /*                                                                  */
-/*  dir_dos.c     Directory access using the dos capabilitys.       */
+/*  dir_win.c     Directory access using the windows capabilitys.   */
 /*  Copyright (C) 1989 - 2007  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
@@ -23,9 +23,9 @@
 /*  Boston, MA 02111-1307 USA                                       */
 /*                                                                  */
 /*  Module: Seed7 Runtime Library                                   */
-/*  File: seed7/src/dir_dos.c                                       */
-/*  Changes: 1993, 1994  Thomas Mertes                              */
-/*  Content: Directory access using DOS findfirst and findnext.     */
+/*  File: seed7/src/dir_win.c                                       */
+/*  Changes: 1993, 1994, 2007  Thomas Mertes                        */
+/*  Content: Directory access using _findfirst and _findnext.       */
 /*                                                                  */
 /*  Implements opendir, readdir and closedir in the way it is       */
 /*  defined in unix.                                                */
@@ -42,7 +42,7 @@
 
 #undef EXTERN
 #define EXTERN
-#include "dir_dos.h"
+#include "dir_win.h"
 
 
 
@@ -73,8 +73,8 @@ char *name;
         } /* if */
         strcat(dir_name, "*.*");
       } /* if */
-      if ( _dos_findfirst(dir_name, _A_ARCH | _A_SUBDIR,
-          &result->find_record) == 0) {
+      result->dir_handle = _findfirst(dir_name, &result->find_record);
+      if (result->dir_handle != -1) {
 /*      printf("==> OK\n");
         printf(">%s<\n", result->find_record.name); */
         result->first_element = TRUE;
@@ -110,7 +110,7 @@ DIR *curr_dir;
       strcpy(result->d_name, curr_dir->find_record.name);
 /*    printf(">%s<\n", result->d_name); */
     } else {
-      if ( _dos_findnext(&curr_dir->find_record) == 0) {
+      if (_findnext(curr_dir->dir_handle, &curr_dir->find_record) == 0) {
         strcpy(result->d_name, curr_dir->find_record.name);
 /*      printf(">%s<\n", result->d_name); */
       } else {
