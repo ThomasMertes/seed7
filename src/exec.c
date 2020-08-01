@@ -880,6 +880,9 @@ objectType exec_call (objectType object)
         printf("\n"); */
         result = evaluate(subroutine_object);
         break;
+      case FORWARDOBJECT:
+        result = raise_with_arguments(SYS_ACT_ILLEGAL_EXCEPTION, actual_parameters);
+        break;
       default:
         printf("category_of_obj: ");
         trace1(object);

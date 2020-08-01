@@ -1688,6 +1688,8 @@ const proc: process_call (in reference: current_expression, inout expr_type: c_e
     elsif functionCategory = REFLISTOBJECT then
       c_expr.expr &:= "o_";
       create_name(function, c_expr.expr);
+    elsif functionCategory = FORWARDOBJECT then
+      error(FORWARD_CALLED, current_expression, function);
     else
       c_expr.expr &:= "/*[ ";
       c_expr.expr &:= str(functionCategory);

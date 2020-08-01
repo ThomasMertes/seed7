@@ -30,6 +30,7 @@ include "osfiles.s7i";
 include "chartype.s7i";
 include "scanfile.s7i";
 include "scanstri.s7i";
+include "cli_cmds.s7i";
 
 
 const set of char: target_name_char is {'!' .. '~'} - {':', '='};
@@ -43,12 +44,14 @@ const type: ruleType is new struct
   end struct;
 
 const type: ruleHash is hash [string] ruleType;
+const type: ruleArray is array ruleType;
+const type: ruleArrayHash is hash [string] ruleArray;
 const type: stringHash is hash [string] string;
 
 const type: makeDataType is new struct
     var file: makefile is STD_NULL;
     var ruleHash: rules is ruleHash.value;
-    var ruleHash: patternRules is ruleHash.value;
+    var ruleArrayHash: patternRules is ruleArrayHash.value;
     var stringHash: macros is stringHash.value;
     var string: nameOfFirstRule is "";
     var boolean: executeCommands is TRUE;
@@ -57,66 +60,31 @@ const type: makeDataType is new struct
   end struct;
 
 
-const func boolean: wildcardMatch (in string: main_stri, in string: pattern) is func
+const func boolean: patternMatches (in string: stri, in string: pattern) is func
   result
     var boolean: doesMatch is FALSE;
   local
-    var integer: main_length is 0;
-    var integer: main_index is 1;
-    var string: pattern_tail is "";
+    var integer: patternPercentPos is 0;
   begin
-    if pattern = "" then
-      doesMatch := main_stri = "";
+    # writeln("patternMatches(" <& stri <& ", " <& pattern <& ")");
+    patternPercentPos := pos(pattern, '%');
+    if patternPercentPos <> 0 then
+      doesMatch := startsWith(stri, pattern[.. pred(patternPercentPos)]) and
+                   endsWith(stri, pattern[succ(patternPercentPos) ..]);
     else
-      case pattern[1] of
-        when {'*'}:
-          if pattern = "*" then
-            doesMatch := TRUE;
-          else
-            main_length := length(main_stri);
-            pattern_tail := pattern[2 .. ];
-            while main_index <= main_length and not doesMatch do
-              doesMatch := wildcardMatch(main_stri[main_index .. ], pattern_tail);
-              incr(main_index);
-            end while;
-          end if;
-        when {'?'}:
-          if main_stri <> "" then
-            doesMatch := wildcardMatch(main_stri[2 .. ], pattern[2 .. ]);
-          end if;
-        otherwise:
-          if main_stri <> "" and main_stri[1] = pattern[1] then
-            doesMatch := wildcardMatch(main_stri[2 .. ], pattern[2 .. ]);
-          end if;
-      end case;
+      doesMatch := stri = pattern;
     end if;
   end func;
 
 
-const func array string: findMatchingFiles (in string: pattern) is func
+const func boolean: patternMatches (in string: stri, in array string: patternList) is func
   result
-    var array string: matchingFiles is 0 times "";
+    var boolean: doesMatch is FALSE;
   local
-    var integer: slashPos is 0;
-    var string: path is "";
-    var array string: dirContent is 0 times "";
-    var string: filePattern is "";
-    var string: fileName is "";
+    var string: pattern is "";
   begin
-    slashPos := rpos(pattern, '/');
-    if slashPos <> 0 then
-      path := pattern[.. pred(slashPos)];
-      filePattern := pattern[succ(slashPos) ..];
-      dirContent := readDir(path);
-      path &:= "/";
-    else
-      filePattern := pattern;
-      dirContent := readDir(".");
-    end if;
-    for fileName range dirContent do
-      if wildcardMatch(fileName, filePattern) then
-        matchingFiles &:= [] (path & fileName);
-      end if;
+    for pattern range patternList until doesMatch do
+      doesMatch := patternMatches(stri, pattern);
     end for;
   end func;
 
@@ -265,9 +233,11 @@ const func string: subst (in stringHash: macros, in string: parameters,
   begin
     # writeln("subst: " <& literal(parameters));
     from := getMacroParameter(parameters, pos, ',');
+    from := applyMacros(macros, from, leaveUndefMacros);
     if pos <= length(parameters) then
       incr(pos);
       replacement := getMacroParameter(parameters, pos, ',');
+      replacement := applyMacros(macros, replacement, leaveUndefMacros);
       if pos <= length(parameters) then
         incr(pos);
         evaluatedParam := applyMacros(macros, parameters[pos ..], leaveUndefMacros);
@@ -289,15 +259,402 @@ const func string: patsubst (in stringHash: macros, in string: parameters,
   begin
     # writeln("patsubst: " <& literal(parameters));
     pattern := getMacroParameter(parameters, pos, ',');
+    pattern := applyMacros(macros, pattern, leaveUndefMacros);
     if pos <= length(parameters) then
       incr(pos);
       replacement := getMacroParameter(parameters, pos, ',');
+      replacement := applyMacros(macros, replacement, leaveUndefMacros);
       if pos <= length(parameters) then
         incr(pos);
         evaluatedParam := applyMacros(macros, parameters[pos ..], leaveUndefMacros);
         funcResult := patternSubstitute(evaluatedParam, pattern, replacement);
       end if;
     end if;
+  end func;
+
+
+const func string: dir (in stringHash: macros, in string: parameters,
+    in boolean: leaveUndefMacros) is func
+  result
+    var string: funcResult is "";
+  local
+    var string: names is "";
+    var string: name is "";
+    var integer: slashOrbackslashPos is 0;
+    var integer: periodPos is 0;
+  begin
+    # writeln("dir: " <& literal(parameters));
+    names := applyMacros(macros, parameters, leaveUndefMacros);
+    repeat
+      skipWhiteSpace(names);
+      name := getWord(names);
+      if name <> "" then
+        if funcResult <> "" then
+          funcResult &:= " ";
+        end if;
+        slashOrbackslashPos := max(rpos(name, '/'), rpos(name, '\\'));
+        if slashOrbackslashPos <> 0 then
+          funcResult &:= name[.. slashOrbackslashPos];
+        else
+          funcResult &:= "./";
+        end if;
+      end if;
+    until name = "";
+    # writeln("dir -> " <& funcResult);
+  end func;
+
+
+const func string: notdir (in stringHash: macros, in string: parameters,
+    in boolean: leaveUndefMacros) is func
+  result
+    var string: funcResult is "";
+  local
+    var string: names is "";
+    var string: name is "";
+    var integer: slashOrbackslashPos is 0;
+    var integer: periodPos is 0;
+  begin
+    # writeln("notdir: " <& literal(parameters));
+    names := applyMacros(macros, parameters, leaveUndefMacros);
+    repeat
+      skipWhiteSpace(names);
+      name := getWord(names);
+      if name <> "" then
+        if funcResult <> "" then
+          funcResult &:= " ";
+        end if;
+        slashOrbackslashPos := max(rpos(name, '/'), rpos(name, '\\'));
+        if slashOrbackslashPos <> 0 then
+          funcResult &:= name[succ(slashOrbackslashPos) ..];
+        else
+          funcResult &:= name;
+        end if;
+      end if;
+    until name = "";
+    # writeln("notdir -> " <& funcResult);
+  end func;
+
+
+const func string: suffix (in stringHash: macros, in string: parameters,
+    in boolean: leaveUndefMacros) is func
+  result
+    var string: funcResult is "";
+  local
+    var string: names is "";
+    var string: name is "";
+    var integer: slashOrbackslashPos is 0;
+    var integer: periodPos is 0;
+  begin
+    # writeln("suffix: " <& literal(parameters));
+    names := applyMacros(macros, parameters, leaveUndefMacros);
+    repeat
+      skipWhiteSpace(names);
+      name := getWord(names);
+      if name <> "" then
+        periodPos := rpos(name, '.');
+        if periodPos <> 0 then
+          slashOrbackslashPos := max(rpos(name, '/'), rpos(name, '\\'));
+          if slashOrbackslashPos < periodPos then
+            if funcResult <> "" then
+              funcResult &:= " ";
+            end if;
+            funcResult &:= name[periodPos ..];
+          end if;
+        end if;
+      end if;
+    until name = "";
+    # writeln("suffix -> " <& funcResult);
+  end func;
+
+
+const func string: basename (in stringHash: macros, in string: parameters,
+    in boolean: leaveUndefMacros) is func
+  result
+    var string: funcResult is "";
+  local
+    var string: names is "";
+    var string: name is "";
+    var integer: slashOrbackslashPos is 0;
+    var integer: periodPos is 0;
+  begin
+    # writeln("basename: " <& literal(parameters));
+    names := applyMacros(macros, parameters, leaveUndefMacros);
+    repeat
+      skipWhiteSpace(names);
+      name := getWord(names);
+      if name <> "" then
+        if funcResult <> "" then
+          funcResult &:= " ";
+        end if;
+        periodPos := rpos(name, '.');
+        if periodPos = 0 then
+          funcResult &:= name;
+        else
+          slashOrbackslashPos := max(rpos(name, '/'), rpos(name, '\\'));
+          if slashOrbackslashPos < periodPos then
+            funcResult &:= name[.. pred(periodPos)];
+          else
+            funcResult &:= name;
+          end if;
+        end if;
+      end if;
+    until name = "";
+    # writeln("basename -> " <& funcResult);
+  end func;
+
+
+const func string: addprefix (in stringHash: macros, in string: parameters,
+    in boolean: leaveUndefMacros) is func
+  result
+    var string: funcResult is "";
+  local
+    var integer: pos is 1;
+    var string: prefix is "";
+    var string: names is "";
+    var string: name is "";
+  begin
+    # writeln("addprefix: " <& literal(parameters));
+    prefix := getMacroParameter(parameters, pos, ',');
+    prefix := applyMacros(macros, prefix, leaveUndefMacros);
+    if pos <= length(parameters) then
+      incr(pos);
+      names := applyMacros(macros, parameters[pos ..], leaveUndefMacros);
+      repeat
+        skipWhiteSpace(names);
+        name := getWord(names);
+        if name <> "" then
+          if funcResult <> "" then
+            funcResult &:= " ";
+          end if;
+          funcResult &:= prefix;
+          funcResult &:= name;
+        end if;
+      until name = "";
+    end if;
+    # writeln("addprefix -> " <& funcResult);
+  end func;
+
+
+const func string: addsuffix (in stringHash: macros, in string: parameters,
+    in boolean: leaveUndefMacros) is func
+  result
+    var string: funcResult is "";
+  local
+    var integer: pos is 1;
+    var string: suffix is "";
+    var string: names is "";
+    var string: name is "";
+  begin
+    # writeln("addsuffix: " <& literal(parameters));
+    suffix := getMacroParameter(parameters, pos, ',');
+    suffix := applyMacros(macros, suffix, leaveUndefMacros);
+    if pos <= length(parameters) then
+      incr(pos);
+      names := applyMacros(macros, parameters[pos ..], leaveUndefMacros);
+      repeat
+        skipWhiteSpace(names);
+        name := getWord(names);
+        if name <> "" then
+          if funcResult <> "" then
+            funcResult &:= " ";
+          end if;
+          funcResult &:= name;
+          funcResult &:= suffix;
+        end if;
+      until name = "";
+    end if;
+    # writeln("addsuffix -> " <& funcResult);
+  end func;
+
+
+const func string: filter (in stringHash: macros, in string: parameters,
+    in boolean: leaveUndefMacros) is func
+  result
+    var string: funcResult is "";
+  local
+    var integer: pos is 1;
+    var string: patterns is "";
+    var string: pattern is "";
+    var string: names is "";
+    var string: name is "";
+	var array string: patternList is 0 times "";
+  begin
+    # writeln("filter: " <& literal(parameters));
+    patterns := getMacroParameter(parameters, pos, ',');
+    patterns := applyMacros(macros, patterns, leaveUndefMacros);
+    if pos <= length(parameters) then
+      incr(pos);
+      names := applyMacros(macros, parameters[pos ..], leaveUndefMacros);
+      repeat
+        skipWhiteSpace(patterns);
+        pattern := getWord(patterns);
+        patternList &:= pattern;
+      until pattern = "";
+      repeat
+        skipWhiteSpace(names);
+        name := getWord(names);
+        if name <> "" and patternMatches(name, patternList) then
+          if funcResult <> "" then
+            funcResult &:= " ";
+          end if;
+          funcResult &:= name;
+        end if;
+      until name = "";
+    end if;
+    # writeln("filter -> " <& funcResult);
+  end func;
+
+
+const func string: filterOut (in stringHash: macros, in string: parameters,
+    in boolean: leaveUndefMacros) is func
+  result
+    var string: funcResult is "";
+  local
+    var integer: pos is 1;
+    var string: patterns is "";
+    var string: pattern is "";
+    var string: names is "";
+    var string: name is "";
+	var array string: patternList is 0 times "";
+  begin
+    # writeln("filterOut: " <& literal(parameters));
+    patterns := getMacroParameter(parameters, pos, ',');
+    patterns := applyMacros(macros, patterns, leaveUndefMacros);
+    if pos <= length(parameters) then
+      incr(pos);
+      names := applyMacros(macros, parameters[pos ..], leaveUndefMacros);
+      repeat
+        skipWhiteSpace(patterns);
+        pattern := getWord(patterns);
+        patternList &:= pattern;
+      until pattern = "";
+      repeat
+        skipWhiteSpace(names);
+        name := getWord(names);
+        if name <> "" and not patternMatches(name, patternList) then
+          if funcResult <> "" then
+            funcResult &:= " ";
+          end if;
+          funcResult &:= name;
+        end if;
+      until name = "";
+    end if;
+    # writeln("filterOut -> " <& funcResult);
+  end func;
+
+
+const func string: foreach (in var stringHash: macros, in string: parameters,
+    in boolean: leaveUndefMacros) is func
+  result
+    var string: funcResult is "";
+  local
+    var integer: pos is 1;
+    var string: variable is "";
+    var string: wordList is "";
+    var string: bodyText is "";
+    var string: symbol is "";
+    var string: evaluatedBody is "";
+  begin
+    # writeln("foreach: " <& literal(parameters));
+    variable := getMacroParameter(parameters, pos, ',');
+    variable := applyMacros(macros, variable, leaveUndefMacros);
+    if pos <= length(parameters) then
+      incr(pos);
+      wordList := getMacroParameter(parameters, pos, ',');
+      wordList := applyMacros(macros, wordList, leaveUndefMacros);
+      if pos <= length(parameters) then
+        incr(pos);
+        bodyText := parameters[pos ..];
+        repeat
+          skipWhiteSpace(wordList);
+          symbol := getWord(wordList);
+          if symbol <> "" then
+            if funcResult <> "" then
+              funcResult &:= " ";
+            end if;
+            macros @:= [variable] symbol;
+            evaluatedBody := applyMacros(macros, bodyText, leaveUndefMacros);
+            funcResult &:= evaluatedBody;
+          end if;
+        until symbol = "";
+      end if;
+    end if;
+    # writeln("foreach -> " <& funcResult);
+  end func;
+
+
+const func string: call (in var stringHash: macros, in string: parameters,
+    in boolean: leaveUndefMacros) is func
+  result
+    var string: funcResult is "";
+  local
+    var integer: pos is 1;
+    var string: variable is "";
+    var string: variableValue is "";
+    var integer: paramNumber is 1;
+    var string: paramValue is "";
+  begin
+    # writeln("call: " <& literal(parameters));
+    variable := getMacroParameter(parameters, pos, ',');
+    if variable in macros then
+      variableValue := macros[variable];
+      while pos <= length(parameters) do
+        incr(pos);
+        paramValue := getMacroParameter(parameters, pos, ',');
+        # writeln("param " <& paramNumber <& " = " <& paramValue);
+        macros @:= [str(paramNumber)] paramValue;
+        incr(paramNumber);
+      end while;
+      funcResult := applyMacros(macros, variableValue, leaveUndefMacros);
+    end if;
+    # writeln("call -> " <& funcResult);
+  end func;
+
+
+const func string: sort (in stringHash: macros, in string: parameters,
+    in boolean: leaveUndefMacros) is func
+  result
+    var string: funcResult is "";
+  local
+    var string: wordList is "";
+    var string: name is "";
+    var string: lastName is "";
+    var array string: wordArray is 0 times "";
+  begin
+    # writeln("sort: " <& literal(parameters));
+    wordList := applyMacros(macros, parameters, leaveUndefMacros);
+    repeat
+      skipWhiteSpace(wordList);
+      name := getWord(wordList);
+      if name <> "" then
+        wordArray &:= name;
+      end if;
+    until name = "";
+    wordArray := sort(wordArray);
+    for name range wordArray do
+      if name <> lastName then
+        if funcResult <> "" then
+          funcResult &:= " ";
+        end if;
+        funcResult &:= name;
+      end if;
+      lastName := name;
+    end for;
+    # writeln("sort -> " <& funcResult);
+  end func;
+
+
+const func string: shell (in stringHash: macros, in string: parameters,
+    in boolean: leaveUndefMacros) is func
+  result
+    var string: funcResult is "";
+  local
+    var string: evaluatedParam is "";
+  begin
+    # writeln("shell: " <& literal(parameters));
+    evaluatedParam := applyMacros(macros, parameters, leaveUndefMacros);
+    funcResult := execCommand(evaluatedParam);
+    # writeln("shell -> " <& funcResult);
   end func;
 
 
@@ -309,11 +666,13 @@ const func string: wildcard (in stringHash: macros, in string: parameters,
     var string: evaluatedParam is "";
     var array string: matches is 0 times "";
   begin
+    # writeln("wildcard: " <& literal(parameters));
     evaluatedParam := applyMacros(macros, parameters, leaveUndefMacros);
     matches := findMatchingFiles(evaluatedParam);
     if length(matches) <> 0 then
       funcResult := join(matches, ' ');
     end if;
+    # writeln("wildcard -> " <& funcResult);
   end func;
 
 
@@ -368,6 +727,42 @@ const func string: applyMacros (in stringHash: macros, in string: stri,
             elsif name = "patsubst" then
               macroValue := patsubst(macros, parameter, leaveUndefMacros);
               done := TRUE;
+            elsif name = "dir" then
+              macroValue := dir(macros, parameter, leaveUndefMacros);
+              done := TRUE;
+            elsif name = "notdir" then
+              macroValue := notdir(macros, parameter, leaveUndefMacros);
+              done := TRUE;
+            elsif name = "suffix" then
+              macroValue := suffix(macros, parameter, leaveUndefMacros);
+              done := TRUE;
+            elsif name = "basename" then
+              macroValue := basename(macros, parameter, leaveUndefMacros);
+              done := TRUE;
+            elsif name = "addprefix" then
+              macroValue := addprefix(macros, parameter, leaveUndefMacros);
+              done := TRUE;
+            elsif name = "addsuffix" then
+              macroValue := addsuffix(macros, parameter, leaveUndefMacros);
+              done := TRUE;
+            elsif name = "filter" then
+              macroValue := filter(macros, parameter, leaveUndefMacros);
+              done := TRUE;
+            elsif name = "filter-out" then
+              macroValue := filterOut(macros, parameter, leaveUndefMacros);
+              done := TRUE;
+            elsif name = "foreach" then
+              macroValue := foreach(macros, parameter, leaveUndefMacros);
+              done := TRUE;
+            elsif name = "call" then
+              macroValue := call(macros, parameter, leaveUndefMacros);
+              done := TRUE;
+            elsif name = "sort" then
+              macroValue := sort(macros, parameter, leaveUndefMacros);
+              done := TRUE;
+            elsif name = "shell" then
+              macroValue := shell(macros, parameter, leaveUndefMacros);
+              done := TRUE;
             elsif name = "wildcard" then
               macroValue := wildcard(macros, parameter, leaveUndefMacros);
               done := TRUE;
@@ -378,6 +773,8 @@ const func string: applyMacros (in stringHash: macros, in string: stri,
               writeln(applyMacros(macros, parameter, FALSE));
               macroValue := "";
               done := TRUE;
+            else
+              writeln(" *** Unknown function " <& literal(name) <& ", ignored.");
             end if;
           end if;
           if done then
@@ -694,8 +1091,10 @@ const proc: readRule (inout makeDataType: makeData, in string: name) is func
       makeData.nameOfFirstRule := name;
     end if;
     if pos(name, '%') <> 0 then
-      if name not in makeData.patternRules then
-        makeData.patternRules @:= [name] rule;
+      if name in makeData.patternRules then
+        makeData.patternRules[name] &:= rule;
+      else
+        makeData.patternRules @:= [name] [] (rule);
       end if;
     elsif name in makeData.rules then
       if length(rule.commands) = 0 then
@@ -704,7 +1103,7 @@ const proc: readRule (inout makeDataType: makeData, in string: name) is func
         makeData.rules[name].dependencies &:= rule.dependencies;
         makeData.rules[name].commands := rule.commands;
       else
-        writeln(" *** Rule " <& name <& " redefined");
+        writeln(" *** Rule " <& name <& " redefined.");
       end if;
     else
       makeData.rules @:= [name] rule;
@@ -752,6 +1151,11 @@ const proc: readMakefile (inout makeDataType: makeData) is func
         name := getTargetName(makefile);
         # writeln(name);
         skipSpaceOrTab(makefile);
+        if name = "override" and makefile.bufferChar in target_name_char then
+          name := getTargetName(makefile);
+          # writeln("override " <& name);
+          skipSpaceOrTab(makefile);
+        end if;
         if makefile.bufferChar = '=' then
           makefile.bufferChar := getc(makefile);
           skipSpace(makefile);
@@ -789,8 +1193,8 @@ const proc: readMakefile (inout makeDataType: makeData) is func
             makefile.bufferChar := getc(makefile);
             skipSpace(makefile);
             data := applyMacros(makeData.macros, getLine(makeData), TRUE);
-            if name in makeData.macros then
-              makeData.macros @:= [name] makeData.macros[name] & data;
+            if name in makeData.macros and makeData.macros[name] <> "" then
+              makeData.macros @:= [name] makeData.macros[name] & " " & data;
             else
               makeData.macros @:= [name] data;
             end if;
@@ -830,12 +1234,13 @@ const proc: readMakefile (inout makeDataType: makeData) is func
             makefile.bufferChar := getc(makefile);
             readRule(makeData, name);
           else
-            writeln(" *** Illegal character " <& literal(makefile.bufferChar) <& ", ignored");
+            writeln(" *** Illegal character " <& literal(makefile.bufferChar) <&
+                    " after target or variable named " <& literal(name) <& ", ignored.");
             makefile.bufferChar := getc(makefile);
           end if;
         end if;
       elsif makefile.bufferChar <> EOF then
-        writeln(" *** Illegal character " <& literal(makefile.bufferChar) <& ", ignored");
+        writeln(" *** Illegal character " <& literal(makefile.bufferChar) <& ", ignored.");
         makefile.bufferChar := getc(makefile);
       end if;
     end while;

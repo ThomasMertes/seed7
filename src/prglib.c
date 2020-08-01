@@ -175,7 +175,10 @@ objectType prg_eval (listType arguments)
                        take_reference(arg_2(arguments)),
                        &err_info);
     if (err_info != OKAY_NO_ERROR) {
-      return raise_exception(prog.sys_var[err_info]);
+      /* The global variable curr_argument_list does not contain */
+      /* the arguments of this function. Therefore the parameter */
+      /* arguments is used instead.                              */
+      return raise_with_arguments(prog.sys_var[err_info], arguments);
     } else {
       return bld_reference_temp(result);
     } /* if */

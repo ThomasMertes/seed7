@@ -64,13 +64,18 @@ Equivalent to \-ta
 Set verbosity level of analyse phase to n. Where n is between 0 and 3.
 .TP
 .B \-v
-Equivalent to \-t2
+Equivalent to \-v2
 .TP
 .B \-x
 Execute even when the program contains errors.
 .PD 1
 .SH TRACE LEVEL
 .PD 0
+The options
+.B \-d
+and
+.B \-t
+can set the trace level.
 The following trace levels are defined:
 .TP
 .I  a
@@ -87,6 +92,27 @@ Trace exceptions and handlers
 .TP
 .I  h
 Trace heap size (in combination with 'a')
+.PD 1
+.SH VERBOSITY LEVEL
+.PD 0
+The option
+.B \-v
+can set the verbosity level.
+The following verbosity levels are defined:
+.TP
+.I  0
+Compile quiet (equivalent to
+.B \-q
+)
+.TP
+.I  1
+Write just the header with version information (default)
+.TP
+.I  2
+Write a list of include libraries
+.TP
+.I  3
+Write line numbers, while analyzing
 .PD 1
 .SH FILES
 .PD 0

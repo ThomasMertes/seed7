@@ -1,21 +1,42 @@
+20141102:
+- The files to generate man pages for Seed7 interpreter and compiler
+  (files doc/s7.1 and doc/s7c.1) have been improved.
+- Functions have been moved from make.s7i and makedata.s7i to the new
+  library cli_cmds.s7i (Emulate CLI commands from UNIX and DOS).
+- Support for the commands mkdir and md has been added to
+  cli_cmds.s7i.
+- The library makedata.s7i has been improved to support the functions
+  dir, notdir, suffix, basename, addprefix, addsuffix, filter,
+  filter-out, foreach, call, sort and shell.
+- The libraries makedata.s7i and make.s7i have been improved to
+  support pattern rules with equal patterns.
+- The configuration program chkccomp.c has been improved to set the
+  POSTGRESQL_POSTGRES_H and POSTGRESQL_PG_TYPE_H in more situations.
+- The function exec_call in exec.c has been improved to raise the
+  exception ILLEGAL_ACTION, when it is called for a FORWARDOBJECT.
+- The compiler has been improved to issue an error, when a forward
+  defined function is called.
+- The function prg_eval in prglib.c has been improved to call
+  raise_with_arguments instead of raise_exception.
+- The function nameOfBufferType in sql_post.c has been improved to
+  use PGNODETREEOID, INT2ARRAYOID, OIDARRAYOID and FDW_HANDLEROID
+  only when they have been defined.
+
 20141019:
 - The compiler s7c has been improved to process the semicolon
-  operator with reduced stack usage. Thanks go to Pietro Cerutti
-  for pointing out problems with the available stack size under
-  FreeBSD.
-- In drw_x11.c the function redraw has been improved to ignore
-  expose events when backing store is active. Thanks go to Brian
-  Callahan for reporting problems with activated backing store
-  under OpenBSD.
+  operator with reduced stack usage. Thanks go to Pietro Cerutti for
+  pointing out problems with the available stack size under FreeBSD.
+- In drw_x11.c the function redraw has been improved to ignore expose
+  events when backing store is active. Thanks go to Brian Callahan
+  for reporting problems with activated backing store under OpenBSD.
 - The library makedata.s7i has been improved. Now conditional
   makefile parts with ifdef and ifndef are allowed. Now it is
   possible to use the ?= operator to assign a value to a variable.
-  Now the value of a variable is taken from the environment, when
-  it has not been defined in the makefile.
-- The function setupStack has been moved from cmd_rtl.c to
-  heaputl.c.
-- The self extracting Seed7 installer for windows has been
-  improved to allow downloading the latest Seed7 release.
+  Now the value of a variable is taken from the environment, when it
+  has not been defined in the makefile.
+- The function setupStack has been moved from cmd_rtl.c to heaputl.c.
+- The self extracting Seed7 installer for windows has been improved
+  to allow downloading the latest Seed7 release.
 - Tabs in various files have been replaced with spaces.
 
 20141005:
@@ -38,10 +59,10 @@
 - Access to MySql/MariaDb, SQLLite, PostgreSQL, Oracle and ODBC
   databases has been added.
 - The library sql_base.s7i has been added. This library provides
-  functions to connect to a database, to prepare statements, to
-  bind variables to prepared statements, to execute prepared
-  statements, to fetch data from the database and to get individual
-  columns from fetched data.
+  functions to connect to a database, to prepare statements, to bind
+  variables to prepared statements, to execute prepared statements,
+  to fetch data from the database and to get individual columns from
+  fetched data.
 - A paragraph about the compilation of Seed7 with database
   connections has been added to the FAQ.
 - The example program sql7.sd7 has been added. This program connects

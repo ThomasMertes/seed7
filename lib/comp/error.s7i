@@ -78,3 +78,13 @@ const proc: error (VARIABLE_WHEN, in reference: current_expression) is func
    writeln("*** " <& file(current_expression) <& "(" <& line(current_expression) <&
             "): When value must be constant.");
   end func;
+
+
+const proc: error (FORWARD_CALLED, in reference: current_expression,
+    in reference: function) is func
+  begin
+   writeln("*** " <& file(current_expression) <& "(" <& line(current_expression) <&
+            "): Forward defined function called.");
+   writeln("*** " <& file(function) <& "(" <& line(function) <&
+            "): Forward definition of the called function.");
+  end func;

@@ -407,7 +407,9 @@ static const char *nameOfBufferType (Oid buffer_type)
       case CIDOID:              typeName = "CIDOID"; break;
       case OIDVECTOROID:        typeName = "OIDVECTOROID"; break;
       case XMLOID:              typeName = "XMLOID"; break;
+#ifdef PGNODETREEOID
       case PGNODETREEOID:       typeName = "PGNODETREEOID"; break;
+#endif
       case POINTOID:            typeName = "POINTOID"; break;
       case LSEGOID:             typeName = "LSEGOID"; break;
       case PATHOID:             typeName = "PATHOID"; break;
@@ -425,10 +427,14 @@ static const char *nameOfBufferType (Oid buffer_type)
       case MACADDROID:          typeName = "MACADDROID"; break;
       case INETOID:             typeName = "INETOID"; break;
       case CIDROID:             typeName = "CIDROID"; break;
+#ifdef INT2ARRAYOID
       case INT2ARRAYOID:        typeName = "INT2ARRAYOID"; break;
+#endif
       case INT4ARRAYOID:        typeName = "INT4ARRAYOID"; break;
       case TEXTARRAYOID:        typeName = "TEXTARRAYOID"; break;
+#ifdef OIDARRAYOID
       case OIDARRAYOID:         typeName = "OIDARRAYOID"; break;
+#endif
       case FLOAT4ARRAYOID:      typeName = "FLOAT4ARRAYOID"; break;
       case ACLITEMOID:          typeName = "ACLITEMOID"; break;
       case CSTRINGARRAYOID:     typeName = "CSTRINGARRAYOID"; break;
@@ -468,7 +474,9 @@ static const char *nameOfBufferType (Oid buffer_type)
       case ANYELEMENTOID:       typeName = "ANYELEMENTOID"; break;
       case ANYNONARRAYOID:      typeName = "ANYNONARRAYOID"; break;
       case ANYENUMOID:          typeName = "ANYENUMOID"; break;
+#ifdef FDW_HANDLEROID
       case FDW_HANDLEROID:      typeName = "FDW_HANDLEROID"; break;
+#endif
       default:
         sprintf(buffer, "%d", buffer_type);
         typeName = buffer;

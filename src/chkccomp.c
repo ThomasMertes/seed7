@@ -1227,6 +1227,7 @@ void deteminePostgresDefines (FILE *versionFile,
     const char *dllNameList[] = {"libpq.dll"};
     const char *libNameList[] = {"libpq.lib"};
     const char *libIntlDllList[] = {"libintl.dll", "libintl-8.dll"};
+	const char *serverIncludeOption = "-I/usr/include/postgresql/server";
     const char *programFilesX86 = NULL;
     const char *programFiles = NULL;
     const char *dllName = NULL;
@@ -1255,8 +1256,17 @@ void deteminePostgresDefines (FILE *versionFile,
         fputs("#define POSTGRESQL_POSTGRES_H \"server/postgres.h\"\n", versionFile);
         fputs("#define POSTGRESQL_PG_TYPE_H \"server/catalog/pg_type.h\"\n", versionFile);
       } else {
-        fputs("#define POSTGRESQL_POSTGRES_H \"postgres.h\"\n", versionFile);
-        fputs("#define POSTGRESQL_PG_TYPE_H \"catalog/pg_type.h\"\n", versionFile);
+	    appendOption(includeOption, serverIncludeOption);
+	    if (compileAndLinkWithOptionsOk("#include <server/postgres.h>\n"
+                                        "int main(int argc,char *argv[]){return 0;}\n",
+                                        includeOption)) {
+          appendOption(include_options, serverIncludeOption);
+          fputs("#define POSTGRESQL_POSTGRES_H \"server/postgres.h\"\n", versionFile);
+          fputs("#define POSTGRESQL_PG_TYPE_H \"server/catalog/pg_type.h\"\n", versionFile);
+        } else {
+          fputs("#define POSTGRESQL_POSTGRES_H \"postgres.h\"\n", versionFile);
+          fputs("#define POSTGRESQL_PG_TYPE_H \"catalog/pg_type.h\"\n", versionFile);
+        } /* if */
       } /* if */
 #ifdef POSTGRESQL_DLL
       fprintf(versionFile, "#define POSTGRESQL_DLL \"%s\"\n", POSTGRESQL_DLL);

@@ -61,8 +61,11 @@ Optimize constants with level n. E.g.:
 .B \-oc3
 Where n is a digit between 0 and 3
 .TP
-.B \-r
-Suppress the generation of range checks for strings and arrays.
+.B \-sx
+Suppress checks specified with x. E.g.:
+.B \-sr
+or
+.B \-sro
 .TP
 .B \-te
 Generate code to trace exceptions. This option works in the same way
@@ -71,8 +74,11 @@ as the interpreter option
 : Every exception will write a message to stdout and the user will
 be asked to continue (with enter) or to terminate (with * ).
 .PD 1
-.SH CONSTANT OPTIMIZATION LEVEL
+.SH OPTIMIZATION LEVEL FOR CONSTANTS
 .PD 0
+The option
+.B \-ocn
+can optimize constants with level n.
 The following optimization levels for constants are supported:
 .TP
 .I  0
@@ -88,6 +94,19 @@ Evaluate constant expressions to simplify expressions.
 Like
 .B \-oc2
 and additionally evaluate all constant expressions.
+.PD 1
+.SH SUPPRESSED CHECKS
+.PD 0
+The option
+.B \-sx
+can suppress checks.
+The checks x are specified with letters from the following list:
+.TP
+.I  r
+Suppress the generation of range checks for strings and arrays.
+.TP
+.I  o
+Suppress the generation of integer overflow checks.
 .PD 1
 .SH FILES
 .PD 0
