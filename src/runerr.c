@@ -178,7 +178,7 @@ objecttype argument;
 
 #ifdef ANSI_C
 
-void write_call_stack (listtype stack_elem)
+void write_call_stack (const_listtype stack_elem)
 #else
 
 void write_call_stack (stack_elem)
@@ -202,7 +202,7 @@ listtype stack_elem;
           if (func_object->descriptor.entity->ident != NULL) {
             printf("%s ",
                 id_string(func_object->descriptor.entity->ident));
-          } else if (func_object->descriptor.entity->name_list != NULL); {
+          } else if (func_object->descriptor.entity->name_list != NULL) {
             prot_list(func_object->descriptor.entity->name_list);
             printf(" ");
           } /* if */

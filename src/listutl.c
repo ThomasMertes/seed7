@@ -346,11 +346,10 @@ errinfotype *err_info;
         } /* while */
         flist.list_elems = help_element->next;
       } else {
-        if (!ALLOC_RECORD(help_element, listrecord)) {
+        if (!HEAP_L_E(help_element, listrecord)) {
           *list_to = (listtype) NULL;
           *err_info = MEMORY_ERROR;
         } else {
-          COUNT_RECORD(listrecord, count.list_elem);
           *list_to = help_element;
           help_element->obj = list_from->obj;
           list_from = list_from->next;
@@ -358,10 +357,9 @@ errinfotype *err_info;
       } /* if */
       if (*err_info == OKAY_NO_ERROR) {
         while (list_from != NULL && *err_info == OKAY_NO_ERROR) {
-          if (!ALLOC_RECORD(help_element->next, listrecord)) {
+          if (!HEAP_L_E(help_element->next, listrecord)) {
             *err_info = MEMORY_ERROR;
           } else {
-            COUNT_RECORD(listrecord, count.list_elem);
             help_element = help_element->next;
             help_element->obj = list_from->obj;
             list_from = list_from->next;
@@ -418,11 +416,10 @@ errinfotype *err_info;
         } /* while */
         flist.list_elems = help_element->next;
       } else {
-        if (!ALLOC_RECORD(help_element, listrecord)) {
+        if (!HEAP_L_E(help_element, listrecord)) {
           *list_to = (listtype) NULL;
           *err_info = MEMORY_ERROR;
         } else {
-          COUNT_RECORD(listrecord, count.list_elem);
           *list_to = help_element;
           help_element->obj = &arr_from->arr[0];
           position = 1;
@@ -430,10 +427,9 @@ errinfotype *err_info;
       } /* if */
       if (*err_info == OKAY_NO_ERROR) {
         while (position < arr_from_size && *err_info == OKAY_NO_ERROR) {
-          if (!ALLOC_RECORD(help_element->next, listrecord)) {
+          if (!HEAP_L_E(help_element->next, listrecord)) {
             *err_info = MEMORY_ERROR;
           } else {
-            COUNT_RECORD(listrecord, count.list_elem);
             help_element = help_element->next;
             help_element->obj = &arr_from->arr[position];
             position++;
@@ -488,11 +484,10 @@ errinfotype *err_info;
         } /* while */
         flist.list_elems = help_element->next;
       } else {
-        if (!ALLOC_RECORD(help_element, listrecord)) {
+        if (!HEAP_L_E(help_element, listrecord)) {
           *list_to = (listtype) NULL;
           *err_info = MEMORY_ERROR;
         } else {
-          COUNT_RECORD(listrecord, count.list_elem);
           *list_to = help_element;
           help_element->obj = &stru_from->stru[0];
           position = 1;
@@ -500,10 +495,9 @@ errinfotype *err_info;
       } /* if */
       if (*err_info == OKAY_NO_ERROR) {
         while (position < stru_from->size && *err_info == OKAY_NO_ERROR) {
-          if (!ALLOC_RECORD(help_element->next, listrecord)) {
+          if (!HEAP_L_E(help_element->next, listrecord)) {
             *err_info = MEMORY_ERROR;
           } else {
-            COUNT_RECORD(listrecord, count.list_elem);
             help_element = help_element->next;
             help_element->obj = &stru_from->stru[position];
             position++;

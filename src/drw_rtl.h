@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
-/*  arr_rtl.h     Primitive actions for the array type.             */
-/*  Copyright (C) 1989 - 2006  Thomas Mertes                        */
+/*  drw_rtl.h     Generic graphic drawing functions.                */
+/*  Copyright (C) 1989 - 2007  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */
@@ -23,40 +23,22 @@
 /*  Boston, MA 02111-1307 USA                                       */
 /*                                                                  */
 /*  Module: Seed7 Runtime Library                                   */
-/*  File: seed7/src/arr_rtl.h                                       */
-/*  Changes: 1991, 1992, 1993, 1994, 2005, 2006  Thomas Mertes      */
-/*  Content: Primitive actions for the array type.                  */
+/*  File: seed7/src/drw_rtl.h                                       */
+/*  Changes: 2007  Thomas Mertes                                    */
+/*  Content: Generic graphic drawing functions.                     */
 /*                                                                  */
 /********************************************************************/
 
 #ifdef ANSI_C
 
-void arrAppend (rtlArraytype *, rtlArraytype);
-rtlArraytype arrArrlit (rtlArraytype);
-rtlArraytype arrArrlit2 (inttype, rtlArraytype);
-rtlArraytype arrBaselit (rtlObjecttype);
-rtlArraytype arrBaselit2 (inttype, rtlObjecttype);
-rtlArraytype arrCat (rtlArraytype, rtlArraytype);
-rtlArraytype arrExtend (rtlArraytype, rtlObjecttype);
-rtlArraytype arrGen (rtlObjecttype, rtlObjecttype);
-rtlArraytype arrHead (rtlArraytype, inttype);
-rtlArraytype arrRange (rtlArraytype, inttype, inttype);
-rtlArraytype arrSort (rtlArraytype, inttype (rtlGenerictype, rtlGenerictype));
-rtlArraytype arrTail (rtlArraytype, inttype);
+void drwCpy (wintype *, wintype);
+wintype drwCreate (wintype);
+void drwDestr (wintype);
 
 #else
 
-void arrAppend ();
-rtlArraytype arrArrlit ();
-rtlArraytype arrArrlit2 ();
-rtlArraytype arrBaselit ();
-rtlArraytype arrBaselit2 ();
-rtlArraytype arrCat ();
-rtlArraytype arrExtend ();
-rtlArraytype arrGen ();
-rtlArraytype arrHead ();
-rtlArraytype arrRange ();
-rtlArraytype arrSort ();
-rtlArraytype arrTail ();
+void drwCpy ();
+wintype drwCreate ();
+void drwDestr ();
 
 #endif

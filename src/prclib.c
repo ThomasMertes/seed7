@@ -643,6 +643,40 @@ listtype arguments;
 
 #ifdef ANSI_C
 
+objecttype prc_heapstat (listtype arguments)
+#else
+
+objecttype prc_heapstat (arguments)
+listtype arguments;
+#endif
+
+  { /* prc_heapstat */
+#ifdef DO_HEAP_STATISTIC
+    heap_statistic();
+#endif
+    return(SYS_EMPTY_OBJECT);
+  } /* prc_heapstat */
+
+
+
+#ifdef ANSI_C
+
+objecttype prc_hsize (listtype arguments)
+#else
+
+objecttype prc_hsize (arguments)
+listtype arguments;
+#endif
+
+  { /* prc_hsize */
+    /* heap_statistic(); */
+    return(bld_int_temp((inttype) heapsize()));
+  } /* prc_hsize */
+
+
+
+#ifdef ANSI_C
+
 objecttype prc_if (listtype arguments)
 #else
 
@@ -819,7 +853,11 @@ listtype arguments;
       opt = "";
     } else {
       stri_export(opt_name, stri);
-      if (strcmp(opt_name, "LIBS") == 0) {
+      if (strcmp(opt_name, "OBJECT_FILE_EXTENSION") == 0) {
+        opt = OBJECT_FILE_EXTENSION;
+      } else if (strcmp(opt_name, "C_COMPILER") == 0) {
+        opt = C_COMPILER;
+      } else if (strcmp(opt_name, "LIBS") == 0) {
         opt = LINKER_LIBS;
       } else {
         opt = "";

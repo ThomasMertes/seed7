@@ -12,6 +12,7 @@ CFLAGS = -O2 -fomit-frame-pointer -Wall -Wstrict-prototypes -Winline -Wconversio
 LFLAGS = -O2
 # LFLAGS = -O2 -pg
 LIBS = -lm -lgdi32
+SEED7_OBJ_LIB = seed7_05.a
 CC = gcc
 
 # SCREEN_OBJ = scr_x11.o
@@ -39,7 +40,7 @@ AOBJ2 = expr.o atom.o object.o scanner.o literal.o numlit.o findid.o
 AOBJ3 = error.o infile.o symbol.o info.o stat.o fatal.o match.o
 GOBJ1 = syvarutl.o traceutl.o actutl.o listutl.o arrutl.o executl.o blockutl.o
 GOBJ2 = typeutl.o entutl.o identutl.o chclsutl.o flistutl.o sigutl.o
-ROBJ1 = arr_rtl.o big_rtl.o bln_rtl.o chr_rtl.o cmd_rtl.o fil_rtl.o flt_rtl.o hsh_rtl.o
+ROBJ1 = arr_rtl.o big_rtl.o bln_rtl.o chr_rtl.o cmd_rtl.o drw_rtl.o fil_rtl.o flt_rtl.o hsh_rtl.o
 ROBJ2 = int_rtl.o kbd_rtl.o scr_rtl.o set_rtl.o str_rtl.o ut8_rtl.o heaputl.o striutl.o
 DOBJ1 = $(SCREEN_OBJ) tim_win.o drw_win.o
 OBJ = $(MOBJ1) $(LOBJ1) $(LOBJ2) $(LOBJ3) $(EOBJ1) $(AOBJ1) $(AOBJ2) $(AOBJ3) $(GOBJ1) $(GOBJ2)
@@ -55,14 +56,14 @@ ASRC2 = expr.c atom.c object.c scanner.c literal.c numlit.c findid.c
 ASRC3 = error.c infile.c symbol.c info.c stat.c fatal.c match.c
 GSRC1 = syvarutl.c traceutl.c actutl.c listutl.c arrutl.c executl.c blockutl.c
 GSRC2 = typeutl.c entutl.c identutl.c chclsutl.c flistutl.c sigutl.c
-RSRC1 = arr_rtl.c big_rtl.c bln_rtl.c chr_rtl.c cmd_rtl.c fil_rtl.c flt_rtl.c hsh_rtl.c
+RSRC1 = arr_rtl.c big_rtl.c bln_rtl.c chr_rtl.c cmd_rtl.c drw_rtl.c fil_rtl.c flt_rtl.c hsh_rtl.c
 RSRC2 = int_rtl.c kbd_rtl.c scr_rtl.c set_rtl.c str_rtl.c ut8_rtl.c heaputl.c striutl.c
 DSRC1 = $(SCREEN_SRC) tim_win.c drw_win.c
 SRC = $(MSRC1) $(LSRC1) $(LSRC2) $(LSRC3) $(ESRC1) $(ASRC1) $(ASRC2) $(ASRC3) $(GSRC1) $(GSRC2)
 A_SRC = $(RSRC1) $(RSRC2) $(DSRC1)
 
-hi: $(OBJ) seed7_05.a
-	$(CC) $(LFLAGS) $(OBJ) seed7_05.a $(LIBS) -o hi
+hi: $(OBJ) $(SEED7_OBJ_LIB)
+	$(CC) $(LFLAGS) $(OBJ) $(SEED7_OBJ_LIB) $(LIBS) -o hi
 	copy hi.exe ..\prg /Y
 	.\hi level
 
@@ -127,7 +128,27 @@ version.h:
 	echo #define CHOWN_MISSING >> version.h
 	echo #undef  CHMOD_MISSING >> version.h
 	echo #define USE_FSEEKO64 >> version.h
-	echo #define LINKER_LIBS "$(LIBS)" >> version.h
+	echo #define OBJECT_FILE_EXTENSION "o" >> version.h
+	echo #define C_COMPILER "$(CC)" >> version.h
+	echo #include "stdio.h" > linklibs.c
+	echo #include "stddef.h" >> linklibs.c
+	echo char *getcwd(char *buf, size_t size); >> linklibs.c
+	echo int main (int argc, char **argv) >> linklibs.c
+	echo { >> linklibs.c
+	echo char buffer[4096]; >> linklibs.c
+	echo int position; >> linklibs.c
+	echo getcwd(buffer, sizeof(buffer)); >> linklibs.c
+	echo printf("\043define LINKER_LIBS \042\\\042"); >> linklibs.c
+	echo for (position = 0; buffer[position] != '\0'; position++) { >> linklibs.c
+	echo putchar(buffer[position] == '\\' ? '/' : buffer[position]); >> linklibs.c
+	echo } >> linklibs.c
+	echo printf("/$(SEED7_OBJ_LIB)\\\042 $(LIBS)\042\n"); >> linklibs.c
+	echo return 0; >> linklibs.c
+	echo } >> linklibs.c
+	$(CC) linklibs.c -o linklibs
+	linklibs >> ..\src\version.h
+	del linklibs.c
+	del linklibs.exe
 	echo #include "stdio.h" > libpath.c
 	echo #include "stddef.h" >> libpath.c
 	echo int chdir(char *path); >> libpath.c
@@ -156,15 +177,17 @@ hi.o: hi.c
 .c.o:
 	$(CC) $(CFLAGS) -c $<
 
-depend: version.h
+depend: a_depend version.h
 	$(CC) -M $(SRC) > depend
+
+a_depend: version.h
 	$(CC) -M $(A_SRC) > a_depend
 
 level.h:
 	hi level
 
-seed7_05.a: $(A_OBJ)
-	ar r seed7_05.a $(A_OBJ)
+$(SEED7_OBJ_LIB): $(A_OBJ)
+	ar r $(SEED7_OBJ_LIB) $(A_OBJ)
 
 wc: $(SRC)
 	wc $(GSRC1) $(GSRC2)
@@ -181,3 +204,10 @@ lint: $(SRC)
 
 lint2: $(SRC)
 	lint -Zn2048 $(SRC) $(LIBS)
+
+!if exist(depend)
+!include depend
+!endif
+!if exist(a_depend)
+!include a_depend
+!endif

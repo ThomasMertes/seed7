@@ -252,3 +252,17 @@
 - A bug with compare functions for array sorts and hash tables was fixed.
 - The makefile mk_linux.mak was added as copy of 'makefile'.
 - The makefile mk_msvc.mak was added to allow experimental compilation with nmake and cl.
+
+20070607:
+- An explanation of multiple_dispatch was added to the FAQ.
+- A bug in the 'str' function for 'complex' was fixed (found by Leejun).
+- The interpreter was improved to support startsWith, endsWith, array_min_position, heapstat
+  and @:= (for ref_lists).
+- The compiler suport for drw_cpy, ref_trace, arr_head, arr_tail, arr_idx, varfunc, wintype,
+  array literals and dynamic functions (for enumerations) was improved.
+- The compiler now writes a message when an uncaught exception was raised.
+- The compiler was changed such that destr functions accept also NULL.
+- The compiler now compiles the programs snake.sd7 and toutf8.sd7.
+- The concentration game was renamed to pairs.sd7
+- The functions drwCpy, drwCreate and drwDestr where moved to drw_rtl.c.
+- The heap management and the heap statistic was improved.

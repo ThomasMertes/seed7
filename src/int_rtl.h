@@ -49,7 +49,7 @@ inttype intCmp (inttype, inttype);
 void intCpy (inttype *, inttype);
 inttype intCreate (inttype);
 inttype intLog2 (inttype);
-inttype intParse (stritype);
+inttype intParse (const_stritype);
 inttype intPow (inttype, inttype);
 inttype intRand (inttype, inttype);
 inttype intSqrt (inttype);

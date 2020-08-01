@@ -50,10 +50,10 @@
 
 #ifdef ANSI_C
 
-void free_locobj (locobjtype locobj)
+static void free_locobj (const_locobjtype locobj)
 #else
 
-void free_locobj (locobj)
+static void free_locobj (locobj)
 locobjtype locobj;
 #endif
 
@@ -139,7 +139,7 @@ blocktype block;
 
 #ifdef ANSI_C
 
-blocktype new_block (loclisttype block_params, locobjtype block_result,
+blocktype new_block (loclisttype block_params, const_locobjtype block_result,
     loclisttype block_local_vars, listtype block_local_consts,
     objecttype block_body)
 #else
@@ -160,8 +160,7 @@ objecttype block_body;
 #ifdef TRACE_BLOCK
     printf("BEGIN new_block\n");
 #endif
-    if (ALLOC_RECORD(created_block, blockrecord)) {
-      COUNT_RECORD(blockrecord, count.block);
+    if (ALLOC_RECORD(created_block, blockrecord, count.block)) {
       created_block->params = block_params;
       if (block_result == NULL) {
         created_block->result.object           = NULL;
@@ -207,8 +206,7 @@ errinfotype *err_info;
     register loclisttype help_element;
 
   /* append_to_loclist */
-    if (ALLOC_RECORD(help_element, loclistrecord)) {
-      COUNT_RECORD(loclistrecord, count.loclist);
+    if (ALLOC_RECORD(help_element, loclistrecord, count.loclist)) {
       help_element->next = NULL;
       help_element->local.object = object;
       help_element->local.init_value = init_value;

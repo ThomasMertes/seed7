@@ -45,7 +45,7 @@ typedef int booltype;
 #define WITH_FLOAT
 #define WITH_REFERENCE
 #define WITH_DRAW
-#undef  WITH_STATISTIK
+#undef  WITH_STATISTIC
 #define WITH_COMPILATION_INFO
 #define WITH_TYPE_CHECK
 #undef  WITH_ACTION_CHECK
@@ -57,7 +57,7 @@ typedef int booltype;
 #define USE_VARIABLE_FORMATS
 #undef  USE_MAXIMUM_MALLOC_CHECK
 #define DO_HEAPSIZE_COMPUTATION
-#undef  DO_HEAP_STATISTIK
+#undef  DO_HEAP_STATISTIC
 #undef  DO_HEAP_LOG
 #undef  DO_HEAP_CHECK
 #define WIDE_CHAR_STRINGS

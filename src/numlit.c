@@ -446,7 +446,7 @@ void lit_number ()
       symbol.intvalue = readinteger();
       find_literal_ident();
       symbol.syclass = INTLITERAL;
-#ifdef WITH_STATISTIK
+#ifdef WITH_STATISTIC
       literal_count++;
 #endif
     } /* if */

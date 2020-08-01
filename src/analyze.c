@@ -378,10 +378,9 @@ errinfotype *err_info;
 #ifdef TRACE_ANALYZE
     printf("BEGIN analyze_prog\n");
 #endif
-    if (!ALLOC_RECORD(resultProg, progrecord)) {
+    if (!ALLOC_RECORD(resultProg, progrecord, count.prog)) {
       *err_info = MEMORY_ERROR;
     } else {
-      COUNT_RECORD(progrecord, count.prog);
       resultProg->usage_count = 1;
       resultProg->main_object = NULL;
       memcpy(&prog_backup, &prog, sizeof(progrecord));

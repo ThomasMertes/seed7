@@ -87,7 +87,7 @@ unsigned int position;
         SKIP_CR_SP(character);
         if (character == '#') {
           SKIP_TO_NL(character);
-#ifdef WITH_STATISTIK
+#ifdef WITH_STATISTIC
           comment_count++;
 #endif
         } /* if */
@@ -103,7 +103,7 @@ unsigned int position;
       SKIP_CR_SP(character);
       if (character == '#') {
         SKIP_TO_NL(character);
-#ifdef WITH_STATISTIK
+#ifdef WITH_STATISTIC
         comment_count++;
 #endif
       } /* if */
@@ -111,7 +111,7 @@ unsigned int position;
         SKIP_CR_SP(character);
         if (character == '#') {
           SKIP_TO_NL(character);
-#ifdef WITH_STATISTIK
+#ifdef WITH_STATISTIC
           comment_count++;
 #endif
         } /* if */
@@ -501,7 +501,7 @@ void lit_char ()
     } /* if */
     find_literal_ident();
     symbol.syclass = CHARLITERAL;
-#ifdef WITH_STATISTIK
+#ifdef WITH_STATISTIC
     literal_count++;
 #endif
 #ifdef TRACE_LITERAL
@@ -586,7 +586,7 @@ void lit_string ()
     in_file.character = character;                              /*  0.01% */
     symbol.syclass = STRILITERAL;                               /*  0.01% */
     symbol.strivalue->size = position;                          /*  0.01% */
-#ifdef WITH_STATISTIK
+#ifdef WITH_STATISTIC
     literal_count++;
 #endif
 #ifdef TRACE_LITERAL
@@ -645,7 +645,7 @@ static void lit_text ()
     in_file.character = character;
     find_literal_ident();
     symbol.syclass = STRILITERAL;
-#ifdef WITH_STATISTIK
+#ifdef WITH_STATISTIC
     literal_count++;
 #endif
   } /* lit_text */

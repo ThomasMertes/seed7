@@ -55,13 +55,6 @@
 #include "scanner.h"
 
 
-#ifdef ANSI_C
-void scan_symbol (void);
-#else
-void scan_symbol ();
-#endif
-
-
 
 #ifdef ANSI_C
 
@@ -108,7 +101,7 @@ static INLINE void scan_comment ()
     } else {
       in_file.character = next_character();
     } /* if */
-#ifdef WITH_STATISTIK
+#ifdef WITH_STATISTIC
     comment_count++;
 #endif
 #ifdef TRACE_SCANNER
@@ -135,7 +128,7 @@ static INLINE void scan_line_comment ()
 #endif
     SKIP_TO_NL(character);
     in_file.character = character;
-#ifdef WITH_STATISTIK
+#ifdef WITH_STATISTIC
     comment_count++;
 #endif
 #ifdef TRACE_SCANNER

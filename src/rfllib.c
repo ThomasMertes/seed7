@@ -279,6 +279,46 @@ listtype arguments;
 
 #ifdef ANSI_C
 
+objecttype rfl_elemcpy (listtype arguments)
+#else
+
+objecttype rfl_elemcpy (arguments)
+listtype arguments;
+#endif
+
+  {
+    memsizetype position;
+    inttype number;
+    listtype list_element;
+
+  /* rfl_elemcpy */
+    isit_reflist(arg_1(arguments));
+    isit_int(arg_4(arguments));
+    isit_reference(arg_6(arguments));
+    is_variable(arg_1(arguments));
+    list_element = take_reflist(arg_1(arguments));
+    position = take_int(arg_4(arguments));
+    if (position >= 1) {
+      number = 1;
+      while (number < position && list_element != NULL) {
+        number++;
+        list_element = list_element->next;
+      } /* while */
+      if (list_element != NULL) {
+        list_element->obj = take_reference(arg_6(arguments));
+      } else {
+        return(raise_exception(SYS_RNG_EXCEPTION));
+      } /* if */
+    } else {
+      return(raise_exception(SYS_RNG_EXCEPTION));
+    } /* if */
+    return(SYS_EMPTY_OBJECT);
+  } /* rfl_elemcpy */
+
+
+
+#ifdef ANSI_C
+
 objecttype rfl_empty (listtype arguments)
 #else
 

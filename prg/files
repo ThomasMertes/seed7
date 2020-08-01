@@ -32,11 +32,11 @@ hamu.sd7     Game to govern the ancient kingdom of sumeria.
 hanoi.sd7    Solve the tower of hanoi problem                  
 hello.sd7    Hello world                                       
 kbd.sd7      Keyboard test program                             
-memory.sd7   Memory game                                       
 mind.sd7     Guess a four digit number game                    
 ms.sd7       Mine sweeper game                                 
 nicoma.sd7   Puzzle from arithmetica of Nicomachus (A.D. 90)!  
 pac.sd7      Pacman game                                       
+pairs.sd7    Concentration game                                
 panic.sd7    Catch aliens in traps game                        
 planets.sd7  Display information about the planets             
 prime.sd7    Write a list of prime numbers                     

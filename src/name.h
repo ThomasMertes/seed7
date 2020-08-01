@@ -29,15 +29,15 @@
 
 listtype create_parameter_list (listtype, errinfotype *);
 void init_stack (progtype, errinfotype *);
-void close_stack (progtype);
+void close_stack (const_progtype);
 void grow_stack (errinfotype *);
 void shrink_stack (void);
 void push_stack (void);
 void pop_stack (void);
 listtype *get_local_object_insert_place (void);
 objecttype entername (nodetype, objecttype, errinfotype *);
-objecttype find_name (nodetype, objecttype, errinfotype *);
-objecttype search_name (nodetype, objecttype, errinfotype *);
+objecttype find_name (nodetype, const_objecttype, errinfotype *);
+objecttype search_name (nodetype, const_objecttype, errinfotype *);
 objecttype dollar_entername (nodetype, objecttype, errinfotype *);
 
 #else

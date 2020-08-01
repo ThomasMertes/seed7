@@ -75,12 +75,11 @@ static objecttype gen_object ()
     if (!ALLOC_OBJECT(atomic_object)) {
       fatal_memory_error(SOURCE_POSITION(2051));
     } else {
-      if (!ALLOC_RECORD(atomic_entity, entityrecord)) {
+      if (!ALLOC_RECORD(atomic_entity, entityrecord, count.entity)) {
         FREE_OBJECT(atomic_object);
         atomic_object = NULL;
         fatal_memory_error(SOURCE_POSITION(2052));
       } else {
-        COUNT_RECORD(entityrecord, count.entity);
         atomic_entity->ident = current_ident;
         atomic_entity->syobject = atomic_object;
         atomic_entity->name_list = NULL;

@@ -79,8 +79,7 @@ errinfotype *err_info;
 #ifdef TRACE_NAME
     printf("BEGIN push_owner\n");
 #endif
-    if (ALLOC_RECORD(created_owner, ownerrecord)) {
-      COUNT_RECORD(ownerrecord, count.owner);
+    if (ALLOC_RECORD(created_owner, ownerrecord, count.owner)) {
       created_owner->obj = obj_to_push;
       created_owner->params = params;
       created_owner->decl_level = prog.stack_current;
@@ -276,7 +275,7 @@ errinfotype *err_info;
 
 #ifdef ANSI_C
 
-static void pop_object (objecttype obj_to_pop)
+static void pop_object (const_objecttype obj_to_pop)
 #else
 
 static void pop_object (obj_to_pop)
@@ -329,8 +328,7 @@ errinfotype *err_info;
 #ifdef TRACE_NAME
     printf("BEGIN init_stack\n");
 #endif
-    if (ALLOC_RECORD(created_stack_element, stackrecord)) {
-      COUNT_RECORD(stackrecord, count.stack);
+    if (ALLOC_RECORD(created_stack_element, stackrecord, count.stack)) {
       created_stack_element->upward = NULL;
       created_stack_element->downward = NULL;
       created_stack_element->local_object_list = NULL;
@@ -353,7 +351,7 @@ errinfotype *err_info;
 
 #ifdef ANSI_C
 
-void close_stack (progtype currentProg)
+void close_stack (const_progtype currentProg)
 #else
 
 void close_stack (currentProg)
@@ -398,8 +396,7 @@ errinfotype *err_info;
 #ifdef TRACE_NAME
     printf("BEGIN grow_stack %d\n", data_depth);
 #endif
-    if (ALLOC_RECORD(created_stack_element, stackrecord)) {
-      COUNT_RECORD(stackrecord, count.stack);
+    if (ALLOC_RECORD(created_stack_element, stackrecord, count.stack)) {
       created_stack_element->upward = NULL;
       created_stack_element->downward = prog.stack_data;
       created_stack_element->local_object_list = NULL;
@@ -640,7 +637,7 @@ errinfotype *err_info;
 
 #ifdef ANSI_C
 
-static objecttype inst_list (nodetype declaration_base, objecttype object_name,
+static objecttype inst_list (nodetype declaration_base, const_objecttype object_name,
     errinfotype *err_info)
 #else
 
@@ -677,7 +674,7 @@ errinfotype *err_info;
 
 #ifdef ANSI_C
 
-static objecttype inst_object (nodetype declaration_base, objecttype name_object,
+static objecttype inst_object (const_nodetype declaration_base, objecttype name_object,
     errinfotype *err_info)
 #else
 
@@ -712,8 +709,8 @@ errinfotype *err_info;
 
 #ifdef ANSI_C
 
-static objecttype inst_object_expr (nodetype declaration_base, objecttype object_name,
-    errinfotype *err_info)
+static objecttype inst_object_expr (const_nodetype declaration_base,
+    objecttype object_name, errinfotype *err_info)
 #else
 
 static objecttype inst_object_expr (declaration_base, object_name, err_info)
@@ -826,7 +823,7 @@ errinfotype *err_info;
 
 #ifdef ANSI_C
 
-objecttype find_name (nodetype declaration_base, objecttype object_name,
+objecttype find_name (nodetype declaration_base, const_objecttype object_name,
     errinfotype *err_info)
 #else
 
@@ -905,7 +902,7 @@ errinfotype *err_info;
 
 #ifdef ANSI_C
 
-objecttype search_name (nodetype declaration_base, objecttype object_name,
+objecttype search_name (nodetype declaration_base, const_objecttype object_name,
     errinfotype *err_info)
 #else
 
@@ -1036,8 +1033,8 @@ objecttype param_object;
 
 #ifdef ANSI_C
 
-static objecttype dollar_inst_list (nodetype declaration_base, objecttype object_name,
-    errinfotype *err_info)
+static objecttype dollar_inst_list (nodetype declaration_base,
+    const_objecttype object_name, errinfotype *err_info)
 #else
 
 static objecttype dollar_inst_list (declaration_base, object_name, err_info)

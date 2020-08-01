@@ -58,16 +58,6 @@
 
 #ifdef ANSI_C
 
-objecttype exec_call (objecttype);
-#else
-
-objecttype exec_call ();
-#endif
-
-
-
-#ifdef ANSI_C
-
 objecttype exec_object (register objecttype object)
 #else
 
@@ -283,7 +273,7 @@ listtype *evaluated_act_params;
 #ifdef ANSI_C
 
 static INLINE void par_restore (loclisttype form_param,
-    listtype backup_form_params, listtype evaluated_act_params)
+    const_listtype backup_form_params, const_listtype evaluated_act_params)
 #else
 
 static INLINE void par_restore (form_param, backup_form_params,
@@ -383,7 +373,7 @@ listtype act_param_list;
 
 #ifdef ANSI_C
 
-static void loc_restore (loclisttype loc_var, listtype backup_loc_var)
+static void loc_restore (loclisttype loc_var, const_listtype backup_loc_var)
 #else
 
 static void loc_restore (loc_var, backup_loc_var)
@@ -660,7 +650,7 @@ listtype evaluated_act_params;
 
 #ifdef ANSI_C
 
-static objecttype exec_action (objecttype act_object,
+static objecttype exec_action (const_objecttype act_object,
     listtype act_param_list, objecttype object)
 #else
 
@@ -769,7 +759,7 @@ objecttype object;
 
 #ifdef ANSI_C
 
-static void exec_all_parameters (listtype act_param_list)
+static void exec_all_parameters (const_listtype act_param_list)
 #else
 
 static void exec_all_parameters (act_param_list)
@@ -1095,15 +1085,15 @@ printf("\n"); */
         actual_element = actual_element->next;
       } /* while */
 #ifdef WITH_PROTOCOL
-    if (trace.dynamic) {
-      if (trace.heapsize) {
-        prot_heapsize();
-        prot_cstri(" ");
+      if (trace.dynamic) {
+        if (trace.heapsize) {
+          prot_heapsize();
+          prot_cstri(" ");
+        } /* if */
+        prot_cstri("DYNAMIC2 ");
+        prot_list(match_expr->value.listvalue);
+        prot_nl();
       } /* if */
-      prot_cstri("DYNAMIC2 ");
-      prot_list(match_expr->value.listvalue);
-      prot_nl();
-    } /* if */
 #endif
 /* printf("match_expr ");
 trace1(match_expr);
@@ -1151,7 +1141,7 @@ printf("\n"); */
 
 #ifdef ANSI_C
 
-objecttype exec_expr (progtype currentProg, objecttype object)
+objecttype exec_expr (const_progtype currentProg, objecttype object)
 #else
 
 objecttype exec_expr (currentProg, object)
@@ -1196,7 +1186,7 @@ objecttype object;
 
 #ifdef ANSI_C
 
-void interpr (progtype currentProg)
+void interpr (const_progtype currentProg)
 #else
 
 void interpr (currentProg)

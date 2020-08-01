@@ -83,10 +83,9 @@ identtype identifier;
 #ifdef TRACE_TOKEN
     printf("BEGIN new_sy_token\n");
 #endif
-    if (!ALLOC_RECORD(created_token, tokenrecord)) {
+    if (!ALLOC_RECORD(created_token, tokenrecord, count.token)) {
       fatal_memory_error(SOURCE_POSITION(2101));
     } /* if */
-    COUNT_RECORD(tokenrecord, count.token);
     created_token->next = NULL;
     created_token->alternative = NULL;
     created_token->token_class = SY_TOKEN;
@@ -116,10 +115,9 @@ typetype type_of;
 #ifdef TRACE_TOKEN
     printf("BEGIN new_expr_token\n");
 #endif
-    if (!ALLOC_RECORD(created_token, tokenrecord)) {
+    if (!ALLOC_RECORD(created_token, tokenrecord, count.token)) {
       fatal_memory_error(SOURCE_POSITION(2102));
     } /* if */
-    COUNT_RECORD(tokenrecord, count.token);
     created_token->next = NULL;
     created_token->alternative = NULL;
     created_token->token_class = EXPR_TOKEN;
@@ -148,10 +146,9 @@ static tokentype new_syntax_description ()
 #ifdef TRACE_TOKEN
     printf("BEGIN new_syntax_description\n");
 #endif
-    if (!ALLOC_RECORD(created_token, tokenrecord)) {
+    if (!ALLOC_RECORD(created_token, tokenrecord, count.token)) {
       fatal_memory_error(SOURCE_POSITION(2103));
     } /* if */
-    COUNT_RECORD(tokenrecord, count.token);
     created_token->next = NULL;
     created_token->alternative = NULL;
     created_token->token_class = UNDEF_SYNTAX;

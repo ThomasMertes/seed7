@@ -400,7 +400,7 @@ inttype number;
 
 #ifdef ANSI_C
 
-inttype intParse (stritype stri)
+inttype intParse (const_stritype stri)
 #else
 
 inttype intParse (stri)

@@ -53,7 +53,7 @@
 
 
 #ifdef ANSI_C
-static objecttype match_subexpr (objecttype, nodetype, listtype,
+static objecttype match_subexpr (objecttype, const_nodetype, listtype,
      booltype, booltype);
 #else
 static objecttype match_subexpr ();
@@ -193,7 +193,7 @@ objecttype object;
 
 #ifdef ANSI_C
 
-void update_owner (objecttype expr_object)
+void update_owner (const_objecttype expr_object)
 #else
 
 void update_owner (expr_object)
@@ -328,7 +328,7 @@ objecttype object;
 
 #ifdef ANSI_C
 
-static objecttype match_object2 (objecttype object, objecttype expr_object)
+static objecttype match_object2 (objecttype object, const_objecttype expr_object)
 #else
 
 objecttype match_object2 (object, expr_object)
@@ -417,7 +417,7 @@ objecttype expr_object;
 #ifdef ANSI_C
 
 static objecttype match_subexpr_var (objecttype expr_object,
-    nodetype start_node, typetype object_type,
+    const_nodetype start_node, typetype object_type,
     listtype rest_of_expression, booltype check_access_right,
     booltype look_for_interfaces)
 #else
@@ -472,7 +472,7 @@ booltype look_for_interfaces;
 #ifdef ANSI_C
 
 static objecttype match_subexpr_const (objecttype expr_object,
-    nodetype start_node, typetype object_type,listtype rest_of_expression,
+    const_nodetype start_node, typetype object_type,listtype rest_of_expression,
     booltype check_access_right, booltype look_for_interfaces)
 #else
 
@@ -526,7 +526,7 @@ booltype look_for_interfaces;
 #ifdef ANSI_C
 
 static objecttype match_subexpr_type (objecttype expr_object,
-    nodetype start_node, typetype object_type, booltype is_variable_obj,
+    const_nodetype start_node, typetype object_type, booltype is_variable_obj,
     listtype rest_of_expression, booltype check_access_right,
     booltype look_for_interfaces)
 #else
@@ -624,7 +624,7 @@ booltype look_for_interfaces;
 #ifdef ANSI_C
 
 static objecttype match_subexpr_attr (objecttype expr_object,
-    nodetype start_node, typetype object_type,
+    const_nodetype start_node, const_typetype object_type,
     listtype rest_of_expression, booltype check_access_right,
     booltype look_for_interfaces)
 #else
@@ -674,7 +674,7 @@ booltype look_for_interfaces;
 #ifdef ANSI_C
 
 static objecttype match_subexpr (objecttype expr_object,
-    nodetype start_node, listtype match_expr, booltype check_access_right,
+    const_nodetype start_node, listtype match_expr, booltype check_access_right,
     booltype look_for_interfaces)
 #else
 
@@ -950,7 +950,8 @@ objecttype expr_object;
 
 #ifdef ANSI_C
 
-objecttype match_prog_expression (nodetype start_node, objecttype expr_object)
+objecttype match_prog_expression (const_nodetype start_node,
+    objecttype expr_object)
 #else
 
 objecttype match_prog_expression (start_node, expr_object)

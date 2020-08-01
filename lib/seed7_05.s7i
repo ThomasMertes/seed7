@@ -681,6 +681,15 @@ const func string: replace2 (in string: main_stri, in string: search1,
     end while;
   end func;
 
+const func boolean: startsWith (in string: stri, in string: prefix) is
+  return stri[.. length(prefix)] = prefix;
+
+const func boolean: startsWith (in string: stri, in string: prefix, in integer: index) is
+  return stri[index len length(prefix)] = prefix;
+
+const func boolean: endsWith (in string: stri, in string: suffix) is
+  return stri[succ(length(stri) - length(suffix)) ..] = suffix;
+
 const func string: getint (inout string: stri) is func
   result
     var string: result is "";
@@ -843,6 +852,7 @@ const proc: (ref ref_list param) ::= (in ref_list param) is              action 
 const proc: destroy (ref ref_list param) is                              action "RFL_DESTR";
 const proc: (inout ref_list param) := (in ref_list param) is             action "RFL_CPY";
 const proc: (inout ref_list param) &:= (in ref_list param) is            action "RFL_APPEND";
+const proc: (inout ref_list param) @:= [ (in integer param) ] (in reference param) is action "RFL_ELEMCPY";
 
 const func ref_list: _GENERATE_EMPTY_REFLIST is                          action "RFL_EMPTY";
 const ref_list: (attr ref_list) . EMPTY is                               _GENERATE_EMPTY_REFLIST;
@@ -3263,7 +3273,8 @@ const proc: rename (in string param, in string param) is  action "CMD_MOVE";
 const proc: copy (in string param, in string param) is    action "CMD_COPY";
 const proc: symlink (in string param, in string param) is action "CMD_SYMLINK";
 
-const func integer: heapsize (PROGRAM) is                 action "INT_HSIZE";
+const proc: heapstat (PROGRAM) is                         action "PRC_HEAPSTAT";
+const func integer: heapsize (PROGRAM) is                 action "PRC_HSIZE";
 const proc: include (in string param) is                  action "PRC_INCLUDE";
 
 (*

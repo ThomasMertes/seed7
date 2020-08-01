@@ -28,7 +28,7 @@
 #ifdef ANSI_C
 
 void free_block (blocktype);
-blocktype new_block (loclisttype, locobjtype, loclisttype,
+blocktype new_block (loclisttype, const_locobjtype, loclisttype,
     listtype, objecttype);
 void get_result_var (locobjtype, typetype, objecttype, errinfotype *);
 void get_return_var (locobjtype, typetype, errinfotype *);

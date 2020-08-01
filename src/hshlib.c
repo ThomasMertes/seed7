@@ -131,10 +131,9 @@ errinfotype *err_info;
     helemtype helem;
 
   /* new_helem */
-    if (!ALLOC_RECORD(helem, helemrecord)) {
+    if (!ALLOC_RECORD(helem, helemrecord, count.helem)) {
       *err_info = MEMORY_ERROR;
     } else {
-      COUNT_RECORD(helemrecord, count.helem);
       helem->key.descriptor.entity = key->descriptor.entity;
       INIT_CLASS_OF_VAR(&helem->key, DECLAREDOBJECT);
       helem->key.type_of = key->type_of;
@@ -198,10 +197,9 @@ errinfotype *err_info;
 
   /* copy_helem */
     if (source_helem != NULL) {
-      if (!ALLOC_RECORD(dest_helem, helemrecord)) {
+      if (!ALLOC_RECORD(dest_helem, helemrecord, count.helem)) {
         *err_info = MEMORY_ERROR;
       } else {
-        COUNT_RECORD(helemrecord, count.helem);
         dest_helem->key.descriptor.entity = source_helem->key.descriptor.entity;
         INIT_CLASS_OF_VAR(&dest_helem->key, DECLAREDOBJECT);
         dest_helem->key.type_of = source_helem->key.type_of;
@@ -839,22 +837,17 @@ listtype arguments;
     data_create_func = take_reference(arg_5(arguments));
     data_destr_func  = take_reference(arg_6(arguments));
     free_hash(hsh_dest, key_destr_func, data_destr_func);
-    if (err_info != OKAY_NO_ERROR) {
-      hsh_to->value.hashvalue = NULL;
-      return(raise_with_arguments(SYS_MEM_EXCEPTION, arguments));
+    if (TEMP2_OBJECT(hsh_from)) {
+      hsh_to->value.hashvalue = hsh_source;
+      hsh_from->value.hashvalue = NULL;
     } else {
-      if (TEMP2_OBJECT(hsh_from)) {
-        hsh_to->value.hashvalue = hsh_source;
-        hsh_from->value.hashvalue = NULL;
-      } else {
-        hsh_to->value.hashvalue = copy_hash(hsh_source,
-            key_create_func, data_create_func, &err_info);
-        if (err_info != OKAY_NO_ERROR) {
-          free_hash(hsh_to->value.hashvalue, key_destr_func,
-              data_destr_func);
-          hsh_to->value.hashvalue = NULL;
-          return(raise_with_arguments(SYS_MEM_EXCEPTION, arguments));
-        } /* if */
+      hsh_to->value.hashvalue = copy_hash(hsh_source,
+          key_create_func, data_create_func, &err_info);
+      if (err_info != OKAY_NO_ERROR) {
+        free_hash(hsh_to->value.hashvalue, key_destr_func,
+            data_destr_func);
+        hsh_to->value.hashvalue = NULL;
+        return(raise_with_arguments(SYS_MEM_EXCEPTION, arguments));
       } /* if */
     } /* if */
     return(SYS_EMPTY_OBJECT);

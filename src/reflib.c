@@ -50,6 +50,7 @@
 #include "memory.h"
 #include "name.h"
 #include "option.h"
+#include "infile.h"
 
 #undef EXTERN
 #define EXTERN
@@ -162,6 +163,27 @@ listtype arguments;
   { /* ref_addr */
     return(bld_reference_temp(arg_2(arguments)));
   } /* ref_addr */
+
+
+
+#ifdef ANSI_C
+
+objecttype ref_arrminpos (listtype arguments)
+#else
+
+objecttype ref_arrminpos (arguments)
+listtype arguments;
+#endif
+
+  {
+    objecttype obj_arg1;
+
+  /* ref_arrminpos */
+    isit_reference(arg_1(arguments));
+    obj_arg1 = take_reference(arg_1(arguments));
+    isit_array(obj_arg1);
+    return(bld_int_temp(take_array(obj_arg1)->min_position));
+  } /* ref_arrminpos */
 
 
 
@@ -1125,16 +1147,29 @@ listtype arguments;
   {
     objecttype obj_arg1;
     char *stri;
+    memsizetype buffer_len;
+    char *buffer;
     listtype name_elem;
     objecttype param_obj;
     memsizetype len;
-    stritype result;
+    stritype stri_result;
+    objecttype result;
 
   /* ref_str */
     isit_reference(arg_1(arguments));
     obj_arg1 = take_reference(arg_1(arguments));
+    buffer = NULL;
     if (obj_arg1 == NULL) {
       stri = " *NULL_OBJECT* ";
+    } else if (HAS_POSINFO(obj_arg1)) {
+      stri = file_name(GET_FILE_NUM(obj_arg1));
+      buffer_len = (memsizetype) strlen(stri) + 32;
+      if (!ALLOC_CSTRI(buffer, buffer_len)) {
+        return(raise_exception(SYS_MEM_EXCEPTION));
+      } else {
+        sprintf(buffer, "%s(%u)", stri, GET_LINE_NUM(obj_arg1));
+        stri = buffer;
+      } /* if */
     } else if (!HAS_DESCRIPTOR_ENTITY(obj_arg1)) {
       stri = " *NULL_ENTITY_OBJECT* ";
     } else if (obj_arg1->descriptor.entity->ident != NULL) {
@@ -1160,14 +1195,18 @@ listtype arguments;
       } /* if */
     } /* if */
     len = (memsizetype) strlen(stri);
-    if (!ALLOC_STRI(result, len)) {
-      return(raise_exception(SYS_MEM_EXCEPTION));
+    if (!ALLOC_STRI(stri_result, len)) {
+      result = raise_exception(SYS_MEM_EXCEPTION);
     } else {
       COUNT_STRI(len);
-      result->size = len;
-      stri_expand(result->mem, stri, (SIZE_TYPE) len);
-      return(bld_stri_temp(result));
+      stri_result->size = len;
+      stri_expand(stri_result->mem, stri, (SIZE_TYPE) len);
+      result = bld_stri_temp(stri_result);
     } /* if */
+    if (buffer != NULL) {
+      UNALLOC_CSTRI(buffer, buffer_len);
+    } /* if */
+    return(result);
   } /* ref_str */
 
 

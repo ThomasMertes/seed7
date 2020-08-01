@@ -57,6 +57,7 @@ const func ref_list: local_consts (ref reference param) is                 actio
 const func ref_list: local_vars (ref reference param) is                   action "REF_LOCAL_VARS";
 const func reference: body (ref reference param) is                        action "REF_BODY";
 const func ref_list: array_to_list (ref reference param) is                action "REF_ARRTOLIST";
+const func integer: array_min_position (ref reference param) is            action "REF_ARRMINPOS";
 const func ref_list: struct_to_list (ref reference param) is               action "REF_SCTTOLIST";
 const func reference: interface_to_struct (ref reference param) is         action "REF_ITFTOSCT";
 const func integer: obj_number (ref reference param) is                    action "REF_NUM";

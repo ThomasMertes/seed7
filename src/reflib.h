@@ -28,6 +28,7 @@
 #ifdef ANSI_C
 
 objecttype ref_addr (listtype);
+objecttype ref_arrminpos (listtype);
 objecttype ref_arrtolist (listtype);
 objecttype ref_body (listtype);
 objecttype ref_build (listtype);
@@ -69,6 +70,7 @@ objecttype ref_value (listtype);
 #else
 
 objecttype ref_addr ();
+objecttype ref_arrminpos ();
 objecttype ref_arrtolist ();
 objecttype ref_body ();
 objecttype ref_build ();

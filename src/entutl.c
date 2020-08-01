@@ -419,8 +419,7 @@ identtype id;
 #ifdef TRACE_ENTITY
     printf("BEGIN new_entity\n");
 #endif
-    if (ALLOC_RECORD(created_entity, entityrecord)) {
-      COUNT_RECORD(entityrecord, count.entity);
+    if (ALLOC_RECORD(created_entity, entityrecord, count.entity)) {
       created_entity->ident = id;
       created_entity->syobject = NULL;
       created_entity->name_list = NULL;

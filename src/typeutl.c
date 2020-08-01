@@ -62,8 +62,7 @@ typetype result_type;
   printf("BEGIN new_type\n");
 #endif
     if (ALLOC_OBJECT(match_obj)) {
-      if (ALLOC_RECORD(created_type, typerecord)) {
-        COUNT_RECORD(typerecord, count.type);
+      if (ALLOC_RECORD(created_type, typerecord, count.type)) {
         match_obj->type_of = NULL;
         match_obj->descriptor.entity = NULL;
         match_obj->value.typevalue = created_type;
@@ -162,8 +161,7 @@ typetype interface_type;
     typelisttype current_elem;
 
   /* add_interface */
-    if (ALLOC_RECORD(typelist_elem, typelistrecord)) {
-      COUNT_RECORD(typelistrecord, count.typelist_elems);
+    if (ALLOC_RECORD(typelist_elem, typelistrecord, count.typelist_elems)) {
       typelist_elem->next = NULL;
       typelist_elem->type_elem = interface_type;
       if (basic_type->interfaces == NULL) {

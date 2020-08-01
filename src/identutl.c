@@ -61,8 +61,7 @@ unsigned int length;
 #ifdef TRACE_IDENTUTL
     printf("BEGIN new_ident\n");
 #endif
-    if (ALLOC_RECORD(created_ident, identrecord)) {
-      COUNT_RECORD(identrecord, count.ident);
+    if (ALLOC_RECORD(created_ident, identrecord, count.ident)) {
       if (!ALLOC_ID_NAME(created_ident->name, length)) {
         FREE_RECORD(created_ident, identrecord, count.ident);
         created_ident = (identtype) NULL;
@@ -187,7 +186,7 @@ unsigned int length;
 
 #ifdef ANSI_C
 
-cstritype id_string (identtype actual_ident)
+cstritype id_string (const_identtype actual_ident)
 #else
 
 cstritype id_string (actual_ident)
@@ -222,7 +221,7 @@ identtype actual_ident;
 
 #ifdef ANSI_C
 
-void close_idents (progtype currentProg)
+void close_idents (const_progtype currentProg)
 #else
 
 void close_idents (currentProg)

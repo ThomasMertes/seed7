@@ -15,6 +15,7 @@ LFLAGS = -O2
 #LFLAGS = -O2 -pg -lc_p
 # LIBS = /usr/Xlib/libX11.so -lncurses -lm
 LIBS = -lX11 -lncurses -lm
+SEED7_OBJ_LIB = seed7_05.a
 CC = gcc
 
 # SCREEN_OBJ = scr_x11.o
@@ -40,7 +41,7 @@ AOBJ2 = expr.o atom.o object.o scanner.o literal.o numlit.o findid.o
 AOBJ3 = error.o infile.o symbol.o info.o stat.o fatal.o match.o
 GOBJ1 = syvarutl.o traceutl.o actutl.o listutl.o arrutl.o executl.o blockutl.o
 GOBJ2 = typeutl.o entutl.o identutl.o chclsutl.o flistutl.o sigutl.o
-ROBJ1 = arr_rtl.o big_rtl.o bln_rtl.o chr_rtl.o cmd_rtl.o fil_rtl.o flt_rtl.o hsh_rtl.o
+ROBJ1 = arr_rtl.o big_rtl.o bln_rtl.o chr_rtl.o cmd_rtl.o drw_rtl.o fil_rtl.o flt_rtl.o hsh_rtl.o
 ROBJ2 = int_rtl.o kbd_rtl.o scr_rtl.o set_rtl.o str_rtl.o ut8_rtl.o heaputl.o striutl.o
 DOBJ1 = $(SCREEN_OBJ) tim_unx.o drw_x11.o
 OBJ = $(MOBJ1) $(LOBJ1) $(LOBJ2) $(LOBJ3) $(EOBJ1) $(AOBJ1) $(AOBJ2) $(AOBJ3) $(GOBJ1) $(GOBJ2)
@@ -56,14 +57,14 @@ ASRC2 = expr.c atom.c object.c scanner.c literal.c numlit.c findid.c
 ASRC3 = error.c infile.c symbol.c info.c stat.c fatal.c match.c
 GSRC1 = syvarutl.c traceutl.c actutl.c listutl.c arrutl.c executl.c blockutl.c
 GSRC2 = typeutl.c entutl.c identutl.c chclsutl.c flistutl.c sigutl.c
-RSRC1 = arr_rtl.c big_rtl.c bln_rtl.c chr_rtl.c cmd_rtl.c fil_rtl.c flt_rtl.c hsh_rtl.c
+RSRC1 = arr_rtl.c big_rtl.c bln_rtl.c chr_rtl.c cmd_rtl.c drw_rtl.c fil_rtl.c flt_rtl.c hsh_rtl.c
 RSRC2 = int_rtl.c kbd_rtl.c scr_rtl.c set_rtl.c str_rtl.c ut8_rtl.c heaputl.c striutl.c
 DSRC1 = $(SCREEN_SRC) tim_unx.c drw_x11.c
 SRC = $(MSRC1) $(LSRC1) $(LSRC2) $(LSRC3) $(ESRC1) $(ASRC1) $(ASRC2) $(ASRC3) $(GSRC1) $(GSRC2)
 A_SRC = $(RSRC1) $(RSRC2) $(DSRC1)
 
-hi: $(OBJ) seed7_05.a
-	$(CC) $(LFLAGS) $(OBJ) seed7_05.a $(LIBS) -o hi
+hi: $(OBJ) $(SEED7_OBJ_LIB)
+	$(CC) $(LFLAGS) $(OBJ) $(SEED7_OBJ_LIB) $(LIBS) -o hi
 	$(MAKE) ../prg/hi
 	./hi level
 #	cp hi /usr/local/bin/hi
@@ -109,11 +110,7 @@ scr_cur.o: scr_cur.c version.h scr_drv.h
 
 
 clear:
-	rm *.o
-	rm *.a
-	rm depend
-	rm a_depend
-	rm version.h
+	rm *.o *.a depend a_depend version.h
 
 dep: depend
 
@@ -132,21 +129,25 @@ version.h:
 	echo "#undef  CHOWN_MISSING" >> version.h
 	echo "#undef  CHMOD_MISSING" >> version.h
 	echo "#define _FILE_OFFSET_BITS 64" >> version.h
-	echo "#define LINKER_LIBS \"$(LIBS)\"" >> version.h
+	echo "#define OBJECT_FILE_EXTENSION \"o\"" >> version.h
+	echo "#define C_COMPILER \"$(CC)\"" >> version.h
+	echo "#define LINKER_LIBS \"\\\"`pwd`/$(SEED7_OBJ_LIB)\\\" $(LIBS)\"" >> version.h
 	cd ../lib; echo "#define SEED7_LIBRARY" \"`pwd`\" >> ../src/version.h; cd ../src
 
 hi.o: hi.c
 	$(CC) $(CFLAGS) -c hi.c
 
-depend: version.h
+depend: a_depend version.h
 	$(CC) -M $(SRC) > depend
+
+a_depend: version.h
 	$(CC) -M $(A_SRC) > a_depend
 
 level.h:
 	hi level
 
-seed7_05.a: $(A_OBJ)
-	ar r seed7_05.a $(A_OBJ)
+$(SEED7_OBJ_LIB): $(A_OBJ)
+	ar r $(SEED7_OBJ_LIB) $(A_OBJ)
 
 wc: $(SRC)
 	wc $(GSRC1) $(GSRC2)

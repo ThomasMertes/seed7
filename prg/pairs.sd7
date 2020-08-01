@@ -1,7 +1,7 @@
 
 (********************************************************************)
 (*                                                                  *)
-(*  memory.sd7    Memory game                                       *)
+(*  pairs.sd7     Concentration game                                *)
 (*  Copyright (C) 2005  Thomas Mertes                               *)
 (*                                                                  *)
 (*  This program is free software; you can redistribute it and/or   *)
@@ -2035,13 +2035,13 @@ const proc: main is func
     scr := open(curr_win);
     color(scr, black, white);
     setPos(scr, 2, 44);
-    writeln(scr, "M E M O R Y");
+    writeln(scr, "P A I R S   -   Concentration game");
     setPos(scr, 4, 44);
     writeln(scr, "Copyright (C) 2005  Thomas Mertes");
     setPos(scr, 6, 44);
     writeln(scr, "This program is free software under the terms of the GNU General Public License.");
     setPos(scr, 8, 44);
-    writeln(scr, "Memory is written in the Seed7 programming language");
+    writeln(scr, "Pairs is written in the Seed7 programming language");
     setPos(scr, 9, 46);
     writeln(scr, "Homepage:    http://seed7.sourceforge.net");
     KEYBOARD := GRAPH_KEYBOARD;

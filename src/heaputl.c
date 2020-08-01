@@ -46,7 +46,7 @@
 #ifdef DO_HEAP_CHECK
 #ifdef ANSI_C
 
-void check_heap (long sizediff)
+void check_heap (long sizediff, char *file_name, unsigned int line_num)
 #else
 
 void check_heap (sizediff)
@@ -74,27 +74,30 @@ long sizediff;
         count.set_elems * SIZ_REC(bitsettype) +
         ((memsizetype) count.stru) * SIZ_SCT(0) +
         count.sct_elems * SIZ_REC(objectrecord) +
+        ((memsizetype) count.big) * SIZ_BIG(0) +
+        count.big_elems * SIZ_REC(bigdigittype) +
         ((memsizetype) count.ident) * SIZ_REC(identrecord) +
         count.idt_bytes + ((memsizetype) count.idt) +
-        ((memsizetype) count.entity) *    SIZ_REC(entityrecord) +
-        ((memsizetype) count.object) *    SIZ_REC(objectrecord) +
-        ((memsizetype) count.node) *      SIZ_REC(noderecord) +
-        ((memsizetype) count.token) *     SIZ_REC(tokenrecord) +
-        ((memsizetype) count.owner) *     SIZ_REC(ownerrecord) +
-        ((memsizetype) count.stack) *     SIZ_REC(stackrecord) +
-        count.typelist_elems * SIZ_REC(typelisttype) +
-        ((memsizetype) count.type) *      SIZ_REC(typerecord) +
-        ((memsizetype) count.list_elem) * SIZ_REC(listrecord) +
-        ((memsizetype) count.block) *     SIZ_REC(blockrecord) +
-        ((memsizetype) count.loclist) *   SIZ_REC(loclistrecord) +
-        ((memsizetype) count.infil) *     SIZ_REC(infilrecord) +
-        ((memsizetype) count.prog) *      SIZ_REC(progrecord) +
+        ((memsizetype) count.entity)         * SIZ_REC(entityrecord) +
+        ((memsizetype) count.object)         * SIZ_REC(objectrecord) +
+        ((memsizetype) count.node)           * SIZ_REC(noderecord) +
+        ((memsizetype) count.token)          * SIZ_REC(tokenrecord) +
+        ((memsizetype) count.owner)          * SIZ_REC(ownerrecord) +
+        ((memsizetype) count.stack)          * SIZ_REC(stackrecord) +
+        ((memsizetype) count.typelist_elems) * SIZ_REC(typelistrecord) +
+        ((memsizetype) count.type)           * SIZ_REC(typerecord) +
+        ((memsizetype) count.list_elem)      * SIZ_REC(listrecord) +
+        ((memsizetype) count.block)          * SIZ_REC(blockrecord) +
+        ((memsizetype) count.loclist)        * SIZ_REC(loclistrecord) +
+        ((memsizetype) count.infil)          * SIZ_REC(infilrecord) +
+        ((memsizetype) count.prog)           * SIZ_REC(progrecord) +
+        ((memsizetype) count.win)            * count.size_winrecord +
         count.fnam_bytes + ((memsizetype) count.fnam) +
         count.symb_bytes + ((memsizetype) count.symb) +
         count.byte;
     if (bytes_used != hs) {
-      printf("*** \n%lu %lu %ld %ld \n",
-          bytes_used, hs, bytes_used - hs, sizediff);
+      printf("*** %s(%u)\n%lu %lu %ld %ld \n",
+          file_name, line_num, bytes_used, hs, bytes_used - hs, sizediff);
 /*  } else {
       printf("\n%lu %ld %d \n", hs, sizediff, in_file.line);
 */  } /* if */

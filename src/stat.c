@@ -82,12 +82,12 @@ void show_statistic ()
         (int) ((total_lines * 1000) / msecs_total));
     } /* if */
 #endif
-#ifdef WITH_STATISTIK
+#ifdef WITH_STATISTIC
     printf("%6d literals\n", literal_count);
     printf("%6d lists\n", list_count);
     printf("%6d comments\n", comment_count);
 #endif
-#ifdef DO_HEAP_STATISTIK
+#ifdef DO_HEAP_STATISTIC
     heap_statistic();
 #else
 #ifdef DO_HEAPSIZE_COMPUTATION
@@ -110,7 +110,7 @@ void reset_statistic ()
 #ifdef WITH_COMPILATION_INFO
     total_lines = 0;
 #endif
-#ifdef WITH_STATISTIK
+#ifdef WITH_STATISTIC
     literal_count = 0;
     list_count = 0;
     comment_count = 0;

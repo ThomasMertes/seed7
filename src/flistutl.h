@@ -178,7 +178,7 @@ stritype RESIZE_S ();
 
 #ifdef ANSI_C
 
-#ifdef DO_HEAP_STATISTIK
+#ifdef DO_HEAP_STATISTIC
 void heap_statistic (void);
 #endif
 memsizetype heapsize (void);
@@ -195,7 +195,7 @@ void *heap_chunk (SIZE_TYPE);
 
 #else
 
-#ifdef DO_HEAP_STATISTIK
+#ifdef DO_HEAP_STATISTIC
 void heap_statistic ();
 #endif
 memsizetype heapsize ();

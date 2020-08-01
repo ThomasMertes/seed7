@@ -141,7 +141,7 @@ const func string: str (in complex: num) is func
     if num.im < 0.0 then
       result := str(num.re) & str(num.im) & "i";
     else
-      result := str(num.re) & "+" & str(num) & "i";
+      result := str(num.re) & "+" & str(num.im) & "i";
     end if;
   end func;
 

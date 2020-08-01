@@ -71,7 +71,7 @@ typedef struct win_winstruct {
   unsigned int width;
   unsigned int height;
   struct win_winstruct *next;
-} *win_wintype;
+} win_winrecord, *win_wintype;
 
 static win_wintype window_list = NULL;
 
@@ -1032,72 +1032,6 @@ inttype dest_y;
 
 #ifdef ANSI_C
 
-void drwCpy (wintype *win_to, wintype win_from)
-#else
-
-void drwCpy (win_to, win_from)
-wintype *win_to;
-wintype win_from;
-#endif
-
-  { /* drwCpy */
-#ifdef TRACE_WIN
-    printf("drwCpy(%lu, %ld)\n", win_to, win_from);
-#endif
-    if (*win_to != NULL) {
-      (*win_to)->usage_count--;
-      if ((*win_to)->usage_count == 0) {
-        drwFree(*win_to);
-      } /* if */
-    } /* if */
-    *win_to = win_from;
-    if (win_from != NULL) {
-      win_from->usage_count++;
-    } /* if */
-  } /* drwCpy */
-
-
-
-#ifdef ANSI_C
-
-wintype drwCreate (wintype win_from)
-#else
-
-wintype drwCreate (win_from)
-wintype win_from;
-#endif
-
-  { /* drwCreate */
-    if (win_from != NULL) {
-      win_from->usage_count++;
-    } /* if */
-    return(win_from);
-  } /* drwCreate */
-
-
-
-#ifdef ANSI_C
-
-void drwDestr (wintype old_win)
-#else
-
-void drwDestr (old_win)
-wintype old_win;
-#endif
-
-  { /* drwDestr */
-    if (old_win != NULL) {
-      old_win->usage_count--;
-      if (old_win->usage_count == 0) {
-        drwFree(old_win);
-      } /* if */
-    } /* if */
-  } /* drwDestr */
-
-
-
-#ifdef ANSI_C
-
 void drwFCircle (wintype actual_window,
     inttype x, inttype y, inttype radius)
 #else
@@ -1255,7 +1189,7 @@ wintype old_window;
       DestroyWindow(to_hwnd(old_window));
       remove_window((win_wintype) old_window);
     } /* if */
-    free((win_wintype) old_window);
+    FREE_RECORD(old_window, win_winrecord, count.win);
   } /* drwFree */
 
 
@@ -1278,8 +1212,7 @@ inttype height;
     win_wintype result;
 
   /* drwGet */
-    result = (win_wintype) malloc(sizeof(struct win_winstruct));
-    if (result == NULL) {
+    if (!ALLOC_RECORD(result, win_winrecord, count.win)) {
       raise_error(MEMORY_ERROR);
     } else {
       memset(result, 0, sizeof(struct win_winstruct));
@@ -1423,8 +1356,7 @@ inttype height;
     win_wintype result;
 
   /* drwNewPixmap */
-    result = (win_wintype) malloc(sizeof(struct win_winstruct));
-    if (result == NULL) {
+    if (!ALLOC_RECORD(result, win_winrecord, count.win)) {
       raise_error(MEMORY_ERROR);
     } else {
       memset(result, 0, sizeof(struct win_winstruct));
@@ -1511,6 +1443,9 @@ stritype window_name;
     printf("BEGIN drwOpen(%ld, %ld, %ld, %ld)\n",
         xPos, yPos, width, height);
 #endif
+#ifdef DO_HEAP_STATISTIC
+    count.size_winrecord = SIZ_REC(win_winrecord);
+#endif
     result = NULL;
     if (init_called == 0) {
       dra_init();
@@ -1520,8 +1455,7 @@ stritype window_name;
       if (win_name == NULL) {
         raise_error(MEMORY_ERROR);
       } else {
-        result = (win_wintype) malloc(sizeof(struct win_winstruct));
-        if (result != NULL) {
+        if (ALLOC_RECORD(result, win_winrecord, count.win)) {
           memset(result, 0, sizeof(struct win_winstruct));
           result->usage_count = 1;
           result->next = window_list;

@@ -32,8 +32,8 @@ objecttype exec_call (objecttype);
 objecttype evaluate (objecttype);
 objecttype eval_expression (objecttype);
 objecttype exec_dynamic (listtype);
-objecttype exec_expr (progtype, objecttype);
-void interpr (progtype);
+objecttype exec_expr (const_progtype, objecttype);
+void interpr (const_progtype);
 
 #else
 

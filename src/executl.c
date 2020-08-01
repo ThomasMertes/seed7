@@ -38,7 +38,6 @@
 #include "syvarutl.h"
 #include "listutl.h"
 #include "traceutl.h"
-#include "exec.h"
 #include "error.h"
 #include "doany.h"
 #include "exec.h"
@@ -1001,7 +1000,7 @@ objecttype param3;
 
 #ifdef ANSI_C
 
-objecttype create_return_object (locobjtype local, objecttype init_value,
+objecttype create_return_object (const_locobjtype local, objecttype init_value,
     errinfotype *err_info)
 #else
 
@@ -1061,7 +1060,7 @@ errinfotype *err_info;
 
 #ifdef ANSI_C
 
-void create_local_object (locobjtype local, objecttype init_value,
+void create_local_object (const_locobjtype local, objecttype init_value,
     errinfotype *err_info)
 #else
 
@@ -1122,7 +1121,7 @@ errinfotype *err_info;
 
 #ifdef ANSI_C
 
-void destroy_local_object (locobjtype local, errinfotype *err_info)
+void destroy_local_object (const_locobjtype local, errinfotype *err_info)
 #else
 
 void destroy_local_object (local, err_info)
@@ -1185,7 +1184,7 @@ errinfotype *err_info;
 
 #ifdef ANSI_C
 
-void destroy_object_list (listtype obj_list)
+void destroy_object_list (const_listtype obj_list)
 #else
 
 void destroy_object_list (obj_list)

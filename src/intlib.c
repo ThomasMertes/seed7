@@ -378,22 +378,6 @@ listtype arguments;
 
 #ifdef ANSI_C
 
-objecttype int_hsize (listtype arguments)
-#else
-
-objecttype int_hsize (arguments)
-listtype arguments;
-#endif
-
-  { /* int_hsize */
-    /* heap_statistic(); */
-    return(bld_int_temp((inttype) heapsize()));
-  } /* int_hsize */
-
-
-
-#ifdef ANSI_C
-
 objecttype int_incr (listtype arguments)
 #else
 

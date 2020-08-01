@@ -2079,6 +2079,42 @@ biginttype big2;
 
 
 
+#ifdef OUT_OF_ORDER
+#ifdef ANSI_C
+
+biginttype bigBinom (biginttype n_number, biginttype k_number)
+#else
+
+biginttype bigBinom (n_number, k_number)
+biginttype n_number;
+biginttype k_number;
+#endif
+
+  {
+    biginttype number;
+    biginttype result;
+
+  /* bigBinom */
+    if (2 * k_number > n_number) {
+      k_number = n_number - k_number;
+    } /* if */
+    if (k_number < 0) {
+      result = 0;
+    } else if (k_number == 0) {
+      result = 1;
+    } else {
+      result = n_number;
+      for (number = 2; number <= k_number; number++) {
+        result *= (n_number - number + 1);
+        result /= number;
+      } /* for */
+    } /* if */
+    return((inttype) result);
+  } /* bigBinom */
+#endif
+
+
+
 #ifdef ANSI_C
 
 inttype bigBitLength (const const_biginttype big1)

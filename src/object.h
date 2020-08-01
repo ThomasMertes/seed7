@@ -27,8 +27,8 @@
 
 #ifdef ANSI_C
 
-objecttype new_empty_list_object (objecttype);
-objecttype new_nonempty_expression_object (objecttype, listtype *, objecttype);
+objecttype new_empty_list_object (const_objecttype);
+objecttype new_nonempty_expression_object (objecttype, listtype *, const_objecttype);
 objecttype new_type_of_expression_object (objecttype, listtype *, typetype);
 listtype add_element_to_list (listtype, objecttype);
 

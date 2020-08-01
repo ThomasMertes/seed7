@@ -302,6 +302,76 @@ other uses of the root class 'object'. Therefore a single rooted hierarchy is no
 needed.
 
 
+What is multiple dispatch?
+==========================
+
+Multiple dispatch means that a function or method is connected to more
+than one type. The decision which method is called at runtime is done
+based on more than one of its arguments. The classic object orientation
+is a special case where a method is connected to one class and the dispatch
+decision is done based on the type of the 'self' or 'this' parameter.
+The classic object orientation is a single dispatch system.
+
+In a multiple dispatch system the methods cannot be grouped to one class
+and it makes no sense to have a 'self' or 'this' parameter.
+All parameters are taken into account when the dispatch decision is done.
+In the following example the interface type 'Number' uses multiple dispatch:
+
+  const type: Number is sub object interface;
+
+  const func Number: (in Number param) + (in Number param) is DYNAMIC;
+
+The 'DYNAMIC' declaration creates an interface function for the '+' operator.
+The interface type 'Number' can represent an 'Integer' or a 'Float':
+
+  const type: Integer is new struct
+      var integer: val is 0;
+    end struct;
+
+  type_implements_interface(Integer, Number);
+
+  const type: Float is new struct
+      var float: val is 0.0;
+    end struct;
+
+  type_implements_interface(Float, Number);
+
+The declarations of the converting '+' operators are:
+
+  const func Float: (in Integer: a) + (in Float: b) is func
+    result
+      var Float: result is Float.value;
+    begin
+      result.val := flt(a.val) + b.val;
+    end func;
+
+  const func Float: (in Float: a) + (in Integer: b) is func
+    result
+      var Float: result is Float.value;
+    begin
+      result.val := a.val + flt(b.val);
+    end func;
+
+The declarations of the normal '+' operators (which do not convert) are:
+
+  const func Integer: (in Integer: a) + (in Integer: b) is func
+    result
+      var Integer: result is Integer.value;
+    begin
+      result.val := a.val + b.val;
+    end func;
+
+  const func Float: (in Float: a) + (in Float: b) is func
+    result
+      var Float: result is Float.value;
+    begin
+      result.val := a.val + b.val;
+    end func;
+
+The decision which '+' operator should be called at runtime is based on the
+implementation type ('Integer' or a 'Float') of both arguments of the '+'.
+
+
 What container classes do exist?
 ================================
 

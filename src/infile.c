@@ -104,7 +104,7 @@ int fill_buf ()
 
 #ifdef ANSI_C
 
-static INLINE void make_os_file_name (stritype source_file_name,
+static INLINE void make_os_file_name (const_stritype source_file_name,
     ustritype *os_file_name, errinfotype *err_info)
 #else
 
@@ -596,7 +596,7 @@ errinfotype *err_info;
 
 #ifdef ANSI_C
 
-void append_to_lib_path (stritype path, errinfotype *err_info)
+void append_to_lib_path (const_stritype path, errinfotype *err_info)
 #else
 
 void append_to_lib_path (path, err_info)

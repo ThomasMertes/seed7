@@ -68,7 +68,7 @@ static unsigned int chunk_size[] = { 32768, 16384, 8192, 4096,
 
 
 
-#ifdef DO_HEAP_STATISTIK
+#ifdef DO_HEAP_STATISTIC
 #ifdef ANSI_C
 
 static unsigned long object_flist_count (void)
@@ -198,10 +198,10 @@ void heap_statistic ()
           count.stri,
           SIZ_STRI(0));
       bytes_used += count.stri * SIZ_STRI(0);
-      printf("%9lu bytes in %8lu strings of average  %4lu bytes\n",
+      printf("%9lu bytes in %8lu string chars of     %4d bytes\n",
           count.stri_elems * sizeof(strelemtype),
-          count.stri,
-          count.stri_elems * sizeof(strelemtype) / count.stri);
+          count.stri_elems,
+          sizeof(strelemtype));
       bytes_used += count.stri_elems * sizeof(strelemtype);
     } /* if */
     if (count.bstri != 0) {
@@ -351,10 +351,10 @@ void heap_statistic ()
     } /* if */
     if (count.typelist_elems != 0) {
       printf("%9lu bytes in %8lu typelist elems of   %4d bytes\n",
-          count.typelist_elems * SIZ_REC(typelisttype),
+          count.typelist_elems * SIZ_REC(typelistrecord),
           count.typelist_elems,
           SIZ_REC(typelisttype));
-      bytes_used += count.typelist_elems * SIZ_REC(typelisttype);
+      bytes_used += count.typelist_elems * SIZ_REC(typelistrecord);
     } /* if */
     if (count.type != 0) {
       printf("%9lu bytes in %8lu types of            %4d bytes\n",
@@ -397,6 +397,13 @@ void heap_statistic ()
           count.prog,
           SIZ_REC(progrecord));
       bytes_used += count.prog * SIZ_REC(progrecord);
+    } /* if */
+    if (count.win != 0) {
+      printf("%9lu bytes in %8lu windows of          %4d bytes\n",
+          count.win * count.size_winrecord,
+          count.win,
+          count.size_winrecord);
+      bytes_used += count.win * count.size_winrecord;
     } /* if */
     bytes_in_buffers =
         count.fnam_bytes + count.fnam +
@@ -509,13 +516,14 @@ static memsizetype compute_hs ()
     bytes_total += count.token * SIZ_REC(tokenrecord);
     bytes_total += count.owner * SIZ_REC(ownerrecord);
     bytes_total += count.stack * SIZ_REC(stackrecord);
-    bytes_total += count.typelist_elems * SIZ_REC(typelisttype);
+    bytes_total += count.typelist_elems * SIZ_REC(typelistrecord);
     bytes_total += count.type * SIZ_REC(typerecord);
     bytes_total += count.list_elem * SIZ_REC(listrecord);
     bytes_total += count.block * SIZ_REC(blockrecord);
     bytes_total += count.loclist * SIZ_REC(loclistrecord);
     bytes_total += count.infil * SIZ_REC(infilrecord);
     bytes_total += count.prog * SIZ_REC(progrecord);
+    bytes_total += count.win * count.size_winrecord;
     bytes_total += count.fnam_bytes + count.fnam +
         count.symb_bytes + count.symb +
         count.byte;

@@ -35,8 +35,8 @@
 
 identtype new_ident (ustritype, unsigned int);
 identtype get_ident (ustritype, unsigned int);
-cstritype id_string (identtype);
-void close_idents (progtype);
+cstritype id_string (const_identtype);
+void close_idents (const_progtype);
 void init_idents (progtype, errinfotype *);
 
 #else

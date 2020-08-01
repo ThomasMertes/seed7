@@ -629,7 +629,9 @@ objecttype anyobject;
         if (anyobject->value.winvalue == NULL) {
           prot_cstri(" *NULL_WINDOW* ");
         } else {
-          prot_cstri("window ");
+          prot_cstri("window [");
+          prot_int(anyobject->value.winvalue->usage_count);
+          prot_cstri("] ");
           prot_int((inttype) anyobject->value.winvalue);
         } /* if */
         break;
@@ -1448,6 +1450,7 @@ objecttype traceobject;
         case SETOBJECT:
         case ACTOBJECT:
         case BLOCKOBJECT:
+        case WINOBJECT:
           print_real_value(traceobject);
           break;
 #ifndef OUT_OF_ORDER

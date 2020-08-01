@@ -137,10 +137,9 @@ errinfotype *err_info;
     rtlHelemtype helem;
 
   /* new_helem */
-    if (!ALLOC_RECORD(helem, rtlHelemrecord)) {
+    if (!ALLOC_RECORD(helem, rtlHelemrecord, count.helem)) {
       *err_info = MEMORY_ERROR;
     } else {
-      COUNT_RECORD(rtlHelemrecord, count.helem);
       helem->key.value.genericvalue = key_create_func(key);
       helem->data.value.genericvalue = data_create_func(data);
       helem->next_less = NULL;
@@ -182,7 +181,7 @@ errinfotype *err_info;
 
 #ifdef ANSI_C
 
-static rtlHelemtype copy_helem (rtlHelemtype source_helem, createfunctype key_create_func,
+static rtlHelemtype copy_helem (const_rtlHelemtype source_helem, createfunctype key_create_func,
     createfunctype data_create_func, errinfotype *err_info)
 #else
 
@@ -198,10 +197,9 @@ errinfotype *err_info;
 
   /* copy_helem */
     if (source_helem != NULL) {
-      if (!ALLOC_RECORD(dest_helem, rtlHelemrecord)) {
+      if (!ALLOC_RECORD(dest_helem, rtlHelemrecord, count.helem)) {
         *err_info = MEMORY_ERROR;
       } else {
-        COUNT_RECORD(rtlHelemrecord, count.helem);
         dest_helem->key.value.genericvalue = key_create_func(source_helem->key.value.genericvalue);
         dest_helem->data.value.genericvalue = data_create_func(source_helem->data.value.genericvalue);
         dest_helem->next_less = copy_helem(source_helem->next_less,
@@ -267,7 +265,7 @@ errinfotype *err_info;
 #ifdef ANSI_C
 
 static void keys_helem (rtlArraytype *key_array, memsizetype *arr_pos,
-    rtlHelemtype curr_helem, createfunctype key_create_func, errinfotype *err_info)
+    const_rtlHelemtype curr_helem, createfunctype key_create_func, errinfotype *err_info)
 #else
 
 static void keys_helem (key_array, arr_pos, curr_helem, key_create_func, err_info)
@@ -370,7 +368,7 @@ errinfotype *err_info;
 #ifdef ANSI_C
 
 static void values_helem (rtlArraytype *value_array, memsizetype *arr_pos,
-    rtlHelemtype curr_helem, createfunctype value_create_func, errinfotype *err_info)
+    const_rtlHelemtype curr_helem, createfunctype value_create_func, errinfotype *err_info)
 #else
 
 static void values_helem (value_array, arr_pos, curr_helem, value_create_func, err_info)
@@ -529,18 +527,13 @@ destrfunctype data_destr_func;
 
   /* hshCpy */
     free_hash(*hash_to, key_destr_func, data_destr_func);
+    *hash_to = copy_hash(hash_from,
+        key_create_func, data_create_func, &err_info);
     if (err_info != OKAY_NO_ERROR) {
+      free_hash(*hash_to, key_destr_func,
+          data_destr_func);
       *hash_to = NULL;
       raise_error(MEMORY_ERROR);
-    } else {
-      *hash_to = copy_hash(hash_from,
-          key_create_func, data_create_func, &err_info);
-      if (err_info != OKAY_NO_ERROR) {
-        free_hash(*hash_to, key_destr_func,
-            data_destr_func);
-        *hash_to = NULL;
-        raise_error(MEMORY_ERROR);
-      } /* if */
     } /* if */
   } /* hshCpy */
 

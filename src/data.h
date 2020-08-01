@@ -107,6 +107,26 @@ typedef struct structstruct   *structtype;
 typedef struct progstruct     *progtype;
 typedef struct infilstruct    *infiltype;
 
+typedef const struct identstruct    *const_identtype;
+typedef const struct tokenstruct    *const_tokentype;
+typedef const struct nodestruct     *const_nodetype;
+typedef const struct entitystruct   *const_entitytype;
+typedef const struct ownerstruct    *const_ownertype;
+typedef const struct objectstruct   *const_objecttype;
+typedef const struct stackstruct    *const_stacktype;
+typedef const struct typeliststruct *const_typelisttype;
+typedef const struct typestruct     *const_typetype;
+typedef const struct liststruct     *const_listtype;
+typedef const struct locobjstruct   *const_locobjtype;
+typedef const struct locliststruct  *const_loclisttype;
+typedef const struct blockstruct    *const_blocktype;
+typedef const struct arraystruct    *const_arraytype;
+typedef const struct helemstruct    *const_helemtype;
+typedef const struct hashstruct     *const_hashtype;
+typedef const struct structstruct   *const_structtype;
+typedef const struct progstruct     *const_progtype;
+typedef const struct infilstruct    *const_infiltype;
+
 #ifdef ANSI_C
 typedef objecttype (*acttype) (listtype);
 #else
@@ -371,7 +391,7 @@ extern progrecord prog;
 
 
 #define INIT_POS(O,L,F)     (O)->value.pos = ((postype) (L)) | (((postype) (F)) << 20)
-#define CREATE_POSINFO(L,F) ((postype) (L)) | (((postype) (F)) << 20)
+#define CREATE_POSINFO(L,F) (((postype) (L)) | (((postype) (F)) << 20))
 #define GET_LINE_NUM(O)     (linenumtype) (((long)(O)->descriptor.posinfo) & 1048575L)
 #define GET_FILE_NUM(O)     (filenumtype) ((((long)(O)->descriptor.posinfo) & 2146435072L) >> 20)
 

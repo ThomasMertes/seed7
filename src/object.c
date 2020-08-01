@@ -49,7 +49,7 @@
 
 #ifdef ANSI_C
 
-objecttype new_empty_list_object (objecttype typeof_object)
+objecttype new_empty_list_object (const_objecttype typeof_object)
 #else
 
 objecttype new_empty_list_object (typeof_object)
@@ -63,7 +63,7 @@ objecttype typeof_object;
 #ifdef TRACE_OBJECT
     printf("BEGIN new_empty_list_object\n");
 #endif
-#ifdef WITH_STATISTIK
+#ifdef WITH_STATISTIC
     list_count++;
 #endif
     if (!ALLOC_OBJECT(created_list)) {
@@ -87,7 +87,7 @@ objecttype typeof_object;
 #ifdef ANSI_C
 
 objecttype new_nonempty_expression_object (objecttype first_element,
-    listtype *list, objecttype typeof_object)
+    listtype *list, const_objecttype typeof_object)
 #else
 
 objecttype new_nonempty_expression_object (first_element, list, typeof_object)
@@ -105,7 +105,7 @@ objecttype typeof_object;
     trace1(first_element);
     printf("\n");
 #endif
-#ifdef WITH_STATISTIK
+#ifdef WITH_STATISTIC
     list_count++;
 #endif
     if (!ALLOC_OBJECT(created_list)) {
@@ -152,7 +152,7 @@ typetype type_of;
     trace1(first_element);
     printf("\n");
 #endif
-#ifdef WITH_STATISTIK
+#ifdef WITH_STATISTIC
     list_count++;
 #endif
     if (!ALLOC_OBJECT(created_list)) {

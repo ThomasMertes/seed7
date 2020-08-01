@@ -78,14 +78,12 @@ errinfotype *err_info;
 #endif
 
   {
-    strirecord name;
     typetype generated_type;
 
   /* init_dollar_type */
 #ifdef TRACE_PARSER
     printf("BEGIN init_dollar_type\n");
 #endif
-    name.size = 0;
     if ((generated_type = new_type(meta_type, NULL)) == NULL) {
       *err_info = MEMORY_ERROR;
     } else {

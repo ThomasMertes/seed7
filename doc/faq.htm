@@ -57,6 +57,9 @@ Is Seed7 object oriented?
 <li><a href="#inherited_from_object"><b>
 Is everything inherited from object?
 </b></a></li>
+<li><a href="#multiple_dispatch"><b>
+What is multiple dispatch?
+</b></a></li>
 <li><a href="#container_classes"><b>
 What container classes do exist?
 </b></a></li>
@@ -322,7 +325,7 @@ that everyting can be done in Lisp, send him to the next advocacy group.
 In general: Seed7 supports user definable infix operators with priority and
 associativity. Such operators can be overloaded and the type checks are done
 at compile time. In Lisp all this would be a hack.
-</p>
+</p><p></p>
 
 <a name="variable_parameters"><b>Can functions have variable parameter lists?
 </b></a><hr><!-- ============================================ -->
@@ -402,6 +405,76 @@ oriented languages the class <tt>'<font color=red>object</font>'</tt> is used as
 Abstract data types provide a better and type save solution for containers and
 other uses of the root class <tt>'<font color=red>object</font>'</tt>. Therefore a single rooted hierarchy is not
 needed.
+</p><p></p>
+
+<a name="multiple_dispatch"><b>What is multiple dispatch?
+</b></a><hr><!-- ========================== -->
+<p>
+Multiple dispatch means that a function or method is connected to more
+than one type. The decision which method is called at runtime is done
+based on more than one of its arguments. The classic object orientation
+is a special case where a method is connected to one class and the dispatch
+decision is done based on the type of the <tt>'self'</tt> or <tt>'this'</tt> parameter.
+The classic object orientation is a single dispatch system.
+</p><p>
+In a multiple dispatch system the methods cannot be grouped to one class
+and it makes no sense to have a <tt>'self'</tt> or <tt>'this'</tt> parameter.
+All parameters are taken into account when the dispatch decision is done.
+In the following example the interface type <tt>'<font color=red>Number</font>'</tt> uses multiple dispatch:
+</p><pre>
+  <font color=blue>const</font> <font color=red>type</font>: Number <font color=blue>is sub</font> <font color=red>object</font> <font color=blue>interface</font>;
+
+  <font color=blue>const</font> <font color=red>func Number</font>: (<font color=blue>in</font> <font color=red>Number</font> <font color=blue>param</font>) + (<font color=blue>in</font> <font color=red>Number</font> <font color=blue>param</font>) <font color=blue>is DYNAMIC</font>;
+</pre><p>
+The <tt>'<font color=blue>DYNAMIC</font>'</tt> declaration creates an interface function for the <tt>'+'</tt> operator.
+The interface type <tt>'<font color=red>Number</font>'</tt> can represent an <tt>'<font color=red>Integer</font>'</tt> or a <tt>'<font color=red>Float</font>'</tt>:
+</p><pre>
+  <font color=blue>const</font> <font color=red>type</font>: Integer <font color=blue>is new struct</font>
+      <font color=blue>var</font> <font color=red>integer</font>: val <font color=blue>is</font> 0;
+    <font color=blue>end struct</font>;
+
+  type_implements_interface(<font color=red>Integer</font>, <font color=red>Number</font>);
+
+  <font color=blue>const</font> <font color=red>type</font>: Float <font color=blue>is new struct</font>
+      <font color=blue>var</font> <font color=red>float</font>: val <font color=blue>is</font> 0.0;
+    <font color=blue>end struct</font>;
+
+  type_implements_interface(<font color=red>Float</font>, <font color=red>Number</font>);
+</pre><p>
+The declarations of the converting <tt>'+'</tt> operators are:
+</p><pre>
+  <font color=blue>const</font> <font color=red>func Float</font>: (<font color=blue>in</font> <font color=red>Integer</font>: a) + (<font color=blue>in</font> <font color=red>Float</font>: b) <font color=blue>is func</font>
+    <font color=blue>result</font>
+      <font color=blue>var</font> <font color=red>Float</font>: result <font color=blue>is</font> <font color=red>Float</font>.value;
+    <font color=blue>begin</font>
+      result.val := flt(a.val) + b.val;
+    <font color=blue>end func</font>;
+
+  <font color=blue>const</font> <font color=red>func Float</font>: (<font color=blue>in</font> <font color=red>Float</font>: a) + (<font color=blue>in</font> <font color=red>Integer</font>: b) <font color=blue>is func</font>
+    <font color=blue>result</font>
+      <font color=blue>var</font> <font color=red>Float</font>: result <font color=blue>is</font> <font color=red>Float</font>.value;
+    <font color=blue>begin</font>
+      result.val := a.val + flt(b.val);
+    <font color=blue>end func</font>;
+</pre><p>
+The declarations of the normal <tt>'+'</tt> operators (which do not convert) are:
+</p><pre>
+  <font color=blue>const</font> <font color=red>func Integer</font>: (<font color=blue>in</font> <font color=red>Integer</font>: a) + (<font color=blue>in</font> <font color=red>Integer</font>: b) <font color=blue>is func</font>
+    <font color=blue>result</font>
+      <font color=blue>var</font> <font color=red>Integer</font>: result <font color=blue>is</font> <font color=red>Integer</font>.value;
+    <font color=blue>begin</font>
+      result.val := a.val + b.val;
+    <font color=blue>end func</font>;
+
+  <font color=blue>const</font> <font color=red>func Float</font>: (<font color=blue>in</font> <font color=red>Float</font>: a) + (<font color=blue>in</font> <font color=red>Float</font>: b) <font color=blue>is func</font>
+    <font color=blue>result</font>
+      <font color=blue>var</font> <font color=red>Float</font>: result <font color=blue>is</font> <font color=red>Float</font>.value;
+    <font color=blue>begin</font>
+      result.val := a.val + b.val;
+    <font color=blue>end func</font>;
+</pre><p>
+The decision which <tt>'+'</tt> operator should be called at runtime is based on the
+implementation type (<tt>'<font color=red>Integer</font>'</tt> or a <tt>'<font color=red>Float</font>'</tt>) of both arguments of the <tt>'+'</tt>.
 </p>
 
 <a name="container_classes"><b>What container classes do exist?

@@ -382,7 +382,6 @@ static primactrecord prim_act_table[] = {
     { "INT_GROW",          int_grow,          },
     { "INT_GT",            int_gt,            },
     { "INT_HASHCODE",      int_hashcode,      },
-    { "INT_HSIZE",         int_hsize,         },
     { "INT_INCR",          int_incr,          },
     { "INT_LE",            int_le,            },
     { "INT_LOG2",          int_log2,          },
@@ -444,6 +443,8 @@ static primactrecord prim_act_table[] = {
     { "PRC_FOR_DOWNTO",    prc_for_downto,    },
     { "PRC_FOR_TO",        prc_for_to,        },
     { "PRC_GETENV",        prc_getenv,        },
+    { "PRC_HEAPSTAT",      prc_heapstat,      },
+    { "PRC_HSIZE",         prc_hsize,         },
     { "PRC_IF",            prc_if,            },
     { "PRC_IF_ELSIF",      prc_if_elsif,      },
     { "PRC_INCLUDE",       prc_include,       },
@@ -484,6 +485,7 @@ static primactrecord prim_act_table[] = {
 
 #ifdef WITH_REFERENCE
     { "REF_ADDR",          ref_addr,          },
+    { "REF_ARRMINPOS",     ref_arrminpos,     },
     { "REF_ARRTOLIST",     ref_arrtolist,     },
     { "REF_BODY",          ref_body,          },
     { "REF_BUILD",         ref_build,         },
@@ -528,6 +530,7 @@ static primactrecord prim_act_table[] = {
     { "RFL_CREATE",        rfl_create,        },
     { "RFL_DESTR",         rfl_destr,         },
     { "RFL_ELEM",          rfl_elem,          },
+    { "RFL_ELEMCPY",       rfl_elemcpy,       },
     { "RFL_EMPTY",         rfl_empty,         },
     { "RFL_EQ",            rfl_eq,            },
     { "RFL_EXCL",          rfl_excl,          },

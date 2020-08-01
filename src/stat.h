@@ -28,7 +28,7 @@
 #ifdef WITH_COMPILATION_INFO
 EXTERN unsigned long total_lines;
 #endif
-#ifdef WITH_STATISTIK
+#ifdef WITH_STATISTIC
 EXTERN unsigned int literal_count;
 EXTERN unsigned int list_count;
 EXTERN unsigned int comment_count;
