@@ -1,3 +1,17 @@
+20150927:
+- The library cgidialog.s7i, which provides dialogs that are shown
+  with a web browser, has been added.
+- The example program ide7.sd7 has been added. This program is a
+  cgi dialog demo program.
+- The library browser.s7i, which opens a web browser and provides a
+  connection to it, has been added.
+- The chapter about types in the manual has been improved.
+- The compiler has been improved to create code for the action
+  FLT_DIV_ASSIGN in a way that works with icc (icc has problems
+  when */ precedes /= ).
+- The program chkccomp.c has been improved to write definitions of
+  OVERFLOW_SIGNAL and PRINTF_SUPPORTS_VARIABLE_FORMATS.
+
 20150914:
 - The FAQ has been improved to explain the support for Unicode names
   and how Unicode names are activated with a pragma.

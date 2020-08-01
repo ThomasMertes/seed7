@@ -399,8 +399,9 @@ const proc: process_const_flt_div_assign (in reference: param1, in float: diviso
         statement.expr &:= "<0.0 ? NEGATIVE_INFINITY : POSITIVE_INFINITY));\n";
       end if;
     else
+      statement.expr &:= "(";
       process_expr(param1, statement);
-      statement.expr &:= "/=";
+      statement.expr &:= ")/="; # icc has problems when */ precedes /=
       statement.expr &:= floatLiteral(divisor);
       statement.expr &:= ";\n";
     end if;
@@ -469,8 +470,9 @@ const proc: process (FLT_DIV_ASSIGN, in reference: function,
       statement.expr &:= ");\n";
       doLocalDeclsOfStatement(statement, c_expr);
     else
+      statement.expr &:= "(";
       process_expr(params[1], statement);
-      statement.expr &:= "/=";
+      statement.expr &:= ")/="; # icc has problems when */ precedes /=
       process_expr(params[3], statement);
       statement.expr &:= ";\n";
       doLocalDeclsOfStatement(statement, c_expr);

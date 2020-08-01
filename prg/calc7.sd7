@@ -33,7 +33,7 @@ const proc: main is func
 
   local
     var string: command is "";
-    var program: prog_expr is program.EMPTY;
+    var program: progExpr is program.EMPTY;
   begin
     OUT := STD_CONSOLE;
     IN := openEditLine(KEYBOARD, OUT);
@@ -49,7 +49,7 @@ const proc: main is func
     readln(command);
     while command not in {"quit", "exit"} do
       if command <> "" then
-        prog_expr := parseStri("\
+        progExpr := parseStri("\
           \$ include \"seed7_05.s7i\";\n\
           \include \"console.s7i\";\n\
           \include \"float.s7i\";\n\
@@ -78,11 +78,11 @@ const proc: main is func
           \    end block;\n\
           \  end func;\n\
           \");
-        if prog_expr <> program.EMPTY then
-          if errorCount(prog_expr) = 0 then
-            execute(prog_expr);
+        if progExpr <> program.EMPTY then
+          if errorCount(progExpr) = 0 then
+            execute(progExpr);
           else
-            writeln("*** " <& errorCount(prog_expr) <& " errors found");
+            writeln("*** " <& errorCount(progExpr) <& " errors found");
           end if;
         end if;
       end if;

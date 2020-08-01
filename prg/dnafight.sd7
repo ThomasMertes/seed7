@@ -282,7 +282,7 @@ const proc: initScreen is func
     var integer: y is 0;
 
   begin (* initScreen *)
-    info := open_window(scr, 2, 48, 34, 58);
+    info := openWindow(scr, 2, 48, 34, 58);
     stat := info;
     fstat := info;
     rect(PLATE_XPOS, PLATE_YPOS,

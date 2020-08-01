@@ -1771,6 +1771,9 @@ CONTENTS
   OVERFLOW_ERROR. The 'integer' functions are defined
   in the library "integer.s7i".
 
+    Constants:
+      integer.first  Minimum value of integer (-9223372036854775808)
+      integer.last   Maximum value of integer (9223372036854775807)
     Prefix operators:
       +         Identity
       -         Change sign
@@ -1891,6 +1894,14 @@ CONTENTS
       literal(A) Conversion to a literal
                   ( Type of result: string,
                     literal(A) => str(A) )
+      integer(A, B) Convert numeric string, with specified radix, to an integer
+                  ( Type of argument A: string,
+                    integer("beef", 16) => 48879,
+                    integer("-177", 8) => -127,
+                    integer("10101010", 2) => 170,
+                    integer("Cafe", 16) => 51966,
+                    integer("0", 1) => EXCEPTION RANGE_ERROR,
+                    integer("qwertyuiop", 37) => EXCEPTION RANGE_ERROR )
       sqrt(A)   Integer square root
                   ( sqrt(A) is okay for A >= 0
                     sqrt(A) => trunc(sqrt(flt(A))),
@@ -2142,11 +2153,21 @@ CONTENTS
       str(A)    Conversion to string
                   ( Type of result: string,
                     str(9876543210_) => "9876543210" )
+      bigInteger(A, B) Convert numeric string, with specified radix, to a bigInteger
+                  ( Type of argument A: string,
+                    Type of argument B: integer,
+                    bigInteger("deadbeef", 16) => 3735928559_,
+                    bigInteger("-77777777777", 8) => -8589934591_,
+                    bigInteger("10101010", 2) => 170_,
+                    bigInteger("Cafe", 16) => 51966_,
+                    bigInteger("0", 1) => EXCEPTION RANGE_ERROR,
+                    bigInteger("qwertyuiop", 37) => EXCEPTION RANGE_ERROR )
       sqrt(A)   Integer square root
                   ( sqrt(A) is okay for A >= 0_
                     sqrt(A) => trunc(sqrt(flt(A))),
                     sqrt(-1_) => EXCEPTION NUMERIC_ERROR )
       modInverse(A, B) Compute the modular multiplicative inverse of A modulo B
+      modPow(A, B, C) Compute the modular exponentiation of A ** B
       log10(A)  Truncated base 10 logarithm
                   ( log10(A) is defined for A >= 0_
                     log10(10_ ** A) = A for A >= 0_,
@@ -2371,6 +2392,10 @@ CONTENTS
                   ( Type of result: integer,
                     round(1/2) => 1, round(-1/2) => -1,
                     round(2/5) => 0, round(-2/5) => 0 )
+      round10(A, B)  Round with a decimal precision towards zero
+                  ( Type of B: integer,
+                    round10(1/4, 1) => 3/10, round10(-1/4, 1) => -3/10,
+                    round10(2/5, 0) => 0/1, round(-2/5, 0) => 0/1 )
       str(A)    Conversion to string
                   ( Type of result: string )
       min(A, B) Minimum of two numbers.
@@ -2485,6 +2510,10 @@ CONTENTS
                   ( Type of result: bigInteger,
                     round(1_/2_) => 1_, round(-1_/2_) => -1_,
                     round(2_/5_) => 0_, round(-2_/5_) => 0_ )
+      round10(A, B)  Round with a decimal precision towards zero
+                  ( Type of B: integer,
+                    round10(1_/4_, 1) => 3_/10_, round10(-1_/4_, 1) => -3_/10_,
+                    round10(2_/5_, 0) => 0_/1_, round(-2_/5_, 0) => 0_/1_ )
       str(A)    Conversion to string
                   ( Type of result: string )
       min(A, B) Minimum of two numbers.
@@ -2535,6 +2564,8 @@ CONTENTS
     Constants:
       Infinity  Positive infinity
       NaN       Not-a-Number
+      PI        Mathematical constant &pi;
+      E         Euler's number
     Prefix operators:
       +         Identity
       -         Change sign
@@ -2655,6 +2686,10 @@ CONTENTS
                   ( log10(A) is okay for A > 0.0,
                     log10(0.0)  => -Infinity,
                     log10(-1.0) =>  NaN )
+      log2(A)  Base 2 logarithm
+                  ( log2(A) is okay for A > 0.0,
+                    log2(0.0)  => -Infinity,
+                    log2(-1.0) =>  NaN )
       sqrt(A)   Square root
                   ( sqrt(A) is okay for A >= 0.0,
                     sqrt(-1.0) => NaN )
@@ -3851,8 +3886,13 @@ CONTENTS
       str(A)    Conversion to string
                   ( Type of result: string )
       strDate(A)  Conversion of the date to string
+	             with ISO 8601 YYYY-MM-DD date format
                   ( Type of result: string )
       strTime(A)  Conversion of the daytime to string
+	             with ISO 8601 hh:mm:ss time format
+                  ( Type of result: string )
+      strDateTime(A)  Conversion of date and time to string
+	             with ISO 8601 YYYY-MM-DD hh:mm:ss format
                   ( Type of result: string )
       strTimeZone(A)  Conversion of the time zone to string
                   ( Type of result: string )
@@ -10368,7 +10408,7 @@ CONTENTS
   defined in "common.h":
 
     Seed7 type       C type     Comment
-    boolean          boolType   int
+    boolean          boolType   _Bool, bool or int
     integer          intType    32- or 64-bit signed int
     float            floatType  float (or double)
     char             charType   32-bit unsigned int

@@ -1,0 +1,1023 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  cgidialog.s7i   Dialogs to be shown with a web browser.         *)
+(*  Copyright (C) 2013  Thomas Mertes                               *)
+(*                                                                  *)
+(*  This file is part of the Seed7 Runtime Library.                 *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is free software; you can             *)
+(*  redistribute it and/or modify it under the terms of the GNU     *)
+(*  Lesser General Public License as published by the Free Software *)
+(*  Foundation; either version 2.1 of the License, or (at your      *)
+(*  option) any later version.                                      *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is distributed in the hope that it    *)
+(*  will be useful, but WITHOUT ANY WARRANTY; without even the      *)
+(*  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR *)
+(*  PURPOSE.  See the GNU Lesser General Public License for more    *)
+(*  details.                                                        *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU Lesser General       *)
+(*  Public License along with this program; if not, write to the    *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+include "html_ent.s7i";
+include "unicode.s7i";
+include "encoding.s7i";
+include "draw.s7i";
+
+const type: paramHashType is hash [string] string;
+
+
+(**
+ *  Interface type for dialog elements.
+ *  The dialogElement interface is implemented with ''emptyDialog'',
+ *  ''header'', ''label'', ''image'', ''space'', ''vspace'',
+ *  ''textField'', ''textArea'', ''checkbox'', ''radioButton'',
+ *  ''resetButton'', ''submitButton'', ''closeButton''.
+ *)
+const type: dialogElement is new interface;
+
+const type: emptyDialog is new struct
+  end struct;
+
+type_implements_interface(emptyDialog, dialogElement);
+
+const dialogElement: (attr dialogElement) . value is emptyDialog.value;
+
+var integer: currentDialogElementId is 0;
+
+const func string: genDialogElementName is func
+  result
+    var string: name is "";
+  begin
+    incr(currentDialogElementId);
+    name := "name" <& currentDialogElementId;
+  end func;
+
+const type: webPage is new struct
+    var string: title is "";
+    var dialogElement: dialog is dialogElement.value;
+    var boolean: isForm is FALSE;
+  end struct;
+
+const proc: assignName (inout dialogElement: aDialog, inout integer: id)       is DYNAMIC;
+const proc: update (inout dialogElement: aDialog, in paramHashType: paramHash) is DYNAMIC;
+const func string: toHtml (in dialogElement: aDialog)                          is DYNAMIC;
+
+
+const func webPage: webPage (in string: title, in dialogElement: dialog) is func
+  result
+    var webPage: page is webPage.value;
+  begin
+    page.title := title;
+    page.dialog := dialog;
+  end func;
+
+const func webPage: webForm (in string: title, in dialogElement: dialog) is func
+  result
+    var webPage: page is webPage.value;
+  begin
+    page.title := title;
+    page.dialog := dialog;
+    page.isForm := TRUE;
+  end func;
+
+const proc: update (inout webPage: aWebPage, in paramHashType: paramHash) is func
+  local
+    var string: aKey is "";
+    var string: aValue is "";
+  begin
+    # for aValue key aKey range paramHash do
+    #   writeln(aKey <& "=" <& aValue);
+    # end for;
+    update(aWebPage.dialog, paramHash);
+  end func;
+
+const proc: send (inout webPage: aWebPage, inout file: outFile) is func
+  local
+    var string: content is "";
+  begin
+    # writeln("send");
+    content := "\
+        \<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\">\n\
+        \<html><head><title>" <& aWebPage.title <& "</title></head>\n\
+        \<body>\n";
+    if aWebPage.isForm then
+      content &:= "<form method=\"post\" action=\"\" accept-charset=\"UTF-8\">\n";
+      content &:= toHtml(aWebPage.dialog);
+      content &:= "</form>\n";
+    else
+      content &:= toHtml(aWebPage.dialog);
+    end if;
+    content &:= "\
+        \</body>\n\
+        \</html>\n";
+    # writeln("HTTP/1.1 200 OK");
+    # writeln("Content-Type: text/html; charset=UTF-8");
+    # writeln("Connection: keep-alive");
+    # writeln("Content-Length: " <& length(content));
+    # writeln;
+    # write(content);
+    writeln(outFile, "HTTP/1.1 200 OK");
+    writeln(outFile, "Content-Type: text/html; charset=UTF-8");
+    writeln(outFile, "Connection: keep-alive");
+    writeln(outFile, "Content-Length: " <& length(content));
+    writeln(outFile);
+    write(outFile, content);
+  end func;
+
+
+const type: header is new struct
+    var integer: level is 0;
+    var string: name is "";
+  end struct;
+
+type_implements_interface(header, dialogElement);
+
+(**
+ *  Create a header dialogElement with the given ''level'' and ''name''.
+ *  @return a header dialogElement.
+ *)
+const func header: header (in integer: level, in string: name) is func
+  result
+    var header: aHeader is header.value;
+  begin
+    aHeader.level := level;
+    aHeader.name := name;
+  end func;
+
+const proc: assignName (inout header: aHeader, inout integer: id) is noop;
+const proc: update (inout header: aHeader, in paramHashType: paramHash) is noop;
+
+const func string: toHtml (in header: aHeader) is func
+  result
+    var string: content is "";
+  begin
+    # writeln("header");
+    content := "<h" <& aHeader.level <& ">" <&
+               encodeHtmlContent(striToUtf8(aHeader.name)) <& "</h" <& aHeader.level <& ">";
+  end func;
+
+
+const type: label is new struct
+    var string: name is "";
+  end struct;
+
+type_implements_interface(label, dialogElement);
+
+(**
+ *  Create a label dialogElement with the given ''name''.
+ *  @return a label dialogElement with the ''name''.
+ *)
+const func label: label (in string: name) is func
+  result
+    var label: aLabel is label.value;
+  begin
+    aLabel.name := name;
+  end func;
+
+const proc: assignName (inout label: aLabel, inout integer: id) is noop;
+const proc: update (inout label: aLabel, in paramHashType: paramHash) is noop;
+
+const func string: toHtml (in label: aLabel) is func
+  result
+    var string: content is "";
+  begin
+    # writeln("label");
+    content := "<p>" <& replace(encodeHtmlContent(striToUtf8(aLabel.name)), "\n", "<br/>") <& "</p>";
+  end func;
+
+
+const type: image is new struct
+    var string: name is "";
+    var integer: width is 0;
+    var integer: height is 0;
+    var string: src is "";
+  end struct;
+
+type_implements_interface(image, dialogElement);
+
+(**
+ *  Create an image dialogElement from a given ''pixmap''.
+ *  @return an image dialogElement with the ''pixmap''.
+ *)
+const func image: image (in PRIMITIVE_WINDOW: pixmap) is func
+  result
+    var image: anImage is image.value;
+  begin
+    anImage.name := genDialogElementName;
+    anImage.width := width(pixmap);
+    anImage.height := height(pixmap);
+    anImage.src := "data:image/bmp;base64," & toBase64(str(pixmap, BMP));
+  end func;
+
+const proc: assignName (inout image: anImage, inout integer: id) is func
+  begin
+    anImage.name := "name" <& id;
+    incr(id);
+  end func;
+
+const proc: update (inout image: anImage, in paramHashType: paramHash) is noop;
+
+const func string: toHtml (in image: anImage) is func
+  result
+    var string: content is "";
+  begin
+    # writeln("image");
+    content := "<img src=\"" <& anImage.src <& "\" alt=\"" <& anImage.name <& "\">";
+  end func;
+
+
+const type: space is new struct
+    var integer: width is 0;
+  end struct;
+
+type_implements_interface(space, dialogElement);
+
+(**
+ *  Create a space dialogElement with the given ''width''.
+ *  @return a space dialogElement.
+ *)
+const func space: space (in integer: width) is func
+  result
+    var space: aSpace is space.value;
+  begin
+    aSpace.width := width;
+  end func;
+
+const proc: assignName (inout space: aSpace, inout integer: id) is noop;
+const proc: update (inout space: aSpace, in paramHashType: paramHash) is noop;
+
+const func string: toHtml (in space: aSpace) is func
+  result
+    var string: content is "";
+  local
+    var integer: count is 0;
+  begin
+    # writeln("space");
+    content := "<p>";
+    for count range 1 to aSpace.width do
+      content &:= "&nbsp;";
+    end for;
+    content &:= "</p>";
+  end func;
+
+
+const type: vspace is new struct
+    var integer: height is 0;
+  end struct;
+
+type_implements_interface(vspace, dialogElement);
+
+(**
+ *  Create a vspace (vertical space) dialogElement with the given ''height''.
+ *  @return a vspace dialogElement.
+ *)
+const func vspace: vspace (in integer: height) is func
+  result
+    var vspace: aVSpace is vspace.value;
+  begin
+    aVSpace.height := height;
+  end func;
+
+const proc: assignName (inout vspace: aVSpace, inout integer: id) is noop;
+const proc: update (inout vspace: aVSpace, in paramHashType: paramHash) is noop;
+
+const func string: toHtml (in vspace: aVSpace) is func
+  result
+    var string: content is "";
+  local
+    var integer: count is 0;
+  begin
+    # writeln("vspace");
+    content := "<p style=\"margin-bottom: " <& aVSpace.height <& "\"></p>";
+  end func;
+
+
+const type: script is new struct
+    var string: statements is "";
+  end struct;
+
+type_implements_interface(script, dialogElement);
+
+const func script: script (in string: statements) is func
+  result
+    var script: aScript is script.value;
+  begin
+    aScript.statements := statements;
+  end func;
+
+const proc: assignName (inout script: aScript, inout integer: id) is noop;
+const proc: update (inout script: aScript, in paramHashType: paramHash) is noop;
+
+const func string: toHtml (in script: aScript) is func
+  result
+    var string: content is "";
+  begin
+    # writeln("script");
+    content := "<script language=\"JavaScript\" type=\"text/javascript\">" <&
+               encodeHtmlContent(striToUtf8(aScript.statements))
+               <& "</script>";
+  end func;
+
+
+const type: textField is new struct
+    var string: name is "";
+    var string: content is "";
+    var integer: size is 0;
+  end struct;
+
+type_implements_interface(textField, dialogElement);
+
+(**
+ *  Create a textField dialogElement with the given ''content'' and ''size''.
+ *  @return a textField dialogElement.
+ *)
+const func textField: textField (in string: content, in integer: size) is func
+  result
+    var textField: aTextField is textField.value;
+  begin
+    aTextField.name := genDialogElementName;
+    aTextField.content := content;
+    aTextField.size := size;
+  end func;
+
+const proc: assignName (inout textField: aTextField, inout integer: id) is func
+  begin
+    aTextField.name := "name" <& id;
+    incr(id);
+  end func;
+
+const proc: update (inout textField: aTextField, in paramHashType: paramHash) is func
+  begin
+    if aTextField.name in paramHash then
+      aTextField.content := paramHash[aTextField.name];
+    end if;
+  end func;
+
+const func string: toHtml (in textField: aTextField) is func
+  result
+    var string: content is "";
+  begin
+    # writeln("textField");
+    content := "<input type=\"text\" name=\"" <& aTextField.name <&
+               "\" value=" <& quoteHtmlAttrValue(striToUtf8(aTextField.content)) <& " ";
+    if aTextField.size <> 0 then
+      content &:= "size=\"" <& aTextField.size <& "\" ";
+    end if;
+    content &:= "/>\n";
+  end func;
+
+
+const type: textArea is new struct
+    var string: name is "";
+    var integer: rows is 0;
+    var integer: cols is 0;
+    var string: content is "";
+  end struct;
+
+type_implements_interface(textArea, dialogElement);
+
+(**
+ *  Create a textArea dialogElement with the given ''rows'' and ''cols''.
+ *  @return a textArea dialogElement.
+ *)
+const func textArea: textArea (in integer: rows, in integer: cols) is func
+  result
+    var textArea: aTextArea is textArea.value;
+  begin
+    aTextArea.name := genDialogElementName;
+    aTextArea.rows := rows;
+    aTextArea.cols := cols;
+  end func;
+
+const proc: assignName (inout textArea: aTextArea, inout integer: id) is func
+  begin
+    aTextArea.name := "name" <& id;
+    incr(id);
+  end func;
+
+const proc: update (inout textArea: aTextArea, in paramHashType: paramHash) is func
+  begin
+    if aTextArea.name in paramHash then
+      aTextArea.content := paramHash[aTextArea.name];
+    end if;
+  end func;
+
+const func string: toHtml (in textArea: aTextArea) is func
+  result
+    var string: content is "";
+  begin
+    # writeln("textArea");
+    content := "<textarea name=\"" <& aTextArea.name <& "\" rows=\"" <& aTextArea.rows <&
+               "\" cols=\"" <& aTextArea.cols <& "\" wrap=\"virtual\">\n";
+    content &:= encodeHtmlContent(striToUtf8(aTextArea.content));
+    content &:= "</textarea>\n";
+  end func;
+
+
+const type: checkbox is new struct
+    var string: name is "";
+    var boolean: checked is FALSE;
+  end struct;
+
+type_implements_interface(checkbox, dialogElement);
+
+(**
+ *  Create a checkbox dialogElement with the given ''name''.
+ *  @return a checkbox dialogElement.
+ *)
+const func checkbox: checkbox (in string: name) is func
+  result
+    var checkbox: aCheckbox is checkbox.value;
+  begin
+    aCheckbox.name := name;
+  end func;
+
+const proc: assignName (inout checkbox: aCheckbox, inout integer: id) is noop;
+
+const proc: update (inout checkbox: aCheckbox, in paramHashType: paramHash) is func
+  begin
+    aCheckbox.checked := aCheckbox.name in paramHash;
+  end func;
+
+const func string: toHtml (in checkbox: aCheckbox) is func
+  result
+    var string: content is "";
+  begin
+    # writeln("checkbox");
+    content := "<input type=\"checkbox\" name=\"" <& aCheckbox.name <& "\" value=\"" <& aCheckbox.name <& "\"";
+    if aCheckbox.checked then
+      content &:= " checked=\"checked\"";
+    end if;
+    content &:= " />" <& aCheckbox.name <& "<br />\n";
+  end func;
+
+
+const type: radioButton is new struct
+    var string: name is "";
+    var array string: labelList is 0 times "";
+    var string: selected is "";
+  end struct;
+
+type_implements_interface(radioButton, dialogElement);
+
+(**
+ *  Create a radioButton dialogElement with the given ''labelList''.
+ *  @return a radioButton dialogElement.
+ *)
+const func radioButton: radioButton (in array string: labelList) is func
+  result
+    var radioButton: aRadioButton is radioButton.value;
+  begin
+    aRadioButton.name := genDialogElementName;
+    aRadioButton.labelList := labelList;
+  end func;
+
+const proc: assignName (inout radioButton: aRadioButton, inout integer: id) is func
+  begin
+    aRadioButton.name := "name" <& id;
+    incr(id);
+  end func;
+
+const proc: update (inout radioButton: aRadioButton, in paramHashType: paramHash) is func
+  local
+    var string: label is "";
+  begin
+    for label range aRadioButton.labelList do
+      if aRadioButton.name in paramHash and paramHash[aRadioButton.name] = label then
+        aRadioButton.selected := label;
+      end if;
+    end for;
+  end func;
+
+const func string: toHtml (in radioButton: aRadioButton) is func
+  result
+    var string: content is "";
+  local
+    var string: label is "";
+  begin
+    # writeln("radioButton");
+    for label range aRadioButton.labelList do
+      content &:= "<input type=\"radio\" name=\"" <& aRadioButton.name <& "\" value=\"" <& label <& "\"";
+      if aRadioButton.selected = label then
+        content &:= " checked=\"checked\"";
+      end if;
+      content &:= " />" <& label <& "<br />\n";
+    end for;
+  end func;
+
+
+const type: resetButton is new struct
+    var string: name is "";
+    var string: label is "";
+    var string: src is "";
+    var dialogElement: element is dialogElement.value;
+  end struct;
+
+type_implements_interface(resetButton, dialogElement);
+
+(**
+ *  Create a reset button dialogElement with a [[string]] ''label''.
+ *  @return a reset button dialogElement with the ''label''.
+ *)
+const func resetButton: resetButton (in string: label) is func
+  result
+    var resetButton: aResetButton is resetButton.value;
+  begin
+    aResetButton.name := genDialogElementName;
+    aResetButton.label := label;
+  end func;
+
+(**
+ *  Create reset button dialogElement with a ''pixmap'' as label.
+ *  @return a reset button dialogElement with the ''pixmap''.
+ *)
+const func resetButton: resetButton (in PRIMITIVE_WINDOW: pixmap) is func
+  result
+    var resetButton: aResetButton is resetButton.value;
+  begin
+    aResetButton.name := genDialogElementName;
+    aResetButton.src := "data:image/bmp;base64," & toBase64(str(pixmap, BMP));
+  end func;
+
+(**
+ *  Create reset button dialogElement with a ''dialogElement'' as label.
+ *  @return a reset button dialogElement with the ''dialogElement''.
+ *)
+const func resetButton: resetButton (in dialogElement: element) is func
+  result
+    var resetButton: aResetButton is resetButton.value;
+  begin
+    aResetButton.name := genDialogElementName;
+    aResetButton.element := element;
+  end func;
+
+const proc: assignName (inout resetButton: aResetButton, inout integer: id) is func
+  begin
+    aResetButton.name := "name" <& id;
+    incr(id);
+  end func;
+
+const proc: update (inout resetButton: aResetButton, in paramHashType: paramHash) is noop;
+
+const func string: toHtml (in resetButton: aResetButton) is func
+  result
+    var string: content is "";
+  begin
+    # writeln("resetButton");
+    if aResetButton.src <> "" then
+#      content := "<input type=\"image\" src=\"" <& aResetButton.src <&
+#                 "\" name=\"" <& aResetButton.name <& "\" />\n";
+      content := "<button type=\"reset\" name=\"" <& aResetButton.name <& "\">" <&
+                 "<img src=\"" <& aResetButton.src <& "\"></button>\n";
+    elsif aResetButton.element <> dialogElement.value then
+      content := "<button type=\"reset\" name=\"" <& aResetButton.name <& "\">" <&
+                 toHtml(aResetButton.element) <&
+                 "</button>\n";
+    elsif aResetButton.label <> "" then
+      content := "<input type=\"reset\" name=\"" <& aResetButton.name <&
+                 "\" value=\"" <& aResetButton.label <& "\" />\n";
+    else
+      content := "<input type=\"reset\" name=\"" <& aResetButton.name <& "\" />\n";
+    end if;
+  end func;
+
+
+const type: submitButton is new struct
+    var string: name is "";
+    var string: label is "";
+    var string: src is "";
+    var dialogElement: element is dialogElement.value;
+    var boolean: activated is FALSE;
+  end struct;
+
+type_implements_interface(submitButton, dialogElement);
+
+(**
+ *  Create a submit button dialogElement with a [[string]] ''label''.
+ *  @return a submit button dialogElement with the ''label''.
+ *)
+const func submitButton: submitButton (in string: label) is func
+  result
+    var submitButton: aSubmitButton is submitButton.value;
+  begin
+    aSubmitButton.name := genDialogElementName;
+    aSubmitButton.label := label;
+  end func;
+
+(**
+ *  Create submit button dialogElement with a ''pixmap'' as label.
+ *  @return a submit button dialogElement with the ''pixmap''.
+ *)
+const func submitButton: submitButton (in PRIMITIVE_WINDOW: pixmap) is func
+  result
+    var submitButton: aSubmitButton is submitButton.value;
+  begin
+    aSubmitButton.name := genDialogElementName;
+    aSubmitButton.src := "data:image/bmp;base64," & toBase64(str(pixmap, BMP));
+  end func;
+
+(**
+ *  Create submit button dialogElement with a ''dialogElement'' as label.
+ *  @return a submit button dialogElement with the ''dialogElement''.
+ *)
+const func submitButton: submitButton (in dialogElement: element) is func
+  result
+    var submitButton: aSubmitButton is submitButton.value;
+  begin
+    aSubmitButton.name := genDialogElementName;
+    aSubmitButton.element := element;
+  end func;
+
+const proc: assignName (inout submitButton: aSubmitButton, inout integer: id) is func
+  begin
+    aSubmitButton.name := "name" <& id;
+    incr(id);
+  end func;
+
+const proc: update (inout submitButton: aSubmitButton, in paramHashType: paramHash) is func
+  begin
+    aSubmitButton.activated := aSubmitButton.name in paramHash;
+  end func;
+
+const func string: toHtml (in submitButton: aSubmitButton) is func
+  result
+    var string: content is "";
+  begin
+    # writeln("submitButton");
+    if aSubmitButton.src <> "" then
+#      content := "<input type=\"image\" src=\"" <& aSubmitButton.src <&
+#                 "\" name=\"" <& aSubmitButton.name <& "\" />\n";
+      content := "<button type=\"submit\" name=\"" <& aSubmitButton.name <& "\">" <&
+                 "<img src=\"" <& aSubmitButton.src <& "\"></button>\n";
+    elsif aSubmitButton.element <> dialogElement.value then
+      content := "<button type=\"submit\" name=\"" <& aSubmitButton.name <& "\">" <&
+                 toHtml(aSubmitButton.element) <&
+                 "</button>\n";
+    elsif aSubmitButton.label <> "" then
+      content := "<input type=\"submit\" name=\"" <& aSubmitButton.name <&
+                 "\" value=\"" <& aSubmitButton.label <& "\" />\n";
+    else
+      content := "<input type=\"submit\" name=\"" <& aSubmitButton.name <& "\" />\n";
+    end if;
+  end func;
+
+
+const type: closeButton is new struct
+    var string: name is "";
+    var string: label is "";
+    var boolean: activated is FALSE;
+  end struct;
+
+type_implements_interface(closeButton, dialogElement);
+
+(**
+ *  Create a close button dialogElement with a [[string]] ''label''.
+ *  @return a close button dialogElement with the ''label''.
+ *)
+const func closeButton: closeButton (in string: label) is func
+  result
+    var closeButton: aCloseButton is closeButton.value;
+  begin
+    aCloseButton.name := genDialogElementName;
+    aCloseButton.label := label;
+  end func;
+
+const proc: assignName (inout closeButton: aCloseButton, inout integer: id) is func
+  begin
+    aCloseButton.name := "name" <& id;
+    incr(id);
+  end func;
+
+const proc: update (inout closeButton: aCloseButton, in paramHashType: paramHash) is func
+  begin
+    aCloseButton.activated := aCloseButton.name in paramHash;
+  end func;
+
+const func string: toHtml (in closeButton: aCloseButton) is func
+  result
+    var string: content is "";
+  begin
+    # writeln("closeButton");
+    content := "<a href=\"javascript:close();\">" <& aCloseButton.label <& "</a>\n";
+  end func;
+
+
+const type: selection is new struct
+    var string: name is "";
+    var integer: size is 0;
+    var array string: labelList is 0 times "";
+    var string: selected is "";
+  end struct;
+
+type_implements_interface(selection, dialogElement);
+
+(**
+ *  Create a selection dialogElement with a ''size'' and a ''labelList''.
+ *  @return a selection dialogElement.
+ *)
+const func selection: selection (in integer: size, in array string: labelList) is func
+  result
+    var selection: aSelectionList is selection.value;
+  begin
+    aSelectionList.name := genDialogElementName;
+    aSelectionList.size := size;
+    aSelectionList.labelList := labelList;
+  end func;
+
+const proc: assignName (inout selection: aSelectionList, inout integer: id) is func
+  begin
+    aSelectionList.name := "name" <& id;
+    incr(id);
+  end func;
+
+const proc: update (inout selection: aSelectionList, in paramHashType: paramHash) is func
+  local
+    var string: label is "";
+  begin
+    for label range aSelectionList.labelList do
+      if aSelectionList.name in paramHash and paramHash[aSelectionList.name] = label then
+        aSelectionList.selected := label;
+      end if;
+    end for;
+  end func;
+
+const func string: toHtml (in selection: aSelectionList) is func
+  result
+    var string: content is "";
+  local
+    var string: label is "";
+    var string: utf8Label is "";
+  begin
+    # writeln("selection");
+    content := "<select name=\"" <& aSelectionList.name <& "\" size=\"" <& aSelectionList.size <& "\">\n";
+    for label range aSelectionList.labelList do
+      utf8Label := striToUtf8(label);
+      content &:= "<option value=" <& quoteHtmlAttrValue(utf8Label);
+      if aSelectionList.selected = label then
+        content &:= " selected=\"selected\"";
+      end if;
+      content &:= ">" <& encodeHtmlContent(utf8Label) <& "</option>\n";
+    end for;
+    content &:= "</select>\n";
+  end func;
+
+
+const type: dialogSequenceBase is new struct
+    var array dialogElement: elementList is 0 times dialogElement.value;
+  end struct;
+
+type_implements_interface(dialogSequenceBase, dialogElement);
+
+(**
+ *  Concatenate two dialogElements.
+ *  @return a dialogSequenceBase dialogElement.
+ *)
+const func dialogSequenceBase: (in dialogElement: element1) & (in dialogElement: element2) is func
+  result
+    var dialogSequenceBase: concatenation is dialogSequenceBase.value;
+  local
+    var dialogElement: anElement is dialogElement.value;
+  begin
+    concatenation.elementList := 2 times dialogElement.value;
+    concatenation.elementList[1] := element1;
+    concatenation.elementList[2] := element2;
+  end func;
+
+const func dialogSequenceBase: (in dialogSequenceBase: sequence) & (in dialogElement: element) is func
+  result
+    var dialogSequenceBase: concatenation is dialogSequenceBase.value;
+  local
+    var dialogElement: anElement is dialogElement.value;
+  begin
+    concatenation.elementList := sequence.elementList & [] (element);
+  end func;
+
+const proc: (inout dialogSequenceBase: sequence) &:= (in dialogElement: element) is func
+  begin
+    sequence.elementList &:= element;
+  end func;
+
+const proc: assignName (inout dialogSequenceBase: aDialogSequenceBase, inout integer: id) is func
+  local
+    var dialogElement: element is dialogElement.value;
+  begin
+    for element range aDialogSequenceBase.elementList do
+      assignName(element, id);
+    end for;
+  end func;
+
+const proc: update (inout dialogSequenceBase: aDialogSequenceBase, in paramHashType: paramHash) is func
+  local
+    var dialogElement: element is dialogElement.value;
+  begin
+    for element range aDialogSequenceBase.elementList do
+      update(element, paramHash);
+    end for;
+  end func;
+
+
+const type: dialogSequence is sub dialogSequenceBase struct
+  end struct;
+
+type_implements_interface(dialogSequence, dialogElement);
+
+(**
+ *  Create a dialogSequence dialogElement from a dialogSequenceBase.
+ *  @return a dialogSequence dialogElement.
+ *)
+const func dialogElement: dialogSequence (in dialogSequenceBase: sequence) is func
+  result
+    var dialogElement: newSequence is dialogElement.value;
+  local
+    var dialogSequence: aDialogSequence is dialogSequence.value;
+  begin
+    aDialogSequence.elementList := sequence.elementList;
+    newSequence := toInterface(aDialogSequence);
+  end func;
+
+(**
+ *  Create a dialogSequence dialogElement from a dialogSequenceBase.
+ *  @return a dialogSequence dialogElement.
+ *)
+const func dialogElement: dialogSequence (in dialogElement: element) is func
+  result
+    var dialogElement: newSequence is dialogElement.value;
+  local
+    var dialogSequence: aDialogSequence is dialogSequence.value;
+  begin
+    aDialogSequence.elementList := [] (element);
+    newSequence := toInterface(aDialogSequence);
+  end func;
+
+const func string: toHtml (in dialogSequence: aDialogSequence) is func
+  result
+    var string: content is "";
+  local
+    var dialogElement: element is dialogElement.value;
+  begin
+    # writeln("dialogSequence");
+    for element range aDialogSequence.elementList do
+      content &:= toHtml(element);
+    end for;
+  end func;
+
+
+const type: dialogColumn is sub dialogSequenceBase struct
+  end struct;
+
+type_implements_interface(dialogColumn, dialogElement);
+
+(**
+ *  Create a dialogColumn dialogElement from a dialogSequenceBase.
+ *  @return a dialogColumn dialogElement.
+ *)
+const func dialogElement: dialogColumn (in dialogSequenceBase: sequence) is func
+  result
+    var dialogElement: newColumn is dialogElement.value;
+  local
+    var dialogColumn: aDialogColumn is dialogColumn.value;
+  begin
+    aDialogColumn.elementList := sequence.elementList;
+    newColumn := toInterface(aDialogColumn);
+  end func;
+
+const func string: toHtml (in dialogColumn: aDialogColumn) is func
+  result
+    var string: content is "";
+  local
+    var dialogElement: element is dialogElement.value;
+  begin
+    # writeln("dialogColumn");
+    content := "<table cellspacing=\"0\" cellpadding=\"0\">\n";
+    for element range aDialogColumn.elementList do
+      content &:= "<tr>\n";
+      content &:= "<td>\n";
+      content &:= toHtml(element);
+      content &:= "</td>\n";
+      content &:= "</tr>\n";
+    end for;
+    content &:= "</table>\n";
+  end func;
+
+
+const type: dialogRow is sub dialogSequenceBase struct
+  end struct;
+
+type_implements_interface(dialogRow, dialogElement);
+
+(**
+ *  Create a dialogRow dialogElement from a dialogSequenceBase.
+ *  @return a dialogRow dialogElement.
+ *)
+const func dialogElement: dialogRow (in dialogSequenceBase: sequence) is func
+  result
+    var dialogElement: newRow is dialogElement.value;
+  local
+    var dialogRow: aDialogRow is dialogRow.value;
+  begin
+    aDialogRow.elementList := sequence.elementList;
+    newRow := toInterface(aDialogRow);
+  end func;
+
+const func string: toHtml (in dialogRow: aDialogRow) is func
+  result
+    var string: content is "";
+  local
+    var dialogElement: element is dialogElement.value;
+  begin
+    # writeln("dialogRow");
+    content := "<table cellspacing=\"0\" cellpadding=\"0\">\n";
+    content &:= "<tr>\n";
+    for element range aDialogRow.elementList do
+      content &:= "<td>\n";
+      content &:= toHtml(element);
+      content &:= "</td>\n";
+    end for;
+    content &:= "</tr>\n";
+    content &:= "</table>\n";
+  end func;
+
+
+const type: dialogTableRow is array dialogElement;
+
+const type: dialogTable is new struct
+    var array dialogTableRow: elementTable is 0 times dialogTableRow.value;
+  end struct;
+
+type_implements_interface(dialogTable, dialogElement);
+
+const type: sequenceArrayType is array dialogSequenceBase;
+
+(**
+ *  Create a dialogTable dialogElement from an array dialogSequenceBase.
+ *  @return a dialogTable dialogElement.
+ *)
+const func dialogElement: dialogTable (in array dialogSequenceBase: sequenceArray) is func
+  result
+    var dialogElement: newTable is dialogElement.value;
+  local
+    var dialogTable: aDialogTable is dialogTable.value;
+    var integer: row is 0;
+    var integer: column is 0;
+  begin
+    aDialogTable.elementTable := length(sequenceArray) times 0 times dialogElement.value;
+    for row range minIdx(sequenceArray) to maxIdx(sequenceArray) do
+      for column range minIdx(sequenceArray[row].elementList) to maxIdx(sequenceArray[row].elementList) do
+       aDialogTable.elementTable[row] &:= [] (sequenceArray[row].elementList[column]);
+      end for;
+    end for;
+    newTable := toInterface(aDialogTable);
+  end func;
+
+const proc: assignName (inout dialogTable: aDialogTable, inout integer: id) is func
+  local
+    var integer: row is 0;
+    var integer: column is 0;
+  begin
+    for row range 1 to length(aDialogTable.elementTable) do
+      for column range 1 to length(aDialogTable.elementTable[row]) do
+        assignName(aDialogTable.elementTable[row][column], id);
+      end for;
+    end for;
+  end func;
+
+const proc: update (inout dialogTable: aDialogTable, in paramHashType: paramHash) is func
+  local
+    var integer: row is 0;
+    var integer: column is 0;
+  begin
+    for row range 1 to length(aDialogTable.elementTable) do
+      for column range 1 to length(aDialogTable.elementTable[row]) do
+        update(aDialogTable.elementTable[row][column], paramHash);
+      end for;
+    end for;
+  end func;
+
+const func string: toHtml (in dialogTable: aDialogTable) is func
+  result
+    var string: content is "";
+  local
+    var integer: row is 0;
+    var integer: column is 0;
+  begin
+    # writeln("dialogTable");
+    content := "<table cellspacing=\"0\" cellpadding=\"0\">\n";
+    for row range 1 to length(aDialogTable.elementTable) do
+      content &:= "<tr>\n";
+      for column range 1 to length(aDialogTable.elementTable[row]) do
+        content &:= "<td>\n";
+        content &:= toHtml(aDialogTable.elementTable[row][column]);
+        content &:= "</td>\n";
+      end for;
+      content &:= "</tr>\n";
+    end for;
+    content &:= "</table>\n";
+  end func;

@@ -1147,6 +1147,21 @@ void numericProperties (FILE *versionFile)
       fprintf(versionFile, "#define BIG_ENDIAN_INTTYPE %d\n", doTest());
     } /* if */
     checkIntDivisions(versionFile);
+    if (compileAndLinkOk("#include<stdlib.h>\n#include<stdio.h>\n#include<limits.h>\n#include<signal.h>\n"
+                         "void handleSigill(int sig){puts(\"2\");exit(0);}\n"
+                         "void handleSigabrt(int sig){puts(\"3\");exit(0);}\n"
+                         "int main(int argc,char *argv[]){\n"
+                         "long a=LONG_MAX;long b=1;\n"
+                         "signal(SIGILL,handleSigill);\nsignal(SIGABRT,handleSigabrt);\n"
+                         "printf(\"%d\\n\",a+b==LONG_MIN);return 0;}\n")) {
+      switch (doTest()) {
+        case 2:  fputs("#define OVERFLOW_SIGNAL \"SIGILL\"\n", versionFile);  break;
+        case 3:  fputs("#define OVERFLOW_SIGNAL \"SIGABRT\"\n", versionFile); break;
+        default: fputs("#define OVERFLOW_SIGNAL \"\"\n", versionFile);        break;
+      } /* switch */
+    } else {
+      fputs("#define OVERFLOW_SIGNAL \"\"\n", versionFile);
+    } /* if */
 #ifdef TURN_OFF_FP_EXCEPTIONS
     _control87(MCW_EM, MCW_EM);
 #endif
@@ -1160,6 +1175,14 @@ void numericProperties (FILE *versionFile)
     } else if (strcmp(buffer, "1 2 3 1.3 1.8 0.13 0.38 0 -1 -2 -1.2 -1.7 -0.12 -0.37") == 0 ||
                strcmp(buffer, "1 2 3 1.3 1.8 0.13 0.38 -0 -1 -2 -1.2 -1.7 -0.12 -0.37") == 0) {
       fputs("#define ROUND_HALF_UP\n", versionFile);
+    } /* if */
+    if (assertCompAndLnk("#include<stdio.h>\n#include<string.h>\n#include<float.h>\n"
+                         "int main(int argc,char *argv[])\n"
+                         "{int precision;double number;char buffer[128];\n"
+                         "precision = 3;number = 0.123456789;\n"
+                         "sprintf(buffer, \"%1.*f\", precision, number);\n"
+                         "printf(\"%d\\n\",strcmp(buffer,\"0.123\")==0);return 0;}\n")) {
+      fprintf(versionFile, "#define PRINTF_SUPPORTS_VARIABLE_FORMATS %d\n", doTest());
     } /* if */
     if (assertCompAndLnk("#include<stdio.h>\n#include<string.h>\n#include<float.h>\n"
                          "int main(int argc,char *argv[])\n"

@@ -84,7 +84,7 @@ static const rtlValueUnion neg_zero_const =
 
 floatType negativeZero;
 
-#ifndef USE_VARIABLE_FORMATS
+#if !PRINTF_SUPPORTS_VARIABLE_FORMATS
 static const const_cstriType fmt_e[] = {
     "%1.0e",  "%1.1e",  "%1.2e",  "%1.3e",  "%1.4e",  "%1.5e",
     "%1.6e",  "%1.7e",  "%1.8e",  "%1.9e",  "%1.10e", "%1.11e",
@@ -347,7 +347,7 @@ striType fltDgts (floatType number, intType precision)
         buffer_ptr = "-Infinity";
         len = STRLEN("-Infinity");
       } else {
-#ifdef USE_VARIABLE_FORMATS
+#if PRINTF_SUPPORTS_VARIABLE_FORMATS
         if (unlikely(precision > INT_MAX)) {
           sprintf(form_buffer, "%%1." FMT_D "f", precision);
           len = (memSizeType) sprintf(buffer, form_buffer, number);
@@ -977,7 +977,7 @@ striType fltSci (floatType number, intType precision)
         buffer_ptr = "-Infinity";
         len = STRLEN("-Infinity");
       } else {
-#ifdef USE_VARIABLE_FORMATS
+#if PRINTF_SUPPORTS_VARIABLE_FORMATS
         if (unlikely(precision > INT_MAX)) {
           sprintf(form_buffer, "%%1." FMT_D "e", precision);
           len = (memSizeType) sprintf(buffer, form_buffer, number);

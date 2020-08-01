@@ -202,17 +202,17 @@ const func char: lower (in char: ch)                          is action "CHR_LOW
 
 
 (**
- * Check whether ''ch'' is an alphabetic Unicode character.
- * @return TRUE if ''ch'' is an alphabetic character,
- *         FALSE otherwise.
+ *  Check whether ''ch'' is an alphabetic Unicode character.
+ *  @return TRUE if ''ch'' is an alphabetic character,
+ *          FALSE otherwise.
  *)
 const func boolean: isLetter (in char: ch)                    is action "CHR_IS_LETTER";
 
 
 (**
- * Number of screen columns occupied by the Unicode character ''ch''.
- * Non-spacing characters and control characters have width of 0.
- * @return 0,1 or 2 depending on the width occupied on a terminal.
+ *  Number of screen columns occupied by the Unicode character ''ch''.
+ *  Non-spacing characters and control characters have width of 0.
+ *  @return 0,1 or 2 depending on the width occupied on a terminal.
  *)
 const func integer: width (in char: ch)                       is action "CHR_WIDTH";
 

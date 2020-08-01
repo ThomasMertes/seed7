@@ -49,6 +49,7 @@ hal.sd7      HAL 9000 simulation program
 hamu.sd7     Game to govern the ancient kingdom of sumeria.
 hanoi.sd7    Solve the tower of hanoi problem
 hello.sd7    Hello world
+ide7.sd7     Cgi dialog demo program.
 kbd.sd7      Keyboard test program
 lander.sd7   Lunar lander
 mahjong.sd7  Mahjong solitaire game
@@ -111,12 +112,14 @@ bitmapfont.s7i Font implementation type for bitmap fonts
 bitset.s7i   Support for sets of integer numbers
 bitsetof.s7i Support for bitsets of a base type
 boolean.s7i  Boolean support library
+browser.s7i  Open web browser and provide a connection to it.
 bstring.s7i  Byte string support library
 bytedata.s7i Convert byte data to and from strings
 cards.s7i    Playing card pictures of a french deck
 category.s7i Category support library
 cc_conf.s7i  Configuration values for C compiler and runtime.
 cgi.s7i      Support for the Common Gateway Interface
+cgidialog.s7i Dialogs to be shown with a web browser.
 char.s7i     Char support library
 charsets.s7i Code pages for various character sets
 chartype.s7i Character type definitions

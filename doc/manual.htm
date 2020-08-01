@@ -1917,6 +1917,9 @@ CASE_DECLS(<a class="type" href="#types_boolean">boolean</a>);
   <tt><a class="exception" href="#errors_OVERFLOW_ERROR">OVERFLOW_ERROR</a></tt>. The <tt><span class="type">integer</span></tt> functions are defined
   in the library <span class="stri">"<span class="lib">integer.s7i</span>"</span>.
 </p><pre class="tt">
+    Constants:
+      <a class="type" href="#types_integer">integer</a>.<span class="var">first</span>  Minimum value of integer (-9223372036854775808)
+      <a class="type" href="#types_integer">integer</a>.<span class="var">last</span>   Maximum value of integer (9223372036854775807)
     Prefix operators:
       <span class="op">+</span>         Identity
       <span class="op">-</span>         Change sign
@@ -2037,6 +2040,14 @@ CASE_DECLS(<a class="type" href="#types_boolean">boolean</a>);
       <span class="func">literal</span>(A) Conversion to a literal
                   ( Type of result: <a class="type" href="#types_string">string</a>,
                     literal(A) <b>&rArr;</b> str(A) )
+      <span class="func">integer</span>(A, B) Convert numeric string, with specified radix, to an integer
+                  ( Type of argument A: <a class="type" href="#types_string">string</a>,
+                    integer("beef", 16) <b>&rArr;</b> 48879,
+                    integer("-177", 8) <b>&rArr;</b> -127,
+                    integer("10101010", 2) <b>&rArr;</b> 170,
+                    integer("Cafe", 16) <b>&rArr;</b> 51966,
+                    integer("0", 1) <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a>,
+                    integer("qwertyuiop", 37) <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a> )
       <span class="func">sqrt</span>(A)   Integer square root
                   ( sqrt(A) is okay for A >= 0
                     sqrt(A) <b>&rArr;</b> trunc(sqrt(flt(A))),
@@ -2288,11 +2299,21 @@ CASE_DECLS(<a class="type" href="#types_boolean">boolean</a>);
       <span class="func">str</span>(A)    Conversion to <a class="type" href="#types_string">string</a>
                   ( Type of result: <a class="type" href="#types_string">string</a>,
                     str(9876543210_) <b>&rArr;</b> <span class="stri">"9876543210"</span> )
+      <span class="func">bigInteger</span>(A, B) Convert numeric string, with specified radix, to a bigInteger
+                  ( Type of argument A: <a class="type" href="#types_string">string</a>,
+                    Type of argument B: <a class="type" href="#types_integer">integer</a>,
+                    bigInteger("deadbeef", 16) <b>&rArr;</b> 3735928559_,
+                    bigInteger("-77777777777", 8) <b>&rArr;</b> -8589934591_,
+                    bigInteger("10101010", 2) <b>&rArr;</b> 170_,
+                    bigInteger("Cafe", 16) <b>&rArr;</b> 51966_,
+                    bigInteger("0", 1) <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a>,
+                    bigInteger("qwertyuiop", 37) <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a> )
       <span class="func">sqrt</span>(A)   Integer square root
                   ( sqrt(A) is okay for A >= 0_
                     sqrt(A) <b>&rArr;</b> trunc(sqrt(flt(A))),
                     sqrt(-1_) <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_NUMERIC_ERROR">NUMERIC_ERROR</a> )
       <span class="func">modInverse</span>(A, B) Compute the modular multiplicative inverse of A modulo B
+      <span class="func">modPow</span>(A, B, C) Compute the modular exponentiation of A ** B
       <span class="func">log10</span>(A)  Truncated base 10 logarithm
                   ( log10(A) is defined for A >= 0_
                     log10(10_ ** A) = A for A >= 0_,
@@ -2517,6 +2538,10 @@ CASE_DECLS(<a class="type" href="#types_boolean">boolean</a>);
                   ( Type of result: <a class="type" href="#types_integer">integer</a>,
                     round(1/2) <b>&rArr;</b> 1, round(-1/2) <b>&rArr;</b> -1,
                     round(2/5) <b>&rArr;</b> 0, round(-2/5) <b>&rArr;</b> 0 )
+      <span class="func">round10</span>(A, B)  Round with a decimal precision towards zero
+                  ( Type of B: <a class="type" href="#types_integer">integer</a>,
+                    round10(1/4, 1) <b>&rArr;</b> 3/10, round10(-1/4, 1) <b>&rArr;</b> -3/10,
+                    round10(2/5, 0) <b>&rArr;</b> 0/1, round(-2/5, 0) <b>&rArr;</b> 0/1 )
       <span class="func">str</span>(A)    Conversion to <a class="type" href="#types_string">string</a>
                   ( Type of result: <a class="type" href="#types_string">string</a> )
       <span class="func">min</span>(A, B) Minimum of two numbers.
@@ -2631,6 +2656,10 @@ CASE_DECLS(<a class="type" href="#types_boolean">boolean</a>);
                   ( Type of result: <a class="type" href="#types_bigInteger">bigInteger</a>,
                     round(1_/2_) <b>&rArr;</b> 1_, round(-1_/2_) <b>&rArr;</b> -1_,
                     round(2_/5_) <b>&rArr;</b> 0_, round(-2_/5_) <b>&rArr;</b> 0_ )
+      <span class="func">round10</span>(A, B)  Round with a decimal precision towards zero
+                  ( Type of B: <a class="type" href="#types_integer">integer</a>,
+                    round10(1_/4_, 1) <b>&rArr;</b> 3_/10_, round10(-1_/4_, 1) <b>&rArr;</b> -3_/10_,
+                    round10(2_/5_, 0) <b>&rArr;</b> 0_/1_, round(-2_/5_, 0) <b>&rArr;</b> 0_/1_ )
       <span class="func">str</span>(A)    Conversion to <a class="type" href="#types_string">string</a>
                   ( Type of result: <a class="type" href="#types_string">string</a> )
       <span class="func">min</span>(A, B) Minimum of two numbers.
@@ -2681,6 +2710,8 @@ CASE_DECLS(<a class="type" href="#types_boolean">boolean</a>);
     Constants:
       <span class="var">Infinity</span>  Positive infinity
       <span class="var">NaN</span>       Not-a-Number
+      <span class="var">PI</span>        Mathematical constant &pi;
+      <span class="var">E</span>         Euler's number
     Prefix operators:
       <span class="op">+</span>         Identity
       <span class="op">-</span>         Change sign
@@ -2801,6 +2832,10 @@ CASE_DECLS(<a class="type" href="#types_boolean">boolean</a>);
                   ( log10(A) is okay for A > 0.0,
                     log10(0.0)  <b>&rArr;</b> -Infinity,
                     log10(-1.0) <b>&rArr;</b>  NaN )
+      <span class="func">log2</span>(A)  Base 2 logarithm
+                  ( log2(A) is okay for A > 0.0,
+                    log2(0.0)  <b>&rArr;</b> -Infinity,
+                    log2(-1.0) <b>&rArr;</b>  NaN )
       <span class="func">sqrt</span>(A)   Square root
                   ( sqrt(A) is okay for A >= 0.0,
                     sqrt(-1.0) <b>&rArr;</b> NaN )
@@ -3997,8 +4032,13 @@ CASE_DECLS(<a class="type" href="#types_boolean">boolean</a>);
       <span class="func">str</span>(A)    Conversion to <a class="type" href="#types_string">string</a>
                   ( Type of result: <a class="type" href="#types_string">string</a> )
       <span class="func">strDate</span>(A)  Conversion of the date to <a class="type" href="#types_string">string</a>
+	             with ISO 8601 YYYY-MM-DD date format
                   ( Type of result: <a class="type" href="#types_string">string</a> )
       <span class="func">strTime</span>(A)  Conversion of the daytime to <a class="type" href="#types_string">string</a>
+	             with ISO 8601 hh:mm:ss time format
+                  ( Type of result: <a class="type" href="#types_string">string</a> )
+      <span class="func">strDateTime</span>(A)  Conversion of date and time to <a class="type" href="#types_string">string</a>
+	             with ISO 8601 YYYY-MM-DD hh:mm:ss format
                   ( Type of result: <a class="type" href="#types_string">string</a> )
       strTimeZone(A)  Conversion of the time zone to <a class="type" href="#types_string">string</a>
                   ( Type of result: <a class="type" href="#types_string">string</a> )
@@ -10514,7 +10554,7 @@ SYSTEM_LIBS = -lm <b>superlib.a</b>
   defined in <tt><span class="lib">"common.h"</span></tt>:
 </p><table border="1" cellspacing="0" cellpadding="5">
     <tr><th>Seed7 type</th>       <th>C type</th>     <th>Comment</th></tr>
-    <tr><td><tt><a class="type" href="#types_boolean">boolean</a></tt></td>          <td><a name="ffi_boolType">boolType</a></td>   <td>int</td></tr>
+    <tr><td><tt><a class="type" href="#types_boolean">boolean</a></tt></td>          <td><a name="ffi_boolType">boolType</a></td>   <td>_Bool, bool or int</td></tr>
     <tr><td><tt><a class="type" href="#types_integer">integer</a></tt></td>          <td><a name="ffi_intType">intType</a></td>    <td>32- or 64-bit signed int</td></tr>
     <tr><td><tt><a class="type" href="#types_float">float</a></tt></td>            <td><a name="ffi_floatType">floatType</a></td>  <td>float (or double)</td></tr>
     <tr><td><tt><a class="type" href="#types_char">char</a></tt></td>             <td><a name="ffi_charType">charType</a></td>   <td>32-bit unsigned int</td></tr>

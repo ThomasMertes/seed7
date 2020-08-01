@@ -1,0 +1,179 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  ide7.sd7      Cgi dialog demo program.                          *)
+(*  Copyright (C) 2013  Thomas Mertes                               *)
+(*                                                                  *)
+(*  This program is free software; you can redistribute it and/or   *)
+(*  modify it under the terms of the GNU General Public License as  *)
+(*  published by the Free Software Foundation; either version 2 of  *)
+(*  the License, or (at your option) any later version.             *)
+(*                                                                  *)
+(*  This program is distributed in the hope that it will be useful, *)
+(*  but WITHOUT ANY WARRANTY; without even the implied warranty of  *)
+(*  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the   *)
+(*  GNU General Public License for more details.                    *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU General Public       *)
+(*  License along with this program; if not, write to the           *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+$ include "seed7_05.s7i";
+  include "socket.s7i";
+  include "listener.s7i";
+  include "cgidialog.s7i";
+  include "cgi.s7i";
+  include "browser.s7i";
+  include "getf.s7i";
+  include "process.s7i";
+  include "draw.s7i";
+  include "pic32.s7i";
+
+var label: progName is label("");
+var textArea: prog is textArea(30, 100);
+var submitButton: load    is submitButton(dialogColumn(image(createPixmap(load_pic,      1, light_gray)) & label("Load")));
+var submitButton: save    is submitButton(dialogColumn(image(createPixmap(save_pic,      1, light_gray)) & label("Save")));
+var submitButton: saveAs  is submitButton(dialogColumn(image(createPixmap(save_as_pic,   1, light_gray)) & label("Save as")));
+var submitButton: clear   is submitButton(dialogColumn(image(createPixmap(clear_pic,     1, light_gray)) & label("Clear")));
+var resetButton:  reset   is resetButton(dialogColumn(image(createPixmap(reset_pic,      1, light_gray)) & label("Reset")));
+var submitButton: execute is submitButton(dialogColumn(image(createPixmap(execute_pic,   1, light_gray)) & label("Execute")));
+var submitButton: exit    is submitButton(dialogColumn(image(createPixmap(exit_pic,      1, light_gray)) & label("Exit")));
+var submitButton: cancel  is submitButton(dialogColumn(image(createPixmap(cancel_pic,    1, light_gray)) & label("Cancel")));
+var submitButton: okay    is submitButton(dialogColumn(image(createPixmap(checkmark_pic, 1, light_gray)) & label("Okay")));
+var selection: fileList is selection.value;
+var textField: fileName is textField("", 0);
+
+
+var dialogElement: formElement is
+  dialogColumn(
+    image(readBmp("header3.bmp")) &
+    header(1, "IDE7") &
+    dialogRow(label("Seed7 program:") & space(1) & progName) &
+    prog &
+    vspace(20) &
+    dialogSequence(load & save & saveAs & clear & reset & execute & exit)
+  );
+
+var webPage: mainWebPage is webForm("IDE7", formElement);
+
+var dialogElement: message is
+  dialogColumn(
+    header(1, "Message") &
+    label("Console programs are currently not supported.") &
+    vspace(20) &
+    dialogSequence(okay)
+  );
+
+var webPage: messagePage is webForm("IDE7 Message", message);
+
+var dialogElement: selectFileName is
+  dialogColumn(
+    header(1, "Enter name of file to be saved") &
+    fileName &
+    vspace(20) &
+    dialogSequence(save & reset & cancel)
+  );
+
+var webPage: fileNameSelectionPage is webForm("IDE7 Save as", selectFileName);
+
+var dialogElement: goodbye is
+  dialogColumn(
+    header(1, "Thank you for using IDE7") &
+    script("close();")
+  );
+
+var webPage: goodbyePage is webPage("IDE7 Goodbye", goodbye);
+
+
+const func webPage: fileSelection (in string: dirPath, in string: extension) is func
+  result
+    var webPage: selectionPage is webPage.value;
+  local
+    var string: fileName is "";
+    var array string: dirContent is 0 times "";
+    var dialogElement: selection is dialogElement.value;
+  begin
+    if fileType(dirPath) = FILE_DIR then
+      for fileName range readDir(dirPath) do
+        if endsWith(fileName, extension) then
+          dirContent &:= fileName;
+        end if;
+      end for;
+    end if;
+    fileList := selection(min(10, length(dirContent)), dirContent);
+    selection := dialogColumn(
+        header(1, "Select file to be loaded") &
+        fileList &
+        vspace(20) &
+        dialogSequence(load & reset & cancel));
+    selectionPage := webForm("IDE7 Load", selection);
+  end func;
+
+
+const proc: main is func
+  local
+    const string: workDir is ".";
+    var browserConnection: browser is browserConnection.value;
+    var webPage: loadSelectionPage is webPage.value;
+    var file: childStdin is STD_NULL;
+    var file: childStdout is STD_NULL;
+  begin
+    browser := openBrowser;
+    repeat
+      display(mainWebPage, browser);
+      # writeln("prog:          " <& striToUtf8(prog.content));
+      # writeln("load:          " <& load.activated);
+      # writeln("save:          " <& save.activated);
+      # writeln("clear:         " <& clear.activated);
+      # writeln("execute:       " <& execute.activated);
+      # writeln("cancel:        " <& cancel.activated);
+      # writeln("exit:          " <& exit.activated);
+      if load.activated then
+        loadSelectionPage := fileSelection(workDir, ".sd7");
+        display(loadSelectionPage, browser);
+        if not cancel.activated then
+          # writeln("fileList.selected: " <& fileList.selected);
+          if fileList.selected <> "" then
+            progName.name := fileList.selected;
+            prog.content := getf(workDir & "/" & fileList.selected);
+          end if;
+        end if;
+      elsif save.activated then
+        if progName.name <> "" then
+          putf(workDir & "/" & progName.name, prog.content);
+        end if;
+      elsif saveAs.activated then
+        fileName.content := "";
+        display(fileNameSelectionPage, browser);
+        if not cancel.activated then
+          # writeln("fileName.content: " <& fileName.content);
+          if fileName.content <> "" then
+            putf(workDir & "/" & fileName.content, prog.content);
+            progName.name := fileName.content;
+          end if;
+        end if;
+      elsif clear.activated then
+        progName.name := "";
+        prog.content := "";
+      elsif execute.activated then
+        if progName.name <> "" then
+          if pos(prog.content, "GRAPH" & "_KEYBOARD") = 0 then
+            display(messagePage, browser);
+          else
+            # cmd_sh("./s7", workDir & "/" & progName.name);
+            pipe2(commandPath("s7"), [] (workDir & "/" & progName.name), childStdin, childStdout);
+            while not eof(childStdout) do
+              # writeln(getln(childStdout));
+              ignore(getln(childStdout));
+            end while;
+          end if;
+        end if;
+      end if;
+    until exit.activated;
+    display(goodbyePage, browser);
+    close(browser);
+  end func;

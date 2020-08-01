@@ -257,7 +257,7 @@ const type: ccConfigType is new struct
      *  Maximum from the continuous range of integers that map to floats.
      *  All integers from -INT_RANGE_IN_FLOATTYPE_MAX to
      *  INT_RANGE_IN_FLOATTYPE_MAX can be converted to ''floatType''
-     *  and back to ''intType" without loss.
+     *  and back to ''intType'' without loss.
      *)
     var integer: INT_RANGE_IN_FLOATTYPE_MAX is 0;
 

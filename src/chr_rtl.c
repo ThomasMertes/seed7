@@ -480,11 +480,11 @@ void chrCpyGeneric (genericType *const dest, const genericType source)
 
 
 /**
- * Check whether 'ch' is an alphabetic Unicode character.
- * Uses identifier data table to look up a particular code point.
- * The table includes many Unicode ranges listed below.
- * @return TRUE if 'ch' is an alphabetic symbol,
- *         FALSE otherwise
+ *  Check whether 'ch' is an alphabetic Unicode character.
+ *  Uses identifier data table to look up a particular code point.
+ *  The table includes many Unicode ranges listed below.
+ *  @return TRUE if 'ch' is an alphabetic symbol,
+ *          FALSE otherwise
  */
 boolType chrIsLetter (charType ch)
 
@@ -567,9 +567,9 @@ charType chrUp (charType ch)
 
 
 /**
- * Number of screen columns occupied by the Unicode character 'ch'.
- * Non-spacing characters and control characters have width of 0.
- * @return 0,1 or 2 depending on the width occupied on a terminal.
+ *  Number of screen columns occupied by the Unicode character 'ch'.
+ *  Non-spacing characters and control characters have width of 0.
+ *  @return 0,1 or 2 depending on the width occupied on a terminal.
  */
 intType chrWidth (charType ch)
 

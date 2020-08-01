@@ -127,10 +127,6 @@
 #define UINT128TYPE_STRI ""
 #endif
 
-#ifndef OVERFLOW_SIGNAL
-#define OVERFLOW_SIGNAL ""
-#endif
-
 #ifndef PATH_MAX
 #define PATH_MAX 2048
 #endif
