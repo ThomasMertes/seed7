@@ -802,7 +802,7 @@ objectType arr_idx (listType arguments)
     } else {
       result = raise_exception(SYS_RNG_EXCEPTION);
     } /* if */
-    /* printf("arr_idx => %08lx ", result);
+    /* printf("arr_idx --> %08lx ", result);
        trace1(result);
        printf("\n"); */
     return result;
@@ -1051,7 +1051,7 @@ objectType arr_remove (listType arguments)
     } else {
       result = raise_exception(SYS_RNG_EXCEPTION);
     } /* if */
-    /* printf("arr_remove => ");
+    /* printf("arr_remove --> ");
        trace1(result);
        printf("\n"); */
     return result;

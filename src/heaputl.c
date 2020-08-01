@@ -29,6 +29,9 @@
 /*                                                                  */
 /********************************************************************/
 
+#define LOG_FUNCTIONS 0
+#define VERBOSE_EXCEPTIONS 0
+
 #include "version.h"
 
 #include "stdlib.h"
@@ -120,8 +123,8 @@ striType growStri (striType stri, memSizeType len)
         result->capacity = new_len;
       } /* if */
     } /* if */
-    /* printf(" => %lX\n", result);
-    fflush(stdout); */
+    logFunction(printf("growStri --> " FMT_X_MEM "\n", (memSizeType) result);
+                fflush(stdout););
     return result;
   } /* growStri */
 
@@ -195,9 +198,7 @@ void rtlHeapStatistic (void)
     memSizeType bytes_total;
 
   /* rtlHeapStatistic */
-#ifdef TRACE_HEAPUTIL
-    printf("BEGIN rtlHeapStatistic\n");
-#endif
+    logFunction(printf("rtlHeapStatistic\n"););
     bytes_used = 0;
     if (count.stri != 0) {
       printf("%9lu bytes in %8lu string records of      %4u bytes\n",
@@ -354,8 +355,6 @@ void rtlHeapStatistic (void)
     printf("%9lu bytes total requested\n", bytes_total +
         (memSizeType) (chunk.beyond - chunk.freemem) + chunk.lost_bytes);
 #endif
-#ifdef TRACE_HEAPUTIL
-    printf("END rtlHeapStatistic\n");
-#endif
+    logFunction(printf("rtlHeapStatistic -->\n"););
   } /* rtlHeapStatistic */
 #endif

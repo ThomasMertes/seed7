@@ -47,6 +47,9 @@
 /*                                                                  */
 /********************************************************************/
 
+#define LOG_FUNCTIONS 0
+#define VERBOSE_EXCEPTIONS 0
+
 #include "stdlib.h"
 #include "stdio.h"
 
@@ -245,9 +248,7 @@ void heap_statistic (void)
     memSizeType bytes_total;
 
   /* heap_statistic */
-#ifdef TRACE_HEAPUTIL
-    printf("BEGIN heap_statistic\n");
-#endif
+    logFunction(printf("heap_statistic\n"););
     num_flist_objects    = object_flist_count();
     num_flist_list_elems = list_elem_flist_count();
     num_flist_nodes      = node_flist_count();
@@ -575,9 +576,7 @@ void heap_statistic (void)
 #if DO_HEAP_CHECK
     /* check_heap(0, __FILE__, __LINE__); */
 #endif
-#ifdef TRACE_HEAPUTIL
-    printf("END heap_statistic\n");
-#endif
+    logFunction(printf("heap_statistic -->\n"););
   } /* heap_statistic */
 #endif
 
@@ -590,9 +589,7 @@ static memSizeType compute_hs (void)
     memSizeType bytes_total;
 
   /* compute_hs */
-#ifdef TRACE_HEAPUTIL
-    printf("BEGIN compute_hs\n");
-#endif
+    logFunction(printf("compute_hs\n"););
     bytes_total = 0;
     bytes_total += count.stri * SIZ_STRI(0);
     bytes_total += count.stri_elems * sizeof(strElemType);
@@ -630,9 +627,7 @@ static memSizeType compute_hs (void)
     bytes_total += count.fnam_bytes + count.fnam +
         count.symb_bytes + count.symb +
         count.byte;
-#ifdef TRACE_HEAPUTIL
-    printf("END compute_hs\n");
-#endif
+    logFunction(printf("compute_hs -->\n"););
     return bytes_total;
   } /* compute_hs */
 #endif
@@ -693,7 +688,7 @@ void *flist_alloc (size_t size)
       size_of_rec = size;
     } /* if */
     LOST_B += size_of_rec - size;
-/*  printf("flist_alloc(%d) ==> %lu\n", size, (long unsigned) result); */
+/*  printf("flist_alloc(%d) --> " FMT_X_MEM "\n", size, (memSizeType) result); */
     return result;
   } /* flist_alloc */
 #endif
@@ -740,9 +735,7 @@ void *heap_chunk (size_t size)
     void *result;
 
   /* heap_chunk */
-#ifdef TRACE_HEAPUTIL
-    printf("BEGIN heap_chunk\n");
-#endif
+    logFunction(printf("heap_chunk(" FMT_U_MEM ")\n", size););
 /*  printf("%lu ", heapsize()); */
     index = 0;
     result = NULL;
@@ -782,9 +775,7 @@ void *heap_chunk (size_t size)
       chunk.size -= size;
       chunk.number_of_chunks++;
     } /* if */
-#ifdef TRACE_HEAPUTIL
-    printf("END heap_chunk\n");
-#endif
+    logFunction(printf("heap_chunk --> " FMT_U_MEM "\n", result););
     return result;
   } /* heap_chunk */
 #endif
@@ -800,9 +791,7 @@ void check_heap (long sizediff, const char *file_name, unsigned int line_num)
        static unsigned int last_line_num = 0; */
 
   /* check_heap */
-#ifdef TRACE_HEAPUTIL
-    printf("BEGIN check_heap\n");
-#endif
+    logFunction(printf("check_heap\n"););
     bytes_used =
         ((memSizeType) count.stri) * SIZ_STRI(0) +
         count.stri_elems * sizeof(strElemType) +
@@ -860,8 +849,6 @@ void check_heap (long sizediff, const char *file_name, unsigned int line_num)
       printf("\nfree(%ld)\n", -sizediff);
     } if */
 /*  show_statistic(); */
-#ifdef TRACE_HEAPUTIL
-    printf("END check_heap\n");
-#endif
+    logFunction(printf("check_heap -->\n"););
   } /* check_heap */
 #endif

@@ -240,40 +240,36 @@ memSizeType doubleToCharBuffer (double doubleValue, double largeNumber,
  */
 intType fltCmp (floatType number1, floatType number2)
 
-  { /* fltCmp */
+  {
+    intType signumValue;
+
+  /* fltCmp */
 #if NAN_COMPARISON_OKAY
     if (number1 < number2) {
-      return -1;
+      signumValue = -1;
     } else if (number1 > number2) {
-      return 1;
-    } else if (os_isnan(number1)) {
-      if (os_isnan(number2)) {
-        return 0;
-      } else {
-        return 1;
-      } /* if */
-    } else if (os_isnan(number2)) {
-      return -1;
+      signumValue = 1;
     } else {
-      return 0;
+      signumValue = os_isnan(number1) - os_isnan(number2);
     } /* if */
 #else
     if (os_isnan(number1)) {
       if (os_isnan(number2)) {
-        return 0;
+        signumValue = 0;
       } else {
-        return 1;
+        signumValue = 1;
       } /* if */
     } else if (os_isnan(number2)) {
-      return -1;
+      signumValue = -1;
     } else if (number1 < number2) {
-      return -1;
+      signumValue = -1;
     } else if (number1 > number2) {
-      return 1;
+      signumValue = 1;
     } else {
-      return 0;
+      signumValue = 0;
     } /* if */
 #endif
+    return signumValue;
   } /* fltCmp */
 
 

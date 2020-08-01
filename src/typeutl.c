@@ -25,6 +25,9 @@
 /*                                                                  */
 /********************************************************************/
 
+#define LOG_FUNCTIONS 0
+#define VERBOSE_EXCEPTIONS 0
+
 #include "version.h"
 
 #include "stdlib.h"
@@ -43,9 +46,6 @@
 #define EXTERN
 #include "typeutl.h"
 
-#undef TRACE_TYPEUTIL
-#undef TRACE_FUNC_TYPE
-
 
 
 typeType new_type (progType owningProg, typeType meta_type, typeType result_type)
@@ -56,13 +56,11 @@ typeType new_type (progType owningProg, typeType meta_type, typeType result_type
     typeType created_type;
 
   /* new_type */
-#ifdef TRACE_TYPEUTIL
-    printf("BEGIN new_type(%lx, ", (unsigned long) owningProg);
-    printtype(meta_type);
-    printf(", ");
-    printtype(result_type);
-    printf(")\n");
-#endif
+    logFunction(printf("new_type(" FMT_U_MEM ", ", (memSizeType) owningProg);
+                printtype(meta_type);
+                printf(", ");
+                printtype(result_type);
+                printf(")\n"););
     if (ALLOC_OBJECT(match_obj)) {
       if (ALLOC_L_ELEM(list_elem)) {
         if (ALLOC_RECORD(created_type, typeRecord, count.type)) {
@@ -101,11 +99,9 @@ typeType new_type (progType owningProg, typeType meta_type, typeType result_type
     } else {
       created_type = NULL;
     } /* if */
-#ifdef TRACE_TYPEUTIL
-    printf("END new_type --> ");
-    printtype(created_type);
-    printf("\n");
-#endif
+    logFunction(printf("new_type --> ");
+                printtype(created_type);
+                printf("\n"););
     return created_type;
   } /* new_type */
 
@@ -118,11 +114,9 @@ static void free_type (typeType old_type)
     typeListType next_elem;
 
   /* free_type */
-#ifdef TRACE_TYPEUTIL
-    printf("BEGIN free_type(");
-    printtype(old_type);
-    printf(")\n");
-#endif
+    logFunction(printf("free_type(");
+                printtype(old_type);
+                printf(")\n"););
     FREE_OBJECT(old_type->match_obj);
     typelist_elem = old_type->interfaces;
     while (typelist_elem != NULL) {
@@ -131,9 +125,7 @@ static void free_type (typeType old_type)
       typelist_elem = next_elem;
     } /* while */
     FREE_RECORD(old_type, typeRecord, count.type);
-#ifdef TRACE_TYPEUTIL
-    printf("END free_type\n");
-#endif
+    logFunction(printf("free_type -->\n"););
   } /* free_type */
 
 
@@ -145,9 +137,7 @@ void close_type (progType currentProg)
     listType next_elem;
 
   /* close_type */
-#ifdef TRACE_TYPEUTIL
-    printf("BEGIN close_type\n");
-#endif
+    logFunction(printf("close_type\n"););
     type_elem = currentProg->types;
     while (type_elem != NULL) {
       next_elem = type_elem->next;
@@ -155,9 +145,7 @@ void close_type (progType currentProg)
       type_elem = next_elem;
     } /* while */
     free_list(currentProg->types);
-#ifdef TRACE_TYPEUTIL
-    printf("END close_type\n");
-#endif
+    logFunction(printf("close_type -->\n"););
   } /* close_type */
 
 
@@ -168,24 +156,20 @@ typeType get_func_type (typeType meta_type, typeType basic_type)
     typeType func_type;
 
   /* get_func_type */
-#ifdef TRACE_FUNC_TYPE
-    printf("BEGIN get_func_type(");
-    printtype(meta_type);
-    printf(", ");
-    printtype(basic_type);
-    printf(")\n");
-#endif
+    logFunction(printf("get_func_type(");
+                printtype(meta_type);
+                printf(", ");
+                printtype(basic_type);
+                printf(")\n"););
     if (basic_type->func_type != NULL) {
       func_type = basic_type->func_type;
     } else {
       func_type = new_type(basic_type->owningProg, meta_type, basic_type);
       basic_type->func_type = func_type;
     } /* if */
-#ifdef TRACE_FUNC_TYPE
-    printf("END get_func_type --> ");
-    printtype(func_type);
-    printf("\n");
-#endif
+    logFunction(printf("get_func_type --> ");
+                printtype(func_type);
+                printf("\n"););
     return func_type;
   } /* get_func_type */
 
@@ -197,13 +181,11 @@ typeType get_varfunc_type (typeType meta_type, typeType basic_type)
     typeType varfunc_type;
 
   /* get_varfunc_type */
-#ifdef TRACE_FUNC_TYPE
-    printf("BEGIN get_varfunc_type(");
-    printtype(meta_type);
-    printf(", ");
-    printtype(basic_type);
-    printf(")\n");
-#endif
+    logFunction(printf("get_varfunc_type(");
+                printtype(meta_type);
+                printf(", ");
+                printtype(basic_type);
+                printf(")\n"););
     if (basic_type->varfunc_type != NULL) {
       varfunc_type = basic_type->varfunc_type;
     } else {
@@ -211,11 +193,9 @@ typeType get_varfunc_type (typeType meta_type, typeType basic_type)
       varfunc_type->is_varfunc_type = TRUE;
       basic_type->varfunc_type = varfunc_type;
     } /* if */
-#ifdef TRACE_FUNC_TYPE
-    printf("END get_varfunc_type --> ");
-    printtype(varfunc_type);
-    printf("\n");
-#endif
+    logFunction(printf("get_varfunc_type --> ");
+                printtype(varfunc_type);
+                printf("\n"););
     return varfunc_type;
   } /* get_varfunc_type */
 
@@ -228,13 +208,11 @@ void add_interface (typeType basic_type, typeType interface_type)
     typeListType current_elem;
 
   /* add_interface */
-#ifdef TRACE_TYPEUTIL
-    printf("BEGIN add_interface(");
-    printtype(basic_type);
-    printf(", ");
-    printtype(interface_type);
-    printf(")\n");
-#endif
+    logFunction(printf("add_interface(");
+                printtype(basic_type);
+                printf(", ");
+                printtype(interface_type);
+                printf(")\n"););
     if (ALLOC_RECORD(typelist_elem, typeListRecord, count.typelist_elems)) {
       typelist_elem->next = NULL;
       typelist_elem->type_elem = interface_type;
@@ -248,9 +226,7 @@ void add_interface (typeType basic_type, typeType interface_type)
         current_elem->next = typelist_elem;
       } /* if */
     } /* if */
-#ifdef TRACE_TYPEUTIL
-    printf("END add_interface\n");
-#endif
+    logFunction(printf("add_interface\n"););
   } /* add_interface */
 
 

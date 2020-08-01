@@ -81,11 +81,11 @@ DIR *opendir (char *name)
       if ( _dos_findfirst(dir_name, _A_ARCH | _A_SUBDIR,
           &result->find_record) == 0) {
 #endif
-        /* printf("==> OK\n");
+        /* printf("--> OK\n");
         printf(">%s<\n", result->find_record.name); */
         result->first_element = 1;
       } else {
-        /* printf("==> ERROR\n"); */
+        /* printf("--> ERROR\n"); */
         free(result);
         result = NULL;
       } /* if */

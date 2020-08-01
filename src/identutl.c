@@ -25,6 +25,9 @@
 /*                                                                  */
 /********************************************************************/
 
+#define LOG_FUNCTIONS 0
+#define VERBOSE_EXCEPTIONS 0
+
 #include "version.h"
 
 #include "stdlib.h"
@@ -50,9 +53,7 @@ identType new_ident (const_ustriType name, sySizeType length)
     register identType created_ident;
 
   /* new_ident */
-#ifdef TRACE_IDENTUTL
-    printf("BEGIN new_ident\n");
-#endif
+    logFunction(printf("new_ident\n"););
     if (ALLOC_RECORD(created_ident, identRecord, count.ident)) {
       if (!ALLOC_ID_NAME(created_ident->name, length)) {
         FREE_RECORD(created_ident, identRecord, count.ident);
@@ -71,9 +72,7 @@ identType new_ident (const_ustriType name, sySizeType length)
         created_ident->entity = NULL;
       } /* if */
     } /* if */
-#ifdef TRACE_IDENTUTL
-    printf("END new_ident\n");
-#endif
+    logFunction(printf("new_ident -->\n"););
     return created_ident;
   } /* new_ident */
 
@@ -85,9 +84,7 @@ static void free_ident (const_progType currentProg, identType old_ident)
     sySizeType length;
 
   /* free_ident */
-#ifdef TRACE_IDENTUTL
-    printf("BEGIN free_ident\n");
-#endif
+    logFunction(printf("free_ident\n"););
     if (old_ident != NULL) {
       length = strlen((cstriType) old_ident->name);
       FREE_ID_NAME(old_ident->name, length);
@@ -96,9 +93,7 @@ static void free_ident (const_progType currentProg, identType old_ident)
       free_entity(currentProg, old_ident->entity);
       FREE_RECORD(old_ident, identRecord, count.ident);
     } /* if */
-#ifdef TRACE_IDENTUTL
-    printf("END free_ident\n");
-#endif
+    logFunction(printf("free_ident ->\n"););
   } /* free_ident */
 
 
@@ -112,9 +107,7 @@ identType get_ident (progType currentProg, const_ustriType name)
     sySizeType length;
 
   /* get_ident */
-#ifdef TRACE_IDENTUTL
-    printf("BEGIN get_ident\n");
-#endif
+    logFunction(printf("get_ident\n"););
     length = strlen((const_cstriType) name);
     if (length == 1 && (op_character(name[0]) ||
         char_class(name[0]) == LEFTPARENCHAR ||
@@ -155,9 +148,7 @@ identType get_ident (progType currentProg, const_ustriType name)
         } while (searching);
       } /* if */
     } /* if */
-#ifdef TRACE_IDENTUTL
-    printf("END get_ident\n");
-#endif
+    logFunction(printf("get_ident -->\n"););
     return ident_found;
   } /* get_ident */
 
@@ -170,9 +161,7 @@ void close_idents (const_progType currentProg)
     int character;
 
   /* close_idents */
-#ifdef TRACE_FINDID
-    printf("BEGIN close_idents\n");
-#endif
+    logFunction(printf("close_idents\n"););
     for (position = 0; position < ID_TABLE_SIZE; position++) {
       free_ident(currentProg, currentProg->ident.table[position]);
     } /* for */
@@ -184,10 +173,8 @@ void close_idents (const_progType currentProg)
       } /* if */
     } /* for */
     free_ident(currentProg, currentProg->ident.literal);
-    free_ident(currentProg, currentProg->ident.end_of_file);;
-#ifdef TRACE_FINDID
-    printf("END close_idents\n");
-#endif
+    free_ident(currentProg, currentProg->ident.end_of_file);
+    logFunction(printf("close_idents -->\n"););
   } /* close_idents */
 
 
@@ -199,9 +186,7 @@ void init_idents (progType currentProg, errInfoType *err_info)
     ucharType character;
 
   /* init_idents */
-#ifdef TRACE_IDENTUTL
-    printf("BEGIN init_ident\n");
-#endif
+    logFunction(printf("init_ident\n"););
     for (position = 0; position < ID_TABLE_SIZE; position++) {
       currentProg->ident.table[position] = NULL;
     } /* for */
@@ -223,7 +208,5 @@ void init_idents (progType currentProg, errInfoType *err_info)
     if (*err_info != OKAY_NO_ERROR) {
       close_idents(currentProg);
     } /* if */
-#ifdef TRACE_IDENTUTL
-    printf("END init_ident\n");
-#endif
+    logFunction(printf("init_ident -->\n"););
   } /* init_idents */

@@ -138,7 +138,7 @@ intType timMicroSec (void)
   /* timMicroSec */
     GetSystemTimeAsFileTime(&utc_time.filetime);
     micro_sec = (intType) ((utc_time.nanosecs100 / 10) % 1000000);
-    /* printf("timMicroSec() ==> %lu\n", micro_sec); */
+    logFunction(printf("timMicroSec() --> " FMT_U "\n", micro_sec););
     return micro_sec;
   } /* timMicroSec */
 

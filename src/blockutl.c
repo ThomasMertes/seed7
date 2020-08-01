@@ -25,6 +25,9 @@
 /*                                                                  */
 /********************************************************************/
 
+#define LOG_FUNCTIONS 0
+#define VERBOSE_EXCEPTIONS 0
+
 #include "version.h"
 
 #include "stdlib.h"
@@ -146,9 +149,7 @@ blockType new_block (locListType block_params, const_locObjType block_result,
     register blockType created_block;
 
   /* new_block */
-#ifdef TRACE_BLOCK
-    printf("BEGIN new_block\n");
-#endif
+    logFunction(printf("new_block\n"););
     if (ALLOC_RECORD(created_block, blockRecord, count.block)) {
       created_block->params = block_params;
       if (block_result == NULL) {
@@ -166,9 +167,7 @@ blockType new_block (locListType block_params, const_locObjType block_result,
       created_block->local_consts = block_local_consts;
       created_block->body = block_body;
     } /* if */
-#ifdef TRACE_BLOCK
-    printf("END new_block\n");
-#endif
+    logFunction(printf("new_block -->\n"););
     return created_block;
   } /* new_block */
 
@@ -201,9 +200,7 @@ void get_result_var (locObjType result_var, typeType result_type,
     objectType result_init, errInfoType *err_info)
 
   { /* get_result_var */
-#ifdef TRACE_BLOCK
-    printf("BEGIN get_result_var\n");
-#endif
+    logFunction(printf("get_result_var\n"););
     result_init = copy_expression(result_init, err_info);
     if (CATEGORY_OF_OBJ(result_init) == MATCHOBJECT) {
       SET_CATEGORY_OF_OBJ(result_init, CALLOBJECT);
@@ -214,9 +211,7 @@ void get_result_var (locObjType result_var, typeType result_type,
     result_var->init_value = result_init;
     result_var->create_call_obj = get_create_call_obj(result_var->object, err_info);
     result_var->destroy_call_obj = get_destroy_call_obj(result_var->object, err_info);
-#ifdef TRACE_BLOCK
-    printf("END get_result_var\n");
-#endif
+    logFunction(printf("get_result_var -->\n"););
   } /* get_result_var */
 
 
@@ -228,9 +223,7 @@ void get_return_var (locObjType return_var, typeType return_type,
       objectRecord return_object;
 
   /* get_return_var */
-#ifdef TRACE_BLOCK
-    printf("BEGIN get_return_var\n");
-#endif
+    logFunction(printf("get_return_var\n"););
     return_object.type_of = return_type;
     return_object.descriptor.property = NULL;
     INIT_CATEGORY_OF_VAR(&return_object, RESULTOBJECT);
@@ -239,9 +232,7 @@ void get_return_var (locObjType return_var, typeType return_type,
     return_var->init_value = NULL;
     return_var->create_call_obj = get_create_call_obj(&return_object, err_info);
     return_var->destroy_call_obj = get_destroy_call_obj(&return_object, err_info);
-#ifdef TRACE_BLOCK
-    printf("END get_return_var\n");
-#endif
+    logFunction(printf("get_return_var -->\n"););
   } /* get_return_var */
 
 
@@ -257,9 +248,7 @@ locListType get_param_list (const_listType param_object_list,
     locListType params;
 
   /* get_param_list */
-#ifdef TRACE_BLOCK
-    printf("BEGIN get_param_list\n");
-#endif
+    logFunction(printf("get_param_list\n"););
     params = NULL;
     params_insert_place = &params;
     param_element = param_object_list;
@@ -286,9 +275,7 @@ locListType get_param_list (const_listType param_object_list,
           param_element->obj, NULL, create_call_obj, destroy_call_obj, err_info);
       param_element = param_element->next;
     } /* while */
-#ifdef TRACE_BLOCK
-    printf("END get_param_list\n");
-#endif
+    logFunction(printf("get_param_list -->\n"););
     return params;
   } /* get_param_list */
 
@@ -307,9 +294,7 @@ locListType get_local_var_list (const_listType local_object_list,
     locListType local_vars;
 
   /* get_local_var_list */
-#ifdef TRACE_BLOCK
-    printf("BEGIN get_local_var_list\n");
-#endif
+    logFunction(printf("get_local_var_list\n"););
     local_vars = NULL;
     local_vars_insert_place = &local_vars;
     local_element = local_object_list;
@@ -333,9 +318,7 @@ locListType get_local_var_list (const_listType local_object_list,
       } /* if */
       local_element = local_element->next;
     } /* while */
-#ifdef TRACE_BLOCK
-    printf("END get_local_var_list\n");
-#endif
+    logFunction(printf("get_local_var_list -->\n"););
     return local_vars;
   } /* get_local_var_list */
 
@@ -350,9 +333,7 @@ listType get_local_const_list (const_listType local_object_list,
     listType local_consts;
 
   /* get_local_const_list */
-#ifdef TRACE_BLOCK
-    printf("BEGIN get_local_const_list\n");
-#endif
+    logFunction(printf("get_local_const_list\n"););
     local_consts = NULL;
     list_insert_place = &local_consts;
     local_element = local_object_list;
@@ -363,8 +344,6 @@ listType get_local_const_list (const_listType local_object_list,
       } /* if */
       local_element = local_element->next;
     } /* while */
-#ifdef TRACE_BLOCK
-    printf("END get_local_const_list\n");
-#endif
+    logFunction(printf("get_local_const_list -->\n"););
     return local_consts;
   } /* get_local_const_list */

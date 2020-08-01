@@ -572,7 +572,7 @@ objectType dcl_param_attr (listType arguments)
     } /* if */
     /* trace1(param_object);
        printf("\n");
-       printf("dcl_param_attr => %lX\n", result);
+       printf("dcl_param_attr --> %lX\n", result);
        trace1(result);
        printf("\n"); */
     return bld_param_temp(result);

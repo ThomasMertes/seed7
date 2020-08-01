@@ -917,7 +917,8 @@ winType find_window (Window sys_window)
                             (intType) ((memSizeType) sys_window) >> 6,
                             (compareType) &genericCmp);
     } /* if */
-    /* printf("find_window(%lx) --> %lx\n", (unsigned long) sys_window, (unsigned long) window); */
+    logFunction(printf("find_window(" FMT_X_MEM ") --> %" FMT_X_MEM "\n",
+                       (memSizeType) sys_window, (memSizeType) window););
     return window;
   } /* find_window */
 

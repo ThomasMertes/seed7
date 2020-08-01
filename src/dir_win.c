@@ -78,11 +78,11 @@ DIR *opendir (const char *name)
       strcat(dir_name, "*.*");
       result->dir_handle = FindFirstFileA(dir_name, &result->find_record);
       if (result->dir_handle != INVALID_HANDLE_VALUE) {
-        /* printf("==> OK\n");
+        /* printf("--> OK\n");
         printf(">%s<\n", result->find_record.cFileName); */
         result->first_element = 1;
       } else {
-        /* printf("==> ERROR\n"); */
+        /* printf("--> ERROR\n"); */
         free(result);
         result = NULL;
       } /* if */
@@ -178,11 +178,11 @@ WDIR *wopendir (const wchar_t *name)
       dir_name[name_len] = '\0';
       result->dir_handle = FindFirstFileW(dir_name, &result->find_record);
       if (result->dir_handle != INVALID_HANDLE_VALUE) {
-        /* printf("==> OK\n");
+        /* printf("--> OK\n");
         printf(">%ls<\n", result->find_record.cFileName); */
         result->first_element = 1;
       } else {
-        /* printf("==> ERROR\n"); */
+        /* printf("--> ERROR\n"); */
         free(result);
         result = NULL;
       } /* if */

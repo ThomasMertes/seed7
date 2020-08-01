@@ -431,7 +431,7 @@ intType timMicroSec (void)
   /* timMicroSec */
     gettimeofday(&time_val, NULL);
     micro_sec = (intType) time_val.tv_usec;
-    /* printf("timMicroSec() ==> %lu\n", micro_sec); */
+    logFunction(printf("timMicroSec() --> " FMT_U "\n", micro_sec););
     return micro_sec;
   } /* timMicroSec */
 

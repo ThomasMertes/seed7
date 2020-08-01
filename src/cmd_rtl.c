@@ -1407,8 +1407,8 @@ striType cmdConfigValue (const const_striType name)
       } else if (strcmp(opt_name, "INT_SIZE") == 0) {
         sprintf(buffer, "%d", INT_SIZE);
         opt = buffer;
-      } else if (strcmp(opt_name, "MAX_INTEGER_IN_FLOATTYPE") == 0) {
-        sprintf(buffer, FMT_D, MAX_INTEGER_IN_FLOATTYPE);
+      } else if (strcmp(opt_name, "INT_RANGE_IN_FLOATTYPE_MAX") == 0) {
+        sprintf(buffer, FMT_D, INT_RANGE_IN_FLOATTYPE_MAX);
         opt = buffer;
       } else if (strcmp(opt_name, "MACRO_DEFS") == 0) {
         sprintf(buffer, "%s%s", MACRO_DEFS, OS_ISNAN_DEFINITION);

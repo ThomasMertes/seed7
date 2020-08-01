@@ -4523,7 +4523,7 @@ CONTENTS
   The function below defines the primitive action for the
   semicolon operator:
 
-    const proc: (ref void param) ; (ref void param) is noop;
+    const proc: (ref void: statement1) ; (ref void: statement2) is noop;
 
   In this definition and other definitions of primitive actions
   'ref' parameters are used. For normal functions usually
@@ -11267,7 +11267,7 @@ CONTENTS
     It may be raised from the following 'bigRational' operations:
         parse, digits, sci.
     It may be raised from the following 'float' operations:
-        parse, digits, sci, rand.
+        parse, digits, sci, rand, round, trunc.
     It may be raised from the following 'char' operations:
         chr, rand.
     It may be raised from the following 'string' operations:
@@ -11278,6 +11278,10 @@ CONTENTS
         [, times, remove, rand.
     It may be raised from the following 'hash' operations:
         [.
+    It may be raised from the following 'bin32' operations:
+        radix, RADIX.
+    It may be raised from the following 'bin64' operations:
+        radix, RADIX.
     It may be raised from the following 'category' operations:
         parse.
     It may be raised from the following 'ref_list' operations:

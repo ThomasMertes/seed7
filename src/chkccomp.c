@@ -1580,11 +1580,11 @@ void numericProperties (FILE *versionFile)
                          "else if (FLT_RADIX == 8) floatRadixFactor = 3;\n"
                          "else if (FLT_RADIX == 16) floatRadixFactor = 4;\n"
                          "power = dblPower((double) FLT_RADIX, FLT_MANT_DIG);\n"
-                         "printf(\"#define MAX_INTEGER_IN_FLOAT %0.0f\\n\", power);\n"
+                         "printf(\"#define INT_RANGE_IN_FLOAT_MAX %0.0f\\n\", power);\n"
                          "printf(\"#define FLOAT_MANTISSA_FACTOR %0.1f\\n\", power);\n"
                          "printf(\"#define FLOAT_MANTISSA_SHIFT %u\\n\", FLT_MANT_DIG * floatRadixFactor);\n"
                          "power = dblPower((double) FLT_RADIX, DBL_MANT_DIG);\n"
-                         "printf(\"#define MAX_INTEGER_IN_DOUBLE %0.0f\\n\", power);\n"
+                         "printf(\"#define INT_RANGE_IN_DOUBLE_MAX %0.0f\\n\", power);\n"
                          "printf(\"#define DOUBLE_MANTISSA_FACTOR %0.1f\\n\", power);\n"
                          "printf(\"#define DOUBLE_MANTISSA_SHIFT %u\\n\", DBL_MANT_DIG * floatRadixFactor);\n"
                          "return 0;}\n")) {

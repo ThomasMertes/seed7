@@ -288,19 +288,19 @@ IN_PARAM_IS_VALUE(ENUMERATION);
 const type: INDEXABLE      is subtype object;
 const type: MODULE         is subtype object;
 
-const proc: destroy (ref ACTION param)      is action "GEN_DESTR";
-const proc: destroy (ref ENUMERATION param) is action "GEN_DESTR";
-const proc: destroy (ref integer param)     is action "GEN_DESTR";
-const proc: destroy (ref EXCEPTION param)   is action "GEN_DESTR";
+const proc: destroy (ref ACTION: aValue)      is action "GEN_DESTR";
+const proc: destroy (ref ENUMERATION: aValue) is action "GEN_DESTR";
+const proc: destroy (ref integer: aValue)     is action "GEN_DESTR";
+const proc: destroy (ref EXCEPTION: aValue)   is action "GEN_DESTR";
 
-const proc: (ref ACTION param) ::= (in ACTION param)            is action "ACT_CREATE";
-const proc: (inout ACTION: dest) := (in ACTION: source)         is action "ACT_CPY";
-const proc: (ref ENUMERATION param) ::= (ref ENUMERATION param) is action "ENU_CREATE";
-const proc: (ref ENUMERATION param) ::= enumlit                 is action "ENU_GENLIT";
-const proc: (ref func object param) ::= (in ACTION param)       is action "ACT_CREATE";
-const proc: (ref EXCEPTION param) ::= (ref EXCEPTION param)     is action "ENU_CREATE";
-const proc: (ref EXCEPTION param) ::= enumlit                   is action "ENU_GENLIT";
-const proc: (inout EXCEPTION: dest) := (ref EXCEPTION: source)  is action "ENU_CPY";
+const proc: (ref ACTION: dest) ::= (in ACTION: source)            is action "ACT_CREATE";
+const proc: (inout ACTION: dest) := (in ACTION: source)           is action "ACT_CPY";
+const proc: (ref ENUMERATION: dest) ::= (ref ENUMERATION: source) is action "ENU_CREATE";
+const proc: (ref ENUMERATION: dest) ::= enumlit                   is action "ENU_GENLIT";
+const proc: (ref func object: dest) ::= (in ACTION: source)       is action "ACT_CREATE";
+const proc: (ref EXCEPTION: dest) ::= (ref EXCEPTION: source)     is action "ENU_CREATE";
+const proc: (ref EXCEPTION: dest) ::= enumlit                     is action "ENU_GENLIT";
+const proc: (inout EXCEPTION: dest) := (ref EXCEPTION: source)    is action "ENU_CPY";
 
 const EXCEPTION: MEMORY_ERROR   is enumlit;
 const EXCEPTION: NUMERIC_ERROR  is enumlit;
@@ -636,10 +636,10 @@ const func type: tuple (in type: baseType) is func
       tupleType := newtype;
       IN_PARAM_IS_REFERENCE(tupleType);
       const type: tuple (attr baseType) is tupleType;
-      const proc: (ref tupleType param) ::= (in tupleType param)         is action "ARR_CREATE";
-      const proc: destroy (ref tupleType param)                          is action "ARR_DESTR";
-      const func tupleType: (in baseType param) , (in baseType param)    is action "ARR_GEN";
-      const func tupleType: (in tupleType param) , (in baseType param)   is action "ARR_EXTEND";
+      const proc: (ref tupleType: dest) ::= (in tupleType: source)            is action "ARR_CREATE";
+      const proc: destroy (ref tupleType: aValue)                             is action "ARR_DESTR";
+      const func tupleType: (in baseType: element1) , (in baseType: element2) is action "ARR_GEN";
+      const func tupleType: (in tupleType: arr1) , (in baseType: element)     is action "ARR_EXTEND";
 (*
       const func tupleType: (in baseType: lower_limit) .. (in baseType: upper_limit) is func
         result
@@ -949,10 +949,13 @@ const func type: new enum (ref expr: elem_expr) end enum is func
     const proc: (inout enumType: dest) := (in enumType: source)      is action "ENU_CPY";
     const func boolean: (in enumType: enum1) = (in enumType: enum2)  is action "ENU_EQ";
     const func boolean: (in enumType: enum1) <> (in enumType: enum2) is action "ENU_NE";
-    const func enumType: getValue(in reference param, attr enumType) is action "ENU_VALUE";
-    const func enumType: ICONV2(in integer param, in ref_list param,
+    const func enumType: getValue(in reference: aReference,
+                                  attr enumType)                     is action "ENU_VALUE";
+    const func enumType: ICONV2(in integer: number,
+                                in ref_list: literalList,
                                 attr enumType)                       is action "ENU_ICONV2";
-    const func integer: ORD2(in enumType param, in ref_list param)   is action "ENU_ORD2";
+    const func integer: ORD2(in enumType: enum_val,
+                             in ref_list: literalList)               is action "ENU_ORD2";
     literal_list := ref_list.EMPTY;
     for number range 1 to length(elem_list) do
       elem_obj := elem_list[number];

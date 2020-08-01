@@ -240,12 +240,12 @@ How many lines of code are in the Seed7 project?
 ================================================
 
 The Seed7 package contains more than 100000 lines of C and more
-than 200000 lines of Seed7. For version 2015-07-05 the number of lines is:
+than 200000 lines of Seed7. For version 2015-07-20 the number of lines is:
 
-  125850  C source files (*.c)
-   10081  C header files (*.h)
-  126788  Seed7 source files (*.sd7)
-  129642  Seed7 library/include files (*.s7i)
+  125861  C source files (*.c)
+   10089  C header files (*.h)
+  127640  Seed7 source files (*.sd7)
+  129650  Seed7 library/include files (*.s7i)
 
 C code (*.c and *.h files) can be divided into the following areas:
 

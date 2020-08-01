@@ -4669,7 +4669,7 @@ $ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>:
   The function below defines the primitive action for the
   semicolon operator:
 </p><pre class="indent">
-<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: (<span class="keywd">ref</span> <a class="type" href="#types_void">void</a> <span class="keywd">param</span>) ; (<span class="keywd">ref</span> <a class="type" href="#types_void">void</a> <span class="keywd">param</span>) <span class="keywd">is</span> noop;
+<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: (<span class="keywd">ref</span> <a class="type" href="#types_void">void</a>: statement1) ; (<span class="keywd">ref</span> <a class="type" href="#types_void">void</a>: statement2) <span class="keywd">is</span> noop;
 </pre><p>
   In this definition and other definitions of primitive actions
   <tt>'<span class="keywd">ref</span>'</tt> parameters are used. For normal functions usually
@@ -11413,7 +11413,7 @@ SYSTEM_LIBS = -lm <b>superlib.a</b>
     It may be raised from the following <tt><a class="type" href="#types_bigRational">bigRational</a></tt> operations:</dt><dd>
         <span class="op">parse</span>, <span class="op">digits</span>, <span class="op">sci</span>.</dd><dt>
     It may be raised from the following <tt><a class="type" href="#types_float">float</a></tt> operations:</dt><dd>
-        <span class="op">parse</span>, <span class="op">digits</span>, <span class="op">sci</span>, <span class="func">rand</span>.</dd><dt>
+        <span class="op">parse</span>, <span class="op">digits</span>, <span class="op">sci</span>, <span class="func">rand</span>, <span class="func">round</span>, <span class="func">trunc</span>.</dd><dt>
     It may be raised from the following <tt><a class="type" href="#types_char">char</a></tt> operations:</dt><dd>
         <span class="func">chr</span>, <span class="func">rand</span>.</dd><dt>
     It may be raised from the following <tt><a class="type" href="#types_string">string</a></tt> operations:</dt><dd>
@@ -11424,6 +11424,10 @@ SYSTEM_LIBS = -lm <b>superlib.a</b>
         <span class="op">[</span>, <span class="op">times</span>, <span class="func">remove</span>, <span class="func">rand</span>.</dd><dt>
     It may be raised from the following <tt><a class="type" href="#types_hash">hash</a></tt> operations:</dt><dd>
         <span class="op">[</span>.</dd><dt>
+    It may be raised from the following <tt><span class="type">bin32</span></tt> operations:</dt><dd>
+        <span class="op">radix</span>, <span class="op">RADIX</span>.</dd><dt>
+    It may be raised from the following <tt><span class="type">bin64</span></tt> operations:</dt><dd>
+        <span class="op">radix</span>, <span class="op">RADIX</span>.</dd><dt>
     It may be raised from the following <tt><a class="type" href="#types_category">category</a></tt> operations:</dt><dd>
         <span class="op">parse</span>.</dd><dt>
     It may be raised from the following <tt><a class="type" href="#types_ref_list">ref_list</a></tt> operations:</dt><dd>

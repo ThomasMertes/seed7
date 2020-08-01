@@ -32,6 +32,16 @@ const string: (attr string) . value is "";
 
 const proc: (inout string: dest) := (in string: source)          is action "STR_CPY";
 
+
+(**
+ *  String multiplication.
+ *  The string ''stri'' is concatenated to itself such that in total
+ *  ''factor'' strings are concatenated.
+ *   "LA" mult 3     returns "LALALA"
+ *   "WORD" mult 0   returns ""
+ *  @return the result of the string multiplication.
+ *  @exception RANGE_ERROR When the factor is negative.
+ *)
 const func string: (in string: stri) mult (in integer: factor)   is action "STR_MULT";
 
 

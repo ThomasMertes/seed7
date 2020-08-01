@@ -163,7 +163,8 @@ LRESULT CALLBACK WndProc (HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     LRESULT result;
 
   /* WndProc */
-    /* printf("WndProc message=%d, %lu, %d, %u\n", message, hWnd, wParam, lParam); */
+    logFunction(printf("WndProc message=%d, %lu, %d, %u\n",
+                       message, hWnd, wParam, lParam););
     switch (message) {
       case WM_PAINT:
         /* printf("WM_PAINT %lu %lu\n", hWnd, paint_window); */
@@ -254,7 +255,7 @@ LRESULT CALLBACK WndProc (HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         result = DefWindowProc(hWnd, message, wParam, lParam);
         break;
     } /* switch */
-    /* printf("WndProc ==> %d\n", result); */
+    logFunction(printf("WndProc --> %d\n", result););
     return result;
   } /* WndProc */
 
@@ -867,7 +868,7 @@ winType drwImage (int32Type *image_data, memSizeType width, memSizeType height)
         } /* for */
       } /* if */
     } /* if */
-    logFunction(printf("END drwImage ==> " FMT_U_MEM " (usage=" FMT_U ")\n",
+    logFunction(printf("drwImage --> " FMT_U_MEM " (usage=" FMT_U ")\n",
                        (memSizeType) result,
                        result != NULL ? result->usage_count : (uintType) 0););
     return result;

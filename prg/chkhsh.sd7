@@ -25,36 +25,77 @@
 $ include "seed7_05.s7i";
   include "stdio.s7i";
   include "bigint.s7i";
+  include "rational.s7i";
+  include "bigrat.s7i";
   include "float.s7i";
   include "complex.s7i";
 
 enable_output(type);
 
-const type: booleanBooleanHash    is hash [boolean] boolean;
-const type: booleanIntegerHash    is hash [boolean] integer;
-const type: booleanBigIntegerHash is hash [boolean] bigInteger;
-const type: booleanFloatHash      is hash [boolean] float;
-const type: booleanComplexHash    is hash [boolean] complex;
-const type: booleanCharHash       is hash [boolean] char;
-const type: booleanStringHash     is hash [boolean] string;
-const type: booleanTypeHash       is hash [boolean] type;
-const type: booleanReferenceHash  is hash [boolean] reference;
-const type: booleanHashHash       is hash [boolean] booleanBooleanHash;
+const type: booleanBooleanHash     is hash [boolean] boolean;
+const type: booleanIntegerHash     is hash [boolean] integer;
+const type: booleanBigIntegerHash  is hash [boolean] bigInteger;
+const type: booleanBigRationalHash is hash [boolean] bigRational;
+const type: booleanFloatHash       is hash [boolean] float;
+const type: booleanComplexHash     is hash [boolean] complex;
+const type: booleanCharHash        is hash [boolean] char;
+const type: booleanStringHash      is hash [boolean] string;
+const type: booleanTypeHash        is hash [boolean] type;
+const type: booleanReferenceHash   is hash [boolean] reference;
+const type: booleanHashHash        is hash [boolean] booleanBooleanHash;
 
-const type: integerBooleanHash    is hash [integer] boolean;
-const type: integerIntegerHash    is hash [integer] integer;
-const type: integerBigIntegerHash is hash [integer] bigInteger;
-const type: integerFloatHash      is hash [integer] float;
-const type: integerComplexHash    is hash [integer] complex;
-const type: integerCharHash       is hash [integer] char;
-const type: integerStringHash     is hash [integer] string;
-const type: integerTypeHash       is hash [integer] type;
-const type: integerReferenceHash  is hash [integer] reference;
-const type: integerHashHash       is hash [integer] integerBooleanHash;
+const type: integerBooleanHash     is hash [integer] boolean;
+const type: integerIntegerHash     is hash [integer] integer;
+const type: integerBigIntegerHash  is hash [integer] bigInteger;
+const type: integerBigRationalHash is hash [integer] bigRational;
+const type: integerFloatHash       is hash [integer] float;
+const type: integerComplexHash     is hash [integer] complex;
+const type: integerCharHash        is hash [integer] char;
+const type: integerStringHash      is hash [integer] string;
+const type: integerTypeHash        is hash [integer] type;
+const type: integerReferenceHash   is hash [integer] reference;
+const type: integerHashHash        is hash [integer] integerBooleanHash;
+
+const type: bigIntegerBooleanHash     is hash [bigInteger] boolean;
+const type: bigIntegerIntegerHash     is hash [bigInteger] integer;
+const type: bigIntegerBigIntegerHash  is hash [bigInteger] bigInteger;
+const type: bigIntegerBigRationalHash is hash [bigInteger] bigRational;
+const type: bigIntegerFloatHash       is hash [bigInteger] float;
+const type: bigIntegerComplexHash     is hash [bigInteger] complex;
+const type: bigIntegerCharHash        is hash [bigInteger] char;
+const type: bigIntegerStringHash      is hash [bigInteger] string;
+const type: bigIntegerTypeHash        is hash [bigInteger] type;
+const type: bigIntegerReferenceHash   is hash [bigInteger] reference;
+const type: bigIntegerHashHash        is hash [bigInteger] bigIntegerBooleanHash;
+
+const type: rationalBooleanHash     is hash [rational] boolean;
+const type: rationalIntegerHash     is hash [rational] integer;
+const type: rationalBigIntegerHash  is hash [rational] bigInteger;
+const type: rationalBigRationalHash is hash [rational] bigRational;
+const type: rationalFloatHash       is hash [rational] float;
+const type: rationalComplexHash     is hash [rational] complex;
+const type: rationalCharHash        is hash [rational] char;
+const type: rationalStringHash      is hash [rational] string;
+const type: rationalTypeHash        is hash [rational] type;
+const type: rationalReferenceHash   is hash [rational] reference;
+const type: rationalHashHash        is hash [rational] rationalBooleanHash;
+
+const type: bigRationalBooleanHash     is hash [bigRational] boolean;
+const type: bigRationalIntegerHash     is hash [bigRational] integer;
+const type: bigRationalBigIntegerHash  is hash [bigRational] bigInteger;
+const type: bigRationalBigRationalHash is hash [bigRational] bigRational;
+const type: bigRationalFloatHash       is hash [bigRational] float;
+const type: bigRationalComplexHash     is hash [bigRational] complex;
+const type: bigRationalCharHash        is hash [bigRational] char;
+const type: bigRationalStringHash      is hash [bigRational] string;
+const type: bigRationalTypeHash        is hash [bigRational] type;
+const type: bigRationalReferenceHash   is hash [bigRational] reference;
+const type: bigRationalHashHash        is hash [bigRational] bigRationalBooleanHash;
 
 const type: floatBooleanHash      is hash [float] boolean;
 const type: floatIntegerHash      is hash [float] integer;
 const type: floatBigIntegerHash   is hash [float] bigInteger;
+const type: floatBigRationalHash  is hash [float] bigRational;
 const type: floatFloatHash        is hash [float] float;
 const type: floatComplexHash      is hash [float] complex;
 const type: floatCharHash         is hash [float] char;
@@ -63,20 +104,22 @@ const type: floatTypeHash         is hash [float] type;
 const type: floatReferenceHash    is hash [float] reference;
 const type: floatHashHash         is hash [float] floatBooleanHash;
 
-const type: complexBooleanHash    is hash [complex] boolean;
-const type: complexIntegerHash    is hash [complex] integer;
-const type: complexBigIntegerHash is hash [complex] bigInteger;
-const type: complexFloatHash      is hash [complex] float;
-const type: complexComplexHash    is hash [complex] complex;
-const type: complexCharHash       is hash [complex] char;
-const type: complexStringHash     is hash [complex] string;
-const type: complexTypeHash       is hash [complex] type;
-const type: complexReferenceHash  is hash [complex] reference;
-const type: complexHashHash       is hash [complex] complexBooleanHash;
+const type: complexBooleanHash     is hash [complex] boolean;
+const type: complexIntegerHash     is hash [complex] integer;
+const type: complexBigIntegerHash  is hash [complex] bigInteger;
+const type: complexBigRationalHash is hash [complex] bigRational;
+const type: complexFloatHash       is hash [complex] float;
+const type: complexComplexHash     is hash [complex] complex;
+const type: complexCharHash        is hash [complex] char;
+const type: complexStringHash      is hash [complex] string;
+const type: complexTypeHash        is hash [complex] type;
+const type: complexReferenceHash   is hash [complex] reference;
+const type: complexHashHash        is hash [complex] complexBooleanHash;
 
 const type: charBooleanHash       is hash [char] boolean;
 const type: charIntegerHash       is hash [char] integer;
 const type: charBigIntegerHash    is hash [char] bigInteger;
+const type: charBigRationalHash   is hash [char] bigRational;
 const type: charFloatHash         is hash [char] float;
 const type: charComplexHash       is hash [char] complex;
 const type: charCharHash          is hash [char] char;
@@ -88,6 +131,7 @@ const type: charHashHash          is hash [char] charBooleanHash;
 const type: stringBooleanHash     is hash [string] boolean;
 const type: stringIntegerHash     is hash [string] integer;
 const type: stringBigIntegerHash  is hash [string] bigInteger;
+const type: stringBigRationalHash is hash [string] bigRational;
 const type: stringFloatHash       is hash [string] float;
 const type: stringComplexHash     is hash [string] complex;
 const type: stringCharHash        is hash [string] char;
@@ -100,113 +144,122 @@ const type: stringHashHash        is hash [string] stringBooleanHash;
 const proc: chkBooleanHash is func
   local
     var boolean: okay is TRUE;
-    var booleanBooleanHash:    booleanBooleanHashVar    is booleanBooleanHash   .EMPTY_HASH;
-    var booleanIntegerHash:    booleanIntegerHashVar    is booleanIntegerHash   .EMPTY_HASH;
-    var booleanBigIntegerHash: booleanBigIntegerHashVar is booleanBigIntegerHash.EMPTY_HASH;
-    var booleanFloatHash:      booleanFloatHashVar      is booleanFloatHash     .EMPTY_HASH;
-    var booleanComplexHash:    booleanComplexHashVar    is booleanComplexHash   .EMPTY_HASH;
-    var booleanCharHash:       booleanCharHashVar       is booleanCharHash      .EMPTY_HASH;
-    var booleanStringHash:     booleanStringHashVar     is booleanStringHash    .EMPTY_HASH;
-    var booleanTypeHash:       booleanTypeHashVar       is booleanTypeHash      .EMPTY_HASH;
-    var booleanReferenceHash:  booleanReferenceHashVar  is booleanReferenceHash .EMPTY_HASH;
-    var booleanHashHash:       booleanHashHashVar       is booleanHashHash      .EMPTY_HASH;
+    var booleanBooleanHash:     booleanBooleanHashVar     is booleanBooleanHash    .EMPTY_HASH;
+    var booleanIntegerHash:     booleanIntegerHashVar     is booleanIntegerHash    .EMPTY_HASH;
+    var booleanBigIntegerHash:  booleanBigIntegerHashVar  is booleanBigIntegerHash .EMPTY_HASH;
+    var booleanBigRationalHash: booleanBigRationalHashVar is booleanBigRationalHash.EMPTY_HASH;
+    var booleanFloatHash:       booleanFloatHashVar       is booleanFloatHash      .EMPTY_HASH;
+    var booleanComplexHash:     booleanComplexHashVar     is booleanComplexHash    .EMPTY_HASH;
+    var booleanCharHash:        booleanCharHashVar        is booleanCharHash       .EMPTY_HASH;
+    var booleanStringHash:      booleanStringHashVar      is booleanStringHash     .EMPTY_HASH;
+    var booleanTypeHash:        booleanTypeHashVar        is booleanTypeHash       .EMPTY_HASH;
+    var booleanReferenceHash:   booleanReferenceHashVar   is booleanReferenceHash  .EMPTY_HASH;
+    var booleanHashHash:        booleanHashHashVar        is booleanHashHash       .EMPTY_HASH;
   begin
-    if  length(booleanBooleanHashVar)    <> 0 or
-        length(booleanIntegerHashVar)    <> 0 or
-        length(booleanBigIntegerHashVar) <> 0 or
-        length(booleanFloatHashVar)      <> 0 or
-        length(booleanComplexHashVar)    <> 0 or
-        length(booleanCharHashVar)       <> 0 or
-        length(booleanStringHashVar)     <> 0 or
-        length(booleanTypeHashVar)       <> 0 or
-        length(booleanReferenceHashVar)  <> 0 or
-        length(booleanHashHashVar)       <> 0 then
+    if  length(booleanBooleanHashVar)     <> 0 or
+        length(booleanIntegerHashVar)     <> 0 or
+        length(booleanBigIntegerHashVar)  <> 0 or
+        length(booleanBigRationalHashVar) <> 0 or
+        length(booleanFloatHashVar)       <> 0 or
+        length(booleanComplexHashVar)     <> 0 or
+        length(booleanCharHashVar)        <> 0 or
+        length(booleanStringHashVar)      <> 0 or
+        length(booleanTypeHashVar)        <> 0 or
+        length(booleanReferenceHashVar)   <> 0 or
+        length(booleanHashHashVar)        <> 0 then
       writeln(" ***** Number of elements in empty hash[boolean] table not 0");
       okay := FALSE;
     end if;
-    if  TRUE in booleanBooleanHashVar    or
-        TRUE in booleanIntegerHashVar    or
-        TRUE in booleanBigIntegerHashVar or
-        TRUE in booleanFloatHashVar      or
-        TRUE in booleanComplexHashVar    or
-        TRUE in booleanCharHashVar       or
-        TRUE in booleanStringHashVar     or
-        TRUE in booleanTypeHashVar       or
-        TRUE in booleanReferenceHashVar  or
-        TRUE in booleanHashHashVar       then
+    if  TRUE in booleanBooleanHashVar     or
+        TRUE in booleanIntegerHashVar     or
+        TRUE in booleanBigIntegerHashVar  or
+        TRUE in booleanBigRationalHashVar or
+        TRUE in booleanFloatHashVar       or
+        TRUE in booleanComplexHashVar     or
+        TRUE in booleanCharHashVar        or
+        TRUE in booleanStringHashVar      or
+        TRUE in booleanTypeHashVar        or
+        TRUE in booleanReferenceHashVar   or
+        TRUE in booleanHashHashVar        then
       writeln(" ***** Elements found in empty hash table");
       okay := FALSE;
     end if;
-    booleanBooleanHashVar    @:= [TRUE] TRUE;
-    booleanIntegerHashVar    @:= [TRUE] 1234;
-    booleanBigIntegerHashVar @:= [TRUE] 9999999999_;
-    booleanFloatHashVar      @:= [TRUE] 3.1415926535;
-    booleanComplexHashVar    @:= [TRUE] complex(1.2, 3.4);
-    booleanCharHashVar       @:= [TRUE] 'Q';
-    booleanStringHashVar     @:= [TRUE] "success";
-    booleanTypeHashVar       @:= [TRUE] char;
-    booleanReferenceHashVar  @:= [TRUE] NIL;
-    booleanHashHashVar       @:= [TRUE] booleanBooleanHashVar;
-    if  length(booleanBooleanHashVar)    <> 1 or
-        length(booleanIntegerHashVar)    <> 1 or
-        length(booleanBigIntegerHashVar) <> 1 or
-        length(booleanFloatHashVar)      <> 1 or
-        length(booleanComplexHashVar)    <> 1 or
-        length(booleanCharHashVar)       <> 1 or
-        length(booleanStringHashVar)     <> 1 or
-        length(booleanTypeHashVar)       <> 1 or
-        length(booleanReferenceHashVar)  <> 1 or
-        length(booleanHashHashVar)       <> 1 then
+    booleanBooleanHashVar     @:= [TRUE] TRUE;
+    booleanIntegerHashVar     @:= [TRUE] 1234;
+    booleanBigIntegerHashVar  @:= [TRUE] 9999999999_;
+    booleanBigRationalHashVar @:= [TRUE] 9999999999_ / 12345678_;
+    booleanFloatHashVar       @:= [TRUE] 3.1415926535;
+    booleanComplexHashVar     @:= [TRUE] complex(1.2, 3.4);
+    booleanCharHashVar        @:= [TRUE] 'Q';
+    booleanStringHashVar      @:= [TRUE] "success";
+    booleanTypeHashVar        @:= [TRUE] char;
+    booleanReferenceHashVar   @:= [TRUE] NIL;
+    booleanHashHashVar        @:= [TRUE] booleanBooleanHashVar;
+    if  length(booleanBooleanHashVar)     <> 1 or
+        length(booleanIntegerHashVar)     <> 1 or
+        length(booleanBigIntegerHashVar)  <> 1 or
+        length(booleanBigRationalHashVar) <> 1 or
+        length(booleanFloatHashVar)       <> 1 or
+        length(booleanComplexHashVar)     <> 1 or
+        length(booleanCharHashVar)        <> 1 or
+        length(booleanStringHashVar)      <> 1 or
+        length(booleanTypeHashVar)        <> 1 or
+        length(booleanReferenceHashVar)   <> 1 or
+        length(booleanHashHashVar)        <> 1 then
       writeln(" ***** Number of elements in hash[boolean] table not 1");
       okay := FALSE;
     end if;
-    if  TRUE in booleanBooleanHashVar    and
-        TRUE in booleanIntegerHashVar    and
-        TRUE in booleanBigIntegerHashVar and
-        TRUE in booleanFloatHashVar      and
-        TRUE in booleanComplexHashVar    and
-        TRUE in booleanCharHashVar       and
-        TRUE in booleanStringHashVar     and
-        TRUE in booleanTypeHashVar       and
-        TRUE in booleanReferenceHashVar  and
-        TRUE in booleanHashHashVar       then
+    if  TRUE in booleanBooleanHashVar     and
+        TRUE in booleanIntegerHashVar     and
+        TRUE in booleanBigIntegerHashVar  and
+        TRUE in booleanBigRationalHashVar and
+        TRUE in booleanFloatHashVar       and
+        TRUE in booleanComplexHashVar     and
+        TRUE in booleanCharHashVar        and
+        TRUE in booleanStringHashVar      and
+        TRUE in booleanTypeHashVar        and
+        TRUE in booleanReferenceHashVar   and
+        TRUE in booleanHashHashVar        then
       noop;
     else
       writeln(" ***** Elements missing in hash[boolean] table");
       okay := FALSE;
     end if;
-    booleanBooleanHashVar    @:= [TRUE] TRUE;
-    booleanIntegerHashVar    @:= [TRUE] 1234;
-    booleanBigIntegerHashVar @:= [TRUE] 9999999999_;
-    booleanFloatHashVar      @:= [TRUE] 3.1415926535;
-    booleanComplexHashVar    @:= [TRUE] complex(1.2, 3.4);
-    booleanCharHashVar       @:= [TRUE] 'Q';
-    booleanStringHashVar     @:= [TRUE] "success";
-    booleanTypeHashVar       @:= [TRUE] char;
-    booleanReferenceHashVar  @:= [TRUE] NIL;
-    booleanHashHashVar       @:= [TRUE] booleanBooleanHashVar;
-    if  TRUE not in booleanBooleanHashVar    or
-        TRUE not in booleanIntegerHashVar    or
-        TRUE not in booleanBigIntegerHashVar or
-        TRUE not in booleanFloatHashVar      or
-        TRUE not in booleanComplexHashVar    or
-        TRUE not in booleanCharHashVar       or
-        TRUE not in booleanStringHashVar     or
-        TRUE not in booleanTypeHashVar       or
-        TRUE not in booleanReferenceHashVar  or
-        TRUE not in booleanHashHashVar       then
+    booleanBooleanHashVar     @:= [TRUE] TRUE;
+    booleanIntegerHashVar     @:= [TRUE] 1234;
+    booleanBigIntegerHashVar  @:= [TRUE] 9999999999_;
+    booleanBigRationalHashVar @:= [TRUE] 9999999999_ / 12345678_;
+    booleanFloatHashVar       @:= [TRUE] 3.1415926535;
+    booleanComplexHashVar     @:= [TRUE] complex(1.2, 3.4);
+    booleanCharHashVar        @:= [TRUE] 'Q';
+    booleanStringHashVar      @:= [TRUE] "success";
+    booleanTypeHashVar        @:= [TRUE] char;
+    booleanReferenceHashVar   @:= [TRUE] NIL;
+    booleanHashHashVar        @:= [TRUE] booleanBooleanHashVar;
+    if  TRUE not in booleanBooleanHashVar     or
+        TRUE not in booleanIntegerHashVar     or
+        TRUE not in booleanBigIntegerHashVar  or
+        TRUE not in booleanBigRationalHashVar or
+        TRUE not in booleanFloatHashVar       or
+        TRUE not in booleanComplexHashVar     or
+        TRUE not in booleanCharHashVar        or
+        TRUE not in booleanStringHashVar      or
+        TRUE not in booleanTypeHashVar        or
+        TRUE not in booleanReferenceHashVar   or
+        TRUE not in booleanHashHashVar        then
       writeln(" ***** Elements missing in hash[boolean] table");
       okay := FALSE;
     end if;
-    if  booleanBooleanHashVar    [TRUE] <> TRUE              or
-        booleanIntegerHashVar    [TRUE] <> 1234              or
-        booleanBigIntegerHashVar [TRUE] <> 9999999999_       or
-        booleanFloatHashVar      [TRUE] <> 3.1415926535      or
-        booleanComplexHashVar    [TRUE] <> complex(1.2, 3.4) or
-        booleanCharHashVar       [TRUE] <> 'Q'               or
-        booleanStringHashVar     [TRUE] <> "success"         or
-        booleanTypeHashVar       [TRUE] <> char              or
-        booleanReferenceHashVar  [TRUE] <> NIL               then
+    if  booleanBooleanHashVar     [TRUE] <> TRUE                    or
+        booleanIntegerHashVar     [TRUE] <> 1234                    or
+        booleanBigIntegerHashVar  [TRUE] <> 9999999999_             or
+        booleanBigRationalHashVar [TRUE] <> 9999999999_ / 12345678_ or
+        booleanFloatHashVar       [TRUE] <> 3.1415926535            or
+        booleanComplexHashVar     [TRUE] <> complex(1.2, 3.4)       or
+        booleanCharHashVar        [TRUE] <> 'Q'                     or
+        booleanStringHashVar      [TRUE] <> "success"               or
+        booleanTypeHashVar        [TRUE] <> char                    or
+        booleanReferenceHashVar   [TRUE] <> NIL                     then
       writeln(" ***** Elements with wrong value in hash[boolean] table");
       okay := FALSE;
     end if;
@@ -221,113 +274,122 @@ const proc: chkBooleanHash is func
 const proc: chkIntegerHash is func
   local
     var boolean: okay is TRUE;
-    var integerBooleanHash:    integerBooleanHashVar    is integerBooleanHash   .EMPTY_HASH;
-    var integerIntegerHash:    integerIntegerHashVar    is integerIntegerHash   .EMPTY_HASH;
-    var integerBigIntegerHash: integerBigIntegerHashVar is integerBigIntegerHash.EMPTY_HASH;
-    var integerFloatHash:      integerFloatHashVar      is integerFloatHash     .EMPTY_HASH;
-    var integerComplexHash:    integerComplexHashVar    is integerComplexHash   .EMPTY_HASH;
-    var integerCharHash:       integerCharHashVar       is integerCharHash      .EMPTY_HASH;
-    var integerStringHash:     integerStringHashVar     is integerStringHash    .EMPTY_HASH;
-    var integerTypeHash:       integerTypeHashVar       is integerTypeHash      .EMPTY_HASH;
-    var integerReferenceHash:  integerReferenceHashVar  is integerReferenceHash .EMPTY_HASH;
-    var integerHashHash:       integerHashHashVar       is integerHashHash      .EMPTY_HASH;
+    var integerBooleanHash:     integerBooleanHashVar     is integerBooleanHash    .EMPTY_HASH;
+    var integerIntegerHash:     integerIntegerHashVar     is integerIntegerHash    .EMPTY_HASH;
+    var integerBigIntegerHash:  integerBigIntegerHashVar  is integerBigIntegerHash .EMPTY_HASH;
+    var integerBigRationalHash: integerBigRationalHashVar is integerBigRationalHash.EMPTY_HASH;
+    var integerFloatHash:       integerFloatHashVar       is integerFloatHash      .EMPTY_HASH;
+    var integerComplexHash:     integerComplexHashVar     is integerComplexHash    .EMPTY_HASH;
+    var integerCharHash:        integerCharHashVar        is integerCharHash       .EMPTY_HASH;
+    var integerStringHash:      integerStringHashVar      is integerStringHash     .EMPTY_HASH;
+    var integerTypeHash:        integerTypeHashVar        is integerTypeHash       .EMPTY_HASH;
+    var integerReferenceHash:   integerReferenceHashVar   is integerReferenceHash  .EMPTY_HASH;
+    var integerHashHash:        integerHashHashVar        is integerHashHash       .EMPTY_HASH;
   begin
-    if  length(integerBooleanHashVar)    <> 0 or
-        length(integerIntegerHashVar)    <> 0 or
-        length(integerBigIntegerHashVar) <> 0 or
-        length(integerFloatHashVar)      <> 0 or
-        length(integerComplexHashVar)    <> 0 or
-        length(integerCharHashVar)       <> 0 or
-        length(integerStringHashVar)     <> 0 or
-        length(integerTypeHashVar)       <> 0 or
-        length(integerReferenceHashVar)  <> 0 or
-        length(integerHashHashVar)       <> 0 then
+    if  length(integerBooleanHashVar)     <> 0 or
+        length(integerIntegerHashVar)     <> 0 or
+        length(integerBigIntegerHashVar)  <> 0 or
+        length(integerBigRationalHashVar) <> 0 or
+        length(integerFloatHashVar)       <> 0 or
+        length(integerComplexHashVar)     <> 0 or
+        length(integerCharHashVar)        <> 0 or
+        length(integerStringHashVar)      <> 0 or
+        length(integerTypeHashVar)        <> 0 or
+        length(integerReferenceHashVar)   <> 0 or
+        length(integerHashHashVar)        <> 0 then
       writeln(" ***** Number of elements in empty hash[integer] table not 0");
       okay := FALSE;
     end if;
-    if  87654321 in integerBooleanHashVar    or
-        87654321 in integerIntegerHashVar    or
-        87654321 in integerBigIntegerHashVar or
-        87654321 in integerFloatHashVar      or
-        87654321 in integerComplexHashVar    or
-        87654321 in integerCharHashVar       or
-        87654321 in integerStringHashVar     or
-        87654321 in integerTypeHashVar       or
-        87654321 in integerReferenceHashVar  or
-        87654321 in integerHashHashVar       then
+    if  87654321 in integerBooleanHashVar     or
+        87654321 in integerIntegerHashVar     or
+        87654321 in integerBigIntegerHashVar  or
+        87654321 in integerBigRationalHashVar or
+        87654321 in integerFloatHashVar       or
+        87654321 in integerComplexHashVar     or
+        87654321 in integerCharHashVar        or
+        87654321 in integerStringHashVar      or
+        87654321 in integerTypeHashVar        or
+        87654321 in integerReferenceHashVar   or
+        87654321 in integerHashHashVar        then
       writeln(" ***** Elements found in empty hash table");
       okay := FALSE;
     end if;
-    integerBooleanHashVar    @:= [87654321] TRUE;
-    integerIntegerHashVar    @:= [87654321] 1234;
-    integerBigIntegerHashVar @:= [87654321] 9999999999_;
-    integerFloatHashVar      @:= [87654321] 3.1415926535;
-    integerComplexHashVar    @:= [87654321] complex(1.2, 3.4);
-    integerCharHashVar       @:= [87654321] 'Q';
-    integerStringHashVar     @:= [87654321] "success";
-    integerTypeHashVar       @:= [87654321] char;
-    integerReferenceHashVar  @:= [87654321] NIL;
-    integerHashHashVar       @:= [87654321] integerBooleanHashVar;
-    if  length(integerBooleanHashVar)    <> 1 or
-        length(integerIntegerHashVar)    <> 1 or
-        length(integerBigIntegerHashVar) <> 1 or
-        length(integerFloatHashVar)      <> 1 or
-        length(integerComplexHashVar)    <> 1 or
-        length(integerCharHashVar)       <> 1 or
-        length(integerStringHashVar)     <> 1 or
-        length(integerTypeHashVar)       <> 1 or
-        length(integerReferenceHashVar)  <> 1 or
-        length(integerHashHashVar)       <> 1 then
+    integerBooleanHashVar     @:= [87654321] TRUE;
+    integerIntegerHashVar     @:= [87654321] 1234;
+    integerBigIntegerHashVar  @:= [87654321] 9999999999_;
+    integerBigRationalHashVar @:= [87654321] 9999999999_ / 12345678_;
+    integerFloatHashVar       @:= [87654321] 3.1415926535;
+    integerComplexHashVar     @:= [87654321] complex(1.2, 3.4);
+    integerCharHashVar        @:= [87654321] 'Q';
+    integerStringHashVar      @:= [87654321] "success";
+    integerTypeHashVar        @:= [87654321] char;
+    integerReferenceHashVar   @:= [87654321] NIL;
+    integerHashHashVar        @:= [87654321] integerBooleanHashVar;
+    if  length(integerBooleanHashVar)     <> 1 or
+        length(integerIntegerHashVar)     <> 1 or
+        length(integerBigIntegerHashVar)  <> 1 or
+        length(integerBigRationalHashVar) <> 1 or
+        length(integerFloatHashVar)       <> 1 or
+        length(integerComplexHashVar)     <> 1 or
+        length(integerCharHashVar)        <> 1 or
+        length(integerStringHashVar)      <> 1 or
+        length(integerTypeHashVar)        <> 1 or
+        length(integerReferenceHashVar)   <> 1 or
+        length(integerHashHashVar)        <> 1 then
       writeln(" ***** Number of elements in hash[integer] table not 1");
       okay := FALSE;
     end if;
-    if  87654321 in integerBooleanHashVar    and
-        87654321 in integerIntegerHashVar    and
-        87654321 in integerBigIntegerHashVar and
-        87654321 in integerFloatHashVar      and
-        87654321 in integerComplexHashVar    and
-        87654321 in integerCharHashVar       and
-        87654321 in integerStringHashVar     and
-        87654321 in integerTypeHashVar       and
-        87654321 in integerReferenceHashVar  and
-        87654321 in integerHashHashVar       then
+    if  87654321 in integerBooleanHashVar     and
+        87654321 in integerIntegerHashVar     and
+        87654321 in integerBigIntegerHashVar  and
+        87654321 in integerBigRationalHashVar and
+        87654321 in integerFloatHashVar       and
+        87654321 in integerComplexHashVar     and
+        87654321 in integerCharHashVar        and
+        87654321 in integerStringHashVar      and
+        87654321 in integerTypeHashVar        and
+        87654321 in integerReferenceHashVar   and
+        87654321 in integerHashHashVar        then
       noop;
     else
       writeln(" ***** Elements missing in hash[integer] table");
       okay := FALSE;
     end if;
-    integerBooleanHashVar    @:= [87654321] TRUE;
-    integerIntegerHashVar    @:= [87654321] 1234;
-    integerBigIntegerHashVar @:= [87654321] 9999999999_;
-    integerFloatHashVar      @:= [87654321] 3.1415926535;
-    integerComplexHashVar    @:= [87654321] complex(1.2, 3.4);
-    integerCharHashVar       @:= [87654321] 'Q';
-    integerStringHashVar     @:= [87654321] "success";
-    integerTypeHashVar       @:= [87654321] char;
-    integerReferenceHashVar  @:= [87654321] NIL;
-    integerHashHashVar       @:= [87654321] integerBooleanHashVar;
-    if  87654321 not in integerBooleanHashVar    or
-        87654321 not in integerIntegerHashVar    or
-        87654321 not in integerBigIntegerHashVar or
-        87654321 not in integerFloatHashVar      or
-        87654321 not in integerComplexHashVar    or
-        87654321 not in integerCharHashVar       or
-        87654321 not in integerStringHashVar     or
-        87654321 not in integerTypeHashVar       or
-        87654321 not in integerReferenceHashVar  or
-        87654321 not in integerHashHashVar       then
+    integerBooleanHashVar     @:= [87654321] TRUE;
+    integerIntegerHashVar     @:= [87654321] 1234;
+    integerBigIntegerHashVar  @:= [87654321] 9999999999_;
+    integerBigRationalHashVar @:= [87654321] 9999999999_ / 12345678_;
+    integerFloatHashVar       @:= [87654321] 3.1415926535;
+    integerComplexHashVar     @:= [87654321] complex(1.2, 3.4);
+    integerCharHashVar        @:= [87654321] 'Q';
+    integerStringHashVar      @:= [87654321] "success";
+    integerTypeHashVar        @:= [87654321] char;
+    integerReferenceHashVar   @:= [87654321] NIL;
+    integerHashHashVar        @:= [87654321] integerBooleanHashVar;
+    if  87654321 not in integerBooleanHashVar     or
+        87654321 not in integerIntegerHashVar     or
+        87654321 not in integerBigIntegerHashVar  or
+        87654321 not in integerBigRationalHashVar or
+        87654321 not in integerFloatHashVar       or
+        87654321 not in integerComplexHashVar     or
+        87654321 not in integerCharHashVar        or
+        87654321 not in integerStringHashVar      or
+        87654321 not in integerTypeHashVar        or
+        87654321 not in integerReferenceHashVar   or
+        87654321 not in integerHashHashVar        then
       writeln(" ***** Elements missing in hash[integer] table");
       okay := FALSE;
     end if;
-    if  integerBooleanHashVar    [87654321] <> TRUE              or
-        integerIntegerHashVar    [87654321] <> 1234              or
-        integerBigIntegerHashVar [87654321] <> 9999999999_       or
-        integerFloatHashVar      [87654321] <> 3.1415926535      or
-        integerComplexHashVar    [87654321] <> complex(1.2, 3.4) or
-        integerCharHashVar       [87654321] <> 'Q'               or
-        integerStringHashVar     [87654321] <> "success"         or
-        integerTypeHashVar       [87654321] <> char              or
-        integerReferenceHashVar  [87654321] <> NIL               then
+    if  integerBooleanHashVar     [87654321] <> TRUE                    or
+        integerIntegerHashVar     [87654321] <> 1234                    or
+        integerBigIntegerHashVar  [87654321] <> 9999999999_             or
+        integerBigRationalHashVar [87654321] <> 9999999999_ / 12345678_ or
+        integerFloatHashVar       [87654321] <> 3.1415926535            or
+        integerComplexHashVar     [87654321] <> complex(1.2, 3.4)       or
+        integerCharHashVar        [87654321] <> 'Q'                     or
+        integerStringHashVar      [87654321] <> "success"               or
+        integerTypeHashVar        [87654321] <> char                    or
+        integerReferenceHashVar   [87654321] <> NIL                     then
       writeln(" ***** Elements with wrong value in hash[integer] table");
       okay := FALSE;
     end if;
@@ -340,116 +402,518 @@ const proc: chkIntegerHash is func
   end func;
 
 
-const proc: chkFloatHash is func
+const proc: chkBigIntegerHash is func
   local
     var boolean: okay is TRUE;
-    var floatBooleanHash:    floatBooleanHashVar    is floatBooleanHash   .EMPTY_HASH;
-    var floatIntegerHash:    floatIntegerHashVar    is floatIntegerHash   .EMPTY_HASH;
-    var floatBigIntegerHash: floatBigIntegerHashVar is floatBigIntegerHash.EMPTY_HASH;
-    var floatFloatHash:      floatFloatHashVar      is floatFloatHash     .EMPTY_HASH;
-    var floatComplexHash:    floatComplexHashVar    is floatComplexHash   .EMPTY_HASH;
-    var floatCharHash:       floatCharHashVar       is floatCharHash      .EMPTY_HASH;
-    var floatStringHash:     floatStringHashVar     is floatStringHash    .EMPTY_HASH;
-    var floatTypeHash:       floatTypeHashVar       is floatTypeHash      .EMPTY_HASH;
-    var floatReferenceHash:  floatReferenceHashVar  is floatReferenceHash .EMPTY_HASH;
-    var floatHashHash:       floatHashHashVar       is floatHashHash      .EMPTY_HASH;
+    var bigIntegerBooleanHash:     bigIntegerBooleanHashVar     is bigIntegerBooleanHash    .EMPTY_HASH;
+    var bigIntegerIntegerHash:     bigIntegerIntegerHashVar     is bigIntegerIntegerHash    .EMPTY_HASH;
+    var bigIntegerBigIntegerHash:  bigIntegerBigIntegerHashVar  is bigIntegerBigIntegerHash .EMPTY_HASH;
+    var bigIntegerBigRationalHash: bigIntegerBigRationalHashVar is bigIntegerBigRationalHash.EMPTY_HASH;
+    var bigIntegerFloatHash:       bigIntegerFloatHashVar       is bigIntegerFloatHash      .EMPTY_HASH;
+    var bigIntegerComplexHash:     bigIntegerComplexHashVar     is bigIntegerComplexHash    .EMPTY_HASH;
+    var bigIntegerCharHash:        bigIntegerCharHashVar        is bigIntegerCharHash       .EMPTY_HASH;
+    var bigIntegerStringHash:      bigIntegerStringHashVar      is bigIntegerStringHash     .EMPTY_HASH;
+    var bigIntegerTypeHash:        bigIntegerTypeHashVar        is bigIntegerTypeHash       .EMPTY_HASH;
+    var bigIntegerReferenceHash:   bigIntegerReferenceHashVar   is bigIntegerReferenceHash  .EMPTY_HASH;
+    var bigIntegerHashHash:        bigIntegerHashHashVar        is bigIntegerHashHash       .EMPTY_HASH;
   begin
-    if  length(floatBooleanHashVar)    <> 0 or
-        length(floatIntegerHashVar)    <> 0 or
-        length(floatBigIntegerHashVar) <> 0 or
-        length(floatFloatHashVar)      <> 0 or
-        length(floatComplexHashVar)    <> 0 or
-        length(floatCharHashVar)       <> 0 or
-        length(floatStringHashVar)     <> 0 or
-        length(floatTypeHashVar)       <> 0 or
-        length(floatReferenceHashVar)  <> 0 or
-        length(floatHashHashVar)       <> 0 then
-      writeln(" ***** Number of elements in empty hash[float] table not 0");
+    if  length(bigIntegerBooleanHashVar)     <> 0 or
+        length(bigIntegerIntegerHashVar)     <> 0 or
+        length(bigIntegerBigIntegerHashVar)  <> 0 or
+        length(bigIntegerBigRationalHashVar) <> 0 or
+        length(bigIntegerFloatHashVar)       <> 0 or
+        length(bigIntegerComplexHashVar)     <> 0 or
+        length(bigIntegerCharHashVar)        <> 0 or
+        length(bigIntegerStringHashVar)      <> 0 or
+        length(bigIntegerTypeHashVar)        <> 0 or
+        length(bigIntegerReferenceHashVar)   <> 0 or
+        length(bigIntegerHashHashVar)        <> 0 then
+      writeln(" ***** Number of elements in empty hash[bigInteger] table not 0");
       okay := FALSE;
     end if;
-    if  3.1415926535 in floatBooleanHashVar    or
-        3.1415926535 in floatIntegerHashVar    or
-        3.1415926535 in floatBigIntegerHashVar or
-        3.1415926535 in floatFloatHashVar      or
-        3.1415926535 in floatComplexHashVar    or
-        3.1415926535 in floatCharHashVar       or
-        3.1415926535 in floatStringHashVar     or
-        3.1415926535 in floatTypeHashVar       or
-        3.1415926535 in floatReferenceHashVar  or
-        3.1415926535 in floatHashHashVar       then
+    if  9223372036854775808_ in bigIntegerBooleanHashVar     or
+        9223372036854775808_ in bigIntegerIntegerHashVar     or
+        9223372036854775808_ in bigIntegerBigIntegerHashVar  or
+        9223372036854775808_ in bigIntegerBigRationalHashVar or
+        9223372036854775808_ in bigIntegerFloatHashVar       or
+        9223372036854775808_ in bigIntegerComplexHashVar     or
+        9223372036854775808_ in bigIntegerCharHashVar        or
+        9223372036854775808_ in bigIntegerStringHashVar      or
+        9223372036854775808_ in bigIntegerTypeHashVar        or
+        9223372036854775808_ in bigIntegerReferenceHashVar   or
+        9223372036854775808_ in bigIntegerHashHashVar        then
       writeln(" ***** Elements found in empty hash table");
       okay := FALSE;
     end if;
-    floatBooleanHashVar    @:= [3.1415926535] TRUE;
-    floatIntegerHashVar    @:= [3.1415926535] 1234;
-    floatBigIntegerHashVar @:= [3.1415926535] 9999999999_;
-    floatFloatHashVar      @:= [3.1415926535] 3.1415926535;
-    floatComplexHashVar    @:= [3.1415926535] complex(1.2, 3.4);
-    floatCharHashVar       @:= [3.1415926535] 'Q';
-    floatStringHashVar     @:= [3.1415926535] "success";
-    floatTypeHashVar       @:= [3.1415926535] char;
-    floatReferenceHashVar  @:= [3.1415926535] NIL;
-    floatHashHashVar       @:= [3.1415926535] floatBooleanHashVar;
-    if  length(floatBooleanHashVar)    <> 1 or
-        length(floatIntegerHashVar)    <> 1 or
-        length(floatBigIntegerHashVar) <> 1 or
-        length(floatFloatHashVar)      <> 1 or
-        length(floatComplexHashVar)    <> 1 or
-        length(floatCharHashVar)       <> 1 or
-        length(floatStringHashVar)     <> 1 or
-        length(floatTypeHashVar)       <> 1 or
-        length(floatReferenceHashVar)  <> 1 or
-        length(floatHashHashVar)       <> 1 then
+    bigIntegerBooleanHashVar     @:= [9223372036854775808_] TRUE;
+    bigIntegerIntegerHashVar     @:= [9223372036854775808_] 1234;
+    bigIntegerBigIntegerHashVar  @:= [9223372036854775808_] 9999999999_;
+    bigIntegerBigRationalHashVar @:= [9223372036854775808_] 9999999999_ / 12345678_;
+    bigIntegerFloatHashVar       @:= [9223372036854775808_] 3.1415926535;
+    bigIntegerComplexHashVar     @:= [9223372036854775808_] complex(1.2, 3.4);
+    bigIntegerCharHashVar        @:= [9223372036854775808_] 'Q';
+    bigIntegerStringHashVar      @:= [9223372036854775808_] "success";
+    bigIntegerTypeHashVar        @:= [9223372036854775808_] char;
+    bigIntegerReferenceHashVar   @:= [9223372036854775808_] NIL;
+    bigIntegerHashHashVar        @:= [9223372036854775808_] bigIntegerBooleanHashVar;
+    if  length(bigIntegerBooleanHashVar)     <> 1 or
+        length(bigIntegerIntegerHashVar)     <> 1 or
+        length(bigIntegerBigIntegerHashVar)  <> 1 or
+        length(bigIntegerBigRationalHashVar) <> 1 or
+        length(bigIntegerFloatHashVar)       <> 1 or
+        length(bigIntegerComplexHashVar)     <> 1 or
+        length(bigIntegerCharHashVar)        <> 1 or
+        length(bigIntegerStringHashVar)      <> 1 or
+        length(bigIntegerTypeHashVar)        <> 1 or
+        length(bigIntegerReferenceHashVar)   <> 1 or
+        length(bigIntegerHashHashVar)        <> 1 then
+      writeln(" ***** Number of elements in hash[bigInteger] table not 1");
+      okay := FALSE;
+    end if;
+    if  9223372036854775808_ in bigIntegerBooleanHashVar     and
+        9223372036854775808_ in bigIntegerIntegerHashVar     and
+        9223372036854775808_ in bigIntegerBigIntegerHashVar  and
+        9223372036854775808_ in bigIntegerBigRationalHashVar and
+        9223372036854775808_ in bigIntegerFloatHashVar       and
+        9223372036854775808_ in bigIntegerComplexHashVar     and
+        9223372036854775808_ in bigIntegerCharHashVar        and
+        9223372036854775808_ in bigIntegerStringHashVar      and
+        9223372036854775808_ in bigIntegerTypeHashVar        and
+        9223372036854775808_ in bigIntegerReferenceHashVar   and
+        9223372036854775808_ in bigIntegerHashHashVar        then
+      noop;
+    else
+      writeln(" ***** Elements missing in hash[bigInteger] table");
+      okay := FALSE;
+    end if;
+    bigIntegerBooleanHashVar     @:= [9223372036854775808_] TRUE;
+    bigIntegerIntegerHashVar     @:= [9223372036854775808_] 1234;
+    bigIntegerBigIntegerHashVar  @:= [9223372036854775808_] 9999999999_;
+    bigIntegerBigRationalHashVar @:= [9223372036854775808_] 9999999999_ / 12345678_;
+    bigIntegerFloatHashVar       @:= [9223372036854775808_] 3.1415926535;
+    bigIntegerComplexHashVar     @:= [9223372036854775808_] complex(1.2, 3.4);
+    bigIntegerCharHashVar        @:= [9223372036854775808_] 'Q';
+    bigIntegerStringHashVar      @:= [9223372036854775808_] "success";
+    bigIntegerTypeHashVar        @:= [9223372036854775808_] char;
+    bigIntegerReferenceHashVar   @:= [9223372036854775808_] NIL;
+    bigIntegerHashHashVar        @:= [9223372036854775808_] bigIntegerBooleanHashVar;
+    if  9223372036854775808_ not in bigIntegerBooleanHashVar     or
+        9223372036854775808_ not in bigIntegerIntegerHashVar     or
+        9223372036854775808_ not in bigIntegerBigIntegerHashVar  or
+        9223372036854775808_ not in bigIntegerBigRationalHashVar or
+        9223372036854775808_ not in bigIntegerFloatHashVar       or
+        9223372036854775808_ not in bigIntegerComplexHashVar     or
+        9223372036854775808_ not in bigIntegerCharHashVar        or
+        9223372036854775808_ not in bigIntegerStringHashVar      or
+        9223372036854775808_ not in bigIntegerTypeHashVar        or
+        9223372036854775808_ not in bigIntegerReferenceHashVar   or
+        9223372036854775808_ not in bigIntegerHashHashVar        then
+      writeln(" ***** Elements missing in hash[bigInteger] table");
+      okay := FALSE;
+    end if;
+    if  bigIntegerBooleanHashVar     [9223372036854775808_] <> TRUE                    or
+        bigIntegerIntegerHashVar     [9223372036854775808_] <> 1234                    or
+        bigIntegerBigIntegerHashVar  [9223372036854775808_] <> 9999999999_             or
+        bigIntegerBigRationalHashVar [9223372036854775808_] <> 9999999999_ / 12345678_ or
+        bigIntegerFloatHashVar       [9223372036854775808_] <> 3.1415926535            or
+        bigIntegerComplexHashVar     [9223372036854775808_] <> complex(1.2, 3.4)       or
+        bigIntegerCharHashVar        [9223372036854775808_] <> 'Q'                     or
+        bigIntegerStringHashVar      [9223372036854775808_] <> "success"               or
+        bigIntegerTypeHashVar        [9223372036854775808_] <> char                    or
+        bigIntegerReferenceHashVar   [9223372036854775808_] <> NIL                     then
+      writeln(" ***** Elements with wrong value in hash[bigInteger] table");
+      okay := FALSE;
+    end if;
+    if okay then
+      writeln("Hash tables with bigInteger keys work correct.");
+    else
+      writeln(" ***** Hash tables with bigInteger keys do not work correct");
+      writeln;
+    end if;
+  end func;
+
+
+const proc: chkRationalHash is func
+  local
+    var boolean: okay is TRUE;
+    var rationalBooleanHash:     rationalBooleanHashVar     is rationalBooleanHash    .EMPTY_HASH;
+    var rationalIntegerHash:     rationalIntegerHashVar     is rationalIntegerHash    .EMPTY_HASH;
+    var rationalBigIntegerHash:  rationalBigIntegerHashVar  is rationalBigIntegerHash .EMPTY_HASH;
+    var rationalBigRationalHash: rationalBigRationalHashVar is rationalBigRationalHash.EMPTY_HASH;
+    var rationalFloatHash:       rationalFloatHashVar       is rationalFloatHash      .EMPTY_HASH;
+    var rationalComplexHash:     rationalComplexHashVar     is rationalComplexHash    .EMPTY_HASH;
+    var rationalCharHash:        rationalCharHashVar        is rationalCharHash       .EMPTY_HASH;
+    var rationalStringHash:      rationalStringHashVar      is rationalStringHash     .EMPTY_HASH;
+    var rationalTypeHash:        rationalTypeHashVar        is rationalTypeHash       .EMPTY_HASH;
+    var rationalReferenceHash:   rationalReferenceHashVar   is rationalReferenceHash  .EMPTY_HASH;
+    var rationalHashHash:        rationalHashHashVar        is rationalHashHash       .EMPTY_HASH;
+  begin
+    if  length(rationalBooleanHashVar)     <> 0 or
+        length(rationalIntegerHashVar)     <> 0 or
+        length(rationalBigIntegerHashVar)  <> 0 or
+        length(rationalBigRationalHashVar) <> 0 or
+        length(rationalFloatHashVar)       <> 0 or
+        length(rationalComplexHashVar)     <> 0 or
+        length(rationalCharHashVar)        <> 0 or
+        length(rationalStringHashVar)      <> 0 or
+        length(rationalTypeHashVar)        <> 0 or
+        length(rationalReferenceHashVar)   <> 0 or
+        length(rationalHashHashVar)        <> 0 then
+      writeln(" ***** Number of elements in empty hash[rational] table not 0");
+      okay := FALSE;
+    end if;
+    if  9876543212 / 1234567890 in rationalBooleanHashVar     or
+        9876543212 / 1234567890 in rationalIntegerHashVar     or
+        9876543212 / 1234567890 in rationalBigIntegerHashVar  or
+        9876543212 / 1234567890 in rationalBigRationalHashVar or
+        9876543212 / 1234567890 in rationalFloatHashVar       or
+        9876543212 / 1234567890 in rationalComplexHashVar     or
+        9876543212 / 1234567890 in rationalCharHashVar        or
+        9876543212 / 1234567890 in rationalStringHashVar      or
+        9876543212 / 1234567890 in rationalTypeHashVar        or
+        9876543212 / 1234567890 in rationalReferenceHashVar   or
+        9876543212 / 1234567890 in rationalHashHashVar        then
+      writeln(" ***** Elements found in empty hash table");
+      okay := FALSE;
+    end if;
+    rationalBooleanHashVar     @:= [9876543212 / 1234567890] TRUE;
+    rationalIntegerHashVar     @:= [9876543212 / 1234567890] 1234;
+    rationalBigIntegerHashVar  @:= [9876543212 / 1234567890] 9999999999_;
+    rationalBigRationalHashVar @:= [9876543212 / 1234567890] 9999999999_ / 12345678_;
+    rationalFloatHashVar       @:= [9876543212 / 1234567890] 3.1415926535;
+    rationalComplexHashVar     @:= [9876543212 / 1234567890] complex(1.2, 3.4);
+    rationalCharHashVar        @:= [9876543212 / 1234567890] 'Q';
+    rationalStringHashVar      @:= [9876543212 / 1234567890] "success";
+    rationalTypeHashVar        @:= [9876543212 / 1234567890] char;
+    rationalReferenceHashVar   @:= [9876543212 / 1234567890] NIL;
+    rationalHashHashVar        @:= [9876543212 / 1234567890] rationalBooleanHashVar;
+    if  length(rationalBooleanHashVar)     <> 1 or
+        length(rationalIntegerHashVar)     <> 1 or
+        length(rationalBigIntegerHashVar)  <> 1 or
+        length(rationalBigRationalHashVar) <> 1 or
+        length(rationalFloatHashVar)       <> 1 or
+        length(rationalComplexHashVar)     <> 1 or
+        length(rationalCharHashVar)        <> 1 or
+        length(rationalStringHashVar)      <> 1 or
+        length(rationalTypeHashVar)        <> 1 or
+        length(rationalReferenceHashVar)   <> 1 or
+        length(rationalHashHashVar)        <> 1 then
+      writeln(" ***** Number of elements in hash[rational] table not 1");
+      okay := FALSE;
+    end if;
+    if  9876543212 / 1234567890 in rationalBooleanHashVar     and
+        9876543212 / 1234567890 in rationalIntegerHashVar     and
+        9876543212 / 1234567890 in rationalBigIntegerHashVar  and
+        9876543212 / 1234567890 in rationalBigRationalHashVar and
+        9876543212 / 1234567890 in rationalFloatHashVar       and
+        9876543212 / 1234567890 in rationalComplexHashVar     and
+        9876543212 / 1234567890 in rationalCharHashVar        and
+        9876543212 / 1234567890 in rationalStringHashVar      and
+        9876543212 / 1234567890 in rationalTypeHashVar        and
+        9876543212 / 1234567890 in rationalReferenceHashVar   and
+        9876543212 / 1234567890 in rationalHashHashVar        then
+      noop;
+    else
+      writeln(" ***** Elements missing in hash[rational] table");
+      okay := FALSE;
+    end if;
+    rationalBooleanHashVar     @:= [9876543212 / 1234567890] TRUE;
+    rationalIntegerHashVar     @:= [9876543212 / 1234567890] 1234;
+    rationalBigIntegerHashVar  @:= [9876543212 / 1234567890] 9999999999_;
+    rationalBigRationalHashVar @:= [9876543212 / 1234567890] 9999999999_ / 12345678_;
+    rationalFloatHashVar       @:= [9876543212 / 1234567890] 3.1415926535;
+    rationalComplexHashVar     @:= [9876543212 / 1234567890] complex(1.2, 3.4);
+    rationalCharHashVar        @:= [9876543212 / 1234567890] 'Q';
+    rationalStringHashVar      @:= [9876543212 / 1234567890] "success";
+    rationalTypeHashVar        @:= [9876543212 / 1234567890] char;
+    rationalReferenceHashVar   @:= [9876543212 / 1234567890] NIL;
+    rationalHashHashVar        @:= [9876543212 / 1234567890] rationalBooleanHashVar;
+    if  9876543212 / 1234567890 not in rationalBooleanHashVar     or
+        9876543212 / 1234567890 not in rationalIntegerHashVar     or
+        9876543212 / 1234567890 not in rationalBigIntegerHashVar  or
+        9876543212 / 1234567890 not in rationalBigRationalHashVar or
+        9876543212 / 1234567890 not in rationalFloatHashVar       or
+        9876543212 / 1234567890 not in rationalComplexHashVar     or
+        9876543212 / 1234567890 not in rationalCharHashVar        or
+        9876543212 / 1234567890 not in rationalStringHashVar      or
+        9876543212 / 1234567890 not in rationalTypeHashVar        or
+        9876543212 / 1234567890 not in rationalReferenceHashVar   or
+        9876543212 / 1234567890 not in rationalHashHashVar        then
+      writeln(" ***** Elements missing in hash[rational] table");
+      okay := FALSE;
+    end if;
+    if  rationalBooleanHashVar     [9876543212 / 1234567890] <> TRUE                    or
+        rationalIntegerHashVar     [9876543212 / 1234567890] <> 1234                    or
+        rationalBigIntegerHashVar  [9876543212 / 1234567890] <> 9999999999_             or
+        rationalBigRationalHashVar [9876543212 / 1234567890] <> 9999999999_ / 12345678_ or
+        rationalFloatHashVar       [9876543212 / 1234567890] <> 3.1415926535            or
+        rationalComplexHashVar     [9876543212 / 1234567890] <> complex(1.2, 3.4)       or
+        rationalCharHashVar        [9876543212 / 1234567890] <> 'Q'                     or
+        rationalStringHashVar      [9876543212 / 1234567890] <> "success"               or
+        rationalTypeHashVar        [9876543212 / 1234567890] <> char                    or
+        rationalReferenceHashVar   [9876543212 / 1234567890] <> NIL                     then
+      writeln(" ***** Elements with wrong value in hash[rational] table");
+      okay := FALSE;
+    end if;
+    if okay then
+      writeln("Hash tables with rational keys work correct.");
+    else
+      writeln(" ***** Hash tables with rational keys do not work correct");
+      writeln;
+    end if;
+  end func;
+
+
+const proc: chkBigRationalHash is func
+  local
+    var boolean: okay is TRUE;
+    var bigRationalBooleanHash:     bigRationalBooleanHashVar     is bigRationalBooleanHash    .EMPTY_HASH;
+    var bigRationalIntegerHash:     bigRationalIntegerHashVar     is bigRationalIntegerHash    .EMPTY_HASH;
+    var bigRationalBigIntegerHash:  bigRationalBigIntegerHashVar  is bigRationalBigIntegerHash .EMPTY_HASH;
+    var bigRationalBigRationalHash: bigRationalBigRationalHashVar is bigRationalBigRationalHash.EMPTY_HASH;
+    var bigRationalFloatHash:       bigRationalFloatHashVar       is bigRationalFloatHash      .EMPTY_HASH;
+    var bigRationalComplexHash:     bigRationalComplexHashVar     is bigRationalComplexHash    .EMPTY_HASH;
+    var bigRationalCharHash:        bigRationalCharHashVar        is bigRationalCharHash       .EMPTY_HASH;
+    var bigRationalStringHash:      bigRationalStringHashVar      is bigRationalStringHash     .EMPTY_HASH;
+    var bigRationalTypeHash:        bigRationalTypeHashVar        is bigRationalTypeHash       .EMPTY_HASH;
+    var bigRationalReferenceHash:   bigRationalReferenceHashVar   is bigRationalReferenceHash  .EMPTY_HASH;
+    var bigRationalHashHash:        bigRationalHashHashVar        is bigRationalHashHash       .EMPTY_HASH;
+  begin
+    if  length(bigRationalBooleanHashVar)     <> 0 or
+        length(bigRationalIntegerHashVar)     <> 0 or
+        length(bigRationalBigIntegerHashVar)  <> 0 or
+        length(bigRationalBigRationalHashVar) <> 0 or
+        length(bigRationalFloatHashVar)       <> 0 or
+        length(bigRationalComplexHashVar)     <> 0 or
+        length(bigRationalCharHashVar)        <> 0 or
+        length(bigRationalStringHashVar)      <> 0 or
+        length(bigRationalTypeHashVar)        <> 0 or
+        length(bigRationalReferenceHashVar)   <> 0 or
+        length(bigRationalHashHashVar)        <> 0 then
+      writeln(" ***** Number of elements in empty hash[bigRational] table not 0");
+      okay := FALSE;
+    end if;
+    if  9876543212_ / 1234567890_ in bigRationalBooleanHashVar     or
+        9876543212_ / 1234567890_ in bigRationalIntegerHashVar     or
+        9876543212_ / 1234567890_ in bigRationalBigIntegerHashVar  or
+        9876543212_ / 1234567890_ in bigRationalBigRationalHashVar or
+        9876543212_ / 1234567890_ in bigRationalFloatHashVar       or
+        9876543212_ / 1234567890_ in bigRationalComplexHashVar     or
+        9876543212_ / 1234567890_ in bigRationalCharHashVar        or
+        9876543212_ / 1234567890_ in bigRationalStringHashVar      or
+        9876543212_ / 1234567890_ in bigRationalTypeHashVar        or
+        9876543212_ / 1234567890_ in bigRationalReferenceHashVar   or
+        9876543212_ / 1234567890_ in bigRationalHashHashVar        then
+      writeln(" ***** Elements found in empty hash table");
+      okay := FALSE;
+    end if;
+    bigRationalBooleanHashVar     @:= [9876543212_ / 1234567890_] TRUE;
+    bigRationalIntegerHashVar     @:= [9876543212_ / 1234567890_] 1234;
+    bigRationalBigIntegerHashVar  @:= [9876543212_ / 1234567890_] 9999999999_;
+    bigRationalBigRationalHashVar @:= [9876543212_ / 1234567890_] 9999999999_ / 12345678_;
+    bigRationalFloatHashVar       @:= [9876543212_ / 1234567890_] 3.1415926535;
+    bigRationalComplexHashVar     @:= [9876543212_ / 1234567890_] complex(1.2, 3.4);
+    bigRationalCharHashVar        @:= [9876543212_ / 1234567890_] 'Q';
+    bigRationalStringHashVar      @:= [9876543212_ / 1234567890_] "success";
+    bigRationalTypeHashVar        @:= [9876543212_ / 1234567890_] char;
+    bigRationalReferenceHashVar   @:= [9876543212_ / 1234567890_] NIL;
+    bigRationalHashHashVar        @:= [9876543212_ / 1234567890_] bigRationalBooleanHashVar;
+    if  length(bigRationalBooleanHashVar)     <> 1 or
+        length(bigRationalIntegerHashVar)     <> 1 or
+        length(bigRationalBigIntegerHashVar)  <> 1 or
+        length(bigRationalBigRationalHashVar) <> 1 or
+        length(bigRationalFloatHashVar)       <> 1 or
+        length(bigRationalComplexHashVar)     <> 1 or
+        length(bigRationalCharHashVar)        <> 1 or
+        length(bigRationalStringHashVar)      <> 1 or
+        length(bigRationalTypeHashVar)        <> 1 or
+        length(bigRationalReferenceHashVar)   <> 1 or
+        length(bigRationalHashHashVar)        <> 1 then
+      writeln(" ***** Number of elements in hash[bigRational] table not 1");
+      okay := FALSE;
+    end if;
+    if  9876543212_ / 1234567890_ in bigRationalBooleanHashVar     and
+        9876543212_ / 1234567890_ in bigRationalIntegerHashVar     and
+        9876543212_ / 1234567890_ in bigRationalBigIntegerHashVar  and
+        9876543212_ / 1234567890_ in bigRationalBigRationalHashVar and
+        9876543212_ / 1234567890_ in bigRationalFloatHashVar       and
+        9876543212_ / 1234567890_ in bigRationalComplexHashVar     and
+        9876543212_ / 1234567890_ in bigRationalCharHashVar        and
+        9876543212_ / 1234567890_ in bigRationalStringHashVar      and
+        9876543212_ / 1234567890_ in bigRationalTypeHashVar        and
+        9876543212_ / 1234567890_ in bigRationalReferenceHashVar   and
+        9876543212_ / 1234567890_ in bigRationalHashHashVar        then
+      noop;
+    else
+      writeln(" ***** Elements missing in hash[bigRational] table");
+      okay := FALSE;
+    end if;
+    bigRationalBooleanHashVar     @:= [9876543212_ / 1234567890_] TRUE;
+    bigRationalIntegerHashVar     @:= [9876543212_ / 1234567890_] 1234;
+    bigRationalBigIntegerHashVar  @:= [9876543212_ / 1234567890_] 9999999999_;
+    bigRationalBigRationalHashVar @:= [9876543212_ / 1234567890_] 9999999999_ / 12345678_;
+    bigRationalFloatHashVar       @:= [9876543212_ / 1234567890_] 3.1415926535;
+    bigRationalComplexHashVar     @:= [9876543212_ / 1234567890_] complex(1.2, 3.4);
+    bigRationalCharHashVar        @:= [9876543212_ / 1234567890_] 'Q';
+    bigRationalStringHashVar      @:= [9876543212_ / 1234567890_] "success";
+    bigRationalTypeHashVar        @:= [9876543212_ / 1234567890_] char;
+    bigRationalReferenceHashVar   @:= [9876543212_ / 1234567890_] NIL;
+    bigRationalHashHashVar        @:= [9876543212_ / 1234567890_] bigRationalBooleanHashVar;
+    if  9876543212_ / 1234567890_ not in bigRationalBooleanHashVar     or
+        9876543212_ / 1234567890_ not in bigRationalIntegerHashVar     or
+        9876543212_ / 1234567890_ not in bigRationalBigIntegerHashVar  or
+        9876543212_ / 1234567890_ not in bigRationalBigRationalHashVar or
+        9876543212_ / 1234567890_ not in bigRationalFloatHashVar       or
+        9876543212_ / 1234567890_ not in bigRationalComplexHashVar     or
+        9876543212_ / 1234567890_ not in bigRationalCharHashVar        or
+        9876543212_ / 1234567890_ not in bigRationalStringHashVar      or
+        9876543212_ / 1234567890_ not in bigRationalTypeHashVar        or
+        9876543212_ / 1234567890_ not in bigRationalReferenceHashVar   or
+        9876543212_ / 1234567890_ not in bigRationalHashHashVar        then
+      writeln(" ***** Elements missing in hash[bigRational] table");
+      okay := FALSE;
+    end if;
+    if  bigRationalBooleanHashVar     [9876543212_ / 1234567890_] <> TRUE                    or
+        bigRationalIntegerHashVar     [9876543212_ / 1234567890_] <> 1234                    or
+        bigRationalBigIntegerHashVar  [9876543212_ / 1234567890_] <> 9999999999_             or
+        bigRationalBigRationalHashVar [9876543212_ / 1234567890_] <> 9999999999_ / 12345678_ or
+        bigRationalFloatHashVar       [9876543212_ / 1234567890_] <> 3.1415926535            or
+        bigRationalComplexHashVar     [9876543212_ / 1234567890_] <> complex(1.2, 3.4)       or
+        bigRationalCharHashVar        [9876543212_ / 1234567890_] <> 'Q'                     or
+        bigRationalStringHashVar      [9876543212_ / 1234567890_] <> "success"               or
+        bigRationalTypeHashVar        [9876543212_ / 1234567890_] <> char                    or
+        bigRationalReferenceHashVar   [9876543212_ / 1234567890_] <> NIL                     then
+      writeln(" ***** Elements with wrong value in hash[bigRational] table");
+      okay := FALSE;
+    end if;
+    if okay then
+      writeln("Hash tables with bigRational keys work correct.");
+    else
+      writeln(" ***** Hash tables with bigRational keys do not work correct");
+      writeln;
+    end if;
+  end func;
+
+
+const proc: chkFloatHash is func
+  local
+    var boolean: okay is TRUE;
+    var floatBooleanHash:     floatBooleanHashVar     is floatBooleanHash    .EMPTY_HASH;
+    var floatIntegerHash:     floatIntegerHashVar     is floatIntegerHash    .EMPTY_HASH;
+    var floatBigIntegerHash:  floatBigIntegerHashVar  is floatBigIntegerHash .EMPTY_HASH;
+    var floatBigRationalHash: floatBigRationalHashVar is floatBigRationalHash.EMPTY_HASH;
+    var floatFloatHash:       floatFloatHashVar       is floatFloatHash      .EMPTY_HASH;
+    var floatComplexHash:     floatComplexHashVar     is floatComplexHash    .EMPTY_HASH;
+    var floatCharHash:        floatCharHashVar        is floatCharHash       .EMPTY_HASH;
+    var floatStringHash:      floatStringHashVar      is floatStringHash     .EMPTY_HASH;
+    var floatTypeHash:        floatTypeHashVar        is floatTypeHash       .EMPTY_HASH;
+    var floatReferenceHash:   floatReferenceHashVar   is floatReferenceHash  .EMPTY_HASH;
+    var floatHashHash:        floatHashHashVar        is floatHashHash       .EMPTY_HASH;
+  begin
+    if  length(floatBooleanHashVar)     <> 0 or
+        length(floatIntegerHashVar)     <> 0 or
+        length(floatBigIntegerHashVar)  <> 0 or
+        length(floatBigRationalHashVar) <> 0 or
+        length(floatFloatHashVar)       <> 0 or
+        length(floatComplexHashVar)     <> 0 or
+        length(floatCharHashVar)        <> 0 or
+        length(floatStringHashVar)      <> 0 or
+        length(floatTypeHashVar)        <> 0 or
+        length(floatReferenceHashVar)   <> 0 or
+        length(floatHashHashVar)        <> 0 then
+      writeln(" ***** Number of elements in empty hash[float] table not 0");
+      okay := FALSE;
+    end if;
+    if  3.1415926535 in floatBooleanHashVar     or
+        3.1415926535 in floatIntegerHashVar     or
+        3.1415926535 in floatBigIntegerHashVar  or
+        3.1415926535 in floatBigRationalHashVar or
+        3.1415926535 in floatFloatHashVar       or
+        3.1415926535 in floatComplexHashVar     or
+        3.1415926535 in floatCharHashVar        or
+        3.1415926535 in floatStringHashVar      or
+        3.1415926535 in floatTypeHashVar        or
+        3.1415926535 in floatReferenceHashVar   or
+        3.1415926535 in floatHashHashVar        then
+      writeln(" ***** Elements found in empty hash table");
+      okay := FALSE;
+    end if;
+    floatBooleanHashVar     @:= [3.1415926535] TRUE;
+    floatIntegerHashVar     @:= [3.1415926535] 1234;
+    floatBigIntegerHashVar  @:= [3.1415926535] 9999999999_;
+    floatBigRationalHashVar @:= [3.1415926535] 9999999999_ / 12345678_;
+    floatFloatHashVar       @:= [3.1415926535] 3.1415926535;
+    floatComplexHashVar     @:= [3.1415926535] complex(1.2, 3.4);
+    floatCharHashVar        @:= [3.1415926535] 'Q';
+    floatStringHashVar      @:= [3.1415926535] "success";
+    floatTypeHashVar        @:= [3.1415926535] char;
+    floatReferenceHashVar   @:= [3.1415926535] NIL;
+    floatHashHashVar        @:= [3.1415926535] floatBooleanHashVar;
+    if  length(floatBooleanHashVar)     <> 1 or
+        length(floatIntegerHashVar)     <> 1 or
+        length(floatBigIntegerHashVar)  <> 1 or
+        length(floatBigRationalHashVar) <> 1 or
+        length(floatFloatHashVar)       <> 1 or
+        length(floatComplexHashVar)     <> 1 or
+        length(floatCharHashVar)        <> 1 or
+        length(floatStringHashVar)      <> 1 or
+        length(floatTypeHashVar)        <> 1 or
+        length(floatReferenceHashVar)   <> 1 or
+        length(floatHashHashVar)        <> 1 then
       writeln(" ***** Number of elements in hash[float] table not 1");
       okay := FALSE;
     end if;
-    if  3.1415926535 in floatBooleanHashVar    and
-        3.1415926535 in floatIntegerHashVar    and
-        3.1415926535 in floatBigIntegerHashVar and
-        3.1415926535 in floatFloatHashVar      and
-        3.1415926535 in floatComplexHashVar    and
-        3.1415926535 in floatCharHashVar       and
-        3.1415926535 in floatStringHashVar     and
-        3.1415926535 in floatTypeHashVar       and
-        3.1415926535 in floatReferenceHashVar  and
-        3.1415926535 in floatHashHashVar       then
+    if  3.1415926535 in floatBooleanHashVar     and
+        3.1415926535 in floatIntegerHashVar     and
+        3.1415926535 in floatBigIntegerHashVar  and
+        3.1415926535 in floatBigRationalHashVar and
+        3.1415926535 in floatFloatHashVar       and
+        3.1415926535 in floatComplexHashVar     and
+        3.1415926535 in floatCharHashVar        and
+        3.1415926535 in floatStringHashVar      and
+        3.1415926535 in floatTypeHashVar        and
+        3.1415926535 in floatReferenceHashVar   and
+        3.1415926535 in floatHashHashVar        then
       noop;
     else
       writeln(" ***** Elements missing in hash[float] table");
       okay := FALSE;
     end if;
-    floatBooleanHashVar    @:= [3.1415926535] TRUE;
-    floatIntegerHashVar    @:= [3.1415926535] 1234;
-    floatBigIntegerHashVar @:= [3.1415926535] 9999999999_;
-    floatFloatHashVar      @:= [3.1415926535] 3.1415926535;
-    floatComplexHashVar    @:= [3.1415926535] complex(1.2, 3.4);
-    floatCharHashVar       @:= [3.1415926535] 'Q';
-    floatStringHashVar     @:= [3.1415926535] "success";
-    floatTypeHashVar       @:= [3.1415926535] char;
-    floatReferenceHashVar  @:= [3.1415926535] NIL;
-    floatHashHashVar       @:= [3.1415926535] floatBooleanHashVar;
-    if  3.1415926535 not in floatBooleanHashVar    or
-        3.1415926535 not in floatIntegerHashVar    or
-        3.1415926535 not in floatBigIntegerHashVar or
-        3.1415926535 not in floatFloatHashVar      or
-        3.1415926535 not in floatComplexHashVar    or
-        3.1415926535 not in floatCharHashVar       or
-        3.1415926535 not in floatStringHashVar     or
-        3.1415926535 not in floatTypeHashVar       or
-        3.1415926535 not in floatReferenceHashVar  or
-        3.1415926535 not in floatHashHashVar       then
+    floatBooleanHashVar     @:= [3.1415926535] TRUE;
+    floatIntegerHashVar     @:= [3.1415926535] 1234;
+    floatBigIntegerHashVar  @:= [3.1415926535] 9999999999_;
+    floatBigRationalHashVar @:= [3.1415926535] 9999999999_ / 12345678_;
+    floatFloatHashVar       @:= [3.1415926535] 3.1415926535;
+    floatComplexHashVar     @:= [3.1415926535] complex(1.2, 3.4);
+    floatCharHashVar        @:= [3.1415926535] 'Q';
+    floatStringHashVar      @:= [3.1415926535] "success";
+    floatTypeHashVar        @:= [3.1415926535] char;
+    floatReferenceHashVar   @:= [3.1415926535] NIL;
+    floatHashHashVar        @:= [3.1415926535] floatBooleanHashVar;
+    if  3.1415926535 not in floatBooleanHashVar     or
+        3.1415926535 not in floatIntegerHashVar     or
+        3.1415926535 not in floatBigIntegerHashVar  or
+        3.1415926535 not in floatBigRationalHashVar or
+        3.1415926535 not in floatFloatHashVar       or
+        3.1415926535 not in floatComplexHashVar     or
+        3.1415926535 not in floatCharHashVar        or
+        3.1415926535 not in floatStringHashVar      or
+        3.1415926535 not in floatTypeHashVar        or
+        3.1415926535 not in floatReferenceHashVar   or
+        3.1415926535 not in floatHashHashVar        then
       writeln(" ***** Elements missing in hash[float] table");
       okay := FALSE;
     end if;
-    if  floatBooleanHashVar    [3.1415926535] <> TRUE              or
-        floatIntegerHashVar    [3.1415926535] <> 1234              or
-        floatBigIntegerHashVar [3.1415926535] <> 9999999999_       or
-        floatFloatHashVar      [3.1415926535] <> 3.1415926535      or
-        floatComplexHashVar    [3.1415926535] <> complex(1.2, 3.4) or
-        floatCharHashVar       [3.1415926535] <> 'Q'               or
-        floatStringHashVar     [3.1415926535] <> "success"         or
-        floatTypeHashVar       [3.1415926535] <> char              or
-        floatReferenceHashVar  [3.1415926535] <> NIL               then
+    if  floatBooleanHashVar     [3.1415926535] <> TRUE                    or
+        floatIntegerHashVar     [3.1415926535] <> 1234                    or
+        floatBigIntegerHashVar  [3.1415926535] <> 9999999999_             or
+        floatBigRationalHashVar [3.1415926535] <> 9999999999_ / 12345678_ or
+        floatFloatHashVar       [3.1415926535] <> 3.1415926535            or
+        floatComplexHashVar     [3.1415926535] <> complex(1.2, 3.4)       or
+        floatCharHashVar        [3.1415926535] <> 'Q'                     or
+        floatStringHashVar      [3.1415926535] <> "success"               or
+        floatTypeHashVar        [3.1415926535] <> char                    or
+        floatReferenceHashVar   [3.1415926535] <> NIL                     then
       writeln(" ***** Elements with wrong value in hash[float] table");
       okay := FALSE;
     end if;
@@ -465,113 +929,122 @@ const proc: chkFloatHash is func
 const proc: chkComplexHash is func
   local
     var boolean: okay is TRUE;
-    var complexBooleanHash:    complexBooleanHashVar    is complexBooleanHash   .EMPTY_HASH;
-    var complexIntegerHash:    complexIntegerHashVar    is complexIntegerHash   .EMPTY_HASH;
-    var complexBigIntegerHash: complexBigIntegerHashVar is complexBigIntegerHash.EMPTY_HASH;
-    var complexFloatHash:      complexFloatHashVar      is complexFloatHash     .EMPTY_HASH;
-    var complexComplexHash:    complexComplexHashVar    is complexComplexHash   .EMPTY_HASH;
-    var complexCharHash:       complexCharHashVar       is complexCharHash      .EMPTY_HASH;
-    var complexStringHash:     complexStringHashVar     is complexStringHash    .EMPTY_HASH;
-    var complexTypeHash:       complexTypeHashVar       is complexTypeHash      .EMPTY_HASH;
-    var complexReferenceHash:  complexReferenceHashVar  is complexReferenceHash .EMPTY_HASH;
-    var complexHashHash:       complexHashHashVar       is complexHashHash      .EMPTY_HASH;
+    var complexBooleanHash:     complexBooleanHashVar     is complexBooleanHash    .EMPTY_HASH;
+    var complexIntegerHash:     complexIntegerHashVar     is complexIntegerHash    .EMPTY_HASH;
+    var complexBigIntegerHash:  complexBigIntegerHashVar  is complexBigIntegerHash .EMPTY_HASH;
+    var complexBigRationalHash: complexBigRationalHashVar is complexBigRationalHash.EMPTY_HASH;
+    var complexFloatHash:       complexFloatHashVar       is complexFloatHash      .EMPTY_HASH;
+    var complexComplexHash:     complexComplexHashVar     is complexComplexHash    .EMPTY_HASH;
+    var complexCharHash:        complexCharHashVar        is complexCharHash       .EMPTY_HASH;
+    var complexStringHash:      complexStringHashVar      is complexStringHash     .EMPTY_HASH;
+    var complexTypeHash:        complexTypeHashVar        is complexTypeHash       .EMPTY_HASH;
+    var complexReferenceHash:   complexReferenceHashVar   is complexReferenceHash  .EMPTY_HASH;
+    var complexHashHash:        complexHashHashVar        is complexHashHash       .EMPTY_HASH;
   begin
-    if  length(complexBooleanHashVar)    <> 0 or
-        length(complexIntegerHashVar)    <> 0 or
-        length(complexBigIntegerHashVar) <> 0 or
-        length(complexFloatHashVar)      <> 0 or
-        length(complexComplexHashVar)    <> 0 or
-        length(complexCharHashVar)       <> 0 or
-        length(complexStringHashVar)     <> 0 or
-        length(complexTypeHashVar)       <> 0 or
-        length(complexReferenceHashVar)  <> 0 or
-        length(complexHashHashVar)       <> 0 then
+    if  length(complexBooleanHashVar)     <> 0 or
+        length(complexIntegerHashVar)     <> 0 or
+        length(complexBigIntegerHashVar)  <> 0 or
+        length(complexBigRationalHashVar) <> 0 or
+        length(complexFloatHashVar)       <> 0 or
+        length(complexComplexHashVar)     <> 0 or
+        length(complexCharHashVar)        <> 0 or
+        length(complexStringHashVar)      <> 0 or
+        length(complexTypeHashVar)        <> 0 or
+        length(complexReferenceHashVar)   <> 0 or
+        length(complexHashHashVar)        <> 0 then
       writeln(" ***** Number of elements in empty hash[complex] table not 0");
       okay := FALSE;
     end if;
-    if  complex(5.6, 7.8) in complexBooleanHashVar    or
-        complex(5.6, 7.8) in complexIntegerHashVar    or
-        complex(5.6, 7.8) in complexBigIntegerHashVar or
-        complex(5.6, 7.8) in complexFloatHashVar      or
-        complex(5.6, 7.8) in complexComplexHashVar    or
-        complex(5.6, 7.8) in complexCharHashVar       or
-        complex(5.6, 7.8) in complexStringHashVar     or
-        complex(5.6, 7.8) in complexTypeHashVar       or
-        complex(5.6, 7.8) in complexReferenceHashVar  or
-        complex(5.6, 7.8) in complexHashHashVar       then
+    if  complex(5.6, 7.8) in complexBooleanHashVar     or
+        complex(5.6, 7.8) in complexIntegerHashVar     or
+        complex(5.6, 7.8) in complexBigIntegerHashVar  or
+        complex(5.6, 7.8) in complexBigRationalHashVar or
+        complex(5.6, 7.8) in complexFloatHashVar       or
+        complex(5.6, 7.8) in complexComplexHashVar     or
+        complex(5.6, 7.8) in complexCharHashVar        or
+        complex(5.6, 7.8) in complexStringHashVar      or
+        complex(5.6, 7.8) in complexTypeHashVar        or
+        complex(5.6, 7.8) in complexReferenceHashVar   or
+        complex(5.6, 7.8) in complexHashHashVar        then
       writeln(" ***** Elements found in empty hash table");
       okay := FALSE;
     end if;
-    complexBooleanHashVar    @:= [complex(5.6, 7.8)] TRUE;
-    complexIntegerHashVar    @:= [complex(5.6, 7.8)] 1234;
-    complexBigIntegerHashVar @:= [complex(5.6, 7.8)] 9999999999_;
-    complexFloatHashVar      @:= [complex(5.6, 7.8)] 3.1415926535;
-    complexComplexHashVar    @:= [complex(5.6, 7.8)] complex(1.2, 3.4);
-    complexCharHashVar       @:= [complex(5.6, 7.8)] 'Q';
-    complexStringHashVar     @:= [complex(5.6, 7.8)] "success";
-    complexTypeHashVar       @:= [complex(5.6, 7.8)] char;
-    complexReferenceHashVar  @:= [complex(5.6, 7.8)] NIL;
-    complexHashHashVar       @:= [complex(5.6, 7.8)] complexBooleanHashVar;
-    if  length(complexBooleanHashVar)    <> 1 or
-        length(complexIntegerHashVar)    <> 1 or
-        length(complexBigIntegerHashVar) <> 1 or
-        length(complexFloatHashVar)      <> 1 or
-        length(complexComplexHashVar)    <> 1 or
-        length(complexCharHashVar)       <> 1 or
-        length(complexStringHashVar)     <> 1 or
-        length(complexTypeHashVar)       <> 1 or
-        length(complexReferenceHashVar)  <> 1 or
-        length(complexHashHashVar)       <> 1 then
+    complexBooleanHashVar     @:= [complex(5.6, 7.8)] TRUE;
+    complexIntegerHashVar     @:= [complex(5.6, 7.8)] 1234;
+    complexBigIntegerHashVar  @:= [complex(5.6, 7.8)] 9999999999_;
+    complexBigRationalHashVar @:= [complex(5.6, 7.8)] 9999999999_ / 12345678_;
+    complexFloatHashVar       @:= [complex(5.6, 7.8)] 3.1415926535;
+    complexComplexHashVar     @:= [complex(5.6, 7.8)] complex(1.2, 3.4);
+    complexCharHashVar        @:= [complex(5.6, 7.8)] 'Q';
+    complexStringHashVar      @:= [complex(5.6, 7.8)] "success";
+    complexTypeHashVar        @:= [complex(5.6, 7.8)] char;
+    complexReferenceHashVar   @:= [complex(5.6, 7.8)] NIL;
+    complexHashHashVar        @:= [complex(5.6, 7.8)] complexBooleanHashVar;
+    if  length(complexBooleanHashVar)     <> 1 or
+        length(complexIntegerHashVar)     <> 1 or
+        length(complexBigIntegerHashVar)  <> 1 or
+        length(complexBigRationalHashVar) <> 1 or
+        length(complexFloatHashVar)       <> 1 or
+        length(complexComplexHashVar)     <> 1 or
+        length(complexCharHashVar)        <> 1 or
+        length(complexStringHashVar)      <> 1 or
+        length(complexTypeHashVar)        <> 1 or
+        length(complexReferenceHashVar)   <> 1 or
+        length(complexHashHashVar)        <> 1 then
       writeln(" ***** Number of elements in hash[complex] table not 1");
       okay := FALSE;
     end if;
-    if  complex(5.6, 7.8) in complexBooleanHashVar    and
-        complex(5.6, 7.8) in complexIntegerHashVar    and
-        complex(5.6, 7.8) in complexBigIntegerHashVar and
-        complex(5.6, 7.8) in complexFloatHashVar      and
-        complex(5.6, 7.8) in complexComplexHashVar    and
-        complex(5.6, 7.8) in complexCharHashVar       and
-        complex(5.6, 7.8) in complexStringHashVar     and
-        complex(5.6, 7.8) in complexTypeHashVar       and
-        complex(5.6, 7.8) in complexReferenceHashVar  and
-        complex(5.6, 7.8) in complexHashHashVar       then
+    if  complex(5.6, 7.8) in complexBooleanHashVar     and
+        complex(5.6, 7.8) in complexIntegerHashVar     and
+        complex(5.6, 7.8) in complexBigIntegerHashVar  and
+        complex(5.6, 7.8) in complexBigRationalHashVar and
+        complex(5.6, 7.8) in complexFloatHashVar       and
+        complex(5.6, 7.8) in complexComplexHashVar     and
+        complex(5.6, 7.8) in complexCharHashVar        and
+        complex(5.6, 7.8) in complexStringHashVar      and
+        complex(5.6, 7.8) in complexTypeHashVar        and
+        complex(5.6, 7.8) in complexReferenceHashVar   and
+        complex(5.6, 7.8) in complexHashHashVar        then
       noop;
     else
       writeln(" ***** Elements missing in hash[complex] table");
       okay := FALSE;
     end if;
-    complexBooleanHashVar    @:= [complex(5.6, 7.8)] TRUE;
-    complexIntegerHashVar    @:= [complex(5.6, 7.8)] 1234;
-    complexBigIntegerHashVar @:= [complex(5.6, 7.8)] 9999999999_;
-    complexFloatHashVar      @:= [complex(5.6, 7.8)] 3.1415926535;
-    complexComplexHashVar    @:= [complex(5.6, 7.8)] complex(1.2, 3.4);
-    complexCharHashVar       @:= [complex(5.6, 7.8)] 'Q';
-    complexStringHashVar     @:= [complex(5.6, 7.8)] "success";
-    complexTypeHashVar       @:= [complex(5.6, 7.8)] char;
-    complexReferenceHashVar  @:= [complex(5.6, 7.8)] NIL;
-    complexHashHashVar       @:= [complex(5.6, 7.8)] complexBooleanHashVar;
-    if  complex(5.6, 7.8) not in complexBooleanHashVar    or
-        complex(5.6, 7.8) not in complexIntegerHashVar    or
-        complex(5.6, 7.8) not in complexBigIntegerHashVar or
-        complex(5.6, 7.8) not in complexFloatHashVar      or
-        complex(5.6, 7.8) not in complexComplexHashVar    or
-        complex(5.6, 7.8) not in complexCharHashVar       or
-        complex(5.6, 7.8) not in complexStringHashVar     or
-        complex(5.6, 7.8) not in complexTypeHashVar       or
-        complex(5.6, 7.8) not in complexReferenceHashVar  or
-        complex(5.6, 7.8) not in complexHashHashVar       then
+    complexBooleanHashVar     @:= [complex(5.6, 7.8)] TRUE;
+    complexIntegerHashVar     @:= [complex(5.6, 7.8)] 1234;
+    complexBigIntegerHashVar  @:= [complex(5.6, 7.8)] 9999999999_;
+    complexBigRationalHashVar @:= [complex(5.6, 7.8)] 9999999999_ / 12345678_;
+    complexFloatHashVar       @:= [complex(5.6, 7.8)] 3.1415926535;
+    complexComplexHashVar     @:= [complex(5.6, 7.8)] complex(1.2, 3.4);
+    complexCharHashVar        @:= [complex(5.6, 7.8)] 'Q';
+    complexStringHashVar      @:= [complex(5.6, 7.8)] "success";
+    complexTypeHashVar        @:= [complex(5.6, 7.8)] char;
+    complexReferenceHashVar   @:= [complex(5.6, 7.8)] NIL;
+    complexHashHashVar        @:= [complex(5.6, 7.8)] complexBooleanHashVar;
+    if  complex(5.6, 7.8) not in complexBooleanHashVar     or
+        complex(5.6, 7.8) not in complexIntegerHashVar     or
+        complex(5.6, 7.8) not in complexBigIntegerHashVar  or
+        complex(5.6, 7.8) not in complexBigRationalHashVar or
+        complex(5.6, 7.8) not in complexFloatHashVar       or
+        complex(5.6, 7.8) not in complexComplexHashVar     or
+        complex(5.6, 7.8) not in complexCharHashVar        or
+        complex(5.6, 7.8) not in complexStringHashVar      or
+        complex(5.6, 7.8) not in complexTypeHashVar        or
+        complex(5.6, 7.8) not in complexReferenceHashVar   or
+        complex(5.6, 7.8) not in complexHashHashVar        then
       writeln(" ***** Elements missing in hash[complex] table");
       okay := FALSE;
     end if;
-    if  complexBooleanHashVar    [complex(5.6, 7.8)] <> TRUE              or
-        complexIntegerHashVar    [complex(5.6, 7.8)] <> 1234              or
-        complexBigIntegerHashVar [complex(5.6, 7.8)] <> 9999999999_       or
-        complexFloatHashVar      [complex(5.6, 7.8)] <> 3.1415926535      or
-        complexComplexHashVar    [complex(5.6, 7.8)] <> complex(1.2, 3.4) or
-        complexCharHashVar       [complex(5.6, 7.8)] <> 'Q'               or
-        complexStringHashVar     [complex(5.6, 7.8)] <> "success"         or
-        complexTypeHashVar       [complex(5.6, 7.8)] <> char              or
-        complexReferenceHashVar  [complex(5.6, 7.8)] <> NIL               then
+    if  complexBooleanHashVar     [complex(5.6, 7.8)] <> TRUE                    or
+        complexIntegerHashVar     [complex(5.6, 7.8)] <> 1234                    or
+        complexBigIntegerHashVar  [complex(5.6, 7.8)] <> 9999999999_             or
+        complexBigRationalHashVar [complex(5.6, 7.8)] <> 9999999999_ / 12345678_ or
+        complexFloatHashVar       [complex(5.6, 7.8)] <> 3.1415926535            or
+        complexComplexHashVar     [complex(5.6, 7.8)] <> complex(1.2, 3.4)       or
+        complexCharHashVar        [complex(5.6, 7.8)] <> 'Q'                     or
+        complexStringHashVar      [complex(5.6, 7.8)] <> "success"               or
+        complexTypeHashVar        [complex(5.6, 7.8)] <> char                    or
+        complexReferenceHashVar   [complex(5.6, 7.8)] <> NIL                     then
       writeln(" ***** Elements with wrong value in hash[complex] table");
       okay := FALSE;
     end if;
@@ -587,113 +1060,122 @@ const proc: chkComplexHash is func
 const proc: chkCharHash is func
   local
     var boolean: okay is TRUE;
-    var charBooleanHash:    charBooleanHashVar    is charBooleanHash   .EMPTY_HASH;
-    var charIntegerHash:    charIntegerHashVar    is charIntegerHash   .EMPTY_HASH;
-    var charBigIntegerHash: charBigIntegerHashVar is charBigIntegerHash.EMPTY_HASH;
-    var charFloatHash:      charFloatHashVar      is charFloatHash     .EMPTY_HASH;
-    var charComplexHash:    charComplexHashVar    is charComplexHash   .EMPTY_HASH;
-    var charCharHash:       charCharHashVar       is charCharHash      .EMPTY_HASH;
-    var charStringHash:     charStringHashVar     is charStringHash    .EMPTY_HASH;
-    var charTypeHash:       charTypeHashVar       is charTypeHash      .EMPTY_HASH;
-    var charReferenceHash:  charReferenceHashVar  is charReferenceHash .EMPTY_HASH;
-    var charHashHash:       charHashHashVar       is charHashHash      .EMPTY_HASH;
+    var charBooleanHash:     charBooleanHashVar     is charBooleanHash    .EMPTY_HASH;
+    var charIntegerHash:     charIntegerHashVar     is charIntegerHash    .EMPTY_HASH;
+    var charBigIntegerHash:  charBigIntegerHashVar  is charBigIntegerHash .EMPTY_HASH;
+    var charBigRationalHash: charBigRationalHashVar is charBigRationalHash.EMPTY_HASH;
+    var charFloatHash:       charFloatHashVar       is charFloatHash      .EMPTY_HASH;
+    var charComplexHash:     charComplexHashVar     is charComplexHash    .EMPTY_HASH;
+    var charCharHash:        charCharHashVar        is charCharHash       .EMPTY_HASH;
+    var charStringHash:      charStringHashVar      is charStringHash     .EMPTY_HASH;
+    var charTypeHash:        charTypeHashVar        is charTypeHash       .EMPTY_HASH;
+    var charReferenceHash:   charReferenceHashVar   is charReferenceHash  .EMPTY_HASH;
+    var charHashHash:        charHashHashVar        is charHashHash       .EMPTY_HASH;
   begin
-    if  length(charBooleanHashVar)    <> 0 or
-        length(charIntegerHashVar)    <> 0 or
-        length(charBigIntegerHashVar) <> 0 or
-        length(charFloatHashVar)      <> 0 or
-        length(charComplexHashVar)    <> 0 or
-        length(charCharHashVar)       <> 0 or
-        length(charStringHashVar)     <> 0 or
-        length(charTypeHashVar)       <> 0 or
-        length(charReferenceHashVar)  <> 0 or
-        length(charHashHashVar)       <> 0 then
+    if  length(charBooleanHashVar)     <> 0 or
+        length(charIntegerHashVar)     <> 0 or
+        length(charBigIntegerHashVar)  <> 0 or
+        length(charBigRationalHashVar) <> 0 or
+        length(charFloatHashVar)       <> 0 or
+        length(charComplexHashVar)     <> 0 or
+        length(charCharHashVar)        <> 0 or
+        length(charStringHashVar)      <> 0 or
+        length(charTypeHashVar)        <> 0 or
+        length(charReferenceHashVar)   <> 0 or
+        length(charHashHashVar)        <> 0 then
       writeln(" ***** Number of elements in empty hash[char] table not 0");
       okay := FALSE;
     end if;
-    if  'k' in charBooleanHashVar    or
-        'k' in charIntegerHashVar    or
-        'k' in charBigIntegerHashVar or
-        'k' in charFloatHashVar      or
-        'k' in charComplexHashVar    or
-        'k' in charCharHashVar       or
-        'k' in charStringHashVar     or
-        'k' in charTypeHashVar       or
-        'k' in charReferenceHashVar  or
-        'k' in charHashHashVar       then
+    if  'k' in charBooleanHashVar     or
+        'k' in charIntegerHashVar     or
+        'k' in charBigIntegerHashVar  or
+        'k' in charBigRationalHashVar or
+        'k' in charFloatHashVar       or
+        'k' in charComplexHashVar     or
+        'k' in charCharHashVar        or
+        'k' in charStringHashVar      or
+        'k' in charTypeHashVar        or
+        'k' in charReferenceHashVar   or
+        'k' in charHashHashVar        then
       writeln(" ***** Elements found in empty hash table");
       okay := FALSE;
     end if;
-    charBooleanHashVar    @:= ['k'] TRUE;
-    charIntegerHashVar    @:= ['k'] 1234;
-    charBigIntegerHashVar @:= ['k'] 9999999999_;
-    charFloatHashVar      @:= ['k'] 3.1415926535;
-    charComplexHashVar    @:= ['k'] complex(1.2, 3.4);
-    charCharHashVar       @:= ['k'] 'Q';
-    charStringHashVar     @:= ['k'] "success";
-    charTypeHashVar       @:= ['k'] char;
-    charReferenceHashVar  @:= ['k'] NIL;
-    charHashHashVar       @:= ['k'] charBooleanHashVar;
-    if  length(charBooleanHashVar)    <> 1 or
-        length(charIntegerHashVar)    <> 1 or
-        length(charBigIntegerHashVar) <> 1 or
-        length(charFloatHashVar)      <> 1 or
-        length(charComplexHashVar)    <> 1 or
-        length(charCharHashVar)       <> 1 or
-        length(charStringHashVar)     <> 1 or
-        length(charTypeHashVar)       <> 1 or
-        length(charReferenceHashVar)  <> 1 or
-        length(charHashHashVar)       <> 1 then
+    charBooleanHashVar     @:= ['k'] TRUE;
+    charIntegerHashVar     @:= ['k'] 1234;
+    charBigIntegerHashVar  @:= ['k'] 9999999999_;
+    charBigRationalHashVar @:= ['k'] 9999999999_ / 12345678_;
+    charFloatHashVar       @:= ['k'] 3.1415926535;
+    charComplexHashVar     @:= ['k'] complex(1.2, 3.4);
+    charCharHashVar        @:= ['k'] 'Q';
+    charStringHashVar      @:= ['k'] "success";
+    charTypeHashVar        @:= ['k'] char;
+    charReferenceHashVar   @:= ['k'] NIL;
+    charHashHashVar        @:= ['k'] charBooleanHashVar;
+    if  length(charBooleanHashVar)     <> 1 or
+        length(charIntegerHashVar)     <> 1 or
+        length(charBigIntegerHashVar)  <> 1 or
+        length(charBigRationalHashVar) <> 1 or
+        length(charFloatHashVar)       <> 1 or
+        length(charComplexHashVar)     <> 1 or
+        length(charCharHashVar)        <> 1 or
+        length(charStringHashVar)      <> 1 or
+        length(charTypeHashVar)        <> 1 or
+        length(charReferenceHashVar)   <> 1 or
+        length(charHashHashVar)        <> 1 then
       writeln(" ***** Number of elements in hash[char] table not 1");
       okay := FALSE;
     end if;
-    if  'k' in charBooleanHashVar    and
-        'k' in charIntegerHashVar    and
-        'k' in charBigIntegerHashVar and
-        'k' in charFloatHashVar      and
-        'k' in charComplexHashVar    and
-        'k' in charCharHashVar       and
-        'k' in charStringHashVar     and
-        'k' in charTypeHashVar       and
-        'k' in charReferenceHashVar  and
-        'k' in charHashHashVar       then
+    if  'k' in charBooleanHashVar     and
+        'k' in charIntegerHashVar     and
+        'k' in charBigIntegerHashVar  and
+        'k' in charBigRationalHashVar and
+        'k' in charFloatHashVar       and
+        'k' in charComplexHashVar     and
+        'k' in charCharHashVar        and
+        'k' in charStringHashVar      and
+        'k' in charTypeHashVar        and
+        'k' in charReferenceHashVar   and
+        'k' in charHashHashVar        then
       noop;
     else
       writeln(" ***** Elements missing in hash[char] table");
       okay := FALSE;
     end if;
-    charBooleanHashVar    @:= ['k'] TRUE;
-    charIntegerHashVar    @:= ['k'] 1234;
-    charBigIntegerHashVar @:= ['k'] 9999999999_;
-    charFloatHashVar      @:= ['k'] 3.1415926535;
-    charComplexHashVar    @:= ['k'] complex(1.2, 3.4);
-    charCharHashVar       @:= ['k'] 'Q';
-    charStringHashVar     @:= ['k'] "success";
-    charTypeHashVar       @:= ['k'] char;
-    charReferenceHashVar  @:= ['k'] NIL;
-    charHashHashVar       @:= ['k'] charBooleanHashVar;
-    if  'k' not in charBooleanHashVar    or
-        'k' not in charIntegerHashVar    or
-        'k' not in charBigIntegerHashVar or
-        'k' not in charFloatHashVar      or
-        'k' not in charComplexHashVar    or
-        'k' not in charCharHashVar       or
-        'k' not in charStringHashVar     or
-        'k' not in charTypeHashVar       or
-        'k' not in charReferenceHashVar  or
-        'k' not in charHashHashVar       then
+    charBooleanHashVar     @:= ['k'] TRUE;
+    charIntegerHashVar     @:= ['k'] 1234;
+    charBigIntegerHashVar  @:= ['k'] 9999999999_;
+    charBigRationalHashVar @:= ['k'] 9999999999_ / 12345678_;
+    charFloatHashVar       @:= ['k'] 3.1415926535;
+    charComplexHashVar     @:= ['k'] complex(1.2, 3.4);
+    charCharHashVar        @:= ['k'] 'Q';
+    charStringHashVar      @:= ['k'] "success";
+    charTypeHashVar        @:= ['k'] char;
+    charReferenceHashVar   @:= ['k'] NIL;
+    charHashHashVar        @:= ['k'] charBooleanHashVar;
+    if  'k' not in charBooleanHashVar     or
+        'k' not in charIntegerHashVar     or
+        'k' not in charBigIntegerHashVar  or
+        'k' not in charBigRationalHashVar or
+        'k' not in charFloatHashVar       or
+        'k' not in charComplexHashVar     or
+        'k' not in charCharHashVar        or
+        'k' not in charStringHashVar      or
+        'k' not in charTypeHashVar        or
+        'k' not in charReferenceHashVar   or
+        'k' not in charHashHashVar        then
       writeln(" ***** Elements missing in hash[char] table");
       okay := FALSE;
     end if;
-    if  charBooleanHashVar    ['k'] <> TRUE              or
-        charIntegerHashVar    ['k'] <> 1234              or
-        charBigIntegerHashVar ['k'] <> 9999999999_       or
-        charFloatHashVar      ['k'] <> 3.1415926535      or
-        charComplexHashVar    ['k'] <> complex(1.2, 3.4) or
-        charCharHashVar       ['k'] <> 'Q'               or
-        charStringHashVar     ['k'] <> "success"         or
-        charTypeHashVar       ['k'] <> char              or
-        charReferenceHashVar  ['k'] <> NIL               then
+    if  charBooleanHashVar     ['k'] <> TRUE                    or
+        charIntegerHashVar     ['k'] <> 1234                    or
+        charBigIntegerHashVar  ['k'] <> 9999999999_             or
+        charBigRationalHashVar ['k'] <> 9999999999_ / 12345678_ or
+        charFloatHashVar       ['k'] <> 3.1415926535            or
+        charComplexHashVar     ['k'] <> complex(1.2, 3.4)       or
+        charCharHashVar        ['k'] <> 'Q'                     or
+        charStringHashVar      ['k'] <> "success"               or
+        charTypeHashVar        ['k'] <> char                    or
+        charReferenceHashVar   ['k'] <> NIL                     then
       writeln(" ***** Elements with wrong value in hash[char] table");
       okay := FALSE;
     end if;
@@ -709,113 +1191,122 @@ const proc: chkCharHash is func
 const proc: chkStringHash is func
   local
     var boolean: okay is TRUE;
-    var stringBooleanHash:    stringBooleanHashVar    is stringBooleanHash   .EMPTY_HASH;
-    var stringIntegerHash:    stringIntegerHashVar    is stringIntegerHash   .EMPTY_HASH;
-    var stringBigIntegerHash: stringBigIntegerHashVar is stringBigIntegerHash.EMPTY_HASH;
-    var stringFloatHash:      stringFloatHashVar      is stringFloatHash     .EMPTY_HASH;
-    var stringComplexHash:    stringComplexHashVar    is stringComplexHash   .EMPTY_HASH;
-    var stringCharHash:       stringCharHashVar       is stringCharHash      .EMPTY_HASH;
-    var stringStringHash:     stringStringHashVar     is stringStringHash    .EMPTY_HASH;
-    var stringTypeHash:       stringTypeHashVar       is stringTypeHash      .EMPTY_HASH;
-    var stringReferenceHash:  stringReferenceHashVar  is stringReferenceHash .EMPTY_HASH;
-    var stringHashHash:       stringHashHashVar       is stringHashHash      .EMPTY_HASH;
+    var stringBooleanHash:     stringBooleanHashVar     is stringBooleanHash    .EMPTY_HASH;
+    var stringIntegerHash:     stringIntegerHashVar     is stringIntegerHash    .EMPTY_HASH;
+    var stringBigIntegerHash:  stringBigIntegerHashVar  is stringBigIntegerHash .EMPTY_HASH;
+    var stringBigRationalHash: stringBigRationalHashVar is stringBigRationalHash.EMPTY_HASH;
+    var stringFloatHash:       stringFloatHashVar       is stringFloatHash      .EMPTY_HASH;
+    var stringComplexHash:     stringComplexHashVar     is stringComplexHash    .EMPTY_HASH;
+    var stringCharHash:        stringCharHashVar        is stringCharHash       .EMPTY_HASH;
+    var stringStringHash:      stringStringHashVar      is stringStringHash     .EMPTY_HASH;
+    var stringTypeHash:        stringTypeHashVar        is stringTypeHash       .EMPTY_HASH;
+    var stringReferenceHash:   stringReferenceHashVar   is stringReferenceHash  .EMPTY_HASH;
+    var stringHashHash:        stringHashHashVar        is stringHashHash       .EMPTY_HASH;
   begin
-    if  length(stringBooleanHashVar)    <> 0 or
-        length(stringIntegerHashVar)    <> 0 or
-        length(stringBigIntegerHashVar) <> 0 or
-        length(stringFloatHashVar)      <> 0 or
-        length(stringComplexHashVar)    <> 0 or
-        length(stringCharHashVar)       <> 0 or
-        length(stringStringHashVar)     <> 0 or
-        length(stringTypeHashVar)       <> 0 or
-        length(stringReferenceHashVar)  <> 0 or
-        length(stringHashHashVar)       <> 0 then
+    if  length(stringBooleanHashVar)     <> 0 or
+        length(stringIntegerHashVar)     <> 0 or
+        length(stringBigIntegerHashVar)  <> 0 or
+        length(stringBigRationalHashVar) <> 0 or
+        length(stringFloatHashVar)       <> 0 or
+        length(stringComplexHashVar)     <> 0 or
+        length(stringCharHashVar)        <> 0 or
+        length(stringStringHashVar)      <> 0 or
+        length(stringTypeHashVar)        <> 0 or
+        length(stringReferenceHashVar)   <> 0 or
+        length(stringHashHashVar)        <> 0 then
       writeln(" ***** Number of elements in empty hash[string] table not 0");
       okay := FALSE;
     end if;
-    if  "asdfghjkl" in stringBooleanHashVar    or
-        "asdfghjkl" in stringIntegerHashVar    or
-        "asdfghjkl" in stringBigIntegerHashVar or
-        "asdfghjkl" in stringFloatHashVar      or
-        "asdfghjkl" in stringComplexHashVar    or
-        "asdfghjkl" in stringCharHashVar       or
-        "asdfghjkl" in stringStringHashVar     or
-        "asdfghjkl" in stringTypeHashVar       or
-        "asdfghjkl" in stringReferenceHashVar  or
-        "asdfghjkl" in stringHashHashVar       then
+    if  "asdfghjkl" in stringBooleanHashVar     or
+        "asdfghjkl" in stringIntegerHashVar     or
+        "asdfghjkl" in stringBigIntegerHashVar  or
+        "asdfghjkl" in stringBigRationalHashVar or
+        "asdfghjkl" in stringFloatHashVar       or
+        "asdfghjkl" in stringComplexHashVar     or
+        "asdfghjkl" in stringCharHashVar        or
+        "asdfghjkl" in stringStringHashVar      or
+        "asdfghjkl" in stringTypeHashVar        or
+        "asdfghjkl" in stringReferenceHashVar   or
+        "asdfghjkl" in stringHashHashVar        then
       writeln(" ***** Elements found in empty hash table");
       okay := FALSE;
     end if;
-    stringBooleanHashVar    @:= ["asdfghjkl"] TRUE;
-    stringIntegerHashVar    @:= ["asdfghjkl"] 1234;
-    stringBigIntegerHashVar @:= ["asdfghjkl"] 9999999999_;
-    stringFloatHashVar      @:= ["asdfghjkl"] 3.1415926535;
-    stringComplexHashVar    @:= ["asdfghjkl"] complex(1.2, 3.4);
-    stringCharHashVar       @:= ["asdfghjkl"] 'Q';
-    stringStringHashVar     @:= ["asdfghjkl"] "success";
-    stringTypeHashVar       @:= ["asdfghjkl"] char;
-    stringReferenceHashVar  @:= ["asdfghjkl"] NIL;
-    stringHashHashVar       @:= ["asdfghjkl"] stringBooleanHashVar;
-    if  length(stringBooleanHashVar)    <> 1 or
-        length(stringIntegerHashVar)    <> 1 or
-        length(stringBigIntegerHashVar) <> 1 or
-        length(stringFloatHashVar)      <> 1 or
-        length(stringComplexHashVar)    <> 1 or
-        length(stringCharHashVar)       <> 1 or
-        length(stringStringHashVar)     <> 1 or
-        length(stringTypeHashVar)       <> 1 or
-        length(stringReferenceHashVar)  <> 1 or
-        length(stringHashHashVar)       <> 1 then
+    stringBooleanHashVar     @:= ["asdfghjkl"] TRUE;
+    stringIntegerHashVar     @:= ["asdfghjkl"] 1234;
+    stringBigIntegerHashVar  @:= ["asdfghjkl"] 9999999999_;
+    stringBigRationalHashVar @:= ["asdfghjkl"] 9999999999_ / 12345678_;
+    stringFloatHashVar       @:= ["asdfghjkl"] 3.1415926535;
+    stringComplexHashVar     @:= ["asdfghjkl"] complex(1.2, 3.4);
+    stringCharHashVar        @:= ["asdfghjkl"] 'Q';
+    stringStringHashVar      @:= ["asdfghjkl"] "success";
+    stringTypeHashVar        @:= ["asdfghjkl"] char;
+    stringReferenceHashVar   @:= ["asdfghjkl"] NIL;
+    stringHashHashVar        @:= ["asdfghjkl"] stringBooleanHashVar;
+    if  length(stringBooleanHashVar)     <> 1 or
+        length(stringIntegerHashVar)     <> 1 or
+        length(stringBigIntegerHashVar)  <> 1 or
+        length(stringBigRationalHashVar) <> 1 or
+        length(stringFloatHashVar)       <> 1 or
+        length(stringComplexHashVar)     <> 1 or
+        length(stringCharHashVar)        <> 1 or
+        length(stringStringHashVar)      <> 1 or
+        length(stringTypeHashVar)        <> 1 or
+        length(stringReferenceHashVar)   <> 1 or
+        length(stringHashHashVar)        <> 1 then
       writeln(" ***** Number of elements in hash[string] table not 1");
       okay := FALSE;
     end if;
-    if  "asdfghjkl" in stringBooleanHashVar    and
-        "asdfghjkl" in stringIntegerHashVar    and
-        "asdfghjkl" in stringBigIntegerHashVar and
-        "asdfghjkl" in stringFloatHashVar      and
-        "asdfghjkl" in stringComplexHashVar    and
-        "asdfghjkl" in stringCharHashVar       and
-        "asdfghjkl" in stringStringHashVar     and
-        "asdfghjkl" in stringTypeHashVar       and
-        "asdfghjkl" in stringReferenceHashVar  and
-        "asdfghjkl" in stringHashHashVar       then
+    if  "asdfghjkl" in stringBooleanHashVar     and
+        "asdfghjkl" in stringIntegerHashVar     and
+        "asdfghjkl" in stringBigIntegerHashVar  and
+        "asdfghjkl" in stringBigRationalHashVar and
+        "asdfghjkl" in stringFloatHashVar       and
+        "asdfghjkl" in stringComplexHashVar     and
+        "asdfghjkl" in stringCharHashVar        and
+        "asdfghjkl" in stringStringHashVar      and
+        "asdfghjkl" in stringTypeHashVar        and
+        "asdfghjkl" in stringReferenceHashVar   and
+        "asdfghjkl" in stringHashHashVar        then
       noop;
     else
       writeln(" ***** Elements missing in hash[string] table");
       okay := FALSE;
     end if;
-    stringBooleanHashVar    @:= ["asdfghjkl"] TRUE;
-    stringIntegerHashVar    @:= ["asdfghjkl"] 1234;
-    stringBigIntegerHashVar @:= ["asdfghjkl"] 9999999999_;
-    stringFloatHashVar      @:= ["asdfghjkl"] 3.1415926535;
-    stringComplexHashVar    @:= ["asdfghjkl"] complex(1.2, 3.4);
-    stringCharHashVar       @:= ["asdfghjkl"] 'Q';
-    stringStringHashVar     @:= ["asdfghjkl"] "success";
-    stringTypeHashVar       @:= ["asdfghjkl"] char;
-    stringReferenceHashVar  @:= ["asdfghjkl"] NIL;
-    stringHashHashVar       @:= ["asdfghjkl"] stringBooleanHashVar;
-    if  "asdfghjkl" not in stringBooleanHashVar    or
-        "asdfghjkl" not in stringIntegerHashVar    or
-        "asdfghjkl" not in stringBigIntegerHashVar or
-        "asdfghjkl" not in stringFloatHashVar      or
-        "asdfghjkl" not in stringComplexHashVar    or
-        "asdfghjkl" not in stringCharHashVar       or
-        "asdfghjkl" not in stringStringHashVar     or
-        "asdfghjkl" not in stringTypeHashVar       or
-        "asdfghjkl" not in stringReferenceHashVar  or
-        "asdfghjkl" not in stringHashHashVar       then
+    stringBooleanHashVar     @:= ["asdfghjkl"] TRUE;
+    stringIntegerHashVar     @:= ["asdfghjkl"] 1234;
+    stringBigIntegerHashVar  @:= ["asdfghjkl"] 9999999999_;
+    stringBigRationalHashVar @:= ["asdfghjkl"] 9999999999_ / 12345678_;
+    stringFloatHashVar       @:= ["asdfghjkl"] 3.1415926535;
+    stringComplexHashVar     @:= ["asdfghjkl"] complex(1.2, 3.4);
+    stringCharHashVar        @:= ["asdfghjkl"] 'Q';
+    stringStringHashVar      @:= ["asdfghjkl"] "success";
+    stringTypeHashVar        @:= ["asdfghjkl"] char;
+    stringReferenceHashVar   @:= ["asdfghjkl"] NIL;
+    stringHashHashVar        @:= ["asdfghjkl"] stringBooleanHashVar;
+    if  "asdfghjkl" not in stringBooleanHashVar     or
+        "asdfghjkl" not in stringIntegerHashVar     or
+        "asdfghjkl" not in stringBigIntegerHashVar  or
+        "asdfghjkl" not in stringBigRationalHashVar or
+        "asdfghjkl" not in stringFloatHashVar       or
+        "asdfghjkl" not in stringComplexHashVar     or
+        "asdfghjkl" not in stringCharHashVar        or
+        "asdfghjkl" not in stringStringHashVar      or
+        "asdfghjkl" not in stringTypeHashVar        or
+        "asdfghjkl" not in stringReferenceHashVar   or
+        "asdfghjkl" not in stringHashHashVar        then
       writeln(" ***** Elements missing in hash[string] table");
       okay := FALSE;
     end if;
-    if  stringBooleanHashVar    ["asdfghjkl"] <> TRUE              or
-        stringIntegerHashVar    ["asdfghjkl"] <> 1234              or
-        stringBigIntegerHashVar ["asdfghjkl"] <> 9999999999_       or
-        stringFloatHashVar      ["asdfghjkl"] <> 3.1415926535      or
-        stringComplexHashVar    ["asdfghjkl"] <> complex(1.2, 3.4) or
-        stringCharHashVar       ["asdfghjkl"] <> 'Q'               or
-        stringStringHashVar     ["asdfghjkl"] <> "success"         or
-        stringTypeHashVar       ["asdfghjkl"] <> char              or
-        stringReferenceHashVar  ["asdfghjkl"] <> NIL               then
+    if  stringBooleanHashVar     ["asdfghjkl"] <> TRUE                    or
+        stringIntegerHashVar     ["asdfghjkl"] <> 1234                    or
+        stringBigIntegerHashVar  ["asdfghjkl"] <> 9999999999_             or
+        stringBigRationalHashVar ["asdfghjkl"] <> 9999999999_ / 12345678_ or
+        stringFloatHashVar       ["asdfghjkl"] <> 3.1415926535            or
+        stringComplexHashVar     ["asdfghjkl"] <> complex(1.2, 3.4)       or
+        stringCharHashVar        ["asdfghjkl"] <> 'Q'                     or
+        stringStringHashVar      ["asdfghjkl"] <> "success"               or
+        stringTypeHashVar        ["asdfghjkl"] <> char                    or
+        stringReferenceHashVar   ["asdfghjkl"] <> NIL                     then
       writeln(" ***** Elements with wrong value in hash[string] table");
       okay := FALSE;
     end if;
@@ -863,6 +1354,9 @@ const proc: main is func
     writeln;
     chkBooleanHash;
     chkIntegerHash;
+    chkBigIntegerHash;
+    chkRationalHash;
+    chkBigRationalHash;
     chkFloatHash;
     chkComplexHash;
     chkCharHash;

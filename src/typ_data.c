@@ -142,7 +142,7 @@ intType typNum (typeType actual_type)
     intType result;
 
   /* typNum */
-    /* printf("typNum(%lx)\n", actual_type); */
+    logFunction(printf("typNum(" FMT_X_MEM ")\n", (memSizeType) actual_type););
     if (unlikely(actual_type == NULL)) {
       result = 0;
     } else {
@@ -162,7 +162,7 @@ intType typNum (typeType actual_type)
         } /* if */
       } /* if */
     } /* if */
-    /* printf("typNum => %ld\n", result); */
+    logFunction(printf("typNum --> " FMT_D "\n", result););
     return result;
   } /* typNum */
 

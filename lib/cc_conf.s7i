@@ -249,11 +249,12 @@ const type: ccConfigType is new struct
     var integer: INT_MAX                    is 0;
 
     (**
-     *  Maximum integer that can be converted to ''floatType'' and back.
-     *  All integers from 0 up to this value can be converted to
-     *  a ''floatType'' and back without loss.
+     *  Maximum from the continuous range of integers that map to floats.
+     *  All integers from -INT_RANGE_IN_FLOATTYPE_MAX to
+     *  INT_RANGE_IN_FLOATTYPE_MAX can be converted to ''floatType''
+     *  and back to ''intType" without loss.
      *)
-    var integer: MAX_INTEGER_IN_FLOATTYPE   is 0;
+    var integer: INT_RANGE_IN_FLOATTYPE_MAX is 0;
 
     (**
      *  Name of a signed integer type that is 32 bits wide.
@@ -288,14 +289,14 @@ const type: ccConfigType is new struct
      *  The runtime library and the compiler use a typedef to define
      *  the type ''int128Type'' with INT128TYPE.
      *)
-    var string: INT128TYPE                   is "";
+    var string: INT128TYPE                  is "";
 
     (**
      *  Name of an unsigned integer type that is 128 bits wide.
      *  The runtime library and the compiler use a typedef to define
      *  the type ''uint128Type'' with UINT128TYPE.
      *)
-    var string: UINT128TYPE                  is "";
+    var string: UINT128TYPE                 is "";
 
     (**
      *  The suffix used by the literals of the 32 bits wide integer type.
@@ -317,7 +318,7 @@ const type: ccConfigType is new struct
      *  occurs. Empty string when integer overflow does not raise
      *  a signal.
      *)
-    var string: OVERFLOW_SIGNAL            is "";
+    var string: OVERFLOW_SIGNAL             is "";
 
     (**
      *  The extension used by the C compiler for object files.
@@ -521,7 +522,7 @@ const func ccConfigType: getBuiltInConfig is func
     conf.POINTER_SIZE               := integer parse configValue("POINTER_SIZE");
     conf.GENERIC_SIZE               := max({conf.INTTYPE_SIZE, conf.FLOATTYPE_SIZE, conf.POINTER_SIZE});
     conf.INT_SIZE                   := integer parse configValue("INT_SIZE");
-    conf.MAX_INTEGER_IN_FLOATTYPE   := integer parse configValue("MAX_INTEGER_IN_FLOATTYPE");
+    conf.INT_RANGE_IN_FLOATTYPE_MAX := integer parse configValue("INT_RANGE_IN_FLOATTYPE_MAX");
     conf.INT32TYPE                  := configValue("INT32TYPE");
     conf.UINT32TYPE                 := configValue("UINT32TYPE");
     conf.INT64TYPE                  := configValue("INT64TYPE");

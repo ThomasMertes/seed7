@@ -312,18 +312,9 @@ const func boolean: (in bigRational: number1) >= (in bigRational: number2) is
  *          respectively less than, equal to, or greater than the
  *          second.
  *)
-const func integer: compare (in bigRational: number1, in bigRational: number2) is func
-  result
-    var integer: signumValue is 0;
-  begin
-    if number1.numerator * number2.denominator <
-        number2.numerator * number1.denominator then
-      signumValue := -1;
-    elsif number1.numerator * number2.denominator >
-        number2.numerator * number1.denominator then
-      signumValue := 1;
-    end if;
-  end func;
+const func integer: compare (in bigRational: number1, in bigRational: number2) is
+  return compare(number1.numerator * number2.denominator,
+                 number2.numerator * number1.denominator);
 
 
 (**

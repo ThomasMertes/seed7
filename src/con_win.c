@@ -326,12 +326,12 @@ int conHeight (void)
       if (GetConsoleScreenBufferInfo(hConsole, &con_info)) {
         return con_info.dwSize.Y;
       } else {
-        /* printf("GetConsoleScreenBufferInfo(%d, & ) ==> Error %d\n",
+        /* printf("GetConsoleScreenBufferInfo(%d, & ) --> Error %d\n",
             hConsole, GetLastError()); */
         return SCRHEIGHT;
       } /* if */
     } else {
-      /* printf("GetStdHandle(STD_OUTPUT_HANDLE) ==> %d / Error %d\n",
+      /* printf("GetStdHandle(STD_OUTPUT_HANDLE) --> %d / Error %d\n",
           hConsole, GetLastError()); */
       return SCRHEIGHT;
     } /* if */
@@ -351,12 +351,12 @@ int conWidth (void)
       if (GetConsoleScreenBufferInfo(hConsole, &con_info)) {
         return con_info.dwSize.X;
       } else {
-        /* printf("GetConsoleScreenBufferInfo(%d, & ) ==> Error %d\n",
+        /* printf("GetConsoleScreenBufferInfo(%d, & ) --> Error %d\n",
             hConsole, GetLastError()); */
         return SCRWIDTH;
       } /* if */
     } else {
-      /* printf("GetStdHandle(STD_OUTPUT_HANDLE) ==> %d / Error %d\n",
+      /* printf("GetStdHandle(STD_OUTPUT_HANDLE) --> %d / Error %d\n",
           hConsole, GetLastError()); */
       return SCRWIDTH;
     } /* if */
@@ -407,11 +407,11 @@ void conSetCursor (intType line, intType column)
           position.X = (int16Type) (column - 1);
           position.Y = (int16Type) (line - 1);
           if (!SetConsoleCursorPosition(hConsole, position)) {
-            /* printf("SetConsoleCursorPosition(%d, (%d, %d)) ==> Error %d\n",
+            /* printf("SetConsoleCursorPosition(%d, (%d, %d)) --> Error %d\n",
                 hConsole, column - 1, line - 1, GetLastError()); */
           } /* if */
         } else {
-          /* printf("GetStdHandle(STD_OUTPUT_HANDLE) ==> %d / Error %d\n",
+          /* printf("GetStdHandle(STD_OUTPUT_HANDLE) --> %d / Error %d\n",
               hConsole, GetLastError()); */
         } /* if */
       } /* if */
@@ -564,7 +564,7 @@ void conUpScroll (intType startlin, intType startcol,
           fillChar.Char.AsciiChar = ' ';
           ScrollConsoleScreenBuffer(hConsole, &scrollRect, NULL, destOrigin, &fillChar);
         } else {
-          /* printf("GetStdHandle(STD_OUTPUT_HANDLE) ==> %d / Error %d\n",
+          /* printf("GetStdHandle(STD_OUTPUT_HANDLE) --> %d / Error %d\n",
               hConsole, GetLastError()); */
         } /* if */
       } /* if */
@@ -615,7 +615,7 @@ void conDownScroll (intType startlin, intType startcol,
           fillChar.Char.AsciiChar = ' ';
           ScrollConsoleScreenBuffer(hConsole, &scrollRect, NULL, destOrigin, &fillChar);
         } else {
-          /* printf("GetStdHandle(STD_OUTPUT_HANDLE) ==> %d / Error %d\n",
+          /* printf("GetStdHandle(STD_OUTPUT_HANDLE) --> %d / Error %d\n",
               hConsole, GetLastError()); */
         } /* if */
       } /* if */
@@ -666,7 +666,7 @@ void conLeftScroll (intType startlin, intType startcol,
           fillChar.Char.AsciiChar = ' ';
           ScrollConsoleScreenBuffer(hConsole, &scrollRect, NULL, destOrigin, &fillChar);
         } else {
-          /* printf("GetStdHandle(STD_OUTPUT_HANDLE) ==> %d / Error %d\n",
+          /* printf("GetStdHandle(STD_OUTPUT_HANDLE) --> %d / Error %d\n",
               hConsole, GetLastError()); */
         } /* if */
       } /* if */
@@ -717,7 +717,7 @@ void conRightScroll (intType startlin, intType startcol,
           fillChar.Char.AsciiChar = ' ';
           ScrollConsoleScreenBuffer(hConsole, &scrollRect, NULL, destOrigin, &fillChar);
         } else {
-          /* printf("GetStdHandle(STD_OUTPUT_HANDLE) ==> %d / Error %d\n",
+          /* printf("GetStdHandle(STD_OUTPUT_HANDLE) --> %d / Error %d\n",
               hConsole, GetLastError()); */
         } /* if */
       } /* if */

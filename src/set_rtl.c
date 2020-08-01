@@ -1488,7 +1488,7 @@ setType setUnion (const const_setType set1, const const_setType set2)
     setType result;
 
   /* setUnion */
-    logFunction(printf("set_union(\n");
+    logFunction(printf("setUnion(\n");
                 prot_set(set1);
                 printf(",\n");
                 prot_set(set2);

@@ -83,7 +83,8 @@ winType find_window (HWND sys_window)
                             (intType) ((memSizeType) sys_window) >> 6,
                             (compareType) &genericCmp);
     } /* if */
-    /* printf("find_window(%lx) ==> %lx\n", (unsigned long) sys_window, (unsigned long) window); */
+    logFunction(printf("find_window(" FMT_X_MEM ") --> %" FMT_X_MEM "\n",
+                       (memSizeType) sys_window, (memSizeType) window););
     return window;
   } /* find_window */
 
@@ -308,7 +309,7 @@ charType gkbGetc (void)
                 result = K_NONE;
               } /* if */
             } else {
-              /* printf("PeekMessage ==> empty\n"); */
+              /* printf("PeekMessage --> empty\n"); */
             } /* if */
           } /* if */
         } else if (msg.message == WM_LBUTTONDOWN) {
@@ -495,7 +496,7 @@ boolType gkbKeyPressed (void)
         case WM_MBUTTONDOWN:
         case WM_RBUTTONDOWN:
         case WM_MOUSEWHEEL:
-          /* printf("gkbKeyPressed ==> TRUE for message %d\n", msg.message); */
+          /* printf("gkbKeyPressed --> TRUE for message %d\n", msg.message); */
           msg_present = 0;
           result = TRUE;
           break;

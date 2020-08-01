@@ -124,12 +124,6 @@ const func type: hash [ (in type: keyType) ] (in type: baseType) is func
                                    in baseType: anElem, in integer: hashCode,
                                    in reference: keyCompare, in reference: keyCreate,
                                    in reference: dataCreate)                   is action "HSH_UPDATE";
-(*
-      const func ptr baseType: @ (in hashType param) [ (in string param) ]     is action "HSH_REFIDX";
-      const func varptr baseType: @ (inout hashType param) [ (in string param) ] is action "HSH_REFIDX";
-      const varfunc baseType: table (inout hashType param, in baseType param)  is action "HSH_NEW";
-      const func baseType: free (inout hashType param, in baseType param)      is action "HSH_FREE";
-*)
       const func boolean: CONTAINS (in hashType: aHashMap, in keyType: aKey,
                                     in integer: hashCode,
                                     in reference: keyCompare)                  is action "HSH_CONTAINS";

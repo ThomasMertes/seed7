@@ -1081,6 +1081,15 @@ objectType str_ltrim (listType arguments)
 
 
 
+/**
+ *  String multiplication.
+ *  The string 'stri' is concatenated to itself such that in total
+ *  'factor' strings are concatenated.
+ *   "LA" mult 3     returns "LALALA"
+ *   "WORD" mult 0   returns ""
+ *  @return the result of the string multiplication.
+ *  @exception RANGE_ERROR When the factor is negative.
+ */
 objectType str_mult (listType arguments)
 
   { /* str_mult */

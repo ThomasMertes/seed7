@@ -384,10 +384,8 @@ objectType int_cmp (listType arguments)
     number2 = take_int(arg_2(arguments));
     if (number1 < number2) {
       signumValue = -1;
-    } else if (number1 > number2) {
-      signumValue = 1;
     } else {
-      signumValue = 0;
+      signumValue = number1 > number2;
     } /* if */
     return bld_int_temp(signumValue);
   } /* int_cmp */

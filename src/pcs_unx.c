@@ -226,11 +226,13 @@ intType pcsExitValue (const const_processType process)
     intType exitValue;
 
   /* pcsExitValue */
-    if (to_isTerminated(process)) {
-      exitValue = (intType) to_exitValue(process);
-    } else {
+    if (unlikely(!to_isTerminated(process))) {
+      logError(printf("pcsExitValue(%d): Process has not terminated.\n",
+                      to_pid(process)););
       raise_error(FILE_ERROR);
       exitValue = -1;
+    } else {
+      exitValue = (intType) to_exitValue(process);
     } /* if */
     return exitValue;
   } /* pcsExitValue */
@@ -331,11 +333,12 @@ void pcsKill (const processType process)
     logFunction(printf("pcsKill(" FMT_U_MEM ") (pid=%ld)\n",
                        (memSizeType) process,
                        process != NULL ? (long int) to_pid(process) : 0););
-    if (process == NULL) {
+    if (unlikely(process == NULL)) {
       logError(printf("pcsKill: process == NULL\n"););
       raise_error(FILE_ERROR);
-    } else if (kill(to_pid(process), SIGKILL) != 0) {
-      logError(printf("pcsKill: kill(%d, SIGKILL) failed:\nerrno=%d\nerror: %s\n",
+    } else if (unlikely(kill(to_pid(process), SIGKILL) != 0)) {
+      logError(printf("pcsKill: kill(%d, SIGKILL) failed:\n"
+                      "errno=%d\nerror: %s\n",
                       to_pid(process), errno, strerror(errno)););
       raise_error(FILE_ERROR);
     } /* if */
@@ -356,6 +359,8 @@ void pcsPipe2 (const const_striType command, const const_rtlArrayType parameters
     pid_t pid;
 
   /* pcsPipe2 */
+    logFunction(printf("pcsPipe2(\"%s\", *)\n",
+                       striAsUnquotedCStri(command)););
     argv = genArgVector(command, parameters, &err_info);
     if (unlikely(err_info != OKAY_NO_ERROR)) {
       raise_error(err_info);
@@ -364,9 +369,15 @@ void pcsPipe2 (const const_striType command, const const_rtlArrayType parameters
       freeArgVector(argv);
       raise_error(FILE_ERROR);
     } else if (unlikely(pipe(childStdinPipes) != 0)) {
+      logError(printf("pcsPipe2: pipe(childStdinPipes) failed:\n"
+                      "errno=%d\nerror: %s\n",
+                      errno, strerror(errno)););
       freeArgVector(argv);
       raise_error(FILE_ERROR);
     } else if (unlikely(pipe(childStdoutPipes) != 0)) {
+      logError(printf("pcsPipe2: pipe(childStdoutPipes) failed:\n"
+                      "errno=%d\nerror: %s\n",
+                      errno, strerror(errno)););
       freeArgVector(argv);
       close(childStdinPipes[0]);
       close(childStdinPipes[1]);
@@ -387,7 +398,7 @@ void pcsPipe2 (const const_striType command, const const_rtlArrayType parameters
         execv(argv[0], argv);
         logError(printf("pcsPipe2: execv(" FMT_S_OS ") failed:\nerrno=%d\nerror: %s\n",
                         argv[0], errno, strerror(errno)););
-      } else if (pid == (pid_t) -1) {
+      } else if (unlikely(pid == (pid_t) -1)) {
         logError(printf("pcsPipe2: fork failed:\nerrno=%d\nerror: %s\n",
                         errno, strerror(errno)););
         close(0); /* Restore the original std fds of parent */
@@ -412,6 +423,7 @@ void pcsPipe2 (const const_striType command, const const_rtlArrayType parameters
         freeArgVector(argv);
       } /* if */
     } /* if */
+    logFunction(printf("pcsPipe2 ->\n"););
   } /* pcsPipe2 */
 
 
@@ -442,26 +454,29 @@ void pcsPty (const const_striType command, const const_rtlArrayType parameters,
     pid_t pid;
 
   /* pcsPty */
+    logFunction(printf("pcsPty(\"%s\", *)\n",
+                       striAsUnquotedCStri(command)););
     argv = genArgVector(command, parameters, &err_info);
     if (unlikely(err_info != OKAY_NO_ERROR)) {
       raise_error(err_info);
-    } else if (access(argv[0], X_OK) != 0) {
+    } else if (unlikely(access(argv[0], X_OK) != 0)) {
       logError(printf("pcsPty: No execute permission for " FMT_S_OS "\n", argv[0]););
       freeArgVector(argv);
       raise_error(FILE_ERROR);
     } else {
       masterfd = posix_openpt(O_RDWR|O_NOCTTY);
       /* printf("masterfd: %d\n", masterfd); */
-      if (masterfd == -1 || grantpt(masterfd) == -1 ||
-          unlockpt(masterfd) == -1 || (slavedevice = ptsname(masterfd)) == NULL) {
-        /* printf("Cannot open pty\n"); */
+      if (unlikely(masterfd == -1 || grantpt(masterfd) == -1 ||
+                   unlockpt(masterfd) == -1 ||
+                   (slavedevice = ptsname(masterfd)) == NULL)) {
+        logError(printf("pcsPty: Cannot open pty.\n"););
         freeArgVector(argv);
         raise_error(FILE_ERROR);
       } else {
         /* printf("slave device is: %s\n", slavedevice); */
         slavefd = open(slavedevice, O_RDWR|O_NOCTTY);
-        if (slavefd < 0) {
-          /* printf("No slavefd\n"); */
+        if (unlikely(slavefd < 0)) {
+          logError(printf("pcsPty: No slavefd\n"););
           freeArgVector(argv);
           raise_error(FILE_ERROR);
         } else {
@@ -478,7 +493,7 @@ void pcsPty (const const_striType command, const const_rtlArrayType parameters,
             execv(argv[0], argv);
             logError(printf("pcsPty: execv(" FMT_S_OS ") failed:\nerrno=%d\nerror: %s\n",
                             argv[0], errno, strerror(errno)););
-          } else if (pid == (pid_t) -1) {
+          } else if (unlikely(pid == (pid_t) -1)) {
             logError(printf("pcsPty: fork failed:\nerrno=%d\nerror: %s\n",
                             errno, strerror(errno)););
             close(0); /* Restore the original std fds of parent */
@@ -501,6 +516,7 @@ void pcsPty (const const_striType command, const const_rtlArrayType parameters,
         } /* if */
       } /* if */
     } /* if */
+    logFunction(printf("pcsPty ->\n"););
   } /* pcsPty */
 #endif
 
@@ -515,18 +531,20 @@ processType pcsStart (const const_striType command, const const_rtlArrayType par
     unx_processType process;
 
   /* pcsStart */
+    logFunction(printf("pcsStart(\"%s\", *)\n",
+                       striAsUnquotedCStri(command)););
     argv = genArgVector(command, parameters, &err_info);
     if (unlikely(err_info != OKAY_NO_ERROR)) {
       raise_error(err_info);
       process = NULL;
-    } else if (access(argv[0], X_OK) != 0) {
+    } else if (unlikely(access(argv[0], X_OK) != 0)) {
       freeArgVector(argv);
       logError(printf("pcsStart: access(" FMT_S_OS ", X_OK) not granted:\n"
                       "errno=%d\nerror: %s\n",
                       argv[0], errno, strerror(errno)););
       raise_error(FILE_ERROR);
       process = NULL;
-    } else if (!ALLOC_RECORD(process, unx_processRecord, count.process)) {
+    } else if (unlikely(!ALLOC_RECORD(process, unx_processRecord, count.process))) {
       freeArgVector(argv);
       raise_error(MEMORY_ERROR);
     } else {
@@ -537,7 +555,7 @@ processType pcsStart (const const_striType command, const const_rtlArrayType par
                         "errno=%d\nerror: %s\n",
                         argv[0], errno, strerror(errno)););
         exit(1);
-      } else if (pid == (pid_t) -1) {
+      } else if (unlikely(pid == (pid_t) -1)) {
         logError(printf("pcsStart: fork failed:\nerrno=%d\nerror: %s\n",
                         errno, strerror(errno)););
         freeArgVector(argv);
@@ -552,6 +570,8 @@ processType pcsStart (const const_striType command, const const_rtlArrayType par
         process->isTerminated = FALSE;
       } /* if */
     } /* if */
+    logFunction(printf("pcsStart -> " FMT_U_MEM "\n",
+                       (memSizeType) process););
     return (processType) process;
   } /* pcsStart */
 
@@ -572,6 +592,8 @@ processType pcsStartPipe (const const_striType command, const const_rtlArrayType
     unx_processType process;
 
   /* pcsStartPipe */
+    logFunction(printf("pcsStartPipe(\"%s\", *)\n",
+                       striAsUnquotedCStri(command)););
     argv = genArgVector(command, parameters, &err_info);
     if (unlikely(err_info != OKAY_NO_ERROR)) {
       raise_error(err_info);
@@ -581,15 +603,21 @@ processType pcsStartPipe (const const_striType command, const const_rtlArrayType
       freeArgVector(argv);
       raise_error(FILE_ERROR);
       process = NULL;
-    } else if (!ALLOC_RECORD(process, unx_processRecord, count.process)) {
+    } else if (unlikely(!ALLOC_RECORD(process, unx_processRecord, count.process))) {
       freeArgVector(argv);
       raise_error(MEMORY_ERROR);
     } else if (unlikely(pipe(childStdinPipes) != 0)) {
+      logError(printf("pcsStartPipe: pipe(childStdinPipes) failed:\n"
+                      "errno=%d\nerror: %s\n",
+                      errno, strerror(errno)););
       freeArgVector(argv);
       FREE_RECORD(process, unx_processRecord, count.process);
       raise_error(FILE_ERROR);
       process = NULL;
     } else if (unlikely(pipe(childStdoutPipes) != 0)) {
+      logError(printf("pcsStartPipe: pipe(childStdoutPipes) failed:\n"
+                      "errno=%d\nerror: %s\n",
+                      errno, strerror(errno)););
       freeArgVector(argv);
       FREE_RECORD(process, unx_processRecord, count.process);
       close(childStdinPipes[0]);
@@ -597,6 +625,9 @@ processType pcsStartPipe (const const_striType command, const const_rtlArrayType
       raise_error(FILE_ERROR);
       process = NULL;
     } else if (unlikely(pipe(childStderrPipes) != 0)) {
+      logError(printf("pcsStartPipe: pipe(childStderrPipes) failed:\n"
+                      "errno=%d\nerror: %s\n",
+                      errno, strerror(errno)););
       freeArgVector(argv);
       FREE_RECORD(process, unx_processRecord, count.process);
       close(childStdinPipes[0]);
@@ -630,7 +661,7 @@ processType pcsStartPipe (const const_striType command, const const_rtlArrayType
             EACCES, EBUSY, EEXIST, ENOTEMPTY, ENOENT, ENOTDIR, EROFS);
         printf("EFAULT=%d  EISDIR=%d  ENAMETOOLONG=%d  ENODEV=%d  EINVAL=%d\n",
             EFAULT, EISDIR, ENAMETOOLONG, ENODEV, EINVAL); */
-      } else if (pid == (pid_t) -1) {
+      } else if (unlikely(pid == (pid_t) -1)) {
         logError(printf("pcsStartPipe: fork failed:\nerrno=%d\nerror: %s\n",
                         errno, strerror(errno)););
         close(0); /* Restore the original std fds of parent */
@@ -669,6 +700,8 @@ processType pcsStartPipe (const const_striType command, const const_rtlArrayType
         process->stdErr = fdopen(childStderrPipes[0], "r");
       } /* if */
     } /* if */
+    logFunction(printf("pcsStartPipe -> " FMT_U_MEM "\n",
+                       (memSizeType) process););
     return (processType) process;
   } /* pcsStartPipe */
 

@@ -39,6 +39,7 @@ var boolean: checkAllFailed is FALSE;
 const string: chkint_output is "\n\
   \Integer literals with exponent work correct.\n\
   \Based integer literals work correct.\n\
+  \The integer compare works correct.\n\
   \Conversion of integer to big endian byte string works correct.\n\
   \Conversion of integer to little endian byte string works correct.\n\
   \Conversion of big endian byte string to integer works correct.\n\
@@ -229,6 +230,9 @@ const string: chkset_output is "\n\
 const string: chkhsh_output is "\n\
   \Hash tables with boolean keys work correct.\n\
   \Hash tables with integer keys work correct.\n\
+  \Hash tables with bigInteger keys work correct.\n\
+  \Hash tables with rational keys work correct.\n\
+  \Hash tables with bigRational keys work correct.\n\
   \Hash tables with float keys work correct.\n\
   \Hash tables with complex keys work correct.\n\
   \Hash tables with char keys work correct.\n\

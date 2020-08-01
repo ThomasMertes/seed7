@@ -25,6 +25,9 @@
 /*                                                                  */
 /********************************************************************/
 
+#define LOG_FUNCTIONS 0
+#define VERBOSE_EXCEPTIONS 0
+
 #include "version.h"
 
 #include "stdlib.h"
@@ -926,7 +929,8 @@ objectType hsh_idx (listType arguments)
     aKey     =                arg_2(arguments);
     hashcode =       take_int(arg_3(arguments));
     cmp_func = take_reference(arg_4(arguments));
-    /* printf("hsh_idx(%lX, %lX, %lu, %lX)\n", aHashMap, aKey, hashcode, cmp_func); */
+    logFunction(printf("hsh_idx(" FMT_X_MEM ", " FMT_X_MEM ", " FMT_U ", " FMT_X_MEM ")\n",
+                       (memSizeType) aHashMap, (memSizeType) aKey, hashcode, cmp_func););
     result_hashelem = NULL;
     hashelem = aHashMap->table[(unsigned int) hashcode & aHashMap->mask];
     while (hashelem != NULL) {
@@ -965,9 +969,10 @@ objectType hsh_idx (listType arguments)
     } else {
       result = raise_with_arguments(SYS_RNG_EXCEPTION, arguments);
     } /* if */
-    /* printf("hsh_idx(%lX, %lX, %lu, %lX) => ", aHashMap, aKey, hashcode, cmp_func);
-       trace1(result);
-       printf("\n"); */
+    logFunction(printf("hsh_idx(" FMT_X_MEM ", " FMT_X_MEM ", " FMT_U ", " FMT_X_MEM ") --> \n",
+                       (memSizeType) aHashMap, (memSizeType) aKey, hashcode, cmp_func);
+                trace1(result);
+                printf("\n"););
     return result;
   } /* hsh_idx */
 
@@ -1005,7 +1010,8 @@ objectType hsh_idx2 (listType arguments)
     defaultValue     =                arg_4(arguments);
     cmp_func         = take_reference(arg_5(arguments));
     data_create_func = take_reference(arg_6(arguments));
-    /* printf("hsh_idx(%lX, %lX, %lu, %lX)\n", aHashMap, aKey, hashcode, cmp_func); */
+    logFunction(printf("hsh_idx2(" FMT_X_MEM ", " FMT_X_MEM ", " FMT_U ", " FMT_X_MEM ")\n",
+                       (memSizeType) aHashMap, (memSizeType) aKey, hashcode, cmp_func););
     result_hashelem = NULL;
     hashelem = aHashMap->table[(unsigned int) hashcode & aHashMap->mask];
     while (hashelem != NULL) {
@@ -1058,9 +1064,10 @@ objectType hsh_idx2 (listType arguments)
         } /* if */
       } /* if */
     } /* if */
-    /* printf("hsh_idx(%lX, %lX, %lu, %lX) => ", aHashMap, aKey, hashcode, cmp_func);
-       trace1(result);
-       printf("\n"); */
+    logFunction(printf("hsh_idx2(" FMT_X_MEM ", " FMT_X_MEM ", " FMT_U ", " FMT_X_MEM ") --> \n",
+                       (memSizeType) aHashMap, (memSizeType) aKey, hashcode, cmp_func);
+                trace1(result);
+                printf("\n"););
     return result;
   } /* hsh_idx2 */
 

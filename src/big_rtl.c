@@ -2249,7 +2249,7 @@ static void uBigKaratsubaSquare (const bigDigitType *const big1,
     memSizeType sizeHi;
 
   /* uBigKaratsubaSquare */
-    /* printf("uBigKaratsubaSquare: size=%lu\n", size); */
+    logFunction(printf("uBigKaratsubaSquare: size=" FMT_U_MEM "\n", size););
     if (size < KARATSUBA_SQUARE_THRESHOLD) {
       uBigDigitSquare(big1, size, result);
     } else {
@@ -2730,7 +2730,9 @@ static bigIntType uBigMultIntoHelp (const bigIntType factor1,
     bigIntType product;
 
   /* uBigMultIntoHelp */
-    /* printf("uBigMultIntoHelp(factor1->size=%lu, factor2->size=%lu)\n", factor1->size, factor2->size); */
+    logFunction(printf("uBigMultIntoHelp(factor1->size=" FMT_U_MEM
+                       ", factor2->size=" FMT_U_MEM ")\n",
+                       factor1->size, factor2->size););
     product = *big_help;
     uBigMult(factor1, factor2, product);
     pos1 = factor1->size + factor2->size;
@@ -2748,10 +2750,9 @@ static bigIntType uBigMultIntoHelp (const bigIntType factor1,
     pos1++;
     product->size = pos1;
     *big_help = factor1;
-    /* printf("uBigMultIntoHelp(factor1->size=%lu, factor2->size=%lu) => product->size=%lu\n",
-           factor1->size, factor2->size, product->size);
-       prot_bigint(product);
-       printf("\n"); */
+    logFunction(printf("uBigMultIntoHelp(factor1->size=" FMT_U_MEM
+                       ", factor2->size=" FMT_U_MEM ") --> product->size=" FMT_U_MEM "\n",
+                       factor1->size, factor2->size, product->size););
     return product;
   } /* uBigMultIntoHelp */
 
@@ -2782,7 +2783,7 @@ static bigIntType uBigSquare (const bigIntType big1, bigIntType *big_help)
     bigIntType result;
 
   /* uBigSquare */
-    /* printf("uBigSquare(big1->size=%lu)\n", big1->size); */
+    logFunction(printf("uBigSquare(big1->size=" FMT_U_MEM ")\n", big1->size););
     result = *big_help;
     digit = big1->bigdigits[0];
     carry = (doubleBigDigitType) digit * digit;
@@ -2827,9 +2828,8 @@ static bigIntType uBigSquare (const bigIntType big1, bigIntType *big_help)
     pos1++;
     result->size = pos1;
     *big_help = big1;
-    /* printf("uBigSquare(big1->size=%lu) => result->size=%lu\n", big1->size, result->size);
-       prot_bigint(result);
-       printf("\n"); */
+    logFunction(printf("uBigSquare(big1->size=" FMT_U_MEM ") --> result->size=" FMT_U_MEM "\n",
+                       big1->size, result->size););
     return result;
   } /* uBigSquare */
 
@@ -2854,7 +2854,8 @@ static bigIntType bigIPowN (const bigDigitType base, intType exponent, unsigned 
     bigIntType power;
 
   /* bigIPowN */
-    /* printf("bigIPowN(" FMT_U_DIG ", " FMT_D ", %u)\n", base, exponent, bit_size); */
+    logFunction(printf("bigIPowN(" FMT_U_DIG ", " FMT_D ", %u)\n",
+                       base, exponent, bit_size););
     /* help_size = (bit_size * ((uintType) exponent) - 1) / BIGDIGIT_SIZE + 2; */
     /* printf("help_sizeA=" FMT_U_MEM "\n", help_size); */
     if (unlikely((uintType) exponent + 1 > MAX_BIG_LEN)) {
@@ -2901,7 +2902,8 @@ static bigIntType bigIPowN (const bigDigitType base, intType exponent, unsigned 
         FREE_BIG(big_help, help_size);
       } /* if */
     } /* if */
-    /* printf("bigIPowN() => power->size=%lu\n", power != NULL ? power->size : 0); */
+    logFunction(printf("bigIPowN() --> power->size=" FMT_U_MEM "\n",
+                       power != NULL ? power->size : 0););
     return power;
   } /* bigIPowN */
 
@@ -2922,7 +2924,8 @@ static bigIntType bigIPow1 (bigDigitType base, intType exponent)
     bigIntType power;
 
   /* bigIPow1 */
-    /* printf("bigIPow1(" FMT_D_DIG ", " FMT_D ")\n", base, exponent); */
+    logFunction(printf("bigIPow1(" FMT_D_DIG ", " FMT_D ")\n",
+                       base, exponent););
     if (base == 0) {
       if (unlikely(!ALLOC_BIG_SIZE_OK(power, 1))) {
         raise_error(MEMORY_ERROR);
@@ -2959,7 +2962,8 @@ static bigIntType bigIPow1 (bigDigitType base, intType exponent)
         } /* if */
       } /* if */
     } /* if */
-    /* printf("bigIPow1 => power->size=%lu\n", power != NULL ? power->size : 0); */
+    logFunction(printf("bigIPow1 --> power->size=" FMT_U_MEM "\n",
+                       power != NULL ? power->size : 0););
     return power;
   } /* bigIPow1 */
 
@@ -3208,8 +3212,8 @@ void bigAddAssignSignedDigit (bigIntType *const big_variable, const intType delt
     bigIntType resized_big1;
 
   /* bigAddAssignSignedDigit */
-    /* printf("bigAddAssignSignedDigit(%s, " FMT_D ")\n",
-       bigHexCStri(*big_variable), delta); */
+    logFunction(printf("bigAddAssignSignedDigit(%s, " FMT_D ")\n",
+                       bigHexCStri(*big_variable), delta););
     big1 = *big_variable;
     big1_sign = IS_NEGATIVE(big1->bigdigits[big1->size - 1]) ? BIGDIGIT_MASK : 0;
     carry += (doubleBigDigitType) big1->bigdigits[0] + (bigDigitType) (delta & BIGDIGIT_MASK);
@@ -3250,8 +3254,8 @@ void bigAddAssignSignedDigit (bigIntType *const big_variable, const intType delt
     } else {
       *big_variable = normalize(big1);
     } /* if */
-    /* printf("bigAddAssignSignedDigit: variable=%s\n",
-       bigHexCStri(*big_variable)); */
+    logFunction(printf("bigAddAssignSignedDigit: variable=%s\n",
+                       bigHexCStri(*big_variable)););
   } /* bigAddAssignSignedDigit */
 
 
@@ -6596,7 +6600,7 @@ bigIntType bigSquare (const_bigIntType big1)
         return NULL;
       } /* if */
     } /* if */
-    /* printf("bigSquare(%lu)\n", big1->size); */
+    /* printf("bigSquare(" FMT_U_MEM ")\n", big1->size); */
     result = uBigSquareK(big1);
     if (big1_help != NULL) {
       FREE_BIG(big1_help, big1_help->size);

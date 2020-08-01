@@ -1473,14 +1473,16 @@ intType intBytesLe2UInt (const const_striType byteStri)
  */
 intType intCmp (intType number1, intType number2)
 
-  { /* intCmp */
+  {
+    intType signumValue;
+
+  /* intCmp */
     if (number1 < number2) {
-      return -1;
-    } else if (number1 > number2) {
-      return 1;
+      signumValue = -1;
     } else {
-      return 0;
+      signumValue = number1 > number2;
     } /* if */
+    return signumValue;
   } /* intCmp */
 
 

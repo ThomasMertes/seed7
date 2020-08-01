@@ -29,6 +29,9 @@
 /*                                                                  */
 /********************************************************************/
 
+#define LOG_FUNCTIONS 0
+#define VERBOSE_EXCEPTIONS 0
+
 #include "version.h"
 
 #include "stdlib.h"
@@ -190,9 +193,7 @@ static int assign_cap (char *cap_name, const_cstriType terminfo_name,
     if (cap_name != NULL &&
         (strcmp(cap_name, terminfo_name) == 0 ||
         strcmp(cap_name, termcap_name) == 0)) {
-#ifdef TRACE_CAPS
-      fprintf(stderr, "%s=%s:\n", cap_name, cap_value);
-#endif
+      logMessage(fprintf(stderr, "%s=%s:\n", cap_name, cap_value););
       *cap_pointer = cap_value;
       return TRUE;
     } else {
@@ -215,9 +216,7 @@ static void fix_capability (void)
     size_t len;
 
   /* fix_capability */
-#ifdef TRACE_CAPS
-    fprintf(stderr, "BEGIN fix_capability\n");
-#endif
+    logFunction(fprintf(stderr, "fix_capability\n"););
     home_dir_path = getenv("HOME");
     terminal_name = getenv("TERM");
     if (home_dir_path != NULL) {
@@ -238,9 +237,7 @@ static void fix_capability (void)
         read_cap_name(fix_file, cap_name, &term_char);
       } while (term_char != ',' && term_char != ':' && term_char != EOF);
       read_cap_name(fix_file, cap_name, &term_char);
-#ifdef TRACE_CAPS
-      fprintf(stderr, "cap \"%s\" ", cap_name);
-#endif
+      logMessage(fprintf(stderr, "cap \"%s\" ", cap_name););
       while (term_char != EOF) {
         cap_value = NULL;
         switch (term_char) {
@@ -336,15 +333,11 @@ static void fix_capability (void)
             assign_cap(cap_name, "kf63",  "Fr", &key_f63,      cap_value)) {
         } /* if */
         read_cap_name(fix_file, cap_name, &term_char);
-#ifdef TRACE_CAPS
-      fprintf(stderr, "cap \"%s\" ", cap_name);
-#endif
+        logMessage(fprintf(stderr, "cap \"%s\" ", cap_name););
       } /* while */
       fclose(fix_file);
     } /* if */
-#ifdef TRACE_CAPS
-    fprintf(stderr, "END fix_capability\n");
-#endif
+    logFunction(fprintf(stderr, "fix_capability -->\n"););
   } /* fix_capability */
 
 
@@ -357,20 +350,14 @@ int getcaps (void)
     int errret;
 
   /* getcaps */
-#ifdef TRACE_CAPS
-    fprintf(stderr, "BEGIN getcaps\n");
-#endif
+    logFunction(fprintf(stderr, "getcaps\n"););
     if (!caps_initialized) {
       if ((terminal_name = getenv("TERM")) != NULL) {
-#ifdef TRACE_CAPS
-        fprintf(stderr, "TERM = \"%s\"\n", terminal_name);
-#endif
+        logMessage(fprintf(stderr, "TERM = \"%s\"\n", terminal_name););
         errret = 1;
         setup_result = setupterm(terminal_name, fileno(stdout), &errret);
-#ifdef TRACE_CAPS
-        fprintf(stderr, "setupterm => %d  errret = %d\n",
-            setup_result, errret);
-#endif
+        logMessage(fprintf(stderr, "setupterm --> %d  errret = %d\n",
+                           setup_result, errret););
 #ifdef SETUPTERM_WORKS_OK
         if (setup_result == 0 /*OK*/  &&  errret == 1) {
 #endif
@@ -381,9 +368,7 @@ int getcaps (void)
 #endif
       } /* if */
     } /* if */
-#ifdef TRACE_CAPS
-    fprintf(stderr, "END getcaps ==> %d\n", caps_initialized);
-#endif
+    logFunction(fprintf(stderr, "getcaps --> %d\n", caps_initialized););
     return caps_initialized;
   } /* getcaps */
 

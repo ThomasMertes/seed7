@@ -1,3 +1,28 @@
+20150720:
+- The chapter about errors in the manual has been improved.
+- In seed7_05.s7i parameter declarations without parameter name
+  (which use the keyword 'param') have been changed to parameter
+  declarations with parameter name.
+- The compare functions in rational.s7i and bigrat.s7i have been
+  improved.
+- The compiler has been improved to use inline code for the integer
+  compare function.
+- Checks for the compare function have been added to chkint.sd7.
+- Checks for hash tables with bigInteger, rational and bigRational
+  keys have been added to chkhsh.sd7.
+- Calls of logError have been added to pcs_unx.c, pcs_win.c,
+  ref_data.c, 
+- Calls of logFunction have been added to big_rtl.c, blockutl.c,
+  drw_win.c, flistutl.c, gkb_win.c, gkb_x11.c, heaputl.c, hshlib.c,
+  identutl.c, infile.c, listutl.c, pcs_unx.c, pcs_win.c, ref_data.c,
+  tim_dos.c, tim_unx.c, tim_win.c, trm_inf.c, typ_data.c, typeutl.c
+  and typlib.c.
+- In cc_conf.s7i, flt_act.s7i, cmd_rtl.c and common.h the
+  configuration value MAX_INTEGER_IN_FLOATTYPE has been renamed to
+  INT_RANGE_IN_FLOATTYPE_MAX.
+- Documentation comments have been added to string.s7i, strlib.c and
+  str_rtl.c.
+
 20150705:
 - The chapters describing statements and object orientation in the
   manual have been improved.
@@ -39,7 +64,7 @@
   2% (measured with gcc and Valgrind).
 - In various Seed7 libraries (*.s7i) parameter declarations without
   parameter name (which use the keyword 'param') have been changed
-  to parameter declarations with parameter name. 
+  to parameter declarations with parameter name.
 
 20150614:
 - The exponentiation operator for float values has been improved to
@@ -134,7 +159,7 @@
   been done in actIConv (act_comp.c), act_iconv (actlib.c) and
   bigParseBased2To36 (big_rtl.c)
 - Explicit casts to void (document that a function result is ignored)
-  have been added to chrCLitToBuffer (chr_rtl.c) and bigLog10 
+  have been added to chrCLitToBuffer (chr_rtl.c) and bigLog10
   (big_rtl.c).
 - The functions getEnvironment and freeEnvironment have been added to
   cmd_win.c.
@@ -343,7 +368,7 @@
 - In cli_cmds.s7i error messages have been added to doCopyCmd and
   doMoveCmd.
 - Documentation comments have been added or improved in console.s7i,
-  ftp.s7i and cli_cmds.s7i. 
+  ftp.s7i and cli_cmds.s7i.
 - Checks for the function bigInteger have been added to chkbig.sd7.
 - Checks for the integer for-loop have been added to chkprc.sd7.
 - In big_rtl.c the functions bigParseBasedPow2 and bigParseBased2To36
@@ -592,7 +617,7 @@
 - The function findPgTypeInclude has been added to chkccomp.c.
 - The check for the function __builtin_expect in chkccomp.c has been
   improved.
-- The actions BIG_GROW, BIG_SHRINK, FLT_GROW, FLT_SHRINK, INT_GROW 
+- The actions BIG_GROW, BIG_SHRINK, FLT_GROW, FLT_SHRINK, INT_GROW
   and INT_SHRINK have been renamed to BIG_ADD_ASSIGN,
   BIG_SBTR_ASSIGN, FLT_ADD_ASSIGN, FLT_SBTR_ASSIGN, INT_ADD_ASSIGN
   and INT_SBTR_ASSIGN respectively.
@@ -924,7 +949,7 @@
   switched off with the option -so.
 - The exception OVERFLOW_ERROR has been introduced. It is raised by
   the interpreter and by compiled programs when an integer overflow
-  occurs. 
+  occurs.
 - A paragraph about integer overflow and the installation of Seed7
   has been added to the FAQ.
 - The chapter about exceptions in the manual has been improved.
@@ -1089,7 +1114,7 @@
 
 20140518:
 - Errors in con_wat.c and drw-dos.c have been fixed (thanks to
-  "Rugxulo" for the help to fix them). 
+  "Rugxulo" for the help to fix them).
 - The function str in duration.s7i has been improved to work for
   negative durations.
 - The library tar.s7i has been improved to work with the old file
@@ -1110,7 +1135,7 @@
 - The function timSetLocalTZ in tim_rtl.c has been changed to avoid
   raising an exception when LOCALTIME_WORKS_SIGNED is not defined and
   the time is before 1970-01-01. In this case the daylight saving
-  time flag is set to FALSE.  
+  time flag is set to FALSE.
 
 20140504:
 - The answer concerning Unicode support in the FAQ has been improved.
@@ -1200,7 +1225,7 @@
   and ustri_expand2 have been removed from striutl.c and striutl.h.
 - The functions doCompileAndLink, compileAndLinkWithOptionsOk,
   compileAndLinkOk, appendToFile and detemineDatabaseDefines have
-  been added to chkccomp.c. The function compilationOkay has been 
+  been added to chkccomp.c. The function compilationOkay has been
   replaced by compileAndLinkOk.
 
 20140406:
@@ -2000,7 +2025,7 @@
 - The deprecated function 'read_dir' has been removed from the
   library "osfiles.s7i". The replacement of 'read_dir' is 'readDir'.
 - The functions arrHeadTemp, arrRangeTemp and arrSubarrTemp in
-  arr_rtl.c have been improved.  
+  arr_rtl.c have been improved.
 
 20130602:
 - The implementation of the type integer has been changed to use a
@@ -2052,7 +2077,7 @@
   algorithm.
 - Usages of the macro arraySize have been added to drwlib.c,
   drw_rtl.c, libpath.c and prg_comp.c.
-- The macro arrayMaxPos has been defined in common.h and used in 
+- The macro arrayMaxPos has been defined in common.h and used in
   arrlib.c and arr_rtl.c.
 
 20130519:
@@ -2213,7 +2238,7 @@
 - The function itf_destr in itflib.c has been improved to cooperate
   with the function close_stack (defined in name.c).
 - The function kbdKeyPressed in kbd_inf.c has been improved to never
-  wait for input (calls of tcsetattr() were fixed, see below). 
+  wait for input (calls of tcsetattr() were fixed, see below).
 - In pol_unx.c and pol_sel.c the functions addCheck, removeCheck,
   polCpy, polCreate, polDestr and polClear have been improved to use
   the function pointers incrUsageCount and decrUsageCount from
@@ -2309,7 +2334,7 @@
 - The compiler has been improved to support the action TYP_FUNC.
 - The functions copy_expression and free_expression in listutl.c
   have been optimized.
-- The function substitute_params has been added to match.c . 
+- The function substitute_params has been added to match.c .
 - The functions free_params and free_name_list have been added to
   name.c .
 - The function dump_list has been added to objutl.c .

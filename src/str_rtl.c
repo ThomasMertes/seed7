@@ -1144,6 +1144,13 @@ intType strChIPos (const const_striType mainStri, const charType searched,
 
 
 
+/**
+ *  String multiplication of the character 'ch'.
+ *  The character 'ch' is concatenated to itself such that in total
+ *  'factor' characters are concatenated.
+ *  @return the result of the string multiplication.
+ *  @exception RANGE_ERROR When the factor is negative.
+ */
 striType strChMult (const charType ch, const intType factor)
 
   {
@@ -2474,6 +2481,15 @@ striType strLtrim (const const_striType stri)
 
 
 
+/**
+ *  String multiplication.
+ *  The string 'stri' is concatenated to itself such that in total
+ *  'factor' strings are concatenated.
+ *   "LA" mult 3     returns "LALALA"
+ *   "WORD" mult 0   returns ""
+ *  @return the result of the string multiplication.
+ *  @exception RANGE_ERROR When the factor is negative.
+ */
 striType strMult (const const_striType stri, const intType factor)
 
   {
@@ -3970,6 +3986,13 @@ striType strUtf8ToStri (const_striType utf8)
 
 
 
+/**
+ *  String multiplication of the character '\0'.
+ *  The character '\0' is concatenated to itself such that in total
+ *  'factor' characters are concatenated.
+ *  @return the result of the string multiplication.
+ *  @exception RANGE_ERROR When the factor is negative.
+ */
 striType strZero (const intType factor)
 
   {

@@ -114,7 +114,7 @@ intType timMicroSec (void)
 
   /* timMicroSec */
     micro_sec = clock();
-    /* printf("timMicroSec() ==> %lu\n", micro_sec); */
+    logFunction(printf("timMicroSec() --> " FMT_U "\n", micro_sec););
     return micro_sec;
   } /* timMicroSec */
 

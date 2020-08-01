@@ -25,6 +25,9 @@
 /*                                                                  */
 /********************************************************************/
 
+#define LOG_FUNCTIONS 0
+#define VERBOSE_EXCEPTIONS 0
+
 #include "version.h"
 
 #include "stdlib.h"
@@ -67,9 +70,9 @@ objectType refAlloc (const const_objectType obj_arg)
     objectType created_object;
 
   /* refAlloc */
-    /* printf("refAlloc(");
-    trace1(obj_arg);
-    printf(")\n"); */
+    logFunction(printf("refAlloc(");
+                trace1(obj_arg);
+                printf(")\n"););
     if (unlikely(!ALLOC_OBJECT(created_object))) {
       raise_error(MEMORY_ERROR);
     } else {
@@ -113,6 +116,9 @@ intType refArrMaxIdx (const const_objectType obj_arg)
   { /* refArrMaxIdx */
     if (unlikely(obj_arg == NULL ||
                  CATEGORY_OF_OBJ(obj_arg) != ARRAYOBJECT)) {
+      logError(printf("refArrMaxIdx(");
+               trace1(obj_arg);
+               printf("): Category is not ARRAYOBJECT.\n"););
       raise_error(RANGE_ERROR);
       return 0;
     } else {
@@ -127,6 +133,9 @@ intType refArrMinIdx (const const_objectType obj_arg)
   { /* refArrMinIdx */
     if (unlikely(obj_arg == NULL ||
                  CATEGORY_OF_OBJ(obj_arg) != ARRAYOBJECT)) {
+      logError(printf("refArrMinIdx(");
+               trace1(obj_arg);
+               printf("): Category is not ARRAYOBJECT.\n"););
       raise_error(RANGE_ERROR);
       return 0;
     } else {
@@ -145,6 +154,9 @@ listType refArrToList (const const_objectType obj_arg)
   /* refArrToList */
     if (unlikely(obj_arg == NULL ||
                  CATEGORY_OF_OBJ(obj_arg) != ARRAYOBJECT)) {
+      logError(printf("refArrToList(");
+               trace1(obj_arg);
+               printf("): Category is not ARRAYOBJECT.\n"););
       raise_error(RANGE_ERROR);
       result = NULL;
     } else {
@@ -167,6 +179,9 @@ objectType refBody (const const_objectType obj_arg)
   /* refBody */
     if (unlikely(obj_arg == NULL ||
                  CATEGORY_OF_OBJ(obj_arg) != BLOCKOBJECT)) {
+      logError(printf("refBody(");
+               trace1(obj_arg);
+               printf("): Category is not BLOCKOBJECT.\n"););
       raise_error(RANGE_ERROR);
       result = NULL;
     } else {
@@ -184,6 +199,7 @@ intType refCategory (const const_objectType obj_arg)
 
   /* refCategory */
     if (unlikely(obj_arg == NULL)) {
+      logError(printf("refCategory(NULL): Object is NULL.\n"););
       raise_error(RANGE_ERROR);
       result = 0;
     } else {
@@ -204,12 +220,18 @@ intType refCatParse (striType category_name)
   /* refCatParse */
     name = stri_to_cstri(category_name, &err_info);
     if (unlikely(name == NULL)) {
+            logError(printf("refCatParse: stri_to_cstri(\"%s\", *) failed:\n"
+                            "err_info=%d\n",
+                            striAsUnquotedCStri(category_name),
+                            err_info););
       raise_error(err_info);
       result = -1;
     } else {
       result = category_value(name);
       free_cstri(name, category_name);
       if (unlikely(result == -1)) {
+        logError(printf("refCatParse: category_value(\"%s\") failed.\n",
+                        striAsUnquotedCStri(category_name)););
         raise_error(RANGE_ERROR);
       } /* if */
     } /* if */
@@ -241,6 +263,7 @@ striType refFile (const const_objectType obj_arg)
 
   /* refFile */
     if (unlikely(obj_arg == NULL)) {
+      logError(printf("refFile(NULL): Object is NULL.\n"););
       raise_error(RANGE_ERROR);
       result = NULL;
     } else {
@@ -275,6 +298,9 @@ listType refHshDataToList (const const_objectType obj_arg)
   /* refHshDataToList */
     if (unlikely(obj_arg == NULL ||
                  CATEGORY_OF_OBJ(obj_arg) != HASHOBJECT)) {
+      logError(printf("refHshDataToList(");
+               trace1(obj_arg);
+               printf("): Category is not HASHOBJECT.\n"););
       raise_error(RANGE_ERROR);
       result = NULL;
     } else {
@@ -298,6 +324,9 @@ listType refHshKeysToList (const const_objectType obj_arg)
   /* refHshKeysToList */
     if (unlikely(obj_arg == NULL ||
                  CATEGORY_OF_OBJ(obj_arg) != HASHOBJECT)) {
+      logError(printf("refHshKeysToList(");
+               trace1(obj_arg);
+               printf("): Category is not HASHOBJECT.\n"););
       raise_error(RANGE_ERROR);
       result = NULL;
     } else {
@@ -315,8 +344,9 @@ listType refHshKeysToList (const const_objectType obj_arg)
 boolType refIsVar (const const_objectType obj_arg)
 
   { /* refIsVar */
-    /* printf("refIsvar(%lu)\n", obj_arg); */
+    logFunction(printf("refIsVar(" FMT_U_MEM ")\n", (memSizeType) obj_arg););
     if (unlikely(obj_arg == NULL)) {
+      logError(printf("refIsVar(NULL): Object is NULL.\n"););
       raise_error(RANGE_ERROR);
       return FALSE;
     } else {
@@ -445,7 +475,7 @@ intType refNum (const const_objectType obj_arg)
     intType result;
 
   /* refNum */
-    /* printf("refNum(%lx)\n", obj_arg); */
+    logFunction(printf("refNum(" FMT_U_MEM ")\n", (memSizeType) obj_arg););
     if (unlikely(obj_arg == NULL)) {
       result = 0;
     } else {
@@ -465,7 +495,7 @@ intType refNum (const const_objectType obj_arg)
         } /* if */
       } /* if */
     } /* if */
-    /* printf("refNum => %ld\n", result); */
+    logFunction(printf("refNum --> " FMT_D "\n", result););
     return result;
   } /* refNum */
 
@@ -696,6 +726,9 @@ actType actValue (const const_objectType obj_arg)
   { /* actValue */
     if (unlikely(obj_arg == NULL ||
                  CATEGORY_OF_OBJ(obj_arg) != ACTOBJECT)) {
+      logError(printf("actValue(");
+               trace1(obj_arg);
+               printf("): Category is not ACTOBJECT.\n"););
       raise_error(RANGE_ERROR);
       return NULL;
     } else {
@@ -710,6 +743,9 @@ bigIntType bigValue (const const_objectType obj_arg)
   { /* bigValue */
     if (unlikely(obj_arg == NULL ||
                  CATEGORY_OF_OBJ(obj_arg) != BIGINTOBJECT)) {
+      logError(printf("bigValue(");
+               trace1(obj_arg);
+               printf("): Category is not BIGINTOBJECT.\n"););
       raise_error(RANGE_ERROR);
       return NULL;
     } else {
@@ -721,7 +757,7 @@ bigIntType bigValue (const const_objectType obj_arg)
 
 boolType blnValue (const_objectType obj_arg)
 
-  { /* bln_value */
+  { /* blnValue */
     if (obj_arg != NULL) {
       if (CATEGORY_OF_OBJ(obj_arg) == CONSTENUMOBJECT ||
           CATEGORY_OF_OBJ(obj_arg) == VARENUMOBJECT) {
@@ -738,7 +774,7 @@ boolType blnValue (const_objectType obj_arg)
     } /* if */
     raise_error(RANGE_ERROR);
     return FALSE;
-  } /* bln_value */
+  } /* blnValue */
 
 
 
@@ -752,6 +788,9 @@ bstriType bstValue (const const_objectType obj_arg)
     if (unlikely(obj_arg == NULL ||
                  CATEGORY_OF_OBJ(obj_arg) != BSTRIOBJECT ||
                  (bstri = take_bstri(obj_arg)) == NULL)) {
+      logError(printf("bstValue(");
+               trace1(obj_arg);
+               printf("): Category is not BSTRIOBJECT.\n"););
       raise_error(RANGE_ERROR);
       result = NULL;
     } else {
@@ -773,6 +812,9 @@ charType chrValue (const const_objectType obj_arg)
   { /* chrValue */
     if (unlikely(obj_arg == NULL ||
                  CATEGORY_OF_OBJ(obj_arg) != CHAROBJECT)) {
+      logError(printf("chrValue(");
+               trace1(obj_arg);
+               printf("): Category is not CHAROBJECT.\n"););
       raise_error(RANGE_ERROR);
       return '\0';
     } else {
@@ -790,6 +832,9 @@ winType drwValue (const const_objectType obj_arg)
   /* drwValue */
     if (unlikely(obj_arg == NULL ||
                  CATEGORY_OF_OBJ(obj_arg) != WINOBJECT)) {
+      logError(printf("drwValue(");
+               trace1(obj_arg);
+               printf("): Category is not WINOBJECT.\n"););
       raise_error(RANGE_ERROR);
       return NULL;
     } else {
@@ -808,6 +853,9 @@ fileType filValue (const const_objectType obj_arg)
   { /* filValue */
     if (unlikely(obj_arg == NULL ||
                  CATEGORY_OF_OBJ(obj_arg) != FILEOBJECT)) {
+      logError(printf("filValue(");
+               trace1(obj_arg);
+               printf("): Category is not FILEOBJECT.\n"););
       raise_error(RANGE_ERROR);
       return NULL;
     } else {
@@ -822,6 +870,9 @@ floatType fltValue (const const_objectType obj_arg)
   { /* fltValue */
     if (unlikely(obj_arg == NULL ||
                  CATEGORY_OF_OBJ(obj_arg) != FLOATOBJECT)) {
+      logError(printf("fltValue(");
+               trace1(obj_arg);
+               printf("): Category is not FLOATOBJECT.\n"););
       raise_error(RANGE_ERROR);
       return 0.0;
     } else {
@@ -836,6 +887,9 @@ intType intValue (const const_objectType obj_arg)
   { /* intValue */
     if (unlikely(obj_arg == NULL ||
                  CATEGORY_OF_OBJ(obj_arg) != INTOBJECT)) {
+      logError(printf("intValue(");
+               trace1(obj_arg);
+               printf("): Category is not INTOBJECT.\n"););
       raise_error(RANGE_ERROR);
       return 0;
     } else {
@@ -853,6 +907,9 @@ processType pcsValue (const const_objectType obj_arg)
   /* pcsValue */
     if (unlikely(obj_arg == NULL ||
                  CATEGORY_OF_OBJ(obj_arg) != PROCESSOBJECT)) {
+      logError(printf("pcsValue(");
+               trace1(obj_arg);
+               printf("): Category is not PROCESSOBJECT.\n"););
       raise_error(RANGE_ERROR);
       return NULL;
     } else {
@@ -871,6 +928,9 @@ pollType polValue (const const_objectType obj_arg)
   { /* polValue */
     if (unlikely(obj_arg == NULL ||
                  CATEGORY_OF_OBJ(obj_arg) != POLLOBJECT)) {
+      logError(printf("polValue(");
+               trace1(obj_arg);
+               printf("): Category is not POLLOBJECT.\n"););
       raise_error(RANGE_ERROR);
       return NULL;
     } else {
@@ -885,6 +945,9 @@ progType prgValue (const const_objectType obj_arg)
   { /* prgValue */
     if (unlikely(obj_arg == NULL ||
                  CATEGORY_OF_OBJ(obj_arg) != PROGOBJECT)) {
+      logError(printf("prgValue(");
+               trace1(obj_arg);
+               printf("): Category is not PROGOBJECT.\n"););
       raise_error(RANGE_ERROR);
       return NULL;
     } else {
@@ -975,6 +1038,9 @@ setType setValue (const const_objectType obj_arg)
     if (unlikely(obj_arg == NULL ||
                  CATEGORY_OF_OBJ(obj_arg) != SETOBJECT ||
                  (set1 = take_set(obj_arg)) == NULL)) {
+      logError(printf("setValue(");
+               trace1(obj_arg);
+               printf("): Category is not SETOBJECT.\n"););
       raise_error(RANGE_ERROR);
       result = NULL;
     } else {
@@ -1002,6 +1068,9 @@ striType strValue (const const_objectType obj_arg)
     if (unlikely(obj_arg == NULL ||
                  CATEGORY_OF_OBJ(obj_arg) != STRIOBJECT ||
                  (stri = take_stri(obj_arg)) == NULL)) {
+      logError(printf("strValue(");
+               trace1(obj_arg);
+               printf("): Category is not STRIOBJECT.\n"););
       raise_error(RANGE_ERROR);
       result = NULL;
     } else {
@@ -1023,6 +1092,9 @@ typeType typValue (const const_objectType obj_arg)
   { /* typValue */
     if (unlikely(obj_arg == NULL ||
                  CATEGORY_OF_OBJ(obj_arg) != TYPEOBJECT)) {
+      logError(printf("typValue(");
+               trace1(obj_arg);
+               printf("): Category is not TYPEOBJECT.\n"););
       raise_error(RANGE_ERROR);
       return NULL;
     } else {

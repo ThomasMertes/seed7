@@ -828,7 +828,7 @@ const proc: process_const_flt_ipow (in float: base, in reference: exponent,
         c_expr.expr &:= ")))";
       end if;
     elsif base >= 4.0 and
-          base <= flt(ccConf.MAX_INTEGER_IN_FLOATTYPE) and
+          base <= flt(ccConf.INT_RANGE_IN_FLOATTYPE_MAX) and
           floor(base) = base and
           2 ** log2(trunc(base)) = trunc(base) then
       incr(countOptimizations);
@@ -940,8 +940,8 @@ const proc: process_const_flt_ipow (in reference: base, in integer: exponent,
       end for;
       c_expr.expr &:= replace(powerTemplate, "x", baseName);
       c_expr.expr &:= ")";
-    elsif exponent >= -ccConf.MAX_INTEGER_IN_FLOATTYPE and
-          exponent <= ccConf.MAX_INTEGER_IN_FLOATTYPE and
+    elsif exponent >= -ccConf.INT_RANGE_IN_FLOATTYPE_MAX and
+          exponent <= ccConf.INT_RANGE_IN_FLOATTYPE_MAX and
           ccConf.POW_FUNCTION_OKAY then
       c_expr.expr &:= "pow(";
       process_expr(base, c_expr);
@@ -1314,8 +1314,8 @@ const proc: process_const_flt_pow (in reference: base, in float: exponent,
     inout expr_type: c_expr) is func
 
   begin
-    if exponent >= flt(-ccConf.MAX_INTEGER_IN_FLOATTYPE) and
-        exponent <= flt(ccConf.MAX_INTEGER_IN_FLOATTYPE) and
+    if exponent >= flt(-ccConf.INT_RANGE_IN_FLOATTYPE_MAX) and
+        exponent <= flt(ccConf.INT_RANGE_IN_FLOATTYPE_MAX) and
         floor(exponent) = exponent then
       process_const_flt_ipow(base, trunc(exponent), c_expr);
 (*

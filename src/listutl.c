@@ -25,6 +25,9 @@
 /*                                                                  */
 /********************************************************************/
 
+#define LOG_FUNCTIONS 0
+#define VERBOSE_EXCEPTIONS 0
+
 #include "version.h"
 
 #include "stdlib.h"
@@ -213,11 +216,9 @@ void concat_lists (listType *list1, listType list2)
     listType help_element;
 
   /* concat_lists */
-#ifdef TRACE_LIST
-    printf("BEGIN concat_lists\n");
-#endif
-/*  printf("%ld %ld", *list1, list2);
-    prot_list(list2);
+    logFunction(printf("concat_lists(" FMT_U_MEM ", " FMT_U_MEM ") \n",
+                       (memSizeType) *list1, (memSizeType) list2););
+    /* prot_list(list2);
     printf("\n"); */
     if (*list1 == NULL) {
       *list1 = list2;
@@ -230,9 +231,7 @@ void concat_lists (listType *list1, listType list2)
         help_element->next = list2;
       } /* if */
     } /* if */
-#ifdef TRACE_LIST
-    printf("END concat_lists\n");
-#endif
+    logFunction(printf("concat_lists -->\n"););
   } /* concat_lists */
 
 
@@ -244,9 +243,9 @@ void incl_list (listType *list, objectType element_object,
     listType help_element;
 
   /* incl_list */
-#ifdef TRACE_RUNLIST
-    printf("BEGIN incl_list\n");
-#endif
+    logFunction(printf("incl_list(" FMT_U_MEM ", " FMT_U_MEM ")\n",
+                       (memSizeType) *list,
+                       (memSizeType) element_object););
     if (!ALLOC_L_ELEM(help_element)) {
       *err_info = MEMORY_ERROR;
     } else {
@@ -254,9 +253,8 @@ void incl_list (listType *list, objectType element_object,
       help_element->obj = element_object;
       *list = help_element;
     } /* if */
-#ifdef TRACE_RUNLIST
-    printf("END incl_list\n");
-#endif
+    logFunction(printf("incl_list --> " FMT_U_MEM "\n",
+                       (memSizeType) *list););
   } /* incl_list */
 
 
@@ -268,9 +266,7 @@ void excl_list (listType *list, const_objectType elementobject)
     boolType found;
 
   /* excl_list */
-#ifdef TRACE_RUNLIST
-    printf("BEGIN excl_list\n");
-#endif
+    logFunction(printf("excl_list\n"););
     if (*list != NULL) {
       listelement = *list;
       if (listelement->obj == elementobject) {
@@ -292,9 +288,7 @@ void excl_list (listType *list, const_objectType elementobject)
         } /* if */
       } /* if */
     } /* if */
-#ifdef TRACE_RUNLIST
-    printf("END excl_list\n");
-#endif
+    logFunction(printf("excl_list -->\n"););
   } /* excl_list */
 
 
@@ -305,17 +299,13 @@ void pop_list (listType *list)
     listType listelement;
 
   /* pop_list */
-#ifdef TRACE_RUNLIST
-    printf("BEGIN excl_list\n");
-#endif
+    logFunction(printf("excl_list\n"););
     if (*list != NULL) {
       listelement = *list;
       *list = listelement->next;
       FREE_L_ELEM(listelement);
     } /* if */
-#ifdef TRACE_RUNLIST
-    printf("END excl_list\n");
-#endif
+    logFunction(printf("excl_list -->\n"););
   } /* pop_list */
 
 
@@ -324,9 +314,7 @@ void replace_list_elem (listType list, const_objectType elem1,
     objectType elem2)
 
   { /* replace_list_elem */
-#ifdef TRACE_RUNLIST
-    printf("BEGIN replace_list_elem\n");
-#endif
+    logFunction(printf("replace_list_elem\n"););
     while (list != NULL) {
       if (list->obj == elem1) {
         list->obj = elem2;
@@ -335,9 +323,7 @@ void replace_list_elem (listType list, const_objectType elem1,
         list = list->next;
       } /* if */
     } /* while */
-#ifdef TRACE_RUNLIST
-    printf("END replace_list_elem\n");
-#endif
+    logFunction(printf("replace_list_elem -->\n"););
   } /* replace_list_elem */
 
 
@@ -349,9 +335,7 @@ listType copy_list (const_listType list_from, errInfoType *err_info)
     listType list_to;
 
   /* copy_list */
-#ifdef TRACE_RUNLIST
-    printf("BEGIN copy_list\n");
-#endif
+    logFunction(printf("copy_list\n"););
     if (list_from != NULL) {
       if (flist.list_elems != NULL) {
         help_element = flist.list_elems;
@@ -393,9 +377,7 @@ listType copy_list (const_listType list_from, errInfoType *err_info)
     } else {
       list_to = NULL;
     } /* if */
-#ifdef TRACE_RUNLIST
-    printf("END copy_list\n");
-#endif
+    logFunction(printf("copy_list -->\n"););
     return list_to;
   } /* copy_list */
 
@@ -410,9 +392,7 @@ listType array_to_list (arrayType arr_from, errInfoType *err_info)
     listType list_to;
 
   /* array_to_list */
-#ifdef TRACE_RUNLIST
-    printf("BEGIN array_to_list\n");
-#endif
+    logFunction(printf("array_to_list\n"););
     arr_from_size = arraySize(arr_from);
     if (arr_from_size != 0 && *err_info == OKAY_NO_ERROR) {
       if (flist.list_elems != NULL) {
@@ -453,9 +433,7 @@ listType array_to_list (arrayType arr_from, errInfoType *err_info)
     } else {
       list_to = NULL;
     } /* if */
-#ifdef TRACE_RUNLIST
-    printf("END array_to_list\n");
-#endif
+    logFunction(printf("array_to_list -->\n"););
     return list_to;
   } /* array_to_list */
 
@@ -469,9 +447,7 @@ listType struct_to_list (structType stru_from, errInfoType *err_info)
     listType list_to;
 
   /* struct_to_list */
-#ifdef TRACE_RUNLIST
-    printf("BEGIN struct_to_list\n");
-#endif
+    logFunction(printf("struct_to_list\n"););
     if (stru_from->size != 0 && *err_info == OKAY_NO_ERROR) {
       if (flist.list_elems != NULL) {
         help_element = flist.list_elems;
@@ -511,9 +487,7 @@ listType struct_to_list (structType stru_from, errInfoType *err_info)
     } else {
       list_to = NULL;
     } /* if */
-#ifdef TRACE_RUNLIST
-    printf("END struct_to_list\n");
-#endif
+    logFunction(printf("struct_to_list -->\n"););
     return list_to;
   } /* struct_to_list */
 

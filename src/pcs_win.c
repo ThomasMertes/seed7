@@ -259,11 +259,11 @@ intType pcsExitValue (const const_processType process)
     intType exitValue;
 
   /* pcsExitValue */
-    if (to_isTerminated(process)) {
-      exitValue = (intType) to_exitValue(process);
-    } else {
+    if (unlikely(!to_isTerminated(process))) {
       raise_error(FILE_ERROR);
       exitValue = -1;
+    } else {
+      exitValue = (intType) to_exitValue(process);
     } /* if */
     return exitValue;
   } /* pcsExitValue */
@@ -357,10 +357,10 @@ void pcsKill (const processType process)
     logFunction(printf("pcsKill(" FMT_U_MEM ") (hProcess=" FMT_U_MEM ")\n",
                        (memSizeType) process,
                        process != NULL ? (memSizeType) to_hProcess(process) : (memSizeType) 0););
-    if (process == NULL) {
+    if (unlikely(process == NULL)) {
       logError(printf("pcsKill: process == NULL\n"););
       raise_error(FILE_ERROR);
-    } else if (TerminateProcess(to_hProcess(process), 0) == 0) {
+    } else if (unlikely(TerminateProcess(to_hProcess(process), 0) == 0)) {
       logError(printf("pcsKill: TerminateProcess(" FMT_U_MEM ", 0) failed:\nGetLastError=%d\n",
                       (memSizeType) to_hProcess(process), GetLastError());
                printf("PID=%lu\n", (long unsigned) to_pid(process)););
@@ -390,6 +390,8 @@ void pcsPipe2 (const const_striType command, const const_rtlArrayType parameters
     errInfoType err_info = OKAY_NO_ERROR;
 
   /* pcsPipe2 */
+    logFunction(printf("pcsPipe2(\"%s\", *)\n",
+                       striAsUnquotedCStri(command)););
     os_command_stri = cp_to_os_path(command, &path_info, &err_info);
     if (likely(err_info == OKAY_NO_ERROR)) {
       command_line = prepareCommandLine(os_command_stri, parameters, &err_info);
@@ -456,6 +458,7 @@ void pcsPipe2 (const const_striType command, const const_rtlArrayType parameters
     if (unlikely(err_info != OKAY_NO_ERROR)) {
       raise_error(err_info);
     } /* if */
+    logFunction(printf("pcsPipe2 ->\n"););
   } /* pcsPipe2 */
 
 
@@ -481,7 +484,8 @@ processType pcsStart (const const_striType command, const const_rtlArrayType par
     win_processType process = NULL;
 
   /* pcsStart */
-    /* printf("BEGIN pcsStart\n"); */
+    logFunction(printf("pcsStart(\"%s\", *)\n",
+                       striAsUnquotedCStri(command)););
     os_command_stri = cp_to_os_path(command, &path_info, &err_info);
     if (likely(err_info == OKAY_NO_ERROR)) {
       command_line = prepareCommandLine(os_command_stri, parameters, &err_info);
@@ -531,7 +535,8 @@ processType pcsStart (const const_striType command, const const_rtlArrayType par
     if (unlikely(err_info != OKAY_NO_ERROR)) {
       raise_error(err_info);
     } /* if */
-    /* printf("END pcsStart -> " FMT_U_MEM "\n", (memSizeType) process); */
+    logFunction(printf("pcsStart -> " FMT_U_MEM "\n",
+                       (memSizeType) process););
     return (processType) process;
   } /* pcsStart */
 
@@ -559,6 +564,8 @@ processType pcsStartPipe (const const_striType command, const const_rtlArrayType
     win_processType process = NULL;
 
   /* pcsStartPipe */
+    logFunction(printf("pcsStartPipe(\"%s\", *)\n",
+                       striAsUnquotedCStri(command)););
     os_command_stri = cp_to_os_path(command, &path_info, &err_info);
     if (likely(err_info == OKAY_NO_ERROR)) {
       command_line = prepareCommandLine(os_command_stri, parameters, &err_info);
@@ -641,6 +648,8 @@ processType pcsStartPipe (const const_striType command, const const_rtlArrayType
     if (unlikely(err_info != OKAY_NO_ERROR)) {
       raise_error(err_info);
     } /* if */
+    logFunction(printf("pcsStartPipe -> " FMT_U_MEM "\n",
+                       (memSizeType) process););
     return (processType) process;
   } /* pcsStartPipe */
 

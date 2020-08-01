@@ -266,6 +266,359 @@ const proc: check_based_integer_literal is func
   end func;
 
 
+const proc: check_compare is func
+  local
+    var boolean: okay is TRUE;
+  begin
+    if  compare(           INT64_MIN,            INT64_MIN) <>  0 or
+        compare(-9223372036854775807,            INT64_MIN) <>  1 or
+        compare(                  -2,            INT64_MIN) <>  1 or
+        compare(                  -1,            INT64_MIN) <>  1 or
+        compare(                   0,            INT64_MIN) <>  1 or
+        compare(                   1,            INT64_MIN) <>  1 or
+        compare(                   2,            INT64_MIN) <>  1 or
+        compare( 9223372036854775806,            INT64_MIN) <>  1 or
+        compare( 9223372036854775807,            INT64_MIN) <>  1 or
+        compare(           INT64_MIN, -9223372036854775807) <> -1 or
+        compare(-9223372036854775807, -9223372036854775807) <>  0 or
+        compare(                  -2, -9223372036854775807) <>  1 or
+        compare(                  -1, -9223372036854775807) <>  1 or
+        compare(                   0, -9223372036854775807) <>  1 or
+        compare(                   1, -9223372036854775807) <>  1 or
+        compare(                   2, -9223372036854775807) <>  1 or
+        compare( 9223372036854775806, -9223372036854775807) <>  1 or
+        compare( 9223372036854775807, -9223372036854775807) <>  1 or
+        compare(           INT64_MIN,                   -2) <> -1 or
+        compare(-9223372036854775807,                   -2) <> -1 or
+        compare(                  -2,                   -2) <>  0 or
+        compare(                  -1,                   -2) <>  1 or
+        compare(                   0,                   -2) <>  1 or
+        compare(                   1,                   -2) <>  1 or
+        compare(                   2,                   -2) <>  1 or
+        compare( 9223372036854775806,                   -2) <>  1 or
+        compare( 9223372036854775807,                   -2) <>  1 or
+        compare(           INT64_MIN,                   -1) <> -1 or
+        compare(-9223372036854775807,                   -1) <> -1 or
+        compare(                  -2,                   -1) <> -1 or
+        compare(                  -1,                   -1) <>  0 or
+        compare(                   0,                   -1) <>  1 or
+        compare(                   1,                   -1) <>  1 or
+        compare(                   2,                   -1) <>  1 or
+        compare( 9223372036854775806,                   -1) <>  1 or
+        compare( 9223372036854775807,                   -1) <>  1 or
+        compare(           INT64_MIN,                    0) <> -1 or
+        compare(-9223372036854775807,                    0) <> -1 or
+        compare(                  -2,                    0) <> -1 or
+        compare(                  -1,                    0) <> -1 or
+        compare(                   0,                    0) <>  0 or
+        compare(                   1,                    0) <>  1 or
+        compare(                   2,                    0) <>  1 or
+        compare( 9223372036854775806,                    0) <>  1 or
+        compare( 9223372036854775807,                    0) <>  1 or
+        compare(           INT64_MIN,                    1) <> -1 or
+        compare(-9223372036854775807,                    1) <> -1 or
+        compare(                  -2,                    1) <> -1 or
+        compare(                  -1,                    1) <> -1 or
+        compare(                   0,                    1) <> -1 or
+        compare(                   1,                    1) <>  0 or
+        compare(                   2,                    1) <>  1 or
+        compare( 9223372036854775806,                    1) <>  1 or
+        compare( 9223372036854775807,                    1) <>  1 or
+        compare(           INT64_MIN,                    2) <> -1 or
+        compare(-9223372036854775807,                    2) <> -1 or
+        compare(                  -2,                    2) <> -1 or
+        compare(                  -1,                    2) <> -1 or
+        compare(                   0,                    2) <> -1 or
+        compare(                   1,                    2) <> -1 or
+        compare(                   2,                    2) <>  0 or
+        compare( 9223372036854775806,                    2) <>  1 or
+        compare( 9223372036854775807,                    2) <>  1 or
+        compare(           INT64_MIN,  9223372036854775806) <> -1 or
+        compare(-9223372036854775807,  9223372036854775806) <> -1 or
+        compare(                  -2,  9223372036854775806) <> -1 or
+        compare(                  -1,  9223372036854775806) <> -1 or
+        compare(                   0,  9223372036854775806) <> -1 or
+        compare(                   1,  9223372036854775806) <> -1 or
+        compare(                   2,  9223372036854775806) <> -1 or
+        compare( 9223372036854775806,  9223372036854775806) <>  0 or
+        compare( 9223372036854775807,  9223372036854775806) <>  1 or
+        compare(           INT64_MIN,  9223372036854775807) <> -1 or
+        compare(-9223372036854775807,  9223372036854775807) <> -1 or
+        compare(                  -2,  9223372036854775807) <> -1 or
+        compare(                  -1,  9223372036854775807) <> -1 or
+        compare(                   0,  9223372036854775807) <> -1 or
+        compare(                   1,  9223372036854775807) <> -1 or
+        compare(                   2,  9223372036854775807) <> -1 or
+        compare( 9223372036854775806,  9223372036854775807) <> -1 or
+        compare( 9223372036854775807,  9223372036854775807) <>  0 then
+      writeln("The integer compare does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if  compare(intExpr(           INT64_MIN),            INT64_MIN) <>  0 or
+        compare(intExpr(-9223372036854775807),            INT64_MIN) <>  1 or
+        compare(intExpr(                  -2),            INT64_MIN) <>  1 or
+        compare(intExpr(                  -1),            INT64_MIN) <>  1 or
+        compare(intExpr(                   0),            INT64_MIN) <>  1 or
+        compare(intExpr(                   1),            INT64_MIN) <>  1 or
+        compare(intExpr(                   2),            INT64_MIN) <>  1 or
+        compare(intExpr( 9223372036854775806),            INT64_MIN) <>  1 or
+        compare(intExpr( 9223372036854775807),            INT64_MIN) <>  1 or
+        compare(intExpr(           INT64_MIN), -9223372036854775807) <> -1 or
+        compare(intExpr(-9223372036854775807), -9223372036854775807) <>  0 or
+        compare(intExpr(                  -2), -9223372036854775807) <>  1 or
+        compare(intExpr(                  -1), -9223372036854775807) <>  1 or
+        compare(intExpr(                   0), -9223372036854775807) <>  1 or
+        compare(intExpr(                   1), -9223372036854775807) <>  1 or
+        compare(intExpr(                   2), -9223372036854775807) <>  1 or
+        compare(intExpr( 9223372036854775806), -9223372036854775807) <>  1 or
+        compare(intExpr( 9223372036854775807), -9223372036854775807) <>  1 or
+        compare(intExpr(           INT64_MIN),                   -2) <> -1 or
+        compare(intExpr(-9223372036854775807),                   -2) <> -1 or
+        compare(intExpr(                  -2),                   -2) <>  0 or
+        compare(intExpr(                  -1),                   -2) <>  1 or
+        compare(intExpr(                   0),                   -2) <>  1 or
+        compare(intExpr(                   1),                   -2) <>  1 or
+        compare(intExpr(                   2),                   -2) <>  1 or
+        compare(intExpr( 9223372036854775806),                   -2) <>  1 or
+        compare(intExpr( 9223372036854775807),                   -2) <>  1 or
+        compare(intExpr(           INT64_MIN),                   -1) <> -1 or
+        compare(intExpr(-9223372036854775807),                   -1) <> -1 or
+        compare(intExpr(                  -2),                   -1) <> -1 or
+        compare(intExpr(                  -1),                   -1) <>  0 or
+        compare(intExpr(                   0),                   -1) <>  1 or
+        compare(intExpr(                   1),                   -1) <>  1 or
+        compare(intExpr(                   2),                   -1) <>  1 or
+        compare(intExpr( 9223372036854775806),                   -1) <>  1 or
+        compare(intExpr( 9223372036854775807),                   -1) <>  1 or
+        compare(intExpr(           INT64_MIN),                    0) <> -1 or
+        compare(intExpr(-9223372036854775807),                    0) <> -1 or
+        compare(intExpr(                  -2),                    0) <> -1 or
+        compare(intExpr(                  -1),                    0) <> -1 or
+        compare(intExpr(                   0),                    0) <>  0 or
+        compare(intExpr(                   1),                    0) <>  1 or
+        compare(intExpr(                   2),                    0) <>  1 or
+        compare(intExpr( 9223372036854775806),                    0) <>  1 or
+        compare(intExpr( 9223372036854775807),                    0) <>  1 or
+        compare(intExpr(           INT64_MIN),                    1) <> -1 or
+        compare(intExpr(-9223372036854775807),                    1) <> -1 or
+        compare(intExpr(                  -2),                    1) <> -1 or
+        compare(intExpr(                  -1),                    1) <> -1 or
+        compare(intExpr(                   0),                    1) <> -1 or
+        compare(intExpr(                   1),                    1) <>  0 or
+        compare(intExpr(                   2),                    1) <>  1 or
+        compare(intExpr( 9223372036854775806),                    1) <>  1 or
+        compare(intExpr( 9223372036854775807),                    1) <>  1 or
+        compare(intExpr(           INT64_MIN),                    2) <> -1 or
+        compare(intExpr(-9223372036854775807),                    2) <> -1 or
+        compare(intExpr(                  -2),                    2) <> -1 or
+        compare(intExpr(                  -1),                    2) <> -1 or
+        compare(intExpr(                   0),                    2) <> -1 or
+        compare(intExpr(                   1),                    2) <> -1 or
+        compare(intExpr(                   2),                    2) <>  0 or
+        compare(intExpr( 9223372036854775806),                    2) <>  1 or
+        compare(intExpr( 9223372036854775807),                    2) <>  1 or
+        compare(intExpr(           INT64_MIN),  9223372036854775806) <> -1 or
+        compare(intExpr(-9223372036854775807),  9223372036854775806) <> -1 or
+        compare(intExpr(                  -2),  9223372036854775806) <> -1 or
+        compare(intExpr(                  -1),  9223372036854775806) <> -1 or
+        compare(intExpr(                   0),  9223372036854775806) <> -1 or
+        compare(intExpr(                   1),  9223372036854775806) <> -1 or
+        compare(intExpr(                   2),  9223372036854775806) <> -1 or
+        compare(intExpr( 9223372036854775806),  9223372036854775806) <>  0 or
+        compare(intExpr( 9223372036854775807),  9223372036854775806) <>  1 or
+        compare(intExpr(           INT64_MIN),  9223372036854775807) <> -1 or
+        compare(intExpr(-9223372036854775807),  9223372036854775807) <> -1 or
+        compare(intExpr(                  -2),  9223372036854775807) <> -1 or
+        compare(intExpr(                  -1),  9223372036854775807) <> -1 or
+        compare(intExpr(                   0),  9223372036854775807) <> -1 or
+        compare(intExpr(                   1),  9223372036854775807) <> -1 or
+        compare(intExpr(                   2),  9223372036854775807) <> -1 or
+        compare(intExpr( 9223372036854775806),  9223372036854775807) <> -1 or
+        compare(intExpr( 9223372036854775807),  9223372036854775807) <>  0 then
+      writeln("The integer compare does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if  compare(           INT64_MIN, intExpr(           INT64_MIN)) <>  0 or
+        compare(-9223372036854775807, intExpr(           INT64_MIN)) <>  1 or
+        compare(                  -2, intExpr(           INT64_MIN)) <>  1 or
+        compare(                  -1, intExpr(           INT64_MIN)) <>  1 or
+        compare(                   0, intExpr(           INT64_MIN)) <>  1 or
+        compare(                   1, intExpr(           INT64_MIN)) <>  1 or
+        compare(                   2, intExpr(           INT64_MIN)) <>  1 or
+        compare( 9223372036854775806, intExpr(           INT64_MIN)) <>  1 or
+        compare( 9223372036854775807, intExpr(           INT64_MIN)) <>  1 or
+        compare(           INT64_MIN, intExpr(-9223372036854775807)) <> -1 or
+        compare(-9223372036854775807, intExpr(-9223372036854775807)) <>  0 or
+        compare(                  -2, intExpr(-9223372036854775807)) <>  1 or
+        compare(                  -1, intExpr(-9223372036854775807)) <>  1 or
+        compare(                   0, intExpr(-9223372036854775807)) <>  1 or
+        compare(                   1, intExpr(-9223372036854775807)) <>  1 or
+        compare(                   2, intExpr(-9223372036854775807)) <>  1 or
+        compare( 9223372036854775806, intExpr(-9223372036854775807)) <>  1 or
+        compare( 9223372036854775807, intExpr(-9223372036854775807)) <>  1 or
+        compare(           INT64_MIN, intExpr(                  -2)) <> -1 or
+        compare(-9223372036854775807, intExpr(                  -2)) <> -1 or
+        compare(                  -2, intExpr(                  -2)) <>  0 or
+        compare(                  -1, intExpr(                  -2)) <>  1 or
+        compare(                   0, intExpr(                  -2)) <>  1 or
+        compare(                   1, intExpr(                  -2)) <>  1 or
+        compare(                   2, intExpr(                  -2)) <>  1 or
+        compare( 9223372036854775806, intExpr(                  -2)) <>  1 or
+        compare( 9223372036854775807, intExpr(                  -2)) <>  1 or
+        compare(           INT64_MIN, intExpr(                  -1)) <> -1 or
+        compare(-9223372036854775807, intExpr(                  -1)) <> -1 or
+        compare(                  -2, intExpr(                  -1)) <> -1 or
+        compare(                  -1, intExpr(                  -1)) <>  0 or
+        compare(                   0, intExpr(                  -1)) <>  1 or
+        compare(                   1, intExpr(                  -1)) <>  1 or
+        compare(                   2, intExpr(                  -1)) <>  1 or
+        compare( 9223372036854775806, intExpr(                  -1)) <>  1 or
+        compare( 9223372036854775807, intExpr(                  -1)) <>  1 or
+        compare(           INT64_MIN, intExpr(                   0)) <> -1 or
+        compare(-9223372036854775807, intExpr(                   0)) <> -1 or
+        compare(                  -2, intExpr(                   0)) <> -1 or
+        compare(                  -1, intExpr(                   0)) <> -1 or
+        compare(                   0, intExpr(                   0)) <>  0 or
+        compare(                   1, intExpr(                   0)) <>  1 or
+        compare(                   2, intExpr(                   0)) <>  1 or
+        compare( 9223372036854775806, intExpr(                   0)) <>  1 or
+        compare( 9223372036854775807, intExpr(                   0)) <>  1 or
+        compare(           INT64_MIN, intExpr(                   1)) <> -1 or
+        compare(-9223372036854775807, intExpr(                   1)) <> -1 or
+        compare(                  -2, intExpr(                   1)) <> -1 or
+        compare(                  -1, intExpr(                   1)) <> -1 or
+        compare(                   0, intExpr(                   1)) <> -1 or
+        compare(                   1, intExpr(                   1)) <>  0 or
+        compare(                   2, intExpr(                   1)) <>  1 or
+        compare( 9223372036854775806, intExpr(                   1)) <>  1 or
+        compare( 9223372036854775807, intExpr(                   1)) <>  1 or
+        compare(           INT64_MIN, intExpr(                   2)) <> -1 or
+        compare(-9223372036854775807, intExpr(                   2)) <> -1 or
+        compare(                  -2, intExpr(                   2)) <> -1 or
+        compare(                  -1, intExpr(                   2)) <> -1 or
+        compare(                   0, intExpr(                   2)) <> -1 or
+        compare(                   1, intExpr(                   2)) <> -1 or
+        compare(                   2, intExpr(                   2)) <>  0 or
+        compare( 9223372036854775806, intExpr(                   2)) <>  1 or
+        compare( 9223372036854775807, intExpr(                   2)) <>  1 or
+        compare(           INT64_MIN, intExpr( 9223372036854775806)) <> -1 or
+        compare(-9223372036854775807, intExpr( 9223372036854775806)) <> -1 or
+        compare(                  -2, intExpr( 9223372036854775806)) <> -1 or
+        compare(                  -1, intExpr( 9223372036854775806)) <> -1 or
+        compare(                   0, intExpr( 9223372036854775806)) <> -1 or
+        compare(                   1, intExpr( 9223372036854775806)) <> -1 or
+        compare(                   2, intExpr( 9223372036854775806)) <> -1 or
+        compare( 9223372036854775806, intExpr( 9223372036854775806)) <>  0 or
+        compare( 9223372036854775807, intExpr( 9223372036854775806)) <>  1 or
+        compare(           INT64_MIN, intExpr( 9223372036854775807)) <> -1 or
+        compare(-9223372036854775807, intExpr( 9223372036854775807)) <> -1 or
+        compare(                  -2, intExpr( 9223372036854775807)) <> -1 or
+        compare(                  -1, intExpr( 9223372036854775807)) <> -1 or
+        compare(                   0, intExpr( 9223372036854775807)) <> -1 or
+        compare(                   1, intExpr( 9223372036854775807)) <> -1 or
+        compare(                   2, intExpr( 9223372036854775807)) <> -1 or
+        compare( 9223372036854775806, intExpr( 9223372036854775807)) <> -1 or
+        compare( 9223372036854775807, intExpr( 9223372036854775807)) <>  0 then
+      writeln("The integer compare does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if  compare(intExpr(           INT64_MIN), intExpr(           INT64_MIN)) <>  0 or
+        compare(intExpr(-9223372036854775807), intExpr(           INT64_MIN)) <>  1 or
+        compare(intExpr(                  -2), intExpr(           INT64_MIN)) <>  1 or
+        compare(intExpr(                  -1), intExpr(           INT64_MIN)) <>  1 or
+        compare(intExpr(                   0), intExpr(           INT64_MIN)) <>  1 or
+        compare(intExpr(                   1), intExpr(           INT64_MIN)) <>  1 or
+        compare(intExpr(                   2), intExpr(           INT64_MIN)) <>  1 or
+        compare(intExpr( 9223372036854775806), intExpr(           INT64_MIN)) <>  1 or
+        compare(intExpr( 9223372036854775807), intExpr(           INT64_MIN)) <>  1 or
+        compare(intExpr(           INT64_MIN), intExpr(-9223372036854775807)) <> -1 or
+        compare(intExpr(-9223372036854775807), intExpr(-9223372036854775807)) <>  0 or
+        compare(intExpr(                  -2), intExpr(-9223372036854775807)) <>  1 or
+        compare(intExpr(                  -1), intExpr(-9223372036854775807)) <>  1 or
+        compare(intExpr(                   0), intExpr(-9223372036854775807)) <>  1 or
+        compare(intExpr(                   1), intExpr(-9223372036854775807)) <>  1 or
+        compare(intExpr(                   2), intExpr(-9223372036854775807)) <>  1 or
+        compare(intExpr( 9223372036854775806), intExpr(-9223372036854775807)) <>  1 or
+        compare(intExpr( 9223372036854775807), intExpr(-9223372036854775807)) <>  1 or
+        compare(intExpr(           INT64_MIN), intExpr(                  -2)) <> -1 or
+        compare(intExpr(-9223372036854775807), intExpr(                  -2)) <> -1 or
+        compare(intExpr(                  -2), intExpr(                  -2)) <>  0 or
+        compare(intExpr(                  -1), intExpr(                  -2)) <>  1 or
+        compare(intExpr(                   0), intExpr(                  -2)) <>  1 or
+        compare(intExpr(                   1), intExpr(                  -2)) <>  1 or
+        compare(intExpr(                   2), intExpr(                  -2)) <>  1 or
+        compare(intExpr( 9223372036854775806), intExpr(                  -2)) <>  1 or
+        compare(intExpr( 9223372036854775807), intExpr(                  -2)) <>  1 or
+        compare(intExpr(           INT64_MIN), intExpr(                  -1)) <> -1 or
+        compare(intExpr(-9223372036854775807), intExpr(                  -1)) <> -1 or
+        compare(intExpr(                  -2), intExpr(                  -1)) <> -1 or
+        compare(intExpr(                  -1), intExpr(                  -1)) <>  0 or
+        compare(intExpr(                   0), intExpr(                  -1)) <>  1 or
+        compare(intExpr(                   1), intExpr(                  -1)) <>  1 or
+        compare(intExpr(                   2), intExpr(                  -1)) <>  1 or
+        compare(intExpr( 9223372036854775806), intExpr(                  -1)) <>  1 or
+        compare(intExpr( 9223372036854775807), intExpr(                  -1)) <>  1 or
+        compare(intExpr(           INT64_MIN), intExpr(                   0)) <> -1 or
+        compare(intExpr(-9223372036854775807), intExpr(                   0)) <> -1 or
+        compare(intExpr(                  -2), intExpr(                   0)) <> -1 or
+        compare(intExpr(                  -1), intExpr(                   0)) <> -1 or
+        compare(intExpr(                   0), intExpr(                   0)) <>  0 or
+        compare(intExpr(                   1), intExpr(                   0)) <>  1 or
+        compare(intExpr(                   2), intExpr(                   0)) <>  1 or
+        compare(intExpr( 9223372036854775806), intExpr(                   0)) <>  1 or
+        compare(intExpr( 9223372036854775807), intExpr(                   0)) <>  1 or
+        compare(intExpr(           INT64_MIN), intExpr(                   1)) <> -1 or
+        compare(intExpr(-9223372036854775807), intExpr(                   1)) <> -1 or
+        compare(intExpr(                  -2), intExpr(                   1)) <> -1 or
+        compare(intExpr(                  -1), intExpr(                   1)) <> -1 or
+        compare(intExpr(                   0), intExpr(                   1)) <> -1 or
+        compare(intExpr(                   1), intExpr(                   1)) <>  0 or
+        compare(intExpr(                   2), intExpr(                   1)) <>  1 or
+        compare(intExpr( 9223372036854775806), intExpr(                   1)) <>  1 or
+        compare(intExpr( 9223372036854775807), intExpr(                   1)) <>  1 or
+        compare(intExpr(           INT64_MIN), intExpr(                   2)) <> -1 or
+        compare(intExpr(-9223372036854775807), intExpr(                   2)) <> -1 or
+        compare(intExpr(                  -2), intExpr(                   2)) <> -1 or
+        compare(intExpr(                  -1), intExpr(                   2)) <> -1 or
+        compare(intExpr(                   0), intExpr(                   2)) <> -1 or
+        compare(intExpr(                   1), intExpr(                   2)) <> -1 or
+        compare(intExpr(                   2), intExpr(                   2)) <>  0 or
+        compare(intExpr( 9223372036854775806), intExpr(                   2)) <>  1 or
+        compare(intExpr( 9223372036854775807), intExpr(                   2)) <>  1 or
+        compare(intExpr(           INT64_MIN), intExpr( 9223372036854775806)) <> -1 or
+        compare(intExpr(-9223372036854775807), intExpr( 9223372036854775806)) <> -1 or
+        compare(intExpr(                  -2), intExpr( 9223372036854775806)) <> -1 or
+        compare(intExpr(                  -1), intExpr( 9223372036854775806)) <> -1 or
+        compare(intExpr(                   0), intExpr( 9223372036854775806)) <> -1 or
+        compare(intExpr(                   1), intExpr( 9223372036854775806)) <> -1 or
+        compare(intExpr(                   2), intExpr( 9223372036854775806)) <> -1 or
+        compare(intExpr( 9223372036854775806), intExpr( 9223372036854775806)) <>  0 or
+        compare(intExpr( 9223372036854775807), intExpr( 9223372036854775806)) <>  1 or
+        compare(intExpr(           INT64_MIN), intExpr( 9223372036854775807)) <> -1 or
+        compare(intExpr(-9223372036854775807), intExpr( 9223372036854775807)) <> -1 or
+        compare(intExpr(                  -2), intExpr( 9223372036854775807)) <> -1 or
+        compare(intExpr(                  -1), intExpr( 9223372036854775807)) <> -1 or
+        compare(intExpr(                   0), intExpr( 9223372036854775807)) <> -1 or
+        compare(intExpr(                   1), intExpr( 9223372036854775807)) <> -1 or
+        compare(intExpr(                   2), intExpr( 9223372036854775807)) <> -1 or
+        compare(intExpr( 9223372036854775806), intExpr( 9223372036854775807)) <> -1 or
+        compare(intExpr( 9223372036854775807), intExpr( 9223372036854775807)) <>  0 then
+      writeln("The integer compare does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if okay then
+      writeln("The integer compare works correct.");
+    else
+      writeln(" ***** The integer compare does not work correct.");
+      writeln;
+    end if;
+  end func;
+
+
 const proc: check_bytesBe is func
   local
     var boolean: okay is TRUE;
@@ -15518,6 +15871,7 @@ const proc: main is func
     writeln;
     check_exponent_integer_literal;
     check_based_integer_literal;
+    check_compare;
     check_bytesBe;
     check_bytesLe;
     check_bytesBe2Int;

@@ -139,7 +139,7 @@ boolType kbdKeyPressed (void)
     } else {
       result = FALSE;
     } /* if */
-    /* printf("kbdKeyPressed ==> %d\n", result); */
+    /* printf("kbdKeyPressed --> %d\n", result); */
     return result;
   } /* kbdKeyPressed */
 
@@ -551,7 +551,7 @@ static positionType scale (int font_value, int font_scale, int screen_scale)
       result = (font_value * screen_scale - font_scale / 2) / font_scale;
     } /* if */
 #ifdef TRACE_SCALE
-    printf("END scale(%d, %d, %d) ==> %d\n",
+    printf("END scale(%d, %d, %d) --> %d\n",
         font_value, font_scale, screen_scale, result);
 #endif
     return result;
@@ -777,7 +777,7 @@ static basicFontType readfont (char *fontfilename)
       result = NULL;
     } /* if */
 #ifdef TRACE_FONT
-    printf("END readfont(%s) ==> %s\n", fontfilename,
+    printf("END readfont(%s) --> %s\n", fontfilename,
         result != NULL ? result->name : "NULL");
 #endif
     return result;
@@ -943,7 +943,7 @@ static basicFontType get_font (char *fontname)
       } /* if */
     } /* if */
 #ifdef TRACE_FONT
-    printf("END get_font(%s) ==> %s\n", fontname,
+    printf("END get_font(%s) --> %s\n", fontname,
         result != NULL ? result->name : "NULL");
 #endif
     return result;
