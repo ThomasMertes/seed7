@@ -86,11 +86,17 @@
 #undef TRACE_CMD_RTL
 
 
+#ifndef EXECUTABLE_FILE_EXTENSION
+#define EXECUTABLE_FILE_EXTENSION ""
+#endif
 #ifndef LINKER_OPT_DEBUG_INFO
 #define LINKER_OPT_DEBUG_INFO ""
 #endif
 #ifndef LINKER_OPT_OUTPUT_FILE
 #define LINKER_OPT_OUTPUT_FILE ""
+#endif
+#ifndef LINKER_FLAGS
+#define LINKER_FLAGS ""
 #endif
 
 #ifndef INT64TYPE

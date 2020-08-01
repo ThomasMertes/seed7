@@ -5513,9 +5513,20 @@ ont color=blue>is "";
     end if;
     ...
 
-  UTF-16 comes in two flavours UTF-16BE and UTF-16LE.
-  To allow both the "utf16.s7i" library defines the functions
-  'open_utf16le' and 'open_utf16be'.
+  UTF-16 comes in two flavours UTF-16LE and UTF-16BE. To support
+  both flavours the "utf16.s7i" library defines several functions.
+
+  The function 'open_utf16' opens an Unicode file which uses the
+  UTF-16LE or UTF-16BE encoding. The function 'open_utf16' checks for
+  a BOM and depending on that it opens an UTF-16LE or UTF-16BE file.
+
+  The functions 'open_utf16le' and 'open_utf16be' open Unicode files
+  with the UTF-16LE and UTF-16BE encoding respectively. When the
+  file is opened with one of the modes "w", "w+", "wt" or "wt+" an
+  appropriate BOM is created. When the file is opened with any other
+  mode the application program is in charge to handle optional BOM
+  markers. This way  'open_utf16le' and 'open_utf16be' can be used
+  to open existing files without BOM.
 
   External BYTE files use the implementation type 'external_file'.
   The type 'external_file' is defined as:
@@ -9247,6 +9258,15 @@ ont color=blue>is "";
     exception
       catch NUMERIC_ERROR:
         number := 1;
+    end block;
+
+  It is also possible to catch several EXCEPTIONS:
+
+    block
+      doSomething(someValue);
+    exception
+      catch MEMORY_ERROR:  writeln("MEMORY_ERROR");
+      catch NUMERIC_ERROR: writeln("NUMERIC_ERROR");
     end block;
 
 

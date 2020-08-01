@@ -276,12 +276,12 @@ filetype aFile;
 
 #ifdef ANSI_C
 
-int offsetSeek (filetype aFile, const os_off_t offset, const int origin)
+int offsetSeek (filetype aFile, const os_off_t anOffset, const int origin)
 #else
 
-int offsetSeek (aFile, offset)
+int offsetSeek (aFile, anOffset)
 filetype aFile;
-os_off_t offset;
+os_off_t anOffset;
 #endif
 
   {
@@ -309,7 +309,7 @@ os_off_t offset;
         result = -1;
       } else {
         fflush(aFile);
-        if (myLseek(file_no, offset, origin) == (os_off_t) -1) {
+        if (myLseek(file_no, anOffset, origin) == (os_off_t) -1) {
           result = -1;
         } else {
           result = 0;
@@ -317,7 +317,7 @@ os_off_t offset;
       } /* if */
     }
 #else
-    result = myFseek(aFile, offset, origin);
+    result = myFseek(aFile, anOffset, origin);
 #endif
     return result;
   } /* offsetSeek */

@@ -1,3 +1,15 @@
+20101024:
+- The FAQ answers explaining extensible programming and object orientation,
+  were improved.
+- The chapters explaining UTF-16 files and exception handling in the manual,
+  were improved.
+- The standard bitmap font was improved to define more characters.
+- Documentation comments were added to the library "utf16.s7i".
+- The "bas7.sd7" (Basic interpreter) example program was improved to avoid an
+  endless loop when the label or line number of a goto does not exist.
+- Several changes were done to improve the configuration of the Seed7
+  interpreter.
+
 20101010:
 - The first steps towards support of bitmap fonts were done.
 - The standard bitmap font was defined for the sizes 10, 12, 14, 16, 18 and 24.

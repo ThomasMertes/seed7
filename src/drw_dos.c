@@ -35,6 +35,7 @@
 #include "stdio.h"
 
 #include "common.h"
+#include "data_rtl.h"
 
 #undef EXTERN
 #define EXTERN
@@ -550,6 +551,20 @@ inttype col;
 
   { /* drwPPoint */
   } /* drwPPoint */
+
+
+
+#ifdef ANSI_C
+
+bstritype drwGenPointList (const const_rtlArraytype xyArray);
+#else
+
+bstritype drwGenPointList (xyArray);
+rtlArraytype xyArray;
+#endif
+
+  { /* drwGenPointList */
+  } /* drwGenPointList */
 
 
 

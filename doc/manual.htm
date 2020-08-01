@@ -5513,9 +5513,20 @@ ont color=blue>is</font> <font color=maroon>""</font>;
     <font color=blue>end if</font>;
     ...
 </pre><p>
-  UTF-16 comes in two flavours UTF-16BE and UTF-16LE.
-  To allow both the <font color=maroon>"utf16.s7i"</font> library defines the functions
-  <tt>'open_utf16le'</tt> and <tt>'open_utf16be'</tt>.
+  UTF-16 comes in two flavours UTF-16LE and UTF-16BE. To support
+  both flavours the <font color=maroon>"utf16.s7i"</font> library defines several functions.
+</p><p>
+  The function <tt>'open_utf16'</tt> opens an Unicode file which uses the
+  UTF-16LE or UTF-16BE encoding. The function <tt>'open_utf16'</tt> checks for
+  a BOM and depending on that it opens an UTF-16LE or UTF-16BE file.
+</p><p>
+  The functions <tt>'open_utf16le'</tt> and <tt>'open_utf16be'</tt> open Unicode files
+  with the UTF-16LE and UTF-16BE encoding respectively. When the
+  file is opened with one of the modes <font color=maroon>"w"</font>, <font color=maroon>"w+"</font>, <font color=maroon>"wt"</font> or <font color=maroon>"wt+"</font> an
+  appropriate BOM is created. When the file is opened with any other
+  mode the application program is in charge to handle optional BOM
+  markers. This way  <tt>'open_utf16le'</tt> and <tt>'open_utf16be'</tt> can be used
+  to open existing files without BOM.
 </p><p>
   External BYTE files use the implementation type <tt>'<font color=red>external_file</font>'</tt>.
   The type <tt>'<font color=red>external_file</font>'</tt> is defined as:
@@ -9247,6 +9258,15 @@ ont color=blue>is</font> <font color=maroon>""</font>;
     <font color=blue>exception</font>
       <font color=blue>catch</font> NUMERIC_ERROR:
         number := 1;
+    <font color=blue>end block</font>;
+</pre><p>
+  It is also possible to catch several EXCEPTIONS:
+</p><pre>
+    <font color=blue>block</font>
+      doSomething(someValue);
+    <font color=blue>exception</font>
+      <font color=blue>catch</font> MEMORY_ERROR:  writeln(<font color=maroon>"MEMORY_ERROR"</font>);
+      <font color=blue>catch</font> NUMERIC_ERROR: writeln(<font color=maroon>"NUMERIC_ERROR"</font>);
     <font color=blue>end block</font>;
 </pre><p></p>
 

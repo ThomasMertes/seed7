@@ -54,6 +54,12 @@ const func utf16be_file: malloc (ref utf16be_file: ext_file) is func
   end func;
 
 
+(**
+ *  Opens an Unicode file which uses the UTF-16LE or UTF-16BE encoding.
+ *  The function 'open_utf16' checks for a BOM and depending on that
+ *  opens an UTF-16LE or UTF-16BE file. When the file contains no BOM
+ *  the function returns STD_NULL.
+ *)
 const func file: open_utf16 (in string: fileName, in string: access) is func
   result
     var file: result is STD_NULL;
@@ -74,18 +80,27 @@ const func file: open_utf16 (in string: fileName, in string: access) is func
         new_be_file.ext_file := open_file;
         new_be_file.name := fileName;
         result := malloc(new_be_file);
+      else
+        close(open_file);
       end if;
     end if;
   end func;
 
 
+(**
+ *  Opens an Unicode file which uses the UTF-16LE encoding.
+ *  When the file is opened with one of the modes "w", "w+", "wt" or
+ *  "wt+" an appropriate BOM is created. When the file is opened
+ *  with a any other mode the application program is in charge to
+ *  handle optional BOM markers. This way 'open_utf16le' can be used
+ *  to open existing files without BOM.
+ *)
 const func file: open_utf16le (in string: fileName, in string: access) is func
   result
     var file: result is STD_NULL;
   local
     var PRIMITIVE_FILE: open_file is PRIMITIVE_NULL_FILE;
     var utf16le_file: new_le_file is utf16le_file.value;
-    var string: bom is "";
   begin
     open_file := PRIMITIVE_FILE_OPEN(fileName, access);
     if open_file <> PRIMITIVE_NULL_FILE then
@@ -99,6 +114,23 @@ const func file: open_utf16le (in string: fileName, in string: access) is func
   end func;
 
 
+const proc: close (ref utf16le_file: aFile) is func
+  begin
+    close(aFile.ext_file);
+  end func;
+
+
+const proc: flush (ref utf16le_file: aFile) is func
+  begin
+    flush(aFile.ext_file);
+  end func;
+
+
+(**
+ *  Write a string to an UTF-16LE file.
+ *  When a character is not representable as UTF-16 the exception
+ *  RANGE_ERROR is raised.
+ *)
 const proc: write (in utf16le_file: aFile, in string: stri) is func
   local
     var char: ch is ' ';
@@ -125,6 +157,11 @@ const proc: write (in utf16le_file: aFile, in string: stri) is func
   end func;
 
 
+(**
+ *  Return a string read with a maximum length from an UTF-16LE file.
+ *  When the file contains an illegal surrogate pair the exception
+ *  RANGE_ERROR is raised.
+ *)
 const func string: gets (in utf16le_file: aFile, in integer: leng) is func
   result
     var string: result is "";
@@ -176,21 +213,34 @@ const func string: gets (in utf16le_file: aFile, in integer: leng) is func
   end func;
 
 
+(**
+ *  Return TRUE if the end-of-file indicator is set, FALSE otherwise.
+ *)
 const func boolean: eof (in utf16le_file: aFile) is
   return eof(aFile.ext_file);
 
 
+(**
+ *  Return FALSE if 'getc' would return EOF, TRUE otherwise.
+ *)
 const func boolean: hasNext (ref utf16le_file: aFile) is
   return hasNext(aFile.ext_file);
 
 
+(**
+ *  Opens an Unicode file which uses the UTF-16BE encoding.
+ *  When the file is opened with one of the modes "w", "w+", "wt" or
+ *  "wt+" an appropriate BOM is created. When the file is opened
+ *  with a any other mode the application program is in charge to
+ *  handle optional BOM markers. This way 'open_utf16be' can be used
+ *  to open existing files without BOM.
+ *)
 const func file: open_utf16be (in string: fileName, in string: access) is func
   result
     var file: result is STD_NULL;
   local
     var PRIMITIVE_FILE: open_file is PRIMITIVE_NULL_FILE;
     var utf16be_file: new_be_file is utf16be_file.value;
-    var string: bom is "";
   begin
     open_file := PRIMITIVE_FILE_OPEN(fileName, access);
     if open_file <> PRIMITIVE_NULL_FILE then
@@ -204,6 +254,23 @@ const func file: open_utf16be (in string: fileName, in string: access) is func
   end func;
 
 
+const proc: close (ref utf16be_file: aFile) is func
+  begin
+    close(aFile.ext_file);
+  end func;
+
+
+const proc: flush (ref utf16be_file: aFile) is func
+  begin
+    flush(aFile.ext_file);
+  end func;
+
+
+(**
+ *  Write a string to an UTF-16BE file.
+ *  When a character is not representable as UTF-16 the exception
+ *  RANGE_ERROR is raised.
+ *)
 const proc: write (in utf16be_file: aFile, in string: stri) is func
   local
     var char: ch is ' ';
@@ -230,6 +297,11 @@ const proc: write (in utf16be_file: aFile, in string: stri) is func
   end func;
 
 
+(**
+ *  Return a string read with a maximum length from an UTF-16BE file.
+ *  When the file contains an illegal surrogate pair the exception
+ *  RANGE_ERROR is raised.
+ *)
 const func string: gets (in utf16be_file: aFile, in integer: leng) is func
   result
     var string: result is "";
@@ -281,9 +353,15 @@ const func string: gets (in utf16be_file: aFile, in integer: leng) is func
   end func;
 
 
+(**
+ *  Return TRUE if the end-of-file indicator is set, FALSE otherwise.
+ *)
 const func boolean: eof (in utf16be_file: aFile) is
   return eof(aFile.ext_file);
 
 
+(**
+ *  Return FALSE if 'getc' would return EOF, TRUE otherwise.
+ *)
 const func boolean: hasNext (ref utf16be_file: aFile) is
   return hasNext(aFile.ext_file);

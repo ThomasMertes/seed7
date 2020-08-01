@@ -598,6 +598,12 @@ const func boolean: isStringVar (in string: symbol) is
          not symbol[length(symbol)] in numeric_var_suffix);
 
 
+const func boolean: isNumericVar (in string: symbol) is
+  return symbol <> "" and
+        (symbol[1] in letter_char - defstr_var or
+         symbol[length(symbol)] in numeric_var_suffix);
+
+
 const func float: getNumericVar (in string: varName) is func
   result
     var float: result is 0.0;
@@ -803,7 +809,7 @@ const proc: goto_label_or_linenum (in string: new_label) is func
   begin
     if new_label in label then
       statement_label := new_label;
-      file_line_number := label[statement_label];
+      file_line_number := pred(label[statement_label]);
     elsif new_label <> "" and new_label[1] in digit_char then
       searched_linenum := integer parse new_label;
       for number range 1 to length(prg) do
@@ -821,7 +827,7 @@ const proc: goto_label_or_linenum (in string: new_label) is func
         write(err, "LABEL " <& new_label);
         writeln(err, " DOES NOT EXIST - USE " <& matched_linenum <& " INSTEAD");
         statement_label := str(matched_linenum);
-        file_line_number := label[statement_label];
+        file_line_number := pred(label[statement_label]);
       else
         error_marker;
         writeln(err, "LABEL " <& new_label <& " DOES NOT EXIST");
@@ -830,7 +836,6 @@ const proc: goto_label_or_linenum (in string: new_label) is func
       error_marker;
       writeln(err, "LABEL " <& new_label <& " DOES NOT EXIST");
     end if;
-    decr(file_line_number);
   end func;
 
 
@@ -3645,7 +3650,7 @@ const proc: exec_let (in var string: variable_name,
         write(err, "\"=\" EXPECTED AFTER " <& literal(variable_name));
         writeln(err, " - FOUND " <& literal(symbol) <& ".");
       end if;
-    else
+    elsif isNumericVar(variable_name) then
       append_index(variable_name, symbol, line);
       if symbol = "=" then
         symbol := get_symbol(line);
@@ -3658,6 +3663,9 @@ const proc: exec_let (in var string: variable_name,
         write(err, "\"=\" EXPECTED AFTER " <& literal(variable_name));
         writeln(err, " - FOUND " <& literal(symbol) <& ".");
       end if;
+    else
+      error_marker;
+      writeln(err, "VARIABLE EXPECTED - FOUND " <& literal(variable_name) <& ".");
     end if;
   end func;
 
@@ -4825,7 +4833,7 @@ const proc: exec_print (inout string: symbol, inout string: line) is func
           write(log, "SPC(" <& round(num1) <& ")");
         elsif symbol = "USING" then
           exec_print_using(win, symbol, line);
-        else
+        elsif symbol <> ";" and symbol <> "," then
           write(win, " ");
           write(log, " ");
           num1 := exec_expr(symbol, line);
@@ -5088,7 +5096,7 @@ const proc: exec_read (inout string: symbol, inout string: line) is func
           line_marker(data_line_number);
           writeln(log);
         end if;
-      else
+      elsif isNumericVar(symbol) then
         variable_name := get_name(symbol, line);
         data_elem := trim(get_data_field(symbol, line));
         if not in_error_handler then
@@ -5130,6 +5138,9 @@ const proc: exec_read (inout string: symbol, inout string: line) is func
             end if;
           end if;
         end if;
+      else
+        error_marker;
+        writeln(err, "VARIABLE EXPECTED - FOUND " <& literal(symbol) <& ".");
       end if;
     until symbol <> "," or in_error_handler;
   end func;
@@ -5158,7 +5169,7 @@ const proc: exec_input_from_file (inout string: symbol, inout string: line) is f
           line_marker;
           write(log, "INPUT #" <& file_number <& ", " <& variable_name);
           writeln(log, " " <& literal(param1));
-        else
+        elsif isNumericVar(symbol) then
           variable_name := get_name(symbol, line);
           param1 := read_input_number(aFile);
           block
@@ -5173,6 +5184,9 @@ const proc: exec_input_from_file (inout string: symbol, inout string: line) is f
               write(err, "NUMBER EXPECTED FOR INPUT OF " <& variable_name);
               writeln(err, " FOUND " <& literal(param1) <& ".");
           end block;
+        else
+          error_marker;
+          writeln(err, "VARIABLE EXPECTED - FOUND " <& literal(symbol) <& ".");
         end if;
         if aFile.bufferChar = ',' then
           aFile.bufferChar := getc(aFile);
@@ -5212,10 +5226,13 @@ const proc: read_input (inout file: inFile,
         variable_name := get_name(symbol, line);
         param1 := read_input_string(inFile);
         assign_input_string(variable_name, param1);
-      else
+      elsif isNumericVar(symbol) then
         variable_name := get_name(symbol, line);
         param1 := read_input_number(inFile);
         assign_input_number(variable_name, param1);
+      else
+        error_marker;
+        writeln(err, "VARIABLE EXPECTED - FOUND " <& literal(symbol) <& ".");
       end if;
       if inFile.bufferChar = ',' then
         inFile.bufferChar := getc(inFile);
@@ -5265,7 +5282,7 @@ const proc: exec_input (inout string: symbol, inout string: line) is func
       else
         error_expect2(";", ",", symbol);
       end if;
-    else
+    elsif isNumericVar(symbol) then
       variable_name := get_name(symbol, line);
       write(win, "? ");
       flush(win);
@@ -5279,6 +5296,9 @@ const proc: exec_input (inout string: symbol, inout string: line) is func
         IN.bufferChar := getc(IN);
       end if;
       read_input(IN, symbol, line);
+    else
+      error_marker;
+      writeln(err, "VARIABLE OR STRING EXPECTED - FOUND " <& literal(symbol) <& ".");
     end if;
   end func;
 
@@ -7163,7 +7183,7 @@ const proc: exec_let (inout string: symbol, inout string: line,
           write(err, "\"=\" EXPECTED AFTER " <& literal(variable_name));
           writeln(err, " - FOUND " <& literal(symbol) <& ".");
         end if;
-      else
+      elsif isNumericVar(symbol) then
         variable_name := get_name(symbol, line);
         if symbol = "=" then
           symbol := get_symbol(line);
@@ -7184,6 +7204,9 @@ const proc: exec_let (inout string: symbol, inout string: line,
           write(err, "\"=\" EXPECTED AFTER " <& literal(variable_name));
           writeln(err, " - FOUND " <& literal(symbol) <& ".");
         end if;
+      else
+        error_marker;
+        writeln(err, "VARIABLE EXPECTED - FOUND " <& literal(symbol) <& ".");
       end if;
     end if;
   end func;
@@ -7891,6 +7914,20 @@ const func boolean: exec_cmd (inout string: symbol, inout string: line) is func
         sleep(index1);
         line_marker;
         writeln(log, "SLEEP " <& index1);
+      elsif symbol = "PRI" then
+        symbol := get_symbol(line);
+        if symbol = "=" or symbol = "("  or symbol = "[" then
+          exec_let("PRI", symbol, line);
+        else
+          exec_print(symbol, line);
+        end if;
+      elsif symbol = "INP" then
+        symbol := get_symbol(line);
+        if symbol = "=" or symbol = "("  or symbol = "[" then
+          exec_let("INP", symbol, line);
+        else
+          exec_input(symbol, line);
+        end if;
       elsif symbol = "DELAY" then
         symbol := get_symbol(line);
         if symbol = "=" or symbol = "("  or symbol = "[" then
@@ -7922,10 +7959,10 @@ const func boolean: exec_cmd (inout string: symbol, inout string: line) is func
             error_marker;
             writeln(err, "STRING VARIABLE EXPECTED - FOUND " <& literal(symbol) <& ".");
           end if;
-        else
+        elsif isNumericVar(symbol) then
           variable_name := get_name(symbol, line);
           expect(",", symbol, line);
-          if not isStringVar(symbol) then
+          if isNumericVar(symbol) then
             variable2_name := get_name(symbol, line);
             num1 := getNumericVar(variable_name);
             num2 := getNumericVar(variable2_name);
@@ -7935,6 +7972,9 @@ const func boolean: exec_cmd (inout string: symbol, inout string: line) is func
             error_marker;
             writeln(err, "NUMERIC VARIABLE EXPECTED - FOUND " <& literal(symbol) <& ".");
           end if;
+        else
+          error_marker;
+          writeln(err, "VARIABLE EXPECTED - FOUND " <& literal(symbol) <& ".");
         end if;
       elsif symbol = "CALL" then
         symbol := get_symbol(line);
@@ -8004,7 +8044,7 @@ const func boolean: exec_cmd (inout string: symbol, inout string: line) is func
               write(err, "\"=\" EXPECTED AFTER " <& literal(variable_name));
               writeln(err, " - FOUND " <& literal(symbol) <& ".");
             end if;
-          else
+          elsif isNumericVar(symbol) then
             variable_name := get_name(symbol, line);
             if symbol = "=" then
               symbol := get_symbol(line);
@@ -8017,6 +8057,9 @@ const func boolean: exec_cmd (inout string: symbol, inout string: line) is func
               write(err, "\"=\" EXPECTED AFTER " <& literal(variable_name));
               writeln(err, " - FOUND " <& literal(symbol) <& ".");
             end if;
+          else
+            error_marker;
+            writeln(err, "VARIABLE EXPECTED - FOUND " <& literal(symbol) <& ".");
           end if;
         until symbol <> ",";
       elsif symbol = "%" then

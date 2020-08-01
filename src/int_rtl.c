@@ -126,8 +126,8 @@ uinttype *c_low;
   /* uint2_mult */
 #ifdef TRACE_RANDOM
     printf("BEGIN uint2_mult(%08x%08x, %08x%08x)\n",
-	    (unsigned int) a_high, (unsigned int) a_low,
-	    (unsigned int) b_high, (unsigned int) b_low);
+        (unsigned int) a_high, (unsigned int) a_low,
+        (unsigned int) b_high, (unsigned int) b_low);
 #endif
     a_low1 = LOWER_HALVE_OF_UINT(a_low);
     a_low2 = UPPER_HALVE_OF_UINT(a_low);
@@ -143,7 +143,7 @@ uinttype *c_low;
     *c_high = UINT_BITS(a_low * b_high + a_high * b_low + c4);
 #ifdef TRACE_RANDOM
     printf("END uint2_mult ==> %08x%08x\n",
-	    (unsigned int) *c_high, (unsigned int) *c_low);
+        (unsigned int) *c_high, (unsigned int) *c_low);
 #endif
   } /* uint2_mult */
 
@@ -168,8 +168,8 @@ uinttype *c_low;
   { /* uint2_add */
 #ifdef TRACE_RANDOM
     printf("BEGIN uint2_add(%08x%08x, %08x%08x)\n",
-	    (unsigned int) a_high, (unsigned int) a_low,
-	    (unsigned int) b_high, (unsigned int) b_low);
+        (unsigned int) a_high, (unsigned int) a_low,
+        (unsigned int) b_high, (unsigned int) b_low);
 #endif
     *c_low = UINT_BITS(a_low + b_low);
     if (UINT_HIGHEST_BIT(a_low) + UINT_HIGHEST_BIT(b_low) +
@@ -181,7 +181,7 @@ uinttype *c_low;
     } /* if */
 #ifdef TRACE_RANDOM
     printf("END uint2_add ==> %08x%08x\n",
-	    (unsigned int) *c_high, (unsigned int) *c_low);
+        (unsigned int) *c_high, (unsigned int) *c_low);
 #endif
   } /* uint2_add */
 
