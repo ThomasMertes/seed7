@@ -86,16 +86,15 @@ chartype source;
 
 #ifdef ANSI_C
 
-void chrCreate (chartype *dest, chartype source)
+chartype chrCreate (chartype source)
 #else
 
-void chrCreate (dest, source)
-chartype *dest;
+chartype chrCreate (source)
 chartype source;
 #endif
 
   { /* chrCreate */
-    *dest = source;
+    return(source);
   } /* chrCreate */
 
 

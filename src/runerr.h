@@ -27,7 +27,7 @@
 
 EXTERN objecttype curr_action_object;
 EXTERN objecttype curr_exec_object;
-EXTERN listtype curr_agument_list;
+EXTERN listtype curr_argument_list;
 EXTERN booltype fail_flag;
 EXTERN objecttype fail_value;
 EXTERN listtype fail_expression;

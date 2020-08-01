@@ -211,112 +211,10 @@ filetype fil1;
 
 #ifdef ANSI_C
 
-stritype ut8LineRead (filetype fil1, chartype *termination_char)
+stritype ut8Gets (filetype fil1, inttype length)
 #else
 
-stritype ut8LineRead (fil1, termination_char)
-filetype fil1;
-chartype *termination_char;
-#endif
-
-  {
-    register int ch;
-    register memsizetype position;
-    uchartype *memory;
-    memsizetype memlength;
-    memsizetype newmemlength;
-    bstritype buffer;
-    stritype result;
-
-  /* ut8LineRead */
-    memlength = 256;
-    if (!ALLOC_BSTRI(buffer, memlength)) {
-      raise_error(MEMORY_ERROR);
-      return(NULL);
-    } else {
-      COUNT_BSTRI(memlength);
-      memory = buffer->mem;
-      position = 0;
-      while ((ch = getc(fil1)) != '\n' && ch != EOF) {
-        if (position >= memlength) {
-          newmemlength = memlength + 2048;
-          if (!RESIZE_BSTRI(buffer, memlength, newmemlength)) {
-            FREE_BSTRI(buffer, memlength);
-            raise_error(MEMORY_ERROR);
-            return(NULL);
-          } /* if */
-          COUNT3_BSTRI(memlength, newmemlength);
-          memory = buffer->mem;
-          memlength = newmemlength;
-        } /* if */
-        memory[position++] = (strelemtype) ch;
-      } /* while */
-      if (ch == '\n' && position != 0 && memory[position - 1] == '\r') {
-        position--;
-      } /* if */
-      if (!ALLOC_STRI(result, position)) {
-        FREE_BSTRI(buffer, memlength);
-        raise_error(MEMORY_ERROR);
-        return(NULL);
-      } else {
-        COUNT_STRI(position);
-        if (utf8_to_stri(result->mem, &result->size, buffer->mem, position) != 0) {
-          FREE_BSTRI(buffer, memlength);
-          FREE_STRI(result, position);
-          raise_error(RANGE_ERROR);
-          return(NULL);
-        } /* if */
-        FREE_BSTRI(buffer, memlength);
-        if (!RESIZE_STRI(result, position, result->size)) {
-          FREE_STRI(result, position);
-          raise_error(MEMORY_ERROR);
-          return(NULL);
-        } /* if */
-        COUNT3_STRI(position, result->size);
-        *termination_char = (chartype) ch;
-        return(result);
-      } /* if */
-    } /* if */
-  } /* ut8LineRead */
-
-
-
-#ifdef ANSI_C
-
-void ut8Seek (filetype fil1, inttype position)
-#else
-
-void ut8Seek (fil1, position)
-filetype fil1;
-inttype position;
-#endif
-
-  {
-    int ch;
-
-  /* ut8Seek */
-    if (position <= 0) {
-      raise_error(RANGE_ERROR);
-      return;
-    } else {
-      if (fseek(fil1, position - 1, SEEK_SET) == 0) {
-        while ((ch = getc(fil1)) != EOF &&
-               (ch & 0xC0) == 0x80) ;
-        if (ch != EOF) {
-          fseek(fil1, -1, SEEK_CUR);
-        } /* if */
-      } /* if */
-    } /* if */
-  } /* ut8Seek */
-
-
-
-#ifdef ANSI_C
-
-stritype ut8StriRead (filetype fil1, inttype length)
-#else
-
-stritype ut8StriRead (fil1, length)
+stritype ut8Gets (fil1, length)
 filetype fil1;
 inttype length;
 #endif
@@ -337,7 +235,7 @@ inttype length;
     strelemtype *stri_dest;
     stritype result;
 
-  /* ut8StriRead */
+  /* ut8Gets */
     if (length < 0) {
       raise_error(RANGE_ERROR);
       return(NULL);
@@ -465,7 +363,109 @@ inttype length;
       COUNT3_STRI(chars_requested, result->size);
       return(result);
     } /* if */
-  } /* ut8StriRead */
+  } /* ut8Gets */
+
+
+
+#ifdef ANSI_C
+
+stritype ut8LineRead (filetype fil1, chartype *termination_char)
+#else
+
+stritype ut8LineRead (fil1, termination_char)
+filetype fil1;
+chartype *termination_char;
+#endif
+
+  {
+    register int ch;
+    register memsizetype position;
+    uchartype *memory;
+    memsizetype memlength;
+    memsizetype newmemlength;
+    bstritype buffer;
+    stritype result;
+
+  /* ut8LineRead */
+    memlength = 256;
+    if (!ALLOC_BSTRI(buffer, memlength)) {
+      raise_error(MEMORY_ERROR);
+      return(NULL);
+    } else {
+      COUNT_BSTRI(memlength);
+      memory = buffer->mem;
+      position = 0;
+      while ((ch = getc(fil1)) != '\n' && ch != EOF) {
+        if (position >= memlength) {
+          newmemlength = memlength + 2048;
+          if (!RESIZE_BSTRI(buffer, memlength, newmemlength)) {
+            FREE_BSTRI(buffer, memlength);
+            raise_error(MEMORY_ERROR);
+            return(NULL);
+          } /* if */
+          COUNT3_BSTRI(memlength, newmemlength);
+          memory = buffer->mem;
+          memlength = newmemlength;
+        } /* if */
+        memory[position++] = (strelemtype) ch;
+      } /* while */
+      if (ch == '\n' && position != 0 && memory[position - 1] == '\r') {
+        position--;
+      } /* if */
+      if (!ALLOC_STRI(result, position)) {
+        FREE_BSTRI(buffer, memlength);
+        raise_error(MEMORY_ERROR);
+        return(NULL);
+      } else {
+        COUNT_STRI(position);
+        if (utf8_to_stri(result->mem, &result->size, buffer->mem, position) != 0) {
+          FREE_BSTRI(buffer, memlength);
+          FREE_STRI(result, position);
+          raise_error(RANGE_ERROR);
+          return(NULL);
+        } /* if */
+        FREE_BSTRI(buffer, memlength);
+        if (!RESIZE_STRI(result, position, result->size)) {
+          FREE_STRI(result, position);
+          raise_error(MEMORY_ERROR);
+          return(NULL);
+        } /* if */
+        COUNT3_STRI(position, result->size);
+        *termination_char = (chartype) ch;
+        return(result);
+      } /* if */
+    } /* if */
+  } /* ut8LineRead */
+
+
+
+#ifdef ANSI_C
+
+void ut8Seek (filetype fil1, inttype position)
+#else
+
+void ut8Seek (fil1, position)
+filetype fil1;
+inttype position;
+#endif
+
+  {
+    int ch;
+
+  /* ut8Seek */
+    if (position <= 0) {
+      raise_error(RANGE_ERROR);
+      return;
+    } else {
+      if (fseek(fil1, position - 1, SEEK_SET) == 0) {
+        while ((ch = getc(fil1)) != EOF &&
+               (ch & 0xC0) == 0x80) ;
+        if (ch != EOF) {
+          fseek(fil1, -1, SEEK_CUR);
+        } /* if */
+      } /* if */
+    } /* if */
+  } /* ut8Seek */
 
 
 

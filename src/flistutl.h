@@ -106,22 +106,29 @@ EXTERN flisttype flist;
 
 #ifdef USE_CHUNK_ALLOCS
 #define ALLOC_ID_NAME(var,len)     ALLOC_CHUNK(var, ustritype, SIZ_ID(len))
-#define FREE_ID_NAME(var,len)      (CNT2_USTRI(len, SIZ_ID(len), count.idt, count.idt_bytes), FREE_CHUNK(var, SIZ_ID(len)))
+#define FREE_ID_NAME(var,len)      (CNT2_USTRI(len, SIZ_ID(len), count.idt, count.idt_bytes) FREE_CHUNK(var, SIZ_ID(len)))
 #else
 #define ALLOC_ID_NAME(var,len)     ALLOC_HEAP(var, ustritype, SIZ_USTRI(len))
-#define FREE_ID_NAME(var,len)      (CNT2_USTRI(len, SIZ_USTRI(len), count.idt, count.idt_bytes), FREE_HEAP(var, SIZ_USTRI(len)))
+#define FREE_ID_NAME(var,len)      (CNT2_USTRI(len, SIZ_USTRI(len), count.idt, count.idt_bytes) FREE_HEAP(var, SIZ_USTRI(len)))
 #endif
 #define COUNT_ID_NAME(len)         CNT1_USTRI((len), SIZ_USTRI(len), count.idt, count.idt_bytes)
 
 
 #define ALLOC_FLISTELEM(var,rec)   ALLOC_CHUNK(var, rec *, SIZ_REC(rec))
+
+#ifdef DO_HEAPSIZE_COMPUTATION
 #define COUNT_FLISTELEM(rec,cnt)   CNT1_REC(SIZ_REC(rec), cnt)
+#define CNT(cnt)                   cnt,
+#else
+#define COUNT_FLISTELEM(rec,cnt)
+#define CNT(cnt)
+#endif
 
 
-#define HEAP_OBJ(O,T)   (!ALLOC_FLISTELEM(O, T) ? FALSE : (COUNT_FLISTELEM(T, count.object),    TRUE))
-#define HEAP_L_E(L,T)   (!ALLOC_FLISTELEM(L, T) ? FALSE : (COUNT_FLISTELEM(T, count.list_elem), TRUE))
-#define HEAP_NODE(N,T)  (!ALLOC_FLISTELEM(N, T) ? FALSE : (COUNT_FLISTELEM(T, count.node),      TRUE))
-#define HEAP_FILE(F,T)  (!ALLOC_FLISTELEM(F, T) ? FALSE : (COUNT_FLISTELEM(T, count.infil),     TRUE))
+#define HEAP_OBJ(O,T)   (!ALLOC_FLISTELEM(O, T) ? FALSE : (CNT(COUNT_FLISTELEM(T, count.object))    TRUE))
+#define HEAP_L_E(L,T)   (!ALLOC_FLISTELEM(L, T) ? FALSE : (CNT(COUNT_FLISTELEM(T, count.list_elem)) TRUE))
+#define HEAP_NODE(N,T)  (!ALLOC_FLISTELEM(N, T) ? FALSE : (CNT(COUNT_FLISTELEM(T, count.node))      TRUE))
+#define HEAP_FILE(F,T)  (!ALLOC_FLISTELEM(F, T) ? FALSE : (CNT(COUNT_FLISTELEM(T, count.infil))     TRUE))
 #define HEAP_STRI(S,L)  ALLOC_HEAP(S, stritype, SIZ_STRI(L))
 #define CHUNK_STRI(S,L) ALLOC_CHUNK(S, stritype, SIZ_STRI(L))
 

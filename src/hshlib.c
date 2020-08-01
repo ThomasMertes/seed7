@@ -930,7 +930,7 @@ listtype arguments;
     free_hash(hsh_dest, key_destr_func, data_destr_func);
     if (err_info != OKAY_NO_ERROR) {
       hsh_to->value.hashvalue = NULL;
-      return(raise_exception(SYS_MEM_EXCEPTION));
+      return(raise_with_arguments(SYS_MEM_EXCEPTION, arguments));
     } else {
       if (TEMP2_OBJECT(hsh_from)) {
         hsh_to->value.hashvalue = hsh_source;
@@ -942,7 +942,7 @@ listtype arguments;
           free_hash(hsh_to->value.hashvalue, key_destr_func,
               data_destr_func);
           hsh_to->value.hashvalue = NULL;
-          return(raise_exception(SYS_MEM_EXCEPTION));
+          return(raise_with_arguments(SYS_MEM_EXCEPTION, arguments));
         } /* if */
       } /* if */
     } /* if */
@@ -990,7 +990,7 @@ listtype arguments;
         free_hash(hsh_to->value.hashvalue, key_destr_func,
             data_destr_func);
         hsh_to->value.hashvalue = NULL;
-        return(raise_exception(SYS_MEM_EXCEPTION));
+        return(raise_with_arguments(SYS_MEM_EXCEPTION, arguments));
       } /* if */
     } /* if */
     return(SYS_EMPTY_OBJECT);
@@ -1265,10 +1265,10 @@ listtype arguments;
           /* The hash will be destroyed after indexing. */
           /* Therefore it is necessary here to remove it */
           /* from the hashtable to avoid a crash !!!!! */
-          return(raise_exception(SYS_MEM_EXCEPTION));
+          return(raise_with_arguments(SYS_MEM_EXCEPTION, arguments));
         } /* if */
       } else {
-        result = raise_exception(SYS_RNG_EXCEPTION);
+        result = raise_with_arguments(SYS_RNG_EXCEPTION, arguments);
       } /* if */
     } /* if */
     return(result);
@@ -1350,14 +1350,14 @@ listtype arguments;
       } /* while */
     } /* if */
     if (err_info != OKAY_NO_ERROR) {
-      return(raise_exception(SYS_MEM_EXCEPTION));
+      return(raise_with_arguments(SYS_MEM_EXCEPTION, arguments));
     } else {
       result = &result_hashelem->data;
       if (TEMP_OBJECT(arg_1(arguments))) {
         /* The hash will be destroyed after indexing. */
         /* Therefore it is necessary here to remove it */
         /* from the hashtable to avoid a crash !!!!! */
-        return(raise_exception(SYS_MEM_EXCEPTION));
+        return(raise_with_arguments(SYS_MEM_EXCEPTION, arguments));
       } /* if */
     } /* if */
     return(result);
@@ -1440,7 +1440,7 @@ listtype arguments;
       } /* if */
     } /* if */
     if (err_info != OKAY_NO_ERROR) {
-      return(raise_exception(SYS_MEM_EXCEPTION));
+      return(raise_with_arguments(SYS_MEM_EXCEPTION, arguments));
     } else {
       return(SYS_EMPTY_OBJECT);
     } /* if */
@@ -1546,7 +1546,7 @@ listtype arguments;
           /* The hash will be destroyed after indexing. */
           /* Therefore it is necessary here to remove it */
           /* from the hashtable to avoid a crash !!!!! */
-          return(raise_exception(SYS_MEM_EXCEPTION));
+          return(raise_with_arguments(SYS_MEM_EXCEPTION, arguments));
         } /* if */
       } else {
         result = NULL;

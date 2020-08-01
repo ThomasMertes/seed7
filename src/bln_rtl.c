@@ -60,14 +60,13 @@ booltype source;
 
 #ifdef ANSI_C
 
-void blnCreate (booltype *dest, booltype source)
+booltype blnCreate (booltype source)
 #else
 
-void blnCreate (dest, source)
-booltype *dest;
+booltype blnCreate (source)
 booltype source;
 #endif
 
   { /* blnCreate */
-    *dest = source;
+    return(source);
   } /* blnCreate */

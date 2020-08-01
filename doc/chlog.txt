@@ -138,3 +138,15 @@
 - An implementation for 'set of string' based on the 'hash' type was added.
 - Keyboard functionality was moved into the new file kbd_rtl.c.
 - A new makefile makefile.msy for MinGW MSYS compilation was added.
+
+20061219:
+- Support for local constant declarations was added to the compiler.
+- The compiler was improved to support the actions big_abs, big_clit, big_hashcode,
+  big_value, cmd_ls, flt_grow, flt_shrink, gkb_gets, kbd_gets, set_arrlit and str_chsplit.
+- The heap statistic was improved to work for bigInteger objects.
+- The array compare functions = and <> have been improved.
+- The support for arrays in the compiler was improved.
+- The trace level 'h' was added to trace the heapsize.
+- The exception handling was corrected to work with hash objects.
+- A bug in the in_file handling of the analyzer was fixed.
+- The 'hi' interpreter was improved to support the actions rfl_trace and str_split.

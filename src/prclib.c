@@ -191,7 +191,7 @@ listtype arguments;
     if (block_body != NULL && block_body->type_of != take_type(SYS_PROC_TYPE)) {
       err_type(PROC_EXPECTED, block_body->type_of);
     } /* if */
-    if ((block = new_block(NULL, NULL, NULL, block_body)) == NULL) {
+    if ((block = new_block(NULL, NULL, NULL, NULL, block_body)) == NULL) {
       return(raise_with_arguments(SYS_MEM_EXCEPTION, arguments));
     } else {
       return(bld_block_temp(block));
@@ -742,6 +742,7 @@ listtype arguments;
     objecttype block_body;
     listtype *local_object_insert_place;
     loclisttype local_vars;
+    listtype local_consts;
     objecttype decl_res;
     errinfotype err_info = OKAY_NO_ERROR;
     blocktype block;
@@ -765,8 +766,8 @@ listtype arguments;
       printf("\n");
       err_object(PROC_EXPECTED, decl_res);
     } /* if */
-    local_vars = get_local_var_list(*local_object_insert_place,
-       &err_info);
+    local_vars = get_local_var_list(*local_object_insert_place, &err_info);
+    local_consts = get_local_const_list(*local_object_insert_place, &err_info);
     if (CLASS_OF_OBJ(block_body) == EXPROBJECT) {
       update_owner(block_body);
       block_body = match_expression(block_body);
@@ -778,7 +779,7 @@ listtype arguments;
     if (block_body != NULL && block_body->type_of != take_type(SYS_PROC_TYPE)) {
       err_type(PROC_EXPECTED, block_body->type_of);
     } /* if */
-    if ((block = new_block(NULL, NULL, local_vars, block_body)) == NULL) {
+    if ((block = new_block(NULL, NULL, local_vars, local_consts, block_body)) == NULL) {
       return(raise_with_arguments(SYS_MEM_EXCEPTION, arguments));
     } else {
       return(bld_block_temp(block));
@@ -946,7 +947,7 @@ listtype arguments;
       if (block_body != NULL && block_body->type_of != take_type(SYS_PROC_TYPE)) {
         err_type(PROC_EXPECTED, block_body->type_of);
       } /* if */
-      if ((block = new_block(NULL, &result_var, NULL, block_body)) == NULL) {
+      if ((block = new_block(NULL, &result_var, NULL, NULL, block_body)) == NULL) {
         return(raise_with_arguments(SYS_MEM_EXCEPTION, arguments));
       } else {
         return(bld_block_temp(block));
@@ -975,6 +976,7 @@ listtype arguments;
     objecttype block_body;
     listtype *local_object_insert_place;
     loclisttype local_vars;
+    listtype local_consts;
     objecttype decl_res;
     errinfotype err_info = OKAY_NO_ERROR;
     blocktype block;
@@ -1009,8 +1011,8 @@ listtype arguments;
         printf("\n");
         err_object(PROC_EXPECTED, decl_res);
       } /* if */
-      local_vars = get_local_var_list(*local_object_insert_place,
-         &err_info);
+      local_vars = get_local_var_list(*local_object_insert_place, &err_info);
+      local_consts = get_local_const_list(*local_object_insert_place, &err_info);
       if (CLASS_OF_OBJ(block_body) == EXPROBJECT) {
         update_owner(block_body);
         block_body = match_expression(block_body);
@@ -1022,7 +1024,7 @@ listtype arguments;
       if (block_body != NULL && block_body->type_of != take_type(SYS_PROC_TYPE)) {
         err_type(PROC_EXPECTED, block_body->type_of);
       } /* if */
-      if ((block = new_block(NULL, &result_var, local_vars, block_body)) == NULL) {
+      if ((block = new_block(NULL, &result_var, local_vars, local_consts, block_body)) == NULL) {
         return(raise_with_arguments(SYS_MEM_EXCEPTION, arguments));
       } else {
         return(bld_block_temp(block));
@@ -1080,7 +1082,7 @@ listtype arguments;
     printf("\n");
 #endif
     get_return_var(&return_var, return_type, &err_info);
-    if ((block = new_block(NULL, &return_var, NULL, block_body)) == NULL) {
+    if ((block = new_block(NULL, &return_var, NULL, NULL, block_body)) == NULL) {
       return(raise_with_arguments(SYS_MEM_EXCEPTION, arguments));
     } else {
       return(bld_block_temp(block));
@@ -1136,7 +1138,7 @@ listtype arguments;
     printf("\n");
 #endif
     get_return_var(&return_var, return_type, &err_info);
-    if ((block = new_block(NULL, &return_var, NULL, block_body)) == NULL) {
+    if ((block = new_block(NULL, &return_var, NULL, NULL, block_body)) == NULL) {
       return(raise_with_arguments(SYS_MEM_EXCEPTION, arguments));
     } else {
       return(bld_block_temp(block));
@@ -1211,7 +1213,7 @@ listtype arguments;
       block_body = match_object(block_body);
     } /* if */
     pop_stack();
-    if ((block = new_block(NULL, NULL, NULL, block_body)) == NULL) {
+    if ((block = new_block(NULL, NULL, NULL, NULL, block_body)) == NULL) {
       return(raise_with_arguments(SYS_MEM_EXCEPTION, arguments));
     } else {
       return(bld_block_temp(block));
@@ -1249,7 +1251,7 @@ listtype arguments;
       block_body = match_object(block_body);
     } /* if */
     pop_stack();
-    if ((block = new_block(NULL, NULL, NULL, block_body)) == NULL) {
+    if ((block = new_block(NULL, NULL, NULL, NULL, block_body)) == NULL) {
       return(raise_with_arguments(SYS_MEM_EXCEPTION, arguments));
     } else {
       return(bld_block_temp(block));

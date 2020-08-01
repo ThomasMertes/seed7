@@ -301,6 +301,77 @@ filetype fil1;
 
 #ifdef ANSI_C
 
+stritype filGets (filetype fil1, inttype length)
+#else
+
+stritype filGets (fil1, length)
+filetype fil1;
+inttype length;
+#endif
+
+  {
+    long current_file_position;
+    memsizetype bytes_there;
+    memsizetype bytes_requested;
+    memsizetype result_size;
+    stritype result;
+
+  /* filGets */
+    if (length < 0) {
+      raise_error(RANGE_ERROR);
+      return(NULL);
+    } else {
+      bytes_requested = (memsizetype) length;
+      if (!ALLOC_STRI(result, bytes_requested)) {
+        if ((current_file_position = ftell(fil1)) != -1) {
+          fseek(fil1, 0, SEEK_END);
+          bytes_there = (memsizetype) (ftell(fil1) - current_file_position);
+          fseek(fil1, current_file_position, SEEK_SET);
+          if (bytes_there < bytes_requested) {
+            bytes_requested = bytes_there;
+            if (!ALLOC_STRI(result, bytes_requested)) {
+              raise_error(MEMORY_ERROR);
+              return(NULL);
+            } /* if */
+          } else {
+            raise_error(MEMORY_ERROR);
+            return(NULL);
+          } /* if */
+        } else {
+          raise_error(MEMORY_ERROR);
+          return(NULL);
+        } /* if */
+      } /* if */
+      COUNT_STRI(bytes_requested);
+      result_size = (memsizetype) fread(result->mem, 1,
+          (SIZE_TYPE) bytes_requested, fil1);
+#ifdef WIDE_CHAR_STRINGS
+      if (result_size > 0) {
+        uchartype *from = &((uchartype *) result->mem)[result_size - 1];
+        strelemtype *to = &result->mem[result_size - 1];
+        memsizetype number = result_size;
+
+        for (; number > 0; from--, to--, number--) {
+          *to = *from;
+        } /* for */
+      } /* if */
+#endif
+      result->size = result_size;
+      if (result_size < bytes_requested) {
+        if (!RESIZE_STRI(result, bytes_requested, result_size)) {
+          raise_error(MEMORY_ERROR);
+          return(NULL);
+        } /* if */
+        COUNT3_STRI(bytes_requested, result_size);
+      } /* if */
+    } /* if */
+    return(result);
+  } /* filGets */
+
+
+
+#ifdef ANSI_C
+
 stritype filLineRead (filetype fil1, chartype *termination_char)
 #else
 
@@ -439,7 +510,7 @@ filetype fil1;
     if (current_file_position == -1) {
       raise_error(FILE_ERROR);
       return(0);
-    } else if (fseeko(fil1, 0, SEEK_END) != 0) {
+    } else if (fseeko(fil1, (offsettype) 0, SEEK_END) != 0) {
       raise_error(FILE_ERROR);
       return(0);
     } else {
@@ -464,7 +535,7 @@ filetype fil1;
     if (current_file_position == -1) {
       raise_error(FILE_ERROR);
       return(0);
-    } else if (fseeko64(fil1, 0, SEEK_END) != 0) {
+    } else if (fseeko64(fil1, (offsettype) 0, SEEK_END) != 0) {
       raise_error(FILE_ERROR);
       return(0);
     } else {
@@ -599,77 +670,6 @@ stritype str2;
     } /* if */
     return(result);
   } /* filOpen */
-
-
-
-#ifdef ANSI_C
-
-stritype filStriRead (filetype fil1, inttype length)
-#else
-
-stritype filStriRead (fil1, length)
-filetype fil1;
-inttype length;
-#endif
-
-  {
-    long current_file_position;
-    memsizetype bytes_there;
-    memsizetype bytes_requested;
-    memsizetype result_size;
-    stritype result;
-
-  /* filStriRead */
-    if (length < 0) {
-      raise_error(RANGE_ERROR);
-      return(NULL);
-    } else {
-      bytes_requested = (memsizetype) length;
-      if (!ALLOC_STRI(result, bytes_requested)) {
-        if ((current_file_position = ftell(fil1)) != -1) {
-          fseek(fil1, 0, SEEK_END);
-          bytes_there = (memsizetype) (ftell(fil1) - current_file_position);
-          fseek(fil1, current_file_position, SEEK_SET);
-          if (bytes_there < bytes_requested) {
-            bytes_requested = bytes_there;
-            if (!ALLOC_STRI(result, bytes_requested)) {
-              raise_error(MEMORY_ERROR);
-              return(NULL);
-            } /* if */
-          } else {
-            raise_error(MEMORY_ERROR);
-            return(NULL);
-          } /* if */
-        } else {
-          raise_error(MEMORY_ERROR);
-          return(NULL);
-        } /* if */
-      } /* if */
-      COUNT_STRI(bytes_requested);
-      result_size = (memsizetype) fread(result->mem, 1,
-          (SIZE_TYPE) bytes_requested, fil1);
-#ifdef WIDE_CHAR_STRINGS
-      if (result_size > 0) {
-        uchartype *from = &((uchartype *) result->mem)[result_size - 1];
-        strelemtype *to = &result->mem[result_size - 1];
-        memsizetype number = result_size;
-
-        for (; number > 0; from--, to--, number--) {
-          *to = *from;
-        } /* for */
-      } /* if */
-#endif
-      result->size = result_size;
-      if (result_size < bytes_requested) {
-        if (!RESIZE_STRI(result, bytes_requested, result_size)) {
-          raise_error(MEMORY_ERROR);
-          return(NULL);
-        } /* if */
-        COUNT3_STRI(bytes_requested, result_size);
-      } /* if */
-    } /* if */
-    return(result);
-  } /* filStriRead */
 
 
 

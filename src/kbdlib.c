@@ -85,6 +85,23 @@ listtype arguments;
 
 #ifdef ANSI_C
 
+objecttype kbd_gets (listtype arguments)
+#else
+
+objecttype kbd_gets (arguments)
+listtype arguments;
+#endif
+
+  { /* kbd_gets */
+    isit_int(arg_2(arguments));
+    return(bld_stri_temp(
+        kbdGets(take_int(arg_2(arguments)))));
+  } /* kbd_gets */
+
+
+
+#ifdef ANSI_C
+
 objecttype kbd_keypressed (listtype arguments)
 #else
 
@@ -136,23 +153,6 @@ listtype arguments;
   { /* kbd_raw_read */
     return(bld_char_temp(kbdRawGetc()));
   } /* kbd_raw_read */
-
-
-
-#ifdef ANSI_C
-
-objecttype kbd_stri_read (listtype arguments)
-#else
-
-objecttype kbd_stri_read (arguments)
-listtype arguments;
-#endif
-
-  { /* kbd_stri_read */
-    isit_int(arg_2(arguments));
-    return(bld_stri_temp(
-        kbdStriRead(take_int(arg_2(arguments)))));
-  } /* kbd_stri_read */
 
 
 

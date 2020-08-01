@@ -26,16 +26,17 @@
 /********************************************************************/
 
 typedef struct tracestruct {
-    booltype exceptions;
-    booltype check_actions;
     booltype actions;
-    booltype executil;
+    booltype check_actions;
     booltype dynamic;
+    booltype exceptions;
+    booltype heapsize;
     booltype match;
+    booltype executil;
   } tracerecord;
 
 #ifdef DO_INIT
-tracerecord trace = {FALSE, FALSE, FALSE, FALSE, FALSE, FALSE};
+tracerecord trace = {FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE};
 #else
 EXTERN tracerecord trace;
 #endif

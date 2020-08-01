@@ -52,7 +52,8 @@ const func string: obj_class (ref reference param) is                      actio
 const func ref_list: params (ref reference param) is                       action "REF_PARAMS";
 const func reference: func_result (ref reference param) is                 action "REF_RESULT";
 const func reference: func_res_init (ref reference param) is               action "REF_RESINI";
-const func ref_list: locals (ref reference param) is                       action "REF_LOCALS";
+const func ref_list: local_consts (ref reference param) is                 action "REF_LOCAL_CONSTS";
+const func ref_list: local_vars (ref reference param) is                   action "REF_LOCAL_VARS";
 const func reference: body (ref reference param) is                        action "REF_BODY";
 const func ref_list: array_to_list (ref reference param) is                action "REF_ARRTOLIST";
 const func ref_list: struct_to_list (ref reference param) is               action "REF_SCTTOLIST";

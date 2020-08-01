@@ -101,16 +101,15 @@ floattype source;
 
 #ifdef ANSI_C
 
-void fltCreate (floattype *dest, floattype source)
+floattype fltCreate (floattype source)
 #else
 
-void fltCreate (dest, source)
-floattype *dest;
+floattype fltCreate (source)
 floattype source;
 #endif
 
   { /* fltCreate */
-    *dest = source;
+    return(source);
   } /* fltCreate */
 
 

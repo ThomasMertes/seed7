@@ -31,14 +31,20 @@
 
 #ifdef ANSI_C
 
+stritype gkbGets (inttype);
+stritype gkbLineRead (chartype *);
+stritype gkbWordRead (chartype *);
+stritype kbdGets (inttype);
 stritype kbdLineRead (chartype *);
-stritype kbdStriRead (inttype);
 stritype kbdWordRead (chartype *);
 
 #else
 
+stritype gkbGets ();
+stritype gkbLineRead ();
+stritype gkbWordRead ();
+stritype kbdGets ();
 stritype kbdLineRead ();
-stritype kbdStriRead ();
 stritype kbdWordRead ();
 
 #endif

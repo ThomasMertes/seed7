@@ -404,6 +404,7 @@ settype setValue;
   } /* prot_set */
 
 
+
 #ifdef ANSI_C
 
 void prot_heapsize (void)
@@ -1578,18 +1579,20 @@ cstritype prot_file_name;
           case '+': flag_value = TRUE;                break;
           case '-': flag_value = FALSE;               break;
           case 'a': trace.actions = flag_value;       break;
-          case 'u': trace.executil = flag_value;      break;
-          case 'd': trace.dynamic = flag_value;       break;
-          case 'm': trace.match = flag_value;         break;
-          case 'e': trace.exceptions = flag_value;    break;
           case 'c': trace.check_actions = flag_value; break;
+          case 'd': trace.dynamic = flag_value;       break;
+          case 'e': trace.exceptions = flag_value;    break;
+          case 'h': trace.heapsize = flag_value;      break;
+          case 'm': trace.match = flag_value;         break;
+          case 'u': trace.executil = flag_value;      break;
           case '*':
             trace.actions = flag_value;
-            trace.executil = flag_value;
-            trace.dynamic = flag_value;
-            trace.match = flag_value;
-            trace.exceptions = flag_value;
             trace.check_actions = flag_value;
+            trace.dynamic = flag_value;
+            trace.exceptions = flag_value;
+            trace.heapsize = flag_value;
+            trace.match = flag_value;
+            trace.executil = flag_value;
             break;
         } /* switch */
       } /* for */

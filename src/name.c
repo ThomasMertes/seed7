@@ -367,12 +367,12 @@ progtype currentProg
 #ifdef TRACE_NAME
     printf("BEGIN close_stack %d\n", data_depth);
 #endif
+    destroy_object_list(currentProg->stack_data->local_object_list);
     list_element = currentProg->stack_data->local_object_list;
     while (list_element != NULL) {
       pop_object(list_element->obj);
       list_element = list_element->next;
     } /* while */
-    destroy_object_list(currentProg->stack_data->local_object_list);
     emptylist(currentProg->stack_data->local_object_list);
     currentProg->stack_current->local_object_list = NULL;
 #ifdef TRACE_NAME

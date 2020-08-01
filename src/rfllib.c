@@ -748,6 +748,23 @@ listtype arguments;
 
 #ifdef ANSI_C
 
+objecttype rfl_trace (listtype arguments)
+#else
+
+objecttype rfl_trace (arguments)
+listtype arguments;
+#endif
+
+  { /* rfl_trace */
+    isit_reflist(arg_1(arguments));
+    prot_list(take_reflist(arg_1(arguments)));
+    return(SYS_EMPTY_OBJECT);
+  } /* rfl_trace */
+
+
+
+#ifdef ANSI_C
+
 objecttype rfl_value (listtype arguments)
 #else
 

@@ -498,10 +498,48 @@ listtype arguments;
 
 #ifdef ANSI_C
 
-objecttype ref_locals (listtype arguments)
+objecttype ref_local_consts (listtype arguments)
 #else
 
-objecttype ref_locals (arguments)
+objecttype ref_local_consts (arguments)
+listtype arguments;
+#endif
+
+  {
+    objecttype obj_arg1;
+    listtype local_elem;
+    listtype *list_insert_place;
+    errinfotype err_info = OKAY_NO_ERROR;
+    listtype result;
+
+  /* ref_local_consts */
+    isit_reference(arg_1(arguments));
+    obj_arg1 = take_reference(arg_1(arguments));
+    result = NULL;
+    if (CLASS_OF_OBJ(obj_arg1) == BLOCKOBJECT) {
+      list_insert_place = &result;
+      local_elem = obj_arg1->value.blockvalue->local_consts;
+      while (local_elem != NULL) {
+        list_insert_place = append_element_to_list(list_insert_place,
+            local_elem->obj, &err_info);
+        local_elem = local_elem->next;
+      } /* while */
+    } /* if */
+    if (err_info != OKAY_NO_ERROR) {
+      emptylist(result);
+      return(raise_exception(SYS_MEM_EXCEPTION));
+    } /* if */
+    return(bld_reflist_temp(result));
+  } /* ref_local_consts */
+
+
+
+#ifdef ANSI_C
+
+objecttype ref_local_vars (listtype arguments)
+#else
+
+objecttype ref_local_vars (arguments)
 listtype arguments;
 #endif
 
@@ -512,13 +550,13 @@ listtype arguments;
     errinfotype err_info = OKAY_NO_ERROR;
     listtype result;
 
-  /* ref_locals */
+  /* ref_local_vars */
     isit_reference(arg_1(arguments));
     obj_arg1 = take_reference(arg_1(arguments));
     result = NULL;
     if (CLASS_OF_OBJ(obj_arg1) == BLOCKOBJECT) {
       list_insert_place = &result;
-      local_elem = obj_arg1->value.blockvalue->locals;
+      local_elem = obj_arg1->value.blockvalue->local_vars;
       while (local_elem != NULL) {
         list_insert_place = append_element_to_list(list_insert_place,
             local_elem->local.object, &err_info);
@@ -530,7 +568,7 @@ listtype arguments;
       return(raise_exception(SYS_MEM_EXCEPTION));
     } /* if */
     return(bld_reflist_temp(result));
-  } /* ref_locals */
+  } /* ref_local_vars */
 
 
 

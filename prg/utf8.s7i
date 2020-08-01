@@ -30,12 +30,12 @@ const type: utf8_file is sub external_file struct
   end struct;
 
 
-const func char: utf8_getc (ref PRIMITIVE_FILE param) is                       action "UT8_GETC";
-const func string: utf8_gets (ref PRIMITIVE_FILE param, ref integer param) is  action "UT8_STRI_READ";
-const func string: utf8_wrd_rd (ref PRIMITIVE_FILE param, inout char param) is action "UT8_WORD_READ";
-const func string: utf8_lin_rd (ref PRIMITIVE_FILE param, inout char param) is action "UT8_L_RD";
-const proc: utf8_write (ref PRIMITIVE_FILE param, in string param) is          action "UT8_WRITE";
-const proc: utf8_seek (ref PRIMITIVE_FILE param, in integer param) is          action "UT8_SEEK";
+const func char: utf8_getc (ref PRIMITIVE_FILE param) is                          action "UT8_GETC";
+const func string: utf8_gets (ref PRIMITIVE_FILE param, ref integer param) is     action "UT8_GETS";
+const func string: utf8_word_read (ref PRIMITIVE_FILE param, inout char param) is action "UT8_WORD_READ";
+const func string: utf8_line_read (ref PRIMITIVE_FILE param, inout char param) is action "UT8_LINE_READ";
+const proc: utf8_write (ref PRIMITIVE_FILE param, in string param) is             action "UT8_WRITE";
+const proc: utf8_seek (ref PRIMITIVE_FILE param, in integer param) is             action "UT8_SEEK";
 
 
 const func utf8_file: malloc (ref utf8_file: ext_file) is func
@@ -92,10 +92,10 @@ const func string: gets (ref utf8_file: aFile, in integer: leng) is
   return utf8_gets(aFile.ext_file, leng);
 
 const func string: getwd (inout utf8_file: aFile) is
-  return utf8_wrd_rd(aFile.ext_file, aFile.bufferChar);
+  return utf8_word_read(aFile.ext_file, aFile.bufferChar);
 
 const func string: getln (inout utf8_file: aFile) is
-  return utf8_lin_rd(aFile.ext_file, aFile.bufferChar);
+  return utf8_line_read(aFile.ext_file, aFile.bufferChar);
 
 const func boolean: eof (ref utf8_file: aFile) is
   return eof(aFile.ext_file);

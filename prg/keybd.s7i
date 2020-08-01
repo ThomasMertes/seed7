@@ -40,10 +40,10 @@ const type: SCREEN_KEYBD_FILE is sub NULL_FILE struct
   end struct;
 
 const func char: getc (ref SCREEN_KEYBD_FILE param) is                           action "KBD_GETC";
-const func string: gets (ref SCREEN_KEYBD_FILE param, ref integer param) is      action "KBD_STRI_READ";
+const func string: gets (ref SCREEN_KEYBD_FILE param, ref integer param) is      action "KBD_GETS";
 const func char: raw_getc (ref SCREEN_KEYBD_FILE param) is                       action "KBD_RAW_GETC";
-const func string: lin_rd (ref SCREEN_KEYBD_FILE param, inout char param) is     action "KBD_LINE_READ";
-const func string: wrd_rd (ref SCREEN_KEYBD_FILE param, inout char param) is     action "KBD_WORD_READ";
+const func string: line_read (ref SCREEN_KEYBD_FILE param, inout char param) is  action "KBD_LINE_READ";
+const func string: word_read (ref SCREEN_KEYBD_FILE param, inout char param) is  action "KBD_WORD_READ";
 const func char: busy_getc (ref SCREEN_KEYBD_FILE param) is                      action "KBD_BUSY_GETC";
 const func boolean: keypressed (ref SCREEN_KEYBD_FILE param) is                  action "KBD_KEYPRESSED";
 
@@ -64,14 +64,14 @@ const func string: getln (inout SCREEN_KEYBD_FILE: keybd) is func
   result
     var string: stri is "";
   begin
-    stri := lin_rd(keybd, keybd.bufferChar);
+    stri := line_read(keybd, keybd.bufferChar);
   end func;
 
 const func string: getwd (inout SCREEN_KEYBD_FILE: keybd) is func
   result
     var string: stri is "";
   begin
-    stri := wrd_rd(keybd, keybd.bufferChar);
+    stri := word_read(keybd, keybd.bufferChar);
   end func;
 
 
@@ -79,12 +79,12 @@ const type: GRAPH_KEYBD_FILE is sub NULL_FILE struct
   end struct;
 
 const func char: getc (ref GRAPH_KEYBD_FILE param) is                           action "GKB_GETC";
-const func string: gets (ref GRAPH_KEYBD_FILE param, ref integer param) is      action "GKB_STRI_READ";
+const func string: gets (ref GRAPH_KEYBD_FILE param, ref integer param) is      action "GKB_GETS";
 const func char: raw_getc (ref GRAPH_KEYBD_FILE param) is                       action "GKB_RAW_GETC";
 const func integer: getxpos (ref GRAPH_KEYBD_FILE param) is                     action "GKB_XPOS";
 const func integer: getypos (ref GRAPH_KEYBD_FILE param) is                     action "GKB_YPOS";
-const func string: lin_rd (ref GRAPH_KEYBD_FILE param, inout char param) is     action "GKB_LINE_READ";
-const func string: wrd_rd (ref GRAPH_KEYBD_FILE param, inout char param) is     action "GKB_WORD_READ";
+const func string: line_read (ref GRAPH_KEYBD_FILE param, inout char param) is  action "GKB_LINE_READ";
+const func string: word_read (ref GRAPH_KEYBD_FILE param, inout char param) is  action "GKB_WORD_READ";
 const func char: busy_getc (ref GRAPH_KEYBD_FILE param) is                      action "GKB_BUSY_GETC";
 const func boolean: keypressed (ref GRAPH_KEYBD_FILE param) is                  action "GKB_KEYPRESSED";
 
@@ -105,14 +105,14 @@ const func string: getln (inout GRAPH_KEYBD_FILE: keybd) is func
   result
     var string: stri is "";
   begin
-    stri := lin_rd(keybd, keybd.bufferChar);
+    stri := line_read(keybd, keybd.bufferChar);
   end func;
 
 const func string: getwd (inout GRAPH_KEYBD_FILE: keybd) is func
   result
     var string: stri is "";
   begin
-    stri := wrd_rd(keybd, keybd.bufferChar);
+    stri := word_read(keybd, keybd.bufferChar);
   end func;
 
 

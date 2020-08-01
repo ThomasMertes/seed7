@@ -171,7 +171,7 @@ typedef union {
     nodetype   nodevalue;    /* MDULEOBJECT */
     typetype   typevalue;    /* TYPEOBJECT */
     inttype    intvalue;     /* INTOBJECT */
-	biginttype bigintvalue;  /* BIGINTOBJECT */
+    biginttype bigintvalue;  /* BIGINTOBJECT */
     chartype   charvalue;    /* CHAROBJECT */
     stritype   strivalue;    /* STRIOBJECT */
     arraytype  arrayvalue;   /* ARRAYOBJECT */
@@ -248,7 +248,8 @@ typedef struct locliststruct {
 typedef struct blockstruct {
     loclisttype params;
     locobjrecord result;
-    loclisttype locals;
+    loclisttype local_vars;
+    listtype local_consts;
     objecttype body;
   } blockrecord;
 

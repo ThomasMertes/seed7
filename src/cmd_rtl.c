@@ -41,6 +41,7 @@
 #include "errno.h"
 
 #include "common.h"
+#include "data_rtl.h"
 #include "heaputl.h"
 #include "striutl.h"
 #include "rtl_err.h"
@@ -145,6 +146,60 @@
 
 #define SIZE_NORMAL_BUFFER   32768
 #define SIZE_RESERVE_BUFFER   2048
+
+
+
+#ifdef ANSI_C
+
+#ifdef USE_CDECL
+static int _cdecl cmp_mem (char *strg1, char *strg2)
+#else
+static int cmp_mem (void const *strg1, void const *strg2)
+#endif
+#else
+
+static int cmp_mem (strg1, strg2)
+char *strg1;
+char *strg2;
+#endif
+
+  {
+    register memsizetype size1;
+    register memsizetype size2;
+    int result;
+
+  /* cmp_mem */
+    size1 = ((rtlObjecttype *) strg1)->value.strivalue->size;
+    size2 = ((rtlObjecttype *) strg2)->value.strivalue->size;
+/*
+    printf("MEM_CMP(");
+    fwrite(((objecttype) strg1)->value.strivalue->mem, 1, size1, stdout);
+    printf(",");
+    fwrite(((objecttype) strg2)->value.strivalue->mem, 1, size2, stdout);
+    printf(");\n");
+*/
+    if (size1 == size2) {
+      return(memcmp(
+          ((rtlObjecttype *) strg1)->value.strivalue->mem,
+          ((rtlObjecttype *) strg2)->value.strivalue->mem,
+          (SIZE_TYPE) size1));
+    } else if (size1 > size2) {
+      if ((result = memcmp(
+          ((rtlObjecttype *) strg1)->value.strivalue->mem,
+          ((rtlObjecttype *) strg2)->value.strivalue->mem,
+          (SIZE_TYPE) size2)) == 0) {
+        return(1);
+      } /* if */
+    } else {
+      if ((result = memcmp(
+          ((rtlObjecttype *) strg1)->value.strivalue->mem,
+          ((rtlObjecttype *) strg2)->value.strivalue->mem,
+          (SIZE_TYPE) size1)) == 0) {
+        return(-1);
+      } /* if */
+    } /* if */
+    return(result);
+  } /* cmp_mem */
 
 
 
@@ -499,18 +554,17 @@ errinfotype *err_info;
 
 
 
-#ifdef OUT_OF_ORDER
 #ifdef ANSI_C
 
-static arraytype read_dir (char *dir_name)
+static rtlArraytype read_dir (char *dir_name)
 #else
 
-static arraytype read_dir (dir_name)
+static rtlArraytype read_dir (dir_name)
 char *dir_name;
 #endif
 
   {
-    arraytype dir_array;
+    rtlArraytype dir_array;
     memsizetype max_array_size;
     memsizetype used_array_size;
     memsizetype position;
@@ -524,8 +578,8 @@ char *dir_name;
     fflush(stdout); */
     if ((directory = opendir(dir_name)) != NULL) {
       max_array_size = 256;
-      if (ALLOC_ARRAY(dir_array, max_array_size)) {
-        COUNT_ARRAY(max_array_size);
+      if (ALLOC_RTL_ARRAY(dir_array, max_array_size)) {
+        COUNT_RTL_ARRAY(max_array_size);
         used_array_size = 0;
         do {
           current_entry = readdir(directory);
@@ -537,11 +591,11 @@ char *dir_name;
         okay = TRUE;
         while (okay && current_entry != NULL) {
           if (used_array_size >= max_array_size) {
-            if (!RESIZE_ARRAY(dir_array, max_array_size,
+            if (!RESIZE_RTL_ARRAY(dir_array, max_array_size,
                 max_array_size + 256)) {
               okay = FALSE;
             } else {
-              COUNT3_ARRAY(max_array_size, max_array_size + 256);
+              COUNT3_RTL_ARRAY(max_array_size, max_array_size + 256);
               max_array_size = max_array_size + 256;
             } /* if */
           } /* if */
@@ -550,11 +604,7 @@ char *dir_name;
             if (str1 == NULL) {
               okay = FALSE;
             } else {
-              dir_array->arr[(int) used_array_size].type_of = take_type(SYS_STRI_TYPE);
-              dir_array->arr[(int) used_array_size].entity = NULL;
               dir_array->arr[(int) used_array_size].value.strivalue = str1;
-              INIT_CLASS_OF_VAR(&dir_array->arr[(int) used_array_size],
-                  STRIOBJECT);
               used_array_size++;
               do {
                 current_entry = readdir(directory);
@@ -565,11 +615,11 @@ char *dir_name;
           } /* if */
         } /* while */
         if (okay) {
-          if (!RESIZE_ARRAY(dir_array, max_array_size,
+          if (!RESIZE_RTL_ARRAY(dir_array, max_array_size,
               used_array_size)) {
             okay = FALSE;
           } else {
-            COUNT3_ARRAY(max_array_size, used_array_size);
+            COUNT3_RTL_ARRAY(max_array_size, used_array_size);
             dir_array->min_position = 1;
             dir_array->max_position = used_array_size;
           } /* if */
@@ -579,21 +629,20 @@ char *dir_name;
             FREE_STRI(dir_array->arr[(int) position].value.strivalue,
                 dir_array->arr[(int) position].value.strivalue->size);
           } /* for */
-          FREE_ARRAY(dir_array, max_array_size);
+          FREE_RTL_ARRAY(dir_array, max_array_size);
           dir_array = NULL;
         } /* if */
       } /* if */
       closedir(directory);
     } else {
-      if (ALLOC_ARRAY(dir_array, (memsizetype) 0)) {
-        COUNT_ARRAY(0);
+      if (ALLOC_RTL_ARRAY(dir_array, (memsizetype) 0)) {
+        COUNT_RTL_ARRAY(0);
         dir_array->min_position = 1;
         dir_array->max_position = 0;
       } /* if */
     } /* if */
     return(dir_array);
   } /* read_dir */
-#endif
 
 
 
@@ -767,19 +816,18 @@ stritype file_name;
 
 
 
-#ifdef OUT_OF_ORDER
 #ifdef ANSI_C
 
-arraytype cmdLs (stritype dir_name)
+rtlArraytype cmdLs (stritype dir_name)
 #else
 
-arraytype cmdLs (dir_name)
+rtlArraytype cmdLs (dir_name)
 stritype dir_name;
 #endif
 
   {
     cstritype os_dir_name;
-    arraytype result;
+    rtlArraytype result;
 
   /* cmdLs */
     os_dir_name = cp_to_cstri(dir_name);
@@ -794,12 +842,11 @@ stritype dir_name;
         free_cstri(os_dir_name, dir_name);
         qsort((void *) result->arr,
             (size_t) (result->max_position - result->min_position + 1),
-            sizeof(objectrecord), &cmp_mem);
+            sizeof(rtlObjecttype), &cmp_mem);
         return(result);
       } /* if */
     } /* if */
   } /* cmdLs */
-#endif
 
 
 

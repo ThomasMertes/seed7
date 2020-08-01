@@ -512,7 +512,7 @@ const ELSIF_PROC: elsif FALSE then (in proc param) (in ELSIF_RESULT param) is EL
 (* WHILE + REPEAT *)
 
 const proc: while (in func boolean param) do (in proc param) end while is     action "PRC_WHILE";
-const proc: while (in varfunc boolean param) do (in proc param) end while is action "PRC_WHILE";
+const proc: while (in varfunc boolean param) do (in proc param) end while is  action "PRC_WHILE";
 const proc: while (ref boolean param)  do (in proc param) end while is        action "PRC_WHILE";
 
 const proc: repeat (in proc param) until (in func boolean param) is           action "PRC_REPEAT";
@@ -854,6 +854,8 @@ const proc: incl (in ref_list param, in reference param) is              action 
 const proc: excl (in ref_list param, in reference param) is              action "RFL_EXCL";
 const func integer: length (in ref_list param) is                        action "RFL_LNG";
 
+const proc: TRACE_LIST (in ref_list param) is                            action "RFL_TRACE";
+
 const proc: for (inout reference param) range (ref ref_list param) do (ref proc param) end for is action "RFL_FOR";
 
 
@@ -1164,33 +1166,31 @@ const func type: array (in type: baseType) is func
 
         const func boolean: (in arrayType: arr1) = (in arrayType: arr2) is func
           result
-            var boolean: result is FALSE;
+            var boolean: isEqual is FALSE;
           local
             var integer: number is 1;
           begin
             if length(arr1) = length(arr2) then
-              result := TRUE;
-              for number range 1 to length(arr1) do
-                if arr1[number] <> arr2[number] then
-                  result := FALSE;
-                end if;
-              end for;
+              isEqual := TRUE;
+              while number <= length(arr1) and isEqual do
+                isEqual := arr1[number] = arr2[number];
+                incr(number);
+              end while;
             end if;
           end func;
 
         const func boolean: (in arrayType: arr1) <> (in arrayType: arr2) is func
           result
-            var boolean: result is TRUE;
+            var boolean: isNotEqual is TRUE;
           local
             var integer: number is 1;
           begin
             if length(arr1) = length(arr2) then
-              result := FALSE;
-              for number range 1 to length(arr1) do
-                if arr1[number] <> arr2[number] then
-                  result := TRUE;
-                end if;
-              end for;
+              isNotEqual := FALSE;
+              while number <= length(arr1) and not isNotEqual do
+                isNotEqual := arr1[number] <> arr2[number];
+                incr(number);
+              end while;
             end if;
           end func;
 
@@ -1337,7 +1337,8 @@ const type: test_z is array [integer] string;
 
 (* Functions with arrays of strings *)
 
-const func array string: split (in string param, in char param) is action "STR_CHSPLIT";
+const func array string: split (in string param, in char param) is   action "STR_CHSPLIT";
+const func array string: split (in string param, in string param) is action "STR_SPLIT";
 
 const func string: join (in array string: striArray, in char: delimiter) is func
   result
@@ -2654,18 +2655,18 @@ const func PRIMITIVE_FILE: PRIMITIVE_OUTPUT is        action "FIL_OUT";
 const func PRIMITIVE_FILE: PRIMITIVE_ERROR is         action "FIL_ERR";
 const func PRIMITIVE_FILE: PRIMITIVE_NULL_FILE is     action "FIL_NIL";
 const func PRIMITIVE_FILE: PRIMITIVE_FILE_OPEN (in string param, in string param) is action "FIL_OPEN";
-const proc: close (ref PRIMITIVE_FILE param) is                           action "FIL_CLOSE";
-const func boolean: eof (ref PRIMITIVE_FILE param) is                     action "FIL_EOF";
-const proc: flush (ref PRIMITIVE_FILE param) is                           action "FIL_FLUSH";
-const func char: getc (ref PRIMITIVE_FILE param) is                       action "FIL_GETC";
-const func string: gets (ref PRIMITIVE_FILE param, ref integer param) is  action "FIL_STRI_READ";
-const func string: wrd_rd (ref PRIMITIVE_FILE param, inout char param) is action "FIL_WORD_READ";
-const func string: lin_rd (ref PRIMITIVE_FILE param, inout char param) is action "FIL_L_RD";
-const proc: write (ref PRIMITIVE_FILE param, in string param) is          action "FIL_WRITE";
-const func integer: length (ref PRIMITIVE_FILE param) is                  action "FIL_LNG";
-const proc: seek (ref PRIMITIVE_FILE param, ref integer param) is         action "FIL_SEEK";
-const func integer: tell (ref PRIMITIVE_FILE param) is                    action "FIL_TELL";
-const func string: literal (ref PRIMITIVE_FILE param) is                  action "FIL_LIT";
+const proc: close (ref PRIMITIVE_FILE param) is                              action "FIL_CLOSE";
+const func boolean: eof (ref PRIMITIVE_FILE param) is                        action "FIL_EOF";
+const proc: flush (ref PRIMITIVE_FILE param) is                              action "FIL_FLUSH";
+const func char: getc (ref PRIMITIVE_FILE param) is                          action "FIL_GETC";
+const func string: gets (ref PRIMITIVE_FILE param, ref integer param) is     action "FIL_GETS";
+const func string: word_read (ref PRIMITIVE_FILE param, inout char param) is action "FIL_WORD_READ";
+const func string: line_read (ref PRIMITIVE_FILE param, inout char param) is action "FIL_LINE_READ";
+const proc: write (ref PRIMITIVE_FILE param, in string param) is             action "FIL_WRITE";
+const func integer: length (ref PRIMITIVE_FILE param) is                     action "FIL_LNG";
+const proc: seek (ref PRIMITIVE_FILE param, ref integer param) is            action "FIL_SEEK";
+const func integer: tell (ref PRIMITIVE_FILE param) is                       action "FIL_TELL";
+const func string: literal (ref PRIMITIVE_FILE param) is                     action "FIL_LIT";
 
 const char: EOF is chr(-1);
 
@@ -2897,10 +2898,10 @@ const func string: gets (ref external_file: aFile, in integer: leng) is
   return gets(aFile.ext_file, leng);
 
 const func string: getwd (inout external_file: aFile) is
-  return wrd_rd(aFile.ext_file, aFile.bufferChar);
+  return word_read(aFile.ext_file, aFile.bufferChar);
 
 const func string: getln (inout external_file: aFile) is
-  return lin_rd(aFile.ext_file, aFile.bufferChar);
+  return line_read(aFile.ext_file, aFile.bufferChar);
 
 const func boolean: eof (ref external_file: aFile) is
   return eof(aFile.ext_file);

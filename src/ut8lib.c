@@ -62,24 +62,42 @@ listtype arguments;
 
 #ifdef ANSI_C
 
-objecttype ut8_l_rd (listtype arguments)
+objecttype ut8_gets (listtype arguments)
 #else
 
-objecttype ut8_l_rd (arguments)
+objecttype ut8_gets (arguments)
+listtype arguments;
+#endif
+
+  { /* ut8_gets */
+    isit_file(arg_1(arguments));
+    isit_int(arg_2(arguments));
+    return(bld_stri_temp(
+        ut8Gets(take_file(arg_1(arguments)), take_int(arg_2(arguments)))));
+  } /* ut8_gets */
+
+
+
+#ifdef ANSI_C
+
+objecttype ut8_line_read (listtype arguments)
+#else
+
+objecttype ut8_line_read (arguments)
 listtype arguments;
 #endif
 
   {
     objecttype ch_variable;
 
-  /* ut8_l_rd */
+  /* ut8_line_read */
     isit_file(arg_1(arguments));
     ch_variable = arg_2(arguments);
     isit_char(ch_variable);
     is_variable(ch_variable);
     return(bld_stri_temp(
         ut8LineRead(take_file(arg_1(arguments)), &ch_variable->value.charvalue)));
-  } /* ut8_l_rd */
+  } /* ut8_line_read */
 
 
 
@@ -98,24 +116,6 @@ listtype arguments;
     ut8Seek(take_file(arg_1(arguments)), take_int(arg_2(arguments)));
     return(SYS_EMPTY_OBJECT);
   } /* ut8_seek */
-
-
-
-#ifdef ANSI_C
-
-objecttype ut8_stri_read (listtype arguments)
-#else
-
-objecttype ut8_stri_read (arguments)
-listtype arguments;
-#endif
-
-  { /* ut8_stri_read */
-    isit_file(arg_1(arguments));
-    isit_int(arg_2(arguments));
-    return(bld_stri_temp(
-        ut8StriRead(take_file(arg_1(arguments)), take_int(arg_2(arguments)))));
-  } /* ut8_stri_read */
 
 
 

@@ -262,6 +262,24 @@ listtype arguments;
 
 #ifdef ANSI_C
 
+objecttype fil_gets (listtype arguments)
+#else
+
+objecttype fil_gets (arguments)
+listtype arguments;
+#endif
+
+  { /* fil_gets */
+    isit_file(arg_1(arguments));
+    isit_int(arg_2(arguments));
+    return(bld_stri_temp(
+        filGets(take_file(arg_1(arguments)), take_int(arg_2(arguments)))));
+  } /* fil_gets */
+
+
+
+#ifdef ANSI_C
+
 objecttype fil_in (listtype arguments)
 #else
 
@@ -311,24 +329,24 @@ listtype arguments;
 
 #ifdef ANSI_C
 
-objecttype fil_l_rd (listtype arguments)
+objecttype fil_line_read (listtype arguments)
 #else
 
-objecttype fil_l_rd (arguments)
+objecttype fil_line_read (arguments)
 listtype arguments;
 #endif
 
   {
     objecttype ch_variable;
 
-  /* fil_l_rd */
+  /* fil_line_read */
     isit_file(arg_1(arguments));
     ch_variable = arg_2(arguments);
     isit_char(ch_variable);
     is_variable(ch_variable);
     return(bld_stri_temp(
         filLineRead(take_file(arg_1(arguments)), &ch_variable->value.charvalue)));
-  } /* fil_l_rd */
+  } /* fil_line_read */
 
 
 
@@ -527,24 +545,6 @@ listtype arguments;
       return(SYS_EMPTY_OBJECT);
     } /* if */
   } /* fil_seek */
-
-
-
-#ifdef ANSI_C
-
-objecttype fil_stri_read (listtype arguments)
-#else
-
-objecttype fil_stri_read (arguments)
-listtype arguments;
-#endif
-
-  { /* fil_stri_read */
-    isit_file(arg_1(arguments));
-    isit_int(arg_2(arguments));
-    return(bld_stri_temp(
-        filStriRead(take_file(arg_1(arguments)), take_int(arg_2(arguments)))));
-  } /* fil_stri_read */
 
 
 

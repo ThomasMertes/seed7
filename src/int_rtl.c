@@ -352,16 +352,15 @@ inttype source;
 
 #ifdef ANSI_C
 
-void intCreate (inttype *dest, inttype source)
+inttype intCreate (inttype source)
 #else
 
-void intCreate (dest, source)
-inttype *dest;
+inttype intCreate (source)
 inttype source;
 #endif
 
   { /* intCreate */
-    *dest = source;
+    return(source);
   } /* intCreate */
 
 

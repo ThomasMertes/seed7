@@ -550,7 +550,7 @@ objecttype object;
       emptylist(evaluated_act_params);
       result = fail_value;
     } else {
-      loc_init(block->locals, &backup_loc_var, actual_parameters);
+      loc_init(block->local_vars, &backup_loc_var, actual_parameters);
       if (fail_flag) {
         emptylist(backup_loc_var);
         result = fail_value;
@@ -567,7 +567,7 @@ objecttype object;
         } else {
           result = raise_with_arguments(SYS_MEM_EXCEPTION, actual_parameters);
         } /* if */
-        loc_restore(block->locals, backup_loc_var);
+        loc_restore(block->local_vars, backup_loc_var);
         emptylist(backup_loc_var);
       } /* if */
       /* show_arg_list(evaluated_act_params); */
@@ -677,8 +677,10 @@ objecttype object;
 #ifdef WITH_PROTOCOL
       if (trace.actions) {
         /* heap_statistic(); */
-        prot_heapsize();
-        prot_cstri(" ");
+        if (trace.heapsize) {
+          prot_heapsize();
+          prot_cstri(" ");
+        } /* if */
         prot_cstri(get_primact(act_object->value.actvalue)->name);
         prot_cstri("(");
         prot_list(evaluated_act_params);
@@ -686,7 +688,7 @@ objecttype object;
         prot_flush();
         /* curr_action_object = act_object; */
         curr_exec_object = object;
-        curr_agument_list = evaluated_act_params;
+        curr_argument_list = evaluated_act_params;
         result = (*(act_object->value.actvalue))(evaluated_act_params);
         if (act_object->type_of != NULL) {
           if (act_object->type_of->result_type != NULL) {
@@ -718,15 +720,17 @@ objecttype object;
         } /* if */
         prot_cstri(" ==> ");
         printobject(result);
-        prot_cstri(" ");
-        prot_heapsize();
+        if (trace.heapsize) {
+          prot_cstri(" ");
+          prot_heapsize();
+        } /* if */
         prot_nl();
         prot_flush();
       } else {
 #endif
         /* curr_action_object = act_object; */
         curr_exec_object = object;
-        curr_agument_list = evaluated_act_params;
+        curr_argument_list = evaluated_act_params;
         result = (*(act_object->value.actvalue))(evaluated_act_params);
         if (result != NULL && result->type_of == NULL) {
           result->type_of = act_object->type_of->result_type;
@@ -1028,8 +1032,11 @@ listtype expr_list;
 #endif
 #ifdef WITH_PROTOCOL
     if (trace.dynamic) {
-      prot_heapsize();
-      prot_cstri(" DYNAMIC ");
+      if (trace.heapsize) {
+        prot_heapsize();
+        prot_cstri(" ");
+      } /* if */
+      prot_cstri("DYNAMIC ");
       prot_list(expr_list);
       prot_nl();
     } /* if */
@@ -1092,8 +1099,10 @@ printf("\n"); */
         } /* if */
 #ifdef WITH_PROTOCOL
         if (trace.dynamic) {
-          prot_cstri(" ");
-          prot_heapsize();
+          if (trace.heapsize) {
+            prot_cstri(" ");
+            prot_heapsize();
+          } /* if */
           prot_nl();
         } /* if */
 #endif
@@ -1187,16 +1196,22 @@ progtype currentProg;
         printf("\n"); */
 #ifdef WITH_PROTOCOL
         if (trace.actions) {
-          prot_heapsize();
-          prot_cstri(" begin main");
+          if (trace.heapsize) {
+            prot_heapsize();
+            prot_cstri(" ");
+          } /* if */
+          prot_cstri("begin main");
           prot_nl();
         } /* if */
 #endif
         resultOfProgram = exec_call(prog.main_object);
 #ifdef WITH_PROTOCOL
         if (trace.actions) {
-          prot_heapsize();
-          prot_cstri(" end main");
+          if (trace.heapsize) {
+            prot_heapsize();
+            prot_cstri(" ");
+          } /* if */
+          prot_cstri("end main");
           prot_nl();
         } /* if */
 #endif

@@ -28,12 +28,13 @@
 #ifdef ANSI_C
 
 void free_block (blocktype);
-blocktype new_block (loclisttype, locobjtype,
-    loclisttype, objecttype);
+blocktype new_block (loclisttype, locobjtype, loclisttype,
+    listtype, objecttype);
 void get_result_var (locobjtype, typetype, objecttype, errinfotype *);
 void get_return_var (locobjtype, typetype, errinfotype *);
 loclisttype get_param_list (listtype, errinfotype *);
 loclisttype get_local_var_list (listtype, errinfotype *);
+listtype get_local_const_list (listtype, errinfotype *);
 
 #else
 
@@ -43,5 +44,6 @@ void get_result_var ();
 lvoid get_return_var ();
 oclisttype get_param_list ();
 loclisttype get_local_var_list ();
+listtype get_local_const_list ();
 
 #endif

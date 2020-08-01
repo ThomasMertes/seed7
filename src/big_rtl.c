@@ -1614,31 +1614,28 @@ biginttype big_from;
 
 #ifdef ANSI_C
 
-void bigCreate (biginttype *big_to, biginttype big_from)
+biginttype bigCreate (biginttype big_from)
 #else
 
-void bigCreate (big_to, big_from)
-biginttype *big_to;
+biginttype bigCreate (big_from)
 biginttype big_from;
 #endif
 
   {
     memsizetype new_size;
-    biginttype new_big;
+    biginttype result;
 
   /* bigCreate */
     new_size = big_from->size;
-    if (!ALLOC_BIG(new_big, new_size)) {
-      *big_to = NULL;
+    if (!ALLOC_BIG(result, new_size)) {
       raise_error(MEMORY_ERROR);
-      return;
     } else {
       COUNT_BIG(new_size);
-      new_big->size = new_size;
-      memcpy(new_big->bigdigits, big_from->bigdigits,
+      result->size = new_size;
+      memcpy(result->bigdigits, big_from->bigdigits,
           (SIZE_TYPE) new_size * sizeof(bigdigittype));
-      *big_to = new_big;
     } /* if */
+    return(result);
   } /* bigCreate */
 
 
@@ -1903,6 +1900,25 @@ biginttype big2;
       } /* if */
     } /* if */
   } /* bigGrow */
+
+
+
+#ifdef ANSI_C
+
+inttype bigHashCode (biginttype big1)
+#else
+
+inttype bigHashCode (big1)
+biginttype big1;
+#endif
+
+  {
+    inttype result;
+
+  /* bigHashCode */
+    result = big1->bigdigits[0] << 5 ^ big1->size << 3 ^ big1->bigdigits[big1->size - 1];
+    return(result);
+  } /* bigHashCode */
 
 
 

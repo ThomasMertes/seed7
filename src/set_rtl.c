@@ -37,6 +37,7 @@
 
 
 #include "common.h"
+#include "data_rtl.h"
 #include "heaputl.h"
 #include "rtl_err.h"
 #include "int_rtl.h"
@@ -64,6 +65,56 @@ static int card_byte[] = {
     3, 4, 4, 5, 4, 5, 5, 6, 4, 5, 5, 6, 5, 6, 6, 7,
     4, 5, 5, 6, 5, 6, 6, 7, 5, 6, 6, 7, 6, 7, 7, 8
   };
+
+
+
+#ifdef ANSI_C
+
+settype setArrlit (rtlArraytype arr1)
+#else
+
+settype setArrlit (arr1)
+rtlArraytype arr1;
+#endif
+
+  {
+    memsizetype length;
+    inttype number;
+    inttype position;
+    unsigned int bit_index;
+    settype result;
+
+  /* setArrlit */
+    length = arr1->max_position - arr1->min_position + 1;
+    if (!ALLOC_SET(result, 1)) {
+      raise_error(MEMORY_ERROR);
+      return(NULL);
+    } else {
+      COUNT_SET(1);
+      if (length == 0) {
+        result->min_position = 0;
+        result->max_position = 0;
+        memset(result->bitset, 0, sizeof(bitsettype));
+      } else {
+        number = arr1->arr[0].value.intvalue;
+        position = number >> bitset_shift;
+        result->min_position = position;
+        result->max_position = position;
+        bit_index = ((unsigned int) number) & bitset_mask;
+        result->bitset[0] = (1 << bit_index);
+        for (number = 1; number < length; number++) {
+          setIncl(&result, arr1->arr[number].value.intvalue);
+#ifdef OUT_OF_ORDER
+          if (fail_flag) {
+            FREE_SET(result, result->max_position - result->min_position + 1);
+            return(fail_value);
+          } /* if */
+#endif
+        } /* for */
+      } /* if */
+      return(result);
+    } /* if */
+  } /* setArrlit */
 
 
 
@@ -256,32 +307,29 @@ settype set_from;
 
 #ifdef ANSI_C
 
-void setCreate (settype *set_to, settype set_from)
+settype setCreate (settype set_from)
 #else
 
-void setCreate (set_to, set_from)
-settype *set_to;
+settype setCreate (set_from)
 settype set_from;
 #endif
 
   {
     memsizetype new_size;
-    settype new_set;
+    settype result;
 
   /* setCreate */
     new_size = set_from->max_position - set_from->min_position + 1;
-    if (!ALLOC_SET(new_set, new_size)) {
-      *set_to = NULL;
+    if (!ALLOC_SET(result, new_size)) {
       raise_error(MEMORY_ERROR);
-      return;
     } else {
       COUNT_SET(new_size);
-      new_set->min_position = set_from->min_position;
-      new_set->max_position = set_from->max_position;
-      memcpy(new_set->bitset, set_from->bitset,
+      result->min_position = set_from->min_position;
+      result->max_position = set_from->max_position;
+      memcpy(result->bitset, set_from->bitset,
           (SIZE_TYPE) new_size * sizeof(bitsettype));
-      *set_to = new_set;
     } /* if */
+    return(result);
   } /* setCreate */
 
 

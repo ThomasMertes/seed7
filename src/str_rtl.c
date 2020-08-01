@@ -36,6 +36,7 @@
 #include "string.h"
 
 #include "common.h"
+#include "data_rtl.h"
 #include "heaputl.h"
 #include "striutl.h"
 #include "rtl_err.h"
@@ -137,6 +138,57 @@ SIZE_TYPE number;
 
 #ifdef ANSI_C
 
+static rtlArraytype add_stri_to_array (strelemtype *stri_elems, memsizetype length,
+    rtlArraytype work_array, memsizetype *used_max_position)
+#else
+
+static rtlArraytype add_stri_to_array (stri_elems, length,
+    work_array, used_max_position)
+strelemtype *stri_elems;
+memsizetype length;
+rtlArraytype work_array;
+memsizetype *used_max_position;
+#endif
+
+  {
+    stritype new_stri;
+    memsizetype position;
+
+  /* add_stri_to_array */
+    if (ALLOC_STRI(new_stri, length)) {
+      COUNT_STRI(length);
+      new_stri->size = length;
+      memcpy(new_stri->mem, stri_elems,
+          (SIZE_TYPE) length * sizeof(strelemtype));
+      if (*used_max_position >= work_array->max_position) {
+        if (!RESIZE_RTL_ARRAY(work_array, work_array->max_position,
+            work_array->max_position + 256)) {
+          FREE_STRI(new_stri, new_stri->size);
+          new_stri = NULL;
+        } else {
+          COUNT3_RTL_ARRAY(work_array->max_position, work_array->max_position + 256);
+          work_array->max_position += 256;
+        } /* if */
+      } /* if */
+    } /* if */
+    if (new_stri != NULL) {
+      work_array->arr[*used_max_position].value.strivalue = new_stri;
+      (*used_max_position)++;
+    } else {
+      for (position = 0; position < *used_max_position; position++) {
+        FREE_STRI(work_array->arr[position].value.strivalue,
+            work_array->arr[position].value.strivalue->size);
+      } /* for */
+      FREE_RTL_ARRAY(work_array, work_array->max_position);
+      work_array = NULL;
+    } /* if */
+    return(work_array);
+  } /* add_stri_to_array */
+
+
+
+#ifdef ANSI_C
+
 void strAppend (stritype *stri_to, stritype stri_from)
 #else
 
@@ -164,6 +216,68 @@ stritype stri_from;
       *stri_to = stri_dest;
     } /* if */
   } /* strAppend */
+
+
+
+#ifdef ANSI_C
+
+rtlArraytype strChSplit (stritype main_stri, chartype delimiter)
+#else
+
+rtlArraytype strChSplit (main_stri, delimiter)
+stritype main_stri;
+chartype delimiter;
+#endif
+
+  {
+    memsizetype used_max_position;
+    strelemtype *search_start;
+    strelemtype *search_end;
+    strelemtype *found_pos;
+    memsizetype pos;
+    rtlArraytype result_array;
+
+  /* strChSplit */
+    if (!ALLOC_RTL_ARRAY(result_array, 256)) {
+      raise_error(MEMORY_ERROR);
+      return(NULL);
+    } else {
+      COUNT_RTL_ARRAY(256);
+      result_array->min_position = 1;
+      result_array->max_position = 256;
+      used_max_position = 0;
+      search_start = main_stri->mem;
+      search_end = &main_stri->mem[main_stri->size];
+      while ((found_pos = (strelemtype *) search_strelem(search_start,
+          delimiter, (SIZE_TYPE) (search_end - search_start))) != NULL &&
+          result_array != NULL) {
+        result_array = add_stri_to_array(search_start,
+            (memsizetype) (found_pos - search_start), result_array,
+            &used_max_position);
+        search_start = found_pos + 1;
+      } /* while */
+      if (result_array != NULL) {
+        result_array = add_stri_to_array(search_start,
+            (memsizetype) (search_end - search_start), result_array,
+            &used_max_position);
+        if (result_array != NULL) {
+          if (!RESIZE_RTL_ARRAY(result_array, result_array->max_position,
+              used_max_position)) {
+            for (pos = 0; pos < used_max_position; pos++) {
+              FREE_STRI(result_array->arr[pos].value.strivalue,
+                  result_array->arr[pos].value.strivalue->size);
+            } /* for */
+            FREE_RTL_ARRAY(result_array, result_array->max_position);
+            result_array = NULL;
+          } else {
+            COUNT3_RTL_ARRAY(result_array->max_position, used_max_position);
+            result_array->max_position = used_max_position;
+          } /* if */
+        } /* if */
+      } /* if */
+      return(result_array);
+    } /* if */
+  } /* strChSplit */
 
 
 
@@ -351,31 +465,28 @@ stritype stri_from;
 
 #ifdef ANSI_C
 
-void strCreate (stritype *stri_to, stritype stri_from)
+stritype strCreate (stritype stri_from)
 #else
 
-void strCreate (stri_to, stri_from)
-stritype *stri_to;
+stritype strCreate (stri_from)
 stritype stri_from;
 #endif
 
   {
     memsizetype new_size;
-    stritype new_str;
+    stritype result;
 
   /* strCreate */
     new_size = stri_from->size;
-    if (!ALLOC_STRI(new_str, new_size)) {
-      *stri_to = NULL;
+    if (!ALLOC_STRI(result, new_size)) {
       raise_error(MEMORY_ERROR);
-      return;
     } else {
       COUNT_STRI(new_size);
-      new_str->size = new_size;
-      memcpy(new_str->mem, stri_from->mem,
+      result->size = new_size;
+      memcpy(result->mem, stri_from->mem,
           (SIZE_TYPE) new_size * sizeof(strelemtype));
-      *stri_to = new_str;
     } /* if */
+    return(result);
   } /* strCreate */
 
 
@@ -1124,59 +1235,6 @@ stritype searched;
 
 
 #ifdef OUT_OF_ORDER
-#ifdef ANSI_C
-
-void add_stri_to_array (strelemtype *stri_elems, memsizetype length,
-    arraytype *work_array, memsizetype *used_max_position, errinfotype *err_info)
-#else
-
-void add_stri_to_array (stri_elems, length,
-    work_array, used_max_position, err_info)
-strelemtype *stri_elems;
-memsizetype length;
-arraytype *work_array;
-memsizetype *used_max_position;
-errinfotype *err_info;
-#endif
-
-  {
-    stritype new_stri;
-    memsizetype position;
-
-  /* add_stri_to_array */
-    if (ALLOC_STRI(new_stri, length)) {
-      COUNT_STRI(length);
-      new_stri->size = length;
-      memcpy(new_stri->mem, stri_elems, length);
-      if (*used_max_position >= (*work_array)->max_position) {
-        if (!RESIZE_ARRAY(*work_array, (*work_array)->max_position,
-            (*work_array)->max_position + 256)) {
-          FREE_STRI(new_stri, new_stri->size);
-          *err_info = MEMORY_ERROR;
-        } else {
-          COUNT3_ARRAY((*work_array)->max_position, (*work_array)->max_position + 256);
-          (*work_array)->max_position += 256;
-        } /* if */
-      } /* if */
-      if (*err_info == OKAY_NO_ERROR) {
-        (*work_array)->arr[*used_max_position].type_of = take_type(SYS_STRI_TYPE);
-        (*work_array)->arr[*used_max_position].descriptor.entity = NULL;
-        (*work_array)->arr[*used_max_position].value.strivalue = new_stri;
-        INIT_CLASS_OF_VAR(&(*work_array)->arr[*used_max_position], STRIOBJECT);
-        (*used_max_position)++;
-      } else {
-        for (position = 0; position < *used_max_position; position++) {
-          FREE_STRI((*work_array)->arr[position].value.strivalue,
-              (*work_array)->arr[position].value.strivalue->size);
-        } /* for */
-        FREE_ARRAY(*work_array, max_array_size);
-        *work_array = NULL;
-      } /* if */
-    } /* if */
-  } /* add_stri_to_array */
-
-
-
 #ifdef ANSI_C
 
 arraytype strSplit (stritype main_stri, chartype delimiter)

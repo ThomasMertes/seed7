@@ -29,20 +29,20 @@
 
 objecttype kbd_busy_getc (listtype);
 objecttype kbd_getc (listtype);
+objecttype kbd_gets (listtype);
 objecttype kbd_keypressed (listtype);
 objecttype kbd_line_read (listtype);
 objecttype kbd_raw_getc (listtype);
-objecttype kbd_stri_read (listtype);
 objecttype kbd_word_read (listtype);
 
 #else
 
 objecttype kbd_busy_getc ();
 objecttype kbd_getc ();
+objecttype kbd_gets ();
 objecttype kbd_keypressed ();
 objecttype kbd_line_read ();
 objecttype kbd_raw_getc ();
-objecttype kbd_stri_read ();
 objecttype kbd_word_read ();
 
 #endif

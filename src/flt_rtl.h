@@ -33,7 +33,7 @@
 
 inttype fltCmp (floattype, floattype);
 void fltCpy (floattype *, floattype);
-void fltCreate (floattype *, floattype);
+floattype fltCreate (floattype);
 stritype fltDgts (floattype, inttype);
 floattype fltIpow (floattype, inttype);
 floattype fltParse (stritype);
@@ -45,7 +45,7 @@ stritype fltStr (floattype);
 
 inttype fltCmp ();
 void fltCpy ();
-void fltCreate ();
+floattype fltCreate ();
 stritype fltDgts ();
 floattype fltIpow ();
 floattype fltParse ();

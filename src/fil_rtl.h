@@ -34,11 +34,11 @@
 biginttype filBigLng (filetype);
 void filBigSeek (filetype, biginttype);
 biginttype filBigTell (filetype);
+stritype filGets (filetype, inttype);
 stritype filLineRead (filetype, chartype *);
 stritype filLit (filetype);
 inttype filLng (filetype);
 filetype filOpen (stritype, stritype);
-stritype filStriRead (filetype, inttype);
 stritype filWordRead (filetype, chartype *);
 void filWrite (filetype, stritype);
 
@@ -47,11 +47,11 @@ void filWrite (filetype, stritype);
 biginttype filBigLng ();
 void filBigSeek ();
 biginttype filBigTell ();
+stritype filGets ();
 stritype filLineRead ();
 stritype filLit ();
 inttype filLng ();
 filetype filOpen ();
-stritype filStriRead ();
 stritype filWordRead ();
 void filWrite ();
 

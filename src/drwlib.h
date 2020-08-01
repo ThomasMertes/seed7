@@ -29,10 +29,10 @@
 
 objecttype gkb_busy_getc (listtype);
 objecttype gkb_getc (listtype);
+objecttype gkb_gets (listtype);
 objecttype gkb_keypressed (listtype);
 objecttype gkb_line_read (listtype);
 objecttype gkb_raw_getc (listtype);
-objecttype gkb_stri_read (listtype);
 objecttype gkb_word_read (listtype);
 objecttype gkb_xpos (listtype);
 objecttype gkb_ypos (listtype);
@@ -82,10 +82,10 @@ objecttype drw_width (listtype);
 
 objecttype gkb_busy_getc ();
 objecttype gkb_getc ();
+objecttype gkb_gets ();
 objecttype gkb_keypressed ();
 objecttype gkb_line_read ();
 objecttype gkb_raw_getc ();
-objecttype gkb_stri_read ();
 objecttype gkb_word_read ();
 objecttype gkb_xpos ();
 objecttype gkb_ypos ();

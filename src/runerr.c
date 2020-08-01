@@ -112,7 +112,7 @@ objecttype argument;
     printf("\n");
     trace1(argument);
     printf("\n");
-    prot_list(curr_agument_list);
+    prot_list(curr_argument_list);
     continue_question();
   } /* run_error */
 
@@ -140,7 +140,7 @@ objecttype argument;
     printf(" WITH EMPTY VALUE\n");
     trace1(argument);
     printf("\nobject_ptr=%ld\n", (unsigned long) argument);
-    prot_list(curr_agument_list);
+    prot_list(curr_argument_list);
     continue_question();
   } /* empty_value */
 
@@ -170,7 +170,7 @@ objecttype argument;
     printf(" NOT CONSTANT\n");
     trace1(argument);
     printf("\nobject_ptr=%ld\n", (unsigned long) argument);
-    prot_list(curr_agument_list);
+    prot_list(curr_argument_list);
     continue_question();
   } /* var_required */
 
@@ -251,19 +251,24 @@ listtype list;
       prot_cstri("*** EXCEPTION ");
       printobject(exception);
       printf(" raised");
-      if (curr_exec_object != NULL && HAS_POSINFO(curr_exec_object)) {
-        printf(" at %s(%u)",
-            file_name(GET_FILE_NUM(curr_exec_object)),
-            GET_LINE_NUM(curr_exec_object));
-      } /* if */
-      printf(" with\n");
-      prot_list(list);
-      if (curr_exec_object != NULL) {
-        curr_action_object = curr_exec_object->value.listvalue->obj;
-      } /* if */
-      if (curr_action_object->value.actvalue != NULL) {
-        printf("\n*** ACTION \"%s\"\n",
-            get_primact(curr_action_object->value.actvalue)->name);
+      if (list == curr_argument_list) {
+        if (curr_exec_object != NULL && HAS_POSINFO(curr_exec_object)) {
+          printf(" at %s(%u)",
+              file_name(GET_FILE_NUM(curr_exec_object)),
+              GET_LINE_NUM(curr_exec_object));
+        } /* if */
+        printf(" with\n");
+        prot_list(list);
+        if (curr_exec_object != NULL) {
+          curr_action_object = curr_exec_object->value.listvalue->obj;
+        } /* if */
+        if (curr_action_object->value.actvalue != NULL) {
+          printf("\n*** ACTION \"%s\"\n",
+              get_primact(curr_action_object->value.actvalue)->name);
+        } /* if */
+      } else {
+        printf(" with\n");
+        prot_list(list);
       } /* if */
       continue_question();
     } /* if */
@@ -301,7 +306,7 @@ objecttype exception;
 #endif
 
   { /* raise_exception */
-    return(raise_with_arguments(exception, curr_agument_list));
+    return(raise_with_arguments(exception, curr_argument_list));
   } /* raise_exception */
 
 

@@ -79,8 +79,15 @@ HOW TO COMPILE UNDER WINDOWS?
     gmake depend
     gmake
 
-  After the compilation the interpreter is copied to prg/hi.exe.
+  To compile under MSYS (from the MinGW tools) go to the 'src'
+  directory and type:
 
+    cp makefile.msy makefile
+    rm version.h
+    gmake depend
+    gmake
+
+  After the compilation the interpreter is copied to prg/hi.exe.
   The windows version is work in progress, use it with care.
 
 

@@ -29,26 +29,53 @@
 /*                                                                  */
 /********************************************************************/
 
-typedef struct objectstruct  *objecttype;
-typedef struct arraystruct   *arraytype;
-typedef struct helemstruct   *helemtype;
-typedef struct hashstruct    *hashtype;
+typedef struct rtlArraystruct  *rtlArraytype;
+typedef struct helemstruct     *helemtype;
+typedef struct hashstruct      *hashtype;
 
-typedef struct objectstruct {
-    long value;
-  } objectrecord;
+typedef union {
+/*    postype    pos;          ** SYMBOLOBJECT */
+/*    nodetype   nodevalue;    ** MDULEOBJECT */
+/*    typetype   typevalue;    ** TYPEOBJECT */
+    inttype    intvalue;     /* INTOBJECT */
+    biginttype bigintvalue;  /* BIGINTOBJECT */
+    chartype   charvalue;    /* CHAROBJECT */
+    stritype   strivalue;    /* STRIOBJECT */
+    rtlArraytype  arrayvalue;   /* ARRAYOBJECT */
+    hashtype   hashvalue;    /* HASHOBJECT */
+    settype    setvalue;     /* SETOBJECT */
+/*    structtype structvalue;  ** STRUCTOBJECT */
+    filetype   filevalue;    /* FILEOBJECT */
+/*    listtype   listvalue;    ** LISTOBJECT, EXPROBJECT */
+    wintype    winvalue;     /* WINOBJECT */
+/*    rtlObjecttype objvalue;     ** ENUMLITERALOBJECT, CONSTENUMOBJECT */
+                             /* VARENUMOBJECT, VALUEPARAMOBJECT */
+                             /* REFPARAMOBJECT, RESULTOBJECT */
+                             /* LOCALVOBJECT, FORMPARAMOBJECT */
+                             /* CLASSOBJECT */
+/*    blocktype  blockvalue;   ** BLOCKOBJECT */
+/*    acttype    actvalue;     ** ACTOBJECT */
+/*    progtype   progvalue;    ** PROGOBJECT */
+#ifdef WITH_FLOAT
+    floattype  floatvalue;   /* FLOATOBJECT */
+#endif
+  } valueunion;
 
-typedef struct arraystruct {
+typedef struct rtlObjectstruct {
+    valueunion value;
+  } rtlObjecttype;
+
+typedef struct rtlArraystruct {
     inttype min_position;
     inttype max_position;
-    objectrecord arr[1];
-  } arrayrecord;
+    rtlObjecttype arr[1];
+  } rtlArrayrecord;
 
 typedef struct helemstruct {
     helemtype next_less;
     helemtype next_greater;
-    objectrecord key;
-    objectrecord data;
+    rtlObjecttype key;
+    rtlObjecttype data;
   } helemrecord;
 
 typedef struct hashstruct {

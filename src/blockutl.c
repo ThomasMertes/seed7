@@ -129,7 +129,8 @@ blocktype block;
     prot_nl(); */
     free_loclist(block->params);
     free_locobj(&block->result);
-    free_loclist(block->locals);
+    free_loclist(block->local_vars);
+    emptylist(block->local_consts); /* objects are not freed */
     /* block->body */
     FREE_RECORD(block, blockrecord, count.block);
   } /* free_block */
@@ -139,14 +140,16 @@ blocktype block;
 #ifdef ANSI_C
 
 blocktype new_block (loclisttype block_params, locobjtype block_result,
-    loclisttype block_locals, objecttype block_body)
+    loclisttype block_local_vars, listtype block_local_consts,
+    objecttype block_body)
 #else
 
 blocktype new_block (block_params, block_result,
-    block_locals, block_body)
+    block_local_vars,  block_local_consts, block_body)
 loclisttype block_params;
 objecttype block_result;
-loclisttype block_locals;
+loclisttype block_local_vars;
+listtype block_local_consts;
 objecttype block_body;
 #endif
 
@@ -171,7 +174,8 @@ objecttype block_body;
         created_block->result.create_call_obj  = block_result->create_call_obj;
         created_block->result.destroy_call_obj = block_result->destroy_call_obj;
       } /* if */
-      created_block->locals = block_locals;
+      created_block->local_vars = block_local_vars;
+      created_block->local_consts = block_local_consts;
       created_block->body = block_body;
     } /* if */
 #ifdef TRACE_BLOCK
@@ -383,3 +387,41 @@ errinfotype *err_info;
 #endif
     return(local_vars);
   } /* get_local_var_list */
+
+
+
+#ifdef ANSI_C
+
+listtype get_local_const_list (listtype local_object_list,
+    errinfotype *err_info)
+#else
+
+listtype get_local_const_list (local_object_list, err_info)
+listtype local_object_list;
+errinfotype *err_info;
+#endif
+
+  {
+    listtype *list_insert_place;
+    listtype local_element;
+    listtype local_consts;
+
+  /* get_local_const_list */
+#ifdef TRACE_BLOCK
+    printf("BEGIN get_local_const_list\n");
+#endif
+    local_consts = NULL;
+    list_insert_place = &local_consts;
+    local_element = local_object_list;
+    while (local_element != NULL) {
+      if (!VAR_OBJECT(local_element->obj)) {
+        list_insert_place = append_element_to_list(list_insert_place,
+            local_element->obj, err_info);
+      } /* if */
+      local_element = local_element->next;
+    } /* while */
+#ifdef TRACE_BLOCK
+    printf("END get_local_const_list\n");
+#endif
+    return(local_consts);
+  } /* get_local_const_list */

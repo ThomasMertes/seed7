@@ -1,6 +1,6 @@
 /********************************************************************/
 /*                                                                  */
-/*  bln_rtl.h     Primitive actions for the integer type.           */
+/*  arr_rtl.h     Primitive actions for the array type.             */
 /*  Copyright (C) 1989 - 2006  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
@@ -23,20 +23,24 @@
 /*  Boston, MA 02111-1307 USA                                       */
 /*                                                                  */
 /*  Module: Seed7 Runtime Library                                   */
-/*  File: seed7/src/bln_rtl.h                                       */
-/*  Changes: 1999, 2005  Thomas Mertes                              */
-/*  Content: Primitive actions for the boolean type.                */
+/*  File: seed7/src/arr_rtl.h                                       */
+/*  Changes: 1991, 1992, 1993, 1994, 2005, 2006  Thomas Mertes      */
+/*  Content: Primitive actions for the array type.                  */
 /*                                                                  */
 /********************************************************************/
 
 #ifdef ANSI_C
 
-void blnCpy (booltype *, booltype);
-booltype blnCreate (booltype);
+rtlArraytype arrArrlit (rtlArraytype);
+rtlArraytype arrBaselit (rtlObjecttype);
+rtlArraytype arrExtend (rtlArraytype, rtlObjecttype);
+rtlArraytype arrGen (rtlObjecttype, rtlObjecttype);
 
 #else
 
-void blnCpy ();
-booltype blnCreate ();
+rtlArraytype arrArrlit ();
+rtlArraytype arrBaselit ();
+rtlArraytype arrExtend ();
+rtlArraytype arrGen ();
 
 #endif

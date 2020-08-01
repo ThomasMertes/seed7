@@ -45,6 +45,7 @@ objecttype rfl_mklist (listtype);
 objecttype rfl_ne (listtype);
 objecttype rfl_range (listtype);
 objecttype rfl_tail (listtype);
+objecttype rfl_trace (listtype);
 objecttype rfl_value (listtype);
 
 #else
@@ -67,6 +68,7 @@ objecttype rfl_mklist ();
 objecttype rfl_ne ();
 objecttype rfl_range ();
 objecttype rfl_tail ();
+objecttype rfl_trace ();
 objecttype rfl_value ();
 
 #endif

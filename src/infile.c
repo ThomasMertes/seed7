@@ -371,6 +371,8 @@ void close_infile ()
     if (in_file.up_infile != NULL) {
       memcpy(&in_file, in_file.up_infile, sizeof(infilrecord));
       display_compilation_info();
+    } else {
+      in_file.curr_infile = NULL;
     } /* if */
     in_file.next_msg_line = in_file.line + option.incr_message_line;
 #ifdef TRACE_INFILE
@@ -456,7 +458,7 @@ void next_file ()
     printf("BEGIN next_file\n");
 #endif
     in_file.line--;
-    if (in_file.next != NULL) {
+    if (in_file.up_infile != NULL) {
       close_infile();
     } else {
       in_file.end_of_file = TRUE;
