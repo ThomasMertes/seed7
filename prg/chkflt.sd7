@@ -27,7 +27,7 @@ $ include "seed7_05.s7i";
   include "math.s7i";
 
 
-const proc: check_conversion is func
+const proc: check_parse is func
   local
     var boolean: okay is TRUE;
   begin
@@ -43,6 +43,34 @@ const proc: check_conversion is func
       writeln("Decimal conversion of float works correct.");
     else
       writeln(" ***** Decimal conversion of float does not work correct.");
+      writeln;
+    end if;
+  end func;
+
+
+const proc: check_conversion is func
+  local
+    var boolean: okay is TRUE;
+  begin
+    if  float conv      (-2) <>       -2.0 or
+        float conv      (-1) <>       -1.0 or
+        float conv        0  <>        0.0 or
+        float conv        1  <>        1.0 or
+        float conv       10  <>       10.0 or
+        float conv      100  <>      100.0 or
+        float conv     1000  <>     1000.0 or
+        float conv    10000  <>    10000.0 or
+        float conv   100000  <>   100000.0 or
+        float conv  1000000  <>  1000000.0 or
+        float conv        1  <>        1.0 then
+      writeln("Decimal conversion of float does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if okay then
+      writeln("Conversion from integer to float works correct.");
+    else
+      writeln(" ***** Conversion from integer to float does not work correct.");
       writeln;
     end if;
   end func;
@@ -268,6 +296,7 @@ const proc: main is func
 
   begin
     writeln;
+    check_parse;
     check_conversion;
     check_add;
     check_power;

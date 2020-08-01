@@ -418,11 +418,11 @@ floattype upper_limit;
       factor = upper_limit - lower_limit;
       if (factor == POSITIVE_INFINITY) {
         do {
-          result = (floattype) rand_32();
+          result = (floattype) uint_rand();
         } while (result < lower_limit || result > upper_limit);
       } else {
         do {
-          result = ((floattype) rand_32()) / ((floattype) UINTTYPE_MAX);
+          result = ((floattype) uint_rand()) / ((floattype) UINTTYPE_MAX);
           result = lower_limit + factor * result;
         } while (result < lower_limit || result > upper_limit);
       } /* if */

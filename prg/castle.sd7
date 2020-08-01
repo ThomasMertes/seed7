@@ -1822,7 +1822,6 @@ const proc: loadGame is func
           readln(load_file, item[item_ident].xPos);
           readln(load_file, item[item_ident].yPos);
           readln(load_file, item[item_ident].room_num);
-          showItem(item[item_ident]);
         end for;
         readln(load_file, player.xPos);
         readln(load_file, player.yPos);
@@ -1833,6 +1832,11 @@ const proc: loadGame is func
         close(load_file);
 
         message := [] ("Game Loaded Successful!");
+        for item_ident range MIN_ITEM to MAX_ITEM do
+          if item_ident not in player.inventory then
+            showItem(item[item_ident]);
+          end if;
+        end for;
         player.saved_pixmap := PRIMITIVE_WINDOW.value;
         checkRoom;
         displayAll;
@@ -2054,48 +2058,6 @@ const proc: dropItem is func
     if item_ident <> NO_ITEM then
       dropItem(item_ident);
     end if;
-  end func;
-
-
-const proc: waveItem (in itemType: item_ident) is func
-  begin
-    case item_ident of
-      when {MAGIC_WAND}:
-        if player.room = WINDING_PASSAGE2 then
-          message := [] ("As you wave the WAND....",
-                         "  There is a *Puff* of smoke Revealing a Secret passage!");
-          room[WINDING_PASSAGE2].data[18] := "   ########  ########## ";
-        elsif player.room = SORCERERS_QUARTERS then
-          message := [] ("As you wave the WAND....",
-                         "  There is a *Puff* of smoke Revealing a Secret passage!");
-          room[SORCERERS_QUARTERS].data[8]  := "######             #####";
-          room[SORCERERS_QUARTERS].data[9]  := "                        ";
-          room[SORCERERS_QUARTERS].data[10] := "                        ";
-          room[SORCERERS_QUARTERS].data[11] := "######             #####";
-        else
-          message := [] ("As you wave the WAND....",
-                         "  Nothing Happens!");
-        end if;
-      when {HOLY_CROSS}:
-        if player.room = CORRIDOR28 then
-          monster[VAMPIRE].room_num := -1;
-          message := [] ("The vampire sees the holy cross and disappears!");
-        else
-          message := [] ("You look awful Silly waving that " & item[item_ident].name);
-        end if;
-      when {SCEPTER}:
-        if player.room = COURTYARD then
-          message := [] ("As you wave the scepter...",
-                         "The Gate opens by itself!");
-          room[COURTYARD].data[18] := "##########    ##########";
-        else
-          message := [] ("As you wave the SCEPTER....",
-                         "  Nothing Happens!");
-        end if;
-      otherwise:
-        message := [] ("You look awful Silly waving that " & item[item_ident].name);
-    end case;
-    displayAll;
   end func;
 
 

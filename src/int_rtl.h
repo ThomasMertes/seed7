@@ -31,7 +31,7 @@
 
 #ifdef ANSI_C
 
-uinttype rand_32 (void);
+uinttype uint_rand (void);
 int uint8MostSignificantBit (uint8type number);
 int uint16MostSignificantBit (uint16type number);
 int uint32MostSignificantBit (uint32type number);
@@ -61,7 +61,7 @@ stritype intStrHex (inttype number);
 
 #else
 
-uinttype rand_32 ();
+uinttype uint_rand ();
 int uint8MostSignificantBit ();
 int uint16MostSignificantBit ();
 int uint32MostSignificantBit ();

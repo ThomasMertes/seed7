@@ -1,3 +1,17 @@
+20100718:
+- The first steps towards support of variable functions and closures in the
+  compiler ("comp.sd7") were done.
+- The generation of code for 'for' loops and the 'div' operator in the compiler
+  was improved.
+- The compiler function 'getTemporaryToResultExpr' was improved to generate
+  code without casts from 'floattype' to 'generictype'. 
+- The function 'rand_32' in "int_rtl.c" was renamed to 'uint_rand' and improved
+  to work better for 64-bit integers.
+- A bug that could occur when loading a saved game was fixed in the example
+  program "castle.sd7".
+- Tests for conversions from integer to float were added to the "chkflt.sd7"
+  example program.
+
 20100704:
 - The Seed7 interpreter (hi) was improved to support stack traces with
   function call notation.

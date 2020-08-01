@@ -416,7 +416,7 @@ definition. The C++ for/while/if statements are described in the C++
 manuals using BNF and an English description. Seed7 statements can be
 defined in Seed7. For example:
 
-  $ syntax expr: while.().do.().end.while is -> 25;
+  $ syntax expr: .while.().do.().end.while is -> 25;
 
   const proc: while (ref func boolean: condition) do
                 (ref proc: statement)

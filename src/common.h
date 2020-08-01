@@ -105,7 +105,7 @@ typedef UINT32TYPE         uint32type;
 #define INT32TYPE_MIN              (-2147483647L)
 #endif
 #define INT32TYPE_MAX                2147483647L
-#define UINT32TYPE_MAX ((uint32type) 4294967295L)
+#define UINT32TYPE_MAX ((uint32type) 0xFFFFFFFFL)
 #else
 #define INT32TYPE_LITERAL_SUFFIX ""
 #ifdef TWOS_COMPLEMENT_INTTYPE
@@ -114,7 +114,7 @@ typedef UINT32TYPE         uint32type;
 #define INT32TYPE_MIN              (-2147483647)
 #endif
 #define INT32TYPE_MAX                2147483647
-#define UINT32TYPE_MAX ((uint32type) 4294967295)
+#define UINT32TYPE_MAX ((uint32type) 0xFFFFFFFF)
 #endif
 
 #if   defined INT32TYPE_FORMAT_L

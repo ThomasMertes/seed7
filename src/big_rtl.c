@@ -4830,7 +4830,7 @@ biginttype upper_limit;
           pos = 0;
           do {
             if (random_number == 0) {
-              random_number = rand_32();
+              random_number = uint_rand();
             } /* if */
             result->bigdigits[pos] = (bigdigittype) (random_number & BIGDIGIT_MASK);
             random_number >>= BIGDIGIT_SIZE;

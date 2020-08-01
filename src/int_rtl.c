@@ -46,11 +46,12 @@
 #include "int_rtl.h"
 
 
-#define LOWER_16(A) ((A) & 0177777L)
-#define UPPER_16(A) (((A) >> 16) & 0177777L)
-#define LOWER_31(A) ((A) & (uinttype) 017777777777L)
-#define LOWER_32(A) ((A) & (uinttype) 037777777777L)
-#define BIT_32_SET(A) (((A) & (uinttype) 020000000000L) != 0)
+#define UINT_BITS(A)                     ((A) & UINTTYPE_MAX)
+#define UINT_BITS_WITHOUT_HIGHEST_BIT(A) ((A) & (UINTTYPE_MAX >> 1))
+#define UINT_HIGHEST_BIT(A)              ((A) >> (INTTYPE_SIZE - 1))
+#define UINT_LOWER_HALVE_BITS_SET        (UINTTYPE_MAX >> (INTTYPE_SIZE >> 1))
+#define LOWER_HALVE_OF_UINT(A)           ((A) & UINT_LOWER_HALVE_BITS_SET)
+#define UPPER_HALVE_OF_UINT(A)           (((A) >> (INTTYPE_SIZE >> 1)) & UINT_LOWER_HALVE_BITS_SET)
 
 
 static const int most_significant[] = {
@@ -97,12 +98,12 @@ static const char digits[] = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
 #ifdef ANSI_C
 
-static void mult_64 (uinttype a_high, uinttype a_low,
+static void uint2_mult (uinttype a_high, uinttype a_low,
     uinttype b_high, uinttype b_low,
     uinttype *c_high, uinttype *c_low)
 #else
 
-static void mult_64 (a_high, a_low, b_high, b_low, c_high, c_low)
+static void uint2_mult (a_high, a_low, b_high, b_low, c_high, c_low)
 uinttype a_high;
 uinttype a_low;
 uinttype b_high;
@@ -121,37 +122,40 @@ uinttype *c_low;
     uinttype c3;
     uinttype c4;
 
-  /* mult_64 */
+  /* uint2_mult */
 #ifdef TRACE_RANDOM
-    printf("BEGIN mult_64\n");
+    printf("BEGIN uint2_mult(%08x%08x, %08x%08x)\n",
+	    (unsigned int) a_high, (unsigned int) a_low,
+	    (unsigned int) b_high, (unsigned int) b_low);
 #endif
-    a_low1 = LOWER_16(a_low);
-    a_low2 = UPPER_16(a_low);
-    b_low1 = LOWER_16(b_low);
-    b_low2 = UPPER_16(b_low);
-    c1 = UPPER_16(a_low1 * b_low1);
+    a_low1 = LOWER_HALVE_OF_UINT(a_low);
+    a_low2 = UPPER_HALVE_OF_UINT(a_low);
+    b_low1 = LOWER_HALVE_OF_UINT(b_low);
+    b_low2 = UPPER_HALVE_OF_UINT(b_low);
+    c1 = UPPER_HALVE_OF_UINT(a_low1 * b_low1);
     c2 = a_low1 * b_low2;
     c3 = a_low2 * b_low1;
-    c4 = UPPER_16(c1 + LOWER_16(c2) + LOWER_16(c3)) +
-        UPPER_16(c2) + UPPER_16(c3) +
+    c4 = UPPER_HALVE_OF_UINT(c1 + LOWER_HALVE_OF_UINT(c2) + LOWER_HALVE_OF_UINT(c3)) +
+        UPPER_HALVE_OF_UINT(c2) + UPPER_HALVE_OF_UINT(c3) +
         a_low2 * b_low2;
-    *c_low = LOWER_32(a_low * b_low);
-    *c_high = LOWER_32(a_low * b_high + a_high * b_low + c4);
+    *c_low = UINT_BITS(a_low * b_low);
+    *c_high = UINT_BITS(a_low * b_high + a_high * b_low + c4);
 #ifdef TRACE_RANDOM
-    printf("END mult_64\n");
+    printf("END uint2_mult ==> %08x%08x\n",
+	    (unsigned int) *c_high, (unsigned int) *c_low);
 #endif
-  } /* mult_64 */
+  } /* uint2_mult */
 
 
 
 #ifdef ANSI_C
 
-static INLINE void add_64 (uinttype a_high, uinttype a_low,
+static INLINE void uint2_add (uinttype a_high, uinttype a_low,
     uinttype b_high, uinttype b_low,
     uinttype *c_high, uinttype *c_low)
 #else
 
-static INLINE void add_64 (a_high, a_low, b_high, b_low, c_high, c_low)
+static INLINE void uint2_add (a_high, a_low, b_high, b_low, c_high, c_low)
 uinttype a_high;
 uinttype a_low;
 uinttype b_high;
@@ -160,30 +164,34 @@ uinttype *c_high;
 uinttype *c_low;
 #endif
 
-  { /* add_64 */
+  { /* uint2_add */
 #ifdef TRACE_RANDOM
-    printf("BEGIN add_64\n");
+    printf("BEGIN uint2_add(%08x%08x, %08x%08x)\n",
+	    (unsigned int) a_high, (unsigned int) a_low,
+	    (unsigned int) b_high, (unsigned int) b_low);
 #endif
-    *c_low = LOWER_32(a_low + b_low);
-    if (BIT_32_SET(a_low) + BIT_32_SET(b_low) +
-        BIT_32_SET(LOWER_31(a_low) + LOWER_31(b_low)) >= 2) {
-      *c_high = LOWER_32(a_high + b_high + 1);
+    *c_low = UINT_BITS(a_low + b_low);
+    if (UINT_HIGHEST_BIT(a_low) + UINT_HIGHEST_BIT(b_low) +
+        UINT_HIGHEST_BIT(UINT_BITS_WITHOUT_HIGHEST_BIT(a_low) +
+                         UINT_BITS_WITHOUT_HIGHEST_BIT(b_low)) >= 2) {
+      *c_high = UINT_BITS(a_high + b_high + 1);
     } else {
-      *c_high = LOWER_32(a_high + b_high);
+      *c_high = UINT_BITS(a_high + b_high);
     } /* if */
 #ifdef TRACE_RANDOM
-    printf("END add_64\n");
+    printf("END uint2_add ==> %08x%08x\n",
+	    (unsigned int) *c_high, (unsigned int) *c_low);
 #endif
-  } /* add_64 */
+  } /* uint2_add */
 
 
 
 #ifdef ANSI_C
 
-uinttype rand_32 (void)
+uinttype uint_rand (void)
 #else
 
-uinttype rand_32 ()
+uinttype uint_rand ()
 #endif
 
   {
@@ -191,9 +199,9 @@ uinttype rand_32 ()
     static uinttype low_seed;
     static uinttype high_seed;
 
-  /* rand_32 */
+  /* uint_rand */
 #ifdef TRACE_RANDOM
-    printf("BEGIN rand_32\n");
+    printf("BEGIN uint_rand\n");
 #endif
     if (seed_necessary) {
       high_seed = (uinttype) time(NULL);
@@ -204,17 +212,17 @@ uinttype rand_32 ()
       seed_necessary = FALSE;
     } /* if */
     /* SEED = SEED * 1073741825 + 1234567891 */
-    mult_64(high_seed, low_seed, (uinttype) 0L, (uinttype) 1073741825L,
+    uint2_mult(high_seed, low_seed, (uinttype) 0L, (uinttype) 1073741825L,
         &high_seed, &low_seed);
 /*  printf("%10lo %010lo\n", high_seed, low_seed); */
-    add_64(high_seed, low_seed, (uinttype) 0L, (uinttype) 1234567891L,
+    uint2_add(high_seed, low_seed, (uinttype) 0L, (uinttype) 1234567891L,
         &high_seed, &low_seed);
 /*  printf("%10lo %010lo\n", high_seed, low_seed); */
 #ifdef TRACE_RANDOM
-    printf("END rand_32\n");
+    printf("END uint_rand ==> %08x\n", (unsigned int) high_seed);
 #endif
     return high_seed;
-  } /* rand_32 */
+  } /* uint_rand */
 
 
 
@@ -880,8 +888,8 @@ inttype upper_limit;
       } /* if */
       low_factor = scale_limit + 2;
       do {
-        /* RAND = (rand_32() * FACTOR) >> 32; */
-        mult_64((uinttype) 0L, rand_32(),
+        /* RAND = (uint_rand() * FACTOR) >> INTTYPE_SIZE; */
+        uint2_mult((uinttype) 0L, uint_rand(),
             high_factor, low_factor,
             &high_rand, &low_rand);
       } while (high_rand > scale_limit);
