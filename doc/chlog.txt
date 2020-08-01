@@ -1,4 +1,6 @@
-20151011:
+20151012:
+- The program setpaths.c has been changed to work correctly when
+  the binary release (for Windows) is used.
 - Errors in the bigInteger operators +:= and -:= have been fixed.
   This errors were triggered with expressions like A +:= A; when the
   value of A has a value in a specific range. Thanks go to Fausto C.

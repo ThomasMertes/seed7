@@ -307,7 +307,7 @@ int main (int argc, char **argv)
              s7_lib_dir, C_COMPILER_SCRIPT);
 #endif
 #if !defined GET_CC_VERSION_INFO && defined GET_CC_VERSION_INFO_OPTIONS
-      printf("#define GET_CC_VERSION_INFO \"\\\"%s/%s %s\\\"",
+      printf("#define GET_CC_VERSION_INFO \"\\\"%s/%s\\\" %s\"\n",
              s7_lib_dir, C_COMPILER_SCRIPT, GET_CC_VERSION_INFO_OPTIONS);
 #endif
       printf("#define S7_LIB_DIR \"%s\"\n", s7_lib_dir);
@@ -321,7 +321,7 @@ int main (int argc, char **argv)
 #if !defined GET_CC_VERSION_INFO && defined GET_CC_VERSION_INFO_OPTIONS
       printf("#define GET_CC_VERSION_INFO \"\\\"");
       write_as_utf8(buffer);
-      printf("/%s %s\\\"\"\n", C_COMPILER_SCRIPT, GET_CC_VERSION_INFO_OPTIONS);
+      printf("/%s\\\" %s\"\n", C_COMPILER_SCRIPT, GET_CC_VERSION_INFO_OPTIONS);
 #endif
       printf("#define S7_LIB_DIR \"");
       write_as_utf8(buffer);
