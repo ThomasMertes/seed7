@@ -336,7 +336,7 @@ int main (int argc, char **argv)
       write_as_utf8(buffer);
       printf("\"\n");
     } /* if */
-    chdir("../prg"); /* Use ../prg when ../lib does not exist */
+    chdir("../prg"); /* Use ../prg if ../lib does not exist */
     chdir("../lib");
     printf("#define SEED7_LIBRARY \"");
     if (seed7_library != NULL) {

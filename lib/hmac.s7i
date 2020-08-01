@@ -51,7 +51,7 @@ const func string: (in string: stri1) >< (in string: stri2) is func
  *  Compute a message authentication code with the given [[msgdigest#digestAlgorithm|digestAlgorithm]].
  *  @param digestAlg The [[msgdigest#digestAlgorithm|digestAlgorithm]] to be used.
  *  @return the message authentication code produced with ''digestAlg''.
- *  @exception RANGE_ERROR When ''message'' contains a character beyond '\255;'.
+ *  @exception RANGE_ERROR If ''message'' contains a character beyond '\255;'.
  *)
 const func string: hmac (in digestAlgorithm: digestAlg, in var string: cryptoKey,
     in string: message) is func

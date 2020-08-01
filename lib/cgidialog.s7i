@@ -101,6 +101,7 @@ const proc: update (inout webPage: aWebPage, in paramHashType: paramHash) is fun
 
 const proc: send (inout webPage: aWebPage, inout file: outFile) is func
   local
+    var string: header is "";
     var string: content is "";
   begin
     # writeln("send");
@@ -118,18 +119,18 @@ const proc: send (inout webPage: aWebPage, inout file: outFile) is func
     content &:= "\
         \</body>\n\
         \</html>\n";
-    # writeln("HTTP/1.1 200 OK");
-    # writeln("Content-Type: text/html; charset=UTF-8");
-    # writeln("Connection: keep-alive");
-    # writeln("Content-Length: " <& length(content));
-    # writeln;
-    # write(content);
-    writeln(outFile, "HTTP/1.1 200 OK");
-    writeln(outFile, "Content-Type: text/html; charset=UTF-8");
-    writeln(outFile, "Connection: keep-alive");
-    writeln(outFile, "Content-Length: " <& length(content));
-    writeln(outFile);
-    write(outFile, content);
+    header := "HTTP/1.1 200 OK\r\n\
+              \Content-Type: text/html; charset=UTF-8\r\n\
+              \Connection: keep-alive\r\n\
+              \Content-Length: " <& length(content) <& "\r\n\
+              \\r\n";
+    # writeln(header & content);
+    block
+      write(outFile, header & content);
+    exception
+      catch FILE_ERROR:
+        noop;  # Ignore error (the browser has already closed the socket).
+    end block;
   end func;
 
 

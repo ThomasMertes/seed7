@@ -5336,13 +5336,13 @@ const proc: check_division is func
            ( (-11 div  4) = -2  and  (-11 rem  4) = -3 ) then
           writeln("for positive and negative a and b");
         else
-          writeln("only when a and b have the same sign");
+          writeln("only if a and b have the same sign");
         end if;
       else
-        writeln("only when a and b are positive");
+        writeln("only if a and b are positive");
       end if;
     else
-      writeln("not even when a and b are positive");
+      writeln("not even if a and b are positive");
     end if;
 
     p_div_p := ( 11 div  4) *  4 + ( 11 rem  4) =  11;
@@ -5357,13 +5357,13 @@ const proc: check_division is func
         if p_div_n and n_div_p then
           writeln("for positive and negative a and b");
         else
-          writeln("only when a and b have the same sign");
+          writeln("only if a and b have the same sign");
         end if;
       else
-        writeln("only when a and b are positive");
+        writeln("only if a and b are positive");
       end if;
     else
-      writeln("not even when a and b are positive");
+      writeln("not even if a and b are positive");
     end if;
 
     for dividend range -9 to 9 do

@@ -83,7 +83,7 @@ static const const_cstriType sys_name[NUMBER_OF_SYSVARS] = {
 /**
  *  Determine the index of a system variable with a given name.
  *  @return the index of the system variable, or
- *          -1 when no system variable with the name is found.
+ *          -1 if no system variable with the name is found.
  */
 int findSysvar (const_striType stri)
 

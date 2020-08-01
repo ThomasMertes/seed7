@@ -38,7 +38,7 @@ include "bytedata.s7i";
  *  (upper case followed by lower case), digits and the characters
  *  '+' and '/'.
  *  @return the Base64 encoded string.
- *  @exception RANGE_ERROR When characters beyond '\255;' are present.
+ *  @exception RANGE_ERROR If characters beyond '\255;' are present.
  *)
 const func string: toBase64 (in string: byteStri) is func
   result
@@ -88,7 +88,7 @@ const func string: toBase64 (in string: byteStri) is func
  *  @param base64 Base64 encoded string without leading or trailing
  *         whitespace characters.
  *  @return the decoded string.
- *  @exception RANGE_ERROR When ''base64'' is not in Base64 format.
+ *  @exception RANGE_ERROR If ''base64'' is not in Base64 format.
  *)
 const func string: fromBase64 (in string: base64) is func
   result
@@ -150,7 +150,7 @@ const func string: fromBase64 (in string: base64) is func
  *  themself. Other byte values are encoded with '=' followed by two
  *  hexadecimal digits representing the byte's numeric value.
  *  @return the encoded string.
- *  @exception RANGE_ERROR When characters beyond '\255;' are present.
+ *  @exception RANGE_ERROR If characters beyond '\255;' are present.
  *)
 const func string: toQuotedPrintable (in string: byteStri) is func
   result
@@ -205,7 +205,7 @@ const func string: toQuotedPrintable (in string: byteStri) is func
 (**
  *  Decode a quoted-printable encoded string.
  *  @return the decoded string.
- *  @exception RANGE_ERROR When ''quoted'' is not in quoted-printable format.
+ *  @exception RANGE_ERROR If ''quoted'' is not in quoted-printable format.
  *)
 const func string: fromQuotedPrintable (in string: quoted) is func
   result
@@ -247,7 +247,7 @@ const func string: fromQuotedPrintable (in string: quoted) is func
  *  line starts with a radix-64 digit character indicating the number
  *  of data bytes encoded on that line.
  *  @return the encoded string.
- *  @exception RANGE_ERROR When characters beyond '\255;' are present.
+ *  @exception RANGE_ERROR If characters beyond '\255;' are present.
  *)
 const func string: toUuencoded (in string: byteStri) is func
   result
@@ -301,7 +301,7 @@ const func string: toUuencoded (in string: byteStri) is func
 (**
  *  Decode an uuencoded string.
  *  @return the decoded string.
- *  @exception RANGE_ERROR When ''uuencoded'' is not in uuencoded format.
+ *  @exception RANGE_ERROR If ''uuencoded'' is not in uuencoded format.
  *)
 const func string: fromUuencoded (in string: uuencoded) is func
   result
@@ -356,7 +356,7 @@ const func string: fromUuencoded (in string: uuencoded) is func
  *  ('%') followed by two hexadecimal digits, which represent the ordinal
  *  value of the encoded character.
  *  @return the encoded string.
- *  @exception RANGE_ERROR When characters beyond '\255;' are present.
+ *  @exception RANGE_ERROR If characters beyond '\255;' are present.
  *)
 const func string: toPercentEncoded (in string: byteStri) is func
   result
@@ -418,7 +418,7 @@ const func string: fromPercentEncoded (in string: percentEncoded) is func
  *  value of the encoded character. A plus sign ('+') is used to encode
  *  a space (' ').
  *  @return the encoded string.
- *  @exception RANGE_ERROR When characters beyond '\255;' are present.
+ *  @exception RANGE_ERROR If characters beyond '\255;' are present.
  *)
 const func string: toUrlEncoded (in string: byteStri) is func
   result
@@ -494,7 +494,7 @@ const func string: fromUrlEncoded (in string: urlEncoded) is func
  *  from the end of the output. In files the end of an Ascii85 encoding
  *  is marked with "~>" (this end marker is not added by toAscii85).
  *  @return the Ascii85 encoded string.
- *  @exception RANGE_ERROR When characters beyond '\255;' are present.
+ *  @exception RANGE_ERROR If characters beyond '\255;' are present.
  *)
 const func string: toAscii85 (in string: byteStri) is func
   result
@@ -544,7 +544,7 @@ const func string: toAscii85 (in string: byteStri) is func
  *  and as many bytes as were added as padding are omitted from the
  *  end of the output.
  *  @return the decoded string.
- *  @exception RANGE_ERROR When ''ascii85'' is not in Ascii85 format.
+ *  @exception RANGE_ERROR If ''ascii85'' is not in Ascii85 format.
  *)
 const func string: fromAscii85 (in string: ascii85) is func
   result
@@ -610,7 +610,7 @@ const func string: toBase (in bigInteger: number, in string: digits) is func
  *  @param encoded String containing the encoded data.
  *  @param digits The digits used by the positional numeric system.
  *  @return the decoded bigInteger Number.
- *  @exception RANGE_ERROR When characters are present, that are not found
+ *  @exception RANGE_ERROR If characters are present, that are not found
  *                         in ''digits''.
  *)
 const func bigInteger: fromBaseToBigInt (in string: encoded, in string: digits) is func
@@ -643,7 +643,7 @@ const func bigInteger: fromBaseToBigInt (in string: encoded, in string: digits) 
  *  @param byteStri String of bytes to be encoded.
  *  @param digits The digits used by the positional numeric system.
  *  @return the encoded string.
- *  @exception RANGE_ERROR When characters beyond '\255;' are present.
+ *  @exception RANGE_ERROR If characters beyond '\255;' are present.
  *)
 const func string: toBase (in string: byteStri, in string: digits) is func
   result
@@ -669,7 +669,7 @@ const func string: toBase (in string: byteStri, in string: digits) is func
  *  @param encoded String containing the encoded data.
  *  @param digits The digits used by the positional numeric system.
  *  @return the decoded string.
- *  @exception RANGE_ERROR When characters are present, that are not found
+ *  @exception RANGE_ERROR If characters are present, that are not found
  *                         in ''digits''.
  *)
 const func string: fromBase (in string: encoded, in string: digits) is func
@@ -701,7 +701,7 @@ const string: defaultBase58Digits is "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghi
  *  leading zero digits ('1') in the encoded string.
  *  @param byteStri String of bytes to be encoded.
  *  @return the encoded string.
- *  @exception RANGE_ERROR When characters beyond '\255;' are present.
+ *  @exception RANGE_ERROR If characters beyond '\255;' are present.
  *)
 const func string: toBase58 (in string: byteStri) is
   return toBase(byteStri, defaultBase58Digits);
@@ -713,7 +713,7 @@ const func string: toBase58 (in string: byteStri) is
  *  leading zero bytes ('\0;') in the decoded string.
  *  @param base58 String containing Base58 encoded data.
  *  @return the decoded string.
- *  @exception RANGE_ERROR When characters are present, that are not valid
+ *  @exception RANGE_ERROR If characters are present, that are not valid
  *                         in the Base58 encoding used by Bitcoin.
  *)
 const func string: fromBase58 (in string: base58) is

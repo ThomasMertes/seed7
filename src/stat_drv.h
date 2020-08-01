@@ -36,7 +36,7 @@
 /* 'struct stat' and its variants is used by the stat() functions   */
 /* (e.g. stat(), fstat(), _stat(), _stat64(), _stati64(), _wstat(), */
 /* _wstat64(), _wstati64() ). The macros are defined in the case    */
-/* when they are missing in "sys/stat.h".                           */
+/* they are missing in "sys/stat.h".                                */
 
 
 #ifdef DEFINE_ST_MODE_MACROS

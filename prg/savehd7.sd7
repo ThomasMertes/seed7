@@ -1034,7 +1034,7 @@ const proc: writeHelp is func
     writeln("partition to an image file. Savehd7 works for all filesystems.");
     writeln;
     writeln("The Savehd7 program is designed to copy from a device file to a disk");
-    writeln("image file even when read errors occur. It will try to copy as much as");
+    writeln("image file even if read errors occur. It will try to copy as much as");
     writeln("possible and leave the unreadable blocks filled with zero bytes. The");
     writeln("file system checker can fix the saved disk image afterwards. Finally the");
     writeln("saved and repaired disk image file can be mounted with the loop mount");
@@ -1051,15 +1051,15 @@ const proc: writeHelp is func
     writeln;
     writeln("Operating systems usually retry to read bad blocks again and again in");
     writeln("the hope to succeed finally. Therefore copying from a damaged harddisk");
-    writeln("can take very long (many hours even up to several days). When Savehd7 is");
-    writeln("processing it can be interrupted by pressing any key. Since the OS");
+    writeln("can take very long (many hours even up to several days). While Savehd7");
+    writeln("is processing it can be interrupted by pressing any key. Since the OS");
     writeln("spends so much time reading bad blocks it may take some time until");
     writeln("Savehd7 has a chance to save the processing state and exit afterwards.");
     writeln("Savehd7 should not be interrupted with control-C or some other signal,");
-    writeln("since this prevents saving the processing state. When Savehd7 is");
-    writeln("restarted it can continue at the position where it was interrupted. The");
-    writeln("file \"savehd7.dat\" is used to maintain the processing state. Savehd7");
-    writeln("writes also logging information to the file \"savehd7.log\".");
+    writeln("since this prevents saving the processing state. If Savehd7 is restarted");
+    writeln("it can continue at the position where it was interrupted. The file");
+    writeln("\"savehd7.dat\" is used to maintain the processing state. Savehd7 writes");
+    writeln("also logging information to the file \"savehd7.log\".");
     writeln;
   end func;
 

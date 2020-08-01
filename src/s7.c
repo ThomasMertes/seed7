@@ -116,7 +116,7 @@ static void writeHelp (void)
     printf("         2 Write a list of include libraries\n");
     printf("         3 Write line numbers, while analyzing\n");
     printf("  -v   Equivalent to -v2\n");
-    printf("  -x   Execute even when the program contains errors.\n\n");
+    printf("  -x   Execute even if the program contains errors.\n\n");
   } /* writeHelp */
 
 

@@ -134,7 +134,7 @@ objectType rfl_cat (listType arguments)
     } /* if */
     if (TEMP_OBJECT(arg1)) {
       /* Necessary at this place: */
-      /* When an exception is raised the arguments must */
+      /* If an exception is raised the arguments must */
       /* be unchanged to give a correct exception warning */
       /* and to give a clean state to the exception handler. */
       arg1->value.listValue = NULL;
@@ -269,7 +269,7 @@ objectType rfl_elem (listType arguments)
  *   A @:= [B] C;
  *  is equivalent to
  *   A := A[..pred(B)] & make_list(C) & A[succ(B)..];
- *  @exception RANGE_ERROR When 'position/arg_4' is negative or zero.
+ *  @exception RANGE_ERROR If 'position/arg_4' is negative or zero.
  *  @exception RANGE_ERROR An element beyond 'dest/arg_1' would be
  *             overwritten ('position/arg_4' > length('dest/arg_1') holds).
  */
@@ -583,7 +583,7 @@ objectType rfl_head (listType arguments)
 /**
  *  Access one element from the 'ref_list' 'list/arg_1'.
  *  @return the element with the specified 'position/arg_3' from 'list/arg_1'.
- *  @exception RANGE_ERROR When the index is less than 1 or
+ *  @exception RANGE_ERROR If the index is less than 1 or
  *             greater than the length of the 'ref_list'.
  */
 objectType rfl_idx (listType arguments)

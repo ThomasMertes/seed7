@@ -108,7 +108,7 @@ objectType ut8_line_read (listType arguments)
  *  Set the current file position.
  *  The file position is measured in bytes from the start of the file.
  *  The first byte in the file has the position 1.
- *  When the file position would be in the middle of an UTF-8 encoded
+ *  If the file position would be in the middle of an UTF-8 encoded
  *  character the position is advanced to the beginning of the next
  *  UTF-8 character.
  *  @exception RANGE_ERROR The file position is negative or zero.

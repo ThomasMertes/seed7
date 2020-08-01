@@ -30,7 +30,7 @@
  *  Rational numbers represented with 'integer' numerator and denominator.
  *  The values of the type ''rational'' are finite and periodical
  *  decimal numbers. Rational literals do not exist. The result of a
- *  ''rational'' operation is undefined when it overflows.
+ *  ''rational'' operation is undefined if it overflows.
  *)
 const type: rational is new object struct
     var integer: numerator is 0;
@@ -196,7 +196,7 @@ const func rational: (in rational: factor1) * (in rational: factor2) is func
 (**
  *  Compute the division of two ''rational'' numbers.
  *  @return the quotient of the division.
- *  @exception NUMERIC_ERROR When a division by zero occurs.
+ *  @exception NUMERIC_ERROR If a division by zero occurs.
  *)
 const func rational: (in rational: dividend) / (in rational: divisor) is func
   result
@@ -569,7 +569,7 @@ const func string: str (in rational: number) is func
  *  Halfway cases are rounded away from zero. Except for a ''precision'' of
  *  zero the representation has a decimal point and at least one digit
  *  before and after the decimal point. Negative numbers are preceeded by
- *  a minus sign (e.g.: "-1.25"). When all digits in the result are 0 a
+ *  a minus sign (e.g.: "-1.25"). If all digits in the result are 0 a
  *  possible negative sign is omitted.
  *   1/64 digits 7     returns "0.0156250"
  *   1/64 digits 4     returns "0.0156"
@@ -582,9 +582,9 @@ const func string: str (in rational: number) is func
  *   0/0 digits 7      returns "NaN"
  *   -1/2048 digits 3  returns "0.000"
  *  @param precision Number of digits after the decimal point.
- *         When the ''precision'' is zero the decimal point is omitted.
+ *         If the ''precision'' is zero the decimal point is omitted.
  *  @return the string result of the conversion.
- *  @exception RANGE_ERROR When the ''precision'' is negative.
+ *  @exception RANGE_ERROR If the ''precision'' is negative.
  *)
 const func string: (in rational: number) digits (in integer: precision) is func
   result
@@ -653,9 +653,9 @@ const func integer: decimalExponent (in rational: number) is func
  *   -1/2048 sci 3  returns "-4.883e-4"
  *   -0/1 sci 2     returns "0.00e+0"
  *  @param precision Number of digits after the decimal point.
- *         When the ''precision'' is zero the decimal point is omitted.
+ *         If the ''precision'' is zero the decimal point is omitted.
  *  @return the string result of the conversion.
- *  @exception RANGE_ERROR When the ''precision'' is negative.
+ *  @exception RANGE_ERROR If the ''precision'' is negative.
  *)
 const func string: (in rational: number) sci (in integer: precision) is func
   result
@@ -724,7 +724,7 @@ const func string: (in rational: number) sci (in integer: precision) is func
  *   rational("3.(142857)")  returns  22 /   7
  *   rational("0.(846153)")  returns  11 /  13
  *  @return the ''rational'' result of the conversion.
- *  @exception RANGE_ERROR When stri contains not a valid ''rational'' value.
+ *  @exception RANGE_ERROR If stri contains not a valid ''rational'' value.
  *)
 const func rational: rational (in var string: stri) is func
   result
@@ -797,7 +797,7 @@ const func rational: rational (in var string: stri) is func
  *   rational parse "3.(142857)"  returns  22 /   7
  *   rational parse "0.(846153)"  returns  11 /  13
  *  @return the ''rational'' result of the conversion.
- *  @exception RANGE_ERROR When stri contains not a valid ''rational'' value.
+ *  @exception RANGE_ERROR If stri contains not a valid ''rational'' value.
  *)
 const func rational: (attr rational) parse (in string: stri) is
     return rational(stri);

@@ -117,9 +117,9 @@ static inline void bytes_to_strelements (ustriType buffer, memSizeType bytes_in_
  *  Read until the string 'stri' is filled or 'inFile' reaches EOF.
  *  @param inFile File from which UTF-8 encoded characters are read.
  *  @param stri An allocated string for the requested number of chars.
- *  @param err_info Unchanged when the function succeeds or
- *                  RANGE_ERROR when inFile contains illegal encodings.
- *                  FILE_ERROR when a system function returns an error.
+ *  @param err_info Unchanged if the function succeeds, and
+ *                  RANGE_ERROR if inFile contains illegal encodings, and
+ *                  FILE_ERROR if a system function returns an error.
  *  @return the actual number of characters read.
  */
 static memSizeType read_utf8_string (fileType inFile, striType stri, errInfoType *err_info)
@@ -181,10 +181,10 @@ static memSizeType read_utf8_string (fileType inFile, striType stri, errInfoType
  *  @param chars_missing Maximum number of characters to be read.
  *  @param num_of_chars_read Address to which the actual number of
  *         characters read is assigned.
- *  @param err_info Unchanged when the function succeeds or
- *                  RANGE_ERROR when inFile contains illegal encodings.
- *                  FILE_ERROR when a system function returns an error.
- *                  MEMORY_ERROR when there was not enough memory.
+ *  @param err_info Unchanged if the function succeeds, and
+ *                  RANGE_ERROR if inFile contains illegal encodings, and
+ *                  FILE_ERROR if a system function returns an error, and
+ *                  MEMORY_ERROR if there was not enough memory.
  */
 static striType read_and_alloc_utf8_stri (fileType inFile, memSizeType chars_missing,
     memSizeType *num_of_chars_read, errInfoType *err_info)
@@ -557,7 +557,7 @@ charType ut8Getc (fileType inFile)
  *  In order to work reasonable good for the common case (reading
  *  just some characters) memory for 'length' characters is requested
  *  with malloc(). After the data is read the result string is
- *  shrinked to the actual size (with realloc()). When 'length' is
+ *  shrinked to the actual size (with realloc()). If 'length' is
  *  larger than GETS_DEFAULT_SIZE or the memory cannot be requested
  *  a different strategy is used. In this case the function tries to
  *  find out the number of available characters (this is possible
@@ -773,7 +773,7 @@ striType ut8LineRead (fileType inFile, charType *terminationChar)
  *  Set the current file position.
  *  The file position is measured in bytes from the start of the file.
  *  The first byte in the file has the position 1.
- *  When the file position would be in the middle of an UTF-8 encoded
+ *  If the file position would be in the middle of an UTF-8 encoded
  *  character the position is advanced to the beginning of the next
  *  UTF-8 character.
  *  @exception RANGE_ERROR The file position is negative or zero or

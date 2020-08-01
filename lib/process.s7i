@@ -67,7 +67,7 @@ const func boolean: (in process: process1) <> (in process: process2) is action "
  *  Compare two process values.
  *  The order of two processes is determined by comparing the process
  *  identifiers (PID). Therefore the result of ''compare'' may change
- *  when the program is executed again. Inside a program the result
+ *  if the program is executed again. Inside a program the result
  *  of ''compare'' is consistent and can be used to maintain hash
  *  tables.
  *  @return -1, 0 or 1 if the first argument is considered to be
@@ -301,7 +301,7 @@ const proc: setSearchPath (in array string: searchPath)  is action "CMD_SET_SEAR
 
 (**
  *  Search for an executable in the directories of the search path.
- *  @return the absolute path of the executable or "" when
+ *  @return the absolute path of the executable or "" if
  *          the executable was not found.
  *)
 const func string: commandPath (in string: command) is func
@@ -343,7 +343,7 @@ const func string: commandPath (in string: command) is func
 (**
  *  Search for the directory of an executable in the search path.
  *  @return the absolute path of the directory of the executable or
- *          "" when the executable was not found.
+ *          "" if the executable was not found.
  *)
 const func string: commandDir (in string: command) is func
   result
@@ -386,7 +386,7 @@ const proc: pipe2 (in string: command, in array string: parameters,
  *  The command path must lead to an executable file. The environment
  *  variable PATH is not used to search for an executable. Pipe2
  *  can be used to execute programs which process a stream of data.
- *  Interactive programs buffer their I/O when they are not connected
+ *  Interactive programs buffer their I/O if they are not connected
  *  to a terminal. Pipe2 has no influence of the buffering of the
  *  executed command. Therefore interactive programs might not work
  *  correctly with pipe2.

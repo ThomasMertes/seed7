@@ -289,10 +289,7 @@ static boolType findDll (void)
       found = setupDll(dllList[pos]);
     } /* for */
     if (!found) {
-      logError(printf("findDll: Searched for:\n");
-               for (pos = 0; pos < sizeof(dllList) / sizeof(char *); pos++) {
-                 printf("%s\n", dllList[pos]);
-               });
+      dllErrorMessage("sqlOpenPost", "findDll", dllList, sizeof(dllList));
     } /* if */
     return found;
   } /* findDll */
@@ -3381,7 +3378,7 @@ databaseType sqlOpenPost (const const_striType host, intType port,
                 printf("\"%s\")\n", striAsUnquotedCStri(password)););
     if (!findDll()) {
       logError(printf("sqlOpenPost: findDll() failed\n"););
-      err_info = FILE_ERROR;
+      err_info = DATABASE_ERROR;
       database = NULL;
     } else if (unlikely((host8 = stri_to_cstri8(host, &err_info)) == NULL)) {
       database = NULL;
@@ -3400,7 +3397,7 @@ databaseType sqlOpenPost (const const_striType host, intType port,
           } else {
             if (port == 0) {
               /* Use the default value for port, which is probably DEFAULT_PORT. */
-	      pgport = NULL;
+              pgport = NULL;
             } else {
               sprintf(portBuffer, FMT_D, port);
               pgport = portBuffer;

@@ -209,7 +209,7 @@ int wstati64Ext (const wchar_t *path, os_stat_struct *statBuf)
     logFunction(printf("wstati64Ext(\"%ls\", *)", path);
                 fflush(stdout););
     if (likely(GetFileAttributesExW(path, GetFileExInfoStandard, &fileInfo) != 0)) {
-      /* The function os_stat_orig() fails with ENOENT, when the path is   */
+      /* The function os_stat_orig() fails with ENOENT, if the path is     */
       /* longer than MAX_PATH. So GetFileAttributesExW(), which works with */
       /* an extended length path, is used.                                 */
       memset(statBuf, 0, sizeof(os_stat_struct));
@@ -233,10 +233,10 @@ int wstati64Ext (const wchar_t *path, os_stat_struct *statBuf)
       } /* if */
       statBuf->st_rdev = statBuf->st_dev;
     } else {
-      /* GetFileAttributesExW fails with ERROR_SHARING_VIOLATION, when the */
-      /* the file is currently in use, by some other program. This happens */
-      /* e.g. with c:\swapfile.sys or c:\hiberfil.sys. Interestingly       */
-      /* os_stat_orig() succeeds for these files.                          */
+      /* GetFileAttributesExW fails with ERROR_SHARING_VIOLATION, if the */
+      /* file is currently in use, by some other program. This happens   */
+      /* e.g. with c:\swapfile.sys or c:\hiberfil.sys. Interestingly     */
+      /* os_stat_orig() succeeds for these files.                        */
 #ifdef os_stat_orig
       DWORD lastError = GetLastError();
       logMessage(printf("wstati64Ext: GetFileAttributesExW(\"%ls\", *) failed:\n"

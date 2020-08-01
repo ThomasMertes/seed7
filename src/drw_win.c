@@ -1000,7 +1000,7 @@ static boolType privateConsole (void)
     } else if (!GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &conBufInfo)) {
       private = FALSE;
     } else {
-      /* When the cursor position is (0,0) the console is assumed to be private. */
+      /* If the cursor position is (0,0) the console is assumed to be private. */
       private = conBufInfo.dwCursorPosition.X == 0 && conBufInfo.dwCursorPosition.Y == 0;
     } /* if */
     logFunction(printf("privateConsole --> %d\n", private););

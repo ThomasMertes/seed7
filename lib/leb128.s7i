@@ -30,7 +30,7 @@
  *  Read a LEB128 encoded number from a ''inFile''.
  *  @param inFile File from which the LEB128 encoded number is read.
  *  @return the LEB128 encoded number as [[string]].
- *  @exception RANGE_ERROR When characters beyond '\255;' are present.
+ *  @exception RANGE_ERROR If characters beyond '\255;' are present.
  *)
 const func string: getLeb128 (inout file: inFile) is func
   result
@@ -58,8 +58,8 @@ const func string: getLeb128 (inout file: inFile) is func
  *             When the function is left pos refers to the character
  *             after the LEB128 number.
  *  @return the decoded LEB128 number.
- *  @exception RANGE_ERROR When characters beyond '\255;' are present.
- *  @exception OVERFLOW_ERROR When the result value cannot be represented
+ *  @exception RANGE_ERROR If characters beyond '\255;' are present.
+ *  @exception OVERFLOW_ERROR If the result value cannot be represented
  *             with an integer.
  *)
 const func integer: leb128ToInt (in string: stri, inout integer: pos) is func
@@ -96,8 +96,8 @@ const func integer: leb128ToInt (in string: stri, inout integer: pos) is func
  *  Decode a LEB128 encoded [[integer]] from a [[string]].
  *  @param stri String that starts with an LEB128 encoded integer.
  *  @return the decoded LEB128 number.
- *  @exception RANGE_ERROR When characters beyond '\255;' are present.
- *  @exception OVERFLOW_ERROR When the result value cannot be represented
+ *  @exception RANGE_ERROR If characters beyond '\255;' are present.
+ *  @exception OVERFLOW_ERROR If the result value cannot be represented
  *             with an integer.
  *)
 const func integer: leb128ToInt (in string: stri) is func
@@ -117,8 +117,8 @@ const func integer: leb128ToInt (in string: stri) is func
  *             When the function is left pos refers to the character
  *             after the LEB128 number.
  *  @return the decoded unsigned LEB128 number.
- *  @exception RANGE_ERROR When characters beyond '\255;' are present.
- *  @exception OVERFLOW_ERROR When the result value cannot be represented
+ *  @exception RANGE_ERROR If characters beyond '\255;' are present.
+ *  @exception OVERFLOW_ERROR If the result value cannot be represented
  *             with an integer.
  *)
 const func integer: uLeb128ToInt (in string: stri, inout integer: pos) is func
@@ -148,8 +148,8 @@ const func integer: uLeb128ToInt (in string: stri, inout integer: pos) is func
  *  Decode an unsigned LEB128 encoded [[integer]] from a [[string]].
  *  @param stri String that starts with an unsigned LEB128 encoded integer.
  *  @return the decoded unsigned LEB128 number.
- *  @exception RANGE_ERROR When characters beyond '\255;' are present.
- *  @exception OVERFLOW_ERROR When the result value cannot be represented
+ *  @exception RANGE_ERROR If characters beyond '\255;' are present.
+ *  @exception OVERFLOW_ERROR If the result value cannot be represented
  *             with an integer.
  *)
 const func integer: uLeb128ToInt (in string: stri) is func

@@ -66,7 +66,7 @@
 /**
  *  Special handling of backslash characters for CommandLineToArgvW.
  *  CommandLineToArgvW reads arguments in two modes. Inside and
- *  outside quotation mode. The following rules apply when a
+ *  outside quotation mode. The following rules apply if a
  *  backslash is encountered:
  *  - 2n backslashes followed by a quotation mark produce
  *    n backslashes and a switch from inside to outside quotation

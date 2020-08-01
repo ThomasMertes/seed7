@@ -121,8 +121,8 @@ const_cstriType category_cstri (objectCategory aCategory)
 /**
  *  Convert a C string to a 'category'.
  *  @param catName Name of a category to be converted.
- *  @return the 'category' result fo the conversion,
- *          or -1 when no 'category' was found.
+ *  @return the 'category' result of the conversion, or
+ *          -1 if no 'category' was found.
  */
 intType category_value (const const_cstriType catName)
 

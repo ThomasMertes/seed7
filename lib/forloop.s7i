@@ -31,7 +31,7 @@
  *  The variable ''aVar'' is initialized with ''lowerLimit''. The
  *  ''statements'' are executed repeatedly. After each repetition the
  *  variable ''aVar'' is incremented. After the ''statements'' were
- *  executed with ''upperLimit'' the for-loop is terminated. When
+ *  executed with ''upperLimit'' the for-loop is terminated. If
  *  ''lowerLimit'' is greater than ''upperLimit'' the ''statements'' are
  *  not executed at all.
  *)
@@ -45,7 +45,7 @@ const proc: for (inout integer: aVar) range (in integer: lowerLimit) to (in inte
  *  The variable ''aVar'' is initialized with ''upperLimit''. The
  *  ''statements'' are executed repeatedly. After each repetition the
  *  variable ''aVar'' is decremented. After the ''statements'' were
- *  executed with ''lowerLimit'' the for-loop is terminated. When
+ *  executed with ''lowerLimit'' the for-loop is terminated. If
  *  ''upperLimit'' is less than ''lowerLimit'' the ''statements'' are
  *  not executed at all.
  *)
@@ -60,7 +60,7 @@ const proc: for (inout integer: aVar) range (in integer: upperLimit) downto (in 
  *  ''statements'' are executed repeatedly. After each repetition the
  *  variable ''aVar'' is incremented by ''incr_step''. After the
  *  ''statements'' were executed with ''upperLimit'' the for-loop is
- *  terminated. When ''lowerLimit'' is greater than ''upperLimit'' the
+ *  terminated. If ''lowerLimit'' is greater than ''upperLimit'' the
  *  ''statements'' are not executed at all.
  *)
 const proc: for (inout integer: variable) range (in integer: lowerLimit) to (in integer: upperLimit)
@@ -75,7 +75,7 @@ const proc: for (inout integer: variable) range (in integer: lowerLimit) to (in 
  *  ''statements'' are executed repeatedly. After each repetition the
  *  variable ''aVar'' is decremented by ''incr_step''. After the
  *  ''statements'' were executed with ''lowerLimit'' the for-loop is
- *  terminated. When ''upperLimit'' is less than ''lowerLimit'' the
+ *  terminated. If ''upperLimit'' is less than ''lowerLimit'' the
  *  ''statements'' are not executed at all.
  *)
 const proc: for (inout integer: variable) range (in integer: upperLimit) downto (in integer: lowerLimit)
@@ -88,8 +88,8 @@ const proc: for (inout integer: variable) range (in integer: upperLimit) downto 
  *  Template function to define for-loops with step for ''aType''.
  *  Defines an upward and a downward counting for-loop which
  *  increments/decrements the loop variable with ''incr_step''
- *  respectively ''decr_step''. The for-loops are only defined
- *  when ''aType'' supports the +:= respectively -:= operator.
+ *  respectively ''decr_step''. The for-loops are only defined,
+ *  if ''aType'' supports the +:= respectively -:= operator.
  *)
 const proc: FOR_STEP_DECLS (in type: aType) is func
   begin

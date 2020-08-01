@@ -84,7 +84,7 @@ objectType lst_cat (listType arguments)
     } /* if */
     if (TEMP_OBJECT(arg1)) {
       /* Necessary at this place: */
-      /* When an exception is raised the arguments must */
+      /* If an exception is raised the arguments must */
       /* be unchanged to give a correct exception warning */
       /* and to give a clean state to the exception handler. */
       arg1->value.listValue = NULL;

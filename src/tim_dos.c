@@ -126,7 +126,7 @@ intType timMicroSec (void)
  *  Determine the current local time.
  *  @param time_zone Difference to UTC in minutes (for UTC+1 it is 60).
  *                   The time_zone includes the effect of a daylight saving time.
- *  @param is_dst Is TRUE, when a daylight saving time is currently in effect.
+ *  @param is_dst Is TRUE, if a daylight saving time is currently in effect.
  */
 void timNow (intType *year, intType *month, intType *day, intType *hour,
     intType *min, intType *sec, intType *micro_sec, intType *time_zone,

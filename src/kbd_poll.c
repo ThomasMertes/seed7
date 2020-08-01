@@ -167,9 +167,9 @@ static void show_term_descr (struct termios *curr_term_descr)
  *  Determine if two termios structs are equal.
  *  Comparing with memcmp does not work correctly.
  *  Struct termios has data at and after &c_cc[NCCS].
- *  Therefore memcmp sees differences, even when the
+ *  Therefore memcmp sees differences, even if the
  *  official fields of struct termios are equal.
- *  @return TRUE when the thow termios structs are equal,
+ *  @return TRUE if the thow termios structs are equal,
  *          FALSE otherwise.
  */
 static boolType term_descr_equal (struct termios *term_descr1, struct termios *term_descr2)
@@ -197,10 +197,10 @@ static boolType term_descr_equal (struct termios *term_descr1, struct termios *t
  *  Change the terminal attributes to 'new_term_descr'.
  *  The function tcsetattr() returns success if any of the
  *  requested changes could be successfully carried out.
- *  When doing multiple changes it is necessary to check
+ *  If doing multiple changes it is necessary to check
  *  with tcgetattr(), that all changes have been performed
  *  successfully.
- *  @return TRUE when the change of the attributes was successful,
+ *  @return TRUE if the change of the attributes was successful,
  *          FALSE otherwise.
  */
 static boolType tcset_term_descr (int file_no, struct termios *new_term_descr)
@@ -259,7 +259,7 @@ static boolType read_char_if_present (ucharType *ch)
 static charType read_utf8_key (void)
 
   {
-    size_t len;
+    memSizeType len;
     strElemType stri[6];
     memSizeType dest_len;
     charType key;
@@ -728,7 +728,7 @@ charType kbdGetc (void)
       if (key_buffer_size == 1) {
         /* It is assumed that read() reads all characters of   */
         /* an encoded key. Therefore a single escape character */
-        /* cannot be part of a larger escape sequence. When    */
+        /* cannot be part of a larger escape sequence. If      */
         /* escape sequences can be ripped apart this function  */
         /* will not work correct.                              */
         result = K_ESC;

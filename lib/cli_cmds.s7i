@@ -38,11 +38,11 @@ const set of char: dos_parameter_char is {'!' .. '~'} - {'&', '<', '>', '|'};
 
 (**
  *  Remove files and directories.
- *  When errors occur messages are written to STD_OUT.
+ *  If errors occur messages are written to STD_OUT.
  *  @param fileList List of files to be removed.
- *  @param recursive TRUE when subdirectories should be
+ *  @param recursive TRUE if subdirectories should be
  *                   removed recursively, FALSE otherwise.
- *  @param force TRUE when absent files should not
+ *  @param force TRUE if absent files should not
  *               trigger error messages, FALSE otherwise.
  *)
 const proc: doRemoveCmd (in array string: fileList,
@@ -75,16 +75,16 @@ const proc: doRemoveCmd (in array string: fileList,
  *  Copy files and directories.
  *  The list of files must have at least two elements. If the
  *  last element of the list is a directory the other files
- *  are copied into this directory. When errors occur messages
+ *  are copied into this directory. If errors occur messages
  *  are written to STD_OUT.
  *  @param fileList List of files to be copied. The last
  *                  element is the destination.
- *  @param recursive TRUE when subdirectories should be
+ *  @param recursive TRUE if subdirectories should be
  *                   copied recursively, FALSE otherwise.
- *  @param overwriteExisting TRUE when existing files
+ *  @param overwriteExisting TRUE if existing files
  *                           should be overwritten,
  *                           FALSE otherwise.
- *  @param archive TRUE when file properties should be
+ *  @param archive TRUE if file properties should be
  *                 preserved, FALSE otherwise.
  *)
 const proc: doCopyCmd (in var array string: fileList,
@@ -168,11 +168,11 @@ const proc: doCopyCmd (in var array string: fileList,
  *  Move files and directories.
  *  The list of files must have at least two elements. If the
  *  last element of the list is a directory the other files
- *  are moved into this directory. When errors occur messages
+ *  are moved into this directory. If errors occur messages
  *  are written to STD_OUT.
  *  @param fileList List of files to be moved. The last
  *                  element is the destination.
- *  @param overwriteExisting TRUE when existing files
+ *  @param overwriteExisting TRUE if existing files
  *                           should be overwritten,
  *                           FALSE otherwise.
  *)
@@ -246,7 +246,7 @@ const proc: doMoveCmd (in var array string: fileList,
 (**
  *  Make directories.
  *  @param fileList List of directories to be created.
- *  @param parentDirs TRUE when parent directories should
+ *  @param parentDirs TRUE if parent directories should
  *                    be created as needed, FALSE otherwise.
  *)
 const proc: doMkdirCmd (in array string: fileList,

@@ -875,7 +875,7 @@ const func boolean: chkPutBitLsb (in string: stri, in integer: bitPos,
         writeln(" ***** Expected bitPos " <& bitPosExpected <& " found " <& bitPosVar);
       end if;
       if bitPosVar = 0 and testFile.bufferChar <> '\0;' then
-        writeln(" ***** Expected bufferChar to be '\\0;' when bitPos is 0. Found '\\" <& ord(testFile.bufferChar) <& ";'");
+        writeln(" ***** Expected bufferChar to be '\\0;' if bitPos is 0. Found '\\" <& ord(testFile.bufferChar) <& ";'");
       end if;
     end if;
   end func;
@@ -973,7 +973,7 @@ const func boolean: chkPutBitsLsb (in string: stri, in integer: bitPos,
         writeln(" ***** Expected bitPos " <& bitPosExpected <& " found " <& bitPosVar);
       end if;
       if bitPosVar = 0 and testFile.bufferChar <> '\0;' then
-        writeln(" ***** Expected bufferChar to be '\\0;' when bitPos is 0. Found '\\" <& ord(testFile.bufferChar) <& ";'");
+        writeln(" ***** Expected bufferChar to be '\\0;' if bitPos is 0. Found '\\" <& ord(testFile.bufferChar) <& ";'");
       end if;
     end if;
   end func;
@@ -2464,7 +2464,7 @@ const func boolean: chkPutBitMsb (in string: stri, in integer: bitPos,
         writeln(" ***** Expected bitPos " <& bitPosExpected <& " found " <& bitPosVar);
       end if;
       if bitPosVar = 0 and testFile.bufferChar <> '\0;' then
-        writeln(" ***** Expected bufferChar to be '\\0;' when bitPos is 0. Found '\\" <& ord(testFile.bufferChar) <& ";'");
+        writeln(" ***** Expected bufferChar to be '\\0;' if bitPos is 0. Found '\\" <& ord(testFile.bufferChar) <& ";'");
       end if;
     end if;
   end func;
@@ -2562,7 +2562,7 @@ const func boolean: chkPutBitsMsb (in string: stri, in integer: bitPos,
         writeln(" ***** Expected bitPos " <& bitPosExpected <& " found " <& bitPosVar);
       end if;
       if bitPosVar = 0 and testFile.bufferChar <> '\0;' then
-        writeln(" ***** Expected bufferChar to be '\\0;' when bitPos is 0. Found '\\" <& ord(testFile.bufferChar) <& ";'");
+        writeln(" ***** Expected bufferChar to be '\\0;' if bitPos is 0. Found '\\" <& ord(testFile.bufferChar) <& ";'");
       end if;
     end if;
   end func;

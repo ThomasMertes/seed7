@@ -250,7 +250,7 @@ objectType big_destr (listType arguments)
  *  Integer division truncated towards zero.
  *  The remainder of this division is computed with big_rem.
  *  @return the quotient of the integer division.
- *  @exception NUMERIC_ERROR When a division by zero occurs.
+ *  @exception NUMERIC_ERROR If a division by zero occurs.
  */
 objectType big_div (listType arguments)
 
@@ -267,7 +267,7 @@ objectType big_div (listType arguments)
  *  Quotient and remainder of integer division truncated towards zero.
  *  Compute quotient and remainder of the integer division ''div''.
  *  @return quotRem with quotient and remainder of the integer division.
- *  @exception NUMERIC_ERROR When a division by zero occurs.
+ *  @exception NUMERIC_ERROR If a division by zero occurs.
  */
 objectType big_div_rem (listType arguments)
 
@@ -324,8 +324,8 @@ objectType big_eq (listType arguments)
  *  @param bstri/arg_1 Bstring to be converted. The bytes are interpreted
  *         as binary big-endian representation with a base of 256.
  *  @param isSigned/arg_2 Defines if 'bstri' is interpreted as signed value.
- *         When 'isSigned' is TRUE the twos-complement representation
- *         is used. In this case the result is negative when the most
+ *         If 'isSigned' is TRUE the twos-complement representation
+ *         is used. In this case the result is negative if the most
  *         significant byte (the first byte) has an ordinal > BYTE_MAX (=127).
  *  @return a bigInteger created from the big-endian bytes.
  */
@@ -346,8 +346,8 @@ objectType big_from_bstri_be (listType arguments)
  *  @param bstri/arg_1 Bstring to be converted. The bytes are interpreted
  *         as binary little-endian representation with a base of 256.
  *  @param isSigned/arg_2 Defines if 'bstri' is interpreted as signed value.
- *         When 'isSigned' is TRUE the twos-complement representation
- *         is used. In this case the result is negative when the most
+ *         If 'isSigned' is TRUE the twos-complement representation
+ *         is used. In this case the result is negative if the most
  *         significant byte (the last byte) has an ordinal > BYTE_MAX (=127).
  *  @return a bigInteger created from the little-endian bytes.
  */
@@ -484,7 +484,7 @@ objectType big_incr (listType arguments)
 /**
  *  Compute the exponentiation of a 'bigInteger' base with an integer exponent.
  *  @return the result of the exponentation.
- *  @exception NUMERIC_ERROR When the exponent is negative.
+ *  @exception NUMERIC_ERROR If the exponent is negative.
  */
 objectType big_ipow (listType arguments)
 
@@ -566,9 +566,9 @@ objectType big_lowest_set_bit (listType arguments)
 
 /**
  *  Shift a 'bigInteger' number left by lshift bits.
- *  When lshift is negative a right shift is done instead.
- *  A << B is equivalent to A * 2_ ** B when B >= 0 holds.
- *  A << B is equivalent to A mdiv 2_ ** -B when B < 0 holds.
+ *  If lshift is negative a right shift is done instead.
+ *  A << B is equivalent to A * 2_ ** B if B >= 0 holds.
+ *  A << B is equivalent to A mdiv 2_ ** -B if B < 0 holds.
  *  @return the left shifted number.
  */
 objectType big_lshift (listType arguments)
@@ -584,7 +584,7 @@ objectType big_lshift (listType arguments)
 
 /**
  *  Shift a number left by lshift bits and assign the result back to number.
- *  When lshift is negative a right shift is done instead.
+ *  If lshift is negative a right shift is done instead.
  */
 objectType big_lshift_assign (listType arguments)
 
@@ -623,7 +623,7 @@ objectType big_lt (listType arguments)
  *  The modulo (remainder) of this division is computed with big_mod.
  *  Therefore this division is called modulo division (mdiv).
  *  @return the quotient of the integer division.
- *  @exception NUMERIC_ERROR When a division by zero occurs.
+ *  @exception NUMERIC_ERROR If a division by zero occurs.
  */
 objectType big_mdiv (listType arguments)
 
@@ -640,7 +640,7 @@ objectType big_mdiv (listType arguments)
  *  Compute the modulo (remainder) of the integer division big_mdiv.
  *  The modulo has the same sign as the divisor.
  *  @return the modulo of the integer division.
- *  @exception NUMERIC_ERROR When a division by zero occurs.
+ *  @exception NUMERIC_ERROR If a division by zero occurs.
  */
 objectType big_mod (listType arguments)
 
@@ -757,7 +757,7 @@ objectType big_ord (listType arguments)
  *  characters as well as leading or trailing whitespace characters are
  *  not allowed. The sequence of digits is taken to be decimal.
  *  @return the 'bigInteger' result of the conversion.
- *  @exception RANGE_ERROR When the string is empty or does not contain
+ *  @exception RANGE_ERROR If the string is empty or does not contain
  *             an integer literal.
  *  @exception MEMORY_ERROR  Not enough memory to represent the result.
  */
@@ -781,7 +781,7 @@ objectType big_parse1 (listType arguments)
  *  characters as well as leading or trailing whitespace characters
  *  are not allowed.
  *  @return the 'bigInteger' result of the conversion.
- *  @exception RANGE_ERROR When base < 2 or base > 36 holds or
+ *  @exception RANGE_ERROR If base < 2 or base > 36 holds or
  *             the string is empty or it does not contain an integer
  *             literal with the specified base.
  *  @exception MEMORY_ERROR  Not enough memory to represent the result.
@@ -841,7 +841,7 @@ objectType big_pred (listType arguments)
  *  E.g.: 10 is encoded with a, 11 with b, etc.
  *  For negative numbers a minus sign is prepended.
  *  @return the string result of the conversion.
- *  @exception RANGE_ERROR When base < 2 or base > 36 holds.
+ *  @exception RANGE_ERROR If base < 2 or base > 36 holds.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  */
 objectType big_radix (listType arguments)
@@ -862,7 +862,7 @@ objectType big_radix (listType arguments)
  *  E.g.: 10 is encoded with A, 11 with B, etc.
  *  For negative numbers a minus sign is prepended.
  *  @return the string result of the conversion.
- *  @exception RANGE_ERROR When base < 2 or base > 36 holds.
+ *  @exception RANGE_ERROR If base < 2 or base > 36 holds.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  */
 objectType big_RADIX (listType arguments)
@@ -898,7 +898,7 @@ objectType big_rand (listType arguments)
  *  Compute the remainder of the integer division big_div.
  *  The remainder has the same sign as the dividend.
  *  @return the remainder of the integer division.
- *  @exception NUMERIC_ERROR When a division by zero occurs.
+ *  @exception NUMERIC_ERROR If a division by zero occurs.
  */
 objectType big_rem (listType arguments)
 
@@ -913,9 +913,9 @@ objectType big_rem (listType arguments)
 
 /**
  *  Shift a 'bigInteger' number right by rshift bits.
- *  When rshift is negative a left shift is done instead.
- *  A >> B is equivalent to A mdiv 2_ ** B when B >= 0 holds.
- *  A >> B is equivalent to A * 2_ ** -B when B < 0 holds.
+ *  If rshift is negative a left shift is done instead.
+ *  A >> B is equivalent to A mdiv 2_ ** B if B >= 0 holds.
+ *  A >> B is equivalent to A * 2_ ** -B if B < 0 holds.
  *  @return the right shifted number.
  */
 objectType big_rshift (listType arguments)
@@ -931,7 +931,7 @@ objectType big_rshift (listType arguments)
 
 /**
  *  Shift a number right by rshift bits and assign the result back to number.
- *  When rshift is negative a left shift is done instead.
+ *  If rshift is negative a left shift is done instead.
  */
 objectType big_rshift_assign (listType arguments)
 
@@ -1012,12 +1012,12 @@ objectType big_succ (listType arguments)
  *  The result uses binary representation with a base of 256.
  *  @param big1/arg_1 BigInteger number to be converted.
  *  @param isSigned/arg_2 Determines the signedness of the result.
- *         When 'isSigned' is TRUE the result is encoded with the
+ *         If 'isSigned' is TRUE the result is encoded with the
  *         twos-complement representation. In this case a negative
  *         'big1' is converted to a result where the most significant
  *         byte (the first byte) has an ordinal > BYTE_MAX (=127).
  *  @return a bstring with the big-endian representation.
- *  @exception RANGE_ERROR When 'isSigned' is FALSE and 'big1' is negative.
+ *  @exception RANGE_ERROR If 'isSigned' is FALSE and 'big1' is negative.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  */
 objectType big_to_bstri_be (listType arguments)
@@ -1037,12 +1037,12 @@ objectType big_to_bstri_be (listType arguments)
  *  The result uses binary representation with a base of 256.
  *  @param big1/arg_1 BigInteger number to be converted.
  *  @param isSigned/arg_2 Determines the signedness of the result.
- *         When 'isSigned' is TRUE the result is encoded with the
+ *         If 'isSigned' is TRUE the result is encoded with the
  *         twos-complement representation. In this case a negative
  *         'big1' is converted to a result where the most significant
  *         byte (the last byte) has an ordinal > BYTE_MAX (=127).
  *  @return a bstring with the little-endian representation.
- *  @exception RANGE_ERROR When 'isSigned' is FALSE and 'big1' is negative.
+ *  @exception RANGE_ERROR If 'isSigned' is FALSE and 'big1' is negative.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  */
 objectType big_to_bstri_le (listType arguments)
@@ -1060,7 +1060,7 @@ objectType big_to_bstri_le (listType arguments)
 /**
  *  Get 'bigInteger' value of the object referenced by 'aReference/arg_1'.
  *  @return the 'bigInteger' value of the referenced object.
- *  @exception RANGE_ERROR When 'aReference/arg_1' is NIL or
+ *  @exception RANGE_ERROR If 'aReference/arg_1' is NIL or
  *             category(aReference) <> BIGINTOBJECT holds.
  */
 objectType big_value (listType arguments)

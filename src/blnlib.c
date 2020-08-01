@@ -49,7 +49,7 @@
 /**
  *  Logical 'and' for two boolean values.
  *  The logical 'and' operator works strictly left to right.
- *  When the result can be determined after the evaluation of
+ *  If the result can be determined after the evaluation of
  *  'boolValue1' the right operand ('boolValue2') is not evaluated.
  *  @return TRUE if boolValue1 is TRUE and boolValue2 is TRUE,
  *          FALSE otherwise.
@@ -189,7 +189,7 @@ objectType bln_gt (listType arguments)
 
 /**
  *  Convert an integer to a boolean value.
- *  @return TRUE when number is odd,
+ *  @return TRUE if number is odd,
  *          FALSE otherwise.
  */
 objectType bln_iconv1 (listType arguments)
@@ -207,7 +207,7 @@ objectType bln_iconv1 (listType arguments)
 
 /**
  *  Convert an integer to a boolean value.
- *  @return TRUE when number is odd,
+ *  @return TRUE if number is odd,
  *          FALSE otherwise.
  */
 objectType bln_iconv3 (listType arguments)
@@ -301,7 +301,7 @@ objectType bln_not (listType arguments)
 /**
  *  Inclusive logical 'or' for two boolean values.
  *  The logical 'or' operator works strictly left to right.
- *  When the result can be determined after the evaluation of
+ *  If the result can be determined after the evaluation of
  *  'boolValue1' the right operand ('boolValue2') is not evaluated.
  *  @return TRUE if boolValue1 is TRUE or boolValue2 is TRUE (or both are true),
  *          FALSE otherwise.
@@ -329,8 +329,8 @@ objectType bln_or (listType arguments)
 
 /**
  *  Convert to integer.
- *  @return 0 when boolValue is FALSE and
- *          1 when boolValue is TRUE.
+ *  @return 0 if boolValue is FALSE, and
+ *          1 if boolValue is TRUE.
  */
 objectType bln_ord (listType arguments)
 
@@ -348,8 +348,8 @@ objectType bln_ord (listType arguments)
 /**
  *  Get 'boolean' value of the object referenced by 'aReference/arg_1'.
  *  @return the 'boolean' value of the referenced object.
- *  @exception RANGE_ERROR When 'aReference/arg_1' is NIL or
- *             when the value is not TRUE_OBJECT or FALSE_OBJECT.
+ *  @exception RANGE_ERROR If 'aReference/arg_1' is NIL or
+ *             if the value is not TRUE_OBJECT or FALSE_OBJECT.
  */
 objectType bln_value (listType arguments)
 

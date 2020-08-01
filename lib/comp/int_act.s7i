@@ -2213,7 +2213,7 @@ const proc: process_const_int_mod (in reference: dividend, in integer: divisor,
       # The check with bitLength is used to avoid negating the divisor.
       # Negating the divisor would fail for the most negative integer.
       # Below the unsigned value is negated to avoid a signed integer
-      # overflow when the smallest signed integer is negated.
+      # overflow if the smallest signed integer is negated.
       c_expr.expr &:= "(intType)-(-(uintType)(";
       process_expr(dividend, c_expr);
       c_expr.expr &:= ")&";

@@ -177,7 +177,7 @@ const func string: literal (in duration: aDuration) is
  *  Convert a string to a ''duration''.
  *  @param stri A duration in the format P[nY][nM][nD][T[nH][nM][n[.n]S]]
  *  @return the ''duration'' result of the conversion.
- *  @exception RANGE_ERROR When stri contains not a valid duration value.
+ *  @exception RANGE_ERROR If stri contains not a valid duration value.
  *)
 const func duration: duration (in var string: stri) is func
   result
@@ -269,7 +269,7 @@ const func duration: duration (in var string: stri) is func
  *  Convert a string to a ''duration''.
  *  @param stri A duration in the format P[nY][nM][nD][T[nH][nM][n[.n]S]]
  *  @return the ''duration'' result of the conversion.
- *  @exception RANGE_ERROR When stri contains not a valid duration value.
+ *  @exception RANGE_ERROR If stri contains not a valid duration value.
  *)
 const func duration: (attr duration) parse (in string: stri) is
     return duration(stri);

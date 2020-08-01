@@ -306,7 +306,7 @@ const proc: process_const_str_append (in reference: param1, in string: stri,
 
 (**
  *  Produces code for the string append operator.
- *  When two or more strings are appended the function
+ *  If two or more strings are appended the function
  *  strAppendN is used. This avoids copying and allocation operations.
  *)
 const proc: optimize_str_append (in reference: dest, in reference: extension,
@@ -445,9 +445,9 @@ const proc: process (STR_APPEND, in reference: function,
 
 (**
  *  Produces code for the string concatenation.
- *  When three or more strings are concatenated the function
+ *  If three or more strings are concatenated the function
  *  strConcatN is used. This saves copying and allocation operations.
- *  When the first parameter is a temporary value the concatenation
+ *  If the first parameter is a temporary value the concatenation
  *  is done with strConcatTemp. The strConcatTemp function returns
  *  the first parameter as result of the concatenation. That way the
  *  temporary of the first parameter must not be freed.
@@ -1813,7 +1813,7 @@ const proc: process (STR_LNG, in reference: function,
 
 (**
  *  Produces code to return a string converted to lower case.
- *  When the parameter is a temporary value the conversion is done
+ *  If the parameter is a temporary value the conversion is done
  *  with strLowTemp. The strLowTemp function returns the parameter as
  *  result of the conversion. That way the temporary of the parameter
  *  must not be freed.
@@ -1839,7 +1839,7 @@ const proc: process (STR_LOW, in reference: function,
 
 (**
  *  Produces code for the lpad operator.
- *  When the first parameter is a temporary value the operation
+ *  If the first parameter is a temporary value the operation
  *  is done with strLpadTemp. The strLpadTemp function returns
  *  the first parameter as result of the operation. That way the
  *  temporary of the first parameter must not be freed.
@@ -1867,7 +1867,7 @@ const proc: process (STR_LPAD, in reference: function,
 
 (**
  *  Produces code for the lpad0 operator.
- *  When the first parameter is a temporary value the operation
+ *  If the first parameter is a temporary value the operation
  *  is done with strLpad0Temp. The strLpad0Temp function returns
  *  the first parameter as result of the operation. That way the
  *  temporary of the first parameter must not be freed.
@@ -3057,7 +3057,7 @@ const proc: process (STR_TRIM, in reference: function,
 
 (**
  *  Produces code to return a string converted to upper case.
- *  When the parameter is a temporary value the conversion is done
+ *  If the parameter is a temporary value the conversion is done
  *  with strUpTemp. The strUpTemp function returns the parameter as
  *  result of the conversion. That way the temporary of the parameter
  *  must not be freed.

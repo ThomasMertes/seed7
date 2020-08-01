@@ -288,7 +288,7 @@ const proc: processCompressedBlock (inout file: compressed, inout integer: bitPo
  *  DEFLATE is a compression algorithm that uses a combination of
  *  the LZ77 algorithm and Huffman coding.
  *  @return the uncompressed string.
- *  @exception RANGE_ERROR When ''compressed'' is not in DEFLATE format.
+ *  @exception RANGE_ERROR If ''compressed'' is not in DEFLATE format.
  *)
 const func string: inflate (inout file: compressed) is func
   result

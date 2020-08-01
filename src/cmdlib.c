@@ -186,8 +186,8 @@ objectType cmd_clone_file (listType arguments)
  *  write the configuration values to version.h. The configuration
  *  values are hard-coded in the Seed7 runtime library.
  *  @param name/arg_1 Name of the configuration value to be retrieved.
- *  @return the requested configuration value or "" when a value
- *          with the name does not exist.
+ *  @return the requested configuration value, and
+ *          "" if a value with the name does not exist.
  *  @exception MEMORY_ERROR Not enough memory to convert the
  *             configuration value to a string.
  */
@@ -353,10 +353,10 @@ objectType cmd_getcwd (listType arguments)
 /**
  *  Determine the value of an environment variable.
  *  The function getenv searches the environment for an environment variable
- *  with the given 'name'. When such an environment variable exists the
+ *  with the given 'name'. If such an environment variable exists the
  *  corresponding string value is returned.
- *  @return the value of an environment variable or "",
- *          when the requested environment variable does not exist.
+ *  @return the value of an environment variable, and
+ *          "" if the requested environment variable does not exist.
  *  @exception MEMORY_ERROR Not enough memory to convert 'name' to the
  *             system string type or not enough memory to represent the
  *             result string.
@@ -589,11 +589,11 @@ objectType cmd_mkdir (listType arguments)
 
 /**
  *  Move and rename a file or directory tree.
- *  The function uses the C 'rename()' function. When 'rename()' fails
+ *  The function uses the C 'rename()' function. If 'rename()' fails
  *  the file (or directory tree) is cloned with 'cloneFile' (which
  *  preserves permissions/mode, ownership and timestamps) to the new
- *  place and with the new name. When 'cloneFile' succeeds the original
- *  file is deleted. When 'cloneFile' fails (no space on device or
+ *  place and with the new name. If 'cloneFile' succeeds the original
+ *  file is deleted. If 'cloneFile' fails (no space on device or
  *  other reason) all remains of the failed clone are removed. Note
  *  that 'cloneFile' works for symbolic links but does not preserve
  *  hard links (they are resolved to distinct files).
@@ -682,8 +682,8 @@ objectType cmd_remove_tree (listType arguments)
 /**
  *  Add or change an environment variable.
  *  The function setenv searches the environment for an environment variable
- *  with the given 'name'. When such an environment variable exists the
- *  corresponding value is changed to 'value'. When no environment variable
+ *  with the given 'name'. If such an environment variable exists the
+ *  corresponding value is changed to 'value'. If no environment variable
  *  with the given 'name' exists a new environment variable 'name' with
  *  the value 'value' is created.
  *  @exception MEMORY_ERROR Not enough memory to convert 'name' or 'value'
@@ -835,7 +835,7 @@ objectType cmd_set_search_path (listType arguments)
  *  @param command/arg_1 Name of the command to be executed. A path
  *         must use the standard path representation.
  *  @param parameters/arg_2 Space separated list of parameters for
- *         the 'command', or "" when there are no parameters.
+ *         the 'command', or "" if there are no parameters.
  *  @return the return code of the executed command or of the shell.
  */
 objectType cmd_shell (listType arguments)

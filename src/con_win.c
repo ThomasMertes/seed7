@@ -161,7 +161,7 @@ boolType kbdKeyPressed (void)
         if (ignoreEvent) {
           /* Skip the event to be ignored. */
           ignoreEvent = ReadConsoleInputW(hKeyboard, &event, 1, &count) != 0;
-          /* When reading the event, that already has been */
+          /* If reading the event, that already has been */
           /* peeked, fails the loop is terminated. */
         } /* if */
       } /* if */
@@ -568,7 +568,7 @@ void conCursor (boolType on)
 
 /**
  *  Moves the system curser to the given place of the console.
- *  When no system cursor exists this procedure can be replaced by
+ *  If no system cursor exists this procedure can be replaced by
  *  a dummy procedure.
  */
 void conSetCursor (intType line, intType column)
@@ -700,9 +700,9 @@ static void doWriteConsole (HANDLE hConsole, const const_striType stri)
 /**
  *  Write a string to the current position of the console.
  *  Unicode characters are written with the encoding of the
- *  operating system. The cursor position is changed, when
+ *  operating system. The cursor position is changed, if
  *  one of the characters '\n', '\r' and '\b' is written.
- *  When the standard output file of the operating system has
+ *  If the standard output file of the operating system has
  *  been redirected UTF-8 encoded characters are written to
  *  the redirected file.
  */

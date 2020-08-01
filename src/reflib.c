@@ -242,7 +242,7 @@ objectType ref_arrtolist (listType arguments)
 /**
  *  Gets the body of the function referenced by funcRef/arg_1.
  *  @return the body expression of funcRef/arg_1.
- *  @exception RANGE_ERROR When funcRef/arg_1 is NIL or
+ *  @exception RANGE_ERROR If funcRef/arg_1 is NIL or
  *                         category(funcRef) <> BLOCKOBJECT holds.
  */
 objectType ref_body (listType arguments)
@@ -267,7 +267,7 @@ objectType ref_cast (listType arguments)
 /**
  *  Get the category of a referenced object.
  *  @return the category of the referenced object.
- *  @exception RANGE_ERROR When aReference/arg_1 is NIL.
+ *  @exception RANGE_ERROR If aReference/arg_1 is NIL.
  */
 objectType ref_category (listType arguments)
 
@@ -283,7 +283,7 @@ objectType ref_category (listType arguments)
  *  Convert a string to a 'category'.
  *  @param catName/arg_3 Name of a category to be converted.
  *  @return the 'category' result fo the conversion.
- *  @exception RANGE_ERROR When there is no corresponding 'category'.
+ *  @exception RANGE_ERROR If there is no corresponding 'category'.
  */
 objectType ref_cat_parse (listType arguments)
 
@@ -429,7 +429,7 @@ objectType ref_eq (listType arguments)
 /**
  *  Determine the file name of a referenced object.
  *  @return the file name of the referenced object.
- *  @exception RANGE_ERROR When aReference/arg_1 is NIL.
+ *  @exception RANGE_ERROR If aReference/arg_1 is NIL.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  */
 objectType ref_file (listType arguments)
@@ -526,9 +526,9 @@ objectType ref_issymb (listType arguments)
 
 
 /**
- *  Determine if a referenced object is variable.
+ *  Determine if the referenced object is variable.
  *  @return TRUE if aReference/arg_1 is a variable, FALSE otherwise.
- *  @exception RANGE_ERROR When aReference/arg_1 is NIL.
+ *  @exception RANGE_ERROR If aReference/arg_1 is NIL.
  */
 objectType ref_isvar (listType arguments)
 
@@ -556,7 +556,7 @@ objectType ref_itftosct (listType arguments)
 /**
  *  Determine the line number of a referenced object.
  *  @return the line number of the referenced object.
- *  @exception RANGE_ERROR When aReference/arg_1 is NIL.
+ *  @exception RANGE_ERROR If aReference/arg_1 is NIL.
  */
 objectType ref_line (listType arguments)
 
@@ -571,7 +571,7 @@ objectType ref_line (listType arguments)
 /**
  *  Gets the local constants of funcRef/arg_1.
  *  @return the local constants as ref_list.
- *  @exception RANGE_ERROR When funcRef/arg_1 is NIL or
+ *  @exception RANGE_ERROR If funcRef/arg_1 is NIL or
  *                         refCategory(funcRef) <> BLOCKOBJECT holds.
  *  @exception MEMORY_ERROR An out of memory situation occurred.
  */
@@ -588,7 +588,7 @@ objectType ref_local_consts (listType arguments)
 /**
  *  Gets the local variables of funcRef/arg_1.
  *  @return the local variables as ref_list.
- *  @exception RANGE_ERROR When funcRef/arg_1 is NIL or
+ *  @exception RANGE_ERROR If funcRef/arg_1 is NIL or
  *                         refCategory(funcRef) <> BLOCKOBJECT holds.
  *  @exception MEMORY_ERROR An out of memory situation occurred.
  */
@@ -673,7 +673,7 @@ objectType ref_num (listType arguments)
  *  Get the formal parameters of the function referenced by 'funcRef'.
  *  For objects without parameters an empty list is returned.
  *  @return the formal parameters as ref_list.
- *  @exception RANGE_ERROR When 'funcRef' is NIL.
+ *  @exception RANGE_ERROR If 'funcRef' is NIL.
  *  @exception MEMORY_ERROR An out of memory situation occurred.
  */
 objectType ref_params (listType arguments)
@@ -707,7 +707,7 @@ objectType ref_prog (listType arguments)
 /**
  *  Gets the initialization value of the result variable of funcRef/arg_1.
  *  @return a reference to the initialization value.
- *  @exception RANGE_ERROR When funcRef/arg_1 is NIL or
+ *  @exception RANGE_ERROR If funcRef/arg_1 is NIL or
  *                         refCategory(funcRef) <> BLOCKOBJECT holds.
  */
 objectType ref_resini (listType arguments)
@@ -723,7 +723,7 @@ objectType ref_resini (listType arguments)
 /**
  *  Gets the result variable of funcRef/arg_1.
  *  @return a reference to the result variable.
- *  @exception RANGE_ERROR When funcRef/arg_1 is NIL or
+ *  @exception RANGE_ERROR If funcRef/arg_1 is NIL or
  *                         refCategory(funcRef) <> BLOCKOBJECT holds.
  */
 objectType ref_result (listType arguments)
@@ -817,7 +817,7 @@ printf("\n");
       if (HAS_ENTITY(selector) && GET_ENTITY(selector)->syobject != NULL) {
         selector_syobject = GET_ENTITY(selector)->syobject;
         position = stru1->size;
- 	    struct_pointer = &stru1->stru[position - 1];
+        struct_pointer = &stru1->stru[position - 1];
         while (position > 0) {
 /*
 printf("test " FMT_U_MEM ": ", position);
@@ -873,7 +873,7 @@ printf("\n");
 /**
  *  Set the category of aReference/arg_1 to aCategory/arg_2.
  *  Set the category of a referenced object.
- *  @exception RANGE_ERROR When aReference/arg_1 is NIL.
+ *  @exception RANGE_ERROR If aReference/arg_1 is NIL.
  */
 objectType ref_setcategory (listType arguments)
 
@@ -889,7 +889,7 @@ objectType ref_setcategory (listType arguments)
 
 /**
  *  Set the formal parameters of funcRef/arg_1 to params/arg_2.
- *  @exception RANGE_ERROR When funcRef/arg_1 is NIL.
+ *  @exception RANGE_ERROR If funcRef/arg_1 is NIL.
  *  @exception MEMORY_ERROR An out of memory situation occurred.
  */
 objectType ref_setparams (listType arguments)
@@ -905,7 +905,7 @@ objectType ref_setparams (listType arguments)
 
 /**
  *  Set the type of aReference/arg_1 to aType/arg_2.
- *  @exception RANGE_ERROR When aReference/arg_1 is NIL.
+ *  @exception RANGE_ERROR If aReference/arg_1 is NIL.
  */
 objectType ref_settype (listType arguments)
 
@@ -921,7 +921,7 @@ objectType ref_settype (listType arguments)
 
 /**
  *  Set var flag of a referenced object.
- *  @exception RANGE_ERROR When aReference/arg_1 is NIL.
+ *  @exception RANGE_ERROR If aReference/arg_1 is NIL.
  */
 objectType ref_setvar (listType arguments)
 

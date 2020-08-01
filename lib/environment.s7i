@@ -39,7 +39,7 @@ const func array string: argv (PROGRAM)                is action "PRC_ARGS";
  *  The name returned by ''name(PROGRAM)'' is the same for interpreted
  *  and compiled programs. The function ''name(PROGRAM)'' does not follow
  *  symbolic links. It determines, with which name a program was called.
- *  When several symbolic links refer to one program ''name(PROGRAM)''
+ *  If several symbolic links refer to one program ''name(PROGRAM)''
  *  returns the name of the symbolic link.
  *  @return the name of the program.
  *)
@@ -100,10 +100,10 @@ const func string: file (PROGRAM) is func
 (**
  *  Determine the value of an environment variable.
  *  The function getenv searches the environment for an environment variable
- *  with the given ''name''. When such an environment variable exists the
+ *  with the given ''name''. If such an environment variable exists the
  *  corresponding [[string]] value is returned.
  *  @return the value of an environment variable or "",
- *          when the requested environment variable does not exist.
+ *          if the requested environment variable does not exist.
  *  @exception MEMORY_ERROR Not enough memory to convert ''name'' to the
  *             system string type or not enough memory to represent the
  *             result string.
@@ -114,8 +114,8 @@ const func string: getenv (in string: name)            is action "CMD_GETENV";
 (**
  *  Add or change an environment variable.
  *  The function setenv searches the environment for an environment variable
- *  with the given ''name''. When such an environment variable exists the
- *  corresponding value is changed to ''value''. When no environment variable
+ *  with the given ''name''. If such an environment variable exists the
+ *  corresponding value is changed to ''value''. If no environment variable
  *  with the given ''name'' exists a new environment variable ''name'' with
  *  the value ''value'' is created.
  *  @exception MEMORY_ERROR Not enough memory to convert ''name'' or ''value''

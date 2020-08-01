@@ -40,7 +40,7 @@ const proc: (inout string: dest) := (in string: source)          is action "STR_
  *   "LA" mult 3     returns "LALALA"
  *   "WORD" mult 0   returns ""
  *  @return the result of the string multiplication.
- *  @exception RANGE_ERROR When the factor is negative.
+ *  @exception RANGE_ERROR If the factor is negative.
  *)
 const func string: (in string: stri) mult (in integer: factor)   is action "STR_MULT";
 
@@ -91,7 +91,7 @@ const func string: (in string: stri1) <& (in string: stri2)      is action "STR_
  *  Get a character, identified by an index, from a ''string''.
  *  The first character has the index 1.
  *  @return the character specified with the index.
- *  @exception RANGE_ERROR When the index is less than 1 or
+ *  @exception RANGE_ERROR If the index is less than 1 or
  *             greater than the length of the ''string''.
  *)
 const func char: (in string: stri) [ (in integer: index) ]       is action "STR_IDX";
@@ -156,7 +156,7 @@ const proc: (inout string: destination) &:= (in char: extension)     is action "
  *   A @:= [B] C;
  *  is equivalent to
  *   A := A[..pred(B)] & str(C) & A[succ(B)..];
- *  @exception RANGE_ERROR When ''position'' is negative or zero.
+ *  @exception RANGE_ERROR If ''position'' is negative or zero.
  *  @exception RANGE_ERROR A character beyond ''destination'' would be
  *             overwritten (''position'' > length(''destination'') holds).
  *)
@@ -168,8 +168,8 @@ const proc: (inout string: destination) @:= [ (in integer: position) ] (in char:
  *   A @:= [B] C;
  *  is equivalent to
  *   A := A[..pred(B)] & C & A[B+length(C)..];
- *  @exception RANGE_ERROR When ''position'' is negative or zero.
- *  @exception RANGE_ERROR When ''destination'' is smaller than ''source''.
+ *  @exception RANGE_ERROR If ''position'' is negative or zero.
+ *  @exception RANGE_ERROR If ''destination'' is smaller than ''source''.
  *  @exception RANGE_ERROR Characters beyond ''destination'' would be
  *             overwritten (''position'' + length(''source'') >
  *             succ(length(''destination'')) holds).
@@ -283,9 +283,9 @@ const func boolean: equalAtIndex (in string: stri, in string: searched, in integ
 
 (**
  *  Determine leftmost position of string ''searched'' in ''mainStri''.
- *  When the string is found the position of its first character
+ *  If the string is found the position of its first character
  *  is the result. The first character in a string has the position 1.
- *  @return the position of ''searched'' or 0 when ''mainStri''
+ *  @return the position of ''searched'' or 0 if ''mainStri''
  *          does not contain ''searched''.
  *)
 const func integer: pos (in string: mainStri, in string: searched)  is action "STR_POS";
@@ -294,7 +294,7 @@ const func integer: pos (in string: mainStri, in string: searched)  is action "S
 (**
  *  Determine leftmost position of char ''searched'' in ''mainStri''.
  *  The first character in a string has the position 1.
- *  @return the position of ''searched'' or 0 when ''mainStri''
+ *  @return the position of ''searched'' or 0 if ''mainStri''
  *          does not contain ''searched''.
  *)
 const func integer: pos (in string: mainStri, in char: searched)    is action "STR_CHPOS";
@@ -303,7 +303,7 @@ const func integer: pos (in string: mainStri, in char: searched)    is action "S
 (**
  *  Search string ''searched'' in ''mainStri'' at or after ''fromIndex''.
  *  The search starts at ''fromIndex'' and proceeds to the right.
- *  When the string is found the position of its first character
+ *  If the string is found the position of its first character
  *  is the result. The first character in a string has the position 1.
  *  The pos function is designed to allow loops like:
  *
@@ -313,9 +313,9 @@ const func integer: pos (in string: mainStri, in char: searched)    is action "S
  *     index := pos(stri, searched_stri, succ(index));
  *   end while;
  *
- *  @return the position of ''searched'' or 0 when ''mainStri''
+ *  @return the position of ''searched'' or 0 if ''mainStri''
  *          does not contain ''searched'' at or after ''fromIndex''.
- *  @exception RANGE_ERROR When ''fromIndex'' <= 0 holds.
+ *  @exception RANGE_ERROR If ''fromIndex'' <= 0 holds.
  *)
 const func integer: pos (in string: mainStri, in string: searched,
                          in integer: fromIndex)                     is action "STR_IPOS";
@@ -325,9 +325,9 @@ const func integer: pos (in string: mainStri, in string: searched,
  *  Search char ''searched'' in ''mainStri'' at or after ''fromIndex''.
  *  The search starts at ''fromIndex'' and proceeds to the right.
  *  The first character in a string has the position 1.
- *  @return the position of ''searched'' or 0 when ''mainStri''
+ *  @return the position of ''searched'' or 0 if ''mainStri''
  *          does not contain ''searched'' at or after ''fromIndex''.
- *  @exception RANGE_ERROR When ''fromIndex'' <= 0 holds.
+ *  @exception RANGE_ERROR If ''fromIndex'' <= 0 holds.
  *)
 const func integer: pos (in string: mainStri, in char: searched,
                          in integer: fromIndex)                     is action "STR_CHIPOS";
@@ -335,9 +335,9 @@ const func integer: pos (in string: mainStri, in char: searched,
 
 (**
  *  Determine rightmost position of string ''searched'' in ''mainStri''.
- *  When the string is found the position of its first character
+ *  If the string is found the position of its first character
  *  is the result. The first character in a string has the position 1.
- *  @return the position of ''searched'' or 0 when ''mainStri''
+ *  @return the position of ''searched'' or 0 if ''mainStri''
  *          does not contain ''searched''.
  *)
 const func integer: rpos (in string: mainStri, in string: searched) is action "STR_RPOS";
@@ -346,7 +346,7 @@ const func integer: rpos (in string: mainStri, in string: searched) is action "S
 (**
  *  Determine rightmost position of char ''searched'' in ''mainStri''.
  *  The first character in a string has the position 1.
- *  @return the position of ''searched'' or 0 when ''mainStri''
+ *  @return the position of ''searched'' or 0 if ''mainStri''
  *          does not contain ''searched''.
  *)
 const func integer: rpos (in string: mainStri, in char: searched)   is action "STR_RCHPOS";
@@ -364,9 +364,9 @@ const func integer: rpos (in string: mainStri, in char: searched)   is action "S
  *     index := rpos(stri, searched_stri, pred(index));
  *   end while;
  *
- *  @return the position of ''searched'' or 0 when ''mainStri''
+ *  @return the position of ''searched'' or 0 if ''mainStri''
  *          does not contain ''searched'' at or before ''fromIndex''.
- *  @exception RANGE_ERROR When ''fromIndex'' > length(stri) holds.
+ *  @exception RANGE_ERROR If ''fromIndex'' > length(stri) holds.
  *)
 const func integer: rpos (in string: mainStri, in string: searched,
                           in integer: fromIndex)                    is action "STR_RIPOS";
@@ -376,9 +376,9 @@ const func integer: rpos (in string: mainStri, in string: searched,
  *  Search char ''searched'' in ''mainStri'' at or before ''fromIndex''.
  *  The search starts at ''fromIndex'' and proceeds to the left.
  *  The first character in a string has the position 1.
- *  @return the position of ''searched'' or 0 when ''mainStri''
+ *  @return the position of ''searched'' or 0 if ''mainStri''
  *          does not contain ''searched'' at or before ''fromIndex''.
- *  @exception RANGE_ERROR When ''fromIndex'' > length(stri) holds.
+ *  @exception RANGE_ERROR If ''fromIndex'' > length(stri) holds.
  *)
 const func integer: rpos (in string: mainStri, in char: searched,
                           in integer: fromIndex)                    is action "STR_RCHIPOS";
@@ -415,7 +415,7 @@ const func string: replace (in string: mainStri, in string: target,
  *   replaceN("balll", "all", "al")            returns "bal"
  *   replaceN("faaaaceeees", "aacee", "ace")   returns "faces"
  *  @return the result of the replacement.
- *  @exception MEMORY_ERROR When ''target'' is a substring of ''replacement''.
+ *  @exception MEMORY_ERROR If ''target'' is a substring of ''replacement''.
  *)
 const func string: replaceN (in string: mainStri, in string: target,
                              in string: replacement) is func

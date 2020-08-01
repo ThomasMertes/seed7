@@ -50,9 +50,9 @@
 
 
 /**
- *  Read a char from keyboard, but don't wait when no key was pressed.
- *  @return the char read from the console keyboard file or
- *          KEY_NONE when no char is available.
+ *  Read a char from keyboard, but don't wait if no key was pressed.
+ *  @return the char read from the console keyboard file, or
+ *          KEY_NONE if no char is available.
  */
 objectType kbd_busy_getc (listType arguments)
 

@@ -59,7 +59,7 @@ const func string: toCsvLine (in array string: data, in char: separator) is func
  *  or the beginning or the end of the CSV line. A CSV field might be
  *  enclosed in double quotes ("). A double quoted CSV field might contain
  *  ''separator'' characters, double quotes (") or linefeed characters.
- *  This function is intended to be used, when the CSV line is already in
+ *  This function is intended to be used, if the CSV line is already in
  *  a [[string]]. To read CSV lines from a file the function
  *  [[#readCsvLine(inout_file,in_char)|readCsvLine]] should be used
  *  instead of a combination of [[file#getln(inout_file)|getln]] and
@@ -69,7 +69,7 @@ const func string: toCsvLine (in array string: data, in char: separator) is func
  *  @param csvLine CSV line to be converted.
  *  @param separator Separator character used in the CSV line.
  *  @return the array of CSV fields from the CSV line.
- *  @exception RANGE_ERROR When ''csvLine'' is not in CSV format.
+ *  @exception RANGE_ERROR If ''csvLine'' is not in CSV format.
  *)
 const func array string: fromCsvLine (in string: csvLine, in char: separator) is func
   result
@@ -135,7 +135,7 @@ const func array string: fromCsvLine (in string: csvLine, in char: separator) is
  *  @param inFile File from which the CSV line is read.
  *  @param separator Separator character used in the CSV line.
  *  @return the array of CSV fields from the CSV line.
- *  @exception RANGE_ERROR When the CSV line is not in CSV format.
+ *  @exception RANGE_ERROR If the CSV line is not in CSV format.
  *)
 const func array string: readCsvLine (inout file: inFile, in char: separator) is func
   result

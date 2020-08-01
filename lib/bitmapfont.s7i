@@ -71,14 +71,14 @@ const func integer: width (in bitmapFont: bmpFont, in string: stri) is func
 
 
 (**
- *  Compute how many chars fit in a width, when ''stri'' is displayed.
+ *  Compute how many chars fit in a width, if ''stri'' is displayed.
  *  This is done for the given ''bmpFont''. The ''allowedWidth'' is
  *  specified in pixels. The expression:
  *   numOfCharsInWidth(aFont, stri, width(aFont, stri))
  *  will always be equivalent to
  *   length(stri);
  *  @return the number of chars from ''stri'' that fit into ''allowedWidth''
- *          when ''stri'' is displayed with ''bmpFont''.
+ *          if ''stri'' is displayed with ''bmpFont''.
  *)
 const func integer: numOfCharsInWidth (in bitmapFont: bmpFont,
     in string: stri, in integer: allowedWidth) is func
@@ -109,7 +109,7 @@ const func integer: numOfCharsInWidth (in bitmapFont: bmpFont,
  *  the pixels of a pixmap with characters. The space (' ') encodes
  *  a ''background'' pixel and any other character encodes a
  *  ''foregound'' pixel. A ''scale'' of 1 describes an encoding
- *  with pixels. When ''scale'' is greater than 1 rectangles
+ *  with pixels. If ''scale'' is greater than 1 rectangles
  *  with side length ''scale'' are used instead of pixels.
  *  @return the created pixmap.
  *)

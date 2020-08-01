@@ -78,7 +78,7 @@ objectType gen_destr (listType arguments)
 /**
  *  Compute the absolute value of an integer number.
  *  @return the absolute value.
- *  @exception OVERFLOW_ERROR When an integer overflow occurs.
+ *  @exception OVERFLOW_ERROR If an integer overflow occurs.
  */
 objectType int_abs (listType arguments)
 
@@ -108,7 +108,7 @@ objectType int_abs (listType arguments)
 /**
  *  Add two integer numbers.
  *  @return the sum of the two numbers.
- *  @exception OVERFLOW_ERROR When an integer overflow occurs.
+ *  @exception OVERFLOW_ERROR If an integer overflow occurs.
  */
 objectType int_add (listType arguments)
 
@@ -147,7 +147,7 @@ objectType int_add (listType arguments)
 
 /**
  *  Increment an integer variable by a delta.
- *  @exception OVERFLOW_ERROR When an integer overflow occurs.
+ *  @exception OVERFLOW_ERROR If an integer overflow occurs.
  */
 objectType int_add_assign (listType arguments)
 
@@ -195,7 +195,7 @@ objectType int_add_assign (listType arguments)
  *  Binomial coefficient
  *   n ! k  returns  !n div (!k * !(n - k))
  *  @return the binomial coefficient n over k
- *  @exception OVERFLOW_ERROR When the result would be less than
+ *  @exception OVERFLOW_ERROR If the result would be less than
  *             integer.first or greater than integer.last.
  */
 objectType int_binom (listType arguments)
@@ -232,10 +232,10 @@ objectType int_bit_length (listType arguments)
  *         base of 256. Negative values use the twos-complement
  *         representation.
  *  @return an integer created from 'byteStri'. The result is negative
- *          when the most significant byte (the first byte) of byteStri/arg_1
+ *          if the most significant byte (the first byte) of byteStri/arg_1
  *          has an ordinal > BYTE_MAX (=127).
- *  @exception RANGE_ERROR When characters beyond '\255;' are present or
- *             when the result value cannot be represented with an integer.
+ *  @exception RANGE_ERROR If characters beyond '\255;' are present or
+ *             if the result value cannot be represented with an integer.
  */
 objectType int_bytes_be_2_int (listType arguments)
 
@@ -253,8 +253,8 @@ objectType int_bytes_be_2_int (listType arguments)
  *         base of 256.
  *  @return an integer created from 'byteStri'. The result is always
  *          positive.
- *  @exception RANGE_ERROR When characters beyond '\255;' are present or
- *             when the result value cannot be represented with an integer.
+ *  @exception RANGE_ERROR If characters beyond '\255;' are present or
+ *             if the result value cannot be represented with an integer.
  */
 objectType int_bytes_be_2_uint (listType arguments)
 
@@ -288,7 +288,7 @@ objectType int_bytes_be_signed (listType arguments)
  *  The result contains chars (bytes) with an ordinal <= 255.
  *  @param number/arg_1 Integer number to be converted.
  *  @return a string with the shortest binary representation of 'number'.
- *  @exception RANGE_ERROR When 'number' is negative.
+ *  @exception RANGE_ERROR If 'number' is negative.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  */
 objectType int_bytes_be_unsigned (listType arguments)
@@ -307,10 +307,10 @@ objectType int_bytes_be_unsigned (listType arguments)
  *         base of 256. Negative values use the twos-complement
  *         representation.
  *  @return an integer created from 'byteStri'. The result is negative
- *          when the most significant byte (the last byte) of byteStri/arg_1
+ *          if the most significant byte (the last byte) of byteStri/arg_1
  *          has an ordinal > BYTE_MAX (=127).
- *  @exception RANGE_ERROR When characters beyond '\255;' are present or
- *             when the result value cannot be represented with an integer.
+ *  @exception RANGE_ERROR If characters beyond '\255;' are present or
+ *             if the result value cannot be represented with an integer.
  */
 objectType int_bytes_le_2_int (listType arguments)
 
@@ -328,8 +328,8 @@ objectType int_bytes_le_2_int (listType arguments)
  *         base of 256.
  *  @return an integer created from 'byteStri'. The result is always
  *          positive.
- *  @exception RANGE_ERROR When characters beyond '\255;' are present or
- *             when the result value cannot be represented with an integer.
+ *  @exception RANGE_ERROR If characters beyond '\255;' are present or
+ *             if the result value cannot be represented with an integer.
  */
 objectType int_bytes_le_2_uint (listType arguments)
 
@@ -363,7 +363,7 @@ objectType int_bytes_le_signed (listType arguments)
  *  The result contains chars (bytes) with an ordinal <= 255.
  *  @param number/arg_1 Integer number to be converted.
  *  @return a string with the shortest binary representation of 'number'.
- *  @exception RANGE_ERROR When 'number' is negative.
+ *  @exception RANGE_ERROR If 'number' is negative.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  */
 objectType int_bytes_le_unsigned (listType arguments)
@@ -443,7 +443,7 @@ objectType int_create (listType arguments)
 /**
  *  Decrement an integer variable.
  *  Decrements the number by 1.
- *  @exception OVERFLOW_ERROR When an integer overflow occurs.
+ *  @exception OVERFLOW_ERROR If an integer overflow occurs.
  */
 objectType int_decr (listType arguments)
 
@@ -474,8 +474,8 @@ objectType int_decr (listType arguments)
  *  towards zero. Tests in chkint.sd7 find out, if this
  *  assumption is wrong.
  *  @return the quotient of the integer division.
- *  @exception NUMERIC_ERROR When a division by zero occurs
- *  @exception OVERFLOW_ERROR When an integer overflow occurs.
+ *  @exception NUMERIC_ERROR If a division by zero occurs
+ *  @exception OVERFLOW_ERROR If an integer overflow occurs.
  */
 objectType int_div (listType arguments)
 
@@ -634,7 +634,7 @@ objectType int_iconv3 (listType arguments)
 /**
  *  Increment an integer variable.
  *  Increments the number by 1.
- *  @exception OVERFLOW_ERROR When an integer overflow occurs.
+ *  @exception OVERFLOW_ERROR If an integer overflow occurs.
  */
 objectType int_incr (listType arguments)
 
@@ -749,9 +749,9 @@ objectType int_lpad0 (listType arguments)
  *  Shift an integer number left by lshift bits.
  *  A << B is equivalent to A * 2 ** B
  *  @return the left shifted number.
- *  @exception OVERFLOW_ERROR When the shift amount is
+ *  @exception OVERFLOW_ERROR If the shift amount is
  *             negative or greater equal INTTYPE_SIZE or
- *             when an integer overflow occurs.
+ *             if an integer overflow occurs.
  */
 objectType int_lshift (listType arguments)
 
@@ -798,9 +798,9 @@ objectType int_lshift (listType arguments)
 
 /**
  *  Shift a number left by lshift bits and assign the result back to number.
- *  @exception OVERFLOW_ERROR When the shift amount is
+ *  @exception OVERFLOW_ERROR If the shift amount is
  *             negative or greater equal INTTYPE_SIZE or
- *             when an integer overflow occurs.
+ *             if an integer overflow occurs.
  */
 objectType int_lshift_assign (listType arguments)
 
@@ -877,8 +877,8 @@ objectType int_lt (listType arguments)
  *  The modulo (remainder) of this division is computed with int_mod.
  *  Therefore this division is called modulo division (mdiv).
  *  @return the quotient of the integer division.
- *  @exception NUMERIC_ERROR When a division by zero occurs.
- *  @exception OVERFLOW_ERROR When an integer overflow occurs.
+ *  @exception NUMERIC_ERROR If a division by zero occurs.
+ *  @exception OVERFLOW_ERROR If an integer overflow occurs.
  */
 objectType int_mdiv (listType arguments)
 
@@ -922,8 +922,8 @@ objectType int_mdiv (listType arguments)
  *  Compute the modulo (remainder) of the integer division int_mdiv.
  *  The modulo has the same sign as the divisor.
  *  @return the modulo of the integer division.
- *  @exception NUMERIC_ERROR When a division by zero occurs.
- *  @exception OVERFLOW_ERROR When an integer overflow occurs.
+ *  @exception NUMERIC_ERROR If a division by zero occurs.
+ *  @exception OVERFLOW_ERROR If an integer overflow occurs.
  */
 objectType int_mod (listType arguments)
 
@@ -965,7 +965,7 @@ objectType int_mod (listType arguments)
 /**
  *  Multiply two integer numbers.
  *  @return the product of the two numbers.
- *  @exception OVERFLOW_ERROR When an integer overflow occurs.
+ *  @exception OVERFLOW_ERROR If an integer overflow occurs.
  */
 objectType int_mult (listType arguments)
 
@@ -1012,7 +1012,7 @@ objectType int_mult (listType arguments)
 
 /**
  *  Multiply an integer number by a factor and assign the result back to number.
- *  @exception OVERFLOW_ERROR When an integer overflow occurs.
+ *  @exception OVERFLOW_ERROR If an integer overflow occurs.
  */
 objectType int_mult_assign (listType arguments)
 
@@ -1072,7 +1072,7 @@ objectType int_ne (listType arguments)
 /**
  *  Minus sign, negate an integer number.
  *  @return the negated value of the number.
- *  @exception OVERFLOW_ERROR When an integer overflow occurs.
+ *  @exception OVERFLOW_ERROR If an integer overflow occurs.
  */
 objectType int_negate (listType arguments)
 
@@ -1121,8 +1121,8 @@ objectType int_odd (listType arguments)
  *  characters as well as leading or trailing whitespace characters
  *  are not allowed. The sequence of digits is taken to be decimal.
  *  @return the integer result of the conversion.
- *  @exception RANGE_ERROR When the string is empty or it does not contain
- *             an integer literal or when the integer literal is too big
+ *  @exception RANGE_ERROR If the string is empty or it does not contain
+ *             an integer literal or if the integer literal is too big
  *             or too small to be represented as integer value.
  */
 objectType int_parse1 (listType arguments)
@@ -1151,8 +1151,8 @@ objectType int_plus (listType arguments)
 /**
  *  Compute the exponentiation of a integer base with an integer exponent.
  *  @return the result of the exponentation.
- *  @exception NUMERIC_ERROR When the exponent is negative.
- *  @exception OVERFLOW_ERROR When an integer overflow occurs.
+ *  @exception NUMERIC_ERROR If the exponent is negative.
+ *  @exception OVERFLOW_ERROR If an integer overflow occurs.
  */
 objectType int_pow (listType arguments)
 
@@ -1172,7 +1172,7 @@ objectType int_pow (listType arguments)
 /**
  *  Predecessor of an integer number.
  *  @return number - 1
- *  @exception OVERFLOW_ERROR When an integer overflow occurs.
+ *  @exception OVERFLOW_ERROR If an integer overflow occurs.
  */
 objectType int_pred (listType arguments)
 
@@ -1201,7 +1201,7 @@ objectType int_pred (listType arguments)
  *  E.g.: 10 is encoded with a, 11 with b, etc.
  *  For negative numbers a minus sign is prepended.
  *  @return the string result of the conversion.
- *  @exception RANGE_ERROR When base < 2 or base > 36 holds.
+ *  @exception RANGE_ERROR If base < 2 or base > 36 holds.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  */
 objectType int_radix (listType arguments)
@@ -1222,7 +1222,7 @@ objectType int_radix (listType arguments)
  *  E.g.: 10 is encoded with A, 11 with B, etc.
  *  For negative numbers a minus sign is prepended.
  *  @return the string result of the conversion.
- *  @exception RANGE_ERROR When base < 2 or base > 36 holds.
+ *  @exception RANGE_ERROR If base < 2 or base > 36 holds.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  */
 objectType int_RADIX (listType arguments)
@@ -1258,8 +1258,8 @@ objectType int_rand (listType arguments)
  *  Compute the remainder of the integer division int_div.
  *  The remainder has the same sign as the dividend.
  *  @return the remainder of the integer division.
- *  @exception NUMERIC_ERROR When a division by zero occurs.
- *  @exception OVERFLOW_ERROR When an integer overflow occurs.
+ *  @exception NUMERIC_ERROR If a division by zero occurs.
+ *  @exception OVERFLOW_ERROR If an integer overflow occurs.
  */
 objectType int_rem (listType arguments)
 
@@ -1299,7 +1299,7 @@ objectType int_rem (listType arguments)
  *  Shift an integer number right by rshift bits.
  *  A >> B is equivalent to A mdiv 2 ** B
  *  @return the right shifted number.
- *  @exception OVERFLOW_ERROR When the shift amount is
+ *  @exception OVERFLOW_ERROR If the shift amount is
  *             negative or greater equal INTTYPE_SIZE.
  */
 objectType int_rshift (listType arguments)
@@ -1338,7 +1338,7 @@ objectType int_rshift (listType arguments)
 
 /**
  *  Shift a number right by rshift bits and assign the result back to number.
- *  @exception OVERFLOW_ERROR When the shift amount is
+ *  @exception OVERFLOW_ERROR If the shift amount is
  *             negative or greater equal INTTYPE_SIZE.
  */
 objectType int_rshift_assign (listType arguments)
@@ -1379,7 +1379,7 @@ objectType int_rshift_assign (listType arguments)
 /**
  *  Compute the subtraction of two integer numbers.
  *  @return the difference of the two numbers.
- *  @exception OVERFLOW_ERROR When an integer overflow occurs.
+ *  @exception OVERFLOW_ERROR If an integer overflow occurs.
  */
 objectType int_sbtr (listType arguments)
 
@@ -1418,7 +1418,7 @@ objectType int_sbtr (listType arguments)
 
 /**
  *  Decrement an integer variable by a delta.
- *  @exception OVERFLOW_ERROR When an integer overflow occurs.
+ *  @exception OVERFLOW_ERROR If an integer overflow occurs.
  */
 objectType int_sbtr_assign (listType arguments)
 
@@ -1465,7 +1465,7 @@ objectType int_sbtr_assign (listType arguments)
 /**
  *  Compute the integer square root of an integer radicand.
  *  @return the integer square root.
- *  @exception NUMERIC_ERROR When the radicand is negative.
+ *  @exception NUMERIC_ERROR If the radicand is negative.
  */
 objectType int_sqrt (listType arguments)
 
@@ -1497,7 +1497,7 @@ objectType int_str (listType arguments)
 /**
  *  Successor of an integer number.
  *  @return number + 1
- *  @exception OVERFLOW_ERROR When an integer overflow occurs.
+ *  @exception OVERFLOW_ERROR If an integer overflow occurs.
  */
 objectType int_succ (listType arguments)
 
@@ -1522,7 +1522,7 @@ objectType int_succ (listType arguments)
 /**
  *  Get 'integer' value of the object referenced by 'aReference/arg_1'.
  *  @return the 'integer' value of the referenced object.
- *  @exception RANGE_ERROR When 'aReference/arg_1' is NIL or
+ *  @exception RANGE_ERROR If 'aReference/arg_1' is NIL or
  *             category(aReference) <> INTOBJECT holds.
  */
 objectType int_value (listType arguments)

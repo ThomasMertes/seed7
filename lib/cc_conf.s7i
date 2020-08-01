@@ -36,46 +36,46 @@ include "osfiles.s7i";
 const type: ccConfigType is new struct
 
     (**
-     *  TRUE, when the Seed7 runtime library uses strings with capacity.
+     *  TRUE if the Seed7 runtime library uses strings with capacity.
      *  The capacity of a string can be larger than its size.
      *  Strings with capacity can be enlarged without calling realloc().
      *)
     var boolean: WITH_STRI_CAPACITY          is FALSE;
 
     (**
-     *  TRUE, when the actual characters of a string can be stored elsewhere.
+     *  TRUE if the actual characters of a string can be stored elsewhere.
      *  This allows string slices without the need to copy characters.
      *)
     var boolean: ALLOW_STRITYPE_SLICES       is FALSE;
 
     (**
-     *  TRUE, when the actual characters of a bstring can be stored elsewhere.
+     *  TRUE if the actual characters of a bstring can be stored elsewhere.
      *  This allows bstring slices without the need to copy characters.
      *)
     var boolean: ALLOW_BSTRITYPE_SLICES      is FALSE;
 
     (**
-     *  TRUE, when right shifts preserve the sign of negative signed integers.
+     *  TRUE if right shifts preserve the sign of negative signed integers.
      *  The C standard specifies that the right shift of signed integers is
-     *  implementation defined, when the shifted values are negative.
+     *  implementation defined, if the shifted values are negative.
      *)
     var boolean: RSHIFT_DOES_SIGN_EXTEND     is FALSE;
 
     (**
-     *  TRUE, when signed integers are represented as twos complement numbers.
+     *  TRUE if signed integers are represented as twos complement numbers.
      *  This allows some simplified range checks in compiled programs.
      *)
     var boolean: TWOS_COMPLEMENT_INTTYPE     is FALSE;
 
     (**
-     *  TRUE, when the byte ordering of integers is little endian.
+     *  TRUE if the byte ordering of integers is little endian.
      *  With little endian byte ordering it is possible to get the elements
      *  of a union by casting the union to the desired element type.
      *)
     var boolean: LITTLE_ENDIAN_INTTYPE       is FALSE;
 
     (**
-     *  TRUE, when float comparisons with NaN and negative zero work okay.
+     *  TRUE if float comparisons with NaN and negative zero work okay.
      *  A comparison between NaN and any other value should return FALSE.
      *  Negative zero should be considered as identical to positive zero.
      *  Comparison refers to comparisons with  ==  <  >  <=  or  >= .
@@ -85,68 +85,68 @@ const type: ccConfigType is new struct
     var boolean: FLOAT_COMPARISON_OKAY       is FALSE;
 
     (**
-     *  TRUE, when pow() works okay for a base of zero, one and NaN.
+     *  TRUE if pow() works okay for a base of zero, one and NaN.
      *  If it is FALSE fltPow() should be used instead of pow().
      *)
     var boolean: POW_FUNCTION_OKAY           is FALSE;
 
     (**
-     *  TRUE, when fmod() works okay for Infinity, NaN and zero.
+     *  TRUE if fmod() works okay for Infinity, NaN and zero.
      *  If it is FALSE fltRem() should be used instead of fmod().
      *)
     var boolean: FMOD_FUNCTION_OKAY          is FALSE;
 
     (**
-     *  TRUE, when sqrt() works okay for a negative argument and NaN.
+     *  TRUE if sqrt() works okay for a negative argument and NaN.
      *  If it is FALSE fltSqrt() should be used instead of sqrt().
      *)
     var boolean: SQRT_FUNCTION_OKAY          is FALSE;
 
     (**
-     *  TRUE, when exp() works okay for NaN.
+     *  TRUE if exp() works okay for NaN.
      *  If it is FALSE fltExp() should be used instead of exp().
      *)
     var boolean: EXP_FUNCTION_OKAY           is FALSE;
 
     (**
-     *  TRUE, when log() works okay for zero, a negative values and NaN.
+     *  TRUE if log() works okay for zero, a negative values and NaN.
      *  If it is FALSE fltLog() should be used instead of log().
      *)
     var boolean: LOG_FUNCTION_OKAY           is FALSE;
 
     (**
-     *  TRUE, when log10() works okay for zero, a negative values and NaN.
+     *  TRUE if log10() works okay for zero, a negative values and NaN.
      *  If it is FALSE fltLog10() should be used instead of log10().
      *)
     var boolean: LOG10_FUNCTION_OKAY         is FALSE;
 
     (**
-     *  TRUE, when log2() works okay for zero, a negative values and NaN.
+     *  TRUE if log2() works okay for zero, a negative values and NaN.
      *  If it is FALSE fltLog2() should be used instead of log2().
      *)
     var boolean: LOG2_FUNCTION_OKAY          is FALSE;
 
     (**
-     *  TRUE, when ldexp() works okay for NaN.
+     *  TRUE if ldexp() works okay for NaN.
      *  If it is FALSE fltLdexp() should be used instead of lsexp().
      *)
     var boolean: LDEXP_FUNCTION_OKAY         is FALSE;
 
     (**
-     *  TRUE, when frexp() works okay for Infinity, NaN and subnormal numbers.
+     *  TRUE if frexp() works okay for Infinity, NaN and subnormal numbers.
      *  If it is FALSE fltDecompose() should be used instead of frexp().
      *)
     var boolean: FREXP_FUNCTION_OKAY         is FALSE;
 
     (**
-     *  TRUE, when the functions sigsetjmp() and siglongjmp() are available.
-     *  When it is FALSE the functions setjmp() and longjmp() must
+     *  TRUE if the functions sigsetjmp() and siglongjmp() are available.
+     *  If it is FALSE the functions setjmp() and longjmp() must
      *  be used instead.
      *)
     var boolean: HAS_SIGSETJMP               is FALSE;
 
     (**
-     *  TRUE, when floating point divisions by zero cause compilation errors.
+     *  TRUE if floating point divisions by zero cause compilation errors.
      *  Some C compilers check if the dividend is 0.0 and classify a
      *  floating point division by zero as fatal error. The generated
      *  C code should avoid this situation and generate code to
@@ -155,61 +155,60 @@ const type: ccConfigType is new struct
     var boolean: FLOAT_ZERO_DIV_ERROR        is FALSE;
 
     (**
-     *  TRUE, when integer divisions must be checked for a division by zero.
+     *  TRUE if integer divisions must be checked for a division by zero.
      *  This applies to the division operations div, rem, mdiv and mod.
-     *  The generated C code should, when a division by zero occurs,
+     *  The generated C code should, if a division by zero occurs,
      *  raise the exception NUMERIC_ERROR instead of doing the
      *  illegal divide operation.
      *)
     var boolean: CHECK_INT_DIV_BY_ZERO       is FALSE;
 
     (**
-     *  TRUE, when integer remainder must be checked for a division by zero.
+     *  TRUE if integer remainder must be checked for a division by zero.
      *  This applies to the division operations rem and mod.
-     *  The generated C code should, when a remainder by zero occurs,
+     *  The generated C code should, if a remainder by zero occurs,
      *  raise the exception NUMERIC_ERROR instead of doing the
      *  illegal divide operation.
      *)
     var boolean: CHECK_INT_REM_BY_ZERO       is FALSE;
 
     (**
-     *  TRUE, when the integer expression 0%0 might not trigger SIGFPE.
+     *  TRUE if the integer expression 0%0 might not trigger SIGFPE.
      *  This can happen with a constant or a variable dividend.
      *  This applies to the division operations rem and mod.
-     *  The generated C code should, when a remainder by zero occurs,
+     *  The generated C code should, if a remainder by zero occurs,
      *  raise the exception NUMERIC_ERROR instead of doing the
      *  illegal divide operation.
      *)
     var boolean: CHECK_INT_REM_ZERO_BY_ZERO  is FALSE;
 
     (**
-     *  TRUE, when the C function exp2() is present.
+     *  TRUE if the C function exp2() is present.
      *)
     var boolean: HAS_EXP2                    is FALSE;
 
     (**
-     *  TRUE, when the C function exp10() is present.
+     *  TRUE if the C function exp10() is present.
      *)
     var boolean: HAS_EXP10                   is FALSE;
 
     (**
-     *  TRUE, when the C function cbrt() is present.
+     *  TRUE if the C function cbrt() is present.
      *)
     var boolean: HAS_CBRT                    is FALSE;
 
     (**
-     *  TRUE, when floating point divisions by zero don't conform to IEEE 754.
+     *  TRUE if floating point divisions by zero don't conform to IEEE 754.
      *  According to IEEE 754 a floating point division by zero should
      *  return Infinity, -Infinity or NaN. In this case the compiler
      *  generates C code, which checks all float divisions ( / and /:= )
-     *  for division by zero. The generated C code should, when executed,
-     *  return Infinity, -Infinity or NaN instead of doing the divide
-     *  operation.
+     *  for division by zero. The generated C code should return
+     *  Infinity, -Infinity or NaN instead of doing the divide operation.
      *)
     var boolean: CHECK_FLOAT_DIV_BY_ZERO     is FALSE;
 
     (**
-     *  TRUE, when the C compiler limits the length of string literals.
+     *  TRUE if the C compiler limits the length of string literals.
      *  Some C compilers limit the maximum string literal length.
      *  There are limits of 2,048 bytes and 16,384 (16K) bytes.
      *  The actual limit is not interesting, but the fact that a
@@ -218,21 +217,21 @@ const type: ccConfigType is new struct
     var boolean: LIMITED_CSTRI_LITERAL_LEN   is FALSE;
 
     (**
-     *  TRUE, when switch statements work with 64-bit values.
-     *  When it is FALSE a switch statement with a 64-bit value
+     *  TRUE if switch statements work with 64-bit values.
+     *  If it is FALSE a switch statement with a 64-bit value
      *  triggers a compile error.
      *)
     var boolean: SWITCH_WORKS_FOR_INT64TYPE  is FALSE;
 
     (**
-     *  TRUE, when #line directives can use UTF-8 encoded file names.
+     *  TRUE if #line directives can use UTF-8 encoded file names.
      *  The file names from #line directives are used by the debugger to
      *  allow source code debugging.
      *)
     var boolean: CC_SOURCE_UTF8              is FALSE;
 
     (**
-     *  TRUE, when the main function is named wmain.
+     *  TRUE if the main function is named wmain.
      *  This is a way to support Unicode command line arguments under Windows.
      *  An alternate way to support Unicode command line arguments under
      *  Windows uses the functions getUtf16Argv() and freeUtf16Argv() (both
@@ -241,13 +240,13 @@ const type: ccConfigType is new struct
     var boolean: USE_WMAIN                   is FALSE;
 
     (**
-     *  TRUE, when the main function is named WinMain.
+     *  TRUE if the main function is named WinMain.
      *)
     var boolean: USE_WINMAIN                 is FALSE;
 
     (**
-     *  TRUE, when the type ''floatType'' is ''double''.
-     *  When it is FALSE ''floatType'' is ''float''.
+     *  TRUE if the type ''floatType'' is ''double''.
+     *  If it is FALSE ''floatType'' is ''float''.
      *)
     var boolean: FLOATTYPE_DOUBLE            is FALSE;
 
@@ -341,7 +340,7 @@ const type: ccConfigType is new struct
     (**
      *  Name of a signed integer type that is 128 bits wide.
      *  The runtime library and the compiler use a typedef to define
-     *  the type ''int128Type'' with INT128TYPE. Empty string when
+     *  the type ''int128Type'' with INT128TYPE. Empty string if
      *  there is no 128-bit signed integer type.
      *)
     var string: INT128TYPE                   is "";
@@ -349,7 +348,7 @@ const type: ccConfigType is new struct
     (**
      *  Name of an unsigned integer type that is 128 bits wide.
      *  The runtime library and the compiler use a typedef to define
-     *  the type ''uint128Type'' with UINT128TYPE. Empty string when
+     *  the type ''uint128Type'' with UINT128TYPE. Empty string if
      *  there is no 128-bit unsigned integer type.
      *)
     var string: UINT128TYPE                  is "";
@@ -370,8 +369,8 @@ const type: ccConfigType is new struct
     var string: MACRO_DEFS                   is "";
 
     (**
-     *  Name of the signal that is raised when an integer overflow
-     *  occurs. Empty string when integer overflow does not raise
+     *  Name of the signal that is raised if an integer overflow
+     *  occurs. Empty string if integer overflow does not raise
      *  a signal.
      *)
     var string: OVERFLOW_SIGNAL              is "";
@@ -410,8 +409,8 @@ const type: ccConfigType is new struct
     var string: CPLUSPLUS_COMPILER           is "";
 
     (**
-     *  TRUE, when C compiler and linker must be called via the shell.
-     *  When it is FALSE C compiler and linker processes are started
+     *  TRUE if C compiler and linker must be called via the shell.
+     *  If it is FALSE C compiler and linker processes are started
      *  direct.
      *)
     var boolean: CALL_C_COMPILER_FROM_SHELL  is FALSE;
@@ -447,7 +446,7 @@ const type: ccConfigType is new struct
     var array string: CC_OPT_OPTIMIZE_3      is 0 times "";
 
     (**
-     *  C compiler flags to be used when C programs are compiled.
+     *  C compiler flags to be used if C programs are compiled.
      *)
     var array string: CC_FLAGS               is 0 times "";
 
@@ -478,7 +477,7 @@ const type: ccConfigType is new struct
 
     (**
      *  Linker option to provide the output filename (e.g.: "-o ").
-     *  When no such option exists the value of LINKER_OPT_OUTPUT_FILE
+     *  If no such option exists the value of LINKER_OPT_OUTPUT_FILE
      *  should be "". In this case it is assumed that the linker
      *  replaces the OBJECT_FILE_EXTENSION of the file with the
      *  EXECUTABLE_FILE_EXTENSION.

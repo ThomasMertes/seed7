@@ -240,9 +240,9 @@ objectType con_width (listType arguments)
 /**
  *  Write a string to the current position of the console.
  *  Unicode characters are written with the encoding of the
- *  operating system. The cursor position is changed, when
+ *  operating system. The cursor position is changed, if
  *  one of the characters '\n', '\r' and '\b' is written.
- *  When the standard output file of the operating system has
+ *  If the standard output file of the operating system has
  *  been redirected UTF-8 encoded characters are written to
  *  the redirected file.
  */

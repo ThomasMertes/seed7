@@ -407,12 +407,12 @@ objectType flt_decompose (listType arguments)
  *  Halfway cases are rounded away from zero. Except for a 'precision' of
  *  zero the representation has a decimal point and at least one digit
  *  before and after the decimal point. Negative numbers are preceeded by
- *  a minus sign (e.g.: "-1.25"). When all digits in the result are 0 a
+ *  a minus sign (e.g.: "-1.25"). If all digits in the result are 0 a
  *  possible negative sign is omitted.
  *  @param precision/arg_3 Number of digits after the decimal point.
- *         When the 'precision' is zero the decimal point is omitted.
+ *         If the 'precision' is zero the decimal point is omitted.
  *  @return the string result of the conversion.
- *  @exception RANGE_ERROR When the 'precision' is negative.
+ *  @exception RANGE_ERROR If the 'precision' is negative.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  */
 objectType flt_dgts (listType arguments)
@@ -589,8 +589,7 @@ objectType flt_floor (listType arguments)
  *  Check if 'number1' is greater than or equal to 'number2'.
  *  According to IEEE 754 a NaN is neither less than,
  *  equal to, nor greater than any value, including itself.
- *  When 'number1' or 'number2' is NaN, the result
- *  is FALSE;
+ *  If 'number1' or 'number2' is NaN, the result is FALSE.
  *  @return TRUE if 'number1' is greater than or equal to 'number2',
  *          FALSE otherwise.
  */
@@ -618,8 +617,7 @@ objectType flt_ge (listType arguments)
  *  Check if 'number1' is greater than 'number2'.
  *  According to IEEE 754 a NaN is neither less than,
  *  equal to, nor greater than any value, including itself.
- *  When 'number1' or 'number2' is NaN, the result
- *  is FALSE;
+ *  If 'number1' or 'number2' is NaN, the result is FALSE.
  *  @return TRUE if 'number1' is greater than 'number2',
  *          FALSE otherwise.
  */
@@ -762,8 +760,7 @@ objectType flt_isnegativezero (listType arguments)
  *  Check if 'number1' is less than or equal to 'number2'.
  *  According to IEEE 754 a NaN is neither less than,
  *  equal to, nor greater than any value, including itself.
- *  When 'number1' or 'number2' is NaN, the result
- *  is FALSE;
+ *  If 'number1' or 'number2' is NaN, the result is FALSE.
  *  @return TRUE if 'number1' is less than or equal to 'number2',
  *          FALSE otherwise.
  */
@@ -844,7 +841,7 @@ objectType flt_log2 (listType arguments)
  *  If the result underflows zero is returned.
  *  If the result overflows Infinity or -Infinity is returned,
  *  depending on the sign of number/arg_1.
- *  When the argument number/arg_1 is a NaN, Infinity or -Infinity the
+ *  If the argument number/arg_1 is a NaN, Infinity or -Infinity the
  *  unchanged argument is returned.
  *  @return number * 2.0 ** exponent
  */
@@ -878,8 +875,7 @@ objectType flt_lshift (listType arguments)
  *  Check if 'number1' is less than 'number2'.
  *  According to IEEE 754 a NaN is neither less than,
  *  equal to, nor greater than any value, including itself.
- *  When 'number1' or 'number2' is NaN, the result
- *  is FALSE;
+ *  If 'number1' or 'number2' is NaN, the result is FALSE.
  *  @return TRUE if 'number1' is less than 'number2',
  *          FALSE otherwise.
  */
@@ -1009,7 +1005,7 @@ objectType flt_negate (listType arguments)
 /**
  *  Convert a string to a float number.
  *  @return the float result of the conversion.
- *  @exception RANGE_ERROR When the string contains not a float literal.
+ *  @exception RANGE_ERROR If the string contains not a float literal.
  */
 objectType flt_parse1 (listType arguments)
 
@@ -1109,7 +1105,7 @@ objectType flt_rem (listType arguments)
  *  Round towards the nearest integer.
  *  Halfway cases are rounded away from zero.
  *  @return the rounded value.
- *  @exception RANGE_ERROR When the number is NaN, -Infinity, Infinity,
+ *  @exception RANGE_ERROR If the number is NaN, -Infinity, Infinity,
  *             or does not fit into an integer.
  */
 objectType flt_round (listType arguments)
@@ -1148,7 +1144,7 @@ objectType flt_round (listType arguments)
  *  If the result underflows zero is returned.
  *  If the result overflows Infinity or -Infinity is returned,
  *  depending on the sign of number/arg_1.
- *  When the argument number/arg_1 is a NaN, Infinity or -Infinity the
+ *  If the argument number/arg_1 is a NaN, Infinity or -Infinity the
  *  unchanged argument is returned.
  *  @return number / 2.0 ** exponent
  */
@@ -1229,9 +1225,9 @@ objectType flt_sbtr_assign (listType arguments)
  *  letter e and an exponent, which is always signed. The value zero is
  *  never written with a negative sign.
  *  @param precision/arg_3 Number of digits after the decimal point.
- *         When the 'precision' is zero the decimal point is omitted.
+ *         If the 'precision' is zero the decimal point is omitted.
  *  @return the string result of the conversion.
- *  @exception RANGE_ERROR When the 'precision' is negative.
+ *  @exception RANGE_ERROR If the 'precision' is negative.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  */
 objectType flt_sci (listType arguments)
@@ -1322,7 +1318,7 @@ objectType flt_sqrt (listType arguments)
  *  The result string has the style [-]ddd.ddd where there is at least
  *  one digit before and after the decimal point. The number of digits
  *  after the decimal point is determined automatically. Except for the
- *  case when there is only one zero digit after the decimal point
+ *  case if there is only one zero digit after the decimal point,
  *  the last digit is never zero. Negative zero (-0.0) and positive
  *  zero (+0.0) are both converted to "0.0".
  *   str(16.125)    returns "16.125"
@@ -1377,7 +1373,7 @@ objectType flt_tanh (listType arguments)
  *  The fractional part of a number is discarded.
  *  @return the nearest integer not larger in absolute value
  *          than the argument.
- *  @exception RANGE_ERROR When the number is NaN, -Infinity, Infinity,
+ *  @exception RANGE_ERROR If the number is NaN, -Infinity, Infinity,
  *             or does not fit into an integer.
  */
 objectType flt_trunc (listType arguments)
@@ -1405,7 +1401,7 @@ objectType flt_trunc (listType arguments)
 /**
  *  Get 'float' value of the object referenced by 'aReference/arg_1'.
  *  @return the 'float' value of the referenced object.
- *  @exception RANGE_ERROR When 'aReference/arg_1' is NIL or
+ *  @exception RANGE_ERROR If 'aReference/arg_1' is NIL or
  *             category(aReference) <> FLOATOBJECT holds.
  */
 objectType flt_value (listType arguments)

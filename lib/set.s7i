@@ -29,7 +29,7 @@
 (**
  *  Abstract data type, describing sets of ''baseType'' values.
  *  This abstract data type decides about the implementation of the
- *  set. When ''baseType'' values can be mapped to [[integer]] with
+ *  set. If ''baseType'' values can be mapped to [[integer]] with
  *  the ''ord'' function and ''ord'' does never raise an exception
  *  the set is implemented as [[bitsetof|bitset]], otherwise the set
  *  is implemented as [[hashsetof|hashset]].

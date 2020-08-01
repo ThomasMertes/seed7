@@ -128,10 +128,11 @@ static void freeArgVector (os_striType *argv)
 /**
  *  Generate an argument vector that can be used by execv().
  *  The argument vector must be freed with freeArgVector().
- *  @param err_info Unchanged when the function succeeds or
- *                  MEMORY_ERROR when a memory allocation failed or
- *                  RANGE_ERROR when a conversion to os_striType failed.
- *  @return the argument vector or NULL, when an error occurred.
+ *  @param err_info Unchanged if the function succeeds, and
+ *                  MEMORY_ERROR if a memory allocation failed, and
+ *                  RANGE_ERROR if a conversion to os_striType failed.
+ *  @return the argument vector, or
+ *          NULL if an error occurred.
  */
 static os_striType *genArgVector (const const_striType command,
     const const_rtlArrayType parameters, errInfoType *err_info)

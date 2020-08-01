@@ -73,7 +73,7 @@ const func string: string (in bstring: bstri)                           is actio
 (**
  *  Convert a [[string]] to a ''bstring'' value.
  *  @return the ''bstring'' result of the conversion.
- *  @exception RANGE_ERROR When characters beyond '\255;' are present.
+ *  @exception RANGE_ERROR If characters beyond '\255;' are present.
  *  @exception MEMORY_ERROR  Not enough memory to represent the result.
  *)
 const func bstring: bstring (in string: stri)                           is action "BST_PARSE1";
@@ -82,7 +82,7 @@ const func bstring: bstring (in string: stri)                           is actio
 (**
  *  Convert a [[string]] to a ''bstring'' value.
  *  @return the ''bstring'' result of the conversion.
- *  @exception RANGE_ERROR When characters beyond '\255;' are present.
+ *  @exception RANGE_ERROR If characters beyond '\255;' are present.
  *  @exception MEMORY_ERROR  Not enough memory to represent the result.
  *)
 const func bstring: (attr bstring) parse (in string: stri) is
@@ -93,7 +93,7 @@ const func bstring: (attr bstring) parse (in string: stri) is
  *  Get a character, identified by an index, from a ''bstring''.
  *  The first character has the index 1.
  *  @return the character specified with the index.
- *  @exception RANGE_ERROR When the index is less than 1 or
+ *  @exception RANGE_ERROR If the index is less than 1 or
  *             greater than the length of the ''bstring''.
  *)
 const func char: (in bstring: bstri) [ (in integer: index) ]            is action "BST_IDX";
@@ -156,8 +156,8 @@ const proc: for (inout char: variable) range (in bstring: bstri) do
  *  @param bstri Bstring to be converted. The bytes are interpreted
  *         as binary big-endian representation with a base of 256.
  *  @param isSigned Defines if ''bstri'' is interpreted as signed value.
- *         When ''isSigned'' is TRUE the twos-complement representation
- *         is used. In this case the result is negative when the most
+ *         If ''isSigned'' is TRUE the twos-complement representation
+ *         is used. In this case the result is negative if the most
  *         significant byte (the first byte) has an ordinal >= 128.
  *  @return a bigInteger created from the big-endian bytes.
  *)
@@ -170,8 +170,8 @@ const func bigInteger: bStriBe2BigInt (in bstring: bstri,
  *  @param bstri Bstring to be converted. The bytes are interpreted
  *         as binary little-endian representation with a base of 256.
  *  @param isSigned Defines if ''bstri'' is interpreted as signed value.
- *         When ''isSigned'' is TRUE the twos-complement representation
- *         is used. In this case the result is negative when the most
+ *         If ''isSigned'' is TRUE the twos-complement representation
+ *         is used. In this case the result is negative if the most
  *         significant byte (the last byte) has an ordinal >= 128.
  *  @return a bigInteger created from the little-endian bytes.
  *)
@@ -184,12 +184,12 @@ const func bigInteger: bStriLe2BigInt (in bstring: bstri,
  *  The result uses binary representation with a base of 256.
  *  @param number BigInteger number to be converted.
  *  @param isSigned Determines the signedness of the result.
- *         When ''isSigned'' is TRUE the result is encoded with the
+ *         If ''isSigned'' is TRUE the result is encoded with the
  *         twos-complement representation. In this case a negative
  *         ''number'' is converted to a result where the most significant
  *         byte (the first byte) has an ordinal >= 128.
  *  @return a bstring with the big-endian representation.
- *  @exception RANGE_ERROR When ''number'' is negative and ''isSigned'' is FALSE.
+ *  @exception RANGE_ERROR If ''number'' is negative and ''isSigned'' is FALSE.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  *)
 const func bstring: bStriBe (in bigInteger: number,
@@ -201,12 +201,12 @@ const func bstring: bStriBe (in bigInteger: number,
  *  The result uses binary representation with a base of 256.
  *  @param number BigInteger number to be converted.
  *  @param isSigned Determines the signedness of the result.
- *         When ''isSigned'' is TRUE the result is encoded with the
+ *         If ''isSigned'' is TRUE the result is encoded with the
  *         twos-complement representation. In this case a negative
  *         ''number'' is converted to a result where the most significant
  *         byte (the last byte) has an ordinal >= 128.
  *  @return a bstring with the little-endian representation.
- *  @exception RANGE_ERROR When ''number'' is negative and ''isSigned'' is FALSE.
+ *  @exception RANGE_ERROR If ''number'' is negative and ''isSigned'' is FALSE.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  *)
 const func bstring: bStriLe (in bigInteger: number,

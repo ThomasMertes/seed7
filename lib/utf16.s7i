@@ -65,7 +65,7 @@ const proc: flush (in utf16_file: outFile) is func
 
 (**
  *  Determine the end-of-file indicator.
- *  The end-of-file indicator is set when at least one request to read
+ *  The end-of-file indicator is set if at least one request to read
  *  from the file failed.
  *  @return TRUE if the end-of-file indicator is set, FALSE otherwise.
  *)
@@ -129,8 +129,8 @@ const type: utf16le_file is sub utf16_file struct
 (**
  *  Opens an Unicode file which uses the UTF-16LE encoding.
  *  The file is opened with the specified ''path'' and ''mode''.
- *  When the file is opened with one of the modes "w", "w+", "wt" or
- *  "wt+" an appropriate BOM is created. When the file is opened
+ *  If the file is opened with one of the modes "w", "w+", "wt" or
+ *  "wt+" an appropriate BOM is created. If the file is opened
  *  with a any other mode the application program is in charge to
  *  handle optional BOM markers. This way 'openUtf16le' can be used
  *  to open existing files without BOM.
@@ -155,7 +155,7 @@ const type: utf16le_file is sub utf16_file struct
  *         use the standard path representation.
  *  @param mode Mode of the file to be opened.
  *  @return the file opened, or [[null_file#STD_NULL|STD_NULL]]
- *          if it could not be opened or when ''path'' refers to
+ *          if it could not be opened or if ''path'' refers to
  *          a directory.
  *  @exception MEMORY_ERROR Not enough memory to convert the path
  *             to the system path type.
@@ -277,8 +277,8 @@ const type: utf16be_file is sub utf16_file struct
 (**
  *  Opens an Unicode file which uses the UTF-16BE encoding.
  *  The file is opened with the specified ''path'' and ''mode''.
- *  When the file is opened with one of the modes "w", "w+", "wt" or
- *  "wt+" an appropriate BOM is created. When the file is opened
+ *  If the file is opened with one of the modes "w", "w+", "wt" or
+ *  "wt+" an appropriate BOM is created. If the file is opened
  *  with a any other mode the application program is in charge to
  *  handle optional BOM markers. This way 'openUtf16be' can be used
  *  to open existing files without BOM.
@@ -303,7 +303,7 @@ const type: utf16be_file is sub utf16_file struct
  *         use the standard path representation.
  *  @param mode Mode of the file to be opened.
  *  @return the file opened, or [[null_file#STD_NULL|STD_NULL]]
- *          if it could not be opened or when ''path'' refers to
+ *          if it could not be opened or if ''path'' refers to
  *          a directory.
  *  @exception MEMORY_ERROR Not enough memory to convert the path
  *             to the system path type.
@@ -333,7 +333,7 @@ const func file: openUtf16be (in string: path, in string: mode) is func
 
 (**
  *  Write a string to an UTF-16BE file.
- *  @exception RANGE_ERROR When a character is not representable with UTF-16.
+ *  @exception RANGE_ERROR If a character is not representable with UTF-16.
  *  @exception FILE_ERROR The system function returns an error.
  *)
 const proc: write (in utf16be_file: outFile, in string: stri) is func
@@ -422,7 +422,7 @@ const func string: gets (in utf16be_file: inFile, in integer: maxLength) is func
  *  Opens an Unicode file which uses the UTF-16LE or UTF-16BE encoding.
  *  The file is opened with the specified ''path'' and ''mode''.
  *  The function 'openUtf16' checks for a BOM and depending on that
- *  opens an UTF-16LE or UTF-16BE file. When the file contains no BOM
+ *  opens an UTF-16LE or UTF-16BE file. If the file contains no BOM
  *  the function returns [[null_file#STD_NULL|STD_NULL]].
  *  There are text modes and binary modes:
  *  *Binary modes:
@@ -445,7 +445,7 @@ const func string: gets (in utf16be_file: inFile, in integer: maxLength) is func
  *         use the standard path representation.
  *  @param mode Mode of the file to be opened.
  *  @return the file opened, or [[null_file#STD_NULL|STD_NULL]]
- *          if it could not be opened or when ''path'' refers to
+ *          if it could not be opened or if ''path'' refers to
  *          a directory.
  *  @exception MEMORY_ERROR Not enough memory to convert the path
  *             to the system path type.

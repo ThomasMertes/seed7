@@ -35,17 +35,17 @@
  *  PATH_DELIMITER:
  *      Path delimiter character used by the command shell of the operating system.
  *  OS_STRI_WCHAR:
- *      Defined when the system calls (os_...) use wide characters (type wchar_t)
+ *      Defined if the system calls (os_...) use wide characters (type wchar_t)
  *      for string and path parameters.
  *  QUOTE_WHOLE_SHELL_COMMAND:
- *      Defined when shell commands, starting with " need to be quoted again.
+ *      Defined if shell commands, starting with " need to be quoted again.
  *  OBJECT_FILE_EXTENSION:
  *      The extension used by the C compiler for object files.
  *  EXECUTABLE_FILE_EXTENSION:
  *      The extension which is used by the operating system for executables.
  *  C_COMPILER:
  *      Contains the command to call the stand-alone C compiler and linker.
- *      When the C compiler is called via a script C_COMPILER_SCRIPT is defined
+ *      If the C compiler is called via a script C_COMPILER_SCRIPT is defined
  *      and C_COMPILER is not defined. In that case TEST_C_COMPILER is defined
  *      (in chkccomp.h) and it is used instead of C_COMPILER as command of
  *      the stand-alone C compiler and linker.
@@ -53,28 +53,28 @@
  *      Contains C compiler flags, which should be used when C programs are
  *      compiled.
  *  CC_NO_OPT_OUTPUT_FILE:
- *      Defined, when compiling and linking with one command cannot use -o.
+ *      Defined, if compiling and linking with one command cannot use -o.
  *  CC_ERROR_FILDES:
  *      File descriptor to which the C compiler writes errors.
  *  LINKER:
- *      Defined when C_COMPILER does just invoke the stand-alone C compiler.
+ *      Defined if C_COMPILER does just invoke the stand-alone C compiler.
  *      In that case LINKER contains the command to call the stand-alone linker.
  *  LINKER_OPT_OUTPUT_FILE:
  *      Contains the linker option to provide the output filename (e.g.: "-o ").
  *  SYSTEM_LIBS:
  *      Contains system libraries for the stand-alone linker.
  *  INTERPRETER_FOR_EXECUTABLE:
- *      Defines an interpreter that is used when compiler and linker create
+ *      Defines an interpreter that is used if compiler and linker create
  *      a file that must be interpreted.
  *  INT64TYPE_NO_SUFFIX_BUT_CAST:
- *      Defined when 64-bit integer literals do not use a suffix.
+ *      Defined if 64-bit integer literals do not use a suffix.
  *  INT_DIV_BY_ZERO_POPUP:
- *      Defined when an integer division by zero may trigger a popup window.
+ *      Defined if an integer division by zero may trigger a popup window.
  *      Consequently chkccomp.c defines CHECK_INT_DIV_BY_ZERO, to avoid the
  *      popup.
  *  DO_SIGFPE_WITH_DIV_BY_ZERO:
- *      TRUE, when SIGFPE should be raised with an integer division by zero.
- *      When it is FALSE raise(SIGFPE) can be called instead. Under Windows
+ *      TRUE, if SIGFPE should be raised with an integer division by zero.
+ *      If it is FALSE raise(SIGFPE) can be called instead. Under Windows
  *      it is necessary to trigger SIGFPE this way, to assure that the debugger
  *      can catch it.
  *  PRINTF_MAXIMUM_FLOAT_PRECISION:
@@ -82,14 +82,14 @@
  *      %f) will always work ok. This can be defined in a makefile and is
  *      used only in chkccomp.c.
  *  USE_ALTERNATE_LOCALTIME_R:
- *      Defined when the function alternate_localtime_r() should be used
+ *      Defined if the function alternate_localtime_r() should be used
  *      instead of localtime().
  *  FILENO_WORKS_FOR_NULL:
- *      TRUE, when the fileno() function works for NULL and returns -1.
+ *      TRUE, if the fileno() function works for NULL and returns -1.
  *  LINKER_OPT_STATIC_LINKING:
  *      Contains the linker option to force static linking (e.g.: "-static").
  *  STAT_MISSING:
- *      Defined when the function stat() is missing.
+ *      Defined if the function stat() is missing.
  */
 
 #include "stdlib.h"
@@ -2639,7 +2639,7 @@ static void checkForLimitedStringLiteralLength (FILE *versionFile)
     /* There are limits of 2,048 bytes and 16,384 (16K) bytes.     */
     /* Some C compilers accept long string literals, but at        */
     /* run-time the string does not contain the correct data.      */
-    /* When LIMITED_CSTRI_LITERAL_LEN is 0 a string literal with   */
+    /* If LIMITED_CSTRI_LITERAL_LEN is 0 a string literal with     */
     /* repeatCount * charsInLine characters is accepted and works. */
     if (compileAndLinkOk(buffer)) {
       testResult = doTest();
@@ -2655,7 +2655,7 @@ static void checkForLimitedStringLiteralLength (FILE *versionFile)
         fputs("#define LIMITED_CSTRI_LITERAL_LEN -2\n", versionFile);
       } /* if */
     } else {
-      /* when the compiler prohibits long string literals. */
+      /* If the compiler prohibits long string literals. */
       fputs("#define LIMITED_CSTRI_LITERAL_LEN -1\n", versionFile);
     } /* if */
     free(buffer);
@@ -2712,7 +2712,7 @@ static void checkForLimitedArrayLiteralLength (FILE *versionFile)
     strcpy(bufPos, programEnd);
     /* printf("\n%s\n", buffer); */
     /* Some C compilers limit the maximum array literal length.     */
-    /* When LIMITED_ARRAY_LITERAL_LEN is 0 an array literal with    */
+    /* If LIMITED_ARRAY_LITERAL_LEN is 0 an array literal with      */
     /* repeatCount * elementsInLine elements is accepted and works. */
     if (compileAndLinkOk(buffer)) {
       testResult = doTest();
@@ -2728,7 +2728,7 @@ static void checkForLimitedArrayLiteralLength (FILE *versionFile)
         fputs("#define LIMITED_ARRAY_LITERAL_LEN -2\n", versionFile);
       } /* if */
     } else {
-      /* when the compiler prohibits long array literals. */
+      /* If the compiler prohibits long array literals. */
       fputs("#define LIMITED_ARRAY_LITERAL_LEN -1\n", versionFile);
     } /* if */
     free(buffer);
@@ -5755,7 +5755,7 @@ int main (int argc, char **argv)
                              "int main(int argc, char *argv[])\n"
                              "{printf(\"%d\\n\", getenv(\"USERPROFILE\") != NULL);\n"
                              "return 0;}\n") && doTest() == 1) {
-          /* When USERPROFILE is defined then it is used, even when HOME is defined. */
+          /* If USERPROFILE is defined then it is used, even if HOME is defined. */
           fputs("#define HOME_DIR_ENV_VAR {'U', 'S', 'E', 'R', "
                 "'P', 'R', 'O', 'F', 'I', 'L', 'E', 0}\n", versionFile);
         } else if (assertCompAndLnk("#include <stdio.h>\n#include <stdlib.h>\n"
@@ -5778,7 +5778,7 @@ int main (int argc, char **argv)
     /* devices fails with EACCES instead of EXDEV. */
     fputs("#define USE_EACCES_INSTEAD_OF_EXDEV\n", versionFile);
     /* Windows uses pending deletes which cause    */
-    /* problems when a file with the same name is  */
+    /* problems if a file with the same name is    */
     /* created shortly after the delete. To avoid  */
     /* problems files are renamed before they are  */
     /* removed.                                    */

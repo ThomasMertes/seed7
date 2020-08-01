@@ -33,8 +33,8 @@
  *   utf8ToStri("\16#ed;\16#b0;\16#80;")  returns "\16#dc00;"  (surrogate halve)
  *  @param utf8 String of bytes encoded with UTF-8.
  *  @return ''utf8'' converted to a normal (UTF-32) [[string]].
- *  @exception RANGE_ERROR When ''utf8'' contains a char beyond '\255;' or
- *                         when ''utf8'' is not encoded with UTF-8.
+ *  @exception RANGE_ERROR If ''utf8'' contains a char beyond '\255;' or
+ *                         if ''utf8'' is not encoded with UTF-8.
  *)
 const func string: utf8ToStri (in string: utf8)                is action "STR_UTF8TOSTRI";
 
@@ -54,9 +54,9 @@ const func string: striToUtf8 (in string: stri)                is action "STR_TO
  *  @param utf16be String of bytes encoded with UTF-16 in
  *         big endian byte order.
  *  @return ''utf16be'' converted to a normal (UTF-32) [[string]].
- *  @exception RANGE_ERROR When the length of ''utf16be'' is odd or
- *                         when ''utf16be'' contains a char beyond '\255;' or
- *                         when an illegal surrogate pair is found.
+ *  @exception RANGE_ERROR If the length of ''utf16be'' is odd or
+ *                         if ''utf16be'' contains a char beyond '\255;' or
+ *                         if an illegal surrogate pair is found.
  *)
 const func string: utf16beToStri (in string: utf16be) is func
   result
@@ -102,7 +102,7 @@ const func string: utf16beToStri (in string: utf16be) is func
  *  Convert a [[string]] to an UTF-16BE encoded string of bytes.
  *  @param stri Normal (UTF-32) string to be converted to UTF-16BE.
  *  @return ''stri'' converted to a string of bytes with UTF-16BE encoding.
- *  @exception RANGE_ERROR When a character is not representable as UTF-16 or
+ *  @exception RANGE_ERROR If a character is not representable as UTF-16 or
  *                         the first char of a surrogate pair is found.
  *)
 const func string: striToUtf16be (in string: stri) is func
@@ -140,9 +140,9 @@ const func string: striToUtf16be (in string: stri) is func
  *  @param utf16le String of bytes encoded with UTF-16 in
  *         little endian byte order.
  *  @return ''utf16le'' converted to a normal (UTF-32) [[string]].
- *  @exception RANGE_ERROR When the length of ''utf16le'' is odd or
- *                         when ''utf16le'' contains a char beyond '\255;' or
- *                         when an illegal surrogate pair is found.
+ *  @exception RANGE_ERROR If the length of ''utf16le'' is odd or
+ *                         if ''utf16le'' contains a char beyond '\255;' or
+ *                         if an illegal surrogate pair is found.
  *)
 const func string: utf16leToStri (in string: utf16le) is func
   result
@@ -188,7 +188,7 @@ const func string: utf16leToStri (in string: utf16le) is func
  *  Convert a [[string]] to an UTF-16LE encoded string of bytes.
  *  @param stri Normal (UTF-32) string to be converted to UTF-16LE.
  *  @return ''stri'' converted to a string of bytes with UTF-16LE encoding.
- *  @exception RANGE_ERROR When a character is not representable as UTF-16 or
+ *  @exception RANGE_ERROR If a character is not representable as UTF-16 or
  *                         the first char of a surrogate pair is found.
  *)
 const func string: striToUtf16le (in string: stri) is func

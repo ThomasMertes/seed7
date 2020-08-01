@@ -74,10 +74,10 @@ typedef struct preparedStmtStruct {
  *  @param sqlStatement Prepared statement.
  *  @param pos Position of the bind variable (starting with 1).
  *  @param value Value for the binding.
- *  @exception RANGE_ERROR When the statement was not prepared or
- *                         when 'pos' is negative or too big or
- *                         when 'value' cannot be converted.
- *  @exception DATABASE_ERROR When a database function fails.
+ *  @exception RANGE_ERROR If the statement was not prepared or
+ *                         if 'pos' is negative or too big or
+ *                         if 'value' cannot be converted.
+ *  @exception DATABASE_ERROR If a database function fails.
  */
 void sqlBindBigInt (sqlStmtType sqlStatement, intType pos,
     const const_bigIntType value)
@@ -105,10 +105,10 @@ void sqlBindBigInt (sqlStmtType sqlStatement, intType pos,
  *  @param pos Position of the bind variable (starting with 1).
  *  @param numerator Numerator of the Value for the binding.
  *  @param denominator Denominator of the Value for the binding.
- *  @exception RANGE_ERROR When the statement was not prepared or
- *                         when 'pos' is negative or too big or
- *                         when the big rational cannot be converted.
- *  @exception DATABASE_ERROR When a database function fails.
+ *  @exception RANGE_ERROR If the statement was not prepared or
+ *                         if 'pos' is negative or too big or
+ *                         if the big rational cannot be converted.
+ *  @exception DATABASE_ERROR If a database function fails.
  */
 void sqlBindBigRat (sqlStmtType sqlStatement, intType pos,
     const const_bigIntType numerator, const const_bigIntType denominator)
@@ -150,10 +150,10 @@ void sqlBindBigRat (sqlStmtType sqlStatement, intType pos,
  *  @param sqlStatement Prepared statement.
  *  @param pos Position of the bind variable (starting with 1).
  *  @param value Value for the binding.
- *  @exception RANGE_ERROR When the statement was not prepared or
- *                         when 'pos' is negative or too big or
- *                         when 'value' cannot be converted.
- *  @exception DATABASE_ERROR When a database function fails.
+ *  @exception RANGE_ERROR If the statement was not prepared or
+ *                         if 'pos' is negative or too big or
+ *                         if 'value' cannot be converted.
+ *  @exception DATABASE_ERROR If a database function fails.
  */
 void sqlBindBool (sqlStmtType sqlStatement, intType pos, boolType value)
 
@@ -179,10 +179,10 @@ void sqlBindBool (sqlStmtType sqlStatement, intType pos, boolType value)
  *  @param sqlStatement Prepared statement.
  *  @param pos Position of the bind variable (starting with 1).
  *  @param bstri Value for the binding.
- *  @exception RANGE_ERROR When the statement was not prepared or
- *                         when 'pos' is negative or too big or
- *                         when 'bstri' cannot be converted.
- *  @exception DATABASE_ERROR When a database function fails.
+ *  @exception RANGE_ERROR If the statement was not prepared or
+ *                         if 'pos' is negative or too big or
+ *                         if 'bstri' cannot be converted.
+ *  @exception DATABASE_ERROR If a database function fails.
  */
 void sqlBindBStri (sqlStmtType sqlStatement, intType pos, bstriType bstri)
 
@@ -207,10 +207,10 @@ void sqlBindBStri (sqlStmtType sqlStatement, intType pos, bstriType bstri)
  *  Bind a duration parameter to a prepared SQL statement.
  *  @param sqlStatement Prepared statement.
  *  @param pos Position of the bind variable (starting with 1).
- *  @exception RANGE_ERROR When the statement was not prepared or
- *                         when 'pos' is negative or too big or
- *                         when the duration cannot be converted.
- *  @exception DATABASE_ERROR When a database function fails.
+ *  @exception RANGE_ERROR If the statement was not prepared or
+ *                         if 'pos' is negative or too big or
+ *                         if the duration cannot be converted.
+ *  @exception DATABASE_ERROR If a database function fails.
  */
 void sqlBindDuration (sqlStmtType sqlStatement, intType pos,
     intType year, intType month, intType day, intType hour,
@@ -247,10 +247,10 @@ void sqlBindDuration (sqlStmtType sqlStatement, intType pos,
  *  @param sqlStatement Prepared statement.
  *  @param pos Position of the bind variable (starting with 1).
  *  @param value Value for the binding.
- *  @exception RANGE_ERROR When the statement was not prepared or
- *                         when 'pos' is negative or too big or
- *                         when 'value' cannot be converted.
- *  @exception DATABASE_ERROR When a database function fails.
+ *  @exception RANGE_ERROR If the statement was not prepared or
+ *                         if 'pos' is negative or too big or
+ *                         if 'value' cannot be converted.
+ *  @exception DATABASE_ERROR If a database function fails.
  */
 void sqlBindFloat (sqlStmtType sqlStatement, intType pos, floatType value)
 
@@ -284,10 +284,10 @@ void sqlBindFloat (sqlStmtType sqlStatement, intType pos, floatType value)
  *  @param sqlStatement Prepared statement.
  *  @param pos Position of the bind variable (starting with 1).
  *  @param value Value for the binding.
- *  @exception RANGE_ERROR When the statement was not prepared or
- *                         when 'pos' is negative or too big or
- *                         when 'value' cannot be converted.
- *  @exception DATABASE_ERROR When a database function fails.
+ *  @exception RANGE_ERROR If the statement was not prepared or
+ *                         if 'pos' is negative or too big or
+ *                         if 'value' cannot be converted.
+ *  @exception DATABASE_ERROR If a database function fails.
  */
 void sqlBindInt (sqlStmtType sqlStatement, intType pos, intType value)
 
@@ -312,9 +312,9 @@ void sqlBindInt (sqlStmtType sqlStatement, intType pos, intType value)
  *  Bind a NULL parameter to a prepared SQL statement.
  *  @param sqlStatement Prepared statement.
  *  @param pos Position of the bind variable (starting with 1).
- *  @exception RANGE_ERROR When the statement was not prepared or
- *                         when 'pos' is negative or too big.
- *  @exception DATABASE_ERROR When a database function fails.
+ *  @exception RANGE_ERROR If the statement was not prepared or
+ *                         if 'pos' is negative or too big.
+ *  @exception DATABASE_ERROR If a database function fails.
  */
 void sqlBindNull (sqlStmtType sqlStatement, intType pos)
 
@@ -340,10 +340,10 @@ void sqlBindNull (sqlStmtType sqlStatement, intType pos)
  *  @param sqlStatement Prepared statement.
  *  @param pos Position of the bind variable (starting with 1).
  *  @param stri Value for the binding.
- *  @exception RANGE_ERROR When the statement was not prepared or
- *                         when 'pos' is negative or too big or
- *                         when 'stri' cannot be converted.
- *  @exception DATABASE_ERROR When a database function fails.
+ *  @exception RANGE_ERROR If the statement was not prepared or
+ *                         if 'pos' is negative or too big or
+ *                         if 'stri' cannot be converted.
+ *  @exception DATABASE_ERROR If a database function fails.
  */
 void sqlBindStri (sqlStmtType sqlStatement, intType pos, striType stri)
 
@@ -368,10 +368,10 @@ void sqlBindStri (sqlStmtType sqlStatement, intType pos, striType stri)
  *  Bind a time parameter to a prepared SQL statement.
  *  @param sqlStatement Prepared statement.
  *  @param pos Position of the bind variable (starting with 1).
- *  @exception RANGE_ERROR When the statement was not prepared or
- *                         when 'pos' is negative or too big or
- *                         when the time cannot be converted.
- *  @exception DATABASE_ERROR When a database function fails.
+ *  @exception RANGE_ERROR If the statement was not prepared or
+ *                         if 'pos' is negative or too big or
+ *                         if the time cannot be converted.
+ *  @exception DATABASE_ERROR If a database function fails.
  */
 void sqlBindTime (sqlStmtType sqlStatement, intType pos,
     intType year, intType month, intType day, intType hour,
@@ -411,7 +411,7 @@ void sqlBindTime (sqlStmtType sqlStatement, intType pos,
 /**
  *  Close the specified database 'database'.
  *  @param database Database to be closed.
- *  @exception RANGE_ERROR When the database was not open.
+ *  @exception RANGE_ERROR If the database was not open.
  */
 void sqlClose (databaseType database)
 
@@ -437,13 +437,13 @@ void sqlClose (databaseType database)
  *  The function sqlIsNull can distinguish NULL from 0_.
  *  @param sqlStatement Prepared statement for which data was fetched.
  *  @param column Number of the column (starting with 1).
- *  @return the column data converted to a bigInteger or
- *          0_, when the column data is NULL.
- *  @exception RANGE_ERROR When the statement was not prepared or
- *                         when no data was successfully fetched or
- *                         when the specified column does not exist or
- *                         when the column cannot be converted.
- *  @exception DATABASE_ERROR When a database function fails.
+ *  @return the column data converted to a bigInteger, and
+ *          0_ if the column data is NULL.
+ *  @exception RANGE_ERROR If the statement was not prepared or
+ *                         if no data was successfully fetched or
+ *                         if the specified column does not exist or
+ *                         if the column cannot be converted.
+ *  @exception DATABASE_ERROR If a database function fails.
  */
 bigIntType sqlColumnBigInt (sqlStmtType sqlStatement, intType column)
 
@@ -478,14 +478,14 @@ bigIntType sqlColumnBigInt (sqlStmtType sqlStatement, intType column)
  *  @param sqlStatement Prepared statement for which data was fetched.
  *  @param column Number of the column (starting with 1).
  *  @param numerator Numerator of the column data.
- *                   Set to 0_, when the column data is NULL
+ *                   Set to 0_ if the column data is NULL
  *  @param denominator Denominator of the column data.
- *                     Set to 1_, when the column data is NULL.
- *  @exception RANGE_ERROR When the statement was not prepared or
- *                         when no data was successfully fetched or
- *                         when the specified column does not exist or
- *                         when the column cannot be converted.
- *  @exception DATABASE_ERROR When a database function fails.
+ *                     Set to 1_ if the column data is NULL.
+ *  @exception RANGE_ERROR If the statement was not prepared or
+ *                         if no data was successfully fetched or
+ *                         if the specified column does not exist or
+ *                         if the column cannot be converted.
+ *  @exception DATABASE_ERROR If a database function fails.
  */
 void sqlColumnBigRat (sqlStmtType sqlStatement, intType column,
     bigIntType *numerator, bigIntType *denominator)
@@ -517,13 +517,13 @@ void sqlColumnBigRat (sqlStmtType sqlStatement, intType column,
  *  The function sqlIsNull can distinguish NULL from FALSE.
  *  @param sqlStatement Prepared statement for which data was fetched.
  *  @param column Number of the column (starting with 1).
- *  @return the column data converted to a boolean or
- *          FALSE, when the column data is NULL.
- *  @exception RANGE_ERROR When the statement was not prepared or
- *                         when no data was successfully fetched or
- *                         when the specified column does not exist or
- *                         when the column cannot be converted.
- *  @exception DATABASE_ERROR When a database function fails.
+ *  @return the column data converted to a boolean, and
+ *          FALSE if the column data is NULL.
+ *  @exception RANGE_ERROR If the statement was not prepared or
+ *                         if no data was successfully fetched or
+ *                         if the specified column does not exist or
+ *                         if the column cannot be converted.
+ *  @exception DATABASE_ERROR If a database function fails.
  */
 boolType sqlColumnBool (sqlStmtType sqlStatement, intType column)
 
@@ -557,13 +557,13 @@ boolType sqlColumnBool (sqlStmtType sqlStatement, intType column)
  *  The function sqlIsNull can distinguish NULL from an empty bstring.
  *  @param sqlStatement Prepared statement for which data was fetched.
  *  @param column Number of the column (starting with 1).
- *  @return the column data converted to a bstring or
- *          an empty bstring, when the column data is NULL.
- *  @exception RANGE_ERROR When the statement was not prepared or
- *                         when no data was successfully fetched or
- *                         when the specified column does not exist or
- *                         when the column cannot be converted.
- *  @exception DATABASE_ERROR When a database function fails.
+ *  @return the column data converted to a bstring, and
+ *          an empty bstring if the column data is NULL.
+ *  @exception RANGE_ERROR If the statement was not prepared or
+ *                         if no data was successfully fetched or
+ *                         if the specified column does not exist or
+ *                         if the column cannot be converted.
+ *  @exception DATABASE_ERROR If a database function fails.
  */
 bstriType sqlColumnBStri (sqlStmtType sqlStatement, intType column)
 
@@ -598,11 +598,11 @@ bstriType sqlColumnBStri (sqlStmtType sqlStatement, intType column)
  *  The function sqlIsNull can distinguish NULL from an empty duration.
  *  @param sqlStatement Prepared statement for which data was fetched.
  *  @param column Number of the column (starting with 1).
- *  @exception RANGE_ERROR When the statement was not prepared or
- *                         when no data was successfully fetched or
- *                         when the specified column does not exist or
- *                         when the column cannot be converted.
- *  @exception DATABASE_ERROR When a database function fails.
+ *  @exception RANGE_ERROR If the statement was not prepared or
+ *                         if no data was successfully fetched or
+ *                         if the specified column does not exist or
+ *                         if the column cannot be converted.
+ *  @exception DATABASE_ERROR If a database function fails.
  */
 void sqlColumnDuration (sqlStmtType sqlStatement, intType column,
     intType *year, intType *month, intType *day, intType *hour,
@@ -639,13 +639,13 @@ void sqlColumnDuration (sqlStmtType sqlStatement, intType column,
  *  The function sqlIsNull can distinguish NULL from 0.0.
  *  @param sqlStatement Prepared statement for which data was fetched.
  *  @param column Number of the column (starting with 1).
- *  @return the column data converted to a float or
- *          0.0, when the column data is NULL.
- *  @exception RANGE_ERROR When the statement was not prepared or
- *                         when no data was successfully fetched or
- *                         when the specified column does not exist or
- *                         when the column cannot be converted.
- *  @exception DATABASE_ERROR When a database function fails.
+ *  @return the column data converted to a float, and
+ *          0.0 if the column data is NULL.
+ *  @exception RANGE_ERROR If the statement was not prepared or
+ *                         if no data was successfully fetched or
+ *                         if the specified column does not exist or
+ *                         if the column cannot be converted.
+ *  @exception DATABASE_ERROR If a database function fails.
  */
 floatType sqlColumnFloat (sqlStmtType sqlStatement, intType column)
 
@@ -679,13 +679,13 @@ floatType sqlColumnFloat (sqlStmtType sqlStatement, intType column)
  *  The function sqlIsNull can distinguish NULL from 0.
  *  @param sqlStatement Prepared statement for which data was fetched.
  *  @param column Number of the column (starting with 1).
- *  @return the column data converted to an integer or
- *          0, when the column data is NULL.
- *  @exception RANGE_ERROR When the statement was not prepared or
- *                         when no data was successfully fetched or
- *                         when the specified column does not exist or
- *                         when the column cannot be converted.
- *  @exception DATABASE_ERROR When a database function fails.
+ *  @return the column data converted to an integer, and
+ *          0 if the column data is NULL.
+ *  @exception RANGE_ERROR If the statement was not prepared or
+ *                         if no data was successfully fetched or
+ *                         if the specified column does not exist or
+ *                         if the column cannot be converted.
+ *  @exception DATABASE_ERROR If a database function fails.
  */
 intType sqlColumnInt (sqlStmtType sqlStatement, intType column)
 
@@ -719,13 +719,13 @@ intType sqlColumnInt (sqlStmtType sqlStatement, intType column)
  *  The function sqlIsNull can distinguish NULL from "".
  *  @param sqlStatement Prepared statement for which data was fetched.
  *  @param column Number of the column (starting with 1).
- *  @return the column data converted to a string or
- *          "", when the column data is NULL.
- *  @exception RANGE_ERROR When the statement was not prepared or
- *                         when no data was successfully fetched or
- *                         when the specified column does not exist or
- *                         when the column cannot be converted.
- *  @exception DATABASE_ERROR When a database function fails.
+ *  @return the column data converted to a string, and
+ *          "" if the column data is NULL.
+ *  @exception RANGE_ERROR If the statement was not prepared or
+ *                         if no data was successfully fetched or
+ *                         if the specified column does not exist or
+ *                         if the column cannot be converted.
+ *  @exception DATABASE_ERROR If a database function fails.
  */
 striType sqlColumnStri (sqlStmtType sqlStatement, intType column)
 
@@ -759,11 +759,11 @@ striType sqlColumnStri (sqlStmtType sqlStatement, intType column)
  *  The function sqlIsNull can distinguish NULL from 0-01-01 00:00:00.
  *  @param sqlStatement Prepared statement for which data was fetched.
  *  @param column Number of the column (starting with 1).
- *  @exception RANGE_ERROR When the statement was not prepared or
- *                         when no data was successfully fetched or
- *                         when the specified column does not exist or
- *                         when the column cannot be converted.
- *  @exception DATABASE_ERROR When a database function fails.
+ *  @exception RANGE_ERROR If the statement was not prepared or
+ *                         if no data was successfully fetched or
+ *                         if the specified column does not exist or
+ *                         if the column cannot be converted.
+ *  @exception DATABASE_ERROR If a database function fails.
  */
 void sqlColumnTime (sqlStmtType sqlStatement, intType column,
     intType *year, intType *month, intType *day, intType *hour,
@@ -854,7 +854,7 @@ void sqlCpyDb (databaseType *const dest, const databaseType source)
  *  Reinterpret the generic parameters as databaseType and call sqlCpyDb.
  *  Function pointers in C programs generated by the Seed7 compiler
  *  may point to this function. This assures correct behaviour even
- *  when sizeof(genericType) != sizeof(databaseType).
+ *  if sizeof(genericType) != sizeof(databaseType).
  */
 void sqlCpyDbGeneric (genericType *const dest, const genericType source)
 
@@ -902,7 +902,7 @@ void sqlCpyStmt (sqlStmtType *const dest, const sqlStmtType source)
  *  Reinterpret the generic parameters as sqlStmtType and call sqlCpyStmt.
  *  Function pointers in C programs generated by the Seed7 compiler
  *  may point to this function. This assures correct behaviour even
- *  when sizeof(genericType) != sizeof(sqlStmtType).
+ *  if sizeof(genericType) != sizeof(sqlStmtType).
  */
 void sqlCpyStmtGeneric (genericType *const dest, const genericType source)
 
@@ -936,7 +936,7 @@ databaseType sqlCreateDb (const databaseType source)
  *  Generic Create function to be used via function pointers.
  *  Function pointers in C programs generated by the Seed7 compiler
  *  may point to this function. This assures correct behaviour even
- *  when sizeof(genericType) != sizeof(databaseType).
+ *  if sizeof(genericType) != sizeof(databaseType).
  */
 genericType sqlCreateDbGeneric (const genericType from_value)
 
@@ -975,7 +975,7 @@ sqlStmtType sqlCreateStmt (const sqlStmtType source)
  *  Generic Create function to be used via function pointers.
  *  Function pointers in C programs generated by the Seed7 compiler
  *  may point to this function. This assures correct behaviour even
- *  when sizeof(genericType) != sizeof(sqlStmtType).
+ *  if sizeof(genericType) != sizeof(sqlStmtType).
  */
 genericType sqlCreateStmtGeneric (const genericType from_value)
 
@@ -1022,7 +1022,7 @@ void sqlDestrDb (const databaseType old_db)
  *  Generic Destr function to be used via function pointers.
  *  Function pointers in C programs generated by the Seed7 compiler
  *  may point to this function. This assures correct behaviour even
- *  when sizeof(genericType) != sizeof(databaseType).
+ *  if sizeof(genericType) != sizeof(databaseType).
  */
 void sqlDestrDbGeneric (const genericType old_value)
 
@@ -1063,7 +1063,7 @@ void sqlDestrStmt (const sqlStmtType old_stmt)
  *  Generic Destr function to be used via function pointers.
  *  Function pointers in C programs generated by the Seed7 compiler
  *  may point to this function. This assures correct behaviour even
- *  when sizeof(genericType) != sizeof(sqlStmtType).
+ *  if sizeof(genericType) != sizeof(sqlStmtType).
  */
 void sqlDestrStmtGeneric (const genericType old_value)
 
@@ -1152,7 +1152,7 @@ striType sqlErrMessage (void)
  *  Bind variable can be assigned with bind functions before
  *  sqlExecute is called.
  *  @param sqlStatement Prepared statement, which should be executed.
- *  @exception DATABASE_ERROR When a database function fails.
+ *  @exception DATABASE_ERROR If a database function fails.
  */
 void sqlExecute (sqlStmtType sqlStatement)
 
@@ -1179,9 +1179,9 @@ void sqlExecute (sqlStmtType sqlStatement)
  *  rows of the statements result data. The columns of the
  *  result data can be obtained with the column functions.
  *  @param sqlStatement Prepared statement, which has been executed.
- *  @return TRUE when a row of result data could be fetched successfully.
- *          FALSE when no more result data is available.
- *  @exception DATABASE_ERROR When a database function fails.
+ *  @return TRUE if a row of result data could be fetched successfully.
+ *          FALSE if no more result data is available.
+ *  @exception DATABASE_ERROR If a database function fails.
  */
 boolType sqlFetch (sqlStmtType sqlStatement)
 
@@ -1210,11 +1210,11 @@ boolType sqlFetch (sqlStmtType sqlStatement)
  *  Determine if the specified column of fetched data is NULL.
  *  @param sqlStatement Prepared statement for which data was fetched.
  *  @param column Number of the column (starting with 1).
- *  @return TRUE when the column data is NULL,
+ *  @return TRUE if the column data is NULL,
  *          FALSE otherwise.
- *  @exception RANGE_ERROR When the statement was not prepared or
- *                         when no data was successfully fetched or
- *                         when the specified column does not exist.
+ *  @exception RANGE_ERROR If the statement was not prepared or
+ *                         if no data was successfully fetched or
+ *                         if the specified column does not exist.
  */
 boolType sqlIsNull (sqlStmtType sqlStatement, intType column)
 
@@ -1245,6 +1245,7 @@ boolType sqlIsNull (sqlStmtType sqlStatement, intType column)
  *         statement should be created.
  *  @param sqlStatementStri SQL statement in a string. For bind variables
  *         use a question mark (?).
+ *  @exception RANGE_ERROR If the database is not open.
  */
 sqlStmtType sqlPrepare (databaseType database, striType sqlStatementStri)
 

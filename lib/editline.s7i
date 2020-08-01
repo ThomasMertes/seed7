@@ -288,7 +288,7 @@ const func string: gets (inout editLineFile: inEditLine, in integer: length) is 
 
 (**
  *  Determine the end-of-file indicator.
- *  The end-of-file indicator is set when at least one request to read
+ *  The end-of-file indicator is set if at least one request to read
  *  from the file failed.
  *  @return TRUE if the end-of-file indicator is set, FALSE otherwise.
  *)

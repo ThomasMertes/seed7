@@ -685,7 +685,7 @@ const proc: check_environment is func
 const proc: main is func
   begin
     writeln;
-    writeln("Note that windows has race conditions when files");
+    writeln("Note that windows has race conditions if files");
     writeln("are copied, moved and removed quickly in succession.");
     writeln("This bug of windows cannot be fixed in a runtime library.");
     check_removeFile;

@@ -87,7 +87,7 @@ static const time_t year_days[2][12] = {
  *  The timestamp is expressed in seconds since the Unix Epoch.
  *  The Unix Epoch (1970-01-01 00:00:00 UTC) corresponds to 0.
  *  @return the timestamp that corresponds to the time, or
- *          -1 when the date/time in '*timeptr' is not correct.
+ *          -1 if the date/time in '*timeptr' is not correct.
  */
 time_t mkutc (struct tm *timeptr)
 

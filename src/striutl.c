@@ -92,13 +92,13 @@ const os_charType emulated_root[] = {'/', '\0'};
 
 /**
  *  The maximum width when an UTF-32 character is displayed
- *  in a literal is 12 characters (e.g.: \1234567890; ).
+ *  in a literal is 12 characters (e.g.: \4294967295; ).
  */
 #define MAXIMUM_UTF32_ESCAPE_WIDTH STRLEN("\\4294967295;")
 
 /**
- *  The maximum width when an unsigned char (byte) is
- *  displayed in a literal is 5 characters (e.g.: \255; ).
+ *  The maximum width when an unsigned char (byte) is displayed
+ *  in a literal is 5 characters (e.g.: \255; ).
  */
 #define MAXIMUM_BYTE_ESCAPE_WIDTH STRLEN("\\255;")
 
@@ -313,10 +313,13 @@ cstriType stringify (int number)
 #ifdef USE_DUFFS_UNROLLING
 /**
  *  Copy len bytes to Seed7 characters in a string.
- *  This function works correct when 'src' and 'dest' point
+ *  This function works also correct if 'src' and 'dest' point
  *  to the same address. In other words it works correct for:
  *    memcpy_to_strelem(mem, (ustriType) mem, num);
  *  This function uses loop unrolling inspired by Duff's device.
+ *  @param dest Destination array with UTF-32 encoded characters.
+ *  @param src Source array with ISO-8859-1 encoded bytes.
+ *  @param len Number of bytes in 'src' and UTF-32 characters in 'dest'.
  */
 void memcpy_to_strelem (register strElemType *const dest,
     register const const_ustriType src, memSizeType len)
@@ -376,6 +379,9 @@ void memcpy_to_strelem (register strElemType *const dest,
  *  as calling this function.
  *  The use of indices relative to pos allows the C compiler
  *  to do more optimizations.
+ *  @param dest Destination array with UTF-32 encoded characters.
+ *  @param ch UTF-32 encoded character to be filled into 'dest'.
+ *  @param len Specifies how often 'ch' is filled into 'dest'.
  */
 void memset_to_strelem (register strElemType *const dest,
     register const strElemType ch, memSizeType len)
@@ -431,7 +437,10 @@ void memset_to_strelem (register strElemType *const dest,
  *  Copy len Seed7 characters to a byte string.
  *  This function uses loop unrolling inspired by Duff's device
  *  and a trick with a binary or (|=) to check for allowed values.
- *  @return TRUE when one of the characters does not fit into a byte,
+ *  @param dest Destination array with ISO-8859-1 encoded bytes.
+ *  @param src Source array with UTF-32 encoded characters.
+ *  @param len Number of UTF-32 characters in 'src' and bytes in 'dest'.
+ *  @return TRUE if one of the characters does not fit into a byte,
  *          FALSE otherwise.
  */
 boolType memcpy_from_strelem (register const ustriType dest,
@@ -490,7 +499,10 @@ boolType memcpy_from_strelem (register const ustriType dest,
 /**
  *  Scan the first len Seed7 characters for the character ch.
  *  This function uses loop unrolling inspired by Duff's device.
- *  @return a pointer to the matching character or NULL, if the
+ *  @param mem Array with UTF-32 characters.
+ *  @param ch UTF-32 character to be searched in 'mem'.
+ *  @param len Number of UTF-32 characters in 'mem'.
+ *  @return a pointer to the matching character, or NULL if the
  *          character does not occur in the given string area.
  */
 const strElemType *memchr_strelem (register const strElemType *mem,
@@ -549,9 +561,12 @@ const strElemType *memchr_strelem (register const strElemType *mem,
 
 /**
  *  Copy len bytes to Seed7 characters in a string.
- *  This function works correct when 'src' and 'dest' point
+ *  This function works also correct if 'src' and 'dest' point
  *  to the same address. In other words it works correct for:
  *    memcpy_to_strelem(mem, (ustriType) mem, num);
+ *  @param dest Destination array with UTF-32 encoded characters.
+ *  @param src Source array with ISO-8859-1 encoded bytes.
+ *  @param len Number of bytes in 'src' and UTF-32 characters in 'dest'.
  */
 void memcpy_to_strelem (register strElemType *const dest,
     register const const_ustriType src, memSizeType len)
@@ -567,6 +582,9 @@ void memcpy_to_strelem (register strElemType *const dest,
 
 /**
  *  Fill len Seed7 characters with the character ch.
+ *  @param dest Destination array with UTF-32 encoded characters.
+ *  @param ch UTF-32 encoded character to be filled into 'dest'.
+ *  @param len Specifies how often 'ch' is filled into 'dest'.
  */
 void memset_to_strelem (register strElemType *const dest,
     register const strElemType ch, memSizeType len)
@@ -582,7 +600,10 @@ void memset_to_strelem (register strElemType *const dest,
 
 /**
  *  Copy len Seed7 characters to a byte string.
- *  @return TRUE when one of the characters does not fit into a byte,
+ *  @param dest Destination array with ISO-8859-1 encoded bytes.
+ *  @param src Source array with UTF-32 encoded characters.
+ *  @param len Number of UTF-32 characters in 'src' and bytes in 'dest'.
+ *  @return TRUE if one of the characters does not fit into a byte,
  *          FALSE otherwise.
  */
 boolType memcpy_from_strelem (register const ustriType dest,
@@ -605,7 +626,10 @@ boolType memcpy_from_strelem (register const ustriType dest,
 #if !HAS_WMEMCHR || WCHAR_T_SIZE != 32
 /**
  *  Scan the first len Seed7 characters for the character ch.
- *  @return a pointer to the matching character or NULL, if the
+ *  @param mem Array with UTF-32 characters.
+ *  @param ch UTF-32 character to be searched in 'mem'.
+ *  @param len Number of UTF-32 characters in 'mem'.
+ *  @return a pointer to the matching character, or NULL if the
  *          character does not occur in the given string area.
  */
 const strElemType *memchr_strelem (register const strElemType *mem,
@@ -683,18 +707,17 @@ void heapFreeOsStri (const_os_striType var)
 
 /**
  *  Convert an UTF-8 encoded string to an UTF-32 encoded string.
- *  The source and destination stings are not '\0' terminated.
+ *  The source and destination strings are not '\0' terminated.
  *  The memory for the destination dest_stri is not allocated.
  *  @param dest_stri Destination of the UTF-32 encoded string.
  *  @param dest_len Place to return the length of dest_stri.
  *  @param ustri UTF-8 encoded string to be converted.
  *  @param len Number of bytes in ustri.
- *  @return 0 when ustri has been successfully converted or
- *          the number of bytes in ustri that are left
- *          unconverted.
+ *  @return the number of bytes in ustri that are left unconverted, or
+ *          0 if ustri has been successfully converted.
  */
 memSizeType utf8_to_stri (strElemType *const dest_stri,
-    memSizeType *const dest_len, const_ustriType ustri, size_t len)
+    memSizeType *const dest_len, const_ustriType ustri, memSizeType len)
 
   {
     strElemType *stri;
@@ -777,7 +800,17 @@ memSizeType utf8_to_stri (strElemType *const dest_stri,
 
 
 
-memSizeType utf8_bytes_missing (const const_ustriType ustri, const size_t len)
+/**
+ *  Get number of missing bytes in incomplete UTF-8 byte sequence.
+ *  The first byte of an UTF-8 byte sequence indicates the
+ *  number of bytes in the sequence. The function checks, if
+ *  the bytes after the first byte are UTF-8 continuation bytes.
+ *  @param ustri Incomplete UTF-8 byte sequence, to be examined.
+ *  @param len Length of incomplete UTF-8 byte sequence 'ustri'.
+ *  @return the number of bytes needed to get an UTF-8 character, or
+ *          0 if 'ustri' is not the start of a UTF-8 byte sequence.
+ */
+memSizeType utf8_bytes_missing (const const_ustriType ustri, const memSizeType len)
 
   {
     memSizeType result = 0;
@@ -862,7 +895,7 @@ memSizeType utf8_bytes_missing (const const_ustriType ustri, const size_t len)
 
 /**
  *  Convert an UTF-32 encoded string to an UTF-8 encoded string.
- *  The source and destination stings are not '\0' terminated.
+ *  The source and destination strings are not '\0' terminated.
  *  The memory for the destination out_stri is not allocated.
  *  @param out_stri Destination of the UTF-8 encoded string.
  *  @param strelem UTF-32 encoded string to be converted.
@@ -969,19 +1002,19 @@ static inline void stri_to_os_utf8 (register ustriType out_stri,
  *  Copy a Seed7 UTF-32 string to an ISO-8859-1 encoded C string buffer.
  *  The buffer 'cstri' must be provided by the caller. The
  *  size of the 'cstri' buffer can be calculated (in bytes) with
- *  stri->size+1. When a fixed size 'cstri' buffer is used
+ *  stri->size+1. If a fixed size 'cstri' buffer is used
  *  (e.g.: char out_buffer[BUF_SIZE];) the condition
  *    stri->size < BUF_SIZE
  *  must hold. The C string written to 'out_buf' is zero byte
  *  terminated. This function is intended to copy to temporary
  *  string buffers, that are used as parameters. This function
- *  is useful, when stri->size is somehow limited, such that
+ *  is useful, if stri->size is somehow limited, such that
  *  a fixed size 'cstri' buffer can be used.
  *  @param cstri Caller provided buffer to which an ISO-8859-1
  *         encoded null terminated C string is written.
  *  @param stri Seed7 UTF-32 string to be converted.
- *  @result cstri, when the function succeeds or
- *          NULL, when stri contains a null character
+ *  @result cstri if the function succeeds, and
+ *          NULL if stri contains a null character
  *          or a character that is higher than the
  *          highest allowed ISO-8859-1 character (255).
  */
@@ -1014,19 +1047,19 @@ cstriType conv_to_cstri (cstriType cstri, const const_striType stri)
  *  Copy a Seed7 UTF-32 string to an UTF-8 encoded C string buffer.
  *  The buffer 'cstri' must be provided by the caller. The
  *  size of the 'cstri' buffer can be calculated (in bytes) with
- *  max_utf8_size(stri->size)+1. When a fixed size 'cstri'
+ *  max_utf8_size(stri->size)+1. If a fixed size 'cstri'
  *  buffer is used (e.g.: char out_buffer[BUF_SIZE];) the condition
  *    stri->size < BUF_SIZE / MAX_UTF8_EXPANSION_FACTOR
  *  must hold. The C string written to 'out_buf' is zero byte
  *  terminated. This function is intended to copy to temporary
  *  string buffers, that are used as parameters. This function
- *  is useful, when stri->size is somehow limited, such that
+ *  is useful, if stri->size is somehow limited, such that
  *  a fixed size 'cstri' buffer can be used.
  *  @param cstri Caller provided buffer to which an UTF-8 encoded
  *         null terminated C string is written.
  *  @param stri Seed7 UTF-32 string to be converted.
- *  @param err_info Unchanged when the function succeeds or
- *                  RANGE_ERROR when stri contains a null character
+ *  @param err_info Unchanged if the function succeeds, and
+ *                  RANGE_ERROR if stri contains a null character
  *                        or a character that is higher than the
  *                        highest allowed Unicode character (U+10FFFF).
  */
@@ -1039,6 +1072,19 @@ void conv_to_cstri8 (cstriType cstri, const const_striType stri,
 
 
 
+/**
+ *  Convert an UTF-32 encoded string to an UTF-16 encoded string.
+ *  The source and destination strings are not '\0' terminated.
+ *  The memory for the destination out_wstri is not allocated.
+ *  @param out_wstri Destination of the UTF-16 encoded string.
+ *  @param strelem UTF-32 encoded string to be converted.
+ *  @param len Number of UTF-32 characters in strelem.
+ *  @param err_info Unchanged if the function succeeds, and
+ *                  RANGE_ERROR if *strelem contains a character
+ *                        that is higher than the highest allowed
+ *                        Unicode character (U+10FFFF).
+ *  @return the length of the converted UTF-16 string in characters.
+ */
 memSizeType stri_to_utf16 (const wstriType out_wstri,
     register const strElemType *strelem, memSizeType len,
     errInfoType *const err_info)
@@ -1365,8 +1411,8 @@ static memSizeType wstri_expand (strElemType *const dest_stri,
  *  The encoding can be Latin-1, UTF-8, UTF-16 or it can use a code page.
  *  @param os_stri Possibly binary string (may contain null characters).
  *  @param length Length of os_stri in characters.
- *  @return a Seed7 UTF-32 string or
- *          NULL, when an error occurred.
+ *  @return a Seed7 UTF-32 string, or
+ *          NULL if an error occurred.
  */
 striType conv_from_os_stri (const const_os_striType os_stri,
     memSizeType length)
@@ -1465,8 +1511,8 @@ static const strElemType map_from_850[] = {
  *  The encoding can be Latin-1, UTF-8, UTF-16 or it can use a code page.
  *  @param os_stri Possibly binary string (may contain null characters).
  *  @param length Length of os_stri in characters.
- *  @return a Seed7 UTF-32 string or
- *          NULL, when an error occurred.
+ *  @return a Seed7 UTF-32 string, or
+ *          NULL if an error occurred.
  */
 striType conv_from_os_stri (const const_os_striType os_stri,
     memSizeType length)
@@ -1507,8 +1553,8 @@ striType conv_from_os_stri (const const_os_striType os_stri,
  *  The encoding can be Latin-1, UTF-8, UTF-16 or it can use a code page.
  *  @param os_stri Possibly binary string (may contain null characters).
  *  @param length Length of os_stri in characters.
- *  @return a Seed7 UTF-32 string or
- *          NULL, when an error occurred.
+ *  @return a Seed7 UTF-32 string, or
+ *          NULL if an error occurred.
  */
 striType conv_from_os_stri (const const_os_striType os_stri,
     memSizeType length)
@@ -1554,8 +1600,8 @@ striType conv_from_os_stri (const const_os_striType os_stri,
  *  The encoding can be Latin-1, UTF-8, UTF-16 or it can use a code page.
  *  @param os_stri Possibly binary string (may contain null characters).
  *  @param length Length of os_stri in characters.
- *  @return a Seed7 UTF-32 string or
- *          NULL, when an error occurred.
+ *  @return a Seed7 UTF-32 string, or
+ *          NULL if an error occurred.
  */
 striType conv_from_os_stri (const const_os_striType os_stri,
     memSizeType length)
@@ -1580,13 +1626,13 @@ striType conv_from_os_stri (const const_os_striType os_stri,
  *  The memory for the zero byte terminated C string is allocated.
  *  The C string result must be freed with the macro free_cstri().
  *  @param stri Seed7 UTF-32 string to be converted.
- *  @param err_info Unchanged when the function succeeds or
- *                  MEMORY_ERROR when the memory allocation failed or
- *                  RANGE_ERROR when stri contains a null character
+ *  @param err_info Unchanged if the function succeeds, and
+ *                  MEMORY_ERROR if the memory allocation failed, and
+ *                  RANGE_ERROR if stri contains a null character
  *                        or a character that is higher than the
  *                        highest allowed ISO-8859-1 character (255).
- *  @return an ISO-8859-1 encoded null terminated C string or
- *          NULL, when the memory allocation failed or when the
+ *  @return an ISO-8859-1 encoded null terminated C string, or
+ *          NULL if the memory allocation failed or the
  *          conversion failed (the error is indicated by err_info).
  */
 cstriType stri_to_cstri (const const_striType stri, errInfoType *err_info)
@@ -1629,13 +1675,13 @@ cstriType stri_to_cstri (const const_striType stri, errInfoType *err_info)
  *  are used as parameters. To get good performance the allocated
  *  memory for the C string is oversized.
  *  @param stri Seed7 UTF-32 string to be converted.
- *  @param err_info Unchanged when the function succeeds or
- *                  MEMORY_ERROR when the memory allocation failed or
- *                  RANGE_ERROR when stri contains a null character
+ *  @param err_info Unchanged if the function succeeds, and
+ *                  MEMORY_ERROR if the memory allocation failed, and
+ *                  RANGE_ERROR if stri contains a null character
  *                        or a character that is higher than the
  *                        highest allowed Unicode character (U+10FFFF).
- *  @return an UTF-8 encoded null terminated C string or
- *          NULL, when the memory allocation failed or when the
+ *  @return an UTF-8 encoded null terminated C string, or
+ *          NULL if the memory allocation failed or the
  *          conversion failed (the error is indicated by err_info).
  */
 cstriType stri_to_cstri8 (const const_striType stri, errInfoType *err_info)
@@ -1670,8 +1716,8 @@ cstriType stri_to_cstri8 (const const_striType stri, errInfoType *err_info)
  *  memory for the C string is oversized.
  *  @param stri Seed7 UTF-32 string to be converted.
  *  @param length Place to return the length of the result (without '\0').
- *  @return an UTF-8 encoded null terminated C string or
- *          NULL, when the memory allocation failed.
+ *  @return an UTF-8 encoded null terminated C string, or
+ *          NULL if the memory allocation failed.
  */
 cstriType stri_to_cstri8_buf (const const_striType stri, memSizeType *length)
 
@@ -1694,16 +1740,16 @@ cstriType stri_to_cstri8_buf (const const_striType stri, memSizeType *length)
 /**
  *  Create an ISO-8859-1 encoded bstring from a Seed7 UTF-32 string.
  *  The memory for the bstring is allocated. No zero byte is added
- *  to the end of the bstring. No special action is done, when the
+ *  to the end of the bstring. No special action is done, if the
  *  UTF-32 string contains a null character.
  *  @param stri Seed7 UTF-32 string to be converted.
- *  @param err_info Unchanged when the function succeeds or
- *                  MEMORY_ERROR when the memory allocation failed or
- *                  RANGE_ERROR when stri contains a character
+ *  @param err_info Unchanged if the function succeeds, and
+ *                  MEMORY_ERROR if the memory allocation failed, and
+ *                  RANGE_ERROR if stri contains a character
  *                        that is higher than the highest
  *                        allowed ISO-8859-1 character (255).
- *  @return an ISO-8859-1 encoded bstring or
- *          NULL, when the memory allocation failed or when the
+ *  @return an ISO-8859-1 encoded bstring, or
+ *          NULL if the memory allocation failed or the
  *          conversion failed (the error is indicated by err_info).
  */
 bstriType stri_to_bstri (const const_striType stri, errInfoType *err_info)
@@ -1730,11 +1776,11 @@ bstriType stri_to_bstri (const const_striType stri, errInfoType *err_info)
 /**
  *  Create an UTF-8 encoded bstring from a Seed7 UTF-32 string.
  *  The memory for the bstring is allocated. No zero byte is added
- *  to the end of the bstring. No special action is done, when
+ *  to the end of the bstring. No special action is done, if
  *  the original string contains a null character.
  *  @param stri Seed7 UTF-32 string to be converted.
- *  @return an UTF-8 encoded bstring or
- *          NULL, when the memory allocation failed.
+ *  @return an UTF-8 encoded bstring, or
+ *          NULL if the memory allocation failed.
  */
 bstriType stri_to_bstri8 (const_striType stri)
 
@@ -1765,11 +1811,11 @@ bstriType stri_to_bstri8 (const_striType stri)
 /**
  *  Create an UTF-16 encoded bstring from a Seed7 UTF-32 string.
  *  The memory for the bstring is allocated. No zero byte is added
- *  to the end of the bstring. No special action is done, when
+ *  to the end of the bstring. No special action is done, if
  *  the original string contains a null character.
  *  @param stri Seed7 UTF-32 string to be converted.
- *  @return an UTF-8 encoded bstring or
- *          NULL, when the memory allocation failed.
+ *  @return an UTF-8 encoded bstring, or
+ *          NULL if the memory allocation failed.
  */
 bstriType stri_to_bstriw (const_striType stri, errInfoType *err_info)
 
@@ -1847,13 +1893,13 @@ bstriType stri_to_os_bstri (const_striType stri)
  *  memory for the wide string is oversized.
  *  @param stri Seed7 UTF-32 string to be converted.
  *  @param length Place to return the character length of the result (without '\0').
- *  @param err_info Unchanged when the function succeeds or
- *                  MEMORY_ERROR when the memory allocation failed or
- *                  RANGE_ERROR when stri contains a character
+ *  @param err_info Unchanged if the function succeeds, and
+ *                  MEMORY_ERROR if the memory allocation failed, and
+ *                  RANGE_ERROR if stri contains a character
  *                        that is higher than the highest
  *                        allowed Unicode character (U+10FFFF).
- *  @return an UTF-16 encoded null terminated wide string or
- *          NULL, when the memory allocation failed or when the
+ *  @return an UTF-16 encoded null terminated wide string, or
+ *          NULL if the memory allocation failed or the
  *          conversion failed (the error is indicated by err_info).
  */
 wstriType stri_to_wstri_buf (const const_striType stri, memSizeType *length,
@@ -1880,8 +1926,8 @@ wstriType stri_to_wstri_buf (const const_striType stri, memSizeType *length,
  *  Copy an ISO-8859-1 (Latin-1) encoded C string to a Seed7 string.
  *  The memory for the UTF-32 encoded Seed7 string is allocated.
  *  @param cstri Null terminated ISO-8859-1 encoded C string.
- *  @return an UTF-32 encoded Seed7 string or
- *          NULL, when the memory allocation failed.
+ *  @return an UTF-32 encoded Seed7 string, or
+ *          NULL if the memory allocation failed.
  */
 striType cstri_to_stri (const_cstriType cstri)
 
@@ -1905,8 +1951,8 @@ striType cstri_to_stri (const_cstriType cstri)
  *  The memory for the UTF-32 encoded Seed7 string is allocated.
  *  @param cstri ISO-8859-1 encoded C string buffer (not null terminated).
  *  @param length Byte length of the ISO-8859-1 encoded C string buffer.
- *  @return an UTF-32 encoded Seed7 string or
- *          NULL, when the memory allocation failed.
+ *  @return an UTF-32 encoded Seed7 string, or
+ *          NULL if the memory allocation failed.
  */
 striType cstri_buf_to_stri (const_cstriType cstri, memSizeType length)
 
@@ -1927,11 +1973,11 @@ striType cstri_buf_to_stri (const_cstriType cstri, memSizeType length)
  *  Copy an UTF-8 encoded C string to a Seed7 string.
  *  The memory for the UTF-32 encoded Seed7 string is allocated.
  *  @param cstri Null terminated UTF-8 encoded C string.
- *  @param err_info Unchanged when the function succeeds or
- *                  MEMORY_ERROR when the memory allocation failed or
- *                  RANGE_ERROR when the conversion failed.
- *  @return an UTF-32 encoded Seed7 string or
- *          NULL, when the memory allocation failed or when
+ *  @param err_info Unchanged if the function succeeds, and
+ *                  MEMORY_ERROR if the memory allocation failed, and
+ *                  RANGE_ERROR if the conversion failed.
+ *  @return an UTF-32 encoded Seed7 string, or
+ *          NULL if the memory allocation failed or
  *          illegal UTF-8 encodings are used.
  */
 striType cstri8_to_stri (const_cstriType cstri, errInfoType *err_info)
@@ -1976,11 +2022,11 @@ striType cstri8_to_stri (const_cstriType cstri, errInfoType *err_info)
  *  The memory for the UTF-32 encoded Seed7 string is allocated.
  *  @param cstri UTF-8 encoded C string buffer (not null terminated).
  *  @param length Byte length of the UTF-8 encoded C string buffer.
- *  @param err_info Unchanged when the function succeeds or
- *                  MEMORY_ERROR when the memory allocation failed or
- *                  RANGE_ERROR when the conversion failed.
- *  @return an UTF-32 encoded Seed7 string or
- *          NULL, when the memory allocation failed or when
+ *  @param err_info Unchanged if the function succeeds, and
+ *                  MEMORY_ERROR if the memory allocation failed, and
+ *                  RANGE_ERROR if the conversion failed.
+ *  @return an UTF-32 encoded Seed7 string, or
+ *          NULL if the memory allocation failed or
  *          illegal UTF-8 encodings are used.
  */
 striType cstri8_buf_to_stri (const_cstriType cstri, memSizeType length,
@@ -2023,8 +2069,8 @@ striType cstri8_buf_to_stri (const_cstriType cstri, memSizeType length,
  *  Copy an UTF-8 or ISO-8859-1 encoded C string to a Seed7 string.
  *  The memory for the UTF-32 encoded Seed7 string is allocated.
  *  @param cstri Null terminated UTF-8 or ISO-8859-1 encoded C string.
- *  @return an UTF-32 encoded Seed7 string or
- *          NULL, when the memory allocation failed.
+ *  @return an UTF-32 encoded Seed7 string, or
+ *          NULL if the memory allocation failed.
  */
 striType cstri8_or_cstri_to_stri (const_cstriType cstri)
 
@@ -2047,10 +2093,10 @@ striType cstri8_or_cstri_to_stri (const_cstriType cstri)
  *  The memory for the UTF-32 encoded Seed7 string is allocated.
  *  @param wstri UTF-16 encoded wide string buffer (not null terminated).
  *  @param length Character length of the UTF-16 encoded wide string buffer.
- *  @param err_info Unchanged when the function succeeds or
- *                  MEMORY_ERROR when the memory allocation failed.
- *  @return an UTF-32 encoded Seed7 string or
- *          NULL, when the memory allocation failed.
+ *  @param err_info Unchanged if the function succeeds, and
+ *                  MEMORY_ERROR if the memory allocation failed.
+ *  @return an UTF-32 encoded Seed7 string, or
+ *          NULL if the memory allocation failed.
  */
 striType wstri_buf_to_stri (const_wstriType wstri, memSizeType length,
     errInfoType *err_info)
@@ -2121,11 +2167,11 @@ errInfoType conv_wstri_buf_to_cstri (cstriType cstri, const_wstriType wstri,
  *  wide char strings. The encoding can be Latin-1, UTF-8, UTF-16 or
  *  it can use a code page.
  *  @param stri Seed7 UTF-32 string to be converted.
- *  @param err_info Unchanged when the function succeeds or
- *                  MEMORY_ERROR when the memory allocation failed or
- *                  RANGE_ERROR when the conversion failed.
- *  @return a null terminated os_striType value used by system calls or
- *          NULL, when an error occurred.
+ *  @param err_info Unchanged if the function succeeds, and
+ *                  MEMORY_ERROR if the memory allocation failed, and
+ *                  RANGE_ERROR if the conversion failed.
+ *  @return a null terminated os_striType value used by system calls, or
+ *          NULL if an error occurred.
  */
 os_striType stri_to_os_stri (const_striType stri, errInfoType *err_info)
 
@@ -2160,10 +2206,10 @@ os_striType stri_to_os_stri (const_striType stri, errInfoType *err_info)
  *  operating system os_striType can describe byte or wide char strings.
  *  The encoding can be Latin-1, UTF-8, UTF-16 or it can use a code page.
  *  @param os_stri null terminated os_striType string to be converted.
- *  @param err_info Unchanged when the function succeeds or
- *                  MEMORY_ERROR when the memory allocation failed.
- *  @return a Seed7 UTF-32 string or
- *          NULL, when an error occurred.
+ *  @param err_info Unchanged if the function succeeds, and
+ *                  MEMORY_ERROR if the memory allocation failed.
+ *  @return a Seed7 UTF-32 string, or
+ *          NULL if an error occurred.
  */
 striType os_stri_to_stri (const const_os_striType os_stri, errInfoType *err_info)
 
@@ -2229,10 +2275,10 @@ striType stri_to_standard_path (const striType stri)
  *  mapping from drive letters might take place on some operating
  *  systems.
  *  @param os_path null terminated os_striType path to be converted.
- *  @param err_info Unchanged when the function succeeds or
- *                  MEMORY_ERROR when the memory allocation failed.
- *  @return an UTF-32 encoded Seed7 standard path or
- *          NULL, when the memory allocation failed.
+ *  @param err_info Unchanged if the function succeeds, and
+ *                  MEMORY_ERROR if the memory allocation failed.
+ *  @return an UTF-32 encoded Seed7 standard path, or
+ *          NULL if the memory allocation failed.
  */
 striType cp_from_os_path (const_os_striType os_path, errInfoType *err_info)
 
@@ -2736,14 +2782,14 @@ static os_striType map_to_drive_letter (const strElemType *const pathChars,
  *  it can use a code page. Beyond the conversion to os_striType a
  *  mapping to drive letters might take place on some operating systems.
  *  @param std_path UTF-32 encoded Seed7 standard path to be converted.
- *  @param path_info Unchanged when the function succeeds or
- *                   PATH_IS_EMULATED_ROOT when the path is "/".
- *                   PATH_NOT_MAPPED when the path cannot be mapped.
- *  @param err_info Unchanged when the function succeeds or
- *                  MEMORY_ERROR when the memory allocation failed or
- *                  RANGE_ERROR when the path is not a standard path.
- *  @return a null terminated os_striType path used by system calls or
- *          NULL, when an error occurred.
+ *  @param path_info Unchanged if the function succeeds, and
+ *                   PATH_IS_EMULATED_ROOT if the path is "/", and
+ *                   PATH_NOT_MAPPED if the path cannot be mapped.
+ *  @param err_info Unchanged if the function succeeds, and
+ *                  MEMORY_ERROR if the memory allocation failed, and
+ *                  RANGE_ERROR if the path is not a standard path.
+ *  @return a null terminated os_striType path used by system calls, or
+ *          NULL if an error occurred.
  */
 os_striType cp_to_os_path (const_striType std_path, int *path_info,
     errInfoType *err_info)
@@ -2850,14 +2896,14 @@ os_striType cp_to_os_path (const_striType std_path, int *path_info,
  *  it can use a code page. Beyond the conversion to os_striType a
  *  mapping to drive letters might take place on some operating systems.
  *  @param std_path UTF-32 encoded Seed7 standard path to be converted.
- *  @param path_info Unchanged when the function succeeds or
- *                   PATH_IS_EMULATED_ROOT when the path is "/".
- *                   PATH_NOT_MAPPED when the path cannot be mapped.
- *  @param err_info Unchanged when the function succeeds or
- *                  MEMORY_ERROR when the memory allocation failed or
- *                  RANGE_ERROR when the path is not a standard path.
- *  @return a null terminated os_striType path used by system calls or
- *          NULL, when an error occurred.
+ *  @param path_info Unchanged if the function succeeds, and
+ *                   PATH_IS_EMULATED_ROOT if the path is "/", and
+ *                   PATH_NOT_MAPPED if the path cannot be mapped.
+ *  @param err_info Unchanged if the function succeeds, and
+ *                  MEMORY_ERROR if the memory allocation failed, and
+ *                  RANGE_ERROR if the path is not a standard path.
+ *  @return a null terminated os_striType path used by system calls, or
+ *          NULL if an error occurred.
  */
 os_striType cp_to_os_path (const_striType std_path, int *path_info,
     errInfoType *err_info)

@@ -145,7 +145,7 @@ const func string: str (in bin32: number)                      is action "BIN_ST
  *  Digit values from 10 upward are encoded with lower case letters.
  *  E.g.: 10 is encoded with a, 11 with b, etc.
  *  @return the string result of the conversion.
- *  @exception RANGE_ERROR When base < 2 or base > 36 holds.
+ *  @exception RANGE_ERROR If base < 2 or base > 36 holds.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  *)
 const func string: (in bin32: number) radix (in integer: base) is action "BIN_radix";
@@ -157,7 +157,7 @@ const func string: (in bin32: number) radix (in integer: base) is action "BIN_ra
  *  Digit values from 10 upward are encoded with upper case letters.
  *  E.g.: 10 is encoded with A, 11 with B, etc.
  *  @return the string result of the conversion.
- *  @exception RANGE_ERROR When base < 2 or base > 36 holds.
+ *  @exception RANGE_ERROR If base < 2 or base > 36 holds.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  *)
 const func string: (in bin32: number) RADIX (in integer: base) is action "BIN_RADIX";
@@ -211,7 +211,7 @@ const func bin32: ~ (in bin32: aBinary) is
 (**
  *  Shift a bin32 value left by lshift bits.
  *  @return the left shifted value.
- *  @exception OVERFLOW_ERROR When the shift amount is
+ *  @exception OVERFLOW_ERROR If the shift amount is
  *             negative or greater equal 64.
  *)
 const func bin32: (in bin32: binValue) << (in integer: lshift) is action "BIN_LSHIFT";
@@ -221,7 +221,7 @@ const func bin32: (in bin32: binValue) << (in integer: lshift) is action "BIN_LS
  *  Shift a bin32 value right by rshift bits.
  *  Bits shifted beyond the lowest bit position are lost.
  *  @return the right shifted value.
- *  @exception OVERFLOW_ERROR When the shift amount is
+ *  @exception OVERFLOW_ERROR If the shift amount is
  *             negative or greater equal 64.
  *)
 const func bin32: (in bin32: binValue) >> (in integer: lshift) is action "BIN_RSHIFT";
@@ -229,7 +229,7 @@ const func bin32: (in bin32: binValue) >> (in integer: lshift) is action "BIN_RS
 
 (**
  *  Shift a bin32 value left by lshift bits and assign the result back to ''binValue''.
- *  @exception OVERFLOW_ERROR When the shift amount is
+ *  @exception OVERFLOW_ERROR If the shift amount is
  *             negative or greater equal 64.
  *)
 const proc: (inout bin32: binValue) <<:= (in integer: lshift)  is action "BIN_LSHIFT_ASSIGN";
@@ -238,7 +238,7 @@ const proc: (inout bin32: binValue) <<:= (in integer: lshift)  is action "BIN_LS
 (**
  *  Shift a bin32 value right by rshift bits and assign the result back to ''binValue''.
  *  Bits shifted beyond the lowest bit position are lost.
- *  @exception OVERFLOW_ERROR When the shift amount is
+ *  @exception OVERFLOW_ERROR If the shift amount is
  *             negative or greater equal 64.
  *)
 const proc: (inout bin32: binValue) >>:= (in integer: rshift)  is action "BIN_RSHIFT_ASSIGN";
@@ -267,7 +267,7 @@ const proc: (inout bin32: binary1) ><:= (in bin32: binary2)    is action "BIN_XO
  *  The vacant bit positions at the right side are filled in with
  *  the bits that are shifted out at the left side.
  *  @return the left rotated value.
- *  @exception OVERFLOW_ERROR When the shift amount is negative
+ *  @exception OVERFLOW_ERROR If the shift amount is negative
  *             or greater than 32.
  *)
 const func bin32: rotLeft (in bin32: x, in integer: shiftCount) is
@@ -279,7 +279,7 @@ const func bin32: rotLeft (in bin32: x, in integer: shiftCount) is
  *  The vacant bit positions at the left side are filled in with
  *  the bits that are shifted out at the right side.
  *  @return the right rotated value.
- *  @exception OVERFLOW_ERROR When the shift amount is negative
+ *  @exception OVERFLOW_ERROR If the shift amount is negative
  *             or greater than 32.
  *)
 const func bin32: rotRight (in bin32: x, in integer: shiftCount) is
@@ -293,7 +293,7 @@ const func bin32: rotRight (in bin32: x, in integer: shiftCount) is
  *  and a 23 bit mantissa.
  *  @param number Float value to be converted to bin32.
  *  @return 32 bits in MBF single-precision float representation.
- *  @exception RANGE_ERROR When number is not representable in MBF.
+ *  @exception RANGE_ERROR If number is not representable in MBF.
  *             NaN, Infinity and -Infinity are not representable
  *             in MBF. Numbers with an absolut value larger than
  *             1.7014117331926443e+38 are also not representable

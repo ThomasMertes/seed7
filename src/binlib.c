@@ -170,7 +170,7 @@ objectType bin_get_binary_from_set (listType arguments)
  *  Bits that are shifted beyond the size of a binary value
  *  are lost.
  *  @return the left shifted binary value.
- *  @exception OVERFLOW_ERROR When the shift amount is
+ *  @exception OVERFLOW_ERROR If the shift amount is
  *             negative or greater equal INTTYPE_SIZE.
  */
 objectType bin_lshift (listType arguments)
@@ -195,7 +195,7 @@ objectType bin_lshift (listType arguments)
 
 /**
  *  Shift a binary value left by lshift bits and assign the result back.
- *  @exception OVERFLOW_ERROR When the shift amount is
+ *  @exception OVERFLOW_ERROR If the shift amount is
  *             negative or greater equal INTTYPE_SIZE.
  */
 objectType bin_lshift_assign (listType arguments)
@@ -262,7 +262,7 @@ objectType bin_or_assign (listType arguments)
  *  Digit values from 10 upward are encoded with lower case letters.
  *  E.g.: 10 is encoded with a, 11 with b, etc.
  *  @return the string result of the conversion.
- *  @exception RANGE_ERROR When base < 2 or base > 36 holds.
+ *  @exception RANGE_ERROR If base < 2 or base > 36 holds.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  */
 objectType bin_radix (listType arguments)
@@ -282,7 +282,7 @@ objectType bin_radix (listType arguments)
  *  Digit values from 10 upward are encoded with upper case letters.
  *  E.g.: 10 is encoded with A, 11 with B, etc.
  *  @return the string result of the conversion.
- *  @exception RANGE_ERROR When base < 2 or base > 36 holds.
+ *  @exception RANGE_ERROR If base < 2 or base > 36 holds.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  */
 objectType bin_RADIX (listType arguments)
@@ -301,7 +301,7 @@ objectType bin_RADIX (listType arguments)
  *  Bits that are shifted beyond the size of a binary value
  *  are lost.
  *  @return the right shifted binary value.
- *  @exception OVERFLOW_ERROR When the shift amount is
+ *  @exception OVERFLOW_ERROR If the shift amount is
  *             negative or greater equal INTTYPE_SIZE.
  */
 objectType bin_rshift (listType arguments)
@@ -326,7 +326,7 @@ objectType bin_rshift (listType arguments)
 
 /**
  *  Shift a binary value right by rshift bits and assign the result back.
- *  @exception OVERFLOW_ERROR When the shift amount is
+ *  @exception OVERFLOW_ERROR If the shift amount is
  *             negative or greater equal INTTYPE_SIZE.
  */
 objectType bin_rshift_assign (listType arguments)

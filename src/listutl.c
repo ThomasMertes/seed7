@@ -347,9 +347,10 @@ void replace_list_elem (listType list, const_objectType elem1,
  *  For performance reasons list elements are taken directly
  *  from the free list (flist.list_elems).
  *  @param list_from Possibly empty list to be copied.
- *  @param err_info Unchanged when the function succeeds or
- *                  MEMORY_ERROR when a memory allocation failed.
- *  @return the copied list or NULL, when an error occurred.
+ *  @param err_info Unchanged if the function succeeds, and
+ *                  MEMORY_ERROR if a memory allocation failed.
+ *  @return the copied list, or
+ *          NULL if an error occurred.
  */
 listType copy_list (const_listType list_from, errInfoType *err_info)
 
@@ -410,8 +411,8 @@ listType copy_list (const_listType list_from, errInfoType *err_info)
  *  For performance reasons list elements are taken directly
  *  from the free list (flist.list_elems).
  *  @param arr_from Possibly empty array.
- *  @param err_info Unchanged when the function succeeds or
- *                  MEMORY_ERROR when a memory allocation failed.
+ *  @param err_info Unchanged if the function succeeds, and
+ *                  MEMORY_ERROR if a memory allocation failed.
  *  @return the generated list with elements from 'arr_from'.
  */
 listType array_to_list (arrayType arr_from, errInfoType *err_info)
@@ -476,8 +477,8 @@ listType array_to_list (arrayType arr_from, errInfoType *err_info)
  *  For performance reasons list elements are taken directly
  *  from the free list (flist.list_elems).
  *  @param stru_from Possibly empty struct.
- *  @param err_info Unchanged when the function succeeds or
- *                  MEMORY_ERROR when a memory allocation failed.
+ *  @param err_info Unchanged if the function succeeds, and
+ *                  MEMORY_ERROR if a memory allocation failed.
  *  @return the generated list with elements from 'stru_from'.
  */
 listType struct_to_list (structType stru_from, errInfoType *err_info)

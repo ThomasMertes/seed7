@@ -146,7 +146,7 @@ objectType tim_from_timestamp (listType arguments)
  *  @param time_zone/arg_8 Difference to UTC in minutes
  *                         (for UTC+1 it is 60). The time_zone includes
  *                         the effect of a daylight saving time.
- *  @param is_dst/arg_9 Is TRUE, when a daylight saving time is
+ *  @param is_dst/arg_9 Is TRUE, if a daylight saving time is
  *                      currently in effect.
  */
 objectType tim_now (listType arguments)

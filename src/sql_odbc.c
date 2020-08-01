@@ -448,10 +448,7 @@ static boolType findDll (void)
       found = setupDll(dllList[pos]);
     } /* for */
     if (!found) {
-      logError(printf("findDll: Searched for:\n");
-               for (pos = 0; pos < sizeof(dllList) / sizeof(char *); pos++) {
-                 printf("%s\n", dllList[pos]);
-               });
+      dllErrorMessage("sqlOpenOdbc", "findDll", dllList, sizeof(dllList));
     } /* if */
     return found;
   } /* findDll */
@@ -916,7 +913,7 @@ static errInfoType setupParameterColumn (preparedStmtType preparedStmt,
     } else {
       /* The function SQLDescribeParam() of the MySQL driver for */
       /* Unixodbc returns the values below. This are reasonable  */
-      /* defaults, when the ODBC driver does not support the     */
+      /* defaults, if the ODBC driver does not support the       */
       /* function SQLDescribeParam().                            */
       param->dataType = SQL_VARCHAR;
       param->paramSize = 255;
@@ -975,7 +972,7 @@ static errInfoType setupParameterColumn (preparedStmtType preparedStmt,
           /* For this data types no buffer is reserved. Therefore   */
           /* param->buffer is NULL and param->buffer_capacity is 0. */
           /* All bind functions dealing with this data types check  */
-          /* the buffer_capacity and (re)allocate the buffer, when  */
+          /* the buffer_capacity and (re)allocate the buffer, if    */
           /* necessary.                                             */
           break;
       } /* switch */
@@ -1043,11 +1040,11 @@ static errInfoType setupParameters (preparedStmtType preparedStmt)
  * Set precision and scale of SQL_C_NUMERIC data.
  * Otherwise the driver defined default precision and scale would be used.
  * This function is used for bound and unbound SQL_C_NUMERIC data.
- * When the function is used for bound data the data pointer
+ * If the function is used for bound data the data pointer
  * (SQL_DESC_DATA_PTR) must be set afterwards, because according
  * to the the documentation of SQLSetDescField changes of the
  * attributes sets SQL_DESC_DATA_PTR to a NULL pointer.
- * When the function is used for unbound data setting the type is
+ * If the function is used for unbound data setting the type is
  * necessary and setting the data pointer is ommited.
  */
 static errInfoType setNumericPrecisionAndScale (preparedStmtType preparedStmt,
@@ -5688,7 +5685,7 @@ databaseType sqlOpenOdbc (const const_striType driver,
                 printf("\"%s\")\n", striAsUnquotedCStri(password)););
     if (!findDll()) {
       logError(printf("sqlOpenOdbc: findDll() failed\n"););
-      err_info = FILE_ERROR;
+      err_info = DATABASE_ERROR;
       database = NULL;
     } else if (unlikely((connectData.driverW =  stri_to_wstri_buf(driver,
                              &connectData.driverW_length, &err_info)) == NULL)) {

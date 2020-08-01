@@ -389,7 +389,7 @@ intType getDecimalInt (const const_ustriType decimal, memSizeType length)
             intResult = 0;
           } else {
             /* The unsigned value is negated to avoid an overflow */
-            /* when the most negative intType value is negated.   */
+            /* if the most negative intType value is negated.     */
             intResult = (intType) -uintValue;
           } /* if */
         } else if (unlikely(uintValue > (uintType) INTTYPE_MAX)) {

@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  showtls.s7i   Show TLS messages. Use it to debug tls.s7i.       *)
-(*  Copyright (C) 2013 - 2018  Thomas Mertes                        *)
+(*  Copyright (C) 2013 - 2019  Thomas Mertes                        *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)
 (*                                                                  *)
@@ -147,9 +147,43 @@ const proc: showExtensions (in string: stri, inout integer: pos) is func
         when {PADDING}:                                writeln("padding");
         when {ENCRYPT_THEN_MAC}:                       writeln("encrypt_then_mac");
         when {EXTENDED_MASTER_SECRET}:                 writeln("extended_master_secret");
+        when {TOKEN_BINDING}:                          writeln("token_binding");
+        when {CACHED_INFO}:                            writeln("cached_info");
+        when {TLS_LTS}:                                writeln("tls_lts");
+        when {COMPRESS_CERTIFICATE}:                   writeln("compress_certificate");
+        when {RECORD_SIZE_LIMIT}:                      writeln("record_size_limit");
+        when {PWD_PROTECT}:                            writeln("pwd_protect");
+        when {PWD_CLEAR}:                              writeln("pwd_clear");
+        when {PASSWORD_SALT}:                          writeln("password_salt");
+        when {TICKET_PINNING}:                         writeln("ticket_pinning");
         when {SESSION_TICKET_TLS}:                     writeln("SessionTicket TLS");
+        when {PRE_SHARED_KEY}:                         writeln("pre_shared_key");
+        when {EARLY_DATA}:                             writeln("early_data");
+        when {SUPPORTED_VERSIONS}:                     writeln("supported_versions");
+        when {COOKIE}:                                 writeln("cookie");
+        when {PSK_KEY_EXCHANGE_MODES}:                 writeln("psk_key_exchange_modes");
+        when {CERTIFICATE_AUTHORITIES}:                writeln("certificate_authorities");
+        when {OID_FILTERS}:                            writeln("oid_filters");
+        when {POST_HANDSHAKE_AUTH}:                    writeln("post_handshake_auth");
+        when {SIGNATURE_ALGORITHMS_CERT}:              writeln("signature_algorithms_cert");
+        when {KEY_SHARE}:                              writeln("key_share");
+        when {TRANSPARENCY_INFO}:                      writeln("transparency_info");
+        when {CONNECTION_ID}:                          writeln("connection_id");
+        when {EXTERNAL_ID_HASH}:                       writeln("external_id_hash");
+        when {EXTERNAL_SESSION_ID}:                    writeln("external_session_id");
         when {NEXT_PROTOCOL_NEGOTIATION}:              writeln("next_protocol_negotiation");
         when {RENEGOTIATION_INFO}:                     writeln("renegotiation_info");
+        when {16#0a0a, 16#1a1a, 16#2a2a, 16#3a3a,
+              16#4a4a, 16#5a5a, 16#6a6a, 16#7a7a,
+              16#8a8a, 16#9a9a, 16#aaaa, 16#baba,
+              16#caca, 16#dada, 16#eaea, 16#fafa}:
+                                                       writeln("GREASE extension");
+          writeln("GREASE value: " <& extensionType <&
+                  " (16#" <& extensionType radix 16 lpad0 4 <& ")");
+          if data <> "" then
+            writeln("Data: " <& literal(data));
+          end if;
+          dataWritten := TRUE;
         otherwise:                                     writeln(extensionType);
       end case;
       if not dataWritten then

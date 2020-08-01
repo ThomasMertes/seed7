@@ -233,7 +233,7 @@ objectType chr_hashcode (listType arguments)
  *  For values between 1114112 and 1114368 a cursor or function key
  *  is returned. For -1 the value EOF is returned.
  *  @return a character which corresponds to the given integer.
- *  @exception RANGE_ERROR When the number does not fit into a 32-bit 'char'.
+ *  @exception RANGE_ERROR If the number does not fit into a 32-bit 'char'.
  */
 objectType chr_iconv1 (listType arguments)
 
@@ -265,7 +265,7 @@ objectType chr_iconv1 (listType arguments)
  *  For values between 1114112 and 1114368 a cursor or function key
  *  is returned. For -1 the value EOF is returned.
  *  @return a character which corresponds to the given integer.
- *  @exception RANGE_ERROR When the number does not fit into a 32-bit 'char'.
+ *  @exception RANGE_ERROR If the number does not fit into a 32-bit 'char'.
  */
 objectType chr_iconv3 (listType arguments)
 

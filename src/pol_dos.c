@@ -230,8 +230,8 @@ void polIterFindings (const pollType pollData, intType pollMode)
  *  iterator. The file returned by 'nextFile' is determined with the
  *  function 'addCheck'. The files covered by the 'pollData' iterator
  *  are determined with 'iterChecks' or 'iterFindings'.
- *  @return the next file from the 'pollData' iterator, or STD_NULL,
- *          when no file from the 'pollData' iterator is available.
+ *  @return the next file from the 'pollData' iterator, or
+ *          STD_NULL if no file from the 'pollData' iterator is available.
  */
 genericType polNextFile (const pollType pollData, const genericType nullFile)
 
@@ -244,7 +244,7 @@ genericType polNextFile (const pollType pollData, const genericType nullFile)
 /**
  *  Waits for one or more of the checkedEvents from 'pollData'.
  *  polPoll waits until one of the checkedEvents for a
- *  corresponding socket occurs. When a checkedEvents occurs
+ *  corresponding socket occurs. If a checked event occurs
  *  the eventFindings field is assigned a value. The following
  *  eventFindings values are assigned:
  *  - POLLIN data can be read from the corresponding socket.

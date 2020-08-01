@@ -186,7 +186,8 @@ const func string: getLineComment (inout string: stri) is func
  *  stri[1] contains the first character to be handled. When the
  *  function is left ''stri'' is empty or stri[1] contains the character
  *  after the digits.
- *  @return the digit sequence or "" when no digit was found.
+ *  @return the digit sequence, and
+ *          "" if no digit was found.
  *)
 const func string: getDigits (inout string: stri) is func
   result
@@ -213,7 +214,8 @@ const func string: getDigits (inout string: stri) is func
  *  stri[1] contains the first character to be handled. When the
  *  function is left ''stri'' is empty or stri[1] contains the character
  *  after the integer.
- *  @return the decimal integer string or "" when no integer was found.
+ *  @return the decimal integer string, and
+ *          "" if no integer was found.
  *)
 const func string: getInteger (inout string: stri) is func
   result
@@ -301,7 +303,8 @@ const func string: getNumber (inout string: stri) is func
  *  When the function is called it is assumed that ''stri'' is empty or
  *  stri[1] contains the first character to be handled. When the
  *  function is left ''stri'' is empty or stri[1] contains a digit.
- *  @return the non digit sequence or "" when a digit was found.
+ *  @return the non digit sequence, and
+ *          "" if a digit was found.
  *)
 const func string: getNonDigits (inout string: stri) is func
   result
@@ -709,7 +712,8 @@ const func string: getCStringLiteralText (inout string: stri) is func
  *  that ''stri'' is empty or stri[1] contains the first character to be
  *  handled. When the function is left ''stri'' is empty or stri[1]
  *  contains the character after the name.
- *  @return the name or "" when no letter or underscore was found.
+ *  @return the name, and
+ *          "" if no letter or underscore was found.
  *)
 const func string: getName (inout string: stri) is func
   result
@@ -802,8 +806,8 @@ const proc: skipWhiteSpace (inout string: stri) is func
  *  stri[1] contains the first character to be handled. When the
  *  function is left ''stri'' is empty or stri[1] contains the character
  *  after the whitespace characters.
- *  @return the string of whitespace characters or "" when no
- *          whitespace character was found.
+ *  @return the string of whitespace characters, and
+ *          "" if no whitespace character was found.
  *)
 const func string: getWhiteSpace (inout string: stri) is func
   result
@@ -831,7 +835,8 @@ const func string: getWhiteSpace (inout string: stri) is func
  *  is empty or stri[1] contains the first character to be handled.
  *  When the function is left ''stri'' is empty or stri[1] contains the
  *  character after the word.
- *  @return the word or "" when no word was found.
+ *  @return the word, and
+ *          "" if no word was found.
  *)
 const func string: getWord (inout string: stri) is func
   result
@@ -863,7 +868,7 @@ const func string: getWord (inout string: stri) is func
  *  When the function is called it is assumed that ''stri'' is empty or
  *  stri[1] contains the first character to be handled. When the
  *  function is left ''stri'' is empty or stri[1] contains '\n'.
- *  When stri[1] already contains '\n' nothing is done.
+ *  If stri[1] already contains '\n' nothing is done.
  *)
 const proc: skipLine (inout string: stri) is func
   local
@@ -883,10 +888,10 @@ const proc: skipLine (inout string: stri) is func
  *  When the function is called it is assumed that ''stri'' is empty or
  *  stri[1] contains the first character to be handled. When the
  *  function is left ''stri'' is empty or stri[1] contains '\n'.
- *  When stri[1] already contains '\n' nothing is done and the
+ *  If stri[1] already contains '\n' nothing is done and the
  *  function returns "" .
- *  @return the line read or "" when ''stri'' is empty or stri[1]
- *          contains '\n'.
+ *  @return the line read, and
+ *          "" if ''stri'' is empty or stri[1] contains '\n'.
  *)
 const func string: getLine (inout string: stri) is func
   result
@@ -916,7 +921,8 @@ const func string: getLine (inout string: stri) is func
  *  character of a symbol or comment. When the function is left ''stri''
  *  is empty or stri[1] contains the character after the symbol or
  *  comment.
- *  @return the symbol, comment or "" when EOF was reached.
+ *  @return the symbol or comment, and
+ *          "" if EOF was reached.
  *)
 const func string: getSymbolOrComment (inout string: stri) is func
   result
@@ -988,7 +994,8 @@ const func string: getSymbolOrComment (inout string: stri) is func
  *  contains a whitespace character or the first character of a symbol
  *  or comment. When the function is left ''stri'' is empty or stri[1]
  *  contains the character after the symbol.
- *  @return the symbol or "" when EOF was reached.
+ *  @return the symbol, and
+ *          "" if EOF was reached.
  *)
 const func string: getSymbol (inout string: stri) is func
   result
@@ -1097,8 +1104,8 @@ const proc: skipXmlComment (inout string: stri) is func
  *  the introducing < of a XML/HTML tag or the first charater of the
  *  content text. When the function is left the character after the
  *  XML/HTML tag or the content text is in stri[1].
- *  @return the XML/HTML tag, XML/HTML content text or "" when EOF
- *          was reached.
+ *  @return the XML/HTML tag or XML/HTML content text, and
+ *          "" if EOF was reached.
  *)
 const func string: getXmlTagOrContent (inout string: stri) is func
   result
@@ -1137,11 +1144,11 @@ const func string: getXmlTagOrContent (inout string: stri) is func
  *  either a whitespace character, the introducing < of a XML/HTML
  *  tag or the first charater of the content text. When the function
  *  is left ''stri'' is empty or stri[1] contains the character after
- *  the XML/HTML tag head or the content text. When a tag head
+ *  the XML/HTML tag head or the content text. If a tag head
  *  starts with <-- it is interpreted as XML comment. A XML comment
  *  is ignored and getXmlTagHeadOrContent is called recursive.
- *  @return the XML/HTML tag head, XML/HTML content text or "" when
- *          EOF was reached.
+ *  @return the XML/HTML tag head or XML/HTML content text, and
+ *          "" if EOF was reached.
  *)
 const func string: getXmlTagHeadOrContent (inout string: stri) is func
   result
@@ -1202,7 +1209,8 @@ const func string: getXmlTagHeadOrContent (inout string: stri) is func
  *  character or the first character of a symbol. When the function is
  *  left ''stri'' is empty or stri[1] contains the character after the
  *  symbol.
- *  @return the symbol or "" when EOF was reached.
+ *  @return the symbol, and
+ *          "" if EOF was reached.
  *)
 const func string: getSymbolInXmlTag (inout string: stri) is func
   result
@@ -1287,11 +1295,11 @@ const proc: skipXmlTag (inout string: stri, in var string: symbol) is func
  *  Attribute name and value are returned in ''attributeName'' and
  *  ''attributeValue'' respectively. Surrounding single or double
  *  quotes of the attribute value are omitted. It is a syntax
- *  error when an attribute value is not quoted. XML entities in
- *  ''attributeValue'' are left as is. When no more attributes are
+ *  error if an attribute value is not quoted. XML entities in
+ *  ''attributeValue'' are left as is. If no more attributes are
  *  present in the XML tag ''attributeName'' is set to "". In this case
  *  ''attributeValue'' contains the end of the XML tag (">" or "/>").
- *  When a syntax error occurs the function skips beyond the end
+ *  If a syntax error occurs the function skips beyond the end
  *  of the XML tag. To indicate the syntax error ''attributeName'' is
  *  set to "" and ''attributeValue'' is set to a symbol shortly before
  *  the error (this will never be ">" or "/>").
@@ -1342,7 +1350,8 @@ const proc: getNextXmlAttribute (inout string: stri,
  *  a whitespace character or the first character of a value. When the
  *  function is left ''stri'' is empty or stri[1] contains the character
  *  after the value.
- *  @return the symbol or "" when EOF was reached.
+ *  @return the symbol, and
+ *          "" if EOF was reached.
  *)
 const func string: getHtmlAttributeValue (inout string: stri) is func
   result
@@ -1389,10 +1398,10 @@ const func string: getHtmlAttributeValue (inout string: stri) is func
 
 (**
  *  Reads name and value of an attribute inside a HTML tag from [[string]].
- *  The variable ''attributeName'' is set to "" when no more attributes
- *  are present in the HTML tag. When the HTML tag ends with / the
- *  function assigns "/" to ''attributeValue'' when ''attributeName'' is
- *  set to "". When the HTML tag does not end with / ''attributeValue''
+ *  The variable ''attributeName'' is set to "" if no more attributes
+ *  are present in the HTML tag. If the HTML tag ends with / the
+ *  function assigns "/" to ''attributeValue'' and ''attributeName'' is
+ *  set to "". If the HTML tag does not end with / ''attributeValue''
  *  and ''attributeName'' are set to "" when no more attributes are
  *  present.
  *)
@@ -1433,7 +1442,8 @@ const proc: getNextHtmlAttribute (inout string: stri,
  *  stri[1] contains a whitespace character or the first character of
  *  a symbol. When the function is left ''stri'' is empty or stri[1]
  *  contains the character after the symbol.
- *  @return the symbol or "" when EOF was reached.
+ *  @return the symbol, and
+ *          "" if EOF was reached.
  *)
 const func string: getHttpSymbol (inout string: stri) is func
   result

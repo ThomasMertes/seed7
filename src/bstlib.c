@@ -203,10 +203,10 @@ objectType bst_cpy (listType arguments)
       new_size = take_bstri(source)->size;
       if (bstri_dest->size == new_size) {
         if (bstri_dest != take_bstri(source)) {
-          /* It is possible that dest == source holds. The     */
-          /* behavior of memcpy() is undefined when source and */
-          /* destination areas overlap (or are identical).     */
-          /* Therefore a check for this case is necessary.     */
+          /* It is possible that dest == source holds. The   */
+          /* behavior of memcpy() is undefined if source and */
+          /* destination areas overlap (or are identical).   */
+          /* Therefore a check for this case is necessary.   */
           memcpy(bstri_dest->mem, take_bstri(source)->mem, new_size);
         } /* if */
       } else {
@@ -363,7 +363,7 @@ objectType bst_hashcode (listType arguments)
  *  Get a character, identified by an index, from a 'bstring'.
  *  The first character has the index 1.
  *  @return the character specified with the index.
- *  @exception RANGE_ERROR When the index is less than 1 or
+ *  @exception RANGE_ERROR If the index is less than 1 or
  *             greater than the length of the 'bstring'.
  */
 objectType bst_idx (listType arguments)
@@ -442,7 +442,7 @@ objectType bst_ne (listType arguments)
 /**
  *  Convert a string to a 'bstring' value.
  *  @return the 'bstring' result of the conversion.
- *  @exception RANGE_ERROR When characters beyond '\255;' are present.
+ *  @exception RANGE_ERROR If characters beyond '\255;' are present.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  */
 objectType bst_parse1 (listType arguments)
@@ -473,7 +473,7 @@ objectType bst_str (listType arguments)
 /**
  *  Get 'bstring' value of the object referenced by 'aReference/arg_1'.
  *  @return the 'bstring' value of the referenced object.
- *  @exception RANGE_ERROR When 'aReference/arg_1' is NIL or
+ *  @exception RANGE_ERROR If 'aReference/arg_1' is NIL or
  *             category(aReference) <> BSTRIOBJECT holds.
  */
 objectType bst_value (listType arguments)

@@ -121,6 +121,7 @@ objectType set_baselit (listType arguments)
 /**
  *  Compute the cardinality of a set.
  *  @return the number of elements in 'aSet'.
+ *  @exception RANGE_ERROR Result does not fit into an integer.
  */
 objectType set_card (listType arguments)
 
@@ -241,7 +242,7 @@ objectType set_cpy (listType arguments)
         set_dest->max_position = set_source->max_position;
       } /* if */
       /* It is possible that dest == source holds. The     */
-      /* behavior of memcpy() is undefined when source and */
+      /* behavior of memcpy() is undefined if source and   */
       /* destination areas overlap (or are identical).     */
       /* Therefore memmove() is used instead of memcpy().  */
       memmove(set_dest->bitset, set_source->bitset,
@@ -337,7 +338,7 @@ objectType set_diff (listType arguments)
 /**
  *  Set membership test.
  *  Determine if 'number' is a member of the set 'aSet'.
- *  @return TRUE when 'number' is a member of  'aSet',
+ *  @return TRUE if 'number' is a member of  'aSet',
  *          FALSE otherwise.
  */
 objectType set_elem (listType arguments)
@@ -414,7 +415,7 @@ objectType set_eq (listType arguments)
 
 /**
  *  Remove 'number' from the set 'set_to'.
- *  When 'number' is not element of 'set_to' then 'set_to' stays unchanged.
+ *  If 'number' is not element of 'set_to' then 'set_to' stays unchanged.
  */
 objectType set_excl (listType arguments)
 
@@ -451,7 +452,7 @@ objectType set_excl (listType arguments)
 
 /**
  *  Determine if 'set1' is a superset of 'set2'.
- *  'set1' is a superset of 'set2' when no element X exists for which
+ *  'set1' is a superset of 'set2' if no element X exists for which
  *   X in set2 and X not in set1
  *  holds.
  *  @return TRUE if 'set1' is a superset of 'set2',
@@ -473,7 +474,7 @@ objectType set_ge (listType arguments)
 
 /**
  *  Determine if 'set1' is a proper superset of 'set2'.
- *  'set1' is a proper superset of 'set2' when
+ *  'set1' is a proper superset of 'set2' if
  *   set1 >= set2 and set1 <> set2
  *  holds.
  *  @return TRUE if 'set1' is a proper superset of 'set2',
@@ -571,8 +572,8 @@ objectType set_idx (listType arguments)
 
 /**
  *  Add 'number' to the set 'set_to'.
- *  When 'number' is already in 'set_to' then 'set_to' stays unchanged.
- *  @exception MEMORY_ERROR When there is not enough memory.
+ *  If 'number' is already in 'set_to' then 'set_to' stays unchanged.
+ *  @exception MEMORY_ERROR If there is not enough memory.
  */
 objectType set_incl (listType arguments)
 
@@ -678,7 +679,7 @@ objectType set_intersect_assign (listType arguments)
 
 /**
  *  Determine if 'set1' is a subset of 'set2'.
- *  'set1' is a subset of 'set2' when no element X exists for which
+ *  'set1' is a subset of 'set2' if no element X exists for which
  *   X in set1 and X not in set2
  *  holds.
  *  @return TRUE if 'set1' is a subset of 'set2',
@@ -700,7 +701,7 @@ objectType set_le (listType arguments)
 
 /**
  *  Determine if 'set1' is a proper subset of 'set2'.
- *  'set1' is a proper subset of 'set2' when
+ *  'set1' is a proper subset of 'set2' if
  *   set1 <= set2 and set1 <> set2
  *  holds.
  *  @return TRUE if 'set1' is a proper subset of 'set2',
@@ -726,7 +727,7 @@ objectType set_lt (listType arguments)
  *   element >= X
  *  for all X which are in the set.
  *  @return the maximal element of 'aSet'.
- *  @exception RANGE_ERROR When 'aSet' is the empty set.
+ *  @exception RANGE_ERROR If 'aSet' is the empty set.
  */
 objectType set_max (listType arguments)
 
@@ -744,7 +745,7 @@ objectType set_max (listType arguments)
  *   element <= X
  *  for all X which are in the set.
  *  @return the minimum element of 'aSet'.
- *  @exception RANGE_ERROR When 'aSet' is the empty set.
+ *  @exception RANGE_ERROR If 'aSet' is the empty set.
  */
 objectType set_min (listType arguments)
 
@@ -775,6 +776,11 @@ objectType set_ne (listType arguments)
 
 
 
+/**
+ *  Minimal element of aSet/arg_1 that is larger than number/arg_2.
+ *  @return the minimum element of aSet/arg_1 that is larger than number/arg_2.
+ *  @exception RANGE_ERROR If aSet/arg_1 has no element larger than number/arg_2.
+ */
 objectType set_next (listType arguments)
 
   { /* set_next */
@@ -789,7 +795,7 @@ objectType set_next (listType arguments)
 /**
  *  Negated set membership test.
  *  Determine if 'number' is not a member of the set 'aSet'.
- *  @return FALSE when 'number' is a member of  'aSet',
+ *  @return FALSE if 'number' is a member of  'aSet',
  *          TRUE otherwise.
  */
 objectType set_not_elem (listType arguments)
@@ -826,7 +832,7 @@ objectType set_not_elem (listType arguments)
  *  Compute pseudo-random number which is element of 'aSet'.
  *  The random values are uniform distributed.
  *  @return a random number such that rand(aSet) in aSet holds.
- *  @exception RANGE_ERROR When 'aSet' is empty.
+ *  @exception RANGE_ERROR If 'aSet' is empty.
  */
 objectType set_rand (listType arguments)
 
@@ -852,8 +858,8 @@ objectType set_rangelit (listType arguments)
 /**
  *  Convert a bitset to integer.
  *  @return an integer which corresponds to the given bitset.
- *  @exception RANGE_ERROR When 'aSet' contains negative values or
- *             when it does not fit into a non-negative integer.
+ *  @exception RANGE_ERROR If 'aSet' contains negative values or
+ *             if it does not fit into a non-negative integer.
  */
 objectType set_sconv1 (listType arguments)
 
@@ -868,8 +874,8 @@ objectType set_sconv1 (listType arguments)
 /**
  *  Convert a bitset to integer.
  *  @return an integer which corresponds to the given bitset.
- *  @exception RANGE_ERROR When 'aSet' contains negative values or
- *             when it does not fit into a non-negative integer.
+ *  @exception RANGE_ERROR If 'aSet' contains negative values or
+ *             if it does not fit into a non-negative integer.
  */
 objectType set_sconv3 (listType arguments)
 

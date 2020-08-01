@@ -408,7 +408,7 @@ const func string: getHttp (in string: serverName, in integer: portNumber, in st
 
 (**
  *  Get data specified by an URL using the HTTP protocol.
- *  @return the string of data found, or "" when nothing was found.
+ *  @return the string of data found, or "" if nothing was found.
  *)
 const func string: getHttp (in string: url) is func
   result

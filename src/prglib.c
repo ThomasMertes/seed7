@@ -328,7 +328,7 @@ objectType prg_match_expr (listType arguments)
  *  Returns the name of 'aProg/arg_1' without path and extension.
  *  This function does not follow symbolic links.
  *  It determines, with which name a program was called.
- *  When a symbolic link refers to a program, the name of
+ *  If a symbolic link refers to a program, the name of
  *  the symbolic link is returned.
  *  @return the name of the program.
  */
@@ -363,7 +363,7 @@ objectType prg_ne (listType arguments)
  *  Returns the name of the program without path and extension.
  *  This function does not follow symbolic links.
  *  It determines, with which name a program was called.
- *  When a symbolic link refers to a program, the name of
+ *  If a symbolic link refers to a program, the name of
  *  the symbolic link is returned.
  *  @return the name of the program.
  */
@@ -441,8 +441,9 @@ objectType prg_str_parse (listType arguments)
 
 /**
  *  Determine object with 'syobjectName/arg_2' from program 'aProgram/arg_1'.
- *  @return a reference to the object or NIL when no object 'syobjectName/arg_2' exists.
- *  @exception MEMORY_ERROR When 'syobjectName/arg_2' cannot be converted to
+ *  @return a reference to the object, and
+ *          NIL if no object 'syobjectName/arg_2' exists.
+ *  @exception MEMORY_ERROR If 'syobjectName/arg_2' cannot be converted to
  *             the internal representation.
  */
 objectType prg_syobject (listType arguments)
@@ -458,8 +459,8 @@ objectType prg_syobject (listType arguments)
 
 /**
  *  Determine the value of the system variable 'name/arg_2' in 'aProgram/arg_1'.
- *  @return a reference to the value of the system variable or
- *          NIL when no system variable 'name/arg_2' exists.
+ *  @return a reference to the value of the system variable, and
+ *          NIL if no system variable 'name/arg_2' exists.
  */
 objectType prg_sysvar (listType arguments)
 
@@ -475,7 +476,7 @@ objectType prg_sysvar (listType arguments)
 /**
  *  Get 'program' value of the object referenced by 'aReference/arg_1'.
  *  @return the 'program' value of the referenced object.
- *  @exception RANGE_ERROR When 'aReference/arg_1' is NIL or
+ *  @exception RANGE_ERROR If 'aReference/arg_1' is NIL or
  *             category(aReference) <> PROGOBJECT holds.
  */
 objectType prg_value (listType arguments)

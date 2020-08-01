@@ -103,7 +103,7 @@ extern size_t sizeof_processRecord;
 
 /* Some stupid operating systems have under some compilers      */
 /* limitations on how much memory can be requested with malloc. */
-/* This is the case when the malloc function has an 16 bit      */
+/* This is the case if the malloc function has an 16 bit        */
 /* unsigned argument. If this is the case the only solution     */
 /* is to check if the SIZE is under 2**16 - 1 . Here we use     */
 /* a little bit lower value to be on the save side. Note        */
@@ -447,7 +447,7 @@ EXTERN unsigned int sflist_allowed;
 
 #define REALLOC_STRI_SIZE_OK(v1,v2,l1,l2)      HEAP_REALLOC_STRI(v1,v2,l1,l2)
 #define REALLOC_STRI_CHECK_SIZE(v1,v2,l1,l2)   if((l2) <= MAX_STRI_LEN){HEAP_REALLOC_STRI(v1,v2,l1,l2)}else v1=NULL;
-/* The following macro is used when the new size is smaller or equal to the current one. */
+/* The following macro is used if the new size is smaller or equal to the current one. */
 #define REALLOC_STRI_SIZE_SMALLER(v1,v2,l1,l2) HEAP_REALLOC_STRI(v1,v2,l1,l2)
 
 #if ALLOW_STRITYPE_SLICES

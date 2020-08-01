@@ -584,7 +584,7 @@ objectType hsh_contains_element (hashType aHashMap, objectType aKey,
 /**
  *  Hash membership test.
  *  Determine if 'aKey' is a member of the hash map 'aHashMap'.
- *  @return TRUE when 'aKey' is a member of 'aHashMap',
+ *  @return TRUE if 'aKey' is a member of 'aHashMap',
  *          FALSE otherwise.
  */
 objectType hsh_contains (listType arguments)
@@ -957,7 +957,7 @@ objectType hsh_for_key (listType arguments)
 /**
  *  Access one value from the hash table 'aHashMap'.
  *  @return the element with the key 'aKey' from 'aHashMap'.
- *  @exception RANGE_ERROR When 'aHashMap' does not have an element
+ *  @exception RANGE_ERROR If 'aHashMap' does not have an element
  *             with the key 'aKey'.
  */
 objectType hsh_idx (listType arguments)
@@ -1038,7 +1038,7 @@ objectType hsh_idx (listType arguments)
 /**
  *  Access one value from the hash table 'aHashMap'.
  *  @return the element with the key 'aKey' from 'aHashMap'.
- *  @exception RANGE_ERROR When 'aHashMap' does not have an element
+ *  @exception RANGE_ERROR If 'aHashMap' does not have an element
  *             with the key 'aKey'.
  */
 objectType hsh_idx2 (listType arguments)
@@ -1214,9 +1214,9 @@ objectType hsh_idx2 (listType arguments)
 
 /**
  *  Add 'anElem' with the key 'aKey' to the hash map 'aHashMap'.
- *  When an element with the key 'aKey' already exists,
+ *  If an element with the key 'aKey' already exists,
  *  it is overwritten with 'anElem'.
- *  @exception MEMORY_ERROR When there is not enough memory.
+ *  @exception MEMORY_ERROR If there is not enough memory.
  */
 objectType hsh_incl (listType arguments)
 
@@ -1341,7 +1341,7 @@ objectType hsh_lng (listType arguments)
  *  Compute pseudo-random key from 'aHashMap'.
  *  The random values are uniform distributed.
  *  @return a random key such that hsh_rand_key(aHashMap) in aHashMap holds.
- *  @exception RANGE_ERROR When 'aHashMap' is empty.
+ *  @exception RANGE_ERROR If 'aHashMap' is empty.
  */
 objectType hsh_rand_key (listType arguments)
 
@@ -1450,9 +1450,9 @@ objectType hsh_refidx (listType arguments)
 
 /**
  *  Add 'anElem' with the key 'aKey' to the hash map 'aHashMap'.
- *  When an element with the key 'aKey' already exists,
+ *  If an element with the key 'aKey' already exists,
  *  it is overwritten with 'anElem'.
- *  @exception MEMORY_ERROR When there is not enough memory.
+ *  @exception MEMORY_ERROR If there is not enough memory.
  */
 objectType hsh_update (listType arguments)
 

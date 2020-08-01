@@ -129,7 +129,7 @@ const proc: readGzipHeader (inout file: compressed) is func
  *  a combination of the LZ77 algorithm and Huffman coding.
  *  Additionally to DEFLATE zlib uses a small header.
  *  @return the uncompressed string.
- *  @exception RANGE_ERROR When ''compressed'' is not in zlib format.
+ *  @exception RANGE_ERROR If ''compressed'' is not in zlib format.
  *)
 const func string: gzuncompress (in string: compressed) is func
   result
@@ -172,7 +172,7 @@ const func string: gzcompress (in string: uncompressed) is func
  *  a combination of the LZ77 algorithm and Huffman coding.
  *  Additionally to DEFLATE gzip uses a magic number and a header.
  *  @return the uncompressed string.
- *  @exception RANGE_ERROR When ''compressed'' is not in gzip format.
+ *  @exception RANGE_ERROR If ''compressed'' is not in gzip format.
  *)
 const func string: gunzip (in string: compressed) is func
   result
@@ -276,7 +276,7 @@ const func string: gets (inout gunzipFile: inFile, in var integer: leng) is func
 
 (**
  *  Determine the end-of-file indicator.
- *  The end-of-file indicator is set when at least one request to read
+ *  The end-of-file indicator is set if at least one request to read
  *  from the file failed.
  *  @return TRUE if the end-of-file indicator is set, FALSE otherwise.
  *)

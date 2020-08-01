@@ -106,7 +106,7 @@ const func boolean: (in bitset: set1) <> (in bitset: set2)      is action "SET_N
 
 (**
  *  Determine if ''set1'' is a proper subset of ''set2''.
- *  ''set1'' is a proper subset of ''set2'' when
+ *  ''set1'' is a proper subset of ''set2'' if
  *   set1 <= set2 and set1 <> set2
  *  holds.
  *  @return TRUE if ''set1'' is a proper subset of ''set2'',
@@ -117,7 +117,7 @@ const func boolean: (in bitset: set1) < (in bitset: set2)       is action "SET_L
 
 (**
  *  Determine if ''set1'' is a proper superset of ''set2''.
- *  ''set1'' is a proper superset of ''set2'' when
+ *  ''set1'' is a proper superset of ''set2'' if
  *   set1 >= set2 and set1 <> set2
  *  holds.
  *  @return TRUE if ''set1'' is a proper superset of ''set2'',
@@ -128,7 +128,7 @@ const func boolean: (in bitset: set1) > (in bitset: set2)       is action "SET_G
 
 (**
  *  Determine if ''set1'' is a subset of ''set2''.
- *  ''set1'' is a subset of ''set2'' when no element X exists for which
+ *  ''set1'' is a subset of ''set2'' if no element X exists for which
  *   X in set1 and X not in set2
  *  holds.
  *  @return TRUE if ''set1'' is a subset of ''set2'',
@@ -139,7 +139,7 @@ const func boolean: (in bitset: set1) <= (in bitset: set2)      is action "SET_L
 
 (**
  *  Determine if ''set1'' is a superset of ''set2''.
- *  ''set1'' is a superset of ''set2'' when no element X exists for which
+ *  ''set1'' is a superset of ''set2'' if no element X exists for which
  *   X in set2 and X not in set1
  *  holds.
  *  @return TRUE if ''set1'' is a superset of ''set2'',
@@ -173,7 +173,7 @@ const func integer: hashCode (in bitset: aSet)                  is action "SET_H
 (**
  *  Set membership test.
  *  Determine if ''number'' is a member of the set ''aSet''.
- *  @return TRUE when ''number'' is a member of  ''aSet'',
+ *  @return TRUE if ''number'' is a member of  ''aSet'',
  *          FALSE otherwise.
  *)
 const func boolean: (in integer: number) in (in bitset: aSet)   is action "SET_ELEM";
@@ -182,7 +182,7 @@ const func boolean: (in integer: number) in (in bitset: aSet)   is action "SET_E
 (**
  *  Negated set membership test.
  *  Determine if ''number'' is not a member of the set ''aSet''.
- *  @return FALSE when ''number'' is a member of  ''aSet'',
+ *  @return FALSE if ''number'' is a member of  ''aSet'',
  *          TRUE otherwise.
  *)
 const func boolean: (in integer: number) not in (in bitset: aSet) is action "SET_NOT_ELEM";
@@ -190,15 +190,15 @@ const func boolean: (in integer: number) not in (in bitset: aSet) is action "SET
 
 (**
  *  Add ''number'' to the set ''aSet''.
- *  When ''number'' is already in ''aSet'' then ''aSet'' stays unchanged.
- *  @exception MEMORY_ERROR When there is not enough memory.
+ *  If ''number'' is already in ''aSet'' then ''aSet'' stays unchanged.
+ *  @exception MEMORY_ERROR If there is not enough memory.
  *)
 const proc: incl (inout bitset: aSet, in integer: number)       is action "SET_INCL";
 
 
 (**
  *  Remove ''number'' from the set ''aSet''.
- *  When ''number'' is not element of ''aSet'' then ''aSet'' stays unchanged.
+ *  If ''number'' is not element of ''aSet'' then ''aSet'' stays unchanged.
  *)
 const proc: excl (inout bitset: aSet, in integer: number)       is action "SET_EXCL";
 
@@ -207,7 +207,7 @@ const proc: excl (inout bitset: aSet, in integer: number)       is action "SET_E
  *  Add or remove ''aValue'' to respectively from ''sSet''.
  *  Adding an existing value or remove a non-existing value
  *  leaves ''aSet'' unchanged.
- *  @exception MEMORY_ERROR When there is not enough memory.
+ *  @exception MEMORY_ERROR If there is not enough memory.
  *)
 const proc: (inout bitset: aSet) @:= [ (in integer: number) ] (in boolean: isElement) is func
   begin
@@ -222,6 +222,7 @@ const proc: (inout bitset: aSet) @:= [ (in integer: number) ] (in boolean: isEle
 (**
  *  Compute the cardinality of a set.
  *  @return the number of elements in ''aSet''.
+ *  @exception RANGE_ERROR Result does not fit into an integer.
  *)
 const func integer: card (in bitset: aSet)                      is action "SET_CARD";
 
@@ -230,7 +231,7 @@ const func integer: card (in bitset: aSet)                      is action "SET_C
  *  Compute pseudo-random element from ''aSet''.
  *  The random values are uniform distributed.
  *  @return a random number such that rand(aSet) in aSet holds.
- *  @exception RANGE_ERROR When ''aSet'' is empty.
+ *  @exception RANGE_ERROR If ''aSet'' is empty.
  *)
 const func integer: rand (in bitset: aSet)                      is action "SET_RAND";
 
@@ -241,7 +242,7 @@ const func integer: rand (in bitset: aSet)                      is action "SET_R
  *   element <= X
  *  for all X which are in the set.
  *  @return the minimum element of ''aSet''.
- *  @exception RANGE_ERROR When ''aSet'' is the empty set.
+ *  @exception RANGE_ERROR If ''aSet'' is the empty set.
  *)
 const func integer: min (in bitset: aSet)                       is action "SET_MIN";
 
@@ -252,12 +253,19 @@ const func integer: min (in bitset: aSet)                       is action "SET_M
  *   element >= X
  *  for all X which are in the set.
  *  @return the maximal element of ''aSet''.
- *  @exception RANGE_ERROR When ''aSet'' is the empty set.
+ *  @exception RANGE_ERROR If ''aSet'' is the empty set.
  *)
 const func integer: max (in bitset: aSet)                       is action "SET_MAX";
 
 
-const func integer: next (in bitset: aSet, in integer: current) is action "SET_NEXT";
+(**
+ *  Minimal element of ''aSet'' that is larger than ''number''.
+ *  @return the minimum element of ''aSet'' that is larger than ''number''.
+ *  @exception RANGE_ERROR If ''aSet'' has no element larger than ''number''.
+ *)
+const func integer: next (in bitset: aSet, in integer: number)  is action "SET_NEXT";
+
+
 const func bitset: { (in integer: aNumber) }                    is action "SET_BASELIT";
 const func bitset: { (in tuple integer: numberTuple) }          is action "SET_ARRLIT";
 const func bitset: { (in integer: lowerValue) ..
@@ -268,8 +276,8 @@ const func bitset: { (in integer: lowerValue) ..
  *  Convert a ''bitset'' to [[integer]].
  *   integer({2, 3, 5, 7, 11})    returns 2220
  *  @return an [[integer]] which corresponds to the given ''bitset''.
- *  @exception RANGE_ERROR When ''aSet'' contains negative values or
- *             when it does not fit into a non-negative [[integer]].
+ *  @exception RANGE_ERROR If ''aSet'' contains negative values or
+ *             if it does not fit into a non-negative [[integer]].
  *)
 const func integer: integer (in bitset: aSet)                   is action "SET_SCONV1";
 
@@ -278,8 +286,8 @@ const func integer: integer (in bitset: aSet)                   is action "SET_S
  *  Convert a ''bitset'' to [[integer]].
  *   integer conv {2, 3, 5, 7, 11}    returns 2220
  *  @return an [[integer]] which corresponds to the given ''bitset''.
- *  @exception RANGE_ERROR When ''aSet'' contains negative values or
- *             when it does not fit into a non-negative [[integer]].
+ *  @exception RANGE_ERROR If ''aSet'' contains negative values or
+ *             if it does not fit into a non-negative [[integer]].
  *)
 const func integer: (attr integer) conv (in bitset: aSet)       is action "SET_SCONV3";
 
@@ -420,7 +428,7 @@ const func string: str (in bitset: aSet) is func
 (**
  *  Convert a [[string]] to a ''bitset''.
  *  @return the integer result of the conversion.
- *  @exception RANGE_ERROR When the string is empty or
+ *  @exception RANGE_ERROR If the string is empty or
  *             cannot be converted to a ''bitset''.
  *)
 const func bitset: bitset (in var string: stri) is func
@@ -450,7 +458,7 @@ const func bitset: bitset (in var string: stri) is func
 (**
  *  Convert a [[string]] to a ''bitset''.
  *  @return the integer result of the conversion.
- *  @exception RANGE_ERROR When the string is empty or
+ *  @exception RANGE_ERROR If the string is empty or
  *             cannot be converted to a ''bitset''.
  *)
 const func bitset: (attr bitset) parse (in string: stri) is

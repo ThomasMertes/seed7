@@ -315,8 +315,8 @@ static void drawInit (void)
 
   /* drawInit */
     logFunction(printf("drawInit()\n"););
-    /* When linking with a profiling standard library XOpenDisplay */
-    /* deadlocked. Be careful to avoid this situation.             */
+    /* If linking with a profiling standard library XOpenDisplay */
+    /* deadlocked. Be careful to avoid this situation.           */
     mydisplay = XOpenDisplay("");
     /* printf("mydisplay = %lu\n", (long unsigned) mydisplay); */
     /* printf("DISPLAY=%s\n", getenv("DISPLAY")); */

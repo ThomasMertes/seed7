@@ -147,7 +147,7 @@ const func rsaKeyPair: genRsaKeyPair (in integer: keyLength, in bigInteger: expo
 (**
  *  Convert a nonnegative [[bigint|bigInteger]] to an octet [[string]] of a specified length (I2OSP).
  *  @return an octet [[string]] with the big-endian representation.
- *  @exception RANGE_ERROR when the result does not fit into ''length''.
+ *  @exception RANGE_ERROR If the result does not fit into ''length''.
  *)
 const func string: int2Octets (in bigInteger: number, in integer: length) is
   return bytes(number, UNSIGNED, BE, length);
@@ -156,7 +156,7 @@ const func string: int2Octets (in bigInteger: number, in integer: length) is
 (**
  *  Convert an octet [[string]] to a nonnegative [[bigint|bigInteger]] (OS2IP).
  *  @return a nonnegative bigInteger created from the big-endian bytes.
- *  @exception RANGE_ERROR When characters beyond '\255;' are present.
+ *  @exception RANGE_ERROR If characters beyond '\255;' are present.
  *)
 const func bigInteger: octets2int (in string: stri) is
   return bytes2BigInt(stri, UNSIGNED, BE);
@@ -196,7 +196,7 @@ const func string: emeOaepEncoding (in string: message, in string: label, in int
 (**
  *  Decodes an EME-OAEP encoded [[string]].
  *  @return the decoded string.
- *  @exception RANGE_ERROR when ''encodedMessage'' is not in the
+ *  @exception RANGE_ERROR If ''encodedMessage'' is not in the
  *                         EME-OAEP format.
  *)
 const func string: emeOaepDecoding (in string: encodedMessage, in string: label, in integer: modulusLen) is func
@@ -256,7 +256,7 @@ const func string: emePkcs1V15Encoding (in string: message, in integer: modulusL
 (**
  *  Decodes an EME-PKCS1-v1_5 encoded [[string]].
  *  @return the decoded string.
- *  @exception RANGE_ERROR when ''encodedMessage'' is not in the
+ *  @exception RANGE_ERROR If ''encodedMessage'' is not in the
  *                         EME-PKCS1-v1_5 format.
  *)
 const func string: emePkcs1V15Decoding (in string: encodedMessage, in integer: modulusLen) is func
@@ -297,7 +297,7 @@ const func string: emsaPkcs1V15Encoding (in string: message, in integer: modulus
 (**
  *  Decodes an EMSA-PKCS1-v1_5 encoded [[string]].
  *  @return the decoded string.
- *  @exception RANGE_ERROR when ''encodedMessage'' is not in the
+ *  @exception RANGE_ERROR If ''encodedMessage'' is not in the
  *                         EME-PKCS1-v1_5 format.
  *)
 const func string: emsaPkcs1V15Decoding (in string: encodedMessage, in integer: modulusLen) is func
@@ -323,7 +323,7 @@ const func string: emsaPkcs1V15Decoding (in string: encodedMessage, in integer: 
 (**
  *  Encrypts a [[bigint|bigInteger]] with the RSAES encryption.
  *  @return the RSAES encrypted [[bigint|bigInteger]].
- *  @exception RANGE_ERROR when ''message'' is too big for the
+ *  @exception RANGE_ERROR If ''message'' is too big for the
  *                         RSAEP encryption.
  *)
 const func bigInteger: rsaEncrypt (in rsaKey: encryptionKey, in bigInteger: message) is func
@@ -341,7 +341,7 @@ const func bigInteger: rsaEncrypt (in rsaKey: encryptionKey, in bigInteger: mess
 (**
  *  Decrypts a [[bigint|bigInteger]] with the RSADP decryption.
  *  @return the RSADP decrypted [[bigint|bigInteger]].
- *  @exception RANGE_ERROR when ''ciphertext'' is too big for the
+ *  @exception RANGE_ERROR If ''ciphertext'' is too big for the
  *                         RSADP decryption.
  *)
 const func bigInteger: rsaDecrypt (in rsaKey: decryptionKey, in bigInteger: ciphertext) is func
@@ -362,9 +362,9 @@ const func bigInteger: rsaDecrypt (in rsaKey: decryptionKey, in bigInteger: ciph
 (**
  *  Encrypts a [[string]] of bytes with the RSAES-OAEP encryption.
  *  @return the RSAES-OAEP encrypted [[string]] of bytes.
- *  @exception RANGE_ERROR when the length of the ''message'' is too long
+ *  @exception RANGE_ERROR If the length of the ''message'' is too long
  *                         to be encrypted.
- *  @exception RANGE_ERROR When ''message'' contains characters beyond '\255;'.
+ *  @exception RANGE_ERROR If ''message'' contains characters beyond '\255;'.
  *)
 const func string: rsaesOaepEncrypt (in rsaKey: encryptionKey, in string: message,
     in string: label) is func
@@ -387,9 +387,9 @@ const func string: rsaesOaepEncrypt (in rsaKey: encryptionKey, in string: messag
 (**
  *  Decrypts a [[string]] of bytes with the RSAES-OAEP decryption.
  *  @return the RSAES-OAEP decrypted [[string]] of bytes.
- *  @exception RANGE_ERROR when the length of the ''ciphertext'' is too long
+ *  @exception RANGE_ERROR If the length of the ''ciphertext'' is too long
  *                         to be decrypted.
- *  @exception RANGE_ERROR When ''ciphertext'' contains characters beyond '\255;'.
+ *  @exception RANGE_ERROR If ''ciphertext'' contains characters beyond '\255;'.
  *)
 const func string: rsaesOaepDecrypt (in rsaKey: decryptionKey, in string: ciphertext,
     in string: label) is func
@@ -415,9 +415,9 @@ const func string: rsaesOaepDecrypt (in rsaKey: decryptionKey, in string: cipher
 (**
  *  Encrypts a [[string]] of bytes with the RSAES-PKCS1-V1_5 encryption.
  *  @return the RSAES-PKCS1-V1_5 encrypted [[string]] of bytes.
- *  @exception RANGE_ERROR when the length of the ''message'' is too long
+ *  @exception RANGE_ERROR If the length of the ''message'' is too long
  *                         to be encrypted.
- *  @exception RANGE_ERROR When ''message'' contains characters beyond '\255;'.
+ *  @exception RANGE_ERROR If ''message'' contains characters beyond '\255;'.
  *)
 const func string: rsaesPkcs1V15Encrypt (in rsaKey: encryptionKey, in string: message) is func
   result
@@ -441,9 +441,9 @@ const func string: rsaesPkcs1V15Encrypt (in rsaKey: encryptionKey, in string: me
 (**
  *  Decrypts a [[string]] of bytes with the RSAES-PKCS1-V1_5 decryption.
  *  @return the RSAES-PKCS1-V1_5 decrypted [[string]] of bytes.
- *  @exception RANGE_ERROR when the length of the ''ciphertext'' is too long
+ *  @exception RANGE_ERROR If the length of the ''ciphertext'' is too long
  *                         to be decrypted.
- *  @exception RANGE_ERROR When ''ciphertext'' contains characters beyond '\255;'.
+ *  @exception RANGE_ERROR If ''ciphertext'' contains characters beyond '\255;'.
  *)
 const func string: rsaesPkcs1V15Decrypt (in rsaKey: decryptionKey, in string: ciphertext) is func
   result
@@ -468,9 +468,9 @@ const func string: rsaesPkcs1V15Decrypt (in rsaKey: decryptionKey, in string: ci
 (**
  *  Encrypts a [[string]] of bytes with the RSASSA-PKCS1-V1_5 encryption.
  *  @return the RSASSA-PKCS1-V1_5 encrypted [[string]] of bytes.
- *  @exception RANGE_ERROR when the length of the ''message'' is too long
+ *  @exception RANGE_ERROR If the length of the ''message'' is too long
  *                         to be encrypted.
- *  @exception RANGE_ERROR When ''message'' contains characters beyond '\255;'.
+ *  @exception RANGE_ERROR If ''message'' contains characters beyond '\255;'.
  *)
 const func string: rsassaPkcs1V15Encrypt (in rsaKey: encryptionKey, in string: message) is func
   result
@@ -494,9 +494,9 @@ const func string: rsassaPkcs1V15Encrypt (in rsaKey: encryptionKey, in string: m
 (**
  *  Decrypts a [[string]] of bytes with the RSASSA-PKCS1-V1_5 decryption.
  *  @return the RSASSA-PKCS1-V1_5 decrypted [[string]] of bytes.
- *  @exception RANGE_ERROR when the length of the ''ciphertext'' is too long
+ *  @exception RANGE_ERROR If the length of the ''ciphertext'' is too long
  *                         to be decrypted.
- *  @exception RANGE_ERROR When ''ciphertext'' contains characters beyond '\255;'.
+ *  @exception RANGE_ERROR If ''ciphertext'' contains characters beyond '\255;'.
  *)
 const func string: rsassaPkcs1V15Decrypt (in rsaKey: decryptionKey, in string: ciphertext) is func
   result

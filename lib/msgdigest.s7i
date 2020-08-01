@@ -38,7 +38,7 @@ include "math.s7i";
  *  The security of MD4 has been severely compromised. This function
  *  is provided for backward compatibility.
  *  @return the MD4 message digest (a string of 16 bytes).
- *  @exception RANGE_ERROR When ''message'' contains a character beyond '\255;'.
+ *  @exception RANGE_ERROR If ''message'' contains a character beyond '\255;'.
  *)
 const func string: md4 (in var string: message) is func
   result
@@ -140,7 +140,7 @@ const func array integer: createMd5Table is func
  *  MD5 is considered to be cryptographically broken. This function
  *  is provided for backward compatibility.
  *  @return the MD5 message digest (a string of 16 bytes).
- *  @exception RANGE_ERROR When ''message'' contains a character beyond '\255;'.
+ *  @exception RANGE_ERROR If ''message'' contains a character beyond '\255;'.
  *)
 const func string: md5 (in var string: message) is func
   result
@@ -232,7 +232,7 @@ const func string: md5 (in var string: message) is func
 (**
  *  Compute a message digest with the RIPEMD-160 message digest algorithm.
  *  @return the RIPEMD-160 message digest (a string of 20 bytes).
- *  @exception RANGE_ERROR When ''message'' contains a character beyond '\255;'.
+ *  @exception RANGE_ERROR If ''message'' contains a character beyond '\255;'.
  *)
 const func string: ripemd160 (in var string: message) is func
   result
@@ -367,7 +367,7 @@ const func string: ripemd160 (in var string: message) is func
 (**
  *  Compute a message digest with the SHA-1 secure hash algorithm.
  *  @return the SHA-1 message digest (a string of 20 bytes).
- *  @exception RANGE_ERROR When ''message'' contains a character beyond '\255;'.
+ *  @exception RANGE_ERROR If ''message'' contains a character beyond '\255;'.
  *)
 const func string: sha1 (in var string: message) is func
   result
@@ -464,7 +464,7 @@ const func string: sha1 (in var string: message) is func
 (**
  *  Compute a message digest with the SHA-224 secure hash algorithm.
  *  @return the SHA-224 message digest (a string of 28 bytes).
- *  @exception RANGE_ERROR When ''message'' contains a character beyond '\255;'.
+ *  @exception RANGE_ERROR If ''message'' contains a character beyond '\255;'.
  *)
 const func string: sha224 (in var string: message) is func
   result
@@ -589,7 +589,7 @@ const func string: sha224 (in var string: message) is func
 (**
  *  Compute a message digest with the SHA-256 secure hash algorithm.
  *  @return the SHA-256 message digest (a string of 32 bytes).
- *  @exception RANGE_ERROR When ''message'' contains a character beyond '\255;'.
+ *  @exception RANGE_ERROR If ''message'' contains a character beyond '\255;'.
  *)
 const func string: sha256 (in var string: message) is func
   result
@@ -715,7 +715,7 @@ const func string: sha256 (in var string: message) is func
 (**
  *  Compute a message digest with the SHA-384 secure hash algorithm.
  *  @return the SHA-384 message digest (a string of 48 bytes).
- *  @exception RANGE_ERROR When ''message'' contains a character beyond '\255;'.
+ *  @exception RANGE_ERROR If ''message'' contains a character beyond '\255;'.
  *)
 const func string: sha384 (in var string: message) is func
   result
@@ -861,7 +861,7 @@ const func string: sha384 (in var string: message) is func
 (**
  *  Compute a message digest with the SHA-512 secure hash algorithm.
  *  @return the SHA-512 message digest (a string of 64 bytes).
- *  @exception RANGE_ERROR When ''message'' contains a character beyond '\255;'.
+ *  @exception RANGE_ERROR If ''message'' contains a character beyond '\255;'.
  *)
 const func string: sha512 (in var string: message) is func
   result
@@ -1019,7 +1019,7 @@ const type: digestAlgorithm is new enum
  *  Compute a message digest with the given [[msgdigest#digestAlgorithm|digestAlgorithm]].
  *  @param digestAlg The [[msgdigest#digestAlgorithm|digestAlgorithm]] to be used.
  *  @return the message digest of the ''message''.
- *  @exception RANGE_ERROR When ''message'' contains a character beyond '\255;'.
+ *  @exception RANGE_ERROR If ''message'' contains a character beyond '\255;'.
  *)
 const func string: msgDigest (in digestAlgorithm: digestAlg, in string: message) is DYNAMIC;
 

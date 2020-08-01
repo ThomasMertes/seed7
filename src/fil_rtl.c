@@ -180,8 +180,8 @@ static void get_mode (os_charType os_mode[MAX_MODE_LEN], const const_striType fi
  *  position is moved back to the previous position.
  *  This function returns an os_off_t result. The size of
  *  os_off_t might be different from the size of intType.
- *  @return the length of the file or
- *          -1 when the length could not be obtained.
+ *  @return the length of the file, or
+ *          -1 if the length could not be obtained.
  */
 static os_off_t seekFileLength (fileType aFile)
 
@@ -286,8 +286,8 @@ static os_off_t seekFileLength (fileType aFile)
  *  This function uses 0 as the position of the first byte in the file.
  *  The function returns an os_off_t result. The size of
  *  os_off_t might be different from the size of intType.
- *  @return the current file position or
- *          -1 when the file position could not be obtained.
+ *  @return the current file position, or
+ *          -1 if the file position could not be obtained.
  */
 static os_off_t offsetTell (fileType aFile)
 
@@ -361,8 +361,8 @@ static os_off_t offsetTell (fileType aFile)
  *  This function uses 0 as the position of the first byte in the file.
  *  The parameter 'anOffset' uses the type os_off_t. The size of
  *  os_off_t might be different from the size of intType.
- *  @return 0 upon successful completion or
- *          -1 when the file position could not be set.
+ *  @return 0 upon successful completion, or
+ *          -1 if the file position could not be set.
  */
 int offsetSeek (fileType aFile, const os_off_t anOffset, const int origin)
 
@@ -472,9 +472,9 @@ int offsetSeek (fileType aFile, const os_off_t anOffset, const int origin)
 
 /**
  *  Compute how many bytes can be read from the current position.
- *  Returns 0 when the current position or the file size cannot be
- *  determined or when the current position is beyond the filesize.
- *  Returns MAX_MEMSIZETYPE when the result does not fit into
+ *  Returns 0 if the current position or the file size cannot be
+ *  determined or if the current position is beyond the filesize.
+ *  Returns MAX_MEMSIZETYPE if the result does not fit into
  *  memSizeType.
  */
 memSizeType remainingBytesInFile (fileType aFile)
@@ -572,7 +572,7 @@ bigIntType getBigFileLengthUsingSeek (fileType aFile)
 
 
 /**
- *  Read a string, when we do not know how many bytes are avaliable.
+ *  Read a string, if we do not know how many bytes are avaliable.
  *  This function reads data into a list of buffers. This is done
  *  until enough characters are read or EOF has been reached.
  *  Afterwards the string is allocated, the data is copied from the
@@ -700,7 +700,7 @@ int readCharChkCtrlC (fileType inFile, boolType *sigintReceived)
 
 /**
  *  Read a character from 'inFile' and handle when ctrl-c is pressed.
- *  When the user decides that the program should resume a prompt to
+ *  If the user decides that the program should resume a prompt to
  *  re-enter the input is written. This is the central function to read from
  *  a terminal. It is used by doGetcFromTerminal(), doGetsFromTerminal(),
  *  doLineReadFromTerminal() and doWordReadFromTerminal().
@@ -1034,7 +1034,7 @@ charType filGetcChkCtrlC (fileType inFile)
  *  In order to work reasonable good for the common case (reading
  *  just some characters), memory for 'length' characters is requested
  *  with malloc(). After the data is read the result string is
- *  shrinked to the actual size (with realloc()). When 'length' is
+ *  shrinked to the actual size (with realloc()). If 'length' is
  *  larger than GETS_DEFAULT_SIZE or the memory cannot be requested
  *  a different strategy is used. In this case the function tries to
  *  find out the number of available characters (this is possible
@@ -1133,7 +1133,7 @@ striType filGets (fileType inFile, intType length)
           } /* if */
         } /* if */
       } else {
-        /* Read a string, when we do not know how many bytes are avaliable. */
+        /* Read a string, if we do not know how many bytes are avaliable. */
         result = read_and_alloc_stri(inFile, chars_requested, &err_info);
       } /* if */
       if (unlikely(err_info != OKAY_NO_ERROR)) {
@@ -1438,7 +1438,7 @@ intType filLng (fileType aFile)
  *         use the standard path representation.
  *  @param mode Mode of the file to be opened.
  *  @return the file opened, or NULL if it could not be opened or
- *          when 'path' refers to a directory.
+ *          if 'path' refers to a directory.
  *  @exception MEMORY_ERROR Not enough memory to convert the path
  *             to the system path type.
  *  @exception RANGE_ERROR The 'mode' is not one of the allowed
@@ -1503,12 +1503,12 @@ fileType filOpen (const const_striType path, const const_striType mode)
           if (file_no != -1 && os_fstat(file_no, &stat_buf) == 0 &&
               S_ISDIR(stat_buf.st_mode)) {
             /* An attempt to open a directory with filOpen()     */
-            /* returns NULL even when fopen() succeeds. On many  */
+            /* returns NULL even if fopen() succeeds. On many    */
             /* modern operating systems functions like fgetc()   */
             /* and readf() fail to read from a directory anyway. */
             /* So it is better to fail early, when the file is   */
             /* opened, instead of later at an unexpected place.  */
-            /* Even when reading a directory as file succeeds    */
+            /* Even if reading a directory as file succeeds      */
             /* there is another issue: Reading a directory as    */
             /* file is not portable, since it delivers an        */
             /* operating system specific representation of the   */
@@ -1590,7 +1590,7 @@ void filPclose (fileType aPipe)
  *  @param command Name of the command to be executed. A path must
  *         use the standard path representation.
  *  @param parameters Space separated list of parameters for
- *         the 'command', or "" when there are no parameters.
+ *         the 'command', or "" if there are no parameters.
  *  @param mode A pipe can be opened with the binary modes
  *         "r" (read) and "w" (write) or with the text modes
  *         "rt" (read) and "wt" (write).

@@ -29,8 +29,8 @@
  *  c_expr.result_expr expressions. The value c_expr.demand can
  *  be used to regulate which kind of expression should be prefered.
  *  PREFER_EXPR is the default.
- *  ASSIGN_RESULT is used, when the expression will be assigned.
- *  REQUIRE_RESULT is used, when the expression will be returned by a function.
+ *  ASSIGN_RESULT is used, if the expression will be assigned.
+ *  REQUIRE_RESULT is used, if the expression will be returned by a function.
  *  Independed of the value of c_expr.demand the process() functions
  *  can produce both c_expr.expr and c_expr.result_expr expressions.
  *)

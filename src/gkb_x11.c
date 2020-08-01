@@ -79,7 +79,7 @@ struct keysymCharPair {
 /* The table below maps keysym values to Unicode. The     */
 /* table does not use the XK_ macros from the include     */
 /* file <X11/keysymdef.h>. This is on purpose. It avoids  */
-/* syntax errors, when an older <X11/keysymdef.h> does    */
+/* syntax errors, if an older <X11/keysymdef.h> does      */
 /* not define a macro. This kind of mapping is not used   */
 /* for newer Unicode characters. Newer Unicode characters */
 /* use a direct mapping (keysym - 0x01000000) instead.    */

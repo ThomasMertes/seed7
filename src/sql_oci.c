@@ -432,10 +432,7 @@ static boolType findDll (void)
       found = setupDll(dllList[pos]);
     } /* for */
     if (!found) {
-      logError(printf("findDll: Searched for:\n");
-               for (pos = 0; pos < sizeof(dllList) / sizeof(char *); pos++) {
-                 printf("%s\n", dllList[pos]);
-               });
+      dllErrorMessage("sqlOpenOci", "findDll", dllList, sizeof(dllList));
     } /* if */
     return found;
   } /* findDll */
@@ -643,8 +640,8 @@ static void freePreparedStmt (sqlStmtType sqlStatement)
  *  @param ociNumberData Data bytes of the OCINumber (&ociNumber[1]).
  *  @param stri Destination string for the decimal digits
  *              (Needs a capacity of at least 127 characters).
- *  @param err_info Unchanged when the function succeeds or
- *                  RANGE_ERROR when the number cannot be converted
+ *  @param err_info Unchanged if the function succeeds, and
+ *                  RANGE_ERROR if the number cannot be converted
  *                  to a decimal integer.
  */
 static errInfoType sqltNumberToDecimalInt (memSizeType dataLen,
@@ -747,8 +744,8 @@ static errInfoType sqltNumberToDecimalInt (memSizeType dataLen,
  *  @param ociNumber OCINumber to be converted.
  *  @param stri Destination string for the decimal digits
  *              (Needs a capacity of at least 127 characters).
- *  @param err_info Unchanged when the function succeeds or
- *                  RANGE_ERROR when the number cannot be converted
+ *  @param err_info Unchanged if the function succeeds, and
+ *                  RANGE_ERROR if the number cannot be converted
  *                  to a decimal integer.
  */
 static void ociNumberToDecimalInt (const OCINumber *ociNumber, striType stri,
@@ -774,8 +771,8 @@ static void ociNumberToDecimalInt (const OCINumber *ociNumber, striType stri,
  *          to the right (positive) or left (negative) of the decimal point.
  *          For finite values the scale is greater or equal 0.
  *          For positive and negative infinite values the scale is -1.
- *  @param err_info Unchanged when the function succeeds or
- *                  RANGE_ERROR when the number cannot be converted
+ *  @param err_info Unchanged if the function succeeds, and
+ *                  RANGE_ERROR if the number cannot be converted
  *                  to a decimal fraction.
  */
 static int sqltNumberToDecimalFraction (memSizeType dataLen,
@@ -903,8 +900,8 @@ static int sqltNumberToDecimalFraction (memSizeType dataLen,
  *          to the right (positive) or left (negative) of the decimal point.
  *          For finite values the scale is greater or equal 0.
  *          For positive and negative infinite values the scale is -1.
- *  @param err_info Unchanged when the function succeeds or
- *                  RANGE_ERROR when the number cannot be converted
+ *  @param err_info Unchanged if the function succeeds, and
+ *                  RANGE_ERROR if the number cannot be converted
  *                  to a decimal fraction.
  */
 static int ociNumberToDecimalFraction (const OCINumber *ociNumber, striType stri,
@@ -925,8 +922,8 @@ static int ociNumberToDecimalFraction (const OCINumber *ociNumber, striType stri
  *  @param scale Number of digits to the right (positive) or
  *               left (negative) of the decimal point.
  *  @return the size of the SQLT_NUM number.
- *  @param err_info Unchanged when the function succeeds or
- *                  RANGE_ERROR when the decimal integer + scale
+ *  @param err_info Unchanged if the function succeeds, and
+ *                  RANGE_ERROR if the decimal integer + scale
  *                  cannot be converted to a SQLT_NUM number.
  */
 static int sqltNumberFromDecimalInt (uint8Type *ociNumberData,
@@ -1047,8 +1044,8 @@ static int sqltNumberFromDecimalInt (uint8Type *ociNumberData,
  *  @param decimal String with a decimal integer (with possible - sign).
  *  @param scale Number of digits to the right (positive) or
  *               left (negative) of the decimal point.
- *  @param err_info Unchanged when the function succeeds or
- *                  RANGE_ERROR when the decimal integer + scale
+ *  @param err_info Unchanged if the function succeeds, and
+ *                  RANGE_ERROR if the decimal integer + scale
  *                  cannot be converted to a SQLT_NUM number.
  */
 static void ociNumberFromDecimalInt (OCINumber *ociNumber, const const_striType decimal,
@@ -4566,7 +4563,7 @@ databaseType sqlOpenOci (const const_striType host, intType port,
                 printf("\"%s\")\n", striAsUnquotedCStri(password)););
     if (!findDll()) {
       logError(printf("sqlOpenOci: findDll() failed\n"););
-      err_info = FILE_ERROR;
+      err_info = DATABASE_ERROR;
       database = NULL;
     } else if (unlikely((host8 = stri_to_cstri8(host, &err_info)) == NULL)) {
       database = NULL;
@@ -4604,25 +4601,33 @@ databaseType sqlOpenOci (const const_striType host, intType port,
                 database = NULL;
               } else if (OCIEnvCreate(&db.oci_environment, OCI_DEFAULT,
                                       NULL, NULL, NULL, NULL, 0, NULL) != OCI_SUCCESS) {
+                dbLibError("sqlOpenOci", "OCIEnvCreate",
+                           "OCIEnvCreate failed.\n");
                 logError(printf("sqlOpenOci: OCIEnvCreate failed\n"););
                 sqlClose((databaseType) &db);
-                err_info = FILE_ERROR;
+                err_info = DATABASE_ERROR;
                 database = NULL;
               } else if ((db.charSetId = OCINlsCharSetNameToId(db.oci_environment, (oratext *) "AL32UTF8")) == 0) {
-                logError(printf("sqlOpenOci: OCINlsCharSetNameToId failed\n"););
+                dbLibError("sqlOpenOci", "OCINlsCharSetNameToId",
+                           "OCINlsCharSetNameToId(*, \"AL32UTF8\") failed.\n");
+                logError(printf("sqlOpenOci: OCINlsCharSetNameToId(*, \"AL32UTF8\") failed\n"););
                 sqlClose((databaseType) &db);
-                err_info = FILE_ERROR;
+                err_info = DATABASE_ERROR;
                 database = NULL;
               } else if (OCIHandleFree(db.oci_environment, OCI_HTYPE_ENV) != OCI_SUCCESS) {
+                dbLibError("sqlOpenOci", "OCIHandleFree",
+                           "OCIHandleFree failed.\n");
                 logError(printf("sqlOpenOci: OCIHandleFree failed\n"););
                 sqlClose((databaseType) &db);
-                err_info = FILE_ERROR;
+                err_info = DATABASE_ERROR;
                 database = NULL;
               } else if (OCIEnvNlsCreate(&db.oci_environment, OCI_OBJECT, /* OCI_DEFAULT, */
                                          NULL, NULL, NULL, NULL, 0, NULL,
                                          db.charSetId, db.charSetId) != OCI_SUCCESS) {
-                logError(printf("sqlOpenOci: OCINlsCharSetNameToId failed\n"););
-                err_info = FILE_ERROR;
+                dbLibError("sqlOpenOci", "OCIEnvNlsCreate",
+                           "OCIEnvNlsCreate failed.\n");
+                logError(printf("sqlOpenOci: OCIEnvNlsCreate failed\n"););
+                err_info = DATABASE_ERROR;
                 sqlClose((databaseType) &db);
                 database = NULL;
               } else if (OCIHandleAlloc(db.oci_environment,
@@ -4637,8 +4642,10 @@ databaseType sqlOpenOci (const const_striType host, intType port,
                          OCIHandleAlloc(db.oci_environment,
                                         (dvoid **) &db.oci_session,
                                         OCI_HTYPE_SESSION, 0, NULL) != OCI_SUCCESS) {
+                dbLibError("sqlOpenOci", "OCIHandleAlloc",
+                           "OCIHandleAlloc failed.\n");
                 logError(printf("sqlOpenOci: OCIHandleAlloc failed\n"););
-                err_info = FILE_ERROR;
+                err_info = DATABASE_ERROR;
                 sqlClose((databaseType) &db);
                 database = NULL;
               } else if ((connectData.tnsName == NULL ||

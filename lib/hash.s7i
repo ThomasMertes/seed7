@@ -31,7 +31,7 @@
  *  A hash map stores key-value pairs. A hash map guarantees that a
  *  key can be mapped quickly to its corresponding value. The keys
  *  of a hash map have the type ''keyType'' and the value have the
- *  type ''baseType''. A hash map is only possible, when ''keyType''
+ *  type ''baseType''. A hash map is only possible, if ''keyType''
  *  supports the functions ''hashCode'' and ''compare''.
  *)
 const func type: hash [ (in type: keyType) ] (in type: baseType) is func
@@ -138,7 +138,7 @@ const func type: hash [ (in type: keyType) ] (in type: baseType) is func
       (**
        *  Access one value from the hash table ''aHashMap''.
        *  @return the element with the key ''aKey'' from ''aHashMap''.
-       *  @exception RANGE_ERROR When ''aHashMap'' does not have an element
+       *  @exception RANGE_ERROR If ''aHashMap'' does not have an element
        *             with the key ''aKey''.
        *)
       const func baseType: (in hashType: aHashMap) [ (in keyType: aKey) ] is
@@ -150,7 +150,7 @@ const func type: hash [ (in type: keyType) ] (in type: baseType) is func
       (**
        *  Access one value from the hash table ''aHashMap''.
        *  @return the element with the key ''aKey'' from ''aHashMap'' or
-       *          ''defaultValue'' when ''aHashMap'' does not have an element
+       *          ''defaultValue'' if ''aHashMap'' does not have an element
        *          with the key ''aKey''.
        *)
       const func baseType: (in hashType: aHashMap) [ (in keyType: aKey) default (in baseType: defaultValue) ] is
@@ -160,7 +160,7 @@ const func type: hash [ (in type: keyType) ] (in type: baseType) is func
       (**
        *  Hash membership test.
        *  Determine if ''aKey'' is a member of the hash map ''aHashMap''.
-       *  @return TRUE when ''aKey'' is a member of ''aHashMap'',
+       *  @return TRUE if ''aKey'' is a member of ''aHashMap'',
        *          FALSE otherwise.
        *)
       const func boolean: (in keyType: aKey) in (in hashType: aHashMap) is
@@ -169,7 +169,7 @@ const func type: hash [ (in type: keyType) ] (in type: baseType) is func
       (**
        *  Negated hash membership test.
        *  Determine if ''aKey'' is not a member of the hash map ''aHashMap''.
-       *  @return FALSE when ''aKey'' is a member of ''aHashMap'',
+       *  @return FALSE if ''aKey'' is a member of ''aHashMap'',
        *          TRUE otherwise.
        *)
       const func boolean: (in keyType: aKey) not in (in hashType: aHashMap) is
@@ -177,9 +177,9 @@ const func type: hash [ (in type: keyType) ] (in type: baseType) is func
 
       (**
        *  Add ''anElem'' with the key ''aKey'' to the hash map ''aHashMap''.
-       *  When an element with the key ''aKey'' already exists,
+       *  If an element with the key ''aKey'' already exists,
        *  it is overwritten with ''anElem''.
-       *  @exception MEMORY_ERROR When there is not enough memory.
+       *  @exception MEMORY_ERROR If there is not enough memory.
        *)
       const proc: incl (inout hashType: aHashMap, in keyType: aKey, in baseType: anElem) is func
         begin
@@ -198,9 +198,9 @@ const func type: hash [ (in type: keyType) ] (in type: baseType) is func
 
       (**
        *  Add ''anElem'' with the key ''aKey'' to the hash map ''aHashMap''.
-       *  When an element with the key ''aKey'' already exists,
+       *  If an element with the key ''aKey'' already exists,
        *  it is overwritten with ''anElem''.
-       *  @exception MEMORY_ERROR When there is not enough memory.
+       *  @exception MEMORY_ERROR If there is not enough memory.
        *)
       const proc: (inout hashType: aHashMap) @:= [ (in keyType: aKey) ] (in baseType: anElem) is func
         begin

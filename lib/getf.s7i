@@ -31,7 +31,7 @@ include "stdio.s7i";
 
 (**
  *  Read the file with the given 'file_name' into a string.
- *  @return a string with the file content, or "" when no file exists.
+ *  @return a string with the file content, or "" if no file exists.
  *)
 const func string: getf (in string: file_name) is func
   result
@@ -70,7 +70,7 @@ const proc: putf (in string: file_name, in string: stri) is func
  *  The function accepts lines ending with LF or with CR LF. The line
  *  endings are not copied into the strings. The last line of the
  *  file needs not to be terminated with a LF.
- *  @return a string array with the file content, or an empty array when no file exists.
+ *  @return a string array with the file content, or an empty array if no file exists.
  *)
 const func array string: readf (in string: file_name) is func
   result

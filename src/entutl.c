@@ -223,15 +223,15 @@ nodeType find_node (register nodeType node_tree,
 
 
 /**
- *  Decrement the usage count of object_searched, when it is found.
+ *  Decrement the usage count of object_searched, if it is found.
  *  Searches node_tree for a node matching object_searched.
  *  If a node is found its usage_count is decremented. If the
  *  node is unused now it is removed and NULL is returned.
  *  If the node is still in use it is returned. If no matching
  *  node is found NULL is returned.
  *  @return a node that is still in use after it has been popped, or
- *          NULL when the last usage of a node has been removed, or
- *          NULL when no matching node has been found.
+ *          NULL if the last usage of a node has been removed, or
+ *          NULL if no matching node has been found.
  */
 static nodeType pop_node (register nodeType node_tree,
     register objectType object_searched)

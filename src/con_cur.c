@@ -263,7 +263,7 @@ charType kbdGetc (void)
       /* remove carriage-return from function keys */
       /* If the termcap definition contains no cr */
       /* or the function keys send no cr this fix can */
-      /* be removed. When no cr follows nothing is done. */
+      /* be removed. If no cr follows nothing is done. */
       /* This allows this fix to work also with correct */
       /* function keys. */
       if (result >= K_F1 && result <= K_F10) {
@@ -409,7 +409,7 @@ void conCursor (boolType on)
 
 /**
  *  Moves the system curser to the given place of the console.
- *  When no system cursor exists this procedure can be replaced by
+ *  If no system cursor exists this procedure can be replaced by
  *  a dummy procedure.
  */
 void conSetCursor (intType line, intType column)

@@ -41,7 +41,7 @@ include "scanstri.s7i";
  *  @param command Name of the command to be executed. A path must
  *         use the standard path representation.
  *  @param parameters Space separated list of parameters for the
- *         ''command'', or "" when there are no parameters.
+ *         ''command'', or "" if there are no parameters.
  *  @return the return code of the executed command or of the shell.
  *)
 const func integer: shell (in string: command,
@@ -59,7 +59,7 @@ const func integer: shell (in string: command,
  *  @param command Name of the command to be executed. A path must
  *         use the standard path representation.
  *  @param parameters Space separated list of parameters for the
- *         ''command'', or "" when there are no parameters.
+ *         ''command'', or "" if there are no parameters.
  *)
 const proc: cmd_sh (in string: command, in string: parameters) is func
   begin
@@ -207,7 +207,7 @@ type_implements_interface(popen_file, file);
  *  @param command Name of the command to be executed. A path must
  *         use the standard path representation.
  *  @param parameters Space separated list of parameters for
- *         the ''command'', or "" when there are no parameters.
+ *         the ''command'', or "" if there are no parameters.
  *  @param mode A pipe can be opened with the binary modes
  *         "r" (read) and "w" (write) or with the text modes
  *         "rt" (read) and "wt" (write).
@@ -336,7 +336,7 @@ type_implements_interface(popen8_file, file);
  *  @param command Name of the command to be executed. A path must
  *         use the standard path representation.
  *  @param parameters Space separated list of parameters for
- *         the ''command'', or "" when there are no parameters.
+ *         the ''command'', or "" if there are no parameters.
  *  @param mode A pipe can be opened with the binary modes
  *         "r" (read) and "w" (write) or with the text modes
  *         "rt" (read) and "wt" (write).

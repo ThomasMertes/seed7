@@ -364,7 +364,7 @@ static void dump_addrinfo (struct addrinfo *addrinfo_list)
 
 
 /**
- *  Read a string, when we do not know how many bytes are avaliable.
+ *  Read a string, if we do not know how many bytes are avaliable.
  *  This function reads data into a list of buffers. This is done
  *  until enough characters are read or EOF has been reached.
  *  Afterwards the string is allocated, the data is copied from the
@@ -865,7 +865,7 @@ striType socGets (socketType inSocket, intType length, charType *const eofIndica
         } /* if */
       } else {
         if (chars_requested > GETS_DEFAULT_SIZE) {
-          /* Read a string, when we do not know how many bytes are avaliable. */
+          /* Read a string, if we do not know how many bytes are avaliable. */
           result = receive_and_alloc_stri(inSocket, chars_requested, &err_info);
           if (unlikely(err_info != OKAY_NO_ERROR)) {
             raise_error(err_info);
@@ -1076,8 +1076,8 @@ boolType socHasNext (socketType inSocket)
  *  or an IPv4 address in standard dot notation (e.g.: "192.0.2.235").
  *  Operating systems supporting IPv6 may also accept an IPv6 address
  *  in colon notation.
- *  @return the internet socket address or an empty bstring when
- *          the host cannot be found.
+ *  @return the internet socket address, or
+ *          an empty bstring if the host cannot be found.
  *  @exception FILE_ERROR A system function returns an error.
  *  @exception RANGE_ERROR The port is not in the range 0 to 65535 or
  *             hostName cannot be converted to the system string type.

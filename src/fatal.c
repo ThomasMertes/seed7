@@ -24,7 +24,7 @@
 /*  Content: Submit fatal compile time error messages.              */
 /*                                                                  */
 /*  This file contains the procedure fatal_memory_error which is    */
-/*  called when there is no more memory in the analysation phase.   */
+/*  called if there is no more memory in the analysation phase.     */
 /*  (In the interpreting phase an EXCEPTION is called in this case) */
 /*                                                                  */
 /********************************************************************/

@@ -379,7 +379,7 @@ objectType str_cat (listType arguments)
  *  Search char 'searched' in 'mainStri' at or after 'fromIndex'.
  *  The search starts at 'fromIndex' and proceeds to the right.
  *  The first character in a string has the position 1.
- *  @return the position of 'searched' or 0 when 'mainStri'
+ *  @return the position of 'searched' or 0 if 'mainStri'
  *          does not contain 'searched' at or after 'fromIndex'.
  *  @exception RANGE_ERROR 'fromIndex' <= 0 holds.
  */
@@ -399,7 +399,7 @@ objectType str_chipos (listType arguments)
 /**
  *  Determine leftmost position of char 'searched' in 'mainStri'.
  *  The first character in a string has the position 1.
- *  @return the position of 'searched' or 0 when 'mainStri'
+ *  @return the position of 'searched' or 0 if 'mainStri'
  *          does not contain 'searched'.
  */
 objectType str_chpos (listType arguments)
@@ -516,10 +516,10 @@ objectType str_cpy (listType arguments)
       new_size = take_stri(source)->size;
       if (stri_dest->size == new_size) {
         if (stri_dest != take_stri(source)) {
-          /* It is possible that dest == source holds. The     */
-          /* behavior of memcpy() is undefined when source and */
-          /* destination areas overlap (or are identical).     */
-          /* Therefore a check for this case is necessary.     */
+          /* It is possible that dest == source holds. The   */
+          /* behavior of memcpy() is undefined if source and */
+          /* destination areas overlap (or are identical).   */
+          /* Therefore a check for this case is necessary.   */
           memcpy(stri_dest->mem, take_stri(source)->mem,
                  new_size * sizeof(strElemType));
         } /* if */
@@ -610,7 +610,7 @@ objectType str_destr (listType arguments)
  *   A @:= [B] C;
  *  is equivalent to
  *   A := A[..pred(B)] & str(C) & A[succ(B)..];
- *  @exception RANGE_ERROR When 'position' is negative or zero.
+ *  @exception RANGE_ERROR If 'position' is negative or zero.
  *  @exception RANGE_ERROR A character beyond 'destination' would be
  *             overwritten ('position' > length('destination') holds).
  */
@@ -899,7 +899,7 @@ objectType str_head (listType arguments)
  *  Get a character, identified by an index, from a 'string'.
  *  The first character has the index 1.
  *  @return the character specified with the index.
- *  @exception RANGE_ERROR When the index is less than 1 or
+ *  @exception RANGE_ERROR If the index is less than 1 or
  *             greater than the length of the 'string'.
  */
 objectType str_idx (listType arguments)
@@ -929,7 +929,7 @@ objectType str_idx (listType arguments)
  *  Search string 'searched' in 'mainStri' at or after 'fromIndex'.
  *  The search starts at 'fromIndex' and proceeds to the right.
  *  The first character in a string has the position 1.
- *  @return the position of 'searched' or 0 when 'mainStri'
+ *  @return the position of 'searched' or 0 if 'mainStri'
  *          does not contain 'searched' at or after 'fromIndex'.
  *  @exception RANGE_ERROR 'fromIndex' <= 0 holds.
  */
@@ -1224,7 +1224,7 @@ objectType str_ltrim (listType arguments)
  *   "LA" mult 3     returns "LALALA"
  *   "WORD" mult 0   returns ""
  *  @return the result of the string multiplication.
- *  @exception RANGE_ERROR When the factor is negative.
+ *  @exception RANGE_ERROR If the factor is negative.
  */
 objectType str_mult (listType arguments)
 
@@ -1265,9 +1265,9 @@ objectType str_ne (listType arguments)
 
 /**
  *  Determine leftmost position of string 'searched' in 'mainStri'.
- *  When the string is found the position of its first character
+ *  If the string is found the position of its first character
  *  is the result. The first character in a string has the position 1.
- *  @return the position of 'searched' or 0 when 'mainStri'
+ *  @return the position of 'searched' or 0 if 'mainStri'
  *          does not contain 'searched'.
  */
 objectType str_pos (listType arguments)
@@ -1286,8 +1286,8 @@ objectType str_pos (listType arguments)
  *   A @:= [B] C;
  *  is equivalent to
  *   A := A[..pred(B)] & C & A[B+length(C)..];
- *  @exception RANGE_ERROR When 'position' is negative or zero.
- *  @exception RANGE_ERROR When 'destination' is smaller than 'source'.
+ *  @exception RANGE_ERROR If 'position' is negative or zero.
+ *  @exception RANGE_ERROR If 'destination' is smaller than 'source'.
  *  @exception RANGE_ERROR Characters beyond 'destination' would be
  *             overwritten ('position' + length('source') >
  *             succ(length('destination')) holds).
@@ -1317,7 +1317,7 @@ objectType str_poscpy (listType arguments)
     } else {
       /* It is possible that destStri and sourceStri overlap. */
       /* E.g. for the expression: stri @:= [idx] stri;        */
-      /* The behavior of memcpy() is undefined when source    */
+      /* The behavior of memcpy() is undefined if source      */
       /* and destination areas overlap (or are identical).    */
       /* Therefore memmove() is used instead of memcpy().     */
       memmove(&destStri->mem[position - 1], sourceStri->mem,
@@ -1401,7 +1401,7 @@ objectType str_range (listType arguments)
       } /* if */
       /* Reversing the order of the following two statements    */
       /* causes an "Internal Compiler Error" with MSC 6.0       */
-      /* when using the -Ozacegilt optimisation option in the   */
+      /* if using the -Ozacegilt optimisation option in the     */
       /* large memory model (-AL). Note that the order of the   */
       /* two statements make no difference to the logic of the  */
       /* program.                                               */
@@ -1423,7 +1423,7 @@ objectType str_range (listType arguments)
  *  Search char 'searched' in 'mainStri' at or before 'fromIndex'.
  *  The search starts at 'fromIndex' and proceeds to the left.
  *  The first character in a string has the position 1.
- *  @return the position of 'searched' or 0 when 'mainStri'
+ *  @return the position of 'searched' or 0 if 'mainStri'
  *          does not contain 'searched' at or before 'fromIndex'.
  *  @exception RANGE_ERROR 'fromIndex' > length(stri) holds.
  */
@@ -1443,7 +1443,7 @@ objectType str_rchipos (listType arguments)
 /**
  *  Determine rightmost position of char 'searched' in 'mainStri'.
  *  The first character in a string has the position 1.
- *  @return the position of 'searched' or 0 when 'mainStri'
+ *  @return the position of 'searched' or 0 if 'mainStri'
  *          does not contain 'searched'.
  */
 objectType str_rchpos (listType arguments)
@@ -1478,7 +1478,7 @@ objectType str_repl (listType arguments)
  *  Search string 'searched' in 'mainStri' at or before 'fromIndex'.
  *  The search starts at 'fromIndex' and proceeds to the left.
  *  The first character in a string has the position 1.
- *  @return the position of 'searched' or 0 when 'mainStri'
+ *  @return the position of 'searched' or 0 if 'mainStri'
  *          does not contain 'searched' at or before 'fromIndex'.
  *  @exception RANGE_ERROR 'fromIndex' > length(stri) holds.
  */
@@ -1549,9 +1549,9 @@ objectType str_rpad (listType arguments)
 
 /**
  *  Determine rightmost position of string 'searched' in 'mainStri'.
- *  When the string is found the position of its first character
+ *  If the string is found the position of its first character
  *  is the result. The first character in a string has the position 1.
- *  @return the position of 'searched' or 0 when 'mainStri'
+ *  @return the position of 'searched' or 0 if 'mainStri'
  *          does not contain 'searched'.
  */
 objectType str_rpos (listType arguments)
@@ -1735,7 +1735,7 @@ objectType str_tail (listType arguments)
       } /* if */
       /* Reversing the order of the following two statements    */
       /* causes an "Internal Compiler Error" with MSC 6.0       */
-      /* when using the -Ozacegilt optimisation option in the   */
+      /* if using the -Ozacegilt optimisation option in the     */
       /* large memory model (-AL). Note that the order of the   */
       /* two statements make no difference to the logic of the  */
       /* program.                                               */
@@ -1831,8 +1831,8 @@ objectType str_up (listType arguments)
  *  Convert a string with bytes in UTF-8 encoding to UTF-32.
  *  @param utf8/arg_1 String of bytes encoded with UTF-8.
  *  @return 'utf8' converted to a normal (UTF-32) string.
- *  @exception RANGE_ERROR When characters beyond '\255;' are present or
- *                         when 'utf8' is not encoded with UTF-8.
+ *  @exception RANGE_ERROR If characters beyond '\255;' are present or
+ *                         if 'utf8' is not encoded with UTF-8.
  */
 objectType str_utf8tostri (listType arguments)
 
@@ -1847,7 +1847,7 @@ objectType str_utf8tostri (listType arguments)
 /**
  *  Get 'string' value of the object referenced by 'aReference/arg_1'.
  *  @return the 'string' value of the referenced object.
- *  @exception RANGE_ERROR When 'aReference/arg_1' is NIL or
+ *  @exception RANGE_ERROR If 'aReference/arg_1' is NIL or
  *             category(aReference) <> STRIOBJECT holds.
  */
 objectType str_value (listType arguments)

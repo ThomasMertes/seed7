@@ -91,7 +91,7 @@ const func listener: openInetListener (in integer: portNumber) is func
  *  Close the listener ''aListener''.
  *  A listener manages accepted sockets (its existing connections).
  *  When the listener is closed all references to the listener
- *  is removed from the accepted sockets.
+ *  are removed from the accepted sockets.
  *)
 const proc: close (inout inetListener: aListener) is func
   local
@@ -169,7 +169,7 @@ const proc: waitForRequest (inout inetListener: aListener) is func
       aListener.newConnection := STD_NULL;
       aListener.existingConnection := nextFile(aListener.checkedSocks);
       if aListener.existingConnection = STD_NULL then
-        # Skip the listener, which returns STD_NULL, when it is ready.
+        # Skip the listener, which returns STD_NULL, if it is ready.
         aListener.existingConnection := nextFile(aListener.checkedSocks);
       end if;
     else
@@ -183,7 +183,7 @@ const proc: waitForRequest (inout inetListener: aListener) is func
       iterFindings(aListener.checkedSocks, POLLIN);
       aListener.existingConnection := nextFile(aListener.checkedSocks);
       if aListener.existingConnection = STD_NULL then
-        # Skip the listener, which returns STD_NULL, when it is ready.
+        # Skip the listener, which returns STD_NULL, if it is ready.
         aListener.existingConnection := nextFile(aListener.checkedSocks);
       end if;
     end if;
@@ -220,11 +220,11 @@ const func file: getNewConnection (in inetListener: aListener) is
  *     end if;
  *   end while;
  *  @param existingConnection A random existing connection, were
- *         a read will not block, is assigned. When no existing
+ *         a read will not block, is assigned. If no existing
  *         connection has available input, [[null_file#STD_NULL|STD_NULL]]
  *         is assigned.
  *  @param newConnection A new accepted connection is assigned.
- *         When no incoming connection is present,
+ *         If no incoming connection is present,
  *         [[null_file#STD_NULL|STD_NULL]] is assigned.
  *)
 const proc: waitForRequest (inout listener: aListener,

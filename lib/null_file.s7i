@@ -59,7 +59,7 @@ const func boolean: (in null_file: aFile1) <> (in null_file: aFile2)  is action 
  *  Standard null file.
  *  The file STD_NULL is used to initialize [[file]] variables
  *  and as result of [[external_file#open(in_string,in_string)|open]],
- *  when a ''file'' cannot be opened.
+ *  if a ''file'' cannot be opened.
  *)
 var null_file: STD_NULL is null_file.value;
 
@@ -78,7 +78,7 @@ const proc: write (in null_file: outFile, in string: stri) is noop;
 (**
  *  Write end-of-line to ''outFile''.
  *  This function writes the end-of-line marker '\n'. Derived types
- *  can use this function. When a derived type does not use '\n'
+ *  can use this function. If a derived type does not use '\n'
  *  as end-of-line marker it needs to override this function.
  *)
 const proc: writeln (inout null_file: outFile) is func
@@ -90,7 +90,7 @@ const proc: writeln (inout null_file: outFile) is func
 (**
  *  Write a [[string]] followed by end-of-line to ''outFile''.
  *  This function is based on write and writeln. Derived types
- *  can use this function. This function must be overridden, when
+ *  can use this function. This function must be overridden, if
  *  it is necessary to write ''stri'' and '\n' together.
  *)
 const proc: writeln (inout null_file: outFile, in string: stri) is func
@@ -234,7 +234,7 @@ const func integer: length (in null_file: aFile) is func
 (**
  *  Set the current file position.
  *  A ''null_file'' is not seekable, therefore FILE_ERROR is raised.
- *  When a derived type is seekable it needs to override this function.
+ *  If a derived type is seekable it needs to override this function.
  *  @exception FILE_ERROR Is always raised, because a ''null_file'' is
  *             not seekable.
  *)
@@ -247,7 +247,7 @@ const proc: seek (in null_file: aFile, in integer: position) is func
 (**
  *  Obtain the current file position.
  *  A ''null_file'' is not seekable, therefore FILE_ERROR is raised.
- *  When a derived type is seekable it needs to override this function.
+ *  If a derived type is seekable it needs to override this function.
  *  @return nothing, because FILE_ERROR is always raised.
  *  @exception FILE_ERROR Is always raised, because a ''null_file'' is
  *             not seekable.

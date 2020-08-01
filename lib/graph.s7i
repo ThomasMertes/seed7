@@ -211,7 +211,7 @@ const pointList: (attr pointList) . value                         is _GENERATE_E
  *  The function 'genPointList' creates a 'pointList'.
  *  It converts an array of alternate x and y values to a 'pointList'.
  *  @return a pointList with the points from the array.
- *  @exception RANGE_ERROR when the length of the array is odd.
+ *  @exception RANGE_ERROR If the length of the array is odd.
  *)
 const func pointList: genPointList (ref array integer: coordinates) is action "DRW_GENPOINTLIST";
 

@@ -157,7 +157,7 @@ const func bigRational: (in bigRational: factor1) * (in bigRational: factor2) is
 (**
  *  Compute the division of two ''bigRational'' numbers.
  *  @return the quotient of the division.
- *  @exception NUMERIC_ERROR When a division by zero occurs.
+ *  @exception NUMERIC_ERROR If a division by zero occurs.
  *)
 const func bigRational: (in bigRational: dividend) / (in bigRational: divisor) is func
   result
@@ -562,7 +562,7 @@ const func string: literal (in bigRational: number) is
  *  Halfway cases are rounded away from zero. Except for a ''precision'' of
  *  zero the representation has a decimal point and at least one digit
  *  before and after the decimal point. Negative numbers are preceeded by
- *  a minus sign (e.g.: "-1.25"). When all digits in the result are 0 a
+ *  a minus sign (e.g.: "-1.25"). If all digits in the result are 0 a
  *  possible negative sign is omitted.
  *   1_/64_ digits 7     returns "0.0156250"
  *   1_/64_ digits 4     returns "0.0156"
@@ -575,9 +575,9 @@ const func string: literal (in bigRational: number) is
  *   0_/0_ digits 7      returns "NaN"
  *   -1_/2048_ digits 3  returns "0.000"
  *  @param precision Number of digits after the decimal point.
- *         When the ''precision'' is zero the decimal point is omitted.
+ *         If the ''precision'' is zero the decimal point is omitted.
  *  @return the string result of the conversion.
- *  @exception RANGE_ERROR When the ''precision'' is negative.
+ *  @exception RANGE_ERROR If the ''precision'' is negative.
  *)
 const func string: (in bigRational: number) digits (in integer: precision) is func
   result
@@ -646,9 +646,9 @@ const func integer: decimalExponent (in bigRational: number) is func
  *   -1_/2048_ sci 3  returns "-4.883e-4"
  *   -0_/1_ sci 2     returns "0.00e+0"
  *  @param precision Number of digits after the decimal point.
- *         When the ''precision'' is zero the decimal point is omitted.
+ *         If the ''precision'' is zero the decimal point is omitted.
  *  @return the string result of the conversion.
- *  @exception RANGE_ERROR When the ''precision'' is negative.
+ *  @exception RANGE_ERROR If the ''precision'' is negative.
  *)
 const func string: (in bigRational: number) sci (in integer: precision) is func
   result
@@ -717,7 +717,7 @@ const func string: (in bigRational: number) sci (in integer: precision) is func
  *   bigRational("3.(142857)")  returns  22_ /   7_
  *   bigRational("0.(846153)")  returns  11_ /  13_
  *  @return the ''bigRational'' result of the conversion.
- *  @exception RANGE_ERROR When stri contains not a valid ''bigRational'' value.
+ *  @exception RANGE_ERROR If stri contains not a valid ''bigRational'' value.
  *)
 const func bigRational: bigRational (in var string: stri) is func
   result
@@ -790,7 +790,7 @@ const func bigRational: bigRational (in var string: stri) is func
  *   bigRational parse "3.(142857)"  returns  22_ /   7_
  *   bigRational parse "0.(846153)"  returns  11_ /  13_
  *  @return the ''bigRational'' result of the conversion.
- *  @exception RANGE_ERROR When stri contains not a valid ''bigRational'' value.
+ *  @exception RANGE_ERROR If stri contains not a valid ''bigRational'' value.
  *)
 const func bigRational: (attr bigRational) parse (in string: stri) is
     return bigRational(stri);

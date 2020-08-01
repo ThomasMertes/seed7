@@ -106,7 +106,7 @@ COMPILING UNDER BSD AND UNIX
 
 COMPILING UNDER WINDOWS WITH GCC FROM MINGW
 
-    When gcc and mingw32-make from MinGW are installed use a
+    If gcc and mingw32-make from MinGW are installed use a
   console, go to the 'seed7\src' directory and type:
 
     copy mk_mingw.mak makefile
@@ -120,9 +120,9 @@ COMPILING UNDER WINDOWS WITH GCC FROM MINGW
     mingw32-make depend
     mingw32-make
 
-  When gmake uses Unix shell commands even when started from
-  a Windows console, you can use gmake together with
-  mk_msys.mak from a Windows console also.
+  If gmake uses Unix shell commands even if started from a
+  Windows console, you can use gmake together with mk_msys.mak
+  from a Windows console also.
 
   To compile with gcc from MinGW and nmake from Windows use
   a console, go to the 'seed7\src' directory and type:
@@ -238,7 +238,7 @@ COMPILING UNDER WINDOWS WITH CYGWIN
 
     CC = gcc
 
-  must be changed to define the name of your gcc. When gcc and
+  must be changed to define the name of your gcc. If gcc and
   make work well change to the 'seed7/src' directory and do:
 
     make -f mk_cygw.mak depend
@@ -255,7 +255,7 @@ COMPILING UNDER WINDOWS WITH CYGWIN
 
   The presence of a Cygwin symlink problem can be checked in
   the directory /usr/i686-pc-cygwin/bin (or the corresponding
-  directory mentioned in the error message). When the file
+  directory mentioned in the error message). If the file
   /usr/i686-pc-cygwin/bin/as.exe is a small file with less than
   100 bytes and starts with
 
@@ -415,7 +415,7 @@ COMPILING UNDER MAC OS X
     LDFLAGS = -L/usr/X11R6/lib
 
   Besides this 'mk_osx.mak' is almost identical to
-  'mk_linux.mak' and 'makefile'. When the X11 library is in a
+  'mk_linux.mak' and 'makefile'. If the X11 library is in a
   different directory you need to change the LDFLAGS value to
   that directory.
 
@@ -446,7 +446,7 @@ PACKAGES FOR DATABASES UNDER LINUX
   - Firebird     libfbclient-devel
 
 
-WHAT TO DO WHEN ERRORS HAPPEN DURING THE COMPILATION?
+WHAT TO DO IF ERRORS HAPPEN DURING THE COMPILATION?
 
     In most cases errors indicate that some development package
   of your distribution is missing. If your operating system is
@@ -546,7 +546,7 @@ WHAT TO DO WHEN ERRORS HAPPEN DURING THE COMPILATION?
    started from scratch with 'make clean', 'make depend' and
    'make'.
 
- --- When using bcc32 an error like
+ --- If you use bcc32 an error like
 
     Error E2194: Could not find file 'Studio\7.0\bin\bcc32.exe'
 
@@ -561,7 +561,7 @@ WHAT TO DO WHEN ERRORS HAPPEN DURING THE COMPILATION?
   be copied to the 'seed7\src' directory (this solution should be
   avoided, since it does not consider updates of bcc32).
 
- --- When using cl (msvc) an error like
+ --- If you use cl (from msvc) an error like
 
     NMAKE : fatal error U1077: 'cl' : return code '0xc0000135'
 
@@ -570,12 +570,12 @@ WHAT TO DO WHEN ERRORS HAPPEN DURING THE COMPILATION?
   mspdb100.dll was not found, indicates also that vcvars32 was
   not executed.
 
- --- When using clang under Windows an error like
+ --- If you use clang under Windows an error like
 
     chkccomp.c:60:10: fatal error: 'stdlib.h' file not found
 
   indicates that the include file search path is not set up.
-  When clang is based on the VC toolchain it is necessary to
+  If clang is based on the VC toolchain it is necessary to
   call vcvars32 from the commandline to set up the environment.
 
  --- A linker error like
@@ -596,7 +596,7 @@ WHAT TO DO WHEN ERRORS HAPPEN DURING THE COMPILATION?
 
     LDFLAGS = -L/usr/X11R6/lib
 
- --- When using icc an error like
+ --- If you use icc an error like
 
    .../compiler/include/math.h(1216):
    error: identifier "_LIB_VERSION_TYPE" is undefined
@@ -618,7 +618,7 @@ WHAT TO DO WHEN ERRORS HAPPEN DURING THE COMPILATION?
 
  --- Other errors
 
-  When you got other errors I would like to know about.
+  If you got other errors I would like to know about.
   Please send an mail with detailed information to
   seed7-users@lists.sourceforge.net or to my mail address,
   which can be found at the Seed7 Homepage (look for Links).
@@ -654,10 +654,10 @@ WHAT ABOUT THE WARNINGS THAT HAPPEN DURING THE COMPILATION?
      because of the prototype.
    - Warnings about 'variablename' may be used uninitialized:
      This are false complaints. Interestingly gcc is not able to
-     recognize when the states of two variables are connected.
+     recognize if the states of two variables are connected.
      Such as a global fail_flag variable and a local condition
      variable (cond). The connection is: As long as fail_flag is
-     FALSE the cond variable is initialized. When the fail_flag
+     FALSE the cond variable is initialized. If the fail_flag
      is TRUE the cond variable is not used and therefore it could
      be in an uninitialized state. At several places I use such
      connected variable states which are not recognized by the
@@ -743,7 +743,7 @@ HOW TO USE THE GMP LIBRARY?
     make depend
 
   the program chkccomp.c checks if it is possible to compile and
-  link a small test program with the GMP library. When the small
+  link a small test program with the GMP library. If the small
   test program works correct the definitions to use 'big_gmp.c'
   are written to version.h:
 
@@ -761,10 +761,10 @@ HOW TO USE THE GMP LIBRARY?
 
     ADDITIONAL_SYSTEM_LIBS =  ...  -lgmp
 
-  When everything works as expected the GMP library will be
+  If everything works as expected the GMP library will be
   used automatically.
 
-  When chkccomp.c does not succceed with the small GMP test
+  If chkccomp.c does not succceed with the small GMP test
   program the file version.h will contain definitions to use
   'big_rtl.c' as bigInteger library:
 
@@ -1057,14 +1057,14 @@ MACROS WRITTEN TO VERSION.H BY THE MAKEFILE
                   characters. Instead Seed7 programs must always
                   use '/' as path delimiter.
 
-  USE_WMAIN: Defined when the main function is named wmain.
+  USE_WMAIN: Defined if the main function is named wmain.
              This is a way to support Unicode command line
              arguments under Windows. An alternate way to
              support Unicode command line arguments under
              Windows uses the functions getUtf16Argv and
              freeUtf16Argv (both defined in "cmd_win.c").
 
-  USE_WINMAIN: Defined when the main function is named WinMain.
+  USE_WINMAIN: Defined if the main function is named WinMain.
 
   SEARCH_PATH_DELIMITER: The paths in the PATH environment
                          variable are separated with this
@@ -1098,24 +1098,24 @@ MACROS WRITTEN TO VERSION.H BY THE MAKEFILE
                      Only one #define of AWAIT_WITH_xxx is
                      allowed.
 
-  WITH_SQL: Defined when SQL should be supported.
+  WITH_SQL: 1 if SQL should be supported, 0 otherwise.
 
-  USE_TERMINFO: Defined when the console should be used with
+  USE_TERMINFO: Defined if the console should be used with
                 terminfo. Only one #define of USE_TERMxxx is
                 allowed.
 
-  USE_TERMCAP: Defined when the console should be used with
+  USE_TERMCAP: Defined if the console should be used with
                termcap. Only one #define of USE_TERMxxx is
                allowed.
 
-  SIGNAL_HANDLER_CAN_DO_IO: Defined when I/O in signal handlers
+  SIGNAL_HANDLER_CAN_DO_IO: Defined if I/O in signal handlers
                             works.
 
-  CONSOLE_WCHAR: Defined when the console uses wide characters.
+  CONSOLE_WCHAR: Defined if the console uses wide characters.
 
-  CONSOLE_UTF8: Defined when the console uses UTF-8 characters.
+  CONSOLE_UTF8: Defined if the console uses UTF-8 characters.
 
-  OS_STRI_WCHAR: Defined when the system calls (os_...) use
+  OS_STRI_WCHAR: Defined if the system calls (os_...) use
                  wide characters (type wchar_t) for string
                  and path parameters. In this case functions
                  like _wgetcwd(), wreaddir() and _wstati64()
@@ -1124,16 +1124,16 @@ MACROS WRITTEN TO VERSION.H BY THE MAKEFILE
                  therefore necessary to define the os_...
                  macros accordingly.
 
-  OS_STRI_UTF8: Defined when the system calls (os_...) use
+  OS_STRI_UTF8: Defined if the system calls (os_...) use
                 UTF-8 characters (type char) for string and
                 path parameters. In this case functions like
                 getcwd(), readdir() and stat() together with
                 types like 'DIR', 'dirent' and 'struct stat'
-                must be used. When this functions and types do
-                not use the POSIX/SUS names it is necessary to
-                define the os_... macros accordingly.
+                must be used. If this functions and types do
+                not use the POSIX/SUS names it is necessary
+                to define the os_... macros accordingly.
 
-  OS_STRI_USES_CODE_PAGE: Defined when the system calls (os_...)
+  OS_STRI_USES_CODE_PAGE: Defined if the system calls (os_...)
                           use characters (type char) encoded
                           with a code page (only the code pages
                           437 and 850 are supported). In this
@@ -1145,17 +1145,17 @@ MACROS WRITTEN TO VERSION.H BY THE MAKEFILE
   ESCAPE_SHELL_COMMANDS: Depending on the shell/os the C
                          functions system() and popen() need
                          to get processed shell commands.
-                         When the macro is defined, a
+                         If the macro is defined, a
                          backslash (\) is added before the
                          chars tab, space, !, ", $, &, ', (,
-                         ), *, ;, <, >, ?, \, `, and |. When
+                         ), *, ;, <, >, ?, \, `, and |. If
                          the macro is not defined (undef),
                          the whole shell command is surrounded
-                         by double quotes (") when it contains
+                         by double quotes (") if it contains
                          a space, &, comma, ;, =, ^, ~ or the
                          non-breaking space.
 
-  QUOTE_WHOLE_SHELL_COMMAND: Defined when shell commands,
+  QUOTE_WHOLE_SHELL_COMMAND: Defined if shell commands,
                              starting with double quotes ("),
                              need to be quoted a again. In this
                              case the shell command, together
@@ -1188,7 +1188,7 @@ MACROS WRITTEN TO VERSION.H BY THE MAKEFILE
 
   C_COMPILER: Contains the command to call the stand-alone C
               compiler and linker (Most IDEs provide also a
-              stand-alone compiler/linker). When the C compiler is
+              stand-alone compiler/linker). If the C compiler is
               called via a script C_COMPILER_SCRIPT is defined and
               C_COMPILER is not defined by a makefile. In that
               case C_COMPILER is defined by setpaths.c together
@@ -1200,7 +1200,7 @@ MACROS WRITTEN TO VERSION.H BY THE MAKEFILE
   C_COMPILER_SCRIPT: Relative path of a script that calls the
                      stand-alone C compiler and linker.
 
-  CALL_C_COMPILER_FROM_SHELL: Flag that is defined when the
+  CALL_C_COMPILER_FROM_SHELL: Flag that is defined if the
                               stand-alone C compiler and linker is
                               called via a script (defined with
                               C_COMPILER_SCRIPT).
@@ -1219,7 +1219,7 @@ MACROS WRITTEN TO VERSION.H BY THE MAKEFILE
                                destination file name must be
                                appended to the command.
 
-  CC_SOURCE_UTF8: Defined when the C compiler accepts UTF-8 encoded
+  CC_SOURCE_UTF8: Defined if the C compiler accepts UTF-8 encoded
                   file names in #line directives. The file names
                   from #line directives are used by the debugger to
                   allow source code debugging.
@@ -1241,7 +1241,7 @@ MACROS WRITTEN TO VERSION.H BY THE MAKEFILE
                    Cygwin write the error messages to the error
                    output (file descriptor 2).
 
-  LINKER: Defined when C_COMPILER does just invoke the stand-alone
+  LINKER: Defined if C_COMPILER does just invoke the stand-alone
           C compiler. In that case LINKER contains the command to
           call the stand-alone linker.
 
@@ -1257,7 +1257,7 @@ MACROS WRITTEN TO VERSION.H BY THE MAKEFILE
                             "-Wl,--strip-debug").
 
   LINKER_OPT_OUTPUT_FILE: Contains the linker option to provide the
-                          output filename (e.g.: "-o "). When no
+                          output filename (e.g.: "-o "). If no
                           such option exists the definition of
                           LINKER_OPT_OUTPUT_FILE should be omitted.
 
@@ -1290,7 +1290,7 @@ MACROS WRITTEN TO VERSION.H BY THE MAKEFILE
                           (e.g.: "-lmysqlclient") or the
                           multiprecision library (e.g.: "-lgmp").
 
-  DEFINE_COMMAND_LINE_TO_ARGV_W Defined when the function
+  DEFINE_COMMAND_LINE_TO_ARGV_W Defined if the function
                                 CommandLineToArgvW() is missing or
                                 buggy. In this case the definition
                                 of CommandLineToArgvW() in cmd_win.c
@@ -1303,39 +1303,38 @@ MACROS WRITTEN TO VERSION.H BY CHKCCOMP.C
   files, linker, run-time library and operating systems. The result
   is written to version.h
 
-  UNISTD_H_PRESENT: TRUE, when the include file <unistd.h> is
-                    present.
+  UNISTD_H_PRESENT: TRUE if the include file <unistd.h> is present.
 
-  HAS_SIGNAL: TRUE, when the function signal() is present.
+  HAS_SIGNAL: TRUE if the function signal() is present.
 
-  HAS_SIGACTION: TRUE, when the function sigaction() is present.
+  HAS_SIGACTION: TRUE if the function sigaction() is present.
 
-  SIGNAL_RESETS_HANDLER: TRUE, when a signal resets the signal
-                         handling to SIG_DFL. When it is FALSE the
-                         signal handler stays unchanged, when a
-                         signal is raised. When a signal handler is
+  SIGNAL_RESETS_HANDLER: TRUE if a signal resets the signal
+                         handling to SIG_DFL. If it is FALSE the
+                         signal handler stays unchanged, if a
+                         signal is raised. If a signal handler is
                          set with signal() an incoming signal might
                          trigger a reset of the signal handling.
-                         This depends on the C run-time. When a
+                         This depends on the C run-time. If a
                          signal handler is set with sigaction()
                          an incoming signal always leaves the
                          signal handling unchanged.
 
-  restrict: Defined when the C compiler does not support the
+  restrict: Defined if the C compiler does not support the
             restrict keyword.
 
   likely: Macro that expands to a __builtin_expect expression,
-          when __builtin_expect is supported by the C compiler.
+          if __builtin_expect is supported by the C compiler.
           Without support of __builtin_expect the macro expands
           to its argument.
 
   unlikely: Macro that expands to a __builtin_expect expression,
-            when __builtin_expect is supported by the C compiler.
+            if __builtin_expect is supported by the C compiler.
             Without support of __builtin_expect the macro expands
             to its argument.
 
   NORETURN: Macro that expands to __attribute__ ((noreturn)),
-            when the C compiler supports this attribute. Without
+            if the C compiler supports this attribute. Without
             support for this attribute the macro expands to analyze
             empty expression.
 
@@ -1407,11 +1406,11 @@ MACROS WRITTEN TO VERSION.H BY CHKCCOMP.C
             target operating system. If not defined chdir()
             is used.
 
-  OS_GETCWD_MAX_BUFFER_SIZE: Defined when there is a maximum
+  OS_GETCWD_MAX_BUFFER_SIZE: Defined if there is a maximum
                              buffer size supported by
                              os_getcwd().
 
-  OS_GETCWD_RETURNS_SLASH: Defined when os_getcwd() returns a
+  OS_GETCWD_RETURNS_SLASH: Defined if os_getcwd() returns a
                            path with slashes instead of
                            PATH_DELIMITER.
 
@@ -1437,7 +1436,7 @@ MACROS WRITTEN TO VERSION.H BY CHKCCOMP.C
 
   os_chown(name,uid,gid): Function to be used instead of chown()
                           under the target operating system.
-                          If not defined chown() is used. When
+                          If not defined chown() is used. If
                           chown() is not supported this macro is
                           defined empty.
 
@@ -1446,10 +1445,10 @@ MACROS WRITTEN TO VERSION.H BY CHKCCOMP.C
                      system. If not defined 'struct utimbuf' is
                      used.
 
-  USE_ALTERNATE_UTIME: Defined when alternate_utime should be
+  USE_ALTERNATE_UTIME: Defined if alternate_utime should be
                        used instead of os_utime_orig.
 
-  os_utime_orig: Defined when the function alternate_utime is
+  os_utime_orig: Defined if the function alternate_utime is
                  used instead of the function defined with
                  os_utime. In this case os_utime_orig refers to
                  the original os_utime function and the macro
@@ -1484,7 +1483,7 @@ MACROS WRITTEN TO VERSION.H BY CHKCCOMP.C
              target operating system. If not defined pclose() is
              used.
 
-  DEFINE_WGETENV: Defined when an own implementation of wgetenv
+  DEFINE_WGETENV: Defined if an own implementation of wgetenv
                   should be used.
 
   os_getenv: Function to be used instead of getenv() under the
@@ -1495,27 +1494,27 @@ MACROS WRITTEN TO VERSION.H BY CHKCCOMP.C
              target operating system. If not defined setenv() is
              used.
 
-  FILENO_WORKS_FOR_NULL: TRUE, when the fileno() function works
+  FILENO_WORKS_FOR_NULL: TRUE if the fileno() function works
                          for NULL and returns -1.
 
-  FOPEN_SUPPORTS_CLOEXEC_MODE: TRUE, when fopen() supports a
+  FOPEN_SUPPORTS_CLOEXEC_MODE: TRUE if fopen() supports a
                                mode of "e".
 
-  HAS_FCNTL_SETFD_CLOEXEC: TRUE, when fcntl() supports
+  HAS_FCNTL_SETFD_CLOEXEC: TRUE if fcntl() supports
                            F_SETFD,FD_CLOEXEC.
 
-  HAS_GETADDRINFO: TRUE, when the function getaddrinfo() is
+  HAS_GETADDRINFO: TRUE if the function getaddrinfo() is
                    available.
 
-  HAS_PIPE2: TRUE, when the function pipe2() is available.
+  HAS_PIPE2: TRUE if the function pipe2() is available.
 
-  HAS_SNPRINTF: TRUE, when the function snprintf() is available.
+  HAS_SNPRINTF: TRUE if the function snprintf() is available.
 
-  HAS_VSNPRINTF: TRUE, when the function vsnprintf() is available.
+  HAS_VSNPRINTF: TRUE if the function vsnprintf() is available.
 
-  HAS_POPEN: TRUE, when the function popen() is available.
+  HAS_POPEN: TRUE if the function popen() is available.
 
-  STAT_MISSING: Defined when the function stat() is missing.
+  STAT_MISSING: Defined if the function stat() is missing.
                 This macro is only used in chkccomp.c.
 
   os_fstat: Function to be used instead of fstat() under the
@@ -1575,11 +1574,11 @@ MACROS WRITTEN TO VERSION.H BY CHKCCOMP.C
                Under Linux/Unix/BSD this is "/dev/null".
                Under Windows this is "NUL:".
 
-  OS_PATH_HAS_DRIVE_LETTERS: TRUE, when the absolute paths of
+  OS_PATH_HAS_DRIVE_LETTERS: TRUE if the absolute paths of
                              the operating system use drive
                              letters. Determined by chkccomp.c.
 
-  MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS: Defined in config.h, when
+  MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS: Defined in config.h, if
                                       absolute paths (paths
                                       starting with '/') must
                                       be mapped to operating
@@ -1588,11 +1587,11 @@ MACROS WRITTEN TO VERSION.H BY CHKCCOMP.C
                                       mapped to the drive letter
                                       "C:".
 
-  FORBID_DRIVE_LETTERS: Defined in config.h, when a Seed7 path
+  FORBID_DRIVE_LETTERS: Defined in config.h, if a Seed7 path
                         with drive letters must raise
                         RANGE_ERROR.
 
-  EMULATE_ROOT_CWD: Defined in config.h, when the operating
+  EMULATE_ROOT_CWD: Defined in config.h, if the operating
                     system uses drive letters and reading the
                     directory "/" must return a list of
                     available drives.
@@ -1610,64 +1609,64 @@ MACROS WRITTEN TO VERSION.H BY CHKCCOMP.C
                      be appended. E.g.: 2>myFile.
 
   FTELL_SUCCEEDS_FOR_PIPE: The ftell() function should return -1
-                           when it is called with a pipe (since a
+                           if it is called with a pipe (since a
                            pipe is not seekable). This macro is
-                           TRUE when ftell() succeeds for pipes
+                           TRUE if ftell() succeeds for pipes
                            (it does not return -1). In this case
                            the function improved_ftell is used
-                           which returns -1 when the check with
+                           which returns -1 if the check with
                            fstat() does not verify that the
                            parameter is a regular file.
 
-  FSEEK_SUCCEEDS_FOR_STDIN: TRUE, when fseek(stdin, 0,  SEEK_SET)
+  FSEEK_SUCCEEDS_FOR_STDIN: TRUE if fseek(stdin, 0,  SEEK_SET)
                             succeeds (stdin is not redirected).
 
-  FOPEN_OPENS_DIRECTORIES: TRUE, when fopen() is able to open
+  FOPEN_OPENS_DIRECTORIES: TRUE if fopen() is able to open
                            directories (it does not return NULL).
 
-  FWRITE_WRONG_FOR_READ_ONLY_FILES: TRUE, when fwrite() to a
+  FWRITE_WRONG_FOR_READ_ONLY_FILES: TRUE if fwrite() to a
                                     read only file succeeds (it
                                     does not return 0).
 
-  REMOVE_FAILS_FOR_EMPTY_DIRS: TRUE, when remove() cannot remove
+  REMOVE_FAILS_FOR_EMPTY_DIRS: TRUE if remove() cannot remove
                                an empty directory (it does not
                                return 0).
 
   HOME_DIR_ENV_VAR: Name of the environment variable that contains
                     the path of the home directory.
 
-  INCLUDE_SYS_UTIME: Defined when utime() respectively _wutime()
+  INCLUDE_SYS_UTIME: Defined if utime() respectively _wutime()
                      is defined in <sys/utime.h>.
 
-  USE_ALTERNATE_UTIME: Defined when utime() is not able to change
+  USE_ALTERNATE_UTIME: Defined if utime() is not able to change
                        the access and modification times of a
                        directory (utime() does not return 0 and
                        errno has the value EACCES).
 
   RSHIFT_DOES_SIGN_EXTEND: The C standard specifies that the
                            right shift of signed integers is
-                           implementation defined, when the
-                           shifted values are negative. The macro
-                           is TRUE when the sign of negative
+                           implementation defined, if the
+                           shifted values are negative. The
+                           macro is TRUE if the sign of negative
                            signed integers is preserved with a
                            right shift ( -1 >> 1 == -1 ).
 
-  TWOS_COMPLEMENT_INTTYPE: TRUE, when signed integers are
+  TWOS_COMPLEMENT_INTTYPE: TRUE if signed integers are
                            represented as twos complement
                            numbers. This allows some simplified
                            range checks in compiled programs.
-                           This macro is defined when
+                           This macro is defined if
                            ~(-1) == 0 holds.
 
-  ONES_COMPLEMENT_INTTYPE: TRUE, when signed integers are
+  ONES_COMPLEMENT_INTTYPE: TRUE if signed integers are
                            represented as ones complement
                            numbers. This macro is currently
                            not used.
 
-  LITTLE_ENDIAN_INTTYPE: TRUE, when the byte ordering of
+  LITTLE_ENDIAN_INTTYPE: TRUE if the byte ordering of
                          integers is little endian.
 
-  BIG_ENDIAN_INTTYPE: TRUE, when the byte ordering of integers
+  BIG_ENDIAN_INTTYPE: TRUE if the byte ordering of integers
                       is big endian.
 
   MALLOC_ALIGNMENT: Contains the number of zero bits (counting
@@ -1675,89 +1674,89 @@ MACROS WRITTEN TO VERSION.H BY CHKCCOMP.C
                     returned by malloc(). The memory management
                     in the parser uses this alignment.
 
-  UNALIGNED_MEMORY_ACCESS_OKAY: Defined when integers can be read
+  UNALIGNED_MEMORY_ACCESS_OKAY: Defined if integers can be read
                                 from unaligned memory positions.
                                 This macro is currently not used.
 
-  NO_EMPTY_STRUCTS: Defined when the C compiler considers an empty
+  NO_EMPTY_STRUCTS: Defined if the C compiler considers an empty
                     struct as syntax error.
 
-  HAS_GETRLIMIT: TRUE, when the functions getrlimit() and
+  HAS_GETRLIMIT: TRUE if the functions getrlimit() and
                  setrlimit() are available.
 
-  MEMCMP_RETURNS_SIGNUM: TRUE, when memcmp() returns only the
+  MEMCMP_RETURNS_SIGNUM: TRUE if memcmp() returns only the
                          values -1, 0 and 1.
 
-  HAS_WMEMCMP: TRUE, when the function wmemcmp() is available.
+  HAS_WMEMCMP: TRUE if the function wmemcmp() is available.
 
-  WMEMCMP_RETURNS_SIGNUM: TRUE, when wmemcmp() returns only the
+  WMEMCMP_RETURNS_SIGNUM: TRUE if wmemcmp() returns only the
                           values -1, 0 and 1.
 
-  HAS_WMEMCHR: TRUE, when the function wmemchr() is available.
+  HAS_WMEMCHR: TRUE if the function wmemchr() is available.
 
-  HAS_WMEMSET: TRUE, when the function wmemset() is available.
+  HAS_WMEMSET: TRUE if the function wmemset() is available.
 
-  HAS_SETJMP: TRUE, when the functions setjmp() and
+  HAS_SETJMP: TRUE if the functions setjmp() and
               longjmp() are available.
 
-  HAS_SIGSETJMP: TRUE, when the functions sigsetjmp() and
-                 siglongjmp() are available. When it is FALSE the
-                 functions setjmp() and longjmp() must be used
-                 instead.
+  HAS_SIGSETJMP: TRUE if the functions sigsetjmp() and
+                 siglongjmp() are available. If it is FALSE
+                 the functions setjmp() and longjmp() must be
+                 used instead.
 
-  HAS_SYMBOLIC_LINKS: TRUE, when the operating system supports
+  HAS_SYMBOLIC_LINKS: TRUE if the operating system supports
                 symlinks.
 
-  HAS_READLINK: TRUE, when the function readlink() is available.
+  HAS_READLINK: TRUE if the function readlink() is available.
 
-  HAS_FIFO_FILES: TRUE, when the operating system supports fifo
+  HAS_FIFO_FILES: TRUE if the operating system supports fifo
                   (first in first out) files.
 
-  HAS_SELECT: TRUE, when the function select() is available.
+  HAS_SELECT: TRUE if the function select() is available.
 
-  HAS_POLL: TRUE, when the function poll() is available.
+  HAS_POLL: TRUE if the function poll() is available.
 
-  HAS_MMAP: TRUE, when the function mmap() is available.
+  HAS_MMAP: TRUE if the function mmap() is available.
 
-  INT_DIV_BY_ZERO_POPUP: Defined when an integer division by zero
+  INT_DIV_BY_ZERO_POPUP: Defined if an integer division by zero
                          may trigger a popup window. Consequently
                          chkccomp.c defines CHECK_INT_DIV_BY_ZERO,
                          to avoid the popup.
 
-  DO_SIGFPE_WITH_DIV_BY_ZERO: TRUE, when SIGFPE should be raised
+  DO_SIGFPE_WITH_DIV_BY_ZERO: TRUE if SIGFPE should be raised
                               with an integer division by zero.
-                              When it is FALSE raise(SIGFPE) can
+                              If it is FALSE raise(SIGFPE) can
                               be called instead. Under Windows it
                               is necessary to trigger SIGFPE this
                               way, to assure that the debugger can
-                              catch it. When the compiler (s7c)
+                              catch it. If the compiler (s7c)
                               is called with the option -e the
                               function triggerSigfpe() is used to
-                              raise SIGFPE, when an uncaught
+                              raise SIGFPE, if an uncaught
                               EXCEPTION occurs.
 
-  CHECK_INT_DIV_BY_ZERO: TRUE, when integer divisions must be
+  CHECK_INT_DIV_BY_ZERO: TRUE if integer divisions must be
                          checked for a division by zero. This
                          applies to the division operations div,
                          rem, mdiv and mod. The generated C code
-                         should, when a division by zero occurs,
+                         should, if a division by zero occurs,
                          raise the exception NUMERIC_ERROR instead
                          of doing the illegal divide operation.
 
-  CHECK_INT_REM_BY_ZERO: TRUE, when integer remainder must be
+  CHECK_INT_REM_BY_ZERO: TRUE if integer remainder must be
                          checked for a division by zero. This
                          applies to the division operations rem
                          and mod. The generated C code should,
-                         when a remainder by zero occurs, raise
+                         if a remainder by zero occurs, raise
                          the exception NUMERIC_ERROR instead of
                          doing the illegal divide operation.
 
-  CHECK_INT_REM_ZERO_BY_ZERO: TRUE, when the integer expression
+  CHECK_INT_REM_ZERO_BY_ZERO: TRUE if the integer expression
                               0%0 might not trigger SIGFPE. This
                               can happen with a constant or a
                               variable dividend. This applies to
                               the division operations rem and mod.
-                              The generated C code should, when a
+                              The generated C code should, if a
                               remainder by zero occurs, raise the
                               exception NUMERIC_ERROR instead of
                               doing the illegal divide operation.
@@ -1772,8 +1771,8 @@ MACROS WRITTEN TO VERSION.H BY CHKCCOMP.C
 
   DEFINE_MATHERR_FUNCTION: Some C compilers/libraries call the
                            matherr() function for every floating
-                           point error and terminate the program
-                           when the function is not present.
+                           point error and terminate the program,
+                           if the function is not present.
                            To get the Seed7 behaviour of using
                            the IEEE 754 values of Infinite and
                            NaN this function must be defined and
@@ -1781,70 +1780,70 @@ MACROS WRITTEN TO VERSION.H BY CHKCCOMP.C
 
   DEFINE__MATHERR_FUNCTION: Some C compilers/libraries call the
                             _matherr() function for every floating
-                            point error and terminate the program
-                            when the function is not present.
+                            point error and terminate the program,
+                            if the function is not present.
                             To get the Seed7 behaviour of using
                             the IEEE 754 values of Infinite and
                             NaN this function must be defined and
                             it must return 1.
 
-  HAS_LOG2: TRUE, when the function log2() is available.
+  HAS_LOG2: TRUE if the function log2() is available.
 
-  HAS_CBRT: TRUE, when the function cbrt() is available.
+  HAS_CBRT: TRUE if the function cbrt() is available.
 
-  NAN_COMPARISON_OKAY: TRUE, when comparisons between NaN and any
+  NAN_COMPARISON_OKAY: TRUE if comparisons between NaN and any
                        other value return FALSE. Comparison refers
                        to comparisons with  ==  <  >  <=  or  >= .
 
-  POW_OF_NAN_OKAY: TRUE, when pow(NaN, 0.0) returns 1.0 and
+  POW_OF_NAN_OKAY: TRUE if pow(NaN, 0.0) returns 1.0 and
                    pow(NaN, anyOtherExponent) returns NaN.
 
-  POW_OF_ZERO_OKAY: TRUE, when the pow() function works correct
+  POW_OF_ZERO_OKAY: TRUE if the pow() function works correct
                     for a base of zero (0.0 or -0.0) and a negative
                     exponent.
 
-  POW_OF_NEGATIVE_OKAY: TRUE, when the pow() function works
-                        correct, when the base is negative.
+  POW_OF_NEGATIVE_OKAY: TRUE if the pow() function works
+                        correct, if the base is negative.
 
-  POW_OF_ONE_OKAY: TRUE, when the pow() function always returns
-                   1.0 when the base is 1.0 (Even for an exponent
+  POW_OF_ONE_OKAY: TRUE if the pow() function always returns
+                   1.0 if the base is 1.0 (Even for an exponent
                    of NaN).
 
-  POW_EXP_NAN_OKAY: TRUE, when the pow() function always returns
-                    NaN when the exponent is NaN and the base is
+  POW_EXP_NAN_OKAY: TRUE if the pow() function always returns
+                    NaN if the exponent is NaN and the base is
                     not 1.0 (pow(1.0, NaN) should return 1.0).
 
-  POW_EXP_MINUS_INFINITY_OKAY: TRUE, when the pow() function works
+  POW_EXP_MINUS_INFINITY_OKAY: TRUE if the pow() function works
                                correct for an exponent of minus
                                infinity.
 
-  LOG_OF_NAN_OKAY: TRUE, when log(NaN) returns NaN.
+  LOG_OF_NAN_OKAY: TRUE if log(NaN) returns NaN.
 
-  LOG_OF_ZERO_OKAY: TRUE, when log(0.0) returns minus infinity.
+  LOG_OF_ZERO_OKAY: TRUE if log(0.0) returns minus infinity.
 
-  LOG_OF_NEGATIVE_OKAY: TRUE, when log() of a negative number
+  LOG_OF_NEGATIVE_OKAY: TRUE if log() of a negative number
                         returns NaN.
 
-  LOG10_OF_NAN_OKAY: TRUE, when log10(NaN) returns NaN.
+  LOG10_OF_NAN_OKAY: TRUE if log10(NaN) returns NaN.
 
-  LOG10_OF_ZERO_OKAY: TRUE, when log10(0.0) returns minus
+  LOG10_OF_ZERO_OKAY: TRUE if log10(0.0) returns minus
                       infinity.
 
-  LOG10_OF_NEGATIVE_OKAY: TRUE, when log10() of a negative number
+  LOG10_OF_NEGATIVE_OKAY: TRUE if log10() of a negative number
                           returns NaN.
 
-  LOG2_OF_NAN_OKAY: TRUE, when log2(NaN) returns NaN.
+  LOG2_OF_NAN_OKAY: TRUE if log2(NaN) returns NaN.
 
-  LOG2_OF_ZERO_OKAY: TRUE, when log2(0.0) returns minus infinity.
+  LOG2_OF_ZERO_OKAY: TRUE if log2(0.0) returns minus infinity.
 
-  LOG2_OF_NEGATIVE_OKAY: TRUE, when log2() of a negative number
+  LOG2_OF_NEGATIVE_OKAY: TRUE if log2() of a negative number
                          returns NaN.
 
-  FLOAT_ZERO_DIV_ERROR: Defined when the C compiler classifies a
+  FLOAT_ZERO_DIV_ERROR: Defined if the C compiler classifies a
                         floating point division by zero as fatal
                         error.
 
-  CHECK_FLOAT_DIV_BY_ZERO: Defined when a C floating point division
+  CHECK_FLOAT_DIV_BY_ZERO: Defined if a C floating point division
                            by zero does not return the IEEE 754
                            values Infinity, -Infinity or NaN. In
                            this case the interpreter checks all
@@ -1853,7 +1852,7 @@ MACROS WRITTEN TO VERSION.H BY CHKCCOMP.C
                            compiler generates C code, which checks
                            all float divisions ( / and /:= ) for
                            division by zero. The generated C code
-                           should, when executed, return Infinity,
+                           should, if executed, return Infinity,
                            -Infinity or NaN instead of doing the
                            divide operation.
 
@@ -1868,7 +1867,7 @@ MACROS WRITTEN TO VERSION.H BY CHKCCOMP.C
                                         (using format %e) will
                                         always work ok.
 
-  LIMIT_FMT_E_MAXIMUM_FLOAT_PRECISION: Defined when a printf
+  LIMIT_FMT_E_MAXIMUM_FLOAT_PRECISION: Defined if a printf
                                        (using format %e) with a
                                        larger precision crashes.
                                        In that case it is defined
@@ -1880,58 +1879,58 @@ MACROS WRITTEN TO VERSION.H BY CHKCCOMP.C
                                         (using format %f) will
                                         always work ok.
 
-  LIMIT_FMT_E_MAXIMUM_FLOAT_PRECISION: Defined when a printf
+  LIMIT_FMT_E_MAXIMUM_FLOAT_PRECISION: Defined if a printf
                                        (using format %f) with a
                                        larger precision crashes.
                                        In that case it is defined
                                        with a low precision limit
                                        as string.
 
-  ISNAN_WITH_UNDERLINE: Defined when the macro/function _isnan() is
+  ISNAN_WITH_UNDERLINE: Defined if the macro/function _isnan() is
                         defined in <float.h> respectively <math.h>
                         instead of isnan().
 
-  USE_ALTERNATE_LOCALTIME_R: Defined when the function
+  USE_ALTERNATE_LOCALTIME_R: Defined if the function
                              alternate_localtime_r() should be used
                              instead of localtime().
 
-  USE_LOCALTIME_R: Defined when the thread-safe function
+  USE_LOCALTIME_R: Defined if the thread-safe function
                    localtime_r() should be used instead of
                    localtime().
 
-  USE_LOCALTIME_S: Defined when the thread-safe function
+  USE_LOCALTIME_S: Defined if the thread-safe function
                    localtime_s() should be used instead of
                    localtime().
 
-  DEFINE_OS_ENVIRON: Defined when environ respectively _wenviron
+  DEFINE_OS_ENVIRON: Defined if environ respectively _wenviron
                      is not defined in <stdlib.h> or <unistd.h>.
                      In this case environ respectively _wenviron
                      must be defined.
 
-  INITIALIZE_OS_ENVIRON: Defined when environ respectively
+  INITIALIZE_OS_ENVIRON: Defined if environ respectively
                          _wenviron is NULL unless getenv() is
                          called.
 
-  LIMITED_CSTRI_LITERAL_LEN: 0, when the C compiler does not limit
+  LIMITED_CSTRI_LITERAL_LEN: 0 if the C compiler does not limit
                                the length of string literals and
                                at run-time the string literal has
                                the correct value.
-                             -1, when the compiler prohibits long
+                             -1 if the compiler prohibits long
                                string literals.
-                             -2, when at run-time the whole string
+                             -2 if at run-time the whole string
                                literal is wrong.
-                             >0, when at run-time the string
+                             >0 if at run-time the string
                                literal is correct up to a position.
 
-  LIMITED_ARRAY_LITERAL_LEN: 0, when the C compiler does not limit
+  LIMITED_ARRAY_LITERAL_LEN: 0 if the C compiler does not limit
                                the length of array literals and
                                at run-time the array literal has
                                the correct value.
-                             -1, when the compiler prohibits long
+                             -1 if the compiler prohibits long
                                array literals.
-                             -2, when at run-time the whole array
+                             -2 if at run-time the whole array
                                literal is wrong.
-                             >0, when at run-time the array
+                             >0 if at run-time the array
                                literal is correct up to a position.
 
   NO_BIG_LIBRARY: Defined as -1. The meaning is: No library to
@@ -1957,7 +1956,7 @@ MACROS WRITTEN TO VERSION.H BY CHKCCOMP.C
                       runtime libraries with the actual version of
                       the C compiler.
 
-  CC_NO_OPT_OUTPUT_FILE: Defined, when compiling and linking with
+  CC_NO_OPT_OUTPUT_FILE: Defined if compiling and linking with
                          one command does not work, with the option
                          LINKER_OPT_OUTPUT_FILE.
 

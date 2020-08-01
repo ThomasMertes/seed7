@@ -95,7 +95,7 @@ const func bigInteger: (in bigInteger: factor1) * (in bigInteger: factor2)    is
  *   A rem B >= 0_ and A rem B < abs(B)    when B <> 0_ and A >= 0_
  *   A rem B <= 0_ and A rem B > -abs(B)   when B <> 0_ and A <= 0_
  *  @return the quotient of the integer division.
- *  @exception NUMERIC_ERROR When a division by zero occurs.
+ *  @exception NUMERIC_ERROR If a division by zero occurs.
  *)
 const func bigInteger: (in bigInteger: dividend) div (in bigInteger: divisor)   is action "BIG_DIV";
 
@@ -107,7 +107,7 @@ const func bigInteger: (in bigInteger: dividend) div (in bigInteger: divisor)   
  *  is equivalent to
  *   A - (A div B) * B
  *  @return the remainder of the integer division.
- *  @exception NUMERIC_ERROR When a division by zero occurs.
+ *  @exception NUMERIC_ERROR If a division by zero occurs.
  *)
 const func bigInteger: (in bigInteger: dividend) rem (in bigInteger: divisor)   is action "BIG_REM";
 
@@ -123,7 +123,7 @@ const func bigInteger: (in bigInteger: dividend) rem (in bigInteger: divisor)   
  *   A mod B >= 0_ and A mod B < B         when B > 0_
  *   A mod B <= 0_ and A mod B > B         when B < 0_
  *  @return the quotient of the integer division.
- *  @exception NUMERIC_ERROR When a division by zero occurs.
+ *  @exception NUMERIC_ERROR If a division by zero occurs.
  *)
 const func bigInteger: (in bigInteger: dividend) mdiv (in bigInteger: divisor)  is action "BIG_MDIV";
 
@@ -135,7 +135,7 @@ const func bigInteger: (in bigInteger: dividend) mdiv (in bigInteger: divisor)  
  *  is equivalent to
  *   A - (A mdiv B) * B
  *  @return the modulo of the integer division.
- *  @exception NUMERIC_ERROR When a division by zero occurs.
+ *  @exception NUMERIC_ERROR If a division by zero occurs.
  *)
 const func bigInteger: (in bigInteger: dividend) mod (in bigInteger: divisor)   is action "BIG_MOD";
 
@@ -147,7 +147,7 @@ const func bigInteger: (in bigInteger: dividend) mod (in bigInteger: divisor)   
  *   A ** B  returns -(-A) ** B  for A <= 0_ and B >= 0 and odd(B)
  *   A ** B  returns (-A) ** B   for A <= 0_ and B >= 0 and not odd(B)
  *  @return the result of the exponentation.
- *  @exception NUMERIC_ERROR When the exponent is negative.
+ *  @exception NUMERIC_ERROR If the exponent is negative.
  *)
 const func bigInteger: (in bigInteger: base) ** (in integer: exponent)   is action "BIG_IPOW";
 
@@ -157,7 +157,7 @@ const func bigInteger: (in bigInteger: base) ** (in integer: exponent)   is acti
 
 (**
  *  Shift a ''bigInteger'' number left by lshift bits.
- *  When lshift is negative a right shift is done instead.
+ *  If lshift is negative a right shift is done instead.
  *  A << B is equivalent to A * 2_ ** B when B >= 0 holds.
  *  A << B is equivalent to A mdiv 2_ ** -B when B < 0 holds.
  *  @return the left shifted number.
@@ -167,7 +167,7 @@ const func bigInteger: (in bigInteger: number) << (in integer: lshift)   is acti
 
 (**
  *  Shift a ''bigInteger'' number right by rshift bits.
- *  When rshift is negative a left shift is done instead.
+ *  If rshift is negative a left shift is done instead.
  *  A >> B is equivalent to A mdiv 2_ ** B when B >= 0 holds.
  *  A >> B is equivalent to A * 2_ ** -B when B < 0 holds.
  *  @return the right shifted number.
@@ -195,14 +195,14 @@ const proc: (inout bigInteger: number) *:= (in bigInteger: factor)       is acti
 
 (**
  *  Shift a number left by lshift bits and assign the result back to number.
- *  When lshift is negative a right shift is done instead.
+ *  If lshift is negative a right shift is done instead.
  *)
 const proc: (inout bigInteger: number) <<:= (in integer: lshift)         is action "BIG_LSHIFT_ASSIGN";
 
 
 (**
  *  Shift a number right by rshift bits and assign the result back to number.
- *  When rshift is negative a left shift is done instead.
+ *  If rshift is negative a left shift is done instead.
  *)
 const proc: (inout bigInteger: number) >>:= (in integer: rshift)         is action "BIG_RSHIFT_ASSIGN";
 
@@ -300,7 +300,7 @@ const func boolean: (in quotRem: quotRem1) <> (in quotRem: quotRem2)  is
  *  Quotient and remainder of integer division truncated towards zero.
  *  Compute quotient and remainder of the integer division ''div''.
  *  @return quotRem with quotient and remainder of the integer division.
- *  @exception NUMERIC_ERROR When a division by zero occurs.
+ *  @exception NUMERIC_ERROR If a division by zero occurs.
  *)
 const func quotRem: (in bigInteger: dividend) divRem (in bigInteger: divisor) is action "BIG_DIV_REM";
 
@@ -432,7 +432,7 @@ const func string: literal (in bigInteger: number) is
  *   3735928559_ radix 16 => "deadbeef"
  *   -3735928559_ radix 16 => "-deadbeef"
  *  @return the string result of the conversion.
- *  @exception RANGE_ERROR When base < 2 or base > 36 holds.
+ *  @exception RANGE_ERROR If base < 2 or base > 36 holds.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  *)
 const func string: (in var bigInteger: number) radix (in integer: base)  is action "BIG_radix";
@@ -447,7 +447,7 @@ const func string: (in var bigInteger: number) radix (in integer: base)  is acti
  *   3735928559_ RADIX 16 => "DEADBEEF"
  *   -3735928559_ RADIX 16 => "-DEADBEEF"
  *  @return the string result of the conversion.
- *  @exception RANGE_ERROR When base < 2 or base > 36 holds.
+ *  @exception RANGE_ERROR If base < 2 or base > 36 holds.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  *)
 const func string: (in var bigInteger: number) RADIX (in integer: base)  is action "BIG_RADIX";
@@ -460,7 +460,7 @@ const func string: (in var bigInteger: number) RADIX (in integer: base)  is acti
  *  characters as well as leading or trailing whitespace characters
  *  are not allowed. The sequence of digits is taken to be decimal.
  *  @return the ''bigInteger'' result of the conversion.
- *  @exception RANGE_ERROR When the string is empty or it does not contain
+ *  @exception RANGE_ERROR If the string is empty or it does not contain
  *             an integer literal.
  *  @exception MEMORY_ERROR  Not enough memory to represent the result.
  *)
@@ -474,7 +474,7 @@ const func bigInteger: bigInteger (in string: stri)                      is acti
  *  characters as well as leading or trailing whitespace characters
  *  are not allowed. The sequence of digits is taken to be decimal.
  *  @return the ''bigInteger'' result of the conversion.
- *  @exception RANGE_ERROR When the string is empty or it does not contain
+ *  @exception RANGE_ERROR If the string is empty or it does not contain
  *             an integer literal.
  *  @exception MEMORY_ERROR  Not enough memory to represent the result.
  *)
@@ -497,7 +497,7 @@ const func bigInteger: (attr bigInteger) parse (in string: stri) is
  *   bigInteger("Cafe", 16)         returns       51966_
  *  @param base Radix of the integer in the ''stri'' parameter.
  *  @return the ''bigInteger'' result of the conversion.
- *  @exception RANGE_ERROR When base < 2 or base > 36 holds or
+ *  @exception RANGE_ERROR If base < 2 or base > 36 holds or
  *             the string is empty or it does not contain an integer
  *             literal with the specified base.
  *  @exception MEMORY_ERROR  Not enough memory to represent the result.
@@ -579,9 +579,9 @@ CASE_DECLS(bigInteger);
  *   -1_ sci 3        returns "-1.000e+0"
  *   -0_ sci 2        returns "0.00e+0"
  *  @param precision Number of digits after the decimal point.
- *         When the ''precision'' is zero the decimal point is omitted.
+ *         If the ''precision'' is zero the decimal point is omitted.
  *  @return the string result of the conversion.
- *  @exception RANGE_ERROR When the ''precision'' is negative.
+ *  @exception RANGE_ERROR If the ''precision'' is negative.
  *)
 const func string: (in bigInteger: number) sci (in integer: precision) is func
   result
@@ -685,7 +685,7 @@ const func bigInteger: (in bigInteger: n) ! (in var bigInteger: k) is func
 (**
  *  Compute the integer square root of a ''bigInteger'' number.
  *  @return the integer square root.
- *  @exception NUMERIC_ERROR When number is negative.
+ *  @exception NUMERIC_ERROR If number is negative.
  *)
 const func bigInteger: sqrt (in var bigInteger: number) is func
   result

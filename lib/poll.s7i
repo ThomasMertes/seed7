@@ -78,7 +78,7 @@ const proc: clear (inout pollData: pData)                                  is ac
  *  @param aSocket Socket for which the events should be checked.
  *  @param eventsToCheck Events to be added to the checkedEvents
  *         field of ''pData''.
- *  @param fileObj File to be returned, when the iterator returns
+ *  @param fileObj File to be returned, if the iterator returns
  *         files in ''pData''.
  *  @exception RANGE_ERROR Illegal value for ''eventsToCheck''.
  *  @exception MEMORY_ERROR An out of memory situation occurred.
@@ -190,7 +190,7 @@ const func integer: getCheck (inout pollData: pData, in file: aFile) is DYNAMIC;
 (**
  *  Waits for one or more of the checkedEvents from ''pData''.
  *  ''Poll'' waits until one of the checkedEvents for a
- *  corresponding socket occurs. When a checkedEvents occurs
+ *  corresponding socket occurs. If a checkedEvents occurs
  *  the eventFindings field is assigned a value. The following
  *  eventFindings values are assigned:
  *  * POLLIN data can be read from the corresponding [[socket]].
@@ -284,7 +284,7 @@ const func file: nextFile (inout pollData: pData, in file: nullFile) is action "
  *  function ''addCheck''. The files covered by the ''pData'' iterator
  *  are determined with ''iterChecks'' or ''iterFindings''.
  *  @return the next file from the ''pData'' iterator, or STD_NULL,
- *          when no file from the ''pData'' iterator is available.
+ *          if no file from the ''pData'' iterator is available.
  *)
 const func file: nextFile (inout pollData: pData) is
     return nextFile(pData, STD_NULL);

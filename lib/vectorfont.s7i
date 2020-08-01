@@ -72,14 +72,14 @@ const func integer: width (in vectorFont: vecFont, in string: stri) is func
 
 
 (**
- *  Compute how many chars fit in a width, when ''stri'' is displayed.
+ *  Compute how many chars fit in a width, if ''stri'' is displayed.
  *  This is done for the given ''vecFont''. The ''allowedWidth'' is
  *  specified in pixels. The expression:
  *   numOfCharsInWidth(aFont, stri, width(aFont, stri))
  *  will always be equivalent to
  *   length(stri);
  *  @return the number of chars from ''stri'' that fit into ''allowedWidth''
- *          when ''stri'' is displayed with ''vecFont''.
+ *          if ''stri'' is displayed with ''vecFont''.
  *)
 const func integer: numOfCharsInWidth (in vectorFont: vecFont,
     in string: stri, in integer: allowedWidth) is func

@@ -3,7 +3,7 @@
 (*                                                                  *)
 (*  manual.txt                                                      *)
 (*                                                                  *)
-(*  Copyright (C) 1989 - 2012  Thomas Mertes                        *)
+(*  Copyright (C) 1989 - 2019  Thomas Mertes                        *)
 (*  All rights reserved.                                            *)
 (*                                                                  *)
 (*  Documentation: Manual for the Seed7 programming language        *)
@@ -91,7 +91,7 @@ CONTENTS
   7.4     Class methods
   7.5     Multiple dispatch
   7.6     Replacing pointers with interface types
-  8.    THE FILE SYSTEM
+  8.    FILE INPUT AND OUTPUT
   8.1     Conversion to strings and back
   8.2     Basic input and output operations
   8.3     Input and output with conversion
@@ -163,59 +163,72 @@ CONTENTS
   12.29   getenv
   12.30   setenv
   12.31   environment
-  13.   PRIMITIVE ACTIONS
-  13.1    Actions for the type ACTION
-  13.2    Actions for array types
-  13.3    Actions for the type bigInteger
-  13.4    Actions for the type boolean
-  13.5    Actions for byte strings
-  13.6    Actions for the type char
-  13.7    Actions for various directory, file and other commands
-  13.8    Actions for text (console) screen output
-  13.9    Actions for declarations
-  13.10   Actions to do graphic output
-  13.11   Actions for enumeration types
-  13.12   Actions for the type clib_file
-  13.13   Actions for the type float
-  13.14   Actions to support the graphic keyboard
-  13.15   Actions for hash types
-  13.16   Actions for the type integer
-  13.17   Actions for interface types
-  13.18   Actions to support the text (console) screen keyboard
-  13.19   Actions for the list type
-  13.20   Actions for the type process
-  13.21   Actions for the type pollData
-  13.22   Actions for proc operations and statements
-  13.23   Actions for the type program
-  13.24   Actions for the type reference
-  13.25   Actions for the type ref_list
-  13.26   Actions for struct types
-  13.27   Actions for set types
-  13.28   Actions for the type PRIMITIVE_SOCKET
-  13.29   Actions for the types database and sqlStatement
-  13.30   Actions for the type string
-  13.31   Actions for the type time
-  13.32   Actions for the type type
-  13.33   Actions for the type utf8_file
-  14.   FOREIGN FUNCTION INTERFACE
-  14.1    C types used by the implementation
-  14.2    String and path conversions
-  14.3    Macros to access the action parameters
-  14.4    Functions to create action results
-  14.5    Error handling
-  15.   ERRORS
-  15.1    Compile time errors
-  15.2    Exceptions
-  15.2.1  MEMORY_ERROR
-  15.2.2  NUMERIC_ERROR
-  15.2.3  OVERFLOW_ERROR
-  15.2.4  RANGE_ERROR
-  15.2.5  FILE_ERROR
-  15.2.6  ILLEGAL_ACTION
-  15.3    Handlers
-  15.4    Stack trace
-  15.5    Signals
-  15.6    Other errors and warnings
+  13.   DATABASE ABSTRACTION API
+  13.1    Opening a database connection
+  13.2    Other ways to open a database connection
+  13.3    Prepared statements
+  13.4    Bind values to placeholders
+  13.5    Execute a prepared statement
+  13.6    Fetch records from the result set
+  13.7    Get columns from fetched records
+  14.   PRIMITIVE ACTIONS
+  14.1    Actions for the type ACTION
+  14.2    Actions for array types
+  14.3    Actions for the type bigInteger
+  14.4    Actions for the types bin32 and bin64
+  14.5    Actions for the type boolean
+  14.6    Actions for byte strings
+  14.7    Actions for the type char
+  14.8    Actions for various directory, file and other commands
+  14.9    Actions for text (console) screen output
+  14.10   Actions for declarations
+  14.11   Actions to do graphic output
+  14.12   Actions for enumeration types
+  14.13   Actions for the type clib_file
+  14.14   Actions for the type float
+  14.15   Actions to support the graphic keyboard
+  14.16   Actions for hash types
+  14.17   Actions for the type integer
+  14.18   Actions for interface types
+  14.19   Actions to support the text (console) screen keyboard
+  14.20   Actions for the list type
+  14.21   Actions for the type process
+  14.22   Actions for the type pollData
+  14.23   Actions for proc operations and statements
+  14.24   Actions for the type program
+  14.25   Actions for the type reference
+  14.26   Actions for the type ref_list
+  14.27   Actions for struct types
+  14.28   Actions for set types
+  14.29   Actions for the type PRIMITIVE_SOCKET
+  14.30   Actions for the types database and sqlStatement
+  14.31   Actions for the type string
+  14.32   Actions for the type time
+  14.33   Actions for the type type
+  14.34   Actions for the type utf8_file
+  15.   FOREIGN FUNCTION INTERFACE
+  15.1    C types used by the implementation
+  15.2    String conversions
+  15.3    Operating system string and path conversions
+  15.4    Macros to access the action parameters
+  15.5    Functions to create action results
+  15.6    Memory management macros
+  15.7    Basic conversion functions
+  15.8    Error handling
+  16.   ERRORS
+  16.1    Compile time errors
+  16.2    Exceptions
+  16.2.1  MEMORY_ERROR
+  16.2.2  NUMERIC_ERROR
+  16.2.3  OVERFLOW_ERROR
+  16.2.4  RANGE_ERROR
+  16.2.5  FILE_ERROR
+  16.2.6  DATABASE_ERROR
+  16.2.7  ILLEGAL_ACTION
+  16.3    Handlers
+  16.4    Stack trace
+  16.5    Signals
+  16.6    Other errors and warnings
 
 
 
@@ -1622,7 +1635,7 @@ CONTENTS
 ===================
 
     In the following sub-chapters the predefined types of the
-  standard library are introduced. The operators have, when not
+  standard library are introduced. The operators have, if not
   stated otherwise, the type described in the sub-chapter as
   parameter type and result type. The relations have also the
   type described in the sub-chapter as parameter type and
@@ -1707,7 +1720,7 @@ CONTENTS
 
     The logical operators 'and' and 'or' work strictly left
   to right. First they evaluate the left operand and then
-  the right operand. When the result of the operation can be
+  the right operand. If the result of the operation can be
   determined after evaluation of the left operand the right
   operand is not evaluated. This can be used to check for
   a boundary in a boolean expression. Naturally side effects
@@ -1753,7 +1766,7 @@ CONTENTS
 
   Optimizing boolean expressions:
 
-    When the result of a boolean expression can be
+    If the result of a boolean expression can be
   determined at compile time, the expression can be
   replaced by a constant. Additionally the following
   equations can be used:
@@ -1779,7 +1792,7 @@ CONTENTS
 
     0   2147483647   1E6   2e+9   16#c0   16#FFFF   8#177777   2#1010101010
 
-  When an 'integer' operation overflows it raises the exception
+  If an 'integer' operation overflows it raises the exception
   OVERFLOW_ERROR. The 'integer' functions are defined
   in the library "integer.s7i".
 
@@ -2418,7 +2431,7 @@ CONTENTS
   represented with an 'integer' numerator and an 'integer'
   denominator. The values of the type 'rational' are
   finite and periodical decimal numbers. Rational literals
-  do not exist. When a ' rational' operation overflows it raises
+  do not exist. If a ' rational' operation overflows it raises
   the exception OVERFLOW_ERROR. In 'integer' computations an
   overflow can only happen with very huge positive or negative
   numbers. In 'rational' computations an overflow can
@@ -4434,7 +4447,7 @@ CONTENTS
         end if;
       end func;
 
-  Here the second parameter is only evaluated when the first
+  Here the second parameter is only evaluated if the first
   parameter is TRUE.
 
 
@@ -5493,12 +5506,11 @@ CONTENTS
   types and set types can also be used to declare data structures.
 
 
-8. THE FILE SYSTEM
-==================
+8. FILE INPUT AND OUTPUT
+========================
 
-    The file system is used for communication in various ways.
-  For example: To write strings on the screen we use the
-  following statements:
+    Files are used for communication in various ways. For example:
+  To write strings on the screen we use the following statements:
 
     write("hello world");
     writeln;
@@ -5525,7 +5537,7 @@ CONTENTS
 
   the '<&' operator is also overloaded for various types as
   left operand and a 'string' as right operand.
-  This allows you to concatenate several objects with '<&' when
+  This allows you to concatenate several objects with '<&' if
   at least the first or the second object is a 'string'.
   We can also read data from the keyboard:
 
@@ -5548,7 +5560,7 @@ CONTENTS
   file 'IN' and all 'write' statements write to the file 'OUT'. The
   files 'IN' and 'OUT' are initialized with 'STD_IN' and 'STD_OUT'
   which are the stdin and stdout files of the operating system.
-  (Usually the keyboard and the screen). When we want to write
+  (Usually the keyboard and the screen). If we want to write
   to other files we use write statements with the file as first
   parameter. To write a line of text to the file "info.fil" we
   use the following statements:
@@ -5591,7 +5603,7 @@ CONTENTS
     clear(window1);
 
   Files can be used for much more things. Here is a list of
-  goals for a file system:
+  goals for an inout/output system:
 
     - A concept which provides conversions from arbitrary
       types to strings and back.
@@ -5877,7 +5889,7 @@ CONTENTS
 
   Note that 'getwd' skips leading spaces and tabs while 'getc' and
   'getln' do not.
-  When 'getc', 'getwd' or 'getln' is not defined for a new user defined
+  If 'getc', 'getwd' or 'getln' is not defined for a new user defined
   file type the declarations from the 'null_file' are used instead.
   These declarations are based on the method 'gets' which must be
   defined for every new user defined file-type.
@@ -5898,7 +5910,7 @@ CONTENTS
   process. As such all functions of the "scanfile.s7i" library
   assume that the first character to be processed is always in
   'bufferChar'. Since the standard 'file' functions do not have
-  this behavior, care has to be taken when mixing scanner and
+  this behavior, care has to be taken if mixing scanner and
   file functions.
 
   The type 'null_file' provides default functions to write end-of-line:
@@ -6049,7 +6061,7 @@ CONTENTS
   After that all 'read' statements refer to OTHER_FILE.
   Most operating systems have also a stderr file which
   can be accessed via the name 'STD_ERR'. If you want to
-  write error messages to the screen even when stdout
+  write error messages to the screen even if stdout
   is redirected elsewhere you can write:
 
     writeln(STD_ERR, "ERROR MESSAGE");
@@ -6064,7 +6076,7 @@ CONTENTS
 
     var file: MY_FILE is STD_NULL;
 
-  It is also used to represent an illegal file value, when for
+  It is also used to represent an illegal file value, if for
   example an attempt to 'open' a 'file' fails.
 
 
@@ -6103,11 +6115,11 @@ CONTENTS
       "at+" ... Append; open or create file for update, writing at end-of-file.
 
   Note that Seed7 defines the modes "r", "w", "a", "r+", "w+"
-  and "a+" as binary modes. When 'open' is called, with a mode
+  and "a+" as binary modes. If 'open' is called, with a mode
   not listed in the table above, the exception RANGE_ERROR
-  is raised. When there is not enough memory to convert 'path'
+  is raised. If there is not enough memory to convert 'path'
   to the system path type the exception MEMORY_ERROR
-  is raised. When 'open' fails for other reasons it returns
+  is raised. If 'open' fails for other reasons it returns
   'STD_NULL'. E.g.: It is not allowed to 'open' a directory.
   An attempt to 'open' a directory returns 'STD_NULL'. It is
   recommended to check the file variable after opening a file:
@@ -6118,7 +6130,7 @@ CONTENTS
 
     writeln(my_out, "hi there");
 
-  When processing of a file is finished it should be closed
+  When processing of a file has finished it should be closed
 
     close(my_out);
 
@@ -6189,9 +6201,9 @@ CONTENTS
   a BOM and depending on that it opens an UTF-16LE or UTF-16BE file.
 
   The functions 'openUtf16le' and 'openUtf16be' open Unicode files
-  with the UTF-16LE and UTF-16BE encoding respectively. When the
+  with the UTF-16LE and UTF-16BE encoding respectively. If the
   file is opened with one of the modes "w", "w+", "wt" or "wt+" an
-  appropriate BOM is created. When the file is opened with any other
+  appropriate BOM is created. If the file is opened with any other
   mode the application program is in charge to handle optional BOM
   markers. This way 'openUtf16le' and 'openUtf16be' can be used
   to open existing files without BOM.
@@ -6271,7 +6283,7 @@ CONTENTS
       systems. Reading files with different line endings
       ("\n" and "\r\n") is supported by every 'external_file':
       The functions 'getwd', 'getln', 'read' and 'readln', of
-      'external_file' skip a carriage return ('\r') when it
+      'external_file' skip a carriage return ('\r') if it
       is just before a linefeed ('\n'). The rest of the
       'external_file' functions like 'getc' and 'gets' deliver
       line endings unchanged.
@@ -6457,7 +6469,7 @@ CONTENTS
         writeln;
       end func;
 
-  An 'echo_file' checks also for control-C ('KEY_CTL_C'). When
+  An 'echo_file' checks also for control-C ('KEY_CTL_C'). If
   control-C is typed an 'echo_file' asks if the program should be
   terminated:
 
@@ -6496,7 +6508,7 @@ CONTENTS
         until ch = '!';
       end func;
 
-  This program terminates when a line containing '!' is confirmed
+  This program terminates if a line containing '!' is confirmed
   with Return.
 
 
@@ -6707,7 +6719,7 @@ CONTENTS
     The I/O concept introduced in the previous chapters separates
   the input of data from its conversion. The 'read', 'readln',
   'getwd' and 'getln' functions are designed to read whitespace
-  separated data elements. When the data elements are not separated
+  separated data elements. If the data elements are not separated
   by whitespace characters this I/O concept is not possible.
   Instead the functions which read from the file need some
   knowledge about the type which they intend to read. Fortunately
@@ -6813,10 +6825,10 @@ CONTENTS
     myFile.bufferChar := getc(myFile);
 
   In most cases whole files are either processed with normal I/O
-  functions or with scanner functions. When normal I/O functions
+  functions or with scanner functions. If normal I/O functions
   need to be combined with scanner functions care has to be taken:
 
-    - When the last function which read from a file was
+    - If the last function which read from a file was
       one of 'read', 'readln', 'getwd' or 'getln'
       the 'bufferChar' already contains the character which
       should be processed next and therefore subsequent scanner
@@ -6831,8 +6843,8 @@ CONTENTS
       'bufferChar' is known. For example at the end
       of the line.
 
-  Scanner functions are helpful when it is necessary to read
-  numeric input without failing when no digits are present:
+  Scanner functions are helpful if it is necessary to read
+  numeric input without failing if no digits are present:
 
     skipWhiteSpace(IN);
     if eoln(IN) then
@@ -6874,7 +6886,7 @@ CONTENTS
     end while;
 
   Whitespace and comments are automatically skipped with the
-  function 'getSymbol'. When comments should also be returned the
+  function 'getSymbol'. If comments should also be returned the
   function 'getSymbolOrComment' can be used. Together with the
   function 'getWhiteSpace' it is even possible to get the
   whitespace between the symbols:
@@ -7030,7 +7042,7 @@ CONTENTS
     There are different existing notations to specify the syntax of
   programming languages. Backus-Naur Form (BNF) and its variants
   like Extended Backus-Naur Form (EBNF) are examples of such syntax
-  specifications. Since it is easier to understand new concepts when
+  specifications. Since it is easier to understand new concepts if
   they are compared to well known concepts, EBNF will be used as a
   base to explain S7SSD.
 
@@ -7058,10 +7070,10 @@ CONTENTS
     - Expressions of the extended Backus-Naur form can be put within
       parentheses ( ... ) .
 
-    - When an expression is optional it is enclosed in square
+    - If an expression is optional it is enclosed in square
       brackets [ ... ] .
 
-    - When an expression may be omitted or repeated it is
+    - If an expression may be omitted or repeated it is
       enclosed in curly braces { ... } .
 
   The syntax of the extended Backus-Naur form can be described in
@@ -7249,7 +7261,7 @@ CONTENTS
   call-by-name parameters are executed at some places.
 
   The 'loop' function uses a repeat- and an if-statement to
-  implement the desired behavior. When necessary the call-by-name
+  implement the desired behavior. If necessary the call-by-name
   parameters are executed several times.
 
   For the 'loop' example with the semantic errors (see above) we
@@ -7260,8 +7272,8 @@ CONTENTS
 
 9.4 Priority and associativity
 
-    When a syntax construct has parameters before the first symbol
-  or after the last symbol the priority and the associativity of the
+    If a syntax construct has parameters before the first symbol or
+  after the last symbol the priority and the associativity of the
   construct are significant. Constructs with stronger priority bind
   their parameters earlier than constructs with weaker priority. The
   priority is described by a natural number (inclusive 0). The
@@ -7394,7 +7406,7 @@ CONTENTS
 
     not (not okay)
 
-  When the associativity of the 'not' operator is specified with
+  If the associativity of the 'not' operator is specified with
   '->' instead of '<-' the 'not not' expression above is not legal.
   With 13 the priority of the whole 'not' operator is determined.
   As convention priorities from 1 to 20 are used by operators
@@ -7449,7 +7461,7 @@ CONTENTS
 
     okay and not error
 
-  makes no sense when the 'and' operator has priority 12 instead of 14.
+  makes no sense if the 'and' operator has priority 12 instead of 14.
 
   S7SSD treats everything as operator description. Operators
   have priority and associativity. The priority and associativity
@@ -7531,7 +7543,7 @@ CONTENTS
     - The associativity is described with one of the symbols
       -> (left-associative), <- (right-associative),
       <-> (not associative) and -><- (both associativities).
-      When there are no left or right operands, as it is the case
+      If there are no left or right operands, as it is the case
       for the loop-statement, the associativity is irrelevant.
 
     - Finally the priority of the syntax construct is defined with
@@ -7656,7 +7668,7 @@ CONTENTS
 
 9.7 Advanced syntax definitions
 
-  When we want to use some special syntax which should be only
+  If we want to use some special syntax which should be only
   allowed at some place we do the following:
 
     - Define the special syntax with S7SSD in a way that does not
@@ -7838,7 +7850,7 @@ CONTENTS
     dot_expression ::=
       [ '.' ] call_expression { '.' call_expression } .
 
-  The EBNF description can become long, when many priority levels
+  The EBNF description can become long if many priority levels
   exist, as it is the case in Seed7.
 
   There are some things which are out of the scope of S7SSD.
@@ -9097,7 +9109,485 @@ CONTENTS
 
 
 
-13. PRIMITIVE ACTIONS
+13. DATABASE ABSTRACTION API
+============================
+
+    Seed7 provides an abstraction layer for database access. There
+  is an application programming interface (API), which defines how
+  a client may access a database. Seed7 accomplishes database
+  independence by using database drivers as abstraction layers
+  between the application and the database. There are database
+  drivers for MySQL, MariaDB, SQLLite, PostgreSQL, Oracle, ODBC,
+  Firebird and Interbase databases. The following example uses the
+  datapase abstraction API:
+
+    const proc: dbDemo is func
+      local
+        var database: currDb is database.value;
+        var sqlStatement: statement is sqlStatement.value;
+        var integer: index is 0;
+      begin
+        currDb := openDatabase(DB_MYSQL, "testDb", "testUser", "testPassword");
+        if currDb (in_sqlStatement)"><> database.value then
+          statement := prepare(currDb, "SELECT * FROM testTable");
+          execute(statement);
+          while fetch(statement) do
+            for index range 1 to columnCount(statement) do
+              write(column(statement, index, string) <& ", ");
+            end for;
+            writeln;
+          end while;
+          close(currDb);
+        end if;
+      end func;
+
+
+13.1 Opening a database connection
+
+  To open a database connection you need to know several things:
+
+    - The database used.
+    - The 'host' where the database is running.
+      An empty 'host' name ("") specifies the local machine ("localhost").
+    - The 'port' to access the database.
+      A 'port' of 0 specifies the default port of the database.
+    - The 'name' of the database.
+    - A database 'user' name.
+    - The 'password' of the database user.
+
+  Depending on the database a corresponding database driver must
+  be used:
+
+  Database   | Driver        | Default port | Comment
+  -----------+---------------+--------------+--------------------------------------
+  MySQL      | DB_MYSQL      |  3306        |
+  MariaDB    | DB_MYSQL      |  3306        |
+  SQLLite    | DB_SQLITE     |              | Host must be "" and port must be 0.
+  PostgreSQL | DB_POSTGRESQL |  5432        |
+  Oracle     | DB_OCI        |  1521        |
+  SQL Server | DB_ODBC       |              | Can also connect to other databases.
+  Firebird   | DB_FIRE       |              |
+  Interbase  | DB_FIRE       |              |
+
+  A basic function to open a database is:
+
+    const func database: openDatabase (in dbCategory: driver, in string: host,
+                                       in integer: port, in string: dbName,
+                                       in string: user, in string: password)
+
+  The following statements each open a database:
+
+    currDb := openDatabase(DB_MYSQL, "www.example.org", 0, "testDb", "testUser", "testPassword");
+
+    currDb := openDatabase(DB_MYSQL, "192.0.2.235", 0, "testDb", "testUser", "testPassword");
+
+    currDb := openDatabase(DB_POSTGRESQL, "1234:feed::dead:beef", 0, "testDb", "testUser", "testPassword");
+
+    currDb := openDatabase(DB_POSTGRESQL, "localhost", 0, "testDb", "testUser", "testPassword");
+
+    currDb := openDatabase(DB_OCI, "", 0, "dbName", "testUser", "testPassword");
+
+    currDb := openDatabase(DB_OCI, "www.example.org", 2345, "testDb", "testUser", "testPassword");
+
+  The 'host' can be specified by name (e.g.: "www.example.org"),
+  by an IPv4 address (e.g.: "192.0.2.235") or by an IPv6
+  addresss in colon notation (e.g.: "1234:feed::dead:beef").
+  Specifying "" as 'host' means "localhost".
+
+  The 'DB_OCI' driver allows the usage of "tnsnames.ora". An entry
+  name from "tnsnames.ora" (a net_service_name) can be used as
+  'dbName'. If "tnsnames.ora" is used the parameter 'host' must
+  be "" and the parameter 'port' must be 0.
+
+    currDb := openDatabase(DB_OCI, "", 0, "tnsnamesOraEntryName", "testUser", "testPassword");
+
+  A SQLite database can be opened with:
+
+    currDb := openDatabase(DB_SQLITE, "", 0, "aDir/dbName.db", "testUser", "testPassword");
+
+    currDb := openDatabase(DB_SQLITE, "", 0, "aDir/dbName", "testUser", "testPassword");
+
+  The path to the database file (in the example above "aDir/dbName")
+  can be specified with or without the extension ".db".
+  For a SQLite database 'host' must be "" and 'port' must be 0.
+
+  The Seed7 database driver 'DB_ODBC' is special, as the ODBC
+  interface itself allows also connecting to different databases.
+  The ODBC interface library accomplishes this by using ODBC drivers.
+  Unfortunately these drivers do come in varying quality. Accessing
+  a database directly via the Seed7 driver should be the preferred
+  method. SQL Server is the only database, that only has an ODBC
+  interface. Opening an ODBC database can be done with the following
+  function:
+
+    const func database: openDatabase (DB_ODBC, in string: odbcDriver,
+                                       in string: server, in string: dbName,
+                                       in string: user, in string: password)
+
+  A SQL Server can be opened with:
+
+    currDb := openDatabase(DB_ODBC, "sqlserver", "", "", "testUser", "testPassword");
+
+    currDb := openDatabase(DB_ODBC, "sqlserver", "", "", "", "");
+
+  If 'server' or 'dbName' are empty ("") the default values of the
+  ODBC driver are used. The ODBC driver may provide also default
+  values for 'user' and 'password'.
+
+  ODBC uses also data source names (DSNs) to specify possible
+  database connections. It is possible to open an ODBC database
+  by specifying the data source name (DSN) in the parameter
+  'dbName':
+
+    currDb := openDatabase(DB_ODBC, "", "", "dsnName", "testUser", "testPassword");
+
+    currDb := openDatabase(DB_ODBC, "", "", "dsnName", "", "");
+
+  When opening with a DSN succeeds the parameters 'odbcDriver'
+  and 'server' are ignored. A DSN might also specify 'user'
+  and 'password'. In this case this parameters can be left empty,
+  when openDatabase() is called.
+
+  When using windows the DSNs and the ODBC drivers can be managed
+  with:
+
+    Start -> Control Panel -> Administrative Tools -> Data Sources (ODBC).
+
+  The data source names (DSNs) of unixODBC are specified in the
+  file "odbc.ini". The ODBC drivers of unixODBC are specified
+  in the file "odbcinst.ini".
+
+
+13.2 Other ways to open a database connection
+
+  There is another variant of opening a database:
+
+    const func database: openDatabase (in dbCategory: driver, in string: dbPath,
+                                       in string: user, in string: password)
+
+  The 'dbPath' can be given in one of these forms:
+
+    - host:port/dbName
+    - host/dbName
+    - dbName
+
+  The 'host' can be specified by name (e.g.: "www.example.org"),
+  or by IPv4 address (e.g.: "192.0.2.235") or by IPv6 address in
+  colon notation (e.g.: "[1234:feed::dead:beef]"). Note that an
+  IPv6 address must be enclosed in brackets. If 'host' is not
+  specified the default host ("localhost") is used. If 'port'
+  is not specified the default port of the driver is used. The
+  following statements each open a database:
+
+    currDb := openDatabase(DB_MYSQL, "www.example.org:1234/testDb", "testUser", "testPassword");
+
+    currDb := openDatabase(DB_POSTGRESQL, "192.0.2.235/testDb", "testUser", "testPassword");
+
+    currDb := openDatabase(DB_POSTGRESQL, "testDb", "testUser", "testPassword");
+
+    currDb := openDatabase(DB_OCI, "sidOrServiceName", "testUser", "testPassword");
+
+    currDb := openDatabase(DB_OCI, "tnsnamesOraEntryName", "testUser", "testPassword");
+
+  If 'driver' is 'DB_ODBC' the 'dbPath' can be specified in one
+  of these forms:
+
+    - odbcDriver:dbServer/dbName
+    - dbServer/dbName
+    - dbServer
+    - odbcDataSourceName
+
+  Use a value like "sqlserver" for 'odbcDriver'.
+
+  If 'driver' is 'DB_SQLITE' then 'dbPath' is the path of a
+  database file:
+
+    - sqlitePath
+
+  The 'sqlitePath' uses the Seed7 standard path representation.
+  A SQLite database can be opened with:
+
+    currDb := openDatabase(DB_SQLITE, "aDir/dbName", "testUser", "testPassword");
+
+  It is also possible ot open a database with a connect string:
+
+    const func database: openDatabase (in dbCategory: driver, in string: connectStri)
+
+  The 'connectStri' must be in one of the forms
+
+    - user:password@dbPath
+    - user@dbPath
+    - dbPath
+
+  If no 'user' is specified the user "guest" is used. If no
+  'password' is specified the password "guest" is used. The
+  'dbPath' is specified as before.
+
+
+13.3 Prepared statements
+
+  All SQL statements (e.g. SELECT, CREATE, INSERT, UPDATE) can be
+  executed by using prepared statements. The database abstraction
+  API does not provide a way to execute SQL without a prepared
+  statement. After a prepared statement has been created it can be
+  executed multiple times. Databases usually optimize prepared
+  statements for fast execution. Prepared statements are created
+  with the following function:
+
+    const func sqlStatement: prepare (in database: db, in string: sqlStatementStri)
+
+  Regarding the parameter sqlStatementStri some things must be considered:
+
+    - A question mark (?) is used as placeholder for bind variables.
+    - Strings in a SQL statement are enclosed in apostrophes (e.g. 'abc').
+      - A string consists of all characters between the enclosing
+        apostrophes.
+      - Apostrophe characters (') in a string must be doubled to
+        get one apostrophe character in the string.
+    - Comments in a SQL statement start with /* and end with */.
+    - Line comments in a SQL statement start with -- and end
+      with a newline characer ('\n').
+    - Table and field names can be enclosed in double quotes (e.g. "aTable").
+      - This way a table or field name can contain spaces or other
+        characters, that are normally not allowed.
+      - Double quotes in a quoted name must be doubled (several
+        databases do not allow double quotes in names).
+
+  The following statements each create a prepared SQL statement:
+
+    statement := prepare(currDb, "CREATE TABLE customers (name CHAR(128), area CHAR(128))");
+
+    statement := prepare(currDb, "SELECT * FROM customers");
+
+    statement := prepare(currDb, "SELECT * FROM customers /* comment */ WHERE name = 'adam'");
+
+    statement := prepare(currDb, "SELECT * FROM customers -- Comment\n  WHERE name != 'adam'");
+
+    statement := prepare(currDb, "SELECT * FROM customers WHERE name = ?");
+
+    statement := prepare(currDb, "SELECT * FROM customers WHERE name LIKE '%''%'");
+
+    statement := prepare(currDb, "SELECT \"a field\" FROM \"a table\"");
+
+  Preparing a statement fails with a RANGE_ERROR, if the database
+  is not open. This is checked by the driver. Other things are
+  checked by the database. The database might raise the exception
+  DATABASE_ERROR. Note that some databases do not check everything,
+  when the statement is prepared. So an illegal SQL statement might
+  be accepted by prepare(), but executing the prepared statement
+  later fails.
+
+  Executing a prepared statement, that neither has bind variables
+  nor returns a result is quite simple:
+
+    statement := prepare(currDb, "CREATE TABLE customers (name CHAR(128), area CHAR(128))");
+    execute(statement);
+
+
+13.4 Bind values to placeholders
+
+  Question marks (?) in a prepared statement string are used as
+  placeholder for bind variables. Before a prepared statement is
+  executed it is necessary to bind values to the placeholders (?).
+  Prepared statements without placeholders do not need a binding.
+  It is possible to bind the same placeholder again and again,
+  even with values from different types. This can be used to
+  execute the same prepared statement multiple times with
+  different values. The binding is done with a bind() function.
+  For several types bind() functions are defined:
+
+    const proc: bind (inout sqlStatement: statement, in integer: pos, in bigInteger: num)
+
+    const proc: bind (inout sqlStatement: statement, in integer: pos, in bigRational: num)
+
+    const proc: bind (inout sqlStatement: statement, in integer: pos, in boolean: flag)
+
+    const proc: bind (inout sqlStatement: statement, in integer: pos, in bstring: bstri)
+
+    const proc: bind (inout sqlStatement: statement, in integer: pos, in float: number)
+
+    const proc: bind (inout sqlStatement: statement, in integer: pos, in integer: number)
+
+    const proc: bind (inout sqlStatement: statement, in integer: pos, NULL)
+
+    const proc: bind (inout sqlStatement: statement, in integer: pos, in string: stri)
+
+    const proc: bind (inout sqlStatement: statement, in integer: pos, in time: timeData)
+
+    const proc: bind (inout sqlStatement: statement, in integer: pos, in duration: durationData)
+
+  Binding fails with a RANGE_ERROR, if the statement has not
+  been prepared. Binding is done by position. Position numbers
+  start with 1. To bind the 'integer' 12345 to the third
+  placeholder (?) of a prepared statement do:
+
+    bind(statement, 3, 12345);
+
+  The bind() functions check the given position (pos) and raise
+  the exception RANGE_ERROR, if no corresponding placeholder (?)
+  exists. This happens if pos <= 0 holds or if pos is greater
+  than the number of placeholders. The bind() functions check
+  also, if the type of the given value fits to the database
+  column. If the type does not fit the exception RANGE_ERROR is
+  raised.
+
+  Another examble with binding is:
+
+    write("name? ");
+    readln(name);
+    statement := prepare(currDb, "SELECT name, area FROM customers WHERE name = ?");
+    bind(statement, 1, name);
+    execute(statement);
+    . . .  Write a list of names and areas.
+
+  Binding protects against SQL injection. SQL injection is a
+  technique to attack applications. SQL injection is possible,
+  if the SQL statement is build from user input. Suppose we
+  do the example above without binding:
+
+    write("name? ");
+    readln(name);
+    statement := prepare(currDb, "SELECT name, area FROM customers WHERE name = '" <& name <& "'");
+    execute(statement);
+    . . .  Write a list of names and areas.
+
+  Suppose the user enters (when asked for the name):
+
+    ' UNION SELECT login, password FROM user --
+
+  This would prepare and execute the SQL statement:
+
+    SELECT name, area FROM customers WHERE name = '' UNION SELECT login, password FROM user --'
+
+  This would trigger that secret login data is written.
+
+
+13.5 Execute a prepared statement
+
+  To trigger that a prepared statement actually does something
+  it must be executed. Prepared statements are executed with
+  the following function:
+
+    const proc: execute (inout sqlStatement: statement)
+
+  The following statement executes a prepared SQL statement:
+
+    execute(statement);
+
+  Executing fails with a RANGE_ERROR, if the statement has not
+  been prepared. Executing fails with a DATABASE_ERROR, if
+  not all parameters have been bound. If the database finds
+  an error the exception DATABASE_ERROR is also raised. Note
+  that illegal SQL statements might raise a DATABASE_ERROR in
+  prepare() or in execute(). Where the exception is raised
+  depends on the database.
+
+  There are prepared statements, that return a result set of
+  records (e.g.: SELECT) and prepared statements that do not
+  return data (e.g.: UPDATE). After executing a prepared
+  statement the number of columns in a record (row) of the
+  result set can be retrieved with the following function:
+
+    const func integer: columnCount (in sqlStatement: statement)
+
+  If a prepared statement does not return data columnCount()
+  returns 0. The names of the columns in a record (row) of
+  the result set can be obtained with the function:
+
+    const func string: columnName (in sqlStatement: statement, in integer: column)
+
+  These functions can be combined to write the column names
+  of a prepared statement:
+
+    execute(statement);
+    for columnNum range 1 to columnCount(statement) do
+      write(columnName(statement, columnNum) <& " ");
+    end for;
+    writeln;
+
+
+13.6 Fetch records from the result set
+
+  After executing a prepared statement, that returns data
+  (e.g.: SELECT), the records (rows) can be fetched one by one
+  with fetch(). After executing a prepared statement, that does
+  not return data, no fetching is necessary. Fetching is done
+  with the following function:
+
+    const func boolean: fetch (in sqlStatement: statement)
+
+  The function returns TRUE, if a record of the result set
+  could be fetched successfully. The function returns FALSE,
+  if there is no data (e.g.: UPDATE) or no more row (record)
+  to fetch. The following example shows how fetch() is usually
+  used:
+
+    execute(statement);
+    while fetch(statement) do
+      . . .  Process a record from the result set.
+    end while;
+
+
+13.7 Get columns from fetched records
+
+  After a record (row) has been fetched from a result set
+  individual colum data can be retrieved with a column() function.
+  For several types column() functions are defined:
+
+    const func bigInteger: column (in sqlStatement: statement, in integer: column, attr bigInteger)
+
+    const func bigRational: column (in sqlStatement: statement, in integer: column, attr bigRational)
+
+    const func boolean: column (in sqlStatement: statement, in integer: column, attr boolean)
+
+    const func bstring: column (in sqlStatement: statement, in integer: column, attr bstring)
+
+    const func duration: column (in sqlStatement: statement, in integer: column, attr duration)
+
+    const func float: column (in sqlStatement: statement, in integer: column, attr float)
+
+    const func integer: column (in sqlStatement: statement, in integer: column, attr integer)
+
+    const func string: column (in sqlStatement: statement, in integer: column, attr string)
+
+    const func time: column (in sqlStatement: statement, in integer: column, attr time)
+
+  Getting a column fails with a RANGE_ERROR, if no record
+  has been fetched from the result set. Column numbers start
+  with 1. To get column number four from the current result
+  record (row) as 'integer' do:
+
+    column(statement, 4, integer);
+
+  The column() functions check the given position (column) and
+  raise the exception RANGE_ERROR, if no corresponding column
+  exists in the result record. This happens if column <= 0
+  holds or if column is greater than the number of columns
+  (which can be obtained with columnCount()). Database columns can
+  be NULL. This can be checked with the following function:
+
+    const func boolean: isNull (in sqlStatement: statement, in integer: column)
+
+  The function isNull() returns TRUE, if the specified column
+  is NULL. Otherwise isNull() returns FALSE. The column()
+  functions return a default value, if a column is NULL. The
+  following default values are used:
+
+  Type        | Default value
+  ------------+----------------
+  bigInteger  | 0_
+  bigRational | 0_/1_
+  boolean     | FALSE
+  bstring     | bstring("")
+  duration    | duration.value
+  float       | 0.0
+  integer     | 0
+  time        | time.value
+
+
+
+
+14. PRIMITIVE ACTIONS
 =====================
 
     Not all functions can be described by calling other
@@ -9383,22 +9873,23 @@ CONTENTS
   actions the functions of the "seed7_05.a" library are used.
 
 
-13.1 Actions for the type ACTION
+14.1 Actions for the type ACTION
 
     Action name         actlib.c function   act_comp.c function
     ACT_ILLEGAL         act_illegal
     ACT_CPY             act_cpy             =
     ACT_CREATE          act_create
-    ACT_EQ              act_eq/td>               ==
+    ACT_EQ              act_eq              ==
     ACT_GEN             act_gen
-    ACT_ICONV           act_iconv/td>            actIConv
-    ACT_NE              act_ne/td>               !=
-    ACT_ORD             act_ord/td>              actOrd
+    ACT_ICONV1          act_iconv1          actIConv
+    ACT_ICONV3          act_iconv3          actIConv
+    ACT_NE              act_ne              !=
+    ACT_ORD             act_ord             actOrd
     ACT_STR             act_str             actStr
     ACT_VALUE           act_value           actValue
 
 
-13.2 Actions for array types
+14.2 Actions for array types
 
     Action name         arrlib.c function   arr_rtl.c function
     ARR_APPEND          arr_append          arrAppend
@@ -9428,7 +9919,7 @@ CONTENTS
     ARR_TIMES           arr_times           times_ ...
 
 
-13.3 Actions for the type bigInteger
+14.3 Actions for the type bigInteger
 
     Action name         biglib.c function   big_rtl.c function
     BIG_ABS             big_abs             bigAbs
@@ -9436,12 +9927,13 @@ CONTENTS
     BIG_ADD_ASSIGN      big_add_assign      bigAddAssign, bigAddAssignSignedDigit
     BIG_BIT_LENGTH      big_bit_length      bigBitLength
     BIG_CMP             big_cmp             bigCmp
-    BIG_CONV            big_conv
+    BIG_CONV            big_conv            (noop)
     BIG_CPY             big_cpy             bigCpy
     BIG_CREATE          big_create          bigCreate
     BIG_DECR            big_decr            bigDecr
     BIG_DESTR           big_destr           bigDestr
     BIG_DIV             big_div             bigDiv
+    BIG_DIV_REM         big_div_rem         bigDivRem
     BIG_EQ              big_eq              bigEq
     BIG_FROM_BSTRI_BE   big_fromBStriBe     bigFromBStriBe
     BIG_FROM_BSTRI_LE   big_fromBStriLe     bigFromBStriLe
@@ -9449,7 +9941,8 @@ CONTENTS
     BIG_GE              big_ge              bigCmp >= 0
     BIG_GT              big_gt              bigCmp > 0
     BIG_HASHCODE        big_hashcode        bigHashCode
-    BIG_ICONV           big_iconv           bigIConv
+    BIG_ICONV1          big_iconv1          bigIConv
+    BIG_ICONV3          big_iconv3          bigIConv
     BIG_INCR            big_incr            bigIncr
     BIG_IPOW            big_ipow            bigIPow
     BIG_LE              big_le              bigCmp <= 0
@@ -9467,7 +9960,7 @@ CONTENTS
     BIG_NEGATE          big_negate          bigNegate
     BIG_ODD             big_odd             bigOdd
     BIG_ORD             big_ord             bigOrd
-    BIG_PARSE           big_parse           bigParse
+    BIG_PARSE1          big_parse1          bigParse
     BIG_PARSE_BASED     big_parse_based     bigParseBased
     BIG_PLUS            big_plus            (noop)
     BIG_PRED            big_pred            bigPred
@@ -9486,7 +9979,30 @@ CONTENTS
     BIG_radix           big_radix           bigRadix
 
 
-13.4 Actions for the type boolean
+14.4 Actions for the types bin32 and bin64
+
+    Action name         blnlib.c function   bln_rtl.c function
+    BIN_AND             bin_and             &
+    BIN_AND_ASSIGN      bin_and_assign      &=
+    BIN_BIG             bin_big             bigFromUInt64
+    BIN_BINARY          bin_binary          bigToUInt64
+    BIN_CARD            bin_card            uintCard
+    BIN_CMP             bin_cmp             uintCmp
+    BIN_GET_BINARY_FROM_SET bin_get_binary_from_set setToUInt
+    BIN_LSHIFT          bin_lshift          (intType)((uintType)(a<&ltb))
+    BIN_LSHIFT_ASSIGN   bin_lshift_assign   a=(intType)((uintType)(a<&ltb))
+    BIN_OR              bin_or              |
+    BIN_OR_ASSIGN       bin_or_assign       |=
+    BIN_RADIX           bin_RADIX           uintRadix
+    BIN_RSHIFT          bin_rshift          (intType)((uintType)(a>>b))
+    BIN_RSHIFT_ASSIGN   bin_rshift_assign   a=(intType)((uintType)(a>>b))
+    BIN_STR             bin_str             uintStr
+    BIN_XOR             bin_xor             ^
+    BIN_XOR_ASSIGN      bin_xor_assign      ^=
+    BIN_radix           bin_radix           uintRadix
+
+
+14.5 Actions for the type boolean
 
     Action name         blnlib.c function   bln_rtl.c function
     BLN_AND             bln_and             &&
@@ -9495,7 +10011,8 @@ CONTENTS
     BLN_EQ              bln_eq              ==
     BLN_GE              bln_ge              >=
     BLN_GT              bln_gt              >
-    BLN_ICONV           bln_iconv           & 1
+    BLN_ICONV1          bln_iconv1          & 1
+    BLN_ICONV3          bln_iconv3          & 1
     BLN_LE              bln_le              <=
     BLN_LT              bln_lt              <
     BLN_NE              bln_ne              !=
@@ -9505,7 +10022,7 @@ CONTENTS
     BLN_VALUE           bln_value           blnValue
 
 
-13.5 Actions for byte strings
+14.6 Actions for byte strings
 
     Action name         bstlib.c function   bst_rtl.c function
     BST_APPEND          bst_append          bstAppend
@@ -9520,15 +10037,14 @@ CONTENTS
     BST_IDX             bst_idx             a->mem[b-1]
     BST_LNG             bst_lng             a->size
     BST_NE              bst_ne              a->size!=b->size || memcmp(a,b,a->size*sizeof(unsigned char))!=0
-    BST_PARSE           bst_parse           bstParse
+    BST_PARSE1          bst_parse1          bstParse
     BST_STR             bst_str             bstStr
     BST_VALUE           bst_value           bstValue
 
 
-13.6 Actions for the type char
+14.7 Actions for the type char
 
     Action name         chrlib.c function   chr_rtl.c function
-    CHR_CHR             chr_chr             (charType)
     CHR_CLIT            chr_clit            chrCLit
     CHR_CMP             chr_cmp             chrCmp
     CHR_CONV            chr_conv            (noop)
@@ -9539,8 +10055,10 @@ CONTENTS
     CHR_GE              chr_ge              >=
     CHR_GT              chr_gt              >
     CHR_HASHCODE        chr_hashcode        (intType)((scharType)a)
-    CHR_ICONV           chr_iconv           (charType)
+    CHR_ICONV1          chr_iconv1          (charType)
+    CHR_ICONV3          chr_iconv3          (charType)
     CHR_INCR            chr_incr            ++
+    CHR_IS_LETTER       chr_is_letter       chrIsLetter
     CHR_LE              chr_le              <=
     CHR_LOW             chr_low             chrLow
     CHR_LT              chr_lt              <
@@ -9551,9 +10069,10 @@ CONTENTS
     CHR_SUCC            chr_succ            +1
     CHR_UP              chr_up              chrUp
     CHR_VALUE           chr_value           chrValue
+    CHR_WIDTH           chr_width           chrWidth
 
 
-13.7 Actions for various directory, file and other commands
+14.8 Actions for various directory, file and other commands
 
     Action name         cmdlib.c function   cmd_rtl.c function
     CMD_BIG_FILESIZE    cmd_big_filesize    cmdBigFileSize
@@ -9590,14 +10109,16 @@ CONTENTS
     CMD_TO_OS_PATH      cmd_to_os_path      cmdToOsPath
 
 
-13.8 Actions for text (console) screen output
+14.9 Actions for text (console) screen output
 
     Action name         scrlib.c function   con_inf.c/con_rtl.c/con_win.c function
     CON_CLEAR           con_clear           conClear
+    CON_COLUMN          con_column          conColumn
     CON_CURSOR          con_cursor          conCursor
     CON_FLUSH           con_flush           conFlush
     CON_HEIGHT          con_height          conHeight
     CON_H_SCL           con_h_scl           conHScroll
+    CON_LINE            con_line            conLine
     CON_OPEN            con_open            conOpen
     CON_SETPOS          con_setpos          conSetpos
     CON_V_SCL           con_v_scl           conVScroll
@@ -9605,7 +10126,7 @@ CONTENTS
     CON_WRITE           con_write           conWrite
 
 
-13.9 Actions for declarations
+14.10 Actions for declarations
 
     Action name         dcllib.c function
     DCL_ATTR            dcl_attr
@@ -9629,7 +10150,7 @@ CONTENTS
     DCL_VAR             dcl_var
 
 
-13.10 Actions to do graphic output
+14.11 Actions to do graphic output
 
     Action name         drwlib.c function   drw_rtl.c/drw_x11.c/drw_win.c function
     DRW_ARC             drw_arc             drwArc
@@ -9639,6 +10160,7 @@ CONTENTS
     DRW_CLEAR           drw_clear           drwClear
     DRW_CMP             drw_cmp             uintCmpGeneric((genericType)(a))
     DRW_COLOR           drw_color           drwColor
+    DRW_CONVPOINTLIST   drw_convPointList   drwConvPointList
     DRW_COPYAREA        drw_copyarea        drwCopyArea
     DRW_CPY             drw_cpy             drwCpy
     DRW_CREATE          drw_create          drwCreate
@@ -9693,7 +10215,7 @@ CONTENTS
     DRW_YPOS            drw_ypos            drwYPos
 
 
-13.11 Actions for enumeration types
+14.12 Actions for enumeration types
 
     Action name         enulib.c function
     ENU_CONV            enu_conv            (noop)
@@ -9707,7 +10229,7 @@ CONTENTS
     ENU_VALUE           enu_value           enuValue
 
 
-13.12 Actions for the type clib_file
+14.13 Actions for the type clib_file
 
     Action name         fillib.c function   fil_rtl.c function
     FIL_BIG_LNG         fil_big_lng         filBigLng
@@ -9731,6 +10253,7 @@ CONTENTS
     FIL_LNG             fil_lng             filLng
     FIL_NE              fil_ne              !=
     FIL_OPEN            fil_open            filOpen
+    FIL_OPEN_NULL_DEVICE fil_open_null_device filOpenNullDevice
     FIL_OUT             fil_out             stdout
     FIL_PCLOSE          fil_pclose          filPclose
     FIL_POPEN           fil_popen           filPopen
@@ -9743,16 +10266,18 @@ CONTENTS
     FIL_WRITE           fil_write           filWrite
 
 
-13.13 Actions for the type float
+14.14 Actions for the type float
 
     Action name         fltlib.c function   flt_rtl.c function
-    FLT_A2TAN           flt_a2tan           atan2
     FLT_ABS             flt_abs             fabs
     FLT_ACOS            flt_acos            acos
     FLT_ADD             flt_add             +
     FLT_ADD_ASSIGN      flt_add_assign      +=
     FLT_ASIN            flt_asin            asin
     FLT_ATAN            flt_atan            atan
+    FLT_ATAN2           flt_atan2           atan2
+    FLT_BITS2DOUBLE     flt_bits2double     (x.bits=a, x.aDouble)
+    FLT_BITS2SINGLE     flt_bits2single     (x.bits=a, x.aSingle)
     FLT_CAST            flt_cast            (x.floatValue=a, x.intValue)
     FLT_CEIL            flt_ceil            ceil
     FLT_CMP             flt_cmp             fltCmp
@@ -9760,9 +10285,11 @@ CONTENTS
     FLT_COSH            flt_cosh            cosh
     FLT_CPY             flt_cpy             fltCpy
     FLT_CREATE          flt_create          fltCreate
+    FLT_DECOMPOSE       flt_decompose       frexp
     FLT_DGTS            flt_dgts            fltDgts
     FLT_DIV             flt_div             /
     FLT_DIV_ASSIGN      flt_div_assign      /=
+    FLT_DOUBLE2BITS     flt_double2bits     (x.aDouble=a, x.bits)
     FLT_EQ              flt_eq              ==
     FLT_EXP             flt_exp             exp
     FLT_FLOOR           flt_floor           floor
@@ -9770,28 +10297,34 @@ CONTENTS
     FLT_GT              flt_gt              >
     FLT_HASHCODE        flt_hashcode        (x.floatValue=a, x.intValue)
     FLT_ICAST           flt_icast           (x.intValue=a, x.floatValue)
-    FLT_ICONV           flt_iconv           (float)
-    FLT_IFLT            flt_iflt            (float)
+    FLT_ICONV1          flt_iconv1          (float)
+    FLT_ICONV3          flt_iconv3          (float)
     FLT_IPOW            flt_ipow            fltIPow
     FLT_ISNAN           flt_isnan           isnan
     FLT_ISNEGATIVEZERO  flt_isnegativezero  fltIsNegativeZero
     FLT_LE              flt_le              <=
     FLT_LOG             flt_log             log
     FLT_LOG10           flt_log10           log10
+    FLT_LOG2            flt_log2            log2
+    FLT_LSHIFT          flt_lshift          ldexp
     FLT_LT              flt_lt              <
+    FLT_MOD             flt_mod             fltMod
     FLT_MULT            flt_mult            *
     FLT_MULT_ASSIGN     flt_mult_assign     *=
     FLT_NE              flt_ne              !=
     FLT_NEGATE          flt_negate          -
-    FLT_PARSE           flt_parse           fltParse
+    FLT_PARSE1          flt_parse1          fltParse
     FLT_PLUS            flt_plus            (noop)
     FLT_POW             flt_pow             pow
     FLT_RAND            flt_rand            fltRand
+    FLT_REM             flt_rem             fmod
     FLT_ROUND           flt_round           a<0.0?-((intType)(0.5-a)):(intType)(0.5+a)
+    FLT_RSHIFT          flt_rshift          ldexp
     FLT_SBTR            flt_sbtr            -
     FLT_SBTR_ASSIGN     flt_sbtr_assign     -=
     FLT_SCI             flt_sci             fltSci
     FLT_SIN             flt_sin             sin
+    FLT_SINGLE2BITS     flt_single2bits     (x.aSingle=a, x.bits)
     FLT_SINH            flt_sinh            sinh
     FLT_SQRT            flt_sqrt            sqrt
     FLT_STR             flt_str             fltStr
@@ -9801,7 +10334,7 @@ CONTENTS
     FLT_VALUE           flt_value           fltValue
 
 
-13.14 Actions to support the graphic keyboard
+14.15 Actions to support the graphic keyboard
 
     Action name         drwlib.c function   kbd_rtl.c/drw_x11.c/drw_win.c function
     GKB_BUSY_GETC       gkb_busy_getc       gkbKeyPressed() ? gkbGetc() : 512
@@ -9817,7 +10350,7 @@ CONTENTS
     GKB_WORD_READ       gkb_word_read       gkbWordRead
 
 
-13.15 Actions for hash types
+14.16 Actions for hash types
 
     Action name         hshlib.c function   hsh_rtl.c function
     HSH_CONTAINS        hsh_contains        hshContains
@@ -9834,27 +10367,29 @@ CONTENTS
     HSH_INCL            hsh_incl            hshIncl
     HSH_KEYS            hsh_keys            hshKeys
     HSH_LNG             hsh_lng             a->size
+    HSH_RAND_KEY        hsh_rand_key        hshRand
     HSH_REFIDX          hsh_refidx
     HSH_UPDATE          hsh_update          hshUpdate
     HSH_VALUES          hsh_values          hshValues
 
 
-13.16 Actions for the type integer
+14.17 Actions for the type integer
 
     Action name         intlib.c function   int_rtl.c function
     INT_ABS             int_abs             labs
     INT_ADD             int_add             +
     INT_ADD_ASSIGN      int_add_assign      +=
-    INT_AND             int_and             &
-    INT_AND_ASSIGN      int_and_assign      &=
     INT_BINOM           int_binom           intBinom
     INT_BIT_LENGTH      int_bit_length      intBitLength
-    INT_BYTES_BE        int_bytesBe         intBytesBe
-    INT_BYTES_BE_2_INT  int_bytesBe2Int     intBytesBe2Int
-    INT_BYTES_LE        int_bytesLe         intBytesLe
-    INT_BYTES_LE_2_INT  int_bytesLe2Int     intBytesLe2Int
+    INT_BYTES_BE_2_INT  int_bytes_be_2_int  intBytesBe2Int
+    INT_BYTES_BE_2_UINT int_bytes_be_2_uint intBytesBe2UInt
+    INT_BYTES_BE_SIGNED int_bytes_be_signed intBytesBe
+    INT_BYTES_BE_UNSIGNED int_bytes_be_unsigned intBytesBe
+    INT_BYTES_LE_2_INT  int_bytes_le_2_int  intBytesLe2Int
+    INT_BYTES_LE_2_UINT int_bytes_le_2_uint intBytesLe2UInt
+    INT_BYTES_LE_SIGNED int_bytes_le_signed intBytesLe
+    INT_BYTES_LE_UNSIGNED int_bytes_le_unsigned intBytesLe
     INT_CMP             int_cmp             intCmp
-    INT_CONV            int_conv            (noop)
     INT_CPY             int_cpy             intCpy
     INT_CREATE          int_create          intCreate
     INT_DECR            int_decr            --
@@ -9864,6 +10399,8 @@ CONTENTS
     INT_GE              int_ge              >=
     INT_GT              int_gt              >
     INT_HASHCODE        int_hashcode        (noop)
+    INT_ICONV1          int_iconv1          (noop)
+    INT_ICONV3          int_iconv3          (noop)
     INT_INCR            int_incr            ++
     INT_LE              int_le              <=
     INT_LOG10           int_log10           intLog10
@@ -9880,10 +10417,7 @@ CONTENTS
     INT_NE              int_ne              !=
     INT_NEGATE          int_negate          -
     INT_ODD             int_odd             &1
-    INT_OR              int_or              |
-    INT_ORD             int_ord             (noop)
-    INT_OR_ASSIGN       int_or_assign       |=
-    INT_PARSE           int_parse           intParse
+    INT_PARSE1          int_parse1          intParse
     INT_PLUS            int_plus            (noop)
     INT_POW             int_pow             intPow
     INT_PRED            int_pred            --
@@ -9899,17 +10433,11 @@ CONTENTS
     INT_SQRT            int_sqrt            intSqrt
     INT_STR             int_str             intStr
     INT_SUCC            int_succ            +1
-    INT_ULSHIFT         int_ulshift         (intType)((uintType)(a<<b
-    INT_ULSHIFT_ASSIGN  int_ulshift_assign  a=(intType)((uintType)(a<<b
-    INT_URSHIFT         int_urshift         (intType)((uintType)(a>>b
-    INT_URSHIFT_ASSIGN  int_urshift_assign  a=(intType)((uintType)(a>>b
     INT_VALUE           int_value           intValue
-    INT_XOR             int_xor             ^
-    INT_XOR_ASSIGN      int_xor_assign      ^=
     INT_radix           int_radix           intRadix
 
 
-13.17 Actions for interface types
+14.18 Actions for interface types
 
     Action name         itflib.c function
     ITF_CMP             itf_cmp             uintCmpGeneric
@@ -9926,7 +10454,7 @@ CONTENTS
     ITF_TO_INTERFACE    itf_to_interface
 
 
-13.18 Actions to support the text (console) screen keyboard
+14.19 Actions to support the text (console) screen keyboard
 
     Action name         kbdlib.c function   kbd_rtl.c/kbd_inf.c function
     KBD_BUSY_GETC       kbd_busy_getc       kbdKeyPressed() ? kbdGetc() : 512
@@ -9938,7 +10466,7 @@ CONTENTS
     KBD_WORD_READ       kbd_word_read       kbdWordRead
 
 
-13.19 Actions for the list type
+14.20 Actions for the list type
 
     Action name         lstlib.c function
     LST_CAT             lst_cat
@@ -9956,9 +10484,12 @@ CONTENTS
     LST_TAIL            lst_tail
 
 
-13.20 Actions for the type process
+14.21 Actions for the type process
 
     Action name         pcslib.c function   pcs_rtl.c function
+    PCS_CHILD_STDERR    pcs_child_stderr    pcsChildStdErr
+    PCS_CHILD_STDIN     pcs_child_stdin     pcsChildStdIn
+    PCS_CHILD_STDOUT    pcs_child_stdout    pcsChildStdOut
     PCS_CMP             pcs_cmp             pcsCmp
     PCS_CPY             pcs_cpy             pcsCpy
     PCS_CREATE          pcs_create          pcsCreate
@@ -9978,7 +10509,7 @@ CONTENTS
     PCS_WAIT_FOR        pcs_wait_for        pcsWaitFor
 
 
-13.21 Actions for the type pollData
+14.22 Actions for the type pollData
 
     Action name         pollib.c function   pol_unx.c/pol_sel.c function
     POL_ADD_CHECK       pol_addCheck        polAddCheck
@@ -9998,27 +10529,32 @@ CONTENTS
     POL_VALUE           pol_value           polValue
 
 
-13.22 Actions for proc operations and statements
+14.23 Actions for proc operations and statements
 
     Action name         prclib.c function
-    PRC_ARGS            prc_args
+    PRC_ARGS            prc_args            arg_v
     PRC_BEGIN           prc_begin
     PRC_BLOCK           prc_block
     PRC_BLOCK_CATCH_ALL prc_block_catch_all
     PRC_BLOCK_OTHERWISE prc_block_otherwise
     PRC_CASE            prc_case            switch
     PRC_CASE_DEF        prc_case_def        switch
+    PRC_CASE_HASHSET    prc_case_hashset    switch (hshIdxDefault0(...)
+    PRC_CASE_HASHSET_DEF prc_case_hashset_def switch (hshIdxDefault0(...)
     PRC_CPY             prc_cpy
     PRC_CREATE          prc_create
     PRC_DECLS           prc_decls
     PRC_DYNAMIC         prc_dynamic
     PRC_EXIT            prc_exit            exit
     PRC_FOR_DOWNTO      prc_for_downto      for
+    PRC_FOR_DOWNTO_STEP prc_for_downto_step for
     PRC_FOR_TO          prc_for_to          for
+    PRC_FOR_TO_STEP     prc_for_to_step     for
     PRC_HEAPSTAT        prc_heapstat
     PRC_HSIZE           prc_hsize           heapsize
     PRC_IF              prc_if              if
     PRC_IF_ELSIF        prc_if_elsif        if
+    PRC_IF_NOOP         prc_if_noop         if
     PRC_INCLUDE         prc_include
     PRC_LOCAL           prc_local
     PRC_NOOP            prc_noop            prcNoop
@@ -10035,7 +10571,7 @@ CONTENTS
     PRC_WHILE           prc_while           while
 
 
-13.23 Actions for the type program
+14.24 Actions for the type program
 
     Action name         prglib.c function   prg_comp.c function
     PRG_CPY             prg_cpy             prgCpy
@@ -10047,7 +10583,6 @@ CONTENTS
     PRG_EVAL            prg_eval            prgEval
     PRG_EXEC            prg_exec            prgExec
     PRG_FIL_PARSE       prg_fil_parse       prgFilParse
-    PRG_FIND            prg_find
     PRG_GLOBAL_OBJECTS  prg_global_objects  prgGlobalObjects
     PRG_MATCH           prg_match           prgMatch
     PRG_MATCH_EXPR      prg_match_expr      prgMatchExpr
@@ -10056,18 +10591,20 @@ CONTENTS
     PRG_OWN_NAME        prg_own_name        programName
     PRG_OWN_PATH        prg_own_path        programPath
     PRG_PATH            prg_path            programPath
-    PRG_PROG            prg_prog
     PRG_STR_PARSE       prg_str_parse       prgStrParse
     PRG_SYOBJECT        prg_syobject        prgSyobject
     PRG_SYSVAR          prg_sysvar          prgSysvar
     PRG_VALUE           prg_value           prgValue
 
 
-13.24 Actions for the type reference
+14.25 Actions for the type reference
 
     Action name         reflib.c function   ref_data.c function
     REF_ADDR            ref_addr            &
     REF_ALLOC           ref_alloc           refAlloc
+    REF_ALLOC_INT       ref_alloc_int       refAllocInt
+    REF_ALLOC_STRI      ref_alloc_stri      refAllocStri
+    REF_ALLOC_VAR       ref_alloc_var       refAllocVar
     REF_ARRMAXIDX       ref_arrmaxidx       refArrmaxidx
     REF_ARRMINIDX       ref_arrminidx       refArrminidx
     REF_ARRTOLIST       ref_arrtolist       refArrtolist
@@ -10078,17 +10615,16 @@ CONTENTS
     REF_CAT_STR         ref_cat_str         refCatStr
     REF_CMP             ref_cmp             refCmp
     REF_CONTENT         ref_content
-    REF_CONV            ref_conv            (noop)
     REF_CPY             ref_cpy             refCpy
     REF_CREATE          ref_create          refCreate
     REF_DEREF           ref_deref
     REF_EQ              ref_eq              ==
     REF_FILE            ref_file            refFile
-    REF_FIND            ref_find
     REF_GETREF          ref_getref          refGetRef
     REF_HASHCODE        ref_hashcode        (intType)(((memSizeType)a)>>6)
     REF_HSHDATATOLIST   ref_hshdatatolist   refHshDataToList
     REF_HSHKEYSTOLIST   ref_hshkeystolist   refHshKeysToList
+    REF_HSHLENGTH       ref_hshlength       refHshLength
     REF_ISSYMB          ref_issymb
     REF_ISVAR           ref_isvar           refIsvar
     REF_ITFTOSCT        ref_itftosct        refItftosct
@@ -10117,7 +10653,7 @@ CONTENTS
     REF_VALUE           ref_value           refValue
 
 
-13.25 Actions for the type ref_list
+14.26 Actions for the type ref_list
 
     Action name         rfllib.c function   rfl_data.c function
     RFL_APPEND          rfl_append          rflAppend
@@ -10149,7 +10685,7 @@ CONTENTS
     RFL_VALUE           rfl_value           rflValue
 
 
-13.26 Actions for struct types
+14.27 Actions for struct types
 
     Action name         sctlib.c function
     SCT_ALLOC           sct_alloc
@@ -10166,14 +10702,15 @@ CONTENTS
     SCT_SELECT          sct_select          a->stru[b]
 
 
-13.27 Actions for set types
+14.28 Actions for set types
 
     Action name         setlib.c function   set_rtl.c function
     SET_ARRLIT          set_arrlit          setArrlit
     SET_BASELIT         set_baselit         setBaselit
     SET_CARD            set_card            setCard
     SET_CMP             set_cmp             setCmp
-    SET_CONV            set_conv            (noop)
+    SET_CONV1           set_conv1           (noop)
+    SET_CONV3           set_conv3           (noop)
     SET_CPY             set_cpy             setCpy
     SET_CREATE          set_create          setCreate
     SET_DESTR           set_destr           setDestr
@@ -10185,9 +10722,11 @@ CONTENTS
     SET_GE              set_ge              setIsSubset(b, a)
     SET_GT              set_gt              setIsProperSubset(b, a)
     SET_HASHCODE        set_hashcode        setHashCode
-    SET_ICONV           set_iconv           setIConv
+    SET_ICONV1          set_iconv1          setIConv
+    SET_ICONV3          set_iconv3          setIConv
     SET_INCL            set_incl            setIncl
     SET_INTERSECT       set_intersect       setIntersect
+    SET_INTERSECT_ASSIGN set_intersect_assign setIntersectAssign
     SET_LE              set_le              setIsSubset
     SET_LT              set_lt              setIsProperSubset
     SET_MAX             set_max             setMax
@@ -10197,13 +10736,15 @@ CONTENTS
     SET_NOT_ELEM        set_not_elem        !setElem
     SET_RAND            set_rand            setRand
     SET_RANGELIT        set_rangelit        setRangelit
-    SET_SCONV           set_sconv           setSConv
+    SET_SCONV1          set_sconv1          setSConv
+    SET_SCONV3          set_sconv3          setSConv
     SET_SYMDIFF         set_symdiff         setSymdiff
     SET_UNION           set_union           setUnion
+    SET_UNION_ASSIGN    set_union_assign    setUnionAssign
     SET_VALUE           set_value           setValue
 
 
-13.28 Actions for the type PRIMITIVE_SOCKET
+14.29 Actions for the type PRIMITIVE_SOCKET
 
     Action name         strlib.c function   str_rtl.c function
     SOC_ACCEPT          soc_accept          socAccept
@@ -10239,7 +10780,7 @@ CONTENTS
     SOC_WRITE           soc_write           socWrite
 
 
-13.29 Actions for the types database and sqlStatement
+14.30 Actions for the types database and sqlStatement
 
     Action name         sqllib.c function   sql_rtl.c function
     SQL_BIND_BIGINT     sql_bind_bigint     sqlBindBigInt
@@ -10253,6 +10794,8 @@ CONTENTS
     SQL_BIND_STRI       sql_bind_stri       sqlBindStri
     SQL_BIND_TIME       sql_bind_time       sqlBindTime
     SQL_CLOSE           sql_close           sqlClose
+    SQL_CMP_DB          sql_cmp_db          ptrCmp
+    SQL_CMP_STMT        sql_cmp_stmt        ptrCmp
     SQL_COLUMN_BIGINT   sql_column_bigint   sqlColumnBigInt
     SQL_COLUMN_BIGRAT   sql_column_bigrat   sqlColumnBigRat
     SQL_COLUMN_BOOL     sql_column_bool     sqlColumnBool
@@ -10269,18 +10812,32 @@ CONTENTS
     SQL_CREATE_STMT     sql_create_stmt     sqlCreateStmt
     SQL_DESTR_DB        sql_destr_db        sqlDestrDb
     SQL_DESTR_STMT      sql_destr_stmt      sqlDestrStmt
+    SQL_DRIVER          sql_driver          sqlDriver
     SQL_EMPTY_DB        sql_empty_db
     SQL_EMPTY_STMT      sql_empty_stmt
+    SQL_EQ_DB           sql_eq_db           ==
+    SQL_EQ_STMT         sql_eq_stmt         ==
+    SQL_ERR_CODE        sql_err_code        sqlErrCode
+    SQL_ERR_DB_FUNC     sql_err_db_func     sqlErrDbFunc
+    SQL_ERR_LIB_FUNC    sql_err_lib_func    sqlErrLibFunc
+    SQL_ERR_MESSAGE     sql_err_message     sqlErrMessage
     SQL_EXECUTE         sql_execute         sqlExecute
     SQL_FETCH           sql_fetch           sqlFetch
     SQL_IS_NULL         sql_is_null         sqlIsNull
-    SQL_OPEN            sql_open            sqlOpen
+    SQL_NE_DB           sql_ne_db           !=
+    SQL_NE_STMT         sql_ne_stmt         !=
+    SQL_OPEN_FIRE       sql_open_fire       sqlOpenFire
+    SQL_OPEN_LITE       sql_open_lite       sqlOpenLite
+    SQL_OPEN_MY         sql_open_my         sqlOpenMy
+    SQL_OPEN_OCI        sql_open_oci        sqlOpenOci
+    SQL_OPEN_ODBC       sql_open_odbc       sqlOpenOdbc
+    SQL_OPEN_POST       sql_open_post       sqlOpenPost
     SQL_PREPARE         sql_prepare         sqlPrepare
     SQL_STMT_COLUMN_COUNT sql_stmt_column_count sqlStmtColumnCount
     SQL_STMT_COLUMN_NAME  sql_stmt_column_name  sqlStmtColumnName
 
 
-13.30 Actions for the type string
+14.31 Actions for the type string
 
     Action name         strlib.c function   str_rtl.c function
     STR_APPEND          str_append          strAppend
@@ -10295,6 +10852,9 @@ CONTENTS
     STR_DESTR           str_destr           strDestr
     STR_ELEMCPY         str_elemcpy         a->mem[b-1]=c
     STR_EQ              str_eq              a->size==b->size && memcmp(a,b,a->size*sizeof(strElemType))==0
+    STR_FOR             str_for             for
+    STR_FOR_KEY         str_for_key         for
+    STR_FOR_VAR_KEY     str_for_var_key     for
     STR_GE              str_ge              strGe
     STR_GT              str_gt              strGt
     STR_HASHCODE        str_hashcode        strHashCode
@@ -10333,7 +10893,7 @@ CONTENTS
     STR_VALUE           str_value           strValue
 
 
-13.31 Actions for the type time
+14.32 Actions for the type time
 
     Action name         timlib.c function   tim_unx.c/tim_win.c function
     TIM_AWAIT           tim_await           timAwait
@@ -10342,7 +10902,7 @@ CONTENTS
     TIM_SET_LOCAL_TZ    tim_set_local_tz    timSetLocalTZ
 
 
-13.32 Actions for the type type
+14.33 Actions for the type type
 
     Action name         typlib.c function   typ_data.c function
     TYP_ADDINTERFACE    typ_addinterface
@@ -10371,7 +10931,7 @@ CONTENTS
     TYP_VARFUNC         typ_varfunc         typVarfunc
 
 
-13.33 Actions for the type utf8_file
+14.34 Actions for the type utf8_file
 
     Action name         ut8lib.c function   ut8_rtl.c function
     UT8_GETC            ut8_getc            ut8Getc
@@ -10383,7 +10943,7 @@ CONTENTS
 
 
 
-14. FOREIGN FUNCTION INTERFACE
+15. FOREIGN FUNCTION INTERFACE
 ==============================
 
     Foreign functions cannot be called directly. It is necessary to
@@ -10540,7 +11100,7 @@ CONTENTS
     const proc: doWurx1 (in string: name) is action "SUP_DO_WURX";
 
 
-14.1 C types used by the implementation
+15.1 C types used by the implementation
 
   Several Seed7 types correspond to simple C types, which are
   defined in "common.h":
@@ -10583,13 +11143,25 @@ CONTENTS
   Some Seed7 types depend on the operating system or runtime
   library used:
 
-    Seed7 type       C type      Defined as                        Sourcefile  Comment
-    bigInteger       bigIntType  struct bigIntStruct *             big_rtl.c   The built-in bigInteger library
-                     bigIntType  mpz_ptr                           big_gmp.c   The GNU Multiple Precision Arithmetic Library
-    pollData         pollType    struct select_based_pollStruct *  pol_sel.c   Functions cast it to implementation dependent struct
-                     pollType    struct poll_based_pollStruct *    pol_unx.c   Functions cast it to implementation dependent struct
-    PRIMITIVE_WINDOW winType     struct x11_winStruct *            drw_x11.c   Functions cast from winStruct * to x11_winStruct *
-                     winType     struct win_winStruct *            drw_win.c   Functions cast from winStruct * to win_winStruct *
+    Seed7 type       C type       Defined as                        Sourcefile  Comment
+    bigInteger       bigIntType   struct bigIntStruct *             big_rtl.c   The built-in bigInteger library
+                     bigIntType   mpz_ptr                           big_gmp.c   The GNU Multiple Precision Arithmetic Library
+    pollData         pollType     struct select_based_pollStruct *  pol_sel.c   Functions cast it to implementation dependent struct
+                     pollType     struct poll_based_pollStruct *    pol_unx.c   Functions cast it to implementation dependent struct
+    PRIMITIVE_WINDOW winType      x11_winRecord *                   drw_x11.c   Functions cast from struct winStruct * to x11_winRecord *
+                     winType      win_winRecord *                   drw_win.c   Functions cast from struct winStruct * to win_winRecord *
+    database         databaseType dbType                            sql_fire.c  Functions cast from databaseType to dbType
+                     databaseType dbType                            sql_lite.c  Functions cast from databaseType to dbType
+                     databaseType dbType                            sql_my.c    Functions cast from databaseType to dbType
+                     databaseType dbType                            sql_oci.c   Functions cast from databaseType to dbType
+                     databaseType dbType                            sql_odbc.c  Functions cast from databaseType to dbType
+                     databaseType dbType                            sql_post.c  Functions cast from databaseType to dbType
+    sqlStatement     sqlStmtType  preparedStmtType                  sql_fire.c  Functions cast from sqlStmtType to preparedStmtType
+                     sqlStmtType  preparedStmtType                  sql_lite.c  Functions cast from sqlStmtType to preparedStmtType
+                     sqlStmtType  preparedStmtType                  sql_my.c    Functions cast from sqlStmtType to preparedStmtType
+                     sqlStmtType  preparedStmtType                  sql_oci.c   Functions cast from sqlStmtType to preparedStmtType
+                     sqlStmtType  preparedStmtType                  sql_odbc.c  Functions cast from sqlStmtType to preparedStmtType
+                     sqlStmtType  preparedStmtType                  sql_post.c  Functions cast from sqlStmtType to preparedStmtType
 
   There are also C types without corresponding Seed7 type. They are
   defined in "common.h":
@@ -10597,57 +11169,61 @@ CONTENTS
     C type       C definition        Comment
     int16Type    short int           It is assumed that sizeof(short int) == 2
     uint16Type   unsigned short int  Unsigned integer type with the size of int16Type
-    int32Type    int                 When sizeof(int) == 4
-                 long                When sizeof(long) == 4
+    int32Type    int                 If sizeof(int) == 4
+                 long                If sizeof(long) == 4
     uint32Type   unsigned int32Type  Unsigned integer type with the size of int32Type
-    int64Type    long                When sizeof(long) == 8
-                 long long           When sizeof(long long) == 8
-                 __int64             When sizeof(__int64) == 8
+    int64Type    long                If sizeof(long) == 8
+                 long long           If sizeof(long long) == 8
+                 __int64             If sizeof(__int64) == 8
     uint64Type   unsigned int64Type  Unsigned integer type with the size of int64Type
-    int128Type   __int128            When sizeof(__int128) == 16
-                 __int128_t          When sizeof(__int128_t) == 16
-    uint128Type  unsigned __int128   When sizeof(unsigned __int128) == 16
-                 __uint128_t         When sizeof(__uint128_t) == 16
+    int128Type   __int128            If sizeof(__int128) == 16
+                 __int128_t          If sizeof(__int128_t) == 16
+    uint128Type  unsigned __int128   If sizeof(unsigned __int128) == 16
+                 __uint128_t         If sizeof(__uint128_t) == 16
     uintType     unsigned intType    Unsigned integer type with the size of intType
     cstriType    char *              String type of the C compiler
     ustriType    unsigned char *     Helpful for unsigned comparisons
     wstriType    uint16Type *        UTF-16 string
-    os_striType  char *              When the OS uses UTF-8 chars
-                 wchar_t *           When the OS uses UTF-16 chars
-    memSizeType  uint32Type          When C uses 32-bit pointers
-                 uint64Type          When C uses 64-bit pointers
+    strElemType  charType            UTF-32 character element of string.
+    os_striType  char *              If the OS uses UTF-8 chars
+                 wchar_t *           If the OS uses UTF-16 chars
+    memSizeType  uint32Type          If C uses 32-bit pointers
+                 uint64Type          If C uses 64-bit pointers
+    errInfoType  int                 Represents predefined Exceptions
 
 
-14.2 String and path conversions
+15.2 String conversions
 
   Seed7 strings are UTF-32 encoded and C strings are zero terminated
-  byte sequences. To convert between the different representations,
-  "striutl.h" defines conversion functions like stri_to_cstri,
-  stri_to_cstri8, stri_to_bstri, stri_to_bstri8, cstri_to_stri,
-  cstri_buf_to_stri, cstri8_to_stri and cstri8_or_cstri_to_stri.
-  Operating systems disagree in their Unicode encoding (UTF-8 or UTF-16).
-  To cope with this, "striutl.h" defines the type 'os_striType' and the
-  functions conv_from_os_stri, stri_to_os_stri and os_stri_to_stri.
-  The different concepts to represent a file path (path delimiter and
-  drive letter) are handled with cp_to_os_path and cp_from_os_path.
+  byte sequences. C uses also byte sequences with a length. The byte
+  sequences can be encoded with ISO-8859-1 or UTF-8. To convert between
+  the different representations, "striutl.h" defines conversion functions
+  between the types 'striType', 'cstriType', 'bstriType' and 'wstriType'.
+  The type 'wstriType' is always a string of UTF-16 characters, even if
+  'wchar_t' is a 32-bit type. A 'wstriType' string can be zero terminated
+  or a buffer with a length, that is specified with a parameter.
 
 
   Function Summary
 
-    cstriType stri_to_cstri (const_striType stri, errInfoType *err_info)
+    cstriType stri_to_cstri (const const_striType stri, errInfoType *err_info)
       Create an ISO-8859-1 encoded C string from a Seed7 UTF-32 string.
 
-    cstriType stri_to_cstri8 (const_striType stri, errInfoType *err_info)
+    cstriType stri_to_cstri8 (const const_striType stri, errInfoType *err_info)
       Create an UTF-8 encoded C string from a Seed7 UTF-32 string.
 
-    cstriType stri_to_cstri8_buf (const_striType stri, memSizeType *length)
+    cstriType stri_to_cstri8_buf (const const_striType stri, memSizeType *length)
       Create an UTF-8 encoded C string buffer from a Seed7 UTF-32 string.
 
-    bstriType stri_to_bstri (const_striType stri, errInfoType *err_info)
+    bstriType stri_to_bstri (const const_striType stri, errInfoType *err_info)
       Create an ISO-8859-1 encoded bstring from a Seed7 UTF-32 string.
 
     bstriType stri_to_bstri8 (const_striType stri)
       Create an UTF-8 encoded bstring from a Seed7 UTF-32 string.
+
+    wstriType stri_to_wstri_buf (const const_striType stri, memSizeType *length,
+        errInfoType *err_info)
+      Create an UTF-16 encoded wide string buffer from a Seed7 UTF-32 string.
 
     striType cstri_to_stri (const_cstriType cstri)
       Copy an ISO-8859-1 (Latin-1) encoded C string to a Seed7 string.
@@ -10658,42 +11234,23 @@ CONTENTS
     striType cstri8_to_stri (const_cstriType cstri, errInfoType *err_info)
       Copy an UTF-8 encoded C string to a Seed7 string.
 
-    striType cstri8_buf_to_stri (const_cstriType cstri, memSizeType length, errInfoType *err_info)
+    striType cstri8_buf_to_stri (const_cstriType cstri, memSizeType length,
+        errInfoType *err_info)
       Copy an UTF-8 encoded C string buffer to a Seed7 string.
 
     striType cstri8_or_cstri_to_stri (const_cstriType cstri)
       Copy an UTF-8 or ISO-8859-1 encoded C string to a Seed7 string.
 
-    striType conv_from_os_stri (const const_os_striType os_stri, memSizeType length)
-      Convert an os_striType string with length to a Seed7 UTF-32 string.
-
-    os_striType stri_to_os_stri (const_striType stri, errInfoType *err_info)
-      Convert a Seed7 UTF-32 string to a null terminated os_striType string.
-
-    striType os_stri_to_stri (const_os_striType os_stri, errInfoType *err_info)
-      Convert a null terminated os_striType string to a Seed7 UTF-32 string.
-
-    os_striType cp_to_os_path (const_striType std_path, int *path_info, errInfoType *err_info)
-      Convert a Seed7 standard path to a path used by system calls.
-
-    striType cp_from_os_path (const_os_striType os_path, errInfoType *err_info)
-      Convert a path returned by a system call to a Seed7 standard path.
-
-    boolType os_stri_alloc (os_striType &var, memSizeType len)
-      Macro to allocate memory for an os_striType string.
-
-    void os_stri_free (os_striType var)
-      Macro to free memory that has been allocated with os_stri_alloc.
-
-    void raise_error (errInfoType err_info)
-      Macro to raise an exception.
+    striType wstri_buf_to_stri (const_wstriType wstri, memSizeType length,
+        errInfoType *err_info)
+      Copy an UTF-16 encoded wide string buffer to a Seed7 string.
 
 
   Function Detail
 
   stri_to_cstri
 
-    cstriType stri_to_cstri (const_striType stri, errInfoType *err_info)
+    cstriType stri_to_cstri (const const_striType stri, errInfoType *err_info)
 
       Create an ISO-8859-1 encoded C string from a Seed7 UTF-32 string.
       The memory for the zero byte terminated C string is allocated.
@@ -10701,21 +11258,21 @@ CONTENTS
 
       Parameters:
         stri - Seed7 UTF-32 string to be converted.
-        err_info - Unchanged when the function succeeds or
-                   MEMORY_ERROR when the memory allocation failed or
-                   RANGE_ERROR when stri contains a null character
+        err_info - Unchanged if the function succeeds, and
+                   MEMORY_ERROR if the memory allocation failed, and
+                   RANGE_ERROR if stri contains a null character
                           or a character that is higher than the
                           highest allowed ISO-8859-1 character (255).
 
       Returns:
-        an ISO-8859-1 encoded null terminated C string or
-        NULL, when the memory allocation failed or when the
+        an ISO-8859-1 encoded null terminated C string, or
+        NULL if the memory allocation failed or the
         conversion failed (the error is indicated by err_info).
 
 
   stri_to_cstri8
 
-    cstriType stri_to_cstri8 (const_striType stri, errInfoType *err_info)
+    cstriType stri_to_cstri8 (const const_striType stri, errInfoType *err_info)
 
       Create an UTF-8 encoded C string from a Seed7 UTF-32 string.
       The memory for the zero byte terminated C string is allocated.
@@ -10726,21 +11283,21 @@ CONTENTS
 
       Parameters:
         stri - Seed7 UTF-32 string to be converted.
-        err_info - Unchanged when the function succeeds or
-                   MEMORY_ERROR when the memory allocation failed or
-                   RANGE_ERROR when stri contains a null character
+        err_info - Unchanged if the function succeeds, and
+                   MEMORY_ERROR if the memory allocation failed, and
+                   RANGE_ERROR if stri contains a null character
                           or a character that is higher than the
                           highest allowed Unicode character (U+10FFFF).
 
       Returns:
-        an UTF-8 encoded null terminated C string or
-        NULL, when the memory allocation failed or when the
+        an UTF-8 encoded null terminated C string, or
+        NULL if the memory allocation failed or the
         conversion failed (the error is indicated by err_info).
 
 
   stri_to_cstri8_buf
 
-    cstriType stri_to_cstri8_buf (const_striType stri, memSizeType *length)
+    cstriType stri_to_cstri8_buf (const const_striType stri, memSizeType *length)
 
       Create an UTF-8 encoded C string buffer from a Seed7 UTF-32 string.
       The memory for the zero byte terminated C string is allocated.
@@ -10755,30 +11312,30 @@ CONTENTS
         length - Place to return the length of the result (without '\0').
 
       Returns:
-        an UTF-8 encoded null terminated C string or
-        NULL, when the memory allocation failed.
+        an UTF-8 encoded null terminated C string, or
+        NULL if the memory allocation failed.
 
 
   stri_to_bstri
 
-    bstriType stri_to_bstri (const_striType stri, errInfoType *err_info)
+    bstriType stri_to_bstri (const const_striType stri, errInfoType *err_info)
 
       Create an ISO-8859-1 encoded bstring from a Seed7 UTF-32 string.
       The memory for the bstring is allocated. No zero byte is added
-      to the end of the bstring. No special action is done, when the
+      to the end of the bstring. No special action is done, if the
       UTF-32 string contains a null character.
 
       Parameters:
         stri - Seed7 UTF-32 string to be converted.
-        err_info - Unchanged when the function succeeds or
-                   MEMORY_ERROR when the memory allocation failed or
-                   RANGE_ERROR when stri contains a character
+        err_info - Unchanged if the function succeeds, and
+                   MEMORY_ERROR if the memory allocation failed, and
+                   RANGE_ERROR if stri contains a character
                           that is higher than the highest
                           allowed ISO-8859-1 character (255).
 
       Returns:
-        an ISO-8859-1 encoded bstring or
-        NULL, when the memory allocation failed or when the
+        an ISO-8859-1 encoded bstring, or
+        NULL if the memory allocation failed or the
         conversion failed (the error is indicated by err_info).
 
 
@@ -10788,15 +11345,42 @@ CONTENTS
 
       Create an UTF-8 encoded bstring from a Seed7 UTF-32 string.
       The memory for the bstring is allocated. No zero byte is added
-      to the end of the bstring. No special action is done, when
+      to the end of the bstring. No special action is done, if
       the original string contains a null character.
 
       Parameters:
         stri - Seed7 UTF-32 string to be converted.
 
       Returns:
-        an UTF-8 encoded bstring or
-        NULL, when the memory allocation failed.
+        an UTF-8 encoded bstring, or
+        NULL if the memory allocation failed.
+
+
+  stri_to_wstri_buf
+
+    wstriType stri_to_wstri_buf (const const_striType stri, memSizeType *length,
+        errInfoType *err_info)
+
+      Create an UTF-16 encoded wide string buffer from a Seed7 UTF-32 string.
+      The memory for the zero byte terminated wide string is allocated.
+      The wide string result must be freed with the macro free_wstri().
+      This function is intended to create temporary strings, that
+      are used as parameters. To get good performance the allocated
+      memory for the wide string is oversized.
+
+      Parameters:
+        stri - Seed7 UTF-32 string to be converted.
+        length - Place to return the character length of the result (without '\0').
+        err_info - Unchanged if the function succeeds, and
+                   MEMORY_ERROR if the memory allocation failed, and
+                   RANGE_ERROR if stri contains a character
+                          that is higher than the highest
+                          allowed Unicode character (U+10FFFF).
+
+      Returns:
+        an UTF-16 encoded null terminated wide string, or
+        NULL if the memory allocation failed or the
+        conversion failed (the error is indicated by err_info).
 
 
   cstri_to_stri
@@ -10810,8 +11394,8 @@ CONTENTS
         cstri - Null terminated ISO-8859-1 encoded C string.
 
       Returns:
-        an UTF-32 encoded Seed7 string or
-        NULL, when the memory allocation failed.
+        an UTF-32 encoded Seed7 string, or
+        NULL if the memory allocation failed.
 
 
   cstri_buf_to_stri
@@ -10826,8 +11410,8 @@ CONTENTS
         length - Byte length of the ISO-8859-1 encoded C string buffer.
 
       Returns:
-        an UTF-32 encoded Seed7 string or
-        NULL, when the memory allocation failed.
+        an UTF-32 encoded Seed7 string, or
+        NULL if the memory allocation failed.
 
 
   cstri8_to_stri
@@ -10839,13 +11423,13 @@ CONTENTS
 
       Parameters:
         cstri - Null terminated UTF-8 encoded C string.
-        err_info - Unchanged when the function succeeds or
-                   MEMORY_ERROR when the memory allocation failed or
-                   RANGE_ERROR when the conversion failed.
+        err_info - Unchanged if the function succeeds, and
+                   MEMORY_ERROR if the memory allocation failed, and
+                   RANGE_ERROR if the conversion failed.
 
       Returns:
-        an UTF-32 encoded Seed7 string or
-        NULL, when the memory allocation failed or when
+        an UTF-32 encoded Seed7 string, or
+        NULL if the memory allocation failed or
         illegal UTF-8 encodings are used.
 
 
@@ -10860,13 +11444,13 @@ CONTENTS
       Parameters:
         cstri - UTF-8 encoded C string buffer (not null terminated).
         length - Byte length of the UTF-8 encoded C string buffer.
-        err_info - Unchanged when the function succeeds or
-                   MEMORY_ERROR when the memory allocation failed or
-                   RANGE_ERROR when the conversion failed.
+        err_info - Unchanged if the function succeeds, and
+                   MEMORY_ERROR if the memory allocation failed, and
+                   RANGE_ERROR if the conversion failed.
 
       Returns:
-        an UTF-32 encoded Seed7 string or
-        NULL, when the memory allocation failed or when
+        an UTF-32 encoded Seed7 string, or
+        NULL if the memory allocation failed or
         illegal UTF-8 encodings are used.
 
 
@@ -10881,9 +11465,58 @@ CONTENTS
         cstri - Null terminated UTF-8 or ISO-8859-1 encoded C string.
 
       Returns:
-        an UTF-32 encoded Seed7 string or
-        NULL, when the memory allocation failed.
+        an UTF-32 encoded Seed7 string, or
+        NULL if the memory allocation failed.
 
+
+  wstri_buf_to_stri
+
+    striType wstri_buf_to_stri (const_wstriType wstri, memSizeType length,
+        errInfoType *err_info)
+
+      Copy an UTF-16 encoded wide string buffer to a Seed7 string.
+      The memory for the UTF-32 encoded Seed7 string is allocated.
+
+      Parameters:
+        wstri - UTF-16 encoded wide string buffer (not null terminated).
+        length - Character length of the UTF-16 encoded wide string buffer.
+        err_info - Unchanged if the function succeeds, and
+                   MEMORY_ERROR if the memory allocation failed.
+
+      Returns:
+        an UTF-32 encoded Seed7 string, or
+        NULL if the memory allocation failed.
+
+
+15.3 Operating system string and path conversions
+
+  Operating systems disagree in their Unicode encoding (UTF-8 or UTF-16).
+  To cope with this, "striutl.h" defines the type 'os_striType' and
+  functions to convert to and from 'os_striType'. The different concepts
+  to represent a file path (path delimiter and drive letter) are handled
+  with cp_to_os_path and cp_from_os_path.
+
+
+  Function Summary
+
+    striType conv_from_os_stri (const const_os_striType os_stri, memSizeType length)
+      Convert an os_striType string with length to a Seed7 UTF-32 string.
+
+    os_striType stri_to_os_stri (const_striType stri, errInfoType *err_info)
+      Convert a Seed7 UTF-32 string to a null terminated os_striType string.
+
+    striType os_stri_to_stri (const_os_striType os_stri, errInfoType *err_info)
+      Convert a null terminated os_striType string to a Seed7 UTF-32 string.
+
+    os_striType cp_to_os_path (const_striType std_path, int *path_info,
+        errInfoType *err_info)
+      Convert a Seed7 standard path to a path used by system calls.
+
+    striType cp_from_os_path (const_os_striType os_path, errInfoType *err_info)
+      Convert a path returned by a system call to a Seed7 standard path.
+
+
+  Function Detail
 
   conv_from_os_stri
 
@@ -10902,8 +11535,8 @@ CONTENTS
         length - Length of os_stri in characters.
 
       Returns:
-        a Seed7 UTF-32 string or
-        NULL, when an error occurred.
+        a Seed7 UTF-32 string, or
+        NULL if an error occurred.
 
 
   stri_to_os_stri
@@ -10925,13 +11558,13 @@ CONTENTS
 
       Parameters:
         stri - Seed7 UTF-32 string to be converted.
-        err_info - Unchanged when the function succeeds or
-                   MEMORY_ERROR when the memory allocation failed or
-                   RANGE_ERROR when the conversion failed.
+        err_info - Unchanged if the function succeeds, and
+                   MEMORY_ERROR if the memory allocation failed, and
+                   RANGE_ERROR if the conversion failed.
 
       Returns:
-        a null terminated os_striType value used by system calls or
-        NULL, when an error occurred.
+        a null terminated os_striType value used by system calls, or
+        NULL if an error occurred.
 
 
   os_stri_to_stri
@@ -10947,12 +11580,12 @@ CONTENTS
 
       Parameters:
         os_stri - Null terminated os_striType string to be converted.
-        err_info - Unchanged when the function succeeds or
-                   MEMORY_ERROR when the memory allocation failed.
+        err_info - Unchanged if the function succeeds, and
+                   MEMORY_ERROR if the memory allocation failed.
 
       Returns:
-        a Seed7 UTF-32 string or
-        NULL, when an error occurred.
+        a Seed7 UTF-32 string, or
+        NULL if an error occurred.
 
 
   cp_to_os_path
@@ -10974,16 +11607,16 @@ CONTENTS
 
     Parameters:
         std_path - UTF-32 encoded Seed7 standard path to be converted.
-        path_info - Unchanged when the function succeeds or
-                    PATH_IS_EMULATED_ROOT when the path is "/".
-                    PATH_NOT_MAPPED when the path cannot be mapped.
-        err_info - Unchanged when the function succeeds or
-                   MEMORY_ERROR when the memory allocation failed or
-                   RANGE_ERROR when the path is not a standard path.
+        path_info - Unchanged if the function succeeds, and
+                    PATH_IS_EMULATED_ROOT if the path is "/", and
+                    PATH_NOT_MAPPED if the path cannot be mapped.
+        err_info - Unchanged if the function succeeds, and
+                   MEMORY_ERROR if the memory allocation failed, and
+                   RANGE_ERROR if the path is not a standard path.
 
       Returns:
-        a null terminated os_striType path used by system calls or
-        NULL, when an error occurred.
+        a null terminated os_striType path used by system calls, or
+        NULL if an error occurred.
 
 
   cp_from_os_path
@@ -11001,69 +11634,20 @@ CONTENTS
 
       Parameters:
         os_path - Null terminated os_striType path to be converted.
-        err_info - Unchanged when the function succeeds or
-                   MEMORY_ERROR when the memory allocation failed.
+        err_info - Unchanged if the function succeeds, and
+                   MEMORY_ERROR if the memory allocation failed.
 
       Returns:
-        an UTF-32 encoded Seed7 standard path or
-        NULL, when the memory allocation failed.
+        an UTF-32 encoded Seed7 standard path, or
+        NULL if the memory allocation failed.
 
 
-  os_stri_alloc
-
-    boolType os_stri_alloc (os_striType &var, memSizeType len)
-
-      Macro to allocate memory for an os_striType string.
-      Strings allocated with os_stri_alloc() must be freed with
-      os_stri_free() in the reverse order of their creation. This allows
-      that allocations work in a stack like manner.
-
-      Parameters:
-        var - Reference to a variable to which the
-                   allocated memory is assigned.
-        len - Size of the allocated memory in characters.
-
-      Returns:
-        TRUE, when the allocation succeeds or
-        FALSE, when the memory allocation failed.
-
-
-  os_stri_free
-
-    void os_stri_free (os_striType var)
-
-      Macro to free memory that has been allocated with os_stri_alloc.
-      Strings allocated with os_stri_alloc() must be freed with
-      os_stri_free() in the reverse order of their creation. This allows
-      that allocations work in a stack like manner. The strings returned
-      by stri_to_os_stri and cp_to_os_path are also allocated with
-      os_stri_alloc. Therefore they must also be freed with
-      os_stri_free() in the reverse order of their creation.
-
-      Parameters:
-        var - The string to be freed.
-
-
-  raise_error
-
-    void raise_error (errInfoType err_info)
-
-      Macro to raise an exception. This macro calls the function
-      raise_exception2 with the additional parameters __FILE__ and
-      __LINE__. The function raise_exception2 has different
-      implementations for interpreted and compiled programs.
-
-      Parameters:
-        err_info - The exception to be raised.
-
-
-
-14.3 Macros to access the action parameters
+15.4 Macros to access the action parameters
 
   A primitive action function has one parameter named 'arguments'. The
   'arguments' parameter has the type 'listType' and contains a list of
-  objects. Macros like 'arg_1', 'arg_2', 'arg_3', etc. get a specific
-  object from the 'arguments'.
+  objects. The header file "objutl.h" defines macros like 'arg_1',
+  'arg_2', 'arg_3', etc. to get a specific object from the 'arguments'.
 
 
   Functions (macros) to get a Seed7 object from a list
@@ -11083,10 +11667,10 @@ CONTENTS
     objectType arg_12 (listType arguments)
       Take the twelfth object from the list.
 
-  An object value contains a specific C implementation type. Macros like
-  'isit_char' and 'isit_set' check if an object has the requested type.
-  When the object has not the requested C implementation type and error
-  message is written.
+  An object value contains a specific C implementation type. The header
+  file "objutl.h" defines macros like 'isit_char' and 'isit_set' to
+  check, if an object has the requested type. If the object has not
+  the requested C implementation type and error message is written.
 
 
   Functions (macros) to check the C type of Seed7 objects
@@ -11105,6 +11689,9 @@ CONTENTS
 
     void isit_char (objectType arg)
       Check if the object type is charType.
+
+    void isit_database (objectType arg)
+      Check if the object type is databaseType.
 
     void isit_file (objectType arg)
       Check if the object type is fileType.
@@ -11127,6 +11714,9 @@ CONTENTS
     void isit_socket (objectType arg)
       Check if the object type is socketType.
 
+    void isit_sqlstmt (objectType arg)
+      Check if the object type is sqlStmtType.
+
     void isit_stri (objectType arg)
       Check if the object type is striType.
 
@@ -11136,7 +11726,8 @@ CONTENTS
     void isit_win (objectType arg)
       Check if the object type is winType.
 
-  Macros like 'take_bool' and 'take_file' return a value with the requested
+  The header file "objutl.h" defines macros like 'take_bool' and
+  'take_file'. This macros return a value with the requested
   C implementation type.
 
 
@@ -11156,6 +11747,9 @@ CONTENTS
 
     charType take_char (objectType arg)
       Take the char value from an object.
+
+    databaseType take_database (objectType arg)
+      Take the database value from an object.
 
     fileType take_file (objectType arg)
       Take the file value from an object.
@@ -11178,6 +11772,9 @@ CONTENTS
     socketType take_socket (objectType arg)
       Take the socket value from an object.
 
+    sqlStmtType take_sqlstmt (objectType arg)
+      Take the SQL prepared statement value from an object.
+
     striType take_stri (objectType arg)
       Take the string value from an object.
 
@@ -11188,11 +11785,11 @@ CONTENTS
       Take the struct value from an object.
 
 
-14.4 Functions to create action results
+15.5 Functions to create action results
 
-  A primitive action function has a result of type 'objectType'. Functions
-  like 'bld_bigint_temp' and 'bld_stri_temp' create an object with the
-  specified type.
+  A primitive action function has a result of type 'objectType'.
+  The header file "objutl.h" defines macros like 'bld_bigint_temp'
+  and 'bld_stri_temp' to create an object with the specified type.
 
 
   Functions to create Seed7 objects with a C value
@@ -11208,6 +11805,9 @@ CONTENTS
 
     objectType bld_char_temp (charType temp_char)
       Create an object with a charType value.
+
+    objectType bld_database_temp (databaseType temp_database)
+      Create an object with a databaseType value.
 
     objectType bld_file_temp (fileType temp_file)
       Create an object with a fileType value.
@@ -11230,6 +11830,9 @@ CONTENTS
     objectType bld_socket_temp (socketType temp_socket)
       Create an object with a socketType value.
 
+    objectType bld_sqlstmt_temp (sqlStmtType temp_sqlstmt)
+      Create an object with a sqlStmtType value.
+
     objectType bld_stri_temp (striType temp_stri)
       Create an object with a striType value.
 
@@ -11240,7 +11843,275 @@ CONTENTS
       Create an object with a winType value.
 
 
-14.5 Error handling
+15.6 Memory management macros
+
+  The conversion functions mentioned above use macros to do the
+  memory management. Some of this macros are not based on malloc()
+  but manage the memory in a stack. Therefore it is important to
+  use the correct macro to allocate and free memory. The macros
+  below are defined in the header file "striutl.h".
+
+
+  Macro Summary
+
+    void free_cstri (cstriType cstri, striType stri)
+      Macro to free memory that has been allocated by stri_to_cstri().
+
+    void free_cstri8 (cstriType cstri, striType stri)
+      Macro to free memory that has been allocated by stri_to_cstri8() or stri_to_cstri8_buf().
+
+    void free_wstri (wstriType wstri, striType stri)
+      Macro to free memory that has been allocated by stri_to_wstri_buf().
+
+    boolType os_stri_alloc (os_striType &var, memSizeType len)
+      Macro to allocate memory for an os_striType string.
+
+    void os_stri_free (os_striType var)
+      Macro to free memory that has been allocated with os_stri_alloc.
+
+
+  Macro Detail
+
+  free_cstri
+
+    void free_cstri (cstriType cstri, striType stri)
+
+      Macro to free memory that has been allocated by stri_to_cstri().
+
+      Parameters:
+        cstri - The string to be freed.
+        stri - The parameter that was used when stri_to_cstri() was called.
+
+
+  free_cstri8
+
+    void free_cstri8 (cstriType cstri, striType stri)
+
+      Macro to free memory that has been allocated by stri_to_cstri8() or stri_to_cstri8_buf().
+
+      Parameters:
+        cstri - The string to be freed.
+        stri - The parameter that was used when stri_to_cstri8() or stri_to_cstri8_buf() was called.
+
+
+  free_wstri
+
+    void free_wstri (wstriType wstri, striType stri)
+
+      Macro to free memory that has been allocated by stri_to_wstri_buf().
+
+      Parameters:
+        cstri - The string to be freed.
+        stri - The parameter that was used when stri_to_wstri_buf() was called.
+
+
+  os_stri_alloc
+
+    boolType os_stri_alloc (os_striType &var, memSizeType len)
+
+      Macro to allocate memory for an os_striType string.
+      Strings allocated with os_stri_alloc() must be freed with
+      os_stri_free() in the reverse order of their creation. This allows
+      that allocations work in a stack like manner.
+
+      Parameters:
+        var - Reference to a variable to which the
+                   allocated memory is assigned.
+        len - Size of the allocated memory in characters.
+
+      Returns:
+        TRUE if the allocation succeeds, and
+        FALSE if the memory allocation failed.
+
+
+  os_stri_free
+
+    void os_stri_free (os_striType var)
+
+      Macro to free memory that has been allocated with os_stri_alloc.
+      Strings allocated with os_stri_alloc() must be freed with
+      os_stri_free() in the reverse order of their creation. This allows
+      that allocations work in a stack like manner. The strings returned
+      by stri_to_os_stri and cp_to_os_path are also allocated with
+      os_stri_alloc. Therefore they must also be freed with
+      os_stri_free() in the reverse order of their creation.
+
+      Parameters:
+        var - The string to be freed.
+
+
+15.7 Basic conversion functions
+
+  The conversion functions mentioned above are implemented with
+  basic conversion functions. In some situations it might make sense
+  to use the basic conversion functions direcly. This functions are
+  optimized for performance. Some functions use loop unrolling
+  inspired by Duff's device. The basic conversion functions below
+  are defined in the header file "striutl.h".
+
+
+  Function Summary
+
+    void memcpy_to_strelem (register strElemType *const dest,
+        register const const_ustriType src, memSizeType len)
+      Copy len bytes to Seed7 characters in a string.
+
+    void memset_to_strelem (register strElemType *const dest,
+        register const strElemType ch, memSizeType len)
+      Fill len Seed7 characters with the character ch.
+
+    boolType memcpy_from_strelem (register const const_ustriType dest,
+        register const strElemType *const src, memSizeType len)
+      Copy len Seed7 characters to a byte string.
+
+    const strElemType * memchr_strelem (register const strElemType *mem,
+        const strElemType ch, memSizeType len)
+      Scan the first len Seed7 characters for the character ch.
+
+    memSizeType utf8_to_stri (strElemType *const dest_stri,
+        memSizeType *const dest_len, const_ustriType ustri, memSizeType len)
+      Convert an UTF-8 encoded string to an UTF-32 encoded string.
+
+    memSizeType stri_to_utf8 (const ustriType out_stri,
+        const strElemType *strelem, memSizeType len)
+      Convert an UTF-32 encoded string to an UTF-8 encoded string.
+
+    memSizeType stri_to_utf16 (const wstriType out_wstri,
+        register const strElemType *strelem, memSizeType len,
+        errInfoType *const err_info)
+      Convert an UTF-32 encoded string to an UTF-16 encoded string.
+
+
+  Function Detail
+
+  memcpy_to_strelem
+
+    void memcpy_to_strelem (register strElemType *const dest,
+        register const const_ustriType src, memSizeType len)
+
+      Copy len bytes to Seed7 characters in a string.
+      This function works also correct if 'src' and 'dest' point
+      to the same address. In other words it works correct for:
+
+       memcpy_to_strelem(mem, (ustriType) mem, num);
+
+      Parameters:
+        dest - Destination array with UTF-32 encoded characters.
+        src - Source array with ISO-8859-1 encoded bytes.
+        len - Number of bytes in 'src' and UTF-32 characters in 'dest'.
+
+
+  memset_to_strelem
+
+    void memset_to_strelem (register strElemType *const dest,
+        register const strElemType ch, memSizeType len)
+
+      Fill len Seed7 characters with the character ch.
+
+      Parameters:
+        dest - Destination array with UTF-32 encoded characters.
+        ch - UTF-32 encoded character to be filled into 'dest'.
+        len - Specifies how often 'ch' is filled into 'dest'.
+
+
+ memcpy_from_strelem
+
+    boolType memcpy_from_strelem (register const const_ustriType dest,
+        register const strElemType *const src, memSizeType len)
+
+      Copy len Seed7 characters to a byte string.
+      This function uses loop unrolling inspired by Duff's device
+      and a trick with a binary or (|=) to check for allowed values.
+
+      Parameters:
+        dest - Destination array with ISO-8859-1 encoded bytes.
+        src - Source array with UTF-32 encoded characters.
+        len - Number of UTF-32 characters in 'src' and bytes in 'dest'.
+
+      Returns:
+        TRUE if one of the characters does not fit into a byte,
+        FALSE otherwise.
+
+
+  memchr_strelem
+
+    const strElemType *memchr_strelem (register const strElemType *mem,
+        const strElemType ch, memSizeType len)
+
+      Scan the first len Seed7 characters for the character ch.
+
+      Parameters:
+        mem - Array with UTF-32 characters.
+        ch - UTF-32 character to be searched in 'mem'.
+        len - Number of UTF-32 characters in 'mem'.
+
+      Returns:
+        a pointer to the matching character, or NULL if the
+        character does not occur in the given string area.
+
+
+  utf8_to_stri
+
+    memSizeType utf8_to_stri (strElemType *const dest_stri,
+        memSizeType *const dest_len, const_ustriType ustri, memSizeType len)
+
+      Convert an UTF-8 encoded string to an UTF-32 encoded string.
+      The source and destination strings are not '\0' terminated.
+      The memory for the destination dest_stri is not allocated.
+
+      Parameters:
+        dest_stri - Destination of the UTF-32 encoded string.
+        dest_len - Place to return the length of dest_stri.
+        ustri - UTF-8 encoded string to be converted.
+        len - Number of bytes in ustri.
+
+      Returns:
+        the number of bytes in ustri that are left unconverted, or
+        0 if ustri has been successfully converted.
+
+
+  stri_to_utf8
+
+    memSizeType stri_to_utf8 (const ustriType out_stri,
+        const strElemType *strelem, memSizeType len)
+
+      Convert an UTF-32 encoded string to an UTF-8 encoded string.
+      The source and destination strings are not '\0' terminated.
+      The memory for the destination out_stri is not allocated.
+
+      Parameters:
+        out_stri - Destination of the UTF-8 encoded string.
+        strelem - UTF-32 encoded string to be converted.
+        len - Number of UTF-32 characters in strelem.
+
+      Returns:
+        the length of the converted UTF-8 string.
+
+
+  stri_to_utf16
+
+    memSizeType stri_to_utf16 (const wstriType out_wstri,
+        register const strElemType *strelem, memSizeType len,
+        errInfoType *const err_info)
+
+      Convert an UTF-32 encoded string to an UTF-16 encoded string.
+      The source and destination strings are not '\0' terminated.
+      The memory for the destination out_wstri is not allocated.
+
+      Parameters:
+        out_wstri - Destination of the UTF-16 encoded string.
+        strelem - UTF-32 encoded string to be converted.
+        len - Number of UTF-32 characters in strelem.
+        err_info - Unchanged if the function succeeds, and
+                   MEMORY_ERROR if *strelem contains a character
+                          that is higher than the highest allowed
+                          Unicode character (U+10FFFF).
+
+      Returns:
+        the length of the converted UTF-16 string in characters.
+
+
+15.8 Error handling
 
   The C programming language does not provide exceptions. Seed7 uses
   several methods to provide error handling. Before an actual exception
@@ -11256,32 +12127,63 @@ CONTENTS
       situation (e.g. a 'MEMORY_ERROR'). This is handled with functions
       that return NULL in case of a 'MEMORY_ERROR'.
 
-  Code can check the value of the 'err_info' variable, or check if a
+  C code can check the value of the 'err_info' variable, or check if a
   function returns NULL. In case of error it is possible to do some
   cleaning up. An error situation can be propergated this way over
-  several function levels. It is important to assure that an
-  existing error situation (e.g. 'err_info' has a value not equal to
-  'OKAY_NO_ERROR') is not reset to a situation that no error occurred.
+  several function levels. It is important to assure that an existing
+  error situation ('err_info' has a value not equal to 'OKAY_NO_ERROR')
+  is not reset to a situation that no error occurred.
 
   An actual exception can be triggered with the macro 'raise_error'.
   This macro takes an 'errInfoType' parameter to describe the actual
-  exception. This macro calls the function 'raise_exception2' with
+  exception. Note that all cleaning up must be done before 'raise_error'
+  is called. This macro calls the function 'raise_exception2' with
   the additional parameters __FILE__ and __LINE__. The function
   'raise_exception2' has different implementations for interpreted
   and compiled programs:
 
-    - In the interpreter 'raise_exception2' sets a fail flag
-      and the function is left normally.
-    - In compiled code 'raise_exception2' uses a 'longjmp'
-      to continue executing at the handler code of the exception.
+    - In the interpreter 'raise_exception2' sets a fail flag and the
+      function is left normally.
+    - In compiled code 'raise_exception2' uses a 'longjmp' to continue
+      executing at the handler code of the exception.
+
+  That means that 'raise_error' also returns normally in the
+  interpreter. Therefore a function that calls 'raise_error' must
+  return after it has called this function. Surrounding functions
+  must also return. This must be done up to the current action
+  function. So either all these functions always return immediate
+  or a special return value (e.g. NULL) signals them to return.
+  Doing some clean up, when the special return value is received,
+  will not work in compiled code. If cleaning up is necessary the
+  call of 'raise_error' should be done in the outer function.
+
+
+  Function Summary
+
+    void raise_error (errInfoType err_info)
+      Macro to raise an exception.
+
+
+  Function Detail
+
+  raise_error
+
+    void raise_error (errInfoType err_info)
+
+      Macro to raise an exception. This macro calls the function
+      raise_exception2 with the additional parameters __FILE__ and
+      __LINE__. The function raise_exception2 has different
+      implementations for interpreted and compiled programs.
+
+      Parameters:
+        err_info - The exception to be raised.
 
 
 
-
-15. ERRORS
+16. ERRORS
 ==========
 
-15.1 Compile time errors
+16.1 Compile time errors
 
   The compile time errors are not fatal (the program can
   execute) except for the error 1 (Out of heap space) which
@@ -11354,11 +12256,11 @@ CONTENTS
         Undefined error
 
 
-15.2 Exceptions
+16.2 Exceptions
 
   An exception is an anomalous event that arises during program execution.
   Exceptions change the normal flow of program execution. An exception
-  transfers the execution to a corresponding exception handler. When no
+  transfers the execution to a corresponding exception handler. If no
   corresponding exception handler exists the program is terminated.
   There are various exceptions, which can be raised: MEMORY_ERROR,
   NUMERIC_ERROR, OVERFLOW_ERROR, RANGE_ERROR, FILE_ERROR and
@@ -11368,9 +12270,9 @@ CONTENTS
     raise RANGE_ERROR;
 
 
-15.2.1 MEMORY_ERROR
+16.2.1 MEMORY_ERROR
 
-  The exception MEMORY_ERROR is raised when there is not enough memory
+  The exception MEMORY_ERROR is raised if there is not enough memory
   to store some data. This error can be raised from the run-time library
   or from the interpreter kernel. Catching a MEMORY_ERROR is possible,
   but it must be done with care. Variables involved in a MEMORY_ERROR
@@ -11381,9 +12283,9 @@ CONTENTS
     Additionally the interpreter kernel may raise this exception also.
 
 
-15.2.2 NUMERIC_ERROR
+16.2.2 NUMERIC_ERROR
 
-  The exception NUMERIC_ERROR is raised when a numeric operation
+  The exception NUMERIC_ERROR is raised if a numeric operation
   cannot deliver a correct result. This includes several things that
   are mathematically undefined such as division by zero, integer
   exponentiation with a negative exponent, square root of a negative
@@ -11405,16 +12307,16 @@ CONTENTS
        E.g.: 1 div 0 raises NUMERIC_ERROR. Note that a 'float' division
        by zero does not raise NUMERIC_ERROR but returns Infinity or
        -Infinity instead.
-     - Exponentiation (**) when the exponent is a negative 'integer'.
+     - Exponentiation (**) if the exponent is a negative 'integer'.
        E.g.: 2 ** (-1) raises NUMERIC_ERROR.
      - Functions (sqrt, log2, log10, !) that are only defined for
        positive arguments. E.g.: sqrt(-1) raises NUMERIC_ERROR.
 
 
-15.2.3 OVERFLOW_ERROR
+16.2.3 OVERFLOW_ERROR
 
-  An integer overflow occurs when a calculation produces a result that
-  cannot be stored in an 'integer' variable. This happens when the result
+  An integer overflow occurs if a calculation produces a result that
+  cannot be stored in an 'integer' variable. This happens if the result
   is less than 'integer.first' or greater than 'integer.last'.
 
     It may be raised from the following 'integer' operations:
@@ -11427,35 +12329,35 @@ CONTENTS
        there is no corresponding positive value for the most negative
        integer. E.g.: -integer.first raises OVERFLOW_ERROR.
      - Addition, subtraction, multiplication and exponentiation (+, -,
-       *, **, succ, pred) trigger an overflow when the result would be
+       *, **, succ, pred) trigger an overflow if the result would be
        less than 'integer.first' or greater than 'integer.last'.
      - Arithmetic operations that change a variable (+:=, -:=, *:=, incr,
-       decr) trigger an overflow when the variable would get a value that
+       decr) trigger an overflow if the variable would get a value that
        is less than 'integer.first' or greater than 'integer.last'.
      - Division with 'div' and 'mdiv' can overflow because a division by
        -1 is the same as negating the dividend. E.g.: integer.first div -1
        raises OVERFLOW_ERROR.
-     - Remainder and modulo are defined to raise OVERFLOW_ERROR when
+     - Remainder and modulo are defined to raise OVERFLOW_ERROR if
        the dividend is the most negative integer and the divisor is -1.
        E.g.: integer.first rem -1 raises OVERFLOW_ERROR. This has been
        defined as overflow because it can trigger so called undefined
        behaviour of the underlying C code.
      - All shift operations ('<<', '>>', <<:= and '>>:=') trigger an
-       overflow when the shift amount is negative or greater equal 64.
+       overflow if the shift amount is negative or greater equal 64.
      - Left shift operations ('<<' and <<:=) can also trigger an
-       overflow when the shift result would be less than 'integer.first'
+       overflow if the shift result would be less than 'integer.first'
        or greater than 'integer.last'.
-     - Binomial coefficient ('!') triggers an overflow when the result
+     - Binomial coefficient ('!') triggers an overflow if the result
        would be less than 'integer.first' or greater than 'integer.last'.
-     - Computing the absolute value with abs can overflow, when it is
+     - Computing the absolute value with abs can overflow, if it is
        called with the most negative integer. E.g.: abs(integer.first)
        raises OVERFLOW_ERROR.
 
   The interpreter checks always for an integer overflow. By default the
   compiler generates code to check for an integer overflow. The option
   -so can be used to suppress the generation of integer overflow checks.
-  When an overflow situation occurs although overflow checking has been
-  switched off (with -so) the behaviour is undefined. In this case the
+  If an overflow situation occurs, although overflow checking has been
+  switched off (with -so), the behaviour is undefined. In this case the
   following things can happen:
 
      - The exception OVERFLOW_ERROR is still raised.
@@ -11478,7 +12380,7 @@ CONTENTS
   situations. All overflow situations, where OVERFLOW_ERROR is raised
   correspond to C situations, which have undefined behaviour. The
   overflow concept of Seed7 has been designed to allow, that simple
-  C code is generated, when the overflow checks are switched off.
+  C code is generated, if the overflow checks are switched off.
 
   Compiler optimizations (e.g. with -oc2 or -oc3) can reduce the
   potential of overflow. In an optimized program an expression might
@@ -11487,27 +12389,27 @@ CONTENTS
 
     number + integer.last + integer.first
 
-  When 'number' is between succ(integer.first) and 0 the expression
+  If 'number' is between succ(integer.first) and 0 the expression
   can be evaluated and no overflow will occur. For other values of
   'number' the exception OVERFLOW_ERROR is raised. When the expression
   above is optimized it is rephrased to:
 
     pred(number)
 
-  This expression only triggers OVERFLOW_ERROR, when number has the
+  This expression only triggers OVERFLOW_ERROR, if number has the
   value integer.first.
 
   With overflow checks it is guaranteed that an integer overflow
   always raises OVERFLOW_ERROR. But you cannot rely on OVERFLOW_ERROR
-  being raised, when there is an alternate way to return the correct
+  being raised if there is an alternate way to return the correct
   result.
 
 
-15.2.4 RANGE_ERROR
+16.2.4 RANGE_ERROR
 
-  A RANGE_ERROR occurs when an index is used to access an array or string
+  A RANGE_ERROR occurs if an index is used to access an array or string
   element beyond the elements that actually exist. Many functions define
-  a range of valid arguments and raise RANGE_ERROR when this range is
+  a range of valid arguments and raise RANGE_ERROR if this range is
   violated.
 
     It may be raised from the following 'boolean' operations:
@@ -11546,9 +12448,9 @@ CONTENTS
         open, write, gets, length, seek, tell.
 
 
-15.2.5 FILE_ERROR
+16.2.5 FILE_ERROR
 
-  A FILE_ERROR occurs when an illegal operation with a file is done.
+  A FILE_ERROR occurs if an illegal operation with a file is done.
 
     It may be raised by the following functions:
         fileSize, bigFileSize, fileType, fileTypeSL, fileMode, setFileMode,
@@ -11557,16 +12459,34 @@ CONTENTS
         inetSocketAddress, inetListenerAddress, openInetSocket, openInetListener.
 
 
-15.2.6 ILLEGAL_ACTION
+16.2.6 DATABASE_ERROR
+
+  The exception DATABASE_ERROR may be raised by database
+  functions. If a DATABASE_ERROR is catched it is possible
+  to get some information about the cause of the error with:
+
+    const func string: errMessage (DATABASE_ERROR)
+
+  There are messages comming from the database and from the Seed7
+  database driver. The database driver may have a message like:
+
+    Searching for dynamic libraries failed: libclntsh.so
+
+  This indicates that the connector library could not be found.
+  In this case the environment variable LD_LIBRARY_PATH could
+  be used to specify the place of the connector library.
+
+
+16.2.7 ILLEGAL_ACTION
 
   The exception ILLEGAL_ACTION may be raised by the interpreter
-  kernel, when a primitive action does not point to any legal action.
-  This check is only done when the s7 interpreter is compiled with
+  kernel, if a primitive action does not point to any legal action.
+  This check is only done if the s7 interpreter is compiled with
   '#define WITH_ACTION_CHECK'. The ILLEGAL_ACTION exception
-  is also raised when the primitive action ACT_ILLEGAL is executed.
+  is also raised if the primitive action ACT_ILLEGAL is executed.
 
 
-15.3 Handlers
+16.3 Handlers
 
   To catch an EXCEPTION the following handler construct can be used:
 
@@ -11597,9 +12517,9 @@ CONTENTS
     end block;
 
 
-15.4 Stack trace
+16.4 Stack trace
 
-  When an EXCEPTION is not caught the program is terminated and the s7
+  If an EXCEPTION is not caught the program is terminated and the s7
   interpreter writes a stack trace:
 
     *** Uncaught EXCEPTION NUMERIC_ERROR raised with
@@ -11628,20 +12548,20 @@ CONTENTS
      - Compile the program with the options -g -e and start it
        from a debugger.
 
-  When s7c is called with the option -g it instructs the
+  If s7c is called with the option -g it instructs the
   C compiler to generate debugging information. This way a debugger
   like gdb can run the program and provide information. The option
   -e tells the compiler to generate code which sends a signal,
-  when an uncaught exception occurs. This option allows debuggers
+  if an uncaught exception occurs. This option allows debuggers
   to handle uncaught Seed7 exceptions. Note that -e sends the
-  signal SIGFPE. This is done even when the exception is not
+  signal SIGFPE. This is done even if the exception is not
   related to floating point operations.
 
     ./s7 s7c -g -e lander
     gdb ./lander
 
   Then the debugger should be able to run the program and to
-  write a backtrace when a crash occurs:
+  write a backtrace if a crash occurs:
 
     (gdb) run
     Starting program: /home/tm/seed7_5/prg/lander
@@ -11677,18 +12597,18 @@ CONTENTS
   Some Seed7 exceptions do not send signals. This hinders the debugger
   to recognize that an uncaught exception occurred. The compiler option -e
   can help in this situation. It instructs the compiler to generate
-  code which sends a signal when an uncaught exception occurs. This
+  code which sends a signal if an uncaught exception occurs. This
   allows the debugger to show a backtrace for uncaught Seed7 exceptions.
 
 
-15.5 Signals
+16.5 Signals
 
   A signal is an asynchronous notification of an event. The event
   can come from outside such as a request to terminate the program.
   The event can also come from the program itself such as a memory
   access violation (segfault). Several signals are handled by the
   Seed7 run-time library. The interpreter respectively compiler
-  option -ts can be used to influence the behavior, when a signal
+  option -ts can be used to influence the behavior, if a signal
   is sent to a Seed7 program (see below). The following signals are
   handled by Seed7:
 
@@ -11708,7 +12628,7 @@ CONTENTS
   signals SIGABRT or SIGILL might be used to raise OVERFLOW_ERROR
   and the signal SIGFPE might be used to raise NUMERIC_ERROR.
 
-  When the interpreter respectively compiler option -ts has been
+  If the interpreter respectively compiler option -ts has been
   used some signals (see table above) trigger a dialog at the
   console. E.g.:
 
@@ -11726,14 +12646,14 @@ CONTENTS
 
     re-enter input>
 
-  Triggering SIGFPE is useful when the program runs in a debugger.
+  Triggering SIGFPE is useful if the program runs in a debugger.
   In this case SIGFPE will activate the debugger prompt. Raising
   an exception (e.g.: MEMORY_ERROR) can be used to get a stack
   trace (this works only in the interpreter). A compiled program
   must be executed with a debugger to get a stack trace.
 
 
-15.6 Other errors and warnings
+16.6 Other errors and warnings
 
   No more memory. Program terminated.
     This error message is displayed after the compile time error 1
@@ -11751,16 +12671,16 @@ CONTENTS
     must type the ENTER-key to accept.
 
   ACTION $%s REQUIRES %s NOT %s
-    This error can happen when an action tries to do something
+    This error can happen if an action tries to do something
     with the wrong primitive value. For example adding an
     integer to a string with INT_ADD. Since the analyze phase
-    checks for the right types this error can only happen when the
+    checks for the right types this error can only happen if the
     basic libraries are defined wrong.
 
   ACTION $%s REQUIRES VARIABLE %s NOT %s
     This error can happen with actions which assign a value to
     a constant. Since the analyze phase checks for variable objects
-    this error can only happen when the basic libraries are defined
+    this error can only happen if the basic libraries are defined
     wrong. Principally this error is possible with the following
     operations: :=, incr, decr, wrd_rd, lin_rd
 

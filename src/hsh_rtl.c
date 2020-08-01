@@ -476,7 +476,7 @@ static void dump_hash (const const_rtlHashType curr_hash)
 /**
  *  Hash membership test.
  *  Determine if 'aKey' is a member of the hash map 'aHashMap'.
- *  @return TRUE when 'aKey' is a member of 'aHashMap',
+ *  @return TRUE if 'aKey' is a member of 'aHashMap',
  *          FALSE otherwise.
  */
 boolType hshContains (const const_rtlHashType aHashMap, const genericType aKey,
@@ -679,7 +679,7 @@ void hshExcl (const rtlHashType aHashMap, const genericType aKey,
 /**
  *  Access one value from the hash table 'aHashMap'.
  *  @return the element with the key 'aKey' from 'aHashMap'.
- *  @exception RANGE_ERROR When 'aHashMap' does not have an element
+ *  @exception RANGE_ERROR If 'aHashMap' does not have an element
  *             with the key 'aKey'.
  */
 genericType hshIdx (const const_rtlHashType aHashMap, const genericType aKey,
@@ -729,7 +729,7 @@ genericType hshIdx (const const_rtlHashType aHashMap, const genericType aKey,
 /**
  *  Determine the address of a value from the hash table 'aHashMap'.
  *  @return the address of the element with the key 'aKey' from 'aHashMap'.
- *  @exception RANGE_ERROR When 'aHashMap' does not have an element
+ *  @exception RANGE_ERROR If 'aHashMap' does not have an element
  *             with the key 'aKey'.
  */
 rtlObjectType *hshIdxAddr (const const_rtlHashType aHashMap,
@@ -781,7 +781,7 @@ rtlObjectType *hshIdxAddr (const const_rtlHashType aHashMap,
 /**
  *  Determine the address of a value from the hash table 'aHashMap'.
  *  @return the address of the element with the key 'aKey' from 'aHashMap' or
- *          NULL when 'aHashMap' does not have an element with the key 'aKey'.
+ *          NULL if 'aHashMap' does not have an element with the key 'aKey'.
  */
 rtlObjectType *hshIdxAddr2 (const const_rtlHashType aHashMap,
     const genericType aKey, intType hashcode, compareType cmp_func)
@@ -967,9 +967,9 @@ genericType hshIdxDefault0 (const const_rtlHashType aHashMap, const genericType 
 
 /**
  *  Add 'anElem' with the key 'aKey' to the hash map 'aHashMap'.
- *  When an element with the key 'aKey' already exists,
+ *  If an element with the key 'aKey' already exists,
  *  it is overwritten with 'anElem'.
- *  @exception MEMORY_ERROR When there is not enough memory.
+ *  @exception MEMORY_ERROR If there is not enough memory.
  */
 void hshIncl (const rtlHashType aHashMap, const genericType aKey,
     const genericType data, intType hashcode, compareType cmp_func,
@@ -1057,7 +1057,7 @@ rtlArrayType hshKeys (const const_rtlHashType aHashMap,
  *  The hash table element contains key and value.
  *  The random values are uniform distributed.
  *  @return a random hash table element such that hshRand(aHashMap) in aHashMap holds.
- *  @exception RANGE_ERROR When 'aHashMap' is empty.
+ *  @exception RANGE_ERROR If 'aHashMap' is empty.
  */
 const_rtlHashElemType hshRand (const const_rtlHashType aHashMap)
 
@@ -1089,12 +1089,12 @@ const_rtlHashElemType hshRand (const const_rtlHashType aHashMap)
 
 /**
  *  Add 'anElem' with the key 'aKey' to the hash map 'aHashMap'.
- *  When an element with the key 'aKey' already exists,
+ *  If an element with the key 'aKey' already exists,
  *  it is overwritten with 'anElem'.
  *  @param data New value, a temporary value which is used or returned.
- *  @exception MEMORY_ERROR When there is not enough memory.
  *  @return the old element with the key 'aKey' or
- *          the new data value when no old element existed.
+ *          the new data value if no old element existed.
+ *  @exception MEMORY_ERROR If there is not enough memory.
  */
 genericType hshUpdate (const rtlHashType aHashMap, const genericType aKey,
     const genericType data, intType hashcode, compareType cmp_func,

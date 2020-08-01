@@ -91,7 +91,7 @@ const func type: array (in type: baseType) is func
       (**
        *  Access one element from the array ''arr''.
        *  @return the element with the specified ''index'' from ''arr''.
-       *  @exception RANGE_ERROR When ''index'' is less than [[#minIdx(in_arrayType)|minIdx]](arr) or
+       *  @exception RANGE_ERROR If ''index'' is less than [[#minIdx(in_arrayType)|minIdx]](arr) or
        *                         greater than [[#minIdx(in_arrayType)|maxIdx]](arr)
        *)
       const func baseType: (in arrayType: arr) [ (in integer: index) ]        is action "ARR_IDX";
@@ -131,7 +131,7 @@ const func type: array (in type: baseType) is func
       (**
        *  Remove the element with ''index'' from ''arr'' and return the removed element.
        *  @return the removed element.
-       *  @exception RANGE_ERROR When ''index'' is less than [[#minIdx(in_arrayType)|minIdx]](arr) or
+       *  @exception RANGE_ERROR If ''index'' is less than [[#minIdx(in_arrayType)|minIdx]](arr) or
        *                         greater than [[#minIdx(in_arrayType)|maxIdx]](arr)
        *)
       const func baseType: remove (inout arrayType: arr, in integer: index)   is action "ARR_REMOVE";
@@ -157,7 +157,7 @@ const func type: array (in type: baseType) is func
       (**
        *  Generate an array by using ''factor'' ''elements''.
        *  @return an array with ''factor'' ''elements''.
-       *  @exception RANGE_ERROR When ''factor'' is negative.
+       *  @exception RANGE_ERROR If ''factor'' is negative.
        *  @exception MEMORY_ERROR Not enough memory to represent the result.
        *)
       const func arrayType: (in integer: factor) times (in baseType: element) is action "ARR_TIMES";
@@ -177,7 +177,7 @@ const func type: array (in type: baseType) is func
        *  An empty array can be generated with
        *   [0 .. -1] times "asdf"
        *  @return an array with B - A + 1 ''elements''.
-       *  @exception RANGE_ERROR When B - A is less than -1.
+       *  @exception RANGE_ERROR If B - A is less than -1.
        *  @exception MEMORY_ERROR Not enough memory to represent the result.
        *)
       const func arrayType: (in ARRAY_IDX_RANGE: indexRange) times
@@ -362,7 +362,7 @@ const func type: array (in type: baseType) is func
        *  Select a random element from ''arr''.
        *  The pseudo-random indices of the elements are uniform distributed.
        *  @return a random element from ''arr''.
-       *  @exception RANGE_ERROR When ''arr'' is empty.
+       *  @exception RANGE_ERROR If ''arr'' is empty.
        *)
       const func baseType: rand (in arrayType: arr) is
         return arr[rand(minIdx(arr), maxIdx(arr))];

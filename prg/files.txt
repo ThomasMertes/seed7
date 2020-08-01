@@ -184,6 +184,7 @@ html.s7i     Support functions for html
 html_ent.s7i HTML entity handling library
 http_response.s7i Support for HTTP responses.
 httpserv.s7i Support for HTTP server and HTTP requests.
+ico.s7i      Support for the ICO image file format.
 idxarray.s7i Support for arrays with non-integer index
 image.s7i    Defines images, which are in a window
 inflate.s7i  Inflate uncompression algorithm

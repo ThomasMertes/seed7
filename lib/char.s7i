@@ -146,7 +146,7 @@ const func integer: integer (in char: ch)                     is action "CHR_ORD
  *  For values between 1114112 and 1114368 a cursor or function key
  *  is returned. For -1 the value EOF is returned.
  *  @return a character which corresponds to the given [[integer]].
- *  @exception RANGE_ERROR When the number does not fit into a 32-bit ''char''.
+ *  @exception RANGE_ERROR If the number does not fit into a 32-bit ''char''.
  *)
 const func char: chr (in integer: number)                     is action "CHR_ICONV1";
 
@@ -157,7 +157,7 @@ const func char: chr (in integer: number)                     is action "CHR_ICO
  *  For values between 1114112 and 1114368 a cursor or function key
  *  is returned. For -1 the value EOF is returned.
  *  @return a character which corresponds to the given [[integer]].
- *  @exception RANGE_ERROR When the number does not fit into a 32-bit ''char''.
+ *  @exception RANGE_ERROR If the number does not fit into a 32-bit ''char''.
  *)
 const func char: char (in integer: number)                    is action "CHR_ICONV1";
 
@@ -168,7 +168,7 @@ const func char: char (in integer: number)                    is action "CHR_ICO
  *  For values between 1114112 and 1114368 a cursor or function key
  *  is returned. For -1 the value EOF is returned.
  *  @return a character which corresponds to the given [[integer]].
- *  @exception RANGE_ERROR When the number does not fit into a 32-bit ''char''.
+ *  @exception RANGE_ERROR If the number does not fit into a 32-bit ''char''.
  *)
 const func char: (attr char) conv (in integer: number)        is action "CHR_ICONV3";
 
@@ -284,7 +284,7 @@ const char: EOF is chr(-1);
  *   char parse "  "  raises RANGE_ERROR
  *   char parse ""    raises RANGE_ERROR
  *  @return the first character of the [[string]].
- *  @exception RANGE_ERROR When the length of the string is not 1.
+ *  @exception RANGE_ERROR If the length of the string is not 1.
  *)
 const func char: (attr char) parse (in string: stri) is forward;
 
@@ -297,7 +297,7 @@ const func char: (attr char) parse (in string: stri) is forward;
  *   char("  ")  raises RANGE_ERROR
  *   char("")    raises RANGE_ERROR
  *  @return the first character of the [[string]].
- *  @exception RANGE_ERROR When the length of the string is not 1.
+ *  @exception RANGE_ERROR If the length of the string is not 1.
  *)
 const func char: char (in string: stri) is
     return char parse stri;

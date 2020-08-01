@@ -167,7 +167,7 @@ const func float: (in float: base) ** (in float: exponent)     is action "FLT_PO
  *  If the result underflows zero is returned.
  *  If the result overflows Infinity or -Infinity is returned,
  *  depending on the sign of ''number''.
- *  When the argument ''number'' is a [[#NaN|NaN]], Infinity or -Infinity the
+ *  If the argument ''number'' is a [[#NaN|NaN]], Infinity or -Infinity the
  *  unchanged argument is returned.
  *  @return number * 2.0 ** exponent
  *)
@@ -180,7 +180,7 @@ const func float: (in float: number) << (in integer: exponent) is action "FLT_LS
  *  If the result underflows zero is returned.
  *  If the result overflows Infinity or -Infinity is returned,
  *  depending on the sign of ''number''.
- *  When the argument ''number'' is a [[#NaN|NaN]], Infinity or -Infinity the
+ *  If the argument ''number'' is a [[#NaN|NaN]], Infinity or -Infinity the
  *  unchanged argument is returned.
  *  @return number / 2.0 ** exponent
  *)
@@ -235,7 +235,7 @@ const func boolean: (in float: number1) <> (in float: number2) is action "FLT_NE
  *  Check if ''number1'' is less than ''number2''.
  *  According to IEEE 754 a [[#NaN|NaN]] is neither less than,
  *  equal to, nor greater than any value, including itself.
- *  When ''number1'' or ''number2'' is NaN, the result
+ *  If ''number1'' or ''number2'' is NaN, the result
  *  is FALSE;
  *  @return TRUE if ''number1'' is less than ''number2'',
  *          FALSE otherwise.
@@ -247,7 +247,7 @@ const func boolean: (in float: number1) < (in float: number2)  is action "FLT_LT
  *  Check if ''number1'' is greater than ''number2''.
  *  According to IEEE 754 a [[#NaN|NaN]] is neither less than,
  *  equal to, nor greater than any value, including itself.
- *  When ''number1'' or ''number2'' is NaN, the result
+ *  If ''number1'' or ''number2'' is NaN, the result
  *  is FALSE;
  *  @return TRUE if ''number1'' is greater than ''number2'',
  *          FALSE otherwise.
@@ -259,7 +259,7 @@ const func boolean: (in float: number1) > (in float: number2)  is action "FLT_GT
  *  Check if ''number1'' is less than or equal to ''number2''.
  *  According to IEEE 754 a [[#NaN|NaN]] is neither less than,
  *  equal to, nor greater than any value, including itself.
- *  When ''number1'' or ''number2'' is NaN, the result
+ *  If ''number1'' or ''number2'' is NaN, the result
  *  is FALSE;
  *  @return TRUE if ''number1'' is less than or equal to ''number2'',
  *          FALSE otherwise.
@@ -271,7 +271,7 @@ const func boolean: (in float: number1) <= (in float: number2) is action "FLT_LE
  *  Check if ''number1'' is greater than or equal to ''number2''.
  *  According to IEEE 754 a [[#NaN|NaN]] is neither less than,
  *  equal to, nor greater than any value, including itself.
- *  When ''number1'' or ''number2'' is NaN, the result
+ *  If ''number1'' or ''number2'' is NaN, the result
  *  is FALSE;
  *  @return TRUE if ''number1'' is greater than or equal to ''number2'',
  *          FALSE otherwise.
@@ -328,9 +328,9 @@ const func integer: hashCode (in float: number)                is action "FLT_HA
  *  The result string has the style [-]ddd.ddd where there is at least
  *  one digit before and after the decimal point. The number of digits
  *  after the decimal point is determined automatically. Except for the
- *  case when there is only one zero digit after the decimal point
- *  the last digit is never zero. Negative zero (-0.0) and positive
- *  zero (+0.0) are both converted to "0.0".
+ *  case with only one zero digit after the decimal point the last digit
+ *  is never zero. Negative zero (-0.0) and positive zero (+0.0)
+ *  are both converted to "0.0".
  *   str(16.125)    returns "16.125"
  *   str(-0.0)      returns "0.0"
  *   str(Infinity)  returns "Infinity"
@@ -345,7 +345,7 @@ const func string: str (in float: number)                      is action "FLT_ST
 (**
  *  Convert a [[string]] to a float number.
  *  @return the float result of the conversion.
- *  @exception RANGE_ERROR When the string contains not a float literal.
+ *  @exception RANGE_ERROR If the string contains not a float literal.
  *)
 const func float: float (in string: stri)                      is action "FLT_PARSE1";
 
@@ -353,7 +353,7 @@ const func float: float (in string: stri)                      is action "FLT_PA
 (**
  *  Convert a [[string]] to a float number.
  *  @return the float result of the conversion.
- *  @exception RANGE_ERROR When the string contains not a float literal.
+ *  @exception RANGE_ERROR If the string contains not a float literal.
  *)
 const func float: (attr float) parse (in string: stri) is
     return float(stri);
@@ -365,7 +365,7 @@ const func float: (attr float) parse (in string: stri) is
  *  Halfway cases are rounded away from zero. Except for a ''precision'' of
  *  zero the representation has a decimal point and at least one digit
  *  before and after the decimal point. Negative numbers are preceeded by
- *  a minus sign (e.g.: "-1.25"). When all digits in the result are 0 a
+ *  a minus sign (e.g.: "-1.25"). If all digits in the result are 0 a
  *  possible negative sign is omitted.
  *   0.012345 digits 4   returns "0.0123"
  *   1.2468 digits 2     returns "1.25"
@@ -377,9 +377,9 @@ const func float: (attr float) parse (in string: stri) is
  *   NaN digits 7        returns "NaN"
  *   -0.004 digits 2     returns "0.00"
  *  @param precision Number of digits after the decimal point.
- *         When the ''precision'' is zero the decimal point is omitted.
+ *         If the ''precision'' is zero the decimal point is omitted.
  *  @return the string result of the conversion.
- *  @exception RANGE_ERROR When the ''precision'' is negative.
+ *  @exception RANGE_ERROR If the ''precision'' is negative.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  *)
 const func string: (in float: number) digits (in integer: precision) is action "FLT_DGTS";
@@ -405,9 +405,9 @@ const func string: (in float: number) digits (in integer: precision) is action "
  *   -0.004 sci 2     returns "-4.00e-3"
  *   -0.0 sci 2       returns "0.00e+0"
  *  @param precision Number of digits after the decimal point.
- *         When the ''precision'' is zero the decimal point is omitted.
+ *         If the ''precision'' is zero the decimal point is omitted.
  *  @return the string result of the conversion.
- *  @exception RANGE_ERROR When the ''precision'' is negative.
+ *  @exception RANGE_ERROR If the ''precision'' is negative.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  *)
 const func string: (in float: number) sci (in integer: precision)    is action "FLT_SCI";
@@ -415,9 +415,9 @@ const func string: (in float: number) sci (in integer: precision)    is action "
 
 (**
  *  Set the number of exponent digits in a scientific float notation.
- *  When ''sciNumber'' contains a [[string]] in scientific float notation
+ *  If ''sciNumber'' contains a [[string]] in scientific float notation
  *  the exponent is changed to contain at least ''expDigits'' digits.
- *  When ''sciNumber'' contains not a string in scientific float
+ *  If ''sciNumber'' contains not a string in scientific float
  *  notation it is returned unchanged. The ''exp'' operator is
  *  intended to be used together with the ''sci'' operator
  *   0.012345 sci 4 exp 2   returns "1.2345e-02"
@@ -489,7 +489,7 @@ const func float: abs (in float: number)                       is action "FLT_AB
  *   round(-0.48)  returns  0
  *   round(-0.5)   returns -1
  *  @return the rounded value.
- *  @exception RANGE_ERROR When the number is [[#NaN|NaN]], -Infinity, Infinity,
+ *  @exception RANGE_ERROR If the number is [[#NaN|NaN]], -Infinity, Infinity,
  *             or does not fit into an integer.
  *)
 const func integer: round (in float: number)                   is action "FLT_ROUND";
@@ -500,7 +500,7 @@ const func integer: round (in float: number)                   is action "FLT_RO
  *  The fractional part of a number is discarded.
  *  @return the nearest [[integer]] not larger in absolute value
  *          than the argument.
- *  @exception RANGE_ERROR When the number is [[#NaN|NaN]], -Infinity, Infinity,
+ *  @exception RANGE_ERROR If the number is [[#NaN|NaN]], -Infinity, Infinity,
  *             or does not fit into an integer.
  *)
 const func integer: trunc (in float: number)                   is action "FLT_TRUNC";

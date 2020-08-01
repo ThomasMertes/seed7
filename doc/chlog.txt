@@ -1,3 +1,26 @@
+20190919:
+- A chapter about the database abstraction API has been added to the
+  manual.
+- In the manual the chapters about primitive actions and about the
+  foreign function interface have been improved.
+- An explanation of the Seed7 installer and about the download of Seed7
+  have been added to the FAQ.
+- The new library ico.s7i has been added. This library supports the ICO
+  image file format.
+- The library browser.s7i has been improved to be more robust regarding
+  network events.
+- The database drivers have been improved to raise a DATABASE_ERROR,
+  if the database library could not be found. The error message of the
+  DATABASE_ERROR contains the name of the missing DLL respectively
+  shared object library.
+- Documentation comments have been improved in 85 library/include files
+  (*.s7i). Wrong usages of the word "when" have been replaced by "if".
+- Documentation comments have been improved in 96 C source files.
+  Wrong usages of the word "when" have been replaced by "if".
+- Texts in 9 Seed7 programs (*.sd7) and in a lot of documentation files
+  have been improved. Wrong usages of the word "when" have been
+  replaced by "if".
+
 20190819:
 - A definition of SQL_DRIVER_NOPROMPT has been added to db_odbc.h.
   Many thanks go to Brett Senior for pointing out a fatal compilation
@@ -6,21 +29,21 @@
 - The example program chkdb.sd7 has been improved to write better
   error messages.
 - In reflib.c the function ref_select() has been improved to work
-  correct, when a derived struct overrides an element of the parent
+  correct, if a derived struct overrides an element of the parent
   struct.
 
 20190818:
-- Interpreter and compiler have been improved to work correct, when
-  a derived struct overrides an element of the parent struct. Many
-  thanks go to Zachary Menzies, for reporting this error and for
-  providing a test program.
+- Interpreter and compiler have been improved to work correct, if a
+  derived struct overrides an element of the parent struct. Many thanks
+  go to Zachary Menzies, for reporting this error and for providing a
+  test program.
 - In the FAQ the explanation, why Seed7 uses UTF-32, has been improved.
   An explanation of the database abstraction layer, which provides an
   database independent API, has also been added to the FAQ.
 - In the manual the chapter about the deprecated function
   removeAnyFile() has been replaced by a chapter about the function
   removeTree().
-- The program db7.sd7 (Database Inspector) has been improved quote a
+- The program db7.sd7 (Database Inspector) has been improved to quote a
   table name from the catalog when doing a select.
 - The program sql7.sd7 has been improved to allow the execution of SQL
   statements from a file. The function getSqlStatement has been added,

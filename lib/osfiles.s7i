@@ -75,9 +75,9 @@ const func array string: readDir (in string: dirPath)        is action "CMD_LS";
 
 (**
  *  Determine the type of a file.
- *  The function does follow symbolic links. When the chain of
+ *  The function does follow symbolic links. If the chain of
  *  symbolic links is too long the function returns ''FILE_SYMLINK''.
- *  When a symbolic link refers to a place where the permission
+ *  If a symbolic link refers to a place where the permission
  *  is denied the function returns ''FILE_SYMLINK''.
  *  A return value of ''FILE_ABSENT'' does not imply that a file
  *  with this name can be created, since missing directories and
@@ -365,11 +365,11 @@ const proc: cloneFile (in string: sourcePath, in string: destPath) is action "CM
 
 (**
  *  Move and rename a file or directory tree.
- *  The function uses the C ''rename()'' function. When ''rename()'' fails
+ *  The function uses the C ''rename()'' function. If ''rename()'' fails
  *  the file (or directory tree) is cloned with ''cloneFile'' (which
  *  preserves permissions/mode, ownership and timestamps) to the new
- *  place and with the new name. When ''cloneFile'' succeeds the original
- *  file is deleted. When ''cloneFile'' fails (no space on device or
+ *  place and with the new name. If ''cloneFile'' succeeds the original
+ *  file is deleted. If ''cloneFile'' fails (no space on device or
  *  other reason) all remains of the failed clone are removed. Note
  *  that ''cloneFile'' works for symbolic links but does not preserve
  *  hard links (they are resolved to distinct files).

@@ -254,8 +254,8 @@ const func string: strDateTime (in time: aTime) is
 (**
  *  Convert a time to a string with ISO 8601 date and time format.
  *  The string has the format YYYY-MM-DD hh:mm:ss.uuuuuu followed by a
- *  time zone in the format UTC+n and (DST) when it is a daylight
- *  saving time. The microseconds (uuuuuu) are omitted when they are
+ *  time zone in the format UTC+n and (DST), if it is a daylight
+ *  saving time. The microseconds (uuuuuu) are omitted, if they are
  *  zero. A time zone of UTC+0 is also omitted.
  *  @return the string result of the conversion.
  *)
@@ -281,7 +281,7 @@ const func string: literal (in time: aTime) is
  *  time representations: YYYY-MM-DD HH, YYYY-MM-DD HH:MM,
  *  YYYY-MM-DD HH:MM:SS
  *  @return the time result of the conversion.
- *  @exception RANGE_ERROR When stri contains not a valid time value.
+ *  @exception RANGE_ERROR If stri contains not a valid time value.
  *)
 const func time: time (in var string: stri) is func
   result
@@ -356,7 +356,7 @@ const func time: time (in var string: stri) is func
  *  time representations: YYYY-MM-DD HH, YYYY-MM-DD HH:MM,
  *  YYYY-MM-DD HH:MM:SS
  *  @return the time result of the conversion.
- *  @exception RANGE_ERROR When stri contains not a valid time value.
+ *  @exception RANGE_ERROR If stri contains not a valid time value.
  *)
 const func time: (attr time) parse (in string: stri) is
     return time(stri);

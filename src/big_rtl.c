@@ -468,8 +468,8 @@ static bigIntType normalize (bigIntType big1)
         bigIntType resized_big1;
 
         REALLOC_BIG_SIZE_OK(resized_big1, big1, big1->size, pos);
-        /* Avoid a MEMORY_ERROR in the strange case     */
-        /* when a 'realloc' which shrinks memory fails. */
+        /* Avoid a MEMORY_ERROR in the strange case   */
+        /* if a 'realloc' which shrinks memory fails. */
         if (likely(resized_big1 != NULL)) {
           big1 = resized_big1;
         } /* if */
@@ -743,9 +743,9 @@ static inline bigDigitType uBigDivideByDigit (const bigIntType big1,
  *  @param stri Numeric string with integer in the specified radix.
  *  @param shift Logarithm (log2) of the specified radix.
  *  @return the 'bigInteger' result of the conversion.
- *  @exception RANGE_ERROR When the string does not contain an integer
+ *  @exception RANGE_ERROR If the string does not contain an integer
  *             literal with the specified base.
- *  @exception MEMORY_ERROR  Not enough memory to represent the result.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
  */
 static bigIntType bigParseBasedPow2 (const const_striType stri, unsigned int shift)
 
@@ -878,7 +878,7 @@ static bigIntType bigParseBasedPow2 (const const_striType stri, unsigned int shi
  *  @param stri Numeric string with integer in the specified radix.
  *  @param base Radix of the integer in the 'stri' parameter.
  *  @return the 'bigInteger' result of the conversion.
- *  @exception RANGE_ERROR When base < 2 or base > 36 holds or
+ *  @exception RANGE_ERROR If base < 2 or base > 36 holds or
  *             the string does not contain an integer
  *             literal with the specified base.
  *  @exception MEMORY_ERROR  Not enough memory to represent the result.
@@ -1507,7 +1507,7 @@ static void uBigRShift (const bigIntType big1, const unsigned int rshift)
 
 /**
  *  Increments an unsigned big integer by 1.
- *  This function does overflow silently when big1 contains
+ *  This function does overflow silently if big1 contains
  *  not enough digits.
  */
 static void uBigIncr (const bigIntType big1)
@@ -1537,8 +1537,8 @@ static void uBigIncr (const bigIntType big1)
 
 /**
  *  Decrements an unsigned big integer by 1.
- *  This function does overflow silently when big1 contains
- *  not enough digits. The function works correctly when there
+ *  This function does overflow silently if big1 contains
+ *  not enough digits. The function works correctly if there
  *  are leading zereo digits.
  */
 static void uBigDecr (const bigIntType big1)
@@ -1591,7 +1591,7 @@ static void uBigDiv1 (const const_bigIntType dividend,
  *  and the normalized quotient is returned. This function handles
  *  also the special case of a division by zero.
  *  @return the quotient of the integer division.
- *  @exception NUMERIC_ERROR When a division by zero occurs.
+ *  @exception NUMERIC_ERROR If a division by zero occurs.
  */
 static bigIntType bigDiv1 (const_bigIntType dividend, bigDigitType divisor_digit)
 
@@ -1626,7 +1626,7 @@ static bigIntType bigDiv1 (const_bigIntType dividend, bigDigitType divisor_digit
         if (IS_NEGATIVE(divisor_digit)) {
           negative = !negative;
           /* The unsigned value is negated to avoid a signed integer */
-          /* overflow when the smallest signed integer is negated.   */
+          /* overflow if the smallest signed integer is negated.     */
           divisor_digit = -divisor_digit;
         } /* if */
         uBigDiv1(dividend, divisor_digit, quotient);
@@ -1646,10 +1646,10 @@ static bigIntType bigDiv1 (const_bigIntType dividend, bigDigitType divisor_digit
 
 /**
  *  Computes an integer division of dividend by divisor for signed big
- *  integers when dividend has less digits than divisor. The memory for
+ *  integers if dividend has less digits than divisor. The memory for
  *  the quotient is requested and the normalized quotient is returned. Normally
  *  dividend->size < divisor->size implies abs(dividend) < abs(divisor).
- *  When abs(dividend) < abs(divisor) holds the quotient is 0. The cases when
+ *  If abs(dividend) < abs(divisor) holds the quotient is 0. The cases
  *  dividend->size < divisor->size and abs(dividend) = abs(divisor) are if
  *  dividend->size + 1 == divisor->size and dividend = 0x8000 (0x80000000...)
  *  and divisor = 0x00008000 (0x000080000000...). In this cases the
@@ -1846,7 +1846,7 @@ static bigDigitType uBigDivRem1 (const const_bigIntType dividend,
  *  remainder is assigned to *remainder. This function handles also
  *  the special case of a division by zero.
  *  @return the quotient of the integer division.
- *  @exception NUMERIC_ERROR When a division by zero occurs.
+ *  @exception NUMERIC_ERROR If a division by zero occurs.
  */
 static bigIntType bigDivRem1 (const_bigIntType dividend, bigDigitType divisor_digit,
     bigIntType *remainder)
@@ -1893,7 +1893,7 @@ static bigIntType bigDivRem1 (const_bigIntType dividend, bigDigitType divisor_di
         if (IS_NEGATIVE(divisor_digit)) {
           quotientNegative = !quotientNegative;
           /* The unsigned value is negated to avoid a signed integer */
-          /* overflow when the smallest signed integer is negated.   */
+          /* overflow if the smallest signed integer is negated.     */
           divisor_digit = -divisor_digit;
         } /* if */
         (*remainder)->bigdigits[0] = uBigDivRem1(dividend, divisor_digit, quotient);
@@ -1916,13 +1916,13 @@ static bigIntType bigDivRem1 (const_bigIntType dividend, bigDigitType divisor_di
 
 /**
  *  Computes quotient and remainder of the integer division of dividend
- *  by divisor for signed big integers when dividend has less digits than
+ *  by divisor for signed big integers if dividend has less digits than
  *  divisor. The memory for the quotient is requested and the normalized
  *  quotient is returned. The memory for the remainder is requested and
  *  the normalized remainder is assigned to *remainder. Normally
  *  dividend->size < divisor->size implies abs(dividend) < abs(divisor).
- *  When abs(dividend) < abs(divisor) holds the quotient is 0 and the
- *  remainder is dividend. The cases when
+ *  If abs(dividend) < abs(divisor) holds the quotient is 0 and the
+ *  remainder is dividend. The cases
  *  dividend->size < divisor->size and abs(dividend) = abs(divisor) are if
  *  dividend->size + 1 == divisor->size and dividend = 0x8000 (0x80000000...)
  *  and divisor = 0x00008000 (0x000080000000...). In this cases the
@@ -2020,7 +2020,7 @@ static bigDigitType uBigRem1 (const const_bigIntType dividend,
  *  returned. This function handles also the special case of a
  *  division by zero.
  *  @return the remainder of the integer division.
- *  @exception NUMERIC_ERROR When a division by zero occurs.
+ *  @exception NUMERIC_ERROR If a division by zero occurs.
  */
 static bigIntType bigRem1 (const_bigIntType dividend, bigDigitType divisor_digit)
 
@@ -2053,7 +2053,7 @@ static bigIntType bigRem1 (const_bigIntType dividend, bigDigitType divisor_digit
         } /* if */
         if (IS_NEGATIVE(divisor_digit)) {
           /* The unsigned value is negated to avoid a signed integer */
-          /* overflow when the smallest signed integer is negated.   */
+          /* overflow if the smallest signed integer is negated.     */
           divisor_digit = -divisor_digit;
         } /* if */
         remainder->bigdigits[0] = uBigRem1(dividend, divisor_digit);
@@ -2077,7 +2077,7 @@ static bigIntType bigRem1 (const_bigIntType dividend, bigDigitType divisor_digit
  *  This function handles also the special case of a division by
  *  zero.
  *  @return the quotient of the integer division.
- *  @exception NUMERIC_ERROR When a division by zero occurs.
+ *  @exception NUMERIC_ERROR If a division by zero occurs.
  */
 static bigIntType bigMDiv1 (const_bigIntType dividend, bigDigitType divisor_digit)
 
@@ -2113,7 +2113,7 @@ static bigIntType bigMDiv1 (const_bigIntType dividend, bigDigitType divisor_digi
         if (IS_NEGATIVE(divisor_digit)) {
           negative = !negative;
           /* The unsigned value is negated to avoid a signed integer */
-          /* overflow when the smallest signed integer is negated.   */
+          /* overflow if the smallest signed integer is negated.     */
           divisor_digit = -divisor_digit;
         } /* if */
         remainder = uBigDivRem1(dividend, divisor_digit, quotient);
@@ -2136,15 +2136,15 @@ static bigIntType bigMDiv1 (const_bigIntType dividend, bigDigitType divisor_digi
 
 /**
  *  Computes a modulo integer division of dividend by divisor for signed
- *  big integers when dividend has less digits than divisor. The memory for
+ *  big integers if dividend has less digits than divisor. The memory for
  *  the quotient is requested and the normalized quotient is returned. Normally
  *  dividend->size < divisor->size implies abs(dividend) < abs(divisor).
- *  When abs(dividend) < abs(divisor) holds the quotient is 0 or -1. The cases
- *  when dividend->size < divisor->size and abs(dividend) = abs(divisor) are if
+ *  If abs(dividend) < abs(divisor) holds the quotient is 0 or -1. The cases
+ *  dividend->size < divisor->size and abs(dividend) = abs(divisor) are if
  *  dividend->size + 1 == divisor->size and dividend = 0x8000 (0x80000000...)
  *  and divisor = 0x00008000 (0x000080000000...). In this cases the
- *  quotient is -1. In the cases when the quotient is 0 or -1 the
- *  following check is done: When dividend and divisor have different signs
+ *  quotient is -1. In the cases if the quotient is 0 or -1 the
+ *  following check is done: If dividend and divisor have different signs
  *  the quotient is -1 otherwise the quotient is 0.
  *  @return the quotient of the integer division.
  */
@@ -2212,11 +2212,11 @@ static bigIntType bigMod1 (const const_bigIntType dividend, const bigDigitType d
 
 /**
  *  Computes the remainder of the integer division dividend by divisor for
- *  signed big integers when dividend has less digits than divisor. The memory
+ *  signed big integers if dividend has less digits than divisor. The memory
  *  for the remainder is requested and the normalized remainder is returned.
  *  Normally dividend->size < divisor->size implies abs(dividend) < abs(divisor).
- *  When abs(dividend) < abs(divisor) holds the remainder is dividend. The cases
- *  when dividend->size < divisor->size and abs(dividend) = abs(divisor) are if
+ *  If abs(dividend) < abs(divisor) holds the remainder is dividend. The cases
+ *  dividend->size < divisor->size and abs(dividend) = abs(divisor) are if
  *  dividend->size + 1 == divisor->size and dividend = 0x8000 (0x80000000...)
  *  and divisor = 0x00008000 (0x000080000000...). In this cases the
  *  remainder is 0. In all other cases the remainder is dividend.
@@ -2295,15 +2295,15 @@ static void bigAddTo (const bigIntType big1, const const_bigIntType big2)
 
 /**
  *  Computes the modulo of the integer division dividend by divisor for
- *  signed big integers when dividend has less digits than divisor. The memory
+ *  signed big integers if dividend has less digits than divisor. The memory
  *  for the modulo is requested and the normalized modulo is returned.
  *  Normally dividend->size < divisor->size implies abs(dividend) < abs(divisor).
- *  When abs(dividend) < abs(divisor) holds the division gives 0. The cases
- *  when dividend->size < divisor->size and abs(dividend) = abs(divisor) are if
+ *  If abs(dividend) < abs(divisor) holds the division gives 0. The cases
+ *  dividend->size < divisor->size and abs(dividend) = abs(divisor) are if
  *  dividend->size + 1 == divisor->size and dividend = 0x8000 (0x80000000...)
  *  and divisor = 0x00008000 (0x000080000000...). In this cases the
  *  modulo is 0. In all other cases the modulo is dividend or dividend +
- *  divisor when dividend and divisor have different signs.
+ *  divisor if dividend and divisor have different signs.
  */
 static bigIntType bigModSizeLess (const const_bigIntType dividend,
     const const_bigIntType divisor)
@@ -2968,7 +2968,7 @@ static void bigMultAssign1 (bigIntType *const big_variable, bigDigitType factor_
     if (IS_NEGATIVE(factor_digit)) {
       negative = !negative;
       /* The unsigned value is negated to avoid a signed integer */
-      /* overflow when the smallest signed integer is negated.   */
+      /* overflow if the smallest signed integer is negated.     */
       factor_digit = -factor_digit;
     } /* if */
     if (unlikely(!ALLOC_BIG(product, big1->size + 1))) {
@@ -2997,7 +2997,7 @@ static void bigMultAssign1 (bigIntType *const big_variable, bigDigitType factor_
 
 /**
  *  Multiply two unsigned big integers with the Karatsuba multiplication.
- *  @return the product or NULL, when there is not enough memory.
+ *  @return the product, and NULL if there is not enough memory.
  */
 static bigIntType uBigMultK (const_bigIntType factor1, const_bigIntType factor2,
     const boolType negative)
@@ -3099,7 +3099,7 @@ static bigIntType uBigMultK (const_bigIntType factor1, const_bigIntType factor2,
 
 /**
  *  Square an unsigned big integer with the Karatsuba multiplication.
- *  @return the square or NULL, when there is not enough memory.
+ *  @return the square, and NULL if there is not enough memory.
  */
 static bigIntType uBigSquareK (const_bigIntType big1)
 
@@ -3233,7 +3233,7 @@ static bigIntType bigIPow1 (bigDigitType base, intType exponent)
     } else {
       if (IS_NEGATIVE(base)) {
         /* The unsigned value is negated to avoid a signed integer */
-        /* overflow when the smallest signed integer is negated.   */
+        /* overflow if the smallest signed integer is negated.     */
         base = -base;
         negative = (boolType) (exponent & 1);
       } else {
@@ -3437,14 +3437,14 @@ bigIntType bigAdd (const_bigIntType summand1, const_bigIntType summand2)
 /**
  *  Increment a 'bigInteger' variable by a delta.
  *  Adds delta to *big_variable. The operation is done in
- *  place and *big_variable is only resized when necessary.
- *  When the size of delta is smaller than *big_variable the
+ *  place and *big_variable is only resized if necessary.
+ *  If the size of delta is smaller than *big_variable the
  *  algorithm tries to save computations. Therefore there are
  *  checks for carry == 0 and carry != 0.
  *  In case the resizing fails the content of *big_variable
  *  is freed and *big_variable is set to NULL.
  *  @param delta The delta to be added to *big_variable.
- *  @exception MEMORY_ERROR When the resizing of *big_variable fails.
+ *  @exception MEMORY_ERROR If the resizing of *big_variable fails.
  */
 void bigAddAssign (bigIntType *const big_variable, const const_bigIntType delta)
 
@@ -3549,12 +3549,12 @@ void bigAddAssign (bigIntType *const big_variable, const const_bigIntType delta)
 /**
  *  Increment a 'bigInteger' variable by a delta.
  *  Adds delta to *big_variable. The operation is done in
- *  place and *big_variable is only resized when necessary.
+ *  place and *big_variable is only resized if necessary.
  *  In case the resizing fails the content of *big_variable
  *  is freed and *big_variable is set to NULL.
  *  @param delta The delta to be added to *big_variable.
  *         Delta must be in the range of signedBigDigitType.
- *  @exception MEMORY_ERROR When the resizing of *big_variable fails.
+ *  @exception MEMORY_ERROR If the resizing of *big_variable fails.
  */
 void bigAddAssignSignedDigit (bigIntType *const big_variable, const intType delta)
 
@@ -3766,7 +3766,7 @@ intType bigCmp (const const_bigIntType big1, const const_bigIntType big2)
  *  Reinterpret the generic parameters as bigIntType and call bigCmp.
  *  Function pointers in C programs generated by the Seed7 compiler
  *  may point to this function. This assures correct behaviour even
- *  when sizeof(genericType) != sizeof(bigIntType).
+ *  if sizeof(genericType) != sizeof(bigIntType).
  *  @return -1, 0 or 1 if the first argument is considered to be
  *          respectively less than, equal to, or greater than the
  *          second.
@@ -3847,7 +3847,7 @@ void bigCpy (bigIntType *const dest, const const_bigIntType source)
       } /* if */
     } /* if */
     /* It is possible that *dest == source holds. The    */
-    /* behavior of memcpy() is undefined when source and */
+    /* behavior of memcpy() is undefined if source and   */
     /* destination areas overlap (or are identical).     */
     /* Therefore memmove() is used instead of memcpy().  */
     memmove(big_dest->bigdigits, source->bigdigits,
@@ -3860,7 +3860,7 @@ void bigCpy (bigIntType *const dest, const const_bigIntType source)
  *  Reinterpret the generic parameters as bigIntType and call bigCpy.
  *  Function pointers in C programs generated by the Seed7 compiler
  *  may point to this function. This assures correct behaviour even
- *  when sizeof(genericType) != sizeof(bigIntType).
+ *  if sizeof(genericType) != sizeof(bigIntType).
  */
 void bigCpyGeneric (genericType *const dest, const genericType source)
 
@@ -3902,7 +3902,7 @@ bigIntType bigCreate (const const_bigIntType source)
  *  Generic Create function to be used via function pointers.
  *  Function pointers in C programs generated by the Seed7 compiler
  *  may point to this function. This assures correct behaviour even
- *  when sizeof(genericType) != sizeof(bigIntType).
+ *  if sizeof(genericType) != sizeof(bigIntType).
  */
 genericType bigCreateGeneric (const genericType source)
 
@@ -3921,11 +3921,11 @@ genericType bigCreateGeneric (const genericType source)
 /**
  *  Decrement a 'bigInteger' variable.
  *  Decrements *big_variable by 1. The operation is done in
- *  place and *big_variable is only enlarged when necessary.
+ *  place and *big_variable is only enlarged if necessary.
  *  In case the enlarging fails the old content of *big_variable
  *  is restored and the exception MEMORY_ERROR is raised.
  *  This ensures that bigDecr works as a transaction.
- *  @exception MEMORY_ERROR When the resizing of *big_variable fails.
+ *  @exception MEMORY_ERROR If the resizing of *big_variable fails.
  */
 void bigDecr (bigIntType *const big_variable)
 
@@ -3965,7 +3965,7 @@ void bigDecr (bigIntType *const big_variable)
           /* We UNDO the change done for 'big_variable' by setting */
           /* it to the old value: The highest bit is set to 1 and  */
           /* the other bits are set to 0. Note that only values    */
-          /* with this pattern need an additional digit when they  */
+          /* with this pattern need an additional digit if they    */
           /* are decremented.                                      */
           pos--;
           big1->bigdigits[pos] = BIGDIGIT_SIGN;
@@ -3984,8 +3984,8 @@ void bigDecr (bigIntType *const big_variable)
       } else if (big1->bigdigits[pos - 1] == 0 &&
           pos >= 2 && !IS_NEGATIVE(big1->bigdigits[pos - 2])) {
         REALLOC_BIG_SIZE_OK(resized_big1, big1, pos, pos - 1);
-        /* Avoid a MEMORY_ERROR in the strange case     */
-        /* when a 'realloc' which shrinks memory fails. */
+        /* Avoid a MEMORY_ERROR in the strange case   */
+        /* if a 'realloc' which shrinks memory fails. */
         if (likely(resized_big1 != NULL)) {
           big1 = resized_big1;
           *big_variable = big1;
@@ -4018,7 +4018,7 @@ void bigDestr (const const_bigIntType old_bigint)
  *  Generic Destr function to be used via function pointers.
  *  Function pointers in C programs generated by the Seed7 compiler
  *  may point to this function. This assures correct behaviour even
- *  when sizeof(genericType) != sizeof(bigIntType).
+ *  if sizeof(genericType) != sizeof(bigIntType).
  */
 void bigDestrGeneric (const genericType old_value)
 
@@ -4032,7 +4032,7 @@ void bigDestrGeneric (const genericType old_value)
  *  Integer division truncated towards zero.
  *  The remainder of this division is computed with bigRem.
  *  The memory for the result is requested and the normalized
- *  result is returned. When divisor has just one digit or when
+ *  result is returned. If divisor has just one digit or if
  *  dividend has less digits than divisor the bigDiv1() or
  *  bigDivSizeLess() functions are called. In the general case
  *  the absolute values of dividend and divisor are taken. Then
@@ -4042,7 +4042,7 @@ void bigDestrGeneric (const genericType old_value)
  *  preconditions for calling uBigDiv() which does the main
  *  work of the division.
  *  @return the quotient of the integer division.
- *  @exception NUMERIC_ERROR When a division by zero occurs.
+ *  @exception NUMERIC_ERROR If a division by zero occurs.
  */
 bigIntType bigDiv (const const_bigIntType dividend, const const_bigIntType divisor)
 
@@ -4134,7 +4134,7 @@ bigIntType bigDiv (const const_bigIntType dividend, const const_bigIntType divis
  *  The memory for the quotient is requested and the normalized
  *  quotient is returned. The memory for the remainder is
  *  requested and the normalized remainder is assigned to
- *  *remainderAddr. When divisor has just one digit or when
+ *  *remainderAddr. If divisor has just one digit or if
  *  dividend has less digits than divisor the bigDivRem1() or
  *  bigDivRemSizeLess() functions are called. In the general case
  *  the absolute values of dividend and divisor are taken. Then
@@ -4144,7 +4144,7 @@ bigIntType bigDiv (const const_bigIntType dividend, const const_bigIntType divis
  *  preconditions for calling uBigDiv() which does the main
  *  work of the division.
  *  @return the quotient of the integer division.
- *  @exception NUMERIC_ERROR When a division by zero occurs.
+ *  @exception NUMERIC_ERROR If a division by zero occurs.
  */
 bigIntType bigDivRem (const const_bigIntType dividend, const const_bigIntType divisor,
     bigIntType *remainderAddr)
@@ -4291,8 +4291,8 @@ boolType bigEqSignedDigit (const const_bigIntType big1, intType number)
  *  @param buffer Byte buffer to be converted. The bytes are interpreted
  *         as binary big-endian representation with a base of 256.
  *  @param isSigned Defines if 'buffer' is interpreted as signed value.
- *         When 'isSigned' is TRUE the twos-complement representation
- *         is used. In this case the result is negative when the most
+ *         If 'isSigned' is TRUE the twos-complement representation
+ *         is used. In this case the result is negative if the most
  *         significant byte (the first byte) has an ordinal > BYTE_MAX (=127).
  *  @return a bigInteger created from the big-endian bytes.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
@@ -4385,8 +4385,8 @@ bigIntType bigFromByteBufferBe (const memSizeType size,
  *  @param buffer Byte buffer to be converted. The bytes are interpreted
  *         as binary little-endian representation with a base of 256.
  *  @param isSigned Defines if 'buffer' is interpreted as signed value.
- *         When 'isSigned' is TRUE the twos-complement representation
- *         is used. In this case the result is negative when the most
+ *         If 'isSigned' is TRUE the twos-complement representation
+ *         is used. In this case the result is negative if the most
  *         significant byte (the last byte) has an ordinal > BYTE_MAX (=127).
  *  @return a bigInteger created from the little-endian bytes.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
@@ -4478,8 +4478,8 @@ bigIntType bigFromByteBufferLe (const memSizeType size,
  *  @param bstri Bstring to be converted. The bytes are interpreted
  *         as binary big-endian representation with a base of 256.
  *  @param isSigned Defines if 'bstri' is interpreted as signed value.
- *         When 'isSigned' is TRUE the twos-complement representation
- *         is used. In this case the result is negative when the most
+ *         If 'isSigned' is TRUE the twos-complement representation
+ *         is used. In this case the result is negative if the most
  *         significant byte (the first byte) has an ordinal > BYTE_MAX (=127).
  *  @return a bigInteger created from the big-endian bytes.
  */
@@ -4498,8 +4498,8 @@ bigIntType bigFromBStriBe (const const_bstriType bstri, const boolType isSigned)
  *  @param bstri Bstring to be converted. The bytes are interpreted
  *         as binary little-endian representation with a base of 256.
  *  @param isSigned Defines if 'bstri' is interpreted as signed value.
- *         When 'isSigned' is TRUE the twos-complement representation
- *         is used. In this case the result is negative when the most
+ *         If 'isSigned' is TRUE the twos-complement representation
+ *         is used. In this case the result is negative if the most
  *         significant byte (the last byte) has an ordinal > BYTE_MAX (=127).
  *  @return a bigInteger created from the little-endian bytes.
  */
@@ -4832,11 +4832,11 @@ intType bigHashCode (const const_bigIntType big1)
 /**
  *  Increment a 'bigInteger' variable.
  *  Increments *big_variable by 1. The operation is done in
- *  place and *big_variable is only enlarged when necessary.
+ *  place and *big_variable is only enlarged if necessary.
  *  In case the enlarging fails the old content of *big_variable
  *  is restored and the exception MEMORY_ERROR is raised.
  *  This ensures that bigIncr works as a transaction.
- *  @exception MEMORY_ERROR When the resizing of *big_variable fails.
+ *  @exception MEMORY_ERROR If the resizing of *big_variable fails.
  */
 void bigIncr (bigIntType *const big_variable)
 
@@ -4875,7 +4875,7 @@ void bigIncr (bigIntType *const big_variable)
           /* We UNDO the change done for 'big_variable' by setting */
           /* it to the old value: The highest bit is set to 0 and  */
           /* the other bits are set to 1. Note that only values    */
-          /* with this pattern need an additional digit when they  */
+          /* with this pattern need an additional digit if they    */
           /* are incremented.                                      */
           pos--;
           big1->bigdigits[pos] = BIGDIGIT_MASK ^ BIGDIGIT_SIGN;
@@ -4894,8 +4894,8 @@ void bigIncr (bigIntType *const big_variable)
       } else if (big1->bigdigits[pos - 1] == BIGDIGIT_MASK &&
           pos >= 2 && IS_NEGATIVE(big1->bigdigits[pos - 2])) {
         REALLOC_BIG_SIZE_OK(resized_big1, big1, pos, pos - 1);
-        /* Avoid a MEMORY_ERROR in the strange case     */
-        /* when a 'realloc' which shrinks memory fails. */
+        /* Avoid a MEMORY_ERROR in the strange case   */
+        /* if a 'realloc' which shrinks memory fails. */
         if (likely(resized_big1 != NULL)) {
           big1 = resized_big1;
           *big_variable = big1;
@@ -4918,7 +4918,7 @@ void bigIncr (bigIntType *const big_variable)
  *  with the result variable. This reduces the number of square
  *  operations to ld(exponent).
  *  @return the result of the exponentation.
- *  @exception NUMERIC_ERROR When the exponent is negative.
+ *  @exception NUMERIC_ERROR If the exponent is negative.
  */
 bigIntType bigIPow (const const_bigIntType base, intType exponent)
 
@@ -5017,7 +5017,7 @@ bigIntType bigIPow (const const_bigIntType base, intType exponent)
  *  Compute the exponentiation of a bigdigit base with an integer exponent.
  *  @param base Base that must be in the range of signedBigDigitType.
  *  @return the result of the exponentation.
- *  @exception NUMERIC_ERROR When the exponent is negative.
+ *  @exception NUMERIC_ERROR If the exponent is negative.
  */
 bigIntType bigIPowSignedDigit (intType base, intType exponent)
 
@@ -5219,7 +5219,7 @@ bigIntType bigLog2 (const const_bigIntType big1)
 
 /**
  *  Create a number from the lower bits of big1.
- *  This corresponds to the modulo when the dividend is a power of two:
+ *  This corresponds to the modulo if the dividend is a power of two:
  *   bigLowerBits(big1, bits)  corresponds to  big1 mod (2_ ** bits)
  *  @param bits Number of lower bits to select from big1.
  *  @return a number in the range 0 .. pred(2_ ** bits).
@@ -5314,7 +5314,7 @@ bigIntType bigLowerBits (const const_bigIntType big1, const intType bits)
 /**
  *  Create a number from the lower bits of big1.
  *  Big1 is assumed to be a temporary value which is reused.
- *  This corresponds to the modulo when the dividend is a power of two:
+ *  This corresponds to the modulo if the dividend is a power of two:
  *   bigLowerBits(big1, bits)  corresponds to  big1 mod (2_ ** bits)
  *  @param bits Number of lower bits to select from big1.
  *  @return a number in the range 0 .. pred(2_ ** bits).
@@ -5480,9 +5480,9 @@ intType bigLowestSetBit (const const_bigIntType big1)
 
 /**
  *  Shift a 'bigInteger' number left by lshift bits.
- *  When lshift is negative a right shift is done instead.
- *  A << B is equivalent to A * 2_ ** B when B >= 0 holds.
- *  A << B is equivalent to A mdiv 2_ ** -B when B < 0 holds.
+ *  If lshift is negative a right shift is done instead.
+ *  A << B is equivalent to A * 2_ ** B if B >= 0 holds.
+ *  A << B is equivalent to A mdiv 2_ ** -B if B < 0 holds.
  *  @return the left shifted number.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  */
@@ -5592,7 +5592,7 @@ bigIntType bigLShift (const const_bigIntType big1, const intType lshift)
 
 /**
  *  Shift a number left by lshift bits and assign the result back to number.
- *  When lshift is negative a right shift is done instead.
+ *  If lshift is negative a right shift is done instead.
  *  @exception MEMORY_ERROR Not enough memory to represent the new value.
  */
 void bigLShiftAssign (bigIntType *const big_variable, intType lshift)
@@ -5713,10 +5713,10 @@ void bigLShiftAssign (bigIntType *const big_variable, intType lshift)
 
 /**
  *  Shift one left by 'lshift' bits.
- *  When 'lshift' is positive or zero this corresponts to
+ *  If 'lshift' is positive or zero this corresponts to
  *  the computation of a power of two:
  *   bigLShiftOne(lshift)  corresponds to  2_ ** lshift
- *  When 'lshift' is negative the result is zero.
+ *  If 'lshift' is negative the result is zero.
  *  @return one shifted left by 'lshift'.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  */
@@ -5763,10 +5763,10 @@ bigIntType bigLShiftOne (const intType lshift)
 
 
 /**
- *  Exponentiation when the base is a power of two.
+ *  Exponentiation if the base is a power of two.
  *  @param log2base Logarithm of the actual base ( =log2(base) )
  *  @return (2 ** log2base) ** exponent
- *  @exception NUMERIC_ERROR When log2base or exponent is negative.
+ *  @exception NUMERIC_ERROR If log2base or exponent is negative.
  */
 bigIntType bigLog2BaseIPow (const intType log2base, const intType exponent)
 
@@ -5808,7 +5808,7 @@ bigIntType bigLog2BaseIPow (const intType log2base, const intType exponent)
  *  The modulo (remainder) of this division is computed with bigMod.
  *  Therefore this division is called modulo division (MDiv).
  *  The memory for the result is requested and the normalized result
- *  is returned. When divisor has just one digit or when dividend
+ *  is returned. If divisor has just one digit or if dividend
  *  has less digits than divisor the functions bigMDiv1() or
  *  bigMDivSizeLess() are called. In the general case the absolute
  *  values of dividend and divisor are taken. Then dividend is
@@ -5817,7 +5817,7 @@ bigIntType bigLog2BaseIPow (const intType log2base, const intType exponent)
  *  of divisor is set. This fulfills the preconditions for calling
  *  uBigDiv() which does the main work of the division.
  *  @return the quotient of the integer division.
- *  @exception NUMERIC_ERROR When a division by zero occurs.
+ *  @exception NUMERIC_ERROR If a division by zero occurs.
  */
 bigIntType bigMDiv (const const_bigIntType dividend, const const_bigIntType divisor)
 
@@ -5912,8 +5912,8 @@ bigIntType bigMDiv (const const_bigIntType dividend, const const_bigIntType divi
 /**
  *  Compute the modulo (remainder) of the integer division bigMDiv.
  *  The modulo has the same sign as the divisor. The memory for the result
- *  is requested and the normalized result is returned. When divisor has
- *  just one digit or when dividend has less digits than divisor the
+ *  is requested and the normalized result is returned. If divisor has
+ *  just one digit or if dividend has less digits than divisor the
  *  functions bigMod1() or bigModSizeLess() are called. In the general case
  *  the absolute values of dividend and divisor are taken. Then dividend is
  *  extended by one leading zero digit. After that dividend and divisor
@@ -5922,11 +5922,11 @@ bigIntType bigMDiv (const const_bigIntType dividend, const const_bigIntType divi
  *  uBigRem() which does the main work of the division. Afterwards
  *  the result must be shifted to the right to get the remainder.
  *  If dividend and divisor have the same sign the modulo has the same
- *  value as the remainder. When the remainder is zero the modulo
+ *  value as the remainder. If the remainder is zero the modulo
  *  is also zero. If the signs of dividend and divisor are different the
  *  modulo is computed from the remainder by adding dividend.
  *  @return the modulo of the integer division.
- *  @exception NUMERIC_ERROR When a division by zero occurs.
+ *  @exception NUMERIC_ERROR If a division by zero occurs.
  */
 bigIntType bigMod (const const_bigIntType dividend, const const_bigIntType divisor)
 
@@ -6183,8 +6183,8 @@ bigIntType bigNegate (const const_bigIntType big1)
         } else if (negatedValue->bigdigits[pos - 1] == BIGDIGIT_MASK &&
             pos >= 2 && IS_NEGATIVE(negatedValue->bigdigits[pos - 2])) {
           REALLOC_BIG_SIZE_OK(resized_negatedValue, negatedValue, pos, pos - 1);
-          /* Avoid a MEMORY_ERROR in the strange case     */
-          /* when a 'realloc' which shrinks memory fails. */
+          /* Avoid a MEMORY_ERROR in the strange case   */
+          /* if a 'realloc' which shrinks memory fails. */
           if (likely(resized_negatedValue != NULL)) {
             negatedValue = resized_negatedValue;
           } /* if */
@@ -6238,8 +6238,8 @@ bigIntType bigNegateTemp (bigIntType big1)
       } else if (big1->bigdigits[pos - 1] == BIGDIGIT_MASK &&
           pos >= 2 && IS_NEGATIVE(big1->bigdigits[pos - 2])) {
         REALLOC_BIG_SIZE_OK(resized_big1, big1, pos, pos - 1);
-        /* Avoid a MEMORY_ERROR in the strange case     */
-        /* when a 'realloc' which shrinks memory fails. */
+        /* Avoid a MEMORY_ERROR in the strange case   */
+        /* if a 'realloc' which shrinks memory fails. */
         if (likely(resized_big1 != NULL)) {
           big1 = resized_big1;
         } /* if */
@@ -6310,7 +6310,7 @@ bigIntType bigOr (const_bigIntType big1, const_bigIntType big2)
  *  characters as well as leading or trailing whitespace characters are
  *  not allowed. The sequence of digits is taken to be decimal.
  *  @return the 'bigInteger' result of the conversion.
- *  @exception RANGE_ERROR When the string is empty or does not contain
+ *  @exception RANGE_ERROR If the string is empty or does not contain
  *             an integer literal.
  *  @exception MEMORY_ERROR  Not enough memory to represent the result.
  */
@@ -6404,7 +6404,7 @@ bigIntType bigParse (const const_striType stri)
  *  @param stri Numeric string with integer in the specified radix.
  *  @param base Radix of the integer in the 'stri' parameter.
  *  @return the 'bigInteger' result of the conversion.
- *  @exception RANGE_ERROR When base < 2 or base > 36 holds or
+ *  @exception RANGE_ERROR If base < 2 or base > 36 holds or
  *             the string does not contain an integer
  *             literal with the specified base.
  *  @exception MEMORY_ERROR  Not enough memory to represent the result.
@@ -6502,8 +6502,8 @@ bigIntType bigPred (const const_bigIntType big1)
         } else if (predecessor->bigdigits[pos - 1] == 0 &&
             pos >= 2 && !IS_NEGATIVE(predecessor->bigdigits[pos - 2])) {
           REALLOC_BIG_SIZE_OK(resized_predecessor, predecessor, pos, pos - 1);
-          /* Avoid a MEMORY_ERROR in the strange case     */
-          /* when a 'realloc' which shrinks memory fails. */
+          /* Avoid a MEMORY_ERROR in the strange case   */
+          /* if a 'realloc' which shrinks memory fails. */
           if (likely(resized_predecessor != NULL)) {
             predecessor = resized_predecessor;
           } /* if */
@@ -6564,8 +6564,8 @@ bigIntType bigPredTemp (bigIntType big1)
       } else if (big1->bigdigits[pos - 1] == 0 &&
           pos >= 2 && !IS_NEGATIVE(big1->bigdigits[pos - 2])) {
         REALLOC_BIG_SIZE_OK(resized_big1, big1, pos, pos - 1);
-        /* Avoid a MEMORY_ERROR in the strange case     */
-        /* when a 'realloc' which shrinks memory fails. */
+        /* Avoid a MEMORY_ERROR in the strange case   */
+        /* if a 'realloc' which shrinks memory fails. */
         if (likely(resized_big1 != NULL)) {
           big1 = resized_big1;
         } /* if */
@@ -6587,7 +6587,7 @@ bigIntType bigPredTemp (bigIntType big1)
  *  @param big1 BigInteger number to be converted.
  *  @param upperCase Decides about the letter case.
  *  @return the string result of the conversion.
- *  @exception RANGE_ERROR When base < 2 or base > 36 holds.
+ *  @exception RANGE_ERROR If base < 2 or base > 36 holds.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  */
 striType bigRadix (const const_bigIntType big1, intType base,
@@ -6701,8 +6701,8 @@ bigIntType bigRand (const const_bigIntType low,
 /**
  *  Compute the remainder of the integer division bigDiv.
  *  The remainder has the same sign as the dividend. The memory for the result
- *  is requested and the normalized result is returned. When divisor has
- *  just one digit or when dividend has less digits than divisor the
+ *  is requested and the normalized result is returned. If divisor has
+ *  just one digit or if dividend has less digits than divisor the
  *  functions bigRem1() or bigRemSizeLess() are called. In the general case
  *  the absolute values of dividend and divisor are taken. Then dividend is
  *  extended by one leading zero digit. After that dividend and divisor
@@ -6711,7 +6711,7 @@ bigIntType bigRand (const const_bigIntType low,
  *  uBigRem() which does the main work of the division. Afterwards
  *  the result must be shifted to the right to get the remainder.
  *  @return the remainder of the integer division.
- *  @exception NUMERIC_ERROR When a division by zero occurs.
+ *  @exception NUMERIC_ERROR If a division by zero occurs.
  */
 bigIntType bigRem (const const_bigIntType dividend, const const_bigIntType divisor)
 
@@ -6795,9 +6795,9 @@ bigIntType bigRem (const const_bigIntType dividend, const const_bigIntType divis
 
 /**
  *  Shift a 'bigInteger' number right by rshift bits.
- *  When rshift is negative a left shift is done instead.
- *  A >> B is equivalent to A mdiv 2_ ** B when B >= 0 holds.
- *  A >> B is equivalent to A * 2_ ** -B when B < 0 holds.
+ *  If rshift is negative a left shift is done instead.
+ *  A >> B is equivalent to A mdiv 2_ ** B if B >= 0 holds.
+ *  A >> B is equivalent to A * 2_ ** -B if B < 0 holds.
  *  @return the right shifted number.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  */
@@ -6899,7 +6899,7 @@ bigIntType bigRShift (const const_bigIntType big1, const intType rshift)
 
 /**
  *  Shift a number right by rshift bits and assign the result back to number.
- *  When rshift is negative a left shift is done instead.
+ *  If rshift is negative a left shift is done instead.
  *  @exception MEMORY_ERROR Not enough memory to represent the new value.
  */
 void bigRShiftAssign (bigIntType *const big_variable, intType rshift)
@@ -6949,8 +6949,8 @@ void bigRShiftAssign (bigIntType *const big_variable, intType rshift)
             memmove(big1->bigdigits, &big1->bigdigits[size_reduction],
                     (size_t) (big1_size - size_reduction) * sizeof(bigDigitType));
             REALLOC_BIG_SIZE_OK(resized_big1, big1, big1_size, big1_size - size_reduction);
-            /* Avoid a MEMORY_ERROR in the strange case     */
-            /* when a 'realloc' which shrinks memory fails. */
+            /* Avoid a MEMORY_ERROR in the strange case   */
+            /* if a 'realloc' which shrinks memory fails. */
             if (likely(resized_big1 != NULL)) {
               big1 = resized_big1;
               *big_variable = big1;
@@ -6981,8 +6981,8 @@ void bigRShiftAssign (bigIntType *const big_variable, intType rshift)
                   pos--;
                 } /* if */
                 REALLOC_BIG_SIZE_OK(resized_big1, big1, big1->size, pos);
-                /* Avoid a MEMORY_ERROR in the strange case     */
-                /* when a 'realloc' which shrinks memory fails. */
+                /* Avoid a MEMORY_ERROR in the strange case   */
+                /* if a 'realloc' which shrinks memory fails. */
                 if (likely(resized_big1 != NULL)) {
                   big1 = resized_big1;
                   *big_variable = big1;
@@ -7003,8 +7003,8 @@ void bigRShiftAssign (bigIntType *const big_variable, intType rshift)
                   pos--;
                 } /* if */
                 REALLOC_BIG_SIZE_OK(resized_big1, big1, big1->size, pos);
-                /* Avoid a MEMORY_ERROR in the strange case     */
-                /* when a 'realloc' which shrinks memory fails. */
+                /* Avoid a MEMORY_ERROR in the strange case   */
+                /* if a 'realloc' which shrinks memory fails. */
                 if (likely(resized_big1 != NULL)) {
                   big1 = resized_big1;
                   *big_variable = big1;
@@ -7018,8 +7018,8 @@ void bigRShiftAssign (bigIntType *const big_variable, intType rshift)
           if (size_reduction != 0) {
             big1_size = big1->size;
             REALLOC_BIG_SIZE_OK(resized_big1, big1, big1_size, big1_size - size_reduction);
-            /* Avoid a MEMORY_ERROR in the strange case     */
-            /* when a 'realloc' which shrinks memory fails. */
+            /* Avoid a MEMORY_ERROR in the strange case   */
+            /* if a 'realloc' which shrinks memory fails. */
             if (likely(resized_big1 != NULL)) {
               big1 = resized_big1;
               *big_variable = big1;
@@ -7115,14 +7115,14 @@ bigIntType bigSbtr (const const_bigIntType minuend, const const_bigIntType subtr
 /**
  *  Decrement a 'bigInteger' variable by a delta.
  *  Subtracts delta from *big_variable. The operation is done in
- *  place and *big_variable is only resized when necessary.
- *  When the size of delta is smaller than *big_variable the
+ *  place and *big_variable is only resized if necessary.
+ *  If the size of delta is smaller than *big_variable the
  *  algorithm tries to save computations. Therefore there are
  *  checks for carry != 0 and carry == 0.
  *  In case the resizing fails the content of *big_variable
  *  is freed and *big_variable is set to NULL.
  *  @param delta The delta to be subtracted from *big_variable.
- *  @exception MEMORY_ERROR When the resizing of *big_variable fails.
+ *  @exception MEMORY_ERROR If the resizing of *big_variable fails.
  */
 void bigSbtrAssign (bigIntType *const big_variable, const const_bigIntType delta)
 
@@ -7416,8 +7416,8 @@ bigIntType bigSucc (const const_bigIntType big1)
           } /* if */
         } else if (successor->bigdigits[pos - 1] == BIGDIGIT_MASK &&
             pos >= 2 && IS_NEGATIVE(successor->bigdigits[pos - 2])) {
-          /* Avoid a MEMORY_ERROR in the strange case     */
-          /* when a 'realloc' which shrinks memory fails. */
+          /* Avoid a MEMORY_ERROR in the strange case   */
+          /* if a 'realloc' which shrinks memory fails. */
           REALLOC_BIG_SIZE_OK(resized_successor, successor, pos, pos - 1);
           if (likely(resized_successor != NULL)) {
             successor = resized_successor;
@@ -7480,8 +7480,8 @@ bigIntType bigSuccTemp (bigIntType big1)
       } else if (big1->bigdigits[pos - 1] == BIGDIGIT_MASK &&
           pos >= 2 && IS_NEGATIVE(big1->bigdigits[pos - 2])) {
         REALLOC_BIG_SIZE_OK(resized_big1, big1, pos, pos - 1);
-        /* Avoid a MEMORY_ERROR in the strange case     */
-        /* when a 'realloc' which shrinks memory fails. */
+        /* Avoid a MEMORY_ERROR in the strange case   */
+        /* if a 'realloc' which shrinks memory fails. */
         if (likely(resized_big1 != NULL)) {
           big1 = resized_big1;
         } /* if */
@@ -7500,12 +7500,12 @@ bigIntType bigSuccTemp (bigIntType big1)
  *  The result uses binary representation with a base of 256.
  *  @param big1 BigInteger number to be converted.
  *  @param isSigned Determines the signedness of the result.
- *         When 'isSigned' is TRUE the result is encoded with the
+ *         If 'isSigned' is TRUE the result is encoded with the
  *         twos-complement representation. In this case a negative
  *         'big1' is converted to a result where the most significant
  *         byte (the first byte) has an ordinal > BYTE_MAX (=127).
  *  @return a bstring with the big-endian representation.
- *  @exception RANGE_ERROR When 'big1' is negative and 'isSigned' is FALSE.
+ *  @exception RANGE_ERROR If 'big1' is negative and 'isSigned' is FALSE.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  */
 bstriType bigToBStriBe (const const_bigIntType big1, const boolType isSigned)
@@ -7595,12 +7595,12 @@ bstriType bigToBStriBe (const const_bigIntType big1, const boolType isSigned)
  *  The result uses binary representation with a base of 256.
  *  @param big1 BigInteger number to be converted.
  *  @param isSigned Determines the signedness of the result.
- *         When 'isSigned' is TRUE the result is encoded with the
+ *         If 'isSigned' is TRUE the result is encoded with the
  *         twos-complement representation. In this case a negative
  *         'big1' is converted to a result where the most significant
  *         byte (the last byte) has an ordinal > BYTE_MAX (=127).
  *  @return a bstring with the little-endian representation.
- *  @exception RANGE_ERROR When 'big1' is negative and 'isSigned' is FALSE.
+ *  @exception RANGE_ERROR If 'big1' is negative and 'isSigned' is FALSE.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  */
 bstriType bigToBStriLe (const const_bigIntType big1, const boolType isSigned)
@@ -7688,7 +7688,7 @@ bstriType bigToBStriLe (const const_bigIntType big1, const boolType isSigned)
 /**
  *  Convert a 'bigInteger' to an 'int16Type' number.
  *  @return the int16Type result of the conversion.
- *  @param err_info Unchanged when the function succeeds or
+ *  @param err_info Unchanged if the function succeeds or
  *                  RANGE_ERROR The number is too small or too big
  *                  to fit into a int16Type value.
  */
@@ -7737,11 +7737,11 @@ int16Type bigToInt16 (const const_bigIntType big1, errInfoType *err_info)
  *  Convert a 'bigInteger' to an 'int32Type' number.
  *  @return the int32Type result of the conversion.
  *  @param big1 BigInteger to be converted.
- *  @param err_info Only used when err_info is not NULL.
- *                  Unchanged when the function succeeds or
+ *  @param err_info Only used if err_info is not NULL.
+ *                  Unchanged if the function succeeds or
  *                  RANGE_ERROR The number is too small or too big
  *                  to fit into a int32Type value.
- *  @exception RANGE_ERROR When err_info is NULL and the number is
+ *  @exception RANGE_ERROR If err_info is NULL and the number is
  *             too small or too big to fit into a int32Type value.
  */
 int32Type bigToInt32 (const const_bigIntType big1, errInfoType *err_info)
@@ -7784,11 +7784,11 @@ int32Type bigToInt32 (const const_bigIntType big1, errInfoType *err_info)
  *  Convert a 'bigInteger' to an 'int64Type' number.
  *  @return the int64Type result of the conversion.
  *  @param big1 BigInteger to be converted.
- *  @param err_info Only used when err_info is not NULL.
- *                  Unchanged when the function succeeds or
+ *  @param err_info Only used if err_info is not NULL.
+ *                  Unchanged if the function succeeds or
  *                  RANGE_ERROR The number is too small or too big
  *                  to fit into a int64Type value.
- *  @exception RANGE_ERROR When err_info is NULL and the number is
+ *  @exception RANGE_ERROR If err_info is NULL and the number is
  *             too small or too big to fit into a int64Type value.
  */
 int64Type bigToInt64 (const const_bigIntType big1, errInfoType *err_info)

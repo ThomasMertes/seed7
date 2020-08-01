@@ -76,7 +76,7 @@ const proc: utf8_seek (ref clib_file: aFile, in integer: position)    is action 
  *         use the standard path representation.
  *  @param mode Mode of the file to be opened.
  *  @return the file opened, or [[null_file#STD_NULL|STD_NULL]]
- *          if it could not be opened or when ''path'' refers to
+ *          if it could not be opened or if ''path'' refers to
  *          a directory.
  *  @exception MEMORY_ERROR Not enough memory to convert the path
  *             to the system path type.
@@ -167,7 +167,7 @@ const func string: getln (inout utf8_file: inFile) is
  *  Set the current file position.
  *  The file position is measured in bytes from the start of the file.
  *  The first byte in the file has the position 1.
- *  When the file position would be in the middle of an UTF-8 encoded
+ *  If the file position would be in the middle of an UTF-8 encoded
  *  character the position is advanced to the beginning of the next
  *  UTF-8 character.
  *  @exception RANGE_ERROR The file position is negative or zero or

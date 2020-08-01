@@ -1250,7 +1250,7 @@ boolType crea_struct (objectType elem_to, objectType elem_from,
     position = 0;
     while (position < new_size && okay) {
       if (!sct_elem_initialisation(elem_from[position].type_of, &elem_to[position], &elem_from[position])) {
-        /* When one create fails (mostly no memory) all elements */
+        /* If a create fails (mostly no memory) all elements */
         /* created up to this point must be destroyed to recycle */
         /* the memory correct. */
         destr_struct(elem_to, position);
@@ -1307,7 +1307,7 @@ boolType crea_array (objectType elem_to, objectType elem_from,
     position = 0;
     while (position < new_size && okay) {
       if (!arr_elem_initialisation(elem_from[position].type_of, &elem_to[position], &elem_from[position])) {
-        /* When one create fails (mostly no memory) all elements */
+        /* If a create fails (mostly no memory) all elements */
         /* created up to this point must be destroyed to recycle */
         /* the memory correct. */
         destr_array(elem_to, position);

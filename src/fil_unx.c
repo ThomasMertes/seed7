@@ -136,6 +136,13 @@ int readCharChkCtrlC (fileType inFile, boolType *sigintReceived)
 
 
 
+/**
+ *  Determine if at least one character can be read without blocking.
+ *  Blocking means that 'getc' would wait until a character is
+ *  received. Blocking can last for a period of unspecified length.
+ *  Regular files do not block.
+ *  @return TRUE if 'getc' would not block, FALSE otherwise.
+ */
 #if defined read_buffer_empty && HAS_POLL
 boolType filInputReady (fileType aFile)
 

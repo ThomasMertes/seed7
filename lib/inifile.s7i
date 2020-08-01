@@ -34,8 +34,8 @@ const type: iniDataType is hash [string] iniKeyValueType;
 
 (**
  *  Returns a property value whose section and property name were given.
- *  Returns "" when the section or the property name do not exist.
- *  @return a property value or "", when section or property don't exist.
+ *  Returns "", if the section or the property name do not exist.
+ *  @return a property value or "", if section or property don't exist.
  *)
 const func string: getParamValue (in iniDataType: iniData,
     in string: sectionName, in string: propertyName) is func

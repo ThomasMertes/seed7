@@ -223,7 +223,7 @@ actType getActIllegal (void)
 /**
  *  Create actEntryMap and remove double actType values from it.
  *  The table actEntryMap is used by getActEntry() to map actType
- *  function pointers to corresponding entries in actTable. When
+ *  function pointers to corresponding entries in actTable. If
  *  the C compiler recognizes that the code of two functions is
  *  identical it may decide to reuse the code. In this case two
  *  or more actType function pointers refer to the same function.
@@ -278,7 +278,7 @@ static void genActPtrTable (void)
 /**
  *  Get an actEntry that corresponds to actionSearched.
  *  @param actionSearched The action to be searched in actTable.
- *  @return a pointer to an actEntry. When actionSearched
+ *  @return a pointer to an actEntry. If actionSearched
  *          is not found a pointer to the actEntry of
  *          the action ACT_ILLEGAL is returned.
  */

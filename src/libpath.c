@@ -53,7 +53,7 @@ static rtlArrayType lib_path;
 
 
 /**
- *  Search for an include library and open it, when it was found.
+ *  Search for an include library and open it, if it was found.
  *  A library with an absolute path is opened directly.
  *  For a library with a relative path the directories of the
  *  include library search path are checked for the library.

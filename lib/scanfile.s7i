@@ -195,7 +195,8 @@ const func string: getLineComment (inout file: inFile) is func
  *  When the function is called it is assumed that inFile.bufferChar
  *  contains the first character to be handled. When the function is
  *  left inFile.bufferChar contains the character after the digits.
- *  @return the digit sequence or "" when no digit was found.
+ *  @return the digit sequence, and
+ *          "" if no digit was found.
  *)
 const func string: getDigits (inout file: inFile) is func
   result
@@ -223,7 +224,8 @@ const func string: getDigits (inout file: inFile) is func
  *  When the function is called it is assumed that inFile.bufferChar
  *  contains the first character to be handled. When the function is
  *  left inFile.bufferChar contains the character after the integer.
- *  @return the decimal integer string or "" when no integer was found.
+ *  @return the decimal integer string, and
+ *          "" if no integer was found.
  *)
 const func string: getInteger (inout file: inFile) is func
   result
@@ -323,7 +325,8 @@ const func string: getNumber (inout file: inFile) is func
  *  When the function is called it is assumed that inFile.bufferChar
  *  contains the first character to be handled. When the function is
  *  left inFile.bufferChar contains a digit or [[char#EOF|EOF]].
- *  @return the non digit sequence or "" when a digit was found.
+ *  @return the non digit sequence, and
+ *          "" if a digit was found.
  *)
 const func string: getNonDigits (inout file: inFile) is func
   result
@@ -553,7 +556,8 @@ const func string: getStringLiteral (inout file: inFile) is func
  *  that inFile.bufferChar contains the first character to be handled.
  *  When the function is left inFile.bufferChar contains the character
  *  after the name.
- *  @return the name or "" when no letter or underscore was found.
+ *  @return the name, and
+ *          "" if no letter or underscore was found.
  *)
 const func string: getName (inout file: inFile) is func
   result
@@ -642,8 +646,8 @@ const proc: skipWhiteSpace (inout file: inFile, in set of char: whiteSpaceChar) 
  *  contains the first character to be handled. When the function is
  *  left inFile.bufferChar contains the character after the
  *  whitespace characters.
- *  @return the string of whitespace characters or "" when no
- *          whitespace character was found.
+ *  @return the string of whitespace characters, and
+ *          "" if no whitespace character was found.
  *)
 const func string: getWhiteSpace (inout file: inFile) is func
   result
@@ -664,7 +668,8 @@ const func string: getWhiteSpace (inout file: inFile) is func
  *  inFile.bufferChar contains the first character to be handled.
  *  When the function is left inFile.bufferChar contains the
  *  character after the word.
- *  @return the word or "" when no word was found.
+ *  @return the word, and
+ *          "" if no word was found.
  *)
 const func string: getWord (inout file: inFile) is func
   result
@@ -691,7 +696,7 @@ const func string: getWord (inout file: inFile) is func
  *  When the function is called it is assumed that inFile.bufferChar
  *  contains the first character to be handled. When the function is
  *  left the line end character ('\n' or [[char#EOF|EOF]]) is in
- *  inFile.bufferChar. When inFile.bufferChar already contains a
+ *  inFile.bufferChar. If inFile.bufferChar already contains a
  *  line end character ('\n' or [[char#EOF|EOF]]) nothing is done.
  *)
 const proc: skipLine (inout file: inFile) is func
@@ -712,10 +717,10 @@ const proc: skipLine (inout file: inFile) is func
  *  contains the first character to be handled. When the function is
  *  left the line end character ('\n' or [[char#EOF|EOF]]) is in
  *  inFile.bufferChar. A sequence of "\r\n" is interpreted as equal to '\n'.
- *  When inFile.bufferChar already contains a line end character
+ *  If inFile.bufferChar already contains a line end character
  *  ('\n' or [[char#EOF|EOF]]) nothing is done and the function returns "" .
- *  @return the line read or "" when inFile.bufferChar contains
- *          '\n' or [[char#EOF|EOF]].
+ *  @return the line read, and
+ *          "" if inFile.bufferChar contains '\n' or [[char#EOF|EOF]].
  *)
 const func string: getLine (inout file: inFile) is func
   result
@@ -749,7 +754,8 @@ const func string: getLine (inout file: inFile) is func
  *  inFile.bufferChar contains a whitespace character or the first
  *  character of a symbol or comment. When the function is left the
  *  character after the symbol or comment is in inFile.bufferChar.
- *  @return the symbol, comment or "" when [[char#EOF|EOF]] was reached.
+ *  @return the symbol or comment, and
+ *          "" if [[char#EOF|EOF]] was reached.
  *)
 const func string: getSymbolOrComment (inout file: inFile) is func
   result
@@ -810,7 +816,8 @@ const func string: getSymbolOrComment (inout file: inFile) is func
  *  a whitespace character or the first character of a symbol or
  *  comment. When the function is left the character after the symbol
  *  is in inFile.bufferChar.
- *  @return the symbol or "" when [[char#EOF|EOF]] was reached.
+ *  @return the symbol, and
+ *          "" if [[char#EOF|EOF]] was reached.
  *)
 const func string: getSymbol (inout file: inFile) is func
   result
@@ -874,7 +881,8 @@ const func string: getSymbol (inout file: inFile) is func
  *  whitespace character or the first character of a symbol or
  *  comment. When the function is left the character after the symbol
  *  is in inFile.bufferChar.
- *  @return the symbol or "" when [[char#EOF|EOF]] was reached.
+ *  @return the symbol, and
+ *          "" if [[char#EOF|EOF]] was reached.
  *)
 const func string: getSymbolWithHtmlEntities (inout file: inFile) is func
   result
@@ -952,8 +960,8 @@ const func string: getSymbolWithHtmlEntities (inout file: inFile) is func
  *  character of a symbol or a comment. When the function is left the
  *  character after the HTML tag, symbol or comment is in
  *  inFile.bufferChar.
- *  @return the HTML tag, symbol, comment or "" when [[char#EOF|EOF]]
- *          was reached.
+ *  @return the HTML tag, symbol or comment, and
+ *          "" if [[char#EOF|EOF]] was reached.
  *)
 const func string: getHtmlTagSymbolOrComment (inout file: inFile) is func
   result
@@ -1069,8 +1077,8 @@ const proc: skipXmlComment (inout file: inFile) is func
  *  the first charater of the content text. When the function is left
  *  the character after the XML/HTML tag or the content text is in
  *  inFile.bufferChar.
- *  @return the XML/HTML tag, XML/HTML content text or "" when
- *          [[char#EOF|EOF]] was reached.
+ *  @return the XML/HTML tag or XML/HTML content text, and
+ *          "" if [[char#EOF|EOF]] was reached.
  *)
 const func string: getXmlTagOrContent (inout file: inFile) is func
   result
@@ -1096,8 +1104,8 @@ const func string: getXmlTagOrContent (inout file: inFile) is func
 
 (**
  *  Reads a predefined XML entity from a [[file]].
- *  @return the predefined XML entity or "" when [[char#EOF|EOF]]
- *          was reached.
+ *  @return the predefined XML entity, and
+ *          "" if [[char#EOF|EOF]] was reached.
  *)
 const func string: getXmlCharacterReference (inout file: inFile) is func
   result
@@ -1156,11 +1164,11 @@ const func string: getXmlCharacterReference (inout file: inFile) is func
  *  a whitespace character, the introducing < of a XML/HTML tag or
  *  the first charater of the content text. When the function is left
  *  the character after the XML/HTML tag head or the content text is
- *  in inFile.bufferChar. When a tag head starts with <-- it is
+ *  in inFile.bufferChar. If a tag head starts with <-- it is
  *  interpreted as XML comment. A XML comment is ignored and
  *  getXmlTagHeadOrContent is called recursive.
- *  @return the XML/HTML tag head, XML/HTML content text or "" when
- *          [[char#EOF|EOF]] was reached.
+ *  @return the XML/HTML tag head or XML/HTML content text, and
+ *          "" if [[char#EOF|EOF]] was reached.
  *)
 const func string: getXmlTagHeadOrContent (inout file: inFile) is func
   result
@@ -1220,7 +1228,8 @@ const func string: getXmlTagHeadOrContent (inout file: inFile) is func
  *  the first character of a symbol. When the function is left
  *  inFile.bufferChar contains the character after the XML/HTML symbol
  *  or [[char#EOF|EOF]].
- *  @return the symbol or "" when [[char#EOF|EOF]] was reached.
+ *  @return the symbol, and
+ *          "" if [[char#EOF|EOF]] was reached.
  *)
 const func string: getSymbolInXmlTag (inout file: inFile) is func
   result
@@ -1296,11 +1305,11 @@ const proc: skipXmlTag (inout file: inFile, in var string: symbol) is func
  *  Attribute name and value are returned in ''attributeName'' and
  *  ''attributeValue'' respectively. Surrounding single or double
  *  quotes of the attribute value are omitted. It is a syntax
- *  error when an attribute value is not quoted. XML entities in
- *  ''attributeValue'' are left as is. When no more attributes are
+ *  error if an attribute value is not quoted. XML entities in
+ *  ''attributeValue'' are left as is. If no more attributes are
  *  present in the XML tag ''attributeName'' is set to "". In this case
  *  ''attributeValue'' contains the end of the XML tag (">" or "/>").
- *  When a syntax error occurs the function skips beyond the end
+ *  If a syntax error occurs the function skips beyond the end
  *  of the XML tag. To indicate the syntax error ''attributeName'' is
  *  set to "" and ''attributeValue'' is set to a symbol shortly before
  *  the error (this will never be ">" or "/>").
@@ -1351,7 +1360,8 @@ const proc: getNextXmlAttribute (inout file: inFile,
  *  whitespace character or the first character of a value. When the
  *  function is left inFile.bufferChar contains the character after
  *  the XML/HTML symbol or [[char#EOF|EOF]].
- *  @return the symbol or "" when [[char#EOF|EOF]] was reached.
+ *  @return the symbol, and
+ *          "" if [[char#EOF|EOF]] was reached.
  *)
 const func string: getHtmlAttributeValue (inout file: inFile) is func
   result
@@ -1390,10 +1400,10 @@ const func string: getHtmlAttributeValue (inout file: inFile) is func
 
 (**
  *  Reads name and value of an attribute inside a HTML tag from a [[file]].
- *  The variable ''attributeName'' is set to "" when no more attributes
- *  are present in the HTML tag. When the HTML tag ends with / the
- *  function assigns "/" to ''attributeValue'' when ''attributeName'' is
- *  set to "". When the HTML tag does not end with / ''attributeValue''
+ *  The variable ''attributeName'' is set to "" if no more attributes
+ *  are present in the HTML tag. If the HTML tag ends with / the
+ *  function assigns "/" to ''attributeValue'' and ''attributeName'' is
+ *  set to "". If the HTML tag does not end with / ''attributeValue''
  *  and ''attributeName'' are set to "" when no more attributes are
  *  present.
  *)
@@ -1433,7 +1443,8 @@ const proc: getNextHtmlAttribute (inout file: inFile,
  *  symbol (sequence of special characters) or a parenthesis.
  *  Note that string, char and float literals are not recognized as
  *  simple symbol.
- *  @return the simple symbol or "" when [[char#EOF|EOF]] was reached.
+ *  @return the simple symbol, and
+ *          "" if [[char#EOF|EOF]] was reached.
  *)
 const func string: getSimpleSymbol (inout file: inFile) is func
   result

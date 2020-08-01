@@ -554,7 +554,7 @@ var array tileType: tiles is [](
 
 (**
  *  Draws the symbols of a tile.
- *  The symbols of a tile are stored in a pixmap. When the pixmap
+ *  The symbols of a tile are stored in a pixmap. If the pixmap
  *  does not already exist it is generated from the pattern.
  *)
 const proc: draw (inout PRIMITIVE_WINDOW: win, in integer: xPos, in integer: yPos,
@@ -1220,7 +1220,7 @@ const proc: locateTile (in integer: xPos, in integer: yPos,
 
 
 (**
- *  Returns TRUE when 'pos' is a legal move; FALSE otherwise.
+ *  Returns TRUE if 'pos' is a legal move, FALSE otherwise.
  *)
 const func boolean: legalMove (in positionType: pos) is func
   result
@@ -1640,7 +1640,7 @@ const proc: removeOneTile (in positionType: pos) is func
  *  The tile 'value' is randomly chosen. The places for the tiles are
  *  chosen with the getFreePlace function. It can happen that the
  *  tiles block each other. In that case the tiles are removed and
- *  the process of dealing is retried. When five attempts to deal a
+ *  the process of dealing is retried. If five attempts to deal a
  *  pair of tiles fail the inverse game fails also and the inverse
  *  game must be retried from scratch. In this case 'okay' is set to
  *  FALSE.
@@ -1713,7 +1713,7 @@ const proc: initTiles is func
  *  Deals all tiles of a solvable game using the turtle layout.
  *  To create a solvable game an inverse game is played. The inverse
  *  game starts with an empty field and the tiles are added according
- *  to the inverse rules. When the inverse game fails it is retried
+ *  to the inverse rules. If the inverse game fails it is retried
  *  from scratch until it succeeds.
  *)
 const proc: dealTiles (inout char: command) is func
@@ -1750,7 +1750,7 @@ const proc: dealTiles (inout char: command) is func
 (**
  *  Deals tiles using the welcome layout.
  *  The tiles are dealt in a random fashion until the layout is
- *  filled. It would be pure coincidence when the resulting game is
+ *  filled. It would be pure coincidence if the resulting game is
  *  solvable.
  *)
 const proc: dealTiles2 is func

@@ -1005,7 +1005,7 @@ printf("\n"); */
 trace1(element_value);
 printf("\n"); */
 #if !WITH_OBJECT_FREELIST
-        /* When a freelist is used exec_action examines the     */
+        /* If a freelist is used exec_action examines the     */
         /* object on the freelist and will not free it, because */
         /* the TEMP flag is not set for free list objects.      */
         if (TEMP_OBJECT(element_value)) {

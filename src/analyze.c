@@ -78,7 +78,7 @@
 #define TRACE_DECL_ANY 0
 
 
-/* when the analyzer is used from a compiled program this */
+/* If the analyzer is used from a compiled program this */
 /* flag decides which exception handler should be called: */
 #if CHECK_STACK
 extern boolType interpreter_exception;

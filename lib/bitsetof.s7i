@@ -108,7 +108,7 @@ const func type: bitset (in type: baseType) is func
 
       (**
        *  Determine if ''set1'' is a proper subset of ''set2''.
-       *  ''set1'' is a proper subset of ''set2'' when
+       *  ''set1'' is a proper subset of ''set2'' if
        *   set1 <= set2 and set1 <> set2
        *  holds.
        *  @return TRUE if ''set1'' is a proper subset of ''set2'',
@@ -118,7 +118,7 @@ const func type: bitset (in type: baseType) is func
 
       (**
        *  Determine if ''set1'' is a proper superset of ''set2''.
-       *  ''set1'' is a proper superset of ''set2'' when
+       *  ''set1'' is a proper superset of ''set2'' if
        *   set1 >= set2 and set1 <> set2
        *  holds.
        *  @return TRUE if ''set1'' is a proper superset of ''set2'',
@@ -128,7 +128,7 @@ const func type: bitset (in type: baseType) is func
 
       (**
        *  Determine if ''set1'' is a subset of ''set2''.
-       *  ''set1'' is a subset of ''set2'' when no element X exists for which
+       *  ''set1'' is a subset of ''set2'' if no element X exists for which
        *   X in set1 and X not in set2
        *  holds.
        *  @return TRUE if ''set1'' is a subset of ''set2'',
@@ -138,7 +138,7 @@ const func type: bitset (in type: baseType) is func
 
       (**
        *  Determine if ''set1'' is a superset of ''set2''.
-       *  ''set1'' is a superset of ''set2'' when no element X exists for which
+       *  ''set1'' is a superset of ''set2'' if no element X exists for which
        *   X in set2 and X not in set1
        *  holds.
        *  @return TRUE if ''set1'' is a superset of ''set2'',
@@ -176,7 +176,7 @@ const func type: bitset (in type: baseType) is func
       (**
        *  Set membership test.
        *  Determine if ''aValue'' is a member of the set ''aSet''.
-       *  @return TRUE when ''aValue'' is a member of  ''aSet'',
+       *  @return TRUE If ''aValue'' is a member of  ''aSet'',
        *          FALSE otherwise.
        *)
       const func boolean: (in baseType: aValue) in (in setType: aSet) is
@@ -185,7 +185,7 @@ const func type: bitset (in type: baseType) is func
       (**
        *  Negated set membership test.
        *  Determine if ''aValue'' is not a member of the set ''aSet''.
-       *  @return FALSE when ''aValue'' is a member of  ''aSet'',
+       *  @return FALSE If ''aValue'' is a member of  ''aSet'',
        *          TRUE otherwise.
        *)
       const func boolean: (in baseType: aValue) not in (in setType: aSet) is
@@ -193,8 +193,8 @@ const func type: bitset (in type: baseType) is func
 
       (**
        *  Add ''aValue'' to the set ''aSet''.
-       *  When ''aValue'' is already in ''aSet'' then ''aSet'' stays unchanged.
-       *  @exception MEMORY_ERROR When there is not enough memory.
+       *  If ''aValue'' is already in ''aSet'' then ''aSet'' stays unchanged.
+       *  @exception MEMORY_ERROR If there is not enough memory.
        *)
       const proc: incl (inout setType: aSet, in baseType: aValue) is func
         begin
@@ -203,7 +203,7 @@ const func type: bitset (in type: baseType) is func
 
       (**
        *  Remove ''aValue'' from the set ''aSet''.
-       *  When ''aValue'' is not element of ''aSet'' then ''aSet'' stays unchanged.
+       *  If ''aValue'' is not element of ''aSet'' then ''aSet'' stays unchanged.
        *)
       const proc: excl (inout setType: aSet, in baseType: aValue) is func
         begin
@@ -214,7 +214,7 @@ const func type: bitset (in type: baseType) is func
        *  Add or remove ''aValue'' to respectively from ''sSet''.
        *  Adding an existing value or remove a non-existing value
        *  leaves ''aSet'' unchanged.
-       *  @exception MEMORY_ERROR When there is not enough memory.
+       *  @exception MEMORY_ERROR If there is not enough memory.
        *)
       const proc: (inout setType: aSet) @:= [ (in baseType: aValue) ] (in boolean: isElement) is func
         begin
@@ -228,6 +228,7 @@ const func type: bitset (in type: baseType) is func
       (**
        *  Compute the cardinality of a set.
        *  @return the number of elements in ''aSet''.
+       *  @exception RANGE_ERROR Result does not fit into an integer.
        *)
       const func integer: card (in setType: aSet)                        is action "SET_CARD";
 
@@ -235,7 +236,7 @@ const func type: bitset (in type: baseType) is func
        *  Compute pseudo-random element from ''aSet''.
        *  The random values are uniform distributed.
        *  @return a random element such that rand(aSet) in aSet holds.
-       *  @exception RANGE_ERROR When ''aSet'' is empty.
+       *  @exception RANGE_ERROR If ''aSet'' is empty.
        *)
       const func baseType: rand (in setType: aSet) is
         return baseType conv rand(bitset(aSet));
@@ -246,7 +247,7 @@ const func type: bitset (in type: baseType) is func
        *   element <= X
        *  for all X which are in the set.
        *  @return the minimum element of ''aSet''.
-       *  @exception RANGE_ERROR When ''aSet'' is the empty set.
+       *  @exception RANGE_ERROR If ''aSet'' is the empty set.
        *)
       const func baseType: min (in setType: aSet) is
         return baseType conv min(bitset(aSet));
@@ -257,13 +258,18 @@ const func type: bitset (in type: baseType) is func
        *   element >= X
        *  for all X which are in the set.
        *  @return the maximal element of ''aSet''.
-       *  @exception RANGE_ERROR When ''aSet'' is the empty set.
+       *  @exception RANGE_ERROR If ''aSet'' is the empty set.
        *)
       const func baseType: max (in setType: aSet) is
         return baseType conv max(bitset(aSet));
 
-      const func baseType: next (in setType: aSet, in baseType: oldValue) is
-        return baseType conv next(bitset(aSet), ord(oldValue));
+      (**
+       *  Minimal element of ''aSet'' that is larger than ''number''.
+       *  @return the minimum element of ''aSet'' that is larger than ''number''.
+       *  @exception RANGE_ERROR If ''aSet'' has no element larger than ''number''.
+       *)
+      const func baseType: next (in setType: aSet, in baseType: number) is
+        return baseType conv next(bitset(aSet), ord(number));
 
       const func setType: { (in baseType: value) } is
         return setType conv ( { ord(value) } );

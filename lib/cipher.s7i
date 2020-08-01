@@ -80,8 +80,8 @@ const func string: decode (inout cipherState: state, in string: encoded) is DYNA
 
 
 (**
- *  [[cipher|cipherState]] implementation type describing the state when no cipher is used.
- *  The data remains unencrypted, when NO_CIPHER is used.
+ *  [[cipher|cipherState]] implementation type describing the state if no cipher is used.
+ *  The data remains unencrypted if NO_CIPHER is used.
  *)
 const type: noCipherState is new struct
   end struct;

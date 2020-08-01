@@ -500,7 +500,8 @@ rtlArrayType getArgv (const int argc, const cstriType *const argv,
 #ifndef OS_STRI_WCHAR
 /**
  *  Examine all directories in the search path and look for fileName.
- *  @return the path to the executable, or NULL when it was not found.
+ *  @return the path to the executable, or
+ *          NULL if it was not found.
  */
 striType examineSearchPath (const const_striType fileName)
 
@@ -836,7 +837,7 @@ rtlArrayType arrHead (const const_rtlArrayType arr1, intType stop)
 
 /**
  *  Get a sub array ending at the position 'stop'.
- *  ArrHeadTemp is used by the compiler when 'arr_temp' is temporary
+ *  ArrHeadTemp is used by the compiler if 'arr_temp' is a temporary
  *  value that can be reused.
  *  @return the sub array ending at the stop position.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
@@ -899,11 +900,11 @@ rtlArrayType arrHeadTemp (rtlArrayType *arr_temp, intType stop)
 
 /**
  *  Access one element from the array 'arr_temp'.
- *  The compiler uses this function when the array is destroyed
+ *  The compiler uses this function if the array is destroyed
  *  after the indexing. To avoid problems the indexed element is
  *  removed from the array.
  *  @return the element with the specified 'position' from 'arr_temp'.
- *  @exception RANGE_ERROR When 'position' is less than minIdx(arr) or
+ *  @exception RANGE_ERROR If 'position' is less than minIdx(arr) or
  *                         greater than maxIdx(arr)
  */
 genericType arrIdxTemp (rtlArrayType *arr_temp, intType position)
@@ -1071,7 +1072,7 @@ rtlArrayType arrRange (const const_rtlArrayType arr1, intType start, intType sto
 
 /**
  *  Get a sub array from the position 'start' to the position 'stop'.
- *  ArrRangeTemp is used by the compiler when 'arr_temp' is temporary
+ *  ArrRangeTemp is used by the compiler if 'arr_temp' is a temporary
  *  value that can be reused.
  *  @return the sub array from position 'start' to 'stop'.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
@@ -1150,7 +1151,7 @@ rtlArrayType arrRangeTemp (rtlArrayType *arr_temp, intType start, intType stop)
 
 /**
  *  Reallocate memory for an array from 'oldSize' to 'newSize'.
- *  This function is used by the compiler when an array is copied
+ *  This function is used by the compiler if an array is copied
  *  and the sizes of source and destination array are different.
  *  @return A reference to the memory of the array with 'newSize'.
  *  @exception MEMORY_ERROR There is not enough memory to
@@ -1179,7 +1180,7 @@ rtlArrayType arrRealloc (rtlArrayType arr, memSizeType oldSize, memSizeType newS
 /**
  *  Remove the element with 'position' from 'arr_to' and return the removed element.
  *  @return the removed element.
- *  @exception RANGE_ERROR When 'position' is less than minIdx(arr) or
+ *  @exception RANGE_ERROR If 'position' is less than minIdx(arr) or
  *                         greater than maxIdx(arr)
  */
 genericType arrRemove (rtlArrayType *arr_to, intType position)
@@ -1297,7 +1298,7 @@ rtlArrayType arrSubarr (const const_rtlArrayType arr1, intType start, intType le
 
 /**
  *  Get a sub array from the position 'start' with maximum length 'len'.
- *  ArrSubarrTemp is used by the compiler when 'arr_temp' is temporary
+ *  ArrSubarrTemp is used by the compiler if 'arr_temp' is a temporary
  *  value that can be reused.
  *  @return the sub array from position 'start' with maximum length 'len'.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
@@ -1426,7 +1427,7 @@ rtlArrayType arrTail (const const_rtlArrayType arr1, intType start)
 
 /**
  *  Get a sub array beginning at the position 'start'.
- *  ArrTailTemp is used by the compiler when 'arr_temp' is temporary
+ *  ArrTailTemp is used by the compiler if 'arr_temp' is a temporary
  *  value that can be reused.
  *  @return the sub array beginning at the start position.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.

@@ -31,7 +31,7 @@
  *  The pattern may contain wildcard characters.
  *  * The asterisk * matches zero or more characters.
  *  * The question mark ? matches exactly one character.
- *  @return TRUE, when stri is matched by pattern,
+ *  @return TRUE, if stri is matched by pattern,
  *          FALSE otherwise.
  *)
 const func boolean: wildcardMatch (in string: stri, in string: pattern) is func

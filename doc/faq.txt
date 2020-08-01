@@ -76,7 +76,7 @@ Are Seed7 programs portable?
 ============================
 
 Yes. Seed7 spares no effort to support source code portability.
-No changes are necessary, when programs are moved between different
+No changes are necessary, if programs are moved between different
 processors, between 32- and 64-bit systems or between little- and
 big-endian machines. Seed7 source code can also be moved between
 different operating systems. Several driver libraries assure that
@@ -119,9 +119,9 @@ should be no need to call foreign C functions, or to execute shell
  - A portable graphics library allows drawing, image operations,
    windows manipulation and bitmap fonts. Events to redraw a window
    and other annoyances are managed in the graphics library.
- - An abstraction layer for database access provides a database
-   independent API to connect to MySql, MariaDb, SQLLite,
-   PostgreSQL, Oracle, ODBC, Firebird and Interbase databases.
+ - A database library provides a database independent API to connect
+   to MySQL, MariaDB, SQLLite, PostgreSQL, Oracle, ODBC, Firebird
+   and Interbase databases.
  - Weaknesses of operating systems are hidden (E.g.: The windows
    function utime() does not work on directories, but Seed7 allows
    the modification of directory access and modification times also
@@ -241,12 +241,12 @@ How many lines of code are in the Seed7 project?
 ================================================
 
 The Seed7 package contains more than 100000 lines of C and more
-than 300000 lines of Seed7. For version 2019-08-19 the number of lines is:
+than 300000 lines of Seed7. For version 2019-09-19 the number of lines is:
 
-  147997  C source files (*.c)
-   11127  C header files (*.h)
+  148118  C source files (*.c)
+   11129  C header files (*.h)
   163486  Seed7 source files (*.sd7)
-  146339  Seed7 library/include files (*.s7i)
+  146565  Seed7 library/include files (*.s7i)
 
 C code (*.c and *.h files) can be divided into the following areas:
 
@@ -293,10 +293,67 @@ as base to write such driver modules. For more detailed information look at the
 files 'seed7/read_me.txt' and 'seed7/src/read_me.txt'.
 
 
+Is there an installer for Seed7?
+================================
+
+A Seed7 installer for Windows can be downloaded from:
+
+  https://sourceforge.net/projects/seed7/files/bin
+
+This directory contains the latest installer and older ones. Installers have
+names with the following pattern:
+
+  seed7_05_yyyymmdd_win.exe
+
+Just download the installer with the latest date (yyyy-mm-dd). It is not a
+problem, if the installer is older than the latest source release of Seed7.
+The installer is capable to download the latest source release. After you
+have downloaded the installer you can start it (either from the console
+(cmd.exe) or from the Windows Explorer).
+
+The installer leads through the installation process with a dialog. It
+determines the latest source release of Seed7 and downloads it. If the
+latest release cannot be downloaded a manually downloaded source release
+can be used instead. The installer can also use a built-in release of
+Seed7. This built-in release is the one with the date of the installer.
+
+The installer asks for an installation directory for Seed7. Afterwards it
+compiles Seed7 with the makefile 'seed7/src/mk_mingc.mak'. The installer
+uses a built-in make utility and an encapsulated gcc. These tools do not
+interfere with another make or gcc, which might be installed on your
+computer.
+
+Finally the installer adds the directory with the Seed7 executables to the
+search path (PATH variable). Therefore it needs administrator rights. The
+program to change the path is setwpath.exe. The name setwpath.exe will show
+up, when you are asked to allow administrative rights for the installation.
+
+The installer can be used to update an existing Seed7 installation. The
+installer checks the version of an existing installation of Seed7 and
+offers the possibility to update. Update means that all files in the Seed7
+installation directory are replaced. Therefore it makes sense to place your
+own Seed7 programs and libraries at a different place.
+
+
+Where can I download Seed7?
+===========================
+
+The latest source code release of Seed7 can be downloaded from:
+
+  https://sourceforge.net/projects/seed7/files
+
+Just click on the link after the text: "Looking for the latest version?".
+
+Other source code releases can be found in the directory seed7.
+It is strongly recommended to use the latest version.
+An installer for Windows can be found in the directory bin.
+Other executables are also in the bin directory.
+
+
 How do I uncompress the *.tgz file from the release?
 ====================================================
 
-When you have a gnu 'tar' program available you can just do
+If you have a gnu 'tar' program available you can just do
 
   $ tar -xvzf seed7_05_yyyymmdd.tgz
 
@@ -460,7 +517,7 @@ indicate that you forgot to run 'make depend' before running
 'make'. Since such an attempt produces several unneeded files it
 is necessary now to run 'make clean', 'make depend' and 'make'.
 
-When you got other errors I would like to know about. Please
+If you got other errors I would like to know about. Please
 send a mail with detailed information (name and version) of
 your operating system, distribution, C compiler, the version of
 Seed7 you wanted to compile and the complete log of error
@@ -500,6 +557,7 @@ information from the interpreter):
   chkprc ........... okay
   chkbig ........... okay
   chkbool ........... okay
+  chkbitdata ........... okay
   chkset ........... okay
   chkhsh ........... okay
   chkexc ........... okay
@@ -523,7 +581,7 @@ different strategies to get the privileges:
       sudo make install
 
     With the make command of your computer. The sudo command
-    will ask you for your password. When your permissions are
+    will ask you for your password. If your permissions are
     sufficient the command creates symbolic links in the
     directory '/usr/local/bin'.
 
@@ -588,7 +646,7 @@ The following options are recognized by s7:
          2 Write a list of include libraries
          3 Write line numbers, while analyzing
   -v   Equivalent to -v2
-  -x   Execute even when the program contains errors.
+  -x   Execute even if the program contains errors.
 
   In the program the 'parameters' can be accessed via 'argv(PROGRAM)'.
   The function 'argv(PROGRAM)' delivers an array of strings. The number
@@ -612,7 +670,7 @@ Possible options are
   -?   Write Seed7 compiler usage.
   -O and -O2  Tell the C compiler to optimize.
   -b   Specify the directory of the Seed7 runtime libraries (e.g.: -b ../bin).
-  -e   Generate code which sends a signal, when an uncaught exception occurs.
+  -e   Generate code which sends a signal, if an uncaught exception occurs.
        This option allows debuggers to handle uncaught Seed7 exceptions.
   -g   Tell the C compiler to generate an executable with debug information.
        This way the debugger will refer to Seed7 source files and line numbers.
@@ -864,7 +922,7 @@ of the program.
 
 Seed7 makes sure that the object values always have the type of the object.
 This goal is reached with mechanisms like mandatory initialization, runtime
-checks and the impossibility to change arbitrary places in memory. When the
+checks and the impossibility to change arbitrary places in memory. If the
 generation of garbage values is avoided, it can be guaranteed that only legal
 values of the correct type are used as object values. This way runtime type
 checks are unnecessary and the program execution can be more efficient.
@@ -876,7 +934,7 @@ Some operations, allowed by the static type system, can still be wrong because
 of different measurement units or other reasons. In the end there are also
 other possible sources of errors, such as range violations.
 
-Interface types can be used when an object can have several types at runtime.
+Interface types can be used if an object can have several types at runtime.
 In this case the interface type of the object can be determined at compile time
 and the type of the object value (implementation type) can vary at runtime.
 The static type checking can still check the interface type and the presence
@@ -887,7 +945,7 @@ functions granted by the interface type are defined for the implementation type.
 Is the program development slowed down with static type checking?
 =================================================================
 
-No, especially when the time spent to debug a program is taken into account.
+No, especially if the time spent to debug a program is taken into account.
 Except for artificial corner cases all type errors found by a "nitpicking"
 compiler correspond to runtime type errors that can happen in a dynamically
 typed language under some circumstances. That way the compile time type checks
@@ -896,8 +954,8 @@ needs to find and flag type errors is so small that it can be ignored in this
 comparison.
 
 Some people claim, that adding type information to a program is a time consuming
-process. This is only true when the type information is added afterwards, but
-it is wrong when type considerations take place during the program development.
+process. This is only true if the type information is added afterwards, but
+it is wrong if type considerations take place during the program development.
 Every good programmer has some concepts about what values will be hold by
 variables or parameters and what values will be returned by functions. A good
 type system helps to formalize the type concepts which are already in the mind of
@@ -909,10 +967,10 @@ declarations, but this time must be paid back with massive interest rates to do
 the debugging.
 
 
-How can static type checking work when types are first-class objects?
-=====================================================================
+How can static type checking work if types are first-class objects?
+===================================================================
 
-This question refers to something which seems paradox: When Seed7 types are
+This question refers to something which seems paradox: If Seed7 types are
 created at runtime how can they be checked at compile time. The simple answer
 is that a type created at runtime cannot be used to define something in
 the program that is currently running.
@@ -950,8 +1008,8 @@ Seed7 cannot read the mind of the programmer. It is hard to find out what the
 programmer considers as "right type". A conversion can lose information. Apart
 from truncating integers also seemingly safe conversions may lose information.
 E.g. Not all 64-bit integer values can be represented as 64-bit float values.
-It can also lead to unplanned behavior, when the programmer is not aware of an
-automatic conversion. It improves readability when conversions are done explicit.
+It can also lead to unplanned behavior if the programmer is not aware of an
+automatic conversion. It improves readability if conversions are done explicit.
 Seed7 is strong typed and uses explicit conversions. E.g.: The conversion from
 'integer' to 'float' is done with the function 'flt'. Conversions from 'float'
 to 'integer' are done with 'round' or 'trunc'. Explicit conversions have more
@@ -1083,7 +1141,7 @@ The usage of UTF-32 for strings in a program has several advantages:
  - Accessing a character with an index in an UTF-32 string is also simple.
    With UTF-8 and UTF-16 it is necessary to process all characters up
    to the index. It has been argued, that most strings are processed
-   sequentially. UTF-32 strings can be processed sequentially, but when
+   sequentially. UTF-32 strings can be processed sequentially, but if
    the processing is not sequentially UTF-32 has a big advantage.
  - UTF-8 has invalid byte sequences. In UTF-16 single surrogate characters
    are also invalid. A string library, that is based on UTF-8 or UTF-16
@@ -1096,7 +1154,7 @@ The usage of UTF-32 for strings in a program has several advantages:
    also consider overlong encodings. UTF-32 and UTF-16 do not have
    overlong encodings.
  - Using a byte-index into an UTF-8 or UTF-16 string triggers a search for
-   the beginning of an UTF-8 or UTF-16 code point. E.g.: When an UTF-8
+   the beginning of an UTF-8 or UTF-16 code point. E.g.: If an UTF-8
    string is split into two parts a search for the beginning of an UTF-8
    byte sequence is necessary. UTF-32 does not need such an effort.
  - UTF-32 uses more memory, but todays computers are equipped with a lot
@@ -1124,7 +1182,7 @@ and line comments. Interpreter and compiler assume that a Seed7 program is writt
 with UTF-8 encoding. Therefore a program editor with UTF-8 encoding should be used.
 
 There is also support for Unicode names. The support for Unicode names
-is switch off by default and must be activated with the pragma:
+is switched off by default and must be activated with the pragma:
 
   $ names unicode;
 
@@ -1136,11 +1194,16 @@ language.
 Can Seed7 access databases?
 ===========================
 
-Seed7 provides an application programming interface (API), which defines how
+A database library provides a database independent API, which defines how
 a client may access a database. Seed7 accomplishes database independence
-by using database drivers as abstraction layers between the application and
-the database. There are database drivers for MySql, MariaDb, SQLLite,
-PostgreSQL, Oracle, ODBC, Firebird and Interbase databases.
+by using database drivers as abstraction layers between the application
+and the database. There are database drivers for MySQL, MariaDB, SQLLite,
+PostgreSQL, Oracle, ODBC, Firebird and Interbase databases. You might have
+heared of a database interface named ODBC. Compared to the ODBC interface
+the database independend API of Seed7 is much simpler. The drivers of ODBC
+come also in varying quality so some features might not be present or they
+might work wrong. How the database independend API of Seed7 works can be
+seen in the following example:
 
   const proc: dbDemo is func
     local
@@ -1149,7 +1212,7 @@ PostgreSQL, Oracle, ODBC, Firebird and Interbase databases.
       var integer: index is 0;
     begin
       currDb := openDatabase(DB_MYSQL, "testDb", "testUser", "testPassword");
-      if currDb (in_sqlStatement)"><> database.value then
+      if currDb <> database.value then
         statement := prepare(currDb, "select * from testTable");
         execute(statement);
         while fetch(statement) do
@@ -1158,8 +1221,11 @@ PostgreSQL, Oracle, ODBC, Firebird and Interbase databases.
           end for;
           writeln;
         end while;
+        close(currDb);
       end if;
     end func;
+
+In the manual there is a chapter about the database abstraction API.
 
 
 Are there regular expressions?
@@ -1242,12 +1308,12 @@ The operators & and <& both concatenate strings, but they have different purpose
 
      writeln(name <& extension = check)
 
-   would write (when 'name' is "asdf" and 'extension' is not equal to 'check'):
+   would write (if 'name' is "asdf: " and 'extension' is not equal to 'check'):
 
-     asdfFALSE
+     asdf: FALSE
 
 The <& operator can be defined for new types with enable_io respectively
-enable_output. The description of the Seed7 file system contains also a chapter
+enable_output. The description of the Seed7 file API contains also a chapter
 about the conversion to strings and back.
 
 
@@ -1339,7 +1405,7 @@ effect happens also, when an additional 'inout' parameter is used instead of
 a global variable and when the function is called with the same variable as
 actual parameter for all three parameters.
 
-When a programmer has to deal with such corner cases it is necessary
+If a programmer has to deal with such corner cases it is necessary
 to explicitly use 'val' or 'ref'.
 
 
@@ -1391,15 +1457,15 @@ is assigned to 'result'.
 What is an integer overflow?
 ============================
 
-An integer overflow occurs when a calculation produces a result that
+An integer overflow occurs if a calculation produces a result that
 cannot be stored in an integer variable. Very popular languages such as
 C, C++, Java, Objective-C and Go do not care about integer overflow.
 Programs in this languages continue to execute with a wrong value
 instead of the correct result. This wrong value can then trigger
 dangerous things. A program can make wrong decisions or produce wrong
 output, without any hint that an integer overflow occurred. In Seed7
-the exception OVERFLOW_ERROR is raised when an overflow occurs.
-When performance is important the overflow checking can be switched
+the exception OVERFLOW_ERROR is raised if an overflow occurs.
+If performance is important the overflow checking can be switched
 off with the compiler option -so.
 
 
@@ -1432,7 +1498,7 @@ every category a specific strategy of automatic memory management is used:
    is freed as well as the hash table internal data.
  - A struct value can be referred by one struct variable and by several
    interface variables. Struct values use a reference counter to free the
-   struct, when no reference to it exists.
+   struct, if no reference to it exists.
 
 
 Is Seed7 object oriented?
@@ -1655,9 +1721,9 @@ field 'property' you can do the following:
 
 Everything boils down to the question: What value does 'a.property' have now.
 
- - When 'aType' is an object type a.property has the value 2 because 'a' and 'b'
+ - If 'aType' is an object type a.property has the value 2 because 'a' and 'b'
    both refer to the same object.
- - When 'aType' is a primitive type a.property has still the value 1 because 'a'
+ - If 'aType' is a primitive type a.property has still the value 1 because 'a'
    and 'b' are distinct objects.
 
 
@@ -1731,7 +1797,7 @@ The lifetime of an object goes like this:
    statement ( := ). The assignment can assume that the left expression contains a
    legal value. This allows that for strings (and some other types which are just
    references to a memory area) the memory containing the old string value (and not
-   the memory of the object itself) can be freed when necessary.
+   the memory of the object itself) can be freed if necessary.
 
 5. At the end of the lifetime of an object the destroy statement is executed.
    For strings (and some other types which are just references to a memory area)
@@ -1747,7 +1813,7 @@ Are there static methods / class methods?
 =========================================
 
 Seed7 allows defining functions (procedures and statements) without corresponding
-class. When this is not desired Seed7 uses a special parameter, the 'attr'
+class. If this is not desired Seed7 uses a special parameter, the 'attr'
 (attribute) parameter, to archive the functionality of static methods (elsewhere
 named class methods) in a more general way. How a static method is declared is
 shown in the following example:
@@ -1813,10 +1879,10 @@ Yes, Seed7 has exceptions which are similar to Ada exceptions. Chapter 14.2
 (Exceptions) of the manual contains a detailed description of the Seed7 exceptions.
 
 
-What happens when an exception is not caught?
-=============================================
+What happens if an exception is not caught?
+===========================================
 
-When an EXCEPTION is not caught the program is terminated and the s7 interpreter
+If an EXCEPTION is not caught the program is terminated and the s7 interpreter
 writes a stack trace:
 
   *** Uncaught EXCEPTION NUMERIC_ERROR raised with
@@ -1844,12 +1910,12 @@ possibilities:
  1. Start the program in the interpreter instead.
  2. Compile the program with the options -g -e and start it from a debugger.
 
-When s7c is called with the option -g it instructs the C compiler to generate
+If s7c is called with the option -g it instructs the C compiler to generate
 debugging information. This way a debugger like gdb can run the program and provide
 information. The option -e tells the compiler to generate code which sends a
-signal, when an uncaught exception occurs. This option allows debuggers to handle
+signal, if an uncaught exception occurs. This option allows debuggers to handle
 uncaught Seed7 exceptions. Note that -e sends the signal SIGFPE. This is done even
-when the exception is not related to floating point operations.
+if the exception is not related to floating point operations.
 
 Chapter 14.4 (Stack trace) of the manual contains a detailed description how to
 debug compiled Seed7 programs.
@@ -2007,8 +2073,8 @@ Compiling s7c with a make command should be preferred.
 What is necessary to compile Seed7 with database connections?
 =============================================================
 
-The Seed7 runtime library provides the possibility to connect to MySql,
-MariaDb, SQLLite, PostgreSQL, Oracle, ODBC, Firebird and Interbase databases.
+The Seed7 runtime library provides the possibility to connect to MySQL,
+MariaDB, SQLLite, PostgreSQL, Oracle, ODBC, Firebird and Interbase databases.
 During the compilation of the Seed7 interpreter the program "chkccomp.c"
 searches for the availability of database connector libraries and the
 corresponding database include files. The program "chkccomp.c" uses
@@ -2021,15 +2087,15 @@ include file cannot be found Seed7 uses its own database include file
 (db_my.h, db_lite.h, db_post.h, db_oci.h, db_odbc.h, db_fire.h), with all
 definitions needed by Seed7. The Seed7 database drivers (sql_my.c,
 sql_lite.c, sql_post.c, sql_oci.c, sql_odbc.c, sql_fire.c) can work with
-static or dynamic database connector libraries. When possible, a Seed7
+static or dynamic database connector libraries. If possible, a Seed7
 database driver is added to the Seed7 runtime library. For a Seed7 package
 this means, that the packages for database connection should be installed
 during the compilation of the Seed7 interpreter.
 
 Depending on the configuration the database connector library is linked
-statically or dynamically. When a dynamic database connector library cannot
+statically or dynamically. If a dynamic database connector library cannot
 be found at runtime the function openDatabase raises the exception
-FILE_ERROR.
+DATABASE_ERROR.
 
 
 Does the interpreter use bytecode?
@@ -2059,15 +2125,15 @@ How does the compiler implement call-by-name parameters?
 ========================================================
 
 Every function with call-by-name parameters is searched for recursive calls.
-When no recursive call of the function is present it can be implemented with
+If no recursive call of the function is present it can be implemented with
 code inlining. In this case every call of the function is inlined and the actual
 call-by-name parameters replace all occurrences of the formal call-by-name
 parameter in the function body.
 
-When a function cannot be implemented with code inlining (recursive calls occur)
+If a function cannot be implemented with code inlining (recursive calls occur)
 pointers to a closure structure are used as formal call-by-name parameters. This
 closure structure contains a function pointer and a structure which represents
-the environment of the closure. When a formal call-by-name parameter is used the
+the environment of the closure. If a formal call-by-name parameter is used, the
 function of the closure structure is called with a pointer to the closure
 environment as parameter.
 
@@ -2124,7 +2190,7 @@ The number 05 is actually a 'branch info'. As if C had headers like
 and your program must include one of these three headers as first include file
 (Other include files have no version/branch info in the name). That way nobody is
 forced to upgrade an old program (to get no warnings or to make it compile). You
-can leave your old K&R program from 1980 as is. When you decide to rewrite your
+can leave your old K&R program from 1980 as is. If you decide to rewrite your
 K&R program to use prototypes, you change the <stdlib...> include file as well.
 
 Programming languages change over long time periods. This results in different

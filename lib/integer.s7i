@@ -59,7 +59,7 @@ const func integer: + (in integer: number)                          is action "I
 (**
  *  Minus sign, negate an integer number.
  *  @return the negated value of the number.
- *  @exception OVERFLOW_ERROR When an integer overflow occurs.
+ *  @exception OVERFLOW_ERROR If an integer overflow occurs.
  *)
 const func integer: - (in integer: number)                          is action "INT_NEGATE";
 
@@ -76,7 +76,7 @@ const func integer: ! (in integer: number)                          is action "I
 (**
  *  Add two integer numbers.
  *  @return the sum of the two numbers.
- *  @exception OVERFLOW_ERROR When an integer overflow occurs.
+ *  @exception OVERFLOW_ERROR If an integer overflow occurs.
  *)
 const func integer: (in integer: summand1) + (in integer: summand2)    is action "INT_ADD";
 
@@ -84,7 +84,7 @@ const func integer: (in integer: summand1) + (in integer: summand2)    is action
 (**
  *  Compute the subtraction of two integer numbers.
  *  @return the difference of the two numbers.
- *  @exception OVERFLOW_ERROR When an integer overflow occurs.
+ *  @exception OVERFLOW_ERROR If an integer overflow occurs.
  *)
 const func integer: (in integer: minuend) - (in integer: subtrahend)   is action "INT_SBTR";
 
@@ -95,7 +95,7 @@ const integer: (attr integer) . first is -9223372036854775807 - 1;
 (**
  *  Multiply two integer numbers.
  *  @return the product of the two numbers.
- *  @exception OVERFLOW_ERROR When an integer overflow occurs.
+ *  @exception OVERFLOW_ERROR If an integer overflow occurs.
  *)
 const func integer: (in integer: factor1) * (in integer: factor2)      is action "INT_MULT";
 
@@ -110,8 +110,8 @@ const func integer: (in integer: factor1) * (in integer: factor2)      is action
  *   A rem B >= 0 and A rem B < abs(B)     when B <> 0 and A >= 0
  *   A rem B <= 0 and A rem B > -abs(B)    when B <> 0 and A <= 0
  *  @return the quotient of the integer division.
- *  @exception NUMERIC_ERROR When a division by zero occurs.
- *  @exception OVERFLOW_ERROR When an integer overflow occurs.
+ *  @exception NUMERIC_ERROR If a division by zero occurs.
+ *  @exception OVERFLOW_ERROR If an integer overflow occurs.
  *)
 const func integer: (in integer: dividend) div (in integer: divisor)   is action "INT_DIV";
 
@@ -123,8 +123,8 @@ const func integer: (in integer: dividend) div (in integer: divisor)   is action
  *  is equivalent to
  *   A - (A div B) * B
  *  @return the remainder of the integer division.
- *  @exception NUMERIC_ERROR When a division by zero occurs.
- *  @exception OVERFLOW_ERROR When an integer overflow occurs.
+ *  @exception NUMERIC_ERROR If a division by zero occurs.
+ *  @exception OVERFLOW_ERROR If an integer overflow occurs.
  *)
 const func integer: (in integer: dividend) rem (in integer: divisor)   is action "INT_REM";
 
@@ -140,8 +140,8 @@ const func integer: (in integer: dividend) rem (in integer: divisor)   is action
  *   A mod B >= 0 and A mod B < B          when B > 0
  *   A mod B <= 0 and A mod B > B          when B < 0
  *  @return the quotient of the integer division.
- *  @exception NUMERIC_ERROR When a division by zero occurs.
- *  @exception OVERFLOW_ERROR When an integer overflow occurs.
+ *  @exception NUMERIC_ERROR If a division by zero occurs.
+ *  @exception OVERFLOW_ERROR If an integer overflow occurs.
  *)
 const func integer: (in integer: dividend) mdiv (in integer: divisor)  is action "INT_MDIV";
 
@@ -153,8 +153,8 @@ const func integer: (in integer: dividend) mdiv (in integer: divisor)  is action
  *  is equivalent to
  *   A - (A mdiv B) * B
  *  @return the modulo of the integer division.
- *  @exception NUMERIC_ERROR When a division by zero occurs.
- *  @exception OVERFLOW_ERROR When an integer overflow occurs.
+ *  @exception NUMERIC_ERROR If a division by zero occurs.
+ *  @exception OVERFLOW_ERROR If an integer overflow occurs.
  *)
 const func integer: (in integer: dividend) mod (in integer: divisor)   is action "INT_MOD";
 
@@ -166,8 +166,8 @@ const func integer: (in integer: dividend) mod (in integer: divisor)   is action
  *   A ** B  returns -(-A) ** B  for A <= 0 and B >= 0 and odd(B)
  *   A ** B  returns (-A) ** B   for A <= 0 and B >= 0 and not odd(B)
  *  @return the result of the exponentation.
- *  @exception NUMERIC_ERROR When the exponent is negative.
- *  @exception OVERFLOW_ERROR When an integer overflow occurs.
+ *  @exception NUMERIC_ERROR If the exponent is negative.
+ *  @exception OVERFLOW_ERROR If an integer overflow occurs.
  *)
 const func integer: (in integer: base) ** (in integer: exponent)       is action "INT_POW";
 
@@ -176,9 +176,9 @@ const func integer: (in integer: base) ** (in integer: exponent)       is action
  *  Shift an integer number left by lshift bits.
  *  A << B is equivalent to A * 2 ** B
  *  @return the left shifted number.
- *  @exception OVERFLOW_ERROR When the shift amount is
+ *  @exception OVERFLOW_ERROR If the shift amount is
  *             negative or greater equal 64 or
- *             when an integer overflow occurs.
+ *             if an integer overflow occurs.
  *)
 const func integer: (in integer: number) << (in integer: lshift)    is action "INT_LSHIFT";
 
@@ -187,7 +187,7 @@ const func integer: (in integer: number) << (in integer: lshift)    is action "I
  *  Shift an integer number right by rshift bits.
  *  A >> B is equivalent to A mdiv 2 ** B
  *  @return the right shifted number.
- *  @exception OVERFLOW_ERROR When the shift amount is
+ *  @exception OVERFLOW_ERROR If the shift amount is
  *             negative or greater equal 64.
  *)
 const func integer: (in integer: number) >> (in integer: rshift)    is action "INT_RSHIFT";
@@ -195,37 +195,37 @@ const func integer: (in integer: number) >> (in integer: rshift)    is action "I
 
 (**
  *  Increment an integer variable by a delta.
- *  @exception OVERFLOW_ERROR When an integer overflow occurs.
+ *  @exception OVERFLOW_ERROR If an integer overflow occurs.
  *)
 const proc: (inout integer: number) +:= (in integer: delta)         is action "INT_ADD_ASSIGN";
 
 
 (**
  *  Decrement an integer variable by a delta.
- *  @exception OVERFLOW_ERROR When an integer overflow occurs.
+ *  @exception OVERFLOW_ERROR If an integer overflow occurs.
  *)
 const proc: (inout integer: number) -:= (in integer: delta)         is action "INT_SBTR_ASSIGN";
 
 
 (**
  *  Multiply an integer number by a factor and assign the result back to number.
- *  @exception OVERFLOW_ERROR When an integer overflow occurs.
+ *  @exception OVERFLOW_ERROR If an integer overflow occurs.
  *)
 const proc: (inout integer: number) *:= (in integer: factor)        is action "INT_MULT_ASSIGN";
 
 
 (**
  *  Shift a number left by lshift bits and assign the result back to number.
- *  @exception OVERFLOW_ERROR When the shift amount is
+ *  @exception OVERFLOW_ERROR If the shift amount is
  *             negative or greater equal 64 or
- *             when an integer overflow occurs.
+ *             if an integer overflow occurs.
  *)
 const proc: (inout integer: number) <<:= (in integer: lshift)       is action "INT_LSHIFT_ASSIGN";
 
 
 (**
  *  Shift a number right by rshift bits and assign the result back to number.
- *  @exception OVERFLOW_ERROR When the shift amount is
+ *  @exception OVERFLOW_ERROR If the shift amount is
  *             negative or greater equal 64.
  *)
 const proc: (inout integer: number) >>:= (in integer: rshift)       is action "INT_RSHIFT_ASSIGN";
@@ -240,7 +240,7 @@ const proc: (inout integer: number) >>:= (in integer: rshift)       is action "I
  *   n ! k  returns  !n div (!k * !(n - k))       for k >= 0 and k <= n,
  *   n ! k  returns  (-1) ** k * (n + k - 1 ! k)  for n < 0 and k >= 0
  *  @return the binomial coefficient n over k
- *  @exception OVERFLOW_ERROR When the result would be less than
+ *  @exception OVERFLOW_ERROR If the result would be less than
  *             integer.first or greater than integer.last.
  *)
 const func integer: (in integer: n) ! (in integer: k)               is action "INT_BINOM";
@@ -313,7 +313,7 @@ const func integer: hashCode (in integer: number)                is action "INT_
 (**
  *  Successor of an integer number.
  *  @return number + 1
- *  @exception OVERFLOW_ERROR When an integer overflow occurs.
+ *  @exception OVERFLOW_ERROR If an integer overflow occurs.
  *)
 const func integer: succ (in integer: number)                    is action "INT_SUCC";
 
@@ -321,7 +321,7 @@ const func integer: succ (in integer: number)                    is action "INT_
 (**
  *  Predecessor of an integer number.
  *  @return number - 1
- *  @exception OVERFLOW_ERROR When an integer overflow occurs.
+ *  @exception OVERFLOW_ERROR If an integer overflow occurs.
  *)
 const func integer: pred (in integer: number)                    is action "INT_PRED";
 
@@ -329,7 +329,7 @@ const func integer: pred (in integer: number)                    is action "INT_
 (**
  *  Compute the absolute value of an integer number.
  *  @return the absolute value.
- *  @exception OVERFLOW_ERROR When an integer overflow occurs.
+ *  @exception OVERFLOW_ERROR If an integer overflow occurs.
  *)
 const func integer: abs (in integer: number)                     is action "INT_ABS";
 
@@ -337,7 +337,7 @@ const func integer: abs (in integer: number)                     is action "INT_
 (**
  *  Compute the integer square root of an integer radicand.
  *  @return the integer square root.
- *  @exception NUMERIC_ERROR When the radicand is negative.
+ *  @exception NUMERIC_ERROR If the radicand is negative.
  *)
 const func integer: sqrt (in integer: radicand)                  is action "INT_SQRT";
 
@@ -425,7 +425,7 @@ const func string: literal (in integer: number)                  is action "INT_
  *  @param number Number to be converted to a [[string]].
  *  @param base Base of the numeral system used for the conversion.
  *  @return the string result of the conversion.
- *  @exception RANGE_ERROR When base < 2 or base > 36 holds.
+ *  @exception RANGE_ERROR If base < 2 or base > 36 holds.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  *)
 const func string: (in integer: number) radix (in integer: base) is action "INT_radix";
@@ -442,7 +442,7 @@ const func string: (in integer: number) radix (in integer: base) is action "INT_
  *  @param number Number to be converted to a [[string]].
  *  @param base Base of the numeral system used for the conversion.
  *  @return the string result of the conversion.
- *  @exception RANGE_ERROR When base < 2 or base > 36 holds.
+ *  @exception RANGE_ERROR If base < 2 or base > 36 holds.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  *)
 const func string: (in integer: number) RADIX (in integer: base) is action "INT_RADIX";
@@ -469,7 +469,7 @@ const func string: (in integer: number) lpad0 (in integer: length) is action "IN
  *  Increments ''number'' by 1.
  *  This is equivalent to:
  *   number := succ(number);
- *  @exception OVERFLOW_ERROR When an integer overflow occurs.
+ *  @exception OVERFLOW_ERROR If an integer overflow occurs.
  *)
 const proc: incr (inout integer: number)                         is action "INT_INCR";
 
@@ -479,7 +479,7 @@ const proc: incr (inout integer: number)                         is action "INT_
  *  Decrements ''number'' by 1.
  *  This is equivalent to:
  *   number := pred(number);
- *  @exception OVERFLOW_ERROR When an integer overflow occurs.
+ *  @exception OVERFLOW_ERROR If an integer overflow occurs.
  *)
 const proc: decr (inout integer: number)                         is action "INT_DECR";
 
@@ -518,8 +518,8 @@ const func integer: lowestSetBit (in integer: number)            is action "INT_
  *  characters as well as leading or trailing whitespace characters
  *  are not allowed. The sequence of digits is taken to be decimal.
  *  @return the ''integer'' result of the conversion.
- *  @exception RANGE_ERROR When the string is empty or it does not contain
- *             an integer literal or when the integer literal is too big
+ *  @exception RANGE_ERROR If the string is empty or it does not contain
+ *             an integer literal or if the integer literal is too big
  *             or too small to be represented as ''integer'' value.
  *)
 const func integer: integer (in string: stri)                    is action "INT_PARSE1";
@@ -532,8 +532,8 @@ const func integer: integer (in string: stri)                    is action "INT_
  *  characters as well as leading or trailing whitespace characters
  *  are not allowed. The sequence of digits is taken to be decimal.
  *  @return the ''integer'' result of the conversion.
- *  @exception RANGE_ERROR When the string is empty or it does not contain
- *             an integer literal or when the integer literal is too big
+ *  @exception RANGE_ERROR If the string is empty or it does not contain
+ *             an integer literal or if the integer literal is too big
  *             or too small to be represented as ''integer'' value.
  *)
 const func integer: (attr integer) parse (in string: stri) is
@@ -556,7 +556,7 @@ const func integer: (attr integer) parse (in string: stri) is
  *  @param stri Numeric string to be converted to an integer.
  *  @param base Radix of the integer in the ''stri'' parameter.
  *  @return the ''integer'' result of the conversion.
- *  @exception RANGE_ERROR When base < 2 or base > 36 holds or
+ *  @exception RANGE_ERROR If base < 2 or base > 36 holds or
  *             the string is empty or it does not contain an integer
  *             literal with the specified base.
  *)
@@ -582,9 +582,9 @@ const func integer: integer (in string: stri, in integer: base)  is forward;
  *   -0 sci 2        returns "0.00e+0"
  *  @param number Number to be converted to a string.
  *  @param precision Number of digits after the decimal point.
- *         When the ''precision'' is zero the decimal point is omitted.
+ *         If the ''precision'' is zero the decimal point is omitted.
  *  @return the string result of the conversion.
- *  @exception RANGE_ERROR When the ''precision'' is negative.
+ *  @exception RANGE_ERROR If the ''precision'' is negative.
  *)
 const func string: (in integer: number) sci (in integer: precision)  is forward;
 

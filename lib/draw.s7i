@@ -691,7 +691,6 @@ const func string: str (in PRIMITIVE_WINDOW: image, BMP) is func
     var integer: line is 0;
     var integer: column is 0;
     var bstring: bImage is bstring.value;
-    var integer: index is 1;
     var color: col is color.value;
   begin
     width := width(image);
@@ -720,7 +719,6 @@ const func string: str (in PRIMITIVE_WINDOW: image, BMP) is func
         stri &:= chr(col.blueLight  div 256);
         stri &:= chr(col.greenLight div 256);
         stri &:= chr(col.redLight   div 256);
-        incr(index);
       end for;
       stri &:= "\0;" mult padding;
     end for;

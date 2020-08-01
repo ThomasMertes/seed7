@@ -154,7 +154,7 @@ intType timMicroSec (void)
  *  Determine the current local time.
  *  @param time_zone Difference to UTC in minutes (for UTC+1 it is 60).
  *                   The time_zone includes the effect of a daylight saving time.
- *  @param is_dst Is TRUE, when a daylight saving time is currently in effect.
+ *  @param is_dst Is TRUE, if a daylight saving time is currently in effect.
  */
 void timNow (intType *year, intType *month, intType *day, intType *hour,
     intType *min, intType *sec, intType *micro_sec, intType *time_zone,
@@ -279,9 +279,9 @@ struct tm *alternate_localtime_r (time_t *utc_seconds, struct tm *tm_result)
  *  Since a directory is a form of file the utime function should
  *  work for directories also. Unfortunately the windows function
  *  utime does not behave this way. Under windows utime fails with
- *  EACCES when it is called for a directory. In this case
+ *  EACCES if it is called for a directory. In this case
  *  alternate_utime uses win32 functions to work for directories.
- *  When the windows function utime is called for a volume it
+ *  If the windows function utime is called for a volume it
  *  fails with ENOENT. This case is recognized and alternate_utime
  *  uses win32 functions to work for volumes.
  */

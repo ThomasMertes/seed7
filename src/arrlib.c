@@ -813,7 +813,7 @@ objectType arr_head (listType arguments)
 /**
  *  Access one element from the array 'arr'.
  *  @return the element with the specified 'position' from 'arr'.
- *  @exception RANGE_ERROR When 'position' is less than arr_minidx(arr) or
+ *  @exception RANGE_ERROR If 'position' is less than arr_minidx(arr) or
  *                         greater than arr_maxidx(arr)
  */
 objectType arr_idx (listType arguments)
@@ -1065,7 +1065,7 @@ objectType arr_range (listType arguments)
 /**
  *  Remove the element with 'position' from 'arr1' and return the removed element.
  *  @return the removed element.
- *  @exception RANGE_ERROR When 'position' is less than arr_minidx(arr2) or
+ *  @exception RANGE_ERROR If 'position' is less than arr_minidx(arr2) or
  *                         greater than arr_maxidx(arr2)
  */
 objectType arr_remove (listType arguments)
@@ -1306,7 +1306,7 @@ objectType arr_tail (listType arguments)
 /**
  *  Generate an array by using 'factor' 'elements'.
  *  @return an array with 'factor' 'elements'.
- *  @exception RANGE_ERROR When 'factor' is negative.
+ *  @exception RANGE_ERROR If 'factor' is negative.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  */
 objectType arr_times (listType arguments)
@@ -1360,7 +1360,7 @@ objectType arr_times (listType arguments)
           while (position < result_size) {
             if (unlikely(!arr_elem_initialisation(result_element_type,
                                                   &elem_to[position], elem_to))) {
-              /* When one create fails (mostly no memory) all elements */
+              /* If a create fails (mostly no memory) all elements     */
               /* created up to this point must be destroyed to recycle */
               /* the memory correct. */
               destr_array(elem_to, position);

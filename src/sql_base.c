@@ -34,10 +34,13 @@
 
 #include "version.h"
 
+#include "stdlib.h"
 #include "stdio.h"
+#include "string.h"
 #include "stdarg.h"
 
 #include "common.h"
+#include "heaputl.h"
 
 #undef EXTERN
 #define EXTERN
@@ -70,3 +73,35 @@ void dbInconsistentMsg (const char *funcName, const char *dbFuncName,
     dbLibError(funcName, dbFuncName, "Db interface inconsistent: %s(%d)",
                file, line);
   } /* dbInconsistentMsg */
+
+
+
+void dllErrorMessage (const char *funcName, const char *dbFuncName,
+    const char *dllList[], memSizeType dllListSize)
+
+  {
+    unsigned int pos;
+    memSizeType dllNamesSize = 0;
+    char *dllNames;
+    char *currPos;
+
+  /* dllErrorMessage */
+    for (pos = 0; pos < dllListSize / sizeof(char *); pos++) {
+      dllNamesSize += strlen(dllList[pos]) + 2; /* 2 chars for comma and space */
+    } /* for */
+    if (ALLOC_CSTRI(dllNames, dllNamesSize)) {
+      currPos = dllNames;
+      currPos[0] = '\0';
+      for (pos = 0; pos < dllListSize / sizeof(char *); pos++) {
+        currPos += sprintf(currPos, "%s, ", dllList[pos]);
+      } /* for */
+      if (currPos != dllNames) {
+        currPos[-2] = '\0';
+      } /* if */
+      dbLibError(funcName, dbFuncName,
+                 "Searching for dynamic libraries failed: %s\n", dllNames);
+      logError(printf("%s: Searching for dynamic libraries failed: %s\n",
+                      dbFuncName, dllNames););
+      UNALLOC_CSTRI(dllNames, dllNamesSize);
+    } /* if */
+  } /* dllErrorMessage */

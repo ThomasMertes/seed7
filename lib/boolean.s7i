@@ -72,7 +72,7 @@ const func boolean: not (in boolean: boolValue)                          is acti
 (**
  *  Logical ''and'' for two boolean values.
  *  The logical ''and'' operator works strictly left to right.
- *  When the result can be determined after the evaluation of
+ *  If the result can be determined after the evaluation of
  *  ''boolValue1'' the right operand (''boolValue2'') is not evaluated.
  *  @return TRUE if boolValue1 is TRUE and boolValue2 is TRUE,
  *          FALSE otherwise.
@@ -85,7 +85,7 @@ const func boolean: (in boolean: boolValue1) and (in boolean: boolValue2)       
 (**
  *  Inclusive logical ''or'' for two boolean values.
  *  The logical ''or'' operator works strictly left to right.
- *  When the result can be determined after the evaluation of
+ *  If the result can be determined after the evaluation of
  *  ''boolValue1'' the right operand (''boolValue2'') is not evaluated.
  *  @return TRUE if boolValue1 is TRUE or boolValue2 is TRUE (or both are true),
  *          FALSE otherwise.
@@ -161,15 +161,15 @@ const func integer: hashCode (in boolean: aBoolean)                      is acti
 
 (**
  *  Convert to [[integer]].
- *  @return 0 when boolValue is FALSE and
- *          1 when boolValue is TRUE.
+ *  @return 0 if boolValue is FALSE and
+ *          1 if boolValue is TRUE.
  *)
 const func integer: ord (in boolean: boolValue)                          is action "BLN_ORD";
 
 
 (**
  *  Convert an [[integer]] to a boolean value.
- *  @return TRUE when number is odd,
+ *  @return TRUE if number is odd,
  *          FALSE otherwise.
  *)
 const func boolean: boolean (in integer: number)                         is action "BLN_ICONV1";
@@ -177,7 +177,7 @@ const func boolean: boolean (in integer: number)                         is acti
 
 (**
  *  Convert an [[integer]] to a boolean value.
- *  @return TRUE when number is odd,
+ *  @return TRUE if number is odd,
  *          FALSE otherwise.
  *)
 const func boolean: (attr boolean) conv (in integer: number)             is action "BLN_ICONV3";
@@ -192,14 +192,14 @@ const boolean: pred (TRUE) is  FALSE;
 
 (**
  *  Successor of a boolean value.
- *  @return TRUE, when the boolean value is FALSE.
+ *  @return TRUE, if the boolean value is FALSE.
  *)
 const func boolean: succ (ref boolean: boolValue) is DYNAMIC;
 
 
 (**
  *  Predecessor of a boolean value.
- *  @return FALSE, when the boolean value is TRUE.
+ *  @return FALSE, if the boolean value is TRUE.
  *)
 const func boolean: pred (ref boolean: boolValue) is DYNAMIC;
 
@@ -225,7 +225,7 @@ const proc: decr (inout boolean: boolValue) is func
 (**
  *  Convert a boolean value to a [[string]].
  *  The boolean value is converted to the string "TRUE" or "FALSE.
- *  @return "TRUE" when aBool is TRUE,
+ *  @return "TRUE" if aBool is TRUE,
  *          "FALSE" otherwise.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  *)
@@ -235,7 +235,7 @@ const func string: str (in boolean: aBool) is forward;
 (**
  *  Convert a boolean value to a boolean literal.
  *  The boolean value is converted to the string "TRUE" or "FALSE.
- *  @return "TRUE" when aBool is TRUE,
+ *  @return "TRUE" if aBool is TRUE,
  *          "FALSE" otherwise.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  *)
@@ -245,7 +245,7 @@ const func string: literal (in boolean: aBool) is forward;
 (**
  *  Convert a [[string]] to a boolean value.
  *  @return the boolean result of the conversion.
- *  @exception RANGE_ERROR When the string is not equal to
+ *  @exception RANGE_ERROR If the string is not equal to
  *             "TRUE" or "FALSE".
  *)
 const func boolean: (attr boolean) parse (in string: stri) is forward;
@@ -254,7 +254,7 @@ const func boolean: (attr boolean) parse (in string: stri) is forward;
 (**
  *  Convert a [[string]] to a boolean value.
  *  @return the boolean result of the conversion.
- *  @exception RANGE_ERROR When the string is not equal to
+ *  @exception RANGE_ERROR If the string is not equal to
  *             "TRUE" or "FALSE".
  *)
 const func boolean: boolean (in string: stri) is

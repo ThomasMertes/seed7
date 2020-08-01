@@ -124,7 +124,7 @@ const func integer: reverseBits (in integer: size, in var integer: bits) is func
  *  @param stri String of bytes from which the bit is read.
  *  @param bytePos Current byte position in ''stri''.
  *  @param bitPos Current bit position between 0 (=LSB) and 7 (=MSB).
- *  @exception RANGE_ERROR When the end of ''stri'' has been reached.
+ *  @exception RANGE_ERROR If the end of ''stri'' has been reached.
  *)
 const func integer: getBitLsb (in string: stri, inout integer: bytePos,
     inout integer: bitPos) is func
@@ -146,7 +146,7 @@ const func integer: getBitLsb (in string: stri, inout integer: bytePos,
  *  The bits are read at the current byte and bit position. Afterwards
  *  byte and bit position are advanced by ''bitWidth'' bits. The read
  *  direction is from LSB (least significant bit) to MSB (most significant bit).
- *  When bits from the next byte(s) are read a byte order of little-endian
+ *  If bits from the next byte(s) are read a byte order of little-endian
  *  is used.
  *   stri := "\2#01101011;\2#1110;"; bytePos := 1; bitPos := 5;
  *   #           011           10
@@ -157,7 +157,7 @@ const func integer: getBitLsb (in string: stri, inout integer: bytePos,
  *  @param bytePos Current byte position in ''stri''.
  *  @param bitPos Current bit position between 0 (=LSB) and 7 (=MSB).
  *  @param bitWidth Number of bits requested.
- *  @exception RANGE_ERROR When the end of ''stri'' has been reached.
+ *  @exception RANGE_ERROR If the end of ''stri'' has been reached.
  *)
 const func integer: getBitsLsb (in string: stri, inout integer: bytePos,
     inout integer: bitPos, in var integer: bitWidth) is func
@@ -280,7 +280,7 @@ const proc: putBitsLsb (inout string: stri, inout integer: bitPos, in var intege
  *  @param stri String of bytes from which the bit is read.
  *  @param bytePos Current byte position in ''stri''.
  *  @param bitPos Current bit position between 0 (=MSB) and 7 (=LSB).
- *  @exception RANGE_ERROR When the end of ''stri'' has been reached.
+ *  @exception RANGE_ERROR If the end of ''stri'' has been reached.
  *)
 const func integer: getBitMsb (in string: stri, inout integer: bytePos,
     inout integer: bitPos) is func
@@ -302,7 +302,7 @@ const func integer: getBitMsb (in string: stri, inout integer: bytePos,
  *  The bits are read at the current byte and bit position. Afterwards
  *  byte and bit position are advanced by ''bitWidth'' bits. The read
  *  direction is from MSB (most significant bit) to LSB (least significant bit).
- *  When bits from the next byte(s) are read a byte order of big-endian is used.
+ *  If bits from the next byte(s) are read a byte order of big-endian is used.
  *   stri := "\2#01011100;\2#11010110;"; bytePos := 1; bitPos := 5;
  *   #                100    11
  *   #         higher bits  lower bits
@@ -312,7 +312,7 @@ const func integer: getBitMsb (in string: stri, inout integer: bytePos,
  *  @param bytePos Current byte position in ''stri''.
  *  @param bitPos Current bit position between 0 (=MSB) and 7 (=LSB).
  *  @param bitWidth Number of bits requested.
- *  @exception RANGE_ERROR When the end of ''stri'' has been reached.
+ *  @exception RANGE_ERROR If the end of ''stri'' has been reached.
  *)
 const func integer: getBitsMsb (in string: stri, inout integer: bytePos,
     inout integer: bitPos, in var integer: bitWidth) is func
@@ -432,7 +432,7 @@ const proc: putBitsMsb (inout string: stri, inout integer: bitPos, in var intege
  *  @param inFile File of bytes from which the bit is read.
  *  @param bitPos Current bit position between 0 and 8.
  *                0 = LSB, 7 = MSB, 8 = A bitPos of 0 (=LSB) in the next byte.
- *  @exception FILE_ERROR When reading from ''inFile'' fails.
+ *  @exception FILE_ERROR If reading from ''inFile'' fails.
  *)
 const func integer: getBitLsb (inout file: inFile, inout integer: bitPos) is func
   result
@@ -454,13 +454,13 @@ const func integer: getBitLsb (inout file: inFile, inout integer: bitPos) is fun
  *  The bits are read at the current byte and bit position. Afterwards
  *  byte and bit position are advanced by ''bitWidth'' bits. The read
  *  direction is from LSB (least significant bit) to MSB (most significant bit).
- *  When bits from the next byte(s) are read a byte order of little-endian
+ *  If bits from the next byte(s) are read a byte order of little-endian
  *  is used.
  *  @param inFile File of bytes from which the bits are read.
  *  @param bitPos Current bit position between 0 and 8.
  *                0 = LSB, 7 = MSB, 8 = A bitPos of 0 (=LSB) in the next byte.
  *  @param bitWidth Number of bits requested.
- *  @exception FILE_ERROR When reading from ''inFile'' fails.
+ *  @exception FILE_ERROR If reading from ''inFile'' fails.
  *)
 const func integer: getBitsLsb (inout file: inFile, inout integer: bitPos,
     in var integer: bitWidth) is func
@@ -568,7 +568,7 @@ const proc: putBitsLsb (inout file: outFile, inout integer: bitPos, in var integ
  *  @param inFile File of bytes from which the bit is read.
  *  @param bitPos Current bit position between 0 and 8.
  *                0 = MSB, 7 = LSB, 8 = A bitPos of 0 (=MSB) in the next byte.
- *  @exception FILE_ERROR When reading from ''inFile'' fails.
+ *  @exception FILE_ERROR If reading from ''inFile'' fails.
  *)
 const func integer: getBitMsb (inout file: inFile, inout integer: bitPos) is func
   result
@@ -590,13 +590,13 @@ const func integer: getBitMsb (inout file: inFile, inout integer: bitPos) is fun
  *  The bits are read at the current byte and bit position. Afterwards
  *  byte and bit position are advanced by ''bitWidth'' bits. The read
  *  direction is from MSB (most significant bit) to LSB (least significant bit).
- *  When bits from the next byte(s) are read a byte order of big-endian
+ *  If bits from the next byte(s) are read a byte order of big-endian
  *  is used.
  *  @param inFile File of bytes from which the bits are read.
  *  @param bitPos Current bit position between 0 and 8.
  *                0 = MSB, 7 = LSB, 8 = A bitPos of 0 (=MSB) in the next byte.
  *  @param bitWidth Number of bits requested.
- *  @exception FILE_ERROR When reading from ''inFile'' fails.
+ *  @exception FILE_ERROR If reading from ''inFile'' fails.
  *)
 const func integer: getBitsMsb (inout file: inFile, inout integer: bitPos,
     in var integer: bitWidth) is func

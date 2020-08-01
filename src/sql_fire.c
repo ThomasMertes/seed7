@@ -347,10 +347,7 @@ static boolType findDll (void)
       found = setupDll(dllList[pos]);
     } /* for */
     if (!found) {
-      logError(printf("findDll: Searched for:\n");
-               for (pos = 0; pos < sizeof(dllList) / sizeof(char *); pos++) {
-                 printf("%s\n", dllList[pos]);
-               });
+      dllErrorMessage("sqlOpenFire", "findDll", dllList, sizeof(dllList));
     } /* if */
     return found;
   } /* findDll */
@@ -3675,7 +3672,7 @@ databaseType sqlOpenFire (const const_striType host, intType port,
                 printf("\"%s\")\n", striAsUnquotedCStri(password)););
     if (!findDll()) {
       logError(printf("sqlOpenFire: findDll() failed\n"););
-      err_info = FILE_ERROR;
+      err_info = DATABASE_ERROR;
       database = NULL;
     } else {
       fileName = cmdToOsPath(dbName);

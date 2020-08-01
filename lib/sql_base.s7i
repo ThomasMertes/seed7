@@ -191,13 +191,8 @@ const func database: openDatabase (DB_FIRE, in string: host,
                                    in integer: port, in string: dbName,
                                    in string: user, in string: password) is action "SQL_OPEN_FIRE";
 
-const func database: openDatabase (DB_ODBC, in string: odbcDriver,
-                                   in string: server, in string: dbName,
-                                   in string: user, in string: password) is action "SQL_OPEN_ODBC";
-
-
 (**
- *  Open the database ''dbPath'' with the specified ''user'' and ''password''.
+ *  Open database with ''host'', ''port'', ''dbName'' ''user'' and ''password''.
  *  @param driver Database driver to be used.
  *  @param host The host can be specified by name, with an IPv4 address or with
  *         an IPv6 address. If ''host'' is empty it is assumed to be "localhost".
@@ -207,14 +202,33 @@ const func database: openDatabase (DB_ODBC, in string: odbcDriver,
  *  @param user Database user name.
  *  @param password Database password.
  *  @return the database connection.
- *  @exception FILE_ERROR When the DLL of the database could not be found.
- *  @exception RANGE_ERROR When dbPath, user or password cannot be converted to
+ *  @exception RANGE_ERROR If dbPath, user or password cannot be converted to
  *                         the character set of the database.
- *  @exception DATABASE_ERROR The connection to the database failed.
+ *  @exception DATABASE_ERROR If the DLL of the database could not be found, or
+ *                            the connection to the database failed.
  *)
 const func database: openDatabase (in dbCategory: driver, in string: host,
                                    in integer: port, in string: dbName,
                                    in string: user, in string: password) is DYNAMIC;
+
+
+(**
+ *  Open ODBC database with ''odbcDriver'', ''server'', ''dbName'' ''user'' and ''password''.
+ *  @param driver Database driver to be used (DB_ODBC).
+ *  @param odbcDriver The name of the ODBC driver (e.g.: "sqlserver").
+ *  @param server The database server to be used.
+ *  @param dbName The name of the database at the specified ''server''.
+ *  @param user Database user name.
+ *  @param password Database password.
+ *  @return the database connection.
+ *  @exception RANGE_ERROR If dbPath, user or password cannot be converted to
+ *                         the character set of the database.
+ *  @exception DATABASE_ERROR If the DLL of the database could not be found, or
+ *                            the connection to the database failed.
+ *)
+const func database: openDatabase (DB_ODBC, in string: odbcDriver,
+                                   in string: server, in string: dbName,
+                                   in string: user, in string: password) is action "SQL_OPEN_ODBC";
 
 
 (**
@@ -228,29 +242,29 @@ const func database: openDatabase (in dbCategory: driver, in string: host,
  *  (e.g.: [1234:feed::dead:beef]). Note that an IPv6 address must be enclosed
  *  in brackets.
  *
- *  When ''driver'' is DB_ODBC the ''dbPath'' can be in one of the forms:
+ *  If ''driver'' is DB_ODBC the ''dbPath'' can be in one of the forms:
  *  * odbcDriver:dbServer/dbName
  *  * dbServer/dbName
  *  * dbServer
  *  * odbcDataSourceName
  *  The ''odbcDriver'' can have a value like ''sqlserver''.
  *
- *  When ''driver'' is DB_SQLITE the ''dbPath'' is the path of a database file:
+ *  If ''driver'' is DB_SQLITE the ''dbPath'' is the path of a database file:
  *  * sqlitePath
  *  The ''sqlitePath'' uses the Seed7 standard path representation.
  *
  *  @param driver Database driver to be used.
  *  @param dbPath Database name in one of the forms listed above.
- *         When no host is specified the host "localhost" is used.
- *         When no port is specified the port of the database driver is used.
- *         When no odbcDriver is specified "sqlserver" is used.
+ *         If no host is specified the host "localhost" is used.
+ *         If no port is specified the port of the database driver is used.
+ *         If no odbcDriver is specified "sqlserver" is used.
  *  @param user Database user name.
  *  @param password Database password.
  *  @return the database connection.
- *  @exception FILE_ERROR When the DLL of the database could not be found.
- *  @exception RANGE_ERROR When dbPath, user or password cannot be converted to
+ *  @exception RANGE_ERROR If dbPath, user or password cannot be converted to
  *                         the character set of the database.
- *  @exception DATABASE_ERROR The connection to the database failed.
+ *  @exception DATABASE_ERROR If the DLL of the database could not be found, or
+ *                            the connection to the database failed.
  *)
 const func database: openDatabase (in dbCategory: driver, in string: dbPath,
                                    in string: user, in string: password) is func
@@ -337,13 +351,13 @@ const func database: openDatabase (in dbCategory: driver, in string: dbPath,
  *  an IPv6 address).
  *  @param driver Database driver to be used.
  *  @param connectStri Connection string in one of the forms listed above.
- *         When no user is specified the user "guest" is used.
- *         When no password is specified the password "guest" is used.
+ *         If no user is specified the user "guest" is used.
+ *         If no password is specified the password "guest" is used.
  *  @return the database connection.
- *  @exception FILE_ERROR When the DLL of the database could not be found.
- *  @exception RANGE_ERROR When dbPath, user or password cannot be converted to
+ *  @exception RANGE_ERROR If dbPath, user or password cannot be converted to
  *                         the character set of the database.
- *  @exception DATABASE_ERROR The connection to the database failed.
+ *  @exception DATABASE_ERROR If the DLL of the database could not be found, or
+ *                            the connection to the database failed.
  *)
 const func database: openDatabase (in dbCategory: driver,
                                    in string: connectStri) is func
@@ -378,7 +392,7 @@ const func database: openDatabase (in dbCategory: driver,
 (**
  *  Close the specified database ''db''.
  *  @param database Database to be closed.
- *  @exception RANGE_ERROR When the database was not open.
+ *  @exception RANGE_ERROR If the database was not open.
  *)
 const proc: close (in database: db)                                                    is action "SQL_CLOSE";
 
@@ -389,6 +403,7 @@ const proc: close (in database: db)                                             
  *         be created.
  *  @param sqlStatementStri SQL statement in a string. For bind variables
  *         use a question mark (?).
+ *  @exception RANGE_ERROR If the database is not open.
  *)
 const func sqlStatement: prepare (in database: db, in string: sqlStatementStri)        is action "SQL_PREPARE";
 
@@ -398,10 +413,10 @@ const func sqlStatement: prepare (in database: db, in string: sqlStatementStri) 
  *  @param statement Prepared statement.
  *  @param pos Position of the bind variable (starting with 1).
  *  @param num Value for the binding.
- *  @exception RANGE_ERROR When the statement was not prepared or
- *                         when ''pos'' is negative or too big or
- *                         when ''num'' cannot be converted.
- *  @exception DATABASE_ERROR When a database function fails.
+ *  @exception RANGE_ERROR If the statement was not prepared or
+ *                         if ''pos'' is negative or too big or
+ *                         if ''num'' cannot be converted.
+ *  @exception DATABASE_ERROR If a database function fails.
  *)
 const proc: bind (inout sqlStatement: statement, in integer: pos, in bigInteger: num)  is action "SQL_BIND_BIGINT";
 
@@ -411,10 +426,10 @@ const proc: bind (inout sqlStatement: statement, in integer: pos, in bigInteger:
  *  @param statement Prepared statement.
  *  @param pos Position of the bind variable (starting with 1).
  *  @param bigRatData Value for the binding.
- *  @exception RANGE_ERROR When the statement was not prepared or
- *                         when ''pos'' is negative or too big or
- *                         when ''bigRatData'' cannot be converted.
- *  @exception DATABASE_ERROR When a database function fails.
+ *  @exception RANGE_ERROR If the statement was not prepared or
+ *                         if ''pos'' is negative or too big or
+ *                         if ''bigRatData'' cannot be converted.
+ *  @exception DATABASE_ERROR If a database function fails.
  *)
 const proc: bind (inout sqlStatement: statement, in integer: pos, in bigRational: bigRatData) is func
   begin
@@ -428,10 +443,10 @@ const proc: bind (inout sqlStatement: statement, in integer: pos, in bigRational
  *  @param statement Prepared statement.
  *  @param pos Position of the bind variable (starting with 1).
  *  @param flag Value for the binding.
- *  @exception RANGE_ERROR When the statement was not prepared or
- *                         when ''pos'' is negative or too big or
- *                         when ''flag'' cannot be converted.
- *  @exception DATABASE_ERROR When a database function fails.
+ *  @exception RANGE_ERROR If the statement was not prepared or
+ *                         if ''pos'' is negative or too big or
+ *                         if ''flag'' cannot be converted.
+ *  @exception DATABASE_ERROR If a database function fails.
  *)
 const proc: bind (inout sqlStatement: statement, in integer: pos, in boolean: flag)    is action "SQL_BIND_BOOL";
 
@@ -441,10 +456,10 @@ const proc: bind (inout sqlStatement: statement, in integer: pos, in boolean: fl
  *  @param statement Prepared statement.
  *  @param pos Position of the bind variable (starting with 1).
  *  @param bstri Value for the binding.
- *  @exception RANGE_ERROR When the statement was not prepared or
- *                         when ''pos'' is negative or too big or
- *                         when ''bstri'' cannot be converted.
- *  @exception DATABASE_ERROR When a database function fails.
+ *  @exception RANGE_ERROR If the statement was not prepared or
+ *                         if ''pos'' is negative or too big or
+ *                         if ''bstri'' cannot be converted.
+ *  @exception DATABASE_ERROR If a database function fails.
  *)
 const proc: bind (inout sqlStatement: statement, in integer: pos, in bstring: bstri)   is action "SQL_BIND_BSTRI";
 
@@ -454,10 +469,10 @@ const proc: bind (inout sqlStatement: statement, in integer: pos, in bstring: bs
  *  @param statement Prepared statement.
  *  @param pos Position of the bind variable (starting with 1).
  *  @param number Value for the binding.
- *  @exception RANGE_ERROR When the statement was not prepared or
- *                         when ''pos'' is negative or too big or
- *                         when ''number'' cannot be converted.
- *  @exception DATABASE_ERROR When a database function fails.
+ *  @exception RANGE_ERROR If the statement was not prepared or
+ *                         if ''pos'' is negative or too big or
+ *                         if ''number'' cannot be converted.
+ *  @exception DATABASE_ERROR If a database function fails.
  *)
 const proc: bind (inout sqlStatement: statement, in integer: pos, in float: number)    is action "SQL_BIND_FLOAT";
 
@@ -467,10 +482,10 @@ const proc: bind (inout sqlStatement: statement, in integer: pos, in float: numb
  *  @param statement Prepared statement.
  *  @param pos Position of the bind variable (starting with 1).
  *  @param number Value for the binding.
- *  @exception RANGE_ERROR When the statement was not prepared or
- *                         when ''pos'' is negative or too big or
- *                         when ''number'' cannot be converted.
- *  @exception DATABASE_ERROR When a database function fails.
+ *  @exception RANGE_ERROR If the statement was not prepared or
+ *                         if ''pos'' is negative or too big or
+ *                         if ''number'' cannot be converted.
+ *  @exception DATABASE_ERROR If a database function fails.
  *)
 const proc: bind (inout sqlStatement: statement, in integer: pos, in integer: number)  is action "SQL_BIND_INT";
 
@@ -479,9 +494,9 @@ const proc: bind (inout sqlStatement: statement, in integer: pos, in integer: nu
  *  Bind a NULL parameter to a prepared SQL statement.
  *  @param statement Prepared statement.
  *  @param pos Position of the bind variable (starting with 1).
- *  @exception RANGE_ERROR When the statement was not prepared or
- *                         when ''pos'' is negative or too big.
- *  @exception DATABASE_ERROR When a database function fails.
+ *  @exception RANGE_ERROR If the statement was not prepared or
+ *                         if ''pos'' is negative or too big.
+ *  @exception DATABASE_ERROR If a database function fails.
  *)
 const proc: bind (inout sqlStatement: statement, in integer: pos, NULL)                is action "SQL_BIND_NULL";
 
@@ -491,10 +506,10 @@ const proc: bind (inout sqlStatement: statement, in integer: pos, NULL)         
  *  @param statement Prepared statement.
  *  @param pos Position of the bind variable (starting with 1).
  *  @param stri Value for the binding.
- *  @exception RANGE_ERROR When the statement was not prepared or
- *                         when ''pos'' is negative or too big or
- *                         when ''stri'' cannot be converted.
- *  @exception DATABASE_ERROR When a database function fails.
+ *  @exception RANGE_ERROR If the statement was not prepared or
+ *                         if ''pos'' is negative or too big or
+ *                         if ''stri'' cannot be converted.
+ *  @exception DATABASE_ERROR If a database function fails.
  *)
 const proc: bind (inout sqlStatement: statement, in integer: pos, in string: stri)     is action "SQL_BIND_STRI";
 
@@ -504,10 +519,10 @@ const proc: bind (inout sqlStatement: statement, in integer: pos, in string: str
  *  @param statement Prepared statement.
  *  @param pos Position of the bind variable (starting with 1).
  *  @param timeData Value for the binding.
- *  @exception RANGE_ERROR When the statement was not prepared or
- *                         when ''pos'' is negative or too big or
- *                         when ''timeData'' cannot be converted.
- *  @exception DATABASE_ERROR When a database function fails.
+ *  @exception RANGE_ERROR If the statement was not prepared or
+ *                         if ''pos'' is negative or too big or
+ *                         if ''timeData'' cannot be converted.
+ *  @exception DATABASE_ERROR If a database function fails.
  *)
 const proc: bind (inout sqlStatement: statement, in integer: pos, in time: timeData) is func
   begin
@@ -523,10 +538,10 @@ const proc: bind (inout sqlStatement: statement, in integer: pos, in time: timeD
  *  @param statement Prepared statement.
  *  @param pos Position of the bind variable (starting with 1).
  *  @param durationData Value for the binding.
- *  @exception RANGE_ERROR When the statement was not prepared or
- *                         when ''pos'' is negative or too big or
- *                         when ''durationData'' cannot be converted.
- *  @exception DATABASE_ERROR When a database function fails.
+ *  @exception RANGE_ERROR If the statement was not prepared or
+ *                         if ''pos'' is negative or too big or
+ *                         if ''durationData'' cannot be converted.
+ *  @exception DATABASE_ERROR If a database function fails.
  *)
 const proc: bind (inout sqlStatement: statement, in integer: pos, in duration: durationData) is func
   begin
@@ -542,7 +557,7 @@ const proc: bind (inout sqlStatement: statement, in integer: pos, in duration: d
  *  Bind variable can be assigned with the function ''bind'' before
  *  ''execute'' is called.
  *  @param statement Prepared statement, which should be executed.
- *  @exception DATABASE_ERROR When a database function fails.
+ *  @exception DATABASE_ERROR If a database function fails.
  *)
 const proc: execute (inout sqlStatement: statement)                                    is action "SQL_EXECUTE";
 
@@ -554,9 +569,9 @@ const proc: execute (inout sqlStatement: statement)                             
  *  rows of the statements result data. The columns of the
  *  result data can be obtained with the ''column'' functions.
  *  @param statement Prepared statement, which has been executed.
- *  @return TRUE when a row of result data could be fetched successfully.
- *          FALSE when no more result data is available.
- *  @exception DATABASE_ERROR When a database function fails.
+ *  @return TRUE if a row of result data could be fetched successfully.
+ *          FALSE if no more result data is available.
+ *  @exception DATABASE_ERROR If a database function fails.
  *)
 const func boolean: fetch (in sqlStatement: statement)                                 is action "SQL_FETCH";
 
@@ -568,12 +583,12 @@ const func boolean: fetch (in sqlStatement: statement)                          
  *  @param statement Prepared statement for which data was fetched.
  *  @param column Number of the column (starting with 1).
  *  @return the column data converted to a [[bigint|bigInteger]] or
- *          0_, when the column data is NULL.
- *  @exception RANGE_ERROR When the statement was not prepared or
- *                         when no data was successfully fetched or
- *                         when the specified column does not exist or
- *                         when the column cannot be converted.
- *  @exception DATABASE_ERROR When a database function fails.
+ *          0_, if the column data is NULL.
+ *  @exception RANGE_ERROR If the statement was not prepared or
+ *                         if no data was successfully fetched or
+ *                         if the specified column does not exist or
+ *                         if the column cannot be converted.
+ *  @exception DATABASE_ERROR If a database function fails.
  *)
 const func bigInteger: column (in sqlStatement: statement, in integer: column,
                                attr bigInteger)                                        is action "SQL_COLUMN_BIGINT";
@@ -586,12 +601,12 @@ const func bigInteger: column (in sqlStatement: statement, in integer: column,
  *  @param statement Prepared statement for which data was fetched.
  *  @param column Number of the column (starting with 1).
  *  @return the column data converted to a [[bigrat|bigRational]] or
- *          0_/1_, when the column data is NULL.
- *  @exception RANGE_ERROR When the statement was not prepared or
- *                         when no data was successfully fetched or
- *                         when the specified column does not exist or
- *                         when the column cannot be converted.
- *  @exception DATABASE_ERROR When a database function fails.
+ *          0_/1_, if the column data is NULL.
+ *  @exception RANGE_ERROR If the statement was not prepared or
+ *                         if no data was successfully fetched or
+ *                         if the specified column does not exist or
+ *                         if the column cannot be converted.
+ *  @exception DATABASE_ERROR If a database function fails.
  *)
 const func bigRational: column (in sqlStatement: statement, in integer: column,
                                 attr bigRational) is func
@@ -611,12 +626,12 @@ const func bigRational: column (in sqlStatement: statement, in integer: column,
  *  @param statement Prepared statement for which data was fetched.
  *  @param column Number of the column (starting with 1).
  *  @return the column data converted to a [[boolean]] or
- *          FALSE, when the column data is NULL.
- *  @exception RANGE_ERROR When the statement was not prepared or
- *                         when no data was successfully fetched or
- *                         when the specified column does not exist or
- *                         when the column cannot be converted.
- *  @exception DATABASE_ERROR When a database function fails.
+ *          FALSE, if the column data is NULL.
+ *  @exception RANGE_ERROR If the statement was not prepared or
+ *                         if no data was successfully fetched or
+ *                         if the specified column does not exist or
+ *                         if the column cannot be converted.
+ *  @exception DATABASE_ERROR If a database function fails.
  *)
 const func boolean:    column (in sqlStatement: statement, in integer: column,
                                attr boolean)                                           is action "SQL_COLUMN_BOOL";
@@ -629,12 +644,12 @@ const func boolean:    column (in sqlStatement: statement, in integer: column,
  *  @param statement Prepared statement for which data was fetched.
  *  @param column Number of the column (starting with 1).
  *  @return the column data converted to a [[bstring]] or
- *          an empty bstring, when the column data is NULL.
- *  @exception RANGE_ERROR When the statement was not prepared or
- *                         when no data was successfully fetched or
- *                         when the specified column does not exist or
- *                         when the column cannot be converted.
- *  @exception DATABASE_ERROR When a database function fails.
+ *          an empty bstring, if the column data is NULL.
+ *  @exception RANGE_ERROR If the statement was not prepared or
+ *                         if no data was successfully fetched or
+ *                         if the specified column does not exist or
+ *                         if the column cannot be converted.
+ *  @exception DATABASE_ERROR If a database function fails.
  *)
 const func bstring:    column (in sqlStatement: statement, in integer: column,
                                attr bstring)                                           is action "SQL_COLUMN_BSTRI";
@@ -647,12 +662,12 @@ const func bstring:    column (in sqlStatement: statement, in integer: column,
  *  @param statement Prepared statement for which data was fetched.
  *  @param column Number of the column (starting with 1).
  *  @return the column data converted to a [[duration]] or
- *          an empty duration, when the column data is NULL.
- *  @exception RANGE_ERROR When the statement was not prepared or
- *                         when no data was successfully fetched or
- *                         when the specified column does not exist or
- *                         when the column cannot be converted.
- *  @exception DATABASE_ERROR When a database function fails.
+ *          an empty duration, if the column data is NULL.
+ *  @exception RANGE_ERROR If the statement was not prepared or
+ *                         if no data was successfully fetched or
+ *                         if the specified column does not exist or
+ *                         if the column cannot be converted.
+ *  @exception DATABASE_ERROR If a database function fails.
  *)
 const func duration: column (in sqlStatement: statement, in integer: column,
                          attr duration) is func
@@ -673,12 +688,12 @@ const func duration: column (in sqlStatement: statement, in integer: column,
  *  @param statement Prepared statement for which data was fetched.
  *  @param column Number of the column (starting with 1).
  *  @return the column data converted to a [[float]] or
- *          0.0, when the column data is NULL.
- *  @exception RANGE_ERROR When the statement was not prepared or
- *                         when no data was successfully fetched or
- *                         when the specified column does not exist or
- *                         when the column cannot be converted.
- *  @exception DATABASE_ERROR When a database function fails.
+ *          0.0, if the column data is NULL.
+ *  @exception RANGE_ERROR If the statement was not prepared or
+ *                         if no data was successfully fetched or
+ *                         if the specified column does not exist or
+ *                         if the column cannot be converted.
+ *  @exception DATABASE_ERROR If a database function fails.
  *)
 const func float:      column (in sqlStatement: statement, in integer: column,
                                attr float)                                             is action "SQL_COLUMN_FLOAT";
@@ -691,12 +706,12 @@ const func float:      column (in sqlStatement: statement, in integer: column,
  *  @param statement Prepared statement for which data was fetched.
  *  @param column Number of the column (starting with 1).
  *  @return the column data converted to an [[integer]] or
- *          0, when the column data is NULL.
- *  @exception RANGE_ERROR When the statement was not prepared or
- *                         when no data was successfully fetched or
- *                         when the specified column does not exist or
- *                         when the column cannot be converted.
- *  @exception DATABASE_ERROR When a database function fails.
+ *          0, if the column data is NULL.
+ *  @exception RANGE_ERROR If the statement was not prepared or
+ *                         if no data was successfully fetched or
+ *                         if the specified column does not exist or
+ *                         if the column cannot be converted.
+ *  @exception DATABASE_ERROR If a database function fails.
  *)
 const func integer:    column (in sqlStatement: statement, in integer: column,
                                attr integer)                                           is action "SQL_COLUMN_INT";
@@ -709,12 +724,12 @@ const func integer:    column (in sqlStatement: statement, in integer: column,
  *  @param statement Prepared statement for which data was fetched.
  *  @param column Number of the column (starting with 1).
  *  @return the column data converted to a [[string]] or
- *          "", when the column data is NULL.
- *  @exception RANGE_ERROR When the statement was not prepared or
- *                         when no data was successfully fetched or
- *                         when the specified column does not exist or
- *                         when the column cannot be converted.
- *  @exception DATABASE_ERROR When a database function fails.
+ *          "", if the column data is NULL.
+ *  @exception RANGE_ERROR If the statement was not prepared or
+ *                         if no data was successfully fetched or
+ *                         if the specified column does not exist or
+ *                         if the column cannot be converted.
+ *  @exception DATABASE_ERROR If a database function fails.
  *)
 const func string:     column (in sqlStatement: statement, in integer: column,
                                attr string)                                            is action "SQL_COLUMN_STRI";
@@ -727,12 +742,12 @@ const func string:     column (in sqlStatement: statement, in integer: column,
  *  @param statement Prepared statement for which data was fetched.
  *  @param column Number of the column (starting with 1).
  *  @return the column data converted to a [[time]] or
- *          0-01-01 00:00:00, when the column data is NULL.
- *  @exception RANGE_ERROR When the statement was not prepared or
- *                         when no data was successfully fetched or
- *                         when the specified column does not exist or
- *                         when the column cannot be converted.
- *  @exception DATABASE_ERROR When a database function fails.
+ *          0-01-01 00:00:00, if the column data is NULL.
+ *  @exception RANGE_ERROR If the statement was not prepared or
+ *                         if no data was successfully fetched or
+ *                         if the specified column does not exist or
+ *                         if the column cannot be converted.
+ *  @exception DATABASE_ERROR If a database function fails.
  *)
 const func time: column (in sqlStatement: statement, in integer: column,
                          attr time) is func
@@ -751,11 +766,11 @@ const func time: column (in sqlStatement: statement, in integer: column,
  *  Determine if the specified column of fetched data is NULL.
  *  @param statement Prepared statement for which data was fetched.
  *  @param column Number of the column (starting with 1).
- *  @return TRUE when the column data is NULL,
+ *  @return TRUE if the column data is NULL,
  *          FALSE otherwise.
- *  @exception RANGE_ERROR When the statement was not prepared or
- *                         when no data was successfully fetched or
- *                         when the specified column does not exist.
+ *  @exception RANGE_ERROR If the statement was not prepared or
+ *                         if no data was successfully fetched or
+ *                         if the specified column does not exist.
  *)
 const func boolean: isNull (in sqlStatement: statement, in integer: column)            is action "SQL_IS_NULL";
 

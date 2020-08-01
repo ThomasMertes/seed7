@@ -176,11 +176,11 @@ static os_charType *copyQuotedPart (os_charType *sourceChar, os_charType *destCh
  *  All parameters that contain a space or a quotation (") or a control
  *  character or a character byond ASCII are quoted. All other parameters
  *  are not quoted. The command line string must be freed with os_stri_free().
- *  @param err_info Unchanged when the function succeeds or
- *                  MEMORY_ERROR when a memory allocation failed or
- *                  RANGE_ERROR when the conversion of a parameter failed.
- *  @return a null terminated os_striType command line or
- *          NULL, when an error occurred.
+ *  @param err_info Unchanged if the function succeeds, and
+ *                  MEMORY_ERROR if a memory allocation failed, and
+ *                  RANGE_ERROR if the conversion of a parameter failed.
+ *  @return a null terminated os_striType command line, or
+ *          NULL if an error occurred.
  */
 static os_striType prepareCommandLine (const const_os_striType os_command_stri,
     const const_rtlArrayType parameters, errInfoType *err_info)

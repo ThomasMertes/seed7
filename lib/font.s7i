@@ -105,13 +105,13 @@ const func integer: width (in font: aFont, in string: stri)  is DYNAMIC;
 
 
 (**
- *  When a string is displayed with a font, how many chars fit in a width.
+ *  If a string is displayed with a font, how many chars fit in a width.
  *  The width is specified in pixels. The expression:
  *   numOfCharsInWidth(aFont, stri, width(aFont, stri))
  *  will always be equivalent to
  *   length(stri);
  *  @return the number of chars from ''stri'' that fit into ''allowedWidth''
- *          when ''stri'' is displayed with ''aFont''.
+ *          if ''stri'' is displayed with ''aFont''.
  *)
 const func integer: numOfCharsInWidth (in font: aFont,
     in string: stri, in integer: allowedWidth)               is DYNAMIC;
@@ -122,7 +122,7 @@ const func integer: numOfCharsInWidth (in font: aFont,
  *  This function does neither compare font contents nor font names.
  *  The order of two fonts is determined by comparing the memory
  *  positions of their internal data representation. Therefore the
- *  result of ''compare'' is arbitrary and may change when the
+ *  result of ''compare'' is arbitrary and may change if the
  *  program is executed again. Inside a program the result of
  *  ''compare'' is consistent and can be used to maintain hash
  *  tables.

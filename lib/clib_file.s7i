@@ -67,7 +67,7 @@ const clib_file: (attr clib_file) . value                            is _GENERAT
 (**
  *  NULL file of the C runtime library.
  *  This value is returned by [[#openClibFile(in_string,in_string)|openClibFile]]
- *  and other functions, when no ''clib_file'' could be opened. Reading from or
+ *  and other functions if no ''clib_file'' could be opened. Reading from or
  *  writing to a ''CLIB_NULL_FILE'' raises an exception.
  *)
 const clib_file: CLIB_NULL_FILE                                      is clib_file.value;
@@ -101,7 +101,7 @@ const func clib_file: CLIB_ERROR  is action "FIL_ERR";
  *         use the standard path representation.
  *  @param mode Mode of the file to be opened.
  *  @return the file opened, or [[null_file#STD_NULL|STD_NULL]]
- *          if it could not be opened or when ''path'' refers to
+ *          if it could not be opened or if ''path'' refers to
  *          a directory.
  *  @exception MEMORY_ERROR Not enough memory to convert the path
  *             to the system path type.
@@ -126,7 +126,7 @@ const proc: close (in clib_file: aFile)                              is action "
 
 (**
  *  Determine the end-of-file indicator.
- *  The end-of-file indicator is set when at least one request to read
+ *  The end-of-file indicator is set if at least one request to read
  *  from the file failed.
  *  @return TRUE if the end-of-file indicator is set, FALSE otherwise.
  *)
@@ -141,6 +141,13 @@ const func boolean: eof (in clib_file: inFile)                       is action "
 const func boolean: hasNext (in clib_file: inFile)                   is action "FIL_HAS_NEXT";
 
 
+(**
+ *  Determine if at least one character can be read without blocking.
+ *  Blocking means that ''getc'' would wait until a character is
+ *  received. Blocking can last for a period of unspecified length.
+ *  Regular files do not block.
+ *  @return TRUE if ''getc'' would not block, FALSE otherwise.
+ *)
 const func boolean: inputReady (in clib_file: inFile)                is action "FIL_INPUT_READY";
 
 

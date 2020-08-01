@@ -503,7 +503,7 @@ objectType prgMatchExpr (const const_progType aProg, listType curr_expr)
  *  Returns the name of the program without path and extension.
  *  This function does not follow symbolic links.
  *  It determines, with which name a program was called.
- *  When a symbolic link refers to a program, the name of
+ *  If a symbolic link refers to a program, the name of
  *  the symbolic link is returned.
  *  @return the name of the program.
  */
@@ -562,8 +562,9 @@ progType prgStrParse (const const_striType stri, const const_setType options,
 
 /**
  *  Determine object with 'syobjectName' from program 'aProgram'.
- *  @return a reference to the object or NIL when no object 'syobjectName' exists.
- *  @exception MEMORY_ERROR When 'syobjectName' cannot be converted to
+ *  @return a reference to the object, and
+ *          NIL if no object 'syobjectName' exists.
+ *  @exception MEMORY_ERROR If 'syobjectName' cannot be converted to
  *             the internal representation.
  */
 objectType prgSyobject (const progType aProgram, const const_striType syobjectName)
@@ -596,8 +597,8 @@ objectType prgSyobject (const progType aProgram, const const_striType syobjectNa
 
 /**
  *  Determine the value of the system variable 'name' in 'aProgram'.
- *  @return a reference to the value of the system variable or
- *          NIL when no system variable 'name' exists.
+ *  @return a reference to the value of the system variable, and
+ *          NIL if no system variable 'name' exists.
  */
 objectType prgSysvar (const const_progType aProgram, const const_striType name)
 

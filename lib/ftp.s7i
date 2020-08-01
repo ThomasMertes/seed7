@@ -198,7 +198,7 @@ const func ftpFileSys: openFtp (in string: hostName,
  *  to specify user and password. If no password is specified the
  *  password "anonymous" is used instead:
  *   user@hostName
- *  When no user and password are specified the user "anonymous" is
+ *  If no user and password are specified the user "anonymous" is
  *  used together with the password "anonymous":
  *   hostName
  *  The ''hostName'' is either a host name ("e.g.: "www.example.org"),
@@ -207,8 +207,8 @@ const func ftpFileSys: openFtp (in string: hostName,
  *  in colon notation.
  *  @param connectStri Connection string in one of the forms
  *         user:password@hostName user@hostName or hostName
- *         When no user is specified the user "anonymous" is used.
- *         When no password is specified the password "anonymous" is used.
+ *         If no user is specified the user "anonymous" is used.
+ *         If no password is specified the password "anonymous" is used.
  *  @return a file system that uses the FTP connection, or
  *          fileSys.value if the connection to the remote host
  *          could not be established.
@@ -249,7 +249,7 @@ const func ftpFileSys: openFtp (in string: connectStri, in integer: ftpControlPo
  *  to specify user and password. If no password is specified the
  *  password "anonymous" is used instead:
  *   user@hostName
- *  When no user and password are specified the user "anonymous" is
+ *  If no user and password are specified the user "anonymous" is
  *  used together with the password "anonymous":
  *   hostName
  *  This function uses the port 21 (defined as defaultFtpControlPort).
@@ -259,8 +259,8 @@ const func ftpFileSys: openFtp (in string: connectStri, in integer: ftpControlPo
  *  in colon notation.
  *  @param connectStri Connection string in one of the forms
  *         user:password@hostName user@hostName or hostName
- *         When no user is specified the user "anomymous" is used.
- *         When no password is specified the password "anomymous" is used.
+ *         If no user is specified the user "anomymous" is used.
+ *         If no password is specified the password "anomymous" is used.
  *  @return a file system that uses the FTP connection, or
  *          fileSys.value if the connection to the remote host
  *          could not be established.
@@ -632,8 +632,8 @@ const func time: getMTime (inout ftpConnection: ftp, in string: fileName) is fun
 
 (**
  *  Get the the data transfer mode.
- *  @return TRUE, when the transfer mode is active, or
- *          FALSE, when the transfer mode is passive.
+ *  @return TRUE, if the transfer mode is active, or
+ *          FALSE, if the transfer mode is passive.
  *)
 const func boolean: getActiveMode (in ftpConnection: ftp) is
   return ftp.activeMode;
@@ -651,8 +651,8 @@ const proc: setActiveMode (inout ftpConnection: ftp, in boolean: activeMode) is 
 
 (**
  *  Get the file transfer type.
- *  @return TRUE, when the file transfer type is ASCII, or
- *          FALSE, when the file transfer type is BINARY.
+ *  @return TRUE, if the file transfer type is ASCII, or
+ *          FALSE, if the file transfer type is BINARY.
  *)
 const func boolean: getAsciiTransfer (in ftpConnection: ftp) is
   return ftp.asciiTransfer;
@@ -952,7 +952,7 @@ const func string: getFtp (in string: connectStri, in integer: portNumber, in st
  *   fileContent := getFtp("www.example.org/pub/read_me.txt");
  *  User and password can be specified with:
  *   fileContent := getFtp("user:password@www.example.org/pub/read_me.txt");
- *  @return the string of data found, or "" when nothing was found.
+ *  @return the string of data found, or "" if nothing was found.
  *)
 const func string: getFtp (in string: url) is func
   result

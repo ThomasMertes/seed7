@@ -229,7 +229,7 @@ typedef uint128Type               doubleUintType;
 #define intAbs(n) _abs64(n)
 #else
 /* The unsigned value is negated to avoid a signed integer */
-/* overflow when the smallest signed integer is negated.   */
+/* overflow if the smallest signed integer is negated.     */
 #define intAbs(n) ((n) < 0 ? (intType) -(uintType) (n) : (n))
 #endif
 
@@ -543,7 +543,7 @@ typedef int errInfoType;
 
 /* The macros below compute the array size as memSizeType    */
 /* value. The computation avoids a signed integer overflow.  */
-/* The computation fails when max_position is the maximum    */
+/* The computation fails if max_position is the maximum      */
 /* positive value of intType and min_position is the maximum */
 /* negative value of intType. All calls of the macros must   */
 /* assure that they are never called with this values. Since */

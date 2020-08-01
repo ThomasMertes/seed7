@@ -83,7 +83,7 @@ const func string: service (in socketAddress: address)                      is a
  *  or an IPv4 address in standard dot notation (e.g.: "192.0.2.235").
  *  Operating systems supporting IPv6 may also accept an IPv6 address
  *  in colon notation.
- *  @return the internet socket address or socketAddress.value when
+ *  @return the internet socket address, and socketAddress.value if
  *          the host cannot be found.
  *  @exception FILE_ERROR A system function returns an error.
  *  @exception RANGE_ERROR The port is not in the range 0 to 65535 or

@@ -174,7 +174,7 @@ objectType fil_create (listType arguments)
 
 /**
  *  Get a NULL file.
- *  Functions to open a file return NULL, when the open failed.
+ *  Functions to open a file return NULL, if the open failed.
  *  @return NULL.
  */
 objectType fil_empty (listType arguments)
@@ -187,7 +187,7 @@ objectType fil_empty (listType arguments)
 
 /**
  *  Determine the end-of-file indicator.
- *  The end-of-file indicator is set when at least one request to read
+ *  The end-of-file indicator is set if at least one request to read
  *  from the file failed.
  *  @return TRUE if the end-of-file indicator is set, FALSE otherwise.
  */
@@ -313,6 +313,13 @@ objectType fil_in (listType arguments)
 
 
 
+/**
+ *  Determine if at least one character can be read without blocking.
+ *  Blocking means that 'getc' would wait until a character is
+ *  received. Blocking can last for a period of unspecified length.
+ *  Regular files do not block.
+ *  @return TRUE if 'getc' would not block, FALSE otherwise.
+ */
 objectType fil_input_ready (listType arguments)
 
   { /* fil_input_ready */
@@ -427,7 +434,7 @@ objectType fil_ne (listType arguments)
  *         use the standard path representation.
  *  @param mode/arg_2 Mode of the file to be opened.
  *  @return the file opened, or NULL if it could not be opened or
- *          when 'path' refers to a directory.
+ *          if 'path' refers to a directory.
  *  @exception MEMORY_ERROR Not enough memory to convert the path
  *             to the system path type.
  *  @exception RANGE_ERROR The 'mode' is not one of the allowed
@@ -517,7 +524,7 @@ objectType fil_pipe (listType arguments)
  *  @param command/arg_1 Name of the command to be executed. A path must
  *         use the standard path representation.
  *  @param parameters/arg_2 Space separated list of parameters for
- *         the 'command', or "" when there are no parameters.
+ *         the 'command', or "" if there are no parameters.
  *  @param mode/arg_3 A pipe can be opened with the binary modes
  *         "r" (read) and "w" (write) or with the text modes
  *         "rt" (read) and "wt" (write).
@@ -605,7 +612,7 @@ objectType fil_tell (listType arguments)
 /**
  *  Get 'clib_file' value of the object referenced by 'aReference/arg_1'.
  *  @return the 'clib_file' value of the referenced object.
- *  @exception RANGE_ERROR When 'aReference/arg_1' is NIL or
+ *  @exception RANGE_ERROR If 'aReference/arg_1' is NIL or
  *             category(aReference) <> FILEOBJECT holds.
  */
 objectType fil_value (listType arguments)

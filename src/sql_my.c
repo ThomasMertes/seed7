@@ -270,10 +270,7 @@ static boolType findDll (void)
       found = setupDll(dllList[pos]);
     } /* for */
     if (!found) {
-      logError(printf("findDll: Searched for:\n");
-               for (pos = 0; pos < sizeof(dllList) / sizeof(char *); pos++) {
-                 printf("%s\n", dllList[pos]);
-               });
+      dllErrorMessage("sqlOpenMy", "findDll", dllList, sizeof(dllList));
     } /* if */
     return found;
   } /* findDll */
@@ -2731,7 +2728,7 @@ static void determineIfBackslashEscapes (dbType database)
           data = sqlColumnStri(preparedStmt, 1);
           if (data->size == 1 && data->mem[0] == '\\') {
             /* A select for two backslashes returns just one backslash. */
-            /* This happens, when the database uses backslash as escape char. */
+            /* This happens if the database uses backslash as escape char. */
             database->backslashEscapes = TRUE;
           } /* if */
           FREE_STRI(data, data->size);
@@ -2768,7 +2765,7 @@ databaseType sqlOpenMy (const const_striType host, intType port,
                 printf("\"%s\")\n", striAsUnquotedCStri(password)););
     if (!findDll()) {
       logError(printf("sqlOpenMy: findDll() failed\n"););
-      err_info = FILE_ERROR;
+      err_info = DATABASE_ERROR;
       database = NULL;
     } else if (unlikely(port < 0 || port > UINT_MAX)) {
       err_info = RANGE_ERROR;

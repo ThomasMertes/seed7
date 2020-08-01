@@ -333,7 +333,7 @@ const proc: processPatternRule (inout makeDataType: makeData, in string: targetN
               actualDependency := replace(dependency, "%", stemFound);
               if fileType(convDosPath(actualDependency)) <> FILE_ABSENT or
                   actualDependency in makeData.rules then
-                # Take a rule when the file exists or a rule for the file exists.
+                # Take a rule if the file exists or a rule for the file exists.
                 ruleIndexFound := ruleIndex;
                 incr(numberOfRulesFound);
               end if;

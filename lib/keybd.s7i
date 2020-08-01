@@ -42,9 +42,9 @@ const type: keyboard_file is subtype file;
 
 
 (**
- *  Read a char from ''keybd'', but don't wait when no key was pressed.
- *  @return the char read from ''keybd'' or KEY_NONE when no
- *          char is available.
+ *  Read a char from ''keybd'', but don't wait if no key was pressed.
+ *  @return the char read from ''keybd'', and
+ +          KEY_NONE IF no char is available.
  *)
 const func char: busy_getc (in keyboard_file: keybd) is DYNAMIC;
 
@@ -59,7 +59,7 @@ const func boolean: keypressed (in keyboard_file: keybd) is DYNAMIC;
 
 (**
  *  Determine if a given ''button'' is currently pressed.
- *  @return TRUE when ''button'' is currently pressed,
+ *  @return TRUE if ''button'' is currently pressed,
  *          FALSE otherwise.
  *)
 const func boolean: buttonPressed (in keyboard_file: keybd, in char: button) is DYNAMIC;
@@ -113,9 +113,9 @@ const func string: word_read (in console_keybd_file: keybd,
 
 
 (**
- *  Read a char from ''keybd'', but don't wait when no key was pressed.
- *  @return the char read from the console keyboard file or
- *          KEY_NONE when no char is available.
+ *  Read a char from ''keybd'', but don't wait if no key was pressed.
+ *  @return the char read from the console keyboard file, and
+ *          KEY_NONE if no char is available.
  *)
 const func char: busy_getc (in console_keybd_file: keybd)                      is action "KBD_BUSY_GETC";
 
@@ -207,7 +207,7 @@ const func string: gets (in graph_keybd_file: keybd, in integer: maxLength)    i
 
 (**
  *  Determine if a given ''button'' is currently pressed.
- *  @return TRUE when ''button'' is currently pressed,
+ *  @return TRUE if ''button'' is currently pressed,
  *          FALSE otherwise.
  *)
 const func boolean: buttonPressed (in graph_keybd_file: keybd, in char: button)  is action "GKB_BUTTON_PRESSED";
@@ -241,9 +241,9 @@ const func string: word_read (in graph_keybd_file: keybd,
 
 
 (**
- *  Read a char from ''keybd'', but don't wait when no key was pressed.
- *  @return the char read from the graphic keyboard file or
- *          KEY_NONE when no char is available.
+ *  Read a char from ''keybd'', but don't wait if no key was pressed.
+ *  @return the char read from the graphic keyboard file, and
+ *          KEY_NONE if no char is available.
  *)
 const func char: busy_getc (in graph_keybd_file: keybd)                        is action "GKB_BUSY_GETC";
 
@@ -322,7 +322,7 @@ const func string: getln (inout graph_keybd_file: keybd) is func
  *  KEYBOARD delivers cursor keys and function keys as single
  *  characters (e.g. KEY_LEFT or KEY_F1).
  *  This variable is initialized with CONSOLE_KEYBOARD.
- *  When a program wants to work with the graphic keyboard,
+ *  If a program wants to work with the graphic keyboard,
  *  the following assignment is necessary:
  *   KEYBOARD := GRAPH_KEYBOARD;
  *)

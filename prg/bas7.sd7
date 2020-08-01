@@ -334,11 +334,11 @@ const proc: listProg (inout file: listFile, in integer: fromLine, in integer: to
  *              Optionally a '$', '%', '!', '#' or '&' can be added.
  *    - An integer number: A sequence of digits.
  *    - A float number: A sequence of digits which contains one
- *              decimal point. An optional exponent may follow. When
+ *              decimal point. An optional exponent may follow. If
  *              an exponent is present the decimal point may be
  *              ommited. The exponent is introduced with 'E' or 'e'
  *              followed by an optional sign ('+' or '-') and a
- *              sequence of digits. When the float number does start
+ *              sequence of digits. If the float number does start
  *              with '.' a '0' is added in front of the returned
  *              symbol.
  *    - A hex literal: It starts with '&H' or '&h' followed by hex
@@ -357,7 +357,7 @@ const proc: listProg (inout file: listFile, in integer: fromLine, in integer: to
  *              It is even possible that the two characters of a
  *              special symbol are interchanged. In this case the
  *              symbol is returned in the standardized form.
- *    - A one character symbol: When no other symbols can be
+ *    - A one character symbol: If no other symbols can be
  *              recognized a symbol consisting of one character is
  *              created. E.g.: '=', '+', '-'.
  *  @return the BASIC symbol or "" at the end of the line.
@@ -2602,7 +2602,7 @@ const func float: exec_primary (inout string: symbol, inout string: line) is fun
               elsif current_key >= '\128;' then
                 current_key := '\0;';
               end if;
-              # Return value >= 128 when a key has been pressed.
+              # Return value >= 128 if a key has been pressed.
               exprResult := flt(ord(current_key) + 128);
             end if;
           otherwise:
@@ -3282,7 +3282,7 @@ const func string: next_symbol (inout string: line) is func
 
 (**
  *  Search for a THEN in the current line.
- *  @return "THEN" when a THEN was found, "" otherwise.
+ *  @return "THEN" if a THEN was found, "" otherwise.
  *)
 const func string: find_then (inout string: line) is func
   result
@@ -3300,14 +3300,14 @@ const func string: find_then (inout string: line) is func
 
 (**
  *  Search for an ELSE in the current line.
- *  When an IF is found a recursive call searches for a possible
+ *  If an IF is found a recursive call searches for a possible
  *  inner ELSE which would belong to the inner IF. Such an inner ELSE
  *  is skipped.
  *  @param symbol contains the current symbol. After the call it
- *         contains "ELSE" when a corresponding ELSE was found and
+ *         contains "ELSE" if a corresponding ELSE was found and
  *         "" otherwise.
  *  @param line contains the current line. After the call it contains
- *         the rest of the line after the ELSE or "" when no ELSE was
+ *         the rest of the line after the ELSE or "" if no ELSE was
  *         found.
  *)
 const proc: find_else (inout string: symbol, inout string: line) is func
@@ -3338,17 +3338,17 @@ const proc: find_else (inout string: symbol, inout string: line) is func
 
 (**
  *  Search for a NEXT matching a "FOR varName" statement.
- *  When a FOR is found a recursive call searches for a possible
+ *  If a FOR is found a recursive call searches for a possible
  *  inner NEXT which would belong to the inner FOR. Such an inner NEXT
- *  is skipped when it does not match a "FOR varName" statement.
+ *  is skipped if it does not match a "FOR varName" statement.
  *  @param symbol contains the current symbol. After the call it
  *         contains the symbol behind the NEXT and the optional list
- *         of variable names. When no NEXT was found, the parameter
+ *         of variable names. If no NEXT was found, the parameter
  *         contains "" after the call.
  *  @param nameList returns the list of variable names found after
- *         the NEXT or "" when no NEXT was found or no list list of
+ *         the NEXT or "" if no NEXT was found or no list list of
  *         variable names is present after the NEXT.
- *  @return TRUE when a corresponding NEXT was found, FALSE otherwise.
+ *  @return TRUE if a corresponding NEXT was found, FALSE otherwise.
  *)
 const func boolean: find_next (inout string: symbol, inout string: line,
     in string: varName, inout string: nameList) is func
@@ -3398,15 +3398,15 @@ const func boolean: find_next (inout string: symbol, inout string: line,
 
 (**
  *  Search for a NEXT matching a "FOR varName" statement.
- *  When a FOR is found a recursive call searches for a possible
+ *  If a FOR is found a recursive call searches for a possible
  *  inner NEXT which would belong to the inner FOR. Such an inner NEXT
- *  is skipped when it does not match a "FOR varName" statement.
- *  @param symbol contains the current symbol or "" when the current
+ *  is skipped if it does not match a "FOR varName" statement.
+ *  @param symbol contains the current symbol or "" if the current
  *         symbol should be readed. After the call it contains the
  *         symbol behind the NEXT and the optional list of variable
- *         names. When no NEXT was found, the parameter contains ""
+ *         names. If no NEXT was found, the parameter contains ""
  *         after the call.
- *  @return TRUE when a corresponding NEXT was found, FALSE otherwise.
+ *  @return TRUE if a corresponding NEXT was found, FALSE otherwise.
  *)
 const func boolean: find_next (inout string: symbol, inout string: line,
     in string: varName) is func
@@ -7621,7 +7621,7 @@ const proc: exec_let (inout string: symbol, inout string: line,
     if symbol = "LET" then
       symbol := get_symbol(line);
     elsif not is_let_statement(line) then
-      # When no "=" follows it is probably a statement
+      # If no "=" follows it is probably a statement
       # which is not separated with a space
       is_let_statement := FALSE;
       if startsWith(symbol, "REM") then

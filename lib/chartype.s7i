@@ -100,7 +100,7 @@ const array string: esc_tab is [](
 
 (**
  *  Determine leftmost position of a char from ''chSet'' in ''stri''.
- *  @return the position of a char from ''chSet'' or 0 when ''stri''
+ *  @return the position of a char from ''chSet'' or 0 if ''stri''
  *          does not contain any character from ''chSet''.
  *)
 const func integer: pos (in string: stri, in set of char: chSet) is func

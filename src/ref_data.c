@@ -220,7 +220,7 @@ listType refArrToList (const const_objectType aReference)
 /**
  *  Gets the body of the function referenced by 'funcRef'.
  *  @return the body expression of 'funcRef'.
- *  @exception RANGE_ERROR When 'funcRef' is NIL or
+ *  @exception RANGE_ERROR If 'funcRef' is NIL or
  *             category(funcRef) <> BLOCKOBJECT holds.
  */
 objectType refBody (const const_objectType funcRef)
@@ -247,7 +247,7 @@ objectType refBody (const const_objectType funcRef)
 /**
  *  Get the category of a referenced object.
  *  @return the category of the referenced object.
- *  @exception RANGE_ERROR When 'aReference' is NIL.
+ *  @exception RANGE_ERROR If 'aReference' is NIL.
  */
 intType refCategory (const const_objectType aReference)
 
@@ -271,7 +271,7 @@ intType refCategory (const const_objectType aReference)
  *  Convert a [[string]] to a 'category'.
  *  @param catName Name of a category to be converted.
  *  @return the 'category' result fo the conversion.
- *  @exception RANGE_ERROR When there is no corresponding 'category'.
+ *  @exception RANGE_ERROR If there is no corresponding 'category'.
  */
 intType refCatParse (const const_striType catName)
 
@@ -323,7 +323,7 @@ striType refCatStr (intType aCategory)
 /**
  *  Determine the file name of a referenced object.
  *  @return the file name of the referenced object.
- *  @exception RANGE_ERROR When 'aReference' is NIL.
+ *  @exception RANGE_ERROR If 'aReference' is NIL.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  */
 striType refFile (const const_objectType aReference)
@@ -433,6 +433,11 @@ intType refHshLength (const const_objectType aReference)
 
 
 
+/**
+ *  Determine if the referenced object is variable.
+ *  @return TRUE if ''aReference'' is a variable, FALSE otherwise.
+ *  @exception RANGE_ERROR If ''aReference'' is NIL.
+ */
 boolType refIsVar (const const_objectType aReference)
 
   { /* refIsVar */
@@ -479,7 +484,7 @@ objectType refItfToSct (const const_objectType aReference)
 /**
  *  Determine the line number of a referenced object.
  *  @return the line number of the referenced object.
- *  @exception RANGE_ERROR When 'aReference' is NIL.
+ *  @exception RANGE_ERROR If 'aReference' is NIL.
  */
 intType refLine (const const_objectType aReference)
 
@@ -513,7 +518,7 @@ intType refLine (const const_objectType aReference)
 /**
  *  Gets the local constants of 'funcRef'.
  *  @return the local constants as ref_list.
- *  @exception RANGE_ERROR When 'funcRef' is NIL or
+ *  @exception RANGE_ERROR If 'funcRef' is NIL or
  *             refCategory(funcRef) <> BLOCKOBJECT holds.
  *  @exception MEMORY_ERROR An out of memory situation occurred.
  */
@@ -554,7 +559,7 @@ listType refLocalConsts (const const_objectType funcRef)
 /**
  *  Gets the local variables of 'funcRef'.
  *  @return the local variables as ref_list.
- *  @exception RANGE_ERROR When 'funcRef' is NIL or
+ *  @exception RANGE_ERROR If 'funcRef' is NIL or
  *             refCategory(funcRef) <> BLOCKOBJECT holds.
  *  @exception MEMORY_ERROR An out of memory situation occurred.
  */
@@ -634,7 +639,7 @@ intType refNum (const const_objectType aReference)
  *  Get the formal parameters of the function referenced by 'funcRef'.
  *  For objects without parameters an empty list is returned.
  *  @return the formal parameters as ref_list.
- *  @exception RANGE_ERROR When 'funcRef' is NIL.
+ *  @exception RANGE_ERROR If 'funcRef' is NIL.
  */
 listType refParams (const const_objectType funcRef)
 
@@ -661,7 +666,7 @@ listType refParams (const const_objectType funcRef)
 /**
  *  Gets the initialization value of the result variable of 'funcRef'.
  *  @return a reference to the initialization value.
- *  @exception RANGE_ERROR When 'funcRef' is NIL or
+ *  @exception RANGE_ERROR If 'funcRef' is NIL or
  *             refCategory(funcRef) <> BLOCKOBJECT holds.
  */
 objectType refResini (const const_objectType funcRef)
@@ -688,7 +693,7 @@ objectType refResini (const const_objectType funcRef)
 /**
  *  Gets the result variable of 'funcRef'.
  *  @return a reference to the result variable.
- *  @exception RANGE_ERROR When 'funcRef' is NIL or
+ *  @exception RANGE_ERROR If 'funcRef' is NIL or
  *             refCategory(funcRef) <> BLOCKOBJECT holds.
  */
 objectType refResult (const const_objectType funcRef)
@@ -740,7 +745,7 @@ listType refSctToList (const const_objectType aReference)
 
 /**
  *  Set the category of 'aReference' to 'aCategory'.
- *  @exception RANGE_ERROR When 'aReference' is NIL.
+ *  @exception RANGE_ERROR If 'aReference' is NIL.
  */
 void refSetCategory (objectType aReference, intType aCategory)
 
@@ -761,7 +766,7 @@ void refSetCategory (objectType aReference, intType aCategory)
 
 /**
  *  Set the formal parameters of 'funcRef' to 'params'.
- *  @exception RANGE_ERROR When 'funcRef' is NIL.
+ *  @exception RANGE_ERROR If 'funcRef' is NIL.
  *  @exception MEMORY_ERROR An out of memory situation occurred.
  */
 void refSetParams (objectType funcRef, const_listType params)
@@ -798,7 +803,7 @@ void refSetParams (objectType funcRef, const_listType params)
 
 /**
  *  Set the type of 'aReference' to 'aType'.
- *  @exception RANGE_ERROR When 'aReference' is NIL.
+ *  @exception RANGE_ERROR If 'aReference' is NIL.
  */
 void refSetType (objectType aReference, typeType aType)
 
@@ -816,7 +821,7 @@ void refSetType (objectType aReference, typeType aType)
 
 /**
  *  Set var flag of a referenced object.
- *  @exception RANGE_ERROR When 'aReference' is NIL.
+ *  @exception RANGE_ERROR If 'aReference' is NIL.
  */
 void refSetVar (objectType aReference, boolType var_flag)
 
@@ -925,7 +930,7 @@ typeType refType (const const_objectType aReference)
 /**
  *  Get 'ACTION' value of the object referenced by 'aReference'.
  *  @return the 'ACTION' value of the referenced object.
- *  @exception RANGE_ERROR When 'aReference' is NIL or
+ *  @exception RANGE_ERROR If 'aReference' is NIL or
  *             category(aReference) <> ACTOBJECT holds.
  */
 actType actValue (const const_objectType aReference)
@@ -948,7 +953,7 @@ actType actValue (const const_objectType aReference)
 /**
  *  Get 'bigInteger' value of the object referenced by 'aReference'.
  *  @return the 'bigInteger' value of the referenced object.
- *  @exception RANGE_ERROR When 'aReference' is NIL or
+ *  @exception RANGE_ERROR If 'aReference' is NIL or
  *             category(aReference) <> BIGINTOBJECT holds.
  */
 bigIntType bigValue (const const_objectType aReference)
@@ -971,8 +976,8 @@ bigIntType bigValue (const const_objectType aReference)
 /**
  *  Get 'boolean' value of the object referenced by 'aReference'.
  *  @return the 'boolean' value of the referenced object.
- *  @exception RANGE_ERROR When 'aReference' is NIL or
- *             when it references neither TRUE nor FALSE.
+ *  @exception RANGE_ERROR If 'aReference' is NIL or
+ *             if it references neither TRUE nor FALSE.
  */
 boolType blnValue (const_objectType aReference)
 
@@ -1003,7 +1008,7 @@ boolType blnValue (const_objectType aReference)
 /**
  *  Get 'bstring' value of the object referenced by 'aReference'.
  *  @return the 'bstring' value of the referenced object.
- *  @exception RANGE_ERROR When 'aReference' is NIL or
+ *  @exception RANGE_ERROR If 'aReference' is NIL or
  *             category(aReference) <> BSTRIOBJECT holds.
  */
 bstriType bstValue (const const_objectType aReference)
@@ -1037,7 +1042,7 @@ bstriType bstValue (const const_objectType aReference)
 /**
  *  Get 'char' value of the object referenced by 'aReference'.
  *  @return the 'char' value of the referenced object.
- *  @exception RANGE_ERROR When 'aReference' is NIL or
+ *  @exception RANGE_ERROR If 'aReference' is NIL or
  *             category(aReference) <> CHAROBJECT holds.
  */
 charType chrValue (const const_objectType aReference)
@@ -1060,7 +1065,7 @@ charType chrValue (const const_objectType aReference)
 /**
  *  Get 'PRIMITIVE_WINDOW' value of the object referenced by 'aReference'.
  *  @return the 'PRIMITIVE_WINDOW' value of the referenced object.
- *  @exception RANGE_ERROR When 'aReference' is NIL or
+ *  @exception RANGE_ERROR If 'aReference' is NIL or
  *             category(aReference) <> WINOBJECT holds.
  */
 winType drwValue (const const_objectType aReference)
@@ -1090,7 +1095,7 @@ winType drwValue (const const_objectType aReference)
 /**
  *  Get 'clib_file' value of the object referenced by 'aReference'.
  *  @return the 'clib_file' value of the referenced object.
- *  @exception RANGE_ERROR When 'aReference' is NIL or
+ *  @exception RANGE_ERROR If 'aReference' is NIL or
  *             category(aReference) <> FILEOBJECT holds.
  */
 fileType filValue (const const_objectType aReference)
@@ -1113,7 +1118,7 @@ fileType filValue (const const_objectType aReference)
 /**
  *  Get 'float' value of the object referenced by 'aReference'.
  *  @return the 'float' value of the referenced object.
- *  @exception RANGE_ERROR When 'aReference' is NIL or
+ *  @exception RANGE_ERROR If 'aReference' is NIL or
  *             category(aReference) <> FLOATOBJECT holds.
  */
 floatType fltValue (const const_objectType aReference)
@@ -1136,7 +1141,7 @@ floatType fltValue (const const_objectType aReference)
 /**
  *  Get 'integer' value of the object referenced by 'aReference'.
  *  @return the 'integer' value of the referenced object.
- *  @exception RANGE_ERROR When 'aReference' is NIL or
+ *  @exception RANGE_ERROR If 'aReference' is NIL or
  *             category(aReference) <> INTOBJECT holds.
  */
 intType intValue (const const_objectType aReference)
@@ -1159,7 +1164,7 @@ intType intValue (const const_objectType aReference)
 /**
  *  Get 'process' value of the object referenced by 'aReference'.
  *  @return the 'process' value of the referenced object.
- *  @exception RANGE_ERROR When 'aReference' is NIL or
+ *  @exception RANGE_ERROR If 'aReference' is NIL or
  *             category(aReference) <> PROCESSOBJECT holds.
  */
 processType pcsValue (const const_objectType aReference)
@@ -1189,7 +1194,7 @@ processType pcsValue (const const_objectType aReference)
 /**
  *  Get 'pollData' value of the object referenced by 'aReference'.
  *  @return the 'pollData' value of the referenced object.
- *  @exception RANGE_ERROR When 'aReference' is NIL or
+ *  @exception RANGE_ERROR If 'aReference' is NIL or
  *             category(aReference) <> POLLOBJECT holds.
  */
 pollType polValue (const const_objectType aReference)
@@ -1212,7 +1217,7 @@ pollType polValue (const const_objectType aReference)
 /**
  *  Get 'program' value of the object referenced by 'aReference'.
  *  @return the 'program' value of the referenced object.
- *  @exception RANGE_ERROR When 'aReference' is NIL or
+ *  @exception RANGE_ERROR If 'aReference' is NIL or
  *             category(aReference) <> PROGOBJECT holds.
  */
 progType prgValue (const const_objectType aReference)
@@ -1314,7 +1319,7 @@ void rflSetValue (objectType dest, listType source)
 /**
  *  Get 'bitset' value of the object referenced by 'aReference'.
  *  @return the 'bitset' value of the referenced object.
- *  @exception RANGE_ERROR When 'aReference' is NIL or
+ *  @exception RANGE_ERROR If 'aReference' is NIL or
  *             category(aReference) <> SETOBJECT holds.
  */
 setType setValue (const const_objectType aReference)
@@ -1351,7 +1356,7 @@ setType setValue (const const_objectType aReference)
 /**
  *  Get 'string' value of the object referenced by 'aReference'.
  *  @return the 'string' value of the referenced object.
- *  @exception RANGE_ERROR When 'aReference' is NIL or
+ *  @exception RANGE_ERROR If 'aReference' is NIL or
  *             category(aReference) <> STRIOBJECT holds.
  */
 striType strValue (const const_objectType aReference)
@@ -1386,7 +1391,7 @@ striType strValue (const const_objectType aReference)
 /**
  *  Get 'type' value of the object referenced by 'aReference'.
  *  @return the 'type' value of the referenced object.
- *  @exception RANGE_ERROR When 'aReference' is NIL or
+ *  @exception RANGE_ERROR If 'aReference' is NIL or
  *             category(aReference) <> TYPEOBJECT holds.
  */
 typeType typValue (const const_objectType aReference)

@@ -87,7 +87,7 @@ const func string: str (in category: aCategory)                 is action "REF_C
  *  Convert a [[string]] to a ''category''.
  *  @param catName Name of a category to be converted.
  *  @return the ''category'' result fo the conversion.
- *  @exception RANGE_ERROR When there is no corresponding ''category''.
+ *  @exception RANGE_ERROR If there is no corresponding ''category''.
  *)
 const func category: category (in string: catName)              is action "REF_CAT_PARSE";
 
@@ -96,7 +96,7 @@ const func category: category (in string: catName)              is action "REF_C
  *  Convert a [[string]] to a ''category''.
  *  @param catName Name of a category to be converted.
  *  @return the ''category'' result fo the conversion.
- *  @exception RANGE_ERROR When there is no corresponding ''category''.
+ *  @exception RANGE_ERROR If there is no corresponding ''category''.
  *)
 const func category: (attr category) parse (in string: catName) is
     return category(catName);

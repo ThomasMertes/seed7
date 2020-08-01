@@ -190,8 +190,8 @@ os_striType heapAllocOsStri (memSizeType len);
 void heapFreeOsStri (const_os_striType var);
 #endif
 memSizeType utf8_to_stri (strElemType *const dest_stri, memSizeType *const dest_len,
-                          const_ustriType ustri, size_t len);
-memSizeType utf8_bytes_missing (const const_ustriType ustri, const size_t len);
+                          const_ustriType ustri, memSizeType len);
+memSizeType utf8_bytes_missing (const const_ustriType ustri, const memSizeType len);
 memSizeType stri_to_utf8 (const ustriType out_stri,
                           const strElemType *strelem, memSizeType len);
 cstriType conv_to_cstri (cstriType cstri, const const_striType stri);

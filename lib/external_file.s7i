@@ -70,7 +70,7 @@ type_implements_interface(external_file, file);
  *         use the standard path representation.
  *  @param mode Mode of the file to be opened.
  *  @return the file opened, or [[null_file#STD_NULL|STD_NULL]]
- *          if it could not be opened or when ''path'' refers to
+ *          if it could not be opened or if ''path'' refers to
  *          a directory.
  *  @exception MEMORY_ERROR Not enough memory to convert the path
  *             to the system path type.
@@ -206,7 +206,7 @@ const func string: getln (inout external_file: inFile) is
 
 (**
  *  Determine the end-of-file indicator.
- *  The end-of-file indicator is set when at least one request to read
+ *  The end-of-file indicator is set if at least one request to read
  *  from the file failed.
  *  @return TRUE if the end-of-file indicator is set, FALSE otherwise.
  *)
@@ -223,6 +223,13 @@ const func boolean: hasNext (in external_file: inFile) is
   return hasNext(inFile.ext_file);
 
 
+(**
+ *  Determine if at least one character can be read without blocking.
+ *  Blocking means that ''getc'' would wait until a character is
+ *  received. Blocking can last for a period of unspecified length.
+ *  Regular files do not block.
+ *  @return TRUE if ''getc'' would not block, FALSE otherwise.
+ *)
 const func boolean: inputReady (in external_file: inFile) is
   return inputReady(inFile.ext_file);
 

@@ -188,52 +188,55 @@ const proc: close (inout browserConnection: browser) is func
   end func;
 
 
-const proc: display (inout browserConnection: browser, inout webPage: currWebPage) is func
+const proc: acceptNewSock (inout browserConnection: browser) is func
   local
     var boolean: hasNext is FALSE;
+  begin
+    repeat
+      browser.sock := accept(browser.inetListener);
+      hasNext := hasNext(browser.sock);
+      # writeln(hasNext);
+      if not hasNext then
+        close(browser.sock);
+      end if;
+    until hasNext;
+    # writeln("accept");
+  end func;
+
+
+const proc: display (inout browserConnection: browser, inout webPage: currWebPage) is func
+  local
     var string: filePath is "";
     var paramHashType: paramHash is paramHashType.value;
   begin
     # writeln("display " <& currWebPage.title);
     send(currWebPage, browser.sock);
     if not browser.keepAlive then
-      close(browser.sock);
+      close(browser);
     end if;
     if currWebPage.isForm then
       repeat
-        if browser.keepAlive and not hasNext(browser.sock) then
-          close(browser.sock);
-          browser.keepAlive := FALSE;
-        end if;
         if not browser.keepAlive then
-          repeat
-            browser.sock := accept(browser.inetListener);
-            hasNext := hasNext(browser.sock);
-            # writeln(hasNext);
-            if not hasNext then
-              close(browser.sock);
-            end if;
-          until hasNext;
-          # writeln("accept");
+          acceptNewSock(browser);
         end if;
         filePath := processHttpRequest(browser, paramHash);
         if filePath <> "/" then
-          writeln(browser.sock, "HTTP/1.1 404 Not Found");
-          writeln(browser.sock, "Connection: keep-alive");
-          writeln(browser.sock, "Content-Length: 0");
-          writeln(browser.sock);
+          # If the connection has been closed filePath is "".
+          block
+            write(browser.sock, "HTTP/1.1 404 Not Found\r\n\
+                                \Connection: keep-alive\r\n\
+                                \Content-Length: 0\r\n\
+                                \r\n");
+          exception
+            catch FILE_ERROR:
+              noop;  # Ignore error (the browser has already closed the socket).
+          end block;
           if not browser.keepAlive then
-            close(browser.sock);
+            # If the connection has been closed keepAlive is FALSE.
+            close(browser);
           end if;
         end if;
       until filePath = "/";
       update(currWebPage, paramHash);
     end if;
-  end func;
-
-
-# The function display() with the browser as second argument is deprecated.
-const proc: display (inout webPage: currWebPage, inout browserConnection: browser) is func
-  begin
-    display(browser, currWebPage);
   end func;

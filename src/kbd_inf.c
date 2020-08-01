@@ -166,9 +166,9 @@ static void show_term_descr (struct termios *curr_term_descr)
  *  Determine if two termios structs are equal.
  *  Comparing with memcmp does not work correctly.
  *  Struct termios has data at and after &c_cc[NCCS].
- *  Therefore memcmp sees differences, even when the
+ *  Therefore memcmp sees differences, even if the
  *  official fields of struct termios are equal.
- *  @return TRUE when the thow termios structs are equal,
+ *  @return TRUE if the thow termios structs are equal,
  *          FALSE otherwise.
  */
 static boolType term_descr_equal (struct termios *term_descr1, struct termios *term_descr2)
@@ -196,10 +196,10 @@ static boolType term_descr_equal (struct termios *term_descr1, struct termios *t
  *  Change the terminal attributes to 'new_term_descr'.
  *  The function tcsetattr() returns success if any of the
  *  requested changes could be successfully carried out.
- *  When doing multiple changes it is necessary to check
+ *  If doing multiple changes it is necessary to check
  *  with tcgetattr(), that all changes have been performed
  *  successfully.
- *  @return TRUE when the change of the attributes was successful,
+ *  @return TRUE if the change of the attributes was successful,
  *          FALSE otherwise.
  */
 static boolType tcset_term_descr (int file_no, struct termios *new_term_descr)
@@ -230,10 +230,10 @@ static boolType tcset_term_descr (int file_no, struct termios *new_term_descr)
  *  Change the terminal attributes 'vmin' and 'vtime'.
  *  The function tcsetattr() returns success if any of the
  *  requested changes could be successfully carried out.
- *  When doing multiple changes it is necessary to check
+ *  If doing multiple changes it is necessary to check
  *  with tcgetattr(), that all changes have been performed
  *  successfully.
- *  @return TRUE when the change of the attributes was successful,
+ *  @return TRUE if the change of the attributes was successful,
  *          FALSE otherwise.
  */
 static boolType tcset_vmin_vtime (int file_no, int vmin, int vtime)
@@ -296,7 +296,7 @@ static void consume_chars_present (void)
 static charType read_utf8_key (ustriType ustri, size_t ustri_len)
 
   {
-    size_t len;
+    memSizeType len;
     strElemType stri[6];
     memSizeType dest_len;
 
@@ -399,7 +399,7 @@ static charType read_f_key (charType actual_char)
         /* function with escape should be safe. The following       */
         /* actions are done to avoid further damage. As long as     */
         /* characters are already typed in they are read and        */
-        /* discarded. When no more characters are present in the    */
+        /* discarded. If no more characters are present in the      */
         /* input queue the function returns K_NULLCMD. The          */
         /* K_NULLCMD should do nothing in every application.        */
         /* fprintf(stderr, "<possible garbage keys>"); */

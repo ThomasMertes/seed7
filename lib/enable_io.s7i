@@ -56,7 +56,7 @@ const proc: enable_input (in type: aType) is func
      *  The conversion to the type ''aType'' is done with the ''parse''
      *  operator. When the function is left inFile.bufferChar contains the
      *  word ending character (' ', '\t', '\n' or [[char#EOF|EOF]]).
-     *  @exception RANGE_ERROR When the ''parse'' operator cannot convert
+     *  @exception RANGE_ERROR If the ''parse'' operator cannot convert
      *             the word to the type ''aType''.
      *)
     const proc: read (inout file: inFile, inout aType: aVar) is func
@@ -68,11 +68,11 @@ const proc: enable_input (in type: aType) is func
      *  Read ''aVar'' from a word read from ''inFile'' or use ''defaultValue''.
      *  Before reading the word it skips spaces and tabs. The function
      *  accepts words ending with " ", "\t", end-of-line or [[char#EOF|EOF]].
-     *  When the word is empty ''defaultValue'' is assigned to ''aVar''.
+     *  If the word is empty ''defaultValue'' is assigned to ''aVar''.
      *  The conversion to the type ''aType'' is done with the ''parse''
      *  operator. When the function is left inFile.bufferChar contains the
      *  word ending character (' ', '\t', '\n' or [[char#EOF|EOF]]).
-     *  @exception RANGE_ERROR When the ''parse'' operator cannot convert
+     *  @exception RANGE_ERROR If the ''parse'' operator cannot convert
      *             the word to the type ''aType''.
      *)
     const proc: read (inout file: inFile, inout aType: aVar,
@@ -94,7 +94,7 @@ const proc: enable_input (in type: aType) is func
      *  The conversion to the type ''aType'' is done with the ''parse''
      *  operator. When the function is left inFile.bufferChar contains the
      *  line ending character ('\n' or [[char#EOF|EOF]]).
-     *  @exception RANGE_ERROR When the ''parse'' operator cannot convert
+     *  @exception RANGE_ERROR If the ''parse'' operator cannot convert
      *             the line to the type ''aType''.
      *)
     const proc: readln (inout file: inFile, inout aType: aVar) is func
@@ -105,11 +105,11 @@ const proc: enable_input (in type: aType) is func
     (**
      *  Read ''aVar'' from a line read from ''inFile'' or use ''defaultValue''.
      *  The function reads a string up to end-of-line or [[char#EOF|EOF]].
-     *  When the line is empty ''defaultValue'' is assigned to ''aVar''.
+     *  If the line is empty ''defaultValue'' is assigned to ''aVar''.
      *  The conversion to the type ''aType'' is done with the ''parse''
      *  operator. When the function is left inFile.bufferChar contains the
      *  line ending character ('\n' or [[char#EOF|EOF]]).
-     *  @exception RANGE_ERROR When the ''parse'' operator cannot convert
+     *  @exception RANGE_ERROR If the ''parse'' operator cannot convert
      *             the line to the type ''aType''.
      *)
     const proc: readln (inout file: inFile, inout aType: aVar,
@@ -132,7 +132,7 @@ const proc: enable_input (in type: aType) is func
      *  The conversion to the type ''aType'' is done with the ''parse''
      *  operator. When the function is left [[stdio#IN|IN]].bufferChar contains the
      *  word ending character (' ', '\t', '\n' or [[char#EOF|EOF]]).
-     *  @exception RANGE_ERROR When the ''parse'' operator cannot convert
+     *  @exception RANGE_ERROR If the ''parse'' operator cannot convert
      *             the word to the type ''aType''.
      *)
     const proc: read (inout aType: aVar) is func
@@ -144,11 +144,11 @@ const proc: enable_input (in type: aType) is func
      *  Read ''aVar'' from a word read from standard input ([[stdio#IN|IN]]) or use ''defaultValue''.
      *  Before reading the word it skips spaces and tabs. The function
      *  accepts words ending with " ", "\t", end-of-line or [[char#EOF|EOF]].
-     *  When the word is empty ''defaultValue'' is assigned to ''aVar''.
+     *  If the word is empty ''defaultValue'' is assigned to ''aVar''.
      *  The conversion to the type ''aType'' is done with the ''parse''
      *  operator. When the function is left [[stdio#IN|IN]].bufferChar contains the
      *  word ending character (' ', '\t', '\n' or [[char#EOF|EOF]]).
-     *  @exception RANGE_ERROR When the ''parse'' operator cannot convert
+     *  @exception RANGE_ERROR If the ''parse'' operator cannot convert
      *             the word to the type ''aType''.
      *)
     const proc: read (inout aType: aVar, in aType: defaultValue) is func
@@ -162,7 +162,7 @@ const proc: enable_input (in type: aType) is func
      *  The conversion to the type ''aType'' is done with the ''parse''
      *  operator. When the function is left [[stdio#IN|IN]].bufferChar contains the
      *  line ending character ('\n' or [[char#EOF|EOF]]).
-     *  @exception RANGE_ERROR When the ''parse'' operator cannot convert
+     *  @exception RANGE_ERROR If the ''parse'' operator cannot convert
      *             the line to the type ''aType''.
      *)
     const proc: readln (inout aType: aVar) is func
@@ -173,11 +173,11 @@ const proc: enable_input (in type: aType) is func
     (**
      *  Read ''aVar'' from a line read from standard input ([[stdio#IN|IN]]) or use ''defaultValue''.
      *  The function reads a string up to end-of-line or [[char#EOF|EOF]].
-     *  When the line is empty ''defaultValue'' is assigned to ''aVar''.
+     *  If the line is empty ''defaultValue'' is assigned to ''aVar''.
      *  The conversion to the type ''aType'' is done with the ''parse''
      *  operator. When the function is left [[stdio#IN|IN]].bufferChar contains the
      *  line ending character ('\n' or [[char#EOF|EOF]]).
-     *  @exception RANGE_ERROR When the ''parse'' operator cannot convert
+     *  @exception RANGE_ERROR If the ''parse'' operator cannot convert
      *             the line to the type ''aType''.
      *)
     const proc: readln (inout aType: aVar, in aType: defaultValue) is func

@@ -137,9 +137,9 @@ boolType checkStack (boolType inLogMacro)
     /* when the function is called from the interpreter.   */
     if (unlikely(max_stack_size > CHECKED_STACK_SIZE_LIMIT &&
                  inLogMacro != interpreter_exception)) {
-      /* The logFunctions (when inLogMacro is TRUE) should */
+      /* The logFunctions (if inLogMacro is TRUE) should   */
       /* only trigger an exeption for compiled programs    */
-      /* (when interpreter_exception is FALSE). In the     */
+      /* (if interpreter_exception is FALSE). In the       */
       /* interpreter the stack checking is called from the */
       /* function exec_action() (in this case inLogMacro   */
       /* is FALSE and interpreter_exception is TRUE).      */
@@ -171,7 +171,7 @@ memSizeType getMaxStackSize (void)
 #if WITH_STRI_CAPACITY
 /**
  *  Enlarge the capacity of a string.
- *  This function is called from the macro GROW_STRI, when the
+ *  This function is called from the macro GROW_STRI, if the
  *  capacity of a string is not sufficient. GrowStri enlarges the
  *  capacity such that at least 'len' characters fit into it.
  *  It is assumed that 'stri' will grow further, therefore the
@@ -233,7 +233,7 @@ striType growStri (striType stri, memSizeType len)
 
 /**
  *  Reduce the capacity of a string.
- *  This function is called from the macro SHRINK_STRI, when the
+ *  This function is called from the macro SHRINK_STRI, if the
  *  capacity of a string is much too large. ShrinkStri reduces the
  *  capacity, but it leaves room, such that it can grow again.
  *  @param stri String for which the capacity is reduced.

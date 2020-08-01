@@ -131,7 +131,7 @@ const proc: close (inout smtpConnection: smtp) is func
  *                  SMTP usually uses the ports 25, 465 and 587,
  *                  but other ports can also be specified.
  *  @return an SMTP connection. For an open SMTP connection
- *          smtp.sock <> STD_NULL holds. When the connection could not
+ *          smtp.sock <> STD_NULL holds. If the connection could not
  *          be opened smtp.sock = STD_NULL holds.
  *)
 const func smtpConnection: openSmtp (in string: hostName,
@@ -179,7 +179,7 @@ const func smtpConnection: openSmtp (in string: hostName,
  *  @param smtp Open smtp connection.
  *  @param user Username to be used for the login.
  *  @param password Password to be used for the login.
- *  @exception FILE_ERROR When the login fails.
+ *  @exception FILE_ERROR If the login fails.
  *)
 const proc: login (inout smtpConnection: smtp, in string: user,
     in string: password) is func
@@ -206,7 +206,7 @@ const proc: login (inout smtpConnection: smtp, in string: user,
  *  @param fromAddr Address of the sender.
  *  @param toAddrs Addresses of the receivers.
  *  @param message Message to be sent.
- *  @exception FILE_ERROR When sending the message fails.
+ *  @exception FILE_ERROR If sending the message fails.
  *)
 const proc: send (inout smtpConnection: smtp, in string: fromAddr,
                   in array string: toAddrs, in smtpMessage: message) is func
@@ -249,7 +249,7 @@ const proc: send (inout smtpConnection: smtp, in string: fromAddr,
  *  Send ''message'' to the addresses specified in the message.
  *  @param smtp Open smtp connection.
  *  @param message Message to be sent.
- *  @exception FILE_ERROR When sending the message fails.
+ *  @exception FILE_ERROR If sending the message fails.
  *)
 const proc: send (inout smtpConnection: smtp, in smtpMessage: message) is func
   begin

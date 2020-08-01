@@ -52,7 +52,7 @@ const proc: (inout ref_list: dest) &:= (in ref_list: extension)          is acti
  *   A @:= [B] C;
  *  is equivalent to
  *   A := A[..pred(B)] & make_list(C) & A[succ(B)..];
- *  @exception RANGE_ERROR When ''position'' is negative or zero.
+ *  @exception RANGE_ERROR If ''position'' is negative or zero.
  *  @exception RANGE_ERROR An element beyond ''dest'' would be
                overwritten (''position'' > length(''dest'') holds).
  *)
@@ -92,7 +92,7 @@ const func boolean: (in ref_list: refList1) <> (in ref_list: refList2)   is acti
 (**
  *  Access one element from the ''ref_list'' ''aRefList''.
  *  @return the element with the specified ''index'' from ''aRefList''.
- *  @exception RANGE_ERROR When the index is less than 1 or
+ *  @exception RANGE_ERROR If the index is less than 1 or
  *             greater than the length of the ''ref_list''.
  *)
 const func reference: (in ref_list: aRefList) [ (in integer: index) ]    is action "RFL_IDX";
@@ -137,7 +137,7 @@ const func ref_list: (in ref_list: refList1) & (in ref_list: refList2)   is acti
 (**
  *  Membership test for a ''ref_list''.
  *  Determine if ''aRefList'' contains ''element''.
- *  @return TRUE when ''element'' is a member of  ''aRefList'',
+ *  @return TRUE if ''element'' is a member of  ''aRefList'',
  *          FALSE otherwise.
  *)
 const func boolean: (in reference: element) in (in ref_list: aRefList)   is action "RFL_ELEM";
@@ -146,7 +146,7 @@ const func boolean: (in reference: element) in (in ref_list: aRefList)   is acti
 (**
  *  Negated membership test for a ''ref_list''.
  *  Determine if ''aRefList'' does not contain ''element''.
- *  @return FALSE when ''element'' is a member of  ''aRefList'',
+ *  @return FALSE if ''element'' is a member of  ''aRefList'',
  *          TRUE otherwise.
  *)
 const func boolean: (in reference: element) not in (in ref_list: aRefList) is action "RFL_NOT_ELEM";
@@ -155,7 +155,7 @@ const func boolean: (in reference: element) not in (in ref_list: aRefList) is ac
 (**
  *  Search for the first occurance of ''searched'' in ''main''.
  *  The first element in a ''ref_list'' has the position 1.
- *  @return the position of ''searched'' or 0 when ''main''
+ *  @return the position of ''searched'' or 0 if ''main''
  *          does not contain ''searched''.
  *)
 const func integer: pos (in ref_list: main, in reference: searched)      is action "RFL_POS";
@@ -173,7 +173,7 @@ const func integer: pos (in ref_list: main, in reference: searched)      is acti
  *     index := pos(aList, aReference, succ(index));
  *   end while;
  *
- *  @return the position of ''searched'' or 0 when ''main''
+ *  @return the position of ''searched'' or 0 if ''main''
  *          does not contain ''searched'' at or after ''start''.
  *  @exception RANGE_ERROR ''start'' <= 0 holds.
  *)

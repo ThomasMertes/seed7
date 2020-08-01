@@ -66,7 +66,7 @@ const func bigInteger: bigLength (ref null_file: aFile) is func
 (**
  *  Set the current file position.
  *  A [[null_file]] is not seekable, therefore FILE_ERROR is raised.
- *  When a derived type is seekable it needs to override this function.
+ *  If a derived type is seekable it needs to override this function.
  *  @exception FILE_ERROR Is always raised, because a [[null_file]] is
  *             not seekable.
  *)
@@ -79,7 +79,7 @@ const proc: seek (ref null_file: aFile, ref bigInteger: position) is func
 (**
  *  Obtain the current file position.
  *  A [[null_file]] is not seekable, therefore FILE_ERROR is raised.
- *  When a derived type is seekable it needs to override this function.
+ *  If a derived type is seekable it needs to override this function.
  *  @return nothing, because FILE_ERROR is always raised.
  *  @exception FILE_ERROR Is always raised, because a [[null_file]] is
  *             not seekable.

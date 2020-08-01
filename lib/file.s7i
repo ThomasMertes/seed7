@@ -133,7 +133,7 @@ const func boolean: eoln (in file: inFile)                   is DYNAMIC;
 
 (**
  *  Determine the end-of-file indicator.
- *  The end-of-file indicator is set when at least one request to read
+ *  The end-of-file indicator is set if at least one request to read
  *  from the file failed.
  *  @return TRUE if the end-of-file indicator is set, FALSE otherwise.
  *)
@@ -149,6 +149,13 @@ const func boolean: eof (in file: inFile)                    is DYNAMIC;
 const func boolean: hasNext (in file: inFile)                is DYNAMIC;
 
 
+(**
+ *  Determine if at least one character can be read without blocking.
+ *  Blocking means that ''getc'' would wait until a character is
+ *  received. Blocking can last for a period of unspecified length.
+ *  Regular files do not block.
+ *  @return TRUE if ''getc'' would not block, FALSE otherwise.
+ *)
 const func boolean: inputReady (in file: inFile)             is DYNAMIC;
 
 
@@ -193,7 +200,7 @@ const func integer: tell (in file: aFile)                    is DYNAMIC;
  *  This function does neither compare file contents nor file names.
  *  The order of two files is determined by comparing the memory
  *  positions of their internal data representation. Therefore the
- *  result of ''compare'' is arbitrary and may change when the
+ *  result of ''compare'' is arbitrary and may change if the
  *  program is executed again. Inside a program the result of
  *  ''compare'' is consistent and can be used to maintain hash
  *  tables.
@@ -233,7 +240,7 @@ const proc: read (inout file: inFile, inout string: aVar) is func
  *  Read a word from ''inFile'' into ''aVar'' or use ''defaultValue''.
  *  Before reading the word it skips spaces and tabs. The function
  *  accepts words ending with " ", "\t", end-of-line or [[char#EOF|EOF]].
- *  When the word is empty ''defaultValue'' is assigned to ''aVar''.
+ *  If the word is empty ''defaultValue'' is assigned to ''aVar''.
  *  The word ending character is not copied into the string.
  *  When the function is left inFile.bufferChar contains the
  *  word ending character (' ', '\t', '\n' or [[char#EOF|EOF]]).
@@ -264,7 +271,7 @@ const proc: readln (inout file: inFile, inout string: aVar) is func
 (**
  *  Read a line from ''inFile'' into ''aVar'' or use ''defaultValue''.
  *  The function reads a string up to end-of-line or [[char#EOF|EOF]].
- *  When the line is empty ''defaultValue'' is assigned to ''aVar''.
+ *  If the line is empty ''defaultValue'' is assigned to ''aVar''.
  *  The line ending character is not copied into the string.
  *  When the function is left inFile.bufferChar contains the
  *  line ending character ('\n' or [[char#EOF|EOF]]).

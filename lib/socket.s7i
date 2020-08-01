@@ -294,7 +294,7 @@ const func string: getln (inout socket: inSocket) is
 
 (**
  *  Determine the end-of-file indicator.
- *  The end-of-file indicator is set when at least one request to read
+ *  The end-of-file indicator is set if at least one request to read
  *  from the socket failed. The socket functions ''getc'', ''gets'',
  *  ''getln'' and ''getwd'' indicate the end-of-file situation by
  *  setting ''bufferChar'' to [[char#EOF|EOF]].

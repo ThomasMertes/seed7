@@ -441,7 +441,7 @@ const proc: process_const_big_add (in reference: param1, in bigInteger: number,
 
 (**
  *  Produces code for the big integer addition.
- *  When the first or the second parameter is a temporary value
+ *  If the first or the second parameter is a temporary value
  *  the addition is done with bigAddTemp. The bigAddTemp function
  *  returns the first parameter as result of the addition. That
  *  way the temporary value of a parameter must not be freed.
@@ -1897,7 +1897,7 @@ const proc: process (BIG_RSHIFT_ASSIGN, in reference: function,
 
 (**
  *  Produces code for the big integer subtraction.
- *  When the first parameter is a temporary value the subtraction
+ *  If the first parameter is a temporary value the subtraction
  *  is done with bigSbtrTemp. The bigSbtrTemp function returns
  *  the first parameter as result of the subtraction. That way the
  *  temporary of the first parameter must not be freed.

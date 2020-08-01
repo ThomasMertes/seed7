@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  tls.s7i       Support for Transport Layer Security (TLS/SSL).   *)
-(*  Copyright (C) 2013 - 2018  Thomas Mertes                        *)
+(*  Copyright (C) 2013 - 2019  Thomas Mertes                        *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)
 (*                                                                  *)
@@ -163,10 +163,33 @@ const integer: STATUS_REQUEST_V2                      is    17;  # RFC6961
 const integer: SIGNED_CERTIFICATE_TIMESTAMP           is    18;  # RFC6962
 const integer: CLIENT_CERTIFICATE_TYPE                is    19;  # RFC7250
 const integer: SERVER_CERTIFICATE_TYPE                is    20;  # RFC7250
-const integer: PADDING                                is    21;
+const integer: PADDING                                is    21;  # RFC7685
 const integer: ENCRYPT_THEN_MAC                       is    22;  # RFC7366
-const integer: EXTENDED_MASTER_SECRET                 is    23;
+const integer: EXTENDED_MASTER_SECRET                 is    23;  # RFC7627
+const integer: TOKEN_BINDING                          is    24;  # RFC8472
+const integer: CACHED_INFO                            is    25;  # RFC7924
+const integer: TLS_LTS                                is    26;
+const integer: COMPRESS_CERTIFICATE                   is    27;
+const integer: RECORD_SIZE_LIMIT                      is    28;  # RFC8449
+const integer: PWD_PROTECT                            is    29;  # RFC8492
+const integer: PWD_CLEAR                              is    30;  # RFC8492
+const integer: PASSWORD_SALT                          is    31;  # RFC8492
+const integer: TICKET_PINNING                         is    32;
 const integer: SESSION_TICKET_TLS                     is    35;  # RFC4507
+const integer: PRE_SHARED_KEY                         is    41;  # RFC8446
+const integer: EARLY_DATA                             is    42;  # RFC8446
+const integer: SUPPORTED_VERSIONS                     is    43;  # RFC8446
+const integer: COOKIE                                 is    44;  # RFC8446
+const integer: PSK_KEY_EXCHANGE_MODES                 is    45;  # RFC8446
+const integer: CERTIFICATE_AUTHORITIES                is    47;  # RFC8446
+const integer: OID_FILTERS                            is    48;  # RFC8446
+const integer: POST_HANDSHAKE_AUTH                    is    49;  # RFC8446
+const integer: SIGNATURE_ALGORITHMS_CERT              is    50;  # RFC8446
+const integer: KEY_SHARE                              is    51;  # RFC8446
+const integer: TRANSPARENCY_INFO                      is    52;
+const integer: CONNECTION_ID                          is    53;
+const integer: EXTERNAL_ID_HASH                       is    55;
+const integer: EXTERNAL_SESSION_ID                    is    56;
 const integer: NEXT_PROTOCOL_NEGOTIATION              is 13172;
 const integer: RENEGOTIATION_INFO                     is 65281;  # RFC5746
 
@@ -1877,7 +1900,7 @@ const proc: close (inout tlsFile: aFile) is func
 
 (**
  *  Determine the end-of-file indicator.
- *  The end-of-file indicator is set when at least one request to read
+ *  The end-of-file indicator is set if at least one request to read
  *  from the socket failed. The socket functions ''getc'', ''gets'',
  *  ''getln'' and ''getwd'' indicate the end-of-file situation by
  *  setting ''bufferChar'' to [[char#EOF|EOF]].

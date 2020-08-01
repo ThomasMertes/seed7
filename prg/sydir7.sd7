@@ -262,8 +262,8 @@ const proc: main is func
       writeln("usage: sydir7 {-c|-n} source destination");
       writeln;
       writeln("Options:");
-      writeln("  -c Copy files. Remove destination files, when they are missing in");
-      writeln("     source. Overwrite newer destination files with older source files.");
+      writeln("  -c Copy files. Remove destination files, if they are missing in source.");
+      writeln("     Overwrite newer destination files with older source files.");
       writeln("  -n No change. Write, what should be done to sync, but do not change");
       writeln("     anything.");
       writeln;

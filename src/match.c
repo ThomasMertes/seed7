@@ -167,7 +167,7 @@ static void check_access_rights (const_objectType object)
  *  Parameters have the category VALUEPARAMOBJECT or REFPARAMOBJECT.
  *  The values of normal parameters are set with do_create().
  *  Do_create() is also used when a variable or parameter is initialized.
- *  When a parameter has an expression as value (category EXPROBJECT,
+ *  If a parameter has an expression as value (category EXPROBJECT,
  *  CALLOBJECT, MATCHOBJECT or LISTOBJECT) the expression is copied
  *  to the place of the parameter instead. This copiing is necessary,
  *  because for expressions do_create() would just creates a reference
@@ -397,7 +397,7 @@ objectType match_object (objectType object)
 
 /**
  *  Assure that objects are preceeded by a MATCHOBJECT.
- *  This function is used when a "match" has several parameters.
+ *  This function is used if a "match" has several parameters.
  */
 static objectType match_object2 (objectType object, const_objectType expr_object)
 
@@ -483,7 +483,7 @@ static objectType match_object2 (objectType object, const_objectType expr_object
 
 /**
  *  Assure that BLOCKOBJECT and ACTOBJECT objects are preceeded by a MATCHOBJECT.
- *  This function is used when a "match" has no parameters.
+ *  This function is used if a "match" has no parameters.
  */
 static objectType match_object3 (objectType object, const_objectType expr_object)
 
