@@ -1669,33 +1669,35 @@
                   ( decr(A) => A -:= 1 )
 </pre><p>
   For the operations <tt>'<font color=blue>div</font>'</tt> and <tt>'<font color=blue>rem</font>'</tt> holds for all A:</p><pre>
-    (A <font color=blue>div</font> B) * B + A <font color=blue>rem</font> B = A         when B &lt;> 0
-    -A <font color=blue>div</font> B = -(A <font color=blue>div</font> B)               when B &lt;> 0
-    A <font color=blue>rem</font> B >= 0                        when B &lt;> 0 and A >= 0
-    A <font color=blue>rem</font> B &lt;= 0                        when B &lt;> 0 and A &lt;= 0
+    (A <font color=blue>div</font> B) * B + A <font color=blue>rem</font> B = A           when B &lt;> 0
+    -A <font color=blue>div</font> B = -(A <font color=blue>div</font> B)                 when B &lt;> 0
+    -A <font color=blue>rem</font> B = -(A <font color=blue>rem</font> B)                 when B &lt;> 0
+    A <font color=blue>rem</font> B >= 0 <font color=blue>and</font> A <font color=blue>rem</font> B &lt; abs(B)     when B &lt;> 0 and A >= 0
+    A <font color=blue>rem</font> B &lt;= 0 <font color=blue>and</font> A <font color=blue>rem</font> B > -abs(B)    when B &lt;> 0 and A &lt;= 0
 </pre><p>
   For the operations <tt>'<font color=blue>mdiv</font>'</tt> and <tt>'<font color=blue>mod</font>'</tt> holds for all A:</p><pre>
-    (A <font color=blue>mdiv</font> B) * B + A <font color=blue>mod</font> B = A        when B &lt;> 0
-    A <font color=blue>mdiv</font> -B = -(A <font color=blue>mdiv</font> B)             when B &lt;> 0
-    A <font color=blue>mod</font> B >= 0                        when B > 0
-    A <font color=blue>mod</font> B &lt;= 0                        when B &lt; 0
+    (A <font color=blue>mdiv</font> B) * B + A <font color=blue>mod</font> B = A          when B &lt;> 0
+    -A <font color=blue>mdiv</font> B = A <font color=blue>mdiv</font> -B                 when B &lt;> 0
+    -A <font color=blue>mod</font> -B = -(A <font color=blue>mod</font> B)                when B &lt;> 0
+    A <font color=blue>mod</font> B >= 0 <font color=blue>and</font> A <font color=blue>mod</font> B &lt; B          when B > 0
+    A <font color=blue>mod</font> B &lt;= 0 <font color=blue>and</font> A <font color=blue>mod</font> B > B          when B &lt; 0
 </pre><p>
   For the operation <tt>'<font color=blue>mdiv</font>'</tt> holds:</p><pre>
-    A <font color=blue>mdiv</font> B = A <font color=blue>div</font> B - 1          When A and B have different
-                                    signs and A <font color=blue>rem</font> B &lt;> 0 holds.
-    A <font color=blue>mdiv</font> B = A <font color=blue>div</font> B              When A and B have the same
-                                    sign or A <font color=blue>rem</font> B = 0 holds.
-    A <font color=blue>mdiv</font> B = (A - 1) <font color=blue>div</font> B - 1    When A > 0 and B &lt; 0 holds.
-    A <font color=blue>mdiv</font> B = (A + 1) <font color=blue>div</font> B - 1    When A &lt; 0 and B > 0 holds.
+    A <font color=blue>mdiv</font> B = A <font color=blue>div</font> B - 1            when A and B have different
+                                      signs and A <font color=blue>rem</font> B &lt;> 0 holds.
+    A <font color=blue>mdiv</font> B = A <font color=blue>div</font> B                when A and B have the same
+                                      sign or A <font color=blue>rem</font> B = 0 holds.
+    A <font color=blue>mdiv</font> B = (A - 1) <font color=blue>div</font> B - 1      when A > 0 and B &lt; 0 holds.
+    A <font color=blue>mdiv</font> B = (A + 1) <font color=blue>div</font> B - 1      when A &lt; 0 and B > 0 holds.
 </pre><p>
   For the operation <tt>'<font color=blue>mod</font>'</tt> holds:</p><pre>
-    A <font color=blue>mod</font> B = A <font color=blue>rem</font> B + B    When A and B have different
-                             signs and A <font color=blue>rem</font> B &lt;> 0 holds.
-    A <font color=blue>mod</font> B = A <font color=blue>rem</font> B        When A and B have the same
-                             sign or A <font color=blue>rem</font> B = 0 holds.
+    A <font color=blue>mod</font> B = A <font color=blue>rem</font> B + B      when A and B have different
+                               signs and A <font color=blue>rem</font> B &lt;> 0 holds.
+    A <font color=blue>mod</font> B = A <font color=blue>rem</font> B          when A and B have the same
+                               sign or A <font color=blue>rem</font> B = 0 holds.
 </pre><p>
 
-  Tables for the behaviour of <tt>'<font color=blue>div</font>'</tt>, <tt>'<font color=blue>rem</font>'</tt>, <tt>'<font color=blue>mdiv</font>'</tt> and <tt>'<font color=blue>mod</font>'</tt>:
+  Table for the behaviour of <tt>'<font color=blue>div</font>'</tt>, <tt>'<font color=blue>rem</font>'</tt>, <tt>'<font color=blue>mdiv</font>'</tt> and <tt>'<font color=blue>mod</font>'</tt>:
 </p><pre>
      A    B   A <font color=blue>div</font> B   A <font color=blue>rem</font> B   A <font color=blue>mdiv</font> B  A <font color=blue>mod</font> B
 
@@ -1862,33 +1864,35 @@
                   ( decr(A) => A -:= 1_ )
 </pre><p>
   For the operations <tt>'<font color=blue>div</font>'</tt> and <tt>'<font color=blue>rem</font>'</tt> holds for all A:</p><pre>
-    (A <font color=blue>div</font> B) * B + A <font color=blue>rem</font> B = A         when B &lt;> 0_
-    -A <font color=blue>div</font> B = -(A <font color=blue>div</font> B)               when B &lt;> 0_
-    A <font color=blue>rem</font> B >= 0_                       when B &lt;> 0_ and A >= 0_
-    A <font color=blue>rem</font> B &lt;= 0_                       when B &lt;> 0_ and A &lt;= 0_
+    (A <font color=blue>div</font> B) * B + A <font color=blue>rem</font> B = A           when B &lt;> 0_
+    -A <font color=blue>div</font> B = -(A <font color=blue>div</font> B)                 when B &lt;> 0_
+    -A <font color=blue>rem</font> B = -(A <font color=blue>rem</font> B)                 when B &lt;> 0_
+    A <font color=blue>rem</font> B >= 0_ <font color=blue>and</font> A <font color=blue>rem</font> B &lt; abs(B)    when B &lt;> 0_ and A >= 0_
+    A <font color=blue>rem</font> B &lt;= 0_ <font color=blue>and</font> A <font color=blue>rem</font> B > -abs(B)   when B &lt;> 0_ and A &lt;= 0_
 </pre><p>
   For the operations <tt>'<font color=blue>mdiv</font>'</tt> and <tt>'<font color=blue>mod</font>'</tt> holds for all A:</p><pre>
-    (A <font color=blue>mdiv</font> B) * B + A <font color=blue>mod</font> B = A        when B &lt;> 0_
-    A <font color=blue>mdiv</font> -B = -(A <font color=blue>mdiv</font> B)             when B &lt;> 0_
-    A <font color=blue>mod</font> B >= 0_                       when B > 0_
-    A <font color=blue>mod</font> B &lt;= 0_                       when B &lt; 0_
+    (A <font color=blue>mdiv</font> B) * B + A <font color=blue>mod</font> B = A          when B &lt;> 0_
+    -A <font color=blue>mdiv</font> B = A <font color=blue>mdiv</font> -B                 when B &lt;> 0_
+    -A <font color=blue>mod</font> -B = -(A <font color=blue>mod</font> B)                when B &lt;> 0_
+    A <font color=blue>mod</font> B >= 0_ <font color=blue>and</font> A <font color=blue>mod</font> B &lt; B         when B > 0_
+    A <font color=blue>mod</font> B &lt;= 0_ <font color=blue>and</font> A <font color=blue>mod</font> B > B         when B &lt; 0_
 </pre><p>
   For the operation <tt>'<font color=blue>mdiv</font>'</tt> holds:</p><pre>
-    A <font color=blue>mdiv</font> B = A <font color=blue>div</font> B - 1_         When A and B have different
-                                    signs and A <font color=blue>rem</font> B &lt;> 0_ holds.
-    A <font color=blue>mdiv</font> B = A <font color=blue>div</font> B              When A and B have the same
-                                    sign or A <font color=blue>rem</font> B = 0_ holds.
-    A <font color=blue>mdiv</font> B = (A - 1_) <font color=blue>div</font> B - 1_  When A > 0_ and B &lt; 0_ holds.
-    A <font color=blue>mdiv</font> B = (A + 1_) <font color=blue>div</font> B - 1_  When A &lt; 0_ and B > 0_ holds.
+    A <font color=blue>mdiv</font> B = A <font color=blue>div</font> B - 1_           when A and B have different
+                                      signs and A <font color=blue>rem</font> B &lt;> 0_ holds.
+    A <font color=blue>mdiv</font> B = A <font color=blue>div</font> B                when A and B have the same
+                                      sign or A <font color=blue>rem</font> B = 0_ holds.
+    A <font color=blue>mdiv</font> B = (A - 1_) <font color=blue>div</font> B - 1_    when A > 0_ and B &lt; 0_ holds.
+    A <font color=blue>mdiv</font> B = (A + 1_) <font color=blue>div</font> B - 1_    when A &lt; 0_ and B > 0_ holds.
 </pre><p>
   For the operation <tt>'<font color=blue>mod</font>'</tt> holds:</p><pre>
-    A <font color=blue>mod</font> B = A <font color=blue>rem</font> B + B    When A and B have different
-                             signs and A <font color=blue>rem</font> B &lt;> 0_ holds.
-    A <font color=blue>mod</font> B = A <font color=blue>rem</font> B        When A and B have the same
-                             sign or A <font color=blue>rem</font> B = 0_ holds.
+    A <font color=blue>mod</font> B = A <font color=blue>rem</font> B + B      when A and B have different
+                               signs and A <font color=blue>rem</font> B &lt;> 0_ holds.
+    A <font color=blue>mod</font> B = A <font color=blue>rem</font> B          when A and B have the same
+                               sign or A <font color=blue>rem</font> B = 0_ holds.
 </pre><p>
 
-  Tables for the behaviour of <tt>'<font color=blue>div</font>'</tt>, <tt>'<font color=blue>rem</font>'</tt>, <tt>'<font color=blue>mdiv</font>'</tt> and <tt>'<font color=blue>mod</font>'</tt>:
+  Table for the behaviour of <tt>'<font color=blue>div</font>'</tt>, <tt>'<font color=blue>rem</font>'</tt>, <tt>'<font color=blue>mdiv</font>'</tt> and <tt>'<font color=blue>mod</font>'</tt>:
 </p><pre>
      A    B   A <font color=blue>div</font> B   A <font color=blue>rem</font> B   A <font color=blue>mdiv</font> B  A <font color=blue>mod</font> B
 
@@ -2405,10 +2409,18 @@
 <p>
     The type <tt>'<font color=red>array baseType</font>'</tt> describes sequences of identical
   elements of a <tt>'<font color=red>baseType</font>'</tt>. (including the empty sequence).
-  For example: <tt>'<font color=red>array integer</font>'</tt> describes array of integer elements.
+  For example: <tt>'<font color=red>array integer</font>'</tt> describes arrays of integer elements.
+  The minimal and maximal indices of an array are part of the value
+  and can be obtained with the functions <tt>'minIdx'</tt> and <tt>'maxIdx'</tt>.
+  There are functions which generate arrays with the default minimal
+  index of 1 and other functions which generate arrays with the minimal
+  index taken from a parameter.
 </p><pre>
     Literal:
-      [](elem1, elem2)  Create an array with the given elements
+      [] (elem1, elem2)  Create an array with the given elements
+                    The starting index of the array is 1.
+      [0] (elem1, elem2)  Create an array with the given elements
+                    The starting index of the array is 0.
     Infix operators:
       &         Array concatenation
       <font color=blue>times</font>     Array generation
@@ -2416,15 +2428,23 @@
                     Right operand: <font color=red>baseType</font>,
                     A <font color=blue>times</font> B Generates an '<font color=red>array baseType</font>'
                     with A elements of B,
+                    (1 <font color=blue>times</font> B)[1] => B
                     -1 <font color=blue>times</font> B => EXCEPTION RANGE_ERROR )
+      [ A .. B ] <font color=blue>times</font> C    Array generation
+                  ( Type of arguments A and B: <font color=red>integer</font> )
+                    Type of argument C: <font color=red>baseType</font>,
+                    [ A .. B ] <font color=blue>times</font> C Generates an '<font color=red>array baseType</font>'
+                    with pred(B - A) elements of C,
+                    [ -1 .. -2 ] <font color=blue>times</font> B => empty array,
+                    [ -1 .. -3 ] <font color=blue>times</font> B => EXCEPTION RANGE_ERROR )
     Indices:
       [ A ]     Access one array element
                   ( Type of argument A: <font color=red>integer</font>,
                     Type of result: <font color=red>baseType</font>,
-                    A[1] => First element,
-                    A[length(A)] => Last element,
-                    A[0] => EXCEPTION RANGE_ERROR,
-                    A[succ(length(A))] => EXCEPTION RANGE_ERROR )
+                    A[minIdx(A)] => First element,
+                    A[maxIdx(A)] => Last element,
+                    A[pred(minIdx(A))] => EXCEPTION RANGE_ERROR,
+                    A[succ(maxIdx(A))] => EXCEPTION RANGE_ERROR )
       [ A .. B ] Access a sub array
                   ( Type of arguments A and B: <font color=red>integer</font> )
       [ A .. ]  Access a sub array beginning at position A
@@ -2436,7 +2456,18 @@
     Functions:
       length(A) Length of array
                   ( Type of result: <font color=red>integer</font>,
-                    length(0 <font color=blue>times</font> TRUE) => 0 )
+                    length(A) = succ(maxIdx(A) - minIdx(A)),
+                    length(0 <font color=blue>times</font> TRUE) => 0,
+                    length(5 <font color=blue>times</font> TRUE) => 5 )
+      minIdx(A) Minimal index of array
+                  ( Type of result: <font color=red>integer</font>,
+                    minIdx(3 <font color=blue>times</font> TRUE) => 1,
+                    minIdx([-1 .. 4] <font color=blue>times</font> TRUE) => -1 )
+      maxIdx(A) Maximal index of array
+                  ( Type of result: <font color=red>integer</font>,
+                    maxIdx(3 <font color=blue>times</font> TRUE) => 3 )
+      rand(A)   Random element from an array
+                  ( Type of result:  <font color=red>baseType</font> )
       remove(A,B) Remove element with index B from array A and
                   return the removed element
                   ( Type of argument B: <font color=red>integer</font>,
@@ -2451,6 +2482,11 @@
       <font color=blue>end for</font>   Loop over all elements of an array
                   ( Type of argument A: <font color=red>baseType</font>,
                     Type of argument C: <font color=red>proc</font> )
+      insert(A, B, C) Insert C to the array A at position B
+                  ( Type of argument B: <font color=red>integer</font>,
+                    Type of argument C: <font color=red>baseType</font> )
+      insert(A, B) Insert B into the sorted array A
+                  ( Type of argument C: <font color=red>baseType</font> )
 </pre><p></p>
 
 <a name="hash"><b>5.10 hash</b></a>
@@ -2619,7 +2655,7 @@
       =, &lt;>
     Functions:
       category(A)        Get the category of the referenced object
-                  ( Type of result: <font color=red>string</font> )
+                  ( Type of result: <font color=red>category</font> )
       str(A)             Conversion to <font color=red>string</font>
                   ( Type of result: <font color=red>string</font> )
       getType(A)         Get the type of the referenced object
@@ -2630,7 +2666,9 @@
                   ( Type of result: <font color=red>boolean</font> )
       params(A)          Gets the formal params of a function
                   ( Type of result: <font color=red>ref_list</font> )
-      locals(A)          Gets the local variables of a function
+      local_vars(A)      Gets the local variables of a function
+                  ( Type of result: <font color=red>ref_list</font> )
+      local_consts(A)    Gets the local constants of a function
                   ( Type of result: <font color=red>ref_list</font> )
       body(A)            Gets the body of a function
       func_result(A)     Gets the result object of a function
@@ -2666,10 +2704,12 @@
                   ( Type of result: <font color=red>integer</font> )
     Statements:
       setCategory(A, B)  Set the category of the referenced object A to B
-                  ( Type of argument B: <font color=red>string</font> )
+                  ( Type of argument B: <font color=red>category</font> )
       setType(A, B)   Set the type of the referenced object A to B
                   ( Type of argument B: <font color=red>type</font> )
       setValue(A, B)  Set the value of the referenced object A to B
+                  ( Type of argument B: <font color=red>ref_list</font> )
+      setParams(A, B)  Set the formal params of a function
                   ( Type of argument B: <font color=red>ref_list</font> )
 </pre><p></p>
 
@@ -2681,6 +2721,12 @@
       <font color=red>ref_list</font>.EMPTY  Empty reference list.
     Infix operators:
       &         Ref_list list concatenation
+      A <font color=blue>in</font> B    Is element in ref_list
+                  ( Type of argument A: <font color=red>reference</font>,
+                    Type of result: <font color=red>boolean</font> )
+      A <font color=blue>not in</font> B  Is element not in ref_list
+                  ( Type of argument A: <font color=red>reference</font>,
+                    Type of result: <font color=red>boolean</font> )
     Indices:
       [ A ]     Access one ref_list element
                   ( Type of argument A: <font color=red>integer</font>,
@@ -2701,11 +2747,26 @@
       length(A) Length of ref_list
                   ( Type of result: <font color=red>integer</font>,
                     length(<font color=red>ref_list</font>.EMPTY) => 0 )
+      make_list(A) Create ref_list with element A
+                  ( Type of argument A: <font color=red>reference</font> )
+      pos(A,B)  First position of <font color=red>reference</font> B in <font color=red>ref_list</font> A
+                  ( Type of argument B: <font color=red>reference</font>,
+                    Type of result: <font color=red>integer</font> )
+      pos(A,B,C) First position of <font color=red>reference</font> B in <font color=red>ref_list</font> A
+                 The search starts at position C of <font color=red>ref_list</font> A
+                  ( Type of argument B: <font color=red>reference</font>,
+                    Type of argument C: <font color=red>integer</font>,
+                    Type of result: <font color=red>integer</font> )
       incl(A, B) Include element in list
                   ( Type of argument B: <font color=red>reference</font> )
       excl(A, B) Exclude element from list
                   ( Type of argument B: <font color=red>reference</font> )
     Statements:
+      A &:= B   Append B to A
+                  ( A &:= B => A := A & B )
+      A @:= [B] C  Assign C to element B of ref_list A
+                  ( Type of argument B: <font color=red>integer</font>,
+                    Type of argument C: <font color=red>reference</font> )
       for A range B do
         C
       end for   Loop over all elements of a ref_list
@@ -4341,7 +4402,11 @@
           stri &:= buffer;
           buffer := gets(file <font color=blue>conv</font> aFile, 1);
         <font color=blue>end while</font>;
-        aFile.bufferChar := buffer[1];
+        if buffer = "" then
+          aFile.bufferChar := EOF;
+        else
+          aFile.bufferChar := buffer[1];
+        end if;
       <font color=blue>end func</font>;
 
     <font color=blue>const</font> <font color=red>func string</font>: getln (<font color=blue>inout</font> <font color=red>null_file</font>: aFile) <font color=blue>is func</font>
@@ -4355,7 +4420,11 @@
           stri &:= buffer;
           buffer := gets(file <font color=blue>conv</font> aFile, 1);
         <font color=blue>end while</font>;
-        aFile.bufferChar := buffer[1];
+        if buffer = "" then
+          aFile.bufferChar := EOF;
+        else
+          aFile.bufferChar := buffer[1];
+        end if;
       <font color=blue>end func</font>;
 </pre><p>
   Note that <tt>'getwd'</tt> skips leading spaces and tabs while <tt>'getc'</tt> and
@@ -4378,6 +4447,16 @@
         result := aFile.bufferChar = '\n';
       <font color=blue>end func</font>;
 </pre><p>
+  Besides assigning a value to <tt>'bufferChar'</tt> in <tt>'getwd'</tt> and <tt>'getln'</tt>
+  and using it in <tt>'eoln'</tt> the standard <tt>'<font color=red>file</font>'</tt> functions do nothing
+  with <tt>'bufferChar'</tt>. The functions of the <font color=maroon>"scanfile.s7i"</font> library
+  use the <tt>'bufferChar'</tt> variable as current character in the scan
+  process. As such all functions of the <font color=maroon>"scanfile.s7i"</font> library
+  assume that the first character to be processed is always in
+  <tt>'bufferChar'</tt>. Since the standard <tt>'<font color=red>file</font>'</tt> functions do not have
+  this behaviour, care has to be taken when mixing scanner and
+  file functions.
+</p><p>
   The next declarations allows various i/o operations for strings:
 </p><pre>
     <font color=blue>const</font> <font color=red>proc</font>: writeln (<font color=blue>in</font> <font color=red>file</font>: aFile, <font color=blue>in</font> <font color=red>string</font>: stri) <font color=blue>is func</font>

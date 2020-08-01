@@ -1669,33 +1669,35 @@ CONTENTS
                   ( decr(A) => A -:= 1 )
 
   For the operations 'div' and 'rem' holds for all A:
-    (A div B) * B + A rem B = A         when B <> 0
-    -A div B = -(A div B)               when B <> 0
-    A rem B >= 0                        when B <> 0 and A >= 0
-    A rem B <= 0                        when B <> 0 and A <= 0
+    (A div B) * B + A rem B = A           when B <> 0
+    -A div B = -(A div B)                 when B <> 0
+    -A rem B = -(A rem B)                 when B <> 0
+    A rem B >= 0 and A rem B < abs(B)     when B <> 0 and A >= 0
+    A rem B <= 0 and A rem B > -abs(B)    when B <> 0 and A <= 0
 
   For the operations 'mdiv' and 'mod' holds for all A:
-    (A mdiv B) * B + A mod B = A        when B <> 0
-    A mdiv -B = -(A mdiv B)             when B <> 0
-    A mod B >= 0                        when B > 0
-    A mod B <= 0                        when B < 0
+    (A mdiv B) * B + A mod B = A          when B <> 0
+    -A mdiv B = A mdiv -B                 when B <> 0
+    -A mod -B = -(A mod B)                when B <> 0
+    A mod B >= 0 and A mod B < B          when B > 0
+    A mod B <= 0 and A mod B > B          when B < 0
 
   For the operation 'mdiv' holds:
-    A mdiv B = A div B - 1          When A and B have different
-                                    signs and A rem B <> 0 holds.
-    A mdiv B = A div B              When A and B have the same
-                                    sign or A rem B = 0 holds.
-    A mdiv B = (A - 1) div B - 1    When A > 0 and B < 0 holds.
-    A mdiv B = (A + 1) div B - 1    When A < 0 and B > 0 holds.
+    A mdiv B = A div B - 1            when A and B have different
+                                      signs and A rem B <> 0 holds.
+    A mdiv B = A div B                when A and B have the same
+                                      sign or A rem B = 0 holds.
+    A mdiv B = (A - 1) div B - 1      when A > 0 and B < 0 holds.
+    A mdiv B = (A + 1) div B - 1      when A < 0 and B > 0 holds.
 
   For the operation 'mod' holds:
-    A mod B = A rem B + B    When A and B have different
-                             signs and A rem B <> 0 holds.
-    A mod B = A rem B        When A and B have the same
-                             sign or A rem B = 0 holds.
+    A mod B = A rem B + B      when A and B have different
+                               signs and A rem B <> 0 holds.
+    A mod B = A rem B          when A and B have the same
+                               sign or A rem B = 0 holds.
 
 
-  Tables for the behaviour of 'div', 'rem', 'mdiv' and 'mod':
+  Table for the behaviour of 'div', 'rem', 'mdiv' and 'mod':
 
      A    B   A div B   A rem B   A mdiv B  A mod B
 
@@ -1862,33 +1864,35 @@ CONTENTS
                   ( decr(A) => A -:= 1_ )
 
   For the operations 'div' and 'rem' holds for all A:
-    (A div B) * B + A rem B = A         when B <> 0_
-    -A div B = -(A div B)               when B <> 0_
-    A rem B >= 0_                       when B <> 0_ and A >= 0_
-    A rem B <= 0_                       when B <> 0_ and A <= 0_
+    (A div B) * B + A rem B = A           when B <> 0_
+    -A div B = -(A div B)                 when B <> 0_
+    -A rem B = -(A rem B)                 when B <> 0_
+    A rem B >= 0_ and A rem B < abs(B)    when B <> 0_ and A >= 0_
+    A rem B <= 0_ and A rem B > -abs(B)   when B <> 0_ and A <= 0_
 
   For the operations 'mdiv' and 'mod' holds for all A:
-    (A mdiv B) * B + A mod B = A        when B <> 0_
-    A mdiv -B = -(A mdiv B)             when B <> 0_
-    A mod B >= 0_                       when B > 0_
-    A mod B <= 0_                       when B < 0_
+    (A mdiv B) * B + A mod B = A          when B <> 0_
+    -A mdiv B = A mdiv -B                 when B <> 0_
+    -A mod -B = -(A mod B)                when B <> 0_
+    A mod B >= 0_ and A mod B < B         when B > 0_
+    A mod B <= 0_ and A mod B > B         when B < 0_
 
   For the operation 'mdiv' holds:
-    A mdiv B = A div B - 1_         When A and B have different
-                                    signs and A rem B <> 0_ holds.
-    A mdiv B = A div B              When A and B have the same
-                                    sign or A rem B = 0_ holds.
-    A mdiv B = (A - 1_) div B - 1_  When A > 0_ and B < 0_ holds.
-    A mdiv B = (A + 1_) div B - 1_  When A < 0_ and B > 0_ holds.
+    A mdiv B = A div B - 1_           when A and B have different
+                                      signs and A rem B <> 0_ holds.
+    A mdiv B = A div B                when A and B have the same
+                                      sign or A rem B = 0_ holds.
+    A mdiv B = (A - 1_) div B - 1_    when A > 0_ and B < 0_ holds.
+    A mdiv B = (A + 1_) div B - 1_    when A < 0_ and B > 0_ holds.
 
   For the operation 'mod' holds:
-    A mod B = A rem B + B    When A and B have different
-                             signs and A rem B <> 0_ holds.
-    A mod B = A rem B        When A and B have the same
-                             sign or A rem B = 0_ holds.
+    A mod B = A rem B + B      when A and B have different
+                               signs and A rem B <> 0_ holds.
+    A mod B = A rem B          when A and B have the same
+                               sign or A rem B = 0_ holds.
 
 
-  Tables for the behaviour of 'div', 'rem', 'mdiv' and 'mod':
+  Table for the behaviour of 'div', 'rem', 'mdiv' and 'mod':
 
      A    B   A div B   A rem B   A mdiv B  A mod B
 
@@ -2405,10 +2409,18 @@ CONTENTS
 
     The type 'array baseType' describes sequences of identical
   elements of a 'baseType'. (including the empty sequence).
-  For example: 'array integer' describes array of integer elements.
+  For example: 'array integer' describes arrays of integer elements.
+  The minimal and maximal indices of an array are part of the value
+  and can be obtained with the functions 'minIdx' and 'maxIdx'.
+  There are functions which generate arrays with the default minimal
+  index of 1 and other functions which generate arrays with the minimal
+  index taken from a parameter.
 
     Literal:
-      [](elem1, elem2)  Create an array with the given elements
+      [] (elem1, elem2)  Create an array with the given elements
+                    The starting index of the array is 1.
+      [0] (elem1, elem2)  Create an array with the given elements
+                    The starting index of the array is 0.
     Infix operators:
       &         Array concatenation
       times     Array generation
@@ -2416,15 +2428,23 @@ CONTENTS
                     Right operand: baseType,
                     A times B Generates an 'array baseType'
                     with A elements of B,
+                    (1 times B)[1] => B
                     -1 times B => EXCEPTION RANGE_ERROR )
+      [ A .. B ] times C    Array generation
+                  ( Type of arguments A and B: integer )
+                    Type of argument C: baseType,
+                    [ A .. B ] times C Generates an 'array baseType'
+                    with pred(B - A) elements of C,
+                    [ -1 .. -2 ] times B => empty array,
+                    [ -1 .. -3 ] times B => EXCEPTION RANGE_ERROR )
     Indices:
       [ A ]     Access one array element
                   ( Type of argument A: integer,
                     Type of result: baseType,
-                    A[1] => First element,
-                    A[length(A)] => Last element,
-                    A[0] => EXCEPTION RANGE_ERROR,
-                    A[succ(length(A))] => EXCEPTION RANGE_ERROR )
+                    A[minIdx(A)] => First element,
+                    A[maxIdx(A)] => Last element,
+                    A[pred(minIdx(A))] => EXCEPTION RANGE_ERROR,
+                    A[succ(maxIdx(A))] => EXCEPTION RANGE_ERROR )
       [ A .. B ] Access a sub array
                   ( Type of arguments A and B: integer )
       [ A .. ]  Access a sub array beginning at position A
@@ -2436,7 +2456,18 @@ CONTENTS
     Functions:
       length(A) Length of array
                   ( Type of result: integer,
-                    length(0 times TRUE) => 0 )
+                    length(A) = succ(maxIdx(A) - minIdx(A)),
+                    length(0 times TRUE) => 0,
+                    length(5 times TRUE) => 5 )
+      minIdx(A) Minimal index of array
+                  ( Type of result: integer,
+                    minIdx(3 times TRUE) => 1,
+                    minIdx([-1 .. 4] times TRUE) => -1 )
+      maxIdx(A) Maximal index of array
+                  ( Type of result: integer,
+                    maxIdx(3 times TRUE) => 3 )
+      rand(A)   Random element from an array
+                  ( Type of result:  baseType )
       remove(A,B) Remove element with index B from array A and
                   return the removed element
                   ( Type of argument B: integer,
@@ -2451,6 +2482,11 @@ CONTENTS
       end for   Loop over all elements of an array
                   ( Type of argument A: baseType,
                     Type of argument C: proc )
+      insert(A, B, C) Insert C to the array A at position B
+                  ( Type of argument B: integer,
+                    Type of argument C: baseType )
+      insert(A, B) Insert B into the sorted array A
+                  ( Type of argument C: baseType )
 
 
 5.10 hash
@@ -2619,7 +2655,7 @@ CONTENTS
       =, <>
     Functions:
       category(A)        Get the category of the referenced object
-                  ( Type of result: string )
+                  ( Type of result: category )
       str(A)             Conversion to string
                   ( Type of result: string )
       getType(A)         Get the type of the referenced object
@@ -2630,7 +2666,9 @@ CONTENTS
                   ( Type of result: boolean )
       params(A)          Gets the formal params of a function
                   ( Type of result: ref_list )
-      locals(A)          Gets the local variables of a function
+      local_vars(A)      Gets the local variables of a function
+                  ( Type of result: ref_list )
+      local_consts(A)    Gets the local constants of a function
                   ( Type of result: ref_list )
       body(A)            Gets the body of a function
       func_result(A)     Gets the result object of a function
@@ -2666,10 +2704,12 @@ CONTENTS
                   ( Type of result: integer )
     Statements:
       setCategory(A, B)  Set the category of the referenced object A to B
-                  ( Type of argument B: string )
+                  ( Type of argument B: category )
       setType(A, B)   Set the type of the referenced object A to B
                   ( Type of argument B: type )
       setValue(A, B)  Set the value of the referenced object A to B
+                  ( Type of argument B: ref_list )
+      setParams(A, B)  Set the formal params of a function
                   ( Type of argument B: ref_list )
 
 
@@ -2681,6 +2721,12 @@ CONTENTS
       ref_list.EMPTY  Empty reference list.
     Infix operators:
       &         Ref_list list concatenation
+      A in B    Is element in ref_list
+                  ( Type of argument A: reference,
+                    Type of result: boolean )
+      A not in B  Is element not in ref_list
+                  ( Type of argument A: reference,
+                    Type of result: boolean )
     Indices:
       [ A ]     Access one ref_list element
                   ( Type of argument A: integer,
@@ -2701,11 +2747,26 @@ CONTENTS
       length(A) Length of ref_list
                   ( Type of result: integer,
                     length(ref_list.EMPTY) => 0 )
+      make_list(A) Create ref_list with element A
+                  ( Type of argument A: reference )
+      pos(A,B)  First position of reference B in ref_list A
+                  ( Type of argument B: reference,
+                    Type of result: integer )
+      pos(A,B,C) First position of reference B in ref_list A
+                 The search starts at position C of ref_list A
+                  ( Type of argument B: reference,
+                    Type of argument C: integer,
+                    Type of result: integer )
       incl(A, B) Include element in list
                   ( Type of argument B: reference )
       excl(A, B) Exclude element from list
                   ( Type of argument B: reference )
     Statements:
+      A &:= B   Append B to A
+                  ( A &:= B => A := A & B )
+      A @:= [B] C  Assign C to element B of ref_list A
+                  ( Type of argument B: integer,
+                    Type of argument C: reference )
       for A range B do
         C
       end for   Loop over all elements of a ref_list
@@ -4341,7 +4402,11 @@ CONTENTS
           stri &:= buffer;
           buffer := gets(file conv aFile, 1);
         end while;
-        aFile.bufferChar := buffer[1];
+        if buffer = "" then
+          aFile.bufferChar := EOF;
+        else
+          aFile.bufferChar := buffer[1];
+        end if;
       end func;
 
     const func string: getln (inout null_file: aFile) is func
@@ -4355,7 +4420,11 @@ CONTENTS
           stri &:= buffer;
           buffer := gets(file conv aFile, 1);
         end while;
-        aFile.bufferChar := buffer[1];
+        if buffer = "" then
+          aFile.bufferChar := EOF;
+        else
+          aFile.bufferChar := buffer[1];
+        end if;
       end func;
 
   Note that 'getwd' skips leading spaces and tabs while 'getc' and
@@ -4377,6 +4446,16 @@ CONTENTS
       begin
         result := aFile.bufferChar = '\n';
       end func;
+
+  Besides assigning a value to 'bufferChar' in 'getwd' and 'getln'
+  and using it in 'eoln' the standard 'file' functions do nothing
+  with 'bufferChar'. The functions of the "scanfile.s7i" library
+  use the 'bufferChar' variable as current character in the scan
+  process. As such all functions of the "scanfile.s7i" library
+  assume that the first character to be processed is always in
+  'bufferChar'. Since the standard 'file' functions do not have
+  this behaviour, care has to be taken when mixing scanner and
+  file functions.
 
   The next declarations allows various i/o operations for strings:
 

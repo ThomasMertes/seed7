@@ -402,6 +402,7 @@ const func boolean: (in boolean param) <> (in boolean param) is          action 
 
 const func integer: ord (in boolean param) is                            action "BLN_ORD";
 const func boolean: (attr boolean) conv (in integer param) is            action "BLN_ICONV";
+const varfunc boolean: (attr boolean) varConv (inout integer param) is   action "TYP_VARCONV";
 
 
 const boolean: succ (FALSE) is TRUE;
@@ -590,26 +591,27 @@ const char: (attr char) . value is ' ';
 const char: (attr char) . first is '\0\';
 const char: (attr char) . last is  '\512\';
 
-const proc: (inout char param) := (in char param) is          action "CHR_CPY";
-const func boolean: (in char param) = (in char param) is      action "CHR_EQ";
-const func boolean: (in char param) < (in char param) is      action "CHR_LT";
-const func boolean: (in char param) > (in char param) is      action "CHR_GT";
-const func boolean: (in char param) <= (in char param) is     action "CHR_LE";
-const func boolean: (in char param) >= (in char param) is     action "CHR_GE";
-const func boolean: (in char param) <> (in char param) is     action "CHR_NE";
-const func integer: compare (in char param, in char param) is action "CHR_CMP";
-const func integer: hashCode (in char param) is               action "CHR_HASHCODE";
+const proc: (inout char param) := (in char param) is             action "CHR_CPY";
+const func boolean: (in char param) = (in char param) is         action "CHR_EQ";
+const func boolean: (in char param) < (in char param) is         action "CHR_LT";
+const func boolean: (in char param) > (in char param) is         action "CHR_GT";
+const func boolean: (in char param) <= (in char param) is        action "CHR_LE";
+const func boolean: (in char param) >= (in char param) is        action "CHR_GE";
+const func boolean: (in char param) <> (in char param) is        action "CHR_NE";
+const func integer: compare (in char param, in char param) is    action "CHR_CMP";
+const func integer: hashCode (in char param) is                  action "CHR_HASHCODE";
 
-const func integer: ord (in char param) is                    action "CHR_ORD";
-const func char: (attr char) conv (in integer param) is       action "CHR_ICONV";
-const func char: chr (in integer param) is                    action "CHR_CHR";
-const func char: succ (in char param) is                      action "CHR_SUCC";
-const func char: pred (in char param) is                      action "CHR_PRED";
-const func string: str (in char param) is                     action "CHR_STR";
-const func char: lower (in char param) is                     action "CHR_LOW";
-const func char: upper (in char param) is                     action "CHR_UP";
-const proc: incr (inout char param) is                        action "CHR_INCR";
-const proc: decr (inout char param) is                        action "CHR_DECR";
+const func integer: ord (in char param) is                       action "CHR_ORD";
+const func char: (attr char) conv (in integer param) is          action "CHR_ICONV";
+const varfunc char: (attr char) varConv (inout integer param) is action "TYP_VARCONV";
+const func char: chr (in integer param) is                       action "CHR_CHR";
+const func char: succ (in char param) is                         action "CHR_SUCC";
+const func char: pred (in char param) is                         action "CHR_PRED";
+const func string: str (in char param) is                        action "CHR_STR";
+const func char: lower (in char param) is                        action "CHR_LOW";
+const func char: upper (in char param) is                        action "CHR_UP";
+const proc: incr (inout char param) is                           action "CHR_INCR";
+const proc: decr (inout char param) is                           action "CHR_DECR";
 
 const func char: rand (in char: low, in char: high) is
   return chr(rand(ord(low), ord(high)));
@@ -840,6 +842,8 @@ const func type: getValue (in reference param, attr type) is            action "
 const func reference: getfunc (in expr param) is                        action "DCL_GETFUNC";
 const func reference: getobj (in expr param) is                         action "DCL_GETOBJ";
 
+const proc: TRACE_REF (in reference param) is  action "REF_TRACE";
+
 const func type: get_type (in reference: type_ref) is func
   result
     var type: result is void;
@@ -880,6 +884,8 @@ const func ref_list: (in ref_list param) & (in ref_list param) is        action 
 const func boolean: (in reference param) in (in ref_list param) is       action "RFL_ELEM";
 const func boolean: (in reference param) not in (in ref_list param) is   action "RFL_NOT_ELEM";
 const func integer: pos (in ref_list param, in reference param) is       action "RFL_POS";
+const func integer: pos (in ref_list param, in reference param,
+                         in integer param) is                            action "RFL_IPOS";
 const proc: incl (in ref_list param, in reference param) is              action "RFL_INCL";
 const proc: excl (in ref_list param, in reference param) is              action "RFL_EXCL";
 const func integer: length (in ref_list param) is                        action "RFL_LNG";
@@ -1097,6 +1103,202 @@ const proc: for (inout char: variable) range (in string: stri) do
   end func;
 
 
+(* STRUCT *)
+
+const type: STRUCT is newtype;
+IN_PARAM_IS_REFERENCE(STRUCT);
+const proc: (ref STRUCT param) ::= (in STRUCT param) is                         action "SCT_CREATE";
+const proc: destroy (ref STRUCT param) is                                       action "SCT_DESTR";
+const proc: (inout STRUCT param) := (in STRUCT param) is                        action "SCT_CPY";
+const func integer: length (in STRUCT param) is                                 action "SCT_LNG";
+(* const func STRUCT: elem (in type param) : (in expr param) is (in expr param) is action "SCT_ELEM"; *)
+const func STRUCT: (in STRUCT param) & (in STRUCT param) is                     action "SCT_CAT";
+const proc: incl (inout STRUCT param, in reference param) is                    action "SCT_INCL";
+const func STRUCT: empty (attr STRUCT) is                                       action "SCT_EMPTY";
+
+(* const func reference: (in STRUCT param) [ (in integer param) ] is               action "SCT_REFIDX"; *)
+
+const func ref_list: declare_elements (ref proc param) is                       action "DCL_ELEMENTS";
+
+(*
+const proc: (attr integer) <- ( (in integer param) ) is noop;
+integer<-(1);
+*)
+
+const func type: new struct (ref proc: elem_decl) end struct is func
+  result
+    var type: structType is void;
+  local
+    var type: ptrType is void;
+    var type: varptrType is void;
+    var ref_list: elem_list is ref_list.EMPTY;
+    var STRUCT: struct_value is empty(STRUCT);
+    var integer: number is 0;
+    var reference: elem_obj is NIL;
+  begin
+    structType := newtype;
+    IN_PARAM_IS_REFERENCE(structType);
+    ptrType := ptr structType;
+    CURR_STRUCT_PTR := ptrType;
+    varptrType := varptr structType;
+    elem_list := declare_elements(elem_decl);
+    const proc: (ref structType param) ::= (in structType param) is    action "SCT_CREATE";
+    const proc: destroy (ref structType param) is                      action "SCT_DESTR";
+    const proc: (inout structType param) := (in structType param) is   action "SCT_CPY";
+    const func ptrType: alloc (in structType param) is                 action "SCT_ALLOC";
+    const func varptrType: varalloc (in structType param) is           action "SCT_ALLOC";
+    const func structType: (attr structType) conv (in STRUCT param) is action "SCT_CONV";
+    const func STRUCT: (attr STRUCT) conv (in structType param) is     action "SCT_CONV";
+    for number range 1 to length(elem_list) do
+      elem_obj := elem_list[number];
+      if is_symb(elem_obj) then
+        (* TRACE(elem_obj); PRINT("\n"); *)
+        incl(struct_value, elem_obj);
+        const func    getType(elem_obj):    (in structType param) .  (symb elem_obj) is action "SCT_SELECT";
+        const varfunc getType(elem_obj): (inout structType param) .  (symb elem_obj) is action "SCT_SELECT";
+        const func    getType(elem_obj):    (in ptrType    param) -> (symb elem_obj) is action "REF_SELECT";
+        const varfunc getType(elem_obj):    (in varptrType param) -> (symb elem_obj) is action "REF_SELECT";
+      end if;
+    end for;
+    const structType: (attr structType) . value is                     structType conv struct_value;
+  end func;
+
+const func type: new struct end struct is func
+  result
+    var type: structType is void;
+  local
+    var type: ptrType is void;
+    var type: varptrType is void;
+  begin
+    structType := newtype;
+    IN_PARAM_IS_REFERENCE(structType);
+    ptrType := ptr structType;
+    varptrType := varptr structType;
+    const proc: (ref structType param) ::= (in structType param) is    action "SCT_CREATE";
+    const proc: destroy (ref structType param) is                      action "SCT_DESTR";
+    const proc: (inout structType param) := (in structType param) is   action "SCT_CPY";
+    const func ptrType: alloc (in structType param) is                 action "SCT_ALLOC";
+    const func varptrType: varalloc (in structType param) is           action "SCT_ALLOC";
+    const func structType: (attr structType) conv (in STRUCT param) is action "SCT_CONV";
+    const func STRUCT: (attr STRUCT) conv (in structType param) is     action "SCT_CONV";
+    const structType: (attr structType) . value is                     structType conv empty(STRUCT);
+  end func;
+
+const func type: new (in type: baseType) struct (ref proc: elem_decl) end struct is func
+  result
+    var type: structType is void;
+  local
+    var type: ptrType is void;
+    var type: varptrType is void;
+    var ref_list: elem_list is ref_list.EMPTY;
+    var STRUCT: struct_value is empty(STRUCT);
+    var integer: number is 0;
+    var reference: elem_obj is NIL;
+  begin
+    structType := subtype baseType;
+    IN_PARAM_IS_REFERENCE(structType);
+    ptrType := ptr structType;
+    varptrType := varptr structType;
+    elem_list := declare_elements(elem_decl);
+    const proc: (ref structType param) ::= (in structType param) is    action "SCT_CREATE";
+    const proc: destroy (ref structType param) is                      action "SCT_DESTR";
+    const proc: (inout structType param) := (in structType param) is   action "SCT_CPY";
+    const func ptrType: alloc (in structType param) is                 action "SCT_ALLOC";
+    const func varptrType: varalloc (in structType param) is           action "SCT_ALLOC";
+    const func structType: (attr structType) conv (in STRUCT param) is action "SCT_CONV";
+    const func STRUCT: (attr STRUCT) conv (in structType param) is     action "SCT_CONV";
+    for number range 1 to length(elem_list) do
+      elem_obj := elem_list[number];
+      if is_symb(elem_obj) then
+        incl(struct_value, elem_obj);
+        const func    getType(elem_obj):    (in structType param) .  (symb elem_obj) is action "SCT_SELECT";
+        const varfunc getType(elem_obj): (inout structType param) .  (symb elem_obj) is action "SCT_SELECT";
+        const func    getType(elem_obj):    (in ptrType    param) -> (symb elem_obj) is action "REF_SELECT";
+        const varfunc getType(elem_obj):    (in varptrType param) -> (symb elem_obj) is action "REF_SELECT";
+      end if;
+    end for;
+    const structType: (attr structType) . value is                     structType conv struct_value;
+  end func;
+
+const func type: new (in type: baseType) struct end struct is func
+  result
+    var type: structType is void;
+  local
+    var type: ptrType is void;
+    var type: varptrType is void;
+  begin
+    structType := subtype baseType;
+    IN_PARAM_IS_REFERENCE(structType);
+    ptrType := ptr structType;
+    varptrType := varptr structType;
+    const proc: (ref structType param) ::= (in structType param) is    action "SCT_CREATE";
+    const proc: destroy (ref structType param) is                      action "SCT_DESTR";
+    const proc: (inout structType param) := (in structType param) is   action "SCT_CPY";
+    const func ptrType: alloc (in structType param) is                 action "SCT_ALLOC";
+    const func varptrType: varalloc (in structType param) is           action "SCT_ALLOC";
+    const func structType: (attr structType) conv (in STRUCT param) is action "SCT_CONV";
+    const func STRUCT: (attr STRUCT) conv (in structType param) is     action "SCT_CONV";
+    const structType: (attr structType) . value is                     structType conv empty(STRUCT);
+  end func;
+
+const func type: sub (in type: baseType) struct (ref proc: elem_decl) end struct is func
+  result
+    var type: structType is void;
+  local
+    var type: ptrType is void;
+    var type: varptrType is void;
+    var ref_list: elem_list is ref_list.EMPTY;
+    var STRUCT: struct_value is empty(STRUCT);
+    var integer: number is 0;
+    var reference: elem_obj is NIL;
+  begin
+    structType := subtype baseType;
+    IN_PARAM_IS_REFERENCE(structType);
+    ptrType := ptr structType;
+    varptrType := varptr structType;
+    elem_list := declare_elements(elem_decl);
+    const proc: (ref structType param) ::= (in structType param) is    action "SCT_CREATE";
+    const proc: destroy (ref structType param) is                      action "SCT_DESTR";
+    const proc: (inout structType param) := (in structType param) is   action "SCT_CPY";
+    const func ptrType: alloc (in structType param) is                 action "SCT_ALLOC";
+    const func varptrType: varalloc (in structType param) is           action "SCT_ALLOC";
+    const func structType: (attr structType) conv (in STRUCT param) is action "SCT_CONV";
+    const func STRUCT: (attr STRUCT) conv (in structType param) is     action "SCT_CONV";
+    for number range 1 to length(elem_list) do
+      elem_obj := elem_list[number];
+      if is_symb(elem_obj) then
+        incl(struct_value, elem_obj);
+        const func    getType(elem_obj):    (in structType param) .  (symb elem_obj) is action "SCT_SELECT";
+        const varfunc getType(elem_obj): (inout structType param) .  (symb elem_obj) is action "SCT_SELECT";
+        const func    getType(elem_obj):    (in ptrType    param) -> (symb elem_obj) is action "REF_SELECT";
+        const varfunc getType(elem_obj):    (in varptrType param) -> (symb elem_obj) is action "REF_SELECT";
+      end if;
+    end for;
+    const structType: (attr structType) . value is      structType conv (STRUCT conv (baseType.value) & struct_value);
+  end func;
+
+const func type: sub (in type: baseType) struct end struct is func
+  result
+    var type: structType is void;
+  local
+    var type: ptrType is void;
+    var type: varptrType is void;
+  begin
+    structType := subtype baseType;
+    IN_PARAM_IS_REFERENCE(structType);
+    ptrType := ptr structType;
+    varptrType := varptr structType;
+    const proc: (ref structType param) ::= (in structType param) is    action "SCT_CREATE";
+    const proc: destroy (ref structType param) is                      action "SCT_DESTR";
+    const proc: (inout structType param) := (in structType param) is   action "SCT_CPY";
+    const func ptrType: alloc (in structType param) is                 action "SCT_ALLOC";
+    const func varptrType: varalloc (in structType param) is           action "SCT_ALLOC";
+    const func structType: (attr structType) conv (in STRUCT param) is action "SCT_CONV";
+    const func STRUCT: (attr STRUCT) conv (in structType param) is     action "SCT_CONV";
+    const structType: (attr structType) . value is     structType conv (STRUCT conv (baseType.value));
+  end func;
+
+
 (* TUPLE *)
 
 const func type: tuple (in type: baseType) is func
@@ -1138,6 +1340,20 @@ const type: TST_1 is tuple integer;
 const type: TST_2 is tuple integer;
 
 
+const type: ARRAY_IDX_RANGE is new struct
+    var integer: minIdx is 1;
+    var integer: maxIdx is 0;
+  end struct;
+
+const func ARRAY_IDX_RANGE: [ (in integer: minIdx) .. (in integer: maxIdx) ] is func
+  result
+    var ARRAY_IDX_RANGE: result is ARRAY_IDX_RANGE.value;
+  begin
+    result.minIdx := minIdx;
+    result.maxIdx := maxIdx;
+  end func;
+
+
 (* ARRAY *)
 
 const func type: array (in type: baseType) is func
@@ -1172,41 +1388,43 @@ const func type: array (in type: baseType) is func
       const func arrayType: (in arrayType param) [ .. (in integer param) ] is    action "ARR_HEAD";
       const func arrayType: (in arrayType param) [ (in integer param) ..
                                                    (in integer param) ] is       action "ARR_RANGE";
-      const func baseType: remove(inout arrayType param, in integer param) is    action "ARR_REMOVE";
+      const func baseType: remove (inout arrayType param, in integer param) is   action "ARR_REMOVE";
       const func integer: length (in arrayType param) is                         action "ARR_LNG";
+      const func integer: minIdx (in arrayType param) is                         action "ARR_MINIDX";
+      const func integer: maxIdx (in arrayType param) is                         action "ARR_MAXIDX";
       const func arrayType: (in integer param) times (in baseType param) is      action "ARR_TIMES";
       const func arrayType: (attr arrayType) . _GENERATE_EMPTY_ARRAY is          action "ARR_EMPTY";
       const arrayType: (attr arrayType) . value is                               arrayType._GENERATE_EMPTY_ARRAY;
 
       const func tupleType: (attr tupleType) conv (in arrayType param) is        action "ARR_CONV";
 
-      const func arrayType: [ (in integer: low) .. (in integer: high) ] times
+      const func arrayType: (in ARRAY_IDX_RANGE: arrayIdxRange) times
           (in baseType: base_value) is func
         result
           var arrayType: result is arrayType.value;
         begin
-          result := succ(high - low) times base_value;
-          result := [low] (tupleType conv result);
+          result := succ(arrayIdxRange.maxIdx - arrayIdxRange.minIdx) times base_value;
+          result := [arrayIdxRange.minIdx] (tupleType conv result);
         end func;
 
-      const proc: for (inout baseType: variable) range (in arrayType: arr_obj) do
+      const proc: for (inout baseType: variable) range (in arrayType: arr) do
                     (in proc: statements)
                   end for is func
         local
           var integer: number is 0;
         begin
-          for number range 1 to length(arr_obj) do
-            variable := arr_obj[number];
+          for number range minIdx(arr) to maxIdx(arr) do
+            variable := arr[number];
             statements;
           end for;
         end func;
 
-      const func baseType: rand (in arrayType: arr_obj) is
-        baseType return arr_obj[rand(1, length(arr_obj))];
+      const func baseType: rand (in arrayType: arr) is
+        baseType return arr[rand(minIdx(arr), maxIdx(arr))];
 
       const proc: insert (inout arrayType: arr, in integer: index, in baseType: element) is func
         begin
-          if index >= 1 or index <= succ(length(arr)) then
+          if index >= minIdx(arr) and index <= succ(maxIdx(arr)) then
             arr := arr[.. pred(index)] & [] (element) & arr[index ..];
           else
             raise RANGE_ERROR;
@@ -1222,9 +1440,10 @@ const func type: array (in type: baseType) is func
           local
             var integer: number is 1;
           begin
-            if length(arr1) = length(arr2) then
+            if minIdx(arr1) = minIdx(arr2) and maxIdx(arr1) = maxIdx(arr2) then
               isEqual := TRUE;
-              while number <= length(arr1) and isEqual do
+              number := minIdx(arr1);
+              while number <= maxIdx(arr1) and isEqual do
                 isEqual := arr1[number] = arr2[number];
                 incr(number);
               end while;
@@ -1237,9 +1456,10 @@ const func type: array (in type: baseType) is func
           local
             var integer: number is 1;
           begin
-            if length(arr1) = length(arr2) then
+            if minIdx(arr1) = minIdx(arr2) and maxIdx(arr1) = maxIdx(arr2) then
               isNotEqual := FALSE;
-              while number <= length(arr1) and not isNotEqual do
+              number := minIdx(arr1);
+              while number <= maxIdx(arr1) and not isNotEqual do
                 isNotEqual := arr1[number] <> arr2[number];
                 incr(number);
               end while;
@@ -1255,10 +1475,11 @@ const func type: array (in type: baseType) is func
           local
             var integer: number is 1;
           begin
-            while number <= length(arr) and arr[number] < element do
+            number := minIdx(arr);
+            while number <= maxIdx(arr) and arr[number] < element do
               incr(number);
             end while;
-            if number > length(arr) then
+            if number > maxIdx(arr) then
               arr := arr & [] (element);
             elsif arr[number] > element then
               arr := arr[.. pred(number)] & [] (element) & arr[number ..];
@@ -1317,6 +1538,8 @@ const func type: array [ (in type: indexType) ] (in type: baseType) is func
 
       const func arrayType: (in arrayType param) & (in arrayType param) is       action "ARR_CAT";
       const func integer: length (in arrayType param) is                         action "ARR_LNG";
+      const func integer: minIntIdx (in arrayType param) is                      action "ARR_MINIDX";
+      const func integer: maxIntIdx (in arrayType param) is                      action "ARR_MAXIDX";
       const func stdArrayType: (attr stdArrayType) conv (in arrayType param) is  action "ARR_CONV";
       const func arrayType: (attr arrayType) conv (in stdArrayType param) is     action "ARR_CONV";
       const func tupleType: (attr tupleType) conv (in arrayType param) is        action "ARR_CONV";
@@ -1345,13 +1568,19 @@ const func type: array [ (in type: indexType) ] (in type: baseType) is func
       const func arrayType: (in arrayType: an_array) [ (in indexType: index1) .. (in indexType: index2) ] is
         return arrayType conv (stdArrayType conv an_array[ord(index1) .. ord(index2)]);
 
-      const proc: for (inout baseType: variable) range (in arrayType: arr_obj) do
+      const func indexType: minIdx (in arrayType: arr) is
+        return indexType conv minIntIdx(arr);
+
+      const func indexType: maxIdx (in arrayType: arr) is
+        return indexType conv maxIntIdx(arr);
+
+      const proc: for (inout baseType: variable) range (in arrayType: arr) do
           (in proc: statements) end for is func
         local
           var integer: number is 0;
         begin
-          for number range 1 to length(arr_obj) do
-            variable := stdArrayType conv arr_obj[number];
+          for number range minIntIdx(arr) to maxIntIdx(arr) do
+            variable := stdArrayType conv arr[number];
             statements;
           end for;
         end func;
@@ -1398,8 +1627,8 @@ const func string: join (in array string: striArray, in char: delimiter) is func
   local
     var integer: pos is 0;
   begin
-    result := striArray[1];
-    for pos range 2 to length(striArray) do
+    result := striArray[minIdx(striArray)];
+    for pos range succ(minIdx(striArray)) to maxIdx(striArray) do
       result &:= str(delimiter);
       result &:= striArray[pos];
     end for;
@@ -1411,8 +1640,8 @@ const func string: join (in array string: striArray, in string: delimiter) is fu
   local
     var integer: pos is 0;
   begin
-    result := striArray[1];
-    for pos range 2 to length(striArray) do
+    result := striArray[minIdx(striArray)];
+    for pos range succ(minIdx(striArray)) to maxIdx(striArray) do
       result &:= delimiter;
       result &:= striArray[pos];
     end for;
@@ -1972,6 +2201,7 @@ const func type: HASHSET_OF (in type: baseType) is func
               setType.dataCreate, setType.dataDestroy);
         end func;
 
+      const func integer: card (in setType param) is                             action "HSH_LNG";
       const func setType: (attr setType) . _GENERATE_EMPTY_SET is                action "HSH_EMPTY";
       const setType: (attr setType) . EMPTY_SET is                               setType._GENERATE_EMPTY_SET;
       const setType: (attr setType) . value is                                   setType._GENERATE_EMPTY_SET;
@@ -2061,202 +2291,6 @@ const type: TEST_E is set of string;
 const set of char: alpha is {'A' .. 'Z'} | {'a' .. 'z'};
 const set of char: alnum is {'A' .. 'Z'} | {'a' .. 'z'} | {'0' .. '9'};
 const set of char: digit is {'0' .. '9'};
-
-
-(* STRUCT *)
-
-const type: STRUCT is newtype;
-IN_PARAM_IS_REFERENCE(STRUCT);
-const proc: (ref STRUCT param) ::= (in STRUCT param) is                         action "SCT_CREATE";
-const proc: destroy (ref STRUCT param) is                                       action "SCT_DESTR";
-const proc: (inout STRUCT param) := (in STRUCT param) is                        action "SCT_CPY";
-const func integer: length (in STRUCT param) is                                 action "SCT_LNG";
-(* const func STRUCT: elem (in type param) : (in expr param) is (in expr param) is action "SCT_ELEM"; *)
-const func STRUCT: (in STRUCT param) & (in STRUCT param) is                     action "SCT_CAT";
-const proc: incl (inout STRUCT param, in reference param) is                    action "SCT_INCL";
-const func STRUCT: empty (attr STRUCT) is                                       action "SCT_EMPTY";
-
-(* const func reference: (in STRUCT param) [ (in integer param) ] is               action "SCT_REFIDX"; *)
-
-const func ref_list: declare_elements (ref proc param) is                       action "DCL_ELEMENTS";
-
-(*
-const proc: (attr integer) <- ( (in integer param) ) is noop;
-integer<-(1);
-*)
-
-const func type: new struct (ref proc: elem_decl) end struct is func
-  result
-    var type: structType is void;
-  local
-    var type: ptrType is void;
-    var type: varptrType is void;
-    var ref_list: elem_list is ref_list.EMPTY;
-    var STRUCT: struct_value is empty(STRUCT);
-    var integer: number is 0;
-    var reference: elem_obj is NIL;
-  begin
-    structType := newtype;
-    IN_PARAM_IS_REFERENCE(structType);
-    ptrType := ptr structType;
-    CURR_STRUCT_PTR := ptrType;
-    varptrType := varptr structType;
-    elem_list := declare_elements(elem_decl);
-    const proc: (ref structType param) ::= (in structType param) is    action "SCT_CREATE";
-    const proc: destroy (ref structType param) is                      action "SCT_DESTR";
-    const proc: (inout structType param) := (in structType param) is   action "SCT_CPY";
-    const func ptrType: alloc (in structType param) is                 action "SCT_ALLOC";
-    const func varptrType: varalloc (in structType param) is           action "SCT_ALLOC";
-    const func structType: (attr structType) conv (in STRUCT param) is action "SCT_CONV";
-    const func STRUCT: (attr STRUCT) conv (in structType param) is     action "SCT_CONV";
-    for number range 1 to length(elem_list) do
-      elem_obj := elem_list[number];
-      if is_symb(elem_obj) then
-        (* TRACE(elem_obj); PRINT("\n"); *)
-        incl(struct_value, elem_obj);
-        const func    getType(elem_obj):    (in structType param) .  (symb elem_obj) is action "SCT_SELECT";
-        const varfunc getType(elem_obj): (inout structType param) .  (symb elem_obj) is action "SCT_SELECT";
-        const func    getType(elem_obj):    (in ptrType    param) -> (symb elem_obj) is action "REF_SELECT";
-        const varfunc getType(elem_obj):    (in varptrType param) -> (symb elem_obj) is action "REF_SELECT";
-      end if;
-    end for;
-    const structType: (attr structType) . value is                     structType conv struct_value;
-  end func;
-
-const func type: new struct end struct is func
-  result
-    var type: structType is void;
-  local
-    var type: ptrType is void;
-    var type: varptrType is void;
-  begin
-    structType := newtype;
-    IN_PARAM_IS_REFERENCE(structType);
-    ptrType := ptr structType;
-    varptrType := varptr structType;
-    const proc: (ref structType param) ::= (in structType param) is    action "SCT_CREATE";
-    const proc: destroy (ref structType param) is                      action "SCT_DESTR";
-    const proc: (inout structType param) := (in structType param) is   action "SCT_CPY";
-    const func ptrType: alloc (in structType param) is                 action "SCT_ALLOC";
-    const func varptrType: varalloc (in structType param) is           action "SCT_ALLOC";
-    const func structType: (attr structType) conv (in STRUCT param) is action "SCT_CONV";
-    const func STRUCT: (attr STRUCT) conv (in structType param) is     action "SCT_CONV";
-    const structType: (attr structType) . value is                     structType conv empty(STRUCT);
-  end func;
-
-const func type: new (in type: baseType) struct (ref proc: elem_decl) end struct is func
-  result
-    var type: structType is void;
-  local
-    var type: ptrType is void;
-    var type: varptrType is void;
-    var ref_list: elem_list is ref_list.EMPTY;
-    var STRUCT: struct_value is empty(STRUCT);
-    var integer: number is 0;
-    var reference: elem_obj is NIL;
-  begin
-    structType := subtype baseType;
-    IN_PARAM_IS_REFERENCE(structType);
-    ptrType := ptr structType;
-    varptrType := varptr structType;
-    elem_list := declare_elements(elem_decl);
-    const proc: (ref structType param) ::= (in structType param) is    action "SCT_CREATE";
-    const proc: destroy (ref structType param) is                      action "SCT_DESTR";
-    const proc: (inout structType param) := (in structType param) is   action "SCT_CPY";
-    const func ptrType: alloc (in structType param) is                 action "SCT_ALLOC";
-    const func varptrType: varalloc (in structType param) is           action "SCT_ALLOC";
-    const func structType: (attr structType) conv (in STRUCT param) is action "SCT_CONV";
-    const func STRUCT: (attr STRUCT) conv (in structType param) is     action "SCT_CONV";
-    for number range 1 to length(elem_list) do
-      elem_obj := elem_list[number];
-      if is_symb(elem_obj) then
-        incl(struct_value, elem_obj);
-        const func    getType(elem_obj):    (in structType param) .  (symb elem_obj) is action "SCT_SELECT";
-        const varfunc getType(elem_obj): (inout structType param) .  (symb elem_obj) is action "SCT_SELECT";
-        const func    getType(elem_obj):    (in ptrType    param) -> (symb elem_obj) is action "REF_SELECT";
-        const varfunc getType(elem_obj):    (in varptrType param) -> (symb elem_obj) is action "REF_SELECT";
-      end if;
-    end for;
-    const structType: (attr structType) . value is                     structType conv struct_value;
-  end func;
-
-const func type: new (in type: baseType) struct end struct is func
-  result
-    var type: structType is void;
-  local
-    var type: ptrType is void;
-    var type: varptrType is void;
-  begin
-    structType := subtype baseType;
-    IN_PARAM_IS_REFERENCE(structType);
-    ptrType := ptr structType;
-    varptrType := varptr structType;
-    const proc: (ref structType param) ::= (in structType param) is    action "SCT_CREATE";
-    const proc: destroy (ref structType param) is                      action "SCT_DESTR";
-    const proc: (inout structType param) := (in structType param) is   action "SCT_CPY";
-    const func ptrType: alloc (in structType param) is                 action "SCT_ALLOC";
-    const func varptrType: varalloc (in structType param) is           action "SCT_ALLOC";
-    const func structType: (attr structType) conv (in STRUCT param) is action "SCT_CONV";
-    const func STRUCT: (attr STRUCT) conv (in structType param) is     action "SCT_CONV";
-    const structType: (attr structType) . value is                     structType conv empty(STRUCT);
-  end func;
-
-const func type: sub (in type: baseType) struct (ref proc: elem_decl) end struct is func
-  result
-    var type: structType is void;
-  local
-    var type: ptrType is void;
-    var type: varptrType is void;
-    var ref_list: elem_list is ref_list.EMPTY;
-    var STRUCT: struct_value is empty(STRUCT);
-    var integer: number is 0;
-    var reference: elem_obj is NIL;
-  begin
-    structType := subtype baseType;
-    IN_PARAM_IS_REFERENCE(structType);
-    ptrType := ptr structType;
-    varptrType := varptr structType;
-    elem_list := declare_elements(elem_decl);
-    const proc: (ref structType param) ::= (in structType param) is    action "SCT_CREATE";
-    const proc: destroy (ref structType param) is                      action "SCT_DESTR";
-    const proc: (inout structType param) := (in structType param) is   action "SCT_CPY";
-    const func ptrType: alloc (in structType param) is                 action "SCT_ALLOC";
-    const func varptrType: varalloc (in structType param) is           action "SCT_ALLOC";
-    const func structType: (attr structType) conv (in STRUCT param) is action "SCT_CONV";
-    const func STRUCT: (attr STRUCT) conv (in structType param) is     action "SCT_CONV";
-    for number range 1 to length(elem_list) do
-      elem_obj := elem_list[number];
-      if is_symb(elem_obj) then
-        incl(struct_value, elem_obj);
-        const func    getType(elem_obj):    (in structType param) .  (symb elem_obj) is action "SCT_SELECT";
-        const varfunc getType(elem_obj): (inout structType param) .  (symb elem_obj) is action "SCT_SELECT";
-        const func    getType(elem_obj):    (in ptrType    param) -> (symb elem_obj) is action "REF_SELECT";
-        const varfunc getType(elem_obj):    (in varptrType param) -> (symb elem_obj) is action "REF_SELECT";
-      end if;
-    end for;
-    const structType: (attr structType) . value is      structType conv (STRUCT conv (baseType.value) & struct_value);
-  end func;
-
-const func type: sub (in type: baseType) struct end struct is func
-  result
-    var type: structType is void;
-  local
-    var type: ptrType is void;
-    var type: varptrType is void;
-  begin
-    structType := subtype baseType;
-    IN_PARAM_IS_REFERENCE(structType);
-    ptrType := ptr structType;
-    varptrType := varptr structType;
-    const proc: (ref structType param) ::= (in structType param) is    action "SCT_CREATE";
-    const proc: destroy (ref structType param) is                      action "SCT_DESTR";
-    const proc: (inout structType param) := (in structType param) is   action "SCT_CPY";
-    const func ptrType: alloc (in structType param) is                 action "SCT_ALLOC";
-    const func varptrType: varalloc (in structType param) is           action "SCT_ALLOC";
-    const func structType: (attr structType) conv (in STRUCT param) is action "SCT_CONV";
-    const func STRUCT: (attr STRUCT) conv (in structType param) is     action "SCT_CONV";
-    const structType: (attr structType) . value is     structType conv (STRUCT conv (baseType.value));
-  end func;
 
 
 (* INTERFACE *)
@@ -2405,6 +2439,14 @@ const proc: type_implements_interface (in type: aType, in type: interfaceType) i
     const proc: (ref interfaceType param) ::= (ref aType param) is           action "ITF_CREATE2";
     const proc: (inout interfaceType param) := (ref aType param) is          action "ITF_CPY2";
     const func interfaceType: (attr interfaceType) conv (ref aType param) is action "ITF_CONV2";
+
+    const func aType: xalloc (in aType: newStuct) is func
+      result
+        var aType: result is aType.value;
+      begin
+        result := newStuct;
+      end func;
+
     addInterface(aType, interfaceType);
   end func;
 
@@ -2604,7 +2646,7 @@ const func type: new enum (ref expr: elem_expr) end enum is func
     literal_list := ref_list.EMPTY;
     for number range 1 to length(elem_list) do
       elem_obj := elem_list[number];
-      const integer: ord(symb elem_obj) is pred(number);
+      # const integer: ord(symb elem_obj) is pred(number);
       const enumType: .(symb elem_obj) is enumlit;
       elem_obj := getobj(. (symb elem_obj));
       if elem_obj <> NIL and getType(elem_obj) = enumType then
@@ -2914,7 +2956,11 @@ const func string: getwd (inout null_file: aFile) is func
       stri &:= buffer;
       buffer := gets(aFile, 1);
     end while;
-    aFile.bufferChar := buffer[1];
+    if buffer = "" then
+      aFile.bufferChar := EOF;
+    else
+      aFile.bufferChar := buffer[1];
+    end if;
   end func;
 
 const func string: getln (inout null_file: aFile) is func
@@ -2928,7 +2974,11 @@ const func string: getln (inout null_file: aFile) is func
       stri &:= buffer;
       buffer := gets(aFile, 1);
     end while;
-    aFile.bufferChar := buffer[1];
+    if buffer = "" then
+      aFile.bufferChar := EOF;
+    else
+      aFile.bufferChar := buffer[1];
+    end if;
   end func;
 
 const proc: writeln (inout null_file: aFile) is func

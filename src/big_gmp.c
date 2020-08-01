@@ -1320,6 +1320,26 @@ gmpBiginttype big1;
 
 
 
+#ifdef ANSI_C
+
+gmpBiginttype bigUIConv (inttype number)
+#else
+
+gmpBiginttype bigUIConv (number)
+inttype number;
+#endif
+
+  {
+    gmpBiginttype result;
+
+  /* bigUIConv */
+    result = malloc(sizeof(__mpz_struct));
+    mpz_init_set_ui(result, number);
+    return(result);
+  } /* bigUIConv */
+
+
+
 #ifdef HAS_LONGTYPE_64
 #ifdef ANSI_C
 

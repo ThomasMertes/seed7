@@ -29,8 +29,8 @@
 
 objecttype ref_addr (listtype);
 objecttype ref_alloc (listtype);
-objecttype ref_arrmaxpos (listtype);
-objecttype ref_arrminpos (listtype);
+objecttype ref_arrmaxidx (listtype);
+objecttype ref_arrminidx (listtype);
 objecttype ref_arrtolist (listtype);
 objecttype ref_body (listtype);
 objecttype ref_build (listtype);
@@ -78,8 +78,8 @@ objecttype ref_value (listtype);
 
 objecttype ref_addr ();
 objecttype ref_alloc ();
-objecttype ref_arrmaxpos ();
-objecttype ref_arrminpos ();
+objecttype ref_arrmaxidx ();
+objecttype ref_arrminidx ();
 objecttype ref_arrtolist ();
 objecttype ref_body ();
 objecttype ref_build ();

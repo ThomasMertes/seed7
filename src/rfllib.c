@@ -627,6 +627,45 @@ listtype arguments;
 
 #ifdef ANSI_C
 
+objecttype rfl_ipos (listtype arguments)
+#else
+
+objecttype rfl_ipos (arguments)
+listtype arguments;
+#endif
+
+  {
+    listtype list_element;
+    objecttype searched_object;
+    inttype from_index;
+    inttype result;
+
+  /* rfl_ipos */
+    isit_reflist(arg_1(arguments));
+    isit_reference(arg_2(arguments));
+    list_element = take_reflist(arg_1(arguments));
+    searched_object = take_reference(arg_2(arguments));
+    from_index = take_int(arg_3(arguments));
+    result = 1;
+    while (list_element != NULL && result < from_index) {
+      list_element = list_element->next;
+      result++;
+    } /* while */
+    while (list_element != NULL && list_element->obj != searched_object) {
+      list_element = list_element->next;
+      result++;
+    } /* while */
+    if (list_element != NULL) {
+      return(bld_int_temp(result));
+    } else {
+      return(bld_int_temp(0));
+    } /* if */
+  } /* rfl_ipos */
+
+
+
+#ifdef ANSI_C
+
 objecttype rfl_lng (listtype arguments)
 #else
 

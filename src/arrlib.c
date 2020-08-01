@@ -797,6 +797,46 @@ listtype arguments;
 
 #ifdef ANSI_C
 
+objecttype arr_maxidx (listtype arguments)
+#else
+
+objecttype arr_maxidx (arguments)
+listtype arguments;
+#endif
+
+  {
+    arraytype arr1;
+
+  /* arr_maxidx */
+    isit_array(arg_1(arguments));
+    arr1 = take_array(arg_1(arguments));
+    return(bld_int_temp(arr1->max_position));
+  } /* arr_maxidx */
+
+
+
+#ifdef ANSI_C
+
+objecttype arr_minidx (listtype arguments)
+#else
+
+objecttype arr_minidx (arguments)
+listtype arguments;
+#endif
+
+  {
+    arraytype arr1;
+
+  /* arr_minidx */
+    isit_array(arg_1(arguments));
+    arr1 = take_array(arg_1(arguments));
+    return(bld_int_temp(arr1->min_position));
+  } /* arr_minidx */
+
+
+
+#ifdef ANSI_C
+
 objecttype arr_range (listtype arguments)
 #else
 

@@ -1,3 +1,24 @@
+20080508:
+- The FAQ "Why a new programming language?" was improved.
+- The descriptions of the functions 'rem', 'mod', '[ A .. B ] times C', minIdx, maxIdx,
+  rand(array), insert(array), category, local_vars, local_consts, setCategory, setParams,
+  'in'(ref_list), 'not in'(ref_list), make_list, pos(ref_list), '&:='(ref_list),
+  '@:='(ref_list) and the bufferChar variable in the manual were added or improved.
+- The functions float cast, float varCast, boolean varConv, char varConv
+  TRACE_REF, pos(ref_list), [minIdx .. maxIdx], minIdx, maxIdx (+ useage of them),
+  minIntIdx, maxIntIdx, card(hashSet), xalloc, ord(enum), getwd(null_file) and
+  getln(null_file) in the seed7_05.s7i library were added or improved.
+- The compiler (comp.sd7) support for the primitive actions arr_maxidx, arr_minidx,
+  flt_icast, int_pow, rfl_ipos and sct_alloc was added or improved.
+- The compiler handling of INTERFACEOBJECTs and the generation of prototypes was improved.
+- The compiler was improved to generate static dispatcher functions.
+- The functions arr_maxidx and arr_minidx were added to the file arrlib.c.
+- The function bigUIConv was added to the file big_gmp.c.
+- The function rflIpos was added to the file rfl_data.c.
+- The function flt_icast was added to the file fltlib.c.
+- The functions refArrmaxpos, refArrminpos, ref_arrmaxpos and ref_arrminpos were renamed to
+  refArrmaxidx, refArrminidx, ref_arrmaxidx ref_arrminidx.
+
 20080420:
 - An explatation how to uncompress the Seed7 package was added to the FAQ.
 - The descriptions of the functions log2, gcd, lowestSetBit, 'rem', 'mdiv' and

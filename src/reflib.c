@@ -198,43 +198,43 @@ listtype arguments;
 
 #ifdef ANSI_C
 
-objecttype ref_arrmaxpos (listtype arguments)
+objecttype ref_arrmaxidx (listtype arguments)
 #else
 
-objecttype ref_arrmaxpos (arguments)
+objecttype ref_arrmaxidx (arguments)
 listtype arguments;
 #endif
 
   {
     objecttype obj_arg1;
 
-  /* ref_arrmaxpos */
+  /* ref_arrmaxidx */
     isit_reference(arg_1(arguments));
     obj_arg1 = take_reference(arg_1(arguments));
     isit_array(obj_arg1);
     return(bld_int_temp(take_array(obj_arg1)->max_position));
-  } /* ref_arrmaxpos */
+  } /* ref_arrmaxidx */
 
 
 
 #ifdef ANSI_C
 
-objecttype ref_arrminpos (listtype arguments)
+objecttype ref_arrminidx (listtype arguments)
 #else
 
-objecttype ref_arrminpos (arguments)
+objecttype ref_arrminidx (arguments)
 listtype arguments;
 #endif
 
   {
     objecttype obj_arg1;
 
-  /* ref_arrminpos */
+  /* ref_arrminidx */
     isit_reference(arg_1(arguments));
     obj_arg1 = take_reference(arg_1(arguments));
     isit_array(obj_arg1);
     return(bld_int_temp(take_array(obj_arg1)->min_position));
-  } /* ref_arrminpos */
+  } /* ref_arrminidx */
 
 
 

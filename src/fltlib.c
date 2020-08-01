@@ -484,6 +484,23 @@ listtype arguments;
 
 #ifdef ANSI_C
 
+objecttype flt_icast (listtype arguments)
+#else
+
+objecttype flt_icast (arguments)
+listtype arguments;
+#endif
+
+  { /* flt_icast */
+    isit_int(arg_3(arguments));
+    /* The int value is taken as float on purpose */
+    return(bld_float_temp(take_float(arg_3(arguments))));
+  } /* flt_icast */
+
+
+
+#ifdef ANSI_C
+
 objecttype flt_iflt (listtype arguments)
 #else
 

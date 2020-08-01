@@ -315,8 +315,8 @@ objecttype obj_to_pop;
     printf(")\n");
     fflush(stdout);
 #endif
-    ent = GET_ENTITY(obj_to_pop);
-    if (ent != NULL) {
+    if (HAS_ENTITY(obj_to_pop)) {
+      ent = GET_ENTITY(obj_to_pop);
       owner = ent->owner;
       if (owner != NULL) {
         ent->owner = owner->next;

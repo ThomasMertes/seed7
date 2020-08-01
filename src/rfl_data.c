@@ -460,6 +460,40 @@ objecttype searched_object;
 
 #ifdef ANSI_C
 
+inttype rflIpos (listtype list_element, objecttype searched_object,
+    const inttype from_index)
+#else
+
+inttype rflIpos (list_element, searched_object, from_index)
+listtype list_element;
+objecttype searched_object;
+inttype from_index;
+#endif
+
+  {
+    inttype result;
+
+  /* rflIpos */
+    result = 1;
+    while (list_element != NULL && result < from_index) {
+      list_element = list_element->next;
+      result++;
+    } /* while */
+    while (list_element != NULL &&
+        list_element->obj != searched_object) {
+      list_element = list_element->next;
+      result++;
+    } /* while */
+    if (list_element == NULL) {
+      result = 0;
+    } /* if */
+    return(result);
+  } /* rflIpos */
+
+
+
+#ifdef ANSI_C
+
 listtype rflRange (listtype list, inttype start, inttype stop)
 #else
 

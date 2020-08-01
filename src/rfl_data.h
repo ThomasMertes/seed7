@@ -38,6 +38,8 @@ booltype rflEq (listtype list1, listtype list2);
 listtype rflHead (listtype list, inttype stop);
 objecttype rflIdx (listtype list, inttype position);
 void rflIncl (listtype *list, objecttype elem);
+inttype rflIpos (listtype list_element, objecttype searched_object,
+    const inttype from_index);
 inttype rflLng (listtype list);
 listtype rflMklist (objecttype elem);
 booltype rflNe (listtype list1, listtype list2);
@@ -58,6 +60,7 @@ booltype rflEq ();
 listtype rflHead ();
 objecttype rflIdx ();
 void rflIncl ();
+inttype rflIpos ();
 inttype rflLng ();
 listtype rflMklist ();
 booltype rflNe ();

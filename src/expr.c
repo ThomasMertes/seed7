@@ -398,7 +398,8 @@ booltype do_match_expr;
 
   /* pars_infix_expression */
 #ifdef TRACE_EXPR
-    printf("BEGIN pars_infix_expression \"%s\"\n", id_string(current_ident));
+    printf("BEGIN pars_infix_expression %d \"%s\"\n",
+        priority, id_string(current_ident));
 #endif
     expr_prior = current_ident->prefix_priority;
     if (expr_prior == STRONGEST_PRIORITY) {

@@ -41,6 +41,7 @@ const proc: main is func
       prog_expr := analyze_stri("\
         \$ include \"seed7_05.s7i\";\n\
         \include \"float.s7i\";\n\
+        \include \"math.s7i\";\n\
         \include \"rational.s7i\";\n\
         \include \"bigint.s7i\";\n\
         \include \"bigrat.s7i\";\n\

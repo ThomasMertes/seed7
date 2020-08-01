@@ -86,41 +86,41 @@ objecttype obj_arg;
 
 #ifdef ANSI_C
 
-inttype refArrmaxpos (objecttype obj_arg)
+inttype refArrmaxidx (objecttype obj_arg)
 #else
 
-inttype refArrmaxpos (obj_arg)
+inttype refArrmaxidx (obj_arg)
 objecttype obj_arg;
 #endif
 
-  { /* refArrmaxpos */
+  { /* refArrmaxidx */
     if (obj_arg == NULL || CATEGORY_OF_OBJ(obj_arg) != ARRAYOBJECT) {
       raise_error(RANGE_ERROR);
       return(0);
     } else {
       return(take_array(obj_arg)->max_position);
     } /* if */
-  } /* refArrmaxpos */
+  } /* refArrmaxidx */
 
 
 
 #ifdef ANSI_C
 
-inttype refArrminpos (objecttype obj_arg)
+inttype refArrminidx (objecttype obj_arg)
 #else
 
-inttype refArrminpos (obj_arg)
+inttype refArrminidx (obj_arg)
 objecttype obj_arg;
 #endif
 
-  { /* refArrminpos */
+  { /* refArrminidx */
     if (obj_arg == NULL || CATEGORY_OF_OBJ(obj_arg) != ARRAYOBJECT) {
       raise_error(RANGE_ERROR);
       return(0);
     } else {
       return(take_array(obj_arg)->min_position);
     } /* if */
-  } /* refArrminpos */
+  } /* refArrminidx */
 
 
 

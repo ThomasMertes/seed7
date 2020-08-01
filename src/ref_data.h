@@ -28,8 +28,8 @@
 #ifdef ANSI_C
 
 objecttype refAlloc (objecttype obj_arg);
-inttype refArrmaxpos (objecttype obj_arg);
-inttype refArrminpos (objecttype obj_arg);
+inttype refArrmaxidx (objecttype obj_arg);
+inttype refArrminidx (objecttype obj_arg);
 listtype refArrtolist (objecttype obj_arg);
 objecttype refBody (objecttype obj_arg);
 inttype refCategory (objecttype obj_arg);
@@ -71,8 +71,8 @@ typetype typValue (objecttype obj_arg);
 #else
 
 objecttype refAlloc ();
-inttype refArrmaxpos ();
-inttype refArrminpos ();
+inttype refArrmaxidx ();
+inttype refArrminidx ();
 listtype refArrtolist ();
 objecttype refBody ();
 inttype refCategory ();
