@@ -208,7 +208,7 @@ int *term_char;
       *cap_value = NULL;
     } else {
       *to = '\0';
-      if ((*cap_value = (char *) malloc((SIZE_TYPE) (to - to_buf + 1))) != NULL) {
+      if ((*cap_value = (char *) malloc((size_t) (to - to_buf + 1))) != NULL) {
         strcpy(*cap_value, to_buf);
       } /* if */
     } /* if */

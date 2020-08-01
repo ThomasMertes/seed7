@@ -107,8 +107,8 @@ typedef struct rtlBigintstruct {
     bigdigittype bigdigits[1];
   } rtlBigintrecord;
 
-SIZE_TYPE sizeof_bigdigittype = sizeof(bigdigittype);
-SIZE_TYPE sizeof_rtlBigintrecord = sizeof(rtlBigintrecord);
+size_t sizeof_bigdigittype = sizeof(bigdigittype);
+size_t sizeof_rtlBigintrecord = sizeof(rtlBigintrecord);
 
 
 #define SIZ_RTLBIG(len)     ((sizeof(rtlBigintrecord) - sizeof(bigdigittype)) + (len) * sizeof(bigdigittype))
@@ -1264,7 +1264,7 @@ rtlBiginttype big2;
       } else {
         remainder->size = big1->size;
         memcpy(remainder->bigdigits, big1->bigdigits,
-            (SIZE_TYPE) big1->size * sizeof(bigdigittype));
+            (size_t) big1->size * sizeof(bigdigittype));
       } /* if */
     } /* if */
     return(remainder);
@@ -1367,7 +1367,7 @@ rtlBiginttype big2;
         } else {
           modulo->size = big2->size;
           memcpy(modulo->bigdigits, big2->bigdigits,
-              (SIZE_TYPE) big2->size * sizeof(bigdigittype));
+              (size_t) big2->size * sizeof(bigdigittype));
           bigAddTo(modulo, big1);
           modulo = normalize(modulo);
         } /* if */
@@ -1377,7 +1377,7 @@ rtlBiginttype big2;
         } else {
           modulo->size = big1->size;
           memcpy(modulo->bigdigits, big1->bigdigits,
-              (SIZE_TYPE) big1->size * sizeof(bigdigittype));
+              (size_t) big1->size * sizeof(bigdigittype));
         } /* if */
       } /* if */
     } /* if */
@@ -2085,9 +2085,9 @@ booltype negative;
         } else {
           big2_help->size = big1->size - (big1->size >> 1);
           memcpy(big2_help->bigdigits, big2->bigdigits, 
-              (SIZE_TYPE) big2->size * sizeof(bigdigittype));
+              (size_t) big2->size * sizeof(bigdigittype));
           memset(&big2_help->bigdigits[big2->size], 0,
-              (SIZE_TYPE) (big2_help->size - big2->size) * sizeof(bigdigittype));
+              (size_t) (big2_help->size - big2->size) * sizeof(bigdigittype));
           big2 = big2_help;
           if (!ALLOC_BIG(result, (big1->size >> 1) + (big2->size << 1))) {
             raise_error(MEMORY_ERROR);
@@ -2101,7 +2101,7 @@ booltype negative;
               uBigKaratsubaMult(&big1->bigdigits[big1->size >> 1], big2->bigdigits,
                   big2->size, temp->bigdigits, &temp->bigdigits[big2->size << 1]);
               memset(&result->bigdigits[(big1->size >> 1) << 1], 0,
-                  (SIZE_TYPE) (result->size - ((big1->size >> 1) << 1)) * sizeof(bigdigittype));
+                  (size_t) (result->size - ((big1->size >> 1) << 1)) * sizeof(bigdigittype));
               uBigDigitAddTo(&result->bigdigits[big1->size >> 1], result->size - (big1->size >> 1),
                   temp->bigdigits, big2->size << 1);
               if (negative) {
@@ -2120,9 +2120,9 @@ booltype negative;
         } else {
           big2_help->size = big1->size;
           memcpy(big2_help->bigdigits, big2->bigdigits, 
-              (SIZE_TYPE) big2->size * sizeof(bigdigittype));
+              (size_t) big2->size * sizeof(bigdigittype));
           memset(&big2_help->bigdigits[big2->size], 0,
-              (SIZE_TYPE) (big2_help->size - big2->size) * sizeof(bigdigittype));
+              (size_t) (big2_help->size - big2->size) * sizeof(bigdigittype));
           big2 = big2_help;
           if (!ALLOC_BIG(result, big1->size << 1)) {
             raise_error(MEMORY_ERROR);
@@ -2278,7 +2278,7 @@ rtlBiginttype big1;
         } /* if */
       } else {
         memcpy(result->bigdigits, big1->bigdigits,
-            (SIZE_TYPE) big1->size * sizeof(bigdigittype));
+            (size_t) big1->size * sizeof(bigdigittype));
       } /* if */
     } /* if */
     return(result);
@@ -2455,7 +2455,7 @@ rtlBiginttype big1;
       } /* while */
       if (byteNum < 3 && (digit >> byteNum * 8 & 0xFF) <= 127) {
         byteDigitCount++;
-        byteNum++;
+        /* Not used afterwards: byteNum++; */
       } /* if */
     } else {
       while (byteNum > 0 && (digit >> byteNum * 8 & 0xFF) == 0) {
@@ -2464,7 +2464,7 @@ rtlBiginttype big1;
       } /* while */
       if (byteNum < 3 && (digit >> byteNum * 8 & 0xFF) >= 128) {
         byteDigitCount++;
-        byteNum++;
+        /* Not used afterwards: byteNum++; */
       } /* if */
     } /* if */
     result_size = byteDigitCount * 5 + 21;
@@ -2498,7 +2498,8 @@ rtlBiginttype big1;
         } else {
           byteNum = byteDigitCount - pos * sizeof(bigdigittype);
           cstri_expand(&result->mem[charIndex],
-              &byteBuffer[5 * (sizeof(bigdigittype) - byteNum)], 5 * byteNum);
+              &byteBuffer[5 * (sizeof(bigdigittype) - byteNum)],
+              (size_t) 5 * byteNum);
           charIndex += 5 * byteNum;
         } /* if */
       } /* while */
@@ -2622,7 +2623,7 @@ rtlBiginttype big_from;
       } /* if */
     } /* if */
     memcpy(big_dest->bigdigits, big_from->bigdigits,
-        (SIZE_TYPE) new_size * sizeof(bigdigittype));
+        (size_t) new_size * sizeof(bigdigittype));
   } /* bigCpy */
 
 
@@ -2647,7 +2648,7 @@ rtlBiginttype big_from;
     } else {
       result->size = new_size;
       memcpy(result->bigdigits, big_from->bigdigits,
-          (SIZE_TYPE) new_size * sizeof(bigdigittype));
+          (size_t) new_size * sizeof(bigdigittype));
     } /* if */
     return(result);
   } /* bigCreate */
@@ -2771,7 +2772,7 @@ rtlBiginttype big2;
         } else {
           big1_help->size = big1->size;
           memcpy(big1_help->bigdigits, big1->bigdigits,
-              (SIZE_TYPE) big1->size * sizeof(bigdigittype));
+              (size_t) big1->size * sizeof(bigdigittype));
         } /* if */
         big1_help->bigdigits[big1_help->size] = 0;
         big1_help->size++;
@@ -2787,7 +2788,7 @@ rtlBiginttype big2;
         } else {
           big2_help->size = big2->size;
           memcpy(big2_help->bigdigits, big2->bigdigits,
-              (SIZE_TYPE) big2->size * sizeof(bigdigittype));
+              (size_t) big2->size * sizeof(bigdigittype));
         } /* if */
       } /* if */
       if (!ALLOC_BIG(result, big1_help->size - big2_help->size + 1)) {
@@ -2837,7 +2838,7 @@ rtlBiginttype big2;
   { /* bigEq */
     if (big1->size == big2->size &&
       memcmp(big1->bigdigits, big2->bigdigits,
-          (SIZE_TYPE) big1->size * sizeof(bigdigittype)) == 0) {
+          (size_t) big1->size * sizeof(bigdigittype)) == 0) {
       return(TRUE);
     } else {
       return(FALSE);
@@ -2856,7 +2857,6 @@ int32type number;
 #endif
 
   {
-    memsizetype pos;
     memsizetype result_size;
     rtlBiginttype result;
 
@@ -2867,10 +2867,16 @@ int32type number;
     } else {
       result->size = result_size;
       result->bigdigits[0] = (bigdigittype) (number & BIGDIGIT_MASK);
-      for (pos = 1; pos < result_size; pos++) {
-        number >>= 8 * sizeof(bigdigittype);
-        result->bigdigits[pos] = (bigdigittype) (number & BIGDIGIT_MASK);
-      } /* for */
+#if BIGDIGIT_SIZE < 32
+      {
+        memsizetype pos;
+
+        for (pos = 1; pos < result_size; pos++) {
+          number >>= 8 * sizeof(bigdigittype);
+          result->bigdigits[pos] = (bigdigittype) (number & BIGDIGIT_MASK);
+        } /* for */
+      }
+#endif
       result = normalize(result);
     } /* if */
     return(result);
@@ -2922,7 +2928,6 @@ uint32type number;
 #endif
 
   {
-    memsizetype pos;
     memsizetype result_size;
     rtlBiginttype result;
 
@@ -2933,10 +2938,16 @@ uint32type number;
     } else {
       result->size = result_size;
       result->bigdigits[0] = (bigdigittype) (number & BIGDIGIT_MASK);
-      for (pos = 1; pos < result_size - 1; pos++) {
-        number >>= 8 * sizeof(bigdigittype);
-        result->bigdigits[pos] = (bigdigittype) (number & BIGDIGIT_MASK);
-      } /* for */
+#if BIGDIGIT_SIZE < 32
+      {
+        memsizetype pos;
+
+        for (pos = 1; pos < result_size - 1; pos++) {
+          number >>= 8 * sizeof(bigdigittype);
+          result->bigdigits[pos] = (bigdigittype) (number & BIGDIGIT_MASK);
+        } /* for */
+      }
+#endif
       result->bigdigits[result_size - 1] = (bigdigittype) 0;
       result = normalize(result);
     } /* if */
@@ -3196,7 +3207,7 @@ ustritype buffer;
     memsizetype byteDigitCount;
     memsizetype byteIndex;
     memsizetype pos;
-    int byteNum;
+    unsigned int byteNum;
     bigdigittype digit;
     memsizetype result_size;
     rtlBiginttype result;
@@ -3339,12 +3350,12 @@ inttype exponent;
             } else {
               square->size = base->size;
               memcpy(square->bigdigits, base->bigdigits,
-                  (SIZE_TYPE) base->size * sizeof(bigdigittype));
+                  (size_t) base->size * sizeof(bigdigittype));
             } /* if */
             if (exponent & 1) {
               result->size = square->size;
               memcpy(result->bigdigits, square->bigdigits,
-                  (SIZE_TYPE) square->size * sizeof(bigdigittype));
+                  (size_t) square->size * sizeof(bigdigittype));
             } else {
               negative = FALSE;
               result->size = 1;
@@ -3359,7 +3370,7 @@ inttype exponent;
               exponent >>= 1;
             } /* while */
             memset(&result->bigdigits[result->size], 0,
-                (SIZE_TYPE) (help_size - result->size) * sizeof(bigdigittype));
+                (size_t) (help_size - result->size) * sizeof(bigdigittype));
             result->size = help_size;
             if (negative) {
               negate_positive_big(result);
@@ -3493,7 +3504,7 @@ inttype lshift;
         } else {
           result->size = result_size;
           memcpy(&result->bigdigits[lshift >> BIGDIGIT_LOG2_SIZE], big1->bigdigits,
-              (SIZE_TYPE) big1->size * sizeof(bigdigittype));
+              (size_t) big1->size * sizeof(bigdigittype));
           memset(result->bigdigits, 0,
               (lshift >> BIGDIGIT_LOG2_SIZE) * sizeof(bigdigittype));
         } /* if */
@@ -3593,7 +3604,7 @@ inttype lshift;
         } else {
           result->size = result_size;
           memcpy(&result->bigdigits[lshift >> BIGDIGIT_LOG2_SIZE], big1->bigdigits,
-              (SIZE_TYPE) big1->size * sizeof(bigdigittype));
+              (size_t) big1->size * sizeof(bigdigittype));
           memset(result->bigdigits, 0,
               (lshift >> BIGDIGIT_LOG2_SIZE) * sizeof(bigdigittype));
           *big_variable = result;
@@ -3706,7 +3717,7 @@ rtlBiginttype big2;
         } else {
           big1_help->size = big1->size;
           memcpy(big1_help->bigdigits, big1->bigdigits,
-              (SIZE_TYPE) big1->size * sizeof(bigdigittype));
+              (size_t) big1->size * sizeof(bigdigittype));
         } /* if */
         big1_help->bigdigits[big1_help->size] = 0;
         big1_help->size++;
@@ -3722,7 +3733,7 @@ rtlBiginttype big2;
         } else {
           big2_help->size = big2->size;
           memcpy(big2_help->bigdigits, big2->bigdigits,
-              (SIZE_TYPE) big2->size * sizeof(bigdigittype));
+              (size_t) big2->size * sizeof(bigdigittype));
         } /* if */
       } /* if */
       if (!ALLOC_BIG(result, big1_help->size - big2_help->size + 1)) {
@@ -3871,7 +3882,7 @@ rtlBiginttype big2;
         } else {
           result->size = big1->size;
           memcpy(result->bigdigits, big1->bigdigits,
-              (SIZE_TYPE) big1->size * sizeof(bigdigittype));
+              (size_t) big1->size * sizeof(bigdigittype));
         } /* if */
         result->bigdigits[result->size] = 0;
         result->size++;
@@ -3887,7 +3898,7 @@ rtlBiginttype big2;
         } else {
           big2_help->size = big2->size;
           memcpy(big2_help->bigdigits, big2->bigdigits,
-              (SIZE_TYPE) big2->size * sizeof(bigdigittype));
+              (size_t) big2->size * sizeof(bigdigittype));
         } /* if */
       } /* if */
       shift = most_significant_bit(big2_help->bigdigits[big2_help->size - 1]) + 1;
@@ -3898,7 +3909,7 @@ rtlBiginttype big2;
         if (big2_help->size == 1) {
           result->bigdigits[0] = uBigRem1(result, big2_help->bigdigits[0]);
           memset(&result->bigdigits[1], 0, 
-              (SIZE_TYPE) (result->size - 1) * sizeof(bigdigittype));
+              (size_t) (result->size - 1) * sizeof(bigdigittype));
         } else {
           uBigRem(result, big2_help);
         } /* if */
@@ -4137,7 +4148,7 @@ rtlBiginttype big2;
   { /* bigNe */
     if (big1->size != big2->size ||
       memcmp(big1->bigdigits, big2->bigdigits,
-          (SIZE_TYPE) big1->size * sizeof(bigdigittype)) != 0) {
+          (size_t) big1->size * sizeof(bigdigittype)) != 0) {
       return(TRUE);
     } else {
       return(FALSE);
@@ -4210,7 +4221,7 @@ stritype stri;
       } /* if */
       if (okay) {
         memset(&result->bigdigits[result->size], 0,
-            (SIZE_TYPE) (result_size - result->size) * sizeof(bigdigittype));
+            (size_t) (result_size - result->size) * sizeof(bigdigittype));
         result->size = result_size;
         if (negative) {
           negate_positive_big(result);
@@ -4347,7 +4358,7 @@ rtlBiginttype upper_limit;
         return(NULL);
       } else {
         memset(&result->bigdigits[scale_limit->size], 0,
-            (SIZE_TYPE) (result_size - scale_limit->size) * sizeof(bigdigittype));
+            (size_t) (result_size - scale_limit->size) * sizeof(bigdigittype));
         result->size = scale_limit->size;
         mask = ((bigdigittype) BIGDIGIT_MASK) >>
             (8 * sizeof(bigdigittype) -
@@ -4422,7 +4433,7 @@ rtlBiginttype big2;
         } else {
           result->size = big1->size;
           memcpy(result->bigdigits, big1->bigdigits,
-              (SIZE_TYPE) big1->size * sizeof(bigdigittype));
+              (size_t) big1->size * sizeof(bigdigittype));
         } /* if */
         result->bigdigits[result->size] = 0;
         result->size++;
@@ -4437,7 +4448,7 @@ rtlBiginttype big2;
         } else {
           big2_help->size = big2->size;
           memcpy(big2_help->bigdigits, big2->bigdigits,
-              (SIZE_TYPE) big2->size * sizeof(bigdigittype));
+              (size_t) big2->size * sizeof(bigdigittype));
         } /* if */
       } /* if */
       shift = most_significant_bit(big2_help->bigdigits[big2_help->size - 1]) + 1;
@@ -4448,7 +4459,7 @@ rtlBiginttype big2;
         if (big2_help->size == 1) {
           result->bigdigits[0] = uBigRem1(result, big2_help->bigdigits[0]);
           memset(&result->bigdigits[1], 0, 
-              (SIZE_TYPE) (result->size - 1) * sizeof(bigdigittype));
+              (size_t) (result->size - 1) * sizeof(bigdigittype));
         } else {
           uBigRem(result, big2_help);
         } /* if */
@@ -4501,7 +4512,7 @@ inttype rshift;
       result = NULL;
       raise_error(NUMERIC_ERROR);
     } else {
-      if (big1->size <= rshift >> BIGDIGIT_LOG2_SIZE) {
+      if (big1->size <= (uinttype) rshift >> BIGDIGIT_LOG2_SIZE) {
         if (!ALLOC_BIG(result, 1)) {
           raise_error(MEMORY_ERROR);
         } else {
@@ -4519,7 +4530,7 @@ inttype rshift;
         } else {
           result->size = result_size;
           memcpy(result->bigdigits, &big1->bigdigits[rshift >> BIGDIGIT_LOG2_SIZE],
-              (SIZE_TYPE) result_size * sizeof(bigdigittype));
+              (size_t) result_size * sizeof(bigdigittype));
         } /* if */
       } else {
         result_size = big1->size - (rshift >> BIGDIGIT_LOG2_SIZE);
@@ -4553,7 +4564,7 @@ inttype rshift;
             *dest_digits++ = low_digit | ((high_digit << digit_lshift) & BIGDIGIT_MASK);
             low_digit = high_digit >> digit_rshift;
           } /* for */
-          if (dest_digits - result->bigdigits < result_size) {
+          if ((memsizetype) (dest_digits - result->bigdigits) < result_size) {
             if (IS_NEGATIVE(high_digit)) {
               *dest_digits = low_digit | ((BIGDIGIT_MASK << digit_lshift) & BIGDIGIT_MASK);
             } else {
@@ -4610,7 +4621,7 @@ inttype rshift;
       } else if ((rshift & BIGDIGIT_SIZE_MASK) == 0) {
         if (rshift != 0) {
           memmove(big1->bigdigits, &big1->bigdigits[size_reduction],
-              (SIZE_TYPE) (big1->size - size_reduction) * sizeof(bigdigittype));
+              (size_t) (big1->size - size_reduction) * sizeof(bigdigittype));
           big1 = REALLOC_BIG(big1, big1->size, big1->size - size_reduction);
           if (big1 == NULL) {
             raise_error(MEMORY_ERROR);
@@ -4939,7 +4950,7 @@ rtlBiginttype big1;
         } else {
           help_big->size = big1->size;
           memcpy(help_big->bigdigits, big1->bigdigits,
-              (SIZE_TYPE) big1->size * sizeof(bigdigittype));
+              (size_t) big1->size * sizeof(bigdigittype));
         } /* if */
         do {
           if (pos + DECIMAL_DIGITS_IN_BIGDIGIT > result_size) {
@@ -5112,7 +5123,7 @@ rtlBiginttype big1;
       } /* while */
       if (byteNum < 3 && (digit >> byteNum * 8 & 0xFF) <= 127) {
         result_size++;
-        byteNum++;
+        /* Not used afterwards: byteNum++; */
       } /* if */
     } else {
       while (byteNum > 0 && (digit >> byteNum * 8 & 0xFF) == 0) {
@@ -5121,7 +5132,7 @@ rtlBiginttype big1;
       } /* while */
       if (byteNum < 3 && (digit >> byteNum * 8 & 0xFF) >= 128) {
         result_size++;
-        byteNum++;
+        /* Not used afterwards: byteNum++; */
       } /* if */
     } /* if */
     if (!ALLOC_BSTRI(result, result_size)) {
@@ -5166,11 +5177,13 @@ rtlBiginttype big1;
     } else {
       pos = big1->size - 1;
       result = big1->bigdigits[pos];
+#if BIGDIGIT_SIZE < 32
       while (pos > 0) {
         pos--;
         result <<= 8 * sizeof(bigdigittype);
         result |= (int32type) big1->bigdigits[pos];
       } /* while */
+#endif
       return(result);
     } /* if */
   } /* bigToInt32 */

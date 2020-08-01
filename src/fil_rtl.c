@@ -260,9 +260,9 @@ filetype aFile;
         raise_error(FILE_ERROR);
         result = NULL;
       } else if (sizeof(offsettype) == 8) {
-        result = bigFromUInt64(file_length);
+        result = bigFromUInt64((uint64type) file_length);
       } else {
-        result = bigFromUInt32(file_length);
+        result = bigFromUInt32((uint32type) file_length);
       } /* if */
     } /* if */
 #else
@@ -282,9 +282,9 @@ filetype aFile;
         raise_error(FILE_ERROR);
         result = NULL;
       } else if (sizeof(offsettype) == 8) {
-        result = bigFromUInt64(file_length);
+        result = bigFromUInt64((uint64type) file_length);
       } else {
-        result = bigFromUInt32(file_length);
+        result = bigFromUInt32((uint32type) file_length);
       } /* if */
     } /* if */
 #endif
@@ -312,9 +312,9 @@ filetype aFile;
     if (file_no != -1 && os_fstat(file_no, &stat_buf) == 0 &&
         S_ISREG(stat_buf.st_mode)) {
       if (sizeof(stat_buf.st_size) == 8) {
-        result = bigFromUInt64(stat_buf.st_size);
+        result = bigFromUInt64((uint64type) stat_buf.st_size);
       } else {
-        result = bigFromUInt32(stat_buf.st_size);
+        result = bigFromUInt32((uint32type) stat_buf.st_size);
       } /* if */
     } else {
       result = getBigFileLengthUsingSeek(aFile);
@@ -386,9 +386,9 @@ filetype aFile;
       raise_error(FILE_ERROR);
       return(NULL);
     } else if (sizeof(offsettype) == 8) {
-      return(bigFromUInt64(current_file_position + 1));
+      return(bigFromUInt64((uint64type) current_file_position + 1));
     } else {
-      return(bigFromUInt32(current_file_position + 1));
+      return(bigFromUInt32((uint32type) current_file_position + 1));
     } /* if */
 #else
     current_file_position = myFtell(aFile);
@@ -396,15 +396,28 @@ filetype aFile;
       raise_error(FILE_ERROR);
       return(NULL);
     } else if (sizeof(offsettype) == 8) {
-      return(bigFromUInt64(current_file_position + 1));
+      return(bigFromUInt64((uint64type) current_file_position + 1));
     } else {
-      return(bigFromUInt32(current_file_position + 1));
+      return(bigFromUInt32((uint32type) current_file_position + 1));
     } /* if */
 #endif
   } /* filBigTell */
 
 
 
+/**
+ *  Return a string with 'length' characters read from 'aFile'.
+ *  In order to work reasonable good for the common case (reading
+ *  just some characters) memory for 'length' characters is requested
+ *  with malloc(). After the data is read the result string is
+ *  shrinked to the actual size (with realloc()). When 'length'
+ *  is larger than a limit or the memory cannot be requested a
+ *  different strategy is used. In this case the function trys to
+ *  find out the number of available characters (this is possible
+ *  for a regular file but not for a pipe). If this fails a third
+ *  strategy is used. In this case a smaller block is requested. This
+ *  block is filled with data, resized and filled in a loop.
+ */
 #ifdef ANSI_C
 
 stritype filGets (filetype aFile, inttype length)
@@ -433,8 +446,14 @@ inttype length;
       result = NULL;
     } else {
       bytes_requested = (memsizetype) length;
-      allocated_size = bytes_requested;
-      if (!ALLOC_STRI(result, allocated_size)) {
+      if (bytes_requested > 0x1FFFFFFF) {
+        /* Avoid requesting too much */
+        result = NULL;
+      } else {
+        allocated_size = bytes_requested;
+        ALLOC_STRI(result, allocated_size);
+      } /* if */
+      if (result == NULL) {
         /* Determine how many bytes are available in aFile */
         if ((current_file_position = ftell(aFile)) != -1) {
           fseek(aFile, 0, SEEK_END);
@@ -447,7 +466,8 @@ inttype length;
               raise_error(MEMORY_ERROR);
               return(NULL);
             } /* if */
-          } else {
+          } else if (bytes_requested <= 0x1FFFFFFF) {
+            /* The request for memory already failed */
             raise_error(MEMORY_ERROR);
             return(NULL);
           } /* if */
@@ -457,7 +477,7 @@ inttype length;
         /* We have allocated a buffer for the requested number of bytes
            or for the number of bytes which are available in the file */
         result_size = (memsizetype) fread(result->mem, 1,
-            (SIZE_TYPE) allocated_size, aFile);
+            (size_t) allocated_size, aFile);
       } else {
         /* We do not know how many bytes are avaliable therefore
            we read blocks of READ_BLOCK_SIZE until we have read
@@ -585,7 +605,7 @@ chartype *termination_char;
     } else {
       memory = result->mem;
       position = 0;
-      while ((ch = getc(aFile)) != '\n' && ch != EOF) {
+      while ((ch = getc(aFile)) != (int) '\n' && ch != EOF) {
         if (position >= memlength) {
           newmemlength = memlength + 2048;
           REALLOC_STRI(resized_result, result, memlength, newmemlength);
@@ -601,7 +621,7 @@ chartype *termination_char;
         } /* if */
         memory[position++] = (strelemtype) ch;
       } /* while */
-      if (ch == '\n' && position != 0 && memory[position - 1] == '\r') {
+      if (ch == (int) '\n' && position != 0 && memory[position - 1] == '\r') {
         position--;
       } /* if */
       REALLOC_STRI(resized_result, result, memlength, position);
@@ -845,7 +865,7 @@ inttype size;
   { /* filSetbuf */
     if (mode < 0 || mode > 2 || size < 0) {
       raise_error(RANGE_ERROR);
-    } else if (setvbuf(aFile, NULL, mode, size) != 0) {
+    } else if (setvbuf(aFile, NULL, mode, (uinttype) size) != 0) {
       raise_error(FILE_ERROR);
     } /* if */
   } /* filSetbuf */
@@ -907,9 +927,9 @@ chartype *termination_char;
       position = 0;
       do {
         ch = getc(aFile);
-      } while (ch == ' ' || ch == '\t');
-      while (ch != ' ' && ch != '\t' &&
-          ch != '\n' && ch != EOF) {
+      } while (ch == (int) ' ' || ch == (int) '\t');
+      while (ch != (int) ' ' && ch != (int) '\t' &&
+          ch != (int) '\n' && ch != EOF) {
         if (position >= memlength) {
           newmemlength = memlength + 2048;
           REALLOC_STRI(resized_result, result, memlength, newmemlength);
@@ -926,7 +946,7 @@ chartype *termination_char;
         memory[position++] = (strelemtype) ch;
         ch = getc(aFile);
       } /* while */
-      if (ch == '\n' && position != 0 && memory[position - 1] == '\r') {
+      if (ch == (int) '\n' && position != 0 && memory[position - 1] == '\r') {
         position--;
       } /* if */
       REALLOC_STRI(resized_result, result, memlength, position);
@@ -997,7 +1017,7 @@ stritype stri;
     }
 #else
     if (stri->size != fwrite(stri->mem, sizeof(strelemtype),
-        (SIZE_TYPE) stri->size, aFile)) {
+        (size_t) stri->size, aFile)) {
       raise_error(FILE_ERROR);
       return;
     } /* if */

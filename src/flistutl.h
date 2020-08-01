@@ -183,14 +183,14 @@ void heap_statistic (void);
 #endif
 memsizetype heapsize (void);
 #ifdef USE_CHUNK_ALLOCS
-void *flist_alloc (SIZE_TYPE);
+void *flist_alloc (size_t);
 void reuse_free_lists (void);
 #endif
 #ifndef USE_CHUNK_ALLOCS
 void REUSE_FLIST.LISTS (void);
 #endif
 #ifdef USE_CHUNK_ALLOCS
-void *heap_chunk (SIZE_TYPE);
+void *heap_chunk (size_t);
 #endif
 
 #else

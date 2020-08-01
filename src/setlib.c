@@ -162,14 +162,16 @@ listtype arguments;
     settype set1;
     memsizetype bitset_index;
     unsigned char *byte;
-    SIZE_TYPE idx;
+    size_t idx;
     inttype result;
 
   /* set_card */
     isit_set(arg_1(arguments));
     set1 = take_set(arg_1(arguments));
     result = 0;
-    for (bitset_index = 0; bitset_index <= set1->max_position - set1->min_position; bitset_index++) {
+    for (bitset_index = 0;
+        bitset_index <= (memsizetype) (set1->max_position - set1->min_position);
+        bitset_index++) {
       byte = (unsigned char *) &set1->bitset[bitset_index];
       for (idx = 0; idx < sizeof(bitsettype); idx++) {
         /* printf("%c%c%c%c%c%c%c%c [%d] ",
@@ -284,7 +286,7 @@ listtype arguments;
         set_dest->max_position = set_source->max_position;
       } /* if */
       memcpy(set_dest->bitset, set_source->bitset,
-          (SIZE_TYPE) set_source_size * sizeof(bitsettype));
+          (size_t) set_source_size * sizeof(bitsettype));
     } /* if */
     return(SYS_EMPTY_OBJECT);
   } /* set_cpy */
@@ -326,7 +328,7 @@ listtype arguments;
         new_set->min_position = set_source->min_position;
         new_set->max_position = set_source->max_position;
         memcpy(new_set->bitset, set_source->bitset,
-            (SIZE_TYPE) new_size * sizeof(bitsettype));
+            (size_t) new_size * sizeof(bitsettype));
       } /* if */
     } /* if */
     return(SYS_EMPTY_OBJECT);

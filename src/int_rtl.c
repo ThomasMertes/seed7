@@ -538,13 +538,13 @@ inttype pad_size;
 #else
      if (negative) {
        result->mem[0] = (strelemtype) '-';
-       memset(&result->mem[1], '0', (SIZE_TYPE) (result_size - length - 1));
+       memset(&result->mem[1], '0', (size_t) (result_size - length - 1));
      } else {
-       memset(result->mem, '0', (SIZE_TYPE) (result_size - length));
+       memset(result->mem, '0', (size_t) (result_size - length));
      } /* if */
 #endif
       memcpy(&result->mem[result_size - length], buffer,
-          (SIZE_TYPE) length * sizeof(strelemtype));
+          (size_t) length * sizeof(strelemtype));
       return(result);
     } /* if */
   } /* intLpad0 */
@@ -762,7 +762,7 @@ inttype number;
       return(NULL);
     } else {
       result->size = len;
-      memcpy(result->mem, buffer, (SIZE_TYPE) (len * sizeof(strelemtype)));
+      memcpy(result->mem, buffer, (size_t) (len * sizeof(strelemtype)));
       return(result);
     } /* if */
   } /* intStr */
@@ -810,7 +810,7 @@ inttype base;
         raise_error(MEMORY_ERROR);
       } else {
         result->size = len;
-        memcpy(result->mem, buffer, (SIZE_TYPE) (len * sizeof(strelemtype)));
+        memcpy(result->mem, buffer, (size_t) (len * sizeof(strelemtype)));
       } /* if */
     } /* if */
     return(result);
@@ -855,7 +855,7 @@ inttype number;
       return(NULL);
     } else {
       result->size = len;
-      memcpy(result->mem, buffer, (SIZE_TYPE) (len * sizeof(strelemtype)));
+      memcpy(result->mem, buffer, (size_t) (len * sizeof(strelemtype)));
       return(result);
     } /* if */
   } /* intStrHex */

@@ -131,7 +131,8 @@ WHAT TO DO WHEN ERRORS HAPPEN DURING THE COMPILATION?
   of your distribution is missing. If your operating system is
   linux, bsd or unix not all development packages with header
   files might be installed. In this case you get some errors
-  after typing 'make depend'. Errors such as
+  after typing 'make depend'.
+  Errors such as
 
     scr_inf.c:57:18: error: term.h: No such file or directory
     kbd_inf.c:55:18: error: term.h: No such file or directory
@@ -172,6 +173,13 @@ WHAT TO DO WHEN ERRORS HAPPEN DURING THE COMPILATION?
   makefile which uses unix shell commands (e.g. mk_msys.mak or
   mk_cygw.mak) or take care that the 'make' program uses cmd.exe
   (or command.com) to execute the commands.
+  Errors such as
+
+    hi.c:28:21: error: version.h: No such file or directory
+
+  indicate that you forgot to run 'make depend' before running
+  'make'. Since such an attempt produces several unneeded files it
+  is necessary now to run 'make clean', 'make depend' and 'make'.
 
   When you got other errors I would like to know about. Please
   send a mail with detailed information (name and version) of

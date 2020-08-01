@@ -200,7 +200,7 @@ static void print_error_line ()
           buffer[number] = '?';
         } /* if */
       } /* for */
-      fwrite(&buffer[start + 1], 1, (SIZE_TYPE) (stop - start - 1), stdout);
+      fwrite(&buffer[start + 1], 1, (size_t) (stop - start - 1), stdout);
       printf("\n");
       for (number = 0; number < start_index - start - 1; number++) {
         fputc('-', stdout);

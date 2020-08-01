@@ -85,7 +85,7 @@ int fill_buf ()
 #else
     if (in_file.fil != NULL &&
         (chars_read = fread(in_file.start, 1,
-        (SIZE_TYPE) in_file.buffer_size, in_file.fil)) != 0) {
+        (size_t) in_file.buffer_size, in_file.fil)) != 0) {
       in_file.nextch = in_file.start;
       in_file.beyond = in_file.start + chars_read;
       result = next_character();
@@ -99,50 +99,6 @@ int fill_buf ()
     return(result);
   } /* fill_buf */
 #endif
-
-
-
-#ifdef ANSI_C
-
-static INLINE void make_os_file_name (const_stritype source_file_name,
-    ustritype *os_file_name, errinfotype *err_info)
-#else
-
-static INLINE void make_os_file_name (source_file_name,
-    os_file_name, err_info)
-stritype source_file_name;
-ustritype *os_file_name;
-errinfotype *err_info;
-#endif
-
-  /* Copies the source_file_name to os_file_name and replaces all    */
-  /* occurances of '\' in os_file_name by '/'.                       */
-
-  {
-    unsigned int position;
-    unsigned int len;
-
-  /* make_os_file_name */
-#ifdef TRACE_INFILE
-    printf("BEGIN make_os_file_name\n");
-#endif
-    len = source_file_name->size;
-    if (!ALLOC_USTRI(*os_file_name, len)) {
-      *err_info = MEMORY_ERROR;
-    } else {
-      COUNT_USTRI(len, count.fnam, count.fnam_bytes);
-      for (position = 0; position < len; position++) {
-        (*os_file_name)[position] = source_file_name->mem[position];
-        if (source_file_name->mem[position] == '\\') {
-          (*os_file_name)[position] = '/';
-        } /* if */
-      } /* for */
-      (*os_file_name)[len] = '\0';
-    } /* if */
-#ifdef TRACE_INFILE
-    printf("END make_os_file_name\n");
-#endif
-  } /* make_os_file_name */
 
 
 
@@ -219,7 +175,7 @@ static INLINE booltype speedup ()
     if (option.get_infile_buffer) {
       if (ALLOC_BYTES(in_file.buffer, SIZE_IN_BUFFER)) {
         setvbuf(in_file.fil, in_file.buffer, _IOFBF,
-            (SIZE_TYPE) SIZE_IN_BUFFER);
+            (size_t) SIZE_IN_BUFFER);
       } /* if */
     } else {
       in_file.buffer = NULL;
@@ -245,7 +201,7 @@ errinfotype *err_info;
 #endif
 
   {
-    ustritype os_file_name;
+    os_path_stri os_path;
     infiltype new_file;
     FILE *in_fil;
     ustritype in_name;
@@ -254,12 +210,15 @@ errinfotype *err_info;
 #ifdef TRACE_INFILE
     printf("BEGIN open_infile err_info=%u\n", *err_info);
 #endif
-    make_os_file_name(source_file_name, &os_file_name, err_info);
-    if (*err_info == OKAY_NO_ERROR) {
-      in_fil = fopen((cstritype) os_file_name, "rb");
-      /* printf("fopen(\"%s\") ==> %lu\n", os_file_name, in_fil); */
-      FREE_USTRI(os_file_name, strlen((cstritype) os_file_name),
-          count.fnam, count.fnam_bytes);
+    os_path = cp_to_os_path(source_file_name, err_info);
+    if (os_path != NULL) {
+#ifdef OS_PATH_WCHAR
+      in_fil = wide_fopen(os_path, L"rb");
+#else
+      in_fil = fopen(os_path, "rb");
+#endif
+      /* printf("fopen(\"%s\") ==> %lu\n", os_path, in_fil); */
+      os_path_free(os_path);
       if (in_fil == NULL) {
         *err_info = FILE_ERROR;
       } else {
@@ -339,7 +298,7 @@ void close_infile ()
       if (in_file.buffer_size == 0) {
 #ifdef USE_MMAP
         if (in_file.fil != NULL) {
-          munmap(in_file.start, (SIZE_TYPE) (in_file.beyond - in_file.start));
+          munmap(in_file.start, (size_t) (in_file.beyond - in_file.start));
         } /* if */
 #endif
       } else {
@@ -552,7 +511,8 @@ errinfotype *err_info;
       } else {
         found = FALSE;
         for (position = 0; !found && *err_info == OKAY_NO_ERROR &&
-            position <= lib_path->max_position - lib_path->min_position; position++) {
+            position <= (memsizetype) (lib_path->max_position - lib_path->min_position);
+            position++) {
           curr_path = lib_path->arr[position].value.strivalue;
           if (curr_path->size == 0) {
             open_infile(include_file_name, err_info);
@@ -563,9 +523,9 @@ errinfotype *err_info;
             } else {
               stri->size = length;
               memcpy(stri->mem, curr_path->mem,
-                  (SIZE_TYPE) curr_path->size * sizeof(strelemtype));
+                  (size_t) curr_path->size * sizeof(strelemtype));
               memcpy(&stri->mem[curr_path->size], include_file_name->mem,
-                  (SIZE_TYPE) include_file_name->size * sizeof(strelemtype));
+                  (size_t) include_file_name->size * sizeof(strelemtype));
               open_infile(stri, err_info);
               FREE_STRI(stri, length);
             } /* if */

@@ -133,10 +133,9 @@ typedef const uint16type *     const_wstritype;
 #define SOURCE_POSITION(POS_NR) __FILE__, __LINE__
 
 
-#ifdef ANSI_C
-typedef size_t SIZE_TYPE;
-#else
+#ifndef ANSI_C
 typedef unsigned int SIZE_TYPE;
+#define size_t SIZE_TYPE
 #define const
 #endif
 

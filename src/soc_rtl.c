@@ -234,7 +234,7 @@ inttype length;
         return(NULL);
       } /* if */
       result_size = (memsizetype) recv(sock, result->mem,
-          (SIZE_TYPE) bytes_requested, 0);
+          (size_t) bytes_requested, 0);
 #ifdef UTF32_STRINGS
       if (result_size > 0) {
         uchartype *from = &((uchartype *) result->mem)[result_size - 1];
@@ -328,7 +328,7 @@ inttype port;
               inet_address = (struct sockaddr_in *) result->mem;
               inet_address->sin_family = host_ent->h_addrtype;
               inet_address->sin_port = htons(port);                    /* short, network byte order */
-              memcpy(&inet_address->sin_addr.s_addr, host_ent->h_addr, host_ent->h_length);
+              memcpy(&inet_address->sin_addr.s_addr, host_ent->h_addr, (size_t) host_ent->h_length);
               memset(inet_address->sin_zero, '\0', sizeof(inet_address->sin_zero));
             } /* if */
           } /* if */
@@ -535,7 +535,7 @@ inttype flags;
         old_stri_size = bytes_requested;
       } /* if */
       new_stri_size = (memsizetype) recv(sock, (*stri)->mem,
-          (SIZE_TYPE) bytes_requested, flags);
+          (size_t) bytes_requested, flags);
 #ifdef UTF32_STRINGS
       if (new_stri_size > 0) {
         uchartype *from = &((uchartype *) (*stri)->mem)[new_stri_size - 1];
@@ -613,7 +613,7 @@ bstritype *address;
         COUNT3_BSTRI((*address)->size, MAX_ADDRESS_SIZE);
         address_size = MAX_ADDRESS_SIZE;
         stri_size = (memsizetype) recvfrom(sock, (*stri)->mem,
-            (SIZE_TYPE) bytes_requested, flags,
+            (size_t) bytes_requested, flags,
             (struct sockaddr *) (*address)->mem, &address_size);
         if (stri_size == -1) {
           REALLOC_BSTRI(resized_address, *address, MAX_ADDRESS_SIZE, (*address)->size);

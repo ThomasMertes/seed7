@@ -85,7 +85,7 @@ listtype arguments;
       arr_variable->value.arrayvalue = arr_to;
       if (TEMP_OBJECT(arg_3(arguments))) {
         memcpy(&arr_to->arr[arr_to_size], arr_from->arr,
-            (SIZE_TYPE) (arr_from_size * sizeof(objectrecord)));
+            (size_t) (arr_from_size * sizeof(objectrecord)));
         arr_to->max_position += arr_from_size;
         FREE_ARRAY(arr_from, arr_from_size);
         arg_3(arguments)->value.arrayvalue = NULL;
@@ -328,7 +328,7 @@ listtype arguments;
     } /* if */
     if (TEMP_OBJECT(arg_3(arguments))) {
       memcpy(&result->arr[arr1_size], arr2->arr,
-          (SIZE_TYPE) (arr2_size * sizeof(objectrecord)));
+          (size_t) (arr2_size * sizeof(objectrecord)));
       FREE_ARRAY(arr2, arr2_size);
       arg_3(arguments)->value.arrayvalue = NULL;
     } else {
@@ -876,7 +876,7 @@ listtype arguments;
       result->max_position = arr1->min_position + result_size - 1;
       if (TEMP_OBJECT(arg_1(arguments))) {
         memcpy(result->arr, &arr1->arr[(memsizetype) (start - 1)],
-            (SIZE_TYPE) (result_size * sizeof(objectrecord)));
+            (size_t) (result_size * sizeof(objectrecord)));
         destr_array(arr1->arr, (memsizetype) start - 1);
         destr_array(&arr1->arr[stop], length - (memsizetype) stop);
         FREE_ARRAY(arr1, length);
@@ -1027,7 +1027,7 @@ listtype arguments;
       result->max_position = arr1->min_position + result_size - 1;
       if (TEMP_OBJECT(arg_1(arguments))) {
         memcpy(result->arr, &arr1->arr[start - arr1->min_position],
-            (SIZE_TYPE) (result_size * sizeof(objectrecord)));
+            (size_t) (result_size * sizeof(objectrecord)));
         destr_array(arr1->arr, (memsizetype) (start - arr1->min_position));
         FREE_ARRAY(arr1, length);
         arg_1(arguments)->value.arrayvalue = NULL;

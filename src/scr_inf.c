@@ -586,7 +586,7 @@ memsizetype length;
             } /* for */
 #else
             memcpy(&new_line[start_pos], &stri[start_pos],
-                end_pos - start_pos + 1);
+                (size_t) (end_pos - start_pos + 1));
 #endif
             if (cursor_position_okay &&
                 cursor_line == lin && cursor_column == col) {
@@ -609,13 +609,13 @@ memsizetype length;
                 setattr(curr_attr);
               } /* if */
               fwrite(&new_line[start_pos], 1,
-                  (SIZE_TYPE) (end_pos - start_pos + 1), stdout);
+                  (size_t) (end_pos - start_pos + 1), stdout);
               if (curr_attr != TEXT_NORMAL) {
                 setattr(TEXT_NORMAL);
               } /* if */
             } /* if */
             memset(&new_attr[start_pos], curr_attr,
-                (SIZE_TYPE) (end_pos - start_pos + 1));
+                (size_t) (end_pos - start_pos + 1));
             cursor_position_okay = TRUE;
             cursor_line = lin;
             cursor_column = col + end_pos + 1;
@@ -628,7 +628,7 @@ memsizetype length;
             new_line[position] = map[stri[position]];
           } /* for */
 #else
-          memcpy(new_line, stri, columns - col + 1);
+          memcpy(new_line, stri, (size_t) (columns - col + 1));
 #endif
           if (ceol_standout_glitch) {
             for (position = 0; position <= columns - col; position++) {
@@ -642,12 +642,12 @@ memsizetype length;
             if (curr_attr != TEXT_NORMAL) {
               setattr(curr_attr);
             } /* if */
-            fwrite(new_line, 1, (SIZE_TYPE) (columns - col + 1), stdout);
+            fwrite(new_line, 1, (size_t) (columns - col + 1), stdout);
             if (curr_attr != TEXT_NORMAL) {
               setattr(TEXT_NORMAL);
             } /* if */
           } /* if */
-          memset(new_attr, curr_attr, (SIZE_TYPE) (columns - col + 1));
+          memset(new_attr, curr_attr, (size_t) (columns - col + 1));
         } /* if */
       } /* if */
       changes = TRUE;
@@ -688,8 +688,8 @@ inttype stopcol;
     if (startlin == 1 && stoplin == lines &&
         startcol == 1 && stopcol == columns && clear_screen != NULL) {
       putctl(clear_screen); /* clear screen */
-      memset(scrn, ' ', (SIZE_TYPE) (lines * columns));
-      memset(attr, curr_attr, (SIZE_TYPE) (lines * columns));
+      memset(scrn, ' ', (size_t) (lines * columns));
+      memset(attr, curr_attr, (size_t) (lines * columns));
     } else {
       if (stopcol == columns && clr_eol != NULL) {
         putgoto(cursor_address, startcol - 1, startlin - 1); /* cursor motion */
@@ -702,9 +702,9 @@ inttype stopcol;
             setattr(TEXT_NORMAL);
           } /* if */
           memset(&whole_screen[lin][startcol - 1], ' ',
-              (SIZE_TYPE) (stopcol - startcol + 1));
+              (size_t) (stopcol - startcol + 1));
           memset(&attributes[lin][startcol - 1], curr_attr,
-              (SIZE_TYPE) (stopcol - startcol + 1));
+              (size_t) (stopcol - startcol + 1));
           if (lin < stoplin - 1) {
             downleft(startcol - 1, lin + 1);
           } /* if */
@@ -724,14 +724,14 @@ inttype stopcol;
             if (curr_attr != TEXT_NORMAL) {
               setattr(curr_attr);
             } /* if */
-            fwrite(space, 1, (SIZE_TYPE) (column - startcol + 1), stdout);
+            fwrite(space, 1, (size_t) (column - startcol + 1), stdout);
             if (curr_attr != TEXT_NORMAL) {
               setattr(TEXT_NORMAL);
             } /* if */
             memset(&new_line[startcol - 1], ' ',
-                (SIZE_TYPE) (column - startcol + 1));
+                (size_t) (column - startcol + 1));
             memset(&new_attr[startcol - 1], curr_attr,
-                (SIZE_TYPE) (column - startcol + 1));
+                (size_t) (column - startcol + 1));
           } /* if */
         } /* for */
       } /* if */
@@ -791,13 +791,13 @@ inttype count;
         if (column >= startcol) {
           memcpy(&new_line[startcol - 1],
               &old_line[startcol - 1],
-              (SIZE_TYPE) (column - startcol + 1));
+              (size_t) (column - startcol + 1));
           memcpy(&new_attr[startcol - 1],
               &old_attr[startcol - 1],
-              (SIZE_TYPE) (column - startcol + 1));
+              (size_t) (column - startcol + 1));
           putgoto(cursor_address, startcol - 1, line); /* cursor motion */
           fwrite(&new_line[startcol - 1], 1,
-              (SIZE_TYPE) (column - startcol + 1), stdout);
+              (size_t) (column - startcol + 1), stdout);
         } /* if */
       } /* for */
       for (line = stoplin - count; line < stoplin; line++) {
@@ -811,14 +811,14 @@ inttype count;
         } /* while */
         if (column >= startcol) {
           memset(&new_line[startcol - 1], ' ',
-              (SIZE_TYPE) (column - startcol + 1));
+              (size_t) (column - startcol + 1));
           memset(&new_attr[startcol - 1], curr_attr,
-              (SIZE_TYPE) (column - startcol + 1));
+              (size_t) (column - startcol + 1));
           putgoto(cursor_address, startcol - 1, line); /* cursor motion */
           if (curr_attr != TEXT_NORMAL) {
             setattr(curr_attr);
           } /* if */
-          fwrite(space, 1, (SIZE_TYPE) (column - startcol + 1), stdout);
+          fwrite(space, 1, (size_t) (column - startcol + 1), stdout);
           if (curr_attr != TEXT_NORMAL) {
             setattr(TEXT_NORMAL);
           } /* if */
@@ -852,16 +852,16 @@ inttype count;
       for (line = startlin - 1; line < stoplin - count; line++) {
         memcpy(&whole_screen[line][startcol - 1],
             &whole_screen[line + count][startcol - 1],
-            (SIZE_TYPE) (stopcol - startcol + 1));
+            (size_t) (stopcol - startcol + 1));
         memcpy(&attributes[line][startcol - 1],
             &attributes[line + count][startcol - 1],
-            (SIZE_TYPE) (stopcol - startcol + 1));
+            (size_t) (stopcol - startcol + 1));
       } /* for */
       for (line = stoplin - count; line < stoplin; line++) {
         memset(&whole_screen[line][startcol - 1], ' ',
-            (SIZE_TYPE) (stopcol - startcol + 1));
+            (size_t) (stopcol - startcol + 1));
         memset(&attributes[line][startcol - 1], curr_attr,
-            (SIZE_TYPE) (stopcol - startcol + 1));
+            (size_t) (stopcol - startcol + 1));
       } /* for */
     } /* if */
 #ifdef OUT_OF_ORDER
@@ -922,13 +922,13 @@ inttype count;
         if (column >= startcol) {
           putgoto(cursor_address, startcol - 1, line); /* cursor motion */
           fwrite(&old_line[startcol - 1], 1,
-              (SIZE_TYPE) (column - startcol + 1), stdout);
+              (size_t) (column - startcol + 1), stdout);
           memcpy(&new_line[startcol - 1],
               &old_line[startcol - 1],
-              (SIZE_TYPE) (column - startcol + 1));
+              (size_t) (column - startcol + 1));
           memcpy(&new_attr[startcol - 1],
               &old_attr[startcol - 1],
-              (SIZE_TYPE) (column - startcol + 1));
+              (size_t) (column - startcol + 1));
         } /* if */
       } /* for */
       for (line = startlin + count - 2; line >= startlin - 1; line--) {
@@ -942,11 +942,11 @@ inttype count;
         } /* while */
         if (column >= startcol) {
           putgoto(cursor_address, startcol - 1, line); /* cursor motion */
-          fwrite(space, 1, (SIZE_TYPE) (column - startcol + 1), stdout);
+          fwrite(space, 1, (size_t) (column - startcol + 1), stdout);
           memset(&new_line[startcol - 1], ' ',
-              (SIZE_TYPE) (column - startcol + 1));
+              (size_t) (column - startcol + 1));
           memset(&new_attr[startcol - 1], curr_attr,
-              (SIZE_TYPE) (column - startcol + 1));
+              (size_t) (column - startcol + 1));
         } /* if */
       } /* for */
     } else {
@@ -979,17 +979,17 @@ inttype count;
       for (line = stoplin - 1; line >= startlin + count - 1; line--) {
         memcpy(&whole_screen[line][startcol - 1],
             &whole_screen[line - count][startcol - 1],
-            (SIZE_TYPE) (stopcol - startcol + 1));
+            (size_t) (stopcol - startcol + 1));
         memcpy(&attributes[line][startcol - 1],
             &attributes[line - count][startcol - 1],
-            (SIZE_TYPE) (stopcol - startcol + 1));
+            (size_t) (stopcol - startcol + 1));
       } /* for */
 /*    for (line = startlin + count - 2; line >= startlin - 1; line--) { */
       for (line = startlin - 1; line < startlin + count - 1; line++) {
         memset(&whole_screen[line][startcol - 1], ' ',
-            (SIZE_TYPE) (stopcol - startcol + 1));
+            (size_t) (stopcol - startcol + 1));
         memset(&attributes[line][startcol - 1], curr_attr,
-            (SIZE_TYPE) (stopcol - startcol + 1));
+            (size_t) (stopcol - startcol + 1));
       } /* for */
     } /* if */
 #ifdef OUT_OF_ORDER
@@ -1038,7 +1038,7 @@ inttype count;
           putctl(delete_character); /* delete character */
         } /* for */
         memmove(&new_line[startcol - 1], &new_line[startcol + count - 1],
-            (SIZE_TYPE) (stopcol - startcol - count + 1));
+            (size_t) (stopcol - startcol - count + 1));
         if (line < stoplin - 1) {
           if (cursor_down != NULL) {
             putctl(cursor_down); /* cursor down */
@@ -1053,7 +1053,7 @@ inttype count;
           for (number = 1; number <= count; number++) {
             putctl(insert_character); /* insert character */
           } /* for */
-          memset(&whole_screen[line][stopcol - count], ' ', (SIZE_TYPE) count);
+          memset(&whole_screen[line][stopcol - count], ' ', (size_t) count);
           if (line < stoplin - 1) {
             if (cursor_down != NULL) {
               putctl(cursor_down); /* cursor down */
@@ -1067,17 +1067,17 @@ inttype count;
           putctl(enter_insert_mode); /* enter insert mode */
           for (line = startlin - 1; line < stoplin; line++) {
             putgoto(cursor_address, stopcol - count, line); /* cursor motion */
-            fwrite(space, 1, (SIZE_TYPE) count, stdout);
-            memset(&whole_screen[line][stopcol - count], ' ', (SIZE_TYPE) count);
+            fwrite(space, 1, (size_t) count, stdout);
+            memset(&whole_screen[line][stopcol - count], ' ', (size_t) count);
           } /* for */
           putctl(exit_insert_mode); /* end insert mode */
         } else {
           for (line = startlin - 1; line < stoplin; line++) {
             putgoto(cursor_address, stopcol - count, line); /* cursor motion */
             putctl(enter_insert_mode); /* enter insert mode */
-            fwrite(space, 1, (SIZE_TYPE) count, stdout);
+            fwrite(space, 1, (size_t) count, stdout);
             putctl(exit_insert_mode); /* end insert mode */
-            memset(&whole_screen[line][stopcol - count], ' ', (SIZE_TYPE) count);
+            memset(&whole_screen[line][stopcol - count], ' ', (size_t) count);
           } /* for */
         } /* if */
       } /* if */
@@ -1097,9 +1097,9 @@ inttype count;
           } /* while */
           putgoto(cursor_address, startcol + start_pos - 1, line); /* cursor motion */
           fwrite(&old_line[start_pos], 1,
-              (SIZE_TYPE) (end_pos - start_pos + 1), stdout);
+              (size_t) (end_pos - start_pos + 1), stdout);
           memmove(&new_line[start_pos], &old_line[start_pos],
-              (SIZE_TYPE) (end_pos - start_pos + 1));
+              (size_t) (end_pos - start_pos + 1));
         } /* if */
         start_pos = 0;
         new_line = &whole_screen[line][stopcol - count];
@@ -1108,8 +1108,8 @@ inttype count;
         } /* while */
         if (start_pos < count) {
           putgoto(cursor_address, stopcol - count + start_pos, line); /* cursor motion */
-          fwrite(space, 1, (SIZE_TYPE) (count - start_pos), stdout);
-          memset(&new_line[start_pos], ' ', (SIZE_TYPE) (count - start_pos));
+          fwrite(space, 1, (size_t) (count - start_pos), stdout);
+          memset(&new_line[start_pos], ' ', (size_t) (count - start_pos));
         } /* if */
       } /* for */
     } /* if */
@@ -1159,7 +1159,7 @@ inttype count;
           putctl(delete_character); /* delete character */
         } /* for */
         memmove(&new_line[startcol + count - 1], &new_line[startcol - 1],
-            (SIZE_TYPE) (stopcol - startcol - count + 1));
+            (size_t) (stopcol - startcol - count + 1));
         if (line < stoplin - 1) {
           if (cursor_down != NULL) {
             putctl(cursor_down); /* cursor down */
@@ -1174,7 +1174,7 @@ inttype count;
           for (number = 1; number <= count; number++) {
             putctl(insert_character); /* insert character */
           } /* for */
-          memset(&whole_screen[line][startcol - 1], ' ', (SIZE_TYPE) count);
+          memset(&whole_screen[line][startcol - 1], ' ', (size_t) count);
           if (line < stoplin - 1) {
             if (cursor_down != NULL) {
               putctl(cursor_down); /* cursor down */
@@ -1187,8 +1187,8 @@ inttype count;
         if (move_insert_mode) { /* safe to move while in insert mode */
           putctl(enter_insert_mode); /* enter insert mode */
           for (line = startlin - 1; line < stoplin; line++) {
-            fwrite(space, 1, (SIZE_TYPE) count, stdout);
-            memset(&whole_screen[line][startcol - 1], ' ', (SIZE_TYPE) count);
+            fwrite(space, 1, (size_t) count, stdout);
+            memset(&whole_screen[line][startcol - 1], ' ', (size_t) count);
             if (line < stoplin - 1) {
               downleft(startcol - 1, line + 1);
             } /* if */
@@ -1197,9 +1197,9 @@ inttype count;
         } else {
           for (line = startlin - 1; line < stoplin; line++) {
             putctl(enter_insert_mode); /* enter insert mode */
-            fwrite(space, 1, (SIZE_TYPE) count, stdout);
+            fwrite(space, 1, (size_t) count, stdout);
             putctl(exit_insert_mode); /* end insert mode */
-            memset(&whole_screen[line][startcol - 1], ' ', (SIZE_TYPE) count);
+            memset(&whole_screen[line][startcol - 1], ' ', (size_t) count);
             if (line < stoplin - 1) {
               downleft(startcol - 1, line + 1);
             } /* if */
@@ -1222,9 +1222,9 @@ inttype count;
           } /* while */
           putgoto(cursor_address, startcol + count + start_pos - 1, line); /* cursor motion */
           fwrite(&old_line[start_pos], 1,
-              (SIZE_TYPE) (end_pos - start_pos + 1), stdout);
+              (size_t) (end_pos - start_pos + 1), stdout);
           memmove(&new_line[start_pos], &old_line[start_pos],
-              (SIZE_TYPE) (end_pos - start_pos + 1));
+              (size_t) (end_pos - start_pos + 1));
         } /* if */
         start_pos = 0;
         new_line = &whole_screen[line][startcol - 1];
@@ -1233,8 +1233,8 @@ inttype count;
         } /* while */
         if (start_pos < count) {
           putgoto(cursor_address, startcol + start_pos - 1, line); /* cursor motion */
-          fwrite(space, 1, (SIZE_TYPE) (count - start_pos), stdout);
-          memset(&new_line[start_pos], ' ', (SIZE_TYPE) (count - start_pos));
+          fwrite(space, 1, (size_t) (count - start_pos), stdout);
+          memset(&new_line[start_pos], ' ', (size_t) (count - start_pos));
         } /* if */
       } /* for */
     } /* if */
@@ -1300,15 +1300,15 @@ int scrOpen ()
       attributes = (unsigned char **) malloc (lines * sizeof(unsigned char *));
       space = (unsigned char *) malloc(columns * sizeof(unsigned char));
       if (scrn != NULL && whole_screen != NULL && space != NULL) {
-        memset(scrn, ' ', (SIZE_TYPE) (lines * columns));
+        memset(scrn, ' ', (size_t) (lines * columns));
         for (line = 0; line < lines; line++) {
           whole_screen[line] = &scrn[line * columns];
         } /* for */
-        memset(attr, ' ', (SIZE_TYPE) (lines * columns));
+        memset(attr, ' ', (size_t) (lines * columns));
         for (line = 0; line < lines; line++) {
           attributes[line] = &attr[line * columns];
         } /* for */
-        memset(space, ' ', (SIZE_TYPE) columns);
+        memset(space, ' ', (size_t) columns);
         putctl(enter_ca_mode); /* enter cursor addressing mode */
         putctl(cursor_invisible); /* makes cursor invisible */
         putctl(clear_screen); /* clear screen */

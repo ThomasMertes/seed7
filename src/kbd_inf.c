@@ -140,7 +140,7 @@ int ustri_len;
 #endif
 
   {
-    SIZE_TYPE len;
+    size_t len;
     strelemtype stri[6];
     memsizetype dest_len;
 
@@ -272,7 +272,7 @@ chartype actual_char;
             len = strlen(key_table[number]);
             if (pos <= len) {
               if (strncmp(key_table[number], last_partial_match,
-                  (SIZE_TYPE) pos) == 0) {
+                  (size_t) pos) == 0) {
                 if (pos == len) {
                   exact_match++;
                   key_number = number;
@@ -309,7 +309,7 @@ chartype actual_char;
           len = strlen(key_table[number]);
           if (pos <= len) {
             if (strncmp(key_table[number], in_buffer,
-                (SIZE_TYPE) pos) == 0) {
+                (size_t) pos) == 0) {
               if (pos == len) {
                 exact_match++;
                 key_number = number;

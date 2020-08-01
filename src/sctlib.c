@@ -144,7 +144,7 @@ listtype arguments;
     } /* if */
     if (TEMP_OBJECT(arg_3(arguments))) {
       memcpy(&result->stru[stru1_size], stru2->stru,
-          (SIZE_TYPE) (stru2->size * sizeof(objectrecord)));
+          (size_t) (stru2->size * sizeof(objectrecord)));
       FREE_STRUCT(stru2, stru2->size);
       arg_3(arguments)->value.structvalue = NULL;
     } else {

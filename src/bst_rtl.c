@@ -70,7 +70,7 @@ bstritype bstri_from;
       } /* if */
       COUNT3_BSTRI(bstri_dest->size, new_size);
       memcpy(&bstri_dest->mem[bstri_dest->size], bstri_from->mem,
-          (SIZE_TYPE) bstri_from->size * sizeof(uchartype));
+          (size_t) bstri_from->size * sizeof(uchartype));
       bstri_dest->size = new_size;
       *bstri_to = bstri_dest;
     } /* if */
@@ -100,9 +100,9 @@ bstritype bstri2;
     } else {
       result->size = result_size;
       memcpy(result->mem, bstri1->mem,
-          (SIZE_TYPE) bstri1->size * sizeof(uchartype));
+          (size_t) bstri1->size * sizeof(uchartype));
       memcpy(&result->mem[bstri1->size], bstri2->mem,
-          (SIZE_TYPE) bstri2->size * sizeof(uchartype));
+          (size_t) bstri2->size * sizeof(uchartype));
       return(result);
     } /* if */
   } /* bstCat */
@@ -137,7 +137,7 @@ bstritype bstri_from;
       } /* if */
     } /* if */
     memcpy(bstri_dest->mem, bstri_from->mem,
-        (SIZE_TYPE) new_size * sizeof(uchartype));
+        (size_t) new_size * sizeof(uchartype));
   } /* bstCpy */
 
 
@@ -162,7 +162,7 @@ bstritype bstri_from;
     } else {
       result->size = new_size;
       memcpy(result->mem, bstri_from->mem,
-          (SIZE_TYPE) new_size * sizeof(uchartype));
+          (size_t) new_size * sizeof(uchartype));
     } /* if */
     return(result);
   } /* bstCreate */

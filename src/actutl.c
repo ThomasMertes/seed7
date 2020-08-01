@@ -232,7 +232,7 @@ register acttype action_searched;
 #endif
 
   {
-    int number;
+    unsigned int number;
     int lower;
     int upper;
     int middle;

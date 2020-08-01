@@ -109,8 +109,8 @@ chartype ch;
 #endif
 
   { /* chrLow */
-    if (((int) ch) >= 'A' && ((int) ch) <= 'Z') {
-      return((strelemtype) (((int) ch) - 'A' + 'a'));
+    if (ch >= (chartype) 'A' && ch <= (chartype) 'Z') {
+      return(ch - (chartype) 'A' + (chartype) 'a');
     } else {
       return(ch);
     } /* if */
@@ -162,8 +162,8 @@ chartype ch;
 #endif
 
   { /* chrUp */
-    if (((int) ch) >= 'a' && ((int) ch) <= 'z') {
-      return((strelemtype) (((int) ch) - 'a' + 'A'));
+    if (ch >= (chartype) 'a' && ch <= (chartype) 'z') {
+      return(ch - (chartype) 'a' + (chartype) 'A');
     } else {
       return(ch);
     } /* if */

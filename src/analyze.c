@@ -173,7 +173,7 @@ static INLINE void include_file ()
       } else {
         include_file_name->size = symbol.strivalue->size;
         memcpy(include_file_name->mem, symbol.strivalue->mem,
-            (SIZE_TYPE) symbol.strivalue->size * sizeof(strelemtype));
+            (size_t) symbol.strivalue->size * sizeof(strelemtype));
         scan_symbol();
         if (current_ident != prog.id_for.semicolon) {
           err_ident(EXPECTED_SYMBOL, prog.id_for.semicolon);
@@ -275,7 +275,7 @@ static void process_pragma ()
         } else if (strcmp((cstritype) symbol.name, "off") == 0) {
 #ifdef WITH_COMPILATION_INFO
           if (option.compilation_info) {
-            SIZE_TYPE number;
+            size_t number;
             for (number = 1; number <= 7 + strlen((cstritype) in_file.name);
                 number++) {
               fputc(' ', stdout);
@@ -515,7 +515,6 @@ ustritype source_file_name;
 
   {
     unsigned int len;
-    unsigned int pos;
     stritype source_name;
     unsigned int name_len;
     booltype add_extension;
@@ -529,12 +528,7 @@ ustritype source_file_name;
     init_analyze();
     resultProg = NULL;
     len = strlen((cstritype) source_file_name);
-    pos = len;
-    while (pos >= 1 && source_file_name[pos] != '/' &&
-        source_file_name[pos] != '\\') {
-      pos--;
-    } /* while */
-    if (len > 4 && strcmp(&source_file_name[len - 4], ".sd7") == 0) {
+    if (len > 4 && strcmp((cstritype) &source_file_name[len - 4], ".sd7") == 0) {
       name_len = len;
       add_extension = FALSE;
     } else {
@@ -547,6 +541,17 @@ ustritype source_file_name;
     } else {
       source_name->size = name_len;
       ustri_expand(source_name->mem, source_file_name, len);
+#if PATH_DELIMITER != '/'
+      {
+        unsigned int pos;
+
+        for (pos = 0; pos < len; pos++) {
+          if (source_name->mem[pos] == PATH_DELIMITER) {
+            source_name->mem[pos] = (strelemtype) '/';
+          } /* if */
+        } /* for */
+      }
+#endif
       if (add_extension) {
         cstri_expand(&source_name->mem[len], ".sd7", 4);
       } /* if */
@@ -600,7 +605,7 @@ stritype input_string;
     if (input_bstri != NULL) {
       open_string(input_bstri, &err_info);
       if (err_info == OKAY_NO_ERROR) {
-        resultProg = analyze_prog("STRING", &err_info);
+        resultProg = analyze_prog((ustritype) "STRING", &err_info);
         if (err_info == MEMORY_ERROR) {
           err_warning(OUT_OF_HEAP_SPACE);
           resultProg = NULL;

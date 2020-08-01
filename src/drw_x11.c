@@ -1167,19 +1167,25 @@ inttype dest_y;
     printf("XCopyArea(%lu, %lu, %lu, %ld, %ld, %ld, %ld, %ld)\n",
         src_window, dest_window, src_x, src_y, width, height, dest_x, dest_y);
 #endif
-    if (to_backup(src_window) != 0) {
+    if (width < 1 || height < 1) {
+      raise_error(RANGE_ERROR);
+    } else if (to_backup(src_window) != 0) {
       XCopyArea(mydisplay, to_backup(src_window), to_window(dest_window),
-          mygc, src_x, src_y, width, height, dest_x, dest_y);
+          mygc, src_x, src_y, (unsigned int) width, (unsigned int) height,
+          dest_x, dest_y);
       if (to_backup(dest_window) != 0) {
         XCopyArea(mydisplay, to_backup(src_window), to_backup(dest_window),
-            mygc, src_x, src_y, width, height, dest_x, dest_y);
+            mygc, src_x, src_y, (unsigned int) width, (unsigned int) height,
+            dest_x, dest_y);
       } /* if */
     } else {
       XCopyArea(mydisplay, to_window(src_window), to_window(dest_window),
-          mygc, src_x, src_y, width, height, dest_x, dest_y);
+          mygc, src_x, src_y, (unsigned int) width, (unsigned int) height,
+          dest_x, dest_y);
       if (to_backup(dest_window) != 0) {
         XCopyArea(mydisplay, to_window(src_window), to_backup(dest_window),
-            mygc, src_x, src_y, width, height, dest_x, dest_y);
+            mygc, src_x, src_y, (unsigned int) width, (unsigned int) height,
+            dest_x, dest_y);
       } /* if */
     } /* if */
   } /* drwCopyArea */
@@ -1389,15 +1395,16 @@ inttype height;
 #ifdef TRACE_X11
     printf("drwGet(%lu, %ld, %ld, %ld, %ld)\n", actual_window, left, upper, width, height);
 #endif
-    if (!ALLOC_RECORD(result, x11_winrecord, count.win)) {
-      raise_error(MEMORY_ERROR);
-    } else if (width < 1 || height < 1) {
+    if (width < 1 || height < 1) {
       raise_error(RANGE_ERROR);
+      result = NULL;
+    } else if (!ALLOC_RECORD(result, x11_winrecord, count.win)) {
+      raise_error(MEMORY_ERROR);
     } else {
       memset(result, 0, sizeof(struct x11_winstruct));
       result->usage_count = 1;
       result->window = XCreatePixmap(mydisplay,
-          to_window(actual_window), width, height,
+          to_window(actual_window), (unsigned int) width, (unsigned int) height,
           DefaultDepth(mydisplay, myscreen));
       result->backup = 0;
       result->clip_mask = 0;
@@ -1407,10 +1414,12 @@ inttype height;
       result->next = NULL;
       if (to_backup(actual_window) != 0) {
         XCopyArea(mydisplay, to_backup(actual_window),
-            result->window, mygc, left, upper, width, height, 0, 0);
+            result->window, mygc, left, upper,
+            (unsigned int) width, (unsigned int) height, 0, 0);
       } else {
         XCopyArea(mydisplay, to_window(actual_window),
-            result->window, mygc, left, upper, width, height, 0, 0);
+            result->window, mygc, left, upper,
+            (unsigned int) width, (unsigned int) height, 0, 0);
       } /* if */
       /* printf("XCopyArea(%ld, %ld, %ld, %ld)\n", left, upper, width, height); */
     } /* if */
@@ -1466,27 +1475,32 @@ inttype height;
 #ifdef TRACE_X11
     printf("image(%ld, %ld)\n", width, height);
 #endif
-    image = XCreateImage(mydisplay, default_visual,
-        DefaultDepth(mydisplay, myscreen), ZPixmap, 0, (char *) image_data,
-        width, height, 32, 0);
-    if (image == NULL) {
+    if (width < 1 || height < 1) {
+      raise_error(RANGE_ERROR);
       result = NULL;
     } else {
-      if (ALLOC_RECORD(result, x11_winrecord, count.win)) {
-        memset(result, 0, sizeof(struct x11_winstruct));
-        result->usage_count = 1;
-        result->window = XCreatePixmap(mydisplay,
-            to_window(actual_window), width, height,
-            DefaultDepth(mydisplay, myscreen));
-        result->backup = 0;
-        result->clip_mask = 0;
-        result->is_pixmap = TRUE;
-        result->width = width;
-        result->height = height;
-        result->next = NULL;
-        XPutImage(mydisplay, result->window, mygc, image, 0, 0, 0, 0, width, height);
+      image = XCreateImage(mydisplay, default_visual,
+          DefaultDepth(mydisplay, myscreen), ZPixmap, 0, (char *) image_data,
+          width, height, 32, 0);
+      if (image == NULL) {
+        result = NULL;
+      } else {
+        if (ALLOC_RECORD(result, x11_winrecord, count.win)) {
+          memset(result, 0, sizeof(struct x11_winstruct));
+          result->usage_count = 1;
+          result->window = XCreatePixmap(mydisplay,
+              to_window(actual_window), (unsigned int) width, (unsigned int) height,
+              DefaultDepth(mydisplay, myscreen));
+          result->backup = 0;
+          result->clip_mask = 0;
+          result->is_pixmap = TRUE;
+          result->width = width;
+          result->height = height;
+          result->next = NULL;
+          XPutImage(mydisplay, result->window, mygc, image, 0, 0, 0, 0, width, height);
+        } /* if */
+        XFree(image);
       } /* if */
-      XFree(image);
     } /* if */
     return((wintype) result);
   } /* drwImage */
@@ -1559,13 +1573,16 @@ inttype height;
 #ifdef TRACE_X11
     printf("drwNewPixmap(%ld, %ld)\n", width, height);
 #endif
-    if (!ALLOC_RECORD(result, x11_winrecord, count.win)) {
+    if (width < 1 || height < 1) {
+      raise_error(RANGE_ERROR);
+      result = NULL;
+    } else if (!ALLOC_RECORD(result, x11_winrecord, count.win)) {
       raise_error(MEMORY_ERROR);
     } else {
       memset(result, 0, sizeof(struct x11_winstruct));
       result->usage_count = 1;
       result->window = XCreatePixmap(mydisplay,
-          to_window(actual_window), width, height,
+          to_window(actual_window), (unsigned int) width, (unsigned int) height,
           DefaultDepth(mydisplay, myscreen));
       result->backup = 0;
       result->clip_mask = 0;
@@ -1597,11 +1614,16 @@ inttype height;
 #ifdef TRACE_X11
     printf("drwNewBitmap(%ld, %ld)\n", width, height);
 #endif
-    if (ALLOC_RECORD(result, x11_winrecord, count.win)) {
+    if (width < 1 || height < 1) {
+      raise_error(RANGE_ERROR);
+      result = NULL;
+    } else if (!ALLOC_RECORD(result, x11_winrecord, count.win)) {
+      raise_error(MEMORY_ERROR);
+    } else {
       memset(result, 0, sizeof(struct x11_winstruct));
       result->usage_count = 1;
       result->window = XCreatePixmap(mydisplay,
-          to_window(actual_window), width, height, 1);
+          to_window(actual_window), (unsigned int) width, (unsigned int) height, 1);
       result->backup = 0;
       result->clip_mask = 0;
       result->is_pixmap = TRUE;
@@ -1728,77 +1750,83 @@ stritype window_name;
     count.size_winrecord = SIZ_REC(x11_winrecord);
 #endif
     result = NULL;
-    if (mydisplay == NULL) {
-      dra_init();
-    } /* if */
-    if (mydisplay != NULL) {
-      win_name = cp_to_cstri(window_name);
-      if (win_name == NULL) {
-        raise_error(MEMORY_ERROR);
-      } else {
-        if (ALLOC_RECORD(result, x11_winrecord, count.win)) {
-          memset(result, 0, sizeof(struct x11_winstruct));
-          result->usage_count = 1;
-          result->next = window_list;
-          window_list = result;
+    if (width < 1 || height < 1) {
+      raise_error(RANGE_ERROR);
+    } else {
+      if (mydisplay == NULL) {
+        dra_init();
+      } /* if */
+      if (mydisplay != NULL) {
+        win_name = cp_to_cstri(window_name);
+        if (win_name == NULL) {
+          raise_error(MEMORY_ERROR);
+        } else {
+          if (ALLOC_RECORD(result, x11_winrecord, count.win)) {
+            memset(result, 0, sizeof(struct x11_winstruct));
+            result->usage_count = 1;
+            result->next = window_list;
+            window_list = result;
 
-          myhint.x = xPos;
-          myhint.y = yPos;
-          myhint.width = width;
-          myhint.height = height;
-          myhint.flags = PPosition | PSize;
-          mywmhint.flags = InputHint;
-          mywmhint.input = True;
+            myhint.x = xPos;
+            myhint.y = yPos;
+            myhint.width = width;
+            myhint.height = height;
+            myhint.flags = PPosition | PSize;
+            mywmhint.flags = InputHint;
+            mywmhint.input = True;
 
-          result->window = XCreateSimpleWindow(mydisplay,
-              DefaultRootWindow(mydisplay),
-              myhint.x, myhint.y, (unsigned) myhint.width, (unsigned) myhint.height,
-              5, myforeground, mybackground);
+            result->window = XCreateSimpleWindow(mydisplay,
+                DefaultRootWindow(mydisplay),
+                myhint.x, myhint.y, (unsigned) myhint.width, (unsigned) myhint.height,
+                5, myforeground, mybackground);
 
-          result->backup = 0;
-          result->clip_mask = 0;
-          result->is_pixmap = FALSE;
-          result->width = width;
-          result->height = height;
+            result->backup = 0;
+            result->clip_mask = 0;
+            result->is_pixmap = FALSE;
+            result->width = width;
+            result->height = height;
 
-          XSetStandardProperties(mydisplay, result->window,
-              win_name, win_name,
-              None, /* argv, argc, */ NULL, 0, &myhint);
-          XSetWMHints(mydisplay, result->window, &mywmhint);
+            XSetStandardProperties(mydisplay, result->window,
+                win_name, win_name,
+                None, /* argv, argc, */ NULL, 0, &myhint);
+            XSetWMHints(mydisplay, result->window, &mywmhint);
 
-          x_screen = XScreenOfDisplay(mydisplay, myscreen);
-          /* printf("backing_store=%d (NotUseful=%d/WhenMapped=%d/Always=%d)\n",
-              x_screen->backing_store, NotUseful, WhenMapped, Always); */
-          if (x_screen->backing_store != NotUseful) {
-            valuemask = CWBackingStore;
-            attributes.backing_store = Always;
-            XChangeWindowAttributes(mydisplay, result->window, valuemask, &attributes);
+            x_screen = XScreenOfDisplay(mydisplay, myscreen);
+            /* printf("backing_store=%d (NotUseful=%d/WhenMapped=%d/Always=%d)\n",
+                x_screen->backing_store, NotUseful, WhenMapped, Always); */
+            if (x_screen->backing_store != NotUseful) {
+              valuemask = CWBackingStore;
+              attributes.backing_store = Always;
+              XChangeWindowAttributes(mydisplay, result->window, valuemask, &attributes);
 
-            /* printf("backing_store=%d %d\n", attributes.backing_store, Always); */
-            XGetWindowAttributes(mydisplay, result->window, &attribs);
-            /* printf("backing_store=%d %d\n", attribs.backing_store, Always); */
-            if (attribs.backing_store != Always) {
-              result->backup = XCreatePixmap(mydisplay, result->window, width, height,
+              /* printf("backing_store=%d %d\n", attributes.backing_store, Always); */
+              XGetWindowAttributes(mydisplay, result->window, &attribs);
+              /* printf("backing_store=%d %d\n", attribs.backing_store, Always); */
+              if (attribs.backing_store != Always) {
+                result->backup = XCreatePixmap(mydisplay, result->window,
+                    (unsigned int) width, (unsigned int) height,
+                    DefaultDepth(mydisplay, myscreen));
+                /* printf("backup=%lu\n", (long unsigned) result->backup); */
+              } /* if */
+            } else {
+              result->backup = XCreatePixmap(mydisplay, result->window,
+                  (unsigned int) width, (unsigned int) height,
                   DefaultDepth(mydisplay, myscreen));
               /* printf("backup=%lu\n", (long unsigned) result->backup); */
             } /* if */
-          } else {
-            result->backup = XCreatePixmap(mydisplay, result->window, width, height,
-                DefaultDepth(mydisplay, myscreen));
-            /* printf("backup=%lu\n", (long unsigned) result->backup); */
+
+            mygc = XCreateGC(mydisplay, result->window, 0, 0);
+            XSetBackground(mydisplay, mygc, mybackground);
+            XSetForeground(mydisplay, mygc, myforeground);
+
+            XSelectInput(mydisplay, result->window,
+                ButtonPressMask | KeyPressMask | ExposureMask);
+
+            XMapRaised(mydisplay, result->window);
+            drwClear((wintype) result, myforeground);
           } /* if */
-
-          mygc = XCreateGC(mydisplay, result->window, 0, 0);
-          XSetBackground(mydisplay, mygc, mybackground);
-          XSetForeground(mydisplay, mygc, myforeground);
-
-          XSelectInput(mydisplay, result->window,
-              ButtonPressMask | KeyPressMask | ExposureMask);
-
-          XMapRaised(mydisplay, result->window);
-          drwClear((wintype) result, myforeground);
+          free_cstri(win_name, window_name);
         } /* if */
-        free_cstri(win_name, window_name);
       } /* if */
     } /* if */
     /* printf("result=%lu\n", (long unsigned) result); */
@@ -2530,6 +2558,10 @@ inttype bkcol;
         strelem = stri->mem;
         len = stri->size;
         for (; len > 0; wstri++, strelem++, len--) {
+          if (*strelem >= 65536) {
+            raise_error(RANGE_ERROR);
+            return;
+          } /* if */
           wstri->byte1 = (*strelem >> 8) & 0xFF;
           wstri->byte2 = *strelem & 0xFF;
         } /* while */
@@ -2537,20 +2569,20 @@ inttype bkcol;
         XSetForeground(mydisplay, mygc, (unsigned) col);
         XSetBackground(mydisplay, mygc, (unsigned) bkcol);
         XDrawImageString16(mydisplay, to_window(actual_window), mygc,
-            x, y, stri_buffer, stri->size);
+            x, y, stri_buffer, (int) stri->size);
         if (to_backup(actual_window) != 0) {
           XDrawImageString16(mydisplay, to_backup(actual_window), mygc,
-              x, y, stri_buffer, stri->size);
+              x, y, stri_buffer, (int) stri->size);
         } /* if */
         free(stri_buffer);
       } /* if */
     }
 #else
     XDrawImageString(mydisplay, to_window(actual_window), mygc,
-        x, y, stri->mem, stri->size);
+        x, y, stri->mem, (int) stri->size);
     if (to_backup(actual_window) != 0) {
       XDrawImageString(mydisplay, to_backup(actual_window), mygc,
-          x, y, stri->mem, stri->size);
+          x, y, stri->mem, (int) stri->size);
     } /* if */
 #endif
   } /* drwText */

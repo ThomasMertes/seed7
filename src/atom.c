@@ -189,7 +189,7 @@ static INLINE stritype new_string ()
     } /* if */
     stri_created->size = symbol.strivalue->size;
     memcpy(stri_created->mem, symbol.strivalue->mem,
-        (SIZE_TYPE) symbol.strivalue->size * sizeof(strelemtype));
+        (size_t) symbol.strivalue->size * sizeof(strelemtype));
 #endif
 #ifdef TRACE_ATOM
     printf("END new_string\n");

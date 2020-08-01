@@ -635,15 +635,15 @@ memsizetype heapsize ()
 #ifdef USE_FLIST_ALLOC
 #ifdef ANSI_C
 
-void *flist_alloc (SIZE_TYPE size)
+void *flist_alloc (size_t size)
 #else
 
 void *flist_alloc (size)
-SIZE_TYPE size;
+size_t size;
 #endif
 
   {
-    SIZE_TYPE size_of_rec;
+    size_t size_of_rec;
     void *result;
 
   /* flist_alloc */
@@ -783,11 +783,11 @@ memsizetype len2;
 #ifdef USE_CHUNK_ALLOCS
 #ifdef ANSI_C
 
-void *heap_chunk (SIZE_TYPE size)
+void *heap_chunk (size_t size)
 #else
 
 void *heap_chunk (size)
-SIZE_TYPE size;
+size_t size;
 #endif
 
   {
@@ -817,11 +817,11 @@ SIZE_TYPE size;
     } else {
       if (chunk.start != NULL) {
 #ifdef RESIZE_CHUNKS
-        if (realloc(chunk.start, (SIZE_TYPE) (chunk.freemem - chunk.start)) != chunk.start) {
+        if (realloc(chunk.start, (size_t) (chunk.freemem - chunk.start)) != chunk.start) {
           no_memory(SOURCE_POSITION(1000));
         } /* if */
 #else
-        while (sizeof(listrecord) <= chunk.beyond - chunk.freemem) {
+        while (sizeof(listrecord) <= (memsizetype) (chunk.beyond - chunk.freemem)) {
           if (OLD_CHUNK(list_elem, listtype, sizeof(listrecord))) {
             COUNT_FLISTELEM(listrecord, count.list_elem);
             FREE_L_ELEM(list_elem);

@@ -229,7 +229,7 @@ cstritype stri;
 #endif
 
   {
-    memsizetype LEN;
+    memsizetype len;
     stritype out_stri;
     booltype result;
 
@@ -238,10 +238,10 @@ cstritype stri;
     printf("BEGIN do_wrcstri\n");
 #endif
     result = FALSE;
-    LEN = (memsizetype) strlen(stri);
-    if (ALLOC_STRI(out_stri, LEN)) {
-      out_stri->size = LEN;
-      memcpy(out_stri->mem, stri, (SIZE_TYPE) LEN);
+    len = (memsizetype) strlen(stri);
+    if (ALLOC_STRI(out_stri, len)) {
+      out_stri->size = len;
+      memcpy(out_stri->mem, stri, (size_t) len);
       result = do_wrstri(outfile, out_stri);
       FREE_STRI(out_stri, out_stri->size);
     } /* if */

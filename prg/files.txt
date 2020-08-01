@@ -84,6 +84,7 @@ wumpus.sd7   Hunt the Wumpus game
 bigfile.s7i  bigInteger versions of seek, tell and length      
 bigint.s7i   bigInteger point support library                  
 bigrat.s7i   Big rational number support library               
+binary.s7i   2009  Thomas Mertes                               
 cards.s7i    Playing card pictures of a french deck            
 cgi.s7i      Support for the Common Gateway Interface          
 charsets.s7i Codepages for various character sets              
@@ -133,4 +134,5 @@ utf16.s7i    Read and write utf-16 files
 utf8.s7i     Read and write utf-8 files                        
 window.s7i   Filter file for text windows with random access   
 wrinum.s7i   Functions to write numbers                        
+zip.s7i      Zip format support library                        
 dna_base.s7i Bacterial dna fight programming game interface    

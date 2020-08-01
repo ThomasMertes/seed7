@@ -67,7 +67,7 @@ unsigned int length;
         created_ident = (identtype) NULL;
       } else {
         COUNT_ID_NAME(length);
-        memcpy(created_ident->name, name, (SIZE_TYPE) length);
+        memcpy(created_ident->name, name, (size_t) length);
         created_ident->name[length] = '\0';
         created_ident->next1 = NULL;
         created_ident->next2 = NULL;
@@ -104,7 +104,7 @@ identtype old_ident;
     printf("BEGIN free_ident\n");
 #endif
     if (old_ident != NULL) {
-      length = strlen(old_ident->name);
+      length = strlen((cstritype) old_ident->name);
       FREE_ID_NAME(old_ident->name, length);
       free_ident(old_ident->next1);
       free_ident(old_ident->next2);

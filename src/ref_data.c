@@ -330,7 +330,7 @@ objecttype obj_arg1;
 
   {
     filenumtype file_number;
-    ustritype name;
+    cstritype name;
     stritype result;
 
   /* refFile */
@@ -346,7 +346,7 @@ objecttype obj_arg1;
     } else {
       file_number = 0;
     } /* if */
-    name = file_name(file_number);
+    name = (cstritype) file_name(file_number);
     result = cstri_to_stri(name);
     if (result == NULL) {
       raise_error(MEMORY_ERROR);
@@ -835,7 +835,7 @@ objecttype obj_arg;
     if (obj_arg == NULL) {
       stri = " *NULL_OBJECT* ";
     } else if (HAS_POSINFO(obj_arg)) {
-      stri = file_name(GET_FILE_NUM(obj_arg));
+      stri = (char *) file_name(GET_FILE_NUM(obj_arg));
       buffer_len = (memsizetype) strlen(stri) + 32;
       if (!ALLOC_CSTRI(buffer, buffer_len)) {
         raise_error(MEMORY_ERROR);
@@ -877,7 +877,7 @@ objecttype obj_arg;
       return(NULL);
     } else {
       result->size = len;
-      cstri_expand(result->mem, stri, (SIZE_TYPE) len);
+      cstri_expand(result->mem, stri, (size_t) len);
     } /* if */
     if (buffer != NULL) {
       UNALLOC_CSTRI(buffer, buffer_len);
@@ -1206,7 +1206,7 @@ objecttype obj_arg;
       } else {
         result->size = str1->size;
         memcpy(result->mem, str1->mem,
-            (SIZE_TYPE) (result->size * sizeof(strelemtype)));
+            (size_t) (result->size * sizeof(strelemtype)));
       } /* if */
     } /* if */
     return(result);

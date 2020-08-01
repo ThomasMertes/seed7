@@ -102,14 +102,14 @@ stritype in_stri;
 #ifdef ANSI_C
 
 memsizetype utf8_to_stri (strelemtype *dest_stri, memsizetype *dest_len,
-    const_ustritype ustri, SIZE_TYPE len)
+    const_ustritype ustri, size_t len)
 #else
 
 memsizetype utf8_to_stri (dest_stri, dest_len, ustri, len)
 strelemtype *dest_stri;
 memsizetype *dest_len;
 ustritype ustri;
-SIZE_TYPE len;
+size_t len;
 #endif
 
   {
@@ -183,12 +183,12 @@ SIZE_TYPE len;
 
 #ifdef ANSI_C
 
-memsizetype utf8_bytes_missing (const_ustritype ustri, SIZE_TYPE len)
+memsizetype utf8_bytes_missing (const_ustritype ustri, size_t len)
 #else
 
 memsizetype utf8_bytes_missing (ustri, len)
 ustritype ustri;
-SIZE_TYPE len;
+size_t len;
 #endif
 
   {
@@ -267,13 +267,13 @@ SIZE_TYPE len;
 #ifdef OUT_OF_ORDER
 #ifdef ANSI_C
 
-void ustri_expand (strelemtype *stri, ustritype ustri, SIZE_TYPE len)
+void ustri_expand (strelemtype *stri, ustritype ustri, size_t len)
 #else
 
 void ustri_expand (stri, ustri, len)
 strelemtype *stri;
 ustritype ustri;
-SIZE_TYPE len;
+size_t len;
 #endif
 
   { /* ustri_expand */
@@ -333,13 +333,13 @@ SIZE_TYPE len;
 
 #ifdef ANSI_C
 
-void ustri_expand (strelemtype *stri, const_ustritype ustri, SIZE_TYPE len)
+void ustri_expand (strelemtype *stri, const_ustritype ustri, size_t len)
 #else
 
 void ustri_expand (stri, ustri, len)
 strelemtype *stri;
 ustritype ustri;
-SIZE_TYPE len;
+size_t len;
 #endif
 
   { /* ustri_expand */
@@ -352,13 +352,13 @@ SIZE_TYPE len;
 
 #ifdef ANSI_C
 
-static void wstri_expand (strelemtype *stri, const_wstritype wstri, SIZE_TYPE len)
+static void wstri_expand (strelemtype *stri, const_wstritype wstri, size_t len)
 #else
 
 static void wstri_expand (stri, wstri, len)
 strelemtype *stri;
 wstritype wstri;
-SIZE_TYPE len;
+size_t len;
 #endif
 
   { /* wstri_expand */
@@ -371,13 +371,13 @@ SIZE_TYPE len;
 
 #ifdef ANSI_C
 
-void stri_compress (ustritype ustri, const strelemtype *stri, SIZE_TYPE len)
+void stri_compress (ustritype ustri, const strelemtype *stri, size_t len)
 #else
 
 void stri_compress (ustri, stri, len)
 ustritype ustri;
 strelemtype *stri;
-SIZE_TYPE len;
+size_t len;
 #endif
 
   { /* stri_compress */
@@ -433,25 +433,25 @@ stritype stri;
 #ifdef OS_PATH_WCHAR
 #ifdef ANSI_C
 
-wchar_t *cp_to_wpath (const_stritype stri, errinfotype *err_info)
+os_path_stri cp_to_os_path (const_stritype stri, errinfotype *err_info)
 #else
 
-wchar_t *cp_to_wpath (stri, err_info)
+os_path_stri cp_to_os_path (stri, err_info)
 stritype stri;
 errinfotype *err_info;
 #endif
 
   {
-    wchar_t *wstri;
+    os_path_stri wstri;
     const strelemtype *strelem;
     memsizetype len;
-    wchar_t *result;
+    os_path_stri result;
 
-  /* cp_to_wpath */
+  /* cp_to_os_path */
 #ifdef TRACE_STRIUTL
-    printf("BEGIN cp_to_wpath(%lx, %d)\n", stri, *err_info);
+    printf("BEGIN cp_to_os_path(%lx, %d)\n", stri, *err_info);
 #endif
-    result = (wchar_t *) malloc(sizeof(wchar_t) * (stri->size * 2 + 1));
+    result = (os_path_stri) malloc(sizeof(os_path_char) * (stri->size * 2 + 1));
     if (result == NULL) {
       *err_info = MEMORY_ERROR;
     } else {
@@ -468,9 +468,9 @@ errinfotype *err_info;
           } /* if */
         } else if (*strelem <= 0x10FFFF) {
           strelemtype currChar = *strelem - 0x10000;
-          *wstri = (wchar_t) (0xD800 | (currChar >> 10));
+          *wstri = (os_path_char) (0xD800 | (currChar >> 10));
           wstri++;
-          *wstri = (wchar_t) (0xDC00 | (currChar & 0x3FF));
+          *wstri = (os_path_char) (0xDC00 | (currChar & 0x3FF));
         } else {
           *err_info = RANGE_ERROR;
           len = 1;
@@ -484,10 +484,10 @@ errinfotype *err_info;
       } /* if */
     } /* if */
 #ifdef TRACE_STRIUTL
-    printf("END cp_to_wpath(%lx, %d) ==> %lx\n", stri, *err_info, result);
+    printf("END cp_to_os_path(%lx, %d) ==> %lx\n", stri, *err_info, result);
 #endif
     return(result);
-  } /* cp_to_wpath */
+  } /* cp_to_os_path */
 
 
 #else
@@ -495,20 +495,20 @@ errinfotype *err_info;
 
 #ifdef ANSI_C
 
-cstritype cp_to_cpath (const_stritype stri, errinfotype *err_info)
+os_path_stri cp_to_os_path (const_stritype stri, errinfotype *err_info)
 #else
 
-cstritype cp_to_cpath (stri, err_info)
+os_path_stri cp_to_os_path (stri, err_info)
 stritype stri;
 errinfotype *err_info;
 #endif
 
   {
-    cstritype result;
+    os_path_stri result;
 
-  /* cp_to_cpath */
+  /* cp_to_os_path */
 #ifdef TRACE_STRIUTL
-    printf("BEGIN cp_to_cpath(%lx, %d)\n", stri, *err_info);
+    printf("BEGIN cp_to_os_path(%lx, %d)\n", stri, *err_info);
 #endif
     if (stri->size >= 2 && stri->mem[stri->size - 1] == '/') {
       *err_info = RANGE_ERROR;
@@ -519,17 +519,17 @@ errinfotype *err_info;
       stri_export((ustritype) result, stri);
     } /* if */
 #ifdef TRACE_STRIUTL
-    printf("END cp_to_cpath(%lx, %d) ==> %lx\n", stri, *err_info, result);
+    printf("END cp_to_os_path(%lx, %d) ==> %lx\n", stri, *err_info, result);
 #endif
     return(result);
-  } /* cp_to_cpath */
+  } /* cp_to_os_path */
 #endif
 
 
 
 #ifdef ANSI_C
 
-bstritype stri_to_bstri (stritype stri)
+bstritype stri_to_bstri (const_stritype stri)
 #else
 
 bstritype stri_to_bstri (stri)
@@ -537,7 +537,7 @@ stritype stri;
 #endif
 
   {
-    register strelemtype *str;
+    register const strelemtype *str;
     register uchartype *ustri;
     register memsizetype len;
     bstritype resized_bstri;
@@ -624,7 +624,7 @@ cstritype cstri;
     length = strlen(cstri);
     if (ALLOC_STRI(stri, length)) {
       stri->size = length;
-      cstri_expand(stri->mem, cstri, (SIZE_TYPE) length);
+      cstri_expand(stri->mem, cstri, (size_t) length);
     } /* if */
     return(stri);
   } /* cstri_to_stri */
@@ -686,7 +686,7 @@ wstritype wstri;
     } /* while */
     if (ALLOC_STRI(stri, length)) {
       stri->size = length;
-      wstri_expand(stri->mem, wstri, (SIZE_TYPE) length);
+      wstri_expand(stri->mem, wstri, (size_t) length);
     } /* if */
     return(stri);
   } /* wstri_to_stri */
@@ -705,7 +705,7 @@ strelemtype ch;
 
   {
     strelemtype *mem;
-    SIZE_TYPE number;
+    size_t number;
 
   /* stri_charpos */
     mem = stri->mem;

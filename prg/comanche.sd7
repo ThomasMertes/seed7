@@ -153,7 +153,7 @@ const proc: main is func
     if length(argv(PROGRAM)) >= 1 then
       htdocs := argv(PROGRAM)[1];
     end if;
-    if not fileExists(htdocs) then
+    if fileType(htdocs) <> FILE_DIR then
       writeln(" *** Directory " <& literal(htdocs) <& " not found.");
       writeln("     You need to specify a directory which contains");
       writeln("     at least \"index.htm\" and possibly other HTML files.");

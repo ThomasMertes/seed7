@@ -66,7 +66,7 @@ acttype anAction;
       result = NULL;
     } else {
       result->size = len;
-      cstri_expand(result->mem, stri, (SIZE_TYPE) len);
+      cstri_expand(result->mem, stri, (size_t) len);
     } /* if */
     return(result);
   } /* actStr */

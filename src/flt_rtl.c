@@ -190,11 +190,11 @@ inttype digits_precision;
       digits_precision = 1000;
     } /* if */
     if (isnan(number)) {
-      strcpy(buffer, "NaN");
+      buffer_ptr = "NaN";
     } else if (number == POSITIVE_INFINITY) {
-      strcpy(buffer, "Infinity");
+      buffer_ptr = "Infinity";
     } else if (number == NEGATIVE_INFINITY) {
-      strcpy(buffer, "-Infinity");
+      buffer_ptr = "-Infinity";
     } else {
 #ifdef USE_VARIABLE_FORMATS
       sprintf(buffer, "%1.*f", (int) digits_precision, number);
@@ -206,20 +206,20 @@ inttype digits_precision;
         sprintf(buffer, form[digits_precision], number);
       } /* if */
 #endif
-    } /* if */
-    buffer_ptr = buffer;
-    if (buffer[0] == '-' && buffer[1] == '0') {
-      /* All forms of -0 are converted to 0 */
-      if (buffer[2] == '.') {
-        len = 3;
-        while (buffer[len] == '0') {
-          len++;
-        } /* while */
-        if (buffer[len] == '\0') {
+      buffer_ptr = buffer;
+      if (buffer[0] == '-' && buffer[1] == '0') {
+        /* All forms of -0 are converted to 0 */
+        if (buffer[2] == '.') {
+          len = 3;
+          while (buffer[len] == '0') {
+            len++;
+          } /* while */
+          if (buffer[len] == '\0') {
+            buffer_ptr++;
+          } /* if */
+        } else if (buffer[2] == '\0') {
           buffer_ptr++;
         } /* if */
-      } else if (buffer[2] == '\0') {
-        buffer_ptr++;
       } /* if */
     } /* if */
     len = strlen(buffer_ptr);
@@ -450,7 +450,7 @@ floattype number;
       return(NULL);
     } else {
       result->size = len;
-      cstri_expand(result->mem, buffer, (SIZE_TYPE) len);
+      cstri_expand(result->mem, buffer, (size_t) len);
       return(result);
     } /* if */
   } /* fltStr */

@@ -84,8 +84,8 @@ EXTERN counttype count;
 #endif
 
 #ifdef USE_BIG_RTL_LIBRARY
-extern SIZE_TYPE sizeof_bigdigittype;
-extern SIZE_TYPE sizeof_rtlBigintrecord;
+extern size_t sizeof_bigdigittype;
+extern size_t sizeof_rtlBigintrecord;
 #endif
 
 
@@ -99,17 +99,17 @@ extern SIZE_TYPE sizeof_rtlBigintrecord;
 /* request more bytes it can be substituted here.               */
 
 #ifdef USE_MAXIMUM_MALLOC_CHECK
-#define MALLOC(size) ((size) <= 65500 ? malloc((SIZE_TYPE) (size)) : NULL)
-#define REALLOC(ptr, size) ((size) <= 65500 ? realloc(ptr, (SIZE_TYPE) (size)) : NULL)
+#define MALLOC(size) ((size) <= 65500 ? malloc((size_t) (size)) : NULL)
+#define REALLOC(ptr, size) ((size) <= 65500 ? realloc(ptr, (size_t) (size)) : NULL)
 #else
 #ifdef OUT_OF_ORDER
 #ifndef DO_INIT
 EXTERN int successful_mallocs;
 #endif
-#define MALLOC(size) (printf("%s(%d) %d\n", __FILE__, __LINE__, successful_mallocs), (successful_mallocs-- != 0 ? malloc((SIZE_TYPE) (size)) : NULL))
+#define MALLOC(size) (printf("%s(%d) %d\n", __FILE__, __LINE__, successful_mallocs), (successful_mallocs-- != 0 ? malloc((size_t) (size)) : NULL))
 #endif
-#define MALLOC(size) malloc((SIZE_TYPE) (size))
-#define REALLOC(ptr, size) realloc(ptr, (SIZE_TYPE) (size))
+#define MALLOC(size) malloc((size_t) (size))
+#define REALLOC(ptr, size) realloc(ptr, (size_t) (size))
 #endif
 
 

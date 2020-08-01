@@ -971,9 +971,9 @@ const proc: process_cpy_call (in type: object_type,
     elsif object_type in parametersOfHshCpy then
       expr &:= "cpy_";
       expr &:= str(type_number(object_type));
-      expr &:= "(&(";
+      expr &:= "((";
       expr &:= type_name(object_type);
-      expr &:= ")(";
+      expr &:= " *)&(";
       expr &:= param_a;
       expr &:= "), (";
       expr &:= type_name(object_type);
@@ -983,9 +983,9 @@ const proc: process_cpy_call (in type: object_type,
     elsif object_type in array_element then
       expr &:= "cpy_";
       expr &:= str(type_number(object_type));
-      expr &:= "(&(";
+      expr &:= "((";
       expr &:= type_name(object_type);
-      expr &:= ")(";
+      expr &:= " *)&(";
       expr &:= param_a;
       expr &:= "), (";
       expr &:= type_name(object_type);
@@ -17387,8 +17387,14 @@ const proc: pass_3 (in string: source, in program: prog,
       flush(OUT);
       cmd_sh(compile_cmd);
       if not fileExists(temp_name(source) & OBJECT_FILE_EXTENSION) then
-        writeln("*** Errors in " <& literal(temp_name(source) & ".c") <&
-            " - see " <& literal(temp_name(source) & ".cerrs"));
+        if fileType(temp_name(source) & ".cerrs") = FILE_REGULAR and
+            fileSize(temp_name(source) & ".cerrs") <> 0 then
+          writeln("*** Errors in " <& literal(temp_name(source) & ".c") <&
+              " - see " <& literal(temp_name(source) & ".cerrs"));
+        else
+          writeln("*** Compilation terminated without error messages");
+          remove(temp_name(source) & ".cerrs");
+        end if;
       else
         remove(temp_name(source) & ".cerrs");
         remove(source & EXECUTABLE_FILE_EXTENSION);

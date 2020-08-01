@@ -147,7 +147,7 @@ rtlArraytype arr_from;
         COUNT3_RTL_ARRAY(arr_to_size, new_size);
         *arr_variable = arr_to;
         memcpy(&arr_to->arr[arr_to_size], arr_from->arr,
-            (SIZE_TYPE) (arr_from_size * sizeof(rtlObjecttype)));
+            (size_t) (arr_from_size * sizeof(rtlObjecttype)));
         arr_to->max_position += arr_from_size;
         FREE_RTL_ARRAY(arr_from, arr_from_size);
       } /* if */
@@ -376,9 +376,9 @@ inttype stop;
       result->max_position = arr1->min_position + result_size - 1;
       stop_idx = stop - arr1->min_position;
       memcpy(result->arr, arr1->arr,
-          (SIZE_TYPE) (result_size * sizeof(rtlObjecttype)));
+          (size_t) (result_size * sizeof(rtlObjecttype)));
       memcpy(arr1->arr, &arr1->arr[stop_idx + 1],
-          (SIZE_TYPE) ((length - stop_idx - 1) * sizeof(rtlObjecttype)));
+          (size_t) ((length - stop_idx - 1) * sizeof(rtlObjecttype)));
       resized_arr1 = REALLOC_RTL_ARRAY(arr1, length, length - result_size);
       if (resized_arr1 == NULL) {
         raise_error(MEMORY_ERROR);
@@ -439,9 +439,9 @@ inttype stop;
       start_idx = start - arr1->min_position;
       stop_idx = stop - arr1->min_position;
       memcpy(result->arr, &arr1->arr[start_idx],
-          (SIZE_TYPE) (result_size * sizeof(rtlObjecttype)));
+          (size_t) (result_size * sizeof(rtlObjecttype)));
       memcpy(&arr1->arr[start_idx], &arr1->arr[stop_idx + 1],
-          (SIZE_TYPE) ((length - stop_idx - 1) * sizeof(rtlObjecttype)));
+          (size_t) ((length - stop_idx - 1) * sizeof(rtlObjecttype)));
       resized_arr1 = REALLOC_RTL_ARRAY(arr1, length, length - result_size);
       if (resized_arr1 == NULL) {
         raise_error(MEMORY_ERROR);
@@ -558,7 +558,7 @@ inttype start;
       result->max_position = arr1->min_position + result_size - 1;
       start_idx = start - arr1->min_position;
       memcpy(result->arr, &arr1->arr[start_idx],
-          (SIZE_TYPE) (result_size * sizeof(rtlObjecttype)));
+          (size_t) (result_size * sizeof(rtlObjecttype)));
       resized_arr1 = REALLOC_RTL_ARRAY(arr1, length, length - result_size);
       if (resized_arr1 == NULL) {
         raise_error(MEMORY_ERROR);

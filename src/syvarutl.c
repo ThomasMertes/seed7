@@ -82,7 +82,7 @@ stritype stri;
 
   {
     int result;
-    uchartype sysvar_name[151];
+    char sysvar_name[151];
 
   /* find_sysvar */
 #ifdef TRACE_SYSVAR
@@ -91,7 +91,7 @@ stritype stri;
     if (compr_size(stri) + 1 > 151) {
       result = -1;
     } else {
-      stri_export(sysvar_name, stri);
+      stri_export((ustritype) sysvar_name, stri);
       result = NUMBER_OF_SYSVARS - 1;
       while (result >= 0 &&
           strcmp(sysvar_name, sys_name[result]) != 0) {

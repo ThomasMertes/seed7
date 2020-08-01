@@ -1,7 +1,6 @@
-
 (********************************************************************)
 (*                                                                  *)
-(*  shell.s7i     Support for shell commands                        *)
+(*  binary.s7i    Functions to read binary data from string or file *)
 (*  Copyright (C) 2009  Thomas Mertes                               *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)
@@ -26,45 +25,46 @@
 (********************************************************************)
 
 
-(**
- *  Executes a program using the shell of the operating system.
- *  The comand string must contain the program name and an optional
- *  space separated list of parameters. The 'shell' function always
- *  uses slashes as path separator for the command path (independend
- *  of the operating system used). Spaces in the program name (or
- *  path) must be preceded by a backslash (E.g.: shell("do\\ it"); ).
- *  The first space without preceding backslash marks the end of the
- *  program name. Command parameters containing a space must be
- *  enclosed in double quotes (E.g.: shell("do_it \"par 1\" par2"); ).
- *  The commands supported and the path delimiters used in parameters
- *  of a specific command are not covered by the description of the
- *  'shell' function. Due to the usage of the operating system shell
- *  and of external programs it is hard to write portable programs
- *  which use the 'shell' function.
- *  @return the return code of the executed command or of the shell.
- *)
-const func integer: shell (in string param)     is action "CMD_SHELL";
-
-const proc: cmd_sh (in string: command) is func
+const func string: get_asciiz (in string: stri, inout integer: currPos) is func
+  result
+    var string: result is "";
+  local
+    var integer: startPos is 0;
   begin
-    ignore(shell(command));
+    startPos := currPos;
+    while stri[currPos] <> '\0\' do
+      incr(currPos);
+    end while;
+    result := stri[startPos .. pred(currPos)];
+    incr(currPos);
   end func;
 
 
-const func PRIMITIVE_FILE: PRIMITIVE_FILE_POPEN
-    (in string param, in string param)          is action "FIL_POPEN";
-
-const func file: popen (in string: command, in string: access) is func
+const func integer: get_uint16_le (inout file: in_file) is func
   result
-    var file: result is STD_NULL;
+    var integer: number is 0;
   local
-    var PRIMITIVE_FILE: open_file is PRIMITIVE_NULL_FILE;
-    var external_file: new_file is external_file.value;
+    var string: stri is "";
   begin
-    open_file := PRIMITIVE_FILE_POPEN(command, access);
-    if open_file <> PRIMITIVE_NULL_FILE then
-      new_file.ext_file := open_file;
-      new_file.name := command;
-      result := malloc(new_file);
+    stri := gets(in_file, 2);
+    if length(stri) = 2 then
+      number := ord(stri[1]) +
+          ord(stri[2]) * 256;
+    end if;
+  end func;
+
+
+const func integer: get_uint32_le (inout file: in_file) is func
+  result
+    var integer: number is 0;
+  local
+    var string: stri is "";
+  begin
+    stri := gets(in_file, 4);
+    if length(stri) = 4 then
+      number := ord(stri[1]) +
+          ord(stri[2]) * 256 +
+          ord(stri[3]) * 65536 +
+          ord(stri[4]) * 16777216;
     end if;
   end func;

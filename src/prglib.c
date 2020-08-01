@@ -240,7 +240,7 @@ listtype arguments;
 
   { /* prg_error_count */
     isit_prog(arg_1(arguments));
-    return(bld_int_temp(take_prog(arg_1(arguments))->error_count));
+    return(bld_int_temp((inttype) take_prog(arg_1(arguments))->error_count));
   } /* prg_error_count */
 
 
@@ -300,7 +300,7 @@ listtype arguments;
 
   {
     stritype str1;
-    ustritype file_name;
+    cstritype file_name;
     progtype result;
 
   /* prg_fil_parse */
@@ -310,7 +310,7 @@ listtype arguments;
     if (file_name == NULL) {
       return(raise_exception(SYS_MEM_EXCEPTION));
     } else {
-      result = analyze(file_name);
+      result = analyze((ustritype) file_name);
       set_trace(option.exec_trace_level, -1, NULL);
       return(bld_prog_temp(result));
     } /* if */
@@ -564,7 +564,7 @@ listtype arguments;
   {
     progtype currentProg;
     stritype stri1;
-    ustritype name;
+    cstritype name;
     progrecord prog_backup;
     identtype ident_found;
     objecttype result;
@@ -574,13 +574,13 @@ listtype arguments;
     isit_stri(arg_2(arguments));
     currentProg = take_prog(arg_1(arguments));
     stri1 = take_stri(arg_2(arguments));
-    name = (ustritype) cp_to_cstri(stri1);
+    name = cp_to_cstri(stri1);
     if (name == NULL) {
       result = raise_exception(SYS_MEM_EXCEPTION);
     } else {
       memcpy(&prog_backup, &prog, sizeof(progrecord));
       memcpy(&prog, currentProg, sizeof(progrecord));
-      ident_found = get_ident(name, strlen(name));
+      ident_found = get_ident((ustritype) name, strlen(name));
       if (ident_found == NULL ||
           ident_found->entity == NULL) {
         result = NULL;

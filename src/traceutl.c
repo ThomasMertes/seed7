@@ -335,7 +335,7 @@ settype setValue;
   {
     inttype position;
     bitsettype bitset_elem;
-    int bit_index;
+    unsigned int bit_index;
     booltype first_elem;
 
   /* prot_set */
@@ -568,7 +568,7 @@ objecttype anyobject;
           prot_cstri(" *NULL_WINDOW* ");
         } else {
           prot_cstri("window [");
-          prot_int(anyobject->value.winvalue->usage_count);
+          prot_int((inttype) anyobject->value.winvalue->usage_count);
           prot_cstri("] ");
           prot_int((inttype) anyobject->value.winvalue);
         } /* if */
@@ -888,7 +888,7 @@ listtype list;
               printcategory(CATEGORY_OF_OBJ(list->obj));
               prot_cstri("> ");
               if (HAS_POSINFO(list->obj)) {
-                prot_cstri(file_name(GET_FILE_NUM(list->obj)));
+                prot_cstri((cstritype) file_name(GET_FILE_NUM(list->obj)));
                 prot_cstri("(");
                 prot_int((inttype) GET_LINE_NUM(list->obj));
                 prot_cstri(")");
@@ -1192,7 +1192,7 @@ void trace_nodes ()
     for (position = 0; position < ID_TABLE_SIZE; position++) {
       list_ident_names(prog.ident.table[position]);
     } /* for */
-    for (character = '!'; character <= '~'; character++) {
+    for (character = (int) '!'; character <= (int) '~'; character++) {
       if (op_character(character) ||
           char_class(character) == LEFTPARENCHAR ||
           char_class(character) == PARENCHAR) {
@@ -1307,7 +1307,7 @@ objecttype traceobject;
       } /* if */
       prot_cstri(": ");
       if (HAS_POSINFO(traceobject)) {
-        prot_cstri(file_name(GET_FILE_NUM(traceobject)));
+        prot_cstri((cstritype) file_name(GET_FILE_NUM(traceobject)));
         prot_cstri("(");
         prot_int((inttype) GET_LINE_NUM(traceobject));
         prot_cstri(")");
@@ -1450,7 +1450,7 @@ objecttype traceobject;
           if (traceobject->value.progvalue == NULL) {
             prot_cstri("NULL");
           } else {
-            prot_cstri(traceobject->value.progvalue->source_file_name);
+            prot_cstri((cstritype) traceobject->value.progvalue->source_file_name);
           } /* if */
           break;
         case SYMBOLOBJECT:
@@ -1598,7 +1598,7 @@ stritype trace_level;
 #endif
     ctrace_level = cp_to_cstri(trace_level);
     if (ctrace_level != NULL) {
-      set_trace(ctrace_level, trace_level->size, NULL);
+      set_trace(ctrace_level, (int) trace_level->size, NULL);
       free_cstri(ctrace_level, trace_level);
     } /* if */
 #ifdef TRACE_TRACE

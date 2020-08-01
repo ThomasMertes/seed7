@@ -498,7 +498,7 @@ listtype arguments;
   {
     objecttype obj_arg1;
     filenumtype file_number;
-    ustritype name;
+    cstritype name;
     stritype result;
 
   /* ref_file */
@@ -516,7 +516,7 @@ listtype arguments;
     } else {
       file_number = 0;
     } /* if */
-    name = file_name(file_number);
+    name = (cstritype) file_name(file_number);
     result = cstri_to_stri(name);
     if (result == NULL) {
       return(raise_exception(SYS_MEM_EXCEPTION));
@@ -980,7 +980,7 @@ listtype arguments;
   {
     stritype str1;
     objecttype obj_variable;
-    ustritype name;
+    cstritype name;
     identtype ident_found;
     objecttype result;
 
@@ -990,11 +990,11 @@ listtype arguments;
     obj_variable = arg_2(arguments);
     isit_reference(obj_variable);
     is_variable(obj_variable);
-    name = (ustritype) cp_to_cstri(str1);
+    name = cp_to_cstri(str1);
     if (name == NULL) {
       result = raise_exception(SYS_MEM_EXCEPTION);
     } else {
-      ident_found = get_ident(name, strlen(name));
+      ident_found = get_ident((ustritype) name, strlen(name));
       if (ident_found == NULL ||
           ident_found->entity == NULL ||
           ident_found->entity->owner == NULL) {

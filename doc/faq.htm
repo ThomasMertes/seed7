@@ -320,8 +320,8 @@ already be installed.
 </p><p>
 Errors such as
 </p><pre>
-    echo char *getcwd(char *buf, size_t size); >> seed7lib.c
-    /usr/bin/sh: -c: line 0: syntax error near unexpected token `('
+  echo char *getcwd(char *buf, size_t size); >> seed7lib.c
+  /usr/bin/sh: -c: line 0: syntax error near unexpected token `('
 </pre><p>
 indicate that your makefile contains commands for the cmd.exe
 (or command.com) windows console, but your 'make' program uses
@@ -329,6 +329,14 @@ a UNIX shell (/usr/bin/sh) to execute them. Either use a
 makefile which uses UNIX shell commands (e.g. mk_msys.mak or
 mk_cygw.mak) or take care that the 'make' program uses cmd.exe
 (or command.com) to execute the commands.
+</p><p>
+Errors such as
+</p><pre>
+  hi.c:28:21: error: version.h: No such file or directory
+</pre><p>
+indicate that you forgot to run 'make depend' before running
+'make'. Since such an attempt produces several unneeded files it
+is necessary now to run 'make clean', 'make depend' and 'make'.
 </p><p>
 When you got other errors I would like to know about. Please
 send a mail with detailed information (name and version) of

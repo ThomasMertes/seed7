@@ -37,7 +37,6 @@
 #ifdef OS_PATH_WCHAR
 typedef wchar_t          os_path_char;
 typedef wchar_t         *os_path_stri;
-#define cp_to_os_path    cp_to_wpath
 #define os_path_strlen   wcslen
 #define os_path_strcpy   wcscpy
 #define os_path_strcat   wcscat
@@ -47,7 +46,6 @@ typedef wchar_t         *os_path_stri;
 #else
 typedef char             os_path_char;
 typedef cstritype        os_path_stri;
-#define cp_to_os_path    cp_to_cpath
 #define os_path_strlen   strlen
 #define os_path_strcpy   strcpy
 #define os_path_strcat   strcat
@@ -60,15 +58,11 @@ typedef cstritype        os_path_stri;
 #ifdef ANSI_C
 
 memsizetype stri_to_utf8 (ustritype, const_stritype);
-memsizetype utf8_to_stri (strelemtype *, memsizetype *, const_ustritype, SIZE_TYPE);
-memsizetype utf8_bytes_missing (const_ustritype, SIZE_TYPE);
+memsizetype utf8_to_stri (strelemtype *, memsizetype *, const_ustritype, size_t);
+memsizetype utf8_bytes_missing (const_ustritype, size_t);
 cstritype cp_to_cstri (const_stritype);
-#ifdef OS_PATH_WCHAR
-wchar_t *cp_to_wpath (const_stritype, errinfotype *);
-#else
-cstritype cp_to_cpath (const_stritype, errinfotype *);
-#endif
-bstritype stri_to_bstri (stritype);
+os_path_stri cp_to_os_path (const_stritype, errinfotype *);
+bstritype stri_to_bstri (const_stritype);
 bstritype stri_to_bstri8 (const_stritype);
 stritype cstri_to_stri (const_cstritype cstri);
 stritype cstri8_to_stri (const_cstritype cstri);
@@ -82,11 +76,7 @@ memsizetype stri_to_utf8 ();
 memsizetype utf8_to_stri ();
 memsizetype utf8_bytes_missing ();
 cstritype cp_to_cstri ();
-#ifdef OS_PATH_WCHAR
-wchar_t *cp_to_wpath ();
-#else
-cstritype cp_to_cpath ();
-#endif
+os_path_stri cp_to_os_path ();
 bstritype stri_to_bstri ();
 bstritype stri_to_bstri8 ();
 stritype cstri_to_stri ();
@@ -103,8 +93,8 @@ cstritype cp_to_command ();
 #ifdef ANSI_C
 
 void stri_export (ustritype, const_stritype);
-void ustri_expand (strelemtype *, const_ustritype, SIZE_TYPE);
-void stri_compress (ustritype, const strelemtype *, SIZE_TYPE);
+void ustri_expand (strelemtype *, const_ustritype, size_t);
+void stri_compress (ustritype, const strelemtype *, size_t);
 
 #else
 

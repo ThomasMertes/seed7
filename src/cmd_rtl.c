@@ -43,6 +43,9 @@
 #else
 #include "utime.h"
 #endif
+#ifdef OS_PATH_WCHAR
+#include "wchar.h"
+#endif
 #include "errno.h"
 
 #ifdef USE_MYUNISTD_H
@@ -88,6 +91,8 @@
 #define PRESERVE_TIMESTAMPS 0x04
 #define PRESERVE_SYMLINKS   0x08
 #define PRESERVE_ALL        0xFF
+
+#define MAX_SYMLINK_PATH_LENGTH 0x1FFFFFFF
 
 
 
@@ -136,10 +141,10 @@ errinfotype *err_info;
   {
     os_DIR *directory;
     os_dirent_struct *current_entry;
-    SIZE_TYPE dir_name_size;
-    SIZE_TYPE dir_path_capacity = 0;
+    size_t dir_name_size;
+    size_t dir_path_capacity = 0;
     os_path_stri dir_path = NULL;
-    SIZE_TYPE new_size;
+    size_t new_size;
     os_path_stri resized_path;
     booltype init_path = TRUE;
 
@@ -275,9 +280,9 @@ errinfotype *err_info;
     ustritype file_content;
 #else
     char *buffer;
-    SIZE_TYPE buffer_size;
+    size_t buffer_size;
     char reserve_buffer[SIZE_RESERVE_BUFFER];
-    SIZE_TYPE bytes_read;
+    size_t bytes_read;
 #endif
 
   /* copy_file */
@@ -359,14 +364,14 @@ errinfotype *err_info;
   {
     os_DIR *directory;
     os_dirent_struct *current_entry;
-    SIZE_TYPE from_name_size;
-    SIZE_TYPE to_name_size;
-    SIZE_TYPE d_name_size;
-    SIZE_TYPE from_path_capacity = 0;
+    size_t from_name_size;
+    size_t to_name_size;
+    size_t d_name_size;
+    size_t from_path_capacity = 0;
     os_path_stri from_path = NULL;
-    SIZE_TYPE to_path_capacity = 0;
+    size_t to_path_capacity = 0;
     os_path_stri to_path = NULL;
-    SIZE_TYPE new_size;
+    size_t new_size;
     os_path_stri resized_path;
     booltype init_path = TRUE;
 
@@ -501,21 +506,26 @@ errinfotype *err_info;
         if (S_ISLNK(from_stat.st_mode)) {
 #ifdef HAS_SYMLINKS
           /* printf("link size=%lu\n", from_stat.st_size); */
-          if (!os_path_alloc(link_destination, from_stat.st_size)) {
-            *err_info = MEMORY_ERROR;
+          if (from_stat.st_size > MAX_SYMLINK_PATH_LENGTH || from_stat.st_size < 0) {
+            *err_info = RANGE_ERROR;
           } else {
-            readlink_result = readlink(from_name, link_destination, from_stat.st_size);
-            if (readlink_result != -1) {
-              link_destination[readlink_result] = '\0';
-              /* printf("readlink_result=%lu\n", readlink_result);
-                 printf("link=%s\n", link_destination); */
-              if (symlink(link_destination, to_name) != 0) {
+            if (!os_path_alloc(link_destination, from_stat.st_size)) {
+              *err_info = MEMORY_ERROR;
+            } else {
+              readlink_result = readlink(from_name, link_destination,
+                                         (size_t) from_stat.st_size);
+              if (readlink_result != -1) {
+                link_destination[readlink_result] = '\0';
+                /* printf("readlink_result=%lu\n", readlink_result);
+                   printf("link=%s\n", link_destination); */
+                if (symlink(link_destination, to_name) != 0) {
+                  *err_info = FILE_ERROR;
+                } /* if */
+              } else {
                 *err_info = FILE_ERROR;
               } /* if */
-            } else {
-              *err_info = FILE_ERROR;
+              os_path_free(link_destination);
             } /* if */
-            os_path_free(link_destination);
           } /* if */
 #else
           *err_info = FILE_ERROR;
@@ -688,9 +698,9 @@ stritype file_name;
       stat_result = os_stat(os_path, &stat_buf);
       if (stat_result == 0 && S_ISREG(stat_buf.st_mode)) {
         if (sizeof(stat_buf.st_size) == 8) {
-          result = bigFromUInt64(stat_buf.st_size);
+          result = bigFromUInt64((uint64type) stat_buf.st_size);
         } else {
-          result = bigFromUInt32(stat_buf.st_size);
+          result = bigFromUInt32((uint32type) stat_buf.st_size);
         } /* if */
       } else if (stat_result == 0 && S_ISDIR(stat_buf.st_mode)) {
         result = bigIConv(0);
@@ -797,7 +807,7 @@ stritype name;
     if (compr_size(name) + 1 > 250) {
       opt = "";
     } else {
-      stri_export(opt_name, name);
+      stri_export((ustritype) opt_name, name);
       if (strcmp(opt_name, "OBJECT_FILE_EXTENSION") == 0) {
         opt = OBJECT_FILE_EXTENSION;
       } else if (strcmp(opt_name, "EXECUTABLE_FILE_EXTENSION") == 0) {
@@ -1109,6 +1119,16 @@ stritype cmdGetcwd ()
 #endif
       if (result == NULL) {
         raise_error(MEMORY_ERROR);
+#if PATH_DELIMITER != '/'
+      } else {
+        unsigned int pos;
+
+        for (pos = 0; pos < result->size; pos++) {
+          if (result->mem[pos] == PATH_DELIMITER) {
+            result->mem[pos] = (strelemtype) '/';
+          } /* if */
+        } /* for */
+#endif
       } /* if */
     } /* if */
     return(result);
@@ -1256,7 +1276,9 @@ booltype *is_dst;
 
   /* cmdGetMTime */
 #ifdef TRACE_CMD_RTL
-    printf("BEGIN cmdGetMTime\n");
+    printf("BEGIN cmdGetMTime(");
+    prot_stri(file_name);
+    printf(")\n");
 #endif
     os_path = cp_to_os_path(file_name, &err_info);
     if (os_path == NULL) {
@@ -1269,6 +1291,7 @@ booltype *is_dst;
             year, month, day, hour,
 	    min, sec, mycro_sec, time_zone, is_dst);
       } else {
+        /* printf("errno=%d\n", errno); */
         raise_error(FILE_ERROR);
       } /* if */
     } /* if */
@@ -1379,14 +1402,14 @@ stritype link_name;
 #endif
 
   {
+#ifdef HAS_SYMLINKS
     os_path_stri os_link_name;
     os_stat_struct link_stat;
-#ifdef HAS_SYMLINKS
     os_path_stri link_destination;
     ssize_t readlink_result;
 #endif
     errinfotype err_info = OKAY_NO_ERROR;
-    stritype result;
+    stritype result = NULL;
 
   /* cmdReadlink */
 #ifdef HAS_SYMLINKS
@@ -1396,31 +1419,36 @@ stritype link_name;
         err_info = FILE_ERROR;
       } else {
         /* printf("link size=%lu\n", link_stat.st_size); */
-        if (!os_path_alloc(link_destination, link_stat.st_size)) {
-          err_info = MEMORY_ERROR;
+        if (link_stat.st_size > MAX_SYMLINK_PATH_LENGTH || link_stat.st_size < 0) {
+          err_info = RANGE_ERROR;
         } else {
-          readlink_result = readlink(os_link_name, link_destination, link_stat.st_size);
-          if (readlink_result != -1) {
-            link_destination[readlink_result] = '\0';
+          if (!os_path_alloc(link_destination, link_stat.st_size)) {
+            err_info = MEMORY_ERROR;
+          } else {
+            readlink_result = readlink(os_link_name, link_destination,
+                                       (size_t) link_stat.st_size);
+            if (readlink_result != -1) {
+              link_destination[readlink_result] = '\0';
 #ifdef OS_PATH_WCHAR
-            result = wstri_to_stri(link_destination);
+              result = wstri_to_stri(link_destination);
 #else
 #ifdef OS_PATH_UTF8
-            result = cstri8_to_stri(link_destination);
-            if (result == NULL) {
-              result = cstri_to_stri(link_destination);
-            } /* if */
+              result = cstri8_to_stri(link_destination);
+              if (result == NULL) {
+                result = cstri_to_stri(link_destination);
+              } /* if */
 #else
-            result = cstri_to_stri(link_destination);
+              result = cstri_to_stri(link_destination);
 #endif
 #endif
-            if (result == NULL) {
-              err_info = MEMORY_ERROR;
+              if (result == NULL) {
+                err_info = MEMORY_ERROR;
+              } /* if */
+            } else {
+              err_info = FILE_ERROR;
             } /* if */
-          } else {
-            err_info = FILE_ERROR;
+            os_path_free(link_destination);
           } /* if */
-          os_path_free(link_destination);
         } /* if */
       } /* if */
       os_path_free(os_link_name);
@@ -1430,7 +1458,6 @@ stritype link_name;
 #endif
     if (err_info != OKAY_NO_ERROR) {
       raise_error(err_info);
-      result = NULL;
     } /* if */
     return(result);
   } /* cmdReadlink */
@@ -1629,8 +1656,10 @@ stritype dest_name;
 #endif
 
   {
+#ifdef HAS_SYMLINKS
     os_path_stri os_source_name;
     os_path_stri os_dest_name;
+#endif
     errinfotype err_info = OKAY_NO_ERROR;
 
   /* cmdSymlink */

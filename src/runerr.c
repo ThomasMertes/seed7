@@ -65,12 +65,12 @@ void continue_question ()
   /* continue_question */
     printf("\n*** (Type RETURN to continue or '*' to terminate)\n");
     ch = fgetc(stdin);
-    if (ch == '*') {
+    if (ch == (int) '*') {
       shut_drivers();
       exit(1);
     } /* if */
     position = 0;
-    while (ch >= ' ' && ch <= '~' && position < 9) {
+    while (ch >= (int) ' ' && ch <= (int) '~' && position < 9) {
       buffer[position] = (char) ch;
       position++;
       ch = fgetc(stdin);
@@ -79,7 +79,7 @@ void continue_question ()
     if (position > 0) {
       set_trace(buffer, position, NULL);
     } /* if */
-    while (ch != EOF && ch != '\n') {
+    while (ch != EOF && ch != (int) '\n') {
       ch = fgetc(stdin);
     } /* while */
   } /* continue_question */

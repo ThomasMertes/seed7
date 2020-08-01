@@ -88,7 +88,7 @@ listtype arguments;
       COUNT3_BSTRI(bstr_to->size, new_size);
       bstr_variable->value.bstrivalue = bstr_to;
       memcpy(&bstr_to->mem[bstr_to->size], bstr_from->mem,
-          (SIZE_TYPE) bstr_from->size * sizeof(uchartype));
+          (size_t) bstr_from->size * sizeof(uchartype));
       bstr_to->size = new_size;
 /*
       printf("new bstr_to (%lx) %d = ", bstr_to, bstr_to->size);
@@ -135,7 +135,7 @@ listtype arguments;
       COUNT3_STRI(bstr1_size, result_size);
       result->size = result_size;
       memcpy(&result->mem[bstr1_size], bstr2->mem,
-          (SIZE_TYPE) bstr2->size * sizeof(uchartype));
+          (size_t) bstr2->size * sizeof(uchartype));
       arg_1(arguments)->value.bstrivalue = NULL;
       return(bld_bstri_temp(result));
     } else {
@@ -144,9 +144,9 @@ listtype arguments;
       } else {
         result->size = result_size;
         memcpy(result->mem, bstr1->mem,
-            (SIZE_TYPE) bstr1_size * sizeof(uchartype));
+            (size_t) bstr1_size * sizeof(uchartype));
         memcpy(&result->mem[bstr1_size], bstr2->mem,
-            (SIZE_TYPE) bstr2->size * sizeof(uchartype));
+            (size_t) bstr2->size * sizeof(uchartype));
         return(bld_bstri_temp(result));
       } /* if */
     } /* if */
@@ -192,7 +192,7 @@ listtype arguments;
         } /* if */
       } /* if */
       memcpy(new_bstri->mem, take_bstri(bstri_from)->mem,
-          (SIZE_TYPE) new_size * sizeof(uchartype));
+          (size_t) new_size * sizeof(uchartype));
     } /* if */
     return(SYS_EMPTY_OBJECT);
   } /* bst_cpy */
@@ -232,7 +232,7 @@ listtype arguments;
       bstri_to->value.bstrivalue = new_bstri;
       new_bstri->size = new_size;
       memcpy(new_bstri->mem, take_bstri(bstri_from)->mem,
-          (SIZE_TYPE) new_size * sizeof(uchartype));
+          (size_t) new_size * sizeof(uchartype));
     } /* if */
     return(SYS_EMPTY_OBJECT);
   } /* bst_create */

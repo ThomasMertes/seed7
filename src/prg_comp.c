@@ -195,7 +195,7 @@ stritype stri;
 #endif
 
   {
-    ustritype file_name;
+    cstritype file_name;
     progtype result;
 
   /* prgFilParse */
@@ -206,7 +206,7 @@ stritype stri;
       result = NULL;
     } else {
       option.source_file_name = file_name;
-      result = analyze(file_name);
+      result = analyze((ustritype) file_name);
       /* ?? set_trace(option.exec_trace_level, -1, NULL); */
     } /* if */
     return(result);
@@ -334,20 +334,20 @@ stritype stri1;
 #endif
 
   {
-    ustritype name;
+    cstritype name;
     progrecord prog_backup;
     identtype ident_found;
     objecttype result;
 
   /* prgSyobject */
-    name = (ustritype) cp_to_cstri(stri1);
+    name = cp_to_cstri(stri1);
     if (name == NULL) {
       raise_error(MEMORY_ERROR);
       result = NULL;
     } else {
       memcpy(&prog_backup, &prog, sizeof(progrecord));
       memcpy(&prog, currentProg, sizeof(progrecord));
-      ident_found = get_ident(name, strlen(name));
+      ident_found = get_ident((ustritype) name, strlen(name));
       if (ident_found == NULL ||
           ident_found->entity == NULL) {
         result = NULL;

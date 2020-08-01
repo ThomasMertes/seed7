@@ -287,7 +287,7 @@ listtype arguments;
 #endif
 
   {
-    memsizetype position;
+    inttype position;
     inttype number;
     listtype list_element;
 

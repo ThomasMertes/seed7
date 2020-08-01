@@ -150,7 +150,7 @@ listtype arguments;
       return(raise_exception(SYS_MEM_EXCEPTION));
     } else {
       result->size = len;
-      cstri_expand(result->mem, stri, (SIZE_TYPE) len);
+      cstri_expand(result->mem, stri, (size_t) len);
       return(bld_stri_temp(result));
     } /* if */
   } /* act_str */

@@ -26,19 +26,7 @@
 (********************************************************************)
 
 
-const func string: getZeroTerminatedString (in string: stri, inout integer: currPos) is func
-  result
-    var string: result is "";
-  local
-    var integer: startPos is 0;
-  begin
-    startPos := currPos;
-    while stri[currPos] <> '\0\' do
-      incr(currPos);
-    end while;
-    result := stri[startPos .. pred(currPos)];
-    incr(currPos);
-  end func;
+include "binary.s7i";
 
 
 const func integer: getBits (in string: stri,
@@ -525,10 +513,10 @@ const func string: gunzip (in string: stri) is func
         bytePos +:= 2 + extraLength;
       end if;
       if flagFname then
-        originalFileName := getZeroTerminatedString(stri, bytePos);
+        originalFileName := get_asciiz(stri, bytePos);
       end if;
       if flagFcomment then
-        fileComment := getZeroTerminatedString(stri, bytePos);
+        fileComment := get_asciiz(stri, bytePos);
       end if;
       if flagFhcrc then
         crc16 := ord(stri[11]) + (ord(stri[12]) << 8);

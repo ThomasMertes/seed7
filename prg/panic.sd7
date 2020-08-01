@@ -1069,7 +1069,7 @@ const proc: pause_game (in boolean: blankWindow) is func
       elsif cmd = KEY_ESC then
         bossMode(game.quit);
       else
-        exitPause := TRUE;
+        exitPause := cmd in {'P', 'p'};
       end if;
     end while;
     pause_duration := time(NOW) - pause_time;

@@ -8,6 +8,7 @@
 # CFLAGS = -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
 # CFLAGS = -O2 -fomit-frame-pointer -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
 CFLAGS = -O2 -g -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
+# CFLAGS = -O2 -g -Wall
 # CFLAGS = -O2 -g -pg -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
 # CFLAGS = -O2 -fomit-frame-pointer -funroll-loops -Wall
 # CFLAGS = -O2 -funroll-loops -Wall -pg
@@ -130,7 +131,7 @@ scr_cur.o: scr_cur.c version.h scr_drv.h
 clear: clean
 
 clean:
-	rm *.o *.a depend a_depend b_depend c_depend version.h
+	rm -f *.o *.a depend a_depend b_depend c_depend version.h
 
 dep: depend
 

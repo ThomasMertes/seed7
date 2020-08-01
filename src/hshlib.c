@@ -1327,7 +1327,7 @@ listtype arguments;
   { /* hsh_lng */
     isit_hash(arg_1(arguments));
     return(bld_int_temp(
-        take_hash(arg_1(arguments))->size));
+        (inttype) take_hash(arg_1(arguments))->size));
   } /* hsh_lng */
 
 

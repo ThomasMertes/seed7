@@ -1,0 +1,301 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  zip.s7i       Zip format support library                        *)
+(*  Copyright (C) 2009  Thomas Mertes                               *)
+(*                                                                  *)
+(*  This file is part of the Seed7 Runtime Library.                 *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is free software; you can             *)
+(*  redistribute it and/or modify it under the terms of the GNU     *)
+(*  Lesser General Public License as published by the Free Software *)
+(*  Foundation; either version 2.1 of the License, or (at your      *)
+(*  option) any later version.                                      *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is distributed in the hope that it    *)
+(*  will be useful, but WITHOUT ANY WARRANTY; without even the      *)
+(*  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR *)
+(*  PURPOSE.  See the GNU Lesser General Public License for more    *)
+(*  details.                                                        *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU Lesser General       *)
+(*  Public License along with this program; if not, write to the    *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+include "gzip.s7i";
+include "binary.s7i";
+
+
+const func integer: rpos (inout file: inFile, in string: stri) is func
+  result
+    var integer: result is 0;
+  local
+    var integer: pos is 0;
+    var string: test is "";
+  begin
+    pos := length(inFile) - length(stri) + 1;
+    while pos > 0 and result = 0 do
+      seek(inFile, pos);
+      test := gets(inFile, length(stri));
+      # writeln(literal(test));
+      if test = stri then
+        result := pos;
+      end if;
+      decr(pos);
+    end while;
+  end func;
+
+
+const type: local_file_header is new struct
+    var string:  signature                  is "";  # 4 bytes ("PK\3\\4\")
+    var integer: version_needed_to_extract  is 0;   # 2 bytes
+    var integer: general_purpose_bit_flag   is 0;   # 2 bytes
+    var integer: compression_method         is 0;   # 2 bytes
+    var integer: last_mod_file_time         is 0;   # 2 bytes
+    var integer: last_mod_file_date         is 0;   # 2 bytes
+    var integer: crc_32                     is 0;   # 4 bytes
+    var integer: compressed_size            is 0;   # 4 bytes
+    var integer: uncompressed_size          is 0;   # 4 bytes
+    var integer: file_name_length           is 0;   # 2 bytes
+    var integer: extra_field_length         is 0;   # 2 bytes
+    var string:  file_name                  is "";  # variable size
+    var string:  extra_field                is "";  # variable size
+  end struct;
+
+
+const func local_file_header: get_local_header (inout file: inFile) is func
+  result
+    var local_file_header: result is local_file_header.value;
+  begin
+    result.signature := gets(inFile, 4);
+    if result.signature = "PK\3\\4\" then
+      result.version_needed_to_extract   := get_uint16_le(inFile);
+      result.general_purpose_bit_flag    := get_uint16_le(inFile);
+      result.compression_method          := get_uint16_le(inFile);
+      result.last_mod_file_time          := get_uint16_le(inFile);
+      result.last_mod_file_date          := get_uint16_le(inFile);
+      result.crc_32                      := get_uint32_le(inFile);
+      result.compressed_size             := get_uint32_le(inFile);
+      result.uncompressed_size           := get_uint32_le(inFile);
+      result.file_name_length            := get_uint16_le(inFile);
+      result.extra_field_length          := get_uint16_le(inFile);
+      result.file_name                   := gets(inFile, result.file_name_length);
+      result.extra_field                 := gets(inFile, result.extra_field_length);
+    end if;
+  end func;
+
+
+const proc: write (in local_file_header: header) is func
+  begin
+    writeln("signature: "                  rpad 50 <& literal(header.signature) lpad 10);
+    writeln("version_needed_to_extract: "  rpad 50 <& header.version_needed_to_extract lpad 10);
+    writeln("general_purpose_bit_flag: "   rpad 50 <& header.general_purpose_bit_flag lpad 10);
+    writeln("compression_method: "         rpad 50 <& header.compression_method lpad 10);
+    writeln("last_mod_file_time: "         rpad 50 <& header.last_mod_file_time lpad 10);
+    writeln("last_mod_file_date: "         rpad 50 <& header.last_mod_file_date lpad 10);
+    writeln("crc_32: "                     rpad 50 <& header.crc_32 lpad 10);
+    writeln("compressed_size: "            rpad 50 <& header.compressed_size lpad 10);
+    writeln("uncompressed_size: "          rpad 50 <& header.uncompressed_size lpad 10);
+    writeln("file_name_length: "           rpad 50 <& header.file_name_length lpad 10);
+    writeln("extra_field_length: "         rpad 50 <& header.extra_field_length lpad 10);
+    writeln("file_name: "                  rpad 50 <& literal(header.file_name) lpad 10);
+    writeln("extra_field: "                rpad 50 <& literal(header.extra_field) lpad 10);
+  end func;
+
+
+const type: end_of_central_directory is new struct
+    var string:  signature                                    is "";  # 4 bytes ("PK\5\\6\")
+    var integer: number_of_this_disk                          is 0;   # 2 bytes
+    var integer: disk_number_with_start_of_central_directory  is 0;   # 2 bytes
+    var integer: entries_in_central_directory_on_this_disk    is 0;   # 2 bytes
+    var integer: entries_in_central_directory                 is 0;   # 2 bytes
+    var integer: size_of_central_directory                    is 0;   # 4 bytes
+    var integer: offset_of_start_of_central_directory         is 0;   # 4 bytes
+    var integer: file_comment_length                          is 0;   # 2 bytes
+    var string:  file_comment                                 is "";  # variable size
+  end struct;
+
+
+const func end_of_central_directory: get_end_of_central_directory (inout file: inFile) is func
+  result
+    var end_of_central_directory: result is end_of_central_directory.value;
+  begin
+    result.signature := gets(inFile, 4);
+    if result.signature = "PK\5\\6\" then
+      result.number_of_this_disk                          := get_uint16_le(inFile);
+      result.disk_number_with_start_of_central_directory  := get_uint16_le(inFile);
+      result.entries_in_central_directory_on_this_disk    := get_uint16_le(inFile);
+      result.entries_in_central_directory                 := get_uint16_le(inFile);
+      result.size_of_central_directory                    := get_uint32_le(inFile);
+      result.offset_of_start_of_central_directory         := get_uint32_le(inFile);
+      result.file_comment_length                          := get_uint16_le(inFile);
+      result.file_comment                                 := gets(inFile, result.file_comment_length);
+    end if;
+  end func;
+
+
+const proc: write (in end_of_central_directory: endOfCentDir) is func
+  begin
+    writeln("signature: "                                   rpad 50 <& literal(endOfCentDir.signature) lpad 10);
+    writeln("number_of_this_disk: "                         rpad 50 <& endOfCentDir.number_of_this_disk lpad 10);
+    writeln("disk_number_with_start_of_central_directory: " rpad 50 <& endOfCentDir.disk_number_with_start_of_central_directory lpad 10);
+    writeln("entries_in_central_directory_on_this_disk: "   rpad 50 <& endOfCentDir.entries_in_central_directory_on_this_disk lpad 10);
+    writeln("entries_in_central_directory: "                rpad 50 <& endOfCentDir.entries_in_central_directory lpad 10);
+    writeln("size_of_central_directory: "                   rpad 50 <& endOfCentDir.size_of_central_directory lpad 10);
+    writeln("offset_of_start_of_central_directory: "        rpad 50 <& endOfCentDir.offset_of_start_of_central_directory lpad 10);
+    writeln("file_comment_length: "                         rpad 50 <& endOfCentDir.file_comment_length lpad 10);
+    writeln("file_comment: "                                rpad 50 <& literal(endOfCentDir.file_comment) lpad 10);
+  end func;
+
+
+const func end_of_central_directory: read_end_of_central_directory (inout file: inFile) is func
+  result
+    var end_of_central_directory: result is end_of_central_directory.value;
+  local
+    var integer: pos is 0;
+  begin
+    pos := rpos(inFile, "PK\5\\6\");
+    if pos <> 0 then
+      seek(inFile, pos);
+      result := get_end_of_central_directory(inFile);
+    end if;
+  end func;
+
+
+const type: central_file_header is new struct
+    var string: signature                        is "";  # 4 bytes ("PK\1\\2\")
+    var integer: version_made_by                 is 0;   # 2 bytes
+    var integer: version_needed_to_extract       is 0;   # 2 bytes
+    var integer: general_purpose_bit_flag        is 0;   # 2 bytes
+    var integer: compression_method              is 0;   # 2 bytes
+    var integer: last_mod_file_time              is 0;   # 2 bytes
+    var integer: last_mod_file_date              is 0;   # 2 bytes
+    var integer: crc_32                          is 0;   # 4 bytes
+    var integer: compressed_size                 is 0;   # 4 bytes
+    var integer: uncompressed_size               is 0;   # 4 bytes
+    var integer: file_name_length                is 0;   # 2 bytes
+    var integer: extra_field_length              is 0;   # 2 bytes
+    var integer: file_comment_length             is 0;   # 2 bytes
+    var integer: disk_number_start               is 0;   # 2 bytes
+    var integer: internal_file_attributes        is 0;   # 2 bytes
+    var integer: external_file_attributes        is 0;   # 4 bytes
+    var integer: relative_offset_of_local_header is 0;   # 4 bytes
+    var string: file_name                        is "";  # variable size
+    var string: extra_field                      is "";  # variable size
+    var string: file_comment                     is "";  # variable size
+  end struct;
+
+
+const func central_file_header: get_central_header (inout file: inFile) is func
+  result
+    var central_file_header: result is central_file_header.value;
+  begin
+    result.signature := gets(inFile, 4);
+    if result.signature = "PK\1\\2\" then
+      result.version_made_by                 := get_uint16_le(inFile);
+      result.version_needed_to_extract       := get_uint16_le(inFile);
+      result.general_purpose_bit_flag        := get_uint16_le(inFile);
+      result.compression_method              := get_uint16_le(inFile);
+      result.last_mod_file_time              := get_uint16_le(inFile);
+      result.last_mod_file_date              := get_uint16_le(inFile);
+      result.crc_32                          := get_uint32_le(inFile);
+      result.compressed_size                 := get_uint32_le(inFile);
+      result.uncompressed_size               := get_uint32_le(inFile);
+      result.file_name_length                := get_uint16_le(inFile);
+      result.extra_field_length              := get_uint16_le(inFile);
+      result.file_comment_length             := get_uint16_le(inFile);
+      result.disk_number_start               := get_uint16_le(inFile);
+      result.internal_file_attributes        := get_uint16_le(inFile);
+      result.external_file_attributes        := get_uint32_le(inFile);
+      result.relative_offset_of_local_header := get_uint32_le(inFile);
+      result.file_name                       := gets(inFile, result.file_name_length);
+      result.extra_field                     := gets(inFile, result.extra_field_length);
+      result.file_comment                    := gets(inFile, result.file_comment_length);
+    end if;
+  end func;
+
+
+const proc: list_zip_dir (inout file: inFile) is func
+  local
+    var end_of_central_directory: endOfCentDir is end_of_central_directory.value;
+    var central_file_header: centralHeader is central_file_header.value;
+  begin
+    endOfCentDir := read_end_of_central_directory(inFile);
+    # write(endOfCentDir);
+    seek(inFile, succ(endOfCentDir.offset_of_start_of_central_directory));
+    centralHeader := get_central_header(inFile);
+    while centralHeader.signature = "PK\1\\2\" do
+      writeln(centralHeader.file_name rpad 50 <& centralHeader.compressed_size lpad 8 <& centralHeader.uncompressed_size lpad 8 <&
+          centralHeader.extra_field_length lpad 6 <& centralHeader.general_purpose_bit_flag lpad 6);
+      centralHeader := get_central_header(inFile);
+    end while;
+    # writeln(literal(centralHeader.signature));
+(*
+    header := get_local_header(inFile);
+    while header.signature = "PK\3\\4\" do
+      writeln(header.file_name rpad 50 <& header.compressed_size lpad 8 <& header.uncompressed_size lpad 8 <&
+          header.extra_field_length lpad 6 <& header.general_purpose_bit_flag lpad 6);
+      writeln(length(header.extra_field) <& " " <& literal(header.extra_field));
+      if header.file_name = "Monitor/Registered Protocols/GAPReceiver.dat" then
+        writeln(literal(gets(inFile, 25)));
+      else
+        ignore(gets(inFile, header.compressed_size));
+      end if;
+      header := get_local_header(inFile);
+    end while;
+    writeln(literal(header.signature));
+*)
+  end func;
+
+
+const func string: getZipContent (inout file: inFile, in string: filePath) is func
+  result
+    var string: result is "";
+  local
+    var end_of_central_directory: endOfCentDir is end_of_central_directory.value;
+    var central_file_header: centralHeader is central_file_header.value;
+    var local_file_header: header is local_file_header.value;
+    var boolean: found is FALSE;
+    var string: fileData is "";
+  begin
+    endOfCentDir := read_end_of_central_directory(inFile);
+    seek(inFile, succ(endOfCentDir.offset_of_start_of_central_directory));
+    centralHeader := get_central_header(inFile);
+    while centralHeader.signature = "PK\1\\2\" and not found do
+      centralHeader := get_central_header(inFile);
+      if centralHeader.file_name = filePath then
+        found := TRUE;
+      end if;
+    end while;
+    if found then
+      seek(inFile, succ(centralHeader.relative_offset_of_local_header));
+      header := get_local_header(inFile);
+      # write(header);
+      fileData := gets(inFile, header.compressed_size);
+      if header.compression_method = 0 then
+        result := fileData;
+      elsif header.compression_method = 8 then
+        # writeln(literal(fileData[ .. 50]));
+        result := inflate(fileData);
+        # writeln(literal(result[ .. 50]));
+      end if;
+    end if;
+  end func;
+
+
+const func string: getZipContent (in string: zipFileName, in string: filePath) is func
+  result
+    var string: result is "";
+  local
+    var file: inFile is STD_NULL;
+  begin
+    inFile := open(zipFileName, "r");
+    if inFile <> STD_NULL then
+      result := getZipContent(inFile, filePath);
+      close(inFile);
+    end if;
+  end func;

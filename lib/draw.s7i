@@ -28,6 +28,7 @@
 
 include "graph.s7i";
 include "math.s7i";
+include "binary.s7i";
 
 
 var PRIMITIVE_WINDOW: curr_win is PRIMITIVE_WINDOW.value;
@@ -651,36 +652,6 @@ const proc: setTransparentColor (in PRIMITIVE_WINDOW: pixmap, in color: col) is 
   end func;
 
 
-const func integer: get_le_uint2 (inout file: in_file) is func
-  result
-    var integer: number is 0;
-  local
-    var string: stri is "";
-  begin
-    stri := gets(in_file, 2);
-    if length(stri) = 2 then
-      number := ord(stri[1]) +
-          ord(stri[2]) * 256;
-    end if;
-  end func;
-
-
-const func integer: get_le_uint4 (inout file: in_file) is func
-  result
-    var integer: number is 0;
-  local
-    var string: stri is "";
-  begin
-    stri := gets(in_file, 4);
-    if length(stri) = 4 then
-      number := ord(stri[1]) +
-          ord(stri[2]) * 256 +
-          ord(stri[3]) * 65536 +
-          ord(stri[4]) * 16777216;
-    end if;
-  end func;
-
-
 (**
  *  Reads a bitmap file (extension bmp) into a pixmap.
  *)
@@ -706,15 +677,15 @@ const func PRIMITIVE_WINDOW: read_bmp (in string: file_name) is func
     if bmp_file <> STD_NULL then
       stri := gets(bmp_file, 2);
       if stri = "BM" then
-        size := get_le_uint4(bmp_file);
-        stri := gets(bmp_file, 4);          (* reserved1, reserved2 *)
-        offset := get_le_uint4(bmp_file);
-        stri := gets(bmp_file, 4);          (* header size *)
-        width := get_le_uint4(bmp_file);
-        height := get_le_uint4(bmp_file);
-        planes := get_le_uint2(bmp_file);
-        bits := get_le_uint2(bmp_file);
-        stri := gets(bmp_file, 26);
+        size :=   get_uint32_le(bmp_file);
+        stri :=   gets(bmp_file, 4);        (* reserved1, reserved2 *)
+        offset := get_uint32_le(bmp_file);
+        stri :=   gets(bmp_file, 4);        (* header size *)
+        width :=  get_uint32_le(bmp_file);
+        height := get_uint32_le(bmp_file);
+        planes := get_uint16_le(bmp_file);
+        bits :=   get_uint16_le(bmp_file);
+        stri :=   gets(bmp_file, 26);
         padding := -(3 * width) mod 4;
 (*
         write("size: ");    writeln(size);
