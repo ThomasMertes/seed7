@@ -263,7 +263,7 @@ const func string: oct_str (in var integer: number) is func
 
 
 (**
- *  Reads a BASIC symbol from 'line'.
+ *  Reads a BASIC symbol from a 'string'.
  *  When the function is called it is assumed that 'line' is empty or
  *  line[1] contains the first character to be handled. When the
  *  function is left 'line' is empty or line[1] contains the character
@@ -271,29 +271,33 @@ const func string: oct_str (in var integer: number) is func
  *    - A name: A letter followed by letters, digits or '.'.
  *              Optionally a '$', '%', '!', '#' or '&' can be added.
  *    - An integer number: A sequence of digits.
- *    - A float number: A sequence of digits which contains one decimal
- *              point. An optional exponent may follow. When an
- *              exponent is present the decimal point may be ommited.
- *              The exponent is introduced with 'E' or 'e' followed
- *              by an optional sign ('+' or '-') and a sequence of
- *              digits. When the float number does start with '.' a
- *              '0' is added in front of the returned symbol.
- *    - A hex literal: It starts with '&H' followed by hex digits.
- *              A hex literal is converted to decimal and the decimal
- *              literal is returned.
- *    - An octal literal: It starts with '&O' followed by octal digits.
- *              An octal literal is converted to decimal and the
+ *    - A float number: A sequence of digits which contains one
+ *              decimal point. An optional exponent may follow. When
+ *              an exponent is present the decimal point may be
+ *              ommited. The exponent is introduced with 'E' or 'e'
+ *              followed by an optional sign ('+' or '-') and a
+ *              sequence of digits. When the float number does start
+ *              with '.' a '0' is added in front of the returned
+ *              symbol.
+ *    - A hex literal: It starts with '&H' or '&h' followed by hex
+ *              digits. A hex literal is converted to decimal and the
  *              decimal literal is returned.
+ *    - An octal literal: It starts with '&O' or '&o' followed by
+ *              octal digits. An octal literal is converted to decimal
+ *              and the decimal literal is returned.
  *    - A string literal: A sequence of characters enclosed in double
  *              quotation marks. A string literal is returned with the
  *              introducing " but without the ending " .
  *    - A special symbol: The symbols '<>', '<=' and '>=' are special
  *              symbols consisting of two characters. There can be a
- *              spaces and tabs between the two characters. Such spaces
- *              and tabs are removed from the symbol.
- *    - A one character symbol: When no other symbols can be recognized
- *              a symbol consisting of one character is created.
- *              E.g.: '=', '+', '-'.
+ *              spaces and tabs between the two characters. Such
+ *              spaces and tabs are removed from the symbol.
+ *              It is even possible that the two characters of a
+ *              special symbol are interchanged. In this case the
+ *              symbol is returned in the standardized form.
+ *    - A one character symbol: When no other symbols can be
+ *              recognized a symbol consisting of one character is
+ *              created. E.g.: '=', '+', '-'.
  *  @return the BASIC symbol or "" at the end of the line.
  *)
 const func string: get_symbol (inout string: line) is func
@@ -312,7 +316,7 @@ const func string: get_symbol (inout string: line) is func
         if start <= leng then
           ch := line[start];
         else
-          ch :=  '\0\';
+          ch := '\0\';
         end if;
       until ch <> ' ' and ch <> '\t';
       index := start;
@@ -323,7 +327,7 @@ const func string: get_symbol (inout string: line) is func
             if index <= leng then
               ch := line[index];
             else
-              ch :=  ' ';
+              ch := ' ';
             end if;
           until ch not in basic_name_char;
           if ch = '$' or ch = '%' or ch = '!' or ch = '#' or ch = '&' then
@@ -337,7 +341,7 @@ const func string: get_symbol (inout string: line) is func
             if index <= leng then
               ch := line[index];
             else
-              ch :=  ' ';
+              ch := ' ';
             end if;
           until ch not in digit_char;
           if ch = '.' then
@@ -348,7 +352,7 @@ const func string: get_symbol (inout string: line) is func
                 if index <= leng then
                   ch := line[index];
                 else
-                  ch :=  ' ';
+                  ch := ' ';
                 end if;
               until ch not in digit_char;
             end if;
@@ -358,7 +362,7 @@ const func string: get_symbol (inout string: line) is func
             if index <= leng then
               ch := line[index];
             else
-              ch :=  ' ';
+              ch := ' ';
             end if;
             if ch in digit_char or ch = '+' or ch = '-' then
               if ch = '+' or ch = '-' then
@@ -366,7 +370,7 @@ const func string: get_symbol (inout string: line) is func
                 if index <= leng then
                   ch := line[index];
                 else
-                  ch :=  ' ';
+                  ch := ' ';
                 end if;
               end if;
               while ch in digit_char do
@@ -374,7 +378,7 @@ const func string: get_symbol (inout string: line) is func
                 if index <= leng then
                   ch := line[index];
                 else
-                  ch :=  ' ';
+                  ch := ' ';
                 end if;
               end while;
             else
@@ -394,7 +398,7 @@ const func string: get_symbol (inout string: line) is func
               if index <= leng then
                 ch := line[index];
               else
-                ch :=  ' ';
+                ch := ' ';
               end if;
             until ch not in digit_char;
             if ch = 'E' or ch = 'e' then
@@ -402,7 +406,7 @@ const func string: get_symbol (inout string: line) is func
               if index <= leng then
                 ch := line[index];
               else
-                ch :=  ' ';
+                ch := ' ';
               end if;
               if ch in digit_char or ch = '+' or ch = '-' then
                 if ch = '+' or ch = '-' then
@@ -410,7 +414,7 @@ const func string: get_symbol (inout string: line) is func
                   if index <= leng then
                     ch := line[index];
                   else
-                    ch :=  ' ';
+                    ch := ' ';
                   end if;
                 end if;
                 while ch in digit_char do
@@ -418,7 +422,7 @@ const func string: get_symbol (inout string: line) is func
                   if index <= leng then
                     ch := line[index];
                   else
-                    ch :=  ' ';
+                    ch := ' ';
                   end if;
                 end while;
               else
@@ -480,7 +484,7 @@ const func string: get_symbol (inout string: line) is func
             if index <= leng then
               ch := line[index];
             else
-              ch :=  '\0\';
+              ch := '\0\';
             end if;
           until ch <> ' ' and ch <> '\t';
           if ch = '>' then
@@ -500,7 +504,7 @@ const func string: get_symbol (inout string: line) is func
             if index <= leng then
               ch := line[index];
             else
-              ch :=  '\0\';
+              ch := '\0\';
             end if;
           until ch <> ' ' and ch <> '\t';
           if ch = '=' then
@@ -520,7 +524,7 @@ const func string: get_symbol (inout string: line) is func
             if index <= leng then
               ch := line[index];
             else
-              ch :=  '\0\';
+              ch := '\0\';
             end if;
           until ch <> ' ' and ch <> '\t';
           if ch = '<' then

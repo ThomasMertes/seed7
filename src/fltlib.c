@@ -159,6 +159,23 @@ listtype arguments;
 
 #ifdef ANSI_C
 
+objecttype flt_cast (listtype arguments)
+#else
+
+objecttype flt_cast (arguments)
+listtype arguments;
+#endif
+
+  { /* flt_cast */
+    isit_float(arg_3(arguments));
+    /* The float value is taken as int on purpose */
+    return(bld_int_temp(take_int(arg_3(arguments))));
+  } /* flt_cast */
+
+
+
+#ifdef ANSI_C
+
 objecttype flt_ceil (listtype arguments)
 #else
 

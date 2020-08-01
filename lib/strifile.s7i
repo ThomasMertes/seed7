@@ -1,0 +1,165 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  strifile.s7i  string file library (uses a string)               *)
+(*  Copyright (C) 2008  Thomas Mertes                               *)
+(*                                                                  *)
+(*  This file is part of the Seed7 Runtime Library.                 *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is free software; you can             *)
+(*  redistribute it and/or modify it under the terms of the GNU     *)
+(*  Lesser General Public License as published by the Free Software *)
+(*  Foundation; either version 2.1 of the License, or (at your      *)
+(*  option) any later version.                                      *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is distributed in the hope that it    *)
+(*  will be useful, but WITHOUT ANY WARRANTY; without even the      *)
+(*  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR *)
+(*  PURPOSE.  See the GNU Lesser General Public License for more    *)
+(*  details.                                                        *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU Lesser General       *)
+(*  Public License along with this program; if not, write to the    *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+const type: strifile is sub null_file struct
+    var string: content is "";
+    var integer: position is 1;
+  end struct;
+
+type_implements_interface(strifile, file);
+
+
+const func strifile: malloc (in strifile: aStrifile) is func
+  result
+    var strifile: result is strifile.value;
+  begin
+    result := aStrifile;
+  end func;
+
+
+const func file: openStrifile (in string: content) is func
+  result
+    var file: result is STD_NULL;
+  local
+    var strifile: new_strifile is strifile.value;
+  begin
+    new_strifile.content := content;
+    result := malloc(new_strifile);
+  end func;
+
+
+const proc: close (in strifile: aStrifile) is noop;
+
+
+const proc: flush (in strifile: aStrifile) is noop;
+
+
+(**
+ *  Write the string 'stri' to 'aStrifile'.
+ *)
+const proc: write (inout strifile: aStrifile, in string: stri) is func
+  begin
+    if aStrifile.position = succ(length(aStrifile.content)) then
+      aStrifile.content &:= stri;
+    elsif aStrifile.position <= length(aStrifile.content) then
+      aStrifile.content := aStrifile.content[.. pred(aStrifile.position)] &
+          stri & aStrifile.content[aStrifile.position + length(stri) ..];
+    elsif aStrifile.position > length(aStrifile.content) then
+      aStrifile.content &:=
+        " " mult pred(aStrifile.position - length(aStrifile.content)) &
+        stri;
+    end if;
+    aStrifile.position +:= length(stri);
+  end func;
+
+
+const proc: backSpace (inout strifile: aStrifile) is func
+  begin
+    if aStrifile.position > 1 then
+      decr(aStrifile.position);
+    end if;
+  end func;
+
+
+(**
+ *  Return a character read from 'aStrifile'.
+ *)
+const func char: getc (inout strifile: aStrifile) is func
+  result
+    var char: result is ' ';
+  begin
+    if aStrifile.position <= length(aStrifile.content) then
+      result := aStrifile.content[aStrifile.position];
+      incr(aStrifile.position);
+    else
+      result := EOF;
+    end if;
+  end func;
+
+
+(**
+ *  Return a string read with a maximum length 'leng' from
+ *  'aStrifile'.
+ *)
+const func string: gets (inout strifile: aStrifile, in var integer: leng) is func
+  result
+    var string: result is "";
+  begin
+    if pred(aStrifile.position + leng) <= length(aStrifile.content) then
+      result := aStrifile.content[aStrifile.position len leng];
+      aStrifile.position +:= leng;
+    else
+      result := aStrifile.content[aStrifile.position ..];
+      aStrifile.position := succ(length(aStrifile.content));
+    end if;
+  end func;
+
+
+const func string: getwd (inout strifile: aStrifile) is func
+  result
+    var string: stri is "";
+  begin
+    noop; # todo
+  end func;
+
+
+(**
+ *  Return a line read from 'aStrifile'.
+ *  A strifile works as if all lines end with '\n'.
+ *  The line ending character is not copied into the string.
+ *  When the function is left the inFile.bufferChar contains '\n' or
+ *  EOF.
+ *)
+const func string: getln (inout strifile: aStrifile) is func
+  result
+    var string: stri is "";
+  begin
+    noop; # todo
+  end func;
+
+
+const func boolean: eof (in strifile: aStrifile) is
+  return aStrifile.position > length(aStrifile.content);
+
+
+const func boolean: hasNext (in strifile: aStrifile) is
+  return aStrifile.position <= length(aStrifile.content);
+
+
+const func integer: length (in strifile: aStrifile) is
+  return length(aStrifile.content);
+
+
+const proc: seek (inout strifile: aStrifile, in integer: pos) is func
+  begin
+    aStrifile.position := pos;
+  end func;
+
+
+const func integer: tell (in strifile: aStrifile) is
+  return aStrifile.position;

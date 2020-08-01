@@ -46,28 +46,29 @@ CONTENTS
   5.4     rational
   5.5     bigRational
   5.6     float
-  5.7     char
-  5.8     string
-  5.9     array
-  5.10    hash
-  5.11    set
-  5.12    struct
-  5.13    reference
-  5.14    ref_list
-  5.15    ptr
-  5.16    ENUMERATION
-  5.17    color
-  5.18    time
-  5.19    duration
-  5.20    file
-  5.21    text
-  5.22    func
-  5.23    varfunc
-  5.24    void
-  5.25    proc
-  5.26    type
-  5.27    object
-  5.28    expr
+  5.7     complex
+  5.8     char
+  5.9     string
+  5.10    array
+  5.11    hash
+  5.12    set
+  5.13    struct
+  5.14    reference
+  5.15    ref_list
+  5.16    ptr
+  5.17    ENUMERATION
+  5.18    color
+  5.19    time
+  5.20    duration
+  5.21    file
+  5.22    text
+  5.23    func
+  5.24    varfunc
+  5.25    void
+  5.26    proc
+  5.27    type
+  5.28    object
+  5.29    expr
   6.    PARAMETERS
   6.1     'val' parameter
   6.2     'ref' parameter
@@ -2176,7 +2177,63 @@ CONTENTS
                   ( A *:= B => A := A * B )
 
 
-5.7 char
+5.7 complex
+
+    The type 'complex' consists of complex numbers.
+
+    Prefix operators:
+      +         Identity
+      -         Change sign
+    Infix operators:
+      +         Addition
+      -         Subtraction
+      *         Multiplication
+      /         Division
+                  ( A / complex(0.0) => complex(NaN, NaN) )
+      **        Power
+                  ( Type of right operand: integer
+                    A ** B is okay for A > complex(0.0),
+                    A ** B is okay for A < complex(0.0),
+                    A ** 0 => complex(1.0),
+                    complex(0.0) ** B => complex(0.0) for B > 0,
+                    complex(0.0) ** 0 => complex(1.0),
+                    complex(0.0) ** B => complex(Infinity, NaN) for B < 0 )
+      digits    Conversion to string with specified precision
+                  ( Type of right operand: integer,
+                    Type of result: string,
+                    complex(3.1415) digits 2 => "3.14+0.00i" )
+      complex parse A   Conversion of string to complex
+                  ( Type of argument A: string )
+    Relations:
+      =, <>
+    Functions:
+      abs(A)    Absolute value
+                  ( Type of result: float )
+      sqrAbs(A) Square of absolute value
+                  ( Type of result: float )
+      arg(A)    Argument (=angle of the polar form of A)
+                  ( Type of result: float )
+      complex(A, B)  Return a complex number from its real and imaginary part
+                  ( Type of argument A: float,
+                    Type of argument B: float )
+      complex(A)  Return a complex number from its real part
+                  ( Type of argument A: float )
+      polar(A, B)  Return a complex number from polar coordinates
+                  ( Type of argument A: float,
+                    Type of argument B: float )
+      str(A)    Conversion to string
+                  ( Type of result: string,
+                    str(complex(1.125)) => "1.125+0.0i" )
+    Statements:
+      A +:= B   Increment A by B
+                  ( A +:= B => A := A + B )
+      A -:= B   Decrement A by B
+                  ( A -:= B => A := A - B )
+      A *:= B   Multiplying copy
+                  ( A *:= B => A := A * B )
+
+
+5.8 char
 
     The type 'char' describes UNICODE characters. The 'char'
   values use the UTF-32 encoding. In the source file a
@@ -2247,7 +2304,7 @@ CONTENTS
                   ( decr(A) => A := pred(A) )
 
 
-5.8 string
+5.9 string
 
     The type 'string' describes sequences of UNICODE characters
   (including the empty string). The characters in the 'string'
@@ -2405,7 +2462,7 @@ CONTENTS
                     A @:= [succ(length(A))] 'x' => EXCEPTION RANGE_ERROR )
 
 
-5.9 array
+5.10 array
 
     The type 'array baseType' describes sequences of identical
   elements of a 'baseType'. (including the empty sequence).
@@ -2489,7 +2546,7 @@ CONTENTS
                   ( Type of argument C: baseType )
 
 
-5.10 hash
+5.11 hash
 
     The type 'hash [keyType] baseType' describes hash tables with
   elements of 'baseType' which can be accessed using an index of
@@ -2547,7 +2604,7 @@ CONTENTS
                     Type of argument D: proc )
 
 
-5.11 set
+5.12 set
 
     The type 'set of baseType' describes a set of elements of a
   'baseType'. (including the empty set).
@@ -2601,7 +2658,7 @@ CONTENTS
                     Type of argument C: proc )
 
 
-5.12 struct
+5.13 struct
 
     The type 'struct' describes all structured types.
 
@@ -2644,7 +2701,7 @@ CONTENTS
                   ( Type of argument B: reference )
 
 
-5.13 reference
+5.14 reference
 
     The type 'reference' describes a reference to any
   object.
@@ -2713,7 +2770,7 @@ CONTENTS
                   ( Type of argument B: ref_list )
 
 
-5.14 ref_list
+5.15 ref_list
 
     The type 'ref_list' describes a list of 'reference' objects.
 
@@ -2774,7 +2831,7 @@ CONTENTS
                     Type of argument C: proc )
 
 
-5.15 ptr
+5.16 ptr
 
     The type 'ptr baseType' describes a pointer to an object
   of a 'baseType'. With
@@ -2801,7 +2858,7 @@ CONTENTS
                   ( Type of argument ptrType: type )
 
 
-5.16 ENUMERATION
+5.17 ENUMERATION
 
     With
 
@@ -2841,7 +2898,7 @@ CONTENTS
                   ( decr(A) => A:=pred(A) )
 
 
-5.17 color
+5.18 color
 
     The type 'color' describes colors.
 
@@ -2876,7 +2933,7 @@ CONTENTS
                     Type of argument B: integer )
 
 
-5.18 time
+5.19 time
 
     The type 'time' describes times and dates.
 
@@ -2946,7 +3003,7 @@ CONTENTS
       await(A)  Wait until the given time
 
 
-5.19 duration
+5.20 duration
 
     The type 'duration' describes time and date durations.
 
@@ -2991,7 +3048,7 @@ CONTENTS
       wait(A)   Wait for given duration
 
 
-5.20 file
+5.21 file
 
     The type 'file' describes sequential files.
 
@@ -3083,7 +3140,7 @@ CONTENTS
                     seek(A, -1) => EXCEPTION RANGE_ERROR )
 
 
-5.21 text
+5.22 text
 
     The type 'text' describes two dimensional files.
 
@@ -3138,7 +3195,7 @@ CONTENTS
       cursor_off(A) Make the cursor invisible
 
 
-5.22 func
+5.23 func
 
     The type 'func baseType' describes functions which return
   a 'baseType'. For example: 'func integer' describes an 'integer'
@@ -3227,7 +3284,7 @@ CONTENTS
   parameter is 'TRUE'.
 
 
-5.23 varfunc
+5.24 varfunc
 
     The type 'varfunc baseType' describes functions which return
   a 'baseType' variable. For example: A function which returns an
@@ -3260,7 +3317,7 @@ CONTENTS
   and structs can be used in the usual way. 
 
 
-5.24 void
+5.25 void
 
     The type 'void' describes the empty type.
 
@@ -3268,7 +3325,7 @@ CONTENTS
       empty     This is the only value of the type 'void'.
 
 
-5.25 proc
+5.26 proc
 
     The type 'proc' describes procedures. The type 'proc'
   is defined as 'func void'.
@@ -3305,7 +3362,7 @@ CONTENTS
                     Type of result: proc )
 
 
-5.26 type
+5.27 type
 
     The type 'type' describes all types.
 
@@ -3362,7 +3419,7 @@ CONTENTS
                 Declare variable 'name' with 'value'
 
 
-5.27 object
+5.28 object
 
     The type 'object' is used as meta type for various types.
   This allows to define common operations for all this types.
@@ -3375,7 +3432,7 @@ CONTENTS
       TRACE_OBJ(A)  Write internal information
 
 
-5.28 expr
+5.29 expr
 
     The type 'expr' is used to describe unmatched expressions.
   This are expressions where the recognizing of the functions
@@ -4788,9 +4845,20 @@ CONTENTS
         ...
       end struct;
 
-  It is not necessary to derive the NEW_FILE type direct from
+  It is not necessary to derive the NEW_FILE type directly from
   'null_file'. The NEW_FILE type may also be an indirect descendant
   of 'null_file'. So it is possible to create file type hierarchies.
+  The interface implemented by the new file needs also to be specified:
+
+    type_implements_interface(NEW_FILE, file);
+
+  The type file is not the only interface
+  type which can be used. There is also the type text which
+  is derived from file. The type text
+  describes a line oriented file which allows 'setPos' (which moves the
+  current position to the line and column specified) and other functions.
+  It is also possible to define new interface types which derive
+  from file or text.
 
   As next an open function is needed to generate a new NEW_FILE:
 
@@ -4824,6 +4892,271 @@ CONTENTS
         (* Statements that do the input *)
         ...
       end func;
+
+
+8.7 Scanning a file
+
+    The I/O concept introduced in the previous chapters separates
+  the input of data from it's conversion. The 'read', 'readln',
+  'getwd' and 'getln' functions are designed to read whitespace
+  separated data elements. When the data elements are not separated
+  by whitespace characters this I/O concept is not possible.
+  Instead the functions which read from the file need some
+  knowledge about the type which they intend to read. Fortunately
+  this is a well researched area. The lexical scanners used by
+  compilers solve exactly this problem.
+
+  Lexical scanners read symbols from a file and use the concept of
+  a current character. A symbol can be a name, a number, a string,
+  an operator, a parenthesis or something else. The current
+  character is the first character to be processed when scanning a
+  symbol. After a scanner has read a symbol the current character
+  contains the character just after the symbol. This character
+  could be the first character of the next symbol or some
+  whitespace character. If the set of symbols is choosen wisely all
+  decisions about the type of the symbol and when to stop reading
+  characters for a symbol can be done based on the current
+  character.
+
+  Every 'file' contains a 'bufferChar' variable which is used as
+  current character by the scanner functions defined in the
+  "scanfile.s7i" library. The "scanfile.s7i" library contains
+  skip... and get... functions. The skip... procedures return void
+  and are used to skip input while the get... functions return the
+  string of characters they have read. The following basic scanner
+  functions are defined in the "scanfile.s7i" library:
+
+    skipComment
+      Skips a possibly nested comment from a 'file'.
+    getComment
+      Reads a possibly nested comment from a 'file'.
+    skipLineComment
+      Skips a line comment from a 'file'.
+    getLineComment
+      Reads a line comment from a 'file'.
+    getDigits
+      Reads a sequence of digits from a 'file'.
+    getNumber
+      Reads a numeric literal from a 'file'.
+    getCharLiteral
+      Reads a character literal from a 'file'.
+    getStringLiteral
+      Reads a string literal from a 'file'.
+    getName
+      Reads an alphanumeric name from a 'file'.
+
+  Contrary to 'read' and 'getwd' basic scanner functions
+  do not skip leading whitespace characters. To skip whitespace
+  characters one of the following functions can be used:
+
+    skipSpace
+      Skips space characters from a 'file'.
+    skipWhiteSpace
+      Skips whitespace characters from a 'file'.
+    getWhiteSpace
+      Reads whitespace characters from a 'file'.
+    skipLine
+      Skips a line from a 'file'.
+    getLine
+      Reads a line from a 'file'.
+
+  The advanced scanner functions do skip whitespace characters
+  before reading a symbol:
+
+    getSymbolOrComment
+      Reads a symbol or a comment from a 'file'.
+    getSymbol
+      Reads a symbol from a 'file'.
+    getHtmlTagSymbolOrComment
+      Reads a HTML tag, a symbol or a comment from a 'file'.
+    getHtmlTagOrContent
+      Reads a HTML tag or the HTML content text from a 'file'.
+    getSimpleSymbol
+      Reads a simple symbol from a 'file'.
+
+  All scanner functions assume that the first character to be
+  processed is in 'bufferChar' and after they are finished the next
+  character which should be processed is also in 'bufferChar'.
+  To use scanner functions for a new opened file it is necessary to
+  assign the first character to the 'bufferChar' with:
+
+    myFile.bufferChar := getc(myFile);
+
+  In most cases whole files are either processed with normal I/O
+  functions or with scanner functions. When normal I/O functions
+  need to be combined with scanner functions care has to be taken:
+
+    - When the last function which read from a file was
+      one of 'read', 'readln', 'getwd' or 'getln'
+      the 'bufferChar' already contains the character which
+      should be processed next and therefore subsequent scanner
+      functions can be used.
+    - Other I/O functions like 'getc' and 'gets'
+      do not assign something to 'bufferChar'. In this
+      case something should be assigned to 'bufferChar'.
+    - Switching back from scanner functions to
+      normal I/O functions is best done when the content of
+      'bufferChar' is known. For example at the end
+      of the line.
+
+  Scanner functions are helpful when it is necessary to read
+  numeric input without failing when no digits are present:
+
+    skipWhiteSpace(IN);
+    if eoln(IN) then
+      writeln("empty input");
+    elsif IN.bufferChar in {'0' .. '9'} then
+      number := integer parse getDigits(IN);
+      skipLine(IN);
+      writeln("number " <& number);
+    else
+      stri := getLine(IN);
+      writeln("command " <& literal(stri));
+    end if;
+
+  The function 'getSymbol' is designed to read Seed7 symbols. When
+  it returns "" the end of the file is reached. The following loop
+  can be used to process the symbols of a Seed7 program:
+
+    inFile.bufferChar := getc(inFile);
+    currSymbol := getSymbol(inFile);
+    while currSymbol <> "" do
+      ... process currSymbol ...
+      currSymbol := getSymbol(inFile);
+    end while;
+
+  Whitespace and comments are automatically skipped with the
+  function 'getSymbol'. When comments should also be returned the
+  function 'getSymbolOrComment' can be used. Together with the
+  function 'getWhiteSpace' it is even possible to get the
+  whitespace between the symbols:
+
+    const func string: processFile (in string: fileName) is func
+      result
+        var string: result is "";
+      local
+        var file: inFile is STD_NULL;
+        var string: currSymbol is "";
+      begin
+        inFile := open(fileName, "r");
+        if inFile <> STD_NULL then
+          inFile.bufferChar := getc(inFile);
+          result := getWhiteSpace(inFile);
+          currSymbol := getSymbolOrComment(inFile);
+          while currSymbol <> "" do
+            result &:= currSymbol;
+            result &:= getWhiteSpace(inFile);
+            currSymbol := getSymbolOrComment(inFile);
+          end while;
+        end if;
+      end func;
+
+  In the example above the function 'processFile' gathers all
+  symbols, whitespace and comments in the string it returns. The
+  string returned by 'processFile' is equivalent to the one
+  returned by the function 'getf'. That way it is easy to test
+  the scanner functionality.
+
+  The logic with 'getWhiteSpace' and 'getSymbolOrComment' can be used
+  to add HTML tags to comments and literals. The following function
+  colors comments with green, string and char literals with maroon and
+  numeric literals with purple:
+
+    const proc: sourceToHtml (inout file: inFile, inout file: outFile) is func
+      local
+        var string: currSymbol is "";
+      begin
+        inFile.bufferChar := getc(inFile);
+        write(outFile, "<pre>\n");
+        write(outFile, getWhiteSpace(inFile));
+        currSymbol := getSymbolOrComment(inFile);
+        while currSymbol <> "" do
+          currSymbol := replace(currSymbol, "&amp;", "&amp;amp;");
+          currSymbol := replace(currSymbol, "<", "&amp;lt;");
+          if currSymbol[1] in {'"', '''} then
+            write(outFile, "<font color=\"maroon\">");
+            write(outFile, currSymbol);
+            write(outFile, "</font>");
+          elsif currSymbol[1] = '#' or startsWith(currSymbol, "(*") then
+            write(outFile, "<font color=\"green\">");
+            write(outFile, currSymbol);
+            write(outFile, "</font>");
+          elsif currSymbol[1] in digit_char then
+            write(outFile, "<font color=\"purple\">");
+            write(outFile, currSymbol);
+            write(outFile, "</font>");
+          else
+            write(outFile, currSymbol);
+          end if;
+          write(outFile, getWhiteSpace(inFile));
+          currSymbol := getSymbolOrComment(inFile);
+        end while;
+        write(outFile, "</pre>\n");
+      end func;
+
+  The functions 'skipSpace' and 'skipWhiteSpace' are defined in
+  the "scanfile.s7i" library as follows:
+
+    const proc: skipSpace (inout file: inFile) is func
+      local
+        var char: ch is ' ';
+      begin
+        ch := inFile.bufferChar;
+        while ch = ' ' do
+          ch := getc(inFile);
+        end while;
+        inFile.bufferChar := ch;
+      end func;
+
+    const proc: skipWhiteSpace (inout file: inFile) is func
+      begin
+        while inFile.bufferChar in white_space_char do
+          inFile.bufferChar := getc(inFile);
+        end while;
+      end func;
+
+  The functions 'skipComment' and 'skipLineComment', which can be
+  used to skip Seed7 comments, are defined as follows:
+
+    const proc: skipComment (inout file: inFile) is func
+      local
+        var char: character is ' ';
+      begin
+        character := getc(inFile);
+        repeat
+          repeat
+            while character not in special_comment_char do
+              character := getc(inFile);
+            end while;
+            if character = '(' then
+              character := getc(inFile);
+              if character = '*' then
+                skipComment(inFile);
+                character := getc(inFile);
+              end if;
+            end if;
+          until character = '*' or character = EOF;
+          if character <> EOF then
+            character := getc(inFile);
+          end if;
+        until character = ')' or character = EOF;
+        if character = EOF then
+          inFile.bufferChar := EOF;
+        else
+          inFile.bufferChar := getc(inFile);
+        end if;
+      end func; # skipComment
+
+    const proc: skipLineComment (inout file: inFile) is func
+      local
+        var char: character is ' ';
+      begin
+        repeat
+          character := getc(inFile);
+        until character = '\n' or character = EOF;
+        inFile.bufferChar := character;
+      end func; # skipLineComment
+
 
 
 

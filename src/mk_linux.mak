@@ -155,7 +155,7 @@ version.h:
 	echo "long number;" >> chkshift.c
 	echo "number = -1;" >> chkshift.c
 	echo "if (number >> 1 == (long) -1) {" >> chkshift.c
-	echo "printf(\"\043define RSHIFT_DOES_SIGN_EXTEND\n\");" >> chkshift.c
+	echo "puts(\"#define RSHIFT_DOES_SIGN_EXTEND\");" >> chkshift.c
 	echo "}" >> chkshift.c
 	echo "return 0;" >> chkshift.c
 	echo "}" >> chkshift.c

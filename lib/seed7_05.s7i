@@ -2879,7 +2879,7 @@ const func boolean: hasNext (ref file param) is DYNAMIC;
  *)
 const func integer: length (ref file param) is DYNAMIC;
 
-const proc: seek (ref file param, in integer param) is DYNAMIC;
+const proc: seek (inout file param, in integer param) is DYNAMIC;
 const func integer: tell (ref file param) is DYNAMIC;
 const func char: (ref file param).bufferChar is DYNAMIC;
 const varfunc char: (inout file param).bufferChar is DYNAMIC;

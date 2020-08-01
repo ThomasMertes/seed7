@@ -28,6 +28,26 @@ $ include "seed7_05.s7i";
   include "getf.s7i";
 
 
+const func string: processFile (in string: fileName) is func
+  result
+    var string: result is "";
+  local
+    var file: inFile is STD_NULL;
+    var string: currSymbol is "";
+  begin
+    inFile := open(fileName, "r");
+    if inFile <> STD_NULL then
+      inFile.bufferChar := getc(inFile);
+      result := getWhiteSpace(inFile);
+      currSymbol := getSymbolOrComment(inFile);
+      while currSymbol <> "" do
+        result &:= currSymbol;
+        result &:= getWhiteSpace(inFile);
+        currSymbol := getSymbolOrComment(inFile);
+      end while;
+    end if;
+  end func;
+
 const proc: main is func
   local
     var array string: directoryContent is 0 times "";
@@ -43,9 +63,19 @@ const proc: main is func
       if endsWith(fileName, ".sd7") then
         write(literal(fileName) <& " ");
         flush(OUT);
+        originalFile := getf(fileName);
+        processedFile := processFile(fileName);
+        if processedFile <> originalFile then
+          write(" *** Differ");
+          putf(fileName & ".xxx", processedFile);
+        end if;
+        write(".");
+        flush(OUT);
+
         inFile := open(fileName, "r");
         if inFile <> STD_NULL then
-          processedFile := getWhiteSpace(inFile)[2 ..];
+          inFile.bufferChar := getc(inFile);
+          processedFile := getWhiteSpace(inFile);
           currSymbol := getSymbolOrComment(inFile);
           while currSymbol <> "" do
             # writeln(literal(currSymbol));
@@ -53,7 +83,6 @@ const proc: main is func
             processedFile &:= getWhiteSpace(inFile);
             currSymbol := getSymbolOrComment(inFile);
           end while;
-          originalFile := getf(fileName);
           if processedFile <> originalFile then
             write(" *** Differ");
             putf(fileName & ".xxx", processedFile);

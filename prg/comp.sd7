@@ -4980,6 +4980,26 @@ const proc: process_flt_atan (in ref_list: params, inout expr_type: c_expr) is f
   end func;
 
 
+const proc: process_flt_cast (in ref_list: params, inout expr_type: c_expr) is func
+
+  local
+    var integer: temp_num is 0;
+  begin
+    incr(c_expr.temp_num);
+    temp_num := c_expr.temp_num;
+    c_expr.temp_decls &:= "float2int tmp_";
+    c_expr.temp_decls &:= str(temp_num);
+    c_expr.temp_decls &:= ";\n";
+    c_expr.expr &:= "(tmp_";
+    c_expr.expr &:= str(temp_num);
+    c_expr.expr &:= ".floatvalue=(";
+    process_expr(params[3], c_expr);
+    c_expr.expr &:= "),tmp_";
+    c_expr.expr &:= str(temp_num);
+    c_expr.expr &:= ".intvalue)";
+  end func;
+
+
 const proc: process_flt_ceil (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
@@ -10553,6 +10573,8 @@ const proc: process_action (in reference: procedure, in ref_list: params,
         process_flt_asin(params, c_expr);
       elsif action_name = "FLT_ATAN" then
         process_flt_atan(params, c_expr);
+      elsif action_name = "FLT_CAST" then
+        process_flt_cast(params, c_expr);
       elsif action_name = "FLT_CEIL" then
         process_flt_ceil(params, c_expr);
       elsif action_name = "FLT_CMP" then

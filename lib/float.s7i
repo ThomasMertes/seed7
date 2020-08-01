@@ -55,8 +55,8 @@ const func boolean: (ref float param) > (ref float param) is       action "FLT_G
 const func boolean: (ref float param) <= (ref float param) is      action "FLT_LE";
 const func boolean: (ref float param) >= (ref float param) is      action "FLT_GE";
 const func boolean: (ref float param) <> (ref float param) is      action "FLT_NE";
+const func integer: (attr integer) cast (in float param) is        action "FLT_CAST";
 const func float: (attr float) cast (in integer param) is          action "FLT_ICAST";
-const varfunc float: (attr float) varCast (inout integer param) is action "TYP_VARCONV";
 
 
 (**

@@ -46,28 +46,29 @@
 <li><!--   5.4      --><a href="#rational"><b>rational</b></a></li>
 <li><!--   5.5      --><a href="#bigRational"><b>bigRational</b></a></li>
 <li><!--   5.6      --><a href="#float"><b>float</b></a></li>
-<li><!--   5.7      --><a href="#char"><b>char</b></a></li>
-<li><!--   5.8      --><a href="#string"><b>string</b></a></li>
-<li><!--   5.9      --><a href="#array"><b>array</b></a></li>
-<li><!--   5.10     --><a href="#hash"><b>hash</b></a></li>
-<li><!--   5.11     --><a href="#set"><b>set</b></a></li>
-<li><!--   5.12     --><a href="#struct"><b>struct</b></a></li>
-<li><!--   5.13     --><a href="#reference"><b>reference</b></a></li>
-<li><!--   5.14     --><a href="#ref_list"><b>ref_list</b></a></li>
-<li><!--   5.15     --><a href="#ptr"><b>ptr</b></a></li>
-<li><!--   5.16     --><a href="#ENUMERATION"><b>ENUMERATION</b></a></li>
-<li><!--   5.17     --><a href="#color"><b>color</b></a></li>
-<li><!--   5.18     --><a href="#time"><b>time</b></a></li>
-<li><!--   5.19     --><a href="#duration"><b>duration</b></a></li>
-<li><!--   5.20     --><a href="#file"><b>file</b></a></li>
-<li><!--   5.21     --><a href="#text"><b>text</b></a></li>
-<li><!--   5.22     --><a href="#func"><b>func</b></a></li>
-<li><!--   5.23     --><a href="#varfunc"><b>varfunc</b></a></li>
-<li><!--   5.24     --><a href="#void"><b>void</b></a></li>
-<li><!--   5.25     --><a href="#proc"><b>proc</b></a></li>
-<li><!--   5.26     --><a href="#type"><b>type</b></a></li>
-<li><!--   5.27     --><a href="#object"><b>object</b></a></li>
-<li><!--   5.28     --><a href="#expr"><b>expr</b></a></li></ol>
+<li><!--   5.7      --><a href="#complex"><b>complex</b></a></li>
+<li><!--   5.8      --><a href="#char"><b>char</b></a></li>
+<li><!--   5.9      --><a href="#string"><b>string</b></a></li>
+<li><!--   5.10     --><a href="#array"><b>array</b></a></li>
+<li><!--   5.11     --><a href="#hash"><b>hash</b></a></li>
+<li><!--   5.12     --><a href="#set"><b>set</b></a></li>
+<li><!--   5.13     --><a href="#struct"><b>struct</b></a></li>
+<li><!--   5.14     --><a href="#reference"><b>reference</b></a></li>
+<li><!--   5.15     --><a href="#ref_list"><b>ref_list</b></a></li>
+<li><!--   5.16     --><a href="#ptr"><b>ptr</b></a></li>
+<li><!--   5.17     --><a href="#ENUMERATION"><b>ENUMERATION</b></a></li>
+<li><!--   5.18     --><a href="#color"><b>color</b></a></li>
+<li><!--   5.19     --><a href="#time"><b>time</b></a></li>
+<li><!--   5.20     --><a href="#duration"><b>duration</b></a></li>
+<li><!--   5.21     --><a href="#file"><b>file</b></a></li>
+<li><!--   5.22     --><a href="#text"><b>text</b></a></li>
+<li><!--   5.23     --><a href="#func"><b>func</b></a></li>
+<li><!--   5.24     --><a href="#varfunc"><b>varfunc</b></a></li>
+<li><!--   5.25     --><a href="#void"><b>void</b></a></li>
+<li><!--   5.26     --><a href="#proc"><b>proc</b></a></li>
+<li><!--   5.27     --><a href="#type"><b>type</b></a></li>
+<li><!--   5.28     --><a href="#object"><b>object</b></a></li>
+<li><!--   5.29     --><a href="#expr"><b>expr</b></a></li></ol>
 <li><!--   6.     --><a href="#PARAMETERS"><big><b>PARAMETERS</b></big></a></li><ol>
 <li><!--   6.1      --><a href="#val_parameter"><b>'val' parameter</b></a></li>
 <li><!--   6.2      --><a href="#ref_parameter"><b>'ref' parameter</b></a></li>
@@ -2176,7 +2177,63 @@
                   ( A *:= B => A := A * B )
 </pre><p></p>
 
-<a name="char"><b>5.7 char</b></a>
+<a name="complex"><b>5.7 complex</b></a>
+<p>
+    The type <tt>'<font color=red>complex</font>'</tt> consists of complex numbers.
+</p><pre>
+    Prefix operators:
+      +         Identity
+      -         Change sign
+    Infix operators:
+      +         Addition
+      -         Subtraction
+      *         Multiplication
+      /         Division
+                  ( A / complex(0.0) => complex(NaN, NaN) )
+      **        Power
+                  ( Type of right operand: <font color=red>integer</font>
+                    A ** B is okay for A > complex(0.0),
+                    A ** B is okay for A &lt; complex(0.0),
+                    A ** 0 => complex(1.0),
+                    complex(0.0) ** B => complex(0.0) for B > 0,
+                    complex(0.0) ** 0 => complex(1.0),
+                    complex(0.0) ** B => complex(Infinity, NaN) for B &lt; 0 )
+      <font color=blue>digits</font>    Conversion to <font color=red>string</font> with specified precision
+                  ( Type of right operand: <font color=red>integer</font>,
+                    Type of result: <font color=red>string</font>,
+                    complex(3.1415) <font color=blue>digits</font> 2 => <font color=maroon>"3.14+0.00i"</font> )
+      <font color=red>complex</font> <font color=blue>parse</font> A   Conversion of <font color=red>string</font> to <font color=red>complex</font>
+                  ( Type of argument A: <font color=red>string</font> )
+    Relations:
+      =, &lt;>
+    Functions:
+      abs(A)    Absolute value
+                  ( Type of result: <font color=red>float</font> )
+      sqrAbs(A) Square of absolute value
+                  ( Type of result: <font color=red>float</font> )
+      arg(A)    Argument (=angle of the polar form of A)
+                  ( Type of result: <font color=red>float</font> )
+      complex(A, B)  Return a <font color=red>complex</font> number from its real and imaginary part
+                  ( Type of argument A: <font color=red>float</font>,
+                    Type of argument B: <font color=red>float</font> )
+      complex(A)  Return a <font color=red>complex</font> number from its real part
+                  ( Type of argument A: <font color=red>float</font> )
+      polar(A, B)  Return a <font color=red>complex</font> number from polar coordinates
+                  ( Type of argument A: <font color=red>float</font>,
+                    Type of argument B: <font color=red>float</font> )
+      str(A)    Conversion to <font color=red>string</font>
+                  ( Type of result: <font color=red>string</font>,
+                    str(complex(1.125)) => <font color=maroon>"1.125+0.0i"</font> )
+    Statements:
+      A +:= B   Increment A by B
+                  ( A +:= B => A := A + B )
+      A -:= B   Decrement A by B
+                  ( A -:= B => A := A - B )
+      A *:= B   Multiplying copy
+                  ( A *:= B => A := A * B )
+</pre><p></p>
+
+<a name="char"><b>5.8 char</b></a>
 <p>
     The type <tt>'<font color=red>char</font>'</tt> describes UNICODE characters. The <tt>'<font color=red>char</font>'</tt>
   values use the UTF-32 encoding. In the source file a
@@ -2247,7 +2304,7 @@
                   ( decr(A) => A := pred(A) )
 </pre><p></p>
 
-<a name="string"><b>5.8 string</b></a>
+<a name="string"><b>5.9 string</b></a>
 <p>
     The type <tt>'<font color=red>string</font>'</tt> describes sequences of UNICODE characters
   (including the empty string). The characters in the <tt>'<font color=red>string</font>'</tt>
@@ -2405,7 +2462,7 @@
                     A @:= [succ(length(A))] 'x' => EXCEPTION RANGE_ERROR )
 </pre><p></p>
 
-<a name="array"><b>5.9 array</b></a>
+<a name="array"><b>5.10 array</b></a>
 <p>
     The type <tt>'<font color=red>array baseType</font>'</tt> describes sequences of identical
   elements of a <tt>'<font color=red>baseType</font>'</tt>. (including the empty sequence).
@@ -2489,7 +2546,7 @@
                   ( Type of argument C: <font color=red>baseType</font> )
 </pre><p></p>
 
-<a name="hash"><b>5.10 hash</b></a>
+<a name="hash"><b>5.11 hash</b></a>
 <p>
     The type <tt>'<font color=red>hash [keyType] baseType</font>'</tt> describes hash tables with
   elements of <tt>'<font color=red>baseType</font>'</tt> which can be accessed using an index of
@@ -2547,7 +2604,7 @@
                     Type of argument D: <font color=red>proc</font> )
 </pre><p></p>
 
-<a name="set"><b>5.11 set</b></a>
+<a name="set"><b>5.12 set</b></a>
 <p>
     The type <tt>'<font color=red>set of baseType</font>'</tt> describes a set of elements of a
   <tt>'<font color=red>baseType</font>'</tt>. (including the empty set).
@@ -2601,7 +2658,7 @@
                     Type of argument C: <font color=red>proc</font> )
 </pre><p></p>
 
-<a name="struct"><b>5.12 struct</b></a>
+<a name="struct"><b>5.13 struct</b></a>
 <p>
     The type <tt>'<font color=red>struct</font>'</tt> describes all structured types.
 </p><pre>
@@ -2644,7 +2701,7 @@
                   ( Type of argument B: <font color=red>reference</font> )
 </pre><p></p>
 
-<a name="reference"><b>5.13 reference</b></a>
+<a name="reference"><b>5.14 reference</b></a>
 <p>
     The type <tt>'<font color=red>reference</font>'</tt> describes a reference to any
   object.
@@ -2713,7 +2770,7 @@
                   ( Type of argument B: <font color=red>ref_list</font> )
 </pre><p></p>
 
-<a name="ref_list"><b>5.14 ref_list</b></a>
+<a name="ref_list"><b>5.15 ref_list</b></a>
 <p>
     The type <tt>'<font color=red>ref_list</font>'</tt> describes a list of <tt>'<font color=red>reference</font>'</tt> objects.
 </p><pre>
@@ -2774,7 +2831,7 @@
                     Type of argument C: <font color=red>proc</font> )
 </pre><p></p>
 
-<a name="ptr"><b>5.15 ptr</b></a>
+<a name="ptr"><b>5.16 ptr</b></a>
 <p>
     The type <tt>'<font color=red>ptr baseType</font>'</tt> describes a pointer to an object
   of a <tt>'<font color=red>baseType</font>'</tt>. With
@@ -2801,7 +2858,7 @@
                   ( Type of argument <font color=red>ptrType</font>: <font color=red>type</font> )
 </pre><p></p>
 
-<a name="ENUMERATION"><b>5.16 ENUMERATION</b></a>
+<a name="ENUMERATION"><b>5.17 ENUMERATION</b></a>
 <p>
     With
 </p><pre>
@@ -2841,7 +2898,7 @@
                   ( decr(A) => A:=pred(A) )
 </pre><p></p>
 
-<a name="color"><b>5.17 color</b></a>
+<a name="color"><b>5.18 color</b></a>
 <p>
     The type <tt>'<font color=red>color</font>'</tt> describes colors.
 </p><pre>
@@ -2876,7 +2933,7 @@
                     Type of argument B: <font color=red>integer</font> )
 </pre><p></p>
 
-<a name="time"><b>5.18 time</b></a>
+<a name="time"><b>5.19 time</b></a>
 <p>
     The type <tt>'<font color=red>time</font>'</tt> describes times and dates.
 </p><pre>
@@ -2946,7 +3003,7 @@
       await(A)  Wait until the given time
 </pre><p></p>
 
-<a name="duration"><b>5.19 duration</b></a>
+<a name="duration"><b>5.20 duration</b></a>
 <p>
     The type <tt>'<font color=red>duration</font>'</tt> describes time and date durations.
 </p><pre>
@@ -2991,7 +3048,7 @@
       wait(A)   Wait for given duration
 </pre><p></p>
 
-<a name="file"><b>5.20 file</b></a>
+<a name="file"><b>5.21 file</b></a>
 <p>
     The type <tt>'<font color=red>file</font>'</tt> describes sequential files.
 </p><pre>
@@ -3083,7 +3140,7 @@
                     seek(A, -1) => EXCEPTION RANGE_ERROR )
 </pre><p></p>
 
-<a name="text"><b>5.21 text</b></a>
+<a name="text"><b>5.22 text</b></a>
 <p>
     The type <tt>'<font color=red>text</font>'</tt> describes two dimensional files.
 </p><pre>
@@ -3138,7 +3195,7 @@
       cursor_off(A) Make the cursor invisible
 </pre><p></p>
 
-<a name="func"><b>5.22 func</b></a>
+<a name="func"><b>5.23 func</b></a>
 <p>
     The type <tt>'<font color=red>func baseType</font>'</tt> describes functions which return
   a <tt>'<font color=red>baseType</font>'</tt>. For example: <tt>'<font color=red>func integer</font>'</tt> describes an <tt>'<font color=red>integer</font>'</tt>
@@ -3227,7 +3284,7 @@
   parameter is <tt>'TRUE'</tt>.
 </p>
 
-<a name="varfunc"><b>5.23 varfunc</b></a>
+<a name="varfunc"><b>5.24 varfunc</b></a>
 <p>
     The type <tt>'<font color=red>varfunc baseType</font>'</tt> describes functions which return
   a <tt>'<font color=red>baseType</font>'</tt> variable. For example: A function which returns an
@@ -3260,7 +3317,7 @@
   and <font color=red>struct</font>s can be used in the usual way. 
 </p>
 
-<a name="void"><b>5.24 void</b></a>
+<a name="void"><b>5.25 void</b></a>
 <p>
     The type <tt>'<font color=red>void</font>'</tt> describes the empty type.
 </p><pre>
@@ -3268,7 +3325,7 @@
       empty     This is the only value of the type <tt>'<font color=red>void</font>'</tt>.
 </pre><p></p>
 
-<a name="proc"><b>5.25 proc</b></a>
+<a name="proc"><b>5.26 proc</b></a>
 <p>
     The type <tt>'<font color=red>proc</font>'</tt> describes procedures. The type <tt>'<font color=red>proc</font>'</tt>
   is defined as <tt>'<font color=red>func void</font>'</tt>.
@@ -3305,7 +3362,7 @@
                     Type of result: <font color=red>proc</font> )
 </pre><p></p>
 
-<a name="type"><b>5.26 type</b></a>
+<a name="type"><b>5.27 type</b></a>
 <p>
     The type <tt>'<font color=red>type</font>'</tt> describes all types.
 </p><pre>
@@ -3362,7 +3419,7 @@
                 Declare variable 'name' with 'value'
 </pre><p></p>
 
-<a name="object"><b>5.27 object</b></a>
+<a name="object"><b>5.28 object</b></a>
 <p>
     The type <tt>'<font color=red>object</font>'</tt> is used as meta type for various types.
   This allows to define common operations for all this types.
@@ -3375,7 +3432,7 @@
       TRACE_OBJ(A)  Write internal information
 </pre><p></p>
 
-<a name="expr"><b>5.28 expr</b></a>
+<a name="expr"><b>5.29 expr</b></a>
 <p>
     The type <tt>'<font color=red>expr</font>'</tt> is used to describe unmatched expressions.
   This are expressions where the recognizing of the functions
@@ -4788,9 +4845,20 @@
         ...
       <font color=blue>end struct</font>;
 </pre><p>
-  It is not necessary to derive the NEW_FILE type direct from
+  It is not necessary to derive the NEW_FILE type directly from
   <tt>'<font color=red>null_file</font>'</tt>. The NEW_FILE type may also be an indirect descendant
   of <tt>'<font color=red>null_file</font>'</tt>. So it is possible to create file type hierarchies.
+  The interface implemented by the new file needs also to be specified:
+</p><pre>
+    type_implements_interface(<font color=red>NEW_FILE</font>, <font color=red>file</font>);
+</pre><p>
+  The type <font color=red>file</font> is not the only interface
+  type which can be used. There is also the type <font color=red>text</font> which
+  is derived from <font color=red>file</font>. The type <font color=red>text</font>
+  describes a line oriented file which allows <tt>'setPos'</tt> (which moves the
+  current position to the line and column specified) and other functions.
+  It is also possible to define new interface types which derive
+  from <font color=red>file</font> or <font color=red>text</font>.
 </p><p>
   As next an open function is needed to generate a new NEW_FILE:
 </p><pre>
@@ -4824,7 +4892,272 @@
         <font color=green>(* Statements that do the input *)</font>
         ...
       <font color=blue>end func</font>;
-</pre><p></p><hr>
+</pre><p>
+
+<a name="Scanning_a_file"><b>8.7 Scanning a file</b></a>
+<p>
+    The I/O concept introduced in the previous chapters separates
+  the input of data from it's conversion. The <tt>'read'</tt>, <tt>'readln'</tt>,
+  <tt>'getwd'</tt> and <tt>'getln'</tt> functions are designed to read whitespace
+  separated data elements. When the data elements are not separated
+  by whitespace characters this I/O concept is not possible.
+  Instead the functions which read from the file need some
+  knowledge about the type which they intend to read. Fortunately
+  this is a well researched area. The lexical scanners used by
+  compilers solve exactly this problem.
+</p><p>
+  Lexical scanners read symbols from a file and use the concept of
+  a current character. A symbol can be a name, a number, a string,
+  an operator, a parenthesis or something else. The current
+  character is the first character to be processed when scanning a
+  symbol. After a scanner has read a symbol the current character
+  contains the character just after the symbol. This character
+  could be the first character of the next symbol or some
+  whitespace character. If the set of symbols is choosen wisely all
+  decisions about the type of the symbol and when to stop reading
+  characters for a symbol can be done based on the current
+  character.
+</p><p>
+  Every <tt>'<font color=red>file</font>'</tt> contains a <tt>'bufferChar'</tt> variable which is used as
+  current character by the scanner functions defined in the
+  <font color=maroon>"scanfile.s7i"</font> library. The <font color=maroon>"scanfile.s7i"</font> library contains
+  skip... and get... functions. The skip... procedures return void
+  and are used to skip input while the get... functions return the
+  string of characters they have read. The following basic scanner
+  functions are defined in the <font color=maroon>"scanfile.s7i"</font> library:
+</p><dl>
+    <dt>skipComment</dt>
+      <dd>Skips a possibly nested comment from a <tt>'<font color=red>file</font>'</tt>.</dd>
+    <dt>getComment</dt>
+      <dd>Reads a possibly nested comment from a <tt>'<font color=red>file</font>'</tt>.</dd>
+    <dt>skipLineComment</dt>
+      <dd>Skips a line comment from a <tt>'<font color=red>file</font>'</tt>.</dd>
+    <dt>getLineComment</dt>
+      <dd>Reads a line comment from a <tt>'<font color=red>file</font>'</tt>.</dd>
+    <dt>getDigits</dt>
+      <dd>Reads a sequence of digits from a <tt>'<font color=red>file</font>'</tt>.</dd>
+    <dt>getNumber</dt>
+      <dd>Reads a numeric literal from a <tt>'<font color=red>file</font>'</tt>.</dd>
+    <dt>getCharLiteral</dt>
+      <dd>Reads a character literal from a <tt>'<font color=red>file</font>'</tt>.</dd>
+    <dt>getStringLiteral</dt>
+      <dd>Reads a string literal from a <tt>'<font color=red>file</font>'</tt>.</dd>
+    <dt>getName</dt>
+      <dd>Reads an alphanumeric name from a <tt>'<font color=red>file</font>'</tt>.</dd>
+</dl><p>
+  Contrary to <tt>'read'</tt> and <tt>'getwd'</tt> basic scanner functions
+  do not skip leading whitespace characters. To skip whitespace
+  characters one of the following functions can be used:
+</p><dl>
+    <dt>skipSpace</dt>
+      <dd>Skips space characters from a <tt>'<font color=red>file</font>'</tt>.</dd>
+    <dt>skipWhiteSpace</dt>
+      <dd>Skips whitespace characters from a <tt>'<font color=red>file</font>'</tt>.</dd>
+    <dt>getWhiteSpace</dt>
+      <dd>Reads whitespace characters from a <tt>'<font color=red>file</font>'</tt>.</dd>
+    <dt>skipLine</dt>
+      <dd>Skips a line from a <tt>'<font color=red>file</font>'</tt>.</dd>
+    <dt>getLine</dt>
+      <dd>Reads a line from a <tt>'<font color=red>file</font>'</tt>.</dd>
+</dl><p>
+  The advanced scanner functions do skip whitespace characters
+  before reading a symbol:
+</p><dl>
+    <dt>getSymbolOrComment</dt>
+      <dd>Reads a symbol or a comment from a <tt>'<font color=red>file</font>'</tt>.</dd>
+    <dt>getSymbol</dt>
+      <dd>Reads a symbol from a <tt>'<font color=red>file</font>'</tt>.</dd>
+    <dt>getHtmlTagSymbolOrComment</dt>
+      <dd>Reads a HTML tag, a symbol or a comment from a <tt>'<font color=red>file</font>'</tt>.</dd>
+    <dt>getHtmlTagOrContent</dt>
+      <dd>Reads a HTML tag or the HTML content text from a <tt>'<font color=red>file</font>'</tt>.</dd>
+    <dt>getSimpleSymbol</dt>
+      <dd>Reads a simple symbol from a <tt>'<font color=red>file</font>'</tt>.</dd>
+</dl><p>
+  All scanner functions assume that the first character to be
+  processed is in <tt>'bufferChar'</tt> and after they are finished the next
+  character which should be processed is also in <tt>'bufferChar'</tt>.
+  To use scanner functions for a new opened file it is necessary to
+  assign the first character to the <tt>'bufferChar'</tt> with:
+</p><pre>
+    myFile.bufferChar := getc(myFile);
+</pre><p>
+  In most cases whole files are either processed with normal I/O
+  functions or with scanner functions. When normal I/O functions
+  need to be combined with scanner functions care has to be taken:
+</p><ul>
+    <li><!-- -  -->When the last function which read from a file was
+      one of <tt>'read'</tt>, <tt>'readln'</tt>, <tt>'getwd'</tt> or <tt>'getln'</tt>
+      the <tt>'bufferChar'</tt> already contains the character which
+      should be processed next and therefore subsequent scanner
+      functions can be used.</li>
+    <li><!-- -  -->Other I/O functions like <tt>'getc'</tt> and <tt>'gets'</tt>
+      do not assign something to <tt>'bufferChar'</tt>. In this
+      case something should be assigned to <tt>'bufferChar'</tt>.</li>
+    <li><!-- -  -->Switching back from scanner functions to
+      normal I/O functions is best done when the content of
+      <tt>'bufferChar'</tt> is known. For example at the end
+      of the line.</li>
+</ul><p>
+  Scanner functions are helpful when it is necessary to read
+  numeric input without failing when no digits are present:
+</p><pre>
+    skipWhiteSpace(IN);
+    <font color=blue>if</font> eoln(IN) <font color=blue>then</font>
+      writeln("empty input");
+    <font color=blue>elsif</font> IN.bufferChar <font color=blue>in</font> {'0' .. '9'} <font color=blue>then</font>
+      number := <font color=red>integer</font> <font color=blue>parse</font> getDigits(IN);
+      skipLine(IN);
+      writeln("number " <& number);
+    <font color=blue>else</font>
+      stri := getLine(IN);
+      writeln("command " <& literal(stri));
+    <font color=blue>end if</font>;
+</pre><p>
+  The function <tt>'getSymbol'</tt> is designed to read Seed7 symbols. When
+  it returns <tt><font color=maroon>""</font></tt> the end of the file is reached. The following loop
+  can be used to process the symbols of a Seed7 program:
+</p><pre>
+    inFile.bufferChar := getc(inFile);
+    currSymbol := getSymbol(inFile);
+    <font color=blue>while</font> currSymbol <> <font color=maroon>""</font> <font color=blue>do</font>
+      ... process currSymbol ...
+      currSymbol := getSymbol(inFile);
+    <font color=blue>end while</font>;
+</pre><p>
+  Whitespace and comments are automatically skipped with the
+  function <tt>'getSymbol'</tt>. When comments should also be returned the
+  function <tt>'getSymbolOrComment'</tt> can be used. Together with the
+  function <tt>'getWhiteSpace'</tt> it is even possible to get the
+  whitespace between the symbols:
+</p><pre>
+    <font color=blue>const</font> <font color=red>func string</font>: processFile (<font color=blue>in</font> <font color=red>string</font>: fileName) <font color=blue>is func</font>
+      <font color=blue>result</font>
+        <font color=blue>var</font> <font color=red>string</font>: result <font color=blue>is</font> <font color=maroon>""</font>;
+      <font color=blue>local</font>
+        <font color=blue>var</font> <font color=red>file</font>: inFile <font color=blue>is</font> STD_NULL;
+        <font color=blue>var</font> <font color=red>string</font>: currSymbol <font color=blue>is</font> <font color=maroon>""</font>;
+      <font color=blue>begin</font>
+        inFile := open(fileName, <font color=maroon>"r"</font>);
+        <font color=blue>if</font> inFile <> STD_NULL <font color=blue>then</font>
+          inFile.bufferChar := getc(inFile);
+          result := getWhiteSpace(inFile);
+          currSymbol := getSymbolOrComment(inFile);
+          <font color=blue>while</font> currSymbol <> <font color=maroon>""</font> <font color=blue>do</font>
+            result &:= currSymbol;
+            result &:= getWhiteSpace(inFile);
+            currSymbol := getSymbolOrComment(inFile);
+          <font color=blue>end while</font>;
+        <font color=blue>end if</font>;
+      <font color=blue>end func</font>;
+</pre><p>
+  In the example above the function <tt>'processFile'</tt> gathers all
+  symbols, whitespace and comments in the string it returns. The
+  string returned by <tt>'processFile'</tt> is equivalent to the one
+  returned by the function <tt>'getf'</tt>. That way it is easy to test
+  the scanner functionality.
+</p><p>
+  The logic with <tt>'getWhiteSpace'</tt> and <tt>'getSymbolOrComment'</tt> can be used
+  to add HTML tags to comments and literals. The following function
+  colors comments with green, string and char literals with maroon and
+  numeric literals with purple:
+</p><pre>
+    <font color=blue>const</font> <font color=red>proc</font>: sourceToHtml (<font color=blue>inout</font> <font color=red>file</font>: inFile, <font color=blue>inout</font> <font color=red>file</font>: outFile) <font color=blue>is func</font>
+      <font color=blue>local</font>
+        <font color=blue>var</font> <font color=red>string</font>: currSymbol <font color=blue>is</font> <font color=maroon>""</font>;
+      <font color=blue>begin</font>
+        inFile.bufferChar := getc(inFile);
+        write(outFile, <font color=maroon>"&lt;pre>\n"</font>);
+        write(outFile, getWhiteSpace(inFile));
+        currSymbol := getSymbolOrComment(inFile);
+        <font color=blue>while</font> currSymbol <> <font color=maroon>""</font> <font color=blue>do</font>
+          currSymbol := replace(currSymbol, <font color=maroon>"&amp;"</font>, <font color=maroon>"&amp;amp;"</font>);
+          currSymbol := replace(currSymbol, <font color=maroon>"&lt;"</font>, <font color=maroon>"&amp;lt;"</font>);
+          <font color=blue>if</font> currSymbol[1] <font color=blue>in</font> {<font color=maroon>'"'</font>, <font color=maroon>'''</font>} <font color=blue>then</font>
+            write(outFile, <font color=maroon>"&lt;font color=\"maroon\">"</font>);
+            write(outFile, currSymbol);
+            write(outFile, <font color=maroon>"&lt;/font>"</font>);
+          <font color=blue>elsif</font> currSymbol[1] = <font color=maroon>'#'</font> <font color=blue>or</font> startsWith(currSymbol, <font color=maroon>"(*"</font>) <font color=blue>then</font>
+            write(outFile, <font color=maroon>"&lt;font color=\"green\">"</font>);
+            write(outFile, currSymbol);
+            write(outFile, <font color=maroon>"&lt;/font>"</font>);
+          <font color=blue>elsif</font> currSymbol[1] <font color=blue>in</font> digit_char <font color=blue>then</font>
+            write(outFile, <font color=maroon>"&lt;font color=\"purple\">"</font>);
+            write(outFile, currSymbol);
+            write(outFile, <font color=maroon>"&lt;/font>"</font>);
+          <font color=blue>else</font>
+            write(outFile, currSymbol);
+          <font color=blue>end if</font>;
+          write(outFile, getWhiteSpace(inFile));
+          currSymbol := getSymbolOrComment(inFile);
+        <font color=blue>end while</font>;
+        write(outFile, <font color=maroon>"&lt;/pre>\n"</font>);
+      <font color=blue>end func</font>;
+</pre><p>
+  The functions <tt>'skipSpace'</tt> and <tt>'skipWhiteSpace'</tt> are defined in
+  the <font color=maroon>"scanfile.s7i"</font> library as follows:
+</p><pre>
+    <font color=blue>const</font> <font color=red>proc</font>: skipSpace (<font color=blue>inout</font> <font color=red>file</font>: inFile) <font color=blue>is func</font>
+      <font color=blue>local</font>
+        <font color=blue>var</font> <font color=red>char</font>: ch <font color=blue>is</font> <font color=maroon>' '</font>;
+      <font color=blue>begin</font>
+        ch := inFile.bufferChar;
+        <font color=blue>while</font> ch = ' ' <font color=blue>do</font>
+          ch := getc(inFile);
+        <font color=blue>end while</font>;
+        inFile.bufferChar := ch;
+      <font color=blue>end func</font>;
+
+    <font color=blue>const</font> <font color=red>proc</font>: skipWhiteSpace (<font color=blue>inout</font> <font color=red>file</font>: inFile) <font color=blue>is func</font>
+      <font color=blue>begin</font>
+        <font color=blue>while</font> inFile.bufferChar <font color=blue>in</font> white_space_char <font color=blue>do</font>
+          inFile.bufferChar := getc(inFile);
+        <font color=blue>end while</font>;
+      <font color=blue>end func</font>;
+</pre><p>
+  The functions <tt>'skipComment'</tt> and <tt>'skipLineComment'</tt>, which can be
+  used to skip Seed7 comments, are defined as follows:
+</p><pre>
+    <font color=blue>const</font> <font color=red>proc</font>: skipComment (<font color=blue>inout</font> <font color=red>file</font>: inFile) <font color=blue>is</font> <font color=blue>func</font>
+      <font color=blue>local</font>
+        <font color=blue>var</font> <font color=red>char</font>: character <font color=blue>is</font> <font color=maroon>' '</font>;
+      <font color=blue>begin</font>
+        character := getc(inFile);
+        <font color=blue>repeat</font>
+          <font color=blue>repeat</font>
+            <font color=blue>while</font> character <font color=blue>not</font> <font color=blue>in</font> special_comment_char <font color=blue>do</font>
+              character := getc(inFile);
+            <font color=blue>end</font> <font color=blue>while</font>;
+            <font color=blue>if</font> character = <font color=maroon>'('</font> <font color=blue>then</font>
+              character := getc(inFile);
+              <font color=blue>if</font> character = <font color=maroon>'*'</font> <font color=blue>then</font>
+                skipComment(inFile);
+                character := getc(inFile);
+              <font color=blue>end</font> <font color=blue>if</font>;
+            <font color=blue>end</font> <font color=blue>if</font>;
+          <font color=blue>until</font> character = <font color=maroon>'*'</font> <font color=blue>or</font> character = EOF;
+          <font color=blue>if</font> character <> EOF <font color=blue>then</font>
+            character := getc(inFile);
+          <font color=blue>end</font> <font color=blue>if</font>;
+        <font color=blue>until</font> character = <font color=maroon>')'</font> <font color=blue>or</font> character = EOF;
+        <font color=blue>if</font> character = EOF <font color=blue>then</font>
+          inFile.bufferChar := EOF;
+        <font color=blue>else</font>
+          inFile.bufferChar := getc(inFile);
+        <font color=blue>end</font> <font color=blue>if</font>;
+      <font color=blue>end</font> <font color=blue>func</font>; <font color=green># skipComment</font>
+
+    <font color=blue>const</font> <font color=red>proc</font>: skipLineComment (<font color=blue>inout</font> <font color=red>file</font>: inFile) <font color=blue>is</font> <font color=blue>func</font>
+      <font color=blue>local</font>
+        <font color=blue>var</font> <font color=red>char</font>: character <font color=blue>is</font> <font color=maroon>' '</font>;
+      <font color=blue>begin</font>
+        <font color=blue>repeat</font>
+          character := getc(inFile);
+        <font color=blue>until</font> character = <font color=maroon>'\n'</font> <font color=blue>or</font> character = EOF;
+        inFile.bufferChar := character;
+      <font color=blue>end</font> <font color=blue>func</font>; <font color=green># skipLineComment</font>
+</pre><p>
+</p><hr>
 
 <p></p>
 <a name="DECLARATIONS"><big><b>9. DECLARATIONS</b></big></a>

@@ -1,3 +1,24 @@
+20080525:
+- A new chapter about complex numbers was added to the manual.
+- A new chapter about symbol scanning from a file, was added to the manual.
+- The makefile for linux/bsd/unix and the file mk_linux.mak were improved to be usable
+  for shells where a \n in the echo command leads to errors in the make process (thanks to
+  Wolfgang Raith, Jens Thoms Toerring and Arnold Hendriks for helping with this issue).
+- The function cp_to_wstri was protected with 'ifdef USE_WFOPEN' in the files striutl.c and
+  striutl.h (thanks to Wolfgang Raith for pointing out compilation problems).
+- The functions = and <> were added to the complex.s7i library.
+- The documentation comments of the libraries scanfile.s7i and scanstri.s7i were improved.
+- The functions skipLine and getLine were added to the scanfile.s7i library.
+- The strifile.s7i library, which supports string based files, was added.
+- The documentation comment of the get_symbol function in the file bas7.sd7 was improved.
+- The function processFile which checks the functions getWhiteSpace and getSymbolOrComment
+  was added to the program chkscan.sd7 .
+- The functions filWrite and ut8Write were improved to raise FILE_ERROR when the
+  call of fwrite() was not able to write the whole string.
+- Support for the primitive action flt_cast was added to the interpreter and compiler.
+- The function setToInt which can convert parts of a set to an integer was added to
+  set_rtl.c .
+
 20080508:
 - The FAQ "Why a new programming language?" was improved.
 - The descriptions of the functions 'rem', 'mod', '[ A .. B ] times C', minIdx, maxIdx,

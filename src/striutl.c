@@ -411,6 +411,7 @@ stritype stri;
 
 
 
+#ifdef USE_WFOPEN
 #ifdef ANSI_C
 
 wchar_t *cp_to_wstri (stritype stri)
@@ -439,6 +440,7 @@ stritype stri;
     } /* if */
     return(stri_buffer);
   } /* cp_to_wstri */
+#endif
 
 
 

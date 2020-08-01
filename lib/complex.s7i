@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  complex.s7i   Complex support library                           *)
-(*  Copyright (C) 2007  Thomas Mertes                               *)
+(*  Copyright (C) 2007, 2008  Thomas Mertes                         *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)
 (*                                                                  *)
@@ -69,6 +69,14 @@ const func complex: polar (in float: magnitude, in float: angle) is func
     result.re := magnitude * cos(angle);
     result.im := magnitude * sin(angle);
   end func;
+
+
+const func boolean: (ref complex: num1) = (ref complex: num2) is
+  return num1.re = num2.re and num1.im = num2.im;
+
+
+const func boolean: (ref complex: num1) <> (ref complex: num2) is
+  return num1.re <> num2.re or num1.im <> num2.im;
 
 
 (**

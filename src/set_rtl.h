@@ -36,30 +36,31 @@
 
 #ifdef ANSI_C
 
-settype setBaselit (const inttype);
-inttype setCard (const const_settype);
-inttype setCmp (const const_settype, const const_settype);
-void setCpy (settype *const, const const_settype);
-settype setCreate (const const_settype);
-void setDestr (const const_settype);
-settype setDiff (const const_settype, const const_settype);
-booltype setElem (const inttype, const const_settype);
-booltype setEq (const const_settype, const const_settype);
-void setExcl (settype *const, const inttype);
-booltype setGe (const const_settype, const const_settype);
-booltype setGt (const const_settype, const const_settype);
-inttype setHashCode (const const_settype);
-void setIncl (settype *const, const inttype);
-settype setIntersect (const const_settype, const const_settype);
-booltype setLe (const const_settype, const const_settype);
-booltype setLt (const const_settype, const const_settype);
-inttype setMax (const const_settype);
-inttype setMin (const const_settype);
-booltype setNe (const const_settype, const const_settype);
-booltype setNotElem (const inttype, const const_settype);
-inttype setRand (const const_settype);
-settype setSymdiff (const const_settype, const const_settype);
-settype setUnion (const const_settype, const const_settype);
+settype setBaselit (const inttype number);
+inttype setCard (const const_settype set1);
+inttype setCmp (const const_settype set1, const const_settype set2);
+void setCpy (settype *const set_to, const const_settype set_from);
+settype setCreate (const const_settype set_from);
+void setDestr (const const_settype old_set);
+settype setDiff (const const_settype set1, const const_settype set2);
+booltype setElem (const inttype number, const const_settype set1);
+booltype setEq (const const_settype set1, const const_settype set2);
+void setExcl (settype *const set_to, const inttype number);
+booltype setGe (const const_settype set1, const const_settype set2);
+booltype setGt (const const_settype set1, const const_settype set2);
+inttype setHashCode (const const_settype set1);
+void setIncl (settype *const set_to, const inttype number);
+settype setIntersect (const const_settype set1, const const_settype set2);
+booltype setLe (const const_settype set1, const const_settype set2);
+booltype setLt (const const_settype set1, const const_settype set2);
+inttype setMax (const const_settype set1);
+inttype setMin (const const_settype set1);
+booltype setNe (const const_settype set1, const const_settype set2);
+booltype setNotElem (const inttype number, const const_settype set1);
+inttype setRand (const const_settype set1);
+settype setSymdiff (const const_settype set1, const const_settype set2);
+inttype setToInt (const const_settype set1, const inttype lowestBitNum);
+settype setUnion (const const_settype set1, const const_settype set2);
 
 #else
 

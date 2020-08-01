@@ -193,6 +193,22 @@ listtype arguments;
 
 #ifdef ANSI_C
 
+objecttype set_cast (listtype arguments)
+#else
+
+objecttype set_cast (arguments)
+listtype arguments;
+#endif
+
+  { /* set_cast */
+    isit_set(arg_3(arguments));
+    return(bld_int_temp((inttype) setCreate(take_set(arg_3(arguments)))));
+  } /* set_cast */
+
+
+
+#ifdef ANSI_C
+
 objecttype set_cmp (listtype arguments)
 #else
 
@@ -554,6 +570,35 @@ listtype arguments;
     return(bld_int_temp(
         setHashCode(take_set(arg_1(arguments)))));
   } /* set_hashcode */
+
+
+
+#ifdef ANSI_C
+
+objecttype set_icast (listtype arguments)
+#else
+
+objecttype set_icast (arguments)
+listtype arguments;
+#endif
+
+  {
+    settype result;
+
+  /* set_icast */
+    if (take_set(arg_3(arguments)) == NULL) {
+      if (!ALLOC_SET(result, 1)) {
+        return(raise_exception(SYS_MEM_EXCEPTION));
+      } else {
+        result->min_position = 0;
+        result->max_position = 0;
+        memset(result->bitset, 0, sizeof(bitsettype));
+      } /* if */
+    } else {
+      result = setCreate(take_set(arg_3(arguments)));
+    } /* if */
+    return(bld_set_temp(result));
+  } /* set_icast */
 
 
 

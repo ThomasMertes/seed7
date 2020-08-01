@@ -888,7 +888,10 @@ stritype stri;
           } /* if */
           *ustri = (uchartype) *str;
         } /* for */
-        fwrite(buffer, sizeof(uchartype), BUFFER_SIZE, aFile);
+        if (BUFFER_SIZE != fwrite(buffer, sizeof(uchartype), BUFFER_SIZE, aFile)) {
+          raise_error(FILE_ERROR);
+          return;
+        } /* if */
       } /* for */
       if (len > 0) {
         for (ustri = buffer, buf_len = len;
@@ -899,11 +902,17 @@ stritype stri;
           } /* if */
           *ustri = (uchartype) *str;
         } /* for */
-        fwrite(buffer, sizeof(uchartype), len, aFile);
+        if (len != fwrite(buffer, sizeof(uchartype), len, aFile)) {
+          raise_error(FILE_ERROR);
+          return;
+        } /* if */
       } /* if */
     }
 #else
-    fwrite(stri->mem, sizeof(strelemtype),
-        (SIZE_TYPE) stri->size, aFile);
+    if (stri->size != fwrite(stri->mem, sizeof(strelemtype),
+        (SIZE_TYPE) stri->size, aFile)) {
+      raise_error(FILE_ERROR);
+      return;
+    } /* if */
 #endif
   } /* filWrite */

@@ -1188,6 +1188,42 @@ stritype stri2;
 
 #ifdef ANSI_C
 
+stritype strLtrim (const const_stritype stri)
+#else
+
+stritype strLtrim (stri)
+stritype stri;
+#endif
+
+  {
+    memsizetype start;
+    memsizetype length;
+    stritype result;
+
+  /* strLtrim */
+    start = 0;
+    length = stri->size;
+    if (length >= 1) {
+      while (start < length && stri->mem[start] <= ' ') {
+        start++;
+      } /* while */
+      length -= start;
+    } /* if */
+    if (!ALLOC_STRI(result, length)) {
+      raise_error(MEMORY_ERROR);
+      return(NULL);
+    } else {
+      result->size = length;
+      memcpy(result->mem, &stri->mem[start],
+          (SIZE_TYPE) length * sizeof(strelemtype));
+      return(result);
+    } /* if */
+  } /* strLtrim */
+
+
+
+#ifdef ANSI_C
+
 stritype strMult (const const_stritype stri, const inttype factor)
 #else
 
@@ -1543,6 +1579,37 @@ stritype searched;
     } /* if */
     return(0);
   } /* strRpos */
+
+
+
+#ifdef ANSI_C
+
+stritype strRtrim (const const_stritype stri)
+#else
+
+stritype strRtrim (stri)
+stritype stri;
+#endif
+
+  {
+    memsizetype length;
+    stritype result;
+
+  /* strRtrim */
+    length = stri->size;
+    while (length > 0 && stri->mem[length - 1] <= ' ') {
+      length--;
+    } /* while */
+    if (!ALLOC_STRI(result, length)) {
+      raise_error(MEMORY_ERROR);
+      return(NULL);
+    } else {
+      result->size = length;
+      memcpy(result->mem, stri->mem,
+          (SIZE_TYPE) length * sizeof(strelemtype));
+      return(result);
+    } /* if */
+  } /* strRtrim */
 
 
 

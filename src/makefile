@@ -6,8 +6,8 @@
 
 # CFLAGS =
 # CFLAGS = -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
-CFLAGS = -O2 -fomit-frame-pointer -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
-# CFLAGS = -O2 -g -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
+# CFLAGS = -O2 -fomit-frame-pointer -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
+CFLAGS = -O2 -g -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
 # CFLAGS = -O2 -g -pg -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
 # CFLAGS = -O2 -fomit-frame-pointer -funroll-loops -Wall
 # CFLAGS = -O2 -funroll-loops -Wall -pg
@@ -155,7 +155,7 @@ version.h:
 	echo "long number;" >> chkshift.c
 	echo "number = -1;" >> chkshift.c
 	echo "if (number >> 1 == (long) -1) {" >> chkshift.c
-	echo "printf(\"\043define RSHIFT_DOES_SIGN_EXTEND\n\");" >> chkshift.c
+	echo "puts(\"#define RSHIFT_DOES_SIGN_EXTEND\");" >> chkshift.c
 	echo "}" >> chkshift.c
 	echo "return 0;" >> chkshift.c
 	echo "}" >> chkshift.c

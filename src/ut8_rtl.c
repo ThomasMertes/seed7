@@ -560,8 +560,12 @@ stritype stri;
   /* ut8Write */
     out_bstri = stri_to_bstri8(stri);
     if (out_bstri != NULL) {
-      fwrite(out_bstri->mem, sizeof(uchartype),
-          (SIZE_TYPE) out_bstri->size, fil1);
-      FREE_BSTRI(out_bstri, out_bstri->size);
+      if (out_bstri->size != fwrite(out_bstri->mem, sizeof(uchartype),
+          (SIZE_TYPE) out_bstri->size, fil1)) {
+        FREE_BSTRI(out_bstri, out_bstri->size);
+        raise_error(FILE_ERROR);
+      } else {
+        FREE_BSTRI(out_bstri, out_bstri->size);
+      } /* if */
     } /* if */
   } /* ut8Write */

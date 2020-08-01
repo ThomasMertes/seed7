@@ -39,7 +39,9 @@ memsizetype stri_to_utf8 (ustritype, const_stritype);
 memsizetype utf8_to_stri (strelemtype *, memsizetype *, const_ustritype, SIZE_TYPE);
 memsizetype utf8_bytes_missing (const_ustritype, SIZE_TYPE);
 cstritype cp_to_cstri (const_stritype);
+#ifdef USE_WFOPEN
 wchar_t *cp_to_wstri (stritype);
+#endif
 bstritype stri_to_bstri (stritype);
 bstritype stri_to_bstri8 (const_stritype);
 stritype cstri_to_stri (const_cstritype);
@@ -53,7 +55,9 @@ memsizetype stri_to_utf8 ();
 memsizetype utf8_to_stri ();
 memsizetype utf8_bytes_missing ();
 cstritype cp_to_cstri ();
+#ifdef USE_WFOPEN
 wchar_t *cp_to_wstri ();
+#endif
 bstritype stri_to_bstri ();
 bstritype stri_to_bstri8 ();
 stritype cstri_to_stri ();
