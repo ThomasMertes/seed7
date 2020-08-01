@@ -33,31 +33,53 @@ $ include "seed7_05.s7i";
 const proc: writeHelp is func
   begin
     writeln("Accepted commands:");
-    writeln("  ascii, binary, bye, cd, exit, get, help, lcd, ls, ls -l, mkdir, modtime,");
-    writeln("  put, pwd, quit, rmdir, size");
+    writeln("  ascii, binary, bye, cd, dir, exit, get, help, lcd, ls, ls -l, mkdir,");
+    writeln("  modtime, put, pwd, quit, rmdir, size");
     writeln;
   end func;
 
 
-const proc: longFileListing (inout ftpConnection: ftp, in string: directory) is func
+const proc: longFileListing (inout ftpConnection: ftp, in var string: directory) is func
   local
     var array string: dir is 0 times "";
-    var string: name is "";
+    var integer: currentYear is 0;
+    var string: fileName is "";
+    var string: filePath is "";
     var boolean: continue is TRUE;
+    var string: line is "";
+    var time: modificationTime is time.value;
+    const array string: monthName is [1] (
+        "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+        "Jul", "Aug", "Sep", "Oct", "Nov", "Dec");
   begin
     if directory = "" then
       dir := readDir(ftp, ".");
     else
       dir := readDir(ftp, directory);
+      directory &:= "/";
     end if;
-    for name range dir do
+    currentYear := time(NOW).year;
+    for fileName range dir do
       if busy_getc(KEYBOARD) = KEY_CTL_C then
         writeln(" ***** Terminated.");
         continue := FALSE;
       end if;
       if continue then
-        writeln(fileSize(ftp, name) lpad 10 <& " " <&
-                getMTime(ftp, name) rpad 32 <& " " <& name);
+        filePath := directory & fileName;
+        line := "-rwxrwxrwx 1 user users ";
+        line &:= bigFileSize(ftp, filePath) lpad 10 <& " ";
+        modificationTime := getMTime(ftp, filePath);
+        line &:= monthName[modificationTime.month];
+        line &:= modificationTime.day  lpad 3;
+        if modificationTime.year = currentYear then
+          line &:= modificationTime.hour lpad 3 <& ":";
+          line &:= modificationTime.minute lpad0 2;
+        else
+          line &:= modificationTime.year lpad 6;
+        end if;
+        line &:= " ";
+        line &:= striToUtf8(fileName);
+        writeln(line);
       end if;
     end for;
   end func;
@@ -80,7 +102,7 @@ const proc: fileListing (inout ftpConnection: ftp, in string: directory) is func
         continue := FALSE;
       end if;
       if continue then
-        writeln(name);
+        writeln(striToUtf8(name));
       end if;
     end for;
   end func;
@@ -103,7 +125,7 @@ const proc: directoryListing (inout ftpConnection: ftp, in string: directory) is
         continue := FALSE;
       end if;
       if continue then
-        writeln(line);
+        writeln(striToUtf8(line));
       end if;
     end for;
   end func;
@@ -150,7 +172,7 @@ const proc: execute (inout ftpConnection: ftp, in string: command) is func
       end if;
     elsif startsWith(command, "help") then
       writeHelp;
-    else
+    elsif command <> "" then
       writeln(" ***** Invalid command.");
     end if;
   end func;

@@ -37,21 +37,22 @@
 
 #ifdef ANSI_C
 
-void polAddCheck (polltype pollData, const sockettype aSocket,
-                  inttype pollMode, const rtlGenerictype fileObj);
-void polClear (polltype pollData);
-void polCpy (polltype poll_to, const const_polltype pollDataFrom);
+void polAddCheck (const polltype pollData, const sockettype aSocket,
+                  inttype eventsToCheck, const rtlGenerictype fileObj);
+void polClear (const polltype pollData);
+void polCpy (const polltype poll_to, const const_polltype pollDataFrom);
 polltype polCreate (const const_polltype pollDataFrom);
-void polDestr (const const_polltype oldPollData);
+void polDestr (const polltype oldPollData);
 polltype polEmpty (void);
-inttype polGetCheck (polltype pollData, const sockettype aSocket);
-inttype polGetFinding (polltype pollData, const sockettype aSocket);
-booltype polHasNext (polltype pollData);
-void polIterChecks (polltype pollData, inttype pollMode);
-void polIterFindings (polltype pollData, inttype pollMode);
-rtlGenerictype polNextFile (polltype pollData, const rtlGenerictype nullFile);
-void polPoll (polltype pollData);
-void polRemoveCheck (polltype pollData, const sockettype aSocket, inttype pollMode);
+inttype polGetCheck (const const_polltype pollData, const sockettype aSocket);
+inttype polGetFinding (const const_polltype pollData, const sockettype aSocket);
+booltype polHasNext (const polltype pollData);
+void polIterChecks (const polltype pollData, inttype pollMode);
+void polIterFindings (const polltype pollData, inttype pollMode);
+rtlGenerictype polNextFile (const polltype pollData, const rtlGenerictype nullFile);
+void polPoll (const polltype pollData);
+void polRemoveCheck (const polltype pollData, const sockettype aSocket,
+                     inttype eventsToCheck);
 
 #else
 

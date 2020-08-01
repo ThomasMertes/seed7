@@ -73,6 +73,11 @@ extern os_chartype emulated_root[];
 #define IS_EMULATED_ROOT(os_path) (os_path == emulated_root)
 #endif
 
+#define PATH_IS_NORMAL        0
+#define PATH_IS_EMULATED_ROOT 1
+#define PATH_NOT_MAPPED       2
+
+
 
 #ifdef ANSI_C
 
@@ -104,7 +109,8 @@ stritype cp_from_os_path (const_os_stritype os_stri, errinfotype *err_info);
 #ifdef EMULATE_ROOT_CWD
 void setEmulatedCwd (const os_stritype os_path);
 #endif
-os_stritype cp_to_os_path (const_stritype stri, errinfotype *err_info);
+os_stritype cp_to_os_path (const_stritype stri, int *path_info,
+    errinfotype *err_info);
 os_stritype cp_to_command (const const_stritype commandPath,
     const const_stritype parameters, errinfotype *err_info);
 #ifdef PATHS_RELATIVE_TO_EXECUTABLE

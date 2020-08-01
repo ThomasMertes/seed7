@@ -25,6 +25,20 @@
 /*                                                                  */
 /********************************************************************/
 
+#include "version.h"
+
+/**
+ *  From version.h the following defines are used:
+ *
+ *  os_off_t
+ *      Type used for os_fseek(), os_ftell(), offsetSeek(), offsetTell()
+ *      and seekFileLength().
+ *  TURN_OFF_FP_EXCEPTIONS
+ *      Use the function _control87() to turn off floating point exceptions.
+ *  DEFINE_MATHERR_FUNCTION
+ *      Define the function _matherr() which handles floating point errors.
+ */
+
 #include "stdlib.h"
 #include "string.h"
 #include "stdio.h"
@@ -69,11 +83,6 @@
  *      Either "ls" or "dir".
  *      E.g.: #define LIST_DIRECTORY_CONTENTS "ls"
  *            #define LIST_DIRECTORY_CONTENTS "dir"
- *  TURN_OFF_FP_EXCEPTIONS
- *      Use the function _control87() to turn off floating point exceptions.
- *  DEFINE_MATHERR_FUNCTION
- *      Define the function _matherr() which handles floating point errors.
- *
  *  The macros described above are only used in the program chkccomp.
  *  This macros are not used in the Seed7 Interpreter (hi) or in the
  *  Seed7 Runtime Library.
@@ -156,14 +165,11 @@ int main (int argc, char **argv)
       puts("#define FOPEN_OPENS_DIRECTORIES");
       fclose(aFile);
     } /* if */
-    printf("#define POINTER_SIZE %lu", (long unsigned)(8 * sizeof(char *)));
-    puts("");
-    printf("#define FLOAT_SIZE %lu", (long unsigned)(8 * sizeof(float)));
-    puts("");
-    printf("#define DOUBLE_SIZE %lu", (long unsigned)(8 * sizeof(double)));
-    puts("");
-    printf("#define TIME_T_SIZE %lu", (long unsigned)(8 * sizeof(time_t)));
-    puts("");
+    printf("#define POINTER_SIZE %lu\n", (long unsigned)(8 * sizeof(char *)));
+    printf("#define FLOAT_SIZE %lu\n", (long unsigned)(8 * sizeof(float)));
+    printf("#define DOUBLE_SIZE %lu\n", (long unsigned)(8 * sizeof(double)));
+    printf("#define OS_OFF_T_SIZE %lu\n", (long unsigned)(8 * sizeof(os_off_t)));
+    printf("#define TIME_T_SIZE %lu\n", (long unsigned)(8 * sizeof(time_t)));
     timestamp = -2147483648;
     local_time = localtime(&timestamp);
     if (local_time != NULL && local_time->tm_year == 1) {

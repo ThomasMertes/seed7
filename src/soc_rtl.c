@@ -379,7 +379,7 @@ bstritype address;
             raise_error(RANGE_ERROR);
             result = NULL;
           } else {
-            struct sockaddr_in *inet_address = (struct sockaddr_in *) address->mem;
+            const struct sockaddr_in *inet_address = (const struct sockaddr_in *) address->mem;
             uint32type ip4_address = ntohl(inet_address->sin_addr.s_addr);
 
             sprintf(buffer, "%d.%d.%d.%d",
@@ -396,7 +396,7 @@ bstritype address;
             raise_error(RANGE_ERROR);
             result = NULL;
           } else {
-            struct sockaddr_in6 *inet6_address = (struct sockaddr_in6 *) address->mem;
+            const struct sockaddr_in6 *inet6_address = (const struct sockaddr_in6 *) address->mem;
             unsigned int digitGroup[8];
             int pos;
 
@@ -1157,6 +1157,175 @@ inttype micro_seconds;
 
 
 
+#define BUFFER_START_SIZE 256
+#define BUFFER_DELTA_SIZE 256
+
+#ifdef ANSI_C
+
+stritype socLineRead (sockettype sock, chartype *const termination_char)
+#else
+
+stritype socLineRead (sock, termination_char)
+sockettype sock;
+chartype *termination_char;
+#endif
+
+  {
+    memsizetype bytes_received;
+    memsizetype bytes_requested;
+    memsizetype result_size;
+    memsizetype old_result_size;
+    memsizetype result_pos;
+    uchartype *nlPos;
+    uchartype buffer[BUFFER_SIZE];
+    stritype resized_result;
+    stritype result;
+
+  /* socLineRead */
+    bytes_received = (memsizetype) recv(sock, cast_send_recv_data(buffer),
+                                        BUFFER_START_SIZE, MSG_PEEK);
+    if (bytes_received == (memsizetype) (-1)) {
+      bytes_received = 0;
+    } /* if */
+    if (bytes_received == 0) {
+      if (unlikely(!ALLOC_STRI_SIZE_OK(result, 0))) {
+        raise_error(MEMORY_ERROR);
+        result = NULL;
+      } else {
+        result->size = 0;
+        *termination_char = (chartype) EOF;
+      } /* if */
+    } else {
+      nlPos = (uchartype *) memchr(buffer, '\n', bytes_received);
+      if (nlPos != NULL) {
+        bytes_requested = (memsizetype) (nlPos - buffer) + 1;
+        /* This should overwrite the buffer with identical data up to '\n'. */
+        bytes_received = (memsizetype) recv(sock, cast_send_recv_data(buffer),
+                                            cast_buffer_len(bytes_requested), 0);
+        /* bytes_received should always be identical to bytes_requested. */
+        result_size = bytes_requested - 1;
+        if (nlPos != buffer && nlPos[-1] == '\r') {
+          result_size--;
+        } /* if */
+        if (unlikely(!ALLOC_STRI_CHECK_SIZE(result, result_size))) {
+          raise_error(MEMORY_ERROR);
+          result = NULL;
+        } else {
+          if (result_size > 0) {
+            register const uchartype *from = buffer;
+            register strelemtype *to = result->mem;
+            register memsizetype number = result_size;
+
+            for (; number > 0; from++, to++, number--) {
+              *to = *from;
+            } /* for */
+          } /* if */
+          result->size = result_size;
+          *termination_char = '\n';
+        } /* if */
+      } else {
+        result_size = bytes_received;
+        old_result_size = 0;
+        result_pos = 0;
+        result = NULL;
+        do {
+          bytes_requested = bytes_received;
+          /* This should overwrite the buffer with identical data. */
+          bytes_received = (memsizetype) recv(sock, cast_send_recv_data(buffer),
+                                              cast_buffer_len(bytes_requested), 0);
+          /* bytes_received should always be identical to bytes_requested. */
+          result_size += BUFFER_DELTA_SIZE;
+          /* printf("A result=%08lx, old_result_size=%d, result_size=%d\n", (unsigned long) result, old_result_size, result_size); */
+          REALLOC_STRI_CHECK_SIZE(resized_result, result, old_result_size, result_size);
+          /* printf("B result=%08lx, resized_result=%08lx\n", (unsigned long) result, (unsigned long) resized_result); */
+          if (unlikely(resized_result == NULL)) {
+            if (result != NULL) {
+              FREE_STRI(result, old_result_size);
+            } /* if */
+            raise_error(MEMORY_ERROR);
+            result = NULL;
+          } else {
+            result = resized_result;
+            old_result_size = result_size;
+            /* printf("a result[%d], size=%d\n", result_pos, bytes_requested); */
+            {
+              register const uchartype *from = buffer;
+              register strelemtype *to = &result->mem[result_pos];
+              register memsizetype number = bytes_requested;
+
+              for (; number > 0; from++, to++, number--) {
+                *to = *from;
+              } /* for */
+            }
+            result_pos += bytes_requested;
+            bytes_received = (memsizetype) recv(sock, cast_send_recv_data(buffer),
+                                                BUFFER_DELTA_SIZE, MSG_PEEK);
+            if (bytes_received == (memsizetype) (-1)) {
+              bytes_received = 0;
+            } /* if */
+            if (bytes_received == 0) {
+              REALLOC_STRI_CHECK_SIZE(resized_result, result, result_size, result_pos);
+              if (unlikely(resized_result == NULL)) {
+                FREE_STRI(result, result_size);
+                raise_error(MEMORY_ERROR);
+                result = NULL;
+              } else {
+                result = resized_result;
+                result->size = result_pos;
+                *termination_char = (chartype) EOF;
+              } /* if */
+            } else {
+              nlPos = (uchartype *) memchr(buffer, '\n', bytes_received);
+            } /* if */
+          } /* if */
+        } while (result != NULL && bytes_received != 0 && nlPos == NULL);
+        if (result != NULL && nlPos != NULL) {
+          bytes_requested = (memsizetype) (nlPos - buffer) + 1;
+          /* This should overwrite the buffer with identical data up to '\n'. */
+          bytes_received = (memsizetype) recv(sock, cast_send_recv_data(buffer),
+                                              cast_buffer_len(bytes_requested), 0);
+          /* bytes_received should always be identical to bytes_requested. */
+          bytes_requested--;
+          if (nlPos == buffer) {
+            if (result->mem[result_pos - 1] == '\r') {
+              result_pos--;
+            } /* if */
+          } else if (nlPos[-1] == '\r') {
+            bytes_requested--;
+          } /* if */
+          old_result_size = result_size;
+          result_size = result_pos + bytes_requested;
+          /* printf("C result=%08lx, old_result_size=%d, result_size=%d\n", (unsigned long) result, old_result_size, result_size); */
+          REALLOC_STRI_CHECK_SIZE(resized_result, result, old_result_size, result_size);
+          /* printf("D result=%08lx, resized_result=%08lx\n", (unsigned long) result, (unsigned long) resized_result); */
+          if (unlikely(resized_result == NULL)) {
+            FREE_STRI(result, result_size);
+            raise_error(MEMORY_ERROR);
+            result = NULL;
+          } else {
+            result = resized_result;
+            /* printf("e result[%d], size=%d\n", result_pos, bytes_requested); */
+            if (result_size > 0) {
+              register const uchartype *from = buffer;
+              register strelemtype *to = &result->mem[result_pos];
+              register memsizetype number = bytes_requested;
+
+              for (; number > 0; from++, to++, number--) {
+                *to = *from;
+              } /* for */
+            } /* if */
+            result->size = result_size;
+            *termination_char = '\n';
+          } /* if */
+        } /* if */
+      } /* if */
+    } /* if */
+    return result;
+  } /* socLineRead */
+
+
+
+#ifdef OUT_OF_ORDER
 #ifdef ANSI_C
 
 stritype socLineRead (sockettype sock, chartype *const termination_char)
@@ -1224,6 +1393,7 @@ chartype *termination_char;
     } /* if */
     return result;
   } /* socLineRead */
+#endif
 
 
 
@@ -1416,111 +1586,6 @@ bstritype *address;
     } /* if */
     return (inttype) stri_size;
   } /* socRecvfrom */
-
-
-
-#ifdef OUT_OF_ORDER
-#ifdef ANSI_C
-
-rtlArraytype socSelect (const const_rtlArraytype sockArray)
-#else
-
-rtlArraytype socSelect (sockArray)
-rtlArraytype sockArray;
-#endif
-
-  {
-    memsizetype array_size;
-    memsizetype pos;
-    int nfds = 0;
-    fd_set readfds;
-    struct timeval timeout;
-    int select_result;
-    int fd;
-    rtlArraytype result;
-
-  /* socSelect */
-    FD_ZERO(&readfds);
-    if (sockArray->max_position >= sockArray->min_position) {
-      array_size = (uinttype) (sockArray->max_position - sockArray->min_position) + 1;
-      for (pos = 0; pos < array_size; pos++) {
-        FD_SET(sockArray->arr[pos].value.socketvalue, &readfds);
-        if ((int) sockArray->arr[pos].value.socketvalue >= nfds) {
-          nfds = (int) sockArray->arr[pos].value.socketvalue + 1;
-        } /* if */
-      } /* for */
-    } /* if */
-    select_result = select(nfds, &readfds, NULL, NULL, &timeout);
-    if (unlikely(select_result < 0)) {
-      raise_error(FILE_ERROR);
-      result = NULL;
-    } else {
-      if (unlikely(!ALLOC_RTL_ARRAY(result, (memsizetype) select_result))) {
-        raise_error(MEMORY_ERROR);
-        result = NULL;
-      } else {
-        result->min_position = 1;
-        result->max_position = select_result;
-        pos = 0;
-        for (fd = 0; fd < nfds; fd++) {
-          if (FD_ISSET(fd, &readfds)) {
-            result->arr[pos].value.socketvalue = (sockettype) fd;
-            pos++;
-          } /* if */
-        } /* for */
-      } /* if */
-    } /* if */
-    return result;
-  } /* socSelect */
-
-
-
-#ifdef ANSI_C
-
-inttype socSelectOne (const const_rtlArraytype sockArray)
-#else
-
-inttype socSelectOne (sockArray)
-rtlArraytype sockArray;
-#endif
-
-  {
-    memsizetype array_size;
-    memsizetype pos;
-    int nfds = 0;
-    fd_set readfds;
-    int select_result;
-    inttype random_selection;
-
-  /* socSelectOne */
-    if (unlikely(sockArray->max_position < sockArray->min_position)) {
-      raise_error(RANGE_ERROR);
-    } else {
-      FD_ZERO(&readfds);
-      array_size = (uinttype) (sockArray->max_position - sockArray->min_position) + 1;
-      for (pos = 0; pos < array_size; pos++) {
-        FD_SET(sockArray->arr[pos].value.socketvalue, &readfds);
-        if ((int) sockArray->arr[pos].value.socketvalue >= nfds) {
-          nfds = (int) sockArray->arr[pos].value.socketvalue + 1;
-        } /* if */
-      } /* for */
-      select_result = select(nfds, &readfds, NULL, NULL, NULL);
-      if (likely(select_result > 0)) {
-        random_selection = intRand(1, (inttype) select_result);
-        for (pos = 0; pos < array_size; pos++) {
-          if (FD_ISSET(sockArray->arr[pos].value.socketvalue, &readfds)) {
-            random_selection--;
-            if (random_selection == 0) {
-              return sockArray->min_position + (inttype) pos;
-            } /* if */
-          } /* if */
-        } /* for */
-      } /* if */
-      raise_error(FILE_ERROR);
-    } /* if */
-    return 0;
-  } /* socSelectOne */
-#endif
 
 
 
@@ -1756,6 +1821,7 @@ stritype stri;
              WSAEOPNOTSUPP, WSAESHUTDOWN, WSAEWOULDBLOCK, WSAEMSGSIZE);
       printf("WSAEINVAL=%ld, WSAECONNABORTED=%ld, WSAETIMEDOUT=%ld, WSAECONNRESET=%ld\n",
              WSAEINVAL, WSAECONNABORTED, WSAETIMEDOUT, WSAECONNRESET);
+      printf("WSAENOBUFS=%ld\n", WSAENOBUFS);
       printf("bytes_sent=%ld, stri->size=%lu\n", (long) bytes_sent, stri->size); */
       raise_error(FILE_ERROR);
     } /* if */

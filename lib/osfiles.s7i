@@ -52,15 +52,17 @@ const proc: SET_MTIME (in string param, in integer param, in integer param,
     in integer param, in integer param) is action "CMD_SET_MTIME";
 
 
-const integer: FILE_ABSENT  is 0; # A component of path does not exist
-const integer: FILE_UNKNOWN is 1; # File exists but has an unknown type
-const integer: FILE_REGULAR is 2;
-const integer: FILE_DIR     is 3;
-const integer: FILE_CHAR    is 4;
-const integer: FILE_BLOCK   is 5;
-const integer: FILE_FIFO    is 6;
-const integer: FILE_SYMLINK is 7;
-const integer: FILE_SOCKET  is 8;
+const type: fileType is integer;
+
+const fileType: FILE_ABSENT  is 0; # A component of path does not exist
+const fileType: FILE_UNKNOWN is 1; # File exists but has an unknown type
+const fileType: FILE_REGULAR is 2;
+const fileType: FILE_DIR     is 3;
+const fileType: FILE_CHAR    is 4;
+const fileType: FILE_BLOCK   is 5;
+const fileType: FILE_FIFO    is 6;
+const fileType: FILE_SYMLINK is 7;
+const fileType: FILE_SOCKET  is 8;
 
 const type: filePermission is new enum
     EXEC_OTHER,
@@ -84,17 +86,13 @@ const func fileMode: (attr fileMode) conv (in integer: int_mode) is
 
 const func string: str (in fileMode: aFileMode) is func
   result
-    var string: result is "";
+    var string: result is "rwxrwxrwx";
   local
-    const array [filePermission] string: name is
-        [filePermission] ("x", "w", "r", "x", "w", "r", "x", "w", "r");
     var filePermission: aPermission is READ_USER;
   begin
     for aPermission range READ_USER downto EXEC_OTHER do
-      if aPermission in aFileMode then
-        result &:= name[aPermission];
-      else
-        result &:= "-";
+      if aPermission not in aFileMode then
+        result @:= [9 - ord(aPermission)] '-';
       end if;
     end for;
   end func;
@@ -162,7 +160,7 @@ const proc: mkdir (in string: name)                          is action "CMD_MKDI
  *  @exception FILE_ERROR The system function returns an error other
  *             than ENOENT or ENOTDIR. 
  *)
-const func integer: fileType (in string: filePath)           is action "CMD_FILETYPE";
+const func fileType: fileType (in string: filePath)          is action "CMD_FILETYPE";
 
 
 (**
@@ -177,7 +175,7 @@ const func integer: fileType (in string: filePath)           is action "CMD_FILE
  *  @exception FILE_ERROR The system function returns an error other
  *             than ENOENT or ENOTDIR. 
  *)
-const func integer: fileTypeSL (in string: filePath)         is action "CMD_FILETYPE_SL";
+const func fileType: fileTypeSL (in string: filePath)        is action "CMD_FILETYPE_SL";
 
 
 (**
@@ -227,7 +225,6 @@ const func integer: fileSize (in string: filePath)           is action "CMD_FILE
  *             to the system path type.
  *  @exception RANGE_ERROR 'filePath' is not representable in the
  *             system path type.
- *  @exception RANGE_ERROR The file size is not representable as integer.
  *  @exception FILE_ERROR It was not possible to determine the file size.
  *)
 const func bigInteger: bigFileSize (in string: filePath)     is action "CMD_BIG_FILESIZE";

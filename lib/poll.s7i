@@ -74,7 +74,9 @@ const proc: clear (inout pollData: pData)                                  is ac
  *  * POLLIN check if data can be read from the corresponding socket.
  *  * POLLOUT check if data can be written to the corresponding socket.
  *  * POLLINOUT check if data can be read or written (POLLIN or POLLOUT).
+ *  @exception RANGE_ERROR Illegal value for ''eventsToCheck''.
  *  @exception MEMORY_ERROR An out of memory situation occurred.
+ *  @exception FILE_ERROR A limit of the operating system was reached.
  *)
 const proc: addCheck (inout pollData: pData, in PRIMITIVE_SOCKET: aSocket,
                       in integer: eventsToCheck, in file: aFile)           is action "POL_ADD_CHECK";
@@ -94,7 +96,9 @@ const proc: addCheck (inout pollData: pData, in socket: aSocket,
  *  * POLLIN check if data can be read from the corresponding socket.
  *  * POLLOUT check if data can be written to the corresponding socket.
  *  * POLLINOUT check if data can be read or written (POLLIN or POLLOUT).
+ *  @exception RANGE_ERROR Illegal value for ''eventsToCheck''.
  *  @exception MEMORY_ERROR An out of memory situation occurred.
+ *  @exception FILE_ERROR A limit of the operating system was reached.
  *)
 const proc: addCheck (inout pollData: pData, in file: aFile,
                       in integer: eventsToCheck) is DYNAMIC;
@@ -107,6 +111,7 @@ const proc: addCheck (inout pollData: pData, in file: aFile,
  *  * POLLIN check if data can be read from the corresponding socket.
  *  * POLLOUT check if data can be written to the corresponding socket.
  *  * POLLINOUT check if data can be read or written (POLLIN or POLLOUT).
+ *  @exception RANGE_ERROR Illegal value for ''eventsToCheck''.
  *)
 const proc: removeCheck (inout pollData: pData, in PRIMITIVE_SOCKET: aSocket,
                       in integer: eventsToCheck)                           is action "POL_REMOVE_CHECK";
@@ -126,6 +131,7 @@ const proc: removeCheck (inout pollData: pData, in socket: aSocket,
  *  * POLLIN check if data can be read from the corresponding socket.
  *  * POLLOUT check if data can be written to the corresponding socket.
  *  * POLLINOUT check if data can be read or written (POLLIN or POLLOUT).
+ *  @exception RANGE_ERROR Illegal value for ''eventsToCheck''.
  *)
 const proc: removeCheck (inout pollData: pData, in file: aFile,
                          in integer: eventsToCheck) is DYNAMIC;
@@ -175,6 +181,7 @@ const func integer: getCheck (inout pollData: pData, in file: aFile) is DYNAMIC;
  *  * POLLIN data can be read from the corresponding socket.
  *  * POLLOUT data can be written to the corresponding socket.
  *  * POLLINOUT data can be read and written (POLLIN and POLLOUT).
+ *  @exception FILE_ERROR The system function returns an error.
  *)
 const proc: poll (inout pollData: pData)                                   is action "POL_POLL";
 
@@ -221,6 +228,7 @@ const func integer: getFinding (inout pollData: pData, in file: aFile) is DYNAMI
  *  * POLLIN data can be read from the corresponding socket.
  *  * POLLOUT data can be written to the corresponding socket.
  *  * POLLINOUT data can be read or written (POLLIN and POLLOUT).
+ *  @exception RANGE_ERROR Illegal value for ''pollMode''.
  *)
 const proc: iterChecks (in pollData: pData, in integer: pollMode)           is action "POL_ITER_CHECKS";
 
@@ -234,6 +242,7 @@ const proc: iterChecks (in pollData: pData, in integer: pollMode)           is a
  *  * POLLIN data can be read from the corresponding socket.
  *  * POLLOUT data can be written to the corresponding socket.
  *  * POLLINOUT data can be read or written (POLLIN and POLLOUT).
+ *  @exception RANGE_ERROR Illegal value for ''pollMode''.
  *)
 const proc: iterFindings (in pollData: pData, in integer: pollMode)        is action "POL_ITER_FINDINGS";
 

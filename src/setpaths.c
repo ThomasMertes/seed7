@@ -105,7 +105,7 @@ void write_as_utf8 (os_chartype *wstri)
         putchar((unsigned char) (0xC0 | (*wstri >>  6)));
         putchar((unsigned char) (0x80 |( *wstri        & 0x3F)));
       } else if (*wstri >= 0xD800 && *wstri <= 0xDBFF &&
-		 wstri[1] >= 0xDC00 && wstri[1] <= 0xDFFF) {
+                 wstri[1] >= 0xDC00 && wstri[1] <= 0xDFFF) {
         utf32 = ((((unsigned long) *wstri   - 0xD800) << 10) +
                   ((unsigned long) wstri[1] - 0xDC00) + 0x10000);
         wstri++;

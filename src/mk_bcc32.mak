@@ -165,8 +165,6 @@ version.h:
 	echo ^#define LIST_DIRECTORY_CONTENTS "dir" >> chkccomp.h
 	echo ^#define __int64_EXISTS >> chkccomp.h
 	echo ^#define __int64_SUFFIX_LL >> chkccomp.h
-	echo ^#define TURN_OFF_FP_EXCEPTIONS >> chkccomp.h
-	echo ^#define DEFINE_MATHERR_FUNCTION >> chkccomp.h
 	$(CC) chkccomp.c
 	chkccomp.exe >> version.h
 	del chkccomp.h

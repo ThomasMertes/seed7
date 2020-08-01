@@ -449,7 +449,7 @@ const func boolean: equalAtIndex (in string: stri, in string: searched, in integ
 
 const func string: getint (inout string: stri) is func
   result
-    var string: result is "";
+    var string: digits is "";
   local
     var integer: leng is 0;
     var integer: pos is 1;
@@ -458,7 +458,7 @@ const func string: getint (inout string: stri) is func
     while pos <= leng and stri[pos] >= '0' and stri[pos] <= '9' do
       incr(pos);
     end while;
-    result := stri[.. pred(pos)];
+    digits := stri[.. pred(pos)];
     stri := stri[pos ..];
   end func;
 

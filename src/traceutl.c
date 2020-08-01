@@ -239,7 +239,7 @@ const const_os_stritype os_stri;
 
         for (; *stri != 0 && stri - os_stri <= 128; stri++) {
           if (*stri <= (os_chartype) 31) {
-            sprintf(buffer, "\\%3lo", (unsigned long) (os_uchartype) *stri);
+            sprintf(buffer, "\\%03lo", (unsigned long) (os_uchartype) *stri);
           } else if (*stri == (os_chartype) '\\') {
             sprintf(buffer, "\\\\");
           } else if (*stri == (os_chartype) '\"') {

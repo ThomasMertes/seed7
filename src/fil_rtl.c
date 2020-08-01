@@ -42,6 +42,7 @@
 #else
 #include "unistd.h"
 #endif
+/* #include "errno.h" */
 
 #include "common.h"
 #include "os_decls.h"
@@ -448,6 +449,9 @@ filetype aFile;
   /* getFileLengthUsingSeek */
     file_length = seekFileLength(aFile);
     if (unlikely(file_length == (os_off_t) -1)) {
+      /* printf("errno=%d\n", errno);
+      printf("EBADF=%d  EINVAL=%d  ESPIPE=%d\n",
+          EBADF, EINVAL, ESPIPE); */
       raise_error(FILE_ERROR);
       result = 0;
     } else if (unlikely(file_length > INTTYPE_MAX ||
@@ -478,15 +482,19 @@ filetype aFile;
   /* getBigFileLengthUsingSeek */
     file_length = seekFileLength(aFile);
     if (unlikely(file_length == (os_off_t) -1)) {
+      /* printf("errno=%d\n", errno);
+      printf("EBADF=%d  EINVAL=%d  ESPIPE=%d\n",
+          EBADF, EINVAL, ESPIPE); */
       raise_error(FILE_ERROR);
       result = NULL;
-    } else if (sizeof(os_off_t) == 8) {
-      result = bigFromUInt64((uint64type) file_length);
-    } else if (sizeof(os_off_t) == 4) {
-      result = bigFromUInt32((uint32type) file_length);
     } else {
-      raise_error(RANGE_ERROR);
-      result = NULL;
+#if OS_OFF_T_SIZE == 32
+      result = bigFromUInt32((uint32type) file_length);
+#elif OS_OFF_T_SIZE == 64
+      result = bigFromUInt64((uint64type) file_length);
+#else
+#error "sizeof(os_off_t) is neither 4 nor 8."
+#endif
     } /* if */
     return result;
   } /* getBigFileLengthUsingSeek */
@@ -676,14 +684,13 @@ filetype aFile;
     file_no = fileno(aFile);
     if (file_no != -1 && os_fstat(file_no, &stat_buf) == 0 &&
         S_ISREG(stat_buf.st_mode)) {
-      if (sizeof(stat_buf.st_size) == 8) {
-        result = bigFromUInt64((uint64type) stat_buf.st_size);
-      } else if (sizeof(stat_buf.st_size) == 4) {
-        result = bigFromUInt32((uint32type) stat_buf.st_size);
-      } else {
-        raise_error(RANGE_ERROR);
-        result = NULL;
-      } /* if */
+#if OS_OFF_T_SIZE == 32
+      result = bigFromUInt32((uint32type) stat_buf.st_size);
+#elif OS_OFF_T_SIZE == 64
+      result = bigFromUInt64((uint64type) stat_buf.st_size);
+#else
+#error "sizeof(os_off_t) is neither 4 nor 8."
+#endif
     } else {
       result = getBigFileLengthUsingSeek(aFile);
     } /* if */
@@ -715,13 +722,13 @@ biginttype big_position;
     os_off_t file_position;
 
   /* filBigSeek */
-    if (sizeof(os_off_t) == 8) {
-      file_position = (os_off_t) bigToInt64(big_position);
-    } else if (sizeof(os_off_t) == 4) {
-      file_position = (os_off_t) bigToInt32(big_position);
-    } else {
-      raise_error(RANGE_ERROR);
-    } /* if */
+#if OS_OFF_T_SIZE == 32
+    file_position = (os_off_t) bigToInt32(big_position);
+#elif OS_OFF_T_SIZE == 64
+    file_position = (os_off_t) bigToInt64(big_position);
+#else
+#error "sizeof(os_off_t) is neither 4 nor 8."
+#endif
     if (unlikely(file_position <= 0)) {
       raise_error(RANGE_ERROR);
     } else if (unlikely(offsetSeek(aFile, file_position - 1, SEEK_SET) != 0)) {
@@ -757,13 +764,14 @@ filetype aFile;
     if (unlikely(current_file_position == (os_off_t) -1)) {
       raise_error(FILE_ERROR);
       return NULL;
-    } else if (sizeof(os_off_t) == 8) {
-      return bigFromUInt64((uint64type) current_file_position + 1);
-    } else if (sizeof(os_off_t) == 4) {
-      return bigFromUInt32((uint32type) current_file_position + 1);
     } else {
-      raise_error(RANGE_ERROR);
-      return NULL;
+#if OS_OFF_T_SIZE == 32
+      return bigFromUInt32((uint32type) current_file_position + 1);
+#elif OS_OFF_T_SIZE == 64
+      return bigFromUInt64((uint64type) current_file_position + 1);
+#else
+#error "sizeof(os_off_t) is neither 4 nor 8."
+#endif
     } /* if */
   } /* filBigTell */
 
@@ -1176,6 +1184,7 @@ stritype mode;
   {
     os_stritype os_path;
     os_chartype os_mode[4];
+    int path_info = PATH_IS_NORMAL;
     errinfotype err_info = OKAY_NO_ERROR;
 #ifdef FOPEN_OPENS_DIRECTORIES
     int file_no;
@@ -1190,14 +1199,14 @@ stritype mode;
       raise_error(RANGE_ERROR);
       result = NULL;
     } else {
-      os_path = cp_to_os_path(path, &err_info);
+      os_path = cp_to_os_path(path, &path_info, &err_info);
       if (unlikely(err_info != OKAY_NO_ERROR)) {
 #ifdef MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
-        if (!IS_EMULATED_ROOT(os_path)) {
-#endif
+        if (path_info == PATH_IS_NORMAL) {
           raise_error(err_info);
-#ifdef MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
         } /* if */
+#else
+        raise_error(err_info);
 #endif
         result = NULL;
       } else {

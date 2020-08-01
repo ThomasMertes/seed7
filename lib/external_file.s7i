@@ -90,11 +90,11 @@ const type: external_file is sub null_file struct
 type_implements_interface(external_file, file);
 
 
-const func external_file: malloc (in external_file: ext_file) is func
+const func external_file: malloc (in external_file: anExternalFile) is func
   result
-    var external_file: result is external_file.value;
+    var external_file: newFile is external_file.value;
   begin
-    result := ext_file;
+    newFile := anExternalFile;
   end func;
 
 
@@ -110,7 +110,7 @@ const func external_file: malloc (in external_file: ext_file) is func
  *)
 const func file: open (in string: fileName, in string: mode) is func
   result
-    var file: result is STD_NULL;
+    var file: newFile is STD_NULL;
   local
     var PRIMITIVE_FILE: open_file is PRIMITIVE_NULL_FILE;
     var external_file: new_file is external_file.value;
@@ -119,7 +119,7 @@ const func file: open (in string: fileName, in string: mode) is func
     if open_file <> PRIMITIVE_NULL_FILE then
       new_file.ext_file := open_file;
       new_file.name := fileName;
-      result := malloc(new_file);
+      newFile := malloc(new_file);
     end if;
   end func;
 

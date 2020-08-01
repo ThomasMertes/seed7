@@ -65,7 +65,7 @@ goals. Seed7 differentiates between syntactic and semantic extensions.
 Syntactic extensions are described in Chapter 9 (Structured syntax
 definition) of the manual. The semantic extensions of Seed7 are done
 by declaring statements and operators as functions. To do this
-statically typed closure parameters are used.
+statically typed call-by-name parameters are used.
 
 
 Are Seed7 programs portable?
@@ -189,10 +189,10 @@ How many lines of code are in the Seed7 project?
 The Seed7 package contains more than 100000 lines of C and more
 than 150000 lines of Seed7. For version 2012-01-15 the number of lines is:
 
-  100093  C source files (*.c)
-   10066  C header files (*.h)
-  107114  Seed7 source files (*.sd7)
-   64536  Seed7 library/include files (*.s7i)
+  100346  C source files (*.c)
+   10077  C header files (*.h)
+  107704  Seed7 source files (*.sd7)
+   64541  Seed7 library/include files (*.s7i)
 
 C code (*.c and *.h files) can be divided into the following areas:
 
@@ -1037,24 +1037,28 @@ The decision which '+' operator should be called at runtime is based on the
 implementation type ('Integer' or a 'Float') of both arguments of the '+'.
 
 
-What is a closure?
-==================
+What is a call-by-name?
+=======================
 
-Closures are expressions and they might be executed once, many
-times or not at all. Examples of closures are:
+Call-by-name is an evaluation strategy for parameters.
+The actual call-by-name parameter is not evaluated before
+the function is called. When the function is executed the
+call-by-name parameter might be executed once, many times
+or not at all. Examples of call-by-name parameters are:
 
  - The conditions of while loops
  - The statements in loop bodies
  - The statements that are conditionally executed in
    an if statement
 
-As can be seen closures are used all the time without realizing it. 
-A closure is a function without parameters. Function types such
-as 'proc' or 'func boolean' are used as type of formal closure
+As can be seen, call-by-name parameters are used all the time,
+without realizing it. A call-by-name parameter is a function
+without parameters. Function types such as 'proc' or
+'func boolean' are used as type of formal call-by-name
 parameters. An expression with the correct type is allowed
-as actual closure parameter. This actual parameter expression is
-not evaluated when the function is called. Instead the closure
-expression is evaluated every time the formal closure parameter
+as actual call-by-name parameter. This actual parameter expression is
+not evaluated when the function is called. Instead the call-by-name
+expression is evaluated every time the formal call-by-name parameter
 is used. A 'conditional' function (similar to the ?: operator from C)
 is defined with:
 
@@ -1071,7 +1075,7 @@ is defined with:
     end func;
 
 Seed7 does not require a special notation (like brackets) for
-actual closure parameters, therefore the 'conditional' function
+actual call-by-name parameters, therefore the 'conditional' function
 can be called with:
 
   conditional(a < 100.0, sqrt(a), a ** 2)
@@ -1537,30 +1541,30 @@ Executing a declaration statement adds new defined objects to the internal
 database.
 
 
-How does the compiler implement closure parameters?
-===================================================
+How does the compiler implement call-by-name parameters?
+========================================================
 
-Every function with closure parameters is searched for recursive calls.
+Every function with call-by-name parameters is searched for recursive calls.
 When no recursive call of the function is present it can be implemented
 with code inlining. In this case every call of the function is inlined
-and the actual closure parameters replace all occurrences of the formal
-closure parameter in the function body.
+and the actual call-by-name parameters replace all occurrences of the formal
+call-by-name parameter in the function body.
 
 When a function cannot be implemented with code inlining (recursive calls
-occur) pointers to a closure structure are used as formal closure parameters.
+occur) pointers to a closure structure are used as formal call-by-name parameters.
 This closure structure contains a function pointer and a structure which
-represents the environment of the closure. When a formal closure parameter
+represents the environment of the closure. When a formal call-by-name parameter
 is used the function of the closure structure is called with a pointer to
 the closure environment as parameter.
 
-When a function with closure parameters is called the following things are done:
-For every actual closure parameter a closure structure with the function
+When a function with call-by-name parameters is called the following things are done:
+For every actual call-by-name parameter a closure structure with the function
 pointer and the closure environment structure is generated. An actual
 function representing the closure code is also generated. Before a function
-with a closure parameter is called a closure structure variable is
+with a call-by-name parameter is called a closure structure variable is
 initialized. This includes initializing the function pointer and the
 environment data of the closure structure variable. Finally a pointer
-to the closure structure variable is used as actual closure parameter.
+to the closure structure variable is used as actual call-by-name parameter.
 
 
 What does action "XYZ_SOMETHING" mean?

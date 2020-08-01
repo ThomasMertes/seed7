@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  hi   Interpreter for Seed7 programs.                            */
-/*  Copyright (C) 1990 - 2011  Thomas Mertes                        */
+/*  Copyright (C) 1990 - 2012  Thomas Mertes                        */
 /*                                                                  */
 /*  This program is free software; you can redistribute it and/or   */
 /*  modify it under the terms of the GNU General Public License as  */
@@ -308,7 +308,7 @@ char **argv;
       FREE_STRI(arg_0, arg_0->size);
       processOptions(arg_v);
       if (option.version_info) {
-        printf("HI INTERPRETER Version 4.5.%d  Copyright (c) 1990-2011 Thomas Mertes\n", LEVEL);
+        printf("HI INTERPRETER Version 4.5.%d  Copyright (c) 1990-2012 Thomas Mertes\n", LEVEL);
       } /* if */
 #ifdef CATCH_SIGNALS
       if (option.catch_signals) {

@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  comp.sd7      Compiler from Seed7 to C                          *)
-(*  Copyright (C) 1990 - 1994, 2004 - 2011  Thomas Mertes           *)
+(*  Copyright (C) 1990 - 1994, 2004 - 2012  Thomas Mertes           *)
 (*                                                                  *)
 (*  This program is free software; you can redistribute it and/or   *)
 (*  modify it under the terms of the GNU General Public License as  *)
@@ -14079,6 +14079,64 @@ const proc: process_str_cpy (in ref_list: params, inout expr_type: c_expr) is fu
 
 
 const proc: process_const_str_elemcpy (in reference: function, in reference: param1,
+    in integer: index, in char: ch, inout expr_type: c_expr) is func
+
+  local
+    var expr_type: c_param1 is expr_type.value;
+  begin
+    incr(countOptimizations);
+    if index < 1 then
+      c_expr.expr &:= "/* 'string @:= [n] char' with n < 1 */\n";
+      process_raise_error("RANGE_ERROR", function, c_expr);
+      c_expr.expr &:= ";\n";
+    else
+      process_expr(param1, c_param1);
+      if c_param1.temp_num <> 0 or array_range_check then
+        c_expr.expr &:= "{\n";
+      end if;
+      if c_param1.temp_num <> 0 then
+        AppendWithDiagnostic(c_param1.temp_decls, c_expr);
+        AppendWithDiagnostic(c_param1.temp_assigns, c_expr);
+      end if;
+      if array_range_check then
+        c_expr.expr &:= "stritype str1=";
+        c_expr.expr &:= c_param1.expr;
+        c_expr.expr &:= ";\n";
+        c_expr.expr &:= "if (str1->size<=";
+        c_expr.expr &:= str(pred(index));
+        c_expr.expr &:= ") {\n";
+        c_expr.expr &:= "  ";
+        process_raise_error("RANGE_ERROR", function, c_expr);
+        c_expr.expr &:= ";\n";
+        c_expr.expr &:= "} else {\n";
+        setDiagnosticLine(c_expr);
+        c_expr.expr &:= "  str1->mem[";
+        c_expr.expr &:= str(pred(index));
+        c_expr.expr &:= "] = (strelemtype)(";
+        c_expr.expr &:= c_literal(ch);
+        c_expr.expr &:= ");\n";
+        c_expr.expr &:= "}\n";
+      else
+        setDiagnosticLine(c_expr);
+        c_expr.expr &:= "(";
+        c_expr.expr &:= c_param1.expr;
+        c_expr.expr &:= ")->mem[";
+        c_expr.expr &:= str(pred(index));
+        c_expr.expr &:= "] = (strelemtype)(";
+        c_expr.expr &:= c_literal(ch);
+        c_expr.expr &:= ");\n";
+      end if;
+      if c_param1.temp_num <> 0 then
+        AppendWithDiagnostic(c_param1.temp_frees, c_expr);
+      end if;
+      if c_param1.temp_num <> 0 or array_range_check then
+        c_expr.expr &:= "}\n";
+      end if;
+    end if;
+  end func;
+
+
+const proc: process_const_str_elemcpy (in reference: function, in reference: param1,
     in integer: index, in reference: param6, inout expr_type: c_expr) is func
 
   local
@@ -14142,6 +14200,75 @@ const proc: process_const_str_elemcpy (in reference: function, in reference: par
   end func;
 
 
+const proc: process_const_str_elemcpy (in reference: function, in reference: param1,
+    in reference: param4, in char: ch, inout expr_type: c_expr) is func
+
+  local
+    var reference: evaluatedParam is NIL;
+    var expr_type: c_param1 is expr_type.value;
+    var expr_type: c_param4 is expr_type.value;
+  begin
+    if getConstant(param4, INTOBJECT, evaluatedParam) then
+      process_const_str_elemcpy(function, param1, getValue(evaluatedParam, integer), ch, c_expr);
+    else
+      process_expr(param1, c_param1);
+      c_param4.temp_num := c_param1.temp_num;
+      process_expr(param4, c_param4);
+      if c_param4.temp_num <> 0 or array_range_check then
+        c_expr.expr &:= "{\n";
+      end if;
+      if c_param4.temp_num <> 0 then
+        AppendWithDiagnostic(c_param1.temp_decls, c_expr);
+        AppendWithDiagnostic(c_param4.temp_decls, c_expr);
+        AppendWithDiagnostic(c_param1.temp_assigns, c_expr);
+        AppendWithDiagnostic(c_param4.temp_assigns, c_expr);
+      end if;
+      if array_range_check then
+        c_expr.expr &:= "stritype str1=";
+        c_expr.expr &:= c_param1.expr;
+        c_expr.expr &:= ";\n";
+        if TWOS_COMPLEMENT_INTTYPE then
+          c_expr.expr &:= "uinttype pos=(";
+        else
+          c_expr.expr &:= "inttype pos=(";
+        end if;
+        c_expr.expr &:= c_param4.expr;
+        c_expr.expr &:= ")-1;\n";
+        c_expr.expr &:= "if (";
+        if not TWOS_COMPLEMENT_INTTYPE then
+          c_expr.expr &:= "pos<0 || ";
+        end if;
+        c_expr.expr &:= "pos>=str1->size) {\n";
+        c_expr.expr &:= "  ";
+        process_raise_error("RANGE_ERROR", function, c_expr);
+        c_expr.expr &:= ";\n";
+        c_expr.expr &:= "} else {\n";
+        setDiagnosticLine(c_expr);
+        c_expr.expr &:= "  str1->mem[pos] = (strelemtype)(";
+        c_expr.expr &:= c_literal(ch);
+        c_expr.expr &:= ");\n";
+        c_expr.expr &:= "}\n";
+      else
+        setDiagnosticLine(c_expr);
+        c_expr.expr &:= "(";
+        c_expr.expr &:= c_param1.expr;
+        c_expr.expr &:= ")->mem[(";
+        c_expr.expr &:= c_param4.expr;
+        c_expr.expr &:= ")-1] = (strelemtype)(";
+        c_expr.expr &:= c_literal(ch);
+        c_expr.expr &:= ");\n";
+      end if;
+      if c_param4.temp_num <> 0 then
+        AppendWithDiagnostic(c_param1.temp_frees, c_expr);
+        AppendWithDiagnostic(c_param4.temp_frees, c_expr);
+      end if;
+      if c_param4.temp_num <> 0 or array_range_check then
+        c_expr.expr &:= "}\n";
+      end if;
+    end if;
+  end func;
+
+
 const proc: process_str_elemcpy (in reference: function, in ref_list: params, inout expr_type: c_expr) is func
 
   local
@@ -14150,7 +14277,9 @@ const proc: process_str_elemcpy (in reference: function, in ref_list: params, in
     var expr_type: c_param4 is expr_type.value;
     var expr_type: c_param6 is expr_type.value;
   begin
-    if getConstant(params[4], INTOBJECT, evaluatedParam) then
+    if getConstant(params[6], CHAROBJECT, evaluatedParam) then
+      process_const_str_elemcpy(function, params[1], params[4], getValue(evaluatedParam, char), c_expr);
+    elsif getConstant(params[4], INTOBJECT, evaluatedParam) then
       process_const_str_elemcpy(function, params[1], getValue(evaluatedParam, integer), params[6], c_expr);
     else
       process_expr(params[1], c_param1);
@@ -15001,7 +15130,10 @@ const proc: process_str_poscpy (in reference: function, in ref_list: params, ino
     var expr_type: c_param4 is expr_type.value;
     var expr_type: c_param6 is expr_type.value;
   begin
-    if getConstant(params[4], INTOBJECT, evaluatedParam) then
+    if getConstant(params[6], STRIOBJECT, evaluatedParam) and
+        length(getValue(evaluatedParam, string)) = 1 then
+      process_const_str_elemcpy(function, params[1], params[4], getValue(evaluatedParam, string)[1], c_expr);
+    elsif getConstant(params[4], INTOBJECT, evaluatedParam) then
       process_const_str_poscpy(function, params[1], getValue(evaluatedParam, integer), params[6], c_expr);
     else
       process_expr(params[1], c_param1);
@@ -21953,20 +22085,20 @@ const proc: write_prototypes is func
     declareExtern("stritype    kbdLineRead (chartype *);");
     declareExtern("chartype    kbdRawGetc (void);");
     declareExtern("stritype    kbdWordRead (chartype *);");
-    declareExtern("void        polAddCheck (polltype, const sockettype, inttype, const generictype);");
-    declareExtern("void        polClear (polltype);");
-    declareExtern("void        polCpy (polltype, const const_polltype);");
+    declareExtern("void        polAddCheck (const polltype, const sockettype, inttype, const generictype);");
+    declareExtern("void        polClear (const polltype);");
+    declareExtern("void        polCpy (const polltype, const const_polltype);");
     declareExtern("polltype    polCreate (const const_polltype);");
-    declareExtern("void        polDestr (const const_polltype);");
+    declareExtern("void        polDestr (const polltype);");
     declareExtern("polltype    polEmpty (void);");
-    declareExtern("inttype     polGetCheck (polltype, const sockettype);");
-    declareExtern("inttype     polGetFinding (polltype, const sockettype);");
-    declareExtern("booltype    polHasNext (polltype);");
-    declareExtern("void        polIterChecks (polltype, inttype);");
-    declareExtern("void        polIterFindings (polltype, inttype);");
-    declareExtern("generictype polNextFile (polltype, const generictype);");
-    declareExtern("void        polPoll (polltype);");
-    declareExtern("void        polRemoveCheck (polltype, const sockettype, inttype);");
+    declareExtern("inttype     polGetCheck (const const_polltype, const sockettype);");
+    declareExtern("inttype     polGetFinding (const const_polltype, const sockettype);");
+    declareExtern("booltype    polHasNext (const polltype);");
+    declareExtern("void        polIterChecks (const polltype, inttype);");
+    declareExtern("void        polIterFindings (const polltype, inttype);");
+    declareExtern("generictype polNextFile (const polltype, const generictype);");
+    declareExtern("void        polPoll (const polltype);");
+    declareExtern("void        polRemoveCheck (const polltype, const sockettype, inttype);");
     declareExtern("polltype    polValue (objreftype);");
     declareExtern("inttype     heapsize (void);");
     declareExtern("void        prcNoop (void)                                {}");
@@ -23814,7 +23946,7 @@ const proc: main is func
 
   begin
     OUT := STD_UTF8_OUT;
-    writeln("SEED7 COMPILER Version 2.0  Copyright (c) 1990-2011 Thomas Mertes");
+    writeln("SEED7 COMPILER Version 2.0  Copyright (c) 1990-2012 Thomas Mertes");
     if length(argv(PROGRAM)) = 0 then
       writeln("This is free software; see the source for copying conditions.  There is NO");
       writeln("warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.");

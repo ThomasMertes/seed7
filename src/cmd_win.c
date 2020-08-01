@@ -487,10 +487,11 @@ filetype *childStdout;
     os_stritype command_line;
     STARTUPINFOW startupInfo;
     PROCESS_INFORMATION processInformation;
+    int path_info = PATH_IS_NORMAL;
     errinfotype err_info = OKAY_NO_ERROR;
 
   /* cmdPipe2 */
-    os_command_stri = cp_to_os_path(command, &err_info);
+    os_command_stri = cp_to_os_path(command, &path_info, &err_info);
     if (likely(err_info == OKAY_NO_ERROR)) {
       command_line = prepareCommandLine(os_command_stri, parameters, &err_info);
       if (likely(err_info == OKAY_NO_ERROR)) {
@@ -544,10 +545,11 @@ rtlArraytype parameters;
     os_stritype command_line;
     STARTUPINFOW startupInfo;
     PROCESS_INFORMATION processInformation;
+    int path_info = PATH_IS_NORMAL;
     errinfotype err_info = OKAY_NO_ERROR;
 
   /* cmdStartProcess */
-    os_command_stri = cp_to_os_path(command, &err_info);
+    os_command_stri = cp_to_os_path(command, &path_info, &err_info);
     if (likely(err_info == OKAY_NO_ERROR)) {
       command_line = prepareCommandLine(os_command_stri, parameters, &err_info);
       if (likely(err_info == OKAY_NO_ERROR)) {

@@ -169,13 +169,14 @@ filetype *childStdout;
     int childStdoutPipes[2];
     int savedStdin;
     int savedStdout;
+    int path_info = PATH_IS_NORMAL;
     errinfotype err_info = OKAY_NO_ERROR;
     pid_t pid;
 
   /* cmdPipe2 */
     emptyStri.size = 0;
-    os_command_stri = cp_to_command(command, &emptyStri, &err_info);
-    if (os_command_stri == NULL) {
+    os_command_stri = cp_to_os_path(command, &path_info, &err_info);
+    if (unlikely(err_info != OKAY_NO_ERROR)) {
       raise_error(err_info);
     } else if (access(os_command_stri, X_OK) != 0) {
       os_stri_free(os_command_stri);
@@ -243,12 +244,13 @@ rtlArraytype parameters;
   {
     struct stristruct emptyStri;
     os_stritype os_command_stri;
+    int path_info = PATH_IS_NORMAL;
     errinfotype err_info = OKAY_NO_ERROR;
     pid_t pid;
 
   /* cmdStartProcess */
     emptyStri.size = 0;
-    os_command_stri = cp_to_os_path(command, &err_info);
+    os_command_stri = cp_to_os_path(command, &path_info, &err_info);
     if (unlikely(err_info != OKAY_NO_ERROR)) {
       raise_error(err_info);
     } else if (access(os_command_stri, X_OK) != 0) {

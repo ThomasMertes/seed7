@@ -47,11 +47,11 @@ const proc: utf8_write (ref PRIMITIVE_FILE param, in string param) is           
 const proc: utf8_seek (ref PRIMITIVE_FILE param, in integer param) is             action "UT8_SEEK";
 
 
-const func utf8_file: malloc (in utf8_file: ext_file) is func
+const func utf8_file: malloc (in utf8_file: anUtf8File) is func
   result
-    var utf8_file: result is utf8_file.value;
+    var utf8_file: newFile is utf8_file.value;
   begin
-    result := ext_file;
+    newFile := anUtf8File;
   end func;
 
 
@@ -63,7 +63,7 @@ const func utf8_file: malloc (in utf8_file: ext_file) is func
  *)
 const func file: open_utf8 (in string: fileName, in string: mode) is func
   result
-    var file: result is STD_NULL;
+    var file: newFile is STD_NULL;
   local
     var PRIMITIVE_FILE: open_file is PRIMITIVE_NULL_FILE;
     var utf8_file: new_file is utf8_file.value;
@@ -72,7 +72,7 @@ const func file: open_utf8 (in string: fileName, in string: mode) is func
     if open_file <> PRIMITIVE_NULL_FILE then
       new_file.ext_file := open_file;
       new_file.name := fileName;
-      result := malloc(new_file);
+      newFile := malloc(new_file);
     end if;
   end func;
 
@@ -177,10 +177,10 @@ const proc: seek (in utf8_file: aFile, in integer: pos) is func
 const func utf8_file: INIT_STD_UTF8_FILE (ref PRIMITIVE_FILE: primitive_file,
     in string: fileName) is func
   result
-    var utf8_file: result is utf8_file.value;
+    var utf8_file: aFile is utf8_file.value;
   begin
-    result.ext_file := primitive_file;
-    result.name := fileName;
+    aFile.ext_file := primitive_file;
+    aFile.name := fileName;
   end func;
 
 

@@ -116,11 +116,11 @@ const type: utf16le_file is sub utf16_file struct
   end struct;
 
 
-const func utf16le_file: malloc (in utf16le_file: ext_file) is func
+const func utf16le_file: malloc (in utf16le_file: anUtf16File) is func
   result
-    var utf16le_file: result is utf16le_file.value;
+    var utf16le_file: newFile is utf16le_file.value;
   begin
-    result := ext_file;
+    newFile := anUtf16File;
   end func;
 
 
@@ -137,7 +137,7 @@ const func utf16le_file: malloc (in utf16le_file: ext_file) is func
  *)
 const func file: open_utf16le (in string: fileName, in string: mode) is func
   result
-    var file: result is STD_NULL;
+    var file: newFile is STD_NULL;
   local
     var PRIMITIVE_FILE: open_file is PRIMITIVE_NULL_FILE;
     var utf16le_file: new_le_file is utf16le_file.value;
@@ -149,7 +149,7 @@ const func file: open_utf16le (in string: fileName, in string: mode) is func
       end if;
       new_le_file.ext_file := open_file;
       new_le_file.name := fileName;
-      result := malloc(new_le_file);
+      newFile := malloc(new_le_file);
     end if;
   end func;
 
@@ -245,11 +245,11 @@ const type: utf16be_file is sub utf16_file struct
   end struct;
 
 
-const func utf16be_file: malloc (in utf16be_file: ext_file) is func
+const func utf16be_file: malloc (in utf16be_file: anUtf16File) is func
   result
-    var utf16be_file: result is utf16be_file.value;
+    var utf16be_file: newFile is utf16be_file.value;
   begin
-    result := ext_file;
+    newFile := anUtf16File;
   end func;
 
 
@@ -266,7 +266,7 @@ const func utf16be_file: malloc (in utf16be_file: ext_file) is func
  *)
 const func file: open_utf16be (in string: fileName, in string: mode) is func
   result
-    var file: result is STD_NULL;
+    var file: newFile is STD_NULL;
   local
     var PRIMITIVE_FILE: open_file is PRIMITIVE_NULL_FILE;
     var utf16be_file: new_be_file is utf16be_file.value;
@@ -278,7 +278,7 @@ const func file: open_utf16be (in string: fileName, in string: mode) is func
       end if;
       new_be_file.ext_file := open_file;
       new_be_file.name := fileName;
-      result := malloc(new_be_file);
+      newFile := malloc(new_be_file);
     end if;
   end func;
 
@@ -381,7 +381,7 @@ const func string: gets (in utf16be_file: aFile, in integer: maxLength) is func
  *)
 const func file: open_utf16 (in string: fileName, in string: mode) is func
   result
-    var file: result is STD_NULL;
+    var file: newFile is STD_NULL;
   local
     var PRIMITIVE_FILE: open_file is PRIMITIVE_NULL_FILE;
     var utf16le_file: new_le_file is utf16le_file.value;
@@ -394,11 +394,11 @@ const func file: open_utf16 (in string: fileName, in string: mode) is func
       if bom = "\16#FF\\16#FE\" then
         new_le_file.ext_file := open_file;
         new_le_file.name := fileName;
-        result := malloc(new_le_file);
+        newFile := malloc(new_le_file);
       elsif bom = "\16#FE\\16#FF\" then
         new_be_file.ext_file := open_file;
         new_be_file.name := fileName;
-        result := malloc(new_be_file);
+        newFile := malloc(new_be_file);
       else
         close(open_file);
       end if;

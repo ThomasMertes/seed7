@@ -355,8 +355,12 @@ static void kbd_init (void)
 static void kbd_init ()
 #endif
 
-  { /* kbd_init */
-    tcgetattr(fileno(stdin), &term_descr);
+  {
+    int file_no;
+
+  /* kbd_init */
+    file_no = fileno(stdin);
+    tcgetattr(file_no, &term_descr);
     lflag_bak = term_descr.c_lflag;
     min_bak = term_descr.c_cc[VMIN];
     time_bak = term_descr.c_cc[VTIME];
@@ -364,7 +368,7 @@ static void kbd_init ()
     term_descr.c_lflag &= ~(ECHO | ECHOE | ECHOK | ECHONL | ICANON);
     term_descr.c_cc[VMIN] = 1;
     term_descr.c_cc[VTIME] = 0;
-    tcsetattr(fileno(stdin), TCSANOW, &term_descr);
+    tcsetattr(file_no, TCSANOW, &term_descr);
     keybd_initialized = TRUE;
     atexit(kbdShut);
   } /* kbd_init */
@@ -380,6 +384,7 @@ booltype kbdKeyPressed ()
 #endif
 
   {
+    int file_no;
     booltype result;
     char buffer;
 
@@ -390,9 +395,10 @@ booltype kbdKeyPressed ()
     if (key_buffer_filled) {
       result = TRUE;
     } else {
+      file_no = fileno(stdin);
       term_descr.c_cc[VMIN] = 0;
       term_descr.c_cc[VTIME] = 0;
-      tcsetattr(fileno(stdin), TCSANOW, &term_descr);
+      tcsetattr(file_no, TCSANOW, &term_descr);
       if (fread(&buffer, 1, 1, stdin) == 1) {
         result = TRUE;
         last_key = buffer;
@@ -402,7 +408,7 @@ booltype kbdKeyPressed ()
       } /* if */
       term_descr.c_cc[VMIN] = 1;
       term_descr.c_cc[VTIME] = 0;
-      tcsetattr(fileno(stdin), TCSANOW, &term_descr);
+      tcsetattr(file_no, TCSANOW, &term_descr);
     } /* if */
     return result;
   } /* kbdKeyPressed */

@@ -1327,14 +1327,15 @@ os_stritype os_path;
 
 static os_stritype append_path (const const_os_stritype absolutePath,
     const strelemtype *const relativePathChars,
-    memsizetype relativePathSize, errinfotype *err_info)
+    memsizetype relativePathSize, int *path_info, errinfotype *err_info)
 #else
 
 static os_stritype append_path (absolutePath, relativePathChars,
-    relativePathSize, err_info)
+    relativePathSize, path_info, err_info)
 os_stritype absolutePath;
 strelemtype relativePathChars;
 memsizetype relativePathSize;
+int *path_info;
 errinfotype *err_info;
 #endif
 
@@ -1367,48 +1368,35 @@ errinfotype *err_info;
       } else {
         abs_path_end = &result[abs_path_length];
         rel_path_start = &result[abs_path_length + 2];
-        while (*rel_path_start != '\0' && abs_path_end >= result) {
-          while (rel_path_start[0] == '.' && rel_path_start[1] == '.' &&
-                 (rel_path_start[2] == '/' || rel_path_start[2] == '\0')) {
-            if (rel_path_start[2] == '/') {
-              rel_path_start += 3;
-            } else {
-              rel_path_start += 2;
-            } /* if */
-            do {
-              abs_path_end--;
-            } while (abs_path_end >= result &&
-                     *abs_path_end != '/' && *abs_path_end != '\\');
-          } /* while */
-          while (rel_path_start[0] == '.' &&
-                 (rel_path_start[1] == '/' || rel_path_start[1] == '\0')) {
-            if (rel_path_start[1] == '/') {
-              rel_path_start += 2;
-            } else {
-              rel_path_start++;
-            } /* if */
-          } /* while */
-          if (abs_path_end >= result) {
-            if (*rel_path_start != '/' && *rel_path_start != '\0') {
+        while (*rel_path_start != '\0') {
+          if (rel_path_start[0] == '.' && rel_path_start[1] == '.' &&
+              (rel_path_start[2] == '/' || rel_path_start[2] == '\0')) {
+            rel_path_start += 2;
+            if (abs_path_end > result) {
               do {
-                abs_path_end++;
-                *abs_path_end = *rel_path_start;
-                rel_path_start++;
-              } while (*rel_path_start != '/' && *rel_path_start != '\0');
+                abs_path_end--;
+              } while (*abs_path_end != '/');
+            } /* if */
+          } else if (rel_path_start[0] == '.' &&
+              (rel_path_start[1] == '/' || rel_path_start[1] == '\0')) {
+            rel_path_start++;
+          } else if (*rel_path_start == '/') {
+            rel_path_start++;
+          } else {
+            do {
               abs_path_end++;
-              *abs_path_end = '/';
-            } /* if */
-            if (*rel_path_start == '/') {
+              *abs_path_end = *rel_path_start;
               rel_path_start++;
-            } /* if */
+            } while (*rel_path_start != '/' && *rel_path_start != '\0');
+            abs_path_end++;
+            *abs_path_end = '/';
           } /* if */
         } /* while */
-        if (abs_path_end < result) {
-          *err_info = FILE_ERROR;
-        } else if (abs_path_end == result) {
+        if (abs_path_end == result) {
           *err_info = RANGE_ERROR;
+          *path_info = PATH_IS_EMULATED_ROOT;
           os_stri_free(result);
-          result = emulated_root;
+          result = NULL;
         } else {
           *abs_path_end = '\0';
           if (result[1] >= 'a' && result[1] <= 'z') {
@@ -1421,6 +1409,7 @@ errinfotype *err_info;
             } else if (unlikely(result[2] != '/')) {
               /* "/cd"  cannot be mapped to a drive letter */
               *err_info = RANGE_ERROR;
+              *path_info = PATH_NOT_MAPPED;
               os_stri_free(result);
               result = NULL;
             } else {
@@ -1432,6 +1421,7 @@ errinfotype *err_info;
           } else {
             /* "/C"  cannot be mapped to a drive letter */
             *err_info = RANGE_ERROR;
+            *path_info = PATH_NOT_MAPPED;
             os_stri_free(result);
             result = NULL;
           } /* if */
@@ -1450,12 +1440,13 @@ errinfotype *err_info;
 #ifdef ANSI_C
 
 static os_stritype map_to_drive_letter (const strelemtype *const pathChars,
-    memsizetype pathSize, errinfotype *err_info)
+    memsizetype pathSize, int *path_info, errinfotype *err_info)
 #else
 
-static os_stritype map_to_drive_letter (pathChars, pathSize, err_info)
+static os_stritype map_to_drive_letter (pathChars, pathSize, path_info, err_info)
 strelemtype pathChars;
 memsizetype pathSize;
+int *path_info;
 errinfotype *err_info;
 #endif
 
@@ -1466,7 +1457,8 @@ errinfotype *err_info;
     if (unlikely(pathSize == 0)) {
       /* "/"    cannot be mapped to a drive letter */
       *err_info = RANGE_ERROR;
-      result = emulated_root;
+      *path_info = PATH_IS_EMULATED_ROOT;
+      result = NULL;
     } else if (pathChars[0] >= 'a' && pathChars[0] <= 'z') {
       if (pathSize == 1) {
         /* "/c"   is mapped to "c:\"  */
@@ -1481,6 +1473,7 @@ errinfotype *err_info;
       } else if (unlikely(pathChars[1] != '/')) {
         /* "/cd"  cannot be mapped to a drive letter */
         *err_info = RANGE_ERROR;
+        *path_info = PATH_NOT_MAPPED;
         result = NULL;
       } else {
         /* "/c/d" is mapped to "c:\d" */
@@ -1493,13 +1486,14 @@ errinfotype *err_info;
           conv_to_os_stri(&result[3], &pathChars[2], pathSize - 2, err_info);
           if (unlikely(*err_info != OKAY_NO_ERROR)) {
             os_stri_free(result);
-	    result = NULL;
+            result = NULL;
           } /* if */
         } /* if */
       } /* if */
     } else {
       /* "/C"  cannot be mapped to a drive letter */
       *err_info = RANGE_ERROR;
+      *path_info = PATH_NOT_MAPPED;
       result = NULL;
     } /* if */
     return result;
@@ -1510,11 +1504,13 @@ errinfotype *err_info;
 
 #ifdef ANSI_C
 
-os_stritype cp_to_os_path (const_stritype stri, errinfotype *err_info)
+os_stritype cp_to_os_path (const_stritype stri, int *path_info,
+    errinfotype *err_info)
 #else
 
-os_stritype cp_to_os_path (stri, err_info)
+os_stritype cp_to_os_path (stri, path_info, err_info)
 stritype stri;
+int *path_info;
 errinfotype *err_info;
 #endif
 
@@ -1546,13 +1542,15 @@ errinfotype *err_info;
       if (stri->size >= 1 && stri->mem[0] == '/') {
         /* Absolute path: Try to map the path to a drive letter */
 #ifdef EMULATE_ROOT_CWD
-        result = append_path(emulated_root, &stri->mem[1], stri->size - 1, err_info);
+        result = append_path(emulated_root, &stri->mem[1], stri->size - 1,
+                             path_info, err_info);
 #else
         result = map_to_drive_letter(&stri->mem[1], stri->size - 1, err_info);
 #endif
       } else {
 #ifdef EMULATE_ROOT_CWD
-        result = append_path(current_emulated_cwd, stri->mem, stri->size, err_info);
+        result = append_path(current_emulated_cwd, stri->mem, stri->size,
+                             path_info, err_info);
 #else
         if (unlikely(!os_stri_alloc(result, OS_STRI_SIZE(stri->size)))) {
           *err_info = MEMORY_ERROR;
@@ -1589,11 +1587,13 @@ errinfotype *err_info;
 
 #ifdef ANSI_C
 
-os_stritype cp_to_os_path (const_stritype stri, errinfotype *err_info)
+os_stritype cp_to_os_path (const_stritype stri, int *path_info,
+    errinfotype *err_info)
 #else
 
-os_stritype cp_to_os_path (stri, err_info)
+os_stritype cp_to_os_path (stri, path_info, err_info)
 stritype stri;
+int *path_info;
 errinfotype *err_info;
 #endif
 
@@ -1730,10 +1730,22 @@ errinfotype *err_info;
     os_stritype os_parameters;
     memsizetype param_len;
     memsizetype result_len;
+    int path_info;
     os_stritype result;
 
   /* cp_to_command */
-    os_commandPath = cp_to_os_path(commandPath, err_info);
+#ifdef EMULATE_ROOT_CWD
+    if (stri_charpos(commandPath, '/') != NULL) {
+      os_commandPath = cp_to_os_path(commandPath, &path_info, err_info);
+    } else if (unlikely(stri_charpos(commandPath, '\\') != NULL)) {
+      *err_info = RANGE_ERROR;
+      result = NULL;
+    } else {
+      os_commandPath = stri_to_os_stri(commandPath, err_info);
+    } /* if */
+#else
+    os_commandPath = cp_to_os_path(commandPath, &path_info, err_info);
+#endif
     if (unlikely(*err_info != OKAY_NO_ERROR)) {
       result = NULL;
     } else {

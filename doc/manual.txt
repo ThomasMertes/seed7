@@ -871,7 +871,7 @@ CONTENTS
       return 1/x;
 
   Function parameters, such as the parameter 'statement' in
-  the example below, act as closures:
+  the example below, act as call-by-name parameters:
 
     const proc: possiblyDo (in proc: statement) is func
       begin
@@ -6517,19 +6517,20 @@ ont color=blue>is "";
   definition.
 
   The parameters 'statements1', 'condition' and 'statements2' are
-  closures. A closure is a function without parameters. Function
-  types such as 'proc' or 'func boolean' are used as type of formal
-  closure parameters. An expression with the correct type is allowed
-  as actual closure parameter. This actual parameter expression is
-  not evaluated when the function is called. Instead the closure
-  expression is evaluated every time the formal closure parameter
-  is used. This way 'statements1', 'condition' and 'statements2' are
-  not executed when the 'loop' function is called. Inside the body
-  of the 'loop' function the closures are executed at some places.
+  call-by-name parameters. A call-by-name parameter is a function
+  without parameters. Function types such as 'proc' or 'func boolean'
+  are used as type of formal call-by-name parameters. An expression
+  with the correct type is allowed as actual call-by-name parameter.
+  This actual parameter expression is not evaluated when the
+  function is called. Instead the expression is evaluated every time
+  the formal call-by-name parameter is used. This way 'statements1',
+  'condition' and 'statements2' are not executed when the 'loop'
+  function is called. Inside the body of the 'loop' function the
+  call-by-name parameters are executed at some places.
 
   The 'loop' function uses a 'repeat' and an 'if' statement to
-  implement the desired behavior. When necessary the closures are
-  executed several times.
+  implement the desired behavior. When necessary the call-by-name
+  parameters are executed several times.
 
   For the 'loop' example with the semantic errors (see above) we
   would get an error message like:

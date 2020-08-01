@@ -71,6 +71,21 @@ const proc: ftpResponse (inout ftpConnection: ftp) is func
   end func;
 
 
+const func string: allowUtf8 (in string: inStri) is func
+  result
+    var string: outStri is "";
+  begin
+    outStri := inStri;
+    block
+      outStri := utf8ToStri(outStri);
+    exception
+      catch RANGE_ERROR:
+        noop;
+    end block;
+    # writeln("allowUtf8(" <& literal(inStri) <& ") -> " <& literal(outStri));
+  end func;
+
+
 (**
  *  Open an FTP connection to the specified host, user and port.
  *  The ''hostName'' is either a host name ("e.g.: "www.example.org"),
@@ -237,7 +252,7 @@ const proc: closeFtpData (inout ftpConnection: ftp) is func
  *)
 const func array string: readDir (inout ftpConnection: ftp, in string: dirPath) is func
   result
-    var array string: result is 0 times "";
+    var array string: fileNames is 0 times "";
   local
     var string: line is "";
   begin
@@ -246,16 +261,17 @@ const func array string: readDir (inout ftpConnection: ftp, in string: dirPath) 
       if dirPath = "." then
         ftpCommand(ftp, "NLST");
       else
-        ftpCommand(ftp, "NLST " <& dirPath);
+        ftpCommand(ftp, "NLST " <& striToUtf8(dirPath));
       end if;
       ftpResponse(ftp);
-      if startsWith(ftp.response, "150") then
+      if  startsWith(ftp.response, "125") or
+          startsWith(ftp.response, "150") then
         prepareFtpDataCommunication(ftp);
-        line := getln(ftp.data);
+        line := allowUtf8(getln(ftp.data));
         while line <> "" do
           # writeln(line);
-          result &:= [] (line);
-          line := getln(ftp.data);
+          fileNames &:= [] (line);
+          line := allowUtf8(getln(ftp.data));
         end while;
         closeFtpData(ftp);
         ftpResponse(ftp);
@@ -265,13 +281,14 @@ const func array string: readDir (inout ftpConnection: ftp, in string: dirPath) 
       elsif startsWith(ftp.response, "500") then
         ftpCommand(ftp, "LIST");
         ftpResponse(ftp);
-        if startsWith(ftp.response, "150") then
+        if  startsWith(ftp.response, "125") or
+            startsWith(ftp.response, "150") then
           prepareFtpDataCommunication(ftp);
-          line := getln(ftp.data);
+          line := allowUtf8(getln(ftp.data));
           while line <> "" do
             # writeln(line);
-            result &:= [] (line);
-            line := getln(ftp.data);
+            fileNames &:= [] (line);
+            line := allowUtf8(getln(ftp.data));
           end while;
           closeFtpData(ftp);
           ftpResponse(ftp);
@@ -291,13 +308,13 @@ const func array string: readDir (inout ftpConnection: ftp, in string: dirPath) 
 
 
 (**
- *  Determine the filenames in a directory, using a FTP connection.
+ *  Get a directory listing, using a FTP connection.
  *  @return an array with the file names.
  *  @exception FILE_ERROR The remote host returns an error.
  *)
 const func array string: listDir (inout ftpConnection: ftp, in string: dirPath) is func
   result
-    var array string: result is 0 times "";
+    var array string: directoryListing is 0 times "";
   local
     var string: line is "";
   begin
@@ -306,40 +323,21 @@ const func array string: listDir (inout ftpConnection: ftp, in string: dirPath) 
       if dirPath = "." then
         ftpCommand(ftp, "LIST");
       else
-        ftpCommand(ftp, "LIST " <& dirPath);
+        ftpCommand(ftp, "LIST " <& striToUtf8(dirPath));
       end if;
       ftpResponse(ftp);
-      if startsWith(ftp.response, "150") then
+      if  startsWith(ftp.response, "125") or
+          startsWith(ftp.response, "150") then
         prepareFtpDataCommunication(ftp);
-        line := getln(ftp.data);
+        line := allowUtf8(getln(ftp.data));
         while line <> "" do
           # writeln(line);
-          result &:= [] (line);
-          line := getln(ftp.data);
+          directoryListing &:= [] (line);
+          line := allowUtf8(getln(ftp.data));
         end while;
         closeFtpData(ftp);
         ftpResponse(ftp);
         if not startsWith(ftp.response, "226") then
-          raise FILE_ERROR;
-        end if;
-      elsif startsWith(ftp.response, "500") then
-        ftpCommand(ftp, "LIST");
-        ftpResponse(ftp);
-        if startsWith(ftp.response, "150") then
-          prepareFtpDataCommunication(ftp);
-          line := getln(ftp.data);
-          while line <> "" do
-            # writeln(line);
-            result &:= [] (line);
-            line := getln(ftp.data);
-          end while;
-          closeFtpData(ftp);
-          ftpResponse(ftp);
-          if not startsWith(ftp.response, "226") then
-            raise FILE_ERROR;
-          end if;
-        else
-          closeFtpData(ftp);
           raise FILE_ERROR;
         end if;
       else
@@ -366,9 +364,10 @@ const proc: retrieve (inout ftpConnection: ftp, in string: source,
     if destFile <> STD_NULL then
       openFtpData(ftp);
       if ftp.openDataSucceeded then
-        ftpCommand(ftp, "RETR " <& source);
+        ftpCommand(ftp, "RETR " <& striToUtf8(source));
         ftpResponse(ftp);
-        if startsWith(ftp.response, "150") then
+        if  startsWith(ftp.response, "125") or
+            startsWith(ftp.response, "150") then
           prepareFtpDataCommunication(ftp);
           buffer := gets(ftp.data, 1000000);
           while buffer <> "" do
@@ -410,9 +409,10 @@ const proc: store (inout ftpConnection: ftp, in string: sourcePath,
     if sourceFile <> STD_NULL then
       openFtpData(ftp);
       if ftp.openDataSucceeded then
-        ftpCommand(ftp, "STOR " <& destination);
+        ftpCommand(ftp, "STOR " <& striToUtf8(destination));
         ftpResponse(ftp);
-        if startsWith(ftp.response, "150") then
+        if  startsWith(ftp.response, "125") or
+            startsWith(ftp.response, "150") then
           prepareFtpDataCommunication(ftp);
           buffer := gets(sourceFile, 4096);
           while buffer <> "" do
@@ -442,25 +442,26 @@ const proc: store (inout ftpConnection: ftp, in string: sourcePath,
  *)
 const func string: getFile (inout ftpConnection: ftp, in string: fileName) is func
   result
-    var string: result is "";
+    var string: fileContent is "";
   local
     var string: buffer is "";
   begin
     openFtpData(ftp);
     if ftp.openDataSucceeded then
-      ftpCommand(ftp, "RETR " <& fileName);
+      ftpCommand(ftp, "RETR " <& striToUtf8(fileName));
       ftpResponse(ftp);
-      if startsWith(ftp.response, "150") then
+      if  startsWith(ftp.response, "125") or
+          startsWith(ftp.response, "150") then
         prepareFtpDataCommunication(ftp);
         buffer := gets(ftp.data, 1000000);
         while buffer <> "" do
           # writeln(literal(buffer));
           # writeln(length(buffer));
-          result &:= buffer;
+          fileContent &:= buffer;
           buffer := gets(ftp.data, 1000000);
         end while;
-        # writeln(literal(result));
-        # writeln(length(result));
+        # writeln(literal(fileContent));
+        # writeln(length(fileContent));
         closeFtpData(ftp);
         ftpResponse(ftp);
         if not startsWith(ftp.response, "226") then
@@ -484,9 +485,10 @@ const proc: putFile (inout ftpConnection: ftp, in string: fileName,
   begin
     openFtpData(ftp);
     if ftp.openDataSucceeded then
-      ftpCommand(ftp, "STOR " <& fileName);
+      ftpCommand(ftp, "STOR " <& striToUtf8(fileName));
       ftpResponse(ftp);
-      if startsWith(ftp.response, "150") then
+      if  startsWith(ftp.response, "125") or
+          startsWith(ftp.response, "150") then
         prepareFtpDataCommunication(ftp);
         write(ftp.data, stri);
         closeFtpData(ftp);
@@ -511,7 +513,7 @@ const proc: chdir (inout ftpConnection: ftp, in string: dirName) is func
     if dirName = ".." then
       ftpCommand(ftp, "CDUP");
     else
-      ftpCommand(ftp, "CWD " <& dirName);
+      ftpCommand(ftp, "CWD " <& striToUtf8(dirName));
     end if;
     ftpResponse(ftp);
     if not startsWith(ftp.response, "250") then
@@ -526,7 +528,7 @@ const proc: chdir (inout ftpConnection: ftp, in string: dirName) is func
  *)
 const proc: mkdir (inout ftpConnection: ftp, in string: dirName) is func
   begin
-    ftpCommand(ftp, "MKD " <& dirName);
+    ftpCommand(ftp, "MKD " <& striToUtf8(dirName));
     ftpResponse(ftp);
     if not startsWith(ftp.response, "257") then
       raise FILE_ERROR;
@@ -540,7 +542,7 @@ const proc: mkdir (inout ftpConnection: ftp, in string: dirName) is func
  *)
 const proc: rmdir (inout ftpConnection: ftp, in string: dirName) is func
   begin
-    ftpCommand(ftp, "RMD " <& dirName);
+    ftpCommand(ftp, "RMD " <& striToUtf8(dirName));
     ftpResponse(ftp);
     if not startsWith(ftp.response, "257") then
       raise FILE_ERROR;
@@ -555,7 +557,7 @@ const proc: rmdir (inout ftpConnection: ftp, in string: dirName) is func
  *)
 const func string: getcwd (inout ftpConnection: ftp) is func
   result
-    var string: result is "";
+    var string: currentWorkingDir is "";
   local
     var integer: firstQuotePos is 0;
     var integer: lastQuotePos is 0;
@@ -566,7 +568,8 @@ const func string: getcwd (inout ftpConnection: ftp) is func
       firstQuotePos := pos(ftp.response, '"');
       lastQuotePos := rpos(ftp.response, '"');
       if firstQuotePos <> 0 and lastQuotePos <> 0 then
-        result := ftp.response[succ(firstQuotePos) .. pred(lastQuotePos)];
+        currentWorkingDir := ftp.response[succ(firstQuotePos) .. pred(lastQuotePos)];
+        currentWorkingDir := replace(allowUtf8(currentWorkingDir), "\"\"", "\"");
       end if;
     else
       raise FILE_ERROR;
@@ -581,12 +584,12 @@ const func string: getcwd (inout ftpConnection: ftp) is func
  *)
 const func integer: fileSize (inout ftpConnection: ftp, in string: fileName) is func
   result
-    var integer: result is 0;
+    var integer: size is 0;
   begin
-    ftpCommand(ftp, "SIZE " <& fileName);
+    ftpCommand(ftp, "SIZE " <& striToUtf8(fileName));
     ftpResponse(ftp);
     if startsWith(ftp.response, "213") then
-      result := integer parse trim(ftp.response[4 ..]);
+      size := integer parse trim(ftp.response[4 ..]);
     end if;
   end func;
 
@@ -598,12 +601,12 @@ const func integer: fileSize (inout ftpConnection: ftp, in string: fileName) is 
  *)
 const func bigInteger: bigFileSize (inout ftpConnection: ftp, in string: fileName) is func
   result
-    var bigInteger: result is 0_;
+    var bigInteger: size is 0_;
   begin
-    ftpCommand(ftp, "SIZE " <& fileName);
+    ftpCommand(ftp, "SIZE " <& striToUtf8(fileName));
     ftpResponse(ftp);
     if startsWith(ftp.response, "213") then
-      result := bigInteger parse trim(ftp.response[4 ..]);
+      size := bigInteger parse trim(ftp.response[4 ..]);
     end if;
   end func;
 
@@ -618,7 +621,7 @@ const func time: getMTime (inout ftpConnection: ftp, in string: fileName) is fun
   result
     var time: modificationTime is time.value;
   begin
-    ftpCommand(ftp, "MDTM " <& fileName);
+    ftpCommand(ftp, "MDTM " <& striToUtf8(fileName));
     ftpResponse(ftp);
     if startsWith(ftp.response, "213") and isDigitString(ftp.response[5 len 14]) then
       modificationTime.year   := integer parse trim(ftp.response[ 5 len 4]);
@@ -689,14 +692,14 @@ const proc: splitFtpLocation (in string: location, inout string: hostname,
 
 const func string: getFtp (in string: hostName, in integer: portNumber, in string: path) is func
   result
-    var string: result is "";
+    var string: fileContent is "";
   local
     var ftpConnection: ftp is ftpConnection.value;
   begin
     ftp := openFtp(hostName, portNumber);
     if ftp.control <> STD_NULL then
       transferTypeBinary(ftp);
-      result := getFile(ftp, path);
+      fileContent := getFile(ftp, path);
       close(ftp);
     end if;
   end func;
@@ -711,12 +714,12 @@ const func string: getFtp (in string: hostName, in integer: portNumber, in strin
  *)
 const func string: getFtp (in string: url) is func
   result
-    var string: result is "";
+    var string: fileContent is "";
   local
     var string: hostName is "";
     var integer: portNumber is 0;
     var string: path is "";
   begin
     splitFtpLocation(url, hostName, portNumber, path);
-    result := getFtp(hostName, portNumber, path);
+    fileContent := getFtp(hostName, portNumber, path);
   end func;

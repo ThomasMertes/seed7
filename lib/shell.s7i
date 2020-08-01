@@ -169,21 +169,21 @@ type_implements_interface(popen_file, file);
 
 const func popen_file: malloc (in popen_file: aPipe) is func
   result
-    var popen_file: result is popen_file.value;
+    var popen_file: newPipe is popen_file.value;
   begin
-    result := aPipe;
+    newPipe := aPipe;
   end func;
 
 
 (**
- *  Executes a command, which uses Latin-1 encoding, and opens a pipe to it.
+ *  Open a pipe to a command, which reads and writes with Latin-1 encoding.
  *  A pipe can only be opened with the modes "r" and "w".
  *  @return the file opened, or STD_NULL if it could not be opened.
  *  @exception RANGE_ERROR An illegal mode was used.
  *)
 const func file: popen (in string: cmdAndParams, in string: mode) is func
   result
-    var file: result is STD_NULL;
+    var file: newPipe is STD_NULL;
   local
     var string: command is "";
     var string: parameters is "";
@@ -196,7 +196,7 @@ const func file: popen (in string: cmdAndParams, in string: mode) is func
     if open_file <> PRIMITIVE_NULL_FILE then
       new_file.ext_file := open_file;
       new_file.name := command;
-      result := malloc(new_file);
+      newPipe := malloc(new_file);
     end if;
   end func;
 
@@ -215,21 +215,21 @@ type_implements_interface(popen8_file, file);
 
 const func popen8_file: malloc (in popen8_file: aPipe) is func
   result
-    var popen8_file: result is popen8_file.value;
+    var popen8_file: newPipe is popen8_file.value;
   begin
-    result := aPipe;
+    newPipe := aPipe;
   end func;
 
 
 (**
- *  Executes a command, which uses UTF-8 encoding, and opens a pipe to it.
+ *  Open a pipe to a command, which reads and writes with UTF-8 encoding.
  *  A pipe can only be opened with the modes "r" and "w".
  *  @return the pipe file opened, or STD_NULL if it could not be opened.
  *  @exception RANGE_ERROR An illegal mode was used.
  *)
 const func file: popen8 (in string: cmdAndParams, in string: mode) is func
   result
-    var file: result is STD_NULL;
+    var file: newPipe is STD_NULL;
   local
     var string: command is "";
     var string: parameters is "";
@@ -242,7 +242,7 @@ const func file: popen8 (in string: cmdAndParams, in string: mode) is func
     if open_file <> PRIMITIVE_NULL_FILE then
       new_file.ext_file := open_file;
       new_file.name := command;
-      result := malloc(new_file);
+      newPipe := malloc(new_file);
     end if;
   end func;
 

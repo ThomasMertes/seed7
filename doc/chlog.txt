@@ -1,3 +1,36 @@
+20120205:
+- FAQ answers, explaining call-by-name and how it is implemented in
+  Seed7, were added.
+- The "ftpserv.sd7" example program was improved to work with
+  various ftp client programs.
+- The speed of the function 'socLineRead' in "soc_rtl.c" was
+  improved (this function implements getln() for sockets).
+- The Unicode support of the "ftp.s7i" library and the "ftp7.sd7"
+  example program was improved.
+- Documentation comments were improved in "poll.s7i" and
+  "osfiles.s7i".
+- The files "pol_sel.c" and "pol_unx.c" were improved to use the
+  const qualifier.
+- The compiler (comp.sd7) was improved to generate optimized code
+  for the actions "STR_ELEMCPY" and "STR_POSCPY" (which were used
+  by the @:= operator).
+- Testcases for the @:= operator were added to "chkstr.sd7".
+- The program "chkccomp.c" was changed to include "version.h" and
+  to define OS_OFF_T_SIZE. This way "chkccomp.c" can use the macro
+  definitions for os_off_t, TURN_OFF_FP_EXCEPTIONS and
+  DEFINE_MATHERR_FUNCTION from "version.h" instead of "chkccomp.h".
+- The files "cmd_rtl.c" and "fil_rtl.c" were changed to use the
+  macro OS_OFF_T_SIZE.
+- In "osfiles.s7i" the type 'fileType' was introduced as result type
+  for 'fileType' and 'fileTypeSL'.
+- The function 'str' for the type 'fileMode' was improved in
+  "osfiles.s7i".
+- The number of calls of fileno() was reduced in "con_cap.c",
+  "con_tcp.c", "kbd_inf.c" and "kbd_poll.c".
+- Result variables were renamed in "external_file.s7i", "ftp.s7i",
+  "osfiles.s7i", "shell.s7i", "socket.s7i", "string.s7i", "tar.s7i",
+  "utf16.s7i", "utf8.s7i" and "ftpserv.sd7".
+
 20120115:
 - The functions shellEscape and toShellPath were added to the
   "shell.s7i" library.

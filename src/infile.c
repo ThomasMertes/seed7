@@ -215,12 +215,13 @@ errinfotype *err_info;
     FILE *in_fil;
     ustritype name_ustri;
     stritype in_name;
+    int path_info = PATH_IS_NORMAL;
 
   /* open_infile */
 #ifdef TRACE_INFILE
     printf("BEGIN open_infile err_info=%u\n", *err_info);
 #endif
-    os_path = cp_to_os_path(source_file_name, err_info);
+    os_path = cp_to_os_path(source_file_name, &path_info, err_info);
     if (likely(*err_info == OKAY_NO_ERROR)) {
       in_fil = os_fopen(os_path, os_mode_rb);
       /* printf("fopen(\"%s\") ==> %lu\n", os_path, in_fil); */

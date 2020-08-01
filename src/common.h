@@ -88,6 +88,10 @@ typedef int booltype;
 #define BITSETTYPE_SIZE INTTYPE_SIZE
 #undef  FLOATTYPE_DOUBLE
 
+#ifdef MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
+#define EMULATE_ROOT_CWD
+#endif
+
 
 typedef signed char        int8type;
 typedef unsigned char      uint8type;

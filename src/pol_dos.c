@@ -46,7 +46,7 @@
 
 #ifdef ANSI_C
 
-void polAddCheck (polltype pollData, const sockettype aSocket,
+void polAddCheck (const polltype pollData, const sockettype aSocket,
     inttype eventsToCheck, const rtlGenerictype fileObj)
 #else
 
@@ -64,7 +64,7 @@ rtlGenerictype fileObj;
 
 #ifdef ANSI_C
 
-void polClear (polltype pollData)
+void polClear (const polltype pollData)
 #else
 
 void polClear (pollData)
@@ -78,7 +78,7 @@ polltype pollData;
 
 #ifdef ANSI_C
 
-void polCpy (polltype poll_to, const const_polltype pollDataFrom)
+void polCpy (const polltype poll_to, const const_polltype pollDataFrom)
 #else
 
 void polCpy (poll_to, pollDataFrom)
@@ -108,7 +108,7 @@ polltype pollDataFrom;
 
 #ifdef ANSI_C
 
-void polDestr (const const_polltype oldPollData)
+void polDestr (const polltype oldPollData)
 #else
 
 void polDestr (oldPollData)
@@ -136,7 +136,7 @@ polltype polEmpty ()
 
 #ifdef ANSI_C
 
-inttype polGetCheck (polltype pollData, const sockettype aSocket)
+inttype polGetCheck (const const_polltype pollData, const sockettype aSocket)
 #else
 
 inttype polGetCheck (pollData, aSocket)
@@ -152,7 +152,7 @@ sockettype aSocket;
 
 #ifdef ANSI_C
 
-inttype polGetFinding (polltype pollData, const sockettype aSocket)
+inttype polGetFinding (const const_polltype pollData, const sockettype aSocket)
 #else
 
 inttype polGetFinding (pollData, aSocket)
@@ -167,7 +167,7 @@ sockettype aSocket;
 
 #ifdef ANSI_C
 
-booltype polHasNext (polltype pollData)
+booltype polHasNext (const polltype pollData)
 #else
 
 booltype polHasNext (pollData)
@@ -182,7 +182,7 @@ polltype pollData;
 
 #ifdef ANSI_C
 
-void polIterChecks (polltype pollData, inttype pollMode)
+void polIterChecks (const polltype pollData, inttype pollMode)
 #else
 
 void polIterChecks (pollData, pollMode)
@@ -197,7 +197,7 @@ inttype pollMode;
 
 #ifdef ANSI_C
 
-void polIterFindings (polltype pollData, inttype pollMode)
+void polIterFindings (const polltype pollData, inttype pollMode)
 #else
 
 void polIterFindings (pollData, pollMode)
@@ -212,7 +212,7 @@ inttype pollMode;
 
 #ifdef ANSI_C
 
-rtlGenerictype polNextFile (polltype pollData, const rtlGenerictype nullFile)
+rtlGenerictype polNextFile (const polltype pollData, const rtlGenerictype nullFile)
 #else
 
 rtlGenerictype polNextFile (pollData, nullFile)
@@ -228,7 +228,7 @@ rtlGenerictype nullFile;
 
 #ifdef ANSI_C
 
-void polPoll (polltype pollData)
+void polPoll (const polltype pollData)
 #else
 
 void polPoll (pollData)
@@ -243,7 +243,7 @@ polltype pollData;
 
 #ifdef ANSI_C
 
-void polRemoveCheck (polltype pollData, const sockettype aSocket,
+void polRemoveCheck (const polltype pollData, const sockettype aSocket,
     inttype eventsToCheck)
 #else
 

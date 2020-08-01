@@ -191,14 +191,14 @@ const proc: putoct (inout string: out_stri, in var integer: number, in integer: 
 
 const func integer: chksum (in string: stri) is func
   result
-    var integer: result is 0;
+    var integer: checkSum is 0;
   local
     var char: ch is ' ';
   begin
     for ch range stri do
-      result +:= ord(ch);
+      checkSum +:= ord(ch);
     end for;
-    result := result mod 2 ** 16;
+    checkSum := checkSum mod 2 ** 16;
   end func;
 
 

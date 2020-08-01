@@ -164,14 +164,15 @@ stritype file_name;
 
   {
     os_stritype os_path;
+    int path_info = PATH_IS_NORMAL;
     errinfotype err_info = OKAY_NO_ERROR;
     dirtype result;
 
   /* dirOpen */
-    os_path = cp_to_os_path(file_name, &err_info);
+    os_path = cp_to_os_path(file_name, &path_info, &err_info);
     if (unlikely(err_info != OKAY_NO_ERROR)) {
 #ifdef MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
-      if (IS_EMULATED_ROOT(os_path)) {
+      if (path_info == PATH_IS_EMULATED_ROOT) {
         result = (dirtype) openVolumeList();
       } else {
 #endif

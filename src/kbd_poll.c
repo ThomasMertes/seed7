@@ -458,13 +458,17 @@ static void kbd_init (void)
 static void kbd_init ()
 #endif
 
-  { /* kbd_init */
+  {
+    int file_no;
+
+  /* kbd_init */
     if (!caps_initialized) {
       getcaps();
     } /* if */
-    if (tcgetattr(fileno(stdin), &term_descr) != 0) {
+    file_no = fileno(stdin);
+    if (tcgetattr(file_no, &term_descr) != 0) {
       printf("kbd_init: tcgetattr(%d, ...) failed, errno=%d\n",
-          fileno(stdin), errno);
+          file_no, errno);
       printf("EBADF=%d  EINTR=%d  EINVAL=%d  ENOTTY=%d  EIO=%d\n",
           EBADF, EINTR, EINVAL, ENOTTY, EIO);
     } else {
@@ -484,9 +488,9 @@ static void kbd_init ()
 #endif
       term_descr.c_cc[VMIN] = 1;
       term_descr.c_cc[VTIME] = 0;
-      if (tcsetattr(fileno(stdin), TCSANOW, &term_descr) != 0) {
+      if (tcsetattr(file_no, TCSANOW, &term_descr) != 0) {
         printf("kbd_init: tcsetattr(%d, VMIN=1) failed, errno=%d\n",
-            fileno(stdin), errno);
+            file_no, errno);
         printf("EBADF=%d  EINTR=%d  EINVAL=%d  ENOTTY=%d  EIO=%d\n",
             EBADF, EINTR, EINVAL, ENOTTY, EIO);
       } else {

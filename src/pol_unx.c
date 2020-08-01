@@ -74,7 +74,9 @@ typedef struct poll_based_pollstruct {
 
 typedef const struct poll_based_pollstruct *const_poll_based_polltype;
 
-#define conv(genericPollData) ((poll_based_polltype) genericPollData)
+#define conv(genericPollData) ((const_poll_based_polltype) genericPollData)
+#define var_conv(genericPollData) ((poll_based_polltype) genericPollData)
+
 
 #define TABLE_START_SIZE    256
 #define TABLE_INCREMENT    1024
@@ -108,7 +110,7 @@ void dumpPoll (const const_polltype pollData)
 
 #ifdef ANSI_C
 
-static void addCheck (polltype pollData, short eventsToCheck,
+static void addCheck (const polltype pollData, short eventsToCheck,
     const sockettype aSocket, const rtlGenerictype fileObj)
 #else
 
@@ -130,9 +132,9 @@ rtlGenerictype fileObj;
         (createfunctype) &intCreateGeneric, (createfunctype) &intCreateGeneric);
     if (pos == conv(pollData)->size) {
       if (conv(pollData)->size + NUM_OF_EXTRA_ELEMS >= conv(pollData)->capacity) {
-        conv(pollData)->pollFds = REALLOC_TABLE(conv(pollData)->pollFds, struct pollfd,
+        var_conv(pollData)->pollFds = REALLOC_TABLE(conv(pollData)->pollFds, struct pollfd,
             conv(pollData)->capacity, conv(pollData)->capacity + TABLE_INCREMENT);
-        conv(pollData)->pollFiles = REALLOC_TABLE(conv(pollData)->pollFiles, rtlGenerictype,
+        var_conv(pollData)->pollFiles = REALLOC_TABLE(conv(pollData)->pollFiles, rtlGenerictype,
             conv(pollData)->capacity, conv(pollData)->capacity + TABLE_INCREMENT);
         if (conv(pollData)->pollFds == NULL || conv(pollData)->pollFiles == NULL) {
           raise_error(MEMORY_ERROR);
@@ -141,9 +143,9 @@ rtlGenerictype fileObj;
           COUNT3_TABLE(struct pollfd, conv(pollData)->capacity, conv(pollData)->capacity + TABLE_INCREMENT);
           COUNT3_TABLE(rtlGenerictype, conv(pollData)->capacity, conv(pollData)->capacity + TABLE_INCREMENT);
         } /* if */
-        conv(pollData)->capacity += TABLE_INCREMENT;
+        var_conv(pollData)->capacity += TABLE_INCREMENT;
       } /* if */
-      conv(pollData)->size++;
+      var_conv(pollData)->size++;
       aPollFd = &conv(pollData)->pollFds[pos];
       memset(aPollFd, 0, sizeof(struct pollfd));
       aPollFd->fd = (int) aSocket;
@@ -162,7 +164,7 @@ rtlGenerictype fileObj;
 
 #ifdef ANSI_C
 
-static void removeCheck (polltype pollData, short eventsToCheck,
+static void removeCheck (const polltype pollData, short eventsToCheck,
     const sockettype aSocket)
 #else
 
@@ -185,7 +187,7 @@ sockettype aSocket;
       aPollFd->events &= ~eventsToCheck;
       if (aPollFd->events == 0) {
         if (pos + 1 <= conv(pollData)->iterPos) {
-          conv(pollData)->iterPos--;
+          var_conv(pollData)->iterPos--;
           if (pos < conv(pollData)->iterPos) {
             memcpy(&conv(pollData)->pollFds[pos],
                    &conv(pollData)->pollFds[conv(pollData)->iterPos], sizeof(struct pollfd));
@@ -197,7 +199,7 @@ sockettype aSocket;
             pos = conv(pollData)->iterPos;
           } /* if */
         } /* if */
-        conv(pollData)->size--;
+        var_conv(pollData)->size--;
         if (pos < conv(pollData)->size) {
           memcpy(&conv(pollData)->pollFds[pos],
                  &conv(pollData)->pollFds[conv(pollData)->size], sizeof(struct pollfd));
@@ -218,7 +220,7 @@ sockettype aSocket;
 
 #ifdef ANSI_C
 
-static booltype hasNextCheck (polltype pollData, short eventsToCheck)
+static booltype hasNextCheck (const polltype pollData, short eventsToCheck)
 #else
 
 static booltype hasNextCheck (pollData, eventsToCheck)
@@ -236,7 +238,7 @@ short eventsToCheck;
       pos++;
     } /* while */
     hasNext = pos < conv(pollData)->size;
-    conv(pollData)->iterPos = pos;
+    var_conv(pollData)->iterPos = pos;
     return hasNext;
   } /* hasNextCheck */
 
@@ -244,7 +246,7 @@ short eventsToCheck;
 
 #ifdef ANSI_C
 
-static booltype hasNextFinding (polltype pollData, short eventsToCheck)
+static booltype hasNextFinding (const polltype pollData, short eventsToCheck)
 #else
 
 static booltype hasNextFinding (pollData, eventsToCheck)
@@ -259,14 +261,14 @@ short eventsToCheck;
   /* hasNextFinding */
     if (conv(pollData)->iterEvents == 0) {
       hasNext = FALSE;
-      conv(pollData)->iterPos = conv(pollData)->size;
+      var_conv(pollData)->iterPos = conv(pollData)->size;
     } else {
       pos = conv(pollData)->iterPos;
       while ((conv(pollData)->pollFds[pos].revents & eventsToCheck) == 0) {
         pos++;
       } /* while */
       hasNext = pos < conv(pollData)->size;
-      conv(pollData)->iterPos = pos;
+      var_conv(pollData)->iterPos = pos;
     } /* if */
     return hasNext;
   } /* hasNextFinding */
@@ -275,7 +277,7 @@ short eventsToCheck;
 
 #ifdef ANSI_C
 
-static rtlGenerictype nextCheck (polltype pollData, short eventsToCheck,
+static rtlGenerictype nextCheck (const polltype pollData, short eventsToCheck,
     const rtlGenerictype nullFile)
 #else
 
@@ -303,7 +305,7 @@ rtlGenerictype nullFile;
     } else {
       checkFile = nullFile;
     } /* if */
-    conv(pollData)->iterPos = pos;
+    var_conv(pollData)->iterPos = pos;
     /* printf("end nextCheck -> %d:\n", checkFile);
        dumpPoll(pollData); */
     return checkFile;
@@ -313,7 +315,7 @@ rtlGenerictype nullFile;
 
 #ifdef ANSI_C
 
-static rtlGenerictype nextFinding (polltype pollData, short eventsToCheck,
+static rtlGenerictype nextFinding (const polltype pollData, short eventsToCheck,
     const rtlGenerictype nullFile)
 #else
 
@@ -330,7 +332,7 @@ rtlGenerictype nullFile;
   /* nextFinding */
     if (conv(pollData)->iterEvents == 0) {
       resultFile = nullFile;
-      conv(pollData)->iterPos = conv(pollData)->size;
+      var_conv(pollData)->iterPos = conv(pollData)->size;
     } else {
       pos = conv(pollData)->iterPos;
       while ((conv(pollData)->pollFds[pos].revents & eventsToCheck) == 0) {
@@ -342,13 +344,13 @@ rtlGenerictype nullFile;
             (unsigned long) resultFile, pos,
             conv(pollData)->pollFds[pos].fd); */
         if ((conv(pollData)->pollFds[pos].revents & ~eventsToCheck) == 0) {
-          conv(pollData)->iterEvents--;
+          var_conv(pollData)->iterEvents--;
         } /* if */
         pos++;
       } else {
         resultFile = nullFile;
       } /* if */
-      conv(pollData)->iterPos = pos;
+      var_conv(pollData)->iterPos = pos;
     } /* if */
     /* printf("end nextFinding -> %d:\n", resultFile);
        dumpPoll(pollData); */
@@ -364,7 +366,7 @@ rtlGenerictype nullFile;
  */
 #ifdef ANSI_C
 
-void polAddCheck (polltype pollData, const sockettype aSocket,
+void polAddCheck (const polltype pollData, const sockettype aSocket,
     inttype eventsToCheck, const rtlGenerictype fileObj)
 #else
 
@@ -386,6 +388,9 @@ rtlGenerictype fileObj;
       case POLL_INOUT:
         addCheck(pollData, POLLIN | POLLOUT, aSocket, fileObj);
         break;
+      default:
+        raise_error(RANGE_ERROR);
+        break;
     } /* switch */
   } /* polAddCheck */
 
@@ -393,7 +398,7 @@ rtlGenerictype fileObj;
 
 #ifdef ANSI_C
 
-void polClear (polltype pollData)
+void polClear (const polltype pollData)
 #else
 
 void polClear (pollData)
@@ -401,21 +406,21 @@ polltype pollData;
 #endif
 
   { /* polClear */
-    conv(pollData)->size = 0;
-    conv(pollData)->iteratorMode = ITER_EMPTY;
-    conv(pollData)->iterPos = 0;
-    conv(pollData)->iterEvents = 0;
-    conv(pollData)->numOfEvents = 0;
+    var_conv(pollData)->size = 0;
+    var_conv(pollData)->iteratorMode = ITER_EMPTY;
+    var_conv(pollData)->iterPos = 0;
+    var_conv(pollData)->iterEvents = 0;
+    var_conv(pollData)->numOfEvents = 0;
     hshDestr(conv(pollData)->indexHash, (destrfunctype) &intDestrGeneric,
              (destrfunctype) &intDestrGeneric);
-    conv(pollData)->indexHash = hshEmpty();
+    var_conv(pollData)->indexHash = hshEmpty();
   } /* polClear */
 
 
 
 #ifdef ANSI_C
 
-void polCpy (polltype poll_to, const const_polltype pollDataFrom)
+void polCpy (const polltype poll_to, const const_polltype pollDataFrom)
 #else
 
 void polCpy (poll_to, pollDataFrom)
@@ -434,7 +439,7 @@ polltype pollDataFrom;
       newIndexHash = hshCreate(conv(pollDataFrom)->indexHash,
           (createfunctype) &intCreateGeneric, (destrfunctype) &intDestrGeneric,
           (createfunctype) &intCreateGeneric, (destrfunctype) &intDestrGeneric);
-      pollData = conv(poll_to);
+      pollData = var_conv(poll_to);
       hshDestr(pollData->indexHash, (destrfunctype) &intDestrGeneric,
                (destrfunctype) &intDestrGeneric);
       if (conv(pollDataFrom)->size + NUM_OF_EXTRA_ELEMS > pollData->capacity) {
@@ -528,7 +533,7 @@ polltype pollDataFrom;
 
 #ifdef ANSI_C
 
-void polDestr (const const_polltype oldPollData)
+void polDestr (const polltype oldPollData)
 #else
 
 void polDestr (oldPollData)
@@ -541,7 +546,7 @@ polltype oldPollData;
       FREE_TABLE(conv(oldPollData)->pollFiles, rtlGenerictype, conv(oldPollData)->capacity);
       hshDestr(conv(oldPollData)->indexHash, (destrfunctype) &intDestrGeneric,
                (destrfunctype) &intDestrGeneric);
-      FREE_RECORD(conv(oldPollData), poll_based_pollrecord, count.pollData);
+      FREE_RECORD(var_conv(oldPollData), poll_based_pollrecord, count.pollData);
     } /* if */
   } /* polDestr */
 
@@ -594,7 +599,7 @@ polltype polEmpty ()
 
 #ifdef ANSI_C
 
-inttype polGetCheck (polltype pollData, const sockettype aSocket)
+inttype polGetCheck (const const_polltype pollData, const sockettype aSocket)
 #else
 
 inttype polGetCheck (pollData, aSocket)
@@ -634,7 +639,7 @@ sockettype aSocket;
 
 #ifdef ANSI_C
 
-inttype polGetFinding (polltype pollData, const sockettype aSocket)
+inttype polGetFinding (const const_polltype pollData, const sockettype aSocket)
 #else
 
 inttype polGetFinding (pollData, aSocket)
@@ -674,7 +679,7 @@ sockettype aSocket;
 
 #ifdef ANSI_C
 
-booltype polHasNext (polltype pollData)
+booltype polHasNext (const polltype pollData)
 #else
 
 booltype polHasNext (pollData)
@@ -683,8 +688,6 @@ polltype pollData;
 
   { /* polHasNext */
     switch (conv(pollData)->iteratorMode) {
-      case ITER_EMPTY:
-        return FALSE;
       case ITER_CHECKS_IN:
         return hasNextCheck(pollData, POLLIN);
       case ITER_CHECKS_OUT:
@@ -697,8 +700,8 @@ polltype pollData;
         return hasNextFinding(pollData, POLLOUT);
       case ITER_FINDINGS_INOUT:
         return hasNextFinding(pollData, POLLIN | POLLOUT);
+      case ITER_EMPTY:
       default:
-        raise_error(RANGE_ERROR);
         return FALSE;
     } /* switch */
   } /* polHasNext */
@@ -707,7 +710,7 @@ polltype pollData;
 
 #ifdef ANSI_C
 
-void polIterChecks (polltype pollData, inttype pollMode)
+void polIterChecks (const polltype pollData, inttype pollMode)
 #else
 
 void polIterChecks (pollData, pollMode)
@@ -718,29 +721,29 @@ inttype pollMode;
   { /* polIterChecks */
     switch (pollMode) {
       case POLL_NOTHING:
-        conv(pollData)->iteratorMode = ITER_EMPTY;
+        var_conv(pollData)->iteratorMode = ITER_EMPTY;
         break;
       case POLL_IN:
-        conv(pollData)->iteratorMode = ITER_CHECKS_IN;
+        var_conv(pollData)->iteratorMode = ITER_CHECKS_IN;
         break;
       case POLL_OUT:
-        conv(pollData)->iteratorMode = ITER_CHECKS_OUT;
+        var_conv(pollData)->iteratorMode = ITER_CHECKS_OUT;
         break;
       case POLL_INOUT:
-        conv(pollData)->iteratorMode = ITER_CHECKS_INOUT;
+        var_conv(pollData)->iteratorMode = ITER_CHECKS_INOUT;
         break;
       default:
         raise_error(RANGE_ERROR);
         break;
     } /* switch */
-    conv(pollData)->iterPos = 0;
+    var_conv(pollData)->iterPos = 0;
   } /* polIterChecks */
 
 
 
 #ifdef ANSI_C
 
-void polIterFindings (polltype pollData, inttype pollMode)
+void polIterFindings (const polltype pollData, inttype pollMode)
 #else
 
 void polIterFindings (pollData, pollMode)
@@ -751,30 +754,30 @@ inttype pollMode;
   { /* polIterFindings */
     switch (pollMode) {
       case POLL_NOTHING:
-        conv(pollData)->iteratorMode = ITER_EMPTY;
+        var_conv(pollData)->iteratorMode = ITER_EMPTY;
         break;
       case POLL_IN:
-        conv(pollData)->iteratorMode = ITER_FINDINGS_IN;
+        var_conv(pollData)->iteratorMode = ITER_FINDINGS_IN;
         break;
       case POLL_OUT:
-        conv(pollData)->iteratorMode = ITER_FINDINGS_OUT;
+        var_conv(pollData)->iteratorMode = ITER_FINDINGS_OUT;
         break;
       case POLL_INOUT:
-        conv(pollData)->iteratorMode = ITER_FINDINGS_INOUT;
+        var_conv(pollData)->iteratorMode = ITER_FINDINGS_INOUT;
         break;
       default:
         raise_error(RANGE_ERROR);
         break;
     } /* switch */
-    conv(pollData)->iterPos = 0;
-    conv(pollData)->iterEvents = conv(pollData)->numOfEvents;
+    var_conv(pollData)->iterPos = 0;
+    var_conv(pollData)->iterEvents = conv(pollData)->numOfEvents;
   } /* polIterFindings */
 
 
 
 #ifdef ANSI_C
 
-rtlGenerictype polNextFile (polltype pollData, const rtlGenerictype nullFile)
+rtlGenerictype polNextFile (const polltype pollData, const rtlGenerictype nullFile)
 #else
 
 rtlGenerictype polNextFile (pollData, nullFile)
@@ -784,8 +787,6 @@ rtlGenerictype nullFile;
 
   { /* polNextFile */
     switch (conv(pollData)->iteratorMode) {
-      case ITER_EMPTY:
-        return nullFile;
       case ITER_CHECKS_IN:
         return nextCheck(pollData, POLLIN, nullFile);
       case ITER_CHECKS_OUT:
@@ -798,8 +799,8 @@ rtlGenerictype nullFile;
         return nextFinding(pollData, POLLOUT, nullFile);
       case ITER_FINDINGS_INOUT:
         return nextFinding(pollData, POLLIN | POLLOUT, nullFile);
+      case ITER_EMPTY:
       default:
-        raise_error(RANGE_ERROR);
         return nullFile;
     } /* switch */
   } /* polNextFile */
@@ -808,7 +809,7 @@ rtlGenerictype nullFile;
 
 #ifdef ANSI_C
 
-void polPoll (polltype pollData)
+void polPoll (const polltype pollData)
 #else
 
 void polPoll (pollData)
@@ -830,9 +831,9 @@ polltype pollData;
            EFAULT, EISDIR, ENAMETOOLONG, ENODEV, EINVAL, EBADF); */
       raise_error(FILE_ERROR);
     } else {
-      conv(pollData)->iteratorMode = ITER_EMPTY;
-      conv(pollData)->iterPos = 0;
-      conv(pollData)->numOfEvents = (memsizetype) poll_result;
+      var_conv(pollData)->iteratorMode = ITER_EMPTY;
+      var_conv(pollData)->iterPos = 0;
+      var_conv(pollData)->numOfEvents = (memsizetype) poll_result;
     } /* if */
   } /* polPoll */
 
@@ -843,7 +844,7 @@ polltype pollData;
  */
 #ifdef ANSI_C
 
-void polRemoveCheck (polltype pollData, const sockettype aSocket,
+void polRemoveCheck (const polltype pollData, const sockettype aSocket,
     inttype eventsToCheck)
 #else
 
@@ -863,6 +864,9 @@ inttype eventsToCheck;
         break;
       case POLL_INOUT:
         removeCheck(pollData, POLLIN | POLLOUT, aSocket);
+        break;
+      default:
+        raise_error(RANGE_ERROR);
         break;
     } /* switch */
   } /* polRemoveCheck */

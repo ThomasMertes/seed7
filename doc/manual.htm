@@ -871,7 +871,7 @@
       <font color=blue>return</font> 1/x;
 </pre><p>
   Function parameters, such as the parameter <tt>'statement'</tt> in
-  the example below, act as closures:
+  the example below, act as call-by-name parameters:
 </p><pre>
     <font color=blue>const</font> <font color=red>proc</font>: possiblyDo (<font color=blue>in</font> <font color=red>proc</font>: statement) <font color=blue>is func</font>
       <font color=blue>begin</font>
@@ -6517,19 +6517,20 @@ ont color=blue>is</font> <font color=maroon>""</font>;
   definition.
 </p><p>
   The parameters <tt>'statements1'</tt>, <tt>'condition'</tt> and <tt>'statements2'</tt> are
-  closures. A closure is a function without parameters. Function
-  types such as <tt>'<font color=red>proc</font>'</tt> or <tt>'<font color=red>func boolean</font>'</tt> are used as type of formal
-  closure parameters. An expression with the correct type is allowed
-  as actual closure parameter. This actual parameter expression is
-  not evaluated when the function is called. Instead the closure
-  expression is evaluated every time the formal closure parameter
-  is used. This way <tt>'statements1'</tt>, <tt>'condition'</tt> and <tt>'statements2'</tt> are
-  not executed when the <tt>'<font color=blue>loop</font>'</tt> function is called. Inside the body
-  of the <tt>'<font color=blue>loop</font>'</tt> function the closures are executed at some places.
+  call-by-name parameters. A call-by-name parameter is a function
+  without parameters. Function types such as <tt>'<font color=red>proc</font>'</tt> or <tt>'<font color=red>func boolean</font>'</tt>
+  are used as type of formal call-by-name parameters. An expression
+  with the correct type is allowed as actual call-by-name parameter.
+  This actual parameter expression is not evaluated when the
+  function is called. Instead the expression is evaluated every time
+  the formal call-by-name parameter is used. This way <tt>'statements1'</tt>,
+  <tt>'condition'</tt> and <tt>'statements2'</tt> are not executed when the <tt>'<font color=blue>loop</font>'</tt>
+  function is called. Inside the body of the <tt>'<font color=blue>loop</font>'</tt> function the
+  call-by-name parameters are executed at some places.
 </p><p>
   The <tt>'<font color=blue>loop</font>'</tt> function uses a <tt>'<font color=blue>repeat</font>'</tt> and an <tt>'<font color=blue>if</font>'</tt> statement to
-  implement the desired behavior. When necessary the closures are
-  executed several times.
+  implement the desired behavior. When necessary the call-by-name
+  parameters are executed several times.
 </p><p>
   For the <tt>'<font color=blue>loop</font>'</tt> example with the semantic errors (see above) we
   would get an error message like:

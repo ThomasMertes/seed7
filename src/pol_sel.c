@@ -111,17 +111,24 @@ typedef struct select_based_pollstruct {
     memsizetype numOfEvents;
   } select_based_pollrecord, *select_based_polltype;
 
-#define conv(data)               ((select_based_polltype) data)
+typedef const struct select_based_pollstruct *const_select_based_polltype;
+
+#define conv(genericPollData) ((const_select_based_polltype) genericPollData)
+#define var_conv(genericPollData) ((select_based_polltype) genericPollData)
 
 
 #ifdef DYNAMIC_FD_SET
 
-#define to_inFdset(test)         ((test)->inFdset)
-#define to_outFdset(test)        ((test)->outFdset)
-#define to_read_inFdset(data)    (((select_based_polltype) data)->readTest.inFdset)
-#define to_write_inFdset(data)   (((select_based_polltype) data)->writeTest.inFdset)
-#define to_read_outFdset(data)   (((select_based_polltype) data)->readTest.outFdset)
-#define to_write_outFdset(data)  (((select_based_polltype) data)->writeTest.outFdset)
+#define to_inFdset(test)            ((test)->inFdset)
+#define to_outFdset(test)           ((test)->outFdset)
+#define to_read_inFdset(data)       (((const_select_based_polltype) data)->readTest.inFdset)
+#define to_write_inFdset(data)      (((const_select_based_polltype) data)->writeTest.inFdset)
+#define to_read_outFdset(data)      (((const_select_based_polltype) data)->readTest.outFdset)
+#define to_write_outFdset(data)     (((const_select_based_polltype) data)->writeTest.outFdset)
+#define to_var_read_inFdset(data)   (((select_based_polltype) data)->readTest.inFdset)
+#define to_var_write_inFdset(data)  (((select_based_polltype) data)->writeTest.inFdset)
+#define to_var_read_outFdset(data)  (((select_based_polltype) data)->readTest.outFdset)
+#define to_var_write_outFdset(data) (((select_based_polltype) data)->writeTest.outFdset)
 
 #define ALLOC_FDSET(var,nr)      (ALLOC_HEAP(var,fd_set *,SIZEOF_FD_SET(nr))?CNT1_BYT(SIZEOF_FD_SET(nr)),TRUE:FALSE)
 #define FREE_FDSET(var,nr)       (CNT2_BYT(SIZEOF_FD_SET(nr)) FREE_HEAP(var, SIZEOF_FD_SET(nr)))
@@ -130,12 +137,16 @@ typedef struct select_based_pollstruct {
 
 #else
 
-#define to_inFdset(test)         (&(test)->inFdset)
-#define to_outFdset(test)        (&(test)->outFdset)
-#define to_read_inFdset(data)    (&((select_based_polltype) data)->readTest.inFdset)
-#define to_write_inFdset(data)   (&((select_based_polltype) data)->writeTest.inFdset)
-#define to_read_outFdset(data)   (&((select_based_polltype) data)->readTest.outFdset)
-#define to_write_outFdset(data)  (&((select_based_polltype) data)->writeTest.outFdset)
+#define to_inFdset(test)            (&(test)->inFdset)
+#define to_outFdset(test)           (&(test)->outFdset)
+#define to_read_inFdset(data)       (&((const_select_based_polltype) data)->readTest.inFdset)
+#define to_write_inFdset(data)      (&((const_select_based_polltype) data)->writeTest.inFdset)
+#define to_read_outFdset(data)      (&((const_select_based_polltype) data)->readTest.outFdset)
+#define to_write_outFdset(data)     (&((const_select_based_polltype) data)->writeTest.outFdset)
+#define to_var_read_inFdset(data)   (&((select_based_polltype) data)->readTest.inFdset)
+#define to_var_write_inFdset(data)  (&((select_based_polltype) data)->writeTest.inFdset)
+#define to_var_read_outFdset(data)  (&((select_based_polltype) data)->readTest.outFdset)
+#define to_var_write_outFdset(data) (&((select_based_polltype) data)->writeTest.outFdset)
 
 #endif
 
@@ -192,7 +203,7 @@ static void dumpPoll (const const_polltype pollData)
 
 #ifdef ANSI_C
 
-static void copyFdSet (fd_set *dest, fd_set *source, testType *test)
+static void copyFdSet (fd_set *dest, const fd_set *source, testType *test)
 #else
 
 static void copyFdSet (dest, source, test)
@@ -490,7 +501,94 @@ sockettype aSocket;
 
 #ifdef ANSI_C
 
-static booltype isChecked (testType *test, const sockettype aSocket)
+static void doPoll (const polltype pollData, struct timeval *timeout)
+#else
+
+static void doPoll (pollData, timeout)
+polltype pollData;
+struct timeval *timeout;
+#endif
+
+  {
+    int nfds = 0;
+    fd_set *readFds;
+    fd_set *writeFds;
+#ifndef USE_PREPARED_FD_SET
+    memsizetype pos;
+    sockettype sock;
+#endif
+    int select_result;
+
+  /* doPoll */
+    /* printf("doPoll\n");
+       dumpPoll(pollData); */
+    readFds = to_var_read_outFdset(pollData);
+#ifdef USE_PREPARED_FD_SET
+    copyFdSet(readFds, to_read_inFdset(pollData),
+              &conv(pollData)->readTest.files);
+#ifdef SELECT_WITH_NFDS
+    nfds = conv(pollData)->readTest.preparedNfds;
+#endif
+#else
+    FD_ZERO(readFds);
+    for (pos = 0; pos < conv(pollData)->readTest.size; pos++) {
+      sock = conv(pollData)->readTest.files[pos].fd;
+      FD_SET(sock, readFds);
+#ifdef SELECT_WITH_NFDS
+      if ((int) sock >= nfds) {
+        nfds = (int) sock + 1;
+      } /* if */
+#endif
+    } /* for */
+#endif
+    writeFds = to_var_write_outFdset(pollData);
+#ifdef USE_PREPARED_FD_SET
+    copyFdSet(writeFds, to_write_inFdset(pollData),
+              &conv(pollData)->writeTest.files);
+#ifdef SELECT_WITH_NFDS
+    if (conv(pollData)->writeTest.preparedNfds > nfds) {
+      nfds = conv(pollData)->writeTest.preparedNfds;
+    } /* if */
+#endif
+#else
+    FD_ZERO(writeFds);
+    for (pos = 0; pos < conv(pollData)->writeTest.size; pos++) {
+      sock = conv(pollData)->writeTest.files[pos].fd;
+      FD_SET(sock, writeFds);
+#ifdef SELECT_WITH_NFDS
+      if ((int) sock >= nfds) {
+        nfds = (int) sock + 1;
+      } /* if */
+#endif
+    } /* for */
+#endif
+    /* printf("doPoll %lx: nfds=%d\n", pollData, nfds); */
+    select_result = select(nfds, readFds, writeFds, NULL, timeout);
+    if (unlikely(select_result < 0)) {
+      /* printf("errno=%d\n", errno);
+      printf("EACCES=%d  EBUSY=%d  EEXIST=%d  ENOTEMPTY=%d  ENOENT=%d  ENOTDIR=%d  EROFS=%d\n",
+          EACCES, EBUSY, EEXIST, ENOTEMPTY, ENOENT, ENOTDIR, EROFS);
+      printf("EFAULT=%d  EISDIR=%d  ENAMETOOLONG=%d  ENODEV=%d  EINVAL=%d  EBADF=%d\n",
+           EFAULT, EISDIR, ENAMETOOLONG, ENODEV, EINVAL, EBADF); */
+      /* printf("WSAGetLastError=%d\n", WSAGetLastError());
+      printf("WSANOTINITIALISED=%ld  WSAEFAULT=%ld  WSAENETDOWN=%ld  WSAEINVAL=%ld\n",
+          WSANOTINITIALISED, WSAEFAULT, WSAENETDOWN, WSAEINVAL);
+      printf("WSAEINTR=%ld  WSAEINPROGRESS=%ld  WSAENOTSOCK =%ld\n",
+          WSAEINTR, WSAEINPROGRESS, WSAENOTSOCK); */
+      /* printf("nfds=%d", nfds); */
+      raise_error(FILE_ERROR);
+    } else {
+      var_conv(pollData)->readTest.iterPos = 0;
+      var_conv(pollData)->writeTest.iterPos = 0;
+      var_conv(pollData)->numOfEvents = (memsizetype) select_result;
+    } /* if */
+  } /* doPoll */
+
+
+
+#ifdef ANSI_C
+
+static booltype isChecked (const testType *test, const sockettype aSocket)
 #else
 
 static booltype isChecked (test, aSocket)
@@ -516,7 +614,7 @@ sockettype aSocket;
 
 #ifdef ANSI_C
 
-static booltype isReady (testType *test, const sockettype aSocket)
+static booltype isReady (const testType *test, const sockettype aSocket)
 #else
 
 static booltype isReady (test, aSocket)
@@ -546,7 +644,7 @@ sockettype aSocket;
 
 #ifdef ANSI_C
 
-static booltype hasNextCheck (testType *test)
+static booltype hasNextCheck (const testType *test)
 #else
 
 static booltype hasNextCheck (test)
@@ -676,7 +774,7 @@ rtlGenerictype nullFile;
  */
 #ifdef ANSI_C
 
-void polAddCheck (polltype pollData, const sockettype aSocket,
+void polAddCheck (const polltype pollData, const sockettype aSocket,
     inttype eventsToCheck, const rtlGenerictype fileObj)
 #else
 
@@ -688,19 +786,28 @@ rtlGenerictype fileObj;
 #endif
 
   { /* polAddCheck */
-    if (eventsToCheck & POLL_IN) {
-      addCheck(&conv(pollData)->readTest, aSocket, fileObj);
-    } /* if */
-    if (eventsToCheck & POLL_OUT) {
-      addCheck(&conv(pollData)->writeTest, aSocket, fileObj);
-    } /* if */
+    switch (eventsToCheck) {
+      case POLL_IN: 
+        addCheck(&var_conv(pollData)->readTest, aSocket, fileObj);
+        break;
+      case POLL_OUT:
+        addCheck(&var_conv(pollData)->writeTest, aSocket, fileObj);
+        break;
+      case POLL_INOUT:
+        addCheck(&var_conv(pollData)->readTest, aSocket, fileObj);
+        addCheck(&var_conv(pollData)->writeTest, aSocket, fileObj);
+        break;
+      default:
+        raise_error(RANGE_ERROR);
+        break;
+    } /* switch */
   } /* polAddCheck */
 
 
 
 #ifdef ANSI_C
 
-void polClear (polltype pollData)
+void polClear (const polltype pollData)
 #else
 
 void polClear (pollData)
@@ -713,32 +820,32 @@ polltype pollData;
     FD_ZERO(to_read_inFdset(pollData));
     FD_ZERO(to_write_inFdset(pollData));
 #ifdef SELECT_WITH_NFDS
-    conv(pollData)->readTest.preparedNfds = 0;
-    conv(pollData)->writeTest.preparedNfds = 0;
+    var_conv(pollData)->readTest.preparedNfds = 0;
+    var_conv(pollData)->writeTest.preparedNfds = 0;
 #endif
 #endif
     FD_ZERO(to_read_outFdset(pollData));
     FD_ZERO(to_write_outFdset(pollData));
-    conv(pollData)->readTest.size = 0;
-    conv(pollData)->readTest.iterPos = 0;
+    var_conv(pollData)->readTest.size = 0;
+    var_conv(pollData)->readTest.iterPos = 0;
     hshDestr(conv(pollData)->readTest.indexHash, (destrfunctype) &intDestrGeneric,
              (destrfunctype) &intDestrGeneric);
-    conv(pollData)->readTest.indexHash = hshEmpty();
-    conv(pollData)->writeTest.size = 0;
-    conv(pollData)->writeTest.iterPos = 0;
+    var_conv(pollData)->readTest.indexHash = hshEmpty();
+    var_conv(pollData)->writeTest.size = 0;
+    var_conv(pollData)->writeTest.iterPos = 0;
     hshDestr(conv(pollData)->writeTest.indexHash, (destrfunctype) &intDestrGeneric,
              (destrfunctype) &intDestrGeneric);
-    conv(pollData)->writeTest.indexHash = hshEmpty();
-    conv(pollData)->iteratorMode = ITER_EMPTY;
-    conv(pollData)->iterEvents = 0;
-    conv(pollData)->numOfEvents = 0;
+    var_conv(pollData)->writeTest.indexHash = hshEmpty();
+    var_conv(pollData)->iteratorMode = ITER_EMPTY;
+    var_conv(pollData)->iterEvents = 0;
+    var_conv(pollData)->numOfEvents = 0;
   } /* polClear */
 
 
 
 #ifdef ANSI_C
 
-void polCpy (polltype poll_to, const const_polltype pollDataFrom)
+void polCpy (const polltype poll_to, const const_polltype pollDataFrom)
 #else
 
 void polCpy (poll_to, pollDataFrom)
@@ -765,7 +872,7 @@ polltype pollDataFrom;
       if (unlikely(newReadIndexHash == NULL || newWriteIndexHash == NULL)) {
         raise_error(MEMORY_ERROR);
       } else {
-        pollData = conv(poll_to);
+        pollData = var_conv(poll_to);
         if (pollData->readTest.capacity < conv(pollDataFrom)->readTest.size) {
           if (unlikely(!ALLOC_TABLE(newReadFiles, fdAndFileType,
               conv(pollDataFrom)->readTest.capacity) ||
@@ -791,13 +898,13 @@ polltype pollDataFrom;
           } /* if */
         } /* if */
 #ifdef USE_PREPARED_FD_SET
-        copyFdSet(to_read_inFdset(pollData), to_read_inFdset(pollDataFrom),
+        copyFdSet(to_var_read_inFdset(pollData), to_read_inFdset(pollDataFrom),
                   &conv(pollDataFrom)->readTest);
 #ifdef SELECT_WITH_NFDS
         pollData->readTest.preparedNfds = conv(pollDataFrom)->readTest.preparedNfds;
 #endif
 #endif
-        copyFdSet(to_read_outFdset(pollData), to_read_outFdset(pollDataFrom),
+        copyFdSet(to_var_read_outFdset(pollData), to_read_outFdset(pollDataFrom),
                   &conv(pollDataFrom)->readTest);
         pollData->readTest.size = conv(pollDataFrom)->readTest.size;
         pollData->readTest.iterPos = conv(pollDataFrom)->readTest.iterPos;
@@ -807,13 +914,13 @@ polltype pollDataFrom;
                  (destrfunctype) &intDestrGeneric);
         pollData->readTest.indexHash = newReadIndexHash;
 #ifdef USE_PREPARED_FD_SET
-        copyFdSet(to_write_inFdset(pollData), to_write_inFdset(pollDataFrom),
+        copyFdSet(to_var_write_inFdset(pollData), to_write_inFdset(pollDataFrom),
                   &conv(pollDataFrom)->writeTest);
 #ifdef SELECT_WITH_NFDS
         pollData->writeTest.preparedNfds = conv(pollDataFrom)->writeTest.preparedNfds;
 #endif
 #endif
-        copyFdSet(to_write_outFdset(pollData), to_write_outFdset(pollDataFrom),
+        copyFdSet(to_var_write_outFdset(pollData), to_write_outFdset(pollDataFrom),
                   &conv(pollDataFrom)->writeTest);
         pollData->writeTest.size = conv(pollDataFrom)->writeTest.size;
         pollData->writeTest.iterPos = conv(pollDataFrom)->writeTest.iterPos;
@@ -878,13 +985,13 @@ polltype pollDataFrom;
         result = NULL;
       } else {
 #ifdef USE_PREPARED_FD_SET
-        copyFdSet(to_read_inFdset(result), to_read_inFdset(pollDataFrom),
+        copyFdSet(to_var_read_inFdset(result), to_read_inFdset(pollDataFrom),
                   &conv(pollDataFrom)->readTest);
 #ifdef SELECT_WITH_NFDS
         result->readTest.preparedNfds = conv(pollDataFrom)->readTest.preparedNfds;
 #endif
 #endif
-        copyFdSet(to_read_outFdset(result), to_read_outFdset(pollDataFrom),
+        copyFdSet(to_var_read_outFdset(result), to_read_outFdset(pollDataFrom),
                   &conv(pollDataFrom)->readTest);
         result->readTest.size = conv(pollDataFrom)->readTest.size;
         result->readTest.capacity = conv(pollDataFrom)->readTest.capacity;
@@ -893,13 +1000,13 @@ polltype pollDataFrom;
                conv(pollDataFrom)->readTest.size * sizeof(fdAndFileType));
         result->readTest.indexHash = newReadIndexHash;
 #ifdef USE_PREPARED_FD_SET
-        copyFdSet(to_write_inFdset(result), to_write_inFdset(pollDataFrom),
+        copyFdSet(to_var_write_inFdset(result), to_write_inFdset(pollDataFrom),
                   &conv(pollDataFrom)->writeTest);
 #ifdef SELECT_WITH_NFDS
         result->writeTest.preparedNfds = conv(pollDataFrom)->writeTest.preparedNfds;
 #endif
 #endif
-        copyFdSet(to_write_outFdset(result), to_write_outFdset(pollDataFrom),
+        copyFdSet(to_var_write_outFdset(result), to_write_outFdset(pollDataFrom),
                   &conv(pollDataFrom)->writeTest);
         result->writeTest.size = conv(pollDataFrom)->writeTest.size;
         result->writeTest.capacity = conv(pollDataFrom)->writeTest.capacity;
@@ -921,7 +1028,7 @@ polltype pollDataFrom;
 
 #ifdef ANSI_C
 
-void polDestr (const const_polltype oldPollData)
+void polDestr (const polltype oldPollData)
 #else
 
 void polDestr (oldPollData)
@@ -953,7 +1060,7 @@ polltype oldPollData;
       FREE_TABLE(conv(oldPollData)->writeTest.files, fdAndFileType, capacity);
       hshDestr(conv(oldPollData)->writeTest.indexHash, (destrfunctype) &intDestrGeneric,
                (destrfunctype) &intDestrGeneric);
-      FREE_RECORD(conv(oldPollData), select_based_pollrecord, count.pollData);
+      FREE_RECORD(var_conv(oldPollData), select_based_pollrecord, count.pollData);
     } /* if */
   } /* polDestr */
 
@@ -1028,7 +1135,7 @@ polltype polEmpty ()
 
 #ifdef ANSI_C
 
-inttype polGetCheck (polltype pollData, const sockettype aSocket)
+inttype polGetCheck (const const_polltype pollData, const sockettype aSocket)
 #else
 
 inttype polGetCheck (pollData, aSocket)
@@ -1058,7 +1165,7 @@ sockettype aSocket;
 
 #ifdef ANSI_C
 
-inttype polGetFinding (polltype pollData, const sockettype aSocket)
+inttype polGetFinding (const const_polltype pollData, const sockettype aSocket)
 #else
 
 inttype polGetFinding (pollData, aSocket)
@@ -1088,7 +1195,7 @@ sockettype aSocket;
 
 #ifdef ANSI_C
 
-booltype polHasNext (polltype pollData)
+booltype polHasNext (const polltype pollData)
 #else
 
 booltype polHasNext (pollData)
@@ -1097,8 +1204,6 @@ polltype pollData;
 
   { /* polHasNext */
     switch (conv(pollData)->iteratorMode) {
-      case ITER_EMPTY:
-        return FALSE;
       case ITER_CHECKS_IN:
         return hasNextCheck(&conv(pollData)->readTest);
       case ITER_CHECKS_OUT:
@@ -1107,18 +1212,18 @@ polltype pollData;
         return hasNextCheck(&conv(pollData)->readTest) ||
                hasNextCheck(&conv(pollData)->writeTest);
       case ITER_FINDINGS_IN:
-        return hasNextFinding(&conv(pollData)->readTest,
+        return hasNextFinding(&var_conv(pollData)->readTest,
                               conv(pollData)->iterEvents);
       case ITER_FINDINGS_OUT:
-        return hasNextFinding(&conv(pollData)->writeTest,
+        return hasNextFinding(&var_conv(pollData)->writeTest,
                               conv(pollData)->iterEvents);
       case ITER_FINDINGS_INOUT:
-        return hasNextFinding(&conv(pollData)->readTest,
+        return hasNextFinding(&var_conv(pollData)->readTest,
                               conv(pollData)->iterEvents) ||
-               hasNextFinding(&conv(pollData)->writeTest,
+               hasNextFinding(&var_conv(pollData)->writeTest,
                               conv(pollData)->iterEvents);
+      case ITER_EMPTY:
       default:
-        raise_error(RANGE_ERROR);
         return FALSE;
     } /* switch */
   } /* polHasNext */
@@ -1127,7 +1232,7 @@ polltype pollData;
 
 #ifdef ANSI_C
 
-void polIterChecks (polltype pollData, inttype pollMode)
+void polIterChecks (const polltype pollData, inttype pollMode)
 #else
 
 void polIterChecks (pollData, pollMode)
@@ -1138,20 +1243,23 @@ inttype pollMode;
   { /* polIterChecks */
     switch (pollMode) {
       case POLL_NOTHING:
-        conv(pollData)->iteratorMode = ITER_EMPTY;
+        var_conv(pollData)->iteratorMode = ITER_EMPTY;
         break;
       case POLL_IN: 
-        conv(pollData)->iteratorMode = ITER_CHECKS_IN;
-        conv(pollData)->readTest.iterPos = 0;
+        var_conv(pollData)->iteratorMode = ITER_CHECKS_IN;
+        var_conv(pollData)->readTest.iterPos = 0;
         break;
       case POLL_OUT:
-        conv(pollData)->iteratorMode = ITER_CHECKS_OUT;
-        conv(pollData)->writeTest.iterPos = 0;
+        var_conv(pollData)->iteratorMode = ITER_CHECKS_OUT;
+        var_conv(pollData)->writeTest.iterPos = 0;
         break;
       case POLL_INOUT:
-        conv(pollData)->iteratorMode = ITER_CHECKS_INOUT;
-        conv(pollData)->readTest.iterPos = 0;
-        conv(pollData)->writeTest.iterPos = 0;
+        var_conv(pollData)->iteratorMode = ITER_CHECKS_INOUT;
+        var_conv(pollData)->readTest.iterPos = 0;
+        var_conv(pollData)->writeTest.iterPos = 0;
+        break;
+      default:
+        raise_error(RANGE_ERROR);
         break;
     } /* switch */
   } /* polIterChecks */
@@ -1160,7 +1268,7 @@ inttype pollMode;
 
 #ifdef ANSI_C
 
-void polIterFindings (polltype pollData, inttype pollMode)
+void polIterFindings (const polltype pollData, inttype pollMode)
 #else
 
 void polIterFindings (pollData, pollMode)
@@ -1171,30 +1279,33 @@ inttype pollMode;
   { /* polIterFindings */
     switch (pollMode) {
       case POLL_NOTHING:
-        conv(pollData)->iteratorMode = ITER_EMPTY;
+        var_conv(pollData)->iteratorMode = ITER_EMPTY;
         break;
       case POLL_IN: 
-        conv(pollData)->iteratorMode = ITER_FINDINGS_IN;
-        conv(pollData)->readTest.iterPos = 0;
+        var_conv(pollData)->iteratorMode = ITER_FINDINGS_IN;
+        var_conv(pollData)->readTest.iterPos = 0;
         break;
       case POLL_OUT:
-        conv(pollData)->iteratorMode = ITER_FINDINGS_OUT;
-        conv(pollData)->writeTest.iterPos = 0;
+        var_conv(pollData)->iteratorMode = ITER_FINDINGS_OUT;
+        var_conv(pollData)->writeTest.iterPos = 0;
         break;
       case POLL_INOUT:
-        conv(pollData)->iteratorMode = ITER_FINDINGS_INOUT;
-        conv(pollData)->readTest.iterPos = 0;
-        conv(pollData)->writeTest.iterPos = 0;
+        var_conv(pollData)->iteratorMode = ITER_FINDINGS_INOUT;
+        var_conv(pollData)->readTest.iterPos = 0;
+        var_conv(pollData)->writeTest.iterPos = 0;
+        break;
+      default:
+        raise_error(RANGE_ERROR);
         break;
     } /* switch */
-    conv(pollData)->iterEvents = conv(pollData)->numOfEvents;
+    var_conv(pollData)->iterEvents = conv(pollData)->numOfEvents;
   } /* polIterFindings */
 
 
 
 #ifdef ANSI_C
 
-rtlGenerictype polNextFile (polltype pollData, const rtlGenerictype nullFile)
+rtlGenerictype polNextFile (const polltype pollData, const rtlGenerictype nullFile)
 #else
 
 rtlGenerictype polNextFile (pollData, nullFile)
@@ -1204,35 +1315,33 @@ rtlGenerictype nullFile;
 
   { /* polNextFile */
     switch (conv(pollData)->iteratorMode) {
-      case ITER_EMPTY:
-        return nullFile;
       case ITER_CHECKS_IN:
-        return nextCheck(&conv(pollData)->readTest, nullFile);
+        return nextCheck(&var_conv(pollData)->readTest, nullFile);
       case ITER_CHECKS_OUT:
-        return nextCheck(&conv(pollData)->writeTest, nullFile);
+        return nextCheck(&var_conv(pollData)->writeTest, nullFile);
       case ITER_CHECKS_INOUT:
         if (hasNextCheck(&conv(pollData)->readTest)) {
-          return nextCheck(&conv(pollData)->readTest, nullFile);
+          return nextCheck(&var_conv(pollData)->readTest, nullFile);
         } else {
-          return nextCheck(&conv(pollData)->writeTest, nullFile);
+          return nextCheck(&var_conv(pollData)->writeTest, nullFile);
         } /* if */
       case ITER_FINDINGS_IN:
-        return nextFinding(&conv(pollData)->readTest,
-                           &conv(pollData)->iterEvents, nullFile);
+        return nextFinding(&var_conv(pollData)->readTest,
+                           &var_conv(pollData)->iterEvents, nullFile);
       case ITER_FINDINGS_OUT:
-        return nextFinding(&conv(pollData)->writeTest,
-                           &conv(pollData)->iterEvents, nullFile);
+        return nextFinding(&var_conv(pollData)->writeTest,
+                           &var_conv(pollData)->iterEvents, nullFile);
       case ITER_FINDINGS_INOUT:
-        if (hasNextFinding(&conv(pollData)->readTest,
+        if (hasNextFinding(&var_conv(pollData)->readTest,
                            conv(pollData)->iterEvents)) {
-          return nextFinding(&conv(pollData)->readTest,
-                             &conv(pollData)->iterEvents, nullFile);
+          return nextFinding(&var_conv(pollData)->readTest,
+                             &var_conv(pollData)->iterEvents, nullFile);
         } else {
-          return nextFinding(&conv(pollData)->writeTest,
-                             &conv(pollData)->iterEvents, nullFile);
+          return nextFinding(&var_conv(pollData)->writeTest,
+                             &var_conv(pollData)->iterEvents, nullFile);
         } /* if */
+      case ITER_EMPTY:
       default:
-        raise_error(RANGE_ERROR);
         return nullFile;
     } /* switch */
   } /* polNextFile */
@@ -1241,86 +1350,15 @@ rtlGenerictype nullFile;
 
 #ifdef ANSI_C
 
-void polPoll (polltype pollData)
+void polPoll (const polltype pollData)
 #else
 
 void polPoll (pollData)
 polltype pollData;
 #endif
 
-  {
-    int nfds = 0;
-    fd_set *readFds;
-    fd_set *writeFds;
-#ifndef USE_PREPARED_FD_SET
-    memsizetype pos;
-    sockettype sock;
-#endif
-    int select_result;
-
-  /* polPoll */
-    /* printf("polPoll\n");
-       dumpPoll(pollData); */
-    readFds = to_read_outFdset(pollData);
-#ifdef USE_PREPARED_FD_SET
-    copyFdSet(readFds, to_read_inFdset(pollData),
-              &conv(pollData)->readTest.files);
-#ifdef SELECT_WITH_NFDS
-    nfds = conv(pollData)->readTest.preparedNfds;
-#endif
-#else
-    FD_ZERO(readFds);
-    for (pos = 0; pos < conv(pollData)->readTest.size; pos++) {
-      sock = conv(pollData)->readTest.files[pos].fd;
-      FD_SET(sock, readFds);
-#ifdef SELECT_WITH_NFDS
-      if ((int) sock >= nfds) {
-        nfds = (int) sock + 1;
-      } /* if */
-#endif
-    } /* for */
-#endif
-    writeFds = to_write_outFdset(pollData);
-#ifdef USE_PREPARED_FD_SET
-    copyFdSet(writeFds, to_write_inFdset(pollData),
-              &conv(pollData)->writeTest.files);
-#ifdef SELECT_WITH_NFDS
-    if (conv(pollData)->writeTest.preparedNfds > nfds) {
-      nfds = conv(pollData)->writeTest.preparedNfds;
-    } /* if */
-#endif
-#else
-    FD_ZERO(writeFds);
-    for (pos = 0; pos < conv(pollData)->writeTest.size; pos++) {
-      sock = conv(pollData)->writeTest.files[pos].fd;
-      FD_SET(sock, writeFds);
-#ifdef SELECT_WITH_NFDS
-      if ((int) sock >= nfds) {
-        nfds = (int) sock + 1;
-      } /* if */
-#endif
-    } /* for */
-#endif
-    /* printf("polPoll %lx: nfds=%d\n", pollData, nfds); */
-    select_result = select(nfds, readFds, writeFds, NULL, NULL); /* &timeout); */
-    if (unlikely(select_result < 0)) {
-      /* printf("errno=%d\n", errno);
-      printf("EACCES=%d  EBUSY=%d  EEXIST=%d  ENOTEMPTY=%d  ENOENT=%d  ENOTDIR=%d  EROFS=%d\n",
-          EACCES, EBUSY, EEXIST, ENOTEMPTY, ENOENT, ENOTDIR, EROFS);
-      printf("EFAULT=%d  EISDIR=%d  ENAMETOOLONG=%d  ENODEV=%d  EINVAL=%d  EBADF=%d\n",
-           EFAULT, EISDIR, ENAMETOOLONG, ENODEV, EINVAL, EBADF); */
-      /* printf("WSAGetLastError=%d\n", WSAGetLastError());
-      printf("WSANOTINITIALISED=%ld  WSAEFAULT=%ld  WSAENETDOWN=%ld  WSAEINVAL=%ld\n",
-          WSANOTINITIALISED, WSAEFAULT, WSAENETDOWN, WSAEINVAL);
-      printf("WSAEINTR=%ld  WSAEINPROGRESS=%ld  WSAENOTSOCK =%ld\n",
-          WSAEINTR, WSAEINPROGRESS, WSAENOTSOCK); */
-      /* printf("nfds=%d", nfds); */
-      raise_error(FILE_ERROR);
-    } else {
-      conv(pollData)->readTest.iterPos = 0;
-      conv(pollData)->writeTest.iterPos = 0;
-      conv(pollData)->numOfEvents = (memsizetype) select_result;
-    } /* if */
+  { /* polPoll */
+    doPoll(pollData, NULL);
   } /* polPoll */
 
 
@@ -1330,7 +1368,7 @@ polltype pollData;
  */
 #ifdef ANSI_C
 
-void polRemoveCheck (polltype pollData, const sockettype aSocket,
+void polRemoveCheck (const polltype pollData, const sockettype aSocket,
     inttype eventsToCheck)
 #else
 
@@ -1341,10 +1379,19 @@ inttype eventsToCheck;
 #endif
 
   { /* polRemoveCheck */
-    if (eventsToCheck & POLL_IN) {
-      removeCheck(&conv(pollData)->readTest, aSocket);
-    } /* if */
-    if (eventsToCheck & POLL_OUT) {
-      removeCheck(&conv(pollData)->writeTest, aSocket);
-    } /* if */
+    switch (eventsToCheck) {
+      case POLL_IN:
+        removeCheck(&var_conv(pollData)->readTest, aSocket);
+        break;
+      case POLL_OUT:
+        removeCheck(&var_conv(pollData)->writeTest, aSocket);
+        break;
+      case POLL_INOUT:
+        removeCheck(&var_conv(pollData)->readTest, aSocket);
+        removeCheck(&var_conv(pollData)->writeTest, aSocket);
+        break;
+      default:
+        raise_error(RANGE_ERROR);
+        break;
+    } /* switch */
   } /* polRemoveCheck */
