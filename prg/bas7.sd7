@@ -202,14 +202,14 @@ var set of string: numeric_functions is {
 
 const set of string: not_allowed_as_label is {
     "BEEP",      "CLEAR",     "CLOSE",     "CLS",       "COLOR",     "COMMON",
-    "CONST",     "DATA",      "DECLARE",   "DEF",       "DEFDBL",    "DEFINT",   
-    "DEFSNG",    "DEFSTR",    "DIM",       "DO",        "DRAW",      "ELSE",     
-    "ELSEIF",    "END",       "ERASE",     "EXIT",      "GET",       "IF",       
-    "INPUT",     "KEY",       "LET",       "LOCATE",    "LOOP",      "LPRINT",   
-    "NEXT",      "OPEN",      "OPTION",    "OUT",       "PAINT",     "PALETTE",  
-    "PLAY",      "POKE",      "PRINT",     "PUT",       "RANDOMIZE", "READ",     
-    "REDIM",     "REM",       "RESET",     "RESTORE",   "RESUME",    "RETURN",   
-    "SCREEN",    "SEEK",      "SELECT",    "SLEEP",     "STOP",      "SUB",      
+    "CONST",     "DATA",      "DECLARE",   "DEF",       "DEFDBL",    "DEFINT",
+    "DEFSNG",    "DEFSTR",    "DIM",       "DO",        "DRAW",      "ELSE",
+    "ELSEIF",    "END",       "ERASE",     "EXIT",      "GET",       "IF",
+    "INPUT",     "KEY",       "LET",       "LOCATE",    "LOOP",      "LPRINT",
+    "NEXT",      "OPEN",      "OPTION",    "OUT",       "PAINT",     "PALETTE",
+    "PLAY",      "POKE",      "PRINT",     "PUT",       "RANDOMIZE", "READ",
+    "REDIM",     "REM",       "RESET",     "RESTORE",   "RESUME",    "RETURN",
+    "SCREEN",    "SEEK",      "SELECT",    "SLEEP",     "STOP",      "SUB",
     "SYSTEM",    "WEND",      "WRITE"};
 
 
@@ -726,7 +726,7 @@ const proc: line_marker is func
       end if;
       write(log, "(" <& prg[file_line_number].fileLine <& ") ");
     else
-      write(log, "##### " <& file_line_number <& " ##### ");      
+      write(log, "##### " <& file_line_number <& " ##### ");
     end if;
   end func;
 
@@ -745,7 +745,7 @@ const proc: line_marker (in integer: line_number) is func
         write(log, "(" <& prg[line_number].fileLine <& ")");
       end if;
     else
-      write(log, "##### " <& line_number <& " ##### ");      
+      write(log, "##### " <& line_number <& " ##### ");
     end if;
   end func;
 
@@ -899,7 +899,7 @@ const proc: check_loop_stacks_before_return (in string: returnStatementName) is 
       until length(doLoop) <= gosubReturn[1].doLoopStackDepth;
     end if;
   end func;
-      
+
 
 const proc: do_return (inout string: symbol, inout string: line) is func
   begin

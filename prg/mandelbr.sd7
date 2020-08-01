@@ -72,7 +72,7 @@ const proc: displayMandelbrotSet (in complex: center, in float: zoom) is func
       for y range -pix to pix do
         z0 := center + complex(flt(x) * zoom, flt(y) * zoom);
         point(x + pix, y + pix, colorTable[iterate(z0)]);
-      end for;    
+      end for;
     end for;
   end func;
 

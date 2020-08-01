@@ -453,7 +453,7 @@ chartype escape;
               (memsizetype) (found_pos - search_start), result_array,
               &used_max_position);
           search_start = found_pos + 1;
-        
+
       if (result_array != NULL) {
         result_array = add_stri_to_array(search_start,
             (memsizetype) (search_end - search_start), result_array,
@@ -2218,7 +2218,7 @@ stritype delimiter;
             ch_1, (memsizetype) (search_end - search_start))) != NULL) {
           if (memcmp(search_start, delimiter_mem,
               delimiter_size * sizeof(strelemtype)) == 0) {
-            
+
             search_start = found_pos + delimiter_size;
           } else {
             search_start++;

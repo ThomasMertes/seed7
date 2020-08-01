@@ -48,7 +48,7 @@ const func string: replaceHexChars (in string: stri) is func
       pos := pos(result, '%', succ(pos));
     end while;
   end func;
-      
+
 
 const func hash [string] string: getCgiParameters (in string: paramStri) is func
   result

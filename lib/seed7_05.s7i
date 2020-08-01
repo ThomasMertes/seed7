@@ -1532,7 +1532,7 @@ const func type: array (in type: baseType) is func
 
         const func arrayType: sort (in arrayType: arr_obj) is
           return SORT(arr_obj, arrayType.dataCompare);
-          
+
       end if;
       end global;
 
@@ -3383,7 +3383,7 @@ const proc: read (inout file: aFile, inout string: stri) is func
     aFile.io_ok := TRUE;
   end func;
 
-const proc: readln (inout file: aFile, inout string: stri) is func 
+const proc: readln (inout file: aFile, inout string: stri) is func
  begin
     stri := getln(aFile);
     aFile.io_empty := stri = "";

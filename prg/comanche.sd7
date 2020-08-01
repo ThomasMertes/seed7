@@ -130,7 +130,7 @@ const proc: processHttpRequest (inout file: sock) is func
         buffer := getf(filePath);
       else
         buffer := "";
-      end if;        
+      end if;
       if buffer <> "" then
         if endsWith(filePath, ".htm") or endsWith(filePath, ".html") then
           contentType := "text/html";

@@ -1,7 +1,7 @@
 
 (********************************************************************)
 (*                                                                  *)
-(*  bitmapfont.s7i  Defines bitmapFont and bitmapFontFile.          *)
+(*  bitmapfont.s7i  Defines the bitmap font type.                   *)
 (*  Copyright (C) 2007  Thomas Mertes                               *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)
@@ -37,40 +37,11 @@ include "pixmapfont.s7i";
 
 const type: fontPicType is hash [char] array string;
 
-const type: bitmapFont is new struct
+const type: bitmapFont is sub fontProperties struct
     var fontPicType: fontPictures is fontPicType.value;
-    var integer: xHeight       is 0;
-    var integer: capHeight     is 0;
-    var integer: lineHeight    is 0;
-    var integer: ascent        is 0;
-    var integer: descent       is 0;
-    var integer: baseLineDelta is 0;
-    var integer: columnWidth is 0;
   end struct;
 
 type_implements_interface(bitmapFont, font);
-
-
-const func integer: xHeight (in bitmapFont: bmpFont) is
-  return bmpFont.xHeight;
-
-const func integer: capHeight (in bitmapFont: bmpFont) is
-  return bmpFont.capHeight;
-
-const func integer: lineHeight (in bitmapFont: bmpFont) is
-  return bmpFont.lineHeight;
-
-const func integer: ascent (in bitmapFont: bmpFont) is
-  return bmpFont.ascent;
-
-const func integer: descent (in bitmapFont: bmpFont) is
-  return bmpFont.descent;
-
-const func integer: baseLineDelta (in bitmapFont: bmpFont) is
-  return bmpFont.baseLineDelta;
-
-const func integer: columnWidth (in bitmapFont: bmpFont) is
-  return bmpFont.columnWidth;
 
 
 const func integer: width (in bitmapFont: bmpFont, in string: stri) is func
@@ -121,7 +92,6 @@ const func PRIMITIVE_WINDOW: genPixmap (in array string: pattern,
     var integer: width is 0;
     var integer: line is 0;
     var integer: column is 0;
-    var color: col is black;
   begin
     height := length(pattern);
     width := length(pattern[1]);
@@ -158,6 +128,7 @@ const func pixmapFontType: genPixmapFont (in bitmapFont: bmpFont,
     result.baseLineDelta := baseLineDelta(bmpFont);
     result.line_delta := lineHeight(bmpFont);
     result.column_delta := columnWidth(bmpFont);
+    result.characterSpacing := characterSpacing(bmpFont);
   end func;
 
 
@@ -173,6 +144,13 @@ const func PRIMITIVE_WINDOW: getFontCharPixmap (in bitmapFont: bmpFont,
     else
       charPixmap := pixmapFont.pixmap[' '];
     end if;
+  end func;
+
+
+const proc: setFont (inout pixmapFontFile: fontFile, in bitmapFont: aFont) is func
+  begin
+    fontFile.font := getFont(aFont, fontFile.font.fontSize,
+        fontFile.font.scale, fontFile.font.foreground, fontFile.font.background);
   end func;
 
 
@@ -192,137 +170,4 @@ const func integer: columnWidth (in fontPicType: fontPictures) is func
         result := length(fontPictures[ch][1]);
       end if;
     end for;
-  end func;
-
-
-#
-# bitmapFontFile
-#
-
-
-const type: bitmapFontFile is sub null_file struct
-    var PRIMITIVE_WINDOW: win is PRIMITIVE_WINDOW.value;
-    var pixmapFontType: font is pixmapFontType.value;
-    var integer: height is 0;
-    var integer: width is 0;
-    var integer: line is 0;
-    var integer: column is 0;
-    var integer: min_x is 0;
-    var integer: min_y is 0;
-    var integer: curr_x is 0;
-    var integer: curr_y is 0;
-    var color: foreground is white;
-    var color: background is black;
-  end struct;
-
-
-type_implements_interface(bitmapFontFile, text);
-
-
-const func bitmapFontFile: malloc (ref bitmapFontFile: ext_file) is func
-  result
-    var bitmapFontFile: result is bitmapFontFile.value;
-  begin
-    result := ext_file;
-  end func;
-
-
-const func text: openBitmapFontFile (in PRIMITIVE_WINDOW: win) is func
-  result
-    var text: result is STD_NULL;
-  local
-    var bitmapFontFile: new_file is bitmapFontFile.value;
-  begin
-    new_file.win := win;
-    new_file.font.baseFont := bitmapFont.value;
-    result := malloc(new_file);
-  end func;
-
-
-const func text: openBitmapFontFile (in PRIMITIVE_WINDOW: win,
-    in integer: min_x, in integer: min_y) is func
-  result
-    var text: result is STD_NULL;
-  local
-    var bitmapFontFile: new_file is bitmapFontFile.value;
-  begin
-    new_file.win := win;
-    new_file.font.baseFont := bitmapFont.value;
-    new_file.min_x := min_x;
-    new_file.min_y := min_y;
-    result := malloc(new_file);
-  end func;
-
-
-const proc: setFont (inout file param, in font param) is DYNAMIC;
-
-
-const proc: setFont (inout bitmapFontFile: fontFile, in bitmapFont: aFont) is func
-  begin
-    fontFile.font := getFont(aFont, fontFile.font.fontSize,
-        fontFile.font.scale, fontFile.font.foreground, fontFile.font.background);
-  end func;
-
-
-const proc: setPos (inout bitmapFontFile: fontFile,
-    in integer: line, in integer: column) is func
-  begin
-    fontFile.curr_y := fontFile.min_y + fontFile.font.line_delta * line;
-    fontFile.curr_x := fontFile.min_x + fontFile.font.column_delta * column;
-  end func;
-
-
-const proc: setPosXY (inout bitmapFontFile: fontFile, in integer: xPos, in integer: yPos) is func
-  begin
-    fontFile.curr_x := fontFile.min_x + xPos;
-    fontFile.curr_y := fontFile.min_y + yPos;
-    fontFile.line := (fontFile.curr_y + 2) div fontFile.font.line_delta;
-    fontFile.column := (fontFile.curr_x + 6) div fontFile.font.column_delta;
-  end func;
-
-
-const proc: color (inout bitmapFontFile: fontFile, in color: col) is func
-  begin
-    fontFile.font := getFont(fontFile.font.baseFont, fontFile.font.fontSize,
-        fontFile.font.scale, col, fontFile.font.background);
-  end func;
-
-
-const proc: color (inout bitmapFontFile: fontFile, in color: col, in color: backgr) is func
-  begin
-    fontFile.font := getFont(fontFile.font.baseFont, fontFile.font.fontSize,
-        fontFile.font.scale, col, backgr);
-  end func;
-
-
-const proc: write (inout bitmapFontFile: fontFile, in string: stri) is func
-  local
-    var char: ch is ' ';
-    var PRIMITIVE_WINDOW: charPixmap is PRIMITIVE_WINDOW.value;
-  begin
-    for ch range stri do
-      if ch in fontFile.font.pixmap then
-        charPixmap := fontFile.font.pixmap[ch];
-      else
-        charPixmap := getFontCharPixmap(fontFile.font, ch);
-      end if;
-      put(fontFile.curr_x, fontFile.curr_y - fontFile.font.baseLineDelta, charPixmap, PSET);
-      fontFile.curr_x +:= width(charPixmap);
-    end for;
-    fontFile.column +:= length(stri);
-  end func;
-
-
-const proc: write (inout bitmapFontFile: fontFile, in char: ch) is func
-  begin
-    write(fontFile, str(ch));
-  end func;
-
-
-const proc: writeln (inout bitmapFontFile: fontFile) is func
-  begin
-    incr(fontFile.line);
-    fontFile.column := 1;
-    fontFile.curr_x := fontFile.min_x + fontFile.font.column_delta - 6;
-    fontFile.curr_y +:= fontFile.font.line_delta;
   end func;

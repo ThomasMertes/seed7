@@ -28,7 +28,7 @@
 
 const func bitmapFont: genStdFont24 is func
   result
-    var bitmapFont: result is bitmapFont.value; 
+    var bitmapFont: result is bitmapFont.value;
   begin
     result.xHeight       := 19;
     result.capHeight     := 24;

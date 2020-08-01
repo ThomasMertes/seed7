@@ -2076,7 +2076,7 @@ booltype negative;
           return NULL;
         } else {
           big2_help->size = big1->size - (big1->size >> 1);
-          memcpy(big2_help->bigdigits, big2->bigdigits, 
+          memcpy(big2_help->bigdigits, big2->bigdigits,
               (size_t) big2->size * sizeof(bigdigittype));
           memset(&big2_help->bigdigits[big2->size], 0,
               (size_t) (big2_help->size - big2->size) * sizeof(bigdigittype));
@@ -2111,7 +2111,7 @@ booltype negative;
           return NULL;
         } else {
           big2_help->size = big1->size;
-          memcpy(big2_help->bigdigits, big2->bigdigits, 
+          memcpy(big2_help->bigdigits, big2->bigdigits,
               (size_t) big2->size * sizeof(bigdigittype));
           memset(&big2_help->bigdigits[big2->size], 0,
               (size_t) (big2_help->size - big2->size) * sizeof(bigdigittype));
@@ -4349,7 +4349,7 @@ biginttype big2;
         big2_help->size--;
         if (big2_help->size == 1) {
           result->bigdigits[0] = uBigRem1(result, big2_help->bigdigits[0]);
-          memset(&result->bigdigits[1], 0, 
+          memset(&result->bigdigits[1], 0,
               (size_t) (result->size - 1) * sizeof(bigdigittype));
         } else {
           uBigRem(result, big2_help);
@@ -4921,7 +4921,7 @@ biginttype big2;
         big2_help->size--;
         if (big2_help->size == 1) {
           result->bigdigits[0] = uBigRem1(result, big2_help->bigdigits[0]);
-          memset(&result->bigdigits[1], 0, 
+          memset(&result->bigdigits[1], 0,
               (size_t) (result->size - 1) * sizeof(bigdigittype));
         } else {
           uBigRem(result, big2_help);

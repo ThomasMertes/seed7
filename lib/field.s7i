@@ -81,7 +81,7 @@ const func string: getwd (inout field_file: field_fil) is func
           if field_fil.column = field_fil.width and field_fil.field[field_fil.width] <> ' ' then
             field_fil.field @:= [field_fil.column] ' ';
             setPos(field_fil.out_file, field_fil.linePos, field_fil.columnPos + field_fil.column - 1);
-            write(field_fil.out_file, ' ');            
+            write(field_fil.out_file, ' ');
           elsif field_fil.column > 1 then
             decr(field_fil.column);
             field_fil.field @:= [field_fil.column] ' ';
@@ -141,7 +141,7 @@ const func string: getln (inout field_file: field_fil) is func
           if field_fil.column = field_fil.width and field_fil.field[field_fil.width] <> ' ' then
             field_fil.field @:= [field_fil.column] ' ';
             setPos(field_fil.out_file, field_fil.linePos, field_fil.columnPos + field_fil.column - 1);
-            write(field_fil.out_file, ' ');            
+            write(field_fil.out_file, ' ');
           elsif field_fil.column > 1 then
             decr(field_fil.column);
             field_fil.field @:= [field_fil.column] ' ';

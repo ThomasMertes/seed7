@@ -170,7 +170,7 @@ const func string: str(GERMAN, in integer: number) is func
         if number < 20 then
           stri := STR_0_TO_19[succ(number)];
         else
-          if number rem 10 <> 0 then 
+          if number rem 10 <> 0 then
             stri := STR_0_TO_9[succ(number rem 10)];
             stri &:= "und";
           end if;

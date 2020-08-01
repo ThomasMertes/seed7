@@ -1681,7 +1681,7 @@ const proc: check_file is func
       ignore(gets(aFile, 1)); # Necessary to avoid a SIGPIPE in the executed process
       close(aFile);
     end if;
-    
+
     aFile := popen8("./hi", "r");
     if aFile = STD_NULL then
       writeln(" ***** Failed to popen pipe");

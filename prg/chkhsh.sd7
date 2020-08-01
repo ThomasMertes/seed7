@@ -405,7 +405,7 @@ const proc: chkKeysFunction is func
       writeln;
     end if;
   end func;
-    
+
 
 const proc: main is func
   begin

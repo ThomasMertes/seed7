@@ -197,7 +197,7 @@ const func ref_list: ref_list (ref reference param)                     is actio
 const func bigInteger: bigInteger (ref reference param)                 is action "BIG_VALUE";
 const func float: float (ref reference param)                           is action "FLT_VALUE";
 const func reference: reference (ref reference param)                   is action "REF_VALUE";
-const func type: type (ref reference: aRef)   
+const func type: type (ref reference: aRef)
   return getValue(aRef, type);
 *)
 const proc: setValue(inout reference param, in ref_list param)          is action "RFL_SETVALUE";

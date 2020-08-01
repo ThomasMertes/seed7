@@ -35,6 +35,7 @@ const func integer: ascent (in font: aFont)                  is DYNAMIC;
 const func integer: descent (in font: aFont)                 is DYNAMIC;
 const func integer: baseLineDelta (in font: aFont)           is DYNAMIC;
 const func integer: columnWidth (in font: aFont)             is DYNAMIC;
+const func integer: characterSpacing (in font: aFont)        is DYNAMIC;
 const func integer: width (in font: aFont, in string: stri)  is DYNAMIC;
 const func integer: numOfCharsInWidth (in font: aFont,
     in string: stri, in integer: allowedWidth)               is DYNAMIC;
@@ -46,3 +47,49 @@ const type: emptyFont is new struct
   end struct;
 
 type_implements_interface(emptyFont, font);
+
+const font: (attr font) . value                              is emptyFont.value;
+
+
+#
+# Font properties
+#
+
+
+const type: fontProperties is sub emptyFont struct
+    var integer: xHeight          is 0;
+    var integer: capHeight        is 0;
+    var integer: lineHeight       is 0;
+    var integer: ascent           is 0;
+    var integer: descent          is 0;
+    var integer: baseLineDelta    is 0;
+    var integer: columnWidth      is 0;
+    var integer: characterSpacing is 0;
+  end struct;
+
+type_implements_interface(fontProperties, font);
+
+
+const func integer: xHeight (in fontProperties: bmpFont) is
+  return bmpFont.xHeight;
+
+const func integer: capHeight (in fontProperties: bmpFont) is
+  return bmpFont.capHeight;
+
+const func integer: lineHeight (in fontProperties: bmpFont) is
+  return bmpFont.lineHeight;
+
+const func integer: ascent (in fontProperties: bmpFont) is
+  return bmpFont.ascent;
+
+const func integer: descent (in fontProperties: bmpFont) is
+  return bmpFont.descent;
+
+const func integer: baseLineDelta (in fontProperties: bmpFont) is
+  return bmpFont.baseLineDelta;
+
+const func integer: columnWidth (in fontProperties: bmpFont) is
+  return bmpFont.columnWidth;
+
+const func integer: characterSpacing (in fontProperties: bmpFont) is
+  return bmpFont.characterSpacing;

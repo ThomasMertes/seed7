@@ -1432,7 +1432,7 @@ const proc: hideAll is func
     var integer: line is 0;
     var integer: column is 0;
   begin
-    for line range 1 to length(field) do 
+    for line range 1 to length(field) do
       for column range 1 to length(field[line]) do
         hide(line, column);
       end for;
@@ -1485,7 +1485,7 @@ const func integer: countCardBacks is func
     var integer: line is 0;
     var integer: column is 0;
   begin
-    for line range 1 to length(field) do 
+    for line range 1 to length(field) do
       for column range 1 to length(field[line]) do
         if field[line][column].visible = backSide then
           incr(result);
@@ -1505,7 +1505,7 @@ const proc: randomField (inout integer: fieldLine, inout integer: fieldColumn) i
     numCards := countCardBacks;
     if numCards > 0 then
       selectedCard := rand(1, numCards);
-      for line range 1 to length(field) do 
+      for line range 1 to length(field) do
         for column range 1 to length(field[line]) do
           if field[line][column].visible = backSide then
             decr(selectedCard);
@@ -1527,7 +1527,7 @@ const proc: randomNotVisited (inout integer: fieldLine, inout integer: fieldColu
     var integer: numCards is 0;
     var integer: selectedCard is 0;
   begin
-    for line range 1 to length(field) do 
+    for line range 1 to length(field) do
       for column range 1 to length(field[line]) do
         if field[line][column].visible = backSide and
           not field[line][column].visited then
@@ -1537,7 +1537,7 @@ const proc: randomNotVisited (inout integer: fieldLine, inout integer: fieldColu
     end for;
     if numCards > 0 then
       selectedCard := rand(1, numCards);
-      for line range 1 to length(field) do 
+      for line range 1 to length(field) do
         for column range 1 to length(field[line]) do
           if field[line][column].visible = backSide and
               not field[line][column].visited then
@@ -1564,7 +1564,7 @@ const proc: firstOfPair (inout integer: fieldLine, inout integer: fieldColumn,
     var integer: column2 is 0;
   begin
     found := FALSE;
-    for line1 range 1 to length(field) do 
+    for line1 range 1 to length(field) do
       for column1 range 1 to length(field[line1]) do
         if not found and field[line1][column1].visible = backSide and
             field[line1][column1].visited then
@@ -1578,7 +1578,7 @@ const proc: firstOfPair (inout integer: fieldLine, inout integer: fieldColumn,
               found := TRUE;
             end if;
           end for;
-          for line2 range succ(line1) to length(field) do 
+          for line2 range succ(line1) to length(field) do
             for column2 range 1 to length(field[line1]) do
               if field[line2][column2].visible = backSide and
                   field[line2][column2].visited and
@@ -1604,7 +1604,7 @@ const proc: secondOfPair (in integer: cardNumber,
     var integer: column is 0;
   begin
     found := FALSE;
-    for line range 1 to length(field) do 
+    for line range 1 to length(field) do
       for column range 1 to length(field[line]) do
         if field[line][column].visible = backSide and
             field[line][column].visited and

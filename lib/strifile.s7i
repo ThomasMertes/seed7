@@ -186,7 +186,7 @@ const func string: getln (inout strifile: aStrifile) is func
       result := aStrifile.content[aStrifile.position ..];
       aStrifile.position := succ(length(aStrifile.content));
       aStrifile.bufferChar := EOF;
-    end if;      
+    end if;
   end func;
 
 

@@ -93,7 +93,7 @@ const proc: gtk_start(in integer: gtk_server_port) is func
  * SYNOPSIS
  *   const proc: gtk_stop
  * FUNCTION
- *   Close the TCP connection with the gtk-server. 
+ *   Close the TCP connection with the gtk-server.
  *   The connection must be already started.
  * SEE ALSO
  *   gtk_start

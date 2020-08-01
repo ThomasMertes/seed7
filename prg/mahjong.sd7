@@ -946,8 +946,8 @@ const proc: unmarkAll is func
   local
     var positionType: pos is positionType.value;
   begin
-    for pos.level range 1 to length(field) do 
-      for pos.line range 1 to FIELD_LINES do 
+    for pos.level range 1 to length(field) do
+      for pos.line range 1 to FIELD_LINES do
         for pos.column range 1 to FIELD_COLUMNS do
           unmark(pos);
         end for;

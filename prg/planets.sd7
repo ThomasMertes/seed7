@@ -1457,7 +1457,7 @@ const proc: main is func
       end if;
       case command of
         when {'M', 'm'}: showMenu;
-        when {'I', 'i'}: plotInnerPlanets; 
+        when {'I', 'i'}: plotInnerPlanets;
         when {'O', 'o'}: plotOuterPlanets;
         when {'D', 'd'}: changeDateTime;
                          command := 'M';

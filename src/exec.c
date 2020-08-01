@@ -194,7 +194,7 @@ listtype *evaluated_act_params;
 #endif
     form_param = form_param_list;
     *backup_form_params = NULL;
-    backup_insert_place = backup_form_params;    
+    backup_insert_place = backup_form_params;
     *evaluated_act_params = NULL;
     evaluated_insert_place = evaluated_act_params;
     while (form_param != NULL && !fail_flag) {
@@ -361,7 +361,7 @@ listtype act_param_list;
     printf("BEGIN loc_init\n");
 #endif
     *backup_loc_var = NULL;
-    list_insert_place = backup_loc_var;    
+    list_insert_place = backup_loc_var;
     while (loc_var != NULL && !fail_flag) {
       append_to_list(list_insert_place,
           loc_var->local.object->value.objvalue, act_param_list);
@@ -628,7 +628,7 @@ register listtype act_param_list;
 
   /* eval_arg_list */
     evaluated_act_params = NULL;
-    evaluated_insert_place = &evaluated_act_params;    
+    evaluated_insert_place = &evaluated_act_params;
     while (act_param_list != NULL && !fail_flag) {
       append_to_list(evaluated_insert_place, exec_object(act_param_list->obj), act_param_list);
       act_param_list = act_param_list->next;
@@ -1164,7 +1164,7 @@ printf("\n"); */
           FREE_OBJECT(match_result);
         } else {
           emptylist(match_expr->value.listvalue);
-          FREE_OBJECT(match_expr);          
+          FREE_OBJECT(match_expr);
         } /* if */
 #ifdef WITH_PROTOCOL
         if (trace.dynamic) {

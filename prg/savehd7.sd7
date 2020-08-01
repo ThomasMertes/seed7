@@ -155,7 +155,7 @@ const func stateType: loadState (in string: stateFileName) is func
       close(stateFile);
     end if;
   end func;
-  
+
 
 const proc: saveState (in stateType: state) is func
   local
@@ -443,7 +443,7 @@ const proc: nextPhase (inout stateType: state) is func
         writeln(state.phase rpad 7 <& " ");
         writeln;
         writeln("Saving finished");
-    end case;    
+    end case;
   end func;
 
 
@@ -596,7 +596,7 @@ const proc: shrinkBadAreas (inout stateType: state, in bigInteger: oldAreaPositi
         writeln(log, "Bad area at " <& oldAreaPosition <&
                      " with size " <& badAreaSize <&
                      " shrinked to size " <& state.badAreas[oldAreaPosition]);
-      end if; 
+      end if;
     end if;
   end func;
 

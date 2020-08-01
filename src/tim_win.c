@@ -281,6 +281,14 @@ struct tm *tm_result;
 
 
 #ifdef USE_ALTERNATE_UTIME
+/**
+ *  Change the access and modification times of a file.
+ *  Since a directory is a form of file the utime function should
+ *  work for directories also. Unfortunately the windows function
+ *  utime does not behave this way. Under windows utime fails with
+ *  EACCES when it is called for a directory. In this case
+ *  alternate_utime uses win32 functions to work for directories.
+ */
 #ifdef ANSI_C
 
 int alternate_utime (wchar_t *os_path, os_utimbuf_struct *utime_buf)

@@ -25,6 +25,7 @@ SEED7_LIB = seed7_05.a
 COMP_DATA_LIB = s7_data.a
 COMPILER_LIB = s7_comp.a
 CC = gcc
+GET_CC_VERSION_INFO = $(CC) --version >
 
 BIGINT_LIB_DEFINE = USE_BIG_RTL_LIBRARY
 BIGINT_LIB = big_rtl
@@ -134,18 +135,36 @@ version.h:
 	echo "#define SCREEN_UTF8" >> version.h
 	echo "#define OS_PATH_UTF8" >> version.h
 	echo "#define _FILE_OFFSET_BITS 64" >> version.h
+	echo "#define os_fseek fseeko" >> version.h
+	echo "#define os_ftell ftello" >> version.h
 	echo "#define os_off_t off_t" >> version.h
-	echo "#define USE_FSEEKO" >> version.h
 	echo "#define ESCAPE_SPACES_IN_COMMANDS" >> version.h
 	echo "#define USE_SIGSETJMP" >> version.h
 	echo "#define $(BIGINT_LIB_DEFINE)" >> version.h
-	echo "#include \"stdio.h\"" > chkccomp.c
+	$(GET_CC_VERSION_INFO) cc_version
+	echo "#include \"stdlib.h\"" > chkccomp.c
+	echo "#include \"stdio.h\"" >> chkccomp.c
 	echo "#include \"time.h\"" >> chkccomp.c
 	echo "int main (int argc, char **argv)" >> chkccomp.c
 	echo "{" >> chkccomp.c
+	echo "FILE *aFile;" >> chkccomp.c
 	echo "time_t timestamp;" >> chkccomp.c
 	echo "struct tm *local_time;" >> chkccomp.c
 	echo "long number;" >> chkccomp.c
+	echo "int ch;" >> chkccomp.c
+	echo "aFile = fopen(\"cc_version\",\"r\");" >> chkccomp.c
+	echo "printf(\"#define C_COMPILER_VERSION \\\"\");" >> chkccomp.c
+	echo "for (ch=getc(aFile); ch!=EOF && ch!=10 && ch!=13; ch=getc(aFile)) {" >> chkccomp.c
+	echo "if (ch>=' ' && ch<='~') {" >> chkccomp.c
+	echo "if (ch==34 || ch==39 || ch==92) putchar(92);" >> chkccomp.c
+	echo "putchar(ch);" >> chkccomp.c
+	echo "} else {" >> chkccomp.c
+	echo "putchar(92);" >> chkccomp.c
+	echo "printf(\"%3o\", ch);" >> chkccomp.c
+	echo "}" >> chkccomp.c
+	echo "}" >> chkccomp.c
+	echo "puts(\"\\\"\");" >> chkccomp.c
+	echo "fclose(aFile);" >> chkccomp.c
 	echo "printf(\"#define POINTER_SIZE %lu\", (long unsigned)(8 * sizeof(char *)));" >> chkccomp.c
 	echo "puts(\"\");" >> chkccomp.c
 	echo "printf(\"#define FLOAT_SIZE %lu\", (long unsigned)(8 * sizeof(float)));" >> chkccomp.c
@@ -204,9 +223,11 @@ version.h:
 	./chkccomp >> version.h
 	rm chkccomp.c
 	rm chkccomp
+	rm cc_version
 	echo "#define OBJECT_FILE_EXTENSION \".o\"" >> version.h
 	echo "#define EXECUTABLE_FILE_EXTENSION \"\"" >> version.h
 	echo "#define C_COMPILER \"$(CC)\"" >> version.h
+	echo "#define GET_CC_VERSION_INFO \"$(GET_CC_VERSION_INFO)\"" >> version.h
 	echo "#define CC_OPT_DEBUG_INFO \"-g\"" >> version.h
 	echo "#define CC_OPT_NO_WARNINGS \"-w\"" >> version.h
 	echo "#define REDIRECT_C_ERRORS \"2>\"" >> version.h

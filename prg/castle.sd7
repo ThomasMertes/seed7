@@ -2163,7 +2163,7 @@ const func array string: getMonsterMessage (in monsterType: monster_ident) is fu
           BIG_SPIDER, SMALL_SPIDER, SNAKE, BAT, VAMPIRE}:
         if monster[monster_ident].living then
           message := [] ("look " & monster[monster_ident].name & ":",
-                         "The " & monster[monster_ident].name & " looks Mean!");            
+                         "The " & monster[monster_ident].name & " looks Mean!");
         else
           message := [] ("look " & monster[monster_ident].name & ":",
                          "The " & monster[monster_ident].name & " looks Dead!");
@@ -2438,7 +2438,7 @@ const proc: lookItemInRoom is func
             else
               message := [] ("look desk:",
                              "It's made of Wood.");
-            end if;            
+            end if;
           elsif player.room = KINGS_STUDY then
             if item[KEY].room_num = NO_ROOM and not KEY in player.inventory then
               put(curr_win, BORDER_DIST + item[KEY].xPos,
@@ -2448,7 +2448,7 @@ const proc: lookItemInRoom is func
             else
               message := [] ("look desk:",
                              "It's made of Wood.");
-            end if;            
+            end if;
           elsif player.room = LIBRARY_WEST_END then
             if item[BOOK].room_num = NO_ROOM and not BOOK in player.inventory then
               put(curr_win, BORDER_DIST + item[BOOK].xPos,
@@ -2486,7 +2486,7 @@ const proc: lookItemInRoom is func
         when {'*'}:
           message := [] ("look bush:",
                          "This is a big bush.");
-        when {'a' .. 'z'}: 
+        when {'a' .. 'z'}:
           item_ident := itemType conv (room[player.room].data[line][column]);
           if item_ident <> NO_ITEM then
             message := [] ("look " & item[item_ident].name & ":");
@@ -2767,7 +2767,7 @@ const proc: moveMonsters is func
     end for;
 
     if current_monster > NO_MONSTER then
-      if rand(1, 10) <= 4 then 
+      if rand(1, 10) <= 4 then
        player.strength -:= monster[current_monster].attack;
         if player.strength < 1 then
           message &:= [] ("The " & monster[current_monster].name & " has killed you!");

@@ -2268,7 +2268,7 @@ inttype x, y;
 
   { /* drwPoint */
 #ifdef TRACE_X11
-    printf("drwPoint(%lu, %ld, %ld)\n", actual_window, x, y); 
+    printf("drwPoint(%lu, %ld, %ld)\n", actual_window, x, y);
 #endif
     XDrawPoint(mydisplay, to_window(actual_window), mygc, x, y);
     if (to_backup(actual_window) != 0) {
@@ -2291,7 +2291,7 @@ inttype col;
 
   { /* drwPPoint */
 #ifdef TRACE_X11
-    printf("drwPPoint(%lu, %ld, %ld, %08lx)\n", actual_window, x, y, col); 
+    printf("drwPPoint(%lu, %ld, %ld, %08lx)\n", actual_window, x, y, col);
 #endif
     XSetForeground(mydisplay, mygc, (unsigned) col);
     XDrawPoint(mydisplay, to_window(actual_window), mygc, x, y);
@@ -2995,7 +2995,7 @@ inttype bkcol;
 
   { /* drwText */
 #ifdef TRACE_X11
-    printf("drwText(%lu, %ld, %ld, ...)\n", actual_window, x, y); 
+    printf("drwText(%lu, %ld, %ld, ...)\n", actual_window, x, y);
 #endif
 #ifdef UTF32_STRINGS
     {

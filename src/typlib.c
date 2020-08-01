@@ -190,7 +190,7 @@ listtype arguments;
 
   {
     typetype old_type;
- 
+
   /* typ_destr */
 #ifdef TRACE_TYPLIB
     printf("BEGIN typ_destr\n");

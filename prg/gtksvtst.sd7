@@ -63,7 +63,7 @@ const proc: main_window is func
 
     (* Show window *)
     gtk_exec("gtk_widget_show_all " <& wptr);
-    
+
     (* Event loop *)
     while running do
       evt:=gtk("gtk_server_callback WAIT");

@@ -27,7 +27,7 @@ $ include "seed7_05.s7i";
   include "math.s7i";
   include "draw.s7i";
   include "keybd.s7i";
- 
+
 var float: angle is 0.0;
 var integer: x is 220;
 var integer: y is 220;
@@ -36,7 +36,7 @@ const proc: turn (in integer: degrees) is func
   begin
     angle +:= flt(degrees) * PI / 180.0
   end func;
- 
+
 const proc: forward (in float: length) is func
   local
     var integer: x2 is 0;
@@ -48,7 +48,7 @@ const proc: forward (in float: length) is func
     x := x2;
     y := y2;
   end func;
- 
+
 const proc: dragon (in float: length, in integer: split, in integer: direct) is func
   begin
     if split = 0 then
@@ -61,7 +61,7 @@ const proc: dragon (in float: length, in integer: split, in integer: direct) is 
       turn(direct * 45);
     end if;
   end func;
- 
+
 const proc: main is func
   begin
     screen(976, 654);

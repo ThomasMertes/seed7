@@ -52,7 +52,7 @@ const proc: getKeyValuePair (inout file: inFile,
     paramName := getName(inFile);
     skipWhiteSpace(inFile);
     if inFile.bufferChar = '=' then
-      inFile.bufferChar := getc(inFile);    
+      inFile.bufferChar := getc(inFile);
       paramValue := getLine(inFile);
     else
       paramValue := "";

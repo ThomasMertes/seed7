@@ -330,7 +330,7 @@ const proc: budget (
           write(" acres of soil for a price of ");
           write(price_per_acre);
           writeln(".");
-        elsif sell_acres > 0 then 
+        elsif sell_acres > 0 then
           write("  Sell ");
           write(sell_acres);
           write(" acres of soil for a price of ");

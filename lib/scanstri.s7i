@@ -288,7 +288,7 @@ const func string: getQuotedText (inout string: stri) is func
     repeat
       incr(pos);
     until pos > leng or stri[pos] = quoteChar;
-    symbol := stri[2 .. pred(pos)];    
+    symbol := stri[2 .. pred(pos)];
     stri := stri[succ(pos) ..];
   end func;
 
@@ -941,13 +941,13 @@ const func string: getSymbolInXmlTag (inout string: stri) is func
           repeat
             incr(pos);
           until pos > leng or stri[pos] = '"';
-          symbol := stri[succ(start) .. pred(pos)];    
+          symbol := stri[succ(start) .. pred(pos)];
           stri := stri[succ(pos) ..];
         when single_quotation_char:
           repeat
             incr(pos);
           until pos > leng or stri[pos] = ''';
-          symbol := stri[succ(start) .. pred(pos)];    
+          symbol := stri[succ(start) .. pred(pos)];
           stri := stri[succ(pos) ..];
         when equals_or_end_tag:
           symbol := stri[pos len 1];
@@ -1075,13 +1075,13 @@ const func string: getHtmlAttributeValue (inout string: stri) is func
           repeat
             incr(pos);
           until pos > leng or stri[pos] = '"';
-          symbol := stri[succ(start) .. pred(pos)];    
+          symbol := stri[succ(start) .. pred(pos)];
           stri := stri[succ(pos) ..];
         when single_quotation_char:
           repeat
             incr(pos);
           until pos > leng or stri[pos] = ''';
-          symbol := stri[succ(start) .. pred(pos)];    
+          symbol := stri[succ(start) .. pred(pos)];
           stri := stri[succ(pos) ..];
         when right_angle_bracket:
           symbol := stri[pos len 1];
@@ -1180,7 +1180,7 @@ const func string: getHttpSymbol (inout string: stri) is func
               incr(pos);
             end if;
           end while;
-          symbol &:= stri[start .. pred(pos)];    
+          symbol &:= stri[start .. pred(pos)];
           stri := stri[succ(pos) ..];
         when http_separators:
           symbol := stri[pos len 1];

@@ -1,3 +1,17 @@
+20201107:
+- The chapter explaining exception handling in the manual was improved.
+- The support for bitmap fonts was improved to use fontProperties as base type.
+- The '-' function, which computes the differance of two 'time' values (with a
+  'duration' result) in "time.s7i", was improved.
+- The function cmdConfigValue in "cmd_rtl.c" was improved to support the config
+  values C_COMPILER_VERSION and GET_CC_VERSION_INFO.
+- In the file "fil_rtl.c" the functions myLseek, myFseek and myFtell were
+  renamed to os_lseek, os_fseek and os_ftell respectively.
+- The makefiles were changed to define os_fseek, os_ftell, C_COMPILER_VERSION
+  and GET_CC_VERSION_INFO.
+- Documentation comments were added to the function alternate_utime in the file
+  "tim_win.c".
+
 20101024:
 - The FAQ answers explaining extensible programming and object orientation,
   were improved.
@@ -90,7 +104,7 @@
 - The generation of code for 'for' loops and the 'div' operator in the compiler
   was improved.
 - The compiler function 'getTemporaryToResultExpr' was improved to generate
-  code without casts from 'floattype' to 'generictype'. 
+  code without casts from 'floattype' to 'generictype'.
 - The function 'rand_32' in "int_rtl.c" was renamed to 'uint_rand' and improved
   to work better for 64-bit integers.
 - A bug that could occur when loading a saved game was fixed in the example
@@ -664,7 +678,7 @@
 - Documentation comments in the libraries rational.s7i, bigrat.s7i, keybd.s7i,
   socket.s7i and time.s7i were improved.
 - The function alternate_utime was introduced to allow changing the access and
-  modification times of directories under windows. 
+  modification times of directories under windows.
 - The makefiles mk_bcc32.mak, mk_mingw.mak, mk_msvc.mak, mk_msys.mak and mk_nmake.mak
   were improved to support alternate_utime.
 - The type 'screen_keybd_file' was renamed to 'console_keybd_file' and the keyboard file
@@ -1304,7 +1318,7 @@
 - The functions skipComment, getComment, skipLineComment, getLineComment and getNumber were
   added to the scanstri.s7i library.
 - A new example program (chk_all.sd7), which runs interpreted and compiled checks, was added.
-- Support for the primitive action CMD_CHDIR was added to the compiler (comp.sd7). 
+- Support for the primitive action CMD_CHDIR was added to the compiler (comp.sd7).
 - Several memory leaks, which happen in the handling of MEMORY_ERROR exceptions, were removed.
 - All primitive actions which start with CLS_ were renamed such that the name starts with ITF_ .
 - The files clslib.c and clslib.h were replaced by itflib.c and itflib.h .
@@ -1801,75 +1815,75 @@
 - Empty line count removed
 
 20060223:
-- Some compiler improvements for sets and structs. 
-- New graphic function: copyArea 
-- Hashes for sets and types 
-- New time functions: dayOfYear, toGMT, -:= 
-- Utf-8 characters in string and char literals 
-- New standard files: STD_UTF8_IN, STD_UTF8_OUT, STD_UTF8_ERR 
-- Function file_type to get the type of a file 
+- Some compiler improvements for sets and structs.
+- New graphic function: copyArea
+- Hashes for sets and types
+- New time functions: dayOfYear, toGMT, -:=
+- Utf-8 characters in string and char literals
+- New standard files: STD_UTF8_IN, STD_UTF8_OUT, STD_UTF8_ERR
+- Function file_type to get the type of a file
 
 20060205:
-- The compiler (comp.sd7) can handle strings now. 
-- New example program wator.sd7 (Simulation with fish and sharks). 
-- Improved example program dnafight.sd7 . 
-- New rand function to select a random element from a set. 
+- The compiler (comp.sd7) can handle strings now.
+- New example program wator.sd7 (Simulation with fish and sharks).
+- Improved example program dnafight.sd7 .
+- New rand function to select a random element from a set.
 
 20060126:
-- Improvements in the compiler (comp.sd7) 
-- Changed wrinum.s7i to write roman, english and german numbers. 
-- Moved some pictures to pic16.s7i and pic32.s7i. 
-- Renamed NO_ERROR to OKAY_NO_ERROR (NO_ERROR is used in windows). 
-- Defined compare and hashCode for the type 'reference'. 
-- In drw_win.c: Map characters 128 to 159 to unicode chars. 
-- In scr_win.c: Map console characters to unicode chars. 
-- Add #include "string.h" in files that use memcmp. 
-- Add functions to support compilation: 
-  filLit, drwCpy, strHead, strRange, strTail and others. 
-- In kbd_inf.c: Add support for UTF-8 keys for KEYBOARD. 
+- Improvements in the compiler (comp.sd7)
+- Changed wrinum.s7i to write roman, english and german numbers.
+- Moved some pictures to pic16.s7i and pic32.s7i.
+- Renamed NO_ERROR to OKAY_NO_ERROR (NO_ERROR is used in windows).
+- Defined compare and hashCode for the type 'reference'.
+- In drw_win.c: Map characters 128 to 159 to unicode chars.
+- In scr_win.c: Map console characters to unicode chars.
+- Add #include "string.h" in files that use memcmp.
+- Add functions to support compilation:
+  filLit, drwCpy, strHead, strRange, strTail and others.
+- In kbd_inf.c: Add support for UTF-8 keys for KEYBOARD.
 
 20060118:
-- Some improvements of the windows support  
-- Console mode programs work  
-- Windows time driver works  
-- GDI Keyboard driver works  
-- Graphic programs work to some degree  
-  The windows port uses Mingw and the makefile "makefile.win".  
-- Changes in the time driver interface tim_drv.h to support compilation.  
-- Test program gkbd.sd7 for tests of the keyboard with x11/gdi - windows.  
+- Some improvements of the windows support
+- Console mode programs work
+- Windows time driver works
+- GDI Keyboard driver works
+- Graphic programs work to some degree
+  The windows port uses Mingw and the makefile "makefile.win".
+- Changes in the time driver interface tim_drv.h to support compilation.
+- Test program gkbd.sd7 for tests of the keyboard with x11/gdi - windows.
 
 20060111:
-- The beginning of windows support 
-  (Textmode programs work, Graphic programs work to some degree) 
-  The windows port uses Mingw and the makefile "makefile.win". 
-- The definition of 
-  $ system "main" main; 
-  has been moved to the seed7_05.s7i library. 
-  Therefore it is not necessary to specify 'system "main"' in every program. 
+- The beginning of windows support
+  (Textmode programs work, Graphic programs work to some degree)
+  The windows port uses Mingw and the makefile "makefile.win".
+- The definition of
+  $ system "main" main;
+  has been moved to the seed7_05.s7i library.
+  Therefore it is not necessary to specify 'system "main"' in every program.
 
 20051203:
-- Function to get the unsorted keys of a hash 
-  (for sorted keys use the sort array function: sort(keys(aHash)) ) 
-- Function to get the unsorted values of a hash 
-  (for sorted values use the sort array function: sort(values(aHash)) ) 
-- flip function for hashes to flip keys and values 
-  (the result has the type: hash [baseType] array keyType ) 
-- for loop to loop over the unsorted values of a hash 
-- for loop to loop over the unsorted keys of a hash 
-- for loop to loop over the unsorted values and keys of a hash 
+- Function to get the unsorted keys of a hash
+  (for sorted keys use the sort array function: sort(keys(aHash)) )
+- Function to get the unsorted values of a hash
+  (for sorted values use the sort array function: sort(values(aHash)) )
+- flip function for hashes to flip keys and values
+  (the result has the type: hash [baseType] array keyType )
+- for loop to loop over the unsorted values of a hash
+- for loop to loop over the unsorted keys of a hash
+- for loop to loop over the unsorted values and keys of a hash
 
 20051124:
-- Function to get the keys of a hash 
+- Function to get the keys of a hash
 - Sort function for arrays
 
 20051112:
-- Now the Seed7 manual (in the package) uses color. 
-- Implement seek for UTF-8 files 
-- Fix and improve the gets funktion for UTF-8 files 
-- The Seed7 project page contains also screenshots, a manual 
-  and an FAQ file. See http://sourceforge.net/projects/seed7 
-- Rename 'NL' system variable to 'writeln' and change the 
-  corresponding logic 
+- Now the Seed7 manual (in the package) uses color.
+- Implement seek for UTF-8 files
+- Fix and improve the gets funktion for UTF-8 files
+- The Seed7 project page contains also screenshots, a manual
+  and an FAQ file. See http://sourceforge.net/projects/seed7
+- Rename 'NL' system variable to 'writeln' and change the
+  corresponding logic
 
 20051104:
 - Now Seed7 supports reading and writing UTF-8 files

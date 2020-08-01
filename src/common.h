@@ -272,6 +272,12 @@ typedef int errinfotype;
 #ifndef os_dirent_struct
 #define os_dirent_struct struct dirent
 #endif
+#ifndef os_fseek
+#define os_fseek fseek
+#endif
+#ifndef os_ftell
+#define os_ftell ftell
+#endif
 #ifndef os_fstat
 #define os_fstat fstat
 #endif

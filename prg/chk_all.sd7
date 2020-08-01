@@ -269,7 +269,7 @@ const proc: check (in string: progName, in string: referenceOutput) is func
     end if;
   end func;
 
-    
+
 const proc: main is func
   begin
     if fileType("comp" & EXECUTABLE_FILE_EXTENSION) = FILE_REGULAR then

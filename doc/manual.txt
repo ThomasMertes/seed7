@@ -9314,13 +9314,12 @@ ont color=blue>is "";
     Starting program: /home/tm/seed7_5/prg/lander 
 
     Program received signal SIGFPE, Arithmetic exception.
-    0x0806b0f9 in o_2816_init_display () at lander.sd7:838
+    0x0806ba94 in o_2847_init_display () at lander.sd7:838
     838	    fuel_gauge := 40 * rocket.fuel div fuel_max;
     (gdb) bt
-    #0  0x0806b0f9 in o_2816_init_display () at lander.sd7:838
-    #1  0x0806b84a in o_2821_setup () at lander.sd7:907
-    #2  0x0806f01c in o_1259_main () at lander.sd7:1539
-    #3  0x0808a884 in main (argc=1, argv=0xbffff484) at lander.sd7:1524
+    #0  0x0806ba94 in o_2847_init_display () at lander.sd7:838
+    #1  0x0806c1e5 in o_2852_setup () at lander.sd7:907
+    #2  0x0806fa40 in main (argc=1, argv=0xbffff484) at lander.sd7:1539
 
   Sometimes it is helpful to debug the generated C program instead of
   the Seed7 source. The option -g-debug_c creates debug
@@ -9335,13 +9334,12 @@ ont color=blue>is "";
     Starting program: /home/tm/seed7_5/prg/lander 
 
     Program received signal SIGFPE, Arithmetic exception.
-    0x0806b0f9 in o_2816_init_display () at tmp_lander.c:19040
-    19040	o_2706_fuel_gauge=((40) * (((structtype)(o_2619_rocket))->stru[10].value.intvalue/*->o_2617_fuel*/)) / (o_2709_fuel_max);
+    0x0806ba94 in o_2847_init_display () at tmp_lander.c:20741
+    20741	o_2737_fuel_gauge=((40) * (((structtype)(o_2650_rocket))->stru[10].value.intvalue/*->o_2648_fuel*/)) / (o_2740_fuel_max);
     (gdb) bt
-    #0  0x0806b0f9 in o_2816_init_display () at tmp_lander.c:19040
-    #1  0x0806b84a in o_2821_setup () at tmp_lander.c:19203
-    #2  0x0806f01c in o_1259_main () at tmp_lander.c:20474
-    #3  0x0808a884 in main (argc=1, argv=0xbffff484) at tmp_lander.c:29094
+    #0  0x0806ba94 in o_2847_init_display () at tmp_lander.c:20741
+    #1  0x0806c1e5 in o_2852_setup () at tmp_lander.c:20922
+    #2  0x0806fa40 in main (argc=1, argv=0xbffff484) at tmp_lander.c:22354
 
   Some Seed7 exceptions do not send signals. This hinders the debugger
   to recognize that an uncaught exception occured. The compiler option -e

@@ -83,22 +83,22 @@ var type: voidtype is void;
 var ref_list: declared_types is ref_list.EMPTY;
 
 const type: expr_type is new struct
-  var string: currentFile is "";
-  var integer: currentLine is 0;
-  var integer: temp_num is 0;
-  var string: temp_decls is "";
-  var string: temp_assigns is "";
-  var string: expr is "";
-  var string: temp_frees is "";
-  var string: temp_to_null is "";
-  var string: result_temp is "";
-  var string: result_decl is "";
-  var string: result_free is "";
-  var string: result_to_null is "";
-  var string: result_intro is "";
-  var string: result_expr is "";
-  var string: result_finish is "";
-end struct;
+    var string: currentFile is "";
+    var integer: currentLine is 0;
+    var integer: temp_num is 0;
+    var string: temp_decls is "";
+    var string: temp_assigns is "";
+    var string: expr is "";
+    var string: temp_frees is "";
+    var string: temp_to_null is "";
+    var string: result_temp is "";
+    var string: result_decl is "";
+    var string: result_free is "";
+    var string: result_to_null is "";
+    var string: result_intro is "";
+    var string: result_expr is "";
+    var string: result_finish is "";
+  end struct;
 
 var expr_type: global_c_expr is expr_type.value;
 
@@ -14031,7 +14031,7 @@ const proc: process_action (in reference: function, in ref_list: params,
       elsif action_name = "FLT_COSH" then
         process_flt_cosh(params, c_expr);
       elsif action_name = "FLT_CPY" then
-        process_flt_cpy(params, c_expr); 
+        process_flt_cpy(params, c_expr);
       elsif action_name = "FLT_DGTS" then
         process_flt_dgts(params, c_expr);
       elsif action_name = "FLT_DIV" then

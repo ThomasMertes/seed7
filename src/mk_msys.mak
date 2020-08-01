@@ -21,6 +21,7 @@ SEED7_LIB = seed7_05.a
 COMP_DATA_LIB = s7_data.a
 COMPILER_LIB = s7_comp.a
 CC = gcc
+GET_CC_VERSION_INFO = $(CC) --version >
 
 BIGINT_LIB_DEFINE = USE_BIG_RTL_LIBRARY
 BIGINT_LIB = big_rtl
@@ -148,13 +149,15 @@ version.h:
 	echo "#define os_pclose _pclose" >> version.h
 	echo "#define os_popen _wpopen" >> version.h
 	echo "#define wide_fopen _wfopen" >> version.h
+	echo "#define os_fseek fseeko64" >> version.h
+	echo "#define os_ftell ftello64" >> version.h
 	echo "#define os_off_t off64_t" >> version.h
-	echo "#define USE_FSEEKO64" >> version.h
 	echo "#define USE_WINSOCK" >> version.h
 	echo "#define $(BIGINT_LIB_DEFINE)" >> version.h
 	echo "#define likely(x)   __builtin_expect((x),1)" >> version.h
 	echo "#define unlikely(x) __builtin_expect((x),0)" >> version.h
-	echo "#include \"stdio.h\"" > chkccomp.c
+	echo "#include \"stdlib.h\"" > chkccomp.c
+	echo "#include \"stdio.h\"" >> chkccomp.c
 	echo "#include \"time.h\"" >> chkccomp.c
 	echo "int main (int argc, char **argv)" >> chkccomp.c
 	echo "{" >> chkccomp.c
@@ -162,6 +165,21 @@ version.h:
 	echo "time_t timestamp;" >> chkccomp.c
 	echo "struct tm *local_time;" >> chkccomp.c
 	echo "long number;" >> chkccomp.c
+	echo "int ch;" >> chkccomp.c
+	echo "system(\"$(GET_CC_VERSION_INFO) cc_version\");" >> chkccomp.c
+	echo "aFile = fopen(\"cc_version\",\"r\");" >> chkccomp.c
+	echo "printf(\"\043define C_COMPILER_VERSION \\\"\");" >> chkccomp.c
+	echo "for (ch=getc(aFile); ch!=EOF && ch!=10 && ch!=13; ch=getc(aFile)) {" >> chkccomp.c
+	echo "if (ch>=' ' && ch<='~') {" >> chkccomp.c
+	echo "if (ch==34 || ch==39 || ch==92) putchar(92);" >> chkccomp.c
+	echo "putchar(ch);" >> chkccomp.c
+	echo "} else {" >> chkccomp.c
+	echo "putchar(92);" >> chkccomp.c
+	echo "printf(\"%3o\", ch);" >> chkccomp.c
+	echo "}" >> chkccomp.c
+	echo "}" >> chkccomp.c
+	echo "puts(\"\\\"\");" >> chkccomp.c
+	echo "fclose(aFile);" >> chkccomp.c
 	echo "aFile = popen(\"dir\",\"r\");" >> chkccomp.c
 	echo "if (ftell(aFile) != -1) {" >> chkccomp.c
 	echo "puts(\"\043define FTELL_WRONG_FOR_PIPE\");" >> chkccomp.c
@@ -235,9 +253,11 @@ version.h:
 	./chkccomp >> version.h
 	rm chkccomp.c
 	rm chkccomp.exe
+	rm cc_version
 	echo "#define OBJECT_FILE_EXTENSION \".o\"" >> version.h
 	echo "#define EXECUTABLE_FILE_EXTENSION \".exe\"" >> version.h
 	echo "#define C_COMPILER \"$(CC)\"" >> version.h
+	echo "#define GET_CC_VERSION_INFO \"$(GET_CC_VERSION_INFO)\"" >> version.h
 	echo "#define CC_OPT_DEBUG_INFO \"-g\"" >> version.h
 	echo "#define CC_OPT_NO_WARNINGS \"-w\"" >> version.h
 	echo "#define REDIRECT_C_ERRORS \"2>\"" >> version.h

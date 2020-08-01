@@ -22,6 +22,7 @@ SEED7_LIB = seed7_05.lib
 COMP_DATA_LIB = s7_data.lib
 COMPILER_LIB = s7_comp.lib
 CC = bcc32
+GET_CC_VERSION_INFO = bcc32.exe >
 
 BIGINT_LIB_DEFINE = USE_BIG_RTL_LIBRARY
 BIGINT_LIB = big_rtl
@@ -149,10 +150,10 @@ version.h:
 	cmd /S /C "echo #define os_DIR wDIR" >> version.h
 	cmd /S /C "echo #define os_dirent_struct struct wdirent >> version.h
 	cmd /S /C "echo #define os_fstat _fstat" >> version.h
-	cmd /S /C "echo #define os_lstat _wstati64" >> version.h
-	cmd /S /C "echo #define os_stat _wstati64" >> version.h
-	cmd /S /C "echo #define os_stat_struct struct stati64" >> version.h
-	cmd /S /C "echo #define os_chown(NAME,UID,GID)" >> version.h
+	cmd /S /C "echo #define os_lstat _wstat" >> version.h
+	cmd /S /C "echo #define os_stat _wstat" >> version.h
+	cmd /S /C "echo #define os_stat_struct struct stat" >> version.h
+	cmd /S /C "echo #define os_chown(name,uid,gid)" >> version.h
 	cmd /S /C "echo #define os_chmod _wchmod" >> version.h
 	cmd /S /C "echo #define os_utime_orig _wutime" >> version.h
 	cmd /S /C "echo #define os_utime alternate_utime" >> version.h
@@ -167,7 +168,9 @@ version.h:
 	cmd /S /C "echo #define USE_WINSOCK" >> version.h
 	cmd /S /C "echo #define $(BIGINT_LIB_DEFINE)" >> version.h
 	cmd /S /C "echo bcc32.exe %*" > bcc32.bat
-	cmd /S /C "echo #include "stdio.h"" > chkccomp.c
+	$(GET_CC_VERSION_INFO) cc_version
+	cmd /S /C "echo #include "stdlib.h"" > chkccomp.c
+	cmd /S /C "echo #include "stdio.h"" >> chkccomp.c
 	cmd /S /C "echo #include "time.h"" >> chkccomp.c
 	cmd /S /C "echo int main (int argc, char **argv)" >> chkccomp.c
 	cmd /S /C "echo {" >> chkccomp.c
@@ -175,6 +178,20 @@ version.h:
 	cmd /S /C "echo time_t timestamp;" >> chkccomp.c
 	cmd /S /C "echo struct tm *local_time;" >> chkccomp.c
 	cmd /S /C "echo long number;" >> chkccomp.c
+	cmd /S /C "echo int ch;" >> chkccomp.c
+	cmd /S /C "echo aFile = fopen("cc_version","r");" >> chkccomp.c
+	cmd /S /C "echo printf("\043define C_COMPILER_VERSION \042");" >> chkccomp.c
+	cmd /S /C "echo for (ch=getc(aFile); ch!=EOF ^&^& ch!=10 ^&^& ch!=13; ch=getc(aFile)) {" >> chkccomp.c
+	cmd /S /C "echo if (ch^>=' ' ^&^& ch^<='~') {" >> chkccomp.c
+	cmd /S /C "echo if (ch==34 ^|^| ch==39 ^|^| ch==92) putchar(92);" >> chkccomp.c
+	cmd /S /C "echo putchar(ch);" >> chkccomp.c
+	cmd /S /C "echo } else {" >> chkccomp.c
+	cmd /S /C "echo putchar(92);" >> chkccomp.c
+	cmd /S /C "echo printf("%3o", ch);" >> chkccomp.c
+	cmd /S /C "echo }" >> chkccomp.c
+	cmd /S /C "echo }" >> chkccomp.c
+	cmd /S /C "echo puts("\042");" >> chkccomp.c
+	cmd /S /C "echo fclose(aFile);" >> chkccomp.c
 	cmd /S /C "echo aFile = _popen("dir","r");" >> chkccomp.c
 	cmd /S /C "echo if (ftell(aFile) != -1) {" >> chkccomp.c
 	cmd /S /C "echo puts("\043define FTELL_WRONG_FOR_PIPE");" >> chkccomp.c
@@ -249,9 +266,11 @@ version.h:
 	del chkccomp.obj
 	del chkccomp.tds
 	del chkccomp.exe
+	del cc_version
 	cmd /S /C "echo #define OBJECT_FILE_EXTENSION ".obj"" >> version.h
 	cmd /S /C "echo #define EXECUTABLE_FILE_EXTENSION ".exe"" >> version.h
 	cmd /S /C "echo #define C_COMPILER "$(CC)"" >> version.h
+	cmd /S /C "echo #define GET_CC_VERSION_INFO "bcc32.exe \076"" >> version.h
 	cmd /S /C "echo #define CC_OPT_DEBUG_INFO "-y -v"" >> version.h
 	cmd /S /C "echo #define CC_OPT_NO_WARNINGS "-w-"" >> version.h
 	cmd /S /C "echo #define REDIRECT_C_ERRORS "\076"" >> version.h

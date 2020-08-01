@@ -78,7 +78,7 @@ const proc: SET_LOCAL_TZ (in integer param, in integer param, in integer param,
 
 (**
  *  Return TRUE if a given year is a leap year in the Gregorian
- *  calendar, FALSE otherwise. 
+ *  calendar, FALSE otherwise.
  *)
 const func boolean: isLeapYear (in integer: year) is
   return (year rem 4 = 0 and year rem 100 <> 0) or year rem 400 = 0;
@@ -440,7 +440,7 @@ const func time: truncToSecond (in time: aTime) is func
     result := aTime;
     result.mycro_second := 0;
   end func;
-    
+
 
 (**
  *  Returns the time 'aTime' truncated to the beginning of a minute.
@@ -453,7 +453,7 @@ const func time: truncToMinute (in time: aTime) is func
     result.second := 0;
     result.mycro_second := 0;
   end func;
-    
+
 
 (**
  *  Returns the time 'aTime' truncated to the beginning of a hour.
@@ -467,7 +467,7 @@ const func time: truncToHour (in time: aTime) is func
     result.second := 0;
     result.mycro_second := 0;
   end func;
-    
+
 
 (**
  *  Returns the time 'aTime' truncated to the beginning of a day.
@@ -482,7 +482,7 @@ const func time: truncToDay (in time: aTime) is func
     result.second := 0;
     result.mycro_second := 0;
   end func;
-    
+
 
 (**
  *  Returns the time 'aTime' truncated to the beginning of the first
@@ -499,7 +499,7 @@ const func time: truncToMonth (in time: aTime) is func
     result.second := 0;
     result.mycro_second := 0;
   end func;
-    
+
 
 (**
  *  Returns the time 'aTime' truncated to the beginning of the first
@@ -521,7 +521,7 @@ const func time: truncToYear (in time: aTime) is func
 
 (**
  *  Return the weekday number of 'aDate'.
- *  @return 1 for monday, 2 for tuesday, and so on up to 7 for sunday. 
+ *  @return 1 for monday, 2 for tuesday, and so on up to 7 for sunday.
  *)
 const func integer: dayOfWeek (in time: aDate) is func
   result
@@ -543,7 +543,7 @@ const func integer: dayOfWeek (in time: aDate) is func
 
 (**
  *  Return the day number in the year of 'aDate'.
- *  @return 1 for the 1. of january and successive values up to 366. 
+ *  @return 1 for the 1. of january and successive values up to 366.
  *)
 const func integer: dayOfYear (in time: aDate) is func
   result
@@ -1627,7 +1627,7 @@ const func duration: (in time: tim1) - (in time: tim2) is func
       if dur_val.day > 0 then
         dur_val.day_correction := - daysInMonth(tim_year, tim_month);
       end if;
-      if tim_month > tim2.month then
+      if tim_month > tim2.month or tim_month = tim2.month and dur_val.day > 0 then
         if tim_month <= 2 then
           year := tim_year - 1;
         else
@@ -1656,7 +1656,7 @@ const func duration: (in time: tim1) - (in time: tim2) is func
       if dur_val.day < 0 then
         dur_val.day_correction := daysInMonth(tim_year, succ((tim_month - 2) mod 12));
       end if;
-      if tim_month < tim2.month then
+      if tim_month < tim2.month or tim_month = tim2.month and dur_val.day < 0 then
         if tim_month <= 2 then
           year := tim_year - 1;
         else
@@ -1680,7 +1680,7 @@ const func duration: (in time: tim1) - (in time: tim2) is func
         pred(tim2.year) mdiv 4 + pred(tim2.year) mdiv 100 - pred(tim2.year) mdiv 400;
     dur_val.year_365 -:= dur_val.year_366;
     if dur_val.day_correction > 0 then
-      if sumOfMonthFields(dur_val) = 1 then
+      if sumOfMonthFields(dur_val) = 0 then
         dur_val.month_correction := 11;
         dur_val.year_correction := -1;
       else

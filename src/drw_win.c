@@ -1099,23 +1099,23 @@ inttype col;
       current_brush = CreateSolidBrush((COLORREF) col);
       old_pen = (HPEN) SelectObject(to_hdc(actual_window), current_pen);
       old_brush = (HBRUSH) SelectObject(to_hdc(actual_window), current_brush);
-      BeginPath(to_hdc(actual_window)); 
+      BeginPath(to_hdc(actual_window));
       MoveToEx(to_hdc(actual_window), x, y, (LPPOINT) NULL);
-      AngleArc(to_hdc(actual_window), x, y, radius, startAng, sweepAng); 
-      LineTo(to_hdc(actual_window), x, y); 
-      EndPath(to_hdc(actual_window)); 
-      StrokeAndFillPath(to_hdc(actual_window)); 
+      AngleArc(to_hdc(actual_window), x, y, radius, startAng, sweepAng);
+      LineTo(to_hdc(actual_window), x, y);
+      EndPath(to_hdc(actual_window));
+      StrokeAndFillPath(to_hdc(actual_window));
       SelectObject(to_hdc(actual_window), old_pen);
       SelectObject(to_hdc(actual_window), old_brush);
       if (to_backup_hdc(actual_window) != 0) {
         old_pen = (HPEN) SelectObject(to_backup_hdc(actual_window), current_pen);
         old_brush = (HBRUSH) SelectObject(to_backup_hdc(actual_window), current_brush);
-        BeginPath(to_backup_hdc(actual_window)); 
+        BeginPath(to_backup_hdc(actual_window));
         MoveToEx(to_backup_hdc(actual_window), x, y, (LPPOINT) NULL);
-        AngleArc(to_backup_hdc(actual_window), x, y, radius, startAng, sweepAng); 
-        LineTo(to_backup_hdc(actual_window), x, y); 
-        EndPath(to_backup_hdc(actual_window)); 
-        StrokeAndFillPath(to_backup_hdc(actual_window)); 
+        AngleArc(to_backup_hdc(actual_window), x, y, radius, startAng, sweepAng);
+        LineTo(to_backup_hdc(actual_window), x, y);
+        EndPath(to_backup_hdc(actual_window));
+        StrokeAndFillPath(to_backup_hdc(actual_window));
         SelectObject(to_backup_hdc(actual_window), old_pen);
         SelectObject(to_backup_hdc(actual_window), old_brush);
       } /* if */
@@ -1914,7 +1914,7 @@ inttype col;
 
   { /* drwPPoint */
 #ifdef TRACE_WIN
-    printf("drwPPoint(%lu, %ld, %ld, %lx)\n", actual_window, x, y, col); 
+    printf("drwPPoint(%lu, %ld, %ld, %lx)\n", actual_window, x, y, col);
 #endif
     SetPixel(to_hdc(actual_window), x, y, (COLORREF) col);
     if (to_backup_hdc(actual_window) != 0) {

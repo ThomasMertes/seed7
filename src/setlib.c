@@ -496,7 +496,7 @@ listtype arguments;
       set_dest->bitset[bitset_index] &= ~(((bitsettype) 1) << bit_index);
 #ifdef OUT_OF_ORDER
       if (set_dest->bitset[bitset_index] == 0) {
-        if 
+        if
       } /* if */
 #endif
     } /* if */

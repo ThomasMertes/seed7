@@ -36,9 +36,6 @@
 #include "string.h"
 #include "sys/types.h"
 #include "sys/stat.h"
-#ifdef USE_LSEEKI64
-#include "io.h"
-#endif
 
 #ifdef USE_MYUNISTD_H
 #include "myunistd.h"
@@ -57,36 +54,9 @@
 #include "fil_rtl.h"
 
 
-#if   defined USE_LSEEK
-/* typedef off_t           offsettype; */
-#define myLseek            lseek
-
-#elif defined USE_LSEEKI64
-/* typedef __int64         offsettype; */
-#define myLseek            _lseeki64
-
-#elif defined USE_FSEEKO
-/* typedef off_t           offsettype; */
-#define myFseek            fseeko
-#define myFtell            ftello
-
-#elif defined USE_FSEEKO64
-/* typedef off64_t         offsettype; */
-#define myFseek            fseeko64
-#define myFtell            ftello64
-
-#elif defined USE_FSEEKI64
-/* typedef __int64         offsettype; */
-#define myFseek            _fseeki64
-#define myFtell            _ftelli64
+#if DEFINE_FSEEKI64_AND_FTELLI64
 extern int __cdecl _fseeki64(FILE *, __int64, int);
 extern __int64 __cdecl _ftelli64(FILE *);
-
-#else
-/* typedef long            offsettype; */
-#define myFseek            fseek
-#define myFtell            ftell
-
 #endif
 
 
@@ -116,9 +86,9 @@ stritype file_mode;
          file_mode->mem[0] == 'a')) {
       if (file_mode->size == 1) {
         /* Binary mode
-           r ... Open file for reading. 
-           w ... Truncate to zero length or create file for writing. 
-           a ... Append; open or create file for writing at end-of-file. 
+           r ... Open file for reading.
+           w ... Truncate to zero length or create file for writing.
+           a ... Append; open or create file for writing at end-of-file.
         */
         mode[0] = (os_chartype) file_mode->mem[0];
         mode[1] = 'b';
@@ -126,8 +96,8 @@ stritype file_mode;
       } else if (file_mode->size == 2) {
         if (file_mode->mem[1] == '+') {
           /* Binary mode
-             r+ ... Open file for update (reading and writing). 
-             w+ ... Truncate to zero length or create file for update. 
+             r+ ... Open file for update (reading and writing).
+             w+ ... Truncate to zero length or create file for update.
              a+ ... Append; open or create file for update, writing at end-of-file.
           */
           mode[0] = (os_chartype) file_mode->mem[0];
@@ -187,7 +157,21 @@ filetype aFile;
       } /* if */
     }
 #endif
-#ifdef myLseek
+#if defined(os_fseek) && defined(os_ftell)
+    current_file_position = os_ftell(aFile);
+    if (current_file_position == (os_off_t) -1) {
+      file_length = -1;
+    } else if (os_fseek(aFile, (os_off_t) 0, SEEK_END) != 0) {
+      file_length = -1;
+    } else {
+      file_length = os_ftell(aFile);
+      if (file_length != (os_off_t) -1) {
+        if (os_fseek(aFile, current_file_position, SEEK_SET) != 0) {
+          file_length = -1;
+        } /* if */
+      } /* if */
+    } /* if */
+#else
     {
       int file_no;
 
@@ -196,33 +180,19 @@ filetype aFile;
         file_length = -1;
       } else {
         fflush(aFile);
-        current_file_position = myLseek(file_no, (os_off_t) 0, SEEK_CUR);
+        current_file_position = os_lseek(file_no, (os_off_t) 0, SEEK_CUR);
         if (current_file_position == (os_off_t) -1) {
           file_length = -1;
         } else {
-          file_length = myLseek(file_no, (os_off_t) 0, SEEK_END);
+          file_length = os_lseek(file_no, (os_off_t) 0, SEEK_END);
           if (file_length != (os_off_t) -1) {
-            if (myLseek(file_no, current_file_position, SEEK_SET) == (os_off_t) -1) {
+            if (os_lseek(file_no, current_file_position, SEEK_SET) == (os_off_t) -1) {
               file_length = -1;
             } /* if */
           } /* if */
         } /* if */
       } /* if */
     }
-#else
-    current_file_position = myFtell(aFile);
-    if (current_file_position == (os_off_t) -1) {
-      file_length = -1;
-    } else if (myFseek(aFile, (os_off_t) 0, SEEK_END) != 0) {
-      file_length = -1;
-    } else {
-      file_length = myFtell(aFile);
-      if (file_length != (os_off_t) -1) {
-        if (myFseek(aFile, current_file_position, SEEK_SET) != 0) {
-          file_length = -1;
-        } /* if */
-      } /* if */
-    } /* if */
 #endif
     return file_length;
   } /* seekFileLength */
@@ -254,7 +224,9 @@ filetype aFile;
       } /* if */
     }
 #endif
-#ifdef myLseek
+#ifdef os_ftell
+    current_file_position = os_ftell(aFile);
+#else
     {
       int file_no;
 
@@ -263,11 +235,9 @@ filetype aFile;
         current_file_position = -1;
       } else {
         fflush(aFile);
-        current_file_position = myLseek(file_no, (os_off_t) 0, SEEK_CUR);
+        current_file_position = os_lseek(file_no, (os_off_t) 0, SEEK_CUR);
       } /* if */
     }
-#else
-    current_file_position = myFtell(aFile);
 #endif
     return current_file_position;
   } /* offsetTell */
@@ -300,7 +270,9 @@ os_off_t anOffset;
       } /* if */
     }
 #endif
-#ifdef myLseek
+#ifdef os_fseek
+    result = os_fseek(aFile, anOffset, origin);
+#else
     {
       int file_no;
 
@@ -309,15 +281,13 @@ os_off_t anOffset;
         result = -1;
       } else {
         fflush(aFile);
-        if (myLseek(file_no, anOffset, origin) == (os_off_t) -1) {
+        if (os_lseek(file_no, anOffset, origin) == (os_off_t) -1) {
           result = -1;
         } else {
           result = 0;
         } /* if */
       } /* if */
     }
-#else
-    result = myFseek(aFile, anOffset, origin);
 #endif
     return result;
   } /* offsetSeek */

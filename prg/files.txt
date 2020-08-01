@@ -88,7 +88,7 @@ bigfile.s7i  bigInteger versions of seek, tell and length
 bigint.s7i   bigInteger point support library                  
 bigrat.s7i   Big rational number support library               
 binary.s7i   Functions to read binary data from string or file 
-bitmapfont.s7i   Defines bitmapFont and bitmapFontFile.          
+bitmapfont.s7i   Defines the bitmap font type.                   
 cards.s7i    Playing card pictures of a french deck            
 cgi.s7i      Support for the Common Gateway Interface          
 charsets.s7i Codepages for various character sets              

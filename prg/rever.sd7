@@ -37,7 +37,7 @@ const field_type: EDGE is       4;
 const field_type: (attr field_type) . value is FREE_PLACE;
 
 const type: direction_type is new enum
-    NORTH,  NORTHEAST,  EAST,  SOUTHEAST, 
+    NORTH,  NORTHEAST,  EAST,  SOUTHEAST,
     SOUTH,  SOUTHWEST,  WEST,  NORTHWEST
   end enum;
 

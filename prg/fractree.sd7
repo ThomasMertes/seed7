@@ -43,7 +43,7 @@ const proc: drawTree (in integer: x1, in integer: y1, in float: angle, in intege
       drawTree(x2, y2, angle + 20.0, depth - 1);
     end if;
   end func;
- 
+
 const proc: main is func
   begin
     screen(600, 500);

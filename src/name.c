@@ -781,7 +781,7 @@ errinfotype *err_info;
         /* printf("param_obj ");
         trace1(param_obj);
         printf("\n"); */
-        defined_object = inst_object(declaration_base, param_obj, 0, 0, err_info);        
+        defined_object = inst_object(declaration_base, param_obj, 0, 0, err_info);
      } /* if */
     } else {
       err_object(IDENT_EXPECTED, object_name);

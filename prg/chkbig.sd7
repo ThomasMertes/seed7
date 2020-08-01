@@ -6839,7 +6839,7 @@ const proc: chkPower is func
         (-1_) **  64 <>  1_ or
         (-1_) **  99 <> -1_ or
         (-1_) ** 100 <>  1_ or
-        
+
         (-2_) **   0 <>                                              1_ or
         (-2_) **   1 <>                                             -2_ or
         (-2_) **   2 <>                                              4_ or
@@ -7070,7 +7070,7 @@ const proc: chkPower is func
         bigintExpr(-1_) **  64 <>  1_ or
         bigintExpr(-1_) **  99 <> -1_ or
         bigintExpr(-1_) ** 100 <>  1_ or
-        
+
         bigintExpr(-65535_) ** 0 <>                                         1_ or
         bigintExpr(-65535_) ** 1 <>                                    -65535_ or
         bigintExpr(-65535_) ** 2 <>                                4294836225_ or
@@ -7265,7 +7265,7 @@ const proc: chkPower is func
         (-1_) ** intExpr( 64) <>  1_ or
         (-1_) ** intExpr( 99) <> -1_ or
         (-1_) ** intExpr(100) <>  1_ or
-        
+
         (-65535_) ** intExpr(0) <>                                         1_ or
         (-65535_) ** intExpr(1) <>                                    -65535_ or
         (-65535_) ** intExpr(2) <>                                4294836225_ or
@@ -7460,7 +7460,7 @@ const proc: chkPower is func
         bigintExpr(-1_) ** intExpr( 64) <>  1_ or
         bigintExpr(-1_) ** intExpr( 99) <> -1_ or
         bigintExpr(-1_) ** intExpr(100) <>  1_ or
-        
+
         bigintExpr(-65535_) ** intExpr(0) <>                                         1_ or
         bigintExpr(-65535_) ** intExpr(1) <>                                    -65535_ or
         bigintExpr(-65535_) ** intExpr(2) <>                                4294836225_ or
@@ -9760,7 +9760,7 @@ const func boolean: chkRShift (in bigInteger: big1, in integer: rshift,
   local
     var bigInteger: bigVar is 0_;
   begin
-    wrong := big1 >> rshift <> check; 
+    wrong := big1 >> rshift <> check;
     if not wrong then
       bigVar := big1;
       bigVar >>:= rshift;

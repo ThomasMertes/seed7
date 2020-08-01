@@ -797,7 +797,7 @@ const proc: unmarkAll is func
     var integer: line is 0;
     var integer: column is 0;
   begin
-    for line range 1 to length(field) do 
+    for line range 1 to length(field) do
       for column range 1 to length(field[line]) do
         unmark(line, column);
       end for;
@@ -812,7 +812,7 @@ const func integer: countCards is func
     var integer: line is 0;
     var integer: column is 0;
   begin
-    for line range 1 to length(field) do 
+    for line range 1 to length(field) do
       for column range 1 to length(field[line]) do
         if field[line][column].visible <> removed then
           incr(result);
@@ -1130,7 +1130,7 @@ const func boolean: find_way (in var integer: line1, in var integer: column1,
         column := column1;
         column1 := column2;
         column2 := column;
-      end if;        
+      end if;
       if line_free(line1, succ(column1), column2) and
           column_free(column2, succ(line1), pred(line2)) then
         horizontal(line1, column1, column2, currColor);
@@ -1178,7 +1178,7 @@ const func boolean: find_way (in var integer: line1, in var integer: column1,
         column := column1;
         column1 := column2;
         column2 := column;
-      end if;        
+      end if;
       if line_free(line1, column2, pred(column1)) and
           column_free(column2, succ(line1), pred(line2)) then
         horizontal(line1, column2, column1, currColor);
@@ -1261,7 +1261,7 @@ const proc: help is func
               end if;
             end if;
           end for;
-          for line2 range succ(line1) to length(field) do 
+          for line2 range succ(line1) to length(field) do
             for column2 range 1 to length(field[line1]) do
               if not found and
                   field[line2][column2].visible = normal and
@@ -1413,7 +1413,7 @@ const func boolean: solvable is func
                   end if;
                 end if;
               end for;
-              for line2 range succ(line1) to length(field) do 
+              for line2 range succ(line1) to length(field) do
                 if searching then
                   for column2 range 1 to length(field[line1]) do
                     if searching and
