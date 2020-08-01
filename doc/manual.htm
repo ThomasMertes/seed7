@@ -2075,7 +2075,7 @@ CASE_DECLS(<a class="type" href="#types_char">char</a>);
       <span class="func">decr</span>(A)   Decrement with 1
                   ( decr(A) <b>&rArr;</b> A -:= 1 )
 </pre><p>
-  For the operations <tt><span class="op">div</span></tt> and <tt><span class="op">rem</span></tt> holds for all A:</p><pre class="box">
+  <a name="types_div_rem_mdiv_mod_properties"></a>For the operations <tt><span class="op">div</span></tt> and <tt><span class="op">rem</span></tt> holds for all A:</p><pre class="box">
     (A <span class="op">div</span> B) * B + A <span class="op">rem</span> B = A           when B &lt;> 0
     -A <span class="op">div</span> B = -(A <span class="op">div</span> B)                 when B &lt;> 0
     -A <span class="op">rem</span> B = -(A <span class="op">rem</span> B)                 when B &lt;> 0
@@ -2105,7 +2105,7 @@ CASE_DECLS(<a class="type" href="#types_char">char</a>);
                                sign or A <span class="op">rem</span> B = 0 holds.
 </pre><p>
 
-  Tables for the behavior of <tt><span class="op">div</span></tt>, <tt><span class="op">rem</span></tt>, <tt><span class="op">mdiv</span></tt> and <tt><span class="op">mod</span></tt>:
+  <a name="types_div_rem_mdiv_mod_tables"></a>Tables for the behavior of <tt><span class="op">div</span></tt>, <tt><span class="op">rem</span></tt>, <tt><span class="op">mdiv</span></tt> and <tt><span class="op">mod</span></tt>:
 </p><dl><dd><table class="tt" border="1" cellspacing="0" cellpadding="3">
     
     <tr><th>  A  </th><th>  B  </th><th> A <span class="op">div</span> B </th><th> A <span class="op">rem</span> B </th><th> A <span class="op">mdiv</span> B </th><th> A <span class="op">mod</span> B </th></tr>
@@ -2819,7 +2819,7 @@ CASE_DECLS(<a class="type" href="#types_char">char</a>);
     The type <tt><span class="type">char</span></tt> describes Unicode characters encoded
   with UTF-32. In the source file a <a class="link" href="#tokens_Character_literals">character literal</a> is
   written as UTF-8 encoded Unicode character enclosed in
-  single quotes. In order to represent non-printable
+  single quotes. <a name="types_escape_sequences"></a>In order to represent non-printable
   characters and certain printable characters the following
   escape sequences may be used.
 </p><dl><dd><table border="0" cellspacing="0">
@@ -2916,7 +2916,7 @@ CASE_DECLS(<a class="type" href="#types_char">char</a>);
   surrounded by double quotes.
 </p><p>
   To represent control characters and certain other characters
-  in strings the same escape sequences as for character literals
+  in strings the same <a class="link" href="#types_escape_sequences">escape sequences</a> as for character literals
   may be used. E.g.: Quotation characters (") inside strings can
   be represented by preceding them with a backslash ( \" ).
   Additionally there is the following possibility:
@@ -3152,7 +3152,7 @@ CASE_DECLS(<a class="type" href="#types_char">char</a>);
 </dl><p>
   An element of an array can be accessed with an <tt><a class="type" href="#types_integer">integer</a></tt> index.
   The minimal and maximal indices of an array are part of the value
-  and can be obtained with the functions <tt>'minIdx'</tt> and <tt>'maxIdx'</tt>.
+  and can be obtained with the functions <tt><span class="func">minIdx</span></tt> and <tt><span class="func">maxIdx</span></tt>.
   There are functions which generate arrays with the default minimal
   index of 1 and other functions which generate arrays with the minimal
   index taken from a parameter. The <tt><span class="type">array</span></tt> functions are defined
@@ -3247,8 +3247,8 @@ CASE_DECLS(<a class="type" href="#types_char">char</a>);
     <dt></dt><dd>For example: <tt><a class="type" href="#types_hash">hash</a> <span class="type">[</span><a class="type" href="#types_string">string</a><span class="type">]</span> <a class="type" href="#types_integer">integer</a></tt> describes hash tables with
     <tt><a class="type" href="#types_integer">integer</a></tt> elements and <tt><a class="type" href="#types_string">string</a></tt> keys.</dd>
 </dl><p>
-  The <tt><span class="type">keyType</span></tt> of a hash needs to provide the functions <tt>'hashCode'</tt>
-  and <tt>'compare'</tt>. Besides this the <tt><span class="type">keyType</span></tt> can be any type. The
+  The <tt><span class="type">keyType</span></tt> of a hash needs to provide the functions <tt><span class="func">hashCode</span></tt>
+  and <tt><span class="func">compare</span></tt>. Besides this the <tt><span class="type">keyType</span></tt> can be any type. The
   <tt><span class="type">hash</span></tt> functions are defined in the library <span class="stri">"<span class="lib">hash.s7i</span>"</span>.
 </p><pre class="tt">
     Constants:

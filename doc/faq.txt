@@ -235,12 +235,12 @@ How many lines of code are in the Seed7 project?
 ================================================
 
 The Seed7 package contains more than 100000 lines of C and more
-than 200000 lines of Seed7. For version 2013-12-08 the number of lines is:
+than 200000 lines of Seed7. For version 2013-12-22 the number of lines is:
 
-   95313  C source files (*.c)
+   95319  C source files (*.c)
     8168  C header files (*.h)
-  115978  Seed7 source files (*.sd7)
-   96223  Seed7 library/include files (*.s7i)
+  115934  Seed7 source files (*.sd7)
+   96269  Seed7 library/include files (*.s7i)
 
 C code (*.c and *.h files) can be divided into the following areas:
 
@@ -853,7 +853,7 @@ Seed7 cannot read the mind of the programmer. It is hard to find out what the
 programmer considers as "right type". A conversion can lose information. Apart
 from truncating integers also seemingly safe conversions may lose information.
 E.g. Not all 64-bit integer values can be represented as 64-bit float values.
-It can also lead to unplanned behaviour, when the programmer is not aware of an
+It can also lead to unplanned behavior, when the programmer is not aware of an
 automatic conversion. It improves readability when conversions are done explicit.
 Seed7 is strong typed and uses explicit conversions. E.g.: The conversion from
 'integer' to 'float' is done with the function 'flt'. Conversions from 'float'
@@ -1005,6 +1005,9 @@ some advantages:
  - A negative result of a division can be rounded towards zero or towards minus
    infinite. Seed7 provides both possibilities with the two integer division
    operators 'div' and 'mdiv'.
+
+The chapter about the type 'integer' in the manual describes properties of integer
+divisions and contains tables that show their behavior.
 
 
 Why are & and <& defined for string concatenation?

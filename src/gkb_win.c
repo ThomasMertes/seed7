@@ -71,6 +71,7 @@ wintype find_window (HWND sys_window)
                             (inttype) ((memsizetype) sys_window) >> 6,
                             (comparetype) &genericCmp);
     } /* if */
+    /* printf("find_window(%lx) ==> %lx\n", (unsigned long) sys_window, (unsigned long) window); */
     return window;
   } /* find_window */
 
@@ -79,6 +80,7 @@ wintype find_window (HWND sys_window)
 void enter_window (wintype curr_window, HWND sys_window)
 
   { /* enter_window */
+    /* printf("enter_window(%lx, %lx)\n", (unsigned long) curr_window, (unsigned long) sys_window); */
     if (window_hash == NULL) {
       window_hash = hshEmpty();
     } /* if */
@@ -96,6 +98,7 @@ void enter_window (wintype curr_window, HWND sys_window)
 void remove_window (HWND sys_window)
 
   { /* remove_window */
+    /* printf("remove_window(%lx)\n", (unsigned long) sys_window); */
     hshExcl(window_hash,
             (generictype) (memsizetype) sys_window,
             (inttype) ((memsizetype) sys_window) >> 6,

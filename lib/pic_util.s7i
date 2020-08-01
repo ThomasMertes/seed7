@@ -26,6 +26,9 @@
 (********************************************************************)
 
 
+include "draw.s7i";
+
+
 (**
  *  Map a character to a pixel color.
  *  This is used for picture patterns, a simple way to describe graphic

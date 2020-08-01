@@ -582,12 +582,12 @@ Seed7 can be used in various application areas:
 </h3></a><hr />
 <p>
 The Seed7 package contains more than 100000 lines of C and more
-than 200000 lines of Seed7. For version 2013-12-08 the number of lines is:
+than 200000 lines of Seed7. For version 2013-12-22 the number of lines is:
 </p><dl><dd><table border="0" cellspacing="0">
-  <tr><td align="right"> 95313</td> <td width="20"></td> <td>C source files (*.c)</td></tr>
+  <tr><td align="right"> 95319</td> <td width="20"></td> <td>C source files (*.c)</td></tr>
   <tr><td align="right">  8168</td> <td width="20"></td> <td>C header files (*.h)</td></tr>
-  <tr><td align="right">115978</td> <td width="20"></td> <td>Seed7 source files (*.sd7)</td></tr>
-  <tr><td align="right"> 96223</td> <td width="20"></td> <td>Seed7 library/include files (*.s7i)</td></tr>
+  <tr><td align="right">115934</td> <td width="20"></td> <td>Seed7 source files (*.sd7)</td></tr>
+  <tr><td align="right"> 96269</td> <td width="20"></td> <td>Seed7 library/include files (*.s7i)</td></tr>
 </table></dd></dl><p>
 C code (*.c and *.h files) can be divided into the following areas:
 </p><dl><dd><table border="0" cellspacing="0">
@@ -849,7 +849,7 @@ The following options are recognized by s7:
          <li><b>h</b> Trace heap size (in combination with 'a')</li></ul></li>
   <li><b>-d</b>   Equivalent to <b>-da</b></li>
   <li><b>-i</b>   Show the identifier table after the analyzing phase.</li>
-  <li><b>-l</b>   Add a directory to the include library search path (e.g.: <b>-l</b><tt> <span class="lib">../lib</span></tt>).</li>
+  <li><a name="faq_interpreter_option-l"><b>-l</b></a>   Add a directory to the include library search path (e.g.: <b>-l</b><tt> <span class="lib">../lib</span></tt>).</li>
   <li><b>-q</b>   Compile quiet. Line and file information and compilation
        statistics are suppressed.</li>
   <li><b>-t</b><span class="keywd">x</span>  Set runtime trace level to <span class="keywd">x</span>. Where <span class="keywd">x</span> is a string consisting
@@ -890,14 +890,14 @@ Possible options are
 </p><ul>
   <li><b>-?</b>   Write Seed7 compiler usage.</li>
   <li><b>-O</b> and <b>-O2</b>  Tell the C compiler to optimize.</li>
-  <li><b>-b</b>   Specify the directory of the Seed7 runtime libraries (e.g.: <b>-b</b><tt> <span class="lib">../bin</span></tt>).</li>
-  <li><b>-e</b>   Generate code which sends a signal, when an uncaught exception occurs.
+  <li><a name="faq_compiler_option-b"><b>-b</b></a>   Specify the directory of the Seed7 runtime libraries (e.g.: <b>-b</b><tt> <span class="lib">../bin</span></tt>).</li>
+  <li><a name="faq_compiler_option-e"><b>-e</b></a>   Generate code which sends a signal, when an uncaught exception occurs.
        This option allows debuggers to handle uncaught Seed7 exceptions.</li>
-  <li><b>-g</b>   Tell the C compiler to generate an executable with debug information.
+  <li><a name="faq_compiler_option-g"><b>-g</b></a>   Tell the C compiler to generate an executable with debug information.
        This way the debugger will refer to Seed7 source files and line numbers.
        To generate debug information which refers to the temporary C program
        the option <b>-g-debug_c</b> can be used.</li>
-  <li><b>-l</b>   Add a directory to the include library search path (e.g.: <b>-l</b><tt> <span class="lib">../lib</span></tt>).</li>
+  <li><a name="faq_compiler_option-l"><b>-l</b></a>   Add a directory to the include library search path (e.g.: <b>-l</b><tt> <span class="lib">../lib</span></tt>).</li>
   <li><b>-oc</b><span class="keywd">n</span> Optimize constants with level <span class="keywd">n</span>. E.g.: <b>-oc3</b> Where <span class="keywd">n</span> is a digit
        between 0 and 3:<ul>
          <li><b>0</b> Do no optimizations with constants.</li>
@@ -1200,7 +1200,7 @@ Seed7 cannot read the mind of the programmer. It is hard to find out what the
 programmer considers as "right type". A conversion can lose information. Apart
 from truncating integers also seemingly safe conversions may lose information.
 E.g. Not all 64-bit integer values can be represented as 64-bit float values.
-It can also lead to unplanned behaviour, when the programmer is not aware of an
+It can also lead to unplanned behavior, when the programmer is not aware of an
 automatic conversion. It improves readability when conversions are done explicit.
 Seed7 is strong typed and uses explicit conversions. E.g.: The conversion from
 <tt><span class="type">integer</span></tt> to <tt><span class="type">float</span></tt> is done with the function <tt><span class="func">flt</span></tt>. Conversions from <tt><span class="type">float</span></tt>
@@ -1352,7 +1352,10 @@ some advantages:
 <li>A negative result of a division can be rounded towards zero or towards minus
    infinite. Seed7 provides both possibilities with the two integer division
    operators <tt><span class="op">div</span></tt> and <tt><span class="op">mdiv</span></tt>.</li>
-</ul></div>
+</ul><p>
+The chapter about the type <tt><span class="type">integer</span></tt> in the manual describes <span class="link">properties</span> of integer
+divisions and contains <span class="link">tables</span> that show their behavior.
+</p></div>
 
 <div><br /><a name="faq_concatenation_operators"><h3>Why are &amp; and &lt;&amp; defined for string concatenation?
 </h3></a><hr />
@@ -1978,13 +1981,13 @@ C file or the Seed7 runtime library. To get useful information there are two
 possibilities:
 </p><ol>
 <li>Start the program in the interpreter instead.</li>
-<li>Compile the program with the options <tt><b>-g</b></tt> <tt><b>-e</b></tt> and start it from a debugger.</li>
+<li>Compile the program with the options <a class="link" href="#faq_compiler_option-g"><tt><b>-g</b></tt></a> <a class="link" href="#faq_compiler_option-e"><tt><b>-e</b></tt></a> and start it from a debugger.</li>
 </ol><p>
-When <span class="link">s7c</span> is called with the option <tt><b>-g</b></tt> it instructs the C compiler to generate
+When <span class="link">s7c</span> is called with the option <a class="link" href="#faq_compiler_option-g"><tt><b>-g</b></tt></a> it instructs the C compiler to generate
 debugging information. This way a debugger like gdb can run the program and provide
-information. The option <tt><b>-e</b></tt> tells the compiler to generate code which sends a
+information. The option <a class="link" href="#faq_compiler_option-e"><tt><b>-e</b></tt></a> tells the compiler to generate code which sends a
 signal, when an uncaught exception occurs. This option allows debuggers to handle
-uncaught Seed7 exceptions. Note that <tt><b>-e</b></tt> sends the signal SIGFPE. This is done even
+uncaught Seed7 exceptions. Note that <a class="link" href="#faq_compiler_option-e"><tt><b>-e</b></tt></a> sends the signal SIGFPE. This is done even
 when the exception is not related to floating point operations.
 </p><p>
 <span class="link">Chapter 14.4 (Stack trace)</span> of the manual contains a detailed description how to
@@ -2011,7 +2014,7 @@ library directories:
     the <tt>'s7'</tt> interpreter executable. E.g.: When the interpreter is in the directory
     <tt><span class="stri">"/home/abc/seed7/bin"</span></tt> the directory <tt><span class="stri">"/home/abc/seed7/lib"</span></tt> is in the list of
     library directories.</li>
-<li>The directories that are specified at the commandline with the option <tt>-l</tt>.</li>
+<li>The directories that are specified at the commandline with the option <a class="link" href="#faq_interpreter_option-l"><tt><b>-l</b></tt></a>.</li>
 <li>The directory containing the predefined Seed7 include libraries. This
     directory is hard-coded in the interpreter (an absolute path like
     <tt><span class="stri">"/<i>directory_where_Seed7_was_installed</i>/seed7/lib"</span></tt>). The hard-coded library
@@ -2149,7 +2152,7 @@ s7 s7c -O2 s7c
 </pre><p>
 It is also possible to compile the <span class="link">Seed7 compiler</span> in the build directory.
 In this case it is necessary to specify the directories <tt>SEED7_LIBRARY</tt>
-and <tt>S7_LIB_DIR</tt> with the options <tt>-l</tt> and <tt>-b</tt>:
+and <tt>S7_LIB_DIR</tt> with the options <a class="link" href="#faq_compiler_option-l"><tt><b>-l</b></tt></a> and <a class="link" href="#faq_compiler_option-b"><tt><b>-b</b></tt></a>:
 </p><pre class="indent">
 ./s7 -l ../lib s7c -l ../lib -b ../bin -O2 s7c
 </pre><p>

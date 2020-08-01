@@ -1,3 +1,14 @@
+20131222:
+- Consecutive calls of write in bas7.sd7 have been combined into
+  single calls of write respectively writeln.
+- Several links have been added to the FAQ.
+- The types cardSuit and cardRank and the functions cardPixmap and
+  cardBackside have been added to the library cards.s7i.
+- The library cards.s7i has been improved to use functions from
+  pic_util.s7i.
+- The program carddemo.sd7 has been improved to use the new types
+  and functions from cards.s7i.
+
 20131208:
 - Explanations how Seed7 compares to Java and about an elegant way
   to initialize data have been added to the FAQ.
