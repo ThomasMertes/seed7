@@ -55,6 +55,36 @@ const proc: for (inout integer: aVar) range (in integer: upperLimit) downto (in 
 
 
 (**
+ *  [[integer|Integer]] for-loop, looping upward and incrementing by ''incr_step''.
+ *  The variable ''aVar'' is initialized with ''lowerLimit''. The
+ *  ''statements'' are executed repeatedly. After each repetition the
+ *  variable ''aVar'' is incremented by ''incr_step''. After the
+ *  ''statements'' were executed with ''upperLimit'' the for-loop is
+ *  terminated. When ''lowerLimit'' is greater than ''upperLimit'' the 
+ *  ''statements'' are not executed at all.
+ *)
+const proc: for (inout integer: variable) range (in integer: lowerLimit) to (in integer: upperLimit)
+                step (in integer: incr_step) do
+              (in proc: statements)
+            end for is                                                      action "PRC_FOR_TO_STEP";
+
+
+(**
+ *  [[integer|Integer]] for-loop, looping downward and decrementing by ''incr_step''.
+ *  The variable ''aVar'' is initialized with ''upperLimit''. The
+ *  ''statements'' are executed repeatedly. After each repetition the
+ *  variable ''aVar'' is decremented by ''incr_step''. After the
+ *  ''statements'' were executed with ''lowerLimit'' the for-loop is
+ *  terminated. When ''upperLimit'' is less than ''lowerLimit'' the
+ *  ''statements'' are not executed at all.
+ *)
+const proc: for (inout integer: variable) range (in integer: upperLimit) downto (in integer: lowerLimit)
+                step (in integer: decr_step) do
+              (in proc: statements)
+            end for is                                                      action "PRC_FOR_DOWNTO_STEP";
+
+
+(**
  *  Template function to define for-loops with step for ''aType''.
  *  Defines an upward and a downward counting for-loop which
  *  increments/decrements the loop variable with ''incr_step''
@@ -199,7 +229,6 @@ const proc: FOR_DECLS (in type: aType) is func
 
 
 FOR_UNTIL_DECLS(integer);
-FOR_STEP_DECLS(integer);
 FOR_DECLS(char);
 FOR_DECLS(boolean);
 

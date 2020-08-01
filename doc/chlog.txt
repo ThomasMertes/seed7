@@ -1,3 +1,51 @@
+20150308:
+- The compile time error messages have been improved. Now Unicode
+  characters in the error line are displayed correctly. Before they
+  have been displayed as question marks (?). When the error line is
+  written to a console the encoding of the operating system is used.
+  When stdout has been redirected to a file the error line is encoded
+  with UTF-8. Thanks go to Arkady Kuleshov for triggering this
+  improvement. The patch proposed by Arkady is based on stdout and
+  UTF-8. The actual implementation uses a different approach via the
+  console driver con_drv.h. The console driver uses UTF-16 under
+  windows (unless stdout has been redirected) and UTF-8 under
+  Linux/Unix/BSD.
+- The function getBinary has been added to bin64.s7i. This function
+  returns 64 bits from a bitset starting with a given bit number.
+- The compiler has been changed to use the function getBinary to
+  generate bitset literals.
+- Interpreter and compiler have been improved to support the actions
+  BIN_GET_BINARY_FROM_SET, PRC_FOR_DOWNTO_STEP and PRC_FOR_TO_STEP.
+- The compiler function AppendWithDiagnostic has been renamed to
+  appendWithDiagnostic.
+- The function appendWithDiagnostic in comp/debug.s7i has been
+  improved to add #line directives only when they are missing.
+- The function defineTempConstant has been added to expr_util.s7i.
+- The functions process_const_bin_radix and process_bin_radix in
+  comp/bin_act.s7i have been improved to use uintRadix() and
+  uintRadixPow2() for the actions BIN_radix and BIN_RADIX.
+- The generation of for-loops in comp/prc_act.s7i has been improved.
+- A definition of an integer for-loop with step has been added to
+  forloop.s7i. Before integer for-loops with step were defined with
+  the template FOR_STEP_DECLS.
+- The functions prc_block, prc_block_catch_all, prc_block_otherwise,
+  prc_repeat and prc_while in prclib.c have been improved to check
+  for fail_flag with the macro unlikely().
+- The functions check_for_int_to and check_for_int_downto in
+  chkprc.sd7 have been improved.
+- The program err.sd7 has been improved.
+- The program chkccomp.c has been changed to write the version
+  information to stdout when no file name has been provided as
+  argument.
+- A definition of the macro chrStrMacro has been added to chr_rtl.h.
+- The function utf8_char in literal.c has been changed to call
+  next_character() before reporting the errors CHAR_ILLEGAL,
+  OVERLONG_UTF8_ENCODING, UTF16_SURROGATE_CHAR_FOUND and
+  CHAR_NOT_UNICODE.
+- The functions read_ustri8_line, ustri8_buffer_to_stri,
+  calculate_output_length, print_stri and read_and_print_line have
+  been added to error.c
+
 20150216:
 - The functions isLetter and width have been added to the library
   char.s7i. Compiler and interpreter have been changed to support

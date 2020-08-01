@@ -148,7 +148,7 @@ void prot_cchar (char ch)
     buffer[0] = ch;
     buffer[1] = '\0';
     prot_cstri(buffer);
-  } /* prot_char */
+  } /* prot_cchar */
 
 
 

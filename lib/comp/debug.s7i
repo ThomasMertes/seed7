@@ -105,16 +105,26 @@ const proc: setDiagnosticLine (inout expr_type: c_expr) is func
   end func;
 
 
-const proc: AppendWithDiagnostic (in string: decls, inout expr_type: c_expr) is func
+const proc: appendWithDiagnostic (in string: decls, inout expr_type: c_expr) is func
 
   local
     var string: line is "";
+    var boolean: hasLineDirective is FALSE;
   begin
     for line range split(decls, '\n') do
-      if line <> "" then
+      if hasLineDirective then
+        c_expr.expr &:= line;
+        c_expr.expr &:= "\n";
+        hasLineDirective := FALSE;
+      elsif startsWith(line, "#line ") or startsWith(line, "/* line ") then
+        c_expr.expr &:= line;
+        c_expr.expr &:= "\n";
+        hasLineDirective := TRUE;
+      elsif line <> "" then
         setDiagnosticLine(c_expr);
         c_expr.expr &:= line;
         c_expr.expr &:= "\n";
+        hasLineDirective := FALSE;
       end if;
     end for;
   end func;

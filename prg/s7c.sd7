@@ -31,6 +31,7 @@ $ include "seed7_05.s7i";
   include "bigint.s7i";
   include "float.s7i";
   include "bytedata.s7i";
+  include "bin64.s7i";
   include "keybd.s7i";
   include "progs.s7i";
   include "shell.s7i";
@@ -1202,11 +1203,11 @@ const proc: process_inline_proc (in reference: function,
     inline_decls.temp_decls &:= "/* inline local_vars */\n";
     process_local_var_declaration(function, inline_decls);
     c_expr.temp_num := inline_decls.temp_num;
-    AppendWithDiagnostic(inline_decls.temp_decls, c_expr);
-    AppendWithDiagnostic(inline_decls.temp_assigns, c_expr);
+    appendWithDiagnostic(inline_decls.temp_decls, c_expr);
+    appendWithDiagnostic(inline_decls.temp_assigns, c_expr);
     c_expr.expr &:= "/* inline body */\n";
     process_expr(body(function), c_expr);
-    AppendWithDiagnostic(inline_decls.temp_frees, c_expr);
+    appendWithDiagnostic(inline_decls.temp_frees, c_expr);
     pop_inline_proc_params(formal_params, c_expr);
     c_expr.expr &:= "\n} /* inline proc o_";
     create_name2(function, c_expr.expr);
@@ -1338,11 +1339,11 @@ const proc: defineActualFuncParam (in string: valueName, in reference: actual_pa
     else
       process_expr(actual_param, c_func_body);
     end if;
-    AppendWithDiagnostic(c_func_body.temp_decls, c_expr);
-    AppendWithDiagnostic(c_func_body.temp_assigns, c_expr);
+    appendWithDiagnostic(c_func_body.temp_decls, c_expr);
+    appendWithDiagnostic(c_func_body.temp_assigns, c_expr);
     if getType(actual_param) = proctype then
       c_expr.expr &:= c_func_body.expr;
-      AppendWithDiagnostic(c_func_body.temp_frees, c_expr);
+      appendWithDiagnostic(c_func_body.temp_frees, c_expr);
     else
       if c_func_body.temp_frees <> "" then
         c_expr.expr &:= type_name(resultType(getType(actual_param)));
@@ -1358,7 +1359,7 @@ const proc: defineActualFuncParam (in string: valueName, in reference: actual_pa
       end if;
       c_expr.expr &:= ";\n";
       if c_func_body.temp_frees <> "" then
-        AppendWithDiagnostic(c_func_body.temp_frees, c_expr);
+        appendWithDiagnostic(c_func_body.temp_frees, c_expr);
         c_expr.expr &:= "return result;\n";
       end if;
     end if;
@@ -1582,8 +1583,8 @@ const proc: process_const_func_call (in reference: function,
       call_params(formal_params, actual_params, c_params);
       if c_params.temp_decls <> "" or c_params.temp_assigns <> "" then
         c_expr.expr &:= "{\n";
-        AppendWithDiagnostic(c_params.temp_decls, c_expr);
-        AppendWithDiagnostic(c_params.temp_assigns, c_expr);
+        appendWithDiagnostic(c_params.temp_decls, c_expr);
+        appendWithDiagnostic(c_params.temp_assigns, c_expr);
       end if;
       setDiagnosticLine(c_expr);
       if isVarfunc(function_type) then
@@ -1597,7 +1598,7 @@ const proc: process_const_func_call (in reference: function,
       c_expr.expr &:= ")";
       c_expr.expr &:= ";\n";
       if c_params.temp_decls <> "" or c_params.temp_assigns <> "" then
-        AppendWithDiagnostic(c_params.temp_frees, c_expr);
+        appendWithDiagnostic(c_params.temp_frees, c_expr);
         c_expr.expr &:= "}\n";
       end if;
     else
@@ -1801,10 +1802,10 @@ const proc: process_expr (in var reference: current_expression, inout expr_type:
             create_name2(current_expression, c_expr.expr);
             c_expr.expr &:= "*/ {\n";
             process_expr(inline_param_value[current_expression][1], c_body);
-            AppendWithDiagnostic(c_body.temp_decls, c_expr);
-            AppendWithDiagnostic(c_body.temp_assigns, c_expr);
+            appendWithDiagnostic(c_body.temp_decls, c_expr);
+            appendWithDiagnostic(c_body.temp_assigns, c_expr);
             c_expr.expr &:= c_body.expr;
-            AppendWithDiagnostic(c_body.temp_frees, c_expr);
+            appendWithDiagnostic(c_body.temp_frees, c_expr);
             c_expr.expr &:= "\n} /* closure o_";
             create_name2(current_expression, c_expr.expr);
             c_expr.expr &:= "*/\n";
@@ -2299,10 +2300,10 @@ const proc: process_const_func_declaration (in reference: function,
           else
             c_expr.expr &:= " result;\n";
           end if;
-          AppendWithDiagnostic(c_param_list.temp_decls, c_expr);
-          AppendWithDiagnostic(c_func_body.temp_decls, c_expr);
-          AppendWithDiagnostic(c_param_list.temp_assigns, c_expr);
-          AppendWithDiagnostic(c_func_body.temp_assigns, c_expr);
+          appendWithDiagnostic(c_param_list.temp_decls, c_expr);
+          appendWithDiagnostic(c_func_body.temp_decls, c_expr);
+          appendWithDiagnostic(c_param_list.temp_assigns, c_expr);
+          appendWithDiagnostic(c_func_body.temp_assigns, c_expr);
           setDiagnosticLine(c_expr);
           c_expr.expr &:= "result=(";
           c_expr.expr &:= type_name(result_type);
@@ -2312,8 +2313,8 @@ const proc: process_const_func_declaration (in reference: function,
           c_expr.expr &:= ")(";
           process_return_value(function, result_type, c_func_body, c_expr);
           c_expr.expr &:= ");\n";
-          AppendWithDiagnostic(c_param_list.temp_frees, c_expr);
-          AppendWithDiagnostic(c_func_body.temp_frees, c_expr);
+          appendWithDiagnostic(c_param_list.temp_frees, c_expr);
+          appendWithDiagnostic(c_func_body.temp_frees, c_expr);
           setDiagnosticLine(c_expr);
           c_expr.expr &:= "return result;\n";
         else
@@ -2334,18 +2335,18 @@ const proc: process_const_func_declaration (in reference: function,
         process_expr(body(function), c_func_body);
         c_expr.currentFile := file(function);
         c_expr.currentLine := line(function);
-        AppendWithDiagnostic(c_param_list.temp_decls, c_expr);
+        appendWithDiagnostic(c_param_list.temp_decls, c_expr);
         c_expr.expr &:= c_result.temp_decls;
         c_expr.expr &:= c_local_vars.temp_decls;
-        AppendWithDiagnostic(c_func_body.temp_decls, c_expr);
-        AppendWithDiagnostic(c_param_list.temp_assigns, c_expr);
+        appendWithDiagnostic(c_func_body.temp_decls, c_expr);
+        appendWithDiagnostic(c_param_list.temp_assigns, c_expr);
         c_expr.expr &:= c_result.temp_assigns;
         c_expr.expr &:= c_local_vars.temp_assigns;
-        AppendWithDiagnostic(c_func_body.temp_assigns, c_expr);
+        appendWithDiagnostic(c_func_body.temp_assigns, c_expr);
         c_expr.expr &:= c_func_body.expr;
-        AppendWithDiagnostic(c_param_list.temp_frees, c_expr);
-        AppendWithDiagnostic(c_local_vars.temp_frees, c_expr);
-        AppendWithDiagnostic(c_func_body.temp_frees, c_expr);
+        appendWithDiagnostic(c_param_list.temp_frees, c_expr);
+        appendWithDiagnostic(c_local_vars.temp_frees, c_expr);
+        appendWithDiagnostic(c_func_body.temp_frees, c_expr);
         process_return(result_object, c_expr);
       end if;
       c_expr.expr &:= "}\n";
@@ -2441,14 +2442,14 @@ const proc: process_main_declaration (in reference: current_object,
       c_expr.expr &:= "typedef HINSTANCE__* HINSTANCE;\n";
       c_expr.expr &:= "\n";
     end if;
-    AppendWithDiagnostic(main_prolog, c_expr);
+    appendWithDiagnostic(main_prolog, c_expr);
     c_expr.expr &:= c_local_vars.temp_decls;
-    AppendWithDiagnostic(c_func_body.temp_decls, c_expr);
+    appendWithDiagnostic(c_func_body.temp_decls, c_expr);
     c_expr.expr &:= c_local_vars.temp_assigns;
-    AppendWithDiagnostic(c_func_body.temp_assigns, c_expr);
+    appendWithDiagnostic(c_func_body.temp_assigns, c_expr);
     c_expr.expr &:= c_func_body.expr;
-    AppendWithDiagnostic(c_local_vars.temp_frees, c_expr);
-    AppendWithDiagnostic(c_func_body.temp_frees, c_expr);
+    appendWithDiagnostic(c_local_vars.temp_frees, c_expr);
+    appendWithDiagnostic(c_func_body.temp_frees, c_expr);
     c_expr.expr &:= "}\n";
     c_expr.expr &:= global_init.temp_frees;
 
@@ -2469,7 +2470,7 @@ const proc: process_main_declaration (in reference: current_object,
     main_epilog &:= "}\n";
     main_epilog &:= "}\n";
 
-    AppendWithDiagnostic(main_epilog, c_expr);
+    appendWithDiagnostic(main_epilog, c_expr);
     c_expr.expr &:= noDiagnosticLine;
     c_expr.expr &:= "\n";
     prototype_declared @:= [current_object] TRUE;
@@ -3745,13 +3746,13 @@ const proc: process_dynamic_decision (in reference: current_object,
         c_expr.expr &:= "{\n";
         process_dynamic_condition(current_object,
             param_list, 0, c_func_body);
-        AppendWithDiagnostic(c_param_list.temp_decls, c_expr);
-        AppendWithDiagnostic(c_func_body.temp_decls, c_expr);
+        appendWithDiagnostic(c_param_list.temp_decls, c_expr);
+        appendWithDiagnostic(c_func_body.temp_decls, c_expr);
         c_expr.expr &:= c_param_list.temp_assigns;
-        AppendWithDiagnostic(c_func_body.temp_assigns, c_expr);
+        appendWithDiagnostic(c_func_body.temp_assigns, c_expr);
         c_expr.expr &:= c_func_body.expr;
-        AppendWithDiagnostic(c_param_list.temp_frees, c_expr);
-        AppendWithDiagnostic(c_func_body.temp_frees, c_expr);
+        appendWithDiagnostic(c_param_list.temp_frees, c_expr);
+        appendWithDiagnostic(c_func_body.temp_frees, c_expr);
         c_expr.expr &:= diagnosticLine(current_object);
         c_expr.expr &:= "}\n\n";
       end if;
@@ -6329,7 +6330,8 @@ const proc: init_set_constants (inout expr_type: c_expr) is func
             c_expr.expr &:= "\n";
             columnsFree := 6;
           end if;
-          c_expr.expr &:= bitsetElemAsHex(set1, elem_num * ccConf.INTTYPE_SIZE);
+          c_expr.expr &:= "0x";
+          c_expr.expr &:= getBinary(set1, elem_num * ccConf.INTTYPE_SIZE) radix 16 lpad0 16;
           c_expr.expr &:= ",";
           decr(columnsFree);
         end for;

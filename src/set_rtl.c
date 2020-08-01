@@ -1426,34 +1426,34 @@ setType setSymdiff (const const_setType set1, const const_setType set2)
 
 
 
-intType setToInt (const const_setType set1, const intType lowestBitNum)
+uintType setToUInt (const const_setType set1, const intType lowestBitNum)
 
   {
     intType position;
     memSizeType bitset_index;
     unsigned int bit_index;
 
-  /* setToInt */
+  /* setToUInt */
     position = bitset_pos(lowestBitNum);
     if (position >= set1->min_position && position <= set1->max_position) {
       bitset_index = bitsetIndex(set1, position);
       bit_index = ((unsigned int) lowestBitNum) & bitset_mask;
       if (bit_index == 0) {
-        return (intType) set1->bitset[bitset_index];
+        return (uintType) set1->bitset[bitset_index];
       } else if (position < set1->max_position) {
-        return (intType) (set1->bitset[bitset_index] >> bit_index |
+        return (uintType) (set1->bitset[bitset_index] >> bit_index |
             set1->bitset[bitset_index + 1] << (8 * sizeof(bitSetType) - bit_index));
       } else {
-        return (intType) (set1->bitset[bitset_index] >> bit_index);
+        return (uintType) (set1->bitset[bitset_index] >> bit_index);
       } /* if */
     } else if (position == set1->min_position - 1) {
       bitset_index = bitsetIndex(set1, position);
       bit_index = ((unsigned int) lowestBitNum) & bitset_mask;
-      return (intType) (set1->bitset[bitset_index + 1] << (8 * sizeof(bitSetType) - bit_index));
+      return (uintType) (set1->bitset[bitset_index + 1] << (8 * sizeof(bitSetType) - bit_index));
     } else {
       return 0;
     } /* if */
-  } /* setToInt */
+  } /* setToUInt */
 
 
 

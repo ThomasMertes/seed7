@@ -174,6 +174,7 @@ charType utf8_char (register int character)
       if (character >= 0x80 && character <= 0xBF) {
         /* character range 128 to 191 (leading bits 10......) */
         result |= character & 0x3F;
+        in_file.character = next_character();
         if (result <= 0x9F) {
           if (result <= 0x7F) {
             /* Overlong encodings are illegal */
@@ -186,7 +187,6 @@ charType utf8_char (register int character)
           /* correct encodings are in the range */
           /* 0xA0 to 0x07FF (160 to 2047)       */
         } /* if */
-        in_file.character = next_character();
       } else {
         result = 0xC0 | result >> 6; /* Restore 8 bit char */
         err_char(SOLITARY_UTF8_START_BYTE, result);
@@ -202,6 +202,7 @@ charType utf8_char (register int character)
         character = next_character();
         if (character >= 0x80 && character <= 0xBF) {
           result |= character & 0x3F;
+          in_file.character = next_character();
           if (result <= 0x7FF) {
             /* Overlong encodings are illegal */
             err_char(OVERLONG_UTF8_ENCODING, result);
@@ -212,7 +213,6 @@ charType utf8_char (register int character)
             /* correct encodings are in the range */
             /* 0x800 to 0xFFFF (2048 to 65535)    */
           } /* if */
-          in_file.character = next_character();
         } else {
           err_cchar(UTF8_CONTINUATION_BYTE_EXPECTED, character);
           in_file.character = character;
@@ -236,6 +236,7 @@ charType utf8_char (register int character)
           character = next_character();
           if (character >= 0x80 && character <= 0xBF) {
             result |= character & 0x3F;
+            in_file.character = next_character();
             if (result <= 0xFFFF) {
               /* Overlong encodings are illegal */
               err_char(OVERLONG_UTF8_ENCODING, result);
@@ -246,7 +247,6 @@ charType utf8_char (register int character)
               /* correct encodings are in the range     */
               /* 0x10000 to 0x10FFFF (65536 to 1114111) */
             } /* if */
-            in_file.character = next_character();
           } else {
             err_cchar(UTF8_CONTINUATION_BYTE_EXPECTED, character);
             in_file.character = character;
@@ -278,6 +278,7 @@ charType utf8_char (register int character)
             character = next_character();
             if (character >= 0x80 && character <= 0xBF) {
               result |= character & 0x3F;
+              in_file.character = next_character();
               if (result <= 0x1FFFFF) {
                 /* Overlong encodings are illegal */
                 err_char(OVERLONG_UTF8_ENCODING, result);
@@ -285,7 +286,6 @@ charType utf8_char (register int character)
                 /* result range 0x200000 to 0x3FFFFFF (2097152 to 67108863) */
                 err_char(CHAR_NOT_UNICODE, result);
               } /* if */
-              in_file.character = next_character();
             } else {
               err_cchar(UTF8_CONTINUATION_BYTE_EXPECTED, character);
               in_file.character = character;
@@ -325,6 +325,7 @@ charType utf8_char (register int character)
               character = next_character();
               if (character >= 0x80 && character <= 0xBF) {
                 result |= character & 0x3F;
+                in_file.character = next_character();
                 if (result <= 0x3FFFFFF) {
                   /* Overlong encodings are illegal */
                   err_char(OVERLONG_UTF8_ENCODING, result);
@@ -332,7 +333,6 @@ charType utf8_char (register int character)
                   /* result range 0x4000000 to 0xFFFFFFFF (67108864 to 4294967295) */
                   err_char(CHAR_NOT_UNICODE, result);
                 } /* if */
-                in_file.character = next_character();
               } else {
                 err_cchar(UTF8_CONTINUATION_BYTE_EXPECTED, character);
                 in_file.character = character;

@@ -34,7 +34,9 @@ const ACTION: PRC_CPY             is action "PRC_CPY";
 const ACTION: PRC_DYNAMIC         is action "PRC_DYNAMIC";
 const ACTION: PRC_EXIT            is action "PRC_EXIT";
 const ACTION: PRC_FOR_DOWNTO      is action "PRC_FOR_DOWNTO";
+const ACTION: PRC_FOR_DOWNTO_STEP is action "PRC_FOR_DOWNTO_STEP";
 const ACTION: PRC_FOR_TO          is action "PRC_FOR_TO";
+const ACTION: PRC_FOR_TO_STEP     is action "PRC_FOR_TO_STEP";
 const ACTION: PRC_HSIZE           is action "PRC_HSIZE";
 const ACTION: PRC_IF              is action "PRC_IF";
 const ACTION: PRC_IF_ELSIF        is action "PRC_IF_ELSIF";
@@ -50,10 +52,10 @@ const proc: process_statements (in expr_type: statements, inout expr_type: c_exp
     c_expr.currentFile := statements.currentFile;
     c_expr.currentLine := statements.currentLine;
     if statements.temp_num <> 0 then
-      AppendWithDiagnostic(statements.temp_decls, c_expr);
-      AppendWithDiagnostic(statements.temp_assigns, c_expr);
+      appendWithDiagnostic(statements.temp_decls, c_expr);
+      appendWithDiagnostic(statements.temp_assigns, c_expr);
       c_expr.expr &:= statements.expr;
-      AppendWithDiagnostic(statements.temp_frees, c_expr);
+      appendWithDiagnostic(statements.temp_frees, c_expr);
     else
       c_expr.expr &:= statements.expr;
     end if;
@@ -66,14 +68,14 @@ const proc: process_statements (in expr_type: condition, in expr_type: statement
     c_expr.currentFile := statements.currentFile;
     c_expr.currentLine := statements.currentLine;
     if statements.temp_num <> 0 then
-      AppendWithDiagnostic(statements.temp_decls, c_expr);
+      appendWithDiagnostic(statements.temp_decls, c_expr);
       if condition.temp_num <> 0 then
-        AppendWithDiagnostic(condition.temp_frees, c_expr);
-        AppendWithDiagnostic(condition.temp_to_null, c_expr);
+        appendWithDiagnostic(condition.temp_frees, c_expr);
+        appendWithDiagnostic(condition.temp_to_null, c_expr);
       end if;
-      AppendWithDiagnostic(statements.temp_assigns, c_expr);
+      appendWithDiagnostic(statements.temp_assigns, c_expr);
       c_expr.expr &:= statements.expr;
-      AppendWithDiagnostic(statements.temp_frees, c_expr);
+      appendWithDiagnostic(statements.temp_frees, c_expr);
     else
       c_expr.expr &:= statements.expr;
     end if;
@@ -162,8 +164,8 @@ const proc: process (PRC_IF, in reference: function,
       process_expr(params[4], c_statement);
       if c_condition.temp_num <> 0 then
         c_expr.expr &:= "{\n";
-        AppendWithDiagnostic(c_condition.temp_decls, c_expr);
-        AppendWithDiagnostic(c_condition.temp_assigns, c_expr);
+        appendWithDiagnostic(c_condition.temp_decls, c_expr);
+        appendWithDiagnostic(c_condition.temp_assigns, c_expr);
       end if;
       statementFile := c_expr.currentFile;
       statementLine := c_expr.currentLine;
@@ -176,7 +178,7 @@ const proc: process (PRC_IF, in reference: function,
       if c_condition.temp_num <> 0 then
         c_expr.currentFile := statementFile;
         c_expr.currentLine := statementLine;
-        AppendWithDiagnostic(c_condition.temp_frees, c_expr);
+        appendWithDiagnostic(c_condition.temp_frees, c_expr);
         c_expr.expr &:= "}\n";
       end if;
     end if;
@@ -225,10 +227,10 @@ const proc: process (PRC_IF_ELSIF, in reference: function,
       process_else(params[5], TRUE, c_else_part);
       if c_else_part.temp_num <> 0 then
         c_expr.expr &:= "{\n";
-        AppendWithDiagnostic(c_condition.temp_decls, c_expr);
-        AppendWithDiagnostic(c_else_part.temp_decls, c_expr);
-        AppendWithDiagnostic(c_condition.temp_assigns, c_expr);
-        AppendWithDiagnostic(c_else_part.temp_assigns, c_expr);
+        appendWithDiagnostic(c_condition.temp_decls, c_expr);
+        appendWithDiagnostic(c_else_part.temp_decls, c_expr);
+        appendWithDiagnostic(c_condition.temp_assigns, c_expr);
+        appendWithDiagnostic(c_else_part.temp_assigns, c_expr);
       end if;
       statementFile := c_expr.currentFile;
       statementLine := c_expr.currentLine;
@@ -242,8 +244,8 @@ const proc: process (PRC_IF_ELSIF, in reference: function,
       if c_else_part.temp_num <> 0 then
         c_expr.currentFile := statementFile;
         c_expr.currentLine := statementLine;
-        AppendWithDiagnostic(c_condition.temp_frees, c_expr);
-        AppendWithDiagnostic(c_else_part.temp_frees, c_expr);
+        appendWithDiagnostic(c_condition.temp_frees, c_expr);
+        appendWithDiagnostic(c_else_part.temp_frees, c_expr);
         c_expr.expr &:= "}\n";
       end if;
     end if;
@@ -264,8 +266,8 @@ const proc: process (PRC_WHILE, in reference: function,
     process_expr(params[4], c_statement);
     if c_condition.temp_num <> 0 then
       c_expr.expr &:= "{\n";
-      AppendWithDiagnostic(c_condition.temp_decls, c_expr);
-      AppendWithDiagnostic(c_condition.temp_assigns, c_expr);
+      appendWithDiagnostic(c_condition.temp_decls, c_expr);
+      appendWithDiagnostic(c_condition.temp_assigns, c_expr);
     end if;
     statementFile := c_expr.currentFile;
     statementLine := c_expr.currentLine;
@@ -278,7 +280,7 @@ const proc: process (PRC_WHILE, in reference: function,
     if c_condition.temp_num <> 0 then
       c_expr.currentFile := statementFile;
       c_expr.currentLine := statementLine;
-      AppendWithDiagnostic(c_condition.temp_frees, c_expr);
+      appendWithDiagnostic(c_condition.temp_frees, c_expr);
       c_expr.expr &:= "}\n";
     end if;
   end func;
@@ -296,8 +298,8 @@ const proc: process (PRC_REPEAT, in reference: function,
     process_expr(params[2], c_statement);
     if c_condition.temp_num <> 0 then
       c_expr.expr &:= "{\n";
-      AppendWithDiagnostic(c_condition.temp_decls, c_expr);
-      AppendWithDiagnostic(c_condition.temp_assigns, c_expr);
+      appendWithDiagnostic(c_condition.temp_decls, c_expr);
+      appendWithDiagnostic(c_condition.temp_assigns, c_expr);
     end if;
     setDiagnosticLine(c_expr);
     c_expr.expr &:= "do {\n";
@@ -309,172 +311,99 @@ const proc: process (PRC_REPEAT, in reference: function,
     if c_condition.temp_num <> 0 then
       c_expr.currentFile := file(params[4]);
       c_expr.currentLine := line(params[4]);
-      AppendWithDiagnostic(c_condition.temp_frees, c_expr);
-      c_expr.expr &:= "}\n";
-    end if;
-  end func;
-
-
-const proc: process_const_prc_for (in reference: variable, in reference: startExpr,
-    in integer: endValue, in reference: statement, in boolean: for_to,
-    inout expr_type: c_expr) is func
-
-  local
-    var expr_type: c_start_expr is expr_type.value;
-    var expr_type: c_statement is expr_type.value;
-    var string: start_name is "";
-    var integer: temp_num is 0;
-  begin
-    incr(countOptimizations);
-    process_expr(startExpr, c_start_expr);
-    c_statement.temp_num := c_start_expr.temp_num;
-    process_expr(statement, c_statement);
-    temp_num := c_statement.temp_num;
-    incr(temp_num);
-    if c_start_expr.temp_decls <> "" then
-      c_expr.expr &:= "{\n";
-      AppendWithDiagnostic(c_start_expr.temp_decls, c_expr);
-    end if;
-    if c_start_expr.temp_frees <> "" then
-      start_name := "tmp_s_" & str(temp_num);
-      setDiagnosticLine(c_expr);
-      c_expr.expr &:= "intType ";
-      c_expr.expr &:= start_name;
-      if c_start_expr.temp_assigns <> "" then
-        c_expr.expr &:= ";\n";
-        AppendWithDiagnostic(c_start_expr.temp_assigns, c_expr);
-        setDiagnosticLine(c_expr);
-        c_expr.expr &:= start_name;
-      end if;
-      c_expr.expr &:= "=";
-      c_expr.expr &:= c_start_expr.expr;
-      c_expr.expr &:= ";\n";
-      AppendWithDiagnostic(c_start_expr.temp_frees, c_expr);
-    else
-      start_name := c_start_expr.expr;
-      AppendWithDiagnostic(c_start_expr.temp_assigns, c_expr);
-    end if;
-    setDiagnosticLine(c_expr);
-    c_expr.expr &:= "for (";
-    process_expr(variable, c_expr);
-    c_expr.expr &:= "=";
-    c_expr.expr &:= start_name;
-    c_expr.expr &:= "; ";
-    process_expr(variable, c_expr);
-    if for_to then
-      c_expr.expr &:= "<=";
-    else
-      c_expr.expr &:= ">=";
-    end if;
-    c_expr.expr &:= integerLiteral(endValue);
-    c_expr.expr &:= "; (";
-    process_expr(variable, c_expr);
-    if for_to then
-      c_expr.expr &:= ")++) {\n";
-    else
-      c_expr.expr &:= ")--) {\n";
-    end if;
-    process_statements(c_statement, c_expr);
-    c_expr.expr &:= "}\n";
-    if c_start_expr.temp_decls <> "" then
+      appendWithDiagnostic(c_condition.temp_frees, c_expr);
       c_expr.expr &:= "}\n";
     end if;
   end func;
 
 
 const proc: process_prc_for (in reference: variable, in reference: startExpr,
-    in reference: endExpr, in reference: statement, in boolean: for_to,
-    inout expr_type: c_expr) is func
+    in reference: endExpr, in reference: incrStep, in reference: statements,
+    in boolean: for_to, inout expr_type: c_expr) is func
 
   local
     var expr_type: c_start_expr is expr_type.value;
     var expr_type: c_end_expr is expr_type.value;
-    var expr_type: c_statement is expr_type.value;
+    var reference: evaluatedParam is NIL;
     var string: start_name is "";
     var string: end_name is "";
-    var integer: temp_num is 0;
+    var string: step_name is "";
+    var expr_type: statement is expr_type.value;
   begin
+    c_start_expr.temp_num := c_expr.temp_num;
     process_expr(startExpr, c_start_expr);
-    c_end_expr.temp_num := c_start_expr.temp_num;
-    process_expr(endExpr, c_end_expr);
-    c_statement.temp_num := c_end_expr.temp_num;
-    process_expr(statement, c_statement);
-    temp_num := c_statement.temp_num;
-    incr(temp_num);
-    c_expr.expr &:= "{\n";
-    AppendWithDiagnostic(c_start_expr.temp_decls, c_expr);
-    AppendWithDiagnostic(c_end_expr.temp_decls, c_expr);
+    c_expr.temp_num := c_start_expr.temp_num;
     if c_start_expr.temp_frees <> "" then
-      start_name := "tmp_s_" & str(temp_num);
-      setDiagnosticLine(c_expr);
-      c_expr.expr &:= "intType ";
-      c_expr.expr &:= start_name;
-      c_expr.expr &:= ";\n";
+      statement.temp_num := c_expr.temp_num;
+      incr(statement.temp_num);
+      start_name := "start_" & str(statement.temp_num);
+      statement.temp_decls &:= "intType ";
+      statement.temp_decls &:= start_name;
+      statement.temp_decls &:= ";\n";
+      statement.temp_assigns &:= "{\n";
+      statement.temp_assigns &:= c_start_expr.temp_decls;
+      statement.temp_assigns &:= c_start_expr.temp_assigns;
+      statement.temp_assigns &:= start_name;
+      statement.temp_assigns &:= "=";
+      statement.temp_assigns &:= c_start_expr.expr;
+      statement.temp_assigns &:= ";\n";
+      statement.temp_assigns &:= c_start_expr.temp_frees;
+      statement.temp_assigns &:= "}\n";
     else
+      if c_start_expr.temp_decls <> "" or c_start_expr.temp_assigns <> "" then
+        statement.temp_num := c_expr.temp_num;
+        incr(statement.temp_num);
+        statement.temp_decls &:= c_start_expr.temp_decls;
+        statement.temp_assigns &:= c_start_expr.temp_assigns;
+      end if;
       start_name := c_start_expr.expr;
     end if;
-    end_name := "tmp_e_" & str(temp_num);
-    setDiagnosticLine(c_expr);
-    c_expr.expr &:= "intType ";
-    c_expr.expr &:= end_name;
-    if  c_start_expr.temp_assigns <> "" or
-        c_start_expr.temp_frees <> "" or
-        c_end_expr.temp_assigns <> "" then
-      c_expr.expr &:= ";\n";
-      AppendWithDiagnostic(c_start_expr.temp_assigns, c_expr);
-      AppendWithDiagnostic(c_end_expr.temp_assigns, c_expr);
-      if c_start_expr.temp_frees <> "" then
-        setDiagnosticLine(c_expr);
-        c_expr.expr &:= start_name;
-        c_expr.expr &:= "=";
-        c_expr.expr &:= c_start_expr.expr;
-        c_expr.expr &:= ";\n";
-        AppendWithDiagnostic(c_start_expr.temp_frees, c_expr);
+    if getConstant(endExpr, INTOBJECT, evaluatedParam) then
+      end_name := integerLiteral(getValue(evaluatedParam, integer));
+    else
+      end_name := defineTempConstant("intType", "end_", endExpr, statement);
+    end if;
+    if incrStep <> NIL then
+      if getConstant(incrStep, INTOBJECT, evaluatedParam) then
+        step_name := integerLiteral(getValue(evaluatedParam, integer));
+      else
+        step_name := defineTempConstant("intType", "step_", incrStep, statement);
       end if;
-      setDiagnosticLine(c_expr);
-      c_expr.expr &:= end_name;
     end if;
-    c_expr.expr &:= "=";
-    c_expr.expr &:= c_end_expr.expr;
-    c_expr.expr &:= ";\n";
-    AppendWithDiagnostic(c_end_expr.temp_frees, c_expr);
-    setDiagnosticLine(c_expr);
-    c_expr.expr &:= "for (";
-    process_expr(variable, c_expr);
-    c_expr.expr &:= "=";
-    c_expr.expr &:= start_name;
-    c_expr.expr &:= "; ";
-    process_expr(variable, c_expr);
+    statement.expr &:= "for (";
+    process_expr(variable, statement);
+    statement.expr &:= "=";
+    statement.expr &:= start_name;
+    statement.expr &:= "; ";
+    process_expr(variable, statement);
     if for_to then
-      c_expr.expr &:= "<=";
+      statement.expr &:= "<=";
     else
-      c_expr.expr &:= ">=";
+      statement.expr &:= ">=";
     end if;
-    c_expr.expr &:= end_name;
-    c_expr.expr &:= "; (";
-    process_expr(variable, c_expr);
+    statement.expr &:= end_name;
+    statement.expr &:= "; (";
+    process_expr(variable, statement);
     if for_to then
-      c_expr.expr &:= ")++) {\n";
+      if incrStep = NIL then
+        statement.expr &:= ")++) {\n";
+      else
+        statement.expr &:= ")+=";
+        statement.expr &:= step_name;
+        statement.expr &:= ") {\n";
+      end if;
     else
-      c_expr.expr &:= ")--) {\n";
+      if incrStep = NIL then
+        statement.expr &:= ")--) {\n";
+      else
+        statement.expr &:= ")-=";
+        statement.expr &:= step_name;
+        statement.expr &:= ") {\n";
+      end if;
     end if;
-    process_statements(c_statement, c_expr);
-    c_expr.expr &:= "}\n}\n";
-  end func;
-
-
-const proc: process_prc_for (in ref_list: params, in boolean: for_to,
-    inout expr_type: c_expr) is func
-
-  local
-    var reference: evaluatedParam is NIL;
-  begin
-    if getConstant(params[6], INTOBJECT, evaluatedParam) then
-      process_const_prc_for(params[2], params[4], getValue(evaluatedParam, integer),
-          params[8], for_to, c_expr);
-    else
-      process_prc_for(params[2], params[4], params[6], params[8], for_to, c_expr);
-    end if;
+    process_expr(statements, statement);
+    statement.expr &:= "}\n";
+    doLocalDeclsOfStatement(statement, c_expr);
   end func;
 
 
@@ -482,7 +411,15 @@ const proc: process (PRC_FOR_DOWNTO, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    process_prc_for(params, FALSE, c_expr);
+    process_prc_for(params[2], params[4], params[6], NIL, params[8], FALSE, c_expr);
+  end func;
+
+
+const proc: process (PRC_FOR_DOWNTO_STEP, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    process_prc_for(params[2], params[4], params[6], params[8], params[10], FALSE, c_expr);
   end func;
 
 
@@ -490,7 +427,15 @@ const proc: process (PRC_FOR_TO, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    process_prc_for(params, TRUE, c_expr);
+    process_prc_for(params[2], params[4], params[6], NIL, params[8], TRUE, c_expr);
+  end func;
+
+
+const proc: process (PRC_FOR_TO_STEP, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    process_prc_for(params[2], params[4], params[6], params[8], params[10], TRUE, c_expr);
   end func;
 
 

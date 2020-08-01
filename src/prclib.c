@@ -138,7 +138,7 @@ objectType prc_block (listType arguments)
   /* prc_block */
     statement = arg_2(arguments);
     evaluate(statement);
-    if (fail_flag) {
+    if (unlikely(fail_flag)) {
       searching = TRUE;
       current_catch = arg_4(arguments);
       while (current_catch != NULL && searching &&
@@ -176,7 +176,7 @@ objectType prc_block_catch_all (listType arguments)
   /* prc_block_catch_all */
     statement = arg_2(arguments);
     evaluate(statement);
-    if (fail_flag) {
+    if (unlikely(fail_flag)) {
       default_statement = arg_6(arguments);
       set_fail_flag(FALSE);
       fail_value = NULL;
@@ -200,7 +200,7 @@ objectType prc_block_otherwise (listType arguments)
   /* prc_block_otherwise */
     statement = arg_2(arguments);
     evaluate(statement);
-    if (fail_flag) {
+    if (unlikely(fail_flag)) {
       searching = TRUE;
       current_catch = arg_4(arguments);
       while (current_catch != NULL && searching &&
@@ -546,6 +546,39 @@ objectType prc_for_downto (listType arguments)
 
 
 
+objectType prc_for_downto_step (listType arguments)
+
+  {
+    objectType for_variable;
+    intType upper_limit;
+    intType lower_limit;
+    intType incr_step;
+    objectType statement;
+
+  /* prc_for_downto_step */
+    for_variable = arg_2(arguments);
+    is_variable(for_variable);
+    isit_int(for_variable);
+    isit_int(arg_4(arguments));
+    isit_int(arg_6(arguments));
+    isit_int(arg_8(arguments));
+    upper_limit = take_int(arg_4(arguments));
+    lower_limit = take_int(arg_6(arguments));
+    incr_step = take_int(arg_8(arguments));
+    statement = arg_10(arguments);
+    if (upper_limit >= lower_limit) {
+      for_variable->value.intValue = upper_limit;
+      evaluate(statement);
+      while (take_int(for_variable) > lower_limit && !fail_flag) {
+        for_variable->value.intValue -= incr_step;
+        evaluate(statement);
+      } /* while */
+    } /* if */
+    return SYS_EMPTY_OBJECT;
+  } /* prc_for_downto_step */
+
+
+
 objectType prc_for_to (listType arguments)
 
   {
@@ -573,6 +606,39 @@ objectType prc_for_to (listType arguments)
     } /* if */
     return SYS_EMPTY_OBJECT;
   } /* prc_for_to */
+
+
+
+objectType prc_for_to_step (listType arguments)
+
+  {
+    objectType for_variable;
+    intType lower_limit;
+    intType upper_limit;
+    intType incr_step;
+    objectType statement;
+
+  /* prc_for_to_step */
+    for_variable = arg_2(arguments);
+    is_variable(for_variable);
+    isit_int(for_variable);
+    isit_int(arg_4(arguments));
+    isit_int(arg_6(arguments));
+    isit_int(arg_8(arguments));
+    lower_limit = take_int(arg_4(arguments));
+    upper_limit = take_int(arg_6(arguments));
+    incr_step = take_int(arg_8(arguments));
+    statement = arg_10(arguments);
+    if (lower_limit <= upper_limit) {
+      for_variable->value.intValue = lower_limit;
+      evaluate(statement);
+      while (take_int(for_variable) < upper_limit && !fail_flag) {
+        for_variable->value.intValue += incr_step;
+        evaluate(statement);
+      } /* while */
+    } /* if */
+    return SYS_EMPTY_OBJECT;
+  } /* prc_for_to_step */
 
 
 
@@ -748,9 +814,9 @@ objectType prc_repeat (listType arguments)
     condition = arg_4(arguments);
     do {
       evaluate(statement);
-      if (!fail_flag) {
+      if (likely(!fail_flag)) {
         cond_value = evaluate(condition);
-        if (!fail_flag) {
+        if (likely(!fail_flag)) {
           isit_bool(cond_value);
           cond = (boolType) (take_bool(cond_value) == SYS_FALSE_OBJECT);
           if (TEMP_OBJECT(cond_value)) {
@@ -1135,7 +1201,7 @@ objectType prc_while (listType arguments)
     condition = arg_2(arguments);
     statement = arg_4(arguments);
     cond_value = evaluate(condition);
-    if (!fail_flag) {
+    if (likely(!fail_flag)) {
       isit_bool(cond_value);
       cond = (boolType) (take_bool(cond_value) == SYS_TRUE_OBJECT);
       if (TEMP_OBJECT(cond_value)) {
@@ -1143,9 +1209,9 @@ objectType prc_while (listType arguments)
       } /* if */
       while (cond && !fail_flag) {
         evaluate(statement);
-        if (!fail_flag) {
+        if (likely(!fail_flag)) {
           cond_value = evaluate(condition);
-          if (!fail_flag) {
+          if (likely(!fail_flag)) {
             isit_bool(cond_value);
             cond = (boolType) (take_bool(cond_value) == SYS_TRUE_OBJECT);
             if (TEMP_OBJECT(cond_value)) {

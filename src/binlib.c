@@ -36,6 +36,7 @@
 #include "objutl.h"
 #include "runerr.h"
 #include "int_rtl.h"
+#include "set_rtl.h"
 #include "big_drv.h"
 
 #undef EXTERN
@@ -129,6 +130,17 @@ objectType bin_binary (listType arguments)
     isit_bigint(arg_1(arguments));
     return bld_binary_temp(bigToUInt64(take_bigint(arg_1(arguments))));
   } /* bin_binary */
+
+
+
+objectType bin_getBinaryFromSet (listType arguments)
+
+  { /* bin_getBinaryFromSet */
+    isit_set(arg_1(arguments));
+    isit_int(arg_2(arguments));
+    return bld_binary_temp(
+        setToUInt(take_set(arg_1(arguments)), take_int(arg_2(arguments))));
+  } /* bin_getBinaryFromSet */
 
 
 

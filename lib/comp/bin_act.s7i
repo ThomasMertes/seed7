@@ -24,26 +24,28 @@
 (********************************************************************)
 
 
-const ACTION: BIN_AND               is action "BIN_AND";
-const ACTION: BIN_AND_ASSIGN        is action "BIN_AND_ASSIGN";
-const ACTION: BIN_BIG               is action "BIN_BIG";
-const ACTION: BIN_BINARY            is action "BIN_BINARY";
-const ACTION: BIN_LSHIFT            is action "BIN_LSHIFT";
-const ACTION: BIN_LSHIFT_ASSIGN     is action "BIN_LSHIFT_ASSIGN";
-const ACTION: BIN_OR                is action "BIN_OR";
-const ACTION: BIN_OR_ASSIGN         is action "BIN_OR_ASSIGN";
-const ACTION: BIN_radix             is action "BIN_radix";
-const ACTION: BIN_RADIX             is action "BIN_RADIX";
-const ACTION: BIN_RSHIFT            is action "BIN_RSHIFT";
-const ACTION: BIN_RSHIFT_ASSIGN     is action "BIN_RSHIFT_ASSIGN";
-const ACTION: BIN_STR               is action "BIN_STR";
-const ACTION: BIN_XOR               is action "BIN_XOR";
-const ACTION: BIN_XOR_ASSIGN        is action "BIN_XOR_ASSIGN";
+const ACTION: BIN_AND                 is action "BIN_AND";
+const ACTION: BIN_AND_ASSIGN          is action "BIN_AND_ASSIGN";
+const ACTION: BIN_BIG                 is action "BIN_BIG";
+const ACTION: BIN_BINARY              is action "BIN_BINARY";
+const ACTION: BIN_GET_BINARY_FROM_SET is action "BIN_GET_BINARY_FROM_SET";
+const ACTION: BIN_LSHIFT              is action "BIN_LSHIFT";
+const ACTION: BIN_LSHIFT_ASSIGN       is action "BIN_LSHIFT_ASSIGN";
+const ACTION: BIN_OR                  is action "BIN_OR";
+const ACTION: BIN_OR_ASSIGN           is action "BIN_OR_ASSIGN";
+const ACTION: BIN_radix               is action "BIN_radix";
+const ACTION: BIN_RADIX               is action "BIN_RADIX";
+const ACTION: BIN_RSHIFT              is action "BIN_RSHIFT";
+const ACTION: BIN_RSHIFT_ASSIGN       is action "BIN_RSHIFT_ASSIGN";
+const ACTION: BIN_STR                 is action "BIN_STR";
+const ACTION: BIN_XOR                 is action "BIN_XOR";
+const ACTION: BIN_XOR_ASSIGN          is action "BIN_XOR_ASSIGN";
 
 
 const proc: bin_prototypes (inout file: c_prog) is func
 
   begin
+    declareExtern(c_prog, "uintType    setToUInt (const const_setType, const intType);");
     declareExtern(c_prog, "striType    uintRadix (uintType, intType, boolType);");
     declareExtern(c_prog, "striType    uintRadixPow2 (uintType, int, int, boolType);");
     declareExtern(c_prog, "striType    uintStr (uintType);");
@@ -93,6 +95,18 @@ const proc: process (BIN_BINARY, in reference: function,
   begin
     c_expr.expr &:= "bigToUInt64(";
     getAnyParamToExpr(params[1], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process (BIN_GET_BINARY_FROM_SET, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "setToUInt(";
+    getAnyParamToExpr(params[1], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[2], c_expr);
     c_expr.expr &:= ")";
   end func;
 
@@ -263,7 +277,7 @@ const proc: process_const_bin_radix (in reference: param1, in integer: base,
     elsif 2 ** log2(base) = base then
       incr(countOptimizations);
       prepare_stri_result(c_expr);
-      c_expr.result_expr := "binRadixPow2(";
+      c_expr.result_expr := "uintRadixPow2(";
       getStdParamToResultExpr(param1, c_expr);
       c_expr.result_expr &:= ",";
       c_expr.result_expr &:= integerLiteral(log2(base));
@@ -274,7 +288,7 @@ const proc: process_const_bin_radix (in reference: param1, in integer: base,
       c_expr.result_expr &:= ")";
     else
       prepare_stri_result(c_expr);
-      c_expr.result_expr := "binRadix(";
+      c_expr.result_expr := "uintRadix(";
       getStdParamToResultExpr(param1, c_expr);
       c_expr.result_expr &:= ", ";
       c_expr.result_expr &:= integerLiteral(base);
@@ -296,7 +310,7 @@ const proc: process_bin_radix (in ref_list: params, in boolean: upperCase,
           upperCase, c_expr);
     else
       prepare_stri_result(c_expr);
-      c_expr.result_expr := "intRadix(";
+      c_expr.result_expr := "uintRadix(";
       getStdParamToResultExpr(params[1], c_expr);
       c_expr.result_expr &:= ", ";
       getStdParamToResultExpr(params[3], c_expr);

@@ -460,10 +460,10 @@ const proc: process (BIG_CPY, in reference: function,
     process_expr(params[3], c_param3);
     if has_temp_values(c_param3) then
       c_expr.expr &:= "{\n";
-      AppendWithDiagnostic(c_param1.temp_decls, c_expr);
-      AppendWithDiagnostic(c_param3.temp_decls, c_expr);
-      AppendWithDiagnostic(c_param1.temp_assigns, c_expr);
-      AppendWithDiagnostic(c_param3.temp_assigns, c_expr);
+      appendWithDiagnostic(c_param1.temp_decls, c_expr);
+      appendWithDiagnostic(c_param3.temp_decls, c_expr);
+      appendWithDiagnostic(c_param1.temp_assigns, c_expr);
+      appendWithDiagnostic(c_param3.temp_assigns, c_expr);
     end if;
     if c_param3.result_expr <> "" then
       c_expr.expr &:= "{\n";
@@ -498,8 +498,8 @@ const proc: process (BIG_CPY, in reference: function,
       c_expr.expr &:= ");\n";
     end if;
     if has_temp_values(c_param3) then
-      AppendWithDiagnostic(c_param1.temp_frees, c_expr);
-      AppendWithDiagnostic(c_param3.temp_frees, c_expr);
+      appendWithDiagnostic(c_param1.temp_frees, c_expr);
+      appendWithDiagnostic(c_param3.temp_frees, c_expr);
       c_expr.expr &:= "}\n";
     end if;
   end func;

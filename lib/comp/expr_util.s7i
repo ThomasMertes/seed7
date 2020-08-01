@@ -472,14 +472,14 @@ const proc: doLocalDeclsOfStatement (in expr_type: statement, inout expr_type: c
   begin
     if statement.temp_num > 0 then
       c_expr.expr &:= "{\n";
-      AppendWithDiagnostic(statement.temp_decls, c_expr);
-      AppendWithDiagnostic(statement.temp_assigns, c_expr);
-      AppendWithDiagnostic(statement.expr, c_expr);
-      AppendWithDiagnostic(statement.temp_frees, c_expr);
-      AppendWithDiagnostic(statement.result_free, c_expr);
+      appendWithDiagnostic(statement.temp_decls, c_expr);
+      appendWithDiagnostic(statement.temp_assigns, c_expr);
+      appendWithDiagnostic(statement.expr, c_expr);
+      appendWithDiagnostic(statement.temp_frees, c_expr);
+      appendWithDiagnostic(statement.result_free, c_expr);
       c_expr.expr &:= "}\n";
     else
-      AppendWithDiagnostic(statement.expr, c_expr);
+      appendWithDiagnostic(statement.expr, c_expr);
     end if;
   end func;
 
@@ -568,6 +568,48 @@ const func string: getParameterAsReference (in string: typeName, in string: name
       variableName := normalVariable(param1, c_expr);
     else
       variableName := getReference(typeName, namePrefix, param1, c_expr);
+    end if;
+  end func;
+
+
+const func string: defineTempConstant (in string: typeName, in string: namePrefix,
+    in reference: param1, inout expr_type: c_expr) is func
+  result
+    var string: variableName is "";
+  local
+    var expr_type: param_expr is expr_type.value;
+  begin
+    incr(c_expr.temp_num);
+    variableName := namePrefix & str(c_expr.temp_num);
+    param_expr.temp_num := c_expr.temp_num;
+    process_expr(param1, param_expr);
+    c_expr.temp_num := param_expr.temp_num;
+    c_expr.temp_decls &:= typeName;
+    c_expr.temp_decls &:= " ";
+    c_expr.temp_decls &:= variableName;
+    if param_expr.temp_frees <> "" then
+      c_expr.temp_decls &:= ";\n";
+      c_expr.temp_assigns &:= "{\n";
+      c_expr.temp_assigns &:= param_expr.temp_decls;
+      c_expr.temp_assigns &:= param_expr.temp_assigns;
+      c_expr.temp_assigns &:= variableName;
+      c_expr.temp_assigns &:= "=";
+      c_expr.temp_assigns &:= param_expr.expr;
+      c_expr.temp_assigns &:= ";\n";
+      c_expr.temp_assigns &:= param_expr.temp_frees;
+      c_expr.temp_assigns &:= "}\n";
+    elsif param_expr.temp_decls <> "" or param_expr.temp_assigns <> "" then
+      c_expr.temp_decls &:= ";\n";
+      c_expr.temp_decls &:= param_expr.temp_decls;
+      c_expr.temp_assigns &:= param_expr.temp_assigns;
+      c_expr.temp_assigns &:= variableName;
+      c_expr.temp_assigns &:= "=";
+      c_expr.temp_assigns &:= param_expr.expr;
+      c_expr.temp_assigns &:= ";\n";
+    else
+      c_expr.temp_decls &:= "=";
+      c_expr.temp_decls &:= param_expr.expr;
+      c_expr.temp_decls &:= ";\n";
     end if;
   end func;
 

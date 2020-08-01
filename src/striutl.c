@@ -410,8 +410,20 @@ static const strElemType *stri_charpos (const_striType stri, strElemType ch)
 
 
 
-memSizeType utf8_to_stri (strElemType *const dest_stri, memSizeType *const dest_len,
-    const_ustriType ustri, size_t len)
+/**
+ *  Convert an UTF-8 encoded string to an UTF-32 encoded string.
+ *  The source and destination stings are not '\0' terminated.
+ *  The memory for the destination dest_stri is not allocated.
+ *  @param dest_stri Destination of the UTF-32 encoded string.
+ *  @param dest_len Place to return the length of dest_stri.
+ *  @param ustri UTF-8 encoded string to be converted.
+ *  @param len Number of bytes in ustri.
+ *  @return 0 when ustri has been successfully converted or
+ *          the number of bytes in ustri that are left
+ *          unconverted.
+ */
+memSizeType utf8_to_stri (strElemType *const dest_stri,
+    memSizeType *const dest_len, const_ustriType ustri, size_t len)
 
   {
     strElemType *stri;

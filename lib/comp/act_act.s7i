@@ -55,10 +55,10 @@ const proc: process (ACT_CPY, in reference: function,
     process_expr(params[3], c_param3);
     if c_param3.temp_num <> 0 then
       c_expr.expr &:= "{\n";
-      AppendWithDiagnostic(c_param1.temp_decls, c_expr);
-      AppendWithDiagnostic(c_param3.temp_decls, c_expr);
-      AppendWithDiagnostic(c_param1.temp_assigns, c_expr);
-      AppendWithDiagnostic(c_param3.temp_assigns, c_expr);
+      appendWithDiagnostic(c_param1.temp_decls, c_expr);
+      appendWithDiagnostic(c_param3.temp_decls, c_expr);
+      appendWithDiagnostic(c_param1.temp_assigns, c_expr);
+      appendWithDiagnostic(c_param3.temp_assigns, c_expr);
     end if;
     setDiagnosticLine(c_expr);
     c_expr.expr &:= c_param1.expr;
@@ -70,8 +70,8 @@ const proc: process (ACT_CPY, in reference: function,
     end if;
     c_expr.expr &:= ";\n";
     if c_param3.temp_num <> 0 then
-      AppendWithDiagnostic(c_param1.temp_frees, c_expr);
-      AppendWithDiagnostic(c_param3.temp_frees, c_expr);
+      appendWithDiagnostic(c_param1.temp_frees, c_expr);
+      appendWithDiagnostic(c_param3.temp_frees, c_expr);
       c_expr.expr &:= "}\n";
     end if;
   end func;

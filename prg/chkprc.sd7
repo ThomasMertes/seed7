@@ -31,8 +31,18 @@ var boolean: global_loop_control is TRUE;
 var boolean: true_var is TRUE;
 var boolean: false_var is FALSE;
 
-const func boolean: bool_func (ref boolean: value) is
-  return value;
+
+const func boolean: boolExpr (ref boolean: value) is
+  return value and str(rand(1, 9))[2 ..] = "";
+
+
+const func string: striExpr (in string: stri) is
+  return stri & str(rand(1, 9))[2 ..];
+
+
+const func integer: intExpr (in integer: number) is
+  return number + length(str(rand(1, 9))[2 ..]);
+
 
 const proc: check_if is func
   local
@@ -783,7 +793,7 @@ const proc: check_while is func
       writeln(" ***** while EXPRESSION ...  with no loop trip does not work correct");
       okay := FALSE;
     end while;
-    while bool_func(FALSE) do
+    while boolExpr(FALSE) do
       writeln(" ***** while FUNCTION ...  with no loop trip does not work correct");
       okay := FALSE;
     end while;
@@ -831,7 +841,7 @@ const proc: check_while is func
     end if;
     counter := 0;
     global_loop_control := TRUE;
-    while bool_func(global_loop_control) do
+    while boolExpr(global_loop_control) do
       incr(counter);
       if counter = 1 then
         global_loop_control := FALSE;
@@ -995,6 +1005,8 @@ const proc: check_for_int_to is func
     var boolean: okay is TRUE;
     var integer: number is 0;
     var integer: counter is 0;
+    var integer: startVariable is 4;
+    var integer: endVariable is 6;
   begin
     okay := TRUE;
     for number range 1 to 0 do
@@ -1051,7 +1063,46 @@ const proc: check_for_int_to is func
       okay := FALSE;
     end if;
     counter := 0;
-    for number range 4 to (14 + 0) mod (8 + 0) do
+    for number range 4 to endVariable do
+      incr(counter);
+      if number < 4 or number > 6 or number <> counter + 3 then
+        writeln(" ***** for integer range CONSTANT to VARIABLE ...  does not work correct");
+        number := 7;
+        okay := FALSE;
+      end if;
+    end for;
+    if counter <> 3 then
+      writeln(" ***** for integer range CONSTANT to VARIABLE ...  does not work correct");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    for number range startVariable to 6 do
+      incr(counter);
+      if number < 4 or number > 6 or number <> counter + 3 then
+        writeln(" ***** for integer range VARIABLE to CONSTANT ...  does not work correct");
+        number := 7;
+        okay := FALSE;
+      end if;
+    end for;
+    if counter <> 3 then
+      writeln(" ***** for integer range VARIABLE to CONSTANT ...  does not work correct");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    for number range startVariable to endVariable do
+      incr(counter);
+      if number < 4 or number > 6 or number <> counter + 3 then
+        writeln(" ***** for integer range VARIABLE to VARIABLE ...  does not work correct");
+        number := 7;
+        okay := FALSE;
+      end if;
+    end for;
+    if counter <> 3 then
+      writeln(" ***** for integer range VARIABLE to VARIABLE ...  does not work correct");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    for number range 4 to intExpr(6) do
       incr(counter);
       if number < 4 or number > 6 or number <> counter + 3 then
         writeln(" ***** for integer range CONSTANT to EXPRESSION ...  does not work correct");
@@ -1064,7 +1115,7 @@ const proc: check_for_int_to is func
       okay := FALSE;
     end if;
     counter := 0;
-    for number range (12 + 0) mod (8 + 0) to 6 do
+    for number range intExpr(4) to 6 do
       incr(counter);
       if number < 4 or number > 6 or number <> counter + 3 then
         writeln(" ***** for integer range EXPRESSION to CONSTANT ...  does not work correct");
@@ -1077,7 +1128,7 @@ const proc: check_for_int_to is func
       okay := FALSE;
     end if;
     counter := 0;
-    for number range (12 + 0) mod (8 + 0) to (14 + 0) mod (8 + 0) do
+    for number range intExpr(4) to intExpr(6) do
       incr(counter);
       if number < 4 or number > 6 or number <> counter + 3 then
         writeln(" ***** for integer range EXPRESSION to EXPRESSION ...  does not work correct");
@@ -1090,7 +1141,7 @@ const proc: check_for_int_to is func
       okay := FALSE;
     end if;
     counter := 0;
-    for number range 4 to length([]("zuiop","yxcvb","xcv")&[]("wertz","vbnm","uiop")) do
+    for number range 4 to length(striExpr("123456")) do
       incr(counter);
       if number < 4 or number > 6 or number <> counter + 3 then
         writeln(" ***** for integer range CONSTANT to EXPRESSION ...  does not work correct");
@@ -1103,7 +1154,7 @@ const proc: check_for_int_to is func
       okay := FALSE;
     end if;
     counter := 0;
-    for number range length([]("asdf","bnm")&[]("cvbn","dfgh")) to 6 do
+    for number range length(striExpr("1234")) to 6 do
       incr(counter);
       if number < 4 or number > 6 or number <> counter + 3 then
         writeln(" ***** for integer range EXPRESSION to CONSTANT ...  does not work correct");
@@ -1116,7 +1167,7 @@ const proc: check_for_int_to is func
       okay := FALSE;
     end if;
     counter := 0;
-    for number range length([]("asdf","bnm")&[]("cvbn","dfgh")) to length([]("zuiop","yxcvb","xcv")&[]("wertz","vbnm","uiop")) do
+    for number range length(striExpr("1234")) to length(striExpr("123456")) do
       incr(counter);
       if number < 4 or number > 6 or number <> counter + 3 then
         writeln(" ***** for integer range EXPRESSION to EXPRESSION ...  does not work correct");
@@ -1142,6 +1193,8 @@ const proc: check_for_int_downto is func
     var boolean: okay is TRUE;
     var integer: number is 0;
     var integer: counter is 0;
+    var integer: startVariable is 6;
+    var integer: endVariable is 4;
   begin
     okay := TRUE;
     for number range 0 downto 1 do
@@ -1198,7 +1251,111 @@ const proc: check_for_int_downto is func
       okay := FALSE;
     end if;
     counter := 0;
-    for number range length([]("zuiop","yxcvb","xcv")&[]("wertz","vbnm","uiop")) downto length([]("asdf","bnm")&[]("cvbn","dfgh")) do
+    for number range 6 downto endVariable do
+      incr(counter);
+      if number < 4 or number > 6 or number <> 7 - counter then
+        writeln(" ***** for integer range CONSTANT downto VARIABLE ...  does not work correct");
+        number := 3;
+        okay := FALSE;
+      end if;
+    end for;
+    if counter <> 3 then
+      writeln(" ***** for integer range CONSTANT downto VARIABLE ...  does not work correct");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    for number range startVariable downto 4 do
+      incr(counter);
+      if number < 4 or number > 6 or number <> 7 - counter then
+        writeln(" ***** for integer range VARIABLE downto CONSTANT ...  does not work correct");
+        number := 3;
+        okay := FALSE;
+      end if;
+    end for;
+    if counter <> 3 then
+      writeln(" ***** for integer range VARIABLE downto CONSTANT ...  does not work correct");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    for number range startVariable downto endVariable do
+      incr(counter);
+      if number < 4 or number > 6 or number <> 7 - counter then
+        writeln(" ***** for integer range VARIABLE downto VARIABLE ...  does not work correct");
+        number := 3;
+        okay := FALSE;
+      end if;
+    end for;
+    if counter <> 3 then
+      writeln(" ***** for integer range VARIABLE downto VARIABLE ...  does not work correct");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    for number range 6 downto intExpr(4) do
+      incr(counter);
+      if number < 4 or number > 6 or number <> 7 - counter then
+        writeln(" ***** for integer range CONSTANT downto EXPRESSION ...  does not work correct");
+        number := 3;
+        okay := FALSE;
+      end if;
+    end for;
+    if counter <> 3 then
+      writeln(" ***** for integer range CONSTANT downto EXPRESSION ...  does not work correct");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    for number range intExpr(6) downto 4 do
+      incr(counter);
+      if number < 4 or number > 6 or number <> 7 - counter then
+        writeln(" ***** for integer range EXPRESSION downto CONSTANT ...  does not work correct");
+        number := 3;
+        okay := FALSE;
+      end if;
+    end for;
+    if counter <> 3 then
+      writeln(" ***** for integer range EXPRESSION downto CONSTANT ...  does not work correct");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    for number range intExpr(6) downto intExpr(4) do
+      incr(counter);
+      if number < 4 or number > 6 or number <> 7 - counter then
+        writeln(" ***** for integer range EXPRESSION downto EXPRESSION ...  does not work correct");
+        number := 3;
+        okay := FALSE;
+      end if;
+    end for;
+    if counter <> 3 then
+      writeln(" ***** for integer range EXPRESSION downto EXPRESSION ...  does not work correct");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    for number range 6 downto length(striExpr("1234")) do
+      incr(counter);
+      if number < 4 or number > 6 or number <> 7 - counter then
+        writeln(" ***** for integer range CONSTANT downto EXPRESSION ...  does not work correct");
+        number := 3;
+        okay := FALSE;
+      end if;
+    end for;
+    if counter <> 3 then
+      writeln(" ***** for integer range CONSTANT downto EXPRESSION ...  does not work correct");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    for number range length(striExpr("123456")) downto 4 do
+      incr(counter);
+      if number < 4 or number > 6 or number <> 7 - counter then
+        writeln(" ***** for integer range EXPRESSION downto CONSTANT ...  does not work correct");
+        number := 3;
+        okay := FALSE;
+      end if;
+    end for;
+    if counter <> 3 then
+      writeln(" ***** for integer range EXPRESSION downto CONSTANT ...  does not work correct");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    for number range length(striExpr("123456")) downto length(striExpr("1234")) do
       incr(counter);
       if number < 4 or number > 6 or number <> 7 - counter then
         writeln(" ***** for integer range EXPRESSION downto EXPRESSION ...  does not work correct");

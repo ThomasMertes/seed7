@@ -283,6 +283,8 @@ const proc: process_action (in reference: function, in ref_list: params,
         process(BIN_BIG, function, params, c_expr);
       elsif action_name = "BIN_BINARY" then
         process(BIN_BINARY, function, params, c_expr);
+      elsif action_name = "BIN_GET_BINARY_FROM_SET" then
+        process(BIN_GET_BINARY_FROM_SET, function, params, c_expr);
       elsif action_name = "BIN_LSHIFT" then
         process(BIN_LSHIFT, function, params, c_expr);
       elsif action_name = "BIN_LSHIFT_ASSIGN" then
@@ -1125,8 +1127,12 @@ const proc: process_action (in reference: function, in ref_list: params,
         process(PRC_EXIT, function, params, c_expr);
       elsif action_name = "PRC_FOR_DOWNTO" then
         process(PRC_FOR_DOWNTO, function, params, c_expr);
+      elsif action_name = "PRC_FOR_DOWNTO_STEP" then
+        process(PRC_FOR_DOWNTO_STEP, function, params, c_expr);
       elsif action_name = "PRC_FOR_TO" then
         process(PRC_FOR_TO, function, params, c_expr);
+      elsif action_name = "PRC_FOR_TO_STEP" then
+        process(PRC_FOR_TO_STEP, function, params, c_expr);
       elsif action_name = "PRC_HSIZE" then
         process(PRC_HSIZE, function, params, c_expr);
       elsif action_name = "PRC_IF" then

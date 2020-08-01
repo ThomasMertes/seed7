@@ -243,10 +243,10 @@ const proc: process (STR_APPEND, in reference: function,
       end if;
       if has_temp_values(c_param3) then
         c_expr.expr &:= "{\n";
-        AppendWithDiagnostic(c_param1.temp_decls, c_expr);
-        AppendWithDiagnostic(c_param3.temp_decls, c_expr);
-        AppendWithDiagnostic(c_param1.temp_assigns, c_expr);
-        AppendWithDiagnostic(c_param3.temp_assigns, c_expr);
+        appendWithDiagnostic(c_param1.temp_decls, c_expr);
+        appendWithDiagnostic(c_param3.temp_decls, c_expr);
+        appendWithDiagnostic(c_param1.temp_assigns, c_expr);
+        appendWithDiagnostic(c_param3.temp_assigns, c_expr);
       end if;
       setDiagnosticLine(c_expr);
       if isActionExpression(params[3], "CHR_STR") then
@@ -267,8 +267,8 @@ const proc: process (STR_APPEND, in reference: function,
       end if;
       c_expr.expr &:= ");\n";
       if has_temp_values(c_param3) then
-        AppendWithDiagnostic(c_param1.temp_frees, c_expr);
-        AppendWithDiagnostic(c_param3.temp_frees, c_expr);
+        appendWithDiagnostic(c_param1.temp_frees, c_expr);
+        appendWithDiagnostic(c_param3.temp_frees, c_expr);
         c_expr.expr &:= "}\n";
       end if;
     end if;
@@ -528,8 +528,8 @@ const proc: process_const_str_elemcpy (in reference: function, in reference: par
         c_expr.expr &:= "{\n";
       end if;
       if c_param1.temp_num <> 0 then
-        AppendWithDiagnostic(c_param1.temp_decls, c_expr);
-        AppendWithDiagnostic(c_param1.temp_assigns, c_expr);
+        appendWithDiagnostic(c_param1.temp_decls, c_expr);
+        appendWithDiagnostic(c_param1.temp_assigns, c_expr);
       end if;
       if array_range_check then
         incr(countRangeChecks);
@@ -562,7 +562,7 @@ const proc: process_const_str_elemcpy (in reference: function, in reference: par
         c_expr.expr &:= ");\n";
       end if;
       if c_param1.temp_num <> 0 then
-        AppendWithDiagnostic(c_param1.temp_frees, c_expr);
+        appendWithDiagnostic(c_param1.temp_frees, c_expr);
       end if;
       if c_param1.temp_num <> 0 or array_range_check then
         c_expr.expr &:= "}\n";
@@ -591,10 +591,10 @@ const proc: process_const_str_elemcpy (in reference: function, in reference: par
         c_expr.expr &:= "{\n";
       end if;
       if c_param6.temp_num <> 0 then
-        AppendWithDiagnostic(c_param1.temp_decls, c_expr);
-        AppendWithDiagnostic(c_param6.temp_decls, c_expr);
-        AppendWithDiagnostic(c_param1.temp_assigns, c_expr);
-        AppendWithDiagnostic(c_param6.temp_assigns, c_expr);
+        appendWithDiagnostic(c_param1.temp_decls, c_expr);
+        appendWithDiagnostic(c_param6.temp_decls, c_expr);
+        appendWithDiagnostic(c_param1.temp_assigns, c_expr);
+        appendWithDiagnostic(c_param6.temp_assigns, c_expr);
       end if;
       if array_range_check then
         incr(countRangeChecks);
@@ -627,8 +627,8 @@ const proc: process_const_str_elemcpy (in reference: function, in reference: par
         c_expr.expr &:= ");\n";
       end if;
       if c_param6.temp_num <> 0 then
-        AppendWithDiagnostic(c_param1.temp_frees, c_expr);
-        AppendWithDiagnostic(c_param6.temp_frees, c_expr);
+        appendWithDiagnostic(c_param1.temp_frees, c_expr);
+        appendWithDiagnostic(c_param6.temp_frees, c_expr);
       end if;
       if c_param6.temp_num <> 0 or array_range_check then
         c_expr.expr &:= "}\n";
@@ -655,10 +655,10 @@ const proc: process_const_str_elemcpy (in reference: function, in reference: par
         c_expr.expr &:= "{\n";
       end if;
       if c_param4.temp_num <> 0 then
-        AppendWithDiagnostic(c_param1.temp_decls, c_expr);
-        AppendWithDiagnostic(c_param4.temp_decls, c_expr);
-        AppendWithDiagnostic(c_param1.temp_assigns, c_expr);
-        AppendWithDiagnostic(c_param4.temp_assigns, c_expr);
+        appendWithDiagnostic(c_param1.temp_decls, c_expr);
+        appendWithDiagnostic(c_param4.temp_decls, c_expr);
+        appendWithDiagnostic(c_param1.temp_assigns, c_expr);
+        appendWithDiagnostic(c_param4.temp_assigns, c_expr);
       end if;
       if array_range_check then
         incr(countRangeChecks);
@@ -698,8 +698,8 @@ const proc: process_const_str_elemcpy (in reference: function, in reference: par
         c_expr.expr &:= ");\n";
       end if;
       if c_param4.temp_num <> 0 then
-        AppendWithDiagnostic(c_param1.temp_frees, c_expr);
-        AppendWithDiagnostic(c_param4.temp_frees, c_expr);
+        appendWithDiagnostic(c_param1.temp_frees, c_expr);
+        appendWithDiagnostic(c_param4.temp_frees, c_expr);
       end if;
       if c_param4.temp_num <> 0 or array_range_check then
         c_expr.expr &:= "}\n";
@@ -731,12 +731,12 @@ const proc: process (STR_ELEMCPY, in reference: function,
         c_expr.expr &:= "{\n";
       end if;
       if c_param6.temp_num <> 0 then
-        AppendWithDiagnostic(c_param1.temp_decls, c_expr);
-        AppendWithDiagnostic(c_param4.temp_decls, c_expr);
-        AppendWithDiagnostic(c_param6.temp_decls, c_expr);
-        AppendWithDiagnostic(c_param1.temp_assigns, c_expr);
-        AppendWithDiagnostic(c_param4.temp_assigns, c_expr);
-        AppendWithDiagnostic(c_param6.temp_assigns, c_expr);
+        appendWithDiagnostic(c_param1.temp_decls, c_expr);
+        appendWithDiagnostic(c_param4.temp_decls, c_expr);
+        appendWithDiagnostic(c_param6.temp_decls, c_expr);
+        appendWithDiagnostic(c_param1.temp_assigns, c_expr);
+        appendWithDiagnostic(c_param4.temp_assigns, c_expr);
+        appendWithDiagnostic(c_param6.temp_assigns, c_expr);
       end if;
       if array_range_check then
         incr(countRangeChecks);
@@ -776,9 +776,9 @@ const proc: process (STR_ELEMCPY, in reference: function,
         c_expr.expr &:= ");\n";
       end if;
       if c_param6.temp_num <> 0 then
-        AppendWithDiagnostic(c_param1.temp_frees, c_expr);
-        AppendWithDiagnostic(c_param4.temp_frees, c_expr);
-        AppendWithDiagnostic(c_param6.temp_frees, c_expr);
+        appendWithDiagnostic(c_param1.temp_frees, c_expr);
+        appendWithDiagnostic(c_param4.temp_frees, c_expr);
+        appendWithDiagnostic(c_param6.temp_frees, c_expr);
       end if;
       if c_param6.temp_num <> 0 or array_range_check then
         c_expr.expr &:= "}\n";
@@ -1613,10 +1613,10 @@ const proc: process_const_str_poscpy (in reference: function, in reference: para
       getAnyParamToExpr(param6, c_param6);
       c_expr.expr &:= "{\n";
       if c_param6.temp_num <> 0 then
-        AppendWithDiagnostic(c_param1.temp_decls, c_expr);
-        AppendWithDiagnostic(c_param6.temp_decls, c_expr);
-        AppendWithDiagnostic(c_param1.temp_assigns, c_expr);
-        AppendWithDiagnostic(c_param6.temp_assigns, c_expr);
+        appendWithDiagnostic(c_param1.temp_decls, c_expr);
+        appendWithDiagnostic(c_param6.temp_decls, c_expr);
+        appendWithDiagnostic(c_param1.temp_assigns, c_expr);
+        appendWithDiagnostic(c_param6.temp_assigns, c_expr);
       end if;
       if array_range_check then
         incr(countRangeChecks);
@@ -1651,8 +1651,8 @@ const proc: process_const_str_poscpy (in reference: function, in reference: para
         c_expr.expr &:= "], str2->mem, str2->size*sizeof(strElemType));\n";
       end if;
       if c_param6.temp_num <> 0 then
-        AppendWithDiagnostic(c_param1.temp_frees, c_expr);
-        AppendWithDiagnostic(c_param6.temp_frees, c_expr);
+        appendWithDiagnostic(c_param1.temp_frees, c_expr);
+        appendWithDiagnostic(c_param6.temp_frees, c_expr);
       end if;
       c_expr.expr &:= "}\n";
     end if;
@@ -1681,12 +1681,12 @@ const proc: process (STR_POSCPY, in reference: function,
       getAnyParamToExpr(params[6], c_param6);
       c_expr.expr &:= "{\n";
       if c_param6.temp_num <> 0 then
-        AppendWithDiagnostic(c_param1.temp_decls, c_expr);
-        AppendWithDiagnostic(c_param4.temp_decls, c_expr);
-        AppendWithDiagnostic(c_param6.temp_decls, c_expr);
-        AppendWithDiagnostic(c_param1.temp_assigns, c_expr);
-        AppendWithDiagnostic(c_param4.temp_assigns, c_expr);
-        AppendWithDiagnostic(c_param6.temp_assigns, c_expr);
+        appendWithDiagnostic(c_param1.temp_decls, c_expr);
+        appendWithDiagnostic(c_param4.temp_decls, c_expr);
+        appendWithDiagnostic(c_param6.temp_decls, c_expr);
+        appendWithDiagnostic(c_param1.temp_assigns, c_expr);
+        appendWithDiagnostic(c_param4.temp_assigns, c_expr);
+        appendWithDiagnostic(c_param6.temp_assigns, c_expr);
       end if;
       if array_range_check then
         incr(countRangeChecks);
@@ -1728,9 +1728,9 @@ const proc: process (STR_POSCPY, in reference: function,
         c_expr.expr &:= ")-1], str2->mem, str2->size*sizeof(strElemType));\n";
       end if;
       if c_param6.temp_num <> 0 then
-        AppendWithDiagnostic(c_param1.temp_frees, c_expr);
-        AppendWithDiagnostic(c_param4.temp_frees, c_expr);
-        AppendWithDiagnostic(c_param6.temp_frees, c_expr);
+        appendWithDiagnostic(c_param1.temp_frees, c_expr);
+        appendWithDiagnostic(c_param4.temp_frees, c_expr);
+        appendWithDiagnostic(c_param6.temp_frees, c_expr);
       end if;
       c_expr.expr &:= "}\n";
     end if;

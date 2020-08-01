@@ -265,6 +265,13 @@ const func bin64: rotRight (in bin64: x, in integer: shiftCount) is
 
 
 (**
+ *  Get 64 bits from a bitset starting with lowestBitNum.
+ *)
+const func bin64: getBinary (in bitset: set1,
+                             in integer: lowestBitNum) is action "BIN_GET_BINARY_FROM_SET";
+
+
+(**
  *  Convert a string of eight little-endian bytes to a bin64 value.
  *  @return the bin64 value.
  *)

@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  s7   Seed7 interpreter                                          */
-/*  Copyright (C) 1990 - 2000, 2014  Thomas Mertes                  */
+/*  Copyright (C) 1990 - 2015  Thomas Mertes                        */
 /*                                                                  */
 /*  This program is free software; you can redistribute it and/or   */
 /*  modify it under the terms of the GNU General Public License as  */
@@ -20,7 +20,7 @@
 /*                                                                  */
 /*  Module: Analyzer - Error                                        */
 /*  File: seed7/src/error.c                                         */
-/*  Changes: 1990, 1991, 1992, 1993, 1994, 2014  Thomas Mertes      */
+/*  Changes: 1990 - 1994, 2014, 2015  Thomas Mertes                 */
 /*  Content: Submit normal compile time error messages.             */
 /*                                                                  */
 /*  Normal compile time error messages do not terminate the         */
@@ -32,16 +32,20 @@
 
 #include "stdio.h"
 #include "stdlib.h"
+#include "string.h"
 
 #include "common.h"
 #include "data.h"
 #include "heaputl.h"
+#include "striutl.h"
 #include "datautl.h"
 #include "traceutl.h"
 #include "infile.h"
 #include "info.h"
 #include "symbol.h"
 #include "stat.h"
+#include "chr_rtl.h"
+#include "con_drv.h"
 
 #undef EXTERN
 #define EXTERN
@@ -53,7 +57,219 @@
 #endif
 
 
+#define LINE_SIZE_INCREMENT 256
 #define MAX_AREA_SIZE 256
+#define BUFFER_SIZE 1024
+
+
+
+static ustriType read_ustri8_line (memSizeType *line_len)
+
+  {
+    int ch;
+    memSizeType buffer_len = 0;
+    ustriType resized_line;
+    ustriType line = NULL;
+
+  /* read_ustri8_line */
+    *line_len = 0;
+    if ((ch = next_character()) == '\r') {
+      ch = next_character();
+    } /* if */
+    while (ch != '\r' && ch != '\n' && ch != EOF) {
+      if (*line_len >= buffer_len &&
+          (resized_line = REALLOC_USTRI(line, buffer_len,
+                                        buffer_len + LINE_SIZE_INCREMENT)) != NULL) {
+        line = resized_line;
+        buffer_len += LINE_SIZE_INCREMENT;
+      } /* if */
+      if (*line_len >= buffer_len) {
+        ch = EOF;
+      } else {
+        line[*line_len] = (ucharType) ch;
+        (*line_len)++;
+        ch = next_character();
+      } /* if */
+    } /*while */
+    line = REALLOC_USTRI(line, buffer_len, *line_len);
+    return line;
+  } /* read_ustri8_line */
+
+
+
+striType ustri8_buffer_to_stri (ustriType ustri, const memSizeType length)
+
+  {
+    memSizeType stri_size = 0;
+    memSizeType converted_size;
+    memSizeType unconverted;
+    ucharType ch;
+    striType resized_stri;
+    striType stri;
+
+  /* ustri8_buffer_to_stri */
+    unconverted = length;
+    if (ALLOC_STRI_CHECK_SIZE(stri, length)) {
+      do {
+        unconverted = utf8_to_stri(&stri->mem[stri_size], &converted_size,
+                                   &ustri[length - unconverted], unconverted);
+        stri_size += converted_size;
+        if (unconverted != 0) {
+          ch = ustri[length - unconverted];
+          if (ch >= 0xC0 && ch <= 0xFF) {
+            /* ch range 192 to 255 (leading bits 11......) */
+            do {
+              stri->mem[stri_size] = (strElemType) ch;
+              stri_size++;
+              unconverted--;
+              if (unconverted != 0) {
+                ch = ustri[length - unconverted];
+              } /* if */
+            } while (unconverted != 0 && ch >= 0x80 && ch <= 0xBF);
+            /* ch range outside 128 to 191 (leading bits not 10......) */
+          } else {
+            stri->mem[stri_size] = (strElemType) ch;
+            stri_size++;
+            unconverted--;
+          } /* if */
+        } /* if */
+      } while (unconverted != 0);
+      REALLOC_STRI_SIZE_SMALLER(resized_stri, stri, length, stri_size);
+      if (resized_stri == NULL) {
+        FREE_STRI(stri, length);
+        stri = NULL;
+      } else {
+        stri = resized_stri;
+        COUNT3_STRI(length, stri_size);
+        stri->size = stri_size;
+      } /* if */
+    } /* if */
+    return stri;
+  } /* ustri8_buffer_to_stri */
+
+
+
+static memSizeType calculate_output_length (striType stri)
+
+  {
+    memSizeType pos;
+    charType ch;
+    memSizeType width;
+    char buffer[51];
+    memSizeType output_length = 0;
+
+  /* calculate_output_length */
+    for (pos = 0; pos < stri->size; pos++) {
+      ch = stri->mem[pos];
+      if ((ch >= 0xd800 && ch <= 0xdfff) || ch > 0x10ffff) {
+        /* UTF-16 surrogate character or non Unicode character. */
+        output_length++;
+      } else {
+        width = (memSizeType) chrWidth(ch);
+        if (width >= 1) {
+          output_length += width;
+        } else if (ch < ' ') {
+          if (ch == '\t') {
+            width = 8 - output_length % 8;
+            output_length += width;
+          } else {
+            output_length += strlen(stri_escape_sequence[ch]);
+          } /* if */
+        } else {
+          sprintf(buffer, "\\" FMT_U32 ";", ch);
+          output_length += strlen(buffer);
+        } /* if */
+      } /* if */
+    } /* for */
+    return output_length;
+  } /* calculate_output_length */
+
+
+
+static void print_stri (striType stri)
+
+  {
+    memSizeType pos;
+    charType ch;
+    memSizeType width;
+    memSizeType output_length = 0;
+    struct striStruct stri1_buffer;
+    striType stri1;
+    char buffer[51];
+
+  /* print_stri */
+    for (pos = 0; pos < stri->size; pos++) {
+      ch = stri->mem[pos];
+      if ((ch >= 0xd800 && ch <= 0xdfff) || ch > 0x10ffff) {
+        /* UTF-16 surrogate character or non Unicode character. */
+        prot_cstri("?");
+        output_length++;
+      } else {
+        width = (memSizeType) chrWidth(ch);
+        if (width >= 1) {
+          stri1 = chrStrMacro(ch, stri1_buffer);
+          conWrite(stri1);
+          output_length += width;
+        } else if (ch < ' ') {
+          if (ch == '\t') {
+            width = 8 - output_length % 8;
+            memset(buffer, ' ', width);
+            buffer[width] = '\0';
+            prot_cstri(buffer);
+            output_length += width;
+          } else {
+            prot_cstri(stri_escape_sequence[ch]);
+            output_length += strlen(stri_escape_sequence[ch]);
+          } /* if */
+        } else {
+          sprintf(buffer, "\\" FMT_U32 ";", ch);
+          prot_cstri(buffer);
+          output_length += strlen(buffer);
+        } /* if */
+      } /* if */
+    } /* for */
+  } /* print_stri */
+
+
+
+static void read_and_print_line (long line_start_position, long current_position)
+
+  {
+    ustriType line = NULL;
+    memSizeType line_len = 0;
+    memSizeType part1_len = 0;
+    striType part1;
+    memSizeType error_column;
+    striType lineStri;
+
+  /* read_and_print_line */
+    line = read_ustri8_line(&line_len);
+    if (line_start_position <= current_position) {
+      if (line_start_position + 1 < current_position) {
+        part1_len = (memSizeType) (current_position - line_start_position - 1);
+        part1 = ustri8_buffer_to_stri(line, part1_len);
+        error_column = calculate_output_length(part1);
+        FREE_STRI(part1, part1->size);
+      } else {
+        error_column = 0;
+      } /* if */
+      lineStri = ustri8_buffer_to_stri(line, line_len);
+      print_stri(lineStri);
+      FREE_STRI(lineStri, lineStri->size);
+      prot_nl();
+      for (; error_column > 0; error_column--) {
+        prot_cstri("-");
+      } /* for */
+      prot_cstri("^");
+    } else {
+      lineStri = ustri8_buffer_to_stri(line, line_len);
+      print_stri(lineStri);
+      FREE_STRI(lineStri, lineStri->size);
+      prot_nl();
+    } /* if */
+    prot_nl();
+    UNALLOC_USTRI(line, line_len);
+  } /* read_and_print_line */
 
 
 
@@ -69,7 +285,6 @@ static void print_line (lineNumType err_line)
     boolType searching;
     int area_size;
     int area_pos;
-    int ch;
 
   /* print_line */
     /* printf("err_line=%lu in_file.line=%lu\n", err_line, in_file.line); */
@@ -111,21 +326,7 @@ static void print_line (lineNumType err_line)
         } while (searching && buffer_start_position > 0);
         if (!searching) {
           IN_FILE_SEEK(nl_table[table_pos]);
-          if ((ch = next_character()) == '\r') {
-            ch = next_character();
-          } /* if */
-          while (ch != '\r' && ch != '\n' && ch != EOF) {
-            if (ch == '\t') {
-              prot_cstri(" ");
-            } else if (ch < ' ' || ch > '~') {
-              prot_cstri("?");
-            } else {
-              prot_cchar((char) ch);
-            } /* if */
-            ch = next_character();
-          } /*while */
-          prot_nl();
-          prot_nl();
+          read_and_print_line(current_position + 1, current_position);
           FREE_TABLE(nl_table, long, table_size);
         } /* if */
       } /* if */
@@ -139,61 +340,58 @@ static void print_error_line (void)
 
   {
     long current_position;
+    long line_start_position;
     long buffer_start_position;
-    int start_index;
-    ucharType buffer[1025];
-    int buffer_size;
+    ucharType buffer[BUFFER_SIZE];
+    boolType searchNewLine = TRUE;
+    int chars_to_read;
+    int chars_in_buffer;
     int start;
-    int stop;
-    int number;
     int ch;
 
   /* print_error_line */
     if (in_file.name_ustri != NULL && in_file.curr_infile != NULL &&
         (current_position = IN_FILE_TELL()) >= 0L) {
-      if (current_position >= 512) {
-        buffer_start_position = current_position - 512;
-        start_index = 511;
+      if (current_position >= BUFFER_SIZE + 1) {
+        chars_to_read = BUFFER_SIZE;
+        buffer_start_position = current_position - BUFFER_SIZE - 1;
       } else {
+        chars_to_read = (int) current_position - 1;
         buffer_start_position = 0;
-        if (current_position > 0) {
-          start_index = (int) (current_position - 1);
+      } /* if */
+      do {
+        /* printf("buffer_start_position: %ld\n", buffer_start_position);
+	   printf("chars_to_read: %d\n", chars_to_read); */
+        IN_FILE_SEEK(buffer_start_position);
+        chars_in_buffer = 0;
+        while (chars_in_buffer < chars_to_read && (ch = next_character()) != EOF) {
+          buffer[chars_in_buffer] = (ucharType) ch;
+          chars_in_buffer++;
+        } /* if */
+        /* prot_cstri("buf: ");
+        fwrite(buffer, 1, (size_t) chars_in_buffer, stdout);
+	prot_nl(); */
+        start = chars_in_buffer - 1;
+        while (start >= 0 && buffer[start] != '\n' &&
+            buffer[start] != '\r') {
+	  /* printf("buffer[%d]=%d\n", start, buffer[start]); */
+          start--;
+        } /* while */
+        if (start < 0 && buffer_start_position != 0) {
+          if (buffer_start_position >= BUFFER_SIZE) {
+            chars_to_read = BUFFER_SIZE;
+            buffer_start_position -= BUFFER_SIZE;
+          } else {
+            chars_to_read = (int) buffer_start_position;
+            buffer_start_position = 0;
+          } /* if */
         } else {
-          start_index = 0;
+          searchNewLine = FALSE;
         } /* if */
-      } /* if */
-      IN_FILE_SEEK(buffer_start_position);
-      buffer_size = 0;
-      while (buffer_size < 1024 && (ch = next_character()) != EOF) {
-        buffer[buffer_size] = (ucharType) ch;
-        buffer_size++;
-      } /* if */
-      start = start_index - 1;
-      while (start >= 0 && buffer[start] != '\n' &&
-          buffer[start] != '\r') {
-        start--;
-      } /* while */
-      stop = start_index;
-      while (stop < buffer_size && buffer[stop] != '\n' &&
-          buffer[stop] != '\r') {
-        stop++;
-      } /* while */
-/*    printf("******************************\n\n"); */
-/*    printf("%d\n", in_file.character); */
-      for (number = start + 1; number < stop; number++) {
-        if (buffer[number] == '\t') {
-          buffer[number] = ' ';
-        } else if (buffer[number] < ' ' || buffer[number] > '~') {
-          buffer[number] = '?';
-        } /* if */
-      } /* for */
-      fwrite(&buffer[start + 1], 1, (size_t) (stop - start - 1), stdout);
-      prot_nl();
-      for (number = 0; number < start_index - start - 1; number++) {
-        prot_cstri("-");
-      } /* for */
-      prot_cstri("^");
-      prot_nl();
+      } while (searchNewLine);
+      line_start_position = buffer_start_position + start + 1;
+      IN_FILE_SEEK(line_start_position);
+      read_and_print_line(line_start_position, current_position);
       IN_FILE_SEEK(current_position);
     } /* if */
   } /* print_error_line */
@@ -203,7 +401,13 @@ static void print_error_line (void)
 static void write_place (errorType err, const const_ustriType name, const lineNumType line)
 
   { /* write_place */
-    printf("*** %s(%1u):%d: ", name, line, ((int) err) + 1);
+    prot_cstri("*** ");
+    prot_cstri((const_cstriType) name);
+    prot_cstri("(");
+    prot_int((intType) line);
+    prot_cstri("):");
+    prot_int((intType) err + 1);
+    prot_cstri(": ");
   } /* write_place */
 
 
@@ -1009,7 +1213,10 @@ void err_integer (errorType err, intType number)
 
 void err_cchar (errorType err, int character)
 
-  { /* err_cchar */
+  {
+    char buffer[100];
+
+  /* err_cchar */
     place_of_error(err);
     switch (err) {
       case CHAR_ILLEGAL:
@@ -1044,10 +1251,11 @@ void err_cchar (errorType err, int character)
         break;
     } /* switch */
     if (character >= ' ' && character <= '~') {
-      printf("%c\"\n", character);
+      sprintf(buffer, "%c\"\n", character);
     } else {
-      printf("\\%u;\" (U+%04x)\n", character, character);
+      sprintf(buffer, "\\%u;\" (U+%04x)\n", character, character);
     } /* if */
+    prot_cstri(buffer);
     print_error_line();
     display_compilation_info();
   } /* err_cchar */
@@ -1056,7 +1264,10 @@ void err_cchar (errorType err, int character)
 
 void err_char (errorType err, charType character)
 
-  { /* err_char */
+  {
+    char buffer[100];
+
+  /* err_char */
     place_of_error(err);
     switch (err) {
       case CHAR_ILLEGAL:
@@ -1082,10 +1293,12 @@ void err_char (errorType err, charType character)
         break;
     } /* switch */
     if (character >= ' ' && character <= '~') {
-      printf(" \"%c\"\n", (char) character);
+      sprintf(buffer, " \"%c\"\n", (char) character);
     } else {
-      printf(" \"\\%lu;\" (U+%04lx)\n", (unsigned long) character, (unsigned long) character);
+      sprintf(buffer, " \"\\%lu;\" (U+%04lx)\n",
+              (unsigned long) character, (unsigned long) character);
     } /* if */
+    prot_cstri(buffer);
     print_error_line();
     display_compilation_info();
   } /* err_char */

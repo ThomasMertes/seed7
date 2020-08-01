@@ -76,10 +76,10 @@ const proc: process (ITF_CPY, in reference: function,
     process_expr(params[3], c_param3);
     c_expr.expr &:= "{\n";
     if has_temp_values(c_param3) then
-      AppendWithDiagnostic(c_param1.temp_decls, c_expr);
-      AppendWithDiagnostic(c_param3.temp_decls, c_expr);
-      AppendWithDiagnostic(c_param1.temp_assigns, c_expr);
-      AppendWithDiagnostic(c_param3.temp_assigns, c_expr);
+      appendWithDiagnostic(c_param1.temp_decls, c_expr);
+      appendWithDiagnostic(c_param3.temp_decls, c_expr);
+      appendWithDiagnostic(c_param1.temp_assigns, c_expr);
+      appendWithDiagnostic(c_param3.temp_assigns, c_expr);
     end if;
     setDiagnosticLine(c_expr);
     if isNormalVariable(params[1]) then
@@ -120,8 +120,8 @@ const proc: process (ITF_CPY, in reference: function,
     process_destr_call(getExprResultType(params[1]),
         "old_struct", c_expr.expr);
     if has_temp_values(c_param3) then
-      AppendWithDiagnostic(c_param1.temp_frees, c_expr);
-      AppendWithDiagnostic(c_param3.temp_frees, c_expr);
+      appendWithDiagnostic(c_param1.temp_frees, c_expr);
+      appendWithDiagnostic(c_param3.temp_frees, c_expr);
     end if;
     c_expr.expr &:= "}\n";
   end func;
