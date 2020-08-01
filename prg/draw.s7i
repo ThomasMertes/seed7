@@ -545,7 +545,7 @@ const proc: palette is func
 const proc: sleep (in integer: seconds) is func
   begin
     DRAW_FLUSH;
-    UNX_SLEEP(seconds);
+    CMD_SLEEP(seconds);
   end func;
 
 

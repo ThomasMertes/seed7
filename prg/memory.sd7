@@ -603,25 +603,6 @@ const array string: dig_right_pic is [](
   " XXX XXX     X  ");
 
 
-const array string: tree_pic is [](
-  "       GG       ",
-  "     GgGGgG     ",
-  "   GGgGGgGGgG   ",
-  "      GgGG      ",
-  "    GGGgGGgG    ",
-  "  GgGgGGGgGGgG  ",
-  "     GgGGGG     ",
-  "   GGGGGgGGgG   ",
-  " GgGGgGGGGgGGgG ",
-  "      GgGG      ",
-  "    GgGGgGgG    ",
-  "  GgGGGgGGGgGG  ",
-  "GgGGGgGGGgGGGGgG",
-  "       bb       ",
-  "       bb       ",
-  "       bb       ");
-
-
 const array string: small_bush_pic is [](
   "     G GG       ",
   "   G  GG  GG  G ",
@@ -674,25 +655,6 @@ const array string: big_bush_pic is [](
   "       GGGGbb bb bb     G       ",
   "            bbbbbbGGGG          ",
   "             bbbb               ");
-
-
-const array string: wood_pic is [](
-  "bbbbbbbbbbbbbbrr",
-  "rrbbbbbrrrrbbbbb",
-  "bbrrrrrbbbbrrrbb",
-  "bbbbbbbbbbbbbbbb",
-  "rrrbbbbbbbbbbbbb",
-  "bbbrrbbbbrrrrrrb",
-  "bbbbbrrrrrbbbbbb",
-  "bbbbbbbbbbbbrrrr",
-  "rrrrbbbbbrrrbbbb",
-  "bbbbrrrrrbbbbbbb",
-  "bbbbbbbbbbbbbrrr",
-  "rrbbbbbbrrrrrbbb",
-  "bbbbbbbbbbbbbbbb",
-  "bbbrrrrbbbbbrrrb",
-  "rrrbbbbrrrrrbbbb",
-  "bbbbbbbbbbbbbbbb");
 
 
 const array string: chain_pic is [](
@@ -769,41 +731,6 @@ const array string: door_pic is [](
   "B  B  B  B  B  B",
   "B  B  B  B  B  B",
   "BBBBBBBBBBBBBBBB");
-
-
-const array string: ruby_pic is [](
-  "                                ",
-  "                                ",
-  "                                ",
-  "                                ",
-  "               Xr               ",
-  "              XXrr              ",
-  "             XXRRrr             ",
-  "            XXXRRrrr            ",
-  "           XXXRRRRrrr           ",
-  "          XXXXRRRRrrrr          ",
-  "         XXXXRRRRRRrrrr         ",
-  "        XXXXXRRRRRRrrrrr        ",
-  "       XXXXXRRRRRRRRrrrrr       ",
-  "      XXXXXXRRRRRRRRrrrrrr      ",
-  "     XXXXXXRRRRRRRRRRrrrrrr     ",
-  "    XXXXXXXRRRRRRRRRRrrrrrrr    ",
-  "   XXXXXXXRRRRRRRRRRRRrrrrrrr   ",
-  "  XXXXXXXXRRRRRRRRRRRRrrrrrrrr  ",
-  " XXXXXXXXRRRRRRRRRRRRRRrrrrrrrr ",
-  "XXXXXXXXXRRRRRRRRRRRRRRrrrrrrrrr",
-  "RRRRRRRRrrrrrrrrrrrrrrrrXXXXXXXX",
-  "  RRRRRRRrrrrrrrrrrrrrrXXXXXXX  ",
-  "    RRRRRRrrrrrrrrrrrrXXXXXX    ",
-  "      RRRRRrrrrrrrrrrXXXXX      ",
-  "        RRRRrrrrrrrrXXXX        ",
-  "          RRRrrrrrrXXX          ",
-  "            RRrrrrXX            ",
-  "              RrrX              ",
-  "               RX               ",
-  "                                ",
-  "                                ",
-  "                                ");
 
 
 const array string: jade_figurine_pic is [](

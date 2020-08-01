@@ -164,6 +164,33 @@ listtype arguments;
 
 #ifdef ANSI_C
 
+objecttype ref_arrtolist (listtype arguments)
+#else
+
+objecttype ref_arrtolist (arguments)
+listtype arguments;
+#endif
+
+  {
+    objecttype obj_arg1;
+    errinfotype err_info = OKAY_NO_ERROR;
+    listtype result;
+
+  /* ref_arrtolist */
+    isit_reference(arg_1(arguments));
+    obj_arg1 = take_reference(arg_1(arguments));
+    isit_array(obj_arg1);
+    array_to_list(take_array(obj_arg1), &result, &err_info);
+    if (err_info != OKAY_NO_ERROR) {
+      return(raise_exception(SYS_MEM_EXCEPTION));
+    } /* if */
+    return(bld_reflist_temp(result));
+  } /* ref_arrtolist */
+
+
+
+#ifdef ANSI_C
+
 objecttype ref_body (listtype arguments)
 #else
 
@@ -204,6 +231,35 @@ listtype arguments;
     result = bld_reference_temp(arg_1(arguments));
     return(result);
   } /* ref_build */
+
+
+
+#ifdef ANSI_C
+
+objecttype ref_cmp (listtype arguments)
+#else
+
+objecttype ref_cmp (arguments)
+listtype arguments;
+#endif
+
+  {
+    uinttype ref1;
+    uinttype ref2;
+
+  /* ref_cmp */
+    isit_reference(arg_1(arguments));
+    isit_reference(arg_2(arguments));
+    ref1 = (uinttype) take_reference(arg_1(arguments));
+    ref2 = (uinttype) take_reference(arg_2(arguments));
+    if (ref1 < ref2) {
+      return(bld_int_temp(-1));
+    } else if (ref1 > ref2) {
+      return(bld_int_temp(1));
+    } else {
+      return(bld_int_temp(0));
+    } /* if */
+  } /* ref_cmp */
 
 
 
@@ -373,6 +429,22 @@ listtype arguments;
 
 #ifdef ANSI_C
 
+objecttype ref_hashcode (listtype arguments)
+#else
+
+objecttype ref_hashcode (arguments)
+listtype arguments;
+#endif
+
+  { /* ref_hashcode */
+    isit_reference(arg_1(arguments));
+    return(bld_int_temp((inttype) take_reference(arg_1(arguments))));
+  } /* ref_hashcode */
+
+
+
+#ifdef ANSI_C
+
 objecttype ref_issymb (listtype arguments)
 #else
 
@@ -436,7 +508,7 @@ listtype arguments;
     objecttype obj_arg1;
     loclisttype local_elem;
     listtype *list_insert_place;
-    errinfotype err_info = NO_ERROR;
+    errinfotype err_info = OKAY_NO_ERROR;
     listtype result;
 
   /* ref_locals */
@@ -452,7 +524,7 @@ listtype arguments;
         local_elem = local_elem->next;
       } /* while */
     } /* if */
-    if (err_info != NO_ERROR) {
+    if (err_info != OKAY_NO_ERROR) {
       emptylist(result);
       return(raise_exception(SYS_MEM_EXCEPTION));
     } /* if */
@@ -472,7 +544,7 @@ listtype arguments;
 
   {
     objecttype obj_arg1;
-    errinfotype err_info = NO_ERROR;
+    errinfotype err_info = OKAY_NO_ERROR;
     listtype result;
 
   /* ref_locini */
@@ -483,7 +555,7 @@ listtype arguments;
       copy_list(take_reference(obj_arg1)->value.blockvalue->loc_init,
           &result, &err_info);
 #endif
-      if (err_info != NO_ERROR) {
+      if (err_info != OKAY_NO_ERROR) {
         return(raise_exception(SYS_MEM_EXCEPTION));
       } /* if */
     } else {
@@ -699,7 +771,7 @@ listtype arguments;
     objecttype obj_arg1;
     loclisttype local_elem;
     listtype *list_insert_place;
-    errinfotype err_info = NO_ERROR;
+    errinfotype err_info = OKAY_NO_ERROR;
     listtype result;
 
   /* ref_params */
@@ -718,7 +790,7 @@ listtype arguments;
       result = create_parameter_list(obj_arg1->entity->name_list,
           &err_info);
     } /* if */
-    if (err_info != NO_ERROR) {
+    if (err_info != OKAY_NO_ERROR) {
       emptylist(result);
       return(raise_exception(SYS_MEM_EXCEPTION));
     } /* if */
@@ -837,6 +909,33 @@ listtype arguments;
     } /* if */
     return(result);
   } /* ref_scan */
+
+
+
+#ifdef ANSI_C
+
+objecttype ref_scttolist (listtype arguments)
+#else
+
+objecttype ref_scttolist (arguments)
+listtype arguments;
+#endif
+
+  {
+    objecttype obj_arg1;
+    errinfotype err_info = OKAY_NO_ERROR;
+    listtype result;
+
+  /* ref_scttolist */
+    isit_reference(arg_1(arguments));
+    obj_arg1 = take_reference(arg_1(arguments));
+    isit_struct(obj_arg1);
+    struct_to_list(take_struct(obj_arg1), &result, &err_info);
+    if (err_info != OKAY_NO_ERROR) {
+      return(raise_exception(SYS_MEM_EXCEPTION));
+    } /* if */
+    return(bld_reflist_temp(result));
+  } /* ref_scttolist */
 
 
 
@@ -1112,7 +1211,7 @@ listtype arguments;
     objecttype obj_arg1;
     stritype str1;
     listtype lst;
-    errinfotype err_info = NO_ERROR;
+    errinfotype err_info = OKAY_NO_ERROR;
     objecttype result;
 
   /* ref_value */
@@ -1158,7 +1257,7 @@ listtype arguments;
       case MATCHOBJECT:
       case CALLOBJECT:
         copy_list(take_list(obj_arg1), &lst, &err_info);
-        if (err_info != NO_ERROR) {
+        if (err_info != OKAY_NO_ERROR) {
           return(raise_exception(SYS_MEM_EXCEPTION));
         } /* if */
         result = bld_reflist_temp(lst);

@@ -4522,6 +4522,7 @@ CONTENTS
     ARR_  array operations
     BLN_  boolean operations
     CHR_  char operations
+    CMD_  Various directory, file and other commands
     DCL_  Declaration operations
     DRW_  Drawing operations
     ENU_  Enumeration operations
@@ -4540,7 +4541,6 @@ CONTENTS
     STR_  string operations
     TIM_  time and duration operations
     TYP_  type operations
-    UNX_  Portable operating system access
 
   The following list shows actions which are used with more than
   one type:

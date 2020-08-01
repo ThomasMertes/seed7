@@ -36,6 +36,7 @@
 #include "blnlib.h"
 #include "chrlib.h"
 #include "clslib.h"
+#include "cmdlib.h"
 #include "dcllib.h"
 #include "drwlib.h"
 #include "enulib.h"
@@ -55,7 +56,6 @@
 #include "strlib.h"
 #include "timlib.h"
 #include "typlib.h"
-#include "unxlib.h"
 #include "ut8lib.h"
 
 #undef EXTERN
@@ -137,6 +137,17 @@ static primactrecord prim_act_table[] = {
     { "CLS_EQ",            cls_eq,            },
     { "CLS_NE",            cls_ne,            },
     { "CLS_SELECT",        cls_select,        },
+
+    { "CMD_CHDIR",         cmd_chdir,         },
+    { "CMD_COPY",          cmd_copy,          },
+    { "CMD_GETCWD",        cmd_getcwd,        },
+    { "CMD_LNG",           cmd_lng,           },
+    { "CMD_LS",            cmd_ls,            },
+    { "CMD_MKDIR",         cmd_mkdir,         },
+    { "CMD_MOVE",          cmd_move,          },
+    { "CMD_REMOVE",        cmd_remove,        },
+    { "CMD_SH",            cmd_sh,            },
+    { "CMD_SLEEP",         cmd_sleep,         },
 
     { "DCL_ATTR",          dcl_attr,          },
     { "DCL_CONST",         dcl_const,         },
@@ -220,6 +231,7 @@ static primactrecord prim_act_table[] = {
     { "FIL_SEEK",          fil_seek,          },
     { "FIL_STRI_READ",     fil_stri_read,     },
     { "FIL_TELL",          fil_tell,          },
+    { "FIL_VALUE",         fil_value,         },
     { "FIL_WORD_READ",     fil_word_read,     },
     { "FIL_WRITE",         fil_write,         },
 
@@ -413,8 +425,10 @@ static primactrecord prim_act_table[] = {
 
 #ifdef WITH_REFERENCE
     { "REF_ADDR",          ref_addr,          },
+    { "REF_ARRTOLIST",     ref_arrtolist,     },
     { "REF_BODY",          ref_body,          },
     { "REF_BUILD",         ref_build,         },
+    { "REF_CMP",           ref_cmp,           },
     { "REF_CONTENT",       ref_content,       },
     { "REF_CONV",          ref_conv,          },
     { "REF_CPY",           ref_cpy,           },
@@ -422,6 +436,7 @@ static primactrecord prim_act_table[] = {
     { "REF_DEREF",         ref_deref,         },
     { "REF_EQ",            ref_eq,            },
     { "REF_FIND",          ref_find,          },
+    { "REF_HASHCODE",      ref_hashcode,      },
     { "REF_ISSYMB",        ref_issymb,        },
     { "REF_ISVAR",         ref_isvar,         },
     { "REF_LOCALS",        ref_locals,        },
@@ -437,6 +452,7 @@ static primactrecord prim_act_table[] = {
     { "REF_RESINI",        ref_resini,        },
     { "REF_RESULT",        ref_result,        },
     { "REF_SCAN",          ref_scan,          },
+    { "REF_SCTTOLIST",     ref_scttolist,     },
     { "REF_SELECT",        ref_select,        },
     { "REF_STR",           ref_str,           },
     { "REF_SYMB",          ref_symb,          },
@@ -571,17 +587,6 @@ static primactrecord prim_act_table[] = {
     { "TYP_VALUE",         typ_value,         },
     { "TYP_VARCONV",       typ_varconv,       },
     { "TYP_VARFUNC",       typ_varfunc,       },
-
-    { "UNX_CD",            unx_cd,            },
-    { "UNX_CP",            unx_cp,            },
-    { "UNX_LNG",           unx_lng,           },
-    { "UNX_LS",            unx_ls,            },
-    { "UNX_MKDIR",         unx_mkdir,         },
-    { "UNX_MV",            unx_mv,            },
-    { "UNX_PWD",           unx_pwd,           },
-    { "UNX_RM",            unx_rm,            },
-    { "UNX_SH",            unx_sh,            },
-    { "UNX_SLEEP",         unx_sleep,         },
 
     { "UT8_GETC",          ut8_getc,          },
     { "UT8_L_RD",          ut8_l_rd,          },

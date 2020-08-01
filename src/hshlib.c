@@ -179,56 +179,6 @@ errinfotype *err_info;
 
 #ifdef ANSI_C
 
-static inttype size_helem (helemtype helem)
-#else
-
-static inttype size_helem (helem)
-helemtype helem;
-#endif
-
-  { /* size_helem */
-    if (helem != NULL) {
-      return(size_helem(helem->next_less) + 
-          size_helem(helem->next_greater));
-    } else {
-      return(0);
-    } /* if */
-  } /* size_helem */
-
-
-
-#ifdef ANSI_C
-
-static inttype size_hash (hashtype hash)
-#else
-
-static inttype size_hash (hash)
-hashtype hash;
-#endif
-
-  {
-    int number;
-    helemtype *curr_helem;
-    inttype result;
-
-  /* size_hash */
-    result = 0;
-    if (hash != NULL) {
-      number = hash->table_size;
-      curr_helem = &hash->table[0];
-      while (number > 0) {
-        result += size_helem(*curr_helem);
-        number--;
-        curr_helem++;
-      } /* while */
-    } /* if */
-    return(result);
-  } /* size_hash */
-
-
-
-#ifdef ANSI_C
-
 static helemtype copy_helem (helemtype source_helem,
     objecttype key_create_func, objecttype data_create_func, errinfotype *err_info)
 #else
@@ -303,7 +253,7 @@ errinfotype *err_info;
         number = source_hash->table_size;
         source_helem = &source_hash->table[0];
         dest_helem = &dest_hash->table[0];
-        while (number > 0 && *err_info == NO_ERROR) {
+        while (number > 0 && *err_info == OKAY_NO_ERROR) {
           *dest_helem = copy_helem(*source_helem, key_create_func, data_create_func, err_info);
           number--;
           source_helem++;
@@ -315,6 +265,63 @@ errinfotype *err_info;
     } /* if */
     return(dest_hash);
   } /* copy_hash */
+
+
+
+#ifdef ANSI_C
+
+static inttype size_helem (helemtype helem)
+#else
+
+static inttype size_helem (helem)
+helemtype helem;
+#endif
+
+  {
+    inttype result;
+
+  /* size_helem */
+    result = 1;
+    if (helem->next_less != NULL) {
+      result += size_helem(helem->next_less);
+    } /* if */
+    if (helem->next_greater != NULL) {
+      result += size_helem(helem->next_greater);
+    } /* if */
+    return(result);
+  } /* size_helem */
+
+
+
+#ifdef ANSI_C
+
+inttype size_hash (hashtype hash)
+#else
+
+inttype size_hash (hash)
+hashtype hash;
+#endif
+
+  {
+    memsizetype number;
+    helemtype *curr_helem;
+    inttype result;
+
+  /* size_hash */
+    result = 0;
+    if (hash != NULL) {
+      number = hash->table_size;
+      curr_helem = &hash->table[0];
+      while (number > 0) {
+	if (*curr_helem != NULL) {
+          result += size_helem(*curr_helem);
+        } /* if */
+        number--;
+        curr_helem++;
+      } /* while */
+    } /* if */
+    return(result);
+  } /* size_hash */
 
 
 
@@ -395,7 +402,7 @@ errinfotype *err_info;
         arr_pos = 0;
         number = curr_hash->table_size;
         curr_helem = &curr_hash->table[0];
-        while (number > 0 && *err_info == NO_ERROR) {
+        while (number > 0 && *err_info == OKAY_NO_ERROR) {
           if (*curr_helem != NULL) {
             keys_helem(&key_array, &arr_pos, *curr_helem, key_create_func, err_info);
           } /* if */
@@ -403,7 +410,7 @@ errinfotype *err_info;
           curr_helem++;
         } /* while */
         array_size = key_array->max_position - key_array->min_position;
-        if (*err_info != NO_ERROR) {
+        if (*err_info != OKAY_NO_ERROR) {
           for (number = 0; number < arr_pos; number++) {
             param2_call(key_destr_func, &key_array->arr[number], SYS_DESTR_OBJECT);
           } /* for */
@@ -511,7 +518,7 @@ errinfotype *err_info;
         arr_pos = 0;
         number = curr_hash->table_size;
         curr_helem = &curr_hash->table[0];
-        while (number > 0 && *err_info == NO_ERROR) {
+        while (number > 0 && *err_info == OKAY_NO_ERROR) {
           if (*curr_helem != NULL) {
             values_helem(&value_array, &arr_pos, *curr_helem, value_create_func, err_info);
           } /* if */
@@ -519,7 +526,7 @@ errinfotype *err_info;
           curr_helem++;
         } /* while */
         array_size = value_array->max_position - value_array->min_position;
-        if (*err_info != NO_ERROR) {
+        if (*err_info != OKAY_NO_ERROR) {
           for (number = 0; number < arr_pos; number++) {
             param2_call(value_destr_func, &value_array->arr[number], SYS_DESTR_OBJECT);
           } /* for */
@@ -741,7 +748,7 @@ errinfotype *err_info;
 #endif
 
   { /* helem_to_list */
-    if (helem != NULL && *err_info == NO_ERROR) {
+    if (helem != NULL && *err_info == OKAY_NO_ERROR) {
       incl_list(list_insert_place, &helem->data, err_info);
       helem_to_list(list_insert_place, helem->next_less, err_info);
       helem_to_list(list_insert_place, helem->next_greater, err_info);
@@ -771,7 +778,7 @@ errinfotype *err_info;
     if (hash != NULL) {
       number = hash->table_size;
       helem = &hash->table[0];
-      while (number > 0 && *err_info == NO_ERROR) {
+      while (number > 0 && *err_info == OKAY_NO_ERROR) {
         helem_to_list(&result, *helem, err_info);
         number--;
         helem++;
@@ -904,7 +911,7 @@ listtype arguments;
     objecttype key_destr_func;
     objecttype data_create_func;
     objecttype data_destr_func;
-    errinfotype err_info = NO_ERROR;
+    errinfotype err_info = OKAY_NO_ERROR;
 
   /* hsh_cpy */
     hsh_to   = arg_1(arguments);
@@ -919,7 +926,7 @@ listtype arguments;
     data_create_func = take_reference(arg_5(arguments));
     data_destr_func  = take_reference(arg_6(arguments));
     free_hash(hsh_dest, key_destr_func, data_destr_func);
-    if (err_info != NO_ERROR) {
+    if (err_info != OKAY_NO_ERROR) {
       hsh_to->value.hashvalue = NULL;
       return(raise_exception(SYS_MEM_EXCEPTION));
     } else {
@@ -929,7 +936,7 @@ listtype arguments;
       } else {
         hsh_to->value.hashvalue = copy_hash(hsh_source,
             key_create_func, data_create_func, &err_info);
-        if (err_info != NO_ERROR) {
+        if (err_info != OKAY_NO_ERROR) {
           free_hash(hsh_to->value.hashvalue, key_destr_func,
               data_destr_func);
           hsh_to->value.hashvalue = NULL;
@@ -959,7 +966,7 @@ listtype arguments;
     objecttype key_destr_func;
     objecttype data_create_func;
     objecttype data_destr_func;
-    errinfotype err_info = NO_ERROR;
+    errinfotype err_info = OKAY_NO_ERROR;
 
   /* hsh_create */
     hsh_to   = arg_1(arguments);
@@ -977,7 +984,7 @@ listtype arguments;
     } else {
       hsh_to->value.hashvalue = copy_hash(hsh_source,
           key_create_func, data_create_func, &err_info);
-      if (err_info != NO_ERROR) {
+      if (err_info != OKAY_NO_ERROR) {
         free_hash(hsh_to->value.hashvalue, key_destr_func,
             data_destr_func);
         hsh_to->value.hashvalue = NULL;
@@ -1025,12 +1032,12 @@ listtype arguments;
 #endif
 
   {
-    errinfotype err_info = NO_ERROR;
+    errinfotype err_info = OKAY_NO_ERROR;
     hashtype result;
 
   /* hsh_empty */
     result = new_hash(TABLE_BITS, &err_info);
-    if (err_info != NO_ERROR) {
+    if (err_info != OKAY_NO_ERROR) {
       return(raise_exception(SYS_MEM_EXCEPTION));
     } else {
       return(bld_hash_temp(result));
@@ -1288,7 +1295,7 @@ listtype arguments;
     helemtype result_hashelem;
     objecttype cmp_obj;
     int cmp;
-    errinfotype err_info = NO_ERROR;
+    errinfotype err_info = OKAY_NO_ERROR;
     objecttype result;
 
   /* hsh_idx2 */
@@ -1340,7 +1347,7 @@ listtype arguments;
         } /* if */
       } /* while */
     } /* if */
-    if (err_info != NO_ERROR) {
+    if (err_info != OKAY_NO_ERROR) {
       return(raise_exception(SYS_MEM_EXCEPTION));
     } else {
       result = &result_hashelem->data;
@@ -1377,7 +1384,7 @@ listtype arguments;
     helemtype hashelem;
     objecttype cmp_obj;
     int cmp;
-    errinfotype err_info = NO_ERROR;
+    errinfotype err_info = OKAY_NO_ERROR;
 
   /* hsh_incl */
     isit_hash(arg_1(arguments));
@@ -1430,7 +1437,7 @@ listtype arguments;
         } while (hashelem != NULL);
       } /* if */
     } /* if */
-    if (err_info != NO_ERROR) {
+    if (err_info != OKAY_NO_ERROR) {
       return(raise_exception(SYS_MEM_EXCEPTION));
     } else {
       return(SYS_EMPTY_OBJECT);
@@ -1453,7 +1460,7 @@ listtype arguments;
     objecttype key_create_func;
     objecttype key_destr_func;
     arraytype key_array;
-    errinfotype err_info = NO_ERROR;
+    errinfotype err_info = OKAY_NO_ERROR;
 
   /* hsh_keys */
     isit_hash(arg_1(arguments));
@@ -1478,7 +1485,8 @@ listtype arguments;
 
   { /* hsh_lng */
     isit_hash(arg_1(arguments));
-    return(bld_int_temp(size_hash(take_hash(arg_1(arguments)))));
+    return(bld_int_temp(
+        size_hash(take_hash(arg_1(arguments)))));
   } /* hsh_lng */
 
 
@@ -1561,7 +1569,7 @@ listtype arguments;
     objecttype value_create_func;
     objecttype value_destr_func;
     arraytype value_array;
-    errinfotype err_info = NO_ERROR;
+    errinfotype err_info = OKAY_NO_ERROR;
 
   /* hsh_values */
     isit_hash(arg_1(arguments));

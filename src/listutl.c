@@ -122,7 +122,7 @@ errinfotype *err_info;
         list_insert_place = &(*object_to)->value.listvalue;
         INIT_CLASS_OF_OBJ((*object_to), CLASS_OF_OBJ(object_from));
         list_from_elem = object_from->value.listvalue;
-        while (list_from_elem != NULL && *err_info == NO_ERROR) {
+        while (list_from_elem != NULL && *err_info == OKAY_NO_ERROR) {
           copy_expression(list_from_elem->obj, &object_to_elem, err_info);
           list_insert_place = append_element_to_list(list_insert_place,
               object_to_elem, err_info);
@@ -326,8 +326,8 @@ errinfotype *err_info;
           list_from = list_from->next;
         } /* if */
       } /* if */
-      if (*err_info == NO_ERROR) {
-        while (list_from != NULL && *err_info == NO_ERROR) {
+      if (*err_info == OKAY_NO_ERROR) {
+        while (list_from != NULL && *err_info == OKAY_NO_ERROR) {
           if (!ALLOC_RECORD(help_element->next, listrecord)) {
             *err_info = MEMORY_ERROR;
           } else {
@@ -339,7 +339,7 @@ errinfotype *err_info;
         } /* while */
         help_element->next = NULL;
       } /* if */
-      if (*err_info != NO_ERROR) {
+      if (*err_info != OKAY_NO_ERROR) {
         emptylist(*list_to);
         *list_to = (listtype) NULL;
       } /* if */
@@ -355,27 +355,27 @@ errinfotype *err_info;
 
 #ifdef ANSI_C
 
-booltype array_to_list (arraytype arr_from, listtype *list_to)
+void array_to_list (arraytype arr_from, listtype *list_to,
+    errinfotype *err_info)
 #else
 
-booltype array_to_list (arr_from, list_to)
+void array_to_list (arr_from, list_to, err_info)
 arraytype arr_from;
 listtype *list_to;
+errinfotype *err_info;
 #endif
 
   {
     listtype help_element;
     memsizetype arr_from_size;
     memsizetype position;
-    booltype okay;
 
   /* array_to_list */
 #ifdef TRACE_RUNLIST
     printf("BEGIN array_to_list\n");
 #endif
-    okay = TRUE;
     arr_from_size = arr_from->max_position - arr_from->min_position + 1;
-    if (arr_from_size != 0) {
+    if (arr_from_size != 0 && *err_info == OKAY_NO_ERROR) {
       if (flist.list_elems != NULL) {
         help_element = flist.list_elems;
         *list_to = help_element;
@@ -390,7 +390,7 @@ listtype *list_to;
       } else {
         if (!ALLOC_RECORD(help_element, listrecord)) {
           *list_to = (listtype) NULL;
-          okay = FALSE;
+          *err_info = MEMORY_ERROR;
         } else {
           COUNT_RECORD(listrecord, count.list_elem);
           *list_to = help_element;
@@ -398,10 +398,10 @@ listtype *list_to;
           position = 1;
         } /* if */
       } /* if */
-      if (okay) {
-        while (position < arr_from_size && okay) {
+      if (*err_info == OKAY_NO_ERROR) {
+        while (position < arr_from_size && *err_info == OKAY_NO_ERROR) {
           if (!ALLOC_RECORD(help_element->next, listrecord)) {
-            okay = FALSE;
+            *err_info = MEMORY_ERROR;
           } else {
             COUNT_RECORD(listrecord, count.list_elem);
             help_element = help_element->next;
@@ -411,7 +411,7 @@ listtype *list_to;
         } /* while */
         help_element->next = NULL;
       } /* if */
-      if (!okay) {
+      if (*err_info != OKAY_NO_ERROR) {
         emptylist(*list_to);
         *list_to = (listtype) NULL;
       } /* if */
@@ -421,9 +421,74 @@ listtype *list_to;
 #ifdef TRACE_RUNLIST
     printf("END array_to_list\n");
 #endif
-    return(okay);
   } /* array_to_list */
 
 
 
+#ifdef ANSI_C
 
+void struct_to_list (structtype stru_from, listtype *list_to,
+    errinfotype *err_info)
+#else
+
+void struct_to_list (stru_from, list_to, err_info)
+structtype stru_from;
+listtype *list_to;
+errinfotype *err_info;
+#endif
+
+  {
+    listtype help_element;
+    memsizetype position;
+
+  /* struct_to_list */
+#ifdef TRACE_RUNLIST
+    printf("BEGIN struct_to_list\n");
+#endif
+    if (stru_from->size != 0 && *err_info == OKAY_NO_ERROR) {
+      if (flist.list_elems != NULL) {
+        help_element = flist.list_elems;
+        *list_to = help_element;
+        help_element->obj = &stru_from->stru[0];
+        position = 1;
+        while (position < stru_from->size && help_element->next != NULL) {
+          help_element = help_element->next;
+          help_element->obj = &stru_from->stru[position];
+          position++;
+        } /* while */
+        flist.list_elems = help_element->next;
+      } else {
+        if (!ALLOC_RECORD(help_element, listrecord)) {
+          *list_to = (listtype) NULL;
+          *err_info = MEMORY_ERROR;
+        } else {
+          COUNT_RECORD(listrecord, count.list_elem);
+          *list_to = help_element;
+          help_element->obj = &stru_from->stru[0];
+          position = 1;
+        } /* if */
+      } /* if */
+      if (*err_info == OKAY_NO_ERROR) {
+        while (position < stru_from->size && *err_info == OKAY_NO_ERROR) {
+          if (!ALLOC_RECORD(help_element->next, listrecord)) {
+            *err_info = MEMORY_ERROR;
+          } else {
+            COUNT_RECORD(listrecord, count.list_elem);
+            help_element = help_element->next;
+            help_element->obj = &stru_from->stru[position];
+            position++;
+          } /* if */
+        } /* while */
+        help_element->next = NULL;
+      } /* if */
+      if (*err_info != OKAY_NO_ERROR) {
+        emptylist(*list_to);
+        *list_to = (listtype) NULL;
+      } /* if */
+    } else {
+      *list_to = (listtype) NULL;
+    } /* if */
+#ifdef TRACE_RUNLIST
+    printf("END struct_to_list\n");
+#endif
+  } /* struct_to_list */

@@ -109,7 +109,10 @@ typedef unsigned int SIZE_TYPE;
 #endif
 
 
-#define NO_ERROR      0
+typedef int errinfotype;
+
+/* errinfo values: */
+#define OKAY_NO_ERROR 0
 #define MEMORY_ERROR  1
 #define NUMERIC_ERROR 2
 #define RANGE_ERROR   3

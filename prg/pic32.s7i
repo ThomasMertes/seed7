@@ -691,6 +691,41 @@ const array string: necklace_pic is [](
   "                RR              ");
 
 
+const array string: ruby_pic is [](
+  "                                ",
+  "                                ",
+  "                                ",
+  "                                ",
+  "               Xr               ",
+  "              XXrr              ",
+  "             XXRRrr             ",
+  "            XXXRRrrr            ",
+  "           XXXRRRRrrr           ",
+  "          XXXXRRRRrrrr          ",
+  "         XXXXRRRRRRrrrr         ",
+  "        XXXXXRRRRRRrrrrr        ",
+  "       XXXXXRRRRRRRRrrrrr       ",
+  "      XXXXXXRRRRRRRRrrrrrr      ",
+  "     XXXXXXRRRRRRRRRRrrrrrr     ",
+  "    XXXXXXXRRRRRRRRRRrrrrrrr    ",
+  "   XXXXXXXRRRRRRRRRRRRrrrrrrr   ",
+  "  XXXXXXXXRRRRRRRRRRRRrrrrrrrr  ",
+  " XXXXXXXXRRRRRRRRRRRRRRrrrrrrrr ",
+  "XXXXXXXXXRRRRRRRRRRRRRRrrrrrrrrr",
+  "RRRRRRRRrrrrrrrrrrrrrrrrXXXXXXXX",
+  "  RRRRRRRrrrrrrrrrrrrrrXXXXXXX  ",
+  "    RRRRRRrrrrrrrrrrrrXXXXXX    ",
+  "      RRRRRrrrrrrrrrrXXXXX      ",
+  "        RRRRrrrrrrrrXXXX        ",
+  "          RRRrrrrrrXXX          ",
+  "            RRrrrrXX            ",
+  "              RrrX              ",
+  "               RX               ",
+  "                                ",
+  "                                ",
+  "                                ");
+
+
 const array string: scepter_pic is [](
   "                          RR  RR",
   "                          RR  RR",
@@ -866,3 +901,36 @@ const array string: sword_pic is [](
   "    bb                          ");
 
 
+const array string: tree_pic is [](
+  "               GG               ",
+  "              GGgG              ",
+  "            GgGGGGgG            ",
+  "          GGgGGgGGGggG          ",
+  "        GGGgGgGGgGGgGgGG       ",
+  "      GGGGgGGgGGGgGGGGgGGG      ",
+  "             GGgGGG             ",
+  "            GGGgGGGG            ",
+  "          GGGGggGGgGgG          ",
+  "        gGGGGgGgGGGGggGG        ",
+  "      GgGGgGGgGGgGGgGGGGgg      ",
+  "    GGgGGGGgGGGGGGggGGGgGGgG    ",
+  "           GGgGGGgGGG           ",
+  "          GGGgGGGGgGGG          ",
+  "        GGGGGGGGggGGGGgG        ",
+  "      GGGGGGgGGGgGGGGGggGG      ",
+  "    GgGGGGGgGGGGgGGGGgGgGggg    ",
+  "  GGgGGGGGgGGGGGGGGGgGGGGGGgGG  ",
+  "             GgGGGG             ",
+  "            GGGgGGGG            ",
+  "          gggGGggGGGgG          ",
+  "        GgGGGGggGgGGggGG        ",
+  "      GgGGGGGgGgGGggGGgGGG      ",
+  "    GGGGGGGGGGGgGGGGGGGgGGGg    ",
+  "  GGgGGgGGGgGGGGGGgGGGGGGGGGgG  ",
+  "GGGgGGGGGGgGGGGgGGGgGGGGGGGGGgGG",
+  "              bbbb              ",
+  "              bbbb              ",
+  "              bbbb              ",
+  "              bbbb              ",
+  "              bbbb              ",
+  "              bbbb              ");

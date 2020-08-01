@@ -67,7 +67,7 @@ const func f_param: inout (ref type param) : (ref expr param) is   action "DCL_I
 const func f_param: in (ref type param) param is                   action "DCL_REF1";
 const func f_param: attr (ref type param) is                       action "DCL_ATTR";
 
-const proc: (ref type param) ::= (in type param) is             action "TYP_CREATE";
+const proc: (ref type param) ::= (ref type param) is            action "TYP_CREATE";
 const proc: destroy (ref type param) is                         action "TYP_DESTR";
 
 const proc: (inout type param) := (ref type param) is           action "TYP_CPY";
@@ -81,15 +81,17 @@ const proc: destroy (ref proc param) is                         action "PRC_NOOP
 const proc: noop is                                             action "PRC_NOOP";
 const proc: (ref void param) ; (ref void param) is noop;
 
-const proc: PRINT (in string param) is                          action "PRC_PRINT";
+const proc: PRINT (ref string param) is                         action "PRC_PRINT";
 
 const proc: IN_PARAM_IS_VALUE (ref type: aType) is func
   begin
+    const func f_param: in (attr aType) param is                action "DCL_VAL1";
     const func f_param: in (attr aType) : (ref expr param) is   action "DCL_VAL2";
   end func;
 
 const proc: IN_PARAM_IS_REFERENCE (ref type: aType) is func
   begin
+    const func f_param: in (attr aType) param is                action "DCL_REF1";
     const func f_param: in (attr aType) : (ref expr param) is   action "DCL_REF2";
   end func;
 
@@ -785,26 +787,28 @@ const func string: str (in var integer: number, in integer: base) is func
 const type: reference is subtype object;
 IN_PARAM_IS_VALUE(reference);
 
-const proc: (ref reference param) ::= (in reference param) is         action "REF_CREATE";
-const proc: destroy (ref reference param) is                          noop;
-const proc: (inout reference param) := (in reference param) is        action "REF_CPY";
+const proc: (ref reference param) ::= (in reference param) is           action "REF_CREATE";
+const proc: destroy (ref reference param) is                            noop;
+const proc: (inout reference param) := (in reference param) is          action "REF_CPY";
 (* Deactivated since it allows 'reference' := anything which is aggainst type checking *)
 (* const proc: (inout reference param) := (in object param) is           action "REF_MKREF"; *)
-const func reference: (attr reference) value (in reference param) is  action "REF_VALUE";
-const func boolean: (in reference param) = (in reference param) is    action "REF_EQ";
-const func boolean: (in reference param) <> (in reference param) is   action "REF_NE";
-const func string: str (ref reference param) is                       action "REF_STR";
+const func reference: (attr reference) value (in reference param) is    action "REF_VALUE";
+const func boolean: (in reference param) = (in reference param) is      action "REF_EQ";
+const func boolean: (in reference param) <> (in reference param) is     action "REF_NE";
+const func integer: compare (in reference param, in reference param) is action "REF_CMP";
+const func integer: hashCode (in reference param) is                    action "REF_HASHCODE";
+const func string: str (ref reference param) is                         action "REF_STR";
 
-const func reference: _GENERATE_NIL is                                action "REF_NIL";
-const reference: NIL is                                               _GENERATE_NIL;
-const reference: (attr reference) . value is                          NIL;
+const func reference: _GENERATE_NIL is                                  action "REF_NIL";
+const reference: NIL is                                                 _GENERATE_NIL;
+const reference: (attr reference) . value is                            NIL;
 
-const func type: getType (in reference param) is                      action "REF_TYPE";
-const func boolean: is_symb (in reference param) is                   action "REF_ISSYMB";
-const func f_param: symb (in reference param) is                      action "REF_SYMB";
-const func type: (attr type) value (in reference param) is            action "TYP_VALUE";
-const func reference: getfunc (in expr param) is                      action "DCL_GETFUNC";
-const func reference: getobj (in expr param) is                       action "DCL_GETOBJ";
+const func type: getType (in reference param) is                        action "REF_TYPE";
+const func boolean: is_symb (in reference param) is                     action "REF_ISSYMB";
+const func f_param: symb (in reference param) is                        action "REF_SYMB";
+const func type: (attr type) value (in reference param) is              action "TYP_VALUE";
+const func reference: getfunc (in expr param) is                        action "DCL_GETFUNC";
+const func reference: getobj (in expr param) is                         action "DCL_GETOBJ";
 
 const func type: get_type (in reference: type_ref) is func
   result
@@ -2395,7 +2399,7 @@ const proc: write (ref PRIMITIVE_FILE param, in string param) is          action
 const func integer: length (ref PRIMITIVE_FILE param) is                  action "FIL_LNG";
 const proc: seek (ref PRIMITIVE_FILE param, ref integer param) is         action "FIL_SEEK";
 const func integer: tell (ref PRIMITIVE_FILE param) is                    action "FIL_TELL";
-const proc: literal (ref PRIMITIVE_FILE param) is                         action "FIL_LIT";
+const func string: literal (ref PRIMITIVE_FILE param) is                  action "FIL_LIT";
 
 const char: EOF is chr(-1);
 
@@ -2891,8 +2895,8 @@ const proc: h_scroll (ref text param, ref integer param, ref integer param,
     ref integer param, ref integer param, ref integer param) is DYNAMIC;
 const proc: color (ref text param, ref color param) is DYNAMIC;
 const proc: color (ref text param, ref color param, ref color param) is DYNAMIC;
-const proc: setPos (ref text param, ref integer param, ref integer param) is DYNAMIC;
-const proc: setPosXY (ref text param, ref integer param, ref integer param) is DYNAMIC;
+const proc: setPos (ref text param, in integer param, in integer param) is DYNAMIC;
+const proc: setPosXY (ref text param, in integer param, in integer param) is DYNAMIC;
 const proc: setLine (ref text param, ref integer param) is DYNAMIC;
 const proc: setColumn (ref text param, ref integer param) is DYNAMIC;
 const proc: setXY (ref text param, ref integer param, ref integer param) is DYNAMIC;
@@ -2911,14 +2915,14 @@ const func string: getenv (in string param) is action "PRC_ENV";
 
 (* DIRECTORY *)
 
-const proc: chdir (in string param) is                   action "UNX_CD";
-const proc: mkdir (in string param) is                   action "UNX_MKDIR";
-const func string: getcwd is                             action "UNX_PWD";
-const func integer: file_size (in string param) is       action "UNX_LNG";
-const func array string: read_dir (in string param) is   action "UNX_LS";
-const proc: remove (in string param) is                  action "UNX_RM";
-const proc: rename (in string param, in string param) is action "UNX_MV";
-const proc: copy (in string param, in string param) is   action "UNX_CP";
+const proc: chdir (in string param) is                   action "CMD_CHDIR";
+const proc: mkdir (in string param) is                   action "CMD_MKDIR";
+const func string: getcwd is                             action "CMD_GETCWD";
+const func integer: file_size (in string param) is       action "CMD_LNG";
+const func array string: read_dir (in string param) is   action "CMD_LS";
+const proc: remove (in string param) is                  action "CMD_REMOVE";
+const proc: rename (in string param, in string param) is action "CMD_MOVE";
+const proc: copy (in string param, in string param) is   action "CMD_COPY";
 
 const func integer: heapsize (PROGRAM) is                action "INT_HSIZE";
 const proc: include (in string param) is                 action "PRC_INCLUDE";

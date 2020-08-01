@@ -35,6 +35,7 @@
 #include "version.h"
 #include "common.h"
 #include "heaputl.h"
+#include "striutl.h"
 #include "rtl_err.h"
 
 #undef EXTERN
@@ -96,6 +97,46 @@ chartype *termination_char;
       return(result);
     } /* if */
   } /* filLineRead */
+
+
+
+#ifdef ANSI_C
+
+stritype filLit (filetype fil1)
+#else
+
+stritype filLit (fil1)
+filetype fil1;
+#endif
+
+  {
+    cstritype file_name;
+    memsizetype length;
+    stritype result;
+
+  /* filLit */
+    if (fil1 == NULL) {
+      file_name = "NULL";
+    } else if (fil1 == stdin) {
+      file_name = "stdin";
+    } else if (fil1 == stdout) {
+      file_name = "stdout";
+    } else if (fil1 == stderr) {
+      file_name = "stderr";
+    } else {
+      file_name = "file";
+    } /* if */
+    length = strlen(file_name);
+    if (!ALLOC_STRI(result, length)) {
+      raise_error(MEMORY_ERROR);
+      return(NULL);
+    } else {
+      COUNT_STRI(length);
+      result->size = length;
+      stri_expand(result->mem, file_name, length);
+      return(result);
+    } /* if */
+  } /* filLit */
 
 
 

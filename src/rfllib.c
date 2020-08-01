@@ -59,7 +59,7 @@ listtype arguments;
     objecttype arg2;
     listtype list1_end;
     listtype list2_start;
-    errinfotype err_info = NO_ERROR;
+    errinfotype err_info = OKAY_NO_ERROR;
     listtype result;
 
 
@@ -72,7 +72,7 @@ listtype arguments;
       result = take_reflist(arg1);
     } else {
       copy_list(take_reflist(arg1), &result, &err_info);
-      if (err_info != NO_ERROR) {
+      if (err_info != OKAY_NO_ERROR) {
         return(raise_exception(SYS_MEM_EXCEPTION));
       } /* if */
     } /* if */
@@ -81,7 +81,7 @@ listtype arguments;
       arg2->value.listvalue = NULL;
     } else {
       copy_list(take_reflist(arg2), &list2_start, &err_info);
-      if (err_info != NO_ERROR) {
+      if (err_info != OKAY_NO_ERROR) {
         return(raise_exception(SYS_MEM_EXCEPTION));
       } /* if */
     } /* if */
@@ -119,7 +119,7 @@ listtype arguments;
     objecttype list_to;
     objecttype list_from;
     listtype help_list;
-    errinfotype err_info = NO_ERROR;
+    errinfotype err_info = OKAY_NO_ERROR;
 
   /* rfl_cpy */
     list_to = arg_1(arguments);
@@ -134,7 +134,7 @@ listtype arguments;
         list_from->value.listvalue = NULL;
       } else {
         copy_list(take_reflist(list_from), &help_list, &err_info);
-        if (err_info != NO_ERROR) {
+        if (err_info != OKAY_NO_ERROR) {
           return(raise_exception(SYS_MEM_EXCEPTION));
         } else {
           emptylist(take_reflist(list_to));
@@ -159,7 +159,7 @@ listtype arguments;
   {
     objecttype list_to;
     objecttype list_from;
-    errinfotype err_info = NO_ERROR;
+    errinfotype err_info = OKAY_NO_ERROR;
 
   /* rfl_create */
     list_to = arg_1(arguments);
@@ -171,7 +171,7 @@ listtype arguments;
       list_from->value.listvalue = NULL;
     } else {
       copy_list(take_reflist(list_from), &list_to->value.listvalue, &err_info);
-      if (err_info != NO_ERROR) {
+      if (err_info != OKAY_NO_ERROR) {
         list_to->value.listvalue = NULL;
         return(raise_exception(SYS_MEM_EXCEPTION));
       } /* if */
@@ -312,7 +312,7 @@ listtype arguments;
     objecttype operator;
     objecttype arg3_object;
     booltype okay;
-    errinfotype err_info = NO_ERROR;
+    errinfotype err_info = OKAY_NO_ERROR;
     listtype result;
 
   /* rfl_expr */
@@ -384,7 +384,7 @@ listtype arguments;
     objecttype for_variable;
     listtype helplist;
     listtype listelement;
-    errinfotype err_info = NO_ERROR;
+    errinfotype err_info = OKAY_NO_ERROR;
     objecttype result;
 
   /* rfl_for */
@@ -395,7 +395,7 @@ listtype arguments;
     isit_reference (for_variable);
     isit_reflist(elementlist);
     copy_list(take_list(elementlist), &helplist, &err_info);
-    if (err_info != NO_ERROR) {
+    if (err_info != OKAY_NO_ERROR) {
       return(raise_exception(SYS_MEM_EXCEPTION));
     } else {
       listelement = helplist;
@@ -428,7 +428,7 @@ listtype arguments;
     inttype number;
     listtype stop_element;
     listtype saved_list_rest;
-    errinfotype err_info = NO_ERROR;
+    errinfotype err_info = OKAY_NO_ERROR;
     listtype result;
 
   /* rfl_head */
@@ -463,7 +463,7 @@ listtype arguments;
     } else {
       result = NULL;
     } /* if */
-    if (err_info != NO_ERROR) {
+    if (err_info != OKAY_NO_ERROR) {
       return(raise_exception(SYS_MEM_EXCEPTION));
     } else {
       return(bld_reflist_temp(result));
@@ -521,14 +521,14 @@ listtype arguments;
 #endif
 
   {
-    errinfotype err_info = NO_ERROR;
+    errinfotype err_info = OKAY_NO_ERROR;
 
   /* rfl_incl */
     isit_reflist(arg_1(arguments));
     isit_reference(arg_2(arguments));
     incl_list(&arg_1(arguments)->value.listvalue,
         take_reference(arg_2(arguments)), &err_info);
-    if (err_info != NO_ERROR) {
+    if (err_info != OKAY_NO_ERROR) {
       return(raise_exception(SYS_MEM_EXCEPTION));
     } else {
       return(SYS_EMPTY_OBJECT);
@@ -640,7 +640,7 @@ listtype arguments;
     listtype stop_element;
     listtype *start_address;
     listtype saved_list_rest;
-    errinfotype err_info = NO_ERROR;
+    errinfotype err_info = OKAY_NO_ERROR;
     listtype result;
 
   /* rfl_range */
@@ -680,7 +680,7 @@ listtype arguments;
     } else {
       result = NULL;
     } /* if */
-    if (err_info != NO_ERROR) {
+    if (err_info != OKAY_NO_ERROR) {
       return(raise_exception(SYS_MEM_EXCEPTION));
     } else {
       return(bld_reflist_temp(result));
@@ -703,7 +703,7 @@ listtype arguments;
     inttype start;
     inttype number;
     listtype list_element;
-    errinfotype err_info = NO_ERROR;
+    errinfotype err_info = OKAY_NO_ERROR;
     listtype result;
 
   /* rfl_tail */
@@ -736,7 +736,7 @@ listtype arguments;
         copy_list(list_element, &result, &err_info);
       } /* if */
     } /* if */
-    if (err_info != NO_ERROR) {
+    if (err_info != OKAY_NO_ERROR) {
       return(raise_exception(SYS_MEM_EXCEPTION));
     } else {
       return(bld_reflist_temp(result));
@@ -756,7 +756,7 @@ listtype arguments;
 
   {
     objecttype obj_arg;
-    errinfotype err_info = NO_ERROR;
+    errinfotype err_info = OKAY_NO_ERROR;
     listtype result;
 
   /* rfl_value */
@@ -769,7 +769,7 @@ listtype arguments;
     } else {
       run_error(REFLISTOBJECT, obj_arg);
     } /* if */
-    if (err_info != NO_ERROR) {
+    if (err_info != OKAY_NO_ERROR) {
       return(raise_exception(SYS_MEM_EXCEPTION));
     } /* if */
     return(bld_reflist_temp(result));

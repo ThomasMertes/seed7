@@ -47,7 +47,8 @@ void incl_list (listtype *, objecttype, errinfotype *);
 void excl_list (listtype *, objecttype);
 void replace_list_elem (listtype, objecttype, objecttype);
 void copy_list (listtype, listtype *, errinfotype *err_info);
-booltype array_to_list (arraytype, listtype *);
+void array_to_list (arraytype, listtype *, errinfotype *);
+void struct_to_list (structtype, listtype *, errinfotype *);
 
 #else
 
@@ -59,6 +60,7 @@ void incl_list ();
 void excl_list ();
 void replace_list_elem ();
 void copy_list ();
-booltype array_to_list ();
+void array_to_list ();
+void struct_to_list ();
 
 #endif

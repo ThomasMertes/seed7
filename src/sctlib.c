@@ -295,7 +295,7 @@ listtype arguments;
     objecttype value_expr;
     objecttype value;
     objecttype current_object;
-    errinfotype err_info = NO_ERROR;
+    errinfotype err_info = OKAY_NO_ERROR;
     structtype result;
 
   /* sct_elem */
@@ -314,7 +314,7 @@ listtype arguments;
 #endif
     grow_stack(&err_info);
     grow_stack(&err_info);
-    if (err_info == NO_ERROR) {
+    if (err_info == OKAY_NO_ERROR) {
       if (CLASS_OF_OBJ(value_expr) == EXPROBJECT &&
           value_expr->value.listvalue != NULL &&
           value_expr->value.listvalue->next == NULL) {
@@ -329,7 +329,7 @@ listtype arguments;
       current_object = entername(prog.declaration_root, name_expr, &err_info);
       pop_stack();
       copy_expression(value_expr, &value, &err_info);
-      if (err_info == NO_ERROR) {
+      if (err_info == OKAY_NO_ERROR) {
         current_object->type_of = object_type;
         SET_VAR_FLAG(current_object);
 #ifdef TRACE_DCL
@@ -340,7 +340,7 @@ listtype arguments;
         if (CLASS_OF_OBJ(value) == EXPROBJECT) {
           if (match_expression(value) != NULL) {
             do_create(current_object, value, &err_info);
-            if (err_info != NO_ERROR) {
+            if (err_info != OKAY_NO_ERROR) {
               printf("*** do_create failed\n");
               prot_list(arguments);
             } /* if */
@@ -351,7 +351,7 @@ listtype arguments;
           } /* if */
         } else {
           do_create(current_object, value, &err_info);
-          if (err_info != NO_ERROR) {
+          if (err_info != OKAY_NO_ERROR) {
             printf("*** do_create failed\n");
             prot_list(arguments);
           } /* if */
@@ -367,7 +367,7 @@ listtype arguments;
       shrink_stack();
       shrink_stack();
     } /* if */
-    if (err_info != NO_ERROR) {
+    if (err_info != OKAY_NO_ERROR) {
       return(raise_exception(SYS_MEM_EXCEPTION));
     } else {
       return(bld_struct_temp(result));

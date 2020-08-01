@@ -221,7 +221,7 @@ register int character;
           if ((character & 0xC0) == 0x80) {
             result |= character & 0x3F;
             if (result <= 0xFFFF) {
-              err_character(CHAR_ILLEGAL, character);
+              err_character(CHAR_ILLEGAL, result);
             } else {
               symbol.charvalue = result;
               check_stri_length(position);
@@ -255,7 +255,7 @@ register int character;
             if ((character & 0xC0) == 0x80) {
               result |= character & 0x3F;
               if (result <= 0x1FFFFF) {
-                err_character(CHAR_ILLEGAL, character);
+                err_character(CHAR_ILLEGAL, result);
               } else {
                 symbol.charvalue = result;
                 check_stri_length(position);
@@ -278,32 +278,53 @@ register int character;
         err_character(CHAR_ILLEGAL, character);
         in_file.character = character;
       } /* if */
-
-
- && len > 4 &&
-                 (ustri[1] & 0xC0) == 0x80 &&
-                 (ustri[2] & 0xC0) == 0x80 &&
-                 (ustri[3] & 0xC0) == 0x80 &&
-                 (ustri[4] & 0xC0) == 0x80) {
-        *stri++ = (ustri[0] & 0x03) << 24 |
-                  (ustri[1] & 0x3F) << 18 |
-                  (ustri[2] & 0x3F) << 12 |
-                  (ustri[3] & 0x3F) <<  6 |
-                   ustri[4] & 0x3F;
-        ustri += 5;
-      } else if ((ustri[0] & 0xFC) == 0xFC && len > 5 &&
-                 (ustri[1] & 0xC0) == 0x80 &&
-                 (ustri[2] & 0xC0) == 0x80 &&
-                 (ustri[3] & 0xC0) == 0x80 &&
-                 (ustri[4] & 0xC0) == 0x80 &&
-                 (ustri[5] & 0xC0) == 0x80) {
-        *stri++ = (ustri[0] & 0x03) << 30 |
-                  (ustri[1] & 0x3F) << 24 |
-                  (ustri[2] & 0x3F) << 18 |
-                  (ustri[3] & 0x3F) << 12 |
-                  (ustri[4] & 0x3F) <<  6 |
-                   ustri[5] & 0x3F;
-        ustri += 6;
+    } else if ((character & 0xFC) == 0xFC) {
+      result = (character & 0x03) << 30;
+      character = next_character();
+      if ((character & 0xC0) == 0x80) {
+        result |= (character & 0x3F) << 24;
+        character = next_character();
+        if ((character & 0xC0) == 0x80) {
+          result |= (character & 0x3F) << 18;
+          character = next_character();
+          if ((character & 0xC0) == 0x80) {
+            result |= (character & 0x3F) << 12;
+            character = next_character();
+            if ((character & 0xC0) == 0x80) {
+              result |= (character & 0x3F) << 6;
+              character = next_character();
+              if ((character & 0xC0) == 0x80) {
+                result |= character & 0x3F;
+                if (result <= 0x3FFFFFF) {
+                  err_character(CHAR_ILLEGAL, result);
+                } else {
+                  symbol.charvalue = result;
+                  check_stri_length(position);
+                  symbol.strivalue->mem[position++] = (strelemtype) result;
+                } /* if */
+                in_file.character = next_character();
+              } else {
+                err_character(CHAR_ILLEGAL, character);
+                in_file.character = character;
+              } /* if */
+            } else {
+              err_character(CHAR_ILLEGAL, character);
+              in_file.character = character;
+            } /* if */
+          } else {
+            err_character(CHAR_ILLEGAL, character);
+            in_file.character = character;
+          } /* if */
+        } else {
+          err_character(CHAR_ILLEGAL, character);
+          in_file.character = character;
+        } /* if */
+      } else {
+        err_character(CHAR_ILLEGAL, character);
+        in_file.character = character;
+      } /* if */
+    } /* if */
+  } /* utf8_char */
 #endif
 
 

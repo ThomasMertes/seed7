@@ -90,7 +90,7 @@ listtype arguments;
     objecttype value;
     objecttype matched_value;
     objecttype current_object;
-    errinfotype err_info = NO_ERROR;
+    errinfotype err_info = OKAY_NO_ERROR;
 
   /* dcl_const */
     isit_type(arg_2(arguments));
@@ -107,7 +107,7 @@ listtype arguments;
     printf("\n");
 #endif
     grow_stack(&err_info);
-    if (err_info == NO_ERROR) {
+    if (err_info == OKAY_NO_ERROR) {
       if (CLASS_OF_OBJ(value_expr) == EXPROBJECT &&
           value_expr->value.listvalue != NULL &&
           value_expr->value.listvalue->next == NULL) {
@@ -121,7 +121,7 @@ listtype arguments;
       current_object = entername(prog.declaration_root, name_expr, &err_info);
       /* printf(":%lu\n", (long unsigned) current_object->entity); */
       copy_expression(value_expr, &value, &err_info);
-      if (err_info == NO_ERROR) {
+      if (err_info == OKAY_NO_ERROR) {
         current_object->type_of = object_type;
 #ifdef TRACE_DCL
         printf("decl const current_object = ");
@@ -133,7 +133,7 @@ listtype arguments;
           if (match_expression(value) != NULL &&
               (matched_value = match_object(value)) != NULL) {
             do_create(current_object, matched_value, &err_info);
-            if (err_info != NO_ERROR) {
+            if (err_info != OKAY_NO_ERROR) {
               err_object(DECL_FAILED, current_object);
 #ifdef TRACE_DCL
               printf("*** do_create failed ");
@@ -157,7 +157,7 @@ listtype arguments;
           } /* if */
         } else {
           do_create(current_object, value, &err_info);
-          if (err_info != NO_ERROR) {
+          if (err_info != OKAY_NO_ERROR) {
             err_object(DECL_FAILED, current_object);
 #ifdef TRACE_DCL
             printf("*** do_create failed ");
@@ -181,7 +181,7 @@ listtype arguments;
     trace1(current_object);
     printf("\n");
 #endif
-    if (err_info != NO_ERROR) {
+    if (err_info != OKAY_NO_ERROR) {
       return(raise_exception(SYS_MEM_EXCEPTION));
     } else {
       return(SYS_EMPTY_OBJECT);
@@ -204,7 +204,7 @@ listtype arguments;
     listtype *local_object_insert_place;
     objecttype decl_res;
     listtype element_list;
-    errinfotype err_info = NO_ERROR;
+    errinfotype err_info = OKAY_NO_ERROR;
 
   /* dcl_elements */
     local_decls = arg_1(arguments);
@@ -223,7 +223,7 @@ listtype arguments;
     /* printf("before pop_stack\n"); */
     pop_stack();
     /* printf("after pop_stack\n"); */
-    if (err_info != NO_ERROR) {
+    if (err_info != OKAY_NO_ERROR) {
       return(raise_with_arguments(SYS_MEM_EXCEPTION, arguments));
     } else {
       return(bld_reflist_temp(element_list));
@@ -245,7 +245,7 @@ listtype arguments;
     typetype object_type;
     objecttype name_expr;
     objecttype current_object;
-    errinfotype err_info = NO_ERROR;
+    errinfotype err_info = OKAY_NO_ERROR;
 
   /* dcl_fwd */
     isit_type(arg_2(arguments));
@@ -259,9 +259,9 @@ listtype arguments;
     printf("\n");
 #endif
     grow_stack(&err_info);
-    if (err_info == NO_ERROR) {
+    if (err_info == OKAY_NO_ERROR) {
       current_object = entername(prog.declaration_root, name_expr, &err_info);
-      if (err_info == NO_ERROR) {
+      if (err_info == OKAY_NO_ERROR) {
         current_object->type_of = object_type;
         INIT_CLASS_OF_OBJ(current_object, FORWARDOBJECT);
       } /* if */
@@ -274,7 +274,7 @@ listtype arguments;
     trace1(current_object);
     printf("\n");
 #endif
-    if (err_info != NO_ERROR) {
+    if (err_info != OKAY_NO_ERROR) {
       return(raise_exception(SYS_MEM_EXCEPTION));
     } else {
       return(SYS_EMPTY_OBJECT);
@@ -295,7 +295,7 @@ listtype arguments;
   {
     objecttype name_expr;
     objecttype object_found;
-    errinfotype err_info = NO_ERROR;
+    errinfotype err_info = OKAY_NO_ERROR;
 
   /* dcl_getfunc */
     name_expr = arg_2(arguments);
@@ -305,7 +305,7 @@ listtype arguments;
     printf("\n");
 #endif
     grow_stack(&err_info);
-    if (err_info == NO_ERROR) {
+    if (err_info == OKAY_NO_ERROR) {
       object_found = search_name(prog.declaration_root, name_expr, &err_info);
       shrink_stack();
     } /* if */
@@ -316,7 +316,7 @@ listtype arguments;
     trace1(object_found);
     printf("\n");
 #endif
-    if (err_info != NO_ERROR) {
+    if (err_info != OKAY_NO_ERROR) {
       return(raise_exception(SYS_MEM_EXCEPTION));
     } else {
       return(bld_reference_temp(object_found));
@@ -337,7 +337,7 @@ listtype arguments;
   {
     objecttype name_expr;
     objecttype object_found;
-    errinfotype err_info = NO_ERROR;
+    errinfotype err_info = OKAY_NO_ERROR;
 
   /* dcl_getobj */
     name_expr = arg_2(arguments);
@@ -347,7 +347,7 @@ listtype arguments;
     printf("\n");
 #endif
     grow_stack(&err_info);
-    if (err_info == NO_ERROR) {
+    if (err_info == OKAY_NO_ERROR) {
       object_found = find_name(prog.declaration_root, name_expr, &err_info);
       shrink_stack();
     } /* if */
@@ -358,7 +358,7 @@ listtype arguments;
     trace1(object_found);
     printf("\n");
 #endif
-    if (err_info != NO_ERROR) {
+    if (err_info != OKAY_NO_ERROR) {
       return(raise_exception(SYS_MEM_EXCEPTION));
     } else {
       return(bld_reference_temp(object_found));
@@ -448,7 +448,7 @@ listtype arguments;
   {
     typetype object_type;
     objecttype name_expr;
-    errinfotype err_info = NO_ERROR;
+    errinfotype err_info = OKAY_NO_ERROR;
     objecttype created_object;
 
   /* dcl_in2var */
@@ -456,14 +456,14 @@ listtype arguments;
     object_type = take_type(arg_3(arguments));
     name_expr = arg_5(arguments);
     grow_stack(&err_info);
-    if (err_info == NO_ERROR) {
+    if (err_info == OKAY_NO_ERROR) {
 /*      printf("decl in2var ");
       trace1(object_type->match_obj);
       printf(": ");
       trace1(name_expr);
       printf(";\n"); */
       created_object = entername(prog.declaration_root, name_expr, &err_info);
-      if (err_info == NO_ERROR) {
+      if (err_info == OKAY_NO_ERROR) {
         created_object->type_of = object_type;
         INIT_CLASS_OF_VAR(created_object, VALUEPARAMOBJECT);
 /*        printf("decl in2var --> ");
@@ -472,7 +472,7 @@ listtype arguments;
       } /* if */
       shrink_stack();
     } /* if */
-    if (err_info != NO_ERROR) {
+    if (err_info != OKAY_NO_ERROR) {
       return(raise_exception(SYS_MEM_EXCEPTION));
     } else {
       return(bld_param_temp(created_object));
@@ -525,7 +525,7 @@ listtype arguments;
   {
     typetype object_type;
     objecttype name_expr;
-    errinfotype err_info = NO_ERROR;
+    errinfotype err_info = OKAY_NO_ERROR;
     objecttype created_object;
 
   /* dcl_inout2 */
@@ -533,14 +533,14 @@ listtype arguments;
     object_type = take_type(arg_2(arguments));
     name_expr = arg_4(arguments);
     grow_stack(&err_info);
-    if (err_info == NO_ERROR) {
+    if (err_info == OKAY_NO_ERROR) {
 /*      printf("decl inout2 ");
       trace1(object_type->match_obj);
       printf(": ");
       trace1(name_expr);
       printf(";\n"); */
       created_object = entername(prog.declaration_root, name_expr, &err_info);
-      if (err_info == NO_ERROR) {
+      if (err_info == OKAY_NO_ERROR) {
         created_object->type_of = object_type;
         INIT_CLASS_OF_VAR(created_object, REFPARAMOBJECT);
 /*        printf("decl inout2 --> ");
@@ -549,7 +549,7 @@ listtype arguments;
       } /* if */
       shrink_stack();
     } /* if */
-    if (err_info != NO_ERROR) {
+    if (err_info != OKAY_NO_ERROR) {
       return(raise_exception(SYS_MEM_EXCEPTION));
     } else {
       return(bld_param_temp(created_object));
@@ -602,7 +602,7 @@ listtype arguments;
   {
     typetype object_type;
     objecttype name_expr;
-    errinfotype err_info = NO_ERROR;
+    errinfotype err_info = OKAY_NO_ERROR;
     objecttype created_object;
 
   /* dcl_ref2 */
@@ -610,14 +610,14 @@ listtype arguments;
     object_type = take_type(arg_2(arguments));
     name_expr = arg_4(arguments);
     grow_stack(&err_info);
-    if (err_info == NO_ERROR) {
+    if (err_info == OKAY_NO_ERROR) {
 /*      printf("decl ref2 ");
       trace1(object_type->match_obj);
       printf(": ");
       trace1(name_expr);
       printf(";\n"); */
       created_object = entername(prog.declaration_root, name_expr, &err_info);
-      if (err_info == NO_ERROR) {
+      if (err_info == OKAY_NO_ERROR) {
         created_object->type_of = object_type;
         INIT_CLASS_OF_OBJ(created_object, REFPARAMOBJECT);
 /*        printf("decl ref2 --> ");
@@ -626,7 +626,7 @@ listtype arguments;
       } /* if */
       shrink_stack();
     } /* if */
-    if (err_info != NO_ERROR) {
+    if (err_info != OKAY_NO_ERROR) {
       return(raise_exception(SYS_MEM_EXCEPTION));
     } else {
       return(bld_param_temp(created_object));
@@ -708,7 +708,7 @@ listtype arguments;
   {
     typetype object_type;
     objecttype name_expr;
-    errinfotype err_info = NO_ERROR;
+    errinfotype err_info = OKAY_NO_ERROR;
     objecttype created_object;
 
   /* dcl_val2 */
@@ -716,14 +716,14 @@ listtype arguments;
     object_type = take_type(arg_2(arguments));
     name_expr = arg_4(arguments);
     grow_stack(&err_info);
-    if (err_info == NO_ERROR) {
+    if (err_info == OKAY_NO_ERROR) {
 /*      printf("decl val2 ");
       trace1(object_type->match_obj);
       printf(": ");
       trace1(name_expr);
       printf(";\n"); */
       created_object = entername(prog.declaration_root, name_expr, &err_info);
-      if (err_info == NO_ERROR) {
+      if (err_info == OKAY_NO_ERROR) {
         created_object->type_of = object_type;
         INIT_CLASS_OF_OBJ(created_object, VALUEPARAMOBJECT);
 /*        printf("decl val2 --> ");
@@ -732,7 +732,7 @@ listtype arguments;
       } /* if */
       shrink_stack();
     } /* if */
-    if (err_info != NO_ERROR) {
+    if (err_info != OKAY_NO_ERROR) {
       return(raise_exception(SYS_MEM_EXCEPTION));
     } else {
       return(bld_param_temp(created_object));
@@ -757,7 +757,7 @@ listtype arguments;
     objecttype value;
     objecttype matched_value;
     objecttype current_object;
-    errinfotype err_info = NO_ERROR;
+    errinfotype err_info = OKAY_NO_ERROR;
 
   /* dcl_var */
     isit_type(arg_2(arguments));
@@ -774,7 +774,7 @@ listtype arguments;
     printf("\n");
 #endif
     grow_stack(&err_info);
-    if (err_info == NO_ERROR) {
+    if (err_info == OKAY_NO_ERROR) {
       if (CLASS_OF_OBJ(value_expr) == EXPROBJECT &&
           value_expr->value.listvalue != NULL &&
           value_expr->value.listvalue->next == NULL) {
@@ -787,7 +787,7 @@ listtype arguments;
 #endif
       current_object = entername(prog.declaration_root, name_expr, &err_info);
       copy_expression(value_expr, &value, &err_info);
-      if (err_info == NO_ERROR) {
+      if (err_info == OKAY_NO_ERROR) {
         current_object->type_of = object_type;
         SET_VAR_FLAG(current_object);
 #ifdef TRACE_DCL
@@ -800,7 +800,7 @@ listtype arguments;
           if (match_expression(value) != NULL &&
               (matched_value = match_object(value)) != NULL) {
             do_create(current_object, matched_value, &err_info);
-            if (err_info != NO_ERROR) {
+            if (err_info != OKAY_NO_ERROR) {
               err_object(DECL_FAILED, current_object);
 #ifdef TRACE_DCL
               printf("*** do_create failed ");
@@ -815,7 +815,7 @@ listtype arguments;
           } /* if */
         } else {
           do_create(current_object, value, &err_info);
-          if (err_info != NO_ERROR) {
+          if (err_info != OKAY_NO_ERROR) {
             err_object(DECL_FAILED, current_object);
 #ifdef TRACE_DCL
             printf("*** do_create failed ");
@@ -827,7 +827,7 @@ listtype arguments;
       } /* if */
       shrink_stack();
     } /* if */
-    if (err_info != NO_ERROR) {
+    if (err_info != OKAY_NO_ERROR) {
       return(raise_exception(SYS_MEM_EXCEPTION));
     } else {
       return(SYS_EMPTY_OBJECT);

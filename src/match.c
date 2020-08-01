@@ -255,7 +255,7 @@ objecttype object;
 #endif
 
   {
-    errinfotype err_info = NO_ERROR;
+    errinfotype err_info = OKAY_NO_ERROR;
     objecttype result;
 
   /* match_object */
@@ -479,7 +479,7 @@ listtype match_expr;
     objecttype attribute_object;
     typetype object_type;
     typetype result_type;
-    errinfotype err_info = NO_ERROR;
+    errinfotype err_info = OKAY_NO_ERROR;
 
   /* match_subexpr */
 #ifdef TRACE_MATCH

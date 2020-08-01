@@ -320,7 +320,7 @@ listtype arguments;
     objecttype when_set;
     settype set_value;
     objecttype when_statement;
-    errinfotype err_info = NO_ERROR;
+    errinfotype err_info = OKAY_NO_ERROR;
     booltype searching;
 
   /* prc_case */
@@ -382,7 +382,7 @@ listtype arguments;
     objecttype when_set;
     settype set_value;
     objecttype when_statement;
-    errinfotype err_info = NO_ERROR;
+    errinfotype err_info = OKAY_NO_ERROR;
     booltype searching;
 
   /* prc_case_def */
@@ -703,7 +703,7 @@ listtype arguments;
 
   {
     stritype include_file_name;
-    errinfotype err_info = NO_ERROR;
+    errinfotype err_info = OKAY_NO_ERROR;
 
   /* prc_include */
     isit_stri(arg_2(arguments));
@@ -711,7 +711,7 @@ listtype arguments;
     find_include_file(include_file_name, &err_info);
     if (err_info == FILE_ERROR) {
       err_stri(FILENOTFOUND, include_file_name);
-    } else if (err_info != NO_ERROR) {
+    } else if (err_info != OKAY_NO_ERROR) {
       err_warning(OUT_OF_HEAP_SPACE);
     } else {
       scan_symbol();
@@ -736,7 +736,7 @@ listtype arguments;
     listtype *local_object_insert_place;
     loclisttype local_vars;
     objecttype decl_res;
-    errinfotype err_info = NO_ERROR;
+    errinfotype err_info = OKAY_NO_ERROR;
     blocktype block;
 
   /* prc_local */
@@ -891,7 +891,7 @@ listtype arguments;
     locobjrecord result_var;
     objecttype result_init;
     objecttype block_body;
-    errinfotype err_info = NO_ERROR;
+    errinfotype err_info = OKAY_NO_ERROR;
     blocktype block;
 
   /* prc_res_begin */
@@ -916,11 +916,11 @@ listtype arguments;
     trace1(result_init);
     printf("\n"); */
     grow_stack(&err_info);
-    if (err_info == NO_ERROR) {
+    if (err_info == OKAY_NO_ERROR) {
       result_var.object = entername(prog.declaration_root, result_var_name, &err_info);
       shrink_stack();
     } /* if */
-    if (err_info == NO_ERROR) {
+    if (err_info == OKAY_NO_ERROR) {
       get_result_var(&result_var, result_type, result_init, &err_info);
 /*      printf("result_var.object ");
       trace1(result_var.object);
@@ -969,7 +969,7 @@ listtype arguments;
     listtype *local_object_insert_place;
     loclisttype local_vars;
     objecttype decl_res;
-    errinfotype err_info = NO_ERROR;
+    errinfotype err_info = OKAY_NO_ERROR;
     blocktype block;
 
   /* prc_res_local */
@@ -986,11 +986,11 @@ listtype arguments;
     } /* if */
     push_stack();
     grow_stack(&err_info);
-    if (err_info == NO_ERROR) {
+    if (err_info == OKAY_NO_ERROR) {
       result_var.object = entername(prog.declaration_root, result_var_name, &err_info);
       shrink_stack();
     } /* if */
-    if (err_info == NO_ERROR) {
+    if (err_info == OKAY_NO_ERROR) {
       get_result_var(&result_var, result_type, result_init, &err_info);
       local_object_insert_place = get_local_object_insert_place();
       decl_res = evaluate(local_decls);
@@ -1039,7 +1039,7 @@ listtype arguments;
     objecttype block_body;
     locobjrecord return_var;
     typetype return_type;
-    errinfotype err_info = NO_ERROR;
+    errinfotype err_info = OKAY_NO_ERROR;
     blocktype block;
 
   /* prc_return */
@@ -1095,7 +1095,7 @@ listtype arguments;
     objecttype block_body;
     locobjrecord return_var;
     typetype return_type;
-    errinfotype err_info = NO_ERROR;
+    errinfotype err_info = OKAY_NO_ERROR;
     blocktype block;
 
   /* prc_return2 */

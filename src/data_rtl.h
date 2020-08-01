@@ -1,6 +1,6 @@
 /********************************************************************/
 /*                                                                  */
-/*  fil_rtl.h     Primitive actions for the primitive file type.    */
+/*  data_rtl.h    Basic type definitions and settings.              */
 /*  Copyright (C) 1989 - 2005  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
@@ -23,28 +23,37 @@
 /*  Boston, MA 02111-1307 USA                                       */
 /*                                                                  */
 /*  Module: Seed7 Runtime Library                                   */
-/*  File: seed7/src/fil_rtl.h                                       */
-/*  Changes: 1992, 1993, 1994  Thomas Mertes                        */
-/*  Content: Primitive actions for the primitive file type.         */
+/*  File: seed7/src/data_rtl.h                                      */
+/*  Changes: 1990 - 1994, 2000, 2005  Thomas Mertes                 */
+/*  Content: Type definitions for general data structures.          */
 /*                                                                  */
 /********************************************************************/
 
-#ifdef ANSI_C
+typedef struct objectstruct  *objecttype;
+typedef struct arraystruct   *arraytype;
+typedef struct helemstruct   *helemtype;
+typedef struct hashstruct    *hashtype;
 
-stritype filLineRead (filetype, chartype *);
-stritype filLit (filetype);
-inttype filLng (filetype);
-stritype filStriRead (filetype, inttype);
-stritype filWordRead (filetype, chartype *);
-void filWrite (filetype, stritype);
+typedef struct objectstruct {
+    long value;
+  } objectrecord;
 
-#else
+typedef struct arraystruct {
+    inttype min_position;
+    inttype max_position;
+    objectrecord arr[1];
+  } arrayrecord;
 
-stritype filLineRead ();
-stritype filLit ();
-inttype filLng ();
-stritype filStriRead ();
-stritype filWordRead ();
-void filWrite ();
+typedef struct helemstruct {
+    helemtype next_less;
+    helemtype next_greater;
+    objectrecord key;
+    objectrecord data;
+  } helemrecord;
 
-#endif;
+typedef struct hashstruct {
+    int bits;
+    int mask;
+    int table_size;
+    helemtype table[1];
+  } hashrecord;

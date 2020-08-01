@@ -68,7 +68,7 @@ inttype *time_zone;
     struct tm *local_time;
 
   /* timNow */
-#ifdef TRACE_TIM_UNX
+#ifdef TRACE_TIM_DOS
     printf("BEGIN timNow\n");
 #endif
     ftime(&tstruct);
@@ -81,7 +81,7 @@ inttype *time_zone;
     *sec       = local_time->tm_sec;
     *mycro_sec = 1000 * ((long) tstruct.millitm);
     *time_zone = (long) tstruct.timezone;
-#ifdef TRACE_TIM_UNX
+#ifdef TRACE_TIM_DOS
     printf("END timNow(%d, %d, %d, %d, %d, %d, %d, %d)\n",
 	*year, *month, *day, *hour, *min, *sec, *mycro_sec, *time_zone);
 #endif

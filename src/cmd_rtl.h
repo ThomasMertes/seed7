@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
-/*  fil_rtl.h     Primitive actions for the primitive file type.    */
-/*  Copyright (C) 1989 - 2005  Thomas Mertes                        */
+/*  cmd_rtl.h     Primitive actions for various commands.           */
+/*  Copyright (C) 1989 - 2006  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */
@@ -23,28 +23,30 @@
 /*  Boston, MA 02111-1307 USA                                       */
 /*                                                                  */
 /*  Module: Seed7 Runtime Library                                   */
-/*  File: seed7/src/fil_rtl.h                                       */
-/*  Changes: 1992, 1993, 1994  Thomas Mertes                        */
-/*  Content: Primitive actions for the primitive file type.         */
+/*  File: seed7/src/cmd_rtl.h                                       */
+/*  Changes: 1994, 2006  Thomas Mertes                              */
+/*  Content: Primitive actions for various commands.                */
 /*                                                                  */
 /********************************************************************/
 
 #ifdef ANSI_C
 
-stritype filLineRead (filetype, chartype *);
-stritype filLit (filetype);
-inttype filLng (filetype);
-stritype filStriRead (filetype, inttype);
-stritype filWordRead (filetype, chartype *);
-void filWrite (filetype, stritype);
+void cmdChdir (stritype);
+void cmdCopy (stritype, stritype);
+stritype cmdGetcwd (void);
+inttype cmdLng (stritype);
+void cmdMove (stritype, stritype);
+void cmdRemove (stritype);
+void cmdSh (stritype);
 
 #else
 
-stritype filLineRead ();
-stritype filLit ();
-inttype filLng ();
-stritype filStriRead ();
-stritype filWordRead ();
-void filWrite ();
+void cmdChdir ();
+void cmdCopy ();
+stritype cmdGetcwd ();
+inttype cmdLng ();
+void cmdMove ();
+void cmdRemove ();
+void cmdSh ();
 
-#endif;
+#endif

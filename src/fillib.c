@@ -230,34 +230,10 @@ objecttype fil_lit (arguments)
 listtype arguments;
 #endif
 
-  {
-    filetype fil1;
-    cstritype file_name;
-    memsizetype length;
-    stritype result;
-
-  /* fil_lit */
+  { /* fil_lit */
     isit_file(arg_1(arguments));
-    fil1 = take_file(arg_1(arguments));
-    if (fil1 == NULL) {
-      file_name = "NULL";
-    } else if (fil1 == stdin) {
-      file_name = "stdin";
-    } else if (fil1 == stdout) {
-      file_name = "stdout";
-    } else if (fil1 == stderr) {
-      file_name = "stderr";
-    } else {
-      file_name = "file";
-    } /* if */
-    length = strlen(file_name);
-    if (!ALLOC_STRI(result, length)) {
-      return(raise_exception(SYS_MEM_EXCEPTION));
-    } /* if */
-    COUNT_STRI(length);
-    result->size = length;
-    stri_expand(result->mem, file_name, (SIZE_TYPE) length);
-    return(bld_stri_temp(result));
+    return(bld_stri_temp(
+        filLit(take_file(arg_1(arguments)))));
   } /* fil_lit */
 
 
@@ -553,6 +529,27 @@ listtype arguments;
     return(bld_int_temp(
         (inttype) ftell(take_file(arg_1(arguments))) + 1));
   } /* fil_tell */
+
+
+
+#ifdef ANSI_C
+
+objecttype fil_value (listtype arguments)
+#else
+
+objecttype fil_value (arguments)
+listtype arguments;
+#endif
+
+  {
+    objecttype obj_arg;
+
+  /* fil_value */
+    isit_reference(arg_3(arguments));
+    obj_arg = take_reference(arg_3(arguments));
+    isit_file(obj_arg);
+    return(bld_file_temp(take_file(obj_arg)));
+  } /* fil_value */
 
 
 

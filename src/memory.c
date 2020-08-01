@@ -621,7 +621,7 @@ objecttype object;
 
   {
     booltype save_fail_flag;
-    errinfotype err_info = NO_ERROR;
+    errinfotype err_info = OKAY_NO_ERROR;
 
   /* dump_any_temp */
 #ifdef TRACE_DUMP_ANY_TEMP
@@ -649,6 +649,7 @@ objecttype object;
       case CONSTENUMOBJECT:
       case VARENUMOBJECT:
       case ENUMLITERALOBJECT:
+      case FWDREFOBJECT:
         FREE_OBJECT(object);
         break;
       case TYPEOBJECT:

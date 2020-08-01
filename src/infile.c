@@ -258,7 +258,7 @@ errinfotype *err_info;
     printf("BEGIN open_infile\n");
 #endif
     make_os_file_name(source_file_name, &os_file_name, err_info);
-    if (*err_info == NO_ERROR) {
+    if (*err_info == OKAY_NO_ERROR) {
       in_fil = fopen((cstritype) os_file_name, "rb");
       /* printf("fopen(\"%s\") ==> %lu\n", os_file_name, in_fil); */
       FREE_USTRI(os_file_name, strlen((cstritype) os_file_name),
@@ -276,7 +276,7 @@ errinfotype *err_info;
             in_file.next = new_file;
           } /* if */
         } /* if */
-        if (*err_info == NO_ERROR) {
+        if (*err_info == OKAY_NO_ERROR) {
           in_file.fil = in_fil;
           if (!speedup()) {
             fclose(in_file.fil);
@@ -415,7 +415,7 @@ errinfotype *err_info;
         in_file.next = new_file;
       } /* if */
     } /* if */
-    if (*err_info == NO_ERROR) {
+    if (*err_info == OKAY_NO_ERROR) {
       name_length = strlen((cstritype) source_file_name);
       if (!ALLOC_USTRI(in_file.name, name_length)) {
         *err_info = MEMORY_ERROR;
@@ -550,7 +550,7 @@ errinfotype *err_info;
     open_infile(include_file_name, err_info);
     if (*err_info == FILE_ERROR) {
       if (file_path != NULL) {
-        *err_info = NO_ERROR;
+        *err_info = OKAY_NO_ERROR;
         length = file_path->size + include_file_name->size + 1;
         if (!ALLOC_STRI(stri, length)) {
           *err_info = MEMORY_ERROR;

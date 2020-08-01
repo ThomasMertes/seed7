@@ -28,8 +28,10 @@
 #ifdef ANSI_C
 
 objecttype ref_addr (listtype);
+objecttype ref_arrtolist (listtype);
 objecttype ref_body (listtype);
 objecttype ref_build (listtype);
+objecttype ref_cmp (listtype);
 objecttype ref_content (listtype);
 objecttype ref_conv (listtype);
 objecttype ref_cpy (listtype);
@@ -37,6 +39,7 @@ objecttype ref_create (listtype);
 objecttype ref_deref (listtype);
 objecttype ref_eq (listtype);
 objecttype ref_find (listtype);
+objecttype ref_hashcode (listtype);
 objecttype ref_issymb (listtype);
 objecttype ref_isvar (listtype);
 objecttype ref_locals (listtype);
@@ -52,6 +55,7 @@ objecttype ref_prog (listtype);
 objecttype ref_resini (listtype);
 objecttype ref_result (listtype);
 objecttype ref_scan (listtype);
+objecttype ref_scttolist (listtype);
 objecttype ref_select (listtype);
 objecttype ref_str (listtype);
 objecttype ref_symb (listtype);
@@ -62,8 +66,10 @@ objecttype ref_value (listtype);
 #else
 
 objecttype ref_addr ();
+objecttype ref_arrtolist ();
 objecttype ref_body ();
 objecttype ref_build ();
+objecttype ref_cmp ();
 objecttype ref_content ();
 objecttype ref_conv ();
 objecttype ref_cpy ();
@@ -71,6 +77,7 @@ objecttype ref_create ();
 objecttype ref_deref ();
 objecttype ref_eq ();
 objecttype ref_find ();
+objecttype ref_hashcode ();
 objecttype ref_issymb ();
 objecttype ref_isvar ();
 objecttype ref_locals ();
@@ -86,6 +93,7 @@ objecttype ref_prog ();
 objecttype ref_resini ();
 objecttype ref_result ();
 objecttype ref_scan ();
+objecttype ref_scttolist ();
 objecttype ref_select ();
 objecttype ref_str ();
 objecttype ref_symb ();

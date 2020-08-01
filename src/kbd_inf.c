@@ -24,7 +24,7 @@
 /*                                                                  */
 /*  Module: Seed7 Runtime Library                                   */
 /*  File: seed7/src/kbd_inf.c                                       */
-/*  Changes: 1994  Thomas Mertes                                    */
+/*  Changes: 1994, 2006  Thomas Mertes                              */
 /*  Content: Driver for terminfo keyboard access                    */
 /*                                                                  */
 /********************************************************************/
@@ -35,6 +35,8 @@
 #include "time.h"
 
 #include "version.h"
+#include "common.h"
+#include "striutl.h"
 #include "inf_conf.h"
 
 
@@ -53,7 +55,6 @@
 #endif
 #endif
 
-#include "common.h"
 #include "trm_drv.h"
 
 #ifdef USE_TERMCAP
@@ -70,6 +71,7 @@
 /* #define atexit(x) */
 
 
+static booltype utf8_mode = FALSE;
 static booltype key_buffer_filled = FALSE;
 static int last_key;
 extern booltype changes;
@@ -128,6 +130,94 @@ static int key_code[SIZE_KEY_TABLE] = {
 
 #ifdef ANSI_C
 
+static chartype read_utf8_key (ustritype ustri, int ustri_len)
+#else
+
+static chartype read_utf8_key (ustri, ustri_len)
+ustritype ustri;
+int ustri_len;
+#endif
+
+  {
+    SIZE_TYPE len;
+    strelemtype stri[6];
+    memsizetype dest_len;
+
+  /* read_utf8_key */
+    if (ustri[0] <= 0x7F) {
+      if (ustri_len == 1) {
+        return(ustri[0]);
+      } else if (ustri_len == 2) {
+        last_key = ustri[1];
+        key_buffer_filled = TRUE;
+        return(ustri[0]);
+      } /* if */
+    } else if ((ustri[0] & 0xE0) == 0xC0) {
+      len = 2;
+    } else if ((ustri[0] & 0xF0) == 0xE0) {
+      len = 3;
+    } else if ((ustri[0] & 0xF8) == 0xF0) {
+      len = 4;
+    } else if ((ustri[0] & 0xFC) == 0xF8) {
+      len = 5;
+    } else if ((ustri[0] & 0xFC) == 0xFC) {
+      len = 6;
+    } else {
+      if (ustri_len == 1) {
+        return(ustri[0]);
+      } else if (ustri_len == 2) {
+        last_key = ustri[1];
+        key_buffer_filled = TRUE;
+        return(ustri[0]);
+      } /* if */
+    } /* if */
+    if (ustri_len == 2 && (ustri[1] & 0xC0) != 0x80) {
+      last_key = ustri[1];
+      key_buffer_filled = TRUE;
+      return(ustri[0]);
+    } else {
+      while (ustri_len < len) {
+        term_descr.c_cc[VMIN] = 0;
+        term_descr.c_cc[VTIME] = 10;
+        tcsetattr(fileno(stdin), TCSANOW, &term_descr);
+        if (fread(&ustri[ustri_len], 1, 1, stdin) == 1) {
+          ustri[ustri_len + 1] = '\0';
+        } else {
+	  ustri[ustri_len] = '\0';
+        } /* if */
+        term_descr.c_cc[VMIN] = 1;
+        term_descr.c_cc[VTIME] = 0;
+        tcsetattr(fileno(stdin), TCSANOW, &term_descr);
+        if (ustri[ustri_len] == '\0') {
+          if (ustri_len == 1) {
+            return(ustri[0]);
+          } else {
+            return(K_UNDEF);
+          } /* if */
+        } else if ((ustri[ustri_len] & 0xC0) != 0x80) {
+          last_key = ustri[ustri_len];
+          key_buffer_filled = TRUE;
+          if (ustri_len == 1) {
+            return(ustri[0]);
+          } else {
+            return(K_UNDEF);
+          } /* if */
+        } /* if */
+        ustri_len++;
+      } /* while */
+      if (utf8_to_stri(stri, &dest_len, ustri, len) == 0 &&
+          dest_len == 1) {
+	return(stri[0]);
+      } else {
+        return(K_UNDEF);
+      } /* if */
+    } /* if */
+  } /* read_utf8_key */
+
+
+
+#ifdef ANSI_C
+
 static chartype read_f_key (chartype actual_char)
 #else
 
@@ -152,7 +242,7 @@ chartype actual_char;
         /* If the previous call of read_f_key was at most 5 seconds */
         /* ago and the function key was recognised with a partial   */
         /* match and a timeout the following check is done. It is   */
-        /* checked if the new character together with the           */
+        /* checked if the new character together with the       */
         /* characters from the partial match of the previous call   */
         /* of read_f_key are a possible begin of a function key. In */
         /* this case it was wrong that the previous call of         */
@@ -272,17 +362,46 @@ chartype actual_char;
     if (exact_match == 1) {
       return(key_code[key_number]);
     } else {
-      if (pos == 2) {
-        return(actual_char);
-      } else if (pos == 3) {
-        last_key = in_buffer[1];
-        key_buffer_filled = TRUE;
-        return(actual_char);
+      if (pos == 2 || pos == 3) {
+        if (utf8_mode) {
+          return(read_utf8_key(in_buffer, pos - 1));
+        } else {
+          if (pos == 2) {
+            return(actual_char);
+          } else if (pos == 3) {
+            last_key = in_buffer[1];
+            key_buffer_filled = TRUE;
+            return(actual_char);
+          } /* if */
+        } /* if */
       } else {
         return(K_UNDEF);
       } /* if */
     } /* if */
   } /* read_f_key */
+
+
+
+#ifdef ANSI_C
+
+static void utf8_init (void)
+#else
+
+static void utf8_init ()
+#endif
+
+  {
+    char *s;
+
+  /* utf8_init */
+    if (((s = getenv("LC_ALL"))   && *s) ||
+        ((s = getenv("LC_CTYPE")) && *s) ||
+        ((s = getenv("LANG"))     && *s)) {
+      if (strstr(s, "UTF-8")) {
+	utf8_mode = TRUE;
+      } /* if */ 
+    } /* if */ 
+  } /* utf8_init */
 
 
 
@@ -495,6 +614,7 @@ static void kbd_init ()
         } /* for */
       } /* for */
     } /* if */
+    utf8_init();
   } /* kbd_init */
 
 

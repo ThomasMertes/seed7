@@ -27,6 +27,7 @@
 
 #include "stdlib.h"
 #include "stdio.h"
+#include "string.h"
 
 #include "version.h"
 #include "common.h"
@@ -171,7 +172,7 @@ listtype *evaluated_act_params;
     listtype *evaluated_insert_place;
     listtype param_list_elem;
     objecttype param_value;
-    errinfotype err_info = NO_ERROR;
+    errinfotype err_info = OKAY_NO_ERROR;
 
   /* par_init */
 #ifdef TRACE_EXEC
@@ -201,7 +202,7 @@ listtype *evaluated_act_params;
     } else {
       form_param = form_param_list;
       param_list_elem = *evaluated_act_params;
-      while (form_param != NULL && err_info == NO_ERROR) {
+      while (form_param != NULL && err_info == OKAY_NO_ERROR) {
         param_value = param_list_elem->obj;
         switch (CLASS_OF_OBJ(form_param->local.object)) {
           case VALUEPARAMOBJECT:
@@ -274,7 +275,7 @@ listtype evaluated_act_params;
 
   {
     booltype save_fail_flag;
-    errinfotype err_info = NO_ERROR;
+    errinfotype err_info = OKAY_NO_ERROR;
 
   /* par_restore */
 #ifdef TRACE_EXEC
@@ -282,7 +283,7 @@ listtype evaluated_act_params;
 #endif
     save_fail_flag = fail_flag;
     fail_flag = FALSE;
-    while (form_param != NULL && err_info == NO_ERROR) {
+    while (form_param != NULL && err_info == OKAY_NO_ERROR) {
 #ifdef OUT_OF_ORDER
       if (trace.actions) {
         prot_cstri("par_restore ");
@@ -339,7 +340,7 @@ listtype act_param_list;
 
   {
     listtype *list_insert_place;
-    errinfotype err_info = NO_ERROR;
+    errinfotype err_info = OKAY_NO_ERROR;
 
   /* loc_init */
 #ifdef TRACE_EXEC
@@ -372,7 +373,7 @@ listtype backup_loc_var;
 
   {
     booltype save_fail_flag;
-    errinfotype err_info = NO_ERROR;
+    errinfotype err_info = OKAY_NO_ERROR;
 
   /* loc_restore */
 #ifdef TRACE_EXEC
@@ -407,7 +408,7 @@ objecttype *backup_block_result;
 #endif
 
   {
-    errinfotype err_info = NO_ERROR;
+    errinfotype err_info = OKAY_NO_ERROR;
 
   /* res_init */
 #ifdef TRACE_EXEC
@@ -427,7 +428,7 @@ objecttype *backup_block_result;
     printf("END res_init(%ld)\n",
         block_result->object ? ((inttype) block_result->object->value.objvalue) : 0);
 #endif
-    return(err_info == NO_ERROR);
+    return(err_info == OKAY_NO_ERROR);
   } /* res_init */
 
 
@@ -445,7 +446,7 @@ objecttype *result;
 #endif
 
   {
-    errinfotype err_info = NO_ERROR;
+    errinfotype err_info = OKAY_NO_ERROR;
 
   /* res_restore */
 #ifdef TRACE_EXEC
@@ -995,7 +996,7 @@ listtype expr_list;
     booltype value_dereferenced;
     objecttype match_result;
     objecttype result = NULL;
-    errinfotype err_info = NO_ERROR;
+    errinfotype err_info = OKAY_NO_ERROR;
 
   /* exec_dynamic */
 #ifdef TRACE_EXEC

@@ -81,6 +81,12 @@ static win_wintype bitmap_list = NULL;
 #define WM_NCMOUSELEAVE 674
 #endif
 
+chartype map_1252_to_unicode[] = {
+/* 128 */ 0x20AC,    '?', 0x201A, 0x0192, 0x201E, 0x2026, 0x2020, 0x2021,
+/* 136 */ 0x02C6, 0x2030, 0x0160, 0x2039, 0x0152,    '?', 0x017D,    '?',
+/* 144 */    '?', 0x2018, 0x2019, 0x201C, 0x201D, 0x2022, 0x2013, 0x2014,
+/* 152 */ 0x02DC, 0x2122, 0x0161, 0x203A, 0x0153,    '?', 0x017E, 0x0178};
+
 
 
 #ifdef ANSI_C
@@ -397,6 +403,9 @@ chartype gkbGetc ()
           } else if (msg.message == WM_CHAR) {
             /* printf("WM_CHAR %lu, %d, %u\n", msg.hwnd, msg.wParam, msg.lParam); */
             result = msg.wParam;
+            if (result >= 128 && result <= 159) {
+	      result = map_1252_to_unicode[result - 128];
+            } /* if */
           } else {
             /* printf("message=%d %lu, %d, %u\n", msg.message, msg.hwnd, msg.wParam, msg.lParam); */
             TranslateMessage(&msg);
@@ -665,6 +674,31 @@ inttype col;
     DeleteObject(current_pen);
     DeleteObject(current_brush);
   } /* drwClear */
+
+
+
+#ifdef ANSI_C
+
+void drwCpy (wintype *win_to, wintype win_from)
+#else
+
+void drwCpy (win_to, win_from)
+wintype *win_to;
+wintype win_from;
+#endif
+
+  { /* drwCpy */
+    if (*win_to != NULL) {
+      (*win_to)->usage_count--;
+      if ((*win_to)->usage_count == 0) {
+        drwFree(*win_to);
+      } /* if */
+    } /* if */
+    *win_to = win_from;
+    if (win_from != NULL) {
+      win_from->usage_count++;
+    } /* if */
+  } /* drwCpy */
 
 
 
@@ -952,6 +986,10 @@ stritype window_name;
     win_wintype result;
 
   /* drwOpen */
+#ifdef TRACE_X11
+    printf("BEGIN drwOpen(%ld, %ld, %ld, %ld)\n",
+        xPos, yPos, width, height);
+#endif
     result = NULL;
     if (init_called == 0) {
       dra_init();
@@ -1002,6 +1040,9 @@ stritype window_name;
         free_cstri(win_name, window_name);
       } /* if */
     } /* if */
+#ifdef TRACE_X11
+    printf("END drwOpen\n");
+#endif
     return((wintype) result);
   } /* drwOpen */
 

@@ -23,7 +23,7 @@
 
 
 $ include "seed7_05.s7i";
-include "wrinum.s7i";
+  include "wrinum.s7i";
 
 
 var integer: number is 0;
@@ -36,6 +36,6 @@ const proc: main is func
 (*      num := rand(1, 999999999); *)
 (*      write(num);
         write(" "); *)
-        writeln(str_1E9(number));
+        writeln(str(ENGLISH, number));
       end for;
     end func;

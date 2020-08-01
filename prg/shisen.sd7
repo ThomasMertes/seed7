@@ -177,41 +177,6 @@ const array string: door_pic is [](
   "BBBBBBBBBBBBBBBB");
 
 
-const array string: ruby_pic is [](
-  "                                ",
-  "                                ",
-  "                                ",
-  "                                ",
-  "               Xr               ",
-  "              XXrr              ",
-  "             XXRRrr             ",
-  "            XXXRRrrr            ",
-  "           XXXRRRRrrr           ",
-  "          XXXXRRRRrrrr          ",
-  "         XXXXRRRRRRrrrr         ",
-  "        XXXXXRRRRRRrrrrr        ",
-  "       XXXXXRRRRRRRRrrrrr       ",
-  "      XXXXXXRRRRRRRRrrrrrr      ",
-  "     XXXXXXRRRRRRRRRRrrrrrr     ",
-  "    XXXXXXXRRRRRRRRRRrrrrrrr    ",
-  "   XXXXXXXRRRRRRRRRRRRrrrrrrr   ",
-  "  XXXXXXXXRRRRRRRRRRRRrrrrrrrr  ",
-  " XXXXXXXXRRRRRRRRRRRRRRrrrrrrrr ",
-  "XXXXXXXXXRRRRRRRRRRRRRRrrrrrrrrr",
-  "RRRRRRRRrrrrrrrrrrrrrrrrXXXXXXXX",
-  "  RRRRRRRrrrrrrrrrrrrrrXXXXXXX  ",
-  "    RRRRRRrrrrrrrrrrrrXXXXXX    ",
-  "      RRRRRrrrrrrrrrrXXXXX      ",
-  "        RRRRrrrrrrrrXXXX        ",
-  "          RRRrrrrrrXXX          ",
-  "            RRrrrrXX            ",
-  "              RrrX              ",
-  "               RX               ",
-  "                                ",
-  "                                ",
-  "                                ");
-
-
 const array string: jade_figurine_pic is [](
   "       GGG      ",
   "      GGGGG     ",

@@ -31,8 +31,8 @@
 
 #include "stdlib.h"
 #include "stdio.h"
-#include "termios.h"
 #include "string.h"
+#include "termios.h"
 
 #include "version.h"
 #include "common.h"

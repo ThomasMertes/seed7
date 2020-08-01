@@ -109,7 +109,7 @@ DIR *curr_dir;
         strcpy(result->d_name, curr_dir->find_record.name);
 /*      printf(">%s<\n", result->d_name); */
       } else {
-/*      printf("aus\n"); */
+/*      printf("end\n"); */
         result = NULL;
       } /* if */
     } /* if */

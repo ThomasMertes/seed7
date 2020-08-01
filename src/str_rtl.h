@@ -40,6 +40,7 @@ void strDestr (stritype);
 booltype strGe (stritype, stritype);
 booltype strGt (stritype, stritype);
 inttype strHashCode (stritype);
+stritype strHead (stritype, inttype);
 inttype strIpos (stritype, stritype, inttype);
 booltype strLe (stritype, stritype);
 stritype strLit (stritype);
@@ -48,9 +49,11 @@ stritype strLpad (stritype, inttype);
 booltype strLt (stritype, stritype);
 stritype strMult (stritype, inttype);
 inttype strPos (stritype, stritype);
+stritype strRange (stritype, inttype, inttype);
 stritype strRepl (stritype, stritype, stritype);
 stritype strRpad (stritype, inttype);
 inttype strRpos (stritype, stritype);
+stritype strTail (stritype, inttype);
 stritype strUp (stritype);
 
 #else
@@ -64,6 +67,7 @@ void strDestr ();
 booltype strGe ();
 booltype strGt ();
 inttype strHashCode ();
+stritype strHead ();
 inttype strIpos ();
 booltype strLe ();
 stritype strLit ();
@@ -72,9 +76,11 @@ stritype strLpad ();
 booltype strLt ();
 stritype strMult ();
 inttype strPos ();
+stritype strRange ();
 stritype strRepl ();
 stritype strRpad ();
 inttype strRpos ();
+stritype strTail ();
 stritype strUp ();
 
 #endif

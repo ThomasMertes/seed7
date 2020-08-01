@@ -74,8 +74,8 @@ listtype arguments;
     chartype char2;
 
   /* chr_cmp */
-    isit_int(arg_1(arguments));
-    isit_int(arg_2(arguments));
+    isit_char(arg_1(arguments));
+    isit_char(arg_2(arguments));
     char1 = take_char(arg_1(arguments));
     char2 = take_char(arg_2(arguments));
     if (char1 < char2) {

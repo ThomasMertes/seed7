@@ -125,7 +125,7 @@ static INLINE void include_file ()
 
   {
     stritype include_file_name;
-    errinfotype err_info = NO_ERROR;
+    errinfotype err_info = OKAY_NO_ERROR;
 
   /* include_file */
 #ifdef TRACE_ANALYZE
@@ -147,7 +147,7 @@ static INLINE void include_file ()
         find_include_file(include_file_name, &err_info);
         if (err_info == FILE_ERROR) {
           err_stri(FILENOTFOUND, include_file_name);
-        } else if (err_info != NO_ERROR) {
+        } else if (err_info != OKAY_NO_ERROR) {
           err_warning(OUT_OF_HEAP_SPACE);
         } /* if */
         FREE_STRI(include_file_name, include_file_name->size);
@@ -266,7 +266,7 @@ nodetype objects;
     objecttype decl_expression;
     objecttype decl_matched;
     objecttype decl_result;
-    errinfotype err_info = NO_ERROR;
+    errinfotype err_info = OKAY_NO_ERROR;
 
   /* decl_any */
 #ifdef TRACE_ANALYZE
@@ -275,7 +275,7 @@ nodetype objects;
     scan_symbol();
     while (symbol.syclass != STOPSYMBOL) {
       if (current_ident == prog.id_for.dollar) {
-        err_info = NO_ERROR;
+        err_info = OKAY_NO_ERROR;
         scan_symbol();
         if (current_ident == prog.id_for.constant) {
           decl_const(objects, TRUE, &err_info);
@@ -294,7 +294,7 @@ nodetype objects;
             scan_symbol();
           } /* if */
         } /* if */
-        if (err_info != NO_ERROR) {
+        if (err_info != OKAY_NO_ERROR) {
           fatal_memory_error(SOURCE_POSITION(2112));
         } /* if */
       } else {
@@ -370,7 +370,7 @@ errinfotype *err_info;
       init_stack(&prog, err_info);
       init_symbol(err_info);
       reset_statistic();
-      if (*err_info == NO_ERROR) {
+      if (*err_info == OKAY_NO_ERROR) {
         set_trace(option.comp_trace_level, -1, option.prot_file_name);
         decl_any(prog.declaration_root);
         if (SYS_MAIN_OBJECT == NULL) {
@@ -449,7 +449,7 @@ ustritype source_file_name;
     booltype add_extension;
     progtype resultProg;
     ustritype library_environment_variable;
-    errinfotype err_info = NO_ERROR;
+    errinfotype err_info = OKAY_NO_ERROR;
 
   /* analyze */
 #ifdef TRACE_ANALYZE
@@ -488,7 +488,7 @@ ustritype source_file_name;
         stri_expand(&source_name->mem[len], ".sd7", 4);
       } /* if */
       open_infile(source_name, &err_info);
-      if (err_info == NO_ERROR) {
+      if (err_info == OKAY_NO_ERROR) {
         resultProg = analyze_prog(source_file_name, &err_info);
       } /* if */
       if (err_info == FILE_ERROR) {
@@ -522,7 +522,7 @@ stritype input_string;
 
   {
     bstritype input_bstri;
-    errinfotype err_info = NO_ERROR;
+    errinfotype err_info = OKAY_NO_ERROR;
     progtype resultProg;
 
   /* analyze_string */
@@ -534,7 +534,7 @@ stritype input_string;
     input_bstri = cp_to_bstri(input_string);
     if (input_bstri != NULL) {
       open_string(input_bstri, &err_info);
-      if (err_info == NO_ERROR) {
+      if (err_info == OKAY_NO_ERROR) {
         resultProg = analyze_prog("STRING", &err_info);
         if (err_info == MEMORY_ERROR) {
           err_warning(OUT_OF_HEAP_SPACE);

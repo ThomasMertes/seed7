@@ -46,6 +46,7 @@ objecttype fil_out (listtype);
 objecttype fil_seek (listtype);
 objecttype fil_stri_read (listtype);
 objecttype fil_tell (listtype);
+objecttype fil_value (listtype);
 objecttype fil_word_read (listtype);
 objecttype fil_write (listtype);
 
@@ -70,6 +71,7 @@ objecttype fil_out ();
 objecttype fil_seek ();
 objecttype fil_stri_read ();
 objecttype fil_tell ();
+objecttype fil_value ();
 objecttype fil_word_read ();
 objecttype fil_write ();
 

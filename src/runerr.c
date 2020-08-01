@@ -175,7 +175,7 @@ listtype list;
 #endif
 
   {
-    errinfotype err_info = NO_ERROR;
+    errinfotype err_info = OKAY_NO_ERROR;
 
   /* raise_with_arguments */
 #ifdef WITH_PROTOCOL

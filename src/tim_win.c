@@ -30,6 +30,7 @@
 /********************************************************************/
 
 #include "stdio.h"
+#include "string.h"
 #include "windows.h"
 
 #include "version.h"
@@ -68,7 +69,7 @@ inttype *time_zone;
     TIME_ZONE_INFORMATION this_time_zone;
 
   /* timNow */
-#ifdef TRACE_TIM_UNX
+#ifdef TRACE_TIM_WIN
     printf("BEGIN timNow\n");
 #endif
     GetSystemTimeAsFileTime(&system_time);
@@ -84,7 +85,7 @@ inttype *time_zone;
     *mycro_sec = (local_time_64.QuadPart / 10) % 1000000;
     GetTimeZoneInformation(&this_time_zone);
     *time_zone = this_time_zone.Bias;
-#ifdef TRACE_TIM_UNX
+#ifdef TRACE_TIM_WIN
     printf("END timNow(%d, %d, %d, %d, %d, %d, %d, %d)\n",
 	*year, *month, *day, *hour, *min, *sec, *mycro_sec, *time_zone);
 #endif

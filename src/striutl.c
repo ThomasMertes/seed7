@@ -31,6 +31,7 @@
 
 #include "stdlib.h"
 #include "stdio.h"
+#include "string.h"
 
 #include "version.h"
 #include "common.h"
@@ -142,7 +143,7 @@ SIZE_TYPE len;
                   (ustri[3] & 0x3F);
         ustri += 4;
         len -= 3;
-       } else if ((ustri[0] & 0xFC) == 0xF8 && len > 4 &&
+      } else if ((ustri[0] & 0xFC) == 0xF8 && len > 4 &&
                  (ustri[1] & 0xC0) == 0x80 &&
                  (ustri[2] & 0xC0) == 0x80 &&
                  (ustri[3] & 0xC0) == 0x80 &&

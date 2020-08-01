@@ -253,7 +253,7 @@ errinfotype *err_info;
         if (CLASS_OF_OBJ(typeof_object) == TYPEOBJECT) {
           declared_object->type_of = take_type(typeof_object);
           do_create(declared_object, init_expression, err_info);
-          if (*err_info != NO_ERROR) {
+          if (*err_info != OKAY_NO_ERROR) {
             err_object(DECL_FAILED, declared_object);
           } /* if */
           if (TEMP_OBJECT(init_expression)) {
@@ -264,7 +264,7 @@ errinfotype *err_info;
             printf(" ");
             fflush(stdout); */
             do_destroy(init_expression, err_info);
-            if (*err_info == NO_ERROR) {
+            if (*err_info == OKAY_NO_ERROR) {
               FREE_OBJECT(init_expression);
 /*          } else {
               printf("destroy failed\n"); */
@@ -384,10 +384,10 @@ errinfotype *err_info;
 #endif
 /*    printf("decl_const\n"); */
     grow_stack(err_info);
-    if (*err_info == NO_ERROR) {
+    if (*err_info == OKAY_NO_ERROR) {
       typeof_object = decl_type(&is_dollar_type, err_info);
       declared_object = decl_name(node_level, prog_level, err_info);
-      if (*err_info == NO_ERROR) {
+      if (*err_info == OKAY_NO_ERROR) {
 /*        printf("decl_name ");
         trace_entity(declared_object->entity); */
 #ifdef OUT_OF_ORDER

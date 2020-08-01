@@ -875,6 +875,31 @@ inttype col;
 
 #ifdef ANSI_C
 
+void drwCpy (wintype *win_to, wintype win_from)
+#else
+
+void drwCpy (win_to, win_from)
+wintype *win_to;
+wintype win_from;
+#endif
+
+  { /* drwCpy */
+    if (*win_to != NULL) {
+      (*win_to)->usage_count--;
+      if ((*win_to)->usage_count == 0) {
+        drwFree(*win_to);
+      } /* if */
+    } /* if */
+    *win_to = win_from;
+    if (win_from != NULL) {
+      win_from->usage_count++;
+    } /* if */
+  } /* drwCpy */
+
+
+
+#ifdef ANSI_C
+
 void drwFCircle (wintype actual_window,
     inttype x, inttype y, inttype radius)
 #else
@@ -1179,7 +1204,7 @@ inttype height;
 
   /* drwNewPixmap */
 #ifdef TRACE_X11
-    printf("new_pixmap(%ld, %ld)\n", width, height);
+    printf("drwNewPixmap(%ld, %ld)\n", width, height);
 #endif
     result = (x11_wintype) malloc(sizeof(struct x11_winstruct));
     if (result != NULL) {
@@ -1215,7 +1240,7 @@ inttype height;
 
   /* drwNewBitmap */
 #ifdef TRACE_X11
-    printf("new_bitmap(%ld, %ld)\n", width, height);
+    printf("drwNewBitmap(%ld, %ld)\n", width, height);
 #endif
     result = (x11_wintype) malloc(sizeof(struct x11_winstruct));
     if (result != NULL) {
@@ -1332,6 +1357,10 @@ stritype window_name;
     x11_wintype result;
 
   /* drwOpen */
+#ifdef TRACE_X11
+    printf("BEGIN drwOpen(%ld, %ld, %ld, %ld)\n",
+        xPos, yPos, width, height);
+#endif
     result = NULL;
     if (mydisplay == NULL) {
       dra_init();
@@ -1405,6 +1434,9 @@ stritype window_name;
       } /* if */
     } /* if */
     /* printf("result=%lu\n", (long unsigned) result); */
+#ifdef TRACE_X11
+    printf("END drwOpen\n");
+#endif
     return((wintype) result);
   } /* drwOpen */
 

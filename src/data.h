@@ -81,7 +81,6 @@ typedef enum {
     SELECT_ELEMENT_FROM_LIST_SYNTAX
   } token_class;
 
-typedef int                errinfotype;
 typedef unsigned long      postype;
 typedef unsigned int       linenumtype;
 typedef unsigned int       filenumtype;
@@ -253,10 +252,10 @@ typedef struct arraystruct {
   } arrayrecord;
 
 typedef struct helemstruct {
-    objectrecord key;
-    objectrecord data;
     helemtype next_less;
     helemtype next_greater;
+    objectrecord key;
+    objectrecord data;
   } helemrecord;
 
 typedef struct hashstruct {

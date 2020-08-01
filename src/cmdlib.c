@@ -19,9 +19,9 @@
 /*  MA 02111-1307 USA                                               */
 /*                                                                  */
 /*  Module: Library                                                 */
-/*  File: seed7/src/unxlib.c                                        */
+/*  File: seed7/src/cmdlib.c                                        */
 /*  Changes: 1994  Thomas Mertes                                    */
-/*  Content: All primitive actions for files and directorys.        */
+/*  Content: Primitive actions for various commands.                */
 /*                                                                  */
 /********************************************************************/
 
@@ -36,14 +36,14 @@
 #include "flistutl.h"
 #include "syvarutl.h"
 #include "striutl.h"
-#include "runfile.h"
 #include "runerr.h"
 #include "memory.h"
 #include "dir_drv.h"
+#include "cmd_rtl.h"
 
 #undef EXTERN
 #define EXTERN
-#include "unxlib.h"
+#include "cmdlib.h"
 
 
 
@@ -199,117 +199,77 @@ char *dir_name;
 
 #ifdef ANSI_C
 
-objecttype unx_cd (listtype arguments)
+objecttype cmd_chdir (listtype arguments)
 #else
 
-objecttype unx_cd (arguments)
+objecttype cmd_chdir (arguments)
 listtype arguments;
 #endif
 
-  {
-    stritype str1;
-    cstritype dir_name;
-
-  /* unx_cd */
+  { /* cmd_chdir */
     isit_stri(arg_1(arguments));
-    str1 = take_stri(arg_1(arguments));
-    dir_name = cp_to_cstri(str1);
-    if (dir_name == NULL) {
-      return(raise_exception(SYS_MEM_EXCEPTION));
-    } else {
-      chdir(dir_name);
-      free_cstri(dir_name, str1);
-    } /* if */
+    cmdChdir(take_stri(arg_1(arguments)));
     return(SYS_EMPTY_OBJECT);
-  } /* unx_cd */
+  } /* cmd_chdir */
 
 
 
 #ifdef ANSI_C
 
-objecttype unx_cp (listtype arguments)
+objecttype cmd_copy (listtype arguments)
 #else
 
-objecttype unx_cp (arguments)
+objecttype cmd_copy (arguments)
 listtype arguments;
 #endif
 
-  {
-    stritype old_str;
-    stritype new_str;
-    cstritype old_name;
-    cstritype new_name;
-    errinfotype err_info = NO_ERROR;
-
-  /* unx_cp */
+  { /* cmd_copy */
     isit_stri(arg_1(arguments));
     isit_stri(arg_2(arguments));
-    old_str = take_stri(arg_1(arguments));
-    new_str = take_stri(arg_2(arguments));
-    old_name = cp_to_cstri(old_str);
-    if (old_name == NULL) {
-      return(raise_exception(SYS_MEM_EXCEPTION));
-    } else {
-      new_name = cp_to_cstri(new_str);
-      if (new_name == NULL) {
-        return(raise_exception(SYS_MEM_EXCEPTION));
-      } else {
-        copy_any_file(old_name, new_name, &err_info); /* SYS_FILE_EXCEPTION */
-        free_cstri(new_name, new_str);
-      } /* if */
-      free_cstri(old_name, old_str);
-    } /* if */
-    if (err_info == FILE_ERROR) {
-      return(raise_exception(SYS_IO_EXCEPTION));
-    } else if (err_info != NO_ERROR) {
-      return(raise_exception(SYS_MEM_EXCEPTION));
-    } else {
-      return(SYS_EMPTY_OBJECT);
-    } /* if */
-  } /* unx_cp */
+    cmdCopy(take_stri(arg_1(arguments)), take_stri(arg_2(arguments)));
+    return(SYS_EMPTY_OBJECT);
+  } /* cmd_copy */
 
 
 
 #ifdef ANSI_C
 
-objecttype unx_lng (listtype arguments)
+objecttype cmd_getcwd (listtype arguments)
 #else
 
-objecttype unx_lng (arguments)
+objecttype cmd_getcwd (arguments)
 listtype arguments;
 #endif
 
-  {
-    stritype str1;
-    cstritype file_name;
-    struct stat stat_buf;
-    inttype result;
-
-  /* unx_lng */
-    isit_stri(arg_1(arguments));
-    str1 = take_stri(arg_1(arguments));
-    file_name = cp_to_cstri(str1);
-    if (file_name == NULL) {
-      return(raise_exception(SYS_MEM_EXCEPTION));
-    } else {
-      if (stat(file_name, &stat_buf) == 0) {
-        result = (inttype) stat_buf.st_size;
-      } else {
-        result = 0;
-      } /* if */
-      free_cstri(file_name, str1);
-    } /* if */
-    return(bld_int_temp(result));
-  } /* unx_lng */
+  { /* cmd_getcwd */
+    return(bld_stri_temp(cmdGetcwd()));
+  } /* cmd_getcwd */
 
 
 
 #ifdef ANSI_C
 
-objecttype unx_ls (listtype arguments)
+objecttype cmd_lng (listtype arguments)
 #else
 
-objecttype unx_ls (arguments)
+objecttype cmd_lng (arguments)
+listtype arguments;
+#endif
+
+  { /* cmd_lng */
+    isit_stri(arg_1(arguments));
+    return(bld_int_temp(
+        cmdLng(take_stri(arg_1(arguments)))));
+  } /* cmd_lng */
+
+
+
+#ifdef ANSI_C
+
+objecttype cmd_ls (listtype arguments)
+#else
+
+objecttype cmd_ls (arguments)
 listtype arguments;
 #endif
 
@@ -318,7 +278,7 @@ listtype arguments;
     cstritype dir_name;
     arraytype result;
 
-  /* unx_ls */
+  /* cmd_ls */
     isit_stri(arg_1(arguments));
     str1 = take_stri(arg_1(arguments));
     dir_name = cp_to_cstri(str1);
@@ -335,16 +295,16 @@ listtype arguments;
         return(bld_array_temp(result));
       } /* if */
     } /* if */
-  } /* unx_ls */
+  } /* cmd_ls */
 
 
 
 #ifdef ANSI_C
 
-objecttype unx_mkdir (listtype arguments)
+objecttype cmd_mkdir (listtype arguments)
 #else
 
-objecttype unx_mkdir (arguments)
+objecttype cmd_mkdir (arguments)
 listtype arguments;
 #endif
 
@@ -352,7 +312,7 @@ listtype arguments;
     stritype str1;
     cstritype dir_name;
 
-  /* unx_mkdir */
+  /* cmd_mkdir */
     isit_stri(arg_1(arguments));
     str1 = take_stri(arg_1(arguments));
     dir_name = cp_to_cstri(str1);
@@ -363,153 +323,77 @@ listtype arguments;
       free_cstri(dir_name, str1);
     } /* if */
     return(SYS_EMPTY_OBJECT);
-  } /* unx_mkdir */
+  } /* cmd_mkdir */
 
 
 
 #ifdef ANSI_C
 
-objecttype unx_mv (listtype arguments)
+objecttype cmd_move (listtype arguments)
 #else
 
-objecttype unx_mv (arguments)
+objecttype cmd_move (arguments)
 listtype arguments;
 #endif
 
-  {
-    stritype old_str;
-    stritype new_str;
-    cstritype old_name;
-    cstritype new_name;
-    errinfotype err_info = NO_ERROR;
-
-  /* unx_mv */
+  { /* cmd_move */
     isit_stri(arg_1(arguments));
     isit_stri(arg_2(arguments));
-    old_str = take_stri(arg_1(arguments));
-    new_str = take_stri(arg_2(arguments));
-    old_name = cp_to_cstri(old_str);
-    if (old_name == NULL) {
-      return(raise_exception(SYS_MEM_EXCEPTION));
-    } else {
-      new_name = cp_to_cstri(new_str);
-      if (new_name == NULL) {
-        return(raise_exception(SYS_MEM_EXCEPTION));
-      } else {
-        move_any_file(old_name, new_name, &err_info); /* SYS_FILE_EXCEPTION */
-        free_cstri(new_name, new_str);
-      } /* if */
-      free_cstri(old_name, old_str);
-    } /* if */
-    if (err_info != NO_ERROR) {
-      return(raise_exception(SYS_MEM_EXCEPTION));
-    } else {
-      return(SYS_EMPTY_OBJECT);
-    } /* if */
-  } /* unx_mv */
-
-
-
-#ifdef ANSI_C
-
-objecttype unx_pwd (listtype arguments)
-#else
-
-objecttype unx_pwd (arguments)
-listtype arguments;
-#endif
-
-  {
-    char buffer[2000];
-    char *cwd;
-    stritype result;
-
-  /* unx_pwd */
-    if ((cwd = getcwd(buffer, 2000)) == NULL) {
-      return(raise_exception(SYS_RNG_EXCEPTION));
-    } else {
-      result = cp_to_stri(cwd);
-      if (result == NULL) {
-        return(raise_exception(SYS_MEM_EXCEPTION));
-      } else {
-        return(bld_stri_temp(result));
-      } /* if */
-    } /* if */
-  } /* unx_pwd */
-
-
-
-#ifdef ANSI_C
-
-objecttype unx_rm (listtype arguments)
-#else
-
-objecttype unx_rm (arguments)
-listtype arguments;
-#endif
-
-  {
-    stritype str1;
-    cstritype file_name;
-
-  /* unx_rm */
-    isit_stri(arg_1(arguments));
-    str1 = take_stri(arg_1(arguments));
-    file_name = cp_to_cstri(str1);
-    if (file_name == NULL) {
-      return(raise_exception(SYS_MEM_EXCEPTION));
-    } else {
-      remove(file_name);
-      free_cstri(file_name, str1);
-    } /* if */
+    cmdMove(take_stri(arg_1(arguments)), take_stri(arg_2(arguments)));
     return(SYS_EMPTY_OBJECT);
-  } /* unx_rm */
+  } /* cmd_move */
 
 
 
 #ifdef ANSI_C
 
-objecttype unx_sh (listtype arguments)
+objecttype cmd_remove (listtype arguments)
 #else
 
-objecttype unx_sh (arguments)
+objecttype cmd_remove (arguments)
 listtype arguments;
 #endif
 
-  {
-    stritype str1;
-    cstritype command_name;
-
-  /* unx_sh */
+  { /* cmd_remove */
     isit_stri(arg_1(arguments));
-    str1 = take_stri(arg_1(arguments));
-    command_name = cp_to_cstri(str1);
-    if (command_name == NULL) {
-      return(raise_exception(SYS_MEM_EXCEPTION));
-    } else {
-      system(command_name);
-      free_cstri(command_name, str1);
-    } /* if */
+    cmdRemove(take_stri(arg_1(arguments)));
     return(SYS_EMPTY_OBJECT);
-  } /* unx_sh */
+  } /* cmd_remove */
 
 
 
 #ifdef ANSI_C
 
-objecttype unx_sleep (listtype arguments)
+objecttype cmd_sh (listtype arguments)
 #else
 
-objecttype unx_sleep (arguments)
+objecttype cmd_sh (arguments)
+listtype arguments;
+#endif
+
+  { /* cmd_sh */
+    isit_stri(arg_1(arguments));
+    cmdSh(take_stri(arg_1(arguments)));
+    return(SYS_EMPTY_OBJECT);
+  } /* cmd_sh */
+
+
+
+#ifdef ANSI_C
+
+objecttype cmd_sleep (listtype arguments)
+#else
+
+objecttype cmd_sleep (arguments)
 listtype arguments;
 #endif
 
   {
     inttype seconds;
 
-  /* unx_sleep */
+  /* cmd_sleep */
     isit_int(arg_1(arguments));
     seconds = take_int(arg_1(arguments));
     sleep(seconds);
     return(SYS_EMPTY_OBJECT);
-  } /* unx_sleep */
+  } /* cmd_sleep */

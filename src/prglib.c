@@ -171,7 +171,7 @@ listtype arguments;
   {
     progtype currentProg;
     listtype object_list;
-    errinfotype err_info = NO_ERROR;
+    errinfotype err_info = OKAY_NO_ERROR;
     objecttype result;
 
   /* prg_decl_objects */
@@ -179,7 +179,7 @@ listtype arguments;
     currentProg = take_prog(arg_1(arguments));
     if (currentProg->stack_current != NULL) {
       copy_list(currentProg->stack_current->local_object_list, &object_list, &err_info);
-      if (err_info != NO_ERROR) {
+      if (err_info != OKAY_NO_ERROR) {
         return(raise_exception(SYS_MEM_EXCEPTION));
       } /* if */
     } else {

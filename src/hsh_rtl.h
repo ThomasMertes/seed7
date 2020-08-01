@@ -1,6 +1,6 @@
 /********************************************************************/
 /*                                                                  */
-/*  fil_rtl.h     Primitive actions for the primitive file type.    */
+/*  hsh_rtl.h     Primitive actions for the string type.            */
 /*  Copyright (C) 1989 - 2005  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
@@ -23,28 +23,18 @@
 /*  Boston, MA 02111-1307 USA                                       */
 /*                                                                  */
 /*  Module: Seed7 Runtime Library                                   */
-/*  File: seed7/src/fil_rtl.h                                       */
-/*  Changes: 1992, 1993, 1994  Thomas Mertes                        */
-/*  Content: Primitive actions for the primitive file type.         */
+/*  File: seed7/src/hsh_rtl.h                                       */
+/*  Changes: 2005  Thomas Mertes                                    */
+/*  Content: Primitive actions for the hash type.                   */
 /*                                                                  */
 /********************************************************************/
 
 #ifdef ANSI_C
 
-stritype filLineRead (filetype, chartype *);
-stritype filLit (filetype);
-inttype filLng (filetype);
-stritype filStriRead (filetype, inttype);
-stritype filWordRead (filetype, chartype *);
-void filWrite (filetype, stritype);
+inttype hshLng (hashtype hash);
 
 #else
 
-stritype filLineRead ();
-stritype filLit ();
-inttype filLng ();
-stritype filStriRead ();
-stritype filWordRead ();
-void filWrite ();
+inttype hshLng ()
 
-#endif;
+#endif

@@ -81,4 +81,4 @@ time.s7i     Time library
 upper.s7i    Filter file which turns characters to upper case  
 utf8.s7i     Read and write utf-8 files                        
 window.s7i   Filter file for text windows with random access   
-wrinum.s7i   Function to write numbers as english text         
+wrinum.s7i   Functions to write numbers         *)

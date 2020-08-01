@@ -2689,7 +2689,7 @@ const proc: main is func
     setPos(scr, 12, 26);
     writeln(scr, "Wikipedia:   http://en.wikipedia.org/wiki/Seed7");
     setPos(scr, 16, 14);
-    writeln(scr, "Dig holes and pount the apples through the holes");
+    writeln(scr, "Dig holes and pound the apples through the holes");
     setPos(scr, 18, 14);
     writeln(scr, "cursor keys: Move your man");
     setPos(scr, 19, 14);

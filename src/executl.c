@@ -1218,14 +1218,14 @@ objecttype obj_from;
 #endif
 
   {
-    errinfotype err_info = NO_ERROR;
+    errinfotype err_info = OKAY_NO_ERROR;
 
   /* any_var_initialisation */
     obj_to->entity = obj_from->entity;
     INIT_CLASS_OF_VAR(obj_to, DECLAREDOBJECT);
     obj_to->type_of = obj_from->type_of;
     do_create(obj_to, obj_from, &err_info);
-    return(err_info == NO_ERROR);
+    return(err_info == OKAY_NO_ERROR);
   } /* any_var_initialisation */
 
 
@@ -1242,7 +1242,7 @@ memsizetype old_size;
 
   {
     memsizetype position;
-    errinfotype err_info = NO_ERROR;
+    errinfotype err_info = OKAY_NO_ERROR;
 
   /* destr_struct */
     for (position = old_size; position > 0; position--) {
@@ -1279,7 +1279,7 @@ memsizetype old_size;
 
   {
     memsizetype position;
-    errinfotype err_info = NO_ERROR;
+    errinfotype err_info = OKAY_NO_ERROR;
 
   /* destr_array */
     for (position = old_size; position > 0; position--) {
@@ -1339,7 +1339,7 @@ memsizetype new_size;
 
   {
     memsizetype position;
-    errinfotype err_info = NO_ERROR;
+    errinfotype err_info = OKAY_NO_ERROR;
 
   /* cpy_array */
     /* prot_cstri("cpy_array");

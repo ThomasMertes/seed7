@@ -291,7 +291,7 @@ errinfotype *err_info;
     if ((currentProg->ident.end_of_file = new_ident((ustritype) "END OF FILE", 11)) == NULL) {
       *err_info = MEMORY_ERROR;
     } /* if */
-    if (*err_info != NO_ERROR) {
+    if (*err_info != OKAY_NO_ERROR) {
       close_idents(currentProg);
     } /* if */
 #ifdef TRACE_IDENTUTL

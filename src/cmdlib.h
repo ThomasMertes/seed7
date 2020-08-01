@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  hi   Interpreter for Seed7 programs.                            */
-/*  Copyright (C) 1990 - 2000  Thomas Mertes                        */
+/*  Copyright (C) 1990 - 2005  Thomas Mertes                        */
 /*                                                                  */
 /*  This program is free software; you can redistribute it and/or   */
 /*  modify it under the terms of the GNU General Public License as  */
@@ -18,23 +18,37 @@
 /*  Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,  */
 /*  MA 02111-1307 USA                                               */
 /*                                                                  */
-/*  Module: Runtime                                                 */
-/*  File: seed7/src/runfile.h                                       */
+/*  Module: Library                                                 */
+/*  File: seed7/src/cmdlib.h                                        */
 /*  Changes: 1994  Thomas Mertes                                    */
-/*  Content: Copy, move and remove operations for files.            */
+/*  Content: Primitive actions for various commands.                */
 /*                                                                  */
 /********************************************************************/
 
 #ifdef ANSI_C
 
-void remove_any_file (char *, errinfotype *);
-void copy_any_file (char *, char *, errinfotype *);
-void move_any_file (char *, char *, errinfotype *);
+objecttype cmd_chdir (listtype);
+objecttype cmd_copy (listtype);
+objecttype cmd_getcwd (listtype);
+objecttype cmd_lng (listtype);
+objecttype cmd_ls (listtype);
+objecttype cmd_mkdir (listtype);
+objecttype cmd_move (listtype);
+objecttype cmd_remove (listtype);
+objecttype cmd_sh (listtype);
+objecttype cmd_sleep (listtype);
 
 #else
 
-void remove_any_file ();
-void copy_any_file ();
-void move_any_file ();
+objecttype cmd_chdir ();
+objecttype cmd_copy ();
+objecttype cmd_getcwd ();
+objecttype cmd_lng ();
+objecttype cmd_ls ();
+objecttype cmd_mkdir ();
+objecttype cmd_move ();
+objecttype cmd_remove ();
+objecttype cmd_sh ();
+objecttype cmd_sleep ();
 
 #endif

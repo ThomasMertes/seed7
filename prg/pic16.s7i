@@ -387,6 +387,25 @@ const array string: necklace_pic is [](
   "        R       ");
 
 
+const array string: ruby_pic is [](
+  "                ",
+  "                ",
+  "       Xr       ",
+  "      XXrr      ",
+  "     XXRRrr     ",
+  "    XXXRRrrr    ",
+  "   XXXRRRRrrr   ",
+  "  XXXXRRRRrrrr  ",
+  " XXXXRRRRRRrrrr ",
+  "XXXXXRRRRRRrrrrr",
+  "RRRRrrrrrrrrXXXX",
+  "  RRRrrrrrrXXX  ",
+  "    RRrrrrXX    ",
+  "      RrrX      ",
+  "       RX       ",
+  "                ");
+
+
 const array string: scepter_pic is [](
   "             R R",
   "              Y ",
@@ -482,3 +501,20 @@ const array string: sword_pic is [](
   "  b             ");
 
 
+const array string: tree_pic is [](
+  "       GG       ",
+  "     GgGGgG     ",
+  "   GGgGGgGGgG   ",
+  "      GgGG      ",
+  "    GGGgGGgG    ",
+  "  GgGgGGGgGGgG  ",
+  "     GgGGGG     ",
+  "   GGGGGgGGgG   ",
+  " GgGGgGGGGgGGgG ",
+  "      GgGG      ",
+  "    GgGGgGgG    ",
+  "  GgGGGgGGGgGG  ",
+  "GgGGGgGGGgGGGGgG",
+  "       bb       ",
+  "       bb       ",
+  "       bb       ");
