@@ -162,7 +162,6 @@ version.h: chkccomp.h
 	echo #define USE_WMAIN >> version.h
 	echo #define USE_DIRWIN >> version.h
 	echo #define SEARCH_PATH_DELIMITER ';' >> version.h
-	echo #define OS_PATH_HAS_DRIVE_LETTERS >> version.h
 	echo #define CATCH_SIGNALS >> version.h
 	echo #define INT_DIV_BY_ZERO_POPUP >> version.h
 	echo #define DO_SIGFPE_WITH_DIV_BY_ZERO >> version.h

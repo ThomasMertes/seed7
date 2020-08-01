@@ -128,7 +128,7 @@ static void handle_signals (int sig_num)
     interrupt_flag = TRUE;
     signal_number = sig_num;
 #endif
-#ifndef HAS_SIGACTION
+#if !HAS_SIGACTION && HAS_SIGNAL
     activate_signal_handlers();
 #endif
   } /* handle_signals */
@@ -161,7 +161,7 @@ static void handle_segv_signal (int sig_num)
 static void activate_signal_handlers (void)
 
   { /* activate_signal_handlers */
-#ifdef HAS_SIGACTION
+#if HAS_SIGACTION
     {
       struct sigaction sig_act;
       boolType okay;
@@ -191,7 +191,7 @@ static void activate_signal_handlers (void)
         printf("\n*** Activating signal handlers failed.\n");
       } /* if */
     }
-#else
+#elif HAS_SIGNAL
     if (trace_signals) {
       signal(SIGABRT, handle_signals);
       signal(SIGFPE,  handle_signals);
@@ -209,6 +209,8 @@ static void activate_signal_handlers (void)
     } else {
       signal(SIGSEGV, SIG_DFL);
     } /* if */
+#else
+#error "Neither sigaction() nor signal() are available."
 #endif
 #ifdef SIGPIPE
     signal(SIGPIPE, SIG_IGN);

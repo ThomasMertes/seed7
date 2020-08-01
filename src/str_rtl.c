@@ -1105,7 +1105,12 @@ intType strChIPos (const const_striType mainStri, const charType searched,
     const strElemType *found_pos;
 
   /* strChIPos */
+    logFunction(printf("strChIPos(\"%s\", '\\" FMT_U32 ";', " FMT_D ")\n",
+                       striAsUnquotedCStri(mainStri), searched, fromIndex););
     if (unlikely(fromIndex <= 0)) {
+      logError(printf("strChIPos(\"%s\", '\\" FMT_U32 ";', " FMT_D "): "
+                      "fromIndex <= 0.\n",
+                      striAsUnquotedCStri(mainStri), searched, fromIndex););
       raise_error(RANGE_ERROR);
     } else {
       if ((uintType) fromIndex <= mainStri->size) {
@@ -1131,6 +1136,9 @@ striType strChMult (const charType ch, const intType factor)
     logFunction(printf("strChMult('\\" FMT_U32 ";', " FMT_D ")\n",
                        ch, factor););
     if (unlikely(factor < 0)) {
+      logError(printf("strChMult('\\" FMT_U32 ";', " FMT_D "): "
+                      "Negative factor.\n",
+                      ch, factor););
       raise_error(RANGE_ERROR);
       result = NULL;
     } else {
@@ -1161,6 +1169,8 @@ intType strChPos (const const_striType mainStri, const charType searched)
     const strElemType *found_pos;
 
   /* strChPos */
+    logFunction(printf("strChPos(\"%s\", '\\" FMT_U32 ";')\n",
+                       striAsUnquotedCStri(mainStri), searched););
     if (mainStri->size >= 1) {
       main_mem = mainStri->mem;
       found_pos = search_strelem(main_mem, searched, &main_mem[mainStri->size]);
@@ -1272,7 +1282,7 @@ striType strCLit (const const_striType stri)
               result->mem[pos + 1] = (strElemType) cstri_escape_sequence[character][1];
               pos += 2;
             } /* if */
-#ifdef TRIGRAPH_SEQUENCES_ARE_REPLACED
+#if TRIGRAPH_SEQUENCES_ARE_REPLACED
           } else if (character == '\\' || character == '\"' ||
               (character == '?' && position >= 1 && stri->mem[position - 1] == '?')) {
 #else
@@ -1295,6 +1305,8 @@ striType strCLit (const const_striType stri)
           pos += 4;
         } else {
           FREE_STRI(result, 4 * striSize + 2);
+          logError(printf("strCLit(\"%s\"): Character > '\\255;' found.\n",
+                          striAsUnquotedCStri(stri)););
           raise_error(RANGE_ERROR);
           return NULL;
         } /* if */
@@ -1992,7 +2004,15 @@ intType strIPos (const const_striType mainStri, const const_striType searched,
     const strElemType *search_end;
 
   /* strIPos */
+    logFunction(printf("strIPos(\"%s\", ",
+                       striAsUnquotedCStri(mainStri));
+                printf("\"%s\", " FMT_D ")\n",
+                       striAsUnquotedCStri(searched), fromIndex););
     if (unlikely(fromIndex <= 0)) {
+      logError(printf("strIPos(\"%s\", ",
+                      striAsUnquotedCStri(mainStri));
+               printf("\"%s\", " FMT_D "): fromIndex <= 0.\n",
+                      striAsUnquotedCStri(searched), fromIndex););
       raise_error(RANGE_ERROR);
     } else {
       main_size = mainStri->size;
@@ -2436,6 +2456,8 @@ striType strMult (const const_striType stri, const intType factor)
     logFunction(printf("strMult(\"%s\", " FMT_D ")\n",
                        striAsUnquotedCStri(stri), factor););
     if (unlikely(factor < 0)) {
+      logError(printf("strMult(\"%s\", " FMT_D "): Negative factor.\n",
+                      striAsUnquotedCStri(stri), factor););
       raise_error(RANGE_ERROR);
       result = NULL;
     } else {
@@ -2567,6 +2589,10 @@ intType strPos (const const_striType mainStri, const const_striType searched)
     const strElemType *search_end;
 
   /* strPos */
+    logFunction(printf("strPos(\"%s\", ",
+                       striAsUnquotedCStri(mainStri));
+                printf("\"%s\")\n",
+                       striAsUnquotedCStri(searched)););
     main_size = mainStri->size;
     searched_size = searched->size;
     if (searched_size != 0 && main_size >= searched_size) {
@@ -2750,8 +2776,13 @@ intType strRChIPos (const const_striType mainStri, const charType searched,
     const strElemType *found_pos;
 
   /* strRChIPos */
+    logFunction(printf("strRChIPos(\"%s\", '\\" FMT_U32 ";', " FMT_D ")\n",
+                       striAsUnquotedCStri(mainStri), searched, fromIndex););
     if (likely(fromIndex >= 1)) {
       if (unlikely((uintType) fromIndex > mainStri->size)) {
+        logError(printf("strRChIPos(\"%s\", '\\" FMT_U32 ";', " FMT_D "): "
+                        "fromIndex <= 0.\n",
+                        striAsUnquotedCStri(mainStri), searched, fromIndex););
         raise_error(RANGE_ERROR);
       } else {
         if (mainStri->size >= 1) {
@@ -2782,6 +2813,8 @@ intType strRChPos (const const_striType mainStri, const charType searched)
     const strElemType *found_pos;
 
   /* strRChPos */
+    logFunction(printf("strRChPos(\"%s\", '\\" FMT_U32 ";')\n",
+                       striAsUnquotedCStri(mainStri), searched););
     if (mainStri->size >= 1) {
       main_mem = mainStri->mem;
       found_pos = rsearch_strelem(&main_mem[mainStri->size - 1], searched,
@@ -3058,8 +3091,16 @@ intType strRIPos (const const_striType mainStri, const const_striType searched,
     const strElemType *search_end;
 
   /* strRIPos */
+    logFunction(printf("strRIPos(\"%s\", ",
+                       striAsUnquotedCStri(mainStri));
+                printf("\"%s\", " FMT_D ")\n",
+                       striAsUnquotedCStri(searched), fromIndex););
     if (likely(fromIndex >= 1)) {
       if (unlikely((uintType) fromIndex > mainStri->size)) {
+        logError(printf("strRIPos(\"%s\", ",
+                        striAsUnquotedCStri(mainStri));
+                 printf("\"%s\", " FMT_D "): fromIndex <= 0.\n",
+                        striAsUnquotedCStri(searched), fromIndex););
         raise_error(RANGE_ERROR);
       } else {
         main_size = mainStri->size;
@@ -3223,6 +3264,10 @@ intType strRPos (const const_striType mainStri, const const_striType searched)
     const strElemType *search_end;
 
   /* strRPos */
+    logFunction(printf("strRPos(\"%s\", ",
+                       striAsUnquotedCStri(mainStri));
+                printf("\"%s\")\n",
+                       striAsUnquotedCStri(searched)););
     main_size = mainStri->size;
     searched_size = searched->size;
     if (searched_size != 0 && searched_size <= main_size) {
@@ -3897,6 +3942,8 @@ striType strZero (const intType factor)
   /* strZero */
     logFunction(printf("strZero(" FMT_D ")\n", factor););
     if (unlikely(factor < 0)) {
+      logError(printf("strZero(" FMT_D "): Negative factor.\n",
+                      factor););
       raise_error(RANGE_ERROR);
       result = NULL;
     } else {

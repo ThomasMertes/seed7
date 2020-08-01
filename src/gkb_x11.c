@@ -1099,8 +1099,9 @@ charType gkbGetc (void)
 
         case ButtonPress:
 #ifdef FLAG_EVENTS
-          printf("ButtonPress (%d, %d, %u)\n",
-              currentEvent.xbutton.x, currentEvent.xbutton.y, currentEvent.xbutton.button);
+          printf("ButtonPress (%d, %d, %u %lu)\n",
+              currentEvent.xbutton.x, currentEvent.xbutton.y,
+		 currentEvent.xbutton.button, (unsigned long) currentEvent.xbutton.window);
 #endif
           button_x = currentEvent.xbutton.x;
           button_y = currentEvent.xbutton.y;
@@ -1930,7 +1931,7 @@ intType gkbButtonXpos (void)
 
   { /* gkbButtonXpos */
 #ifdef TRACE_KBD
-    printf("gkbButtonXpos -> %d\n", button_x);
+    printf("gkbButtonXpos -> " FMT_D "\n", button_x);
 #endif
     return button_x;
   } /* gkbButtonXpos */
@@ -1941,7 +1942,7 @@ intType gkbButtonYpos (void)
 
   { /* gkbButtonYpos */
 #ifdef TRACE_KBD
-    printf("gkbButtonYpos -> %d\n", button_y);
+    printf("gkbButtonYpos -> " FMT_D "\n", button_y);
 #endif
     return button_y;
   } /* gkbButtonYpos */
@@ -1962,7 +1963,7 @@ winType gkbWindow (void)
       result->usage_count++;
     } /* if */
 #ifdef TRACE_KBD
-    printf("end gkbWindow -> %lu\n", result);
+    printf("end gkbWindow -> " FMT_U_MEM "\n", (memSizeType) result);
 #endif
     return result;
   } /* gkbWindow */

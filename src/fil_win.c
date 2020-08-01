@@ -39,7 +39,6 @@
 #include "fcntl.h"
 #include "sys/types.h"
 #include "sys/stat.h"
-
 #ifdef UNISTD_H_PRESENT
 #include "unistd.h"
 #endif
@@ -117,7 +116,7 @@ boolType filInputReady (fileType aFile)
 void setupFiles (void)
 
   { /* setupFiles */
-    _setmode(fileno(stdin), _O_BINARY);
-    _setmode(fileno(stdout), _O_BINARY);
-    _setmode(fileno(stderr), _O_BINARY);
+    setmode(fileno(stdin), _O_BINARY);
+    setmode(fileno(stdout), _O_BINARY);
+    setmode(fileno(stderr), _O_BINARY);
   } /* setupFiles */

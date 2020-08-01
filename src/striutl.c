@@ -508,7 +508,7 @@ void heapFreeOsStri (const_os_striType var)
 
 
 
-#if defined OS_PATH_HAS_DRIVE_LETTERS || defined EMULATE_ROOT_CWD
+#if OS_PATH_HAS_DRIVE_LETTERS || defined EMULATE_ROOT_CWD
 static const strElemType *stri_charpos (const_striType stri, strElemType ch)
 
   {
@@ -2008,7 +2008,7 @@ striType cp_from_os_path (const_os_striType os_path, errInfoType *err_info)
 
 
 
-#ifdef OS_PATH_HAS_DRIVE_LETTERS
+#if OS_PATH_HAS_DRIVE_LETTERS
 
 
 

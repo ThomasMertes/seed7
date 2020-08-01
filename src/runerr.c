@@ -172,39 +172,40 @@ static void write_call_stack_element (const_listType stack_elem)
 
 
 
+#if HAS_SIGACTION || HAS_SIGNAL
 static void sigsegv_handler (int sig_num)
 
   { /* sigsegv_handler */
-#ifdef TRACE_TIM_UNX
-    printf("BEGIN sigsegv_handler\n");
+#if HAS_SIGNAL
+    signal(SIGSEGV, sigsegv_handler);
 #endif
     do_longjmp(sigsegv_occurred, 1);
-#ifdef TRACE_TIM_UNX
-    printf("END sigsegv_handler\n");
-#endif
   } /* sigsegv_handler */
+#endif
 
 
 
 void write_call_stack (const_listType stack_elem)
 
   {
-#ifdef HAS_SIGACTION
+#if HAS_SIGACTION
     struct sigaction action;
     struct sigaction old_action;
 #endif
+#if HAS_SIGACTION || HAS_SIGNAL
     void (*old_sigsegv_handler) (int sig_num);
+#endif
 
   /* write_call_stack */
     if (stack_elem != NULL) {
       write_call_stack(stack_elem->next);
-#ifdef HAS_SIGACTION
+#if HAS_SIGACTION
       action.sa_handler = &sigsegv_handler;
       sigemptyset(&action.sa_mask);
       action.sa_flags = 0;
       if (sigaction(SIGSEGV, &action, &old_action) == 0) {
         old_sigsegv_handler = old_action.sa_handler;
-#else
+#elif HAS_SIGNAL
       if ((old_sigsegv_handler = signal(SIGSEGV, sigsegv_handler)) != SIG_ERR) {
 #endif
         if (do_setjmp(sigsegv_occurred) == 0) {
@@ -213,15 +214,16 @@ void write_call_stack (const_listType stack_elem)
           prot_cstri("unaccessable stack data");
           prot_nl();
         } /* if */
-#ifdef HAS_SIGACTION
+#if HAS_SIGACTION
         action.sa_handler = old_sigsegv_handler;
         sigemptyset(&action.sa_mask);
         action.sa_flags = 0;
         sigaction(SIGSEGV, &action, NULL);
-#else
-        signal(SIGSEGV, old_sigsegv_handler);
-#endif
       } /* if */
+#elif HAS_SIGNAL
+        signal(SIGSEGV, old_sigsegv_handler);
+      } /* if */
+#endif
     } /* if */
   } /* write_call_stack */
 

@@ -1,3 +1,28 @@
+20150503:
+- The example program cat.sd7 has been added. The program
+  concatenates and prints files. Thanks go to Brian Callahan for
+  providing it.
+- The makefile mk_emccw.mak has been added. This makefile supports
+  compiling with the emcc C compiler from Emscripten. The support of
+  Emscripten is experimental (see also src/read_me.txt).
+- Documentation comments have been improved in osfiles.s7i, utf8.s7i,
+  cmd_rtl.c and ut8_rtl.c.
+- Various changes have been done in chkccomp.c. Many configuration
+  settings are now always defined and have a value of 0 or 1. The
+  corresponding #ifdef directives in the C source files have been
+  changed to #if directives.
+- The library comp/int_act.s7i has been changed to use only
+  ccConf.CHECK_INT_REM_BY_ZERO for the operators 'rem' and 'mod'.
+- In cmd_rtl.c the function cmdFileType has been changed to return
+  FILE_SYMLINK, when the chain of symbolic links is too long.
+- In fil_rtl.c the functions seekFileLength(), offsetTell() and
+  offsetSeek() have been improved to fail for terminal devices such
+  as stdin. Under OpenBSD fseek() and ftell() succeeded in this case.
+- In drw_x11.c the functions drwPut() and drwSetTransparentColor()
+  have been changed to consider a pixmap with a window of 0 as empty.
+- Calls of logFunction and logError have been added to fil_rtl.c,
+  soc_rtl.c, str_rtl.c, tim_unx.c and ut8_rtl.c.
+
 20150419:
 - The library httpserv.s7i, which supports HTTP server HTTP requests,
   has been added.
@@ -23,8 +48,8 @@
 - The function cmdShellEscape in cmd_rtl.c has been improved. Now all
   characters except '\0;', '\n' and '\r' can be escaped ('\r' can be
   escaped under Linux/Unix/BSD).
-- Now there are two versions of cmdShellEscape and the define variable
-  ESCAPE_SHELL_COMMANDS decides which one is used.
+- Now there are two versions of cmdShellEscape and the define
+  variable ESCAPE_SHELL_COMMANDS decides which one is used.
 - The function filPopen has been changed, to open a pipe in binary or
   text mode.
 - In fil_rtl.c the function read_and_alloc_stri has been changed to

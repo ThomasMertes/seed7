@@ -83,6 +83,7 @@ const proc: sendHttpResponse (inout file: sock, in string: content,
 const proc: sendClientError (inout file: sock, in string: message,
     in string: explanation) is func
   local
+    var string: response is "";
     var string: htmlMessage is "";
   begin
     htmlMessage := "<!DOCTYPE HTML PUBLIC \"-//IETF//DTD HTML 2.0//EN\">\n\
@@ -94,13 +95,14 @@ const proc: sendClientError (inout file: sock, in string: message,
                    \<hr>\n\
                    \<address>Comanche</address>\n\
                    \</body></html>\n";
-    writeln(sock, "HTTP/1.1 " <& message);
-    writeln(sock, "Server: Comanche");
-    writeln(sock, "Transfer-Encoding: identity");
-    writeln(sock, "Content-Length: " <& length(htmlMessage));
-    writeln(sock, "Content-Type: text/html");
-    writeln(sock);
-    write(sock, htmlMessage);
+    response &:= "HTTP/1.1 " <& message <& "\r\n";
+    response &:= "Server: Comanche\r\n";
+    response &:= "Transfer-Encoding: identity\r\n";
+    response &:= "Content-Length: " <& length(htmlMessage) <& "\r\n";
+    response &:= "Content-Type: text/html\r\n";
+    response &:= "\r\n";
+    response &:= htmlMessage;
+    write(sock, response);
   end func;
 
 

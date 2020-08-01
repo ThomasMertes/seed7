@@ -33,7 +33,7 @@
 
 #include "stdlib.h"
 #include "stdio.h"
-#if defined HAS_GETRLIMIT && defined STACK_SIZE
+#if HAS_GETRLIMIT && defined STACK_SIZE
 #include "sys/resource.h"
 #endif
 
@@ -58,12 +58,12 @@ STACK_SIZE_DEFINITION;
 void setupStack (void)
 
   {
-#if defined HAS_GETRLIMIT && defined STACK_SIZE
+#if HAS_GETRLIMIT && defined STACK_SIZE
     struct rlimit rlim;
 #endif
 
   /* setupStack */
-#if defined HAS_GETRLIMIT && defined STACK_SIZE
+#if HAS_GETRLIMIT && defined STACK_SIZE
     /* printf("STACK_SIZE:      %ld\n", STACK_SIZE); */
     if (getrlimit(RLIMIT_STACK, &rlim) == 0) {
       /* printf("old stack limit: %ld/%ld\n", rlim.rlim_cur, rlim.rlim_max); */

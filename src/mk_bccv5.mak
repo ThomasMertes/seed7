@@ -9,7 +9,7 @@
 # CFLAGS = -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
 # CFLAGS = -O2 -fomit-frame-pointer -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
 # CFLAGS = -O2
-CFLAGS = -O2 -y -v $(INCLUDE_OPTIONS)
+CFLAGS = -O2 -y -v -w-8072 $(INCLUDE_OPTIONS)
 # CFLAGS = -O2 -v -w-
 # CFLAGS = -O2 -g -pg -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
 # CFLAGS = -O2 -fomit-frame-pointer -funroll-loops -Wall
@@ -165,7 +165,6 @@ version.h: chkccomp.h
 	echo ^#define PATH_DELIMITER '\\' > version.h
 	echo ^#define USE_DIRENT >> version.h
 	echo ^#define SEARCH_PATH_DELIMITER ';' >> version.h
-	echo ^#define OS_PATH_HAS_DRIVE_LETTERS >> version.h
 	echo ^#define CATCH_SIGNALS >> version.h
 	echo ^#define INT64TYPE_NO_SUFFIX_BUT_CAST >> version.h
 	echo ^#define USE_ALTERNATE_LOCALTIME_R >> version.h

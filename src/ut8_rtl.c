@@ -29,12 +29,16 @@
 /*                                                                  */
 /********************************************************************/
 
+#define LOG_FUNCTIONS 0
+#define VERBOSE_EXCEPTIONS 0
+
 #include "version.h"
 
 #include "stdlib.h"
 #include "stdio.h"
 #include "string.h"
 #include "sys/types.h"
+#include "errno.h"
 
 #include "common.h"
 #include "heaputl.h"
@@ -130,6 +134,8 @@ static memSizeType read_utf8_string (fileType inFile, striType stri, errInfoType
       bytes_in_buffer = (memSizeType) fread(&buffer[state.bytes_remaining], 1,
           BUFFER_SIZE, inFile);
       if (bytes_in_buffer == 0 && stri_pos == 0 && ferror(inFile)) {
+        logError(printf("read_utf8_string: fread(*, 1, " FMT_U_MEM ", %d) failed.\n",
+                        (memSizeType) BUFFER_SIZE, fileno(inFile)););
         *err_info = FILE_ERROR;
       } else {
         /* printf("#A# bytes_in_buffer=%d num_of_chars_read=%d\n",
@@ -144,6 +150,9 @@ static memSizeType read_utf8_string (fileType inFile, striType stri, errInfoType
       bytes_in_buffer = (memSizeType) fread(&buffer[state.bytes_remaining], 1,
           chars_missing - state.chars_there + state.bytes_missing, inFile);
       if (bytes_in_buffer == 0 && stri_pos == 0 && ferror(inFile)) {
+        logError(printf("read_utf8_string: fread(*, 1, " FMT_U_MEM ", %d) failed.\n",
+                        chars_missing - state.chars_there + state.bytes_missing,
+                        fileno(inFile)););
         *err_info = FILE_ERROR;
       } else {
         /* printf("#B# bytes_in_buffer=%d chars_missing=%d chars_read=%d chars_there=%d bytes_missing=%d num_of_chars_read=%d\n",
@@ -197,6 +206,9 @@ static striType read_and_alloc_utf8_stri (fileType inFile, memSizeType chars_mis
         bytes_in_buffer = (memSizeType) fread(&buffer[state.bytes_remaining], 1,
             BUFFER_SIZE, inFile);
         if (bytes_in_buffer == 0 && result_pos == 0 && ferror(inFile)) {
+          logError(printf("read_and_alloc_utf8_stri: "
+                          "fread(*, 1, " FMT_U_MEM ", %d) failed.\n",
+                          (memSizeType) LIST_BUFFER_SIZE, fileno(inFile)););
           *err_info = FILE_ERROR;
         } else {
           /* printf("#A# bytes_in_buffer=%d num_of_chars_read=%d\n",
@@ -223,6 +235,10 @@ static striType read_and_alloc_utf8_stri (fileType inFile, memSizeType chars_mis
         bytes_in_buffer = (memSizeType) fread(&buffer[state.bytes_remaining], 1,
             chars_missing - state.chars_there + state.bytes_missing, inFile);
         if (bytes_in_buffer == 0 && result_pos == 0 && ferror(inFile)) {
+          logError(printf("read_and_alloc_utf8_stri: "
+                          "fread(*, 1, " FMT_U_MEM ", %d) failed.\n",
+                          chars_missing - state.chars_there + state.bytes_missing,
+                          fileno(inFile)););
           *err_info = FILE_ERROR;
         } else {
           /* printf("#B# bytes_in_buffer=%d chars_missing=%d chars_read=%d chars_there=%d bytes_missing=%d num_of_chars_read=%d\n",
@@ -644,27 +660,61 @@ striType ut8LineRead (fileType inFile, charType *terminationChar)
  *  When the file position would be in the middle of an UTF-8 encoded
  *  character the position is advanced to the beginning of the next
  *  UTF-8 character.
- *  @exception RANGE_ERROR The file position is negative or zero.
+ *  @exception RANGE_ERROR The file position is negative or zero or
+ *             the file position is not representable in the system
+ *             file position type.
  *  @exception FILE_ERROR The system function returns an error.
  */
-void ut8Seek (fileType aFile, intType file_position)
+void ut8Seek (fileType aFile, intType position)
 
   {
     int ch;
 
   /* ut8Seek */
-    if (file_position <= 0) {
+    logFunction(printf("ut8Seek(%d, " FMT_D ")\n", fileno(aFile), position););
+    if (position <= 0) {
+      logError(printf("ut8Seek(%d, " FMT_D "): Position <= 0.\n",
+                      fileno(aFile), position););
       raise_error(RANGE_ERROR);
-    } else if (offsetSeek(aFile, (os_off_t) (file_position - 1), SEEK_SET) == 0) {
+#if OS_OFF_T_SIZE < INTTYPE_SIZE
+#if OS_OFF_T_SIZE == 32
+    } else if (unlikely(position > INT32TYPE_MAX)) {
+      logError(printf("ut8Seek(%d, " FMT_D "): "
+                      "Position not representable in the system file position type.\n",
+                      fileno(aFile), position););
+      raise_error(RANGE_ERROR);
+#elif OS_OFF_T_SIZE == 64
+    } else if (unlikely(position > INT64TYPE_MAX)) {
+      logError(printf("ut8Seek(%d, " FMT_D "): "
+                      "Position not representable in the system file position type.\n",
+                      fileno(aFile), position););
+      raise_error(RANGE_ERROR);
+#else
+#error "sizeof(os_off_t) is neither 4 nor 8."
+#endif
+#endif
+    } else if (unlikely(offsetSeek(aFile, (os_off_t) (position - 1), SEEK_SET) != 0)) {
+      logError(printf("ut8Seek(%d, " FMT_D "): "
+                      "offsetSeek(%d, " FMT_D ", SEEK_SET) failed.\n"
+                      "errno=%d\nerror: %s\n",
+                      fileno(aFile), position,
+                      fileno(aFile), position - 1,
+                      errno, strerror(errno)););
+      raise_error(FILE_ERROR);
+    } else {
       while ((ch = getc(aFile)) != EOF &&
              ch >= 0x80 && ch <= 0xBF) ;
       if (ch != EOF) {
         if (offsetSeek(aFile, (os_off_t) -1, SEEK_CUR) != 0) {
+          logError(printf("ut8Seek(%d, " FMT_D "): "
+                          "offsetSeek(%d, -1, SEEK_CUR) failed.\n"
+                          "errno=%d\nerror: %s\n",
+                          fileno(aFile), position,
+                          fileno(aFile),
+                          errno, strerror(errno)););
           raise_error(FILE_ERROR);
         } /* if */
       } /* if */
-    } else {
-      raise_error(FILE_ERROR);
     } /* if */
   } /* ut8Seek */
 
@@ -778,7 +828,7 @@ void ut8Write (fileType outFile, const const_striType stri)
     ucharType stri_buffer[max_utf8_size(WRITE_STRI_BLOCK_SIZE)];
 
   /* ut8Write */
-#ifdef FWRITE_WRONG_FOR_READ_ONLY_FILES
+#if FWRITE_WRONG_FOR_READ_ONLY_FILES
     if (stri->size > 0 && (outFile->flags & _F_WRIT) == 0) {
       raise_error(FILE_ERROR);
       return;

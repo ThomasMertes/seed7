@@ -189,10 +189,11 @@ const func string: homeDir                                   is action "CMD_HOME
 
 (**
  *  Determine the type of a file.
- *  The function does follow symbolic links. Therefore it never
- *  returns ''FILE_SYMLINK''. A return value of ''FILE_ABSENT'' does
- *  not imply that a file with this name can be created, since missing
- *  directories and illegal file names cause also ''FILE_ABSENT''.
+ *  The function does follow symbolic links. When the chain of
+ *  symbolic links is too long the function returns ''FILE_SYMLINK''.
+ *  A return value of ''FILE_ABSENT'' does not imply that a file
+ *  with this name can be created, since missing directories and
+ *  illegal file names cause also ''FILE_ABSENT''.
  *  @return the type of the file.
  *  @exception MEMORY_ERROR Not enough memory to convert ''filePath''
  *             to the system path type.

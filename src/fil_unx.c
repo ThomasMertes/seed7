@@ -39,6 +39,9 @@
 #include "fcntl.h"
 #include "errno.h"
 #endif
+#ifdef MOUNT_NODEFS
+#include "emscripten.h"
+#endif
 
 #include "common.h"
 #include "os_decls.h"
@@ -174,4 +177,25 @@ boolType filInputReady (fileType aFile)
 void setupFiles (void)
 
   { /* setupFiles */
+#ifdef MOUNT_NODEFS
+#ifdef _WIN32
+    EM_ASM(
+      var fs = require('fs');
+      /* FS.unmount('/'); */
+      /* FS.mount(NODEFS, { root: 'c:/' }, '/root'); */
+      FS.mkdir('/root');
+      FS.mount(NODEFS, { root: '.' }, '/root');
+      FS.chdir('/root');
+    );
+#else
+    EM_ASM(
+      var fs = require('fs');
+      /* FS.unmount('/'); */
+      /* FS.mount(NODEFS, { root: '/' }, '/root'); */
+      FS.mkdir('/root');
+      FS.mount(NODEFS, { root: '.' }, '/root');
+      FS.chdir('/root');
+    );
+#endif
+#endif
   } /* setupFiles */

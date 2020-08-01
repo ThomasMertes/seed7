@@ -249,7 +249,7 @@ void drwFlush (void)
 
 
 
-winType drwEmpty (intType width, intType height)
+winType drwEmpty (void)
 
   { /* drwEmpty */
     return NULL;

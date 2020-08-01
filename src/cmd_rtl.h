@@ -29,7 +29,7 @@
 /*                                                                  */
 /********************************************************************/
 
-#ifdef HAS_SYMLINKS
+#if HAS_SYMLINKS
 striType followLink (striType path);
 #endif
 #ifdef EMULATE_ROOT_CWD

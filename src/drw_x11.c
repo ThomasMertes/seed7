@@ -1670,9 +1670,10 @@ void drwPut (const_winType actual_window, const_winType pixmap,
     /* printf("actual_window=%lu, pixmap=%lu\n", to_window(actual_window),
         pixmap != NULL ? to_window(pixmap) : NULL); */
 #endif
-    /* A pixmap value of NULL is used to describe an empty pixmap. */
-    /* In this case nothing should be done.                        */
-    if (pixmap != NULL) {
+    /* A pixmap value of NULL or a pixmap with a window of 0 */
+    /* is used to describe an empty pixmap. In this case     */
+    /* nothing should be done.                               */
+    if (pixmap != NULL && to_window(pixmap) != 0) {
       if (to_clip_mask(pixmap) != 0) {
         XSetClipMask(mydisplay, mygc, to_clip_mask(pixmap));
         XSetClipOrigin(mydisplay, mygc, castToInt(x), castToInt(y));
@@ -2075,9 +2076,10 @@ void drwSetTransparentColor (winType pixmap, intType col)
     printf("pixmap=" FMT_U_MEM "\n",
            pixmap != NULL ? to_window(pixmap) : (memSizeType) 0);
 #endif
-    /* A pixmap value of NULL is used to describe an empty pixmap. */
-    /* In this case nothing should be done.                        */
-    if (pixmap != NULL) {
+    /* A pixmap value of NULL or a pixmap with a window of 0 */
+    /* is used to describe an empty pixmap. In this case     */
+    /* nothing should be done.                               */
+    if (pixmap != NULL && to_window(pixmap) != 0) {
       if (to_clip_mask(pixmap) == 0) {
         to_var_clip_mask(pixmap) = XCreatePixmap(mydisplay,
             to_window(pixmap), to_width(pixmap), to_height(pixmap), 1);

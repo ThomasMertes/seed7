@@ -48,7 +48,7 @@
 
 
 #if TIME_T_SIZE == 32
-#ifdef TIME_T_SIGNED
+#if TIME_T_SIGNED
 #define STRUCT_TM_MIN_YEAR 1902
 #else
 #define STRUCT_TM_MIN_YEAR 1970
@@ -286,7 +286,7 @@ void timSetLocalTZ (intType year, intType month, intType day, intType hour,
       } else {
         /* printf("timestamp: %ld\n", timestamp); */
         timestamp -= time_zone_reference * 60;
-#ifndef LOCALTIME_WORKS_SIGNED
+#if !LOCALTIME_WORKS_SIGNED
         if (timestamp < 0) {
           *time_zone = time_zone_reference;
           *is_dst    = 0;
@@ -309,7 +309,7 @@ void timSetLocalTZ (intType year, intType month, intType day, intType hour,
             *time_zone = (intType) (unchecked_mkutc(local_time) - timestamp) / 60;
             *is_dst    = local_time->tm_isdst > 0;
           } /* if */
-#ifndef LOCALTIME_WORKS_SIGNED
+#if !LOCALTIME_WORKS_SIGNED
         } /* if */
 #endif
       } /* if */

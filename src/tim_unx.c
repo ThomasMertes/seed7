@@ -39,6 +39,7 @@
 #endif
 
 #include "stdio.h"
+#include "string.h"
 #include "time.h"
 #include "sys/time.h"
 
@@ -99,7 +100,9 @@ void timAwait (intType year, intType month, intType day, intType hour,
     int poll_result;
 
   /* timAwait */
-    logFunction(printf("timAwait(%04ld-%02ld-%02ld %02ld:%02ld:%02ld.%06ld %ld)\n",
+    logFunction(printf("timAwait(" F_D(04) "-" F_D(02) "-" F_D(02) " "
+                                   F_D(02) ":" F_D(02) ":" F_D(02) "."
+                                   F_D(06) ", " FMT_D ")\n",
                        year, month, day, hour, min, sec, micro_sec, time_zone););
     tm_time.tm_year  = (int) year - 1900;
     tm_time.tm_mon   = (int) month - 1;
@@ -153,7 +156,9 @@ void timAwait (intType year, intType month, intType day, intType hour,
     int ppoll_result;
 
   /* timAwait */
-    logFunction(printf("timAwait(%04ld-%02ld-%02ld %02ld:%02ld:%02ld.%06ld %ld)\n",
+    logFunction(printf("timAwait(" F_D(04) "-" F_D(02) "-" F_D(02) " "
+                                   F_D(02) ":" F_D(02) ":" F_D(02) "."
+                                   F_D(06) ", " FMT_D ")\n",
                        year, month, day, hour, min, sec, micro_sec, time_zone););
     tm_time.tm_year  = (int) year - 1900;
     tm_time.tm_mon   = (int) month - 1;
@@ -212,7 +217,9 @@ void timAwait (intType year, intType month, intType day, intType hour,
     int select_result;
 
   /* timAwait */
-    logFunction(printf("timAwait(%04ld-%02ld-%02ld %02ld:%02ld:%02ld.%06ld %ld)\n",
+    logFunction(printf("timAwait(" F_D(04) "-" F_D(02) "-" F_D(02) " "
+                                   F_D(02) ":" F_D(02) ":" F_D(02) "."
+                                   F_D(06) ", " FMT_D ")\n",
                        year, month, day, hour, min, sec, micro_sec, time_zone););
     tm_time.tm_year  = (int) year - 1900;
     tm_time.tm_mon   = (int) month - 1;
@@ -245,6 +252,13 @@ void timAwait (intType year, intType month, intType day, intType hour,
           select_result = select(0, NULL, NULL, NULL, &timeout_value);
         } /* if */
       } while (unlikely(select_result == -1 && errno == EINTR));
+#if 0
+      if (unlikely(select_result == -1)) {
+        logError(printf("timAwait: select(0, NULL, NULL, NULL, *) failed:\n"
+                        "errno=%d\nerror: %s\n",
+                        errno, strerror(errno)););
+      } /* if */
+#endif
     } /* if */
     logFunction(printf("timAwait -->\n"););
   } /* timAwait */
@@ -281,7 +295,9 @@ void timAwait (intType year, intType month, intType day, intType hour,
     struct sigaction action;
 
   /* timAwait */
-    logFunction(printf("timAwait(%04ld-%02ld-%02ld %02ld:%02ld:%02ld.%06ld %ld)\n",
+    logFunction(printf("timAwait(" F_D(04) "-" F_D(02) "-" F_D(02) " "
+                                   F_D(02) ":" F_D(02) ":" F_D(02) "."
+                                   F_D(06) ", " FMT_D ")\n",
                        year, month, day, hour, min, sec, micro_sec, time_zone););
     tm_time.tm_year  = (int) year - 1900;
     tm_time.tm_mon   = (int) month - 1;
@@ -354,7 +370,9 @@ void timAwait (intType year, intType month, intType day, intType hour,
     struct itimerval timer_value;
 
   /* timAwait */
-    logFunction(printf("timAwait(%04ld-%02ld-%02ld %02ld:%02ld:%02ld.%06ld %ld)\n",
+    logFunction(printf("timAwait(" F_D(04) "-" F_D(02) "-" F_D(02) " "
+                                   F_D(02) ":" F_D(02) ":" F_D(02) "."
+                                   F_D(06) ", " FMT_D ")\n",
                        year, month, day, hour, min, sec, micro_sec, time_zone););
     tm_time.tm_year  = (int) year - 1900;
     tm_time.tm_mon   = (int) month - 1;
@@ -463,7 +481,9 @@ void timNow (intType *year, intType *month, intType *day, intType *hour,
       *time_zone = (intType) (unchecked_mkutc(local_time) - time_val.tv_sec) / 60;
       *is_dst    = local_time->tm_isdst > 0;
     } /* if */
-    logFunction(printf("timNow(%04ld-%02ld-%02ld %02ld:%02ld:%02ld.%06ld %ld %d)\n",
+    logFunction(printf("timNow(" F_D(04) "-" F_D(02) "-" F_D(02) " "
+                                 F_D(02) ":" F_D(02) ":" F_D(02) "."
+                                 F_D(06) ", " FMT_D ", %d)\n",
                        *year, *month, *day, *hour, *min, *sec,
                        *micro_sec, *time_zone, *is_dst););
   } /* timNow */

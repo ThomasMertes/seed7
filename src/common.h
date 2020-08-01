@@ -257,7 +257,7 @@ typedef uint128Type               doubleUintType;
 #define castToLong(num)  ((long) (num))
 #endif
 
-#ifdef TIME_T_SIGNED
+#if TIME_T_SIGNED
 #if TIME_T_SIZE < INTTYPE_SIZE
 #if TIME_T_SIZE == 32
 #define inTimeTRange(timestamp) ((timestamp) >= INT32TYPE_MIN && (timestamp) <= INT32TYPE_MAX)
@@ -330,6 +330,24 @@ typedef uint64Type         memSizeType;
 #define FMT_X_MEM          FMT_X64
 #endif
 
+#if OS_OFF_T_SIZE == 32
+#define F_D_OFF(width)     F_D32(width)
+#define F_U_OFF(width)     F_U32(width)
+#define F_X_OFF(width)     F_X32(width)
+#define FMT_D_OFF          FMT_D32
+#define FMT_U_OFF          FMT_U32
+#define FMT_X_OFF          FMT_X32
+#elif OS_OFF_T_SIZE == 64
+#define F_D_OFF(width)     F_D64(width)
+#define F_U_OFF(width)     F_U64(width)
+#define F_X_OFF(width)     F_X64(width)
+#define FMT_D_OFF          FMT_D64
+#define FMT_U_OFF          FMT_U64
+#define FMT_X_OFF          FMT_X64
+#else
+#error "sizeof(os_off_t) is neither 4 nor 8."
+#endif
+
 typedef int                priorityType;
 
 typedef unsigned char      ucharType;
@@ -384,7 +402,7 @@ typedef int errInfoType;
 #define IN_ERROR       10
 
 
-#ifdef HAS_SIGSETJMP
+#if HAS_SIGSETJMP
 #define do_setjmp(env)        sigsetjmp(env, 1)
 #define do_longjmp(env, val)  siglongjmp(env, val);
 #define long_jump_position sigjmp_buf

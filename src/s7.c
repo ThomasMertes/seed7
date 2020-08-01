@@ -30,9 +30,6 @@
 #include "stdlib.h"
 #include "stdio.h"
 #include "string.h"
-#ifdef MOUNT_NODEFS
-#include "emscripten.h"
-#endif
 
 #include "common.h"
 #include "sigutl.h"
@@ -342,21 +339,7 @@ int main (int argc, char **argv)
     stack_base = (char *) &arg_v;
 #endif
     setupStack();
-#ifdef MOUNT_NODEFS
-#ifdef OS_PATH_HAS_DRIVE_LETTERS
-    EM_ASM(
-      var fs = require('fs');
-      FS.unmount('/');
-      FS.mount(NODEFS, { root: 'c:/' }, '/');
-    );
-#else
-    EM_ASM(
-      var fs = require('fs');
-      FS.unmount('/');
-      FS.mount(NODEFS, { root: '/' }, '/');
-    );
-#endif
-#endif
+    setupFiles();
     set_protfile_name(NULL);
 #ifdef USE_WINMAIN
     arg_v = getArgv(0, NULL, NULL, NULL, &programPath);
@@ -383,7 +366,6 @@ int main (int argc, char **argv)
         } else if (option.write_help) {
           writeHelp();
         } else {
-          setupFiles();
           setupRand();
           setupFloat();
           /* printf("source_file_argument: \"");

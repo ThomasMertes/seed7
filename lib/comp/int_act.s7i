@@ -1742,7 +1742,7 @@ const proc: process_const_int_mod (in integer: dividend, in reference: divisor,
         c_expr.expr &:= intRaiseError("OVERFLOW_ERROR");
         c_expr.expr &:= ":";
       end if;
-      if ccConf.CHECK_INT_DIV_BY_ZERO or ccConf.CHECK_INT_REM_BY_ZERO then
+      if ccConf.CHECK_INT_REM_BY_ZERO then
         c_expr.expr &:= "divChk(";
         c_expr.expr &:= divisor_name;
         c_expr.expr &:= "==0)?";
@@ -1833,7 +1833,7 @@ const proc: process (INT_MOD, in reference: function,
         c_expr.expr &:= intRaiseError("OVERFLOW_ERROR");
         c_expr.expr &:= ":";
       end if;
-      if ccConf.CHECK_INT_DIV_BY_ZERO or ccConf.CHECK_INT_REM_BY_ZERO then
+      if ccConf.CHECK_INT_REM_BY_ZERO then
         c_expr.expr &:= "divChk(";
         c_expr.expr &:= divisor_name;
         c_expr.expr &:= "==0)?";
@@ -2876,7 +2876,7 @@ const proc: process_const_int_rem (in integer: dividend, in reference: divisor,
       c_expr.expr &:= ")?";
       c_expr.expr &:= intRaiseError("OVERFLOW_ERROR");
       c_expr.expr &:= ":";
-      if ccConf.CHECK_INT_DIV_BY_ZERO or ccConf.CHECK_INT_REM_BY_ZERO then
+      if ccConf.CHECK_INT_REM_BY_ZERO then
         c_expr.expr &:= "divChk(";
         c_expr.expr &:= divisor_name;
         c_expr.expr &:= "==0)?";
@@ -2887,7 +2887,7 @@ const proc: process_const_int_rem (in integer: dividend, in reference: divisor,
       c_expr.expr &:= " % ";
       c_expr.expr &:= divisor_name;
       c_expr.expr &:= ")";
-    elsif ccConf.CHECK_INT_DIV_BY_ZERO or ccConf.CHECK_INT_REM_BY_ZERO then
+    elsif ccConf.CHECK_INT_REM_BY_ZERO then
       c_expr.expr &:= "(";
       divisor_name := getParameterAsVariable("intType", "tmp_b_", divisor, c_expr);
       c_expr.expr &:= "divChk(";
@@ -2946,7 +2946,7 @@ const proc: process (INT_REM, in reference: function,
       c_expr.expr &:= ")?";
       c_expr.expr &:= intRaiseError("OVERFLOW_ERROR");
       c_expr.expr &:= ":";
-      if ccConf.CHECK_INT_DIV_BY_ZERO or ccConf.CHECK_INT_REM_BY_ZERO then
+      if ccConf.CHECK_INT_REM_BY_ZERO then
         c_expr.expr &:= "divChk(";
         c_expr.expr &:= divisor_name;
         c_expr.expr &:= "==0)?";
@@ -2957,7 +2957,7 @@ const proc: process (INT_REM, in reference: function,
       c_expr.expr &:= " % ";
       c_expr.expr &:= divisor_name;
       c_expr.expr &:= ")";
-    elsif ccConf.CHECK_INT_DIV_BY_ZERO or ccConf.CHECK_INT_REM_BY_ZERO then
+    elsif ccConf.CHECK_INT_REM_BY_ZERO then
       c_expr.expr &:= "(";
       divisor_name := getParameterAsVariable("intType", "tmp_b_", params[3], c_expr);
       c_expr.expr &:= "divChk(";

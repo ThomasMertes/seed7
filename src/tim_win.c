@@ -305,7 +305,7 @@ int alternate_utime (const wchar_t *os_path, os_utimbuf_struct *utime_buf)
       if (filehandle != INVALID_HANDLE_VALUE) {
         /* The case of utime_buf == NULL is not considered,   */
         /* since alternate_utime will never be used this way. */
-#ifdef TIME_T_SIGNED
+#if TIME_T_SIGNED
         actime.nanosecs100 = (uint64Type) (
             (int64Type) utime_buf->actime + SECONDS_1601_1970) * 10000000;
         modtime.nanosecs100 = (uint64Type) (

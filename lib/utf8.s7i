@@ -175,7 +175,9 @@ const func string: getln (inout utf8_file: inFile) is
  *  When the file position would be in the middle of an UTF-8 encoded
  *  character the position is advanced to the beginning of the next
  *  UTF-8 character.
- *  @exception RANGE_ERROR The file position is negative or zero.
+ *  @exception RANGE_ERROR The file position is negative or zero or
+ *             the file position is not representable in the system
+ *             file position type.
  *  @exception FILE_ERROR A system function returns an error.
  *)
 const proc: seek (in utf8_file: aFile, in integer: position) is func

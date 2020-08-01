@@ -26,6 +26,7 @@ THE MAKEFILES
   mk_msvc.mak  | Windows (MSVC)  | nmake        | cl         | cmd.exe
   mk_bcc32.mak | Windows (bcc32) | make         | bcc32      | cmd.exe
   mk_bccv5.mak | Windows (bcc32) | make         | bcc32 V5.5 | cmd.exe
+  mk_emccw.mak | Windows (emcc)  | mingw32-make | emcc + gcc | cmd.exe
   mk_djgpp.mak | DOS             | (g)make      | gcc        | cmd.exe
   mk_osx.mak   | Mac OS X        | make         | gcc        | sh
   mk_osxcl.mak | Mac OS X        | make         | clang      | sh
@@ -214,6 +215,47 @@ COMPILING UNDER WINDOWS WITH CYGWIN
   backup of the original symlink file as.exe). Additionally
   it might also be necessary to do the same for ld.exe (and
   maybe for some other symlinks as well).
+
+
+COMPILING WITH EMCC FROM EMSCRIPTEN
+
+    The makefile mk_emccw.mak is provided for compiling with
+  emcc under Windows. Besides emcc it needs also gcc from MinGW
+  and node.js. When you download emsdk you get also a version
+  of node.js. It is necessary to raise the allowed stack size
+  of node.js. This is done with the command editbin (from
+  Visual-C). The stack is increased (in the directory of
+  node.exe) with:
+
+    editbin /stack:33554432 node.exe
+
+  The file .emscripten in your home directory must be also
+  adjusted. Change the NODE_JS entry to:
+
+    NODE_JS = ['node', '--stack_size=8192']
+
+  Use the command line, go to the 'seed7\src'
+  directory and type:
+
+    mingw32-make -f mk_emccw.mak depend
+    mingw32-make -f mk_emccw.mak
+
+  The Seed7 interpreter (s7.js) can be started with:
+
+    node s7.js hello
+
+  Programs with bigger stack requirements must be started with:
+
+    node --stack_size=8192 s7.js chkstr
+
+  Note that the Emscripten version of Seed7 is experimental.
+  Due to limitations of Emscripten and missing Seed7 driver
+  libraries several things do not work as they should:
+
+    - Currently only files with relative paths can be opened.
+    - When s7.js is executed with node.js reading from stdin
+      is not possible (EOF is reached immediately).
+    - Graphics is currently not supported.
 
 
 COMPILING UNDER DOS WITH DJGPP

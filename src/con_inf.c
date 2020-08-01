@@ -1276,12 +1276,12 @@ void conShut (void)
 
 
 
-#ifdef SIGWINCH
+#if defined SIGWINCH && (HAS_SIGACTION || HAS_SIGNAL)
 static void handle_winch_signal (int sig_num)
 
   { /* handle_winch_signal */
     con->size_changed = TRUE;
-#ifndef HAS_SIGACTION
+#if !HAS_SIGACTION && HAS_SIGNAL
     signal(SIGWINCH, handle_winch_signal);
 #endif
   } /* handle_winch_signal */
@@ -1324,7 +1324,7 @@ int conOpen (void)
         console_initialized = TRUE;
         atexit(conShut);
 #ifdef SIGWINCH
-#ifdef HAS_SIGACTION
+#if HAS_SIGACTION
         {
           struct sigaction sig_act;
 
@@ -1335,7 +1335,7 @@ int conOpen (void)
             raise_error(FILE_ERROR);
           } /* if */
         }
-#else
+#elif HAS_SIGNAL
         signal(SIGWINCH, handle_winch_signal);
 #endif
 #endif

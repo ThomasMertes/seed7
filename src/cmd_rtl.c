@@ -501,7 +501,7 @@ static void copy_any_file (const const_os_striType from_name,
   {
     os_stat_struct from_stat;
     int from_stat_result;
-#ifdef HAS_SYMLINKS
+#if HAS_SYMLINKS
     os_striType link_destination;
     ssize_t readlink_result;
 #endif
@@ -520,7 +520,7 @@ static void copy_any_file (const const_os_striType from_name,
       *err_info = FILE_ERROR;
     } else {
       if (S_ISLNK(from_stat.st_mode)) {
-#ifdef HAS_SYMLINKS
+#if HAS_SYMLINKS
         /* printf("link size=%lu\n", from_stat.st_size); */
         if (from_stat.st_size < 0 ||
             (unsigned_os_off_t) from_stat.st_size > MAX_OS_STRI_LEN) {
@@ -552,7 +552,7 @@ static void copy_any_file (const const_os_striType from_name,
       } else if (S_ISDIR(from_stat.st_mode)) {
         copy_dir(from_name, to_name, flags, err_info);
       } else if (S_ISFIFO(from_stat.st_mode)) {
-#ifdef HAS_FIFO_FILES
+#if HAS_FIFO_FILES
         if (mkfifo(to_name, (S_IRWXU | S_IRWXG | S_IRWXO)) != 0) {
           *err_info = FILE_ERROR;
         } /* if */
@@ -699,8 +699,6 @@ static void move_any_file (const const_os_striType from_name,
             logError(printf("move_any_file: os_rename(\"" FMT_S_OS "\", \"" FMT_S_OS "\") failed:\n"
                             "errno=%d\nerror: %s\n",
                             from_name, to_name, errno, strerror(errno)););
-            /* printf("EACCES=%d  EBUSY=%d  EEXIST=%d  ENOTEMPTY=%d  ENOENT=%d  ENOTDIR=%d  EROFS=%d\n",
-                EACCES, EBUSY, EEXIST, ENOTEMPTY, ENOENT, ENOTDIR, EROFS); */
             *err_info = FILE_ERROR;
             break;
         } /* switch */
@@ -1010,7 +1008,7 @@ void setSearchPath (rtlArrayType searchPath, errInfoType *err_info)
 
 
 
-#ifdef HAS_SYMLINKS
+#if HAS_SYMLINKS
 striType followLink (striType path)
 
   {
@@ -1361,11 +1359,7 @@ striType cmdConfigValue (const const_striType name)
         opt = "FALSE";
 #endif
       } else if (strcmp(opt_name, "HAS_SIGSETJMP") == 0) {
-#ifdef HAS_SIGSETJMP
-        opt = "TRUE";
-#else
-        opt = "FALSE";
-#endif
+        opt = HAS_SIGSETJMP ? "TRUE" : "FALSE";
       } else if (strcmp(opt_name, "ISNAN_WITH_UNDERLINE") == 0) {
 #ifdef ISNAN_WITH_UNDERLINE
         opt = "TRUE";
@@ -1379,23 +1373,11 @@ striType cmdConfigValue (const const_striType name)
         opt = "FALSE";
 #endif
       } else if (strcmp(opt_name, "CHECK_INT_DIV_BY_ZERO") == 0) {
-#ifdef CHECK_INT_DIV_BY_ZERO
-        opt = "TRUE";
-#else
-        opt = "FALSE";
-#endif
+        opt = CHECK_INT_DIV_BY_ZERO ? "TRUE" : "FALSE";
       } else if (strcmp(opt_name, "CHECK_INT_REM_BY_ZERO") == 0) {
-#ifdef CHECK_INT_REM_BY_ZERO
-        opt = "TRUE";
-#else
-        opt = "FALSE";
-#endif
+        opt = CHECK_INT_REM_BY_ZERO ? "TRUE" : "FALSE";
       } else if (strcmp(opt_name, "CHECK_INT_REM_ZERO_BY_ZERO") == 0) {
-#ifdef CHECK_INT_REM_ZERO_BY_ZERO
-        opt = "TRUE";
-#else
-        opt = "FALSE";
-#endif
+        opt = CHECK_INT_REM_ZERO_BY_ZERO ? "TRUE" : "FALSE";
       } else if (strcmp(opt_name, "CHECK_FLOAT_DIV_BY_ZERO") == 0) {
 #ifdef CHECK_FLOAT_DIV_BY_ZERO
         opt = "TRUE";
@@ -1747,10 +1729,11 @@ intType cmdFileSize (const const_striType filePath)
 
 /**
  *  Determine the type of a file.
- *  The function does follow symbolic links. Therefore it never
- *  returns 'FILE_SYMLINK'. A return value of 'FILE_ABSENT' does
- *  not imply that a file with this name can be created, since missing
- *  directories and illegal file names cause also 'FILE_ABSENT'.
+ *  The function does follow symbolic links. When the chain of
+ *  symbolic links is too long the function returns 'FILE_SYMLINK'.
+ *  A return value of 'FILE_ABSENT' does not imply that a file
+ *  with this name can be created, since missing directories and
+ *  illegal file names cause also 'FILE_ABSENT'.
  *  @return the type of the file.
  *  @exception MEMORY_ERROR Not enough memory to convert 'filePath'
  *             to the system path type.
@@ -1809,6 +1792,10 @@ intType cmdFileType (const const_striType filePath)
         } else {
           result = FILE_UNKNOWN;
         } /* if */
+#ifdef ELOOP
+      } else if (unlikely(saved_errno == ELOOP)) {
+        result = FILE_SYMLINK;
+#endif
       } else {
         result = FILE_ABSENT;
         if (unlikely(filePath->size != 0 && saved_errno != ENOENT &&
@@ -2369,7 +2356,7 @@ void cmdMove (const const_striType sourcePath, const const_striType destPath)
 striType cmdReadlink (const const_striType filePath)
 
   {
-#ifdef HAS_SYMLINKS
+#if HAS_SYMLINKS
     os_striType os_filePath;
     os_stat_struct link_stat;
     os_striType link_destination;
@@ -2380,7 +2367,7 @@ striType cmdReadlink (const const_striType filePath)
     striType result = NULL;
 
   /* cmdReadlink */
-#ifdef HAS_SYMLINKS
+#if HAS_SYMLINKS
     os_filePath = cp_to_os_path(filePath, &path_info, &err_info);
     if (likely(err_info == OKAY_NO_ERROR)) {
       if (os_lstat(os_filePath, &link_stat) != 0 || !S_ISLNK(link_stat.st_mode)) {
@@ -2435,7 +2422,7 @@ void cmdRemoveFile (const const_striType filePath)
   {
     os_striType os_filePath;
     int path_info;
-#ifdef REMOVE_FAILS_FOR_EMPTY_DIRS
+#if REMOVE_FAILS_FOR_EMPTY_DIRS
     os_stat_struct file_stat;
 #endif
 #ifdef RENAME_BEFORE_REMOVE
@@ -2447,7 +2434,7 @@ void cmdRemoveFile (const const_striType filePath)
     logFunction(printf("cmdRemoveFile(\"%s\")\n", striAsUnquotedCStri(filePath)););
     os_filePath = cp_to_os_path(filePath, &path_info, &err_info);
     if (likely(err_info == OKAY_NO_ERROR)) {
-#ifdef REMOVE_FAILS_FOR_EMPTY_DIRS
+#if REMOVE_FAILS_FOR_EMPTY_DIRS
       if (os_lstat(os_filePath, &file_stat) != 0) {
         logError(printf("cmdRemoveFile: os_lstat(\"" FMT_S_OS "\") failed:\n"
                         "errno=%d\nerror: %s\n",
@@ -3116,7 +3103,7 @@ striType cmdShellEscape (const const_striType stri)
 void cmdSymlink (const const_striType sourcePath, const const_striType destPath)
 
   {
-#ifdef HAS_SYMLINKS
+#if HAS_SYMLINKS
     os_striType os_sourcePath;
     os_striType os_destPath;
     int path_info;
@@ -3124,7 +3111,7 @@ void cmdSymlink (const const_striType sourcePath, const const_striType destPath)
     errInfoType err_info = OKAY_NO_ERROR;
 
   /* cmdSymlink */
-#ifdef HAS_SYMLINKS
+#if HAS_SYMLINKS
     os_sourcePath = cp_to_os_path(sourcePath, &path_info, &err_info);
     if (likely(err_info == OKAY_NO_ERROR)) {
       os_destPath = cp_to_os_path(destPath, &path_info, &err_info);

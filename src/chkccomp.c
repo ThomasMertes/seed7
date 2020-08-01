@@ -388,10 +388,120 @@ void testOutputToVersionFile (FILE *versionFile)
 
 
 
+void checkSignal (FILE *versionFile)
+
+  {
+    int has_signal = 0;
+    int has_sigaction = 0;
+
+  /* checkSignal */
+    if (compileAndLinkOk("#include <stdio.h>\n#include <signal.h>\n"
+                         "int res=4;\n"
+                         "void handleSig1(int sig){res = 1;}\n"
+                         "void handleSig2(int sig){res = 2;}\n"
+                         "int main (int argc, char *argv[]){\n"
+                         "if (signal(SIGINT, handleSig2) == SIG_ERR ||\n"
+                         "signal(SIGINT, handleSig1) != handleSig2){\n"
+                         "puts(\"3\");"
+                         "}else if (raise(SIGINT) != 0){puts(\"5\");\n"
+                         "}else{printf(\"%d\\n\",res);}\n"
+                         "return 0;}\n") && doTest() == 1) {
+      has_signal = 1;
+    } /* if */
+    fprintf(versionFile, "#define HAS_SIGNAL %d\n", has_signal);
+    if (compileAndLinkOk("#include <stdio.h>\n#include <signal.h>\n"
+                         "int res=4;\n"
+                         "void handleSig(int sig){res=1;}\n"
+                         "int main(int argc, char *argv[]){\n"
+                         "struct sigaction sig_act;\n"
+                         "sig_act.sa_handler = handleSig;\n"
+                         "sigemptyset(&sig_act.sa_mask);\n"
+                         "sig_act.sa_flags = SA_RESTART;\n"
+                         "if (sigaction(SIGINT, &sig_act, NULL) == -1){\n"
+                         "puts(\"3\");"
+                         "}else if (raise(SIGINT) != 0){puts(\"5\");\n"
+                         "}else{printf(\"%d\\n\",res);}\n"
+                         "return 0;}\n") && doTest() == 1) {
+      has_sigaction = 1;
+    } /* if */
+    fprintf(versionFile, "#define HAS_SIGACTION %d\n", has_sigaction);
+  } /* checkSignal */
+
+
+
+void writeMacroDefs (FILE *versionFile)
+
+  {
+    char macroDefs[4096];
+
+  /* writeMacroDefs */
+    if (compileAndLinkOk("#include <stdio.h>\n#include <direct.h>\n"
+                         "int main(int argc,char *argv[])\n"
+                         "{mkdir(\"tmp_empty_dir1\");return 0;}\n") ||
+        compileAndLinkOk("#include <stdio.h>\n#include <sys/stat.h>\n#include <sys/types.h>\n"
+                         "int main(int argc,char *argv[])\n"
+                         "{mkdir(\"tmp_empty_dir1\");return 0;}\n")) {
+      fputs("#define makeDir(path,mode) mkdir(path)\n", versionFile);
+    } else if (compileAndLinkOk("#include <stdio.h>\n#include <direct.h>\n"
+                                "int main(int argc,char *argv[])\n"
+                                "{_mkdir(\"tmp_empty_dir1\");return 0;}\n") ||
+               compileAndLinkOk("#include <stdio.h>\n#include <sys/stat.h>\n#include <sys/types.h>\n"
+                                "int main(int argc,char *argv[])\n"
+                                "{_mkdir(\"tmp_empty_dir1\");return 0;}\n")) {
+      fputs("#define makeDir(path,mode) _mkdir(path)\n", versionFile);
+    } else {
+      fputs("#define makeDir(path,mode) mkdir(path,mode)\n", versionFile);
+    } /* if */
+    if (compileAndLinkOk("static inline int test(int a){return 2*a;}\n"
+                         "int main(int argc,char *argv[]){return test(argc);}\n")) {
+      /* The C compiler accepts the definition of inline functions. */
+    } else if (compileAndLinkOk("static __inline int test(int a){return 2*a;}\n"
+                                "int main(int argc,char *argv[]){return test(argc);}\n")) {
+      fputs("#define inline __inline\n", versionFile);
+    } else if (compileAndLinkOk("static __inline__ int test(int a){return 2*a;}\n"
+                                "int main(int argc,char *argv[]){return test(argc);}\n")) {
+      fputs("#define inline __inline__\n", versionFile);
+    } else {
+      fputs("#define inline\n", versionFile);
+    } /* if */
+    if (!compileAndLinkOk("int test (int *restrict ptrA, int *restrict ptrB, int *restrict ptrC)\n"
+                          "{*ptrA += *ptrC; *ptrB += *ptrC; return *ptrA+ptrB;}\n"
+                          "int main(int argc,char *argv[])\n"
+                          "{int a=1, b=2, c=3; return test(&a, &b, &c);}\n")) {
+      fputs("#define restrict\n", versionFile);
+    } /* if */
+    macroDefs[0] = '\0';
+    if (compileAndLinkOk("#include <stdio.h>\nint main(int argc,char *argv[])\n"
+                         "{if(__builtin_expect(1,1))puts(\"1\");else puts(\"0\");\n"
+                         "return 0;}\n") && doTest() == 1) {
+      fputs("#define likely(x)   __builtin_expect((x),1)\n", versionFile);
+      fputs("#define unlikely(x) __builtin_expect((x),0)\n", versionFile);
+      strcat(macroDefs, "#define likely(x)   __builtin_expect((x),1)\\n");
+      strcat(macroDefs, "#define unlikely(x) __builtin_expect((x),0)\\n");
+    } else {
+      strcat(macroDefs, "#define likely(x) (x)\\n");
+      strcat(macroDefs, "#define unlikely(x) (x)\\n");
+    } /* if */
+    if (compileAndLinkOk("#include <stdlib.h>\n"
+                         "void fatal (void) __attribute__ ((noreturn));\n"
+                         "void fatal (void) {exit(1);}\n"
+                         "int main(int argc,char *argv[])\n"
+                         "{return 0;}\n")) {
+      fputs("#define NORETURN __attribute__ ((noreturn))\n", versionFile);
+      strcat(macroDefs, "#define NORETURN __attribute__ ((noreturn))\\n");
+    } else {
+      strcat(macroDefs, "#define NORETURN\\n");
+    } /* if */
+    fprintf(versionFile, "#define MACRO_DEFS \"%s\"\n", macroDefs);
+  } /* writeMacroDefs */
+
+
+
 void checkPopen (FILE *versionFile)
 
   {
     char *popen = NULL;
+    int binary_mode_supported;
     char *binary_mode = "";
     char buffer[4096];
 
@@ -400,28 +510,29 @@ void checkPopen (FILE *versionFile)
                          "{FILE *aFile; aFile=popen(\""
                          LIST_DIRECTORY_CONTENTS
                          "\", \"r\");\n"
-                         "printf(\"%d\\n\", ftell(aFile) != -1); return 0;}\n")) {
+                         "printf(\"%d\\n\", aFile != NULL); return 0;}\n") && doTest() == 1) {
       popen = "popen";
     } else if (compileAndLinkOk("#include <stdio.h>\nint main(int argc, char *argv[])\n"
                                 "{FILE *aFile; aFile=_popen(\""
                                 LIST_DIRECTORY_CONTENTS
                                 "\", \"r\");\n"
-                                "printf(\"%d\\n\", ftell(aFile) != -1); return 0;}\n")) {
+                                "printf(\"%d\\n\", aFile != NULL); return 0;}\n") && doTest() == 1) {
       popen = "_popen";
     } /* if */
+    fprintf(versionFile, "#define HAS_POPEN %d\n", popen != NULL);
     if (popen != NULL) {
-      if (doTest() == 1) {
-        fputs("#define FTELL_WRONG_FOR_PIPE\n", versionFile);
-      } /* if */
       sprintf(buffer, "#include <stdio.h>\n#include <errno.h>\n"
                       "int main(int argc, char *argv[])\n"
                       "{FILE *aFile; aFile=%s(\""
                       LIST_DIRECTORY_CONTENTS
                       "\", \"rb\");\n"
                       "printf(\"%%d\\n\", aFile != NULL); return 0;}\n", popen);
-      if (compileAndLinkOk(buffer) && doTest() == 1) {
-        fputs("#define POPEN_SUPPORTS_BINARY_MODE\n", versionFile);
-        binary_mode = "b";
+      if (compileAndLinkOk(buffer)) {
+        binary_mode_supported = doTest() == 1;
+        fprintf(versionFile, "#define POPEN_SUPPORTS_BINARY_MODE %d\n", binary_mode_supported);
+        if (binary_mode_supported) {
+          binary_mode = "b";
+        } /* if */
       } /* if */
       sprintf(buffer, "#include <stdio.h>\n#include <errno.h>\n"
                       "int main(int argc, char *argv[])\n"
@@ -429,8 +540,16 @@ void checkPopen (FILE *versionFile)
                       LIST_DIRECTORY_CONTENTS
                       "\", \"rt\");\n"
                       "printf(\"%%d\\n\", aFile != NULL); return 0;}\n", popen);
-      if (compileAndLinkOk(buffer) && doTest() == 1) {
-        fputs("#define POPEN_SUPPORTS_TEXT_MODE\n", versionFile);
+      if (compileAndLinkOk(buffer)) {
+        fprintf(versionFile, "#define POPEN_SUPPORTS_TEXT_MODE %d\n", doTest() == 1);
+      } /* if */
+      sprintf(buffer, "#include <stdio.h>\nint main(int argc, char *argv[])\n"
+                      "{FILE *aFile; aFile=%s(\""
+                      LIST_DIRECTORY_CONTENTS
+                      "\", \"r\");\n"
+                      "printf(\"%%d\\n\", ftell(aFile) != -1); return 0;}\n", popen);
+      if (compileAndLinkOk(buffer)) {
+        fprintf(versionFile, "#define FTELL_SUCCEEDS_FOR_PIPE %d\n", doTest() == 1);
       } /* if */
       if (compileAndLinkOk("#include <stdio.h>\n"
                            "int main(int argc, char *argv[])\n"
@@ -441,67 +560,75 @@ void checkPopen (FILE *versionFile)
                           "{char buffer[5]; FILE *aFile; aFile=%s(\""
                           ".%s%cctest2%s"
                           "\", \"r%s\");\n"
-                          "if (fgets(buffer, 4, aFile) != NULL)\n"
+                          "if (aFile != NULL && fgets(buffer, 4, aFile) != NULL)\n"
                           "printf(\"%%d\\n\", memcmp(buffer, \"x\\r\\n\", 3) == 0);\n"
                           "else printf(\"0\\n\"); return 0;}\n",
                           popen, PATH_DELIMITER == '\\' ? "\\" : "", PATH_DELIMITER,
                           EXECUTABLE_FILE_EXTENSION, binary_mode);
-          if (compileAndLinkOk(buffer) && doTest() == 1) {
-            fputs("#define STDOUT_IS_IN_TEXT_MODE\n", versionFile);
+          if (compileAndLinkOk(buffer)) {
+            fprintf(versionFile, "#define STDOUT_IS_IN_TEXT_MODE %d\n", doTest() == 1);
           } /* if */
           doRemove("ctest2" EXECUTABLE_FILE_EXTENSION);
         } /* if */
       } /* if */
-    } else {
-      fputs("#define POPEN_MISSING\n", versionFile);
     } /* if */
   } /* checkPopen */
 
 
 
-/**
- *  Determine if DEFINE_OS_ENVIRON or INITIALIZE_OS_ENVIRON must be defined.
- */
-void determineEnvironDefines (FILE *versionFile)
+void checkMoveDirectory (FILE *versionFile)
 
   {
-    char buffer[4096];
-    int define_os_environ = 0;
+    int pos;
+    FILE *aFile;
+    char *buffer[1024];
+    int okay = 1;
 
-  /* determineEnvironDefines */
-    buffer[0] = '\0';
-    if (compileAndLinkOk("#include <stdlib.h>\n#include \"tst_vers.h\"\n"
-                         "int main(int argc,char *argv[])"
-                         "{os_environ;return 0;}\n")) {
-      strcat(buffer, "#include <stdlib.h>\n");
-    } else if (compileAndLinkOk("#include <unistd.h>\n#include \"tst_vers.h\"\n"
-                                "int main(int argc,char *argv[])"
-                                "{os_environ;return 0;}\n")) {
-      strcat(buffer, "#include <unistd.h>\n");
+  /* checkMoveDirectory */
+    mkdir("test_dir1", 0755);
+    mkdir("test_dir1/subdir1", 0755);
+    aFile = fopen("test_dir1/subdir1/subfile", "w");
+    if (aFile != NULL) {
+      fprintf(aFile, "File content\n");
+      fclose(aFile);
+    } /* if */
+    mkdir("test_dir2", 0755);
+    if (rename("test_dir1/subdir1", "test_dir2/subdir2") != 0) {
+      okay = 0;
+    } /* if */
+    if (fileIsDir("test_dir1/subdir1")) {
+      okay = 0;
+      if (fileIsRegular("test_dir1/subdir1/subfile")) {
+        remove("test_dir1/subdir1/subfile");
+      } /* if */
+      rmdir("test_dir1/subdir1");
+    } /* if */
+    if (fileIsDir("test_dir2/subdir2")) {
+      if (fileIsRegular("test_dir2/subdir2/subfile")) {
+        aFile = fopen("test_dir2/subdir2/subfile", "r");
+        if (aFile == NULL) {
+          okay = 0;
+        } else {
+          if (fread(buffer, 1, 13, aFile) != 13 ||
+              memcmp(buffer, "File content\n", 13) != 0) {
+            okay = 0;
+          } /* if */
+          fclose(aFile);
+        } /* if */
+        remove("test_dir2/subdir2/subfile");
+      } else {
+        okay = 0;
+      } /* if */
+      rmdir("test_dir2/subdir2");
     } else {
-      fprintf(versionFile, "#define DEFINE_OS_ENVIRON\n");
-      define_os_environ = 1;
+      okay = 0;
     } /* if */
-    strcat(buffer, "#include <stdio.h>\n");
-    strcat(buffer, "#include \"tst_vers.h\"\n");
-#ifdef OS_STRI_WCHAR
-    strcat(buffer, "typedef wchar_t *os_striType;\n");
-#else
-    strcat(buffer, "typedef char *os_striType;\n");
-#endif
-    if (define_os_environ) {
-      strcat(buffer, "extern os_striType *os_environ;\n");
+    rmdir("test_dir1");
+    rmdir("test_dir2");
+    if (!okay) {
+      fputs("#define MOVE_DIR_WITH_RENAME_FAILS\n", versionFile);
     } /* if */
-#ifdef USE_WMAIN
-    strcat(buffer, "int wmain(int argc,wchar_t *argv[])");
-#else
-    strcat(buffer, "int main(int argc,char *argv[])");
-#endif
-    strcat(buffer, "{printf(\"%d\\n\",os_environ==(os_striType *)0);return 0;}\n");
-    if (!compileAndLinkOk(buffer) || doTest() == 1) {
-      fputs("#define INITIALIZE_OS_ENVIRON\n", versionFile);
-    } /* if */
-  } /* determineEnvironDefines */
+  } /* checkMoveDirectory */
 
 
 
@@ -596,12 +723,8 @@ void numericSizes (FILE *versionFile)
     fprintf(versionFile, "#define WCHAR_T_SIZE %d\n",     8 * getSizeof("wchar_t"));
     fprintf(versionFile, "#define OS_OFF_T_SIZE %d\n",    8 * getSizeof("os_off_t"));
     fprintf(versionFile, "#define TIME_T_SIZE %d\n",      8 * getSizeof("time_t"));
-    if (isSignedType("time_t")) {
-      fputs("#define TIME_T_SIGNED\n", versionFile);
-    } /* if */
-    if (isSignedType("size_t")) {
-      fputs("#define SIZE_T_SIGNED\n", versionFile);
-    } /* if */
+    fprintf(versionFile, "#define TIME_T_SIGNED %d\n", isSignedType("time_t"));
+    fprintf(versionFile, "#define SIZE_T_SIGNED %d\n", isSignedType("size_t"));
     if (sizeof_char == 1) {
       fputs("#define INT8TYPE signed char\n", versionFile);
       fputs("#define INT8TYPE_STRI \"signed char\"\n", versionFile);
@@ -751,6 +874,111 @@ void numericSizes (FILE *versionFile)
 
 
 
+void checkIntDivisions (FILE *versionFile)
+
+  {
+    int check_int_div_by_zero;
+    int check_int_rem_by_zero;
+    int check_int_rem_zero_by_zero;
+
+  /* checkIntDivisions */
+#ifdef INT_DIV_BY_ZERO_POPUP
+    check_int_div_by_zero = 1;
+    check_int_rem_by_zero = 1;
+    check_int_rem_zero_by_zero = 1;
+#else
+    check_int_div_by_zero =
+        !compileAndLinkOk("#include<stdio.h>\n"
+                          "int main(int argc,char *argv[]){"
+                          "printf(\"%d\\n\", 1/0);return 0;}\n") ||
+        !compileAndLinkOk("#include<stdlib.h>\n#include<stdio.h>\n#include<signal.h>\n"
+                          "void handleSigfpe(int sig){puts(\"2\");exit(0);}\n"
+                          "void handleSigill(int sig){puts(\"3\");exit(0);}\n"
+                          "int main(int argc,char *argv[]){\n"
+                          "signal(SIGFPE,handleSigfpe);\n"
+                          "signal(SIGILL,handleSigill);\n"
+                          "printf(\"%d\\n\",1/0==0);return 0;}\n") || doTest() != 2 ||
+        !compileAndLinkOk("#include<stdlib.h>\n#include<stdio.h>\n#include<signal.h>\n"
+                          "void handleSigfpe(int sig){puts(\"2\");exit(0);}\n"
+                          "void handleSigill(int sig){puts(\"3\");exit(0);}\n"
+                           "int main(int argc,char *argv[]){\n"
+                          "int zero=0;\n"
+                          "signal(SIGFPE,handleSigfpe);\n"
+                          "signal(SIGILL,handleSigill);\n"
+                          "printf(\"%d\\n\",1/zero==0);return 0;}\n") || doTest() != 2 ||
+        !compileAndLinkOk("#include<stdlib.h>\n#include<stdio.h>\n#include<signal.h>\n"
+                          "void handleSigfpe(int sig){puts(\"2\");exit(0);}\n"
+                          "void handleSigill(int sig){puts(\"3\");exit(0);}\n"
+                           "int main(int argc,char *argv[]){\n"
+                          "signal(SIGFPE,handleSigfpe);\n"
+                          "signal(SIGILL,handleSigill);\n"
+                          "printf(\"%d\\n\",0/0==0);return 0;}\n") || doTest() != 2 ||
+        !compileAndLinkOk("#include<stdlib.h>\n#include<stdio.h>\n#include<signal.h>\n"
+                          "void handleSigfpe(int sig){puts(\"2\");exit(0);}\n"
+                          "void handleSigill(int sig){puts(\"3\");exit(0);}\n"
+                           "int main(int argc,char *argv[]){\n"
+                          "int zero=0;\n"
+                          "signal(SIGFPE,handleSigfpe);\n"
+                          "signal(SIGILL,handleSigill);\n"
+                          "printf(\"%d\\n\",0/zero==0);return 0;}\n") || doTest() != 2;
+    if (!check_int_div_by_zero) {
+      fputs("#define INT_DIV_BY_ZERO_SIGNALS\n", versionFile);
+#ifndef DO_SIGFPE_WITH_DIV_BY_ZERO
+      fputs("#define DO_SIGFPE_WITH_DIV_BY_ZERO\n", versionFile);
+#endif
+    } /* if */
+    check_int_rem_by_zero = check_int_div_by_zero | (
+        !compileAndLinkOk("#include<stdio.h>\n"
+                          "int main(int argc,char *argv[]){"
+                          "printf(\"%d\\n\", 1%0);return 0;}\n") ||
+        !compileAndLinkOk("#include<stdlib.h>\n#include<stdio.h>\n#include<signal.h>\n"
+                          "void handleSigfpe(int sig){puts(\"2\");exit(0);}\n"
+                          "void handleSigill(int sig){puts(\"3\");exit(0);}\n"
+                          "int main(int argc,char *argv[]){\n"
+                          "int zero=0;\n"
+                          "signal(SIGFPE,handleSigfpe);\n"
+                          "signal(SIGILL,handleSigill);\n"
+                          "printf(\"%d\\n\",1%zero==0);return 0;}\n") || doTest() != 2 ||
+        !compileAndLinkOk("#include<stdlib.h>\n#include<stdio.h>\n#include<signal.h>\n"
+                          "void handleSigfpe(int sig){puts(\"2\");exit(0);}\n"
+                          "void handleSigill(int sig){puts(\"3\");exit(0);}\n"
+                           "int main(int argc,char *argv[]){\n"
+                          "int one=0, zero=0;\n"
+                          "signal(SIGFPE,handleSigfpe);\n"
+                          "signal(SIGILL,handleSigill);\n"
+                          "printf(\"%d\\n\",one%zero==0);return 0;}\n") || doTest() != 2 ||
+        !compileAndLinkOk("#include<stdlib.h>\n#include<stdio.h>\n#include<signal.h>\n"
+                          "void handleSigfpe(int sig){puts(\"2\");exit(0);}\n"
+                          "void handleSigill(int sig){puts(\"3\");exit(0);}\n"
+                           "int main(int argc,char *argv[]){\n"
+                          "int zero1=0, zero2=0;\n"
+                          "signal(SIGFPE,handleSigfpe);\n"
+                          "signal(SIGILL,handleSigill);\n"
+                          "printf(\"%d\\n\",zero1%zero2==0);return 0;}\n") || doTest() != 2);
+    check_int_rem_zero_by_zero =
+        !compileAndLinkOk("#include<stdlib.h>\n#include<stdio.h>\n#include<signal.h>\n"
+                          "void handleSigfpe(int sig){puts(\"2\");exit(0);}\n"
+                          "void handleSigill(int sig){puts(\"3\");exit(0);}\n"
+                           "int main(int argc,char *argv[]){\n"
+                          "signal(SIGFPE,handleSigfpe);\n"
+                          "signal(SIGILL,handleSigill);\n"
+                          "printf(\"%d\\n\",0%0==0);return 0;}\n") || doTest() != 2 ||
+        !compileAndLinkOk("#include<stdlib.h>\n#include<stdio.h>\n#include<signal.h>\n"
+                          "void handleSigfpe(int sig){puts(\"2\");exit(0);}\n"
+                          "void handleSigill(int sig){puts(\"3\");exit(0);}\n"
+                           "int main(int argc,char *argv[]){\n"
+                          "int zero=0;\n"
+                          "signal(SIGFPE,handleSigfpe);\n"
+                          "signal(SIGILL,handleSigill);\n"
+                          "printf(\"%d\\n\",0%zero==0);return 0;}\n") || doTest() != 2;
+#endif
+    fprintf(versionFile, "#define CHECK_INT_DIV_BY_ZERO %d\n", check_int_div_by_zero);
+    fprintf(versionFile, "#define CHECK_INT_REM_BY_ZERO %d\n", check_int_rem_by_zero);
+    fprintf(versionFile, "#define CHECK_INT_REM_ZERO_BY_ZERO %d\n", check_int_rem_zero_by_zero);
+  } /* checkIntDivisions */
+
+
+
 void numericProperties (FILE *versionFile)
 
   {
@@ -787,96 +1015,7 @@ void numericProperties (FILE *versionFile)
     } else {
       fputs("#define BIG_ENDIAN_INTTYPE\n", versionFile);
     } /* if */
-#ifdef INT_DIV_BY_ZERO_POPUP
-    fputs("#define CHECK_INT_DIV_BY_ZERO\n", versionFile);
-#else
-    if (!compileAndLinkOk("#include<stdio.h>\n"
-                          "int main(int argc,char *argv[]){"
-                          "printf(\"%d\\n\", 1/0);return 0;}\n") ||
-        !compileAndLinkOk("#include<stdlib.h>\n#include<stdio.h>\n#include<signal.h>\n"
-                          "void handleSigfpe(int sig){puts(\"2\");exit(0);}\n"
-                          "void handleSigill(int sig){puts(\"3\");exit(0);}\n"
-                          "int main(int argc,char *argv[]){\n"
-                          "signal(SIGFPE,handleSigfpe);\n"
-                          "signal(SIGILL,handleSigill);\n"
-                          "printf(\"%d\\n\",1/0==0);return 0;}\n") || doTest() != 2 ||
-        !compileAndLinkOk("#include<stdlib.h>\n#include<stdio.h>\n#include<signal.h>\n"
-                          "void handleSigfpe(int sig){puts(\"2\");exit(0);}\n"
-                          "void handleSigill(int sig){puts(\"3\");exit(0);}\n"
-                           "int main(int argc,char *argv[]){\n"
-                          "int zero=0;\n"
-                          "signal(SIGFPE,handleSigfpe);\n"
-                          "signal(SIGILL,handleSigill);\n"
-                          "printf(\"%d\\n\",1/zero==0);return 0;}\n") || doTest() != 2 ||
-        !compileAndLinkOk("#include<stdlib.h>\n#include<stdio.h>\n#include<signal.h>\n"
-                          "void handleSigfpe(int sig){puts(\"2\");exit(0);}\n"
-                          "void handleSigill(int sig){puts(\"3\");exit(0);}\n"
-                           "int main(int argc,char *argv[]){\n"
-                          "signal(SIGFPE,handleSigfpe);\n"
-                          "signal(SIGILL,handleSigill);\n"
-                          "printf(\"%d\\n\",0/0==0);return 0;}\n") || doTest() != 2 ||
-        !compileAndLinkOk("#include<stdlib.h>\n#include<stdio.h>\n#include<signal.h>\n"
-                          "void handleSigfpe(int sig){puts(\"2\");exit(0);}\n"
-                          "void handleSigill(int sig){puts(\"3\");exit(0);}\n"
-                           "int main(int argc,char *argv[]){\n"
-                          "int zero=0;\n"
-                          "signal(SIGFPE,handleSigfpe);\n"
-                          "signal(SIGILL,handleSigill);\n"
-                          "printf(\"%d\\n\",0/zero==0);return 0;}\n") || doTest() != 2) {
-      fputs("#define CHECK_INT_DIV_BY_ZERO\n", versionFile);
-    } else {
-      fputs("#define INT_DIV_BY_ZERO_SIGNALS\n", versionFile);
-#ifndef DO_SIGFPE_WITH_DIV_BY_ZERO
-      fputs("#define DO_SIGFPE_WITH_DIV_BY_ZERO\n", versionFile);
-#endif
-    } /* if */
-    if (!compileAndLinkOk("#include<stdio.h>\n"
-                          "int main(int argc,char *argv[]){"
-                          "printf(\"%d\\n\", 1%0);return 0;}\n") ||
-        !compileAndLinkOk("#include<stdlib.h>\n#include<stdio.h>\n#include<signal.h>\n"
-                          "void handleSigfpe(int sig){puts(\"2\");exit(0);}\n"
-                          "void handleSigill(int sig){puts(\"3\");exit(0);}\n"
-                          "int main(int argc,char *argv[]){\n"
-                          "int zero=0;\n"
-                          "signal(SIGFPE,handleSigfpe);\n"
-                          "signal(SIGILL,handleSigill);\n"
-                          "printf(\"%d\\n\",1%zero==0);return 0;}\n") || doTest() != 2 ||
-        !compileAndLinkOk("#include<stdlib.h>\n#include<stdio.h>\n#include<signal.h>\n"
-                          "void handleSigfpe(int sig){puts(\"2\");exit(0);}\n"
-                          "void handleSigill(int sig){puts(\"3\");exit(0);}\n"
-                           "int main(int argc,char *argv[]){\n"
-                          "int one=0, zero=0;\n"
-                          "signal(SIGFPE,handleSigfpe);\n"
-                          "signal(SIGILL,handleSigill);\n"
-                          "printf(\"%d\\n\",one%zero==0);return 0;}\n") || doTest() != 2 ||
-        !compileAndLinkOk("#include<stdlib.h>\n#include<stdio.h>\n#include<signal.h>\n"
-                          "void handleSigfpe(int sig){puts(\"2\");exit(0);}\n"
-                          "void handleSigill(int sig){puts(\"3\");exit(0);}\n"
-                           "int main(int argc,char *argv[]){\n"
-                          "int zero1=0, zero2=0;\n"
-                          "signal(SIGFPE,handleSigfpe);\n"
-                          "signal(SIGILL,handleSigill);\n"
-                          "printf(\"%d\\n\",zero1%zero2==0);return 0;}\n") || doTest() != 2) {
-      fputs("#define CHECK_INT_REM_BY_ZERO\n", versionFile);
-    } /* if */
-    if (!compileAndLinkOk("#include<stdlib.h>\n#include<stdio.h>\n#include<signal.h>\n"
-                          "void handleSigfpe(int sig){puts(\"2\");exit(0);}\n"
-                          "void handleSigill(int sig){puts(\"3\");exit(0);}\n"
-                           "int main(int argc,char *argv[]){\n"
-                          "signal(SIGFPE,handleSigfpe);\n"
-                          "signal(SIGILL,handleSigill);\n"
-                          "printf(\"%d\\n\",0%0==0);return 0;}\n") || doTest() != 2 ||
-        !compileAndLinkOk("#include<stdlib.h>\n#include<stdio.h>\n#include<signal.h>\n"
-                          "void handleSigfpe(int sig){puts(\"2\");exit(0);}\n"
-                          "void handleSigill(int sig){puts(\"3\");exit(0);}\n"
-                           "int main(int argc,char *argv[]){\n"
-                          "int zero=0;\n"
-                          "signal(SIGFPE,handleSigfpe);\n"
-                          "signal(SIGILL,handleSigill);\n"
-                          "printf(\"%d\\n\",0%zero==0);return 0;}\n") || doTest() != 2) {
-      fputs("#define CHECK_INT_REM_ZERO_BY_ZERO\n", versionFile);
-    } /* if */
-#endif
+    checkIntDivisions(versionFile);
 #ifdef TURN_OFF_FP_EXCEPTIONS
     _control87(MCW_EM, MCW_EM);
 #endif
@@ -1151,59 +1290,87 @@ void checkForLimitedStringLiteralLength (FILE *versionFile)
 
 
 
-void checkMoveDirectory (FILE *versionFile)
+void localtimeProperties (FILE *versionFile)
+
+  { /* localtimeProperties */
+#ifdef USE_ALTERNATE_LOCALTIME_R
+    fputs("#define USE_LOCALTIME_R\n", versionFile);
+    fprintf(versionFile, "#define LOCALTIME_WORKS_SIGNED %d\n", isSignedType("time_t"));
+#else
+    if (compileAndLinkOk("#include<time.h>\nint main(int argc,char *argv[])"
+                         "{time_t ts;struct tm res;struct tm*lt;lt=localtime_r(&ts,&res);return 0;}\n")) {
+      fputs("#define USE_LOCALTIME_R\n", versionFile);
+      if (compileAndLinkOk("#include <stdio.h>\n#include<time.h>\n"
+                           "int main(int argc,char *argv[])"
+                           "{time_t ts=-2147483647-1;struct tm res;struct tm*lt;\n"
+                           "lt=localtime_r(&ts,&res);\n"
+                           "printf(\"%d\\n\",lt!=NULL&&lt->tm_year==1);return 0;}\n")) {
+        fprintf(versionFile, "#define LOCALTIME_WORKS_SIGNED %d\n", doTest() == 1);
+      } /* if */
+    } else if (compileAndLinkOk("#include<time.h>\nint main(int argc,char *argv[])"
+                                "{time_t ts;struct tm res;localtime_s(&res,&ts);return 0;}\n")) {
+      fputs("#define USE_LOCALTIME_S\n", versionFile);
+      if (compileAndLinkOk("#include <stdio.h>\n#include<time.h>\n"
+                           "int main(int argc,char *argv[])"
+                           "{time_t ts=-2147483647-1;struct tm res;\n"
+                           "printf(\"%d\\n\",localtime_s(&res,&ts)==0&&res.tm_year==1);return 0;}\n")) {
+        fprintf(versionFile, "#define LOCALTIME_WORKS_SIGNED %d\n", doTest() == 1);
+      } /* if */
+    } else if (compileAndLinkOk("#include <stdio.h>\n#include<time.h>\n"
+                                "int main(int argc,char *argv[])"
+                                "{time_t ts=-2147483647-1;struct tm*lt;\n"
+                                "lt = localtime(&ts);\n"
+                                "printf(\"%d\\n\",lt!=NULL&&lt->tm_year==1);return 0;}\n")) {
+      fprintf(versionFile, "#define LOCALTIME_WORKS_SIGNED %d\n", doTest() == 1);
+    } /* if */
+#endif
+  } /* localtimeProperties */
+
+
+
+/**
+ *  Determine if DEFINE_OS_ENVIRON or INITIALIZE_OS_ENVIRON must be defined.
+ */
+void determineEnvironDefines (FILE *versionFile)
 
   {
-    int pos;
-    FILE *aFile;
-    char *buffer[1024];
-    int okay = 1;
+    char buffer[4096];
+    int define_os_environ = 0;
 
-  /* checkMoveDirectory */
-    mkdir("test_dir1", 0755);
-    mkdir("test_dir1/subdir1", 0755);
-    aFile = fopen("test_dir1/subdir1/subfile", "w");
-    if (aFile != NULL) {
-      fprintf(aFile, "File content\n");
-      fclose(aFile);
-    } /* if */
-    mkdir("test_dir2", 0755);
-    if (rename("test_dir1/subdir1", "test_dir2/subdir2") != 0) {
-      okay = 0;
-    } /* if */
-    if (fileIsDir("test_dir1/subdir1")) {
-      okay = 0;
-      if (fileIsRegular("test_dir1/subdir1/subfile")) {
-        remove("test_dir1/subdir1/subfile");
-      } /* if */
-      rmdir("test_dir1/subdir1");
-    } /* if */
-    if (fileIsDir("test_dir2/subdir2")) {
-      if (fileIsRegular("test_dir2/subdir2/subfile")) {
-        aFile = fopen("test_dir2/subdir2/subfile", "r");
-        if (aFile == NULL) {
-          okay = 0;
-        } else {
-          if (fread(buffer, 1, 13, aFile) != 13 ||
-              memcmp(buffer, "File content\n", 13) != 0) {
-            okay = 0;
-          } /* if */
-          fclose(aFile);
-        } /* if */
-        remove("test_dir2/subdir2/subfile");
-      } else {
-        okay = 0;
-      } /* if */
-      rmdir("test_dir2/subdir2");
+  /* determineEnvironDefines */
+    buffer[0] = '\0';
+    if (compileAndLinkOk("#include <stdlib.h>\n#include \"tst_vers.h\"\n"
+                         "int main(int argc,char *argv[])"
+                         "{os_environ;return 0;}\n")) {
+      strcat(buffer, "#include <stdlib.h>\n");
+    } else if (compileAndLinkOk("#include <unistd.h>\n#include \"tst_vers.h\"\n"
+                                "int main(int argc,char *argv[])"
+                                "{os_environ;return 0;}\n")) {
+      strcat(buffer, "#include <unistd.h>\n");
     } else {
-      okay = 0;
+      fprintf(versionFile, "#define DEFINE_OS_ENVIRON\n");
+      define_os_environ = 1;
     } /* if */
-    rmdir("test_dir1");
-    rmdir("test_dir2");
-    if (!okay) {
-      fputs("#define MOVE_DIR_WITH_RENAME_FAILS\n", versionFile);
+    strcat(buffer, "#include <stdio.h>\n");
+    strcat(buffer, "#include \"tst_vers.h\"\n");
+#ifdef OS_STRI_WCHAR
+    strcat(buffer, "typedef wchar_t *os_striType;\n");
+#else
+    strcat(buffer, "typedef char *os_striType;\n");
+#endif
+    if (define_os_environ) {
+      strcat(buffer, "extern os_striType *os_environ;\n");
     } /* if */
-  } /* checkMoveDirectory */
+#ifdef USE_WMAIN
+    strcat(buffer, "int wmain(int argc,wchar_t *argv[])");
+#else
+    strcat(buffer, "int main(int argc,char *argv[])");
+#endif
+    strcat(buffer, "{printf(\"%d\\n\",os_environ==(os_striType *)0);return 0;}\n");
+    if (!compileAndLinkOk(buffer) || doTest() == 1) {
+      fputs("#define INITIALIZE_OS_ENVIRON\n", versionFile);
+    } /* if */
+  } /* determineEnvironDefines */
 
 
 
@@ -2216,7 +2383,7 @@ int main (int argc, char **argv)
   {
     char *versionFileName = NULL;
     FILE *versionFile = NULL;
-    char aVariable;
+    int driveLetters;
     FILE *aFile;
     char buffer[4096];
     int ch;
@@ -2252,48 +2419,23 @@ int main (int argc, char **argv)
     if (compileAndLinkOk("#include <unistd.h>\nint main(int argc,char *argv[]){return 0;}\n")) {
       fputs("#define UNISTD_H_PRESENT\n", versionFile);
     } /* if */
-    if (compileAndLinkOk("static inline int test(int a){return 2*a;}\n"
-                         "int main(int argc,char *argv[]){return test(argc);}\n")) {
-      /* The C compiler accepts the definition of inline functions. */
-    } else if (compileAndLinkOk("static __inline int test(int a){return 2*a;}\n"
-                                "int main(int argc,char *argv[]){return test(argc);}\n")) {
-      fputs("#define inline __inline\n", versionFile);
-    } else if (compileAndLinkOk("static __inline__ int test(int a){return 2*a;}\n"
-                                "int main(int argc,char *argv[]){return test(argc);}\n")) {
-      fputs("#define inline __inline__\n", versionFile);
-    } else {
-      fputs("#define inline\n", versionFile);
-    } /* if */
-    if (!compileAndLinkOk("int test (int *restrict ptrA, int *restrict ptrB, int *restrict ptrC)\n"
-                          "{*ptrA += *ptrC; *ptrB += *ptrC; return *ptrA+ptrB;}\n"
-                          "int main(int argc,char *argv[])\n"
-                          "{int a=1, b=2, c=3; return test(&a, &b, &c);}\n")) {
-      fputs("#define restrict\n", versionFile);
-    } /* if */
-    buffer[0] = '\0';
-    if (compileAndLinkOk("#include <stdio.h>\nint main(int argc,char *argv[])\n"
-                         "{if(__builtin_expect(1,1))puts(\"1\");else puts(\"0\");\n"
-                         "return 0;}\n") && doTest() == 1) {
-      fputs("#define likely(x)   __builtin_expect((x),1)\n", versionFile);
-      fputs("#define unlikely(x) __builtin_expect((x),0)\n", versionFile);
-      strcat(buffer, "#define likely(x)   __builtin_expect((x),1)\\n");
-      strcat(buffer, "#define unlikely(x) __builtin_expect((x),0)\\n");
-    } else {
-      strcat(buffer, "#define likely(x) (x)\\n");
-      strcat(buffer, "#define unlikely(x) (x)\\n");
-    } /* if */
-    if (compileAndLinkOk("#include <stdlib.h>\n"
-                         "void fatal (void) __attribute__ ((noreturn));\n"
-                         "void fatal (void) {exit(1);}\n"
-                         "int main(int argc,char *argv[])\n"
-                         "{return 0;}\n")) {
-      fputs("#define NORETURN __attribute__ ((noreturn))\n", versionFile);
-      strcat(buffer, "#define NORETURN __attribute__ ((noreturn))\\n");
-    } else {
-      strcat(buffer, "#define NORETURN\\n");
-    } /* if */
-    fprintf(versionFile, "#define MACRO_DEFS \"%s\"\n", buffer);
+    checkSignal(versionFile);
+    writeMacroDefs(versionFile);
+    closeVersionFile(versionFile);
+    copyFile(versionFileName, "tst_vers.h");
+    versionFile = openVersionFile(versionFileName);
     checkPopen(versionFile);
+    if (compileAndLinkOk("#include <stdio.h>\nint main(int argc, char *argv[])\n"
+                         "{printf(\"%d\\n\", fseek(stdin, 0,  SEEK_SET) == 0);\n"
+                         "return 0;}\n")) {
+      fprintf(versionFile, "#define FSEEK_SUCCEEDS_FOR_STDIN %d\n", doTest() == 1);
+    } /* if */
+    if (compileAndLinkOk("#include <stdio.h>\nint main(int argc, char *argv[])\n"
+                         "{FILE *aFile; aFile=fopen(\".\",\"r\");\n"
+                         "printf(\"%d\\n\",aFile!=NULL);\n"
+                         "if(aFile!=NULL)fclose(aFile);return 0;}\n")) {
+      fprintf(versionFile, "#define FOPEN_OPENS_DIRECTORIES %d\n", doTest() == 1);
+    } /* if */
     if (compileAndLinkOk("#include <stdio.h>\nint main(int argc, char *argv[])\n"
                          "{int canWrite=0;FILE *aFile;\n"
                          "if((aFile=fopen(\"tmp_test_file\",\"w\"))!=NULL){\n"
@@ -2301,20 +2443,73 @@ int main (int argc, char **argv)
                          " if((aFile=fopen(\"tmp_test_file\",\"r\"))!=NULL){\n"
                          "  canWrite=fwrite(\"qwert\",1,5,aFile)!=0;fclose(aFile);}\n"
                          " remove(\"tmp_test_file\");}\n"
-                         "printf(\"%d\\n\",canWrite);return 0;}\n") && doTest() == 1) {
-      fputs("#define FWRITE_WRONG_FOR_READ_ONLY_FILES\n", versionFile);
+                         "printf(\"%d\\n\",canWrite);return 0;}\n")) {
+      fprintf(versionFile, "#define FWRITE_WRONG_FOR_READ_ONLY_FILES %d\n", doTest() == 1);
     } /* if */
-    if (compileAndLinkOk("#include <stdio.h>\n#include \"chkccomp.h\"\n"
+    if (compileAndLinkOk("#include <stdio.h>\n#include <unistd.h>\n#include <sys/stat.h>\n"
+                         "#include \"tst_vers.h\"\n"
                          "int main(int argc,char *argv[])\n"
-                         "{int rmFail=0;mkdir(\"tmp_empty_dir1\",0755);\n"
+                         "{int rmFail=0;makeDir(\"tmp_empty_dir1\",0755);\n"
                          "if(remove(\"tmp_empty_dir1\")!=0){rmFail=1;rmdir(\"tmp_empty_dir1\");}\n"
-                         "printf(\"%d\\n\",rmFail);return 0;}\n") && doTest() == 1) {
-      fputs("#define REMOVE_FAILS_FOR_EMPTY_DIRS\n", versionFile);
+                         "printf(\"%d\\n\",rmFail);return 0;}\n") ||
+        compileAndLinkOk("#include <stdio.h>\n#include <direct.h>\n"
+                         "#include \"tst_vers.h\"\n"
+                         "int main(int argc,char *argv[])\n"
+                         "{int rmFail=0;makeDir(\"tmp_empty_dir1\",0755);\n"
+                         "if(remove(\"tmp_empty_dir1\")!=0){rmFail=1;rmdir(\"tmp_empty_dir1\");}\n"
+                         "printf(\"%d\\n\",rmFail);return 0;}\n")) {
+      fprintf(versionFile, "#define REMOVE_FAILS_FOR_EMPTY_DIRS %d\n", doTest() == 1);
+    } /* if */
+    if (compileAndLinkOk("#include <stdio.h>\n#include <unistd.h>\n#include <ctype.h>\n"
+                         "int main(int argc, char *argv[])\n"
+                         "{char buffer[8192]; char *cwd;\n"
+                         "cwd = getcwd(buffer, 8192);\n"
+                         "printf(\"%d\\n\", cwd!=NULL && isalpha(cwd[0]) && cwd[1]==':');\n"
+                         "return 0;}\n") ||
+        compileAndLinkOk("#include <stdio.h>\n#include <unistd.h>\n#include <ctype.h>\n"
+                         "int main(int argc, char *argv[])\n"
+                         "{char buffer[8192]; char *cwd;\n"
+                         "cwd = _getcwd(buffer, 8192);\n"
+                         "printf(\"%d\\n\", cwd!=NULL && isalpha(cwd[0]) && cwd[1]==':');\n"
+                         "return 0;}\n") ||
+        compileAndLinkOk("#include <stdio.h>\n#include <direct.h>\n#include <ctype.h>\n"
+                         "int main(int argc, char *argv[])\n"
+                         "{char buffer[8192]; char *cwd;\n"
+                         "cwd = getcwd(buffer, 8192);\n"
+                         "printf(\"%d\\n\", cwd!=NULL && isalpha(cwd[0]) && cwd[1]==':');\n"
+                         "return 0;}\n") ||
+        compileAndLinkOk("#include <stdio.h>\n#include <direct.h>\n#include <ctype.h>\n"
+                         "int main(int argc, char *argv[])\n"
+                         "{char buffer[8192]; char *cwd;\n"
+                         "cwd = getcwd(buffer, 8192);\n"
+                         "printf(\"%d\\n\", cwd!=NULL && isalpha(cwd[0]) && cwd[1]==':');\n"
+                         "return 0;}\n")) {
+      driveLetters = doTest() == 1;
+      fprintf(versionFile, "#define OS_PATH_HAS_DRIVE_LETTERS %d\n", driveLetters);
+      if (driveLetters) {
+        if (compileAndLinkOk("#include <stdio.h>\n#include <stdlib.h>\n"
+                             "int main(int argc, char *argv[])\n"
+                             "printf(\"%d\\n\", getenv(\"USERPROFILE\") != NULL);\n"
+                             "return 0;}\n") && doTest() == 1) {
+          /* When USERPROFILE is defined then it is used, even when HOME is defined. */
+          fputs("#define HOME_DIR_ENV_VAR {'U', 'S', 'E', 'R', 'P', 'R', 'O', 'F', 'I', 'L', 'E', 0}\n", versionFile);
+        } else if (compileAndLinkOk("#include <stdio.h>\n#include <stdlib.h>\n"
+                                    "int main(int argc, char *argv[])\n"
+                                    "printf(\"%d\\n\", getenv(\"HOME\") != NULL);\n"
+                                    "return 0;}\n") && doTest() == 1) {
+          fputs("#define HOME_DIR_ENV_VAR {'H', 'O', 'M', 'E', 0}\n", versionFile);
+        } else {
+          fputs("#define HOME_DIR_ENV_VAR {'H', 'O', 'M', 'E', 0}\n", versionFile);
+          fputs("#define DEFAULT_HOME_DIR {'C', ':', '\\\\', 0}\n", versionFile);
+        } /* if */
+      } else {
+        fputs("#define HOME_DIR_ENV_VAR {'H', 'O', 'M', 'E', 0}\n", versionFile);
+      } /* if */
     } /* if */
     if (compileAndLinkOk(
-        "#include <stdio.h>\n#include <utime.h>\n#include <errno.h>\n#include \"chkccomp.h\"\n"
+        "#include <stdio.h>\n#include <utime.h>\n#include <errno.h>\n#include \"tst_vers.h\"\n"
         "int main(int argc,char *argv[])"
-        "{struct utimbuf utime_buf;mkdir(\"tmp_empty_dir2\",0755);\n"
+        "{struct utimbuf utime_buf;makeDir(\"tmp_empty_dir2\",0755);\n"
         "utime_buf.actime=1234567890;utime_buf.modtime=1234567890;\n"
         "printf(\"%d\\n\",utime(\"tmp_empty_dir2\",&utime_buf)!=0&&errno==EACCES);\n"
         "if(remove(\"tmp_empty_dir2\")!=0)rmdir(\"tmp_empty_dir2\");return 0;}\n") &&
@@ -2328,9 +2523,9 @@ int main (int argc, char **argv)
 #endif
       fputs("#define os_utime alternate_utime\n", versionFile);
     } else if (compileAndLinkOk(
-        "#include <stdio.h>\n#include <sys/utime.h>\n#include <errno.h>\n#include \"chkccomp.h\"\n"
+        "#include <stdio.h>\n#include <sys/utime.h>\n#include <errno.h>\n#include \"tst_vers.h\"\n"
         "int main(int argc,char *argv[])"
-        "{struct utimbuf utime_buf;mkdir(\"tmp_empty_dir3\",0755);\n"
+        "{struct utimbuf utime_buf;makeDir(\"tmp_empty_dir3\",0755);\n"
         "utime_buf.actime=1234567890;utime_buf.modtime=1234567890;\n"
         "printf(\"%d\\n\",utime(\"tmp_empty_dir3\",&utime_buf)!=0&&errno==EACCES);\n"
         "if(remove(\"tmp_empty_dir3\")!=0)rmdir(\"tmp_empty_dir3\");return 0;}\n") &&
@@ -2361,13 +2556,8 @@ int main (int argc, char **argv)
     /* removed.                                    */
     fputs("#define RENAME_BEFORE_REMOVE\n", versionFile);
 #endif
-    if (expectTestResult("#include <stdio.h>\nint main(int argc, char *argv[])\n"
-                         "{FILE *aFile; aFile=fopen(\".\",\"r\");\n"
-                         "printf(\"%d\\n\",aFile!=NULL);\n"
-                         "if(aFile!=NULL)fclose(aFile);return 0;}\n", 1)) {
-      fputs("#define FOPEN_OPENS_DIRECTORIES\n", versionFile);
-    } /* if */
     numericSizes(versionFile);
+    numericProperties(versionFile);
     determineMallocAlignment(versionFile);
     if (compileAndLinkOk("#include<signal.h>\nint main(int argc, char *argv[]){\n"
                          "signal(SIGBUS,SIG_DFL); return 0;}\n")) {
@@ -2376,25 +2566,19 @@ int main (int argc, char **argv)
                            "int main(int argc, char *argv[]){\n"
                            "signal(SIGBUS,handleSig);\n"
                            "int p[3]={12,34,56}, q, *pp; pp=(int *)((char *)&p[1]+1); q=*pp;\n"
-                           "printf(\"1\\n\"); return 0;}\n") && doTest() == 1) {
-        fputs("#define UNALIGNED_MEMORY_ACCESS_OKAY\n", versionFile);
-      } else {
-        fputs("#define UNALIGNED_MEMORY_ACCESS_FAILS\n", versionFile);
+                           "printf(\"1\\n\"); return 0;}\n")) {
+        fprintf(versionFile, "#define UNALIGNED_MEMORY_ACCESS_OKAY %d\n", doTest() == 1);
       } /* if */
-    } else {
-      if (compileAndLinkOk("#include <stdio.h>\nint main(int argc, char *argv[])\n"
-                           "{int p[3]={12,34,56}, q, *pp; pp=(int *)((char *)&p[1]+1); q=*pp;\n"
-                           "printf(\"1\\n\"); return 0;}\n") && doTest() == 1) {
-        fputs("#define UNALIGNED_MEMORY_ACCESS_OKAY\n", versionFile);
-      } else {
-        fputs("#define UNALIGNED_MEMORY_ACCESS_FAILS\n", versionFile);
-      } /* if */
+    } else if (compileAndLinkOk("#include <stdio.h>\nint main(int argc, char *argv[])\n"
+                                "{int p[3]={12,34,56}, q, *pp; pp=(int *)((char *)&p[1]+1); q=*pp;\n"
+                                "printf(\"1\\n\"); return 0;}\n")) {
+      fprintf(versionFile, "#define UNALIGNED_MEMORY_ACCESS_OKAY %d\n", doTest() == 1);
     } /* if */
-    if (expectTestResult("#include <stdio.h>\nint main(int argc, char *argv[])\n"
+    if (compileAndLinkOk("#include <stdio.h>\nint main(int argc, char *argv[])\n"
                          "{union{char ch;unsigned long gen;}aUnion;\n"
                          "memset(&aUnion,0,sizeof(aUnion));aUnion.ch='X';\n"
-                         "printf(\"%d\\n\",aUnion.ch!=(char)aUnion.gen);return 0;}\n", 1)) {
-      fputs("#define CASTING_DOES_NOT_GET_A_UNION_ELEMENT\n", versionFile);
+                         "printf(\"%d\\n\",aUnion.ch==(char)aUnion.gen);return 0;}\n")) {
+      fprintf(versionFile, "#define CASTING_GETS_A_UNION_ELEMENT %d\n", doTest() == 1);
     } /* if */
     if (expectTestResult("#include <stdio.h>\nint main(int argc, char *argv[])\n"
                          "{printf(\"%d\\n\",EOF!= -1);return 0;}\n", 1)) {
@@ -2409,8 +2593,8 @@ int main (int argc, char **argv)
     if (compileAndLinkOk("#include <stdio.h>\n#include <string.h>\n"
                          "int main(int argc, char *argv[]){\n"
                          "printf(\"%d\\n\", strcmp(\"\?\?(\", \"[\") == 0);\n"
-                         "return 0;}\n") && doTest() == 1) {
-      fputs("#define TRIGRAPH_SEQUENCES_ARE_REPLACED\n", versionFile);
+                         "return 0;}\n")) {
+      fprintf(versionFile, "#define TRIGRAPH_SEQUENCES_ARE_REPLACED %d\n", doTest() == 1);
     } /* if */
     checkForLimitedStringLiteralLength(versionFile);
     detemineStackDirection(versionFile);
@@ -2422,76 +2606,18 @@ int main (int argc, char **argv)
       fputs("#define STACK_SIZE 0x800000\n", versionFile); /* 8388608 bytes */
     } /* if */
 #endif
-    numericProperties(versionFile);
-#ifdef USE_ALTERNATE_LOCALTIME_R
-    fputs("#define USE_LOCALTIME_R\n", versionFile);
-    if (isSignedType("time_t")) {
-      fputs("#define LOCALTIME_WORKS_SIGNED\n", versionFile);
-    } /* if */
-#else
-    if (compileAndLinkOk("#include<time.h>\nint main(int argc,char *argv[])"
-                         "{time_t ts;struct tm res;struct tm*lt;lt=localtime_r(&ts,&res);return 0;}\n")) {
-      fputs("#define USE_LOCALTIME_R\n", versionFile);
-      if (expectTestResult("#include <stdio.h>\n#include<time.h>\n"
-                           "int main(int argc,char *argv[])"
-                           "{time_t ts=-2147483647-1;struct tm res;struct tm*lt;\n"
-                           "lt=localtime_r(&ts,&res);\n"
-                           "printf(\"%d\\n\",lt!=NULL&&lt->tm_year==1);return 0;}\n", 1)) {
-        fputs("#define LOCALTIME_WORKS_SIGNED\n", versionFile);
-      } /* if */
-    } else if (compileAndLinkOk("#include<time.h>\nint main(int argc,char *argv[])"
-                                "{time_t ts;struct tm res;localtime_s(&res,&ts);return 0;}\n")) {
-      fputs("#define USE_LOCALTIME_S\n", versionFile);
-      if (expectTestResult("#include <stdio.h>\n#include<time.h>\n"
-                           "int main(int argc,char *argv[])"
-                           "{time_t ts=-2147483647-1;struct tm res;\n"
-                           "printf(\"%d\\n\",localtime_s(&res,&ts)==0&&res.tm_year==1);return 0;}\n", 1)) {
-        fputs("#define LOCALTIME_WORKS_SIGNED\n", versionFile);
-      } /* if */
-    } else if (compileAndLinkOk("#include <stdio.h>\n#include<time.h>\n"
-                                "int main(int argc,char *argv[])"
-                                "{time_t ts=-2147483647-1;struct tm*lt;\n"
-                                "lt = localtime(&ts);\n"
-                                "printf(\"%d\\n\",lt!=NULL&&lt->tm_year==1);return 0;}\n") && doTest() == 1) {
-      fputs("#define LOCALTIME_WORKS_SIGNED\n", versionFile);
-    } /* if */
-#endif
+    localtimeProperties(versionFile);
     /* Make sure that the file version.h up to this position is copied to tst_vers.h. */
     closeVersionFile(versionFile);
     copyFile(versionFileName, "tst_vers.h");
     versionFile = openVersionFile(versionFileName);
     determineEnvironDefines(versionFile);
-#ifdef OS_PATH_HAS_DRIVE_LETTERS
-    if (getenv("USERPROFILE") != NULL) {
-      /* When USERPROFILE is defined then it is used, even when HOME is defined. */
-      fputs("#define HOME_DIR_ENV_VAR {'U', 'S', 'E', 'R', 'P', 'R', 'O', 'F', 'I', 'L', 'E', 0}\n", versionFile);
-    } else if (getenv("HOME") != NULL) {
-      fputs("#define HOME_DIR_ENV_VAR {'H', 'O', 'M', 'E', 0}\n", versionFile);
-    } else {
-      fputs("#define HOME_DIR_ENV_VAR {'H', 'O', 'M', 'E', 0}\n", versionFile);
-      fputs("#define DEFAULT_HOME_DIR {'C', ':', '\\\\', 0}\n", versionFile);
-    } /* if */
-#else
-    fputs("#define HOME_DIR_ENV_VAR {'H', 'O', 'M', 'E', 0}\n", versionFile);
-#endif
-    if (compileAndLinkOk("#include <stdlib.h>\n#include <stdio.h>\n#include <signal.h>\n"
-                         "void handleSig(int sig){puts(\"1\");exit(0);}\n"
-                         "int main(int argc, char *argv[]){\n"
-                         "struct sigaction sig_act;\n"
-                         "sig_act.sa_handler = handleSig;\n"
-                         "sigemptyset(&sig_act.sa_mask);\n"
-                         "sig_act.sa_flags = SA_RESTART;\n"
-                         "if (sigaction(SIGINT, &sig_act, NULL) == -1)\n"
-                         "{puts(\"2\");}else{raise(SIGINT);puts(\"3\");}\n"
-                         "return 0;}\n") && doTest() == 1) {
-      fputs("#define HAS_SIGACTION\n", versionFile);
-    } /* if */
     if (compileAndLinkOk("#include <stdio.h>\n#include <sys/resource.h>\n"
                          "int main(int argc, char *argv[]){\n"
                          "struct rlimit rlim;\n"
                          "printf(\"%d\\n\", getrlimit(RLIMIT_STACK, &rlim) == 0);\n"
-                         "return 0;}\n") && doTest() == 1) {
-      fputs("#define HAS_GETRLIMIT\n", versionFile);
+                         "return 0;}\n")) {
+      fprintf(versionFile, "#define HAS_GETRLIMIT %d\n", doTest() == 1);
       if (compileAndLinkOk("#include <stdio.h>\n#include <sys/resource.h>\n"
                            "int main(int argc, char *argv[]){\n"
                            "struct rlimit rlim;\n"
@@ -2515,30 +2641,38 @@ int main (int argc, char **argv)
         fprintf(versionFile, "#define HARD_STACK_LIMIT %lu\n", (unsigned long) doTest() * 1024);
       } /* if */
     } /* if */
-    if (compileAndLinkOk("#include <stdio.h>\n#include <setjmp.h>\n"
+    fprintf(versionFile, "#define HAS_SETJMP %d\n",
+        compileAndLinkOk("#include <stdio.h>\n#include <setjmp.h>\n"
+                         "int main(int argc, char *argv[]){\n"
+                         "sigjmp_buf env; int ret_code; int count = 2;\n"
+                         "if ((ret_code=setjmp(env)) == 0) {\n"
+                         "count--; longjmp(env, count);\n"
+                         "} else printf(\"%d\\n\", ret_code);\n"
+                         "return 0;}\n") && doTest() == 1);
+    fprintf(versionFile, "#define HAS_SIGSETJMP %d\n",
+        compileAndLinkOk("#include <stdio.h>\n#include <setjmp.h>\n"
                          "int main(int argc, char *argv[]){\n"
                          "sigjmp_buf env; int ret_code; int count = 2;\n"
                          "if ((ret_code=sigsetjmp(env, 1)) == 0) {\n"
                          "count--; siglongjmp(env, count);\n"
                          "} else printf(\"%d\\n\", ret_code);\n"
-                         "return 0;}\n") && doTest() == 1) {
-      fputs("#define HAS_SIGSETJMP\n", versionFile);
-    } /* if */
-    if (compileAndLinkOk("#include <unistd.h>\n"
+                         "return 0;}\n") && doTest() == 1);
+    fprintf(versionFile, "#define HAS_SYMLINKS %d\n",
+        compileAndLinkOk("#include <unistd.h>\n#include <string.h>\n"
                          "int main(int argc, char *argv[]){\n"
-                         "char buf[256]; ssize_t link_len; int ret_code;\n"
-                         "link_len=readlink(\"qwertzuiop\", buf, 256);\n"
-                         "ret_code=symlink(\"qwertzuiop\", \"asdfghjkl\");\n"
-                         "return 0;}\n")) {
-      fputs("#define HAS_SYMLINKS\n", versionFile);
-    } /* if */
-    if (compileAndLinkOk("#include <sys/types.h>\n#include <sys/stat.h>\n"
+                         "char buf[256]; ssize_t link_len; int okay=0;\n"
+                         "if (symlink(\"qwertzuiop\",\"test_symlink\") == 0){;\n"
+                         "link_len=readlink(\"test_symlink\", buf, 256);\n"
+                         "okay = link_len == 10 && memcmp(buf,\"qwertzuiop\",10) == 0;\n"
+                         "remove(\"test_symlink\");}\n"
+                         "printf(\"%d\\n\", okay);\n"
+                         "return 0;}\n") && doTest() == 1);
+    fprintf(versionFile, "#define HAS_FIFO_FILES %d\n",
+        compileAndLinkOk("#include <sys/types.h>\n#include <sys/stat.h>\n"
                          "int main(int argc, char *argv[]){\n"
                          "int ret_code;\n"
                          "ret_code=mkfifo(\"qwertzuiop\", 0);\n"
-                         "return 0;}\n")) {
-      fputs("#define HAS_FIFO_FILES\n", versionFile);
-    } /* if */
+                         "return 0;}\n"));
     if (compileAndLinkOk("#include<poll.h>\nint main(int argc,char *argv[])"
                          "{struct pollfd pollFd[1];poll(pollFd, 1, 0);return 0;}\n")) {
       fputs("#define HAS_POLL\n", versionFile);

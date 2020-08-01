@@ -284,7 +284,7 @@ static void dump_addrinfo (struct addrinfo *addrinfo_list)
  *  Afterwards the string is allocated, the data is copied from the
  *  buffers and the list of buffers is freed.
  */
-static striType read_and_alloc_stri (socketType inSocket, memSizeType chars_missing,
+static striType receive_and_alloc_stri (socketType inSocket, memSizeType chars_missing,
     errInfoType *err_info)
 
   {
@@ -297,8 +297,8 @@ static striType read_and_alloc_stri (socketType inSocket, memSizeType chars_miss
     memSizeType result_size = 0;
     striType result;
 
-  /* read_and_alloc_stri */
-    logFunction(printf("read_and_alloc_stri(%d, " FMT_U_MEM ", *)\n",
+  /* receive_and_alloc_stri */
+    logFunction(printf("receive_and_alloc_stri(%d, " FMT_U_MEM ", *)\n",
                        inSocket, chars_missing););
     buffer.next = NULL;
     while (chars_missing - result_size >= LIST_BUFFER_SIZE &&
@@ -308,9 +308,9 @@ static striType read_and_alloc_stri (socketType inSocket, memSizeType chars_miss
       bytes_in_buffer = (memSizeType) recv((os_socketType) inSocket,
                                            cast_send_recv_data(currBuffer->buffer),
                                            cast_buffer_len(LIST_BUFFER_SIZE), 0);
-      /* printf("read_and_alloc_stri: bytes_in_buffer=" FMT_U_MEM "\n", bytes_in_buffer); */
+      /* printf("receive_and_alloc_stri: bytes_in_buffer=" FMT_U_MEM "\n", bytes_in_buffer); */
       if (unlikely(bytes_in_buffer == (memSizeType) (-1) && result_size == 0)) {
-        logError(printf("read_and_alloc_stri: "
+        logError(printf("receive_and_alloc_stri: "
                         "recv(%d, *, " FMT_U_MEM ", 0) failed.\n",
                         inSocket, (memSizeType) LIST_BUFFER_SIZE););
         *err_info = FILE_ERROR;
@@ -320,9 +320,9 @@ static striType read_and_alloc_stri (socketType inSocket, memSizeType chars_miss
         if (chars_missing > result_size && bytes_in_buffer == LIST_BUFFER_SIZE) {
           currBuffer->next = (bufferList) malloc(sizeof(struct bufferStruct));
           if (unlikely(currBuffer->next == NULL)) {
-            logError(printf("read_and_alloc_stri(%d, " FMT_U_MEM ", *): "
-                            "Out of memory when allocating buffer.\n",
-                            inSocket, chars_missing););
+            logError(printf("receive_and_alloc_stri(%d, " FMT_U_MEM ", *): "
+                            "malloc(" FMT_U_MEM ") failed.\n",
+                            inSocket, chars_missing, sizeof(struct bufferStruct)););
             *err_info = MEMORY_ERROR;
             result = NULL;
           } else {
@@ -340,9 +340,9 @@ static striType read_and_alloc_stri (socketType inSocket, memSizeType chars_miss
       bytes_in_buffer = (memSizeType) recv((os_socketType) inSocket,
                                            cast_send_recv_data(currBuffer->buffer),
                                            cast_buffer_len(chars_missing - result_size), 0);
-      /* printf("read_and_alloc_stri: bytes_in_buffer=" FMT_U_MEM "\n", bytes_in_buffer); */
+      /* printf("receive_and_alloc_stri: bytes_in_buffer=" FMT_U_MEM "\n", bytes_in_buffer); */
       if (unlikely(bytes_in_buffer == (memSizeType) (-1) && result_size == 0)) {
-        logError(printf("read_and_alloc_stri: "
+        logError(printf("receive_and_alloc_stri: "
                         "recv(%d, *, " FMT_U_MEM ", 0) failed.\n",
                         inSocket, chars_missing - result_size););
         *err_info = FILE_ERROR;
@@ -353,9 +353,9 @@ static striType read_and_alloc_stri (socketType inSocket, memSizeType chars_miss
     } /* if */
     if (likely(*err_info == OKAY_NO_ERROR)) {
       if (!ALLOC_STRI_SIZE_OK(result, result_size)) {
-        logError(printf("read_and_alloc_stri(%d, " FMT_U_MEM ", *): "
-                        "Out of memory when allocating result.\n",
-                        inSocket, chars_missing););
+        logError(printf("receive_and_alloc_stri(%d, " FMT_U_MEM ", *): "
+                        "ALLOC_STRI_SIZE_OK(*, " FMT_U_MEM ") failed.\n",
+                        inSocket, chars_missing, result_size););
         *err_info = MEMORY_ERROR;
       } else {
         result->size = result_size;
@@ -375,10 +375,10 @@ static striType read_and_alloc_stri (socketType inSocket, memSizeType chars_miss
       currBuffer = currBuffer->next;
       free(oldBuffer);
     } /* while */
-    logFunction(printf("read_and_alloc_stri(%d, " FMT_U_MEM ", %d) --> \"%s\"\n",
+    logFunction(printf("receive_and_alloc_stri(%d, " FMT_U_MEM ", %d) --> \"%s\"\n",
                        inSocket, chars_missing, *err_info, striAsUnquotedCStri(result)););
     return result;
-  } /* read_and_alloc_stri */
+  } /* receive_and_alloc_stri */
 
 
 
@@ -457,6 +457,8 @@ intType socAddrFamily (const const_bstriType address)
   /* socAddrFamily */
     logFunction(printf("socAddrFamily(\"%s\")\n", bstriAsUnquotedCStri(address)););
     if (unlikely(address->size < sizeof(struct sockaddr))) {
+      logError(printf("socAddrFamily(\"%s\"): Size of address too small.\n",
+                      bstriAsUnquotedCStri(address)););
       raise_error(RANGE_ERROR);
       result = 0;
     } else {
@@ -488,6 +490,8 @@ striType socAddrNumeric (const const_bstriType address)
   /* socAddrNumeric */
     logFunction(printf("socAddrNumeric(\"%s\")\n", bstriAsUnquotedCStri(address)););
     if (unlikely(address->size < sizeof(struct sockaddr))) {
+      logError(printf("socAddrNumeric(\"%s\"): Size of address too small.\n",
+                      bstriAsUnquotedCStri(address)););
       raise_error(RANGE_ERROR);
       result = NULL;
     } else {
@@ -495,6 +499,8 @@ striType socAddrNumeric (const const_bstriType address)
       switch (addr->sa_family) {
         case AF_INET:
           if (unlikely(address->size != sizeof(struct sockaddr_in))) {
+            logError(printf("socAddrNumeric(\"%s\"): Size of address wrong for AF_INET.\n",
+                            bstriAsUnquotedCStri(address)););
             raise_error(RANGE_ERROR);
             result = NULL;
           } else {
@@ -512,6 +518,8 @@ striType socAddrNumeric (const const_bstriType address)
 #if defined USE_GETADDRINFO || defined INET6_SERVER_ADDRESS
         case AF_INET6:
           if (unlikely(address->size != sizeof(struct sockaddr_in6))) {
+            logError(printf("socAddrNumeric(\"%s\"): Size of address wrong for AF_INET6.\n",
+                            bstriAsUnquotedCStri(address)););
             raise_error(RANGE_ERROR);
             result = NULL;
           } else {
@@ -532,6 +540,8 @@ striType socAddrNumeric (const const_bstriType address)
           break;
 #endif
         default:
+          logError(printf("socAddrNumeric(\"%s\"): Address neither AF_INET nor AF_INET6.\n",
+                          bstriAsUnquotedCStri(address)););
           raise_error(RANGE_ERROR);
           result = NULL;
           break;
@@ -553,6 +563,8 @@ striType socAddrService (const const_bstriType address)
   /* socAddrService */
     logFunction(printf("socAddrService(\"%s\")\n", bstriAsUnquotedCStri(address)););
     if (unlikely(address->size < sizeof(struct sockaddr))) {
+      logError(printf("socAddrService(\"%s\"): Size of address too small.\n",
+                      bstriAsUnquotedCStri(address)););
       raise_error(RANGE_ERROR);
       result = NULL;
     } else {
@@ -560,6 +572,8 @@ striType socAddrService (const const_bstriType address)
       switch (addr->sa_family) {
         case AF_INET:
           if (unlikely(address->size != sizeof(struct sockaddr_in))) {
+            logError(printf("socAddrService(\"%s\"): Size of address wrong for AF_INET.\n",
+                            bstriAsUnquotedCStri(address)););
             raise_error(RANGE_ERROR);
             result = NULL;
           } else {
@@ -573,6 +587,8 @@ striType socAddrService (const const_bstriType address)
 #if defined USE_GETADDRINFO || defined INET6_SERVER_ADDRESS
         case AF_INET6:
           if (unlikely(address->size != sizeof(struct sockaddr_in6))) {
+            logError(printf("socAddrService(\"%s\"): Size of address wrong for AF_INET6.\n",
+                            bstriAsUnquotedCStri(address)););
             raise_error(RANGE_ERROR);
             result = NULL;
           } else {
@@ -585,6 +601,8 @@ striType socAddrService (const const_bstriType address)
           break;
 #endif
         default:
+          logError(printf("socAddrService(\"%s\"): Address neither AF_INET nor AF_INET6.\n",
+                          bstriAsUnquotedCStri(address)););
           raise_error(RANGE_ERROR);
           result = NULL;
           break;
@@ -710,6 +728,8 @@ striType socGets (socketType inSocket, intType length, charType *const eofIndica
     logFunction(printf("socGets(%d, " FMT_D ", '\\" FMT_U32 ";')\n",
                        inSocket, length, *eofIndicator););
     if (unlikely(length < 0)) {
+      logError(printf("socGets(%d, " FMT_D ", *): Negative length.\n",
+                      inSocket, length););
       raise_error(RANGE_ERROR);
       result = NULL;
     } else {
@@ -744,7 +764,7 @@ striType socGets (socketType inSocket, intType length, charType *const eofIndica
       } else {
         if (chars_requested > GETS_DEFAULT_SIZE) {
           /* Read a string, when we do not know how many bytes are avaliable. */
-          result = read_and_alloc_stri(inSocket, chars_requested, &err_info);
+          result = receive_and_alloc_stri(inSocket, chars_requested, &err_info);
           if (unlikely(err_info != OKAY_NO_ERROR)) {
             raise_error(err_info);
           } /* if */
@@ -981,6 +1001,9 @@ bstriType socInetAddr (const const_striType hostName, intType port)
                        striAsUnquotedCStri(hostName), port););
     check_initialization(NULL);
     if (unlikely(port < 0 || port > 65535)) {
+      logError(printf("socInetAddr(\"%s\", " FMT_D "): "
+                      "Port not in allowed range.\n",
+                      striAsUnquotedCStri(hostName), port););
       raise_error(RANGE_ERROR);
       result = NULL;
     } else {
@@ -1006,8 +1029,13 @@ bstriType socInetAddr (const const_striType hostName, intType port)
               result->size = 0;
             } /* if */
           } else {
-            logError(printf("socInetAddr: getaddrinfo(...) failed:\n"
+            logError(printf("socInetAddr(\"%s\", " FMT_D "): "
+                            "getaddrinfo(\"%s\", \"%s\", *, *) failed with %d:\n"
+                            "strerror: %s\n"
                             "errno=%d\nerror: %s\n",
+                            striAsUnquotedCStri(hostName), port,
+                            name, servicename, getaddrinfo_result,
+                            gai_strerror(getaddrinfo_result),
                             ERROR_INFORMATION););
             /*
             printf("EAI_AGAIN=%d  EAI_BADFLAGS=%d  EAI_FAIL=%d  EAI_FAMILY=%d  EAI_MEMORY=%d\n",
@@ -1139,6 +1167,9 @@ bstriType socInetLocalAddr (intType port)
     logFunction(printf("socInetLocalAddr(" FMT_D ")\n", port););
     check_initialization(NULL);
     if (unlikely(port < 0 || port > 65535)) {
+      logError(printf("socInetLocalAddr(" FMT_D "): "
+                      "Port not in allowed range.\n",
+                      port););
       raise_error(RANGE_ERROR);
       result = NULL;
     } else {
@@ -1149,9 +1180,13 @@ bstriType socInetLocalAddr (intType port)
       hints.ai_socktype = SOCK_STREAM;
       getaddrinfo_result = getaddrinfo(NULL, servicename, &hints, &addrinfo_list);
       if (unlikely(getaddrinfo_result != 0)) {
-        logError(printf("socInetLocalAddr: getaddrinfo(NULL, %s, ...) failed:\n"
+        logError(printf("socInetLocalAddr" FMT_D "): "
+                        "getaddrinfo(NULL, %s, *, *) failed with %d:\n"
+                        "strerror: %s\n"
                         "errno=%d\nerror: %s\n",
-                        servicename, ERROR_INFORMATION););
+                        port, servicename, getaddrinfo_result,
+                        gai_strerror(getaddrinfo_result),
+                        ERROR_INFORMATION););
         raise_error(FILE_ERROR);
         result = NULL;
       } else {
@@ -1215,6 +1250,9 @@ bstriType socInetServAddr (intType port)
     logFunction(printf("socInetServAddr(" FMT_D ")\n", port););
     check_initialization(NULL);
     if (unlikely(port < 0 || port > 65535)) {
+      logError(printf("socInetServAddr(" FMT_D "): "
+                      "Port not in allowed range.\n",
+                      port););
       raise_error(RANGE_ERROR);
       result = NULL;
     } else {
@@ -1226,9 +1264,13 @@ bstriType socInetServAddr (intType port)
       hints.ai_flags = AI_PASSIVE;
       getaddrinfo_result = getaddrinfo(NULL, servicename, &hints, &addrinfo_list);
       if (unlikely(getaddrinfo_result != 0)) {
-        logError(printf("socInetServAddr: getaddrinfo(NULL, %s, ...) failed:\n"
+        logError(printf("socInetServAddr" FMT_D "): "
+                        "getaddrinfo(NULL, %s, *, *) failed with %d:\n"
+                        "strerror: %s\n"
                         "errno=%d\nerror: %s\n",
-                        servicename, ERROR_INFORMATION););
+                        port, servicename, getaddrinfo_result,
+                        gai_strerror(getaddrinfo_result),
+                        ERROR_INFORMATION););
         raise_error(FILE_ERROR);
         result = NULL;
       } else {
@@ -1282,6 +1324,7 @@ boolType socInputReady (socketType sock, intType seconds, intType micro_seconds)
 
   {
     struct pollfd pollFd[1];
+    int timeout;
     int poll_result;
     unsigned char next_char;
     memSizeType bytes_received;
@@ -1292,16 +1335,23 @@ boolType socInputReady (socketType sock, intType seconds, intType micro_seconds)
                        sock, seconds, micro_seconds););
     if (unlikely(seconds < 0 || seconds >= INT_MAX / 1000 ||
                  micro_seconds < 0 || micro_seconds >= 1000000)) {
+      logError(printf("socInputReady(%d, " FMT_D ", " FMT_D"): "
+                      "seconds or micro_seconds not in allowed range.\n",
+                      sock, seconds, micro_seconds););
       raise_error(RANGE_ERROR);
       result = FALSE;
     } else {
       pollFd[0].fd = (int) sock;
       pollFd[0].events = POLLIN;
-      poll_result = os_poll(pollFd, 1, (int) seconds * 1000 + (int) (micro_seconds / 1000));
+      timeout = (int) seconds * 1000 + (int) (micro_seconds / 1000);
+      poll_result = os_poll(pollFd, 1, timeout);
       if (unlikely(poll_result < 0)) {
-        logError(printf("socInputReady(%d): os_poll(...) failed:\n"
+        logError(printf("socInputReady(%d, " FMT_D ", " FMT_D "): "
+                        "os_poll([%d, POLLIN], 1, %d) failed:\n"
                         "errno=%d\nerror: %s\n",
-                        sock, ERROR_INFORMATION););
+                        sock, seconds, micro_seconds,
+                        sock, timeout,
+                        ERROR_INFORMATION););
         raise_error(FILE_ERROR);
         result = FALSE;
       } else {
@@ -1342,6 +1392,9 @@ boolType socInputReady (socketType sock, intType seconds, intType micro_seconds)
                        sock, seconds, micro_seconds););
     if (unlikely(seconds < 0 || seconds >= LONG_MAX ||
                  micro_seconds < 0 || micro_seconds >= 1000000)) {
+      logError(printf("socInputReady(%d, " FMT_D ", " FMT_D"): "
+                      "seconds or micro_seconds not in allowed range.\n",
+                      sock, seconds, micro_seconds););
       raise_error(RANGE_ERROR);
       result = FALSE;
     } else {
@@ -1354,9 +1407,12 @@ boolType socInputReady (socketType sock, intType seconds, intType micro_seconds)
       select_result = select(nfds, &readfds, NULL, NULL, &timeout);
       /* printf("select_result: %d\n", select_result); */
       if (unlikely(select_result < 0)) {
-        logError(printf("socInputReady(%d): select(...) failed:\n"
+        logError(printf("socInputReady(%d, " FMT_D ", " FMT_D "): "
+                        "select(%d, [%d], NULL, NULL, [" FMT_D ", " FMT_D "]) failed:\n"
                         "errno=%d\nerror: %s\n",
-                        sock, ERROR_INFORMATION););
+                        sock, seconds, micro_seconds,
+                        ndfs, sock, seconds, micro_seconds,
+                        ERROR_INFORMATION););
         raise_error(FILE_ERROR);
         result = FALSE;
       } else {
@@ -1612,6 +1668,9 @@ void socListen (socketType listenerSocket, intType backlog)
   { /* socListen */
     logFunction(printf("socListen(%d, " FMT_D ")\n", listenerSocket, backlog););
     if (!inIntRange(backlog)) {
+      logError(printf("socListen(%d, " FMT_D "): "
+                      "backlog not in allowed range.\n",
+                      listenerSocket, backlog););
       raise_error(RANGE_ERROR);
     } else if (unlikely(listen((os_socketType) listenerSocket,
                                (int) backlog) != 0)) {
@@ -1634,6 +1693,9 @@ intType socRecv (socketType sock, striType *stri, intType length, intType flags)
 
   /* socRecv */
     if (unlikely(length < 0 || !inIntRange(flags))) {
+      logError(printf("socRecv(%d, *, " FMT_D ", 0x" FMT_X "): "
+                      "length or flags not in allowed range.\n",
+                      sock, length, flags););
       raise_error(RANGE_ERROR);
       return 0;
     } else {
@@ -1686,6 +1748,9 @@ intType socRecvfrom (socketType sock, striType *stri, intType length, intType fl
 
   /* socRecvfrom */
     if (unlikely(length < 0 || !inIntRange(flags))) {
+      logError(printf("socRecvfrom(%d, *, " FMT_D ", 0x" FMT_X "): "
+                      "length or flags not in allowed range.\n",
+                      sock, length, flags););
       raise_error(RANGE_ERROR);
       return 0;
     } else {
@@ -1774,6 +1839,9 @@ intType socSend (socketType sock, const const_striType stri, intType flags)
 
   /* socSend */
     if (unlikely(!inIntRange(flags))) {
+      logError(printf("socSend(%d, \"%s\", 0x" FMT_X "): "
+                      "flags not in allowed range.\n",
+                      sock, striAsUnquotedCStri(stri), flags););
       raise_error(RANGE_ERROR);
       result = 0;
     } else {
@@ -1811,6 +1879,10 @@ intType socSendto (socketType sock, const const_striType stri, intType flags,
 
   /* socSendto */
     if (unlikely(!inIntRange(flags))) {
+      logError(printf("socSendto(%d, \"%s\", 0x" FMT_X ", \"%s\"): "
+                      "flags not in allowed range.\n",
+                      sock, striAsUnquotedCStri(stri), flags,
+                      bstriAsUnquotedCStri(address)););
       raise_error(RANGE_ERROR);
       result = 0;
     } else {
@@ -1852,14 +1924,19 @@ void socSetOptBool (socketType sock, intType optname, boolType optval)
           if (setsockopt((os_socketType) sock,
                          SOL_SOCKET, SO_REUSEADDR,
                          (const char *) &so_reuseaddr, sizeof(so_reuseaddr)) != 0) {
-            logError(printf("socSetOptBool: setsockopt(%d, ...) failed:\n"
+            logError(printf("socSetOptBool(%d, " FMT_D ", %s): "
+                            "setsockopt(%d, ...) failed:\n"
                             "errno=%d\nerror: %s\n",
+                            sock, optname, optval ? "TRUE" : "FALSE",
                             sock, ERROR_INFORMATION););
             raise_error(FILE_ERROR);
           } /* if */
         }
         break;
       default:
+        logError(printf("socSetOptBool(%d, " FMT_D ", %s): "
+                        "Unsupperted option.\n",
+                        sock, optname, optval ? "TRUE" : "FALSE"););
         raise_error(RANGE_ERROR);
         break;
     } /* switch */
@@ -1876,6 +1953,9 @@ socketType socSocket (intType domain, intType type, intType protocol)
     logFunction(printf("socSocket(" FMT_D ", " FMT_D ", " FMT_D ")\n",
                        domain, type, protocol););
     if (!inIntRange(domain) || !inIntRange(type) || !inIntRange(protocol)) {
+      logError(printf("socSocket(" FMT_D ", " FMT_D ", " FMT_D "): "
+                      "domain, type or protocol not in allowed range.\n",
+                      domain, type, protocol););
       raise_error(RANGE_ERROR);
       result = 0;
     } else {
@@ -2004,7 +2084,7 @@ void socWrite (socketType outSocket, const const_striType stri)
     if (stri->size <= BUFFER_SIZE) {
       if (unlikely(memcpy_from_strelem(buffer, stri->mem, stri->size))) {
         logError(printf("socWrite(%d, \"%s\"): "
-                        "One of the characters does not fit into a byte.\n",
+                        "At least one character does not fit into a byte.\n",
                         outSocket, striAsUnquotedCStri(stri)););
         err_info = RANGE_ERROR;
         buf = NULL;
@@ -2017,8 +2097,9 @@ void socWrite (socketType outSocket, const const_striType stri)
       bstri = stri_to_bstri(stri, &err_info);
       if (unlikely(bstri == NULL)) {
         logError(printf("socWrite(%d, \"%s\"): "
-                        "Failed to create a temporary bstring.\n",
-                        outSocket, striAsUnquotedCStri(stri)););
+                        "Failed to create a temporary bstring.\n"
+                        "err_info=%d\n",
+                        outSocket, striAsUnquotedCStri(stri), err_info););
         buf = NULL;
         bytes_to_send = 0;
       } else {
